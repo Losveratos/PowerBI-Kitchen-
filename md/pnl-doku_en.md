@@ -668,7 +668,7 @@ The complete version history is in the [CHANGELOG](https://github.com/Losveratos
 
 **P&L Statement byDatenWG** · Version 1.5.3.0
 
-Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html)
+Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

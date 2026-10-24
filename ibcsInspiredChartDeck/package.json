@@ -6,7 +6,7 @@
     "type": "default_template_value",
     "url": "default_template_value"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "pbiviz": "pbiviz",
     "start": "pbiviz start",
@@ -14,7 +14,10 @@
     "lint": "npx eslint .",
     "test:render": "node test/build.js && node test/shot.js",
     "test:scale": "node test/build.js && node test/scale.js",
-    "test:notation": "node test/build.js && node test/scale.js notation.html"
+    "test:notation": "node test/build.js && node test/scale.js notation.html",
+    "test:export": "node test/build.js && node test/export-cases.js",
+    "guide": "node test/gen-agent-guide.js",
+    "guide:check": "node test/gen-agent-guide.js --check"
   },
   "dependencies": {
     "powerbi-visuals-api": "~5.11.0",

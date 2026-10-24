@@ -69,8 +69,9 @@ lokale Backups, `node_modules`.
 
 ## Lizenz
 
-Der Code in diesem Repository (inkl. der Power-BI-Custom-Visuals) steht unter der
-[MIT-Lizenz](LICENSE): Nutzung, Änderung und Weitergabe sind frei — auch kommerziell —,
+P&L Statement, dataKitchenGantt und die Website stehen unter der [MIT-Lizenz](LICENSE);
+ChartKitchen byDatenWG unter [Apache-2.0](ibcsInspiredChartDeck/LICENSE) (mit NOTICE zu Marken und
+Fremdcode, für die AppSource-Einreichung). Beides heißt: Nutzung, Änderung und Weitergabe sind frei — auch kommerziell —,
 solange der Autor-/Copyright-Hinweis (© Michael Tenner · PowerBI Kitchen) erhalten bleibt.
 Video-Inhalte gehören dem Daten-WG-Kanal. Die Visuals sind **IBCS-inspiriert**,
 nicht IBCS-zertifiziert; IBCS® ist eine Marke der IBCS Association.

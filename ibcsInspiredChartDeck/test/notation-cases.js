@@ -293,3 +293,29 @@ const over3 = list => list.filter(t => t.replace(/[^0-9]/g, "").length > 3);
   check(lbl.length >= 2 && !/^\+/.test(lbl[0]) && !/^\+/.test(lbl[lbl.length - 1]), "13: Anker (PY, AC) ohne Plus");
   check(lbl.slice(1, -1).some(t => /^\+\d/.test(t)) && lbl.slice(1, -1).some(t => /^−\d/.test(t)), "13: Stufen mit genau einem Vorzeichen");
 }
+
+// ---- 14 · 1.52.5 negative Brücken: Stufen in echter Höhe, eine Präzision, echtes Minus
+{
+  const sAc = [0.10, 0.20, 0.15, 0.30, 0.25, 0.40].map(v => v * M), sPy = [-0.40, -0.30, -0.35, -0.20, -0.25, -0.10].map(v => v * M);
+  run("N14", "C05 · PY-Verlust → AC-Gewinn (Split-Layout)", dataView(mon12.slice(0, 6), [col("actual", sAc, FMT, "EBIT AC"), col("previousYear", sPy, FMT, "EBIT PY")],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: true } }), 1100, 520);
+  const bricks = [...document.querySelectorAll("#N14 g.icd-cat")].map(g => [...g.querySelectorAll("rect")].find(x => [GOOD, BAD].includes(fill(x))));
+  const pyA = [...document.querySelectorAll("#N14 svg > g > rect")].filter(r => fill(r) === PY_C && !r.closest("g.icd-cat")).sort((a, b) => num(b, "height") - num(a, "height"))[0];
+  const kA = num(pyA, "height") / Math.abs(sPy.reduce((a, b) => a + b, 0));
+  const dY = sAc.map((v, i) => v - sPy[i]);
+  const dev = bricks.map((b, i) => b ? Math.abs(num(b, "height") - Math.max(1, Math.abs(dY[i]) * kA)) : 99);
+  measure(`N14 Stufen: ${bricks.map(b => b ? r2(num(b, "height")) : "–").join(" ")} px · Soll ${dY.map(d => r2(Math.abs(d) * kA)).join(" ")} px`);
+  check(Math.max(...dev) < 0.6, "14: negative integrierte Brücke — Stufen in echter Höhe auf der Ankerskala");
+  const anchorsT = [...document.querySelectorAll("#N14 svg > g > text")].filter(t => !t.closest("g.icd-cat") && /^[+−-]?\d[\d.]*(,\d+)?K$/.test(t.textContent.trim()) && t.getAttribute("y") && !/[+]/.test(t.textContent));
+  const stepsT = [...document.querySelectorAll("#N14 g.icd-cat text")].filter(t => /^[+−]\d/.test(t.textContent.trim()) && !/%$/.test(t.textContent));
+  const lbl = [...anchorsT, ...stepsT].map(t => t.textContent.trim());
+  measure(`N14 Brückenlabels: ${lbl.join(" ")}`);
+  check(stepsT.length === 6 && lbl.every(t => decs(t) === decs(lbl[0])), "14: Anker und Stufen mit gleichen Dezimalen (auch negativ)");
+
+  const cats = ["Personal", "Material", "Energie", "Miete"];
+  run("N14b", "C06 · Kostenbrücke rein negativ", dataView(cats, [col("actual", [-2.6, -1.9, -0.7, -0.35].map(v => v * M), FMT, "Kosten AC"), col("previousYear", [-2.4, -2.0, -0.55, -0.35].map(v => v * M), FMT, "Kosten PY")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns" } }), 1000, 460);
+  const st = [...document.querySelectorAll("#N14b g.icd-cat text")].map(t => t.textContent.trim()).filter(t => /^[+−-]\d/.test(t) && !/%$/.test(t));
+  measure(`N14b Stufen: ${st.join(" ")}`);
+  check(st.length === 3 && st.filter(t => t[0] !== "+").every(t => t.charCodeAt(0) === 0x2212), "14: negative Stufen mit echtem Minus (U+2212)");
+}

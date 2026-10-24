@@ -1,5 +1,48 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.53.0.0 (2026-10-24)
+
+**Review-Paket: Zeilenstruktur als Datenvertrag, negative Brücken, Export-Layout, generierte Property-Referenz.
+Keine neue Datenrolle, keine neue Formatoption; bestehende Berichte zeichnen unverändert (SVG-Vergleich über alle
+Altfälle). Metadaten zeigen jetzt auf das Monorepo; Lizenzfeld im Paket sagt wie die LICENSE-Datei Apache-2.0.**
+
+- **Zeilenstruktur per Rolle „Waterfall-Typ" (rowType) statt Zeilennamen.** Je Zeile ein oder mehrere Token,
+  getrennt durch Komma, Semikolon, Leerzeichen oder |: `total` (Ergebniszeile), `pct` (Margenzeile), `exclude`
+  (nicht in Σ), `hide` (ausblenden), `davon` (eingerückt), `invert` (Wertung umkehren), `emphasize` (hervorheben),
+  `graphic` (nur diese Zeilen mit Grafik) — dazu deutsche Aliasse (Summe, Ergebnis, nachrichtlich, ausblenden,
+  Kosten, hervorheben, Grafik …) und die RowType-Werte des P&L Statement byDatenWG (Subtotal, Formula, KPI,
+  Account), sodass eine Kontendimension beide Visuals speist. Umbenennen oder Übersetzen von Zeilen bricht die
+  Struktur nicht mehr. Die sieben Komma-Listen bleiben als Override; wirksam ist die Vereinigung aus Rolle und
+  Liste, per Token gesetzte Häkchen erscheinen im Struktur-Modus gesperrt. Unbekannte Token werden ignoriert und
+  im Bearbeitungsmodus unten rechts genannt; Leser und Exporte sehen nichts. Tests c248–c257.
+- **Negative Brücken.** Integrierte Brücke (C05) und Kategorie-Brücke (C06) zeichnen negative Werte, statt auf
+  einen Hinweis auszuweichen. Verlustmonate hängen unter der Nulllinie; liegt ein Anker oder Kaskadenstand unter
+  null (Vorjahresverlust → Gewinn, Kostenreihe als negative Beträge), bekommt die Kaskade eine eigene sichtbare
+  Nulllinie mit vollen Ankerbalken nach oben oder unten, die Stufen schwebend in echter Höhe — auch eine Stufe,
+  die die Null kreuzt (+2 → −5 → −3); die Monatssäulen stehen dann in einem eigenen Streifen darunter.
+  Kategorie-Brücke mit rein negativen Summen: Nulllinie rechts (Balken) bzw. oben (Säulen), Beschriftungen außen,
+  Färbung nach Vorzeichen-Logik, „Invertieren" wirkt wie gewohnt; läuft die Kaskade durch die eigenen Balken
+  einer Zeile, zeigt diese Zeile Balken oben und Stufe unten statt übermalter Balken. Small Multiples mit
+  „Gleiche Skala": eine negative Kachel bestimmt die gemeinsame Nulllinie. „Anker kürzen" spiegelt bei rein
+  negativen Brücken unter die Nulllinie; über die Null hinweg wird nie geschnitten. Tests c239–c247.
+- **Export-Layout (Desktop-PDF, Druck; Service-Export nach Zertifizierung).** Neue Prüfsuite `npm run test:export`:
+  Monatssäulen + Δ, Struktur-Balken, Kategorie-Brücke, GuV-Wasserfall und Matrix mit YTD-Spalte, je als
+  A4-quer-Kachel (1100×620), halbe Seite (540×620) und PowerPoint-Kachel (960×540), in HD und Full HD. Im
+  nicht-interaktiven Kontext sind Datenmarken nicht mehr fokussierbar, Aufklapp-Pfeile entfallen bei „Export: alles
+  aufklappen", und der Export schreibt nichts zurück. Zu lange Titel brechen auf eine zweite Zeile um.
+  Balken-Panels reservieren Platz nach der breitesten Beschriftung, das Δ%-Panel wird bei Bedarf breiter („+43,3 %"
+  läuft nicht mehr über den Rand). Kategorie-Brücke: negative Werte schreiben nicht mehr in die Treibernamen, lange
+  Namen brechen zweizeilig um. GuV-Wasserfall: zweizeilige Positionsnamen mit Trennung an Wortfugen
+  („Jahres-/überschuss"), sich überlagernde Werte werden aufgelöst (Summen und große Schritte haben Vorrang),
+  Δ-Stufen weichen dem Panel-Titel aus. Matrix: Passen die aufgeklappten Monate nicht in die Kachel, fällt der
+  Export auf den Aufklappzustand des Berichts und dann auf zugeklappte Quartalsblöcke zurück, statt Quartale
+  abzuschneiden; der Hinweis „… +n" steht im Kopf der Namensspalte.
+- **AGENT-GUIDE aus dem Paket.** Die Property-Referenz wird mit `npm run guide` aus capabilities.json und
+  settings.ts erzeugt (`guide:check` schlägt bei Drift an); 17 Properties und vier Rollen, die nur in
+  „Neu-in"-Absätzen standen, sind damit wieder in der Referenz.
+- **Website:** neue Seite „Sicherheit & Betrieb" (visuals-sicherheit.html, DE/EN) — Datenfluss, `privileges: []`,
+  Freigabe als Organisationsvisual, Export-Grenzen unzertifizierter Visuals, Admin-Checkliste.
+
 ## 1.52.4.0 (2026-10-23)
 
 **Größen-Preset heißt jetzt wie in der Produktfamilie: HD · Full HD · UHD. Nur Labels, keine neue Option —

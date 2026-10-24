@@ -186,7 +186,7 @@ const FIELD_INTRO_SECTIONS: { key: string; en: string; roles: [string, string, s
         ["colgroup", "FI_ColGroup", "Matrix columns, e.g. quarter"],
         ["trend", "FI_Trend", "Time axis inside KPI cards"]] },
     { key: "FI_SecSpecial", en: "Special", roles: [
-        ["rowType", "FI_RowType", "P&L row type sum/delta/pct"],
+        ["rowType", "FI_RowType", "Row type: sum/pct + tokens (invert, hide …)"],
         ["lineMeasure", "FI_Line", "2nd measure as line (margin)"],
         ["xValue", "FI_XValue", "X axis of the scatter"],
         ["xPrevious", "FI_XPrev", "X prior year → motion arrows"],
@@ -228,6 +228,66 @@ type Basis = "py" | "plan" | "fcrev";
 
 /** persisted comma lists editable via the one-click structure menu */
 type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartList" | "indentList";
+
+/**
+ * 1.53 rowType tokens: the "Waterfall type" role carries the row structure as data
+ * (names are no data contract). A cell holds one or more tokens, separated by
+ * comma, semicolon, whitespace or "|", case-insensitive. Structure tokens set the
+ * legacy rowType ("sum" anchor / "pct" margin row); flag tokens feed the same name
+ * sets as the comma lists (union — the lists stay as an override). "none" tokens
+ * mark an ordinary movement row. Aliases follow the P&L visual's parseRowType, so
+ * one DimKonto[RowType] column can feed both visuals.
+ */
+type RowFlag = "invert" | "emphasize" | "exclude" | "hide" | "davon" | "graphic";
+const ROW_FLAGS: RowFlag[] = ["invert", "emphasize", "exclude", "hide", "davon", "graphic"];
+const ROW_TOKENS: Record<string, RowFlag | "total" | "pct" | "none"> = {
+    total: "total", sum: "total", subtotal: "total", summe: "total", ergebnis: "total",
+    zwischensumme: "total", result: "total", formula: "total", formel: "total",
+    pct: "pct", percent: "pct", prozent: "pct", margin: "pct", marge: "pct", kpi: "pct",
+    ratio: "pct", quote: "pct", kennzahl: "pct",
+    exclude: "exclude", memo: "exclude", nachrichtlich: "exclude", ausnehmen: "exclude",
+    hide: "hide", ausblenden: "hide", versteckt: "hide",
+    davon: "davon", "of-which": "davon", ofwhich: "davon", thereof: "davon",
+    invert: "invert", invertieren: "invert", kosten: "invert", cost: "invert", costs: "invert",
+    emphasize: "emphasize", highlight: "emphasize", hervorheben: "emphasize",
+    graphic: "graphic", chart: "graphic", grafik: "graphic",
+    detail: "none", normal: "none", delta: "none", account: "none", konto: "none",
+    separator: "none", "+": "none", "-": "none", "−": "none"
+};
+interface RowTypeParse {
+    /** legacy rowType of the DataPoint: "sum…" | "pct…" | other text = movement row;
+     *  null = the cell carries flag tokens only (no structure statement) */
+    rowType: string | null;
+    flags: RowFlag[];
+    unknown: string[];
+}
+/** parses one non-null rowType cell. Values ≤ 1.52 (sum…/pct…/delta/anything) keep
+ *  exactly their old rowType string — the whole-value prefix rule decides first */
+function parseRowTypeCell(raw: unknown): RowTypeParse {
+    const s = String(raw).toLowerCase();
+    const tokens = s.split(/[\s,;|]+/).filter(t => t !== "");
+    const flags: RowFlag[] = [];
+    const unknown: string[] = [];
+    let struct: "sum" | "pct" | null = null;
+    // an empty cell or any non-flag token is a structure statement (≤ 1.52: every
+    // non-null value made the row a P&L row)
+    let structural = tokens.length === 0;
+    for (const t of tokens) {
+        const k = ROW_TOKENS[t] ?? (t.startsWith("sum") ? "total" : t.startsWith("pct") ? "pct" : undefined);
+        if (k === undefined) { unknown.push(t); structural = true; continue; }
+        if (k === "total" || k === "pct") {
+            structural = true;
+            if (struct == null) { struct = k === "total" ? "sum" : "pct"; }
+        } else if (k === "none") {
+            structural = true;
+        } else if (!flags.includes(k)) {
+            flags.push(k);
+        }
+    }
+    const rowType = s.startsWith("sum") || s.startsWith("pct") ? s
+        : struct ?? (structural ? s : null);
+    return { rowType, flags, unknown };
+}
 
 /** Smart-Start: one high-confidence mode suggestion derived from bound fields */
 interface SmartStartSuggestion {
@@ -352,6 +412,9 @@ interface Domains {
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
+/** label room of a value panel per side (bars: px left of zero / right of the
+ *  largest value) — measured from the label texts instead of the font size */
+interface PanelPad { lo: number; hi: number; }
 
 interface Scale { (v: number): number; }
 
@@ -465,8 +528,10 @@ interface ChartConfig {
     deltaIcons: boolean;
     /** scenario display labels — house terms via the pane ("AC"→"Ist" …), defaults IBCS */
     scenL: { ac: string; py: string; pl: string; fc: string };
-    /** small multiples: shared integrated-bridge maxima over all tiles (null = per-tile scale) */
-    sharedIntWf: { maxTot: number; maxMon: number; maxPct: number } | null;
+    /** small multiples: shared integrated-bridge range over all tiles (null = per-tile scale);
+     *  minTot < 0 when a total or cascade level dips below zero, neg = any negative
+     *  value in the deck (then every tile draws the split layout, 1.52.5) */
+    sharedIntWf: { maxTot: number; minTot: number; maxMon: number; maxPct: number; neg: boolean } | null;
     /** small multiples: shared category-bridge range over all tiles (null = per-tile scale);
      *  minV < 0 only when a cascade level or row value dips below zero */
     sharedCatBridge: { maxV: number; minV: number; maxPct: number } | null;
@@ -1050,6 +1115,13 @@ export class Visual implements IVisual {
      *  current orientation's own filtering of those fields */
     private paneHasRowType = false;
     private paneHasColgroup = false;
+    /** 1.53 rowType flag tokens per flag: normalized row names (lower-case, trimmed
+     *  and raw; with a hierarchy also the leaf label) — united with the comma lists */
+    private rowFlagNames = new Map<RowFlag, Set<string>>();
+    /** same, one entry per flagged row (joined, trimmed) — counts for the footer */
+    private rowFlagRows = new Map<RowFlag, Set<string>>();
+    /** distinct unknown rowType tokens of the last parse (shown as a subtle note) */
+    private rowTypeUnknown: string[] = [];
     /** Smart-Start: distinct category count + time-likeness of the primary category field,
      *  and its display name (used in the dismiss signature) — computed once in parseData */
     private smartStartCatCount = 0;
@@ -1384,6 +1456,7 @@ export class Visual implements IVisual {
             this.finishChips();
             this.applyChipMenu();
             this.drawLoadState(width, height);
+            this.drawRowTypeNote(width, height);
             this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
             this.updateChipBar();
             // an update under the open overlay re-draws the chart hidden underneath
@@ -1406,6 +1479,7 @@ export class Visual implements IVisual {
         this.finishChips();
         this.applyChipMenu();
         this.drawLoadState(this.lastRender.width, this.lastRender.height);
+        this.drawRowTypeNote(this.lastRender.width, this.lastRender.height);
         this.applySelectionOpacity(this.selectionManager.getSelectionIds() as ISelectionId[]);
         this.updateChipBar();
     }
@@ -1457,6 +1531,9 @@ export class Visual implements IVisual {
         const props: Record<string, TplValue> = { ...(CHART_TEMPLATES[tpl] ?? {}) };
         if (withTemplate) { props["template"] = tpl; }
         for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
+        // export/print contexts render the template locally but never write back
+        // (no persistProperties from a static render; the next edit session applies it)
+        if (!this.allowInteractions) { return; }
         this.templatePending = { applied: tpl, props, ttl: 5 };
         this.templateSessionTpl = tpl;
         this.host.persistProperties({
@@ -1553,6 +1630,35 @@ export class Visual implements IVisual {
             fill: fg, "font-family": FONT
         }, g);
         t.textContent = this.truncate(text, w - 10, f);
+    }
+
+    /** 1.53: unknown rowType tokens are ignored, but never silently — one subtle
+     *  italic line bottom right (above the load state), edit mode only: a typo in
+     *  the model is the author's to fix, readers and exports stay clean */
+    private drawRowTypeNote(width: number, height: number): void {
+        if (this.rowTypeUnknown.length === 0 || !this.allowInteractions
+            || this.viewMode === 0 /* powerbi.ViewMode.View */) { return; }
+        const shown = this.rowTypeUnknown.slice(0, 3).map(t => `„${t}“`).join(" · ")
+            + (this.rowTypeUnknown.length > 3 ? ` +${this.rowTypeUnknown.length - 3}` : "");
+        const text = this.locStr("Note_RowTypeUnknown", "Waterfall type: unknown entry ignored — {0}")
+            .replace("{0}", shown);
+        const dk = this.uiDark;
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette;
+        const hc = !!(palette && palette.isHighContrast);
+        const fg = hc ? palette.foreground.value : dk ? DARK_SUBTLE : "#6E6E6E";
+        const bg = hc ? palette.background.value : dk ? this.darkPaper() : "#FFFFFF";
+        const f = Math.round(9 * this.fontK);
+        const loadUp = this.awaitingSegment || this.hostCapped || this.selfCapped
+            ? Math.round(9.5 * this.fontK) + 10 : 0;
+        const g = this.el("g", { "data-icd": "rowtype-note" }, this.svg);
+        const tip = this.el("title", {}, g);
+        tip.textContent = `${text} (${this.rowTypeUnknown.join(", ")})`;
+        const t = this.el("text", {
+            x: width - 8, y: height - 6 - loadUp, "text-anchor": "end", "font-size": f,
+            fill: fg, "font-family": FONT, "font-style": "italic",
+            stroke: bg, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
+        }, g);
+        t.textContent = this.truncate(text, Math.max(40, width - 16), f);
     }
 
     // ------------------------------------------------------------ locked chips (1.49)
@@ -1738,10 +1844,23 @@ export class Visual implements IVisual {
 
     // ------------------------------------------------------------------ data
 
+    /** 1.53: a comma list (case-insensitive names) united with the rows that carry
+     *  the matching rowType flag token — the list stays an override for models
+     *  without the role, the role is the data contract */
+    private listWithFlag(list: string, flag: RowFlag | null): Set<string> {
+        const out = new Set(String(list || "").split(",").map(x => x.trim().toLowerCase()).filter(x => x));
+        const names = flag ? this.rowFlagNames.get(flag) : undefined;
+        if (names) { for (const n of names) { out.add(n); } }
+        return out;
+    }
+
     private missingHint: string | null = null;
 
     private parseData(dataView: DataView | undefined): DataPoint[] | null {
         this.missingHint = null;
+        this.rowFlagNames = new Map();
+        this.rowFlagRows = new Map();
+        this.rowTypeUnknown = [];
         const catCols = dataView?.categorical?.categories;
         // with drilldown, "expand all" delivers several category-role columns (one per level)
         const catLevels = catCols?.filter(c => c.source.roles?.["category"]) ?? [];
@@ -1894,6 +2013,7 @@ export class Visual implements IVisual {
         const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
         // without a category the measures deliver a single scalar row each
         const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
+        let rtCells = 0, rtFlagOnly = 0;
         for (let i = 0; i < rowCount; i++) {
             if (hideBlank && catLevels.length > 0 && catLevels.every(l => {
                 const v = l.values[i];
@@ -1944,6 +2064,32 @@ export class Visual implements IVisual {
             if (levelLabels.length === 0) {
                 levelLabels.push(this.measureName ?? this.locStr("Role_Actual", "Actual (AC)"));
             }
+            // 1.53 rowType tokens: structure → rowType, flags → name sets (union with
+            // the comma lists in render). The flags belong to the row that carries the
+            // value — with a hierarchy the leaf, matched by its joined path (Σ bases)
+            // and by its own label (the displayed tree row), like the lists
+            const rtRaw = rowTypeCol ? rowTypeCol.values[i] : null;
+            const rtParse = rtRaw != null ? parseRowTypeCell(rtRaw) : null;
+            if (rtParse) {
+                rtCells++;
+                if (rtParse.rowType == null) { rtFlagOnly++; }
+                for (const u of rtParse.unknown) {
+                    if (!this.rowTypeUnknown.includes(u)) { this.rowTypeUnknown.push(u); }
+                }
+                const joined = levelLabels.join(" · ");
+                const leaf = levelLabels[levelLabels.length - 1];
+                for (const f of rtParse.flags) {
+                    let names = this.rowFlagNames.get(f);
+                    if (!names) { names = new Set(); this.rowFlagNames.set(f, names); }
+                    let rows = this.rowFlagRows.get(f);
+                    if (!rows) { rows = new Set(); this.rowFlagRows.set(f, rows); }
+                    for (const n of [joined, leaf]) {
+                        names.add(n.toLowerCase());
+                        names.add(n.trim().toLowerCase());
+                    }
+                    rows.add(joined.trim().toLowerCase());
+                }
+            }
             points.push({
                 cat: levelLabels.join(" · "),
                 catLevels: levelLabels.length > 1 ? levelLabels : null,
@@ -1966,13 +2112,15 @@ export class Visual implements IVisual {
                 comment,
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
-                rowType: rowTypeCol && rowTypeCol.values[i] != null
-                    ? String(rowTypeCol.values[i]).toLowerCase() : null,
+                rowType: rtParse ? rtParse.rowType : null,
                 isRest: false,
                 dim: anyHighlights && !hlRows[i],
                 sel: catLevels.length > 0 || mult ? selBuilder.createSelectionId() : null
             });
         }
+        // a role that carries flag tokens only (invert/emphasize … on KPI cards) makes
+        // no P&L structure statement — no "P&L waterfall?" suggestion for it
+        if (rtCells > 0 && rtFlagOnly === rtCells) { this.paneHasRowType = false; }
         // merge user-entered comments (persisted via the in-chart editor) and renumber;
         // with a stack series the same category repeats — only its first point gets the marker
         if (this.userComments.size > 0) {
@@ -2510,6 +2658,9 @@ export class Visual implements IVisual {
     private maybeAutoExpand(dataView: DataView | undefined): void {
         const s = this.formattingSettings;
         if (!s.chartCard.autoExpandHierarchy.value) { return; }
+        // export/print renders show the report state as saved — a drill request
+        // from there would re-query behind a picture that is already final
+        if (!this.allowInteractions) { return; }
         const orient = String(s.chartCard.orientation.value.value);
         if (orient !== "table" && orient !== "pnl") { return; }
         const drillable = dataView?.metadata?.dataRoles?.drillableRoles?.["category"];
@@ -3200,7 +3351,10 @@ export class Visual implements IVisual {
                 const on = roles.has(u.role);
                 const row = this.el("g", { "data-fi-row": u.role }, g);
                 const tt = this.el("title", {}, row);
-                tt.textContent = `${on ? "✓ " : ""}${name} — ${purpose}`;
+                // 1.53: the row type's token list lives in the tooltip (the row is one line)
+                const more = u.role === "rowType" ? ` · ${this.locStr("FI_RowTypeTokens",
+                    "tokens per row, combinable: total · pct · exclude · hide · davon · invert · emphasize · graphic — replace the comma lists")}` : "";
+                tt.textContent = `${on ? "✓ " : ""}${name} — ${purpose}${more}`;
                 const mark = txt(row, cx, p.y, on ? "✓" : "○", fB, on ? c.teal : c.subtle, true, 16);
                 mark.setAttribute("data-fi", u.role);
                 mark.setAttribute("data-on", on ? "1" : "0");
@@ -5408,10 +5562,10 @@ export class Visual implements IVisual {
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
         // for structured P&L rows (sum/delta/pct): those are accounts, not periods
-        const parseList = (v: string) => new Set(String(v || "")
-            .split(",").map(x => x.trim().toLowerCase()).filter(x => x));
-        const listResult = parseList(String(s.chartCard.resultList.value));
-        const listSkip = parseList(String(s.chartCard.skipList.value));
+        // 1.53: comma list ∪ rowType token rows (the role is the contract, the list
+        // stays an override); "total" tokens arrive as rowType "sum" instead
+        const listResult = this.listWithFlag(String(s.chartCard.resultList.value), null);
+        const listSkip = this.listWithFlag(String(s.chartCard.skipList.value), "exclude");
         const listPnl = orientationRaw === "table" && (listResult.size > 0 || listSkip.size > 0)
             && points.some(p => listResult.has(p.cat.trim().toLowerCase())
                 || listSkip.has(p.cat.trim().toLowerCase()));
@@ -5600,8 +5754,7 @@ export class Visual implements IVisual {
             invert: s.chartCard.invert.value,
             isGood: (() => {
                 const inv = s.chartCard.invert.value;
-                const invSet = new Set(String(s.chartCard.invertList.value || "")
-                    .split(",").map(x => x.trim().toLowerCase()).filter(x => x));
+                const invSet = this.listWithFlag(String(s.chartCard.invertList.value), "invert");
                 return (v: number, pp?: DataPoint | null) =>
                     (inv !== (pp != null && invSet.has(pp.cat.toLowerCase()))) ? v < 0 : v > 0;
             })(),
@@ -5630,8 +5783,7 @@ export class Visual implements IVisual {
             faint: hc ? fg : dark ? DARK_FAINT : FAINT,
             wash: hc ? bgc : dark ? DARK_WASH : WASH,
             band: hc ? bgc : dark ? DARK_BAND : BAND,
-            highlight: new Set(String(s.chartCard.highlight.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            highlight: this.listWithFlag(String(s.chartCard.highlight.value), "emphasize"),
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
                 ? s.scaleCard.fixedMax.value : null,
             cumulative: cumulativeOn,
@@ -5680,16 +5832,11 @@ export class Visual implements IVisual {
             patBad: `icd-hatch-bad-${this.instanceId}`,
             patPrelim: `icd-prelim-${this.instanceId}`,
             valueCols: String(s.chartCard.valueColumns.value.value),
-            resultSet: new Set(String(s.chartCard.resultList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            skipSet: new Set(String(s.chartCard.skipList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            hideSet: new Set(String(s.chartCard.hideList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            chartSet: new Set(String(s.chartCard.chartList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
-            indentSet: new Set(String(s.chartCard.indentList.value || "")
-                .split(",").map(x => x.trim().toLowerCase()).filter(x => x)),
+            resultSet: listResult,
+            skipSet: listSkip,
+            hideSet: this.listWithFlag(String(s.chartCard.hideList.value), "hide"),
+            chartSet: this.listWithFlag(String(s.chartCard.chartList.value), "graphic"),
+            indentSet: this.listWithFlag(String(s.chartCard.indentList.value), "davon"),
             rowFmt: this.parseRowFormats(String(s.chartCard.rowFormats.value || "")),
             matrixCompare: String(s.chartCard.matrixCompare.value.value),
             totalPos: String(s.chartCard.totalRowPosition.value.value),
@@ -5932,35 +6079,39 @@ export class Visual implements IVisual {
         // The maxima mirror exactly what the renderers compute per tile.
         if (groups.length > 1 && s.chartCard.multiplesSameScale.value) {
             if (isIntWf) {
-                let maxTot = 1, maxMon = 1, maxPct = 1;
+                let maxTot = 0, minTot = 0, maxMon = 1, maxPct = 1, neg = false;
                 // only tiles the renderer will actually draw may bound the shared
-                // scale: refused tiles (negative values → hint, no basis → hint)
-                // and groups beyond the grid cap would silently squash the rest
+                // scale: refused tiles (no basis → hint) and groups beyond the grid
+                // cap would silently squash the rest. 1.52.5: negative tiles are
+                // drawn — they extend the range below zero, and one negative value
+                // anywhere puts EVERY tile into the split layout (cascade with its
+                // own zero line, monthly strip below), so all keep one px per unit
                 for (const g of groups.slice(0, MULT_MAX_CELLS)) {
-                    if (g.pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) { continue; }
                     if (!g.pts.some(p => p.varAbs != null)) { continue; }
                     const basisSum = g.pts.reduce((a, p) => a + (p.basis ?? 0), 0);
                     const vTot = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
-                    const pySum = g.pts.reduce((a, p) => a + (p.py ?? 0), 0);
-                    const plSum = g.pts.reduce((a, p) => a + (p.pl ?? 0), 0);
-                    const twoTotals = g.pts.some(p => p.py != null) && g.pts.some(p => p.pl != null);
-                    // running cascade peaks bound the scale too (S4) — mirrors the renderer
-                    maxTot = Math.max(maxTot, basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0,
-                        this.intWfPeak(g.pts));
+                    // totals + running cascade levels (S4) — mirrors the renderer
+                    const r = this.intWfRange(g.pts);
+                    maxTot = Math.max(maxTot, r.hi);
+                    minTot = Math.min(minTot, r.lo);
                     for (const p of g.pts) {
                         maxMon = Math.max(maxMon, p.value ?? 0, p.basis ?? 0,
                             cfg.pyTriangle ? (p.py ?? 0) : 0);
                         maxPct = Math.max(maxPct, Math.abs(p.varRel ?? 0));
+                        if ((p.value ?? 0) < 0 || (p.basis ?? 0) < 0 || (cfg.pyTriangle && (p.py ?? 0) < 0)) { neg = true; }
                     }
                     const totPct = relVar(vTot - basisSum, basisSum);
                     if (totPct != null) { maxPct = Math.max(maxPct, Math.abs(totPct)); }
                 }
-                cfg.sharedIntWf = { maxTot, maxMon, maxPct };
+                if (minTot < 0) { neg = true; } else { maxTot = Math.max(maxTot, 1); }
+                cfg.sharedIntWf = { maxTot, minTot, maxMon, maxPct, neg };
             }
             if (isCatBridge) {
-                let maxV = 1, minV = 0, maxPct = 1;
-                // mirror the renderer's refusals (no PY/PL basis, all-negative
-                // totals) and the grid cap — hint tiles must not bound the scale
+                let maxV = 0, minV = 0, maxPct = 1;
+                // mirror the renderer's refusal (no PY/PL basis) and the grid cap —
+                // hint tiles must not bound the scale. 1.52.5: purely negative tiles
+                // are drawn and bound it like all others (one negative region next
+                // to positive ones moves every tile's zero line by the same amount)
                 for (const g of groups.slice(0, MULT_MAX_CELLS)) {
                     const hasPy = g.pts.some(p => p.py != null);
                     const hasPl = g.pts.some(p => p.pl != null);
@@ -5970,15 +6121,13 @@ export class Visual implements IVisual {
                     const ACt = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
                     const refIsPl = cfg.basisMode === "plan" && hasPl;
                     const REF = refIsPl ? PLt : PYt;
-                    const hasOther = refIsPl ? hasPy : hasPl;
-                    const otherTot = refIsPl ? PYt : PLt;
-                    if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) { continue; }
                     // all totals present in a tile are drawn as rows → all bound the scale,
                     // and so do the running cascade levels and row bars (S3)
                     // the vertical cascade draws no per-category AC/PY bars — mirror that
                     const ext = this.catBridgeExtent(g.pts, refIsPl, hasPy, !cfg.catBridgeVertical);
-                    maxV = Math.max(maxV, PYt, PLt, ACt, ext[1]);
-                    minV = Math.min(minV, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
+                    const [lo, hi] = this.catBridgeDomain(g.pts, ext, null);
+                    maxV = Math.max(maxV, hi);
+                    minV = Math.min(minV, lo);
                     // n.a. rows (UN 4.1: zero basis / sign change) have no pin → no bound
                     maxPct = Math.max(maxPct, Math.abs(relVar(ACt - REF, REF) ?? 0));
                     for (const p of g.pts) {
@@ -5988,7 +6137,8 @@ export class Visual implements IVisual {
                         }
                     }
                 }
-                cfg.sharedCatBridge = { maxV, minV, maxPct };
+                // a deck that is zero throughout keeps [0, 1] (catBridgeDomain rule)
+                cfg.sharedCatBridge = { maxV: maxV > 0 || minV < 0 ? maxV : 1, minV, maxPct };
             }
         }
 
@@ -6162,7 +6312,10 @@ export class Visual implements IVisual {
                 filterParts.push(`⇅ ${lbl} ${sd === "asc" ? "▲" : "▼"}`);
             }
             if (isTable && cfg.skipSet.size > 0) {
-                filterParts.push(`Σ − ${cfg.skipSet.size}`);
+                // list entries ∪ token rows (the name set also holds raw/leaf spellings)
+                const skipN = new Set([...this.listWithFlag(String(s.chartCard.skipList.value), null),
+                    ...(this.rowFlagRows.get("exclude") ?? [])]).size;
+                filterParts.push(`Σ − ${skipN}`);
             }
             if (this.compareActive && this.compareCats.length === 2) {
                 filterParts.push(this.compareCats.join(" vs "));
@@ -6430,9 +6583,16 @@ export class Visual implements IVisual {
         const pad = 4;
         const k = this.fontK;
         const titleH = Math.round(14 * k);
-        const catArea = cfg.catFont + 10;
         const bandStart = region.x + pad + 2;
         const bandEnd = region.x + region.w - pad;
+        // P&L line names are long ("Sonstige betriebliche Aufwendungen") and a fixed
+        // export tile cannot reveal them on hover: when a name is wider than its slot,
+        // the category axis takes a second text line (word wrap, hyphenated compound)
+        const wfStep0 = (bandEnd - bandStart) / segs.length;
+        const catLineStep = Math.round(cfg.catFont * 1.15);
+        const wrapCats = segs.some(sg => this.textWidth(sg.label, cfg.catFont) > wfStep0 - 2)
+            && region.h >= 200 * k;
+        const catArea = cfg.catFont + 10 + (wrapCats ? catLineStep : 0);
         const outer: Rect = {
             x: region.x, y: region.y + pad,
             w: region.w, h: region.h - pad - catArea
@@ -6478,6 +6638,27 @@ export class Visual implements IVisual {
             ? [...varDomains.abs] as [number, number]
             : extent(tierPts.map(p => p?.varAbs ?? null));
 
+        // a positive Δ label under the tier title ("ΔPY" top left) would print over
+        // it — the tier then starts its bars one title height lower (same px per unit)
+        const wfN = segs.length, wfSlot = Math.max(2, wfStep0 * SLOT_ABS);
+        const tierTitleRight = region.x + 6
+            + this.textWidth(`Δ${cfg.basisLabel} ×10`, Math.round(10 * k), true) + 4;
+        const absUnderTitle = cfg.showLabels && tierPts.some((p, i) => {
+            if (p?.varAbs == null || p.varAbs <= 0 || i >= wfN) { return false; }
+            const c = bandStart + i * wfStep0 + wfStep0 / 2;
+            return c - this.textWidth(this.fmtSigned(cfg.fmtVar, p.varAbs), cfg.labelFont) / 2 < tierTitleRight
+                && wfSlot > 0;
+        });
+        const absPad: number | PanelPad = absUnderTitle
+            ? { lo: labelPad, hi: labelPad + titleH - 4 } : labelPad;
+        // same for the Δ% pins ("ΔPY %" title)
+        const relUnderTitle = cfg.showLabels && tierPts.some((p, i) => {
+            if (p?.varRel == null || p.varRel <= 0 || i >= wfN) { return false; }
+            const c = bandStart + i * wfStep0 + wfStep0 / 2;
+            return c - this.textWidth(this.fmtPercent(p.varRel), cfg.labelFont) / 2 < tierTitleRight;
+        });
+        const relPad: number | PanelPad = relUnderTitle
+            ? { lo: labelPad, hi: labelPad + titleH - 4 } : labelPad;
         let rect = outer;
         let relRect: Rect | null = null, absRect: Rect | null = null;
         // 1.52: the ΔBasis tier shares the waterfall's px per unit (IBCS: same scale
@@ -6495,7 +6676,7 @@ export class Visual implements IVisual {
                 const base = brk != null
                     ? { ov: labelPad + 14 + stubGuess, span: (Math.max(domain[1], brk) - brk) * 1.02 }
                     : this.panelGeom(domain, "columns", labelPad, false);
-                const tier = this.panelGeom(absDomain, "columns", labelPad, true);
+                const tier = this.panelGeom(absDomain, "columns", absPad, true);
                 const sp = this.sameScaleSplit(avail, base, [tier],
                     Math.max(10, Math.round(8 * k)));
                 const absH = sp ? sp.tierPlots[0] + tier.ov : Math.round(outer.h * 0.24);
@@ -6524,9 +6705,11 @@ export class Visual implements IVisual {
             const relDomain: [number, number] = varDomains
                 ? [...varDomains.rel] as [number, number]
                 : extent(tierPts.map(p => p?.varRel ?? null));
-            const relScale = this.makePanelScale(relDomain, relRect, "columns", labelPad, true);
+            const relScale = this.makePanelScale(relDomain, relRect, "columns", relPad, true);
             this.drawBaseline(tg, relRect, relScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
             this.drawPanelTitle(tg, relRect, `Δ${cfg.basisLabel} %`, "columns", titleH, region, undefined, cfg.subtle);
+            const relTitle = tg.lastElementChild as SVGTextElement;
+            const relLbls: { el: SVGTextElement; prio: number }[] = [];
             const zero = relScale(0);
             for (let i = 0; i < n; i++) {
                 const v = tierPts[i]?.varRel;
@@ -6550,16 +6733,20 @@ export class Visual implements IVisual {
                         relScale(v) - headR - cfg.labelFont, relRect.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(tg, c, v, v >= 0 && !flip, relScale, "columns", this.fmtPercent(v),
                         cfg.labelFont, cfg.ink, Math.round(2 * k), cfg.paper);
+                    relLbls.push({ el: tg.lastElementChild as SVGTextElement, prio: Math.abs(v) });
                 }
             }
+            this.declutterLabels(relLbls, [relTitle]);
         }
         // ΔBasis bars tier
         if (absRect) {
             const tg = this.el("g", {}, this.svg);
-            const absScale = this.makePanelScale(absDomain, absRect, "columns", labelPad, true);
+            const absScale = this.makePanelScale(absDomain, absRect, "columns", absPad, true);
             this.drawBaseline(tg, absRect, absScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
             this.drawPanelTitle(tg, absRect, `Δ${cfg.basisLabel}${wfZoom > 1 ? ` ×${wfZoom}` : ""}`,
                 "columns", titleH, region, undefined, cfg.subtle);
+            const absTitle = tg.lastElementChild as SVGTextElement;
+            const absLbls: { el: SVGTextElement; prio: number }[] = [];
             // magnified tier: scale band at the same value in tier and waterfall
             // (with an axis break the base band would sit in the squeezed stub — the
             // "×f" title alone marks the zoom there)
@@ -6580,8 +6767,10 @@ export class Visual implements IVisual {
                 if (showTierLabels) {
                     this.drawEndLabel(tg, pos(i) + slotW / 2, v, absScale, "columns",
                         this.fmtSigned(cfg.fmtVar, v), cfg.labelFont, cfg.ink, 0, cfg.paper);
+                    absLbls.push({ el: tg.lastElementChild as SVGTextElement, prio: Math.abs(v) });
                 }
             }
+            this.declutterLabels(absLbls, [absTitle]);
         }
 
         const bg = this.el("g", {}, this.svg);
@@ -6597,6 +6786,8 @@ export class Visual implements IVisual {
             title += ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(brk))}`;
         }
         this.drawPanelTitle(bg, rect, title, "columns", titleH, region, undefined, cfg.subtle);
+        const mainTitle = bg.lastElementChild as SVGTextElement;
+        const mainLbls: { el: SVGTextElement; prio: number }[] = [];
 
         // 1.52.1 (IBCS: one precision per chart): anchors and steps of the bridge
         // share their decimals ("1,83 · +1,17 · 3,00", not "1,8 · +1,17 · 3,0"); the
@@ -6663,15 +6854,130 @@ export class Visual implements IVisual {
                 }
                 this.drawEndLabelAt(g, pos(i) + slotW / 2, anchor, positive, scale,
                     "columns", text, cfg.labelFont, cfg.ink, 0, cfg.paper);
+                // anchors (sums, totals) win a collision, then the larger step
+                mainLbls.push({ el: g.lastElementChild as SVGTextElement,
+                    prio: (sg.kind === "anchor" ? 1e300 : 0) + Math.abs(sg.to - sg.from) });
             }
-            this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
-                region, step, rect, cfg.ink, this.isEmph(cfg, sg.label));
+            if (wrapCats) {
+                this.drawCatLabelTwoLines(g, sg.label, pos(i) + slotW / 2, region.y + region.h - 3,
+                    step - 2, cfg.catFont, catLineStep, cfg.ink, this.isEmph(cfg, sg.label));
+            } else {
+                this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
+                    region, step, rect, cfg.ink, this.isEmph(cfg, sg.label));
+            }
 
             if (sg.p) {
                 this.attachInteraction(g, sg.p, cfg);
                 this.catGroups.push({ g, sel: sg.p.sel, dim: sg.p.dim });
             }
         }
+        // fixed export tiles: value labels of neighbouring steps at similar heights
+        // (and the panel title) must not print over each other — the lower-ranked
+        // label of a colliding pair is dropped
+        this.declutterLabels(mainLbls, [mainTitle]);
+    }
+
+    /**
+     * drops value labels that would print over a higher-ranked label or one of the
+     * `fixed` texts (panel titles). Glyph boxes (bbox without most of the line
+     * leading) are compared; needs the SVG in the document — detached renders
+     * (scale measurement) keep every label.
+     */
+    private declutterLabels(items: { el: SVGTextElement; prio: number }[], fixed: SVGTextElement[] = []): void {
+        const boxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
+        const boxOf = (el: SVGTextElement) => {
+            let b: DOMRect;
+            try { b = el.getBBox(); } catch { return null; }
+            if (!(b.width > 0) || !(b.height > 0)) { return null; }
+            const sh = b.height * 0.18;
+            return { x0: b.x + 0.5, x1: b.x + b.width - 0.5, y0: b.y + sh, y1: b.y + b.height - sh };
+        };
+        for (const f of fixed) { const b = f ? boxOf(f) : null; if (b) { boxes.push(b); } }
+        const sorted = items.filter(it => it.el != null).sort((a, b) => b.prio - a.prio);
+        for (const it of sorted) {
+            const b = boxOf(it.el);
+            if (!b) { continue; }
+            const hit = boxes.some(o => Math.min(o.x1, b.x1) - Math.max(o.x0, b.x0) > 0.5
+                && Math.min(o.y1, b.y1) - Math.max(o.y0, b.y0) > 0.5);
+            if (hit) { it.el.remove(); } else { boxes.push(b); }
+        }
+    }
+
+    /** two-line category label under a column (bottom line at yBottom): word wrap,
+     *  a single compound word is hyphenated (finance stems first), the rest cut */
+    private drawCatLabelTwoLines(parent: SVGElement, text: string, cx: number, yBottom: number,
+        maxW: number, font: number, lineStep: number, ink: string, bold: boolean): void {
+        const t = this.el("text", {
+            x: cx, y: yBottom, "text-anchor": "middle", "font-size": font, fill: ink,
+            "font-family": FONT, "font-weight": bold ? 600 : 400
+        }, parent);
+        if (this.textWidth(text, font) <= maxW) { t.textContent = text; return; }
+        const [l1, l2] = this.splitLabel(text, maxW, font);
+        [[l1, yBottom - lineStep], [this.truncate(l2, maxW, font), yBottom]].forEach(([ln, ly]) => {
+            const ts = document.createElementNS(SVG_NS, "tspan");
+            ts.setAttribute("x", String(cx));
+            ts.setAttribute("y", String(ly));
+            ts.textContent = String(ln);
+            t.appendChild(ts);
+        });
+    }
+
+    /** splits a label for two lines: at a word boundary when the first words fit,
+     *  else one long word at a compound joint ("Jahres-überschuss", "Material-
+     *  aufwand") or, failing that, at the most balanced hyphenated character break */
+    private splitLabel(text: string, maxW: number, font: number): [string, string] {
+        const fits = (x: string) => this.textWidth(x, font) <= maxW;
+        const words = text.split(/\s+/).filter(w => w);
+        if (words.length > 1 && fits(words[0])) { return this.splitTwoLines(text, maxW, font); }
+        const word = words[0] ?? text;
+        const tail = words.slice(1).join(" ");
+        const after = (rest: string) => tail ? `${rest} ${tail}` : rest;
+        const lower = word.toLowerCase();
+        const STEMS = ["überschuss", "fehlbetrag", "ergebnis", "erlöse", "erträge", "ertrag", "aufwendungen",
+            "aufwand", "veränderung", "steuern", "kosten", "umsatz", "abschreibung", "zinsen", "vermögen",
+            "kapital", "rückstellung", "forderung", "verbindlichkeit", "beitrag", "marge", "leistung",
+            "income", "expense", "revenue", "margin", "profit"];
+        // compound joints from the finance stems: both halves fit → done
+        const joints: number[] = [];
+        for (const st of STEMS) {
+            const i = lower.indexOf(st, 3);
+            if (i >= 3 && word.length - i >= 3) { joints.push(i); }
+        }
+        joints.sort((a, b) => a - b);
+        for (const i of joints) {
+            const a = word.slice(0, i) + "-", b = word.slice(i);
+            if (fits(a) && fits(b)) { return [a, after(b)]; }
+        }
+        // the joint whose first half fits: rest of the second line cut ("Bestands-
+        // veränd…" reads better than a break one letter off the joint)
+        for (const i of joints.slice().reverse()) {
+            const a = word.slice(0, i) + "-";
+            if (fits(a)) { return [a, after(word.slice(i))]; }
+        }
+        // syllable-like joints first (break before consonant + vowel: "Abschrei-bungen"),
+        // then any position; never one or two letters off a compound joint
+        const V = /[aeiouäöüyáéíóú]/i;
+        for (const syl of [true, false]) {
+            let pick: [string, string] | null = null, pickW = Infinity;
+            for (let i = 3; i <= word.length - 3; i++) {
+                const a = word.slice(0, i) + "-", b = word.slice(i);
+                if (!fits(a)) { break; }
+                if (joints.some(jn => i !== jn && Math.abs(i - jn) <= 2)) { continue; }
+                if (syl && (V.test(word[i]) || !V.test(word[i + 1] ?? "") || !V.test(word[i - 1]))) { continue; }
+                const w = Math.max(this.textWidth(a, font), this.textWidth(b, font));
+                if (fits(b) && w < pickW) { pick = [a, after(b)]; pickW = w; }
+            }
+            if (pick) { return pick; }
+        }
+        // a joint exists but its first half is too wide: cut that half, keep the stem
+        if (joints.length > 0) {
+            const i = joints[joints.length - 1];
+            return [this.truncate(word.slice(0, i), maxW, font), after(word.slice(i))];
+        }
+        // nothing fits on two lines: the first line as much as fits, the rest cut
+        let i = word.length - 1;
+        while (i > 1 && !fits(word.slice(0, i) + "-")) { i--; }
+        return [word.slice(0, i) + "-", after(word.slice(i))];
     }
 
     /** scenario notation of a comparison-basis anchor bar (IBCS/ISO 24896): PY solid
@@ -6703,13 +7009,15 @@ export class Visual implements IVisual {
     private renderIntegratedWaterfall(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const n = pts.length;
         if (n === 0) { return; }
-        // the stacked totals and mini columns assume positive magnitudes — negative
-        // series would render negative rect heights; fail loudly instead of wrongly
-        if (pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) {
-            this.drawModeHint(region, cfg, this.locStr("Hint_IntWfNeg",
-                "Integrated bridge does not support negative values — use waterfall or columns + bridge"));
-            return;
-        }
+        // 1.52.5: negative values (loss months, a loss year as basis, a cascade that
+        // crosses zero) are drawn — until 1.52.4 they drew a hint. Two layouts:
+        // · "zero": every anchor and cascade level ≥ 0 — the classic form, the monthly
+        //   columns stand on the anchors' zero line; negative months hang below it in
+        //   a strip reserved above the category names (none without loss months)
+        // · "split": an anchor or level < 0 (or a same-scale multiples deck with any
+        //   negative value) — the cascade gets its own zero line inside its range, the
+        //   monthly columns a strip of their own at the bottom with a second zero
+        //   line (they could not share the space next to a cascade crossing zero)
         if (!pts.some(p => p.varAbs != null)) {
             this.drawModeHint(region, cfg, this.locStr("Hint_IntWfBasis", "Integrated bridge requires PY or PL as comparison basis"));
             return;
@@ -6765,61 +7073,109 @@ export class Visual implements IVisual {
         const cx = (i: number) => bandStart + i * step + step / 2;
         const cxTot = bandEnd + 10 + totW / 2;
 
-        // the running cascade can peak above both totals (+15, +15, then −8 ×4):
-        // the scale must hold that peak, or the bricks leave the plot (S4)
-        const maxTot = cfg.sharedIntWf?.maxTot
-            ?? Math.max(basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0, this.intWfPeak(pts), 1);
-        let floorLevel = basisSum;
-        {
-            let lv = basisSum;
-            for (const p of pts) {
-                if (p.varAbs == null) { continue; }
-                floorLevel = Math.min(floorLevel, lv, lv + p.varAbs);
-                lv += p.varAbs;
-            }
-        }
+        // ------- value range: anchors, totals and every running cascade level. The
+        // cascade can peak above both totals (+15, +15, then −8 ×4): the scale must
+        // hold that peak, or the bricks leave the plot (S4). 1.52.5: signed
+        const rng = this.intWfRange(pts);
+        const sh = cfg.sharedIntWf;
+        const lo = sh ? sh.minTot : rng.lo;
+        const maxTot = sh ? sh.maxTot : (rng.lo < 0 ? rng.hi : Math.max(rng.hi, 1));
         const minMonPx = Math.max(12, Math.round(10 * k));
         const yTopV = plotTop + lf + 8;
-        // 1.52.1 chart.bridgeBreak (IBCS UN 5.3): the anchors are shortened with a
-        // visible ⫽, the cascade runs linearly above the cut — every step at its true
-        // height. Only when all levels and totals lie above the cut; same-scale
-        // multiples keep the zero-based scale (one cut for all tiles is not given)
-        let cut = 0;
-        if (this.formattingSettings.chartCard.bridgeBreak.value === true && !cfg.sharedIntWf) {
-            const lows = [floorLevel, basisSum, vTot, ...(twoTotals ? [pySum, plSum] : [])];
-            const minLv = Math.min(...lows);
-            const c = this.wfAutoCut(minLv, maxTot);
-            if (c > 0 && minLv > c) { cut = c; }
+        // monthly columns of THIS tile (also decides the zoom below — the deck-wide
+        // range of the same-scale multiples would shrink a small tile whose columns
+        // fit perfectly well)
+        let ownHiR = 0, ownLoR = 0;
+        for (const p of pts) {
+            for (const v of [p.value, p.basis, cfg.pyTriangle ? p.py : null]) {
+                if (v == null) { continue; }
+                if (v > ownHiR) { ownHiR = v; }
+                if (v < ownLoR) { ownLoR = v; }
+            }
         }
-        // break layout: monthly columns live in the stub zone at the bottom, a label
-        // gap, then the linear cascade
-        const monArea = cut > 0 ? Math.max(minMonPx * 2, Math.round((yBase - yTopV) * 0.34)) : 0;
-        const yLin0 = cut > 0 ? yBase - monArea - (lf + 10) : yBase;
-        const kS = cut > 0 ? (yLin0 - yTopV) / Math.max(maxTot - cut, 1e-9) : (yBase - yTopV) / maxTot;
-        const S: Scale = cut > 0
-            ? (v: number) => v <= cut ? yBase - (v / cut) * (yBase - yLin0) : yLin0 - (v - cut) * kS
-            : linearScale(0, maxTot, yBase, yTopV);
+        const ownMon = Math.max(ownHiR, 1);
+        const split = sh ? sh.neg : lo < 0;
+        // 1.52.1 chart.bridgeBreak (IBCS UN 5.3): the anchors are shortened with a
+        // visible ⫽, the cascade runs linearly beyond the cut — every step at its true
+        // height. Only when all levels and totals lie beyond the cut (1.52.5: a purely
+        // negative bridge mirrored, below its zero line; never across zero);
+        // same-scale multiples keep the zero-based scale (one cut for all tiles is
+        // not given)
+        const cut = this.formattingSettings.chartCard.bridgeBreak.value === true && !sh
+            ? this.bridgeCut(rng.levels) : 0;
         // 1.52 (IBCS CH 4.1): the monthly columns stand on the ANCHOR scale (same
         // unit, same px per unit). Only when they would run into the cascade, or be
         // unreadably small, they get a round factor — shown as "×f" in the caption
         // plus a scale band, never silently (CH 4.3/4.5)
-        this.lastScaleK = kS;
-        const roomPx = cut > 0 ? monArea - lf - 8 : (yBase - S(floorLevel)) - lf - 8;
-        // decided on THIS tile's tallest column (the deck-wide maxMon of the same-scale
-        // multiples would shrink a small tile whose columns fit perfectly well)
-        const ownMon = Math.max(...pts.map(p =>
-            Math.max(p.value ?? 0, p.basis ?? 0, cfg.pyTriangle ? (p.py ?? 0) : 0)), 1);
-        let monZoom = 1;
-        if (ownMon * kS > roomPx) {
-            monZoom = REDUCE_FACTORS.find(f => ownMon * kS * f <= roomPx) ?? REDUCE_FACTORS[REDUCE_FACTORS.length - 1];
-        } else if (ownMon * kS < minMonPx) {
-            for (const f of ZOOM_FACTORS) {
-                if (ownMon * kS * f > roomPx) { break; }
-                monZoom = f;
-                if (ownMon * kS * f >= minMonPx) { break; }
+        let S: Scale, kS: number, yZ: number, yMZ: number, monZoom: number, monArea: number, breakY = 0;
+        if (!split) {
+            // break layout: monthly columns live in the stub zone at the bottom, a
+            // label gap, then the linear cascade. negPx: strip for loss months below
+            // the zero line (and their labels), sized in a few passes since it
+            // shrinks the px per unit it depends on
+            const geo = (negPx: number) => {
+                const z = yBase - negPx;
+                const area = cut > 0 ? Math.max(minMonPx * 2, Math.round((z - yTopV) * 0.34)) : 0;
+                const yLin0 = cut > 0 ? z - area - (lf + 10) : z;
+                const kk = cut > 0 ? (yLin0 - yTopV) / Math.max(maxTot - cut, 1e-9) : (z - yTopV) / maxTot;
+                const sc: Scale = cut > 0 ? this.brokenBridgeScale(z, yLin0, cut, kk, 1) : linearScale(0, maxTot, z, yTopV);
+                const room = cut > 0 ? area - lf - 8 : (z - sc(rng.floor)) - lf - 8;
+                return { z, area, yLin0, kk, sc, room };
+            };
+            const lblNeg = lf + 6;
+            const negCap = Math.round((yBase - yTopV) * 0.3);
+            let negPx = 0;
+            let G = geo(0);
+            let f = 1;
+            for (let it = 0; it < 4; it++) {
+                G = geo(negPx);
+                const rNeg = ownLoR < 0 ? (it === 3 ? negPx : negCap) - lblNeg : Infinity;
+                f = this.monthZoom(ownMon * G.kk, -ownLoR * G.kk, G.room, rNeg, minMonPx);
+                const need = ownLoR < 0 ? Math.ceil(-ownLoR * G.kk * f + lblNeg) : 0;
+                if (need <= negPx) { break; }
+                negPx = need;
             }
+            S = G.sc; kS = G.kk; yZ = G.z; yMZ = G.z; monZoom = f; monArea = G.area;
+            breakY = cut > 0 ? (G.z - G.area + G.yLin0) / 2 : 0;
+        } else {
+            // split layout: the monthly strip at the bottom (34 % like the break
+            // layout), a label gap, the cascade above with its zero line inside
+            monArea = Math.max(minMonPx * 2 + 2 * (lf + 4), Math.round((yBase - yTopV) * 0.34));
+            const stripTop = yBase - monArea;
+            const yCasBot = stripTop - (lf + 10);
+            if (cut > 0) {
+                // purely negative + bridgeBreak: zero line on top, 0…−cut squeezed
+                // into a stub below it, the cascade linear further down
+                const stub = Math.max(16, Math.round((yCasBot - yTopV) * 0.12));
+                kS = (yCasBot - yTopV - stub) / Math.max(-lo - cut, 1e-9);
+                S = this.brokenBridgeScale(yTopV, yTopV + stub, cut, kS, -1);
+                breakY = yTopV + stub / 2;
+            } else {
+                kS = (yCasBot - yTopV) / ((maxTot - lo) || 1);
+                S = linearScale(lo, maxTot, yCasBot, yTopV);
+            }
+            yZ = S(0);
+            // the strip holds the tile's own month range [ownLoR, ownHiR] with its
+            // labels: positive-only columns stand at its bottom, negative-only ones
+            // hang from its top, mixed ones get the zero line where the range puts it
+            const topL = ownHiR > 0 ? lf + 4 : 2, botL = ownLoR < 0 ? lf + 4 : 2;
+            const monPlot = monArea - topL - botL;
+            const spanR = ownHiR - ownLoR;
+            monZoom = this.monthZoom((spanR > 0 ? spanR : 1) * kS, 0, monPlot, Infinity, minMonPx);
+            const free = Math.max(0, monPlot - spanR * kS * monZoom);
+            yMZ = stripTop + topL + ownHiR * kS * monZoom
+                + (ownHiR > 0 && ownLoR < 0 ? free / 2 : ownHiR > 0 ? free : 0);
         }
+        this.lastScaleK = kS;
         const BS = (v: number) => v * kS * monZoom;
+        // anchors and totals: a bar from the zero line, its label beyond the end
+        const vLblY = (v: number) => v >= 0 ? S(v) - 5 : S(v) + lf + 2;
+        // …centered on its column but kept inside the tile: an edge column is
+        // narrower than a long label ("−1.600K" under the PY anchor of a half-page tile)
+        const vLblX = (xc: number, text: string, bold: boolean) => {
+            const half = this.textWidth(text, lf, bold) / 2 + 2;
+            return Math.max(region.x + half, Math.min(region.x + region.w - half, xc));
+        };
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -6920,13 +7276,12 @@ export class Visual implements IVisual {
             ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
             : { fill: cfg.colors.py };
         const plStyle = { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 };
-        const breakY = cut > 0 ? (yBase - monArea + yLin0) / 2 : 0;
         const drawTotal = (x: number, sum: number, style: object, label: string, bold: boolean) => {
             const yT = S(sum);
-            this.el("rect", { x, y: yT, width: totW, height: Math.max(yBase - yT, 1), ...style }, bg);
+            this.el("rect", { x, y: Math.min(yT, yZ), width: totW, height: Math.max(Math.abs(yZ - yT), 1), ...style }, bg);
             if (cut > 0) { this.drawAxisBreak(bg, x, totW, breakY, "columns", cfg); }
             const vl = this.el("text", {
-                x: x + totW / 2, y: yT - 5, "text-anchor": "middle", "font-size": lf,
+                x: vLblX(x + totW / 2, fmtA.format(sum), bold), y: vLblY(sum), "text-anchor": "middle", "font-size": lf,
                 fill: cfg.ink, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
             }, bg);
             vl.textContent = fmtA.format(sum);
@@ -6998,12 +7353,12 @@ export class Visual implements IVisual {
             // triangle marker (as basis, or next to a PL basis)
             if (p.basis != null) {
                 if (cfg.pyTriangle && cfg.basisMode === "py") {
-                    const triScale: Scale = (v: number) => yBase - BS(v);
+                    const triScale: Scale = (v: number) => yMZ - BS(v);
                     this.drawPyTriangle(g, x - segW / 2, segW, p.basis, triScale, "columns", cfg);
                 } else {
                     const h = BS(p.basis);
                     this.el("rect", {
-                        x: x - segW / 2, y: yBase - h, width: colW, height: h,
+                        x: x - segW / 2, y: Math.min(yMZ, yMZ - h), width: colW, height: Math.abs(h),
                         ...(cfg.basisMode === "plan"
                             ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
                             : cfg.hc
@@ -7013,7 +7368,7 @@ export class Visual implements IVisual {
                 }
             }
             if (cfg.pyTriangle && cfg.basisMode !== "py" && p.py != null) {
-                const triScale: Scale = (v: number) => yBase - BS(v);
+                const triScale: Scale = (v: number) => yMZ - BS(v);
                 this.drawPyTriangle(g, x - segW / 2, segW, p.py, triScale, "columns", cfg);
             }
             // AC in front, shifted right; alone (PY as triangle) it takes the full slot
@@ -7023,16 +7378,20 @@ export class Visual implements IVisual {
             if (p.value != null) {
                 const h = BS(p.value);
                 this.el("rect", {
-                    x: acX, y: yBase - h, width: acW, height: h,
+                    x: acX, y: Math.min(yMZ, yMZ - h), width: acW, height: Math.abs(h),
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
                 }, g);
                 if (cfg.showLabels && showValAt(i)) {
-                    const hMax = Math.max(BS(p.value), p.basis != null ? BS(p.basis) : 0,
-                        cfg.pyTriangle && p.py != null ? BS(p.py) + 4 : 0);
+                    // above the pair, a loss month below it (1.52.5)
+                    const up = p.value >= 0;
+                    const ext = (v: number | null | undefined, extra = 0) => v == null ? 0
+                        : Math.max(0, (up ? BS(v) : -BS(v)) + extra);
+                    const hOut = Math.max(ext(p.value), ext(p.basis), cfg.pyTriangle ? ext(p.py, 4) : 0);
                     const vt = this.el("text", {
-                        x: soloAc ? x : x + segW / 2 - colW / 2, y: yBase - hMax - 3, "text-anchor": "middle",
+                        x: soloAc ? x : x + segW / 2 - colW / 2, y: up ? yMZ - hOut - 3 : yMZ + hOut + lf,
+                        "text-anchor": "middle",
                         "font-size": lf, fill: cfg.ink, "font-family": FONT,
                         stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
                     }, g);
@@ -7063,40 +7422,56 @@ export class Visual implements IVisual {
             this.animGroups.push([g]);
         });
 
-        // ------- axis
+        // ------- axis: the zero line of anchors and cascade (the category axis in the
+        // zero layout); the split layout adds the monthly strip's own zero line
         this.el("line", {
-            x1: left, y1: yBase, x2: right - calloutW + 16, y2: yBase,
-            stroke: cfg.ink, "stroke-width": 1.6
+            x1: left, y1: yZ, x2: right - calloutW + 16, y2: yZ,
+            stroke: cfg.ink, "stroke-width": 1.6, ...(split || yZ !== yBase ? { "data-icd": "bridge-zero" } : {})
         }, bg);
+        if (split) {
+            this.el("line", {
+                x1: bandStart - 4, y1: yMZ, x2: bandEnd + 4, y2: yMZ,
+                stroke: cfg.ink, "stroke-width": 1.6, "data-icd": "bridge-month-zero"
+            }, bg);
+        }
 
-        // ------- stacked AC+FC total column (right)
+        // ------- stacked AC+FC total column (right): AC from the zero line, the FC
+        // part stacked beyond it when both point the same way; with opposite signs
+        // (1.52.5) one hatched column to the total, since the parts cannot stack
         const xT = bandEnd + 10;
-        const acH = Math.max(yBase - S(acTot), 0);
-        this.el("rect", { x: xT, y: yBase - acH, width: totW, height: Math.max(acH, 1), fill: cfg.colors.ac }, bg);
-        if (fcTot > 0) {
-            const fcH = S(acTot) - S(vTot);
+        const yAc = S(acTot), yTot = S(vTot);
+        const stackFc = fcTot !== 0 && (acTot === 0 || Math.sign(fcTot) === Math.sign(acTot));
+        if (fcTot !== 0 && !stackFc) {
             this.el("rect", {
-                x: xT, y: yBase - acH - fcH, width: totW, height: Math.max(fcH, 1),
+                x: xT, y: Math.min(yZ, yTot), width: totW, height: Math.max(Math.abs(yZ - yTot), 1),
+                fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2
+            }, bg);
+        } else {
+            this.el("rect", { x: xT, y: Math.min(yZ, yAc), width: totW, height: Math.max(Math.abs(yZ - yAc), 1), fill: cfg.colors.ac }, bg);
+        }
+        if (stackFc) {
+            this.el("rect", {
+                x: xT, y: Math.min(yAc, yTot), width: totW, height: Math.max(Math.abs(yAc - yTot), 1),
                 fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2
             }, bg);
             const fl = this.el("text", {
-                x: xT + totW + 4, y: yBase - acH - fcH / 2 + lf * 0.35, "font-size": lf,
+                x: xT + totW + 4, y: (yAc + yTot) / 2 + lf * 0.35, "font-size": lf,
                 fill: cfg.ink, "font-family": FONT
             }, bg);
             fl.textContent = "FC";
             const fv = this.el("text", {
-                x: xT + totW / 2, y: yBase - acH - fcH / 2 + lf * 0.35, "text-anchor": "middle",
+                x: xT + totW / 2, y: (yAc + yTot) / 2 + lf * 0.35, "text-anchor": "middle",
                 "font-size": lf, fill: cfg.ink, "font-family": FONT,
                 stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
             }, bg);
             fv.textContent = fmtA.format(fcTot);
             const al = this.el("text", {
-                x: xT + totW + 4, y: yBase - acH / 2 + lf * 0.35, "font-size": lf,
+                x: xT + totW + 4, y: (yZ + yAc) / 2 + lf * 0.35, "font-size": lf,
                 fill: cfg.ink, "font-family": FONT
             }, bg);
             al.textContent = cfg.scenL.ac;
             const av = this.el("text", {
-                x: xT + totW / 2, y: yBase - acH / 2 + lf * 0.35, "text-anchor": "middle",
+                x: xT + totW / 2, y: (yZ + yAc) / 2 + lf * 0.35, "text-anchor": "middle",
                 "font-size": lf, fill: cfg.paper, "font-family": FONT
             }, bg);
             av.textContent = fmtA.format(acTot);
@@ -7106,7 +7481,7 @@ export class Visual implements IVisual {
             this.el("g", { "data-icd": "bridge-break", "data-cut": cut }, bg);
         }
         const tv = this.el("text", {
-            x: xT + totW / 2, y: S(vTot) - 5, "text-anchor": "middle", "font-size": lf,
+            x: vLblX(xT + totW / 2, fmtA.format(vTot), true), y: vLblY(vTot), "text-anchor": "middle", "font-size": lf,
             fill: cfg.ink, "font-family": FONT, "font-weight": 600
         }, bg);
         tv.textContent = fmtA.format(vTot);
@@ -7114,7 +7489,7 @@ export class Visual implements IVisual {
             x: xT + totW / 2, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
             fill: cfg.ink, "font-family": FONT
         }, bg);
-        tc.textContent = fcTot > 0 ? `${cfg.scenL.ac}+${cfg.scenL.fc}` : cfg.scenL.ac;
+        tc.textContent = fcTot !== 0 ? `${cfg.scenL.ac}+${cfg.scenL.fc}` : cfg.scenL.ac;
 
         // ------- net variance bar + circled callout (right edge)
         const xv = xT + totW + sideLblW;
@@ -7140,7 +7515,7 @@ export class Visual implements IVisual {
         const zoomTxt = monZoom !== 1
             ? ` ×${new Intl.NumberFormat(this.host.locale).format(monZoom)}` : "";
         const cutTxt = cut > 0
-            ? ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(cut))}` : "";
+            ? ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(maxTot > 0 ? cut : -cut))}` : "";
         this.drawPanelTitle(bg, { x: region.x, y: region.y + pad, w: region.w, h: 12 },
             // 1.52.2: the caption speaks the report language (it was German in every locale)
             `${cfg.basisLabel} → ${cfg.scenL.ac}${cfg.hasFc ? "/" + cfg.scenL.fc : ""} · `
@@ -7149,43 +7524,80 @@ export class Visual implements IVisual {
         // scale band: the same value on the anchor scale (total columns) and on the
         // monthly scale — the visible step between both shows the factor (CH 4.3)
         if (monZoom !== 1) {
-            const v = Math.pow(10, Math.floor(Math.log10(ownMon)));
+            const v = Math.pow(10, Math.floor(Math.log10(Math.max(ownMon, -ownLoR))));
             const zg = this.el("g", { "data-icd": "scale-zoom", "data-factor": monZoom, "data-band": v }, bg);
-            const bandAt = (x0: number, x1: number, h: number) => {
+            // from a zero line (base) by h px, upwards for h > 0 (1.52.5: signed —
+            // towards the side where the anchors resp. the monthly columns lie)
+            const bandAt = (x0: number, x1: number, base: number, h: number) => {
                 this.el("rect", {
-                    x: x0, y: yBase - h, width: x1 - x0, height: Math.max(h, 1),
+                    x: x0, y: Math.min(base, base - h), width: x1 - x0, height: Math.max(Math.abs(h), 1),
                     fill: cfg.hc ? cfg.paper : "#0064FF", "fill-opacity": cfg.hc ? 0 : 0.09
                 }, zg);
                 this.el("line", {
-                    x1: x0, y1: yBase - h, x2: x1, y2: yBase - h, stroke: cfg.hc ? cfg.ink : "#0064FF",
+                    x1: x0, y1: base - h, x2: x1, y2: base - h, stroke: cfg.hc ? cfg.ink : "#0064FF",
                     "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2"
                 }, zg);
             };
+            const sdM = ownHiR >= -ownLoR ? 1 : -1;
             // with the break the anchors are not linear from the base line, a band
             // has no counterpart there: the caption "×f" alone marks the factor (as
             // in the waterfall)
             if (cut === 0) {
-                bandAt(left, bandStart - 4, v * kS);
-                bandAt(bandStart, bandEnd, BS(v));
-                bandAt(xT, xT + totW, v * kS);
+                bandAt(left, bandStart - 4, yZ, (basisSum >= 0 ? 1 : -1) * v * kS);
+                bandAt(bandStart, bandEnd, yMZ, sdM * BS(v));
+                bandAt(xT, xT + totW, yZ, (vTot >= 0 ? 1 : -1) * v * kS);
             }
         }
     }
 
     /**
-     * highest running level of the integrated bridge cascade (basis total plus the
-     * Δ so far). Shared by the renderer and the multiples' same-scale pass so the
-     * two can never disagree about what bounds the scale.
+     * value range of the integrated bridge: the basis and end totals, the second
+     * total column (PY and PL both bound) and every running cascade level (basis
+     * total plus the Δ so far) — `lo`/`hi` with zero inside, `floor` = lowest
+     * cascade level incl. the basis (room for the monthly columns below it),
+     * `levels` = all of them (axis-break decision). Shared by the renderer and the
+     * multiples' same-scale pass so the two can never disagree about what bounds the
+     * scale (1.52.5: signed; until 1.52.4 only the peak, negatives drew a hint).
      */
-    private intWfPeak(pts: DataPoint[]): number {
-        let level = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
-        let peak = level;
+    private intWfRange(pts: DataPoint[]): { lo: number; hi: number; floor: number; levels: number[] } {
+        const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+        const levels = [basisSum, pts.reduce((a, p) => a + (p.value ?? 0), 0)];
+        if (pts.some(p => p.py != null) && pts.some(p => p.pl != null)) {
+            levels.push(pts.reduce((a, p) => a + (p.py ?? 0), 0), pts.reduce((a, p) => a + (p.pl ?? 0), 0));
+        }
+        let level = basisSum, floor = basisSum;
         for (const p of pts) {
             if (p.varAbs == null) { continue; }
             level += p.varAbs;
-            peak = Math.max(peak, level);
+            levels.push(level);
+            if (level < floor) { floor = level; }
         }
-        return peak;
+        const lo = levels.reduce((a, v) => Math.min(a, v), 0);
+        const hi = levels.reduce((a, v) => Math.max(a, v), 0);
+        return { lo, hi, floor, levels };
+    }
+
+    /**
+     * zoom factor of the integrated bridge's monthly columns (IBCS CH 4.3/4.5): 1
+     * while the tallest column (pPos px at factor 1) fits rPos and the deepest
+     * negative one (pNeg) fits rNeg; else the largest round reduction that fits;
+     * columns lower than minPx are magnified by a round factor as long as they fit.
+     */
+    private monthZoom(pPos: number, pNeg: number, rPos: number, rNeg: number, minPx: number): number {
+        const fits = (f: number) => pPos * f <= rPos && pNeg * f <= rNeg;
+        if (!fits(1)) {
+            return REDUCE_FACTORS.find(fits) ?? REDUCE_FACTORS[REDUCE_FACTORS.length - 1];
+        }
+        let zoom = 1;
+        const tall = Math.max(pPos, pNeg);
+        if (tall < minPx) {
+            for (const f of ZOOM_FACTORS) {
+                if (!fits(f)) { break; }
+                zoom = f;
+                if (tall * f >= minPx) { break; }
+            }
+        }
+        return zoom;
     }
 
     /**
@@ -7213,6 +7625,27 @@ export class Visual implements IVisual {
             }
         }
         return [lo, hi];
+    }
+
+    /**
+     * value domain [min, max] of one category-bridge tile: every drawn total (PY,
+     * PL, AC) plus `ext` (catBridgeExtent: cascade levels, row bars), zero always
+     * inside — so a purely negative bridge keeps its true range with the zero line at
+     * the top end (1.52.5; until 1.52.4 a fallback maximum of 1 squashed it, the
+     * renderer drew a hint instead). Only a tile that is zero throughout gets [0, 1].
+     * The shared small-multiples range wins; the same-scale pass uses this too.
+     */
+    private catBridgeDomain(pts: DataPoint[], ext: [number, number],
+        cfg: ChartConfig | null): [number, number] {
+        if (cfg?.sharedCatBridge) { return [cfg.sharedCatBridge.minV, cfg.sharedCatBridge.maxV]; }
+        const tot = pts.reduce((a, p) => ({
+            py: a.py + (p.py ?? 0), pl: a.pl + (p.pl ?? 0), ac: a.ac + (p.value ?? 0)
+        }), { py: 0, pl: 0, ac: 0 });
+        const hasPy = pts.some(p => p.py != null), hasPl = pts.some(p => p.pl != null);
+        const totals = [tot.ac, hasPy ? tot.py : 0, hasPl ? tot.pl : 0];
+        const lo = Math.min(0, ...totals, ext[0]);
+        const hi = Math.max(0, ...totals, ext[1]);
+        return [lo, hi > 0 || lo < 0 ? hi : 1];
     }
 
     /**
@@ -7244,13 +7677,9 @@ export class Visual implements IVisual {
         const otherTot = refIsPl ? PYt : PLt;
         const otherLabel = refIsPl ? cfg.scenL.py : cfg.scenL.pl;
         const dTot = ACt - REF;
-        // purely negative totals collapse the anchor scale (maxV falls back to 1) —
-        // every bar degenerates to a sliver; fail loudly like the integrated bridge
-        if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) {
-            this.drawModeHint(region, cfg, this.locStr("Hint_CatBridgeNeg",
-                "Category bridge does not support all-negative totals — use waterfall or columns + bridge"));
-            return;
-        }
+        // 1.52.5: purely negative totals (cost bridge, loss → smaller loss) are drawn
+        // like any other bridge — the scale runs over [minV, maxV] with the zero line
+        // at the right (bars) or on top (columns); until 1.52.4 they drew a hint
         // chart.bridgeOrientation = "columns": own drawing path (vertical cascade)
         if (cfg.catBridgeVertical) {
             this.renderCategoryBridgeVertical(pts, region, cfg);
@@ -7284,11 +7713,21 @@ export class Visual implements IVisual {
         // totals — a driver of +60 on PY 100 peaks at 160 and ran through the pin
         // column (S3). Negative levels/values shift the zero line right (minV).
         const ext = this.catBridgeExtent(pts, refIsPl, hasPy);
-        const maxV = cfg.sharedCatBridge?.maxV
-            ?? Math.max(REF, ACt, hasOther ? otherTot : 0, ext[1], 1);
-        const minV = cfg.sharedCatBridge?.minV
-            ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
-        const X = linearScale(minV, maxV, x0, xValEnd);
+        const [minV, maxV] = this.catBridgeDomain(pts, ext, cfg);
+        // negative row values put their label LEFT of the bar end — reserve that room
+        // between the category names and the scale, or "−4,2M" runs into the name
+        // column (export tiles cannot hover-reveal a covered name)
+        // (shared small-multiples scale: one fixed reserve, so every tile keeps the
+        // same px per unit)
+        // 1.52.5: also the negative totals (bold) and falling bricks, whose labels sit
+        // left of their left end as well — a purely negative bridge has them all there
+        const negLblW = !cfg.showLabels || minV >= 0 ? 0
+            : cfg.sharedCatBridge ? valLblW
+            : Math.max(
+                ...pts.map(p => p.value != null && p.value < 0 ? this.textWidth(cfg.fmt.format(p.value), lf) + 10 : 0),
+                ...pts.map(p => (dOf(p) ?? 0) < 0 ? this.textWidth(fmtD(dOf(p) as number), lf) + 10 : 0),
+                ...[hasPl ? PLt : 0, hasPy ? PYt : 0, ACt].map(v => v < 0 ? this.textWidth(cfg.fmt.format(v), lf, true) + 12 : 0));
+        const X = linearScale(minV, maxV, x0 + Math.min(negLblW, (xValEnd - x0) * 0.25), xValEnd);
         this.lastScaleK = Math.abs(X(1) - X(0));
         // zero line of all bars (== x0 unless something is negative)
         const xZ = X(0);
@@ -7326,13 +7765,45 @@ export class Visual implements IVisual {
                     rightEdge - region.x - pad, rowH - 2, cfg);
             }
         }
+        // 1.52.5: with negative totals/levels the bars no longer start at the scale
+        // edge — the zero line (AC notation) marks where they leave from, through the
+        // total and category rows (the reconciliation rows below float between totals)
+        if (minV < 0) {
+            this.el("line", {
+                x1: xZ, y1: region.y + pad + 6, x2: xZ, y2: yAC + rowH,
+                stroke: cfg.colors.ac, "stroke-width": 1.6, "data-icd": "bridge-zero"
+            }, bg);
+        }
 
         const rowLabel = (yy: number, text: string, bold: boolean, parent: SVGElement) => {
             const t = this.el("text", {
                 x: x0 - 8, y: yy + rowH / 2 + cf * 0.35, "text-anchor": "end",
                 "font-size": cf, fill: cfg.ink, "font-family": FONT, "font-weight": bold ? 700 : 400
             }, parent);
-            t.textContent = this.truncate(text, catArea - 10, cf);
+            const maxW = catArea - 10;
+            const lineStep = Math.round(cf * 1.15);
+            // a long driver name wraps onto two lines when the row is tall enough
+            // (half-page export tiles) instead of being cut to "Verlorene Ku…"
+            if (this.textWidth(text, cf) <= maxW || rowH < 2 * lineStep) {
+                t.textContent = this.truncate(text, maxW, cf);
+                return;
+            }
+            let [l1, l2raw] = this.splitTwoLines(text, maxW, cf);
+            // one long word broken by characters: hyphenate the break ("Sortiments-
+            // bereinigung" style) instead of an unmarked cut
+            if (!/\s/.test(text.slice(l1.length, l1.length + 1)) && l2raw && !/\s$/.test(l1)) {
+                while (l1.length > 1 && this.textWidth(l1 + "-", cf) > maxW) { l1 = l1.slice(0, -1); }
+                l2raw = text.slice(l1.length).trimStart();
+                l1 += "-";
+            }
+            const y1 = yy + rowH / 2 - lineStep / 2 + cf * 0.35;
+            [[l1, y1], [this.truncate(l2raw, maxW, cf), y1 + lineStep]].forEach(([ln, ly]) => {
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                ts.setAttribute("x", String(x0 - 8));
+                ts.setAttribute("y", String(ly));
+                ts.textContent = String(ln);
+                t.appendChild(ts);
+            });
         };
         const valLabel = (xx: number, yy: number, text: string, bold: boolean, parent: SVGElement,
             anchor: "start" | "end" = "start", color = cfg.ink) => {
@@ -7433,12 +7904,46 @@ export class Visual implements IVisual {
         const pyBarH = Math.max(3, rowH * 0.30);
         const acBarH = Math.max(4, rowH * 0.42);
         const brickH = Math.max(5, rowH * 0.48);
+        // 1.52.5: a row whose cascade brick (with its Δ label) runs through the row's
+        // own AC/PY bars or value label — mixed signs, a level crossing the row's
+        // values (+2 → −5 → −3) — gets two tiers: bars + value label above, brick +
+        // Δ label below, instead of the brick covering the bar. All other rows keep
+        // the shared tier (positive and purely negative bridges never need it)
+        const tiered: boolean[] = [];
+        {
+            const lblW = (t: string) => cfg.showLabels ? this.textWidth(t, lf) + 6 : 0;
+            let lv = REF;
+            for (const p of pts) {
+                const d = dOf(p);
+                const behind = hasPy ? p.py : p.pl;
+                if (d == null || (p.value == null && behind == null)) { tiered.push(false); continue; }
+                const a = lv, b = lv + d;
+                lv = b;
+                const xA = X(Math.min(a, b)), xB = X(Math.max(a, b));
+                const bk0 = d >= 0 ? xA : xA - lblW(fmtD(d)), bk1 = d >= 0 ? xB + lblW(fmtD(d)) : xB;
+                const ends = [xZ, ...[p.value, behind].filter((v): v is number => v != null).map(v => X(v))];
+                let r0 = Math.min(...ends), r1 = Math.max(...ends);
+                if (p.value != null) {
+                    const w = lblW(cfg.fmt.format(p.value));
+                    if (p.value >= 0) { r1 = Math.max(r1 + w, X(p.value) + w); } else { r0 = Math.min(r0 - w, X(p.value) - w); }
+                }
+                tiered.push(Math.min(bk1, r1) - Math.max(bk0, r0) > 0.5);
+            }
+        }
+        // row geometry (fractions of rowH): bar tier, brick tier, label lines
+        const rowGeo = (i: number) => tiered[i]
+            ? { pyY: 0.06, pyH: Math.max(2, rowH * 0.18), acY: 0.16, acH: Math.max(3, rowH * 0.30), triY: 0.16, triW: 0.3,
+                barLbl: 0.31, bkY: 0.54, bkH: Math.max(4, rowH * 0.38), bkLbl: 0.73 }
+            : { pyY: 0.12, pyH: pyBarH, acY: 0.30, acH: acBarH, triY: 0.28, triW: 0.5,
+                barLbl: 0.5, bkY: 0.26, bkH: brickH, bkLbl: 0.5 };
         let cum = REF;
         const refRowY = refIsPl ? (yPL as number) : (yPY as number);
-        guide(X(REF), refRowY + rowH, yS0 + rowH * 0.26, true, bg);
+        guide(X(REF), refRowY + rowH, yS0 + rowH * rowGeo(0).bkY, true, bg);
         pts.forEach((p, i) => {
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             const yy = yS0 + i * rowH;
+            const rg = rowGeo(i);
+            if (tiered[i]) { g.setAttribute("data-icd", "bridge-row-tiered"); }
             rowLabel(yy, p.cat, this.isEmph(cfg, p.cat), g);
 
             // mini bars: reference (PY grey / PL outline) behind, AC in front;
@@ -7446,10 +7951,10 @@ export class Visual implements IVisual {
             const behind = hasPy ? p.py : p.pl;
             if (behind != null) {
                 if (cfg.pyTriangle && hasPy) {
-                    this.drawPyTriangle(g, yy + rowH * 0.28, rowH * 0.5, behind, X, "bars", cfg);
+                    this.drawPyTriangle(g, yy + rowH * rg.triY, rowH * rg.triW, behind, X, "bars", cfg);
                 } else {
                     this.el("rect", {
-                        ...hBar(behind), y: yy + rowH * 0.12, height: pyBarH,
+                        ...hBar(behind), y: yy + rowH * rg.pyY, height: rg.pyH,
                         ...(cfg.hc || !hasPy
                             ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1 }
                             : { fill: cfg.colors.py })
@@ -7458,7 +7963,7 @@ export class Visual implements IVisual {
             }
             if (p.value != null) {
                 this.el("rect", {
-                    ...hBar(p.value), y: yy + rowH * 0.30, height: acBarH,
+                    ...hBar(p.value), y: yy + rowH * rg.acY, height: rg.acH,
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
@@ -7466,10 +7971,10 @@ export class Visual implements IVisual {
                 if (cfg.showLabels) {
                     if (p.value >= 0) {
                         const xl = Math.max(X(p.value), behind != null ? X(behind) : 0);
-                        valLabel(xl + 6, yy + rowH / 2 + lf * 0.35, cfg.fmt.format(p.value), false, g);
+                        valLabel(xl + 6, yy + rowH * rg.barLbl + lf * 0.35, cfg.fmt.format(p.value), false, g);
                     } else {
                         const xl = Math.min(X(p.value), behind != null ? X(behind) : X(p.value));
-                        valLabel(xl - 6, yy + rowH / 2 + lf * 0.35, cfg.fmt.format(p.value), false, g, "end");
+                        valLabel(xl - 6, yy + rowH * rg.barLbl + lf * 0.35, cfg.fmt.format(p.value), false, g, "end");
                     }
                 }
             }
@@ -7482,7 +7987,7 @@ export class Visual implements IVisual {
                 const c = colOf(d, p);
                 const hollowBad = cfg.hc && !goodOf(d, p) && d !== 0;
                 this.el("rect", {
-                    x: xA, y: yy + rowH * 0.26, width: Math.max(xB - xA, 2), height: brickH,
+                    x: xA, y: yy + rowH * rg.bkY, width: Math.max(xB - xA, 2), height: rg.bkH,
                     ...(hollowBad
                         ? { fill: cfg.paper, stroke: c, "stroke-width": 1.4 }
                         : p.isFc
@@ -7490,8 +7995,8 @@ export class Visual implements IVisual {
                             : { fill: c })
                 }, g);
                 if (cfg.showLabels) {
-                    if (d >= 0) { valLabel(xB + 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g); }
-                    else { valLabel(xA - 6, yy + rowH / 2 + lf * 0.35, fmtD(d), false, g, "end"); }
+                    if (d >= 0) { valLabel(xB + 6, yy + rowH * rg.bkLbl + lf * 0.35, fmtD(d), false, g); }
+                    else { valLabel(xA - 6, yy + rowH * rg.bkLbl + lf * 0.35, fmtD(d), false, g, "end"); }
                 }
                 // größter Treiber annotation (optional — overlays the row area)
                 if (i === drvIdx && dTot !== 0 && region.w >= 640
@@ -7511,17 +8016,37 @@ export class Visual implements IVisual {
                             : this.locStr("Note_OfIncreases", "% of all increases")}`;
                     }
                     const noteFont = Math.round(Math.max(9, lf * 0.85));
-                    const noteX = d >= 0 ? xB + 6 + fmtD(d).length * lf * 0.62 + 12 : xA - 6 - fmtD(d).length * lf * 0.62 - 12;
+                    let noteX = d >= 0 ? xB + 6 + fmtD(d).length * lf * 0.62 + 12 : xA - 6 - fmtD(d).length * lf * 0.62 - 12;
                     // the note must end before the Δ% pin column (rightwards) or the
                     // value-column start (leftwards) — with the cascade now reaching
                     // the end of the value column (S3) it would run over the pins
-                    const noteRoom = d >= 0
-                        ? (showPins ? rightEdge - pinW : rightEdge) - 4 - noteX
-                        : noteX - x0 - 4;
+                    const pinEdge = (showPins ? rightEdge - pinW : rightEdge) - 4;
+                    let noteRoom = d >= 0 ? pinEdge - noteX : noteX - x0 - 4;
+                    let noteRight = d >= 0;
+                    const noteW = this.textWidth(note, noteFont);
+                    if (noteRoom < noteW && minV < 0) {
+                        // 1.52.5: the far side of the brick (no value label there) when
+                        // the whole note fits between it and the row's own bars resp.
+                        // the pin / name column — a purely negative bridge has its
+                        // falling bricks at the left end of the scale, next to the names
+                        // (positive bridges unchanged: there the note keeps its side)
+                        const ends = [p.value, behind].filter((v): v is number => v != null).map(v => X(v));
+                        const bars0 = Math.min(xZ, ...ends), bars1 = Math.max(xZ, ...ends);
+                        const altX = d >= 0 ? xA - 8 : xB + 8;
+                        let altRoom: number;
+                        if (d >= 0) {
+                            const lim = bars0 > altX ? x0 + 4 : bars1 >= altX ? altX : Math.max(x0 + 4, bars1 + 6);
+                            altRoom = altX - lim;
+                        } else {
+                            const lim = bars1 < altX ? pinEdge : bars0 <= altX ? altX : Math.min(pinEdge, bars0 - 6);
+                            altRoom = lim - altX;
+                        }
+                        if (altRoom >= noteW) { noteX = altX; noteRoom = altRoom; noteRight = !noteRight; }
+                    }
                     if (noteRoom >= noteFont * 6) {
                         const nt = this.el("text", {
                             x: noteX,
-                            y: yy + rowH / 2 + lf * 0.35, "text-anchor": d >= 0 ? "start" : "end",
+                            y: yy + rowH * rg.bkLbl + lf * 0.35, "text-anchor": noteRight ? "start" : "end",
                             "font-size": noteFont, fill: cfg.subtle, "font-family": FONT, "font-style": "italic",
                             stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
                         }, g);
@@ -7529,8 +8054,8 @@ export class Visual implements IVisual {
                     }
                 }
                 // vertical connector to the next row / to the AC row
-                const nextY = i < n - 1 ? yy + rowH + rowH * 0.26 : yAC + rowH * 0.2;
-                guide(X(b), yy + rowH * 0.26 + brickH, nextY, true, bg);
+                const nextY = i < n - 1 ? yy + rowH + rowH * rowGeo(i + 1).bkY : yAC + rowH * 0.2;
+                guide(X(b), yy + rowH * rg.bkY + rg.bkH, nextY, true, bg);
                 cum = b;
             }
 
@@ -7697,37 +8222,38 @@ export class Visual implements IVisual {
 
         // ------- scale: anchors + every cascade level (no row bars in this layout)
         const ext = this.catBridgeExtent(pts, refIsPl, hasPy, false);
-        const maxV = cfg.sharedCatBridge?.maxV
-            ?? Math.max(REF, ACt, hasOther ? otherTot : 0, ext[1], 1);
-        const minV = cfg.sharedCatBridge?.minV
-            ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
+        const [minV, maxV] = this.catBridgeDomain(pts, ext, cfg);
         const labelPad = lf + 8;
         const plotTop = cTop + labelPad;
         const plotBottom = cBottom - (minV < 0 ? labelPad : 2);
         // 1.52.1 chart.bridgeBreak (IBCS UN 5.3): anchors shortened with ⫽, the
-        // cascade linear above the cut — only for positive bridges whose levels and
-        // totals all lie above it, and not across same-scale multiples
+        // cascade linear beyond the cut — only for one-signed bridges whose levels and
+        // totals all lie beyond it (1.52.5: purely negative ones mirrored, cut below
+        // the zero line), never across zero and not across same-scale multiples
         let cut = 0;
-        if (this.formattingSettings.chartCard.bridgeBreak.value === true && !cfg.sharedCatBridge && minV >= 0) {
-            let lv = REF, minLv = Math.min(REF, ACt, hasOther ? otherTot : Infinity);
+        const negBr = maxV <= 0 && minV < 0;
+        if (this.formattingSettings.chartCard.bridgeBreak.value === true && !cfg.sharedCatBridge) {
+            const lvls = [REF, ACt, ...(hasOther ? [otherTot] : [])];
+            let lv = REF;
             for (const p of pts) {
                 const d = dOf(p);
                 if (d == null) { continue; }
                 lv += d;
-                minLv = Math.min(minLv, lv);
+                lvls.push(lv);
             }
-            const c = this.wfAutoCut(minLv, maxV);
-            if (c > 0 && minLv > c) { cut = c; }
+            cut = this.bridgeCut(lvls);
         }
         const stubPx = cut > 0 ? Math.max(16, Math.round((plotBottom - plotTop) * 0.12)) : 0;
-        const kLin = cut > 0 ? (plotBottom - stubPx - plotTop) / Math.max(maxV - cut, 1e-9) : 0;
+        const kLin = cut > 0 ? (plotBottom - stubPx - plotTop) / Math.max((negBr ? -minV : maxV) - cut, 1e-9) : 0;
         const Y: Scale = cut > 0
-            ? (v: number) => v <= cut ? plotBottom - (v / cut) * stubPx : plotBottom - stubPx - (v - cut) * kLin
+            ? (negBr ? this.brokenBridgeScale(plotTop, plotTop + stubPx, cut, kLin, -1)
+                : this.brokenBridgeScale(plotBottom, plotBottom - stubPx, cut, kLin, 1))
             : linearScale(minV, maxV, plotBottom, plotTop);
         this.lastScaleK = cut > 0 ? kLin : Math.abs(Y(1) - Y(0));
         const yZ = Y(0);
+        const breakY = negBr ? plotTop + stubPx * 0.5 : plotBottom - stubPx * 0.5;
         const breakAt = (i: number, parent: SVGElement) => {
-            if (cut > 0) { this.drawAxisBreak(parent, slotX(i), barW, plotBottom - stubPx * 0.5, "columns", cfg); }
+            if (cut > 0) { this.drawAxisBreak(parent, slotX(i), barW, breakY, "columns", cfg); }
         };
 
         const bg = this.el("g", {}, this.svg);
@@ -8215,8 +8741,9 @@ export class Visual implements IVisual {
             if (collapsible.size > 0) {
                 if (sum && collapsible.has(key)) {
                     const open = !this.pnlCollapsed.has(key);
-                    const ch = txt(lx, cy + cf * 0.36, open ? "▾" : "▸", "start", Math.round(cf * 0.9), false, cfg.subtle, g);
-                    ch.style.cursor = "pointer";
+                    const ch = txt(lx, cy + cf * 0.36, this.exportAllOpen ? "" : open ? "▾" : "▸",
+                        "start", Math.round(cf * 0.9), false, cfg.subtle, g);
+                    if (this.allowInteractions) { ch.style.cursor = "pointer"; }
                     (ch as SVGElement).addEventListener("click", (e: Event) => {
                         e.stopPropagation();
                         if (this.pnlCollapsed.has(key)) { this.pnlCollapsed.delete(key); }
@@ -9104,7 +9631,10 @@ export class Visual implements IVisual {
             // "davon:"-style indent list: extra indent + subtle ink, no hierarchy field
             const davon = cfg.indentSet.has(p.cat.trim().toLowerCase());
             const indentX = (row.depth + (davon ? 1 : 0)) * Math.round(14 * k);
-            const nameText = isParent
+            // export with "expand all": every branch is open — the chevron would be a
+            // dead control in the picture (a collapsed ▸ in exports without expand-all
+            // stays: it tells the reader that detail is folded away)
+            const nameText = isParent && !this.exportAllOpen
                 ? `${row.expanded ? "▾" : "▸"} ${p.cat}`
                 : p.cat;
             const nameEl = this.drawCatName(g,
@@ -9552,17 +10082,20 @@ export class Visual implements IVisual {
         }
         type Block = { key: string; label: string; l0: string; l1: string | null; parent?: CNode };
         const blocks: Block[] = [];
-        for (const nd of colOrder) {
-            const open = twoLv && nd.kids.length > 0
-                && (this.colExpanded.has(`col¦${nd.label}`) || this.exportAllOpen);
-            if (open) {
-                for (const kid of nd.kids) {
-                    blocks.push({ key: `${nd.label}¦${kid}`, label: kid, l0: nd.label, l1: kid, parent: nd });
+        // (re)fills the block list in place — closures below hold the array itself
+        const buildBlocks = (isOpen: (nd: CNode) => boolean) => {
+            blocks.length = 0;
+            for (const nd of colOrder) {
+                if (twoLv && nd.kids.length > 0 && isOpen(nd)) {
+                    for (const kid of nd.kids) {
+                        blocks.push({ key: `${nd.label}¦${kid}`, label: kid, l0: nd.label, l1: kid, parent: nd });
+                    }
+                } else {
+                    blocks.push({ key: nd.label, label: nd.label, l0: nd.label, l1: null, parent: nd });
                 }
-            } else {
-                blocks.push({ key: nd.label, label: nd.label, l0: nd.label, l1: null, parent: nd });
             }
-        }
+        };
+        buildBlocks(nd => this.colExpanded.has(`col¦${nd.label}`) || this.exportAllOpen);
 
         // cell aggregates per (row pts × block)
         const cellFor = (pts: DataPoint[] | null, label: string, b: Block): DataPoint | null => {
@@ -9724,6 +10257,17 @@ export class Visual implements IVisual {
             ? sumStackW + gap
             : sValW + (hasVar ? sDW : 0) + (showSumRel ? lf * 3.6 : 0) + gap;
         const availW = region.w - pad * 2 - nameW - sumW - gap * 2;
+        // export with "expand all": a static picture cannot scroll — when the opened
+        // month blocks no longer fit even at the narrowest value column (they would be
+        // cut at the right, "… +n"), fall back to the expansion state of the report,
+        // then to every group collapsed: each period stays in the picture (as its
+        // quarter block) instead of whole quarters falling off the page
+        if (this.exportAllOpen && twoLv) {
+            const minBW = (mxBlockSet ? clampMxW(cw.mxBlock as number) : lf * 3.4) + gap;
+            const tooWide = () => blocks.length * minBW > availW;
+            if (tooWide()) { buildBlocks(nd => this.colExpanded.has(`col¦${nd.label}`)); }
+            if (tooWide()) { buildBlocks(() => false); }
+        }
         // in stacked mode the per-block Δ column and mini-bar are gone (Δ sits below
         // the value) — the block layout counts the value span only
         let showD = stacked ? false : showDelta;
@@ -9920,7 +10464,8 @@ export class Visual implements IVisual {
                 const spanX = colX[bi].x, spanW = colX[end].x + colX[end].w - spanX;
                 const open = this.colExpanded.has(`col¦${l0}`) || this.exportAllOpen;
                 const hasKids = nd.kids.length > 0;
-                const lbl = `${hasKids ? (open ? "▾ " : "▸ ") : ""}${l0}`;
+                // export with "expand all": no chevron (nothing left to click or unfold)
+                const lbl = `${hasKids && !this.exportAllOpen ? (open ? "▾ " : "▸ ") : ""}${l0}`;
                 const ht = txt(spanX + spanW / 2, hy0, this.truncate(lbl, spanW, hFont),
                     "middle", hFont, true, cfg.ink, headerParent);
                 if (hasKids && this.allowInteractions) {
@@ -10002,8 +10547,10 @@ export class Visual implements IVisual {
                 sortHit("drel", sumX.x + sValW + sDW + 4, sumX.w - sValW - sDW - 4);
             }
         }
+        // cut columns (static export only): the hint sits in the otherwise empty
+        // name-column header — above the header it ran into the title line
         if (cut > 0) {
-            txt(region.x + region.w - pad, hy0 - hFont - 2, `… +${cut}`, "end",
+            txt(region.x + pad, hy, `… +${cut}`, "start",
                 Math.round(hFont * 0.9), false, cfg.subtle, bg);
         }
         // expand-all chevron + 🔍 in the name header
@@ -10124,7 +10671,7 @@ export class Visual implements IVisual {
             }
             const depth = isTotal ? 0 : (row as MRow).depth;
             const indentX = (depth + (davon ? 1 : 0)) * Math.round(14 * k);
-            const nameText = isParent
+            const nameText = isParent && !this.exportAllOpen
                 ? `${(row as MRow).expanded ? "▾" : "▸"} ${label}`
                 : label;
             const nameEl = this.drawCatName(g,
@@ -13404,11 +13951,38 @@ export class Visual implements IVisual {
         // panels are magnified by a round factor and say so (scale band + "×f")
         const minPlot = Math.max(10, Math.round(8 * this.fontK));
         let zoom = 1;
+        // bars: the label room right/left of a panel follows the widest label text on
+        // that side (export tiles: "+43,3 %" next to the Δ% pin used to run past the
+        // visual's edge with the old font-based pad) — never less than before
+        const valueTexts0 = (cfg.sumSafe && !cfg.cumulative
+            ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
+            : points.map(p => p.value)).map(v => v != null ? cfg.fmt.format(v) : "");
+        const barPad = (base: number, texts: string[], vals: (number | null)[], extra: number): number | PanelPad => {
+            if (orientation === "columns" || !cfg.showLabels) { return base; }
+            let lo = 0, hi = 0;
+            texts.forEach((t, i) => {
+                const v = vals[i];
+                if (!t || v == null) { return; }
+                const w = this.textWidth(t, cfg.labelFont) + 4 + extra + 3;
+                if (v < 0) { lo = Math.max(lo, w); } else { hi = Math.max(hi, w); }
+            });
+            return { lo: Math.max(base + 4, lo), hi: Math.max(base + 24, hi) };
+        };
+        const rPin = 4.5; // upper bound of the Δ% pin head radius
+        const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(p => p.value), 0);
+        const absPadB = barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
+            points.map(p => p.varAbs), 0);
+        const relPadB = barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
+        const abs2PadB = barPad(labelPad, points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : ""),
+            points.map(p => p.var2Abs), 0);
+        const rel2PadB = barPad(labelPad, points.map(p => this.relText(p, true)), points.map(p => p.var2Rel), rPin + 3);
+        const padSum = (pp: number | PanelPad) => typeof pp === "number" ? 0 : pp.lo + pp.hi;
+        const relMin = orientation === "columns" ? 0 : Math.max(padSum(relPadB), padSum(rel2PadB)) + 24;
         const split = (start: number, span: number, vertical: boolean) => {
             const same = this.splitPanelsSameScale(start, span, showAbs, showRel, vertical, region,
-                showDual, showBridge, domains, compactLabelPad, labelPad, minPlot);
+                showDual, showBridge, domains, mainPadB, absPadB, minPlot, abs2PadB, relMin);
             if (same) { zoom = same.zoom; return same.panels; }
-            return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge);
+            return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         };
 
         if (orientation === "columns") {
@@ -13468,16 +14042,16 @@ export class Visual implements IVisual {
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation, undefined, true);
 
         // ------- scales
-        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, compactLabelPad);
+        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, mainPadB);
         this.lastScaleK = Math.abs(mainScale(1) - mainScale(0));
         const absScale = panels.abs
-            ? this.makePanelScale(domains.abs, panels.abs, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.abs, panels.abs, orientation, absPadB) : null;
         const relScale = panels.rel
-            ? this.makePanelScale(domains.rel, panels.rel, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.rel, panels.rel, orientation, relPadB) : null;
         const abs2Scale = panels.abs2
-            ? this.makePanelScale(domains.abs2, panels.abs2, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.abs2, panels.abs2, orientation, abs2PadB) : null;
         const rel2Scale = panels.rel2
-            ? this.makePanelScale(domains.rel2, panels.rel2, orientation, labelPad) : null;
+            ? this.makePanelScale(domains.rel2, panels.rel2, orientation, rel2PadB) : null;
         // the bridge domain is zero-based like its anchor bars (S2) — label room only
         // on the side(s) away from zero, exactly like the main panel
         const bridgeNat = panels.bridge
@@ -14286,21 +14860,31 @@ export class Visual implements IVisual {
         const t = this.el("text", {
             x: 6, y: f1 + 2, "font-size": f1, "font-family": FONT, fill: cfg.ink
         }, this.svg);
-        const span = (text: string, bold: boolean) => {
-            if (!text) { return; }
-            const ts = document.createElementNS(SVG_NS, "tspan");
-            if (bold) { ts.setAttribute("font-weight", "600"); }
-            ts.textContent = text;
-            t.appendChild(ts);
-        };
         // 1.52.1: the unit is named ONCE, where the measure name says it
         // („Nettoumsatz in Mio. EUR je Kanal“), or appended when it says none
-        span(before, true);
-        span(unitPart, false);
-        span(after, true);
         const head = before || unitPart || after;
         const tail = period && scenPart ? `${period}: ${scenPart}` : period || scenPart;
-        span(`${head && tail ? " · " : ""}${tail}`, false);
+        const segs = [
+            { text: before, bold: true }, { text: unitPart, bold: false }, { text: after, bold: true },
+            { text: `${head && tail ? " · " : ""}${tail}`, bold: false }
+        ].filter(sg => sg.text);
+        // a title wider than the tile (half-page export, Full HD font) wraps onto a
+        // second line at a word boundary; only a still too long second line is cut
+        const lineH = Math.round(f1 * 1.25);
+        const lines = this.wrapTitle(segs, width - 12, f1);
+        lines.forEach((ln, li) => {
+            ln.forEach((sg, si) => {
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                if (sg.bold) { ts.setAttribute("font-weight", "600"); }
+                if (li > 0 && si === 0) {
+                    ts.setAttribute("x", "6");
+                    ts.setAttribute("dy", String(lineH));
+                }
+                ts.textContent = sg.text;
+                t.appendChild(ts);
+            });
+        });
+        const extraH = (lines.length - 1) * lineH;
 
         let message = (s.message.value || "").trim();
         if (!message && s.autoMessage.value) {
@@ -14308,13 +14892,65 @@ export class Visual implements IVisual {
         }
         if (message) {
             const m = this.el("text", {
-                x: 6, y: f1 + f2 + 7, "font-size": f2, "font-family": FONT,
+                x: 6, y: f1 + f2 + 7 + extraH, "font-size": f2, "font-family": FONT,
                 fill: cfg.ink, "font-style": "italic"
             }, this.svg);
             m.textContent = this.truncate(message, width - 12, f2);
-            return f1 + f2 + 15;
+            return f1 + f2 + 15 + extraH;
         }
-        return f1 + 10;
+        return f1 + 10 + extraH;
+    }
+
+    /**
+     * title segments (bold/regular runs) laid out on at most two lines of maxW px:
+     * greedy at word boundaries; the second line is cut with "…" only if the rest
+     * does not fit either. One line = the segments unchanged.
+     */
+    private wrapTitle(segs: { text: string; bold: boolean }[], maxW: number, font: number)
+        : { text: string; bold: boolean }[][] {
+        const w = (sg: { text: string; bold: boolean }) => this.textWidth(sg.text, font, sg.bold);
+        if (segs.reduce((a, sg) => a + w(sg), 0) <= maxW) { return [segs]; }
+        // word tokens with their trailing blank, each tagged with its run's weight
+        const toks: { text: string; bold: boolean }[] = [];
+        for (const sg of segs) {
+            for (const part of sg.text.split(/(?<=\s)/)) {
+                if (part) { toks.push({ text: part, bold: sg.bold }); }
+            }
+        }
+        const lines: { text: string; bold: boolean }[][] = [[]];
+        let lineW = 0;
+        for (let i = 0; i < toks.length; i++) {
+            const tk = toks[i];
+            const cur = lines[lines.length - 1];
+            const tw = this.textWidth(tk.text.trimEnd(), font, tk.bold);
+            if (lineW + tw <= maxW) {
+                cur.push(tk);
+                lineW += this.textWidth(tk.text, font, tk.bold);
+                continue;
+            }
+            if (lines.length === 1 && cur.length > 0) {
+                lines.push([]);
+                lineW = 0;
+                const st = tk.text.trimStart();
+                if (this.textWidth(st.trimEnd(), font, tk.bold) <= maxW) {
+                    lines[1].push({ text: st, bold: tk.bold });
+                    lineW = this.textWidth(st, font, tk.bold);
+                    continue;
+                }
+            }
+            // last line full: cut the rest into it with an ellipsis
+            const line = lines[lines.length - 1];
+            const rest = [tk, ...toks.slice(i + 1)].map(x => x.text).join("").trimStart();
+            const room = maxW - lineW;
+            if (room > font * 2 || line.length === 0) {
+                line.push({ text: this.truncate(rest, Math.max(room, font), font), bold: tk.bold });
+            } else {
+                const last = line[line.length - 1];
+                last.text = this.truncate(last.text + rest, this.textWidth(last.text, font, last.bold), font);
+            }
+            break;
+        }
+        return lines;
     }
 
     /**
@@ -15070,6 +15706,34 @@ export class Visual implements IVisual {
      * the lowest level, floored to a multiple of a "nice" step (1/2/5 × 10ⁿ ≥ span) —
      * PY 100 Mio with levels up to 107 Mio cuts at 90 Mio. ≤ 0 = no sensible cut.
      */
+    /**
+     * 1.52.5 cut magnitude of a bridge axis break (chart.bridgeBreak, IBCS UN 5.3)
+     * over every anchor and running level the bridge draws: a positive bridge is cut
+     * below its lowest level, a purely negative one mirrored above its highest (the
+     * level closest to zero). A bridge crossing zero is never cut. 0 = no cut.
+     */
+    private bridgeCut(levels: number[]): number {
+        const lo = Math.min(...levels), hi = Math.max(...levels);
+        if (lo < 0 && hi > 0) { return 0; }
+        const neg = hi <= 0 && lo < 0;
+        const near = neg ? -hi : lo, far = neg ? -lo : hi;
+        const c = this.wfAutoCut(near, far);
+        return c > 0 && near > c ? c : 0;
+    }
+
+    /**
+     * piecewise value scale of a broken bridge axis: the magnitudes 0…cut are squeezed
+     * between the zero line y0 and the knee yKnee, beyond the knee the scale runs
+     * linearly with kLin px per unit. sd = 1: values grow upwards (positive bridge),
+     * sd = −1: downwards from a zero line on top (purely negative bridge, 1.52.5).
+     */
+    private brokenBridgeScale(y0: number, yKnee: number, cut: number, kLin: number, sd: 1 | -1): Scale {
+        return (v: number) => {
+            const a = v * sd;
+            return a <= cut ? y0 + (yKnee - y0) * (a / cut) : yKnee - sd * (a - cut) * kLin;
+        };
+    }
+
     private wfAutoCut(minLevel: number, maxLevel: number): number {
         const span = maxLevel - minLevel > 0 ? maxLevel - minLevel : Math.abs(minLevel) * 0.1;
         if (!(span > 0) || !isFinite(span)) { return 0; }
@@ -15161,7 +15825,7 @@ export class Visual implements IVisual {
     }
 
     private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean,
-        vertical: boolean, region: Rect, showDual = false, showBridge = false)
+        vertical: boolean, region: Rect, showDual = false, showBridge = false, relMin = 0)
         : { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect } {
         const gap = 10;
         type Key = "main" | "abs" | "rel" | "abs2" | "rel2" | "bridge";
@@ -15185,10 +15849,26 @@ export class Visual implements IVisual {
         }
         const totalShare = parts.reduce((a, b) => a + b.share, 0);
         const usable = span - gap * (parts.length - 1);
+        const sizes = parts.map(part => usable * (part.share / totalShare));
+        // bars: a Δ% panel needs room for its pins AND the labels on both sides —
+        // widened at the expense of the base panel (capped at 40 % of the span each)
+        if (!vertical && relMin > 0) {
+            const mi = parts.findIndex(x => x.key === "main");
+            parts.forEach((part, pi) => {
+                if (part.key !== "rel" && part.key !== "rel2") { return; }
+                const want = Math.min(relMin, usable * 0.4);
+                const deficit = want - sizes[pi];
+                if (deficit > 0 && sizes[mi] - deficit > usable * 0.3) {
+                    sizes[pi] += deficit;
+                    sizes[mi] -= deficit;
+                }
+            });
+        }
         const out: Partial<Record<Key, Rect>> = {};
         let cursor = start;
-        for (const part of parts) {
-            const size = usable * (part.share / totalShare);
+        for (let pi = 0; pi < parts.length; pi++) {
+            const part = parts[pi];
+            const size = sizes[pi];
             out[part.key] = vertical
                 ? { x: region.x, y: cursor, w: region.w, h: size }
                 : { x: cursor, y: region.y, w: size, h: region.h };
@@ -15210,9 +15890,10 @@ export class Visual implements IVisual {
      */
     private splitPanelsSameScale(start: number, span: number, showAbs: boolean, showRel: boolean,
         vertical: boolean, region: Rect, showDual: boolean, showBridge: boolean,
-        domains: Domains, mainPad: number, labelPad: number, minPlot: number)
+        domains: Domains, mainPad: number | PanelPad, labelPad: number | PanelPad, minPlot: number,
+        abs2Pad: number | PanelPad = labelPad, relMin = 0)
         : { panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect }; zoom: number } | null {
-        const old = this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge);
+        const old = this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         if (!old.abs) { return { panels: old, zoom: 1 }; }
         const orient: Orientation = vertical ? "columns" : "bars";
         const gap = 10;
@@ -15223,7 +15904,7 @@ export class Visual implements IVisual {
         const avail = span - gap * (nParts - 1) - fixed;
         const base = this.panelGeom(domains.main, orient, mainPad, false);
         const tiers = [domains.abs, ...(old.abs2 ? [domains.abs2] : [])]
-            .map(d => this.panelGeom(d, orient, labelPad, false));
+            .map((d, ti) => this.panelGeom(d, orient, ti === 0 ? labelPad : abs2Pad, false));
         const split = this.sameScaleSplit(avail, base, tiers, minPlot);
         if (!split) { return null; }
         // lay the parts out in the original order with the new sizes
@@ -15344,17 +16025,27 @@ export class Visual implements IVisual {
 
     /** pixel overhead (label room, end padding) and padded value span of a panel —
      *  mirrors makePanelScale, so px per unit = plot / span exactly */
-    private panelGeom(domain: [number, number], orientation: Orientation, labelPad: number,
+    private panelGeom(domain: [number, number], orientation: Orientation, labelPad: number | PanelPad,
         bothEnds: boolean): { ov: number; span: number } {
         let [mn, mx] = domain;
         const raw = mx - mn;
         if (mn === 0 && mx === 0) { mx = 1; }
         const lo = bothEnds || mn < 0, hi = bothEnds || mx > 0;
         const span = raw > 0 ? (mx - mn) * (1 + 0.02 * ((lo ? 1 : 0) + (hi ? 1 : 0))) : 0;
+        const pp = this.sidePads(labelPad, orientation);
         const ov = orientation === "columns"
-            ? (hi ? labelPad + 12 : 12) + (lo ? labelPad : 2)
-            : (lo ? labelPad + 4 : 4) + (hi ? labelPad + 24 : 4);
+            ? (hi ? pp.hi + 12 : 12) + (lo ? pp.lo : 2)
+            : (lo ? pp.lo : 4) + (hi ? pp.hi : 4);
         return { ov, span };
+    }
+
+    /** per-side label room: a plain number keeps the historic formulas (columns:
+     *  labelPad on both sides, bars: +4 left / +24 right); a PanelPad is used as is */
+    private sidePads(labelPad: number | PanelPad, orientation: Orientation): PanelPad {
+        if (typeof labelPad !== "number") { return labelPad; }
+        return orientation === "columns"
+            ? { lo: labelPad, hi: labelPad }
+            : { lo: labelPad + 4, hi: labelPad + 24 };
     }
 
     /**
@@ -15425,21 +16116,28 @@ export class Visual implements IVisual {
     }
 
     private makePanelScale(domain: [number, number], rect: Rect, orientation: Orientation,
-        labelPad: number, bothEnds = false): Scale {
+        labelPad: number | PanelPad, bothEnds = false): Scale {
         let [mn, mx] = domain;
         if (mn === 0 && mx === 0) { mx = 1; }
         const span = mx - mn;
         const padFrac = 0.02;
         const mnp = (bothEnds || mn < 0) ? mn - span * padFrac : mn;
         const mxp = (bothEnds || mx > 0) ? mx + span * padFrac : mx;
+        const pp = this.sidePads(labelPad, orientation);
         if (orientation === "columns") {
-            const top = rect.y + ((bothEnds || mx > 0) ? labelPad + 12 : 12);
-            const bottom = rect.y + rect.h - ((bothEnds || mn < 0) ? labelPad : 2);
+            const top = rect.y + ((bothEnds || mx > 0) ? pp.hi + 12 : 12);
+            const bottom = rect.y + rect.h - ((bothEnds || mn < 0) ? pp.lo : 2);
             return linearScale(mnp, mxp, bottom, top);
         } else {
-            const left = rect.x + ((bothEnds || mn < 0) ? labelPad + 4 : 4);
-            const right = rect.x + rect.w - ((bothEnds || mx > 0) ? labelPad + 24 : 4);
-            return linearScale(mnp, mxp, left, right);
+            let lo = (bothEnds || mn < 0) ? pp.lo : 4;
+            let hi = (bothEnds || mx > 0) ? pp.hi : 4;
+            // a narrow panel keeps some room for the marks (24 px, at most a third)
+            const maxPad = rect.w - Math.min(24, rect.w / 3);
+            if (typeof labelPad !== "number" && lo + hi > maxPad && lo + hi > 0) {
+                const f = maxPad / (lo + hi);
+                lo *= f; hi *= f;
+            }
+            return linearScale(mnp, mxp, rect.x + lo, rect.x + rect.w - hi);
         }
     }
 
@@ -15613,17 +16311,17 @@ export class Visual implements IVisual {
 
     /** real text width via an offscreen canvas (cached); falls back to the old
      *  0.56×fontSize character heuristic when no 2D context is available */
-    private textWidth(text: string, fontSize: number): number {
+    private textWidth(text: string, fontSize: number, bold = false): number {
         if (Visual.measureCtx === undefined) {
             try { Visual.measureCtx = document.createElement("canvas").getContext("2d"); }
             catch { Visual.measureCtx = null; }
         }
         const ctx = Visual.measureCtx;
-        if (!ctx) { return text.length * fontSize * 0.56; }
-        const key = `${fontSize}|${text}`;
+        if (!ctx) { return text.length * fontSize * (bold ? 0.6 : 0.56); }
+        const key = `${fontSize}|${bold ? "b" : ""}|${text}`;
         const hit = Visual.measureCache.get(key);
         if (hit !== undefined) { return hit; }
-        ctx.font = `${fontSize}px ${FONT}`;
+        ctx.font = `${bold ? "600 " : ""}${fontSize}px ${FONT}`;
         const w = ctx.measureText(text).width;
         if (Visual.measureCache.size > 20000) { Visual.measureCache.clear(); }
         Visual.measureCache.set(key, w);
@@ -15666,8 +16364,10 @@ export class Visual implements IVisual {
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
         g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";
 
-        // keyboard navigation: tab through categories, Enter/Space selects
-        g.setAttribute("tabindex", "0");
+        // keyboard navigation: tab through categories, Enter/Space selects — not in
+        // export/print or dashboard contexts: a focus stop that cannot select anything
+        // is a dead control (role + aria-label stay for screen readers)
+        if (allow) { g.setAttribute("tabindex", "0"); }
         g.setAttribute("role", "option");
         const aria = [`${p.cat}`];
         if (cfg.scatter && p.xVal != null) {
@@ -16198,12 +16898,32 @@ export class Visual implements IVisual {
             String(this.formattingSettings.chartCard[prop].value || "")
                 .split(",").map(x => x.trim().toLowerCase()).filter(x => x)
                 .includes(p.cat.trim().toLowerCase());
+        // 1.53: set by a rowType token in the model → shown ticked and locked (the
+        // list cannot switch the data contract off; change it in the model)
+        const listFlag: Record<ListProp, RowFlag | null> = {
+            invertList: "invert", resultList: null, skipList: "exclude",
+            hideList: "hide", chartList: "graphic", indentList: "davon"
+        };
+        const fromRole = (prop: ListProp): boolean => {
+            if (prop === "resultList") { return (p.rowType ?? "").startsWith("sum"); }
+            const f = listFlag[prop];
+            return f != null && (this.rowFlagNames.get(f)?.has(p.cat.trim().toLowerCase()) ?? false);
+        };
         const mkCheck = (label: string, prop: ListProp) => {
             const row = document.createElement("label");
             row.style.cssText = "display:flex;align-items:center;gap:6px;margin:4px 0;cursor:pointer;";
             const cb = document.createElement("input");
             cb.type = "checkbox";
             cb.checked = inList(prop);
+            const viaRole = fromRole(prop);
+            if (viaRole) {
+                cb.checked = true;
+                cb.disabled = true;
+                row.style.cursor = "default";
+                row.style.opacity = "0.6";
+                row.title = this.locStr("Struct_FromRole", "Set by the Waterfall type field (token) — change it in the model");
+                row.setAttribute("data-icd-role", "1");
+            }
             cb.addEventListener("change", ev => {
                 ev.stopPropagation();
                 this.toggleListEntry(prop, p.cat, cb.checked);
