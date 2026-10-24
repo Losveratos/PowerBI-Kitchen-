@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable powerbi-visuals/non-literal-fs-path -- Build-Skript, kein Visual-Code:
+   liest/schreibt nur Repo-Dateien relativ zu __dirname */
 // Erzeugt die Property-Referenz in AGENT-GUIDE.md aus dem Paket selbst:
 //   capabilities.json  -> Objekte, Properties, Typen, Enum-Werte, Rollen
 //   src/settings.ts    -> Standardwerte, deutsche Beschreibungen, Pane-Reihenfolge,
