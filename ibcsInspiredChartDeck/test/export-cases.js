@@ -160,7 +160,10 @@ function pageLib() {
                     ibcsTitle: { show: true, kpi: "GuV in EUR", period: "Jan bis Aug 2026",
                         footer: "Quelle: SAP FI · Stand 05.09.2026" }
                 }, preset), [["rowType", "Typ", pnlTypes]]),
-            expect: [/^Jahresüberschuss$/, /^EBIT$/, /^ΔPY( ×[\d,]+)?$/, /^ΔPY ?%$/]
+            expect: [/^EBIT$/, /^ΔPY( ×[\d,]+)?$/, /^ΔPY ?%$/],
+            // long P&L line names: complete (wrapped, hyphenated) where the slot allows
+            fullNames: (w, preset) => w >= 960 && preset === "compact" || w >= 1100 && preset === "fullhd"
+                ? ["Jahresüberschuss", "Umsatzerlöse", "Materialaufwand", "Ertragsteuern"] : []
         },
         matrix: {
             title: "Matrix Quartal → Monat + Σ (YTD)",
@@ -236,10 +239,25 @@ function pageLib() {
             if (CHROME_GLYPHS.some(g => s === g || s.startsWith(g + " "))) { out.chrome.push("Glyphe „" + s + "“"); }
             if (CHEVRONS.some(g => s === g || s.startsWith(g))) { out.chrome.push("Chevron „" + s + "“"); }
         }
+        // the full label of a text: tspans with their own y/dy are wrapped lines —
+        // "Jahres-" + "überschuss" reads "Jahresüberschuss", "Sonstige" + "betriebl…" with a blank
+        const fullText = t => {
+            const parts = [...t.childNodes];
+            if (!parts.some(n => n.nodeType === 1 && (n.getAttribute("dy") || n.getAttribute("y")))) { return t.textContent.trim(); }
+            let out = "";
+            parts.forEach((n, i) => {
+                const txt = n.textContent;
+                const brk = i > 0 && n.nodeType === 1 && (n.getAttribute("dy") || n.getAttribute("y"));
+                if (brk && /[a-zäöüß]-$/i.test(out) && /^[a-zäöüß]/.test(txt)) { out = out.slice(0, -1) + txt; }
+                else if (brk && !/\s$/.test(out)) { out += " " + txt; }
+                else { out += txt; }
+            });
+            return out.trim();
+        };
         const boxes = texts.map(t => {
             const r = t.getBoundingClientRect();
             const fs = parseFloat(t.getAttribute("font-size") || getComputedStyle(t).fontSize);
-            return { t, s: t.textContent.trim(), x0: r.left - sr.left, x1: r.right - sr.left, y0: r.top - sr.top, y1: r.bottom - sr.top, fs, clip: clipped(t, stage) };
+            return { t, s: fullText(t), x0: r.left - sr.left, x1: r.right - sr.left, y0: r.top - sr.top, y1: r.bottom - sr.top, fs, clip: clipped(t, stage) };
         }).filter(b => b.x1 - b.x0 > 0.5);
         out.texts = boxes.map(b => b.s);
         out.fontSizes = boxes.map(b => b.fs).filter(v => isFinite(v));
@@ -323,6 +341,8 @@ function pageLib() {
             r.sheet = window.SHEETS[i.split("-")[1]];
             r.expect = r.sheet.expect ? r.sheet.expect.map(x => x.source) : null;
             r.months = r.sheet.months || null;
+            const sz = document.getElementById(i).getBoundingClientRect().width;
+            r.fullNames = r.sheet.fullNames ? r.sheet.fullNames(Math.round(sz), i.split("-")[3]) : [];
             delete r.sheet;
             return r;
         }, id);
@@ -335,6 +355,15 @@ function pageLib() {
             const miss = res.expect.filter(x => !res.texts.some(t => new RegExp(x).test(t)));
             check(miss.length === 0, `(c) ${tag}: Panels/Zeilen vollständig beschriftet (${res.expect.join(" ")})`, "fehlt: " + miss.join(" "));
         }
+        if (res.fullNames.length) {
+            const miss = res.fullNames.filter(x => !res.texts.includes(x));
+            check(miss.length === 0, `(b) ${tag}: lange Zeilennamen vollständig (umbrochen)`, "fehlt: " + miss.join(", "));
+        }
+        // shortened labels stay recognisable: ≥ 4 characters and mutually distinct
+        const cut = res.ellipsis.filter(t => /…$/.test(t));
+        const weak = cut.filter(t => t.replace(/[\s…-]/g, "").length < 4);
+        check(weak.length === 0 && new Set(cut).size === cut.length,
+            `(b) ${tag}: gekürzte Beschriftungen eindeutig (≥ 4 Zeichen)`, cut.join(" | "));
         const hasFooter = res.texts.some(t => t.includes("Quelle:"));
         check(hasFooter, `(c) ${tag}: Fußzeile sichtbar`);
         if (res.months) {

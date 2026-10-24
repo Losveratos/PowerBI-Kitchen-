@@ -6439,9 +6439,16 @@ export class Visual implements IVisual {
         const pad = 4;
         const k = this.fontK;
         const titleH = Math.round(14 * k);
-        const catArea = cfg.catFont + 10;
         const bandStart = region.x + pad + 2;
         const bandEnd = region.x + region.w - pad;
+        // P&L line names are long ("Sonstige betriebliche Aufwendungen") and a fixed
+        // export tile cannot reveal them on hover: when a name is wider than its slot,
+        // the category axis takes a second text line (word wrap, hyphenated compound)
+        const wfStep0 = (bandEnd - bandStart) / segs.length;
+        const catLineStep = Math.round(cfg.catFont * 1.15);
+        const wrapCats = segs.some(sg => this.textWidth(sg.label, cfg.catFont) > wfStep0 - 2)
+            && region.h >= 200 * k;
+        const catArea = cfg.catFont + 10 + (wrapCats ? catLineStep : 0);
         const outer: Rect = {
             x: region.x, y: region.y + pad,
             w: region.w, h: region.h - pad - catArea
@@ -6487,6 +6494,27 @@ export class Visual implements IVisual {
             ? [...varDomains.abs] as [number, number]
             : extent(tierPts.map(p => p?.varAbs ?? null));
 
+        // a positive Δ label under the tier title ("ΔPY" top left) would print over
+        // it — the tier then starts its bars one title height lower (same px per unit)
+        const wfN = segs.length, wfSlot = Math.max(2, wfStep0 * SLOT_ABS);
+        const tierTitleRight = region.x + 6
+            + this.textWidth(`Δ${cfg.basisLabel} ×10`, Math.round(10 * k), true) + 4;
+        const absUnderTitle = cfg.showLabels && tierPts.some((p, i) => {
+            if (p?.varAbs == null || p.varAbs <= 0 || i >= wfN) { return false; }
+            const c = bandStart + i * wfStep0 + wfStep0 / 2;
+            return c - this.textWidth(this.fmtSigned(cfg.fmtVar, p.varAbs), cfg.labelFont) / 2 < tierTitleRight
+                && wfSlot > 0;
+        });
+        const absPad: number | PanelPad = absUnderTitle
+            ? { lo: labelPad, hi: labelPad + titleH - 4 } : labelPad;
+        // same for the Δ% pins ("ΔPY %" title)
+        const relUnderTitle = cfg.showLabels && tierPts.some((p, i) => {
+            if (p?.varRel == null || p.varRel <= 0 || i >= wfN) { return false; }
+            const c = bandStart + i * wfStep0 + wfStep0 / 2;
+            return c - this.textWidth(this.fmtPercent(p.varRel), cfg.labelFont) / 2 < tierTitleRight;
+        });
+        const relPad: number | PanelPad = relUnderTitle
+            ? { lo: labelPad, hi: labelPad + titleH - 4 } : labelPad;
         let rect = outer;
         let relRect: Rect | null = null, absRect: Rect | null = null;
         // 1.52: the ΔBasis tier shares the waterfall's px per unit (IBCS: same scale
@@ -6504,7 +6532,7 @@ export class Visual implements IVisual {
                 const base = brk != null
                     ? { ov: labelPad + 14 + stubGuess, span: (Math.max(domain[1], brk) - brk) * 1.02 }
                     : this.panelGeom(domain, "columns", labelPad, false);
-                const tier = this.panelGeom(absDomain, "columns", labelPad, true);
+                const tier = this.panelGeom(absDomain, "columns", absPad, true);
                 const sp = this.sameScaleSplit(avail, base, [tier],
                     Math.max(10, Math.round(8 * k)));
                 const absH = sp ? sp.tierPlots[0] + tier.ov : Math.round(outer.h * 0.24);
@@ -6533,9 +6561,11 @@ export class Visual implements IVisual {
             const relDomain: [number, number] = varDomains
                 ? [...varDomains.rel] as [number, number]
                 : extent(tierPts.map(p => p?.varRel ?? null));
-            const relScale = this.makePanelScale(relDomain, relRect, "columns", labelPad, true);
+            const relScale = this.makePanelScale(relDomain, relRect, "columns", relPad, true);
             this.drawBaseline(tg, relRect, relScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
             this.drawPanelTitle(tg, relRect, `Δ${cfg.basisLabel} %`, "columns", titleH, region, undefined, cfg.subtle);
+            const relTitle = tg.lastElementChild as SVGTextElement;
+            const relLbls: { el: SVGTextElement; prio: number }[] = [];
             const zero = relScale(0);
             for (let i = 0; i < n; i++) {
                 const v = tierPts[i]?.varRel;
@@ -6559,16 +6589,20 @@ export class Visual implements IVisual {
                         relScale(v) - headR - cfg.labelFont, relRect.y, region.x, `Δ${cfg.basisLabel} %`);
                     this.drawEndLabelAt(tg, c, v, v >= 0 && !flip, relScale, "columns", this.fmtPercent(v),
                         cfg.labelFont, cfg.ink, Math.round(2 * k), cfg.paper);
+                    relLbls.push({ el: tg.lastElementChild as SVGTextElement, prio: Math.abs(v) });
                 }
             }
+            this.declutterLabels(relLbls, [relTitle]);
         }
         // ΔBasis bars tier
         if (absRect) {
             const tg = this.el("g", {}, this.svg);
-            const absScale = this.makePanelScale(absDomain, absRect, "columns", labelPad, true);
+            const absScale = this.makePanelScale(absDomain, absRect, "columns", absPad, true);
             this.drawBaseline(tg, absRect, absScale, "columns", bandStart, bandEnd, cfg.basisMode, cfg.colors);
             this.drawPanelTitle(tg, absRect, `Δ${cfg.basisLabel}${wfZoom > 1 ? ` ×${wfZoom}` : ""}`,
                 "columns", titleH, region, undefined, cfg.subtle);
+            const absTitle = tg.lastElementChild as SVGTextElement;
+            const absLbls: { el: SVGTextElement; prio: number }[] = [];
             // magnified tier: scale band at the same value in tier and waterfall
             // (with an axis break the base band would sit in the squeezed stub — the
             // "×f" title alone marks the zoom there)
@@ -6589,8 +6623,10 @@ export class Visual implements IVisual {
                 if (showTierLabels) {
                     this.drawEndLabel(tg, pos(i) + slotW / 2, v, absScale, "columns",
                         this.fmtSigned(cfg.fmtVar, v), cfg.labelFont, cfg.ink, 0, cfg.paper);
+                    absLbls.push({ el: tg.lastElementChild as SVGTextElement, prio: Math.abs(v) });
                 }
             }
+            this.declutterLabels(absLbls, [absTitle]);
         }
 
         const bg = this.el("g", {}, this.svg);
@@ -6606,6 +6642,8 @@ export class Visual implements IVisual {
             title += ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(brk))}`;
         }
         this.drawPanelTitle(bg, rect, title, "columns", titleH, region, undefined, cfg.subtle);
+        const mainTitle = bg.lastElementChild as SVGTextElement;
+        const mainLbls: { el: SVGTextElement; prio: number }[] = [];
 
         // 1.52.1 (IBCS: one precision per chart): anchors and steps of the bridge
         // share their decimals ("1,83 · +1,17 · 3,00", not "1,8 · +1,17 · 3,0"); the
@@ -6672,15 +6710,130 @@ export class Visual implements IVisual {
                 }
                 this.drawEndLabelAt(g, pos(i) + slotW / 2, anchor, positive, scale,
                     "columns", text, cfg.labelFont, cfg.ink, 0, cfg.paper);
+                // anchors (sums, totals) win a collision, then the larger step
+                mainLbls.push({ el: g.lastElementChild as SVGTextElement,
+                    prio: (sg.kind === "anchor" ? 1e300 : 0) + Math.abs(sg.to - sg.from) });
             }
-            this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
-                region, step, rect, cfg.ink, this.isEmph(cfg, sg.label));
+            if (wrapCats) {
+                this.drawCatLabelTwoLines(g, sg.label, pos(i) + slotW / 2, region.y + region.h - 3,
+                    step - 2, cfg.catFont, catLineStep, cfg.ink, this.isEmph(cfg, sg.label));
+            } else {
+                this.drawCategoryLabel(g, sg.label, pos(i) + slotW / 2, "columns", cfg.catFont,
+                    region, step, rect, cfg.ink, this.isEmph(cfg, sg.label));
+            }
 
             if (sg.p) {
                 this.attachInteraction(g, sg.p, cfg);
                 this.catGroups.push({ g, sel: sg.p.sel, dim: sg.p.dim });
             }
         }
+        // fixed export tiles: value labels of neighbouring steps at similar heights
+        // (and the panel title) must not print over each other — the lower-ranked
+        // label of a colliding pair is dropped
+        this.declutterLabels(mainLbls, [mainTitle]);
+    }
+
+    /**
+     * drops value labels that would print over a higher-ranked label or one of the
+     * `fixed` texts (panel titles). Glyph boxes (bbox without most of the line
+     * leading) are compared; needs the SVG in the document — detached renders
+     * (scale measurement) keep every label.
+     */
+    private declutterLabels(items: { el: SVGTextElement; prio: number }[], fixed: SVGTextElement[] = []): void {
+        const boxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
+        const boxOf = (el: SVGTextElement) => {
+            let b: DOMRect;
+            try { b = el.getBBox(); } catch { return null; }
+            if (!(b.width > 0) || !(b.height > 0)) { return null; }
+            const sh = b.height * 0.18;
+            return { x0: b.x + 0.5, x1: b.x + b.width - 0.5, y0: b.y + sh, y1: b.y + b.height - sh };
+        };
+        for (const f of fixed) { const b = f ? boxOf(f) : null; if (b) { boxes.push(b); } }
+        const sorted = items.filter(it => it.el != null).sort((a, b) => b.prio - a.prio);
+        for (const it of sorted) {
+            const b = boxOf(it.el);
+            if (!b) { continue; }
+            const hit = boxes.some(o => Math.min(o.x1, b.x1) - Math.max(o.x0, b.x0) > 0.5
+                && Math.min(o.y1, b.y1) - Math.max(o.y0, b.y0) > 0.5);
+            if (hit) { it.el.remove(); } else { boxes.push(b); }
+        }
+    }
+
+    /** two-line category label under a column (bottom line at yBottom): word wrap,
+     *  a single compound word is hyphenated (finance stems first), the rest cut */
+    private drawCatLabelTwoLines(parent: SVGElement, text: string, cx: number, yBottom: number,
+        maxW: number, font: number, lineStep: number, ink: string, bold: boolean): void {
+        const t = this.el("text", {
+            x: cx, y: yBottom, "text-anchor": "middle", "font-size": font, fill: ink,
+            "font-family": FONT, "font-weight": bold ? 600 : 400
+        }, parent);
+        if (this.textWidth(text, font) <= maxW) { t.textContent = text; return; }
+        const [l1, l2] = this.splitLabel(text, maxW, font);
+        [[l1, yBottom - lineStep], [this.truncate(l2, maxW, font), yBottom]].forEach(([ln, ly]) => {
+            const ts = document.createElementNS(SVG_NS, "tspan");
+            ts.setAttribute("x", String(cx));
+            ts.setAttribute("y", String(ly));
+            ts.textContent = String(ln);
+            t.appendChild(ts);
+        });
+    }
+
+    /** splits a label for two lines: at a word boundary when the first words fit,
+     *  else one long word at a compound joint ("Jahres-überschuss", "Material-
+     *  aufwand") or, failing that, at the most balanced hyphenated character break */
+    private splitLabel(text: string, maxW: number, font: number): [string, string] {
+        const fits = (x: string) => this.textWidth(x, font) <= maxW;
+        const words = text.split(/\s+/).filter(w => w);
+        if (words.length > 1 && fits(words[0])) { return this.splitTwoLines(text, maxW, font); }
+        const word = words[0] ?? text;
+        const tail = words.slice(1).join(" ");
+        const after = (rest: string) => tail ? `${rest} ${tail}` : rest;
+        const lower = word.toLowerCase();
+        const STEMS = ["überschuss", "fehlbetrag", "ergebnis", "erlöse", "erträge", "ertrag", "aufwendungen",
+            "aufwand", "veränderung", "steuern", "kosten", "umsatz", "abschreibung", "zinsen", "vermögen",
+            "kapital", "rückstellung", "forderung", "verbindlichkeit", "beitrag", "marge", "leistung",
+            "income", "expense", "revenue", "margin", "profit"];
+        // compound joints from the finance stems: both halves fit → done
+        const joints: number[] = [];
+        for (const st of STEMS) {
+            const i = lower.indexOf(st, 3);
+            if (i >= 3 && word.length - i >= 3) { joints.push(i); }
+        }
+        joints.sort((a, b) => a - b);
+        for (const i of joints) {
+            const a = word.slice(0, i) + "-", b = word.slice(i);
+            if (fits(a) && fits(b)) { return [a, after(b)]; }
+        }
+        // the joint whose first half fits: rest of the second line cut ("Bestands-
+        // veränd…" reads better than a break one letter off the joint)
+        for (const i of joints.slice().reverse()) {
+            const a = word.slice(0, i) + "-";
+            if (fits(a)) { return [a, after(word.slice(i))]; }
+        }
+        // syllable-like joints first (break before consonant + vowel: "Abschrei-bungen"),
+        // then any position; never one or two letters off a compound joint
+        const V = /[aeiouäöüyáéíóú]/i;
+        for (const syl of [true, false]) {
+            let pick: [string, string] | null = null, pickW = Infinity;
+            for (let i = 3; i <= word.length - 3; i++) {
+                const a = word.slice(0, i) + "-", b = word.slice(i);
+                if (!fits(a)) { break; }
+                if (joints.some(jn => i !== jn && Math.abs(i - jn) <= 2)) { continue; }
+                if (syl && (V.test(word[i]) || !V.test(word[i + 1] ?? "") || !V.test(word[i - 1]))) { continue; }
+                const w = Math.max(this.textWidth(a, font), this.textWidth(b, font));
+                if (fits(b) && w < pickW) { pick = [a, after(b)]; pickW = w; }
+            }
+            if (pick) { return pick; }
+        }
+        // a joint exists but its first half is too wide: cut that half, keep the stem
+        if (joints.length > 0) {
+            const i = joints[joints.length - 1];
+            return [this.truncate(word.slice(0, i), maxW, font), after(word.slice(i))];
+        }
+        // nothing fits on two lines: the first line as much as fits, the rest cut
+        let i = word.length - 1;
+        while (i > 1 && !fits(word.slice(0, i) + "-")) { i--; }
+        return [word.slice(0, i) + "-", after(word.slice(i))];
     }
 
     /** scenario notation of a comparison-basis anchor bar (IBCS/ISO 24896): PY solid
@@ -7297,7 +7450,16 @@ export class Visual implements IVisual {
             ?? Math.max(REF, ACt, hasOther ? otherTot : 0, ext[1], 1);
         const minV = cfg.sharedCatBridge?.minV
             ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
-        const X = linearScale(minV, maxV, x0, xValEnd);
+        // negative row values put their label LEFT of the bar end — reserve that room
+        // between the category names and the scale, or "−4,2M" runs into the name
+        // column (export tiles cannot hover-reveal a covered name)
+        // (shared small-multiples scale: one fixed reserve, so every tile keeps the
+        // same px per unit)
+        const negLblW = !cfg.showLabels || minV >= 0 ? 0
+            : cfg.sharedCatBridge ? valLblW
+            : pts.reduce((a, p) => p.value != null && p.value < 0
+                ? Math.max(a, this.textWidth(cfg.fmt.format(p.value), lf) + 10) : a, 0);
+        const X = linearScale(minV, maxV, x0 + Math.min(negLblW, (xValEnd - x0) * 0.25), xValEnd);
         this.lastScaleK = Math.abs(X(1) - X(0));
         // zero line of all bars (== x0 unless something is negative)
         const xZ = X(0);
@@ -7341,7 +7503,30 @@ export class Visual implements IVisual {
                 x: x0 - 8, y: yy + rowH / 2 + cf * 0.35, "text-anchor": "end",
                 "font-size": cf, fill: cfg.ink, "font-family": FONT, "font-weight": bold ? 700 : 400
             }, parent);
-            t.textContent = this.truncate(text, catArea - 10, cf);
+            const maxW = catArea - 10;
+            const lineStep = Math.round(cf * 1.15);
+            // a long driver name wraps onto two lines when the row is tall enough
+            // (half-page export tiles) instead of being cut to "Verlorene Ku…"
+            if (this.textWidth(text, cf) <= maxW || rowH < 2 * lineStep) {
+                t.textContent = this.truncate(text, maxW, cf);
+                return;
+            }
+            let [l1, l2raw] = this.splitTwoLines(text, maxW, cf);
+            // one long word broken by characters: hyphenate the break ("Sortiments-
+            // bereinigung" style) instead of an unmarked cut
+            if (!/\s/.test(text.slice(l1.length, l1.length + 1)) && l2raw && !/\s$/.test(l1)) {
+                while (l1.length > 1 && this.textWidth(l1 + "-", cf) > maxW) { l1 = l1.slice(0, -1); }
+                l2raw = text.slice(l1.length).trimStart();
+                l1 += "-";
+            }
+            const y1 = yy + rowH / 2 - lineStep / 2 + cf * 0.35;
+            [[l1, y1], [this.truncate(l2raw, maxW, cf), y1 + lineStep]].forEach(([ln, ly]) => {
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                ts.setAttribute("x", String(x0 - 8));
+                ts.setAttribute("y", String(ly));
+                ts.textContent = String(ln);
+                t.appendChild(ts);
+            });
         };
         const valLabel = (xx: number, yy: number, text: string, bold: boolean, parent: SVGElement,
             anchor: "start" | "end" = "start", color = cfg.ink) => {
@@ -14327,21 +14512,31 @@ export class Visual implements IVisual {
         const t = this.el("text", {
             x: 6, y: f1 + 2, "font-size": f1, "font-family": FONT, fill: cfg.ink
         }, this.svg);
-        const span = (text: string, bold: boolean) => {
-            if (!text) { return; }
-            const ts = document.createElementNS(SVG_NS, "tspan");
-            if (bold) { ts.setAttribute("font-weight", "600"); }
-            ts.textContent = text;
-            t.appendChild(ts);
-        };
         // 1.52.1: the unit is named ONCE, where the measure name says it
         // („Nettoumsatz in Mio. EUR je Kanal“), or appended when it says none
-        span(before, true);
-        span(unitPart, false);
-        span(after, true);
         const head = before || unitPart || after;
         const tail = period && scenPart ? `${period}: ${scenPart}` : period || scenPart;
-        span(`${head && tail ? " · " : ""}${tail}`, false);
+        const segs = [
+            { text: before, bold: true }, { text: unitPart, bold: false }, { text: after, bold: true },
+            { text: `${head && tail ? " · " : ""}${tail}`, bold: false }
+        ].filter(sg => sg.text);
+        // a title wider than the tile (half-page export, Full HD font) wraps onto a
+        // second line at a word boundary; only a still too long second line is cut
+        const lineH = Math.round(f1 * 1.25);
+        const lines = this.wrapTitle(segs, width - 12, f1);
+        lines.forEach((ln, li) => {
+            ln.forEach((sg, si) => {
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                if (sg.bold) { ts.setAttribute("font-weight", "600"); }
+                if (li > 0 && si === 0) {
+                    ts.setAttribute("x", "6");
+                    ts.setAttribute("dy", String(lineH));
+                }
+                ts.textContent = sg.text;
+                t.appendChild(ts);
+            });
+        });
+        const extraH = (lines.length - 1) * lineH;
 
         let message = (s.message.value || "").trim();
         if (!message && s.autoMessage.value) {
@@ -14349,13 +14544,65 @@ export class Visual implements IVisual {
         }
         if (message) {
             const m = this.el("text", {
-                x: 6, y: f1 + f2 + 7, "font-size": f2, "font-family": FONT,
+                x: 6, y: f1 + f2 + 7 + extraH, "font-size": f2, "font-family": FONT,
                 fill: cfg.ink, "font-style": "italic"
             }, this.svg);
             m.textContent = this.truncate(message, width - 12, f2);
-            return f1 + f2 + 15;
+            return f1 + f2 + 15 + extraH;
         }
-        return f1 + 10;
+        return f1 + 10 + extraH;
+    }
+
+    /**
+     * title segments (bold/regular runs) laid out on at most two lines of maxW px:
+     * greedy at word boundaries; the second line is cut with "…" only if the rest
+     * does not fit either. One line = the segments unchanged.
+     */
+    private wrapTitle(segs: { text: string; bold: boolean }[], maxW: number, font: number)
+        : { text: string; bold: boolean }[][] {
+        const w = (sg: { text: string; bold: boolean }) => this.textWidth(sg.text, font, sg.bold);
+        if (segs.reduce((a, sg) => a + w(sg), 0) <= maxW) { return [segs]; }
+        // word tokens with their trailing blank, each tagged with its run's weight
+        const toks: { text: string; bold: boolean }[] = [];
+        for (const sg of segs) {
+            for (const part of sg.text.split(/(?<=\s)/)) {
+                if (part) { toks.push({ text: part, bold: sg.bold }); }
+            }
+        }
+        const lines: { text: string; bold: boolean }[][] = [[]];
+        let lineW = 0;
+        for (let i = 0; i < toks.length; i++) {
+            const tk = toks[i];
+            const cur = lines[lines.length - 1];
+            const tw = this.textWidth(tk.text.trimEnd(), font, tk.bold);
+            if (lineW + tw <= maxW) {
+                cur.push(tk);
+                lineW += this.textWidth(tk.text, font, tk.bold);
+                continue;
+            }
+            if (lines.length === 1 && cur.length > 0) {
+                lines.push([]);
+                lineW = 0;
+                const st = tk.text.trimStart();
+                if (this.textWidth(st.trimEnd(), font, tk.bold) <= maxW) {
+                    lines[1].push({ text: st, bold: tk.bold });
+                    lineW = this.textWidth(st, font, tk.bold);
+                    continue;
+                }
+            }
+            // last line full: cut the rest into it with an ellipsis
+            const line = lines[lines.length - 1];
+            const rest = [tk, ...toks.slice(i + 1)].map(x => x.text).join("").trimStart();
+            const room = maxW - lineW;
+            if (room > font * 2 || line.length === 0) {
+                line.push({ text: this.truncate(rest, Math.max(room, font), font), bold: tk.bold });
+            } else {
+                const last = line[line.length - 1];
+                last.text = this.truncate(last.text + rest, this.textWidth(last.text, font, last.bold), font);
+            }
+            break;
+        }
+        return lines;
     }
 
     /**
@@ -15688,17 +15935,17 @@ export class Visual implements IVisual {
 
     /** real text width via an offscreen canvas (cached); falls back to the old
      *  0.56×fontSize character heuristic when no 2D context is available */
-    private textWidth(text: string, fontSize: number): number {
+    private textWidth(text: string, fontSize: number, bold = false): number {
         if (Visual.measureCtx === undefined) {
             try { Visual.measureCtx = document.createElement("canvas").getContext("2d"); }
             catch { Visual.measureCtx = null; }
         }
         const ctx = Visual.measureCtx;
-        if (!ctx) { return text.length * fontSize * 0.56; }
-        const key = `${fontSize}|${text}`;
+        if (!ctx) { return text.length * fontSize * (bold ? 0.6 : 0.56); }
+        const key = `${fontSize}|${bold ? "b" : ""}|${text}`;
         const hit = Visual.measureCache.get(key);
         if (hit !== undefined) { return hit; }
-        ctx.font = `${fontSize}px ${FONT}`;
+        ctx.font = `${bold ? "600 " : ""}${fontSize}px ${FONT}`;
         const w = ctx.measureText(text).width;
         if (Visual.measureCache.size > 20000) { Visual.measureCache.clear(); }
         Visual.measureCache.set(key, w);
