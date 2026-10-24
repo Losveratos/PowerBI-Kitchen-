@@ -468,8 +468,10 @@ interface ChartConfig {
     deltaIcons: boolean;
     /** scenario display labels — house terms via the pane ("AC"→"Ist" …), defaults IBCS */
     scenL: { ac: string; py: string; pl: string; fc: string };
-    /** small multiples: shared integrated-bridge maxima over all tiles (null = per-tile scale) */
-    sharedIntWf: { maxTot: number; maxMon: number; maxPct: number } | null;
+    /** small multiples: shared integrated-bridge range over all tiles (null = per-tile scale);
+     *  minTot < 0 when a total or cascade level dips below zero, neg = any negative
+     *  value in the deck (then every tile draws the split layout, 1.52.5) */
+    sharedIntWf: { maxTot: number; minTot: number; maxMon: number; maxPct: number; neg: boolean } | null;
     /** small multiples: shared category-bridge range over all tiles (null = per-tile scale);
      *  minV < 0 only when a cascade level or row value dips below zero */
     sharedCatBridge: { maxV: number; minV: number; maxPct: number } | null;
@@ -5941,35 +5943,39 @@ export class Visual implements IVisual {
         // The maxima mirror exactly what the renderers compute per tile.
         if (groups.length > 1 && s.chartCard.multiplesSameScale.value) {
             if (isIntWf) {
-                let maxTot = 1, maxMon = 1, maxPct = 1;
+                let maxTot = 0, minTot = 0, maxMon = 1, maxPct = 1, neg = false;
                 // only tiles the renderer will actually draw may bound the shared
-                // scale: refused tiles (negative values → hint, no basis → hint)
-                // and groups beyond the grid cap would silently squash the rest
+                // scale: refused tiles (no basis → hint) and groups beyond the grid
+                // cap would silently squash the rest. 1.52.5: negative tiles are
+                // drawn — they extend the range below zero, and one negative value
+                // anywhere puts EVERY tile into the split layout (cascade with its
+                // own zero line, monthly strip below), so all keep one px per unit
                 for (const g of groups.slice(0, MULT_MAX_CELLS)) {
-                    if (g.pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) { continue; }
                     if (!g.pts.some(p => p.varAbs != null)) { continue; }
                     const basisSum = g.pts.reduce((a, p) => a + (p.basis ?? 0), 0);
                     const vTot = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
-                    const pySum = g.pts.reduce((a, p) => a + (p.py ?? 0), 0);
-                    const plSum = g.pts.reduce((a, p) => a + (p.pl ?? 0), 0);
-                    const twoTotals = g.pts.some(p => p.py != null) && g.pts.some(p => p.pl != null);
-                    // running cascade peaks bound the scale too (S4) — mirrors the renderer
-                    maxTot = Math.max(maxTot, basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0,
-                        this.intWfPeak(g.pts));
+                    // totals + running cascade levels (S4) — mirrors the renderer
+                    const r = this.intWfRange(g.pts);
+                    maxTot = Math.max(maxTot, r.hi);
+                    minTot = Math.min(minTot, r.lo);
                     for (const p of g.pts) {
                         maxMon = Math.max(maxMon, p.value ?? 0, p.basis ?? 0,
                             cfg.pyTriangle ? (p.py ?? 0) : 0);
                         maxPct = Math.max(maxPct, Math.abs(p.varRel ?? 0));
+                        if ((p.value ?? 0) < 0 || (p.basis ?? 0) < 0 || (cfg.pyTriangle && (p.py ?? 0) < 0)) { neg = true; }
                     }
                     const totPct = relVar(vTot - basisSum, basisSum);
                     if (totPct != null) { maxPct = Math.max(maxPct, Math.abs(totPct)); }
                 }
-                cfg.sharedIntWf = { maxTot, maxMon, maxPct };
+                if (minTot < 0) { neg = true; } else { maxTot = Math.max(maxTot, 1); }
+                cfg.sharedIntWf = { maxTot, minTot, maxMon, maxPct, neg };
             }
             if (isCatBridge) {
-                let maxV = 1, minV = 0, maxPct = 1;
-                // mirror the renderer's refusals (no PY/PL basis, all-negative
-                // totals) and the grid cap — hint tiles must not bound the scale
+                let maxV = 0, minV = 0, maxPct = 1;
+                // mirror the renderer's refusal (no PY/PL basis) and the grid cap —
+                // hint tiles must not bound the scale. 1.52.5: purely negative tiles
+                // are drawn and bound it like all others (one negative region next
+                // to positive ones moves every tile's zero line by the same amount)
                 for (const g of groups.slice(0, MULT_MAX_CELLS)) {
                     const hasPy = g.pts.some(p => p.py != null);
                     const hasPl = g.pts.some(p => p.pl != null);
@@ -5979,15 +5985,13 @@ export class Visual implements IVisual {
                     const ACt = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
                     const refIsPl = cfg.basisMode === "plan" && hasPl;
                     const REF = refIsPl ? PLt : PYt;
-                    const hasOther = refIsPl ? hasPy : hasPl;
-                    const otherTot = refIsPl ? PYt : PLt;
-                    if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) { continue; }
                     // all totals present in a tile are drawn as rows → all bound the scale,
                     // and so do the running cascade levels and row bars (S3)
                     // the vertical cascade draws no per-category AC/PY bars — mirror that
                     const ext = this.catBridgeExtent(g.pts, refIsPl, hasPy, !cfg.catBridgeVertical);
-                    maxV = Math.max(maxV, PYt, PLt, ACt, ext[1]);
-                    minV = Math.min(minV, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
+                    const [lo, hi] = this.catBridgeDomain(g.pts, ext, null);
+                    maxV = Math.max(maxV, hi);
+                    minV = Math.min(minV, lo);
                     // n.a. rows (UN 4.1: zero basis / sign change) have no pin → no bound
                     maxPct = Math.max(maxPct, Math.abs(relVar(ACt - REF, REF) ?? 0));
                     for (const p of g.pts) {
@@ -5997,7 +6001,8 @@ export class Visual implements IVisual {
                         }
                     }
                 }
-                cfg.sharedCatBridge = { maxV, minV, maxPct };
+                // a deck that is zero throughout keeps [0, 1] (catBridgeDomain rule)
+                cfg.sharedCatBridge = { maxV: maxV > 0 || minV < 0 ? maxV : 1, minV, maxPct };
             }
         }
 
@@ -6865,13 +6870,15 @@ export class Visual implements IVisual {
     private renderIntegratedWaterfall(pts: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const n = pts.length;
         if (n === 0) { return; }
-        // the stacked totals and mini columns assume positive magnitudes — negative
-        // series would render negative rect heights; fail loudly instead of wrongly
-        if (pts.some(p => (p.value ?? 0) < 0 || (p.basis ?? 0) < 0)) {
-            this.drawModeHint(region, cfg, this.locStr("Hint_IntWfNeg",
-                "Integrated bridge does not support negative values — use waterfall or columns + bridge"));
-            return;
-        }
+        // 1.52.5: negative values (loss months, a loss year as basis, a cascade that
+        // crosses zero) are drawn — until 1.52.4 they drew a hint. Two layouts:
+        // · "zero": every anchor and cascade level ≥ 0 — the classic form, the monthly
+        //   columns stand on the anchors' zero line; negative months hang below it in
+        //   a strip reserved above the category names (none without loss months)
+        // · "split": an anchor or level < 0 (or a same-scale multiples deck with any
+        //   negative value) — the cascade gets its own zero line inside its range, the
+        //   monthly columns a strip of their own at the bottom with a second zero
+        //   line (they could not share the space next to a cascade crossing zero)
         if (!pts.some(p => p.varAbs != null)) {
             this.drawModeHint(region, cfg, this.locStr("Hint_IntWfBasis", "Integrated bridge requires PY or PL as comparison basis"));
             return;
@@ -6927,61 +6934,103 @@ export class Visual implements IVisual {
         const cx = (i: number) => bandStart + i * step + step / 2;
         const cxTot = bandEnd + 10 + totW / 2;
 
-        // the running cascade can peak above both totals (+15, +15, then −8 ×4):
-        // the scale must hold that peak, or the bricks leave the plot (S4)
-        const maxTot = cfg.sharedIntWf?.maxTot
-            ?? Math.max(basisSum, vTot, twoTotals ? Math.max(pySum, plSum) : 0, this.intWfPeak(pts), 1);
-        let floorLevel = basisSum;
-        {
-            let lv = basisSum;
-            for (const p of pts) {
-                if (p.varAbs == null) { continue; }
-                floorLevel = Math.min(floorLevel, lv, lv + p.varAbs);
-                lv += p.varAbs;
-            }
-        }
+        // ------- value range: anchors, totals and every running cascade level. The
+        // cascade can peak above both totals (+15, +15, then −8 ×4): the scale must
+        // hold that peak, or the bricks leave the plot (S4). 1.52.5: signed
+        const rng = this.intWfRange(pts);
+        const sh = cfg.sharedIntWf;
+        const lo = sh ? sh.minTot : rng.lo;
+        const maxTot = sh ? sh.maxTot : (rng.lo < 0 ? rng.hi : Math.max(rng.hi, 1));
         const minMonPx = Math.max(12, Math.round(10 * k));
         const yTopV = plotTop + lf + 8;
-        // 1.52.1 chart.bridgeBreak (IBCS UN 5.3): the anchors are shortened with a
-        // visible ⫽, the cascade runs linearly above the cut — every step at its true
-        // height. Only when all levels and totals lie above the cut; same-scale
-        // multiples keep the zero-based scale (one cut for all tiles is not given)
-        let cut = 0;
-        if (this.formattingSettings.chartCard.bridgeBreak.value === true && !cfg.sharedIntWf) {
-            const lows = [floorLevel, basisSum, vTot, ...(twoTotals ? [pySum, plSum] : [])];
-            const minLv = Math.min(...lows);
-            const c = this.wfAutoCut(minLv, maxTot);
-            if (c > 0 && minLv > c) { cut = c; }
+        // monthly columns of THIS tile (also decides the zoom below — the deck-wide
+        // range of the same-scale multiples would shrink a small tile whose columns
+        // fit perfectly well)
+        let ownHiR = 0, ownLoR = 0;
+        for (const p of pts) {
+            for (const v of [p.value, p.basis, cfg.pyTriangle ? p.py : null]) {
+                if (v == null) { continue; }
+                if (v > ownHiR) { ownHiR = v; }
+                if (v < ownLoR) { ownLoR = v; }
+            }
         }
-        // break layout: monthly columns live in the stub zone at the bottom, a label
-        // gap, then the linear cascade
-        const monArea = cut > 0 ? Math.max(minMonPx * 2, Math.round((yBase - yTopV) * 0.34)) : 0;
-        const yLin0 = cut > 0 ? yBase - monArea - (lf + 10) : yBase;
-        const kS = cut > 0 ? (yLin0 - yTopV) / Math.max(maxTot - cut, 1e-9) : (yBase - yTopV) / maxTot;
-        const S: Scale = cut > 0
-            ? (v: number) => v <= cut ? yBase - (v / cut) * (yBase - yLin0) : yLin0 - (v - cut) * kS
-            : linearScale(0, maxTot, yBase, yTopV);
+        const ownMon = Math.max(ownHiR, 1);
+        const split = sh ? sh.neg : lo < 0;
+        // 1.52.1 chart.bridgeBreak (IBCS UN 5.3): the anchors are shortened with a
+        // visible ⫽, the cascade runs linearly beyond the cut — every step at its true
+        // height. Only when all levels and totals lie beyond the cut (1.52.5: a purely
+        // negative bridge mirrored, below its zero line; never across zero);
+        // same-scale multiples keep the zero-based scale (one cut for all tiles is
+        // not given)
+        const cut = this.formattingSettings.chartCard.bridgeBreak.value === true && !sh
+            ? this.bridgeCut(rng.levels) : 0;
         // 1.52 (IBCS CH 4.1): the monthly columns stand on the ANCHOR scale (same
         // unit, same px per unit). Only when they would run into the cascade, or be
         // unreadably small, they get a round factor — shown as "×f" in the caption
         // plus a scale band, never silently (CH 4.3/4.5)
-        this.lastScaleK = kS;
-        const roomPx = cut > 0 ? monArea - lf - 8 : (yBase - S(floorLevel)) - lf - 8;
-        // decided on THIS tile's tallest column (the deck-wide maxMon of the same-scale
-        // multiples would shrink a small tile whose columns fit perfectly well)
-        const ownMon = Math.max(...pts.map(p =>
-            Math.max(p.value ?? 0, p.basis ?? 0, cfg.pyTriangle ? (p.py ?? 0) : 0)), 1);
-        let monZoom = 1;
-        if (ownMon * kS > roomPx) {
-            monZoom = REDUCE_FACTORS.find(f => ownMon * kS * f <= roomPx) ?? REDUCE_FACTORS[REDUCE_FACTORS.length - 1];
-        } else if (ownMon * kS < minMonPx) {
-            for (const f of ZOOM_FACTORS) {
-                if (ownMon * kS * f > roomPx) { break; }
-                monZoom = f;
-                if (ownMon * kS * f >= minMonPx) { break; }
+        let S: Scale, kS: number, yZ: number, yMZ: number, monZoom: number, monArea: number, breakY = 0;
+        if (!split) {
+            // break layout: monthly columns live in the stub zone at the bottom, a
+            // label gap, then the linear cascade. negPx: strip for loss months below
+            // the zero line (and their labels), sized in a few passes since it
+            // shrinks the px per unit it depends on
+            const geo = (negPx: number) => {
+                const z = yBase - negPx;
+                const area = cut > 0 ? Math.max(minMonPx * 2, Math.round((z - yTopV) * 0.34)) : 0;
+                const yLin0 = cut > 0 ? z - area - (lf + 10) : z;
+                const kk = cut > 0 ? (yLin0 - yTopV) / Math.max(maxTot - cut, 1e-9) : (z - yTopV) / maxTot;
+                const sc: Scale = cut > 0 ? this.brokenBridgeScale(z, yLin0, cut, kk, 1) : linearScale(0, maxTot, z, yTopV);
+                const room = cut > 0 ? area - lf - 8 : (z - sc(rng.floor)) - lf - 8;
+                return { z, area, yLin0, kk, sc, room };
+            };
+            const lblNeg = lf + 6;
+            const negCap = Math.round((yBase - yTopV) * 0.3);
+            let negPx = 0;
+            let G = geo(0);
+            let f = 1;
+            for (let it = 0; it < 4; it++) {
+                G = geo(negPx);
+                const rNeg = ownLoR < 0 ? (it === 3 ? negPx : negCap) - lblNeg : Infinity;
+                f = this.monthZoom(ownMon * G.kk, -ownLoR * G.kk, G.room, rNeg, minMonPx);
+                const need = ownLoR < 0 ? Math.ceil(-ownLoR * G.kk * f + lblNeg) : 0;
+                if (need <= negPx) { break; }
+                negPx = need;
             }
+            S = G.sc; kS = G.kk; yZ = G.z; yMZ = G.z; monZoom = f; monArea = G.area;
+            breakY = cut > 0 ? (G.z - G.area + G.yLin0) / 2 : 0;
+        } else {
+            // split layout: the monthly strip at the bottom (34 % like the break
+            // layout), a label gap, the cascade above with its zero line inside
+            monArea = Math.max(minMonPx * 2 + 2 * (lf + 4), Math.round((yBase - yTopV) * 0.34));
+            const stripTop = yBase - monArea;
+            const yCasBot = stripTop - (lf + 10);
+            if (cut > 0) {
+                // purely negative + bridgeBreak: zero line on top, 0…−cut squeezed
+                // into a stub below it, the cascade linear further down
+                const stub = Math.max(16, Math.round((yCasBot - yTopV) * 0.12));
+                kS = (yCasBot - yTopV - stub) / Math.max(-lo - cut, 1e-9);
+                S = this.brokenBridgeScale(yTopV, yTopV + stub, cut, kS, -1);
+                breakY = yTopV + stub / 2;
+            } else {
+                kS = (yCasBot - yTopV) / ((maxTot - lo) || 1);
+                S = linearScale(lo, maxTot, yCasBot, yTopV);
+            }
+            yZ = S(0);
+            // the strip holds the tile's own month range [ownLoR, ownHiR] with its
+            // labels: positive-only columns stand at its bottom, negative-only ones
+            // hang from its top, mixed ones get the zero line where the range puts it
+            const topL = ownHiR > 0 ? lf + 4 : 2, botL = ownLoR < 0 ? lf + 4 : 2;
+            const monPlot = monArea - topL - botL;
+            const spanR = ownHiR - ownLoR;
+            monZoom = this.monthZoom((spanR > 0 ? spanR : 1) * kS, 0, monPlot, Infinity, minMonPx);
+            const free = Math.max(0, monPlot - spanR * kS * monZoom);
+            yMZ = stripTop + topL + ownHiR * kS * monZoom
+                + (ownHiR > 0 && ownLoR < 0 ? free / 2 : ownHiR > 0 ? free : 0);
         }
+        this.lastScaleK = kS;
         const BS = (v: number) => v * kS * monZoom;
+        // anchors and totals: a bar from the zero line, its label beyond the end
+        const vLblY = (v: number) => v >= 0 ? S(v) - 5 : S(v) + lf + 2;
 
         const bg = this.el("g", {}, this.svg);
         const marks = this.el("g", {}, this.svg);
@@ -7082,13 +7131,12 @@ export class Visual implements IVisual {
             ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
             : { fill: cfg.colors.py };
         const plStyle = { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 };
-        const breakY = cut > 0 ? (yBase - monArea + yLin0) / 2 : 0;
         const drawTotal = (x: number, sum: number, style: object, label: string, bold: boolean) => {
             const yT = S(sum);
-            this.el("rect", { x, y: yT, width: totW, height: Math.max(yBase - yT, 1), ...style }, bg);
+            this.el("rect", { x, y: Math.min(yT, yZ), width: totW, height: Math.max(Math.abs(yZ - yT), 1), ...style }, bg);
             if (cut > 0) { this.drawAxisBreak(bg, x, totW, breakY, "columns", cfg); }
             const vl = this.el("text", {
-                x: x + totW / 2, y: yT - 5, "text-anchor": "middle", "font-size": lf,
+                x: x + totW / 2, y: vLblY(sum), "text-anchor": "middle", "font-size": lf,
                 fill: cfg.ink, "font-family": FONT, ...(bold ? { "font-weight": 600 } : {})
             }, bg);
             vl.textContent = fmtA.format(sum);
@@ -7160,12 +7208,12 @@ export class Visual implements IVisual {
             // triangle marker (as basis, or next to a PL basis)
             if (p.basis != null) {
                 if (cfg.pyTriangle && cfg.basisMode === "py") {
-                    const triScale: Scale = (v: number) => yBase - BS(v);
+                    const triScale: Scale = (v: number) => yMZ - BS(v);
                     this.drawPyTriangle(g, x - segW / 2, segW, p.basis, triScale, "columns", cfg);
                 } else {
                     const h = BS(p.basis);
                     this.el("rect", {
-                        x: x - segW / 2, y: yBase - h, width: colW, height: h,
+                        x: x - segW / 2, y: Math.min(yMZ, yMZ - h), width: colW, height: Math.abs(h),
                         ...(cfg.basisMode === "plan"
                             ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
                             : cfg.hc
@@ -7175,7 +7223,7 @@ export class Visual implements IVisual {
                 }
             }
             if (cfg.pyTriangle && cfg.basisMode !== "py" && p.py != null) {
-                const triScale: Scale = (v: number) => yBase - BS(v);
+                const triScale: Scale = (v: number) => yMZ - BS(v);
                 this.drawPyTriangle(g, x - segW / 2, segW, p.py, triScale, "columns", cfg);
             }
             // AC in front, shifted right; alone (PY as triangle) it takes the full slot
@@ -7185,16 +7233,20 @@ export class Visual implements IVisual {
             if (p.value != null) {
                 const h = BS(p.value);
                 this.el("rect", {
-                    x: acX, y: yBase - h, width: acW, height: h,
+                    x: acX, y: Math.min(yMZ, yMZ - h), width: acW, height: Math.abs(h),
                     ...(p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : { fill: cfg.colors.ac })
                 }, g);
                 if (cfg.showLabels && showValAt(i)) {
-                    const hMax = Math.max(BS(p.value), p.basis != null ? BS(p.basis) : 0,
-                        cfg.pyTriangle && p.py != null ? BS(p.py) + 4 : 0);
+                    // above the pair, a loss month below it (1.52.5)
+                    const up = p.value >= 0;
+                    const ext = (v: number | null | undefined, extra = 0) => v == null ? 0
+                        : Math.max(0, (up ? BS(v) : -BS(v)) + extra);
+                    const hOut = Math.max(ext(p.value), ext(p.basis), cfg.pyTriangle ? ext(p.py, 4) : 0);
                     const vt = this.el("text", {
-                        x: soloAc ? x : x + segW / 2 - colW / 2, y: yBase - hMax - 3, "text-anchor": "middle",
+                        x: soloAc ? x : x + segW / 2 - colW / 2, y: up ? yMZ - hOut - 3 : yMZ + hOut + lf,
+                        "text-anchor": "middle",
                         "font-size": lf, fill: cfg.ink, "font-family": FONT,
                         stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
                     }, g);
@@ -7225,40 +7277,56 @@ export class Visual implements IVisual {
             this.animGroups.push([g]);
         });
 
-        // ------- axis
+        // ------- axis: the zero line of anchors and cascade (the category axis in the
+        // zero layout); the split layout adds the monthly strip's own zero line
         this.el("line", {
-            x1: left, y1: yBase, x2: right - calloutW + 16, y2: yBase,
-            stroke: cfg.ink, "stroke-width": 1.6
+            x1: left, y1: yZ, x2: right - calloutW + 16, y2: yZ,
+            stroke: cfg.ink, "stroke-width": 1.6, ...(split || yZ !== yBase ? { "data-icd": "bridge-zero" } : {})
         }, bg);
+        if (split) {
+            this.el("line", {
+                x1: bandStart - 4, y1: yMZ, x2: bandEnd + 4, y2: yMZ,
+                stroke: cfg.ink, "stroke-width": 1.6, "data-icd": "bridge-month-zero"
+            }, bg);
+        }
 
-        // ------- stacked AC+FC total column (right)
+        // ------- stacked AC+FC total column (right): AC from the zero line, the FC
+        // part stacked beyond it when both point the same way; with opposite signs
+        // (1.52.5) one hatched column to the total, since the parts cannot stack
         const xT = bandEnd + 10;
-        const acH = Math.max(yBase - S(acTot), 0);
-        this.el("rect", { x: xT, y: yBase - acH, width: totW, height: Math.max(acH, 1), fill: cfg.colors.ac }, bg);
-        if (fcTot > 0) {
-            const fcH = S(acTot) - S(vTot);
+        const yAc = S(acTot), yTot = S(vTot);
+        const stackFc = fcTot !== 0 && (acTot === 0 || Math.sign(fcTot) === Math.sign(acTot));
+        if (fcTot !== 0 && !stackFc) {
             this.el("rect", {
-                x: xT, y: yBase - acH - fcH, width: totW, height: Math.max(fcH, 1),
+                x: xT, y: Math.min(yZ, yTot), width: totW, height: Math.max(Math.abs(yZ - yTot), 1),
+                fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2
+            }, bg);
+        } else {
+            this.el("rect", { x: xT, y: Math.min(yZ, yAc), width: totW, height: Math.max(Math.abs(yZ - yAc), 1), fill: cfg.colors.ac }, bg);
+        }
+        if (stackFc) {
+            this.el("rect", {
+                x: xT, y: Math.min(yAc, yTot), width: totW, height: Math.max(Math.abs(yAc - yTot), 1),
                 fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1.2
             }, bg);
             const fl = this.el("text", {
-                x: xT + totW + 4, y: yBase - acH - fcH / 2 + lf * 0.35, "font-size": lf,
+                x: xT + totW + 4, y: (yAc + yTot) / 2 + lf * 0.35, "font-size": lf,
                 fill: cfg.ink, "font-family": FONT
             }, bg);
             fl.textContent = "FC";
             const fv = this.el("text", {
-                x: xT + totW / 2, y: yBase - acH - fcH / 2 + lf * 0.35, "text-anchor": "middle",
+                x: xT + totW / 2, y: (yAc + yTot) / 2 + lf * 0.35, "text-anchor": "middle",
                 "font-size": lf, fill: cfg.ink, "font-family": FONT,
                 stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
             }, bg);
             fv.textContent = fmtA.format(fcTot);
             const al = this.el("text", {
-                x: xT + totW + 4, y: yBase - acH / 2 + lf * 0.35, "font-size": lf,
+                x: xT + totW + 4, y: (yZ + yAc) / 2 + lf * 0.35, "font-size": lf,
                 fill: cfg.ink, "font-family": FONT
             }, bg);
             al.textContent = cfg.scenL.ac;
             const av = this.el("text", {
-                x: xT + totW / 2, y: yBase - acH / 2 + lf * 0.35, "text-anchor": "middle",
+                x: xT + totW / 2, y: (yZ + yAc) / 2 + lf * 0.35, "text-anchor": "middle",
                 "font-size": lf, fill: cfg.paper, "font-family": FONT
             }, bg);
             av.textContent = fmtA.format(acTot);
@@ -7268,7 +7336,7 @@ export class Visual implements IVisual {
             this.el("g", { "data-icd": "bridge-break", "data-cut": cut }, bg);
         }
         const tv = this.el("text", {
-            x: xT + totW / 2, y: S(vTot) - 5, "text-anchor": "middle", "font-size": lf,
+            x: xT + totW / 2, y: vLblY(vTot), "text-anchor": "middle", "font-size": lf,
             fill: cfg.ink, "font-family": FONT, "font-weight": 600
         }, bg);
         tv.textContent = fmtA.format(vTot);
@@ -7276,7 +7344,7 @@ export class Visual implements IVisual {
             x: xT + totW / 2, y: yBase + cf + 4, "text-anchor": "middle", "font-size": cf,
             fill: cfg.ink, "font-family": FONT
         }, bg);
-        tc.textContent = fcTot > 0 ? `${cfg.scenL.ac}+${cfg.scenL.fc}` : cfg.scenL.ac;
+        tc.textContent = fcTot !== 0 ? `${cfg.scenL.ac}+${cfg.scenL.fc}` : cfg.scenL.ac;
 
         // ------- net variance bar + circled callout (right edge)
         const xv = xT + totW + sideLblW;
@@ -7302,7 +7370,7 @@ export class Visual implements IVisual {
         const zoomTxt = monZoom !== 1
             ? ` ×${new Intl.NumberFormat(this.host.locale).format(monZoom)}` : "";
         const cutTxt = cut > 0
-            ? ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(cut))}` : "";
+            ? ` · ${this.locStr("WfBreak_Title", "axis broken from {0}").replace("{0}", cfg.fmt.format(maxTot > 0 ? cut : -cut))}` : "";
         this.drawPanelTitle(bg, { x: region.x, y: region.y + pad, w: region.w, h: 12 },
             // 1.52.2: the caption speaks the report language (it was German in every locale)
             `${cfg.basisLabel} → ${cfg.scenL.ac}${cfg.hasFc ? "/" + cfg.scenL.fc : ""} · `
@@ -7311,43 +7379,80 @@ export class Visual implements IVisual {
         // scale band: the same value on the anchor scale (total columns) and on the
         // monthly scale — the visible step between both shows the factor (CH 4.3)
         if (monZoom !== 1) {
-            const v = Math.pow(10, Math.floor(Math.log10(ownMon)));
+            const v = Math.pow(10, Math.floor(Math.log10(Math.max(ownMon, -ownLoR))));
             const zg = this.el("g", { "data-icd": "scale-zoom", "data-factor": monZoom, "data-band": v }, bg);
-            const bandAt = (x0: number, x1: number, h: number) => {
+            // from a zero line (base) by h px, upwards for h > 0 (1.52.5: signed —
+            // towards the side where the anchors resp. the monthly columns lie)
+            const bandAt = (x0: number, x1: number, base: number, h: number) => {
                 this.el("rect", {
-                    x: x0, y: yBase - h, width: x1 - x0, height: Math.max(h, 1),
+                    x: x0, y: Math.min(base, base - h), width: x1 - x0, height: Math.max(Math.abs(h), 1),
                     fill: cfg.hc ? cfg.paper : "#0064FF", "fill-opacity": cfg.hc ? 0 : 0.09
                 }, zg);
                 this.el("line", {
-                    x1: x0, y1: yBase - h, x2: x1, y2: yBase - h, stroke: cfg.hc ? cfg.ink : "#0064FF",
+                    x1: x0, y1: base - h, x2: x1, y2: base - h, stroke: cfg.hc ? cfg.ink : "#0064FF",
                     "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2"
                 }, zg);
             };
+            const sdM = ownHiR >= -ownLoR ? 1 : -1;
             // with the break the anchors are not linear from the base line, a band
             // has no counterpart there: the caption "×f" alone marks the factor (as
             // in the waterfall)
             if (cut === 0) {
-                bandAt(left, bandStart - 4, v * kS);
-                bandAt(bandStart, bandEnd, BS(v));
-                bandAt(xT, xT + totW, v * kS);
+                bandAt(left, bandStart - 4, yZ, (basisSum >= 0 ? 1 : -1) * v * kS);
+                bandAt(bandStart, bandEnd, yMZ, sdM * BS(v));
+                bandAt(xT, xT + totW, yZ, (vTot >= 0 ? 1 : -1) * v * kS);
             }
         }
     }
 
     /**
-     * highest running level of the integrated bridge cascade (basis total plus the
-     * Δ so far). Shared by the renderer and the multiples' same-scale pass so the
-     * two can never disagree about what bounds the scale.
+     * value range of the integrated bridge: the basis and end totals, the second
+     * total column (PY and PL both bound) and every running cascade level (basis
+     * total plus the Δ so far) — `lo`/`hi` with zero inside, `floor` = lowest
+     * cascade level incl. the basis (room for the monthly columns below it),
+     * `levels` = all of them (axis-break decision). Shared by the renderer and the
+     * multiples' same-scale pass so the two can never disagree about what bounds the
+     * scale (1.52.5: signed; until 1.52.4 only the peak, negatives drew a hint).
      */
-    private intWfPeak(pts: DataPoint[]): number {
-        let level = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
-        let peak = level;
+    private intWfRange(pts: DataPoint[]): { lo: number; hi: number; floor: number; levels: number[] } {
+        const basisSum = pts.reduce((a, p) => a + (p.basis ?? 0), 0);
+        const levels = [basisSum, pts.reduce((a, p) => a + (p.value ?? 0), 0)];
+        if (pts.some(p => p.py != null) && pts.some(p => p.pl != null)) {
+            levels.push(pts.reduce((a, p) => a + (p.py ?? 0), 0), pts.reduce((a, p) => a + (p.pl ?? 0), 0));
+        }
+        let level = basisSum, floor = basisSum;
         for (const p of pts) {
             if (p.varAbs == null) { continue; }
             level += p.varAbs;
-            peak = Math.max(peak, level);
+            levels.push(level);
+            if (level < floor) { floor = level; }
         }
-        return peak;
+        const lo = levels.reduce((a, v) => Math.min(a, v), 0);
+        const hi = levels.reduce((a, v) => Math.max(a, v), 0);
+        return { lo, hi, floor, levels };
+    }
+
+    /**
+     * zoom factor of the integrated bridge's monthly columns (IBCS CH 4.3/4.5): 1
+     * while the tallest column (pPos px at factor 1) fits rPos and the deepest
+     * negative one (pNeg) fits rNeg; else the largest round reduction that fits;
+     * columns lower than minPx are magnified by a round factor as long as they fit.
+     */
+    private monthZoom(pPos: number, pNeg: number, rPos: number, rNeg: number, minPx: number): number {
+        const fits = (f: number) => pPos * f <= rPos && pNeg * f <= rNeg;
+        if (!fits(1)) {
+            return REDUCE_FACTORS.find(fits) ?? REDUCE_FACTORS[REDUCE_FACTORS.length - 1];
+        }
+        let zoom = 1;
+        const tall = Math.max(pPos, pNeg);
+        if (tall < minPx) {
+            for (const f of ZOOM_FACTORS) {
+                if (!fits(f)) { break; }
+                zoom = f;
+                if (tall * f >= minPx) { break; }
+            }
+        }
+        return zoom;
     }
 
     /**
@@ -7375,6 +7480,27 @@ export class Visual implements IVisual {
             }
         }
         return [lo, hi];
+    }
+
+    /**
+     * value domain [min, max] of one category-bridge tile: every drawn total (PY,
+     * PL, AC) plus `ext` (catBridgeExtent: cascade levels, row bars), zero always
+     * inside — so a purely negative bridge keeps its true range with the zero line at
+     * the top end (1.52.5; until 1.52.4 a fallback maximum of 1 squashed it, the
+     * renderer drew a hint instead). Only a tile that is zero throughout gets [0, 1].
+     * The shared small-multiples range wins; the same-scale pass uses this too.
+     */
+    private catBridgeDomain(pts: DataPoint[], ext: [number, number],
+        cfg: ChartConfig | null): [number, number] {
+        if (cfg?.sharedCatBridge) { return [cfg.sharedCatBridge.minV, cfg.sharedCatBridge.maxV]; }
+        const tot = pts.reduce((a, p) => ({
+            py: a.py + (p.py ?? 0), pl: a.pl + (p.pl ?? 0), ac: a.ac + (p.value ?? 0)
+        }), { py: 0, pl: 0, ac: 0 });
+        const hasPy = pts.some(p => p.py != null), hasPl = pts.some(p => p.pl != null);
+        const totals = [tot.ac, hasPy ? tot.py : 0, hasPl ? tot.pl : 0];
+        const lo = Math.min(0, ...totals, ext[0]);
+        const hi = Math.max(0, ...totals, ext[1]);
+        return [lo, hi > 0 || lo < 0 ? hi : 1];
     }
 
     /**
@@ -7406,13 +7532,9 @@ export class Visual implements IVisual {
         const otherTot = refIsPl ? PYt : PLt;
         const otherLabel = refIsPl ? cfg.scenL.py : cfg.scenL.pl;
         const dTot = ACt - REF;
-        // purely negative totals collapse the anchor scale (maxV falls back to 1) —
-        // every bar degenerates to a sliver; fail loudly like the integrated bridge
-        if (REF <= 0 && ACt <= 0 && (!hasOther || otherTot <= 0)) {
-            this.drawModeHint(region, cfg, this.locStr("Hint_CatBridgeNeg",
-                "Category bridge does not support all-negative totals — use waterfall or columns + bridge"));
-            return;
-        }
+        // 1.52.5: purely negative totals (cost bridge, loss → smaller loss) are drawn
+        // like any other bridge — the scale runs over [minV, maxV] with the zero line
+        // at the right (bars) or on top (columns); until 1.52.4 they drew a hint
         // chart.bridgeOrientation = "columns": own drawing path (vertical cascade)
         if (cfg.catBridgeVertical) {
             this.renderCategoryBridgeVertical(pts, region, cfg);
@@ -7446,19 +7568,20 @@ export class Visual implements IVisual {
         // totals — a driver of +60 on PY 100 peaks at 160 and ran through the pin
         // column (S3). Negative levels/values shift the zero line right (minV).
         const ext = this.catBridgeExtent(pts, refIsPl, hasPy);
-        const maxV = cfg.sharedCatBridge?.maxV
-            ?? Math.max(REF, ACt, hasOther ? otherTot : 0, ext[1], 1);
-        const minV = cfg.sharedCatBridge?.minV
-            ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
+        const [minV, maxV] = this.catBridgeDomain(pts, ext, cfg);
         // negative row values put their label LEFT of the bar end — reserve that room
         // between the category names and the scale, or "−4,2M" runs into the name
         // column (export tiles cannot hover-reveal a covered name)
         // (shared small-multiples scale: one fixed reserve, so every tile keeps the
         // same px per unit)
+        // 1.52.5: also the negative totals (bold) and falling bricks, whose labels sit
+        // left of their left end as well — a purely negative bridge has them all there
         const negLblW = !cfg.showLabels || minV >= 0 ? 0
             : cfg.sharedCatBridge ? valLblW
-            : pts.reduce((a, p) => p.value != null && p.value < 0
-                ? Math.max(a, this.textWidth(cfg.fmt.format(p.value), lf) + 10) : a, 0);
+            : Math.max(
+                ...pts.map(p => p.value != null && p.value < 0 ? this.textWidth(cfg.fmt.format(p.value), lf) + 10 : 0),
+                ...pts.map(p => (dOf(p) ?? 0) < 0 ? this.textWidth(fmtD(dOf(p) as number), lf) + 10 : 0),
+                ...[hasPl ? PLt : 0, hasPy ? PYt : 0, ACt].map(v => v < 0 ? this.textWidth(cfg.fmt.format(v), lf, true) + 12 : 0));
         const X = linearScale(minV, maxV, x0 + Math.min(negLblW, (xValEnd - x0) * 0.25), xValEnd);
         this.lastScaleK = Math.abs(X(1) - X(0));
         // zero line of all bars (== x0 unless something is negative)
@@ -7496,6 +7619,15 @@ export class Visual implements IVisual {
                 this.emphBand(bg, region.x + pad, yS0 + i * rowH + 1,
                     rightEdge - region.x - pad, rowH - 2, cfg);
             }
+        }
+        // 1.52.5: with negative totals/levels the bars no longer start at the scale
+        // edge — the zero line (AC notation) marks where they leave from, through the
+        // total and category rows (the reconciliation rows below float between totals)
+        if (minV < 0) {
+            this.el("line", {
+                x1: xZ, y1: region.y + pad + 6, x2: xZ, y2: yAC + rowH,
+                stroke: cfg.colors.ac, "stroke-width": 1.6, "data-icd": "bridge-zero"
+            }, bg);
         }
 
         const rowLabel = (yy: number, text: string, bold: boolean, parent: SVGElement) => {
@@ -7705,17 +7837,36 @@ export class Visual implements IVisual {
                             : this.locStr("Note_OfIncreases", "% of all increases")}`;
                     }
                     const noteFont = Math.round(Math.max(9, lf * 0.85));
-                    const noteX = d >= 0 ? xB + 6 + fmtD(d).length * lf * 0.62 + 12 : xA - 6 - fmtD(d).length * lf * 0.62 - 12;
+                    let noteX = d >= 0 ? xB + 6 + fmtD(d).length * lf * 0.62 + 12 : xA - 6 - fmtD(d).length * lf * 0.62 - 12;
                     // the note must end before the Δ% pin column (rightwards) or the
                     // value-column start (leftwards) — with the cascade now reaching
                     // the end of the value column (S3) it would run over the pins
-                    const noteRoom = d >= 0
-                        ? (showPins ? rightEdge - pinW : rightEdge) - 4 - noteX
-                        : noteX - x0 - 4;
+                    const pinEdge = (showPins ? rightEdge - pinW : rightEdge) - 4;
+                    let noteRoom = d >= 0 ? pinEdge - noteX : noteX - x0 - 4;
+                    let noteRight = d >= 0;
+                    const noteW = this.textWidth(note, noteFont);
+                    if (noteRoom < noteW) {
+                        // 1.52.5: the far side of the brick (no value label there) when
+                        // the whole note fits between it and the row's own bars resp.
+                        // the pin / name column — a purely negative bridge has its
+                        // falling bricks at the left end of the scale, next to the names
+                        const ends = [p.value, behind].filter((v): v is number => v != null).map(v => X(v));
+                        const bars0 = Math.min(xZ, ...ends), bars1 = Math.max(xZ, ...ends);
+                        const altX = d >= 0 ? xA - 8 : xB + 8;
+                        let altRoom: number;
+                        if (d >= 0) {
+                            const lim = bars0 > altX ? x0 + 4 : bars1 >= altX ? altX : Math.max(x0 + 4, bars1 + 6);
+                            altRoom = altX - lim;
+                        } else {
+                            const lim = bars1 < altX ? pinEdge : bars0 <= altX ? altX : Math.min(pinEdge, bars0 - 6);
+                            altRoom = lim - altX;
+                        }
+                        if (altRoom >= noteW) { noteX = altX; noteRoom = altRoom; noteRight = !noteRight; }
+                    }
                     if (noteRoom >= noteFont * 6) {
                         const nt = this.el("text", {
                             x: noteX,
-                            y: yy + rowH / 2 + lf * 0.35, "text-anchor": d >= 0 ? "start" : "end",
+                            y: yy + rowH / 2 + lf * 0.35, "text-anchor": noteRight ? "start" : "end",
                             "font-size": noteFont, fill: cfg.subtle, "font-family": FONT, "font-style": "italic",
                             stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round"
                         }, g);
@@ -7891,37 +8042,38 @@ export class Visual implements IVisual {
 
         // ------- scale: anchors + every cascade level (no row bars in this layout)
         const ext = this.catBridgeExtent(pts, refIsPl, hasPy, false);
-        const maxV = cfg.sharedCatBridge?.maxV
-            ?? Math.max(REF, ACt, hasOther ? otherTot : 0, ext[1], 1);
-        const minV = cfg.sharedCatBridge?.minV
-            ?? Math.min(0, hasPy ? PYt : 0, hasPl ? PLt : 0, ACt, ext[0]);
+        const [minV, maxV] = this.catBridgeDomain(pts, ext, cfg);
         const labelPad = lf + 8;
         const plotTop = cTop + labelPad;
         const plotBottom = cBottom - (minV < 0 ? labelPad : 2);
         // 1.52.1 chart.bridgeBreak (IBCS UN 5.3): anchors shortened with ⫽, the
-        // cascade linear above the cut — only for positive bridges whose levels and
-        // totals all lie above it, and not across same-scale multiples
+        // cascade linear beyond the cut — only for one-signed bridges whose levels and
+        // totals all lie beyond it (1.52.5: purely negative ones mirrored, cut below
+        // the zero line), never across zero and not across same-scale multiples
         let cut = 0;
-        if (this.formattingSettings.chartCard.bridgeBreak.value === true && !cfg.sharedCatBridge && minV >= 0) {
-            let lv = REF, minLv = Math.min(REF, ACt, hasOther ? otherTot : Infinity);
+        const negBr = maxV <= 0 && minV < 0;
+        if (this.formattingSettings.chartCard.bridgeBreak.value === true && !cfg.sharedCatBridge) {
+            const lvls = [REF, ACt, ...(hasOther ? [otherTot] : [])];
+            let lv = REF;
             for (const p of pts) {
                 const d = dOf(p);
                 if (d == null) { continue; }
                 lv += d;
-                minLv = Math.min(minLv, lv);
+                lvls.push(lv);
             }
-            const c = this.wfAutoCut(minLv, maxV);
-            if (c > 0 && minLv > c) { cut = c; }
+            cut = this.bridgeCut(lvls);
         }
         const stubPx = cut > 0 ? Math.max(16, Math.round((plotBottom - plotTop) * 0.12)) : 0;
-        const kLin = cut > 0 ? (plotBottom - stubPx - plotTop) / Math.max(maxV - cut, 1e-9) : 0;
+        const kLin = cut > 0 ? (plotBottom - stubPx - plotTop) / Math.max((negBr ? -minV : maxV) - cut, 1e-9) : 0;
         const Y: Scale = cut > 0
-            ? (v: number) => v <= cut ? plotBottom - (v / cut) * stubPx : plotBottom - stubPx - (v - cut) * kLin
+            ? (negBr ? this.brokenBridgeScale(plotTop, plotTop + stubPx, cut, kLin, -1)
+                : this.brokenBridgeScale(plotBottom, plotBottom - stubPx, cut, kLin, 1))
             : linearScale(minV, maxV, plotBottom, plotTop);
         this.lastScaleK = cut > 0 ? kLin : Math.abs(Y(1) - Y(0));
         const yZ = Y(0);
+        const breakY = negBr ? plotTop + stubPx * 0.5 : plotBottom - stubPx * 0.5;
         const breakAt = (i: number, parent: SVGElement) => {
-            if (cut > 0) { this.drawAxisBreak(parent, slotX(i), barW, plotBottom - stubPx * 0.5, "columns", cfg); }
+            if (cut > 0) { this.drawAxisBreak(parent, slotX(i), barW, breakY, "columns", cfg); }
         };
 
         const bg = this.el("g", {}, this.svg);
@@ -15374,6 +15526,34 @@ export class Visual implements IVisual {
      * the lowest level, floored to a multiple of a "nice" step (1/2/5 × 10ⁿ ≥ span) —
      * PY 100 Mio with levels up to 107 Mio cuts at 90 Mio. ≤ 0 = no sensible cut.
      */
+    /**
+     * 1.52.5 cut magnitude of a bridge axis break (chart.bridgeBreak, IBCS UN 5.3)
+     * over every anchor and running level the bridge draws: a positive bridge is cut
+     * below its lowest level, a purely negative one mirrored above its highest (the
+     * level closest to zero). A bridge crossing zero is never cut. 0 = no cut.
+     */
+    private bridgeCut(levels: number[]): number {
+        const lo = Math.min(...levels), hi = Math.max(...levels);
+        if (lo < 0 && hi > 0) { return 0; }
+        const neg = hi <= 0 && lo < 0;
+        const near = neg ? -hi : lo, far = neg ? -lo : hi;
+        const c = this.wfAutoCut(near, far);
+        return c > 0 && near > c ? c : 0;
+    }
+
+    /**
+     * piecewise value scale of a broken bridge axis: the magnitudes 0…cut are squeezed
+     * between the zero line y0 and the knee yKnee, beyond the knee the scale runs
+     * linearly with kLin px per unit. sd = 1: values grow upwards (positive bridge),
+     * sd = −1: downwards from a zero line on top (purely negative bridge, 1.52.5).
+     */
+    private brokenBridgeScale(y0: number, yKnee: number, cut: number, kLin: number, sd: 1 | -1): Scale {
+        return (v: number) => {
+            const a = v * sd;
+            return a <= cut ? y0 + (yKnee - y0) * (a / cut) : yKnee - sd * (a - cut) * kLin;
+        };
+    }
+
     private wfAutoCut(minLevel: number, maxLevel: number): number {
         const span = maxLevel - minLevel > 0 ? maxLevel - minLevel : Math.abs(minLevel) * 0.1;
         if (!(span > 0) || !isFinite(span)) { return 0; }

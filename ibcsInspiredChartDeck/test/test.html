@@ -56,7 +56,7 @@
 <div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
 <div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
-<div class="case"><h4>Integrierte Brücke · negative Werte → Hinweis statt kaputtem SVG (Fix 1.12.4)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
+<div class="case"><h4>Integrierte Brücke · rein negative Werte → Split-Layout mit Nulllinie (1.52.5; 1.12.4–1.52.4: Hinweis)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
 <div class="case"><h4>FC-Revision · AC/FC vs. FC Vormonat (Basis „fcrev") + Datenstand-Fußzeile</h4><div class="stage" id="c46" style="width:960px;height:460px"></div></div>
 <div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
 <div class="case"><h4>QTD · Fiskaljahr ab April — Reset an jedem Quartalsstart</h4><div class="stage" id="c48" style="width:960px;height:420px"></div></div>
@@ -494,7 +494,8 @@ const pmCats = [], pmMult = [], pmAc = [];
 run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
   { chart: { orientation: "pareto", multiplesTotal: true } }, pmMult), 960, 420);
 
-// negative series in the integrated bridge: explicit hint, no broken rects
+// negative series in the integrated bridge: 1.52.5 split layout (zero line on top,
+// monthly strip below); 1.12.4–1.52.4 drew a hint here
 run("c45", dataView(months.slice(0, 6),
   [col("actual", [-820, -771, -900, -955, -1020, -980]), col("previousYear", [-760, -800, -850, -900, -940, -1010])],
   { chart: { orientation: "intwaterfall" } }), 960, 280);
@@ -762,11 +763,10 @@ run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "
 </script>
 
 <!-- ==== Audit 2026-07: Edge-Case-Haertung (Suiten minimal-negativ & kombi-stress) ==== -->
-<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → heute unsichtbar, erwartet: Hinweis oder korrektes Rendering</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → Nulllinie rechts, Balken nach links (1.52.5; bis 1.52.4: Hinweis)</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
 <script>
-// Kategorie-Brücke · ausschließlich negative Werte → Balken kollabieren (fehlender maxV-Guard)
-// all-negative category bridge: maxV degenerates to 1 (visual.ts renderCategoryBridge),
-// bars collapse to invisible slivers — should show the same hint as the integrated bridge
+// Kategorie-Brücke · ausschließlich negative Werte — 1.34.3–1.52.4 Hinweis, ab 1.52.5
+// gezeichnet: Domäne [min, 0] (catBridgeDomain), Nulllinie rechts, Labels links
 run("c90", dataView(["Nord","Süd","Ost","West"],
   [col("actual", [-179, -89, -42, -67]), col("previousYear", [-135, -68, -35, -66])],
   { chart: { orientation: "catbridge" } }), 1200, 600);
@@ -780,11 +780,11 @@ run("c91", dataView(["Umsatz","Material","Personal","Sondereffekt","Steuern"],
   [col("actual", [5000, -3200, -1500, 900, -1200], "#,0 T€")],
   { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Ergebnis", period: "2026" } }), 960, 380);
 </script>
-<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → Negativ-Hinweis pro Kachel, Nachbar-Kachel intakt</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → beide Kacheln split, gemeinsame Skala (1.52.5; bis 1.52.4: Hinweis)</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
 <script>
 // Integrierte Brücke · Multiples sameScale mit einer komplett negativen Kachel
-// one all-negative tile inside a sameScale multiples grid: the negative tile must show
-// the explicit hint, the positive tile must keep rendering (no shared-scale poisoning)
+// one all-negative tile inside a sameScale multiples grid: 1.52.5 both tiles draw the
+// split layout on one shared range (until 1.52.4: hint in the negative tile)
 const ngCats = [], ngMult = [], ngAc = [], ngPy = [];
 ["Nord", "Süd"].forEach((r, ri) => {
   ["Q1","Q2","Q3","Q4"].forEach((q, qi) => {
@@ -2696,6 +2696,288 @@ addStage("c238", "Leser (viewMode 0) ohne Daten · Leser-Karte: Produktname · i
   addStage("c238c", "Export (allowInteractions = false) ohne Daten · dieselbe Leser-Karte", 960, 300);
   runCap("c238c", emptyDv({}), 960, 300, { viewMode: 1, noInteract: true });
   check(document.querySelector("#c238c svg").innerHTML === document.querySelector("#c238 svg").innerHTML, "c238c: Export = Leser-Karte");
+}
+</script>
+<script>
+// ======================================================================
+// 1.52.5 · Negative Brücken (c239+) — Integrierte Brücke und Kategorie-Brücke
+// zeichnen negative Werte statt eines Hinweises: Nulllinie, Anker ab Null (auch
+// nach unten), Stufen schwebend in echter Höhe und Richtung, Färbung nach
+// Vorzeichen-Logik (Invert), Labels außen, Achsenschnitt nur einseitig
+// ======================================================================
+const NB = { GOOD: "#1E8F9E", BAD: "#D64541", AC: "#404040", PY: "#B3B3B3" };
+const nbQ = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+const nbAttr = (el, a) => parseFloat(el.getAttribute(a));
+const nbFill = el => (el.getAttribute("fill") || "").toUpperCase();
+const nbStroke = el => (el.getAttribute("stroke") || "").toUpperCase();
+const nbBottom = r => nbAttr(r, "y") + nbAttr(r, "height");
+const nbTexts = id => nbQ(id, "svg text").map(t => t.textContent.trim()).filter(Boolean);
+// no hint, no NaN anywhere in the SVG
+function nbSane(id) {
+  const hint = nbTexts(id).some(t => /does not support|unterstützt keine|not drawn in this state/.test(t));
+  const nan = /NaN|Infinity/.test(document.querySelector(`#${id} svg`).outerHTML);
+  check(!hint && !nan, `${id}: Chart statt Hinweis, keine NaN/Infinity-Attribute`);
+  check(!nbQ(id, 'svg g[data-icd-locked="1"] title').some(t => /not drawn in this state/.test(t.textContent)),
+    `${id}: Brücken-Chips nicht wegen „kein Chart“ gesperrt`);
+}
+// cascade bricks of the integrated bridge / vertical category bridge: good/bad
+// filled, hatched or (high contrast) hollow rects inside the category groups
+const nbIsBrick = (r, good, bad) => [good, bad].includes(nbFill(r)) || /url\(#icd-hatch-(good|bad)/.test(r.getAttribute("fill") || "")
+  || ([good, bad].includes(nbStroke(r)) && r.getAttribute("stroke-width") === "1.4");
+const nbBricks = (id, good = NB.GOOD, bad = NB.BAD) => nbQ(id, "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => nbIsBrick(r, good, bad)) || null);
+const nbGood = (r, good = NB.GOOD) => nbFill(r) === good || /hatch-good/.test(r.getAttribute("fill") || "") || nbStroke(r) === good;
+// anchor/total columns: rects outside the category groups
+const nbAnchors = (id, fill) => nbQ(id, "svg rect").filter(r => !r.closest("g.icd-cat") && !r.closest("[data-icd]") && nbFill(r) === fill);
+// glyph boxes of numeric labels — pairwise overlap (declutter rule: 18 % leading off)
+function nbOverlaps(id, filter) {
+  const boxes = nbQ(id, "svg text").filter(t => /\d/.test(t.textContent) && (!filter || filter(t))).map(t => {
+    const b = t.getBBox(); const sh = b.height * 0.18; return { t: t.textContent, x0: b.x + 0.5, x1: b.x + b.width - 0.5, y0: b.y + sh, y1: b.y + b.height - sh };
+  }).filter(b => b.x1 > b.x0);
+  const hits = [];
+  boxes.forEach((a, i) => boxes.slice(i + 1).forEach(b => {
+    if (Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > 0.5 && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 0.5) { hits.push(a.t + "×" + b.t); }
+  }));
+  return hits;
+}
+
+// ---- c239: Integrierte Brücke · Ergebnis mit Verlustmonaten (alle Stände ≥ 0)
+const nbMon = months;
+const nbEAc = [520, 310, -180, 440, -120, 610, 380, 290, null, null, null, null].map(v => v == null ? null : v * 1000);
+const nbEFc = [null, null, null, null, null, null, null, null, 350, -50, 420, 550].map(v => v == null ? null : v * 1000);
+const nbEPy = [450, 280, 120, 390, -80, 500, 410, 220, 300, 100, 360, 480].map(v => v * 1000);
+const nbEbit = (extra) => dataView(nbMon, [col("actual", nbEAc, "#,0"), col("forecast", nbEFc, "#,0"), col("previousYear", nbEPy, "#,0")],
+  Object.assign({ chart: { orientation: "intwaterfall", comparisonMode: "py" } }, extra || {}));
+addStage("c239", "Integrierte Brücke · Ergebnis mit Verlustmonaten (Mär, Mai, Okt) — Monatssäulen hängen unter der gemeinsamen Nulllinie, Anker ab Null", 1200, 520);
+{
+  runCap("c239", nbEbit(), 1200, 520);
+  nbSane("c239");
+  const zl = nbQ("c239", '[data-icd="bridge-zero"]')[0];
+  const yZ = zl ? nbAttr(zl, "y1") : NaN;
+  check(!!zl && !nbQ("c239", '[data-icd="bridge-month-zero"]').length, "c239: eine gemeinsame Nulllinie (Layout „zero“), kein zweiter Monats-Nullstrich");
+  const py = nbAnchors("c239", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  check(py && Math.abs(nbBottom(py) - yZ) < 0.6, "c239: PY-Anker steht auf der Nulllinie");
+  // monthly AC columns: negative months hang below the zero line, positive ones stand on it
+  const acCols = nbQ("c239", "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => nbFill(r) === NB.AC || (/icd-hatch\b|icd-hatch-[0-9]|url\(#icd-hatch"?\)?$/.test(r.getAttribute("fill") || "") && nbStroke(r) === NB.AC)
+    || (nbStroke(r) === NB.AC && !nbIsBrick(r, NB.GOOD, NB.BAD))) || null);
+  const vals = nbEAc.map((v, i) => v ?? nbEFc[i]);
+  const dirOk = acCols.every((r, i) => r && (vals[i] < 0 ? Math.abs(nbAttr(r, "y") - yZ) < 0.6 && nbBottom(r) > yZ + 1 : Math.abs(nbBottom(r) - yZ) < 0.6));
+  check(dirOk, "c239: Monatssäulen vorzeichenrichtig an der Nulllinie (Verlustmonate nach unten)");
+  // labels of loss months sit below their column, above the category names
+  const g3 = nbQ("c239", "g.icd-cat")[2];
+  const lbl = [...g3.querySelectorAll("text")].find(t => /^[−-]180K$/.test(t.textContent.trim()));
+  const catY = Math.max(...nbQ("c239", "g.icd-cat text").filter(t => months.includes(t.textContent)).map(t => nbAttr(t, "y")));
+  check(lbl && nbAttr(lbl, "y") > nbBottom(acCols[2]) && nbAttr(lbl, "y") < catY - 4, "c239: Label „−180K“ unter der Mär-Säule, über den Monatsnamen");
+  // bricks: true direction and color (ΔPY sign logic)
+  const br = nbBricks("c239");
+  const dd = vals.map((v, i) => v - nbEPy[i]);
+  check(br.every((r, i) => r && (dd[i] === 0 || nbGood(r) === dd[i] > 0)), "c239: Stufen gut/schlecht nach ΔPY-Vorzeichen");
+  const kA = nbAttr(py, "height") / nbEPy.reduce((a, b) => a + b, 0);
+  const hDev = br.map((r, i) => Math.abs(nbAttr(r, "height") - Math.max(1, Math.abs(dd[i]) * kA)));
+  check(Math.max(...hDev) < 0.6, "c239: Stufen in echter Höhe auf der Ankerskala");
+  const ov = nbOverlaps("c239", t => !/%$/.test(t.textContent));
+  check(ov.length === 0, "c239: Wertlabels überlappen nicht " + JSON.stringify(ov));
+}
+
+// ---- c240: Integrierte Brücke · Start negativ (Vorjahresverlust) → Ende positiv
+const nbSAc = [100, 200, 150, 300, 250, 400].map(v => v * 1000);
+const nbSPy = [-400, -300, -350, -200, -250, -100].map(v => v * 1000);
+const nbStart = (extra, w, h) => dataView(nbMon.slice(0, 6), [col("actual", nbSAc, "#,0"), col("previousYear", nbSPy, "#,0")],
+  Object.assign({ chart: Object.assign({ orientation: "intwaterfall", comparisonMode: "py" }, (extra || {}).chart || {}) }, extra && extra.colors ? { colors: extra.colors } : {}));
+addStage("c240", "Integrierte Brücke · PY −1,6 Mio. (Verlust) → AC +1,4 Mio. — Kaskade kreuzt die Nulllinie, Monatssäulen im eigenen Streifen (Layout „split“)", 1100, 520);
+{
+  runCap("c240", nbStart(), 1100, 520);
+  nbSane("c240");
+  const zl = nbQ("c240", '[data-icd="bridge-zero"]')[0], ml = nbQ("c240", '[data-icd="bridge-month-zero"]')[0];
+  const yZ = zl ? nbAttr(zl, "y1") : NaN;
+  check(!!zl && !!ml && nbAttr(ml, "y1") > yZ + 40, "c240: Nulllinie der Kaskade + eigener Monats-Nullstrich darunter");
+  const py = nbAnchors("c240", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const ac = nbAnchors("c240", NB.AC).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  check(py && Math.abs(nbAttr(py, "y") - yZ) < 0.6 && nbBottom(py) > yZ + 20, "c240: PY-Anker (Verlust) hängt ab der Nulllinie nach unten");
+  check(ac && Math.abs(nbBottom(ac) - yZ) < 0.6 && nbAttr(ac, "y") < yZ - 20, "c240: AC-Anker steht ab der Nulllinie nach oben");
+  const kPy = nbAttr(py, "height") / 1.6e6, kAc = nbAttr(ac, "height") / 1.4e6;
+  check(Math.abs(kPy / kAc - 1) < 0.02, "c240: beide Anker auf EINER Skala (px je Einheit)");
+  const br = nbBricks("c240");
+  check(br.every(r => r && nbGood(r)), "c240: jede Monatsstufe ist eine Verbesserung (gut)");
+  const pyLbl = nbQ("c240", "svg text").find(t => /^[−-]1\.600K$/.test(t.textContent.trim()));
+  check(pyLbl && nbAttr(pyLbl, "y") > nbBottom(py), "c240: PY-Label unter dem negativen Anker (außen)");
+  check(nbTexts("c240").includes("+3.000K"), "c240: Gesamtabweichung +3.000K im Kreis");
+  const ov = nbOverlaps("c240");
+  check(ov.length === 0, "c240: Wertlabels überlappen nicht " + JSON.stringify(ov));
+}
+
+// ---- c241: Kategorie-Brücke · Kostenbrücke rein negativ (PY → AC)
+const nbCost = ["Personal", "Material", "Energie", "Miete"];
+const nbCAc = [-2600, -1900, -700, -350].map(v => v * 1000), nbCPy = [-2400, -2000, -550, -350].map(v => v * 1000);
+const nbCostDv = (chart) => dataView(nbCost, [col("actual", nbCAc, "#,0"), col("previousYear", nbCPy, "#,0")],
+  { chart: Object.assign({ orientation: "catbridge", comparisonMode: "py" }, chart || {}) });
+addStage("c241", "Kategorie-Brücke (Balken) · Kostenbrücke rein negativ — Nulllinie rechts, Balken nach links, Mehrkosten schlecht", 1100, 460);
+{
+  runCap("c241", nbCostDv(), 1100, 460);
+  nbSane("c241");
+  const zl = nbQ("c241", '[data-icd="bridge-zero"]')[0];
+  const xZ = zl ? nbAttr(zl, "x1") : NaN;
+  const py = nbAnchors("c241", NB.PY).sort((a, b) => nbAttr(b, "width") - nbAttr(a, "width"))[0];
+  check(!!zl && py && Math.abs(nbAttr(py, "x") + nbAttr(py, "width") - xZ) < 0.6, "c241: Nulllinie sichtbar, PY-Summe ab Null nach links");
+  const br = nbQ("c241", "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => [NB.GOOD, NB.BAD, NB.PY].includes(nbFill(r)) && Math.abs(nbAttr(r, "height") - Math.max(5, 0)) >= 0 && r.getAttribute("y") && nbAttr(r, "width") >= 2 && nbFill(r) !== NB.PY) || null);
+  const dd = nbCAc.map((v, i) => v - nbCPy[i]);
+  check(br.every((r, i) => dd[i] === 0 || (r && nbGood(r) === dd[i] > 0)), "c241: Mehrkosten (Δ < 0) schlecht, Einsparung gut");
+  // value labels of negative rows: left of the bar end, right of the category names
+  const names = nbQ("c241", "g.icd-cat text").filter(t => nbCost.includes(t.textContent));
+  const nameR = Math.max(...names.map(t => t.getBBox().x + t.getBBox().width));
+  const lbls = nbQ("c241", "g.icd-cat text").filter(t => /^[−-]\d/.test(t.textContent.trim()) && !/%$/.test(t.textContent));
+  check(lbls.length >= 6 && lbls.every(t => t.getAttribute("text-anchor") === "end" && t.getBBox().x > nameR), "c241: negative Labels links am Balkenende, rechts der Kategorienamen");
+  const ov = nbOverlaps("c241");
+  check(ov.length === 0, "c241: Wertlabels überlappen nicht " + JSON.stringify(ov));
+  addStage("c241b", "Kategorie-Brücke (Balken) · dieselbe Kostenbrücke mit chart.invert — Färbung kippt", 1100, 460);
+  runCap("c241b", nbCostDv({ invert: true }), 1100, 460);
+  nbSane("c241b");
+  const b2 = nbQ("c241b", "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => [NB.GOOD, NB.BAD].includes(nbFill(r))) || null);
+  check(b2.every((r, i) => dd[i] === 0 || (r && nbGood(r) === dd[i] < 0)), "c241b: Invert respektiert (Δ < 0 jetzt gut)");
+  addStage("c241c", "Kategorie-Brücke (Säulen) · Kostenbrücke rein negativ — Nulllinie oben, Anker hängen, Labels unter negativen Segmenten", 1000, 460);
+  runCap("c241c", nbCostDv({ bridgeOrientation: "columns" }), 1000, 460);
+  nbSane("c241c");
+  const pyc = nbAnchors("c241c", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const acc = nbAnchors("c241c", NB.AC).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const yTop = Math.min(nbAttr(pyc, "y"), nbAttr(acc, "y"));
+  const zLine = nbQ("c241c", "svg line").find(l => Math.abs(nbAttr(l, "y1") - yTop) < 0.6 && nbAttr(l, "y1") === nbAttr(l, "y2"));
+  check(Math.abs(nbAttr(pyc, "y") - nbAttr(acc, "y")) < 0.6 && !!zLine, "c241c: PY- und AC-Anker hängen ab derselben (sichtbaren) Nulllinie");
+  const pyL = nbQ("c241c", "svg text").find(t => /^[−-]5,30M$/.test(t.textContent.trim()));
+  check(pyL && nbAttr(pyL, "y") > nbBottom(pyc), "c241c: Anker-Label unter dem negativen Anker");
+  const ov3 = nbOverlaps("c241c");
+  check(ov3.length === 0, "c241c: Wertlabels überlappen nicht " + JSON.stringify(ov3));
+  addStage("c241d", "Kategorie-Brücke (Säulen) · Ergebnis −3 → −1 (Verlust halbiert) — alle Stufen gut, nach oben", 900, 420);
+  runCap("c241d", dataView(["A", "B", "C"], [col("actual", [-400, -300, -300].map(v => v * 1000), "#,0"), col("previousYear", [-1500, -1000, -500].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns" } }), 900, 420);
+  nbSane("c241d");
+  const b4 = nbQ("c241d", "g.icd-cat rect").filter(r => [NB.GOOD, NB.BAD].includes(nbFill(r)) && nbAttr(r, "width") > 6);
+  check(b4.length === 3 && b4.every(r => nbFill(r) === NB.GOOD), "c241d: drei gute Stufen");
+}
+
+// ---- c242: Nulldurchgang EINES Schritts (Anker +2 → Schritt −5 → −3): das Segment kreuzt die Nulllinie in voller Höhe
+addStage("c242", "Integrierte Brücke · Nulldurchgang eines Schritts: PY +2,0 → Q2 −5,0 → AC −3,0", 900, 480);
+{
+  runCap("c242", dataView(["Q1", "Q2", "Q3"], [col("actual", [500, -4000, 500].map(v => v * 1000), "#,0"), col("previousYear", [600, 1000, 400].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py" } }), 900, 480);
+  nbSane("c242");
+  const yZ = nbAttr(nbQ("c242", '[data-icd="bridge-zero"]')[0], "y1");
+  const py = nbAnchors("c242", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const k = nbAttr(py, "height") / 2e6;
+  const q2 = nbBricks("c242")[1];
+  check(q2 && nbAttr(q2, "y") < yZ - 10 && nbBottom(q2) > yZ + 10, "c242: Q2-Segment kreuzt die Nulllinie");
+  check(q2 && Math.abs(nbAttr(q2, "height") - 5e6 * k) < 0.6 && !nbGood(q2), "c242: Q2-Segment in voller Höhe (5,0 auf der Ankerskala), schlecht");
+  const ac = nbAnchors("c242", NB.AC).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  check(Math.abs(nbAttr(ac, "y") - yZ) < 0.6 && Math.abs(nbAttr(ac, "height") - 3e6 * k) < 0.6, "c242: AC-Anker −3,0 ab der Nulllinie nach unten");
+  addStage("c242b", "Kategorie-Brücke (Säulen) · Nulldurchgang eines Schritts: PY +2,0 → A −5,0 → AC −3,0", 800, 420);
+  runCap("c242b", dataView(["A", "B"], [col("actual", [-3500, 500].map(v => v * 1000), "#,0"), col("previousYear", [1500, 500].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns" } }), 800, 420);
+  nbSane("c242b");
+  const pyc = nbAnchors("c242b", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const yZc = nbBottom(pyc), kc = nbAttr(pyc, "height") / 2e6;
+  const a = nbQ("c242b", "g.icd-cat rect").find(r => nbFill(r) === NB.BAD);
+  check(a && nbAttr(a, "y") < yZc - 10 && nbBottom(a) > yZc + 10 && Math.abs(nbAttr(a, "height") - 5e6 * kc) < 0.6, "c242b: Segment kreuzt die Nulllinie in voller Höhe");
+}
+
+// ---- c243: Small Multiples · eine Kachel negativ — gemeinsame Skala über alle Kacheln
+addStage("c243", "Integrierte Brücke · Small Multiples, multiplesSameScale, nur „Süd“ startet negativ — beide Kacheln split, gleiche Nulllinie und px je Einheit", 1340, 560);
+{
+  const cats = [], mult = [], acv = [], pyv = [];
+  ["Nord", "Süd"].forEach((r, ri) => ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    cats.push(q); mult.push(r);
+    acv.push(ri === 0 ? [1450, 980, 620, 410][qi] : [120, 80, 150, 60][qi]);
+    pyv.push(ri === 0 ? [1300, 1040, 590, 380][qi] : [-200, -150, 40, -90][qi]);
+  }));
+  runCap("c243", dataView(cats, [col("actual", acv), col("previousYear", pyv)], { chart: { orientation: "intwaterfall", multiplesSameScale: true } }, mult), 1340, 560);
+  nbSane("c243");
+  const zl = nbQ("c243", '[data-icd="bridge-zero"]'), ml = nbQ("c243", '[data-icd="bridge-month-zero"]');
+  check(zl.length === 2 && ml.length === 2 && Math.abs(nbAttr(zl[0], "y1") - nbAttr(zl[1], "y1")) < 0.6, "c243: zwei Kacheln, beide split, Nulllinie auf gleicher Höhe");
+  const pys = nbAnchors("c243", NB.PY).filter(r => nbAttr(r, "height") > 2).sort((a, b) => nbAttr(a, "x") - nbAttr(b, "x"));
+  const k1 = nbAttr(pys[0], "height") / 3310, k2 = nbAttr(pys[1], "height") / 400;
+  check(pys.length === 2 && Math.abs(k1 / k2 - 1) < 0.02, `c243: gleiche px je Einheit (${k1.toFixed(4)} / ${k2.toFixed(4)})`);
+  addStage("c243b", "Integrierte Brücke · Small Multiples ohne gleiche Skala — positive Kachel bleibt klassisch, negative split", 1340, 560);
+  runCap("c243b", dataView(cats, [col("actual", acv), col("previousYear", pyv)], { chart: { orientation: "intwaterfall" } }, mult), 1340, 560);
+  nbSane("c243b");
+  check(nbQ("c243b", '[data-icd="bridge-month-zero"]').length === 1, "c243b: nur die negative Kachel im Split-Layout");
+  addStage("c243c", "Kategorie-Brücke · Small Multiples, multiplesSameScale, „Süd“ rein negativ — Nulllinie in beiden Kacheln, gleiche px je Einheit", 1340, 520);
+  const ccats = [], cmult = [], cac = [], cpy = [];
+  ["Nord", "Süd"].forEach((r, ri) => ["A", "B", "C"].forEach((c, ci) => {
+    ccats.push(c); cmult.push(r);
+    cac.push(ri === 0 ? [900, 600, 300][ci] : [-400, -250, -120][ci]);
+    cpy.push(ri === 0 ? [850, 640, 280][ci] : [-380, -260, -100][ci]);
+  }));
+  runCap("c243c", dataView(ccats, [col("actual", cac), col("previousYear", cpy)], { chart: { orientation: "catbridge", multiplesSameScale: true } }, cmult), 1340, 520);
+  nbSane("c243c");
+  const czl = nbQ("c243c", '[data-icd="bridge-zero"]');
+  // the two PY total rows (widest grey bars outside the category rows): Nord 1.770, Süd −740
+  const cpys = nbAnchors("c243c", NB.PY).sort((a, b) => nbAttr(b, "width") - nbAttr(a, "width")).slice(0, 2);
+  const ck1 = nbAttr(cpys[0], "width") / 1770, ck2 = nbAttr(cpys[1], "width") / 740;
+  check(czl.length === 2 && cpys.length === 2 && Math.abs(ck1 / ck2 - 1) < 0.02, `c243c: Nulllinie in beiden Kacheln, gleiche px je Einheit (${ck1.toFixed(4)} / ${ck2.toFixed(4)})`);
+}
+
+// ---- c244: Dark Mode + Hochkontrast
+addStage("c244", "Integrierte Brücke · Verlustmonate im Dark Mode", 1200, 520, "#1E1E1E");
+{
+  runCap("c244", nbEbit({ colors: { appearance: "dark" } }), 1200, 520, { themeBg: "#1E1E1E" });
+  nbSane("c244");
+  const br = nbBricks("c244", "#3FB3C2", "#E4635F");
+  check(br.filter(Boolean).length === 12 && br.some(r => nbFill(r) === "#E4635F"), "c244: Stufen in den Dark-Farben (#3FB3C2 / #E4635F)");
+  const zl = nbQ("c244", '[data-icd="bridge-zero"]')[0];
+  check(zl && nbStroke(zl) !== NB.AC, "c244: Nulllinie in heller Tinte");
+  addStage("c244b", "Kategorie-Brücke (Säulen) · rein negativ im Hochkontrast — schlechte Stufen hohl", 1000, 460, "#000");
+  runCap("c244b", nbCostDv({ bridgeOrientation: "columns" }), 1000, 460, { hc: true });
+  nbSane("c244b");
+  const hollow = nbQ("c244b", "g.icd-cat rect").filter(r => nbFill(r) === "#000000" && r.getAttribute("stroke-width") === "1.4");
+  check(hollow.length >= 2, "c244b: schlechte Stufen als Umriss (Muster statt Farbe)");
+  addStage("c244c", "Integrierte Brücke · Start negativ im Hochkontrast", 1100, 520, "#000");
+  runCap("c244c", nbStart(), 1100, 520, { hc: true });
+  nbSane("c244c");
+  check(nbQ("c244c", '[data-icd="bridge-month-zero"]').length === 1, "c244c: Split-Layout auch im Hochkontrast");
+}
+
+// ---- c245: Export-Kontext (keine Interaktion)
+addStage("c245", "Integrierte Brücke · Start negativ im Export (allowInteractions = false) — ohne Chips, gleiche Geometrie", 1100, 520);
+{
+  runCap("c245", nbStart(), 1100, 520, { noInteract: true, viewMode: 0 });
+  nbSane("c245");
+  check(!nbQ("c245", "svg g[role=button]").length && nbQ("c245", '[data-icd="bridge-zero"]').length === 1, "c245: keine In-Chart-Knöpfe, Nulllinie da");
+  const strip = (id) => document.querySelector(`#${id} svg`).innerHTML.replace(/<g[^>]*role="button"[\s\S]*?<\/g>/g, "");
+  const zA = nbAttr(nbQ("c240", '[data-icd="bridge-zero"]')[0], "y1"), zB = nbAttr(nbQ("c245", '[data-icd="bridge-zero"]')[0], "y1");
+  check(Math.abs(zA - zB) < 0.6 && strip("c245").length > 0, "c245: Nulllinie wie am Bildschirm (c240)");
+}
+
+// ---- c246: Achsenschnitt (chart.bridgeBreak) nur, wenn sinnvoll
+addStage("c246", "Integrierte Brücke · Kosten rein negativ + bridgeBreak — gespiegelter Schnitt unter der Nulllinie", 1100, 520);
+{
+  const kAc = [-2100, -2000, -2300, -2200, -2400, -2200].map(v => v * 1000), kPy = [-2000, -2100, -2100, -2200, -2200, -2300].map(v => v * 1000);
+  runCap("c246", dataView(nbMon.slice(0, 6), [col("actual", kAc, "#,0"), col("previousYear", kPy, "#,0")],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py", bridgeBreak: true } }), 1100, 520);
+  nbSane("c246");
+  const mk = nbQ("c246", '[data-icd="bridge-break"]')[0];
+  const cap = nbTexts("c246").find(t => /axis broken from|Achse ab/.test(t)) || "";
+  check(!!mk && /from [−-]\d/.test(cap), `c246: Schnitt gesetzt, Titel nennt den negativen Schnittwert („${cap}“)`);
+  const br = nbBricks("c246");
+  const dd = kAc.map((v, i) => v - kPy[i]);
+  const ks = br.map((r, i) => Math.abs(dd[i]) > 0 ? nbAttr(r, "height") / Math.abs(dd[i]) : null).filter(v => v != null);
+  check(Math.max(...ks) / Math.min(...ks) < 1.03, "c246: Stufen linear in einer Skala jenseits des Schnitts");
+  addStage("c246b", "Kategorie-Brücke (Säulen) · Kosten rein negativ + bridgeBreak", 1000, 460);
+  runCap("c246b", dataView(nbCost, [col("actual", [-52600, -31900, -10700, -5350].map(v => v * 1000), "#,0"), col("previousYear", [-51400, -32600, -10100, -5350].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns", bridgeBreak: true } }), 1000, 460);
+  nbSane("c246b");
+  check(nbQ("c246b", '[data-icd="bridge-break"]').length === 1, "c246b: gespiegelter Schnitt in der Kategorie-Brücke");
+  addStage("c246c", "Integrierte Brücke · Start negativ + bridgeBreak — Brücke kreuzt Null, KEIN Schnitt", 1100, 520);
+  runCap("c246c", nbStart({ chart: { bridgeBreak: true } }), 1100, 520);
+  nbSane("c246c");
+  check(!nbQ("c246c", '[data-icd="bridge-break"]').length, "c246c: über Null wird nicht geschnitten");
+}
+
+// ---- c247: KPI-Karten · Mini-Brücke mit Verlust (seit 1.34.3 vorzeichenfähig) — Regression
+addStage("c247", "KPI-Karten · EBIT −80 vs. PY +20 und Kosten negativ — Mini-Brücke mit Nulllinie", 960, 260);
+{
+  runCap("c247", dataView(["EBIT", "Kosten", "Umsatz"], [col("actual", [-80, -420, 980], "#,0 T€"), col("previousYear", [20, -400, 900], "#,0 T€")],
+    { chart: { orientation: "cards" } }), 960, 260);
+  nbSane("c247");
+  const svg = document.querySelector("#c247 svg"), vb = svg.getBoundingClientRect();
+  const out = [...svg.querySelectorAll("rect")].filter(r => { const b = r.getBoundingClientRect(); return b.height > 0 && (b.top < vb.top - 0.5 || b.bottom > vb.bottom + 0.5); });
+  check(out.length === 0, "c247: alle Mini-Brücken-Rechtecke im Zeichenbereich");
 }
 </script>
 </body>
