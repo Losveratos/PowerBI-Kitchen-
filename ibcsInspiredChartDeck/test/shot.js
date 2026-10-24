@@ -20,6 +20,13 @@ catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
     page.on("pageerror", e => { errors++; console.log("[pageerror]", e.message); });
     await page.goto("file://" + __dirname + "/test.html");
     await page.waitForTimeout(600);
+    // 1.53 rowType tokens: the unknown-token note may only appear where a case
+    // feeds deliberate typos/free texts — every other stage (sum/delta/pct and
+    // known tokens) must stay silent
+    const noteStages = await page.evaluate(() => [...document.querySelectorAll('[data-icd="rowtype-note"]')]
+        .map(n => n.closest(".stage")?.id).filter(Boolean).sort().join(","));
+    if (noteStages === "c253,c257") { oks++; }
+    else { errors++; fails++; console.log("FAIL · rowType-Hinweis nur in c253/c257, gefunden in: " + (noteStages || "–")); }
     await page.screenshot({ path: __dirname + "/render.png", timeout: 60000 });
     const ids = (process.env.SHOT || "").split(",").map(s => s.trim()).filter(Boolean);
     for (const id of ids) {

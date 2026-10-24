@@ -3016,5 +3016,204 @@ addStage("c247", "KPI-Karten · EBIT −80 vs. PY +20 und Kosten negativ — Min
   check(out.length === 0, "c247: alle Mini-Brücken-Rechtecke im Zeichenbereich");
 }
 </script>
+<script>
+// ======================================================================
+// 1.53 · rowType-Token (c248+) — die Rolle „Waterfall-Typ" trägt die Zeilen-
+// Struktur als Daten: Token je Zeile (Komma, Semikolon, Leerzeichen, |),
+// vereinigt mit den Komma-Listen. Nachweis über SVG-Gleichheit gegen die
+// Listen-Variante (gleiche Semantik) plus gezielte Einzelchecks
+// ======================================================================
+const rtCats = ["Umsatz", "Materialaufwand", "Rohertrag", "Personalaufwand", "davon Boni", "Sonstige", "Intern", "EBIT", "nachrichtlich: Export"];
+const rtAc = [9800, -4200, 5600, -2400, -300, -450, -120, 2630, 3100];
+const rtPy = [9100, -3900, 5200, -2300, -260, -500, -100, 2300, 2800];
+const rtLists = { resultList: "Rohertrag, EBIT", skipList: "davon Boni, nachrichtlich: Export", indentList: "davon Boni",
+  hideList: "Intern", invertList: "Materialaufwand, Personalaufwand", highlight: "EBIT",
+  chartList: "Umsatz, Materialaufwand, Rohertrag, EBIT" };
+const rtTokens = ["graphic", "invert, graphic", "total, graphic", "invert", "davon, exclude", "", "hide", "total, emphasize, graphic", "exclude"];
+const rtDv = (chart, types) => dataView(rtCats, [col("actual", rtAc, "#,0 T€"), col("previousYear", rtPy, "#,0 T€")],
+  { chart: Object.assign({ orientation: "table" }, chart) }, null, types);
+// SVG without instance-specific pattern/clip ids (icd-hatch-<n> …)
+const rtSvg = id => document.querySelector(`#${id} svg`).outerHTML
+  .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+const rtRow = (id, label) => nbQ(id, "g.icd-cat").find(g => [...g.querySelectorAll("text")].some(t => t.textContent.trim() === label));
+const rtName = (id, label) => nbQ(id, "g.icd-cat text").find(t => t.textContent.trim() === label);
+
+// ---- c248: GuV-Tabelle mit Token statt Listen — pixelgleich zur Listen-Variante
+addStage("c248", "Tabelle · GuV mit rowType-Token (total · davon · exclude · hide · invert · emphasize · graphic) statt Komma-Listen", 1200, 440);
+addStage("c248L", "Tabelle · dieselbe GuV über die sieben Komma-Listen (Referenz für c248)", 1200, 440);
+{
+  runCap("c248", rtDv({}, rtTokens), 1200, 440);
+  runCap("c248L", rtDv(rtLists), 1200, 440);
+  check(rtSvg("c248") === rtSvg("c248L"), "c248: Token-Rolle zeichnet exakt wie die Komma-Listen (SVG gleich)");
+  const bold = l => (rtName("c248", l)?.getAttribute("font-weight") ?? "") === "700";
+  check(bold("Rohertrag") && bold("EBIT") && !bold("Umsatz"), "c248: total → Ergebniszeilen fett (Anker)");
+  check(rtName("c248", "davon Boni").getBBox().x > rtName("c248", "Personalaufwand").getBBox().x + 8
+    && rtName("c248", "davon Boni").getAttribute("font-style") === "italic", "c248: davon eingerückt + exclude kursiv");
+  check(!nbTexts("c248").includes("Intern"), "c248: hide blendet „Intern“ aus");
+  // marks of a row (without the full-width white hit rect)
+  const fills = l => [...(rtRow("c248", l)?.querySelectorAll("rect") ?? [])].map(nbFill).filter(f => f !== "#FFFFFF");
+  check(fills("Personalaufwand").length === 0 && fills("Sonstige").length === 0 && fills("Umsatz").length > 0,
+    "c248: graphic begrenzt die Grafiken auf die markierten Zeilen");
+  // Materialaufwand ΔPY = −300: ohne invert schlecht, mit invert gut
+  check(fills("Materialaufwand").includes(NB.GOOD) && !fills("Materialaufwand").includes(NB.BAD), "c248: invert dreht die Bewertung (ΔPY −300 = gut)");
+  check(nbQ("c248", 'svg rect[fill-opacity="0.07"]').length === 1, "c248: emphasize hebt genau eine Zeile hervor (EBIT)");
+  check(!nbQ("c248", '[data-icd="rowtype-note"]').length, "c248: bekannte Token → kein Hinweis");
+  // ohne Token und Listen: alles anders (Probe, dass die Token wirken)
+  addStage("c248n", "Tabelle · dieselben Zeilen ohne Token und Listen (Gegenprobe)", 1200, 440);
+  runCap("c248n", rtDv({}), 1200, 440);
+  check(rtSvg("c248n") !== rtSvg("c248") && nbTexts("c248n").includes("Intern"), "c248n: Gegenprobe ohne Token unterscheidet sich");
+}
+
+// ---- c249: Wasserfall (GuV-Kaskade) mit Token = Listen; exclude fällt aus der Kaskade
+addStage("c249", "Waterfall · GuV-Kaskade mit Token (total als Anker, exclude nicht in der Kaskade, invert)", 1100, 420);
+addStage("c249L", "Waterfall · dieselbe Kaskade über resultList/skipList/invertList (Referenz)", 1100, 420);
+{
+  const wfCats = ["Umsatz", "Materialaufwand", "Rohertrag", "Personalaufwand", "EBIT", "nachrichtlich: Export"];
+  const wfAc = [9800, -4200, 5600, -2970, 2630, 3100], wfPy = [9100, -3900, 5200, -2900, 2300, 2800];
+  const dv = (chart, types) => dataView(wfCats, [col("actual", wfAc, "#,0 T€"), col("previousYear", wfPy, "#,0 T€")],
+    { chart: Object.assign({ orientation: "waterfall" }, chart) }, null, types);
+  runCap("c249", dv({}, ["", "invert", "total", "invert", "total", "exclude"]), 1100, 420);
+  runCap("c249L", dv({ resultList: "Rohertrag, EBIT", skipList: "nachrichtlich: Export", invertList: "Materialaufwand, Personalaufwand" },
+    ["", "", "", "", "", ""]), 1100, 420);
+  check(rtSvg("c249") === rtSvg("c249L"), "c249: Kaskade mit Token gleich der Listen-Variante (SVG gleich)");
+  check(!nbTexts("c249").includes("nachrichtlich: Export"), "c249: exclude-Zeile nicht in der Kaskade");
+}
+
+// ---- c250: GuV-Statement — total-Token wirkt wie das bisherige „sum"
+addStage("c250", "GuV-Statement · „Total“/„Zwischensumme“-Token statt „sum“ (Anker, Klappgruppen)", 1280, 420);
+addStage("c250L", "GuV-Statement · dieselben Zeilen mit den alten Werten sum/delta (Referenz)", 1280, 420);
+{
+  const pc = ["Umsatz", "Material", "Rohertrag", "Personal", "Opex", "EBIT"];
+  const pa = [9800, -4200, 5600, -2400, -570, 2630], pp = [9100, -3900, 5200, -2300, -600, 2300];
+  const dv = types => dataView(pc, [col("actual", pa, "#,0 T€"), col("previousYear", pp, "#,0 T€")],
+    { chart: { orientation: "pnl" } }, null, types);
+  runCap("c250", dv(["Detail", "normal", "Total", "konto", "", "Zwischensumme"]), 1280, 420);
+  runCap("c250L", dv(["delta", "delta", "sum", "delta", "delta", "sum"]), 1280, 420);
+  check(rtSvg("c250") === rtSvg("c250L"), "c250: total/zwischensumme = sum, detail/normal/konto/leer = delta (SVG gleich)");
+}
+
+// ---- c251: Mischung Rolle + Liste = Vereinigung
+addStage("c251", "Tabelle · Mischung: ein Teil per Token, der Rest per Liste — Vereinigung = c248L", 1200, 440);
+{
+  runCap("c251", rtDv({ resultList: "EBIT", skipList: "nachrichtlich: Export", hideList: "Intern", highlight: "EBIT",
+    invertList: "Personalaufwand", chartList: "Umsatz, EBIT" },
+    ["graphic", "invert graphic", "total graphic", "", "davon exclude", "", "", "", ""]), 1200, 440);
+  check(rtSvg("c251") === rtSvg("c248L"), "c251: Rolle ∪ Liste zeichnet wie die vollständigen Listen");
+  // gleiche Angabe doppelt (Token + Liste) ändert nichts
+  addStage("c251b", "Tabelle · Token UND Liste für dieselben Zeilen — keine Doppelwirkung", 1200, 440);
+  runCap("c251b", rtDv(rtLists, rtTokens), 1200, 440);
+  check(rtSvg("c251b") === rtSvg("c248L"), "c251b: doppelte Angabe (Token + Liste) = einfache");
+}
+
+// ---- c252: Mehrfach-Token mit verschiedenen Trennern, Groß/klein, deutsche Aliasse
+addStage("c252", "Tabelle · Mehrfach-Token mit ; | Leerzeichen , und deutschen Aliassen (Summe, Kosten, nachrichtlich, ausblenden, hervorheben, grafik)", 1200, 440);
+{
+  runCap("c252", rtDv({}, ["Grafik", "KOSTEN | chart", "Ergebnis;GRAFIK", "invertieren", "Davon,Ausnehmen", "  ", "ausblenden",
+    "summe  hervorheben|graphic", "memo"]), 1200, 440);
+  check(rtSvg("c252") === rtSvg("c248L"), "c252: Trenner , ; | Leerzeichen + Aliasse = kanonische Token");
+  check(!nbQ("c252", '[data-icd="rowtype-note"]').length, "c252: alle Aliasse bekannt → kein Hinweis");
+}
+
+// ---- c253: unbekannte Token → dezenter Hinweis (Bearbeitungsmodus), Rest wirkt weiter
+addStage("c253", "Tabelle · Tippfehler „sume“ und „ivnert“ — ignoriert, aber im Chart gemeldet", 1200, 440);
+{
+  const types = rtTokens.slice();
+  types[2] = "sume, graphic"; types[1] = "ivnert graphic";
+  runCap("c253", rtDv({}, types), 1200, 440);
+  const note = nbQ("c253", '[data-icd="rowtype-note"] text')[0];
+  // „sume“ beginnt mit „sum“ (Präfix-Regel ≤ 1.52) und ist deshalb bekannt
+  check(!!note && /„ivnert“/.test(note.textContent) && !/sume/.test(note.textContent),
+    `c253: Hinweis nennt nur das unbekannte Token („${note ? note.textContent : "–"}“)`);
+  check(!!note && /^Waterfall type: unknown entry ignored/.test(note.textContent), "c253: Hinweistext aus Fallback/resjson");
+  // „sume“ beginnt mit „sum“ → bleibt (wie ≤ 1.52) Ergebniszeile; „ivnert“ ignoriert
+  check((rtName("c253", "Rohertrag")?.getAttribute("font-weight") ?? "") === "700", "c253: sum…-Präfix bleibt Ergebniszeile");
+  const f = [...(rtRow("c253", "Materialaufwand")?.querySelectorAll("rect") ?? [])].map(nbFill);
+  check(f.includes(NB.BAD) && !f.includes(NB.GOOD), "c253: unbekanntes „ivnert“ wirkt nicht, graphic daneben schon");
+  addStage("c253b", "Tabelle · gleiche Tippfehler in der Leseansicht (viewMode 0) — kein Hinweis", 1200, 440);
+  runCap("c253b", rtDv({}, types), 1200, 440, { viewMode: 0 });
+  check(!nbQ("c253b", '[data-icd="rowtype-note"]').length, "c253b: Leser sehen den Hinweis nicht");
+  addStage("c253c", "Tabelle · gleiche Tippfehler im Export (allowInteractions = false) — kein Hinweis", 1200, 440);
+  runCap("c253c", rtDv({}, types), 1200, 440, { noInteract: true });
+  check(!nbQ("c253c", '[data-icd="rowtype-note"]').length, "c253c: Export ohne Hinweis");
+}
+
+// ---- c254: Rolle nur mit Flag-Token (KPI-Karten) — keine GuV-Struktur, kein Wasserfall-Vorschlag
+addStage("c254", "KPI-Karten · Rolle trägt nur „invert“ (Kosten) — wie invertList, ohne Smart-Start-Vorschlag „GuV-Wasserfall?“", 960, 260);
+addStage("c254L", "KPI-Karten · dieselbe Wertung über invertList (Referenz)", 960, 260);
+{
+  const kc = ["Umsatz", "Kosten", "Marge", "Retouren"];
+  const dv = (chart, types) => dataView(kc, [col("actual", [980, 420, 560, 35], "#,0 T€"), col("previousYear", [900, 400, 500, 30], "#,0 T€")],
+    { chart: Object.assign({ orientation: "cards" }, chart) }, null, types);
+  runCap("c254", dv({}, [null, "kosten", null, "invert"]), 960, 260);
+  runCap("c254L", dv({ invertList: "Kosten, Retouren" }), 960, 260);
+  check(rtSvg("c254") === rtSvg("c254L"), "c254: Flag-Token = invertList (SVG gleich)");
+  const wfTip = id => nbQ(id, "svg g[role=button]").some(g => /waterfall/i.test(g.getAttribute("aria-label") || ""));
+  check(!wfTip("c254"), "c254: reine Flag-Rolle schlägt keinen GuV-Wasserfall vor");
+  addStage("c254d", "KPI-Karten · Rolle mit altem Wert „delta“ — Vorschlag „GuV-Wasserfall?“ wie bisher", 960, 260);
+  runCap("c254d", dv({}, ["delta", "delta", "delta", "delta"]), 960, 260);
+  check(wfTip("c254d"), "c254d: alter Strukturwert schlägt weiter den Wasserfall vor (Regression)");
+}
+
+// ---- c255: Struktur-Menü — per Token gesetzte Eigenschaften erscheinen angehakt und gesperrt
+addStage("c255", "Tabelle · Struktur-Modus: Klick auf „Materialaufwand“ — Invert + Grafik per Token gesetzt (gesperrt)", 1200, 440);
+{
+  runCap("c255", rtDv({ structureEdit: true }, rtTokens), 1200, 440);
+  const g = rtRow("c255", "Materialaufwand");
+  const r = g.getBoundingClientRect();
+  g.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: r.left + 40, clientY: r.top + r.height / 2 }));
+  const labels = nbQ("c255", "label");
+  const locked = labels.filter(l => l.getAttribute("data-icd-role") === "1");
+  const cbOf = l => l.querySelector("input");
+  check(labels.length === 6 && locked.length === 2 && locked.every(l => cbOf(l).checked && cbOf(l).disabled),
+    `c255: zwei Häkchen aus der Rolle, angehakt + gesperrt (${locked.map(l => l.textContent).join(" · ")})`);
+  check(labels.filter(l => !l.getAttribute("data-icd-role")).every(l => !cbOf(l).disabled), "c255: übrige Häkchen bleiben bedienbar");
+  check(/Waterfall type field/.test(locked[0]?.title || ""), "c255: Tooltip erklärt die Sperre");
+  check(window.__persist.c255.length === 0, "c255: Öffnen persistiert nichts");
+}
+
+// ---- c256: Hierarchie — Token gelten für die Blattzeile, die den rowType-Wert trägt
+const rtHierDv = (chart, types) => ({
+  metadata: { columns: [], objects: { chart: Object.assign({ orientation: "table", tableExpanded: JSON.stringify(["¦Erlöse", "¦Kosten"]) }, chart) } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Bereich", roles: { category: true } }, values: ["Erlöse", "Erlöse", "Kosten", "Kosten", "Kosten"] },
+      { source: { displayName: "Konto", roles: { category: true } }, values: ["Inland", "Export", "Material", "Personal", "Intern"] },
+      ...(types ? [{ source: { displayName: "Typ", roles: { rowType: true } }, values: types }] : [])
+    ],
+    values: [col("actual", [6200, 3600, -4200, -2400, -120], "#,0 T€"), col("previousYear", [5900, 3200, -3900, -2300, -100], "#,0 T€")]
+  }
+});
+addStage("c256", "Tabelle · Hierarchie Bereich › Konto: „invert“ auf Material/Personal, „hide invert“ auf Intern (Blattebene)", 1200, 360);
+addStage("c256L", "Tabelle · dieselbe Hierarchie über invertList/hideList (Referenz)", 1200, 360);
+{
+  runCap("c256", rtHierDv({}, [null, "", "invert", "invert", "hide invert"]), 1200, 360);
+  runCap("c256L", rtHierDv({ invertList: "Material, Personal, Intern", hideList: "Intern" }, [null, "", null, null, null]), 1200, 360);
+  check(rtSvg("c256") === rtSvg("c256L"), "c256: Hierarchie mit Token = Listen (SVG gleich)");
+  const t = nbTexts("c256");
+  check(!t.includes("Intern") && t.some(x => /Kosten/.test(x)) && t.includes("Material"), "c256: Blatt „Intern“ weg, Elternzeile „Kosten“ bleibt");
+}
+
+// ---- c257: Regression — alte Werte und Präfix-Regel (sum…/pct…, alles andere = Bewegung) unverändert
+addStage("c257", "Tabelle · alte rowType-Schreibweisen (Summe, SUM, sum1, leer, beliebiger Text) — Geometrie wie c25", 1200, 420);
+addStage("c257L", "Tabelle · c25-Daten mit den kanonischen Werten delta/sum (Referenz)", 1200, 420);
+{
+  const dv = types => dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYear", tabPy, "#,0 T€")],
+    { chart: { orientation: "table" } }, null, types);
+  runCap("c257", dv(["Erlös", "delta", "", "Summe", "x", "Delta", "SUM1"]), 1200, 420);
+  runCap("c257L", dv(tabTypes), 1200, 420);
+  const strip = id => rtSvg(id).replace(/<g data-icd="rowtype-note">[\s\S]*?<\/g>/, "");
+  check(strip("c257") === strip("c257L"), "c257: alte Schreibweisen zeichnen wie bisher (SVG ohne Hinweis gleich)");
+  const note = nbQ("c257", '[data-icd="rowtype-note"] text')[0];
+  check(!!note && /„erlös“ · „x“/.test(note.textContent), `c257: freie Texte werden als unbekannt gemeldet („${note ? note.textContent : "–"}“)`);
+  check(!nbQ("c25", '[data-icd="rowtype-note"]').length && !nbQ("c257L", '[data-icd="rowtype-note"]').length, "c257: sum/delta (c25) ohne Hinweis");
+}
+
+// ---- Feld-Intro (c203): die Rollen-Zeile „Waterfall-Typ" nennt die Token im Tooltip
+{
+  const tip = nbQ("c203", 'g[data-fi-row="rowType"] title')[0]?.textContent || "";
+  check(/sum\/pct \+ tokens/.test(tip) && /exclude · hide · davon · invert · emphasize · graphic/.test(tip),
+    "c203: Feld-Intro erklärt die rowType-Token (Zeile + Tooltip)");
+}
+</script>
 </body>
 </html>
