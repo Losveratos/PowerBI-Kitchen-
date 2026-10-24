@@ -9750,17 +9750,20 @@ export class Visual implements IVisual {
         }
         type Block = { key: string; label: string; l0: string; l1: string | null; parent?: CNode };
         const blocks: Block[] = [];
-        for (const nd of colOrder) {
-            const open = twoLv && nd.kids.length > 0
-                && (this.colExpanded.has(`col¦${nd.label}`) || this.exportAllOpen);
-            if (open) {
-                for (const kid of nd.kids) {
-                    blocks.push({ key: `${nd.label}¦${kid}`, label: kid, l0: nd.label, l1: kid, parent: nd });
+        // (re)fills the block list in place — closures below hold the array itself
+        const buildBlocks = (isOpen: (nd: CNode) => boolean) => {
+            blocks.length = 0;
+            for (const nd of colOrder) {
+                if (twoLv && nd.kids.length > 0 && isOpen(nd)) {
+                    for (const kid of nd.kids) {
+                        blocks.push({ key: `${nd.label}¦${kid}`, label: kid, l0: nd.label, l1: kid, parent: nd });
+                    }
+                } else {
+                    blocks.push({ key: nd.label, label: nd.label, l0: nd.label, l1: null, parent: nd });
                 }
-            } else {
-                blocks.push({ key: nd.label, label: nd.label, l0: nd.label, l1: null, parent: nd });
             }
-        }
+        };
+        buildBlocks(nd => this.colExpanded.has(`col¦${nd.label}`) || this.exportAllOpen);
 
         // cell aggregates per (row pts × block)
         const cellFor = (pts: DataPoint[] | null, label: string, b: Block): DataPoint | null => {
@@ -9922,6 +9925,17 @@ export class Visual implements IVisual {
             ? sumStackW + gap
             : sValW + (hasVar ? sDW : 0) + (showSumRel ? lf * 3.6 : 0) + gap;
         const availW = region.w - pad * 2 - nameW - sumW - gap * 2;
+        // export with "expand all": a static picture cannot scroll — when the opened
+        // month blocks no longer fit even at the narrowest value column (they would be
+        // cut at the right, "… +n"), fall back to the expansion state of the report,
+        // then to every group collapsed: each period stays in the picture (as its
+        // quarter block) instead of whole quarters falling off the page
+        if (this.exportAllOpen && twoLv) {
+            const minBW = (mxBlockSet ? clampMxW(cw.mxBlock as number) : lf * 3.4) + gap;
+            const tooWide = () => blocks.length * minBW > availW;
+            if (tooWide()) { buildBlocks(nd => this.colExpanded.has(`col¦${nd.label}`)); }
+            if (tooWide()) { buildBlocks(() => false); }
+        }
         // in stacked mode the per-block Δ column and mini-bar are gone (Δ sits below
         // the value) — the block layout counts the value span only
         let showD = stacked ? false : showDelta;
@@ -10201,8 +10215,10 @@ export class Visual implements IVisual {
                 sortHit("drel", sumX.x + sValW + sDW + 4, sumX.w - sValW - sDW - 4);
             }
         }
+        // cut columns (static export only): the hint sits in the otherwise empty
+        // name-column header — above the header it ran into the title line
         if (cut > 0) {
-            txt(region.x + region.w - pad, hy0 - hFont - 2, `… +${cut}`, "end",
+            txt(region.x + pad, hy, `… +${cut}`, "start",
                 Math.round(hFont * 0.9), false, cfg.subtle, bg);
         }
         // expand-all chevron + 🔍 in the name header

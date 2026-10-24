@@ -182,7 +182,14 @@ function pageLib() {
     window.renderExport = function (id, sheetKey, preset, w, h, viewMode) {
         const wrap = document.createElement("div");
         wrap.className = "case";
-        wrap.innerHTML = `<h4>${id}</h4><div class="stage" id="${id}" style="width:${w}px;height:${h}px"></div>`;
+        const h4 = document.createElement("h4");
+        h4.textContent = id;
+        const st = document.createElement("div");
+        st.className = "stage";
+        st.id = id;
+        st.style.width = w + "px";
+        st.style.height = h + "px";
+        wrap.append(h4, st);
         document.body.appendChild(wrap);
         const el = document.getElementById(id);
         const log = { started: 0, finished: 0, failed: 0, errors: [], persist: [], drill: [], select: 0, launch: 0 };
@@ -368,13 +375,17 @@ function pageLib() {
         check(hasFooter, `(c) ${tag}: Fußzeile sichtbar`);
         if (res.months) {
             const shown = res.months.filter(m => res.texts.includes(m));
-            const hint = res.texts.some(t => /^…\s*\+\d+/.test(t) || /\+\d+$/.test(t));
-            check(shown.length === res.months.length || hint, `(d) ${tag}: alle Monate aufgeklappt oder Hinweis`, "gezeigt: " + shown.join(","));
+            const hint = res.texts.some(t => /^…\s*\+\d+/.test(t));
             // every month is visible itself or inside its collapsed quarter block
             const qOf = m => "Q" + (Math.floor(res.months.indexOf(m) / 3) + 1);
             const lost = res.months.filter(m => !res.texts.includes(m)
                 && !(res.texts.includes(qOf(m)) && !res.months.some(m2 => qOf(m2) === qOf(m) && res.texts.includes(m2))));
+            // wide tiles: "Export: expand all" opens the collapsed quarters Q2/Q3
+            if (size.w >= 960) {
+                check(shown.length === res.months.length, `(d) ${tag}: zugeklappte Gruppen im Export aufgeklappt`, "gezeigt: " + shown.join(","));
+            }
             check(lost.length === 0, `(d) ${tag}: jede Periode vertreten (Monat oder Quartalsblock)`, "fehlt: " + lost.join(","));
+            check(lost.length === 0 || hint, `(d) ${tag}: keine Abschneidung ohne Hinweis`);
             check(res.texts.some(t => /^Σ/.test(t)), `(d) ${tag}: Σ-/YTD-Spalte sichtbar`);
         }
         check(res.log.started === 1 && res.log.finished === 1 && res.log.failed === 0,
