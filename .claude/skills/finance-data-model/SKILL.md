@@ -118,7 +118,9 @@ Vergleichs konsistent (`fakten-und-waehrung.md` §4–5).
 kumulieren selbst (P&L: letzter AC-Monat + periodengleiches Fenster;
 ChartKitchen: `cumulative`/YTD-Knopf). Ein gebundenes YTD-Measure würde doppelt
 kumuliert und bräche die Fensterlogik (§2). Für ChartKitchen-GuV-Wasserfälle
-zusätzlich `CK_RowType`, `AC ±` und die Staffel-Measures (§7).
+zusätzlich `AC ±` und die Staffel-Measures (§7). Das frühere `CK_RowType`-Measure
+entfällt ab ChartKitchen 1.53: dieselbe `DimKonto[RowType]`-Spalte speist beide
+Visuals (Rolle `rowType`).
 
 ## Schritt 4 · Mapping Ist → Soll und Plan
 

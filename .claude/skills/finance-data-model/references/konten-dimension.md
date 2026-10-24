@@ -64,7 +64,7 @@ immer **„Nicht zusammenfassen"** (`summarizeBy: none`).
 | `L1` … `Ln` | Text | Modus A | `levels` | `category` (Hierarchie) | max. 8; keine Lücken; Rechenzeilen füllen nur `L1` |
 | `ParentID` | Text | Modus B | `parent` | — | muss existieren, keine Zyklen |
 | `SortOrder` | Ganzzahl | empfohlen | `sortOrder` | „Nach Spalte sortieren" | Reihenfolge **innerhalb** des Elternknotens; 10er-Schritte je Block |
-| `RowType` | Text | für volle GuV | `rowType` | Basis für `CK_RowType` | §4 |
+| `RowType` | Text | für volle GuV | `rowType` | `rowType` (dieselbe Spalte, ab ChartKitchen 1.53) | §4 |
 | `FormulaDef` | Text | für Formula/KPI | `formulaDef` | (`formulaRows` von Hand) | §5 |
 | `SignConvention` | Ganzzahl ±1 | für volle GuV | `signConvention` | Basis für das signierte Measure | §6 |
 | `DisplayInvert` | Text/Bool | für volle GuV | `displayInvert` | — | §6, §7 |
@@ -149,6 +149,14 @@ Die Kurzform aus der Template-Kurzanleitung (`+`/`−`/`sum`/`formula`/`margin`)
 funktioniert, hat aber eine Falle: **`-` ist nur ein Etikett für Account. Das
 Vorzeichen kommt ausschließlich aus `SignConvention`.** Eine Kostenzeile mit
 RowType `-` und Vorzeichen +1 rechnet positiv.
+
+**ChartKitchen ab 1.53:** Dieselbe Spalte kann direkt in die Rolle `rowType`
+von ChartKitchen gelegt werden — `Subtotal`/`Formula` gelten dort als
+Ergebniszeile (Anker), `KPI` als Margenzeile, `Account`/`Separator` als normale
+Zeile. Ein übersetzendes `CK_RowType`-Measure (SWITCH auf `sum`/`delta`/`pct`)
+ist nicht mehr nötig. Zusätzlich versteht ChartKitchen Flag-Token wie
+`exclude`, `hide`, `davon`, `invert`; unbekannte Werte meldet es nur im
+Bearbeitungsmodus. Die Vorzeichen-Regeln (§6) bleiben unverändert.
 
 Im Ebenen-Modus keine eigenen `Subtotal`-Zeilen für Ebenen-Knoten anlegen.
 Mit gebundener `AccountID` entsteht sonst neben der synthetischen

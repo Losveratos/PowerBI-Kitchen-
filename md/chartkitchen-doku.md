@@ -26,7 +26,7 @@ Version · **1.53.0.0** · Stand · **2026-10-24** · IBCS-inspired
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.53.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“).
+Diese Anleitung beschreibt den Stand der Version **1.53.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07).
 
 ## 02 · Die Produktfamilie
 
@@ -174,7 +174,7 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 | Filter-Info (Fußzeile) | Kennzahl | Text-Measure mit dem aktuellen Filterkontext (z. B. via CONCATENATEX/SELECTEDVALUE) — erscheint als zweite Fußzeile, wenn die Filter-Fußzeile aktiv ist. |
 | Kommentare | Kennzahl | Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, der Text steht im Tooltip und in der Kommentarliste. |
 | Small Multiples | Gruppierung | Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS Small Multiples). |
-| Waterfall-Typ (sum/delta) | Gruppierung | Nur Wasserfall/GuV: „sum“ = absolute Zwischensumme, „delta“ = Bewegung (GuV-Wasserfall). |
+| Waterfall-Typ (rowType) | Gruppierung | Zeilenstruktur als Token je Zeile (Wasserfall, GuV-Statement, Tabelle): Ergebniszeile (`total`, früher „sum“), Bewegung („delta“), Margenzeile (`pct`) und Flags wie `exclude`, `hide`, `davon`, `invert`, `emphasize`, `graphic` — kombinierbar, z. B. `davon \| exclude`. Dieselbe Spalte speist das [P&L Statement](../pnl-doku.html). Token-Tabelle: [Kapitel 07](#rowtype). |
 | Forecast-Flag (0=Ist · 1=FC · 2=vorläufig) | Gruppierung | Alternative zur FC-Measure: eine 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, die AC-Measure läuft durch. |
 | X-Achse (Scatter) | Kennzahl | Nur Scatter/Bubble (seit 1.47): Kennzahl für die X-Achse — die Y-Achse bleibt AC. |
 | X-Achse VJ (Scatter) | Kennzahl | Nur Scatter/Bubble, optional (seit 1.48, max. 1 Feld): Vorjahreswert zur X-Achse. Mit Vorjahr (PY) und aktivierten Bewegungspfeilen zeigen die Pfeile echte 2D-Bewegungen von (X-VJ, PY) zur AC-Position — ohne dieses Feld bewegt sich nur die Y-Achse. |
@@ -226,7 +226,7 @@ Die klassische GuV-Kaskade: über die Rolle „Waterfall-Typ“ (sum/delta) werd
 
 ![Integrierte Brücke: PY-Totalsäule links, ΔPY-Kaskade mit Monatssäulen, gestapelte AC+FC-Totalsäule rechts.](../doku-assets/mode-intwaterfall.png)
 
-Die Jahresbrücke: links die PY-Totalsäule, in der Mitte die ΔPY-Kaskade über die Monate, rechts die gestapelte AC+FC-Totalsäule. Sie beantwortet „Wie kommen wir vom Vorjahr zum aktuellen Stand?“ über die Zeit. Braucht PY oder PL als Basis und verträgt keine rein negativen Werte.
+Die Jahresbrücke: links die PY-Totalsäule, in der Mitte die ΔPY-Kaskade über die Monate, rechts die gestapelte AC+FC-Totalsäule. Sie beantwortet „Wie kommen wir vom Vorjahr zum aktuellen Stand?“ über die Zeit. Braucht PY oder PL als Basis. **Negative Werte (seit 1.53):** Verlustmonate hängen unter der Nulllinie. Liegt ein Anker oder ein Kaskadenstand unter null (Vorjahresverlust → Gewinn, Kostenreihe als negative Beträge), bekommt die Kaskade eine eigene sichtbare Nulllinie: die Anker stehen als volle Balken nach oben oder unten, die Stufen schweben in echter Höhe — auch eine Stufe, die die Null kreuzt (+2 → −5 → −3). Die Monatssäulen stehen dann in einem eigenen Streifen darunter (Split-Layout). „Anker kürzen“ schneidet nie über die Null hinweg; bei rein negativen Brücken wird der Schnitt unter die Nulllinie gespiegelt.
 
 ### 06 · Kategorie-Brücke
 
@@ -234,7 +234,7 @@ Die Jahresbrücke: links die PY-Totalsäule, in der Mitte die ΔPY-Kaskade über
 
 ![So sieht es in Power BI Desktop aus: Struktur-Brücke nach Ländern: PL- und PY-Referenzzeile oben, ein AC-Balken je Land, rechts die ΔPL-Kaskade mit ΔPL-%-Pins und die AC-Summe unten.](../doku-assets/pbi/pbi-bridge-structure.png)
 
-Die Treiber-Brücke über Kategorien: PY-Zeile oben, je Treiber ein AC-PY-Balken plus Kaskadenglied und ΔPY-%-Pin, AC-Zeile als Überleitung unten. So sieht man auf einen Blick, welche Kategorie die Gesamtabweichung treibt. Der größte Treiber wird automatisch mit einer Notiz markiert. Seit 1.47 ist die Ausrichtung wählbar (Chart → Brücke): „Automatisch“, „Balken“ (wie bisher) oder „Säulen“ — eine vertikale Säulen-Kaskade vom PY-Anker über die Treiber zu AC, mit Δ%-Pins oben.
+Die Treiber-Brücke über Kategorien: PY-Zeile oben, je Treiber ein AC-PY-Balken plus Kaskadenglied und ΔPY-%-Pin, AC-Zeile als Überleitung unten. So sieht man auf einen Blick, welche Kategorie die Gesamtabweichung treibt. Der größte Treiber wird automatisch mit einer Notiz markiert. Seit 1.47 ist die Ausrichtung wählbar (Chart → Brücke): „Automatisch“, „Balken“ (wie bisher) oder „Säulen“ — eine vertikale Säulen-Kaskade vom PY-Anker über die Treiber zu AC, mit Δ%-Pins oben. **Negative Werte (seit 1.53):** Bei rein negativen Summen (etwa einer Kostenreihe als negative Beträge) liegt die Nulllinie rechts (Balken) bzw. oben (Säulen), die Beschriftungen stehen außen, die Färbung folgt der Vorzeichen-Logik, und „Invertieren“ wirkt wie gewohnt. Läuft die Kaskade durch die eigenen Balken einer Zeile, zeigt diese Zeile Balken oben und Stufe unten statt übermalter Balken. Mit Small Multiples und „Gleiche Skala“ bestimmt eine negative Kachel die gemeinsame Nulllinie aller Kacheln.
 
 ### 07 · Tabelle
 
@@ -402,10 +402,43 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 
 ### GuV-Statement & Zeilentypen
 
-1. Im Modus „GuV-Statement“ (oder Wasserfall) legst du über die Rolle „Waterfall-Typ“ je Zeile fest: „sum“ = Zwischensumme, „delta“ = Bewegung.
-2. Ohne diese Rolle strukturierst du per Listen in Chart → Tabelle: Ergebniszeilen (fett, Anker), Zeilen aus Summen ausnehmen, ausblenden, einrücken (davon), Grafik nur für gelistete Zeilen.
+1. Im Modus „GuV-Statement“ (oder Wasserfall) legst du über die Rolle „Waterfall-Typ“ (rowType) je Zeile fest, was sie ist: Ergebniszeile (Zwischensumme, Anker), Bewegung oder Margenzeile. Seit 1.53 geschieht das über Token, die auch Flags wie „nachrichtlich“ oder „davon“ tragen — siehe den nächsten Abschnitt.
+2. Ohne diese Rolle (oder zusätzlich als Override) strukturierst du per Listen in Chart → Tabelle: Ergebniszeilen (fett, Anker), Zeilen aus Summen ausnehmen, ausblenden, einrücken (davon), Grafik nur für gelistete Zeilen.
 3. Formelzeilen (z. B. „Marge = EBIT / Umsatz“) und Zahlenformate pro Zeile (z. B. „Marge = 0,0 %“) ergänzen berechnete bzw. gemischte €-/%-/Stück-Zeilen.
-4. Der Struktur-Modus (Chart → Tabelle → „Zeilen-Struktur bearbeiten“) setzt diese Eigenschaften per Klick auf eine Zeile; die Wahl wird in den Listen persistiert.
+4. Der Struktur-Modus (Chart → Tabelle → „Zeilen-Struktur bearbeiten“) setzt diese Eigenschaften per Klick auf eine Zeile; die Wahl wird in den Listen persistiert. Eigenschaften, die per Token aus den Daten kommen, erscheinen dort angehakt und gesperrt — sie lassen sich nur im Modell ändern.
+
+### Zeilenstruktur per Token: die Rolle „Waterfall-Typ“ (rowType, seit 1.53)
+
+Zeilennamen sind kein stabiler Datenvertrag: Wer eine Zeile umbenennt oder übersetzt, verliert die Wirkung der Namenslisten. Seit 1.53 trägt deshalb die Rolle „Waterfall-Typ“ (technisch `rowType`) die Struktur datengetrieben — eine Spalte in der Kontendimension, je Zeile ein oder mehrere Token. Umbenennen, Übersetzen und Mehrsprachigkeit brechen nichts mehr.
+
+| Token | Aliasse (Auswahl) | P&L-Wert | Wirkung · entspricht der Liste |
+| --- | --- | --- | --- |
+| total | summe, ergebnis, zwischensumme, sum, subtotal, result, formel | Subtotal, Formula | Ergebniszeile: fett, Trennlinie, Anker im Wasserfall, nicht in Σ · „Ergebniszeilen“ |
+| pct | prozent, marge, quote, kennzahl, margin, ratio, kpi | KPI | Margenzeile: %-Anzeige, Δ in Prozentpunkten · keine Liste |
+| exclude | nachrichtlich, ausnehmen, memo | — | nicht in Σ, Skalen und Kaskade, dezent dargestellt · „Aus Summen ausnehmen“ |
+| hide | ausblenden, versteckt | — | ausgeblendet, Σ rechnet weiter · „Zeilen ausblenden“ |
+| davon | of-which, thereof | — | eingerückt und dezent · „Zeilen einrücken (davon)“ |
+| invert | invertieren, kosten, cost | — | Wertung umgekehrt (Mehrkosten sind schlecht) · „Invertieren je Kategorie“ |
+| emphasize | hervorheben, highlight | — | IBCS-Hervorhebung (EMPHASIZE) · „Kategorien hervorheben“ |
+| graphic | grafik, chart | — | nur Zeilen mit diesem Token zeigen Balken-/Pin-Grafiken · „Grafik nur für diese Zeilen“ |
+| detail | normal, delta, konto, leer | Account, Separator | normale Bewegungszeile · nichts |
+
+1. **Trenner:** Mehrere Token pro Zelle trennst du mit Komma, Semikolon, Leerzeichen oder `|`; Groß-/Kleinschreibung ist egal — z. B. `total; graphic` oder `davon | exclude`.
+2. **Vereinigung mit den Listen:** Wirksam ist die Vereinigung aus Rolle und Liste. Die Listen in Chart → Tabelle bleiben als Override für Modelle ohne Rollen-Spalte; doppelte Angaben schaden nicht, eine Liste hebt aber kein Token auf — dafür das Modell ändern.
+3. **Bestehende Berichte:** Zellen mit den bisherigen Werten `sum`, `delta` und `pct` verhalten sich unverändert. Eine Zelle nur mit Flags (z. B. nur `invert`) trifft keine Strukturaussage; trägt die Spalte ausschließlich solche Zellen, gilt das Modell nicht als GuV.
+4. **Hierarchien:** Token gelten für das Blatt, das den Wert trägt; Elternknoten erben nur die Struktur des ersten Kindes, keine Flags.
+5. **Unbekannte Token** (Tippfehler, freie Texte wie „Erlös“) werden ignoriert. Nur im Bearbeitungsmodus nennt ein Hinweis unten rechts im Chart bis zu drei davon (plus „+n“); Leser und Exporte sehen nichts.
+
+**Beispiel:** eine Spalte `DimKonto[RowType]` neben dem Kontonamen, der als Kategorie gebunden ist:
+
+| Konto (Kategorie) | Zelle in rowType | Ergebnis |
+| --- | --- | --- |
+| Umsatzerlöse | `Account` | normale Zeile |
+| davon Export | `davon \| exclude` | eingerückt, nicht in Σ |
+| Materialaufwand | `Account; invert` | normale Zeile, Wertung umgekehrt (Kosten) |
+| Rohertrag | `Subtotal` | Ergebniszeile (fett, Anker) |
+
+**Eine Spalte für beide Visuals:** Dieselbe Spalte speist das [P&L Statement byDatenWG](../pnl-doku.html#data) (Rolle „Zeilentyp“: Account · Subtotal · Formula · KPI · Separator). ChartKitchen versteht diese Werte direkt, ein übersetzendes Hilfs-Measure ist nicht mehr nötig. Das P&L Statement liest aus der Zelle nur seine eigenen Werte; Zusatz-Token wie `davon` oder `invert` stören es nicht, wirken dort aber auch nicht. Schreibe in der gemeinsamen Spalte daher `Subtotal` statt `total` — nur ersteres kennt auch das P&L Statement.
 
 ### Kommentare
 
@@ -509,7 +542,7 @@ Seit 1.52 skaliert ChartKitchen in allen Chart-Typen nach IBCS 2.0 / ISO 24896: 
 1. Seit 1.45 gelten harte Skalen-Garantien: ΔPY- und ΔPL-Panels teilen EINE Skala (absolut und %), Brücken nehmen alle Kaskaden-Zwischenstände in die Skala, gestapelte Small Multiples teilen eine gemeinsame Skala, und Werte wie Varianzen nutzen EINEN Einheitenmaßstab — kein „K€ neben T€“ mehr. Formate mit eigenem Präfix („#,0 T€“, „Mio €“) schalten die Auto-Einheit ab.
 2. „Skalen-Mindest-Maximum“ und die Ausreißer-Kappung wirken jetzt auch im Wasserfall; der ⫽-Marker sitzt an jedem gekappten Element (PY, PL, BM, Linie).
 3. Δ% zeigt „n.a.“ bei Basis 0 oder Vorzeichenwechsel zwischen Basis und Ist — statt irreführender Werte wie „−250 %“. GuV-Kostenzeilen mit durchgängig negativer Basis behalten ihre Prozente.
-4. Achsenschnitt im Wasserfall (IBCS UN 5.3, seit 1.45): Unter Skala → „Wasserfall-Achse“ stellst du den Schnitt auf Aus · Auto · An; geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen. Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt. Für Integrierte Brücke und senkrechte Kategorie-Brücke gibt es seit 1.52.1 „Anker kürzen (Achsenbruch)“ unter Chart → Brücke.
+4. Achsenschnitt im Wasserfall (IBCS UN 5.3, seit 1.45): Unter Skala → „Wasserfall-Achse“ stellst du den Schnitt auf Aus · Auto · An; geschnitten wird nur, wenn alle Anker und Deltas vollständig über dem Schnitt liegen. Anker werden zu Stummeln mit ⫽ über die volle Balkenbreite; Titel-Suffix und Export-Fußzeile weisen den Schnitt aus, Small Multiples teilen EINEN Schnitt. Für Integrierte Brücke und senkrechte Kategorie-Brücke gibt es seit 1.52.1 „Anker kürzen (Achsenbruch)“ unter Chart → Brücke; seit 1.53 wird der Schnitt bei rein negativen Brücken gespiegelt unter die Nulllinie gelegt, über die Null hinweg nie.
 5. Alternativ klickst du den In-Chart-Chip „⫽ Achse“: Er schaltet den Schnitt an/aus, hebt sich bei Auto-Vorschlag hervor und ist bei unzulässigem Schnitt deaktiviert — der Tooltip nennt den Grund bzw. die blockierende Kachel.
 
 ### Cross-Filter, Tooltips & Bookmarks
@@ -520,6 +553,14 @@ Seit 1.52 skaliert ChartKitchen in allen Chart-Typen nach IBCS 2.0 / ISO 24896: 
 4. Beim Überfahren zeigen Standard- und Canvas-Tooltips Werte, Abweichungen, Serie und Kommentar; Canvas-Tooltips (Report-Page-Tooltips) werden unterstützt. Im Dark Mode zeichnet das Visual den Hover-Tooltip selbst (dunkler Kasten mit Kategorie-Header).
 5. Interaktive Zustände sind bookmark-fähig: die Varianz-Basis, die YTD-Sicht, die In-Chart-Sortierung, aufgeklappte Zeilen/Spalten, erfasste Kommentare und Spaltenbreiten wandern mit dem Bericht bzw. dem Lesezeichen.
 6. Seit 1.49 stellen Lesezeichen auch die **Auswahl** wieder her: Ein Lesezeichen mit ausgewählten Kategorien (ebenso eine Auswahl, die ein anderes Visual setzt) dimmt die übrigen Marken wie nach einem Klick; ein Lesezeichen ohne Auswahl hebt die Dimmung auf.
+
+### Export: Desktop-PDF, Druck und die Grenze im Power-BI-Service
+
+1. **Was im Export-Kontext passiert:** Das Visual zeigt ein ruhiges Standbild — keine Knöpfe und Leisten, Datenmarken sind nicht mehr fokussierbar, zu lange Titel brechen auf eine zweite Zeile um, Balken-Panels reservieren Platz für die breiteste Beschriftung. Der Export schreibt nichts in den Bericht zurück (keine Lesezeichen- oder Spaltenbreiten-Änderung, keine Kommentare).
+2. **Alles aufgeklappt:** Mit dem Schalter Chart → Darstellung → „Export: alle Ebenen aufklappen“ (Standard an) rendern Tabelle, Matrix und GuV-Statement alle Zeilen- und Spalten-Ebenen aufgeklappt; die Aufklapp-Pfeile entfallen. Aus = der Export zeigt den aktuellen Zustand.
+3. **Matrix:** Passen die aufgeklappten Monate nicht in die Kachel, fällt der Export erst auf den Aufklappzustand des Berichts und dann auf zugeklappte Quartalsblöcke zurück, statt Quartale abzuschneiden; der Hinweis „… +n“ steht im Kopf der Namensspalte.
+4. **Geprüft** ist das Layout für Monatssäulen mit Δ, Struktur-Balken, Kategorie-Brücke, GuV-Wasserfall und Matrix mit YTD-Spalte, je als A4-quer-Kachel (1100×620), halbe Seite (540×620) und PowerPoint-Kachel (960×540), in HD und Full HD.
+5. **Die ehrliche Grenze:** PDF-/PowerPoint-Export und Abo-Mails im Power-BI-Service rendern laut Microsoft nur *zertifizierte* Visuals; ChartKitchen ist bis zur AppSource-Zertifizierung nicht zertifiziert (die Einreichung ist in Vorbereitung, ein Termin lässt sich nicht zusagen). Dort ist die Export-Option ausgegraut oder das Visual fehlt, in Abo-Mails erscheint ein Fehlersymbol. **Bis dahin** funktioniert der Export über **Power BI Desktop** (Datei → Exportieren → PDF) und über den **Browser-Druck**. Hintergrund, Quellen und Admin-Checkliste: [Sicherheit & Betrieb](../visuals-sicherheit.html#deployment).
 
 ## 08 · Einstellungs-Referenz
 
@@ -562,9 +603,9 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | YTD-Button im Chart | Zeigt einen klickbaren „YTD"-Button oben rechts im Chart (Columns/Line) — der Enduser schaltet die kumulierte Sicht direkt im Bericht um; die Wahl wird persistiert. Standard aus. | An / Aus · Standard Aus |
 | Gleitender Durchschnitt (Perioden) | Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus. | 0–24 · Standard 0 |
 | Top N (Balken) | Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle. | 0–50 · Standard 0 |
-| Kategorien hervorheben | Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. | Freitext · z. B. Jul, Aug |
+| Kategorien hervorheben | Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Seit 1.53 alternativ als Token `emphasize` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Jul, Aug |
 | Invertieren (mehr ist schlecht) | Für Kosten-KPIs: Mehrwert ist schlecht (rot), Minderwert ist gut (grün). | An / Aus · Standard Aus |
-| Invertieren je Kategorie | Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter. | Freitext · z. B. Opex, Materialaufwand |
+| Invertieren je Kategorie | Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter. Seit 1.53 alternativ als Token `invert` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Opex, Materialaufwand |
 | Vergleich per Klick | Nur Columns/Bars: zwei Säulen/Balken anklicken zeigt die Differenz (absolut + %) als Overlay — Klicks filtern dann nicht mehr quer. Klick ins Leere setzt zurück. Standard aus. | An / Aus · Standard Aus |
 | Wesentlichkeit ab (absolut) | Wesentlichkeits-Schwelle: Abweichungen unter diesem absoluten Betrag werden grau statt rot/grün dargestellt (Panels, Wasserfall-Stufen, Tabelle). 0 = aus. | ab 0 · Standard 0 |
 | Wesentlichkeit ab (%) | Wesentlichkeits-Schwelle in Prozent: Abweichungen unter diesem Δ % werden grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus. | 0–100 · Standard 0 |
@@ -604,12 +645,12 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
 | Werte-Spalten | Zusätzliche Zahlenspalten neben AC: die Varianzbasis (PY oder PL, je nach Abweichungsbasis) oder beide Referenzszenarien — für druck- und boardtaugliche Tabellen ohne Balken-Interpretation. | Optionen: Nur AC \| AC + Varianzbasis \| AC · PY · PL · Standard „Nur AC“ |
-| Zeilen-Struktur bearbeiten (Klick) | Bearbeitungsmodus: Klick auf eine Zeile öffnet ein kleines Menü mit „Invertieren“, „Ergebniszeile“ und „Aus Summen ausnehmen“ — die Ein-Klick-GuV ohne Datenmodell-Änderung. Die Wahl wird in den Listen unten persistiert; zum Berichten wieder ausschalten. | An / Aus · Standard Aus |
-| Ergebniszeilen | Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle. | Freitext · z. B. EBIT, Rohertrag |
-| Zeilen aus Summen ausnehmen | Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt. | Freitext · z. B. Davon-Positionen |
-| Zeilen ausblenden | Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar. | Freitext · z. B. Sonstige, Intern |
-| Grafik nur für diese Zeilen | Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer. | Freitext · z. B. Umsatz, EBIT |
-| Zeilen einrücken (davon) | Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“. | Freitext · z. B. davon Export |
+| Zeilen-Struktur bearbeiten (Klick) | Bearbeitungsmodus: Klick auf eine Zeile öffnet ein kleines Menü mit „Invertieren“, „Ergebniszeile“ und „Aus Summen ausnehmen“ — die Ein-Klick-GuV ohne Datenmodell-Änderung. Die Wahl wird in den Listen unten persistiert; zum Berichten wieder ausschalten. Eigenschaften, die per rowType-Token aus den Daten kommen, erscheinen angehakt und gesperrt. | An / Aus · Standard Aus |
+| Ergebniszeilen | Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle. Seit 1.53 alternativ als Token `total` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. EBIT, Rohertrag |
+| Zeilen aus Summen ausnehmen | Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt. Seit 1.53 alternativ als Token `exclude` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Davon-Positionen |
+| Zeilen ausblenden | Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar. Seit 1.53 alternativ als Token `hide` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Sonstige, Intern |
+| Grafik nur für diese Zeilen | Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer. Seit 1.53 alternativ als Token `graphic` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Umsatz, EBIT |
+| Zeilen einrücken (davon) | Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“. Seit 1.53 alternativ als Token `davon` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. davon Export |
 | Zahlenformat pro Zeile | Zahlenformat pro Zeile, mit Semikolon getrennt: „Marge = 0.0 %; Menge = #,0“. Prozent multipliziert mit 100; Werte erscheinen unskaliert (keine T€-Teilung) — für gemischte €-, %- und Stück-Zeilen. | Freitext · z. B. Marge = 0.0 % |
 | Matrix: Spaltenvergleich | Vergleich innerhalb der Matrix-Spalten: „Δ vs. Vorspalte“ ersetzt das ΔBasis je Block durch die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1, Mär vs. Feb …). | Optionen: Aus (Δ zur Basis) \| Δ zur Vorspalte · Standard „Aus (Δ zur Basis)“ |
 | Formelzeilen | Berechnete Zeilen, mit Semikolon getrennt: „EBIT = Umsatz - Kosten“ ergänzt eine Summenzeile, „Marge = EBIT / Umsatz“ eine %-Zeile. Operanden sind Zeilennamen; Operatoren bitte mit Leerzeichen umgeben. Formelzeilen fließen nicht in die Σ-Zeile ein. | Freitext · z. B. Marge = EBIT / Umsatz |
@@ -619,6 +660,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Gitterlinien | Trennlinien-Stil: „Horizontal“ (Standard) nur Zeilenlinien, „Keine“ für ein ruhiges Bild, „Horizontal + vertikal“ ergänzt dezente Spalten-/Blocktrenner. | Optionen: Horizontal \| Keine \| Horizontal + vertikal · Standard „Horizontal“ |
 | Zellen-Layout (Matrix) | Nur Matrix: „Spalten“ (Standard) zeigt Wert und ΔBasis nebeneinander. „Zwei Zeilen“ setzt den Wert groß nach oben und die kleinere Δ-Zahl direkt darunter in dieselbe Zelle — die Matrix wird etwa halb so breit. Der Δ-Minibalken entfällt dabei; Referenzspalten bleiben eigene Spalten neben dem Wert. | Optionen: Spalten (Wert · Δ nebeneinander) \| Zwei Zeilen: Wert oben, Δ darunter · Standard „Spalten (Wert · Δ nebeneinander)“ |
 | Hierarchie automatisch aufklappen | Mehrere Felder in der Kategorie-Rolle (Tabelle/GuV): Das Visual klappt die Drill-Hierarchie automatisch zum klickbaren Zeilenbaum auf — je Feld-Konstellation einmal; manuelles Zuklappen bleibt erhalten. Seit 1.47. | An / Aus · Standard An |
+| Export: alle Ebenen aufklappen | Nur Tabelle, Matrix und GuV-Statement (Gruppe Darstellung): PDF-/PowerPoint-Export und Abo-Mails rendern alle Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm. Aus = Export zeigt den aktuellen Zustand. Siehe [Export](#export). | An / Aus · Standard An |
 
 #### KPI-Karten
 
@@ -770,15 +812,15 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 ### Das Visual zeigt nur einen Hinweis wie „benötigt PY oder PL“.
 
-Die Modi Integrierte Brücke, Kategorie-Brücke, GuV-Statement, Dumbbell und Slope brauchen eine Vergleichsbasis. Binde eine Kennzahl in die Rolle Vorjahr (PY) oder Plan (PL). Bei rein negativen Summen wechselst du auf Waterfall oder Columns mit Wasserfall-Brücke.
+Die Modi Integrierte Brücke, Kategorie-Brücke, GuV-Statement, Dumbbell und Slope brauchen eine Vergleichsbasis. Binde eine Kennzahl in die Rolle Vorjahr (PY) oder Plan (PL).
 
 ### Warum gibt es keine Laufsumme (YTD) in der Matrix?
 
 Die Kumulierung ist in der Matrix bewusst deaktiviert: sie würde über die flache Zeilenliste kumulieren und die Spaltengruppen (z. B. Quartale) doppelt zählen. Nutze YTD im Columns- oder Line-Modus, oder rechne die Laufsumme als Measure im Datenmodell.
 
-### Die Brücke bricht bei negativen Summen.
+### Wie sieht die Brücke bei negativen Werten oder Verlusten aus?
 
-Integrierte und Kategorie-Brücke unterstützen keine rein negativen Summen — das Visual zeigt dann einen Hinweis statt einer kaputten Grafik. Nimm den Wasserfall-Modus oder Columns/Bars mit aktivierter Wasserfall-Brücke.
+Seit 1.53 zeichnen Integrierte und Kategorie-Brücke negative Werte, statt auf einen Hinweis auszuweichen (bis 1.52.4 stand dort „unterstützt keine rein negativen Summen“). Verlustmonate hängen unter einer Nulllinie, Anker unter null werden zu Balken nach unten, und rein negative Kategorie-Brücken liegen gespiegelt (Nulllinie rechts bzw. oben). Details und Sonderfälle stehen bei den Modi „Integrierte Brücke“ und „Kategorie-Brücke“ in Kapitel 05. Zeigt die Brücke weiterhin nur einen Hinweis, fehlt die Vergleichsbasis PY/PL oder in der Integrierten Brücke der Platz.
 
 ### Die Zahlen erscheinen in K€ statt T€.
 
@@ -786,7 +828,11 @@ Die Anzeigeeinheiten stehen auf Auto oder Tausend (k). Stelle Datenbeschriftunge
 
 ### Beim PDF-/PowerPoint-Export fehlt das horizontale Scrollen der Matrix.
 
-Ein Standbild ist nicht scrollbar, daher greift im Export der „… +n“-Hinweis. Verschmälere die Matrix vorher: Zwei-Zeilen-Kompaktmodus, Werte-Spalten reduzieren, Spaltenbreiten anpassen oder Spaltengruppen zuklappen.
+Ein Standbild ist nicht scrollbar, daher greift im Export der „… +n“-Hinweis (seit 1.53 im Kopf der Namensspalte). Passen die aufgeklappten Monate nicht in die Kachel, fällt der Export erst auf den Aufklappzustand des Berichts und dann auf zugeklappte Quartalsblöcke zurück, statt Quartale abzuschneiden. Verschmälere die Matrix vorher: Zwei-Zeilen-Kompaktmodus, Werte-Spalten reduzieren, Spaltenbreiten anpassen oder Spaltengruppen zuklappen.
+
+### Im Power-BI-Service ist „Als PDF/PowerPoint exportieren“ ausgegraut oder das Visual fehlt in der Abo-Mail.
+
+Das ist keine Einstellung im Visual: PDF-/PowerPoint-Export und Abo-Mails im Service rendern nur **zertifizierte** Visuals, und ChartKitchen ist bis zur AppSource-Zertifizierung nicht zertifiziert. Bis dahin exportierst du über Power BI Desktop (Datei → Exportieren → PDF) oder per Browser-Druck — Einzelheiten und Link zur Sicherheitsseite im Abschnitt [„Export“](#export) in Kapitel 07.
 
 ### PY erscheint als Dreieck statt als Säule.
 

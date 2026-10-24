@@ -42,9 +42,9 @@ Frage: „Wie war der Monat — Summary, Abweichungen, Regionen, GuV?"
 | Seite | Modus | Kern-Felder | Zweck |
 |---|---|---|---|
 | S1 Summary | `cards` + `columns` (Varianz) | AC/PL/PY, `category`=Zeit/KPIs, `comments` | KPI-Karten + Titel-Botschaft (`ibcsTitle.message`) + Umsatz-Säulen mit Varianz + Kommentare. |
-| S2 Abweichung | `waterfall` (`rowType`) oder `catbridge`; `intwaterfall` für Zeit | AC vs. PL/PY, `rowType`=sum/delta, `category`=Treiber | Wasserfall/Kategorie-Brücke; integrierte Brücke über Zeit. |
+| S2 Abweichung | `waterfall` (`rowType`) oder `catbridge`; `intwaterfall` für Zeit | AC vs. PL/PY, `rowType` (Token: `total`/`sum` für Zwischensummen, `delta` für Bewegungen), `category`=Treiber | Wasserfall/Kategorie-Brücke; integrierte Brücke über Zeit. |
 | S3 Regionen | `table` (`colgroup`) **oder** `bars`/`columns` mit `multiples` | AC/PL/PY, `category`=Region, `colgroup`=Zeit/Szenario | Matrix mit Spaltengruppen ODER Small Multiples je Region. |
-| S4 GuV | `pnl` | `category`=Konten, AC/PL/PY, `resultList`, `formulaRows`, `invertList` | GuV-Statement Ist/Plan/Vorjahr, Ergebniszeilen + Margen. |
+| S4 GuV | `pnl` | `category`=Konten, AC/PL/PY, `rowType` (= `DimKonto[RowType]`, Token `total`/`pct`/`invert`/`davon`), `formulaRows` | GuV-Statement Ist/Plan/Vorjahr, Ergebniszeilen + Margen. Struktur kommt aus der Rolle; `resultList`/`invertList` nur Fallback ohne RowType-Spalte. |
 | S5 Detail (opt.) | `table` | Hierarchie in `category`, `comments` | Detailtabelle mit Kommentar-Markern (Detailtiefe 4). |
 
 Szenario-Umschalter AC↔FC über **Bookmarks** + Button; `comparisonMode`

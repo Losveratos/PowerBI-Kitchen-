@@ -316,13 +316,16 @@ Umrechnungs-Measure lässt sie unverändert.
 
 Das P&L-Visual rechnet Zwischensummen, Formeln und Vorzeichen selbst.
 ChartKitchen erwartet dagegen in GuV-Wasserfall/`pnl`-Modus **vorzeichen-
-behaftete** Werte und Summenzeilen **mit** Wert (`rowType`: `sum` · `delta` ·
-`pct`). Drei Ergänzungen genügen, ohne das Modell umzubauen:
+behaftete** Werte und Summenzeilen **mit** Wert. Zwei Ergänzungen genügen, ohne
+das Modell umzubauen. Die Zeilenrolle braucht keine Übersetzung mehr: **ab
+ChartKitchen 1.53 nicht mehr nötig — dieselbe `DimKonto[RowType]`-Spalte
+(`Account` · `Subtotal` · `Formula` · `KPI` · `Separator`) liegt direkt in der
+Rolle `rowType`**, das frühere Hilfs-Measure `CK_RowType` (SWITCH auf
+`sum`/`delta`/`pct`) entfällt. Bis ChartKitchen 1.52 war nötig:
+`CK_RowType = SWITCH ( DimKonto[RowType], "Formula", "sum", "Subtotal", "sum", "KPI", "pct", "delta" )`
+(berechnete Spalte in `DimKonto`).
 
 ```DAX
--- DimKonto, berechnete Spalte → Rolle rowType (Waterfall Type)
-CK_RowType = SWITCH ( DimKonto[RowType], "Formula", "sum", "Subtotal", "sum", "KPI", "pct", "delta" )
-
 -- vorzeichenbehaftet
 AC ± = SUMX ( VALUES ( DimKonto[SignConvention] ), DimKonto[SignConvention] * [AC] )
 
@@ -340,7 +343,7 @@ RETURN
 ```
 
 Analog `PL GuV`, `PY GuV`. Kategorie = `DimKonto[L1]` (sortiert nach
-`L1Sort`), Rolle `rowType` = `CK_RowType`, Visualfilter `Einheit = EUR`.
+`L1Sort`), Rolle `rowType` = `DimKonto[RowType]` (ab ChartKitchen 1.53 direkt; älter: `CK_RowType`), Visualfilter `Einheit = EUR`.
 Margen in ChartKitchen per `chart.formulaRows`
 (`Rohertragsmarge = Rohertrag / Umsatzerlöse`, Operatoren mit Leerzeichen).
 
