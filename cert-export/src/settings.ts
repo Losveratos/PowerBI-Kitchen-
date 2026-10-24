@@ -363,7 +363,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "invertList",
         displayName: "Invert per category",
         displayNameKey: "Chart_InvertList",
-        description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter.",
+        description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „invert“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Chart_InvertList",
         placeholder: "z. B. Opex, Materialaufwand",
         value: ""
@@ -468,7 +468,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "highlight",
         displayName: "Highlight categories",
         displayNameKey: "Chart_Highlight",
-        description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat.",
+        description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „emphasize“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Chart_Highlight",
         placeholder: "z. B. Jul, Aug",
         value: ""
@@ -677,7 +677,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "bridgeBreak",
         displayName: "Shorten anchors (axis break)",
         displayNameKey: "Chart_BridgeBreak",
-        description: "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände oberhalb des Schnitts liegen. Standard: aus.",
+        description: "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände jenseits des Schnitts liegen — bei rein negativen Brücken (integrierte und Kategorie-Brücke) gespiegelt unter der Nulllinie, über Null hinweg nie. Standard: aus.",
         descriptionKey: "Desc_Chart_BridgeBreak",
         value: false
     });
@@ -712,7 +712,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "resultList",
         displayName: "Result rows",
         displayNameKey: "Table_ResultList",
-        description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle.",
+        description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker). Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „total“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_ResultList",
         placeholder: "z. B. EBIT, Rohertrag",
         value: ""
@@ -722,7 +722,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "skipList",
         displayName: "Skip rows (exclude from totals)",
         displayNameKey: "Table_SkipList",
-        description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt.",
+        description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „exclude“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_SkipList",
         placeholder: "z. B. Davon-Positionen",
         value: ""
@@ -732,7 +732,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "hideList",
         displayName: "Hide rows",
         displayNameKey: "Table_HideList",
-        description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar.",
+        description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „hide“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_HideList",
         placeholder: "z. B. Sonstige, Intern",
         value: ""
@@ -742,7 +742,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartList",
         displayName: "Chart only these rows",
         displayNameKey: "Table_ChartList",
-        description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer.",
+        description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „graphic“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_ChartList",
         placeholder: "z. B. Umsatz, EBIT",
         value: ""
@@ -752,7 +752,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "indentList",
         displayName: "Indent rows (davon)",
         displayNameKey: "Table_IndentList",
-        description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“.",
+        description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „davon“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_IndentList",
         placeholder: "z. B. davon Export",
         value: ""

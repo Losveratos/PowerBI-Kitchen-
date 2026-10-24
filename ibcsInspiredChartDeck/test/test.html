@@ -56,7 +56,7 @@
 <div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
 <div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
-<div class="case"><h4>Integrierte Brücke · rein negative Werte → Split-Layout mit Nulllinie (1.52.5; 1.12.4–1.52.4: Hinweis)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
+<div class="case"><h4>Integrierte Brücke · rein negative Werte → Split-Layout mit Nulllinie (1.53.0; 1.12.4–1.52.4: Hinweis)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
 <div class="case"><h4>FC-Revision · AC/FC vs. FC Vormonat (Basis „fcrev") + Datenstand-Fußzeile</h4><div class="stage" id="c46" style="width:960px;height:460px"></div></div>
 <div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
 <div class="case"><h4>QTD · Fiskaljahr ab April — Reset an jedem Quartalsstart</h4><div class="stage" id="c48" style="width:960px;height:420px"></div></div>
@@ -494,7 +494,7 @@ const pmCats = [], pmMult = [], pmAc = [];
 run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
   { chart: { orientation: "pareto", multiplesTotal: true } }, pmMult), 960, 420);
 
-// negative series in the integrated bridge: 1.52.5 split layout (zero line on top,
+// negative series in the integrated bridge: 1.53.0 split layout (zero line on top,
 // monthly strip below); 1.12.4–1.52.4 drew a hint here
 run("c45", dataView(months.slice(0, 6),
   [col("actual", [-820, -771, -900, -955, -1020, -980]), col("previousYear", [-760, -800, -850, -900, -940, -1010])],
@@ -763,9 +763,9 @@ run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "
 </script>
 
 <!-- ==== Audit 2026-07: Edge-Case-Haertung (Suiten minimal-negativ & kombi-stress) ==== -->
-<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → Nulllinie rechts, Balken nach links (1.52.5; bis 1.52.4: Hinweis)</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → Nulllinie rechts, Balken nach links (1.53.0; bis 1.52.4: Hinweis)</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
 <script>
-// Kategorie-Brücke · ausschließlich negative Werte — 1.34.3–1.52.4 Hinweis, ab 1.52.5
+// Kategorie-Brücke · ausschließlich negative Werte — 1.34.3–1.52.4 Hinweis, ab 1.53.0
 // gezeichnet: Domäne [min, 0] (catBridgeDomain), Nulllinie rechts, Labels links
 run("c90", dataView(["Nord","Süd","Ost","West"],
   [col("actual", [-179, -89, -42, -67]), col("previousYear", [-135, -68, -35, -66])],
@@ -780,10 +780,10 @@ run("c91", dataView(["Umsatz","Material","Personal","Sondereffekt","Steuern"],
   [col("actual", [5000, -3200, -1500, 900, -1200], "#,0 T€")],
   { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Ergebnis", period: "2026" } }), 960, 380);
 </script>
-<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → beide Kacheln split, gemeinsame Skala (1.52.5; bis 1.52.4: Hinweis)</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → beide Kacheln split, gemeinsame Skala (1.53.0; bis 1.52.4: Hinweis)</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
 <script>
 // Integrierte Brücke · Multiples sameScale mit einer komplett negativen Kachel
-// one all-negative tile inside a sameScale multiples grid: 1.52.5 both tiles draw the
+// one all-negative tile inside a sameScale multiples grid: 1.53.0 both tiles draw the
 // split layout on one shared range (until 1.52.4: hint in the negative tile)
 const ngCats = [], ngMult = [], ngAc = [], ngPy = [];
 ["Nord", "Süd"].forEach((r, ri) => {
@@ -2700,7 +2700,7 @@ addStage("c238", "Leser (viewMode 0) ohne Daten · Leser-Karte: Produktname · i
 </script>
 <script>
 // ======================================================================
-// 1.52.5 · Negative Brücken (c239+) — Integrierte Brücke und Kategorie-Brücke
+// 1.53.0 · Negative Brücken (c239+) — Integrierte Brücke und Kategorie-Brücke
 // zeichnen negative Werte statt eines Hinweises: Nulllinie, Anker ab Null (auch
 // nach unten), Stufen schwebend in echter Höhe und Richtung, Färbung nach
 // Vorzeichen-Logik (Invert), Labels außen, Achsenschnitt nur einseitig

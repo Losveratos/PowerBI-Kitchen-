@@ -10,7 +10,7 @@ Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 **Property-Referenz wird generiert: `npm run guide`** (Prüfung: `npm run guide:check`) — die Tabellen
 im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`/`capabilities.json` anpassen.
 
-Stand: **1.52.4.0** (23.10.2026) + Branch-Arbeit für 1.53 (rowType-Token, negative Brücken, Export-Layout).
+Stand: **1.53.0.0** (24.10.2026) + Branch-Arbeit für 1.53 (rowType-Token, negative Brücken, Export-Layout).
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 **Neu in 1.53 (rowType-Token, keine neue Property, keine neue Rolle):** Die Rolle `rowType`
@@ -285,7 +285,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 <!-- gen:properties:start -->
 Generiert von `test/gen-agent-guide.js` (`npm run guide`) aus `capabilities.json` und
-`src/settings.ts`, Paketstand **1.52.4.0**. Nicht von Hand ändern — Korrekturen gehören in
+`src/settings.ts`, Paketstand **1.53.0.0**. Nicht von Hand ändern — Korrekturen gehören in
 `settings.ts`/`capabilities.json` (bzw. in die handgeschriebenen Abschnitte außerhalb dieses Blocks).
 Beschreibungen sind die deutschen Pane-Tooltips, in Tabellen auf ganze Sätze bis ca. 220 Zeichen
 gekürzt (`…` = gekürzt, Volltext in `src/settings.ts`). Enum-Labels stammen aus der

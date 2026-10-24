@@ -6,7 +6,7 @@
     "type": "default_template_value",
     "url": "default_template_value"
   },
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "pbiviz": "pbiviz",
     "start": "pbiviz start",

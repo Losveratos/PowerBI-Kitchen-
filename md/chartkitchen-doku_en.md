@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.52.4.0** · As of · **2026-10-23** · IBCS-inspired
+Version · **1.53.0.0** · As of · **2026-10-24** · IBCS-inspired
 
 ## Contents
 
@@ -26,7 +26,7 @@ Version · **1.52.4.0** · As of · **2026-10-23** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.52.4.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”).
+This guide describes the state of version **1.53.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”).
 
 ## 02 · The product family
 
@@ -147,7 +147,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 
 ### 1 · Import the visual
 
-1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.52.4.0.
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.53.0.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 
@@ -832,7 +832,7 @@ It is locked because it would have no effect in the current state; the tooltip n
 
 An IBCS template is set and at least one of its settings has been changed. A click restores the template state; to keep your changes, set Chart → IBCS chart template to “Off”. Readers and exports never see the chip.
 
-**ChartKitchen byDatenWG** · Version 1.52.4.0
+**ChartKitchen byDatenWG** · Version 1.53.0.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 

@@ -141,7 +141,7 @@
         },
         {
             "displayName": "Waterfall Type (sum/delta)",
-            "description": "Waterfall/P&L only: \"sum\" marks a subtotal/anchor row, \"delta\" a movement row, \"pct\" a margin row (shown as %, with variance in percentage points).",
+            "description": "Waterfall/P&L/table: \"sum\" (or \"total\") marks a subtotal/anchor row, \"delta\" a movement row, \"pct\" a margin row (shown as %, with variance in percentage points). Plus combinable tokens per row (separated by comma, semicolon, space or |): \"exclude\" (not in Σ), \"hide\", \"davon\" (indented of-which row), \"invert\" (reverse the rating), \"emphasize\", \"graphic\" (only these rows show graphics) — they replace the comma lists in the format pane. Unknown tokens are reported in edit mode.",
             "descriptionKey": "RoleDesc_RowType",
             "displayNameKey": "Role_RowType",
             "name": "rowType",
