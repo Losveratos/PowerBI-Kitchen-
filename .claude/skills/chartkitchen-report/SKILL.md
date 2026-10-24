@@ -18,7 +18,7 @@ description: >
 
 Baut aus einem Power-BI-Semantikmodell einen mehrseitigen IBCS-Report, dessen
 Visuals durchgängig das Custom-Visual **ChartKitchen byDatenWG** sind
-(v1.38.0.0, GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`).
+(rowType-Token ab v1.53.0.0, GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`).
 Arbeitet **lokal** auf den PBIP-Dateien; kein Server, kein MCP nötig.
 
 > **Sicherheitsprinzip — „vorbereiten + Plan":** Dieser Skill schreibt **nicht
@@ -93,7 +93,17 @@ Rollen + zulässigen Property-Werte stehen in
 - `actual`/`plan`/`previousYear`/`forecast` (Measures) → gleichnamige/passende
   Measures (`[AC]`/`[Umsatz]`, `[PL]`/`[Budget]`, `[PY]`, `[FC]`)
 - `benchmark` → Ziel-/Schwellen-Measure (Monitoring)
-- `rowType` (sum/delta) bzw. `fcFlag` (1/0) → Struktur-/Flag-Spalten (Waterfall/GuV)
+- `rowType` → Zeilentyp-Spalte der Kontendimension (Waterfall/GuV, ab 1.53):
+  Token je Zeile (`total`, `pct`, `exclude`, `hide`, `davon`, `invert`,
+  `emphasize`, `graphic`; Altwerte `sum`/`delta`/`pct` gelten weiter) — am
+  besten die vorhandene `DimKonto[RowType]`-Spalte (Skill `finance-data-model`).
+  Die Rolle ist der Datenvertrag; Zeilennamen in Komma-Listen (`resultList`,
+  `skipList`, `hideList`, `indentList`, `invertList`, `highlight`, `chartList`)
+  **nur** als Fallback für Modelle ohne RowType-Spalte vorschlagen. Teilen sich
+  ChartKitchen und P&L-Visual (Skill `pnl-report`) die Spalte: `Subtotal`
+  statt `total` schreiben. Fehlt die Spalte, auf `finance-data-model`
+  verweisen statt Namen in Listen zu pflegen.
+- `fcFlag` (1/0) → Flag-Spalte (Forecast)
 - `colgroup` → Spaltengruppen-Dimension (nur Tabelle, max. 2 Ebenen)
 - `filterInfo` (Text-Measure) → Filterkontext für die Fußzeile
 
