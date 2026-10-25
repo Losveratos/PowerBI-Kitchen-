@@ -26,6 +26,8 @@ const num = n => new Intl.NumberFormat(loc()).format(Math.round(n));
 const sgn = n => (n > 0 ? '+' : n < 0 ? '−' : '±') + num(Math.abs(n));
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+// Basis für Links zur Kitchen. Leer = relativ (Kitchen-Seite); die Fabric App setzt window.DI_KITCHEN_BASE.
+const KB = typeof window.DI_KITCHEN_BASE === 'string' ? window.DI_KITCHEN_BASE : '';
 
 const MON = { de: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'], en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] };
 const MONL = { de: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'], en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'] };
@@ -34,7 +36,7 @@ const mLabel = (m, long) => (long ? MONL : MON)[LANG][((m % 12) + 12) % 12] + ' 
 const CAT_KEYS = Object.keys(CATS);
 const QUIZ_CATS = CAT_KEYS.filter(c => c !== 'talk');
 const catChip = c => `<span class="chip cat" style="background:${CATS[c].color}">${esc(CATS[c].icon)} ${T(CATS[c])}</span>`;
-const kitchenLink = c => `<a href="index.html#${CATS[c].bucket}" target="_blank" rel="noopener">${L('Mehr dazu in der Knowledge Kitchen', 'More in the Knowledge Kitchen')} ›</a>`;
+const kitchenLink = c => `<a href="${KB}index.html#${CATS[c].bucket}" target="_blank" rel="noopener">${L('Mehr dazu in der Knowledge Kitchen', 'More in the Knowledge Kitchen')} ›</a>`;
 const STAFF_BY = Object.fromEntries(STAFF.map(s => [s.id, s]));
 const LV = [0, 60, 160, 320, 560, 900, 1400, 2000];
 const level = xp => { let l = 0; while (l < LV.length - 1 && xp >= LV[l + 1]) l++; return l; };
@@ -223,7 +225,7 @@ function renderTitle() {
       <p class="muted" style="margin-top:14px;font-size:13px">${L('Gespeichert wird nur in diesem Browser. Keine Anmeldung, keine Tracker.', 'Progress is stored in this browser only. No sign-in, no trackers.')}</p>
     </div>
     <p class="tag blink" style="margin-top:26px">${L('PRESS START', 'PRESS START')}</p>
-    <div class="foot"><a href="index.html">Daten-WG Knowledge Kitchen</a> · <a href="datenschutz.html">${L('Datenschutz', 'Privacy')}</a> · <a href="impressum.html">${L('Impressum', 'Imprint')}</a></div>
+    <div class="foot"><a href="${KB}index.html">Daten-WG Knowledge Kitchen</a> · <a href="${KB}datenschutz.html">${L('Datenschutz', 'Privacy')}</a> · <a href="${KB}impressum.html">${L('Impressum', 'Imprint')}</a></div>
   </div>`;
   $('#go-new').onclick = () => {
     const firm = ($('#firm').value || '').trim() || L('Küchentisch Consulting', 'Kitchen Table Consulting');
@@ -340,7 +342,7 @@ function renderMain() {
       }).join('')}
     </nav>
     ${ticker()}
-    <div class="foot">${L('Daten-Imperium ist ein Lernspiel der', 'Data Empire is a learning game by the')} <a href="index.html">Daten-WG Knowledge Kitchen</a> · ${L('Inspiriert von Wirtschaftssimulationen der 80er', 'Inspired by 1980s business sims')}</div>
+    <div class="foot">${L('Daten-Imperium ist ein Lernspiel der', 'Data Empire is a learning game by the')} <a href="${KB}index.html">Daten-WG Knowledge Kitchen</a> · ${L('Inspiriert von Wirtschaftssimulationen der 80er', 'Inspired by 1980s business sims')}</div>
   </main>`;
   $$('[data-act]').forEach(b => { b.onclick = () => { sfx('click'); openAct(b.dataset.act); }; });
   const tip = $('#tip');
@@ -567,7 +569,7 @@ function mailDetail(m) {
   if (m.kind === 'phish') return head + `<div class="body">${L('Sehr geehrter Kunde,\n\nwegen eines Lizenzproblems wird Ihr Tenant in 24 Stunden unwiderruflich GELÖSCHT. Melden Sie sich SOFORT an, um das zu verhindern:\n\nhttps://login.fabrlc-cloud-support.example/verify\n\nIhr Cloud Security Team', 'Dear customer,\n\ndue to a license problem your tenant will be permanently DELETED in 24 hours. Sign in NOW to prevent this:\n\nhttps://login.fabrlc-cloud-support.example/verify\n\nYour Cloud Security Team')}</div>
       <div class="row"><button class="btn" id="m-go">🔗 ${L('Link öffnen und anmelden', 'Open link and sign in')}</button><button class="btn ok" id="m-del">🛡 ${L('Als Phishing melden', 'Report as phishing')}</button></div>`;
   // info
-  return head + `<div class="body">${T(m.body)}</div><div class="row">${m.cat && m.cat !== 'talk' ? kitchenLink(m.cat) : `<a href="index.html" target="_blank" rel="noopener">Daten-WG Knowledge Kitchen ›</a>`}</div>
+  return head + `<div class="body">${T(m.body)}</div><div class="row">${m.cat && m.cat !== 'talk' ? kitchenLink(m.cat) : `<a href="${KB}index.html" target="_blank" rel="noopener">Daten-WG Knowledge Kitchen ›</a>`}</div>
     <div class="row" style="margin-top:12px"><button class="btn" id="m-del">${L('Archivieren', 'Archive')}${m.xp ? ` (+${m.xp} XP)` : ''}</button></div>`;
 }
 const removeMail = m => { S.mails = S.mails.filter(x => x.id !== m.id); };
