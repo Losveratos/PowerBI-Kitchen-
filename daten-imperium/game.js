@@ -53,19 +53,45 @@ const CLINIC_NAMES = {
   unsorted: { de: 'Rankings sortieren', en: 'Sort rankings' }, grid: { de: 'Gitter leise stellen', en: 'Quiet gridlines' },
   legend: { de: 'Direkt beschriften', en: 'Label directly' }, shadow: { de: 'Keine Effekte', en: 'No effects' },
 };
+/* ---------- Inhalte und Prüfer ----------
+   Kitchen: content.js enthält alles, split-content.js teilt es beim Start in eine öffentliche
+   Fassung (P) und einen Schlüssel; geprüft wird lokal. Fabric App: content.js ist bereits
+   öffentlich (DI_PUBLIC_CONTENT), geprüft wird über window.DI_GRADER (Function `grade`).
+   Alle Spiele arbeiten nur mit P und fragen den Prüfer asynchron. */
+const FULL = typeof DI_PUBLIC_CONTENT === 'undefined';
+const SPLIT_RESULT = FULL ? DI_SPLIT.split({ QUIZ, STAR, ORDER, FILL, PQDEBUG, DIALOGS }) : null;
+const P = FULL ? SPLIT_RESULT.pub : { QUIZ, STAR, ORDER, FILL, PQDEBUG, DIALOGS };
+const KEYS = FULL ? SPLIT_RESULT.key : null;
+const GRADE = (kind, args) => (FULL
+  ? new Promise(res => res(DI_SPLIT.grade(KEYS, kind, args)))
+  : window.DI_GRADER(kind, args));
+
 const CARDS = {};
-QUIZ.forEach(q => { CARDS[q.id] = { c: q.c, h: q.q, x: q.x }; });
-ORDER.forEach(o => { CARDS[o.id] = { c: o.c, h: o.title, x: o.x }; });
-DIALOGS.forEach(d => {
+P.QUIZ.forEach(q => { CARDS[q.id] = { c: q.c, h: q.q, x: FULL ? KEYS.quiz[q.id].x : null }; });
+P.ORDER.forEach(o => { CARDS[o.id] = { c: o.c, h: o.title, x: FULL ? KEYS.order[o.id].x : null }; });
+P.DIALOGS.forEach(d => { CARDS[d.id] = { c: 'talk', h: { de: 'Gespräch: ' + d.who.de, en: 'Conversation: ' + d.who.en }, x: null }; });
+if (FULL) DIALOGS.forEach(d => {
   const best = s => s.a.reduce((m, a) => (a.s > m.s ? a : m), s.a[0]);
-  CARDS[d.id] = { c: 'talk', h: { de: 'Gespräch: ' + d.who.de, en: 'Conversation: ' + d.who.en },
-    x: { de: d.steps.map(s => best(s).t.de).join(' '), en: d.steps.map(s => best(s).t.en).join(' ') } };
+  CARDS[d.id].x = { de: d.steps.map(s => best(s).t.de).join(' '), en: d.steps.map(s => best(s).t.en).join(' ') };
 });
 Object.keys(CLINIC_ERRORS).forEach(k => { CARDS['cl-' + k] = { c: 'viz', h: CLINIC_NAMES[k], x: { de: CLINIC_ERRORS[k].de, en: CLINIC_ERRORS[k].en } }; });
-FILL.forEach(f => { CARDS[f.id] = { c: 'dax', h: f.title, x: f.x }; });
-PQDEBUG.forEach(p => { CARDS[p.id] = { c: 'pq', h: p.title, x: p.x }; });
+P.FILL.forEach(f => { CARDS[f.id] = { c: 'dax', h: f.title, x: FULL ? KEYS.fill[f.id].x : null }; });
+P.PQDEBUG.forEach(p => { CARDS[p.id] = { c: 'pq', h: p.title, x: FULL ? KEYS.pq[p.id].x : null }; });
 Object.entries(EXTRA_CARDS).forEach(([k, v]) => { CARDS[k] = v; });
 const CARD_IDS = Object.keys(CARDS);
+/** Erklärung einer Lernkarte: aus den Inhalten (Kitchen) oder vom Prüfer gemerkt (Fabric). */
+const cardX = id => (CARDS[id] && CARDS[id].x) || (S && S.cardText && S.cardText[id]) || '';
+/** Merkt sich die Erklärung, die der Prüfer geliefert hat (nur nötig ohne volle Inhalte). */
+function learn(id, x) { if (!FULL && x && S) { S.cardText = S.cardText || {}; S.cardText[id] = x; } }
+/** Prüfer mit Fehlermeldung statt Absturz; liefert null, wenn die Prüfung scheitert. */
+async function check(kind, args) {
+  try {
+    const r = await GRADE(kind, args);
+    if (r && r.earned) setTimeout(() => toast(L(`+${r.earned} Ranglistenpunkte`, `+${r.earned} leaderboard points`), 'good'), 400);
+    return r;
+  }
+  catch (e) { console.error('Prüfung fehlgeschlagen', e); toast(L('Prüfung fehlgeschlagen. Bitte nochmal versuchen.', 'Check failed. Please try again.'), 'bad'); return null; }
+}
 
 const NEWS = [
   { c: 'model', de: 'Jede Faktentabelle braucht eine klare Granularität. Schreib sie in die Tabellenbeschreibung.', en: 'Every fact table needs a clear grain. Write it into the table description.' },
@@ -651,11 +677,11 @@ function startJob(m) {
   winX.style.visibility = 'hidden'; winTitle.textContent = m.from + ' · ' + t(m.subj);
   if (m.game === 'quiz') gameQuiz({ title: GAME_NAMES.quiz(m.cat), cat: m.cat, d: m.d, n: QN[m.d], onDone: done });
   else if (m.game === 'star') gameStar(done);
-  else if (m.game === 'order') gameOrder(leastSeen(ORDER.filter(o => o.c === m.cat).length ? ORDER.filter(o => o.c === m.cat) : ORDER, 'ord'), done);
+  else if (m.game === 'order') gameOrder(leastSeen(P.ORDER.filter(o => o.c === m.cat).length ? P.ORDER.filter(o => o.c === m.cat) : P.ORDER, 'ord'), done);
   else if (m.game === 'clinic') gameClinic(m.d, done);
   else if (m.game === 'fill') gameFill(m.d, [0, 2, 2, 3, 3][m.d], done);
   else if (m.game === 'pqdebug') gamePqDebug(m.d, [0, 2, 2, 2, 3][m.d], done);
-  else gameDialog(leastSeen(DIALOGS, 'dlg'), done);
+  else gameDialog(leastSeen(P.DIALOGS, 'dlg'), done);
 }
 function startIncident(m) {
   S.days -= 1; removeMail(m); S.active = true; save(); renderMain();
@@ -717,9 +743,9 @@ const isCode = x => typeof x === 'string' && /[[(]/.test(x);
 function pickQuestions(cat, d, n, inc) {
   const md = Math.min(3, d);
   const okCat = q => !cat || q.c === cat;
-  let pool = QUIZ.filter(q => okCat(q) && q.d <= md && !!q.inc === !!inc);
-  if (pool.length < n) pool = pool.concat(QUIZ.filter(q => okCat(q) && !pool.includes(q)));
-  if (pool.length < n) pool = pool.concat(QUIZ.filter(q => !pool.includes(q) && !!q.inc === !!inc));
+  let pool = P.QUIZ.filter(q => okCat(q) && q.d <= md && !!q.inc === !!inc);
+  if (pool.length < n) pool = pool.concat(P.QUIZ.filter(q => okCat(q) && !pool.includes(q)));
+  if (pool.length < n) pool = pool.concat(P.QUIZ.filter(q => !pool.includes(q) && !!q.inc === !!inc));
   const out = shuffle(pool).map(q => ({ q, s: (S.seenQ[q.id] || 0) * 10 + (md - q.d) * 3 + Math.random() * 4 })).sort((a, b) => a.s - b.s).slice(0, n).map(x => x.q);
   out.forEach(q => { S.seenQ[q.id] = (S.seenQ[q.id] || 0) + 1; });
   return out;
@@ -730,7 +756,7 @@ function gameQuiz(o) {
   const ids = [];
   const show = () => {
     const q = qs[i];
-    const opts = shuffle(q.o.map((x, k) => ({ x, ok: k === q.a })));
+    const opts = shuffle(q.o.map((x, k) => ({ x, k })));   // k = Index in der öffentlichen Fassung
     winBody.innerHTML = gameHead(o.title, `${i + 1}/${qs.length} · ✓ ${right}`) + `<div class="timer"><i></i></div>` +
       `<div class="q">${T(q.q)}</div>` + (q.code ? `<pre class="code">${esc(q.code)}</pre>` : '') + (q.log ? `<pre class="code log">${esc(q.log)}</pre>` : '') +
       `<div class="opts">${opts.map((p, k) => `<button class="opt" data-k="${k}">${isCode(p.x) ? `<span class="mono">${T(p.x)}</span>` : T(p.x)}</button>`).join('')}</div>
@@ -738,25 +764,35 @@ function gameQuiz(o) {
     modal.scrollTop = 0;
     const bar = $('.timer', winBody);
     startTimer((o.time || [0, 42, 38, 34][Math.min(3, o.d)]) * timeMult(), f => { bar.firstElementChild.style.width = (f * 100) + '%'; bar.classList.toggle('warn', f < 0.25); }, () => answer(-1));
-    const answer = k => {
-      stopTimer();
-      const ok = k >= 0 && opts[k].ok;
+    let busy = false, answered = false;
+    const answer = async k => {
+      if (busy || answered) return;
+      busy = true; stopTimer();
+      $$('.opt', winBody).forEach(b => { b.disabled = true; });
+      const r = await check('quiz', { id: q.id, choice: k >= 0 ? opts[k].k : -1 });
+      busy = false;
+      if (!r) { $$('.opt', winBody).forEach(b => { if (!b.classList.contains('dim')) b.disabled = false; }); return; }
+      answered = true;
+      const ok = r.ok;
       if (ok) { right++; sfx('ok'); } else sfx('bad');
-      $$('.opt', winBody).forEach((b, j) => { b.disabled = true; if (opts[j].ok) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); else b.classList.add('dim'); });
-      ids.push(q.id);
-      $('#q-tools').remove();
+      $$('.opt', winBody).forEach((b, j) => { b.disabled = true; if (opts[j].k === r.a) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); else b.classList.add('dim'); });
+      ids.push(q.id); learn(q.id, r.x);
+      if ($('#q-tools')) $('#q-tools').remove();
       const last = i === qs.length - 1;
       $('#q-ex').innerHTML = `<div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div>
         <div class="px-t">${ok ? '✓ ' + L('RICHTIG', 'CORRECT') : k < 0 ? '⏱ ' + L('ZEIT UM', 'TIME UP') : '✗ ' + L('LEIDER FALSCH', 'WRONG')}</div>
-        <p>${T(q.x)}</p>${kitchenLink(q.c)}</div></div></div>
+        <p>${T(r.x)}</p>${kitchenLink(q.c)}</div></div></div>
         <div class="row" style="margin-top:12px"><button class="btn pri" id="q-next">${last ? L('Abrechnen', 'Finish') : L('Nächste Frage', 'Next question')} ›</button></div>`;
       $('#q-next').focus();
       $('#q-next').onclick = () => { i++; if (i < qs.length) show(); else o.onDone(right / qs.length, ids); };
     };
     $$('.opt', winBody).forEach(b => { b.onclick = () => answer(+b.dataset.k); });
-    if ($('#q-jk')) $('#q-jk').onclick = () => {
-      joker = false; $('#q-jk').remove();
-      shuffle(opts.map((p, k) => k).filter(k => !opts[k].ok)).slice(0, 2).forEach(k => { const b = $$('.opt', winBody)[k]; b.disabled = true; b.classList.add('dim'); });
+    if ($('#q-jk')) $('#q-jk').onclick = async () => {
+      $('#q-jk').disabled = true;
+      const r = await check('joker', { id: q.id, n: q.o.length });
+      if (!r) { if ($('#q-jk')) $('#q-jk').disabled = false; return; }
+      joker = false; if ($('#q-jk')) $('#q-jk').remove();
+      r.remove.forEach(pk => { const j = opts.findIndex(p => p.k === pk); const b = $$('.opt', winBody)[j]; if (b) { b.disabled = true; b.classList.add('dim'); } });
     };
     $('#q-giveup').onclick = () => { stopTimer(); o.onDone(right / qs.length, ids); };
   };
@@ -765,7 +801,7 @@ function gameQuiz(o) {
 
 /* ---------- Minispiel: Sternschema ---------- */
 function gameStar(onDone) {
-  const sc = leastSeen(STAR, 'star');
+  const sc = leastSeen(P.STAR, 'star');
   const order = shuffle(sc.tables.map((_, k) => k));
   const st = sc.tables.map(() => ({ role: null, key: '', into: '' }));
   const RN = { fact: L('Fakt', 'Fact'), dim: L('Dimension', 'Dimension'), fold: L('Einklappen', 'Collapse') };
@@ -785,23 +821,26 @@ function gameStar(onDone) {
       <div class="row" style="margin-top:14px"><button class="btn pri" id="s-chk" ${complete() ? '' : 'disabled'}>✓ ${L('Modell prüfen', 'Check model')}</button><button class="btn ghost" id="s-giveup">${L('Aufgeben', 'Give up')}</button></div>`;
     $$('.seg button', winBody).forEach(b => { b.onclick = () => { const s = st[+b.dataset.k]; s.role = b.dataset.r; sfx('click'); render(); }; });
     $$('select', winBody).forEach(sel => { sel.onchange = () => { st[+sel.dataset.k][sel.dataset.f] = sel.value; $('#s-chk').disabled = !complete(); }; });
-    $('#s-chk').onclick = check;
+    $('#s-chk').onclick = evaluate;
     $('#s-giveup').onclick = () => onDone(0, []);
   };
-  const check = () => {
-    let pts = 0;
-    const fb = sc.tables.map((tb, k) => {
-      const s = st[k]; let p = 0; let msg;
-      if (tb.role === 'fact') { p = s.role === 'fact' ? 1 : 0; msg = L('Faktentabelle: viele Zeilen, Kennzahlen und Fremdschlüssel.', 'Fact table: many rows, measures and foreign keys.'); }
-      else if (tb.role === 'dim') { p = (s.role === 'dim' ? 0.5 : 0) + (s.role === 'dim' && s.key === tb.key ? 0.5 : 0); msg = L(`Dimension, Schlüssel ${tb.key}.`, `Dimension, key ${tb.key}.`); }
-      else { p = (s.role === 'fold' ? 0.5 : 0) + (s.role === 'fold' && +s.into === tb.into ? 0.5 : 0); msg = L(`Einklappen in ${t(sc.tables[tb.into].n)} (Snowflake vermeiden).`, `Collapse into ${t(sc.tables[tb.into].n)} (avoid the snowflake).`); }
-      pts += p; return { p, msg };
+  const evaluate = async () => {
+    $('#s-chk').disabled = true;
+    const r = await check('star', { id: sc.id, picks: st.map(s => ({ role: s.role, key: s.key, into: s.into === '' ? -1 : +s.into })) });
+    if (!r) { $('#s-chk').disabled = false; return; }
+    const solved = { ...sc, tables: sc.tables.map((tb, k) => ({ ...tb, role: r.per[k].role, key: r.per[k].key, into: r.per[k].into })) };
+    const fb = solved.tables.map((tb, k) => {
+      const p = r.per[k].p; let msg;
+      if (tb.role === 'fact') msg = L('Faktentabelle: viele Zeilen, Kennzahlen und Fremdschlüssel.', 'Fact table: many rows, measures and foreign keys.');
+      else if (tb.role === 'dim') msg = L(`Dimension, Schlüssel ${tb.key}.`, `Dimension, key ${tb.key}.`);
+      else msg = L(`Einklappen in ${t(sc.tables[tb.into].n)} (Snowflake vermeiden).`, `Collapse into ${t(sc.tables[tb.into].n)} (avoid the snowflake).`);
+      return { p, msg };
     });
-    const score = pts / sc.tables.length;
+    const score = r.score;
     sfx(score >= 0.8 ? 'ok' : 'bad');
     winBody.innerHTML = gameHead(L('Sternschema-Werkstatt', 'Star schema workshop'), `${Math.round(score * 100)} %`) +
       `<div class="tables">${order.map(k => `<div class="tcard ${fb[k].p >= 1 ? 'good' : 'bad'}"><h4>${fb[k].p >= 1 ? '✓' : '✗'} ${T(sc.tables[k].n)}</h4><div class="cols">${sc.tables[k].cols.map(esc).join(' · ')}</div><div class="fb">${L('Deine Wahl', 'Your pick')}: <b>${st[k].role ? RN[st[k].role] : '–'}</b>${st[k].role === 'dim' ? ' · ' + esc(st[k].key) : ''}${st[k].role === 'fold' && st[k].into !== '' ? ' → ' + T(sc.tables[+st[k].into].n) : ''}</div><div class="fb">${esc(fb[k].msg)}</div></div>`).join('')}</div>
-      <h3 style="margin-top:16px">${L('So sieht der Stern aus', 'This is the star')}</h3><div class="chartbox">${starSVG(sc)}</div>
+      <h3 style="margin-top:16px">${L('So sieht der Stern aus', 'This is the star')}</h3><div class="chartbox">${starSVG(solved)}</div>
       <div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div><p>${T(EXTRA_CARDS['star-basics'].x)} ${T(EXTRA_CARDS['star-snow'].x)}</p>${kitchenLink('model')}</div></div></div>
       <div class="row" style="margin-top:12px"><button class="btn pri" id="s-done">${L('Abrechnen', 'Finish')} ›</button></div>`;
     modal.scrollTop = 0;
@@ -832,8 +871,7 @@ function starSVG(sc) {
 /* ---------- Minispiel: Reihenfolge ---------- */
 function gameOrder(task, onDone) {
   const n = task.steps.length;
-  let pool = shuffle(task.steps.map((_, k) => k));
-  while (pool.every((v, i) => v === i)) pool = shuffle(pool);
+  let pool = shuffle(task.steps.map((_, k) => k));   // Indizes in die öffentliche (gemischte) Fassung
   const seq = [];
   const render = () => {
     winBody.innerHTML = gameHead(L('Reihenfolge-Puzzle', 'Sequence puzzle'), T(task.title)) +
@@ -843,16 +881,20 @@ function gameOrder(task, onDone) {
       <div class="row" style="margin-top:14px"><button class="btn pri" id="o-chk" ${pool.length ? 'disabled' : ''}>✓ ${L('Prüfen', 'Check')}</button><button class="btn ghost" id="o-giveup">${L('Aufgeben', 'Give up')}</button></div>`;
     $$('[data-p]', winBody).forEach(b => { b.onclick = () => { const k = +b.dataset.p; pool = pool.filter(x => x !== k); seq.push(k); sfx('click'); render(); }; });
     $$('[data-s]', winBody).forEach(b => { b.onclick = () => { const k = seq.splice(+b.dataset.s, 1)[0]; pool.push(k); render(); }; });
-    $('#o-chk').onclick = check;
+    $('#o-chk').onclick = evaluate;
     $('#o-giveup').onclick = () => onDone(0, []);
   };
-  const check = () => {
-    const ok = seq.filter((k, i) => k === i).length, score = ok / n;
+  const evaluate = async () => {
+    $('#o-chk').disabled = true;
+    const r = await check('order', { id: task.id, seq });
+    if (!r) { $('#o-chk').disabled = false; return; }
+    const ok = r.ok.filter(Boolean).length, score = r.score;
+    learn(task.id, r.x);
     sfx(score >= 0.8 ? 'ok' : 'bad');
     winBody.innerHTML = gameHead(L('Reihenfolge-Puzzle', 'Sequence puzzle'), `${ok}/${n}`) +
-      `<div class="grid2"><div><p><b>${L('Deine Reihenfolge', 'Your order')}</b></p><div class="seq">${seq.map((k, i) => `<div class="it ${k === i ? 'good' : 'bad'}" data-n="${i + 1}">${T(task.steps[k])}</div>`).join('')}</div></div>
-      <div><p><b>${L('Richtig', 'Correct')}</b></p><div class="seq">${task.steps.map((s, i) => `<div class="it good" data-n="${i + 1}">${T(s)}</div>`).join('')}</div></div></div>
-      <div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div><p>${T(task.x)}</p>${kitchenLink(task.c)}</div></div></div>
+      `<div class="grid2"><div><p><b>${L('Deine Reihenfolge', 'Your order')}</b></p><div class="seq">${seq.map((k, i) => `<div class="it ${r.ok[i] ? 'good' : 'bad'}" data-n="${i + 1}">${T(task.steps[k])}</div>`).join('')}</div></div>
+      <div><p><b>${L('Richtig', 'Correct')}</b></p><div class="seq">${r.order.map((k, i) => `<div class="it good" data-n="${i + 1}">${T(task.steps[k])}</div>`).join('')}</div></div></div>
+      <div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div><p>${T(r.x)}</p>${kitchenLink(task.c)}</div></div></div>
       <div class="row" style="margin-top:12px"><button class="btn pri" id="o-done">${L('Abrechnen', 'Finish')} ›</button></div>`;
     $('#o-done').onclick = () => onDone(score, [task.id]);
   };
@@ -940,59 +982,63 @@ function pickTasks(list, d, n, key) {
 
 /* ---------- Minispiel: DAX-Lückentext ---------- */
 function gameFill(d, n, onDone) {
-  const tasks = pickTasks(FILL, d, n, 'fill');
+  const tasks = pickTasks(P.FILL, d, n, 'fill');
   const ids = ['fill-intro'];
   let i = 0, sum = 0;
   const show = () => {
     const f = tasks[i];
-    const opts = f.blanks.map(b => shuffle(b.o.map((o, k) => ({ o, ok: k === b.a }))));
+    const opts = f.blanks.map(b => shuffle(b.o.map((o, k) => ({ o, k }))));   // k = Index in der öffentlichen Fassung
     const parts = t(f.code).split(/\{(\d)\}/);
     const code = parts.map((p, j) => (j % 2
       ? `<select class="blank" data-b="${p}" aria-label="${L('Lücke', 'Blank')} ${+p + 1}"><option value="">${L('▾ wählen', '▾ pick')}</option>${opts[+p].map((o, k) => `<option value="${k}">${T(o.o)}</option>`).join('')}</select>`
       : esc(p))).join('');
-    const solution = parts.map((p, j) => (j % 2 ? `<mark class="sol">${T(f.blanks[+p].o[f.blanks[+p].a])}</mark>` : esc(p))).join('');
+    const solutionOf = sol => parts.map((p, j) => (j % 2 ? `<mark class="sol">${T(f.blanks[+p].o[sol[+p]])}</mark>` : esc(p))).join('');
     winBody.innerHTML = gameHead(L('DAX-Lückentext', 'DAX fill-in-the-blank'), `${i + 1}/${tasks.length}`) + `<div class="timer"><i></i></div>` +
       `<div class="q">${T(f.title)}</div><p class="muted">${L('Füll die Lücken so, dass das Measure stimmt.', 'Fill the blanks so the measure is correct.')}</p>
       <pre class="code fill">${code}</pre>
       <div class="row" id="f-tools"><button class="btn pri" id="f-chk" disabled>✓ ${L('Prüfen', 'Check')}</button><button class="btn ghost" id="f-giveup">${L('Aufgeben', 'Give up')}</button></div><div id="f-ex"></div>`;
     modal.scrollTop = 0;
     const sels = $$('select.blank', winBody), chk = $('#f-chk'), bar = $('.timer', winBody);
-    let checked = false;
-    const check = () => {
-      if (checked) return; checked = true; stopTimer();
+    let checked = false, busy = false;
+    const evaluate = async () => {
+      if (checked || busy) return; busy = true; stopTimer();
+      chk.disabled = true;
+      const picks = [];
+      sels.forEach(s => { const b = +s.dataset.b, k = s.value === '' ? -1 : +s.value; picks[b] = k >= 0 ? opts[b][k].k : -1; });
+      const r = await check('fill', { id: f.id, picks });
+      busy = false;
+      if (!r) { chk.disabled = sels.some(x => x.value === ''); return; }
+      checked = true;
       let ok = 0;
-      sels.forEach(s => {
-        const k = s.value === '' ? -1 : +s.value, good = k >= 0 && opts[+s.dataset.b][k].ok;
-        if (good) ok++; s.disabled = true; s.classList.add(good ? 'good' : 'bad');
-      });
-      const sc = ok / sels.length; sum += sc; ids.push(f.id);
+      sels.forEach(s => { const good = r.ok[+s.dataset.b]; if (good) ok++; s.disabled = true; s.classList.add(good ? 'good' : 'bad'); });
+      const sc = r.score; sum += sc; ids.push(f.id); learn(f.id, r.x);
       sfx(sc === 1 ? 'ok' : 'bad');
       $('#f-tools').remove();
       const last = i === tasks.length - 1;
       $('#f-ex').innerHTML = `<div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div>
         <div class="px-t">${sc === 1 ? '✓ ' + L('ALLES RICHTIG', 'ALL CORRECT') : `${ok}/${sels.length} ` + L('LÜCKEN RICHTIG', 'BLANKS CORRECT')}</div>
-        <pre class="code" style="margin-top:8px">${solution}</pre><p>${T(f.x)}</p>${kitchenLink('dax')}</div></div></div>
+        <pre class="code" style="margin-top:8px">${solutionOf(r.sol)}</pre><p>${T(r.x)}</p>${kitchenLink('dax')}</div></div></div>
         <div class="row" style="margin-top:12px"><button class="btn pri" id="f-next">${last ? L('Abrechnen', 'Finish') : L('Nächstes Measure', 'Next measure')} ›</button></div>`;
       $('#f-next').focus();
       $('#f-next').onclick = () => { i++; if (i < tasks.length) show(); else onDone(sum / tasks.length, ids); };
     };
     sels.forEach(s => { s.onchange = () => { chk.disabled = sels.some(x => x.value === ''); }; });
-    chk.onclick = check;
+    chk.onclick = evaluate;
     $('#f-giveup').onclick = () => { stopTimer(); onDone(sum / tasks.length, ids); };
-    startTimer((30 + 15 * f.blanks.length) * timeMult(), fr => { bar.firstElementChild.style.width = (fr * 100) + '%'; bar.classList.toggle('warn', fr < 0.25); }, check);
+    startTimer((30 + 15 * f.blanks.length) * timeMult(), fr => { bar.firstElementChild.style.width = (fr * 100) + '%'; bar.classList.toggle('warn', fr < 0.25); }, evaluate);
   };
   show();
 }
 
 /* ---------- Minispiel: Power-Query-Debugging ---------- */
 function gamePqDebug(d, n, onDone) {
-  const tasks = pickTasks(PQDEBUG, d, n, 'pqd');
+  const tasks = pickTasks(P.PQDEBUG, d, n, 'pqd');
   const ids = [];
   let i = 0, sum = 0;
   const show = () => {
     const p = tasks[i];
-    const fixes = shuffle(p.fix.map((o, k) => ({ o, ok: k === p.a })));
-    let stepOk = null, finished = false;
+    const fixes = shuffle(p.fix.map((o, k) => ({ o, k })));   // k = Index in der öffentlichen Fassung
+    let stepOk = null, stepPick = -1, finished = false, busy = false;
     winBody.innerHTML = gameHead(L('Power-Query-Debugging', 'Power Query debugging'), `${i + 1}/${tasks.length}`) + `<div class="timer"><i></i></div>` +
       `<div class="q">${T(p.title)}</div><pre class="code log">${T(p.err)}</pre>
       <p><b>1.</b> ${L('Klick auf den angewendeten Schritt, in dem das Problem entsteht.', 'Click the applied step where the problem starts.')}</p>
@@ -1001,31 +1047,40 @@ function gamePqDebug(d, n, onDone) {
       <div class="row" id="pq-tools" style="margin-top:12px"><button class="btn ghost" id="pq-giveup">${L('Aufgeben', 'Give up')}</button></div><div id="pq-ex"></div>`;
     modal.scrollTop = 0;
     const bar = $('.timer', winBody), stepBtns = $$('.pstep', winBody);
-    const revealStep = clicked => {
-      stepBtns.forEach((b, k) => { b.disabled = true; if (k === p.bad) b.classList.add('good'); else if (k === clicked) b.classList.add('bad'); });
+    const revealStep = (bad, clicked) => {
+      stepBtns.forEach((b, k) => { b.disabled = true; if (k === bad) b.classList.add('good'); else if (k === clicked) b.classList.add('bad'); });
     };
-    const finish = fixPick => {
-      if (finished) return; finished = true; stopTimer();
-      if (stepOk === null) { stepOk = false; revealStep(-1); }
-      const fixOk = fixPick >= 0 && fixes[fixPick].ok;
-      $$('#pq-fix .opt', winBody).forEach((b, k) => { b.disabled = true; if (fixes[k].ok) b.classList.add('right'); else if (k === fixPick) b.classList.add('wrong'); else b.classList.add('dim'); });
-      if (!$('#pq-fix .opt')) $('#pq-fix').innerHTML = `<p><b>${L('Richtige Korrektur', 'Correct fix')}:</b> ${T(p.fix[p.a])}</p>`;
-      const sc = (stepOk ? 0.5 : 0) + (fixOk ? 0.5 : 0); sum += sc; ids.push(p.id);
+    const finish = async fixPick => {
+      if (finished || busy) return; busy = true; stopTimer();
+      $$('#pq-fix .opt', winBody).forEach(b => { b.disabled = true; });
+      const r = await check('pq', { id: p.id, step: stepPick, fix: fixPick >= 0 ? fixes[fixPick].k : -1 });
+      busy = false;
+      if (!r) { $$('#pq-fix .opt', winBody).forEach(b => { b.disabled = false; }); return; }
+      finished = true;
+      if (stepOk === null) revealStep(r.bad, -1);
+      $$('#pq-fix .opt', winBody).forEach((b, k) => { b.disabled = true; if (fixes[k].k === r.fix) b.classList.add('right'); else if (k === fixPick) b.classList.add('wrong'); else b.classList.add('dim'); });
+      if (!$('#pq-fix .opt')) $('#pq-fix').innerHTML = `<p><b>${L('Richtige Korrektur', 'Correct fix')}:</b> ${T(p.fix[r.fix])}</p>`;
+      const sc = r.score; sum += sc; ids.push(p.id); learn(p.id, r.x);
       sfx(sc === 1 ? 'ok' : 'bad');
       if ($('#pq-tools')) $('#pq-tools').remove();
       const last = i === tasks.length - 1;
       $('#pq-ex').innerHTML = `<div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div>
-        <div class="px-t">${L('SCHRITT', 'STEP')} ${stepOk ? '✓' : '✗'} · ${L('KORREKTUR', 'FIX')} ${fixOk ? '✓' : '✗'}</div>
-        <p>${T(p.x)}</p>${kitchenLink('pq')}</div></div></div>
+        <div class="px-t">${L('SCHRITT', 'STEP')} ${r.stepOk ? '✓' : '✗'} · ${L('KORREKTUR', 'FIX')} ${r.fixOk ? '✓' : '✗'}</div>
+        <p>${T(r.x)}</p>${kitchenLink('pq')}</div></div></div>
         <div class="row" style="margin-top:12px"><button class="btn pri" id="pq-next">${last ? L('Abrechnen', 'Finish') : L('Nächster Fall', 'Next case')} ›</button></div>`;
       $('#pq-next').focus();
       $('#pq-next').onclick = () => { i++; if (i < tasks.length) show(); else onDone(sum / tasks.length, ids); };
     };
     stepBtns.forEach(b => {
-      b.onclick = () => {
-        if (stepOk !== null || finished) return;
-        const k = +b.dataset.k; stepOk = k === p.bad;
-        sfx(stepOk ? 'ok' : 'bad'); revealStep(k);
+      b.onclick = async () => {
+        if (stepOk !== null || finished || busy) return;
+        const k = +b.dataset.k;
+        busy = true; stepBtns.forEach(x => { x.disabled = true; });
+        const r = await check('pqStep', { id: p.id, step: k });
+        busy = false;
+        if (!r) { stepBtns.forEach(x => { x.disabled = false; }); return; }
+        stepPick = k; stepOk = r.ok;
+        sfx(stepOk ? 'ok' : 'bad'); revealStep(r.bad, k);
         $('#pq-fix').innerHTML = `<p>${stepOk ? '✓ ' + L('Richtig, hier liegt es.', 'Right, this is the one.') : '✗ ' + L('Hier liegt es nicht. Der grüne Schritt ist schuld.', 'Not this one. The green step is the culprit.')}</p>
           <p><b>2.</b> ${L('Welche Korrektur ist richtig?', 'Which fix is right?')}</p><div class="opts">${fixes.map((f, j) => `<button class="opt" data-j="${j}">${T(f.o)}</button>`).join('')}</div>`;
         $$('#pq-fix .opt', winBody).forEach(o => { o.onclick = () => finish(+o.dataset.j); });
@@ -1040,21 +1095,33 @@ function gamePqDebug(d, n, onDone) {
 /* ---------- Minispiel: Kundengespräch ---------- */
 function gameDialog(dlg, onDone) {
   let i = 0, sum = 0;
+  const bests = [];
   const show = () => {
-    const st = dlg.steps[i], opts = shuffle(st.a);
+    const st = dlg.steps[i], opts = shuffle(st.a.map((a, k) => ({ t: a.t, k })));   // k = Index in der öffentlichen Fassung
+    let busy = false;
     winBody.innerHTML = gameHead(L('Kundengespräch', 'Client conversation'), `${i + 1}/${dlg.steps.length}`) +
       `<div class="dlg-line"><div class="avatar">${esc(dlg.av)}</div><div><div class="muted" style="font-size:13px">${T(dlg.who)}</div><div class="bubble">${T(st.say)}</div></div></div>
       <p><b>${L('Deine Antwort', 'Your answer')}:</b></p><div class="opts">${opts.map((a, k) => `<button class="opt" data-k="${k}">${T(a.t)}</button>`).join('')}</div><div id="d-ex"></div>`;
     $$('.opt', winBody).forEach(b => {
-      b.onclick = () => {
-        const a = opts[+b.dataset.k]; sum += a.s;
-        sfx(a.s >= 0.9 ? 'ok' : a.s < 0.5 ? 'bad' : 'click');
-        $$('.opt', winBody).forEach((x, j) => { x.disabled = true; if (j === +b.dataset.k) x.classList.add(a.s >= 0.9 ? 'right' : a.s < 0.5 ? 'wrong' : 'sel'); else x.classList.add('dim'); });
-        const best = st.a.reduce((m, x) => (x.s > m.s ? x : m), st.a[0]);
+      b.onclick = async () => {
+        if (busy) return; busy = true;
+        const pick = +b.dataset.k;
+        $$('.opt', winBody).forEach(x => { x.disabled = true; });
+        const r = await check('dialog', { id: dlg.id, step: i, choice: opts[pick].k });
+        busy = false;
+        if (!r) { $$('.opt', winBody).forEach(x => { x.disabled = false; }); return; }
+        sum += r.s; bests.push(st.a[r.best].t);
+        sfx(r.s >= 0.9 ? 'ok' : r.s < 0.5 ? 'bad' : 'click');
+        $$('.opt', winBody).forEach((x, j) => { x.disabled = true; if (j === pick) x.classList.add(r.s >= 0.9 ? 'right' : r.s < 0.5 ? 'wrong' : 'sel'); else x.classList.add('dim'); });
         const last = i === dlg.steps.length - 1;
-        $('#d-ex').innerHTML = `<div class="explain"><b>${a.s >= 0.9 ? '✓ ' + L('Gut gelöst', 'Well handled') : a.s >= 0.4 ? '~ ' + L('Geht so', 'So-so') : '✗ ' + L('Daneben', 'Missed')}</b><p>${T(a.f)}</p>${a !== best ? `<p class="muted">${L('Besser', 'Better')}: ${T(best.t)}</p>` : ''}</div>
+        $('#d-ex').innerHTML = `<div class="explain"><b>${r.s >= 0.9 ? '✓ ' + L('Gut gelöst', 'Well handled') : r.s >= 0.4 ? '~ ' + L('Geht so', 'So-so') : '✗ ' + L('Daneben', 'Missed')}</b><p>${T(r.f)}</p>${opts[pick].k !== r.best ? `<p class="muted">${L('Besser', 'Better')}: ${T(st.a[r.best].t)}</p>` : ''}</div>
           <div class="row" style="margin-top:12px"><button class="btn pri" id="d-next">${last ? L('Abrechnen', 'Finish') : L('Weiter', 'Next')} ›</button></div>`;
-        $('#d-next').onclick = () => { i++; if (i < dlg.steps.length) show(); else onDone(sum / dlg.steps.length, [dlg.id]); };
+        $('#d-next').onclick = () => {
+          i++;
+          if (i < dlg.steps.length) return show();
+          learn(dlg.id, { de: bests.map(b2 => b2.de).join(' '), en: bests.map(b2 => b2.en).join(' ') });
+          onDone(sum / dlg.steps.length, [dlg.id]);
+        };
       };
     });
   };
@@ -1149,7 +1216,7 @@ function train(c) {
     resultScreen({ title: L('Weiterbildung', 'Training'), score, lines: [`${T(CATS[c])}: +${xp} XP`, nc ? L(`${nc} neue Lernkarte(n)`, `${nc} new card(s)`) : ''] });
   };
   const td = clamp(level(S.xp[c]) + 1, 1, 3), r = Math.random();
-  if (c === 'talk') gameDialog(leastSeen(DIALOGS, 'dlg'), done);
+  if (c === 'talk') gameDialog(leastSeen(P.DIALOGS, 'dlg'), done);
   else if (c === 'dax' && r < 0.5) gameFill(td, 2, done);
   else if (c === 'pq' && r < 0.5) gamePqDebug(td, 2, done);
   else gameQuiz({ title: L('Weiterbildung', 'Training') + ' · ' + t(CATS[c]), cat: c, d: clamp(level(S.xp[c]) + 1, 1, 3), n: 3, practice: true, onDone: done });
@@ -1164,7 +1231,7 @@ function openLibrary() {
     <p>${L('Jede gelöste Aufgabe legt eine Lernkarte ins Regal. Sammle alle und schau für die Tiefe in die Knowledge Kitchen.', 'Every solved task puts a learning card on the shelf. Collect them all and dive deeper in the Knowledge Kitchen.')}</p>
     <div class="tabs"><button data-tab="all" class="${libTab === 'all' ? 'on' : ''}">${L('ALLE', 'ALL')}</button>${CAT_KEYS.map(c => `<button data-tab="${c}" class="${libTab === c ? 'on' : ''}">${T(CATS[c]).toUpperCase()} ${CARD_IDS.filter(id => CARDS[id].c === c && S.cards[id]).length}/${CARD_IDS.filter(id => CARDS[id].c === c).length}</button>`).join('')}</div>
     ${libTab !== 'all' ? `<p>${kitchenLink(libTab)}</p>` : ''}
-    <div class="cards">${have.map(id => `<div class="lcard"><div class="row" style="gap:6px;margin-bottom:6px">${catChip(CARDS[id].c)}</div><div class="h">${T(CARDS[id].h)}</div><div>${T(CARDS[id].x)}</div></div>`).join('')}
+    <div class="cards">${have.map(id => `<div class="lcard"><div class="row" style="gap:6px;margin-bottom:6px">${catChip(CARDS[id].c)}</div><div class="h">${T(CARDS[id].h)}</div><div>${T(cardX(id))}</div></div>`).join('')}
     ${ids.filter(id => !S.cards[id]).map(() => `<div class="lcard lockedc" aria-label="${L('Noch nicht gesammelt', 'Not collected yet')}">?</div>`).join('')}</div>`);
   $$('[data-tab]').forEach(b => { b.onclick = () => { libTab = b.dataset.tab; openLibrary(); }; });
 }
@@ -1245,6 +1312,7 @@ function openMarket() {
   const h = S.idxHist, w = 600, ht = 140, mn = Math.min(...h, 80) - 5, mx = Math.max(...h, 120) + 5;
   const pts = h.map((v, i) => `${(h.length === 1 ? 0 : i / (h.length - 1) * w).toFixed(1)},${(ht - (v - mn) / (mx - mn) * ht).toFixed(1)}`).join(' ');
   openWin(L('Markt & Rivalen', 'Market & rivals'), `
+    ${window.DI_LEADERBOARD ? `<div class="sect" style="margin-top:0">${L('RANGLISTE · ECHTE MENSCHEN', 'LEADERBOARD · REAL PEOPLE')}</div><div id="lb"><p class="muted">${L('Rangliste wird geladen …', 'Loading leaderboard …')}</p></div><div class="sect">${L('TAGESSATZ-INDEX', 'DAY-RATE INDEX')}</div>` : ''}
     <p>${L('Der Tagessatz-Index ist dein Ölpreis: Er bestimmt, was neue Aufträge einbringen. Hype treibt ihn, Budgetstopps drücken ihn.', 'The day-rate index is your oil price: it sets what new jobs pay. Hype pushes it, budget freezes pull it down.')}</p>
     <div class="chartbox"><svg viewBox="-40 -10 ${w + 60} ${ht + 30}" font-family="JetBrains Mono, monospace" role="img" aria-label="${L('Verlauf Tagessatz-Index', 'Day-rate index history')}">
       <line x1="0" x2="${w}" y1="${ht - (100 - mn) / (mx - mn) * ht}" y2="${ht - (100 - mn) / (mx - mn) * ht}" stroke="#ccc" stroke-dasharray="4 4"/><text x="-6" y="${ht - (100 - mn) / (mx - mn) * ht + 4}" font-size="11" text-anchor="end" fill="#888">100</text>
@@ -1253,6 +1321,44 @@ function openMarket() {
     <div class="list">${all.map((r, i) => `<div class="li ${r.me ? 'owned' : ''}"><div class="t">${i + 1}. ${esc(r.n)}${r.me ? ' ★' : ''}</div><b>${eur(r.v)}</b></div>`).join('')}</div>
     <div class="sect">${L('RÄNGE', 'RANKS')}</div>
     <div class="list">${RANKS.map(r => `<div class="li ${me.v >= r.v ? 'owned' : ''}"><div class="t">${esc(r[LANG])}</div><span>${L('ab', 'from')} ${eur(r.v)}</span></div>`).join('')}</div>`);
+  if (window.DI_LEADERBOARD) loadLeaderboard();
+}
+
+/* ---------- Rangliste (nur Fabric-Fassung, bewertet serverseitig) ---------- */
+async function loadLeaderboard() {
+  const box = $('#lb');
+  if (!box) return;
+  let data;
+  try { data = await window.DI_LEADERBOARD.get(); }
+  catch (e) { box.innerHTML = `<p class="muted">${L('Rangliste gerade nicht erreichbar.', 'Leaderboard not reachable right now.')} ${esc(e.message || '')}</p>`; return; }
+  if (!$('#lb')) return;
+  const me = data.me;
+  box.innerHTML = `
+    <p>${L('Punkte gibt es nur für vollständig gelöste Aufgaben, jede zählt einmal. Bewertet wird in Fabric, nicht im Browser. Die Chart-Klinik zählt nicht mit.', 'Points only for fully solved tasks, each counts once. Grading happens in Fabric, not in the browser. The chart clinic does not count.')}</p>
+    <div class="li owned"><div><div class="t">${L('Du', 'You')}: ${num(me.points)} ${L('Punkte', 'points')} · ${me.mastered} ${L('Aufgaben gemeistert', 'tasks mastered')}</div>
+      <div class="d">${me.visible && me.rank ? L(`Platz ${me.rank} von ${me.players}`, `Rank ${me.rank} of ${me.players}`) : L('Nicht in der öffentlichen Rangliste', 'Not on the public leaderboard')}</div></div></div>
+    <div class="row" style="margin:10px 0">
+      <label for="lb-alias" class="sr-only" style="position:absolute;left:-9999px">Alias</label>
+      <input id="lb-alias" maxlength="24" placeholder="${L('Dein Alias', 'Your alias')}" value="${esc(me.alias || '')}" style="font-family:var(--mono);font-size:14px;padding:8px;border:2px solid #000;background:#fff">
+      <label style="font-size:14px"><input type="checkbox" id="lb-vis" ${me.visible ? 'checked' : ''}> ${L('In der Rangliste zeigen', 'Show on leaderboard')}</label>
+      <button class="btn pri" id="lb-save">${L('Speichern', 'Save')}</button>
+    </div>
+    <p class="muted" style="font-size:13px">${L('Nur dein selbst gewählter Alias wird gezeigt, nie dein Name oder Konto.', 'Only your chosen alias is shown, never your name or account.')}</p>
+    <div class="list">${data.top.length ? data.top.map((r, i) => `<div class="li"><div class="t">${i + 1}. ${esc(r.alias)}</div><span>${num(r.points)} ${L('Pkt.', 'pts')} · ${r.mastered} ✓</span></div>`).join('') : `<p class="muted">${L('Noch niemand in der Rangliste. Mach den Anfang!', 'Nobody on the leaderboard yet. Be the first!')}</p>`}</div>
+    <p style="margin-top:10px"><button class="btn ghost" id="lb-forget">${L('Meine Ranglisten-Daten löschen', 'Delete my leaderboard data')}</button></p>`;
+  $('#lb-save').onclick = async () => {
+    const btn = $('#lb-save'); btn.disabled = true;
+    try { await window.DI_LEADERBOARD.setProfile($('#lb-alias').value.trim(), $('#lb-vis').checked); toast(L('Gespeichert', 'Saved'), 'good'); loadLeaderboard(); }
+    catch (e) { btn.disabled = false; toast(e.message || L('Speichern fehlgeschlagen', 'Saving failed'), 'bad'); }
+  };
+  let armed = false;
+  $('#lb-forget').onclick = async () => {
+    const btn = $('#lb-forget');
+    if (!armed) { armed = true; btn.textContent = L('Wirklich löschen? Nochmal klicken', 'Really delete? Click again'); return; }
+    btn.disabled = true;
+    try { await window.DI_LEADERBOARD.forget(); toast(L('Ranglisten-Daten gelöscht', 'Leaderboard data deleted'), 'good'); loadLeaderboard(); }
+    catch (e) { btn.disabled = false; toast(e.message || 'Fehler', 'bad'); }
+  };
 }
 
 /* ---------- Menü ---------- */
