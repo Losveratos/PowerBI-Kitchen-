@@ -1268,6 +1268,25 @@ body.filtering .filter-reset { display: inline-flex; align-items: center; }
 .learn-text { font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
 .learn-progress { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--accent); }
 .learn-go { margin-top: auto; padding-top: 6px; font-weight: 600; font-size: 14px; color: var(--lc, var(--accent)); }
+/* Lernspiel-Kachel Daten-Imperium: volle Breite, Retro-Look. Pixel-Schrift lädt erst, wenn die Kachel sie braucht. */
+@font-face { font-family: 'Press Start 2P'; font-style: normal; font-weight: 400; font-display: swap; src: url(assets/fonts/press-start-2p/press-start-2p-normal-400-latin.woff2) format('woff2'); }
+.learn-card.learn-game {
+  grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 22px; padding: 18px;
+  background: #101629; border-color: #000; border-left-color: #FFC94D; color: #EAF0FF;
+}
+.learn-game-art { flex: none; width: min(360px, 42%); aspect-ratio: 16 / 9; border: 3px solid #000; box-shadow: 4px 4px 0 #C25A2D; background: #1a2340; }
+.learn-game-art img { display: block; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.learn-game-body { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.learn-game .learn-step { color: #FFC94D; }
+.learn-game .learn-title { font-family: 'Press Start 2P', var(--mono); font-size: 18px; line-height: 1.5; color: #FFC94D; text-shadow: 2px 2px 0 #C25A2D; }
+.learn-game .learn-text { color: #C9D2EA; }
+.learn-game .learn-go { color: #FFC94D; }
+.learn-game-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.learn-game-tags span { font-family: var(--mono); font-size: 11px; font-weight: 700; color: #101629; background: #F4ECD8; padding: 2px 8px; border: 2px solid #000; }
+@media (max-width: 760px) {
+  .learn-card.learn-game { flex-direction: column; align-items: stretch; }
+  .learn-game-art { width: 100%; }
+}
 .learn-more { margin-top: 14px; font-size: 14px; color: var(--ink-mute); }
 .learn-more a { color: var(--accent); font-weight: 600; display: inline-flex; min-height: 44px; align-items: center; }
 
@@ -1419,6 +1438,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
             <a class="nav-dd-item" href="fabric_einsteiger_guide_v1.html"><span class="nav-dd-name">Microsoft Fabric End-to-End</span><span class="nav-dd-meta">Guide · OneLake, Lakehouse, Direct Lake</span></a>
             <a class="nav-dd-item" href="ibcs-trainer.html"><span class="nav-dd-name">IBCS-Trainer</span><span class="nav-dd-meta">Quiz und „Finde den Verstoß“</span></a>
             <a class="nav-dd-item" href="fabric-alchemie-post.html"><span class="nav-dd-name">Fabric Alchemie</span><span class="nav-dd-meta">Lernspiel · Fabric-Elemente zusammenbrauen</span></a>
+            <a class="nav-dd-item" href="daten-imperium.html"><span class="nav-dd-name">Daten-Imperium</span><span class="nav-dd-meta">Lernspiel · Retro-Wirtschaftsspiel mit DAX, Fabric &amp; Co.</span></a>
           </div>
         </li>
         <li class="nav-dd">
@@ -1826,8 +1846,18 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
       <span class="learn-text">OneLake, Lakehouse und Warehouse, Pipelines, Notebooks, Direct Lake. 6 Etappen, baut auf dem Power-BI-Guide auf.</span>
       <span class="learn-go">Zum Fabric-Guide →</span>
     </a>
+    <a class="learn-card learn-game" id="daten-imperium" href="daten-imperium.html">
+      <span class="learn-game-art"><img src="assets/daten-imperium/teaser.webp" width="960" height="540" loading="lazy" alt="Pixel-Büro aus dem Spiel: Loft am Rhein mit Team, Whiteboard, Kitchen-Regal und Blick auf den Dom"></span>
+      <span class="learn-game-body">
+        <span class="learn-step">Lernspiel · Neu · DE / EN</span>
+        <span class="learn-title">Daten-Imperium</span>
+        <span class="learn-text">Ein Wirtschaftsspiel im Stil der 80er: Kunden schicken Aufträge per Mail, jeder Auftrag ist ein Minispiel. Wer richtig löst, verdient Geld und baut sich vom Küchentisch bis in den Daten-Turm ein Imperium auf.</span>
+        <span class="learn-game-tags"><span>DAX</span><span>Sternschema</span><span>Fabric</span><span>Power Query</span><span>Governance</span><span>Visualisierung</span></span>
+        <span class="learn-go">Spiel starten →</span>
+      </span>
+    </a>
   </div>
-  <p class="learn-more">Lieber spielerisch? <a href="ibcs-trainer.html">IBCS-Trainer</a> · <a href="fabric-alchemie-post.html">Fabric Alchemie</a></p>
+  <p class="learn-more">Lieber spielerisch? <a href="daten-imperium.html">Daten-Imperium</a> · <a href="ibcs-trainer.html">IBCS-Trainer</a> · <a href="fabric-alchemie-post.html">Fabric Alchemie</a></p>
 </section>
 
 </div>
@@ -1857,6 +1887,7 @@ body.sheet-open .to-top, body.nav-open .to-top { display: none; }
         <a href="fabric_einsteiger_guide_v1.html">Fabric End-to-End</a>
         <a href="ibcs-trainer.html">IBCS-Trainer</a>
         <a href="fabric-alchemie-post.html">Fabric Alchemie</a>
+        <a href="daten-imperium.html">Daten-Imperium</a>
       </div>
       <div class="footer-col">
         <div class="footer-col-title">Werkzeuge</div>
