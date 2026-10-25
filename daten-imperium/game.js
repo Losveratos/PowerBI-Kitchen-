@@ -77,6 +77,9 @@ if (FULL) DIALOGS.forEach(d => {
 Object.keys(CLINIC_ERRORS).forEach(k => { CARDS['cl-' + k] = { c: 'viz', h: CLINIC_NAMES[k], x: { de: CLINIC_ERRORS[k].de, en: CLINIC_ERRORS[k].en } }; });
 P.FILL.forEach(f => { CARDS[f.id] = { c: 'dax', h: f.title, x: FULL ? KEYS.fill[f.id].x : null }; });
 P.PQDEBUG.forEach(p => { CARDS[p.id] = { c: 'pq', h: p.title, x: FULL ? KEYS.pq[p.id].x : null }; });
+// DAX-Werkstatt: nur in der Fabric App (daxlab.js + Ausführer window.DI_DAX gegen das Trainingsmodell)
+const LAB = typeof DAXLAB !== 'undefined' && window.DI_DAX ? DAXLAB : [];
+LAB.forEach(t => { CARDS[t.id] = { c: 'dax', h: { de: 'Werkstatt: ' + t.title.de, en: 'Workshop: ' + t.title.en }, x: null }; });
 Object.entries(EXTRA_CARDS).forEach(([k, v]) => { CARDS[k] = v; });
 const CARD_IDS = Object.keys(CARDS);
 /** Erklärung einer Lernkarte: aus den Inhalten (Kitchen) oder vom Prüfer gemerkt (Fabric). */
@@ -164,14 +167,14 @@ function gameFor(cat, d) {
   if (cat === 'fabric') return r < 0.3 ? 'order' : 'quiz';
   if (cat === 'gov') return r < 0.25 ? 'order' : 'quiz';
   if (cat === 'talk') return r < 0.75 ? 'dialog' : 'order';
-  if (cat === 'dax') return r < 0.35 ? 'fill' : d >= 2 && r < 0.5 ? 'order' : 'quiz';
+  if (cat === 'dax') return LAB.length && r < 0.3 ? 'werkstatt' : r < 0.55 ? 'fill' : d >= 2 && r < 0.65 ? 'order' : 'quiz';
   return 'quiz';
 }
 const GAME_NAMES = {
   quiz: c => ({ dax: L('DAX-Duell', 'DAX duel'), fabric: L('Item-Entscheid', 'Item decision'), gov: L('Governance-Check', 'Governance check'), pq: L('Power-Query-Quiz', 'Power Query quiz'), viz: L('Viz-Quiz', 'Viz quiz'), model: L('Modell-Quiz', 'Model quiz') }[c] || 'Quiz'),
   star: () => L('Sternschema-Werkstatt', 'Star schema workshop'), order: () => L('Reihenfolge-Puzzle', 'Sequence puzzle'),
   clinic: () => L('Chart-Klinik', 'Chart clinic'), dialog: () => L('Kundengespräch', 'Client conversation'),
-  fill: () => L('DAX-Lückentext', 'DAX fill-in-the-blank'), pqdebug: () => L('Power-Query-Debugging', 'Power Query debugging'),
+  fill: () => L('DAX-Lückentext', 'DAX fill-in-the-blank'), werkstatt: () => L('DAX-Werkstatt (echtes Modell)', 'DAX workshop (real model)'), pqdebug: () => L('Power-Query-Debugging', 'Power Query debugging'),
 };
 function genJob(forceCat, forceD, forceGame) {
   const cat = forceCat || pick(CAT_KEYS);
@@ -680,6 +683,7 @@ function startJob(m) {
   else if (m.game === 'order') gameOrder(leastSeen(P.ORDER.filter(o => o.c === m.cat).length ? P.ORDER.filter(o => o.c === m.cat) : P.ORDER, 'ord'), done);
   else if (m.game === 'clinic') gameClinic(m.d, done);
   else if (m.game === 'fill') gameFill(m.d, [0, 2, 2, 3, 3][m.d], done);
+  else if (m.game === 'werkstatt') gameWerkstatt(m.d, done);
   else if (m.game === 'pqdebug') gamePqDebug(m.d, [0, 2, 2, 2, 3][m.d], done);
   else gameDialog(leastSeen(P.DIALOGS, 'dlg'), done);
 }
@@ -1092,6 +1096,88 @@ function gamePqDebug(d, n, onDone) {
   show();
 }
 
+/* ---------- Minispiel: DAX-Werkstatt (nur Fabric App) ----------
+   Freies Measure schreiben. Die Abfrage läuft über window.DI_DAX gegen das Trainingsmodell
+   „DI Training"; bewertet werden nur die Ergebniszeilen (Function `grade`, kind 'dax').
+   Abfrage und Normalisierung müssen zu daxlab/build_daxlab.py passen. */
+function labQuery(expr, grid) {
+  const parts = grid.map((c, i) => `${c}, "__S${i + 1}"`).join(', ');
+  return `DEFINE MEASURE 'Sales'[__Antwort] = ${expr}\nEVALUATE SUMMARIZECOLUMNS(ROLLUPADDISSUBTOTAL(${parts}), "__A", [__Antwort])`;
+}
+function labPart(v) {
+  if (v === null || v === undefined) return '∅';
+  if (v === true || v === 'True' || v === 'true') return '1';
+  if (v === false || v === 'False' || v === 'false') return '0';
+  return String(v);
+}
+function labRows(columns, rows) {
+  const ia = columns.findIndex(c => /__A\]?$/.test(String(c)));
+  return rows.map(r => [r.filter((_, i) => i !== ia).map(labPart).join('|'), r[ia]]);
+}
+function gameWerkstatt(d, onDone) {
+  const task = pickTasks(LAB, d, 1, 'lab')[0];
+  let runs = 0, finished = false, busy = false;
+  const fmtv = v => (typeof v === 'number' ? new Intl.NumberFormat(loc(), { maximumFractionDigits: 4 }).format(v) : v === null || v === undefined ? '∅' : String(v));
+  const rowLabel = k => k.split('|').slice(0, task.grid.length).map(x => (x === '∅' ? 'Σ' : x)).join(' · ');
+  const schema = typeof DAXLAB_SCHEMA !== 'undefined' ? DAXLAB_SCHEMA : {};
+  winBody.innerHTML = gameHead(L('DAX-Werkstatt', 'DAX workshop'), T(task.title)) + `<div class="timer"><i></i></div>
+    <div class="q">${T(task.prompt)}</div>
+    <p class="muted" style="font-size:13px">${L('Geprüft wird gegen das Trainingsmodell „DI Training“ je', 'Checked against the training model "DI Training" per')} ${task.grid.map(esc).join(' × ')} ${L('inklusive Summen. Gleichwertige Lösungen zählen.', 'including totals. Equivalent solutions count.')}</p>
+    <details style="margin:6px 0 10px"><summary style="cursor:pointer;font-weight:600">${L('Modell ansehen', 'Show model')}</summary>
+      <div class="tables" style="margin-top:8px">${Object.entries(schema).map(([tb, cols]) => `<div class="tcard"><h4>${esc(tb)}</h4><div class="cols">${cols.map(esc).join(' · ')}</div></div>`).join('')}</div></details>
+    <details style="margin:0 0 10px"><summary style="cursor:pointer;font-weight:600">${L('Tipp', 'Hint')}</summary><p style="margin-top:6px">${T(task.hint)}</p></details>
+    <label for="w-expr" style="font-weight:600">${L('Dein Measure (nur der Ausdruck, ohne Namen)', 'Your measure (expression only, no name)')}</label>
+    <textarea id="w-expr" spellcheck="false" rows="5" placeholder="${L('z. B. SUM ( Sales[Menge] )', 'e.g. SUM ( Sales[Menge] )')}" style="display:block;width:100%;margin:6px 0 10px;font-family:var(--mono);font-size:14px;padding:10px;border:3px solid #000;background:#0F1E2E;color:#E6EDF7"></textarea>
+    <div class="row" id="w-tools"><button class="btn pri" id="w-run">▶ ${L('Ausführen & prüfen', 'Run & check')}</button><span class="muted" id="w-runs" style="font-size:13px">${L('Strg+Enter führt aus', 'Ctrl+Enter runs')}</span><button class="btn ghost" id="w-giveup">${L('Aufgeben', 'Give up')}</button></div>
+    <div id="w-out"></div>`;
+  modal.scrollTop = 0;
+  const bar = $('.timer', winBody), out = $('#w-out'), expr = $('#w-expr');
+  expr.focus();
+  const finish = async (rows, timedOut) => {
+    if (finished) return;
+    const r = await check('dax', { id: task.id, rows: rows || [] });
+    if (!r) return;
+    finished = true; stopTimer();
+    learn(task.id, r.x);
+    sfx(r.ok ? 'ok' : 'bad');
+    if ($('#w-tools')) $('#w-tools').remove();
+    expr.disabled = true;
+    out.insertAdjacentHTML('beforeend', `<div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div>
+      <div class="px-t">${r.ok ? '✓ ' + L('ALLE ZEILEN STIMMEN', 'ALL ROWS MATCH') : timedOut ? '⏱ ' + L('ZEIT UM', 'TIME UP') : `${r.matched}/${r.total} ` + L('ZEILEN STIMMEN', 'ROWS MATCH')}</div>
+      ${!r.ok && r.wrong && r.wrong.length ? `<table class="ledger" style="margin:8px 0"><tr><td><b>${L('Zeile', 'Row')}</b></td><td><b>${L('Soll', 'Expected')}</b></td><td><b>${L('Dein Wert', 'Yours')}</b></td></tr>${r.wrong.map(w => `<tr><td>${esc(rowLabel(w.key))}</td><td>${esc(fmtv(w.expected))}</td><td>${esc(fmtv(w.got))}</td></tr>`).join('')}</table>` : ''}
+      <p><b>${L('Musterlösung', 'Model answer')}:</b></p><pre class="code">${esc(r.solution)}</pre><p>${T(r.x)}</p>${kitchenLink('dax')}</div></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="w-done">${L('Abrechnen', 'Finish')} ›</button></div>`);
+    $('#w-done').onclick = () => onDone(r.score, [task.id]);
+  };
+  const run = async () => {
+    const e = expr.value.trim();
+    if (busy || finished) return;
+    if (!e) { toast(L('Erst ein Measure eingeben.', 'Enter a measure first.'), 'bad'); return; }
+    if (e.length > 2000) { toast(L('Der Ausdruck ist zu lang.', 'The expression is too long.'), 'bad'); return; }
+    busy = true; $('#w-run').disabled = true; runs++;
+    $('#w-runs').textContent = L(`Versuch ${runs} von 3`, `Attempt ${runs} of 3`);
+    out.innerHTML = `<p class="muted">${L('Läuft gegen das Modell …', 'Running against the model …')}</p>`;
+    let res;
+    try { res = await window.DI_DAX.run(labQuery(e, task.grid)); }
+    catch (err) {
+      busy = false;
+      out.innerHTML = `<p><b>${L('DAX-Fehler', 'DAX error')}</b> ${L('(zählt als Versuch, korrigieren und erneut ausführen)', '(counts as an attempt, fix it and run again)')}</p><pre class="code log">${esc(String(err.message || err).slice(0, 600))}</pre>`;
+      sfx('bad');
+      if (runs >= 3) return finish([], false);
+      $('#w-run').disabled = false; expr.focus(); return;
+    }
+    busy = false;
+    const rows = labRows(res.columns, res.rows);
+    out.innerHTML = `<p class="muted" style="font-size:13px">${L(`${rows.length} Ergebniszeilen, ein Ausschnitt:`, `${rows.length} result rows, a sample:`)}</p>
+      <table class="ledger">${rows.slice(0, 6).map(([k, v]) => `<tr><td>${esc(rowLabel(k))}</td><td>${esc(fmtv(v))}</td></tr>`).join('')}</table>`;
+    finish(rows, false);
+  };
+  $('#w-run').onclick = run;
+  expr.addEventListener('keydown', ev => { if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); run(); } });
+  $('#w-giveup').onclick = () => { stopTimer(); onDone(0, []); };
+  startTimer(300 * timeMult(), f => { bar.firstElementChild.style.width = (f * 100) + '%'; bar.classList.toggle('warn', f < 0.2); }, () => finish([], true));
+}
+
 /* ---------- Minispiel: Kundengespräch ---------- */
 function gameDialog(dlg, onDone) {
   let i = 0, sum = 0;
@@ -1217,7 +1303,8 @@ function train(c) {
   };
   const td = clamp(level(S.xp[c]) + 1, 1, 3), r = Math.random();
   if (c === 'talk') gameDialog(leastSeen(P.DIALOGS, 'dlg'), done);
-  else if (c === 'dax' && r < 0.5) gameFill(td, 2, done);
+  else if (c === 'dax' && LAB.length && r < 0.35) gameWerkstatt(td, done);
+  else if (c === 'dax' && r < 0.6) gameFill(td, 2, done);
   else if (c === 'pq' && r < 0.5) gamePqDebug(td, 2, done);
   else gameQuiz({ title: L('Weiterbildung', 'Training') + ' · ' + t(CATS[c]), cat: c, d: clamp(level(S.xp[c]) + 1, 1, 3), n: 3, practice: true, onDone: done });
 }
