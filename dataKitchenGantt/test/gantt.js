@@ -1,4 +1,13 @@
 "use strict";
+// Vorlagen der Einrichtungshilfe. Welche Einstellungen sie setzen, steht in
+// visual.ts (dort liegen die Objekt- und Eigenschaftsnamen des Formatbereichs).
+export const VORLAGEN = [
+    { key: 'planer', label: 'Projektplaner', text: 'Wie MS Project: PSP-Spalte, Puffer, Stichtage, Fortschrittslinie, Arbeitstage, Wochenansicht' },
+    { key: 'management', label: 'Management-Übersicht', text: 'Kompakt: Balken nach Status, Fortschritt, Monatsansicht, ohne Planerspalten' },
+    { key: 'meilensteine', label: 'Meilenstein-Portfolio', text: 'Startet mit den Hauptmeilensteinen, Quartalsansicht', braucht: 'haupt' },
+    { key: 'ibcs', label: 'IBCS-Bericht', text: 'Monochrom nach IBCS, Plan vs. Ist mit Δ' },
+    { key: 'standard', label: 'Zurücksetzen', text: 'Alles, was die Vorlagen ändern, wieder auf die Vorgaben' }
+];
 const DEP_TYP = { EA: 'EA', AA: 'AA', EE: 'EE', AE: 'AE', FS: 'EA', SS: 'AA', FF: 'EE', SF: 'AE' };
 // MS-Project-Spalte "Vorgänger" zerlegen: "12;15EA+2T;7AA-1 Tag;3EE+50%".
 // Deutsche (EA/AA/EE/AE) und englische (FS/SS/FF/SF) Kürzel, Einheiten T/Tage/
@@ -265,6 +274,7 @@ export class GanttRenderer {
     ana = null;
     anaTasks = null;
     anaSig = '';
+    zyklen = 0;
     // Hierarchie aus dem PSP-Code, wenn keine Ebenen-Felder gebunden sind
     pspModus = false;
     pspName = new Map(); // Projekt\0Code → Vorgangsname
@@ -285,6 +295,7 @@ export class GanttRenderer {
     suchIdx = -1;
     springZiel = null; // nach dem nächsten Build dorthin scrollen
     menu = null;
+    lastOptZE = null; // Standard-Zeiteinheit: Wechsel passt neu ein
     lastItems = []; // Items des letzten Renders (für Koordinaten-Treffer)
     hasPlan = false; // mindestens ein Task mit Basisplan-Daten
     sbDrag = null; // aktiver Scrollbalken-Drag
@@ -1018,6 +1029,7 @@ export class GanttRenderer {
                 byName.set(kn, t);
         });
         let unaufgeloest = 0;
+        this.zyklen = 0;
         const links = new Map();
         tasks.forEach(t => {
             const refs = t.depRefs ? t.depRefs : t.deps.map((d) => ({ ref: d, istNr: false, typ: 'EA', lag: 0, roh: d }));
@@ -1076,7 +1088,7 @@ export class GanttRenderer {
                     return;
                 ueber.set(t.key, at ? Math.max(1, kal.differenz(ende, statusMs)) : Math.round((statusMs - ende) / DAY));
             });
-        this.ana = { kal, statusMs, links, krit, puffer, ueber, kritQuelle, pufferQuelle, ueberBestimmbar, unaufgeloest, nrGebunden };
+        this.ana = { kal, statusMs, links, krit, puffer, ueber, kritQuelle, pufferQuelle, ueberBestimmbar, unaufgeloest, nrGebunden, zyklen: this.zyklen };
         this.anaTasks = this.tasks;
         this.anaSig = sig;
         return this.ana;
@@ -1144,6 +1156,8 @@ export class GanttRenderer {
                         zustand.set(nu.key, 1);
                         stack.push({ t: nu, i: 0 });
                     }
+                    else if (zustand.get(nu.key) === 1)
+                        this.zyklen++; // Rückkante = Kreis
                 }
                 else {
                     zustand.set(top.t.key, 2);
@@ -1599,11 +1613,24 @@ export class GanttRenderer {
             this.landing.style.display = 'flex';
             this.landing.style.color = t.sub;
             this.landing.replaceChildren();
-            const head = el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:6px', 'DataKitchen Gantt');
-            const body = el('div', 'font-size:12.5px', 'Bitte mindestens „Task“ und „Start (Datum)“ befüllen. Für einen MS-Project-Plan zusätzlich „Ende“, „PSP-Code“, „Nr.“ und „Vorgänger“ — Hierarchie, Pfeile und kritischer Pfad entstehen dann von selbst.');
-            const wrap = el('div', '');
-            wrap.appendChild(head);
-            wrap.appendChild(body);
+            this.menuHost.style.display = 'none';
+            // Startseite = Einrichtung: welche Felder was freischalten, und warum
+            // gerade nichts zu sehen ist (z. B. alle Starttermine ungültig)
+            // Pflichtfelder gebunden, aber keine Zeilen: meist ein Filter — Leser
+            // sollen dann nicht zum Feldbereich geschickt werden
+            const r = this.rollen();
+            const gebunden = !!(r.task && r.start);
+            const wrap = el('div', 'text-align:left;max-width:520px');
+            wrap.appendChild(el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:4px', gebunden ? 'Keine Vorgänge' : 'DataKitchen Gantt'));
+            wrap.appendChild(el('div', 'font-size:12.5px;margin-bottom:12px', gebunden
+                ? 'Für die aktuelle Filterauswahl gibt es keine Vorgänge mit gültigem Start.'
+                : 'Felder in den Feldbereich ziehen — für einen MS-Project-Plan reichen Task, Start, Ende, PSP-Code, Nr. und Vorgänger.'));
+            if (!gebunden || this.einrichtungSichtbar())
+                wrap.appendChild(this.checklistenKnoten(t));
+            if (this.pruefPunkte().length) {
+                wrap.appendChild(el('div', 'font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:14px 0 7px', 'Warum nichts zu sehen ist'));
+                wrap.appendChild(this.pruefKnoten(t));
+            }
             this.landing.appendChild(wrap);
             return;
         }
@@ -1635,6 +1662,14 @@ export class GanttRenderer {
         this.tableWrap.style.width = tableW + 'px';
         this.tableWrap.style.borderRight = '1px solid ' + t.border;
         this.divider.style.background = this.twDrag ? t.sub : t.border;
+        // Wechselt die Standard-Zeiteinheit im Formatbereich (oder per Vorlage),
+        // soll man das sofort sehen — nicht erst nach dem nächsten Laden
+        const ze = o.zeiteinheit || 'auto';
+        if (this.lastOptZE !== ze) {
+            if (this.lastOptZE !== null)
+                this.fitted = false;
+            this.lastOptZE = ze;
+        }
         if (!this.fitted && this.chartArea.clientWidth > 0) {
             // Layout ist nach dem Anhängen synchron messbar → direkt einpassen
             this.fitted = true;
@@ -1778,6 +1813,20 @@ export class GanttRenderer {
         // ---- links: Gliederung. projKeys/phaseKeys enthalten sämtliche Knoten
         // jeder Tiefe, auch die in zugeklappten Teilbäumen.
         this.toolbarAlle.replaceChildren();
+        // Einrichtungshilfe: nur für Ersteller (Bearbeitungsmodus) — Leser sehen
+        // sie nie. Gestrichelt, damit sie nicht wie ein Teil des Berichts wirkt.
+        if (this.einrichtungSichtbar()) {
+            const warn = this.pruefPunkte().filter(p => p.stufe === 'warn').length;
+            const b = this.mkToolBtn(t, '✎ Einrichtung', 'Felder, Datenprüfung und Vorlagen — nur im Bearbeitungsmodus sichtbar', () => this.oeffneMenu('einrichtung', b), true, !!this.menu && this.menu.art === 'einrichtung');
+            b.style.borderStyle = 'dashed';
+            b.style.whiteSpace = 'nowrap';
+            b.style.position = 'relative';
+            b.setAttribute('data-menu', '1');
+            if (warn)
+                b.appendChild(el('span', 'position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;padding:0 4px;box-sizing:border-box;' +
+                    'background:' + KRIT_LIGHT + ';color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center', String(warn)));
+            this.toolbarAlle.appendChild(b);
+        }
         if (this.projKeys.length || this.phaseKeys.length) {
             const alleKeys = this.projKeys.concat(this.phaseKeys);
             const setzen = (zu) => {
@@ -1889,6 +1938,152 @@ export class GanttRenderer {
         this.springZiel = ts[0].key;
         this.invalidate();
     }
+    // ---------- Einrichtungshilfe (nur Ersteller) ----------
+    einrichtungSichtbar() {
+        const o = this.opts;
+        return !!o && o.bearbeiten === true && o.einrichtung !== false;
+    }
+    // Gebundene Rollen: vom Host (auch ohne gültige Zeilen), sonst aus den Daten
+    // abgeleitet (Testharness)
+    rollen() {
+        const d = this.opts && this.opts.diagnose;
+        if (d && Object.keys(d.rollen).length)
+            return d.rollen;
+        const ts = this.tasks;
+        return {
+            task: ts.length > 0, start: ts.length > 0, end: ts.some(t => t.e !== null),
+            psp: ts.some(t => !!t.psp), phase: this.ebenenFelder > 0, projekt: ts.some(t => !!t.projekt),
+            nr: ts.some(t => !!t.nr), deps: ts.some(t => t.deps.length > 0), progress: ts.some(t => t.pct !== null),
+            status: ts.some(t => !!t.st), owner: ts.some(t => !!t.ow),
+            statusDate: !!(this.opts && this.opts.statusDatum !== undefined && this.opts.statusDatum !== null),
+            planStart: ts.some(t => t.ps !== undefined && t.ps !== null), planEnd: ts.some(t => t.pe !== undefined && t.pe !== null),
+            kritisch: ts.some(t => t.kritisch !== undefined), puffer: ts.some(t => t.puffer !== undefined && t.puffer !== null),
+            stichtag: ts.some(t => t.stichtag !== undefined && t.stichtag !== null), hauptMs: this.hasHaupt,
+            farbeNach: ts.some(t => !!t.farbeWert), zusatz: ts.some(t => !!t.zusatz && t.zusatz.length > 0)
+        };
+    }
+    // Was fehlt, und was es freischalten würde — in der Sprache des Ergebnisses,
+    // nicht der Rollen: "Pfeile und kritischer Pfad", nicht "Rolle deps".
+    checkliste() {
+        const r = this.rollen();
+        const a = this.tasks.length ? this.analyse() : null;
+        const nrFehlt = !!a && a.unaufgeloest > 0 && !a.nrGebunden;
+        return [
+            { ok: !!r.task, pflicht: true, rolle: 'Task', nutzen: 'Vorgangsname' },
+            { ok: !!r.start, pflicht: true, rolle: 'Start (Datum)', nutzen: 'ohne Start keine Zeile' },
+            { ok: !!r.end, pflicht: false, rolle: 'Ende (Datum)', nutzen: 'Balken statt nur Rauten' },
+            { ok: !!(r.psp || r.phase), pflicht: false, rolle: 'PSP-Code oder Ebenen', nutzen: 'Gliederung mit Sammelvorgängen' },
+            { ok: !!r.deps && !nrFehlt, pflicht: false, rolle: nrFehlt ? 'Nr. (zu den Vorgängern)' : 'Vorgänger (+ Nr.)', nutzen: 'Pfeile, kritischer Pfad, Puffer' },
+            { ok: !!r.progress, pflicht: false, rolle: 'Fortschritt', nutzen: 'Fortschrittsbalken, überfällige Vorgänge, Fortschrittslinie' },
+            { ok: !!r.statusDate, pflicht: false, rolle: 'Statusdatum', nutzen: 'Berichtsstand statt „heute“' },
+            { ok: !!(r.planStart || r.planEnd), pflicht: false, rolle: 'Plan-Start / Plan-Ende', nutzen: 'Plan vs. Ist mit Verzug' }
+        ];
+    }
+    pruefPunkte() {
+        const out = [];
+        const d = this.opts && this.opts.diagnose;
+        const z = (n, ein, viele) => n + ' ' + (n === 1 ? ein : viele);
+        if (d) {
+            if (d.limitErreicht)
+                out.push({ stufe: 'warn', text: 'Datenlimit erreicht: Power BI liefert höchstens 30.000 Zeilen, der Plan ist unvollständig. Seite oder Visual filtern.' });
+            if (d.fortschrittAnzahl)
+                out.push({ stufe: 'warn', text: '„Fortschritt“ ist als Anzahl zusammengefasst (Textspalte?) und wird ignoriert — sonst stünde jeder Vorgang auf 100 %. Eine Zahlenspalte binden oder im Feldbereich „Summe“ wählen.' });
+            if (d.ohneStart)
+                out.push({ stufe: 'warn', text: z(d.ohneStart, 'Zeile', 'Zeilen') + ' ohne gültigen Start übersprungen.' });
+            if (d.nrDoppelt)
+                out.push({ stufe: 'warn', text: z(d.nrDoppelt, 'doppelte Nr.', 'doppelte Nr.') + ' — Vorgänger sind dort mehrdeutig.' });
+            if (d.pspDoppelt)
+                out.push({ stufe: 'warn', text: z(d.pspDoppelt, 'doppelter PSP-Code', 'doppelte PSP-Codes') + ' — die Gliederung ist dort mehrdeutig.' });
+            if (d.ohneName)
+                out.push({ stufe: 'info', text: z(d.ohneName, 'Zeile', 'Zeilen') + ' ohne Vorgangsnamen übersprungen.' });
+            if (d.endeVorStart)
+                out.push({ stufe: 'info', text: z(d.endeVorStart, 'Zeile', 'Zeilen') + ' mit Ende vor Start — Ende auf den Start gesetzt.' });
+            if (d.textDaten)
+                out.push({ stufe: 'info', text: 'Termine kommen als Text und wurden als TT.MM.JJJJ gelesen. Sicherer: im Modell den Datentyp „Datum“ setzen.' });
+        }
+        if (this.tasks.length) {
+            const a = this.analyse();
+            if (a.unaufgeloest)
+                out.push({ stufe: 'warn', text: a.nrGebunden
+                        ? z(a.unaufgeloest, 'Vorgänger', 'Vorgänger') + ' nicht gefunden — die Nr. fehlt im Plan oder liegt in einem anderen Projekt.'
+                        : 'Vorgänger sind Nummern, aber „Nr.“ ist nicht gebunden — Pfeile und kritischer Pfad fehlen.' });
+            if (a.zyklen)
+                out.push({ stufe: 'warn', text: z(a.zyklen, 'Kreisbezug', 'Kreisbezüge') + ' in den Vorgängern — im kritischen Pfad übersprungen.' });
+            // Kein Datenfehler, aber eine Frage, die Ersteller sonst lange suchen
+            if (this.tasks.length > 100)
+                out.push({ stufe: 'info', text: 'Mehr als 100 Vorgänge: Einzelfarben je Vorgang sind im Formatbereich ausgeblendet. Farben über Balken → Balkenfarbe nach steuern.' });
+        }
+        return out;
+    }
+    // Checkliste als DOM — Einrichtungspanel und Startseite ohne Daten teilen sie
+    checklistenKnoten(t) {
+        const box = el('div', 'display:grid;grid-template-columns:18px auto 1fr;gap:5px 8px;align-items:baseline;font-size:12px');
+        this.checkliste().forEach(c => {
+            box.appendChild(el('div', 'font-weight:700;color:' + (c.ok ? '#3E8651' : (c.pflicht ? KRIT_LIGHT : t.sub)), c.ok ? '✓' : (c.pflicht ? '!' : '○')));
+            box.appendChild(el('div', 'font-weight:600;white-space:nowrap;color:' + (c.ok ? t.text : (c.pflicht ? KRIT_LIGHT : t.text)), c.rolle));
+            box.appendChild(el('div', 'color:' + t.sub, c.nutzen + (c.pflicht ? ' · Pflicht' : '')));
+        });
+        return box;
+    }
+    pruefKnoten(t) {
+        const pp = this.pruefPunkte();
+        const box = el('div', 'display:grid;grid-template-columns:18px 1fr;gap:5px 8px;align-items:baseline;font-size:12px');
+        if (!pp.length) {
+            box.appendChild(el('div', 'font-weight:700;color:#3E8651', '✓'));
+            box.appendChild(el('div', 'color:' + t.sub, 'Keine Auffälligkeiten in den Daten.'));
+        }
+        pp.forEach(p => {
+            box.appendChild(el('div', 'font-weight:700;color:' + (p.stufe === 'warn' ? KRIT_LIGHT : t.sub), p.stufe === 'warn' ? '⚠' : 'ℹ'));
+            box.appendChild(el('div', 'color:' + (p.stufe === 'warn' ? t.text : t.sub) + ';line-height:1.35', p.text));
+        });
+        return box;
+    }
+    renderEinrichtung(t, x, y) {
+        const maxH = Math.max(180, this.root.clientHeight - y - 10);
+        // Breite am Visual messen — menuHost selbst hat keine Breite, ein
+        // prozentuales max-width würde das Panel auf wenige Pixel stauchen
+        const breite = Math.max(240, Math.min(440, this.root.clientWidth - x - 10));
+        const box = el('div', 'position:absolute;left:' + x + 'px;top:' + y + 'px;width:' + breite + 'px;max-height:' + maxH + 'px;overflow:auto;' +
+            'background:' + t.panel + ';color:' + t.text + ';border:1px solid ' + t.border + ';border-radius:12px;' +
+            'box-shadow:0 14px 36px rgba(0,0,0,0.2);padding:14px 16px;box-sizing:border-box;user-select:text');
+        const kopf = el('div', 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px');
+        kopf.appendChild(el('div', 'font-weight:700;font-size:14px', 'Einrichtung'));
+        const zu = el('div', 'cursor:pointer;color:' + t.sub + ';font-size:16px;padding:0 4px', '✕');
+        zu.addEventListener('mousedown', (e) => { if (e.button !== 0)
+            return; e.preventDefault(); this.menu = null; this.invalidate(); });
+        kopf.appendChild(zu);
+        box.appendChild(kopf);
+        const titel = (txt) => el('div', 'font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:' + t.sub + ';margin:12px 0 7px', txt);
+        box.appendChild(titel('Felder'));
+        box.appendChild(this.checklistenKnoten(t));
+        box.appendChild(el('div', 'font-size:11px;color:' + t.sub + ';margin-top:7px;line-height:1.35', 'Optional: Kritisch und Gesamte Pufferzeit (sonst berechnet), Stichtag, Projekt, Status, Wer, Hauptmeilenstein, Farbe nach, Zusatzspalten.'));
+        box.appendChild(titel('Datenprüfung'));
+        box.appendChild(this.pruefKnoten(t));
+        box.appendChild(titel('Vorlagen'));
+        const o = this.opts;
+        VORLAGEN.forEach(v => {
+            const geht = !!(o && o.onVorlage) && (v.braucht !== 'haupt' || this.hasHaupt);
+            const row = el('div', 'display:flex;flex-direction:column;gap:1px;padding:7px 10px;border-radius:8px;margin:0 -10px;' +
+                'cursor:' + (geht ? 'pointer' : 'default') + ';opacity:' + (geht ? 1 : 0.5));
+            row.appendChild(el('div', 'font-weight:600;font-size:12.5px', v.label));
+            row.appendChild(el('div', 'font-size:11px;color:' + t.sub, v.text + (geht || v.braucht !== 'haupt' ? '' : ' — braucht die Rolle „Hauptmeilenstein“')));
+            if (geht) {
+                row.addEventListener('mouseenter', () => { row.style.background = t.hoverBg; });
+                row.addEventListener('mouseleave', () => { row.style.background = 'transparent'; });
+                row.addEventListener('mousedown', (e) => {
+                    if (e.button !== 0)
+                        return;
+                    e.preventDefault();
+                    this.menu = null;
+                    o.onVorlage(v.key);
+                    this.invalidate();
+                });
+            }
+            box.appendChild(row);
+        });
+        box.appendChild(el('div', 'font-size:10.5px;color:' + t.sub + ';margin-top:12px;border-top:1px solid ' + t.grid + ';padding-top:8px', 'Nur im Bearbeitungsmodus sichtbar — Leser sehen diesen Knopf nicht. Abschaltbar unter Darstellung → Einrichtungshilfe.'));
+        this.menuHost.appendChild(box);
+    }
     // Menü-Overlay. Einträge reagieren auf mousedown (nicht click), weil ein
     // Render zwischen Drücken und Loslassen den Eintrag ersetzen kann.
     renderMenu(t) {
@@ -1899,6 +2094,10 @@ export class GanttRenderer {
             return;
         }
         this.menuHost.style.display = 'block';
+        if (mn.art === 'einrichtung') {
+            this.renderEinrichtung(t, mn.x, mn.y);
+            return;
+        }
         let eintraege;
         if (mn.art === 'ansicht') {
             eintraege = this.ansichtOptionen().map(x => ({

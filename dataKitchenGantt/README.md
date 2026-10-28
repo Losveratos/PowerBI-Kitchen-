@@ -25,6 +25,52 @@ ist optional: *Kritisch* und *Gesamte Pufferzeit* aus dem Export (sonst berechne
 das Visual beide), *Stichtag*, *Statusdatum*, Basisplan, Projekt, Status, Wer,
 bis zu drei *Zusatzspalten*.
 
+## Für Ersteller: Einrichtung ohne Suchen
+
+Im **Bearbeitungsmodus** steht ganz links in der Leiste ein gestrichelter Knopf
+**✎ Einrichtung** — Leser des veröffentlichten Berichts sehen ihn nie. Ein roter
+Zähler daran nennt die Zahl der Warnungen in den Daten. Das Panel hat drei Teile:
+
+- **Felder** — Checkliste der wichtigen Rollen, jeweils mit dem, was sie
+  freischalten („Vorgänger (+ Nr.) → Pfeile, kritischer Pfad, Puffer"). Sind die
+  Vorgänger Nummern, fehlt aber *Nr.*, steht genau das da.
+- **Datenprüfung** — was beim Einlesen aufgefallen ist: Datenlimit von 30.000
+  Zeilen erreicht · *Fortschritt* als „Anzahl" zusammengefasst (Textspalte — wird
+  ignoriert, statt jeden Vorgang auf 100 % zu setzen) · Zeilen ohne gültigen Start
+  oder ohne Namen übersprungen · Ende vor Start · doppelte Nr. / PSP-Codes ·
+  Vorgänger nicht gefunden · Kreisbezüge · Termine als Text gelesen.
+- **Vorlagen** — ein Klick setzt den Formatbereich passend:
+
+  | Vorlage | setzt |
+  | --- | --- |
+  | Projektplaner | wie MS Project: PSP-Spalte, Puffer, Stichtage, Fortschrittslinie, Arbeitstage, Wochenansicht |
+  | Management-Übersicht | Balken nach Status, Monatsansicht, ohne Planerspalten, Namen zweizeilig |
+  | Meilenstein-Portfolio | Start in der Hauptmeilenstein-Ansicht, Quartale (braucht die Rolle *Hauptmeilenstein*) |
+  | IBCS-Bericht | monochrom nach IBCS, Plan vs. Ist mit Δ |
+  | Zurücksetzen | alles, was die Vorlagen ändern, zurück auf die Vorgaben |
+
+  Vorlagen setzen nur Formatoptionen, nie Daten; danach lässt sich alles im
+  Formatbereich weiter anpassen.
+
+Ohne Felder zeigt das Visual dieselbe Checkliste als Startseite (der
+Formatbereich ist dann schon bedienbar) und darunter **„Warum nichts zu sehen
+ist"** (z. B. alle Starttermine ungültig). Sind die Felder gebunden, aber alle
+Zeilen weggefiltert, sehen Leser nur „Keine Vorgänge für die aktuelle
+Filterauswahl".
+Abschaltbar unter *Darstellung → Allgemein → Einrichtungshilfe*.
+
+**Termine als Text** werden verstanden: `06.03.2026`, `Fr 06.03.26`,
+`06.03.2026 08:00`, ISO (`2026-03-06`) und `3/6/2026` (US, außer die erste Zahl
+ist > 12). Sicherer bleibt der Datentyp *Datum* im Modell.
+
+**Formatbereich, der mitdenkt**: Karten in Gruppen, jede Option mit Erklärung
+beim Darüberfahren. Was die gebundenen Daten nicht hergeben, verschwindet oder ist
+ausgegraut — mit Grund („Braucht „Plan-Start" oder „Plan-Ende"."): Spaltenschalter
+ohne Daten, Kritischer-Pfad-Gruppe ohne Vorgänger/Kritisch/Puffer, Stichtag-Schalter
+ohne Stichtage, Basisplan ohne Plan-Termine. Tooltip und Basisplan haben einen
+Hauptschalter im Kartenkopf. Einzelfarben je Vorgang gibt es bis 100 Vorgänge,
+darüber über *Balken → Balkenfarbe nach*.
+
 ## Datenrollen
 
 | Rolle | Typ | Hinweise |
@@ -37,7 +83,7 @@ bis zu drei *Zusatzspalten*.
 | Vorgänger | Grouping | MS-Project-Spalte `12;15EA+2T;7AA-1 Tag;3EE+50%` — EA/AA/EE/AE (auch FS/SS/FF/SF), Zeitabstand in T, W (5 AT), Mo (20 AT), h, min, % der Vorgängerdauer. Nicht-numerische Einträge gelten als Vorgangsnamen (wie bis 1.18). Je Projekt aufgelöst |
 | Ebenen (Gruppierung) | Grouping | Alternative zum PSP-Code: **bis zu 5 Felder** als geschachtelte Klappebenen in Feldbrunnen-Reihenfolge. Hat Vorrang vor dem PSP-Code |
 | Projekt (oberste Ebene) | Grouping | Portfolio: klappbare Projektzeile über allem; trägt immer alle Meilensteine des Projekts |
-| Fortschritt | Measure | 0–1 oder 0–100, Skala wird erkannt |
+| Fortschritt | Measure | 0–1 oder 0–100, Skala wird erkannt. Als Summe/Durchschnitt binden — „Anzahl“ (Textspalte) wird erkannt und ignoriert |
 | Status | Grouping | „Fertig/In Arbeit/Blockiert/Offen" (auch EN) → farbige Pills |
 | Wer (Owner) | Grouping | |
 | Kritisch (Ja/Nein) | GroupingOrMeasure | aus MS Project. Hat Vorrang vor allem Berechneten |
@@ -127,18 +173,23 @@ Gliederung aus dem **PSP-Code** (ohne Ebenen-Felder) oder aus bis zu fünf
 
 ## Formatierungsbereich
 
-| Karte | Inhalt |
+Reihenfolge nach Häufigkeit der Nutzung; jede Karte hat „Auf Standard zurücksetzen".
+
+| Karte | Gruppen und Inhalt |
 | --- | --- |
-| **Darstellung** | Theme · **Startansicht** (Alle / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · Standard-Zeiteinheit · Einheit für Tage · Wochenenden · Pfeile · Status-/Heute-Linie · Tabellenbreite · Gruppennamen im Chart · Infozeile · IBCS |
-| **Terminplanung** | Kritischen Pfad hervorheben · Überfällige markieren · Puffer als Linie · Stichtage · Fortschrittslinie (aus) · **Dauer in Arbeitstagen** (aus) · **Feiertage** (`01.01.2026, 03.04.2026` — wirken auf Dauer, Δ, Puffer, kritischen Pfad und die Schattierung) |
+| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Alle / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
+| **Terminplanung** | *Kritischer Pfad*: hervorheben · Puffer als Linie — *Termine*: Überfällige markieren · Stichtage · Fortschrittslinie (aus) — *Kalender*: **Dauer in Arbeitstagen** (aus) · **Feiertage** (`01.01.2026, 03.04.2026` — wirken auf Dauer, Δ, Puffer, kritischen Pfad und die Schattierung) |
 | **Balken** | Balkenfarbe nach Zweig / Status / kritischem Pfad / Feld „Farbe nach" · Legende |
-| **Zeiteinheiten** | welche Zoomstufen die Leiste anbietet (alle aus = alle an) |
 | **Tabellenspalten** | PSP-Code · Start · Ende · Tage · Puffer · Stichtag · Status · Fortschritt · Wer · Zusatzspalten · **Lange Namen zweizeilig**. Spalten ohne Daten erscheinen nicht; bei Platzmangel weichen sie in fester Reihenfolge |
-| **Beschriftungen** | Überschrift der Namensspalte, Projekt und Phase/Ebene in Einzahl/Mehrzahl |
-| **Basisplan** | Plan-Balken · Δ-Spalte · Verzug-Zeilen rot |
+| **Basisplan** | Hauptschalter · Δ-Spalte · Verzug-Zeilen rot |
 | **Meilensteine** | auf zugeklappten Gruppen · Datum · Name · Beschriftung auf zugeklappten Zeilen · Ende = Start als Meilenstein |
-| **Tooltip** | ganz aus oder zeilenweise, inkl. „Kritisch, Puffer, Stichtag, überfällig" |
+| **Tooltip** | Hauptschalter, zeilenweise inkl. „Kritisch, Puffer, Stichtag, überfällig" |
+| **Beschriftungen** | Überschrift der Namensspalte, Projekt und Phase/Ebene in Einzahl/Mehrzahl |
+| **Zeiteinheiten** | welche Zoomstufen die Leiste anbietet (alle aus = alle an) |
 | **Schrift** | Schriftart und -größe (alle Maße skalieren mit) |
+
+Bestehende Berichte behalten alle Einstellungen — die Gruppen ändern nur die
+Anordnung, nicht die gespeicherten Eigenschaften.
 
 Die Option *Meilensteine → Nur Hauptmeilensteine* aus 1.16–1.18 ist in
 *Darstellung → Startansicht* aufgegangen; bestehende Berichte mit der alten

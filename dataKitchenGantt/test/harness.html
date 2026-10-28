@@ -89,6 +89,19 @@
       legende: params.get('legende') !== '0',
       namenZweizeilig: params.get('zweizeilig') === '1',
       zusatzKoepfe: MSP ? ['Gewerk', 'Kosten'] : undefined,
+      // ?edit=1 → Bericht im Bearbeitungsmodus (Einrichtungshilfe sichtbar), ?einr=0 schaltet sie ab.
+      bearbeiten: params.get('edit') === '1',
+      einrichtung: params.get('einr') !== '0',
+      // ?diag=text,anzahl,limit,lueckenhaft → simuliert Befunde aus dem Einlesen (visual.ts)
+      diagnose: params.has('diag') ? (() => {
+        const f = new Set(params.get('diag').split(','));
+        return { zeilen: DATA.length, ohneName: f.has('lueckenhaft') ? 2 : 0, ohneStart: f.has('lueckenhaft') ? 3 : 0,
+          endeVorStart: f.has('lueckenhaft') ? 1 : 0, textDaten: f.has('text') ? DATA.length : 0, limitErreicht: f.has('limit'),
+          fortschrittAnzahl: f.has('anzahl'), pspDoppelt: 0, nrDoppelt: 0,
+          // gefiltert = Task und Start gebunden, aber keine Zeile übrig
+          rollen: f.has('gefiltert') ? { task: true, start: true, end: true } : {} };
+      })() : undefined,
+      onVorlage: (key) => { window.__vorlage = key; log.textContent = 'vorlage: ' + key; },
       selectedKeys: selected.size ? new Set(selected) : null,
       interactionsAllowed: true,
       onSelect: (task, ev) => {
@@ -199,6 +212,8 @@
         ...TASKS.map(t => clone(t, 'B:', 'Speicher Gladbeck', shift))
       ];
     }
+    // ?leer=1 → keine Daten (Startseite mit Checkliste)
+    if (params.get('leer') === '1') DATA = [];
     r.setData(DATA);
     r.setOptions(opts());
     window.__gantt = r; // für Debug-Zugriff

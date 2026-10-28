@@ -14,8 +14,8 @@ import ISelectionId = powerbi.visuals.ISelectionId;
 import DataView = powerbi.DataView;
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 
-import { VisualFormattingSettingsModel } from "./settings";
-import { GanttRenderer, GanttTask, computeTaskColors, parseVorgaenger } from "./gantt";
+import { VisualFormattingSettingsModel, DatenLage } from "./settings";
+import { GanttRenderer, GanttTask, Diagnose, computeTaskColors, parseVorgaenger } from "./gantt";
 
 // ============================================================
 // DataKitchen Gantt — Power-BI-Anbindung.
@@ -32,6 +32,33 @@ interface TaskWithId extends GanttTask {
     selectionId: ISelectionId;
 }
 
+// Text-Termine ausdrücklich lesen. new Date("06.03.2026") deutet Monat und Tag
+// US-amerikanisch und liefert den 3. JUNI — bei deutschen Exporten ein stiller
+// Fehler im ganzen Plan. MS Project schreibt Termine zudem als "Mo 06.03.26 08:00".
+function textDatum(raw: string): number | null {
+    const t = raw.trim().replace(/^[A-Za-zÄÖÜäöü]{2,3}\.?,?\s+/, '');   // Wochentag vorn
+    const gueltig = (y: number, mo: number, d: number): number | null => {
+        if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+        const ms = Date.UTC(y, mo - 1, d);
+        return new Date(ms).getUTCDate() === d ? ms : null;   // 31.02. o. ä. verwerfen
+    };
+    let m = /^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})(?!\d)/.exec(t);
+    if (m) return gueltig(m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]), Number(m[2]), Number(m[1]));
+    m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(t);
+    if (m) return gueltig(Number(m[1]), Number(m[2]), Number(m[3]));
+    // Schrägstrich: US-Reihenfolge, außer die erste Zahl kann kein Monat sein
+    m = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})(?!\d)/.exec(t);
+    if (m) {
+        const y = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+        const a = Number(m[1]), b = Number(m[2]);
+        return a > 12 ? gueltig(y, b, a) : gueltig(y, a, b);
+    }
+    const d = new Date(t);
+    return isNaN(d.getTime()) ? null : Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+let textDatumZaehler = 0;   // je parseData zurückgesetzt; für die Datenprüfung
+
 function toUtcMs(v: unknown): number | null {
     if (v === null || v === undefined || v === '') return null;
     if (v instanceof Date) {
@@ -44,11 +71,19 @@ function toUtcMs(v: unknown): number | null {
         return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
     }
     if (typeof v === 'string') {
-        const d = new Date(v);
-        if (isNaN(d.getTime())) return null;
-        return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+        const ms = textDatum(v);
+        if (ms !== null) textDatumZaehler++;
+        return ms;
     }
     return null;
+}
+
+// Fortschritt kommt gelegentlich als Text ("70 %", "0,7") — z. B. aus FORMAT()-Measures
+function fortschrittWert(v: unknown): { n: number; prozent: boolean } | null {
+    if (typeof v === 'number') return isFinite(v) ? { n: v, prozent: false } : null;
+    if (typeof v !== 'string') return null;
+    const m = /^\s*(-?\d+(?:[.,]\d+)?)\s*(%?)/.exec(v);
+    return m ? { n: parseFloat(m[1].replace(',', '.')), prozent: m[2] === '%' } : null;
 }
 
 // „Hauptmeilenstein" tolerant auslegen: die Rolle wird in der Praxis mit allem
@@ -102,8 +137,50 @@ function pspVergleich(a: string, b: string): number {
     return pa.length - pb.length;
 }
 
-function parseData(dataView: DataView | undefined, host: IVisualHost, koepfe: string[]): TaskWithId[] {
+// ---------- Vorlagen der Einrichtungshilfe ----------
+// Jede Vorlage setzt den VOLLEN Satz der Einstellungen, die irgendeine Vorlage
+// berührt — sonst hinge das Ergebnis davon ab, welche Vorlage vorher dran war.
+type Eigenschaften = Record<string, Record<string, powerbi.DataViewPropertyValue>>;
+const VORLAGE_BASIS: Eigenschaften = {
+    darstellung: { startAnsicht: 'alle', zeiteinheit: 'auto', ibcs: false, gruppenNamen: true, wochenenden: true, heuteLinie: true, abhaengigkeiten: true },
+    terminplanung: { kritischHervorheben: true, ueberfaelligMarkieren: true, pufferAnzeigen: true, stichtageAnzeigen: true, fortschrittslinie: false, arbeitstage: false },
+    balken: { farbeNach: 'zweig', legende: true },
+    spalten: { psp: true, start: true, ende: true, tage: true, puffer: true, stichtag: true, status: true, fortschritt: true, wer: true, zusatz: true, zweizeilig: false },
+    basisplan: { anzeigen: true, deltaSpalte: true, verzugZeilen: true }
+};
+const VORLAGE_ABWEICHUNG: Record<string, Eigenschaften> = {
+    standard: {},
+    planer: { darstellung: { zeiteinheit: 'Wochen' }, terminplanung: { fortschrittslinie: true, arbeitstage: true } },
+    management: {
+        darstellung: { zeiteinheit: 'Monate' }, balken: { farbeNach: 'status' }, terminplanung: { pufferAnzeigen: false },
+        spalten: { psp: false, tage: false, puffer: false, stichtag: false, wer: false, zusatz: false, zweizeilig: true }
+    },
+    meilensteine: { darstellung: { startAnsicht: 'haupt', zeiteinheit: 'Quartale' } },
+    ibcs: { darstellung: { ibcs: true } }
+};
+
+export function vorlage(key: string): powerbi.VisualObjectInstancesToPersist {
+    const ab = VORLAGE_ABWEICHUNG[key] || {};
+    return {
+        merge: Object.keys(VORLAGE_BASIS).map(obj => ({
+            objectName: obj,
+            selector: undefined as unknown as powerbi.data.Selector,
+            properties: { ...VORLAGE_BASIS[obj], ...(ab[obj] || {}) }
+        }))
+    };
+}
+
+export function leereDiagnose(): Diagnose {
+    return { zeilen: 0, ohneName: 0, ohneStart: 0, endeVorStart: 0, textDaten: 0, limitErreicht: false, fortschrittAnzahl: false, pspDoppelt: 0, nrDoppelt: 0, rollen: {} };
+}
+
+function parseData(dataView: DataView | undefined, host: IVisualHost, koepfe: string[], diag: Diagnose): TaskWithId[] {
     const cat = dataView && dataView.categorical;
+    textDatumZaehler = 0;
+    // gebundene Rollen — auch ohne gültige Zeilen, damit die Einrichtungshilfe
+    // sagen kann, was fehlt
+    const meta = dataView && dataView.metadata && dataView.metadata.columns ? dataView.metadata.columns : [];
+    meta.forEach(c => { if (c.roles) Object.keys(c.roles).forEach(r => { if (c.roles && c.roles[r]) diag.rollen[r] = true; }); });
     if (!cat || !cat.categories || !cat.categories.length) return [];
 
     const byRole = (role: string): DataViewCategoryColumn | undefined =>
@@ -164,27 +241,41 @@ function parseData(dataView: DataView | undefined, host: IVisualHost, koepfe: st
     zusatz.splice(3);
     koepfe.length = 0;
     zusatz.forEach(z => koepfe.push(z.name));
-    const progCol = cat.values && cat.values.find(v => v.source.roles && v.source.roles['progress']);
+    let progCol = cat.values && cat.values.find(v => v.source.roles && v.source.roles['progress']);
+    // Eine Textspalte in der Measure-Rolle fasst Power BI als ANZAHL zusammen —
+    // jede Zeile hätte dann "1" und wäre als 100 % erledigt. Lieber gar nichts
+    // zeigen und in der Einrichtungshilfe sagen, woran es liegt.
+    if (progCol) {
+        const qn = String(progCol.source.queryName || '');
+        if (/^(Count|CountNonNull|DistinctCount)\(/i.test(qn) || /^(Anzahl|Count of)\b/i.test(progCol.source.displayName || '')) {
+            diag.fortschrittAnzahl = true;
+            progCol = undefined;
+        }
+    }
 
     // Fortschritts-Skala erkennen: alles ≤ 1 → als Anteil interpretieren
     let pctScale = 1;
     if (progCol) {
-        const nums = (progCol.values as unknown[]).filter(v => typeof v === 'number' && isFinite(v as number)) as number[];
-        if (nums.length && Math.max(...nums.map(Math.abs)) <= 1) pctScale = 100;
+        const nums = (progCol.values as unknown[]).map(fortschrittWert).filter(x => x !== null && !x.prozent).map(x => (x as { n: number }).n);
+        if (nums.length && nums.reduce((a, v) => Math.max(a, Math.abs(v)), 0) <= 1) pctScale = 100;
     }
 
     const tasks: TaskWithId[] = [];
     const sortKeys: unknown[] = [];
     const usedKeys = new Set<string>();
     const n = taskCol.values.length;
+    diag.zeilen = n;
+    // Power BI kürzt bei der Datenreduktion still: genau am Limit oder mit
+    // weiterem Segment ist der Plan unvollständig
+    diag.limitErreicht = n >= 30000 || !!(dataView && dataView.metadata && dataView.metadata.segment);
     for (let i = 0; i < n; i++) {
         const rawName = taskCol.values[i];
         const name = rawName === null || rawName === undefined ? '' : String(rawName).trim();
-        if (!name) continue;
+        if (!name) { diag.ohneName++; continue; }
         const s = toUtcMs(startCol.values[i]);
-        if (s === null) continue;
+        if (s === null) { diag.ohneStart++; continue; }
         let e = endCol ? toUtcMs(endCol.values[i]) : null;
-        if (e !== null && e < s) e = s;
+        if (e !== null && e < s) { e = s; diag.endeVorStart++; }
 
         // Basisplan: Plan-Ende ohne Plan-Start erbt den Plan-Start vom Ist-Start,
         // damit auch "nur Plan-Ende gebunden" ein sinnvolles Delta liefert
@@ -195,10 +286,8 @@ function parseData(dataView: DataView | undefined, host: IVisualHost, koepfe: st
 
         let pct: number | null = null;
         if (progCol) {
-            const raw = progCol.values[i];
-            if (typeof raw === 'number' && isFinite(raw)) {
-                pct = Math.round(Math.max(0, Math.min(100, raw * pctScale)));
-            }
+            const fw = fortschrittWert(progCol.values[i]);
+            if (fw) pct = Math.round(Math.max(0, Math.min(100, fw.prozent ? fw.n : fw.n * pctScale)));
         }
 
         // Ebenen-Pfad: leere Stufen werden verdichtet, damit ein Zweig, der
@@ -262,6 +351,22 @@ function parseData(dataView: DataView | undefined, host: IVisualHost, koepfe: st
         sortKeys.push(sortVals ? sortVals[i] : null);
     }
 
+    diag.textDaten = textDatumZaehler;
+    // Doppelte Nr./PSP-Codes je Projekt: Vorgänger und Gliederung wären mehrdeutig
+    const zaehle = (f: (t: TaskWithId) => string | null | undefined): number => {
+        const seen = new Set<string>();
+        let d = 0;
+        tasks.forEach(t => {
+            const v = f(t);
+            if (!v) return;
+            const k = (t.projekt || '') + '\u0000' + v;
+            if (seen.has(k)) d++; else seen.add(k);
+        });
+        return d;
+    };
+    diag.nrDoppelt = zaehle(t => t.nr);
+    diag.pspDoppelt = zaehle(t => t.psp);
+
     // Optionale Sortier-Rolle (z. B. MS-Project-Zeilenreihenfolge): stabil
     // aufsteigend sortieren; numerisch wenn möglich, sonst als Text
     if (sortVals) {
@@ -308,6 +413,8 @@ function parseStatusDate(dataView: DataView | undefined): number | null {
     return null;
 }
 
+const MAX_TASK_FARBEN = 100;
+
 export class Visual implements IVisual {
     private host: IVisualHost;
     private events: IVisualEventService;
@@ -318,6 +425,8 @@ export class Visual implements IVisual {
     private data: TaskWithId[] = [];
     private statusDatum: number | null = null;
     private zusatzKoepfe: string[] = [];
+    private diag: Diagnose = leereDiagnose();
+    private bearbeiten = false;
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -376,6 +485,10 @@ export class Visual implements IVisual {
             feiertage: pl.feiertage.value,
             farbeNach: String(bk.farbeNach.value.value),
             legende: bk.legende.value,
+            bearbeiten: this.bearbeiten,
+            einrichtung: d.einrichtung.value,
+            diagnose: this.diag,
+            onVorlage: (key) => { this.host.persistProperties(vorlage(key)); },
             gruppenNamen: d.gruppenNamen.value,
             texte: {
                 spalteTask: bs.spalteTask.value, projekt1: bs.projekt1.value, projektN: bs.projektN.value,
@@ -446,7 +559,10 @@ export class Visual implements IVisual {
             const dataView = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
 
-            this.data = parseData(dataView, this.host, this.zusatzKoepfe);
+            // Einrichtungshilfe nur für Ersteller: Bearbeitungs- bzw. Fokus-Bearbeitungsmodus
+            this.bearbeiten = options.viewMode === powerbi.ViewMode.Edit || options.viewMode === powerbi.ViewMode.InFocusEdit;
+            this.diag = leereDiagnose();
+            this.data = parseData(dataView, this.host, this.zusatzKoepfe, this.diag);
             this.statusDatum = parseStatusDate(dataView);
             this.renderer.setData(this.data);
             this.pushOptions();
@@ -462,14 +578,37 @@ export class Visual implements IVisual {
         this.renderer.destroy();
     }
 
+    // Was die gebundenen Daten hergeben — der Formatbereich blendet aus bzw.
+    // graut aus, was mangels Daten nichts bewirken würde
+    private datenLage(): DatenLage {
+        const ts = this.data;
+        const r = this.diag.rollen;
+        return {
+            plan: ts.some(t => (t.ps !== undefined && t.ps !== null) || (t.pe !== undefined && t.pe !== null)),
+            psp: ts.some(t => !!t.psp),
+            puffer: !!(r.puffer || r.deps || r.kritisch),
+            stichtag: ts.some(t => t.stichtag !== undefined && t.stichtag !== null),
+            zusatz: this.zusatzKoepfe.length > 0,
+            status: ts.some(t => !!t.st),
+            pct: ts.some(t => t.pct !== null),
+            owner: ts.some(t => !!t.ow),
+            krit: !!(r.deps || r.kritisch || r.puffer),
+            feld: ts.some(t => !!t.farbeWert),
+            ende: !!r.end
+        };
+    }
+
     public getFormattingModel(): powerbi.visuals.FormattingModel {
+        this.formattingSettings.anpassen(this.datenLage());
         const model = this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
 
         // Per-Task-Farbwähler: dynamisch erzeugt, da die Anzahl der Zeilen
         // erst zur Laufzeit bekannt ist (kein statisches FormattingSettingsCard
         // möglich). Vorbelegung mit der Phasen-Palette, damit die Swatches im
         // Formatbereich schon vor einer manuellen Auswahl zur Grafik passen.
-        if (this.data.length) {
+        // Bei großen Plänen wäre das eine Liste mit tausenden Farbwählern — im
+        // Formatbereich unbedienbar und langsam. Dafür gibt es "Balkenfarbe nach".
+        if (this.data.length && this.data.length <= MAX_TASK_FARBEN) {
             const dark = String(this.formattingSettings.darstellungCard.theme.value.value) === 'dunkel';
             const defaults = computeTaskColors(this.data, dark);
             model.cards.push({

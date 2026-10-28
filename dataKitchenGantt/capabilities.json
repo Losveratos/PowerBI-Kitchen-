@@ -5,109 +5,129 @@
     },
     "dataRoles": [
         {
-            "displayName": "Task",
+            "displayName": "Task (Vorgangsname)",
             "name": "task",
-            "kind": "Grouping"
+            "kind": "Grouping",
+            "description": "Pflicht. Name des Vorgangs."
         },
         {
             "displayName": "Start (Datum)",
             "name": "start",
-            "kind": "Grouping"
+            "kind": "Grouping",
+            "description": "Pflicht. Zeilen ohne gültigen Start werden übersprungen. Text wie „06.03.2026“ oder „Mo 06.03.26“ wird gelesen."
         },
         {
-            "displayName": "Ende (Datum, leer = Meilenstein)",
+            "displayName": "Ende (Datum)",
             "name": "end",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Ebenen (Gruppierung, mehrere möglich)",
-            "name": "phase",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Projekt (oberste Ebene, Portfolio)",
-            "name": "projekt",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Fortschritt (0–1 oder 0–100)",
-            "name": "progress",
-            "kind": "Measure"
-        },
-        {
-            "displayName": "Status",
-            "name": "status",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Wer (Owner)",
-            "name": "owner",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Vorgänger (Nr. oder Name, z. B. 12EA+2T)",
-            "name": "deps",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Plan-Start (Basisplan)",
-            "name": "planStart",
-            "kind": "GroupingOrMeasure"
-        },
-        {
-            "displayName": "Plan-Ende (Basisplan)",
-            "name": "planEnd",
-            "kind": "GroupingOrMeasure"
-        },
-        {
-            "displayName": "Sortierung (optional)",
-            "name": "sort",
-            "kind": "GroupingOrMeasure"
-        },
-        {
-            "displayName": "Statusdatum (rote Linie)",
-            "name": "statusDate",
-            "kind": "GroupingOrMeasure"
-        },
-        {
-            "displayName": "Hauptmeilenstein (Ja/Nein)",
-            "name": "hauptMs",
-            "kind": "GroupingOrMeasure"
-        },
-        {
-            "displayName": "Nr. (Vorgangs-ID für Vorgänger)",
-            "name": "nr",
-            "kind": "Grouping"
+            "kind": "Grouping",
+            "description": "Leer = Meilenstein (Raute). Ohne Ende gibt es nur Rauten."
         },
         {
             "displayName": "PSP-Code (z. B. 2.1.3)",
             "name": "psp",
+            "kind": "Grouping",
+            "description": "Baut die Gliederung wie in MS Project: 2.1.3 hängt unter 2 und 2.1. Vorgänge mit Kindern werden zu Gruppen."
+        },
+        {
+            "displayName": "Ebenen (Gruppierung, mehrere möglich)",
+            "name": "phase",
+            "kind": "Grouping",
+            "description": "Alternative zum PSP-Code: bis zu 5 Felder als geschachtelte Klappebenen. Hat Vorrang vor dem PSP-Code."
+        },
+        {
+            "displayName": "Projekt (oberste Ebene)",
+            "name": "projekt",
+            "kind": "Grouping",
+            "description": "Für Portfolios: eine klappbare Zeile je Projekt über allem."
+        },
+        {
+            "displayName": "Nr. (Vorgangs-ID)",
+            "name": "nr",
+            "kind": "Grouping",
+            "description": "MS-Project-Nr. Bezug für „Vorgänger“ und Reihenfolge des Plans."
+        },
+        {
+            "displayName": "Vorgänger (z. B. 12EA+2T)",
+            "name": "deps",
+            "kind": "Grouping",
+            "description": "MS-Project-Spalte „Vorgänger“: Nummern mit EA/AA/EE/AE und Zeitabstand, oder Vorgangsnamen. Ergibt Pfeile, kritischen Pfad und Puffer."
+        },
+        {
+            "displayName": "Fortschritt (0–1 oder 0–100)",
+            "name": "progress",
+            "kind": "Measure",
+            "description": "% abgeschlossen. Skala wird erkannt. Eine Zahlenspalte binden — als „Anzahl“ zusammengefasst wird sie ignoriert."
+        },
+        {
+            "displayName": "Status",
+            "name": "status",
+            "kind": "Grouping",
+            "description": "Fertig / In Arbeit / Blockiert / Offen (auch englisch)."
+        },
+        {
+            "displayName": "Wer (Verantwortlich)",
+            "name": "owner",
             "kind": "Grouping"
+        },
+        {
+            "displayName": "Statusdatum (Berichtsstand)",
+            "name": "statusDate",
+            "kind": "GroupingOrMeasure",
+            "description": "Rote Linie und Bezug für „überfällig“ und die Fortschrittslinie. Ohne Statusdatum gilt heute."
+        },
+        {
+            "displayName": "Plan-Start (Basisplan)",
+            "name": "planStart",
+            "kind": "GroupingOrMeasure",
+            "description": "Plan vs. Ist: Plan als Rahmen unter dem Ist-Balken."
+        },
+        {
+            "displayName": "Plan-Ende (Basisplan)",
+            "name": "planEnd",
+            "kind": "GroupingOrMeasure",
+            "description": "Δ = Ist-Ende − Plan-Ende. Ohne Plan-Start gilt der Ist-Start."
         },
         {
             "displayName": "Kritisch (Ja/Nein)",
             "name": "kritisch",
-            "kind": "GroupingOrMeasure"
+            "kind": "GroupingOrMeasure",
+            "description": "Aus MS Project. Ohne dieses Feld berechnet das Visual den kritischen Pfad selbst."
         },
         {
             "displayName": "Gesamte Pufferzeit (Tage)",
             "name": "puffer",
-            "kind": "GroupingOrMeasure"
+            "kind": "GroupingOrMeasure",
+            "description": "Aus MS Project, in Arbeitstagen oder als Text wie „3 Tage“. Sonst berechnet."
         },
         {
             "displayName": "Stichtag (Deadline)",
             "name": "stichtag",
-            "kind": "GroupingOrMeasure"
+            "kind": "GroupingOrMeasure",
+            "description": "Marker im Chart: grün eingehalten, rot überschritten."
+        },
+        {
+            "displayName": "Hauptmeilenstein (Ja/Nein)",
+            "name": "hauptMs",
+            "kind": "GroupingOrMeasure",
+            "description": "Für die Ansicht „Nur Hauptmeilensteine“."
         },
         {
             "displayName": "Farbe nach (Kategorie)",
             "name": "farbeNach",
-            "kind": "Grouping"
+            "kind": "Grouping",
+            "description": "Z. B. Gewerk oder Ampel. Wirkt mit Balken → Balkenfarbe nach: Feld."
         },
         {
             "displayName": "Zusatzspalten (bis zu 3)",
             "name": "zusatz",
-            "kind": "GroupingOrMeasure"
+            "kind": "GroupingOrMeasure",
+            "description": "Erscheinen als Tabellenspalten mit dem Feldnamen als Kopf."
+        },
+        {
+            "displayName": "Sortierung",
+            "name": "sort",
+            "kind": "GroupingOrMeasure",
+            "description": "Feste Reihenfolge; schlägt Nr. und PSP-Code."
         }
     ],
     "objects": {
@@ -130,7 +150,7 @@
                     }
                 },
                 "wochenenden": {
-                    "displayName": "Wochenenden schattieren",
+                    "displayName": "Wochenenden und Feiertage schattieren",
                     "type": {
                         "bool": true
                     }
@@ -245,6 +265,12 @@
                                 "displayName": "Nur überfällige"
                             }
                         ]
+                    }
+                },
+                "einrichtung": {
+                    "displayName": "Einrichtungshilfe",
+                    "type": {
+                        "bool": true
                     }
                 }
             }
@@ -886,5 +912,7 @@
             }
         }
     ],
+    "supportsLandingPage": true,
+    "supportsEmptyDataView": true,
     "privileges": []
 }
