@@ -307,6 +307,31 @@
                         "bool": true
                     }
                 },
+                "viewTable": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "viewBars": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "viewWaterfall": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "viewTree": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "viewSankey": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "showPresets": {
                     "type": {
                         "bool": true

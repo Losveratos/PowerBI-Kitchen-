@@ -30,6 +30,7 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 | F9 | Skalierung Auto/k/m, Dezimalstellen, 3-zeiliger IBCS-Titelblock mit optionaler Message-Zeile |
 | F11 | Selektion & Cross-Filtering: Linksklick auf eine Wertspalte (bzw. den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inkl. aller Quellzeilen eines Kontos; Subtotals und Formelzeilen selektieren die Blätter darunter |
 | F12 | Natives Kontextmenü per Rechtsklick auf jede Zeile und jede Karte — Power BI hängt die **Drillthrough-Ziele** der Seite selbst ein; in der Kachel-Ansicht erledigt der Knopf „↗ Drill“ Selektion und Menü in einem Griff. Abschaltbar über Stil → „Selektion & Kontextmenü aktiv“ |
+| F13 | Sankey-Fluss-Ansicht (0.18): Umsatz-Komponenten fließen links in den Umsatz, der Gewinn-Strang läuft nach rechts bis zum Ergebnis, Kosten zweigen als rote Bänder in eigene Endknoten ab; Band- und Balkenhöhe ∝ periodengerechtem AC, Labels mit Wert und % vom Umsatz, Klick öffnet den Kachel-Zoom. Bewusst **außerhalb der IBCS-Notation** (Footer sagt es). Welche der fünf Ansichten Leser angeboten bekommen, legt der Autor unter Toolbar → „Ansicht: … anbieten“ fest |
 
 IBCS-Notation: AC solide `#404040`, PY grau, PL weiß mit Rahmen, FC schraffiert;
 Abweichungen grün `#8CB400` / rot `#FF2600`, Labels außerhalb mit explizitem `+`;

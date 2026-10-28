@@ -73,6 +73,22 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     });
 
     showView = new formattingSettings.ToggleSwitch({ name: "showView", displayName: "Group: view", value: true });
+    /**
+     * Which views the readers are offered (v0.18). A view switched off loses
+     * its toolbar button; a persisted state or bookmark that still names it
+     * falls back to the first offered view on screen without being rewritten.
+     * One view left ⇒ the view group disappears (nothing to choose).
+     */
+    viewTable = new formattingSettings.ToggleSwitch({
+        name: "viewTable", displayName: "View: offer table", displayNameKey: "Toolbar_ViewTable", value: true });
+    viewBars = new formattingSettings.ToggleSwitch({
+        name: "viewBars", displayName: "View: offer bars", displayNameKey: "Toolbar_ViewBars", value: true });
+    viewWaterfall = new formattingSettings.ToggleSwitch({
+        name: "viewWaterfall", displayName: "View: offer waterfall", displayNameKey: "Toolbar_ViewWaterfall", value: true });
+    viewTree = new formattingSettings.ToggleSwitch({
+        name: "viewTree", displayName: "View: offer driver tree", displayNameKey: "Toolbar_ViewTree", value: true });
+    viewSankey = new formattingSettings.ToggleSwitch({
+        name: "viewSankey", displayName: "View: offer Sankey", displayNameKey: "Toolbar_ViewSankey", value: true });
     showPresets = new formattingSettings.ToggleSwitch({ name: "showPresets", displayName: "Group: column presets", value: true });
     showReference = new formattingSettings.ToggleSwitch({ name: "showReference", displayName: "Group: Δ reference", value: true });
     showPeriods = new formattingSettings.ToggleSwitch({ name: "showPeriods", displayName: "Group: periods (MTD/YTD/FY)", value: true });
@@ -84,7 +100,9 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     name: string = "toolbar";
     displayName: string = "Toolbar";
     displayNameKey: string = "Card_Toolbar";
-    slices = [this.show, this.showLegend, this.showView, this.showPresets, this.showReference,
+    slices = [this.show, this.showLegend, this.showView,
+        this.viewTable, this.viewBars, this.viewWaterfall, this.viewTree, this.viewSankey,
+        this.showPresets, this.showReference,
         this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions];
 }
 

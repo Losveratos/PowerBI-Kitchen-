@@ -127,6 +127,20 @@ const TREE_HEAD_GAP = 10;
  * many diamond references or a deep account hierarchy must stay bounded.
  */
 const TREE_MAX_CARDS = 400;
+/**
+ * Sankey flow view (px at font scale 1): node bar width, the smallest bar a
+ * node ever gets (null / zero / tiny values stay visible and clickable), the
+ * vertical air between two stacked nodes, and the column pitch limits.
+ */
+const SANKEY_BAR_W = 12;
+const SANKEY_MIN_H = 6;
+const SANKEY_GAP = 8;
+const SANKEY_COL_MIN = 72;
+const SANKEY_COL_MAX = 260;
+/** a band is tinted this far towards white — the node bar keeps the full colour */
+const SANKEY_TINT = 0.5;
+/** relaxation sweeps that straighten the ribbons (d3-sankey style) */
+const SANKEY_RELAX = 6;
 /** Scenario-triangle size (px at font scale 1) — IBCS UN 4.1. */
 const TREE_TRI = 5.5;
 /**
@@ -177,7 +191,9 @@ const FIT_LABEL_MIN = 0.78;
 /** measure-and-correct rounds the fit solver is allowed (it converges in 1–2). */
 const FIT_PASSES = 3;
 
-type ViewMode = "table" | "bars" | "waterfall" | "tree";
+type ViewMode = "table" | "bars" | "waterfall" | "tree" | "sankey";
+/** every view in toolbar order — also the fallback order of a switched-off view */
+const VIEW_ORDER: ViewMode[] = ["table", "bars", "waterfall", "tree", "sankey"];
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall";
 type Unit = "auto" | "none" | "k" | "m";
 type Density = "normal" | "compact";
@@ -264,6 +280,51 @@ interface TreeCtx {
     kidsOf: Map<string, string[]>;
     /** breadcrumb from the home root down to the picked root */
     path: PnlNode[];
+}
+
+/**
+ * One node of the Sankey flow (v0.18). The flow is laid out over the pruned
+ * driver-tree cards: a node either feeds its parent from the left ("in" — the
+ * income and profit strand) or leaves it as an outflow to the right ("out" —
+ * the cost side, decomposed further to the right into its own end nodes).
+ */
+interface SkNode {
+    i: number;
+    card: TreeCard;
+    node: PnlNode;
+    /** signed period-matched AC (computed orientation: costs negative) */
+    v: number;
+    /** AC as the table shows it (display orientation), null = no value */
+    d: number | null;
+    col: number;
+    role: "in" | "out";
+    fam: "gray" | "good" | "bad";
+    /** belongs to the cost side (an outflow or anything hanging below one) */
+    costSide: boolean;
+    /** reading-order index of the strand node that spawned this cost side (vertical order) */
+    anchor: number;
+    dfs: number;
+    h: number;
+    y: number;
+    x: number;
+    label: boolean;
+    /** label placement: left of the bar, right of it, or centred above it */
+    side: "left" | "right" | "top";
+    parent: SkNode | null;
+}
+
+/** One ribbon: a share of a node's port flowing into a share of another node's port. */
+interface SkBand {
+    src: SkNode | null;
+    tgt: SkNode | null;
+    /** offsets on the source out-port / target in-port (value units) */
+    so: number;
+    to: number;
+    /** thickness in value units (|flow|) */
+    t: number;
+    fam: "gray" | "good" | "bad";
+    /** owner of the matching that produced it (rest bands hang on it) */
+    owner: SkNode;
 }
 
 /**
@@ -402,6 +463,12 @@ export class Visual implements IVisual {
     private locale = "en-US";
 
     private ui: UiState | null = null;
+    /**
+     * The view this render really draws: ui.view, unless the author switched
+     * that view off in the format pane — then the first offered one. A pure
+     * display fallback: ui.view itself (and the persisted state) stays as is.
+     */
+    private vw: ViewMode = "table";
     /** open hover-zoom panel of the driver tree (one at a time) */
     private zoomEl: HTMLElement | null = null;
     private zoomTimer: ReturnType<typeof setTimeout> | null = null;
@@ -1025,6 +1092,36 @@ export class Visual implements IVisual {
         };
     }
 
+    /**
+     * The views the author offers the readers (format pane → toolbar), in
+     * toolbar order. Switching every one of them off would leave nothing to
+     * draw — the table then stays, as the one view every data shape supports.
+     */
+    private offeredViews(): ViewMode[] {
+        const t = this.settings.toolbarCard;
+        const on: Record<ViewMode, boolean> = {
+            table: t.viewTable.value !== false,
+            bars: t.viewBars.value !== false,
+            waterfall: t.viewWaterfall.value !== false,
+            tree: t.viewTree.value !== false,
+            sankey: t.viewSankey.value !== false,
+        };
+        const out = VIEW_ORDER.filter(v => on[v]);
+        return out.length > 0 ? out : ["table"];
+    }
+
+    /**
+     * ui.view, or — when it names a view the author no longer offers (an old
+     * state, a bookmark) or a view this build does not know — the first offered
+     * one. Display only: ui.view is never rewritten here, so switching the view
+     * back on in the format pane restores exactly what the reader had.
+     */
+    private effView(): ViewMode {
+        const offered = this.offeredViews();
+        const v = this.ui!.view;
+        return offered.indexOf(v) >= 0 ? v : offered[0];
+    }
+
     private resolveRef(pref: string): Scenario {
         if (pref === "py" || pref === "pl" || pref === "fc") { return pref; }
         if (this.has.pl) { return "pl"; }
@@ -1363,7 +1460,7 @@ export class Visual implements IVisual {
     /** cache key for the scans that depend on model + shown Δ combinations only */
     private scanKey(): string {
         const ui = this.ui!;
-        return [this.modelVer, ui.view, ui.preset, ui.ref,
+        return [this.modelVer, this.vw, ui.preset, ui.ref,
             ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy].join("~");
     }
 
@@ -1410,11 +1507,25 @@ export class Visual implements IVisual {
         this.headStuck = false;
         this.pagerSync = [];
 
+        this.vw = this.effView();
+        const vw = this.vw;
+        // the tile view belongs to the view it was opened from — tree or
+        // Sankey; any other view (or a carrier the author switched off) never
+        // shows it, the stored id simply waits for its view to come back
+        if (vw === "sankey" && ui.treeZoom != null && this.resolver()(ui.treeZoom) == null) {
+            // a tile id the model no longer knows: back to the flow itself
+            ui.treeZoom = null;
+        }
+        const zoomed = (vw === "tree" || vw === "sankey") && ui.treeZoom != null;
         const scan = this.scans();
         const fmt = this.makeFmt(scan.maxAbsVal);
         // the driver-tree graph drives the tree AND its toolbar groups (depth
-        // buttons, breadcrumb) — build it before the toolbar
-        this.treeCtx = ui.view === "tree" ? this.buildTreeCtx() : null;
+        // buttons, breadcrumb) — build it before the toolbar. The Sankey grows
+        // over the same graph, started at its first value row (flow root); its
+        // tile view reads the plain tree graph, so the zoom behaves the same
+        // wherever it was opened from
+        this.treeCtx = vw === "tree" || zoomed ? this.buildTreeCtx()
+            : vw === "sankey" ? this.buildTreeCtx(true) : null;
 
         // the head block — title, toolbar, legend and the scale note ride in one
         // wrapper so they can be frozen above the scrolling body as one piece
@@ -1428,13 +1539,18 @@ export class Visual implements IVisual {
         if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
         if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
-        if (ui.view !== "tree") { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        if (vw !== "tree" && vw !== "sankey") { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
             this.headEl = head;
         }
 
-        if (ui.view === "tree") {
+        if (vw === "sankey" && !zoomed) {
+            this.root.appendChild(this.buildSankey(fmt));
+            this.buildFootnotes(fmt);
+            this.root.appendChild(this.buildFooter(true));
+            this.root.scrollTop = keepScroll;
+        } else if (vw === "tree" || zoomed) {
             // the tile view fits the viewport: build, measure, squeeze the chart
             this.zoomChartH = Math.round(ZOOM_CHART_H * this.fontScale());
             let tree = this.buildTree(fmt);
@@ -1693,10 +1809,11 @@ export class Visual implements IVisual {
     private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] {
         const ui = this.ui!;
         const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] = [];
-        if (ui.view === "tree") { return out; } // the tree shows no Δ bars
-        if (ui.view === "bars" || ui.view === "waterfall") {
+        const vw = this.vw;
+        if (vw === "tree" || vw === "sankey") { return out; } // tree and flow show no Δ bars
+        if (vw === "bars" || vw === "waterfall") {
             const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
-            if (ui.view === "waterfall" && ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
+            if (vw === "waterfall" && ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
                 out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
             }
             if (ui.blocks.ytd !== false && this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac", block: "ytd" }); }
@@ -1816,8 +1933,14 @@ export class Visual implements IVisual {
         const acc = this.accent();
         const b = document.createElement("button");
         b.setAttribute("data-pnl", "zoom-back");
-        b.textContent = this.str("← Back to tree", "← Zurück zum Baum");
-        b.title = this.str("Close the tile view", "Kachel-Ansicht schließen");
+        // the way back names where it leads: the view the tile was opened from
+        const fromFlow = this.vw === "sankey";
+        b.textContent = fromFlow
+            ? this.str("← Back to Sankey", "← Zurück zum Sankey")
+            : this.str("← Back to tree", "← Zurück zum Baum");
+        b.title = fromFlow
+            ? this.str("Close the tile view, back to the flow", "Kachel-Ansicht schließen, zurück zum Fluss")
+            : this.str("Close the tile view", "Kachel-Ansicht schließen");
         b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
             `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
             `background:${acc};color:#FFF;transition:${TRANSITION};box-shadow:${SHADOW};`;
@@ -1845,24 +1968,36 @@ export class Visual implements IVisual {
         // Tile view: everything that cannot change the tile disappears. Only the
         // Δ reference and the unit reach the zoom chart, so only those two stay —
         // the header belongs to the back button and the breadcrumb.
-        const inZoom = ui.view === "tree" && ui.treeZoom != null;
-        if (tset.showView.value && !inZoom) { bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), [
-            this.tbBtn("Table", ui.view === "table", () => { ui.view = "table"; }),
-            this.tbBtn("Bars", ui.view === "bars", () => { ui.view = "bars"; },
+        const vw = this.vw;
+        const graphView = vw === "tree" || vw === "sankey";
+        const inZoom = graphView && ui.treeZoom != null;
+        // only the views the author offers; a single one leaves nothing to
+        // choose, so the whole group steps aside
+        const offered = this.offeredViews();
+        const viewBtns: Record<ViewMode, () => HTMLElement> = {
+            table: () => this.tbBtn("Table", vw === "table", () => { ui.view = "table"; }),
+            bars: () => this.tbBtn("Bars", vw === "bars", () => { ui.view = "bars"; },
                 this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
-            this.tbBtn("Waterfall", ui.view === "waterfall", () => { ui.view = "waterfall"; },
+            waterfall: () => this.tbBtn("Waterfall", vw === "waterfall", () => { ui.view = "waterfall"; },
                 this.str("Row waterfall: contributions cascade, subtotals anchor", "Zeilen-Waterfall: Beiträge kaskadieren, Summen ankern")),
-            this.tbBtn("Tree", ui.view === "tree", () => { ui.view = "tree"; },
+            tree: () => this.tbBtn("Tree", vw === "tree", () => { ui.view = "tree"; },
                 this.str("Value driver tree: the formula graph as a DuPont tree",
                     "Werttreiberbaum: der Formel-Graph als DuPont-Baum")),
-        ])); }
+            sankey: () => this.tbBtn("Sankey", vw === "sankey", () => { ui.view = "sankey"; },
+                this.str("Flow view: revenue flows into profit, costs branch off (outside the IBCS notation)",
+                    "Fluss-Ansicht: Umsatz fließt in den Gewinn, Kosten zweigen ab (außerhalb der IBCS-Notation)")),
+        };
+        if (tset.showView.value && !inZoom && offered.length > 1) {
+            bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), offered.map(v => viewBtns[v]())));
+        }
 
         // column presets, periods and options describe the table layout — the
-        // driver tree follows the formula graph instead. The Δ reference and the
-        // expand level do apply to it: they drive the card variances and the
-        // depth of the opened graph.
-        const tableViews = ui.view !== "tree" && !inZoom;
-        const isTree = ui.view === "tree" && !inZoom;
+        // driver tree and the Sankey follow the graph instead. The Δ reference
+        // and the expand level do apply to them: they drive the card variances
+        // (tooltips) and the depth of the opened graph.
+        const tableViews = !graphView && !inZoom;
+        const isTree = vw === "tree" && !inZoom;
+        const isGraph = graphView && !inZoom;
 
         const presets: [Preset, string][] = [
             ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["dall", "AC vs PY·PL·FC"],
@@ -1874,13 +2009,13 @@ export class Visual implements IVisual {
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && (tableViews || isTree || inZoom)) {
+        if (refs.length > 0 && tset.showReference.value && (tableViews || isGraph || inZoom)) {
             bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
                 refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
         }
 
         const pb: HTMLElement[] = [];
-        if (ui.view !== "bars" && this.model!.months.length > 1) {
+        if (vw !== "bars" && this.model!.months.length > 1) {
             pb.push(this.tbBtn("MTD", ui.blocks.mtd, () => { ui.blocks.mtd = !ui.blocks.mtd; }));
         }
         pb.push(this.tbBtn("YTD", ui.blocks.ytd, () => { ui.blocks.ytd = !ui.blocks.ytd; }));
@@ -1924,9 +2059,9 @@ export class Visual implements IVisual {
         }
 
         const treeDepth = this.treeCtx ? this.treeCtx.depth : 1;
-        const maxL = Math.min(isTree ? treeDepth : this.model!.maxDepth, 8);
+        const maxL = Math.min(isGraph ? treeDepth : this.model!.maxDepth, 8);
         const lvlBtns: HTMLElement[] = [];
-        if (isTree) {
+        if (isGraph) {
             lvlBtns.push(this.tbBtn("⌂", false, () => {
                 ui.treeRoot = "";
                 ui.treeCollapsed = null;
@@ -1935,14 +2070,14 @@ export class Visual implements IVisual {
         }
         for (let l = 1; l < maxL; l++) {
             lvlBtns.push(this.tbBtn(String(l), false, () => {
-                if (isTree) { ui.treeCollapsed = this.treeCtx ? [...this.treeCtx.levels[l]] : []; }
+                if (isGraph) { ui.treeCollapsed = this.treeCtx ? [...this.treeCtx.levels[l]] : []; }
                 else { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }
             }));
         }
         lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => {
-            if (isTree) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
+            if (isGraph) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
         }));
-        if (tset.showLevels.value && (tableViews || isTree)) {
+        if (tset.showLevels.value && (tableViews || isGraph)) {
             bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
         }
 
@@ -2038,14 +2173,14 @@ export class Visual implements IVisual {
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
         const blocks: Block[] = [];
 
-        if (ui.view === "waterfall" || ui.view === "bars") {
+        if (this.vw === "waterfall" || this.vw === "bars") {
             const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
-            const kind = ui.view === "waterfall" ? "wbar" : "vbar";
+            const kind = this.vw === "waterfall" ? "wbar" : "vbar";
             const mk = (block: "mtd" | "ytd" | "fy"): ColSpec[] => {
                 const specs: ColSpec[] = [];
                 const ref: Scenario = block === "fy" ? "plfy" : r;
                 const minuend: Scenario = block === "fy" ? "fcfy" : "ac";
-                if (ui.view === "waterfall") {
+                if (this.vw === "waterfall") {
                     if (this.has[ref]) { specs.push({ kind: "wbar", scen: ref, block, label: block === "fy" ? "PL" : ref.toUpperCase() }); }
                     specs.push({ kind: "wbar", scen: minuend, block, label: block === "fy" ? "AC&FC" : "AC" });
                 } else {
@@ -2057,7 +2192,7 @@ export class Visual implements IVisual {
                 }
                 return specs;
             };
-            if (ui.view === "waterfall" && ui.blocks.mtd && months.length > 1) {
+            if (this.vw === "waterfall" && ui.blocks.mtd && months.length > 1) {
                 blocks.push({ key: "mtd", label: mtdLabel, specs: mk("mtd") });
             }
             if (ui.blocks.ytd || blocks.length === 0 && !fyOn) {
@@ -3184,14 +3319,18 @@ export class Visual implements IVisual {
      * collapse sets per depth level, the pruned tree and the breadcrumb from
      * the author/auto root down to the re-rooted card.
      */
-    private buildTreeCtx(): TreeCtx | null {
+    private buildTreeCtx(flow = false): TreeCtx | null {
         const ui = this.ui!;
         const resolve = this.treeResolver();
         const home = this.treeLookup(this.settings.columnsCard.treeRoot.value, resolve)
             ?? this.treeDefaultRoot(resolve);
         const picked = this.treeLookup(ui.treeRoot, resolve);
-        const root = picked ?? home;
+        let root = picked ?? home;
         if (!root) { return null; }
+        // the Sankey cannot pour a ratio: a KPI root (net margin …) hands the
+        // flow to its first value operand (net income …) — breadcrumb, re-root
+        // and tile view keep reading the same rows as the tree does
+        if (flow) { root = this.flowRoot(root, resolve); }
 
         const rootCard = this.treeCards(root, resolve);
         const full = this.treeCollect(rootCard);
@@ -3238,6 +3377,27 @@ export class Visual implements IVisual {
             resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard),
             depth, levels, auto, kidsOf, path,
         };
+    }
+
+    /**
+     * First value row under a KPI / ratio root, depth first along the operand
+     * order — `[Net income]/[Net revenue]` flows from Net income. A root that
+     * already carries values is its own flow root; a ratio over ratios only is
+     * kept (the Sankey then says it has nothing to pour).
+     */
+    private flowRoot(root: PnlNode, resolve: (id: string) => PnlNode | undefined): PnlNode {
+        const seen = new Set<string>();
+        const walk = (n: PnlNode): PnlNode | null => {
+            if (n.row.rowType !== "kpi") { return n; }
+            if (seen.has(n.row.id)) { return null; }
+            seen.add(n.row.id);
+            for (const o of formulaOperands(n, resolve)) {
+                const hit = walk(o.child);
+                if (hit) { return hit; }
+            }
+            return null;
+        };
+        return walk(root) ?? root;
     }
 
     /** move a whole subtree down (tidy-layout correction pass) */
@@ -4334,30 +4494,7 @@ export class Visual implements IVisual {
                 ? this.str("Expand (Shift: whole limb)", "Aufklappen (Shift: ganzer Ast)")
                 : this.str("Collapse", "Zuklappen");
             ch.appendChild(ct);
-            const toggle = (e: Event): void => {
-                e.stopPropagation();
-                const ctx = this.treeCtx;
-                const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
-                const id = card.node.row.id;
-                if (cur.has(id)) {
-                    // plain click opens only this node — the children keep
-                    // their own remembered fold state; Shift opens the limb
-                    cur.delete(id);
-                    if ((e as MouseEvent).shiftKey) {
-                        const done = new Set<string>();
-                        const stack = [id];
-                        while (stack.length > 0) {
-                            const n = stack.pop()!;
-                            if (done.has(n)) { continue; }
-                            done.add(n);
-                            cur.delete(n);
-                            for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
-                        }
-                    }
-                } else { cur.add(id); }
-                ui.treeCollapsed = [...cur];
-                this.persistUi(); this.rerender();
-            };
+            const toggle = (e: Event): void => this.treeToggle(card, e as MouseEvent);
             hit.style.cursor = "pointer"; ch.style.cursor = "pointer";
             hit.onclick = toggle; ch.onclick = toggle;
             g.appendChild(hit); g.appendChild(ch);
@@ -5477,6 +5614,629 @@ export class Visual implements IVisual {
         return wrap;
     }
 
+    // ---------------- sankey (v0.18) ----------------
+
+    /** a hex colour mixed towards white by `t` (0 = itself, 1 = white); null when not hex */
+    private tint(color: string, t: number): string | null {
+        const hex = color.replace("#", "");
+        if (!/^[0-9a-fA-F]{6}$/.test(hex)) { return null; }
+        const mix = (i: number): number => {
+            const c = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+            return Math.round(c + (255 - c) * t);
+        };
+        return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
+    }
+
+    /**
+     * The value one flow node carries: period-matched YTD AC (the same window
+     * the Δ figures use). `v` is signed the way the engine computes (costs
+     * negative), `d` is what the table shows (display invert applied).
+     */
+    private flowValue(node: PnlNode): { v: number; d: number | null } {
+        const d = this.ytdDisplay(node, "ac");
+        if (d == null || !isFinite(d)) { return { v: 0, d: null }; }
+        return { v: node.row.displayInvert ? -d : d, d };
+    }
+
+    /**
+     * Signed contribution of a child to its parent: along the account
+     * hierarchy the child's computed value (times the parent's own sign, the
+     * way the engine rolls a subtotal up), along a formula the operand value
+     * with its + / − operator. Products and ratios do not flow (null).
+     */
+    private flowContribution(drill: boolean, parent: PnlNode, op: FormulaOp | null, v: number): number | null {
+        if (drill) { return parent.row.sign === -1 ? -v : v; }
+        if (op === "×" || op === "÷") { return null; }
+        return op === "−" ? -v : v;
+    }
+
+    /**
+     * Whether a row can be poured at all: a formula of + / − operands or an
+     * account hierarchy. A product or a ratio (×, ÷) ends the flow — the
+     * Sankey draws it as an end node without a chevron.
+     */
+    private flowable(node: PnlNode, resolve: (id: string) => PnlNode | undefined): boolean {
+        if (node.row.rowType === "kpi") { return false; }
+        const b = this.treeBranches(node, resolve);
+        const kids = b.kids.filter(o => o.child.row.rowType !== "kpi");
+        if (kids.length === 0) { return false; }
+        return b.drill || kids.every(o => o.op === "+" || o.op === "−");
+    }
+
+    /**
+     * Profit strand: a row where something is deducted — a formula of + / −
+     * operands, or any row whose branches carry a contribution against its own
+     * sign (gross profit = revenue − cost of sales). A plain revenue split
+     * (segments → revenue) deducts nothing and stays neutral gray.
+     */
+    private flowDeducts(node: PnlNode, resolve: (id: string) => PnlNode | undefined): boolean {
+        if (!this.flowable(node, resolve)) { return false; }
+        const b = this.treeBranches(node, resolve);
+        if (!b.drill) { return true; }
+        const s = this.flowValue(node).v < 0 ? -1 : 1;
+        return b.kids.some(o => {
+            const c = this.flowContribution(true, node, o.op, this.flowValue(o.child).v);
+            return c != null && c * s < 0;
+        });
+    }
+
+    /**
+     * The flow graph over the pruned driver-tree cards. Every node pours into
+     * its parent along one rule, applied recursively:
+     *
+     *  - an "in" node (income, profit) is fed from the LEFT by the children
+     *    whose contribution has its own sign; the children against its sign
+     *    (costs) sit in its own column, below, and are fed by the same inflow —
+     *    revenue splits into gross profit and cost of sales;
+     *  - an "out" node (a cost) pours to the RIGHT into the children of its own
+     *    sign (its decomposition, red end nodes); children against its sign
+     *    (an interest income inside the financial result) stand next to it and
+     *    pour along.
+     *
+     * Each node therefore runs exactly one matching (its sources against its
+     * targets, stacked top to bottom) — the bands of one port add up to the
+     * node, whatever is left over becomes a gray "other" rest band.
+     */
+    private sankeyGraph(rootCard: TreeCard, resolve: (id: string) => PnlNode | undefined):
+        { nodes: SkNode[]; bands: SkBand[] } {
+        const nodes: SkNode[] = [];
+        const bands: SkBand[] = [];
+        let dfs = 0;
+        const mk = (card: TreeCard, col: number, role: "in" | "out", parent: SkNode | null,
+            costSide: boolean, anchor: number): SkNode => {
+            const fv = this.flowValue(card.node);
+            let fam: "gray" | "good" | "bad" = "gray";
+            if (role === "out") { fam = "bad"; }
+            else if (!costSide && this.flowDeducts(card.node, resolve)) { fam = "good"; }
+            const n: SkNode = {
+                i: nodes.length, card, node: card.node, v: fv.v, d: fv.d, col, role, fam, costSide, anchor,
+                dfs: dfs++, h: 0, y: 0, x: 0, label: true, side: "top", parent,
+            };
+            nodes.push(n);
+            return n;
+        };
+        const famOf = (src: SkNode | null, tgt: SkNode | null): "gray" | "good" | "bad" => {
+            if (src?.role === "out" || tgt?.role === "out") { return "bad"; }
+            if (src == null || tgt == null) { return "gray"; }
+            return tgt.fam;
+        };
+        const match = (owner: SkNode, S: { n: SkNode; len: number }[], T: { n: SkNode; len: number }[]): void => {
+            const total = S.reduce((a, b) => a + b.len, 0) + T.reduce((a, b) => a + b.len, 0);
+            const eps = Math.max(1e-9, total * 1e-9);
+            let i = 0; let j = 0; let a = 0; let b = 0;
+            while (i < S.length && j < T.length) {
+                if (S[i].len - a <= eps) { i++; a = 0; continue; }
+                if (T[j].len - b <= eps) { j++; b = 0; continue; }
+                const amt = Math.min(S[i].len - a, T[j].len - b);
+                bands.push({ src: S[i].n, tgt: T[j].n, so: a, to: b, t: amt, fam: famOf(S[i].n, T[j].n), owner });
+                a += amt; b += amt;
+            }
+            // what one side has left over is the node's own rest — drawn as a
+            // gray stub only when it is more than rounding noise
+            const restMin = Math.max(eps, Math.abs(owner.v) * 0.005);
+            for (; i < S.length; i++, a = 0) {
+                const left = S[i].len - a;
+                if (left > restMin) { bands.push({ src: S[i].n, tgt: null, so: a, to: 0, t: left, fam: "gray", owner }); }
+            }
+            for (; j < T.length; j++, b = 0) {
+                const left = T[j].len - b;
+                if (left > restMin) { bands.push({ src: null, tgt: T[j].n, so: 0, to: b, t: left, fam: "gray", owner }); }
+            }
+        };
+        const visit = (X: SkNode): void => {
+            const card = X.card;
+            const kids = card.children.filter(k => k.node.row.rowType !== "kpi");
+            if (kids.length === 0) { return; }
+            if (!card.drill && kids.some(k => k.op === "×" || k.op === "÷")) { return; }
+            const sX = X.v < 0 ? -1 : 1;
+            const same: { card: TreeCard; c: number }[] = [];
+            const opp: { card: TreeCard; c: number }[] = [];
+            for (const k of kids) {
+                const c = this.flowContribution(card.drill, card.node, k.op, this.flowValue(k.node).v) ?? 0;
+                (c * sX >= 0 ? same : opp).push({ card: k, c });
+            }
+            const costAnchor = X.costSide ? X.anchor : X.dfs;
+            if (X.role === "in") {
+                const S: { n: SkNode; len: number }[] = [];
+                const T: { n: SkNode; len: number }[] = [{ n: X, len: Math.abs(X.v) }];
+                for (const o of same) {
+                    const n = mk(o.card, X.col - 1, "in", X, X.costSide, X.anchor);
+                    visit(n);
+                    S.push({ n, len: Math.abs(o.c) });
+                }
+                for (const o of opp) {
+                    const n = mk(o.card, X.col, "out", X, true, costAnchor);
+                    visit(n);
+                    T.push({ n, len: Math.abs(o.c) });
+                }
+                match(X, S, T);
+            } else {
+                const S: { n: SkNode; len: number }[] = [{ n: X, len: Math.abs(X.v) }];
+                const T: { n: SkNode; len: number }[] = [];
+                for (const o of opp) {
+                    const n = mk(o.card, X.col, "in", X, true, costAnchor);
+                    visit(n);
+                    S.push({ n, len: Math.abs(o.c) });
+                }
+                for (const o of same) {
+                    const n = mk(o.card, X.col + 1, "out", X, true, costAnchor);
+                    visit(n);
+                    T.push({ n, len: Math.abs(o.c) });
+                }
+                match(X, S, T);
+            }
+        };
+        const root = mk(rootCard, 0, "in", null, false, 0);
+        visit(root);
+        return { nodes, bands };
+    }
+
+    /**
+     * Sankey view (v0.18): the driver-tree graph as a flow from left to right —
+     * revenue components on the left, the profit strand running to the bottom
+     * line on the right, costs branching off downwards into their own red end
+     * nodes. Bar and ribbon heights are proportional to the period-matched AC
+     * on one common scale. A deliberate addition outside the IBCS notation;
+     * clicking a node opens the IBCS tile view, a right click the host menu.
+     */
+    private buildSankey(fmt: Fmt): HTMLElement {
+        const ui = this.ui!;
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "sankey-wrap");
+        wrap.style.cssText = "padding:4px 14px 10px 14px;";
+        const ctx = this.treeCtx;
+        const hint = (text: string): HTMLElement => {
+            const h = document.createElement("div");
+            h.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.55;` +
+                `padding:10px 0;max-width:${this.k(620)}px;`;
+            h.textContent = text;
+            wrap.appendChild(h);
+            return wrap;
+        };
+        if (!ctx) {
+            return hint(this.str(
+                "The Sankey needs rows to flow from — an account or dimension hierarchy, or formula rows that "
+                + "add and subtract other rows (e.g. [Net revenue]+[Cost of sales]). Bind the level or account field first.",
+                "Der Sankey braucht Zeilen, aus denen er fließt — eine Konten- oder Dimensions-Hierarchie oder "
+                + "Formelzeilen, die andere Zeilen addieren und abziehen (z. B. [Umsatz]+[Herstellkosten]). "
+                + "Zuerst das Ebenen- oder Kontofeld zuweisen."));
+        }
+        if (ctx.root.row.rowType === "kpi") {
+            return hint(this.str(
+                "The root is a ratio without a value row underneath — a ratio cannot be poured. Pick a value row "
+                + "as the root (format pane or the tree's ⌖).",
+                "Die Wurzel ist eine Quote ohne Wertzeile darunter — eine Quote lässt sich nicht als Fluss "
+                + "zeichnen. Eine Wertzeile als Wurzel wählen (Format-Pane oder ⌖ im Baum)."));
+        }
+
+        const resolve = ctx.resolve;
+        const { nodes, bands } = this.sankeyGraph(ctx.rootCard, resolve);
+        this.treeComments(nodes.map(n => n.card));
+
+        // ---- head: breadcrumb (re-rooted), then the hint line
+        if (ctx.path.length > 1) {
+            wrap.appendChild(this.treeBreadcrumb(ctx.path, (node, i) => {
+                ui.treeRoot = i === 0 ? "" : node.row.id;
+                ui.treeCollapsed = null;
+            }, this.str("Back to this card", "Zurück zu dieser Karte")));
+        }
+        const unit = (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+        const ytdLbl = this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`;
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "sankey-hint");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
+        note.textContent = this.str(
+            `Sankey — AC ${ytdLbl}${unit ? " in " + unit : ""}, bar and band height ∝ value, % of revenue in brackets. `
+            + "Clicking a node opens its tile view, hovering shows the IBCS detail, ▾ folds a branch (Shift: whole limb).",
+            `Sankey — AC ${ytdLbl}${unit ? " in " + unit : ""}, Balken- und Bandhöhe ∝ Wert, in Klammern % vom Umsatz. `
+            + "Klick auf einen Knoten öffnet die Kachel-Ansicht, Hover die IBCS-Detailansicht, ▾ klappt einen Ast "
+            + "(Shift: ganzer Ast).")
+            + (this.interactive() ? this.str(" Right-click a node for the context menu (drillthrough).",
+                " Rechtsklick auf einen Knoten öffnet das Kontextmenü (Drillthrough).") : "");
+        wrap.appendChild(note);
+
+        // ---- percent basis: the %-of-revenue row, if it is part of a P&L flow;
+        // a plain hierarchy (or a root outside revenue) reads against its root
+        const override = (this.settings.columnsCard.revenueBase.value ?? "").trim();
+        let baseNode: PnlNode | null = null;
+        const inFlow = (n: PnlNode | null): boolean => n != null && nodes.some(x => x.node === n);
+        const rb = revenueBase(this.model!, override);
+        if (override !== "" && rb) { baseNode = rb; }
+        else if (rb && inFlow(rb) && nodes.some(x => x.node.row.rowType === "formula")) { baseNode = rb; }
+        const baseV = baseNode ? Math.abs(this.flowValue(baseNode).v) : Math.abs(nodes[0].v);
+
+        // ---- geometry on the type scale
+        const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1);
+        const barW = SANKEY_BAR_W * s;
+        const minH = SANKEY_MIN_H * s;
+        const gap = SANKEY_GAP * s;
+        const fs1 = 10 * s; const fs2 = 9.5 * s;
+        const lh2 = fs2 * 1.3;
+        const labelH = fs1 * 1.25 + lh2 + 2 * s;
+        const cols = nodes.map(n => n.col);
+        const minCol = Math.min(...cols); const maxCol = Math.max(...cols);
+        const nCols = maxCol - minCol + 1;
+        for (const n of nodes) {
+            n.side = nCols === 1 || n.col === maxCol ? "right" : n.col === minCol ? "left" : "top";
+        }
+
+        // stage height the flow is fitted into (head and hint above it, footer below)
+        const headH = this.headEl ? this.headEl.getBoundingClientRect().height : 0;
+        const stageH = this.root.clientHeight || this.vpH || 600;
+        const availH = Math.max(this.k(240), stageH - headH - this.k(120));
+
+        // fixed vertical order per column, in reading order of the strand: every
+        // strand node is followed by the cost side it spawned (cost of sales
+        // right under gross profit), so an inflow and the outflows it feeds sit
+        // next to each other and the red ribbons fan out without crossing
+        const byCol = new Map<number, SkNode[]>();
+        for (const n of nodes) {
+            const list = byCol.get(n.col) ?? [];
+            list.push(n);
+            byCol.set(n.col, list);
+        }
+        for (const list of byCol.values()) {
+            const key = (n: SkNode): number => n.costSide ? n.anchor : n.dfs;
+            list.sort((a, b) => (key(a) - key(b))
+                || (Number(a.costSide) - Number(b.costSide)) || a.dfs - b.dfs);
+        }
+        // crowded columns keep the labels of their largest nodes only — the
+        // others answer through their tooltip, nothing is clipped or stacked
+        const maxLabels = Math.max(3, Math.floor(3 * availH / labelH));
+        for (const list of byCol.values()) {
+            if (list.length <= maxLabels) { continue; }
+            const keep = new Set([...list].sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, maxLabels));
+            for (const n of list) { n.label = keep.has(n) || n.i === 0; }
+        }
+
+        /** minimal distance from the top of `p` to the top of `n` (same column) */
+        const need = (p: SkNode, n: SkNode): number => {
+            let d = p.h + gap + (n.label && n.side === "top" ? labelH : 0);
+            if (n.label && p.label && n.side !== "top") { d = Math.max(d, p.h / 2 + labelH + 2 * s - n.h / 2); }
+            return d;
+        };
+        const minTop = (n: SkNode): number =>
+            !n.label ? 0 : n.side === "top" ? labelH : Math.max(0, labelH / 2 - n.h / 2);
+
+        const layout = (k: number): number => {
+            for (const n of nodes) { n.h = Math.max(minH, Math.abs(n.v) * k); }
+            let maxNeed = 0;
+            for (const list of byCol.values()) {
+                let y = 0;
+                list.forEach((n, i) => {
+                    y = i === 0 ? minTop(n) : Math.max(minTop(n), y + need(list[i - 1], n));
+                    n.y = y;
+                });
+                const last = list[list.length - 1];
+                maxNeed = Math.max(maxNeed, last.y + last.h);
+            }
+            const H = Math.max(availH, maxNeed);
+            const resolveCol = (list: SkNode[]): void => {
+                for (let i = 0; i < list.length; i++) {
+                    const lo = i === 0 ? minTop(list[i]) : list[i - 1].y + need(list[i - 1], list[i]);
+                    list[i].y = Math.max(list[i].y, lo, minTop(list[i]));
+                }
+                const last = list[list.length - 1];
+                if (last.y + last.h > H) {
+                    last.y = H - last.h;
+                    for (let i = list.length - 2; i >= 0; i--) {
+                        list[i].y = Math.min(list[i].y, list[i + 1].y - need(list[i], list[i + 1]));
+                    }
+                    for (let i = 0; i < list.length; i++) {
+                        const lo = i === 0 ? minTop(list[i]) : list[i - 1].y + need(list[i - 1], list[i]);
+                        list[i].y = Math.max(list[i].y, lo);
+                    }
+                }
+            };
+            // relaxation: every node drifts towards the height at which its
+            // ribbons run straight, sweeping right-to-left and back
+            const colKeys = [...byCol.keys()].sort((a, b) => a - b);
+            for (let it = 0; it < SANKEY_RELAX; it++) {
+                const alpha = Math.pow(0.85, it);
+                for (const dir of [-1, 1]) {
+                    const order = dir < 0 ? [...colKeys].reverse() : colKeys;
+                    for (const c of order) {
+                        const list = byCol.get(c)!;
+                        for (const n of list) {
+                            let acc = 0; let w = 0;
+                            for (const b of bands) {
+                                if (b.src == null || b.tgt == null || b.t <= 0) { continue; }
+                                if (dir > 0 && b.tgt === n) { acc += (b.src.y + b.so * k - b.to * k) * b.t; w += b.t; }
+                                if (dir < 0 && b.src === n) { acc += (b.tgt.y + b.to * k - b.so * k) * b.t; w += b.t; }
+                            }
+                            if (w > 0) { n.y += (acc / w - n.y) * alpha; }
+                        }
+                        resolveCol(list);
+                    }
+                }
+            }
+            // lift the whole flow so the topmost column touches its own minimum
+            let lift = Infinity;
+            for (const list of byCol.values()) { lift = Math.min(lift, list[0].y - minTop(list[0])); }
+            if (isFinite(lift) && lift > 0) { for (const n of nodes) { n.y -= lift; } }
+            let bottom = 0;
+            for (const n of nodes) {
+                bottom = Math.max(bottom, n.y + n.h,
+                    n.label && n.side !== "top" ? n.y + n.h / 2 + labelH / 2 : 0);
+            }
+            return bottom;
+        };
+        // one common scale over all columns: the fullest column fills the
+        // stage, the rest of the height is air and labels
+        let maxSum = 0; let maxAir = 0;
+        for (const list of byCol.values()) {
+            maxSum = Math.max(maxSum, list.reduce((a, n) => a + Math.abs(n.v), 0));
+            maxAir = Math.max(maxAir, list.length * (gap + labelH) + labelH);
+        }
+        let k = maxSum > 0 ? Math.max((availH - maxAir) / maxSum, (availH * 0.35) / maxSum) : 0;
+        let height = layout(k);
+        for (let pass = 0; pass < 2 && maxSum > 0 && height > availH * 1.03; pass++) {
+            const over = height - availH;
+            const ink = maxSum * k;
+            if (ink <= over * 1.2) { break; }
+            k = k * (ink - over) / ink;
+            height = layout(k);
+        }
+
+        // ---- horizontal: label margins left and right, column pitch between
+        const wFactor = 0.62;
+        const nameOf = (n: SkNode): string => {
+            const cno = this.commentNo.get(n.node.row.id);
+            return n.node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
+        };
+        const valTxt = (n: SkNode): string => {
+            if (n.d == null || n.d === 0) { return "–"; }
+            const pct = baseV > 0 ? " (" + fmt.pct(Math.abs(n.v) / baseV) + ")" : "";
+            return this.treeNum(n.d, fmt) + pct;
+        };
+        const chevOf = (n: SkNode): string => {
+            if (!this.flowable(n.node, resolve)) { return ""; }
+            if (n.card.collapsed) { return "▸"; }
+            return n.card.children.length > 0 ? "▾" : "";
+        };
+        const chevW = 11 * s;
+        const pad = 6;
+        const availW = (this.root.clientWidth || 900) - 28 - 2 * pad - 4;
+        // the outer label lanes give way on a narrow stage — names shorten,
+        // the columns keep their room for the ribbons
+        const sideMax = Math.min(this.k(170), Math.max(this.k(90), availW * 0.16));
+        const textW = (n: SkNode, name: string): number => Math.max(
+            name.length * fs1 * wFactor + (chevOf(n) ? chevW : 0), valTxt(n).length * fs2 * wFactor);
+        let leftW = 0; let rightW = 0;
+        for (const n of nodes) {
+            if (!n.label || n.side === "top") { continue; }
+            const w = Math.min(sideMax, textW(n, nameOf(n))) + 8 * s;
+            if (n.side === "left") { leftW = Math.max(leftW, w); } else { rightW = Math.max(rightW, w); }
+        }
+        const pitch = nCols === 1 ? 0 : Math.max(this.k(SANKEY_COL_MIN), Math.min(this.k(SANKEY_COL_MAX),
+            (availW - leftW - rightW - barW) / (nCols - 1)));
+        for (const n of nodes) { n.x = leftW + (n.col - minCol) * pitch; }
+        const svgW = leftW + (nCols - 1) * pitch + barW + rightW;
+        const topW = Math.max(this.k(60), pitch - 10 * s);
+
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        svg.setAttribute("data-pnl", "sankey");
+        svg.setAttribute("width", String(Math.ceil(svgW + 2 * pad)));
+        svg.setAttribute("height", String(Math.ceil(height + 2 * pad)));
+        svg.style.cssText = `display:block;margin-top:${this.k(TREE_HEAD_GAP)}px;`;
+        const inner = document.createElementNS(ns, "g") as SVGGElement;
+        inner.setAttribute("transform", `translate(${pad},${pad})`);
+        svg.appendChild(inner);
+
+        const famColor = (f: "gray" | "good" | "bad"): string =>
+            f === "good" ? this.goodColor() : f === "bad" ? this.badColor() : C.py;
+
+        // ---- ribbons first, nodes and labels on top
+        const bandG = document.createElementNS(ns, "g") as SVGGElement;
+        bandG.setAttribute("data-pnl", "sk-bands");
+        inner.appendChild(bandG);
+        const bandEls: { el: SVGPathElement; b: SkBand }[] = [];
+        const stub = Math.min(pitch * 0.4, this.k(40)) || this.k(30);
+        const f2 = (v: number): string => v.toFixed(2);
+        for (const b of bands) {
+            const t = b.t * k;
+            if (t <= 0.05) { continue; }
+            const y0 = b.src ? b.src.y + b.so * k : b.tgt!.y + b.to * k;
+            const y1 = b.tgt ? b.tgt.y + b.to * k : y0;
+            const x0 = b.src ? b.src.x + barW : b.tgt!.x - stub;
+            const x1 = b.tgt ? b.tgt.x : x0 + stub;
+            const xm = (x0 + x1) / 2;
+            const p = document.createElementNS(ns, "path") as SVGPathElement;
+            p.setAttribute("d", `M${f2(x0)},${f2(y0)}C${f2(xm)},${f2(y0)} ${f2(xm)},${f2(y1)} ${f2(x1)},${f2(y1)}`
+                + `L${f2(x1)},${f2(y1 + t)}C${f2(xm)},${f2(y1 + t)} ${f2(xm)},${f2(y0 + t)} ${f2(x0)},${f2(y0 + t)}Z`);
+            const base = famColor(b.fam);
+            const tinted = this.tint(base, SANKEY_TINT);
+            p.setAttribute("fill", tinted ?? base);
+            p.setAttribute("fill-opacity", tinted ? "0.92" : "0.45");
+            p.setAttribute("data-sk-band", b.src && b.tgt ? "flow" : "rest");
+            p.setAttribute("data-sk-fam", b.fam);
+            p.setAttribute("data-sk-w", f2(t));
+            if (b.src) { p.setAttribute("data-sk-src", String(b.src.i)); }
+            if (b.tgt) { p.setAttribute("data-sk-tgt", String(b.tgt.i)); }
+            p.style.transition = "opacity .12s ease";
+            if (!b.src || !b.tgt) {
+                const tt = document.createElementNS(ns, "title");
+                tt.textContent = this.str("Other (not broken down)", "Sonstige (nicht aufgeschlüsselt)")
+                    + " · " + this.treeNum(b.t, fmt) + (unit ? " " + unit : "");
+                p.appendChild(tt);
+            }
+            bandG.appendChild(p);
+            bandEls.push({ el: p, b });
+        }
+
+        const refUp = ui.ref.toUpperCase();
+        for (const n of nodes) {
+            const g = document.createElementNS(ns, "g") as SVGGElement;
+            g.setAttribute("data-pnl", "sk-node");
+            g.setAttribute("data-sk-i", String(n.i));
+            g.setAttribute("data-sk-col", String(n.col - minCol));
+            g.setAttribute("data-sk-fam", n.fam);
+            g.setAttribute("data-sk-role", n.role);
+            g.setAttribute("data-pnl-id", n.node.row.id);
+            const zero = n.d == null || n.d === 0;
+            const color = famColor(n.fam);
+            const bar = document.createElementNS(ns, "rect");
+            bar.setAttribute("data-sk-bar", "1");
+            bar.setAttribute("x", f2(n.x)); bar.setAttribute("y", f2(n.y));
+            bar.setAttribute("width", f2(barW)); bar.setAttribute("height", f2(n.h));
+            bar.setAttribute("rx", f2(Math.min(2 * s, n.h / 2)));
+            bar.setAttribute("fill", color);
+            if (zero) { bar.setAttribute("fill-opacity", "0.45"); }
+            bar.style.cursor = "pointer";
+            g.appendChild(bar);
+
+            // tooltip: name · value · % · Δ against the toolbar reference
+            const va = this.treeVariance(n.node);
+            const tipParts = [n.node.row.name, (n.d == null ? "–" : this.treeNum(n.d, fmt)) + (unit ? " " + unit : "")];
+            if (!zero && baseV > 0) { tipParts.push(fmt.pct(Math.abs(n.v) / baseV)); }
+            if (va && va.delta != null) {
+                tipParts.push(`Δ${refUp} ${this.treeNum(va.delta, fmt)}`
+                    + (va.deltaPct != null ? ` (${fmt.pct(va.deltaPct, true)})` : ""));
+            }
+            const tip = tipParts.join(" · ") + this.selCapNote(n.node);
+            const bt = document.createElementNS(ns, "title");
+            bt.textContent = tip;
+            bar.appendChild(bt);
+
+            if (n.label) {
+                const lg = document.createElementNS(ns, "g") as SVGGElement;
+                lg.style.cursor = "pointer";
+                let x: number; let anchor: string; let y1: number;
+                if (n.side === "left") { x = n.x - 5 * s; anchor = "end"; y1 = n.y + n.h / 2 - labelH / 2 + fs1; }
+                else if (n.side === "right") { x = n.x + barW + 5 * s; anchor = "start"; y1 = n.y + n.h / 2 - labelH / 2 + fs1; }
+                else { x = n.x + barW / 2; anchor = "middle"; y1 = n.y - 4 * s - lh2 - 1 * s; }
+                const maxW = n.side === "top" ? topW : sideMax;
+                const chev = chevOf(n);
+                const nameT = document.createElementNS(ns, "text");
+                nameT.setAttribute("data-sk-name", "1");
+                nameT.setAttribute("x", f2(x)); nameT.setAttribute("y", f2(y1));
+                nameT.setAttribute("text-anchor", anchor);
+                nameT.setAttribute("font-size", fs1.toFixed(1));
+                nameT.setAttribute("font-family", FONT);
+                nameT.setAttribute("font-weight", "600");
+                nameT.setAttribute("fill", zero ? C.soft : C.text);
+                // a quiet halo keeps a label readable where it crosses a ribbon
+                nameT.setAttribute("stroke", this.pageBg()); nameT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
+                nameT.setAttribute("stroke-linejoin", "round"); nameT.setAttribute("paint-order", "stroke");
+                const nameTxt = this.fitLabel(nameOf(n), (maxW - (chev ? chevW : 0)) * 0.56 / wFactor, fs1);
+                const chevSpan = (): SVGTSpanElement => {
+                    const c = document.createElementNS(ns, "tspan") as SVGTSpanElement;
+                    c.setAttribute("data-sk-chev", "1");
+                    c.setAttribute("fill", C.soft);
+                    c.setAttribute("font-weight", "400");
+                    c.textContent = chev;
+                    const ct = document.createElementNS(ns, "title");
+                    ct.textContent = chev === "▸"
+                        ? this.str("Expand (Shift: whole limb)", "Aufklappen (Shift: ganzer Ast)")
+                        : this.str("Collapse", "Zuklappen");
+                    c.appendChild(ct);
+                    c.style.cursor = "pointer";
+                    c.addEventListener("click", (e: Event) => this.treeToggle(n.card, e as MouseEvent));
+                    return c;
+                };
+                // the chevron sits on the side of the label that faces the bar
+                if (chev && anchor !== "end") { nameT.appendChild(chevSpan()); }
+                nameT.appendChild(document.createTextNode((chev && anchor !== "end" ? " " : "") + nameTxt
+                    + (chev && anchor === "end" ? " " : "")));
+                if (chev && anchor === "end") { nameT.appendChild(chevSpan()); }
+                lg.appendChild(nameT);
+                const valT = document.createElementNS(ns, "text");
+                valT.setAttribute("data-sk-val", "1");
+                valT.setAttribute("x", f2(x)); valT.setAttribute("y", f2(y1 + lh2));
+                valT.setAttribute("text-anchor", anchor);
+                valT.setAttribute("font-size", fs2.toFixed(1));
+                valT.setAttribute("font-family", FONT);
+                valT.setAttribute("fill", zero ? C.soft : C.text);
+                valT.setAttribute("stroke", this.pageBg()); valT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
+                valT.setAttribute("stroke-linejoin", "round"); valT.setAttribute("paint-order", "stroke");
+                valT.setAttribute("font-variant-numeric", "tabular-nums");
+                valT.textContent = valTxt(n);
+                lg.appendChild(valT);
+                const lt = document.createElementNS(ns, "title");
+                lt.textContent = tip;
+                lg.appendChild(lt);
+                g.appendChild(lg);
+            }
+
+            // left click (bar or label) → the tile view of this row
+            g.addEventListener("click", (e: Event) => {
+                e.stopPropagation();
+                ui.treeZoom = n.node.row.id;
+                this.persistUi(); this.rerender();
+            });
+            // hover: this node and its ribbons stay, everything else steps back
+            g.addEventListener("mouseenter", () => {
+                for (const be of bandEls) {
+                    const on = be.b.src === n || be.b.tgt === n || (be.b.owner === n && (!be.b.src || !be.b.tgt));
+                    be.el.style.opacity = on ? "1" : "0.28";
+                }
+            });
+            g.addEventListener("mouseleave", () => { for (const be of bandEls) { be.el.style.opacity = ""; } });
+            if (this.selectable(n.node)) {
+                this.bindSelect(g, n.node, false);
+                if (this.isSelected(n.node)) {
+                    bar.setAttribute("stroke", this.accent());
+                    bar.setAttribute("stroke-width", "2");
+                    g.setAttribute("data-pnl-sel", "1");
+                }
+            }
+            this.treeHoverZoom(g, n.node, fmt);
+            inner.appendChild(g);
+        }
+        wrap.appendChild(svg);
+        return wrap;
+    }
+
+    /**
+     * ▸ / ▾ of a tree card or a Sankey label: a plain click opens or folds
+     * exactly this node — its children keep their own remembered fold state;
+     * Shift opens the whole limb below it.
+     */
+    private treeToggle(card: TreeCard, e: MouseEvent): void {
+        e.stopPropagation();
+        const ui = this.ui!;
+        const ctx = this.treeCtx;
+        const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
+        const id = card.node.row.id;
+        if (cur.has(id)) {
+            cur.delete(id);
+            if (e.shiftKey) {
+                const done = new Set<string>();
+                const stack = [id];
+                while (stack.length > 0) {
+                    const n = stack.pop()!;
+                    if (done.has(n)) { continue; }
+                    done.add(n);
+                    cur.delete(n);
+                    for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+                }
+            }
+        } else { cur.add(id); }
+        ui.treeCollapsed = [...cur];
+        this.persistUi(); this.rerender();
+    }
+
     // ---------------- footnotes / footer ----------------
 
     private buildFootnotes(fmt: Fmt): void {
@@ -5512,7 +6272,7 @@ export class Visual implements IVisual {
         this.root.appendChild(box);
     }
 
-    private buildFooter(): HTMLElement {
+    private buildFooter(flow = false): HTMLElement {
         const f = document.createElement("div");
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
             `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
@@ -5521,10 +6281,16 @@ export class Visual implements IVisual {
             ? this.str(" Documented corporate deviation: teal replaces the IBCS variance green to remain readable with red–green color-vision deficiency.",
                 " Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben.")
             : "";
+        // the Sankey is a deliberate addition next to the IBCS views — the
+        // footer says so instead of letting it pass as IBCS notation
+        const flowNote = flow
+            ? this.str(" The flow view (Sankey) is a deliberate addition outside the IBCS notation.",
+                " Die Fluss-Ansicht (Sankey) ist eine bewusste Ergänzung außerhalb der IBCS-Notation.")
+            : "";
         f.textContent = this.str(
-            "Notation based on the IBCS® Standards 1.2 by the IBCS Association (CC BY-SA 4.0, ibcs.com)." + dev +
+            "Notation based on the IBCS® Standards 1.2 by the IBCS Association (CC BY-SA 4.0, ibcs.com)." + flowNote + dev +
             " IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by or affiliated with the IBCS Association.",
-            "Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com)." + dev +
+            "Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com)." + flowNote + dev +
             " IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert.");
         return f;
     }

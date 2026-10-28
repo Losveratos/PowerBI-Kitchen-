@@ -207,6 +207,27 @@ das Power BI die Drillthrough-Ziele selbst einhängt.
 - [ ] Sehr große Knoten (> 2.000 Quellzeilen): der Tooltip der Zeile sagt, dass
   die Selektion auf die ersten 2.000 Quellzeilen begrenzt ist
 
+## 6b · Sankey-Ansicht und angebotene Ansichten (v0.18)
+
+- [ ] Toolbar → **Sankey**: links die Umsatz-Komponenten (grau), in der Mitte
+  der Gewinn-Strang Gross profit → EBITDA → EBIT → EBT → Net income (teal),
+  Kosten zweigen als rote Bänder nach rechts unten in eigene Endknoten ab
+- [ ] Ist die Baum-Wurzel eine Quote (Net margin), beginnt der Fluss bei ihrem
+  ersten Wert-Operanden (Net income) — kein Quoten-Knoten im Sankey
+- [ ] Labels: Name, darunter Wert und in Klammern % vom Umsatz
+  (z. B. „Gross profit 1 201 (71,3 %)"); nichts abgeschnitten
+- [ ] Klick auf einen Knoten → Kachel-Ansicht; **„← Zurück zum Sankey"** führt
+  zurück in den Sankey (nicht in den Baum)
+- [ ] Rechtsklick auf einen Knoten → natives Kontextmenü mit Drillthrough-Zielen
+- [ ] ▾ am Label klappt den Ast zu (Shift + ▸: ganzer Ast auf); Ebenen-Buttons
+  und ⌂ wirken wie im Baum
+- [ ] Footer: „Die Fluss-Ansicht (Sankey) ist eine bewusste Ergänzung außerhalb
+  der IBCS-Notation."
+- [ ] Format-Pane → Toolbar → **„Ansicht: Sankey anbieten" = Aus**: der Button
+  verschwindet; ein Lesezeichen mit Sankey-Zustand zeigt die erste angebotene
+  Ansicht (Tabelle) — ohne Fehler, und nach dem Wiedereinschalten wieder den Sankey
+- [ ] Nur **eine** Ansicht angeboten: die Ansichts-Gruppe der Toolbar entfällt
+
 ## 7 · Speichern für die Automatisierung (wichtig!)
 
 1. **Datei → Speichern unter → Power BI Projekt (.pbip)** in deinen

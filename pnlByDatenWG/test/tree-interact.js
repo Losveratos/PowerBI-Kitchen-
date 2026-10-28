@@ -974,7 +974,7 @@ function tidyChecks(geom, tag) {
         zoomBar.groups.indexOf("Feeds into") >= 0 && zoomBar.groups.indexOf("Driven by") >= 0,
         zoomBar.groups.join(" | "));
     check("no view button survives in the tile view",
-        ["Table", "Bars", "Waterfall", "Tree"].every(t => zoomBar.buttons.indexOf(t) < 0),
+        ["Table", "Bars", "Waterfall", "Tree", "Sankey"].every(t => zoomBar.buttons.indexOf(t) < 0),
         zoomBar.buttons.join(","));
     check("the back button is the dominant control of the tile header",
         zoomBar.back != null && parseFloat(zoomBar.back.fs) >= 13
@@ -2155,6 +2155,417 @@ function tidyChecks(geom, tag) {
         selRes.treeHint);
     check("allowInteractions = false switches the behaviour off as well",
         selRes.noInteractRows === 0, "rows=" + selRes.noInteractRows);
+    // ---- 25) v0.18: the Sankey flow view over the driver-tree graph
+    // A stage helper over the Pharma demo (formula P&L) and the plain
+    // dimension hierarchy of block 30. readSankey reports what a reader sees:
+    // node bars (column, family, fill), ribbons (ends, width, family, fill),
+    // the two label lines, clipped / overlapping labels and the toolbar.
+    await page.evaluate(() => {
+        window.SK_STAGE = (id, objects, w, h) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id;
+            d.style.cssText = `width:${w || 1400}px;height:${h || 900}px;`;
+            document.body.appendChild(d);
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+            v.update({ dataViews: [dv(objects)], viewport: { width: w || 1400, height: h || 900 }, type: 2 });
+            return d;
+        };
+        window.SK_UI = (extra) => ({ titleBlock: { measureLine: "sankey" },
+            state: { uiState: JSON.stringify(Object.assign({ view: "sankey", treeV: 2, ref: "pl" }, extra || {})) } });
+    });
+    const readSankey = (id) => {
+        const stage = document.getElementById(id);
+        // own text only — <title> children and the chevron tspan stay out
+        const own = (t) => t ? [...t.childNodes].filter(c => c.nodeType === 3)
+            .map(c => c.nodeValue).join("").trim() : "";
+        const svg = stage.querySelector('svg[data-pnl="sankey"]');
+        const nodes = [...stage.querySelectorAll('[data-pnl="sk-node"]')].map(g => {
+            const bar = g.querySelector("[data-sk-bar]");
+            const nm = g.querySelector("[data-sk-name]");
+            const vl = g.querySelector("[data-sk-val]");
+            const chev = g.querySelector("[data-sk-chev]");
+            return {
+                i: +g.getAttribute("data-sk-i"), col: +g.getAttribute("data-sk-col"),
+                fam: g.getAttribute("data-sk-fam"), role: g.getAttribute("data-sk-role"),
+                id: g.getAttribute("data-pnl-id"), name: own(nm), val: vl ? vl.textContent : "",
+                chev: chev ? chev.firstChild.nodeValue : "",
+                x: +bar.getAttribute("x"), y: +bar.getAttribute("y"), h: +bar.getAttribute("height"),
+                w: +bar.getAttribute("width"), fill: bar.getAttribute("fill"),
+                tip: bar.querySelector("title") ? bar.querySelector("title").textContent : "",
+                sel: g.getAttribute("data-pnl-sel"),
+            };
+        });
+        const bands = [...stage.querySelectorAll("[data-sk-band]")].map(p => ({
+            kind: p.getAttribute("data-sk-band"),
+            src: p.hasAttribute("data-sk-src") ? +p.getAttribute("data-sk-src") : null,
+            tgt: p.hasAttribute("data-sk-tgt") ? +p.getAttribute("data-sk-tgt") : null,
+            w: +p.getAttribute("data-sk-w"), fam: p.getAttribute("data-sk-fam"), fill: p.getAttribute("fill"),
+        }));
+        const clipped = []; const boxes = [];
+        if (svg) {
+            const sw = parseFloat(svg.getAttribute("width")); const sh = parseFloat(svg.getAttribute("height"));
+            svg.querySelectorAll("text").forEach(t => {
+                const b = t.getBBox();
+                const tr = 6; // translate of the inner group
+                if (b.x + tr < -0.5 || b.x + tr + b.width > sw + 0.5 || b.y + tr < -0.5 || b.y + tr + b.height > sh + 0.5) {
+                    clipped.push(t.textContent);
+                }
+                boxes.push({ t: own(t) || t.textContent, x: b.x, y: b.y, w: b.width, h: b.height });
+            });
+        }
+        const overlaps = [];
+        for (let a = 0; a < boxes.length; a++) {
+            for (let b = a + 1; b < boxes.length; b++) {
+                const A = boxes[a]; const B = boxes[b];
+                if (A.x < B.x + B.w - 1 && B.x < A.x + A.w - 1 && A.y < B.y + B.h - 1 && B.y < A.y + A.h - 1) {
+                    overlaps.push(A.t + " / " + B.t);
+                }
+            }
+        }
+        const groups = [...stage.querySelectorAll("div")]
+            .filter(x => x.style.textTransform === "uppercase" && x.style.letterSpacing !== "")
+            .map(x => x.textContent);
+        const viewHead = [...stage.querySelectorAll("div")].find(x => x.style.textTransform === "uppercase"
+            && x.textContent === "View");
+        const levelHead = [...stage.querySelectorAll("div")].find(x => x.style.textTransform === "uppercase"
+            && x.textContent === "Expand to level");
+        return {
+            svg: !!svg, nodes, bands, clipped, overlaps, groups,
+            viewBtns: viewHead ? [...viewHead.parentElement.querySelectorAll("button")].map(b => b.textContent) : [],
+            levelBtns: levelHead ? [...levelHead.parentElement.querySelectorAll("button")].map(b => b.textContent) : [],
+            zoom: !!stage.querySelector('[data-pnl="zoom-center"]'),
+            back: stage.querySelector('[data-pnl="zoom-back"]')
+                ? stage.querySelector('[data-pnl="zoom-back"]').textContent : "",
+            footer: stage.textContent.indexOf("outside the IBCS notation") >= 0,
+            hint: stage.querySelector('[data-pnl="sankey-hint"]')
+                ? stage.querySelector('[data-pnl="sankey-hint"]').textContent : "",
+            rows: stage.querySelectorAll("[data-pnl-row]").length,
+            tableRows: [...stage.querySelectorAll("div")].filter(x => x.style.display === "table-row").length,
+            treeCards: stage.querySelectorAll("svg > g > g > rect[rx='4']").length,
+        };
+    };
+    // the reader also lives in the page, so a stage block can call it in one go
+    await page.addScriptTag({ content: "window.READ_SK = " + readSankey.toString() + ";" });
+    const skNode = (sk, nm) => sk.nodes.find(n => n.name.indexOf(nm) === 0);
+    const skCols = (sk) => new Set(sk.nodes.map(n => n.col)).size;
+    const numericLevels = (sk) => sk.levelBtns.filter(b => /^\d+$/.test(b)).length;
+
+    await page.evaluate(() => { window.SK_STAGE("sk1", window.SK_UI()); });
+    await page.waitForTimeout(200);
+    let sk = await page.evaluate(readSankey, "sk1");
+
+    // (h) the KPI root (Net margin) cannot be poured — the flow starts at Net income
+    check("the Sankey renders an svg flow with nodes and ribbons",
+        sk.svg && sk.nodes.length >= 20 && sk.bands.length >= 20,
+        "nodes=" + sk.nodes.length + " bands=" + sk.bands.length);
+    check("a KPI root hands the flow to its first value operand (Net income)",
+        sk.nodes[0] && sk.nodes[0].name.indexOf("Net income") === 0, sk.nodes[0] && sk.nodes[0].name);
+    check("no ratio / KPI node takes part in the flow",
+        sk.nodes.every(n => n.name.indexOf("margin") < 0), sk.nodes.map(n => n.name).join(","));
+
+    // (a) columns: one per graph level, root on the right, leaves on the left
+    const maxColSk = Math.max(...sk.nodes.map(n => n.col));
+    check("column count equals the depth of the flow graph",
+        skCols(sk) === numericLevels(sk) + 1 && skCols(sk) === 7,
+        "cols=" + skCols(sk) + " levels=" + sk.levelBtns.join(""));
+    check("the flow root sits in the rightmost column",
+        sk.nodes[0].col === maxColSk, "root col " + sk.nodes[0].col + " / max " + maxColSk);
+    check("the revenue leaves sit in the leftmost column",
+        ["Pharmaceuticals", "Consumer Health", "Contract manufacturing"]
+            .every(nm => skNode(sk, nm) && skNode(sk, nm).col === 0),
+        sk.nodes.filter(n => n.col === 0).map(n => n.name).join(","));
+    check("the profit strand runs left to right (Gross profit → EBITDA → EBIT → EBT → Net income)",
+        ["Gross profit", "EBITDA", "EBIT", "EBT", "Net income"].map(nm => skNode(sk, nm))
+            .every((n, i, a) => n && (i === 0 || n.col === a[i - 1].col + 1)),
+        ["Gross profit", "EBITDA", "EBIT", "EBT", "Net income"].map(nm => (skNode(sk, nm) || {}).col).join(","));
+    check("node bars are slim vertical bars",
+        sk.nodes.every(n => n.w >= 10 && n.w <= 14), sk.nodes.map(n => n.w).join(","));
+    check("costs branch off in the column of the row they are deducted from",
+        skNode(sk, "Cost of goods sold").col === skNode(sk, "Gross profit").col
+        && skNode(sk, "Operating expenses").col === skNode(sk, "EBITDA").col
+        && skNode(sk, "Income taxes").col === skNode(sk, "Net income").col,
+        ["Cost of goods sold", "Operating expenses", "Income taxes"].map(nm => (skNode(sk, nm) || {}).col).join(","));
+    check("a cost pours to the right into its own red end nodes",
+        skNode(sk, "Research").col === skNode(sk, "Operating expenses").col + 1
+        && skNode(sk, "Materials").col === skNode(sk, "Cost of goods sold").col + 1);
+    check("within a column the profit strand stays above its costs",
+        skNode(sk, "Gross profit").y < skNode(sk, "Cost of goods sold").y
+        && skNode(sk, "Net income").y < skNode(sk, "Income taxes").y);
+
+    // (b) ribbons are proportional: the bands of a port add up to the node
+    const portOff = [];
+    for (const n of sk.nodes) {
+        if (n.h <= 6.5) { continue; } // minimum-height bars carry more than their value
+        const ins = sk.bands.filter(b => b.tgt === n.i).reduce((a, b) => a + b.w, 0);
+        const outs = sk.bands.filter(b => b.src === n.i).reduce((a, b) => a + b.w, 0);
+        const tol = 0.6 + n.h * 0.005;
+        if (ins > 0 && Math.abs(ins - n.h) > tol) { portOff.push(n.name + " in " + ins.toFixed(1) + "/" + n.h); }
+        if (outs > 0 && Math.abs(outs - n.h) > tol) { portOff.push(n.name + " out " + outs.toFixed(1) + "/" + n.h); }
+    }
+    check("the ribbons of every port add up to the node height", portOff.length === 0, portOff.join("; "));
+    const kOf = (nm) => { const n = skNode(sk, nm); return n.h / parseFloat(n.val.split(" (")[0].replace(/[^\d.]/g, "")); };
+    check("one common scale: bar height ∝ value across all columns",
+        Math.abs(kOf("Net revenue") / kOf("Pharmaceuticals") - 1) < 0.02
+        && Math.abs(kOf("Net revenue") / kOf("Operating expenses") - 1) < 0.02
+        && Math.abs(kOf("Net revenue") / kOf("Net income") - 1) < 0.02,
+        [kOf("Net revenue"), kOf("Pharmaceuticals"), kOf("Operating expenses"), kOf("Net income")]
+            .map(v => v.toFixed(4)).join(","));
+    const nr = skNode(sk, "Net revenue"); const gp = skNode(sk, "Gross profit"); const cogs = skNode(sk, "Cost of goods sold");
+    const nrToGp = sk.bands.filter(b => b.src === nr.i && b.tgt === gp.i).reduce((a, b) => a + b.w, 0);
+    const nrToCogs = sk.bands.filter(b => b.src === nr.i && b.tgt === cogs.i).reduce((a, b) => a + b.w, 0);
+    check("revenue splits into gross profit and cost of sales by value",
+        Math.abs(nrToGp - gp.h) < 0.6 && Math.abs(nrToCogs - cogs.h) < 0.6,
+        "→GP " + nrToGp.toFixed(1) + "/" + gp.h + " →COGS " + nrToCogs.toFixed(1) + "/" + cogs.h);
+    check("no rest band is needed on the consistent demo P&L",
+        sk.bands.every(b => b.kind === "flow"), sk.bands.filter(b => b.kind !== "flow").length + " rest");
+
+    // (c) colour families: costs red, profit strand teal, revenue split gray
+    const GOOD = "#0E8585"; const BAD = "#E02B1D"; const GRAY = "#B3B3B3";
+    const famIs = (names, fam, fill) => names.map(nm => skNode(sk, nm))
+        .filter(n => !n || n.fam !== fam || n.fill !== fill).map(n => n ? n.name + ":" + n.fam + ":" + n.fill : "?");
+    let off = famIs(["Cost of goods sold", "Materials", "Operating expenses", "Research", "Income taxes",
+        "Depreciation & amort", "Interest expense"], "bad", BAD);
+    check("cost nodes carry the bad colour family", off.length === 0, off.join(","));
+    off = famIs(["Gross profit", "EBITDA", "EBIT", "EBT", "Net income"], "good", GOOD);
+    check("the profit strand carries the good colour family", off.length === 0, off.join(","));
+    off = famIs(["Net revenue", "Pharmaceuticals", "Consumer Health", "Contract manufacturing"], "gray", GRAY);
+    check("the revenue split stays neutral gray", off.length === 0, off.join(","));
+    const bandFam = (s, t) => (sk.bands.find(b => b.src === skNode(sk, s).i && b.tgt === skNode(sk, t).i) || {});
+    check("ribbons take the family of where they flow: gray in, teal on, red off",
+        bandFam("Pharmaceuticals", "Net revenue").fam === "gray" && bandFam("Net revenue", "Gross profit").fam === "good"
+        && bandFam("Net revenue", "Cost of goods sold").fam === "bad"
+        && bandFam("Operating expenses", "Research").fam === "bad",
+        [bandFam("Pharmaceuticals", "Net revenue").fam, bandFam("Net revenue", "Gross profit").fam,
+            bandFam("Net revenue", "Cost of goods sold").fam, bandFam("Operating expenses", "Research").fam].join(","));
+    const rgb = (f) => (/rgb\((\d+),(\d+),(\d+)\)/.exec(f) || []).slice(1).map(Number);
+    const goodBand = rgb(bandFam("Net revenue", "Gross profit").fill || "");
+    check("ribbons are a lightened tint of the node colour",
+        goodBand.length === 3 && goodBand[0] > 0x0E && goodBand[1] > 0x85 && goodBand[2] > 0x85 && goodBand[1] < 255,
+        bandFam("Net revenue", "Gross profit").fill);
+
+    // (d) labels: name, value and the %-of-revenue bracket, never clipped
+    check("every node label reads value (xx.x%)",
+        sk.nodes.filter(n => n.val !== "–").every(n => /\(\d+(\.\d)?%\)$/.test(n.val)),
+        sk.nodes.map(n => n.val).filter(v => !/\(\d+(\.\d)?%\)$/.test(v)).join(" | "));
+    check("Net revenue is the 100 % basis, Gross profit its share",
+        /\(100\.0%\)$/.test(nr.val) && /^1\s?201 \(71\.3%\)$/.test(gp.val), nr.val + " / " + gp.val);
+    check("the Sankey clips no label", sk.clipped.length === 0, sk.clipped.join(", "));
+    check("no two Sankey labels overlap", sk.overlaps.length === 0, sk.overlaps.slice(0, 6).join(" | "));
+    check("a node tooltip names value, share and the Δ against the reference",
+        /Gross profit · 1\s?201 .*· 71\.3% · ΔPL /.test(gp.tip), gp.tip);
+    check("the Sankey hint line documents clicks, hover and the context menu",
+        sk.hint.indexOf("tile view") > 0 && sk.hint.indexOf("Right-click") > 0, sk.hint);
+    check("the footer places the flow view outside the IBCS notation", sk.footer);
+
+    // (i) toolbar: view, reference, unit, density and levels — no table groups
+    check("the Sankey toolbar keeps view, Δ reference, unit and the level buttons",
+        ["View", "Δ reference", "Unit", "Expand to level"].every(gp2 => sk.groups.indexOf(gp2) >= 0),
+        sk.groups.join(" | "));
+    check("the Sankey toolbar hides presets, periods, options and the card modes",
+        ["Column preset", "Periods", "Options", "Cards"].every(gp2 => sk.groups.indexOf(gp2) < 0),
+        sk.groups.join(" | "));
+    check("the view group offers the fifth button Sankey, active",
+        sk.viewBtns.join(",") === "Table,Bars,Waterfall,Tree,Sankey", sk.viewBtns.join(","));
+    check("the level group carries ⌂ like the tree", sk.levelBtns[0] === "⌂", sk.levelBtns.join(","));
+
+    // (e) a click on a node opens the tile view; back returns into the Sankey
+    await page.evaluate(() => {
+        const g = [...document.getElementById("sk1").querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === "F_EBITDA");
+        g.querySelector("[data-sk-bar]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await page.waitForTimeout(250);
+    let skz = await page.evaluate(readSankey, "sk1");
+    const zTitle = await page.evaluate(() => {
+        const t = document.getElementById("sk1").querySelector('[data-pnl="zoom-title"]');
+        return t ? t.textContent : "";
+    });
+    check("a click on a Sankey node opens the tile view of that row",
+        skz.zoom && !skz.svg && zTitle.indexOf("EBITDA") === 0, "zoom=" + skz.zoom + " title=" + zTitle);
+    check("the back button names the view it returns to",
+        skz.back === "← Back to Sankey", skz.back);
+    check("the tile view opened from the Sankey hides the view group too",
+        skz.groups.indexOf("View") < 0 && skz.groups.indexOf("Δ reference") >= 0, skz.groups.join(" | "));
+    await page.evaluate(() => {
+        document.getElementById("sk1").querySelector('[data-pnl="zoom-back"]').click();
+    });
+    await page.waitForTimeout(250);
+    skz = await page.evaluate(readSankey, "sk1");
+    check("back returns into the Sankey (the view stays sankey)",
+        skz.svg && !skz.zoom && skz.nodes.length === sk.nodes.length && skz.viewBtns.length === 5,
+        "svg=" + skz.svg + " nodes=" + skz.nodes.length);
+    // a click on the label opens the tile view as well
+    await page.evaluate(() => {
+        const g = [...document.getElementById("sk1").querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === "L:Net revenue");
+        g.querySelector("[data-sk-val]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await page.waitForTimeout(250);
+    skz = await page.evaluate(readSankey, "sk1");
+    check("a click on a node label opens its tile view too", skz.zoom, "zoom=" + skz.zoom);
+    await page.evaluate(() => { document.getElementById("sk1").querySelector('[data-pnl="zoom-back"]').click(); });
+    await page.waitForTimeout(200);
+
+    // (f) right click → native context menu with the selection of that node
+    const skMenu = await page.evaluate(() => {
+        window.__selReset();
+        const g = [...document.getElementById("sk1").querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === "L:Cost of goods sold");
+        const ev = new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 321, clientY: 123 });
+        g.querySelector("[data-sk-bar]").dispatchEvent(ev);
+        return { log: window.__selLog.slice(), prevented: ev.defaultPrevented,
+            exp: PNL_DEMO.levelRows.map((r, i) => [r, i]).filter(p => p[0].levels[0] === "Cost of goods sold").map(p => p[1]) };
+    });
+    check("a right click on a Sankey node opens the context menu with its selection id",
+        skMenu.log.length === 1 && skMenu.log[0].call === "menu" && skMenu.exp.indexOf(skMenu.log[0].idx) >= 0
+        && skMenu.log[0].x === 321 && skMenu.prevented === true, JSON.stringify(skMenu.log));
+
+    // hover: the node's own ribbons stay, the others step back
+    const hov = await page.evaluate(() => {
+        const st = document.getElementById("sk1");
+        const g = [...st.querySelectorAll('[data-pnl="sk-node"]')].find(x => x.getAttribute("data-pnl-id") === "F_GROSSPROFIT");
+        const i = g.getAttribute("data-sk-i");
+        g.dispatchEvent(new MouseEvent("mouseenter"));
+        const bands = [...st.querySelectorAll("[data-sk-band]")];
+        const mine = bands.filter(b => b.getAttribute("data-sk-src") === i || b.getAttribute("data-sk-tgt") === i);
+        const res = { mine: mine.every(b => b.style.opacity === "1"),
+            dimmed: bands.filter(b => mine.indexOf(b) < 0).every(b => b.style.opacity === "0.28") };
+        g.dispatchEvent(new MouseEvent("mouseleave"));
+        res.reset = bands.every(b => b.style.opacity === "");
+        return res;
+    });
+    check("hovering a node keeps its ribbons and dims the rest, leaving restores",
+        hov.mine && hov.dimmed && hov.reset, JSON.stringify(hov));
+
+    // (g) level buttons, the chevron (▾/▸) and ⌂ drive the flow
+    await step(clickLevel, ["sk1", "2"]);
+    let skl = await page.evaluate(readSankey, "sk1");
+    check("level 2 leaves Net income with its two operands",
+        skl.nodes.length === 3 && skCols(skl) === 2 && skNode(skl, "EBT") && skNode(skl, "Income taxes"),
+        skl.nodes.map(n => n.name).join(","));
+    await step(clickLevel, ["sk1", "All"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("All opens the whole flow again", skl.nodes.length === sk.nodes.length, "nodes=" + skl.nodes.length);
+    const clickSkChev = (args) => {
+        const g = [...document.getElementById(args[0]).querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === args[1]);
+        const c = g ? g.querySelector("[data-sk-chev]") : null;
+        if (!c) { return false; }
+        c.dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey: !!args[2] }));
+        return true;
+    };
+    check("a node with a branch carries a ▾ at its label",
+        skNode(skl, "Gross profit").chev === "▾" && skNode(skl, "Pharmaceuticals").chev === "",
+        skNode(skl, "Gross profit").chev + "/" + skNode(skl, "Pharmaceuticals").chev);
+    await step(clickSkChev, ["sk1", "F_GROSSPROFIT"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("▾ folds the branch: revenue and cost of sales leave the flow, the node turns ▸",
+        !skNode(skl, "Net revenue") && !skNode(skl, "Cost of goods sold") && skNode(skl, "Gross profit").chev === "▸"
+        && !skl.zoom, skl.nodes.map(n => n.name).join(","));
+    await step(clickSkChev, ["sk1", "F_GROSSPROFIT"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("▸ opens it again", skNode(skl, "Net revenue") && skNode(skl, "Materials"),
+        skl.nodes.map(n => n.name).join(","));
+    await step(clickLevel, ["sk1", "1"]);
+    await step(clickSkChev, ["sk1", "F_NETINCOME", true]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("Shift + ▸ opens the whole limb at once", skl.nodes.length === sk.nodes.length,
+        "nodes=" + skl.nodes.length);
+    await step(clickLevel, ["sk1", "1"]);
+    await step(clickLevel, ["sk1", "⌂"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("⌂ returns to the untouched whole flow", skl.nodes.length === sk.nodes.length,
+        "nodes=" + skl.nodes.length);
+
+    // another KPI root named in the format pane: EBITDA margin → EBITDA
+    await page.evaluate(() => {
+        window.SK_STAGE("sk2", Object.assign(window.SK_UI(), { columns: { treeRoot: "K_EBITDAMARGIN" } }));
+    });
+    sk = await page.evaluate(readSankey, "sk2");
+    check("a KPI root from the format pane flows from its value operand (EBITDA margin → EBITDA)",
+        sk.nodes[0] && sk.nodes[0].name === "EBITDA" && sk.nodes.every(n => n.name.indexOf("margin") < 0),
+        sk.nodes.map(n => n.name).join(","));
+
+    // the dimension hierarchy of block 30: Total ← categories ← product lines
+    await page.evaluate(() => {
+        window.PNL_DIM_STAGE("sk-dim", 1300, 800, { ...window.PNL_DIM_UI, view: "sankey" });
+    });
+    await page.waitForTimeout(250);
+    sk = await page.evaluate(readSankey, "sk-dim");
+    check("a plain dimension hierarchy flows too: 13 nodes in three columns",
+        sk.nodes.length === 13 && skCols(sk) === 3 && skCols(sk) === numericLevels(sk) + 1,
+        "nodes=" + sk.nodes.length + " cols=" + skCols(sk));
+    check("the virtual total is the flow root on the right",
+        sk.nodes[0].name === "Total" && sk.nodes[0].col === 2, sk.nodes[0].name + "@" + sk.nodes[0].col);
+    check("product lines on the left, categories in between",
+        ["Rx", "Care", "Lab", "Logistics"].every(nm => skNode(sk, nm) && skNode(sk, nm).col === 0)
+        && ["Pharma", "Services"].every(nm => skNode(sk, nm).col === 1));
+    check("a revenue-only hierarchy stays entirely neutral gray (nothing is deducted)",
+        sk.nodes.every(n => n.fam === "gray" && n.fill === GRAY) && sk.bands.every(b => b.fam === "gray"),
+        sk.nodes.map(n => n.name + ":" + n.fam).join(","));
+    const dimPort = sk.nodes.filter(n => n.h > 6.5).filter(n => {
+        const ins = sk.bands.filter(b => b.tgt === n.i).reduce((a, b) => a + b.w, 0);
+        return ins > 0 && Math.abs(ins - n.h) > 0.6 + n.h * 0.005;
+    });
+    check("hierarchy ribbons add up to their category", dimPort.length === 0, dimPort.map(n => n.name).join(","));
+    check("a plain hierarchy reads % of its total root",
+        /\(100\.0%\)$/.test(sk.nodes[0].val), sk.nodes[0].val);
+    check("the hierarchy Sankey clips and overlaps no label",
+        sk.clipped.length === 0 && sk.overlaps.length === 0, sk.clipped.concat(sk.overlaps).slice(0, 5).join(" | "));
+
+    // ---- 26) v0.18: the author decides which views are offered
+    const offer = await page.evaluate(() => {
+        const rs = window.READ_SK;
+        const res = {};
+        window.SK_STAGE("vo1", { toolbar: { viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "table", fit: false }) } }, 1300, 600);
+        res.noSankey = rs("vo1");
+        window.SK_STAGE("vo2", { toolbar: { viewBars: false, viewWaterfall: false, viewTree: false, viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "table", fit: false }) } }, 1300, 600);
+        res.onlyTable = rs("vo2");
+        window.SK_STAGE("vo3", { toolbar: { viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } }, 1300, 600);
+        res.fallback = rs("vo3");
+        window.SK_STAGE("vo4", { toolbar: { viewTable: false, viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } }, 1300, 600);
+        res.fallbackBars = rs("vo4");
+        window.SK_STAGE("vo5", { toolbar: { viewTree: false },
+            state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeZoom: "F_EBITDA", fit: false }) } }, 1300, 600);
+        res.zoomOff = rs("vo5");
+        window.SK_STAGE("vo6", { toolbar: { viewTable: false, viewBars: false, viewWaterfall: false,
+            viewTree: false, viewSankey: false },
+        state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } }, 1300, 600);
+        res.allOff = rs("vo6");
+        return res;
+    });
+    check("viewSankey = off removes the Sankey button, the other four stay",
+        offer.noSankey.viewBtns.join(",") === "Table,Bars,Waterfall,Tree", offer.noSankey.viewBtns.join(","));
+    check("one offered view only: the view group disappears, the table renders",
+        offer.onlyTable.groups.indexOf("View") < 0 && offer.onlyTable.viewBtns.length === 0
+        && offer.onlyTable.tableRows > 10 && !offer.onlyTable.svg,
+        offer.onlyTable.groups.join(" | ") + " rows=" + offer.onlyTable.tableRows);
+    check("a persisted Sankey state falls back to the first offered view (table)",
+        !offer.fallback.svg && offer.fallback.tableRows > 10
+        && offer.fallback.viewBtns.join(",") === "Table,Bars,Waterfall,Tree",
+        "svg=" + offer.fallback.svg + " rows=" + offer.fallback.tableRows);
+    check("the fallback shows the toolbar of the table, not the one of the switched-off view",
+        offer.fallback.groups.indexOf("Column preset") >= 0, offer.fallback.groups.join(" | "));
+    check("the fallback follows the toolbar order (table off → bars)",
+        !offer.fallbackBars.svg && offer.fallbackBars.tableRows > 10
+        && offer.fallbackBars.viewBtns.join(",") === "Bars,Waterfall,Tree",
+        offer.fallbackBars.viewBtns.join(","));
+    check("a stored tile view never opens while its carrier view is switched off",
+        !offer.zoomOff.zoom && offer.zoomOff.tableRows > 10 && offer.zoomOff.treeCards === 0,
+        "zoom=" + offer.zoomOff.zoom + " rows=" + offer.zoomOff.tableRows);
+    check("every view switched off still leaves the table on screen",
+        offer.allOff.tableRows > 10 && offer.allOff.viewBtns.length === 0,
+        "rows=" + offer.allOff.tableRows);
+    const activeFallback = await page.evaluate(() => {
+        const b = [...document.getElementById("vo4").querySelectorAll("button")].find(x => x.textContent === "Bars");
+        return b ? b.style.color : "";
+    });
+    check("the fallback view's button is the active one", activeFallback === "rgb(255, 255, 255)", activeFallback);
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 

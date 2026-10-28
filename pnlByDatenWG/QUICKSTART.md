@@ -104,7 +104,7 @@ Perioden-Sortierung** auf **„Datenreihenfolge (Fiskaljahr)"**. `Automatisch`
 sortiert kalendarisch, sobald alle Labels lesbar sind; `Kalenderjahr` erzwingt
 Jan..Dez.
 
-## 5 · Die vier Ansichten (Toolbar)
+## 5 · Die fünf Ansichten (Toolbar)
 
 | Ansicht | Was sie zeigt |
 |---|---|
@@ -112,8 +112,12 @@ Jan..Dez.
 | Struktur-Bars | dieselben Zeilen mit Größenbalken — die Struktur des Ergebnisses |
 | Zeilen-Waterfall | die GuV als Kaskade; Ergebnisanker auf der Nulllinie, Kostenblöcke floaten (Wurzelebene der Hierarchie) |
 | Werttreiberbaum | aus dem Formel-Graphen (DuPont) oder aus der reinen Hierarchie; Tidy-Layout, Operator-Kreise, ⌖-Re-Root, Breadcrumb |
+| Sankey | derselbe Graph als Fluss von links nach rechts: Umsatz-Komponenten grau, Gewinn-Strang teal, Kosten rot nach rechts unten; Höhe ∝ AC (YTD), Labels mit Wert und % vom Umsatz — bewusst außerhalb der IBCS-Notation |
 
-**Kachel-Zoom:** Klick auf ein Karten-Diagramm zoomt den Knoten auf die ganze
+Welche Ansichten angeboten werden, steuert der Autor unter **Toolbar →
+„Ansicht: … anbieten"**; bleibt nur eine übrig, verschwindet die Ansichts-Gruppe.
+
+**Kachel-Zoom:** Klick auf ein Karten-Diagramm (oder im Sankey auf einen Knoten) zoomt den Knoten auf die ganze
 Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und
 „Getrieben von". Alle Toolbar-Zustände sind persistiert und lesezeichenfähig.
 

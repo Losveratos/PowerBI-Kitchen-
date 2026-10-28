@@ -1,5 +1,143 @@
 # Changelog — P&L Statement byDatenWG
 
+## 0.18.0.0 (2026-10-28) — Sankey: die GuV als Fluss, und der Autor bestimmt, welche Ansichten es gibt
+
+Tabelle, Balken, Waterfall und Baum erzählen die GuV in Zeilen und Karten. Was
+fehlte, ist das Bild, das man aus den Quartalsgrafiken der großen
+Tech-Konzerne kennt: **wohin das Geld fließt** — Umsatz links hinein, der
+Gewinn läuft nach rechts durch, die Kosten zweigen unterwegs ab. 0.18 baut
+genau diese Fluss-Ansicht als fünfte Ansicht, auf demselben Graphen wie der
+Werttreiberbaum.
+
+### Die Ansicht
+
+- **Fünfter Toolbar-Knopf „Sankey"** neben Tabelle · Bars · Waterfall · Tree.
+  Der Zustand ist additiv in `ui.view` persistiert — alte Zustände und
+  Lesezeichen bleiben gültig.
+- **Fluss von links nach rechts**, gespiegelt zum Baum: die Blätter
+  (Umsatz-Komponenten, Segmente, Produkte) stehen links, die Wurzel
+  (Net income / Gesamt) rechts. Jeder Knoten ist ein schmaler senkrechter
+  Balken (12 px), seine Höhe ist **proportional zum Betrag**, mit einer
+  gemeinsamen Skala über alle Spalten; Knoten ohne Wert behalten eine
+  Mindesthöhe von 6 px und ein gedimmtes Label.
+- **Die Kosten fließen ab, nicht zu.** Ein Knoten, dessen Beitrag gegen das
+  Vorzeichen seines Elternknotens läuft (Herstellkosten unter Gross profit,
+  Opex unter EBITDA, Steuern unter Net income), steht in der Spalte seines
+  Elternknotens **unter** ihm und wird aus demselben Zufluss gespeist: Net
+  revenue teilt sich in Gross profit und Herstellkosten. Seine eigene
+  Zerlegung (F&E, Vertrieb, Verwaltung) läuft weiter **nach rechts** in rote
+  Endknoten. Erträge innerhalb eines Kostenblocks (Zinserträge im
+  Finanzergebnis) stehen daneben und fließen mit.
+- **Bänder addieren sich zum Knoten.** Jeder Knoten führt genau eine
+  Zuordnung seiner Zuflüsse zu seinen Abflüssen durch, fortlaufend gestapelt —
+  die Banddicken eines Anschlusses ergeben die Knotenhöhe. Bleibt bei
+  inkonsistenten Daten (Eigenwert eines Summenknotens, Formel mit Konstante)
+  ein Rest, erscheint er als graues Stummel-Band „Sonstige", sonst nie.
+- **Bänder** sind weiche kubische Ribbons in der um 50 % aufgehellten Farbe
+  ihres Ziels, die Balken tragen die satte Farbe, Ecken dezent gerundet.
+  Eine kurze Relaxation (sechs Durchläufe, wie d3-sankey) zieht die Knoten auf
+  die Höhe, auf der ihre Bänder möglichst gerade laufen; die Reihenfolge je
+  Spalte bleibt fest: Gewinn-Strang oben, darunter jeweils die Kosten, die
+  er abgibt.
+- **Farben**: Kostenknoten und -bänder in der Familie der *ungünstigen*
+  Farbe, der Gewinn-Strang (Formel-/Zwischenknoten, an denen etwas abgezogen
+  wird) in der Familie der *günstigen* Farbe, reine Zufluss-Zerlegung
+  (Segmente → Umsatz, eine Dimensions-Hierarchie ohne Kosten) neutral grau.
+  Format-Overrides für günstig/ungünstig und der IBCS-Farbmodus wirken mit.
+- **Labels** außen am Knoten — linke Spalte links, rechte Spalte rechts,
+  mittlere Spalten zentriert darüber: Zeile 1 der Name (fett), Zeile 2 der Wert
+  in der Toolbar-Einheit und in Klammern der Anteil am Umsatz
+  („Gross profit 1 201 (71,3 %)"). Prozentbasis ist die Umsatzzeile der
+  %-vom-Umsatz-Spalte (Format-Pane-Override gilt), bei einer reinen Hierarchie
+  die Fluss-Wurzel. Das Layout hält zwischen den Knoten Platz für ihre Labels
+  frei; volle Spalten behalten nur die Labels der größten Knoten, der Rest
+  antwortet per Tooltip (Name · Wert · % · Δ zur Referenz). Kein Label wird
+  abgeschnitten, keine zwei überlappen.
+- **Werte** sind das periodengerechte AC-YTD (`ytdDisplay`) — dasselbe Fenster
+  wie die Δ-Kennzahlen.
+
+### Graph und Wurzel
+
+- Derselbe Graph wie der Baum (`buildTreeCtx`): Formel- und
+  Hierarchie-Zweige, virtuelle Gesamt-Wurzel, Format-Pane-Wurzel,
+  ⌂ und `treeCollapsed` wirken unverändert.
+- **Quoten fließen nicht.** Ist die Wurzel eine KPI-/Quoten-Zeile
+  (Net margin), beginnt der Fluss bei ihrem ersten Wert-Operanden (Net income);
+  Quoten-Knoten im Inneren werden übersprungen, Produkte und Quotienten (×, ÷)
+  beenden den Fluss als Endknoten.
+
+### Interaktion
+
+- **Klick** auf Balken oder Label öffnet den bestehenden **Kachel-Zoom** des
+  Knotens. Der Zurück-Knopf heißt jetzt je Herkunft **„← Zurück zum Sankey"**
+  bzw. „← Zurück zum Baum" und führt dorthin zurück, wo gezoomt wurde
+  (`ui.view` bleibt `sankey`, die Kachel liest denselben Graphen wie aus dem
+  Baum).
+- **Hover** öffnet das bekannte IBCS-Detail-Panel und blendet alle fremden
+  Bänder auf 28 % ab — der Knoten und seine Bänder bleiben stehen.
+- **Rechtsklick** öffnet das native Kontextmenü mit der Selektion des Knotens
+  (Infrastruktur aus 0.17, inkl. Drillthrough); die Selektion markiert den
+  Balken mit der Akzent-Kante.
+- **▾ / ▸ am Label** klappt den Ast zu und auf, **Shift** öffnet den ganzen
+  Ast — dieselbe Logik wie das Baum-Chevron (jetzt gemeinsam in
+  `treeToggle`). Die Ebenen-Buttons und ⌂ wirken.
+- **Toolbar im Sankey**: Ansicht, Δ-Referenz (für die Tooltips), Einheit,
+  Dichte und „Bis Ebene" — Spalten-Presets, Perioden, Optionen und die
+  Karten-Modi des Baums entfallen.
+
+### Die bewusste IBCS-Einordnung
+
+Ein Sankey ist **keine IBCS-Notation**: IBCS kennt keine Fluss-Diagramme,
+und die Flächenproportionalität der Bänder ersetzt keine Skala mit
+Szenario-Kodierung. Die Fluss-Ansicht ist deshalb eine **bewusste
+Zusatzansicht** — der Footer sagt es im Sankey ausdrücklich („Die
+Fluss-Ansicht (Sankey) ist eine bewusste Ergänzung außerhalb der
+IBCS-Notation."). Alle anderen Ansichten und die Kachel-Ansicht, in die man
+aus dem Sankey springt, bleiben unverändert IBCS.
+
+### Der Autor bestimmt die Ansichten
+
+- **Fünf neue Schalter** in der Toolbar-Karte des Format-Pane: „Ansicht:
+  Tabelle / Balken / Waterfall / Treiberbaum / Sankey anbieten" (alle Standard
+  **an**; `capabilities.json` → `toolbar.viewTable … viewSankey`).
+- Die Ansichts-Gruppe zeigt nur die angebotenen Knöpfe. Bleibt **genau eine**
+  Ansicht übrig, verschwindet die Gruppe ganz — es gibt nichts zu wählen.
+- **Robust gegenüber alten Zuständen**: zeigt der gespeicherte `ui.view` (oder
+  ein Lesezeichen) auf eine abgeschaltete Ansicht, zeigt das Visual still die
+  erste angebotene (Reihenfolge Tabelle → Balken → Waterfall → Baum → Sankey).
+  Das ist ein reiner Anzeige-Fallback: der gespeicherte Zustand wird **nicht**
+  überschrieben, schaltet der Autor die Ansicht wieder ein, ist sie wieder da.
+  Ein gespeicherter Kachel-Zoom öffnet sich nur, wenn seine Trägeransicht
+  (Baum oder Sankey) angeboten ist. Sind alle fünf aus, bleibt die Tabelle.
+
+### Tests
+
+- Engine: 28 Blöcke unverändert grün.
+- Render: der Körper von p1–p7 (und p8–p11) ist **Pixel für Pixel identisch**
+  zu 0.17 (Stage-Screenshots gegen den Vorgänger-Commit verglichen); die
+  einzige Änderung ist der fünfte Knopf „Sankey" in der Toolbar-Zeile.
+- Interaktion: **323 Checks** (262 aus 0.17 unverändert, einer davon um den
+  Sankey-Knopf ergänzt, + 61 neue): Spaltenzahl = Graph-Tiefe, Wurzel rechts,
+  Blätter links, Gewinn-Strang Spalte für Spalte; Banddicken je Anschluss =
+  Knotenhöhe, gemeinsame Skala über alle Spalten, Umsatz teilt sich wertgenau
+  in Gross profit und Herstellkosten; Farbfamilien rot/teal/grau für Knoten
+  und Bänder; Labels mit Wert und %-Klammer, kein Clipping, keine
+  Überlappung; Klick → Kachel-Zoom, „← Zurück zum Sankey" → Sankey;
+  Rechtsklick → Kontextmenü mit Selektions-ID an der Zeigerposition; Hover
+  blendet fremde Bänder ab; Ebenen-Buttons, Chevron, Shift-Chevron und ⌂;
+  KPI-Wurzel (Net margin, EBITDA margin per Format-Pane) → Wert-Operand;
+  Dimensions-Hierarchie (Muster aus Block 30) als grauer Fluss in drei Spalten;
+  Toolbar ohne Preset-/Perioden-Block; sowie die Ansichts-Schalter (Sankey aus
+  → kein Knopf, nur Tabelle → keine Ansichts-Gruppe, gespeicherter Sankey bei
+  abgeschaltetem Sankey → Tabelle ohne Fehler, Fallback-Reihenfolge, Kachel
+  ohne Trägeransicht → kein Zoom, alles aus → Tabelle).
+- Performance: unverändert im Budget (60.000 Datenzeilen, First Render
+  ~570 ms bei 1.500 ms Budget, Expand-Rerender ~125 ms bei 300 ms Budget).
+- Bekannt und unverändert gegenüber 0.17: in dieser Testumgebung meldet der
+  Render-Check ein um 0,6 px über den Rand laufendes Δ%-Pin-Label in p2
+  („+220.0%▸") — Font-Metrik der Umgebung, identisch schon auf dem
+  Vorgänger-Commit; p2 wurde bewusst nicht angefasst.
+
 ## 0.17.0.0 (2026-08-26) — Selektion, Cross-Filtering und natives Kontextmenü: das Statement wird zum Einstieg in den Drillthrough
 
 Bisher war das Visual eine reine Lesefläche: es zeigte die GuV, filterte aber
