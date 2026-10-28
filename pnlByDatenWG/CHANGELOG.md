@@ -1,5 +1,44 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.6.0.0 (2026-10-28): Sankey — die GuV als Fluss, und der Autor bestimmt, welche Ansichten es gibt
+
+Fünfte Ansicht „Sankey": die GuV als Fluss von links nach rechts über dem Graphen des
+Werttreiberbaums. Umsatz-Komponenten fließen grau in den Umsatz, der Gewinn-Strang (Gross profit →
+EBITDA → EBIT → EBT → Net income) läuft in der günstigen Farbe nach rechts, Kosten zweigen in der
+ungünstigen Farbe nach rechts unten in eigene Endknoten ab. Balken- und Bandhöhe sind proportional zum
+periodengerechten AC-YTD, auf einer gemeinsamen Skala. Portiert aus einem Zweig auf 0.17-Basis
+(Commit da1fb89) auf den 1.5-Stand.
+
+- **Fluss-Regel:** Beiträge mit dem Vorzeichen des Knotens fließen von links zu. Gegenbeiträge (Kosten)
+  stehen in seiner Spalte darunter und werden aus demselben Zufluss gespeist. Eine gestapelte Zuordnung je
+  Knoten sorgt dafür, dass sich die Bänder eines Anschlusses zur Knotenhöhe addieren. Ein graues Band
+  „Sonstige" erscheint nur bei inkonsistenten Daten.
+- **Gleicher Graph wie der Baum:** Formel- und Hierarchie-Zweige, virtuelle Gesamt-Wurzel, Format-Pane-
+  Wurzel, Klapp-Zustand, Ebenen-Buttons und ⌂ wirken unverändert (gemeinsame Funktionen `buildTreeCtx`,
+  `treeToggle`). Eine KPI-Wurzel (Net margin) gibt den Fluss an ihren ersten Wert-Operanden ab.
+- **Labels** stehen außen am Knoten mit Name, Wert und % vom Umsatz (Umsatz-Basiszeile, sonst die
+  Fluss-Wurzel). Der Platz ist im Layout reserviert, nichts wird abgeschnitten. Der Tooltip nennt Wert,
+  Anteil und Δ zur Referenz (in Hausbegriffen).
+- **Bedienung:** Klick auf Knoten oder Label öffnet den Kachel-Zoom, der Knopf führt zurück „← Zurück zum
+  Sankey". Hover zeigt das IBCS-Detail-Panel und blendet fremde Bänder ab. Rechtsklick öffnet das
+  Kontextmenü mit Selektion und Drillthrough. ▾/▸ am Label klappt Äste, mit Shift den ganzen Ast.
+- **Toolbar im Sankey:** Ansicht, Δ-Referenz, Einheit, Dichte, Bis Ebene.
+- **Dark Mode und Hochkontrast:** Im Dark Mode sinken die Bänder ins dunkle Papier. Im Hochkontrast
+  tragen Muster statt Farben die Aussage (Gewinn gefüllt, Kosten umrandet/schraffiert, Zuflüsse
+  gestrichelt). Vier Sprachen, Hub-Tour Karte 8 mit Mini-Vorschau.
+- **Bewusst außerhalb der IBCS-Notation:** Der Footer sagt das im Sankey. Die Kachel-Ansicht, in die man
+  aus dem Sankey springt, bleibt IBCS.
+
+**Ansichten anbieten:** fünf neue Schalter unter Darstellung & Toolbar (`viewTable … viewSankey`,
+Standard an). Nur angebotene Knöpfe erscheinen, bei einer einzigen Ansicht entfällt die Gruppe. Zeigt ein
+gespeicherter Zustand oder ein Lesezeichen auf eine abgeschaltete Ansicht, wird still die erste
+angebotene gezeigt, ohne den Zustand zu überschreiben. Ein Kachel-Zoom öffnet nur mit aktiver
+Trägeransicht. Sind alle aus, bleibt die Tabelle. Die Mega-Table bleibt ein Template der Tabelle.
+
+**Tests:** Interaktion Baum/Sankey 341 Checks (+79), Toolbar 338 (+13), Hub 118, Start/Dark 99. Der
+Körper der Render-Fälle ist pixelgleich zu 1.5.3, nur der neue Toolbar-Knopf ändert die Toolbar-Zeile.
+Perf im Budget (Erstrender 448 ms / 1500 ms, Expand 86 ms / 300 ms, Sankey-Wechsel 162 ms / 1000 ms).
+
 ## 1.5.3.0 (2026-10-23): Spaltenkopf auf skalierter Bühne, niedrige Kacheln
 
 Keine neue Property, keine neue Rolle, capabilities.json unverändert. Beide

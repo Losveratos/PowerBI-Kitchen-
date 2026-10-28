@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.5.3.0** (23.10.2026). Für die lokale Arbeit in Power BI Desktop —
+Stand: **Visual 1.6.0.0** (28.10.2026). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen. Referenzbilder liegen in `prototype/refs/`, der interaktive
 HTML-Prototyp in `prototype/megatable.html` (im Browser öffnen, Referenz-Dropdown

@@ -3,7 +3,10 @@
 // same machine yields the same tree. Measures, via Playwright:
 //   * first paint of the visual after update() with the full data view
 //   * a rerender triggered by an expand click
-// Fails when first render > 1500 ms or expand rerender > 300 ms.
+//   * 1.6: the switch into the Sankey flow view (same data, memoized parse) —
+//     the flow over the card-budgeted graph of 5.000 accounts
+// Fails when first render > 1500 ms, expand rerender > 300 ms or the Sankey
+// switch > 1000 ms.
 const path = require("path");
 
 let chromium;
@@ -14,6 +17,7 @@ const ACCOUNTS = 5000;
 const MONTHS = 12;
 const FIRST_RENDER_BUDGET_MS = 1500;
 const EXPAND_BUDGET_MS = 300;
+const SANKEY_BUDGET_MS = 1000;
 
 const PAGE = "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
     + "<style>html,body{margin:0;padding:0;font-family:'Segoe UI',sans-serif;}"
@@ -149,6 +153,14 @@ function bench(cfg) {
         void document.body.offsetHeight;
         const rerenderMs = performance.now() - r0;
 
+        // --- 1.6: switch into the Sankey (stored view, same data) -----------
+        const s0 = performance.now();
+        visual.update({ ...options, dataViews: [{ ...dataView, metadata: { columns: [], objects: {
+            hierarchy: { defaultLevel: 0 }, state: { uiState: JSON.stringify({ view: "sankey", treeV: 2 }) } } } }] });
+        void document.body.offsetHeight;
+        const sFirstPaint = await paint();
+        const sankeyNodes = el.querySelectorAll('[data-pnl="sk-node"]').length;
+
         return {
             dataRows: N * M,
             domRows, domRowsBottom, windowedAtTop, lastRowReachable,
@@ -156,6 +168,8 @@ function bench(cfg) {
             firstRenderMs: tFirstPaint - t0,
             expandMs: eFirstPaint - e0,
             reupdateMs: rerenderMs,
+            sankeyMs: sFirstPaint - s0,
+            sankeyNodes,
         };
     })();
 }
@@ -179,6 +193,7 @@ function bench(cfg) {
     console.log(`  expand rerender    ${ms(r.expandMs)}   (budget ${EXPAND_BUDGET_MS} ms)`);
     console.log(`  update, same data  ${ms(r.reupdateMs)}   (memoized parse)`);
     console.log(`  DOM rows           ${r.domRows} at top, ${r.domRowsBottom} at bottom`);
+    console.log(`  Sankey switch      ${ms(r.sankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms, ${r.sankeyNodes} nodes)`);
 
     const fail = [];
     if (errors > 0) { fail.push(errors + " console/page errors"); }
@@ -189,6 +204,10 @@ function bench(cfg) {
     }
     if (r.expandMs > EXPAND_BUDGET_MS) {
         fail.push(`expand rerender ${ms(r.expandMs)} > ${EXPAND_BUDGET_MS} ms`);
+    }
+    if (r.sankeyNodes < 10) { fail.push("the Sankey did not render (" + r.sankeyNodes + " nodes)"); }
+    if (r.sankeyMs > SANKEY_BUDGET_MS) {
+        fail.push(`Sankey switch ${ms(r.sankeyMs)} > ${SANKEY_BUDGET_MS} ms`);
     }
     if (fail.length > 0) {
         console.error("perf test failed: " + fail.join("; "));

@@ -6,7 +6,7 @@
  *
  *   H  hub: the default of emptyState.mode, four buttons, readers / exports /
  *      tiny visuals never see it, modes demo / fields / message unchanged
- *   T  feature tour: 7 cards, ‹ › dots arrow keys, every card draws a real
+ *   T  feature tour: 8 cards (1.6: + Sankey), ‹ › dots arrow keys, every card draws a real
  *      mini rendering (statement, mega table, tree, bars, waterfall, tile view,
  *      dark), nothing is persisted
  *   G  template gallery: 18 mini previews, a click writes ONE persist (like the
@@ -163,7 +163,7 @@ function check(label, cond, detail) {
         out.nextLocked = T.q("t1", '[data-pnl="tour-next"]').getAttribute("aria-disabled") === "true";
         out.focusBack = document.activeElement && document.activeElement.getAttribute("data-pnl");
         const cards = [];
-        for (let i = 1; i <= 7; i++) {
+        for (let i = 1; i <= 8; i++) {
             const t0 = performance.now();
             if (i > 1) { T.click("t1", i === 2 ? "tour-next" : "tour-dot-" + i); }
             await T.ready("t1");
@@ -178,6 +178,9 @@ function check(label, cond, detail) {
                 megaHead: !!mini.querySelector('svg[data-pnl="mega-head"]'),
                 treeCards: mini.querySelectorAll("svg g rect[rx='4']").length,
                 zoomBack: !!mini.querySelector('[data-pnl="zoom-back"]'),
+                // 1.6 the flow view: nodes and ribbons of the Sankey svg
+                sankeyNodes: mini.querySelectorAll('svg[data-pnl="sankey"] [data-pnl="sk-node"]').length,
+                sankeyBands: mini.querySelectorAll('svg[data-pnl="sankey"] [data-sk-band]').length,
                 bars: mini.querySelectorAll('polygon[data-pnl^="bar-tri-"]').length,
                 bg: getComputedStyle(mini.querySelector(".pnl-root")).backgroundColor,
                 toolbar: mini.querySelectorAll("button").length,
@@ -197,12 +200,12 @@ function check(label, cond, detail) {
         out.afterLeft = T.q("t1", '[data-pnl="hub-tour"]').getAttribute("data-tour-card");
         T.key("t1", "tour-prev", "ArrowRight"); T.key("t1", "tour-prev", "ArrowRight"); await T.ready("t1");
         out.afterRight = T.q("t1", '[data-pnl="hub-tour"]').getAttribute("data-tour-card");
-        T.click("t1", "tour-dot-7"); await T.ready("t1");
+        T.click("t1", "tour-dot-8"); await T.ready("t1");
         out.last = { n: T.q("t1", '[data-pnl="hub-tour"]').getAttribute("data-tour-card"),
             nextLocked: T.q("t1", '[data-pnl="tour-next"]').getAttribute("aria-disabled") === "true" };
         T.click("t1", "tour-next"); await T.ready("t1");
-        out.stays7 = T.q("t1", '[data-pnl="hub-tour"]').getAttribute("data-tour-card");
-        out.activeDot = T.q("t1", '[data-pnl="tour-dot-7"]').getAttribute("aria-current");
+        out.stays8 = T.q("t1", '[data-pnl="hub-tour"]').getAttribute("data-tour-card");
+        out.activeDot = T.q("t1", '[data-pnl="tour-dot-8"]').getAttribute("aria-current");
         out.raw = T.raw("t1");
         T.click("t1", "hub-back");
         out.backHome = T.page("t1");
@@ -210,12 +213,12 @@ function check(label, cond, detail) {
         out.persistsEnd = T.t1.persists.length;
         return out;
     });
-    check("T the tour tile opens the tour at card 1 of 7 with seven dots", T1.page === "tour" && T1.card1 === "1" && T1.count === "1 / 7" && T1.dots === 7,
+    check("T the tour tile opens the tour at card 1 of 8 with eight dots", T1.page === "tour" && T1.card1 === "1" && T1.count === "1 / 8" && T1.dots === 8,
         `${T1.page} ${T1.card1} ${T1.count} ${T1.dots}`);
     check("T the first card has no ‹, the next button is live", T1.prevLocked && !T1.nextLocked);
     check("T after opening a page the focus sits on ← Zurück (keyboard flow)", T1.focusBack === "hub-back", T1.focusBack);
     const c = T1.cards;
-    check("T seven cards, titled and described, in order", c.length === 7 && c.every((x, i) => x.n === String(i + 1) && x.title.length > 3 && x.text.length > 40),
+    check("T eight cards, titled and described, in order", c.length === 8 && c.every((x, i) => x.n === String(i + 1) && x.title.length > 3 && x.text.length > 40),
         c.map(x => x.n + ":" + x.title).join(" | "));
     check("T card 1 mini = a real statement table (rows, no toolbar, no demo banner)", c[0].hdr > 0 && c[0].svgs > 10 && c[0].toolbar === 0 && !c[0].banner, JSON.stringify(c[0]));
     check("T card 2 mini = the mega table of a template (T04B)", c[1].megaHead);
@@ -224,10 +227,13 @@ function check(label, cond, detail) {
     check("T card 5 mini = the row waterfall (rows, no mega table)", c[4].hdr > 0 && c[4].svgs > 10 && !c[4].megaHead);
     check("T card 6 mini = the tile view (back-to-tree button of the real tile page)", c[5].zoomBack);
     check("T card 7 mini = dark", c[6].bg === "rgb(30, 30, 30)", c[6].bg);
+    check("T card 8 mini = the Sankey flow (1.6: nodes and ribbons, no toolbar)",
+        c[7].sankeyNodes > 15 && c[7].sankeyBands > 15 && c[7].toolbar === 0 && /Sankey/.test(c[7].title),
+        JSON.stringify([c[7].sankeyNodes, c[7].sankeyBands, c[7].toolbar, c[7].title]));
     check("T every mini is scaled down, non-interactive and the size of its frame", c.every(x => /scale\(/.test(x.scaled) && x.pointer === "none"
         && x.size[0] > 200 && x.size[1] > 120), JSON.stringify(c.map(x => x.size)));
-    check("T ‹ steps back, ← → leaf through the cards, the last card locks ›", T1.afterPrev === "6" && T1.afterLeft === "5" && T1.afterRight === "7"
-        && T1.last.n === "7" && T1.last.nextLocked && T1.stays7 === "7", JSON.stringify([T1.afterPrev, T1.afterLeft, T1.afterRight, T1.last, T1.stays7]));
+    check("T ‹ steps back, ← → leaf through the cards, the last card locks ›", T1.afterPrev === "7" && T1.afterLeft === "6" && T1.afterRight === "8"
+        && T1.last.n === "8" && T1.last.nextLocked && T1.stays8 === "8", JSON.stringify([T1.afterPrev, T1.afterLeft, T1.afterRight, T1.last, T1.stays8]));
     check("T the current dot is announced (aria-current)", T1.activeDot === "true");
     check("T no raw resource key on the tour pages", !T1.raw);
     check("T ← Zurück returns to the home page and the focus goes back to the tile", T1.backHome === "hub" && T1.focusTile === "hub-tile-tour", T1.focusTile);

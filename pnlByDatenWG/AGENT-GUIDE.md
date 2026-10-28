@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.5.3.0** (23.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.6.0.0** (28.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.5.3.0** (23.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.3.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
@@ -67,8 +67,12 @@ Kreuzprodukte. Wächter-Muster: `IF(COUNTROWS('Fakt') > 0, …)`.
 | Struktur der Zeilen | Ansicht Balken (`uiState.view = "bars"`) |
 | Zeilen-Kaskade | Ansicht Waterfall (`"waterfall"`) |
 | Werttreiberbaum / DuPont | Ansicht Baum (`"tree"`), Start über `columns.treeRoot/treeLevel/treeCard` |
+| GuV als Fluss (Umsatz → Gewinn, Kosten zweigen ab) | Ansicht Sankey (`"sankey"`, 1.6) — derselbe Graph wie der Baum, Start über `columns.treeRoot/treeLevel`; **bewusst außerhalb der IBCS-Notation** |
 
 Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
+Welche Ansichten Leser überhaupt bekommen, legt der Autor fest (1.6:
+`toolbar.viewTable` … `viewSankey`, Falle 18). Die Mega-Table ist keine eigene
+Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 
 ## Mega-Table in 60 Sekunden
 
@@ -95,7 +99,14 @@ Die Ansicht ist Leser-Zustand (Toolbar) und steht in `state.uiState` (unten).
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.5.3.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.6.0.0)
+
+**Neu in 1.6** (Sankey + angebotene Ansichten): fünf Schalter `toolbar.viewTable`,
+`viewBars`, `viewWaterfall`, `viewTree`, `viewSankey` (alle Standard **an**,
+sichtbar mit `toolbar.show` und `showView`); `state.uiState.view` += `sankey`.
+Keine neue Rolle. Die Gruppe „Werttreiberbaum" (`treeRoot`, `treeLevel`,
+`treeCard`, `treeStatus`) steht auch in der Sankey-Ansicht im Pane; der Sankey
+liest davon `treeRoot` und `treeLevel`. Details in den Fallen 18 und 19.
 
 **Neu in 1.5** (Skalierung nach IBCS 2.0 / ISO 24896): `toolbar.foldable` und
 `toolbar.startFolded` (Bedienleisten einklappbar, Standard aus); keine neue Rolle.
@@ -204,7 +215,12 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | --- | --- | --- | --- |
 | `show` | bool | `true` | Toolbar anzeigen (Leser können umschalten): Knöpfe über dem Statement: Ansicht, Spalten, Einheit, Dichte, Ebenen. Standard: an |
 | `showLegend` | bool | `true` | Szenario-Legende anzeigen: Chips für AC · PY · PL · FC sowie günstige / ungünstige Δ unter der Toolbar. Standard: an |
-| `showView` | bool | `true` | Gruppe: Ansicht: Tabelle · Balken · Wasserfall · Baum. Standard: an |
+| `showView` | bool | `true` | Gruppe: Ansicht: Tabelle · Balken · Wasserfall · Baum · Sankey — nur die unten angebotenen Ansichten. Standard: an |
+| `viewTable` | bool | `true` | Ansicht: Tabelle anbieten: Leser dürfen zur Tabelle wechseln (klassisch oder Mega-Table). Aus: der Knopf verschwindet, ein gespeicherter Tabellen-Zustand zeigt die erste angebotene Ansicht. Standard: an (1.6) |
+| `viewBars` | bool | `true` | Ansicht: Balken anbieten: Leser dürfen zu den Struktur-Balken wechseln. Standard: an (1.6) |
+| `viewWaterfall` | bool | `true` | Ansicht: Wasserfall anbieten: Leser dürfen zum Zeilen-Wasserfall wechseln. Standard: an (1.6) |
+| `viewTree` | bool | `true` | Ansicht: Treiberbaum anbieten: Leser dürfen zum Werttreiberbaum wechseln. Aus: eine gespeicherte Kachel-Ansicht öffnet nur noch aus dem Sankey. Standard: an (1.6) |
+| `viewSankey` | bool | `true` | Ansicht: Sankey anbieten: Leser dürfen zur Fluss-Ansicht (Sankey) wechseln — eine bewusste Ergänzung außerhalb der IBCS-Notation. Standard: an (1.6) |
 | `showPresets` | bool | `true` | Gruppe: Spalten-Presets: Spaltensätze der klassischen Tabelle. Standard: an |
 | `showReference` | bool | `true` | Gruppe: Δ-Referenz: PY · PL · FC als Basis jeder Δ. Standard: an |
 | `showPeriods` | bool | `true` | Gruppe: Perioden (MTD/YTD/FY): Perioden-Blöcke der klassischen Tabelle. Standard: an |
@@ -302,7 +318,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 
 ```json
 {
-  "view": "table",            // table | bars | waterfall | tree
+  "view": "table",            // table | bars | waterfall | tree | sankey (1.6)
   "preset": "full",           // full | acref | dall | acpydpy | acpldpl | dpct | custom
   "ref": "pl",                // Δ-Referenz der klassischen Ansichten: py | pl | fc
   "unit": "auto",             // auto | none | k | m | b
@@ -389,7 +405,7 @@ werden dann überschrieben).
    und `blockKind = month` fallen still auf YTD zurück. FY braucht `fcFy`
    (sonst Rückfall auf YTD); PY im FY-Block = Summe aller PY-Perioden.
 3. **Mega vs. klassisch:** Der Mega-Table gilt nur in der Tabellen-Ansicht
-   (`megaInView`). In Balken/Waterfall/Baum zeigen dieselben Daten die
+   (`megaInView`). In Balken/Waterfall/Baum/Sankey zeigen dieselben Daten die
    klassischen Spalten — ein gesetztes Template ändert dort nichts. Im
    Mega-Modus blendet die Toolbar Spalten-Preset, Δ-Referenz, Perioden und Fit
    aus (die Spalten kommen aus dem Pane); Leser schalten Szenario/Referenz nur
@@ -459,7 +475,7 @@ werden dann überschrieben).
     den Modellwert. Die gleiche Regel gilt schon für die Periode.
 14. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
     kein gemeldeter View-Mode, Bühne ≥ 300 × 220 px, `allowInteractions` nicht
-    false) den Hub: Tour (7 Karten mit Mini-Renderings), Template-Galerie
+    false) den Hub: Tour (1.6: 8 Karten mit Mini-Renderings, Karte 8 = Sankey), Template-Galerie
     (18 Kacheln), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
     bisher den Landing-Text. Mit gebundenen Daten öffnet der Toolbar-Knopf
     „☰ Start" (nur `viewMode` ≥ 1) den Hub als Overlay; Schließen stellt die
@@ -493,7 +509,43 @@ werden dann überschrieben).
     `labels.*`, `columns.thresholds`/`materiality*` und `numbers.*Decimals`.
 17. **Baum unantastbar:** Der Werttreiberbaum hat eigenen Klapp-Zustand
     (`treeCollapsed`) und SVG-Titel statt Tooltips; Mega-/Finance-Schalter wirken
-    dort nicht.
+    dort nicht. Seit 1.6 teilt der Sankey diesen Zustand (`treeRoot`,
+    `treeCollapsed`, `treeZoom`): ein im Sankey zugeklappter Ast ist auch im Baum zu.
+18. **Angebotene Ansichten (1.6):** `toolbar.viewTable … viewSankey` steuern nur,
+    welche Knöpfe die Ansichts-Gruppe zeigt (Reihenfolge Tabelle → Balken →
+    Waterfall → Baum → Sankey); bleibt genau eine übrig, entfällt die Gruppe.
+    Zeigt `state.uiState.view` (gespeichert oder Lesezeichen) auf eine
+    abgeschaltete Ansicht, zeichnet das Visual still die **erste angebotene** —
+    ein reiner Anzeige-Fallback (`view()` in visual.ts), `uiState.view` wird
+    **nicht** überschrieben; ein späterer Toolbar-Klick (z. B. Einheit) schreibt
+    den Zustand mit der alten Ansicht zurück, und nach dem Wiedereinschalten ist
+    sie wieder da. Sind alle fünf aus, bleibt die Tabelle. Ein gespeicherter
+    Kachel-Zoom (`treeZoom`) öffnet nur, wenn die gezeichnete Ansicht Baum oder
+    Sankey ist. Alle Lese-Stellen der Ansicht (Toolbar-Gruppen, `megaInView`,
+    Spalten-Kategorie, Pane-Gates, Hochkontrast) gehen über die gezeichnete
+    Ansicht. **PBIR-Agenten:** Für einen Bericht mit fester Ansicht genügt,
+    die anderen vier Schalter auf `false` zu setzen; `uiState` muss dafür nicht
+    geschrieben werden (ein frischer Bericht öffnet in der ersten angebotenen).
+19. **Sankey (1.6):** Fluss über dem Graphen des Baums (`buildTreeCtx(true)`):
+    Werte = periodengerechtes AC-YTD (`ytdDisplay`), eine Skala für alle Spalten.
+    Eine KPI-Wurzel (Net margin) gibt den Fluss an ihren ersten Wert-Operanden
+    ab; × und ÷ beenden den Fluss (Endknoten ohne Chevron). Fluss-Regel je
+    Knoten: Beiträge mit seinem Vorzeichen fließen von links zu, Gegenbeiträge
+    (Kosten) stehen in seiner Spalte darunter und werden aus demselben Zufluss
+    gespeist; ein Kostenknoten zerlegt sich nach rechts. Eine gestapelte
+    Zuordnung je Knoten ⇒ die Bänder eines Anschlusses ergeben die Knotenhöhe;
+    nur inkonsistente Daten (Eigenwert eines Summenknotens, Formel mit
+    Konstante) erzeugen ein graues Rest-Band „Sonstige". Farben: Kosten =
+    ungünstige, Gewinn-Strang = günstige Farbe (Presets/Overrides wirken),
+    reine Zufluss-Zerlegung grau; Dark Mode tönt die Bänder zum dunklen Papier,
+    **Hochkontrast** zeichnet Muster (Gewinn gefüllt, Kosten umrandet/schraffiert,
+    neutral gestrichelt/gepunktet). %-Basis = `columns.revenueBase`, sonst die
+    Umsatzzeile der %-vom-Umsatz-Spalte, bei reiner Hierarchie die Fluss-Wurzel.
+    Klick → Kachel-Zoom („← Zurück zum Sankey"), Rechtsklick → Kontextmenü,
+    Hover → IBCS-Detail-Panel. Bewusst **außerhalb der IBCS-Notation**: der
+    Footer sagt es (`UI_FooterSankey`), die Kachel-Ansicht bleibt IBCS. Volle
+    Spalten behalten nur die Labels der größten Knoten (Rest per Tooltip).
+    Export druckt den Sankey ohne Toolbar, mit dem gespeicherten Klapp-Zustand.
 
 ## Verwandte Dateien
 

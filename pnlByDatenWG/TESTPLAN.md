@@ -217,6 +217,34 @@ das Power BI die Drillthrough-Ziele selbst einhängt.
 - [ ] Sehr große Knoten (> 2.000 Quellzeilen): der Tooltip der Zeile sagt, dass
   die Selektion auf die ersten 2.000 Quellzeilen begrenzt ist
 
+## 6b · Sankey-Ansicht und angebotene Ansichten (1.6)
+
+- [ ] Toolbar → **Sankey**: links die Umsatz-Komponenten (grau), in der Mitte
+  der Gewinn-Strang Gross profit → EBITDA → EBIT → EBT → Net income (günstige
+  Farbe), Kosten zweigen in der ungünstigen Farbe nach rechts unten in eigene
+  Endknoten ab
+- [ ] Ist die Baum-Wurzel eine Quote (Net margin), beginnt der Fluss bei ihrem
+  ersten Wert-Operanden (Net income) — kein Quoten-Knoten im Sankey
+- [ ] Labels: Name, darunter Wert und in Klammern % vom Umsatz
+  (z. B. „Gross profit 1 201 (71,3 %)"); nichts abgeschnitten
+- [ ] Klick auf einen Knoten → Kachel-Ansicht; **„← Zurück zum Sankey"** führt
+  zurück in den Sankey (nicht in den Baum)
+- [ ] Hover über einem Knoten → IBCS-Detail-Panel, fremde Bänder blenden ab
+- [ ] Rechtsklick auf einen Knoten → natives Kontextmenü mit Drillthrough-Zielen
+- [ ] ▾ am Label klappt den Ast zu (Shift + ▸: ganzer Ast auf); Ebenen-Buttons
+  und ⌂ wirken wie im Baum
+- [ ] Footer: „Die Fluss-Ansicht (Sankey) ist eine bewusste Ergänzung außerhalb
+  der IBCS-Notation."
+- [ ] Dunkles Berichts-Theme / Stil → Erscheinungsbild „Dunkel": Bänder dunkel
+  getönt, Beschriftung hell; Windows-Hochkontrast: Gewinn-Strang gefüllt, Kosten
+  umrandet bzw. schraffiert, neutrale Zuflüsse gestrichelt bzw. gepunktet
+- [ ] Format-Pane → Darstellung & Toolbar → **„Ansicht: Sankey anbieten" = Aus**:
+  der Button verschwindet; ein Lesezeichen mit Sankey-Zustand zeigt die erste
+  angebotene Ansicht (Tabelle) — ohne Fehler, und nach dem Wiedereinschalten
+  wieder den Sankey
+- [ ] Nur **eine** Ansicht angeboten: die Ansichts-Gruppe der Toolbar entfällt
+- [ ] Start-Hub → Tour: Karte 8 „Sankey" mit Mini-Vorschau
+
 ## 7 · Speichern für die Automatisierung (wichtig!)
 
 1. **Datei → Speichern unter → Power BI Projekt (.pbip)** in deinen

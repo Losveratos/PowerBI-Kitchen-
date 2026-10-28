@@ -51,14 +51,14 @@ test("the gallery lists the pane's templates in pane order (off first, then T01A
     assert.strictEqual(M.HUB_TEMPLATES.length, 18);
 });
 
-test("the tour has seven cards with title + text in the language files, numbered 1..7", () => {
-    assert.strictEqual(M.TOUR_CARDS.length, 7);
+test("the tour has eight cards with title + text in the language files, numbered 1..8 (1.6: Sankey last)", () => {
+    assert.strictEqual(M.TOUR_CARDS.length, 8);
     M.TOUR_CARDS.forEach((c, i) => {
         assert.strictEqual(c.n, i + 1);
         assert.ok(res["UI_Tour" + c.n + "T"] && res["UI_Tour" + c.n + "X"], "card " + c.n);
         assert.ok(c.mini.w > 0 && c.mini.h > 0);
     });
-    assert.deepStrictEqual(M.TOUR_CARDS.map(c => c.mini.view), ["table", "table", "tree", "bars", "waterfall", "tree", "table"]);
+    assert.deepStrictEqual(M.TOUR_CARDS.map(c => c.mini.view), ["table", "table", "tree", "bars", "waterfall", "tree", "table", "sankey"]);
     assert.ok(M.TOUR_CARDS[5].mini.zoom && M.TOUR_CARDS[6].mini.dark);
 });
 

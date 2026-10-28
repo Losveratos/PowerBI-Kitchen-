@@ -133,7 +133,7 @@ Perioden-Sortierung** auf **„Datenreihenfolge (Fiskaljahr)"**. `Automatisch`
 sortiert kalendarisch, sobald alle Labels lesbar sind; `Kalenderjahr` erzwingt
 Jan..Dez.
 
-## 5 · Die vier Ansichten (Toolbar) und die Mega-Table
+## 5 · Die fünf Ansichten (Toolbar) und die Mega-Table
 
 | Ansicht | Was sie zeigt |
 |---|---|
@@ -141,8 +141,14 @@ Jan..Dez.
 | Struktur-Bars | dieselben Zeilen mit Größenbalken — die Struktur des Ergebnisses |
 | Zeilen-Waterfall | die GuV als Kaskade; Ergebnisanker auf der Nulllinie, Kostenblöcke floaten (Wurzelebene der Hierarchie) |
 | Werttreiberbaum | aus dem Formel-Graphen (DuPont) oder aus der reinen Hierarchie; Tidy-Layout, Operator-Kreise, ⌖-Re-Root, Breadcrumb |
+| Sankey (1.6) | derselbe Graph als Fluss von links nach rechts: Umsatz-Komponenten grau, Gewinn-Strang in der günstigen Farbe, Kosten in der ungünstigen nach rechts unten; Höhe ∝ AC (YTD), Labels mit Wert und % vom Umsatz — bewusst außerhalb der IBCS-Notation |
 
-**Kachel-Zoom:** Klick auf ein Karten-Diagramm zoomt den Knoten auf die ganze
+Welche Ansichten angeboten werden, steuert der Autor unter **Darstellung &
+Toolbar → „Ansicht: … anbieten"** (1.6, alle Standard an); bleibt nur eine
+übrig, verschwindet die Ansichts-Gruppe. Die Mega-Table ist keine eigene
+Ansicht, sondern ein Template der Tabelle.
+
+**Kachel-Zoom:** Klick auf ein Karten-Diagramm (im Sankey: auf einen Knoten) zoomt den Knoten auf die ganze
 Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und
 „Getrieben von". Alle Toolbar-Zustände sind persistiert und lesezeichenfähig.
 
