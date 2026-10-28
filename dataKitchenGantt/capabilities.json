@@ -1,6 +1,8 @@
 {
     "supportsMultiVisualSelection": true,
-    "sorting": { "default": {} },
+    "sorting": {
+        "default": {}
+    },
     "dataRoles": [
         {
             "displayName": "Task",
@@ -43,7 +45,7 @@
             "kind": "Grouping"
         },
         {
-            "displayName": "Abhängigkeiten (Task-Namen, kommagetrennt)",
+            "displayName": "Vorgänger (Nr. oder Name, z. B. 12EA+2T)",
             "name": "deps",
             "kind": "Grouping"
         },
@@ -71,6 +73,41 @@
             "displayName": "Hauptmeilenstein (Ja/Nein)",
             "name": "hauptMs",
             "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Nr. (Vorgangs-ID für Vorgänger)",
+            "name": "nr",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "PSP-Code (z. B. 2.1.3)",
+            "name": "psp",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Kritisch (Ja/Nein)",
+            "name": "kritisch",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Gesamte Pufferzeit (Tage)",
+            "name": "puffer",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Stichtag (Deadline)",
+            "name": "stichtag",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Farbe nach (Kategorie)",
+            "name": "farbeNach",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Zusatzspalten (bis zu 3)",
+            "name": "zusatz",
+            "kind": "GroupingOrMeasure"
         }
     ],
     "objects": {
@@ -81,33 +118,63 @@
                     "displayName": "Theme",
                     "type": {
                         "enumeration": [
-                            { "value": "hell", "displayName": "Hell" },
-                            { "value": "dunkel", "displayName": "Dunkel" }
+                            {
+                                "value": "hell",
+                                "displayName": "Hell"
+                            },
+                            {
+                                "value": "dunkel",
+                                "displayName": "Dunkel"
+                            }
                         ]
                     }
                 },
                 "wochenenden": {
                     "displayName": "Wochenenden schattieren",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "abhaengigkeiten": {
                     "displayName": "Abhängigkeitspfeile",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "heuteLinie": {
                     "displayName": "Status-/Heute-Linie",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "zeiteinheit": {
                     "displayName": "Standard-Zeiteinheit",
                     "type": {
                         "enumeration": [
-                            { "value": "auto", "displayName": "Automatisch (einpassen)" },
-                            { "value": "Tage", "displayName": "Tage" },
-                            { "value": "Wochen", "displayName": "Wochen" },
-                            { "value": "Monate", "displayName": "Monate" },
-                            { "value": "Quartale", "displayName": "Quartale" },
-                            { "value": "Jahre", "displayName": "Jahre" }
+                            {
+                                "value": "auto",
+                                "displayName": "Automatisch (einpassen)"
+                            },
+                            {
+                                "value": "Tage",
+                                "displayName": "Tage"
+                            },
+                            {
+                                "value": "Wochen",
+                                "displayName": "Wochen"
+                            },
+                            {
+                                "value": "Monate",
+                                "displayName": "Monate"
+                            },
+                            {
+                                "value": "Quartale",
+                                "displayName": "Quartale"
+                            },
+                            {
+                                "value": "Jahre",
+                                "displayName": "Jahre"
+                            }
                         ]
                     }
                 },
@@ -115,29 +182,70 @@
                     "displayName": "Einheit für Tage",
                     "type": {
                         "enumeration": [
-                            { "value": "t", "displayName": "t" },
-                            { "value": "d", "displayName": "d" },
-                            { "value": "ohne", "displayName": "Ohne Einheit" }
+                            {
+                                "value": "t",
+                                "displayName": "t"
+                            },
+                            {
+                                "value": "d",
+                                "displayName": "d"
+                            },
+                            {
+                                "value": "ohne",
+                                "displayName": "Ohne Einheit"
+                            }
                         ]
                     }
                 },
                 "tabellenBreite": {
                     "displayName": "Tabellenbreite (px, 0 = ausblenden)",
-                    "type": { "numeric": true }
+                    "type": {
+                        "numeric": true
+                    }
                 },
                 "kopfzeile": {
                     "displayName": "Infozeile oben anzeigen",
                     "description": "Der Infotext oben links („1 Projekt · 9 Vorgänge · 6 Gruppen · 3 Meilensteine“). Die Leiste mit den Knöpfen bleibt in jedem Fall sichtbar.",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "ibcs": {
                     "displayName": "IBCS-inspiriertes Styling",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "gruppenNamen": {
                     "displayName": "Gruppennamen im Chart",
                     "description": "Zeigt den Namen jeder Gruppenzeile (Projekt/Ebene) zusätzlich am Anfang ihres Summenbalkens — nützlich, wenn die Tabelle schmal oder ausgeblendet ist.",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "startAnsicht": {
+                    "displayName": "Startansicht",
+                    "description": "Mit welcher Ansicht das Visual startet. Im Bericht lässt sie sich über „Ansicht ▾“ in der Leiste jederzeit wechseln.",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "alle",
+                                "displayName": "Alle Vorgänge"
+                            },
+                            {
+                                "value": "haupt",
+                                "displayName": "Nur Hauptmeilensteine"
+                            },
+                            {
+                                "value": "kritisch",
+                                "displayName": "Nur kritischer Pfad"
+                            },
+                            {
+                                "value": "ueberfaellig",
+                                "displayName": "Nur überfällige"
+                            }
+                        ]
+                    }
                 }
             }
         },
@@ -147,27 +255,69 @@
             "properties": {
                 "start": {
                     "displayName": "Start",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "ende": {
                     "displayName": "Ende",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "tage": {
                     "displayName": "Dauer (Tage)",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "status": {
                     "displayName": "Status",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "fortschritt": {
                     "displayName": "Fortschritt",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "wer": {
                     "displayName": "Wer (Owner)",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "psp": {
+                    "displayName": "PSP-Code",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "puffer": {
+                    "displayName": "Puffer",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "stichtag": {
+                    "displayName": "Stichtag",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "zusatz": {
+                    "displayName": "Zusatzspalten",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "zweizeilig": {
+                    "displayName": "Lange Namen zweizeilig",
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -176,33 +326,45 @@
             "properties": {
                 "aufPhasenzeile": {
                     "displayName": "Auf zugeklappten Phasen anzeigen",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "datumAnzeigen": {
                     "displayName": "Datum am Meilenstein",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "endeGleichStart": {
                     "displayName": "Ende = Start als Meilenstein",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "namenAnzeigen": {
                     "displayName": "Name am Meilenstein",
-                    "type": { "bool": true }
-                },
-                "nurHaupt": {
-                    "displayName": "Nur Hauptmeilensteine",
-                    "description": "Startstellung des Leisten-Knopfs „◆ Nur Hauptmeilensteine“: zeigt statt der Hierarchie eine flache, chronologische Liste der über die Rolle „Hauptmeilenstein (Ja/Nein)“ markierten Zeilen.",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "beschriftung": {
                     "displayName": "Beschriftung auf zugeklappten Zeilen",
                     "description": "Was an den Rauten einer zugeklappten Gruppenzeile steht. „Nur Datum“ entspricht dem bisherigen Verhalten; bei vielen Meilensteinen je Projekt macht der Name sie erst unterscheidbar.",
                     "type": {
                         "enumeration": [
-                            { "value": "nurDatum", "displayName": "Nur Datum" },
-                            { "value": "nurName", "displayName": "Nur Name" },
-                            { "value": "beides", "displayName": "Name und Datum" }
+                            {
+                                "value": "nurDatum",
+                                "displayName": "Nur Datum"
+                            },
+                            {
+                                "value": "nurName",
+                                "displayName": "Nur Name"
+                            },
+                            {
+                                "value": "beides",
+                                "displayName": "Name und Datum"
+                            }
                         ]
                     }
                 }
@@ -214,39 +376,63 @@
             "properties": {
                 "anzeigen": {
                     "displayName": "Tooltip anzeigen",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "zeitraum": {
                     "displayName": "Zeitraum",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "plan": {
                     "displayName": "Plan (Basisplan)",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "abweichung": {
                     "displayName": "Abweichung",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "dauer": {
                     "displayName": "Dauer",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "status": {
                     "displayName": "Status",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "fortschritt": {
                     "displayName": "Fortschritt",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "wer": {
                     "displayName": "Wer",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "abhaengigkeiten": {
                     "displayName": "Hängt ab von",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "planung": {
+                    "displayName": "Kritisch, Puffer, Stichtag, überfällig",
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -256,23 +442,33 @@
             "properties": {
                 "tage": {
                     "displayName": "Tage",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "wochen": {
                     "displayName": "Wochen",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "monate": {
                     "displayName": "Monate",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "quartale": {
                     "displayName": "Quartale",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "jahre": {
                     "displayName": "Jahre",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -281,15 +477,21 @@
             "properties": {
                 "anzeigen": {
                     "displayName": "Plan-Balken anzeigen",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "deltaSpalte": {
                     "displayName": "Δ-Spalte in der Tabelle",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 },
                 "verzugZeilen": {
                     "displayName": "Verzug-Zeilen rot hinterlegen",
-                    "type": { "bool": true }
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         },
@@ -297,11 +499,36 @@
             "displayName": "Beschriftungen",
             "description": "Eigene Bezeichnungen statt der Vorgaben. Leer lassen = Vorgabe. Einzahl und Mehrzahl getrennt, weil sich der Plural nicht ableiten lässt.",
             "properties": {
-                "spalteTask": { "displayName": "Überschrift Namensspalte", "type": { "text": true } },
-                "projekt1": { "displayName": "Projekt (Einzahl)", "type": { "text": true } },
-                "projektN": { "displayName": "Projekte (Mehrzahl)", "type": { "text": true } },
-                "ebene1": { "displayName": "Phase/Ebene (Einzahl)", "type": { "text": true } },
-                "ebeneN": { "displayName": "Phasen/Ebenen (Mehrzahl)", "type": { "text": true } }
+                "spalteTask": {
+                    "displayName": "Überschrift Namensspalte",
+                    "type": {
+                        "text": true
+                    }
+                },
+                "projekt1": {
+                    "displayName": "Projekt (Einzahl)",
+                    "type": {
+                        "text": true
+                    }
+                },
+                "projektN": {
+                    "displayName": "Projekte (Mehrzahl)",
+                    "type": {
+                        "text": true
+                    }
+                },
+                "ebene1": {
+                    "displayName": "Phase/Ebene (Einzahl)",
+                    "type": {
+                        "text": true
+                    }
+                },
+                "ebeneN": {
+                    "displayName": "Phasen/Ebenen (Mehrzahl)",
+                    "type": {
+                        "text": true
+                    }
+                }
             }
         },
         "schrift": {
@@ -309,11 +536,19 @@
             "properties": {
                 "fontFamily": {
                     "displayName": "Schriftart",
-                    "type": { "formatting": { "fontFamily": true } }
+                    "type": {
+                        "formatting": {
+                            "fontFamily": true
+                        }
+                    }
                 },
                 "fontSize": {
                     "displayName": "Schriftgröße",
-                    "type": { "formatting": { "fontSize": true } }
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
                 }
             }
         },
@@ -322,7 +557,95 @@
             "properties": {
                 "fill": {
                     "displayName": "Farbe",
-                    "type": { "fill": { "solid": { "color": true } } }
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "terminplanung": {
+            "displayName": "Terminplanung",
+            "description": "Planerwerkzeuge wie in MS Project. Kritischer Pfad und Puffer kommen aus den Rollen „Kritisch“ bzw. „Gesamte Pufferzeit“; ohne sie berechnet das Visual sie aus Terminen und Vorgängern.",
+            "properties": {
+                "kritischHervorheben": {
+                    "displayName": "Kritischen Pfad hervorheben",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "ueberfaelligMarkieren": {
+                    "displayName": "Überfällige markieren (zum Statusdatum)",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "pufferAnzeigen": {
+                    "displayName": "Puffer als Linie anzeigen",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "stichtageAnzeigen": {
+                    "displayName": "Stichtage anzeigen",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fortschrittslinie": {
+                    "displayName": "Fortschrittslinie",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "arbeitstage": {
+                    "displayName": "Dauer in Arbeitstagen (Mo–Fr)",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "feiertage": {
+                    "displayName": "Feiertage (TT.MM.JJJJ, kommagetrennt)",
+                    "type": {
+                        "text": true
+                    }
+                }
+            }
+        },
+        "balken": {
+            "displayName": "Balken",
+            "properties": {
+                "farbeNach": {
+                    "displayName": "Balkenfarbe nach",
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "zweig",
+                                "displayName": "Zweig (Standard)"
+                            },
+                            {
+                                "value": "status",
+                                "displayName": "Status"
+                            },
+                            {
+                                "value": "kritisch",
+                                "displayName": "Kritischer Pfad"
+                            },
+                            {
+                                "value": "feld",
+                                "displayName": "Feld „Farbe nach“"
+                            }
+                        ]
+                    }
+                },
+                "legende": {
+                    "displayName": "Legende anzeigen",
+                    "type": {
+                        "bool": true
+                    }
                 }
             }
         }
@@ -331,49 +654,233 @@
         {
             "conditions": [
                 {
-                    "task": { "max": 1 },
-                    "start": { "max": 1 },
-                    "end": { "max": 1 },
-                    "phase": { "max": 5 },
-                    "projekt": { "max": 1 },
-                    "progress": { "max": 1 },
-                    "status": { "max": 1 },
-                    "owner": { "max": 1 },
-                    "deps": { "max": 1 },
-                    "planStart": { "max": 1 },
-                    "planEnd": { "max": 1 },
-                    "sort": { "max": 1 },
-                    "statusDate": { "max": 1 },
-                    "hauptMs": { "max": 1 }
+                    "task": {
+                        "max": 1
+                    },
+                    "start": {
+                        "max": 1
+                    },
+                    "end": {
+                        "max": 1
+                    },
+                    "phase": {
+                        "max": 5
+                    },
+                    "projekt": {
+                        "max": 1
+                    },
+                    "progress": {
+                        "max": 1
+                    },
+                    "status": {
+                        "max": 1
+                    },
+                    "owner": {
+                        "max": 1
+                    },
+                    "deps": {
+                        "max": 1
+                    },
+                    "planStart": {
+                        "max": 1
+                    },
+                    "planEnd": {
+                        "max": 1
+                    },
+                    "sort": {
+                        "max": 1
+                    },
+                    "statusDate": {
+                        "max": 1
+                    },
+                    "hauptMs": {
+                        "max": 1
+                    },
+                    "nr": {
+                        "max": 1
+                    },
+                    "psp": {
+                        "max": 1
+                    },
+                    "kritisch": {
+                        "max": 1
+                    },
+                    "puffer": {
+                        "max": 1
+                    },
+                    "stichtag": {
+                        "max": 1
+                    },
+                    "farbeNach": {
+                        "max": 1
+                    },
+                    "zusatz": {
+                        "max": 3
+                    }
                 }
             ],
             "categorical": {
                 "categories": {
                     "select": [
-                        { "for": { "in": "task" } },
-                        { "for": { "in": "start" } },
-                        { "for": { "in": "end" } },
-                        { "for": { "in": "phase" } },
-                        { "for": { "in": "projekt" } },
-                        { "for": { "in": "status" } },
-                        { "for": { "in": "owner" } },
-                        { "for": { "in": "deps" } },
-                        { "for": { "in": "planStart" } },
-                        { "for": { "in": "planEnd" } },
-                        { "for": { "in": "sort" } },
-                        { "for": { "in": "statusDate" } },
-                        { "for": { "in": "hauptMs" } }
+                        {
+                            "for": {
+                                "in": "task"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "start"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "end"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "phase"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "projekt"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "status"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "owner"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "deps"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "planStart"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "planEnd"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "sort"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "statusDate"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "hauptMs"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "nr"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "psp"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "kritisch"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "puffer"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "stichtag"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "farbeNach"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "zusatz"
+                            }
+                        }
                     ],
-                    "dataReductionAlgorithm": { "top": { "count": 30000 } }
+                    "dataReductionAlgorithm": {
+                        "top": {
+                            "count": 30000
+                        }
+                    }
                 },
                 "values": {
                     "select": [
-                        { "bind": { "to": "progress" } },
-                        { "for": { "in": "planStart" } },
-                        { "for": { "in": "planEnd" } },
-                        { "for": { "in": "sort" } },
-                        { "for": { "in": "statusDate" } },
-                        { "for": { "in": "hauptMs" } }
+                        {
+                            "bind": {
+                                "to": "progress"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "planStart"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "planEnd"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "sort"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "statusDate"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "hauptMs"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "kritisch"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "puffer"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "stichtag"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "zusatz"
+                            }
+                        }
                     ]
                 }
             }

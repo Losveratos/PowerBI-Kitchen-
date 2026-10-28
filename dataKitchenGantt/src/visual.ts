@@ -15,7 +15,7 @@ import DataView = powerbi.DataView;
 import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 
 import { VisualFormattingSettingsModel } from "./settings";
-import { GanttRenderer, GanttTask, computeTaskColors } from "./gantt";
+import { GanttRenderer, GanttTask, computeTaskColors, parseVorgaenger } from "./gantt";
 
 // ============================================================
 // DataKitchen Gantt — Power-BI-Anbindung.
@@ -54,16 +54,55 @@ function toUtcMs(v: unknown): number | null {
 // „Hauptmeilenstein" tolerant auslegen: die Rolle wird in der Praxis mit allem
 // Möglichen befüllt — Bool-Spalte, 1/0-Kennzahl oder Textspalte „Ja"/„X".
 // Alles, was nicht erkennbar ein Ja ist (auch leer und null), zählt als Nein.
-const HAUPT_JA = new Set(['ja', 'yes', 'y', 'x', 'wahr', 'true', '1']);
+// Gilt genauso für "Kritisch (Ja/Nein)" aus MS-Project-Exporten.
+const JA = new Set(['ja', 'yes', 'y', 'x', 'wahr', 'true', '1']);
 
-function istHaupt(v: unknown): boolean {
+function istJa(v: unknown): boolean {
     if (v === true) return true;
     if (typeof v === 'number') return v === 1;
-    if (typeof v === 'string') return HAUPT_JA.has(v.trim().toLowerCase());
+    if (typeof v === 'string') return JA.has(v.trim().toLowerCase());
     return false;
 }
 
-function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithId[] {
+// Gesamte Pufferzeit: Zahl in Arbeitstagen oder MS-Project-Text wie "3 Tage",
+// "-2 T", "1,5 Wochen" (W = 5, Mo = 20 Arbeitstage, h = 1/8, "e"-Präfix = fortlaufend)
+function parsePuffer(v: unknown): number | null {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') return isFinite(v) ? v : null;
+    const m = /^\s*(-?\d+(?:[.,]\d+)?)\s*([a-zäöü]*)/i.exec(String(v));
+    if (!m) return null;
+    const n = parseFloat(m[1].replace(',', '.'));
+    const u = m[2].toLowerCase().replace(/^e(?=[a-zäöü])/, '');
+    if (/^(w|wo|woche|wochen|wk|wks|week|weeks)$/.test(u)) return n * 5;
+    if (/^(mo|mon|monat|monate|month|months)$/.test(u)) return n * 20;
+    if (/^(h|std|stunde|stunden|hr|hrs|hour|hours)$/.test(u)) return n / 8;
+    if (/^(m|min|minute|minuten|minutes)$/.test(u)) return n / 480;
+    return n;
+}
+
+function fmtWert(v: unknown): string {
+    if (v === null || v === undefined) return '';
+    if (v instanceof Date) {
+        if (isNaN(v.getTime())) return '';
+        return ('0' + v.getDate()).slice(-2) + '.' + ('0' + (v.getMonth() + 1)).slice(-2) + '.' + String(v.getFullYear()).slice(2);
+    }
+    if (typeof v === 'number') return isFinite(v) ? v.toLocaleString('de-DE', { maximumFractionDigits: 2 }) : '';
+    if (typeof v === 'boolean') return v ? 'Ja' : 'Nein';
+    return String(v).trim();
+}
+
+// PSP-Codes natürlich sortieren: 2.9 vor 2.10, Elternteil vor Kind
+function pspVergleich(a: string, b: string): number {
+    const pa = a.split('.'), pb = b.split('.');
+    for (let i = 0; i < Math.min(pa.length, pb.length); i++) {
+        const na = Number(pa[i]), nb = Number(pb[i]);
+        const c = isFinite(na) && isFinite(nb) ? na - nb : pa[i].localeCompare(pb[i], 'de');
+        if (c !== 0) return c;
+    }
+    return pa.length - pb.length;
+}
+
+function parseData(dataView: DataView | undefined, host: IVisualHost, koepfe: string[]): TaskWithId[] {
     const cat = dataView && dataView.categorical;
     if (!cat || !cat.categories || !cat.categories.length) return [];
 
@@ -107,6 +146,24 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
     const planEndVals = valsByRole('planEnd');
     const sortVals = valsByRole('sort');
     const hauptVals = valsByRole('hauptMs');
+    const nrCol = byRole('nr');
+    const pspCol = byRole('psp');
+    const kritVals = valsByRole('kritisch');
+    const pufferVals = valsByRole('puffer');
+    const stichVals = valsByRole('stichtag');
+    const farbeCol = byRole('farbeNach');
+    // Zusatzspalten: Kategorie-Spalten UND Measures, in Feldbrunnen-Reihenfolge
+    const zusatz: { idx: number; name: string; values: unknown[] }[] = [];
+    cat.categories.forEach((c, i) => {
+        if (c.source.roles && c.source.roles['zusatz']) zusatz.push({ idx: typeof c.source.index === 'number' ? c.source.index : i, name: c.source.displayName, values: c.values as unknown[] });
+    });
+    if (cat.values) cat.values.forEach((v, i) => {
+        if (v.source.roles && v.source.roles['zusatz']) zusatz.push({ idx: typeof v.source.index === 'number' ? v.source.index : 1000 + i, name: v.source.displayName, values: v.values as unknown[] });
+    });
+    zusatz.sort((a, b) => a.idx - b.idx);
+    zusatz.splice(3);
+    koepfe.length = 0;
+    zusatz.forEach(z => koepfe.push(z.name));
     const progCol = cat.values && cat.values.find(v => v.source.roles && v.source.roles['progress']);
 
     // Fortschritts-Skala erkennen: alles ≤ 1 → als Anteil interpretieren
@@ -163,6 +220,15 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
         const depsRaw = depsCol ? depsCol.values[i] : null;
         const deps = depsRaw === null || depsRaw === undefined ? [] :
             String(depsRaw).split(/[,;]/).map(d => d.trim()).filter(d => d.length > 0);
+        // MS-Project-Vorgänger ("12;15EA+2T") — Namenslisten bleiben Namen
+        const depRefs = depsRaw === null || depsRaw === undefined ? [] : parseVorgaenger(String(depsRaw));
+        const nrRaw = nrCol ? nrCol.values[i] : null;
+        const nr = nrRaw === null || nrRaw === undefined || String(nrRaw).trim() === '' ? null
+            : (typeof nrRaw === 'number' ? String(Math.round(nrRaw)) : String(nrRaw).trim());
+        const pspRaw = pspCol ? pspCol.values[i] : null;
+        const psp = pspRaw === null || pspRaw === undefined || String(pspRaw).trim() === '' ? null : String(pspRaw).trim().replace(/\.+$/, '');
+        const farbeRaw = farbeCol ? farbeCol.values[i] : null;
+        const farbeWert = farbeRaw === null || farbeRaw === undefined || String(farbeRaw).trim() === '' ? null : String(farbeRaw).trim();
 
         // Individuelle Farbe: Instanz-Formatierung aus dem "dataPoint"-Objekt
         // (per-Task-Farbwähler im Formatbereich, siehe getFormattingModel()).
@@ -173,17 +239,24 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
         // Schlüssel = Pfad + Name. Vorgangsnamen sind in MS-Project-Plänen nicht
         // eindeutig (derselbe Name taucht in mehreren Zweigen auf); der Pfad ist es.
         // Für echte Dubletten innerhalb desselben Zweigs bleibt das Suffix.
+        // Mit Nr. ist der Schlüssel eindeutig wie in MS Project; mit PSP-Code
+        // trennt der Code gleichnamige Vorgänge in verschiedenen Zweigen.
         let key = (projekt !== null ? projekt + '¦' : '')
-            + (path.length ? path.join('¦') + '¦' : '')
-            + name;
+            + (nr !== null ? '#' + nr
+                : (path.length ? path.join('¦') + '¦' : '') + (psp !== null ? psp + '¦' : '') + name);
         while (usedKeys.has(key)) key = key + '⁣';
         usedKeys.add(key);
 
         tasks.push({
             key, name, phase, path, projekt, s, e, pct, st, ow, deps, color, ps, pe,
-            // ohne gebundene Rolle bleibt das Feld undefined — der Leisten-Knopf
-            // „Nur Hauptmeilensteine" erscheint dann gar nicht erst
-            haupt: hauptVals ? istHaupt(hauptVals[i]) : undefined,
+            // ohne gebundene Rolle bleiben die Felder undefined — die zugehörigen
+            // Ansichten/Spalten erscheinen dann gar nicht erst
+            haupt: hauptVals ? istJa(hauptVals[i]) : undefined,
+            depRefs, nr, psp, farbeWert,
+            kritisch: kritVals ? istJa(kritVals[i]) : undefined,
+            puffer: pufferVals ? parsePuffer(pufferVals[i]) : undefined,
+            stichtag: stichVals ? toUtcMs(stichVals[i]) : undefined,
+            zusatz: zusatz.length ? zusatz.map(z => fmtWert(z.values[i])) : undefined,
             selectionId: host.createSelectionIdBuilder().withCategory(taskCol, i).createSelectionId()
         });
         sortKeys.push(sortVals ? sortVals[i] : null);
@@ -204,6 +277,17 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
             return a.i - b.i;
         });
         return decorated.map(d => d.t);
+    }
+    // Ohne Sortier-Rolle die Planreihenfolge aus MS Project: Nr., sonst PSP-Code.
+    // Power BI liefert die Zeilen sonst alphabetisch nach der ersten Kategorie.
+    if (tasks.some(t => t.nr)) {
+        const num = (t: TaskWithId) => { const v = Number(t.nr); return isFinite(v) ? v : Infinity; };
+        return tasks.map((t, i) => ({ t, i })).sort((a, b) => (num(a.t) - num(b.t)) || (a.i - b.i)).map(d => d.t);
+    }
+    if (tasks.some(t => t.psp)) {
+        return tasks.map((t, i) => ({ t, i }))
+            .sort((a, b) => (a.t.psp && b.t.psp ? pspVergleich(a.t.psp, b.t.psp) : (a.t.psp ? -1 : b.t.psp ? 1 : 0)) || (a.i - b.i))
+            .map(d => d.t);
     }
     return tasks;
 }
@@ -233,6 +317,7 @@ export class Visual implements IVisual {
     private renderer: GanttRenderer;
     private data: TaskWithId[] = [];
     private statusDatum: number | null = null;
+    private zusatzKoepfe: string[] = [];
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -263,6 +348,8 @@ export class Visual implements IVisual {
         const ms = this.formattingSettings.meilensteineCard;
         const tp = this.formattingSettings.tooltipCard;
         const ze = this.formattingSettings.zeiteinheitenCard;
+        const pl = this.formattingSettings.terminplanungCard;
+        const bk = this.formattingSettings.balkenCard;
         const f = this.formattingSettings.schriftCard.font;
         const allow = this.host.hostCapabilities.allowInteractions !== false;
         this.renderer.setOptions({
@@ -274,8 +361,21 @@ export class Visual implements IVisual {
             tabellenBreite: d.tabellenBreite.value,
             spalten: {
                 start: sp.start.value, end: sp.ende.value, days: sp.tage.value,
-                status: sp.status.value, pct: sp.fortschritt.value, ow: sp.wer.value
+                status: sp.status.value, pct: sp.fortschritt.value, ow: sp.wer.value,
+                psp: sp.psp.value, puffer: sp.puffer.value, stichtag: sp.stichtag.value, zusatz: sp.zusatz.value
             },
+            namenZweizeilig: sp.zweizeilig.value,
+            zusatzKoepfe: this.zusatzKoepfe.slice(),
+            startAnsicht: String(d.startAnsicht.value.value),
+            kritischHervorheben: pl.kritischHervorheben.value,
+            ueberfaelligMarkieren: pl.ueberfaelligMarkieren.value,
+            pufferAnzeigen: pl.pufferAnzeigen.value,
+            stichtageAnzeigen: pl.stichtageAnzeigen.value,
+            fortschrittslinie: pl.fortschrittslinie.value,
+            arbeitstage: pl.arbeitstage.value,
+            feiertage: pl.feiertage.value,
+            farbeNach: String(bk.farbeNach.value.value),
+            legende: bk.legende.value,
             gruppenNamen: d.gruppenNamen.value,
             texte: {
                 spalteTask: bs.spalteTask.value, projekt1: bs.projekt1.value, projektN: bs.projektN.value,
@@ -286,7 +386,7 @@ export class Visual implements IVisual {
             tipZeilen: {
                 zeitraum: tp.zeitraum.value, plan: tp.plan.value, abweichung: tp.abweichung.value,
                 dauer: tp.dauer.value, status: tp.status.value, fortschritt: tp.fortschritt.value,
-                wer: tp.wer.value, abhaengigkeiten: tp.abhaengigkeiten.value
+                wer: tp.wer.value, abhaengigkeiten: tp.abhaengigkeiten.value, planung: tp.planung.value
             },
             zeiteinheiten: {
                 tage: ze.tage.value, wochen: ze.wochen.value, monate: ze.monate.value,
@@ -302,7 +402,6 @@ export class Visual implements IVisual {
             msDatum: ms.datumAnzeigen.value,
             msNamen: ms.namenAnzeigen.value,
             msBeschriftung: String(ms.beschriftung.value.value),
-            nurHaupt: ms.nurHaupt.value,
             msEndeGleichStart: ms.endeGleichStart.value,
             fontFamily: f.fontFamily.value,
             fontSize: f.fontSize.value,
@@ -347,7 +446,7 @@ export class Visual implements IVisual {
             const dataView = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
 
-            this.data = parseData(dataView, this.host);
+            this.data = parseData(dataView, this.host, this.zusatzKoepfe);
             this.statusDatum = parseStatusDate(dataView);
             this.renderer.setData(this.data);
             this.pushOptions();

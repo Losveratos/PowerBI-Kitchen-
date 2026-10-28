@@ -1,174 +1,165 @@
 # DataKitchen Gantt (Projektplan) — Power BI Custom Visual
 
-Portiert aus `Gantt Chart - DataKitchen.html` (dc-Sample), nach dem gleichen
-Muster wie `ibcsCategoryWaterfall`. Rendering-Kern liegt host-unabhängig in
-[src/gantt.ts](src/gantt.ts), die Power-BI-Anbindung in [src/visual.ts](src/visual.ts).
+Projektplan-Gantt für Power BI, das MS-Project-Pläne so nachbildet, wie
+Projektplaner sie kennen: Gliederung aus dem PSP-Code, Anordnungsbeziehungen mit
+Typ und Zeitabstand, kritischer Pfad, Puffer, Stichtage, Basisplan,
+Fortschrittslinie und Arbeitskalender.
+
+Rendering-Kern host-unabhängig in [src/gantt.ts](src/gantt.ts), Power-BI-Anbindung
+in [src/visual.ts](src/visual.ts).
+
+## Schnellstart: MS-Project-Plan in einer Minute
+
+| Feld aus dem Export | Rolle im Visual |
+| --- | --- |
+| Name | **Task** |
+| Anfang | **Start (Datum)** |
+| Ende | **Ende (Datum)** — leer = Meilenstein |
+| PSP-Code (2.1.3) | **PSP-Code** — daraus entsteht die ganze Gliederung |
+| Nr. | **Nr.** |
+| Vorgänger (`12;15EA+2T`) | **Vorgänger** |
+| % abgeschlossen | **Fortschritt** |
+
+Damit stehen Gliederung, Sammelvorgänge, Pfeile und kritischer Pfad. Alles Weitere
+ist optional: *Kritisch* und *Gesamte Pufferzeit* aus dem Export (sonst berechnet
+das Visual beide), *Stichtag*, *Statusdatum*, Basisplan, Projekt, Status, Wer,
+bis zu drei *Zusatzspalten*.
 
 ## Datenrollen
 
-| Rolle | Typ | Pflicht | Hinweise |
-| --- | --- | --- | --- |
-| Task | Grouping | ja | Task-Name; auch Schlüssel für Abhängigkeiten |
-| Start (Datum) | Grouping | ja | Zeilen ohne gültiges Startdatum werden übersprungen |
-| Ende (Datum) | Grouping | nein | **leer = Meilenstein (Raute)** |
-| Ebenen (Gruppierung) | Grouping | nein | **bis zu 5 Felder.** Jedes Feld erzeugt eine eigene auf-/zuklappbare Ebene, in der Reihenfolge des Feldbrunnens (z. B. `Ebene 1`…`Ebene 4` aus einem MS-Project-Export). Mit genau einem Feld verhält es sich wie die frühere Rolle „Phase" |
-| Projekt (oberste Ebene) | Grouping | nein | Portfolio: eine klappbare Projektzeile ÜBER den Phasen; trägt immer alle Meilensteine des Projekts mit Datum |
-| Statusdatum (rote Linie) | GroupingOrMeasure | nein | rote Linie auf Berichtsstand statt "Heute" (Label = Datum) |
-| Sortierung (optional) | GroupingOrMeasure | nein | stabile aufsteigende Sortierung (z. B. MS-Project-Zeilenfolge) |
-| Fortschritt | Measure | nein | 0–1 oder 0–100, Skala wird automatisch erkannt |
-| Status | Grouping | nein | „Fertig/In Arbeit/Blockiert/Offen" (auch EN-Synonyme) → farbige Pills |
-| Wer (Owner) | Grouping | nein | |
-| Abhängigkeiten | Grouping | nein | Task-Namen, komma-/semikolongetrennt → Pfeile |
-| Hauptmeilenstein (Ja/Nein) | GroupingOrMeasure | nein | markiert die Zeilen für den Filter „◆ Nur Hauptmeilensteine". Tolerant ausgelegt: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr`, `true` (Groß-/Kleinschreibung egal, getrimmt) = ja; alles andere, leer und `null` = nein |
-| Plan-Start (Basisplan) | Grouping | nein | Plan vs. Ist: Outline-Balken unter dem Ist-Balken |
-| Plan-Ende (Basisplan) | Grouping | nein | ohne Plan-Start erbt es den Ist-Start; Δ = Ist-Ende − Plan-Ende |
+| Rolle | Typ | Hinweise |
+| --- | --- | --- |
+| Task | Grouping | **Pflicht.** Vorgangsname |
+| Start (Datum) | Grouping | **Pflicht.** Zeilen ohne gültigen Start werden übersprungen |
+| Ende (Datum) | Grouping | leer = Meilenstein (Raute) |
+| PSP-Code | Grouping | Gliederung ohne vorbereitete Ebenen-Spalten: `2.1.3` hängt unter `2` und `2.1`. Ein Vorgang mit Kindern ist ein Sammelvorgang und wird zur Gruppe — mit seinen eigenen Terminen. Je Projekt getrennt. Ohne Sortierung natürlich sortiert (2.9 vor 2.10) |
+| Nr. | Grouping | Vorgangs-ID; Bezug für die Vorgänger. Ohne Sortierung gibt sie die Reihenfolge vor |
+| Vorgänger | Grouping | MS-Project-Spalte `12;15EA+2T;7AA-1 Tag;3EE+50%` — EA/AA/EE/AE (auch FS/SS/FF/SF), Zeitabstand in T, W (5 AT), Mo (20 AT), h, min, % der Vorgängerdauer. Nicht-numerische Einträge gelten als Vorgangsnamen (wie bis 1.18). Je Projekt aufgelöst |
+| Ebenen (Gruppierung) | Grouping | Alternative zum PSP-Code: **bis zu 5 Felder** als geschachtelte Klappebenen in Feldbrunnen-Reihenfolge. Hat Vorrang vor dem PSP-Code |
+| Projekt (oberste Ebene) | Grouping | Portfolio: klappbare Projektzeile über allem; trägt immer alle Meilensteine des Projekts |
+| Fortschritt | Measure | 0–1 oder 0–100, Skala wird erkannt |
+| Status | Grouping | „Fertig/In Arbeit/Blockiert/Offen" (auch EN) → farbige Pills |
+| Wer (Owner) | Grouping | |
+| Kritisch (Ja/Nein) | GroupingOrMeasure | aus MS Project. Hat Vorrang vor allem Berechneten |
+| Gesamte Pufferzeit (Tage) | GroupingOrMeasure | Zahl in Arbeitstagen oder Text wie „3 Tage", „1,5 Wochen" |
+| Stichtag (Deadline) | GroupingOrMeasure | Marker im Chart, rot wenn überschritten |
+| Statusdatum (rote Linie) | GroupingOrMeasure | Berichtsstand statt „Heute"; Bezug für *überfällig* und die Fortschrittslinie |
+| Plan-Start / Plan-Ende (Basisplan) | GroupingOrMeasure | Plan vs. Ist; Δ = Ist-Ende − Plan-Ende |
+| Hauptmeilenstein (Ja/Nein) | GroupingOrMeasure | für die Ansicht „Nur Hauptmeilensteine" |
+| Farbe nach (Kategorie) | Grouping | z. B. Gewerk oder Ampel, für *Balken → Balkenfarbe nach: Feld* |
+| Zusatzspalten (bis zu 3) | GroupingOrMeasure | erscheinen als Tabellenspalten mit dem Feldnamen als Kopf |
+| Sortierung | GroupingOrMeasure | stabile aufsteigende Reihenfolge; schlägt Nr. und PSP |
 
-## Mehrstufige Hierarchie
+Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
 
-Die Rolle **Ebenen** nimmt mehrere Felder auf und rendert sie als geschachtelte
-Klappebenen. Über allem steht optional die Rolle **Projekt**.
+## Bedienung
+
+### Die Leiste
 
 ```
-▼ MAR-S005                                          Projekt
-  ▼ Vor- und Entwurfsplanung erstellen (P 2/3)      Ebenen[0]
-     ▼ Kampfmittelfreiheit                          Ebenen[1]
-          Antrag auf Luftbildauswertung erstellen   Task
-          Luftbildauswertung durchführen
-        ◆ Kampfmittelfreiheit liegt vor
-     ▼ PV-Anlage
-        ▼ Artenschutzgutachten beauftragen          Ebenen[2]
-             Erstellung Bauantragsunterlagen
-             Einreichung Bauantragsunterlagen
+[⊞][⊟][Ebene ▾] [Suchen …]  11 Vorgänge · 5 Gruppen     [Tage|Wochen|…] [−][+] [Heute][Alles][Auswahl] [Alle Vorgänge ▾]
 ```
 
-Regeln, die dabei gelten:
+- **⊞ / ⊟** klappen alles auf bzw. zu. **Ebene ▾** zeigt die Gliederung bis
+  Ebene 1, 2, … — wie „Gliederung anzeigen" in MS Project.
+- **Suchen** findet Vorgänge über Name, PSP-Code (Präfix) oder Nr.; Treffer sind
+  gelb hinterlegt. **Enter** springt zum nächsten Treffer und klappt dafür die
+  Vorfahren auf, **Umschalt+Enter** zurück, **Esc** leert.
+- **Heute** springt zum Statusdatum, **Alles** passt den Plan ein, **Auswahl**
+  (nur bei Selektion) zoomt auf die selektierten Vorgänge.
+- **Ansicht ▾**: *Alle Vorgänge* · *Nur Hauptmeilensteine* (flache Liste, jeder
+  Name einmal, Vorkommen als Rauten) · *Nur kritischer Pfad* · *Nur überfällige*.
+  Die gefilterten Ansichten behalten die Gliederung. Nicht verfügbare Ansichten
+  stehen ausgegraut im Menü und sagen, welche Rolle fehlt. Alles folgt Slicern
+  und Crossfiltern; bleibt nichts übrig, erscheint ein Hinweis statt einer
+  leeren Fläche.
 
-- **Ungleich tiefe Zweige.** Leere Ebenenfelder werden verdichtet — eine Zeile
-  hängt an der letzten gefüllten Ebene, namenlose Zwischengruppen entstehen nicht.
-- **Gruppenbalken** spannen auf *jeder* Ebene über alle Nachfahren (Hülle aus
-  min. Start / max. Ende), der Fortschritt wird dauergewichtet aggregiert.
-- **Farbe** fällt auf der obersten Ebenen-Stufe und wird nach unten vererbt:
-  ein Zweig trägt durchgängig eine Farbe. Die Projektebene bleibt neutral.
-- **Reihenfolge** folgt der Rolle *Sortierung* (der Baum entsteht in
-  Erstauftritts-Reihenfolge), nicht dem Alphabet.
-- **Schlüssel** ist der Pfad, nicht der Vorgangsname — gleichnamige Vorgänge in
-  verschiedenen Zweigen bleiben getrennt. Abhängigkeiten werden weiterhin über
-  Vorgangsnamen aufgelöst.
-- **Sammelvorgang nur aus Meilensteinen.** Er wird wie jeder Sammelvorgang als
-  Balken gezeigt — mit seinen eigenen Terminen, wo der Export sie liefert —, aber
-  ohne Rauten auf seiner Zeile; die Meilensteine erscheinen erst beim Aufklappen.
-  Gruppen mit Vorgängen *und* Meilensteinen zeigen ihre Rauten zugeklappt wie
-  bisher.
-- **Sammelvorgänge.** Liefert der Export für einen Knoten *zusätzlich* eine eigene
-  Zeile (deren letzte Ebene den eigenen Namen trägt), wird sie ausgelassen und der
-  Knoten nur als Gruppenzeile gezeigt; die Spanne kommt aus den Kindern. Ein echter
-  Einzelvorgang, der zufällig wie seine Gruppe heißt, bleibt erhalten.
-- Mit **genau einem** Ebenen-Feld ist das Ergebnis unverändert gegenüber 1.10.
+### Im Plan
 
-Zeilen werden virtualisiert: nur das Sichtfenster bekommt DOM-Knoten. 30.000
-Zeilen rendern damit in ~140 ms statt ~8 s.
+- **Gruppenzeile** anklicken (Tabelle oder Chart, an jeder Stelle) = auf-/zuklappen.
+- **Vorgang** anklicken = Crossfilter (Strg = Mehrfachauswahl), Rechtsklick =
+  Kontextmenü. Klick auf eine Hauptmeilenstein-Zeile selektiert alle Vorkommen.
+- Pannen: Chart ziehen oder scrollen · Zoomen: Strg+Scrollen oder −/+.
+- Trenner zwischen Tabelle und Chart ziehen = Tabellenbreite (wird gespeichert).
 
-## Interaktion
+### Was der Plan zeigt
 
-- Pannen: Chartfläche ziehen oder scrollen · Zoomen: Strg+Scrollen, +/−, Modi Tage/Wochen/Monate
-- Vertikaler Scrollbalken am rechten Rand, sobald der Plan höher ist als die
-  Fläche (ziehbar, Klick auf die Spur springt); Klick-Toleranz 8 px, damit
-  Touchpad-Klicks (leichtes Verrutschen beim Drücken) nicht als Pannen zählen
-- „Heute" zentriert auf das aktuelle Datum, „Alles" passt den gesamten Plan ein
-- **⊞ / ⊟ ganz links in der Leiste** klappen *alle* Ebenen gemeinsam auf bzw. zu —
-  Projekte und Ebenen jeder Tiefe in einem Zug, auch die in zugeklappten
-  Teilbäumen. Sie erscheinen nur, wenn es überhaupt Gruppen gibt, und bleiben
-  sichtbar, wenn die Infozeile per *Infozeile oben anzeigen* leer ist. Die
-  Knöpfe „▾ Projekte" und „▾ Ebenen" rechts klappen weiterhin gezielt nur eine
-  Ebenenart.
-- **„◆ Nur Hauptmeilensteine"** rechts in der Leiste schaltet auf eine **flache,
-  chronologische Liste** der über die Rolle *Hauptmeilenstein (Ja/Nein)*
-  markierten Zeilen um: keine Projekt- und Ebenenzeilen, keine Einrückung, bei
-  gleichem Datum in Datenreihenfolge. **Jeder Meilensteinname steht genau
-  einmal**: kommt derselbe Hauptmeilenstein mehrfach vor (je Projekt, je
-  Berichtsstand oder als Kopie auf mehreren Ebenen), wird jedes Vorkommen eine
-  eigene Raute auf dieser einen Zeile; völlig identische (gleiches Projekt,
-  gleiches Datum) fallen zusammen. Die Tabelle zeigt als Start/Ende den ersten
-  und letzten Termin, der Hover-Titel jeder Raute Projekt und Datum, der Tooltip
-  der Zeile die Zahl der Vorkommen. Klick auf die Zeile selektiert **alle** Vorkommen, Klick auf eine
-  Raute **genau dieses** — beides crossfiltert wie sonst. Der Knopf erscheint nur bei gebundener Rolle, die
-  Startstellung kommt aus *Meilensteine → Nur Hauptmeilensteine*; danach gewinnt
-  der Knopf, bis der Optionswert selbst wechselt (gleiches Muster wie die per
-  Trenner gezogene Tabellenbreite). Beim Umschalten werden Klappzustand,
-  Scrollstand und Zoom-Fit auf den gezeigten Umfang zurückgesetzt. Die Liste
-  entsteht bei jedem Update aus dem DataView — Slicer, Seitenfilter und
-  Crossfilter anderer Visuals schlagen also durch. Bleibt dabei kein
-  Hauptmeilenstein übrig, steht mittig „Keine Hauptmeilensteine im aktuellen
-  Filter"; der Knopf bleibt bedienbar.
-- Gruppenzeile (Projekt oder Ebene) anklicken = auf-/zuklappen. Das gilt für die
-  **ganze Zeile, an jeder Stelle** — in der Tabelle und im Chart, auf dem
-  Summenbalken, auf dem Gruppennamen und auch auf den Meilenstein-Rauten, die
-  eine zugeklappte Gruppe (und immer die Projektzeile) trägt. Letztere
-  selektieren dort bewusst **nicht**: bei ~48 Meilensteinen je Projekt wäre die
-  Zeile sonst größtenteils tot. Zum Selektieren eines Meilensteins die Gruppe
-  aufklappen und seine eigene Zeile anklicken.
-  Klicks laufen über **mousedown + mouseup** auf dem stabilen Viewport, nicht
-  über `click`: wird der Knoten unter dem Zeiger zwischen Drücken und Loslassen
-  ersetzt, stellt der Browser gar kein `click` zu — auch nicht an einen
-  Vorfahren. Ein menschlicher Klick dauert länger als ein Frame, ein
-  synthetischer nicht; deshalb fiel das in Tests lange nicht auf.
-  `setState()` zeichnet zudem nur noch neu, wenn sich wirklich etwas ändert —
-  vorher löste jedes `mouseenter` ein Neuzeichnen aus, das die Zeilen ersetzte,
-  worauf der neue Knoten unter dem Zeiger sofort wieder `mouseenter` feuerte
-  (gemessene Dauerschleife: 110 Renders in 2 s bei stillstehender Maus). Die Umrechnung
-  berücksichtigt eine **CSS-Skalierung des Visuals** (Power BI: „Anpassen an
-  Seite", Fokusmodus, Browser-Zoom, mobile Layouts) — ohne das trifft ein
-  Klick die falsche Zeile, und zwar umso weiter daneben, je tiefer sie liegt.
-  Dasselbe gilt für Pannen, Scrollbalken, Zoom-Anker und Tooltip-Position
-- Task anklicken = Crossfilter-Selektion (Strg = Mehrfachauswahl), Rechtsklick = Kontextmenü
-- **Bewusst entfernt gegenüber dem HTML-Sample:** Balken per Drag verschieben/verlängern —
-  Power BI bindet Start/Ende aus dem Datenmodell (gleiche Entscheidung wie beim
-  CSV-Overlay im Waterfall-Port)
+- **Kritischer Pfad** — rote Balkenrahmen, rote Pfeile zwischen kritischen
+  Vorgängen, roter Punkt in der Tabelle. Quelle in dieser Reihenfolge: Rolle
+  *Kritisch* → Rolle *Gesamte Pufferzeit* (≤ 0) → **berechnet** aus Terminen und
+  Vorgängern (Rückwärtsrechnung in Arbeitstagen, mit Feiertagen und Stichtagen).
+  Abgeschlossenes ist nie kritisch. Der Tooltip kennzeichnet berechnete Werte.
+- **Puffer** — dünne Linie unter dem Balken bis zum spätesten Ende, Spalte *Puffer*.
+- **Überfällig** — Ende vor dem Statusdatum, aber nicht fertig: Ende-Datum rot,
+  „überfällig n t" am Balken. Braucht Fortschritt oder Status.
+- **Stichtage** — Dreieck am Stichtag, grün eingehalten, rot überschritten.
+- **Fortschrittslinie** (Option) — vom Statusdatum zu jedem laufenden Vorgang an
+  den Punkt seines Ist-Fortschritts: Knick nach links = Rückstand, nach rechts = Vorsprung.
+- **Anordnungsbeziehungen** — Pfeile je Typ: EA verlässt den Vorgänger am Ende
+  und trifft den Nachfolger am Anfang, AA Anfang→Anfang, EE Ende→Ende, AE Anfang→Ende.
+- **Basisplan** — Plan als Outline unter dem Ist-Balken, Δ-Spalte, Verzug rot.
+- Vorgänger als Nummern, aber Rolle *Nr.* nicht gebunden? Die Infozeile sagt es.
 
-## Formatierungsbereich („Darstellung")
+## Hierarchie
 
-Theme Hell/Dunkel · Wochenenden schattieren · Abhängigkeitspfeile · Heute-Linie ·
-Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel) ·
-*Infozeile oben anzeigen* (der Text „1 Projekt · 9 Vorgänge · 6 Gruppen · 3 Meilensteine"
-oben links; die Leiste mit den Knöpfen bleibt in jedem Fall)
+Gliederung aus dem **PSP-Code** (ohne Ebenen-Felder) oder aus bis zu fünf
+**Ebenen**-Feldern, darüber optional **Projekt**:
 
-**Gruppennamen im Chart** — blendet den Namen jeder Gruppenzeile zusätzlich am
-Anfang ihres Summenbalkens ein (Vorgabe: an). Hilft, wenn die Tabelle schmal ist
-und tiefe Ebenen dort abgeschnitten werden, oder ganz ausgeblendet ist.
+```
+▼ 1   Vor- und Entwurfsplanung          Sammelvorgang = Gruppe
+  ▼ 1.1 Kampfmittelfreiheit
+       1.1.1 Antrag auf Luftbildauswertung
+       1.1.2 Luftbildauswertung durch Behörde
+     ◆ 1.1.3 Kampfmittelfreiheit liegt vor
+  ▼ 1.2 PV-Anlage
+       1.2.1 Artenschutzgutachten …
+```
 
-**Beschriftungen** — eigene Texte statt der Vorgaben: Überschrift der
-Namensspalte (Vorgabe „Task", z. B. „Vorgang"), *Projekt* und *Phase/Ebene*
-jeweils in Einzahl und Mehrzahl — sie erscheinen auf den Klapp-Knöpfen und in
-der Infozeile. Getrennt, weil sich der deutsche Plural nicht ableiten lässt.
-Leeres Feld = Vorgabe.
+- **Sammelvorgänge** werden zur Gruppenzeile; ihre eigene Datenzeile erscheint
+  nicht doppelt — auch dann nicht, wenn ihre Kinder nur weitere Sammelvorgänge
+  sind. Der Gruppenbalken nimmt die eigenen Termine des Sammelvorgangs mit auf.
+- Ein **Sammelvorgang nur aus Meilensteinen** zeigt seinen Balken; die
+  Meilensteine erscheinen erst beim Aufklappen.
+- **Ungleich tiefe Zweige** erzeugen keine namenlosen Zwischengruppen.
+- **Farbe** fällt auf der obersten Ebene und wird vererbt (ein Zweig, eine Farbe).
+- **Reihenfolge**: Sortierung → Nr. → PSP-Code → Datenreihenfolge.
+- Mit genau einem Ebenen-Feld und ohne PSP-Code verhält sich das Visual wie 1.10.
 
-**Tabellenspalten** — Start, Ende, Dauer, Status, Fortschritt, Wer einzeln
-ein-/ausblenden (Δ Plan sitzt in der Karte „Basisplan").
+## Formatierungsbereich
 
-**Meilensteine** — *Nur Hauptmeilensteine* (Vorgabe: aus; Startstellung des
-Leisten-Knopfs „◆ Nur Hauptmeilensteine", siehe Interaktion) · auf zugeklappten
-Gruppen anzeigen · Datum am Meilenstein ·
-Name am Meilenstein · *Beschriftung auf zugeklappten Zeilen* (Nur Datum /
-Nur Name / Name und Datum). Auf zugeklappten Zeilen werden überlappende
-Beschriftungen ausgelassen, damit bei vielen Meilensteinen je Projekt die
-verbleibenden lesbar bleiben.
+| Karte | Inhalt |
+| --- | --- |
+| **Darstellung** | Theme · **Startansicht** (Alle / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · Standard-Zeiteinheit · Einheit für Tage · Wochenenden · Pfeile · Status-/Heute-Linie · Tabellenbreite · Gruppennamen im Chart · Infozeile · IBCS |
+| **Terminplanung** | Kritischen Pfad hervorheben · Überfällige markieren · Puffer als Linie · Stichtage · Fortschrittslinie (aus) · **Dauer in Arbeitstagen** (aus) · **Feiertage** (`01.01.2026, 03.04.2026` — wirken auf Dauer, Δ, Puffer, kritischen Pfad und die Schattierung) |
+| **Balken** | Balkenfarbe nach Zweig / Status / kritischem Pfad / Feld „Farbe nach" · Legende |
+| **Zeiteinheiten** | welche Zoomstufen die Leiste anbietet (alle aus = alle an) |
+| **Tabellenspalten** | PSP-Code · Start · Ende · Tage · Puffer · Stichtag · Status · Fortschritt · Wer · Zusatzspalten · **Lange Namen zweizeilig**. Spalten ohne Daten erscheinen nicht; bei Platzmangel weichen sie in fester Reihenfolge |
+| **Beschriftungen** | Überschrift der Namensspalte, Projekt und Phase/Ebene in Einzahl/Mehrzahl |
+| **Basisplan** | Plan-Balken · Δ-Spalte · Verzug-Zeilen rot |
+| **Meilensteine** | auf zugeklappten Gruppen · Datum · Name · Beschriftung auf zugeklappten Zeilen · Ende = Start als Meilenstein |
+| **Tooltip** | ganz aus oder zeilenweise, inkl. „Kritisch, Puffer, Stichtag, überfällig" |
+| **Schrift** | Schriftart und -größe (alle Maße skalieren mit) |
 
-**Zeiteinheiten** — welche Zoomstufen die Leiste anbietet: Tage, Wochen, Monate,
-Quartale, Jahre einzeln ein-/ausblenden (Vorgabe: alle an). Die zuletzt aktive Stufe
-bleibt erhalten, auch wenn ihr Knopf ausgeblendet wird; sind *alle* fünf aus, zeigt
-die Leiste trotzdem alle fünf (eine leere Leiste wäre eine Sackgasse). Welche Stufe
-beim Öffnen gilt, steuert weiterhin „Standard-Zeiteinheit" in der Karte Darstellung.
+Die Option *Meilensteine → Nur Hauptmeilensteine* aus 1.16–1.18 ist in
+*Darstellung → Startansicht* aufgegangen; bestehende Berichte mit der alten
+Einstellung starten weiterhin in der Hauptmeilenstein-Ansicht.
 
-**Tooltip** — *Tooltip anzeigen* schaltet den Hover-Tooltip ganz ab. Darunter sind
-seine Zeilen einzeln schaltbar: Zeitraum, Plan (Basisplan), Abweichung, Dauer, Status,
-Fortschritt, Wer, Hängt ab von (Vorgabe: alle an). Der Name des Vorgangs steht immer
-oben; Plan und Abweichung erscheinen ohnehin nur bei gebundenen Basisplandaten.
+## Technische Notizen
 
-**Basisplan (Plan vs. Ist)** — eigene Karte, alle drei einzeln schaltbar:
-Plan-Balken anzeigen (Ist gefüllt, Plan als Outline darunter — IBCS-Szenario-Notation;
-Plan-Meilensteine als Outline-Raute) · Δ-Spalte in der Tabelle („+3 d" rot = Verzug,
-„−2 d" grün = früher) · Verzug-Zeilen leicht rot hinterlegen (Tabelle + Chart-Lane).
-Phasen aggregieren den Plan ihrer Kinder (Hülle) und zeigen das Verzugs-Delta der Phase.
+- **Klicks** laufen über mousedown + mouseup (Zeilen) bzw. mousedown (Leiste,
+  Menüs), nie über `click`: wird der Knoten zwischen Drücken und Loslassen ersetzt,
+  stellt der Browser kein `click` zu. `setState()` zeichnet nur bei echter Änderung neu.
+- **Skalierung** (Anpassen an Seite, Fokusmodus, Browser-Zoom) wird bei Treffern,
+  Pannen, Scrollbalken, Zoom-Anker und Tooltip herausgerechnet.
+- **30.000 Zeilen**: Zeilen sind virtualisiert, die Planungsanalyse (Netzplan,
+  überfällig) ist je Datenstand gecacht, der Baum je Struktur. Erstes Bild ~0,5 s
+  mit Vorgängern, Hover ~30 ms.
+- **Berechneter Puffer**: ohne Uhrzeiten endet ein Vorgang am Ende seines letzten
+  Tages, ein Meilenstein am Ende seines Tages; ein EA-Nachfolger, der selbst ein
+  Vorgang ist, beginnt frühestens am nächsten Arbeitstag. Ohne Stichtage wird
+  negativer Puffer aus der Tagesrundung auf 0 gesetzt. MS Projects eigene Werte
+  (Rollen *Kritisch*, *Gesamte Pufferzeit*) kennen Ressourcenkalender und
+  Einschränkungen und haben deshalb Vorrang.
 
 ## Entwicklung
 
@@ -178,17 +169,18 @@ npm run package        # baut dist/*.pbiviz
 npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Test
 ```
 
-Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026" inkl.
-Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
-`?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
-`?msnamen=0`, `?mslabel=nurName|beides`, `?gnamen=0`, `?kopf=0`, `?tooltip=0`,
-`?tipzeilen=dauer,wer`, `?zeinheiten=Tage,Monate`, `?nurhaupt=1`,
-`?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete` — Namensspalte|Projekt 1|Projekt n|Ebene 1|Ebene n).
-**`?nurhaupt=1`** startet mit aktivem Hauptmeilenstein-Filter; die Samples
-markieren dafür einzelne Meilensteine mit `haupt: true`.
-**`?ebenen=1`** lädt das mehrstufige Sample (Projekt MAR-S005, vier Ebenen,
-ungleich tiefe Zweige, gleichnamige Vorgänge und **zwei** Sammelvorgangs-Zeilen:
-„Artenschutzgutachten …" mit Vorgängen und „Inbetriebnahme" mit Meilensteinen
-als Kindern); `?proj=1` das Portfolio-Sample mit zwei Projekten.
-Zum Testen in Power BI Desktop: `dist/dataKitchenGantt….pbiviz` importieren,
-z. B. im `PBI-IBCS-Testbed`.
+Testharness `test/harness.html`. Samples: Standard „BI-Rollout 2026" ·
+**`?msp=1`** Plan wie aus MS Project (PSP-Code, Nr., Vorgänger mit Typ/Zeitabstand,
+Sammelvorgänge, Stichtage, Feiertage, Statusdatum 16.03.26) · `?ebenen=1`
+mehrstufig über Ebenen-Felder · `?proj=1` Portfolio mit zwei Projekten.
+
+Parameter: `?ansicht=haupt|kritisch|ueberfaellig` · `?fl=1` Fortschrittslinie ·
+`?at=1` Arbeitstage · `?fei=…` Feiertage (leer = keine) · `?farbe=status|kritisch|feld` ·
+`?legende=0` · `?zweizeilig=1` · `?kritrolle=1` (Kritisch aus der Rolle statt berechnet) ·
+`?krit=0` `?ueber=0` `?puffer=0` `?stich=0` · `?status=2026-03-16` · `?dark=1` ·
+`?ibcs=1` · `?tw=430` · `?deps=0` · `?wochenenden=0` · `?heute=0` · `?plan=0` ·
+`?delta=0` · `?verzug=0` · `?msnamen=0` · `?mslabel=nurName|beides` · `?gnamen=0` ·
+`?kopf=0` · `?tooltip=0` · `?tipzeilen=dauer,wer` · `?zeinheiten=Tage,Monate` ·
+`?nurhaupt=1` · `?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete`.
+
+Zum Testen in Power BI Desktop: `dist/dataKitchenGantt….pbiviz` importieren.

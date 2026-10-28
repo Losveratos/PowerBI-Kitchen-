@@ -27,6 +27,20 @@ const TAGE_EINHEIT_ITEMS: powerbi.IEnumMember[] = [
     { value: "ohne", displayName: "Ohne Einheit" }
 ];
 
+const ANSICHT_ITEMS: powerbi.IEnumMember[] = [
+    { value: "alle", displayName: "Alle Vorgänge" },
+    { value: "haupt", displayName: "Nur Hauptmeilensteine" },
+    { value: "kritisch", displayName: "Nur kritischer Pfad" },
+    { value: "ueberfaellig", displayName: "Nur überfällige" }
+];
+
+const FARBE_ITEMS: powerbi.IEnumMember[] = [
+    { value: "zweig", displayName: "Zweig (Standard)" },
+    { value: "status", displayName: "Status" },
+    { value: "kritisch", displayName: "Kritischer Pfad" },
+    { value: "feld", displayName: "Feld „Farbe nach“" }
+];
+
 const MS_BESCHRIFTUNG_ITEMS: powerbi.IEnumMember[] = [
     { value: "nurDatum", displayName: "Nur Datum" },
     { value: "nurName", displayName: "Nur Name" },
@@ -39,6 +53,15 @@ class DarstellungCardSettings extends FormattingSettingsCard {
         displayName: "Theme",
         items: THEME_ITEMS,
         value: THEME_ITEMS[0]
+    });
+
+    // Nur die STARTSTELLUNG: im Bericht wechselt der Leser die Ansicht über
+    // „Ansicht ▾“ in der Leiste; die gewinnt, bis dieser Wert selbst wechselt.
+    startAnsicht = new formattingSettings.ItemDropdown({
+        name: "startAnsicht",
+        displayName: "Startansicht",
+        items: ANSICHT_ITEMS,
+        value: ANSICHT_ITEMS[0]
     });
 
     wochenenden = new formattingSettings.ToggleSwitch({
@@ -105,7 +128,34 @@ class DarstellungCardSettings extends FormattingSettingsCard {
 
     name: string = "darstellung";
     displayName: string = "Darstellung";
-    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.kopfzeile, this.ibcs];
+    slices: Array<FormattingSettingsSlice> = [this.theme, this.startAnsicht, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.kopfzeile, this.ibcs];
+}
+
+// Planerwerkzeuge. Alles ist an, wo die Daten es hergeben — ohne gebundene
+// Rolle bzw. ohne Vorgänger zeichnet das Visual schlicht nichts davon.
+class TerminplanungCardSettings extends FormattingSettingsCard {
+    kritischHervorheben = new formattingSettings.ToggleSwitch({ name: "kritischHervorheben", displayName: "Kritischen Pfad hervorheben", value: true });
+    ueberfaelligMarkieren = new formattingSettings.ToggleSwitch({ name: "ueberfaelligMarkieren", displayName: "Überfällige markieren (zum Statusdatum)", value: true });
+    pufferAnzeigen = new formattingSettings.ToggleSwitch({ name: "pufferAnzeigen", displayName: "Puffer als Linie anzeigen", value: true });
+    stichtageAnzeigen = new formattingSettings.ToggleSwitch({ name: "stichtageAnzeigen", displayName: "Stichtage anzeigen", value: true });
+    // Aus als Vorgabe: die Linie ist dicht und erst bei gepflegtem Fortschritt aussagekräftig
+    fortschrittslinie = new formattingSettings.ToggleSwitch({ name: "fortschrittslinie", displayName: "Fortschrittslinie", value: false });
+    // Aus als Vorgabe, damit bestehende Berichte dieselben Tageszahlen behalten
+    arbeitstage = new formattingSettings.ToggleSwitch({ name: "arbeitstage", displayName: "Dauer in Arbeitstagen (Mo–Fr)", value: false });
+    feiertage = new formattingSettings.TextInput({ name: "feiertage", displayName: "Feiertage (TT.MM.JJJJ, kommagetrennt)", value: "", placeholder: "01.01.2026, 03.04.2026" });
+
+    name: string = "terminplanung";
+    displayName: string = "Terminplanung";
+    slices: Array<FormattingSettingsSlice> = [this.kritischHervorheben, this.ueberfaelligMarkieren, this.pufferAnzeigen, this.stichtageAnzeigen, this.fortschrittslinie, this.arbeitstage, this.feiertage];
+}
+
+class BalkenCardSettings extends FormattingSettingsCard {
+    farbeNach = new formattingSettings.ItemDropdown({ name: "farbeNach", displayName: "Balkenfarbe nach", items: FARBE_ITEMS, value: FARBE_ITEMS[0] });
+    legende = new formattingSettings.ToggleSwitch({ name: "legende", displayName: "Legende anzeigen", value: true });
+
+    name: string = "balken";
+    displayName: string = "Balken";
+    slices: Array<FormattingSettingsSlice> = [this.farbeNach, this.legende];
 }
 
 // Eigene Bezeichnungen. Leer = Vorgabe des Visuals; der Platzhalter zeigt sie.
@@ -128,10 +178,15 @@ class SpaltenCardSettings extends FormattingSettingsCard {
     status = new formattingSettings.ToggleSwitch({ name: "status", displayName: "Status", value: true });
     fortschritt = new formattingSettings.ToggleSwitch({ name: "fortschritt", displayName: "Fortschritt", value: true });
     wer = new formattingSettings.ToggleSwitch({ name: "wer", displayName: "Wer (Owner)", value: true });
+    psp = new formattingSettings.ToggleSwitch({ name: "psp", displayName: "PSP-Code", value: true });
+    puffer = new formattingSettings.ToggleSwitch({ name: "puffer", displayName: "Puffer", value: true });
+    stichtag = new formattingSettings.ToggleSwitch({ name: "stichtag", displayName: "Stichtag", value: true });
+    zusatz = new formattingSettings.ToggleSwitch({ name: "zusatz", displayName: "Zusatzspalten", value: true });
+    zweizeilig = new formattingSettings.ToggleSwitch({ name: "zweizeilig", displayName: "Lange Namen zweizeilig", value: false });
 
     name: string = "spalten";
     displayName: string = "Tabellenspalten";
-    slices: Array<FormattingSettingsSlice> = [this.start, this.ende, this.tage, this.status, this.fortschritt, this.wer];
+    slices: Array<FormattingSettingsSlice> = [this.psp, this.start, this.ende, this.tage, this.puffer, this.stichtag, this.status, this.fortschritt, this.wer, this.zusatz, this.zweizeilig];
 }
 
 class MeilensteineCardSettings extends FormattingSettingsCard {
@@ -160,15 +215,6 @@ class MeilensteineCardSettings extends FormattingSettingsCard {
         value: true
     });
 
-    // Nur die STARTSTELLUNG des Leisten-Knopfs „◆ Nur Hauptmeilensteine“:
-    // im Bericht soll der Filter ohne Formatbereich erreichbar sein, deshalb
-    // gewinnt der Knopf, bis dieser Wert selbst wieder geändert wird.
-    nurHaupt = new formattingSettings.ToggleSwitch({
-        name: "nurHaupt",
-        displayName: "Nur Hauptmeilensteine",
-        value: false
-    });
-
     // Auf ZUGEKLAPPTEN Gruppenzeilen stand bisher nur das Datum — bei ~48
     // Meilensteinen je Projekt ist damit nicht erkennbar, welcher gemeint ist.
     beschriftung = new formattingSettings.ItemDropdown({
@@ -180,7 +226,7 @@ class MeilensteineCardSettings extends FormattingSettingsCard {
 
     name: string = "meilensteine";
     displayName: string = "Meilensteine";
-    slices: Array<FormattingSettingsSlice> = [this.nurHaupt, this.aufPhasenzeile, this.datumAnzeigen, this.namenAnzeigen, this.beschriftung, this.endeGleichStart];
+    slices: Array<FormattingSettingsSlice> = [this.aufPhasenzeile, this.datumAnzeigen, this.namenAnzeigen, this.beschriftung, this.endeGleichStart];
 }
 
 class TooltipCardSettings extends FormattingSettingsCard {
@@ -195,10 +241,11 @@ class TooltipCardSettings extends FormattingSettingsCard {
     fortschritt = new formattingSettings.ToggleSwitch({ name: "fortschritt", displayName: "Fortschritt", value: true });
     wer = new formattingSettings.ToggleSwitch({ name: "wer", displayName: "Wer", value: true });
     abhaengigkeiten = new formattingSettings.ToggleSwitch({ name: "abhaengigkeiten", displayName: "Hängt ab von", value: true });
+    planung = new formattingSettings.ToggleSwitch({ name: "planung", displayName: "Kritisch, Puffer, Stichtag, überfällig", value: true });
 
     name: string = "tooltip";
     displayName: string = "Tooltip";
-    slices: Array<FormattingSettingsSlice> = [this.anzeigen, this.zeitraum, this.plan, this.abweichung, this.dauer, this.status, this.fortschritt, this.wer, this.abhaengigkeiten];
+    slices: Array<FormattingSettingsSlice> = [this.anzeigen, this.zeitraum, this.plan, this.abweichung, this.dauer, this.status, this.fortschritt, this.wer, this.abhaengigkeiten, this.planung];
 }
 
 class ZeiteinheitenCardSettings extends FormattingSettingsCard {
@@ -262,6 +309,8 @@ class SchriftCardSettings extends FormattingSettingsCard {
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
+    terminplanungCard = new TerminplanungCardSettings();
+    balkenCard = new BalkenCardSettings();
     zeiteinheitenCard = new ZeiteinheitenCardSettings();
     spaltenCard = new SpaltenCardSettings();
     beschriftungenCard = new BeschriftungenCardSettings();
@@ -270,5 +319,6 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     tooltipCard = new TooltipCardSettings();
     schriftCard = new SchriftCardSettings();
 
-    cards = [this.darstellungCard, this.zeiteinheitenCard, this.spaltenCard, this.beschriftungenCard, this.basisplanCard, this.meilensteineCard, this.tooltipCard, this.schriftCard];
+    // Reihenfolge = Reihenfolge im Formatbereich: was man oft braucht, zuerst
+    cards = [this.darstellungCard, this.terminplanungCard, this.balkenCard, this.zeiteinheitenCard, this.spaltenCard, this.beschriftungenCard, this.basisplanCard, this.meilensteineCard, this.tooltipCard, this.schriftCard];
 }

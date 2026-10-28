@@ -14,7 +14,7 @@
   <div id="stage"></div>
   <div id="log"></div>
   <script type="module">
-    import { GanttRenderer } from './gantt.js';
+    import { GanttRenderer, parseVorgaenger } from './gantt.js';
 
     const u = (y, m, d) => Date.UTC(y, m - 1, d);
     // Demo-Daten = Referenz-Sample "BI-Rollout 2026"
@@ -61,12 +61,12 @@
       texte: params.has('txt') ? (([a, b, c, d, e]) => ({ spalteTask: a, projekt1: b, projektN: c, ebene1: d, ebeneN: e }))(params.get('txt').split('|')) : undefined,
       kopfzeile: params.get('kopf') !== '0',
       tooltip: params.get('tooltip') !== '0',
-      tipZeilen: auswahl('tipzeilen', ['zeitraum', 'plan', 'abweichung', 'dauer', 'status', 'fortschritt', 'wer', 'abhaengigkeiten']),
+      tipZeilen: auswahl('tipzeilen', ['zeitraum', 'plan', 'abweichung', 'dauer', 'status', 'fortschritt', 'wer', 'abhaengigkeiten', 'planung']),
       zeiteinheiten: auswahl('zeinheiten', ['tage', 'wochen', 'monate', 'quartale', 'jahre']),
       basisplan: params.get('plan') !== '0',
       deltaSpalte: params.get('delta') !== '0',
       verzugZeilen: params.get('verzug') !== '0',
-      statusDatum: params.has('status') ? Date.parse(params.get('status')) : null,
+      statusDatum: params.has('status') ? Date.parse(params.get('status')) : (MSP ? u(2026, 3, 16) : null),
       zeiteinheit: params.get('ze') || 'auto',
       tageEinheit: params.get('u') || 't',
       msAufPhase: params.get('mskompakt') !== '0',
@@ -75,6 +75,20 @@
       msBeschriftung: params.get('mslabel') || 'nurDatum',
       msEndeGleichStart: params.get('msgleich') === '1',
       nurHaupt: params.get('nurhaupt') === '1',
+      // --- 2.0: Planerwerkzeuge (Vorgaben wie im Formatbereich)
+      startAnsicht: params.get('ansicht') || 'alle',
+      kritischHervorheben: params.get('krit') !== '0',
+      ueberfaelligMarkieren: params.get('ueber') !== '0',
+      pufferAnzeigen: params.get('puffer') !== '0',
+      stichtageAnzeigen: params.get('stich') !== '0',
+      fortschrittslinie: params.get('fl') === '1',
+      arbeitstage: params.get('at') === '1',
+      // ?fei=… überschreibt, ?fei= (leer) schaltet die Feiertage des MSP-Samples ab
+      feiertage: params.has('fei') ? params.get('fei') : (MSP ? MSP_FEI : ''),
+      farbeNach: params.get('farbe') || 'zweig',
+      legende: params.get('legende') !== '0',
+      namenZweizeilig: params.get('zweizeilig') === '1',
+      zusatzKoepfe: MSP ? ['Gewerk', 'Kosten'] : undefined,
       selectedKeys: selected.size ? new Set(selected) : null,
       interactionsAllowed: true,
       onSelect: (task, ev) => {
@@ -102,6 +116,43 @@
     // "Gutachten" kommt zweimal mit gleichem Namen in verschiedenen Zweigen vor.
     // Zwei Sammelvorgänge: "Artenschutzgutachten …" (nur Vorgänge als Kinder) und
     // "Inbetriebnahme" (auch Meilensteine als Kinder).
+    // ?msp=1 → Plan wie aus einem MS-Project-Export: KEINE Ebenen-Felder, die
+    // Hierarchie kommt allein aus dem PSP-Code; Vorgänger als Nummern mit Typ und
+    // Zeitabstand; Sammelvorgänge als eigene Zeilen; Stichtage; Feiertage.
+    // Erwartet (Statusdatum 16.03.26, Feiertage an): kritisch = 7, 8, 9, 10, 17, 18, 19
+    // — 17 NUR mit Feiertagen (Pfingstmontag 25.05.); überfällig = 4, 5;
+    // Stichtag an 10 verletzt, an 5 eingehalten.
+    const MSP = params.get('msp') === '1';
+    const MSP_FEI = '03.04.2026, 06.04.2026, 01.05.2026, 14.05.2026, 25.05.2026';
+    const msp = (nr, psp, name, s, e, pct, vg, x = {}) => ({
+      key: '#' + nr, nr: String(nr), psp, name, phase: null, path: [], s, e, pct,
+      st: x.st || null, ow: x.ow || '', deps: vg ? vg.split(';') : [], depRefs: vg ? parseVorgaenger(vg) : [],
+      color: null, ps: x.ps ?? null, pe: x.pe ?? null, haupt: !!x.haupt,
+      stichtag: x.stichtag ?? null, farbeWert: x.gewerk || null, zusatz: [x.gewerk || '', x.kosten || ''],
+      kritisch: params.get('kritrolle') === '1' ? !!x.krit : undefined
+    });
+    const MSP_TASKS = [
+      msp(1, '1', 'Vor- und Entwurfsplanung', u(2026, 1, 5), u(2026, 4, 30), null, ''),
+      msp(2, '1.1', 'Kampfmittelfreiheit', u(2026, 1, 5), u(2026, 3, 6), null, ''),
+      msp(3, '1.1.1', 'Antrag auf Luftbildauswertung', u(2026, 1, 5), u(2026, 1, 16), 100, '', { ow: 'Behle', gewerk: 'Genehmigung', kosten: '2.400 €' }),
+      msp(4, '1.1.2', 'Luftbildauswertung durch Behörde', u(2026, 1, 19), u(2026, 3, 6), 70, '3', { ow: 'Behörde', gewerk: 'Genehmigung' }),
+      msp(5, '1.1.3', 'Kampfmittelfreiheit liegt vor', u(2026, 3, 6), null, 0, '4', { haupt: true, stichtag: u(2026, 3, 13) }),
+      msp(6, '1.2', 'PV-Anlage', u(2026, 2, 9), u(2026, 4, 30), null, ''),
+      msp(7, '1.2.1', 'Artenschutzgutachten', u(2026, 2, 9), u(2026, 3, 20), 60, '', { ow: 'Külpmann', gewerk: 'Umwelt', kosten: '8.900 €', krit: true }),
+      msp(8, '1.2.2', 'Bauantragsunterlagen erstellen', u(2026, 3, 23), u(2026, 4, 10), 0, '7', { ow: 'Külpmann', gewerk: 'Planung', krit: true }),
+      msp(9, '1.2.3', 'Bauantrag einreichen', u(2026, 4, 13), u(2026, 4, 17), 0, '8EA', { ow: 'Külpmann', gewerk: 'Planung', krit: true }),
+      msp(10, '1.2.4', 'Prüfung durch das Bauamt', u(2026, 4, 20), u(2026, 4, 30), 0, '9', { ow: 'Bauamt', gewerk: 'Genehmigung', stichtag: u(2026, 4, 24), krit: true }),
+      msp(11, '1.3', 'Netzanschluss', u(2026, 2, 16), u(2026, 4, 24), null, ''),
+      msp(12, '1.3.1', 'Netzanschluss beantragen', u(2026, 2, 16), u(2026, 3, 6), 100, '', { ow: 'Westnetz', gewerk: 'Netz' }),
+      msp(13, '1.3.2', 'Netzverträglichkeitsprüfung', u(2026, 3, 9), u(2026, 4, 2), 30, '12', { ow: 'Westnetz', gewerk: 'Netz', kosten: '1.150 €' }),
+      msp(14, '1.3.3', 'Zusage Netzbetreiber', u(2026, 4, 2), null, 0, '13', { haupt: true }),
+      msp(15, '1.3.4', 'Trassenplanung', u(2026, 3, 16), u(2026, 4, 24), 10, '13AA+5T', { ow: 'Külpmann', gewerk: 'Netz' }),
+      msp(16, '2', 'Genehmigung', u(2026, 5, 4), u(2026, 5, 29), null, ''),
+      msp(17, '2.1', 'Genehmigungsverfahren', u(2026, 5, 4), u(2026, 5, 22), 0, '10;5', { ow: 'Kreis', gewerk: 'Genehmigung', krit: true }),
+      msp(18, '2.2', 'Genehmigung liegt vor', u(2026, 5, 29), null, 0, '17EA+4T', { haupt: true, krit: true }),
+      msp(19, '3', 'Bauausführung', u(2026, 6, 1), u(2026, 6, 30), 0, '18', { ow: 'GU', gewerk: 'Bau', kosten: '412.000 €', krit: true })
+    ];
+
     const E1 = 'Vor- und Entwurfsplanung erstellen (P 2/3)';
     const HIER = [
       { name: 'Antrag auf Luftbildauswertung erstellen und einreichen', path: [E1, 'Kampfmittelfreiheit'], s: u(2026, 1, 7), e: u(2026, 1, 23), pct: 100, st: 'Fertig', ow: 'Behle', deps: [] },
@@ -133,7 +184,8 @@
 
     // ?proj=1 → Portfolio-Modus: Sample als zwei Projekte (zweites um 120 Tage versetzt)
     let DATA = TASKS;
-    if (params.get('ebenen') === '1') DATA = HIER;
+    if (MSP) DATA = MSP_TASKS;
+    else if (params.get('ebenen') === '1') DATA = HIER;
     else if (params.get('proj') === '1') {
       const shift = 120 * 86400000;
       const clone = (t, pfx, projekt, ds) => ({
