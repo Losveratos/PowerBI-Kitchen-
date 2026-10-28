@@ -943,9 +943,15 @@ export class GanttRenderer {
             && (proPfad.get(segs.map(x => x.name).join('¦')) || 0) > 1;
 
         this.sammelN = 0;
+        const sammelZeile = new Map<string, GanttTask>();   // Collapse-Schlüssel → Sammelvorgangs-Datenzeile
         this.tasks.forEach((t, ti) => {
             const segs = pfade[ti];
-            if (istSammel(t, segs)) { this.sammelN++; return; }
+            if (istSammel(t, segs)) {
+                this.sammelN++;
+                // gleicher Schlüssel wie der Gruppenknoten (letzte Stufe ist nie Projekt)
+                sammelZeile.set(segs.map(x => x.name).join('¦'), t);
+                return;
+            }
             let n = root;
             for (let d = 0; d < segs.length; d++) {
                 const seg = segs[d];
@@ -982,7 +988,21 @@ export class GanttRenderer {
                     const myHex = g.isProj ? null : (hex !== null ? hex : pal[(colorIdx++) % pal.length]);
                     const base = g.isProj ? projColor : (myHex as string);
                     const zu = !!this.collapsed[g.ck];
-                    const a = GanttRenderer.aggOf(g.all);
+                    const a = { ...GanttRenderer.aggOf(g.all) };
+                    // Sammelvorgang, der NUR Meilensteine enthält: er wird wie jeder
+                    // Sammelvorgang als Balken gezeigt, die Meilensteine erscheinen
+                    // erst beim Aufklappen. Rauten auf der zugeklappten Zeile würden
+                    // hier genau auf den Balkenenden liegen und ihn verdecken.
+                    // Der Balken nimmt die eigenen Termine des Sammelvorgangs, wo es
+                    // sie gibt — aus Meilensteinen allein entsteht bei nur einem
+                    // Termin sonst kein sichtbarer Balken.
+                    const nurMs = !g.isProj && g.all.length > 0 && g.all.every(c => this.isMs(c));
+                    const sz = nurMs ? sammelZeile.get(g.ck) : undefined;
+                    if (sz) {
+                        a.s = Math.min(a.s, sz.s);
+                        a.e = Math.max(a.e, sz.e === null ? sz.s : sz.e);
+                        a.delta = a.pe === null ? null : Math.round((a.e - a.pe) / DAY);   // Ende hat sich ggf. verschoben
+                    }
                     items.push({
                         id: (g.isProj ? 'pr:' : 'ph:') + g.ck,
                         kind: g.isProj ? 'proj' : 'phase',
@@ -996,7 +1016,7 @@ export class GanttRenderer {
                         // Projektzeile trägt IMMER alle Meilensteine des Projekts
                         // (Portfolio-Übersicht); jede andere Gruppe zeigt sie,
                         // sobald sie zugeklappt ist — auf JEDER Tiefe.
-                        msKids: msOn && (g.isProj || zu) ? g.all.filter(c => this.isMs(c)) : []
+                        msKids: msOn && (g.isProj || (zu && !nurMs)) ? g.all.filter(c => this.isMs(c)) : []
                     });
                     if (zu) return;
                     emit(g, depth + 1, myHex);
@@ -1328,9 +1348,6 @@ export class GanttRenderer {
                 'border-radius:' + (ibcs ? '0' : (isM ? '2px' : (isP ? '2.5px' : '50%'))) + ';' +
                 'transform:rotate(' + (isM ? 45 : 0) + 'deg)'));
             nameCell.appendChild(el('div', 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap', it.name));
-            if (mehrfach) nameCell.appendChild(el('div',
-                'flex-shrink:0;margin-right:10px;font-size:' + this.fs(10) + ';font-weight:700;color:' + t.sub + ';font-variant-numeric:tabular-nums',
-                it.msKids.length + '×'));
             row.appendChild(nameCell);
 
             const dateFg = isP ? t.text : t.sub;

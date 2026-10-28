@@ -54,6 +54,11 @@ Regeln, die dabei gelten:
 - **Schlüssel** ist der Pfad, nicht der Vorgangsname — gleichnamige Vorgänge in
   verschiedenen Zweigen bleiben getrennt. Abhängigkeiten werden weiterhin über
   Vorgangsnamen aufgelöst.
+- **Sammelvorgang nur aus Meilensteinen.** Er wird wie jeder Sammelvorgang als
+  Balken gezeigt — mit seinen eigenen Terminen, wo der Export sie liefert —, aber
+  ohne Rauten auf seiner Zeile; die Meilensteine erscheinen erst beim Aufklappen.
+  Gruppen mit Vorgängen *und* Meilensteinen zeigen ihre Rauten zugeklappt wie
+  bisher.
 - **Sammelvorgänge.** Liefert der Export für einen Knoten *zusätzlich* eine eigene
   Zeile (deren letzte Ebene den eigenen Namen trägt), wird sie ausgelassen und der
   Knoten nur als Gruppenzeile gezeigt; die Spanne kommt aus den Kindern. Ein echter
@@ -83,9 +88,9 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
   einmal**: kommt derselbe Hauptmeilenstein mehrfach vor (je Projekt, je
   Berichtsstand oder als Kopie auf mehreren Ebenen), wird jedes Vorkommen eine
   eigene Raute auf dieser einen Zeile; völlig identische (gleiches Projekt,
-  gleiches Datum) fallen zusammen. Die Tabelle zeigt die Anzahl („5×") und als
-  Start/Ende den ersten und letzten Termin, der Hover-Titel jeder Raute Projekt
-  und Datum. Klick auf die Zeile selektiert **alle** Vorkommen, Klick auf eine
+  gleiches Datum) fallen zusammen. Die Tabelle zeigt als Start/Ende den ersten
+  und letzten Termin, der Hover-Titel jeder Raute Projekt und Datum, der Tooltip
+  der Zeile die Zahl der Vorkommen. Klick auf die Zeile selektiert **alle** Vorkommen, Klick auf eine
   Raute **genau dieses** — beides crossfiltert wie sonst. Der Knopf erscheint nur bei gebundener Rolle, die
   Startstellung kommt aus *Meilensteine → Nur Hauptmeilensteine*; danach gewinnt
   der Knopf, bis der Optionswert selbst wechselt (gleiches Muster wie die per
