@@ -38,6 +38,11 @@
  *   K  1.5 collapsible control bars (toolbar.foldable / startFolded): folded,
  *      one slim row with ☰; ☰ unfolds toolbar, legend and scale note without
  *      persisting anything; off by default
+ *   L  1.6 offered views (toolbar.viewTable … viewSankey): only offered
+ *      buttons, no group for a single view, a stored view the author switched
+ *      off falls back to the first offered one on screen without being
+ *      rewritten (and returns when switched on again), a tile view opens only
+ *      with its carrier view; the Sankey toolbar; the pane gates
  *
  * Run: node test/toolbar-interact.js  (npm run test:toolbar)
  */
@@ -75,6 +80,7 @@ function check(label, cond, detail) {
             const dvOf = (objs) => data === "pharma" ? dv(objs)
                 : dvRows(data === "regions" ? MEGA_DEMO.regions() : MEGA_DEMO.statement(data), objs);
             const v = new Visual({ element: box, host });
+            st.v = v;
             const vm = opts && opts.viewMode != null ? { viewMode: opts.viewMode } : {};
             st.update = (objs) => v.update({ dataViews: [dvOf(objs || st.objects)],
                 viewport: { width: 1400, height: 900 }, type: 2, ...vm });
@@ -539,6 +545,87 @@ function check(label, cond, detail) {
     check("K toolbar off, legend on: ☰ leads the legend row", !k.folded && k.burger && k.legend && k.btns === 1, JSON.stringify(k));
     await page.evaluate(() => { ["tk0", "tk", "tk2", "tk3"].forEach(id => __T.box(id).remove()); });
 
+    // ---- L · 1.6 offered views (toolbar.viewTable … viewSankey) + the Sankey toolbar --------
+    const views = (id) => page.evaluate((id) => {
+        const b = __T.box(id);
+        const head = [...b.querySelectorAll('[data-pnl="head"] div')].find(d => d.textContent === "View"
+            && d.style.textTransform === "uppercase");
+        const btns = head ? [...head.parentElement.querySelectorAll("button")] : [];
+        const s = __T[id].objects.state && __T[id].objects.state.uiState;
+        return {
+            btns: btns.map(x => x.textContent),
+            active: (btns.find(x => x.getAttribute("aria-pressed") === "true") || { textContent: "" }).textContent,
+            sankey: !!b.querySelector('svg[data-pnl="sankey"]'),
+            zoom: !!b.querySelector('[data-pnl="zoom-center"]'),
+            table: [...b.querySelectorAll("div")].filter(x => x.style.display === "table-row").length,
+            ui: s ? JSON.parse(s) : null,
+            persists: __T[id].persists.length,
+            groups: [...new Set(__T.buttons(id).map(x => x.g))],
+        };
+    }, id);
+    await page.evaluate(() => { __T.mk("tl", "pharma", {}); });
+    let L = await views("tl");
+    check("L default: all five views offered, Sankey last", L.btns.join(",") === "Table,Bars,Waterfall,Tree,Sankey", L.btns.join(","));
+    await click("tl", "View", "Sankey");
+    L = await views("tl");
+    check("L Sankey: the click is persisted and echoed, the flow is on screen",
+        L.sankey && L.active === "Sankey" && L.ui && L.ui.view === "sankey", JSON.stringify([L.sankey, L.active, L.ui && L.ui.view]));
+    check("L Sankey toolbar: view · Δ reference · unit · density · levels — no preset, period, option or card groups",
+        ["View", "Δ reference", "Unit", "Density", "Expand to level"].every(g => L.groups.indexOf(g) >= 0)
+        && ["Column preset", "Periods", "Options", "Cards"].every(g => L.groups.indexOf(g) < 0), L.groups.join(" | "));
+    const before = L.persists;
+    // the author switches the Sankey off in the pane: the reader's state stays, the screen falls back
+    await page.evaluate(() => { const st = __T.tl; st.objects.toolbar = { viewSankey: false }; st.update(); st.flush(); });
+    L = await views("tl");
+    check("L viewSankey off: the button disappears, the first offered view (table) is shown",
+        !L.sankey && L.table > 10 && L.btns.join(",") === "Table,Bars,Waterfall,Tree" && L.active === "Table",
+        JSON.stringify([L.sankey, L.table, L.btns, L.active]));
+    check("L the fallback rewrites nothing: stored view still sankey, no persist",
+        L.ui.view === "sankey" && L.persists === before, JSON.stringify([L.ui.view, L.persists, before]));
+    await click("tl", "Unit", "mEUR");
+    L = await views("tl");
+    check("L a toolbar click in the fallback keeps the stored view (unit written, view untouched)",
+        L.ui.view === "sankey" && L.ui.unit === "m" && L.persists === before + 1, JSON.stringify(L.ui));
+    await page.evaluate(() => { const st = __T.tl; st.objects.toolbar = { viewSankey: true }; st.update(); st.flush(); });
+    L = await views("tl");
+    check("L the author switches the Sankey back on: the reader's Sankey returns, with the unit chosen meanwhile",
+        L.sankey && L.active === "Sankey" && L.ui.unit === "m", JSON.stringify([L.sankey, L.active, L.ui.unit]));
+    await page.evaluate(() => { const st = __T.tl; st.objects.toolbar = { viewTable: false, viewBars: false, viewWaterfall: false, viewTree: false }; st.update(); st.flush(); });
+    L = await views("tl");
+    check("L a single offered view: no view group at all, the view itself stays",
+        L.sankey && L.btns.length === 0 && L.groups.indexOf("View") < 0, L.groups.join(" | "));
+    // tile view only with its carrier view
+    await page.evaluate(() => { __T.mk("tlz", "pharma", { toolbar: { viewTree: false },
+        state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeZoom: "F_EBITDA" }) } }); });
+    L = await views("tlz");
+    check("L a stored tile view stays closed while its carrier view (tree) is switched off",
+        !L.zoom && L.table > 10 && L.ui.treeZoom === "F_EBITDA", JSON.stringify([L.zoom, L.table, L.ui && L.ui.treeZoom]));
+    await page.evaluate(() => { const st = __T.tlz; st.objects.toolbar = { viewTree: true }; st.update(); st.flush(); });
+    L = await views("tlz");
+    check("L the tree offered again: the stored tile view opens", L.zoom, JSON.stringify(L));
+    // the pane: the five switches follow the view group (and the toolbar)
+    const pane = await page.evaluate(() => {
+        // the slices on screen (the card's revert descriptors list hidden ones too)
+        const slices = (v) => v.getFormattingModel().cards.flatMap(c => c.groups.flatMap(g => (g.slices || [])
+            .map(sl => ((sl.control && sl.control.properties && sl.control.properties.descriptor) || {}).propertyName)));
+        const has = (id) => {
+            const m = slices(__T[id].v);
+            return ["viewTable", "viewBars", "viewWaterfall", "viewTree", "viewSankey"].map(p => m.indexOf(p) >= 0);
+        };
+        __T.mk("tlp", "pharma", {});
+        const on = has("tlp");
+        __T.mk("tlp2", "pharma", { toolbar: { showView: false } });
+        const off = has("tlp2");
+        __T.mk("tlp3", "pharma", { state: { uiState: JSON.stringify({ view: "sankey", treeV: 2 }) } });
+        const m3 = slices(__T.tlp3.v);
+        return { on, off, treeGroup: m3.indexOf("treeRoot") >= 0, mega: m3.indexOf("template") >= 0 };
+    });
+    check("L pane: the five view switches show with the view group …", pane.on.every(Boolean), JSON.stringify(pane.on));
+    check("L pane: … and hide with it (values kept)", pane.off.every(x => !x), JSON.stringify(pane.off));
+    check("L pane: in the Sankey the tree start settings (root, depth) are offered, the mega group is not",
+        pane.treeGroup && !pane.mega, JSON.stringify(pane));
+    await page.evaluate(() => { ["tl", "tlz", "tlp", "tlp2", "tlp3"].forEach(id => __T.box(id).remove()); });
+
     // ---- G · hit targets in every locale -------------------------------------
     const hit = await ev(() => {
         const bad = []; let n = 0;
@@ -549,6 +636,8 @@ function check(label, cond, detail) {
                     ["pharma", { state: { uiState: JSON.stringify({ view: "bars" }) } }],
                     ["regions", { hierarchy: { defaultLevel: 0 }, columns: { template: "T02A" } }],
                     ["pharma", { state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } }],
+                    // 1.6 the Sankey and its toolbar
+                    ["pharma", { state: { uiState: JSON.stringify({ view: "sankey", treeV: 2 }) } }],
                     // 1.2 the value-column switches of the classic and the mega table
                     ["pharma", { toolbar: { showValues: true }, columns: { preset: "custom" } }],
                     ["regions", { hierarchy: { defaultLevel: 0 }, toolbar: { showValues: true }, columns: { template: "T02A" } }],

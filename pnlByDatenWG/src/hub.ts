@@ -192,7 +192,7 @@ export function docsUrl(locale: string): string {
 }
 
 /** which view a mini rendering draws */
-export type MiniView = "table" | "bars" | "waterfall" | "tree";
+export type MiniView = "table" | "bars" | "waterfall" | "tree" | "sankey";
 
 /** a mini rendering: a tiny, non-interactive copy of the visual over the built-in demo */
 export interface MiniSpec {
@@ -230,6 +230,8 @@ export const TOUR_CARDS: TourCard[] = [
     { n: 5, mini: { view: "waterfall", level: 2, w: 1250, h: 800 } },
     { n: 6, mini: { view: "tree", zoom: "F_EBITDA", w: 1250, h: 800 } },
     { n: 7, mini: { view: "table", tpl: "T03A", level: 2, dark: true, w: 1100, h: 700 } },
+    // 1.6 the flow view — a deliberate addition outside the IBCS notation, so it closes the tour
+    { n: 8, mini: { view: "sankey", w: 1250, h: 800 } },
 ];
 
 /** templates that analyse the FC scenario — their preview needs a forecast the demo does not carry */

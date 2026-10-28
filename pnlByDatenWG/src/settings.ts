@@ -203,7 +203,25 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     showLegend = toggle("showLegend", "Toolbar_Legend", "Show scenario legend row",
         "AC · PY · PL · FC chips plus favorable / unfavorable Δ under the toolbar. Default: on", true);
     showView = toggle("showView", "Toolbar_ShowView", "Group: view",
-        "Table · Bars · Waterfall · Tree. Default: on", true);
+        "Table · Bars · Waterfall · Tree · Sankey — only the views offered below. Default: on", true);
+    /**
+     * Which views the readers are offered (1.6). A view switched off loses its
+     * toolbar button; a persisted state or bookmark that still names it falls
+     * back to the first offered view on screen without being rewritten. One
+     * view left ⇒ the view group disappears (nothing to choose). The mega table
+     * is a template of the table view, not a view of its own — viewTable
+     * covers it.
+     */
+    viewTable = toggle("viewTable", "Toolbar_ViewTable", "View: offer table",
+        "Readers may switch to the table (classic or mega table). Off: the button disappears; a stored table state shows the first offered view. Default: on", true);
+    viewBars = toggle("viewBars", "Toolbar_ViewBars", "View: offer bars",
+        "Readers may switch to the structure bars. Default: on", true);
+    viewWaterfall = toggle("viewWaterfall", "Toolbar_ViewWaterfall", "View: offer waterfall",
+        "Readers may switch to the row waterfall. Default: on", true);
+    viewTree = toggle("viewTree", "Toolbar_ViewTree", "View: offer driver tree",
+        "Readers may switch to the value driver tree. Off: a stored tile view opens only from the Sankey. Default: on", true);
+    viewSankey = toggle("viewSankey", "Toolbar_ViewSankey", "View: offer Sankey",
+        "Readers may switch to the flow view (Sankey), a deliberate addition outside the IBCS notation. Default: on", true);
     showPresets = toggle("showPresets", "Toolbar_ShowPresets", "Group: column presets",
         "Column sets of the classic table. Default: on", true);
     showReference = toggle("showReference", "Toolbar_ShowReference", "Group: Δ reference",
@@ -250,7 +268,9 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
     displayNameKey: string = "Card_Toolbar";
     description: string = "What readers see above the statement and what they may switch themselves";
     descriptionKey: string = "Desc_Card_Toolbar";
-    slices = [this.show, this.showLegend, this.showView, this.showPresets, this.showReference,
+    slices = [this.show, this.showLegend, this.showView,
+        this.viewTable, this.viewBars, this.viewWaterfall, this.viewTree, this.viewSankey,
+        this.showPresets, this.showReference,
         this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions, this.showScenario,
         this.showValues, this.showTemplate, this.foldable, this.startFolded];
 }
@@ -428,7 +448,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         name: "columnsTree",
         displayName: "Value driver tree",
         displayNameKey: "Columns_GroupTree",
-        description: "Start of the tree view — visible in the tree view",
+        description: "Start of the tree and Sankey views — visible in those views",
         descriptionKey: "Desc_Columns_GroupTree",
         collapsible: true,
         slices: [this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus]
@@ -699,7 +719,7 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
 
 /** what the visual knows about its data and view — drives the visibility gates of the pane */
 export interface PaneContext {
-    /** current view of the visual (table | bars | waterfall | tree); null = not known yet */
+    /** view on screen (table | bars | waterfall | tree | sankey — the offered fallback, 1.6); null = not known yet */
     view: string | null;
     /** bound measures / roles; null = no data yet (every gate stays open) */
     has: { py: boolean; pl: boolean; fc: boolean; period: boolean; fy?: boolean } | null;
@@ -716,6 +736,10 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     const tb = m.toolbarCard;
     for (const s of [tb.showView, tb.showPresets, tb.showReference, tb.showPeriods, tb.showUnit,
         tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario, tb.showValues, tb.showTemplate]) { s.visible = tb.show.value; }
+    // 1.6: the offered views belong to the view group — hidden with it, values kept
+    for (const s of [tb.viewTable, tb.viewBars, tb.viewWaterfall, tb.viewTree, tb.viewSankey]) {
+        s.visible = tb.show.value && tb.showView.value;
+    }
     tb.startFolded.visible = tb.foldable.value;
 
     const c = m.columnsCard;
@@ -733,9 +757,10 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     // bar notation switches belong to the bars view
     c.barOverlap.visible = view == null || view === "bars";
     c.barTriangles.visible = view == null || view === "bars";
-    // the mega switches belong to the table view, the tree start to the tree view
+    // the mega switches belong to the table view, the tree start to the tree
+    // view — and to the Sankey (1.6), which grows over the same graph
     c.mega.visible = view == null || view === "table";
-    c.tree.visible = view == null || view === "tree";
+    c.tree.visible = view == null || view === "tree" || view === "sankey";
 
     c.minuend.visible = fc || pl;
     c.showPY.visible = py; c.showPL.visible = pl;

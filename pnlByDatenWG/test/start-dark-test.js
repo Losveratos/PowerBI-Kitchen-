@@ -194,6 +194,8 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
             tree: (o) => [dv({ state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) }, ...o })],
             tile: (o) => [dv({ state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeZoom: "F_EBITDA" }) }, ...o })],
             waterfall: (o) => [dv({ state: { uiState: JSON.stringify({ view: "waterfall" }) }, ...o })],
+            // 1.6 the flow view
+            sankey: (o) => [dv({ state: { uiState: JSON.stringify({ view: "sankey", treeV: 2 }) }, ...o })],
         };
         // B1 — auto in a light theme == light == the untouched default, byte for byte
         out.identical = {};
