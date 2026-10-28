@@ -47,6 +47,9 @@ export interface GanttOptions {
     heuteLinie: boolean;
     tabellenBreite: number;             // 0 = Tabelle ausblenden
     spalten?: Record<string, boolean>;  // Tabellenspalten einzeln ein-/ausblenden (Schlüssel = ColDef.key)
+    // Eigene Bezeichnungen (Karte "Beschriftungen"). Leer = bisheriger Text.
+    // Einzahl/Mehrzahl getrennt, weil sich der deutsche Plural nicht ableiten lässt.
+    texte?: { spalteTask?: string; projekt1?: string; projektN?: string; ebene1?: string; ebeneN?: string };
     gruppenNamen?: boolean;             // Namen der Gruppenzeilen auch im Chart zeigen (default true)
     kopfzeile?: boolean;                // Infotext oben links ("3 Projekte · 9 Vorgänge …") (default true)
     tooltip?: boolean;                  // Hover-Tooltip überhaupt zeichnen (default true)
@@ -71,6 +74,9 @@ export interface GanttOptions {
     onSelect: (task: GanttTask, ev: MouseEvent) => void;
     onContextMenu: (task: GanttTask, ev: MouseEvent) => void;
     onClear: () => void;
+    // Mehrere Tasks auf einmal selektieren (Hauptmeilenstein-Zeile mit mehreren
+    // Vorkommen). Fehlt der Callback, wird nur das erste Vorkommen selektiert.
+    onSelectMany?: (tasks: GanttTask[], ev: MouseEvent) => void;
     onTableWidth?: (w: number) => void;   // Tabellenbreite per Trenner gezogen (zum Persistieren)
 }
 
@@ -407,7 +413,8 @@ export class GanttRenderer {
             if (it.id !== d.id) return;
             if (it.kind === 'phase' || it.kind === 'proj') this.togglePhase(it.phaseKey as string);
             else if (it.task) {
-                this.opts.onSelect(it.task, ev);
+                if (it.kind === 'ms' && it.msKids.length > 1 && this.opts.onSelectMany) this.opts.onSelectMany(it.msKids, ev);
+                else this.opts.onSelect(it.task, ev);
                 // Detail-Tooltip wie beim Hover im Chart — verankert am Balken;
                 // zweiter Klick auf dieselbe Zeile blendet ihn wieder aus
                 if (this.tip && this.tip.id === it.id) {
@@ -581,6 +588,12 @@ export class GanttRenderer {
         return this.skala(this.root);
     }
 
+    // Eigene Bezeichnung aus der Karte "Beschriftungen", sonst der bisherige Text
+    private text(k: 'spalteTask' | 'projekt1' | 'projektN' | 'ebene1' | 'ebeneN', vorgabe: string): string {
+        const t = this.opts && this.opts.texte ? this.opts.texte[k] : undefined;
+        return t !== undefined && t !== null && String(t).trim() !== '' ? String(t).trim() : vorgabe;
+    }
+
     private itemAt(host: HTMLElement, clientY: number): RenderItem | null {
         const r = host.getBoundingClientRect();
         if (clientY < r.top || clientY > r.bottom) return null;
@@ -656,6 +669,7 @@ export class GanttRenderer {
             else {
                 const it = this.chartItemAtY(pan.y0);
                 if (it && (it.kind === 'phase' || it.kind === 'proj')) this.togglePhase(it.phaseKey as string);
+                else if (it && it.kind === 'ms' && it.msKids.length > 1 && this.opts.onSelectMany) this.opts.onSelectMany(it.msKids, e);
                 else this.opts.onClear();
             }
         }
@@ -862,11 +876,42 @@ export class GanttRenderer {
             this.sammelN = 0;
             const zweige: (string | null)[] = [];
             this.tasks.forEach(t => { if (!zweige.includes(t.phase)) zweige.push(t.phase); });
+            const farbe = (t: GanttTask) => pal[Math.max(0, zweige.indexOf(t.phase)) % pal.length];
+            // EINE Zeile je Meilensteinname. In Portfolio-Daten kommt derselbe
+            // Hauptmeilenstein mehrfach vor — je Projekt, je Berichtsstand oder
+            // als Kopie auf mehreren Ebenen. Ohne die Projekt- und Ebenenzeilen
+            // stünde er sonst n-mal untereinander, ohne erkennbaren Unterschied.
+            // Jedes Vorkommen wird eine eigene Raute auf der Zeile; völlig
+            // identische (gleiches Projekt, gleiches Datum) fallen zusammen.
+            const gruppen = new Map<string, GanttTask[]>();
+            const reihe: string[] = [];
             this.tasks
                 .map((t, i) => ({ t, i }))
                 .filter(x => x.t.haupt === true)
                 .sort((a, b) => a.t.s !== b.t.s ? a.t.s - b.t.s : a.i - b.i)
-                .forEach(x => emitLeaf(x.t, 0, pal[Math.max(0, zweige.indexOf(x.t.phase)) % pal.length], ''));
+                .forEach(({ t }) => {
+                    let g = gruppen.get(t.name);
+                    if (!g) { g = []; gruppen.set(t.name, g); reihe.push(t.name); }
+                    const pr = t.projekt !== undefined ? t.projekt : null;
+                    if (!g.some(x => x.s === t.s && (x.projekt !== undefined ? x.projekt : null) === pr)) g.push(t);
+                });
+            reihe.forEach(name => {
+                const inst = gruppen.get(name) as GanttTask[];
+                if (inst.length === 1) { emitLeaf(inst[0], 0, farbe(inst[0]), ''); return; }
+                const base = farbe(inst[0]);
+                items.push({
+                    id: 'hm:' + name, kind: 'ms', depth: 0, name,
+                    // chronologisch sortiert: erstes und letztes Vorkommen spannen die Zeile
+                    s: inst[0].s, e: inst[inst.length - 1].s,
+                    pct: null, st: null, ow: '',
+                    color: ibcs ? IBCS_AC : base,
+                    soft: ibcs ? '#FFFFFF' : hexA(base, 0.18),
+                    laneTint: ibcs ? 'transparent' : hexA(base, 0.06),
+                    phaseKey: '', task: inst[0], depTasks: [],
+                    ps: null, pe: null, delta: null,
+                    msKids: inst
+                });
+            });
             this.hasPlan = this.tasks.some(c => (c.ps !== undefined && c.ps !== null) || (c.pe !== undefined && c.pe !== null));
             return items;
         }
@@ -1103,10 +1148,16 @@ export class GanttRenderer {
         this.toolbarInfo.textContent = o.kopfzeile === false ? ''
             // Im Filter sind weder Gruppen noch Vorgänge zu sehen — die alten
             // Zähler würden einen Umfang behaupten, den das Visual nicht zeigt.
-            : this.hauptFilterAktiv() ? pl(items.length, 'Hauptmeilenstein', 'Hauptmeilensteine')
-                : (nPr ? pl(nPr, 'Projekt', 'Projekte') + ' · ' : '') +
+            : this.hauptFilterAktiv()
+                ? pl(items.length, 'Hauptmeilenstein', 'Hauptmeilensteine') + (() => {
+                    const n = items.reduce((a, i) => a + Math.max(1, i.msKids.length), 0);
+                    return n > items.length ? ' · ' + pl(n, 'Termin', 'Termine') : '';
+                })()
+                : (nPr ? pl(nPr, this.text('projekt1', 'Projekt'), this.text('projektN', 'Projekte')) + ' · ' : '') +
                 pl(nVg, 'Vorgang', 'Vorgänge') +
-                (nPh ? ' · ' + (this.levelCount > 1 ? pl(nPh, 'Gruppe', 'Gruppen') : pl(nPh, 'Phase', 'Phasen')) : '') +
+                (nPh ? ' · ' + (this.levelCount > 1
+                    ? pl(nPh, this.text('ebene1', 'Gruppe'), this.text('ebeneN', 'Gruppen'))
+                    : pl(nPh, this.text('ebene1', 'Phase'), this.text('ebeneN', 'Phasen'))) : '') +
                 (nMs ? ' · ' + pl(nMs, 'Meilenstein', 'Meilensteine') : '');
 
         // Filter an, aber der (von Power BI bereits gefilterte) DataView enthält
@@ -1204,14 +1255,14 @@ export class GanttRenderer {
         // Alle Projekte/Phasen gemeinsam auf-/zuklappen (einzeln: Klick auf die Zeile)
         if (this.projKeys.length) {
             const anyOpen = this.projKeys.some(k => !this.collapsed[k]);
-            mkBtn(anyOpen ? '▾ Projekte' : '▸ Projekte', () => {
+            mkBtn((anyOpen ? '▾ ' : '▸ ') + this.text('projektN', 'Projekte'), () => {
                 this.projKeys.forEach(k => this.collapsed[k] = anyOpen);
                 this.invalidate();
             }, true);
         }
         if (this.phaseKeys.length) {
             const anyOpen = this.phaseKeys.some(k => !this.collapsed[k]);
-            const lbl = this.levelCount > 1 ? 'Ebenen' : 'Phasen';
+            const lbl = this.text('ebeneN', this.levelCount > 1 ? 'Ebenen' : 'Phasen');
             mkBtn((anyOpen ? '▾ ' : '▸ ') + lbl, () => {
                 this.phaseKeys.forEach(k => this.collapsed[k] = anyOpen);
                 this.invalidate();
@@ -1230,7 +1281,7 @@ export class GanttRenderer {
         this.tableHead.style.borderBottom = '1px solid ' + t.border;
         this.tableHead.style.fontSize = this.fs(10.5);
         this.tableHead.replaceChildren();
-        this.tableHead.appendChild(el('div', '', 'Task'));
+        this.tableHead.appendChild(el('div', '', this.text('spalteTask', 'Task')));
         cols.forEach(c => this.tableHead.appendChild(
             el('div', c.key === 'days' ? 'text-align:right;padding-right:12px' : '', c.label)));
 
@@ -1249,7 +1300,9 @@ export class GanttRenderer {
             const isP = it.kind === 'phase' || isProj;   // Gruppenzeile (Projekt oder Phase)
             const isM = it.kind === 'ms';
             const hov = this.hover === it.id;
-            const dim = sel && !isP && it.task && !sel.has(it.task.key);
+            const mehrfach = isM && it.msKids.length > 1;   // Hauptmeilenstein mit mehreren Vorkommen
+            // Sammelzeile gilt als selektiert, sobald EIN Vorkommen selektiert ist
+            const dim = sel && !isP && it.task && (mehrfach ? !it.msKids.some(k => sel.has(k.key)) : !sel.has(it.task.key));
             const late = verzugOn && it.delta !== null && it.delta > 0;
             const row = el('div',
                 'position:absolute;left:0;right:0;top:' + topOf[it.id] + 'px;height:' + m.rowH + 'px;display:grid;' +
@@ -1275,6 +1328,9 @@ export class GanttRenderer {
                 'border-radius:' + (ibcs ? '0' : (isM ? '2px' : (isP ? '2.5px' : '50%'))) + ';' +
                 'transform:rotate(' + (isM ? 45 : 0) + 'deg)'));
             nameCell.appendChild(el('div', 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap', it.name));
+            if (mehrfach) nameCell.appendChild(el('div',
+                'flex-shrink:0;margin-right:10px;font-size:' + this.fs(10) + ';font-weight:700;color:' + t.sub + ';font-variant-numeric:tabular-nums',
+                it.msKids.length + '×'));
             row.appendChild(nameCell);
 
             const dateFg = isP ? t.text : t.sub;
@@ -1282,7 +1338,7 @@ export class GanttRenderer {
             const numCss = 'font-variant-numeric:tabular-nums;font-size:' + this.fs(12) + ';color:' + dateFg;
             cols.forEach(c => {
                 if (c.key === 'start') row.appendChild(el('div', numCss, fmtDate(it.s)));
-                else if (c.key === 'end') row.appendChild(el('div', numCss, isM ? '–' : fmtDate(it.e)));
+                else if (c.key === 'end') row.appendChild(el('div', numCss, isM && !(mehrfach && it.e !== it.s) ? '–' : fmtDate(it.e)));
                 else if (c.key === 'days') row.appendChild(el('div', 'text-align:right;padding-right:12px;' + numCss, isM ? '–' : days + u));
                 else if (c.key === 'delta') {
                     // Abweichung zum Basisplan: Rot = Verzug, Grün = früher fertig
@@ -1505,7 +1561,8 @@ export class GanttRenderer {
         items.slice(vA, vB).forEach(it => {
             const top = topOf[it.id];
             const hov = this.hover === it.id;
-            const dim = sel && it.task && !sel.has(it.task.key);
+            const dim = sel && it.task && (it.kind === 'ms' && it.msKids.length > 1
+                ? !it.msKids.some(k => sel.has(k.key)) : !sel.has(it.task.key));
             const blocked = ibcs && it.task && it.st && statusKind(it.st) === 'blocked';
             const showPlan = planOn && it.ps !== null;
             if (it.kind === 'phase' || it.kind === 'proj') {
@@ -1570,6 +1627,50 @@ export class GanttRenderer {
                         }
                     });
                 }
+            } else if (it.kind === 'ms' && it.msKids.length > 1) {
+                // Hauptmeilenstein mit mehreren Vorkommen: je Vorkommen eine Raute,
+                // einzeln anklickbar (data-task) — das selektiert genau dieses
+                // Vorkommen. Projekt und Datum stehen im Hover-Titel; die
+                // Datumsbeschriftung lässt Überlappungen aus, damit bei vielen
+                // Projekten die übrigen lesbar bleiben.
+                let lastRight = -Infinity;
+                const lblFs = 10 * m.s;
+                // Rauten, die sich auf der aktuellen Zoomstufe berühren, bilden einen
+                // Cluster; das Datum kommt HINTER dessen letzte Raute, sonst läge es
+                // unter der Nachbarraute (z. B. 21.06. und 24.06. in Quartalsansicht).
+                const xs = it.msKids.map(ms => x(ms.s) + this.pxd / 2);
+                const clusterEnde = xs.map((_, i) => {
+                    let j = i;
+                    while (j + 1 < xs.length && xs[j + 1] - xs[j] < m.dia + 2) j++;
+                    return xs[j];
+                });
+                const clusterStart = xs.map((v, i) => i === 0 || v - xs[i - 1] >= m.dia + 2);
+                it.msKids.forEach((ms, i) => {
+                    const msDim = sel && !sel.has(ms.key);
+                    const cx = x(ms.s) + this.pxd / 2;
+                    const dEl = el('div',
+                        'position:absolute;left:' + (cx - m.dia / 2) + 'px;top:' + (top + diaTop) + 'px;width:' + m.dia + 'px;height:' + m.dia + 'px;' +
+                        'transform:rotate(45deg);border-radius:' + rad(3) + ';background:' + it.color + ';cursor:pointer;' +
+                        (ibcs ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.25);') +
+                        'opacity:' + (msDim ? 0.3 : 1));
+                    dEl.setAttribute('data-task', ms.key);
+                    const pr = ms.projekt !== undefined && ms.projekt !== null && ms.projekt !== '' ? ms.projekt + ' · ' : '';
+                    dEl.setAttribute('title', pr + ms.name + ' · ' + fmtDate(ms.s));
+                    this.scrollLayer.appendChild(dEl);
+                    if (msDatum && clusterStart[i]) {
+                        const lbl = fmtDate(ms.s);
+                        const w = lbl.length * lblFs * 0.55;
+                        const lx = clusterEnde[i] + m.dia / 2 + 3;
+                        if (lx > lastRight + 4) {
+                            lastRight = lx + w;
+                            this.scrollLayer.appendChild(el('div',
+                                'position:absolute;left:' + lx + 'px;top:' + (top + diaTop) + 'px;height:' + m.dia + 'px;' +
+                                'display:flex;align-items:center;font-size:' + this.fs(10) + ';color:' + t.sub + ';' +
+                                'font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;opacity:' + (msDim ? 0.3 : 1),
+                                lbl));
+                        }
+                    }
+                });
             } else if (it.kind === 'ms') {
                 const dia = el('div',
                     'position:absolute;left:' + (x(it.s) + this.pxd / 2 - m.dia / 2) + 'px;top:' + (top + diaTop) + 'px;width:' + m.dia + 'px;height:' + m.dia + 'px;' +
@@ -1674,7 +1775,9 @@ export class GanttRenderer {
             grid.appendChild(el('div', 'color:' + t.tipSub, label));
             grid.appendChild(el('div', (mono ? 'font-variant-numeric:tabular-nums;' : '') + (fg ? 'color:' + fg + ';font-weight:700' : ''), val));
         };
-        if (zeige('zeitraum')) addRow('Zeitraum', isM ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+        const mehrfach = isM && it.msKids.length > 1;
+        if (zeige('zeitraum')) addRow('Zeitraum', isM && !mehrfach ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+        if (mehrfach) addRow('Vorkommen', String(it.msKids.length), true);
         // Der Schalter kommt ZUSÄTZLICH zur Datenbedingung: ohne Basisplan gibt
         // es hier nach wie vor nichts zu zeigen.
         if (it.ps !== null) {

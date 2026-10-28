@@ -293,6 +293,17 @@
                 }
             }
         },
+        "beschriftungen": {
+            "displayName": "Beschriftungen",
+            "description": "Eigene Bezeichnungen statt der Vorgaben. Leer lassen = Vorgabe. Einzahl und Mehrzahl getrennt, weil sich der Plural nicht ableiten lässt.",
+            "properties": {
+                "spalteTask": { "displayName": "Überschrift Namensspalte", "type": { "text": true } },
+                "projekt1": { "displayName": "Projekt (Einzahl)", "type": { "text": true } },
+                "projektN": { "displayName": "Projekte (Mehrzahl)", "type": { "text": true } },
+                "ebene1": { "displayName": "Phase/Ebene (Einzahl)", "type": { "text": true } },
+                "ebeneN": { "displayName": "Phasen/Ebenen (Mehrzahl)", "type": { "text": true } }
+            }
+        },
         "schrift": {
             "displayName": "Schrift",
             "properties": {

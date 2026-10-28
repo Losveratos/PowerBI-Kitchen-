@@ -258,6 +258,7 @@ export class Visual implements IVisual {
     private pushOptions(): void {
         const d = this.formattingSettings.darstellungCard;
         const sp = this.formattingSettings.spaltenCard;
+        const bs = this.formattingSettings.beschriftungenCard;
         const b = this.formattingSettings.basisplanCard;
         const ms = this.formattingSettings.meilensteineCard;
         const tp = this.formattingSettings.tooltipCard;
@@ -276,6 +277,10 @@ export class Visual implements IVisual {
                 status: sp.status.value, pct: sp.fortschritt.value, ow: sp.wer.value
             },
             gruppenNamen: d.gruppenNamen.value,
+            texte: {
+                spalteTask: bs.spalteTask.value, projekt1: bs.projekt1.value, projektN: bs.projektN.value,
+                ebene1: bs.ebene1.value, ebeneN: bs.ebeneN.value
+            },
             kopfzeile: d.kopfzeile.value,
             tooltip: tp.anzeigen.value,
             tipZeilen: {
@@ -307,6 +312,12 @@ export class Visual implements IVisual {
                 if (!allow) return;
                 const multi = ev.ctrlKey || ev.metaKey;
                 this.selectionManager.select((task as TaskWithId).selectionId, multi).then(() => this.pushOptions());
+            },
+            onSelectMany: (tasks, ev) => {
+                if (!allow) return;
+                const multi = ev.ctrlKey || ev.metaKey;
+                const ids = tasks.map(t => (t as TaskWithId).selectionId);
+                this.selectionManager.select(ids, multi).then(() => this.pushOptions());
             },
             onContextMenu: (task, ev) => {
                 if (!allow) return;

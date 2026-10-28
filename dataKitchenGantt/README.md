@@ -79,8 +79,14 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
 - **„◆ Nur Hauptmeilensteine"** rechts in der Leiste schaltet auf eine **flache,
   chronologische Liste** der über die Rolle *Hauptmeilenstein (Ja/Nein)*
   markierten Zeilen um: keine Projekt- und Ebenenzeilen, keine Einrückung, bei
-  gleichem Datum in Datenreihenfolge. Die Zeilen bleiben anklickbar und
-  crossfiltern wie sonst. Der Knopf erscheint nur bei gebundener Rolle, die
+  gleichem Datum in Datenreihenfolge. **Jeder Meilensteinname steht genau
+  einmal**: kommt derselbe Hauptmeilenstein mehrfach vor (je Projekt, je
+  Berichtsstand oder als Kopie auf mehreren Ebenen), wird jedes Vorkommen eine
+  eigene Raute auf dieser einen Zeile; völlig identische (gleiches Projekt,
+  gleiches Datum) fallen zusammen. Die Tabelle zeigt die Anzahl („5×") und als
+  Start/Ende den ersten und letzten Termin, der Hover-Titel jeder Raute Projekt
+  und Datum. Klick auf die Zeile selektiert **alle** Vorkommen, Klick auf eine
+  Raute **genau dieses** — beides crossfiltert wie sonst. Der Knopf erscheint nur bei gebundener Rolle, die
   Startstellung kommt aus *Meilensteine → Nur Hauptmeilensteine*; danach gewinnt
   der Knopf, bis der Optionswert selbst wechselt (gleiches Muster wie die per
   Trenner gezogene Tabellenbreite). Beim Umschalten werden Klappzustand,
@@ -125,6 +131,12 @@ oben links; die Leiste mit den Knöpfen bleibt in jedem Fall)
 Anfang ihres Summenbalkens ein (Vorgabe: an). Hilft, wenn die Tabelle schmal ist
 und tiefe Ebenen dort abgeschnitten werden, oder ganz ausgeblendet ist.
 
+**Beschriftungen** — eigene Texte statt der Vorgaben: Überschrift der
+Namensspalte (Vorgabe „Task", z. B. „Vorgang"), *Projekt* und *Phase/Ebene*
+jeweils in Einzahl und Mehrzahl — sie erscheinen auf den Klapp-Knöpfen und in
+der Infozeile. Getrennt, weil sich der deutsche Plural nicht ableiten lässt.
+Leeres Feld = Vorgabe.
+
 **Tabellenspalten** — Start, Ende, Dauer, Status, Fortschritt, Wer einzeln
 ein-/ausblenden (Δ Plan sitzt in der Karte „Basisplan").
 
@@ -165,7 +177,8 @@ Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026
 Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
 `?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
 `?msnamen=0`, `?mslabel=nurName|beides`, `?gnamen=0`, `?kopf=0`, `?tooltip=0`,
-`?tipzeilen=dauer,wer`, `?zeinheiten=Tage,Monate`, `?nurhaupt=1`).
+`?tipzeilen=dauer,wer`, `?zeinheiten=Tage,Monate`, `?nurhaupt=1`,
+`?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete` — Namensspalte|Projekt 1|Projekt n|Ebene 1|Ebene n).
 **`?nurhaupt=1`** startet mit aktivem Hauptmeilenstein-Filter; die Samples
 markieren dafür einzelne Meilensteine mit `haupt: true`.
 **`?ebenen=1`** lädt das mehrstufige Sample (Projekt MAR-S005, vier Ebenen,

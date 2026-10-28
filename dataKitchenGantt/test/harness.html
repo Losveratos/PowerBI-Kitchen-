@@ -57,6 +57,8 @@
       heuteLinie: params.get('heute') !== '0',
       tabellenBreite: params.has('tw') ? Number(params.get('tw')) : 620,
       gruppenNamen: params.get('gnamen') !== '0',
+      // ?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete (Namensspalte|Projekt 1|Projekt n|Ebene 1|Ebene n)
+      texte: params.has('txt') ? (([a, b, c, d, e]) => ({ spalteTask: a, projekt1: b, projektN: c, ebene1: d, ebeneN: e }))(params.get('txt').split('|')) : undefined,
       kopfzeile: params.get('kopf') !== '0',
       tooltip: params.get('tooltip') !== '0',
       tipZeilen: auswahl('tipzeilen', ['zeitraum', 'plan', 'abweichung', 'dauer', 'status', 'fortschritt', 'wer', 'abhaengigkeiten']),
@@ -80,6 +82,13 @@
         if (!multi) selected.clear();
         if (selected.has(task.key) && multi) selected.delete(task.key);
         else selected.add(task.key);
+        log.textContent = 'select: ' + [...selected].join(', ');
+        r.setOptions(opts());
+      },
+      onSelectMany: (tasks, ev) => {
+        const multi = ev.ctrlKey || ev.metaKey;
+        if (!multi) selected.clear();
+        tasks.forEach(t => selected.add(t.key));
         log.textContent = 'select: ' + [...selected].join(', ');
         r.setOptions(opts());
       },

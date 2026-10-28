@@ -108,6 +108,19 @@ class DarstellungCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.kopfzeile, this.ibcs];
 }
 
+// Eigene Bezeichnungen. Leer = Vorgabe des Visuals; der Platzhalter zeigt sie.
+class BeschriftungenCardSettings extends FormattingSettingsCard {
+    spalteTask = new formattingSettings.TextInput({ name: "spalteTask", displayName: "Überschrift Namensspalte", value: "", placeholder: "Task" });
+    projekt1 = new formattingSettings.TextInput({ name: "projekt1", displayName: "Projekt (Einzahl)", value: "", placeholder: "Projekt" });
+    projektN = new formattingSettings.TextInput({ name: "projektN", displayName: "Projekte (Mehrzahl)", value: "", placeholder: "Projekte" });
+    ebene1 = new formattingSettings.TextInput({ name: "ebene1", displayName: "Phase/Ebene (Einzahl)", value: "", placeholder: "Phase" });
+    ebeneN = new formattingSettings.TextInput({ name: "ebeneN", displayName: "Phasen/Ebenen (Mehrzahl)", value: "", placeholder: "Phasen" });
+
+    name: string = "beschriftungen";
+    displayName: string = "Beschriftungen";
+    slices: Array<FormattingSettingsSlice> = [this.spalteTask, this.projekt1, this.projektN, this.ebene1, this.ebeneN];
+}
+
 class SpaltenCardSettings extends FormattingSettingsCard {
     start = new formattingSettings.ToggleSwitch({ name: "start", displayName: "Start", value: true });
     ende = new formattingSettings.ToggleSwitch({ name: "ende", displayName: "Ende", value: true });
@@ -251,10 +264,11 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
     zeiteinheitenCard = new ZeiteinheitenCardSettings();
     spaltenCard = new SpaltenCardSettings();
+    beschriftungenCard = new BeschriftungenCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
     tooltipCard = new TooltipCardSettings();
     schriftCard = new SchriftCardSettings();
 
-    cards = [this.darstellungCard, this.zeiteinheitenCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.tooltipCard, this.schriftCard];
+    cards = [this.darstellungCard, this.zeiteinheitenCard, this.spaltenCard, this.beschriftungenCard, this.basisplanCard, this.meilensteineCard, this.tooltipCard, this.schriftCard];
 }
