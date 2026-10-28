@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.5.3.0** (23.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.6.0.0** (28.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.5.3.0** (23.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.3.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: false` (Cross-Interaktion filtert) |
@@ -99,7 +99,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.5.3.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.6.0.0)
 
 **Neu in 1.6** (Sankey + angebotene Ansichten): fünf Schalter `toolbar.viewTable`,
 `viewBars`, `viewWaterfall`, `viewTree`, `viewSankey` (alle Standard **an**,

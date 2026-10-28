@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.5.3.0** · Stand · **2026-10-23** · IBCS-inspired
+Version · **1.6.0.0** · Stand · **2026-10-28** · IBCS-inspired
 
 ## Inhalt
 
@@ -21,7 +21,7 @@ Version · **1.5.3.0** · Stand · **2026-10-23** · IBCS-inspired
 9. [Interaktion](#interaction)
 10. [Abweichungen von den IBCS-Blättern](#deviations)
 11. [Troubleshooting](#faq)
-12. [Versionshinweis 1.5.3.0](#version)
+12. [Versionshinweis 1.6.0.0](#version)
 
 ## 01 · Was ist das Visual?
 
@@ -38,7 +38,7 @@ Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404
 
 > **Dokumentierte Abweichung: Teal statt Grün.** Günstige Abweichungen sind standardmäßig Teal (#0E8585), ungünstige Rot (#E02B1D) — statt des IBCS-Grüns #8CB400 / Rot #FF2600. So bleiben die Abweichungen bei Rot-Grün-Sehschwäche lesbar; Legende und Fußzeile nennen die Abweichung. Umschaltbar unter Stil → Abweichungsfarben (IBCS-Grün klassisch) oder per Abweichungsfarben-Preset Blau / Orange (ColorBrewer #2C7BB6 / #E66101, auch ohne Farbsehen und im Schwarzweiß-Druck unterscheidbar). Im Dunkelmodus gilt das ChartKitchen-Paar #3FB3C2 / #E4635F.
 
-Diese Anleitung beschreibt den Stand der Version **1.5.3.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
+Diese Anleitung beschreibt den Stand der Version **1.6.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
 ## 02 · Die Produktfamilie
 
@@ -166,7 +166,7 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.5.3.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.3.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.6.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
 3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
@@ -646,10 +646,11 @@ Ein Parent- oder Ebenen-Pfad zeigt ins Leere. Das ist ein gewolltes Datenqualit�
 
 Die Kostenzeile trägt Rechenvorzeichen `-1` *und* Abweichungsfarbe drehen = `true` — die beiden Mechanismen heben sich auf. Bei `-1` die Abweichungsfarbe nicht zusätzlich drehen (Kapitel 05).
 
-## 12 · Versionshinweis 1.5.3.0
+## 12 · Versionshinweis 1.6.0.0
 
-Diese Dokumentation beschreibt **Version 1.5.3.0** vom 23.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
+Diese Dokumentation beschreibt **Version 1.6.0.0** vom 28.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
 
+- **1.6.0.0 · Sankey-Ansicht und „Ansichten anbieten“:** Fünfte Ansicht „Sankey“ — die GuV als Fluss von links nach rechts über dem Graphen des Werttreiberbaums (Gewinnstrang günstig, Kosten zweigen ungünstig ab, Band-Höhe proportional zum AC-YTD), mit Kachel-Zoom, Hover-Panel, Kontextmenü und Äste-Klappen wie im Baum; bewusst außerhalb der IBCS-Notation (der Footer sagt es). Neu unter Darstellung & Toolbar: fünf Schalter, welche Ansichten Leser angeboten bekommen (Tabelle, Baum, Bars, Wasserfall, Sankey); zeigt ein gespeicherter Zustand auf eine abgeschaltete Ansicht, erscheint still die erste angebotene. Hub-Tour mit Karte 8 „Sankey“, vier Sprachen, Dark Mode und Hochkontrast (Muster statt Farbe).
 - **1.5.3.0 · Spaltenkopf auf skalierter Bühne:** In einer Fabric App (Bühne per CSS-Transform skaliert) saß der haftende Spaltenkopf um den Bühnenfaktor zu tief und verdeckte Zeilen; das Visual misst jetzt in Layoutpixeln. In niedrigen Kacheln haften die Fußnoten nur, solange Zeilen sichtbar bleiben; die IBCS-Notationszeile läuft über alle Fußnotenspalten. In Power BI ändert sich nichts.
 - **1.5.2.0 · kosmetische Restpunkte:** IBCS-Notationszeile im Fuß bleibt mit Kommentarblock in der Kachel; Markenhinweis „IBCS Institute“; 12G-Headline „im Forecast“; 12G-YTD-Zahlen vor dem Balken, wenn sie innen nicht passen; Tooltip „pp“; Blöcke und Einkindgruppen in derselben Richtung sortiert wie die Zeilen (T02E/T02F); Verbindungslinien im Δ-Wasserfall an Zahlen unterbrochen; Δ, das auf null rundet, mit Vorzeichen („+0,00“).
 - **1.5.1.0 — Restpunkte der Skalen-Messung:** kein Faktor mehr zwischen Perioden-Blöcken, Skalierungshinweis ×n nur noch für Δ gegen die Wert-Kaskade (ein Faktor je Tabelle); Headline mit dem Δ des Treibers samt Wirkung in Worten („Mehrkosten“) und Einheit „Mio. EUR“; Margenzeilen ohne Δ %, Δ in pp mit den Δ%-Dezimalen; Schwellen-Standard bei Mio. umgerechnet; Leerzeile nach jedem Element der obersten Ebene, Einkindgruppen ohne doppelte Zwischensumme; Kommentar-Fußnoten mehrspaltig und immer sichtbar; Δ-Balken bei Minuend PL rot/grün umrandet; lesbare YTD-Zahlen in 12G; echtes Minuszeichen „−“.
@@ -666,13 +667,13 @@ Diese Dokumentation beschreibt **Version 1.5.3.0** vom 23.10.2026 (GUID `pnlByDa
 
 Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md).
 
-**P&L Statement byDatenWG** · Version 1.5.3.0
+**P&L Statement byDatenWG** · Version 1.6.0.0
 
 Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.5.3.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.5.3.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.6.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
 

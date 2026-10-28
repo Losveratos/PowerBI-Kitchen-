@@ -30,7 +30,7 @@ Three Power BI custom visuals by Michael Tenner (Daten-WG), developed together i
 
 ### P&L Statement byDatenWG
 
-- **Version:** `1.5.3.0`
+- **Version:** `1.6.0.0`
 - **API:** `5.11.0`
 - **GUID:** `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 - **License:** MIT (`LICENSE` in the repository root)
@@ -201,7 +201,7 @@ Then: upload it as an organizational visual in a test environment, test it with 
 
 - **Contact:** Michael Tenner, Daten-WG · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com?subject=Security%20question%20byDatenWG%20visuals). Also for security findings and for questions from your data protection officer.
 - **Bugs and requests:** issues in the [repository](https://github.com/Losveratos/PowerBI-Kitchen-/issues).
-- **State of this page:** 23 Oct 2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.5.3.0 · dataKitchenGantt 1.15.0.0. Newer releases carry higher version numbers; audit every file according to section 07.
+- **State of this page:** 23 Oct 2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.6.0.0 · dataKitchenGantt 1.15.0.0. Newer releases carry higher version numbers; audit every file according to section 07.
 - **Warranty:** The visuals are provided without warranty (license texts in the repository). This page is not a legal assurance but an audit aid.
 
 **Security & deployment · byDatenWG visuals** · as of 23 Oct 2026

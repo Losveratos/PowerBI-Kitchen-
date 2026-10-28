@@ -30,7 +30,7 @@ Drei Power-BI-Custom-Visuals von Michael Tenner (Daten-WG), gemeinsam in einem �
 
 ### P&L Statement byDatenWG
 
-- **Version:** `1.5.3.0`
+- **Version:** `1.6.0.0`
 - **API:** `5.11.0`
 - **GUID:** `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 - **Lizenz:** MIT (`LICENSE` im Repo-Wurzelverzeichnis)
@@ -201,7 +201,7 @@ Danach: in einer Testumgebung als Organisationsvisual hochladen, mit den Tenant-
 
 - **Kontakt:** Michael Tenner, Daten-WG · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com?subject=Sicherheitsfrage%20byDatenWG-Visuals). Auch für Sicherheitsfunde und für Fragen des Datenschutzbeauftragten.
 - **Fehler und Wünsche:** Issues im [Repository](https://github.com/Losveratos/PowerBI-Kitchen-/issues).
-- **Stand dieser Seite:** 23.10.2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.5.3.0 · dataKitchenGantt 1.15.0.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.
+- **Stand dieser Seite:** 23.10.2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.6.0.0 · dataKitchenGantt 1.15.0.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.
 - **Gewährleistung:** Die Visuals werden ohne Gewähr bereitgestellt (Lizenztexte im Repository). Diese Seite ist keine Zusicherung im Rechtssinn, sondern eine Prüfhilfe.
 
 **Sicherheit & Betrieb · byDatenWG-Visuals** · Stand 23.10.2026
