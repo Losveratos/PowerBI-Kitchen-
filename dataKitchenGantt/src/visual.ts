@@ -51,6 +51,18 @@ function toUtcMs(v: unknown): number | null {
     return null;
 }
 
+// „Hauptmeilenstein" tolerant auslegen: die Rolle wird in der Praxis mit allem
+// Möglichen befüllt — Bool-Spalte, 1/0-Kennzahl oder Textspalte „Ja"/„X".
+// Alles, was nicht erkennbar ein Ja ist (auch leer und null), zählt als Nein.
+const HAUPT_JA = new Set(['ja', 'yes', 'y', 'x', 'wahr', 'true', '1']);
+
+function istHaupt(v: unknown): boolean {
+    if (v === true) return true;
+    if (typeof v === 'number') return v === 1;
+    if (typeof v === 'string') return HAUPT_JA.has(v.trim().toLowerCase());
+    return false;
+}
+
 function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithId[] {
     const cat = dataView && dataView.categorical;
     if (!cat || !cat.categories || !cat.categories.length) return [];
@@ -94,6 +106,7 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
     const planStartVals = valsByRole('planStart');
     const planEndVals = valsByRole('planEnd');
     const sortVals = valsByRole('sort');
+    const hauptVals = valsByRole('hauptMs');
     const progCol = cat.values && cat.values.find(v => v.source.roles && v.source.roles['progress']);
 
     // Fortschritts-Skala erkennen: alles ≤ 1 → als Anteil interpretieren
@@ -168,6 +181,9 @@ function parseData(dataView: DataView | undefined, host: IVisualHost): TaskWithI
 
         tasks.push({
             key, name, phase, path, projekt, s, e, pct, st, ow, deps, color, ps, pe,
+            // ohne gebundene Rolle bleibt das Feld undefined — der Leisten-Knopf
+            // „Nur Hauptmeilensteine" erscheint dann gar nicht erst
+            haupt: hauptVals ? istHaupt(hauptVals[i]) : undefined,
             selectionId: host.createSelectionIdBuilder().withCategory(taskCol, i).createSelectionId()
         });
         sortKeys.push(sortVals ? sortVals[i] : null);
@@ -244,6 +260,8 @@ export class Visual implements IVisual {
         const sp = this.formattingSettings.spaltenCard;
         const b = this.formattingSettings.basisplanCard;
         const ms = this.formattingSettings.meilensteineCard;
+        const tp = this.formattingSettings.tooltipCard;
+        const ze = this.formattingSettings.zeiteinheitenCard;
         const f = this.formattingSettings.schriftCard.font;
         const allow = this.host.hostCapabilities.allowInteractions !== false;
         this.renderer.setOptions({
@@ -258,6 +276,17 @@ export class Visual implements IVisual {
                 status: sp.status.value, pct: sp.fortschritt.value, ow: sp.wer.value
             },
             gruppenNamen: d.gruppenNamen.value,
+            kopfzeile: d.kopfzeile.value,
+            tooltip: tp.anzeigen.value,
+            tipZeilen: {
+                zeitraum: tp.zeitraum.value, plan: tp.plan.value, abweichung: tp.abweichung.value,
+                dauer: tp.dauer.value, status: tp.status.value, fortschritt: tp.fortschritt.value,
+                wer: tp.wer.value, abhaengigkeiten: tp.abhaengigkeiten.value
+            },
+            zeiteinheiten: {
+                tage: ze.tage.value, wochen: ze.wochen.value, monate: ze.monate.value,
+                quartale: ze.quartale.value, jahre: ze.jahre.value
+            },
             basisplan: b.anzeigen.value,
             deltaSpalte: b.deltaSpalte.value,
             verzugZeilen: b.verzugZeilen.value,
@@ -268,6 +297,7 @@ export class Visual implements IVisual {
             msDatum: ms.datumAnzeigen.value,
             msNamen: ms.namenAnzeigen.value,
             msBeschriftung: String(ms.beschriftung.value.value),
+            nurHaupt: ms.nurHaupt.value,
             msEndeGleichStart: ms.endeGleichStart.value,
             fontFamily: f.fontFamily.value,
             fontSize: f.fontSize.value,

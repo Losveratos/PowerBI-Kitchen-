@@ -83,6 +83,14 @@ class DarstellungCardSettings extends FormattingSettingsCard {
         }
     });
 
+    // Nur der Infotext oben links; die Leiste mit den Knöpfen bleibt bestehen,
+    // sonst wäre Zoomen/"Heute" im Bericht nicht mehr erreichbar.
+    kopfzeile = new formattingSettings.ToggleSwitch({
+        name: "kopfzeile",
+        displayName: "Infozeile oben anzeigen",
+        value: true
+    });
+
     ibcs = new formattingSettings.ToggleSwitch({
         name: "ibcs",
         displayName: "IBCS-inspiriertes Styling",
@@ -97,7 +105,7 @@ class DarstellungCardSettings extends FormattingSettingsCard {
 
     name: string = "darstellung";
     displayName: string = "Darstellung";
-    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.ibcs];
+    slices: Array<FormattingSettingsSlice> = [this.theme, this.zeiteinheit, this.tageEinheit, this.wochenenden, this.abhaengigkeiten, this.heuteLinie, this.tabellenBreite, this.gruppenNamen, this.kopfzeile, this.ibcs];
 }
 
 class SpaltenCardSettings extends FormattingSettingsCard {
@@ -139,6 +147,15 @@ class MeilensteineCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    // Nur die STARTSTELLUNG des Leisten-Knopfs „◆ Nur Hauptmeilensteine“:
+    // im Bericht soll der Filter ohne Formatbereich erreichbar sein, deshalb
+    // gewinnt der Knopf, bis dieser Wert selbst wieder geändert wird.
+    nurHaupt = new formattingSettings.ToggleSwitch({
+        name: "nurHaupt",
+        displayName: "Nur Hauptmeilensteine",
+        value: false
+    });
+
     // Auf ZUGEKLAPPTEN Gruppenzeilen stand bisher nur das Datum — bei ~48
     // Meilensteinen je Projekt ist damit nicht erkennbar, welcher gemeint ist.
     beschriftung = new formattingSettings.ItemDropdown({
@@ -150,7 +167,37 @@ class MeilensteineCardSettings extends FormattingSettingsCard {
 
     name: string = "meilensteine";
     displayName: string = "Meilensteine";
-    slices: Array<FormattingSettingsSlice> = [this.aufPhasenzeile, this.datumAnzeigen, this.namenAnzeigen, this.beschriftung, this.endeGleichStart];
+    slices: Array<FormattingSettingsSlice> = [this.nurHaupt, this.aufPhasenzeile, this.datumAnzeigen, this.namenAnzeigen, this.beschriftung, this.endeGleichStart];
+}
+
+class TooltipCardSettings extends FormattingSettingsCard {
+    // Master ganz oben: aus = es wird gar kein Tooltip gezeichnet.
+    anzeigen = new formattingSettings.ToggleSwitch({ name: "anzeigen", displayName: "Tooltip anzeigen", value: true });
+
+    zeitraum = new formattingSettings.ToggleSwitch({ name: "zeitraum", displayName: "Zeitraum", value: true });
+    plan = new formattingSettings.ToggleSwitch({ name: "plan", displayName: "Plan (Basisplan)", value: true });
+    abweichung = new formattingSettings.ToggleSwitch({ name: "abweichung", displayName: "Abweichung", value: true });
+    dauer = new formattingSettings.ToggleSwitch({ name: "dauer", displayName: "Dauer", value: true });
+    status = new formattingSettings.ToggleSwitch({ name: "status", displayName: "Status", value: true });
+    fortschritt = new formattingSettings.ToggleSwitch({ name: "fortschritt", displayName: "Fortschritt", value: true });
+    wer = new formattingSettings.ToggleSwitch({ name: "wer", displayName: "Wer", value: true });
+    abhaengigkeiten = new formattingSettings.ToggleSwitch({ name: "abhaengigkeiten", displayName: "Hängt ab von", value: true });
+
+    name: string = "tooltip";
+    displayName: string = "Tooltip";
+    slices: Array<FormattingSettingsSlice> = [this.anzeigen, this.zeitraum, this.plan, this.abweichung, this.dauer, this.status, this.fortschritt, this.wer, this.abhaengigkeiten];
+}
+
+class ZeiteinheitenCardSettings extends FormattingSettingsCard {
+    tage = new formattingSettings.ToggleSwitch({ name: "tage", displayName: "Tage", value: true });
+    wochen = new formattingSettings.ToggleSwitch({ name: "wochen", displayName: "Wochen", value: true });
+    monate = new formattingSettings.ToggleSwitch({ name: "monate", displayName: "Monate", value: true });
+    quartale = new formattingSettings.ToggleSwitch({ name: "quartale", displayName: "Quartale", value: true });
+    jahre = new formattingSettings.ToggleSwitch({ name: "jahre", displayName: "Jahre", value: true });
+
+    name: string = "zeiteinheiten";
+    displayName: string = "Zeiteinheiten";
+    slices: Array<FormattingSettingsSlice> = [this.tage, this.wochen, this.monate, this.quartale, this.jahre];
 }
 
 class BasisplanCardSettings extends FormattingSettingsCard {
@@ -202,10 +249,12 @@ class SchriftCardSettings extends FormattingSettingsCard {
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     darstellungCard = new DarstellungCardSettings();
+    zeiteinheitenCard = new ZeiteinheitenCardSettings();
     spaltenCard = new SpaltenCardSettings();
     basisplanCard = new BasisplanCardSettings();
     meilensteineCard = new MeilensteineCardSettings();
+    tooltipCard = new TooltipCardSettings();
     schriftCard = new SchriftCardSettings();
 
-    cards = [this.darstellungCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.schriftCard];
+    cards = [this.darstellungCard, this.zeiteinheitenCard, this.spaltenCard, this.basisplanCard, this.meilensteineCard, this.tooltipCard, this.schriftCard];
 }

@@ -66,6 +66,11 @@
             "displayName": "Statusdatum (rote Linie)",
             "name": "statusDate",
             "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Hauptmeilenstein (Ja/Nein)",
+            "name": "hauptMs",
+            "kind": "GroupingOrMeasure"
         }
     ],
     "objects": {
@@ -119,6 +124,11 @@
                 "tabellenBreite": {
                     "displayName": "Tabellenbreite (px, 0 = ausblenden)",
                     "type": { "numeric": true }
+                },
+                "kopfzeile": {
+                    "displayName": "Infozeile oben anzeigen",
+                    "description": "Der Infotext oben links („1 Projekt · 9 Vorgänge · 6 Gruppen · 3 Meilensteine“). Die Leiste mit den Knöpfen bleibt in jedem Fall sichtbar.",
+                    "type": { "bool": true }
                 },
                 "ibcs": {
                     "displayName": "IBCS-inspiriertes Styling",
@@ -180,6 +190,11 @@
                     "displayName": "Name am Meilenstein",
                     "type": { "bool": true }
                 },
+                "nurHaupt": {
+                    "displayName": "Nur Hauptmeilensteine",
+                    "description": "Startstellung des Leisten-Knopfs „◆ Nur Hauptmeilensteine“: zeigt statt der Hierarchie eine flache, chronologische Liste der über die Rolle „Hauptmeilenstein (Ja/Nein)“ markierten Zeilen.",
+                    "type": { "bool": true }
+                },
                 "beschriftung": {
                     "displayName": "Beschriftung auf zugeklappten Zeilen",
                     "description": "Was an den Rauten einer zugeklappten Gruppenzeile steht. „Nur Datum“ entspricht dem bisherigen Verhalten; bei vielen Meilensteinen je Projekt macht der Name sie erst unterscheidbar.",
@@ -190,6 +205,74 @@
                             { "value": "beides", "displayName": "Name und Datum" }
                         ]
                     }
+                }
+            }
+        },
+        "tooltip": {
+            "displayName": "Tooltip",
+            "description": "Welche Zeilen der Hover-Tooltip zeigt. Der Name des Vorgangs steht immer oben.",
+            "properties": {
+                "anzeigen": {
+                    "displayName": "Tooltip anzeigen",
+                    "type": { "bool": true }
+                },
+                "zeitraum": {
+                    "displayName": "Zeitraum",
+                    "type": { "bool": true }
+                },
+                "plan": {
+                    "displayName": "Plan (Basisplan)",
+                    "type": { "bool": true }
+                },
+                "abweichung": {
+                    "displayName": "Abweichung",
+                    "type": { "bool": true }
+                },
+                "dauer": {
+                    "displayName": "Dauer",
+                    "type": { "bool": true }
+                },
+                "status": {
+                    "displayName": "Status",
+                    "type": { "bool": true }
+                },
+                "fortschritt": {
+                    "displayName": "Fortschritt",
+                    "type": { "bool": true }
+                },
+                "wer": {
+                    "displayName": "Wer",
+                    "type": { "bool": true }
+                },
+                "abhaengigkeiten": {
+                    "displayName": "Hängt ab von",
+                    "type": { "bool": true }
+                }
+            }
+        },
+        "zeiteinheiten": {
+            "displayName": "Zeiteinheiten",
+            "description": "Welche Zoomstufen die Leiste anbietet. Die zuletzt aktive Stufe bleibt erhalten, auch wenn ihr Knopf ausgeblendet wird.",
+            "properties": {
+                "tage": {
+                    "displayName": "Tage",
+                    "type": { "bool": true }
+                },
+                "wochen": {
+                    "displayName": "Wochen",
+                    "type": { "bool": true }
+                },
+                "monate": {
+                    "displayName": "Monate",
+                    "type": { "bool": true }
+                },
+                "quartale": {
+                    "displayName": "Quartale",
+                    "type": { "bool": true }
+                },
+                "jahre": {
+                    "displayName": "Jahre",
+                    "type": { "bool": true }
                 }
             }
         },
@@ -249,7 +332,8 @@
                     "planStart": { "max": 1 },
                     "planEnd": { "max": 1 },
                     "sort": { "max": 1 },
-                    "statusDate": { "max": 1 }
+                    "statusDate": { "max": 1 },
+                    "hauptMs": { "max": 1 }
                 }
             ],
             "categorical": {
@@ -266,7 +350,8 @@
                         { "for": { "in": "planStart" } },
                         { "for": { "in": "planEnd" } },
                         { "for": { "in": "sort" } },
-                        { "for": { "in": "statusDate" } }
+                        { "for": { "in": "statusDate" } },
+                        { "for": { "in": "hauptMs" } }
                     ],
                     "dataReductionAlgorithm": { "top": { "count": 30000 } }
                 },
@@ -276,7 +361,8 @@
                         { "for": { "in": "planStart" } },
                         { "for": { "in": "planEnd" } },
                         { "for": { "in": "sort" } },
-                        { "for": { "in": "statusDate" } }
+                        { "for": { "in": "statusDate" } },
+                        { "for": { "in": "hauptMs" } }
                     ]
                 }
             }

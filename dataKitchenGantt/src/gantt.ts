@@ -36,6 +36,7 @@ export interface GanttTask {
     color?: string | null; // individuelle Farbe (Format-Pane-Override, hex)
     ps?: number | null;    // Basisplan-Start (ms); null/fehlend = kein Plan
     pe?: number | null;    // Basisplan-Ende (ms)
+    haupt?: boolean;       // Hauptmeilenstein (Rolle "hauptMs"); undefined = Rolle nicht gebunden
 }
 
 export interface GanttOptions {
@@ -47,6 +48,10 @@ export interface GanttOptions {
     tabellenBreite: number;             // 0 = Tabelle ausblenden
     spalten?: Record<string, boolean>;  // Tabellenspalten einzeln ein-/ausblenden (Schlüssel = ColDef.key)
     gruppenNamen?: boolean;             // Namen der Gruppenzeilen auch im Chart zeigen (default true)
+    kopfzeile?: boolean;                // Infotext oben links ("3 Projekte · 9 Vorgänge …") (default true)
+    tooltip?: boolean;                  // Hover-Tooltip überhaupt zeichnen (default true)
+    tipZeilen?: Record<string, boolean>;        // einzelne Tooltip-Zeilen (Schlüssel s. renderTip, default jeweils true)
+    zeiteinheiten?: Record<string, boolean>;    // welche Zoomstufen die Leiste anbietet (Schlüssel = Kleinschreibung des Labels)
     basisplan?: boolean;                // Plan-Balken zeichnen (default true)
     deltaSpalte?: boolean;              // Δ-Spalte in der Tabelle (default true)
     verzugZeilen?: boolean;             // Zeilen mit Verzug rot hinterlegen (default true)
@@ -58,6 +63,7 @@ export interface GanttOptions {
     msNamen?: boolean;                  // Name am Meilenstein anzeigen (default true)
     msBeschriftung?: string;            // 'nurDatum' | 'nurName' | 'beides' — Rauten auf zugeklappten Zeilen
     msEndeGleichStart?: boolean;        // Ende = Start ebenfalls als Meilenstein werten (default false)
+    nurHaupt?: boolean;                 // STARTSTELLUNG des Leisten-Knopfs "Nur Hauptmeilensteine" (default false)
     fontFamily: string;
     fontSize: number;                   // Basisgröße in px (Referenz-Design: 13)
     selectedKeys: ReadonlySet<string> | null;   // aktive Selektion (Dimmen)
@@ -238,6 +244,9 @@ export class GanttRenderer {
     private levelCount = 0;                 // Anzahl gebundener Ebenen-Felder (Rolle "phase")
     private sammelN = 0;                    // ausgelassene Sammelvorgangs-Zeilen (Kopfzeile)
     private hasProj = false;                // Projekt-Rolle gebunden → 3-Ebenen-Hierarchie
+    private hasHaupt = false;               // mindestens eine Zeile ist Hauptmeilenstein
+    private nurHaupt = false;               // Leisten-Knopf "Nur Hauptmeilensteine" (nicht persistiert)
+    private lastOptNurHaupt: boolean | null = null;   // letzter Options-Wert (Override-Reset, wie lastOptTW)
     private lastItems: RenderItem[] = [];   // Items des letzten Renders (für Koordinaten-Treffer)
     private hasPlan = false;                // mindestens ein Task mit Basisplan-Daten
     private sbDrag: { y0: number; sy0: number } | null = null;   // aktiver Scrollbalken-Drag
@@ -250,6 +259,8 @@ export class GanttRenderer {
 
     // Statische DOM-Hülle (einmal gebaut, Inhalte werden je Render ersetzt)
     private root: HTMLElement;
+    private toolbar: HTMLElement;       // ganze Leiste (wird ohne Daten ausgeblendet)
+    private toolbarAlle: HTMLElement;   // ⊞/⊟ ganz links, VOR dem Infotext
     private toolbarInfo: HTMLElement;
     private toolbarBtns: HTMLElement;
     private panel: HTMLElement;
@@ -264,6 +275,7 @@ export class GanttRenderer {
     private scrollLayer: HTMLElement;   // Lanes, Pfeile, Balken (v-scrollt)
     private todayHost: HTMLElement;
     private tipHost: HTMLElement;
+    private leerHinweis: HTMLElement;   // "Keine Hauptmeilensteine im aktuellen Filter"
     private divider: HTMLElement;   // ziehbarer Trenner Tabelle ↔ Chart
     private vTrack: HTMLElement;    // vertikaler Scrollbalken (Spur)
     private vThumb: HTMLElement;    // vertikaler Scrollbalken (Griff)
@@ -274,11 +286,18 @@ export class GanttRenderer {
         this.container = container;
 
         this.root = el('div', 'width:100%;height:100%;display:flex;flex-direction:column;font-family:"Segoe UI",-apple-system,sans-serif;font-size:13px;overflow:hidden;user-select:none;padding:8px;box-sizing:border-box');
-        const toolbar = el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 8px;flex-wrap:wrap');
-        this.toolbarInfo = el('div', 'font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis');
+        this.toolbar = el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 8px;flex-wrap:wrap');
+        // Linke Hälfte: ⊞/⊟ und der Infotext als EIGENE Gruppe. Der Infotext kann
+        // per darstellung.kopfzeile leer sein — die Knöpfe hängen deshalb nicht an
+        // ihm, sondern daneben, und bleiben sichtbar.
+        const linksGrp = el('div', 'display:flex;align-items:center;gap:8px;min-width:0');
+        this.toolbarAlle = el('div', 'display:flex;gap:6px;align-items:center');
+        this.toolbarInfo = el('div', 'font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0');
         this.toolbarBtns = el('div', 'display:flex;gap:8px;align-items:center');
-        toolbar.appendChild(this.toolbarInfo);
-        toolbar.appendChild(this.toolbarBtns);
+        linksGrp.appendChild(this.toolbarAlle);
+        linksGrp.appendChild(this.toolbarInfo);
+        this.toolbar.appendChild(linksGrp);
+        this.toolbar.appendChild(this.toolbarBtns);
 
         const panelWrap = el('div', 'flex:1;display:flex;min-height:0');
         this.panel = el('div', 'flex:1;display:flex;min-width:0;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)');
@@ -300,8 +319,12 @@ export class GanttRenderer {
         this.bodyClip.appendChild(this.scrollLayer);
         this.todayHost = el('div', 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;overflow:hidden');
         this.tipHost = el('div', 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;overflow:hidden');
+        // Leere Chartfläche ist nicht von "kaputt" zu unterscheiden — bei aktivem
+        // Hauptmeilenstein-Filter steht hier stattdessen ein Hinweis.
+        this.leerHinweis = el('div', 'position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 16px;font-size:12.5px;pointer-events:none;display:none');
         this.chartArea.appendChild(this.axisHost);
         this.chartArea.appendChild(this.bodyClip);
+        this.chartArea.appendChild(this.leerHinweis);
         this.chartArea.appendChild(this.todayHost);
         this.chartArea.appendChild(this.tipHost);
         // Vertikaler Scrollbalken am rechten Rand (sichtbar sobald der Plan
@@ -326,7 +349,7 @@ export class GanttRenderer {
 
         this.landing = el('div', 'flex:1;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.6');
 
-        this.root.appendChild(toolbar);
+        this.root.appendChild(this.toolbar);
         this.root.appendChild(panelWrap);
         this.root.appendChild(this.landing);
         this.container.appendChild(this.root);
@@ -433,6 +456,10 @@ export class GanttRenderer {
         // Namen daher als Zweitindex ergänzen — Pfad-Schlüssel haben Vorrang.
         tasks.forEach(t => { if (!this.byKey.has(t.name)) this.byKey.set(t.name, t); });
         this.levelCount = tasks.reduce((mx, t) => Math.max(mx, t.path ? t.path.length : (t.phase !== null ? 1 : 0)), 0);
+        // Jedes update() liefert den bereits von Power BI gefilterten DataView —
+        // der Knopf "Nur Hauptmeilensteine" richtet sich also immer nach dem
+        // aktuellen Stand und braucht daneben keine eigene Filterlogik.
+        this.hasHaupt = tasks.some(t => t.haupt === true);
         // Nur neu einpassen, wenn sich die Task-Menge wirklich ändert —
         // sonst springt die Ansicht bei jeder Crossfilter-Interaktion.
         const sig = tasks.map(t => t.key).join('|');
@@ -651,9 +678,38 @@ export class GanttRenderer {
     // px/Tag je Zeiteinheit (Referenz-Sample + neu Quartale/Jahre)
     private static MODE_PXD: Record<string, number> = { Tage: 24, Wochen: 9, Monate: 3.2, Quartale: 1.1, Jahre: 0.32 };
 
+    // Zeilen, die der aktuelle Filterzustand tatsächlich zeigt. Zoom-Fit und
+    // "Alles" dürfen sonst auf Zeiträume einpassen, die gar nicht zu sehen sind.
+    private gezeigteTasks(): GanttTask[] {
+        if (!this.hauptFilterAktiv()) return this.tasks;
+        return this.tasks.filter(t => t.haupt === true);
+    }
+
+    // Der Filter gilt, sobald der Knopf an ist — AUCH wenn der (von Power BI
+    // bereits gefilterte) DataView gerade keinen Hauptmeilenstein mehr enthält.
+    // Ein stiller Rückfall auf die volle Hierarchie würde sonst einen Umfang
+    // zeigen, den der Nutzer gerade ausgeschlossen hat; stattdessen steht in der
+    // Chartfläche der Hinweis (s. render()).
+    private hauptFilterAktiv(): boolean {
+        return this.nurHaupt;
+    }
+
+    // Umschalten des Hauptmeilenstein-Filters: der gezeigte Umfang wechselt
+    // komplett, deshalb darf vom alten Stand nichts überleben. Liefert true,
+    // wenn sich wirklich etwas geändert hat (der Aufrufer zeichnet dann neu).
+    private wechsleHaupt(v: boolean): boolean {
+        if (this.nurHaupt === v) return false;
+        this.nurHaupt = v;
+        this.collapsed = {};
+        this.sy = 0;
+        this.fitted = false;
+        this.tip = null;
+        return true;
+    }
+
     private computeFit(erzwingeEinpassen?: boolean): void {
         const cw = this.chartArea.clientWidth;
-        const ts = this.tasks;
+        const ts = this.gezeigteTasks();
         if (!ts.length || cw <= 0) return;
         const mn = Math.min(...ts.map(x => x.s));
         // Standard-Zeiteinheit aus den Optionen: beim ERSTEN Layout fester
@@ -774,6 +830,47 @@ export class GanttRenderer {
         const projColor = ibcs ? IBCS_AC : (dark ? '#C6C9CF' : '#454851');
         this.hasProj = this.tasks.some(t => t.projekt !== undefined && t.projekt !== null);
 
+        const items: RenderItem[] = [];
+        let colorIdx = 0;
+        const emitLeaf = (c: GanttTask, depth: number, hex: string | null, parentCk: string): void => {
+            const base = hex !== null ? hex : pal[colorIdx % pal.length];
+            // IBCS: monochrom (solid dark = Ist, outlined = Plan); individuelle
+            // Task-Farben werden im IBCS-Modus bewusst ignoriert.
+            const tColor = !ibcs && c.color ? c.color : (ibcs ? IBCS_AC : base);
+            const tSoft = !ibcs && c.color ? hexA(c.color, 0.18) : (ibcs ? '#FFFFFF' : hexA(base, 0.18));
+            const plan = GanttRenderer.planOf(c);
+            items.push({
+                id: c.key, kind: this.isMs(c) ? 'ms' : 'task',
+                depth, name: c.name,
+                s: c.s, e: c.e === null ? c.s : c.e, pct: c.pct, st: c.st, ow: c.ow,
+                color: tColor, soft: tSoft,
+                laneTint: ibcs ? 'transparent' : hexA(base, 0.06),
+                phaseKey: parentCk, task: c,
+                depTasks: c.deps.map(d => this.byKey.get(d)).filter(Boolean) as GanttTask[],
+                ps: plan.ps, pe: plan.pe, delta: plan.delta, msKids: []
+            });
+        };
+
+        // ---- Hauptmeilenstein-Filter: FLACHE Liste statt Hierarchie. Projekt-
+        // und Ebenenzeilen entfallen, damit die Meilensteine als reine Terminliste
+        // lesbar sind; chronologisch, bei gleichem Datum in Datenreihenfolge.
+        // Die Farbe folgt weiter dem Zweig (phase), damit die Herkunft erkennbar
+        // bleibt — ohne die Gruppenzeilen gäbe es sonst gar keinen Hinweis darauf.
+        if (this.hauptFilterAktiv()) {
+            this.projKeys = [];
+            this.phaseKeys = [];
+            this.sammelN = 0;
+            const zweige: (string | null)[] = [];
+            this.tasks.forEach(t => { if (!zweige.includes(t.phase)) zweige.push(t.phase); });
+            this.tasks
+                .map((t, i) => ({ t, i }))
+                .filter(x => x.t.haupt === true)
+                .sort((a, b) => a.t.s !== b.t.s ? a.t.s - b.t.s : a.i - b.i)
+                .forEach(x => emitLeaf(x.t, 0, pal[Math.max(0, zweige.indexOf(x.t.phase)) % pal.length], ''));
+            this.hasPlan = this.tasks.some(c => (c.ps !== undefined && c.ps !== null) || (c.pe !== undefined && c.pe !== null));
+            return items;
+        }
+
         // ---- Baum aufbauen; Reihenfolge = Erstauftritt und damit die der Rolle
         // "sort", nach der parseData() bereits sortiert hat.
         const mk = (name: string, ck: string, proj: boolean): GNode =>
@@ -829,28 +926,6 @@ export class GanttRenderer {
         // Knoten sammeln, nicht nur die gerade sichtbaren.
         this.projKeys = projNodes.map(n => n.ck);
         this.phaseKeys = grpNodes.map(n => n.ck);
-
-        // ---- Zeilen erzeugen
-        const items: RenderItem[] = [];
-        let colorIdx = 0;
-        const emitLeaf = (c: GanttTask, depth: number, hex: string | null, parentCk: string): void => {
-            const base = hex !== null ? hex : pal[colorIdx % pal.length];
-            // IBCS: monochrom (solid dark = Ist, outlined = Plan); individuelle
-            // Task-Farben werden im IBCS-Modus bewusst ignoriert.
-            const tColor = !ibcs && c.color ? c.color : (ibcs ? IBCS_AC : base);
-            const tSoft = !ibcs && c.color ? hexA(c.color, 0.18) : (ibcs ? '#FFFFFF' : hexA(base, 0.18));
-            const plan = GanttRenderer.planOf(c);
-            items.push({
-                id: c.key, kind: this.isMs(c) ? 'ms' : 'task',
-                depth, name: c.name,
-                s: c.s, e: c.e === null ? c.s : c.e, pct: c.pct, st: c.st, ow: c.ow,
-                color: tColor, soft: tSoft,
-                laneTint: ibcs ? 'transparent' : hexA(base, 0.06),
-                phaseKey: parentCk, task: c,
-                depTasks: c.deps.map(d => this.byKey.get(d)).filter(Boolean) as GanttTask[],
-                ps: plan.ps, pe: plan.pe, delta: plan.delta, msKids: []
-            });
-        };
 
         const emit = (n: GNode, depth: number, hex: string | null): void => {
             n.children.forEach(ch => {
@@ -954,7 +1029,7 @@ export class GanttRenderer {
 
         if (!this.tasks.length) {
             this.panel.parentElement && (this.panel.parentElement.style.display = 'none');
-            this.toolbarInfo.parentElement && (this.toolbarInfo.parentElement.style.display = 'none');
+            this.toolbar.style.display = 'none';
             this.landing.style.display = 'flex';
             this.landing.style.color = t.sub;
             this.landing.replaceChildren();
@@ -966,8 +1041,17 @@ export class GanttRenderer {
             return;
         }
         this.panel.parentElement && (this.panel.parentElement.style.display = 'flex');
-        this.toolbarInfo.parentElement && (this.toolbarInfo.parentElement.style.display = 'flex');
+        this.toolbar.style.display = 'flex';
         this.landing.style.display = 'none';
+
+        // Hauptmeilenstein-Filter: der Optionswert ist nur die Startstellung —
+        // der Leisten-Knopf gewinnt, bis die Option selbst wechselt (gleiches
+        // Muster wie tabellenBreite/twOverride)
+        const optHaupt = o.nurHaupt === true;
+        if (this.lastOptNurHaupt !== optHaupt) {
+            this.lastOptNurHaupt = optHaupt;
+            this.wechsleHaupt(optHaupt);
+        }
 
         this.panel.style.background = t.panel;
         this.panel.style.border = '1px solid ' + t.border;
@@ -1014,11 +1098,24 @@ export class GanttRenderer {
         const nVg = this.tasks.length - nMs - this.sammelN;
         const pl = (n: number, ein: string, viele: string) => n + ' ' + (n === 1 ? ein : viele);
         this.toolbarInfo.style.color = t.sub;
-        this.toolbarInfo.textContent =
-            (nPr ? pl(nPr, 'Projekt', 'Projekte') + ' · ' : '') +
-            pl(nVg, 'Vorgang', 'Vorgänge') +
-            (nPh ? ' · ' + (this.levelCount > 1 ? pl(nPh, 'Gruppe', 'Gruppen') : pl(nPh, 'Phase', 'Phasen')) : '') +
-            (nMs ? ' · ' + pl(nMs, 'Meilenstein', 'Meilensteine') : '');
+        // Nur der Text verschwindet — die Leiste selbst (und damit ihre Knöpfe)
+        // bleibt stehen, deshalb hier kein display-Schalten am parentElement.
+        this.toolbarInfo.textContent = o.kopfzeile === false ? ''
+            // Im Filter sind weder Gruppen noch Vorgänge zu sehen — die alten
+            // Zähler würden einen Umfang behaupten, den das Visual nicht zeigt.
+            : this.hauptFilterAktiv() ? pl(items.length, 'Hauptmeilenstein', 'Hauptmeilensteine')
+                : (nPr ? pl(nPr, 'Projekt', 'Projekte') + ' · ' : '') +
+                pl(nVg, 'Vorgang', 'Vorgänge') +
+                (nPh ? ' · ' + (this.levelCount > 1 ? pl(nPh, 'Gruppe', 'Gruppen') : pl(nPh, 'Phase', 'Phasen')) : '') +
+                (nMs ? ' · ' + pl(nMs, 'Meilenstein', 'Meilensteine') : '');
+
+        // Filter an, aber der (von Power BI bereits gefilterte) DataView enthält
+        // keinen Hauptmeilenstein mehr: eine leere Fläche wäre von "kaputt" nicht
+        // zu unterscheiden. Der Umschaltknopf bleibt bedienbar (s. renderToolbar).
+        const leer = this.nurHaupt && !items.length;
+        this.leerHinweis.style.display = leer ? 'block' : 'none';
+        this.leerHinweis.style.color = t.sub;
+        if (leer) this.leerHinweis.textContent = 'Keine Hauptmeilensteine im aktuellen Filter';
 
         this.renderToolbar(t);
         this.renderTable(t, items, topOf, sy, tableW, sel, o.ibcs);
@@ -1043,10 +1140,43 @@ export class GanttRenderer {
         this.sbGeom = { trackH, thumbH };
     }
 
+    // Knopf im Stil der Leiste; aktiv = gefüllt (wie die Zeiteinheiten-Knöpfe)
+    private mkToolBtn(t: Theme, label: string, titel: string, fn: () => void, wide: boolean, active?: boolean): HTMLElement {
+        const b = el('div',
+            (wide ? 'padding:6px 13px;' : 'width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;') +
+            'border:1px solid ' + t.border + ';border-radius:8px;' +
+            'background:' + (active ? t.text : t.panel) + ';color:' + (active ? t.panel : t.sub) + ';' +
+            'cursor:pointer;font-weight:' + (wide ? '600;font-size:12px' : '700'), label);
+        if (titel) b.setAttribute('title', titel);
+        b.addEventListener('click', fn);
+        return b;
+    }
+
     private renderToolbar(t: Theme): void {
+        // ---- links: alle Ebenen gemeinsam auf-/zuklappen. projKeys und phaseKeys
+        // enthalten sämtliche Knoten jeder Tiefe, auch die in zugeklappten
+        // Teilbäumen — ein Durchlauf erwischt daher wirklich alles.
+        this.toolbarAlle.replaceChildren();
+        if (this.projKeys.length || this.phaseKeys.length) {
+            const alleKeys = this.projKeys.concat(this.phaseKeys);
+            const setzen = (zu: boolean) => {
+                alleKeys.forEach(k => this.collapsed[k] = zu);
+                this.invalidate();
+            };
+            this.toolbarAlle.appendChild(this.mkToolBtn(t, '⊞', 'Alles aufklappen', () => setzen(false), false));
+            this.toolbarAlle.appendChild(this.mkToolBtn(t, '⊟', 'Alles zuklappen', () => setzen(true), false));
+        }
+
         this.toolbarBtns.replaceChildren();
         const seg = el('div', 'display:flex;border:1px solid ' + t.border + ';border-radius:8px;overflow:hidden;background:' + t.panel);
-        ['Tage', 'Wochen', 'Monate', 'Quartale', 'Jahre'].forEach((m, i) => {
+        const alle = ['Tage', 'Wochen', 'Monate', 'Quartale', 'Jahre'];
+        const ze = this.opts && this.opts.zeiteinheiten;
+        let stufen = ze ? alle.filter(m => ze[m.toLowerCase()] !== false) : alle;
+        // Sind ALLE abgewählt, bliebe eine leere Leiste zurück — eine Sackgasse,
+        // aus der im Bericht (ohne Formatbereich) niemand mehr herausfindet.
+        // Darum in diesem Fall bewusst wieder alle fünf zeigen.
+        if (!stufen.length) stufen = alle;
+        stufen.forEach((m, i) => {
             const active = this.mode === m;
             const b = el('div',
                 'padding:6px 13px;cursor:pointer;font-size:12px;font-weight:600;' +
@@ -1056,17 +1186,21 @@ export class GanttRenderer {
             seg.appendChild(b);
         });
         this.toolbarBtns.appendChild(seg);
-        const mkBtn = (label: string, fn: () => void, wide: boolean) => {
-            const b = el('div',
-                (wide ? 'padding:6px 13px;' : 'width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;') +
-                'border:1px solid ' + t.border + ';border-radius:8px;background:' + t.panel + ';color:' + t.sub + ';cursor:pointer;font-weight:' + (wide ? '600;font-size:12px' : '700'), label);
-            b.addEventListener('click', fn);
-            this.toolbarBtns.appendChild(b);
+        const mkBtn = (label: string, fn: () => void, wide: boolean, active?: boolean) => {
+            this.toolbarBtns.appendChild(this.mkToolBtn(t, label, '', fn, wide, active));
         };
         mkBtn('−', () => this.zoomBy(1 / 1.35), false);
         mkBtn('+', () => this.zoomBy(1.35), false);
         mkBtn('Heute', () => this.goToday(), true);
         mkBtn('Alles', () => this.fitAll(), true);
+        // Hauptmeilenstein-Filter direkt im Visual. Auch sichtbar, wenn der
+        // gefilterte DataView gerade keinen Hauptmeilenstein mehr enthält —
+        // sonst käme der Nutzer aus dem leeren Zustand nicht mehr heraus.
+        if (this.hasHaupt || this.nurHaupt) {
+            mkBtn('◆ Nur Hauptmeilensteine', () => {
+                if (this.wechsleHaupt(!this.nurHaupt)) this.invalidate();
+            }, true, this.nurHaupt);
+        }
         // Alle Projekte/Phasen gemeinsam auf-/zuklappen (einzeln: Klick auf die Zeile)
         if (this.projKeys.length) {
             const anyOpen = this.projKeys.some(k => !this.collapsed[k]);
@@ -1522,6 +1656,11 @@ export class GanttRenderer {
 
     private renderTip(t: Theme, items: RenderItem[], ibcs: boolean): void {
         this.tipHost.replaceChildren();
+        const o = this.opts;
+        if (o && o.tooltip === false) return;
+        // Zeilen einzeln schaltbar; nicht gesetzt = an (Testharness liefert nicht alle)
+        const zl = o && o.tipZeilen;
+        const zeige = (k: string) => !zl || zl[k] !== false;
         if (!this.tip) return;
         const it = items.find(i => i.id === this.tip!.id);
         if (!it) return;
@@ -1535,17 +1674,19 @@ export class GanttRenderer {
             grid.appendChild(el('div', 'color:' + t.tipSub, label));
             grid.appendChild(el('div', (mono ? 'font-variant-numeric:tabular-nums;' : '') + (fg ? 'color:' + fg + ';font-weight:700' : ''), val));
         };
-        addRow('Zeitraum', isM ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+        if (zeige('zeitraum')) addRow('Zeitraum', isM ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+        // Der Schalter kommt ZUSÄTZLICH zur Datenbedingung: ohne Basisplan gibt
+        // es hier nach wie vor nichts zu zeigen.
         if (it.ps !== null) {
-            addRow('Plan', it.ps === it.pe || it.pe === null ? fmtDate(it.ps) : fmtDate(it.ps) + ' – ' + fmtDate(it.pe), true);
-            if (it.delta !== null) addRow('Abweichung', fmtDelta(it.delta, ' Tage'), true,
+            if (zeige('plan')) addRow('Plan', it.ps === it.pe || it.pe === null ? fmtDate(it.ps) : fmtDate(it.ps) + ' – ' + fmtDate(it.pe), true);
+            if (it.delta !== null && zeige('abweichung')) addRow('Abweichung', fmtDelta(it.delta, ' Tage'), true,
                 it.delta > 0 ? IBCS_RED : (it.delta < 0 && !ibcs ? IBCS_GREEN : undefined));
         }
-        addRow('Dauer', isM ? 'Meilenstein' : (Math.round((it.e - it.s) / DAY) + 1) + ' Tage');
-        addRow('Status', isM || !it.st ? '–' : it.st);
-        addRow('Fortschritt', isM || it.pct === null ? '–' : it.pct + ' %');
-        addRow('Wer', it.ow || '–');
-        addRow('Hängt ab von', it.depTasks.map(d => d.name).join(', ') || '–');
+        if (zeige('dauer')) addRow('Dauer', isM ? 'Meilenstein' : (Math.round((it.e - it.s) / DAY) + 1) + ' Tage');
+        if (zeige('status')) addRow('Status', isM || !it.st ? '–' : it.st);
+        if (zeige('fortschritt')) addRow('Fortschritt', isM || it.pct === null ? '–' : it.pct + ' %');
+        if (zeige('wer')) addRow('Wer', it.ow || '–');
+        if (zeige('abhaengigkeiten')) addRow('Hängt ab von', it.depTasks.map(d => d.name).join(', ') || '–');
         box.appendChild(grid);
         this.tipHost.appendChild(box);
     }

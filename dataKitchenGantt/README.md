@@ -19,6 +19,7 @@ Muster wie `ibcsCategoryWaterfall`. Rendering-Kern liegt host-unabhängig in
 | Status | Grouping | nein | „Fertig/In Arbeit/Blockiert/Offen" (auch EN-Synonyme) → farbige Pills |
 | Wer (Owner) | Grouping | nein | |
 | Abhängigkeiten | Grouping | nein | Task-Namen, komma-/semikolongetrennt → Pfeile |
+| Hauptmeilenstein (Ja/Nein) | GroupingOrMeasure | nein | markiert die Zeilen für den Filter „◆ Nur Hauptmeilensteine". Tolerant ausgelegt: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr`, `true` (Groß-/Kleinschreibung egal, getrimmt) = ja; alles andere, leer und `null` = nein |
 | Plan-Start (Basisplan) | Grouping | nein | Plan vs. Ist: Outline-Balken unter dem Ist-Balken |
 | Plan-Ende (Basisplan) | Grouping | nein | ohne Plan-Start erbt es den Ist-Start; Δ = Ist-Ende − Plan-Ende |
 
@@ -69,6 +70,25 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
   Fläche (ziehbar, Klick auf die Spur springt); Klick-Toleranz 8 px, damit
   Touchpad-Klicks (leichtes Verrutschen beim Drücken) nicht als Pannen zählen
 - „Heute" zentriert auf das aktuelle Datum, „Alles" passt den gesamten Plan ein
+- **⊞ / ⊟ ganz links in der Leiste** klappen *alle* Ebenen gemeinsam auf bzw. zu —
+  Projekte und Ebenen jeder Tiefe in einem Zug, auch die in zugeklappten
+  Teilbäumen. Sie erscheinen nur, wenn es überhaupt Gruppen gibt, und bleiben
+  sichtbar, wenn die Infozeile per *Infozeile oben anzeigen* leer ist. Die
+  Knöpfe „▾ Projekte" und „▾ Ebenen" rechts klappen weiterhin gezielt nur eine
+  Ebenenart.
+- **„◆ Nur Hauptmeilensteine"** rechts in der Leiste schaltet auf eine **flache,
+  chronologische Liste** der über die Rolle *Hauptmeilenstein (Ja/Nein)*
+  markierten Zeilen um: keine Projekt- und Ebenenzeilen, keine Einrückung, bei
+  gleichem Datum in Datenreihenfolge. Die Zeilen bleiben anklickbar und
+  crossfiltern wie sonst. Der Knopf erscheint nur bei gebundener Rolle, die
+  Startstellung kommt aus *Meilensteine → Nur Hauptmeilensteine*; danach gewinnt
+  der Knopf, bis der Optionswert selbst wechselt (gleiches Muster wie die per
+  Trenner gezogene Tabellenbreite). Beim Umschalten werden Klappzustand,
+  Scrollstand und Zoom-Fit auf den gezeigten Umfang zurückgesetzt. Die Liste
+  entsteht bei jedem Update aus dem DataView — Slicer, Seitenfilter und
+  Crossfilter anderer Visuals schlagen also durch. Bleibt dabei kein
+  Hauptmeilenstein übrig, steht mittig „Keine Hauptmeilensteine im aktuellen
+  Filter"; der Knopf bleibt bedienbar.
 - Gruppenzeile (Projekt oder Ebene) anklicken = auf-/zuklappen. Das gilt für die
   **ganze Zeile, an jeder Stelle** — in der Tabelle und im Chart, auf dem
   Summenbalken, auf dem Gruppennamen und auch auf den Meilenstein-Rauten, die
@@ -97,7 +117,9 @@ Zeilen rendern damit in ~140 ms statt ~8 s.
 ## Formatierungsbereich („Darstellung")
 
 Theme Hell/Dunkel · Wochenenden schattieren · Abhängigkeitspfeile · Heute-Linie ·
-Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel)
+Tabellenbreite in px (0 = Tabelle ausblenden; Spalten weichen automatisch bei Platzmangel) ·
+*Infozeile oben anzeigen* (der Text „1 Projekt · 9 Vorgänge · 6 Gruppen · 3 Meilensteine"
+oben links; die Leiste mit den Knöpfen bleibt in jedem Fall)
 
 **Gruppennamen im Chart** — blendet den Namen jeder Gruppenzeile zusätzlich am
 Anfang ihres Summenbalkens ein (Vorgabe: an). Hilft, wenn die Tabelle schmal ist
@@ -106,11 +128,24 @@ und tiefe Ebenen dort abgeschnitten werden, oder ganz ausgeblendet ist.
 **Tabellenspalten** — Start, Ende, Dauer, Status, Fortschritt, Wer einzeln
 ein-/ausblenden (Δ Plan sitzt in der Karte „Basisplan").
 
-**Meilensteine** — auf zugeklappten Gruppen anzeigen · Datum am Meilenstein ·
+**Meilensteine** — *Nur Hauptmeilensteine* (Vorgabe: aus; Startstellung des
+Leisten-Knopfs „◆ Nur Hauptmeilensteine", siehe Interaktion) · auf zugeklappten
+Gruppen anzeigen · Datum am Meilenstein ·
 Name am Meilenstein · *Beschriftung auf zugeklappten Zeilen* (Nur Datum /
 Nur Name / Name und Datum). Auf zugeklappten Zeilen werden überlappende
 Beschriftungen ausgelassen, damit bei vielen Meilensteinen je Projekt die
 verbleibenden lesbar bleiben.
+
+**Zeiteinheiten** — welche Zoomstufen die Leiste anbietet: Tage, Wochen, Monate,
+Quartale, Jahre einzeln ein-/ausblenden (Vorgabe: alle an). Die zuletzt aktive Stufe
+bleibt erhalten, auch wenn ihr Knopf ausgeblendet wird; sind *alle* fünf aus, zeigt
+die Leiste trotzdem alle fünf (eine leere Leiste wäre eine Sackgasse). Welche Stufe
+beim Öffnen gilt, steuert weiterhin „Standard-Zeiteinheit" in der Karte Darstellung.
+
+**Tooltip** — *Tooltip anzeigen* schaltet den Hover-Tooltip ganz ab. Darunter sind
+seine Zeilen einzeln schaltbar: Zeitraum, Plan (Basisplan), Abweichung, Dauer, Status,
+Fortschritt, Wer, Hängt ab von (Vorgabe: alle an). Der Name des Vorgangs steht immer
+oben; Plan und Abweichung erscheinen ohnehin nur bei gebundenen Basisplandaten.
 
 **Basisplan (Plan vs. Ist)** — eigene Karte, alle drei einzeln schaltbar:
 Plan-Balken anzeigen (Ist gefüllt, Plan als Outline darunter — IBCS-Szenario-Notation;
@@ -129,9 +164,13 @@ npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Tes
 Browser-Testharness: `test/harness.html` (Demo-Daten = Sample „BI-Rollout 2026" inkl.
 Basisplan mit Verzügen; URL-Parameter: `?dark=1`, `?ibcs=1`, `?tw=430`, `?deps=0`,
 `?wochenenden=0`, `?heute=0`, `?plan=0`, `?delta=0`, `?verzug=0`,
-`?msnamen=0`, `?mslabel=nurName|beides`, `?gnamen=0`).
+`?msnamen=0`, `?mslabel=nurName|beides`, `?gnamen=0`, `?kopf=0`, `?tooltip=0`,
+`?tipzeilen=dauer,wer`, `?zeinheiten=Tage,Monate`, `?nurhaupt=1`).
+**`?nurhaupt=1`** startet mit aktivem Hauptmeilenstein-Filter; die Samples
+markieren dafür einzelne Meilensteine mit `haupt: true`.
 **`?ebenen=1`** lädt das mehrstufige Sample (Projekt MAR-S005, vier Ebenen,
-ungleich tiefe Zweige, gleichnamige Vorgänge, Sammelvorgangs-Zeile);
-`?proj=1` das Portfolio-Sample mit zwei Projekten.
+ungleich tiefe Zweige, gleichnamige Vorgänge und **zwei** Sammelvorgangs-Zeilen:
+„Artenschutzgutachten …" mit Vorgängen und „Inbetriebnahme" mit Meilensteinen
+als Kindern); `?proj=1` das Portfolio-Sample mit zwei Projekten.
 Zum Testen in Power BI Desktop: `dist/dataKitchenGantt….pbiviz` importieren,
 z. B. im `PBI-IBCS-Testbed`.

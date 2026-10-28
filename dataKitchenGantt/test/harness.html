@@ -23,13 +23,17 @@
     const TASKS = [
       { key: 'Anforderungen', name: 'Anforderungen', phase: 'Konzept', s: u(2026, 1, 5), e: u(2026, 1, 16), pct: 100, st: 'Fertig', ow: 'Lena', deps: [], ps: u(2026, 1, 5), pe: u(2026, 1, 16) },
       { key: 'Lastenheft', name: 'Lastenheft', phase: 'Konzept', s: u(2026, 1, 19), e: u(2026, 1, 30), pct: 100, st: 'Fertig', ow: 'Lena', deps: ['Anforderungen'], ps: u(2026, 1, 19), pe: u(2026, 2, 2) },
-      { key: 'Freigabe Konzept', name: 'Freigabe Konzept', phase: 'Konzept', s: u(2026, 2, 2), e: null, pct: null, st: null, ow: 'Lena', deps: ['Lastenheft'], ps: u(2026, 2, 2), pe: null },
+      { key: 'Freigabe Konzept', name: 'Freigabe Konzept', phase: 'Konzept', s: u(2026, 2, 2), e: null, pct: null, st: null, ow: 'Lena', deps: ['Lastenheft'], ps: u(2026, 2, 2), pe: null, haupt: true },
       { key: 'Datenmodell', name: 'Datenmodell', phase: 'Umsetzung', s: u(2026, 2, 3), e: u(2026, 2, 20), pct: 80, st: 'In Arbeit', ow: 'Mika', deps: ['Freigabe Konzept'], ps: u(2026, 2, 3), pe: u(2026, 2, 16) },
       { key: 'Deneb-Visuals', name: 'Deneb-Visuals', phase: 'Umsetzung', s: u(2026, 2, 16), e: u(2026, 3, 13), pct: 45, st: 'In Arbeit', ow: 'Mika', deps: ['Datenmodell'], ps: u(2026, 2, 12), pe: u(2026, 3, 6) },
       { key: 'Datenanbindung', name: 'Datenanbindung', phase: 'Umsetzung', s: u(2026, 2, 23), e: u(2026, 3, 20), pct: 30, st: 'Blockiert', ow: 'Sara', deps: ['Datenmodell'], ps: u(2026, 2, 16), pe: u(2026, 3, 13) },
       { key: 'Test & QA', name: 'Test & QA', phase: 'Rollout', s: u(2026, 3, 23), e: u(2026, 4, 10), pct: 0, st: 'Offen', ow: 'Sara', deps: ['Deneb-Visuals', 'Datenanbindung'], ps: u(2026, 3, 23), pe: u(2026, 4, 10) },
       { key: 'Schulung', name: 'Schulung', phase: 'Rollout', s: u(2026, 4, 13), e: u(2026, 4, 24), pct: 0, st: 'Offen', ow: 'Lena', deps: ['Test & QA'] },
-      { key: 'Go-Live', name: 'Go-Live', phase: 'Rollout', s: u(2026, 4, 27), e: null, pct: null, st: null, ow: 'Team', deps: ['Schulung'], ps: u(2026, 4, 20), pe: null }
+      { key: 'Go-Live', name: 'Go-Live', phase: 'Rollout', s: u(2026, 4, 27), e: null, pct: null, st: null, ow: 'Team', deps: ['Schulung'], ps: u(2026, 4, 20), pe: null, haupt: true },
+      // haupt = Rolle "Hauptmeilenstein (Ja/Nein)". BEWUSST als letzte Zeile mit
+      // mittlerem Datum: belegt, dass ?nurhaupt=1 chronologisch sortiert und
+      // nicht in Datenreihenfolge.
+      { key: 'Zwischenabnahme', name: 'Zwischenabnahme', phase: 'Umsetzung', s: u(2026, 3, 16), e: null, pct: null, st: null, ow: 'Mika', deps: ['Deneb-Visuals'], haupt: true }
     ];
 
     const log = document.getElementById('log');
@@ -37,6 +41,14 @@
     const r = new GanttRenderer(document.getElementById('stage'));
 
     const params = new URLSearchParams(location.search);
+    // ?tipzeilen=dauer,wer bzw. ?zeinheiten=Tage,Monate → nur die genannten an.
+    // Ohne den Parameter bleibt alles an (wie die Vorgaben im Formatbereich).
+    const auswahl = (param, keys) => {
+      const roh = params.get(param);
+      if (roh === null) return undefined;
+      const an = new Set(roh.split(',').map(x => x.trim().toLowerCase()).filter(x => x));
+      return Object.fromEntries(keys.map(k => [k, an.has(k)]));
+    };
     const opts = () => ({
       dark: params.get('dark') === '1',
       ibcs: params.get('ibcs') === '1',
@@ -45,6 +57,10 @@
       heuteLinie: params.get('heute') !== '0',
       tabellenBreite: params.has('tw') ? Number(params.get('tw')) : 620,
       gruppenNamen: params.get('gnamen') !== '0',
+      kopfzeile: params.get('kopf') !== '0',
+      tooltip: params.get('tooltip') !== '0',
+      tipZeilen: auswahl('tipzeilen', ['zeitraum', 'plan', 'abweichung', 'dauer', 'status', 'fortschritt', 'wer', 'abhaengigkeiten']),
+      zeiteinheiten: auswahl('zeinheiten', ['tage', 'wochen', 'monate', 'quartale', 'jahre']),
       basisplan: params.get('plan') !== '0',
       deltaSpalte: params.get('delta') !== '0',
       verzugZeilen: params.get('verzug') !== '0',
@@ -56,6 +72,7 @@
       msNamen: params.get('msnamen') !== '0',
       msBeschriftung: params.get('mslabel') || 'nurDatum',
       msEndeGleichStart: params.get('msgleich') === '1',
+      nurHaupt: params.get('nurhaupt') === '1',
       selectedKeys: selected.size ? new Set(selected) : null,
       interactionsAllowed: true,
       onSelect: (task, ev) => {
@@ -74,26 +91,35 @@
     // path[] = Rolle "Ebenen" (Ebene 1..3). Absichtlich ungleich tief: "Netzanschluss"
     // und "Kabeltrasse" enden auf Ebene 2, der PV-Zweig geht bis Ebene 4.
     // "Gutachten" kommt zweimal mit gleichem Namen in verschiedenen Zweigen vor.
+    // Zwei Sammelvorgänge: "Artenschutzgutachten …" (nur Vorgänge als Kinder) und
+    // "Inbetriebnahme" (auch Meilensteine als Kinder).
     const E1 = 'Vor- und Entwurfsplanung erstellen (P 2/3)';
     const HIER = [
       { name: 'Antrag auf Luftbildauswertung erstellen und einreichen', path: [E1, 'Kampfmittelfreiheit'], s: u(2026, 1, 7), e: u(2026, 1, 23), pct: 100, st: 'Fertig', ow: 'Behle', deps: [] },
       { name: 'Luftbildauswertung durchführen u. Bescheid erteilen (durch Behörde)', path: [E1, 'Kampfmittelfreiheit'], s: u(2026, 1, 26), e: u(2026, 3, 6), pct: 60, st: 'In Arbeit', ow: 'Behörde', deps: ['Antrag auf Luftbildauswertung erstellen und einreichen'] },
-      { name: 'Kampfmittelfreiheit liegt vor', path: [E1, 'Kampfmittelfreiheit'], s: u(2026, 3, 9), e: null, pct: null, st: null, ow: '', deps: [] },
+      { name: 'Kampfmittelfreiheit liegt vor', path: [E1, 'Kampfmittelfreiheit'], s: u(2026, 3, 9), e: null, pct: null, st: null, ow: '', deps: [], haupt: true },
       { name: 'Gutachten', path: [E1, 'Kampfmittelfreiheit'], s: u(2026, 2, 2), e: u(2026, 2, 13), pct: 100, st: 'Fertig', ow: 'Behle', deps: [] },
       { name: 'Artenschutzgutachten beauftragen und durchführen', path: [E1, 'PV-Anlage', 'Artenschutzgutachten beauftragen und durchführen'], s: u(2026, 2, 9), e: u(2026, 4, 3), pct: 40, st: 'In Arbeit', ow: 'Külpmann', deps: [], ps: u(2026, 2, 9), pe: u(2026, 3, 20) },
       { name: 'Erstellung Bauantragsunterlagen', path: [E1, 'PV-Anlage', 'Artenschutzgutachten beauftragen und durchführen'], s: u(2026, 3, 2), e: u(2026, 3, 27), pct: 55, st: 'In Arbeit', ow: 'Külpmann', deps: [] },
       { name: 'Einreichung Bauantragsunterlagen', path: [E1, 'PV-Anlage', 'Artenschutzgutachten beauftragen und durchführen'], s: u(2026, 3, 30), e: u(2026, 4, 10), pct: 0, st: 'Offen', ow: 'Külpmann', deps: ['Erstellung Bauantragsunterlagen'] },
       { name: 'Gutachten', path: [E1, 'PV-Anlage'], s: u(2026, 4, 13), e: u(2026, 4, 24), pct: 0, st: 'Offen', ow: 'Külpmann', deps: [] },
       { name: 'Netzanschluss beantragen', path: [E1, 'Netzanschluss'], s: u(2026, 2, 16), e: u(2026, 3, 13), pct: 20, st: 'Blockiert', ow: 'Westnetz', deps: [], ps: u(2026, 2, 16), pe: u(2026, 3, 6) },
-      { name: 'Netzverträglichkeitsprüfung liegt vor', path: [E1, 'Netzanschluss'], s: u(2026, 4, 20), e: null, pct: null, st: null, ow: '', deps: [] },
+      { name: 'Netzverträglichkeitsprüfung liegt vor', path: [E1, 'Netzanschluss'], s: u(2026, 4, 20), e: null, pct: null, st: null, ow: '', deps: [], haupt: true },
       { name: 'Kabeltrasse planen', path: [E1, 'Kabeltrasse'], s: u(2026, 3, 16), e: u(2026, 4, 17), pct: 10, st: 'Offen', ow: 'Külpmann', deps: [] },
+      // Zweiter Sammelvorgang, diesmal mit MEILENSTEINEN als Kindern: "Inbetriebnahme"
+      // trägt eine eigene Zeile gleichen Namens (MS-Project-Export). Erwartet wird
+      // EINE Gruppenzeile mit EINEM Balken, darunter die beiden Meilenstein-Zeilen —
+      // und keine zweite, namensgleiche Vorgangszeile.
+      { name: 'Inbetriebnahme', path: [E1, 'PV-Anlage', 'Inbetriebnahme'], s: u(2026, 4, 27), e: u(2026, 6, 5), pct: 0, st: 'Offen', ow: 'Külpmann', deps: [] },
+      { name: 'Zählersetzung beantragt', path: [E1, 'PV-Anlage', 'Inbetriebnahme'], s: u(2026, 5, 4), e: null, pct: null, st: null, ow: 'Westnetz', deps: [] },
+      { name: 'Inbetriebnahme erfolgt', path: [E1, 'PV-Anlage', 'Inbetriebnahme'], s: u(2026, 6, 5), e: null, pct: null, st: null, ow: 'Team', deps: [], haupt: true },
       // ohne jede Ebene → hängt direkt unter dem Projekt (ungleich tiefe Zweige)
-      { name: 'Projektabschluss', path: [], s: u(2026, 5, 15), e: null, pct: null, st: null, ow: 'Team', deps: [] }
+      { name: 'Projektabschluss', path: [], s: u(2026, 5, 15), e: null, pct: null, st: null, ow: 'Team', deps: [], haupt: true }
     ].map(t => ({
       ...t, projekt: 'MAR-S005',
       key: 'MAR-S005¦' + (t.path.length ? t.path.join('¦') + '¦' : '') + t.name,
       phase: t.path.length ? t.path[0] : null,
-      color: null, ps: t.ps ?? null, pe: t.pe ?? null
+      color: null, ps: t.ps ?? null, pe: t.pe ?? null, haupt: t.haupt === true
     }));
 
     // ?proj=1 → Portfolio-Modus: Sample als zwei Projekte (zweites um 120 Tage versetzt)
