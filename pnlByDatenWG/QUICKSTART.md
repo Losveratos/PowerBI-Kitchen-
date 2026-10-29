@@ -23,7 +23,7 @@ einer Datei importieren**. Das Visual großzügig aufziehen (mind. ~1200×800 px
 Toolbar und zwei Spaltenblöcke brauchen Breite).
 
 **Start-Hub (1.3):** Frisch auf die Seite gezogen, zeigt das Visual im
-Bearbeitungsmodus vier große Knöpfe: **Was kann das Visual?** (sieben Karten mit
+Bearbeitungsmodus vier große Knöpfe: **Was kann das Visual?** (acht Karten mit
 echten Mini-Renderings), **Templates** (Galerie mit Vorschau — ein Klick wendet
 das Template an; ohne Felder wird die Wahl gespeichert und greift beim Binden),
 **Demo ansehen** und **Felder erklären**. Esc geht zurück, die Ziffern 1–4 öffnen
