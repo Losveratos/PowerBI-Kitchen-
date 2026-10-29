@@ -1,0 +1,212 @@
+dienststelle,code,lat,lon,notiz,genauigkeit
+K-04,7018,50.95593,6.96900,Kreuzung Riehler Str./Elsa-Brändström-Str. (OSM-Knoten); Geocoder lag 750 m daneben,manuell
+K-04,7019,50.95593,6.96900,Kreuzung Riehler Str./Elsa-Brändström-Str. (OSM-Knoten); Geocoder lag 750 m daneben,manuell
+K-04,7020,50.95588,6.96887,"Kreuzung Amsterdamer Str./Riehler Str. (OSM-Knoten); Geocoder lag 2,5 km daneben",manuell
+K-04,7021,50.95575,6.96901,Kreuzung Elsa-Brändström-Str./Riehler Str. (OSM-Knoten),manuell
+K-04,7022,50.96953,6.97849,Kreuzung Boltensternstr./Barbarastr. (OSM-Knoten); Geocoder lag 540 m daneben,manuell
+K-04,7043,50.97788,6.85100,"Venloer Str. (B 59) über der A 1, Anschlussstelle Köln-Bocklemünd (OSM); Geocoder lag 1 km daneben",manuell
+K-04,7044,50.97788,6.85100,"Venloer Str. (B 59) über der A 1, Anschlussstelle Köln-Bocklemünd (OSM); Geocoder lag 1 km daneben",manuell
+K-04,7045,50.97788,6.85100,"Venloer Str. (B 59) über der A 1, Anschlussstelle Köln-Bocklemünd (OSM); Geocoder lag 1 km daneben",manuell
+K-04,7046,50.96953,6.97849,Kreuzung Boltensternstr./Barbarastr. (OSM-Knoten); Geocoder lag 540 m daneben,manuell
+K-04,7047,50.98968,6.99868,"Düsseldorfer Str. 491, gegenüber (OSM-Adresse = Geocoder)",manuell
+K-04,7048,50.98968,6.99868,Düsseldorfer Str. 491 (OSM-Adresse = Geocoder),manuell
+K-04,7049,50.98899,6.99902,Stammheimer Ring 17 (OSM-Adresse = Geocoder),manuell
+K-04,7050,50.98933,7.00011,"Dünnwalder Kommunalweg 6, gegenüber (OSM-Adresse; „Dünnw.“ in der Quelle abgekürzt)",manuell
+S-01,0002,50.94751,7.00667,"B 55a an der Auffahrt Waldecker Str., Richtung Zoobrücke (OSM-Kreuzungspunkt B 55a/Waldecker Str.)",manuell
+S-01,0005,50.95925,6.96350,"Innere Kanalstr. Höhe Lentstr. (Standortlisten: „Höhe Lentstraße, Richtung Zoobrücke“; Laternen 176/177), Spur Richtung Niehler Str.",manuell
+S-01,0006,50.95621,6.95246,"Innere Kanalstr. vor dem Finanzamt Köln-Nord (Innere Kanalstr. 214, OSM), Richtung Ehrenfeld",manuell
+S-01,0007,50.95401,6.94494,"Innere Kanalstr. zwischen Escher Str. und Hornstr. (OSM-Knoten, Mitte, ±250 m), Richtung Süden",manuell
+S-01,0008,50.95401,6.94494,"Innere Kanalstr. zwischen Hornstr. und Escher Str. (OSM-Knoten, Mitte, ±250 m), Richtung Zoobrücke",manuell
+S-01,0009,50.95621,6.95246,"Innere Kanalstr. vor dem Finanzamt Köln-Nord (Innere Kanalstr. 214, OSM), Richtung Zoobrücke",manuell
+S-01,0010,50.95925,6.96350,"Innere Kanalstr. Höhe Lentstr. (Standortlisten: „Höhe Lentstraße, Richtung Zoobrücke“; Laternen 176/177)",manuell
+S-01,0011,50.93072,6.96789,"Severinsbrücke, Brückenmitte (OSM); genaue Stelle auf der Brücke unbekannt (±400 m)",strasse
+S-01,0015,50.94885,7.01915,"B 55a zwischen Ab- und Auffahrt Frankfurter Str., Richtung Köln-Ost/Olpe (Pressemitteilung Stadt Köln 14.08.2025; OSM-Kreuzungspunkt)",manuell
+S-01,0016,50.93691,6.92623,"Aachener Str. gegenüber Nr. 130 am Aachener Weiher (OSM-Adresse = Geocoder), stadtauswärts",manuell
+S-01,0017,50.93691,6.92623,"Aachener Str. am Aachener Weiher, stadteinwärts — Gegenrichtung zu 0016; Geocoder lag 4,6 km daneben",manuell
+S-01,0023,51.02230,6.90136,"Willi-Suth-Allee, Straßenmitte (OSM, ±400 m); Geocoder nur Stadtteil",strasse
+S-01,0024,51.02230,6.90136,"Willi-Suth-Allee, Straßenmitte (OSM, ±400 m); Geocoder nur Stadtteil",strasse
+S-01,0025,50.96759,6.98049,"Boltensternstr. an der Pforte der Sozial-Betriebe-Köln (Boltensternstr. 16, OSM)",manuell
+S-01,0026,50.96759,6.98049,"Boltensternstr. an der Pforte der Sozial-Betriebe-Köln (Boltensternstr. 16, OSM)",manuell
+S-01,0027,50.96379,6.93604,Escher Str. 154 (OSM-Adresse = Geocoder),manuell
+S-01,0028,50.96300,6.93662,Escher Str. gegenüber Nr. 146 (OSM-Adresse = Geocoder),manuell
+S-01,0029,50.96757,7.03518,"Kreuzung Bergisch Gladbacher Str./Steyler Str. (OSM-Knoten; Querstraße steht in der Spalte Richtung); Geocoder lag 1,2 km daneben",manuell
+S-01,0030,50.85824,6.97466,Kreuzung Godorfer Hauptstr./Otto-Hahn-Str. (OSM-Knoten; Querstraße steht in der Spalte Richtung),manuell
+S-01,0031,50.96940,7.05502,Neufelder Str. an der Haltestelle „Krankenhaus Holweide“ (OSM),manuell
+S-01,0032,50.94107,6.88061,"Wendelinstr. an der Gemeinschaftsgrundschule Müngersdorf (Wendelinstr. 64, OSM)",manuell
+S-01,0033,50.93873,7.06169,Europaring 7 (OSM-Adresse = Geocoder),manuell
+S-01,0034,50.89584,6.92760,Kreuzung Militärringstr./Am Eifeltor (OSM-Knoten); Geocoder nur Stadtteil,manuell
+S-01,0035,50.90405,6.95020,"Raderthalgürtel an der Europaschule (Gesamtschule, OSM; Standortlisten: „an der Gesamtschule“)",manuell
+S-01,0036,50.98258,7.03294,"Honschaftsstr. an der Kath. Grundschule (Honschaftsstr. 312, OSM)",manuell
+S-01,0037,50.96926,6.93241,Schiefersburger Weg gegenüber Nr. 40 (OSM-Adresse = Geocoder),manuell
+S-01,0038,50.95563,6.88119,"Vogelsanger Str. in Vogelsang auf Höhe der Schulen (Kardinal-Frings-Schule, OSM; ±200 m); Geocoder nur Stadtteil",manuell
+S-01,0039,50.94957,7.07893,"Brücker Mauspfad unter der Autobahnbrücke A 3/A 4 (OSM-Kreuzungspunkt); Geocoder lag 1,6 km daneben",manuell
+S-01,0040,50.96926,6.93241,Schiefersburger Weg gegenüber Nr. 40 (OSM-Adresse = Geocoder),manuell
+S-01,0041,50.98404,7.08236,Paffrather Str. 34 (OSM-Adresse = Geocoder),manuell
+S-01,0042,50.98404,7.08236,Paffrather Str. 34 (OSM-Adresse = Geocoder),manuell
+S-01,0051,50.92835,6.91762,Bachemer Str. 82 (OSM-Adresse = Geocoder),manuell
+S-01,0052,50.97594,7.07320,Dellbrücker Hauptstr. 95 (OSM-Adresse = Geocoder),manuell
+S-01,0053,50.97594,7.07320,Dellbrücker Hauptstr. 95 (OSM-Adresse = Geocoder),manuell
+S-01,0054,50.98207,6.89548,"Butzweilerhofallee 53 (Geocoder-Adresstreffer; OSM kennt die Hausnummer nicht, Lage auf der Straße geprüft)",manuell
+S-01,0055,50.98207,6.89548,"Butzweilerhofallee 53 (Geocoder-Adresstreffer; OSM kennt die Hausnummer nicht, Lage auf der Straße geprüft)",manuell
+S-01,0060,50.94372,6.94076,"Kaiser-Wilhelm-Ring zwischen Nr. 17 und 21 (OSM-Adressen, Mitte)",manuell
+S-01,0061,50.94372,6.94076,"Kaiser-Wilhelm-Ring zwischen Nr. 17 und 21 (OSM-Adressen, Mitte)",manuell
+S-01,0062,50.94788,6.95005,Hansaring 52 (OSM-Adresse = Geocoder),manuell
+S-01,0063,50.95061,6.98257,Auenweg 173 (OSM-Adresse = Geocoder),manuell
+S-01,0064,50.95061,6.98257,Auenweg 173 (OSM-Adresse = Geocoder),manuell
+S-01,0095,50.89155,6.92483,"A 4 an der Anschlussstelle Köln-Eifeltor (11b), Mitte zwischen den OSM-Anschlussknoten; Geocoder lag 1 km daneben",manuell
+S-01,0096,50.89155,6.92483,"A 4 an der Anschlussstelle Köln-Eifeltor (11b), Mitte zwischen den OSM-Anschlussknoten; Geocoder lag 1 km daneben",manuell
+S-02,0103,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1200 m) → weggelassen,
+S-02,0109,50.919773,6.927770,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 179,hausnummer
+S-02,0130,50.896434,7.041959,OSM-Abgleich: Geocoder-Punkt 584 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 59,hausnummer
+S-02,0150,50.976489,7.061029,OSM-Abgleich: Geocoder-Punkt 183 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 837–791,hausnummer
+S-02,0216,50.922449,6.987533,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±410 m),strasse
+S-02,0220,50.974333,6.956993,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±330 m),strasse
+S-02,0223,50.982580,7.032937,OSM-Abgleich: Geocoder-Punkt 80 m neben der Straße; ersetzt durch OSM-Adresse Nr. 312,hausnummer
+S-02,0230,50.907673,6.912843,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 488,hausnummer
+S-02,0231,50.907673,6.912843,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 488,hausnummer
+S-02,0266,50.857017,6.923607,OSM-Abgleich: Geocoder-Punkt 255 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 509–441,hausnummer
+S-02,0303,50.863331,7.036660,"OSM-Abgleich: Geocoder-Punkt lag in Rodenkirchen, nicht in Zündorf; ersetzt durch OSM-Adresse Nr. 41",hausnummer
+S-02,0320,50.869209,6.955621,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 97–95,hausnummer
+S-02,0333,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1260 m) → weggelassen,
+S-02,0373,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1260 m) → weggelassen,
+S-02,0422,50.965712,7.026154,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±740 m),strasse
+S-02,0425,50.887813,7.070628,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±650 m),strasse
+S-02,0426,50.887813,7.070628,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±650 m),strasse
+S-02,0433,50.846329,7.094746,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,0434,50.846329,7.094746,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,0443,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1180 m) → weggelassen,
+S-02,0449,50.873828,7.019393,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 60–68,hausnummer
+S-02,0453,50.896919,7.063394,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±540 m),strasse
+S-02,0454,50.896919,7.063394,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±540 m),strasse
+S-02,0460,50.929316,7.027367,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Kreuzung mit Hövilandweg,hausnummer
+S-02,0507,50.962850,7.012227,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±690 m),strasse
+S-02,0529,50.856301,7.101310,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 30–78,hausnummer
+S-02,0533,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1050 m) → weggelassen,
+S-02,0534,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1050 m) → weggelassen,
+S-02,0541,50.950816,7.001292,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,0542,50.950816,7.001292,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,0543,50.955745,6.943955,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 17–15,hausnummer
+S-02,0545,50.887691,7.057984,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 38,hausnummer
+S-02,0548,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1470 m) → weggelassen,
+S-02,0556,50.943736,7.026579,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±910 m),strasse
+S-02,0559,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1330 m) → weggelassen,
+S-02,0560,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1330 m) → weggelassen,
+S-02,0576,50.949829,6.962231,OSM-Abgleich: Geocoder-Punkt 158 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 12–52,hausnummer
+S-02,0583,50.910353,6.921415,OSM-Abgleich: Geocoder-Punkt 174 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 308–346,hausnummer
+S-02,0602,50.916224,6.965655,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 127,hausnummer
+S-02,0632,50.924357,6.952089,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±450 m),strasse
+S-02,0691,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1180 m) → weggelassen,
+S-02,0775,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1170 m) → weggelassen,
+S-02,0957,50.852793,7.101722,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,0958,50.852793,7.101722,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,0978,50.922723,6.947767,OSM-Abgleich: Geocoder-Punkt 191 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 42–66,hausnummer
+S-02,0979,50.922704,6.947938,OSM-Abgleich: Geocoder-Punkt 180 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 64–42,hausnummer
+S-02,0999,50.928813,6.994559,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 8–6,hausnummer
+S-02,1000,50.928584,6.994302,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 8–12,hausnummer
+S-02,1108,50.925588,7.083169,OSM-Abgleich: Geocoder-Punkt 212 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 44a–134,hausnummer
+S-02,1151,50.899534,7.023162,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 27–33,hausnummer
+S-02,1152,50.899690,7.023363,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 33–21,hausnummer
+S-02,1216,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1220 m) → weggelassen,
+S-02,1225,50.873590,7.025692,OSM-Abgleich: Geocoder-Punkt 262 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 54–6,hausnummer
+S-02,1226,50.873590,7.025692,OSM-Abgleich: Geocoder-Punkt 176 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 6–54,hausnummer
+S-02,1241,50.962452,6.840215,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 119–123,hausnummer
+S-02,1250,50.939459,6.922324,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±300 m),strasse
+S-02,1268,50.961626,7.011569,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 63,hausnummer
+S-02,1287,50.936440,6.921059,OSM-Abgleich: Geocoder-Punkt 200 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 259–75,hausnummer
+S-02,1305,50.934575,6.963042,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±170 m),strasse
+S-02,1310,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1030 m) → weggelassen,
+S-02,1314,50.947732,7.088444,OSM-Abgleich: Geocoder-Punkt 159 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 1071–959,hausnummer
+S-02,1315,50.947670,7.088087,OSM-Abgleich: Geocoder-Punkt 187 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 955–1071,hausnummer
+S-02,1317,51.032927,6.921200,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 4–6,hausnummer
+S-02,1322,50.920373,7.096069,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 751–749,hausnummer
+S-02,1323,50.920384,7.095901,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 749,hausnummer
+S-02,1382,50.916566,6.970366,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Kreuzung mit Südbrücke,hausnummer
+S-02,1408,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1430 m) → weggelassen,
+S-02,1409,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1430 m) → weggelassen,
+S-02,1475,50.915815,7.080931,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 67,hausnummer
+S-02,1476,50.915681,7.080992,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 67–63,hausnummer
+S-02,1502,50.997340,6.878117,OSM-Abgleich: Geocoder-Punkt 488 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 13–17,hausnummer
+S-02,1565,50.943874,7.053354,OSM-Abgleich: Geocoder-Punkt 188 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 491–455,hausnummer
+S-02,1578,50.988219,6.909811,OSM-Abgleich: Geocoder-Punkt 163 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 62–78,hausnummer
+S-02,1624,50.926017,6.944645,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±210 m),strasse
+S-02,1635,50.945864,6.940221,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 32–14,hausnummer
+S-02,1648,50.937772,6.953276,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 3,hausnummer
+S-02,1653,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1220 m) → weggelassen,
+S-02,1664,50.923842,6.931576,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 16,hausnummer
+S-02,1679,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1540 m) → weggelassen,
+S-02,1718,50.966916,6.835309,"OSM-Abgleich: Geocoder-Punkt lag in Rodenkirchen, nicht in Widdersdorf; ersetzt durch OSM-Adresse Nr. 55",hausnummer
+S-02,1730,50.948386,6.990187,OSM-Abgleich: Geocoder-Punkt 106 m neben der Straße; ersetzt durch OSM-Adresse Nr. 100–102,hausnummer
+S-02,1731,50.916566,6.970366,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Kreuzung mit Südbrücke,hausnummer
+S-02,1786,50.937772,6.953276,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 3,hausnummer
+S-02,1795,50.936509,6.969888,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±140 m),strasse
+S-02,1812,50.925318,6.857295,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±650 m),strasse
+S-02,1817,50.925318,6.857295,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±650 m),strasse
+S-02,1841,50.925697,7.067956,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 390,hausnummer
+S-02,1844,50.925601,6.868927,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±550 m),strasse
+S-02,1877,51.014363,6.890341,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 4,hausnummer
+S-02,1878,51.014363,6.890341,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 4,hausnummer
+S-02,1916,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1540 m) → weggelassen,
+S-02,1917,50.981542,7.082345,OSM-Abgleich: Geocoder-Punkt 152 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 1202–1146,hausnummer
+S-02,1940,50.877388,6.995215,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±830 m),strasse
+S-02,1950,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1140 m) → weggelassen,
+S-02,1966,50.926169,7.084081,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 119–113c,hausnummer
+S-02,1976,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1170 m) → weggelassen,
+S-02,1979,50.921573,6.964766,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 42–50,hausnummer
+S-02,1996,50.934156,7.010092,OSM-Abgleich: Geocoder-Punkt 183 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 91–65,hausnummer
+S-02,1999,50.934516,7.010193,OSM-Abgleich: Geocoder-Punkt 190 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 65–91,hausnummer
+S-02,2000,50.962850,7.012227,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±690 m),strasse
+S-02,2012,50.901612,6.969753,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 38–28,hausnummer
+S-02,2037,50.927525,6.999382,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 216,hausnummer
+S-02,2041,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1250 m) → weggelassen,
+S-02,2068,50.925907,7.085942,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 128–134,hausnummer
+S-02,2084,50.935196,6.957982,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±160 m),strasse
+S-02,2091,50.954386,7.004056,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±140 m),strasse
+S-02,2120,50.929585,7.051889,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 129,hausnummer
+S-02,2127,50.929585,7.051889,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 129,hausnummer
+S-02,2157,,,OSM-Abgleich: Geocoder fand nur die Straße; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1200 m) → weggelassen,
+S-02,2158,50.920394,6.891318,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Kreuzung mit Bachemer Landstraße,hausnummer
+S-02,2163,50.920394,6.891318,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Kreuzung mit Bachemer Landstraße,hausnummer
+S-02,2175,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1150 m) → weggelassen,
+S-02,2193,50.939763,6.939840,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±380 m),strasse
+S-02,2209,50.866856,7.004893,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 34,hausnummer
+S-02,2223,50.965755,6.979976,OSM-Abgleich: Geocoder-Punkt 176 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 95–25,hausnummer
+S-02,2228,51.064351,6.851833,OSM-Abgleich: Geocoder-Punkt 204 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 167–103,hausnummer
+S-02,2230,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1910 m) → weggelassen,
+S-02,2233,51.064451,6.853218,OSM-Abgleich: Geocoder-Punkt 302 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 77–167,hausnummer
+S-02,2234,50.952143,6.951952,OSM-Abgleich: Geocoder-Punkt 171 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 16–74,hausnummer
+S-02,2236,50.971077,6.920049,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±270 m),strasse
+S-02,2239,50.952143,6.951952,OSM-Abgleich: Geocoder-Punkt 171 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 74–16,hausnummer
+S-02,2274,50.954386,7.004056,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±140 m),strasse
+S-02,2302,50.951157,6.894548,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±800 m),strasse
+S-02,2307,50.951157,6.894548,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±800 m),strasse
+S-02,2313,50.980460,6.918656,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±960 m),strasse
+S-02,2314,50.980460,6.918656,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±960 m),strasse
+S-02,2339,50.926673,7.065224,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 343–303,hausnummer
+S-02,2340,50.926673,7.065224,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 303–343,hausnummer
+S-02,2343,50.915415,6.981046,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,2344,50.915415,6.981046,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,2353,50.949748,7.046468,OSM-Abgleich: Geocoder-Punkt 186 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 2–66,hausnummer
+S-02,2367,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±2000 m) → weggelassen,
+S-02,2378,50.944012,6.931672,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,2381,50.927525,6.999382,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 216,hausnummer
+S-02,2418,50.983620,7.068004,OSM-Abgleich: Geocoder-Punkt 178 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 3–35,hausnummer
+S-02,2424,50.915415,6.981046,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,2425,50.915415,6.981046,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,2427,50.983620,7.068004,OSM-Abgleich: Geocoder-Punkt 178 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 35–3,hausnummer
+S-02,2433,50.915415,6.981046,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,2434,50.915415,6.981046,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±850 m),strasse
+S-02,2436,50.917426,7.074689,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 49–37,hausnummer
+S-02,2452,50.971064,7.032138,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,2453,50.971064,7.032138,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±560 m),strasse
+S-02,2467,50.923234,6.974861,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±660 m),strasse
+S-02,2468,50.923234,6.974861,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Straßenmitte im Stadtteil (±660 m),strasse
+S-02,2483,50.892227,6.986001,OSM-Abgleich: Geocoder fand nur die Straße; ersetzt durch OSM-Adresse Nr. 15–49,hausnummer
+S-02,2497,50.850261,7.091904,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 90–70,hausnummer
+S-02,2498,50.850261,7.091904,OSM-Abgleich: Geocoder fand nur den Stadtteil; ersetzt durch OSM-Adresse Nr. 70–90,hausnummer
+S-02,2518,50.969655,7.049092,OSM-Abgleich: Geocoder-Punkt 214 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 12–100,hausnummer
+S-02,2519,50.969655,7.049092,OSM-Abgleich: Geocoder-Punkt 213 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 100–12,hausnummer
+S-02,2523,50.968379,6.841994,"OSM-Abgleich: Geocoder-Punkt lag in Zündorf, nicht in Widdersdorf; ersetzt durch OSM-Adresse Nr. 117",hausnummer
+S-02,2527,50.948588,6.884481,OSM-Abgleich: Geocoder-Punkt 205 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 22b,hausnummer
+S-02,2531,50.894622,6.987615,OSM-Abgleich: Geocoder-Punkt 236 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 19–47,hausnummer
+S-02,2535,,,OSM-Abgleich: Geocoder fand nur den Stadtteil; Straße im Stadtteil zu lang für einen verlässlichen Punkt (±1010 m) → weggelassen,
+S-02,2539,50.940658,7.001120,OSM-Abgleich: Geocoder-Punkt 301 m von der OSM-Adresse entfernt; ersetzt durch OSM-Adresse Nr. 2–150,hausnummer

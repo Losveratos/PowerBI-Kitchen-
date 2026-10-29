@@ -1,0 +1,485 @@
+{
+  "version": 2,
+  "name": "mockup delta · Varianten",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-mk_col1",
+      "op": "move",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "x": 16,
+      "y": 72,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_col1",
+      "op": "resize",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "width": 508,
+      "height": 296,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_col1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_col1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimProduct.Category"
+      ]
+    },
+    {
+      "id": "clear-mk_col1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_col1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Umsatz"
+      ]
+    },
+    {
+      "id": "clear-mk_col1-3",
+      "op": "bind",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Rows"
+      ]
+    },
+    {
+      "id": "bind-mk_col1-3",
+      "op": "bind",
+      "select": "Varianten.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Rows:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "move-mk_bar1",
+      "op": "move",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "x": 540,
+      "y": 72,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_bar1",
+      "op": "resize",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "width": 508,
+      "height": 296,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_bar1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_bar1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:Achse.Achse"
+      ]
+    },
+    {
+      "id": "clear-mk_bar1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Series"
+      ]
+    },
+    {
+      "id": "bind-mk_bar1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Series:DimProduct.Brand"
+      ]
+    },
+    {
+      "id": "clear-mk_bar1-3",
+      "op": "bind",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_bar1-3",
+      "op": "bind",
+      "select": "Varianten.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Umsatz",
+        "Y:_Measures.Kosten"
+      ]
+    },
+    {
+      "id": "move-mk_line1",
+      "op": "move",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "x": 16,
+      "y": 384,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_line1",
+      "op": "resize",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "width": 248,
+      "height": 296,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_line1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_line1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimDate.Month"
+      ]
+    },
+    {
+      "id": "clear-mk_line1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Series"
+      ]
+    },
+    {
+      "id": "bind-mk_line1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Series:DimProduct.Category"
+      ]
+    },
+    {
+      "id": "clear-mk_line1-3",
+      "op": "bind",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_line1-3",
+      "op": "bind",
+      "select": "Varianten.Page/mk_line1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Umsatz"
+      ]
+    },
+    {
+      "id": "move-mk_donut1",
+      "op": "move",
+      "select": "Varianten.Page/mk_donut1.Visual",
+      "x": 280,
+      "y": 384,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_donut1",
+      "op": "resize",
+      "select": "Varianten.Page/mk_donut1.Visual",
+      "width": 248,
+      "height": 296,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_donut1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_donut1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_donut1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_donut1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimProduct.Category"
+      ]
+    },
+    {
+      "id": "clear-mk_donut1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_donut1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_donut1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_donut1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Umsatz"
+      ]
+    },
+    {
+      "id": "move-mk_wf1",
+      "op": "move",
+      "select": "Varianten.Page/mk_wf1.Visual",
+      "x": 544,
+      "y": 384,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_wf1",
+      "op": "resize",
+      "select": "Varianten.Page/mk_wf1.Visual",
+      "width": 248,
+      "height": 296,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_wf1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_wf1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_wf1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_wf1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimAccount.Account"
+      ]
+    },
+    {
+      "id": "clear-mk_wf1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_wf1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_wf1-2",
+      "op": "bind",
+      "select": "Varianten.Page/mk_wf1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.AC"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Year_p1",
+      "op": "move",
+      "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
+      "x": 1072,
+      "y": 96,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Year_p1",
+      "op": "resize",
+      "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
+      "width": 184,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Year_p1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Year_p1",
+      "op": "bind",
+      "select": "Varianten.Page/mk_slicer_Year_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Year"
+      ]
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Varianten.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_header_bg.Visual",
+      "width": 1280,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_rule",
+      "op": "move",
+      "select": "Varianten.Page/chrome_header_rule.Visual",
+      "x": 0,
+      "y": 55,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_rule",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_header_rule.Visual",
+      "width": 1280,
+      "height": 1,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_logo",
+      "op": "move",
+      "select": "Varianten.Page/chrome_logo.Visual",
+      "x": 16,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_logo",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_logo.Visual",
+      "width": 120,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Varianten.Page/chrome_header_title.Visual",
+      "x": 152,
+      "y": 6,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_header_title.Visual",
+      "width": 1112,
+      "height": 26,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Varianten.Page/chrome_header_subtitle.Visual",
+      "x": 152,
+      "y": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_header_subtitle.Visual",
+      "width": 1112,
+      "height": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_bg",
+      "op": "move",
+      "select": "Varianten.Page/chrome_filter_bg.Visual",
+      "x": 1064,
+      "y": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_bg",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_filter_bg.Visual",
+      "width": 200,
+      "height": 640,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_title",
+      "op": "move",
+      "select": "Varianten.Page/chrome_filter_title.Visual",
+      "x": 1072,
+      "y": 64,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_title",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_filter_title.Visual",
+      "width": 184,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Varianten.Page/chrome_footer_text.Visual",
+      "x": 16,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Varianten.Page/chrome_footer_text.Visual",
+      "width": 1248,
+      "height": 24,
+      "continue_on_error": true
+    }
+  ]
+}

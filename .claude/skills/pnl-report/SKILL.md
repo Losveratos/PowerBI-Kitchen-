@@ -1,7 +1,7 @@
 ---
 name: pnl-report
 description: >
-  Baut mit dem Power-BI-Custom-Visual „P&L Statement byDatenWG" (Beta) eine
+  Baut mit dem Power-BI-Custom-Visual „P&L Statement byDatenWG" eine
   GuV-/P&L-Seite in einem bestehenden Power-BI-Projekt auf: liest das
   Semantikmodell, klärt kurz, ob eine reine Hierarchie oder die volle GuV
   gebaut wird, schlägt das Feld-Mapping für alle Datenrollen vor, repliziert
@@ -103,7 +103,7 @@ Entscheidung markieren:
 | `formulaDef` | Weg 2 | z. B. `[Gross profit]+[Operating expenses]`; Referenz **per Zeilenname** |
 | `signConvention` | Weg 2 | `+1` Erlös, `-1` Kosten |
 | `displayInvert` | Weg 2 | Kosten positiv anzeigen |
-| `varianceInvert` | Weg 2 | Kosten/Steuern unter Plan = günstig |
+| `varianceInvert` | Weg 2 | „mehr ist schlecht“ — **nur** für Zeilen mit `signConvention +1` (Kosten positiv geführt, Kosten-Quoten). Bei `-1` (auch Steuern) `false`: die Engine bewertet über das Vorzeichen schon richtig; beides zusammen färbt Mehrkosten günstig (Vorzeichen-Matrix: Skill `finance-data-model`, `konten-dimension.md` §6) |
 | `comment` | optional | Freitext je Konto → Marker + Fußnote |
 | `period` | empfohlen | Monatsspalte; ohne sie keine Monatssäulen/Sparklines |
 | `ac` | **Pflicht** | Ist-Measure |

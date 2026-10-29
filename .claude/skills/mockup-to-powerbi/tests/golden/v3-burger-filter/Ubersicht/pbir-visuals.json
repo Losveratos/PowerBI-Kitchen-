@@ -1,0 +1,38 @@
+[
+  {
+    "visual_type": "card",
+    "name": "mk_9rdsrnj",
+    "title": "Kosten",
+    "x": 345,
+    "y": 72,
+    "width": 312,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Kosten"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p1",
+    "title": "Year",
+    "x": 1088,
+    "y": 96,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p1",
+    "title": "Region",
+    "x": 1088,
+    "y": 160,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  }
+]

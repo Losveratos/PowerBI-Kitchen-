@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eventhouse · DatenWG Library</title>
+<meta name="description" content="Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings.">
+<meta property="og:title" content="Eventhouse · DatenWG Library">
+<meta property="og:description" content="Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/wissensgraph/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Daten-WG Knowledge Kitchen">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html">
+<link rel="alternate" type="text/markdown" href="https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.md">
+<style>
+:root { --bg:#FAFAF5; --ink:#1A1A1A; --accent:#117865; --line:#E2E0D6; --soft:#5A5A52; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.6; }
+main { max-width:820px; margin:0 auto; padding:48px 24px 80px; }
+h1 { font-weight:300; font-size:2.4rem; line-height:1.15; margin:0 0 8px; letter-spacing:-.01em; }
+h2 { font-weight:600; font-size:1.15rem; margin:40px 0 10px; }
+p.lead { font-size:1.08rem; margin:0 0 24px; }
+.kicker { font-size:.8rem; letter-spacing:.09em; text-transform:uppercase; color:var(--soft);
+  margin:0 0 10px; }
+a { color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(17,120,101,.28); }
+a:hover { border-bottom-color:var(--accent); }
+.btns { display:flex; flex-wrap:wrap; gap:10px; margin:22px 0 8px; }
+.btn { display:inline-block; padding:9px 16px; border:1px solid var(--accent); border-radius:999px;
+  color:var(--accent); font-size:.9rem; font-weight:600; background:#fff; }
+.btn:hover { background:var(--accent); color:#fff; }
+ul { padding-left:20px; margin:0; }
+li { margin:0 0 12px; }
+.meta { color:var(--soft); font-size:.86rem; }
+.tag { display:inline-block; font-size:.78rem; color:var(--soft); border:1px solid var(--line);
+  border-radius:4px; padding:1px 7px; margin-right:6px; }
+.quote { display:block; margin-top:3px; }
+hr { border:0; border-top:1px solid var(--line); margin:44px 0 0; }
+footer { color:var(--soft); font-size:.85rem; margin-top:18px; }
+</style>
+</head>
+<body>
+<script src="../../assets/js/site-chrome.js" data-chrome="full"></script>
+<main>
+<p class="kicker">DatenWG Library · tool</p>
+<h1>Eventhouse</h1>
+<p class="lead">Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings. (Stand 2025-06) Die Kusto Query Language wird unter anderem von Azure Sentinel, Azure Data Explorer und dem Eventhouse in Microsoft Fabric genutzt. (Stand 2025-09) Die Real-Time-Intelligence-Suite in Microsoft Fabric umfasst unter anderem Eventstream, die KQL-Datenbank, Eventhouse, Activator, Echtzeit-Dashboards und KQL-Abfragesätze. (Stand 2025-09)</p>
+<div class="btns"><a class="btn" href="../#n=tool%3Aeventhouse">In der Library öffnen</a><a class="btn" href="../graph.html#n=tool%3Aeventhouse&amp;f=tool%3Aeventhouse">Im Graph öffnen</a></div>
+<p class="meta">11 Dokumente · 7 Kernaussagen · Stand 2026-09-15 · Build 20260915-2009</p>
+<h2>Aliase</h2>
+<p><span class="tag">KQL</span> <span class="tag">Kusto</span> <span class="tag">Real-Time Intelligence</span> <span class="tag">Eventstream</span> <span class="tag">Realtime Intelligence</span></p>
+<h2>Kernaussagen</h2>
+<ul>
+<li>Die Kusto Query Language wird unter anderem von Azure Sentinel, Azure Data Explorer und dem Eventhouse in Microsoft Fabric genutzt.<span class="meta quote">Fakt · Stand 2025-09 · Why Passion Beats Niche · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=124s">02:04</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Real-Time-Intelligence-Suite in Microsoft Fabric umfasst unter anderem Eventstream, die KQL-Datenbank, Eventhouse, Activator, Echtzeit-Dashboards und KQL-Abfragesätze.<span class="meta quote">Fakt · Stand 2025-09 · Why Passion Beats Niche · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=953s">15:53</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Die Aufbewahrungsfrist im Event House beträgt laut Brian Bønk 7 Tage.<span class="meta quote">Fakt · Stand 2025-09 · Why Passion Beats Niche · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1366s">22:46</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Brian Bønk empfiehlt, in einem Echtzeitsystem nur die für die Fachabteilung tatsächlich relevante Zeitspanne an Daten in der Echtzeitdatenbank vorzuhalten.<span class="meta quote">Empfehlung · Stand 2025-09 · Why Passion Beats Niche · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1617s">26:57</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Wird das Zeitfenster einer DirectQuery-Abfrage auf eine Kusto-/Eventhouse-Datenbank deutlich verkleinert, hält die Fabric-Kapazität im Langzeittest spürbar länger durch.<span class="meta quote">Empfehlung · Stand 2025-07 · BI Thinkers Talk nr.64 · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=2132s">35:32</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Das Eventhaus (Eventhouse) in Fabric war fuer Arthur neu, da er den Vorgaenger HDX vorher nicht bewusst wahrgenommen hatte.<span class="meta quote">Meinung · Stand 2025-06 · Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1015s">16:55</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+<li>Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings.<span class="meta quote">Fakt · Stand 2025-06 · Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1285s">21:25</a> · automatisch extrahiert · Stelle: auf die Sekunde</span></li>
+</ul>
+<h2>Dokumente</h2>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=BDnwlOqRElY">Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup</a><span class="meta quote">2025-06-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1447s">24:07</a> · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1558s">25:58</a> · <a href="https://www.youtube.com/watch?v=BDnwlOqRElY&amp;t=1754s">29:14</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ">Why Passion Beats Niche</a><span class="meta quote">2025-09-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=902s">15:02</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1187s">19:47</a> · <a href="https://www.youtube.com/watch?v=ihi7UiJ_TtQ&amp;t=1769s">29:29</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html">Microsoft Fabric — Einsteiger-Guide</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29">Abschnitt</a> · <a href="https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Real-Time-Kette">Abschnitt</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=4VVNDNusq4U">BI Thinkers Talk nr.64</a><span class="meta quote">2025-07-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=1926s">32:06</a> · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=2037s">33:57</a> · <a href="https://www.youtube.com/watch?v=4VVNDNusq4U&amp;t=2235s">37:15</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw">Fabric &amp; Power BI Quarterly | 2025 Q2</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=2276s">37:56</a> · <a href="https://www.youtube.com/watch?v=lAh9ajR2Nrw&amp;t=2569s">42:49</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=PW6MP-SDmRk">Fabric &amp; Power BI Quarterly · 2026-3</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=PW6MP-SDmRk&amp;t=2562s">42:42</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=TYp5xCAU2AU">Fabric &amp; Power BI Quarterly · 2026-1</a><span class="meta quote">2026-01-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=TYp5xCAU2AU&amp;t=1694s">28:14</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=KMk1k5uCLZU">Daten-WG Thinkers Talk n61</a><span class="meta quote">2025-04-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=KMk1k5uCLZU&amp;t=280s">04:40</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=eWfTt93anl4">BI Thinkers Talk nr.77</a><span class="meta quote">— · nur-zeitstempel · <a href="https://www.youtube.com/watch?v=eWfTt93anl4&amp;t=2904s">48:24</a></span></li>
+<li><a href="https://www.youtube.com/watch?v=bt81POE-9Ig">Daten-WG Deep Dive Financial Reporting - part 6</a><span class="meta quote">2025-08-01 · kernaussagen+zeitstempel · <a href="https://www.youtube.com/watch?v=bt81POE-9Ig&amp;t=1582s">26:22</a></span></li>
+<li><a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html">Power BI von A bis Z — Einsteiger-Guide (End-to-End)</a><span class="meta quote">2026-08-31 · nur-text · <a href="https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric-Bausteine">Abschnitt</a></span></li>
+</ul>
+<h2>Nachbarthemen</h2>
+<ul>
+<li><a href="semantic-model.html">Semantic Model</a><span class="meta quote">Eventhouse gegensatz Semantic Model · automatisch extrahiert, Quellenstelle vorhanden · „die Abfrage wird dem Eventhaus zugerechnet und nicht dem Dataset“ (BI Thinkers Talk nr.64, 2025-07) · 0 gemeinsame Segmente</span></li>
+<li><a href="microsoft-fabric.html">Microsoft Fabric</a><span class="meta quote">Eventhouse teil-von Microsoft Fabric · automatisch extrahiert, Quellenstelle vorhanden · „das ist ein Eventhaus in Fabric“ (Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup, 2025-06) · 20 gemeinsame Segmente</span></li>
+<li><a href="echtzeit.html">Echtzeit</a><span class="meta quote">Eventhouse und Echtzeit im selben Segment · Heuristik, gezählt · 23 gemeinsame Segmente</span></li>
+<li><a href="dataflow.html">Dataflow</a><span class="meta quote">Eventhouse und Dataflow im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="lakehouse.html">Lakehouse</a><span class="meta quote">Eventhouse und Lakehouse im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="power-bi.html">Power BI</a><span class="meta quote">Eventhouse und Power BI im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="warehouse.html">Warehouse</a><span class="meta quote">Eventhouse und Warehouse im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="sql.html">SQL</a><span class="meta quote">Eventhouse und SQL im selben Segment · Heuristik, gezählt · 14 gemeinsame Segmente</span></li>
+<li><a href="spark.html">Spark</a><span class="meta quote">Eventhouse und Spark im selben Segment · Heuristik, gezählt · 11 gemeinsame Segmente</span></li>
+<li><a href="data-pipeline.html">Data Pipeline</a><span class="meta quote">Eventhouse und Data Pipeline im selben Segment · Heuristik, gezählt · 10 gemeinsame Segmente</span></li>
+<li><a href="fabric-capacity.html">Fabric Capacity</a><span class="meta quote">Eventhouse und Fabric Capacity im selben Segment · Heuristik, gezählt · 9 gemeinsame Segmente</span></li>
+<li><a href="onelake.html">OneLake</a><span class="meta quote">Eventhouse und OneLake im selben Segment · Heuristik, gezählt · 9 gemeinsame Segmente</span></li>
+<li><a href="notebook.html">Notebook</a><span class="meta quote">Eventhouse und Notebook im selben Segment · Heuristik, gezählt · 8 gemeinsame Segmente</span></li>
+<li><a href="azure.html">Azure</a><span class="meta quote">Eventhouse und Azure im selben Segment · Heuristik, gezählt · 8 gemeinsame Segmente</span></li>
+<li><a href="workspace.html">Workspace</a><span class="meta quote">Eventhouse und Workspace im selben Segment · Heuristik, gezählt · 8 gemeinsame Segmente</span></li>
+</ul>
+<h2>Hinweise</h2>
+<p>Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.</p>
+<p class="meta">Für Agenten und Werkzeuge: <a href="https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.md">Markdown</a> · <a href="https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.json">JSON</a> · <a href="../library/index.md">Index aller Themen</a></p>
+<p class="meta">So zitieren: Daten-WG, &lt;Dokumenttitel&gt;, &lt;mm:ss&gt;, &lt;url&gt;</p>
+<hr><footer>DatenWG Library · <a href="index.html">alle Themen</a> · <a href="../">Wiki-Ansicht</a> · <a href="../graph.html">Graph</a></footer>
+</main>
+</body>
+</html>

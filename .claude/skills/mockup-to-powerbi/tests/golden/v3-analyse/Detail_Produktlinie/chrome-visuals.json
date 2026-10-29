@@ -1,0 +1,92 @@
+[
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_bg",
+    "title": "Kopfband",
+    "x": 0,
+    "y": 0,
+    "width": 1280,
+    "height": 56
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_rule",
+    "title": "Kopfband-Unterkante",
+    "x": 0,
+    "y": 55,
+    "width": 1280,
+    "height": 1
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_logo",
+    "title": "Logo",
+    "x": 1144,
+    "y": 12,
+    "width": 120,
+    "height": 32
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_nav_1",
+    "title": "Übersicht",
+    "x": 896,
+    "y": 12,
+    "width": 112,
+    "height": 32
+  },
+  {
+    "visual_type": "actionButton",
+    "name": "chrome_nav_2",
+    "title": "Detail Produktlinie",
+    "x": 1016,
+    "y": 12,
+    "width": 112,
+    "height": 32
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_title",
+    "title": "Kopfband-Titel",
+    "x": 16,
+    "y": 6,
+    "width": 864,
+    "height": 26
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_header_subtitle",
+    "title": "Kopfband-Untertitel",
+    "x": 16,
+    "y": 32,
+    "width": 864,
+    "height": 18
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_bg",
+    "title": "Filter-Panel",
+    "x": 1064,
+    "y": 56,
+    "width": 216,
+    "height": 640
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_filter_title",
+    "title": "Filter-Überschrift",
+    "x": 1072,
+    "y": 64,
+    "width": 200,
+    "height": 24
+  },
+  {
+    "visual_type": "shape",
+    "name": "chrome_footer_text",
+    "title": "Fußleiste",
+    "x": 16,
+    "y": 696,
+    "width": 1248,
+    "height": 24
+  }
+]

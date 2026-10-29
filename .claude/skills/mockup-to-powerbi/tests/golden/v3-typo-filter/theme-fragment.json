@@ -1,0 +1,79 @@
+{
+  "name": "Typografie- und Filter-Testfall · Mockup-Fragment",
+  "$comment": "Kachel-Optik und Farben aus `design` als Theme-Fragment. In ein bestehendes Theme mergen (Skill reports:modifying-theme-json bzw. powerbi-design-framework), danach die background/border/dropShadow-Schritte aus chrome-batch.json weglassen. Seitenhintergrund #F4F4F1 setzt `pbir pages background`, Akzentfarbe #C25A2D steckt in Nav-Buttons und Burger. good/bad kommen aus der Varianz-Palette `teal`. Typografie aus design.typography (Basis 1280 px, ×1.1, k 1.5): Titel 21.45 px = 16 pt, Untertitel 16.5 px = 12.5 pt, Diagrammbeschriftung 14.85 px = 11 pt; Kacheln mit eigener Skalierung stehen als title/subTitle.fontSize in chrome-batch.json.",
+  "background": "#F4F4F1",
+  "foreground": "#0F1E2E",
+  "tableAccent": "#C25A2D",
+  "good": "#1E8F9E",
+  "bad": "#D64541",
+  "neutral": "#6B7280",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#E5E7EB"
+              }
+            },
+            "radius": 6
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": false,
+            "preset": "BottomRight",
+            "color": {
+              "solid": {
+                "color": "#0F1E2E"
+              }
+            },
+            "transparency": 85
+          }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontSize": 16,
+            "fontColor": {
+              "solid": {
+                "color": "#0F1E2E"
+              }
+            }
+          }
+        ],
+        "subTitle": [
+          {
+            "fontSize": 12.5
+          }
+        ]
+      }
+    }
+  },
+  "textClasses": {
+    "largeTitle": {
+      "fontSize": 16,
+      "color": "#0F1E2E"
+    },
+    "title": {
+      "fontSize": 11,
+      "color": "#0F1E2E"
+    },
+    "label": {
+      "fontSize": 11
+    }
+  }
+}

@@ -14,9 +14,9 @@
 <meta name="twitter:description" content="Simulator für den Energie- und CO₂-Fußabdruck der KI-Nutzung im Unternehmen.">
 <link rel="canonical" href="https://datenwgknowledgekitchen.com/ki-co2-simulator.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%8D%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/fonts/space-grotesk/space-grotesk.css">
+<link rel="stylesheet" href="assets/fonts/ibm-plex-mono/ibm-plex-mono.css">
+<link rel="stylesheet" href="assets/fonts/inter/inter.css">
 <style>
 :root{
   --paper:#F1EEE5; --paper-2:#E7E2D4; --ink:#23261F; --ink-soft:#5B5D52;
@@ -208,9 +208,13 @@ td.mono{font-family:'IBM Plex Mono',monospace;}
 footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-soft);line-height:1.7;}
 footer b{color:var(--ink);}
 .footer-version{margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);}
+
+/* Mobil: breite Tabellen scrollen in ihrer Karte statt die Seite zu verbreitern */
+@media (max-width:700px){.card>table{display:block;max-width:100%;overflow-x:auto;}}
 </style>
 </head>
 <body>
+<script src="assets/js/site-chrome.js" data-chrome="footer"></script>
 <div class="sticky-bar" id="sticky-bar">
   <span data-i18n="gaugeLabel">Unternehmen · CO₂ pro Jahr</span>
   <span class="sv" id="sticky-value">–</span>
@@ -560,7 +564,7 @@ const I18N = {
     apColParam:'Parameter', apColRange:'Genutzter Bereich', apColSource:'Quelle & Begründung',
     appendixNote:'Hinweis: Außer Google hat bislang (Stand Anfang 2026) kein großer KI-Anbieter — etwa OpenAI oder Anthropic — eine vergleichbar detaillierte Pro-Prompt-Methodik für Energie/CO₂ veröffentlicht. Die Modell-Tiers in diesem Tool sind daher eine Größenordnungs-Ableitung aus den verfügbaren Einzeldatenpunkten, keine anbieterbestätigten Werte. Die Sensitivitäts- und Projektions-Regler (Nutzungsunsicherheit, Effizienz-/Wachstumsraten) sind explizit einstellbare Was-wäre-wenn-Hebel und keine Prognosen — daher nicht Teil dieser Quellenliste.',
     scopeNoteHtml:'<span class="appendix-note-icon">🚫</span>Was dieses Modell <b>nicht</b> abdeckt: Embodied Carbon der Hardware (Herstellung/Entsorgung von GPUs & Rechenzentren), das Training der Modelle (geschätzt wird nur die Inferenz/Nutzung), Netzwerk- und Endgeräte-Energie sowie eine explizite Zuordnung zu GHG-Protocol Scope 1/2/3. Für eine vollständige CSRD-Bilanzierung diese Lücken separat abdecken.',
-    footerMethod:'<b>Methodik:</b> Energie pro Token = Basiswert für Output-Tokens (editierbar) × Anteil Output/Input, geteilt durch das Output:Input-Verhältnis für Input-Tokens; multipliziert mit dem PUE-Faktor ergibt den Netzbezug; multipliziert mit der CO₂-Intensität des Strommixes ergibt die CO₂e-Emission. Min- und Max-Szenario kombinieren jeweils alle unteren bzw. alle oberen Annahmen. Der Jahresverlauf nimmt eine gleichmäßige Verteilung der Nutzung über das Jahr an. Alle Zahlen sind <b>grobe Orientierungswerte</b> — Quellen siehe Anhang oben. Über „Einstellungen exportieren" lässt sich der aktuelle Parametersatz inkl. gespeicherter Szenarien als Code mit Kollegen teilen (die Daten sind im Code selbst kodiert, es werden keine Daten an einen Server gesendet). Für die Darstellung werden Schriften von Google Fonts nachgeladen.',
+    footerMethod:'<b>Methodik:</b> Energie pro Token = Basiswert für Output-Tokens (editierbar) × Anteil Output/Input, geteilt durch das Output:Input-Verhältnis für Input-Tokens; multipliziert mit dem PUE-Faktor ergibt den Netzbezug; multipliziert mit der CO₂-Intensität des Strommixes ergibt die CO₂e-Emission. Min- und Max-Szenario kombinieren jeweils alle unteren bzw. alle oberen Annahmen. Der Jahresverlauf nimmt eine gleichmäßige Verteilung der Nutzung über das Jahr an. Alle Zahlen sind <b>grobe Orientierungswerte</b> — Quellen siehe Anhang oben. Über „Einstellungen exportieren" lässt sich der aktuelle Parametersatz inkl. gespeicherter Szenarien als Code mit Kollegen teilen (die Daten sind im Code selbst kodiert, es werden keine Daten an einen Server gesendet). Die Schriften werden von dieser Website selbst ausgeliefert, nicht von Drittanbietern.',
     footerVersionTemplate:'Methodik {version} · Stand: {date}'
   },
   en:{
@@ -652,7 +656,7 @@ const I18N = {
     apColParam:'Parameter', apColRange:'Range used', apColSource:'Source & rationale',
     appendixNote:"Note: as of early 2026, no major AI provider besides Google — including OpenAI or Anthropic — has published a comparably detailed per-prompt energy/CO₂ methodology. The model tiers in this tool are therefore an order-of-magnitude derivation from the available individual data points, not provider-confirmed figures. The sensitivity and projection controls (usage uncertainty, efficiency/growth rates) are explicitly adjustable what-if levers, not forecasts — so they are not part of this source list.",
     scopeNoteHtml:'<span class="appendix-note-icon">🚫</span>What this model does <b>not</b> cover: embodied carbon of hardware (manufacturing/disposal of GPUs & data centers), model training (only inference/usage is estimated), networking and end-user-device energy, and an explicit mapping to GHG Protocol Scope 1/2/3. For a complete CSRD accounting, cover these gaps separately.',
-    footerMethod:'<b>Methodology:</b> Energy per token = baseline value for output tokens (editable) × share of output/input, divided by the output:input ratio for input tokens; multiplied by the PUE factor gives grid draw; multiplied by the CO₂ intensity of the grid mix gives CO₂e emissions. Min and max scenarios combine all lower or all upper assumptions respectively. The annual trend assumes usage is spread evenly across the year. All figures are <b>rough orientation values</b> — see sources in the appendix above. "Export settings" lets you share the current parameter set, including saved scenarios, as a code with colleagues (the data is encoded in the code itself; nothing is sent to a server). Fonts are loaded from Google Fonts for display.',
+    footerMethod:'<b>Methodology:</b> Energy per token = baseline value for output tokens (editable) × share of output/input, divided by the output:input ratio for input tokens; multiplied by the PUE factor gives grid draw; multiplied by the CO₂ intensity of the grid mix gives CO₂e emissions. Min and max scenarios combine all lower or all upper assumptions respectively. The annual trend assumes usage is spread evenly across the year. All figures are <b>rough orientation values</b> — see sources in the appendix above. "Export settings" lets you share the current parameter set, including saved scenarios, as a code with colleagues (the data is encoded in the code itself; nothing is sent to a server). Fonts are served by this website itself, not by third parties.',
     footerVersionTemplate:'Methodology {version} · Last updated: {date}'
   }
 };

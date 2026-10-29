@@ -1,0 +1,890 @@
+{
+ "id": "tool:sap",
+ "name": "SAP",
+ "typ": "tool",
+ "slug": "sap",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sap.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/sap.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/sap.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/sap.json",
+ "dokumente_gesamt": 34,
+ "kernaussagen_gesamt": 8,
+ "mit_kernaussagen": 7,
+ "aliase": [
+  "SAP BW",
+  "SAC",
+  "SAP Analytics Cloud"
+ ],
+ "einordnung": "Eine Projektidee bestand darin, Daten aus SAP über die SAP Datasphere in einen Azure Data Lake Gen 2 zu bringen und von dort Richtung Microsoft Fabric weiterzuleiten. (Stand 2025-07) Beim SAP-Datasphere-Projekt lagen die Delta-Dateien zunaechst in einem Azure Data Lake Gen 2 statt im OneLake, liessen sich aber gut anbinden. (Stand 2026-08) Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte. (Stand 2026-08)",
+ "nachbarn": [
+  {
+   "id": "tool:mirroring",
+   "name": "Mirroring",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 7,
+   "beleg": "es gibt SAP Mirroring, hat wirklich auf der Febru sehr große Augen für sehr große Augen gesorgt und ist inzwischen ja da Preview",
+   "datei": "mirroring.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 26,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 24,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 21,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "topic:datenmodellierung",
+   "name": "Datenmodellierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "datenmodellierung.md"
+  },
+  {
+   "id": "topic:ki",
+   "name": "KI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "ki.md"
+  },
+  {
+   "id": "tool:snowflake",
+   "name": "Snowflake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "snowflake.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "planung.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:community",
+   "name": "Community",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "community.md"
+  },
+  {
+   "id": "tool:power-query",
+   "name": "Power Query",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "power-query.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "azure.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 98,
+   "zeit": "01:38",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=98s",
+   "aussage": "Beim SAP-Datasphere-Projekt lagen die Delta-Dateien zunaechst in einem Azure Data Lake Gen 2 statt im OneLake, liessen sich aber gut anbinden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 760,
+   "zeit": "12:40",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=760s",
+   "aussage": "Bei einem groesseren SAP-Konzernprojekt wurden Bronze und Silber als Warehouse aufgebaut, weil das Pipeline-Feature zum Refresh der SQL-Endpunkt-Metadaten damals noch nicht existierte."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 3060,
+   "zeit": "51:00",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3060s",
+   "aussage": "Das Zurückschreiben ist derzeit auf SQL-Datenbanken beschränkt, während Inforiver zusätzlich nach Snowflake oder SAP schreiben konnte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-1",
+   "dokument_id": "yt:TYp5xCAU2AU",
+   "sekunde": 1519,
+   "zeit": "25:19",
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1519s",
+   "aussage": "SAP-Mirroring befindet sich inzwischen in der Preview-Phase und funktioniert wie das bestehende Azure-Data-Lake-Mirroring."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Unboxing MCP Server for Power BI Modelling",
+   "dokument_id": "yt:iinfiHxznOU",
+   "sekunde": 952,
+   "zeit": "15:52",
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=952s",
+   "aussage": "Es wird als zukünftige Möglichkeit gesehen, dass MCP-Server von Snowflake, Databricks oder SAP miteinander reden und Daten direkt nach Fabric schieben könnten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 156,
+   "zeit": "02:36",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=156s",
+   "aussage": "Eine Projektidee bestand darin, Daten aus SAP über die SAP Datasphere in einen Azure Data Lake Gen 2 zu bringen und von dort Richtung Microsoft Fabric weiterzuleiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1420,
+   "zeit": "23:40",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1420s",
+   "aussage": "Mirroring für Oracle ist zum Zeitpunkt der Aufnahme offizieller angekündigt als für SAP, das bisher nur in Sessions gezeigt wurde."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1520,
+   "zeit": "25:20",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1520s",
+   "aussage": "Die SAP-Anbindung an Microsoft Fabric ist allgemein verfügbar (GA) geworden, und auch Airflow sowie DBT sind jetzt als eigene Items in Fabric verfügbar."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:27rC2zefFOU",
+   "titel": "Realtalk zu Self Service mit Power BI",
+   "datum": "2024-02-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.231,
+   "url": "https://www.youtube.com/watch?v=27rC2zefFOU",
+   "sprungmarken": [
+    {
+     "label": "26:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1565s",
+     "sekunde": 1565
+    },
+    {
+     "label": "32:05",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=1925s",
+     "sekunde": 1925
+    },
+    {
+     "label": "38:07",
+     "url": "https://www.youtube.com/watch?v=27rC2zefFOU&t=2287s",
+     "sekunde": 2287
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.217,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "01:37",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=97s",
+     "sekunde": 97
+    },
+    {
+     "label": "03:10",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=190s",
+     "sekunde": 190
+    }
+   ]
+  },
+  {
+   "id": "yt:qVZhboahaDE",
+   "titel": "Was wir von Iron Man für Datenprojekte lernen können (data:unplugged Vortrag)",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=qVZhboahaDE",
+   "sprungmarken": [
+    {
+     "label": "06:36",
+     "url": "https://www.youtube.com/watch?v=qVZhboahaDE&t=396s",
+     "sekunde": 396
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.14,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "01:35",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=95s",
+     "sekunde": 95
+    },
+    {
+     "label": "09:42",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=582s",
+     "sekunde": 582
+    },
+    {
+     "label": "11:32",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=692s",
+     "sekunde": 692
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.135,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "04:55",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=295s",
+     "sekunde": 295
+    },
+    {
+     "label": "11:22",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=682s",
+     "sekunde": 682
+    },
+    {
+     "label": "16:11",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=971s",
+     "sekunde": 971
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.129,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "00:34",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=34s",
+     "sekunde": 34
+    },
+    {
+     "label": "42:07",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2527s",
+     "sekunde": 2527
+    },
+    {
+     "label": "43:40",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2620s",
+     "sekunde": 2620
+    }
+   ]
+  },
+  {
+   "id": "yt:svytHaNMTf0",
+   "titel": "Data Projects like Iron Man [AI dubbed]",
+   "datum": "2025-04-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=svytHaNMTf0",
+   "sprungmarken": [
+    {
+     "label": "06:13",
+     "url": "https://www.youtube.com/watch?v=svytHaNMTf0&t=373s",
+     "sekunde": 373
+    }
+   ]
+  },
+  {
+   "id": "yt:psLPsI32sAs",
+   "titel": "Power BI Update Mai 2026",
+   "datum": "2026-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=psLPsI32sAs",
+   "sprungmarken": [
+    {
+     "label": "03:15",
+     "url": "https://www.youtube.com/watch?v=psLPsI32sAs&t=195s",
+     "sekunde": 195
+    }
+   ]
+  },
+  {
+   "id": "yt:232JhS9vbQ0",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 7",
+   "datum": "2025-09-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.108,
+   "url": "https://www.youtube.com/watch?v=232JhS9vbQ0",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "28:37",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1717s",
+     "sekunde": 1717
+    },
+    {
+     "label": "31:45",
+     "url": "https://www.youtube.com/watch?v=232JhS9vbQ0&t=1905s",
+     "sekunde": 1905
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.105,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "23:07",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1387s",
+     "sekunde": 1387
+    },
+    {
+     "label": "25:12",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=1512s",
+     "sekunde": 1512
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.094,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "10:01",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=601s",
+     "sekunde": 601
+    },
+    {
+     "label": "32:35",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1955s",
+     "sekunde": 1955
+    },
+    {
+     "label": "36:01",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=2161s",
+     "sekunde": 2161
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.091,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "17:42",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1062s",
+     "sekunde": 1062
+    },
+    {
+     "label": "22:24",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1344s",
+     "sekunde": 1344
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.088,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "00:44",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s",
+     "sekunde": 44
+    },
+    {
+     "label": "02:10",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=130s",
+     "sekunde": 130
+    },
+    {
+     "label": "18:34",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1114s",
+     "sekunde": 1114
+    }
+   ]
+  },
+  {
+   "id": "yt:KO_qFge77o8",
+   "titel": "GxP Talk - Validierung vs. Agilität",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.081,
+   "url": "https://www.youtube.com/watch?v=KO_qFge77o8",
+   "sprungmarken": [
+    {
+     "label": "27:29",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=1649s",
+     "sekunde": 1649
+    },
+    {
+     "label": "38:25",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2305s",
+     "sekunde": 2305
+    },
+    {
+     "label": "39:58",
+     "url": "https://www.youtube.com/watch?v=KO_qFge77o8&t=2398s",
+     "sekunde": 2398
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "37:19",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2239s",
+     "sekunde": 2239
+    },
+    {
+     "label": "50:19",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=3019s",
+     "sekunde": 3019
+    },
+    {
+     "label": "1:14:06",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=4446s",
+     "sekunde": 4446
+    }
+   ]
+  },
+  {
+   "id": "yt:Me3a2QOx21I",
+   "titel": "Interview bei der TDWI München 2026 | Stefanie Welle und Dr. Christian Krug",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=Me3a2QOx21I",
+   "sprungmarken": [
+    {
+     "label": "07:49",
+     "url": "https://www.youtube.com/watch?v=Me3a2QOx21I&t=469s",
+     "sekunde": 469
+    }
+   ]
+  },
+  {
+   "id": "yt:DFw664hd1IE",
+   "titel": "LogiMAT Arena Atrium 2026 | Expert Forum - Supply Chain Risiko Management",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.065,
+   "url": "https://www.youtube.com/watch?v=DFw664hd1IE",
+   "sprungmarken": [
+    {
+     "label": "29:02",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1742s",
+     "sekunde": 1742
+    },
+    {
+     "label": "30:36",
+     "url": "https://www.youtube.com/watch?v=DFw664hd1IE&t=1836s",
+     "sekunde": 1836
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "17:58",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=1078s",
+     "sekunde": 1078
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "25:03",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1503s",
+     "sekunde": 1503
+    },
+    {
+     "label": "28:14",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s",
+     "sekunde": 1694
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "51:11",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=3071s",
+     "sekunde": 3071
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "11:27",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=687s",
+     "sekunde": 687
+    },
+    {
+     "label": "25:50",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1550s",
+     "sekunde": 1550
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "54:26",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3266s",
+     "sekunde": 3266
+    },
+    {
+     "label": "57:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=3448s",
+     "sekunde": 3448
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.042,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "01:01",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=61s",
+     "sekunde": 61
+    }
+   ]
+  },
+  {
+   "id": "yt:hbUYMyqb6r8",
+   "titel": "Denken in Tabellen",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8",
+   "sprungmarken": [
+    {
+     "label": "06:03",
+     "url": "https://www.youtube.com/watch?v=hbUYMyqb6r8&t=363s",
+     "sekunde": 363
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "57:15",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=3435s",
+     "sekunde": 3435
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "24:38",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1478s",
+     "sekunde": 1478
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.026,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "14:06",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=846s",
+     "sekunde": 846
+    }
+   ]
+  },
+  {
+   "id": "yt:iinfiHxznOU",
+   "titel": "Unboxing MCP Server for Power BI Modelling",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=iinfiHxznOU",
+   "sprungmarken": [
+    {
+     "label": "15:51",
+     "url": "https://www.youtube.com/watch?v=iinfiHxznOU&t=951s",
+     "sekunde": 951
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "22:42",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1362s",
+     "sekunde": 1362
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "56:24",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=3384s",
+     "sekunde": 3384
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku_en",
+   "titel": "ChartKitchen byDatenWG — Documentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.018,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=IBCS%20Title",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:ZaDd1uxeLbI",
+   "titel": "10 Jahre Power BI",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.018,
+   "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI",
+   "sprungmarken": [
+    {
+     "label": "12:04",
+     "url": "https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=724s",
+     "sekunde": 724
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.017,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Wann%20brauche%20ich%20ein%20Gateway%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Datenbank-Quellen%20%C2%B7%20der%20Folding-Hebel",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "page:chartkitchen-doku",
+   "titel": "ChartKitchen byDatenWG — Dokumentation",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.017,
+   "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=IBCS-Titel",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Asap",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Asap&f=tool%3Asap"
+}

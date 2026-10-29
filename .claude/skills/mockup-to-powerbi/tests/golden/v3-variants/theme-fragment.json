@@ -1,0 +1,61 @@
+{
+  "name": "Darstellungsvarianten-Testfall · Mockup-Fragment",
+  "$comment": "Kachel-Optik und Farben aus `design` als Theme-Fragment. In ein bestehendes Theme mergen (Skill reports:modifying-theme-json bzw. powerbi-design-framework), danach die background/border/dropShadow-Schritte aus chrome-batch.json weglassen. Seitenhintergrund #F4F4F1 setzt `pbir pages background`, Akzentfarbe #C25A2D steckt in Nav-Buttons und Burger. good/bad kommen aus der Varianz-Palette `teal`.",
+  "background": "#F4F4F1",
+  "foreground": "#0F1E2E",
+  "tableAccent": "#C25A2D",
+  "good": "#1E8F9E",
+  "bad": "#D64541",
+  "neutral": "#6B7280",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": {
+              "solid": {
+                "color": "#FFFFFF"
+              }
+            },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": false,
+            "color": {
+              "solid": {
+                "color": "#E5E7EB"
+              }
+            },
+            "radius": 4
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": false,
+            "preset": "BottomRight",
+            "color": {
+              "solid": {
+                "color": "#0F1E2E"
+              }
+            },
+            "transparency": 85
+          }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontSize": 12,
+            "fontColor": {
+              "solid": {
+                "color": "#0F1E2E"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

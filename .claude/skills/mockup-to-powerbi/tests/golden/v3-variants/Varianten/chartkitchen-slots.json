@@ -1,0 +1,111 @@
+[
+  {
+    "id": "mk_ck1",
+    "stableId": "ck1",
+    "page": "Varianten",
+    "title": "AC/PL je Monat",
+    "subtitle": "",
+    "kind": "kombi",
+    "label": "Säulen + Referenz",
+    "rect": {
+      "x": 808,
+      "y": 384,
+      "w": 240,
+      "h": 296
+    },
+    "scenario": "AC/PL",
+    "notes": "ChartKitchen kann weder Small Multiples noch den Feldparameter.",
+    "analysis": {
+      "polarity": "higher",
+      "polarityAuto": true,
+      "deltaBasis": "PL",
+      "deltaBasisAuto": true,
+      "deltaKind": [
+        "abs",
+        "rel"
+      ],
+      "unit": null,
+      "displayUnits": null,
+      "decimals": null,
+      "sort": null,
+      "topN": null,
+      "timeGrain": null,
+      "cumulative": false,
+      "scaleGroup": null,
+      "message": null,
+      "smallMultiples": {
+        "field": "DimRegion.Region"
+      },
+      "fieldParam": {
+        "name": "CK-Achse",
+        "role": "category",
+        "fields": [
+          "DimDate.Month"
+        ]
+      }
+    },
+    "workshop": {
+      "priority": null,
+      "status": "open",
+      "openQuestion": false
+    },
+    "mockupRoles": {
+      "category": [
+        "DimDate.Month"
+      ],
+      "ac": [
+        "_Measures.AC"
+      ],
+      "ref": [
+        "_Measures.PL"
+      ],
+      "multiples": [
+        "DimRegion.Region"
+      ]
+    },
+    "chartKitchenType": "kombi",
+    "orientation": "columns",
+    "chartProps": {
+      "orientation": "columns"
+    },
+    "chartKitchenRoles": {
+      "category": [
+        "DimDate.Month"
+      ],
+      "actual": [
+        "_Measures.AC"
+      ],
+      "plan": [
+        "_Measures.PL"
+      ],
+      "multiples": [
+        "DimRegion.Region"
+      ]
+    },
+    "nativeFallback": {
+      "type": "clusteredColumnChart",
+      "buckets": {
+        "Category": [
+          {
+            "ref": "DimDate.Month",
+            "kind": "column",
+            "isNew": false
+          }
+        ],
+        "Y": [
+          {
+            "ref": "_Measures.AC",
+            "kind": "measure",
+            "isNew": false
+          },
+          {
+            "ref": "_Measures.PL",
+            "kind": "measure",
+            "isNew": false
+          }
+        ]
+      }
+    },
+    "warnings": []
+  }
+]

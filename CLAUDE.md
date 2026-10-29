@@ -1,5 +1,18 @@
 # Daten-WG Knowledge Kitchen · Channel-Guide
 
+> **Einordnung (Stand Okt 2026):** Dieses Repo ist inzwischen mehr als der
+> Channel-Guide, den dieser Leitfaden beschreibt. Es enthält die komplette
+> Website datenwgknowledgekitchen.com (GitHub Pages von `main`) und die
+> Power-BI-Custom-Visuals **ChartKitchen byDatenWG** (`ibcsInspiredChartDeck/`),
+> **P&L Statement byDatenWG** (`pnlByDatenWG/`) und **dataKitchenGantt**
+> (`dataKitchenGantt/`). Überblick und aktueller Stand: `README.md` und
+> `STATUS.md`; Visual-Arbeit beginnt beim `AGENT-GUIDE.md` im jeweiligen
+> Visual-Ordner (Release-Konvention, Property-Referenz, bekannte Fallen).
+> Der Rest dieser Datei ist der ursprüngliche Auftrag für den
+> YouTube-Channel-Guide — er gilt weiter für `daten_wg_learn_buckets.html`
+> und die `scripts/`-Pipeline (heute per Skill `kitchen-update`).
+> Das Kapitel „Design-System" unten gilt für **alle** Seiten des Repos.
+
 > **Ziel:** Alle ~100+ Videos vom YouTube-Kanal [@Daten-WG](https://www.youtube.com/@Daten-WG)
 > automatisch holen, thematisch in 9 Buckets clustern, und in eine bestehende
 > HTML-Seite einbinden — mit Tags, Volltextsuche, lazy-loaded YouTube-Embeds und
@@ -246,7 +259,22 @@ python3 -m http.server 8000
 ## Design-System (nicht ändern)
 
 Schriften: `Fraunces` (Serif, Titel), `Geist` (Sans, Body), `JetBrains Mono`
-(Tags/Metadata). Bereits via Google-Fonts eingebunden.
+(Tags/Metadata). Alle Schriften sind **selbst gehostet** unter `assets/fonts/`
+(je Familie ein Ordner mit `woff2`-Dateien, `OFL.txt` und einer CSS-Datei, z. B.
+`assets/fonts/fraunces/fraunces.css`; Subsets latin + latin-ext, `font-display: swap`).
+Einbinden per `<link rel="stylesheet" href="assets/fonts/<familie>/<familie>.css">`
+(Pfad relativ zur Ordnertiefe, z. B. `../assets/...` in Unterordnern).
+Vorhanden: Fraunces, Geist, JetBrains Mono, IBM Plex Sans/Mono, Space Grotesk,
+Inter, Archivo, Anton, Press Start 2P. Neue Familien mit
+`fonts.googleapis.com` → woff2 herunterladen und genauso ablegen.
+
+**Keine Google Fonts, keine Drittanbieter-CDNs:** Neue Seiten dürfen weder
+Schriften noch Skripte/Styles von fremden Servern laden (kein
+`fonts.googleapis.com`/`fonts.gstatic.com`, kein cdnjs/unpkg/jsdelivr, keine
+`preconnect` dorthin). Bibliotheken als lokale Kopie unter `assets/js/vendor/`
+ablegen (z. B. `d3-7.9.0.min.js`). Externe Einbettungen (YouTube, Power BI) nur
+per Klick-zum-Laden mit Hinweis (Power BI: `assets/js/embed-consent.js`) und in
+`datenschutz.html` dokumentieren.
 
 CSS-Variablen, die für neue Karten/Buckets gelten:
 
@@ -364,10 +392,12 @@ Tag-Chips passen.
 
 - Die `power_bi_einsteiger_guide_v4.html` — nur Referenz für Design.
 - Die Bucket-IDs und Farben (`bucket-1` ... `bucket-9`).
-- Die Schriftart-Imports.
-- Die JS-Render-Logik (`renderCard`, `renderBuckets`, `applyFilters`) — sie
-  unterstützt das Episode-Schema oben bereits vollständig. Nur die
-  `EPISODES`-Konstante austauschen.
+- Die selbst gehosteten Schriftart-Einbindungen (`assets/fonts/`) — nicht
+  wieder auf Google Fonts umstellen.
+- Die Render-Logik der Startseite (`renderCard`, `renderBuckets`,
+  `applyFilters` u. a.) darf geändert werden, solange das `EPISODES`-Schema
+  und die Count-Marker (Header-Folgenzahl, `.bucket-tile-count`,
+  `#result-count`) kompatibel mit dem `kitchen-update`-Skill bleiben.
 
 ---
 

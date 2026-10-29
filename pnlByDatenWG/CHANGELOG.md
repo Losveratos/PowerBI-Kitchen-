@@ -1,142 +1,1010 @@
 # Changelog — P&L Statement byDatenWG
 
-## 0.18.0.0 (2026-10-28) — Sankey: die GuV als Fluss, und der Autor bestimmt, welche Ansichten es gibt
+## 1.6.0.0 (2026-10-28): Sankey — die GuV als Fluss, und der Autor bestimmt, welche Ansichten es gibt
 
-Tabelle, Balken, Waterfall und Baum erzählen die GuV in Zeilen und Karten. Was
-fehlte, ist das Bild, das man aus den Quartalsgrafiken der großen
-Tech-Konzerne kennt: **wohin das Geld fließt** — Umsatz links hinein, der
-Gewinn läuft nach rechts durch, die Kosten zweigen unterwegs ab. 0.18 baut
-genau diese Fluss-Ansicht als fünfte Ansicht, auf demselben Graphen wie der
-Werttreiberbaum.
+Fünfte Ansicht „Sankey": die GuV als Fluss von links nach rechts über dem Graphen des
+Werttreiberbaums. Umsatz-Komponenten fließen grau in den Umsatz, der Gewinn-Strang (Gross profit →
+EBITDA → EBIT → EBT → Net income) läuft in der günstigen Farbe nach rechts, Kosten zweigen in der
+ungünstigen Farbe nach rechts unten in eigene Endknoten ab. Balken- und Bandhöhe sind proportional zum
+periodengerechten AC-YTD, auf einer gemeinsamen Skala. Portiert aus einem Zweig auf 0.17-Basis
+(Commit da1fb89) auf den 1.5-Stand.
 
-### Die Ansicht
+- **Fluss-Regel:** Beiträge mit dem Vorzeichen des Knotens fließen von links zu. Gegenbeiträge (Kosten)
+  stehen in seiner Spalte darunter und werden aus demselben Zufluss gespeist. Eine gestapelte Zuordnung je
+  Knoten sorgt dafür, dass sich die Bänder eines Anschlusses zur Knotenhöhe addieren. Ein graues Band
+  „Sonstige" erscheint nur bei inkonsistenten Daten.
+- **Gleicher Graph wie der Baum:** Formel- und Hierarchie-Zweige, virtuelle Gesamt-Wurzel, Format-Pane-
+  Wurzel, Klapp-Zustand, Ebenen-Buttons und ⌂ wirken unverändert (gemeinsame Funktionen `buildTreeCtx`,
+  `treeToggle`). Eine KPI-Wurzel (Net margin) gibt den Fluss an ihren ersten Wert-Operanden ab.
+- **Labels** stehen außen am Knoten mit Name, Wert und % vom Umsatz (Umsatz-Basiszeile, sonst die
+  Fluss-Wurzel). Der Platz ist im Layout reserviert, nichts wird abgeschnitten. Der Tooltip nennt Wert,
+  Anteil und Δ zur Referenz (in Hausbegriffen).
+- **Bedienung:** Klick auf Knoten oder Label öffnet den Kachel-Zoom, der Knopf führt zurück „← Zurück zum
+  Sankey". Hover zeigt das IBCS-Detail-Panel und blendet fremde Bänder ab. Rechtsklick öffnet das
+  Kontextmenü mit Selektion und Drillthrough. ▾/▸ am Label klappt Äste, mit Shift den ganzen Ast.
+- **Toolbar im Sankey:** Ansicht, Δ-Referenz, Einheit, Dichte, Bis Ebene.
+- **Dark Mode und Hochkontrast:** Im Dark Mode sinken die Bänder ins dunkle Papier. Im Hochkontrast
+  tragen Muster statt Farben die Aussage (Gewinn gefüllt, Kosten umrandet/schraffiert, Zuflüsse
+  gestrichelt). Vier Sprachen, Hub-Tour Karte 8 mit Mini-Vorschau.
+- **Bewusst außerhalb der IBCS-Notation:** Der Footer sagt das im Sankey. Die Kachel-Ansicht, in die man
+  aus dem Sankey springt, bleibt IBCS.
 
-- **Fünfter Toolbar-Knopf „Sankey"** neben Tabelle · Bars · Waterfall · Tree.
-  Der Zustand ist additiv in `ui.view` persistiert — alte Zustände und
-  Lesezeichen bleiben gültig.
-- **Fluss von links nach rechts**, gespiegelt zum Baum: die Blätter
-  (Umsatz-Komponenten, Segmente, Produkte) stehen links, die Wurzel
-  (Net income / Gesamt) rechts. Jeder Knoten ist ein schmaler senkrechter
-  Balken (12 px), seine Höhe ist **proportional zum Betrag**, mit einer
-  gemeinsamen Skala über alle Spalten; Knoten ohne Wert behalten eine
-  Mindesthöhe von 6 px und ein gedimmtes Label.
-- **Die Kosten fließen ab, nicht zu.** Ein Knoten, dessen Beitrag gegen das
-  Vorzeichen seines Elternknotens läuft (Herstellkosten unter Gross profit,
-  Opex unter EBITDA, Steuern unter Net income), steht in der Spalte seines
-  Elternknotens **unter** ihm und wird aus demselben Zufluss gespeist: Net
-  revenue teilt sich in Gross profit und Herstellkosten. Seine eigene
-  Zerlegung (F&E, Vertrieb, Verwaltung) läuft weiter **nach rechts** in rote
-  Endknoten. Erträge innerhalb eines Kostenblocks (Zinserträge im
-  Finanzergebnis) stehen daneben und fließen mit.
-- **Bänder addieren sich zum Knoten.** Jeder Knoten führt genau eine
-  Zuordnung seiner Zuflüsse zu seinen Abflüssen durch, fortlaufend gestapelt —
-  die Banddicken eines Anschlusses ergeben die Knotenhöhe. Bleibt bei
-  inkonsistenten Daten (Eigenwert eines Summenknotens, Formel mit Konstante)
-  ein Rest, erscheint er als graues Stummel-Band „Sonstige", sonst nie.
-- **Bänder** sind weiche kubische Ribbons in der um 50 % aufgehellten Farbe
-  ihres Ziels, die Balken tragen die satte Farbe, Ecken dezent gerundet.
-  Eine kurze Relaxation (sechs Durchläufe, wie d3-sankey) zieht die Knoten auf
-  die Höhe, auf der ihre Bänder möglichst gerade laufen; die Reihenfolge je
-  Spalte bleibt fest: Gewinn-Strang oben, darunter jeweils die Kosten, die
-  er abgibt.
-- **Farben**: Kostenknoten und -bänder in der Familie der *ungünstigen*
-  Farbe, der Gewinn-Strang (Formel-/Zwischenknoten, an denen etwas abgezogen
-  wird) in der Familie der *günstigen* Farbe, reine Zufluss-Zerlegung
-  (Segmente → Umsatz, eine Dimensions-Hierarchie ohne Kosten) neutral grau.
-  Format-Overrides für günstig/ungünstig und der IBCS-Farbmodus wirken mit.
-- **Labels** außen am Knoten — linke Spalte links, rechte Spalte rechts,
-  mittlere Spalten zentriert darüber: Zeile 1 der Name (fett), Zeile 2 der Wert
-  in der Toolbar-Einheit und in Klammern der Anteil am Umsatz
-  („Gross profit 1 201 (71,3 %)"). Prozentbasis ist die Umsatzzeile der
-  %-vom-Umsatz-Spalte (Format-Pane-Override gilt), bei einer reinen Hierarchie
-  die Fluss-Wurzel. Das Layout hält zwischen den Knoten Platz für ihre Labels
-  frei; volle Spalten behalten nur die Labels der größten Knoten, der Rest
-  antwortet per Tooltip (Name · Wert · % · Δ zur Referenz). Kein Label wird
-  abgeschnitten, keine zwei überlappen.
-- **Werte** sind das periodengerechte AC-YTD (`ytdDisplay`) — dasselbe Fenster
-  wie die Δ-Kennzahlen.
+**Ansichten anbieten:** fünf neue Schalter unter Darstellung & Toolbar (`viewTable … viewSankey`,
+Standard an). Nur angebotene Knöpfe erscheinen, bei einer einzigen Ansicht entfällt die Gruppe. Zeigt ein
+gespeicherter Zustand oder ein Lesezeichen auf eine abgeschaltete Ansicht, wird still die erste
+angebotene gezeigt, ohne den Zustand zu überschreiben. Ein Kachel-Zoom öffnet nur mit aktiver
+Trägeransicht. Sind alle aus, bleibt die Tabelle. Die Mega-Table bleibt ein Template der Tabelle.
 
-### Graph und Wurzel
+**Tests:** Interaktion Baum/Sankey 341 Checks (+79), Toolbar 338 (+13), Hub 118, Start/Dark 99. Der
+Körper der Render-Fälle ist pixelgleich zu 1.5.3, nur der neue Toolbar-Knopf ändert die Toolbar-Zeile.
+Perf im Budget (Erstrender 448 ms / 1500 ms, Expand 86 ms / 300 ms, Sankey-Wechsel 162 ms / 1000 ms).
 
-- Derselbe Graph wie der Baum (`buildTreeCtx`): Formel- und
-  Hierarchie-Zweige, virtuelle Gesamt-Wurzel, Format-Pane-Wurzel,
-  ⌂ und `treeCollapsed` wirken unverändert.
-- **Quoten fließen nicht.** Ist die Wurzel eine KPI-/Quoten-Zeile
-  (Net margin), beginnt der Fluss bei ihrem ersten Wert-Operanden (Net income);
-  Quoten-Knoten im Inneren werden übersprungen, Produkte und Quotienten (×, ÷)
-  beenden den Fluss als Endknoten.
+## 1.5.3.0 (2026-10-23): Spaltenkopf auf skalierter Bühne, niedrige Kacheln
 
-### Interaktion
+Keine neue Property, keine neue Rolle, capabilities.json unverändert. Beide
+Fehler zeigten sich in der Fabric App (Showcase, T03A bis T04E, 12A/G/H); in
+Power BI Desktop und im Dienst ist die Bühne nicht skaliert, dort ändert sich
+nichts.
 
-- **Klick** auf Balken oder Label öffnet den bestehenden **Kachel-Zoom** des
-  Knotens. Der Zurück-Knopf heißt jetzt je Herkunft **„← Zurück zum Sankey"**
-  bzw. „← Zurück zum Baum" und führt dorthin zurück, wo gezoomt wurde
-  (`ui.view` bleibt `sankey`, die Kachel liest denselben Graphen wie aus dem
-  Baum).
-- **Hover** öffnet das bekannte IBCS-Detail-Panel und blendet alle fremden
-  Bänder auf 28 % ab — der Knoten und seine Bänder bleiben stehen.
-- **Rechtsklick** öffnet das native Kontextmenü mit der Selektion des Knotens
-  (Infrastruktur aus 0.17, inkl. Drillthrough); die Selektion markiert den
-  Balken mit der Akzent-Kante.
-- **▾ / ▸ am Label** klappt den Ast zu und auf, **Shift** öffnet den ganzen
-  Ast — dieselbe Logik wie das Baum-Chevron (jetzt gemeinsam in
-  `treeToggle`). Die Ebenen-Buttons und ⌂ wirken.
-- **Toolbar im Sankey**: Ansicht, Δ-Referenz (für die Tooltips), Einheit,
-  Dichte und „Bis Ebene" — Spalten-Presets, Perioden, Optionen und die
-  Karten-Modi des Baums entfallen.
+- **Spaltenkopf mitten in der Tabelle.** Die App zeichnet ihre Seiten auf einer
+  skalierten Bühne (CSS-Transform, 1,25× bis 2×). Das Visual maß die Höhe des
+  Titelblocks mit `getBoundingClientRect`, also in Bildschirmpixeln, und setzte
+  sie als Haftabstand in Layoutpixeln. Der haftende Spaltenkopf (PY, PL, AC, ΔPY,
+  ΔPL) saß dadurch um den Faktor zu tief, verdeckte Zeilen und ließ darüber eine
+  Lücke. Alle Messungen, die als Stil zurückgeschrieben werden (Haftabstand,
+  schwebender Kopf der klassischen Tabelle, Fenster des virtualisierten
+  Mega-Table, Kachelansicht, Tooltip, Einpassen der Fußnoten), rechnen jetzt in
+  Layoutpixeln.
+- **Niedrige Kacheln.** Haftender Titelblock, Spaltenkopf und haftende Fußnoten
+  belegten zusammen die ganze Kachel; zu sehen waren nur Titel und Kommentare.
+  Die Fußnoten haften jetzt nur, solange darüber mindestens fünf Zeilen oder
+  30 % der Kachel frei bleiben; sonst stehen sie am Ende der Tabelle.
+- **Notationszeile im Fußnotenblock.** Wandert die IBCS-Notationszeile in den
+  mehrspaltigen Fußnotenblock, läuft sie über alle Spalten und wird nicht mehr
+  in Spaltenstücke zerrissen.
+- Test `npm run test:stage` (skalierte Bühne 1,5×, niedrige Kachel mit drei
+  Kommentaren, Fußzeile über alle Spalten).
 
-### Die bewusste IBCS-Einordnung
+## 1.5.2.0 (2026-10-20): kosmetische Restpunkte der Showcase-Messung
 
-Ein Sankey ist **keine IBCS-Notation**: IBCS kennt keine Fluss-Diagramme,
-und die Flächenproportionalität der Bänder ersetzt keine Skala mit
-Szenario-Kodierung. Die Fluss-Ansicht ist deshalb eine **bewusste
-Zusatzansicht** — der Footer sagt es im Sankey ausdrücklich („Die
-Fluss-Ansicht (Sankey) ist eine bewusste Ergänzung außerhalb der
-IBCS-Notation."). Alle anderen Ansichten und die Kachel-Ansicht, in die man
-aus dem Sankey springt, bleiben unverändert IBCS.
+Keine neue Property, keine neue Rolle, capabilities.json unverändert. Die
+Skalierung nach IBCS 2.0 / ISO 24896 war nach 1.5.1 sauber; diese Punkte aus
+derselben Messung bleiben.
 
-### Der Autor bestimmt die Ansichten
+- **Fußzeile mit Kommentarblock (T03A/B, T04A bis E, 12A/G/H).** Die
+  IBCS-Notationszeile zählt jetzt zum Block, der in die Kachel passen muss;
+  1.5.1 rechnete nur die Fußnoten und schnitt die Zeile darunter ab. Reicht
+  der Platz auch mit engeren Zeilen nicht, wandert sie in den haftenden
+  Fußnotenblock. Neuer Marker `data-pnl="footer"`.
+- **Markenhinweis.** „IBCS® ist eine eingetragene Marke des IBCS Institute",
+  wie in der App und der Kitchen-Doku (vorher HICHERT+FAISST GmbH). Vier
+  Sprachen, Doku und Schnellstart nachgezogen.
+- **12G-Headline.** Ein Jahresausblick mit Minuend AC vergleicht AC&FC; das
+  Subjekt sagt es: „EBIT liegt im Forecast 0,69 Mio. EUR unter Vorjahr".
+- **12G YTD-Werte.** Passt die YTD-Zahl nicht in den vollen Teil des Balkens,
+  steht sie vor dem Balkenanfang („1,94 ▓▒ 2,73"); 1.5.1 ließ sie weg (10 von
+  19 Zeilen). Das Layout hält dafür Platz frei. Marker `data-pos="out"`.
+- **Tooltip Mega-Table.** Margenzeilen nennen die Differenz in „pp", nicht „%p".
+- **Sortierung (T02E, T02F, auch T02B/C).** Blöcke der obersten Ebene
+  (Region, Einkindgruppe „Deutschland · Sachsen", Region ohne Länder) werden in
+  derselben Richtung sortiert wie die Zeilen darin, nach ihrer Summenzeile.
+  Gesamtsumme bleibt unten, „Rest …"/„Sonstige …" nach den sortierten Blöcken.
+- **Δ-Wasserfall (T04B/C/E).** Verbindungslinien werden an Zahlen unterbrochen
+  (Δ-Labels und pp der Margenzeilen); vorher liefen sie durch „−0,25".
+- **Nullwerte neben Pins.** Ein Δ, das nicht null ist, aber auf null rundet,
+  behält sein Vorzeichen: „+0,00", „−0,0". Eine exakte Null bleibt „0".
 
-- **Fünf neue Schalter** in der Toolbar-Karte des Format-Pane: „Ansicht:
-  Tabelle / Balken / Waterfall / Treiberbaum / Sankey anbieten" (alle Standard
-  **an**; `capabilities.json` → `toolbar.viewTable … viewSankey`).
-- Die Ansichts-Gruppe zeigt nur die angebotenen Knöpfe. Bleibt **genau eine**
-  Ansicht übrig, verschwindet die Gruppe ganz — es gibt nichts zu wählen.
-- **Robust gegenüber alten Zuständen**: zeigt der gespeicherte `ui.view` (oder
-  ein Lesezeichen) auf eine abgeschaltete Ansicht, zeigt das Visual still die
-  erste angebotene (Reihenfolge Tabelle → Balken → Waterfall → Baum → Sankey).
-  Das ist ein reiner Anzeige-Fallback: der gespeicherte Zustand wird **nicht**
-  überschrieben, schaltet der Autor die Ansicht wieder ein, ist sie wieder da.
-  Ein gespeicherter Kachel-Zoom öffnet sich nur, wenn seine Trägeransicht
-  (Baum oder Sankey) angeboten ist. Sind alle fünf aus, bleibt die Tabelle.
+## 1.5.1.0 (2026-10-20): Restpunkte der Skalen-Messung (Showcase, 17 Templates)
+
+Keine neue Property, keine neue Rolle, capabilities.json unverändert. Grundlage
+war eine Pixelmessung der Showcase-App nach IBCS 2.0 / ISO 24896 („gleiche
+Einheit, gleiche Skala"); die Skalierung stimmte fast überall, diese Punkte
+nicht. Bestehende Berichte ändern ihr Bild an den genannten Stellen.
+
+- **Kein Faktor zwischen Blöcken (T02B).** Monat, YTD und FY einer Tabelle
+  teilen immer eine Δ-Skala und eine Pin-Skala. 1.5 zeichnete den Monat in T02B
+  mit „ΔPL ×2" (Showcase 629 gegen 303 px/Mio.), T02C bei fast gleichem
+  Verhältnis nicht. Jetzt: Harness T02A/T02B Monat = YTD (Verhältnis 1,00), kein
+  ×n im Kopf, kein Skalenhinweis. Den markierten Faktor gibt es nur noch für Δ
+  gegenüber der Wert-Kaskade (12A, 12G, 12H) und dann einen je Tabelle für alle
+  Δ-Spalten aller Blöcke. Spalten, die für ein eigenes, größeres Maß gewachsen
+  waren, schrumpfen auf den Bedarf beim Tabellenmaß zurück.
+- **Headline-Automatik (12G, 12H).** Treiber mit dem Δ, das die Tabelle zeigt,
+  samt Vorzeichen und Wirkung in Worten: „größte Belastung ist Logistik mit
+  +0,81 Mio. EUR Mehrkosten" (1.5: „mit −0,81"). Wirkung: Mehrertrag,
+  Einsparung, Mehrkosten, Minderertrag; die Reihenfolge der Treiber richtet sich
+  weiter nach der Ergebniswirkung. Einheit auch vor einem Komma oder einer
+  Klammer („GuV in Mio. EUR, Jahresausblick gegen Vorjahr" → „Mio. EUR"); ohne
+  erkennbare Einheit aus Skalierung + `numbers.unitText` („Mio. EUR",
+  „Tsd. EUR", nie „mEUR"); Zahl und Einheit brechen nicht um. Ist der Minuend
+  nicht AC, steht das Szenario im Subjekt („EBIT liegt im Plan … über Vorjahr",
+  „im Forecast"; Hausbegriffe gewinnen). Prozent mit echtem Minus und schmalem
+  Leerzeichen: „(−28,5 %)". Vier Sprachen.
+- **Margen- und Quotenzeilen (T03A, T03B, T04A bis E).** Kein relatives Δ%
+  mehr (1.5: „+23%" als Prozent eines Prozents); Margen mit
+  `numbers.pctDecimals` statt der Wert-Dezimalen (52,2 % statt 52,24 %); Δ in
+  Prozentpunkten „+8,6 pp" statt „+8,6%p". T04 zeigt dieselbe pp-Zahl an der
+  Achse der Δ-Balken bzw. des Δ-Wasserfalls (ohne Balken); `columns.showPctRows`
+  steuert T03 und T04 gleich.
+- **Schwellen-Standard bei Mio. (T01A, T01B).** −20 / −220 sind Tausender; bei
+  Skalierung m (oder b, auch per Auto) werden die Standardwerte umgerechnet
+  (−0,02 / −0,22 Mio.), damit wieder rot wird, was rot sein soll. Ohne
+  Skalierung und bei k bleibt es bei −20 / −220. Ein gesetzter Wert gilt wie
+  eingetippt.
+- **Lücken und Einkindgruppen (T01B, T02A, T02E).** Leerzeile nach jedem
+  Element der obersten sichtbaren Ebene, auch zwischen zwei Einzelzeilen (Polen
+  und Slowakei standen ohne Lücke). Eine Gruppe mit genau einem gezeigten Kind
+  bekommt keine Zwischensumme mehr, die nur das Kind wiederholt: eine Zeile
+  „Deutschland · Sachsen", mit Lücke wie die anderen.
+- **Kommentar-Fußnoten immer sichtbar (12A ③, 12G ② ③, 12H ③).** Enden die
+  Fußnoten unter der Kachel, setzt das Visual sie mehrspaltig, verringert dann
+  die Zeilenhöhe des Mega-Tables (bis 1,3 × Schriftgröße, Skalen unverändert)
+  und lässt den Block zuletzt am unteren Rand stehen, während die Tabelle
+  dahinter scrollt. Exporte drucken wie bisher alles im Fluss.
+- **12G: lesbare YTD-Zahlen.** Im vollen YTD-Teil steht die Zahl in Papierton
+  oder Textfarbe, je nachdem was mehr Kontrast hat; Kostenzeilen auf hellem
+  Grau (#8A8886) jetzt dunkel (5,0:1 statt 3,5:1). Unter 4,5:1 keine Zahl im
+  Balken.
+- **12H: Δ-Balken umrandet.** Bei Minuend PL sind Δ-Balken rot/grün umrandet
+  auf Papier, passend zu den hohlen Pins und der umrandeten PL-Kaskade (1.1 bis
+  1.5: blass getönt, verwechselbar mit „unter Wesentlichkeit"). Hochkontrast
+  voll. Minuend FC bleibt schraffiert (geprüft).
+- **Minuszeichen „−" (U+2212)** in allen Zahlen (Werte, Δ, Δ%, Pins, Baum,
+  Schwellen-Fußzeile) und in der Vorzeichen-Spalte, wie im ChartKitchen.
+- **Feste Skala über Seiten (`fixedMax` / `fixedVarMax`), geprüft, nicht
+  geändert.** Beide sind Mindest-Maxima in Dateneinheiten; `fixedMax` hält die
+  Wert-Kaskaden bei [0, max], `fixedVarMax` Δ-Balken und Δ-Wasserfälle bei ±max,
+  Pins nie. Harness 1566 × 742: 12A/12G/12H mit beiden Werten gleich
+  0,0836 px je Einheit (Kaskade und Δ), T04B bis T04E mit `fixedVarMax` 40 gleich
+  2,309 px; nur `fixedMax` reicht in den 12ern nicht (12H „ΔPY ×5", 12A/12G ×1).
+  Details in AGENT-GUIDE „Bekannte Fallen" 6.
+- **Tests:** `megatable-test.js` 46 Blöcke (neu: ein Δ-Faktor je Tabelle über
+  zwei Blöcke, Margen pp/pctDecimals/T04-Achse, Kontrast der YTD-Zahl, rowK;
+  angepasst: kein Faktor zwischen Blöcken, Notation PL umrandet, Minus „−");
+  `mega-shot.js` 271 Prüfungen (neu m34 Schwellen in Mio., m35 Fußnoten in fester
+  Kachel, m36/m37 deutsche Headline mit Einheit, m38 T02B; m32 mit Einkindgruppe
+  Ungarn · Budapest); `mega-interact` 42, `finance-test` 59, `scale-views` 17,
+  `i18n` 12 (neue Schlüssel in vier Sprachen).
+
+## 1.5.0.0 (2026-10-20): Skalierung nach IBCS 2.0 / ISO 24896 als Standard
+
+**Bestehende Berichte ändern ihr Bild.** Die Skalierung im Mega-Table folgt
+jetzt der Regel „gleiche Einheit, gleiche Skala" (IBCS 2.0, ISO 24896) als
+Standard, nicht als Option, in allen Ansichten (Mega-Table, Tabelle, Balken,
+Wasserfall, Werttreiberbaum). Keine neue Rolle; neu sind nur die zwei
+Properties der einklappbaren Bedienleisten (`toolbar.foldable`,
+`toolbar.startFolded`, Standard aus). Grundlage war eine Pixelmessung an der
+Showcase-App (T02A bis T02C, T04A, 12A, 12G, 12H); die Zahlen unten stammen aus
+dem Test-Harness (1320 px breit, Referenzdaten der IBCS-Blätter). IBCS bleibt
+Referenz, das Visual ist nicht zertifiziert.
+
+- **Eine Δ-Skala über alle Perioden-Blöcke.** Bis 1.4 hatte jeder Block
+  (Monat, YTD, FY) seine eigene Skala, ohne Hinweis: im T02A-Harness zeichnete
+  der Monat 0,795 kEUR/px, das YTD 7,867 kEUR/px (Faktor 9,9), in der Showcase
+  wirkte −75 im Monat größer als −342 im YTD. Jetzt teilen alle Δ-Balken und
+  Δ-Wasserfälle aller Blöcke einen Maßstab, alle Δ%-Pins einen zweiten. Wird
+  ein Block dadurch unlesbar (seine Datenfläche fiele unter die
+  Mindest-Datenfläche 3·fs), zeichnet er vergrößert mit einem runden Faktor
+  (2, 5, 10, 20 …) und sagt es: der Spaltenkopf trägt den Faktor („ΔPL ×5"),
+  über der Tabelle steht ein Skalenhinweis. Nie still umskaliert (IBCS UN 5.2,
+  CH 4.3). Harness T02A nachher: YTD 7,867 kEUR/px, Monat genau 1/5 davon
+  (1,573), Kopf „ΔPL ×5"; Pins vorher 0,238 / 0,237, nachher 0,294 / 0,295
+  %-Pkt/px (eine Skala).
+- **Δ in der Skala der Basiswerte (12A, 12G, 12H).** Wert-Kaskaden und Δ-Balken
+  hatten je ein eigenes k (Showcase 12A 8,6×, 12G 8,9×, 12H 5,6×). Jetzt sind
+  sie eine Einheit: absolute Abweichungen zeichnen in der Skala der Kaskaden.
+  Werden sie dort zu klein, gilt derselbe Skalierungshinweis am Δ-Kopf
+  („ΔPY ×5"). Harness: 12A Kaskaden 3,84 und ΔPY 1,891 kEUR/px vorher, nachher
+  beide 3,84; 12H 3,634 gegen 1,508 vorher, nachher beide 3,634; 12G 6,145
+  gegen 6,201 vorher, nachher beide 6,201. T04-Beträge (±10 neben 900) im
+  12A-Layout zeichnen „ΔPY ×20".
+- **Gekappte Ausreißer sichtbar über das Maximum hinaus.** Bis 1.4 endete ein
+  gekappter Balken oder Pin genau dort, wo der größte reguläre Wert endet
+  (+32,2 % so lang wie +6,0 %, die Zahl auf dem Balken). Jetzt reserviert jede
+  Chart-Spalte eine Ausreißerzone (12 % der Spalte, mindestens zwei
+  Dreieckslängen): das gekappte Element läuft über das reguläre Maximum in die
+  Zone, ein Bruchzeichen (zwei schräge Striche im Papierton) trennt es, ein
+  Dreieck zeigt in Wuchsrichtung, die Zahl steht außen hinter der Spitze
+  (IBCS UN 5.3). Die Kappungsgrenze ist eine für die ganze Tabelle: Tukey
+  entscheidet je Block, was dort ein Ausreißer ist, die gemeinsame Grenze ist
+  der größte reguläre Wert aller Blöcke. Harness T02A: Japan +65,5 % und China
+  +24,6 % waren vorher beide 104 px lang, jetzt China 84 px und Japan 110 px
+  mit Bruchzeichen, danach das Dreieck. `columns.capBars` (Kappung auch für Δ-Balken) ist damit sinnvoll
+  nutzbar (Bühne m33: gekappter Balken 146 px, längster regulärer 113 px).
+- **Skalenhinweis auch im Mega-Table.** Über der Tabelle, rechtsbündig, nur wenn
+  etwas von der einen Skala abweicht: „Eine Skala je Einheit über alle Blöcke ·
+  vergrößert (Skalierungshinweis): ΔPL November ×5". Fixierte Skalen
+  (`fixedMax` / `fixedVarMax`) nennt er Lesern und im Export („Skala fixiert:
+  …"); im Bearbeitungsmodus steht das wie bisher in der Autoren-Notiz unter der
+  Tabelle.
+- **Auto-Headline als ganzer Satz (12G, 12H, autoMessage).** Statt der
+  Stichwortliste „EBIT ΔPY −691 kEUR (−29%) · stärkster Treiber: … ·
+  schwächster: Logistik (+813)" jetzt: „EBIT liegt 691 Tsd. EUR (−29 %) unter
+  Vorjahr; stärkster Treiber ist Lizenzen mit +120, größte Belastung ist
+  Logistik mit −813." Die Treiber tragen das Vorzeichen ihrer Ergebniswirkung
+  (eine Kostenüberschreitung ist −813, nicht +813). Die Einheit kommt aus der
+  zweiten Titelzeile, wenn sie auf „in …" endet („… in Tsd. EUR"), sonst aus
+  Skalierung + `numbers.unitText`. Referenz als Wort (Vorjahr, Plan);
+  Hausbegriffe gewinnen. Vier Sprachen.
+- **Δ%-Nachkommastellen einheitlich.** Jedes Template schreibt jetzt
+  `numbers.pctDecimals = 1` (bis 1.4: T03A/B und 12A/12G/12H 0, T04B bis E 2,
+  sonst 1); dieselbe Abweichung liest sich nicht mehr von Template zu Template
+  anders. Gespeicherte Berichte behalten ihren Wert, bis das Template erneut
+  angewendet wird; bis dahin erscheint im Bearbeitungsmodus „↺ Zum Template
+  zurück".
+- **Blocklücke bei zusammengefassten Einzelknoten (T01B, T02A).** Eine Region
+  ohne eigene Länder (Level 2 = Level 1, z. B. Slowakei) steht als einzelne
+  Zeile; bis 1.4 klebte sie ohne Lücke am nächsten Block und wirkte
+  zugehörig. Jetzt trennt eine Leerzeile Zeilen verschiedener Eltern, und die
+  Gesamtsumme steht auch nach einer solchen Zeile abgesetzt. Gilt nur für
+  Strukturdaten mit Zwischensummen-Blöcken; GuV-Statements unverändert.
+- **Fußnote:** „Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS
+  Association" statt 1.2; der Satz „nicht zertifiziert" bleibt.
+
+**Dieselbe Regel in allen Ansichten** (Prüfung im Harness, `test/scale-views.js`,
+px je Einheit Δ zu Basis bzw. Karte zu Karte):
+
+| Ansicht | vorher | nachher |
+|---|---|---|
+| Mega-Table T02A, Δ Monat zu YTD | 9,9× ohne Hinweis | ×5, im Kopf „ΔPL ×5" und im Skalenhinweis |
+| Mega-Table 12A / 12H / 12G, Δ zu Kaskade | 2,0× / 2,4× / 0,99× | 1,00× / 1,00× / 1,00× |
+| Tabelle (klassisch), Δ-Balken über Blöcke | eine Skala | unverändert eine Skala |
+| Tabelle, Δ%-Pins über ±40 % | Nadel endet bei 40 %, „▸" an der Zahl | Ausreißerzone, Bruchzeichen, Dreieck |
+| Balken-Ansicht, Δ-Balken zu Wertbalken | 6,85× ohne Hinweis | ×5, Kopf „ΔPL ×5" und Skalenhinweis |
+| Wasserfall-Ansicht, Δ-Balken zu Kaskade | 5,37× ohne Hinweis | ×5, Kopf „ΔPL ×5" und Skalenhinweis |
+| Baum, Karten „Monate" | jede Karte eigene Skala (0,19 bis 4,87 px je Einheit, 25×) | eine Skala (0,19), kleine Karten ×2 / ×10 / ×20 markiert |
+| Baum, Karten „Δ" | 1,86 bis 280 px je Einheit (150×) | eine Skala (1,86), ×5 / ×100 markiert |
+| Baum, Kachel-Zoom (Mikrokarten einer Spalte) | je Karte eigene Skala | eine Skala je Einheit, ×n markiert |
+| Baum, Kachel-Zoom und Hover-Lupe (Hauptchart) | eigene Skala ohne Hinweis | eigene Skala, als „Lupe" gekennzeichnet |
+
+- **Balken- und Wasserfall-Ansicht:** Neben Wertbalken oder Kaskaden zeichnen
+  die Δ-Balken in deren Skala. Reichen sie über die Spalte, wird die Spalte
+  breiter; blieben sie unter einer halben Spalte, gilt ein runder Faktor, den
+  Spaltenkopf („ΔPL ×5") und Skalenhinweis nennen. Die Tabellen-Ansicht ohne
+  Wertbalken behält die eine Δ-Skala ±max über alle Blöcke.
+- **Δ%-Pins der klassischen Tabelle:** Gibt es in der Tabelle einen Pin über
+  ±40 %, nehmen ±40 % die inneren 80 % der Spur ein; der Ausreißer läuft in die
+  äußere Zone, ein Bruchzeichen trennt ihn, ein Dreieck zeigt in Wuchsrichtung.
+- **Werttreiberbaum:** Alle Karten derselben Einheit (Beträge; Prozent-Kennzahlen
+  getrennt) zeichnen in einem Maßstab; ein Messdurchgang ermittelt ihn vor dem
+  Zeichnen. Bedeckte eine Karte damit weniger als ein Viertel ihrer Fläche,
+  zeichnet sie mit rundem Faktor vergrößert und trägt „×5" oben rechts (Tooltip
+  erklärt es); die Hinweiszeile nennt die Regel. Gilt für Monats-, Δ- und
+  Brücken-Karten und für die Mikrokarten der Kachel. Die Hover-Lupe und das
+  Hauptchart der Kachel bleiben bewusst eigene Skala und sagen das („Lupe: Diese
+  Detailansicht hat ihre eigene Skala.").
+
+**Bedienleisten einklappbar (neu, Standard aus).** `toolbar.foldable`
+(„Bedienleisten einklappbar (☰)") und `toolbar.startFolded` („Startzustand
+eingeklappt", Standard an, sichtbar mit foldable): Toolbar, Legende und
+Hinweiszeilen (Skalenhinweis, Baum-Hinweis) klappen hinter einen kleinen
+☰-Knopf. Eingeklappt bleibt eine Zeile (Harness 640 × 360: 27 px statt
+210 px Bedienfläche); aufgeklappt führt ☰ die Toolbar an. Die Wahl des Lesers
+gilt zur Laufzeit und wird nicht gespeichert. Exporte drucken die Legende wie
+bisher. Titel, Spaltenköpfe mit Skalierungsfaktor und die ×n-Marken der Karten
+bleiben auch eingeklappt sichtbar. Neue Properties in capabilities.json, vier
+Sprachen.
+
+- **Tests (Nachtrag):** neu `test/scale-views.js` (`npm run test:scale`, 17
+  Prüfungen: px je Einheit Δ zu Wertbalken in p2/p7/p16, eine Δ-Skala und
+  Pin-Ausreißerzone in p1, eine Kartenskala × Marke in p8/p10);
+  `toolbar-interact.js` Block K (7 Prüfungen ☰).
+- **Tests:** `megatable-test.js` 42 Blöcke (neu: runde Faktoren, gleiche px je
+  Einheit über Blöcke, Lupe statt stiller Umskalierung, Kaskade gegen Δ,
+  gemeinsame Kappung, Ausreißerzone); `mega-shot.js` 247 Prüfungen (neu: m32
+  Einzelknoten-Regionen, m33 Ausreißerzone der Δ-Balken, Messung Monat = 5 ×
+  YTD in m5, Δ in Kaskadenskala in m15, Satz-Headline, Fußnote 2.0).
+
+## 1.4.2.0 (2026-10-18) — Korrektur: GuV-Reihenfolge im Ebenen-Modus
+
+Bugfix ohne neue Property oder Rolle; capabilities.json und persistierte Werte
+unverändert.
+
+- **Reihenfolge der Blöcke im Ebenen-Modus (L1…Ln) mit gebundener
+  Sortierspalte:** Erzeugte Zwischenebenen gaben ihren Platzhalter-Index
+  (Position der ersten Datenzeile, 0…n) als Sortierwert an die Wurzel weiter.
+  Liegt die Sortierspalte auf einer anderen Skala (z. B. `SortOrder` = 6 ×
+  Zeilenposition) und kommen die Zeilen nicht in Sortierreihenfolge an (Power BI
+  und Abfragen ordnen nach dem ersten Gruppierungsfeld, meist der Konto-ID),
+  sprangen alle Blöcke mit Zwischenebenen vor die Formelzeilen: „Other operating
+  result" vor „Cost of goods sold", „Gross profit" hinter die Abschreibungen.
+  Jetzt erbt eine erzeugte Ebene nur die kleinste Sortierung ihrer Kinder. Ohne
+  Sortierspalte entscheidet wie bisher die Datenreihenfolge.
+- **Test:** `engine-test.js` prüft die Wurzelreihenfolge über erzeugte
+  Zwischenebenen (scheitert gegen 1.4.1.0) und die Datenreihenfolge ohne
+  Sortierspalte.
+
+## 1.4.1.0 (2026-10-18) — Familien-Hub: ein Look mit ChartKitchen
+
+Der Start-Hub fühlt sich wie im Schwester-Visual ChartKitchen an (eine
+Produktfamilie, gemeinsame Spezifikation). Keine neue Property, keine neue
+Rolle, capabilities.json und persistierte Werte unverändert; Werttreiberbaum
+unangetastet. Pixel-Regression aller 58 Harness-Bühnen gegen 1.4.0.0:
+52 byte-identisch, gewollte Abweichungen nur auf den Hub-Bühnen p12, p21–p24,
+p26 (Leiste, Titelzeile, Kacheln, Galerie-Überschriften, ← Zurück, Loslegen);
+die Mega-Shots m1–m31 und alle übrigen Test-PNGs unverändert.
+
+- **Untere Leiste (jede Hub-Seite):** „Aa" + drei Pillen **HD · Full HD ·
+  UHD** (Radius = Höhe/2, aktiv Teal #0E8585 mit weißer Schrift, Dark
+  #3FB3C2 mit dunkler Schrift, Hochkontrast mit foregroundSelected-Rahmen,
+  6 px Abstand), danach der gedämpfte Hinweis „Schriftgröße — HD für Laptops ·
+  Full HD für Monitore · UHD für Beamer & 4K" (bei Platzmangel fällt nur er
+  weg), rechts „📖 Doku öffnen" als Outline-Pille. Paddings 8 px · 12 px,
+  1-px-Trennlinie in 10 % Tinte, 38 px hoch (HD); darunter mittig die
+  Signatur „made by Daten-WG" (9 px, 60 % Deckkraft).
+- **Labels umbenannt:** Formatmenü „Schriftgrößen-Preset" zeigt jetzt **HD ·
+  Full HD · UHD** (statt „HD (kompakt)" / „UHD / Präsentation"), vier
+  Sprachen. Gespeicherte Werte (`hd` · `fullhd` · `uhd`) bleiben — Berichte
+  ändern sich nicht.
+- **Familien-Werte im Hub:** Titelzeile Produktname fett (700) + Untertitel in
+  ink-soft; Einstiegs-Kacheln mit 10 px Ecken und dem Hover-Lift der Galerie
+  (−2 px); „🚀 Loslegen" in Teal über die volle Breite des Kachelblocks;
+  „← Zurück" als Outline-Pille links oben; Galerie-Gruppen als
+  GROSSBUCHSTABEN-Eyebrow in ink-soft (11 px·k).
+- **Lesemodus ohne Daten:** Leser und Exporte sehen statt des Feld-Hinweistexts
+  eine ruhige Landing-Karte — Produktname fett, „Dieses Visual hat noch keine
+  Daten — Felder werden im Bearbeitungsmodus gebunden." (der emptyState-Text
+  des Autors gewinnt weiterhin) und eine statische Reihe aus drei
+  Chart-Schemata. Keine Buttons, keine Pillen, kein Doku-Link. Der
+  Bearbeitungsmodus (Hub, kleine Visuals) bleibt wie in 1.4.
+
+## 1.4.0.0 (2026-10-18) — Hub-Polish: Self-Service für Controller
+
+Der Einstieg soll für Controller und Finance ohne Sackgassen funktionieren —
+dasselbe Bedienkonzept wie im Schwester-Visual ChartKitchen. Lese- und
+Export-Pfade sind unverändert: Pixel-Regression aller 58 Harness-Bühnen
+(p1–p27, m1–m31) gegen 1.3 — 50 byte-identisch. Abweichungen nur auf Hub-/
+Leerzustand-Bühnen (p12, p21–p24, p26: neue Galerie, Leiste, Loslegen-Knopf)
+und dem Toolbar-Start-Knopf (p20, p27: Unterschied nur in der Toolbar-Zeile,
+y 79–116 bzw. 61–98 px; die Tabelle darunter pixelgleich). p19 (Feld-Intro im
+Modus `fields`) und p25 (Modus `demo`) bleiben byte-identisch. Keine neue
+Property, keine neue Rolle, capabilities.json unverändert; Werttreiberbaum
+unangetastet.
+
+### Template-Galerie nach Zweck
+
+- **Vier Gruppen** statt der T-Nummern-Liste: *Struktur-Vergleich* (T01A/B,
+  T02A–C) · *Forecast* (T02E/F, T03B, T04D/E) · *GuV-Statement* (T03A,
+  T04A–C) · *Report-Ansichten* (12A, 12G, 12H, klassische Tabelle). Jede Gruppe
+  mit einem Satz Zweck.
+- **Kacheln:** Finance-Titel („Regionen mit Plan-Abweichung", „GuV mit
+  Δ-Wasserfall"), T-Nummer als kleines Badge auf der Vorschau, eine
+  Nutzen-Zeile, größere Vorschau (Mindestbreite 240 statt 210 px). Hover hebt
+  die Kachel an (Akzentrahmen, Schatten), die aktive Kachel trägt 2-px-Akzent-
+  rahmen, getönten Grund und die Pille „✓ aktiv". Klick-Verhalten wie in 1.3
+  (ein Speichervorgang, Echo-Guard, Wiederanwenden).
+
+### Untere Leiste auf jeder Hub-Seite
+
+- **HD · Full HD · UHD** als erstes Element einer festen (sticky) Leiste am
+  unteren Rand aller Hub-Seiten — Startseite, Tour, Galerie, Felder, Loslegen,
+  die Demo-Seite und alle Seiten im Overlay. Das ist das bestehende Setting
+  `style.fontPreset`; das aktive Preset ist markiert, ein Klick speichert mit
+  Echo-Guard (TTL 5, Muster `emptyState.mode`) und zeichnet sofort neu — im
+  Overlay auch die GuV darunter.
+- **„📖 Doku öffnen"** rechts in der Leiste (nur Bearbeitungsmodus):
+  `IVisualHost.launchUrl` auf https://datenwgknowledgekitchen.com/pnl-doku.html
+  (deutsche Locale) bzw. `pnl-doku_en.html` (alle anderen). Keine Privilegien
+  nötig, nichts gespeichert.
+
+### Feld-Intro: alle Rollen, zwei Prämissen
+
+- **Alle 20 Datenrollen** mit je einem Satz Zweck und ✓ bei gebunden, in vier
+  Gruppen: *Pflicht* (Ebenen, Konto-ID, Parent, AC) · *Szenarien und Zeit*
+  (PY, PL, FC, Periode, FC/PL Gesamtjahr) · *Statement-Logik* (Zeilentyp,
+  Formel, Vorzeichen, Anzeige-/Abweichungs-Invertierung, Sortierung) ·
+  *Extras* (Kontoname, Kommentar, Spalten-Kategorie, Filter-Info).
+- **Prämisse IBCS-Notation:** AC voll · PY grau · PL Rahmen/Doppellinie ·
+  FC schraffiert, Regel „Minuend → Füllung, Referenz → Achse".
+- **Prämisse Struktur vs. Zeit:** Konten/Struktur vertikal in Zeilen, Zeit
+  horizontal in Blöcken (Monat | _YTD | FY), mit Mini-Piktogramm.
+- Das 1.2-Feld-Intro des Modus `emptyState.mode = fields` bleibt unverändert.
+
+### „🚀 Loslegen" — die ersten 3 Minuten
+
+- Breiter Akzent-Knopf über den vier Kacheln der Startseite. Die Seite ist eine
+  geführte Checkliste: **① Felder binden** (live ✓ je Pflicht-/Empfehlungsrolle,
+  der schnelle Weg mit Ebenen-Spalten zuerst; Sprung „Alle Felder erklärt"),
+  **② Template wählen** (Stand + Sprung in die Galerie), **③ Feinschliff**
+  (Hausbegriffe, Schwellen/Wesentlichkeit, Dezimalen — mit Ort im
+  Formatbereich, ✓ sobald gesetzt). Der Zustand wird nie gespeichert.
+
+### Durchgängig zurück, Zugang einfacher
+
+- „← Zurück" auf jeder Unterseite und Ebene (auch Loslegen → Galerie/Felder),
+  Esc wie gehabt eine Ebene zurück, der Fokus kehrt auf die Kachel bzw. den
+  Loslegen-Knopf zurück.
+- **„☰ Start"** ist jetzt das **erste** Element der Toolbar (vor der
+  Template-Auswahl), mit Akzentrahmen und fetter Schrift, beim Hover gefüllt
+  (bisher leise am Ende der Toolbar).
 
 ### Tests
 
-- Engine: 28 Blöcke unverändert grün.
-- Render: der Körper von p1–p7 (und p8–p11) ist **Pixel für Pixel identisch**
-  zu 0.17 (Stage-Screenshots gegen den Vorgänger-Commit verglichen); die
-  einzige Änderung ist der fünfte Knopf „Sankey" in der Toolbar-Zeile.
-- Interaktion: **323 Checks** (262 aus 0.17 unverändert, einer davon um den
-  Sankey-Knopf ergänzt, + 61 neue): Spaltenzahl = Graph-Tiefe, Wurzel rechts,
-  Blätter links, Gewinn-Strang Spalte für Spalte; Banddicken je Anschluss =
-  Knotenhöhe, gemeinsame Skala über alle Spalten, Umsatz teilt sich wertgenau
-  in Gross profit und Herstellkosten; Farbfamilien rot/teal/grau für Knoten
-  und Bänder; Labels mit Wert und %-Klammer, kein Clipping, keine
-  Überlappung; Klick → Kachel-Zoom, „← Zurück zum Sankey" → Sankey;
-  Rechtsklick → Kontextmenü mit Selektions-ID an der Zeigerposition; Hover
-  blendet fremde Bänder ab; Ebenen-Buttons, Chevron, Shift-Chevron und ⌂;
-  KPI-Wurzel (Net margin, EBITDA margin per Format-Pane) → Wert-Operand;
-  Dimensions-Hierarchie (Muster aus Block 30) als grauer Fluss in drei Spalten;
-  Toolbar ohne Preset-/Perioden-Block; sowie die Ansichts-Schalter (Sankey aus
-  → kein Knopf, nur Tabelle → keine Ansichts-Gruppe, gespeicherter Sankey bei
-  abgeschaltetem Sankey → Tabelle ohne Fehler, Fallback-Reihenfolge, Kachel
-  ohne Trägeransicht → kein Zoom, alles aus → Tabelle).
-- Performance: unverändert im Budget (60.000 Datenzeilen, First Render
-  ~570 ms bei 1.500 ms Budget, Expand-Rerender ~125 ms bei 300 ms Budget).
-- Bekannt und unverändert gegenüber 0.17: in dieser Testumgebung meldet der
-  Render-Check ein um 0,6 px über den Rand laufendes Δ%-Pin-Label in p2
-  („+220.0%▸") — Font-Metrik der Umgebung, identisch schon auf dem
-  Vorgänger-Commit; p2 wurde bewusst nicht angefasst.
+- `test/hub-test.js`: Galerie-Gruppen (Reihenfolge, jedes Template genau
+  einmal), Feld-Rollen = capabilities-Rollen, Checklisten-Ticks, Preset-Reihen-
+  folge, Doku-URL je Locale.
+- `test/hub-interact.js` (109 Checks): neue Abschnitte Q (Galerie-Kacheln),
+  P (Preset-Leiste persist + Echo-Guard, Doku über den `launchUrl`-Logger des
+  Harness-Hosts), S (Loslegen live), F (Feld-Intro), B (Zurück überall).
+- `test/i18n-test.js` liest auch die Schlüssel aus `src/hub.ts`. 107 neue
+  Texte in vier Sprachen (712 Schlüssel je Sprache).
+
+## 1.3.0.0 (2026-10-18) — Start-Hub: erst entdecken, dann Felder binden
+
+Ziel ist leichtere Bedienung: Wer das Visual ohne Daten auf die Seite zieht,
+sieht jetzt vier große Knöpfe statt einer Demo-Tabelle. Lese- und Export-Pfade
+sind unverändert. Die 51 Harness-Bühnen von 1.2 (p1–p20, m1–m31) rendern
+byte-identisch, mit genau zwei begründeten Ausnahmen: p12 (Leerzustand im
+Bearbeitungsmodus ist jetzt der Hub) und p20 (Bearbeitungsmodus mit Daten: der
+neue „☰ Start"-Knopf rechts in der Toolbar, 162 Pixel in einem 36 × 9-px-Feld).
+Der Werttreiberbaum und seine Logik sind unangetastet.
+
+### Der Start-Hub (`emptyState.mode = hub`, neuer Standard)
+
+- **Vier Knöpfe:** *Was kann das Visual?* (Feature-Tour) · *Templates*
+  (Galerie) · *Demo ansehen* (die bisherige Demo-GuV, unverändert) · *Felder
+  erklären* (das 1.2-Feld-Intro). Navigation Hub ↔ Unterseite mit „← Zurück",
+  Esc geht eine Ebene zurück, die Ziffern 1–4 öffnen die Knöpfe, ‹ › und die
+  Pfeiltasten blättern die Tour. Alles sind native Buttons (Tab · Enter ·
+  Leertaste), der Fokus folgt der Navigation. Vier Sprachen, Dark und
+  Hochkontrast.
+- **Tour:** sieben Karten (GuV-Tabelle, Mega-Table mit IBCS-Templates,
+  Werttreiberbaum, Struktur-Balken, Zeilen-Waterfall, Kacheln, Dark Mode) mit
+  1–2 Sätzen und einem **echten Mini-Rendering**: eine verschachtelte,
+  nicht-interaktive Instanz des Visuals über der eingebauten Demo (dieselbe
+  Pipeline wie Smart Start), per Transform verkleinert. Keine Bitmaps.
+- **Templates:** Galerie mit **18 Kacheln** (klassische Tabelle + T01A–12H),
+  jede mit Mini-Vorschau. Ein Klick schreibt dasselbe wie das Toolbar-Dropdown
+  (`template`, `templateApplied`, alle Schalter, Dezimalstellen und ggf. Headline
+  in **einem** Speichervorgang, Echo-Guard inklusive). Ohne gebundene Felder
+  steht der Hinweis „Gespeichert … wird aktiv, sobald Felder gebunden sind",
+  die Wahl greift beim Binden. Templates, die FC analysieren, zeigen eine
+  Vorschau mit simuliertem FC (am Hinweis erkennbar).
+- **Mit gebundenen Daten:** ein quieter **„☰ Start"**-Knopf am Ende der Toolbar
+  (nur Bearbeitungsmodus) öffnet den Hub als **Overlay** über der GuV. Schließen
+  (✕, Esc) entfernt die Schicht; die Ansicht darunter ist Byte für Byte wie
+  zuvor (DOM und Scroll-Position), der Fokus kehrt auf den Knopf zurück. Ein
+  Klick in der Galerie wendet das Template an, stellt die Ansicht Tabelle
+  ein (auch aus Balken/Waterfall/Baum, wird als Leser-Zustand gespeichert) und
+  schließt das Overlay auf dem Ergebnis. Demo und Feld-Intro laufen im Overlay
+  als Unterseiten.
+- **Nie für Leser und Export:** Lesemodus, `allowInteractions = false` und zu
+  kleine Visuals (< 300 × 220) behalten den Landing-Text bzw. die eigene
+  Nachricht. Das Overlay schließt sich, wenn der Host in die Leseansicht
+  wechselt. Navigation im Hub ist lokaler Zustand, nichts davon wird gespeichert.
+- **`emptyState.mode`** hat `hub` als ersten Eintrag und Standard. `demo`,
+  `fields` und `message` bleiben wählbar und verhalten sich wie in 1.2 (Demo
+  pixelgleich zu 1.2, belegt durch Bühne p25 gegen p12 von 1.2). Berichte, die
+  `demo` oder `fields` gespeichert haben, ändern sich nicht.
+- Seitenfüller: Der Hub zeichnet seine Minis in Päckchen (die Galerie nach dem
+  ersten Paint, Tour/Demo sofort), ein unverändertes Update zeichnet nichts neu.
+
+### Template-Bedienung
+
+- **Erneut anwenden:** Dasselbe Template noch einmal anwenden wirkt jetzt. Ein
+  natives Dropdown kann den bereits gewählten Eintrag nicht noch einmal wählen
+  (der Altfall „erneute Wahl tut nichts"). Deshalb gibt es drei Wege, die alle
+  unbedingt schreiben: ein Klick auf die aktive Kachel der Galerie, der
+  Zurück-Knopf unten und ein change-Ereignis des Dropdowns. Der Echo-Guard
+  (`megaPending`, TTL) hält die Werte, bis Power BI sie bestätigt.
+- **„↺ Zum Template zurück":** neben dem Template-Dropdown, nur im
+  Bearbeitungsmodus und der Tabellen-Ansicht, nur wenn ein Template gesetzt ist
+  **und** mindestens ein Template-Schalter (Spalten, Headline) abweicht. Ein
+  Klick stellt den Template-Stand wieder her (alle Schalter und
+  Dezimalstellen). Dezimalstellen allein gelten nicht als Abweichung.
+
+### Technik
+
+- Neu: `src/hub.ts` (rein, ohne Power-BI-Import: `templateSwitches`, Tour-Karten,
+  `miniObjects`); `applyMegaTemplate` liest jetzt `templateSwitches` (Schreibweise
+  unverändert, Test gegen die 1.2-Logik). `showStart` baut das Demo-Modell über
+  `installDemoModel` (Smart Start, Hub-Demo und Minis teilen es).
+- `capabilities.json`: nur eine neue Aufzählung `hub` in `emptyState.mode`.
+- Sprachdateien: 42 neue Schlüssel in allen vier Sprachen (Hub, Tour, Galerie,
+  ↺-Knopf, Enum), paritätisch.
+- Tests: `test/hub-test.js` (rein, 7), `test/hub-interact.js` (80 Prüfungen:
+  Hub, Tour, Galerie mit Persist und Re-Apply, Navigation, Overlay, ↺, Sprachen,
+  Dark, Paletten-Sicherheit). Neue Bühnen p21–p27 in `test/test.html`. Die
+  Smart-Start- und Leer-Zustand-Tests der Version 1.2 prüfen die Demo jetzt über
+  den expliziten Modus `demo`.
+
+### Dokumentation
+
+- AGENT-GUIDE und TEMPLATE-GUIDE: Kostenzeilen-Trio berichtigt
+  (`SignConvention -1 · DisplayInvert true · VarianceInvert false`; `-1` plus
+  Drehen färbt eine Überschreitung fälschlich günstig) und die Headline-Angabe
+  berichtigt (nur 12G und 12H schalten sie ein, nicht 12A).
+
+## 1.2.0.0 (2026-10-17) — Leichter bedienen: freie Szenarien, Template in der Toolbar, Feld-Intro, Spalten-Kategorie
+
+1.2 sammelt die kleinen Sachen, die beim Testen in Power BI aufgefallen sind.
+Alles Neue steht per Default aus oder verhält sich wie bisher: die 45
+Harness-Bühnen von 1.1 (p1–p14, m1–m31) rendern byte-identisch (PNG und DOM).
+Sichtbar anders sind nur zwei Listen, die kein Bild verändern: die Reihenfolge
+im Formatbereich und die der Feldrollen. Der Werttreiberbaum ist unverändert.
+
+### Szenarien frei kombinieren (Wertspalten-Schalter)
+
+- **Neues Preset „Eigene Auswahl"** (`columns.preset = custom`) mit den
+  Schaltern `colAc`, `colPy`, `colPl`, `colFc` und `colDelta`: jede Kombination
+  der Wertspalten, zum Beispiel AC + PL + FC, dazu Δ-Balken und Δ%-Pin gegen
+  die Δ-Referenz. Die Δ-Referenz bleibt eine eigene Wahl. Der MTD-Block folgt
+  denselben Schaltern, der FY-Block auch (AC/FC → AC&FC, PL → PL FY).
+- **Toolbar-Gruppe „Wertspalten"** (`toolbar.showValues`, Standard aus):
+  AC · PY · PL · FC · ΔRef als unabhängige Knöpfe. Ein Klick macht aus dem
+  aktuellen Spaltensatz die eigene Auswahl und kippt genau einen Schalter. Die
+  Presets bleiben Schnellwahl und setzen die Knöpfe wieder. Aus „AC·PY·ΔPY" und
+  „AC·PL·ΔPL" heraus bleibt die Referenz erhalten. Ungebundene Szenarien
+  bekommen keinen Knopf. Ein Knopf, der nichts ändern würde (die letzte
+  Spalte, Δ ohne Referenzfeld), ist gesperrt wie seit 1.0.1.
+- **Im Mega-Table** zeigt dieselbe Gruppe das analysierte Szenario, PY und
+  PL als Leser-Schalter über den Pane-Schaltern. Die letzte Spalte ist
+  gesperrt, damit der Mega-Table nie per Klick in die klassische Tabelle
+  zurückfällt. Ändert der Autor die Wertspalten im Pane, endet die Leser-Wahl.
+
+### Templates finden
+
+- Die **Mega-Table-Gruppe mit dem Template-Dropdown ist jetzt die erste
+  Gruppe** der Karte „Spalten & Mega-Table" (vorher unter den klassischen
+  Schaltern).
+- **Template-Auswahl in der Toolbar** (`toolbar.showTemplate`, Standard an):
+  ein kompaktes Dropdown am Anfang der Toolbar, **nur im
+  Bearbeitungsmodus** und in der Tabellen-Ansicht. Leser und Export sehen es
+  nie. Eine Auswahl schreibt `template`, `templateApplied` und alle Schalter in
+  **einem** Speichervorgang. Der Echo-Guard des Templates hält die Wahl, bis
+  Power BI sie bestätigt.
+
+### Leerzustand
+
+- **Neuer Modus** `emptyState.mode`: **Demo** (wie bisher, Standard) ·
+  **Feld-Intro** · **Eigene Nachricht** (Titel/Text der Karte). Das Feld-Intro
+  erklärt kompakt, welches Feld wohin gehört, minimal (Ebenen, AC) und im
+  Ausbau (PY, PL, FC, Periode, Zeilentyp + Formel, Vorzeichen,
+  Spalten-Kategorie). Gebundene Rollen tragen ein ✓, fehlende Pflichtrollen
+  stehen oben. Vier Sprachen, im Stil des Smart Start.
+- **Umschalt-Knöpfe im Leerzustand** (nur Bearbeitungsmodus): „Felder
+  erklären" im Demo-Banner, „Demo ansehen" im Feld-Intro, beide bei der
+  eigenen Nachricht. Sie speichern den Modus, ohne dass man in den Pane muss
+  (mit Echo-Guard). Leser und Export sehen wie bisher den Standardtext oder
+  die eigene Nachricht.
+
+### Datenrollen in gewohnter Reihenfolge
+
+Die Feldliste folgt jetzt der Logik des Visuals: Ebenen → Konto-ID →
+Kontoname → Parent → **AC → PY → PL → FC** → Periode → Spalten-Kategorie →
+Zeilentyp, Formel, Vorzeichen-Trio, Sortierung, Kommentar, Filter-Info,
+FY-Rollen. Nur die Reihenfolge hat sich geändert, die Rollennamen nicht.
+Gespeicherte Berichte und PBIR-Projektionen bleiben gültig.
+
+### Balken-Ansicht wie ChartKitchen
+
+- `columns.barOverlap`: Szenario-Balken **überlappt**. AC liegt vorn in voller
+  Stärke, die Referenz gleich hoch dahinter und versetzt (PY grau, PL
+  umrandet, FC schraffiert). Bisher lag ein schmaler AC-Balken in einem
+  vollen Referenzband.
+- `columns.barTriangles`: **Dreieck-Marker** für die weiteren gebundenen
+  Szenarien am jeweiligen Wert über dem Balken: PY grau gefüllt, PL hohl
+  umrandet, FC schraffiert. Die Notation hängt an der Form, nicht nur an der
+  Farbe. Die Marker gehen in den Wertmaßstab ein und werden nie abgeschnitten.
+- Beide Schalter stehen per Default aus, die Balken-Ansicht bleibt dann
+  pixelgleich. Dark Mode funktioniert. Hochkontrast: die klassischen Ansichten
+  behalten wie in 1.1 ihre Palette, der Muster-Pfad gilt im Mega-Table.
+
+### Spalten-Kategorie (klassische Tabelle)
+
+- **Neue Rolle `colCategory`** („Spalten-Kategorie", max. 1): Der
+  Spaltensatz des YTD-Blocks (sonst des ersten Blocks) wiederholt sich je
+  Kategoriewert, etwa je Segment oder Quartal, unter einer Gruppen-Kopfzeile.
+  Danach folgt der bisherige Block als „Gesamt". Jede Kategorie rechnet
+  vollständig, auch Formeln und Margen. Die Monate werden auf den Kalender des
+  Gesamtmodells gelegt, YTD-Fenster und Monatsblock sprechen also über
+  dieselbe Periode. Ein **einheitlicher Δ-Maßstab** gilt über alle Blöcke,
+  bei vielen Werten scrollt die Tabelle horizontal. Periodenartige Werte
+  werden kalendarisch sortiert, alles andere bleibt in Datenreihenfolge.
+  Höchstens 24 Kategorien, der Rest wird in den Fußnoten genannt.
+- Bewusst v1: „% vom Umsatz" und Σ-treue Rundung bleiben im Gesamt-Block. Der
+  Zeilen-Tooltip zeigt die Gesamtwerte. **Mega-Table, Balken und Waterfall
+  ignorieren die Rolle**, im Bearbeitungsmodus steht dann ein Hinweis unter
+  der Tabelle.
+
+### Neue Properties (Überblick)
+
+`columns`: `preset` += `custom`, `colAc`, `colPy`, `colPl`, `colFc`,
+`colDelta`, `barOverlap`, `barTriangles`. `toolbar`: `showValues`,
+`showTemplate`. `emptyState`: `mode` (`demo` · `fields` · `message`). Rolle
+`colCategory`. `state.uiState` += `vals`, `megaVals`. Referenz:
+[`AGENT-GUIDE.md`](AGENT-GUIDE.md).
+
+### Tests
+
+- `test:toolbar` (318 Checks): neue Abschnitte H (Wertspalten-Sweep: 56
+  Schalter in 14 Zuständen, freie Kombination, Pane-Vorgaben, Echo-Guard),
+  I (Template-Auswahl: nur Bearbeitungsmodus, ein Merge, Echo-Guard) und J
+  (Mega-Wertspalten). Der Treffer-Test G deckt die neuen Knöpfe in vier
+  Sprachen ab.
+- Neu: `npm run test:ease` (`test/ease-interact.js`, 47 Checks):
+  Pane-Reihenfolge und Gates, Rollen-Reihenfolge und Mapping (vertauschte
+  Spaltenfolge ergibt dasselbe Statement), Leerzustand-Modi in vier Sprachen
+  mit Umschaltern und Echo-Guard, Balken-Notation, Spalten-Kategorie (Summen,
+  Maßstab, Mega-Hinweis, Kappung).
+- `test.html`: Bühnen p15–p20. `test:i18n`: **563 Keys** je Sprache, vier
+  Sprachen paritätisch.
+
+## 1.1.0.0 (2026-10-17) — IBCS-12er-Serie komplett, Finance-Handwerk aus ChartKitchen, lange Statements flüssig
+
+1.1 bündelt drei Pakete. **A** bringt den Mega-Table näher an die
+IBCS-Referenzblätter, **B** holt das Finance-Handwerk von ChartKitchen ins
+P&L-Visual, **C** schließt die 12er-Serie (12G, 12H, Headline) ab und macht
+lange Statements schnell. Alles Neue steht per Default aus oder verhält sich
+wie bisher: die 40 Harness-Bühnen von 1.0.1 (p1–p14, m1–m26) rendern
+byte-identisch (PNG und DOM). Der Werttreiberbaum ist unverändert.
+
+### Paket C — 12G, 12H, Headline, Skalen-Sync, Blau/Orange, Virtualisierung
+
+- **12G · YTD und Restjahr in einem Balken.** Im FY-Ausblick (Block-Art FY mit
+  dem Feld „FC Gesamtjahr") stapelt die AC&FC-Wert-Kaskade das Ist bis heute
+  (voll, Zahl innen in Papierfarbe) und den Rest des Jahres (schraffiert,
+  Jahreszahl außen): „637 ▓ 1 698" wie im Referenzblatt. Die Spalte trägt zwei
+  Köpfe, „YTD" und „AC&FC". PY ist im FY-Block jetzt das ganze Vorjahr (wie in
+  der klassischen Tabelle), damit beziehen sich ΔPY und ΔPY% aufs Jahr. Weil
+  AC&FC überwiegend Forecast ist, sind die Δ-Elemente des FY-Blocks schraffiert;
+  die Legende nennt dann FC.
+- **12H · Planrechnung.** Das analysierte Szenario kann jetzt PL sein
+  (`columns.minuend = pl`): PL-Kaskade umrandet, Kostenzeilen auf blassem Grund,
+  Δ-Balken in blasser Tönung von Teal/Rot mit dünner Kontur, im Dark Mode die
+  dunklen Pendants. Ein ΔPL gegen sich selbst gibt es nicht. Umgesetzt als
+  dritte Füllregel der Notations-Engine (AC voll · FC schraffiert · PL getönt),
+  nicht als Sonderfall im Zeichner.
+- **Headline-Slot** (`titleBlock.headline`): die Botschaft groß neben dem Titel,
+  mit Linie darunter, wie in der 12er-Serie. Ohne eigene Botschaft schreibt der
+  Generator aus Paket B die Zeile; im FY-Layout spricht er über das Jahr.
+- **Templates 12G und 12H** im Template-Menü. Beide schalten den Headline-Slot
+  im selben Speichervorgang an; 12G setzt den FY-Block.
+- **Skalen-Sync** (`numbers.fixedMax`, `numbers.fixedVarMax`, Text mit k/m/b):
+  gleiche Beträge, gleiche Längen über mehrere Visuals. Wie in ChartKitchen ein
+  Mindest-Maximum — größere Daten weiten die Skala weiter. Wirkt auf
+  Wert-Kaskaden und Δ-Balken/-Wasserfälle des Mega-Tables, auf den
+  einheitlichen Δ-Maßstab der klassischen Tabelle und auf die Wertbalken der
+  Balken- und Waterfall-Ansicht. Im Bearbeitungsmodus steht „Skala fixiert"
+  unter der Tabelle.
+- **Blau/Orange** (`style.variancePreset`): das ColorBrewer-Paar #2C7BB6 /
+  #E66101 (dunkel #5BA3DC / #F0821E) wie in ChartKitchen — auch ohne Farbsehen
+  und im Schwarzweiß-Druck unterscheidbar. „Auto" (Default) folgt dem bisherigen
+  Schalter Teal/IBCS, gespeicherte Berichte behalten ihre Farben. Legende und
+  Fußzeile benennen die Abweichung passend.
+- **Lange Statements:** Ab 150 Zeilen zeichnet der Mega-Table nur, was im Bild
+  ist (plus Puffer) und malt beim Scrollen nach. 2 000 Konten: erstes Bild in
+  unter 200 ms, Nachzeichnen beim Scrollen rund 50 ms. Selektion, Falten,
+  Tastatur und Tooltips funktionieren auf nachgezeichneten Zeilen; der Export
+  zeichnet weiterhin alles.
+
+### Paket B — Finance-Handwerk (Namen wie in ChartKitchen)
+
+- **Tooltips** in Tabelle, Balken, Waterfall und Mega-Table: Szenarien, Δ je
+  Referenz, Wesentlichkeit, Kommentar; im Dark Mode ein eigener dunkler Kasten.
+- **Σ-treue Rundung** (`numbers.sumSafeRounding`): gedruckte Kinder ergeben die
+  gedruckte Summe (Restwertverfahren entlang der Hierarchie).
+- **Klammern statt Minus** (`numbers.financeFormat`), **Mrd.** (`scaling = b`),
+  **Hausbegriffe** (Karte „Szenario-Namen": Ist, VJ, Budget …).
+- **Titelblock:** Auto-Botschaft, Fußzeile für Datenstand/Quelle, Filter-Fußzeile
+  mit der neuen Textrolle „Filter-Info".
+- **Hervorheben** von Zeilen, **Wesentlichkeit** (Δ unter der Schwelle grau),
+  Toolbar-Gruppe **Szenario** für Leser (AC/FC, ΔPY · ΔPL · beide),
+  eigener **Leer-Zustand**, **Tastatur** (Toolbar und Aufklappen per Tab/Enter).
+
+### Paket A — Mega-Table näher an den Referenzblättern
+
+- Margen-Δ% mit %-Zeichen (T03A „+23%"), `%p` nur an der Punktdifferenz.
+- Kopf-Schriftgröße wirkt auf Mega-Köpfe; Legende zeigt nur die Szenarien der
+  Spalten; Sortier-Indikator wandert an den Kategorie-Kopf, wenn seine Spalte
+  aus ist; Mindest-Datenfläche hält auch beim gemeinsamen Maßstab;
+  Schwellen-Fußzeile mit den Dezimalen der Schwelle.
+- Hochkontrast-Pfad (Muster statt Farbe), Export ohne Toolbar und aufgeklappt
+  (`columns.exportExpandAll`).
+- Block-Arten Monat · YTD · FY-Ausblick (`columns.blockKind`,
+  `columns.leftBlockKind`) und „% vom Umsatz" im Mega-Modus.
+
+### Neue Properties (Überblick)
+
+`columns`: `blockKind`, `leftBlockKind`, `pctOfRevenue`, `exportExpandAll`,
+`highlight`, `materialityAbs`, `materialityPct`; `minuend` += `pl`; `template` +=
+`12G`, `12H`. `numbers`: `financeFormat`, `sumSafeRounding`, `fixedMax`,
+`fixedVarMax`; `scaling` += `b`. `style.variancePreset`. `titleBlock`:
+`autoMessage`, `headline`, `footer`, `filterFooter`. `toolbar.showScenario`.
+Karten `labels` und `emptyState`. Rolle `filterInfo`. Vollständige Referenz für
+Agenten: [`AGENT-GUIDE.md`](AGENT-GUIDE.md) (neu).
+
+### Verhaltensänderungen, die man sehen kann
+
+- Die umrandete PL-Wert-Kaskade legt Kostenzeilen auf blassen Grund (#F2F2F2)
+  statt Weiß — wie 12H.
+- Im FY-Block heißt PY jetzt Vorjahr gesamt statt „leer".
+
+### Tests
+
+- Neu: `npm run test:megaperf` (`test/mega-perf.js`): 2 000 Konten im
+  Mega-Table, Zeitbudgets, Fenster oben/unten, Selektion/Falten/Tooltip nach dem
+  Scrollen, Identität „Fenster über alle Zeilen = ohne Fenster".
+- `test:mega`: Bühnen m17–m31 (A: Export, Hochkontrast, Blöcke, % vom Umsatz …;
+  C: 12G, 12H, 12H dunkel + Blau/Orange, Skalen-Sync, Virtualisierung),
+  Template-Schritt 11 (12G/12H inkl. Headline und Echo-Guard), Layout-Unit-Tests.
+- `test:finance` (F1–F11), `test:start` (Pane-Gates aller neuen Schalter),
+  `test:i18n`: **511 Keys** je Sprache, vier Sprachen paritätisch.
+
+## 1.0.1.0 (2026-10-17) — Die Toolbar-Knöpfe wirken wieder in jeder Ansicht
+
+Nutzer-Befund nach dem Test der 1.0 in Power BI: „die AC etc buttons gehen
+nicht so ganz". Die Knöpfe der Toolbar wurden für jede Ansicht systematisch
+durchgeklickt (Tabelle klassisch, Tabelle mit Mega-Template, Balken,
+Waterfall, Baum, Kachel). Gefunden wurden fünf Ursachen.
+
+### Fixes
+
+- **Ein Mega-Template übernahm auch Balken und Waterfall** (neu in 1.0). Die
+  Entscheidung „Mega-Tabelle zeichnen" prüfte nur die Mega-Schalter, nicht die
+  Ansicht. Mit gewähltem Template (T01–T04, 12A) zeigten „Balken" und
+  „Waterfall" deshalb weiter die Mega-Tabelle. Die Toolbar dieser Ansichten
+  bot aber die klassischen Gruppen an (Spalten-Preset „AC·PY·PL·FC",
+  „AC vs Ref" …, Δ-Referenz, Perioden), und kein Klick darauf veränderte
+  etwas. Jetzt gilt das Template nur in der Tabellen-Ansicht. Balken und
+  Waterfall zeigen ihre eigenen Spalten, Titelzeile und Δ-Skalenhinweis
+  passen dazu.
+- **Spalten-Preset und „% vom Umsatz" in Balken/Waterfall ohne Wirkung**
+  (Bestand). Diese Ansichten bauen ihre Spalten nur aus Δ-Referenz und
+  Perioden. Die beiden Knöpfe erscheinen jetzt nur noch in der
+  Tabellen-Ansicht.
+- **Knöpfe, die im aktuellen Zustand nichts ändern, sahen aktiv aus**
+  (Bestand). Ein Beispiel ist die Δ-Referenz PY/PL im Preset „AC·PY·PL·FC",
+  das seine Referenzen fest zeigt. Weitere Fälle: der FY-Block außerhalb der
+  Presets, die ihn tragen, „% vom Umsatz" bei ausgeblendetem YTD-Block und
+  das Abschalten des letzten sichtbaren Perioden-Blocks. Solche Knöpfe sind
+  jetzt **gesperrt**: gedimmt, ohne Hover, mit Tooltip, der sagt, wo sie
+  wirken. Ein Klick darauf speichert nichts. Ob ein Knopf wirkt, prüft die
+  Toolbar gegen die tatsächlich erzeugten Spalten. Die Perioden-Knöpfe
+  zeigen, was auf dem Bildschirm steht: ein erzwungener YTD-Block liest sich
+  als „an".
+- **YTD-Schalter der klassischen Tabelle ohne Wirkung** (Bestand). Der
+  YTD-Block wurde immer gezeichnet. Jetzt blendet YTD ihn aus, sobald ein
+  anderer Block (MTD, FY) sichtbar bleibt. Der einheitliche Δ-Maßstab wird
+  aus den tatsächlich gezeigten Δ-Spalten berechnet, nicht aus einer
+  zweiten, parallel gepflegten Liste.
+- **Formatbereich-Vorgaben wirkten nach dem ersten Rendern nicht mehr**
+  (Bestand). Spalten-Preset, Δ-Referenz, Skalierung, Dichte, % vom Umsatz,
+  Nullzeilen, Einpassen, Standard-Ebene, Baumkarten und Status wurden nur
+  einmal je Sitzung aus dem Formatbereich übernommen, nach dem ersten
+  Toolbar-Klick nie wieder. Eine im Formatbereich **geänderte** Vorgabe gewinnt
+  jetzt (nur diese eine; die übrigen Leser-Entscheidungen bleiben) und wird in
+  den gespeicherten Toolbar-Zustand geschrieben.
+- **Echo-Guard für den Toolbar-Zustand.** Kam zwischen einem Klick und
+  dessen Echo ein Update mit dem alten Zustand (Größenänderung, zwei schnelle
+  Klicks), sprang die Ansicht bis zum Echo zurück. Jetzt hält der Klick, bis
+  das eigene Echo kommt oder nach 5 Updates (Schreibvorgang verloren).
+  Gehalten werden nur Zustände, die das Visual selbst überschrieben hat. Ein
+  Lesezeichen mit einem fremden Zustand wirkt sofort.
+
+### Mega-Table
+
+- **Zahl auf der Achse (integrierter Δ-Wasserfall T04B–E):** Ein schwebendes
+  Segment direkt neben der Nulllinie setzte seine Beschriftung auf das
+  Achsenband, z. B. T04B „+5.79" oder T04D „+8.52". Die PL-Doppellinie
+  schnitt dann durch die Ziffern (die Referenzblätter tun dasselbe). Genau
+  diese Zahlen bekommen jetzt den Papier-Halo der Ausreißer-Zahlen. Die Achse
+  setzt hinter der Zahl aus, alle anderen Beschriftungen bleiben unverändert.
+
+### Tests
+
+- Neu: `npm run test:toolbar` (`test/toolbar-interact.js`, 177 Checks) gegen
+  einen Power-BI-artigen Host mit steuerbarer Echo-Warteschlange:
+  - Template plus Balken/Waterfall.
+  - Gruppen je Ansicht.
+  - Sweep über 20 Toolbar-Zustände: jeder ungesperrte Knopf ändert die
+    Spalten, jeder gesperrte ändert und speichert nichts.
+  - YTD-Schalter und Δ-Maßstab.
+  - Formatbereich-Vorgaben.
+  - Echo-Guard und Lesezeichen.
+  - Trefferflächen aller Knöpfe in vier Sprachen, drei Breiten, gescrollt und
+    ungescrollt.
+
+  Gegen das 1.0.0-Bundle schlagen 86 dieser Checks fehl.
+- `test:mega`: Halo-Prüfung für T04B–E (m11–m14); Minuend AC ↔ FC über den
+  Formatbereich (T04D, Schritt 10 in `mega-interact.js`).
+- Pixel-Regression gegen 1.0.0 (alle 30 Harness-Bühnen):
+  - **Die Tabellen- und Diagrammkörper sind identisch.** Unterschiede gibt es
+    nur in der Toolbar: gesperrte Knöpfe sowie die Preset-Gruppe, die in
+    Balken/Waterfall entfällt. Dadurch rückt p7 (Balken) um eine
+    Toolbar-Zeile nach oben.
+  - Dazu kommen gewollt die Halo-Stellen in m11–m14, m16 und p14.
+
+## 1.0.0.0 (2026-10-17) — Mega-Table, vier Sprachen, Smart Start, Dark Mode: das P&L-Visual verlässt die Beta
+
+Mit 1.0 fühlt sich das P&L Statement an wie sein Schwester-Visual ChartKitchen:
+dieselbe Handschrift im Formatmenü, dieselben vier Sprachen, derselbe
+Dunkelmodus und ein Visual, das schon beim Hineinziehen zeigt, was es kann.
+Inhaltlich ist der große Schritt der **Mega-Table** — die Tabellen-Ansicht
+spricht jetzt die IBCS-Templates T01–T04 und 12A (Abschnitt unten).
+
+### Vier Sprachen: Deutsch, Englisch, Spanisch, Japanisch
+
+- **Alle Nutzertexte** kommen aus `stringResources/<locale>/resources.resjson`
+  (de-DE · en-US · es-ES · ja-JP, je **414 Keys**): Feldrollen samt
+  Beschreibungen, jede Karte, Gruppe, jeder Schalter mit Beschreibung,
+  Dropdown-Einträge (auch die Template-Namen) und Platzhalter, die Toolbar mit
+  Tooltips, Legende, Blockköpfe, Skalen-Hinweis, Baum- und Kachel-Texte,
+  Fußnoten und Fußzeile, Lade- und Leerzustände, die Smart-Start-Demo — und die
+  **Formelfehler und Datenqualitäts-Signale** des Rechenkerns (der Kern bleibt
+  englisch und host-frei, übersetzt wird an der Anzeige).
+- **Format wie ChartKitchen:** Ordner je Locale statt der alten
+  `stringResources/de-DE.json` (die bisher nur Rollennamen trug und das
+  Formatmenü gar nicht erreichte — der FormattingSettingsService lief ohne
+  Localization-Manager). `pbiviz.json` listet keine Einzeldateien mehr;
+  `pbiviz package` sammelt die Ordner selbst ein, Power BI fällt für andere
+  Locales auf en-US zurück.
+- **Fachbegriffe wie im ChartKitchen-resjson:** „Vorjahr (PY)" / „Previous
+  Year (PY)" / „Año anterior (PY)" / „前年 (PY)", 実績 · 計画 · 予測, 差異,
+  ウォーターフォール, ブリッジ; ein Test hält die Szenario- und
+  Erscheinungsbild-Begriffe deckungsgleich mit ChartKitchen.
+- **Zahlen und Monate folgen der Locale** (Intl): Dezimalkomma in de/es,
+  Monatsnamen „Juni" / „junio" / „6月", IBCS-Kürzel (AC, PY, PL, FC, ΔPY%)
+  bleiben in allen Sprachen.
+- **Paritäts-Test** `npm run test:i18n`: identische Key-Mengen, keine leeren
+  Werte, gleiche Platzhalter, jeder Key aus Code, Formatmenü und
+  capabilities.json existiert, kein ungenutzter UI-Key, kein Deutsch in
+  en/es/ja, Japanisch und Spanisch überall dort übersetzt, wo Englisch Wörter
+  hat. `npm run test:start` rendert die Mega-Tabelle je Locale
+  (`test/i18n-<locale>.png`) und legt den Formatmenü-Dump daneben
+  (`test/i18n-pane-<locale>.json`).
+
+### Smart Start: die Demo-GuV beim Hineinziehen
+
+- Ohne gebundene Felder zeigt das Visual im **Bearbeitungsmodus** eine
+  vollständige Beispiel-GuV (Pharma-Demo, mEUR, sechs Monate, FY-Ausblick) —
+  in der Sprache des Berichts, **Zeilennamen und Formeln übersetzt** (die
+  Formeln referenzieren die übersetzten Namen, EBITDA rechnet in allen vier
+  Sprachen auf 571,2). Alle Ansichten, Toolbar und Formatmenü funktionieren
+  darauf; ein im Formatmenü gewähltes Mega-Template wirkt sofort auf die Demo.
+- Ein dezenter **„Demo"-Hinweis** über dem Titel nennt die zu befüllenden
+  Rollen; ist schon etwas gebunden, sagt eine Zeile, was noch fehlt („Noch
+  offen: AC (Ist)").
+- **Exportsicher:** Lesemodus, PDF-/PowerPoint-Export und Abo-Mails
+  (`allowInteractions = false`) zeigen nie Demo-Zahlen, sondern den bisherigen
+  Text-Hinweis; zu kleine Visuals ebenso. Die Demo schreibt **nichts** in den
+  Bericht (kein `persistProperties`, keine Selektion, kein Kontextmenü).
+- Kommen echte Daten, verschwindet die Demo restlos — der gespeicherte
+  Toolbar-Zustand des Berichts greift wie gewohnt.
+
+### Formatmenü: nach Wichtigkeit geordnet, mit Sichtbarkeits-Gates
+
+- **Reihenfolge:** Spalten & Mega-Table → Darstellung & Toolbar → Zahlen →
+  Stil → Titelblock → Hierarchie. Die Spalten-Karte gliedert sich in
+  *Tabelle* · *Mega-Table (IBCS-Templates)* · *Werttreiberbaum*, die Stil-Karte
+  in *Farben & Erscheinungsbild* · *Schrift & Zeilen* · *Verhalten*. **Alle
+  Property-Namen bleiben** — bestehende Berichte und PBIR-Definitionen laufen
+  unverändert.
+- **Gates** (verstecken nur, ändern nie, was gerendert wird): Mega-Table-Schalter
+  nur in der Tabellen-Ansicht, Baum-Start nur in der Baum-Ansicht; ΔPY-/ΔPL-
+  Schalter nur mit gebundenem PY/PL, das analysierte Szenario nur mit FC-Feld,
+  zweiter Perioden-Block nur mit Periode; Schwellen-Schalter nur mit einer
+  Δ-Zahlenspalte, Schwellen-Felder nur bei „an", YTD-Schwellen nur mit dem
+  zweiten Block; Wert-Kaskade nur mit einer Wertspalte, Beschriftungen und
+  Ausreißer-Pfeile nur mit Diagrammspalten; Zwischensummen-Blöcke und Sortierung
+  nur bei Strukturdaten, Margen-Zeilen nur bei GuV-Daten; Toolbar-Gruppen und
+  Titelzeilen nur mit ihrem Hauptschalter. Ohne Daten (und in der Demo) bleibt
+  alles offen.
+- **Beschreibungen im ChartKitchen-Ton:** jeder Schalter erklärt sich in einem
+  Satz und nennt seinen Standard („… Standard: an").
+
+### Dark Mode: Auto · Hell · Dunkel
+
+- Neue Einstellung **Stil → Erscheinungsbild** (`style.appearance`, die einzige
+  neue Property von 1.0). **Auto** (Standard) erkennt dunkle Berichtsthemen an
+  der Hintergrund-Luminanz < 0,35 — dieselbe Regel wie ChartKitchens
+  `resolveDarkMode`; Hoher Kontrast bleibt auf dem hellen Pfad.
+- Eine Palette für alles: Tabelle, Mega-Table, Zeilen-Waterfall, Struktur-Bars,
+  Werttreiberbaum, Kachel-Ansicht, Hover-Panel, Toolbar und Demo. Tinte
+  #D9D9D9, PY #8A8A8A, Text #E0E0E0, Teal/Rot im **ChartKitchen-Dark-Paar
+  #3FB3C2 / #E4635F**; das Papier ist der dunkle Theme-Hintergrund selbst.
+- Farbwähler auf ihrem hellen Standard (Seite/Karten weiß, Akzent #404040)
+  wechseln mit; eigene Farben bleiben, wie sie sind.
+- **Im hellen Bericht ändert sich nichts:** „Auto" rendert byte-identisch zu
+  „Hell" (Test für Tabelle, Mega-Table, Baum, Kachel, Wasserfall).
+
+### Logo
+
+`assets/icon.png` ist jetzt das Kochmützen-Statement-Logo (vorher
+`icon-new.png`); `icon-source.svg` bleibt die Quelle.
+
+### Mega-Table (Phase 1–4): IBCS-Tabellen T01–T04E und 12A in der Tabellen-Ansicht
+
+Die Tabellen-Ansicht kann jetzt die IBCS-Templates T01A/B, T02A–F, T03A/B und
+T04A–E sowie 12A darstellen — als Zuschaltung, die klassische Tabelle bleibt
+der Default und rendert unverändert. Details: `SPEC-MEGATABLE.md`, Abschnitt
+„Umsetzungsstand im Visual".
+
+- **Spalten frei kombinierbar** (Formatbereich → Spalten → Mega-Table): PY | PL |
+  AC oder FC | ΔPY | ΔPY% | ΔPL | ΔPL%, jede Δ-Spalte als Zahl, Balken oder
+  Pins einzeln schaltbar. Szenario-Unterstreichungen im Kopf und unter der
+  Schlusszeile (AC voll, PY grau, PL doppelt, FC schraffiert).
+- **Margen-Zeilen** (Zeilentyp KPI) mit Δ in %p und relativer Änderung, kursiv.
+- **„Δ in red if"**: Schwellen je Block (absolut + %) mit Fußzeile; Kosten
+  über die vorhandene Vorzeichen-/VarianceInvert-Logik.
+- **Zweiter Perioden-Block** Monat | _YTD aus der Perioden-Rolle, eigener
+  Maßstab je Block; Sortierung Kategorie / AC↓ / Δ↓ je Struktur-Block mit
+  „(↓)" im sortierenden Kopf, „Other …" bleibt unten.
+- **Strukturmodus** (Regionen o. Ä.): Zwischensummen-Blöcke mit Leerzeile (T01B)
+  oder nur Blätter + Gesamtsumme (T01A).
+- **Zell-Charts**: Δ-Balken und Δ%-Pins mit EINER Nulllinie und EINEM Maßstab
+  je Block, Achse nach Referenz (PY grau 3 px, PL Doppellinie), Füllung nach
+  Minuend (AC voll, FC schraffiert), Zahlen außen mit „+", Ausreißer-Pfeile
+  (Q3 + 4 × IQR). Teal/Rot bzw. IBCS-Grün über den vorhandenen Farbmodus.
+- **Template-Dropdown** setzt alle Schalter auf die Preset-Defaults
+  (persistProperties mit Echo-Guard), danach ist jeder Schalter frei.
+- Neue Tests: `npm run test:mega`.
+
+#### Phase 3 — integrierter Δ-Wasserfall (T04B–E) und Wert-Kaskaden (12A)
+
+- **Δ als integrierter Wasserfall** (neue Schalter „ΔPY/ΔPL als integrierter
+  Wasserfall"): jeder Δ-Balken beginnt am Ende des vorigen, „="-Zeilen setzen
+  an der Nulllinie neu an, Summen spannen über ihre Kinder, dünne
+  Verbindungslinien. Kombinierbar mit Δ-Balken, Δ-Zahl und Δ%-Pins; Notation
+  nach Minuend (AC voll, FC schraffiert) × Referenz (PY graue Achse, PL
+  Doppellinie).
+- **Wertspalten als Wert-Kaskaden** (Schalter „Wertspalten als Wert-Kaskaden
+  (12A)"): je Szenario eine Kaskaden-Spalte mit gemeinsamem Maßstab,
+  Kostenzeilen hell abgesetzt.
+- **Template-Dropdown** um T04B, T04C, T04D, T04E und 12A erweitert.
+- Die Kaskaden-Geometrie ist jetzt EINE Funktion (`cascade()` in
+  `waterfall.ts`) für Zeilen-Waterfall-Ansicht, Säulen-Brücke und Mega-Table —
+  die bestehende Waterfall-Ansicht rendert pixelgleich.
+- Tests: Render-Fälle m11–m16, Kaskaden-Paritätstest, `npm run test:waterfall`
+  läuft jetzt in `npm test` mit.
+
+### Fixes
+
+- **Demo-Banner und fixierter Kopf:** ein oberer Außenabstand des ersten
+  Kopf-Elements kollabiert durch den Kopf hindurch — der Kopf misst dann 10 px
+  zu kurz und die schwebende Spaltenkopfzeile rutscht darunter. Der Banner
+  trägt seinen Abstand deshalb als Innenabstand eines Wrappers.
+- **Δ%-Pins (Bestand, Tabellen-/Balken-/Waterfall-Ansicht):** Die Beschriftungsspur
+der Δ%-Pins wurde für den auf ±40 % gekappten Wert bemessen („+40.0%▸"),
+gedruckt wird aber der ungekappte Wert mit Überlauf-Marke („+220.0%▸") — bei
+|Δ%| ≥ 100 % konnte die Zahl am SVG-Rand abgeschnitten werden (Testfall p2,
+`npm run test:render`). Die Spur misst jetzt den tatsächlich gedruckten Text;
+Pin-Spalten mit dreistelligen Δ% werden dadurch um eine Zeichenbreite breiter,
+alle anderen bleiben pixelgleich.
+
+### Kompatibilität
+
+- Alle Property-Namen, Datenrollen und der gespeicherte Toolbar-Zustand
+  (`state.uiState`) sind unverändert; `capabilities.json` bekommt nur
+  Beschreibungs-Keys der Rollen und die Property `style.appearance`.
+- Die deutsche Oberfläche ist jetzt durchgehend deutsch: Toolbar-Knöpfe
+  („Tabelle", „Balken", „Einpassen"), Legende („AC Ist", „PY Vorjahr") und die
+  %-Spalte („% Ums.") waren in 0.17 englisch.
+
+### Tests
+
+- Neu: `npm run test:i18n` (12 Prüfungen zu den Sprachdateien, inkl.
+  Generator-Abgleich der Demo) und `npm run test:start` (90 Checks: Smart Start,
+  Dark Mode, Formatmenü-Reihenfolge und -Gates, Sprachen im Bild). Render-Fälle
+  p12 (Demo, de-DE), p13/p14 (Dunkel: Tabelle, T04B).
+- Pixel-Regression gegen 0.17 (Stage-Screenshots p1–p11, m1–m16 über den
+  Harness des Vorgänger-Commits): **alle identisch** bis auf p4 (de-DE) — dort
+  ändern sich gewollt nur die bisher englischen Toolbar- und Legendentexte; die
+  Tabelle selbst ist pixelgleich.
+- Alle bisherigen Suiten unverändert grün (Engine 30, Mega-Layout 19 + 140 +
+  31, Baum/Selektion 262, Wasserfall, Performance im Budget).
+
+### Bewusst auf 1.1 verschoben
+
+- **12G / 12H** (YTD + Restjahr-Stapel, Plan-Tönung) und der **Headline-Slot**
+  der Mega-Table (Phase 5).
+- **Virtualisierung** sehr langer Mega-Tabellen (heute ein SVG für alle
+  sichtbaren Zeilen; die klassische Tabelle rendert bereits gefenstert).
+- Eigener Hover-Tooltip im Dunkelmodus (ChartKitchen-Muster) — das Visual nutzt
+  weiter Browser-Titel und das eigene Hover-Panel des Baums (dieses ist dunkel).
+- Spaltenköpfe der klassischen Tabelle stehen bei schmalen Viewports mit
+  Querscrollen leicht versetzt zur schwebenden Kopfzeile (Bestand aus 0.17,
+  in 1.0 unverändert).
 
 ## 0.17.0.0 (2026-08-26) — Selektion, Cross-Filtering und natives Kontextmenü: das Statement wird zum Einstieg in den Drillthrough
 

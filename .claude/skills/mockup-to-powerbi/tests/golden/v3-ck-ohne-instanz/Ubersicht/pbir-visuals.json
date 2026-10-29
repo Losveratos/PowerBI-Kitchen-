@@ -1,0 +1,50 @@
+[
+  {
+    "visual_type": "card",
+    "name": "mk_5z33e3b",
+    "title": "Umsatz",
+    "x": 16,
+    "y": 72,
+    "width": 317,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Kosten"
+    }
+  },
+  {
+    "visual_type": "card",
+    "name": "mk_ldc3xxy",
+    "title": "Marge",
+    "x": 1011,
+    "y": 72,
+    "width": 253,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Marge"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p1",
+    "title": "Year",
+    "x": 1088,
+    "y": 96,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Region_p1",
+    "title": "Region",
+    "x": 1088,
+    "y": 160,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  }
+]

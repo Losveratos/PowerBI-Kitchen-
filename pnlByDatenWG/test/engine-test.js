@@ -257,6 +257,27 @@ test("levels: ragged via trailing nulls AND repeated values", () => {
     assert.equal(m.maxDepth, 3);
 });
 
+// 1.4.2 — sort column on another scale than the data index (SortOrder = 6 × position, rows arrive by account id):
+// a synthetic intermediate level must not hand its placeholder index up to the root
+test("levels: root order follows the sort column through synthetic intermediate levels", () => {
+    const m = buildLevels([
+        lrow(["Umsatz", "Segment A", "EMEA"], { account: "400100", sort: 30, values: { ac: 100 }, index: 0 }),
+        lrow(["Sonstiges Ergebnis", "Erträge", "Anlagenabgänge"], { account: "440000", sort: 29604, values: { ac: 5 }, index: 1 }),
+        lrow(["Material", "Kaufteile", "Mechanik"], { account: "500000", sign: -1, sort: 13152, values: { ac: 40 }, index: 2 }),
+        lrow(["Rohertrag"], { account: "F-GP", rowType: "formula", formulaDef: "[Umsatz]+[Material]", sort: 23352, index: 3 }),
+    ]);
+    assert.deepEqual(m.roots.map(r => r.row.name), ["Umsatz", "Material", "Rohertrag", "Sonstiges Ergebnis"]);
+    assert.equal(m.byId.get("F-GP").computed.ac, 60);
+});
+
+test("levels: without a sort column the data order still decides", () => {
+    const m = buildLevels([
+        lrow(["B", "b1", "x"], { values: { ac: 1 }, index: 0 }),
+        lrow(["A", "a1", "y"], { values: { ac: 2 }, index: 1 }),
+    ]);
+    assert.deepEqual(m.roots.map(r => r.row.name), ["B", "A"]);
+});
+
 test("levels: same-path aggregation + aggregate row becomes subtotal fallback", () => {
     const m = buildLevels([
         lrow(["Umsatz", "Produkte"], { values: { ac: 60 }, index: 0 }),
@@ -626,6 +647,134 @@ test("period sorting: the monthly series follow the period order", () => {
     assert.deepEqual(kr.months, ["2026-01", "2026-02"]);
     const km = E.buildModel(kr.rows, "U", kr.months);
     assert.deepEqual([...km.byId.values()].find(x => x.row.name === "Produkte").series.ac, [10, 20]);
+});
+
+// mega table — variance on raw values + display orientation (T01–T04)
+test("varianceOf: the variance rule on raw values", () => {
+    assert.deepEqual(E.varianceOf(110, 100, false), { delta: 10, deltaPct: 0.1, good: true });
+    assert.deepEqual(E.varianceOf(-110, -100, false), { delta: -10, deltaPct: -0.1, good: false });
+    assert.equal(E.varianceOf(110, 100, true).good, false);              // VarianceInvert flips the colour only
+    assert.equal(E.varianceOf(5, 0, false).deltaPct, null);              // Δ% against zero is undefined
+    assert.deepEqual(E.varianceOf(null, 100, false), { delta: null, deltaPct: null, good: true });
+    // variance() is exactly varianceOf on node.computed
+    const m = E.buildModel([row("a", null, { values: { ac: 12, py: 10 }, varianceInvert: true })], "U");
+    assert.deepEqual(E.variance(m.byId.get("a"), "py"), E.varianceOf(12, 10, true));
+});
+
+test("displayVariance: cost rows, VarianceInvert costs, margin rows (%p)", () => {
+    // T03A Operating expenses: costs stored negative (sign −1) and shown positive
+    const cost = row("opex", null, { sign: -1, displayInvert: true });
+    const d = E.displayVariance(cost, -602.6, -565.2);
+    assert.ok(Math.abs(d.d - 37.4) < 1e-9, "Δ follows the shown values: costs up = +37.4");
+    assert.ok(Math.abs(d.p - 37.4 / 565.2) < 1e-12, "Δ% +6.6 %");
+    assert.equal(d.good, false);
+    assert.ok(d.impact < 0 && Math.abs(d.impact + 37.4) < 1e-9, "impact in good orientation: −37.4 (red below −20)");
+    assert.equal(d.pp, false);
+    // the other cost convention: positive costs + VarianceInvert — same picture
+    const cost2 = row("opex2", null, { varianceInvert: true });
+    const d2 = E.displayVariance(cost2, 602.6, 565.2);
+    assert.ok(Math.abs(d2.d - 37.4) < 1e-9 && d2.good === false && d2.impact < 0);
+    assert.ok(d2.impactPct < 0);
+    // revenue row: plain
+    const rev = E.displayVariance(row("rev", null), 896.4, 713.3);
+    assert.ok(rev.good && rev.impact > 0 && Math.abs(rev.d - 183.1) < 1e-9);
+    // T03A Gross margin: 45.3 % vs 36.7 % → +8.6 %p, relative +23 %
+    const kpi = row("gm", null, { rowType: "kpi" });
+    const k = E.displayVariance(kpi, 467.4 / 1031.2, 302.1 / 822.3);
+    assert.equal(k.pp, true);
+    assert.ok(Math.abs(k.d - (467.4 / 1031.2 - 302.1 / 822.3) * 100) < 1e-9);
+    assert.equal(Math.round(k.d * 10) / 10, 8.6);
+    assert.equal(Math.round(k.p * 100), 23);
+    assert.equal(k.good, true);
+    assert.equal(E.displayVariance(rev ? row("x", null) : null, null, 3), null);
+});
+
+// demo data hygiene — the forbidden trio (SignConvention −1 + VarianceInvert true) turns the
+// rating twice: a cost overrun would be coloured favourable (finance-data-model, konten-dimension §6)
+test("demo data: no sign −1 row carries VarianceInvert; tax overrun rates unfavourable", () => {
+    const sb = { window: {} };
+    require("vm").runInNewContext(require("fs").readFileSync(path.join(__dirname, "demo-data.js"), "utf8"), sb);
+    const rows = sb.window.PNL_DEMO.levelRows;
+    const bad = rows.filter(r => r.sign < 0 && r.varianceInvert);
+    assert.deepEqual(bad.map(r => r.account), [], "forbidden trio -1 · * · true in demo data");
+    const tax = rows.find(r => r.account === "900110");
+    assert.ok(tax && tax.sign === -1 && tax.displayInvert === true && tax.varianceInvert === false);
+    // AC 18.5 against PL 16.9 (more tax than planned): computed −18.5 vs −16.9
+    const d = E.displayVariance(tax, tax.sign * 18.5, tax.sign * 16.9);
+    assert.equal(d.good, false, "more tax than planned = unfavourable (red)");
+    assert.ok(Math.abs(d.d - 1.6) < 1e-9 && d.impact < 0);
+    // …and less tax than planned = favourable
+    assert.equal(E.displayVariance(tax, -15, -16.9).good, true);
+});
+
+// 1.1 Paket B — numbers.sumSafeRounding (largest remainder along the hierarchy)
+test("largestRemainder: floors + the biggest remainders, surplus from the smallest, ties in order", () => {
+    assert.deepEqual(E.largestRemainder([1.4, 1.4, 1.4], 4), [2, 1, 1]);
+    assert.deepEqual(E.largestRemainder([1.2, 1.7, 1.1], 4), [1, 2, 1]);
+    // already consistent: plain rounding comes back
+    assert.deepEqual(E.largestRemainder([1.2, 1.7, 2.6], 6), [1, 2, 3]);
+    // a parent rounded down by its own parent: one unit comes off the smallest remainder
+    assert.deepEqual(E.largestRemainder([1.1, 1.8], 2), [1, 1]);
+    // negative values floor towards −∞
+    assert.deepEqual(E.largestRemainder([-1.4, -1.4, -1.4], -4), [-1, -1, -2]);
+    assert.deepEqual(E.largestRemainder([], 0), []);
+});
+
+test("sumSafeRound: printed children add up to the printed subtotal, formulas + margins excluded", () => {
+    const m = E.buildModel([
+        row("rev", null, { rowType: "subtotal" }),
+        row("a", "rev", { values: { ac: 1.4 } }), row("b", "rev", { values: { ac: 1.4 } }), row("c", "rev", { values: { ac: 1.4 } }),
+        row("cost", null, { rowType: "subtotal", sign: -1, displayInvert: true }),
+        row("x", "cost", { values: { ac: 0.6 } }), row("y", "cost", { values: { ac: 0.6 } }),
+        row("res", null, { rowType: "formula", formulaDef: "[rev]+[cost]" }),
+        row("gm", null, { rowType: "kpi", formulaDef: "[res]/[rev]" }),
+    ], "Unassigned");
+    const ss = E.sumSafeRound(m.roots, n => n.computed.ac, 1);
+    // 1.4 × 3 = 4.2 → 4: plain rounding prints 1 + 1 + 1 = 3
+    assert.equal(ss.get("rev"), 4);
+    assert.deepEqual(["a", "b", "c"].map(k => ss.get(k)), [2, 1, 1]);
+    // cost = −1 × (0.6 + 0.6) = −1.2 → −1: the children share +1 (sign −1 of the parent)
+    assert.equal(ss.get("cost"), -1);
+    assert.equal(ss.get("x") + ss.get("y"), 1);
+    // formula row: exact rounding (4.2 − 1.2 = 3.0), margin row: never in the map
+    assert.equal(ss.get("res"), 3);
+    assert.equal(ss.has("gm"), false);
+    // quantum 0.1 (one decimal) — the values already sum exactly: nothing moves
+    const s1 = E.sumSafeRound(m.roots, n => n.computed.ac, 0.1);
+    assert.ok(Math.abs(s1.get("a") - 1.4) < 1e-9 && Math.abs(s1.get("rev") - 4.2) < 1e-9);
+    assert.equal(E.sumSafeRound(m.roots, n => n.computed.ac, 0).size, 0, "no quantum, no map");
+});
+
+test("sumSafeRound: random hierarchies — Σ printed children = printed parent, each within one quantum", () => {
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    for (let iter = 0; iter < 300; iter++) {
+        const rows = [];
+        let id = 0;
+        const grow = (parent, depth) => {
+            const k = 1 + Math.floor(rnd() * 4);
+            for (let i = 0; i < k; i++) {
+                const me = "n" + (id++);
+                const sub = depth < 3 && rnd() < 0.4;
+                rows.push(row(me, parent, sub ? { rowType: "subtotal", sign: rnd() < 0.3 ? -1 : 1 }
+                    : { values: { ac: Math.round((rnd() - 0.3) * 100000) / 100 } }));
+                if (sub) { grow(me, depth + 1); }
+            }
+        };
+        grow(null, 0);
+        const m = E.buildModel(rows, "Unassigned");
+        const quantum = [1, 0.1, 10][iter % 3];
+        const ss = E.sumSafeRound(m.roots, n => n.computed.ac, quantum);
+        for (const n of m.byId.values()) {
+            const v = n.computed.ac; const p = ss.get(n.row.id);
+            if (v == null) { continue; }
+            assert.ok(Math.abs(p - v) < 1.5 * quantum + 1e-9, "within reach of the exact value");
+            const kids = n.children.filter(c => c.computed.ac != null);
+            if (n.row.rowType !== "subtotal" || kids.length === 0) { continue; }
+            const sum = kids.reduce((a, c) => a + ss.get(c.row.id), 0) * n.row.sign;
+            assert.ok(Math.abs(sum - p) < 1e-6 * Math.max(1, Math.abs(p)), `iter ${iter}: ${sum} vs ${p}`);
+        }
+    }
 });
 
 console.log(`\n${n} engine test blocks passed`);

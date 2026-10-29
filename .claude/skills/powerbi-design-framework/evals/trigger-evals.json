@@ -1,0 +1,82 @@
+[
+  {
+    "query": "können wir für den Sales-Report komplett neues seitengerüst bauen? kopfband, nav links, filterpanel rechts",
+    "should_trigger": true
+  },
+  {
+    "query": "we've got a new corporate brand guide, can you pull colors/fonts from it and set up a power bi theme for the sales report?",
+    "should_trigger": true
+  },
+  {
+    "query": "brauch ein theme.json mit unseren corporate colors für den neuen Fabric-Report, aktuell ist noch alles default-blau",
+    "should_trigger": true
+  },
+  {
+    "query": "wir brauchen ne navigation + filterpanel für die reportseite, aktuell scrollt man sich zu tode um was zu finden",
+    "should_trigger": true
+  },
+  {
+    "query": "die charts im Umsatz-Dashboard.pbix sehen alle unterschiedlich aus, kannst du das mal konsistenter und schöner machen?",
+    "should_trigger": true
+  },
+  {
+    "query": "überall im report sind noch schatten und schräge ecken drauf, kannst du das global rausnehmen und einheitlich runde ecken setzen",
+    "should_trigger": true
+  },
+  {
+    "query": "review mal bitte unser Vertriebs-Reporting.pbip auf design-konsistenz, hab das gefühl da ist einiges schief",
+    "should_trigger": true
+  },
+  {
+    "query": "brauche für den monatsreport ein ibcs-konformes seitenlayout mit den richtigen slots (kopf, chart, tabelle)",
+    "should_trigger": true
+  },
+  {
+    "query": "kann man für den kundenreport auch ne dark-mode variante bauen? management will unbedingt das dunkle theme",
+    "should_trigger": true
+  },
+  {
+    "query": "leg uns bitte ne komponenten-seite mit allen bausteinen (buttons, kpi-kacheln, filter-chips) zum copy-pasten an",
+    "should_trigger": true
+  },
+  {
+    "query": "wie schreib ich ne DAX measure für rollierendes 12-monats mittel, iwie kommt bei mir NaN raus",
+    "should_trigger": false
+  },
+  {
+    "query": "my deneb spec for the waterfall chart won't render, vega just shows a blank area, what's broken here?",
+    "should_trigger": false
+  },
+  {
+    "query": "bau mir mit chartkitchen nen kompletten monatsreport aus dem Vertriebsdaten-Modell",
+    "should_trigger": false
+  },
+  {
+    "query": "füg mir bitte das bullet-chart template aus dem chart-builder in unsere Sales.pbip ein",
+    "should_trigger": false
+  },
+  {
+    "query": "kannst du die folien für unser Q3 Board-Update (10 slides) im gleichen stil wie letztes jahr aufhübschen?",
+    "should_trigger": false
+  },
+  {
+    "query": "sollen wir sternschema oder snowflake für das neue Vertriebsmodell nehmen, hab grad ne diskussion mit nem kollegen",
+    "should_trigger": false
+  },
+  {
+    "query": "the report takes forever to load, first page needs like 40 seconds — any idea why performance is this bad?",
+    "should_trigger": false
+  },
+  {
+    "query": "sind seit letzter woche neue Daten-WG folgen raus? bitte kitchen updaten",
+    "should_trigger": false
+  },
+  {
+    "query": "kannst du unsere landingpage (kein power bi, reines marketing) mal neu designen, wirkt grad ziemlich altbacken",
+    "should_trigger": false
+  },
+  {
+    "query": "was kostet eigentlich PPU pro user im vergleich zu pro, brauchen wir das für den neuen report übehaupt",
+    "should_trigger": false
+  }
+]

@@ -26,36 +26,135 @@ import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 import DataViewValueColumn = powerbi.DataViewValueColumn;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
 import ISelectionId = powerbi.extensibility.ISelectionId;
+import VisualTooltipDataItem = powerbi.extensibility.VisualTooltipDataItem;
 
-import { VisualFormattingSettingsModel } from "./settings";
+import { VisualFormattingSettingsModel, PaneContext, applyPaneGates, localizeSettings } from "./settings";
+import { UI_EN, fillArgs } from "./i18n";
 import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
     parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
-    syntheticTotal, TOTAL_ID, parsePeriod,
+    syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
 } from "./engine";
+import {
+    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount, niceFactor, MEGA_PP,
+    MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles, MegaLayout, MegaPaintOpts, MegaPainted,
+} from "./megatable";
+import { cascade, CascadeNode } from "./waterfall";
+import { buildDemoRows } from "./demo";
+import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc,
+    HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl } from "./hub";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
+/** 1.5.1: the typographic minus (U+2212) in every number, as in ChartKitchen */
+const MINUS = "−";
 
-const C = {
+/**
+ * The palette of the visual. `C` is the live palette every painter reads at
+ * call time; applyPalette() copies C_LIGHT or C_DARK into it at the start of
+ * every update, so one switch recolours table, mega table, waterfall, tree,
+ * tiles and hover panels alike. C_LIGHT is exactly the 0.17 palette — an
+ * untouched report in a light theme renders pixel-identical.
+ */
+const C_LIGHT = {
     ac: "#404040", py: "#B3B3B3",
     text: "#1A1A1A", soft: "#8A8886", line: "#404040", gridSoft: "#EDEBE9",
     tealGood: "#0E8585", tealBad: "#E02B1D",
     ibcsGood: "#8CB400", ibcsBad: "#FF2600",
+    /** blue / orange preset (ColorBrewer, ChartKitchen colors.variancePreset) */
+    boGood: "#2C7BB6", boBad: "#E66101",
     comment: "#0064FF", loading: "#B35C00",
     // driver tree
     cardEdge: "#E3E1DC", cardEdgeHover: "#C6C3BC", elbow: "#B4B4B4", refGray: "#9A9A9A",
     /** resting border of a control (toolbar button, chip) — quieter than a card edge */
     ctlEdge: "#DEDCD7", ctlHover: "#F4F3F0",
+    /** paper inside marks: hatch ground, outlined PL fills, halos, chevron boxes */
+    paper: "#FFF",
+    /** text on the ink fill (active 12M chip, AC share label of the total column) */
+    onInk: "#FFF",
+    /** demo banner wash */
+    wash: "#F7F6F3",
+    /** shadow language of the cards — one resting elevation, one on hover */
+    shadow: "0 1px 2px rgba(15,30,46,.06)",
+    shadowHover: "0 2px 6px rgba(15,30,46,.10)",
+    headShadow: "0 3px 8px rgba(15,30,46,.07)",
+    zoomShadow: "0 6px 20px rgba(15,30,46,.16)",
+    shadeRest: "rgba(15,30,46,.06)",
+    shadeHover: "rgba(15,30,46,.10)",
 };
+/**
+ * Dark stand-ins, ChartKitchen's dark palette as reference: ink #D9D9D9 (AC /
+ * PL outline), PY #8A8A8A, text #E0E0E0, subtle #A6A6A6, faint #3F3F3F; teal
+ * #3FB3C2 / red #E4635F — the ChartKitchen dark variance pair, both ≥ 4.5:1 on
+ * the dark paper.
+ */
+const C_DARK: typeof C_LIGHT = {
+    ac: "#D9D9D9", py: "#8A8A8A",
+    text: "#E0E0E0", soft: "#A6A6A6", line: "#BFBFBF", gridSoft: "#3F3F3F",
+    tealGood: "#3FB3C2", tealBad: "#E4635F",
+    ibcsGood: "#9CCB19", ibcsBad: "#FF5A3C",
+    boGood: "#5BA3DC", boBad: "#F0821E",
+    comment: "#6EA8FF", loading: "#E0913A",
+    cardEdge: "#3F3F3F", cardEdgeHover: "#5E5E5E", elbow: "#6E6E6E", refGray: "#7A7A7A",
+    ctlEdge: "#4A4A4A", ctlHover: "#30302C",
+    paper: "#1E1E1E",
+    onInk: "#1E1E1E",
+    wash: "#2A2A27",
+    shadow: "0 1px 2px rgba(0,0,0,.45)",
+    shadowHover: "0 2px 6px rgba(0,0,0,.55)",
+    headShadow: "0 3px 8px rgba(0,0,0,.45)",
+    zoomShadow: "0 6px 20px rgba(0,0,0,.6)",
+    shadeRest: "rgba(0,0,0,.35)",
+    shadeHover: "rgba(0,0,0,.5)",
+};
+const C = { ...C_LIGHT };
+/**
+ * High contrast (mega table only): every ink, gray, rule and signal tone
+ * becomes the host foreground, every paper the host background — the mega
+ * painter then tells good / bad and PY apart by pattern (MegaInput.hc).
+ */
+function hcPalette(fg: string, bg: string): Partial<typeof C_LIGHT> {
+    const out: Partial<Record<keyof typeof C_LIGHT, string>> = {};
+    for (const k of ["ac", "py", "text", "soft", "line", "gridSoft", "tealGood", "tealBad", "ibcsGood", "ibcsBad", "boGood", "boBad",
+        "comment", "loading", "cardEdge", "cardEdgeHover", "elbow", "refGray", "ctlEdge"] as (keyof typeof C_LIGHT)[]) { out[k] = fg; }
+    for (const k of ["ctlHover", "paper", "onInk", "wash"] as (keyof typeof C_LIGHT)[]) { out[k] = bg; }
+    return out;
+}
+/** dark default of the page / card background pickers (used while they hold their white default) */
+const DARK_PAPER = "#1E1E1E";
+const DARK_CARD = "#262624";
 
-/** shadow language of the cards — one resting elevation, one on hover */
-const SHADOW = "0 1px 2px rgba(15,30,46,.06)";
-const SHADOW_HOVER = "0 2px 6px rgba(15,30,46,.10)";
+/** relative luminance of a #RRGGBB colour (WCAG), 1 for anything unreadable */
+function relLuminance(hex: string): number {
+    const m = /^#?([0-9a-f]{6})$/i.exec((hex || "").trim());
+    if (!m) { return 1; }
+    const ch = (i: number): number => {
+        const c = parseInt(m[1].slice(i, i + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    };
+    return 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
+}
 /** transition of the interactive chrome — present, never a show */
 const TRANSITION = "background-color .12s ease,border-color .12s ease,box-shadow .12s ease,color .12s ease";
+/**
+ * 1.4.1 family values of the hub's bottom bar — identical in ChartKitchen so
+ * both visuals compare pixel by pixel: 12 px horizontal · 8 px vertical
+ * padding, 6 px between the pills, 10 px between the groups, the "made by
+ * Daten-WG" signature at 9 px / 60 % opacity under the bar. Fixed px — only
+ * the pills and texts follow the font size preset.
+ */
+/** the hover lift of every hub tile (home tiles, "🚀 Loslegen", gallery) */
+const HUB_LIFT = "translateY(-2px)";
+const HUB_BAR = { padX: 12, padY: 8, pillGap: 6, gap: 10, madeFs: 9, madeLh: 12, madePadB: 4 };
+/** #RRGGBB (or #RGB) as rgba() with the given alpha; anything else comes back unchanged */
+function rgbaOf(hex: string, a: number): string {
+    let h = (hex || "").trim().replace("#", "");
+    if (/^[0-9a-f]{3}$/i.test(h)) { h = h.split("").map(ch => ch + ch).join(""); }
+    if (!/^[0-9a-f]{6}$/i.test(h)) { return hex; }
+    return `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})`;
+}
 
 /**
  * powerbi.VisualDataChangeOperationKind.Append — mirrored as a plain number
@@ -88,6 +187,15 @@ const FONT_SCALE_MAX = 2.2;
 const VIRT_MIN_ROWS = 300;
 /** Rows rendered above/below the scroll viewport. */
 const VIRT_BUFFER = 30;
+/**
+ * Mega table (1.1): above this many rows only the rows around the viewport
+ * are painted (the layout stays complete); at or below it the table paints
+ * exactly as before. Rows painted above / below the viewport.
+ */
+const MEGA_VIRT_MIN_ROWS = 150;
+/** 1.2 column category: at most this many category blocks (the rest is named in the footnotes) */
+const CAT_MAX = 24;
+const MEGA_VIRT_BUFFER = 30;
 /** Height estimate for an opened sparkline row (svg 34 + padding). */
 const SPARK_ROW_H = 40;
 /** Extra height a separator row takes through its top padding. */
@@ -128,8 +236,8 @@ const TREE_HEAD_GAP = 10;
  */
 const TREE_MAX_CARDS = 400;
 /**
- * Sankey flow view (px at font scale 1): node bar width, the smallest bar a
- * node ever gets (null / zero / tiny values stay visible and clickable), the
+ * Sankey flow view (1.6, px at font scale 1): node bar width, the smallest bar
+ * a node ever gets (null / zero / tiny values stay visible and clickable), the
  * vertical air between two stacked nodes, and the column pitch limits.
  */
 const SANKEY_BAR_W = 12;
@@ -137,7 +245,7 @@ const SANKEY_MIN_H = 6;
 const SANKEY_GAP = 8;
 const SANKEY_COL_MIN = 72;
 const SANKEY_COL_MAX = 260;
-/** a band is tinted this far towards white — the node bar keeps the full colour */
+/** a band is tinted this far towards the paper — the node bar keeps the full colour */
 const SANKEY_TINT = 0.5;
 /** relaxation sweeps that straighten the ribbons (d3-sankey style) */
 const SANKEY_RELAX = 6;
@@ -192,11 +300,17 @@ const FIT_LABEL_MIN = 0.78;
 const FIT_PASSES = 3;
 
 type ViewMode = "table" | "bars" | "waterfall" | "tree" | "sankey";
-/** every view in toolbar order — also the fallback order of a switched-off view */
+/** 1.6: every view in toolbar order — also the fallback order of a view the author switched off */
 const VIEW_ORDER: ViewMode[] = ["table", "bars", "waterfall", "tree", "sankey"];
-type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall";
-type Unit = "auto" | "none" | "k" | "m";
+type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall" | "custom";
+/** 1.2 preset "custom": the value columns as independent switches, Δ = bar + pin against the Δ reference */
+interface ValSet { ac: boolean; py: boolean; pl: boolean; fc: boolean; d: boolean }
+/** 1.2 the reader's value columns of the mega table (analysed scenario · PY · PL) */
+interface MegaVals { min: boolean; py: boolean; pl: boolean }
+type Unit = "auto" | "none" | "k" | "m" | "b";
 type Density = "normal" | "compact";
+/** pages of the 1.3 Start hub */
+type HubPage = "hub" | "tour" | "templates" | "demo" | "fields" | "start";
 /** Mini chart drawn inside a driver-tree card. */
 type TreeCardMode = "months" | "delta" | "bridge";
 
@@ -234,10 +348,31 @@ interface UiState {
      * and treeCollapsed back to the fresh whole-tree default on load.
      */
     treeV: number;
+    /**
+     * Reader's scenario view of the mega table (toolbar group "Scenario",
+     * 1.1): "" = the author's pane setting; else the analysed scenario AC / FC
+     * and the reference view ΔPY · ΔPL · both. A pane change of the mega
+     * switches resets both to "" (see syncPaneDefaults).
+     */
+    megaMin: "" | "ac" | "fc";
+    megaRef: "" | "py" | "pl" | "both";
+    /**
+     * 1.2 value-column switches of the preset "custom" (toolbar group "Value
+     * columns" / pane colAc … colDelta). Read only while preset = "custom".
+     */
+    vals: ValSet;
+    /** 1.2 the reader's value columns of the mega table; null = the author's switches */
+    megaVals: MegaVals | null;
 }
 
 /** current schema version of the persisted tree state (see UiState.treeV) */
 const TREE_STATE_V = 2;
+
+/**
+ * How many updates a toolbar write waits for its echo before the host's state
+ * counts again (same pattern and size as the template guard of the mega table).
+ */
+const UI_ECHO_TTL = 5;
 
 /** One node of the laid-out driver tree (x/y = top-left of the card). */
 interface TreeCard {
@@ -282,8 +417,11 @@ interface TreeCtx {
     path: PnlNode[];
 }
 
+/** colour family of a Sankey node or band: neutral inflow, profit strand, cost outflow */
+type SkFam = "gray" | "good" | "bad";
+
 /**
- * One node of the Sankey flow (v0.18). The flow is laid out over the pruned
+ * One node of the Sankey flow (1.6). The flow is laid out over the pruned
  * driver-tree cards: a node either feeds its parent from the left ("in" — the
  * income and profit strand) or leaves it as an outflow to the right ("out" —
  * the cost side, decomposed further to the right into its own end nodes).
@@ -298,7 +436,7 @@ interface SkNode {
     d: number | null;
     col: number;
     role: "in" | "out";
-    fam: "gray" | "good" | "bad";
+    fam: SkFam;
     /** belongs to the cost side (an outflow or anything hanging below one) */
     costSide: boolean;
     /** reading-order index of the strand node that spawned this cost side (vertical order) */
@@ -322,7 +460,7 @@ interface SkBand {
     to: number;
     /** thickness in value units (|flow|) */
     t: number;
-    fam: "gray" | "good" | "bad";
+    fam: SkFam;
     /** owner of the matching that produced it (rest bands hang on it) */
     owner: SkNode;
 }
@@ -375,6 +513,8 @@ interface TreeSeries {
 
 interface ColSpec {
     kind: "val" | "pct" | "bar" | "pin" | "gap" | "vbar" | "wbar";
+    /** 1.2 column category: index into Visual.catModels — the cell reads that category's model */
+    cat?: number;
     scen?: Scenario;      // for val
     ref?: Scenario;       // for bar/pin
     minuend?: Scenario;   // for bar/pin ("ac" | "fcfy")
@@ -382,7 +522,7 @@ interface ColSpec {
     label: string;
 }
 
-interface Block { key: "mtd" | "ytd" | "fy"; label: string; specs: ColSpec[]; }
+interface Block { key: "mtd" | "ytd" | "fy"; label: string; specs: ColSpec[]; /** 1.2 column category block */ cat?: number; }
 
 /** Windowed table rendering state (only rows near the scroll viewport are in the DOM). */
 interface VirtualState {
@@ -411,6 +551,8 @@ interface GeoCache {
     maxPosD: number;
     maxNegD: number;
     wf: Map<string, Map<string, { s: number; e: number }>>;
+    /** 1.5: some Δ% pin of the table runs past ±40 % — the pin lanes reserve an outlier zone */
+    pOver: boolean;
 }
 
 /** Pixel geometry of one table render (see tableGeo). */
@@ -429,6 +571,16 @@ interface TableGeo {
     pinW: number;
     valW: number;
     maxAbsDelta: number;
+    /**
+     * 1.5 (IBCS 2.0 / ISO 24896): px per data unit of the Δ bars next to value
+     * bars or cascades — the value scale, or a round multiple of it (`dMag`,
+     * head "ΔPL ×5") when the Δ would be unreadable there. 0 = the Δ bars stand
+     * alone (table view) and keep the uniform Δ scale ±maxAbsDelta.
+     */
+    dPpu: number;
+    dMag: number;
+    /** 1.5: the pin lanes keep ±40 % in the inner 80 %, the rest is the outlier zone */
+    pinZone: boolean;
     vbarW: number;
     vAxisX: number;
     vPpu: number;
@@ -461,14 +613,10 @@ export class Visual implements IVisual {
     private has: Record<Scenario, boolean> = { ac: false, py: false, pl: false, fc: false, fcfy: false, plfy: false };
     private comments: { n: number; node: PnlNode; text: string }[] = [];
     private locale = "en-US";
+    /** the host's localization manager (null in hosts that offer none) */
+    private locMgr: powerbi.extensibility.ILocalizationManager | null = null;
 
     private ui: UiState | null = null;
-    /**
-     * The view this render really draws: ui.view, unless the author switched
-     * that view off in the format pane — then the first offered one. A pure
-     * display fallback: ui.view itself (and the persisted state) stays as is.
-     */
-    private vw: ViewMode = "table";
     /** open hover-zoom panel of the driver tree (one at a time) */
     private zoomEl: HTMLElement | null = null;
     private zoomTimer: ReturnType<typeof setTimeout> | null = null;
@@ -478,7 +626,13 @@ export class Visual implements IVisual {
     private wfSegs = new Map<string, Map<string, { s: number; e: number }>>();
     private stateLoaded = false;
     private pendingPersist: string | null = null;
+    /** updates a toolbar write may still wait for its echo (see syncUiState) */
+    private pendingTtl = 0;
+    /** states the visual's own pending writes replaced (the only stale echoes) */
+    private supersededUi: string[] = [];
     private lastApplied: string | null = null;
+    /** the format-pane defaults of the toolbar state, as of the last update */
+    private paneSnap: Record<string, string> | null = null;
 
     // --- segmented loading (fetchMoreData) ---
     /** rows delivered by the host so far (accumulated data view) */
@@ -517,6 +671,22 @@ export class Visual implements IVisual {
     private totalVer = -1;
     /** stage height of the last host update — drives the compact-card fallback */
     private vpH = 0;
+    /** stage width of the last host update (Smart Start needs room) */
+    private vpW = 0;
+
+    // --- Smart Start (demo statement while no fields are bound) + dark mode ---
+    /** raw powerbi.ViewMode of the last update (0 view, 1 edit, 2 in-focus edit); null = host did not say */
+    private viewMode: number | null = null;
+    /** the model on screen is the built-in demo, not report data */
+    private demo = false;
+    /** locale the demo model was built in (names are localized) */
+    private demoLocale = "";
+    /** roles the author still has to bind (null = nothing bound yet) */
+    private demoMissing: string[] | null = null;
+    /** dark palette active (style.appearance, resolved every update) */
+    private dark = false;
+    /** high contrast of the mega table: the host's foreground / background / selection colour (null = off) */
+    private hc: { fg: string; bg: string; sel: string } | null = null;
 
     /** the frozen head block (title · toolbar · legend · scale note) */
     private headEl: HTMLElement | null = null;
@@ -524,6 +694,10 @@ export class Visual implements IVisual {
     private headStuck = false;
     /** resolved height of the integrated zoom chart (see ZOOM_CHART_H) */
     private zoomChartH = ZOOM_CHART_H;
+    /** 1.5 tree cards: shared px per unit per "unit:mode" (measuring pass, then drawing); null = every chart for itself */
+    private treeScl: { collect: boolean; fit: Map<string, number>; mags: number } | null = null;
+    /** 1.5 collapsible control bars: the reader's ☰ choice (null = toolbar.startFolded) — runtime only */
+    private tbOpen: boolean | null = null;
     /** pager refresh of the tile-view neighbour columns (rebuilt every render) */
     private pagerSync: (() => void)[] = [];
     /** memoized "last month with AC data" over the whole model (see mtdIndex) */
@@ -555,6 +729,85 @@ export class Visual implements IVisual {
     private resolveFn: ((id: string) => PnlNode | undefined) | null = null;
     private resolveVer = -1;
 
+    // --- mega table (IBCS templates T01–T04, see SPEC-MEGATABLE.md) ---
+    /**
+     * Template switch we just persisted but the host has not echoed back yet —
+     * the echo-guard + TTL pattern of ChartKitchen (AGENT-GUIDE, persistProperties):
+     * while it lives, a stale metadata update cannot turn the freshly written
+     * switches back; after `ttl` updates the pane value wins again, so a lost
+     * echo never pins a value forever.
+     */
+    private megaPending: {
+        applied: string;
+        cols: Record<string, boolean | string>;
+        nums: Record<string, number>;
+        /** titleBlock switches a template sets (12G / 12H: headline) */
+        title: Record<string, boolean>;
+        ttl: number;
+    } | null = null;
+    /** virtualized mega table (> MEGA_VIRT_MIN_ROWS rows): the complete layout + the painted window */
+    private megaVs: {
+        L: MegaLayout; opts: MegaPaintOpts; body: SVGSVGElement;
+        from: number; to: number; bind: (hits: MegaPainted["hits"]) => void;
+    } | null = null;
+    /** template applied in this session — a lost echo must not re-apply it in a loop */
+    private megaSessionTpl: string | null = null;
+    /** text measure of the mega table (canvas, lazily created) */
+    private measureCtx: CanvasRenderingContext2D | null = null;
+    /** Intl number formats of the mega table per decimal count */
+    private megaNf = new Map<string, Intl.NumberFormat>();
+    /** 1.5.1: the last mega layout (megaFitNotes reads its rows) */
+    private megaLast: MegaLayout | null = null;
+
+    // --- 1.1 Paket B: tooltips · sum-safe rounding · filter footer ---
+    /** host tooltip service (null in shims without one) */
+    private tooltipService: powerbi.extensibility.ITooltipService | null = null;
+    /** self-drawn dark tooltip (ChartKitchen showDarkTip) — light mode keeps the native one */
+    private darkTip: HTMLDivElement | null = null;
+    /** text of the bound filterInfo measure (second footer line), null = unbound / empty */
+    private filterInfo: string | null = null;
+    /** sum-safe rounded raw values per block|scenario|unit|decimals (cleared every render) */
+    private ssCache = new Map<string, Map<string, number>>();
+    /** 1.2 the arguments of the last Smart Start render — the empty-state switches re-run it */
+    private startArgs: { dataView: DataView | undefined; missing: string[] | null } | null = null;
+    /** 1.2 echo guard of emptyState.mode written by the empty-state switches */
+    private emptyPending: { mode: string; ttl: number } | null = null;
+    /** 1.4 echo guard of the hub's font size bar (style.fontPreset), the UI_ECHO_TTL pattern */
+    private fontPending: { v: string; ttl: number } | null = null;
+
+    // --- 1.3 Start hub (tour · template gallery · demo · field guide) ---
+    /** page of the hub; local state, never persisted */
+    private hubPage: HubPage = "hub";
+    /** card of the feature tour */
+    private hubTour = 0;
+    /** the overlay layer of the hub over a bound statement (edit mode); null = closed */
+    private hubOverlay: HTMLElement | null = null;
+    /** the host element got position:relative for the overlay — undone on close */
+    private hubParentFixed = false;
+    /** data-pnl of the control that gets the focus after the next hub render (keyboard flow) */
+    private hubFocusKey: string | null = null;
+    /** mini renderings of the page being built; they run once the page is attached */
+    private hubMinis: (() => void)[] = [];
+    /** generation of the hub page — a newer page cancels the batches of an older one */
+    private hubGen = 0;
+    /** template saved from the gallery while no fields were bound (shows the "saved" note) */
+    private hubSaved: string | null = null;
+    /** the last data view of update() — the overlay's field guide reads it */
+    private lastDv: DataView | undefined;
+    /** this instance is a mini rendering of the hub (a tiny, non-interactive copy over the demo) */
+    private miniSpec: MiniSpec | null = null;
+    /**
+     * 1.2 column category (role colCategory): one model per category value,
+     * built from the same rows filtered to that value and aligned to the
+     * months of the main model — the classic table repeats its column set
+     * per category from these. null = role not bound (or the mega table).
+     */
+    private catModels: { label: string; model: PnlModel }[] | null = null;
+    /** the colCategory role is bound (the mega table ignores it, with an edit-mode note) */
+    private catBound = false;
+    /** category values beyond CAT_MAX that got no block */
+    private catCapped = 0;
+
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
         this.events = options.host.eventService;
@@ -572,8 +825,14 @@ export class Visual implements IVisual {
                 });
             }
         }
-        this.formattingSettingsService = new FormattingSettingsService();
+        // every user-facing text goes through the host's localization manager
+        // (stringResources/<locale>/resources.resjson); a host without one
+        // (old test shims) gets the English fallback table of i18n.ts
+        this.locMgr = typeof options.host.createLocalizationManager === "function"
+            ? options.host.createLocalizationManager() : null;
+        this.formattingSettingsService = new FormattingSettingsService(this.locMgr ?? undefined);
         this.locale = options.host.locale || "en-US";
+        this.tooltipService = options.host.tooltipService ?? null;
         this.root = document.createElement("div");
         this.root.className = "pnl-root";
         this.root.style.cssText =
@@ -591,30 +850,43 @@ export class Visual implements IVisual {
         this.events.renderingStarted(options);
         try {
             if (options.viewport && options.viewport.height > 0) { this.vpH = options.viewport.height; }
+            if (options.viewport && options.viewport.width > 0) { this.vpW = options.viewport.width; }
+            // Smart Start is an edit-mode aid — remember the raw view mode every update
+            this.viewMode = options.viewMode ?? null;
             const dataView = options.dataViews && options.dataViews[0];
+            this.lastDv = dataView;
             this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
                 VisualFormattingSettingsModel, dataView);
+            localizeSettings(this.settings, k => this.trOpt(k));
+            this.syncEmptyMode();
+            this.syncFontPreset();
+            this.dark = this.resolveDarkMode();
+            this.applyPalette();
             if (!dataView) {
-                this.model = null; this.vs = null; this.lastFingerprint = null;
                 this.resetSegments();
-                this.renderLanding(); this.events.renderingFinished(options); return;
+                this.showStart(undefined, null); this.events.renderingFinished(options); return;
             }
             this.trackSegments(dataView, options.operationKind);
+            this.filterInfo = this.readFilterInfo(dataView);
 
             // parse + build only when the data actually changed — toolbar clicks
             // and resizes reuse the model (rerender() never enters this path)
             const fp = this.fingerprint(dataView);
-            if (this.model == null || fp !== this.lastFingerprint) {
+            if (this.model == null || this.demo || fp !== this.lastFingerprint) {
                 const parsed = this.parseRows(dataView);
                 if (!parsed) {
-                    this.model = null; this.vs = null; this.lastFingerprint = null;
-                    this.renderLanding(); this.events.renderingFinished(options); return;
+                    this.showStart(dataView, this.missingRoles(dataView));
+                    this.events.renderingFinished(options); return;
                 }
+                if (this.demo) { this.leaveDemo(); }
+                // fields are bound: the hub starts at its home page the next time
+                this.hubPage = "hub"; this.hubSaved = null;
                 if (parsed.rows.length === 0) {
-                    this.model = null; this.vs = null; this.lastFingerprint = null;
+                    this.model = null; this.vs = null; this.lastFingerprint = null; this.catModels = null;
                     this.renderEmpty(); this.events.renderingFinished(options); return;
                 }
-                this.model = buildModel(parsed.rows, this.str("Not assigned", "Nicht zugeordnet"), parsed.months);
+                this.model = buildModel(parsed.rows, this.tr("UI_NotAssigned"), parsed.months);
+                this.buildCatModels(dataView, parsed.months);
                 this.has = parsed.has;
                 this.loadedRows = parsed.rowCount;
                 this.lastFingerprint = fp;
@@ -625,8 +897,15 @@ export class Visual implements IVisual {
             }
             this.syncSelectionColumn(dataView);
             this.buildStatusWarnings();
+            this.syncMegaTemplate(dataView);
             this.syncUiState(dataView);
+            // a pane default the author just changed is written into the
+            // stored toolbar state too — otherwise the next report load would
+            // bring the old toolbar choice back over it
+            if (this.syncPaneDefaults()) { this.persistUi(); }
             this.render();
+            // the hub overlay (edit mode) follows the host: a reader never keeps it, a resize redraws it
+            if (this.hubOverlay) { if (this.editMode()) { this.hubRefresh(); } else { this.closeHub(false); } }
             this.events.renderingFinished(options);
         } catch (e) {
             this.events.renderingFailed(options, e instanceof Error ? e.message : String(e));
@@ -666,21 +945,20 @@ export class Visual implements IVisual {
     private buildStatusWarnings(): void {
         this.statusWarnings = [];
         if (this.hostCapped) {
-            this.statusWarnings.push(this.str(
-                "row limit reached — the host stopped delivering segments, totals are incomplete",
-                "Zeilenlimit erreicht — der Host liefert keine weiteren Segmente, Summen unvollständig"));
+            this.statusWarnings.push(this.tr("UI_RowLimit"));
         }
         if (this.awaitingSegment) {
             this.statusWarnings.push(this.loadingText());
+        }
+        if (this.catCapped > 0) {
+            this.statusWarnings.push(this.tr("UI_ColCatCapped", this.catCapped, CAT_MAX));
         }
     }
 
     private loadingText(): string {
         const n = new Intl.NumberFormat(this.locale).format(this.loadedRows)
             .replace(/[ ,. ]/g, NBSP_GROUP);
-        return "⏳ " + this.str(
-            `${n} rows loaded … subtotals still incomplete`,
-            `${n} Zeilen geladen … Zwischensummen noch unvollständig`);
+        return "⏳ " + this.tr("UI_Loading", n);
     }
 
     /**
@@ -714,12 +992,29 @@ export class Visual implements IVisual {
     }
 
     public getFormattingModel(): powerbi.visuals.FormattingModel {
+        if (this.settings) { applyPaneGates(this.settings, this.paneContext()); }
         return this.formattingSettingsService.buildFormattingModel(this.settings);
+    }
+
+    /**
+     * What the format-pane gates may know: the current view and the bound
+     * roles of real data. The demo (Smart Start) and an empty visual report
+     * "unknown", so every data-dependent switch stays visible there.
+     */
+    private paneContext(): PaneContext {
+        const real = this.model != null && !this.demo;
+        return {
+            view: this.ui ? this.view() : null,
+            has: real ? {
+                py: this.has.py, pl: this.has.pl, fc: this.has.fc, period: this.model!.months.length > 1, fy: this.has.fcfy,
+            } : null,
+            statement: real ? this.megaStatement() : null,
+        };
     }
 
     // ---------------- data ----------------
 
-    private parseRows(dataView: DataView): {
+    private parseRows(dataView: DataView, only?: Set<number>): {
         rows: InputRow[]; months: string[]; rowCount: number; has: Record<Scenario, boolean>;
     } | null {
         const cat = dataView.categorical;
@@ -806,6 +1101,8 @@ export class Visual implements IVisual {
         if (levelCols.length > 0 && !parentCol) {
             const lrows: LevelInputRow[] = [];
             for (let i = 0; i < n; i++) {
+                // 1.2 column category: the rows of one category value only
+                if (only && !only.has(i)) { continue; }
                 const sortRaw = Number(txt(sortCol, i) ?? NaN);
                 lrows.push({
                     levels: levelCols.map(c => txt(c, i)),
@@ -825,6 +1122,7 @@ export class Visual implements IVisual {
 
         const raw: (InputRow & { month: string | null })[] = [];
         for (let i = 0; i < n; i++) {
+            if (only && !only.has(i)) { continue; }
             const id = key(idCol, i);
             if (id == null) { continue; }
             const sortRaw = Number(txt(sortCol, i) ?? i);
@@ -840,6 +1138,76 @@ export class Visual implements IVisual {
         }
         const agg = aggregateMonthly(raw, sortMode);
         return { rows: agg.rows, months: agg.months, rowCount: n, has };
+    }
+
+    /**
+     * 1.2 column category: split the data-view rows by the colCategory value
+     * and build one model per value with the very parse path of the main model
+     * (levels or parent-child, month aggregation, formulas per category). The
+     * monthly series are re-aligned to the main model's months, so the YTD
+     * window, the month block and every Δ read one shared calendar.
+     * Period-like values sort into calendar order, anything else keeps the
+     * data order; blanks come last; more than CAT_MAX values are cut.
+     */
+    private buildCatModels(dataView: DataView, months: string[]): void {
+        this.catModels = null; this.catBound = false; this.catCapped = 0;
+        const col = (dataView.categorical?.categories ?? []).find(c => c.source.roles && c.source.roles["colCategory"]);
+        if (!col) { return; }
+        this.catBound = true;
+        const groups = new Map<string, number[]>();
+        for (let i = 0; i < col.values.length; i++) {
+            const raw = col.values[i];
+            let k = "";
+            if (raw instanceof Date) {
+                if (!isNaN(raw.getTime())) {
+                    k = `${raw.getFullYear()}-${String(raw.getMonth() + 1).padStart(2, "0")}-${String(raw.getDate()).padStart(2, "0")}`;
+                }
+            } else if (raw != null) { k = String(raw).trim(); }
+            const arr = groups.get(k);
+            if (arr) { arr.push(i); } else { groups.set(k, [i]); }
+        }
+        let keys = sortMonths([...groups.keys()].filter(k => k !== ""), "auto");
+        if (groups.has("")) { keys.push(""); }
+        if (keys.length > CAT_MAX) { this.catCapped = keys.length - CAT_MAX; keys = keys.slice(0, CAT_MAX); }
+        const out: { label: string; model: PnlModel }[] = [];
+        for (const k of keys) {
+            const parsed = this.parseRows(dataView, new Set(groups.get(k)));
+            if (!parsed || parsed.rows.length === 0) { continue; }
+            const rows = parsed.rows.map(r => this.alignSeries(r, parsed.months, months));
+            out.push({ label: k === "" ? this.tr("UI_ColCatBlank") : this.catLabel(k),
+                model: buildModel(rows, this.tr("UI_NotAssigned"), months) });
+        }
+        this.catModels = out.length > 0 ? out : null;
+    }
+
+    /** re-index a row's monthly series from its own months to the main model's months */
+    private alignSeries(r: InputRow, from: string[], to: string[]): InputRow {
+        if (!r.series || (from.length === to.length && from.every((m, i) => m === to[i]))) { return r; }
+        const idx = from.map(m => to.indexOf(m));
+        const series: Partial<Record<Scenario, (number | null)[]>> = {};
+        for (const [sc, arr] of Object.entries(r.series) as [Scenario, (number | null)[] | undefined][]) {
+            if (!arr) { continue; }
+            const o = new Array<number | null>(to.length).fill(null);
+            arr.forEach((v, j) => { if (idx[j] >= 0) { o[idx[j]] = v; } });
+            series[sc] = o;
+        }
+        return { ...r, series };
+    }
+
+    /** header label of a category value: date keys as "Mar 2026", everything else as written */
+    private catLabel(k: string): string {
+        const m = /^(\d{4})-(\d{2})(?:-\d{2})?$/.exec(k);
+        return m ? `${this.monthLabel(k)} ${m[1]}` : k;
+    }
+
+    /** the node of a row in a category model (same row id), or null when the category has no such row */
+    private catNode(cat: number, node: PnlNode): PnlNode | null {
+        return this.catModels?.[cat]?.model.byId.get(node.row.id) ?? null;
+    }
+
+    /** column categories apply to the classic TABLE view only */
+    private catInView(): boolean {
+        return this.catModels != null && this.ui != null && this.view() === "table" && !this.megaInView();
     }
 
     // ---------------- selection · cross-filtering · context menu ----------------
@@ -884,7 +1252,14 @@ export class Visual implements IVisual {
      * host that offers a selection manager, and a host that allows interactions
      * (a static export / e-mail subscription sets allowInteractions = false).
      */
+    /** a static export (PDF / PowerPoint) or a subscription: the host allows no interactions */
+    private exporting(): boolean {
+        return this.host.hostCapabilities?.allowInteractions === false;
+    }
+
     private interactive(): boolean {
+        // the demo carries no report identities — nothing to select or drill
+        if (this.demo) { return false; }
         if (this.selectionManager == null) { return false; }
         if (typeof this.host.createSelectionIdBuilder !== "function") { return false; }
         if (this.settings?.styleCard?.interactions?.value === false) { return false; }
@@ -970,9 +1345,7 @@ export class Visual implements IVisual {
     /** the tooltip suffix that names the performance cap, when it bites */
     private selCapNote(node: PnlNode): string {
         if (this.nodeIndices(node).length < SEL_MAX_ROWS) { return ""; }
-        return " · " + this.str(
-            `selection limited to the first ${SEL_MAX_ROWS} source rows`,
-            `Selektion auf die ersten ${SEL_MAX_ROWS} Quellzeilen begrenzt`);
+        return " · " + this.tr("UI_SelCap", SEL_MAX_ROWS);
     }
 
     /**
@@ -1038,18 +1411,16 @@ export class Visual implements IVisual {
         const acc = this.accent();
         const b = document.createElement("button");
         b.setAttribute("data-pnl", "zoom-drill");
-        b.textContent = this.str("↗ Drill", "↗ Drill");
-        b.title = this.str(
-            "Set the selection of this card and open the drillthrough targets",
-            "Selektion dieser Karte setzen und Drillthrough-Ziele öffnen") + this.selCapNote(node);
+        b.textContent = this.tr("UI_Drill");
+        b.title = this.tr("UI_DrillTip") + this.selCapNote(node);
         b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
             `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
-            `background:#FFF;color:${acc};transition:${TRANSITION};box-shadow:${SHADOW};`;
+            `background:${C.paper};color:${acc};transition:${TRANSITION};box-shadow:${C.shadow};`;
         b.onmouseenter = (): void => {
             b.style.background = this.accentSoft(0.10);
-            b.style.boxShadow = SHADOW_HOVER;
+            b.style.boxShadow = C.shadowHover;
         };
-        b.onmouseleave = (): void => { b.style.background = "#FFF"; b.style.boxShadow = SHADOW; };
+        b.onmouseleave = (): void => { b.style.background = C.paper; b.style.boxShadow = C.shadow; };
         b.oncontextmenu = (e: MouseEvent): void => this.showMenu(node, e);
         b.onclick = (e: MouseEvent): void => {
             e.stopPropagation();
@@ -1089,16 +1460,93 @@ export class Visual implements IVisual {
             treeStatus: s.columnsCard.treeStatus.value,
             treeZoom: null,
             treeV: TREE_STATE_V,
+            megaMin: "",
+            megaRef: "",
+            vals: this.paneVals(),
+            megaVals: null,
+        };
+    }
+
+    /** the own-selection switches of the format pane (preset "custom") */
+    private paneVals(): ValSet {
+        const c = this.settings.columnsCard;
+        return { ac: c.colAc.value, py: c.colPy.value, pl: c.colPl.value, fc: c.colFc.value, d: c.colDelta.value };
+    }
+
+    /** the format-pane settings the toolbar state starts from, as plain strings */
+    private paneDefaults(): Record<string, string> {
+        const s = this.settings;
+        return {
+            preset: String(s.columnsCard.preset.value.value),
+            ref: String(s.columnsCard.reference.value.value),
+            unit: String(s.numbersCard.scaling.value.value),
+            density: String(s.styleCard.density.value.value),
+            pctRev: String(s.columnsCard.pctRevenue.value),
+            hideZero: String(s.columnsCard.hideZeroRows.value),
+            fit: String(s.columnsCard.fitWidth.value),
+            level: String(s.hierarchyCard.defaultLevel.value),
+            treeCard: String(s.columnsCard.treeCard.value.value),
+            treeStatus: String(s.columnsCard.treeStatus.value),
+            // the mega switches the reader's scenario view starts from
+            megaMin: String(s.columnsCard.minuend.value.value),
+            megaRef: this.megaPaneSig(),
+            vals: JSON.stringify(this.paneVals()),
+            megaVals: [s.columnsCard.showPY, s.columnsCard.showPL, s.columnsCard.showMinuend].map(x => (x.value ? "1" : "0")).join(""),
         };
     }
 
     /**
-     * The views the author offers the readers (format pane → toolbar), in
+     * The format pane is the author's default, the toolbar the reader's
+     * choice — but a default the author CHANGES must win. Up to 1.0.0 the
+     * toolbar state was taken from the pane once per session and, after the
+     * first toolbar click, from the stored state forever: changing "Column
+     * preset", "Δ reference", "Scaling", "Density" … in the pane did nothing.
+     * Now every pane value that differs from the previous update is copied
+     * into the toolbar state (only that one — the reader's other choices
+     * stay). Returns true when something was taken over.
+     */
+    private syncPaneDefaults(): boolean {
+        const now = this.paneDefaults();
+        const prev = this.paneSnap;
+        this.paneSnap = now;
+        const ui = this.ui;
+        if (!prev || !ui) { return false; }
+        const d = this.defaultUi();
+        let took = false;
+        for (const k of Object.keys(now)) {
+            if (now[k] === prev[k]) { continue; }
+            if (k !== "megaMin" && k !== "megaRef" && k !== "megaVals") { took = true; }
+            switch (k) {
+                case "preset": ui.preset = d.preset; break;
+                case "ref": ui.ref = d.ref; break;
+                case "unit": ui.unit = d.unit; break;
+                case "density": ui.density = d.density; break;
+                case "pctRev": ui.pctRev = d.pctRev; break;
+                case "hideZero": ui.hideZero = d.hideZero; break;
+                case "fit": ui.fit = d.fit; break;
+                case "level": ui.collapsed = d.collapsed; break;
+                case "treeCard": ui.treeCard = d.treeCard; break;
+                case "treeStatus": ui.treeStatus = d.treeStatus; break;
+                // an author change of the mega switches ends the reader's scenario
+                // view — but only a view that was set counts as taken over (the
+                // pane edits of the mega table never persisted the toolbar state)
+                case "megaMin": if (ui.megaMin !== "") { took = true; ui.megaMin = ""; } break;
+                case "megaRef": if (ui.megaRef !== "") { took = true; ui.megaRef = ""; } break;
+                case "vals": ui.vals = d.vals; break;
+                case "megaVals": if (ui.megaVals != null) { took = true; ui.megaVals = null; } break;
+            }
+        }
+        return took;
+    }
+
+    /**
+     * 1.6: the views the author offers the readers (format pane → toolbar), in
      * toolbar order. Switching every one of them off would leave nothing to
      * draw — the table then stays, as the one view every data shape supports.
      */
     private offeredViews(): ViewMode[] {
-        const t = this.settings.toolbarCard;
+        const t = this.settings?.toolbarCard;
+        if (!t) { return [...VIEW_ORDER]; }
         const on: Record<ViewMode, boolean> = {
             table: t.viewTable.value !== false,
             bars: t.viewBars.value !== false,
@@ -1111,15 +1559,22 @@ export class Visual implements IVisual {
     }
 
     /**
-     * ui.view, or — when it names a view the author no longer offers (an old
-     * state, a bookmark) or a view this build does not know — the first offered
-     * one. Display only: ui.view is never rewritten here, so switching the view
-     * back on in the format pane restores exactly what the reader had.
+     * The view this render really draws: ui.view, or — when it names a view
+     * the author no longer offers (an old state, a bookmark) or one this build
+     * does not know — the first offered one. A pure display fallback: ui.view
+     * is never rewritten here, so switching the view back on in the format
+     * pane restores exactly what the reader had. Every read of the view goes
+     * through here; only clicks write ui.view.
      */
-    private effView(): ViewMode {
+    private view(): ViewMode {
         const offered = this.offeredViews();
-        const v = this.ui!.view;
-        return offered.indexOf(v) >= 0 ? v : offered[0];
+        const v = this.ui?.view;
+        return v != null && offered.indexOf(v) >= 0 ? v : offered[0];
+    }
+
+    /** 1.6: the Sankey itself is on screen (not a tile view opened from it) */
+    private sankeyInView(): boolean {
+        return this.ui != null && this.view() === "sankey" && this.ui.treeZoom == null;
     }
 
     private resolveRef(pref: string): Scenario {
@@ -1133,8 +1588,24 @@ export class Visual implements IVisual {
         const persisted = dataView?.metadata?.objects?.["state"]?.["uiState"];
         const str = persisted == null ? null : String(persisted);
         if (this.pendingPersist != null) {
-            if (str === this.pendingPersist) { this.lastApplied = str; }
-            this.pendingPersist = null;
+            if (str === this.pendingPersist) {
+                this.lastApplied = str;
+                this.pendingPersist = null;
+                this.supersededUi = [];
+            } else if ((str == null || this.supersededUi.includes(str)) && --this.pendingTtl > 0) {
+                // Echo guard: an update that still carries a state this visual
+                // itself has written over (the one before the click — a resize
+                // arriving first — or an earlier click whose echo comes late)
+                // must not throw the reader's click away. Up to 1.0.0 it did,
+                // and the button sprang back until the echo came. Only the
+                // host's own echo or the TTL (the write was lost) ends the
+                // guard; a state the visual never wrote — a bookmark — is
+                // applied at once below.
+                return;
+            } else {
+                this.pendingPersist = null;
+                this.supersededUi = [];
+            }
         }
         if (str != null && str !== this.lastApplied) {
             try {
@@ -1158,6 +1629,8 @@ export class Visual implements IVisual {
 
     private persistUi(): void {
         if (!this.ui) { return; }
+        // the demo is explored locally — nothing of it may land in the report
+        if (this.demo) { return; }
         if (this.model) {
             this.ui.collapsed = this.ui.collapsed.filter(id => this.model!.byId.has(id));
             this.ui.spark = this.ui.spark.filter(id => this.model!.byId.has(id));
@@ -1173,7 +1646,12 @@ export class Visual implements IVisual {
             }
         }
         const json = JSON.stringify(this.ui);
+        // the states this write replaces — only these count as stale echoes
+        if (this.lastApplied != null && this.lastApplied !== json) {
+            this.supersededUi = [...this.supersededUi.slice(-(UI_ECHO_TTL - 1)), this.lastApplied];
+        }
         this.pendingPersist = json;
+        this.pendingTtl = UI_ECHO_TTL;
         this.lastApplied = json;
         this.host.persistProperties({
             merge: [{ objectName: "state", selector: null, properties: { uiState: json } }],
@@ -1182,8 +1660,107 @@ export class Visual implements IVisual {
 
     // ---------------- formatting ----------------
 
-    private str(en: string, de: string): string {
-        return this.locale.toLowerCase().startsWith("de") ? de : en;
+    /**
+     * Localized in-visual text: the host's resjson value for `key`, else the
+     * English fallback of i18n.ts; {0} {1} … are filled from `args`.
+     */
+    private tr(key: string, ...args: (string | number)[]): string {
+        return fillArgs(this.trOpt(key) ?? UI_EN[key] ?? key, args);
+    }
+    /** the host's string for a key, or null when it has none */
+    private trOpt(key: string): string | null {
+        const s = this.locMgr?.getDisplayName(key);
+        return s && s !== key ? s : null;
+    }
+    /**
+     * Engine messages (formula errors, model warnings) are English by design —
+     * the engine has no host. They are translated where they are shown.
+     */
+    private trMsg(msg: string): string {
+        const rules: [RegExp, string, ((m: RegExpExecArray) => (string | number)[])?][] = [
+            [/^cycle$/, "UI_ErrCycle"],
+            [/^empty formula$/, "UI_ErrEmpty"],
+            [/^parse error$/, "UI_ErrParse"],
+            [/^missing \)$/, "UI_ErrParen"],
+            [/^missing \]$/, "UI_ErrBracket"],
+            [/^empty reference$/, "UI_ErrEmptyRef"],
+            [/^unexpected "(.*)"$/, "UI_ErrUnexpected", m => [m[1]]],
+            [/^trailing "(.*)"$/, "UI_ErrTrailing", m => [m[1]]],
+            [/^unknown reference \[(.*)\]$/, "UI_ErrUnknownRef", m => [m[1]]],
+            [/^ref \[([^\]]*)\]: (.*)$/, "UI_ErrRef", m => [m[1], this.trMsg(m[2])]],
+            [/^duplicate id: (.*)$/, "UI_WarnDuplicate", m => [m[1]]],
+            [/^(\d+) row\(s\) in a parent-child cycle$/, "UI_WarnCycle", m => [m[1]]],
+            [/^(\d+) orphan row\(s\) moved to "(.*)"$/, "UI_WarnOrphans", m => [m[1], m[2]]],
+            [/^subtree under (.*) \((.*)\) is excluded from parent sums$/, "UI_WarnExcluded", m => [m[1], m[2]]],
+            [/^formula error in ([^:]*): (.*)$/, "UI_WarnFormula", m => [m[1], this.trMsg(m[2])]],
+        ];
+        for (const [rx, key, args] of rules) {
+            const m = rx.exec(msg);
+            if (m) { return this.tr(key, ...(args ? args(m) : [])); }
+        }
+        return msg;
+    }
+
+    // ---------------- light / dark ----------------
+
+    /**
+     * Dark mode, ChartKitchen's rule (resolveDarkMode there): the pane's
+     * appearance dropdown wins; "auto" reads the report theme's background
+     * luminance (< 0.35 = dark). Themes that never set a background report
+     * white, so auto only flips on genuinely dark themes — a page painted dark
+     * by hand needs the explicit "dark". High contrast keeps the light path.
+     */
+    private resolveDarkMode(): boolean {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        if (palette && palette.isHighContrast) { return false; }
+        const mode = String(this.settings?.styleCard?.appearance?.value?.value ?? "auto");
+        if (mode === "dark") { return true; }
+        if (mode === "light") { return false; }
+        const bg = palette?.background?.value;
+        return !!bg && relLuminance(bg) < 0.35;
+    }
+
+    /** the dark paper: the theme's own background when it is dark, else the stand-in */
+    private darkPaper(): string {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        const bg = palette?.background?.value;
+        return bg && relLuminance(bg) < 0.35 ? bg : DARK_PAPER;
+    }
+
+    /**
+     * High contrast for the mega table (ChartKitchen's HC path): the host's
+     * foreground / background / foregroundSelected. Only while the mega table
+     * is on screen — the classic table, the bars / waterfall views and the
+     * driver tree keep their light path unchanged.
+     */
+    private resolveHighContrast(): { fg: string; bg: string; sel: string } | null {
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        // 1.6: the Sankey speaks colour families — in high contrast it draws them as patterns
+        if (!palette || !palette.isHighContrast || !(this.megaInView() || this.sankeyInView())) { return null; }
+        const fg = palette.foreground?.value || "#000000";
+        const bg = palette.background?.value || "#FFFFFF";
+        return { fg, bg, sel: palette.foregroundSelected?.value || fg };
+    }
+
+    /** one switch for every painter: the live palettes C and MEGA_C */
+    private applyPalette(): void {
+        Object.assign(C, this.dark ? C_DARK : C_LIGHT);
+        if (this.dark) { C.paper = this.darkPaper(); }
+        this.hc = this.resolveHighContrast();
+        if (this.hc) { Object.assign(C, hcPalette(this.hc.fg, this.hc.bg)); }
+        setMegaPalette(this.dark, C.paper, this.hc ?? undefined);
+        this.root.style.color = C.text;
+    }
+
+    /** paper inside a card (hollow PL marks, halos, badges): the palette paper in light mode
+     *  (exactly 0.17), the card fill in dark mode, so a hollow mark never shows a darker hole */
+    private cardPaper(): string {
+        return this.dark ? this.cardBg() : C.paper;
+    }
+
+    /** text on the accent fill: white on dark accents, dark ink on light ones */
+    private onAccent(): string {
+        return relLuminance(this.accent()) > 0.45 ? "#1E1E1E" : "#FFF";
     }
 
     private makeFmt(maxAbs: number): Fmt {
@@ -1191,8 +1768,11 @@ export class Visual implements IVisual {
         let div = 1; let suffix = "";
         if (u === "k") { div = 1e3; suffix = "k"; }
         else if (u === "m") { div = 1e6; suffix = "m"; }
+        else if (u === "b") { div = 1e9; suffix = "b"; }
         else if (u === "auto") {
-            if (maxAbs >= 5e7) { div = 1e6; suffix = "m"; }
+            // billions from 50 billion on (1.1) — the k / m thresholds are unchanged
+            if (maxAbs >= 5e10) { div = 1e9; suffix = "b"; }
+            else if (maxAbs >= 5e7) { div = 1e6; suffix = "m"; }
             else if (maxAbs >= 5e4) { div = 1e3; suffix = "k"; }
         }
         const dec = this.settings.numbersCard.decimals.value;
@@ -1200,7 +1780,23 @@ export class Visual implements IVisual {
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const pf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: pdec, maximumFractionDigits: pdec });
         const grp = (nfr: Intl.NumberFormat, v: number): string =>
-            nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+            nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
+        if (this.finance()) {
+            // finance convention (ChartKitchen financeFormat): negatives in
+            // parentheses with the unit inside, exact zero "–", a rounded zero
+            // without parentheses, positive Δ keep their "+"
+            const fin = (nfr: Intl.NumberFormat, x: number, raw: number, plus: boolean, unit: string): string => {
+                if (raw === 0) { return "–"; }
+                const t = grp(nfr, Math.abs(x));
+                if (!/[1-9]/.test(t)) { return t + unit; }
+                return raw < 0 ? "(" + t + unit + ")" : (plus ? "+" : "") + t + unit;
+            };
+            return {
+                div, suffix,
+                val: (v, plus = false) => v == null ? "·" : fin(nf, v / div, v, plus, ""),
+                pct: (v, plus = false) => v == null ? "–" : fin(pf, v * 100, v, plus, "%"),
+            };
+        }
         return {
             div, suffix,
             val: (v, plus = false) => v == null ? "·" : (plus && v > 0 ? "+" : "") + grp(nf, v / div),
@@ -1208,15 +1804,30 @@ export class Visual implements IVisual {
         };
     }
 
+    /**
+     * Effective variance colour mode: style.variancePreset (1.1, ChartKitchen
+     * name) wins when set; "auto" — the default — follows the older
+     * style.colorMode switch, so reports saved before 1.1 keep their colours.
+     */
+    private varianceMode(): "teal" | "ibcs" | "blueOrange" {
+        const st = this.settings.styleCard;
+        const p = String(st.variancePreset?.value?.value ?? "auto");
+        if (p === "teal" || p === "ibcs" || p === "blueOrange") { return p; }
+        return String(st.colorMode.value.value) === "ibcs" ? "ibcs" : "teal";
+    }
     private goodColor(): string {
+        if (this.hc) { return this.hc.fg; }
         const o = this.settings.styleCard.goodColor.value?.value;
         if (o) { return o; }
-        return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsGood : C.tealGood;
+        const m = this.varianceMode();
+        return m === "ibcs" ? C.ibcsGood : m === "blueOrange" ? C.boGood : C.tealGood;
     }
     private badColor(): string {
+        if (this.hc) { return this.hc.fg; }
         const o = this.settings.styleCard.badColor.value?.value;
         if (o) { return o; }
-        return String(this.settings.styleCard.colorMode.value.value) === "ibcs" ? C.ibcsBad : C.tealBad;
+        const m = this.varianceMode();
+        return m === "ibcs" ? C.ibcsBad : m === "blueOrange" ? C.boBad : C.tealBad;
     }
     /**
      * Accent of the interactive chrome (active toolbar buttons, the back button
@@ -1225,26 +1836,58 @@ export class Visual implements IVisual {
      * default, so an untouched report keeps exactly the previous look.
      */
     private accent(): string {
-        return this.settings.styleCard.accentColor.value?.value || C.ac;
+        if (this.hc) { return this.hc.sel; }
+        const v = this.settings.styleCard.accentColor.value?.value || C_LIGHT.ac;
+        // the light default of the picker becomes the dark ink — a chosen colour stays
+        return this.dark && v.toUpperCase() === C_LIGHT.ac ? C.ac : v;
     }
     /** slightly lifted accent for hover states — mixed towards paper in sRGB */
     private accentSoft(alpha: number): string {
+        if (this.hc) { return this.hc.sel; }
         const hex = this.accent().replace("#", "");
         if (!/^[0-9a-fA-F]{6}$/.test(hex)) { return this.accent(); }
+        // light: towards white (exactly the 0.17 tint); dark: towards the dark paper
+        let paper = (this.dark ? this.darkPaper() : "#FFFFFF").replace("#", "");
+        if (paper.length === 3) { paper = paper.split("").map(ch => ch + ch).join(""); }
+        if (!/^[0-9a-fA-F]{6}$/.test(paper)) { paper = "FFFFFF"; }
         const mix = (i: number): number => {
             const c = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-            return Math.round(c + (255 - c) * alpha);
+            const t = parseInt(paper.slice(i * 2, i * 2 + 2), 16);
+            return Math.round(c + (t - c) * alpha);
         };
         return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
     }
     /** paper of the visual — behind the tree and behind the tiles of the zoom */
     private pageBg(): string {
-        return this.settings.styleCard.pageBackground.value?.value || "#FFF";
+        if (this.hc) { return this.hc.bg; }
+        const v = this.settings.styleCard.pageBackground.value?.value || "#FFF";
+        return this.dark && /^#fff(fff)?$/i.test(v) ? this.darkPaper() : v;
     }
     /** fill of every card: tree cards, micro cards, the big tile, hover panel */
     private cardBg(): string {
-        return this.settings.styleCard.cardBackground.value?.value || "#FFF";
+        const v = this.settings.styleCard.cardBackground.value?.value || "#FFF";
+        return this.dark && /^#fff(fff)?$/i.test(v) ? DARK_CARD : v;
     }
+    /**
+     * Layout pixels per screen pixel. The visual can sit inside a scaled stage
+     * (CSS transform, e.g. a Fabric App canvas at 1.25× or 2×). Then
+     * getBoundingClientRect reports screen pixels while top, height, width and
+     * scrollTop work in layout pixels: a sticky offset measured that way pushed
+     * the column header down into the rows. In Power BI the factor is 1.
+     */
+    private zoom(): number {
+        const w = this.root.offsetWidth;
+        const r = this.root.getBoundingClientRect().width;
+        return w > 0 && r > 0 ? r / w : 1;
+    }
+
+    /** getBoundingClientRect in layout pixels (see zoom) */
+    private rect(el: Element): { top: number; bottom: number; left: number; right: number; width: number; height: number } {
+        const b = el.getBoundingClientRect();
+        const z = this.zoom();
+        return { top: b.top / z, bottom: b.bottom / z, left: b.left / z, right: b.right / z, width: b.width / z, height: b.height / z };
+    }
+
     /** whether head block and column headers stay on screen while scrolling */
     private sticky(): boolean {
         return this.settings.styleCard.stickyHeader.value;
@@ -1427,8 +2070,1523 @@ export class Visual implements IVisual {
 
     // ---------------- render entry ----------------
 
+    // ---------------- Smart Start ----------------
+
+    /**
+     * Smart Start: an author who drops the visual on a page sees a working
+     * statement right away — the built-in demo P&L in the report's language,
+     * with a quiet banner that names the roles still to bind. Only where it
+     * helps and never where it could mislead: edit mode (or a host that does
+     * not say, like the harness), interactions allowed (PDF / PowerPoint
+     * export and subscriptions render with allowInteractions = false) and
+     * enough room. Readers and exports of a report that lost its fields get the
+     * plain text landing — demo numbers never reach a published page.
+     */
+    private demoAllowed(): boolean {
+        if (this.host.hostCapabilities?.allowInteractions === false) { return false; }
+        if (this.viewMode != null && this.viewMode < 1) { return false; }
+        const w = this.vpW || this.root.clientWidth; const h = this.vpH || this.root.clientHeight;
+        return w >= 300 && h >= 220;
+    }
+
+    /** start aids (demo, field guide) are edit-mode aids: never for readers or exports */
+    private startAllowed(): boolean {
+        if (this.host.hostCapabilities?.allowInteractions === false) { return false; }
+        return this.viewMode == null || this.viewMode >= 1;
+    }
+
+    /** emptyState.mode: hub (1.3, default) · demo · fields · message */
+    private emptyMode(): "hub" | "demo" | "fields" | "message" {
+        const v = String(this.settings?.emptyStateCard?.mode?.value?.value ?? "hub");
+        return v === "demo" || v === "fields" || v === "message" ? v : "hub";
+    }
+
+    /**
+     * Echo guard of the empty-state switches (the UI_ECHO_TTL pattern): until
+     * the host echoes the written mode, a stale update keeps the clicked one.
+     */
+    private syncEmptyMode(): void {
+        const p = this.emptyPending;
+        if (!p) { return; }
+        const sl = this.settings.emptyStateCard.mode;
+        if (String(sl.value?.value) === p.mode || --p.ttl <= 0) { this.emptyPending = null; return; }
+        const it = (sl.items ?? []).find(x => String(x.value) === p.mode);
+        if (it) { sl.value = it; }
+    }
+
+    /** 1.4 echo guard of style.fontPreset after a click in the hub's bottom bar */
+    private syncFontPreset(): void {
+        const p = this.fontPending;
+        if (!p) { return; }
+        const sl = this.settings.styleCard.fontPreset;
+        if (String(sl.value?.value) === p.v || --p.ttl <= 0) { this.fontPending = null; return; }
+        const it = (sl.items ?? []).find(x => String(x.value) === p.v);
+        if (it) { sl.value = it; }
+    }
+
+    /**
+     * 1.4 font size preset from the hub's bottom bar: writes style.fontPreset
+     * (the same property as the format pane) and redraws at once — the hub,
+     * the statement under the overlay or the demo page.
+     */
+    private setFontPreset(v: string): void {
+        const sl = this.settings.styleCard.fontPreset;
+        if (String(sl.value?.value) === v) { return; }
+        const it = (sl.items ?? []).find(x => String(x.value) === v);
+        if (!it) { return; }
+        sl.value = it;
+        this.fontPending = { v, ttl: UI_ECHO_TTL };
+        this.host.persistProperties({ merge: [{ objectName: "style", selector: null, properties: { fontPreset: v } }] });
+        this.hubFocusKey = "hub-font-" + v;
+        if (this.hubOverlay) { this.render(); this.hubRefresh(); return; }
+        if (this.demo && this.hubPage === "demo") {
+            this.render();
+            const el = this.root.querySelector<HTMLElement>(`[data-pnl="${this.hubFocusKey}"]`);
+            this.hubFocusKey = null;
+            if (el) { el.focus(); }
+            return;
+        }
+        this.hubRefresh();
+    }
+
+    /** 1.4 "📖 Doku öffnen": the online documentation through the host (IVisualHost.launchUrl) */
+    private openDocs(): void {
+        const h = this.host as IVisualHost & { launchUrl?: (url: string) => void };
+        if (typeof h.launchUrl === "function") { h.launchUrl(docsUrl(this.locale)); }
+    }
+
+    /** empty-state switch (edit mode): writes emptyState.mode and shows the new start at once */
+    private setEmptyMode(mode: "demo" | "fields" | "message"): void {
+        const sl = this.settings.emptyStateCard.mode;
+        const it = (sl.items ?? []).find(x => String(x.value) === mode);
+        if (it) { sl.value = it; }
+        this.emptyPending = { mode, ttl: UI_ECHO_TTL };
+        this.host.persistProperties({ merge: [{ objectName: "emptyState", selector: null, properties: { mode } }] });
+        const a = this.startArgs;
+        this.showStart(a ? a.dataView : undefined, a ? a.missing : null);
+    }
+
+    /** a small switch button of the empty state (edit mode only) */
+    private startSwitch(label: string, mode: "demo" | "fields" | "message"): HTMLElement {
+        const b = this.tbBtn(label, false, () => { /* replaced below */ }, this.tr("UI_EsSwitchTip"));
+        b.setAttribute("data-pnl", "es-" + mode);
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.setEmptyMode(mode); };
+        return b;
+    }
+
+    /** the row of empty-state switches — every mode except the current one */
+    private startSwitchRow(cur: "demo" | "fields" | "message"): HTMLElement | null {
+        if (!this.editMode()) { return null; }
+        const row = document.createElement("div");
+        row.setAttribute("data-pnl", "es-switches");
+        row.style.cssText = `display:flex;gap:${this.kpx(6)};flex-wrap:wrap;margin-top:${this.kpx(8)};`;
+        if (cur !== "demo") { row.appendChild(this.startSwitch(this.tr("UI_EsDemo"), "demo")); }
+        if (cur !== "fields") { row.appendChild(this.startSwitch(this.tr("UI_EsFields"), "fields")); }
+        return row;
+    }
+
+    private showStart(dataView: DataView | undefined, missing: string[] | null): void {
+        this.startArgs = { dataView, missing };
+        // no statement on screen any more: an overlay of a former statement has no ground
+        if (this.hubOverlay) { this.closeHub(false); }
+        const mode = this.emptyMode();
+        // 1.3 Start hub (the default): big buttons for the tour, the template
+        // gallery, the demo and the field guide — where the demo would show
+        // (edit mode, room enough); readers and exports keep the landing text
+        if (mode === "hub" && this.demoAllowed() && this.hubPage !== "demo") {
+            if (this.demo) { this.leaveDemo(); }
+            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.catModels = null;
+            // echo guard + pane-chosen template, as in the demo path below
+            this.syncMegaTemplate(dataView);
+            this.root.style.background = this.pageBg();
+            this.hubRefresh();
+            return;
+        }
+        // 1.2 empty-state mode: the field guide or the own message replace the
+        // demo in edit mode; readers and exports keep the landing text below
+        if ((mode === "fields" || mode === "message") && this.startAllowed()) {
+            if (this.demo) { this.leaveDemo(); }
+            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.catModels = null;
+            this.root.style.background = this.pageBg();
+            this.root.replaceChildren(mode === "fields" ? this.fieldGuide(dataView, missing) : this.startMessage());
+            return;
+        }
+        if (!this.demoAllowed()) {
+            if (this.demo) { this.leaveDemo(); }
+            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.renderLanding();
+            return;
+        }
+        if (!this.demo || this.demoLocale !== this.locale) {
+            this.installDemoModel(false);
+            this.lastFingerprint = null;
+            this.ui = null;
+        }
+        this.demoMissing = missing;
+        this.syncMegaTemplate(dataView);
+        if (!this.ui) { this.ui = this.defaultUi(); }
+        // the demo follows pane edits as well (locally — it never persists)
+        this.syncPaneDefaults();
+        this.render();
+        // the hub's demo page: the focus goes to its ← Zurück button (keyboard flow)
+        if (this.hubFocusKey && this.emptyMode() === "hub") {
+            const el = this.root.querySelector<HTMLElement>(`[data-pnl="${this.hubFocusKey}"]`);
+            this.hubFocusKey = null;
+            if (el) { el.focus(); }
+        }
+    }
+
+    /**
+     * The built-in demo as the model on screen (Smart Start, hub demo page and
+     * the hub's mini renderings share it). `fc` adds a synthetic forecast —
+     * only the template previews that analyse FC ask for it.
+     */
+    private installDemoModel(fc: boolean): void {
+        const base = buildDemoRows(k => this.tr(k));
+        const rows = fc
+            ? base.map(r => (r.values.ac != null ? { ...r, values: { ...r.values, fc: Math.round(r.values.ac * 1.02) } } : r))
+            : base;
+        const lr = rowsFromLevels(rows, "auto");
+        this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months);
+        this.has = { ac: true, py: true, pl: true, fc, fcfy: true, plfy: true };
+        this.catModels = null; this.catBound = false; this.catCapped = 0;
+        this.loadedRows = lr.rows.length;
+        this.modelVer++;
+        this.scanCache = null;
+        this.geoCache = null;
+        this.resetSelection();
+        this.selCat = null;
+        this.statusWarnings = [];
+        this.demo = true;
+        this.demoLocale = this.locale;
+    }
+
+    /** real data arrived (or the demo is not allowed any more): back to a clean slate */
+    private leaveDemo(): void {
+        this.demo = false;
+        this.demoMissing = null;
+        this.model = null;
+        this.vs = null;
+        this.ui = null;
+        this.stateLoaded = false;
+        this.lastApplied = null;
+        this.pendingPersist = null;
+        this.supersededUi = [];
+        this.lastFingerprint = null;
+        this.scanCache = null;
+        this.geoCache = null;
+        this.totalNode = null;
+        this.resetSelection();
+    }
+
+    /** the roles that keep the statement from rendering, in the words of the field wells */
+    private missingRoles(dataView: DataView | undefined): string[] | null {
+        const cols = dataView?.metadata?.columns ?? [];
+        if (cols.length === 0) { return null; }
+        const bound = (r: string): boolean => cols.some(c => !!(c.roles && c.roles[r]));
+        const out: string[] = [];
+        if (!bound("ac")) { out.push(this.tr("UI_DemoMissAc")); }
+        if (!bound("levels") && !bound("account")) { out.push(this.tr("UI_DemoMissHier")); }
+        else if (bound("parent") && !bound("account")) { out.push(this.tr("UI_DemoMissAccount")); }
+        return out;
+    }
+
+    /** the quiet "this is a demo" line above the title — edit-mode only, never exported */
+    private buildDemoBanner(): HTMLElement {
+        // padding on a wrapper, not a margin on the banner: a top margin of the
+        // head's first child would collapse through the head, which then
+        // measures 10 px short and the frozen column header slips under it
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "padding:10px 14px 0 14px;";
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", "demo-banner");
+        wrap.appendChild(box);
+        box.style.cssText = `padding:${this.kpx(7)} ${this.kpx(10)};` +
+            `border:1px dashed ${C.ctlEdge};border-radius:6px;background:${C.wash};` +
+            `font-size:${this.kpx(10.5)};line-height:1.5;color:${C.soft};`;
+        const head = document.createElement("div");
+        head.style.cssText = `display:flex;gap:${this.kpx(8)};align-items:baseline;flex-wrap:wrap;`;
+        const badge = document.createElement("span");
+        badge.setAttribute("data-pnl", "demo-badge");
+        badge.textContent = this.tr("UI_DemoBadge");
+        badge.style.cssText = `font-size:${this.kpx(8.5)};font-weight:700;letter-spacing:.09em;` +
+            `color:${this.accent()};border:1px solid ${this.accent()};border-radius:3px;` +
+            `padding:0 ${this.kpx(5)};line-height:1.6;`;
+        const title = document.createElement("span");
+        title.textContent = this.tr("UI_DemoTitle");
+        title.style.cssText = `font-weight:600;color:${C.text};`;
+        // 1.3 the hub's demo page: the way back to the start page comes first
+        if (this.emptyMode() === "hub" && !this.miniSpec) { head.appendChild(this.hubBackPill()); }
+        head.appendChild(badge); head.appendChild(title);
+        box.appendChild(head);
+        const body = document.createElement("div");
+        body.setAttribute("data-pnl", "demo-body");
+        body.textContent = this.tr("UI_DemoBody");
+        box.appendChild(body);
+        if (this.demoMissing && this.demoMissing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "demo-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;`;
+            miss.textContent = this.tr("UI_DemoMissing", this.demoMissing.join(" · "));
+            box.appendChild(miss);
+        }
+        // 1.2 edit mode: switch to the field guide without opening the pane
+        // (in the hub the demo is a page of the hub — the switches stay out)
+        const sw = this.emptyMode() === "hub" ? null : this.startSwitchRow("demo");
+        if (sw) { box.appendChild(sw); }
+        return wrap;
+    }
+
+    /**
+     * 1.2 field guide (emptyState.mode = fields): which field goes into which
+     * well, minimal and extended, in the reader's language. Bound roles carry
+     * a check, the scenario rows the IBCS chips of the legend. Smart-Start
+     * look: dashed box on the wash, caps section heads.
+     */
+    private fieldGuide(dataView: DataView | undefined, missing: string[] | null, inHub = false): HTMLElement {
+        const cols = dataView?.metadata?.columns ?? [];
+        const bound = (...roles: string[]): boolean => cols.some(c => !!c.roles && roles.some(r => !!c.roles![r]));
+        const role = (key: string, en: string): string => this.trOpt(key) ?? en;
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "field-guide");
+        wrap.style.cssText = `padding:${this.kpx(14)} ${this.kpx(16)};max-width:${this.k(780)}px;box-sizing:border-box;`;
+        const box = document.createElement("div");
+        box.style.cssText = `padding:${this.kpx(10)} ${this.kpx(14)};border:1px dashed ${C.ctlEdge};border-radius:6px;` +
+            `background:${C.wash};color:${C.text};font-size:${this.kpx(11)};line-height:1.5;`;
+        wrap.appendChild(box);
+        const h = document.createElement("div");
+        h.style.cssText = `font-size:${this.kpx(14)};font-weight:600;margin-bottom:${this.kpx(2)};`;
+        h.textContent = this.tr("UI_FiTitle");
+        box.appendChild(h);
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};margin-bottom:${this.kpx(6)};`;
+        intro.textContent = this.tr("UI_FiIntro");
+        box.appendChild(intro);
+        if (missing && missing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "fi-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;margin-bottom:${this.kpx(4)};`;
+            miss.textContent = this.tr("UI_DemoMissing", missing.join(" · "));
+            box.appendChild(miss);
+        }
+        type Row = { id: string; name: string; text: string; on: boolean; chip?: "ac" | "py" | "pl" | "fc" };
+        const section = (label: string, rows: Row[]): void => {
+            const cap = this.capsLabel(label);
+            cap.style.marginTop = this.kpx(6);
+            box.appendChild(cap);
+            const grid = document.createElement("div");
+            grid.style.cssText = `display:grid;grid-template-columns:${this.kpx(14)} minmax(${this.kpx(96)},max-content) minmax(0,1fr);` +
+                `column-gap:${this.kpx(8)};row-gap:${this.kpx(3)};align-items:baseline;margin-top:${this.kpx(2)};`;
+            for (const r of rows) {
+                const mark = document.createElement("span");
+                mark.setAttribute("data-pnl", "fi-" + r.id);
+                mark.setAttribute("data-on", r.on ? "1" : "0");
+                mark.style.cssText = `color:${r.on ? this.goodColor() : C.soft};font-weight:700;`;
+                mark.textContent = r.on ? "✓" : "○";
+                const name = document.createElement("span");
+                name.style.cssText = "font-weight:600;white-space:nowrap;";
+                if (r.chip) { name.appendChild(this.legendChip(r.chip)); }
+                name.appendChild(document.createTextNode(r.name));
+                const text = document.createElement("span");
+                text.style.cssText = `color:${C.soft};`;
+                text.textContent = r.text;
+                grid.appendChild(mark); grid.appendChild(name); grid.appendChild(text);
+            }
+            box.appendChild(grid);
+        };
+        section(this.tr("UI_FiMinimal"), [
+            { id: "levels", name: role("Role_Levels", "Level columns (L1..Ln)"), text: this.tr("UI_FiLevels"), on: bound("levels", "account") },
+            { id: "ac", name: role("Role_AC", "AC (Actual)"), text: this.tr("UI_FiAc"), on: bound("ac"), chip: "ac" },
+        ]);
+        section(this.tr("UI_FiExtended"), [
+            { id: "py", name: role("Role_PY", "PY (Previous Year)"), text: this.tr("UI_FiPy"), on: bound("py"), chip: "py" },
+            { id: "pl", name: role("Role_PL", "PL (Plan / Budget)"), text: this.tr("UI_FiPl"), on: bound("pl"), chip: "pl" },
+            { id: "fc", name: role("Role_FC", "FC (Forecast)"), text: this.tr("UI_FiFc"), on: bound("fc", "fcFy"), chip: "fc" },
+            { id: "period", name: role("Role_Period", "Period (month)"), text: this.tr("UI_FiPeriod"), on: bound("period") },
+            { id: "rowType", name: role("Role_RowType", "Row type"), text: this.tr("UI_FiRowType"), on: bound("rowType", "formulaDef") },
+            { id: "sign", name: role("Role_Sign", "Sign convention (±1)"), text: this.tr("UI_FiSign"), on: bound("signConvention", "displayInvert", "varianceInvert") },
+            { id: "colCategory", name: role("Role_ColCategory", "Column category"), text: this.tr("UI_FiColCat"), on: bound("colCategory") },
+        ]);
+        const hint = document.createElement("div");
+        hint.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(8)};`;
+        hint.textContent = this.tr("UI_FiHint");
+        box.appendChild(hint);
+        const sw = inHub ? null : this.startSwitchRow("fields");
+        if (sw) { box.appendChild(sw); }
+        return wrap;
+    }
+
+    /** emptyState.mode = message in edit mode: the own message (else the landing text) plus the switches */
+    private startMessage(): HTMLElement {
+        let box: HTMLElement;
+        if (this.customEmpty()) { box = this.emptyMessageBox(); }
+        else {
+            box = document.createElement("div");
+            box.setAttribute("data-pnl", "empty-state");
+            box.style.cssText = "padding:18px 22px;max-width:600px;";
+            const p = document.createElement("div");
+            p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
+            p.textContent = this.tr("UI_Landing");
+            box.appendChild(p);
+        }
+        const sw = this.startSwitchRow("message");
+        if (sw) { box.appendChild(sw); }
+        return box;
+    }
+
+    // ---------------- 1.3 Start hub ----------------
+    //
+    // Without fields the edit mode shows the hub (emptyState.mode = hub, the
+    // default): four big buttons — the feature tour, the template gallery, the
+    // demo and the field guide. With fields bound the toolbar offers "☰ Start"
+    // (edit mode only), which opens the same hub as an overlay layer above the
+    // statement; closing it removes the layer and leaves the view as it was.
+    // Readers and exports never see the hub. All of it is local state — only a
+    // template click writes (like the toolbar dropdown).
+
+    /** the element the hub currently renders into: the overlay layer, else the visual's root */
+    private hubHost(): HTMLElement {
+        return this.hubOverlay ?? this.root;
+    }
+
+    /** a mini rendering that is not the full demo of the overlay: no banner, no title */
+    private miniQuiet(): boolean {
+        return this.miniSpec != null && !this.miniSpec.full;
+    }
+
+    /** what the field guide of the hub page reads: the live data view, or the one of the last empty update */
+    private hubArgs(): { dataView: DataView | undefined; missing: string[] | null } {
+        if (this.hubOverlay) {
+            return { dataView: this.lastDv, missing: this.lastDv ? this.missingRoles(this.lastDv) : null };
+        }
+        const a = this.startArgs;
+        return { dataView: a ? a.dataView : undefined, missing: a ? a.missing : null };
+    }
+
+    /** whether a statement is on screen under the hub (the template pick then closes the overlay) */
+    private hubHasStatement(): boolean {
+        return this.model != null && !this.demo && this.hubOverlay != null;
+    }
+
+    /** go to a page of the hub (keyboard flow: the focus follows) */
+    private hubGo(page: HubPage, focusKey?: string): void {
+        const left = this.hubPage;
+        this.hubPage = page;
+        this.hubFocusKey = focusKey ?? (page === "hub" ? (left === "start" ? "hub-start" : "hub-tile-" + left) : "hub-back");
+        if (page === "tour") { this.hubTour = Math.max(0, Math.min(this.hubTour, TOUR_CARDS.length - 1)); }
+        if (this.hubOverlay) { this.hubRefresh(); return; }
+        const a = this.startArgs;
+        this.showStart(a ? a.dataView : undefined, a ? a.missing : null);
+    }
+
+    /** redraw the hub page into its host (overlay or root) and run its mini renderings */
+    private hubRefresh(): void {
+        const host = this.hubHost();
+        if (this.hubOverlay) {
+            this.hubOverlay.style.background = this.pageBg();
+            this.hubOverlay.style.color = C.text;
+        }
+        this.hubMinis = [];
+        const page = this.hubPage === "demo" && !this.hubOverlay ? "hub" : this.hubPage;
+        // an update that changes nothing the page shows (an echo of a persist, a pane
+        // edit elsewhere) must not redraw the minis — a resize still does (width)
+        const a = this.hubArgs();
+        const sig = [page, this.hubTour, this.locale, this.dark ? "d" : "l", this.hubAvail(), this.vpH,
+            this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value),
+            this.hubSaved ?? "", (a.missing ?? []).join("|"), this.accent(), this.pageBg(),
+            this.settings.styleCard.fontPreset.value.value, this.settings.styleCard.fontZoom.value,
+            // 1.4 the live ticks of the field guide and the checklist, the docs button (edit mode)
+            this.hubBoundRoles().join("|"), this.hubFineTicks().join(""), this.editMode() ? "e" : ""].join("~");
+        const cur = host.firstElementChild;
+        if (!this.hubFocusKey && cur && cur.getAttribute("data-hub") === "" && cur.getAttribute("data-hub-sig") === sig) { return; }
+        const content = this.hubContent(page);
+        content.setAttribute("data-hub-sig", sig);
+        host.replaceChildren(content);
+        this.hubFitNote(content);
+        // The minis lay themselves out (fit passes, tile view) — they need the
+        // attached page. The first three run at once (the tour and the top of
+        // the gallery appear with the page), the rest in small batches so the
+        // host never freezes; data-hub-ready flips to 1 when the last one is drawn.
+        const jobs = this.hubMinis;
+        this.hubMinis = [];
+        const gen = ++this.hubGen;
+        content.setAttribute("data-hub-ready", jobs.length === 0 ? "1" : "0");
+        const batch = (): void => {
+            if (gen !== this.hubGen || !content.isConnected) { return; }
+            for (const j of jobs.splice(0, 3)) { j(); }
+            // each mini re-armed the shared palettes for its own look
+            this.applyPalette();
+            if (jobs.length > 0) { setTimeout(batch, 0); } else { content.setAttribute("data-hub-ready", "1"); }
+        };
+        // a page with one or two minis (tour, demo) draws them at once; the gallery after the first paint
+        if (jobs.length > 3) { setTimeout(batch, 0); } else if (jobs.length > 0) { batch(); }
+        const key = this.hubFocusKey;
+        this.hubFocusKey = null;
+        if (key) {
+            const el = host.querySelector<HTMLElement>(`[data-pnl="${key}"]`);
+            if (el) { el.focus(); }
+        }
+    }
+
+    /** the hub wrapper: header (back · title · close), the page, keyboard */
+    private hubContent(page: HubPage): HTMLElement {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub");
+        wrap.setAttribute("data-hub", "");
+        wrap.setAttribute("data-hub-page", page);
+        // 1.4 a column that fills the host: the page grows, the bottom bar sits at the lower edge
+        wrap.style.cssText = `padding:${this.kpx(16)} ${this.kpx(18)} 0 ${this.kpx(18)};min-height:100%;` +
+            "display:flex;flex-direction:column;" +
+            `box-sizing:border-box;color:${C.text};font-size:${this.kpx(11)};line-height:1.5;`;
+        wrap.addEventListener("keydown", (e: KeyboardEvent) => this.hubKey(e, page));
+        const titles: Record<HubPage, string> = {
+            hub: "P&L Statement byDatenWG", tour: this.tr("UI_HubTour"), templates: this.tr("UI_HubTpl"),
+            demo: this.tr("UI_EsDemo"), fields: this.tr("UI_EsFields"), start: this.tr("UI_GoTitle"),
+        };
+        wrap.appendChild(this.hubHeader(titles[page], page !== "hub", page === "hub" ? this.tr("UI_HubIntro") : undefined));
+        const body = document.createElement("div");
+        body.setAttribute("data-pnl", "hub-body");
+        body.style.cssText = `flex:1 0 auto;padding-bottom:${this.kpx(16)};`;
+        if (page === "tour") { body.appendChild(this.hubTourPage()); }
+        else if (page === "templates") { body.appendChild(this.hubTemplatesPage()); }
+        else if (page === "fields") { body.appendChild(this.hubFieldsPage()); }
+        else if (page === "start") { body.appendChild(this.hubStartPage()); }
+        else if (page === "demo") { body.appendChild(this.hubDemoPage()); }
+        else { body.appendChild(this.hubHome()); }
+        wrap.appendChild(body);
+        wrap.appendChild(this.hubFooter());
+        return wrap;
+    }
+
+    /**
+     * 1.4 the bottom bar of every hub page: the three font size presets first
+     * (HD · Full HD · UHD — the format pane's style.fontPreset, active one
+     * marked, a click persists with an echo guard), then "📖 Doku öffnen"
+     * (edit mode only, through IVisualHost.launchUrl). Sticky: it stays at the
+     * lower edge while the page scrolls.
+     */
+    private hubFooter(edge = this.k(18)): HTMLElement {
+        const f = this.hubFam();
+        const foot = document.createElement("div");
+        foot.setAttribute("data-pnl", "hub-footer");
+        foot.style.cssText = `position:sticky;bottom:0;z-index:5;margin:0 -${edge}px;background:${this.pageBg()};` +
+            `font-family:${FONT};`;
+        // 1.4.1 family bar (the same in ChartKitchen): 8 px · 12 px padding, a 1 px rule of 10 % ink on top,
+        // one line of pill height — "Aa", HD · Full HD · UHD, the quiet hint, the docs pill on the right
+        const bar = document.createElement("div");
+        bar.setAttribute("data-pnl", "hub-bar");
+        bar.style.cssText = `display:flex;align-items:center;flex-wrap:wrap;column-gap:${HUB_BAR.gap}px;row-gap:${HUB_BAR.pillGap}px;` +
+            `box-sizing:border-box;min-height:${this.hubPillH() + 2 * HUB_BAR.padY + 1}px;` +
+            `padding:${HUB_BAR.padY}px ${HUB_BAR.padX}px;border-top:1px solid ${f.rule};`;
+        const aa = document.createElement("span");
+        aa.setAttribute("data-pnl", "hub-aa");
+        aa.setAttribute("aria-hidden", "true");
+        aa.textContent = "Aa";
+        aa.style.cssText = `flex:none;color:${f.soft};font-size:${this.kpx(12)};font-weight:600;line-height:1;`;
+        bar.appendChild(aa);
+        const seg = document.createElement("div");
+        seg.setAttribute("data-pnl", "hub-font");
+        seg.setAttribute("role", "group");
+        seg.setAttribute("aria-label", this.tr("UI_HubFont"));
+        seg.style.cssText = `flex:none;display:flex;align-items:center;gap:${HUB_BAR.pillGap}px;`;
+        const cur = String(this.settings.styleCard.fontPreset.value?.value ?? "hd");
+        for (const p of FONT_PRESETS) {
+            const on = cur === p.value;
+            const b = this.hubPill(p.label, () => this.setFontPreset(p.value),
+                { key: "hub-font-" + p.value, kind: on ? "on" : "off", tip: this.tr("UI_HubFontTip", p.label) });
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+            seg.appendChild(b);
+        }
+        seg.title = this.tr("UI_HubFont");
+        bar.appendChild(seg);
+        // the hint: one muted line; where it does not fit, only the hint goes (hubFitNote) — never the pills
+        const note = document.createElement("span");
+        note.setAttribute("data-pnl", "hub-hint");
+        note.textContent = this.tr("UI_HubFont");
+        note.style.cssText = `flex:1 1 0;min-width:0;color:${f.soft};font-size:${this.kpx(10)};line-height:1.3;` +
+            "white-space:nowrap;overflow:hidden;";
+        bar.appendChild(note);
+        if (this.editMode()) {
+            const d = this.hubPill(this.tr("UI_HubDocs"), () => this.openDocs(),
+                { key: "hub-docs", kind: "outline", tip: this.tr("UI_HubDocsTip") });
+            d.style.marginLeft = "auto";
+            bar.appendChild(d);
+        }
+        foot.appendChild(bar);
+        // the micro signature right under the bar, centred — identical in both visuals
+        const made = document.createElement("div");
+        made.setAttribute("data-pnl", "hub-made");
+        made.textContent = "made by Daten-WG";
+        made.style.cssText = `text-align:center;color:${f.soft};opacity:.6;font-size:${HUB_BAR.madeFs}px;` +
+            `line-height:${HUB_BAR.madeLh}px;padding-bottom:${HUB_BAR.madePadB}px;white-space:nowrap;`;
+        foot.appendChild(made);
+        return foot;
+    }
+
+    /** pill height of the hub family (font size pills, docs, ← Zurück): 21 px on the type scale */
+    private hubPillH(): number {
+        return Math.round(this.k(21));
+    }
+
+    /** height of the hub footer: the bar (pill + 2 × 8 px + the 1 px rule) plus the signature line */
+    private hubFooterH(): number {
+        return this.hubPillH() + 2 * HUB_BAR.padY + 1 + HUB_BAR.madeLh + HUB_BAR.madePadB;
+    }
+
+    /** after the page is attached: the hint of the bottom bar disappears when it does not fit its line */
+    private hubFitNote(scope: HTMLElement): void {
+        const n = scope.querySelector<HTMLElement>('[data-pnl="hub-hint"]');
+        if (!n) { return; }
+        n.style.visibility = "";
+        n.removeAttribute("data-hidden");
+        if (n.scrollWidth > n.clientWidth + 1) {
+            n.style.visibility = "hidden";
+            n.setAttribute("data-hidden", "1");
+        }
+    }
+
+    /**
+     * 1.4.1 family colours of the hub chrome (ChartKitchen uses the same):
+     * ink, ink-soft, paper, the teal accent of the active pill and of
+     * "🚀 Loslegen" (#0E8585 · dark #3FB3C2 with dark text), the 10 % ink rule.
+     * High contrast: foreground / background, the active pill framed in
+     * foregroundSelected.
+     */
+    private hubFam(): { hc: boolean; ink: string; soft: string; paper: string; teal: string; tealEdge: string; onTeal: string; rule: string; hover: string } {
+        const pal = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        if (pal && pal.isHighContrast) {
+            const fg = pal.foreground?.value || "#000000";
+            const bg = pal.background?.value || "#FFFFFF";
+            const sel = pal.foregroundSelected?.value || fg;
+            return { hc: true, ink: fg, soft: fg, paper: bg, teal: bg, tealEdge: sel, onTeal: sel, rule: fg, hover: bg };
+        }
+        const teal = this.dark ? "#3FB3C2" : "#0E8585";
+        return {
+            hc: false, ink: C.text, soft: C.soft, paper: C.paper, teal, tealEdge: teal,
+            onTeal: this.dark ? "#1A1A1A" : "#FFFFFF", rule: rgbaOf(C.text, 0.1), hover: C.ctlHover,
+        };
+    }
+
+    /**
+     * A pill of the hub family: radius = height / 2. "off" = an inactive
+     * toggle (paper, 1 px ink-soft frame, ink text), "on" = the active one
+     * (teal fill, white text), "outline" = an action (paper, 1 px ink frame):
+     * the docs button and "← Zurück".
+     */
+    private hubPill(label: string, onClick: () => void,
+        o: { key: string; kind: "on" | "off" | "outline"; tip?: string }): HTMLElement {
+        const f = this.hubFam();
+        const h = this.hubPillH();
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        b.setAttribute("data-pnl", o.key);
+        b.setAttribute("data-pill", o.kind);
+        if (o.tip) { b.title = o.tip; }
+        this.kbRing(b);
+        const bg = o.kind === "on" ? f.teal : f.paper;
+        const edge = o.kind === "on" ? f.tealEdge : o.kind === "off" ? f.soft : f.ink;
+        b.style.cssText = `flex:none;box-sizing:border-box;height:${h}px;line-height:${h - 2}px;padding:0 ${this.kpx(10)};` +
+            `border-radius:${h / 2}px;font-family:${FONT};font-size:${this.kpx(10.5)};white-space:nowrap;cursor:pointer;` +
+            `background:${bg};border:1px solid ${edge};color:${o.kind === "on" ? f.onTeal : f.ink};` +
+            `font-weight:${o.kind === "on" ? 600 : 400};transition:${TRANSITION};`;
+        if (o.kind !== "on") {
+            b.onmouseenter = (): void => { b.style.background = f.hover; };
+            b.onmouseleave = (): void => { b.style.background = bg; };
+        }
+        b.onclick = (e: Event): void => { e.stopPropagation(); onClick(); };
+        return b;
+    }
+
+    /** "← Zurück" of every hub sub page (and the hub's demo page): the outlined family pill */
+    private hubBackPill(): HTMLElement {
+        return this.hubPill(this.tr("UI_HubBack"), () => this.hubGo("hub"),
+            { key: "hub-back", kind: "outline", tip: this.tr("UI_HubBackTip") });
+    }
+
+    /** the bound data roles the hub reads (field guide, checklist), sorted */
+    private hubBoundRoles(): string[] {
+        const dv = this.hubArgs().dataView;
+        // the metadata columns, and the sources of the categorical columns (hosts that send only those)
+        const cols: { roles?: { [r: string]: boolean } }[] = [...(dv?.metadata?.columns ?? []),
+            ...(dv?.categorical?.categories ?? []).map(c => c.source),
+            ...(dv?.categorical?.values ?? []).map(v => v.source)];
+        const set = new Set<string>();
+        for (const c of cols) { for (const r of Object.keys(c?.roles ?? {})) { if (c.roles![r]) { set.add(r); } } }
+        return [...set].sort();
+    }
+
+    /** step ③ of the checklist: house terms · thresholds / materiality · decimals (1 = set) */
+    private hubFineTicks(): number[] {
+        const s = this.settings;
+        if (!s) { return [0, 0, 0]; }
+        const lc = s.labelsCard;
+        const terms = [lc.labelAc, lc.labelPy, lc.labelPl, lc.labelFc].some(x => String(x.value ?? "").trim() !== "");
+        const cc = s.columnsCard;
+        const thr = this.megaSliceIs("thresholds", true) || Number(cc.materialityAbs.value) > 0 || Number(cc.materialityPct.value) > 0;
+        const nc = s.numbersCard;
+        const dec = Number(nc.decimals.value) !== 1 || Number(nc.pctDecimals.value) !== 1;
+        return [terms ? 1 : 0, thr ? 1 : 0, dec ? 1 : 0];
+    }
+
+    /**
+     * 1.4.1 family title row: "← Zurück" as an outlined pill top left, the
+     * title bold (on the home page the product name with its subtitle in
+     * ink-soft below), "✕ Schließen" of the overlay on the right.
+     */
+    private hubHeader(title: string, back: boolean, sub?: string): HTMLElement {
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;align-items:center;gap:${this.kpx(12)};margin-bottom:${this.kpx(12)};flex-wrap:wrap;`;
+        if (back) { row.appendChild(this.hubBackPill()); }
+        const block = document.createElement("div");
+        block.style.cssText = "flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px;";
+        const h = document.createElement("div");
+        h.setAttribute("data-pnl", "hub-title");
+        h.setAttribute("role", "heading");
+        h.setAttribute("aria-level", "1");
+        h.style.cssText = `font-size:${this.kpx(15)};font-weight:700;line-height:1.3;`;
+        h.textContent = title;
+        block.appendChild(h);
+        if (sub) {
+            const s = document.createElement("div");
+            s.setAttribute("data-pnl", "hub-sub");
+            s.style.cssText = `font-size:${this.kpx(10.5)};color:${this.hubFam().soft};line-height:1.45;max-width:${this.k(620)}px;`;
+            s.textContent = sub;
+            block.appendChild(s);
+        }
+        row.appendChild(block);
+        if (this.hubOverlay) {
+            row.appendChild(this.hubBtn(this.tr("UI_HubClose"), () => this.closeHub(true),
+                { tip: this.tr("UI_HubCloseTip"), key: "hub-close" }));
+        }
+        return row;
+    }
+
+    /** a button of the hub: native (Tab · Enter · Space), focus ring, no toolbar side effects */
+    private hubBtn(label: string, onClick: () => void,
+        o: { tip?: string; key?: string; primary?: boolean; locked?: string; aria?: string } = {}): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        if (o.tip) { b.title = o.tip; }
+        if (o.aria) { b.setAttribute("aria-label", o.aria); }
+        if (o.key) { b.setAttribute("data-pnl", o.key); }
+        this.kbRing(b);
+        const acc = this.accent();
+        const rest = o.primary
+            ? `background:${acc};border:1px solid ${acc};color:${this.onAccent()};font-weight:600;`
+            : `background:${C.paper};border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(11)};line-height:1.35;` +
+            `padding:${this.kpx(5)} ${this.kpx(12)};cursor:pointer;border-radius:5px;` +
+            `transition:${TRANSITION};${rest}`;
+        if (o.locked) {
+            b.title = o.locked;
+            b.setAttribute("aria-disabled", "true");
+            b.style.opacity = "0.4";
+            b.style.cursor = "default";
+            b.onclick = (e: Event): void => { e.stopPropagation(); };
+            return b;
+        }
+        b.onmouseenter = (): void => {
+            if (o.primary) { b.style.background = this.accentSoft(0.14); b.style.borderColor = this.accentSoft(0.14); }
+            else { b.style.background = C.ctlHover; b.style.borderColor = C.cardEdgeHover; }
+        };
+        b.onmouseleave = (): void => {
+            if (o.primary) { b.style.background = acc; b.style.borderColor = acc; }
+            else { b.style.background = C.paper; b.style.borderColor = C.ctlEdge; }
+        };
+        b.onclick = (e: Event): void => { e.stopPropagation(); onClick(); };
+        return b;
+    }
+
+    /** Esc steps back (page → home → close the overlay); ← → leaf through the tour; 1–4 open a tile of the home page */
+    private hubKey(e: KeyboardEvent, page: HubPage): void {
+        const k = e.key;
+        if (k === "Escape" || k === "Esc") {
+            if (page !== "hub") { e.preventDefault(); e.stopPropagation(); this.hubGo("hub"); }
+            else if (this.hubOverlay) { e.preventDefault(); e.stopPropagation(); this.closeHub(true); }
+            return;
+        }
+        if (page === "tour" && (k === "ArrowLeft" || k === "ArrowRight")) {
+            e.preventDefault(); e.stopPropagation();
+            this.hubTourStep(k === "ArrowRight" ? 1 : -1);
+            return;
+        }
+        if (page === "hub" && k >= "1" && k <= "4" && !e.ctrlKey && !e.altKey && !e.metaKey) {
+            e.preventDefault(); e.stopPropagation();
+            this.hubGo((["tour", "templates", "demo", "fields"] as HubPage[])[Number(k) - 1]);
+        }
+    }
+
+    /** the home page: four big buttons */
+    private hubHome(): HTMLElement {
+        const wrap = document.createElement("div");
+        // the intro line is the subtitle of the title row (1.4.1 family header)
+        const a = this.hubArgs();
+        if (a.missing && a.missing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "hub-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;margin-bottom:${this.kpx(10)};`;
+            miss.textContent = this.tr("UI_DemoMissing", a.missing.join(" · "));
+            wrap.appendChild(miss);
+        }
+        wrap.appendChild(this.hubStartHero());
+        const grid = document.createElement("div");
+        grid.setAttribute("data-pnl", "hub-tiles");
+        // two by two; one column where two do not fit
+        const two = this.hubAvail() >= this.k(560);
+        grid.style.cssText = `display:grid;grid-template-columns:repeat(${two ? 2 : 1},minmax(0,1fr));` +
+            `gap:${this.kpx(12)};max-width:${this.k(760)}px;`;
+        const tpls = HUB_TEMPLATES.length - 1;
+        const tiles: [HubPage, string, string][] = [
+            ["tour", this.tr("UI_HubTour"), this.tr("UI_HubTourSub", TOUR_CARDS.length)],
+            ["templates", this.tr("UI_HubTpl"), this.tr("UI_HubTplSub", tpls)],
+            ["demo", this.tr("UI_EsDemo"), this.tr("UI_HubDemoSub")],
+            ["fields", this.tr("UI_EsFields"), this.tr("UI_HubFieldsSub")],
+        ];
+        tiles.forEach(([page, title, sub], i) => grid.appendChild(this.hubTile(i + 1, page, title, sub)));
+        wrap.appendChild(grid);
+        const note = document.createElement("div");
+        note.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(14)};font-size:${this.kpx(10)};`;
+        note.textContent = this.tr("UI_HubReaderNote");
+        wrap.appendChild(note);
+        return wrap;
+    }
+
+    /** 1.4 "🚀 Loslegen": the wide accent button above the four tiles — the guided first three minutes */
+    private hubStartHero(): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "hub-start");
+        this.kbRing(b);
+        // 1.4.1 family: teal fill (dark teal with dark text; high contrast framed in foregroundSelected),
+        // the full width of the tile block, the tiles' 10 px corners
+        const f = this.hubFam();
+        const on = f.onTeal;
+        b.style.cssText = `display:flex;align-items:center;gap:${this.kpx(14)};width:100%;max-width:${this.k(760)}px;` +
+            `box-sizing:border-box;text-align:left;font-family:${FONT};color:${on};background:${f.teal};` +
+            `border:1px solid ${f.tealEdge};border-radius:10px;padding:${this.kpx(12)} ${this.kpx(16)};cursor:pointer;` +
+            `margin-bottom:${this.kpx(12)};box-shadow:${C.shadow};transition:${TRANSITION};`;
+        const txt = document.createElement("span");
+        txt.style.cssText = "display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 auto;";
+        const t = document.createElement("span");
+        t.textContent = this.tr("UI_GoTitle");
+        t.style.cssText = `font-size:${this.kpx(15)};font-weight:700;line-height:1.3;`;
+        const d = document.createElement("span");
+        d.textContent = this.tr("UI_GoSub");
+        d.style.cssText = `font-size:${this.kpx(11)};line-height:1.45;opacity:.9;`;
+        txt.appendChild(t); txt.appendChild(d);
+        const arrow = document.createElement("span");
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = "→";
+        arrow.style.cssText = `font-size:${this.kpx(18)};font-weight:700;flex:none;`;
+        b.appendChild(txt); b.appendChild(arrow);
+        b.onmouseenter = (): void => { b.style.boxShadow = C.shadowHover; b.style.transform = HUB_LIFT; };
+        b.onmouseleave = (): void => { b.style.boxShadow = C.shadow; b.style.transform = ""; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.hubGo("start"); };
+        return b;
+    }
+
+    /** one big button of the home page: number badge, title, one line */
+    private hubTile(n: number, page: HubPage, title: string, sub: string): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "hub-tile-" + page);
+        this.kbRing(b);
+        const acc = this.accent();
+        b.style.cssText = `display:flex;align-items:flex-start;gap:${this.kpx(12)};text-align:left;font-family:${FONT};` +
+            `color:${C.text};background:${C.paper};border:1px solid ${C.cardEdge};border-radius:10px;` +
+            `padding:${this.kpx(14)} ${this.kpx(16)};min-height:${this.kpx(84)};cursor:pointer;` +
+            `box-shadow:${C.shadow};transition:${TRANSITION};`;
+        const badge = document.createElement("span");
+        badge.setAttribute("aria-hidden", "true");
+        badge.textContent = String(n);
+        badge.style.cssText = `flex:none;width:${this.kpx(24)};height:${this.kpx(24)};border-radius:50%;` +
+            `background:${acc};color:${this.onAccent()};font-size:${this.kpx(12)};font-weight:700;` +
+            "display:flex;align-items:center;justify-content:center;";
+        const txt = document.createElement("span");
+        txt.style.cssText = "display:flex;flex-direction:column;gap:4px;min-width:0;";
+        const t = document.createElement("span");
+        t.textContent = title;
+        t.style.cssText = `font-size:${this.kpx(14)};font-weight:600;line-height:1.3;`;
+        const d = document.createElement("span");
+        d.textContent = sub;
+        d.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.45;`;
+        txt.appendChild(t); txt.appendChild(d);
+        b.appendChild(badge); b.appendChild(txt);
+        // 1.4.1 the family hover lift (the gallery tiles' -2 px, accent frame, raised shadow)
+        b.onmouseenter = (): void => { b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; b.style.transform = HUB_LIFT; };
+        b.onmouseleave = (): void => { b.style.borderColor = C.cardEdge; b.style.boxShadow = C.shadow; b.style.transform = ""; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.hubGo(page); };
+        return b;
+    }
+
+    /** available width for the page content inside the hub padding */
+    private hubAvail(): number {
+        const host = this.hubHost();
+        const w = host.clientWidth || this.vpW || 600;
+        // a vertical scrollbar may still appear: keep a margin instead of a horizontal scroll
+        return Math.max(220, Math.floor(w - 2 * this.k(18) - 18));
+    }
+
+    /**
+     * A mini rendering: a nested, non-interactive copy of this visual over the
+     * demo, laid out at its natural size and scaled down with a transform.
+     * The nested instance renders once the page is attached (hubRefresh).
+     */
+    private hubMini(spec: MiniSpec, outerW: number): HTMLElement {
+        const s = outerW / spec.w;
+        const outer = document.createElement("div");
+        outer.setAttribute("data-pnl", "hub-mini");
+        outer.setAttribute("aria-hidden", "true");
+        outer.style.cssText = `position:relative;flex:none;width:${outerW}px;height:${Math.round(spec.h * s)}px;overflow:hidden;` +
+            `border:1px solid ${C.ctlEdge};border-radius:4px;background:${this.pageBg()};pointer-events:none;`;
+        const inner = document.createElement("div");
+        inner.style.cssText = `position:absolute;left:0;top:0;width:${spec.w}px;height:${spec.h}px;` +
+            `transform:scale(${s});transform-origin:0 0;`;
+        outer.appendChild(inner);
+        this.hubMinis.push(() => this.hubRunMini(inner, spec));
+        return outer;
+    }
+
+    private hubRunMini(el: HTMLElement, spec: MiniSpec): void {
+        try {
+            const noop = (): void => undefined;
+            const host = {
+                locale: this.locale,
+                colorPalette: this.host.colorPalette,
+                eventService: { renderingStarted: noop, renderingFinished: noop, renderingFailed: noop },
+                createLocalizationManager: () => this.locMgr,
+                persistProperties: noop,
+            } as unknown as IVisualHost;
+            const v = new Visual({ element: el, host });
+            v.renderMini(spec, spec.dark === true || this.dark);
+        } catch {
+            // a thumbnail that fails must never take the hub down
+            el.replaceChildren();
+        }
+    }
+
+    /**
+     * Render this instance as a mini: the built-in demo, no toolbar / title /
+     * legend, view and template from the spec, non-interactive (the hub puts
+     * pointer-events:none on it). Called on a fresh instance by hubRunMini.
+     */
+    public renderMini(spec: MiniSpec, dark: boolean): void {
+        this.miniSpec = spec;
+        this.viewMode = 0;
+        this.vpW = spec.w; this.vpH = spec.h;
+        this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
+            VisualFormattingSettingsModel,
+            { metadata: { columns: [], objects: miniObjects(spec, dark) } } as unknown as DataView);
+        this.dark = this.resolveDarkMode();
+        // a thumbnail never scrolls; the overlay's full demo does
+        if (!spec.full) { this.root.style.overflow = "hidden"; }
+        this.applyPalette();
+        this.installDemoModel(spec.fc === true);
+        this.ui = this.defaultUi();
+        this.ui.view = spec.view;
+        if (spec.zoom) { this.ui.treeZoom = spec.zoom; }
+        this.render();
+    }
+
+    // ---- tour ----
+
+    private hubTourStep(d: number): void {
+        const n = Math.max(0, Math.min(TOUR_CARDS.length - 1, this.hubTour + d));
+        if (n === this.hubTour) { return; }
+        this.hubTour = n;
+        this.hubFocusKey = d > 0 ? (n === TOUR_CARDS.length - 1 ? "tour-prev" : "tour-next") : (n === 0 ? "tour-next" : "tour-prev");
+        this.hubRefresh();
+    }
+
+    private hubTourPage(): HTMLElement {
+        const keys: [string, string][] = [
+            ["UI_Tour1T", "UI_Tour1X"], ["UI_Tour2T", "UI_Tour2X"], ["UI_Tour3T", "UI_Tour3X"], ["UI_Tour4T", "UI_Tour4X"],
+            ["UI_Tour5T", "UI_Tour5X"], ["UI_Tour6T", "UI_Tour6X"], ["UI_Tour7T", "UI_Tour7X"],
+            ["UI_Tour8T", "UI_Tour8X"],
+        ];
+        const total = TOUR_CARDS.length;
+        const i = Math.max(0, Math.min(this.hubTour, total - 1));
+        const card = TOUR_CARDS[i];
+        const avail = this.hubAvail();
+        const wide = avail >= this.k(700);
+        const miniW = Math.max(200, Math.min(this.k(520), wide ? Math.floor(avail * 0.56) : avail - 2));
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub-tour");
+        wrap.setAttribute("data-tour-card", String(i + 1));
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;gap:${this.kpx(18)};align-items:flex-start;flex-wrap:${wide ? "nowrap" : "wrap"};`;
+        row.appendChild(this.hubMini(card.mini, miniW));
+        const txt = document.createElement("div");
+        txt.style.cssText = `flex:1 1 ${this.k(220)}px;min-width:0;`;
+        const eyebrow = document.createElement("div");
+        eyebrow.setAttribute("data-pnl", "tour-count");
+        eyebrow.appendChild(this.capsLabel(`${i + 1} / ${total}`));
+        const h = document.createElement("div");
+        h.setAttribute("data-pnl", "tour-title");
+        h.style.cssText = `font-size:${this.kpx(16)};font-weight:600;margin:${this.kpx(4)} 0 ${this.kpx(6)} 0;line-height:1.3;`;
+        h.textContent = this.tr(keys[i][0]);
+        const p = document.createElement("div");
+        p.setAttribute("data-pnl", "tour-text");
+        p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.6;max-width:${this.k(460)}px;`;
+        p.textContent = this.tr(keys[i][1]);
+        txt.appendChild(eyebrow); txt.appendChild(h); txt.appendChild(p);
+        row.appendChild(txt);
+        wrap.appendChild(row);
+
+        const nav = document.createElement("div");
+        nav.style.cssText = `display:flex;align-items:center;gap:${this.kpx(8)};margin-top:${this.kpx(14)};flex-wrap:wrap;`;
+        nav.appendChild(this.hubBtn("‹", () => this.hubTourStep(-1), {
+            key: "tour-prev", aria: this.tr("UI_TourPrev"), tip: this.tr("UI_TourPrev"),
+            locked: i === 0 ? this.tr("UI_TourPrev") : undefined,
+        }));
+        const dots = document.createElement("div");
+        dots.style.cssText = `display:flex;gap:${this.kpx(6)};align-items:center;`;
+        for (let d = 0; d < total; d++) {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.setAttribute("data-pnl", "tour-dot-" + (d + 1));
+            dot.setAttribute("aria-label", this.tr("UI_TourDot", d + 1));
+            dot.setAttribute("aria-current", d === i ? "true" : "false");
+            dot.title = this.tr(keys[d][0]);
+            this.kbRing(dot);
+            dot.style.cssText = `width:${this.kpx(10)};height:${this.kpx(10)};padding:0;border-radius:50%;cursor:pointer;` +
+                `border:1px solid ${d === i ? this.accent() : C.cardEdgeHover};background:${d === i ? this.accent() : "transparent"};`;
+            dot.onclick = (e: Event): void => {
+                e.stopPropagation();
+                this.hubTour = d; this.hubFocusKey = "tour-dot-" + (d + 1); this.hubRefresh();
+            };
+            dots.appendChild(dot);
+        }
+        nav.appendChild(dots);
+        nav.appendChild(this.hubBtn("›", () => this.hubTourStep(1), {
+            key: "tour-next", aria: this.tr("UI_TourNext"), tip: this.tr("UI_TourNext"),
+            locked: i === total - 1 ? this.tr("UI_TourNext") : undefined,
+        }));
+        wrap.appendChild(nav);
+        return wrap;
+    }
+
+    // ---- template gallery ----
+
+    private hubTemplatesPage(): HTMLElement {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub-templates");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(640)}px;margin-bottom:${this.kpx(8)};`;
+        intro.textContent = this.tr("UI_TplIntro");
+        wrap.appendChild(intro);
+        // without bound fields the pick is stored and takes effect when fields arrive
+        if (!this.hubHasStatement()) {
+            const note = document.createElement("div");
+            note.setAttribute("data-pnl", "hub-tpl-note");
+            note.style.cssText = `margin-bottom:${this.kpx(10)};padding:${this.kpx(6)} ${this.kpx(10)};` +
+                `border:1px dashed ${C.ctlEdge};border-radius:6px;background:${C.wash};color:${C.text};font-weight:600;`;
+            note.textContent = this.hubSaved != null
+                ? this.tr("UI_TplSaved", this.tplCode(this.hubSaved))
+                : this.tr("UI_TplNoFields");
+            wrap.appendChild(note);
+        }
+        const active = this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value);
+        // 1.4 four purpose groups instead of the T-number list; bigger previews
+        const avail = this.hubAvail();
+        const gap = this.k(14);
+        const minTile = this.k(240);
+        const cols = Math.max(1, Math.floor((avail + gap) / (minTile + gap)));
+        const tileW = Math.floor((avail - gap * (cols - 1)) / cols);
+        const pad = this.k(9);
+        for (const g of HUB_GALLERY) {
+            const sec = document.createElement("section");
+            sec.setAttribute("data-pnl", "tpl-group-" + g.id);
+            sec.style.cssText = `margin-top:${this.kpx(14)};`;
+            const head = document.createElement("div");
+            head.style.cssText = `display:flex;align-items:baseline;gap:${this.kpx(10)};flex-wrap:wrap;margin-bottom:${this.kpx(8)};` +
+                `padding-bottom:${this.kpx(4)};border-bottom:1px solid ${C.cardEdge};`;
+            const h = document.createElement("div");
+            h.setAttribute("role", "heading");
+            h.setAttribute("aria-level", "2");
+            h.setAttribute("data-pnl", "tpl-group-title");
+            // 1.4.1 family eyebrow: capitals in ink-soft, 11 px on the type scale
+            h.style.cssText = `font-size:${this.kpx(11)};font-weight:700;letter-spacing:.09em;text-transform:uppercase;` +
+                `color:${this.hubFam().soft};line-height:1.4;`;
+            h.textContent = this.tr(g.title);
+            const sub = document.createElement("div");
+            sub.style.cssText = `color:${C.soft};font-size:${this.kpx(10.5)};`;
+            sub.textContent = this.tr(g.sub);
+            head.appendChild(h); head.appendChild(sub);
+            sec.appendChild(head);
+            const grid = document.createElement("div");
+            grid.setAttribute("data-pnl", "hub-tpl-grid");
+            grid.style.cssText = `display:grid;grid-template-columns:repeat(${cols},${tileW}px);gap:${gap}px;`;
+            for (const t of g.tiles) {
+                grid.appendChild(this.hubTemplateTile(t, tileW, pad, t.tpl === active));
+            }
+            sec.appendChild(grid);
+            wrap.appendChild(sec);
+        }
+        return wrap;
+    }
+
+    /** "T04B" from the pane label "T04B · statement …"; the classic table has no code */
+    private tplCode(tpl: string): string {
+        if (tpl === "off") { return this.tr("UI_TplOff"); }
+        const full = this.trOpt("Enum_Template_" + tpl) ?? tpl;
+        const i = full.indexOf(" · ");
+        return i > 0 ? full.slice(0, i) : full;
+    }
+
+    /**
+     * 1.4 a gallery tile: big preview, the finance title, the T number as a
+     * small badge, one line of use; hover lifts it, the active tile carries an
+     * accent frame, a tinted ground and a "✓ aktiv" pill.
+     */
+    private hubTemplateTile(t: GalleryTile, tileW: number, pad: number, active: boolean): HTMLElement {
+        const tpl = t.tpl;
+        const full = tpl === "off" ? "" : (this.trOpt("Enum_Template_" + tpl) ?? tpl);
+        const cut = full.indexOf(" · ");
+        const code = tpl === "off" ? "—" : this.tplCode(tpl);
+        const desc = cut > 0 ? full.slice(cut + 3) : this.tr("UI_TplOff");
+        const title = this.tr(t.title);
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "tpl-" + tpl);
+        b.setAttribute("data-active", active ? "1" : "0");
+        b.setAttribute("aria-pressed", active ? "true" : "false");
+        b.setAttribute("aria-label", this.tr("UI_TplPick", title + (tpl === "off" ? "" : " (" + code + ")")));
+        b.title = (tpl === "off" ? "" : code + " · ") + desc;
+        this.kbRing(b);
+        const acc = this.accent();
+        const edge = active ? acc : C.cardEdge;
+        const ground = active ? this.accentSoft(0.93) : C.paper;
+        b.style.cssText = `position:relative;display:flex;flex-direction:column;gap:${this.kpx(7)};text-align:left;font-family:${FONT};` +
+            `color:${C.text};background:${ground};border:${active ? 2 : 1}px solid ${edge};border-radius:10px;` +
+            `padding:${active ? pad - 1 : pad}px;width:${tileW}px;box-sizing:border-box;cursor:pointer;` +
+            `box-shadow:${active ? C.shadowHover : C.shadow};transition:${TRANSITION};`;
+        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl) };
+        b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
+        // the T number: a small badge on the preview's top right corner
+        const badge = document.createElement("span");
+        badge.setAttribute("data-pnl", "tplcode");
+        badge.textContent = tpl === "off" ? this.tr("UI_TplOffBadge") : code;
+        badge.style.cssText = `position:absolute;top:${pad + 6}px;right:${pad + 6}px;font-size:${this.kpx(9.5)};font-weight:700;` +
+            `letter-spacing:.04em;line-height:1.5;padding:0 ${this.kpx(6)};border-radius:9px;` +
+            `background:${C.paper};color:${C.text};border:1px solid ${C.cardEdgeHover};box-shadow:${C.shadow};`;
+        b.appendChild(badge);
+        const cap = document.createElement("div");
+        cap.style.cssText = "display:flex;flex-direction:column;gap:3px;min-width:0;";
+        const head = document.createElement("div");
+        head.style.cssText = "display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;";
+        const c = document.createElement("span");
+        c.setAttribute("data-pnl", "tpl-title");
+        c.textContent = title;
+        c.style.cssText = `font-size:${this.kpx(12.5)};font-weight:700;line-height:1.3;`;
+        head.appendChild(c);
+        if (active) {
+            const a = document.createElement("span");
+            a.setAttribute("data-pnl", "tpl-active");
+            a.textContent = "✓ " + this.tr("UI_TplActive");
+            a.style.cssText = `font-size:${this.kpx(9.5)};font-weight:700;color:${this.onAccent()};background:${acc};` +
+                `letter-spacing:.04em;border-radius:9px;padding:0 ${this.kpx(6)};line-height:1.6;`;
+            head.appendChild(a);
+        }
+        cap.appendChild(head);
+        const u = document.createElement("span");
+        u.setAttribute("data-pnl", "tpl-use");
+        u.textContent = this.tr(t.use);
+        u.style.cssText = `font-size:${this.kpx(10.5)};color:${C.soft};line-height:1.4;`;
+        cap.appendChild(u);
+        if (tpl !== "off" && templateNeedsFc(tpl)) {
+            const f = document.createElement("span");
+            f.textContent = this.tr("UI_TplFcNote");
+            f.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;`;
+            cap.appendChild(f);
+        }
+        b.appendChild(cap);
+        b.onmouseenter = (): void => {
+            b.style.borderColor = acc; b.style.boxShadow = C.shadowHover; b.style.transform = HUB_LIFT;
+        };
+        b.onmouseleave = (): void => {
+            b.style.borderColor = edge; b.style.boxShadow = active ? C.shadowHover : C.shadow; b.style.transform = "";
+        };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.hubPickTemplate(tpl); };
+        return b;
+    }
+
+    // ---- 1.4 field guide (all roles + two premises) ----
+
+    /**
+     * 1.4 the hub's field guide: every data role of the visual with one
+     * sentence of purpose and a live ✓, grouped (required · scenarios & time ·
+     * statement logic · extras), above it two premises — the IBCS notation
+     * and "structure vs. time". (The 1.2 field guide of emptyState.mode =
+     * fields stays as it was.)
+     */
+    private hubFieldsPage(): HTMLElement {
+        const a = this.hubArgs();
+        const bound = new Set(this.hubBoundRoles());
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "field-guide");
+        wrap.setAttribute("data-fg", "1.4");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(680)}px;margin-bottom:${this.kpx(8)};`;
+        intro.textContent = this.tr("UI_FiIntro");
+        wrap.appendChild(intro);
+        if (a.missing && a.missing.length > 0) {
+            const miss = document.createElement("div");
+            miss.setAttribute("data-pnl", "fi-missing");
+            miss.style.cssText = `color:${C.loading};font-weight:600;margin-bottom:${this.kpx(8)};`;
+            miss.textContent = this.tr("UI_DemoMissing", a.missing.join(" · "));
+            wrap.appendChild(miss);
+        }
+        // the two premises, side by side where they fit
+        const prem = document.createElement("div");
+        const two = this.hubAvail() >= this.k(640);
+        prem.style.cssText = `display:grid;grid-template-columns:repeat(${two ? 2 : 1},minmax(0,1fr));gap:${this.kpx(12)};` +
+            `margin-bottom:${this.kpx(6)};max-width:${this.k(900)}px;`;
+        prem.appendChild(this.premiseNotation());
+        prem.appendChild(this.premiseStructureTime());
+        wrap.appendChild(prem);
+        // one grid for all four groups: the name and text columns line up across the groups
+        const grid = document.createElement("div");
+        grid.setAttribute("data-pnl", "fg-grid");
+        grid.style.cssText = `display:grid;grid-template-columns:${this.kpx(14)} minmax(${this.kpx(120)},max-content) minmax(0,1fr);` +
+            `column-gap:${this.kpx(10)};row-gap:${this.kpx(4)};align-items:baseline;max-width:${this.k(900)}px;`;
+        wrap.appendChild(grid);
+        for (const g of FIELD_GROUPS) {
+            const cap = this.capsLabel(this.tr(g.title));
+            cap.setAttribute("data-pnl", "fg-" + g.id);
+            cap.style.gridColumn = "1 / -1";
+            cap.style.marginTop = this.kpx(8);
+            grid.appendChild(cap);
+            for (const r of g.roles) {
+                const on = bound.has(r.role);
+                const mark = document.createElement("span");
+                mark.setAttribute("data-pnl", "fr-" + r.role);
+                mark.setAttribute("data-on", on ? "1" : "0");
+                mark.style.cssText = `color:${on ? this.goodColor() : C.soft};font-weight:700;`;
+                mark.textContent = on ? "✓" : "○";
+                const name = document.createElement("span");
+                name.style.cssText = "font-weight:600;white-space:nowrap;";
+                if (r.chip) { name.appendChild(this.legendChip(r.chip)); }
+                name.appendChild(document.createTextNode(this.trOpt(r.name) ?? r.role));
+                const text = document.createElement("span");
+                text.style.cssText = `color:${C.soft};`;
+                text.textContent = this.tr(r.text);
+                grid.appendChild(mark); grid.appendChild(name); grid.appendChild(text);
+            }
+        }
+        const hint = document.createElement("div");
+        hint.style.cssText = `color:${C.soft};font-style:italic;margin-top:${this.kpx(12)};max-width:${this.k(760)}px;`;
+        hint.textContent = this.tr("UI_FiHint");
+        wrap.appendChild(hint);
+        return wrap;
+    }
+
+    /** a premise box of the field guide: dashed frame on the wash, caps head */
+    private premiseBox(key: string, title: string): HTMLElement {
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", key);
+        box.style.cssText = `padding:${this.kpx(9)} ${this.kpx(12)};border:1px dashed ${C.ctlEdge};border-radius:6px;` +
+            `background:${C.wash};color:${C.text};min-width:0;`;
+        const cap = this.capsLabel(title);
+        cap.style.marginBottom = this.kpx(4);
+        box.appendChild(cap);
+        return box;
+    }
+
+    /** premise (a): the IBCS notation in four lines — the chips of the legend */
+    private premiseNotation(): HTMLElement {
+        const box = this.premiseBox("fi-notation", this.tr("UI_FpNotation"));
+        const rows: ["ac" | "py" | "pl" | "fc", string][] = [
+            ["ac", "UI_FpAc"], ["py", "UI_FpPy"], ["pl", "UI_FpPl"], ["fc", "UI_FpFc"],
+        ];
+        for (const [chip, key] of rows) {
+            const line = document.createElement("div");
+            line.setAttribute("data-pnl", "fi-note-" + chip);
+            line.appendChild(this.legendChip(chip));
+            line.appendChild(document.createTextNode(this.tr(key)));
+            box.appendChild(line);
+        }
+        const rule = document.createElement("div");
+        rule.setAttribute("data-pnl", "fi-note-rule");
+        rule.style.cssText = `margin-top:${this.kpx(4)};font-weight:600;`;
+        rule.textContent = this.tr("UI_FpRule");
+        box.appendChild(rule);
+        return box;
+    }
+
+    /** premise (b): structure vertical in rows, time horizontal in blocks — with a mini pictogram */
+    private premiseStructureTime(): HTMLElement {
+        const box = this.premiseBox("fi-axes", this.tr("UI_FpAxes"));
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;gap:${this.kpx(12)};align-items:center;flex-wrap:wrap;`;
+        row.appendChild(this.axesPictogram());
+        const t = document.createElement("div");
+        t.style.cssText = `flex:1 1 ${this.k(150)}px;min-width:0;`;
+        t.textContent = this.tr("UI_FpAxesX");
+        row.appendChild(t);
+        box.appendChild(row);
+        return box;
+    }
+
+    /** the mini pictogram of premise (b): rows downwards, the period blocks Monat | _YTD | FY across */
+    private axesPictogram(): SVGSVGElement {
+        const NS = "http://www.w3.org/2000/svg";
+        const s = this.fontScale();
+        const W = 196; const H = 92;
+        const svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("data-pnl", "fi-axes-pic");
+        svg.setAttribute("width", String(Math.round(W * s)));
+        svg.setAttribute("height", String(Math.round(H * s)));
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        svg.setAttribute("aria-hidden", "true");
+        svg.style.cssText = "flex:none;display:block;";
+        const el = (tag: string, at: Record<string, string | number>, text?: string): SVGElement => {
+            const e = document.createElementNS(NS, tag);
+            for (const [k, v] of Object.entries(at)) { e.setAttribute(k, String(v)); }
+            if (text != null) { e.textContent = text; }
+            svg.appendChild(e);
+            return e;
+        };
+        const font = { "font-family": FONT, "font-size": 8.5 };
+        // time across: three blocks with their heads
+        const blocks = [this.tr("UI_FpMonth"), "_YTD", "FY"];
+        const x0 = 58; const bw = 44; const bg = 3;
+        blocks.forEach((b, i) => {
+            const x = x0 + i * (bw + bg);
+            el("rect", { x, y: 14, width: bw, height: 74, fill: C.paper, stroke: C.cardEdgeHover, "stroke-width": 0.8, rx: 2 });
+            el("text", { x: x + bw / 2, y: 24, "text-anchor": "middle", fill: C.text, "font-weight": 700, ...font }, b);
+        });
+        el("text", { x: x0, y: 8, fill: C.soft, ...font, "font-size": 7.5 }, this.tr("UI_FpTime") + " →");
+        // structure down: five rows, the bars of each block
+        const vals = [0.9, 0.55, 0.7, 0.35, 0.8];
+        vals.forEach((v, r) => {
+            const y = 32 + r * 11;
+            el("rect", { x: 4, y: y + 1, width: r === 2 ? 40 : 32 - (r % 2) * 6, height: 5, fill: r === 2 ? C.text : C.soft, rx: 1 });
+            blocks.forEach((_, i) => {
+                const x = x0 + i * (bw + bg) + 6;
+                el("rect", { x, y: y + 1, width: Math.round((bw - 12) * v * (1 - i * 0.12)), height: 6, fill: C.ac });
+            });
+        });
+        el("text", { x: 4, y: 24, fill: C.soft, ...font, "font-size": 7.5 }, this.tr("UI_FpRows") + " ↓");
+        return svg;
+    }
+
+    // ---- 1.4 "🚀 Loslegen": the first three minutes ----
+
+    /**
+     * A guided checklist, live and never persisted: ① bind the fields (ticks
+     * per required / recommended role, the quick way with level columns first),
+     * ② pick a template (jump into the gallery), ③ fine tuning (house terms,
+     * thresholds, decimals — where in the format pane).
+     */
+    private hubStartPage(): HTMLElement {
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "hub-go");
+        const intro = document.createElement("div");
+        intro.style.cssText = `color:${C.soft};max-width:${this.k(680)}px;margin-bottom:${this.kpx(10)};`;
+        intro.textContent = this.tr("UI_GoIntro");
+        wrap.appendChild(intro);
+        const bound = new Set(this.hubBoundRoles());
+        const ticks = startFieldTicks(r => bound.has(r));
+        const fieldsDone = START_FIELD_STEPS.filter(s => s.required).every(s => ticks[s.id]);
+        const active = this.megaPending ? this.megaPending.applied : String(this.settings.columnsCard.template.value.value);
+        const tplDone = active !== "off" || this.hubSaved != null;
+        const fine = this.hubFineTicks();
+
+        const list = document.createElement("div");
+        list.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(10)};max-width:${this.k(760)}px;`;
+        const step = (n: number, title: string, done: boolean, body: HTMLElement[]): void => {
+            const card = document.createElement("div");
+            card.setAttribute("data-pnl", "go-step-" + n);
+            card.setAttribute("data-done", done ? "1" : "0");
+            card.style.cssText = `display:flex;gap:${this.kpx(12)};align-items:flex-start;padding:${this.kpx(12)} ${this.kpx(14)};` +
+                `background:${C.paper};border:1px solid ${done ? this.goodColor() : C.cardEdge};border-radius:8px;box-shadow:${C.shadow};`;
+            const badge = document.createElement("span");
+            badge.setAttribute("aria-hidden", "true");
+            badge.textContent = done ? "✓" : String(n);
+            badge.style.cssText = `flex:none;width:${this.kpx(24)};height:${this.kpx(24)};border-radius:50%;` +
+                `background:${done ? this.goodColor() : this.accent()};color:${done ? "#FFF" : this.onAccent()};` +
+                `font-size:${this.kpx(12)};font-weight:700;display:flex;align-items:center;justify-content:center;`;
+            const col = document.createElement("div");
+            col.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(5)};min-width:0;flex:1 1 auto;`;
+            const h = document.createElement("div");
+            h.style.cssText = `font-size:${this.kpx(13.5)};font-weight:700;line-height:1.3;`;
+            h.textContent = title;
+            col.appendChild(h);
+            for (const x of body) { col.appendChild(x); }
+            card.appendChild(badge); card.appendChild(col);
+            list.appendChild(card);
+        };
+        const line = (key: string, on: boolean, text: string, tag?: string): HTMLElement => {
+            const d = document.createElement("div");
+            d.setAttribute("data-pnl", key);
+            d.setAttribute("data-on", on ? "1" : "0");
+            d.style.cssText = `display:flex;gap:${this.kpx(8)};align-items:baseline;`;
+            const m = document.createElement("span");
+            m.style.cssText = `flex:none;width:${this.kpx(12)};color:${on ? this.goodColor() : C.soft};font-weight:700;`;
+            m.textContent = on ? "✓" : "○";
+            const t = document.createElement("span");
+            t.style.cssText = "min-width:0;";
+            t.textContent = text;
+            d.appendChild(m); d.appendChild(t);
+            if (tag) {
+                const g = document.createElement("span");
+                g.textContent = tag;
+                g.style.cssText = `flex:none;font-size:${this.kpx(8.5)};letter-spacing:.06em;text-transform:uppercase;font-weight:700;` +
+                    `color:${C.soft};border:1px solid ${C.ctlEdge};border-radius:3px;padding:0 ${this.kpx(4)};`;
+                d.appendChild(g);
+            }
+            return d;
+        };
+        const soft = (key: string): HTMLElement => {
+            const d = document.createElement("div");
+            d.style.cssText = `color:${C.soft};font-size:${this.kpx(10.5)};`;
+            d.textContent = this.tr(key);
+            return d;
+        };
+        const btnRow = (...b: HTMLElement[]): HTMLElement => {
+            const r = document.createElement("div");
+            r.style.cssText = `display:flex;gap:${this.kpx(8)};flex-wrap:wrap;margin-top:${this.kpx(2)};`;
+            for (const x of b) { r.appendChild(x); }
+            return r;
+        };
+
+        // ① fields: the quick way first (level columns), then AC, then the recommended roles
+        step(1, this.tr("UI_GoStep1"), fieldsDone, [
+            soft("UI_GoStep1X"),
+            ...START_FIELD_STEPS.map(s => line("go-f-" + s.id, ticks[s.id], this.tr(s.text),
+                this.tr(s.required ? "UI_GoRequired" : "UI_GoRecommended"))),
+            btnRow(this.hubBtn(this.tr("UI_GoAllFields"), () => this.hubGo("fields", "hub-back"), { key: "go-fields" })),
+        ]);
+        // ② template: where it stands, and the jump into the gallery
+        const tplNow = this.hubSaved != null ? this.hubSaved : active;
+        const tplTile = HUB_GALLERY.flatMap(g => g.tiles).find(t => t.tpl === tplNow);
+        const tplName = tplTile ? this.tr(tplTile.title) + (tplNow === "off" ? "" : " (" + this.tplCode(tplNow) + ")") : tplNow;
+        step(2, this.tr("UI_GoStep2"), tplDone, [
+            soft("UI_GoStep2X"),
+            line("go-tpl-state", tplDone, this.tr(tplDone ? "UI_GoTplSet" : "UI_GoTplNone", tplName)),
+            btnRow(this.hubBtn(this.tr("UI_GoToGallery"), () => this.hubGo("templates", "hub-back"),
+                { key: "go-templates", primary: !tplDone })),
+        ]);
+        // ③ fine tuning: house terms · thresholds · decimals, with their place in the format pane
+        step(3, this.tr("UI_GoStep3"), fine.every(x => x === 1), [
+            soft("UI_GoStep3X"),
+            line("go-fine-terms", fine[0] === 1, this.tr("UI_GoFineTerms")),
+            line("go-fine-thresholds", fine[1] === 1, this.tr("UI_GoFineThresholds")),
+            line("go-fine-decimals", fine[2] === 1, this.tr("UI_GoFineDecimals")),
+        ]);
+        wrap.appendChild(list);
+        return wrap;
+    }
+
+    /**
+     * Gallery click: the same write as the toolbar dropdown (template, every
+     * switch and templateApplied in ONE persist) — and always, also for the
+     * template that is already set, so a click restores its state. With a
+     * statement under the overlay the view becomes the table and the overlay
+     * closes on the result; without fields the pick is stored and shown as saved.
+     */
+    private hubPickTemplate(tpl: string): void {
+        if (!MEGA_PRESETS[tpl]) { return; }
+        this.megaSliceSet("template", tpl);
+        this.applyMegaTemplate(tpl, true);
+        if (this.hubHasStatement()) {
+            // templates shape the table view — a click in another view brings the table along
+            if (this.ui && this.ui.view !== "table") { this.ui.view = "table"; this.persistUi(); }
+            this.closeHub(true);
+            this.rerender();
+            return;
+        }
+        this.hubSaved = tpl;
+        this.hubFocusKey = "tpl-" + tpl;
+        this.hubRefresh();
+    }
+
+    // ---- demo page (overlay only; without a statement the demo is the visual's own Smart Start) ----
+
+    private hubDemoPage(): HTMLElement {
+        const host = this.hubHost();
+        const w = Math.max(300, (host.clientWidth || this.vpW) - 2 * this.k(18));
+        // header above, the bottom bar below (1.4)
+        const h = Math.max(220, (host.clientHeight || this.vpH) - this.k(76) - this.hubFooterH() - 6);
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", "hub-demo");
+        box.style.cssText = `position:relative;width:${w}px;height:${h}px;border:1px solid ${C.ctlEdge};border-radius:4px;overflow:hidden;`;
+        this.hubMinis.push(() => this.hubRunMini(box, { view: "table", level: 2, w, h, full: true }));
+        return box;
+    }
+
+    // ---- overlay ----
+
+    private hubOpenButton(): HTMLElement {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.setAttribute("data-pnl", "hub-open");
+        b.setAttribute("aria-haspopup", "dialog");
+        b.textContent = this.tr("UI_HubOpen");
+        b.title = this.tr("UI_HubOpenTip");
+        this.kbRing(b);
+        // 1.4 prominent: the first control of the toolbar, accent frame and text,
+        // filled on hover — the way into tour, templates, fields and docs
+        const acc = this.accent();
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;font-weight:600;` +
+            `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;border-radius:4px;color:${acc};` +
+            `background:${C.paper};border:1px solid ${acc};transition:${TRANSITION};`;
+        b.onmouseenter = (): void => { b.style.background = acc; b.style.color = this.onAccent(); };
+        b.onmouseleave = (): void => { b.style.background = C.paper; b.style.color = acc; };
+        b.onclick = (e: Event): void => { e.stopPropagation(); this.openHub(); };
+        return b;
+    }
+
+    /** open the hub as a layer above the statement (edit mode); the statement underneath stays untouched */
+    private openHub(): void {
+        if (this.hubOverlay || !this.editMode()) { return; }
+        const parent = this.root.parentElement;
+        if (!parent) { return; }
+        this.hubPage = "hub"; this.hubSaved = null;
+        if (getComputedStyle(parent).position === "static") { parent.style.position = "relative"; this.hubParentFixed = true; }
+        const ov = document.createElement("div");
+        ov.setAttribute("data-pnl", "hub-overlay");
+        ov.setAttribute("role", "dialog");
+        ov.setAttribute("aria-modal", "true");
+        ov.setAttribute("aria-label", this.tr("UI_HubTitle"));
+        ov.style.cssText = `position:absolute;left:0;top:0;right:0;bottom:0;z-index:200;overflow:auto;box-sizing:border-box;` +
+            `font-family:${FONT};`;
+        ov.addEventListener("click", (e: Event) => e.stopPropagation());
+        ov.addEventListener("contextmenu", (e: Event) => e.stopPropagation());
+        parent.appendChild(ov);
+        this.hubOverlay = ov;
+        this.hubFocusKey = "hub-close";
+        this.hubRefresh();
+    }
+
+    /** close the layer; the statement below is exactly as it was. `refocus` puts the focus back on "☰ Start" */
+    private closeHub(refocus: boolean): void {
+        const ov = this.hubOverlay;
+        if (!ov) { return; }
+        this.hubOverlay = null;
+        ov.remove();
+        const parent = this.root.parentElement;
+        if (parent && this.hubParentFixed) { parent.style.position = ""; }
+        this.hubParentFixed = false;
+        this.hubPage = "hub";
+        if (refocus) {
+            const b = this.root.querySelector<HTMLElement>('[data-pnl="hub-open"]');
+            if (b) { b.focus(); }
+        }
+    }
+
     private renderLanding(): void {
         this.vs = null;
+        this.root.style.background = this.pageBg();
+        // emptyState (1.1, ChartKitchen 1.44): readers get the author's own text
+        // instead of the field instructions; edit mode keeps the instructions
+        // 1.4.1 readers and exports (no edit aids allowed): the calm family landing card
+        if (!this.startAllowed()) { this.root.replaceChildren(this.readLanding()); return; }
         const box = document.createElement("div");
         box.style.cssText = "padding:22px 26px;max-width:600px;";
         const h = document.createElement("div");
@@ -1436,23 +3594,132 @@ export class Visual implements IVisual {
         h.textContent = "P&L Statement byDatenWG";
         const p = document.createElement("div");
         p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
-        p.textContent = this.str(
-            "Add the AC measure plus level columns (L1..Ln, star schema) or Account ID + Parent ID. " +
-            "Optional: PY / PL / FC, FY outlook measures (FC/PL full year), period (month) for sparklines, " +
-            "row type, formula, sign, comment.",
-            "AC-Measure zuweisen plus Ebenen-Spalten (L1..Ln, Sternschema) oder Konto-ID + Parent-ID. " +
-            "Optional: PY / PL / FC, FY-Outlook-Measures (FC/PL Gesamtjahr), Periode (Monat) für Sparklines, " +
-            "Zeilentyp, Formel, Vorzeichen, Kommentar.");
+        p.textContent = this.tr("UI_Landing");
         box.appendChild(h); box.appendChild(p);
         this.root.replaceChildren(box);
     }
 
+    /**
+     * 1.4.1 family landing card for readers and exports without data (the
+     * same build in ChartKitchen): the product name bold — or the author's
+     * emptyState title —, one ink-soft line "no data yet — fields are bound in
+     * edit mode" — or the author's emptyState text, which still wins —, and,
+     * where there is room, a quiet row of three static chart schemata. No
+     * button, no pill, no docs link: nothing to click.
+     */
+    private readLanding(): HTMLElement {
+        const e = this.settings?.emptyStateCard;
+        const ownTitle = e ? e.title.value.trim() : "";
+        const ownBody = e ? e.body.value.trim() : "";
+        const f = this.hubFam();
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "read-landing");
+        wrap.style.cssText = "padding:16px;box-sizing:border-box;";
+        const card = document.createElement("div");
+        card.setAttribute("data-pnl", "empty-state");
+        card.style.cssText = `max-width:520px;box-sizing:border-box;padding:14px 16px;border:1px solid ${f.hc ? f.ink : C.cardEdge};` +
+            `border-radius:10px;background:${f.paper};color:${f.ink};font-family:${FONT};`;
+        const h = document.createElement("div");
+        h.setAttribute("data-pnl", "read-title");
+        h.style.cssText = `font-size:${this.kpx(15)};font-weight:700;line-height:1.3;`;
+        h.textContent = ownTitle || "P&L Statement byDatenWG";
+        const p = document.createElement("div");
+        p.setAttribute("data-pnl", "read-text");
+        p.style.cssText = `font-size:${this.kpx(11)};color:${f.soft};line-height:1.5;margin-top:4px;`;
+        p.textContent = ownBody || this.tr("UI_ReadEmpty");
+        card.appendChild(h); card.appendChild(p);
+        const w = this.vpW || this.root.clientWidth; const hh = this.vpH || this.root.clientHeight;
+        if (w >= 280 && hh >= 170) { card.appendChild(this.readSchemata(f)); }
+        wrap.appendChild(card);
+        return wrap;
+    }
+
+    /** three static, decorative chart schemata of the landing card: statement, variance bars, driver tree */
+    private readSchemata(f: { hc: boolean; ink: string; soft: string; teal: string; tealEdge: string }): HTMLElement {
+        const row = document.createElement("div");
+        row.setAttribute("data-pnl", "read-schemata");
+        row.setAttribute("aria-hidden", "true");
+        row.style.cssText = "display:flex;gap:10px;margin-top:12px;pointer-events:none;";
+        const ns = "http://www.w3.org/2000/svg";
+        const W = 72, H = 44;
+        const grey = f.hc ? f.ink : C.py, ink = f.hc ? f.ink : C.ac, good = f.hc ? f.ink : f.tealEdge, bad = f.hc ? f.ink : C.tealBad;
+        const mk = (draw: (add: (tag: string, a: Record<string, string | number>) => void) => void): SVGSVGElement => {
+            const svg = document.createElementNS(ns, "svg");
+            svg.setAttribute("width", String(W)); svg.setAttribute("height", String(H));
+            svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+            svg.style.cssText = `display:block;border:1px solid ${f.hc ? f.ink : C.cardEdge};border-radius:6px;opacity:.75;`;
+            draw((tag, a) => {
+                const el = document.createElementNS(ns, tag);
+                for (const k of Object.keys(a)) { el.setAttribute(k, String(a[k])); }
+                svg.appendChild(el);
+            });
+            return svg;
+        };
+        // statement: label lines, values, a total line
+        row.appendChild(mk(add => {
+            for (let i = 0; i < 4; i++) {
+                const y = 9 + i * 8;
+                add("rect", { x: 7, y: y - 1.5, width: i === 3 ? 22 : 18 + (i % 2) * 6, height: 3, fill: grey });
+                add("rect", { x: 46, y: y - 1.5, width: 18, height: 3, fill: i === 3 ? ink : grey });
+            }
+            add("line", { x1: 7, y1: 31.5, x2: 65, y2: 31.5, stroke: ink, "stroke-width": 1 });
+        }));
+        // variance bars: an axis with good / bad bars
+        row.appendChild(mk(add => {
+            add("line", { x1: 36, y1: 6, x2: 36, y2: 38, stroke: ink, "stroke-width": 1 });
+            const bars: [number, number][] = [[14, 1], [-9, 0], [20, 1], [-5, 0]];
+            bars.forEach(([v, g], i) => {
+                const y = 8 + i * 8;
+                add("rect", { x: v >= 0 ? 36 : 36 + v, y, width: Math.abs(v), height: 5, fill: g ? good : bad });
+            });
+        }));
+        // driver tree: a root card with three children
+        row.appendChild(mk(add => {
+            add("rect", { x: 6, y: 17, width: 16, height: 10, rx: 2, fill: "none", stroke: ink, "stroke-width": 1 });
+            add("path", { d: "M22 22 H31 M31 9 V35 M31 9 H40 M31 22 H40 M31 35 H40", fill: "none", stroke: grey, "stroke-width": 1 });
+            for (const y of [4, 17, 30]) { add("rect", { x: 40, y, width: 24, height: 10, rx: 2, fill: "none", stroke: grey, "stroke-width": 1 }); }
+        }));
+        return row;
+    }
+
     private renderEmpty(): void {
         this.vs = null;
+        this.root.style.background = this.pageBg();
+        if (this.customEmpty()) { this.renderEmptyMessage(); return; }
         const box = document.createElement("div");
         box.style.cssText = `padding:18px 22px;font-size:${this.kpx(12)};color:${C.soft};`;
-        box.textContent = this.str("No data for the current selection.", "Keine Daten für die aktuelle Auswahl.");
+        box.textContent = this.tr("UI_NoData");
         this.root.replaceChildren(box);
+    }
+
+    /** the author set an own empty-state title or text (emptyState card) */
+    private customEmpty(): boolean {
+        const e = this.settings?.emptyStateCard;
+        return !!e && (e.title.value.trim() !== "" || e.body.value.trim() !== "");
+    }
+
+    /** emptyState: the author's title (bold) + text; an empty part falls back to the standard text */
+    private renderEmptyMessage(): void {
+        this.root.replaceChildren(this.emptyMessageBox());
+    }
+
+    private emptyMessageBox(): HTMLElement {
+        const e = this.settings.emptyStateCard;
+        const box = document.createElement("div");
+        box.setAttribute("data-pnl", "empty-state");
+        box.style.cssText = "padding:18px 22px;max-width:600px;";
+        const title = e.title.value.trim();
+        if (title) {
+            const h = document.createElement("div");
+            h.style.cssText = `font-size:${this.kpx(14)};font-weight:600;margin-bottom:6px;color:${C.text};`;
+            h.textContent = title;
+            box.appendChild(h);
+        }
+        const p = document.createElement("div");
+        p.style.cssText = `font-size:${this.kpx(12)};color:${C.soft};line-height:1.55;`;
+        p.textContent = e.body.value.trim() || this.tr("UI_NoData");
+        box.appendChild(p);
+        return box;
     }
 
     private rerender(): void { this.render(); }
@@ -1460,8 +3727,12 @@ export class Visual implements IVisual {
     /** cache key for the scans that depend on model + shown Δ combinations only */
     private scanKey(): string {
         const ui = this.ui!;
-        return [this.modelVer, this.vw, ui.preset, ui.ref,
-            ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy].join("~");
+        const k: (string | number | boolean)[] = [this.modelVer, this.view(), ui.preset, ui.ref,
+            ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy];
+        // 1.2: the own selection and the column categories change the Δ columns too
+        if (ui.preset === "custom") { k.push(JSON.stringify(ui.vals)); }
+        if (this.catInView()) { k.push("cat"); }
+        return k.join("~");
     }
 
     /**
@@ -1482,6 +3753,18 @@ export class Visual implements IVisual {
                 if (v != null) { maxAbsVal = Math.max(maxAbsVal, Math.abs(v)); }
             }
             for (const dc of deltaCombos) {
+                if (dc.cat != null) { continue; }
+                const d = this.blockVariance(node, dc.block, dc.ref, dc.minuend).delta;
+                if (d != null) { maxAbsDelta = Math.max(maxAbsDelta, Math.abs(d)); }
+            }
+        }
+        // 1.2 column categories: their Δ share the one uniform scale
+        for (const dc of deltaCombos) {
+            if (dc.cat == null) { continue; }
+            const cm = this.catModels?.[dc.cat];
+            if (!cm) { continue; }
+            for (const node of cm.model.byId.values()) {
+                if (node.row.rowType === "kpi") { continue; }
                 const d = this.blockVariance(node, dc.block, dc.ref, dc.minuend).delta;
                 if (d != null) { maxAbsDelta = Math.max(maxAbsDelta, Math.abs(d)); }
             }
@@ -1490,34 +3773,66 @@ export class Visual implements IVisual {
         return this.scanCache;
     }
 
+    /**
+     * Export (allowInteractions = false) prints the statement, not the screen:
+     * with columns.exportExpandAll (default on) every row renders expanded —
+     * a folded block never drops out of a PDF — without touching the stored
+     * fold state (ChartKitchen's exportExpandAll). The driver tree keeps its
+     * own fold state.
+     */
     private render(): void {
+        const ui = this.ui;
+        if (ui && ui.collapsed.length > 0 && this.exporting() && this.settings.columnsCard.exportExpandAll.value) {
+            this.ui = { ...ui, collapsed: [] };
+            try { this.renderView(); } finally { this.ui = ui; }
+            return;
+        }
+        this.renderView();
+        // 1.4 the hub's demo page (no fields, emptyState.mode = hub) carries the hub's bottom bar too
+        if (this.demo && !this.miniSpec && this.hubPage === "demo" && !this.hubOverlay && this.emptyMode() === "hub") {
+            const f = this.hubFooter(0);
+            this.root.appendChild(f);
+            this.hubFitNote(f);
+        }
+    }
+
+    private renderView(): void {
         const model = this.model; const ui = this.ui;
         if (!model || !ui) { return; }
+        // 1.6: the view on screen — ui.view, or the first offered one. The tile
+        // view belongs to the view it was opened from (tree or Sankey); any
+        // other view, or a carrier the author switched off, never shows it —
+        // the stored id simply waits for its view to come back
+        const vw = this.view();
+        if (vw === "sankey" && ui.treeZoom != null && this.resolver()(ui.treeZoom) == null) {
+            // a tile id the model no longer knows: back to the flow itself
+            ui.treeZoom = null;
+        }
+        const zoomed = (vw === "tree" || vw === "sankey") && ui.treeZoom != null;
+        // several visuals may share one document (test harness) — every render
+        // re-arms its own palette before it paints
+        this.applyPalette();
         // interactions switched off (format pane, host, or a host without a
         // selection manager): no element may keep a selection marker
         if (!this.interactive()) { this.selKey = null; }
         const keepScroll = this.root.scrollTop;
         this.treeZoomHide();
         this.floatHeadEl = null;
+        this.darkTip = null;
+        this.ssCache.clear();
         this.root.replaceChildren();
         this.root.style.background = this.pageBg();
         this.comments = [];
         this.vs = null;
+        this.megaVs = null;
         this.headEl = null;
         this.headStuck = false;
         this.pagerSync = [];
 
-        this.vw = this.effView();
-        const vw = this.vw;
-        // the tile view belongs to the view it was opened from — tree or
-        // Sankey; any other view (or a carrier the author switched off) never
-        // shows it, the stored id simply waits for its view to come back
-        if (vw === "sankey" && ui.treeZoom != null && this.resolver()(ui.treeZoom) == null) {
-            // a tile id the model no longer knows: back to the flow itself
-            ui.treeZoom = null;
-        }
-        const zoomed = (vw === "tree" || vw === "sankey") && ui.treeZoom != null;
-        const scan = this.scans();
+        const scanRaw = this.scans();
+        // scale sync (numbers.fixedVarMax): the uniform Δ scale reaches at least ±fixedVarMax
+        const fvm = this.fixedVarMax();
+        const scan = fvm != null && fvm > scanRaw.maxAbsDelta ? { ...scanRaw, maxAbsDelta: fvm } : scanRaw;
         const fmt = this.makeFmt(scan.maxAbsVal);
         // the driver-tree graph drives the tree AND its toolbar groups (depth
         // buttons, breadcrumb) — build it before the toolbar. The Sankey grows
@@ -1535,17 +3850,37 @@ export class Visual implements IVisual {
         head.style.cssText = `background:${this.pageBg()};box-sizing:border-box;` +
             "border-bottom:1px solid transparent;transition:box-shadow .12s ease,border-color .12s ease;" +
             (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
+        if (this.demo && !this.miniQuiet()) { head.appendChild(this.buildDemoBanner()); }
         if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
-        if (this.settings.toolbarCard.show.value) { head.appendChild(this.buildToolbar()); }
+        // 1.5: collapsible control bars — folded, one slim row with ☰ remains
+        const folded = this.tbFolded();
+        if (folded) { head.appendChild(this.buildTbBurger()); }
+        // an export prints no buttons nobody can press (the legend stays: it explains the notation)
+        if (this.settings.toolbarCard.show.value && !this.exporting() && !folded) {
+            const tb = this.buildToolbar();
+            if (this.tbCollapsible()) { tb.insertBefore(this.tbFoldButton(), tb.firstChild); }
+            head.appendChild(tb);
+        }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
-        if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
-        if (vw !== "tree" && vw !== "sankey") { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        if (this.settings.toolbarCard.showLegend.value && !folded) {
+            // toolbar off but legend on: the fold button leads the legend row
+            if (this.tbCollapsible() && !(this.settings.toolbarCard.show.value && !this.exporting())) {
+                head.appendChild(this.buildTbBurger());
+            }
+            head.appendChild(this.buildLegend());
+        }
+        // the mega table is a mode of the TABLE view only — a template must
+        // never take over Bars or Waterfall (1.0.0 did, and the toolbar of those
+        // views then drove a body that ignored every one of its buttons)
+        const mega = this.megaInView();
+        if (vw !== "tree" && vw !== "sankey" && !mega && !folded) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
             this.headEl = head;
         }
 
         if (vw === "sankey" && !zoomed) {
+            // 1.6 the flow view: fitted to the stage height, labels outside
             this.root.appendChild(this.buildSankey(fmt));
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter(true));
@@ -1583,6 +3918,25 @@ export class Visual implements IVisual {
                 }
                 this.zoomPostLayout();
             }
+        } else if (mega) {
+            // the mega table lays itself out to the viewport (chart columns
+            // share the free width) — no fit passes, no windowing. One
+            // correction pass: when the body brings a vertical scrollbar along,
+            // the few pixels it takes come out of the chart columns instead of
+            // pushing a horizontal scrollbar in
+            let table = this.buildMega(fmt, 0);
+            this.root.appendChild(table);
+            const over = this.root.scrollWidth - this.root.clientWidth;
+            const shrink = over > 0 && over <= 40 ? over : 0;
+            if (shrink) { const t2 = this.buildMega(fmt, shrink); this.root.replaceChild(t2, table); table = t2; }
+            this.appendScaleFixedNote();
+            this.appendCatNote();
+            const notes = this.buildFootnotes(fmt);
+            const footer = this.buildFooter();
+            this.root.appendChild(footer);
+            this.megaFitNotes(fmt, table, notes, shrink, footer);
+            this.root.scrollTop = keepScroll;
+            this.syncMegaWindow();
         } else {
             // fit mode needs the table on screen before it can solve — the
             // row-label column is auto-width, so it is measured, not guessed,
@@ -1596,6 +3950,8 @@ export class Visual implements IVisual {
                 this.root.replaceChild(tighter, body);
                 body = tighter;
             }
+            this.appendScaleFixedNote();
+            this.appendCatNote();
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
             this.root.scrollTop = keepScroll;
@@ -1613,8 +3969,134 @@ export class Visual implements IVisual {
     private contentHeight(): number {
         const last = this.root.lastElementChild as HTMLElement | null;
         if (!last) { return 0; }
-        const rb = this.root.getBoundingClientRect();
-        return Math.ceil(last.getBoundingClientRect().bottom - rb.top + this.root.scrollTop);
+        const rb = this.rect(this.root);
+        return Math.ceil(this.rect(last).bottom - rb.top + this.root.scrollTop);
+    }
+
+    /**
+     * Edit mode only: "Scale fixed" under the statement while numbers.fixedMax
+     * or fixedVarMax hold the scale — an author must not wonder why the bars
+     * stay short. Readers and exports never see it.
+     */
+    private appendScaleFixedNote(): void {
+        if (this.fixedMax() == null && this.fixedVarMax() == null) { return; }
+        if ((this.viewMode != null && this.viewMode < 1) || this.exporting()) { return; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "scale-fixed");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
+            `padding:2px ${TABLE_PAD_X + 14}px 0 ${TABLE_PAD_X + 14}px;`;
+        const fmt = this.makeFmt(this.scans().maxAbsVal);
+        const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
+        const part = (v: number | null, key: string): string =>
+            v == null ? "" : this.tr(key, fmt.val(v) + (unit ? " " + unit : ""));
+        note.textContent = this.tr("UI_ScaleFixed") + ": " +
+            [part(this.fixedMax(), "UI_ScaleFixedVal"), part(this.fixedVarMax(), "UI_ScaleFixedVar")].filter(Boolean).join(" · ");
+        this.root.appendChild(note);
+    }
+
+    /**
+     * Edit mode only (1.2): the column category is bound but this view does not
+     * use it — the mega table, bars and waterfall ignore it. Readers and
+     * exports never see the note.
+     */
+    private appendCatNote(): void {
+        if (!this.catBound || this.catInView() || !this.ui || this.view() === "tree" || this.view() === "sankey") { return; }
+        if ((this.viewMode != null && this.viewMode < 1) || this.exporting()) { return; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "cat-note");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
+            `padding:2px ${TABLE_PAD_X + 14}px 0 ${TABLE_PAD_X + 14}px;`;
+        note.textContent = this.tr("UI_ColCatIgnored");
+        this.root.appendChild(note);
+    }
+
+    /**
+     * 1.5 scale note of the mega table (IBCS UN 5.2): the table draws one scale
+     * per unit across all period blocks; the note appears only when something
+     * deviates from that — a block or column magnified by a round factor (its
+     * head carries "×5" as well) or a scale held by fixedMax / fixedVarMax. In
+     * edit mode the fixed scale is already named by the author note under the
+     * table ("Scale fixed"), so the note leaves it out there. Null = no note.
+     */
+    private megaScaleNote(L: MegaLayout, fmt: Fmt): HTMLElement | null {
+        const parts: string[] = [];
+        const blocks = L.input.blocks;
+        if (L.mags.length) {
+            const list = L.mags.map(m => m.heads.join(" · ")
+                + (blocks.length > 1 && blocks[m.block]?.name ? " " + blocks[m.block].name : "") + " ×" + m.factor);
+            parts.push(this.tr("UI_MegaScaleMag", list.join(", ")));
+        }
+        const authorNote = (this.viewMode == null || this.viewMode >= 1) && !this.exporting();
+        if (!authorNote && (this.fixedMax() != null || this.fixedVarMax() != null)) {
+            const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
+            const part = (v: number | null, key: string): string =>
+                v == null ? "" : this.tr(key, fmt.val(v) + (unit ? " " + unit : ""));
+            parts.push(this.tr("UI_MegaScaleFixed",
+                [part(this.fixedMax(), "UI_ScaleFixedVal"), part(this.fixedVarMax(), "UI_ScaleFixedVar")].filter(Boolean).join(" · ")));
+        }
+        if (!parts.length) { return null; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "scale-note");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;box-sizing:border-box;` +
+            `width:${Math.ceil(L.tableW)}px;padding:0 0 3px 0;`;
+        note.textContent = [this.tr("UI_MegaScale"), ...parts].join(" · ");
+        return note;
+    }
+
+    /** 1.5: toolbar.foldable — the control bars may fold (never in an export) */
+    private tbCollapsible(): boolean {
+        return this.settings?.toolbarCard?.foldable?.value === true && !this.exporting() && !this.miniQuiet();
+    }
+
+    /** 1.5: the control bars are folded right now (the reader's choice, else toolbar.startFolded) */
+    private tbFolded(): boolean {
+        if (!this.tbCollapsible()) { return false; }
+        return this.tbOpen == null ? this.settings.toolbarCard.startFolded.value : !this.tbOpen;
+    }
+
+    /** 1.5: the ☰ button that folds / unfolds the control bars */
+    private tbFoldButton(): HTMLElement {
+        const folded = this.tbFolded();
+        const b = document.createElement("button");
+        b.setAttribute("data-pnl", "tb-burger");
+        b.setAttribute("aria-expanded", String(!folded));
+        const label = this.tr(folded ? "UI_TbExpand" : "UI_TbCollapse");
+        b.setAttribute("aria-label", label);
+        b.title = label;
+        b.textContent = "☰";
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(12)};line-height:1;cursor:pointer;` +
+            `padding:${this.kpx(3)} ${this.kpx(7)};border-radius:4px;border:1px solid ${C.ctlEdge};` +
+            `background:${this.cardBg()};color:${C.text};align-self:flex-end;`;
+        b.onclick = (e: Event): void => {
+            e.stopPropagation();
+            this.tbOpen = folded;
+            this.rerender();
+        };
+        return b;
+    }
+
+    /** 1.5: the slim row of folded control bars — only the ☰ button (unfolded without toolbar: the row above the legend) */
+    private buildTbBurger(): HTMLElement {
+        const row = document.createElement("div");
+        // folded: the slim row; unfolded without a toolbar: the row leading the legend
+        row.setAttribute("data-pnl", this.tbFolded() ? "tb-folded" : "tb-lead");
+        row.style.cssText = `display:flex;padding:${this.kpx(4)} 14px ${this.kpx(2)} 14px;`;
+        row.appendChild(this.tbFoldButton());
+        return row;
+    }
+
+    /**
+     * 1.5: the classic scale note follows the geometry of the table just
+     * built — next to value bars or cascades (bars and waterfall view) the Δ
+     * bars share the value scale, or carry a round magnification that the
+     * column head names as well ("ΔPL ×5").
+     */
+    private syncScaleNote(geo: TableGeo): void {
+        const note = this.headEl?.querySelector('[data-pnl="scale-note"]') as HTMLElement | null
+            ?? this.root.querySelector('[data-pnl="scale-note"]') as HTMLElement | null;
+        if (!note || geo.dPpu <= 0) { return; }
+        note.textContent = geo.dMag > 1 ? this.tr("UI_ScaleNoteMag", geo.dMag) : this.tr("UI_ScaleNoteValue");
+        note.setAttribute("data-mag", String(geo.dMag));
     }
 
     /** the uniform-Δ-scale note — part of the frozen head, not of the table */
@@ -1623,9 +4105,8 @@ export class Visual implements IVisual {
         note.setAttribute("data-pnl", "scale-note");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;` +
             `padding:0 ${TABLE_PAD_X}px 3px ${TABLE_PAD_X}px;`;
-        note.textContent = this.str("uniform Δ scale: bars ±", "einheitliche Δ-Skala: Balken ±")
-            + fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value
-            + " · pins ±40%";
+        note.textContent = this.tr("UI_ScaleNote",
+            fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value);
         return note;
     }
 
@@ -1639,12 +4120,19 @@ export class Visual implements IVisual {
     private applySticky(): void {
         this.syncHeadShadow();
         if (!this.sticky()) { return; }
-        let top = this.headEl ? Math.round(this.headEl.getBoundingClientRect().height) : 0;
+        let top = this.headEl ? Math.round(this.rect(this.headEl).height) : 0;
         const zoomHead = this.root.querySelector('[data-pnl="zoom-head"]') as HTMLElement | null;
         if (zoomHead) {
             zoomHead.style.top = top + "px";
             zoomHead.style.boxShadow = `0 -1px 0 ${this.pageBg()}`;
-            top += Math.round(zoomHead.getBoundingClientRect().height);
+            top += Math.round(this.rect(zoomHead).height);
+        }
+        // the mega table's head svg is an ordinary block — it sticks by itself
+        const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
+        if (megaHead) {
+            megaHead.style.position = "sticky";
+            megaHead.style.top = top + "px";
+            megaHead.style.zIndex = "20";
         }
         this.buildFloatHead(top);
     }
@@ -1662,7 +4150,7 @@ export class Visual implements IVisual {
         this.headStuck = on;
         head.className = on ? "pnl-head pnl-head-stuck" : "pnl-head";
         head.style.borderBottomColor = on ? C.gridSoft : "transparent";
-        head.style.boxShadow = on ? "0 3px 8px rgba(15,30,46,.07)" : "none";
+        head.style.boxShadow = on ? C.headShadow : "none";
     }
 
     /**
@@ -1673,7 +4161,7 @@ export class Visual implements IVisual {
     private zoomPostLayout(): void {
         const tile = this.root.querySelector('[data-pnl="zoom-center"]') as HTMLElement | null;
         if (tile) {
-            const h = Math.round(tile.getBoundingClientRect().height);
+            const h = Math.round(this.rect(tile).height);
             const cols = this.root.querySelectorAll('[data-pnl="zoom-side"]');
             for (let i = 0; i < cols.length; i++) { (cols[i] as HTMLElement).style.height = h + "px"; }
         }
@@ -1690,9 +4178,9 @@ export class Visual implements IVisual {
             // measure the real pitch (sub-pixel): rounding a card height would
             // let a hairline of the next card peek out — exactly the stump the
             // pager exists to avoid
-            const r0 = first.getBoundingClientRect();
+            const r0 = this.rect(first);
             const second = list.children[1] as HTMLElement | undefined;
-            const pitch = second ? second.getBoundingClientRect().top - r0.top
+            const pitch = second ? this.rect(second).top - r0.top
                 : r0.height + this.k(MICRO_CARD_GAP);
             const gap = Math.max(pitch - r0.height, 0);
             if (pitch <= 0) { continue; }
@@ -1722,10 +4210,10 @@ export class Visual implements IVisual {
         if (this.zoomEl || this.zoomTimer != null) { this.treeZoomHide(); }
         this.syncHeadShadow();
         this.syncFloatHead();
-        if (!this.vs || this.scrollRaf !== 0) { return; }
+        if ((!this.vs && !this.megaVs) || this.scrollRaf !== 0) { return; }
         const raf = typeof requestAnimationFrame === "function"
             ? requestAnimationFrame : (cb: FrameRequestCallback): number => setTimeout(() => cb(0), 16) as unknown as number;
-        this.scrollRaf = raf(() => { this.scrollRaf = 0; this.syncWindow(); });
+        this.scrollRaf = raf(() => { this.scrollRaf = 0; this.syncWindow(); this.syncMegaWindow(); });
     }
 
     private spacerRow(): HTMLElement {
@@ -1772,8 +4260,8 @@ export class Visual implements IVisual {
     private measureWindow(): void {
         const vs = this.vs;
         if (!vs) { return; }
-        const rootBox = this.root.getBoundingClientRect();
-        const topBox = vs.top.getBoundingClientRect();
+        const rootBox = this.rect(this.root);
+        const topBox = this.rect(vs.top);
         vs.bodyTop = topBox.top - rootBox.top + this.root.scrollTop;
         this.syncWindow();
     }
@@ -1806,40 +4294,28 @@ export class Visual implements IVisual {
     }
 
     /** which Δ combinations the current view shows (drives the uniform scale) */
-    private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] {
-        const ui = this.ui!;
-        const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy" }[] = [];
-        const vw = this.vw;
+    private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy"; cat?: number }[] {
+        const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy"; cat?: number }[] = [];
+        const vw = this.view();
         if (vw === "tree" || vw === "sankey") { return out; } // tree and flow show no Δ bars
-        if (vw === "bars" || vw === "waterfall") {
-            const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
-            if (vw === "waterfall" && ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
-                out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
+        // exactly the Δ columns on screen — read from the column specs, so the
+        // uniform scale can never span a block the toolbar has switched off
+        // (or miss one it shows) — every reference × minuend × block once.
+        // Every bar / pin column carries its own pair; the plain value bars
+        // (vbar / wbar) are scaled by the value maximum, not by Δ.
+        const seen = new Set<string>();
+        for (const b of this.colSpecs()) {
+            for (const c of b.specs) {
+                if ((c.kind !== "bar" && c.kind !== "pin") || !c.ref || !c.minuend) { continue; }
+                const block = c.block ?? "ytd";
+                const key = `${c.ref}|${c.minuend}|${block}` + (c.cat != null ? `|${c.cat}` : "");
+                if (seen.has(key) || !this.has[c.ref]) { continue; }
+                seen.add(key);
+                // a category column scales against its own category's rows (the uniform scale spans the deck)
+                out.push(c.cat != null ? { ref: c.ref, minuend: c.minuend, block, cat: c.cat } : { ref: c.ref, minuend: c.minuend, block });
             }
-            if (ui.blocks.ytd !== false && this.has[ui.ref]) { out.push({ ref: ui.ref, minuend: "ac", block: "ytd" }); }
-            if (fyOn) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
-            return out;
         }
-        if (ui.blocks.mtd && this.model!.months.length > 1 && this.has[ui.ref]) {
-            out.push({ ref: ui.ref, minuend: "ac", block: "mtd" });
-        }
-        if (ui.preset === "full") {
-            if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
-            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
-            if (this.has.fcfy && this.has.plfy && ui.blocks.fy) { out.push({ ref: "plfy", minuend: "fcfy", block: "fy" }); }
-        } else if (ui.preset === "dall") {
-            // every available reference side by side — all combinations feed the
-            // one uniform Δ scale, so the bars stay comparable across references
-            for (const r of ["py", "pl", "fc"] as Scenario[]) {
-                if (this.has[r]) { out.push({ ref: r, minuend: "ac", block: "ytd" }); }
-            }
-        } else if (ui.preset === "acpydpy") { if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); } }
-        else if (ui.preset === "acpldpl") { if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); } }
-        else if (ui.preset === "dpct") {
-            if (this.has.py) { out.push({ ref: "py", minuend: "ac", block: "ytd" }); }
-            if (this.has.pl) { out.push({ ref: "pl", minuend: "ac", block: "ytd" }); }
-        } else { out.push({ ref: this.ui!.ref, minuend: "ac", block: "ytd" }); }
-        return out.filter(dc => this.has[dc.ref]);
+        return out;
     }
 
     // ---------------- title / toolbar / legend ----------------
@@ -1848,8 +4324,14 @@ export class Visual implements IVisual {
         const t = this.settings.titleCard;
         const wrap = document.createElement("div");
         wrap.style.cssText = "padding:12px 14px 4px 14px;";
-        const msg = t.message.value.trim();
-        if (msg) {
+        let msg = t.message.value.trim();
+        // headline slot (1.1, IBCS 12-series): the message moves out of the bold
+        // line above the title into a large line beside it; without an own
+        // message it is the generated one (with or without autoMessage)
+        const hl = t.headline.value;
+        // ChartKitchen autoMessage: the generated SAY line while no own message is set
+        if (!msg && (t.autoMessage.value || hl)) { msg = this.autoMessage(fmt); }
+        if (msg && !hl) {
             const m = document.createElement("div");
             m.style.cssText = `font-size:${this.kpx(13.5)};font-weight:700;line-height:1.45;` +
                 `margin-bottom:${this.kpx(8)};max-width:${this.k(900)}px;`;
@@ -1863,34 +4345,83 @@ export class Visual implements IVisual {
             ? this.yearPrefix(`${this.monthLabel(months[0])}..${this.monthLabel(months[months.length - 1])} (_${this.ytdMarker()})`)
             : "";
         const scen = ["AC", this.has.py ? "PY" : "", this.has.pl ? "PL" : ""].filter(Boolean).join(", ");
+        // mega table: the scenarios and Δ references its columns really show
+        const mt = this.megaInView() ? this.megaToggles() : null;
+        const megaScen = mt ? [mt.showPY ? "PY" : "", mt.showPL ? "PL" : "", mt.min].filter(Boolean).join(", ") : "";
+        const megaRefs = mt ? activeRefs(mt).join(", ") : "";
         const lines = [
-            t.unitLine.value.trim(),
-            t.measureLine.value.trim() || (this.str("Income statement (P&L)", "GuV (P&L)") + (fmt.suffix ? ` in ${fmt.suffix}${this.settings.numbersCard.unitText.value}` : "")),
-            t.periodLine.value.trim() || [autoPeriod, scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": "),
+            t.unitLine.value.trim() || (this.demo ? this.tr("UI_DemoUnit") : ""),
+            t.measureLine.value.trim() || (fmt.suffix
+                ? this.tr("UI_TitleMeasureUnit", fmt.suffix + this.settings.numbersCard.unitText.value)
+                : this.tr("UI_TitleMeasure")),
+            t.periodLine.value.trim() || this.relabel([autoPeriod, mt
+                ? megaScen + (megaRefs ? ` · Δ ${megaRefs}` : "")
+                : scen && `${scen} · Δ ${this.ui!.ref.toUpperCase()}`].filter(Boolean).join(": ")),
         ].filter(s => s !== "");
+        const lineHost = hl ? document.createElement("div") : wrap;
         lines.forEach((line, i) => {
             const el = document.createElement("div");
             el.style.cssText = i === 1
                 ? `font-size:${this.kpx(12)};line-height:1.5;font-weight:600;`
                 : `font-size:${this.kpx(12)};line-height:1.5;color:${i === 0 ? C.text : C.text};`;
             el.textContent = line;
-            wrap.appendChild(el);
+            lineHost.appendChild(el);
         });
+        if (hl) {
+            // 12er layout: title lines left, the message large beside them, a rule below
+            const row = document.createElement("div");
+            row.setAttribute("data-pnl", "headline-row");
+            row.style.cssText = `display:flex;flex-wrap:wrap;align-items:flex-start;column-gap:${this.k(40)}px;row-gap:${this.kpx(6)};` +
+                `padding-bottom:${this.kpx(8)};border-bottom:1px solid ${C.soft};`;
+            lineHost.style.cssText = "flex:0 0 auto;";
+            row.appendChild(lineHost);
+            if (msg) {
+                const h = document.createElement("div");
+                h.setAttribute("data-pnl", "headline");
+                h.style.cssText = `flex:1 1 ${this.k(280)}px;max-width:${this.k(760)}px;font-size:${this.kpx(17)};` +
+                    `line-height:1.3;font-weight:400;color:${C.text};`;
+                h.textContent = msg;
+                row.appendChild(h);
+            }
+            wrap.appendChild(row);
+        }
         return wrap;
     }
 
-    private tbBtn(label: string, active: boolean, onClick: () => void, title?: string): HTMLElement {
+    /**
+     * A toolbar button. `locked` (a tooltip text) marks a button whose click
+     * would change nothing in the current view / column preset: it stays in
+     * place — the toolbar does not jump while the reader explores — but reads
+     * as locked, explains itself on hover and neither persists nor re-renders.
+     * (Up to 1.0.0 such buttons looked live, lit up on click and did nothing.)
+     */
+    private tbBtn(label: string, active: boolean, onClick: () => void, title?: string, locked?: string): HTMLElement {
         const b = document.createElement("button");
         b.textContent = label;
         if (title) { b.title = title; }
+        // keyboard (1.1): a native button — Tab reaches it, Enter / Space press it;
+        // the state is announced, the focus ring is drawn by kbRing
+        b.setAttribute("aria-pressed", active ? "true" : "false");
+        this.kbRing(b);
+        if (locked) {
+            b.title = locked;
+            b.setAttribute("aria-disabled", "true");
+            b.setAttribute("data-pnl-locked", "1");
+        }
         const acc = this.accent();
         const rest = active
-            ? `background:${acc};border:1px solid ${acc};color:#FFF;font-weight:600;`
-            : `background:#FFF;border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
+            ? `background:${acc};border:1px solid ${acc};color:${this.onAccent()};font-weight:600;`
+            : `background:${C.paper};border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
         b.style.cssText =
             `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
             `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;` +
             `border-radius:4px;transition:${TRANSITION};` + rest;
+        if (locked) {
+            b.style.opacity = "0.4";
+            b.style.cursor = "default";
+            b.onclick = (e) => { e.stopPropagation(); };
+            return b;
+        }
         // hover is a tint, never a jump: the inactive button warms up, the
         // active one lifts a shade so both stay recognisably the same control
         b.onmouseenter = (): void => {
@@ -1899,13 +4430,92 @@ export class Visual implements IVisual {
         };
         b.onmouseleave = (): void => {
             if (active) { b.style.background = acc; b.style.borderColor = acc; }
-            else { b.style.background = "#FFF"; b.style.borderColor = C.ctlEdge; }
+            else { b.style.background = C.paper; b.style.borderColor = C.ctlEdge; }
         };
         b.onclick = (e) => { e.stopPropagation(); onClick(); this.persistUi(); this.rerender(); };
         return b;
     }
 
     /** caps label of a control group — the one type style for every section head */
+    /**
+     * Edit mode in the strict sense: the host SAYS it is editing (Desktop
+     * authoring, service edit). Authoring controls that write the format pane
+     * (template picker, empty-state switches) appear only here — never for
+     * readers, never in exports, and not in hosts that report no view mode.
+     */
+    private editMode(): boolean {
+        return this.viewMode != null && this.viewMode >= 1 && this.host.hostCapabilities?.allowInteractions !== false;
+    }
+
+    /**
+     * 1.2 toolbar template picker (edit mode): the IBCS templates of the format
+     * pane as one compact dropdown. Picking one writes columns.template AND
+     * applies it in the same persist (see applyMegaTemplate) — the pending
+     * guard then holds the new template against stale updates, so the picker
+     * never springs back while the host echoes.
+     */
+    private templatePicker(): HTMLElement {
+        const tpl = this.settings.columnsCard.template;
+        const sel = document.createElement("select");
+        sel.setAttribute("data-pnl", "tb-template");
+        sel.title = this.tr("UI_TbTemplateTip");
+        sel.setAttribute("aria-label", this.tr("UI_TbTemplate"));
+        sel.style.cssText = `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
+            `padding:${this.kpx(2.5)} ${this.kpx(4)};border-radius:4px;border:1px solid ${C.ctlEdge};` +
+            `background:${C.paper};color:${C.text};cursor:pointer;max-width:${this.k(230)}px;`;
+        const cur = String(tpl.value?.value ?? "off");
+        for (const it of tpl.items ?? []) {
+            const o = document.createElement("option");
+            o.value = String(it.value);
+            o.textContent = typeof it.displayName === "string" ? it.displayName : String(it.value);
+            if (o.value === cur) { o.selected = true; }
+            sel.appendChild(o);
+        }
+        this.kbRing(sel as unknown as HTMLElement);
+        sel.onclick = (e: Event): void => { e.stopPropagation(); };
+        sel.onchange = (): void => { this.pickTemplate(sel.value); };
+        // 1.3 "back to the template": the switches left the template's state —
+        // one click writes the template again (a native dropdown cannot pick the
+        // template that is already selected, so this is the way to re-apply it)
+        const parts: HTMLElement[] = [sel];
+        const dev = this.templateDeviation();
+        if (dev) {
+            const b = this.tbBtn(this.tr("UI_TbTplReset"), false, () => { /* replaced below */ },
+                this.tr("UI_TbTplResetTip", dev));
+            b.setAttribute("data-pnl", "tb-template-reset");
+            b.onclick = (e: Event): void => { e.stopPropagation(); this.pickTemplate(dev); };
+            parts.push(b);
+        }
+        const g = this.tbGroup(this.tr("UI_TbTemplate"), parts);
+        g.setAttribute("data-pnl", "tb-template-group");
+        return g;
+    }
+
+    /**
+     * The template the switches have left: the code of the set template when at
+     * least one of its switches (columns card, title headline) differs from the
+     * preset, else null. The number format is part of the restored state but
+     * does not count as a deviation (decimals are a taste, not a switch).
+     */
+    private templateDeviation(): string | null {
+        const tpl = String(this.settings.columnsCard.template.value.value);
+        if (tpl === "off" || !MEGA_PRESETS[tpl]) { return null; }
+        const sw = templateSwitches(tpl);
+        for (const [k, v] of Object.entries(sw.cols)) {
+            if (!this.megaSliceIs(k, v)) { return tpl; }
+        }
+        if (sw.title.headline != null && this.settings.titleCard.headline.value !== sw.title.headline) { return tpl; }
+        return null;
+    }
+
+    /** toolbar template pick: the pane dropdown, its switches and templateApplied in one write */
+    private pickTemplate(tpl: string): void {
+        if (!MEGA_PRESETS[tpl]) { return; }
+        this.megaSliceSet("template", tpl);
+        this.applyMegaTemplate(tpl, true);
+        this.rerender();
+    }
+
     private capsLabel(text: string, fs = 8.5): HTMLElement {
         const l = document.createElement("div");
         l.style.cssText = `font-size:${this.kpx(fs)};letter-spacing:.09em;color:${C.soft};` +
@@ -1933,24 +4543,20 @@ export class Visual implements IVisual {
         const acc = this.accent();
         const b = document.createElement("button");
         b.setAttribute("data-pnl", "zoom-back");
-        // the way back names where it leads: the view the tile was opened from
-        const fromFlow = this.vw === "sankey";
-        b.textContent = fromFlow
-            ? this.str("← Back to Sankey", "← Zurück zum Sankey")
-            : this.str("← Back to tree", "← Zurück zum Baum");
-        b.title = fromFlow
-            ? this.str("Close the tile view, back to the flow", "Kachel-Ansicht schließen, zurück zum Fluss")
-            : this.str("Close the tile view", "Kachel-Ansicht schließen");
+        // 1.6: the way back names where it leads — the view the tile was opened from
+        const fromFlow = this.view() === "sankey";
+        b.textContent = this.tr(fromFlow ? "UI_BackToSankey" : "UI_BackToTree");
+        b.title = this.tr(fromFlow ? "UI_BackToSankeyTip" : "UI_BackToTreeTip");
         b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
             `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
-            `background:${acc};color:#FFF;transition:${TRANSITION};box-shadow:${SHADOW};`;
+            `background:${acc};color:${this.onAccent()};transition:${TRANSITION};box-shadow:${C.shadow};`;
         b.onmouseenter = (): void => {
             b.style.background = this.accentSoft(0.16);
             b.style.borderColor = this.accentSoft(0.16);
-            b.style.boxShadow = SHADOW_HOVER;
+            b.style.boxShadow = C.shadowHover;
         };
         b.onmouseleave = (): void => {
-            b.style.background = acc; b.style.borderColor = acc; b.style.boxShadow = SHADOW;
+            b.style.background = acc; b.style.borderColor = acc; b.style.boxShadow = C.shadow;
         };
         b.onclick = (e: Event): void => {
             e.stopPropagation(); onClick(); this.persistUi(); this.rerender();
@@ -1968,93 +4574,163 @@ export class Visual implements IVisual {
         // Tile view: everything that cannot change the tile disappears. Only the
         // Δ reference and the unit reach the zoom chart, so only those two stay —
         // the header belongs to the back button and the breadcrumb.
-        const vw = this.vw;
+        // 1.6: the view on screen (the first offered one when ui.view is switched off)
+        const vw = this.view();
         const graphView = vw === "tree" || vw === "sankey";
         const inZoom = graphView && ui.treeZoom != null;
-        // only the views the author offers; a single one leaves nothing to
+        // 1.3/1.4 the Start hub as an overlay — an authoring aid, edit mode only;
+        // since 1.4 the first control of the toolbar, framed in the accent
+        if (this.editMode() && !this.miniSpec) { bar.appendChild(this.hubOpenButton()); }
+        // 1.2 template picker first — edit mode only (an authoring control, it
+        // writes the format pane), table view only (templates shape the table)
+        if (tset.showTemplate.value && this.editMode() && vw === "table") {
+            bar.appendChild(this.templatePicker());
+        }
+        // 1.6: only the views the author offers; a single one leaves nothing to
         // choose, so the whole group steps aside
         const offered = this.offeredViews();
         const viewBtns: Record<ViewMode, () => HTMLElement> = {
-            table: () => this.tbBtn("Table", vw === "table", () => { ui.view = "table"; }),
-            bars: () => this.tbBtn("Bars", vw === "bars", () => { ui.view = "bars"; },
-                this.str("Structure bars: AC vs reference per row", "Struktur-Balken: AC vs. Referenz je Zeile")),
-            waterfall: () => this.tbBtn("Waterfall", vw === "waterfall", () => { ui.view = "waterfall"; },
-                this.str("Row waterfall: contributions cascade, subtotals anchor", "Zeilen-Waterfall: Beiträge kaskadieren, Summen ankern")),
-            tree: () => this.tbBtn("Tree", vw === "tree", () => { ui.view = "tree"; },
-                this.str("Value driver tree: the formula graph as a DuPont tree",
-                    "Werttreiberbaum: der Formel-Graph als DuPont-Baum")),
-            sankey: () => this.tbBtn("Sankey", vw === "sankey", () => { ui.view = "sankey"; },
-                this.str("Flow view: revenue flows into profit, costs branch off (outside the IBCS notation)",
-                    "Fluss-Ansicht: Umsatz fließt in den Gewinn, Kosten zweigen ab (außerhalb der IBCS-Notation)")),
+            table: () => this.tbBtn(this.tr("UI_TbTable"), vw === "table", () => { ui.view = "table"; }),
+            bars: () => this.tbBtn(this.tr("UI_TbBars"), vw === "bars", () => { ui.view = "bars"; },
+                this.tr("UI_TbBarsTip")),
+            waterfall: () => this.tbBtn(this.tr("UI_TbWaterfall"), vw === "waterfall", () => { ui.view = "waterfall"; },
+                this.tr("UI_TbWaterfallTip")),
+            tree: () => this.tbBtn(this.tr("UI_TbTree"), vw === "tree", () => { ui.view = "tree"; },
+                this.tr("UI_TbTreeTip")),
+            sankey: () => this.tbBtn(this.tr("UI_TbSankey"), vw === "sankey", () => { ui.view = "sankey"; },
+                this.tr("UI_TbSankeyTip")),
         };
         if (tset.showView.value && !inZoom && offered.length > 1) {
-            bar.appendChild(this.tbGroup(this.str("View", "Ansicht"), offered.map(v => viewBtns[v]())));
+            bar.appendChild(this.tbGroup(this.tr("UI_TbView"), offered.map(v => viewBtns[v]())));
         }
 
         // column presets, periods and options describe the table layout — the
         // driver tree and the Sankey follow the graph instead. The Δ reference
         // and the expand level do apply to them: they drive the card variances
-        // (tooltips) and the depth of the opened graph.
+        // (Sankey: the tooltips) and the depth of the opened graph.
         const tableViews = !graphView && !inZoom;
         const isTree = vw === "tree" && !inZoom;
         const isGraph = graphView && !inZoom;
+        // the mega table takes its columns from the format pane switches —
+        // presets, Δ reference, period blocks and fit belong to the classic table
+        const mega = this.megaInView();
+        const classic = tableViews && !mega;
+        // column presets and "% of revenue" shape the classic TABLE only — the
+        // bars and waterfall views build their columns from the Δ reference and
+        // the period blocks alone (up to 1.0.0 both groups showed there and did
+        // nothing)
+        const classicTable = classic && vw === "table";
 
-        const presets: [Preset, string][] = [
-            ["full", "AC·PY·PL·FC"], ["acref", "AC vs Ref"], ["dall", "AC vs PY·PL·FC"],
+        // Does a toolbar change alter the columns on screen? The column specs
+        // are the one truth for the table, bars and waterfall views — a change
+        // that leaves them identical is a no-op, and its button is locked.
+        const colSig = (): string => JSON.stringify(this.colSpecs().map(b =>
+            [b.key, b.specs.map(c => [c.kind, c.scen ?? "", c.ref ?? "", c.minuend ?? "", c.block ?? ""])]));
+        const baseSig = classic ? colSig() : "";
+        const changes = (mut: (u: UiState) => void): boolean => {
+            const saved = this.ui!;
+            const trial: UiState = { ...saved, blocks: { ...saved.blocks } };
+            mut(trial);
+            this.ui = trial;
+            try { return colSig() !== baseSig; } finally { this.ui = saved; }
+        };
+        const shownBlocks = classic ? new Set(this.colSpecs().map(b => b.key)) : new Set<string>();
+
+        const presets: [Preset, string][] = ([
+            ["full", this.tr("UI_PresetFull")], ["acref", this.tr("UI_PresetAcRef")], ["dall", this.tr("UI_PresetDAll")],
             ["acpydpy", "AC·PY·ΔPY"], ["acpldpl", "AC·PL·ΔPL"], ["dpct", "ΔPY% · ΔPL%"],
-        ];
-        if (tset.showPresets.value && tableViews) {
-            bar.appendChild(this.tbGroup(this.str("Column preset", "Spalten-Preset"),
+        ] as [Preset, string][]).map(([p, l]) => [p, this.relabel(l)]);
+        if (tset.showPresets.value && classicTable) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbPreset"),
                 presets.map(([p, label]) => this.tbBtn(label, ui.preset === p, () => { ui.preset = p; }))));
         }
 
-        const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && (tableViews || isGraph || inZoom)) {
-            bar.appendChild(this.tbGroup("Δ " + this.str("reference", "Referenz"),
-                refs.map(r => this.tbBtn(r.toUpperCase(), ui.ref === r, () => { ui.ref = r; }))));
+        // 1.2 value columns as independent switches (AC · PY · PL · FC · Δ):
+        // a click turns the columns on screen into the preset "custom" and
+        // flips one switch; a preset click later sets them all again. A switch
+        // that would change nothing (the last column, Δ without a reference
+        // field) stays in place, dimmed and locked — the 1.0.1 pattern.
+        if (tset.showValues.value && classicTable) {
+            const shown = this.shownVals();
+            const rDelta: Scenario = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+            const flip = (u: UiState, k: keyof ValSet): void => {
+                // the fixed-reference presets hand their reference over, so ΔPY stays ΔPY
+                if (u.preset === "acpydpy") { u.ref = "py"; } else if (u.preset === "acpldpl") { u.ref = "pl"; }
+                u.vals = { ...shown, [k]: !shown[k] };
+                u.preset = "custom";
+            };
+            const lockTip = this.tr("UI_TbValNoEffect");
+            const vb: HTMLElement[] = [];
+            for (const k of ["ac", "py", "pl", "fc"] as (keyof ValSet)[]) {
+                if (!this.has[k as Scenario]) { continue; }
+                vb.push(this.tbBtn(this.relabel(k.toUpperCase()), shown[k], () => flip(ui, k), undefined,
+                    changes(u => flip(u, k)) ? undefined : lockTip));
+            }
+            const refShown = ui.preset === "acpydpy" ? "py" : ui.preset === "acpldpl" ? "pl" : rDelta;
+            vb.push(this.tbBtn("Δ" + this.relabel(refShown.toUpperCase()), shown.d, () => flip(ui, "d"),
+                this.tr("UI_TbValDeltaTip"), changes(u => flip(u, "d")) ? undefined : lockTip));
+            const g = this.tbGroup(this.tr("UI_TbValues"), vb);
+            g.setAttribute("data-pnl", "tb-values");
+            bar.appendChild(g);
         }
 
+        const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
+        if (refs.length > 0 && tset.showReference.value && (classic || isGraph || inZoom)) {
+            // the tree and the tile always follow the reference; the column
+            // views only where a column is built from it ("AC vs Ref", the MTD
+            // block, bars, waterfall) — elsewhere the preset fixes its references
+            const refLive = !classic || refs.some(r => r !== ui.ref && changes(u => { u.ref = r; }));
+            const refTip = refLive ? undefined : this.tr("UI_TbRefNoEffect", this.tr("UI_PresetAcRef"));
+            bar.appendChild(this.tbGroup(this.tr("UI_TbReference"),
+                refs.map(r => this.tbBtn(this.relabel(r.toUpperCase()), ui.ref === r, () => { ui.ref = r; }, undefined, refTip))));
+        }
+
+        // period buttons show what is ON SCREEN (a forced YTD block reads as
+        // on) and lock where a click would change nothing: the FY block outside
+        // the presets that carry it, the last block that keeps the table alive
         const pb: HTMLElement[] = [];
-        if (vw !== "bars" && this.model!.months.length > 1) {
-            pb.push(this.tbBtn("MTD", ui.blocks.mtd, () => { ui.blocks.mtd = !ui.blocks.mtd; }));
+        const periodBtn = (key: "mtd" | "ytd" | "fy", label: string): HTMLElement => {
+            const live = changes(u => { u.blocks[key] = !u.blocks[key]; });
+            const tip = live ? undefined
+                : key === "fy" && !shownBlocks.has("fy") ? this.tr("UI_TbFyNoEffect", this.tr("UI_PresetFull"))
+                    : this.tr("UI_TbLastBlock");
+            return this.tbBtn(label, shownBlocks.has(key), () => { ui.blocks[key] = !ui.blocks[key]; }, undefined, tip);
+        };
+        if (classic) {
+            if (vw !== "bars" && this.model!.months.length > 1) { pb.push(periodBtn("mtd", "MTD")); }
+            pb.push(periodBtn("ytd", "YTD"));
+            if (this.has.fcfy && this.has.plfy) { pb.push(periodBtn("fy", "FY")); }
         }
-        pb.push(this.tbBtn("YTD", ui.blocks.ytd, () => { ui.blocks.ytd = !ui.blocks.ytd; }));
-        if (this.has.fcfy && this.has.plfy) {
-            pb.push(this.tbBtn("FY", ui.blocks.fy, () => { ui.blocks.fy = !ui.blocks.fy; }));
-        }
-        if (pb.length > 1 && tset.showPeriods.value && tableViews) {
-            bar.appendChild(this.tbGroup(this.str("Periods", "Perioden"), pb));
+        if (pb.length > 1 && tset.showPeriods.value && classic) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbPeriods"), pb));
         }
 
         const unitText = this.settings.numbersCard.unitText.value || "EUR";
-        if (tset.showUnit.value) { bar.appendChild(this.tbGroup(this.str("Unit", "Einheit"), [
+        if (tset.showUnit.value) { bar.appendChild(this.tbGroup(this.tr("UI_TbUnit"), [
             this.tbBtn("k" + unitText, ui.unit === "k", () => { ui.unit = "k"; }),
             this.tbBtn("m" + unitText, ui.unit === "m", () => { ui.unit = "m"; }),
+            // billions (1.1): only where auto scaling would pick them (from 50 billion)
+            // or the pane chose them — every other report keeps its k | m pair
+            ...(ui.unit === "b" || this.scans().maxAbsVal >= 5e10
+                ? [this.tbBtn("b" + unitText, ui.unit === "b", () => { ui.unit = "b"; })] : []),
         ])); }
 
-        if (tset.showDensity.value && !inZoom) { bar.appendChild(this.tbGroup(this.str("Density", "Dichte"), [
-            this.tbBtn("Normal", ui.density === "normal", () => { ui.density = "normal"; }),
-            this.tbBtn("Compact", ui.density === "compact", () => { ui.density = "compact"; }),
+        if (tset.showDensity.value && !inZoom) { bar.appendChild(this.tbGroup(this.tr("UI_TbDensity"), [
+            this.tbBtn(this.tr("UI_TbNormal"), ui.density === "normal", () => { ui.density = "normal"; }),
+            this.tbBtn(this.tr("UI_TbCompact"), ui.density === "compact", () => { ui.density = "compact"; }),
         ])); }
 
         // card chart + status indicator only make sense on the driver tree
         if (isTree) {
             const cardBtn = (m: TreeCardMode, label: string, tip: string): HTMLElement =>
                 this.tbBtn(label, ui.treeCard === m, () => { ui.treeCard = m; }, tip);
-            bar.appendChild(this.tbGroup(this.str("Cards", "Karten"), [
-                cardBtn("months", this.str("Months", "Monate"),
-                    this.str("Monthly columns: AC solid, PL outlined behind",
-                        "Monatssäulen: AC solide, PL outlined dahinter")),
-                cardBtn("delta", "Δ",
-                    this.str("Variance columns per month: AC − reference",
-                        "Abweichungssäulen je Monat: AC − Referenz")),
-                cardBtn("bridge", this.str("Bridge", "Brücke"),
-                    this.str("Mini bridge: reference → Δ → AC (year to date)",
-                        "Mini-Brücke: Referenz → Δ → AC (Jahresverlauf)")),
-                this.tbBtn(this.str("Status", "Status"), ui.treeStatus,
+            bar.appendChild(this.tbGroup(this.tr("UI_TbCards"), [
+                cardBtn("months", this.tr("UI_TbMonths"), this.tr("UI_TbMonthsTip")),
+                cardBtn("delta", "Δ", this.tr("UI_TbDeltaTip")),
+                cardBtn("bridge", this.tr("UI_TbBridge"), this.tr("UI_TbBridgeTip")),
+                this.tbBtn(this.tr("UI_TbStatus"), ui.treeStatus,
                     () => { ui.treeStatus = !ui.treeStatus; },
-                    this.str("Colour indicator: card edge and Δ% in the header",
-                        "Indikator-Farbe: Kartenrand und Δ% im Kopf")),
+                    this.tr("UI_TbStatusTip")),
             ]));
         }
 
@@ -2065,8 +4741,7 @@ export class Visual implements IVisual {
             lvlBtns.push(this.tbBtn("⌂", false, () => {
                 ui.treeRoot = "";
                 ui.treeCollapsed = null;
-            }, this.str("Back to the top root, whole tree open",
-                "Zurück zur obersten Wurzel, ganzer Baum offen")));
+            }, this.tr("UI_TbHomeTip")));
         }
         for (let l = 1; l < maxL; l++) {
             lvlBtns.push(this.tbBtn(String(l), false, () => {
@@ -2074,19 +4749,34 @@ export class Visual implements IVisual {
                 else { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }
             }));
         }
-        lvlBtns.push(this.tbBtn(this.str("All", "Alle"), false, () => {
+        lvlBtns.push(this.tbBtn(this.tr("UI_TbAll"), false, () => {
             if (isGraph) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
         }));
         if (tset.showLevels.value && (tableViews || isGraph)) {
-            bar.appendChild(this.tbGroup(this.str("Expand to level", "Bis Ebene"), lvlBtns));
+            bar.appendChild(this.tbGroup(this.tr("UI_TbLevels"), lvlBtns));
         }
 
-        if (tset.showOptions.value && tableViews) { bar.appendChild(this.tbGroup(this.str("Options", "Optionen"), [
-            this.tbBtn(this.str("% of revenue", "% vom Umsatz"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; }),
-            this.tbBtn(this.str("Hide zero rows", "Nullzeilen aus"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
-            this.tbBtn("Fit", ui.fit, () => { ui.fit = !ui.fit; },
-                this.str("Squeeze the chart columns until the table fits the width — no horizontal scrolling",
-                    "Diagramm-Spalten stauchen, bis die Tabelle in die Breite passt — kein Querscrollen")),
+        // mega table: the reader's scenario view (analysed scenario · reference view)
+        if (tset.showScenario.value && mega) {
+            for (const g of this.megaScenarioGroups()) { bar.appendChild(g); }
+        }
+        // 1.2 the mega table's value columns as reader switches (analysed scenario · PY · PL)
+        if (tset.showValues.value && mega) {
+            const g = this.megaValuesGroup();
+            if (g) { bar.appendChild(g); }
+        }
+
+        if (tset.showOptions.value && mega) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbOptions"), [
+                this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
+            ]));
+        }
+        if (tset.showOptions.value && classic) { bar.appendChild(this.tbGroup(this.tr("UI_TbOptions"), [
+            // "% of revenue" is a column of the YTD block — locked while YTD is off
+            ...(classicTable ? [this.tbBtn(this.tr("UI_TbPctRev"), ui.pctRev, () => { ui.pctRev = !ui.pctRev; },
+                undefined, shownBlocks.has("ytd") ? undefined : this.tr("UI_TbPctRevNoEffect"))] : []),
+            this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
+            this.tbBtn(this.tr("UI_TbFit"), ui.fit, () => { ui.fit = !ui.fit; }, this.tr("UI_TbFitTip")),
         ])); }
         return bar;
     }
@@ -2096,11 +4786,13 @@ export class Visual implements IVisual {
         const base = `display:inline-block;width:${this.kpx(10)};height:${this.kpx(10)};` +
             `margin-right:${this.kpx(5)};vertical-align:-1px;`;
         if (style === "ac") { chip.style.cssText = base + `background:${C.ac};`; }
+        // high contrast: PY = AC in colour — the PY chip is dashed like the PY mark
+        else if (style === "py" && this.hc) { chip.style.cssText = base + `background:${C.paper};border:1.4px dashed ${C.ac};box-sizing:border-box;`; }
         else if (style === "py") { chip.style.cssText = base + `background:${C.py};`; }
-        else if (style === "pl") { chip.style.cssText = base + `background:#FFF;border:1.4px solid ${C.ac};box-sizing:border-box;`; }
+        else if (style === "pl") { chip.style.cssText = base + `background:${C.paper};border:1.4px solid ${C.ac};box-sizing:border-box;`; }
         else {
             chip.style.cssText = base +
-                `background:repeating-linear-gradient(45deg,#FFF,#FFF 2px,${C.ac} 2px,${C.ac} 3.2px);` +
+                `background:repeating-linear-gradient(45deg,${C.paper},${C.paper} 2px,${C.ac} 2px,${C.ac} 3.2px);` +
                 `border:1px solid ${C.ac};box-sizing:border-box;`;
         }
         return chip;
@@ -2119,35 +4811,63 @@ export class Visual implements IVisual {
             s.appendChild(t);
             bar.appendChild(s);
         };
-        item(this.legendChip("ac"), " AC actual");
-        if (this.has.py) { item(this.legendChip("py"), " PY previous year"); }
-        if (this.has.pl || this.has.plfy) { item(this.legendChip("pl"), " PL plan"); }
-        if (this.has.fc || this.has.fcfy) { item(this.legendChip("fc"), " FC forecast"); }
+        // mega table: exactly the scenarios its columns show — value columns,
+        // the minuend of every Δ element and the active Δ references — not
+        // every bound role (T02F shows PL + FC only)
+        const mt = this.megaInView() ? this.megaToggles() : null;
+        const mRefs = mt ? activeRefs(mt) : [];
+        const shown = new Set<string>();
+        if (mt) {
+            if (mt.showPY) { shown.add("PY"); }
+            if (mt.showPL) { shown.add("PL"); }
+            if (mt.showMin || mRefs.length > 0) { shown.add(mt.min); }
+            mRefs.forEach(r => shown.add(r));
+            // FY outlook (12G): AC&FC is hatched where it is forecast — FC explains the hatch
+            const hatchFy = (mt.valueCascade && mt.showMin) || mRefs.some(r => mt.d[r].bar || mt.d[r].wf || mt.d[r].pin);
+            if (mt.min === "AC" && hatchFy && this.megaKeys().includes("fy")) { shown.add("FC"); }
+        }
+        // house terms (labels.labelAc …) replace the "AC actual" wording as a whole
+        const lg = (code: "AC" | "PY" | "PL" | "FC", key: string): string =>
+            this.houseTerm(code) != null ? " " + this.houseTerm(code) : this.tr(key);
+        if (!mt || shown.has("AC")) { item(this.legendChip("ac"), lg("AC", "UI_LgAc")); }
+        if (mt ? shown.has("PY") : this.has.py) { item(this.legendChip("py"), lg("PY", "UI_LgPy")); }
+        if (mt ? shown.has("PL") : this.has.pl || this.has.plfy) { item(this.legendChip("pl"), lg("PL", "UI_LgPl")); }
+        if (mt ? shown.has("FC") : this.has.fc || this.has.fcfy) { item(this.legendChip("fc"), lg("FC", "UI_LgFc")); }
         const g = document.createElement("span");
-        const sq = (color: string): HTMLElement => {
+        const sq = (color: string, hollow = false): HTMLElement => {
             const el = document.createElement("span");
             el.style.cssText = `display:inline-block;width:${this.kpx(10)};height:${this.kpx(10)};` +
-                `background:${color};margin:0 ${this.kpx(5)} 0 0;vertical-align:-1px;`;
+                (hollow ? `background:${C.paper};border:1.4px solid ${color};box-sizing:border-box;` : `background:${color};`) +
+                `margin:0 ${this.kpx(5)} 0 0;vertical-align:-1px;`;
             return el;
         };
         const fav = document.createElement("span"); fav.appendChild(sq(this.goodColor()));
-        fav.appendChild(document.createTextNode(this.str("favorable Δ", "günstige Δ")));
-        const unfav = document.createElement("span"); unfav.appendChild(sq(this.badColor()));
-        unfav.appendChild(document.createTextNode(this.str("unfavorable Δ", "ungünstige Δ")));
+        fav.appendChild(document.createTextNode(this.tr("UI_LgGood")));
+        // high contrast: unfavourable is hollow, as in the mega table
+        const unfav = document.createElement("span"); unfav.appendChild(sq(this.badColor(), this.hc != null));
+        unfav.appendChild(document.createTextNode(this.tr("UI_LgBad")));
         bar.appendChild(fav); bar.appendChild(unfav); bar.appendChild(g);
-        if (String(this.settings.styleCard.colorMode.value.value) !== "ibcs") {
+        // (high contrast paints no teal — the deviation note would mislead there)
+        if (this.varianceMode() !== "ibcs" && !this.hc) {
             const note = document.createElement("span");
             note.style.cssText = "font-style:italic;";
-            note.textContent = this.str(
-                "Documented IBCS deviation: teal replaces green (safe for red–green color-vision deficiency).",
-                "Dokumentierte IBCS-Abweichung: Teal statt Grün (sicher bei Rot-Grün-Sehschwäche).");
+            note.textContent = this.tr(this.varianceMode() === "blueOrange" ? "UI_LgBlueOrange" : "UI_LgTeal");
             bar.appendChild(note);
         }
-        const axes = document.createElement("span");
-        axes.style.cssText = "font-style:italic;";
-        axes.textContent = this.str("Δ axes encode the reference: gray = PY, double line = PL, dashed = FC.",
-            "Δ-Achsen kodieren die Referenz: grau = PY, Doppellinie = PL, gestrichelt = FC.");
-        bar.appendChild(axes);
+        // mega table: FC is never an axis there (it is the hatched minuend) —
+        // the note names only the references that really draw a Δ axis
+        let axesText = this.tr("UI_LgAxes");
+        if (mt) {
+            const ax = mRefs.filter(r => mt.d[r].bar || mt.d[r].wf || mt.d[r].pin);
+            axesText = ax.length === 2 ? this.tr("UI_LgAxesMegaBoth")
+                : ax[0] === "PY" ? this.tr("UI_LgAxesMegaPy") : ax[0] === "PL" ? this.tr("UI_LgAxesMegaPl") : "";
+        }
+        if (axesText) {
+            const axes = document.createElement("span");
+            axes.style.cssText = "font-style:italic;";
+            axes.textContent = this.relabel(axesText);
+            bar.appendChild(axes);
+        }
         return bar;
     }
 
@@ -2166,21 +4886,22 @@ export class Visual implements IVisual {
         const mi = this.mtdIndex();
         const mtdMonth = mi >= 0 ? this.monthLabel(months[mi]) : last;
         const ytdLabel = months.length > 0
-            ? `${this.yearPrefix(`${this.monthLabel(months[0])}..${last} (_${mtdMonth})`)} · ${this.str("year to date", "Jahresverlauf")}`
-            : this.str("current period", "aktueller Zeitraum");
-        const mtdLabel = `MTD ${mtdMonth} · ${this.str("month", "Monat")}`;
-        const fyLabel = `${fyYear} · ${this.str("outlook", "Ausblick")} AC&FC ${this.str("vs", "vs.")} PL`;
+            ? this.tr("UI_BlkYtd", this.yearPrefix(`${this.monthLabel(months[0])}..${last} (_${mtdMonth})`))
+            : this.tr("UI_BlkCurrent");
+        const mtdLabel = this.tr("UI_BlkMtd", mtdMonth);
+        const fyLabel = this.tr("UI_BlkFy", fyYear);
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
         const blocks: Block[] = [];
 
-        if (this.vw === "waterfall" || this.vw === "bars") {
+        const vw = this.view();
+        if (vw === "waterfall" || vw === "bars") {
             const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
-            const kind = this.vw === "waterfall" ? "wbar" : "vbar";
+            const kind = vw === "waterfall" ? "wbar" : "vbar";
             const mk = (block: "mtd" | "ytd" | "fy"): ColSpec[] => {
                 const specs: ColSpec[] = [];
                 const ref: Scenario = block === "fy" ? "plfy" : r;
                 const minuend: Scenario = block === "fy" ? "fcfy" : "ac";
-                if (this.vw === "waterfall") {
+                if (vw === "waterfall") {
                     if (this.has[ref]) { specs.push({ kind: "wbar", scen: ref, block, label: block === "fy" ? "PL" : ref.toUpperCase() }); }
                     specs.push({ kind: "wbar", scen: minuend, block, label: block === "fy" ? "AC&FC" : "AC" });
                 } else {
@@ -2192,7 +4913,7 @@ export class Visual implements IVisual {
                 }
                 return specs;
             };
-            if (this.vw === "waterfall" && ui.blocks.mtd && months.length > 1) {
+            if (vw === "waterfall" && ui.blocks.mtd && months.length > 1) {
                 blocks.push({ key: "mtd", label: mtdLabel, specs: mk("mtd") });
             }
             if (ui.blocks.ytd || blocks.length === 0 && !fyOn) {
@@ -2200,21 +4921,23 @@ export class Visual implements IVisual {
             }
             if (fyOn) { blocks.push({ key: "fy", label: fyLabel, specs: mk("fy") }); }
             void kind;
-            return blocks;
+            return this.relabelBlocks(blocks);
         }
 
         const rM = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
+        // 1.2 preset "custom": the value-column switches build every block
+        const custom = ui.preset === "custom";
         if (ui.blocks.mtd && months.length > 1) {
-            const mtd: ColSpec[] = [{ kind: "val", scen: "ac", block: "mtd", label: "AC" }];
-            if (this.has[rM]) {
+            const mtd: ColSpec[] = custom ? this.customSpecs("mtd", rM) : [{ kind: "val", scen: "ac", block: "mtd", label: "AC" }];
+            if (!custom && this.has[rM]) {
                 mtd.push({ kind: "val", scen: rM, block: "mtd", label: rM.toUpperCase() });
                 mtd.push({ kind: "bar", ref: rM, minuend: "ac", block: "mtd", label: `Δ${rM.toUpperCase()}` });
                 mtd.push({ kind: "pin", ref: rM, minuend: "ac", block: "mtd", label: `Δ${rM.toUpperCase()}%` });
             }
             blocks.push({ key: "mtd", label: mtdLabel, specs: mtd });
         }
-        const ytd: ColSpec[] = [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
-        if (ui.pctRev) { ytd.push({ kind: "pct", block: "ytd", label: "% Rev" }); }
+        const ytd: ColSpec[] = custom ? this.customSpecs("ytd", rM) : [{ kind: "val", scen: "ac", block: "ytd", label: "AC" }];
+        if (ui.pctRev && !custom) { ytd.push({ kind: "pct", block: "ytd", label: this.tr("UI_ColPctRev") }); }
         const fy: ColSpec[] = [];
         const push = (arr: ColSpec[], ref: Scenario, minuend: Scenario, withVal: boolean, valScen?: Scenario): void => {
             if (withVal && valScen) { arr.push({ kind: "val", scen: valScen, block: "ytd", label: valScen === "plfy" ? "PL" : valScen.toUpperCase() }); }
@@ -2253,10 +4976,71 @@ export class Visual implements IVisual {
         } else if (ui.preset === "dpct") {
             if (this.has.py) { ytd.push({ kind: "pin", ref: "py", minuend: "ac", block: "ytd", label: "ΔPY%" }); }
             if (this.has.pl) { ytd.push({ kind: "pin", ref: "pl", minuend: "ac", block: "ytd", label: "ΔPL%" }); }
+        } else if (custom && fyOn) {
+            // the FY outlook follows the switches as well: AC / FC → AC&FC (FC FY), PL → PL FY, Δ → ΔPL
+            const v = ui.vals;
+            if (v.ac || v.fc) { fy.push({ kind: "val", scen: "fcfy", block: "fy", label: "FC" }); }
+            if (v.pl) { fy.push({ kind: "val", scen: "plfy", block: "fy", label: "PL" }); }
+            if (v.d) {
+                fy.push({ kind: "bar", ref: "plfy", minuend: "fcfy", block: "fy", label: "ΔPL" });
+                fy.push({ kind: "pin", ref: "plfy", minuend: "fcfy", block: "fy", label: "ΔPL%" });
+            }
         }
-        blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
-        if (fy.length > 0) { blocks.push({ key: "fy", label: `${fyYear} · ${this.str("outlook (FC)", "Ausblick (FC)")}`, specs: fy }); }
-        return blocks;
+        // the YTD toggle hides the YTD block as soon as another block stays on
+        // screen (up to 1.0.0 the classic table ignored it); with nothing else
+        // left YTD stays — the toolbar shows that button as on and locked
+        if (ui.blocks.ytd || (blocks.length === 0 && fy.length === 0)) {
+            blocks.push({ key: "ytd", label: ytdLabel, specs: ytd });
+        }
+        if (fy.length > 0) { blocks.push({ key: "fy", label: this.tr("UI_BlkFyFc", fyYear), specs: fy }); }
+        // 1.2 column category: the column set of the YTD block (else the first
+        // block) repeats once per category value in front, under the value as
+        // group head; the blocks above follow as the total. % of revenue stays
+        // in the total block (its base row is a row of the whole statement).
+        if (this.catInView() && blocks.length > 0) {
+            const base = blocks.find(b => b.key === "ytd") ?? blocks[0];
+            const specs = base.specs.filter(c => c.kind !== "pct");
+            const cats: Block[] = this.catModels!.map((cm, i) => ({
+                key: base.key, label: cm.label, cat: i, specs: specs.map(c => ({ ...c, cat: i })),
+            }));
+            const total = blocks.map(b => ({ ...b, label: this.tr("UI_ColCatTotal", b.label) }));
+            return this.relabelBlocks([...cats, ...total]);
+        }
+        return this.relabelBlocks(blocks);
+    }
+
+    /**
+     * Columns of one block under the preset "custom" (1.2): every switched-on
+     * value column of a bound scenario in IBCS order AC · PY · PL · FC (% of
+     * revenue next to AC in the YTD block), then Δ bar + Δ% pin of AC against
+     * the Δ reference. A block never ends up empty — AC stays as the floor.
+     */
+    private customSpecs(block: "mtd" | "ytd", ref: Scenario): ColSpec[] {
+        const v = this.ui!.vals;
+        const out: ColSpec[] = [];
+        for (const sc of ["ac", "py", "pl", "fc"] as Scenario[]) {
+            if (!v[sc as keyof ValSet] || !this.has[sc]) { continue; }
+            out.push({ kind: "val", scen: sc, block, label: sc.toUpperCase() });
+            if (sc === "ac" && block === "ytd" && this.ui!.pctRev) {
+                out.push({ kind: "pct", block, label: this.tr("UI_ColPctRev") });
+            }
+        }
+        if (v.d && this.has[ref]) {
+            out.push({ kind: "bar", ref, minuend: "ac", block, label: `Δ${ref.toUpperCase()}` });
+            out.push({ kind: "pin", ref, minuend: "ac", block, label: `Δ${ref.toUpperCase()}%` });
+        }
+        if (out.length === 0) {
+            out.push({ kind: "val", scen: "ac", block, label: "AC" });
+            if (block === "ytd" && this.ui!.pctRev) { out.push({ kind: "pct", block, label: this.tr("UI_ColPctRev") }); }
+        }
+        return out;
+    }
+
+    /** which value columns / Δ the classic table shows right now (toggle states of the "Value columns" group) */
+    private shownVals(): ValSet {
+        const specs = this.colSpecs().filter(b => b.key !== "fy").flatMap(b => b.specs);
+        const val = (sc: Scenario): boolean => specs.some(c => c.kind === "val" && c.scen === sc);
+        return { ac: val("ac"), py: val("py"), pl: val("pl"), fc: val("fc"), d: specs.some(c => c.kind === "bar" || c.kind === "pin") };
     }
 
     /** the columns of all blocks in render order, gap columns in between */
@@ -2285,7 +5069,7 @@ export class Visual implements IVisual {
         const fscale = this.fontScale();
         const rowH = Math.round((compact ? 18 : 23) * fscale);
         const fs = Math.round((compact ? 10 : 11) * fscale);
-        const BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
+        let BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
         const PIN_HALF = Math.max(24 * k * fscale, FIT_PIN_HALF_MIN);
         const lk = Math.max(k, FIT_LABEL_MIN);
         const labelFs = fs * lk;
@@ -2300,7 +5084,6 @@ export class Visual implements IVisual {
         const laneSlack = (fscale - 1) * 3;
         const dLabelW = Math.ceil(gc.dLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
         const pLabelW = Math.ceil(gc.pLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
-        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
         const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
         const valW = Math.round((compact ? 66 : 76) * lk * fscale);
 
@@ -2311,10 +5094,27 @@ export class Visual implements IVisual {
             vLabelW = Math.ceil(gc.vLabelLen * (fs * 0.52 + laneSlack)) + 4;
             const full = (gc.wf.size > 0 ? (compact ? 190 : 240) : (compact ? 150 : 190)) * fscale;
             const span = Math.max(full * k, FIT_SPAN_MIN);
-            vPpu = span / ((gc.maxPosD + gc.maxNegD) || 1);
+            // scale sync (numbers.fixedMax): the value / cascade bars reach at least fixedMax
+            const posD = Math.max(gc.maxPosD, this.fixedMax() ?? 0);
+            vPpu = span / ((posD + gc.maxNegD) || 1);
             vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
         }
+        // 1.5: same unit, same scale — next to value bars or cascades the Δ
+        // bars take the value scale. Δ that reach the lane widen it; Δ that
+        // would stay below half a lane are magnified by a round factor
+        // (2 · 5 · 10 …) and say so in the head ("ΔPL ×5") and the scale note
+        let dPpu = 0; let dMag = 1;
+        if (vPpu > 0 && cols.some(c => c.kind === "bar") && maxAbsDelta > 0) {
+            const dSpan = maxAbsDelta * vPpu;
+            dPpu = vPpu;
+            if (dSpan >= BAR_HALF) { BAR_HALF = dSpan; }
+            else if (dSpan < BAR_HALF / 2) {
+                dMag = niceFactor(BAR_HALF / dSpan * (1 + 1e-9));
+                dPpu = vPpu * dMag;
+            }
+        }
+        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
 
         const gapW = Math.round(18 * fscale);
         let colsW = 0;
@@ -2325,6 +5125,7 @@ export class Visual implements IVisual {
                         : c.kind === "bar" ? barW : pinW);
         }
         return { rowH, fs, labelFs, barLabelFs, valLabelFs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta,
+            dPpu, dMag, pinZone: gc.pOver,
             vbarW, vAxisX, vPpu, vLabelW, gapW,
             sepExtraH: Math.round(SEP_EXTRA_H * fscale),
             sparkH: Math.round(SPARK_ROW_H * fscale), colsW };
@@ -2343,7 +5144,7 @@ export class Visual implements IVisual {
         const table = this.tableEl;
         const avail = this.root.clientWidth;
         if (!table || avail <= 0) { return false; }
-        const now = table.getBoundingClientRect().width;
+        const now = this.rect(table).width;
         const room = avail - 2 * TABLE_PAD_X;
         if (now <= room) { return false; }
         const cols = this.flatCols(this.colSpecs());
@@ -2383,6 +5184,7 @@ export class Visual implements IVisual {
         // waterfall view: cascade segments per scenario (tree order, expand-independent)
         this.wfSegs = gc.wf;
         const geo = this.tableGeo(cols, gc, maxAbsDelta, this.fitK, this.fitPad);
+        this.syncScaleNote(geo);
 
         // comment footnotes are numbered over ALL visible rows, not just the
         // rows currently in the DOM (windowed rendering)
@@ -2450,22 +5252,49 @@ export class Visual implements IVisual {
      */
     private geoScans(cols: ColSpec[], fmt: Fmt): GeoCache {
         const model = this.model!;
-        const sig = cols.map(c => `${c.kind}${c.scen ?? ""}${c.ref ?? ""}${c.minuend ?? ""}${c.block ?? ""}`).join(",");
+        const sig = cols.map(c => `${c.kind}${c.scen ?? ""}${c.ref ?? ""}${c.minuend ?? ""}${c.block ?? ""}${c.cat ?? ""}`).join(",");
         const num = this.settings.numbersCard;
-        const key = [this.scanKey(), sig, fmt.div, fmt.suffix,
-            num.decimals.value, num.pctDecimals.value, this.locale].join("~");
+        const keyParts: (string | number | boolean)[] = [this.scanKey(), sig, fmt.div, fmt.suffix,
+            num.decimals.value, num.pctDecimals.value, this.locale];
+        // 1.2 triangle marks widen the value scale of the bars view
+        if (this.settings.columnsCard.barTriangles.value) { keyParts.push("tri"); }
+        const key = keyParts.join("~");
         if (this.geoCache && this.geoCache.key === key) { return this.geoCache; }
 
-        let dLabelLen = 2; let pLabelLen = 3;
+        let dLabelLen = 2; let pLabelLen = 3; let pOver = false;
         for (const node of model.byId.values()) {
             if (node.row.rowType === "kpi") { continue; }
             for (const c of cols) {
+                if (c.cat != null) { continue; }
                 if (c.kind === "bar") {
                     const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                     if (v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
                 } else if (c.kind === "pin") {
                     const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(this.capPct(v.deltaPct), true) + "▸").length); }
+                    // the lane must hold the label the pin really prints: the
+                    // UNCAPPED Δ% (+ the overflow marker) — deltaPinCell only
+                    // caps the needle at ±40%, never the number. Measuring the
+                    // capped value sized the lane for "+40.0%▸" and clipped
+                    // "+220.0%▸" (p2). Within ±40% nothing changes.
+                    if (v.deltaPct != null) {
+                        pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length);
+                        if (Math.abs(v.deltaPct) > 0.4) { pOver = true; }
+                    }
+                }
+            }
+        }
+        // 1.2 column categories: their Δ labels share the lane widths
+        for (const c of cols) {
+            if (c.cat == null || (c.kind !== "bar" && c.kind !== "pin")) { continue; }
+            const cm = this.catModels?.[c.cat];
+            if (!cm) { continue; }
+            for (const node of cm.model.byId.values()) {
+                if (node.row.rowType === "kpi") { continue; }
+                const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
+                if (c.kind === "bar" && v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
+                if (c.kind === "pin" && v.deltaPct != null) {
+                    pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length);
+                    if (Math.abs(v.deltaPct) > 0.4) { pOver = true; }
                 }
             }
         }
@@ -2497,7 +5326,12 @@ export class Visual implements IVisual {
             }
         } else if (cols.some(c => c.kind === "vbar")) {
             const scens = new Set<Scenario>();
-            for (const c of cols) { if (c.kind === "vbar") { scens.add(c.scen!); scens.add(c.ref!); } }
+            for (const c of cols) {
+                if (c.kind !== "vbar") { continue; }
+                scens.add(c.scen!); scens.add(c.ref!);
+                // 1.2 triangle marks: their scenarios share the value scale
+                for (const t of this.barTriScens(c)) { scens.add(t); }
+            }
             for (const node of model.byId.values()) {
                 if (node.row.rowType === "kpi" || node.row.rowType === "separator") { continue; }
                 for (const sc of scens) {
@@ -2509,7 +5343,7 @@ export class Visual implements IVisual {
             }
         }
 
-        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf };
+        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf, pOver };
         return this.geoCache;
     }
 
@@ -2564,14 +5398,14 @@ export class Visual implements IVisual {
             for (let i = 0; i < src.length; i++) {
                 const d = dst[i] as HTMLElement;
                 d.style.visibility = "visible";
-                d.style.width = (src[i] as HTMLElement).getBoundingClientRect().width.toFixed(2) + "px";
+                d.style.width = this.rect(src[i] as HTMLElement).width.toFixed(2) + "px";
                 d.style.boxSizing = "border-box";
                 d.style.overflow = "hidden";
             }
             wrap.appendChild(clone);
         }
-        const rb = this.root.getBoundingClientRect();
-        const tb = table.getBoundingClientRect();
+        const rb = this.rect(this.root);
+        const tb = this.rect(table);
         wrap.style.left = (tb.left - rb.left + this.root.scrollLeft).toFixed(2) + "px";
         this.floatTop = topOffset;
         this.root.appendChild(wrap);
@@ -2604,7 +5438,7 @@ export class Visual implements IVisual {
         return row;
     }
 
-    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number }): HTMLElement {
+    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number; dMag: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         const gapFs = this.headerFs(9);
@@ -2622,7 +5456,10 @@ export class Visual implements IVisual {
                 const style = c.scen === "ac" ? "ac" : c.scen === "py" ? "py" : (c.scen === "fc" || c.scen === "fcfy") ? "fc" : "pl";
                 cell.appendChild(this.legendChip(style as "ac"));
             }
-            cell.appendChild(document.createTextNode(c.label));
+            // 1.5 scaling indicator: Δ bars magnified against the value bars
+            const mag = c.kind === "bar" && geo.dMag > 1 ? " ×" + geo.dMag : "";
+            cell.appendChild(document.createTextNode(c.label + mag));
+            if (mag) { cell.setAttribute("data-pnl", "scale-mag"); }
             row.appendChild(cell);
         }
         return row;
@@ -2671,6 +5508,8 @@ export class Visual implements IVisual {
             name.style.cursor = "pointer";
             name.onclick = toggle;
             name.appendChild(chev);
+            // keyboard (1.1): the label cell is the fold control — Tab, Enter / Space
+            this.kbFold(name, open, node.row.name, toggle);
         }
         // small account id (only when it differs from the display name and is not synthetic)
         const rid = node.row.id;
@@ -2687,7 +5526,7 @@ export class Visual implements IVisual {
         if (node.error) {
             const err = document.createElement("span");
             err.style.cssText = `color:${this.badColor()};font-size:${this.kpx(8.5)};`;
-            err.textContent = " ⚠ " + node.error;
+            err.textContent = " ⚠ " + this.trMsg(node.error);
             name.appendChild(err);
         }
         if (node.row.comment) {
@@ -2697,7 +5536,7 @@ export class Visual implements IVisual {
                 mark.style.cssText = `color:${C.comment};font-size:${this.kpx(9.5)};` +
                     `margin-left:${this.kpx(5)};cursor:default;`;
                 mark.textContent = String.fromCharCode(0x2460 + n - 1);
-                mark.title = node.row.comment;
+                // the comment text travels in the row tooltip (1.1)
                 name.appendChild(mark);
             }
         }
@@ -2708,8 +5547,7 @@ export class Visual implements IVisual {
             inc.style.cssText = `color:${C.loading};font-size:${this.kpx(9.5)};` +
                 `margin-left:${this.kpx(5)};cursor:default;`;
             inc.textContent = "≈";
-            inc.title = this.str("value still incomplete — data is loading",
-                "Wert noch unvollständig — Daten werden geladen");
+            inc.title = this.tr("UI_Incomplete");
             name.appendChild(inc);
         }
         // 12M sparkline chip
@@ -2719,14 +5557,14 @@ export class Visual implements IVisual {
             chip.textContent = `${this.model!.months.length}M`;
             chip.style.cssText = `font-size:${this.kpx(8)};margin-left:${this.kpx(6)};` +
                 `padding:0 ${this.kpx(4)};cursor:pointer;border-radius:2px;` +
-                (active ? `background:${C.ac};color:#FFF;` : `border:1px solid ${C.gridSoft};color:${C.soft};`);
+                (active ? `background:${C.ac};color:${C.onInk};` : `border:1px solid ${C.gridSoft};color:${C.soft};`);
             chip.onclick = (e) => {
                 e.stopPropagation();
                 if (active) { ui.spark = ui.spark.filter(id => id !== node.row.id); }
                 else { ui.spark.push(node.row.id); }
                 this.persistUi(); this.rerender();
             };
-            chip.title = this.str("Toggle monthly sparkline", "Monats-Sparkline umschalten");
+            chip.title = this.tr("UI_SparkTip");
             name.appendChild(chip);
         }
         row.appendChild(name);
@@ -2738,9 +5576,11 @@ export class Visual implements IVisual {
         if (canSelect) {
             this.bindSelect(row, node, false);
             row.setAttribute("data-pnl-row", node.row.id);
-            const cap = this.selCapNote(node);
-            if (cap !== "") { row.title = this.str("Selection", "Selektion") + cap; }
         }
+        // one tooltip for the whole row — name, scenarios, Δ, comment (1.1)
+        const tipBlock = (cols.find(c => c.block === "ytd") ?? cols.find(c => c.block != null))?.block ?? "ytd";
+        this.bindTip(row, node, () => this.tipItems(node, fmt, tipBlock, null));
+        const mat = this.materiality();
         const selected = canSelect && this.isSelected(node);
         if (selected) { row.setAttribute("data-pnl-sel", "1"); }
         const accent = this.accent();
@@ -2749,11 +5589,16 @@ export class Visual implements IVisual {
         for (const c of cols) {
             if (c.kind === "gap") { row.appendChild(this.cell(geo.gapW, "center", geo.fs)); continue; }
             let cell: HTMLElement;
-            if (c.kind === "val") {
+            if (c.cat != null) {
+                // 1.2 column category: the same row in that category's model
+                cell = this.catCell(node, c, fmt, geo, isSum, isRatio, mat);
+                if (lineTop && c.kind !== "val") { cell.style.borderTop = `1px solid ${C.line}`; }
+            } else if (c.kind === "val") {
                 cell = this.cell(geo.valW, "right", geo.fs);
                 cell.style.cssText += "font-variant-numeric:tabular-nums;";
                 if (isSum) { cell.style.fontWeight = "600"; }
-                const bv = this.blockDisplay(node, c.block ?? "ytd", c.scen!);
+                const bv = isRatio ? this.blockDisplay(node, c.block ?? "ytd", c.scen!)
+                    : this.valDisplay(node, c.block ?? "ytd", c.scen!, fmt);
                 cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
             } else if (c.kind === "vbar") {
                 cell = this.valueBarCell(node, c, geo, fmt, isSum, isRatio);
@@ -2770,17 +5615,20 @@ export class Visual implements IVisual {
                     ? fmt.pct(Math.abs(v / base)) : "";
             } else {
                 const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
+                // below materiality (columns.materialityAbs / Pct): soft ink; margin rows are exempt
+                const soft = !isRatio && mat(v.delta, v.deltaPct);
                 if (isRatio) {
                     cell = this.cell(c.kind === "bar" ? geo.barW : geo.pinW, "center", geo.fs - 1);
                     if (c.kind === "bar" && v.delta != null) {
                         cell.style.color = v.good ? this.goodColor() : this.badColor();
                         cell.style.fontStyle = "italic";
-                        cell.textContent = (v.delta > 0 ? "+" : "") + fmt.pct(v.delta).replace("%", "pp");
+                        cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
                     }
                 } else if (c.kind === "bar") {
-                    cell = this.deltaBarCell(v, c, geo, fmt);
+                    cell = this.deltaBarCell(v, c, geo, fmt, soft,
+                        this.ssDelta(node, c.block ?? "ytd", c.ref!, c.minuend!, fmt));
                 } else {
-                    cell = this.deltaPinCell(v, c, geo, fmt);
+                    cell = this.deltaPinCell(v, c, geo, fmt, soft);
                 }
                 if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }
             }
@@ -2796,6 +5644,13 @@ export class Visual implements IVisual {
         // sum rules that sit on TOP of a subtotal row. The other rows keep their
         // look — dimming a whole statement to mark one line would make the page
         // restless and would touch the IBCS data ink
+        // highlight band (columns.highlight, IBCS EMPHASIZE): ink at 7 % over every column
+        if (this.isHighlighted(node)) {
+            row.setAttribute("data-pnl-hl", "1");
+            const band = this.inkAlpha(0.07);
+            const kids = row.children;
+            for (let i = 0; i < kids.length; i++) { (kids[i] as HTMLElement).style.background = band; }
+        }
         if (selected) {
             const wash = this.accentSoft(0.94);
             const kids = row.children;
@@ -2806,6 +5661,39 @@ export class Visual implements IVisual {
             }
         }
         return row;
+    }
+
+    /**
+     * One cell of a column-category block (1.2): value, Δ bar or Δ% pin of the
+     * row as its category model computes it — same notation, same uniform Δ
+     * scale. A row the category does not carry stays empty. Sum-safe rounding
+     * is a property of the total block and is not applied here.
+     */
+    private catCell(node: PnlNode, c: ColSpec, fmt: Fmt, geo: TableGeo, isSum: boolean, isRatio: boolean,
+        mat: (d: number | null, p: number | null) => boolean): HTMLElement {
+        const w = c.kind === "val" || c.kind === "pct" ? geo.valW : c.kind === "bar" ? geo.barW : geo.pinW;
+        const n = this.catNode(c.cat!, node);
+        if (!n) { return this.cell(w, c.kind === "val" ? "right" : "left", geo.fs); }
+        if (c.kind === "val") {
+            const cell = this.cell(geo.valW, "right", geo.fs);
+            cell.style.cssText += "font-variant-numeric:tabular-nums;";
+            if (isSum) { cell.style.fontWeight = "600"; }
+            const bv = this.blockDisplay(n, c.block ?? "ytd", c.scen!);
+            cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
+            return cell;
+        }
+        const v = this.blockVariance(n, c.block ?? "ytd", c.ref!, c.minuend!);
+        if (isRatio) {
+            const cell = this.cell(c.kind === "bar" ? geo.barW : geo.pinW, "center", geo.fs - 1);
+            if (c.kind === "bar" && v.delta != null) {
+                cell.style.color = v.good ? this.goodColor() : this.badColor();
+                cell.style.fontStyle = "italic";
+                cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
+            }
+            return cell;
+        }
+        const soft = mat(v.delta, v.deltaPct);
+        return c.kind === "bar" ? this.deltaBarCell(v, c, geo, fmt, soft) : this.deltaPinCell(v, c, geo, fmt, soft);
     }
 
     /** reference-scenario axis per IBCS: gray = PY, double line = PL, dashed = FC */
@@ -2830,21 +5718,24 @@ export class Visual implements IVisual {
         p.setAttribute("patternUnits", "userSpaceOnUse");
         p.setAttribute("patternTransform", "rotate(45)");
         const r = document.createElementNS(ns, "rect");
-        r.setAttribute("width", "4"); r.setAttribute("height", "4"); r.setAttribute("fill", "#FFF");
+        r.setAttribute("width", "4"); r.setAttribute("height", "4"); r.setAttribute("fill", C.paper);
         const l = document.createElementNS(ns, "rect");
         l.setAttribute("width", "1.8"); l.setAttribute("height", "4"); l.setAttribute("fill", color);
         p.appendChild(r); p.appendChild(l); defs.appendChild(p); svg.appendChild(defs);
     }
 
     private deltaBarCell(v: { delta: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt): HTMLElement {
+        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number; dPpu: number }, fmt: Fmt,
+        soft = false, labelDelta: number | null = null): HTMLElement {
         const cell = this.cell(geo.barW, "left", geo.fs);
         if (v.delta == null) { return cell; }
         const w = geo.barW - 8; const h = geo.rowH - 4; const mid = w / 2;
-        const frac = geo.maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / geo.maxAbsDelta, 1) : 0;
+        // next to value bars / cascades the value scale (1.5), else the uniform Δ scale
+        const frac = geo.dPpu > 0 ? Math.min(Math.abs(v.delta) * geo.dPpu / geo.BAR_HALF, 1)
+            : geo.maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / geo.maxAbsDelta, 1) : 0;
         const len = Math.max(frac * geo.BAR_HALF, v.delta === 0 ? 0 : 1.5);
         const x = v.delta >= 0 ? mid : mid - len;
-        const color = v.good ? this.goodColor() : this.badColor();
+        const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
@@ -2865,23 +5756,31 @@ export class Visual implements IVisual {
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
         txt.setAttribute("font-size", String(geo.barLabelFs)); txt.setAttribute("font-family", FONT);
-        txt.setAttribute("fill", v.good ? this.goodColor() : this.badColor());
-        txt.textContent = fmt.val(v.delta, true);
+        txt.setAttribute("fill", color);
+        // sum-safe rounding: the label is the difference of the printed values
+        txt.textContent = fmt.val(labelDelta ?? v.delta, true);
         svg.appendChild(txt);
         cell.appendChild(svg);
         return cell;
     }
 
     private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number }, fmt: Fmt): HTMLElement {
+        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number; pinZone: boolean }, fmt: Fmt,
+        soft = false): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
         if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
         const cap = 0.4;
         const clamped = this.capPct(v.deltaPct);
-        const px = mid + (clamped / cap) * geo.PIN_HALF;
         const overflow = Math.abs(v.deltaPct) > cap;
-        const color = v.good ? this.goodColor() : this.badColor();
+        // 1.5 (IBCS UN 5.3): with an outlier anywhere in the table, ±40 % take
+        // the inner 80 % of the lane; a pin beyond runs on into the outlier
+        // zone, is cut by a break mark and ends in a triangle — before, it
+        // stopped exactly where +40 % stops
+        const reg = geo.pinZone ? geo.PIN_HALF * 0.8 : geo.PIN_HALF;
+        const dir = v.deltaPct >= 0 ? 1 : -1;
+        const px = overflow && geo.pinZone ? mid + dir * geo.PIN_HALF : mid + (clamped / cap) * reg;
+        const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
         svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h));
@@ -2892,22 +5791,41 @@ export class Visual implements IVisual {
         needle.setAttribute("y1", String(h / 2)); needle.setAttribute("y2", String(h / 2));
         needle.setAttribute("stroke", color); needle.setAttribute("stroke-width", "1.4");
         svg.appendChild(needle);
-        const head = document.createElementNS(ns, "circle");
-        head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
-        head.setAttribute("r", overflow ? "2" : "2.8");
-        // pin head carries the minuend's scenario fill (IBCS): FC → outlined
-        if (c.minuend === "fcfy") {
-            head.setAttribute("fill", "#FFF"); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
-        } else { head.setAttribute("fill", color); }
-        svg.appendChild(head);
+        let tip = px;
+        if (overflow && geo.pinZone) {
+            // break mark just past the regular maximum, triangle in growth direction
+            const xb = mid + dir * (reg + 2);
+            const brk = document.createElementNS(ns, "path");
+            brk.setAttribute("d", [0, 2.5].map(o => `M${xb + dir * o - 1.5},${h / 2 + 3} L${xb + dir * o + 1.5},${h / 2 - 3}`).join(" "));
+            brk.setAttribute("stroke", C.paper); brk.setAttribute("stroke-width", "1.4"); brk.setAttribute("fill", "none");
+            brk.setAttribute("data-pnl", "pin-break");
+            svg.appendChild(brk);
+            const tw = 4.5;
+            const tri = document.createElementNS(ns, "path");
+            tri.setAttribute("d", `M${px + dir * tw},${h / 2} L${px},${h / 2 - 3.2} L${px},${h / 2 + 3.2} Z`);
+            tri.setAttribute("fill", color);
+            tri.setAttribute("data-pnl", "pin-outlier");
+            svg.appendChild(tri);
+            tip = px + dir * tw;
+        } else {
+            const head = document.createElementNS(ns, "circle");
+            head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
+            head.setAttribute("r", overflow ? "2" : "2.8");
+            // pin head carries the minuend's scenario fill (IBCS): FC → outlined
+            if (c.minuend === "fcfy") {
+                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
+            } else { head.setAttribute("fill", color); }
+            svg.appendChild(head);
+        }
         const txt = document.createElementNS(ns, "text");
         const anchor = v.deltaPct >= 0 ? "start" : "end";
-        const tx = v.deltaPct >= 0 ? Math.max(px + 4, mid + 4) : Math.min(px - 4, mid - 4);
+        const tx = v.deltaPct >= 0 ? Math.max(tip + 4, mid + 4) : Math.min(tip - 4, mid - 4);
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
         txt.setAttribute("font-size", String(geo.barLabelFs)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", color);
-        txt.textContent = fmt.pct(v.deltaPct, true) + (overflow ? "▸" : "");
+        // the triangle marks the outlier; without the zone the "▸" of 1.4 stays
+        txt.textContent = fmt.pct(v.deltaPct, true) + (overflow && !geo.pinZone ? "▸" : "");
         svg.appendChild(txt);
         cell.appendChild(svg);
         return cell;
@@ -2919,37 +5837,19 @@ export class Visual implements IVisual {
      * Children cascade inside their parent's segment. Expand-state independent.
      */
     private cascadeSegments(read: (n: PnlNode) => number | null): Map<string, { s: number; e: number }> {
-        const segs = new Map<string, { s: number; e: number }>();
-        const walkChildren = (node: PnlNode, start: number): void => {
-            let cum = start;
-            for (const c of node.children) {
-                const t = c.row.rowType;
-                if (t === "kpi" || t === "separator") { continue; }
-                const v = read(c);
-                if (t === "formula") { continue; } // nested formulas: no cascade segment
-                if (v == null) { continue; }
-                segs.set(c.row.id, { s: cum, e: cum + v });
-                walkChildren(c, cum);
-                cum += v;
-            }
+        // the shared cascade geometry of waterfall.ts in parent-first ("value")
+        // mode: root formulas anchor, nested formulas carry no segment
+        const node = (n: PnlNode, root: boolean): CascadeNode => {
+            const t = n.row.rowType;
+            const skip = t === "kpi" || t === "separator" || (!root && t === "formula");
+            return {
+                id: n.row.id,
+                value: skip ? null : read(n),
+                anchor: root && t === "formula",
+                children: skip ? [] : n.children.map(c => node(c, false)),
+            };
         };
-        let rootCum = 0;
-        for (const r of this.model!.roots) {
-            const t = r.row.rowType;
-            if (t === "kpi" || t === "separator") { continue; }
-            const v = read(r);
-            if (v == null) { continue; }
-            if (t === "formula") {
-                segs.set(r.row.id, { s: 0, e: v });
-                walkChildren(r, 0);
-                rootCum = v;
-            } else {
-                segs.set(r.row.id, { s: rootCum, e: rootCum + v });
-                walkChildren(r, rootCum);
-                rootCum += v;
-            }
-        }
-        return segs;
+        return cascade(this.model!.roots.map(r => node(r, true)), "value");
     }
 
     /** row-waterfall cell: floating segment or anchor bar in scenario notation */
@@ -2988,7 +5888,7 @@ export class Visual implements IVisual {
         rect.setAttribute("x", String(x0)); rect.setAttribute("y", "2");
         rect.setAttribute("width", String(Math.max(x1 - x0, 1)));
         rect.setAttribute("height", String(h - 4));
-        const fill = scen === "ac" ? C.ac : scen === "py" ? C.py : isPlan ? "#FFF" : `url(#${pid})`;
+        const fill = scen === "ac" ? C.ac : scen === "py" ? C.py : isPlan ? C.paper : `url(#${pid})`;
         rect.setAttribute("fill", fill);
         if (isPlan || hatch) { rect.setAttribute("stroke", C.ac); rect.setAttribute("stroke-width", "1"); }
         svg.appendChild(rect);
@@ -3035,6 +5935,16 @@ export class Visual implements IVisual {
         return cell;
     }
 
+    /**
+     * 1.2 bars view: the scenarios a value-bar column marks with triangles —
+     * every further bound scenario (PY · PL · FC) except the reference that
+     * already draws a bar. The FY block has its one pair (AC&FC vs PL FY).
+     */
+    private barTriScens(c: ColSpec): Scenario[] {
+        if (!this.settings.columnsCard.barTriangles.value || c.kind !== "vbar" || c.block === "fy") { return []; }
+        return (["py", "pl", "fc"] as Scenario[]).filter(sc => sc !== c.ref && this.has[sc]);
+    }
+
     /** structure view: horizontal AC (or FC) bar with the reference scenario behind it */
     private valueBarCell(node: PnlNode, c: ColSpec,
         geo: { rowH: number; fs: number; valLabelFs: number; vbarW: number; vAxisX: number; vPpu: number },
@@ -3069,16 +5979,55 @@ export class Visual implements IVisual {
             if (stroke) { rect.setAttribute("stroke", stroke); rect.setAttribute("stroke-width", "1"); }
             svg.appendChild(rect);
         };
-        // reference behind (IBCS comparison: subtrahend behind the minuend)
-        if (r != null) {
-            const refIsPlan = c.ref === "pl" || c.ref === "plfy";
-            bar(r, 1.5, h - 3, refIsPlan ? "#FFF" : C.py, refIsPlan ? C.ac : null);
+        const cc = this.settings.columnsCard;
+        const overlap = cc.barOverlap.value;
+        const tris = this.barTriScens(c).map(sc => ({ sc, v: displayValue(node, sc) })).filter(t => t.v != null);
+        // 1.2 triangle marks sit in a strip above the bars — the bars give up that strip
+        const triS = tris.length > 0 ? Math.max(3.5, Math.min(6, (h - 3) * 0.3)) : 0;
+        const top = 1.5 + (triS > 0 ? triS + 0.5 : 0);
+        const band = h - 1.5 - top;
+        const refIsPlan = c.ref === "pl" || c.ref === "plfy";
+        // the new modes draw the reference in full scenario notation (FC hatched);
+        // the default path keeps its 1.1 pixels
+        const notation = overlap || triS > 0;
+        const refFc = c.ref === "fc";
+        if (notation && refFc && r != null) { this.hatchPattern(svg, ns, pid + "r", C.ac); }
+        const refFill = refIsPlan ? C.paper : refFc ? `url(#${pid}r)` : C.py;
+        const refStroke = refIsPlan || refFc ? C.ac : null;
+        if (overlap) {
+            // 1.2 ChartKitchen notation: equal bars, OFFSET instead of nested —
+            // the reference behind (top), AC in front (bottom) at full strength
+            const bh = band * 0.78;
+            if (r != null) { bar(r, top, bh, refFill, refStroke); }
+            if (v != null) { bar(v, top + band - bh, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null); }
+        } else {
+            // reference behind (IBCS comparison: subtrahend behind the minuend)
+            if (r != null) {
+                if (notation) { bar(r, top, band, refFill, refStroke); }
+                else { bar(r, 1.5, h - 3, refIsPlan ? C.paper : C.py, refIsPlan ? C.ac : null); }
+            }
+            // minuend on top, narrower (AC solid / FC hatched)
+            if (v != null) {
+                const bh = (triS > 0 ? band : h - 3) * 0.58;
+                const y = triS > 0 ? top + (band - bh) / 2 : (h - bh) / 2;
+                bar(v, y, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null);
+            }
         }
-        // minuend on top, narrower (AC solid / FC hatched)
-        if (v != null) {
-            const bh = (h - 3) * 0.58;
-            const y = (h - bh) / 2;
-            bar(v, y, bh, hatch ? `url(#${pid})` : C.ac, hatch ? C.ac : null);
+        // 1.2 triangle marks: one per further scenario, tip down at its value (CK drawPyTriangle)
+        for (const t of tris) {
+            const x = geo.vAxisX + t.v! * geo.vPpu;
+            const poly = document.createElementNS(ns, "polygon");
+            poly.setAttribute("data-pnl", "bar-tri-" + t.sc);
+            poly.setAttribute("points", `${x - triS * 0.8},${top - triS} ${x + triS * 0.8},${top - triS} ${x},${top}`);
+            // shape notation, not colour alone: PY filled gray, PL hollow, FC hatched
+            let fill: string = C.py; let stroke: string = C.soft;
+            if (t.sc === "pl") { fill = C.paper; stroke = C.ac; }
+            else if (t.sc === "fc") { this.hatchPattern(svg, ns, pid + "t", C.ac); fill = `url(#${pid}t)`; stroke = C.ac; }
+            poly.setAttribute("fill", fill);
+            poly.setAttribute("stroke", stroke);
+            poly.setAttribute("stroke-width", t.sc === "py" ? "0.8" : "1");
+            poly.setAttribute("stroke-linejoin", "round");
+            svg.appendChild(poly);
         }
         // structure baseline
         const axis = document.createElementNS(ns, "line");
@@ -3086,10 +6035,11 @@ export class Visual implements IVisual {
         axis.setAttribute("y1", "0"); axis.setAttribute("y2", String(h));
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         svg.appendChild(axis);
-        // AC label outside the longer of both bars, in growth direction
+        // AC label outside the longer of both bars (and the triangle marks), in growth direction
         const lv = v ?? r;
         if (lv != null) {
-            const extent = Math.max(Math.abs(v ?? 0), Math.abs(r ?? 0)) * geo.vPpu;
+            const extent = Math.max(Math.abs(v ?? 0), Math.abs(r ?? 0),
+                ...tris.filter(t => (t.v! >= 0) === (lv >= 0)).map(t => Math.abs(t.v!) + triS * 0.8 / (geo.vPpu || 1))) * geo.vPpu;
             const txt = document.createElementNS(ns, "text");
             const tx = lv >= 0 ? geo.vAxisX + extent + 3 : geo.vAxisX - extent - 3;
             txt.setAttribute("x", String(tx));
@@ -3171,7 +6121,7 @@ export class Visual implements IVisual {
         if (!model || model.roots.length === 0) { return null; }
         if (this.totalNode == null || this.totalVer !== this.modelVer) {
             const n = syntheticTotal(model);
-            n.row.name = this.str("Total", "Gesamt");
+            n.row.name = this.tr("UI_Total");
             this.totalNode = n;
             this.totalVer = this.modelVer;
         }
@@ -3327,9 +6277,9 @@ export class Visual implements IVisual {
         const picked = this.treeLookup(ui.treeRoot, resolve);
         let root = picked ?? home;
         if (!root) { return null; }
-        // the Sankey cannot pour a ratio: a KPI root (net margin …) hands the
-        // flow to its first value operand (net income …) — breadcrumb, re-root
-        // and tile view keep reading the same rows as the tree does
+        // 1.6 the Sankey cannot pour a ratio: a KPI root (net margin …) hands
+        // the flow to its first value operand (net income …) — breadcrumb,
+        // re-root and tile view keep reading the same rows as the tree does
         if (flow) { root = this.flowRoot(root, resolve); }
 
         const rootCard = this.treeCards(root, resolve);
@@ -3380,10 +6330,10 @@ export class Visual implements IVisual {
     }
 
     /**
-     * First value row under a KPI / ratio root, depth first along the operand
-     * order — `[Net income]/[Net revenue]` flows from Net income. A root that
-     * already carries values is its own flow root; a ratio over ratios only is
-     * kept (the Sankey then says it has nothing to pour).
+     * 1.6: first value row under a KPI / ratio root, depth first along the
+     * operand order — `[Net income]/[Net revenue]` flows from Net income. A
+     * root that already carries values is its own flow root; a ratio over
+     * ratios only is kept (the Sankey then says it has nothing to pour).
      */
     private flowRoot(root: PnlNode, resolve: (id: string) => PnlNode | undefined): PnlNode {
         const seen = new Set<string>();
@@ -3458,7 +6408,7 @@ export class Visual implements IVisual {
         const a = Math.abs(scaled);
         const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
-        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
     }
 
     private fitLabel(s: string, maxW: number, fs: number): string {
@@ -3647,7 +6597,7 @@ export class Visual implements IVisual {
     private treeScenFill(scen: Scenario, hatch: string): { fill: string; stroke: string | null } {
         if (scen === "py") { return { fill: C.refGray, stroke: null }; }
         if (scen === "fc" || scen === "fcfy") { return { fill: `url(#${hatch})`, stroke: C.ac }; }
-        return { fill: "#FFF", stroke: C.ac };
+        return { fill: this.cardPaper(), stroke: C.ac };
     }
 
     /**
@@ -3662,6 +6612,52 @@ export class Visual implements IVisual {
      * three value labels are drawn — first, last and the absolute extremum —
      * and only the outer periods carry a tag.
      */
+    /**
+     * 1.5 (IBCS 2.0 / ISO 24896, UN 5.2): the scale a card chart of the tree
+     * draws at. `key` = unit + card mode ("amt:months", "pct:delta" …). In the
+     * measuring pass (treeScl.collect) the card records its own fit (px per
+     * unit); while drawing it gets the shared scale of its unit — the smallest
+     * fit, so every card fits — or, when its data would cover less than a
+     * quarter of its room at that scale, a round multiple (2 · 5 · 10 …) that
+     * the card names as "×5". Outside a tree (hover zoom, tile) treeScl is
+     * null: the chart keeps its own fit.
+     */
+    private treeScaleOf(key: string, fit: number, extent: number, room: number): { ppu: number; mag: number } {
+        const sc = this.treeScl;
+        if (!sc || !isFinite(fit) || fit <= 0) { return { ppu: fit, mag: 1 }; }
+        if (sc.collect) {
+            sc.fit.set(key, Math.min(sc.fit.get(key) ?? Infinity, fit));
+            return { ppu: fit, mag: 1 };
+        }
+        const shared = Math.min(sc.fit.get(key) ?? fit, fit);
+        if (extent * shared < 0.25 * room && fit >= 2 * shared * (1 - 1e-9)) {
+            const m = niceFactor(fit / shared * (1 + 1e-9));
+            if (m >= 2) { sc.mags++; return { ppu: shared * m, mag: m }; }
+        }
+        return { ppu: shared, mag: 1 };
+    }
+
+    /** 1.5: the scaling indicator of a magnified card chart — "×5" in its top right corner */
+    private treeMagMark(g: SVGGElement, box: { x: number; y: number; w: number; h: number }, mag: number, s: number): void {
+        if (mag <= 1) { return; }
+        const ns = "http://www.w3.org/2000/svg";
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", (box.x + box.w).toFixed(2));
+        t.setAttribute("y", (box.y + 6.5 * s).toFixed(2));
+        t.setAttribute("text-anchor", "end");
+        t.setAttribute("font-size", (7 * s).toFixed(1));
+        t.setAttribute("font-family", FONT);
+        t.setAttribute("font-weight", "600");
+        t.setAttribute("fill", C.soft);
+        t.setAttribute("data-pnl", "tree-mag");
+        t.setAttribute("data-factor", String(mag));
+        t.textContent = "×" + mag;
+        const tt = document.createElementNS(ns, "title");
+        tt.textContent = this.tr("UI_TreeMagTip", mag);
+        t.appendChild(tt);
+        g.appendChild(t);
+    }
+
     private treeMini(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement, rightInset: number): void {
         const ns = "http://www.w3.org/2000/svg";
@@ -3680,8 +6676,11 @@ export class Visual implements IVisual {
         if (max === min) { max = min + 1; }
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
-        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":months", (bot - top) / (max - min), max - min, bot - top);
+        const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
+        this.treeMagMark(g, box, sc.mag, s);
 
         const rect = (x: number, w: number, v: number, fill: string, stroke: string | null, sw: number): void => {
             const y = Math.min(yOf(v), zeroY);
@@ -3811,8 +6810,11 @@ export class Visual implements IVisual {
         if (max === min) { max = min + 1; }
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
-        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":delta", (bot - top) / (max - min), max - min, bot - top);
+        const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
+        this.treeMagMark(g, box, sc.mag, s);
 
         // label the one or two biggest swings only, and never two neighbours —
         // adjacent labels are exactly the crowding this mode avoids
@@ -3883,8 +6885,11 @@ export class Visual implements IVisual {
         const availW = Math.max(box.w - labW - valW - rightInset, 8 * s);
         const lo = Math.min(0, acv ?? 0, refv ?? 0);
         const hi = Math.max(0, acv ?? 0, refv ?? 0);
-        const S = availW / ((hi - lo) || 1);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":bridge", availW / ((hi - lo) || 1), (hi - lo) || 1, availW);
+        const S = sc.ppu;
         const xz = x0 + (0 - lo) * S;
+        this.treeMagMark(g, { x: box.x, y: box.y - 1.5 * s, w: box.w, h: box.h }, sc.mag, s);
         const xOf = (v: number): number => xz + v * S;
 
         const rows = refv != null ? 3 : 1;
@@ -3942,7 +6947,7 @@ export class Visual implements IVisual {
         if (refv != null) {
             const isPlan = ref === "pl";
             const isFc = ref === "fc";
-            const fill = isPlan ? "#FFF" : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
+            const fill = isPlan ? this.cardPaper() : isFc ? `url(#${this.treeHatchId(svg)})` : C.py;
             bar(yR, refv, fill, isPlan || isFc ? C.ac : null);
             rowLabel(yR, ref.toUpperCase(), C.soft, false);
             valLabel(yR, refv, texts[0], C.soft, false);
@@ -4033,6 +7038,7 @@ export class Visual implements IVisual {
      */
     private treeZoomShow(node: PnlNode, anchor: Element, fmt: Fmt): void {
         this.treeZoomHide();
+        this.applyPalette();
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
         const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
@@ -4041,7 +7047,7 @@ export class Visual implements IVisual {
         const box = document.createElement("div");
         box.style.cssText = `position:absolute;z-index:40;width:${W}px;background:${this.cardBg()};` +
             `border:1px solid ${C.cardEdge};border-radius:6px;` +
-            `box-shadow:0 6px 20px rgba(15,30,46,.16);` +
+            `box-shadow:${C.zoomShadow};` +
             `padding:${this.kpx(12)} ${this.kpx(14)} ${this.kpx(8)} ${this.kpx(14)};` +
             `pointer-events:none;font-family:${FONT};box-sizing:border-box;`;
 
@@ -4094,11 +7100,13 @@ export class Visual implements IVisual {
             draw(g, svg);
         };
         const zs = 1.15 * zk;
-        caption(this.str(`Months — AC solid, ${refUp} behind`, `Monate — AC solide, ${refUp} dahinter`));
+        // 1.5: the hover zoom is a magnifying glass — its charts keep their own scale, and say so
+        caption(this.tr("UI_ZoomOwnScale"));
+        caption(this.tr("UI_CapMonths", refUp));
         chart(this.k(104), (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: this.k(100) }, zs, fmt, svg, 0));
-        caption(`Δ${refUp} ` + this.str("per month", "je Monat"));
+        caption(this.tr("UI_CapDelta", refUp));
         chart(this.k(72), (g) => this.treeMiniDelta(g, node, { x: 0, y: 2, w: inner, h: this.k(68) }, zs, fmt, 0));
-        caption(this.str(`Bridge ${refUp} → Δ → AC (YTD)`, `Brücke ${refUp} → Δ → AC (YTD)`));
+        caption(this.tr("UI_CapBridge", refUp));
         chart(this.k(84), (g, svg) => this.treeMiniBridge(g, node, { x: 0, y: 2, w: inner, h: this.k(80) }, zs, fmt, svg, 0));
 
         if (node.row.comment) {
@@ -4111,14 +7119,14 @@ export class Visual implements IVisual {
         if (node.error) {
             const er = document.createElement("div");
             er.style.cssText = `font-size:${this.kpx(9)};color:${this.badColor()};margin-top:4px;`;
-            er.textContent = "⚠ " + node.error;
+            er.textContent = "⚠ " + this.trMsg(node.error);
             box.appendChild(er);
         }
 
         // ---- place next to the card, clamped to the visible viewport
         this.root.appendChild(box);
-        const ar = anchor.getBoundingClientRect();
-        const rr = this.root.getBoundingClientRect();
+        const ar = this.rect(anchor);
+        const rr = this.rect(this.root);
         const bh = box.offsetHeight;
         let left = ar.right - rr.left + this.root.scrollLeft + 10;
         if (left + W > this.root.scrollLeft + this.root.clientWidth - 6) {
@@ -4232,7 +7240,7 @@ export class Visual implements IVisual {
         shade.setAttribute("y", (card.y + 1.5).toFixed(2));
         shade.setAttribute("width", geo.cw.toFixed(2)); shade.setAttribute("height", cardH.toFixed(2));
         shade.setAttribute("rx", "5"); shade.setAttribute("fill", "none");
-        shade.setAttribute("stroke", "rgba(15,30,46,.06)"); shade.setAttribute("stroke-width", "2");
+        shade.setAttribute("stroke", C.shadeRest); shade.setAttribute("stroke-width", "2");
         g.appendChild(shade);
         // crisp 1 px edge without moving the card: the renderer snaps the stroke
         // to the pixel grid, the geometry the bus lines rely on stays exact
@@ -4248,11 +7256,11 @@ export class Visual implements IVisual {
         const selCard = this.isSelected(card.node) && this.selectable(card.node);
         g.addEventListener("mouseenter", () => {
             if (!selCard) { box.setAttribute("stroke", C.cardEdgeHover); }
-            shade.setAttribute("stroke", "rgba(15,30,46,.10)");
+            shade.setAttribute("stroke", C.shadeHover);
         });
         g.addEventListener("mouseleave", () => {
             if (!selCard) { box.setAttribute("stroke", C.cardEdge); }
-            shade.setAttribute("stroke", "rgba(15,30,46,.06)");
+            shade.setAttribute("stroke", C.shadeRest);
         });
 
         const pad = (card.compact ? 6 : 8) * s;
@@ -4304,7 +7312,7 @@ export class Visual implements IVisual {
             hitR.setAttribute("fill", "#FFF"); hitR.setAttribute("fill-opacity", "0.01");
             rr.appendChild(hitR);
             const rt = document.createElementNS(ns, "title");
-            rt.textContent = this.str("Show as root", "Als Wurzel anzeigen");
+            rt.textContent = this.tr("UI_ShowRoot");
             rr.appendChild(rt);
             rr.style.cursor = "pointer";
             rr.onclick = (e: Event): void => {
@@ -4384,7 +7392,7 @@ export class Visual implements IVisual {
                 geo.cw - 2 * pad - (vColor ? 3 * s : 0) - (card.hasKids ? 20 * s : 0), vfs);
             g.appendChild(v);
             const mt = this.treeMonthsTip(card.node, geo.fmt);
-            const err = card.node.error ? " ⚠ " + card.node.error : "";
+            const err = card.node.error ? " ⚠ " + this.trMsg(card.node.error) : "";
             if (mt !== "" || err !== "") {
                 const bt = document.createElementNS(ns, "title");
                 bt.textContent = card.node.row.name + (mt === "" ? "" : " · " + mt) + err;
@@ -4424,8 +7432,7 @@ export class Visual implements IVisual {
         zoomHit.setAttribute("fill", "#FFF"); zoomHit.setAttribute("fill-opacity", "0.01");
         zoomHit.style.cursor = "pointer";
         const zt = document.createElementNS(ns, "title");
-        zt.textContent = this.str("Open the tile view of this driver",
-            "Kachel-Ansicht dieses Treibers öffnen");
+        zt.textContent = this.tr("UI_OpenTile");
         zoomHit.appendChild(zt);
         zoomHit.onclick = (e: Event): void => {
             e.stopPropagation();
@@ -4441,7 +7448,7 @@ export class Visual implements IVisual {
             e.setAttribute("font-size", (7 * s).toFixed(1));
             e.setAttribute("font-family", FONT);
             e.setAttribute("fill", this.badColor());
-            e.textContent = this.fitLabel("⚠ " + card.node.error, geo.cw - 2 * pad, 7 * s);
+            e.textContent = this.fitLabel("⚠ " + this.trMsg(card.node.error), geo.cw - 2 * pad, 7 * s);
             g.appendChild(e);
         }
 
@@ -4458,11 +7465,7 @@ export class Visual implements IVisual {
             badge.setAttribute("fill", C.soft);
             badge.textContent = "+" + card.moreKids;
             const bt = document.createElementNS(ns, "title");
-            bt.textContent = this.str(
-                `Card budget reached — ${card.moreKids} more branches not drawn. ` +
-                "Use ⌖ to open this limb as its own tree.",
-                `Kartenbudget erreicht — ${card.moreKids} weitere Zweige nicht gezeichnet. ` +
-                "Mit ⌖ diesen Ast als eigenen Baum öffnen.");
+            bt.textContent = this.tr("UI_Budget", card.moreKids);
             badge.appendChild(bt);
             g.appendChild(badge);
         }
@@ -4478,7 +7481,7 @@ export class Visual implements IVisual {
             hit.setAttribute("width", (16 * s).toFixed(2));
             hit.setAttribute("height", (12.5 * s).toFixed(2));
             hit.setAttribute("rx", (2 * s).toFixed(2));
-            hit.setAttribute("fill", "#FFF");
+            hit.setAttribute("fill", this.cardPaper());
             hit.setAttribute("stroke", C.ctlEdge);
             hit.setAttribute("stroke-width", "1");
             const ch = document.createElementNS(ns, "text");
@@ -4491,8 +7494,8 @@ export class Visual implements IVisual {
             ch.textContent = card.collapsed ? "▸" : "▾";
             const ct = document.createElementNS(ns, "title");
             ct.textContent = card.collapsed
-                ? this.str("Expand (Shift: whole limb)", "Aufklappen (Shift: ganzer Ast)")
-                : this.str("Collapse", "Zuklappen");
+                ? this.tr("UI_Expand")
+                : this.tr("UI_Collapse");
             ch.appendChild(ct);
             const toggle = (e: Event): void => this.treeToggle(card, e as MouseEvent);
             hit.style.cursor = "pointer"; ch.style.cursor = "pointer";
@@ -4516,6 +7519,35 @@ export class Visual implements IVisual {
         // hover zoom: after a short dwell the card opens its IBCS detail view
         this.treeHoverZoom(g, card.node, geo.fmt);
         return g;
+    }
+
+    /**
+     * ▸ / ▾ of a tree card or a Sankey label (shared since 1.6): a plain click
+     * opens or folds exactly this node — its children keep their own
+     * remembered fold state; Shift opens the whole limb below it.
+     */
+    private treeToggle(card: TreeCard, e: MouseEvent): void {
+        e.stopPropagation();
+        const ui = this.ui!;
+        const ctx = this.treeCtx;
+        const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
+        const id = card.node.row.id;
+        if (cur.has(id)) {
+            cur.delete(id);
+            if (e.shiftKey) {
+                const done = new Set<string>();
+                const stack = [id];
+                while (stack.length > 0) {
+                    const n = stack.pop()!;
+                    if (done.has(n)) { continue; }
+                    done.add(n);
+                    cur.delete(n);
+                    for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+                }
+            }
+        } else { cur.add(id); }
+        ui.treeCollapsed = [...cur];
+        this.persistUi(); this.rerender();
     }
 
     /** breadcrumb over a path of cards: every segment but the last is a jump */
@@ -4624,7 +7656,7 @@ export class Visual implements IVisual {
         const path = this.treeZoomPath(ctx, node);
         if (path.length > 1) {
             const crumbs = this.treeBreadcrumb(path, (n) => { ui.treeZoom = n.row.id; },
-                this.str("Zoom into this card", "Auf diese Karte zoomen"));
+                this.tr("UI_ZoomInto"));
             crumbs.style.margin = "0";
             head.appendChild(crumbs);
         }
@@ -4669,7 +7701,7 @@ export class Visual implements IVisual {
         const tile = document.createElement("div");
         tile.setAttribute("data-pnl", "zoom-center");
         tile.style.cssText = `flex:1 1 ${w}px;min-width:0;background:${this.cardBg()};box-sizing:border-box;` +
-            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${SHADOW};` +
+            `border:1px solid ${C.cardEdge};border-radius:6px;box-shadow:${C.shadow};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
             `padding:${this.kpx(16)} ${this.kpx(16)} ${this.kpx(12)} ${this.kpx(16)};`;
         // right click anywhere on the tile opens the native menu of this row
@@ -4687,8 +7719,7 @@ export class Visual implements IVisual {
         // the charts below it stay reading surface, not controls
         if (this.selectable(node)) {
             nm.style.cursor = "pointer";
-            nm.title = this.str("Set the page selection to this row",
-                "Seiten-Selektion auf diese Zeile setzen") + this.selCapNote(node);
+            nm.title = this.tr("UI_SetSel") + this.selCapNote(node);
             this.bindSelect(nm, node, true);
             if (this.isSelected(node)) {
                 nm.setAttribute("data-pnl-sel", "1");
@@ -4745,11 +7776,7 @@ export class Visual implements IVisual {
         if (isRatio) {
             // percentages do not add up: no bridge, no stacked total — the
             // monthly comparison plus the grid is the honest picture here
-            note(this.str(
-                `Ratio row — percentages are not additive: no bridge and no AC+FC stack. `
-                + `Months AC solid, ${refUp} offset behind, Δ${refUp} in the grid.`,
-                `Quotenzeile — Prozente sind nicht additiv: keine Brücke, kein AC+FC-Stapel. `
-                + `Monate AC solide, ${refUp} versetzt dahinter, Δ${refUp} im Grid.`));
+            note(this.tr("UI_RatioNote", refUp));
             const h = Math.max(Math.round(this.zoomChartH * 0.55), Math.round(150 * k));
             chart(h, (g, svg) => this.treeMini(g, node,
                 { x: 1, y: 4, w: inner - 2, h: h - 30 }, 1.5 * k * sc, fmt, svg, 0));
@@ -4758,16 +7785,28 @@ export class Visual implements IVisual {
             chart(h, (g, svg) => this.treeZoomCombo(g, node,
                 { x: 1, y: 2, w: inner - 2, h: h - 6 }, 1.25 * k * sc, fmt, svg));
         }
+        // 1.5: the tile is a magnifying glass of one card — its chart keeps its
+        // own scale and says so in its top right corner (no extra line: the
+        // tile is fitted to the page height)
+        const zsvgs = tile.querySelectorAll("svg");
+        const zsvg = zsvgs.length ? zsvgs[zsvgs.length - 1] : null;
+        if (zsvg) {
+            const t = document.createElementNS(ns, "text");
+            t.setAttribute("x", String(inner - 2)); t.setAttribute("y", String(Math.round(9 * k)));
+            t.setAttribute("text-anchor", "end");
+            t.setAttribute("font-size", (8 * k).toFixed(1));
+            t.setAttribute("font-family", FONT);
+            t.setAttribute("fill", C.soft);
+            t.setAttribute("data-pnl", "zoom-own-scale");
+            t.textContent = this.tr("UI_ZoomOwnScale");
+            zsvg.appendChild(t);
+        }
         const skipped = isRatio ? 0 : this.treeMissingMonths(node);
         if (skipped > 0) {
             // months without actuals and without a forecast are not zero months:
             // they carry no step, no column and no pin, and the comparison the
             // badge reports runs over the months that do have data
-            note(this.str(
-                `${skipped} month(s) without AC or FC are left out — bridge, Δ% pins and the total `
-                + `compare only the months that carry data.`,
-                `${skipped} Monat(e) ohne AC und FC bleiben außen vor — Brücke, Δ%-Pins und der `
-                + `Gesamtvergleich rechnen nur mit den Monaten, die Daten tragen.`));
+            note(this.tr("UI_Skipped", skipped));
         }
         tile.appendChild(this.treeScenGrid(node, fmt, this.zoomChartH < ZOOM_GRID_COMPACT * k));
 
@@ -4781,7 +7820,7 @@ export class Visual implements IVisual {
         if (node.error) {
             const er = document.createElement("div");
             er.style.cssText = `font-size:${this.kpx(9.5)};color:${this.badColor()};margin-top:4px;`;
-            er.textContent = "⚠ " + node.error;
+            er.textContent = "⚠ " + this.trMsg(node.error);
             tile.appendChild(er);
         }
         return tile;
@@ -4802,8 +7841,8 @@ export class Visual implements IVisual {
         // section head in the very type style of the toolbar group labels, and
         // on the same optical line as the head of the big tile next to it
         const title = this.capsLabel(side === "parents"
-            ? this.str("Feeds into", "Zahlt ein auf")
-            : this.str("Driven by", "Getrieben von"));
+            ? this.tr("UI_FeedsInto")
+            : this.tr("UI_DrivenBy"));
         title.style.margin = `0 0 ${this.kpx(8)} 0`;
         title.style.flex = "0 0 auto";
         col.appendChild(title);
@@ -4826,10 +7865,8 @@ export class Visual implements IVisual {
             const hint = document.createElement("div");
             hint.style.cssText = `font-size:${this.kpx(10)};color:${C.soft};line-height:1.5;`;
             hint.textContent = side === "parents"
-                ? this.str("Top of the tree — no row builds on this one.",
-                    "Spitze des Baums — keine Zeile baut auf dieser auf.")
-                : this.str("No drivers — this row is a posted account.",
-                    "Keine Treiber — diese Zeile ist ein gebuchtes Konto.");
+                ? this.tr("UI_TopOfTree")
+                : this.tr("UI_NoDrivers");
             col.appendChild(hint);
             return col;
         }
@@ -4841,9 +7878,16 @@ export class Visual implements IVisual {
         list.style.cssText = "flex:1 1 auto;min-height:0;position:relative;" +
             "overflow-y:auto;overflow-x:hidden;";
         const more = items.length - TREE_ZOOM_CARDS_MAX;
-        for (const it of items.slice(0, TREE_ZOOM_CARDS_MAX)) {
+        // 1.5: the micro cards of a column share one scale per unit (measuring
+        // pass first, magnified cards say "×5"), like the cards of the tree
+        const shown = items.slice(0, TREE_ZOOM_CARDS_MAX);
+        this.treeScl = { collect: true, fit: new Map(), mags: 0 };
+        for (const it of shown) { this.treeMicroCard(it.node, it.op, fmt, w, side); }
+        this.treeScl.collect = false;
+        for (const it of shown) {
             list.appendChild(this.treeMicroCard(it.node, it.op, fmt, w, side));
         }
+        this.treeScl = null;
 
         const arrow = (dir: -1 | 1): HTMLElement => {
             const b = document.createElement("button");
@@ -4898,7 +7942,7 @@ export class Visual implements IVisual {
             up.style.display = above ? "block" : "none";
             up.textContent = "▲";
             down.style.display = hidden > 0 ? "block" : "none";
-            down.textContent = `▼ ${hidden} ` + this.str("more", "weitere");
+            down.textContent = "▼ " + this.tr("UI_More", hidden);
         };
         this.pagerSync.push(sync);
 
@@ -4909,7 +7953,7 @@ export class Visual implements IVisual {
         if (more > 0) {
             const rest = document.createElement("div");
             rest.style.cssText = `font-size:${this.kpx(9.5)};color:${C.soft};flex:0 0 auto;padding-top:4px;`;
-            rest.textContent = `+${more} ` + this.str("more", "weitere");
+            rest.textContent = "+" + this.tr("UI_More", more);
             col.appendChild(rest);
         }
         return col;
@@ -4928,10 +7972,10 @@ export class Visual implements IVisual {
 
         const card = document.createElement("div");
         card.setAttribute("data-pnl", side === "parents" ? "zoom-parent" : "zoom-child");
-        card.title = this.str("Zoom into this card", "Auf diese Karte zoomen");
+        card.title = this.tr("UI_ZoomInto");
         card.style.cssText = `background:${this.cardBg()};border:1px solid ${C.cardEdge};` +
             (edge ? `border-left:3px solid ${edge};` : "") +
-            `border-radius:4px;box-shadow:${SHADOW};transition:${TRANSITION};` +
+            `border-radius:4px;box-shadow:${C.shadow};transition:${TRANSITION};` +
             `padding:${this.kpx(8)} ${this.kpx(8)} ${this.kpx(7)} ${this.kpx(8)};` +
             `margin-bottom:${this.k(MICRO_CARD_GAP)}px;` +
             "cursor:pointer;box-sizing:border-box;";
@@ -4943,8 +7987,8 @@ export class Visual implements IVisual {
             if (!edge) { card.style.borderLeftColor = c; }
         };
         const selMicro = this.isSelected(node) && this.selectable(node);
-        const rest = selMicro ? `0 0 0 2px ${this.accent()}` : SHADOW;
-        card.onmouseenter = (): void => { sides(C.cardEdgeHover); card.style.boxShadow = SHADOW_HOVER; };
+        const rest = selMicro ? `0 0 0 2px ${this.accent()}` : C.shadow;
+        card.onmouseenter = (): void => { sides(C.cardEdgeHover); card.style.boxShadow = C.shadowHover; };
         card.onmouseleave = (): void => { sides(C.cardEdge); card.style.boxShadow = rest; };
 
         const head = document.createElement("div");
@@ -5133,8 +8177,7 @@ export class Visual implements IVisual {
         const sideW = fcSum !== 0 ? lfs * 2.1 : 0;
         const bandEnd = box.x + box.w - badgeW - 8 * s - sideW - totW - 14 * s;
         if (bandEnd - bandStart < Math.max(n, 1) * 6) {
-            this.treeHint(g, box, s, this.str("Not enough width for the bridge",
-                "Zu wenig Breite für die Brücke"));
+            this.treeHint(g, box, s, this.tr("UI_NoWidth"));
             return;
         }
         const slots = Math.max(n, 1);
@@ -5219,7 +8262,7 @@ export class Visual implements IVisual {
             if (weight) { t.setAttribute("font-weight", weight); }
             // a number sitting on a hatched fill needs a paper halo to stay legible
             if (halo) {
-                t.setAttribute("stroke", "#FFF"); t.setAttribute("stroke-width", "2.6");
+                t.setAttribute("stroke", this.cardPaper()); t.setAttribute("stroke-width", "2.6");
                 t.setAttribute("paint-order", "stroke"); t.setAttribute("stroke-linejoin", "round");
             }
             t.textContent = txt;
@@ -5252,9 +8295,7 @@ export class Visual implements IVisual {
         const catEvery = Math.max(1, Math.ceil((5 * cfs * 0.6 + 4 * s) / Math.max(step, 1)));
 
         // ---------------- caption
-        label(box.x, box.y + hfs, this.str(
-            `${refUp} → AC${fcSum !== 0 ? "/FC" : ""} · bridge + monthly columns`,
-            `${refUp} → AC${fcSum !== 0 ? "/FC" : ""} · Brücke + Monatssäulen`),
+        label(box.x, box.y + hfs, this.tr("UI_ComboCaption", refUp, fcSum !== 0 ? "/FC" : ""),
         hfs, C.soft, "start", "600");
 
         // ---------------- Δ% pin row
@@ -5272,7 +8313,7 @@ export class Visual implements IVisual {
                 const yEnd = pct >= 0 ? pinAxisY - h : pinAxisY + h;
                 line(x, pinAxisY, x, yEnd, color, 2);
                 const r = Math.max(2.2, 2.6 * s);
-                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? "#FFF" : color, color, 1)
+                rect(x - r, yEnd - r, 2 * r, 2 * r, hollow ? this.cardPaper() : color, color, 1)
                     .setAttribute("data-pnl", "combo-pin");
                 label(x, pct >= 0 ? yEnd - r - 2.5 * s : yEnd + r + lfs,
                     fmt.pct(pct, true), lfs, color);
@@ -5423,7 +8464,7 @@ export class Visual implements IVisual {
             label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
                 "middle", undefined, true);
             label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
-            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, "#FFF");
+            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, C.onInk);
             label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
         }
         label(cxTot, yOf(vTot) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
@@ -5433,7 +8474,7 @@ export class Visual implements IVisual {
         const bh = lfs + 9 * s;
         const bcx = box.x + box.w - badgeW / 2;
         const bcy = Math.min(Math.max((yOf(refSum) + yOf(vTot)) / 2, plotTop + bh / 2), yBase - bh / 2);
-        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, "#FFF", totColor, 1.6);
+        const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, this.cardPaper(), totColor, 1.6);
         bg.setAttribute("rx", (bh / 2).toFixed(2));
         bg.setAttribute("data-pnl", "combo-badge");
         label(bcx, bcy + lfs * 0.36, badge, lfs, totColor, "middle", "600");
@@ -5466,14 +8507,7 @@ export class Visual implements IVisual {
             const hint = document.createElement("div");
             hint.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.55;` +
                 `padding:10px 0;max-width:${this.k(620)}px;`;
-            hint.textContent = this.str(
-                "The driver tree needs rows to grow from — an account or dimension hierarchy, or a formula / "
-                + "KPI row that references other rows (e.g. [EBIT]/[Net revenue]). Bind the level or account "
-                + "field first; a root row named in the format pane starts the tree at that card instead.",
-                "Der Treiberbaum braucht Zeilen, aus denen er wächst — eine Konten- oder Dimensions-Hierarchie "
-                + "oder eine Formel-/KPI-Zeile, die andere Zeilen referenziert (z. B. [EBIT]/[Umsatz]). Zuerst "
-                + "das Ebenen- oder Kontofeld zuweisen; eine im Format-Pane genannte Wurzelzeile startet den "
-                + "Baum stattdessen an dieser Karte.");
+            hint.textContent = this.tr("UI_TreeNeedsRows");
             wrap.appendChild(hint);
             return wrap;
         }
@@ -5519,23 +8553,15 @@ export class Visual implements IVisual {
             wrap.appendChild(this.treeBreadcrumb(ctx.path, (node, i) => {
                 ui.treeRoot = i === 0 ? "" : node.row.id;
                 ui.treeCollapsed = null;
-            }, this.str("Back to this card", "Zurück zu dieser Karte")));
+            }, this.tr("UI_BackToCard")));
         }
 
         const note = document.createElement("div");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
-        note.textContent = this.str(
-            "Value driver tree — ▾ opens and closes one node (Shift: whole limb), ⌖ makes a card the root, "
-            + "hovering a card zooms into its IBCS detail view, clicking its chart opens the tile view.",
-            "Werttreiberbaum — ▾ klappt einen Knoten auf und zu (Shift: ganzer Ast), ⌖ macht eine Karte zur "
-            + "Wurzel, Hover über einer Karte öffnet die IBCS-Detailansicht, ein Klick auf ihr Diagramm die "
-            + "Kachel-Ansicht.")
-            + (this.interactive() ? this.str(
-                " Right-click a card for the context menu (drillthrough); in the tile view “↗ Drill” sets the "
-                + "selection and opens the targets.",
-                " Rechtsklick auf eine Karte öffnet das Kontextmenü (Drillthrough); in der Kachel-Ansicht "
-                + "setzt „↗ Drill“ die Selektion und öffnet die Ziele.") : "");
-        wrap.appendChild(note);
+        note.textContent = this.tr("UI_TreeHint")
+            + (this.interactive() ? this.tr("UI_TreeHintInteract") : "");
+        // 1.5: folded control bars take the hint line along (the cards keep their ×n marks)
+        if (!this.tbFolded()) { wrap.appendChild(note); }
 
         const ns = "http://www.w3.org/2000/svg";
         const pad = 6;
@@ -5567,7 +8593,7 @@ export class Visual implements IVisual {
             const cx = half(cxRaw); const cy = half(cyRaw);
             const c = document.createElementNS(ns, "circle");
             c.setAttribute("cx", cx.toFixed(2)); c.setAttribute("cy", cy.toFixed(2));
-            c.setAttribute("r", r.toFixed(2)); c.setAttribute("fill", "#FFF");
+            c.setAttribute("r", r.toFixed(2)); c.setAttribute("fill", C.paper);
             c.setAttribute("stroke", C.ac); c.setAttribute("stroke-width", "1");
             inner.appendChild(c);
             const t = document.createElementNS(ns, "text");
@@ -5605,24 +8631,49 @@ export class Visual implements IVisual {
                 });
             }
         }
+        // 1.5: one scale per unit across the cards — a measuring pass on a
+        // detached svg collects every card's own fit, the drawing pass then
+        // uses the smallest one (magnified cards say "×5")
+        this.treeScl = { collect: true, fit: new Map(), mags: 0 };
+        const scratch = document.createElementNS(ns, "svg") as SVGSVGElement;
+        for (const c of all) {
+            if (!c.compact) { this.treeCardG(c, { cw, s, fmt, svg: scratch }, false); }
+        }
+        this.treeScl.collect = false;
         for (const c of all) {
             // any branching card can become the root — formula rows as well as
             // subtotals that open into their account hierarchy
             inner.appendChild(this.treeCardG(c, { cw, s, fmt, svg }, c !== rootCard && c.hasKids));
         }
+        const mags = this.treeScl.mags;
+        this.treeScl = null;
+        // the hint line names the rule — and the magnified cards when there are any
+        note.textContent += " " + this.tr(mags > 0 ? "UI_TreeScaleMag" : "UI_TreeScale");
+        note.setAttribute("data-pnl", "tree-scale-note");
         wrap.appendChild(svg);
         return wrap;
     }
 
-    // ---------------- sankey (v0.18) ----------------
+    // ---------------- Sankey flow view (1.6) ----------------
 
-    /** a hex colour mixed towards white by `t` (0 = itself, 1 = white); null when not hex */
-    private tint(color: string, t: number): string | null {
-        const hex = color.replace("#", "");
-        if (!/^[0-9a-fA-F]{6}$/.test(hex)) { return null; }
+    /**
+     * A #RGB / #RRGGBB colour mixed towards `toward` by `t` (0 = itself, 1 =
+     * `toward`) — the bands are the node colour lifted towards the paper, so
+     * in dark mode they sink into the dark ground instead of glowing white.
+     * Null when either colour is no hex value.
+     */
+    private tint(color: string, t: number, toward: string): string | null {
+        const hex6 = (c: string): string | null => {
+            let h = (c || "").trim().replace("#", "");
+            if (/^[0-9a-f]{3}$/i.test(h)) { h = h.split("").map(ch => ch + ch).join(""); }
+            return /^[0-9a-f]{6}$/i.test(h) ? h : null;
+        };
+        const a = hex6(color); const b = hex6(toward);
+        if (!a || !b) { return null; }
         const mix = (i: number): number => {
-            const c = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
-            return Math.round(c + (255 - c) * t);
+            const c = parseInt(a.slice(i * 2, i * 2 + 2), 16);
+            const p = parseInt(b.slice(i * 2, i * 2 + 2), 16);
+            return Math.round(c + (p - c) * t);
         };
         return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
     }
@@ -5705,7 +8756,7 @@ export class Visual implements IVisual {
         const mk = (card: TreeCard, col: number, role: "in" | "out", parent: SkNode | null,
             costSide: boolean, anchor: number): SkNode => {
             const fv = this.flowValue(card.node);
-            let fam: "gray" | "good" | "bad" = "gray";
+            let fam: SkFam = "gray";
             if (role === "out") { fam = "bad"; }
             else if (!costSide && this.flowDeducts(card.node, resolve)) { fam = "good"; }
             const n: SkNode = {
@@ -5715,7 +8766,7 @@ export class Visual implements IVisual {
             nodes.push(n);
             return n;
         };
-        const famOf = (src: SkNode | null, tgt: SkNode | null): "gray" | "good" | "bad" => {
+        const famOf = (src: SkNode | null, tgt: SkNode | null): SkFam => {
             if (src?.role === "out" || tgt?.role === "out") { return "bad"; }
             if (src == null || tgt == null) { return "gray"; }
             return tgt.fam;
@@ -5792,12 +8843,14 @@ export class Visual implements IVisual {
     }
 
     /**
-     * Sankey view (v0.18): the driver-tree graph as a flow from left to right —
+     * Sankey view (1.6): the driver-tree graph as a flow from left to right —
      * revenue components on the left, the profit strand running to the bottom
-     * line on the right, costs branching off downwards into their own red end
+     * line on the right, costs branching off downwards into their own end
      * nodes. Bar and ribbon heights are proportional to the period-matched AC
      * on one common scale. A deliberate addition outside the IBCS notation;
      * clicking a node opens the IBCS tile view, a right click the host menu.
+     * Dark mode lifts the bands towards the dark paper; high contrast draws
+     * the three colour families as patterns (solid · outlined/hatched · dashed/dotted).
      */
     private buildSankey(fmt: Fmt): HTMLElement {
         const ui = this.ui!;
@@ -5807,30 +8860,19 @@ export class Visual implements IVisual {
         const ctx = this.treeCtx;
         const hint = (text: string): HTMLElement => {
             const h = document.createElement("div");
+            h.setAttribute("data-pnl", "sankey-empty");
             h.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.55;` +
                 `padding:10px 0;max-width:${this.k(620)}px;`;
             h.textContent = text;
             wrap.appendChild(h);
             return wrap;
         };
-        if (!ctx) {
-            return hint(this.str(
-                "The Sankey needs rows to flow from — an account or dimension hierarchy, or formula rows that "
-                + "add and subtract other rows (e.g. [Net revenue]+[Cost of sales]). Bind the level or account field first.",
-                "Der Sankey braucht Zeilen, aus denen er fließt — eine Konten- oder Dimensions-Hierarchie oder "
-                + "Formelzeilen, die andere Zeilen addieren und abziehen (z. B. [Umsatz]+[Herstellkosten]). "
-                + "Zuerst das Ebenen- oder Kontofeld zuweisen."));
-        }
-        if (ctx.root.row.rowType === "kpi") {
-            return hint(this.str(
-                "The root is a ratio without a value row underneath — a ratio cannot be poured. Pick a value row "
-                + "as the root (format pane or the tree's ⌖).",
-                "Die Wurzel ist eine Quote ohne Wertzeile darunter — eine Quote lässt sich nicht als Fluss "
-                + "zeichnen. Eine Wertzeile als Wurzel wählen (Format-Pane oder ⌖ im Baum)."));
-        }
+        if (!ctx) { return hint(this.tr("UI_SankeyNeedsRows")); }
+        if (ctx.root.row.rowType === "kpi") { return hint(this.tr("UI_SankeyRatioRoot")); }
 
         const resolve = ctx.resolve;
         const { nodes, bands } = this.sankeyGraph(ctx.rootCard, resolve);
+        // comment footnotes follow the nodes on screen (numbering in reading order)
         this.treeComments(nodes.map(n => n.card));
 
         // ---- head: breadcrumb (re-rooted), then the hint line
@@ -5838,22 +8880,18 @@ export class Visual implements IVisual {
             wrap.appendChild(this.treeBreadcrumb(ctx.path, (node, i) => {
                 ui.treeRoot = i === 0 ? "" : node.row.id;
                 ui.treeCollapsed = null;
-            }, this.str("Back to this card", "Zurück zu dieser Karte")));
+            }, this.tr("UI_BackToCard")));
         }
         const unit = (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
-        const ytdLbl = this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`;
+        const ytdLbl = this.relabel(this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`);
         const note = document.createElement("div");
         note.setAttribute("data-pnl", "sankey-hint");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
-        note.textContent = this.str(
-            `Sankey — AC ${ytdLbl}${unit ? " in " + unit : ""}, bar and band height ∝ value, % of revenue in brackets. `
-            + "Clicking a node opens its tile view, hovering shows the IBCS detail, ▾ folds a branch (Shift: whole limb).",
-            `Sankey — AC ${ytdLbl}${unit ? " in " + unit : ""}, Balken- und Bandhöhe ∝ Wert, in Klammern % vom Umsatz. `
-            + "Klick auf einen Knoten öffnet die Kachel-Ansicht, Hover die IBCS-Detailansicht, ▾ klappt einen Ast "
-            + "(Shift: ganzer Ast).")
-            + (this.interactive() ? this.str(" Right-click a node for the context menu (drillthrough).",
-                " Rechtsklick auf einen Knoten öffnet das Kontextmenü (Drillthrough).") : "");
-        wrap.appendChild(note);
+        note.textContent = this.tr("UI_SankeyHint",
+            this.relabel(unit ? this.tr("UI_SankeyHead", ytdLbl, unit) : this.tr("UI_SankeyHeadNoUnit", ytdLbl)))
+            + (this.interactive() ? this.tr("UI_SankeyHintInteract") : "");
+        // 1.5: folded control bars take the hint line along (as in the tree)
+        if (!this.tbFolded()) { wrap.appendChild(note); }
 
         // ---- percent basis: the %-of-revenue row, if it is part of a P&L flow;
         // a plain hierarchy (or a root outside revenue) reads against its root
@@ -5880,8 +8918,9 @@ export class Visual implements IVisual {
             n.side = nCols === 1 || n.col === maxCol ? "right" : n.col === minCol ? "left" : "top";
         }
 
-        // stage height the flow is fitted into (head and hint above it, footer below)
-        const headH = this.headEl ? this.headEl.getBoundingClientRect().height : 0;
+        // stage height the flow is fitted into (head and hint above it, footer below);
+        // layout pixels (1.5.3) — a scaled stage must not shrink the flow twice
+        const headH = this.headEl ? this.rect(this.headEl).height : 0;
         const stageH = this.root.clientHeight || this.vpH || 600;
         const availH = Math.max(this.k(240), stageH - headH - this.k(120));
 
@@ -6016,7 +9055,7 @@ export class Visual implements IVisual {
         };
         const chevW = 11 * s;
         const pad = 6;
-        const availW = (this.root.clientWidth || 900) - 28 - 2 * pad - 4;
+        const availW = (this.root.clientWidth || this.vpW || 900) - 28 - 2 * pad - 4;
         // the outer label lanes give way on a narrow stage — names shorten,
         // the columns keep their room for the ribbons
         const sideMax = Math.min(this.k(170), Math.max(this.k(90), availW * 0.16));
@@ -6044,8 +9083,28 @@ export class Visual implements IVisual {
         inner.setAttribute("transform", `translate(${pad},${pad})`);
         svg.appendChild(inner);
 
-        const famColor = (f: "gray" | "good" | "bad"): string =>
+        const famColor = (f: SkFam): string =>
             f === "good" ? this.goodColor() : f === "bad" ? this.badColor() : C.py;
+        // high contrast: one ink, the families told apart by pattern — profit
+        // solid, costs hatched / outlined, the neutral split dotted / dashed
+        const hc = this.hc;
+        let hatchId = ""; let dotId = "";
+        if (hc) {
+            hatchId = `pnlskhatch${this.uid}`;
+            this.hatchPattern(svg, ns, hatchId, hc.fg);
+            dotId = `pnlskdot${this.uid}`;
+            const defs = document.createElementNS(ns, "defs");
+            const p = document.createElementNS(ns, "pattern");
+            p.setAttribute("id", dotId); p.setAttribute("width", "4"); p.setAttribute("height", "4");
+            p.setAttribute("patternUnits", "userSpaceOnUse");
+            const bg = document.createElementNS(ns, "rect");
+            bg.setAttribute("width", "4"); bg.setAttribute("height", "4"); bg.setAttribute("fill", hc.bg);
+            const dot = document.createElementNS(ns, "circle");
+            dot.setAttribute("cx", "2"); dot.setAttribute("cy", "2"); dot.setAttribute("r", "0.9");
+            dot.setAttribute("fill", hc.fg);
+            p.appendChild(bg); p.appendChild(dot); defs.appendChild(p); svg.appendChild(defs);
+        }
+        const paper = this.pageBg();
 
         // ---- ribbons first, nodes and labels on top
         const bandG = document.createElementNS(ns, "g") as SVGGElement;
@@ -6065,10 +9124,16 @@ export class Visual implements IVisual {
             const p = document.createElementNS(ns, "path") as SVGPathElement;
             p.setAttribute("d", `M${f2(x0)},${f2(y0)}C${f2(xm)},${f2(y0)} ${f2(xm)},${f2(y1)} ${f2(x1)},${f2(y1)}`
                 + `L${f2(x1)},${f2(y1 + t)}C${f2(xm)},${f2(y1 + t)} ${f2(xm)},${f2(y0 + t)} ${f2(x0)},${f2(y0 + t)}Z`);
-            const base = famColor(b.fam);
-            const tinted = this.tint(base, SANKEY_TINT);
-            p.setAttribute("fill", tinted ?? base);
-            p.setAttribute("fill-opacity", tinted ? "0.92" : "0.45");
+            if (hc) {
+                if (b.fam === "good") { p.setAttribute("fill", hc.fg); p.setAttribute("fill-opacity", "0.4"); }
+                else { p.setAttribute("fill", `url(#${b.fam === "bad" ? hatchId : dotId})`); }
+                p.setAttribute("data-sk-pattern", b.fam === "good" ? "solid" : b.fam === "bad" ? "hatch" : "dots");
+            } else {
+                const base = famColor(b.fam);
+                const tinted = this.tint(base, SANKEY_TINT, paper);
+                p.setAttribute("fill", tinted ?? base);
+                p.setAttribute("fill-opacity", tinted ? "0.92" : "0.45");
+            }
             p.setAttribute("data-sk-band", b.src && b.tgt ? "flow" : "rest");
             p.setAttribute("data-sk-fam", b.fam);
             p.setAttribute("data-sk-w", f2(t));
@@ -6077,15 +9142,14 @@ export class Visual implements IVisual {
             p.style.transition = "opacity .12s ease";
             if (!b.src || !b.tgt) {
                 const tt = document.createElementNS(ns, "title");
-                tt.textContent = this.str("Other (not broken down)", "Sonstige (nicht aufgeschlüsselt)")
-                    + " · " + this.treeNum(b.t, fmt) + (unit ? " " + unit : "");
+                tt.textContent = this.tr("UI_SankeyOther") + " · " + this.treeNum(b.t, fmt) + (unit ? " " + unit : "");
                 p.appendChild(tt);
             }
             bandG.appendChild(p);
             bandEls.push({ el: p, b });
         }
 
-        const refUp = ui.ref.toUpperCase();
+        const refUp = this.relabel(ui.ref.toUpperCase());
         for (const n of nodes) {
             const g = document.createElementNS(ns, "g") as SVGGElement;
             g.setAttribute("data-pnl", "sk-node");
@@ -6101,7 +9165,15 @@ export class Visual implements IVisual {
             bar.setAttribute("x", f2(n.x)); bar.setAttribute("y", f2(n.y));
             bar.setAttribute("width", f2(barW)); bar.setAttribute("height", f2(n.h));
             bar.setAttribute("rx", f2(Math.min(2 * s, n.h / 2)));
-            bar.setAttribute("fill", color);
+            if (hc && n.fam !== "good") {
+                // outlined (costs) or dashed (neutral split) — never colour alone
+                bar.setAttribute("fill", hc.bg);
+                bar.setAttribute("stroke", hc.fg);
+                bar.setAttribute("stroke-width", "1.4");
+                if (n.fam === "gray") { bar.setAttribute("stroke-dasharray", "3,2"); }
+            } else {
+                bar.setAttribute("fill", color);
+            }
             if (zero) { bar.setAttribute("fill-opacity", "0.45"); }
             bar.style.cursor = "pointer";
             g.appendChild(bar);
@@ -6137,7 +9209,7 @@ export class Visual implements IVisual {
                 nameT.setAttribute("font-weight", "600");
                 nameT.setAttribute("fill", zero ? C.soft : C.text);
                 // a quiet halo keeps a label readable where it crosses a ribbon
-                nameT.setAttribute("stroke", this.pageBg()); nameT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
+                nameT.setAttribute("stroke", paper); nameT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
                 nameT.setAttribute("stroke-linejoin", "round"); nameT.setAttribute("paint-order", "stroke");
                 const nameTxt = this.fitLabel(nameOf(n), (maxW - (chev ? chevW : 0)) * 0.56 / wFactor, fs1);
                 const chevSpan = (): SVGTSpanElement => {
@@ -6147,9 +9219,7 @@ export class Visual implements IVisual {
                     c.setAttribute("font-weight", "400");
                     c.textContent = chev;
                     const ct = document.createElementNS(ns, "title");
-                    ct.textContent = chev === "▸"
-                        ? this.str("Expand (Shift: whole limb)", "Aufklappen (Shift: ganzer Ast)")
-                        : this.str("Collapse", "Zuklappen");
+                    ct.textContent = this.tr(chev === "▸" ? "UI_Expand" : "UI_Collapse");
                     c.appendChild(ct);
                     c.style.cursor = "pointer";
                     c.addEventListener("click", (e: Event) => this.treeToggle(n.card, e as MouseEvent));
@@ -6168,7 +9238,7 @@ export class Visual implements IVisual {
                 valT.setAttribute("font-size", fs2.toFixed(1));
                 valT.setAttribute("font-family", FONT);
                 valT.setAttribute("fill", zero ? C.soft : C.text);
-                valT.setAttribute("stroke", this.pageBg()); valT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
+                valT.setAttribute("stroke", paper); valT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
                 valT.setAttribute("stroke-linejoin", "round"); valT.setAttribute("paint-order", "stroke");
                 valT.setAttribute("font-variant-numeric", "tabular-nums");
                 valT.textContent = valTxt(n);
@@ -6193,6 +9263,8 @@ export class Visual implements IVisual {
                 }
             });
             g.addEventListener("mouseleave", () => { for (const be of bandEls) { be.el.style.opacity = ""; } });
+            // selection: the left click belongs to the tile view (as on a tree
+            // card), so a node carries the RIGHT click — the native context menu
             if (this.selectable(n.node)) {
                 this.bindSelect(g, n.node, false);
                 if (this.isSelected(n.node)) {
@@ -6208,52 +9280,1266 @@ export class Visual implements IVisual {
         return wrap;
     }
 
+    // ---------------- mega table (IBCS templates T01–T04) ----------------
+
     /**
-     * ▸ / ▾ of a tree card or a Sankey label: a plain click opens or folds
-     * exactly this node — its children keep their own remembered fold state;
-     * Shift opens the whole limb below it.
+     * The format-pane switches as one toggle set. Scenarios the data does not
+     * carry are switched off here — an unbound PY never leaves an empty column;
+     * an unbound FC minuend falls back to AC.
      */
-    private treeToggle(card: TreeCard, e: MouseEvent): void {
-        e.stopPropagation();
-        const ui = this.ui!;
-        const ctx = this.treeCtx;
-        const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
-        const id = card.node.row.id;
-        if (cur.has(id)) {
-            cur.delete(id);
-            if (e.shiftKey) {
-                const done = new Set<string>();
-                const stack = [id];
-                while (stack.length > 0) {
-                    const n = stack.pop()!;
-                    if (done.has(n)) { continue; }
-                    done.add(n);
-                    cur.delete(n);
-                    for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+    private megaToggles(): MegaToggles {
+        // the reader's scenario view (toolbar, 1.1) on top of the author's switches
+        return this.megaReaderView(this.megaPaneToggles(), this.ui);
+    }
+
+    /** the format-pane switches alone (no reader view) */
+    private megaPaneToggles(): MegaToggles {
+        const cc = this.settings.columnsCard;
+        const has = this.has;
+        const mv = String(cc.minuend.value.value);
+        // PL as the analysed scenario (12H plan statement) needs the PL field; FC the FC field
+        const min = mv === "fc" && has.fc ? "FC" : mv === "pl" && has.pl ? "PL" : "AC";
+        return {
+            min,
+            showPY: cc.showPY.value && has.py,
+            showPL: cc.showPL.value && has.pl,
+            showMin: cc.showMinuend.value,
+            valueCascade: cc.valueCascade.value,
+            d: {
+                PY: {
+                    num: cc.dPyAbs.value && has.py, bar: cc.dPyBar.value && has.py,
+                    wf: cc.dPyWaterfall.value && has.py,
+                    pct: cc.dPyPct.value && has.py, pin: cc.dPyPin.value && has.py,
+                },
+                PL: {
+                    num: cc.dPlAbs.value && has.pl, bar: cc.dPlBar.value && has.pl,
+                    wf: cc.dPlWaterfall.value && has.pl,
+                    pct: cc.dPlPct.value && has.pl, pin: cc.dPlPin.value && has.pl,
+                },
+            },
+            thresholds: cc.thresholds.value,
+            marks: cc.scenarioMarks.value,
+            labels: cc.chartLabels.value,
+            capBars: cc.capBars.value,
+            sort: (["cat", "min", "delta"].includes(String(cc.sort.value.value))
+                ? String(cc.sort.value.value) : "cat") as MegaToggles["sort"],
+            sortBlock: String(cc.sortBlock.value.value) === "period" ? 0 : 1,
+            share: cc.pctOfRevenue.value,
+        };
+    }
+
+    /** the mega table replaces the classic table as soon as one column switch is on */
+    private megaOn(): boolean {
+        return this.model != null && megaActive(this.megaToggles());
+    }
+
+    /** the mega table really renders: switches on AND the table view is active */
+    private megaInView(): boolean {
+        return this.ui != null && this.view() === "table" && this.megaOn();
+    }
+
+    /**
+     * Template dropdown → switches. A template only writes defaults: the visual
+     * notices a template that differs from the last applied one (the hidden
+     * property columns.templateApplied), sets every switch of the preset at once
+     * — locally, so this very render already shows it — and persists them
+     * together with the new templateApplied. Afterwards every switch is free.
+     * Echo guard + TTL: until the host echoes the write back, a stale update
+     * keeps the written values instead of flipping the pane back for a frame.
+     */
+    private syncMegaTemplate(dataView: DataView | undefined): void {
+        const cc = this.settings.columnsCard;
+        const nc = this.settings.numbersCard;
+        const objs = dataView?.metadata?.objects?.["columns"];
+        const persisted = objs && objs["templateApplied"] != null ? String(objs["templateApplied"]) : "off";
+        let applied = persisted;
+        const pend = this.megaPending;
+        if (pend) {
+            let synced = persisted === pend.applied;
+            for (const [k, v] of Object.entries(pend.cols)) {
+                if (!this.megaSliceIs(k, v)) { synced = false; this.megaSliceSet(k, v); }
+            }
+            for (const [k, v] of Object.entries(pend.nums)) {
+                const sl = k === "decimals" ? nc.decimals : nc.pctDecimals;
+                if (sl.value !== v) { synced = false; sl.value = v; }
+            }
+            for (const [k, v] of Object.entries(pend.title)) {
+                const sl = k === "headline" ? this.settings.titleCard.headline : null;
+                if (sl && sl.value !== v) { synced = false; sl.value = v; }
+            }
+            pend.ttl--;
+            if (synced || pend.ttl <= 0) { this.megaPending = null; }
+            if (!synced && this.megaPending) { applied = pend.applied; }
+        }
+        const tpl = String(cc.template.value.value);
+        // only the host's own confirmation re-arms the session guard — an
+        // equality that the pending guard merely pretends must not
+        if (tpl === persisted) { this.megaSessionTpl = null; }
+        if (tpl === applied) { return; }
+        if (!MEGA_PRESETS[tpl] || tpl === this.megaSessionTpl) { return; }
+        this.applyMegaTemplate(tpl);
+    }
+
+    private applyMegaTemplate(tpl: string, picked = false): void {
+        const sw = templateSwitches(tpl);
+        const cols: Record<string, boolean | string> = {
+            // toolbar pick (1.2): the dropdown itself travels in the same write
+            // and under the same pending guard as the switches
+            ...(picked ? { template: tpl } : {}),
+            ...sw.cols,
+        };
+        const nums = sw.nums;
+        const title = sw.title;
+        for (const [k, v] of Object.entries(cols)) { this.megaSliceSet(k, v); }
+        const nc = this.settings.numbersCard;
+        if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
+        if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
+        if (title.headline != null) { this.settings.titleCard.headline.value = title.headline; }
+        this.megaPending = { applied: tpl, cols, nums, title, ttl: 5 };
+        this.megaSessionTpl = tpl;
+        const merge: powerbi.VisualObjectInstance[] = [
+            { objectName: "columns", selector: null, properties: { ...cols, templateApplied: tpl } },
+        ];
+        if (tpl !== "off") { merge.push({ objectName: "numbers", selector: null, properties: { ...nums } }); }
+        if (title.headline != null) { merge.push({ objectName: "titleBlock", selector: null, properties: { ...title } }); }
+        this.host.persistProperties({ merge });
+    }
+
+    /** a mega switch of the columns card by property name (toggle or dropdown) */
+    private megaSlice(k: string): { value: unknown; items?: powerbi.IEnumMember[] } | null {
+        const cc = this.settings.columnsCard as unknown as Record<string, { value: unknown; items?: powerbi.IEnumMember[] }>;
+        return cc[k] ?? null;
+    }
+    private megaSliceIs(k: string, v: boolean | string): boolean {
+        const sl = this.megaSlice(k);
+        if (!sl) { return true; }
+        if (sl.items) { return String((sl.value as powerbi.IEnumMember).value) === String(v); }
+        return sl.value === v;
+    }
+    private megaSliceSet(k: string, v: boolean | string): void {
+        const sl = this.megaSlice(k);
+        if (!sl) { return; }
+        if (sl.items) {
+            const it = sl.items.find(x => String(x.value) === String(v));
+            if (it) { sl.value = it; }
+        } else { sl.value = v; }
+    }
+
+    /** statement (GuV) data vs. a pure structure hierarchy (regions, products …) */
+    private megaStatement(): boolean {
+        for (const n of this.model!.byId.values()) {
+            const r = n.row;
+            if (r.rowType === "formula" || r.rowType === "kpi" || r.sign < 0 || r.displayInvert) { return true; }
+        }
+        return false;
+    }
+
+    /** raw (calculation-signed) value of a scenario in a period block */
+    private megaRaw(node: PnlNode, block: "mtd" | "ytd" | "fy", s: Scenario): number | null {
+        // FY outlook: the full-year measures (AC&FC, PL FY) as the engine rolls them
+        if (block === "fy") { return node.computed[s] ?? null; }
+        if (block === "mtd") {
+            const li = this.mtdIndex();
+            return li >= 0 ? (node.series[s]?.[li] ?? null) : null;
+        }
+        // the period-matched YTD window of the classic table (see ytdDisplay)
+        if (this.ytdFull() || node.row.rowType === "kpi") { return node.computed[s]; }
+        return this.ytdRawSum(node, s);
+    }
+
+    /** long month name of a period key ("November"), the author's label otherwise */
+    private megaMonthName(m: string): string {
+        const p = parsePeriod(m);
+        if (p && (/^\d{4}[-/]\d{1,2}/.test(m) || /^\d{1,2}$/.test(m.trim()))) {
+            return new Date(p.y ?? 2000, p.m - 1, 1).toLocaleDateString(this.locale, { month: "long" });
+        }
+        return m;
+    }
+
+    /**
+     * Rows of the mega table in IBCS statement order: children first, their
+     * total below (T01B / T03), spacer rows before a new block. Sign column
+     * (statement data): formula rows and the chain start (the first top-level
+     * total) read "=", their summands "+" / "−" by DisplayInvert, deeper blocks
+     * are indented without a sign (T03 "− Operating expenses").
+     */
+    private megaRows(statement: boolean): { rows: MegaRow[]; nodes: Map<string, PnlNode> } {
+        const model = this.model!; const ui = this.ui!;
+        const cc = this.settings.columnsCard;
+        const collapsed = new Set(ui.collapsed);
+        const showPct = cc.showPctRows.value;
+        const subtotals = statement || cc.structureSubtotals.value;
+        const nodes = new Map<string, PnlNode>();
+        type Item = { node: PnlNode | null; kind: MegaRow["kind"]; level: number; op: string };
+        const items: Item[] = [];
+        const roots = model.roots;
+        const first = roots.find(r => r.row.rowType !== "separator");
+        const chainStart = statement && first && first.hasChildren
+            && (first.row.rowType === "subtotal" || first.row.rowType === "account") ? first : null;
+        const glyph = (n: PnlNode): string => n.row.displayInvert ? MINUS : "+";
+        const realRoots = roots.filter(r => r.row.rowType !== "separator");
+        const soleRoot = realRoots.length === 1 ? realRoots[0] : null;
+        const keep = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
+        const struct = subtotals && !statement;
+        // 1.5.1: a structure group with exactly one shown child carries no
+        // subtotal that only repeats that child (Germany / Saxony): the child
+        // stands alone, named after both ("Germany · Saxony"), like a region
+        // without countries (Poland)
+        const single = new Map<string, string>();
+
+        const emit = (n: PnlNode, under: PnlNode | null): void => {
+            const t = n.row.rowType;
+            if (t === "separator") { items.push({ node: null, kind: "gap", level: 0, op: "" }); return; }
+            if (t === "kpi" && !showPct) { return; }
+            const open = n.hasChildren && !collapsed.has(n.row.id);
+            if (open && struct && n !== soleRoot) {
+                const kids = n.children.filter(c => c.row.rowType !== "separator" && keep(c));
+                if (kids.length === 1) {
+                    const k = kids[0];
+                    if (k.row.name !== n.row.name) { single.set(k.row.id, `${single.get(n.row.id) ?? n.row.name} · ${k.row.name}`); }
+                    else if (single.has(n.row.id)) { single.set(k.row.id, single.get(n.row.id)!); }
+                    emit(k, n);
+                    return;
                 }
             }
-        } else { cur.add(id); }
-        ui.treeCollapsed = [...cur];
-        this.persistUi(); this.rerender();
+            if (open) { for (const c of n.children) { emit(c, n); } }
+            // structure data without subtotal blocks: only leaves and the top totals
+            if (open && !subtotals && n.level > 0) { return; }
+            if (!keep(n)) { return; }
+            const kind: MegaRow["kind"] = t === "formula" ? "formula" : t === "kpi" ? "pct"
+                : t === "subtotal" || n.hasChildren || n.isOrphanBucket ? "sum" : "acc";
+            let level = 0; let op = "";
+            if (statement) {
+                const inChain = chainStart != null && under === chainStart;
+                level = Math.max(0, n.level - (inChain || this.megaUnderChain(n, chainStart) ? 1 : 0));
+                if (t === "kpi") { op = ""; }
+                else if (n.level === 0) { op = t === "formula" || n === chainStart ? "=" : glyph(n); }
+                else if (inChain) { op = glyph(n); }
+            }
+            items.push({ node: n, kind, level, op });
+        };
+        for (const r of roots) { emit(r, null); }
+
+        // leaf names that repeat ("Other" per region) get their parent's name
+        // when the subtotal blocks are folded away (T01A "Other Europe")
+        const dupe = new Map<string, number>();
+        if (!subtotals) {
+            for (const it of items) { if (it.node) { dupe.set(it.node.row.name, (dupe.get(it.node.row.name) ?? 0) + 1); } }
+        }
+
+        // 1.5.1: the element of the top visible level a row belongs to (its
+        // ancestor right below a single grand total, else its root)
+        const topLevel = soleRoot ? 1 : 0;
+        const topOf = (n: PnlNode): string => {
+            let cur = n;
+            for (let i = 0; i < 64 && cur.level > topLevel && cur.row.parent != null; i++) {
+                const p = model.byId.get(cur.row.parent);
+                if (!p) { break; }
+                cur = p;
+            }
+            return cur.row.id;
+        };
+
+        // comment footnotes are numbered in reading order of this table
+        this.comments = [];
+        this.commentNo.clear();
+        const out: MegaRow[] = [];
+        let prev: Item | null = null;
+        for (const it of items) {
+            if (!it.node) {
+                if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
+                continue;
+            }
+            const n = it.node;
+            // spacer row: a new block after a bold total (T03), and the grand
+            // total right below its last subtotal block (T01B "World").
+            // 1.5.1: structure data with subtotal blocks separates EVERY
+            // element of the top visible level (the level below a single
+            // grand total) from the next one — a region block, a region
+            // without countries (Poland, Slovakia: 1.5 left two such rows in
+            // a row without a gap), a one-child group and the grand total
+            if (prev && prev.node && it.kind !== "pct" && (
+                (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
+                || struct && topOf(prev.node) !== topOf(n)
+            )) {
+                if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
+            }
+            nodes.set(n.row.id, n);
+            const suffix: { t: string; color: string }[] = [];
+            if (n.row.comment) {
+                const no = this.comments.length + 1;
+                this.comments.push({ n: no, node: n, text: n.row.comment });
+                this.commentNo.set(n.row.id, no);
+                suffix.push({ t: " " + String.fromCharCode(0x2460 + no - 1), color: C.comment });
+            }
+            if (n.error) { suffix.push({ t: " ⚠ " + this.trMsg(n.error), color: this.badColor() }); }
+            if (n.hasChildren && collapsed.has(n.row.id)) { suffix.push({ t: " ▸", color: C.soft }); }
+            if (this.awaitingSegment && (it.kind === "sum" || it.kind === "formula" || it.kind === "pct")) {
+                suffix.push({ t: " ≈", color: C.loading });
+            }
+            const parent = n.row.parent ? model.byId.get(n.row.parent) : undefined;
+            const name = single.get(n.row.id)
+                ?? ((dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name);
+            // cascades (T04 Δ waterfall, 12A value cascade): "=" rows anchor —
+            // formula rows, the statement's chain start, the single grand total
+            // of a structure hierarchy; every other row steps with the effect
+            // of its shown value on the result
+            const anchor = it.kind === "formula" || it.op === "="
+                || (!statement && soleRoot === n && it.kind === "sum");
+            const disp = n.row.displayInvert ? -1 : 1;
+            out.push({
+                id: n.row.id,
+                label: (n.isOrphanBucket ? "⚠ " : "") + name,
+                kind: it.kind, op: it.op, level: it.level,
+                group: n.row.parent,
+                other: /^(other|others|sonstige|übrige|rest|otros|otras|resto)\b|^その他/i.test(n.row.name.trim()),
+                suffix: suffix.length ? suffix : undefined,
+                eff: anchor ? disp : disp * this.megaParentSign(n),
+                anchor,
+            });
+            if (it.kind !== "pct") { prev = it; }
+        }
+        while (out.length && out[out.length - 1].kind === "gap") { out.pop(); }
+        return { rows: out, nodes };
+    }
+
+    /**
+     * Product of the SignConvention of the subtotals above `n` — the engine
+     * rolls a subtotal up as sign × Σ children (aggregateSubtotal), a postable
+     * parent account adds its children unsigned. Raw value × this = the row's
+     * effect on the top of its hierarchy.
+     */
+    private megaParentSign(n: PnlNode): number {
+        let f = 1;
+        let pid = n.row.parent;
+        const byId = this.model!.byId;
+        for (let i = 0; pid != null && i < 64; i++) {
+            const p = byId.get(pid);
+            if (!p) { break; }
+            if (p.row.rowType === "subtotal") { f *= p.row.sign < 0 ? -1 : 1; }
+            pid = p.row.parent;
+        }
+        return f;
+    }
+
+    private megaGap(): MegaRow {
+        return { id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false };
+    }
+
+    /** true when an ancestor of `n` is the statement's chain start (indent one level less) */
+    private megaUnderChain(n: PnlNode, chain: PnlNode | null): boolean {
+        if (!chain) { return false; }
+        let pid = n.row.parent;
+        const byId = this.model!.byId;
+        for (let i = 0; pid != null && i < 64; i++) {
+            if (pid === chain.row.id) { return true; }
+            pid = byId.get(pid)?.row.parent ?? null;
+        }
+        return false;
+    }
+
+    /** locale number text of a non-negative value, narrow space as grouping */
+    private megaNum(abs: number, dec: number): string {
+        const key = String(dec);
+        let nf = this.megaNf.get(key);
+        if (!nf) {
+            nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+            this.megaNf.set(key, nf);
+        }
+        return nf.formatToParts(abs).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+    }
+
+    private megaMeasure(t: string, fs: number, bold: boolean, italic: boolean): number {
+        if (!this.measureCtx) {
+            const cv = document.createElement("canvas");
+            this.measureCtx = cv.getContext("2d");
+        }
+        const ctx = this.measureCtx;
+        if (!ctx) { return t.length * fs * 0.55; }
+        ctx.font = `${italic ? "italic " : ""}${bold ? "bold " : ""}${fs}px ${FONT}`;
+        return ctx.measureText(t).width;
+    }
+
+    private buildMega(fmt: Fmt, shrink: number, rowK?: number): HTMLElement {
+        const model = this.model!; const ui = this.ui!;
+        const cc = this.settings.columnsCard;
+        const t = this.megaToggles();
+        const statement = this.megaStatement();
+        const { rows, nodes } = this.megaRows(statement);
+        const months = model.months;
+        // period blocks: the period block (default YTD) and, with secondBlock, a
+        // second one left of it (default month) — month | YTD | FY outlook each.
+        // A kind the data cannot carry (no period field, no FY measures) falls
+        // back to YTD / month; the defaults give exactly month | _YTD or YTD.
+        type BlockKey = "mtd" | "ytd" | "fy";
+        const keys: BlockKey[] = this.megaKeys();
+        const twoBlocks = keys.length === 2;
+        const li = this.mtdIndex();
+        const monthName = months.length > 0 ? this.megaMonthName(months[li >= 0 ? li : months.length - 1]) : "";
+        const year = months.length > 0 ? this.periodYear(months[0]) : "";
+        const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => this.megaScenOf(key, s);
+        const revBase = t.share ? revenueBase(model, cc.revenueBase.value) : null;
+        const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
+        const div = fmt.div;
+        // 1.5.1: the built-in thresholds (−20 / −220) are thousands — at a
+        // larger scaling they are converted (−20 k = −0.02 at "m", −0.00002 at
+        // "b"; until 1.5 nothing turned red at millions). Without scaling the
+        // numbers are taken as already shown in the author's unit and keep
+        // −20 / −220 as before. A value the author set stays in display units,
+        // exactly as typed.
+        const thObjs = this.lastDv?.metadata?.objects?.["columns"];
+        const thSet = (k: string): boolean => thObjs != null && thObjs[k] != null && isFinite(Number(thObjs[k]));
+        const thAbs = (k: string, v: unknown, d: number): number =>
+            thSet(k) ? num(v, d) : div > 1e3 ? d * 1e3 / div : d;
+        const th = [
+            { abs: thAbs("thresholdAbs", cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
+            { abs: thAbs("thresholdYtdAbs", cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
+        ];
+        const raw = (n: PnlNode, key: BlockKey, s: MegaScen): number | null => {
+            const sc = scenOf(key, s);
+            return sc == null ? null : this.megaRaw(n, key, sc);
+        };
+        // sum-safe rounding (numbers.sumSafeRounding): printed value of a non-margin row
+        const ssOn = this.sumSafeOn();
+        const ssRaw = (n: PnlNode, key: BlockKey, s: MegaScen): number | null => {
+            const sc = scenOf(key, s);
+            return sc == null ? null : this.ssRaw(n, key, sc, fmt);
+        };
+        const mat = this.materiality();
+        const fyStack = t.min === "AC";
+        const blocks: MegaBlock[] = keys.map((key, bi) => ({
+            name: key === "fy" ? "FY" + (year ? " " + year : "")
+                : !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
+            th: th[bi],
+            // a single month / FY block names itself (a single YTD statement never did)
+            titled: !twoBlocks && key !== "ytd",
+            alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
+            // 12G: the FY outlook's AC&FC is mostly forecast — its Δ elements are
+            // hatched, and its value cascade stacks the YTD actuals (solid) in front
+            // of the rest of the year (hatched)
+            minFill: key === "fy" && fyStack ? "FC" : undefined,
+            ytd: key === "fy" && fyStack ? (r: MegaRow): number | null => {
+                const n = nodes.get(r.id);
+                if (!n || n.row.rowType === "kpi") { return null; }
+                const rv = this.megaRaw(n, "ytd", "ac");
+                return rv == null ? null : (n.row.displayInvert ? -rv : rv) / div;
+            } : undefined,
+            value: (r: MegaRow, s: MegaScen): number | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const rv = ssOn && n.row.rowType !== "kpi" ? (ssRaw(n, key, s) ?? raw(n, key, s)) : raw(n, key, s);
+                if (rv == null) { return null; }
+                const v = n.row.displayInvert ? -rv : rv;
+                return n.row.rowType === "kpi" ? v : v / div;
+            },
+            delta: (r: MegaRow, min: MegaScen, ref: MegaRef): MegaDelta | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const D = displayVariance(n.row, raw(n, key, min), raw(n, key, ref));
+                if (!D) { return null; }
+                if (D.pp) { return D; }
+                const out: MegaDelta = { ...D, d: D.d / div, impact: D.impact / div };
+                if (ssOn) {
+                    // the printed Δ is the difference of the printed values
+                    const a = ssRaw(n, key, min); const b = ssRaw(n, key, ref);
+                    if (a != null && b != null) {
+                        out.d = (a - b) * (n.row.displayInvert ? -1 : 1) / div;
+                        out.impact = (a - b) * (n.row.varianceInvert ? -1 : 1) / div;
+                    }
+                }
+                if (mat(D.d, D.p)) { out.immaterial = true; }
+                return out;
+            },
+            // "% of revenue": share of the minuend in the revenue base row of this block
+            share: revBase ? (r: MegaRow): number | null => {
+                const n = nodes.get(r.id);
+                if (!n) { return null; }
+                const v = raw(n, key, t.min); const b = raw(revBase, key, t.min);
+                return v == null || b == null || b === 0 ? null : Math.abs(v / b);
+            } : undefined,
+        }));
+        const fscale = this.fontScale();
+        const fs = Math.round((ui.density === "compact" ? 11 : 13) * fscale);
+        const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X - shrink;
+        // style.headerFontSize reaches the mega heads too: 9 px is the built-in
+        // head size of the classic table, so the factor v / 9 scales fs; 0 (or
+        // anything outside 7..20) keeps the heads at fs exactly
+        const hv = Math.round(Number(this.settings.styleCard.headerFontSize.value) || 0);
+        const headFs = hv < 7 || hv > 20 ? fs : Math.round(fs * hv / 9 * 10) / 10;
+        const L = layoutMega({
+            rows, blocks, t, statement, fs, viewW: Math.max(320, avail),
+            dec: this.settings.numbersCard.decimals.value,
+            pdec: this.settings.numbersCard.pctDecimals.value,
+            num: (a, d) => this.megaNum(a, d),
+            measure: (s, f, b, i) => this.megaMeasure(s, f, b, i),
+            pal: { good: this.goodColor(), bad: this.badColor() },
+            redIf: this.tr("UI_RedIf"),
+            shareHead: this.tr("UI_ColPctRev"),
+            headFs,
+            hc: this.hc != null,
+            fin: this.finance(),
+            relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
+            ytdHead: "YTD",
+            // scale sync (numbers.fixedMax / fixedVarMax): data units → display units
+            fixedMax: this.fixedMax() != null ? this.fixedMax()! / div : undefined,
+            fixedVarMax: this.fixedVarMax() != null ? this.fixedVarMax()! / div : undefined,
+            rowK,
+        });
+        this.megaLast = L;
+        const ns = "http://www.w3.org/2000/svg";
+        const opts: MegaPaintOpts = {
+            font: FONT,
+            headInk: this.hc ? this.hc.fg : this.settings.styleCard.headerColor.value?.value || C.text,
+            hatchPattern: (svg, id, color) => this.hatchPattern(svg, ns, id, color),
+            uid: this.uid,
+            selectedId: this.interactive() ? this.selKey : null,
+            // high contrast: no wash, the 2 px selection line in foregroundSelected
+            selWash: this.hc ? "none" : this.accentSoft(0.94),
+            selAccent: this.accent(),
+            highlight: this.highlightSet().size > 0
+                ? { ids: new Set(rows.filter(r => r.id !== "" && nodes.has(r.id) && this.isHighlighted(nodes.get(r.id)!)).map(r => r.id)),
+                    ink: this.hc ? this.hc.fg : C.ac, hc: this.hc != null }
+                : undefined,
+        };
+        // virtualization (1.1): a long statement paints only the rows around the
+        // viewport; an export always prints every row
+        const virt = L.R.length > MEGA_VIRT_MIN_ROWS && !this.exporting();
+        const win = virt ? { from: 0, to: Math.min(L.R.length,
+            Math.ceil((this.root.clientHeight || 800) / Math.max(1, L.G.rowH)) + 2 * MEGA_VIRT_BUFFER) } : undefined;
+        const painted = paintMega(L, win ? { ...opts, window: win } : opts);
+        const bind = (hits: MegaPainted["hits"]): void => this.megaBindHits(hits, nodes, fmt, keys, t, scenOf);
+        bind(painted.hits);
+        this.megaVs = win ? { L, opts, body: painted.body, from: win.from, to: win.to, bind } : null;
+
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "mega");
+        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
+        // 1.5: the scale note above the table — magnified blocks / columns and
+        // fixed scales are named for every reader, the export included
+        // (the gallery's mini previews stay quiet: their heads carry the factor)
+        const note = this.miniQuiet() || this.tbFolded() ? null : this.megaScaleNote(L, fmt);
+        if (note) { wrap.appendChild(note); }
+        const headWrap = document.createElement("div");
+        headWrap.setAttribute("data-pnl", "mega-head-wrap");
+        headWrap.style.cssText = `background:${this.pageBg()};`;
+        headWrap.appendChild(painted.head);
+        wrap.appendChild(headWrap);
+        wrap.appendChild(painted.body);
+        this.tableEl = null;
+        return wrap;
+    }
+
+    /** interactions of the mega hit areas: the label folds a block, the rest of the row selects */
+    private megaBindHits(hits: MegaPainted["hits"], nodes: Map<string, PnlNode>, fmt: Fmt,
+        keys: ("mtd" | "ytd" | "fy")[], t: MegaToggles,
+        scenOf: (key: "mtd" | "ytd" | "fy", s: MegaScen) => Scenario | null): void {
+        const ui = this.ui!;
+        for (const h of hits) {
+            const node = nodes.get(h.r.id);
+            if (!node) { continue; }
+            const canSelect = this.selectable(node);
+            if (canSelect) {
+                h.cells.style.cursor = "pointer";
+                this.bindSelect(h.cells, node, true);
+            }
+            // row tooltip (1.1) over the numbers, bars, pins and cascades of the row
+            const tipKey = keys[keys.length - 1];
+            const tipMin: Scenario = scenOf(tipKey, t.min) ?? "ac";
+            const tipRefs = (activeRefs(t).length ? activeRefs(t) : (["PY", "PL"] as MegaRef[]).filter(r => r !== t.min))
+                .map(r => scenOf(tipKey, r)).filter((x): x is Scenario => x != null && this.has[x]);
+            this.bindTip(h.cells, node, () => this.tipItems(node, fmt, tipKey, { min: tipMin, refs: tipRefs }));
+            this.bindTip(h.label, node, () => this.tipItems(node, fmt, tipKey, { min: tipMin, refs: tipRefs }));
+            if (node.hasChildren) {
+                h.label.style.cursor = "pointer";
+                const open = !ui.collapsed.includes(node.row.id);
+                const fold = (e: Event): void => {
+                    e.stopPropagation();
+                    if (open) { ui.collapsed.push(node.row.id); }
+                    else { ui.collapsed = ui.collapsed.filter(id => id !== node.row.id); }
+                    this.persistUi(); this.rerender();
+                };
+                h.label.addEventListener("click", fold);
+                // keyboard (1.1): the label hit area is the fold control
+                this.kbFold(h.label, open, node.row.name, fold);
+                if (canSelect) { this.bindSelect(h.label, node, false); }
+            } else if (canSelect) {
+                h.label.style.cursor = "pointer";
+                this.bindSelect(h.label, node, true);
+            } else {
+                h.label.setAttribute("pointer-events", "none");
+            }
+        }
+    }
+
+    /**
+     * Scroll of a virtualized mega table: repaint the body around the viewport
+     * once the visible rows leave the painted window (with a buffer on both
+     * sides) — the layout is reused, the hit areas are bound again.
+     */
+    private syncMegaWindow(): void {
+        const vs = this.megaVs;
+        if (!vs || !vs.body.isConnected) { return; }
+        const R = vs.L.R;
+        if (R.length === 0) { return; }
+        // body pixel 0 = layout y headH (the body svg's viewBox starts there)
+        const top = this.rect(this.root).top - this.rect(vs.body).top + vs.L.headH;
+        const viewH = this.root.clientHeight || 800;
+        const at = (y: number): number => {
+            let lo = 0; let hi = R.length - 1;
+            while (lo < hi) {
+                const mid = (lo + hi) >> 1;
+                if (R[mid].y + R[mid].h <= y) { lo = mid + 1; } else { hi = mid; }
+            }
+            return lo;
+        };
+        const vf = at(top); const vt = Math.min(R.length, at(top + viewH) + 1);
+        if (vf >= vs.from && vt <= vs.to) { return; }
+        const from = Math.max(0, vf - MEGA_VIRT_BUFFER);
+        const to = Math.min(R.length, vt + MEGA_VIRT_BUFFER);
+        const painted = paintMega(vs.L, { ...vs.opts, window: { from, to } });
+        vs.body.replaceWith(painted.body);
+        vs.body = painted.body; vs.from = from; vs.to = to;
+        vs.bind(painted.hits);
+    }
+
+    /** the period blocks of the mega table, left to right (see buildMega) */
+    private megaKeys(): ("mtd" | "ytd" | "fy")[] {
+        type BlockKey = "mtd" | "ytd" | "fy";
+        const cc = this.settings.columnsCard;
+        const months = this.model!.months;
+        const kindOf = (v: unknown): BlockKey => v === "month" ? "mtd" : v === "fy" ? "fy" : "ytd";
+        const okK = (k: BlockKey): boolean => k === "mtd" ? months.length > 0 : k === "fy" ? this.has.fcfy : true;
+        const bk = kindOf(String(cc.blockKind.value.value)); const lk = kindOf(String(cc.leftBlockKind.value.value));
+        const main: BlockKey = okK(bk) ? bk : "ytd";
+        const left: BlockKey = okK(lk) ? lk : "mtd";
+        const twoBlocks = cc.secondBlock.value && left !== main && okK(left)
+            && (months.length > 1 || (left !== "mtd" && main !== "mtd"));
+        return twoBlocks ? [left, main] : [main];
+    }
+
+    /** scenario of a mega block: FY outlook = AC&FC (fcfy), PL FY, PY of the whole year */
+    private megaScenOf(key: "mtd" | "ytd" | "fy", s: MegaScen): Scenario | null {
+        const SC: Record<MegaScen, Scenario> = { AC: "ac", FC: "fc", PY: "py", PL: "pl" };
+        if (key !== "fy") { return SC[s]; }
+        // PY of the FY outlook = the whole previous year, as in the classic FY block (12G "ΔPY" on the year)
+        return s === "PY" ? (this.has.py ? "py" : null) : s === "PL" ? (this.has.plfy ? "plfy" : null) : "fcfy";
+    }
+
+    /** numbers.fixedMax / fixedVarMax in data units (k/m/b suffixes); null = automatic */
+    private fixedMax(): number | null {
+        return parseAmount(String(this.settings?.numbersCard?.fixedMax?.value ?? ""));
+    }
+    private fixedVarMax(): number | null {
+        return parseAmount(String(this.settings?.numbersCard?.fixedVarMax?.value ?? ""));
+    }
+
+    // ---------------- 1.1 Paket B: finance features ----------------
+
+    /** numbers.financeFormat — (1 234) instead of -1 234 */
+    private finance(): boolean {
+        return this.settings?.numbersCard?.financeFormat?.value === true;
+    }
+
+    /** numbers.sumSafeRounding — printed children add up to the printed subtotal */
+    private sumSafeOn(): boolean {
+        return this.settings?.numbersCard?.sumSafeRounding?.value === true;
+    }
+
+    /**
+     * Sum-safe raw value of a row in a period block (calculation sign, a multiple
+     * of the display quantum); null = no value, a margin row, or the switch off.
+     * One largest-remainder pass per block × scenario × unit × decimals and
+     * render (engine.sumSafeRound).
+     */
+    private ssRaw(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario, fmt: Fmt): number | null {
+        if (!this.sumSafeOn() || node.row.rowType === "kpi" || !this.model) { return null; }
+        const dec = this.settings.numbersCard.decimals.value;
+        const key = `${block}|${scen}|${fmt.div}|${dec}`;
+        let m = this.ssCache.get(key);
+        if (!m) {
+            m = sumSafeRound(this.model.roots, n => this.megaRaw(n, block, scen), fmt.div / Math.pow(10, dec));
+            this.ssCache.set(key, m);
+        }
+        return m.get(node.row.id) ?? null;
+    }
+
+    /** value column of the classic table: the sum-safe value when the switch is on */
+    private valDisplay(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario, fmt: Fmt): number | null {
+        const r = this.ssRaw(node, block, scen, fmt);
+        if (r == null) { return this.blockDisplay(node, block, scen); }
+        return node.row.displayInvert ? -r : r;
+    }
+
+    /** classic Δ label under sum-safe rounding: printed minuend − printed reference (raw); null = exact */
+    private ssDelta(node: PnlNode, block: "mtd" | "ytd" | "fy", ref: Scenario, minuend: Scenario, fmt: Fmt): number | null {
+        const a = this.ssRaw(node, block, minuend, fmt);
+        const b = this.ssRaw(node, block, ref, fmt);
+        return a == null || b == null ? null : a - b;
+    }
+
+    /**
+     * Materiality (columns.materialityAbs / Pct, ChartKitchen materialityFn):
+     * true = the Δ stays below a set threshold and is dampened to the soft ink.
+     * `d` is the raw Δ (data units, before k / m scaling), `p` the Δ ratio.
+     * With both thresholds a Δ must exceed both to keep its colour.
+     */
+    private materiality(): (d: number | null, p: number | null) => boolean {
+        const cc = this.settings.columnsCard;
+        const mAbs = Number(cc.materialityAbs.value) || 0;
+        const mPct = Number(cc.materialityPct.value) || 0;
+        if (mAbs <= 0 && mPct <= 0) { return () => false; }
+        return (d, p) => {
+            if (d == null && p == null) { return false; }
+            if (mAbs > 0 && d != null && Math.abs(d) < mAbs) { return true; }
+            return mPct > 0 && p != null && Math.abs(p * 100) < mPct;
+        };
+    }
+
+    /** columns.highlight as a lower-case set of row names / ids */
+    private highlightSet(): Set<string> {
+        const raw = String(this.settings?.columnsCard?.highlight?.value ?? "");
+        return new Set(raw.split(",").map(x => x.trim().toLowerCase()).filter(x => x !== ""));
+    }
+
+    private isHighlighted(node: PnlNode): boolean {
+        const hl = this.highlightSet();
+        return hl.size > 0 && (hl.has(node.row.name.trim().toLowerCase()) || hl.has(node.row.id.trim().toLowerCase()));
+    }
+
+    /** the ink (C.ac) as rgba — ChartKitchen's emphasis band is ink at 7 % */
+    private inkAlpha(a: number): string {
+        const hex = C.ac.replace("#", "");
+        const full = hex.length === 3 ? hex.split("").map(ch => ch + ch).join("") : hex;
+        if (!/^[0-9a-fA-F]{6}$/.test(full)) { return `rgba(64,64,64,${a})`; }
+        const n = (i: number): number => parseInt(full.slice(i * 2, i * 2 + 2), 16);
+        return `rgba(${n(0)},${n(1)},${n(2)},${a})`;
+    }
+
+    // ---- house terms (labels.labelAc …) ----
+
+    /** the author's term for a scenario code, null = the IBCS code */
+    private houseTerm(code: "AC" | "PY" | "PL" | "FC"): string | null {
+        const lc = this.settings?.labelsCard;
+        if (!lc) { return null; }
+        const v = (code === "AC" ? lc.labelAc : code === "PY" ? lc.labelPy : code === "PL" ? lc.labelPl : lc.labelFc).value;
+        const t = String(v ?? "").trim();
+        return t === "" ? null : t;
+    }
+
+    private hasHouseTerms(): boolean {
+        return (["AC", "PY", "PL", "FC"] as const).some(c => this.houseTerm(c) != null);
+    }
+
+    /**
+     * Rewrites the scenario codes of a generated label ("ΔPY%", "AC&FC",
+     * "FY 2026 · FC vs PL") with the house terms. Only whole codes are
+     * replaced — a letter on either side keeps the text (PLAN, EBITDA …).
+     * Without any house term the text comes back untouched.
+     */
+    private relabel(text: string): string {
+        if (!text || !this.hasHouseTerms()) { return text; }
+        return text.replace(/(?<![A-Za-z])(AC|PY|PL|FC)(?![A-Za-z])/g,
+            (m: string) => this.houseTerm(m as "AC") ?? m);
+    }
+
+    private relabelBlocks(blocks: Block[]): Block[] {
+        if (!this.hasHouseTerms()) { return blocks; }
+        for (const b of blocks) {
+            b.label = this.relabel(b.label);
+            for (const c of b.specs) { c.label = this.relabel(c.label); }
+        }
+        return blocks;
+    }
+
+    // ---- tooltips (host tooltipService, dark: own overlay) ----
+
+    /**
+     * Tooltip items of one row: name, the bound scenarios of the block, Δ per
+     * reference (absolute and %), materiality note, comment and the selection
+     * cap. `mega` = the minuend and references of the mega table (display
+     * orientation, %p for margin rows); null = the classic table (Δ vs the
+     * toolbar reference, calculation orientation like its bars).
+     */
+    private tipItems(node: PnlNode, fmt: Fmt, block: "mtd" | "ytd" | "fy",
+        mega: { min: Scenario; refs: Scenario[] } | null): VisualTooltipDataItem[] {
+        const out: VisualTooltipDataItem[] = [{ displayName: this.tr("UI_TipRow"), value: node.row.name }];
+        const ratio = node.row.rowType === "kpi";
+        const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
+        const u = (s: string): string => ratio || !unit ? s : s + " " + unit;
+        const code = (s: Scenario): string => s === "fcfy" ? "AC&FC" : s === "plfy" ? "PL" : s.toUpperCase();
+        // mega FY outlook: PY of the whole year is a block scenario too (12G)
+        const scens: Scenario[] = block === "fy" ? (mega ? ["fcfy", "py", "plfy"] : ["fcfy", "plfy"]) : ["ac", "py", "pl", "fc"];
+        for (const sc of scens) {
+            if (!this.has[sc]) { continue; }
+            const ss = this.ssRaw(node, block, sc, fmt);
+            const raw = ss ?? this.megaRaw(node, block, sc);
+            if (raw == null) { continue; }
+            const disp = node.row.displayInvert ? -raw : raw;
+            out.push({ displayName: this.relabel(code(sc)), value: ratio ? fmt.pct(disp) : u(fmt.val(disp)) });
+        }
+        const min: Scenario = mega ? mega.min : block === "fy" ? "fcfy" : "ac";
+        const refs: Scenario[] = mega ? mega.refs
+            : [block === "fy" ? "plfy" : (this.has[this.ui!.ref] ? this.ui!.ref : (this.has.pl ? "pl" : "py"))];
+        const mat = this.materiality();
+        let soft = false;
+        for (const ref of refs) {
+            if (!this.has[ref]) { continue; }
+            const a = this.megaRaw(node, block, min); const r = this.megaRaw(node, block, ref);
+            const name = "Δ" + this.relabel(code(ref));
+            if (mega) {
+                const D = displayVariance(node.row, a, r);
+                if (!D) { continue; }
+                if (D.pp) {
+                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", MEGA_PP) });
+                    continue;
+                }
+                const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);
+                const d = sa != null && sb != null ? (sa - sb) * (node.row.displayInvert ? -1 : 1) : D.d;
+                out.push({ displayName: name, value: u(fmt.val(d, true)) });
+                if (D.p != null) { out.push({ displayName: name + " %", value: fmt.pct(D.p, true) }); }
+                soft = soft || mat(D.d, D.p);
+            } else {
+                const v = varianceOf(a, r, node.row.varianceInvert);
+                if (v.delta == null) { continue; }
+                if (ratio) {
+                    out.push({ displayName: name, value: fmt.pct(v.delta, true).replace("%", "pp") });
+                    continue;
+                }
+                out.push({ displayName: name, value: u(fmt.val(this.ssDelta(node, block, ref, min, fmt) ?? v.delta, true)) });
+                if (v.deltaPct != null) { out.push({ displayName: name + " %", value: fmt.pct(v.deltaPct, true) }); }
+                soft = soft || mat(v.delta, v.deltaPct);
+            }
+        }
+        if (soft) {
+            out.push({ displayName: this.tr("UI_TipMateriality"), value: this.tr("UI_TipMaterialityBelow") });
+        }
+        if (node.row.comment) {
+            const no = this.commentNo.get(node.row.id);
+            out.push({
+                displayName: (no != null ? String.fromCharCode(0x2460 + no - 1) + " " : "") + this.tr("UI_TipComment"),
+                value: node.row.comment,
+            });
+        }
+        if (this.selectable(node) && this.selCapNote(node) !== "") {
+            out.push({ displayName: this.tr("UI_Selection"), value: this.tr("UI_SelCap", SEL_MAX_ROWS) });
+        }
+        return out;
+    }
+
+    /**
+     * Hover tooltip of an element: the host's tooltipService in light mode
+     * (report-page tooltips get the row's identities), a self-drawn dark box
+     * in dark mode (ChartKitchen showDarkTip — the host tooltip keeps the
+     * report's light styling and would glare on a dark page).
+     */
+    private bindTip(el: HTMLElement | SVGElement, node: PnlNode, items: () => VisualTooltipDataItem[]): void {
+        const svc = this.tooltipService;
+        if (!svc && !this.dark) { return; }
+        const ids = (): ISelectionId[] => (this.selectable(node) ? this.selIdsFor(node) : []);
+        el.addEventListener("mouseover", (e: Event) => {
+            const me = e as MouseEvent;
+            if (this.dark) { this.showDarkTip(items(), me); return; }
+            svc?.show({ dataItems: items(), identities: ids(), coordinates: [me.clientX, me.clientY], isTouchEvent: false });
+        });
+        el.addEventListener("mousemove", (e: Event) => {
+            const me = e as MouseEvent;
+            if (this.dark) { this.moveDarkTip(me); return; }
+            svc?.move({ dataItems: items(), identities: ids(), coordinates: [me.clientX, me.clientY], isTouchEvent: false });
+        });
+        el.addEventListener("mouseout", () => {
+            if (this.dark) { this.hideDarkTip(); return; }
+            svc?.hide({ immediately: false, isTouchEvent: false });
+        });
+    }
+
+    private showDarkTip(items: VisualTooltipDataItem[], e: MouseEvent): void {
+        if (!this.darkTip || !this.darkTip.isConnected) {
+            const d = document.createElement("div");
+            d.setAttribute("data-pnl", "dark-tip");
+            d.style.cssText = "position:absolute;z-index:40;pointer-events:none;"
+                + "background:#2B2B2B;color:#E8E8E8;border:1px solid #5A5A5A;"
+                + "border-radius:4px;box-shadow:0 2px 10px rgba(0,0,0,0.45);"
+                + `padding:7px 10px;font-family:${FONT};font-size:11px;`
+                + "line-height:1.5;max-width:280px;";
+            this.root.appendChild(d);
+            this.darkTip = d;
+        }
+        const d = this.darkTip;
+        while (d.firstChild) { d.removeChild(d.firstChild); }
+        items.forEach((it, i) => {
+            const row = document.createElement("div");
+            if (i === 0) {
+                // first item is the row — the header of the tooltip
+                row.style.cssText = "font-weight:600;margin-bottom:3px;";
+                row.textContent = it.value;
+            } else {
+                const n = document.createElement("span");
+                n.style.cssText = "color:#A6A6A6;margin-right:8px;";
+                n.textContent = it.displayName;
+                const v = document.createElement("span");
+                v.textContent = it.value;
+                row.appendChild(n);
+                row.appendChild(v);
+            }
+            d.appendChild(row);
+        });
+        this.moveDarkTip(e);
+    }
+
+    /** next to the cursor, flipped to the other side instead of leaving the visual */
+    private moveDarkTip(e: MouseEvent): void {
+        const d = this.darkTip;
+        if (!d) { return; }
+        const r = this.rect(this.root);
+        const z = this.zoom();
+        const cx = e.clientX / z; const cy = e.clientY / z;
+        let x = cx - r.left + 14;
+        let y = cy - r.top + 14;
+        if (x + d.offsetWidth > r.width - 4) { x = Math.max(4, cx - r.left - d.offsetWidth - 14); }
+        if (y + d.offsetHeight > r.height - 4) { y = Math.max(4, cy - r.top - d.offsetHeight - 14); }
+        // the root scrolls — the box lives in its content coordinates
+        d.style.left = `${x + this.root.scrollLeft}px`;
+        d.style.top = `${y + this.root.scrollTop}px`;
+    }
+
+    private hideDarkTip(): void {
+        if (this.darkTip) { this.darkTip.remove(); this.darkTip = null; }
+    }
+
+    // ---- keyboard (supportsKeyboardFocus) ----
+
+    /** focus ring colour: the accent, high contrast the host's selection colour */
+    private ringColor(): string {
+        return this.hc ? this.hc.sel : this.accent();
+    }
+
+    /** a 2 px ring while the element has KEYBOARD focus (:focus-visible) — mouse focus stays quiet */
+    private kbRing(el: HTMLElement): void {
+        el.addEventListener("focus", () => {
+            let kb = true;
+            try { kb = el.matches(":focus-visible"); } catch { kb = true; }
+            if (!kb) { return; }
+            el.style.outline = `2px solid ${this.ringColor()}`;
+            el.style.outlineOffset = "1px";
+        });
+        el.addEventListener("blur", () => { el.style.outline = ""; el.style.outlineOffset = ""; });
+    }
+
+    /**
+     * A fold control for the keyboard: tabindex 0, role button, aria-expanded,
+     * Enter / Space fold or unfold. HTML cells get the outline ring, the SVG
+     * hit rect of the mega table a 2 px stroke (SVG elements draw no outline).
+     */
+    private kbFold(el: HTMLElement | SVGElement, open: boolean, name: string, act: (e: Event) => void): void {
+        el.setAttribute("tabindex", "0");
+        el.setAttribute("role", "button");
+        el.setAttribute("aria-expanded", open ? "true" : "false");
+        el.setAttribute("aria-label", name);
+        el.setAttribute("data-pnl-kb", "fold");
+        el.addEventListener("keydown", (e: Event) => {
+            const k = (e as KeyboardEvent).key;
+            if (k === "Enter" || k === " " || k === "Spacebar") { e.preventDefault(); act(e); }
+        });
+        if (el instanceof HTMLElement) { this.kbRing(el); return; }
+        el.addEventListener("focus", () => {
+            el.setAttribute("stroke", this.ringColor());
+            el.setAttribute("stroke-width", "2");
+        });
+        el.addEventListener("blur", () => { el.removeAttribute("stroke"); el.removeAttribute("stroke-width"); });
+    }
+
+    // ---- mega table: the reader's scenario view (toolbar group "Scenario") ----
+
+    /** signature of the pane's Δ / value switches — a change resets the reader's reference view */
+    private megaPaneSig(): string {
+        const cc = this.settings.columnsCard;
+        return [cc.showPY, cc.showPL, cc.dPyAbs, cc.dPyBar, cc.dPyWaterfall, cc.dPyPct, cc.dPyPin,
+            cc.dPlAbs, cc.dPlBar, cc.dPlWaterfall, cc.dPlPct, cc.dPlPin].map(x => (x.value ? "1" : "0")).join("");
+    }
+
+    /**
+     * The reader's view over the author's toggles: the analysed scenario AC / FC
+     * and the reference view. A reference view keeps the author's Δ elements
+     * (the union over PY and PL: number, bars, waterfall, Δ%, pins) and moves
+     * them to the chosen reference(s); a PY / PL value column follows the same
+     * way. Unbound scenarios never appear.
+     */
+    private megaReaderView(t: MegaToggles, ui: UiState | null): MegaToggles {
+        if (!ui) { return t; }
+        let out = t;
+        if (ui.megaMin === "fc" && this.has.fc) { out = { ...out, min: "FC" }; }
+        else if (ui.megaMin === "ac") { out = { ...out, min: "AC" }; }
+        if (ui.megaRef !== "") {
+            const a = t.d.PY; const b = t.d.PL;
+            const uni = {
+                num: a.num || b.num, bar: a.bar || b.bar, wf: a.wf || b.wf, pct: a.pct || b.pct, pin: a.pin || b.pin,
+            };
+            const off = { num: false, bar: false, wf: false, pct: false, pin: false };
+            const py = ui.megaRef !== "pl" && this.has.py;
+            const pl = ui.megaRef !== "py" && this.has.pl;
+            const val = t.showPY || t.showPL;
+            out = { ...out, d: { PY: py ? { ...uni } : { ...off }, PL: pl ? { ...uni } : { ...off } }, showPY: val && py, showPL: val && pl };
+        }
+        // 1.2 the reader's value columns (toolbar group "Value columns") come last
+        const mv = ui.megaVals;
+        if (mv) {
+            out = { ...out, showMin: !!mv.min, showPY: !!mv.py && this.has.py, showPL: !!mv.pl && this.has.pl };
+        }
+        return out;
+    }
+
+    /** what a scenario view puts on screen — equal signatures = a click changes nothing */
+    private megaViewSig(t: MegaToggles): string {
+        const usesMin = t.showMin || activeRefs(t).length > 0 || !!t.share;
+        return JSON.stringify([buildColumns(t, 1).map(c => c.type + (c.scen ?? "") + (c.ref ?? "")), usesMin ? t.min : ""]);
+    }
+
+    /** toolbar groups "Analysed scenario" (AC / FC, with the FC field) and "Reference view" (ΔPY · ΔPL · both) */
+    private megaScenarioGroups(): HTMLElement[] {
+        const ui = this.ui!;
+        const base = this.megaPaneToggles();
+        const cur = this.megaViewSig(this.megaReaderView(base, ui));
+        const live = (mut: (u: UiState) => void): boolean => {
+            const trial: UiState = { ...ui };
+            mut(trial);
+            return this.megaViewSig(this.megaReaderView(base, trial)) !== cur;
+        };
+        const locked = this.tr("UI_TbScenNoEffect");
+        const view = this.megaReaderView(base, ui);
+        const groups: HTMLElement[] = [];
+        if (this.has.fc) {
+            const btn = (m: "ac" | "fc"): HTMLElement => {
+                const code = m === "ac" ? "AC" : "FC";
+                const on = view.min === code;
+                return this.tbBtn(this.relabel(code), on, () => { ui.megaMin = m; }, undefined,
+                    on || live(u => { u.megaMin = m; }) ? undefined : locked);
+            };
+            groups.push(this.tbGroup(this.tr("UI_TbMinuend"), [btn("ac"), btn("fc")]));
+        }
+        const refs = activeRefs(view);
+        const shownRef: "" | "py" | "pl" | "both" = refs.length === 2 ? "both" : refs[0] === "PY" ? "py" : refs[0] === "PL" ? "pl" : "";
+        const rb: HTMLElement[] = [];
+        const refBtn = (r: "py" | "pl" | "both", label: string): HTMLElement => {
+            const on = shownRef === r;
+            return this.tbBtn(label, on, () => { ui.megaRef = r; }, undefined,
+                on || live(u => { u.megaRef = r; }) ? undefined : locked);
+        };
+        if (this.has.py) { rb.push(refBtn("py", "Δ" + this.relabel("PY"))); }
+        if (this.has.pl) { rb.push(refBtn("pl", "Δ" + this.relabel("PL"))); }
+        if (this.has.py && this.has.pl) { rb.push(refBtn("both", this.tr("UI_TbRefBoth"))); }
+        if (rb.length > 0) { groups.push(this.tbGroup(this.tr("UI_TbRefView"), rb)); }
+        return groups;
+    }
+
+    /**
+     * 1.2 toolbar group "Value columns" of the mega table: the value column of
+     * the analysed scenario, PY and PL as independent switches on top of the
+     * author's switches (and of the reader's reference view). A click that
+     * changes nothing — or would leave the mega table without any column, which
+     * would drop back to the classic table — is locked.
+     */
+    private megaValuesGroup(): HTMLElement | null {
+        const ui = this.ui!;
+        const base = this.megaPaneToggles();
+        const view = this.megaReaderView(base, ui);
+        const cur = this.megaViewSig(view);
+        const shown: MegaVals = { min: view.showMin, py: view.showPY, pl: view.showPL };
+        const flip = (u: UiState, k: keyof MegaVals): void => { u.megaVals = { ...shown, [k]: !shown[k] }; };
+        const live = (k: keyof MegaVals): boolean => {
+            const trial: UiState = { ...ui };
+            flip(trial, k);
+            const t = this.megaReaderView(base, trial);
+            return megaActive(t) && this.megaViewSig(t) !== cur;
+        };
+        const locked = this.tr("UI_TbValNoEffect");
+        const btn = (k: keyof MegaVals, label: string): HTMLElement =>
+            this.tbBtn(this.relabel(label), shown[k], () => flip(ui, k), undefined, live(k) ? undefined : locked);
+        const out: HTMLElement[] = [btn("min", view.min)];
+        if (this.has.py) { out.push(btn("py", "PY")); }
+        if (this.has.pl && view.min !== "PL") { out.push(btn("pl", "PL")); }
+        const g = this.tbGroup(this.tr("UI_TbValues"), out);
+        g.setAttribute("data-pnl", "tb-values");
+        return g;
+    }
+
+    // ---- title block: auto message, footers ----
+
+    /**
+     * IBCS SAY, generated (ChartKitchen buildAutoMessage): the variance of the
+     * result row against the reference of the view, plus the strongest and
+     * the weakest driver (leaf rows, ranked by their effect: favourable Δ up,
+     * unfavourable down). Mega table: its minuend and first reference, display
+     * orientation; classic: AC vs the toolbar reference. YTD window.
+     * 1.5: one complete sentence (IBCS SAY: a message, not a keyword list) —
+     * "EBIT liegt 691 Tsd. EUR (−29 %) unter Vorjahr; stärkster Treiber ist
+     * Lizenzen mit +120 Tsd. EUR Mehrertrag, größte Belastung ist Logistik mit
+     * +813 Tsd. EUR Mehrkosten." 1.5.1: the drivers carry the Δ the table
+     * shows (a cost overrun is +813 there) and name its effect in words; they
+     * are still ranked by their effect on the result. A minuend other than AC
+     * is named in the subject ("liegt im Plan").
+     */
+    private autoMessage(fmt: Fmt): string {
+        const model = this.model; const ui = this.ui;
+        if (!model || !ui) { return ""; }
+        const mt = this.megaInView() ? this.megaToggles() : null;
+        let min: Scenario = "ac"; let ref: Scenario;
+        // the window of the message: YTD; a mega table laid out as FY outlook speaks about the year (12G)
+        let block: "ytd" | "fy" = "ytd";
+        if (mt) {
+            const r = activeRefs(mt)[0] ?? (mt.showPL && mt.min !== "PL" ? "PL" : mt.showPY ? "PY" : null);
+            if (!r) { return ""; }
+            const keys = this.megaKeys();
+            block = keys[keys.length - 1] === "fy" ? "fy" : "ytd";
+            const mm = this.megaScenOf(block, mt.min); const rr = this.megaScenOf(block, r);
+            if (!mm || !rr) { return ""; }
+            min = mm; ref = rr;
+        } else {
+            ref = this.has[ui.ref] ? ui.ref : this.has.pl ? "pl" : "py";
+        }
+        if (!this.has[ref]) { return ""; }
+        const dv = (n: PnlNode): { d: number; p: number | null; good: boolean } | null => {
+            const a = this.megaRaw(n, block, min); const r = this.megaRaw(n, block, ref);
+            if (mt) {
+                const D = displayVariance(n.row, a, r);
+                return D && !D.pp ? { d: D.d, p: D.p, good: D.good } : null;
+            }
+            const v = varianceOf(a, r, n.row.varianceInvert);
+            return v.delta == null ? null : { d: v.delta, p: v.deltaPct, good: v.good };
+        };
+        const roots = model.roots.filter(r => r.row.rowType !== "separator" && r.row.rowType !== "kpi");
+        const formulas = roots.filter(r => r.row.rowType === "formula" && dv(r) != null);
+        const result = formulas.length > 0 ? formulas[formulas.length - 1]
+            : roots.length === 1 ? roots[0] : syntheticTotal(model);
+        const total = dv(result);
+        if (!total) { return ""; }
+        const unit = this.titleUnit(fmt);
+        // number and unit never break apart ("+721 Mio. | EUR" in a narrow headline)
+        const withUnit = (s: string): string => s + (unit ? " " + unit.replace(/ /g, " ") : "");
+        const code = ref === "plfy" ? "PL" : ref.toUpperCase();
+        // the reference by name ("Vorjahr", "Plan"); house terms (labels.labelPy …) win
+        const refName = this.relabel(code) !== code ? this.relabel(code) : this.tr(code === "PY" ? "UI_AutoRefPY" : "UI_AutoRefPL");
+        // 1.5.1: a minuend other than AC is named in the subject ("EBIT liegt im
+        // Plan … über Vorjahr", 12H; "im Forecast" for FC) — house terms win
+        // 1.5.2: an FY outlook with minuend AC compares AC&FC (YTD actual plus
+        // the forecast of the rest of the year) — the subject says so ("EBIT
+        // liegt im Forecast … unter Vorjahr", 12G), not like a booked actual
+        const minCode: string = mt ? (block === "fy" && mt.min === "AC" ? "FC" : mt.min) : "AC";
+        const minName = minCode === "AC" ? "" : this.relabel(minCode) !== minCode ? this.relabel(minCode)
+            : this.tr(minCode === "PL" ? "UI_AutoRefPL" : "UI_AutoScenFC");
+        const inScen = minName ? this.tr("UI_AutoIn", minName) : "";
+        const name = result.row.name || this.tr("UI_AutoResult");
+        // 1.5.1: Δ% with the typographic minus and a narrow space before "%" ("−28,5 %")
+        const pctH = (p: number): string => fmt.pct(p, true).replace("%", " %");
+        const amount = withUnit(fmt.val(Math.abs(total.d))) + (total.p != null ? ` (${pctH(total.p)})` : "");
+        let sentence = total.d === 0 ? this.tr("UI_AutoEq", name, refName, inScen)
+            : this.tr(total.d > 0 ? "UI_AutoAbove" : "UI_AutoBelow", name, amount, refName, inScen);
+        const drivers: { n: PnlNode; score: number; d: number; good: boolean }[] = [];
+        for (const n of model.byId.values()) {
+            if (n.hasChildren || n.row.rowType !== "account") { continue; }
+            const v = dv(n);
+            if (!v || v.d === 0) { continue; }
+            drivers.push({ n, score: v.good ? Math.abs(v.d) : -Math.abs(v.d), d: v.d, good: v.good });
+        }
+        // 1.5.1: a driver reads with the Δ the table shows (sign and all: a cost
+        // overrun is +813, as in the Δ column) and its effect in words —
+        // "größte Belastung ist Logistik mit +0,81 Mio. EUR Mehrkosten". The
+        // ranking still goes by the effect on the result.
+        const effect = (x: { d: number; good: boolean }): string => this.tr(
+            x.good ? (x.d > 0 ? "UI_AutoEffIncome" : "UI_AutoEffSaving") : (x.d > 0 ? "UI_AutoEffCost" : "UI_AutoEffShortfall"),
+            withUnit(fmt.val(x.d, true)));
+        const tail: string[] = [];
+        if (drivers.length >= 3) {
+            drivers.sort((x, y) => y.score - x.score);
+            const best = drivers[0]; const worst = drivers[drivers.length - 1];
+            if (best !== worst && best.score > 0) { tail.push(this.tr("UI_AutoBest", best.n.row.name, effect(best))); }
+            if (best !== worst && worst.score < 0) { tail.push(this.tr("UI_AutoWorst", worst.n.row.name, effect(worst))); }
+        }
+        if (tail.length) { sentence += this.tr("UI_AutoJoin") + tail.join(this.tr("UI_AutoAnd")); }
+        return sentence + this.tr("UI_AutoEnd");
+    }
+
+    /**
+     * 1.5: the unit of the title's measure line ("… in Tsd. EUR" → "Tsd. EUR",
+     * "… en kEUR", "…単位：kEUR") — the generated message names amounts the way
+     * the title does. 1.5.1: the unit may also stand before a comma or a
+     * bracket ("GuV in Mio. EUR, Jahresausblick gegen Vorjahr"); of several
+     * "in …" phrases the last one that looks like a unit wins. Without one, the
+     * visual's own unit in words: scaling + numbers.unitText ("Mio. EUR",
+     * "Tsd. EUR"), never the code "mEUR".
+     */
+    private titleUnit(fmt: Fmt): string {
+        const unitText = this.settings.numbersCard.unitText.value.trim();
+        const line = this.settings.titleCard.measureLine.value.trim();
+        const looksLikeUnit = (s: string): boolean =>
+            /[A-Z]{3}|[€$£¥%]|千|百万|億/.test(s) || /\b(?:tsd|mio|mrd|thousand|million|billion|miles|millones|mill)\b/i.test(s)
+            || (unitText !== "" && s.includes(unitText));
+        const found: string[] = [];
+        for (const m of line.matchAll(/(?:^|\s)(?:in|en)\s+([^,;·|()\n]{1,24}?)\s*(?=[,;·|()]|$)/gi)) { found.push(m[1].trim()); }
+        const jp = /単位[:：]\s*([^,;·|()、。\s][^,;·|()、。]{0,18}?)\s*(?=[,;·|()、。]|$)/.exec(line);
+        if (jp) { found.push(jp[1].trim()); }
+        for (let i = found.length - 1; i >= 0; i--) {
+            if (found[i] && looksLikeUnit(found[i])) { return found[i]; }
+        }
+        const key = fmt.suffix === "k" ? "UI_UnitK" : fmt.suffix === "m" ? "UI_UnitM" : fmt.suffix === "b" ? "UI_UnitB" : "";
+        return (key ? this.tr(key, unitText) : unitText).replace(/\s+/g, " ").trim();
+    }
+
+    /** first non-empty value of the bound filterInfo text measure */
+    private readFilterInfo(dataView: DataView): string | null {
+        const col = (dataView.categorical?.values ?? []).find(v => v.source.roles && v.source.roles["filterInfo"]);
+        if (!col) { return null; }
+        for (const v of col.values) {
+            if (v != null && String(v).trim() !== "") { return String(v).trim(); }
+        }
+        return null;
+    }
+
+    /**
+     * The two footer lines of the title block (ChartKitchen footer +
+     * filterFooter): the author's free text, then "Filter: <filterInfo> ·
+     * <the visual's own state>". Report filters are invisible to custom
+     * visuals — the text measure carries them. Both print in exports.
+     */
+    private titleFooterLines(): string[] {
+        const t = this.settings.titleCard;
+        if (!t.show.value) { return []; }
+        const out: string[] = [];
+        const foot = t.footer.value.trim();
+        if (foot) { out.push(foot); }
+        if (t.filterFooter.value) {
+            const parts: string[] = [];
+            if (this.filterInfo) { parts.push(this.filterInfo); }
+            const ui = this.ui;
+            if (ui && ui.hideZero) { parts.push(this.tr("UI_FootZeroHidden")); }
+            if (ui && this.megaInView() && (ui.megaMin !== "" || ui.megaRef !== "")) {
+                const v = this.megaToggles();
+                const refs = activeRefs(v);
+                parts.push(this.relabel(v.min + (refs.length ? " vs " + refs.join(" · ") : "")));
+            }
+            if (parts.length > 0) { out.push(this.tr("UI_FootFilter") + ": " + parts.join(" · ")); }
+        }
+        return out;
     }
 
     // ---------------- footnotes / footer ----------------
 
-    private buildFootnotes(fmt: Fmt): void {
+    private buildFootnotes(fmt: Fmt): HTMLElement | null {
         void fmt;
         const model = this.model!;
         const warnings = [...this.statusWarnings, ...model.warnings];
-        if (this.comments.length === 0 && warnings.length === 0) { return; }
+        if (this.comments.length === 0 && warnings.length === 0) { return null; }
         const box = document.createElement("div");
+        box.setAttribute("data-pnl", "footnotes");
         box.style.cssText = "padding:8px 14px 4px 14px;max-width:960px;";
         const h = document.createElement("div");
         h.style.cssText = `font-size:${this.kpx(9)};font-weight:700;letter-spacing:.08em;` +
             `color:${C.soft};margin-bottom:4px;`;
-        h.textContent = this.str("COMMENTS & DATA-QUALITY SIGNALS", "KOMMENTARE & DATENQUALITÄTS-SIGNALE");
+        h.textContent = this.tr("UI_FootHead");
         box.appendChild(h);
         for (const cm of this.comments) {
             const li = document.createElement("div");
-            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;`;
+            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;break-inside:avoid;`;
+            li.setAttribute("data-pnl", "footnote");
             const m = document.createElement("span");
             m.style.cssText = `color:${C.comment};margin-right:6px;`;
             m.textContent = String.fromCharCode(0x2460 + cm.n - 1);
@@ -6266,32 +10552,104 @@ export class Visual implements IVisual {
             const loading = w.charAt(0) === "⏳";
             li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;` +
                 `color:${loading ? C.loading : C.soft};`;
-            li.textContent = loading ? w : "⚠ " + w;
+            li.textContent = loading ? w : "⚠ " + this.trMsg(w);
             box.appendChild(li);
         }
         this.root.appendChild(box);
+        return box;
+    }
+
+    /**
+     * 1.5.1: every comment marked in the mega table (①, ②, ③ …) must be
+     * readable without scrolling — in a fixed tile the footnotes used to fall
+     * below the visible area (12A ③, 12G ② ③). When the footnotes end below
+     * the viewport: (1) they are set in columns, (2) the table rows are set
+     * tighter (row height down to 1.3 × the font size, a layout of its own,
+     * scales unchanged in kind), (3) if that is still not enough, the footnote
+     * block sticks to the bottom edge while the table scrolls behind it.
+     * Exports print everything in flow and are left alone.
+     */
+    private megaFitNotes(fmt: Fmt, table: HTMLElement, notes: HTMLElement | null, shrink: number, footer?: HTMLElement): void {
+        if (!notes || this.comments.length === 0 || this.exporting() || this.miniQuiet()) { return; }
+        const avail = this.root.clientHeight;
+        if (!avail) { return; }
+        // 1.5.2: the footer (IBCS notation line, title footers) belongs to the
+        // block that must fit — measuring only the footnotes cut the notation
+        // line off below the tile edge as soon as a comment was shown (T03, T04, 12A/G/H)
+        const lastEl = (): HTMLElement => footer && footer.parentNode === this.root ? footer : notes;
+        const bottom = (): number => Math.ceil(this.rect(lastEl()).bottom
+            - this.rect(this.root).top + this.root.scrollTop);
+        if (bottom() <= avail) { return; }
+        // (1) columns: one comment per line, as many columns as the width holds
+        if (this.comments.length > 1) {
+            notes.style.maxWidth = "none";
+            notes.style.columnWidth = this.kpx(300);
+            notes.style.columnGap = this.kpx(24);
+            const head = notes.firstElementChild as HTMLElement | null;
+            if (head) { head.style.columnSpan = "all"; }
+        }
+        let over = bottom() - avail;
+        // (2) tighter rows
+        const L = this.megaLast;
+        if (over > 0 && L && L.R.length > 0) {
+            const gaps = L.rows.filter(r => r.kind === "gap").length;
+            const per = over / (L.R.length + 0.5 * gaps);
+            const rowK = (L.G.rowH - per - 0.5) / L.G.fs;
+            if (rowK < 1.7) {
+                const tight = this.buildMega(fmt, shrink, rowK);
+                this.root.replaceChild(tight, table);
+                over = bottom() - avail;
+            }
+        }
+        // (3) still too tall: the footnotes stay on screen at the bottom edge,
+        // the footer rides along inside the sticky block
+        if (over > 0) {
+            // the footer spans all comment columns, otherwise the notation line
+            // is torn into column fragments
+            if (footer && footer.parentNode === this.root) { notes.appendChild(footer); footer.style.columnSpan = "all"; }
+            // only while the rows keep a usable window: frozen head, column
+            // header and a sticky footnote block together ate small tiles
+            // completely (a Fabric App tile showed title and footnotes only)
+            const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
+            const frozen = this.sticky() ? (this.headEl?.offsetHeight ?? 0) + (megaHead?.offsetHeight ?? 0) : 0;
+            const rowH = L ? L.G.rowH : this.k(20);
+            if (avail - frozen - notes.offsetHeight < Math.max(5 * rowH, 0.3 * avail)) { return; }
+            notes.setAttribute("data-pnl-sticky", "1");
+            notes.style.position = "sticky";
+            notes.style.bottom = "0";
+            notes.style.zIndex = "20";
+            notes.style.background = this.pageBg();
+            notes.style.borderTop = `1px solid ${C.gridSoft}`;
+        }
     }
 
     private buildFooter(flow = false): HTMLElement {
         const f = document.createElement("div");
+        f.setAttribute("data-pnl", "footer");
         f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
             `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;
-        const dev = String(this.settings.styleCard.colorMode.value.value) !== "ibcs"
-            ? this.str(" Documented corporate deviation: teal replaces the IBCS variance green to remain readable with red–green color-vision deficiency.",
-                " Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben.")
-            : "";
-        // the Sankey is a deliberate addition next to the IBCS views — the
+        const vm = this.varianceMode();
+        const dev = vm !== "ibcs" && !this.hc ? this.tr(vm === "blueOrange" ? "UI_FooterDevBo" : "UI_FooterDev") : "";
+        // 1.6: the Sankey is a deliberate addition next to the IBCS views — the
         // footer says so instead of letting it pass as IBCS notation
-        const flowNote = flow
-            ? this.str(" The flow view (Sankey) is a deliberate addition outside the IBCS notation.",
-                " Die Fluss-Ansicht (Sankey) ist eine bewusste Ergänzung außerhalb der IBCS-Notation.")
-            : "";
-        f.textContent = this.str(
-            "Notation based on the IBCS® Standards 1.2 by the IBCS Association (CC BY-SA 4.0, ibcs.com)." + flowNote + dev +
-            " IBCS® is a registered trademark of HICHERT+FAISST GmbH. This visual is not certified by or affiliated with the IBCS Association.",
-            "Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0, ibcs.com)." + flowNote + dev +
-            " IBCS® ist eine eingetragene Marke der HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association zertifiziert.");
-        return f;
+        const flowNote = flow ? this.tr("UI_FooterSankey") : "";
+        f.textContent = this.tr("UI_FooterIbcs", flowNote + dev);
+        // title-block footers (1.1): data status / source, then the filter context
+        const lines = this.titleFooterLines();
+        if (lines.length === 0) { return f; }
+        const wrap = document.createElement("div");
+        const tf = document.createElement("div");
+        tf.setAttribute("data-pnl", "title-footer");
+        tf.style.cssText = `padding:8px 14px 0 14px;font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
+            `max-width:${this.k(960)}px;`;
+        for (const l of lines) {
+            const d = document.createElement("div");
+            d.textContent = l;
+            tf.appendChild(d);
+        }
+        wrap.appendChild(tf);
+        wrap.appendChild(f);
+        return wrap;
     }
 }

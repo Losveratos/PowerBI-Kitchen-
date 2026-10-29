@@ -1,5 +1,779 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.53.0.0 (2026-10-24)
+
+**Review-Paket: Zeilenstruktur als Datenvertrag, negative Brücken, Export-Layout, generierte Property-Referenz.
+Keine neue Datenrolle, keine neue Formatoption; bestehende Berichte zeichnen unverändert (SVG-Vergleich über alle
+Altfälle). Metadaten zeigen jetzt auf das Monorepo; Lizenzfeld im Paket sagt wie die LICENSE-Datei Apache-2.0.**
+
+- **Zeilenstruktur per Rolle „Waterfall-Typ" (rowType) statt Zeilennamen.** Je Zeile ein oder mehrere Token,
+  getrennt durch Komma, Semikolon, Leerzeichen oder |: `total` (Ergebniszeile), `pct` (Margenzeile), `exclude`
+  (nicht in Σ), `hide` (ausblenden), `davon` (eingerückt), `invert` (Wertung umkehren), `emphasize` (hervorheben),
+  `graphic` (nur diese Zeilen mit Grafik) — dazu deutsche Aliasse (Summe, Ergebnis, nachrichtlich, ausblenden,
+  Kosten, hervorheben, Grafik …) und die RowType-Werte des P&L Statement byDatenWG (Subtotal, Formula, KPI,
+  Account), sodass eine Kontendimension beide Visuals speist. Umbenennen oder Übersetzen von Zeilen bricht die
+  Struktur nicht mehr. Die sieben Komma-Listen bleiben als Override; wirksam ist die Vereinigung aus Rolle und
+  Liste, per Token gesetzte Häkchen erscheinen im Struktur-Modus gesperrt. Unbekannte Token werden ignoriert und
+  im Bearbeitungsmodus unten rechts genannt; Leser und Exporte sehen nichts. Tests c248–c257.
+- **Negative Brücken.** Integrierte Brücke (C05) und Kategorie-Brücke (C06) zeichnen negative Werte, statt auf
+  einen Hinweis auszuweichen. Verlustmonate hängen unter der Nulllinie; liegt ein Anker oder Kaskadenstand unter
+  null (Vorjahresverlust → Gewinn, Kostenreihe als negative Beträge), bekommt die Kaskade eine eigene sichtbare
+  Nulllinie mit vollen Ankerbalken nach oben oder unten, die Stufen schwebend in echter Höhe — auch eine Stufe,
+  die die Null kreuzt (+2 → −5 → −3); die Monatssäulen stehen dann in einem eigenen Streifen darunter.
+  Kategorie-Brücke mit rein negativen Summen: Nulllinie rechts (Balken) bzw. oben (Säulen), Beschriftungen außen,
+  Färbung nach Vorzeichen-Logik, „Invertieren" wirkt wie gewohnt; läuft die Kaskade durch die eigenen Balken
+  einer Zeile, zeigt diese Zeile Balken oben und Stufe unten statt übermalter Balken. Small Multiples mit
+  „Gleiche Skala": eine negative Kachel bestimmt die gemeinsame Nulllinie. „Anker kürzen" spiegelt bei rein
+  negativen Brücken unter die Nulllinie; über die Null hinweg wird nie geschnitten. Tests c239–c247.
+- **Export-Layout (Desktop-PDF, Druck; Service-Export nach Zertifizierung).** Neue Prüfsuite `npm run test:export`:
+  Monatssäulen + Δ, Struktur-Balken, Kategorie-Brücke, GuV-Wasserfall und Matrix mit YTD-Spalte, je als
+  A4-quer-Kachel (1100×620), halbe Seite (540×620) und PowerPoint-Kachel (960×540), in HD und Full HD. Im
+  nicht-interaktiven Kontext sind Datenmarken nicht mehr fokussierbar, Aufklapp-Pfeile entfallen bei „Export: alles
+  aufklappen", und der Export schreibt nichts zurück. Zu lange Titel brechen auf eine zweite Zeile um.
+  Balken-Panels reservieren Platz nach der breitesten Beschriftung, das Δ%-Panel wird bei Bedarf breiter („+43,3 %"
+  läuft nicht mehr über den Rand). Kategorie-Brücke: negative Werte schreiben nicht mehr in die Treibernamen, lange
+  Namen brechen zweizeilig um. GuV-Wasserfall: zweizeilige Positionsnamen mit Trennung an Wortfugen
+  („Jahres-/überschuss"), sich überlagernde Werte werden aufgelöst (Summen und große Schritte haben Vorrang),
+  Δ-Stufen weichen dem Panel-Titel aus. Matrix: Passen die aufgeklappten Monate nicht in die Kachel, fällt der
+  Export auf den Aufklappzustand des Berichts und dann auf zugeklappte Quartalsblöcke zurück, statt Quartale
+  abzuschneiden; der Hinweis „… +n" steht im Kopf der Namensspalte.
+- **AGENT-GUIDE aus dem Paket.** Die Property-Referenz wird mit `npm run guide` aus capabilities.json und
+  settings.ts erzeugt (`guide:check` schlägt bei Drift an); 17 Properties und vier Rollen, die nur in
+  „Neu-in"-Absätzen standen, sind damit wieder in der Referenz.
+- **Website:** neue Seite „Sicherheit & Betrieb" (visuals-sicherheit.html, DE/EN) — Datenfluss, `privileges: []`,
+  Freigabe als Organisationsvisual, Export-Grenzen unzertifizierter Visuals, Admin-Checkliste.
+
+## 1.52.4.0 (2026-10-23)
+
+**Größen-Preset heißt jetzt wie in der Produktfamilie: HD · Full HD · UHD. Nur Labels, keine neue Option —
+die gespeicherten Werte (`compact`/`fullhd`/`presentation`) bleiben unverändert, bestehende Berichte sind
+nicht betroffen.**
+
+- **Formatmenü = Start-Hub-Leiste.** „Kompakt / Full HD / Präsentation" hieß in der unteren Hub-Leiste schon
+  „HD · Full HD · UHD" (wie beim P&L Statement byDatenWG). Jetzt sagen Formatmenü (Data labels → Size preset),
+  Hub-Pillen und Beschreibungstext in allen vier Sprachen dasselbe; die Klammerzusätze (Dashboard-Kachel,
+  1080p, 4K/Beamer) bleiben als Orientierung.
+
+## 1.52.3.0 (2026-10-21)
+
+**Formatstring mit explizitem Plus. Keine neue Option, capabilities.json unverändert; `test:notation` jetzt 37
+Prüfungen.**
+
+- **Vorzeichen nur einmal.** Ein Measure-Format wie `+#,##0;-#,##0;0` (typisch für GuV-Kennzahlen mit Vorzeichen)
+  ergab in Power BI „++1,17" an den Brückenstufen und „+8,01" an den Ankern (C12). ChartKitchen setzt Vorzeichen
+  selbst (Δ mit Vorzeichen, Werte ohne) und entfernt deshalb das Plus aus dem positiven Abschnitt des Formatstrings;
+  Minus- und Nullabschnitt, Text in Anführungszeichen und Escapes bleiben. Gilt für Wert, Linie, x und Größe.
+  In der Fabric App trat es nicht auf, weil dort kein Formatstring des Modells ankommt.
+
+## 1.52.2.0 (2026-10-20)
+
+**Kosmetische Restpunkte der Showcase-Messung. Keine neue Option, capabilities.json unverändert; `test:notation`
+jetzt 34 Prüfungen.**
+
+- **KPI-Karten: Δ mit den Dezimalen des Werts.** „18,5 · ΔPL −1,1" statt einer zweiten Dezimale beim Δ („−0,05");
+  rundet ein Δ ungleich null auf null, steht „+0,0" bzw. „−0,0" statt mehr Stellen.
+- **Null mit Vorzeichen neben Pins (C04, C05, C13).** Ein Δ, das nicht null ist, aber auf null rundet, behält sein
+  Vorzeichen („+0,00M", „+0,0%"); auch eine Brückenstufe, die die summensichere Rundung auf null setzt (C05 August).
+  Eine exakte Null bleibt „0".
+- **Scatter und Bubble (C09, C10): Einheit wie im Titel.** Achsentitel nennen die Einheit in Langform („Absatz hl
+  in Tsd.", vorher „in K"); Ø-Linie, Größenangabe und Größenlegende ohne K/M („Ø 23,3", „○ Umsatz in Mio.
+  (max 9,0)").
+- **Stapellegende bei Balken (C02).** Die Namen stehen auch dann am Stapel, wenn der erste Balken nicht alle Reihen
+  trägt: jede Reihe über ihrem breitesten Segment; der Schlüssel kommt nur zurück, wenn ein Name nicht passt.
+- **FC-Trennlinie (C13 und alle Säulen mit Forecast-Ende).** Die gestrichelte Linie wird an Beschriftungen
+  unterbrochen (Δ-Labels, Hinweis „Summe weicht rundungsbedingt ab"). Marker `data-icd="fc-boundary"`.
+- **C05-Überschrift lokalisiert.** „PY → AC/FC · Brücke + Monatssäulen ×f" kommt aus den Sprachressourcen
+  (`WfBridge_Title`) und nutzt die Szenario-Namen.
+
+## 1.52.1.0 (2026-10-20)
+
+**Notation nach der Pixelmessung der Showcase-App (IBCS 2.0 / ISO 24896): Einheit einmal im Titel, Szenarien ohne
+Dopplung, höchstens drei Ziffern, Brückenstufen in echter Höhe, Linien-Notation, Scatter-Ränder. Drei neue Optionen;
+zwei behalten das bisherige Bild als Standard, die Stapellegende steht neu am Stapel.**
+
+Gemessen mit dem neuen Test `test/notation.html` (`npm run test:notation`, 31 Prüfungen; 1.52.0.0 besteht davon 5):
+
+| Befund | 1.52.0.0 | 1.52.1.0 |
+| --- | --- | --- |
+| Titel, kpi „Nettoumsatz in EUR je Kanal“ | „Nettoumsatz in EUR je Kanal in M“ | „Nettoumsatz in Mio. EUR je Kanal“ |
+| Titel ohne Einheit im kpi, Format „#,0 €“ | „… je Kanal in M€“ | „… je Kanal in Mio. €“ |
+| Scatter-Titel | „… (x) je Kunde in %“ | „… (x) je Kunde“ (Einheiten an den Achsen) |
+| period „2026 AC&FC gegen PL“ | „…: AC vs. PL, PY“ angehängt | kein Suffix |
+| period ohne Kürzel, Ist-Wert „Umsatz AC&FC“ | „AC vs. PL, PY“ | „AC&FC vs. PL, PY“ |
+| Wasserfall mit PY und PL gebunden, Basis PY | „AC vs. PY, PL“ | „AC vs. PY“ (PL wird nicht gezeigt) |
+| Werte ab 100 der Anzeige-Einheit | „161,8K“, „Σ 407,6K“ | „162K“, „Σ 408K“ |
+| Stapel aus einem Segment | „161,8K“ zweimal | einmal |
+| Nullwert / unter der Darstellungsgrenze | „0,0M“, „0,00M“ | „0“ |
+| KPI-Karte Wert und Δ | „18,5M“ und „−1,05M“ | „18,5M“ und „−1,1M“ |
+| C05 Brückenstufen (6,9 px/M) | 4 px Mindesthöhe, bis 4× still vergrößert | echte Höhe 1,0 bis 2,2 px, Haarlinie 1 px |
+| C05 mit `chart.bridgeBreak` | nicht vorhanden | Anker mit ⫽ gekürzt, Stufen 38,8 px/M (×5,6), eine lineare Skala |
+| C08 Linienstärken AC / PY / PL / FC | 2 / 1,4 / 1,2 gestrichelt / 2 gestrichelt | 3 / 3 / 3 hohl / 3 gestrichelt |
+| C08 AC-Beschriftungen auf einer Linie | 10 von 12 | 0 von 12 |
+| C09 Punkte in den Ecken (Testfall) | 9 von 12 beschriftet | 12 von 12 |
+| C10 x-Achse bei Werten ab 150 | Ursprung im Negativen (Tick 0 liegt 28 px rechts der Achse) | Ursprung 0 |
+| C12 mit `sumSafeRounding` | „6,2M · +1,15M · … · 7,3M“, Stufen ergeben 7,34 | „6,21M · +1,14M · … · 7,34M“, Summe exakt |
+| Stapellegende C01/C02 | Schlüssel oben | Namen am Stapel |
+
+- **Titel-Einheit (eine Einheit, einmal genannt):** „in <Einheit>“ wird überall im Kennzahltext erkannt
+  (Währungscode, Symbol, %, hl, kg, Stk. …) und um die Anzeige-Größenordnung ergänzt, in Langform („in Mio. EUR“,
+  „in Tsd. hl“, englisch „in mEUR“, „in k hl“); „M“ oder „K“ stehen nie im Titel. Ohne Einheit im Text hängt das
+  Visual Größenordnung plus bekannte Basiseinheit aus dem Formatstring an. Scatter/Bubble bekommen keine Einheit
+  am Titel, die Achsentitel tragen sie.
+- **Szenario-Suffix:** Nennt `ibcsTitle.period` schon Szenariokürzel (AC, PY, PL, BU, FC oder die Hausbegriffe), hängt
+  das Visual nichts an. Sonst bildet es den Suffix aus `comparisonMode` und den gebundenen Rollen; der Ist-Wert heißt
+  „AC&FC“, wenn ein Forecast-Anteil gezeigt wird (FC-Monate oder ein Messwertname „… AC&FC“). Wasserfall,
+  Kategorie-Brücke, Pareto, Dumbbell und Slope nennen nur die Basis.
+- **Höchstens drei Ziffern** in Grafiken: jede Zahl verliert ab 100 (bzw. 10) der Anzeige-Einheit Nachkommastellen,
+  gezählt nach dem Runden („99,96“ wird „100“). Tabelle und GuV-Statement behalten ihre Dezimalen. Mit
+  `sumSafeRounding` gilt eine Präzision für Labels und Σ, gesetzt von der größten Zahl, damit die Summe aufgeht; der
+  Rundungshinweis ohne `sumSafeRounding` vergleicht jetzt die gedruckten Zahlen.
+- **Neu: `labels.unitSuffix`** (bool, Standard an wie bisher): aus = nur die Zahl („18,5“), die Einheit steht im
+  Titel. KPI-Karten nehmen dann eine gemeinsame Einheit für alle Karten. Die Abkürzung bleibt „K“ wie in Power BI
+  (SI wäre „k“), bewusst nicht still geändert.
+- **Null:** Werte unter der Darstellungsgrenze zeigen „0“ (Finanzformat „–“), ohne Einheit und Vorzeichen.
+- **KPI-Karten:** Wert und Δ einer Einheit haben dieselben Dezimalen, die größte Zahl der Einheit setzt sie. Ein Δ,
+  das sonst auf null fiele, bekommt wie bisher eine Stelle dazu („+0,01“).
+- **C05 Integrierte Brücke:** Stufen in echter Höhe, darunter eine 1-px-Haarlinie (bisher 4 px Minimum). C05, C06
+  (Kategorie-Brücke, Säulen) und C12 teilen für Anker und Stufen eine Präzision; mit `sumSafeRounding` gehen die
+  Stufen exakt zwischen den gerundeten Ankern auf.
+- **Neu: `chart.bridgeBreak`** (bool, Standard aus): kürzt die Summen-Anker mit sichtbarem ⫽, die Stufen laufen in
+  einer linearen Skala darüber (IBCS UN 5.3). C05: Monatssäulen im unteren Band mit ausgewiesenem Faktor, Schnitt im
+  Titel („Achse ab 45,0M geschnitten“). C06 senkrecht: Anker PY/PL/AC mit ⫽. C12: schaltet den vorhandenen
+  Achsenschnitt (`scale.wfAxisBreak`) ein, solange dieser auf „aus“ steht. Gekürzt wird nur, wenn alle Stände über
+  dem Schnitt liegen; Small Multiples mit gleicher Skala bleiben nullbasiert. Markierung `data-icd="bridge-break"`.
+- **C08 Linien:** absolute Werte in einer Linienstärke; AC dunkel durchgezogen, PY hellgrau durchgezogen, PL hohl
+  (Rand plus Papierkern, `data-icd="line-pl"`), nur FC gestrichelt. Die AC-Beschriftung steht über dem Punkt, wenn
+  AC oben liegt, darunter, wenn AC unten liegt, sonst über der höchsten Linie.
+- **C09 Scatter:** Randpunkte bekommen diagonale Plätze nach innen bzw. einen nach innen geschobenen Platz, statt
+  ohne Beschriftung zu bleiben. **C10:** Reichen die Daten bis an die Null, beginnt die Achse dort; der
+  Blasen-Innenabstand verschiebt den Ursprung nicht mehr ins Negative.
+- **Stapel:** Ein Stapel aus einem beschrifteten Segment zeigt den Wert einmal. **Neu: `chart.stackLegendDirect`**
+  (bool, Standard an): Seriennamen bei Säulen rechts am letzten Stapel, bei Balken über dem ersten Balken; passen
+  sie nicht (Serie fehlt dort, Überlappung, negative Segmente, Small Multiples), bleibt der Schlüssel oben.
+- 692 resjson-Keys je Sprache.
+
+## 1.52.0.0 (2026-10-20)
+
+**Skalierung nach IBCS 2.0 / ISO 24896 als neuer Standard in allen Chart-Typen: gleiche Einheit, gleiche Skala über alle Panels einer Grafik, sonst ein sichtbarer Faktor. Dazu eine Breite je Grafik, höchstens drei Ziffern und neu ein einklappbares Bedienmenü (☰).**
+
+> **Bestehende Berichte ändern ihr Bild.** Das ist gewollt und nicht abschaltbar: Δ-Panels werden flacher (sie
+> zeigen jetzt die wahre Größe der Abweichung), Säulen und Balken etwas breiter, Δ-Zahlen kürzer. Wer Seiten mit
+> festen Erwartungen an Panel-Höhen gebaut hat (Screenshots, Abo-PDFs), sieht sie nach dem Update neu an.
+> IBCS dient dabei als Referenz, das Visual ist nicht zertifiziert.
+
+Grundlage ist eine Pixelmessung an der Showcase-App; nachgemessen mit dem neuen Geometrie-Test
+`test/scale.html` (Werte px je Mio., vorher → nachher):
+
+| Befund | vorher | nachher |
+| --- | --- | --- |
+| C03 Säulen + ΔPY: ΔPY-Panel gegen AC | 162 zu 43 px/M, **3,76×** still vergrößert | 51,4 zu 51,4 px/M, **1,00×** |
+| C08 Linie + ΔPL | **4,67×** | **1,00×** |
+| C04 Balken + ΔPL | **2,32×** | **1,00×** |
+| C13 Small Multiples + ΔPY | **2,68×** ohne Hinweis | **2,00×**, ausgewiesen als „ΔPY ×2“ mit Skalenband |
+| Doppel-Varianz ΔPL/ΔPY | 91,6 / 71,1 zu 43,1 px/M | 49,4 / 49,4 zu 49,4 px/M |
+| GuV-Wasserfall, ΔPY-Stufe | **2,86×** | **1,00×** |
+| C05 Monatssäulen gegen Anker | **1,85×** | **1,00×** (Ankerskala) |
+| C05 Breiten Stein / Anker / Monatspaar | 0,80 / 0,59 / 0,80 je Kategorie | 0,67 / 0,67 / 0,67 |
+| C08 Breite der Δ-Säulen | 0,55 | 0,67 |
+| C12 Basis-Anker bei Basis PY | Umriss (PL-Notation) | hellgrau gefüllt |
+| C04 Δ-Beschriftungen | „+0,150M“, „-0,080M“ | „+0,15M“, „−0,08M“ |
+| Σ-Zeile | „ΔPY +1,352M“ | „ΔPY +1,35M“ |
+| KPI-Karten derselben Einheit | „-1,000M“ · „-0,138M“ · „+0,100M“ | „−1,00M“ · „−0,14M“ · „+0,10M“ |
+| Titel | „Nettoumsatz in EUR in M“ | „Nettoumsatz in Mio. EUR“ |
+| Tabelle: ΔPY-Balken gegen AC·PY-Balken | **9,61×** | **1,00×** |
+| GuV-Statement: Δ-Spalte gegen Kaskade | **4,87×** | **1,00×** |
+| Small Multiples im Zoom (⤢): Δ gegen Basis | **4,0×** | **1,00×** |
+| Small Multiples im Zoom: Basis gegen Übersicht | ×2,9, kein Hinweis | ×3,5, Hinweis „Skala ×3,5 zur Übersicht“ |
+| Säulen + Brücken-Panel (waterfallStyle) | eigene Skala, 0,04× ohne Hinweis | 0,025×, Titel „PL → AC ×0,025“ |
+| C05 mit AC&FC und PY (zwei Szenarien) | PY als Dreieck | PY als graue Säule |
+| Kategorie-Brücke, KPI-Karte (Mini-Brücke) | 1,00× | 1,00× (schon eine Skala) |
+
+Gestapelte Säulen/Balken, Pareto, Dumbbell und Slope haben kein Δ-Panel und nur eine Werteskala; Scatter misst
+zwei verschiedene Größen. Die senkrechte Kategorie-Brücke nutzt wie die waagrechte eine Skala für alles.
+
+- **Δ-Panels in der Skala der Basis** (CH 4.1, Notation: Abweichungssäulen gleiche Breite und gleiche Skala wie
+  die Basis). Die festen Höhenanteile der absoluten Δ-Panels entfallen: ΔBasis und ΔBasis2 bekommen den px-je-Einheit-
+  Maßstab des Hauptpanels, ihre Höhe (Säulen) bzw. Breite (Balken) ergibt sich aus der Δ-Spanne plus Platz für die
+  Beschriftung. Gilt für Säulen, Balken, Linie, Doppel-Varianz, Small Multiples und die ΔPY-Stufe über dem
+  GuV-Wasserfall (mit Achsenschnitt: der lineare Teil oberhalb des Schnitts). Δ%-Pins bleiben eine eigene Skala
+  (andere Einheit) und behalten ihre bisherige Größe; das Brücken-Panel behält seine Größe, siehe unten.
+- **Tabelle und GuV-Statement:** Die Δ-Balken der Tabelle laufen im Maßstab der AC·PY-Balkenspalte, die Δ-Spalte des
+  GuV-Statements im Maßstab der Kaskaden-Spalten (bisher je Spalte auf volle Breite gestreckt, bis 9,6-fach). Passt
+  Δ nicht in die Spalte oder bliebe es unsichtbar, gilt ein runder Faktor, ausgewiesen als „×0,5“ bzw. „×4“ im
+  Spaltenkopf (`data-icd="scale-zoom-table"` bzw. `scale-zoom-pnl`).
+- **Brücken-Panel (Säulen/Balken mit „Wasserfall-Brücke“):** Die Summen-Anker sind n-mal größer als die Einzelwerte;
+  das Panel läuft jetzt auf dem Basismaßstab mal einem runden Faktor < 1, der im Titel steht („PL → AC ×0,025“,
+  `data-icd="scale-zoom-bridge"`), statt auf einer eigenen, unmarkierten Skala.
+- **Small Multiples im Zoom (⤢):** Die vergrößerte Kachel zeichnet mehr px je Einheit als die Übersicht; das steht
+  jetzt neben dem Gruppennamen („Skala ×3,5 zur Übersicht“, `data-icd="zoom-scale"`, gemessen an derselben Kachel in
+  Gittergröße). Die Δ-Panels folgen im Zoom exakt der vergrößerten Basis.
+- **Lupe statt stillem Vergrößern** (CH 4.3/4.5): Wäre die größte Abweichung im Basismaßstab kleiner als etwa
+  8 px·Schriftfaktor, wird das Δ-Panel um einen runden Faktor (2, 4, 5, 10, 20 …) vergrößert und sagt das:
+  Titel „ΔPY ×4“ und ein hellblaues Skalenband auf derselben Zahl (Zehnerpotenz) in Basis- und Δ-Panel.
+  Small Multiples teilen Domain und Faktor. Markierung im SVG: `data-icd="scale-zoom"` mit `data-factor`.
+- **C05 Integrierte Brücke:** Monatssäulen stehen auf der Ankerskala. Nur wenn sie in die Kaskade ragen würden
+  (Faktor < 1) oder unlesbar klein wären (Faktor > 1), bekommen sie einen runden Faktor, ausgewiesen als
+  „Monatssäulen ×0,5“ in der Überschrift plus Skalenband an Ankern und Monatssäulen. Anker, Brückensteine und
+  Monatspaare haben dieselbe Breite (2/3 der Kategorie), das Monatspaar ist versetzt wie im Säulen-Chart.
+- **C05 mit zwei Szenarien:** AC&FC ist eine Reihe (IBCS), AC&FC + PY also zwei Szenarien: PY ist eine graue,
+  versetzte Säule wie in C03. Das PY-Dreieck gibt es nur noch beim dritten Szenario (AC + PY + PL).
+- **C12 Varianzbrücke:** Der Basis-Anker folgt der Basis: PY hellgrau gefüllt, PL Umriss, FC Vm schraffiert
+  (bisher immer Umriss).
+- **Breiten:** Säulen und Balken für absolute Werte nehmen 2/3 der Kategorie ein (ISO 24896; bisher 0,62), in allen
+  Modi mit Slots (Säulen, Balken, Brücken-Panel, Wasserfall, Kategorie-Brücke senkrecht, Pareto, gestapelt).
+  Δ-Säulen unter einer Linie sind so breit wie der Slot.
+- **Zahlen:** Δ-Beschriftungen haben höchstens drei Ziffern (IBCS: max. 3 Stellen in Charts). Die Nachkommastellen
+  richtet die größte Abweichung aus („+0,32M“, „+1,64M“, „+12,3M“); größere Zahlen wie die Σ-Zeile kürzen auf drei
+  Ziffern, kleinere, die sonst auf null fielen, bekommen Stellen dazu („+0,04M“ statt „+0,0M“). Eine auf null
+  gerundete Abweichung trägt kein Vorzeichen mehr, negative Δ verwenden das echte Minus wie die Δ%-Werte. Δ% ab
+  100 ohne Nachkommastelle („−100%“). KPI-Karten mit derselben Anzeigeeinheit teilen eine Δ-Präzision.
+- **Scatter/Bubble (C09/C10):** Eine lineare Achse, deren sichtbarer Bereich die Null nicht enthält, trägt am
+  Ursprung das Bruchzeichen (`data-icd="axis-break-x|y"`). Reicht der Datenbereich fast bis null (unter 15 % der
+  Spanne), beginnt die Achse bei null. Liegen alle Werte bei ≥ 0, gibt es keine negativen Ticks mehr.
+- **Titel:** Nennt der Kennzahlname schon die Einheit („Nettoumsatz in EUR“) und kommt nur ein Größenzusatz
+  hinzu, verschmilzt beides zu „in Mio. EUR“ (deutsch, Tsd./Mio./Mrd.) bzw. „in mEUR“ (andere Sprachen).
+- **Neu: „Bedienleisten einklappen (☰)“** (Chart → Interaktion im Bericht, Property `chipMenu`, Standard aus): Die
+  In-Chart-Bedienelemente (Sortieren ⇅, YTD, ⫽ Achse, ΔPY|ΔPL, ▶, Ausnahme-Chip, Modus-Chips, Karten-Sortierung,
+  Scatter-Play, GuV-Ansicht) liegen dann hinter einem kleinen ☰ oben rechts; Klick klappt sie auf (✕ wieder zu),
+  nichts wird gespeichert. Aus: alles wie bisher. Vier Sprachen, 686 resjson-Keys je Sprache.
+- **Power-BI-Host und App gleich:** Alle Panel-Größen ergeben sich aus px je Einheit des Basis-Panels in derselben
+  Render-Funktion; es gibt keinen host-spezifischen Pfad (Desktop, Service und Fabric-App zeichnen identisch).
+- **Tests:** neuer Geometrie-Test `npm run test:scale` (`test/scale.html` + `test/scale.js`, 33 Prüfungen, misst px
+  je Einheit von Basis und Δ direkt im SVG). `test/shot.js` hing am Vollseiten-Screenshot der sehr hohen Testseite;
+  jetzt Viewport-Bild plus Einzelbilder per `SHOT=c12,c22`, Zusammenfassung „n checks ok, n FAIL“. Render-Test
+  153/153, kein FAIL; 208 der 285 Stages zeichnen gewollt anders (Breiten, Δ-Panels, Zahlen).
+
+## 1.51.2.0 (2026-10-19)
+
+**KPI-Karten: gleiche Skala für alle Mini-Brücken.**
+
+- **Neu: „Karten: gleiche Skala“** (Chart → KPI-Karten, Property `cardSameScale`, Standard aus): Alle Mini-Brücken
+  Basis → Δ → AC teilen einen Maßstab über alle Karten, gleiche Beträge ergeben gleich hohe Balken (IBCS: identische
+  Skalen). Gedacht für Karten derselben Kennzahl je Kategorie (z. B. Umsatz je Kanal); bisher skalierte jede Karte für
+  sich, 15,4 Mio. und 3,0 Mio. waren gleich hoch. Bei Karten mit verschiedenen Einheiten aus lassen.
+- Sichtbar wie „Mini-Brücke zeigen“; vier Sprachen. Keine Änderung an bestehenden Berichten (Standard aus).
+
+## 1.51.1.0 (2026-10-18)
+
+**Familien-Angleichung mit P&L: Hub-Leiste, Zurück-Pille und Leser-Karte nach einer gemeinsamen Spezifikation.**
+
+- **Hub-Leiste (jede Hub-Seite):** 1 px Trennlinie (10 % ink), 12 px / 8 px
+  Innenabstand; „Aa“-Glyph, die Pillen **HD · Full HD · UHD** (rx = h/2,
+  6 px Abstand; aktiv Teal #0E8585 mit weißer Schrift, Dark #3FB3C2 mit
+  dunkler Schrift, Hochkontrast foregroundSelected-Rahmen), dahinter der
+  Hinweis „Schriftgröße — HD für Laptops · Full HD für Monitore · UHD für
+  Beamer & 4K“ (weicht als Einziges bei Platzmangel), rechtsbündig
+  „📖 Doku öffnen“ als outlined Pille. Darunter mittig die Mikro-Signatur
+  „made by Daten-WG“ (9 px, ink-soft, 60 %). `fontPreset`-Werte unverändert.
+- **„← Zurück“** als outlined Pille links oben (Titel rechts daneben),
+  „✕ Schließen“ im Overlay in derselben Form rechts oben.
+- **Startseite:** Untertitel ink-soft, „🚀 Loslegen“ in Teal über die volle
+  Block-Breite, die vier Einstiegs-Kacheln mit Radius 10 px, Hover-/Fokus-Lift
+  (2 px + Schatten) und einheitlicher Piktogramm-Größe (64 × 44 px·k).
+- **Vorlagen-Galerie:** Gruppen-Eyebrow in GROSSBUCHSTABEN, ink-soft, 11 px·k.
+- **Lesemodus ohne Daten (Familien-Regel):** statt der klickbaren Galerie eine
+  ruhige, nicht interaktive Karte — Produktname, ink-soft-Zeile „Dieses
+  Visual hat noch keine Daten — Felder werden im Bearbeitungsmodus gebunden.“
+  (eigener Leer-Zustand-Text gewinnt) und drei statische Mini-Schemata; keine
+  Knöpfe, Pillen oder Doku-Link. Gilt auch für Hosts ohne Interaktion (Export).
+- Pixel-Regression: alle Nicht-Hub-/Nicht-Leser-Fälle byte-identisch;
+  geändert gewollt 29 Hub-Fälle und 10 Leser-Fälle (c137, c138, c205, c207,
+  c226–c226e, c233d); neue Checks c237–c238c.
+
+## 1.51.0.0 (2026-10-18)
+
+**Hub-Polish für Self-Service von Controllern: Vorlagen nach Zweck, Schriftgröße HD · Full HD · UHD immer unten, alle Felder erklärt, „🚀 Loslegen“ und die Doku einen Klick entfernt.**
+
+- **Vorlagen-Galerie nach Zweck gruppiert:** vier Gruppen mit Überschrift —
+  Zeitverlauf (C01, C03, C05, C08) · Struktur (C02, C04, C06) · Korrelation
+  (C09, C10) · Brücken & Mehrfach (C12, C13). Jede Kachel nennt den Zweck in
+  Finance-Sprache („Säulen mit Vorjahres-Abweichung“ statt „C03“), darunter
+  eine Nutzen-Zeile („Monatsbericht AC vs. PY“); die C-Nummer steht als
+  kleines Badge in der Vorschau. Größere Vorschauen, Kacheln heben sich beim
+  Überfahren oder per Tastatur-Fokus leicht an (Schatten + Akzentrahmen), die
+  aktive Vorlage trägt „✓ aktiv“ und einen kräftigen Rahmen. Gruppen, die
+  nebeneinander passen, teilen eine Reihe (in Gruppen-Spalten ausgerichtet);
+  bei wenig Platz blättert die Galerie reihenweise. Speichern wie bisher:
+  `template` + `templateApplied` + Preset in EINEM Merge.
+- **HD · Full HD · UHD immer unten:** Jede Hub-Seite (Start, Loslegen, Tour,
+  Vorlagen, Demo, Felder) endet in derselben Leiste; ihr erstes Element sind
+  die drei Schriftgrößen HD · Full HD · UHD (= `labels.fontPreset`
+  `compact` · `fullhd` · `presentation`), die aktive gefüllt. Ein Klick
+  speichert sofort (Echo-Guard wie bei den Galerie-Pills) und zeichnet den Hub
+  in der neuen Größe; im „☰ Start“-Overlay bleibt der Hub offen, beim
+  Schließen erscheint der Chart in der neuen Größe.
+- **„📖 Doku öffnen“** in derselben Leiste: öffnet die ChartKitchen-Doku über
+  `host.launchUrl` (deutsche Seite bei deutscher Berichtssprache, sonst die
+  englische). Kein zusätzliches Privileg; nur wo der Hub erscheint, also nie
+  für Leser oder in Exporten.
+- **Feld-Intro mit ALLEN 19 Datenrollen** in vier Abschnitten (Pflicht &
+  Achse · Szenarien · Gliederung · Spezial), je ✓ wenn gebunden und ein
+  kurzer Zweck (voller Name + Zweck im Tooltip). Dazu zwei Prämissen-Boxen:
+  **IBCS-Notation** (AC voll · PY grau · PL Rahmen · FC schraffiert, gut/
+  schlecht-Farben) und **Zeit vs. Struktur** („Zeit läuft horizontal, Struktur
+  vertikal — Smart-Start schlägt die passende Achse nach deinem Kategorie-Feld
+  vor“) mit Mini-Piktogramm. Die Blöcke fließen in bis zu drei Spalten; was
+  nicht passt, steht auf weiteren Seiten (‹ n / N ›). Gilt auch für den Modus
+  `fields`, der jetzt die Host-Palette (Hochkontrast) nutzt.
+- **„🚀 Loslegen“** als erster, hervorgehobener Knopf im Hub: geführte
+  Checkliste ① Felder binden (✓ live je Pflicht-/Empfehlungsrolle: Ist (AC)
+  Pflicht, Kategorie, Vorjahr, Plan empfohlen — mit Hinweis, wo die
+  Feldbereiche sind) · ② Template wählen (Sprung in die Galerie, ✓ sobald eine
+  Vorlage gesetzt ist) · ③ Feinschliff (Vergleich & Abweichung, IBCS-Titel,
+  Größen-Preset). Nichts davon wird gespeichert.
+- **„← Zurück“ durchgängig:** jede Unterseite hat den Chip oben rechts; die
+  letzte Tour-Karte bietet zusätzlich „← Zurück zum Start“; Esc wie gehabt.
+- **„☰ Start“ dauerhaft sichtbar:** im Bearbeitungsmodus über dem fertigen
+  Chart abgeschwächt (Deckkraft 0,5), beim Überfahren oder Fokus voll. Liegt
+  an seiner Grundposition unten links Text des Charts (z. B. die erste
+  Achsenbeschriftung) darunter, rückt die Chip-Leiste eine Stufe nach oben.
+  Leser und Exporte sehen ihn weiterhin nie.
+- 78 neue resjson-Keys, zwei entfallen (`FI_Minimal`, `FI_Extended`): 677 je
+  Sprache, de/en/es/ja identisch. Testfälle c230–c236; c203, c222, c225
+  angepasst. Pixel-Regression aller Bestandsfälle gegen 1.50: identisch bis
+  auf die Hub-/Leerzustand-Fälle c11, c135, c139, c203, c204, c206,
+  c220–c229 und — allein wegen des jetzt sichtbaren ☰-Chips — c223, c223b,
+  c224, c225 (Abweichung nur im Chip-Bereich unten links). Lese- und
+  Export-Fälle (u. a. c205, c226) unverändert.
+
+## 1.50.0.0 (2026-10-18)
+
+**Start-Hub: Wer das Visual leer auf die Seite zieht, bekommt vier große Knöpfe statt einer Galerie — Feature-Tour, IBCS-Vorlagen mit Vorschau, Demo, Felder erklären.**
+
+- **Start-Hub als neuer Leer-Zustand im Bearbeitungsmodus** (`emptyState.mode`
+  = `hub`, neuer Standard): „Was kann das Visual?“ · „Templates“ · „Demo
+  ansehen“ · „Felder erklären“. Jede Unterseite hat „← Zurück“, Esc führt
+  ebenfalls zurück. Die bisherigen Werte `demo` (nur Galerie, Verhalten bis
+  1.49), `fields` und `message` bleiben wählbar und verhalten sich wie
+  bisher; Feld-Intro und eigene Nachricht bieten zusätzlich den Umschalter
+  „☰ Start-Hub“.
+- **Feature-Tour:** 11 durchblätterbare Karten (‹ ›, Pfeiltasten, Pos1/Ende,
+  Punkte) mit Mini-Vorschau und ein, zwei Sätzen je Kern-Fähigkeit — die 13
+  Chart-Modi in vier Gruppen (Zeitreihen, Struktur, Brücken & GuV, Analyse),
+  Varianz-Panels, Small Multiples, Kommentare, Dark Mode & Hochkontrast,
+  Play & Animation, YTD/Wesentlichkeit/Exceptions, Vorlagen & Smart-Start
+  (mit Sprung in die Vorlagen-Galerie). Die Vorschauen zeichnet dieselbe
+  SVG-Pipeline wie die Demo-Galerie (keine Bitmaps).
+- **Vorlagen-Galerie:** die IBCS-Vorlagen C01–C13 als Kacheln mit
+  Mini-Vorschau; ein Klick schreibt dasselbe wie das Dropdown (`template`,
+  `templateApplied` und das Preset in EINEM Merge, Echo-Guard). Ohne
+  gebundene Felder wird die Wahl gespeichert („✓ C03 gespeichert — wird
+  aktiv, sobald Felder gebunden sind“) und greift beim Binden. Kacheln nennen
+  ein noch fehlendes Pflichtfeld (Stack-Serie, Blasengröße, Small Multiples);
+  bei wenig Platz blättert die Galerie seitenweise.
+- **„☰ Start“ über dem fertigen Chart** (nur Bearbeitungsmodus, erscheint
+  beim Überfahren des Visuals oder per Tab): öffnet denselben Hub als
+  Overlay — die Vorlagen-Galerie ist damit jederzeit erreichbar. Der Chart
+  wird darunter nur verborgen; „✕ Schließen“ bzw. Esc zeigt ihn exakt wie
+  vorher. Eine Vorlagen-Wahl im Overlay wendet an und schließt es, damit das
+  Ergebnis sofort sichtbar ist.
+- **Vorlage erneut anwenden:** Ein Klick auf die bereits aktive Vorlage in der
+  Galerie wendet sie wieder an (bisher wirkungslos). Das Dropdown im
+  Formatbereich kann den schon gewählten Eintrag nicht erneut melden — dafür
+  gibt es die Galerie und den neuen Chip:
+- **„↺ Zum Template zurück“** (unten links, nur Bearbeitungsmodus): erscheint,
+  sobald eine Vorlage gesetzt ist und eine ihrer Einstellungen davon abweicht;
+  ein Klick stellt den Vorlagen-Stand wieder her, alle anderen Einstellungen
+  bleiben.
+- **Leser und Exporte sehen nie den Hub** und keine der neuen Chips: der
+  Leer-Zustand zeigt für sie unverändert Galerie bzw. eigene Nachricht.
+- Tastatur: alle Hub-Knöpfe per Tab erreichbar, Enter/Leertaste lösen aus,
+  Esc geht zurück bzw. schließt; Dark Mode und Hochkontrast (Host-Palette,
+  `foregroundSelected` als Akzent) auch im Hub.
+- 53 neue resjson-Keys (601 je Sprache, de/en/es/ja identisch), Testfälle
+  c220–c229. Pixel-Regression aller Bestandsfälle gegen 1.49: identisch bis
+  auf die Leer-Zustände im Bearbeitungsmodus — c11, c135, c139 zeigen jetzt
+  den Hub statt der Galerie (Default-Änderung), c203, c204, c206 haben den
+  zusätzlichen Umschalter „☰ Start-Hub“. Lese- und Export-Fälle unverändert.
+
+## 1.49.0.0 (2026-10-17)
+
+**Sechs bewährte Muster aus dem Schwester-Visual P&L zurückübernommen: IBCS-Vorlagen, Nachladen, Lesezeichen, gesperrte Chips, Feld-Intro, Hochkontrast.**
+
+- **IBCS-Chart-Vorlagen** (`chart.template`, erste Position der Chart-Karte,
+  Standard „Aus“): C01 gestapelte Säulen · C02 gestapelte Balken · C03 Säulen
+  + ΔPY-Panel + ΔPY%-Pins · C04 Balken + ΔPL-Varianzen · C05 Integrierte
+  Brücke · C06 Kategorie-Brücke vertikal · C08 Linie · C09 Scatter · C10
+  Bubble · C12 Waterfall · C13 Small Multiples (Modus bleibt). Eine Vorlage
+  setzt Modus, Vergleich, Panels und die passenden Schalter in EINEM
+  Schreibvorgang (versteckte Eigenschaft `chart.templateApplied`, Echo-Guard
+  wie im P&L-Visual) — danach ist jede Einstellung frei änderbar. C07 (Fläche)
+  und C11 gibt es im Visual nicht und stehen deshalb nicht in der Liste.
+- **Keine stille 1000er-Kappung mehr:** Liefert Power BI mehr als ein
+  Datenfenster (1000 Kategoriezeilen), lädt das Visual die weiteren Segmente
+  per `fetchMoreData` nach. Während des Ladens steht unten rechts dezent
+  „⏳ n Zeilen geladen …“; gezeichnet wird das erste Fenster und einmal der
+  vollständige Bestand. Verweigert der Host weitere Segmente (100-MB-Grenze)
+  oder greift die Sicherheitsgrenze von 30.000 Zeilen, sagt ein Hinweis, dass
+  die Daten unvollständig sind. Bis 1000 Zeilen ändert sich nichts.
+- **Lesezeichen stellen die Auswahl wieder her:** Ein Lesezeichen mit
+  ausgewählten Kategorien (oder eine Auswahl aus einem anderen Visual) dimmt
+  die übrigen Marken wie nach einem Klick; ein Lesezeichen ohne Auswahl hebt
+  die Dimmung auf.
+- **Gesperrte statt stumme Chips:** Knöpfe im Chart, die im aktuellen Zustand
+  nichts bewirken würden, sind gedimmt, nicht klickbar und nennen im Tooltip
+  den Grund — YTD auf GuV-Zeilen oder bei nur einer Periode, ⇅ wenn die
+  Reihenfolge schon der Wirkungs-Sortierung entspricht, ⚠ wenn nichts zu
+  verdichten ist (z. B. Benchmark-Karten ohne ΔPY/ΔPL), der Karten-Sortier-Chip
+  ohne Vergleichswert sowie ▶/⇅/ΔPY|ΔPL einer Brücke, die nur ihren Hinweis
+  zeigt. Ein Klick darauf speichert nichts.
+- **Leer-Zustand mit Feld-Intro** (`emptyState.mode`: Demo-Galerie [Standard,
+  wie bisher] · Feld-Intro · eigene Nachricht): Das Feld-Intro erklärt dem
+  Autor im Bearbeitungsmodus die Kernrollen Kategorie, AC, PY, PL, FC,
+  Stack-Serie und Small Multiples und hakt die bereits gebundenen ab; Knöpfe
+  im Leer-Zustand schalten zwischen Feld-Intro, Galerie und eigener Nachricht
+  um. Leser und Exporte sehen wie bisher Galerie bzw. eigene Nachricht.
+- **Echter Hochkontrast:** Farben aus der Host-Palette (Vordergrund,
+  Hintergrund, `foregroundSelected` für Hervorhebung und Hover), Status als
+  Muster statt Farbe — gut gefüllt, schlecht hohl, unwesentlich gestrichelt —
+  jetzt auch in KPI-Karten (Streifen, Mini-Brücke) und im Scatter-Status; die
+  PY-Linie im Linienmodus ist gestrichelt. Ohne Hochkontrast bleibt alles
+  unverändert.
+- 45 neue resjson-Keys (548 je Sprache, 4 Sprachen identisch), Testfälle
+  c184–c219. Bestandsfälle pixelidentisch bis auf die Fälle mit bisher
+  stummen Chips (jetzt gesperrt) und zwei Hochkontrast-Fälle mit Status-Mustern.
+
+## 1.48.0.0 (2026-10-16)
+
+**Scatter/Bubble-Ausbau: Small Multiples, Gruppen-Färbung und neun Analyse-Features inkl. Play-Modus.**
+
+- **Small Multiples als echte Scatter-Kacheln:** gemeinsame X/Y-Skala,
+  Quadranten-Linien (Mittelwert/Median über alle Punkte), refLine/xRefLine
+  und Blasengröße gelten für alle Kacheln gleich; Kachel-Vergrößern (⤢)
+  behält Skala und Farben. Σ- und Top-N-Rest-Kachel sind im Scatter bewusst
+  aus (keine Summen über Quoten).
+- **Einfärbung nach Gruppe** (`chart.scatterColorBy` += `group`): sechs
+  gedeckte Farben ohne Rot/Grün (bleiben für gut/schlecht reserviert),
+  eigene Dark-Palette, Legende oben mit „+n weitere" ab der 7. Gruppe;
+  Rückfall auf einfarbig ohne Serie, keine Wirkung im Hochkontrast.
+- **PY→AC-Bewegungspfeile** (`chart.scatterArrows`): kleiner grauer
+  PY-Startpunkt, dünne Linie, Pfeilspitze an der AC-Markerkante; neue
+  optionale Rolle **„X-Achse VJ (Scatter)"** (`xPrevious`) für echte
+  2D-Bewegung, sonst nur Y; Tooltip mit Δ je Achse.
+- **Größen-Legende** (`chart.scatterSizeLegend`, Default an): drei genestete
+  Referenzkreise auf runden Werten in der ersten freien Plot-Ecke; bei
+  Kacheln genau einmal.
+- **Quadranten-Beschriftung:** vier freie Ecklabels
+  (`chart.scatterQuadLabelTR/TL/BL/BR`, leer = aus), dezent in ink-soft.
+- **Trendlinie** (`chart.scatterTrend` aus/linear) mit optionalem
+  **R²-Label** (`chart.scatterTrendR2`), bei Kacheln je Kachel; im
+  Log-Raum regressiert, bleibt also gerade.
+- **Log-Skala** (`scale.xLogScale`/`yLogScale`): nur wenn alle Werte,
+  Referenzlinien und fixierten Grenzen > 0, sonst linear + Hinweis im
+  Edit-Modus; Dekaden-Ticks (1-2-5 bei enger Spanne); bei Kacheln eine
+  deckweite Entscheidung.
+- **Achsen-Min/Max fixieren** (`scale.xMin/xMax/yMin/yMax`, leer = auto,
+  k/M/B-Suffixe): Skalen-Sync über mehrere Scatter-Visuals; Punkte
+  außerhalb werden gezählt („n außerhalb der Achsen") statt gezeichnet.
+- **Rechteck-Auswahl:** Aufziehen auf leerer Plotfläche selektiert alle
+  enthaltenen Punkte als EIN Multi-Select (Crossfilter); Klick ohne Drag
+  löscht wie bisher.
+- **Punktform je Gruppe** (`chart.scatterShapes`): Kreis/Quadrat/Dreieck/
+  Raute flächen-angeglichen, auch in der Legende — S/W-Druck- und
+  Farbfehlsicht-tauglich, im Hochkontrast als Umriss-Formen.
+- **Play-Modus (Rosling)** (`chart.scatterPlay`, Default aus = Button
+  unsichtbar): Kategorie wird zur Zeitachse, je Frame ein Punkt pro Serie;
+  animierte Bewegung (900 ms/Periode), großes Perioden-Wasserzeichen
+  (Klick = Reset), Achsen/Quadranten/Blasenskala fix über alle Frames;
+  statisch zeigt der Chart die letzte Periode. Nur für die einzelne
+  Punktwolke (nicht bei Kacheln), Exporte rendern die volle Wolke.
+- **Format-Menü:** Scatter-Einstellungen in Prioritätsreihenfolge
+  (Quadranten → Färbung → Formen → Pfeile → Trend → R² → Größen-Legende →
+  Ecklabels → Play); neue Gruppe „Scatter-Achsen" in der Skala-Karte;
+  Sichtbarkeits-Gates (z. B. R² nur bei Trendlinie, Pfeile nur mit PY).
+- Tests c170–c183 (+Varianten); 503 resjson-Keys je Sprache (4 Sprachen
+  identisch); Bestandsfälle pixelidentisch bis auf die 7 Bubble-Fälle,
+  die jetzt die Größen-Legende zeigen.
+
+## 1.47.0.0 (2026-10-16)
+
+**Vier Besitzer-Wünsche: Scatter/Bubble, Trend-Karten, Brücken-Ausrichtung, Sofort-Hierarchie.**
+
+- **Neuer Chart-Typ „Scatter / Bubble (Korrelation)"** — 13. Modus:
+  Y = AC, X = neue Measure-Rolle „X-Achse (Scatter)", optionale Rolle
+  „Blasengröße" (Fläche proportional, 3–22 px). Quadranten-Linien
+  (aus · Mittelwert · Median), refLine/xRefLine übersteuern sie; Achsen
+  mit max. 5 runden Ticks, Einheit im Achsentitel; Labels mit
+  Kollisionsvermeidung (Hervorgehobene > größte Blasen > Extrempunkte);
+  optionale Status-Färbung nach ΔPY/ΔPL inkl. Wesentlichkeit; EMPHASIZE,
+  FC-Schraffur, Kommentare, Crossfilter, Dark Mode, Hochkontrast.
+  Multiples-Rolle wird zur kombinierten Punktwolke (Kategorie · Gruppe).
+- **KPI-Karten mit Zeitreihe:** Neue Grouping-Rolle „Trend (Zeit)" —
+  jede Karte wird zur Serie. Mini-Chart wählbar (Aus · Sparkline ·
+  Säulen): Sparkline mit PY-Geisterlinie, FC gestrichelt, letzter
+  Ist-Punkt beschriftet; Säulen nullbasiert, Negative unter der
+  Nulllinie, FC schraffiert. Kartenwert „Letzter Wert" (Default, inkl.
+  konsistenter Δ/Ampel aus derselben Periode) oder „Summe". Ohne
+  Trend-Feld bleibt alles exakt wie bisher; andere Modi ignorieren die
+  Rolle (Zeilen werden re-aggregiert).
+- **Kategorie-Brücke: Ausrichtung wählbar** (Automatisch · Balken ·
+  Säulen): Die neue vertikale Säulen-Kaskade (PY-Anker → Treiber → AC →
+  ΔBasis-Überleitung) mit Δ%-Pins oben; Hervorhebung, Treiber-Notiz,
+  n.a.-Regel und Small-Multiples-Skala gelten auch dort.
+- **Hierarchie klappt sofort auf:** Mehrere Felder in „Kategorie"
+  (Tabelle/GuV) → das Visual ruft die Drilldown-API selbst auf, der
+  klickbare Zeilenbaum erscheint ohne die Drill-Knöpfe im Kopf; je
+  Feld-Konstellation nur einmal, manuelles Hochklappen bleibt bestehen.
+  Schalter „Hierarchie automatisch aufklappen" (Standard an).
+- 47 neue Übersetzungs-Keys + 4 nachgezogene Alt-Lücken (465 × 4,
+  Parität). Tests c157–c169 (+ Zusatzfälle); Regression: alle
+  Bestandsfälle pixelidentisch (nur die Landing zeigt die 13. Kachel).
+
+## 1.46.0.0 (2026-10-16)
+
+**Cross-Interaktion steht jetzt immer auf „Filtern".**
+Kundenbefund: Mit `supportsHighlight: true` (seit 1.41) stellte Power BI
+die Visual-Wechselwirkung standardmäßig auf „Hervorheben" — dabei kommen
+nur Dimm-Signale statt gefilterter Daten an, und in Tabelle, Wasserfall
+und GuV wirkte das Visual bei Klicks in anderen Visuals wie unbeteiligt.
+
+- `supportsHighlight` steht jetzt auf `false`: Power BI **filtert** das
+  Visual bei jeder Cross-Interaktion automatisch — die Option
+  „Hervorheben" wird für dieses Visual gar nicht mehr angeboten, kein
+  Berichtsautor muss mehr daran denken, sie umzustellen.
+- Σ-Kopf, Skalen und alle 12 Modi arbeiten damit bei Cross-Interaktion
+  konsistent auf dem gefilterten Datenbestand.
+- Die eigene Selektion IM Visual (Klick auf Balken/Zeile/Karte, Strg =
+  Mehrfachauswahl) bleibt unverändert und dimmt weiterhin lokal.
+- Der Highlight-Empfangspfad bleibt als toter Codepfad für den
+  Test-Harness erhalten (AGENT-GUIDE Falle 8 aktualisiert).
+
+## 1.45.0.0 (2026-10-16)
+
+**Konzern-Paket: Skalierung wasserdicht, Achsenschnitt per Button, Panel neu geführt.**
+Grundlage sind drei Audits (AUDIT-2026-10-SKALIERUNG/-UX/-IBCS.md).
+
+**Skalierung (P0-Fixes):**
+- **Doppel-Varianz:** ΔPY- und ΔPL-Panels teilen jetzt EINE Skala (abs und %),
+  `fixedVarMax` wirkt auf beide, Tabelle nutzt eine Balken-Einheit für Δ/Δ2.
+- **Brücken:** Kategorie- und Integrierte Brücke nehmen alle Kaskaden-
+  Zwischenstände in die Skala (kein Überlaufen mehr); das Brücken-Panel in
+  Säulen/Balken ist nullbasiert (Anker starten bei 0).
+- **Gestapelt:** gemeinsame Skala über alle Small-Multiples-Kacheln,
+  `fixedMax`/Kappung wirken, negative Segmente stapeln unter der Nulllinie.
+- **Einheiten:** Werte und Varianzen teilen EINEN Einheitenmaßstab; Formate
+  mit eigenem Präfix („#,0 T€", „Mio €") schalten die Auto-Einheit ab —
+  der „K€ neben T€"-Fehler (Faktor 1000) ist behoben, der Titel zieht mit.
+- **Wasserfall:** `fixedMax` und Kappung greifen jetzt auch hier; Skalen-
+  Sync-Gruppe im Pane sichtbar.
+- **Kappung:** ⫽-Marker an JEDEM gekappten Element (PY, PL, BM, Linie);
+  eine Ziellinie über dem Cap dehnt die Achse nicht mehr.
+- **„n.a.":** Δ% zeigt „n.a." bei Basis 0 oder Vorzeichenwechsel zwischen
+  Basis und Ist (statt irreführender Werte wie „−250 %"); GuV-Kostenzeilen
+  mit durchgängig negativer Basis behalten ihre Prozente. Überall: Labels,
+  Pins, Tooltips, Tabelle, Karten, Σ-Kopf, GuV-Statement.
+
+**Achsenschnitt Wasserfall (IBCS UN 5.3):**
+- Neue Skala-Gruppe „Wasserfall-Achse": `wfAxisBreak` (aus · auto · an,
+  Default aus) + `wfBreakAt` (0 = automatisch). Geschnitten wird nur, wenn
+  alle Anker und Deltas vollständig über dem Schnitt liegen; Anker werden
+  zu Stummeln mit ⫽ über die volle Balkenbreite, Titel-Suffix und Export-
+  Fußzeile weisen den Schnitt aus. Small Multiples teilen EINEN Schnitt.
+- In-Chart-Chip „⫽ Achse": schaltet an/aus, hebt sich bei Auto-Vorschlag
+  hervor, ist bei unzulässigem Schnitt deaktiviert (Tooltip nennt den
+  Grund bzw. die blockierende Kachel); persistiert mit Echo-Guard.
+
+**Nutzerführung:**
+- Chart-Karte an Position 1, `orientation` heißt im Pane „Chart-Typ",
+  Enum-Labels eingedeutscht; Kartenreihenfolge nach Arbeitslogik.
+- Chart-Karte neu gruppiert (u. a. neue Gruppen „Interaktion im Bericht"
+  und „Darstellung") — reine Anzeige, keine Property-Änderung.
+- Modus-Chips (✎ Kommentar / ⚙ Struktur / ⇄ Vergleich) beenden ihren
+  Modus jetzt per Klick; Struktur-Chip-Tooltip-Bug behoben.
+- Landing-Galerie nennt nach der Modus-Wahl den nächsten Schritt
+  („Als Nächstes: … in die Feldliste ziehen", lokalisiert).
+- `acFcSplit` nur sichtbar mit FC-Measure; „Nur Auffälligkeiten" immer
+  sichtbar, Beschreibung nennt ohne Schwelle die Voraussetzung.
+- 15 bisher fehlende Übersetzungs-Keys nachgezogen (AC+FC-Split, (blank),
+  Export-Aufklappen, Varianz-Preset, Umbenennen-Felder) — 418 Keys × 4.
+
+Tests c140–c156; Regression: alle 145 Bestandsfälle byte-identisch
+(Achsenschnitt-Refactoring), GuV-Fälle pixelidentisch (n.a.-Regel).
+
+## 1.44.0.0 (2026-10-07)
+
+**Eigener Leer-Zustand + Dark-Mode-Tooltip.**
+Zwei Nutzerwünsche aus dem Dark-Mode-Rollout:
+
+- **Neue Karte „Leer-Zustand"** (`emptyState`: Eigener Titel + Eigener
+  Text): Werden keine Daten dargestellt (Felder leer oder Auswahl ohne
+  Zeilen), ersetzt der eigene Text das „ChartKitchen byDatenWG"-Branding.
+  Im **Lesemodus** sehen Berichtsleser nur noch Titel + Text, zentriert
+  und mit Wortumbruch — die Modus-Galerie ist ein Builder-Werkzeug und
+  bleibt dem Bearbeitungsmodus vorbehalten (dort als Header-Vorschau der
+  eigenen Texte über der Galerie). Ohne eigene Texte bleibt alles wie
+  bisher.
+- **Hover-Tooltip folgt dem Dark Mode:** Der native Power-BI-Tooltip
+  behält das (meist helle) Report-Styling und blendet auf dunklen
+  Seiten. Im Dark Mode zeichnet das Visual den Tooltip jetzt selbst —
+  dunkler Kasten (#2B2B2B), helle Schrift, Kategorie als Header,
+  gedimmte Zeilenlabels, Kantenerkennung am Visual-Rand (klappt am
+  Cursor um). Im hellen Modus bleibt der native tooltipService
+  unverändert.
+- Testfälle c137–c139 (Lesemodus hell/dunkel, Edit-Modus-Vorschau) plus
+  Hover-Verifikation in c131/c136; 5 neue String-Keys × 4 Sprachen.
+
+## 1.43.0.0 (2026-09-16)
+
+**Dark Mode: lesbar auf dunklen Berichtsseiten.**
+Kundenfeedback: Auf dunklen Report-Themes blieben Schrift und Achsen
+dunkel und damit kaum lesbar. Jetzt:
+
+- **Neues Setting „Erscheinungsbild"** (IBCS-Farben → Auto · Hell ·
+  Dunkel). *Auto* erkennt dunkle Berichts-Themes an der Luminanz der
+  Theme-Hintergrundfarbe (< 0,35) und kippt selbstständig; für manuell
+  dunkel eingefärbte Seiten ohne dunkles Theme gibt es *Dunkel* als
+  expliziten Schalter.
+- **Zentrale Dark-Token:** Tinte, Papier, Sekundärgrau plus die neuen
+  cfg-Töne `faint` (Karten-Rahmen/Separatoren), `wash`
+  (Emphasis-Kartenfüllung) und `band` (Bullet-Band) — alle bisher
+  hart verdrahteten hellen Hex-Werte laufen jetzt über diese Token.
+  Halos und hohle Marker füllen mit dem dunklen Papier (Theme-Hintergrund,
+  Fallback #1E1E1E), damit sie mit der Seite verschmelzen.
+- **Farbwähler-Defaults dark-tauglich:** Steht ein Picker noch auf seinem
+  hellen Standard (AC/PL #404040, PY #B3B3B3, Gut #1E8F9E, Schlecht
+  #D64541), wird im Dark Mode automatisch die helle bzw. aufgehellte
+  Entsprechung gerendert (#D9D9D9 / #8A8A8A / #3FB3C2 / #E4635F) — vom
+  Nutzer gewählte Farben bleiben unangetastet. Das Blau/Orange-Preset
+  hellt analog auf (#5BA3DC / #F0821E).
+- **Landing-Gallery und HTML-Overlays** (Zeilensuche, Struktur-Menü,
+  Kommentar-Editor) folgen dem Erscheinungsbild ebenfalls.
+- Hochkontrast-Modus bleibt unverändert der eigene Pfad (Palette
+  erzwingt Farben); Zebra/Emphasis-Bänder tönen weiter mit `ink` und
+  funktionieren dadurch in beiden Modi ohne Sonderfall.
+- Testfälle c131–c136 (erzwungen, Auto-Erkennung, Tabelle+Zebra,
+  KPI-Karten, Landing, Hell-Regression). 5 neue String-Keys × 4 Sprachen.
+
+## 1.42.0.0 (2026-08-13)
+
+**Quick-Win-Paket: schneller starten, schneller Auffälligkeiten sehen.**
+Vier Backlog-Punkte aus Ease-of-Use, Builder-UX und Analytik:
+
+- **Feldrollen-Tooltips:** Alle 15 Datenrollen erklären sich jetzt beim
+  Hover im Feld-Bereich selbst — was reinkommt, was es bewirkt, inkl. des
+  wichtigsten Fallstricks (z. B. FC-Flag-Werte, colgroup → Matrix). Sauber
+  lokalisiert über `descriptionKey` in allen vier Sprachen; die bisherigen
+  teils deutschen Hardcode-Texte sind ersetzt.
+- **Hervorhebung (EMPHASIZE) in allen Modi:** Das Highlight-Setting griff
+  bisher nur in Columns/Bars/Line, Tabelle und Karten. Jetzt auch in
+  **Pareto, GuV-Wasserfall, Integrierter Brücke, Kategorie-Brücke und
+  gestapelten Säulen/Balken** — einheitlich als schattiertes Band hinter
+  dem Slot plus fettes Label, im Hochkontrast-Modus als Rahmen. Der
+  Band-Code ist dabei in eine gemeinsame Hilfsfunktion gewandert
+  (Columns/Bars/Tabelle nutzen sie jetzt mit). Testfälle c125–c127.
+- **Abweichungs-Filter „nur Auffälligkeiten"** (Chart → Analyse,
+  `exceptionOnly`): Exception-Reporting auf einen Klick — nur Kategorien
+  über der Wesentlichkeitsschwelle bleiben einzeln stehen, der Rest wird
+  zu einer neutralen Sammelzeile „Unauffällig (n)" verdichtet (Σ bleibt
+  exakt erhalten). Dazu ein ⚠-Chip im Chart zum Umschalten (persistiert,
+  bookmarkfähig) und ein Fußzeilen-Hinweis „⚠ n zusammengefasst" für
+  Transparenz. Greift bewusst nur in Struktur-Modi (Bars, Karten, flache
+  Tabelle) — Zeitachsen und Kaskaden bekommen keine Lücken. Sichtbar nur,
+  wenn Materialitätsschwellen gesetzt sind. Testfälle c128–c129.
+- **Smart-Start:** Nach dem Binden der Felder erkennt das Visual die
+  Konstellation und schlägt im Bearbeitungsmodus per Klick den passenden
+  Modus vor (Struktur-Kategorien → Balken, sum/delta-Typen → Wasserfall,
+  Spaltengruppen → Matrix, lange Zeitreihe → Linie). Ein Klick wendet den
+  Modus an, ✕ verwirft den Vorschlag dauerhaft für diese Konstellation;
+  im Lesemodus erscheint nichts. Abschaltbar (Chart → Layout). Testfall
+  c130.
+
+## 1.41.0.0 (2026-08-13)
+
+**Cross-Highlighting und zwei Karten-Wünsche aus dem Beta-Feedback.**
+
+- **Cross-Highlight statt stiller Filterung** (`supportsHighlight`): Klickt
+  jemand in einem anderen Visual auf einen Balken, bekam ChartKitchen bisher
+  nur noch die gefilterten Zeilen — der Vergleichskontext verschwand. Jetzt
+  liefert Power BI alle Zeilen plus die Information, welche zur Auswahl
+  gehören: **die hervorgehobenen Kategorien bleiben voll deckend, alle
+  übrigen rendern gedimmt**. Der Rest des Charts bleibt als Kontext stehen,
+  Skalen und Σ-Kopf springen beim Klicken nicht mehr. Gilt für alle Modi
+  (Säulen, Balken, Brücken, Tabelle, Matrix, Karten), weil die Dimmung an
+  derselben Gruppen-Mechanik hängt wie die eigene Selektion. Eine eigene
+  Selektion im Visual hat weiterhin Vorrang, solange sie aktiv ist.
+  Teil-Hervorhebungen (die Kategorie ist nur anteilig ausgewählt) zählen als
+  hervorgehoben. Testfall c124.
+  *Hinweis:* Das ist eine bewusste Verhaltensänderung — wer bisher erwartet
+  hat, dass Cross-Filtering die Zahlen im Visual filtert, sieht jetzt den
+  vollen Datenkontext mit optischer Hervorhebung (so verhalten sich auch die
+  nativen Power-BI-Diagramme).
+- **KPI-Karten ohne Kategoriefeld** (Beta-Wunsch): Bisher war ein
+  Kategoriefeld Pflicht — wer einfach „Umsatz, Vorjahr, Plan" auf eine
+  Karte legen wollte, landete auf der Landing Page. Jetzt reichen die
+  Measures: das Visual rendert **eine Kachel, überschrieben mit dem Namen
+  der AC-Measure**, inklusive Δ-Zeilen und Mini-Brücke wie gewohnt. Gilt
+  technisch für alle Modi (eine Kategorie ohne Namen), gedacht ist es für
+  die „eine große Zahl"-Karte. Testfall c122.
+- **Referenzwerte auf der Karte** (Beta-Wunsch): Die Karte zeigte bisher nur
+  die Abweichung („ΔVJ +700 T€"), nicht den Vergleichswert selbst. Neues
+  Setting **„Referenzwerte anzeigen"** (Chart → KPI cards): *Nur
+  Abweichungen* (Standard, unverändert), *Basiswert* blendet die
+  Vergleichsbasis als eigene Zeile ein, *Alle gebundenen Szenarien*
+  zusätzlich VJ, Plan, Prognose und Benchmark. Die Wertzeilen stehen in
+  Tinte über den farbigen Δ-Zeilen — die Abweichung behält das optische
+  Gewicht. Bei knapper Kachelhöhe entfallen die unteren Zeilen wie bisher.
+  Testfall c123.
+
+## 1.40.0.0 (2026-08-05)
+
+**AC + FC im selben Monat: die Splitsäule.** Der laufende Monat ist im
+Reporting fast immer halb geschlossen — AC bis zum Stichtag, FC für den
+Rest. Bisher zeigte das Visual entweder/oder (FC nur, wenn AC fehlt).
+Neu (Beta-Wunsch aus dem zweiten externen Test):
+
+- **Setting „AC + FC in the same period"** (Chart → Layout, Standard aus):
+  Liefert ein Monat beide Werte, rendert Columns/Bars einen **soliden
+  AC-Sockel mit schraffiertem FC-Aufsatz** in derselben Säule
+  (IBCS-Notation).
+- **Zwei Interpretationen, explizit wählbar** — die falsche Wahl würde den
+  Monat doppelt zählen, deshalb kein Raten: **„Vollmonatsprognose"**
+  (Säule = AC + max(0, FC − AC), der FC ist die Prognose für den ganzen
+  Monat) oder **„Restmonat"** (Säule = AC + FC, der FC deckt nur die
+  verbleibenden Tage).
+- **Konsistent gerechnet:** Wert-Label, Σ-Header, Skalen und Δ-Panels
+  nutzen den Gesamtwert der Splitsäule; der Tooltip zeigt AC, FC und den
+  Composite („AC+FC … (FC-Anteil …)") getrennt aus. Die Umbenennungs-
+  Felder (1.39) wirken auch hier.
+- Reine FC-Monate und das FC-Flag verhalten sich unverändert; der Split
+  greift nur, wenn beide Werte in derselben Periode ankommen.
+  Testfall c121 im Harness.
+
+## 1.39.0.0 (2026-08-05)
+
+**Politur-Paket aus dem Beta-Feedback (A. Korn) plus Backlog-Quick-Wins.**
+Neun kleine Verbesserungen, vier davon direkt aus dem ersten externen
+End-to-End-Test:
+
+- **Rundungshinweis kollidiert nicht mehr (Bars).** „Summe weicht
+  rundungsbedingt ab" überlagerte im Bars-Modus die ΔPY-%-Panel-Überschrift;
+  der Hinweis sitzt dort jetzt unten rechts (mit Papier-Halo), in Columns
+  unverändert unter dem Σ-Header.
+- **„Leerkategorie ausblenden"** (Chart → Layout): `(blank)`-Zeilen, -Balken
+  und -KPI-Karten lassen sich ausblenden. Bewusst standardmäßig AUS, damit
+  keine Daten unbemerkt verschwinden.
+- **Gemeinsame Nullachse in der Tabelle.** Δ-Balken- und Δ%-Pin-Spalte
+  ankern ihre Nulllinie jetzt auf derselben relativen Spaltenposition,
+  bemessen an den echten Negativ-/Positiv-Anteilen — einseitige Daten
+  verschenken nicht mehr die halbe Spalte, und die Achsen springen nicht
+  mehr gegeneinander. Gilt auch für die Δ2-Spalte (Doppel-Varianz).
+- **KPI-Karten: Sortieren-Chip mit Luft zum Rand** statt 2-px-Klebeabstand.
+- **WCAG-Kontrast:** Sekundärtexte (Panel-Titel, Datumsangaben, Hinweise)
+  von `#8A8A8A` auf `#6E6E6E` angehoben — erfüllt AA (≥ 4,5:1) auf Weiß.
+- **Farbpreset „Blau/Orange"** (IBCS colors): ColorBrewer-Paar
+  `#2C7BB6`/`#E66101` als Dropdown neben den Good/Bad-Pickern — auch bei
+  Achromatopsie und im S/W-Druck über die Helligkeit unterscheidbar.
+- **Szenariokürzel umbenennen** (Data labels): AC→„Ist", PY→„VJ",
+  PL→„Budget", FC→„Prognose" — wirkt auf Titelblock, Panel-Titel, Tabellen-/
+  Matrix-Spaltenköpfe, Brücken-Beschriftungen, GuV-Sichten-Buttons, Legenden
+  und Tooltips. Leer = IBCS-Standard.
+- **Export: alles aufklappen** (Chart → Table, Standard AN): PDF-/PPT-Export
+  und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen-
+  und Spalten-Ebenen offen — der Bildschirm-Zustand bleibt unberührt.
+- **Formelzeilen melden Fehler:** Eine unauflösbare Formel (Tippfehler im
+  Zeilennamen, kaputte Syntax) erscheint als „Label = ?"-Zeile statt lautlos
+  wegzufallen — in Tabelle und Matrix.
+
 ## 1.38.0.0 (2026-07-19)
 
 **Matrix-Breite-Paket: Zwei-Zeilen-Kompaktmodus und Spaltenbreiten per

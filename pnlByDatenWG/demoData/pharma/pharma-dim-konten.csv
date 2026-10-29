@@ -22,7 +22,7 @@ K_EBITMARGIN;EBIT margin;;;56;KPI;[EBIT]/[Net revenue];1;false;false;
 850110;Financial result;Interest expense;;61;Account;;-1;true;false;
 850120;Financial result;Interest & investment income;;62;Account;;1;false;false;
 F_EBT;EBT;;;65;Formula;[EBIT]+[Financial result];1;false;false;
-900110;Income taxes;;;70;Account;;-1;true;true;
+900110;Income taxes;;;70;Account;;-1;true;false;
 F_NETINCOME;Net income;;;80;Formula;[EBT]+[Income taxes];1;false;false;
 K_NETMARGIN;Net margin;;;81;KPI;[Net income]/[Net revenue];1;false;false;
 999900;FX revaluation clearing;;;90;Account;;1;false;false;Data-quality demo: in the source system this account carries ParentAccountID 'TREAS.FX', which does not exist in the account dimension - in the Parent-Child demo dataset (guv-demo.csv) that produces a real orphan-bucket row. The Level-columns star schema used here has no parent-child field, so this line is modeled as its own root instead of being silently dropped (see README).

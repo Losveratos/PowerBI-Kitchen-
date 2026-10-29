@@ -12,7 +12,7 @@ videos_raw.json
 existing_episodes.json
 
 # yt-dlp data dir
-data/
+/data/
 
 # Andere Themen / nicht zu diesem Repo
 wordpress.md
@@ -55,3 +55,25 @@ _gtmp/
 # downloads folder; the encrypted .enc IS committed there on activation.
 # (Release builds under ibcsInspiredChartDeck/dist/ stay tracked as before.)
 downloads/*.pbiviz
+# Ausnahme: die eine versionslose Release-Datei WIRD committet — sie ist der
+# stabile Direkt-Download-Link der Schnellstart-Seiten (Gate abgeschafft)
+!downloads/chartkitchen-byDatenWG-latest.pbiviz
+
+# kitchen-update Helper (lokal, regenerierbar — siehe .claude/skills/kitchen-update)
+_*.json
+_*.txt
+scripts/_*
+
+# Playwright-Artefakte der Rechner-Pruefsuiten (Screenshots, PDF, XLSX)
+tests/rechner/.artifacts/
+
+# Raser-Story: verlustfreies Zwischenbild der Infografik (5 MB, aus build_infografik.py)
+blog/assets/raser-infografik.png
+
+# i18n: Zwischenprodukte der Uebersetzung (Fragmente werden aus der deutschen Fassung erzeugt)
+i18n/frag/
+i18n/strings.json
+i18n/reste.json
+
+# Fabric-Workspace-Backups (koennen interne Daten enthalten — nie committen)
+fabric_backup/

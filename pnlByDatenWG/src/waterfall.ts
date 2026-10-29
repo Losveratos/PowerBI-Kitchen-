@@ -30,6 +30,8 @@ export interface WaterfallConfig {
     fontFamily: string;
     colors: { ac: string; text: string; soft: string; line: string };
     hatchPatternId: string;        // id of the hatch pattern defined in this SVG's defs
+    /** localized "nothing to draw" text — the caller passes it (UI_NoWidth-style resource), English otherwise */
+    emptyText?: string;
 }
 
 /** One column of the bridge: a floating contribution or an anchor from zero. */
@@ -144,26 +146,88 @@ function newSvg(cfg: WaterfallConfig): SVGSVGElement {
     return svg;
 }
 
+// ---- cascade geometry (shared: this column bridge, the row waterfall view of
+// the visual and the mega table's Δ waterfall / value cascade, T04 + 12A)
+
+/** One element of a cascade. `children` cascade inside their parent. */
+export interface CascadeNode {
+    id: string;
+    /** contribution in the cascade's orientation; null = no segment (the subtree is skipped) */
+    value: number | null;
+    /** "=" row: drawn from the zero line, restarts the run (its children start at 0) */
+    anchor: boolean;
+    children: CascadeNode[];
+}
+
+/** anchor = from zero · step = on the running total · span = over its children */
+export type CascadeSegType = "anchor" | "step" | "span";
+export interface CascadeSeg { s: number; e: number; type: CascadeSegType; }
+
+/**
+ * How a non-anchor element WITH children is drawn:
+ *  - "value": parent first — it floats on the running total with its own
+ *    value, the children cascade inside it from its start, the run then moves
+ *    on by the parent's value (row waterfall view, parent-first tree order);
+ *  - "span": IBCS statement order (children first, total below, T04B /
+ *    12A) — the total spans from the run before its first child to the run
+ *    after its last child, the run continues from there. A total without a
+ *    drawn child (folded) is an ordinary step.
+ */
+export type CascadeContainer = "value" | "span";
+
+/**
+ * cascade(): every step starts where the previous one ended; anchors draw
+ * from 0 and reset the run. Pure numbers — the callers turn the segments into
+ * columns (renderWaterfall), row bars (visual: row waterfall) or cell bars
+ * (megatable: Δ waterfall, value cascade).
+ */
+export function cascade(roots: CascadeNode[], container: CascadeContainer): Map<string, CascadeSeg> {
+    const out = new Map<string, CascadeSeg>();
+    const walk = (nodes: CascadeNode[], start: number): number => {
+        let cum = start;
+        for (const n of nodes) {
+            const v = n.value;
+            if (v == null) { continue; }
+            if (n.anchor) {
+                out.set(n.id, { s: 0, e: v, type: "anchor" });
+                walk(n.children, 0);
+                cum = v;
+            } else if (n.children.length === 0 || container === "value") {
+                out.set(n.id, { s: cum, e: cum + v, type: "step" });
+                walk(n.children, cum);
+                cum += v;
+            } else {
+                const seg: CascadeSeg = { s: cum, e: cum, type: "span" };
+                out.set(n.id, seg);
+                const before = out.size;
+                const end = walk(n.children, cum);
+                if (out.size === before) { seg.e = cum + v; seg.type = "step"; cum += v; }
+                else { seg.e = end; cum = end; }
+            }
+        }
+        return cum;
+    };
+    walk(roots, 0);
+    return out;
+}
+
 // ---- model → bars
 
 function toBars(rows: PnlNode[], scenario: Scenario): Bar[] {
-    const bars: Bar[] = [];
-    let cum = 0;
-    for (const node of rows) {
+    const vals = rows.map(node => {
         const type = node.row.rowType;
-        if (type === "kpi" || type === "separator") { continue; }
-        const value = node.computed[scenario];
-        if (value == null || !isFinite(value)) { continue; }
-        if (type === "formula") {
-            bars.push({ node, value, anchor: true, from: 0, to: value, level: value });
-            cum = value;
-        } else {
-            const from = cum;
-            const to = cum + value;
-            bars.push({ node, value, anchor: false, from, to, level: to });
-            cum = to;
-        }
-    }
+        const value = type === "kpi" || type === "separator" ? null : node.computed[scenario];
+        return value == null || !isFinite(value) ? null : value;
+    });
+    const segs = cascade(rows.map((node, i) => ({
+        id: String(i), value: vals[i], anchor: node.row.rowType === "formula", children: [],
+    })), "value");
+    const bars: Bar[] = [];
+    rows.forEach((node, i) => {
+        const seg = segs.get(String(i));
+        if (!seg) { return; }
+        bars.push({ node, value: vals[i]!, anchor: seg.type === "anchor", from: seg.s, to: seg.e, level: seg.e });
+    });
     return bars;
 }
 
@@ -171,7 +235,7 @@ function toBars(rows: PnlNode[], scenario: Scenario): Bar[] {
 export function renderWaterfall(rows: PnlNode[], cfg: WaterfallConfig): SVGSVGElement {
     const bars = toBars(rows, cfg.scenario);
     if (bars.length === 0) {
-        return emptyChart(cfg, "Keine verwertbaren Zeilen für den Wasserfall");
+        return emptyChart(cfg, cfg.emptyText ?? "No rows to draw a waterfall from");
     }
 
     const width = Math.max(1, Math.round(cfg.width));

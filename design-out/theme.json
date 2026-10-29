@@ -1,0 +1,84 @@
+{
+  "name": "Daten-WG Report Theme v1",
+  "dataColors": [
+    "#166088",
+    "#C25A2D",
+    "#5B3B7A",
+    "#B8860B",
+    "#B8336A",
+    "#6B6B6B"
+  ],
+  "foreground": "#1A1A1A",
+  "background": "#FFFFFF",
+  "tableAccent": "#117865",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 14,
+      "color": "#1A1A1A"
+    },
+    "header": {
+      "fontFace": "Segoe UI",
+      "fontSize": 12,
+      "color": "#1A1A1A"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 11,
+      "color": "#4A4A4A"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 32,
+      "color": "#1A1A1A"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#FFFFFF" } },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#E5E2D8" } },
+            "radius": 8
+          }
+        ],
+        "dropShadow": [
+          { "show": false }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontColor": { "solid": { "color": "#1A1A1A" } },
+            "alignment": "left",
+            "fontSize": 14,
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": { "solid": { "color": "#FAFAF5" } },
+            "transparency": 0
+          }
+        ],
+        "outspace": [
+          {
+            "color": { "solid": { "color": "#FAFAF5" } },
+            "transparency": 0
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P&amp;L Statement byDatenWG · Documentation</title>
+<meta name="description" content="Complete documentation of the IBCS-inspired P&amp;L visual P&amp;L Statement byDatenWG 1.6.0.0 for Power BI: start hub, product family with ChartKitchen, data model and roles, table, mega table, structure bars, row waterfall, value driver tree, Sankey, IBCS templates T01A–12H, every setting, interaction and troubleshooting.">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/pnl-doku_en.md">
+<style>
+:root{
+  --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#0F1E2E; --ink-soft:#475569; --ink-mute:#6B7686;
+  --line:#E4E2DA; --accent:#C25A2D; --accent-deep:#A2481F; --teal:#1B9AA8;
+  --radius:10px; --radius-lg:16px;
+  --shadow-sm:0 1px 2px rgba(15,30,46,.04),0 1px 3px rgba(15,30,46,.06);
+  --shadow-md:0 6px 18px rgba(15,30,46,.08),0 2px 6px rgba(15,30,46,.05);
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--sans);font-size:16px;line-height:1.62;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% -5%,rgba(194,90,45,.05),transparent 34%),radial-gradient(circle at 96% 8%,rgba(27,154,168,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 26px 120px;display:grid;grid-template-columns:230px 1fr;gap:48px;}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:20px;}}
+
+/* top chrome */
+.topbar{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.back-link,.lang-pill,.pdf-btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;
+  padding:8px 14px;border:1px solid var(--line);border-radius:100px;color:var(--ink-mute);transition:all .15s ease;background:var(--bg-card);}
+.back-link:hover,.pdf-btn:hover{color:var(--accent);border-color:var(--accent);}
+.lang-group{display:inline-flex;gap:6px;}
+.lang-pill.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.lang-pill:hover{border-color:var(--accent);}
+.pdf-btn{color:var(--accent);border-color:var(--accent);}
+.pdf-btn:hover{background:var(--accent);color:#fff;}
+
+/* header */
+header.doc-head{grid-column:1/-1;border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:8px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.eyebrow::before{content:'';width:26px;height:1px;background:var(--accent);}
+h1.doc-title{font-family:var(--serif);font-weight:600;font-size:clamp(2.2rem,5.5vw,3.5rem);line-height:1.04;letter-spacing:-.02em;margin-bottom:16px;}
+h1.doc-title em{font-style:normal;color:var(--accent);}
+.dek{font-size:17px;color:var(--ink-soft);line-height:1.55;max-width:74ch;margin-bottom:20px;}
+.meta{display:flex;flex-wrap:wrap;gap:20px;align-items:center;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-mute);}
+.meta strong{color:var(--ink);}
+
+/* sticky toc */
+nav.toc{position:sticky;top:24px;align-self:start;font-size:14px;}
+@media(max-width:900px){nav.toc{position:static;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}}
+nav.toc .toc-t{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:12px;}
+nav.toc ol{list-style:none;counter-reset:toc;}
+nav.toc li{counter-increment:toc;margin-bottom:2px;}
+nav.toc a{display:flex;gap:10px;padding:7px 10px;border-radius:8px;color:var(--ink-soft);text-decoration:none;line-height:1.3;transition:all .12s ease;border-left:2px solid transparent;}
+nav.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--mono);font-size:11px;color:var(--ink-mute);}
+nav.toc a:hover{background:var(--bg-soft);color:var(--ink);}
+nav.toc a.active{color:var(--accent);border-left-color:var(--accent);background:var(--bg-card);font-weight:600;}
+
+/* content */
+main{min-width:0;}
+section.doc-sec{margin-bottom:8px;padding-top:14px;scroll-margin-top:20px;}
+section.doc-sec>h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.5rem,3.4vw,2.05rem);letter-spacing:-.01em;margin:40px 0 18px;padding-bottom:10px;border-bottom:2px solid var(--accent);display:flex;align-items:baseline;gap:14px;}
+section.doc-sec>h2 .snum{font-family:var(--mono);font-size:1rem;color:var(--accent);font-weight:700;}
+h3{font-family:var(--serif);font-weight:600;font-size:1.16rem;margin:26px 0 10px;color:var(--ink);}
+p{margin:0 0 14px;color:var(--ink-soft);max-width:76ch;}
+strong{color:var(--ink);font-weight:600;}
+em{color:var(--ink);font-style:normal;font-weight:600;}
+code{font-family:var(--mono);font-size:.86em;background:var(--bg-soft);padding:1px 5px;border-radius:4px;color:var(--accent-deep);}
+ol.steps,ul.steps{margin:0 0 16px;padding-left:0;list-style:none;counter-reset:st;max-width:78ch;}
+ol.steps li,ul.steps li{position:relative;padding:7px 0 7px 34px;color:var(--ink-soft);border-bottom:1px solid var(--line);}
+ol.steps li:last-child,ul.steps li:last-child{border-bottom:none;}
+ol.steps{counter-reset:st;}
+ol.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:8px;width:22px;height:22px;
+  background:var(--accent);color:#fff;border-radius:50%;font-family:var(--mono);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;}
+ul.steps li::before{content:'';position:absolute;left:8px;top:15px;width:7px;height:7px;border-radius:50%;background:var(--teal);}
+
+/* figures */
+figure.fig{margin:18px 0 8px;}
+figure.fig img{width:100%;display:block;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-sm);background:#fff;}
+figcaption{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink-mute);margin-top:10px;line-height:1.5;}
+
+/* modes / feats / faq */
+.mode,.feat{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px;margin:18px 0;box-shadow:var(--shadow-sm);}
+.mode-head{display:flex;align-items:baseline;gap:12px;margin-bottom:4px;}
+.mode-n{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);}
+.mode h3,.feat h3{margin:0 0 8px;}
+.mode p,.feat li{max-width:none;}
+.mode p{margin-top:6px;margin-bottom:0;}
+.faq{border-left:3px solid var(--teal);background:var(--bg-card);border:1px solid var(--line);border-left:3px solid var(--teal);border-radius:var(--radius);padding:16px 20px;margin:12px 0;box-shadow:var(--shadow-sm);}
+.faq h3{margin:0 0 6px;font-size:1.05rem;}
+.faq p{margin:0;}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:12px 0 20px;border:1px solid var(--line);border-radius:var(--radius);}
+table.ref{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--bg-card);}
+table.ref th{text-align:left;background:var(--bg-soft);border-bottom:2px solid var(--ink);padding:9px 12px;font-weight:600;color:var(--ink);white-space:nowrap;}
+table.ref td{border-bottom:1px solid var(--line);padding:9px 12px;vertical-align:top;color:var(--ink-soft);}
+table.ref tr:last-child td{border-bottom:none;}
+td.rname,td.sname{font-weight:600;color:var(--ink);white-space:nowrap;}
+td.rkind{color:var(--teal);font-family:var(--mono);font-size:12px;white-space:nowrap;}
+td.sopt{font-family:var(--mono);font-size:11.5px;color:var(--ink-mute);min-width:170px;}
+.muted{color:var(--ink-mute);}
+.card-h{font-family:var(--serif);font-size:1.28rem;margin:30px 0 6px;padding-top:6px;color:var(--accent-deep);}
+.grp-h{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-mute);margin:16px 0 6px;}
+.notebox{background:var(--bg-soft);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius);padding:14px 18px;margin:6px 0 18px;font-size:14px;color:var(--ink-soft);}
+
+/* settings-reference pane schematics */
+.sref-row{display:grid;grid-template-columns:266px minmax(0,1fr);gap:26px;align-items:start;margin:12px 0 24px;}
+@media(max-width:760px){.sref-row{grid-template-columns:1fr;gap:14px;}}
+.sref-row .tbl-wrap{margin:0;}
+figure.pane-fig{margin:14px 0 8px;}
+.sref-row figure.pane-fig{margin:0;}
+figure.pane-fig img{width:100%;max-width:266px;background:#fff;}
+figure.pane-fig.pane-overview{max-width:320px;margin:16px 0 20px;}
+figure.pane-fig.pane-overview img{max-width:320px;}
+
+/* footer */
+footer.doc-foot{grid-column:1/-1;margin-top:40px;padding-top:22px;border-top:1px solid var(--line);font-size:13.5px;color:var(--ink-mute);line-height:1.65;}
+footer.doc-foot a{color:var(--accent);}
+footer.doc-foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);}
+
+figure.fig-pbi img{border-color:#B9DEE2;}
+.pbi-badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#fff;background:var(--teal);padding:2px 8px;border-radius:100px;margin-right:8px;vertical-align:1.5px;}
+/* product family: shared chapter in chartkitchen-doku + pnl-doku (DE/EN) */
+.fam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:16px 0 18px;}
+@media(max-width:760px){.fam-grid{grid-template-columns:1fr;}}
+.fam-col{background:var(--bg-card);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:var(--radius-lg);padding:18px 20px 16px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;min-width:0;}
+.fam-col.fam-pnl{border-top-color:var(--teal);}
+.fam-col.fam-self{box-shadow:var(--shadow-md);}
+.fam-tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:6px;}
+h4.fam-h{font-family:var(--serif);font-weight:600;font-size:1.14rem;line-height:1.3;color:var(--ink);margin:0 0 8px;}
+.fam-col p{max-width:none;}
+.fam-col ul.steps{margin-bottom:12px;}
+p.fam-foot{margin:auto 0 0;padding-top:12px;border-top:1px dashed var(--line);font-size:13.5px;}
+a.fam-link{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:7px 13px;border:1px solid var(--accent);border-radius:100px;color:var(--accent);background:var(--bg-card);transition:all .15s ease;}
+a.fam-link:hover{background:var(--accent);color:#fff;}
+.fam-here{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute);}
+td.fam-what{color:var(--ink-soft);min-width:190px;}
+td.fam-what strong{display:block;}
+@media(max-width:760px){table.fam-tbl{min-width:620px;}td.fam-what{min-width:0;}}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back-link" href="index.html">← Back to the Knowledge Kitchen</a>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <a class="back-link" href="pnl-schnellstart_en.html">↩ Quick start</a>
+      <div class="lang-group">
+        <a class="lang-pill " href="pnl-doku.html">DE</a>
+        <a class="lang-pill active" href="pnl-doku_en.html">EN</a>
+      </div>
+      <a class="pdf-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz">Download .pbiviz ↓</a>
+    </div>
+  </div>
+
+  <header class="doc-head">
+    <div class="eyebrow">Power BI visual · End-user documentation</div>
+    <h1 class="doc-title">P&amp;L Statement <em>byDatenWG</em></h1>
+    <p class="dek">The IBCS-inspired P&amp;L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H, plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.</p>
+    <div class="meta">
+      <span>Version · <strong>1.6.0.0</strong></span>
+      <span>As of · <strong>2026-10-28</strong></span>
+      <span>IBCS-inspired</span>
+    </div>
+  </header>
+
+  <nav class="toc">
+    <div class="toc-t">Contents</div>
+    <ol><li><a href="#intro">What is the visual?</a></li><li><a href="#family">The product family</a></li><li><a href="#hub">The start hub</a></li><li><a href="#quickstart">Quick start &amp; import</a></li><li><a href="#data">Data model &amp; roles</a></li><li><a href="#views">The views</a></li><li><a href="#templates">IBCS templates</a></li><li><a href="#settings">Settings reference</a></li><li><a href="#interaction">Interaction</a></li><li><a href="#deviations">Deviations from the IBCS sheets</a></li><li><a href="#faq">Troubleshooting</a></li><li><a href="#version">Version note 1.6.0.0</a></li></ol>
+  </nav>
+
+  <main>
+
+<section class="doc-sec" id="intro"><h2><span class="snum">01</span>What is the visual?</h2>
+<p><strong>P&amp;L Statement byDatenWG</strong> is a standalone Power BI custom visual for the income statement and any other account hierarchy — the sister visual of <a href="chartkitchen-doku_en.html">ChartKitchen</a>; the two form a product family with a shared notation and handling (chapter 02). It reads the hierarchy from your dimension table (star-schema levels L1..Ln or parent-child), computes subtotals, formula and margin rows itself and shows the scenarios <strong>AC</strong> (actual), <strong>PY</strong> (previous year), <strong>PL</strong> (plan) and <strong>FC</strong> (forecast) with their variances.</p>
+<p><em>One</em> data binding gives five views, switched in the toolbar above the statement — readers need no format pane for it; which of them are offered is up to the author (chapter 08):</p>
+<ul class="steps">
+<li><strong>P&amp;L statement (table):</strong> accounts, subtotals, formula and margin rows with the period blocks MTD · YTD · FY outlook, Δ bars and Δ% pins on one scale per unit across all rows and blocks.</li>
+<li><strong>Mega table:</strong> the same table view as an IBCS table — value and Δ columns freely combined, Δ as number, bar, pin or integrated waterfall, value cascades, two period blocks, thresholds with a footer. A template (T01A … 12H) sets all switches at once.</li>
+<li><strong>Structure bars and row waterfall:</strong> the same rows as size bars against the reference, or as a cascade in which the result rows anchor on the zero line.</li>
+<li><strong>Value driver tree with tiles:</strong> the formula graph as a DuPont tree (or, without formula rows, the plain hierarchy) with a mini chart on every card; a click opens the node's tile view with combo chart, scenario grid and drivers.</li>
+<li><strong>Sankey (since 1.6):</strong> the same graph as a flow from left to right — revenue components gray into revenue, the profit strand favorable to the right, costs unfavorable to the lower right into end nodes; band height proportional to AC YTD. Deliberately outside the IBCS notation; the tile zoom from it stays IBCS.</li>
+</ul>
+<p>The notation follows the <strong>IBCS® principles</strong>: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one scale per unit across all rows and period blocks (following IBCS 2.0 / ISO 24896), margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and high contrast, and welcomes authors with a start hub when they drag it onto the page (chapter 03). The visual makes no external calls, stores nothing outside the report and sends no telemetry.</p>
+<div class="notebox"><strong>Documented deviation: teal instead of green.</strong> Favorable variances are teal (#0E8585) by default, unfavorable ones red (#E02B1D) — instead of the IBCS green #8CB400 / red #FF2600. This keeps variances readable with red–green color-vision deficiency; legend and footer name the deviation. Switch it under Style → Variance colors (IBCS classic green) or with the variance color preset Blue / orange (ColorBrewer #2C7BB6 / #E66101, distinguishable even without color vision and in black-and-white print). Dark mode uses the ChartKitchen pair #3FB3C2 / #E4635F.</div>
+<p>This guide describes version <strong>1.6.0.0</strong>. Every default in the settings reference has been checked against the visual's settings model. New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.</p>
+</section>
+
+<section class="doc-sec" id="family"><h2><span class="snum">02</span>The product family</h2>
+<p>ChartKitchen and P&amp;L Statement are two visuals from one kitchen: the same IBCS notation, the same handling, the same start hub. They do not compete, they complement each other — ChartKitchen covers the <strong>breadth</strong> of chart forms, P&amp;L Statement the <strong>depth</strong> of the income statement.</p>
+<h3>Which visual for what?</h3>
+<div class="fam-grid"><div class="fam-col fam-ck"><div class="fam-tag">Breadth · 13 chart modes</div><h4 class="fam-h">ChartKitchen byDatenWG</h4><p>One visual for every question about trend, structure and correlation — “How is … developing?”, “Who drives …?”.</p><ul class="steps"><li><strong>Time series:</strong> columns and line, the integrated bridge PY → AC across the months, hatched forecast, YTD at a click.</li><li><strong>Structures:</strong> bars, category bridge, Pareto, dumbbell and slope, plus the IBCS table and matrix.</li><li><strong>Scatter &amp; bubble:</strong> two measures against each other, with quadrants, trend line, movement arrows and play mode.</li><li><strong>KPI cards:</strong> monitoring tiles with status light, bullet against a benchmark and trend sparkline.</li><li><strong>Small multiples:</strong> one tile per region or product, all on the same scale, with Σ and top-N tiles.</li></ul><p class="fam-foot"><a class="fam-link" href="chartkitchen-doku_en.html#family">Go to the ChartKitchen docs →</a></p></div><div class="fam-col fam-pnl fam-self"><div class="fam-tag">Depth · tables &amp; statements</div><h4 class="fam-h">P&amp;L Statement byDatenWG</h4><p>The income statement row by row — “What is in the P&amp;L, and why does it deviate?”.</p><ul class="steps"><li><strong>Mega table:</strong> the IBCS table templates T01–T04 plus 12A, 12G and 12H — value cascades, Δ waterfalls, pins, thresholds.</li><li><strong>Formula engine:</strong> hierarchy, subtotals, formula and margin rows straight from the account dimension (level columns or parent-child).</li><li><strong>Value driver tree:</strong> the formula graph as a DuPont tree with mini charts on every card and a tile zoom per node.</li><li><strong>Sankey:</strong> the same graph as a flow from left to right — deliberately outside the IBCS notation; the tile zoom stays IBCS.</li><li><strong>Period blocks:</strong> month · YTD · FY outlook side by side; readers switch columns, reference and unit in the toolbar.</li><li><strong>Structure bars &amp; row waterfall:</strong> the same P&amp;L rows as size bars or as a cascade with result anchors.</li></ul><p class="fam-foot"><span class="fam-here">✓ This documentation</span></p></div></div>
+<div class="notebox"><strong>A typical report page uses both side by side</strong> — the P&amp;L from P&amp;L Statement on the left, ChartKitchen with the monthly trend, a driver bridge or KPI cards on the right. With <code>fixedMax</code> they share the scale: enter the same amount in ChartKitchen under <em>Scale &amp; reference line → Scale minimum maximum</em> and in P&amp;L Statement under <em>Numbers → Scale minimum-maximum (values)</em> — equal amounts then give bars of equal length (IBCS: identical scales).</div>
+<h3>Shared handling</h3>
+<p>If you can operate one of the two visuals, you can operate the other: getting started, templates and rendering follow one shared specification. The table lists what is the same and where it sits in each visual.</p>
+<div class="tbl-wrap"><table class="ref fam-tbl"><thead><tr><th>Shared</th><th>ChartKitchen</th><th>P&amp;L Statement</th></tr></thead><tbody><tr><td class="fam-what"><strong>Start hub</strong> 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only.</td><td>Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles.</td><td>Tour with 8 cards (real mini renderings), demo = example P&amp;L, field guide with all 20 roles.</td></tr><tr><td class="fam-what"><strong>Templates as presets</strong> Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state.</td><td>11 IBCS chart templates C01–C13 (without C07/C11) in four groups; ↺ at the bottom left of the chart.</td><td>17 IBCS table templates T01A–12H plus the classic table in four groups; ↺ next to the template dropdown.</td></tr><tr><td class="fam-what"><strong>Font size HD · Full HD · UHD</strong> Bar at the bottom of every hub page, with “📖 Open docs” on the right.</td><td>Saves <em>Data labels → Size preset</em> (in the format pane Compact · Full HD · Presentation; ×1 · ×1.5 · ×2).</td><td>Saves <em>Style → Font size preset</em> (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6).</td></tr><tr><td class="fam-what"><strong>IBCS notation, teal by default</strong> AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency.</td><td>Teal #1E8F9E · red #D64541; colour preset blue/orange.</td><td>Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange.</td></tr><tr><td class="fam-what"><strong>Four languages</strong> German, English, Spanish, Japanese — follows the report language, in the hub too.</td><td>Format pane, chart texts and hub.</td><td>Format pane, toolbar, statement and hub.</td></tr><tr><td class="fam-what"><strong>Dark mode &amp; high contrast</strong> “Auto” detects dark report themes; in high contrast, patterns instead of colours carry the message.</td><td><em>IBCS colors → Appearance</em>.</td><td><em>Style → Appearance</em>.</td></tr><tr><td class="fam-what"><strong>Keyboard</strong> Every button via Tab, Enter or Space triggers, Esc goes back one level or closes.</td><td>Tour: ‹ ›, arrow keys, Home/End.</td><td>Hub: digits 1–4 open the buttons; tour: ‹ › and arrow keys.</td></tr><tr><td class="fam-what"><strong>Reader landing</strong> Without data, readers and exports see a calm card without buttons; the author's own empty-state text wins.</td><td>Since 1.51.1.</td><td>Since 1.4.1.</td></tr></tbody></table></div>
+</section>
+<section class="doc-sec" id="hub"><h2><span class="snum">03</span>The start hub</h2>
+<p>Drag P&amp;L Statement onto a report page without fields and since 1.3 you no longer get a demo table but the <strong>start hub</strong> — explore first, then bind fields. Since 1.4 it is tailored to controller self-service, since 1.4.1 it looks like the one in the sister visual ChartKitchen. The hub is an author's tool: it appears in edit mode only, while fields are missing — or on demand via ☰ Start. Navigation inside the hub is local state; none of it is saved.</p>
+<h3>The start page: get started and four buttons</h3>
+<p>At the top sits the product name with the subtitle “Explore the visual before you bind fields — or just get going.”, below it the full-width teal button <strong>🚀 Get started</strong> and four large tiles. The digits 1–4 open the tiles directly.</p>
+<ul class="steps">
+<li><strong>What can the visual do?</strong> — a tour in 8 cards: the P&amp;L as a table, mega table with IBCS templates, value driver tree, structure bars, row waterfall, tiles, dark mode &amp; high contrast and — card 8 — “Sankey: where the money flows” (noting that it lies outside the IBCS notation). Every card shows a real, scaled-down rendering of the visual over the built-in demo — no images. Page with ‹ › or the arrow keys.</li>
+<li><strong>Templates</strong> — the template gallery by purpose (see below).</li>
+<li><strong>Show demo</strong> — the example P&amp;L with pharma data (Smart Start), on which views, toolbar and templates already work.</li>
+<li><strong>Explain fields</strong> — all 20 data roles in four groups (“Required · structure and actual”, “Scenarios and time”, “Statement logic”, “Extras”), each with one sentence of purpose and ✓ once bound. Plus two premises: <em>IBCS notation</em> (AC filled · PY grey · PL outline or double line · FC hatched; rule “minuend → fill, reference → axis”) and <em>structure vs time</em> (accounts run vertically in rows, time horizontally in blocks month | _YTD | FY).</li>
+</ul>
+<p>Every sub-page and level carries the <strong>“← Back”</strong> pill at the top left; Esc goes back one level and the focus returns to the tile or the get-started button. Everything is a native button (Tab · Enter · Space); dark mode and high contrast apply in the hub too.</p>
+<h3>The template gallery by purpose</h3>
+<p>18 tiles — the classic table and the 17 IBCS templates (chapter 07) — sit in four groups, each with one sentence of purpose. Every tile carries a finance title, a benefit line and the T number as a small badge on the preview; templates that analyse the forecast show a preview with simulated FC.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Group</th><th>Template</th><th>Tile title</th><th>Benefit line</th></tr></thead><tbody><tr><td class="fam-what"><strong>Structure comparison</strong> Regions, products, cost centres side by side — who is above, who below plan?</td><td class="sname">T01A</td><td>Regions with plan variance</td><td>Values and Δ as figures, month | YTD; thresholds flag outliers in red.</td></tr><tr><td class="fam-what"></td><td class="sname">T01B</td><td>Regions with subtotals</td><td>Like T01A, grouped into subtotal blocks per area — for group and segment views.</td></tr><tr><td class="fam-what"></td><td class="sname">T02A</td><td>Plan variance as bars</td><td>ΔPL bars and pins: which area is above, which below plan — at a glance.</td></tr><tr><td class="fam-what"></td><td class="sname">T02B</td><td>Ranking by actual (YTD)</td><td>T02A sorted by AC: the largest areas on top — for top / flop lists.</td></tr><tr><td class="fam-what"></td><td class="sname">T02C</td><td>Ranking by variance (month)</td><td>T02A sorted by the month's Δ: the biggest issues first — for the monthly review.</td></tr><tr><td class="fam-what"><strong>Forecast</strong> The expected outcome (FC) against plan and previous year — hatched as in IBCS.</td><td class="sname">T02E</td><td>Forecast vs previous year</td><td>FC hatched, ΔPY bars and pins, sorted by variance — is the area growing?</td></tr><tr><td class="fam-what"></td><td class="sname">T02F</td><td>Forecast vs plan</td><td>Will the area land on budget? ΔPL bars and pins for the forecast, largest gaps first.</td></tr><tr><td class="fam-what"></td><td class="sname">T03B</td><td>Forecast P&amp;L with Δ to PY and plan</td><td>The outlook as a statement: PY · PL · FC and both variances as figures.</td></tr><tr><td class="fam-what"></td><td class="sname">T04D</td><td>Forecast P&amp;L with plan waterfall</td><td>How the forecast gets from plan to result: ΔPL waterfall row by row.</td></tr><tr><td class="fam-what"></td><td class="sname">T04E</td><td>Forecast P&amp;L with PY waterfall</td><td>What drives the expected result against the previous year? ΔPY waterfall with pins.</td></tr><tr><td class="fam-what"><strong>P&amp;L statement</strong> The P&amp;L row by row — variances as figures, bars or waterfall.</td><td class="sname">T03A</td><td>P&amp;L with variance to PY and plan</td><td>The standard statement for the monthly report: PY · PL · AC, ΔPY and ΔPL as figures.</td></tr><tr><td class="fam-what"></td><td class="sname">T04A</td><td>P&amp;L with plan variance bars</td><td>Every row with ΔPL bars and pins — cost and revenue variances become visible.</td></tr><tr><td class="fam-what"></td><td class="sname">T04B</td><td>P&amp;L with Δ waterfall</td><td>From planned to actual result: the integrated ΔPL waterfall shows how much each row contributes.</td></tr><tr><td class="fam-what"></td><td class="sname">T04C</td><td>P&amp;L with PY waterfall</td><td>The result bridge to the previous year: ΔPY waterfall on a gray axis, pins for Δ %.</td></tr><tr><td class="fam-what"><strong>Report views</strong> Cascades, full-year outlook, plan statement — and the classic table.</td><td class="sname">12A</td><td>Value cascades PY and actual</td><td>PY and AC cascades side by side, ΔPY bars and pins — the P&amp;L as a picture.</td></tr><tr><td class="fam-what"></td><td class="sname">12G</td><td>Full-year outlook (FY)</td><td>Actual + forecast as the full year against PY: YTD solid, rest of year hatched, with a headline.</td></tr><tr><td class="fam-what"></td><td class="sname">12H</td><td>Plan statement vs previous year</td><td>For the budget round: PL outlined against PY, variances outlined, headline slot.</td></tr><tr><td class="fam-what"></td><td class="sname">Off</td><td>Classic P&amp;L table</td><td>Column presets, sparklines and period blocks — readers switch for themselves in the toolbar.</td></tr></tbody></table></div>
+<ul class="steps">
+<li><strong>Click = apply.</strong> The tile writes the same as the toolbar dropdown: template, every switch, decimals and, where relevant, the headline slot in one save. The active tile carries “✓ active”, an accent border and a tinted background; clicking it again applies the template once more.</li>
+<li><strong>Without fields</strong> the choice is saved (“Saved: T03A — becomes active once fields are bound.”) and takes effect on binding.</li>
+<li><strong>In the overlay</strong> (via ☰ Start) a click applies the template, switches to the table view — from bars, waterfall, tree or Sankey too — and closes the overlay on the result.</li>
+</ul>
+<h3>🚀 Get started — the first three minutes</h3>
+<p>Three steps from empty field wells to a finished P&amp;L: a guided checklist whose ticks follow live. None of it is saved.</p>
+<ol class="steps">
+<li><strong>Bind the fields</strong> — the fast way first. Required: level columns L1..Ln (or account ID + parent ID) and AC. Recommended: PY and/or PL (variances), period (month | YTD blocks) and row type + sign (result and margin rows). “All fields explained →” jumps to the field guide.</li>
+<li><strong>Pick a template</strong> — shows the current state (“Selected: …” or still the classic table) and jumps to the gallery with “Open the template gallery →”.</li>
+<li><strong>Fine-tuning</strong> — in the format pane, in this order: house terms (Scenario names → AC = “Actual”, PL = “Budget”), thresholds (Columns &amp; mega table → Δ in red if below threshold · materiality) and decimals (Numbers → decimals) — with ✓ once set.</li>
+</ol>
+<h3>The bottom bar: font size and docs</h3>
+<p>A fixed bar closes every hub page — start page, get started, tour, gallery, demo, fields and every page in the overlay:</p>
+<ul class="steps">
+<li><strong>Aa · HD · Full HD · UHD</strong> — the three pills write <em>Style → Font size preset</em> (×1 · ×1.25 · ×1.6), the active one is filled teal; next to them the hint “Font size — HD for laptops · Full HD for monitors · UHD for projectors &amp; 4K”, the only element that gives way when space is short. A click saves and redraws at once — in the overlay the P&amp;L underneath too.</li>
+<li><strong>📖 Open docs</strong> — an outlined pill on the right: opens this page in the browser (the German version for a German report language, otherwise this English one). It is the only outbound call — on click only and in edit mode only.</li>
+<li>Below, centred, the signature “made by Daten-WG”.</li>
+</ul>
+<h3>With data: ☰ Start and ↺ Back to template</h3>
+<ul class="steps">
+<li><strong>☰ Start</strong> is the <em>first</em> element of the toolbar in edit mode — before the template picker, with an accent border and bold type. It opens the hub as an overlay above the P&amp;L; “✕ Close” or Esc removes the layer, the view underneath is exactly as before (scroll position included) and the focus returns to the button. If the host switches to reading view, the overlay closes.</li>
+<li><strong>↺ Back to template</strong> sits next to the template dropdown (edit mode, table view) as soon as a template is set and at least one template switch (columns, headline) deviates. A click restores the template state — every switch and the decimals. Changed decimals alone do not count as a deviation.</li>
+</ul>
+<h3>What readers see</h3>
+<p>Readers, PDF export and subscriptions never see the hub, the overlay or the bar. Without data the visual shows them a calm <strong>landing card</strong> since 1.4.1: the product name in bold, below it “This visual has no data yet — fields are bound in edit mode.” and a static row of three chart schematics — no buttons, no pills, no docs link. The author's own empty-state text still wins. The same rule applies in ChartKitchen.</p>
+<div class="notebox">You can do without the hub: <em>Empty state → While fields are missing (edit mode)</em> offers the demo statement (Smart Start), the field guide or your own message (chapter 08). Reports that saved <code>demo</code> or <code>fields</code> do not change. Visuals smaller than 300 × 220 px show only the hint text instead of the hub, even while editing.</div>
+</section>
+
+<section class="doc-sec" id="quickstart"><h2><span class="snum">04</span>Quick start &amp; import</h2>
+<h3>1 · Import the visual</h3>
+<ol class="steps">
+<li>Download the file <a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz"><code>pnlByDatenWG…1.6.0.0.pbiviz</code></a> (extension <code>.pbiviz</code>, also via the button at the top right).</li>
+<li>In Power BI Desktop: <em>Visualizations</em> → <em>⋯</em> → <em>Import a visual from a file</em> and pick the <code>.pbiviz</code>. An older version is replaced.</li>
+<li>Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the <strong>start hub</strong> in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.</li>
+</ol>
+<h3>2 · Minimal setup</h3>
+<ol class="steps">
+<li>Drag the levels of your hierarchy into <strong>Level columns (L1..Ln)</strong> — top to bottom. Alternative: <strong>Account ID (key)</strong> + <strong>Parent account ID</strong>.</li>
+<li>Bind your main measure to <strong>AC (Actual)</strong>. As soon as AC and a hierarchy are bound, the start hub disappears and the statement appears.</li>
+<li>Set every grouping field to <strong>“Don't summarize”</strong> — otherwise Power BI aggregates them and the visual receives empty values.</li>
+</ol>
+<h3>3 · Extend</h3>
+<ol class="steps">
+<li>Bind <strong>PY · PL · FC</strong> — every bound scenario unlocks its Δ columns.</li>
+<li>Bind <strong>Period (month)</strong> — for the month and YTD block, sparklines and monthly cards.</li>
+<li>For a real P&amp;L: <strong>Row type</strong>, <strong>Formula definition</strong> and the <strong>sign trio</strong> (chapter 05); for the full-year outlook <strong>FC Full Year</strong> and <strong>PL Full Year</strong> as <code>MAX</code> measures.</li>
+<li>Optionally pick an IBCS template: with one click in the template gallery of the start hub (☰ Start), in edit mode via the <strong>Template</strong> dropdown right after ☰ Start in the toolbar (table view), or via format pane → <em>Columns &amp; mega table</em> → <em>Template</em> (chapter 07).</li>
+</ol>
+<div class="notebox">Both paths step by step — the plain hierarchy in two minutes and the full P&amp;L with formula rows —, a sample account dimension and the pharma demo data to play along are on the <a href="pnl-schnellstart_en.html">quick start page</a>.</div>
+</section>
+
+<section class="doc-sec" id="data"><h2><span class="snum">05</span>Data model &amp; roles</h2>
+<p>The visual needs an account dimension — one row per P&amp;L row — and a fact table with the measures. There are two fully supported input modes for the hierarchy:</p>
+<ul class="steps">
+<li><strong>Star schema (level columns, primary mode):</strong> L1..Ln in drag order, at most 8. The visual builds the tree itself. Ragged branches follow both common conventions: if a deeper level is empty, the last filled level is the leaf; if a level repeats the text of the previous one (L2 = L1), the path ends there. Rows with the same path are aggregated; aggregate rows (e.g. PY only on L1) act as a scenario fallback.</li>
+<li><strong>Parent-child:</strong> Account ID + Parent account ID, any depth, unbalanced. Orphans land visibly in “Not assigned” instead of disappearing silently. If level columns and parent ID are both bound, parent-child wins.</li>
+</ul>
+<p>Subtotals are synthesized from the level paths; a synthetic subtotal inherits <em>Display invert</em> and <em>Variance invert</em> when all its children agree. Formula rows refer to other rows by their unique name.</p>
+
+<h3>Field roles (in field-well order)</h3>
+<p>At most one field per role, at most eight level columns. The visual reads every column by its role, never by its position — since 1.2 the field list is in the familiar order levels → keys → AC · PY · PL · FC → period → special roles.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Field role</th><th>Type</th><th>Purpose</th></tr></thead><tbody>
+<tr><td class="rname">Level columns (L1..Ln)</td><td class="rkind">Grouping · up to 8</td><td>Star-schema hierarchy in drag order — the primary mode. Ragged rules see above.</td></tr>
+<tr><td class="rname">Account ID (key)</td><td class="rkind">Grouping</td><td>Unique, stable account key. Required in parent-child mode, optional in level mode (leaf ID). Basis of selection and drillthrough. Without level columns and account ID the visual shows the empty state (the start hub in edit mode).</td></tr>
+<tr><td class="rname">Account name</td><td class="rkind">Grouping</td><td>Display name of the row. Without it the visual shows the account ID, or in level mode the text of the last filled level.</td></tr>
+<tr><td class="rname">Parent account ID</td><td class="rkind">Grouping</td><td>Parent-child link; unbalanced hierarchies are allowed. Wins when level columns are bound as well.</td></tr>
+<tr><td class="rname">AC (Actual)</td><td class="rkind">Measure · required</td><td>Actual value — the primary measure, drawn filled.</td></tr>
+<tr><td class="rname">PY (Previous Year)</td><td class="rkind">Measure</td><td>Previous-year value, drawn gray — basis of ΔPY.</td></tr>
+<tr><td class="rname">PL (Plan / Budget)</td><td class="rkind">Measure</td><td>Plan or budget value, drawn outlined — basis of ΔPL; in the mega table also the analysed scenario (plan statement, 12H).</td></tr>
+<tr><td class="rname">FC (Forecast)</td><td class="rkind">Measure</td><td>Forecast value, drawn hatched; can be the analysed scenario of the mega table (T02E/F, T03B, T04D/E).</td></tr>
+<tr><td class="rname">Period (month)</td><td class="rkind">Grouping</td><td>Month column for sparklines, the month and YTD block, the second period block and the monthly cards. Read formats: YYYY-MM, YYYY-MM-DD, ISO timestamps, YYYY/MM, date columns, German and English month names (long/short, with year) and numbers 1–12. “Month” is the last month <em>with AC data</em>; YTD is the period-matched window up to it.</td></tr>
+<tr><td class="rname">Column category</td><td class="rkind">Grouping · 1.2</td><td>Optional, classic table only: the column set of the YTD block repeats once per value of this field (e.g. segment or quarter) under a group header, followed by the total block. Mega table, bars and waterfall ignore the field.</td></tr>
+<tr><td class="rname">Row type</td><td class="rkind">Grouping</td><td><code>Account</code> · <code>Subtotal</code> · <code>Formula</code> · <code>KPI</code> · <code>Separator</code> (case-insensitive). KPI is a margin row: % display, Δ in percentage points.</td></tr>
+<tr><td class="rname">Formula definition</td><td class="rkind">Grouping</td><td>For formula and KPI rows, e.g. <code>[EBITDA]/[Revenue]</code>: <code>+ − * /</code> and parentheses, reference by unique row name, formula on formula allowed. A circular reference shows as an error on the row.</td></tr>
+<tr><td class="rname">Sign convention (±1)</td><td class="rkind">Grouping</td><td>The sign the row calculates with: revenue <code>1</code>, costs <code>-1</code>. A subtotal is sign × sum of its children.</td></tr>
+<tr><td class="rname">Display invert</td><td class="rkind">Grouping</td><td>Show positive although the calculated value is negative (cost rows). Changes the display only, not the calculation.</td></tr>
+<tr><td class="rname">Variance invert</td><td class="rkind">Grouping</td><td>Flips the favorable / unfavorable rating of a row.</td></tr>
+<tr><td class="rname">Sort order</td><td class="rkind">Grouping</td><td>Number per row that fixes the P&amp;L order within the parent (e.g. 10, 20, 30).</td></tr>
+<tr><td class="rname">Comment</td><td class="rkind">Grouping</td><td>Comment text per row — shown as a numbered marker (①, ②) with a footnote and in the tooltip.</td></tr>
+<tr><td class="rname">Filter info (footer)</td><td class="rkind">Measure (text)</td><td>Text measure carrying the current filter context (e.g. via <code>CONCATENATEX</code>/<code>SELECTEDVALUE</code>) — shown as a second footer line when the filter footer is enabled. Report filters are otherwise invisible to custom visuals.</td></tr>
+<tr><td class="rname">FC Full Year (outlook)</td><td class="rkind">Measure</td><td>Full-year forecast (AC&amp;FC) as a scalar, repeated on every month row; the first value wins, never summed. Unlocks the FY outlook (mega table block kind FY, template 12G).</td></tr>
+<tr><td class="rname">PL Full Year</td><td class="rkind">Measure</td><td>Full-year plan scalar for the outlook block. The FY block of the classic table needs both FY fields.</td></tr>
+</tbody></table></div>
+
+<h3>The sign trio</h3>
+<p>Three fields of the account dimension decide how a row calculates, how it looks and how its variance is rated. They are independent of each other — the sign logic runs through the dimension, nothing is “bent” inside the visual.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Field</th><th>Question</th><th>Effect</th></tr></thead><tbody>
+<tr><td class="rname">Sign convention (±1)</td><td>How does the row enter sums and formulas?</td><td>The booked value is multiplied by ±1. Costs booked positive with <code>-1</code> enter the sum negative, so <code>[Revenue]+[Cost of goods sold]</code> yields gross profit.</td></tr>
+<tr><td class="rname">Display invert</td><td>How is the row shown?</td><td>Flips the sign for display only: −50 calculated, 50 shown. In the mega table Δ and Δ % follow the shown values.</td></tr>
+<tr><td class="rname">Variance invert</td><td>Is “more” good or bad?</td><td>The rating uses the variance of the <em>calculated</em> value: a plus is favorable. The switch flips this rating for rows whose sign does not come through the dimension.</td></tr>
+</tbody></table></div>
+<div class="notebox"><strong>Example — cost row “Materials”, AC 50 against PL 60.</strong> The costs are booked positive in the fact table. With sign convention <code>-1</code> the visual calculates −50 against −60; the variance of the calculated value is +10, i.e. <em>favorable</em> (teal) — less cost than planned. <em>Display invert</em> = <code>true</code> shows the row as 50 and 60. Result for the typical cost row (as in the pharma demo): <code>-1</code> · <code>true</code> · <code>false</code>.<br><br><strong>The other convention:</strong> if costs arrive positive and without a sign convention (<code>1</code>) and are only subtracted by a formula, “more cost” is a plus in the calculation. Then you set <em>Variance invert</em> = <code>true</code> — the same example gives the same picture: 10 below plan, favorable. Do not combine <code>-1</code> with <em>Variance invert</em> as well unless higher values of that row really are good: the rating flips otherwise, and a cost overrun shows as favorable.</div>
+
+<h3>Column category (1.2)</h3>
+<p>A field such as segment or quarter in <strong>Column category</strong> makes the classic table repeat its column set per category value — the column set of the YTD block (otherwise of the first block) stands under one group header per value, followed by the existing blocks as “Total”. Each category calculates completely, formulas and margins included; the months lie on the calendar of the overall model, and one uniform Δ scale applies across all blocks. At most 24 categories; further values are named in a footnote. “% of revenue” and sum-safe rounding stay in the total block. Measures must be additive (total = sum of the categories), otherwise the total block shows the sum instead of the model value. Mega table, bars and waterfall ignore the role; in edit mode a note below the table says so.</p>
+
+<div class="notebox"><strong>DAX rules models fail on:</strong> FY measures with <code>MAX</code>, not <code>SUM</code> (the full-year values repeat on every month row); filter one reporting year, otherwise AC/PY/PL/FC sum across years; measures that return a value for non-existing account/period combinations (<code>COALESCE(x, 0)</code>, <code>+0</code>) create ghost rows — guard pattern <code>IF(COUNTROWS('Fact') &gt; 0, …)</code>. Time intelligence, currency conversion and row-level security stay in the model: the visual only computes with the data it receives.</div>
+</section>
+
+<section class="doc-sec" id="views"><h2><span class="snum">06</span>The views</h2>
+<p>The toolbar group <em>View</em> switches between table, bars, waterfall, tree and Sankey. The mega table is not a view of its own but a mode of the table view; the tile view opens from the tree or the Sankey. Which of these views readers are offered at all is decided by the author (chapter 08, “offer views”). The chosen view is reader state and is saved with the report and in bookmarks.</p>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">01</span><h3>Table (classic)</h3></div>
+<p>The statement: accounts, subtotals, formula and margin rows with expand and collapse per row. The columns come from the <strong>column preset</strong> — <em>AC·PY·PL·FC (full)</em> (AC, % of revenue, PY with ΔPY bar, PL with ΔPL bar and ΔPL% pin), <em>AC vs reference</em>, <em>AC vs PY·PL·FC</em> (Δ bar and Δ% pin per bound reference), <em>AC·PY·ΔPY</em>, <em>AC·PL·ΔPL</em>, <em>ΔPY% · ΔPL%</em> (pins only) and since 1.2 <em>Own selection</em> (AC, PY, PL, FC and Δ as separate switches). Three period blocks: <strong>MTD</strong> (AC against the Δ reference), <strong>YTD</strong> and the <strong>FY outlook</strong> (AC&amp;FC against PL full year, with both FY fields, in the full preset and in the own selection). All Δ bars share one scale across all rows and period blocks. If a Δ% pin exceeds ±40 %, ±40 % take the inner 80 % of the track; the outlier runs into the outer zone, a break mark separates it and a triangle points in the direction of growth (since 1.5). With a bound period, a chip per row opens a monthly sparkline; comments appear as numbered markers with a footnote.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">02</span><h3>Mega table</h3></div>
+<p>As soon as a column switch of the mega table is on in the table view (value column PY, PL or AC/FC, or any ΔPY/ΔPL display), the visual draws the IBCS table; all switches off = classic table. Value and Δ columns combine freely: Δ as a number, as bars on one zero line, as an <strong>integrated waterfall</strong> (each Δ bar starts where the previous one ended, “=” rows restart from the zero line), Δ % as a number or pin; value columns optionally as <strong>value cascades</strong> (12A). One or two <strong>period blocks</strong> (month · YTD · FY outlook) on one shared scale, <strong>thresholds</strong> (“Δ in red if …”) with a footer, margin rows in italics with Δ in percentage points (pp) instead of Δ %, scenario underlines in the header and closing row. With structure data (regions instead of a P&amp;L) there are subtotal blocks with a spacer row and a sort with “(↓)” at the sorting header, the rows of each block and the blocks themselves in the same direction (since 1.5.2, one-child groups like blocks); rows named “Other …” stay at the bottom; a spacer row follows every element of the top visible level, also between two single rows, and a group with exactly one shown child is one row (“Germany · Saxony”) without a repeated subtotal (1.5.1). Pins cap outliers automatically (Tukey fence Q3 + 4 × IQR, one limit for the whole table); the capped element runs into an outlier zone, separated by a break mark, with a triangle and the number outside. From 150 visible rows the mega table only draws the window around the viewport; the export always draws everything. In mega mode the toolbar hides column preset, Δ reference, periods and fit — the columns come from the format pane.</p></div>
+
+<div class="notebox"><strong>Scaling following IBCS 2.0 / ISO 24896 (since 1.5):</strong> Same unit, same scale. All Δ bars and Δ waterfalls of all period blocks (month, YTD, FY) share one scale, all Δ% pins a second one; there is no factor between blocks, even if the month gets short (1.5.1). In 12A, 12G and 12H the Δ bars are drawn on the scale of the value cascades. Only if they would fall below the minimum data area there, a round factor (2, 5, 10, 20 …) applies to all Δ columns of the table: the column head names it (“ΔPY ×5”), and a scale note stands right-aligned above the table. Nothing is ever rescaled silently. Capped outliers run into an outlier zone (12 % of the column) with a break mark, a triangle and the number outside. Comment footnotes always stay visible: if space runs short, the visual sets them in several columns, then reduces the row height and finally keeps the block at the bottom edge while the table scrolls behind it.</div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">03</span><h3>Structure bars</h3></div>
+<p>The same rows with one size bar each: AC against the Δ reference, plus ΔRef bar and ΔRef% pin — a look at the structure of the result without giving up the numbers. Blocks: YTD and (with both FY fields) the FY outlook. The default is a narrow AC bar inside the full reference band. Since 1.2 the <strong>ChartKitchen notation</strong> is available as switches (Columns &amp; mega table → Table): <em>overlapping scenario bars</em> puts AC in front at full strength and the reference equally tall, slightly offset behind it (PY gray, PL outlined, FC hatched); <em>triangle marks</em> place small triangles at the value of every other bound scenario above the bars — PY filled gray, PL hollow outlined, FC hatched. The notation lives in the shape, not only in the color; the marks enter the value scale and are never clipped. Both switches are off by default, and the view then stays pixel-identical to 1.1. Since 1.5 the Δ bars are drawn on the scale of the value bars: if they reach beyond the column, it gets wider; if they would stay below half a column, a round factor applies, named by the column head (“ΔPL ×5”) and the scale note.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">04</span><h3>Row waterfall</h3></div>
+<p>The P&amp;L as a cascade on the root level of the hierarchy: contributions cascade, totals anchor — result anchors such as revenue, gross profit, EBITDA, EBIT, EBT and net income stand on the zero line, the cost blocks float in between. Per block one cascade for the reference and one for AC, plus ΔRef bar and ΔRef% pin; blocks MTD, YTD and FY outlook. The cascade geometry is the same function as in the integrated Δ waterfall of the mega table. Since 1.5 the Δ bars are drawn on the scale of the cascades, otherwise with a round factor and note as in the bars view.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">05</span><h3>Value driver tree</h3></div>
+<p>The result tree as a DuPont graph: the root is the last formula/KPI row with operands (or the root row named in the format pane), the edges carry the operators ÷ × + − as circles. Without formula rows the tree grows straight from the hierarchy — with exactly one root it is the tree root, with several a virtual <strong>Total root</strong> carries them as children; the edges then carry the calculation sign. Tidy layout with one column per level, compact cards further down. Every card shows a mini chart of your choice — <em>monthly columns</em> (AC solid, reference behind), <em>variance columns</em> (AC − reference per month) or <em>mini bridge</em> (reference → Δ → AC, YTD) — and optionally a status edge in the variance color. ▾ expands and collapses a node (Shift: the whole branch), ⌖ makes a card the root, the breadcrumb and ⌂ lead back; hovering a card opens the IBCS detail view. When the card budget is reached, a note names the branches not drawn. Since 1.5 all cards of the same unit (amounts; percentage measures separately) are drawn on one scale; if a card would then cover less than a quarter of its area, it is magnified by a round factor and carries “×5” at the top right, explained by its tooltip. The hover detail view deliberately keeps its own scale and says so (“magnifying glass”). Mega table and finance switches do not act on the tree; it keeps its own fold state.</p></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">06</span><h3>Sankey (since 1.6)</h3></div>
+<p>The P&amp;L as a <strong>flow from left to right</strong> — on the same graph as the value driver tree (same root, same start depth, same fold state), drawn as bands instead of cards. The revenue components flow <strong>gray</strong> into revenue; the profit strand (Gross profit → EBITDA → EBIT → EBT → Net income) runs through to the right in the <strong>favorable color</strong>; costs branch off to the lower right in the <strong>unfavorable color</strong> into end nodes of their own. Bar and band height are proportional to the period-matched <strong>AC YTD</strong>, on one common scale for the whole view. Labels sit outside the node with name, value and % of revenue (basis: the revenue row, with a plain hierarchy the flow root); the space for them is reserved in the layout, nothing is cut off. The flow area is at least 240 px high (scaled with the font-size preset).</p>
+<p><strong>Flow rule:</strong> contributions with the node's sign flow in from the left. Counter-contributions (costs) stand below it in its column and are fed from the same inflow; because every connection of a node is allocated in a stack, its bands add up to the node height. A gray band <em>“Other (not broken down)”</em> appears only with inconsistent data, for example when a total node carries a value of its own or a formula contains a constant. A KPI root (Net margin) hands the flow to its first value operand; multiplication and division end the flow, and a ratio without a value row beneath it cannot be drawn as a flow (the visual then names the reason).</p>
+<ul class="steps">
+<li><strong>Click</strong> on a node or its label opens the tile zoom (view 07); “← Back to Sankey” leads back.</li>
+<li><strong>Hover</strong> shows the IBCS detail panel and dims foreign bands; the tooltip names value, share and Δ to the reference in your house terms.</li>
+<li><strong>Right click</strong> on a node opens the context menu with selection and drillthrough.</li>
+<li><strong>▾ / ▸</strong> at the label folds a branch open and shut, with <kbd>Shift</kbd> the whole branch. Fold state, root (⌖ in the tree, format pane) and ⌂ are the same as in the tree: a branch folded in the Sankey is folded in the tree too. In very full columns only the largest nodes keep their label, the rest stays reachable through the tooltip.</li>
+<li><strong>Toolbar</strong> in the Sankey: View, Δ reference, Unit, Density and Expand to level.</li>
+<li><strong>Dark mode and high contrast:</strong> in dark mode the bands sink into the dark paper. In high contrast patterns instead of colors carry the message — profit filled, costs outlined or hatched, inflows dashed.</li>
+<li><strong>Export and subscriptions</strong> print the Sankey without the toolbar, with the saved fold state.</li>
+</ul>
+<div class="notebox"><strong>Deliberately outside the IBCS notation.</strong> A Sankey is not an IBCS chart form: band widths, color areas and node labels do not follow the scenario notation (AC filled · PY gray · PL outline · FC hatched) nor the scale rule “one scale per unit, Δ against one reference”. The view's footer says so explicitly. The tile zoom you jump into from the Sankey, by contrast, stays IBCS. If you report strictly by IBCS, switch the Sankey off under Display &amp; toolbar (View: offer Sankey, chapter 08).</div></div>
+
+<div class="mode"><div class="mode-head"><span class="mode-n">07</span><h3>Tiles (tile view)</h3></div>
+<p>A click on the chart of a tree card (in the Sankey: on a node or its label) zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” (from the Sankey: “← Back to Sankey”) and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. The micro cards of one column share one scale per unit (×n marked); the main chart is labelled as a magnifying glass with its own scale. Only Δ reference and unit remain in the toolbar.</p></div>
+</section>
+
+<section class="doc-sec" id="templates"><h2><span class="snum">07</span>IBCS templates</h2>
+<p>The mega table rebuilds the official IBCS templates T01A–T04E as well as the report variants 12A, 12G and 12H. A template is only a <strong>preset</strong>: it sets all switches of the mega table group and the decimals (12G and 12H also the headline slot) in <em>one</em> save — afterwards every switch is free, you can show or hide every element individually. Templates only act in the <em>Table</em> view; <em>Off (classic table)</em> resets all mega switches.</p>
+<ul class="steps">
+<li><strong>Template gallery (since 1.3, most visual):</strong> in the start hub or via ☰ Start every template appears as a tile with a preview, grouped by purpose (chapter 03); a click applies it, again too.</li><li><strong>Toolbar (since 1.2, fastest):</strong> in edit mode the <em>Template</em> dropdown sits right after ☰ Start (table view only). It writes the same settings as the format pane; readers and exports never see it. Switch it off under Display &amp; toolbar → <em>Template picker in edit mode</em>.</li>
+<li><strong>Format pane:</strong> card <em>Columns &amp; mega table</em> → first group <em>Mega table (IBCS templates)</em> → <em>Template (IBCS table)</em>.</li>
+</ul>
+<div class="notebox"><strong>Scenario rule (one rule for every element):</strong> the <strong>minuend</strong> — the analysed scenario — decides the <strong>fill</strong>: AC solid, FC hatched, PL outlined, the Δ elements too (outlined in red / green on paper, plan statement; since 1.5.1). The <strong>reference</strong> decides the <strong>axis</strong>: PY = gray axis, PL = double line. The same code appears as an underline below the column heads (AC solid, PY gray, PL double, FC hatched). In the FY block the minuend is AC&amp;FC — mostly forecast, so its Δ elements are hatched.</div>
+
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Template</th><th>What it shows</th><th>Data requirement</th><th>Preset switches</th><th>Decimals (values / Δ %)</th></tr></thead><tbody>
+<tr><td class="sname">T01A</td><td>Flat structure: PY · PL · AC, ΔPY / ΔPY % / ΔPL / ΔPL % as numbers, month | _YTD, threshold red with footer</td><td>Structure + period + AC / PY / PL</td><td class="sopt">Minuend AC · value columns PY, PL, AC · ΔPY + ΔPY % as number · ΔPL + ΔPL % as number · second block · subtotals off · thresholds on</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T01B</td><td>like T01A with subtotal blocks (e.g. Europe / Americas / RoW)</td><td>Hierarchy levels</td><td class="sopt">like T01A · subtotal blocks on</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02A</td><td>PL · AC with ΔPL bars and ΔPL % pins, two blocks</td><td>AC / PL (+ period)</td><td class="sopt">Minuend AC · value columns PL, AC · ΔPL bars + ΔPL % pins · second block · subtotals on</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02B</td><td>like T02A, sorted by AC descending (“(↓)” in the header)</td><td>like T02A</td><td class="sopt">like T02A · sort AC/FC descending · sorting block YTD</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02C</td><td>like T02A, sorted by ΔPL descending</td><td>like T02A</td><td class="sopt">like T02A · sort Δ descending · sorting block month</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02E</td><td>FC instead of AC (hatched bars), reference PY with gray axis</td><td>FC + PY</td><td class="sopt">Minuend FC · value columns PY, FC · ΔPY bars + ΔPY % pins · second block · sort Δ descending (YTD)</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T02F</td><td>FC instead of AC, reference PL with double-line axis</td><td>FC + PL</td><td class="sopt">Minuend FC · value columns PL, FC · ΔPL bars + ΔPL % pins · second block · sort Δ descending (YTD)</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">T03A</td><td>P&amp;L statement: + / − / = rows, PY · PL · AC and Δ number columns, margin row in pp</td><td>Account dimension with row type</td><td class="sopt">Minuend AC · value columns PY, PL, AC · ΔPY + ΔPY % · ΔPL + ΔPL % as number · one block</td><td class="sopt">1 / 1</td></tr>
+<tr><td class="sname">T03B</td><td>like T03A with FC as the analysed scenario</td><td>like T03A + FC</td><td class="sopt">like T03A · minuend FC</td><td class="sopt">1 / 1</td></tr>
+<tr><td class="sname">T04A</td><td>Statement with ΔPL bars and ΔPL % pins</td><td>like T03A</td><td class="sopt">Minuend AC · value columns PL, AC · ΔPL bars + ΔPL % pins</td><td class="sopt">1 / 1</td></tr>
+<tr><td class="sname">T04B</td><td>Statement with integrated ΔPL waterfall (cascading bars, = anchors) and pins</td><td>like T03A</td><td class="sopt">Minuend AC · value columns PL, AC · ΔPL waterfall + ΔPL % pins</td><td class="sopt">2 / 1</td></tr>
+<tr><td class="sname">T04C</td><td>Statement with integrated ΔPY waterfall and pins</td><td>like T03A</td><td class="sopt">Minuend AC · value columns PY, AC · ΔPY waterfall + ΔPY % pins</td><td class="sopt">2 / 1</td></tr>
+<tr><td class="sname">T04D</td><td>like T04B with FC (hatched)</td><td>like T03A + FC</td><td class="sopt">like T04B · minuend FC</td><td class="sopt">2 / 1</td></tr>
+<tr><td class="sname">T04E</td><td>like T04C with FC (hatched)</td><td>like T03A + FC</td><td class="sopt">like T04C · minuend FC</td><td class="sopt">2 / 1</td></tr>
+<tr><td class="sname">12A</td><td>PY and AC value cascades as columns of their own, plus ΔPY bars and pins</td><td>like T03A</td><td class="sopt">Minuend AC · value columns PY, AC as value cascades · ΔPY bars + ΔPY % pins · margin rows off</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">12G</td><td>FY outlook: YTD solid and rest of year hatched in the same bar, Δ on the year against the whole previous year</td><td>like T03A + FC Full Year (+ period)</td><td class="sopt">Minuend AC (FY block: AC&amp;FC) · value columns PY, AC as value cascades · ΔPY bars + ΔPY % pins · period block FY · headline slot on</td><td class="sopt">0 / 1</td></tr>
+<tr><td class="sname">12H</td><td>Plan statement: PL cascade outlined, cost rows on a pale ground, ΔPY bars outlined in red / green</td><td>like T03A + PL as minuend</td><td class="sopt">Minuend PL · value columns PY, PL as value cascades · ΔPY bars + ΔPY % pins · margin rows off · headline slot on</td><td class="sopt">0 / 1</td></tr>
+</tbody></table></div>
+<p>For every template: decimals Δ % = 1 (uniform since 1.5; saved reports keep their value until the template is applied again), scenario underlines and numbers at bars / pins / cascades on, outlier arrows for Δ bars off, period block YTD (except 12G: FY), second block on the left = month; switches not named are off. The second period block needs the period field — without a period, “month” and the second block silently fall back to one YTD block; without FC Full Year, FY falls back to YTD.</p>
+<div class="notebox">Re-applying the same template works since 1.3: a click on the active tile in the gallery or “↺ Back to template” next to the toolbar dropdown restores the template state — the native dropdown itself cannot report an entry that is already selected. If you write reports as PBIR, set <code>columns.template</code> and <code>columns.templateApplied</code> to the same value; otherwise the visual applies the template on its first render and overwrites the switches you wrote (see the <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md">AGENT-GUIDE</a>). For comparison with the reference sheets: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md">TEMPLATE-GUIDE</a> and the HTML prototype <code>pnlByDatenWG/prototype/megatable.html</code>.</div>
+</section>
+
+<section class="doc-sec" id="settings"><h2><span class="snum">08</span>Settings reference</h2>
+<p>The format pane has eight cards in this order: <strong>Columns &amp; mega table</strong> → <strong>Display &amp; toolbar</strong> → <strong>Numbers</strong> → <strong>Scenario names</strong> → <strong>Style</strong> → <strong>Title block</strong> → <strong>Hierarchy</strong> → <strong>Empty state</strong>. The tables list every setting with options and default; names follow the English interface.</p>
+<div class="notebox"><strong>Visibility:</strong> the format pane only shows what fits the current view and the bound fields — the mega table group only in the table view, the value driver tree group only in tree and Sankey, ΔPY switches only with PY, threshold fields only while thresholds are on. A hidden switch keeps its value; hiding never changes what renders. Without data (and in the demo) everything stays visible. The “Visible …” notes in the tables name these conditions.</div>
+
+<h3 class="card-h">Columns &amp; mega table</h3>
+<div class="grp-h">Mega table (IBCS templates)</div>
+<p>The first group of the card since 1.2. Visible in the table view. Every switch acts on its own; the template only writes their defaults.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Template (IBCS table)</td><td>Sets the switches below to the template defaults — afterwards every switch is free.</td><td class="sopt">Options: Off (classic table) | T01A | T01B | T02A | T02B | T02C | T02E | T02F | T03A | T03B | T04A | T04B | T04C | T04D | T04E | 12A | 12G | 12H · Default “Off (classic table)”</td></tr>
+<tr><td class="sname">Analysed scenario (minuend)</td><td>AC filled, FC hatched, PL outlined; the Δ bars follow the minuend (PL: outlined in red / green, plan statement 12H). The Δ columns compare it with PY / PL. FC and PL need their field. With PL there is no ΔPL; value column PL and value column AC/FC then give one PL column.<br><span class="muted">Visible with FC or PL bound.</span></td><td class="sopt">Options: AC (actual) | FC (forecast) | PL (plan statement) · Default “AC (actual)”</td></tr>
+<tr><td class="sname">Value column PY</td><td>Previous-year values as a number column.<br><span class="muted">Visible with PY bound.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Value column PL</td><td>Plan values as a number column.<br><span class="muted">Visible with PL bound.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Value column AC / FC</td><td>Values of the analysed scenario as a number column.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Value columns as value cascades (12A)</td><td>Every shown scenario becomes a cascade chart column: steps on the running total, = rows from zero, cost rows light.<br><span class="muted">Visible as soon as a value column is on.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPY as number</td><td>Absolute variance against the previous year.<br><span class="muted">Visible with PY bound (applies to all ΔPY switches).</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPY as bars</td><td>Variance bars on one zero line, gray PY axis.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPY as integrated waterfall</td><td>Each Δ bar starts where the previous one ended; = rows restart from the zero line (T04C/E).</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPY% as number</td><td>Relative variance against the previous year.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPY% as pins</td><td>Relative variance as pins (lollipops).</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPL as number</td><td>Absolute variance against plan.<br><span class="muted">Visible with PL bound (applies to all ΔPL switches).</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPL as bars</td><td>Variance bars on one zero line, double PL axis.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPL as integrated waterfall</td><td>Each Δ bar starts where the previous one ended; = rows restart from the zero line (T04B/D).</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPL% as number</td><td>Relative variance against plan.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">ΔPL% as pins</td><td>Relative variance as pins (lollipops).</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">% of revenue column</td><td>Share of every row in the revenue base row (group Table), right of the value columns.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Second period block (month | _YTD)</td><td>The month of the last actuals left, the year to date right.<br><span class="muted">Visible with the period bound.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Period block</td><td>Month of the last actuals, year to date or FY outlook (AC&amp;FC vs PL, needs the FY fields); with a second block the right one.<br><span class="muted">Visible with the period or the FY fields.</span></td><td class="sopt">Options: Month | YTD | FY outlook (AC&amp;FC vs PL) · Default “YTD”</td></tr>
+<tr><td class="sname">Second block (left)</td><td>Period of the block left of the period block when the second block is on.<br><span class="muted">Visible with the period and the second block on.</span></td><td class="sopt">Options: Month | YTD | FY outlook (AC&amp;FC vs PL) · Default “Month”</td></tr>
+<tr><td class="sname">Subtotal blocks (structure data)</td><td>Regions / structure hierarchies: subtotal blocks with a spacer row; off = leaves + total only.<br><span class="muted">Visible with structure data (no P&amp;L row types).</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Margin / % rows</td><td>KPI rows (margins) in italics, their Δ in percentage points (“+8.6 pp”), without a relative Δ %; margins use the Δ% decimals. Applies to T03 and T04 alike; in T04 the pp number stands at the axis of the Δ bars or the Δ waterfall.<br><span class="muted">Visible with P&amp;L data.</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Δ in red if below threshold (+ footer)</td><td>Δ numbers below the thresholds turn red; a footer names the rule.<br><span class="muted">Visible as soon as a Δ number column (ΔPY/ΔPL or Δ% as number) is on.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Threshold Δ (month / single block)</td><td>In display units (after k/m scaling). The default −20 means thousands and is converted at m and b scaling (m: −0.02); a value you set applies as typed.<br><span class="muted">Visible while thresholds are on.</span></td><td class="sopt">Number · Default −20 (k)</td></tr>
+<tr><td class="sname">Threshold Δ% (month / single block)</td><td>In whole percent.<br><span class="muted">Visible while thresholds are on.</span></td><td class="sopt">Number · Default −10</td></tr>
+<tr><td class="sname">Threshold Δ (_YTD block)</td><td>Threshold of the second block, in display units. The default −220 means thousands and is converted at m and b scaling (m: −0.22).<br><span class="muted">Visible with thresholds, second block and period.</span></td><td class="sopt">Number · Default −220 (k)</td></tr>
+<tr><td class="sname">Threshold Δ% (_YTD block)</td><td>Threshold of the second block, in whole percent.<br><span class="muted">Visible with thresholds, second block and period.</span></td><td class="sopt">Number · Default −10</td></tr>
+<tr><td class="sname">Scenario underlines (head + closing)</td><td>AC solid, PY gray, PL double, FC hatched under the column heads.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Numbers at bars / pins / cascades</td><td>Value labels next to every chart element.<br><span class="muted">Visible as soon as a chart column (Δ bars, pins, waterfall or value cascade) is on.</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Outlier arrows for Δ bars too</td><td>Pins always cap outliers (Q3 + 4 × IQR); this extends it to the Δ bars. Capped elements run past the regular maximum into an outlier zone, a break mark separates them, a triangle points in the direction of growth, the number stands outside (since 1.5).<br><span class="muted">Visible with ΔPY or ΔPL bars.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Sort (structure data)</td><td>Per subtotal block; rows named Other … stay at the bottom.<br><span class="muted">Visible with structure data.</span></td><td class="sopt">Options: Category order | AC/FC descending | Δ descending · Default “Category order”</td></tr>
+<tr><td class="sname">Sorting block</td><td>Which period block decides the order.<br><span class="muted">Visible with structure data, second block, period and a sort other than category order.</span></td><td class="sopt">Options: Month block | YTD block · Default “YTD block”</td></tr>
+</tbody></table></div>
+
+<div class="grp-h">Table</div>
+<p>Classic table, bars and waterfall. The defaults of this group apply when the report opens; readers switch much of it in the toolbar. A default <em>changed</em> in the format pane wins over the saved reader state (only the changed one).</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Default column preset</td><td>Column set of the classic table when the report opens; readers switch it in the toolbar. “Own selection” (1.2) builds the columns from the five switches below.</td><td class="sopt">Options: AC·PY·PL·FC (full) | AC vs reference | AC vs PY·PL·FC | AC·PY·ΔPY | AC·PL·ΔPL | ΔPY% · ΔPL% | Own selection (switches below) · Default “AC·PY·PL·FC (full)”</td></tr>
+<tr><td class="sname">Own selection: AC column</td><td>Actual values as a number column (with % of revenue, if on).<br><span class="muted">Visible with the preset “Own selection”.</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Own selection: PY column</td><td>Previous-year values as a number column.<br><span class="muted">Visible with “Own selection” and PY bound.</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Own selection: PL column</td><td>Plan values as a number column.<br><span class="muted">Visible with “Own selection” and PL bound.</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Own selection: FC column</td><td>Forecast values as a number column.<br><span class="muted">Visible with “Own selection” and FC bound.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Own selection: Δ bar + Δ% pin</td><td>Variance of AC against the Δ reference as bar and pin.<br><span class="muted">Visible with the preset “Own selection”.</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Default Δ reference</td><td>Basis of the Δ columns, bars and tree cards. Auto takes PL, else PY.</td><td class="sopt">Options: Auto (PL, else PY) | Previous Year (PY) | Plan (PL) | Forecast (FC) · Default “Auto (PL, else PY)”</td></tr>
+<tr><td class="sname">Bars view: overlapping scenario bars</td><td>AC in front at full strength, the reference (PY gray / PL outlined / FC hatched) behind it and slightly offset — the ChartKitchen notation.<br><span class="muted">Visible in the bars view.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Bars view: triangle marks for further scenarios</td><td>Small triangles at the value of every other bound scenario (PY gray, PL outlined, FC hatched) above the bars.<br><span class="muted">Visible in the bars view.</span></td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Period sort order</td><td>Automatic reads YYYY-MM keys, dates and month names; data order keeps the model's own sequence (fiscal years); calendar year forces Jan..Dec.<br><span class="muted">Visible with the period bound.</span></td><td class="sopt">Options: Automatic | Data order (fiscal year) | Calendar year · Default “Automatic”</td></tr>
+<tr><td class="sname">% of revenue column</td><td>Share of every row in the revenue base row, next to AC.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Revenue base row (id or name)</td><td>Row the % of revenue refers to. Empty = first top-level row.<br><span class="muted">Visible when one of the two % of revenue columns is on.</span></td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Hide zero rows (default)</td><td>Rows without any value disappear; readers can switch it in the toolbar.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Fit table to width (default)</td><td>Squeezes the chart columns until the table fits the viewport — no horizontal scrolling.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Export: expand all rows</td><td>PDF / PowerPoint export and subscriptions print every row expanded, whatever is folded on screen.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Highlight rows</td><td>Comma-separated row names (or ids), case-insensitive: a quiet band runs over all columns of these rows (IBCS EMPHASIZE). Empty = off.</td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Materiality from (absolute)</td><td>Variances below this absolute amount (data units, before k/m scaling) are shown in soft gray instead of the variance colors — numbers, bars, pins and waterfall steps. 0 = off.</td><td class="sopt">≥ 0 · Default 0</td></tr>
+<tr><td class="sname">Materiality from (%)</td><td>Variances below this Δ% are shown in soft gray. If both thresholds are set, a variance must exceed both to be colored. 0 = off.</td><td class="sopt">0–100 · Default 0</td></tr>
+</tbody></table></div>
+
+<div class="grp-h">Value driver tree</div>
+<p>Start of the tree and Sankey views. Visible in the tree and Sankey views. The Sankey reads the root row and the start depth from it; card chart and status indicator act only in the tree.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Driver tree root row (id, name or category)</td><td>Empty = last formula/KPI row with operands, otherwise the model root.</td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Driver tree start depth</td><td>How many levels of the tree are open when it starts. 0 = the whole tree.</td><td class="sopt">0–8 · Default 0</td></tr>
+<tr><td class="sname">Driver tree card chart</td><td>Mini chart on every card: monthly columns, variance columns or a mini bridge.</td><td class="sopt">Options: Monthly columns (AC vs PL) | Variance columns (Δ vs reference) | Mini bridge (REF → Δ → AC) · Default “Monthly columns (AC vs PL)”</td></tr>
+<tr><td class="sname">Driver tree status indicator (Δ colour)</td><td>Card edge and Δ% in the card head in the variance colour.</td><td class="sopt">On / Off · Default On</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Display &amp; toolbar</h3>
+<p>What readers see above the statement and what they may switch themselves. A hidden group only takes the button away from readers — the default from the format pane keeps acting.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Show toolbar (viewers can switch views)</td><td>Buttons above the statement: view, columns, unit, density, levels.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Show scenario legend row</td><td>AC · PY · PL · FC chips plus favorable / unfavorable Δ under the toolbar.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: view</td><td>Table · Bars · Waterfall · Tree · Sankey — only the views offered below.<br><span class="muted">Visible while the toolbar is shown (applies to every group switch).</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">View: offer table</td><td>Readers may switch to the table (classic or mega table). Property <code>viewTable</code>.<br><span class="muted">Visible while the toolbar and the view group are on (applies to all five switches).</span></td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">View: offer bars</td><td>Readers may switch to the structure bars. Property <code>viewBars</code>.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">View: offer waterfall</td><td>Readers may switch to the row waterfall. Property <code>viewWaterfall</code>.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">View: offer driver tree</td><td>Readers may switch to the value driver tree. Off: a stored tile view opens only from the Sankey. Property <code>viewTree</code>.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">View: offer Sankey</td><td>Readers may switch to the flow view (Sankey) — a deliberate addition outside the IBCS notation. Property <code>viewSankey</code>.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: column presets</td><td>Column sets of the classic table.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: Δ reference</td><td>PY · PL · FC as the basis of every Δ.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: periods (MTD/YTD/FY)</td><td>Period blocks of the classic table.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: unit</td><td>Switch between thousands and millions.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: density</td><td>Normal or compact rows.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: expand level</td><td>Open the hierarchy down to level 1, 2 … or completely.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: options</td><td>% of revenue, hide zero rows, fit to width.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Group: scenario (mega table)</td><td>Readers switch the analysed scenario AC / FC and the reference view ΔPY · ΔPL · both of the mega table.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Group: value columns (scenarios one by one)</td><td>Readers combine the value columns freely — AC, PY, PL, FC and Δ against the Δ reference (classic table), analysed scenario · PY · PL (mega table). The column presets stay as quick picks.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Template picker in edit mode</td><td>A compact template dropdown at the front of the toolbar, right after ☰ Start, while you edit the report (table view). Readers and exports never see it.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Control bars collapsible (☰)</td><td>Toolbar, legend and hint lines (scale note, tree hint) fold behind a small ☰ button; folded, one slim row remains. For small tiles. Title, column heads with a scaling factor and the ×n marks of the cards stay visible; exports always print the legend. Since 1.5.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Start collapsed</td><td>The visual opens folded, readers unfold it with ☰. The reader's choice applies at run time and is not saved. Since 1.5.<br><span class="muted">Visible with collapsible control bars.</span></td><td class="sopt">On / Off · Default On</td></tr>
+</tbody></table></div>
+<div class="notebox"><strong>Offering views (since 1.6):</strong> The five switches (<code>toolbar.viewTable</code>, <code>viewBars</code>, <code>viewWaterfall</code>, <code>viewTree</code>, <code>viewSankey</code>; all default <em>on</em>, so existing reports do not change) decide which views readers are offered.
+<ul class="steps">
+<li><strong>Only offered buttons</strong> appear in the view group, in the order Table · Bars · Waterfall · Tree · Sankey. If exactly one view is left, the group disappears entirely.</li>
+<li><strong>Silent fallback:</strong> if a stored state or a bookmark points to a switched-off view, the visual draws the first offered one — without overwriting the stored state. If the author switches the view back on, it is back for that reader.</li>
+<li><strong>Tile zoom</strong> opens only with an active carrier view (tree or Sankey). With the tree switched off, the tile is reachable only through the Sankey.</li>
+<li><strong>All five off</strong> = the table remains. The <strong>mega table</strong> is not a view of its own but a template of the table; <em>offer table</em> covers both.</li>
+<li><strong>For reports with a fixed view</strong> (e.g. generated as a PBIR file) it is enough to switch off the other four; the readers' state does not have to be written for that.</li>
+</ul></div>
+
+<h3 class="card-h">Numbers</h3>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Scaling</td><td>Auto switches to k from 50,000, to m from 50 million and to b from 50 billion. Readers switch the unit in the toolbar (b only when the data needs it).</td><td class="sopt">Options: Auto | None | Thousands (k) | Millions (m) | Billions (b) · Default “Auto”</td></tr>
+<tr><td class="sname">Unit (e.g. EUR)</td><td>Follows k / m in the title, the scale note and the cards.</td><td class="sopt">Text · Default “EUR”</td></tr>
+<tr><td class="sname">Decimals (values)</td><td>Decimal places of values and Δ. A template sets them too.</td><td class="sopt">0–3 · Default 1</td></tr>
+<tr><td class="sname">Decimals (Δ%)</td><td>Decimal places of Δ% and margins. A template sets them too (since 1.5 every template to 1).</td><td class="sopt">0–2 · Default 1</td></tr>
+<tr><td class="sname">Finance format (parentheses)</td><td>Finance convention: negative values in parentheses instead of a minus sign — (1 234) — and zero as “–”. Applies to values, Δ and Δ%; positive Δ keep their “+”.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Sum-safe rounding</td><td>Rounds the value columns with the largest-remainder method so printed children add up exactly to their printed subtotal (formula and margin rows keep exact rounding). The Δ number is then the difference of the printed values.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Scale minimum-maximum (values)</td><td>Value bars and value cascades are scaled at least up to this amount — identical scales across several visuals (IBCS), also next to ChartKitchen. Data units, k / m / b allowed (e.g. 1.5m). The text is in data units before k/m/b scaling (comma or point). It is a minimum maximum: larger values still widen the scale. Holds the value cascades (12A, 12G, 12H) at [0, max]; Δ% pins always stay automatic. In edit mode “Scale fixed” appears below the table; for readers and in the export the scale note of the mega table names the fixed scale.</td><td class="sopt">Text · Default empty (automatic)</td></tr>
+<tr><td class="sname">Scale minimum-maximum (Δ)</td><td>Same for the Δ bars and integrated Δ waterfalls (symmetric ±max). Data units before scaling, k / m / b allowed. In 12A, 12G and 12H cascade and Δ are one unit: set both values, otherwise one tab may get “ΔPY ×5” and another not. Equal pixels per amount across the tabs of a page group require equally sized tiles, the same template column set and the same font size, as long as no tab exceeds the values.</td><td class="sopt">Text · Default empty (automatic)</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Scenario names</h3>
+<p>House terms for AC, PY, PL and FC — e.g. “Actual”, “LY” or “Budget”. They appear in toolbar, legend, column heads (ΔPY/ΔPL too), tooltips, title and footers.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Rename AC</td><td>Custom term for AC. Empty = AC.</td><td class="sopt">Text · Default empty (AC)</td></tr>
+<tr><td class="sname">Rename PY</td><td>Custom term for PY, also in the ΔPY heads. Empty = PY.</td><td class="sopt">Text · Default empty (PY)</td></tr>
+<tr><td class="sname">Rename PL</td><td>Custom term for PL, also in the ΔPL heads. Empty = PL.</td><td class="sopt">Text · Default empty (PL)</td></tr>
+<tr><td class="sname">Rename FC</td><td>Custom term for FC. Empty = FC.</td><td class="sopt">Text · Default empty (FC)</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Style</h3>
+<div class="grp-h">Colors &amp; appearance</div>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Appearance</td><td>Dark mode: Auto detects dark report themes from the background colour (luminance below 0.35) and switches ink, axes and surfaces to light tones; pages painted dark by hand need “Dark”. In a light report Auto renders identically to Light.</td><td class="sopt">Options: Auto (follow the report theme) | Light | Dark · Default “Auto (follow the report theme)”</td></tr>
+<tr><td class="sname">Variance color preset</td><td>Blue / orange is the ColorBrewer pair #2C7BB6 / #E66101 (dark #5BA3DC / #F0821E) — distinguishable even with complete color blindness and in black-and-white print. Auto keeps the variance colors below. The two color pickers still override.</td><td class="sopt">Options: Like variance colors (teal / IBCS) | Teal / red (color-vision safe) | IBCS green / red | Blue / orange (ColorBrewer) · Default “Like variance colors (teal / IBCS)”</td></tr>
+<tr><td class="sname">Variance colors</td><td>Teal replaces IBCS green to stay readable with red-green color-vision deficiency (documented deviation).<br><span class="muted">Visible while the preset is “Like variance colors”.</span></td><td class="sopt">Options: Teal deviation (color-vision safe) | IBCS classic green · Default “Teal deviation”</td></tr>
+<tr><td class="sname">Favorable Δ color (override)</td><td>Empty = color of the variance mode.</td><td class="sopt">Color · Default empty</td></tr>
+<tr><td class="sname">Unfavorable Δ color (override)</td><td>Empty = color of the variance mode.</td><td class="sopt">Color · Default empty</td></tr>
+<tr><td class="sname">Accent color (controls)</td><td>Active toolbar buttons, back button and breadcrumb hover — never data marks or axes.</td><td class="sopt">Color · Default #404040</td></tr>
+<tr><td class="sname">Page background</td><td>Ground of the statement, the tree and the tile view (dark in dark mode).</td><td class="sopt">Color · Default #FFFFFF</td></tr>
+<tr><td class="sname">Card background</td><td>Fill of tree cards, tiles and the hover panel (dark in dark mode).</td><td class="sopt">Color · Default #FFFFFF</td></tr>
+</tbody></table></div>
+<div class="grp-h">Type &amp; rows</div>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Font size preset</td><td>Scales every label at once: HD ×1 · Full HD ×1.25 · UHD ×1.6. Since 1.4 also via the HD · Full HD · UHD bar at the bottom of the start hub; since 1.4.1 the entries in the format pane are named just HD, Full HD and UHD too (saved values <code>hd</code> · <code>fullhd</code> · <code>uhd</code> unchanged).</td><td class="sopt">Options: HD | Full HD | UHD · Default “HD”</td></tr>
+<tr><td class="sname">Font fine scaling (%)</td><td>On top of the size preset (100 = preset unchanged). The product of preset and fine scaling is capped at 2.2.</td><td class="sopt">80–160 · Default 100</td></tr>
+<tr><td class="sname">Header font size (px)</td><td>0 = automatic (built-in sizes), otherwise 7–20 px; also acts on the mega table heads.</td><td class="sopt">0–20 · Default 0</td></tr>
+<tr><td class="sname">Header font color (override)</td><td>Empty = the built-in soft gray.</td><td class="sopt">Color · Default empty</td></tr>
+<tr><td class="sname">Default density</td><td>Row height when the report opens; readers switch it in the toolbar.</td><td class="sopt">Options: Normal | Compact · Default “Normal”</td></tr>
+</tbody></table></div>
+<div class="grp-h">Behavior</div>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Freeze the header while scrolling</td><td>Title, toolbar, legend and the column headers stay on top while the rows scroll.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Selection &amp; context menu active</td><td>Click sets the page selection (cross-filtering, drillthrough), right click opens the native menu. Off = a pure display without click handlers.</td><td class="sopt">On / Off · Default On</td></tr>
+</tbody></table></div>
+<div class="notebox">In Windows high-contrast mode the mega table ignores every color setting and tells the scenarios apart by pattern instead of color; the classic views keep their palette.</div>
+
+<h3 class="card-h">Title block</h3>
+<p>The three-line IBCS title (reporting unit · measure + unit · period + scenarios) with message, headline and footers. Every field except the main switch is visible only while the title block is on.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Show title block</td><td>IBCS title: reporting unit · measure + unit · period + scenarios.</td><td class="sopt">On / Off · Default On</td></tr>
+<tr><td class="sname">Line 1 · reporting unit</td><td>Who reports — company, segment, consolidation scope.</td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Line 2 · measure + unit</td><td>Empty = “Income statement (P&amp;L) in &lt;unit&gt;” from the data.</td><td class="sopt">Text · Default empty (automatic)</td></tr>
+<tr><td class="sname">Line 3 · period + scenarios</td><td>Empty = period and scenarios from the data (with the “_month” status marker of the last actual month).</td><td class="sopt">Text · Default empty (automatic)</td></tr>
+<tr><td class="sname">Message headline (interpretation)</td><td>The finding in one sentence, bold above the title (IBCS SAY).</td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Auto message</td><td>Builds the message headline from the variance of the result row and the strongest / weakest driver when no own message is entered. Since 1.5 a full sentence, e.g. “EBIT is 691 k EUR (−29 %) below previous year; strongest driver is Licences with +120 k EUR higher income, largest drag is Logistics with +813 k EUR higher costs.” The unit comes from the second title line (“… in m EUR”), otherwise from scaling and unit; if the minuend is not AC, the scenario appears in the sentence.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Headline slot (large message)</td><td>Shows the message as a large headline next to the title (IBCS 12-series layout); without an own message the generated auto message. 12G and 12H switch it on.</td><td class="sopt">On / Off · Default Off</td></tr>
+<tr><td class="sname">Footer (data status · source)</td><td>Footer line under the statement — e.g. data status and source; printed in exports too.</td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Show filter footer</td><td>Second footer line with the filter context: the bound “Filter info” text measure (report filters are not visible to custom visuals) plus the visual's own state — hidden zero rows, reader scenario view.</td><td class="sopt">On / Off · Default Off</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Hierarchy</h3>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">Default expand level</td><td>How deep the statement opens. 0 = expand everything.</td><td class="sopt">0–8 · Default 2</td></tr>
+<tr><td class="sname">Indent per level (px)</td><td>Indentation of the row labels per hierarchy level.</td><td class="sopt">6–32 · Default 16</td></tr>
+</tbody></table></div>
+
+<h3 class="card-h">Empty state</h3>
+<p>What the visual shows when there is nothing to display. Start hub, demo and field guide appear in edit mode only; readers, PDF export and subscriptions see the calm landing card (since 1.4.1) or the own message, never demo numbers.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Setting</th><th>Description</th><th>Options / Default</th></tr></thead><tbody>
+<tr><td class="sname">While fields are missing (edit mode)</td><td>Start hub = big buttons for get started, feature tour, template gallery, demo and field guide, with HD · Full HD · UHD and the docs at the bottom (chapter 03; default since 1.3) · Demo = example statement (Smart Start) · Field guide = which field goes where, minimal and extended, with ✓ for bound roles · Own message = the title and text below. Also switchable by button right in the empty state (“Explain fields” / “Show demo”).</td><td class="sopt">Options: Start hub (tour, templates, demo, fields) | Demo statement (Smart Start) | Field guide (which field goes where) | Own message (title / text below) · Default “Start hub (tour, templates, demo, fields)”</td></tr>
+<tr><td class="sname">Custom title</td><td>Replaces the heading when nothing is displayed (no fields bound in reading view, or the selection returns no rows). Empty = standard text.</td><td class="sopt">Text · Default empty</td></tr>
+<tr><td class="sname">Custom text</td><td>Body text below the title in the empty state — e.g. which filters the reader should check. Empty = standard text.</td><td class="sopt">Text · Default empty</td></tr>
+</tbody></table></div>
+<div class="notebox">Two properties do not appear in the format pane: <code>columns.templateApplied</code> (the last applied template, echo guard) and <code>state.uiState</code> (the reader state of the toolbar as JSON, bookmarkable). Property names, types and the schema for PBIR authoring are in the <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md">AGENT-GUIDE</a>.</div>
+</section>
+
+<section class="doc-sec" id="interaction"><h2><span class="snum">09</span>Interaction</h2>
+<h3>Toolbar</h3>
+<p>The toolbar above the statement shows, per view, only the groups that do something there. Below it sits the scenario legend with the chips AC · PY · PL · FC, favorable and unfavorable Δ and the note on how the Δ axes encode the reference. Above the mega table a right-aligned scale note appears as soon as anything deviates from the one scale (factor ×n or fixed scale). With “Control bars collapsible” the toolbar, legend and hint lines fold behind a small ☰ button.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Group</th><th>When visible</th><th>What it switches</th></tr></thead><tbody>
+<tr><td class="sname">☰ Start</td><td>edit mode, always the first element</td><td>Opens the start hub as an overlay: get started, tour, templates, demo, fields, docs (chapter 03).</td></tr><tr><td class="sname">Template</td><td>edit mode, table view</td><td>Dropdown of all IBCS templates; writes template and switches in one save.</td></tr><tr><td class="sname">↺ Back to template</td><td>edit mode, table view, once a template switch deviates</td><td>Restores every switch and the decimals of the selected template.</td></tr>
+<tr><td class="sname">View</td><td>always, except in the tile view and when only one view is offered</td><td>Table · Bars · Waterfall · Tree · Sankey — only the offered ones (chapter 08).</td></tr>
+<tr><td class="sname">Column preset</td><td>classic table</td><td>The six presets as quick picks.</td></tr>
+<tr><td class="sname">Value columns</td><td>classic table or mega table, with “Group: value columns”</td><td>Classic: AC · PY · PL · FC · ΔRef as separate buttons. Mega table: analysed scenario · PY · PL.</td></tr>
+<tr><td class="sname">Δ reference</td><td>classic views, tree, Sankey, tile</td><td>PY · PL · FC — only bound scenarios get a button.</td></tr>
+<tr><td class="sname">Periods</td><td>classic views, from two blocks</td><td>MTD · YTD · FY. No MTD in bars, FY only with both FY fields.</td></tr>
+<tr><td class="sname">Unit</td><td>always</td><td>kEUR · mEUR (bEUR only from 50 billion or when the format pane picks b).</td></tr>
+<tr><td class="sname">Density</td><td>except the tile view</td><td>Normal · Compact.</td></tr>
+<tr><td class="sname">Cards</td><td>tree</td><td>Months · Δ · Bridge as the card chart, plus Status (colored card edge).</td></tr>
+<tr><td class="sname">Expand to level</td><td>table views, tree and Sankey</td><td>1 · 2 · … · All; in the tree and Sankey also ⌂ (back to the top root, whole tree open).</td></tr>
+<tr><td class="sname">Scenario · Reference view</td><td>mega table, with “Group: scenario”</td><td>Scenario AC · FC (only with the FC field), reference view ΔPY · ΔPL · both.</td></tr>
+<tr><td class="sname">Options</td><td>classic views or mega table</td><td>Classic: % of revenue (table only), hide zero rows, fit. Mega table: hide zero rows.</td></tr>
+<tr><td class="sname">☰ Control bars</td><td>with “Control bars collapsible” (since 1.5)</td><td>Folds the toolbar, legend and hint lines in and out; unfolded, ☰ leads the toolbar.</td></tr>
+</tbody></table></div>
+
+<h3>Value column and scenario group</h3>
+<ul class="steps">
+<li><strong>Classic table:</strong> a click on a value-column button turns the current column set into the <em>Own selection</em> and flips exactly that switch — e.g. to get AC + PL + FC. The presets stay quick picks and set the buttons again; from “AC·PY·ΔPY” and “AC·PL·ΔPL” the reference is kept. The MTD and FY blocks follow the same switches.</li>
+<li><strong>Mega table:</strong> the same group switches analysed scenario, PY and PL as a reader layer on top of the format-pane switches. The last column is locked so the mega table never falls back to the classic table by a click. When the author changes the value columns in the format pane, the reader's choice ends.</li>
+<li><strong>Scenario group:</strong> readers switch the analysed scenario AC / FC and the reference view ΔPY · ΔPL · both. The filter footer names the chosen view.</li>
+</ul>
+
+<h3>Locked buttons</h3>
+<p>A button that would change nothing in the current state is <strong>locked</strong>: dimmed, without hover, with a tooltip that says where it acts — a click saves nothing. Whether a button acts is checked against the columns actually produced. Typical cases: the Δ reference under the preset “AC·PY·PL·FC” (which shows its references fixed), the FY block outside the presets that carry it, “% of revenue” while the YTD block is hidden, the last visible period block, the last value column or Δ without a reference field, and in the mega table a scenario choice its columns do not use. The period buttons show what is on screen — a forced YTD block reads as “on”.</p>
+
+<h3>Selection, cross-filter &amp; drillthrough</h3>
+<ul class="steps">
+<li><strong>Left click</strong> on a value or chart column of a row (table, mega table, bars, waterfall) or on the head of the tile sets the Power BI selection of that row — with all source rows of the account (e.g. every month). Subtotals select the leaves below them, formula rows the leaves of their operands. A second click or a click on empty space clears the selection.</li>
+<li><strong>Cross-filter:</strong> the selection filters the rest of the report page; the page's drillthrough buttons become live with exactly this context. The visual itself does not support highlighting — cross-interaction from outside filters it.</li>
+<li><strong>Right click</strong> on a row, tree card, Sankey node, micro card or the big tile opens the native context menu with the page's drillthrough targets; in the tile view “↗ Drill” does selection and menu in one go.</li>
+<li>The marking sits only on the chosen element (pale accent wash and a 2 px underline); other rows are not dimmed. At most 2,000 source rows are selected per node; where the cap applies, the tooltip says so.</li>
+<li>A row's name folds, the chevron folds, a click on a tree card or a Sankey node opens the tile — selection runs through the value and chart columns. Switch it off under Style → <em>Selection &amp; context menu active</em>; exports and subscriptions have no interaction.</li>
+</ul>
+<ol class="steps">
+<li><strong>Target page:</strong> create a new page (e.g. “Account detail”) and drag exactly the column bound as <em>Account ID (key)</em> into <em>Visualizations → Drill through</em> — without an account ID, the first level column (L1).</li>
+<li><strong>Button:</strong> on the source page <em>Insert → Buttons → Blank</em>, then <em>Action → On</em>, <em>Type = Drill through</em>, <em>Destination = Account detail</em>.</li>
+<li><strong>Use it:</strong> click a value column in the visual — the button becomes active. Alternatively right-click, or “↗ Drill” in the tile view.</li>
+</ol>
+
+<h3>Bookmarks</h3>
+<p>All toolbar states are saved in the report and bookmarkable: view, column preset and value columns, Δ reference, unit, density, options, period blocks, collapsed rows and open sparklines, root, folding, card chart, status and zoom of the tree (the Sankey shares root, folding and zoom), and the reader view of the mega table. A bookmark with a foreign state acts immediately. A default changed in the format pane wins only for the changed setting; the reader's other choices stay. A bookmark with a selection restores the filter through Power BI; the marking inside the visual is not redrawn, and a bookmark without a selection removes it. If a bookmark points to a view that is no longer offered, the first offered one appears (chapter 08).</p>
+
+<h3>Tooltips</h3>
+<p>In table, mega table, bars and waterfall, rows, cells, bars, pins and cascades show a tooltip with the row name, the bound scenarios of the block (with unit), the variance per reference in absolute and percent (margins in %p), the materiality note, the comment and, where it applies, the selection cap. In light mode it is the native Power BI tooltip, in dark mode a dark box of its own. The value driver tree uses its hover detail view and SVG titles; in the Sankey the hover shows the IBCS detail panel, and the tooltip names value, share and Δ to the reference.</p>
+
+<h3>Keyboard</h3>
+<p>Toolbar buttons and the expand/collapse controls of the rows are reachable with <kbd>Tab</kbd>; <kbd>Enter</kbd> or <kbd>Space</kbd> triggers them or folds and unfolds. The focus shows as a ring — on re-drawn rows of long mega tables too. In the start hub the digits 1–4 open the four tiles, ‹ › and the arrow keys page the tour, Esc goes back one level or closes the overlay.</p>
+</section>
+
+<section class="doc-sec" id="deviations"><h2><span class="snum">10</span>Known deviations from the IBCS sheets</h2>
+<p>The visual rebuilds the reference sheets as closely as possible but deliberately does not reproduce their inconsistencies and misprints. Four deviations are documented (in full in <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/SPEC-MEGATABLE.md">SPEC-MEGATABLE.md</a>, section “Bewusst offen / Abweichungen”):</p>
+<ol class="steps">
+<li><strong>T01A/B — decimal in the YTD block:</strong> the original's YTD ΔPY column prints one decimal (+431.0) while the other columns are integers. That is an inconsistency of the reference; the visual has one decimal rule per table and prints uniformly (+431).</li>
+<li><strong>T02F — early capping:</strong> the original caps Δ% pins already at a jump of 1.35×. The visual's Tukey automatic (Q3 + 4 × IQR) does not cap there — any rule that would hit T02F would wrongly cap in T02A.</li>
+<li><strong>T03A — misprints of the sheets:</strong> the original prints the ΔPL value (+162.5) by mistake in ΔPY of the group result; the visual calculates correctly (+186.2). The same goes for the financial-income pin in T04C/E (the visual draws −9.59 with the correct sign) and the operating result in 12H.</li>
+<li><strong>12A — arrowheads:</strong> multiple arrowheads on capped values (+983 →→→) are a single arrowhead in the visual; the value stands at the element as a number anyway.</li>
+</ol>
+<p>Independently of these, the teal coloring is a deliberate, documented deviation (chapter 01). Also outside the IBCS notation, but not a deviation from a sheet, is the Sankey view (chapter 06).</p>
+</section>
+
+<section class="doc-sec" id="faq"><h2><span class="snum">11</span>Troubleshooting</h2>
+<div class="faq"><h3>Buttons seem “dead”.</h3><p>Since 1.0.1 buttons without effect are dimmed and the tooltip says why — for example the Δ reference under the full preset. A template only acts in the <em>Table</em> view.</p></div>
+<div class="faq"><h3>The ΔPL columns stay empty.</h3><p>The PL role is not bound — the format pane then hides the ΔPL switches. An FC minuend needs the FC role, PL as minuend the PL role.</p></div>
+<div class="faq"><h3>The thresholds do not color anything.</h3><p>Thresholds apply in <strong>display units</strong>, i.e. after k/m scaling. The defaults −20 / −220 mean thousands and since 1.5.1 are converted at m and b scaling (−0.02 / −0.22 m); a value you set applies as typed, so −20 then means −20 million. They also need a Δ number column.</p></div>
+<div class="faq"><h3>The column head says “ΔPY ×5”.</h3><p>A scaling indicator following IBCS 2.0 / ISO 24896: in 12A, 12G and 12H the Δ bars are drawn on the scale of the value cascades; if they would be too small there, the visual magnifies them by a round factor and names it in the head and in the scale note above the table. The same applies in the bars and waterfall views. To scale several tabs alike, set both scale minimum-maximums (chapter 08).</p></div>
+<div class="faq"><h3>Since 1.5 the month bars look much shorter.</h3><p>Intended: month, YTD and FY share one scale per unit; up to 1.4 every block had its own, without a note. Small monthly variances are now as short as they are relative to YTD.</p></div>
+<div class="faq"><h3>Toolbar and legend take too much space in a small tile.</h3><p>Switch on Display &amp; toolbar → Control bars collapsible (☰) (since 1.5). Folded, one slim row remains; readers unfold with ☰.</p></div>
+<div class="faq"><h3>Picked the same template again — nothing happens.</h3><p>A native dropdown cannot report the entry that is already selected. Since 1.3 a click on the active tile in the template gallery (start hub or ☰ Start) applies the template again; if switches deviate, “↺ Back to template” next to the dropdown restores the template state.</p></div><div class="faq"><h3>A start hub appears instead of the demo statement.</h3><p>The default for authors since 1.3 (chapter 03); the demo statement sits behind “Show demo”. To see it directly, set Empty state → <em>While fields are missing</em> to “Demo statement (Smart Start)”. Readers and exports never see the hub.</p></div><div class="faq"><h3>Do readers see “☰ Start” or “↺ Back to template”?</h3><p>No. ☰ Start, the template picker and ↺ appear in edit mode only; readers, export and subscriptions never see them.</p></div>
+<div class="faq"><h3>The template dropdown is missing from the toolbar.</h3><p>It appears only in edit mode and in the <em>Table</em> view. Check the switch Display &amp; toolbar → <em>Template picker in edit mode</em>.</p></div>
+<div class="faq"><h3>Column category bound, but no blocks.</h3><p>The mega table ignores the column category (note below the table in edit mode). It acts in the classic table, i.e. with template “Off”.</p></div>
+<div class="faq"><h3>Export/PDF looks different from the screen.</h3><p>Intended: the export prints without the toolbar and fully expanded (switch <em>Export: expand all rows</em>), without virtualization and without the author note “Scale fixed” below the table; in the mega table the scale note names a fixed scale.</p></div>
+<div class="faq"><h3>All values are empty.</h3><p>The grouping fields are set to “Summarize” instead of “Don't summarize”.</p></div>
+<div class="faq"><h3>The FY columns are many times too large.</h3><p>The FY measure is defined as <code>SUM</code> instead of <code>MAX</code> (or <code>AVERAGE</code>); the full-year value repeats on every month row.</p></div>
+<div class="faq"><h3>The months are in the wrong order.</h3><p>The period label is not readable or it is a fiscal year — set Columns &amp; mega table → Table → <em>Period sort order</em> to “Data order (fiscal year)”.</p></div>
+<div class="faq"><h3>A row shows “·” or “⚠ cycle”.</h3><p>“·”: the reference name in the formula is not unique, or the scenario has no data. “⚠ cycle”: a circular reference in the formula definition or in parent-child.</p></div>
+<div class="faq"><h3>“Not assigned” appears red with ⚠.</h3><p>A parent or level path points nowhere. This is an intended data-quality signal: the visual never swallows accounts.</p></div>
+<div class="faq"><h3>Costs show as favorable although they are above plan.</h3><p>The cost row carries sign convention <code>-1</code> <em>and</em> variance invert = <code>true</code> — the two mechanisms cancel each other out. With <code>-1</code>, do not flip the variance color as well (chapter 05).</p></div>
+<div class="faq"><h3>Is the Sankey IBCS-compliant?</h3><p>No, deliberately not. The Sankey (since 1.6) is a flow view outside the IBCS notation; the footer says so, and the tile view that a click inside it opens stays IBCS. It is useful for the conversation about structure: where does the revenue flow, how much of it remains as profit, which cost blocks consume it. For plan-actual comparisons, variance analysis and the monthly report, table, mega table, bars and waterfall are the right choice. If your reporting policy allows only IBCS, switch the Sankey off (next question).</p></div>
+<div class="faq"><h3>How do I hide a view from readers?</h3><p>Format pane → Display &amp; toolbar → the five switches <em>View: offer table / bars / waterfall / driver tree / Sankey</em> (default all on); details and property names in chapter 08. A switched-off view loses its button. If only one view is left, the whole view group disappears — that is how you pin a report to exactly one view. If a stored state or a bookmark points to a switched-off view, the first offered one appears silently; the stored state is not overwritten. The group itself is hidden by <em>Group: view</em>.</p></div>
+<div class="faq"><h3>A gray band “Other” appears in the Sankey.</h3><p>The numbers of a node do not add up in its parts, for example because a total node carries a value of its own or a formula contains a constant. The band makes the gap visible instead of hiding it; with consistent data it never appears.</p></div>
+</section>
+
+<section class="doc-sec" id="version"><h2><span class="snum">12</span>Version note 1.6.0.0</h2>
+<p>This documentation describes <strong>version 1.6.0.0</strong> of 28 October 2026 (GUID <code style="overflow-wrap:anywhere;">pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code>). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.</p>
+<ul class="steps">
+<li><strong>1.6.0.0 · Sankey view and “offer views”:</strong> fifth view “Sankey” — the P&amp;L as a flow from left to right on the driver-tree graph (profit strand in the favourable colour, costs branching off unfavourably, band height proportional to AC YTD), with tile zoom, hover panel, context menu and branch collapsing as in the tree; deliberately outside IBCS notation (the footer says so). New under Display &amp; Toolbar: five switches deciding which views readers are offered (table, tree, bars, waterfall, Sankey); if a saved state points at a disabled view, the first offered view appears silently. Hub tour card 8 “Sankey”, four languages, dark mode and high contrast (patterns instead of colour).</li><li><strong>1.5.3.0 · column header on a scaled stage:</strong> in a Fabric App (stage scaled with a CSS transform) the sticky column header sat too low by the stage factor and covered rows; the visual now measures in layout pixels. In low tiles the footnotes only stick while rows stay visible; the IBCS notation line spans all footnote columns. Nothing changes in Power BI.</li>
+<li><strong>1.5.2.0 · cosmetic remaining points:</strong> the IBCS notation line stays inside the tile with a comment block; trademark note “IBCS Institute”; 12G headline “(forecast)”; 12G YTD numbers before the bar when they do not fit inside; tooltip “pp”; blocks and one-child groups sorted in the same direction as the rows (T02E/T02F); Δ waterfall connectors interrupted at numbers; a Δ that rounds to zero keeps its sign (“+0.00”).</li>
+<li><strong>1.5.1.0 — remaining points of the scale measurement:</strong> no factor between period blocks any more, scaling indicator ×n only for Δ against the value cascade (one factor per table); headline with the driver's Δ including its effect in words (“higher costs”) and the unit “m EUR”; margin rows without Δ %, Δ in pp with the Δ% decimals; threshold defaults converted at m scaling; spacer row after every element of the top level, single-child groups without a repeated subtotal; comment footnotes in several columns and always visible; Δ bars with minuend PL outlined in red / green; readable YTD numbers in 12G; true minus sign “−”.</li><li><strong>1.5.0.0 — scaling following IBCS 2.0 / ISO 24896 as the default:</strong> one Δ scale across all period blocks, Δ on the scale of the value cascades, outlier zone with break mark and triangle, scale note above the table; the same rule in the bars, waterfall and tree views (hover magnifier marked as its own scale); auto headline as a full sentence; Δ % with one decimal in every template; collapsible control bars (☰, default off); the footnote names IBCS 2.0 (ISO 24896).</li><li><strong>1.4.2.0 — fix:</strong> P&amp;L order in level mode with a sort column; generated intermediate levels inherit the smallest sort of their children, formula rows are back in place.</li><li><strong>1.4.1.0 — family hub:</strong> one look with the sister visual ChartKitchen — bottom bar with HD · Full HD · UHD and “📖 Open docs”, “← Back” as a pill, get started in teal across the full width, gallery groups as an eyebrow; preset names HD · Full HD · UHD in the format pane too; calm landing card for readers and exports without data.</li><li><strong>1.4.0.0 — hub polish for controllers:</strong> template gallery by purpose (four groups, finance titles, benefit line), “🚀 Get started” checklist, field guide with all 20 roles and two premises, font-size bar and docs button on every hub page, “← Back” everywhere, ☰ Start as the first toolbar element.</li><li><strong>1.3.0.0 — start hub:</strong> four buttons instead of the demo table (tour, templates, demo, fields), ☰ Start as an overlay above the P&amp;L, re-apply a template, “↺ Back to template”.</li><li><strong>1.2.0.0 — ease of use:</strong> combine value columns freely (preset “Own selection”, toolbar group value columns, also in the mega table), template picker in the toolbar, template group first in the format pane, empty state with field guide, field list in the familiar order, bars view like ChartKitchen (overlapping, triangles), column category.</li>
+<li><strong>1.1.0.0:</strong> 12G, 12H and the headline slot, scale sync, blue/orange, virtualization of long mega tables; finance craft from ChartKitchen (tooltips, sum-safe rounding, parentheses, billions, house terms, auto message, footers, highlight, materiality, reader scenario, empty state, keyboard); block kinds month · YTD · FY.</li>
+<li><strong>1.0.1.0:</strong> toolbar buttons act in every view, locked buttons with tooltip, format-pane defaults win after a change, echo guard for the toolbar state.</li>
+<li><strong>1.0.0.0:</strong> mega table (T01–T04, 12A), four languages, Smart Start, dark mode, format pane with visibility rules.</li>
+<li><strong>0.17.0.0:</strong> selection, cross-filtering and the native context menu with drillthrough.</li>
+</ul>
+<p>The complete version history is in the <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md">CHANGELOG</a> (German).</p>
+</section>
+
+<footer class="doc-foot"><strong>P&amp;L Statement byDatenWG</strong> · Version 1.6.0.0<br>Sister visual: <a href="chartkitchen-doku_en.html">ChartKitchen byDatenWG – documentation</a> · For IT &amp; admins: <a href="visuals-sicherheit_en.html">Security &amp; deployment</a><br>Contact: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>Quick start: <a href="pnl-schnellstart_en.html">pnl-schnellstart_en.html</a> · Download: <a href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz">.pbiviz 1.6.0.0</a> · Source code and changelog: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG">pnlByDatenWG in the repository</a> · For AI agents: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md">AGENT-GUIDE</a><br><a href="md/pnl-doku_en.md">📄 This page as Markdown</a><div class="ibcs">Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.</div></footer>
+
+  </main>
+</div>
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('nav.toc a'));
+  var secs=links.map(function(a){return document.getElementById(a.getAttribute('href').slice(1));});
+  function onScroll(){
+    var y=window.scrollY+120,cur=0;
+    for(var i=0;i<secs.length;i++){if(secs[i]&&secs[i].offsetTop<=y)cur=i;}
+    links.forEach(function(a,i){a.classList.toggle('active',i===cur);});
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});onScroll();
+})();
+</script>
+</body>
+</html>

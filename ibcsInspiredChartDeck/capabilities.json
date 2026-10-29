@@ -2,116 +2,166 @@
     "dataRoles": [
         {
             "displayName": "Category",
+            "description": "Axis or structure field — supports multiple columns for drill-down and a table row tree. Dates render automatically as \"Mar 26\". Optional since 1.41: leave it empty and the visual renders a single KPI tile/column labeled with the actual measure's name.",
+            "descriptionKey": "RoleDesc_Category",
             "displayNameKey": "Role_Category",
             "name": "category",
-            "kind": "Grouping",
-            "description": "Zeitachse (Monate) oder Struktur (z. B. Länder, Produkte)"
+            "kind": "Grouping"
         },
         {
             "displayName": "Actual (AC)",
+            "description": "Actual (AC) value — the primary measure. Required unless a forecast measure is bound instead.",
+            "descriptionKey": "RoleDesc_Actual",
             "displayNameKey": "Role_Actual",
             "name": "actual",
             "kind": "Measure",
-            "description": "Ist-Wert",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Previous Year (PY)",
+            "description": "Previous year (PY) value, used as one of the variance comparison bases (ΔPY).",
+            "descriptionKey": "RoleDesc_PreviousYear",
             "displayNameKey": "Role_PreviousYear",
             "name": "previousYear",
             "kind": "Measure",
-            "description": "Vorjahreswert",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Plan / Budget (PL)",
+            "description": "Plan/Budget measure. Rendered as outlined columns (IBCS notation) and used as the ΔPL variance basis.",
+            "descriptionKey": "RoleDesc_Plan",
             "displayNameKey": "Role_Plan",
             "name": "plan",
             "kind": "Measure",
-            "description": "Plan- oder Budgetwert",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Forecast (FC)",
+            "description": "Forecast (FC) value, shown hatched. Displayed only where actual is missing — unless chart.acFcSplit is set to full/rest, which renders a split column (AC base + FC top).",
+            "descriptionKey": "RoleDesc_Forecast",
             "displayNameKey": "Role_Forecast",
             "name": "forecast",
             "kind": "Measure",
-            "description": "Forecast-Wert (wird schraffiert dargestellt)",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Benchmark (BM)",
+            "description": "Benchmark (BM) value per category — shown as a dash marker on charts and as a bullet indicator on KPI cards.",
+            "descriptionKey": "RoleDesc_Benchmark",
             "displayNameKey": "Role_Benchmark",
             "name": "benchmark",
             "kind": "Measure",
-            "description": "Vergleichswert je Kategorie (z. B. Marktdurchschnitt, Ziel) — als Querstrich-Marker",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "FC Vormonat (Revision)",
+            "description": "Forecast from the previous cycle. Enables the \"fcrev\" variance basis (ΔFC vs. last forecast) to show what shifted since the prior forecast.",
+            "descriptionKey": "RoleDesc_PrevForecast",
             "displayNameKey": "Role_PrevForecast",
             "name": "prevForecast",
             "kind": "Measure",
-            "description": "Forecast des vorherigen Zyklus — als Abweichungsbasis wählbar (FC-Revision: was hat sich seit dem letzten Forecast verschoben?)",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Line (Kombi)",
+            "description": "Second measure drawn as a combo line over the columns on its own right-hand scale (e.g. margin %). Available only in columns orientation.",
+            "descriptionKey": "RoleDesc_LineMeasure",
             "displayNameKey": "Role_LineMeasure",
             "name": "lineMeasure",
             "kind": "Measure",
-            "description": "Zweite Kennzahl als Linie über den Säulen (z. B. Marge %) — eigene Skala rechts. Nur Columns.",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "X axis (Scatter)",
+            "description": "Scatter / bubble mode only: measure on the horizontal axis — Actual (AC) is the vertical axis, every category becomes one point (e.g. margin % vs. revenue).",
+            "descriptionKey": "RoleDesc_XValue",
+            "displayNameKey": "Role_XValue",
+            "name": "xValue",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "X axis PY (Scatter, optional)",
+            "description": "Scatter / bubble mode only: previous-year value of the X measure. With \"Movement arrows PY → AC\" the arrow then moves in 2D (X and Y); without this field the arrow only moves vertically.",
+            "descriptionKey": "RoleDesc_XPrevious",
+            "displayNameKey": "Role_XPrevious",
+            "name": "xPrevious",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
+            "displayName": "Bubble size (optional)",
+            "description": "Scatter / bubble mode only: turns the points into bubbles whose AREA is proportional to this measure (e.g. headcount). Zero, negative or blank values get the minimum size.",
+            "descriptionKey": "RoleDesc_BubbleSize",
+            "displayNameKey": "Role_BubbleSize",
+            "name": "bubbleSize",
+            "kind": "Measure",
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
             "displayName": "Stack Series (Gestapelt)",
+            "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
+            "descriptionKey": "RoleDesc_Series",
             "displayNameKey": "Role_Series",
             "name": "series",
-            "kind": "Grouping",
-            "description": "Feld gefüllt = Säulen/Balken stapeln sich nach dieser Serie (AC je Serie, mit Legende und Summen-Label)."
+            "kind": "Grouping"
         },
         {
             "displayName": "Spalten (Matrix)",
+            "description": "Table/matrix only: pivots the values into column groups (e.g. quarter → month, max. 2 levels), turning the plain table into a matrix with a collapsible column hierarchy.",
+            "descriptionKey": "RoleDesc_ColGroup",
             "displayNameKey": "Role_ColGroup",
             "name": "colgroup",
-            "kind": "Grouping",
-            "description": "Nur Tabelle: pivotiert die Werte in Spaltengruppen (z. B. Quartal → Monat, max. 2 Ebenen) — mit klappbarer Spalten-Hierarchie wie in der Power-BI-Matrix"
+            "kind": "Grouping"
         },
         {
             "displayName": "Filter-Info (Fußzeile)",
+            "description": "Text measure carrying the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer line when the filter footer is enabled.",
+            "descriptionKey": "RoleDesc_FilterInfo",
             "displayNameKey": "Role_FilterInfo",
             "name": "filterInfo",
             "kind": "Measure",
-            "description": "Text-Measure mit dem aktuellen Filterkontext (z. B. via CONCATENATEX/SELECTEDVALUE) — wird als zweite Fußzeile angezeigt, wenn „Filter-Fußzeile“ aktiv ist",
             "requiredTypes": [ { "text": true } ]
         },
         {
             "displayName": "Comments",
+            "description": "Text measure — categories with a comment get a numbered marker (①②…) and the text appears in the footnote panel.",
+            "descriptionKey": "RoleDesc_Comments",
             "displayNameKey": "Role_Comments",
             "name": "comments",
-            "kind": "Measure",
-            "description": "Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, Text im Tooltip"
+            "kind": "Measure"
         },
         {
             "displayName": "Small Multiples",
+            "description": "Splits the chart into small-multiple tiles per group, all sharing the same scale (IBCS small multiples). Scatter: one point cloud per group, X and Y scale, quadrant lines and bubble size shared across all tiles — deliberately without a Σ total or Top-N/Rest tile (sums over ratios such as margins would be wrong).",
+            "descriptionKey": "RoleDesc_Multiples",
             "displayNameKey": "Role_Multiples",
             "name": "multiples",
-            "kind": "Grouping",
-            "description": "Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS)"
+            "kind": "Grouping"
         },
         {
             "displayName": "Waterfall Type (sum/delta)",
+            "description": "Waterfall/P&L/table: \"sum\" (or \"total\") marks a subtotal/anchor row, \"delta\" a movement row, \"pct\" a margin row (shown as %, with variance in percentage points). Plus combinable tokens per row (separated by comma, semicolon, space or |): \"exclude\" (not in Σ), \"hide\", \"davon\" (indented of-which row), \"invert\" (reverse the rating), \"emphasize\", \"graphic\" (only these rows show graphics) — they replace the comma lists in the format pane. Unknown tokens are reported in edit mode.",
+            "descriptionKey": "RoleDesc_RowType",
             "displayNameKey": "Role_RowType",
             "name": "rowType",
-            "kind": "Grouping",
-            "description": "Nur Waterfall-Modus: 'sum' = absolute Zwischensumme, 'delta' = Bewegung (GuV-Wasserfall)"
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Trend (time)",
+            "description": "KPI cards only: a date/month field that turns every card into a time series — sparkline or mini columns at the bottom of the card; the card value is the last period or the sum (setting \"Card value with trend\"). All other modes ignore this field: rows are merged back to one row per category (summed, like without the field).",
+            "descriptionKey": "RoleDesc_Trend",
+            "displayNameKey": "Role_Trend",
+            "name": "trend",
+            "kind": "Grouping"
         },
         {
             "displayName": "Forecast Flag (1/0)",
+            "description": "Alternative to a separate FC measure: 1/true marks the AC value as forecast (hatched); 2 or \"prelim\" marks it as preliminary actual (solid bar with thin overlay hatching); 0/blank means a normal actual.",
+            "descriptionKey": "RoleDesc_FcFlag",
             "displayNameKey": "Role_FcFlag",
             "name": "fcFlag",
-            "kind": "Grouping",
-            "description": "Alternative zur FC-Measure: 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, AC-Measure läuft durch"
+            "kind": "Grouping"
         }
     ],
     "objects": {
@@ -128,24 +178,47 @@
         },
         "chart": {
             "properties": {
+                "template": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Aus (keine Vorlage)" },
+                            { "value": "C01", "displayName": "C01 · Gestapelte Säulen (Serie)" },
+                            { "value": "C02", "displayName": "C02 · Gestapelte Balken (Serie)" },
+                            { "value": "C03", "displayName": "C03 · Säulen + Varianzen (PY)" },
+                            { "value": "C04", "displayName": "C04 · Balken + Varianzen (PL)" },
+                            { "value": "C05", "displayName": "C05 · Integrierte Brücke (Zeit)" },
+                            { "value": "C06", "displayName": "C06 · Kategorie-Brücke vertikal" },
+                            { "value": "C08", "displayName": "C08 · Linie (lange Zeitreihe)" },
+                            { "value": "C09", "displayName": "C09 · Scatter" },
+                            { "value": "C10", "displayName": "C10 · Bubble (Scatter + Größe)" },
+                            { "value": "C12", "displayName": "C12 · Waterfall / Brücke" },
+                            { "value": "C13", "displayName": "C13 · Small Multiples" }
+                        ]
+                    }
+                },
+                "templateApplied": { "type": { "text": true } },
                 "orientation": {
                     "type": {
                         "enumeration": [
-                            { "value": "columns", "displayName": "Columns (Zeit)" },
-                            { "value": "bars", "displayName": "Bars (Struktur)" },
-                            { "value": "line", "displayName": "Line (Zeit, viele Punkte)" },
+                            { "value": "columns", "displayName": "Säulen (Zeit)" },
+                            { "value": "bars", "displayName": "Balken (Struktur)" },
+                            { "value": "line", "displayName": "Linie (lange Zeitreihe)" },
                             { "value": "waterfall", "displayName": "Waterfall / Brücke" },
                             { "value": "intwaterfall", "displayName": "Integrierte Brücke (Zeit)" },
                             { "value": "catbridge", "displayName": "Kategorie-Brücke (Struktur)" },
                             { "value": "table", "displayName": "Tabelle (IBCS)" },
                             { "value": "pareto", "displayName": "Pareto (Struktur)" },
-                            { "value": "dumbbell", "displayName": "Dumbbell (Struktur)" },
+                            { "value": "dumbbell", "displayName": "Dumbbell · Vorher/Nachher (Struktur)" },
                             { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
+                            { "value": "scatter", "displayName": "Scatter / Bubble (Korrelation)" },
                             { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
                             { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
                         ]
                     }
                 },
+                "smartStart": { "type": { "bool": true } },
+                "smartStartDismissed": { "type": { "text": true } },
+                "autoExpandHierarchy": { "type": { "bool": true } },
                 "pnlView": { "type": { "text": true } },
                 "tableExpanded": { "type": { "text": true } },
                 "tableSort": { "type": { "text": true } },
@@ -185,6 +258,17 @@
                     }
                 },
                 "zebraStripes": { "type": { "bool": true } },
+                "acFcSplit": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (FC only where AC is missing)" },
+                            { "value": "full", "displayName": "FC = full-month outlook (top-up)" },
+                            { "value": "rest", "displayName": "FC = rest of month (additive)" }
+                        ]
+                    }
+                },
+                "hideBlankCat": { "type": { "bool": true } },
+                "exportExpandAll": { "type": { "bool": true } },
                 "rowDensity": {
                     "type": {
                         "enumeration": [
@@ -230,6 +314,33 @@
                     }
                 },
                 "cardBars": { "type": { "bool": true } },
+                "cardSameScale": { "type": { "bool": true } },
+                "cardTrendChart": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "sparkline", "displayName": "Sparkline" },
+                            { "value": "columns", "displayName": "Columns" }
+                        ]
+                    }
+                },
+                "cardTrendValue": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "last", "displayName": "Last value" },
+                            { "value": "sum", "displayName": "Sum" }
+                        ]
+                    }
+                },
+                "cardRefValues": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Only variances" },
+                            { "value": "basis", "displayName": "Basis value" },
+                            { "value": "all", "displayName": "All bound scenarios" }
+                        ]
+                    }
+                },
                 "cardSort": {
                     "type": {
                         "enumeration": [
@@ -250,6 +361,41 @@
                     }
                 },
                 "deltaIcons": { "type": { "bool": true } },
+                "scatterQuadrant": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "mean", "displayName": "Mean (Ø)" },
+                            { "value": "median", "displayName": "Median" }
+                        ]
+                    }
+                },
+                "scatterColorBy": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "single", "displayName": "Single color (AC)" },
+                            { "value": "status", "displayName": "Status ΔPY/ΔPL" },
+                            { "value": "group", "displayName": "By group/series" }
+                        ]
+                    }
+                },
+                "scatterShapes": { "type": { "bool": true } },
+                "scatterArrows": { "type": { "bool": true } },
+                "scatterTrend": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "linear", "displayName": "Linear" }
+                        ]
+                    }
+                },
+                "scatterTrendR2": { "type": { "bool": true } },
+                "scatterSizeLegend": { "type": { "bool": true } },
+                "scatterQuadLabelTR": { "type": { "text": true } },
+                "scatterQuadLabelTL": { "type": { "text": true } },
+                "scatterQuadLabelBL": { "type": { "text": true } },
+                "scatterQuadLabelBR": { "type": { "text": true } },
+                "scatterPlay": { "type": { "bool": true } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -286,6 +432,7 @@
                 "cumulativeButton": { "type": { "bool": true } },
                 "materialityAbs": { "type": { "numeric": true } },
                 "materialityPct": { "type": { "numeric": true } },
+                "exceptionOnly": { "type": { "bool": true } },
                 "highlight": { "type": { "text": true } },
                 "groupEvery": { "type": { "numeric": true } },
                 "multiplesTotal": { "type": { "bool": true } },
@@ -294,7 +441,19 @@
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "bridgeBreak": { "type": { "bool": true } },
+                "stackLegendDirect": { "type": { "bool": true } },
+                "bridgeOrientation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic" },
+                            { "value": "bars", "displayName": "Bars (horizontal)" },
+                            { "value": "columns", "displayName": "Columns (vertical)" }
+                        ]
+                    }
+                },
                 "chartButtons": { "type": { "bool": true } },
+                "chipMenu": { "type": { "bool": true } },
                 "driverNote": { "type": { "bool": true } },
                 "compareClick": { "type": { "bool": true } },
                 "invert": { "type": { "bool": true } },
@@ -303,6 +462,23 @@
         },
         "colors": {
             "properties": {
+                "appearance": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto (Theme erkennen)" },
+                            { "value": "light", "displayName": "Hell" },
+                            { "value": "dark", "displayName": "Dunkel" }
+                        ]
+                    }
+                },
+                "variancePreset": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "custom", "displayName": "Farbwähler unten (Teal/Rot)" },
+                            { "value": "blueOrange", "displayName": "Blau/Orange (ColorBrewer)" }
+                        ]
+                    }
+                },
                 "useTheme": { "type": { "bool": true } },
                 "actualColor": { "type": { "fill": { "solid": { "color": true } } } },
                 "previousYearColor": { "type": { "fill": { "solid": { "color": true } } } },
@@ -315,7 +491,12 @@
             "properties": {
                 "show": { "type": { "bool": true } },
                 "sumSafeRounding": { "type": { "bool": true } },
+                "unitSuffix": { "type": { "bool": true } },
                 "financeFormat": { "type": { "bool": true } },
+                "labelAc": { "type": { "text": true } },
+                "labelPy": { "type": { "text": true } },
+                "labelPl": { "type": { "text": true } },
+                "labelFc": { "type": { "text": true } },
                 "labelDensity": {
                     "type": {
                         "enumeration": [
@@ -329,9 +510,9 @@
                 "fontPreset": {
                     "type": {
                         "enumeration": [
-                            { "value": "compact", "displayName": "Kompakt (Dashboard-Kachel)" },
+                            { "value": "compact", "displayName": "HD (Dashboard-Kachel)" },
                             { "value": "fullhd", "displayName": "Full HD (1080p)" },
-                            { "value": "presentation", "displayName": "Präsentation (4K / Beamer)" }
+                            { "value": "presentation", "displayName": "UHD (4K / Beamer)" }
                         ]
                     }
                 },
@@ -350,6 +531,22 @@
                 }
             }
         },
+        "emptyState": {
+            "properties": {
+                "mode": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "hub", "displayName": "Start-Hub (Loslegen, Tour, Vorlagen, Demo, Felder)" },
+                            { "value": "demo", "displayName": "Demo-Galerie (Chart-Typ wählen)" },
+                            { "value": "fields", "displayName": "Feld-Intro (welches Feld wohin)" },
+                            { "value": "message", "displayName": "Eigene Nachricht (Titel / Text unten)" }
+                        ]
+                    }
+                },
+                "title": { "type": { "text": true } },
+                "body": { "type": { "text": true } }
+            }
+        },
         "commentsPanel": {
             "properties": {
                 "showPanel": { "type": { "bool": true } },
@@ -364,7 +561,24 @@
                 "fixedVarMax": { "type": { "numeric": true } },
                 "capOverflow": { "type": { "bool": true } },
                 "refLine": { "type": { "text": true } },
-                "refLineLabel": { "type": { "text": true } }
+                "refLineLabel": { "type": { "text": true } },
+                "xRefLine": { "type": { "text": true } },
+                "xLogScale": { "type": { "bool": true } },
+                "yLogScale": { "type": { "bool": true } },
+                "xMin": { "type": { "text": true } },
+                "xMax": { "type": { "text": true } },
+                "yMin": { "type": { "text": true } },
+                "yMax": { "type": { "text": true } },
+                "wfAxisBreak": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (zero-based)" },
+                            { "value": "auto", "displayName": "Auto (reader decides via chip)" },
+                            { "value": "on", "displayName": "On (axis broken)" }
+                        ]
+                    }
+                },
+                "wfBreakAt": { "type": { "numeric": true } }
             }
         },
         "categoryAxis": {
@@ -381,8 +595,12 @@
                     "multiples": { "max": 1 },
                     "series": { "max": 1 },
                     "lineMeasure": { "max": 1 },
+                    "xValue": { "max": 1 },
+                    "xPrevious": { "max": 1 },
+                    "bubbleSize": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
+                    "trend": { "max": 1 },
                     "actual": { "max": 1 },
                     "previousYear": { "max": 1 },
                     "plan": { "max": 1 },
@@ -402,9 +620,10 @@
                         { "for": { "in": "series" } },
                         { "for": { "in": "rowType" } },
                         { "for": { "in": "fcFlag" } },
-                        { "for": { "in": "colgroup" } }
+                        { "for": { "in": "colgroup" } },
+                        { "for": { "in": "trend" } }
                     ],
-                    "dataReductionAlgorithm": { "top": { "count": 1000 } }
+                    "dataReductionAlgorithm": { "window": { "count": 1000 } }
                 },
                 "values": {
                     "select": [
@@ -415,6 +634,9 @@
                         { "bind": { "to": "prevForecast" } },
                         { "bind": { "to": "benchmark" } },
                         { "bind": { "to": "lineMeasure" } },
+                        { "bind": { "to": "xValue" } },
+                        { "bind": { "to": "xPrevious" } },
+                        { "bind": { "to": "bubbleSize" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]
@@ -434,6 +656,7 @@
             "canvas": true
         }
     },
+    "supportsHighlight": false,
     "supportsKeyboardFocus": true,
     "supportsMultiVisualSelection": true,
     "supportsLandingPage": true,

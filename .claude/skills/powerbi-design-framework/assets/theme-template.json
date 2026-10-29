@@ -1,0 +1,80 @@
+{
+  "name": "REPLACE — <Firma> Report Theme v1",
+  "dataColors": [
+    "#2563EB",
+    "#0D9488",
+    "#D97706",
+    "#7C3AED",
+    "#DB2777",
+    "#64748B"
+  ],
+  "foreground": "#1F2937",
+  "background": "#FFFFFF",
+  "tableAccent": "#2563EB",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#1F2937"
+    },
+    "header": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#1F2937"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 9,
+      "color": "#3F4A5A"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 26,
+      "color": "#1F2937"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#FFFFFF" } },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          { "show": false }
+        ],
+        "dropShadow": [
+          { "show": false }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontColor": { "solid": { "color": "#1F2937" } },
+            "alignment": "left",
+            "fontSize": 12,
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": { "solid": { "color": "#FAFAFB" } },
+            "transparency": 0
+          }
+        ],
+        "outspace": [
+          {
+            "color": { "solid": { "color": "#FAFAFB" } },
+            "transparency": 0
+          }
+        ]
+      }
+    }
+  }
+}

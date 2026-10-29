@@ -1,0 +1,422 @@
+{
+ "pilot": {
+  "paid": {
+   "p50": 28230,
+   "p10": 22601,
+   "p90": 35191,
+   "perV": 455,
+   "cats": {
+    "lic": 6565,
+    "build": 4686,
+    "switch": 0,
+    "rollout": 1443,
+    "train": 2871,
+    "maint": 4704,
+    "gov": 7589,
+    "risk": 373
+   },
+   "ko": false
+  },
+  "oss": {
+   "p50": 60159,
+   "p10": 45981,
+   "p90": 78181,
+   "perV": 969,
+   "cats": {
+    "lic": 1630,
+    "build": 5394,
+    "switch": 0,
+    "rollout": 2905,
+    "train": 4846,
+    "maint": 22042,
+    "gov": 21972,
+    "risk": 1370
+   },
+   "ko": false
+  },
+  "deneb": {
+   "p50": 77297,
+   "p10": 60187,
+   "p90": 98316,
+   "perV": 1245,
+   "cats": {
+    "lic": 7385,
+    "build": 6796,
+    "switch": 0,
+    "rollout": 3961,
+    "train": 14384,
+    "maint": 25654,
+    "gov": 18018,
+    "risk": 1099
+   },
+   "ko": false
+  },
+  "core": {
+   "p50": 86327,
+   "p10": 65616,
+   "p90": 109677,
+   "perV": 1391,
+   "cats": {
+    "lic": 0,
+    "build": 7631,
+    "switch": 0,
+    "rollout": 5794,
+    "train": 10335,
+    "maint": 54960,
+    "gov": 7301,
+    "risk": 307
+   },
+   "ko": false
+  },
+  "_rank": [
+   "paid",
+   "oss",
+   "deneb",
+   "core"
+  ],
+  "_in": {
+   "c": 1,
+   "v": 10,
+   "r": 2,
+   "cpr": 5,
+   "t": 4,
+   "mode": "ss",
+   "lm": "staffel"
+  }
+ },
+ "mittelstand": {
+  "paid": {
+   "p50": 55485,
+   "p10": 43626,
+   "p90": 70137,
+   "perV": 223,
+   "cats": {
+    "lic": 25780,
+    "build": 5067,
+    "switch": 0,
+    "rollout": 3600,
+    "train": 7714,
+    "maint": 4385,
+    "gov": 8536,
+    "risk": 403
+   },
+   "ko": false
+  },
+  "oss": {
+   "p50": 72277,
+   "p10": 53644,
+   "p90": 96070,
+   "perV": 291,
+   "cats": {
+    "lic": 1630,
+    "build": 6202,
+    "switch": 0,
+    "rollout": 7245,
+    "train": 13409,
+    "maint": 19926,
+    "gov": 22289,
+    "risk": 1576
+   },
+   "ko": false
+  },
+  "deneb": {
+   "p50": 102908,
+   "p10": 77259,
+   "p90": 135189,
+   "perV": 414,
+   "cats": {
+    "lic": 7313,
+    "build": 7954,
+    "switch": 0,
+    "rollout": 9786,
+    "train": 39564,
+    "maint": 19755,
+    "gov": 17248,
+    "risk": 1288
+   },
+   "ko": false
+  },
+  "core": {
+   "p50": 105439,
+   "p10": 80549,
+   "p90": 133699,
+   "perV": 425,
+   "cats": {
+    "lic": 0,
+    "build": 9197,
+    "switch": 0,
+    "rollout": 14429,
+    "train": 28481,
+    "maint": 44312,
+    "gov": 8648,
+    "risk": 370
+   },
+   "ko": false
+  },
+  "_rank": [
+   "paid",
+   "oss",
+   "deneb",
+   "core"
+  ],
+  "_in": {
+   "c": 3,
+   "v": 40,
+   "r": 6,
+   "cpr": 6,
+   "t": 5,
+   "mode": "man",
+   "lm": "staffel"
+  }
+ },
+ "konzern": {
+  "paid": {
+   "p50": 689855,
+   "p10": 518417,
+   "p90": 902344,
+   "perV": 74,
+   "cats": {
+    "lic": 510219,
+    "build": 5413,
+    "switch": 0,
+    "rollout": 43984,
+    "train": 57016,
+    "maint": 10225,
+    "gov": 62568,
+    "risk": 430
+   },
+   "ko": false
+  },
+  "oss": {
+   "p50": 383252,
+   "p10": 287429,
+   "p90": 498131,
+   "perV": 41,
+   "cats": {
+    "lic": 1633,
+    "build": 7025,
+    "switch": 0,
+    "rollout": 89341,
+    "train": 103303,
+    "maint": 52589,
+    "gov": 127574,
+    "risk": 1786
+   },
+   "ko": true
+  },
+  "deneb": {
+   "p50": 601877,
+   "p10": 434416,
+   "p90": 815144,
+   "perV": 65,
+   "cats": {
+    "lic": 7253,
+    "build": 9103,
+    "switch": 0,
+    "rollout": 119436,
+    "train": 302910,
+    "maint": 58753,
+    "gov": 102946,
+    "risk": 1476
+   },
+   "ko": false
+  },
+  "core": {
+   "p50": 650927,
+   "p10": 479020,
+   "p90": 856862,
+   "perV": 70,
+   "cats": {
+    "lic": 0,
+    "build": 10694,
+    "switch": 0,
+    "rollout": 176160,
+    "train": 216728,
+    "maint": 146032,
+    "gov": 100882,
+    "risk": 431
+   },
+   "ko": false
+  },
+  "_rank": [
+   "paid",
+   "deneb",
+   "core"
+  ],
+  "_in": {
+   "c": 25,
+   "v": 1500,
+   "r": 40,
+   "cpr": 8,
+   "t": 6,
+   "mode": "man",
+   "lm": "staffel"
+  }
+ },
+ "rs": {
+  "paid": {
+   "p50": 268828,
+   "p10": 203838,
+   "p90": 347061,
+   "perV": 108,
+   "cats": {
+    "lic": 188012,
+    "build": 5429,
+    "switch": 0,
+    "rollout": 14047,
+    "train": 31267,
+    "maint": 5518,
+    "gov": 24124,
+    "risk": 431
+   },
+   "ko": true
+  },
+  "oss": {
+   "p50": 175380,
+   "p10": 131435,
+   "p90": 230519,
+   "perV": 71,
+   "cats": {
+    "lic": 1620,
+    "build": 6968,
+    "switch": 0,
+    "rollout": 28211,
+    "train": 57671,
+    "maint": 24964,
+    "gov": 54174,
+    "risk": 1772
+   },
+   "ko": true
+  },
+  "deneb": {
+   "p50": 288078,
+   "p10": 203486,
+   "p90": 408702,
+   "perV": 116,
+   "cats": {
+    "lic": 7167,
+    "build": 8994,
+    "switch": 0,
+    "rollout": 37564,
+    "train": 169024,
+    "maint": 22614,
+    "gov": 41257,
+    "risk": 1458
+   },
+   "ko": false
+  },
+  "core": {
+   "p50": 272227,
+   "p10": 198873,
+   "p90": 363927,
+   "perV": 110,
+   "cats": {
+    "lic": 0,
+    "build": 10622,
+    "switch": 0,
+    "rollout": 55704,
+    "train": 120886,
+    "maint": 53634,
+    "gov": 30953,
+    "risk": 428
+   },
+   "ko": false
+  },
+  "_rank": [
+   "core",
+   "deneb"
+  ],
+  "_in": {
+   "c": 15,
+   "v": 400,
+   "r": 25,
+   "cpr": 6,
+   "t": 6,
+   "mode": "ent",
+   "lm": "staffel"
+  }
+ },
+ "gross": {
+  "paid": {
+   "p50": 1366696,
+   "p10": 1037614,
+   "p90": 1782319,
+   "perV": 22,
+   "cats": {
+    "lic": 326262,
+    "build": 6176,
+    "switch": 0,
+    "rollout": 329094,
+    "train": 410125,
+    "maint": 45262,
+    "gov": 249286,
+    "risk": 490
+   },
+   "ko": true
+  },
+  "oss": {
+   "p50": 2081413,
+   "p10": 1506731,
+   "p90": 2778808,
+   "perV": 34,
+   "cats": {
+    "lic": 1626,
+    "build": 8609,
+    "switch": 0,
+    "rollout": 664908,
+    "train": 764454,
+    "maint": 222692,
+    "gov": 416933,
+    "risk": 2191
+   },
+   "ko": true
+  },
+  "deneb": {
+   "p50": 3717194,
+   "p10": 2503182,
+   "p90": 5289415,
+   "perV": 60,
+   "cats": {
+    "lic": 7193,
+    "build": 11435,
+    "switch": 0,
+    "rollout": 885108,
+    "train": 2241075,
+    "maint": 218988,
+    "gov": 351539,
+    "risk": 1856
+   },
+   "ko": false
+  },
+  "core": {
+   "p50": 3963609,
+   "p10": 2848246,
+   "p90": 5368824,
+   "perV": 64,
+   "cats": {
+    "lic": 0,
+    "build": 13716,
+    "switch": 0,
+    "rollout": 1305807,
+    "train": 1593247,
+    "maint": 566982,
+    "gov": 483304,
+    "risk": 553
+   },
+   "ko": false
+  },
+  "_rank": [
+   "deneb",
+   "core"
+  ],
+  "_in": {
+   "c": 200,
+   "v": 10000,
+   "r": 400,
+   "cpr": 8,
+   "t": 8,
+   "mode": "ent",
+   "lm": "site"
+  }
+ }
+}

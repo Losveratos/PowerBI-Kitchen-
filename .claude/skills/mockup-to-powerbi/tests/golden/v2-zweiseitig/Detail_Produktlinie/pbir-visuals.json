@@ -1,0 +1,58 @@
+[
+  {
+    "visual_type": "tableEx",
+    "name": "p2_v04_Einzelpositionen",
+    "title": "Einzelpositionen",
+    "x": 16,
+    "y": 233,
+    "width": 742,
+    "height": 447,
+    "fields": {
+      "Values": [
+        "DimProduct.Product",
+        "_Measures.AC",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "lineChart",
+    "name": "p2_v05_Verlauf_24_Monate",
+    "title": "Verlauf 24 Monate",
+    "x": 770,
+    "y": 233,
+    "width": 494,
+    "height": 447,
+    "fields": {
+      "Category": "DimDate.Month",
+      "Y": [
+        "_Measures.AC",
+        "_Measures.PY"
+      ]
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "p2_slicer1_Year",
+    "title": "Year",
+    "x": 1088,
+    "y": 96,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "p2_slicer2_Region",
+    "title": "Region",
+    "x": 1088,
+    "y": 160,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  }
+]

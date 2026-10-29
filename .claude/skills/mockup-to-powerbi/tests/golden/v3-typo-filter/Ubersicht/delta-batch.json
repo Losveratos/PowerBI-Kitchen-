@@ -1,0 +1,424 @@
+{
+  "version": 2,
+  "name": "mockup delta · Übersicht",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-mk_kpi1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_kpi1.Visual",
+      "x": 24,
+      "y": 108,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_kpi1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_kpi1.Visual",
+      "width": 516,
+      "height": 180,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_kpi1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_kpi1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_kpi1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_kpi1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:_Measures.Umsatz"
+      ]
+    },
+    {
+      "id": "move-mk_col1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "x": 564,
+      "y": 108,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_col1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "width": 1032,
+      "height": 540,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_col1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_col1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_col1-2",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_col1-2",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Umsatz"
+      ]
+    },
+    {
+      "id": "move-mk_bar1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "x": 24,
+      "y": 672,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_bar1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "width": 1572,
+      "height": 348,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_bar1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-mk_bar1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "clear-mk_bar1-2",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-mk_bar1-2",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.Kosten"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Year_p1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
+      "x": 1632,
+      "y": 199,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Year_p1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
+      "width": 276,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Year_p1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Year_p1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Year"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Region_p1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
+      "x": 1632,
+      "y": 295,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Region_p1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
+      "width": 276,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Region_p1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Region_p1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "move-mk_slicer_Date_p1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_slicer_Date_p1.Visual",
+      "x": 1632,
+      "y": 391,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_slicer_Date_p1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_slicer_Date_p1.Visual",
+      "width": 276,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-mk_slicer_Date_p1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_slicer_Date_p1.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-mk_slicer_Date_p1",
+      "op": "bind",
+      "select": "Übersicht.Page/mk_slicer_Date_p1.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Date"
+      ]
+    },
+    {
+      "id": "move-mk_txt1",
+      "op": "move",
+      "select": "Übersicht.Page/mk_txt1.Visual",
+      "x": 24,
+      "y": 312,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-mk_txt1",
+      "op": "resize",
+      "select": "Übersicht.Page/mk_txt1.Visual",
+      "width": 516,
+      "height": 336,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "width": 1920,
+      "height": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_logo",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_logo.Visual",
+      "x": 24,
+      "y": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_logo",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_logo.Visual",
+      "width": 180,
+      "height": 48,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "x": 228,
+      "y": 9,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "width": 1668,
+      "height": 39,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
+      "x": 228,
+      "y": 48,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
+      "width": 1668,
+      "height": 27,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_bg",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_filter_bg.Visual",
+      "x": 1620,
+      "y": 84,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_bg",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_filter_bg.Visual",
+      "width": 300,
+      "height": 960,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_title",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_filter_title.Visual",
+      "x": 1632,
+      "y": 96,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_title",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_filter_title.Visual",
+      "width": 276,
+      "height": 36,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_text",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_filter_text.Visual",
+      "x": 1632,
+      "y": 144,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_text",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_filter_text.Visual",
+      "width": 276,
+      "height": 43,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_1",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "x": 1720,
+      "y": 1047,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_1",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "width": 96,
+      "height": 30,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_2",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "x": 1824,
+      "y": 1047,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_2",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "width": 72,
+      "height": 30,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "x": 24,
+      "y": 1044,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "width": 1672,
+      "height": 36,
+      "continue_on_error": true
+    }
+  ]
+}

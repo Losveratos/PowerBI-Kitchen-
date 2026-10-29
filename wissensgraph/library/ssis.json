@@ -1,0 +1,384 @@
+{
+ "id": "tool:ssis",
+ "name": "SSIS",
+ "typ": "tool",
+ "slug": "ssis",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/ssis.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/ssis.json",
+ "dokumente_gesamt": 6,
+ "kernaussagen_gesamt": 19,
+ "mit_kernaussagen": 3,
+ "aliase": [
+  "Integration Services"
+ ],
+ "einordnung": "SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen. (Stand 2025-12) Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts. (Stand 2025-12) In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können. (Stand 2025-12)",
+ "nachbarn": [
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 5,
+   "beleg": "wir benötigen das Aure Feature Pack für Integration Services",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:gateway",
+   "name": "Gateway",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "gateway.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 1,
+   "zeit": "00:01",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=1s",
+   "aussage": "Aus einem Integration-Services-Paket (SSIS) lässt sich per REST API ein Microsoft-Fabric-Notebook starten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 8,
+   "zeit": "00:08",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=8s",
+   "aussage": "Der Notebook-Aufruf eignet sich, um nach dem Hochladen von On-Premises-Daten Richtung Fabric direkt eine Weiterverarbeitung anzustoßen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 33,
+   "zeit": "00:33",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=33s",
+   "aussage": "Im SSIS-Paket wird der Notebook-Aufruf über eine Script Task in Visual Studio umgesetzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 190,
+   "zeit": "03:10",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=190s",
+   "aussage": "Im SSIS-Paket wird für den Notebook-Aufruf ein eigener Script Task angelegt, dem Variablen bzw. Parameter übergeben werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 194,
+   "zeit": "03:14",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=194s",
+   "aussage": "Für die HTTP-Kommunikation mit der REST API müssen im Script Task Verweise auf HTTP- und Web-Bibliotheken ergänzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 203,
+   "zeit": "03:23",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=203s",
+   "aussage": "Die Projektparameter im SSIS-Paket enthalten Client ID, Tenant und Client Secret des Service Principals."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 232,
+   "zeit": "03:52",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=232s",
+   "aussage": "Die Paketvariablen im SSIS-Paket speichern Workspace-ID und Notebook-ID für den REST-API-Aufruf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 245,
+   "zeit": "04:05",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=245s",
+   "aussage": "Die definierten Variablen werden vor der Skriptausführung an den Script Task übergeben."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 383,
+   "zeit": "06:23",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=383s",
+   "aussage": "Die vorgestellte Lösung ermöglicht es, Daten per SSIS von einer lokalen Umgebung nach Fabric zu bringen und anschließend automatisiert per Notebook zu importieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 39,
+   "zeit": "00:39",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=39s",
+   "aussage": "SQL Server Integration Services wird genutzt, um Daten in das Fabric Warehouse zu bringen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 60,
+   "zeit": "01:00",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=60s",
+   "aussage": "Deshalb erfolgt das Bewegen der Daten dateibasiert statt über einzelne SQL-Inserts."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 80,
+   "zeit": "01:20",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=80s",
+   "aussage": "In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 105,
+   "zeit": "01:45",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=105s",
+   "aussage": "Für die Zusammenarbeit von Integration Services mit Azure-Komponenten wird das Azure Feature Pack für SSIS benötigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 205,
+   "zeit": "03:25",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=205s",
+   "aussage": "Für das empfohlene Paketformat in SSIS-Projekten wird zusätzlich eine Java-Installation über Zulu OpenJDK oder die Oracle Java Runtime benötigt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 296,
+   "zeit": "04:56",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=296s",
+   "aussage": "Im SSIS-Datenfluss wird über eine Quelle eine SQL-Datenbank verbunden und darüber ausgewählt, welche Tabelle und Spalten geladen werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 322,
+   "zeit": "05:22",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=322s",
+   "aussage": "Ein direktes Schreiben aus SSIS in den OneLake-Speicher ist aktuell nicht möglich, weil der mitgelieferte Connector diese Einstellung noch nicht unterstützt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 340,
+   "zeit": "05:40",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=340s",
+   "aussage": "Stattdessen müssen die Daten aus SSIS in einen Azure Blob Storage bzw. ein Storage Account mit entsprechendem Container geschrieben werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 673,
+   "zeit": "11:13",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=673s",
+   "aussage": "Der Push-Schritt lässt sich als zusätzlicher Arbeitsschritt in bereits bestehende lokale SSIS-Pakete integrieren, die am Ende Ergebnisdateien nach Fabric hochladen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 954,
+   "zeit": "15:54",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=954s",
+   "aussage": "Der Kunde des Migrationsprojekts wollte möglichst wenig an der bestehenden ETL-Logik ändern, um alte und neue Lösung eins zu eins vergleichen zu können."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.389,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "01:15",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s",
+     "sekunde": 75
+    },
+    {
+     "label": "01:46",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=106s",
+     "sekunde": 106
+    },
+    {
+     "label": "03:26",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=206s",
+     "sekunde": 206
+    }
+   ]
+  },
+  {
+   "id": "yt:NvtZ-ehiTrg",
+   "titel": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.143,
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg",
+   "sprungmarken": [
+    {
+     "label": "00:01",
+     "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=1s",
+     "sekunde": 1
+    },
+    {
+     "label": "00:30",
+     "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=30s",
+     "sekunde": 30
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.042,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "07:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s",
+     "sekunde": 470
+    }
+   ]
+  },
+  {
+   "id": "yt:d3HdhRe_nK8",
+   "titel": "Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools",
+   "datum": "2026-06-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8",
+   "sprungmarken": [
+    {
+     "label": "00:44",
+     "url": "https://www.youtube.com/watch?v=d3HdhRe_nK8&t=44s",
+     "sekunde": 44
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "45:48",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=2748s",
+     "sekunde": 2748
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.016,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Assis",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Assis&f=tool%3Assis"
+}

@@ -1,0 +1,279 @@
+{
+  "version": 2,
+  "name": "mockup · Übersicht",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "format",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_filter_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#F1F3F5",
+        "outline.show": false,
+        "position.z": 0
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-2",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_filter_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Alle Werte in Tsd. EUR. Stand: Vormonat.",
+        "text.fontSize": 14.5,
+        "text.fontColor": "#6B7280",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "top",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-3",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_filter_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Auswahl",
+        "text.fontSize": 16,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "text.bold": true,
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-4",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Quelle: DWH · Stand Vormonat",
+        "text.fontSize": 14,
+        "text.fontColor": "#6B7280",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-5",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#0F1E2E",
+        "outline.show": false,
+        "position.z": 0
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-6",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_subtitle.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Umsatz und Kosten je Region",
+        "text.fontSize": 15,
+        "text.fontColor": "#C8CDD4",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-7",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_header_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Vertrieb 2026",
+        "text.fontSize": 24,
+        "text.fontColor": "#FFFFFF",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "text.bold": true,
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-8",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_logo.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": true,
+        "outline.lineColor": "#FFFFFF",
+        "text.text": "LOGO",
+        "text.fontSize": 12,
+        "text.fontColor": "#FFFFFF",
+        "text.horizontalAlignment": "center",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-9",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_nav_1.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#C25A2D",
+        "text.fontColor": "#FFFFFF",
+        "outline.show": false,
+        "text.text": "Übersicht",
+        "text.fontSize": 14.5,
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 5
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-10",
+      "op": "set",
+      "select": "Übersicht.Page/chrome_nav_2.Visual",
+      "set": {
+        "fill.show": false,
+        "text.fontColor": "#0F1E2E",
+        "outline.show": true,
+        "outline.lineColor": "#E5E7EB",
+        "outline.weight": 1,
+        "text.text": "Detail",
+        "text.fontSize": 14.5,
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 5
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-11",
+      "op": "set",
+      "select": "Übersicht.Page/mk_bar1.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#E5E7EB",
+        "border.width": 1,
+        "dropShadow.show": false,
+        "border.radius": 6,
+        "title.fontSize": 16,
+        "subTitle.fontSize": 12.5,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-12",
+      "op": "set",
+      "select": "Übersicht.Page/mk_col1.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#E5E7EB",
+        "border.width": 1,
+        "dropShadow.show": false,
+        "border.radius": 6,
+        "title.fontSize": 21,
+        "subTitle.fontSize": 16,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-13",
+      "op": "set",
+      "select": "Übersicht.Page/mk_kpi1.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#E5E7EB",
+        "border.width": 1,
+        "dropShadow.show": false,
+        "border.radius": 6,
+        "title.fontSize": 16,
+        "subTitle.fontSize": 12.5,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-14",
+      "op": "set",
+      "select": "Übersicht.Page/mk_slicer_Date_p1.Visual",
+      "set": {
+        "data.mode": "Between",
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-15",
+      "op": "set",
+      "select": "Übersicht.Page/mk_slicer_Region_p1.Visual",
+      "set": {
+        "data.mode": "Basic",
+        "general.orientation": 1,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-16",
+      "op": "set",
+      "select": "Übersicht.Page/mk_slicer_Year_p1.Visual",
+      "set": {
+        "data.mode": "Dropdown",
+        "position.z": 10
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-17",
+      "op": "set",
+      "select": "Übersicht.Page/mk_txt1.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Die Regionen sind nach Umsatz sortiert.",
+        "text.fontSize": 16,
+        "text.fontColor": "#0F1E2E",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "top",
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#E5E7EB",
+        "border.width": 1,
+        "dropShadow.show": false,
+        "border.radius": 6,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    }
+  ]
+}

@@ -1,0 +1,373 @@
+{
+  "version": 2,
+  "name": "mockup delta · Detail Produktlinie",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "move-p2_v04_Einzelpositionen",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/p2_v04_Einzelpositionen.Visual",
+      "x": 16,
+      "y": 233,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-p2_v04_Einzelpositionen",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/p2_v04_Einzelpositionen.Visual",
+      "width": 742,
+      "height": 447,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-p2_v04_Einzelpositionen",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_v04_Einzelpositionen.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-p2_v04_Einzelpositionen",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_v04_Einzelpositionen.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimProduct.Product",
+        "Values:_Measures.AC",
+        "Values:_Measures.PL"
+      ]
+    },
+    {
+      "id": "move-p2_v05_Verlauf_24_Monate",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/p2_v05_Verlauf_24_Monate.Visual",
+      "x": 770,
+      "y": 233,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-p2_v05_Verlauf_24_Monate",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/p2_v05_Verlauf_24_Monate.Visual",
+      "width": 494,
+      "height": 447,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-p2_v05_Verlauf_24_Monate",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_v05_Verlauf_24_Monate.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Category"
+      ]
+    },
+    {
+      "id": "bind-p2_v05_Verlauf_24_Monate",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_v05_Verlauf_24_Monate.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Category:DimDate.Month"
+      ]
+    },
+    {
+      "id": "clear-p2_v05_Verlauf_24_Monate-2",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_v05_Verlauf_24_Monate.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Y"
+      ]
+    },
+    {
+      "id": "bind-p2_v05_Verlauf_24_Monate-2",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_v05_Verlauf_24_Monate.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Y:_Measures.AC",
+        "Y:_Measures.PY"
+      ]
+    },
+    {
+      "id": "move-p2_slicer1_Year",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/p2_slicer1_Year.Visual",
+      "x": 1088,
+      "y": 96,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-p2_slicer1_Year",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/p2_slicer1_Year.Visual",
+      "width": 184,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-p2_slicer1_Year",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_slicer1_Year.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-p2_slicer1_Year",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_slicer1_Year.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimDate.Year"
+      ]
+    },
+    {
+      "id": "move-p2_slicer2_Region",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/p2_slicer2_Region.Visual",
+      "x": 1088,
+      "y": 160,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-p2_slicer2_Region",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/p2_slicer2_Region.Visual",
+      "width": 184,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "clear-p2_slicer2_Region",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_slicer2_Region.Visual",
+      "continue_on_error": true,
+      "clear": [
+        "Values"
+      ]
+    },
+    {
+      "id": "bind-p2_slicer2_Region",
+      "op": "bind",
+      "select": "Detail Produktlinie.Page/p2_slicer2_Region.Visual",
+      "continue_on_error": true,
+      "add": [
+        "Values:DimRegion.Region"
+      ]
+    },
+    {
+      "id": "move-p2_v01_Detail_gewahlte_Produktlinie",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/p2_v01_Detail_gewahlte_Produktlinie.Visual",
+      "x": 16,
+      "y": 72,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-p2_v01_Detail_gewahlte_Produktlinie",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/p2_v01_Detail_gewahlte_Produktlinie.Visual",
+      "width": 612,
+      "height": 149,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_bg",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_header_bg.Visual",
+      "x": 0,
+      "y": 0,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_bg",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_header_bg.Visual",
+      "width": 1280,
+      "height": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_rule",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_header_rule.Visual",
+      "x": 0,
+      "y": 55,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_rule",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_header_rule.Visual",
+      "width": 1280,
+      "height": 1,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_burger",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_burger.Visual",
+      "x": 16,
+      "y": 14,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_burger",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_burger.Visual",
+      "width": 84,
+      "height": 28,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_logo",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_logo.Visual",
+      "x": 1144,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_logo",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_logo.Visual",
+      "width": 120,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_1",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_nav_1.Visual",
+      "x": 896,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_1",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_nav_1.Visual",
+      "width": 112,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_nav_2",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_nav_2.Visual",
+      "x": 1016,
+      "y": 12,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_nav_2",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_nav_2.Visual",
+      "width": 112,
+      "height": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_title",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_header_title.Visual",
+      "x": 112,
+      "y": 6,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_title",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_header_title.Visual",
+      "width": 768,
+      "height": 26,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_header_subtitle",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_header_subtitle.Visual",
+      "x": 112,
+      "y": 32,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_header_subtitle",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_header_subtitle.Visual",
+      "width": 768,
+      "height": 18,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_bg",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_filter_bg.Visual",
+      "x": 1080,
+      "y": 56,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_bg",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_filter_bg.Visual",
+      "width": 200,
+      "height": 640,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_title",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_filter_title.Visual",
+      "x": 1088,
+      "y": 64,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_title",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_filter_title.Visual",
+      "width": 184,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_filter_close",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_filter_close.Visual",
+      "x": 1244,
+      "y": 64,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_filter_close",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_filter_close.Visual",
+      "width": 28,
+      "height": 24,
+      "continue_on_error": true
+    },
+    {
+      "id": "move-chrome_footer_text",
+      "op": "move",
+      "select": "Detail Produktlinie.Page/chrome_footer_text.Visual",
+      "x": 16,
+      "y": 696,
+      "continue_on_error": true
+    },
+    {
+      "id": "resize-chrome_footer_text",
+      "op": "resize",
+      "select": "Detail Produktlinie.Page/chrome_footer_text.Visual",
+      "width": 1248,
+      "height": 24,
+      "continue_on_error": true
+    }
+  ]
+}

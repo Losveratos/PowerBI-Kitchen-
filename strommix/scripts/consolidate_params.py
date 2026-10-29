@@ -1,0 +1,2065 @@
+#!/usr/bin/env python3
+"""Konsolidiert die Recherche-Dossiers zu einem einheitlichen Parametersatz.
+
+Liest die ```json-Bloecke aus research/*.md und docs/01_grundlage_ges_faktencheck.md
+per Regex, mappt sie auf ein gemeinsames Schema und schreibt data/model_params.json.
+
+Schema je Parameter:
+    {"value": .., "min": .., "mid": .., "max": .., "unit": ..,
+     "source": "<Dossier> <Abschnitt/JSON-Pfad>", "confidence": "A"|"B"|"C"|null}
+
+Grundregeln (aus dem Auftrag und den Dossier-Warnungen):
+  * Nichts erfinden. Fehlt ein Wert wirklich -> value=null + Eintrag in "gaps".
+  * Kernkraft-Opex ABSOLUT in EUR/kW/a (nicht als CAPEX-Prozentsatz).
+  * Brennstoff und Entsorgung separat.
+  * WACC global, IDC-Aufschlag ueber die Bauzeit.
+  * Backup/Speicher sind KEINE pauschalen Risiko-Aufschlaege (Doppelzaehlung).
+  * min/mid/max nicht mechanisch kombinieren -> konsistente Szenariensaetze.
+"""
+
+from __future__ import annotations
+
+import copy
+import json
+import os
+import re
+from typing import Any
+
+# --------------------------------------------------------------------------
+# Pfade und Quellkuerzel
+# --------------------------------------------------------------------------
+BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RESEARCH = os.path.join(BASE, "research")
+DOCS = os.path.join(BASE, "docs")
+DATA = os.path.join(BASE, "data")
+
+SRC_FILES = {
+    "ee": os.path.join(RESEARCH, "kosten_ee_speicher.md"),
+    "kk": os.path.join(RESEARCH, "kosten_kernkraft.md"),
+    "ist": os.path.join(RESEARCH, "ist_zustand_de.md"),
+    "risk": os.path.join(RESEARCH, "risiken_co2.md"),
+    "ges": os.path.join(DOCS, "01_grundlage_ges_faktencheck.md"),
+    "profiles": os.path.join(DATA, "profiles_2024.json"),
+    "claims": os.path.join(RESEARCH, "story_claims_check.md"),
+}
+SRC_LABEL = {
+    "ee": "kosten_ee_speicher.md",
+    "kk": "kosten_kernkraft.md",
+    "ist": "ist_zustand_de.md",
+    "risk": "risiken_co2.md",
+    "ges": "docs/01_grundlage_ges_faktencheck.md",
+    "profiles": "data/profiles_2024.json",
+    "claims": "story_claims_check.md",
+}
+
+OUT_PATH = os.path.join(DATA, "model_params.json")
+
+JSON_FENCE = re.compile(r"```json\n(.*?)\n```", re.S)
+
+GAPS: list[dict[str, Any]] = []
+
+# --------------------------------------------------------------------------
+# Modell v0.2, Fix M2 - Erdgas-Brennstoffpreis
+# --------------------------------------------------------------------------
+# Die Recherche-Dossiers fuehren keinen Gaspreis (gaps.gaspreis_erdgas). Die
+# Nullsetzung war aber keine Datenluecke der Welt, sondern der Recherche: Der
+# TTF-Frontmonat ist taeglich notiert. Belegte Stuetzpunkte (Recherche
+# 2026-08-19, Marktdaten, KEINE institutionelle Primaerquelle -> Stufe C fuer
+# die Uebertragbarkeit auf 2045):
+#   * TTF-Frontmonat Juli 2026: Mittel 53,5 EUR/MWh_th (Min 43,0 / Max 63,1)
+#   * TTF-Frontmonat 19.08.2026: rund 62-64 EUR/MWh_th
+#   * 2024/25 ueberwiegend 30-45 EUR/MWh_th, Vorkrisenniveau (bis 2020) 10-25
+#   * Krisenspitze 2022 > 200 EUR/MWh_th (nicht in der Modellspanne)
+# Gegenprobe im eigenen Datensatz: gas_ccgt.gas_fuel_implied rechnet aus der
+# FOeS-Gesamt-LCOE einen variablen Block von rund 100-200 EUR/MWh_el zurueck;
+# bei eta = 0,60 entspricht die Modellspanne 33-100 EUR/MWh_el Brennstoff plus
+# CO2 - dieselbe Groessenordnung.
+GAS_FUEL_TH = {
+    "min": 20.0,
+    "mid": 35.0,
+    "max": 60.0,
+    "confidence": "B",
+    "source": "TTF-Frontmonat (Marktnotierung, Recherche 2026-08-19: Juli 2026 Ø 53,5, "
+              "Spanne 43,0-63,1; Stand 19.08.2026 rund 62-64 EUR/MWh_th; 2024/25 30-45) "
+              "gegengeprueft mit kosten_ee_speicher.md 8 gas_fuel_implied (FOeS-Rueckrechnung)",
+    "note": "MODELL-STUETZPUNKTE (Konfidenz B fuer die Marktspanne, C fuer die Uebertragbarkeit auf "
+            "ein Zieljahr 2045): min 20 = Vorkrisen-/Ueberangebotsniveau, mid 35 = Langfristannahme "
+            "unterhalb des aktuellen Spots (2045 sinkende Gasnachfrage), max 60 = aktuelles "
+            "Marktniveau August 2026. Die Krisenspitze 2022 (>200 EUR/MWh_th) ist bewusst NICHT "
+            "in der Basisspanne. Umrechnung in EUR/MWh_el ueber den Wirkungsgrad der Technologie.",
+}
+
+# --------------------------------------------------------------------------
+# Modell v0.2b, Erweiterung 1 - Gas mit CO2-Abscheidung (CCS)
+# --------------------------------------------------------------------------
+# Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS (docs/03 Annahmen-
+# Audit: "CCS-Kosten 80 EUR/t | 50-100 EUR/t (Literatur) | plausibel").
+# Das Modell kannte bis v0.2 keine CCS-Kette und verglich deshalb einen
+# Gas-Pfad, den die Studie nicht behauptet. Alle vier Groessen unten sind
+# entweder dossierbelegt oder mit Quelle und Konfidenzstufe hinterlegt.
+CCS = {
+    "capex_factor": {
+        "min": 1.9, "mid": 2.0, "max": 2.2,
+        "note": "Aufschlag auf den GuD-CAPEX je kW. Quellenbelegter Zentralwert: NETL/IEAGHG 2023 "
+                "(Updated Performance and Cost Estimates for Carbon Capture Equipped Power "
+                "Generation) nennt fuer NGCC mit Abscheidung +100 bis +104 % je kW - der "
+                "Kapitalkostenblock verdoppelt sich also. Die Raender sind MODELLANNAHME: nach "
+                "unten Serieneffekt, nach oben europaeische Bau-/Genehmigungskosten und FOAK-Status "
+                "in Europa. Recherche 2026-08-19.",
+    },
+    "efficiency_penalty_pp": {
+        "min": 0.04, "mid": 0.08, "max": 0.12,
+        "note": "Wirkungsgradverlust der Abscheidung in Prozentpunkten. Literaturspanne 4-12 pp je "
+                "nach Verfahren; 8 pp als Zentralwert fuer Post-Combustion-Aminwaesche an einem GuD "
+                "(Recherche 2026-08-19). Wirkt doppelt: mehr Brennstoff je MWh_el UND mehr "
+                "abzuscheidende Tonnage je MWh_el.",
+    },
+    "capture_rate": {
+        "min": 0.85, "mid": 0.90, "max": 0.95,
+        "source": "Auslegungspunkt der Standard-Basisfaelle fuer GuD mit Post-Combustion-Abscheidung "
+                  "(90 %), Recherche 2026-08-19",
+        "confidence": "B",
+        "note": "Bezieht sich auf die VERBRENNUNGSemissionen. Die Vorkette (Methanschlupf) wird "
+                "nicht abgeschieden - deshalb ist die Restemission im Modell nicht 10 % des "
+                "Ausgangswertes, sondern der belegte Lebenszyklus-Restwert aus risiken_co2.md 1.2.",
+    },
+    "cost_eur_t": {
+        "min": 50.0, "mid": 80.0, "max": 100.0,
+        "source": "docs/03_grundlage_erweitert_v2.md 8a/Annahmen-Audit ('CCS-Kosten 80 EUR/t | "
+                  "50-100 EUR/t (Literatur) | plausibel') + story_claims_check.md C-Liste Nr. 9 "
+                  "('bestaetigt als Groessenordnung; in unseren Dossiers nicht eigenstaendig "
+                  "geprueft')",
+        "confidence": "C",
+        "note": "Vollkette je abgeschiedener Tonne: Abscheidung + Transport + Speicherung. "
+                "WARNUNG ZUR RICHTUNG: Eine Recherche vom 2026-08-19 (Clean Air Task Force, "
+                "Carbon Management Europe/ZEP) nennt fuer europaeische Anlagen mit den derzeit "
+                "GEPLANTEN Speichern eine Vollkettenspanne von rund 70-250 EUR/t; die hier "
+                "verwendete Dossier-Spanne 50-100 liegt damit am unteren Rand und beguenstigt den "
+                "CCS-Pfad. Bewusst beibehalten, weil sie die im Repository belegte Spanne ist - "
+                "als Limitation ccs_cost_band_optimistic gefuehrt.",
+    },
+    "storage_de": {
+        "status": "SETZUNG (M) - Verfuegbarkeit nicht modelliert",
+        "confidence": "C",
+        "text": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Der Pfad "
+                "unterstellt implizit Export in norwegische oder niederlaendische Offshore-Speicher "
+                "(Northern Lights / Aramis-Typ) und die dafuer noetige Pipeline-/Schiffslogistik "
+                "samt Genehmigungen und Akzeptanz. Im Modell steckt davon NUR der Kostensatz je "
+                "Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein Verfuegbarkeitsrisiko. "
+                "Ein Szenario, das 2045 dreistellige Millionen Tonnen jaehrlich abscheidet, "
+                "unterstellt damit eine Infrastruktur, die es heute nicht gibt.",
+    },
+}
+
+# --------------------------------------------------------------------------
+# Modell v0.2b, Erweiterung 2 - Kontrastverteilung Asien/Golf (Kernkraft)
+# --------------------------------------------------------------------------
+# kosten_kernkraft.md 7.1 begruendet ausdruecklich, warum die BASISSPANNE kein
+# asiatisches oder Golf-Projekt enthaelt. Diese Werte gehoeren laut Dossier
+# "als Kontrastwerte ins White Paper - aber nicht in die Modell-Basisspanne".
+# Sie werden deshalb als EIGENE Verteilung gefuehrt und nur in eigenen
+# Monte-Carlo-Konfigurationen verwendet, nie in die Basisspanne gemischt.
+NUCLEAR_ASIA = {
+    "min": 1870.0, "mid": 3150.0, "max": 4950.0,
+    "construction_years": 8.0,
+    "anchors": {
+        "min": "korea-apr1400-domestic 1.867 EUR/kW (overnight_only)",
+        "mid": "barakah-epc 3.153 EUR/kW (epc_only) - einziger EXPORT-Datenpunkt des Clusters und "
+               "damit der einzige mit ueberhaupt einem Uebertragbarkeitsanspruch; "
+               "shin-hanul-34 2.720 EUR/kW (overnight_likely) liegt knapp darunter",
+        "max": "barakah-total 4.945 EUR/kW (total_incl_owners)",
+    },
+    "idc_shares": (1.0, 1.0, 1.0),
+    "overrun_shares": (0.0, 0.0, 0.0),
+}
+
+
+# --------------------------------------------------------------------------
+# Einlesen
+# --------------------------------------------------------------------------
+def read_json_blocks(path: str) -> list[dict]:
+    """Alle ```json-Fences einer Markdown-Datei als geparste Objekte."""
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    out = []
+    for raw in JSON_FENCE.findall(text):
+        out.append(json.loads(raw))
+    return out
+
+
+def get(obj: Any, path: str, default: Any = None) -> Any:
+    """Punkt-Pfad-Zugriff, gibt default zurueck wenn irgendein Glied fehlt."""
+    cur = obj
+    for part in path.split("."):
+        if isinstance(cur, dict) and part in cur:
+            cur = cur[part]
+        else:
+            return default
+    return cur
+
+
+CONF_MAP = {"high": "A", "medium": "B", "low": "C"}
+
+
+def norm_conf(value: Any) -> Any:
+    if value in ("A", "B", "C"):
+        return value
+    return CONF_MAP.get(value)
+
+
+# --------------------------------------------------------------------------
+# Parameter-Konstruktion
+# --------------------------------------------------------------------------
+def param(
+    value: Any,
+    unit: str,
+    source: str,
+    confidence: Any = None,
+    mn: Any = None,
+    mid: Any = None,
+    mx: Any = None,
+    note: str | None = None,
+    status: str | None = None,
+    gap_id: str | None = None,
+) -> dict:
+    """Einheitlicher Parameter-Datensatz; registriert Luecken automatisch."""
+    entry = {
+        "value": value,
+        "min": mn,
+        "mid": mid if mid is not None else (value if mn is not None or mx is not None else None),
+        "max": mx,
+        "unit": unit,
+        "source": source,
+        "confidence": norm_conf(confidence),
+    }
+    if note:
+        entry["note"] = note
+    if status:
+        entry["status"] = status
+    if value is None and gap_id:
+        GAPS.append({"id": gap_id, "parameter": source, "reason": note or "Wert im Dossier nicht belegt"})
+    return entry
+
+
+def scope_param(
+    scopes: tuple[str, str, str],
+    idc_shares: tuple[float, float, float],
+    overrun_shares: tuple[float, float, float],
+    source: str,
+    confidence: Any = None,
+    note: str | None = None,
+) -> dict:
+    """Kostenabgrenzung eines CAPEX-Ankers je Stuetzstelle (min/mid/max).
+
+    Modell-v0.2 (M1/M7): Der Bauzins-Aufschlag (IDC) darf nur auf Anker
+    gelegt werden, die die Finanzierung noch NICHT enthalten (overnight/EPC).
+    Der empirische Ueberschreitungsfaktor darf nur auf Anker gelegt werden,
+    die eine *Schaetzung* sind - nicht auf bereits realisierte Ist-Kosten.
+    """
+    return {
+        "value": scopes[1],
+        "min": scopes[0],
+        "mid": scopes[1],
+        "max": scopes[2],
+        "idc_share": {"min": idc_shares[0], "mid": idc_shares[1], "max": idc_shares[2]},
+        "overrun_share": {"min": overrun_shares[0], "mid": overrun_shares[1], "max": overrun_shares[2]},
+        "unit": "Kostenabgrenzung des CAPEX-Ankers",
+        "source": source,
+        "confidence": norm_conf(confidence),
+        "note": note,
+    }
+
+
+def share_param(values: tuple[float, float, float], unit: str, source: str,
+                confidence: Any = None, note: str | None = None) -> dict:
+    """Anwendungsanteil (0-1) je CAPEX-Stuetzstelle, folgt dem capex-Szenario."""
+    entry = {
+        "value": values[1],
+        "min": values[0],
+        "mid": values[1],
+        "max": values[2],
+        "unit": unit,
+        "source": source,
+        "confidence": norm_conf(confidence),
+    }
+    if note:
+        entry["note"] = note
+    return entry
+
+
+def from_range(
+    rng: Any,
+    unit: str,
+    source: str,
+    confidence: Any = None,
+    note: str | None = None,
+    status: str | None = None,
+    gap_id: str | None = None,
+    key_min: str = "min",
+    key_mid: str = "mid",
+    key_max: str = "max",
+) -> dict:
+    """Baut einen Parameter aus einem {min,mid,max,confidence}-Dossier-Objekt."""
+    if not isinstance(rng, dict):
+        return param(None, unit, source, confidence, note=note, status=status, gap_id=gap_id or source)
+    mn, mid, mx = rng.get(key_min), rng.get(key_mid), rng.get(key_max)
+    if mid is None and mn is not None and mx is not None:
+        mid = round((mn + mx) / 2, 4)
+    conf = confidence if confidence is not None else rng.get("confidence", rng.get("stufe"))
+    entry = param(mid, unit, source, conf, mn=mn, mid=mid, mx=mx, note=note or rng.get("note"), status=status)
+    if mid is None and gap_id:
+        GAPS.append({"id": gap_id, "parameter": source, "reason": note or "Wert im Dossier nicht belegt"})
+    return entry
+
+
+# --------------------------------------------------------------------------
+# Aufbau des Parametersatzes
+# --------------------------------------------------------------------------
+def build() -> dict:
+    ee = read_json_blocks(SRC_FILES["ee"])[0]
+    kk = read_json_blocks(SRC_FILES["kk"])[0]
+    ist = read_json_blocks(SRC_FILES["ist"])[0]
+    risk = read_json_blocks(SRC_FILES["risk"])[0]
+    ges = read_json_blocks(SRC_FILES["ges"])[0]
+    # story_claims_check.md enthaelt mehrere JSON-Bloecke; gesucht ist der mit
+    # dem ETS-/CCS-Befund C13.
+    story_claims = next(
+        (b for b in read_json_blocks(SRC_FILES["claims"]) if "ets_gap_gas_ccs" in b), None)
+    with open(SRC_FILES["profiles"], encoding="utf-8") as fh:
+        prof = json.load(fh)
+
+    eet = ee["technologies"]
+    kkp = kk["eu_new_build_model_parameters"]
+
+    out: dict[str, Any] = {}
+
+    # ---------------------------------------------------------------- meta
+    out["meta"] = {
+        "title": "Konsolidierter Parametersatz Strommix-Modell",
+        "generated_by": "scripts/consolidate_params.py",
+        "sources": SRC_LABEL,
+        "currency": "EUR, nominal, gemischte Erhebungsjahre 2024-2026 (siehe kosten_ee_speicher.md meta.price_basis)",
+        "confidence_scale": {
+            "A": "mehrfach bestaetigt / institutionelle Primaerquelle",
+            "B": "einzelner Treffer, institutionelle Quelle",
+            "C": "Branchen-/Marktquelle oder Modellannahme mit schwacher Belegbasis",
+        },
+        "modelling_decisions": [
+            "Kernkraft-Opex absolut in EUR/kW/a (kosten_kernkraft.md 4.2/7.2) - NICHT als CAPEX-Prozentsatz.",
+            "Brennstoff und Entsorgung/Rueckbau als getrennte variable Posten (kosten_kernkraft.md 7.2).",
+            "WACC global (3-9 %, Default 5 % wie GES); IDC-Aufschlag ueber Bauzeit separat.",
+            "CO2-Preis wirkt nur ueber den direkten Emissionsfaktor fossiler Erzeugung; Lebenszyklus-g/kWh nur informativ.",
+            "Backup/Speicher entstehen im Dispatch, nicht als pauschaler Risiko-Aufschlag (risiken_co2.md 9 risiko_aufschlaege_zusammenfassung backup_und_speicher).",
+            "min/mid/max nicht mechanisch kombinieren - siehe scenario_sets (kosten_ee_speicher.md 12 derived_lcoe_selfcheck.warning).",
+            "v0.2/M1: IDC nur auf Overnight-Anker (capex_scope/idc_applicable_share). Die Kernkraft-Anker "
+            "mid/max enthalten Finanzierung bereits (kosten_kernkraft.md 7.3).",
+            "v0.2/M2: Erdgas-Brennstoffpreis als thermischer Parameter (fuel_eur_mwh_th), Umrechnung "
+            "ueber den Wirkungsgrad. Damit ist die Asymmetrie 'Gas gratis vs. H2 bezahlt' aufgehoben.",
+            "v0.2/M3: Netzkosten in Uebertragung (328 Mrd., skaliert mit genutzter fEE-Energie) und "
+            "Verteilnetz (323 Mrd., Sockel, skaliert mit Jahresbedarf) getrennt; Skalierung auf 1,0 gedeckelt.",
+            "v0.2/M5: Restemissionen je Szenario werden ausgewiesen (Mt CO2/a). CCS ist NICHT modelliert.",
+            "v0.2/M6: Ist-2025-Anker mit Kohle-, Biomasse- und Wasserbaendern und heutigen Netzentgelten "
+            "statt der Netzinvestition bis 2045.",
+            "v0.2/M7: Ueberschreitungsfaktor nur auf Schaetzbasis-Anker (overrun_applicable_share).",
+            "v0.2b: Technologie gas_ccs (Abscheidung an GuD). CAPEX-Faktor 2,0 (NETL 2023), "
+            "Wirkungsgradverlust 8 pp, Abscheiderate 90 %, Vollkette 50/80/100 EUR/t; die "
+            "Restemission (49/120/220 g/kWh) traegt weiterhin den vollen CO2-Preis.",
+            "v0.2b: Kontrastverteilung Asien/Golf fuer Kernkraft-CAPEX (1.870/3.150/4.950 EUR/kW, "
+            "Bauzeit 8 a) - ausschliesslich als eigene Monte-Carlo-Konfiguration, NIE in der "
+            "Basisspanne (Begruendung kosten_kernkraft.md 7.1, maschinenlesbar hinterlegt).",
+            "v0.2c/1: Auch das Uebertragungsnetz bekommt einen mixunabhaengigen Sockel "
+            "(transmission_socket_share, SETZUNG 0,20/0,40/0,60 mit Sensitivitaet). Bis v0.2b "
+            "skalierte der 328-Mrd.-Block linear von null mit der genutzten fEE-Arbeit.",
+            "v0.2c/2: Gemeinsame Rohstoff- und Definitionsziehungen - der Gaspreis wird EINMAL je "
+            "Ziehung gezogen und von gas_ccgt und gas_ccs geteilt; der CCS-CAPEX ist ein gezogener "
+            "FAKTOR (capex_factor_on_ccgt) auf den in derselben Ziehung gezogenen GuD-CAPEX.",
+            "v0.2c/3: Der Ueberschreitungsaufschlag wird als absoluter Betrag auf EINER Schaetzbasis "
+            "gerechnet (overrun_estimate_base_eur_kw = 7.500) mit Rest-Overrun-Anteilen "
+            "0,48/0,50/0,00 - damit ist die Abbildung 'gezogener CAPEX -> effektiver CAPEX' monoton "
+            "und die Doppelzaehlung an den unteren Ankern beseitigt.",
+            "v0.2c/4: Geschlossene CCS-Massenbilanz - abgeschiedene Menge und Restemission werden "
+            "aus EINEM Brennstoffeintrag gebildet (upstream_share_of_lifecycle); "
+            "captured + residual = Eintrag gilt exakt, auch unter Ziehung von Wirkungsgrad und "
+            "Abscheiderate.",
+        ],
+        "model_version": "0.2c",
+        "limitation": ee["meta"]["limitation"],
+    }
+
+    # -------------------------------------------------------------- global
+    out["global"] = {
+        "wacc": param(
+            0.05,
+            "1 (Dezimalanteil)",
+            f"{SRC_LABEL['kk']} 7.2 wacc / {SRC_LABEL['ges']} methodology.wacc",
+            "A",
+            mn=kkp["wacc"]["low"],
+            mid=kkp["wacc"]["mid"],
+            mx=kkp["wacc"]["high"],
+            note=kkp["wacc"]["note"],
+        ),
+        "co2_price_eur_t": param(
+            get(risk, "co2_preis_szenarien.slider.default"),
+            "EUR/t CO2",
+            f"{SRC_LABEL['risk']} 2.5 co2_preis_szenarien.slider",
+            "C",
+            mn=get(risk, "co2_preis_szenarien.slider.min"),
+            mid=get(risk, "co2_preis_szenarien.slider.default"),
+            mx=get(risk, "co2_preis_szenarien.slider.max"),
+            note="Default 75 EUR/t = Marktniveau Mai 2026. Stuetzpunkte siehe co2_price_support_points.",
+        ),
+        "co2_price_support_points": get(risk, "co2_preis_szenarien.stuetzpunkte"),
+        "demand_twh": param(
+            950,
+            "TWh/a",
+            f"{SRC_LABEL['ist']} 4.1 bedarfsprojektionen_twh / {SRC_LABEL['ges']} Zieljahr 2045",
+            "A",
+            mn=get(ist, "bedarfsprojektionen_twh.2045.nep_2037_2045_v2025.low"),
+            mid=950,
+            mx=get(ist, "bedarfsprojektionen_twh.2045.nep_2037_2045_v2025.high"),
+            note="Default 950 TWh = GES-Zieljahresbedarf 2045; Spanne NEP 2037/2045 (2025) 948-1275 TWh.",
+        ),
+        "demand_twh_2030": from_range(
+            get(ist, "bedarfsprojektionen_twh.2030.empfohlene_modellspanne"),
+            "TWh/a",
+            f"{SRC_LABEL['ist']} 4.1 bedarfsprojektionen_twh.2030.empfohlene_modellspanne",
+            "B",
+        ),
+        "demand_twh_2024_basis": param(
+            get(ist, "bedarfsprojektionen_twh.basis_2024"),
+            "TWh/a",
+            f"{SRC_LABEL['ist']} 4.1 bedarfsprojektionen_twh.basis_2024",
+            "A",
+            note="Bruttostromverbrauch 2024. Netzlast (Profilbasis) liegt darunter: 455-470 TWh laut profiles_2024.json.",
+        ),
+        "idc_method": {
+            "formula": "idc_surcharge = (1 + wacc)**(construction_years / 2) - 1",
+            "calibration": "Reproduziert die Dossier-Werte Kernkraft +20/33/55 % bei wacc=5 % und Bauzeit 8/12/17 a.",
+            "source": f"{SRC_LABEL['kk']} 5.4 + 7.2 idc_surcharge_on_capex",
+            "empirical_anchor": get(kk, "eu_new_build_model_parameters.idc_surcharge_on_capex.empirical_anchor"),
+            "confidence": "B",
+        },
+    }
+
+    # -------------------------------------------------------- Technologien
+    techs: dict[str, Any] = {}
+
+    def vre_block(key: str, src_key: str, label: str, series: str, construction_years: dict) -> dict:
+        t = eet[src_key]
+        return {
+            "label": label,
+            "role": "vre",
+            "profile_series": series,
+            "lcoe_reference_eur_mwh": from_range(
+                t.get("lcoe_eur_mwh_reference"),
+                "EUR/MWh",
+                f"{SRC_LABEL['ee']} 12 technologies.{src_key}.lcoe_eur_mwh_reference",
+            ),
+            "params": {
+                "capex_eur_kw": from_range(
+                    t["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.{src_key}.capex_eur_kw"
+                ),
+                "capex_scope": scope_param(
+                    ("overnight", "overnight", "overnight"), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+                    f"{SRC_LABEL['ee']} 12 technologies.{src_key}.capex_eur_kw (schluesselfertige "
+                    "Investitionskosten ohne Bauzinsen)",
+                    "B",
+                    note="EE-CAPEX-Anker sind Investitions-/Turnkey-Kosten ohne Finanzierung. Der "
+                         "IDC-Aufschlag ist deshalb sachgerecht (und wegen der kurzen Bauzeit klein: "
+                         "PV 1 a = +2,5 %). Der Ueberschreitungsfaktor greift ebenfalls, weil die "
+                         "Anker Kostenschaetzungen fuer Neuanlagen sind.",
+                ),
+                "idc_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des IDC-Aufschlags)",
+                    f"{SRC_LABEL['ee']} 12 technologies.{src_key}.capex_eur_kw (overnight)", "B",
+                ),
+                "overrun_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des Ueberschreitungsfaktors)",
+                    f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition", "B",
+                ),
+                "opex_pct": from_range(
+                    t["opex_pct"], "1/a (Anteil CAPEX)", f"{SRC_LABEL['ee']} 12 technologies.{src_key}.opex_pct"
+                ),
+                "opex_eur_kw_a": param(
+                    None,
+                    "EUR/kW/a",
+                    f"{SRC_LABEL['ee']} 12 technologies.{src_key}",
+                    None,
+                    note="Dossier fuehrt Opex nur als CAPEX-Prozentsatz; fuer EE unkritisch (kurze Bauzeit, moderater CAPEX-Hebel).",
+                ),
+                "full_load_hours": from_range(
+                    t["full_load_hours"], "h/a", f"{SRC_LABEL['ee']} 12 technologies.{src_key}.full_load_hours"
+                ),
+                "lifetime_years": from_range(
+                    t["lifetime_years"], "a", f"{SRC_LABEL['ee']} 12 technologies.{src_key}.lifetime_years"
+                ),
+                "construction_years": construction_years,
+                "fuel_eur_mwh": param(0.0, "EUR/MWh", "physikalisch null", "A"),
+                "waste_eur_mwh": param(0.0, "EUR/MWh", "physikalisch null", "A"),
+                "emission_factor_t_mwh": param(
+                    0.0, "t CO2/MWh_el", "keine direkten Verbrennungsemissionen", "A"
+                ),
+            },
+            "lifecycle_co2_g_kwh": None,  # wird unten aus risiken_co2 nachgetragen (informativ)
+        }
+
+    def construction_param(value, conf, source, note, status=None, gap_id=None):
+        return param(value, "a", source, conf, mid=value, note=note, status=status, gap_id=gap_id)
+
+    modellannahme = "MODELLANNAHME (nicht quellenbelegt)"
+    idc_method_src = f"{SRC_LABEL['kk']} 5.4 (Methodik), Bauzeit fuer diese Technologie nicht im Dossier belegt"
+
+    techs["pv_freiflaeche"] = vre_block(
+        "pv_freiflaeche",
+        "pv_freiflaeche",
+        "Photovoltaik Freiflaeche",
+        "solar_mw",
+        construction_param(
+            1,
+            "C",
+            f"{SRC_LABEL['kk']} 5.4 ('5 % ueber eine 1-jaehrige PV-Bauzeit ist praktisch null')",
+            "Einzige im Dossier explizit genannte Nicht-Kernkraft-Bauzeit.",
+        ),
+    )
+    techs["pv_dach_gross"] = vre_block(
+        "pv_dach_gross",
+        "pv_dach_gross",
+        "Photovoltaik Dach (Gewerbe/Grossdach)",
+        "solar_mw",
+        construction_param(
+            1,
+            "C",
+            f"{SRC_LABEL['kk']} 5.4 (Analogie PV Freiflaeche)",
+            "Analogieannahme zur PV-Freiflaeche.",
+            status=modellannahme,
+        ),
+    )
+    techs["wind_onshore"] = vre_block(
+        "wind_onshore",
+        "wind_onshore",
+        "Wind onshore",
+        "wind_onshore_mw",
+        construction_param(
+            2,
+            None,
+            idc_method_src,
+            "Bauzeit nicht im Dossier belegt; 2 a als konservative Annahme zwischen PV (1 a) und Offshore.",
+            status=modellannahme,
+            gap_id="bauzeit_wind_onshore",
+        ),
+    )
+    techs["wind_offshore"] = vre_block(
+        "wind_offshore",
+        "wind_offshore",
+        "Wind offshore",
+        "wind_onshore_mw",
+        construction_param(
+            3,
+            None,
+            idc_method_src,
+            "Bauzeit nicht im Dossier belegt; 3 a (Netzanbindung, Offshore-Logistik) als Annahme.",
+            status=modellannahme,
+            gap_id="bauzeit_wind_offshore",
+        ),
+    )
+    techs["wind_offshore"]["profile_note"] = (
+        "UEBERGANGSLOESUNG: profiles_2024.json enthaelt keine Offshore-Reihe "
+        "(series.wind_offshore_mw.available=false). Es wird ersatzweise die Onshore-Profilform "
+        "verwendet, skaliert auf die Offshore-Volllaststunden. Die reale Offshore-Glaettung "
+        "(hoehere Grundproduktion, weniger Flauten) fehlt damit - konservativ, d. h. das Modell "
+        "unterschaetzt den Systemwert von Offshore-Wind."
+    )
+    # Bandbreite Wind onshore: Bestandsflotten-VLh als Kontrastwert (GES-Annahme)
+    techs["wind_onshore"]["full_load_hours_fleet"] = param(
+        get(eet, "wind_onshore.full_load_hours_fleet.value_2025"),
+        "h/a",
+        f"{SRC_LABEL['ee']} 12 technologies.wind_onshore.full_load_hours_fleet",
+        "A",
+        note=get(eet, "wind_onshore.full_load_hours_fleet.note"),
+    )
+
+    # ------------------------------------------------------------ Kernkraft
+    techs["nuclear"] = {
+        "label": "Kernkraft (EU-Neubau)",
+        "role": "firm",
+        "profile_series": None,
+        "capex_presets_eur_kw": {
+            "eu_serie": param(
+                kkp["capex_eur_kw"]["low"],
+                "EUR/kW",
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw.low (Anker EPR2/Dukovany)",
+                "B",
+            ),
+            "eu_mittel": param(
+                kkp["capex_eur_kw"]["mid"],
+                "EUR/kW",
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw.mid (Anker Polen/Sizewell C)",
+                "B",
+            ),
+            "erstprojekt": param(
+                kkp["capex_eur_kw"]["high"],
+                "EUR/kW",
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw.high (Anker Hinkley Point C)",
+                "B",
+            ),
+            "ges_annahme": param(
+                get(ges, "technologies.nuclear.study.capex_eur_kw"),
+                "EUR/kW",
+                f"{SRC_LABEL['ges']} technologies.nuclear.study.capex_eur_kw",
+                "A",
+                note="Nur als Referenz fuer den Reproduktionstest, nicht als Modellbasis.",
+            ),
+        },
+        "params": {
+            "capex_eur_kw": param(
+                kkp["capex_eur_kw"]["mid"],
+                "EUR/kW",
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw",
+                "B",
+                mn=kkp["capex_eur_kw"]["low"],
+                mid=kkp["capex_eur_kw"]["mid"],
+                mx=kkp["capex_eur_kw"]["high"],
+                note=kkp["capex_eur_kw"]["rationale_high"],
+            ),
+            # ---- Modell v0.2, M1 + M7 --------------------------------------
+            # Die drei Stuetzstellen ruhen auf UNTERSCHIEDLICHEN Kostenabgrenzungen
+            # (kosten_kernkraft.md 7.1 anchors + reference_projects[].cost_scope):
+            #   low  7.500 <- EPR2 OCC 7.583 (overnight_only) + Dukovany 7.906 (epc_only)
+            #   mid 12.000 <- Lubiatowo 11.968 (total_project), Sizewell C 13.472
+            #                 (total_project), EPR2 10.417 (total_incl_idc)
+            #   high 17.500 <- Hinkley Point C 17.264 (total_project_nominal)
+            # kosten_kernkraft.md 7.3 sagt woertlich: "ohne IDC-Aufschlag, da im
+            # CAPEX-Anker teilweise enthalten". Der IDC gilt deshalb nur auf der
+            # Overnight-Basis (low). Der empirische Ueberschreitungsfaktor
+            # (Flyvbjerg: Entscheidungsschaetzung -> Ist) gilt nur fuer Anker, die
+            # noch Schaetzungen sind (low: EPR2-Programm/Dukovany-EPC vor Baubeginn;
+            # mid: Lubiatowo/Sizewell C vor bzw. bei FID) - nicht fuer den
+            # High-Anker HPC, dessen 48,7 Mrd. GBP bereits das eskalierte Ist sind.
+            "capex_scope": scope_param(
+                ("overnight", "total_project", "total_project_nominal"),
+                (1.0, 0.0, 0.0),
+                (0.48, 0.50, 0.0),
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw.anchors + reference_projects[].cost_scope, "
+                f"Regel aus {SRC_LABEL['kk']} 7.3",
+                "A",
+                note="M1: kein zusaetzlicher Bauzins auf Gesamtprojekt-Anker (Doppelzaehlung). "
+                     "M7/v0.2c: der Ueberschreitungsfaktor wirkt nur auf den Teil der Eskalation, "
+                     "den der jeweilige Anker NOCH NICHT enthaelt (Rest-Overrun-Anteil).",
+            ),
+            "idc_applicable_share": share_param(
+                (1.0, 0.0, 0.0), "1 (Anteil des IDC-Aufschlags)",
+                f"{SRC_LABEL['kk']} 7.3 ('ohne IDC-Aufschlag, da im CAPEX-Anker teilweise enthalten')",
+                "A",
+                note="Zwischen den Stuetzstellen linear interpoliert (model.scope_share_for_capex), "
+                     "damit die Monte-Carlo-Ziehung keinen Sprung bekommt. Empirischer Beleg fuer die "
+                     "Identitaet: EPR2 7.583 EUR/kW overnight x 1,37 = 10.389 ~ 10.417 EUR/kW "
+                     "inkl. Finanzierung.",
+            ),
+            # ---- Modell v0.2c, Fix 3 ---------------------------------------
+            # Rest-Overrun-Anteil je Stuetzstelle. Herleitung aus den Notizen des
+            # eigenen Datensatzes (shared.nuclear_reference_projects): Wenn ein
+            # Anker bereits die Eskalation e gegenueber seiner Erstschaetzung
+            # enthaelt, bleibt vom Faktor f nur f/e uebrig; als Anteil am vollen
+            # Aufschlag also s = (f/e - 1) / (f - 1) mit f = 2,20 (Flyvbjerg).
+            #   low  7.500: EPR2-Programm-OCC, seit 2022 bereits +40 % (e = 1,40)
+            #               -> s = (2,20/1,40 - 1) / 1,20 = 0,476 ~ 0,48.
+            #               Dukovany II (unterschriebener Festpreis-EPC, Risiko
+            #               beim Lieferanten) spraeche fuer weniger - bewusst
+            #               NICHT angesetzt, das ist die konservative Richtung.
+            #   mid 12.000: Mittel der drei Anker - Lubiatowo (reine Planzahl,
+            #               keine realisierte Eskalation, e = 1,0 -> s = 1,00),
+            #               Sizewell C (+90 %, e = 1,90 -> s = 0,132), EPR2 inkl.
+            #               Finanzierung (+40 % -> s = 0,476) = 0,536. Auf 0,50
+            #               gesetzt, damit die Abbildung "gezogener CAPEX ->
+            #               effektiver CAPEX" ueber den GESAMTEN Faktor-Support
+            #               (bis 2,40) monoton bleibt (Nuklear-Review R2 N1).
+            #   high 17.500: Hinkley Point C, realisiertes Ist -> s = 0,00.
+            "overrun_applicable_share": share_param(
+                (0.48, 0.50, 0.0), "1 (Rest-Anteil des Ueberschreitungsfaktors)",
+                f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition "
+                "('Faktor auf die urspruengliche Kostenschaetzung (decision-to-build)') + "
+                f"{SRC_LABEL['kk']} 3 reference_projects (realisierte Eskalation je Anker)",
+                "B",
+                note="v0.2c (Fix 3): Der Faktor wirkt nur noch auf die NOCH NICHT realisierte "
+                     "Eskalation. Herleitung s = (f/e - 1)/(f - 1) mit f = 2,20: EPR2 +40 % -> 0,476 "
+                     "(low), Mittel Lubiatowo/Sizewell C/EPR2-total 0,536 -> auf 0,50 gesetzt (mid, "
+                     "Monotonie-Schranke), Hinkley Point C realisiert -> 0,00 (high). Bis v0.2b "
+                     "standen hier 1,0/1,0/0,0 - das war eine Doppelzaehlung an den unteren Ankern "
+                     "(Persona-Review 06 R2, N2) und erzeugte zusammen mit der Interpolation eine "
+                     "nicht-monotone Abbildung (N1).",
+            ),
+            "overrun_estimate_base_eur_kw": param(
+                7500,
+                "EUR/kW (Schaetzanker fuer den Ueberschreitungsaufschlag)",
+                f"{SRC_LABEL['kk']} 7.1 capex_eur_kw.anchors.low (EPR2-Programm 7.583 OCC, "
+                f"Dukovany II 7.906 EPC) + {SRC_LABEL['risk']} 7 (Faktor auf die Schaetzung)",
+                "B",
+                mid=7500,
+                note="v0.2c (Fix 3): Der Ueberschreitungsaufschlag wird als ABSOLUTER Betrag auf "
+                     "genau einer Schaetzbasis gerechnet - (f - 1) x 7.500 x Rest-Anteil - statt "
+                     "multiplikativ auf den jeweils gezogenen CAPEX. Grund: Die drei Stuetzstellen "
+                     "liegen auf verschiedenen Seiten der Ueberschreitungs-Transformation (7.500 ist "
+                     "eine Entscheidungsschaetzung, 17.500 ihr Ergebnis). Multiplikativ mit "
+                     "interpoliertem Anteil war die Abbildung nicht monoton: ein hoeher gezogener "
+                     "CAPEX ergab niedrigere Effektivkosten. Der Bauzins-Aufschlag wird auf den "
+                     "Ueberschreitungsbetrag NICHT zusaetzlich gelegt - die zugrunde liegenden "
+                     "Eskalationsangaben (Sizewell C +90 %, HPC 48,7 Mrd. GBP laufende Preise) sind "
+                     "Gesamtprojektwerte inklusive Finanzierung.",
+                status="MODELLANNAHME (Struktur), Anker quellenbelegt",
+            ),
+            "opex_pct": param(
+                None,
+                "1/a (Anteil CAPEX)",
+                f"{SRC_LABEL['kk']} 4.2/7.2 opex.WARNUNG",
+                None,
+                note="BEWUSST null: Opex darf nicht am CAPEX-Slider haengen (Slider-Artefakt). Absolutwert verwenden.",
+            ),
+            "opex_eur_kw_a": param(
+                kkp["opex"]["mid"],
+                "EUR/kW/a",
+                f"{SRC_LABEL['kk']} 7.2 opex (absolut)",
+                "B",
+                mn=kkp["opex"]["low"],
+                mid=kkp["opex"]["mid"],
+                mx=kkp["opex"]["high"],
+                note=kkp["opex"]["WARNUNG"],
+            ),
+            "full_load_hours": param(
+                kkp["full_load_hours"]["mid"],
+                "h/a",
+                f"{SRC_LABEL['kk']} 7.2 full_load_hours",
+                None,
+                mn=kkp["full_load_hours"]["low"],
+                mid=kkp["full_load_hours"]["mid"],
+                mx=kkp["full_load_hours"]["high"],
+                note=kkp["full_load_hours"]["note"],
+                status=kkp["full_load_hours"]["status"],
+            ),
+            "lifetime_years": param(
+                kkp["lifetime_years"]["mid"],
+                "a",
+                f"{SRC_LABEL['kk']} 7.2 lifetime_years",
+                "B",
+                mn=kkp["lifetime_years"]["low"],
+                mid=kkp["lifetime_years"]["mid"],
+                mx=kkp["lifetime_years"]["high"],
+                note=kkp["lifetime_years"]["note"],
+            ),
+            "construction_years": param(
+                kkp["construction_years"]["mid"],
+                "a",
+                f"{SRC_LABEL['kk']} 7.2 construction_years",
+                "A",
+                mn=kkp["construction_years"]["low"],
+                mid=kkp["construction_years"]["mid"],
+                mx=kkp["construction_years"]["high"],
+                note=kkp["construction_years"]["note"],
+            ),
+            "fuel_eur_mwh": param(
+                kkp["fuel_eur_mwh"]["mid"],
+                "EUR/MWh",
+                f"{SRC_LABEL['kk']} 7.2 fuel_eur_mwh",
+                "B",
+                mn=kkp["fuel_eur_mwh"]["low"],
+                mid=kkp["fuel_eur_mwh"]["mid"],
+                mx=kkp["fuel_eur_mwh"]["high"],
+            ),
+            "waste_eur_mwh": param(
+                kkp["waste_decommissioning_eur_mwh"]["mid"],
+                "EUR/MWh",
+                f"{SRC_LABEL['kk']} 7.2 waste_decommissioning_eur_mwh",
+                "B",
+                mn=kkp["waste_decommissioning_eur_mwh"]["low"],
+                mid=kkp["waste_decommissioning_eur_mwh"]["mid"],
+                mx=kkp["waste_decommissioning_eur_mwh"]["high"],
+                note=kkp["waste_decommissioning_eur_mwh"]["note"],
+            ),
+            "emission_factor_t_mwh": param(0.0, "t CO2/MWh_el", "keine direkten Verbrennungsemissionen", "A"),
+        },
+        # ---- Modell v0.2b: Kontrastverteilung Asien/Golf -------------------
+        # NICHT in der Basisspanne. Wird ausschliesslich in den eigens dafuer
+        # angelegten Monte-Carlo-Konfigurationen verwendet.
+        "capex_alternative_asia_gulf": {
+            "value": NUCLEAR_ASIA["mid"],
+            "min": NUCLEAR_ASIA["min"],
+            "mid": NUCLEAR_ASIA["mid"],
+            "max": NUCLEAR_ASIA["max"],
+            "unit": "EUR/kW",
+            "source": f"{SRC_LABEL['kk']} 3 reference_projects (korea-apr1400-domestic, "
+                      "shin-hanul-34, barakah-epc, barakah-total) + 6 (empfohlene Cluster-Spannen "
+                      "1.870-2.720 bzw. 3.150-4.950 EUR/kW)",
+            "confidence": "B",
+            "anchors": NUCLEAR_ASIA["anchors"],
+            "construction_years": {
+                "value": NUCLEAR_ASIA["construction_years"],
+                "source": f"{SRC_LABEL['kk']} 4 construction_time.western_recent_projects_years."
+                          "barakah_unit1 (8 a) bzw. shin_hanul_1 (9 a); globaler IAEA-PRIS-Median "
+                          "6,3 a",
+                "confidence": "A",
+                "note": "Der Cluster wird mit SEINER Bauzeit gerechnet, nicht mit der westlichen "
+                        "(12 a). Sonst waere der Kontrast unfair: die kurze Bauzeit ist ein "
+                        "konstitutives Merkmal dieser Projekte, nicht ein Zufall. IDC faellt "
+                        "dadurch von 34 % auf 21,6 % bei WACC 5 %.",
+            },
+            "idc_applicable_share": {
+                "min": NUCLEAR_ASIA["idc_shares"][0],
+                "mid": NUCLEAR_ASIA["idc_shares"][1],
+                "max": NUCLEAR_ASIA["idc_shares"][2],
+                "note": "Alle drei Anker sind overnight/EPC bzw. Gesamt-BAUkosten ohne separat "
+                        "ausgewiesene Finanzierung (cost_scope overnight_only / overnight_likely / "
+                        "epc_only / total_incl_owners - das Dossier fuehrt fuer "
+                        "finanzierungsinklusive Werte den eigenen Scope total_incl_idc, der hier "
+                        "nirgends vorkommt). Der Bauzins wird deshalb voll aufgeschlagen - das "
+                        "wirkt GEGEN den Cluster und ist die konservative Lesart.",
+            },
+            "overrun_applicable_share": {
+                "min": NUCLEAR_ASIA["overrun_shares"][0],
+                "mid": NUCLEAR_ASIA["overrun_shares"][1],
+                "max": NUCLEAR_ASIA["overrun_shares"][2],
+                "note": "0,0 auf ganzer Linie: Korea-Flotte und Barakah sind REALISIERTE Kosten, "
+                        "keine Entscheidungsschaetzungen. Ein Ueberschreitungsfaktor darauf waere "
+                        "dieselbe Doppelzaehlung wie beim Hinkley-Point-C-Anker (M7). Deshalb wird "
+                        "die Asien-Konfiguration auch NICHT mit dem Ueberschreitungs-Lauf "
+                        "kombiniert.",
+            },
+            "rationale_not_in_base_range": (
+                "kosten_kernkraft.md 7.1 woertlich: 'Was diese Spanne ehrlich macht: Sie enthaelt "
+                "kein einziges asiatisches oder Golf-Projekt. Nicht weil diese Werte falsch waeren "
+                "- sie sind real und belegt - sondern weil ihre Voraussetzungen (Serienbau ohne "
+                "Unterbrechung, staatliche Lieferkettensteuerung, niedrige Bau- und "
+                "Ingenieurloehne, eingeschraenkte Drittanfechtung) in Deutschland rechtlich und "
+                "oekonomisch nicht herstellbar sind. Sie gehoeren als Kontrastwerte ins White "
+                "Paper - mit genau dieser Erklaerung - aber nicht in die Modell-Basisspanne.'"),
+            "counterposition": (
+                "Die Gegenposition (Persona-Review 06, K3) lautet: Der Ausschluss ist "
+                "Cherry-Picking, weil in den letzten 20 Jahren die Mehrheit aller Reaktoren "
+                "weltweit in Asien gebaut wurde - und weil mit Dukovany II (7.906 EUR/kW EPC, "
+                "KHNP, innerhalb der EU) ein koreanischer Exportpreis unter EU-Beihilferecht "
+                "bereits vertraglich vorliegt. Dieser EU-Exportpunkt ist in der BASISSPANNE "
+                "enthalten (Low-Anker); der Kontrastlauf zeigt zusaetzlich, was der reine "
+                "Inlands-/Golf-Cluster bedeuten wuerde."),
+            "usage": "Nur in den Monte-Carlo-Konfigurationen 'asia' und 'asia_wacc'. Wird NIE mit "
+                     "der Basisspanne gemischt und nie mit dem Ueberschreitungsfaktor kombiniert.",
+            "status": "KONTRASTVERTEILUNG (nicht Modellbasis)",
+        },
+        "idc_surcharge_reference": {
+            "low": kkp["idc_surcharge_on_capex"]["low"],
+            "mid": kkp["idc_surcharge_on_capex"]["mid"],
+            "high": kkp["idc_surcharge_on_capex"]["high"],
+            "source": f"{SRC_LABEL['kk']} 7.2 idc_surcharge_on_capex",
+            "confidence": "B",
+        },
+        "lcoe_reference_eur_mwh": param(
+            None,
+            "EUR/MWh",
+            f"{SRC_LABEL['kk']} 7.3 resulting_lcoe_eur_mwh",
+            "B",
+            mn=136,
+            mid=None,
+            mx=490,
+            note="Fraunhofer ISE 2024 Neubau-Spanne 136-490 EUR/MWh; eigene Dossier-Spanne 130-275 EUR/MWh.",
+        ),
+        "scenario_lcoe_reference": kkp["resulting_lcoe_eur_mwh"],
+    }
+
+    # ---------------------------------------------------------------- Gas
+    def thermal_block(key: str, label: str, role: str, construction_years_val: int, gap_id: str) -> dict:
+        t = eet[key]
+        return {
+            "label": label,
+            "role": role,
+            "profile_series": None,
+            "params": {
+                "capex_eur_kw": from_range(
+                    t["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.{key}.capex_eur_kw"
+                ),
+                "capex_scope": scope_param(
+                    ("overnight", "overnight", "overnight"), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+                    f"{SRC_LABEL['ee']} 12 technologies.{key}.capex_eur_kw (Investitionskosten)",
+                    "B",
+                    note="Turnkey-Investitionskosten ohne Finanzierung; IDC-Aufschlag sachgerecht.",
+                ),
+                "idc_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des IDC-Aufschlags)",
+                    f"{SRC_LABEL['ee']} 12 technologies.{key}.capex_eur_kw (overnight)", "B",
+                ),
+                "overrun_applicable_share": share_param(
+                    (1.0, 1.0, 1.0), "1 (Anteil des Ueberschreitungsfaktors)",
+                    f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition", "B",
+                ),
+                "opex_pct": from_range(
+                    t["opex_pct"], "1/a (Anteil CAPEX)", f"{SRC_LABEL['ee']} 12 technologies.{key}.opex_pct"
+                ),
+                "opex_eur_kw_a": param(None, "EUR/kW/a", f"{SRC_LABEL['ee']} 12 technologies.{key}", None,
+                                       note="Dossier fuehrt Opex nur als CAPEX-Prozentsatz."),
+                "full_load_hours": from_range(
+                    t["full_load_hours_backup"],
+                    "h/a",
+                    f"{SRC_LABEL['ee']} 12 technologies.{key}.full_load_hours_backup",
+                    note="Backup-Betrieb. Im Mix-Modell ersetzt der Dispatch diesen Wert.",
+                ),
+                "lifetime_years": from_range(
+                    t["lifetime_years"], "a", f"{SRC_LABEL['ee']} 12 technologies.{key}.lifetime_years"
+                ),
+                "efficiency": from_range(
+                    t["efficiency"], "1", f"{SRC_LABEL['ee']} 12 technologies.{key}.efficiency"
+                ),
+                "construction_years": construction_param(
+                    construction_years_val,
+                    None,
+                    idc_method_src,
+                    "Bauzeit nicht im Dossier belegt; Annahme fuer den IDC-Aufschlag.",
+                    status=modellannahme,
+                    gap_id=gap_id,
+                ),
+                # Modell v0.2, M2: Der Brennstoffpreis wird thermisch gefuehrt und
+                # ueber den (gezogenen) Wirkungsgrad in EUR/MWh_el umgerechnet.
+                # Der elektrische Wert bleibt bewusst null - er ist abgeleitet,
+                # nicht gesetzt (model.lcoe rechnet fuel_th / efficiency).
+                "fuel_eur_mwh_th": param(
+                    GAS_FUEL_TH["mid"],
+                    "EUR/MWh_th",
+                    GAS_FUEL_TH["source"],
+                    GAS_FUEL_TH["confidence"],
+                    mn=GAS_FUEL_TH["min"],
+                    mid=GAS_FUEL_TH["mid"],
+                    mx=GAS_FUEL_TH["max"],
+                    note=GAS_FUEL_TH["note"],
+                ),
+                "fuel_eur_mwh": param(
+                    None,
+                    "EUR/MWh_el",
+                    f"{SRC_LABEL['ee']} 8 (kein Gaspreis im Dossier) -> abgeleitet aus fuel_eur_mwh_th",
+                    None,
+                    note="ABGELEITET, nicht gesetzt: das Modell rechnet fuel_eur_mwh_th / efficiency. "
+                         "Bei 35 EUR/MWh_th und eta = 0,60 sind das 58,3 EUR/MWh_el. "
+                         "Gegenprobe: gas_fuel_implied (Rueckrechnung aus der FOeS-LCOE).",
+                ),
+                "waste_eur_mwh": param(0.0, "EUR/MWh", "nicht anwendbar", "A"),
+                "emission_factor_t_mwh": param(
+                    round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4),
+                    "t CO2/MWh_el",
+                    f"{SRC_LABEL['risk']} 1.2 co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min",
+                    "C",
+                    mn=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4),
+                    mid=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4),
+                    mx=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.max") / 1000.0, 4),
+                    status="PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)",
+                    note="PROXY: Ein direkter Verbrennungs-Emissionsfaktor fehlt in allen Dossiers. "
+                         "Verwendet wird die UNECE-Lebenszyklus-Untergrenze fuer GuD, weil der Vorketten-"
+                         "Anteil (Methanschlupf) darin am kleinsten ist. Vor Veroeffentlichung durch einen "
+                         "echten Direktfaktor (z. B. UBA-Emissionsfaktor Erdgas) ersetzen.",
+                ),
+            },
+        }
+
+    techs["gas_ccgt"] = thermal_block("ccgt_gas", "Gaskraftwerk GuD", "backup", 3, "bauzeit_gas_ccgt")
+    techs["gas_ocgt"] = thermal_block("ocgt_gas", "Gaskraftwerk OCGT (Peaker)", "backup", 2, "bauzeit_gas_ocgt")
+    techs["gas_ccgt"]["key_finding"] = eet["ccgt_gas"]["key_finding"]
+
+    # ------------------------------------------------- Gas + CCS (v0.2b)
+    # Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS (docs/03 8a.2,
+    # Annahmen-Audit "CCS-Kosten 80 EUR/t"). Ohne eine CCS-Kette vergleicht das
+    # Modell einen Gas-Pfad, den die Studie nicht behauptet. Diese Technologie
+    # schliesst die Luecke - als eigene Variante, nicht als Ersatz.
+    gud_eff = eet["ccgt_gas"]["efficiency"]
+    ef_el_gud = round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud.min") / 1000.0, 4)
+    # Brennstoffbezogener Emissionsfaktor: wirkungsgradunabhaengig und deshalb
+    # die richtige Bezugsgroesse fuer die abgeschiedene Menge.
+    ef_th = round(ef_el_gud * gud_eff["mid"], 4)
+    ccs = copy.deepcopy(techs["gas_ccgt"])
+    ccs["label"] = "Gaskraftwerk GuD mit CO2-Abscheidung (CCS)"
+    ccs["role"] = "backup_ccs"
+    ccs["derived_from"] = "gas_ccgt"
+    ccs["params"]["capex_eur_kw"] = param(
+        round(eet["ccgt_gas"]["capex_eur_kw"]["mid"] * CCS["capex_factor"]["mid"]),
+        "EUR/kW",
+        f"{SRC_LABEL['ee']} 12 technologies.ccgt_gas.capex_eur_kw x Abscheidungs-Aufschlag "
+        "(NETL/IEAGHG 2023: +100 bis +104 % je kW fuer NGCC mit Abscheidung)",
+        "B",
+        mn=round(eet["ccgt_gas"]["capex_eur_kw"]["min"] * CCS["capex_factor"]["min"]),
+        mid=round(eet["ccgt_gas"]["capex_eur_kw"]["mid"] * CCS["capex_factor"]["mid"]),
+        mx=round(eet["ccgt_gas"]["capex_eur_kw"]["max"] * CCS["capex_factor"]["max"]),
+        note=CCS["capex_factor"]["note"],
+    )
+    ccs["params"]["efficiency"] = param(
+        round(gud_eff["mid"] - CCS["efficiency_penalty_pp"]["mid"], 4),
+        "1",
+        f"{SRC_LABEL['ee']} 12 technologies.ccgt_gas.efficiency minus Abscheidungs-Wirkungsgradverlust",
+        "B",
+        mn=round(gud_eff["min"] - CCS["efficiency_penalty_pp"]["max"], 4),
+        mid=round(gud_eff["mid"] - CCS["efficiency_penalty_pp"]["mid"], 4),
+        mx=round(gud_eff["max"] - CCS["efficiency_penalty_pp"]["min"], 4),
+        note=CCS["efficiency_penalty_pp"]["note"],
+    )
+    # v0.2c (Fix 2): Der CCS-CAPEX ist im Datensatz definitorisch ein FAKTOR auf
+    # den GuD-CAPEX. Bis v0.2b wurde er in der Monte-Carlo-Rechnung als eigene
+    # Absolutverteilung unabhaengig gezogen - die Kopplung ging verloren (in
+    # einer Ziehung konnte das GuD am unteren und die CCS-Anlage am oberen Rand
+    # liegen). Der Faktor steht jetzt als eigener Parameter; gezogen wird der
+    # Faktor, angewandt auf den in DERSELBEN Ziehung gezogenen GuD-CAPEX.
+    ccs["params"]["capex_factor_on_ccgt"] = param(
+        CCS["capex_factor"]["mid"],
+        "1 (Faktor auf den GuD-CAPEX je kW)",
+        "NETL/IEAGHG 2023 (Updated Performance and Cost Estimates for Carbon Capture Equipped "
+        "Power Generation), Recherche 2026-08-19",
+        "B",
+        mn=CCS["capex_factor"]["min"],
+        mid=CCS["capex_factor"]["mid"],
+        mx=CCS["capex_factor"]["max"],
+        note=CCS["capex_factor"]["note"] + " v0.2c: Dieser Faktor ist die gezogene Groesse; "
+             "capex_eur_kw ist der daraus abgeleitete Absolutwert und wird in der Monte-Carlo-"
+             "Rechnung NICHT mehr eigenstaendig gezogen (Versorger-Review R2, N2).",
+    )
+    ccs["params"]["capture_rate"] = param(
+        CCS["capture_rate"]["mid"], "1 (Anteil der Verbrennungsemissionen)",
+        CCS["capture_rate"]["source"], CCS["capture_rate"]["confidence"],
+        mn=CCS["capture_rate"]["min"], mid=CCS["capture_rate"]["mid"], mx=CCS["capture_rate"]["max"],
+        note=CCS["capture_rate"]["note"],
+    )
+    ccs["params"]["ccs_cost_eur_t"] = param(
+        CCS["cost_eur_t"]["mid"], "EUR/t CO2 (Abscheidung + Transport + Speicherung)",
+        CCS["cost_eur_t"]["source"], CCS["cost_eur_t"]["confidence"],
+        mn=CCS["cost_eur_t"]["min"], mid=CCS["cost_eur_t"]["mid"], mx=CCS["cost_eur_t"]["max"],
+        note=CCS["cost_eur_t"]["note"],
+    )
+    ccs["params"]["emission_factor_t_mwh_th"] = param(
+        ef_th, "t CO2/MWh_th (Brennstoffeinsatz)",
+        f"{SRC_LABEL['risk']} 1.2 erdgas_gud.min ({ef_el_gud} t/MWh_el) x Wirkungsgrad GuD "
+        f"({gud_eff['mid']}) - abgeleitet, nicht gesetzt",
+        "C",
+        mid=ef_th,
+        note="Bezugsgroesse fuer die ABGESCHIEDENE Menge. Wirkungsgradunabhaengig, damit der "
+             "Abscheidungsverlust die abgeschiedene Tonnage korrekt erhoeht. Erbt den PROXY-Status "
+             "des zugrunde liegenden Lebenszyklus-Faktors.",
+        status="PROXY (abgeleitet aus der Lebenszyklus-Untergrenze)",
+    )
+    # ---- Modell v0.2c, Fix 4: geschlossene Massenbilanz ---------------------
+    # Bis v0.2b wurden abgeschiedene Menge und Restemission aus ZWEI getrennten
+    # Groessen gebildet: captured = ef_th/eta x Rate (0,4185 t/MWh_el) und ein
+    # unabhaengig gesetzter Lebenszyklus-Restwert (0,120). Summe 0,539 gegen
+    # einen Brennstoffeintrag von 0,465 t/MWh_el - 116 % des Eintrags
+    # (Versorger-Review R2 N7, Peer-Review R2 N2).
+    # Neu: EINE Bilanz. Der Eintrag I = ef_th / eta wird in Verbrennung und
+    # Vorkette zerlegt (Anteil v). Abgeschieden wird nur die Verbrennung:
+    #     captured = I x (1 - v) x rate
+    #     residual = I x (1 - v) x (1 - rate) + I x v
+    #     captured + residual = I   (exakt, fuer jede Ziehung von eta und rate)
+    # Der Vorkettenanteil v wird so KALIBRIERT, dass die belegte Restemission
+    # von 0,120 t/MWh_el bei den Zentralwerten exakt reproduziert wird:
+    #     v = (residual_mid / I_mid - (1 - rate_mid)) / rate_mid
+    ef_ccs_mid = round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.default") / 1000.0, 4)
+    eta_ccs_mid = ccs["params"]["efficiency"]["mid"]
+    rate_mid = CCS["capture_rate"]["mid"]
+    input_mid = ef_th / eta_ccs_mid
+    upstream_share = round((ef_ccs_mid / input_mid - (1.0 - rate_mid)) / rate_mid, 6)
+    ccs["params"]["upstream_share_of_lifecycle"] = param(
+        upstream_share,
+        "1 (Vorkettenanteil am Lebenszyklus-Emissionsfaktor)",
+        f"{SRC_LABEL['risk']} 1.2 erdgas_gud_ccs.default ({ef_ccs_mid} t/MWh_el Restemission) "
+        f"kalibriert gegen erdgas_gud.min ({ef_el_gud} t/MWh_el) bei eta {eta_ccs_mid} und "
+        f"Abscheiderate {rate_mid}",
+        "C",
+        mid=upstream_share,
+        note="v0.2c (Fix 4): Zerlegt den Lebenszyklus-Emissionsfaktor in den abscheidbaren "
+             "Verbrennungsteil und die nicht abscheidbare Vorkette (Methanschlupf). Der Wert ist "
+             "KEINE eigene Quelle, sondern eine Kalibrierung: er ist genau so gewaehlt, dass die "
+             "belegte Restemission von 0,120 t/MWh_el (49/120/220 g/kWh) bei den Zentralwerten "
+             "exakt herauskommt. Damit gilt captured + residual = Brennstoffeintrag fuer JEDE "
+             "Ziehung von Wirkungsgrad und Abscheiderate - die Doppelbuchung von 16 % des "
+             "eingesetzten Kohlenstoffs faellt weg. Groessenordnung: rund 17,6 % Vorkettenanteil "
+             "liegt im ueblichen Bereich fuer Erdgas-Lebenszyklusfaktoren.",
+        status="KALIBRIERT (aus belegten Groessen abgeleitet, keine eigene Quelle)",
+    )
+    ccs["params"]["emission_factor_t_mwh"] = param(
+        ef_ccs_mid,
+        "t CO2/MWh_el (Restemission nach Abscheidung)",
+        f"{SRC_LABEL['risk']} 1.2 co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs",
+        "B",
+        mn=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.min") / 1000.0, 4),
+        mid=ef_ccs_mid,
+        mx=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.erdgas_gud_ccs.max") / 1000.0, 4),
+        note="RESTEMISSION - traegt den vollen CO2-Preis. Lebenszyklus-Wert (49/120/220 g/kWh): "
+             "enthaelt die Vorkette (Methanschlupf), die CCS NICHT abscheidet. AB v0.2c ist dieser "
+             "Wert nur noch KALIBRIERUNGSZIEL und Rueckfallwert: Gerechnet wird die Restemission "
+             "aus der Massenbilanz (model.ccs_balance) als "
+             "Eintrag x [(1 - v)(1 - Rate) + v]; bei den Zentralwerten ergibt das exakt diese "
+             "0,120 t/MWh_el, bei abweichendem Wirkungsgrad oder abweichender Abscheiderate bewegt "
+             "sich die Restemission konsistent mit der abgeschiedenen Menge mit (Spanne der "
+             "Bilanz rund 0,087-0,157 gegen die dokumentierte Bandbreite 0,049-0,220).",
+        status="KALIBRIERUNGSZIEL (gerechnet wird die Massenbilanz, siehe upstream_share_of_lifecycle)",
+    )
+    ccs["params"]["construction_years"] = construction_param(
+        4, None, idc_method_src,
+        "Bauzeit nicht im Dossier belegt; 4 a (GuD 3 a + Abscheidungsinsel) als Annahme.",
+        status=modellannahme, gap_id="bauzeit_gas_ccs",
+    )
+    ccs["ccs_chain"] = {
+        "storage_availability_de": CCS["storage_de"],
+        "residual_emissions_note": "CCS eliminiert Emissionen nicht - die Restemission traegt den "
+                                   "vollen CO2-Preis (story_claims_check.md C13).",
+        "ets_gap_reference": get(story_claims, "ets_gap_gas_ccs.statement") if story_claims else None,
+    }
+    techs["gas_ccs"] = ccs
+
+    # Rueckrechnung: welcher variable Kostenblock steckt in der FOeS-LCOE-Angabe?
+    foes = eet["ccgt_gas"]["lcoe_eur_mwh_de_new"]
+    techs["gas_ccgt"]["gas_fuel_implied"] = {
+        "description": "Aus der FOeS-Gesamt-LCOE zurueckgerechneter variabler Block (Brennstoff + CO2), "
+                       "nachdem Kapital- und Fixkosten (CAPEX mid, opex_pct mid, n mid, WACC 5 %) bei den "
+                       "angegebenen Backup-Volllaststunden abgezogen wurden.",
+        "computed_by": "scripts/consolidate_params.py (Formel im Feld formula)",
+        "formula": "implied = lcoe_foes - (capex*CRF(wacc,n) + capex*opex_pct) / (flh/1000)",
+        "inputs": {
+            "lcoe_foes_eur_mwh": {"min": foes["min"], "max": foes["max"], "source": f"{SRC_LABEL['ee']} 8 lcoe_eur_mwh_de_new"},
+            "flh_variants": [
+                eet["ccgt_gas"]["full_load_hours_backup"]["min"],
+                eet["ccgt_gas"]["full_load_hours_backup"]["mid"],
+                eet["ccgt_gas"]["full_load_hours_backup"]["max"],
+            ],
+        },
+        "confidence": "C",
+        "warning": "Stark abhaengig von der (in der FOeS-Quelle nicht ausgewiesenen) Volllaststundenannahme. "
+                   "Nur als Groessenordnung und Sensitivitaets-Obergrenze verwenden.",
+        "results_eur_mwh_el": None,  # unten befuellt
+    }
+
+    # ------------------------------------------------------------ Speicher
+    bat = eet["battery_grid_scale"]
+    techs["battery"] = {
+        "label": bat["label"],
+        "role": "storage_short",
+        "params": {
+            "capex_eur_kwh": from_range(
+                bat["capex_eur_kwh"], "EUR/kWh", f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.capex_eur_kwh"
+            ),
+            "capex_eur_kw": from_range(
+                bat["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.capex_eur_kw"
+            ),
+            "duration_hours": param(
+                bat["duration_hours_assumed"],
+                "h",
+                f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.duration_hours_assumed",
+                "B",
+            ),
+            "opex_pct": from_range(
+                bat["opex_pct"], "1/a (Anteil CAPEX)", f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.opex_pct"
+            ),
+            "efficiency_roundtrip": from_range(
+                bat["efficiency_roundtrip_ac"],
+                "1",
+                f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.efficiency_roundtrip_ac",
+            ),
+            "lifetime_years": from_range(
+                bat["lifetime_years"], "a", f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.lifetime_years"
+            ),
+            "construction_years": construction_param(
+                1, None, idc_method_src, "Bauzeit nicht im Dossier belegt.", status=modellannahme,
+                gap_id="bauzeit_battery"
+            ),
+        },
+        "lcos_reference_eur_mwh": from_range(
+            bat["lcos_eur_mwh_lazard_2026"],
+            "EUR/MWh",
+            f"{SRC_LABEL['ee']} 12 technologies.battery_grid_scale.lcos_eur_mwh_lazard_2026",
+            "A",
+        ),
+        "cost_trend": bat["cost_trend"],
+    }
+
+    ely = eet["electrolyser"]
+    techs["electrolyser"] = {
+        "label": ely["label"],
+        "role": "storage_p2g",
+        "params": {
+            "capex_eur_kw": from_range(
+                ely["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.electrolyser.capex_eur_kw"
+            ),
+            "opex_pct": from_range(
+                ely["opex_pct"], "1/a (Anteil CAPEX)", f"{SRC_LABEL['ee']} 12 technologies.electrolyser.opex_pct"
+            ),
+            "efficiency_lhv": from_range(
+                ely["efficiency_lhv"], "1", f"{SRC_LABEL['ee']} 12 technologies.electrolyser.efficiency_lhv"
+            ),
+            "specific_consumption_kwh_per_kg": from_range(
+                ely["specific_consumption_kwh_per_kg"],
+                "kWh_el/kg H2",
+                f"{SRC_LABEL['ee']} 12 technologies.electrolyser.specific_consumption_kwh_per_kg",
+            ),
+            "lifetime_years": from_range(
+                ely["lifetime_years"], "a", f"{SRC_LABEL['ee']} 12 technologies.electrolyser.lifetime_years"
+            ),
+            "full_load_hours": from_range(
+                ely["full_load_hours"],
+                "h/a",
+                f"{SRC_LABEL['ee']} 12 technologies.electrolyser.full_load_hours",
+                note="Reine Modellannahme des Dossiers (confidence 'unverified'), betriebsmodellabhaengig. "
+                     "Im Mix-Modell ersetzt der Dispatch diesen Wert.",
+                status="MODELLANNAHME (nicht quellenbelegt)",
+            ),
+            "construction_years": construction_param(
+                2, None, idc_method_src, "Bauzeit nicht im Dossier belegt.", status=modellannahme,
+                gap_id="bauzeit_electrolyser"
+            ),
+        },
+        "finding": ely["finding"],
+    }
+
+    cav = eet["h2_cavern_storage"]
+    # kWh je kg H2 aus den beiden Dossier-Angaben desselben Sachverhalts abgeleitet
+    kwh_per_kg = round(cav["storage_cost_eur_per_kg"]["mid"] / (cav["storage_cost_ct_per_kwh_h2"]["mid"] / 100.0), 2)
+    techs["h2_storage"] = {
+        "label": cav["label"],
+        "role": "storage_long",
+        "params": {
+            "storage_cost_eur_mwh_h2": param(
+                round(cav["storage_cost_low_cycling_eur_per_kg"]["value"] / kwh_per_kg * 1000, 1),
+                "EUR/MWh_H2 (eingespeicherte Energie)",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_cavern_storage.storage_cost_low_cycling_eur_per_kg",
+                "A",
+                # min/mid/max muessen monoton sein. Die EWI-Zyklenspanne
+                # (1,98-5,25 ct/kWh) gilt fuer HOHE Zyklenzahl; der saisonale
+                # Fall (3,50 EUR/kg = 105 EUR/MWh) liegt darueber. Frueher stand
+                # deshalb max (52,5) UNTER mid (105) - eine unbrauchbare Spanne.
+                # Jetzt: min = untere Zyklen-Grenze, mid/max = Saisonfall (kein
+                # hoeherer Beleg vorhanden); die Zyklenspanne steht vollstaendig
+                # im Feld range_high_cycling_eur_mwh_h2 daneben.
+                mn=round(cav["storage_cost_ct_per_kwh_h2"]["min"] * 10, 1),
+                mid=round(cav["storage_cost_low_cycling_eur_per_kg"]["value"] / kwh_per_kg * 1000, 1),
+                mx=round(cav["storage_cost_low_cycling_eur_per_kg"]["value"] / kwh_per_kg * 1000, 1),
+                note="Saisonale Speicherung = niedrige Zyklenzahl = teures Ende der EWI-Spanne "
+                     "(3,50 EUR/kg). Untere Grenze nur bei hoher Zyklenzahl erreichbar. "
+                     "Kein Beleg fuer einen Wert oberhalb des Saisonfalls, deshalb max = mid.",
+            ),
+            "range_high_cycling_eur_mwh_h2": param(
+                round(cav["storage_cost_ct_per_kwh_h2"]["mid"] * 10, 1),
+                "EUR/MWh_H2 (eingespeicherte Energie)",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_cavern_storage.storage_cost_ct_per_kwh_h2",
+                "A",
+                mn=round(cav["storage_cost_ct_per_kwh_h2"]["min"] * 10, 1),
+                mid=round(cav["storage_cost_ct_per_kwh_h2"]["mid"] * 10, 1),
+                mx=round(cav["storage_cost_ct_per_kwh_h2"]["max"] * 10, 1),
+                note="EWI-Spanne bei HOHER Zyklenzahl. Nur informativ - im Modell wird der "
+                     "saisonale Fall (storage_cost_eur_mwh_h2) verwendet.",
+            ),
+            "kwh_per_kg_h2": param(
+                kwh_per_kg,
+                "kWh_H2/kg",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_cavern_storage (abgeleitet aus EUR/kg und ct/kWh)",
+                "A",
+                note="Abgeleitet, nicht gesetzt: 1,20 EUR/kg / 3,60 ct/kWh = 33,3 kWh/kg.",
+            ),
+            "de_repurposing_potential_twh": param(
+                cav["de_repurposing_potential_twh"],
+                "TWh_H2",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_cavern_storage.de_repurposing_potential_twh",
+                "B",
+            ),
+        },
+        "key_finding": cav["key_finding"],
+    }
+
+    h2p = eet["h2_rueckverstromung"]
+    techs["h2_turbine"] = {
+        "label": h2p["label"],
+        "role": "storage_g2p",
+        "params": {
+            "capex_eur_kw": from_range(
+                h2p["capex_eur_kw"], "EUR/kW", f"{SRC_LABEL['ee']} 12 technologies.h2_rueckverstromung.capex_eur_kw"
+            ),
+            "opex_pct": from_range(
+                eet["ccgt_gas"]["opex_pct"],
+                "1/a (Anteil CAPEX)",
+                f"{SRC_LABEL['ee']} 12 technologies.ccgt_gas.opex_pct (Analogie GuD, kein eigener Wert im Dossier)",
+                note="Analogie zum GuD, da das Dossier fuer H2-Kraftwerke keinen eigenen Opex-Satz ausweist.",
+            ),
+            "efficiency": from_range(
+                h2p["efficiency_h2_ccgt"],
+                "1",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_rueckverstromung.efficiency_h2_ccgt",
+            ),
+            "roundtrip_p2g2p": from_range(
+                h2p["roundtrip_efficiency_p2g2p"],
+                "1",
+                f"{SRC_LABEL['ee']} 12 technologies.h2_rueckverstromung.roundtrip_efficiency_p2g2p",
+            ),
+            "lifetime_years": from_range(
+                eet["ccgt_gas"]["lifetime_years"],
+                "a",
+                f"{SRC_LABEL['ee']} 12 technologies.ccgt_gas.lifetime_years (Analogie GuD)",
+            ),
+            "construction_years": construction_param(
+                3, None, idc_method_src, "Bauzeit nicht im Dossier belegt.", status=modellannahme,
+                gap_id="bauzeit_h2_turbine"
+            ),
+            "emission_factor_t_mwh": param(0.0, "t CO2/MWh_el", "H2-Verstromung ohne CO2 am Schornstein", "A"),
+        },
+        "lcoe_reference_eur_mwh": from_range(
+            h2p["lcoe_eur_mwh_new_h2_plant"],
+            "EUR/MWh",
+            f"{SRC_LABEL['ee']} 12 technologies.h2_rueckverstromung.lcoe_eur_mwh_new_h2_plant",
+            "A",
+        ),
+    }
+
+    # Lebenszyklus-Emissionen (informativ, NICHT eingepreist)
+    lifecycle_map = {
+        "pv_freiflaeche": "pv_deutschland",
+        "pv_dach_gross": "pv_deutschland",
+        "wind_onshore": "wind_onshore",
+        "wind_offshore": "wind_offshore",
+        "nuclear": "kernkraft",
+        "gas_ccgt": "erdgas_gud",
+        "gas_ocgt": "erdgas_gud",
+    }
+    lct = get(risk, "co2_intensitaet_g_pro_kwh.technologien", {})
+    for tech_key, risk_key in lifecycle_map.items():
+        src = lct.get(risk_key, {})
+        techs[tech_key]["lifecycle_co2_g_kwh"] = param(
+            src.get("default"),
+            "g CO2-Aeq/kWh (Lebenszyklus)",
+            f"{SRC_LABEL['risk']} 1.2 co2_intensitaet_g_pro_kwh.technologien.{risk_key}",
+            src.get("stufe"),
+            mn=src.get("min"),
+            mid=src.get("default"),
+            mx=src.get("max"),
+            note="INFORMATIV - wird laut Modellkonzept nicht eingepreist.",
+        )
+
+    # ---- Modell v0.2: Kostenabgrenzung fuer alle uebrigen Technologien -----
+    # Speicher-/Elektrolyse-CAPEX sind schluesselfertige Investitionskosten
+    # (overnight). Wo das Feld noch fehlt, wird es hier ergaenzt, damit
+    # model.lcoe() fuer JEDE Technologie eine dokumentierte Abgrenzung findet.
+    for tech_key, tech in techs.items():
+        p = tech.get("params", {})
+        if not any(k.startswith("capex_") for k in p):
+            continue
+        p.setdefault("capex_scope", scope_param(
+            ("overnight", "overnight", "overnight"), (1.0, 1.0, 1.0), (1.0, 1.0, 1.0),
+            f"{SRC_LABEL['ee']} 12 technologies (schluesselfertige Investitionskosten)", "B",
+            note="Turnkey-Anker ohne Finanzierung; IDC-Aufschlag sachgerecht (kurze Bauzeit).",
+        ))
+        p.setdefault("idc_applicable_share", share_param(
+            (1.0, 1.0, 1.0), "1 (Anteil des IDC-Aufschlags)",
+            f"{SRC_LABEL['ee']} 12 technologies (overnight)", "B"))
+        p.setdefault("overrun_applicable_share", share_param(
+            (1.0, 1.0, 1.0), "1 (Anteil des Ueberschreitungsfaktors)",
+            f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.definition", "B",
+            note="Faktor ist fuer diese Technologieklasse in Flyvbjerg/Sovacool NICHT gemessen "
+                 "(siehe system.cost_overrun_factors.unmeasured_technologies) - der Anteil 1,0 "
+                 "beschreibt nur, DASS ein Faktor angewendet wuerde, nicht dass einer belegt ist.",
+        ))
+
+    out["technologies"] = techs
+
+    # --------------------------------------------------- Szenariensaetze
+    out["scenario_sets"] = {
+        "_warning": get(ee, "derived_lcoe_selfcheck.warning"),
+        "_source": f"{SRC_LABEL['ee']} 12 derived_lcoe_selfcheck.warning + {SRC_LABEL['kk']} 7.1-7.3",
+        "guenstig": {
+            "capex": "min",
+            "opex": "min",
+            "full_load_hours": "max",
+            "lifetime_years": "max",
+            "fuel": "min",
+            "waste": "min",
+            "wacc": kkp["wacc"]["low"],
+            "rationale": "Konsistent: guter Standort, Serienfertigung, staatlich derisktes Kapital. "
+                         "Niedriger CAPEX und hohe Volllaststunden treten real gemeinsam auf "
+                         "(Serienprogramm bzw. Bestlagen).",
+        },
+        "mittel": {
+            "capex": "mid",
+            "opex": "mid",
+            "full_load_hours": "mid",
+            "lifetime_years": "mid",
+            "fuel": "mid",
+            "waste": "mid",
+            "wacc": kkp["wacc"]["mid"],
+            "rationale": "Zentralwerte aller Dossiers, WACC 5 % wie GES-Studie.",
+        },
+        "teuer": {
+            "capex": "max",
+            "opex": "max",
+            "full_load_hours": "mid",
+            "lifetime_years": "min",
+            "fuel": "max",
+            "waste": "max",
+            "wacc": kkp["wacc"]["high"],
+            "rationale": "BEWUSST max-CAPEX mit MITTLEREN Volllaststunden - nicht mit min-VLh. "
+                         "Grund: hohe CAPEX treten real ueberwiegend an guten Standorten auf "
+                         "(Offshore weit draussen, grosse Anlagen); die mechanische Kombination "
+                         "max-CAPEX x min-VLh waere doppelter Pessimismus.",
+        },
+        "extremkombination_nur_sensitivitaet": {
+            "capex": "max",
+            "opex": "max",
+            "full_load_hours": "min",
+            "lifetime_years": "min",
+            "fuel": "max",
+            "waste": "max",
+            "wacc": kkp["wacc"]["high"],
+            "rationale": "Nur als ausgewiesene Sensitivitaets-Obergrenze, nicht als Szenario verwenden.",
+        },
+    }
+
+    # ------------------------------------------------------------ System
+    nep = get(ist, "netzkosten.uebertragungsnetz_nep_2037_2045_v2025", {})
+    imk = get(ist, "netzkosten.gesamtnetz_imk_boeckler_2024", {})
+    out["system"] = {
+        "grid": {
+            "investment_bn_eur_until_2045": param(
+                imk.get("gesamt_bis_2045"),
+                "Mrd. EUR",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten (IMK/Boeckler gesamt; NEP nur Uebertragungsnetz)",
+                "B",
+                mn=nep.get("szenario_b_gesamt"),
+                mid=imk.get("gesamt_bis_2045"),
+                mx=imk.get("gesamt_bis_2045"),
+                note="min = NEP 2037/2045 Szenario B (nur Uebertragungsnetz, 400 Mrd.), "
+                     "mid/max = IMK inkl. Verteilnetz (651 Mrd.).",
+            ),
+            "lifetime_years": param(
+                40,
+                "a",
+                f"{SRC_LABEL['ist']} 5.1 (keine Abschreibungsdauer im Dossier)",
+                None,
+                mid=40,
+                note="Bilanzielle Nutzungsdauer der Netzinvestitionen nicht in den Dossiers belegt.",
+                status=modellannahme,
+                gap_id="netz_nutzungsdauer",
+            ),
+            # ---- Modell v0.2, M3: Aufteilung statt einer linearen Regel -----
+            "transmission_bn_eur_until_2045": param(
+                imk.get("uebertragungsnetz_bis_2045"),
+                "Mrd. EUR",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten.gesamtnetz_imk_boeckler_2024.uebertragungsnetz_bis_2045",
+                "B",
+                mn=imk.get("uebertragungsnetz_bis_2045"),
+                mid=imk.get("uebertragungsnetz_bis_2045"),
+                mx=nep.get("gesamt_bis_2045", {}).get("high") if isinstance(nep.get("gesamt_bis_2045"), dict) else None,
+                note="IMK/Boeckler 328 Mrd. EUR Uebertragungsnetz bis 2045; max = NEP 2037/2045 V2025 "
+                     "Obergrenze (392 Mrd., ebenfalls nur Uebertragungsnetz). Ueberwiegend "
+                     "EE-/Transportgetrieben (HGUE-Korridore Nord-Sued) - skaliert deshalb mit der "
+                     "GENUTZTEN fEE-Energie, nicht mit der erzeugten (abgeregelte Energie erzeugt "
+                     "keinen Transportbedarf).",
+            ),
+            "distribution_bn_eur_until_2045": param(
+                imk.get("verteilnetz_bis_2045"),
+                "Mrd. EUR",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten.gesamtnetz_imk_boeckler_2024.verteilnetz_bis_2045",
+                "B",
+                mn=imk.get("verteilnetz_bis_2045"),
+                mid=imk.get("verteilnetz_bis_2045"),
+                mx=imk.get("verteilnetz_bis_2045"),
+                note="IMK/Boeckler 323 Mrd. EUR Verteilnetz bis 2045 - praktisch gleich gross wie das "
+                     "Uebertragungsnetz. Ueberwiegend elektrifizierungsgetrieben (Waermepumpen, "
+                     "Ladeinfrastruktur, Industrieanschluesse, Altersersatz) und damit weitgehend "
+                     "MIXUNABHAENGIG. Skaliert im Modell mit dem Jahresbedarf, nicht mit dem fEE-Anteil.",
+            ),
+            # ---- Modell v0.2c, Fix 1 ---------------------------------------
+            # Auch das Uebertragungsnetz hat einen mixunabhaengigen Sockel
+            # (Versorger-Review R2, N1). Bis v0.2b skalierte der gesamte
+            # 328-Mrd.-Block linear von null mit der genutzten fEE-Arbeit - ein
+            # Deutschland mit 16,7 % fluktuierender Erzeugung haette danach
+            # 3,4 EUR/MWh Uebertragungsnetz gebraucht.
+            "transmission_socket_share": param(
+                0.40,
+                "1 (mixunabhaengiger Anteil des Uebertragungsnetz-Budgets)",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten (NEP 2037/2045 V2025 und IMK/Boeckler nennen "
+                "KEINE Aufteilung des Uebertragungsnetz-Budgets nach Treibern)",
+                None,
+                mn=0.20,
+                mid=0.40,
+                mx=0.60,
+                note="SETZUNG (M) mit Sensitivitaet - eine belastbare Quote existiert in keinem "
+                     "Dossier: Weder der NEP 2037/2045 V2025 noch die IMK-Studie teilen die 328 "
+                     "(bzw. 365-392) Mrd. EUR nach Treibern auf; die einzige treibernahe Angabe ist "
+                     "die Differenz Szenario A -> B (+41 Mrd. = rund 10 %), und die misst nur die "
+                     "Klimaziel-AMBITION, nicht den mixunabhaengigen Anteil. Begruendung der "
+                     "Setzung: Dieselben Treiber, mit denen der Verteilnetz-Sockel belegt ist "
+                     "(Altersersatz - grosse Teile des Hoechstspannungsnetzes stammen aus den "
+                     "1960er/70er Jahren -, Lastzuwachs aus Elektrifizierung und Rechenzentren, "
+                     "n-1-Redundanz, Systemdienstleistungen, Anschluss neuer Grosskraftwerke inkl. "
+                     "Kernkraftbloecken), gelten eine Spannungsebene hoeher weiter. Wirklich "
+                     "fEE-spezifisch sind die HGUE-Nord-Sued-Korridore und die Offshore-Anbindung - "
+                     "zusammen die Mehrheit, aber nicht das Ganze. mid 0,40 liegt deshalb unter der "
+                     "Haelfte; min/max 0,20/0,60 sind die ausgewiesene Sensitivitaet. Das Ergebnis "
+                     "weist die Differenz zum sockellosen Lauf als "
+                     "detail.netz.socket_effect_eur_mwh aus.",
+                status="MODELLANNAHME (nicht quellenbelegt, dokumentierte Setzung)",
+                gap_id=None,
+            ),
+            "reference_fee_share": param(
+                1.0,
+                "1",
+                f"{SRC_LABEL['ist']} 5.1 / {SRC_LABEL['ges']} Kap. 4 (Bezugspunkt der fEE-Skalierung)",
+                None,
+                mid=1.0,
+                note="Bezugspunkt fuer den Uebertragungsnetz-Block: Die NEP-/IMK-Investitionsvolumina "
+                     "gelten fuer ein weitgehend klimaneutrales (fEE-dominiertes) Zielsystem, also "
+                     "fEE-Anteil 1,0 an der gedeckten Last. Der Skalierungsfaktor ist auf 1,0 gedeckelt "
+                     "- ein Szenario kann nicht mehr als das gesamte nationale Netzbudget tragen. "
+                     "Eine Ueberschreitung wird im Ergebnis als grid_scaling_raw ausgewiesen.",
+                status=modellannahme,
+            ),
+            "reference_demand_twh": param(
+                950,
+                "TWh/a",
+                f"{SRC_LABEL['ist']} 4.1 bedarfsprojektionen_twh.2045 / {SRC_LABEL['ges']} Zieljahr 2045",
+                "B",
+                mid=950,
+                note="Bezugspunkt fuer den Verteilnetz-Sockel: Die IMK-Verteilnetzinvestition ist auf "
+                     "das Zielsystem 2045 mit rund 950 TWh Jahresbedarf bezogen. Skalierung mit "
+                     "min(1,0; Bedarf/950).",
+                status=modellannahme,
+            ),
+            "scaling_rule": {
+                "version": "v0.2c",
+                "transmission": "min(1,0; a x min(1,0; Jahresbedarf / reference_demand_twh) "
+                                "+ (1 - a) x fEE-Anteil an der GEDECKTEN Last / reference_fee_share) "
+                                "mit a = transmission_socket_share",
+                "distribution": "min(1,0; Jahresbedarf / reference_demand_twh)",
+                "replaces": "v0.1: 651 Mrd. EUR x (fEE-Anteil inkl. abgeregelter Energie / 1,0), "
+                            "ungedeckelt - erreichte im 100-%-EE-Preset 165 % des nationalen Budgets. "
+                            "v0.2/v0.2b: Uebertragungsnetz OHNE Sockel (a = 0), also linear von null "
+                            "mit der genutzten fEE-Arbeit.",
+                "source": f"{SRC_LABEL['ist']} 5.1 (Aufteilung 328/323) + Persona-Review 04 K1, "
+                          "03 K2 und 03 R2 N1 (Uebertragungsnetz-Sockel)",
+                "confidence": "B",
+                "limitation": "Weiterhin keine raeumliche Netzsimulation und keine ueberproportionale "
+                              "Kostenkurve bei sehr hohen fEE-Anteilen. Die Aufteilung 328/323 ist "
+                              "quellenbelegt, die ZUORDNUNG der Treiber (Transport vs. Elektrifizierung) "
+                              "ist eine begruendete Modellannahme - und die Sockelquote a des "
+                              "Uebertragungsnetzes ist eine ausgewiesene SETZUNG (M) mit "
+                              "Sensitivitaet 0,20/0,40/0,60.",
+            },
+            "ist_2025_eur_mwh": param(
+                93.0,
+                "EUR/MWh (Netzentgelt, Ist)",
+                f"{SRC_LABEL['ist']} 5.1 netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh",
+                "C",
+                mn=93.0,
+                mid=93.0,
+                mx=131.0,
+                note="M6: Der Ist-2025-Anker darf nicht die Netzinvestition BIS 2045 tragen. Er bekommt "
+                     "stattdessen das dokumentierte heutige Netzentgelt: 9,3 ct/kWh = 93 EUR/MWh "
+                     "(Haushalt 2026, wie erhoben). max = 131 EUR/MWh = ohne den Bundeszuschuss "
+                     "(9,3 + (6,65 - 2,86) ct/kWh) - das Dossier nennt den Zuschuss ausdruecklich eine "
+                     "'Transferleistung, keine Kostensenkung'. ACHTUNG: Haushalts-Netzentgelt, der "
+                     "systemweite Durchschnitt liegt darunter (Industrie zahlt weniger). Ausserdem hat "
+                     "die Groesse eine ANDERE Systemgrenze als der 2045-Block (Bestandsnetz + Betrieb "
+                     "statt Zusatzinvestition) - der Anker ist deshalb zusaetzlich als nicht direkt "
+                     "vergleichbar gekennzeichnet.",
+            ),
+            "redispatch_2024_bn_eur": param(
+                2.776,
+                "Mrd. EUR/a",
+                f"{SRC_LABEL['risk']} 4.1 netz_und_systemkosten.netzengpassmanagement_mrd_eur[2024]",
+                "A",
+                note="KORREKTUR v0.2 (Persona-Review 03, K2c): Dieser Betriebskostenblock ist in einer "
+                     "reinen Investitionsannuitaet gerade NICHT enthalten. Er wird im Modell weiterhin "
+                     "nicht angesetzt - nicht weil er doppelt waere, sondern weil fuer das Zielsystem "
+                     "2045 kein belegter Redispatch-/Netzbetriebskostenwert vorliegt. Siehe "
+                     "gaps.netz_opex.",
+            ),
+            "opex_note": {
+                "status": "LUECKE",
+                "text": "Betriebs-, Instandhaltungs- und Verlustkosten der Netze sowie Redispatch sind im "
+                        "Modell NICHT enthalten. Belegt ist nur der Ist-Wert 2024/25 (2,776 bzw. "
+                        "2,7-3,1 Mrd. EUR/a Engpassmanagement); ein belegter Netzbetriebskostensatz fuer "
+                        "das Zielsystem 2045 existiert in keinem Dossier. Der Netzblock der "
+                        "Zukunftsszenarien ist deshalb eine UNTERGRENZE.",
+                "source": f"{SRC_LABEL['risk']} 4.1 + {SRC_LABEL['ist']} 5.3",
+                "confidence": "A",
+            },
+            "curtailment_2024_twh": param(
+                9.4,
+                "TWh/a",
+                f"{SRC_LABEL['risk']} 4.2 netz_und_systemkosten.abregelung[2024]",
+                "A",
+                note="Referenz zum Vergleich mit der modellierten Abregelung.",
+            ),
+        },
+        "security_of_supply": {
+            "firm_capacity_gap_2030_gw": from_range(
+                get(risk, "versorgungssicherheit.gesicherte_leistung_zusatzbedarf_gw.2030"),
+                "GW",
+                f"{SRC_LABEL['risk']} 3.4 versorgungssicherheit.gesicherte_leistung_zusatzbedarf_gw.2030",
+            ),
+            "battery_need_2045_gwh": from_range(
+                get(risk, "versorgungssicherheit.speicherbedarf_2045.batterie_gwh"),
+                "GWh",
+                f"{SRC_LABEL['risk']} 3.5 versorgungssicherheit.speicherbedarf_2045.batterie_gwh",
+                key_mid="median",
+            ),
+            "h2_storage_need_2045_twh": param(
+                get(risk, "versorgungssicherheit.speicherbedarf_2045.wasserstoff_speicher_twh.min"),
+                "TWh_H2",
+                f"{SRC_LABEL['risk']} 3.5 versorgungssicherheit.speicherbedarf_2045.wasserstoff_speicher_twh",
+                "C",
+            ),
+            "dunkelflaute_reference": get(risk, "dunkelflaute.referenzereignis_dez_2024"),
+            "dunkelflaute_frequency": get(risk, "dunkelflaute.haeufigkeit"),
+            "energy_need_48h_winter_twh": from_range(
+                get(risk, "dunkelflaute.energiebedarf_48h_winter_twh"),
+                "TWh",
+                f"{SRC_LABEL['risk']} 3.3 dunkelflaute.energiebedarf_48h_winter_twh",
+            ),
+        },
+        "cost_overrun_factors": {
+            "_note": get(risk, "kostenueberschreitung_faktoren.verwendung"),
+            "_source": f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren",
+            "_default": 1.0,
+            # ---- Modell v0.2, M7 ---------------------------------------
+            "application_rule": {
+                "version": "v0.2c",
+                "text": "Der Faktor ist definitionsgemaess ein Verhaeltnis Entscheidungsschaetzung -> Ist "
+                        "(risiken_co2.md 7 definition). Er wird deshalb nur auf den Teil der "
+                        "Eskalation angewendet, den ein CAPEX-Anker noch NICHT enthaelt. Der "
+                        "Rest-Anteil steht je Technologie in params.overrun_applicable_share und wird "
+                        "zwischen den CAPEX-Stuetzstellen linear interpoliert. Fuer Technologien mit "
+                        "params.overrun_estimate_base_eur_kw (Kernkraft: 7.500 EUR/kW) wird der "
+                        "Aufschlag ABSOLUT auf dieser einen Schaetzbasis gerechnet - "
+                        "(f - 1) x Basis x Anteil - statt multiplikativ auf den gezogenen CAPEX; "
+                        "sonst bliebe die Abbildung nicht monoton.",
+                "affected": "Kernkraft (v0.2c): Rest-Anteil 0,48 bei 7.500 EUR/kW (EPR2-Programm-OCC, "
+                            "bereits +40 % eskaliert; Dukovany-EPC ist ein Festpreis), 0,50 bei "
+                            "12.000 EUR/kW (Mittel aus Lubiatowo-Planzahl, Sizewell C +90 % und "
+                            "EPR2 inkl. Finanzierung) und 0,00 bei 17.500 EUR/kW (Hinkley Point C, "
+                            "laufende Preise = bereits eingetretene Ueberschreitung). Bis v0.2b "
+                            "standen an den unteren Ankern 1,0 - eine Doppelzaehlung.",
+                "source": f"{SRC_LABEL['risk']} 7 + {SRC_LABEL['kk']} 3 reference_projects",
+                "confidence": "B",
+            },
+            "unmeasured_technologies": {
+                "list": ["battery", "electrolyser", "h2_storage", "h2_turbine"],
+                "assumed_factor": 1.0,
+                "status": "NICHT GEMESSEN",
+                "text": "Fuer Batteriespeicher, Elektrolyse, H2-Kavernenspeicher und H2-Turbinen gibt es "
+                        "in Flyvbjerg (2023) und Sovacool & Ryu (2025) keine Projektklasse. Der Faktor "
+                        "1,00 ist deshalb eine LUECKE, keine Messung - und er ist der eine Wert, den "
+                        "man aus dieser Empirie fuer neuartige, genehmigungsintensive Grossinfrastruktur "
+                        "nicht ableiten kann (naechstgelegene Analoga: Wasserkraft 1,75, nukleare "
+                        "Endlagerung 3,38). Das Ueberschreitungs-Szenario ist damit asymmetrisch: es "
+                        "stresst die Kernkraft- und Netzseite, nicht die Speicher-/H2-Seite.",
+                "source": f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.technologien "
+                          "(keine Klasse fuer Speicher/H2) + Persona-Review 06 K2",
+                "confidence": "A",
+            },
+            "factors": {
+                k: {
+                    "value": 1.0,
+                    "min": v.get("spanne", [None, None])[0],
+                    "mid": v.get("flyvbjerg") or v.get("sovacool"),
+                    "max": v.get("spanne", [None, None])[1],
+                    "unit": "Faktor auf CAPEX",
+                    "source": f"{SRC_LABEL['risk']} 7 kostenueberschreitung_faktoren.technologien.{k}",
+                    "confidence": norm_conf(v.get("stufe")),
+                    "note": "Default 1.0 = abgeschaltet. Bewusst NICHT im Basisfall aktiv, "
+                            "damit der Modellkern nicht mit Risikoannahmen vermischt wird.",
+                }
+                for k, v in get(risk, "kostenueberschreitung_faktoren.technologien", {}).items()
+            },
+        },
+        # ---- Modell v0.2, M6: Bestandsbaender fuer den Ist-2025-Anker -------
+        # Kohle, Biomasse und Wasserkraft fehlten im Ist-Anker vollstaendig -
+        # ihre Arbeit wurde vom Gas-Backup gedeckt (59 % der Erzeugung). Sie
+        # laufen jetzt als Baender mit. Kostenparameter gibt es in keinem
+        # Dossier (gaps.hydro_biomasse_band); die Anlagen sind Bestand und
+        # weitgehend abgeschrieben - angesetzt wird deshalb NUR der CO2-Preis
+        # auf die fossilen Baender. Das ist eine ausgewiesene Untergrenze.
+        "legacy_bands": {
+            "_status": "BESTANDSANLAGEN - nur CO2-Kosten, keine Kapital-/Betriebskosten",
+            "_note": "Kapital- und Betriebskosten der Bestandsflotte (Kohle, Biomasse, Wasser) sind in "
+                     "keinem Dossier belegt. Der Ist-2025-Anker ist auf der Erzeugungsseite deshalb eine "
+                     "Untergrenze: Brennstoff, Betrieb und CO2-Zertifikate der Kohleblocke sind nur zum "
+                     "Teil (CO2) enthalten. Biomasse wird im ETS bilanziell als CO2-neutral gefuehrt.",
+            "_source": f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh + {SRC_LABEL['risk']} 1.2",
+            "coal": {
+                "generation_2025_twh": param(
+                    round(get(ist, "ist_mix.2025.traeger_twh.braunkohle.wert", 0.0)
+                          + (get(ist, "ist_mix.2025.traeger_twh.steinkohle.low", 0.0)
+                             + get(ist, "ist_mix.2025.traeger_twh.steinkohle.high", 0.0)) / 2.0, 1),
+                    "TWh/a",
+                    f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh.braunkohle + .steinkohle",
+                    "C",
+                    note="Braunkohle 75,2 TWh (Stufe B) + Steinkohle 25-28 TWh (Stufe C, "
+                         "Differenzrechnung) = Mittel 26,5 TWh.",
+                ),
+                "installed_gw_2025": param(
+                    round(get(ist, "installierte_leistung_gw.stand_jahresende_2025.braunkohle.wert", 0.0)
+                          + get(ist, "installierte_leistung_gw.stand_jahresende_2025.steinkohle.wert", 0.0), 3),
+                    "GW",
+                    f"{SRC_LABEL['ist']} 2.1 installierte_leistung_gw.stand_jahresende_2025",
+                    "B",
+                ),
+                "emission_factor_t_mwh": param(
+                    round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.min") / 1000.0, 4),
+                    "t CO2/MWh_el",
+                    f"{SRC_LABEL['risk']} 1.2 co2_intensitaet_g_pro_kwh.technologien.kohle.min",
+                    "C",
+                    mn=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.min") / 1000.0, 4),
+                    mid=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.min") / 1000.0, 4),
+                    mx=round(get(risk, "co2_intensitaet_g_pro_kwh.technologien.kohle.max") / 1000.0, 4),
+                    note="PROXY wie bei Gas: direkter Verbrennungsfaktor fehlt in allen Dossiers, "
+                         "verwendet wird die UNECE-Lebenszyklus-Untergrenze (751 g/kWh). Der reale "
+                         "direkte Faktor liegt fuer Braunkohle darueber, fuer Steinkohle darunter.",
+                    status="PROXY (Lebenszyklus-Untergrenze statt Direktfaktor)",
+                ),
+            },
+            "biomass": {
+                "generation_2025_twh": param(
+                    get(ist, "ist_mix.2025.traeger_twh.biomasse.wert"),
+                    "TWh/a", f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh.biomasse", "B"),
+                "installed_gw_2025": param(
+                    get(ist, "installierte_leistung_gw.stand_jahresende_2025.biomasse.wert"),
+                    "GW", f"{SRC_LABEL['ist']} 2.1 installierte_leistung_gw", "C"),
+                "emission_factor_t_mwh": param(
+                    0.0, "t CO2/MWh_el",
+                    "ETS-Systematik: Biomasse wird bilanziell mit 0 gefuehrt", "B",
+                    note="Bilanzielle Nullstellung, kein Lebenszyklus-Wert."),
+            },
+            "hydro": {
+                "generation_2025_twh": param(
+                    get(ist, "ist_mix.2025.traeger_twh.wasserkraft.wert"),
+                    "TWh/a", f"{SRC_LABEL['ist']} 1.1 ist_mix.2025.traeger_twh.wasserkraft", "C",
+                    note="Differenzrechnung aus der EE-Summe (Dossier-Stufe low)."),
+                "installed_gw_2025": param(
+                    round((get(ist, "installierte_leistung_gw.stand_jahresende_2025."
+                                    "wasserkraft_ohne_pumpspeicher.low", 0.0)
+                           + get(ist, "installierte_leistung_gw.stand_jahresende_2025."
+                                      "wasserkraft_ohne_pumpspeicher.high", 0.0)) / 2.0, 2),
+                    "GW", f"{SRC_LABEL['ist']} 2.1 installierte_leistung_gw", "C"),
+                "emission_factor_t_mwh": param(
+                    0.0, "t CO2/MWh_el", "keine direkten Verbrennungsemissionen", "A"),
+            },
+        },
+        "double_counting_warning": next(
+            (p for p in get(risk, "risiko_aufschlaege_zusammenfassung.positionen", [])
+             if p.get("id") == "backup_und_speicher"),
+            None,
+        ),
+    }
+
+    # ------------------------------------------------------ Ist-Zustand DE
+    cap25 = get(ist, "installierte_leistung_gw.stand_jahresende_2025", {})
+    out["ist_zustand"] = {
+        "installed_gw_2024_profile_reference": {
+            "_source": f"{SRC_LABEL['profiles']} meta.capacity_reference_note (Literaturwerte Ende 2024)",
+            "_note": prof["meta"]["capacity_reference_note"],
+            "pv": 99.3,
+            "wind_onshore": 62.4,
+            "wind_offshore": 9.2,
+            "hydro_ror": 4.0,
+            "biomass": 9.6,
+        },
+        "installed_gw_2025": {
+            k: {"value": v.get("wert", v.get("low")), "confidence": norm_conf(v.get("confidence"))}
+            for k, v in cap25.items()
+            if isinstance(v, dict)
+        },
+        # ---- v0.2: Belegte Ist-Groessen fuer die 2025-Plausibilisierung -----
+        "ist_2025_reference": {
+            "_source": f"{SRC_LABEL['ist']} 1.1 ist_mix.2025 / 5.1 netzkosten / 7.1 preise, "
+                       f"{SRC_LABEL['risk']} 4.2 netz_und_systemkosten.abregelung",
+            "generation_twh": {
+                "photovoltaik": get(ist, "ist_mix.2025.traeger_twh.photovoltaik.wert"),
+                "wind_onshore": get(ist, "ist_mix.2025.traeger_twh.wind_onshore.wert"),
+                "wind_offshore": get(ist, "ist_mix.2025.traeger_twh.wind_offshore.wert"),
+                "erdgas": get(ist, "ist_mix.2025.traeger_twh.erdgas.wert"),
+                "braunkohle": get(ist, "ist_mix.2025.traeger_twh.braunkohle.wert"),
+                "steinkohle_mid": round((get(ist, "ist_mix.2025.traeger_twh.steinkohle.low", 0.0)
+                                         + get(ist, "ist_mix.2025.traeger_twh.steinkohle.high", 0.0)) / 2.0, 1),
+                "biomasse": get(ist, "ist_mix.2025.traeger_twh.biomasse.wert"),
+                "wasserkraft": get(ist, "ist_mix.2025.traeger_twh.wasserkraft.wert"),
+                "mineraloel_sonstige_abfall": get(
+                    ist, "ist_mix.2025.traeger_twh.mineraloel_sonstige_abfall.wert"),
+            },
+            "pumpspeichererzeugung_twh": get(ist, "ist_mix.2025.pumpspeichererzeugung"),
+            "bruttostromverbrauch_twh": get(ist, "ist_mix.2025.bruttostromverbrauch"),
+            "bruttostromerzeugung_twh": get(ist, "ist_mix.2025.bruttostromerzeugung_gesamt_inkl_pse"),
+            "nettoimport_twh": get(ist, "ist_mix.2025.nettoimport_twh"),
+            "boersenstrompreis_eur_mwh": get(ist, "preise.boersenstrompreis_jahresmittel_eur_mwh.2025.wert"),
+            "netzentgelt_haushalt_eur_mwh": round(
+                get(ist, "netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh", 0.0) * 10.0, 1),
+            "netzentgelt_ohne_bundeszuschuss_eur_mwh": round(
+                (get(ist, "netzkosten.netzentgelte_2026.netzentgelt_haushalt_ct_kwh", 0.0)
+                 + get(ist, "netzkosten.netzentgelte_2026.uebertragungsnetzentgelt_ohne_zuschuss_ct_kwh", 0.0)
+                 - get(ist, "netzkosten.netzentgelte_2026.uebertragungsnetzentgelt_mit_zuschuss_ct_kwh", 0.0))
+                * 10.0, 1),
+            "abregelung_2024_twh": next(
+                (x.get("menge_twh") for x in get(risk, "netz_und_systemkosten.abregelung", [])
+                 if x.get("jahr") == 2024), None),
+            "redispatch_2025_mrd_eur": get(ist, "netzkosten.redispatch_engpassmanagement.2025_gesamt"),
+            "endkunde_haushalt_2026_ct_kwh": get(ist, "preise.endkunden_ct_kwh.haushalt_3500kwh.2026"),
+            "industrie_2026_ct_kwh": get(ist, "preise.endkunden_ct_kwh.industrie_neuabschluss_160mwh_bis_20gwh.2026"),
+        },
+        "generation_2024_twh": {
+            "pv": param(
+                get(ist, "ist_mix.2024.pv_erzeugung_gesamt"),
+                "TWh",
+                f"{SRC_LABEL['ist']} 1.3 ist_mix.2024.pv_erzeugung_gesamt",
+                "A",
+            ),
+            "wind_total": param(
+                get(ist, "ist_mix.2024.wind_gesamt_ise"),
+                "TWh",
+                f"{SRC_LABEL['ist']} 1.3 ist_mix.2024.wind_gesamt_ise",
+                "A",
+            ),
+        },
+    }
+
+    # -------------------------------------------- Profil-Saisonalitaet H2
+    # Anteil der Jahresenergie, der in den abgedeckten Zeitraum faellt.
+    # Bei einem Volljahres-Profil ist der Anteil automatisch 1.0.
+    plaus = prof["meta"].get("plausibility_check_2024", {})
+    seasonal = {}
+    for series in ("load_mw", "solar_mw", "wind_onshore_mw"):
+        s = prof["series"][series]
+        if s["coverage"].get("covers_full_calendar_year"):
+            seasonal[series] = param(1.0, "1", f"{SRC_LABEL['profiles']} series.{series}.coverage", "A")
+            continue
+        covered = s.get("annual_sum_twh_covered_period")
+        rng = get(plaus, f"{series}.expected_full_year_range_twh")
+        if covered and rng:
+            lo = round(covered / rng[1], 4)
+            hi = round(covered / rng[0], 4)
+            mid = round(covered / ((rng[0] + rng[1]) / 2), 4)
+            seasonal[series] = param(
+                mid,
+                "1 (Anteil der Jahresenergie im abgedeckten Zeitraum)",
+                f"{SRC_LABEL['profiles']} meta.plausibility_check_2024.{series}",
+                "C",
+                mn=lo,
+                mid=mid,
+                mx=hi,
+                note="Abgeleitet aus Teilzeitraumsumme / erwarteter Jahressumme. Ersetzt die naive "
+                     "Annahme 'Stundenanteil = Energieanteil' (waere fuer PV um rund 18 % falsch).",
+            )
+        else:
+            seasonal[series] = param(
+                None, "1", f"{SRC_LABEL['profiles']} series.{series}", None,
+                note="Weder Volljahr noch Plausibilitaetsspanne vorhanden.",
+                gap_id=f"seasonal_share_{series}",
+            )
+    # PV-Gegenprobe gegen den Ist-Zustand (72,2 TWh Jahres-PV 2024)
+    pv_full = get(ist, "ist_mix.2024.pv_erzeugung_gesamt")
+    pv_cov = prof["series"]["solar_mw"].get("annual_sum_twh_covered_period")
+    if pv_full and pv_cov:
+        seasonal["solar_mw"]["cross_check"] = {
+            "value": round(pv_cov / pv_full, 4),
+            "source": f"{SRC_LABEL['ist']} 1.3 ist_mix.2024.pv_erzeugung_gesamt (72,2 TWh)",
+            "note": "Unabhaengige Gegenprobe zur abgeleiteten Saisonalitaet.",
+        }
+    out["profiles_meta"] = {
+        "path": "data/profiles_2024.json",
+        "data_completeness": prof["meta"]["data_completeness"],
+        "gaps": prof["meta"]["gaps"],
+        "capacity_factors_covered_period": prof["meta"]["capacity_factors_covered_period"],
+        "seasonal_share_covered": seasonal,
+        "result_label": "H2-2024-basiert (nur 01.07.-31.12.2024)",
+        "architecture_note": "Alle Kennzahlen werden ueber coverage/seasonal_share normalisiert; "
+                             "ein Volljahres-profiles_2024.json laeuft ohne Codeaenderung.",
+    }
+
+    # ------------------------------------------------- GES-Referenzwerte
+    out["ges_reference"] = {
+        "_source": f"{SRC_LABEL['ges']} Kap. 10 (maschinenlesbarer Datenblock)",
+        "methodology": ges["methodology"],
+        "scenarios": ges["scenarios_original"],
+        "technologies": {
+            k: v["study"] for k, v in ges["technologies"].items()
+        },
+        "system_level_estimate": ges["system_level_estimate"],
+    }
+
+    # GES-Szenario-Rekonstruktion fuer den Mix-Modell-Test (Ebene 2/3)
+    out["ges_scenario_reconstruction"] = {
+        "_status": "REKONSTRUKTION - die GES-Studie veroeffentlicht die Technologie-Aufteilung je Szenario "
+                   "nur als Grafik (siehe docs/01 Kap. 6). Die folgenden Energieanteile sind aus den "
+                   "veroeffentlichten installierten Leistungen (gesamt / fEE) und den GES-Volllaststunden "
+                   "abgeleitet und daher naeherungsweise.",
+        "_source": f"{SRC_LABEL['ges']} Kap. 3 + 6 + scenarios_original",
+        "_confidence": "C",
+        "demand_twh": 950,
+        "fee_split_assumption": {
+            "pv": 0.45,
+            "wind_onshore": 0.40,
+            "wind_offshore": 0.15,
+            "basis": "Kapazitaetsanteile in Anlehnung an die EEG-/WindSeeG-Ziele 2045 "
+                     f"({SRC_LABEL['ist']} 3.1 zielpfade.ziele_gw: PV 400 GW, Wind on 160 GW, Wind off 70 GW)",
+            "status": modellannahme,
+        },
+        "scenarios": {
+            "kostenminimum": {
+                "installed_gw": 215,
+                "fee_gw": 90,
+                "lscoe_published": 125,
+                "firm_technology": "nuclear",
+                "note": "Grundlast ~125 GW bei 8.000 VLh, laut docs/01 Kap. 6 rund 80 % der Erzeugung.",
+            },
+            "ee80_gas": {
+                "installed_gw": 542,
+                "fee_gw": 438,
+                "lscoe_published": 197,
+                "firm_technology": "gas_ccgt",
+            },
+            "ee80_h2": {
+                "installed_gw": 618,
+                "fee_gw": 438,
+                "lscoe_published": 212,
+                "firm_technology": "h2_turbine",
+            },
+            "ee100": {
+                "installed_gw": 1162,
+                "fee_gw": 786,
+                "lscoe_published": 321,
+                "firm_technology": "h2_turbine",
+            },
+        },
+    }
+
+    # ------------------------------------------------------------- Luecken
+    out["gaps"] = GAPS + [
+        {
+            "id": "gaspreis_erdgas",
+            "parameter": "technologies.gas_*.params.fuel_eur_mwh_th",
+            "status": "GESCHLOSSEN in v0.2 (ausserhalb der Dossiers belegt)",
+            "reason": "Kein Erdgas-Brennstoffpreis in den Recherche-Dossiers. Seit v0.2 mit einer "
+                      "Marktspanne 20/35/60 EUR/MWh_th parametrisiert (TTF-Notierung, Recherche "
+                      "2026-08-19, Konfidenz B; Uebertragbarkeit auf 2045 Konfidenz C). Die "
+                      "Nullsetzung war eine Luecke der Recherche, nicht der Welt.",
+        },
+        {
+            "id": "netz_opex",
+            "parameter": "system.grid (Betrieb, Instandhaltung, Verluste, Redispatch)",
+            "reason": "Fuer das Zielsystem 2045 existiert in keinem Dossier ein Netzbetriebskostensatz. "
+                      "Das Modell enthaelt ausschliesslich die Investitionsannuitaet - der Netzblock der "
+                      "Zukunftsszenarien ist damit eine Untergrenze. Belegt ist nur der Ist-Wert "
+                      "Engpassmanagement (2,776 Mrd. EUR 2024 bzw. 2,7-3,1 Mrd. EUR 2025).",
+        },
+        {
+            "id": "ccs_nicht_modelliert",
+            "parameter": "technologies.gas_ccs",
+            "status": "GESCHLOSSEN in v0.2b",
+            "reason": "Die gepruefte GES-Studie rechnet ihren Gas-Pfad mit CCS. Seit v0.2b existiert "
+                      "die Technologie gas_ccs (CAPEX-Aufschlag, Wirkungsgradverlust, Abscheiderate, "
+                      "Vollketten-Kostensatz je Tonne, Restemission mit CO2-Preis) und wird in den "
+                      "Presets kostenminimum_ccs und ee80_gas_ccs gerechnet. OFFEN BLEIBT die "
+                      "physische Verfuegbarkeit von Transport und Speicherung - siehe "
+                      "ccs_speicher_verfuegbarkeit.",
+        },
+        {
+            "id": "ccs_speicher_verfuegbarkeit",
+            "parameter": "technologies.gas_ccs.ccs_chain.storage_availability_de",
+            "reason": "Deutschland hat keine in Betrieb befindliche CO2-Speicherstaette. Der CCS-Pfad "
+                      "unterstellt Export in norwegische/niederlaendische Offshore-Speicher samt "
+                      "Logistik, Genehmigungen und Akzeptanz. Im Modell steckt davon nur der "
+                      "Kostensatz je Tonne - keine Kapazitaetsgrenze, keine Hochlaufkurve, kein "
+                      "Verfuegbarkeitsrisiko. SETZUNG (M), Konfidenz C.",
+        },
+        {
+            "id": "ccs_kostenband_optimistisch",
+            "parameter": "technologies.gas_ccs.params.ccs_cost_eur_t",
+            "reason": "Verwendet wird die im Repository belegte Spanne 50/80/100 EUR/t. Eine "
+                      "Recherche vom 2026-08-19 (Clean Air Task Force; Carbon Management Europe/ZEP) "
+                      "nennt fuer europaeische Anlagen mit den derzeit geplanten Speichern eine "
+                      "Vollkettenspanne von rund 70-250 EUR/t. Das Modellband liegt damit am unteren "
+                      "Rand und beguenstigt den CCS-Pfad.",
+        },
+        {
+            "id": "overrun_ungemessen_speicher_h2",
+            "parameter": "system.cost_overrun_factors.unmeasured_technologies",
+            "reason": "Batterie, Elektrolyse, H2-Speicher und H2-Turbine haben in Flyvbjerg/Sovacool "
+                      "keine Projektklasse und bleiben bei Faktor 1,00. Das ist eine Luecke, keine "
+                      "Messung - das Ueberschreitungs-Szenario ist deshalb asymmetrisch.",
+        },
+        {
+            "id": "emissionsfaktor_direkt",
+            "parameter": "technologies.gas_*.params.emission_factor_t_mwh",
+            "reason": "Kein direkter Verbrennungs-Emissionsfaktor in den Dossiers. Als Proxy dient die "
+                      "UNECE-Lebenszyklus-Untergrenze fuer GuD (403 g/kWh). Vor Veroeffentlichung ersetzen.",
+        },
+        {
+            "id": "profile_partial",
+            "parameter": "data/profiles_2024.json",
+            "reason": "Nur 4.416 von 8.784 Stunden (Jul-Dez 2024); Wind offshore, Wasserkraft und Biomasse "
+                      "fehlen komplett. Alle Dispatch-Ergebnisse sind H2-2024-basiert.",
+        },
+        {
+            "id": "offshore_profil",
+            "parameter": "technologies.wind_offshore.profile_series",
+            "reason": "Kein Offshore-Profil vorhanden; Uebergangsloesung mit Onshore-Profilform.",
+        },
+        {
+            "id": "ges_technologie_split",
+            "parameter": "ges_scenario_reconstruction",
+            "reason": "GES veroeffentlicht die Technologie-Aufteilung je Szenario nur als Grafik; "
+                      "der Mix-Test arbeitet daher mit einer rekonstruierten Aufteilung.",
+        },
+        {
+            "id": "hydro_biomasse_band",
+            "parameter": "technologies (Wasserkraft, Biomasse)",
+            "reason": "Keine Kostenparameter fuer Wasserkraft und Biomasse in den Dossiers; im Mix-Modell "
+                      "nur als optionales Band ohne Kostenansatz fuehrbar.",
+        },
+    ]
+
+    return out
+
+
+# --------------------------------------------------------------------------
+# Nachgelagerte Ableitung (braucht die CRF-Funktion aus dem Modell)
+# --------------------------------------------------------------------------
+def fill_derived(params: dict) -> None:
+    """Rechnet den impliziten Gas-Variablenblock aus der FOeS-LCOE zurueck."""
+    import model  # lokaler Import, damit consolidate ohne model importierbar bleibt
+
+    gas = params["technologies"]["gas_ccgt"]
+    implied = gas["gas_fuel_implied"]
+    capex = gas["params"]["capex_eur_kw"]["mid"]
+    opex_pct = gas["params"]["opex_pct"]["mid"]
+    n = gas["params"]["lifetime_years"]["mid"]
+    wacc = params["global"]["wacc"]["mid"]
+    lo, hi = implied["inputs"]["lcoe_foes_eur_mwh"]["min"], implied["inputs"]["lcoe_foes_eur_mwh"]["max"]
+
+    results = {}
+    for flh in implied["inputs"]["flh_variants"]:
+        fixed = (capex * model.crf(wacc, n) + capex * opex_pct) / (flh / 1000.0)
+        results[str(flh)] = {
+            "fixed_eur_mwh": round(fixed, 1),
+            "implied_fuel_plus_co2_min": round(lo - fixed, 1),
+            "implied_fuel_plus_co2_max": round(hi - fixed, 1),
+        }
+    implied["results_eur_mwh_el"] = results
+    negative = [k for k, v in results.items() if v["implied_fuel_plus_co2_min"] < 0]
+    implied["interpretation"] = (
+        "Bei " + ", ".join(negative) + " h Volllaststunden ergibt die Rueckrechnung negative "
+        "variable Kosten - die FOeS-Angabe kann also nicht auf so wenigen Betriebsstunden beruhen. "
+        "Belastbar ist daraus nur: der variable Block (Brennstoff + CO2) liegt in der "
+        "Groessenordnung 100-200 EUR/MWh_el, wenn die FOeS-Rechnung 1.500-3.000 h unterstellt. "
+        "Ein belegter Erdgaspreis bleibt die vorrangige Nacharbeit."
+    ) if negative else (
+        "Alle Varianten liefern positive variable Kosten; die Spanne bleibt stark "
+        "volllaststundenabhaengig."
+    )
+
+
+def main() -> None:
+    params = build()
+    fill_derived(params)
+    os.makedirs(DATA, exist_ok=True)
+    with open(OUT_PATH, "w", encoding="utf-8") as fh:
+        json.dump(params, fh, ensure_ascii=False, indent=2)
+    n_tech = len(params["technologies"])
+    print(f"[consolidate] {OUT_PATH} geschrieben")
+    print(f"[consolidate] Technologien: {n_tech}")
+    print(f"[consolidate] Luecken (gaps): {len(params['gaps'])}")
+    for gap in params["gaps"]:
+        print(f"  - {gap['id']}: {gap['parameter']}")
+
+
+if __name__ == "__main__":
+    main()

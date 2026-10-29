@@ -1,0 +1,349 @@
+{
+ "id": "topic:karriere",
+ "name": "Karriere",
+ "typ": "thema",
+ "slug": "karriere",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/karriere.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/karriere.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/karriere.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/karriere.json",
+ "dokumente_gesamt": 8,
+ "kernaussagen_gesamt": 16,
+ "mit_kernaussagen": 8,
+ "aliase": [
+  "Bewerbung",
+  "Berufseinstieg",
+  "Quereinstieg",
+  "Career",
+  "Job",
+  "Jobs"
+ ],
+ "einordnung": "Brian Bønk beschäftigt sich seit vier oder fünf Jahren mit Echtzeitanalysen, seine Datenkarriere begann jedoch vor 25 Jahren mit seinem ersten SQL Server. (Stand 2025-09) Brian Bønk bietet Mentoring sowohl für angehende Community-Speaker als auch für Menschen an, die ihre Karriere im Datenbereich beginnen möchten. (Stand 2025-09) Brian Bønk hat keine feste Tagesroutine, fragt sich aber täglich, was er Neues lernen und am nächsten Tag anwenden kann. (Stand 2025-09)",
+ "nachbarn": [
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "power-bi.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 56,
+   "zeit": "00:56",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=56s",
+   "aussage": "Der Beginn des Selbst-Ersetzens mit KI wird auf den letzten November datiert, also bewusst erst, nachdem sich die Tools etabliert hatten, statt sofort nach dem ChatGPT-Start."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 436,
+   "zeit": "07:16",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=436s",
+   "aussage": "Ein Jahresrückblick von Lovable ordnete ihn aufgrund seines Prompt-Volumens unter die Top 1 % der Programmierer weltweit ein."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 733,
+   "zeit": "12:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=733s",
+   "aussage": "Der Umgang mit KI-gestützter, datenbasierter Teamarbeit wird als zunehmend wichtige Führungsaufgabe eingeordnet."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "dokument_id": "yt:oh-3_65IQ2Q",
+   "sekunde": 1753,
+   "zeit": "29:13",
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=1753s",
+   "aussage": "Kunden würden die Beratung wegen des Tools nicht einfach einsparen, weil der eigentliche Mehrwert in der angesammelten Erfahrung liegt und nicht nur im Tool selbst."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "GxP Talk - Testing im GxP-Umfeld",
+   "dokument_id": "yt:B0_sSJQVG8w",
+   "sekunde": 2913,
+   "zeit": "48:33",
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=2913s",
+   "aussage": "Ein häufiger Wechsel von Führungskräften im Pharmaumfeld kann mehrjährige Digitalisierungs- und Testautomatisierungsinitiativen gefährden, wenn die Strategie nicht organisationsweit verankert ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Power BI vs. Qlik",
+   "dokument_id": "yt:vd1r02bj9Qk",
+   "sekunde": 0,
+   "zeit": "00:00",
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s",
+   "aussage": "Oliver Franz ist Wirtschaftswissenschaftler und arbeitet seit Langem im BI-Umfeld mit Qlik."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 44,
+   "zeit": "00:44",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=44s",
+   "aussage": "Brian Bønk beschäftigt sich seit vier oder fünf Jahren mit Echtzeitanalysen, seine Datenkarriere begann jedoch vor 25 Jahren mit seinem ersten SQL Server."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 312,
+   "zeit": "05:12",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=312s",
+   "aussage": "Statt einer bewusst gewählten Nische sollten Menschen laut Brian Bønk lieber ihrer Leidenschaft folgen und diese der Community zeigen."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 319,
+   "zeit": "05:19",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=319s",
+   "aussage": "Ohne Leidenschaft fehlt laut Brian Bønk die Motivation, und ohne Motivation bleibt die eigene Weiterentwicklung aus."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 388,
+   "zeit": "06:28",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=388s",
+   "aussage": "Brian Bønk bietet Mentoring sowohl für angehende Community-Speaker als auch für Menschen an, die ihre Karriere im Datenbereich beginnen möchten."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 540,
+   "zeit": "09:00",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=540s",
+   "aussage": "Fabric-Experten arbeiten laut Brian Bønk wie ein T-Profil: breites Grundwissen über viele Bereiche kombiniert mit tiefem Fachwissen in einem bestimmten Gebiet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 773,
+   "zeit": "12:53",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=773s",
+   "aussage": "Brian Bønk hat keine feste Tagesroutine, fragt sich aber täglich, was er Neues lernen und am nächsten Tag anwenden kann."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Mythos Data Vault und richtig große Modelle",
+   "dokument_id": "yt:rrCi0lnGrCg",
+   "sekunde": 1859,
+   "zeit": "30:59",
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=1859s",
+   "aussage": "Volker Nürnberg arbeitet seit 2005 ausschließlich mit Data Warehouses und kam in den frühen 2010er-Jahren zu Data Vault."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG? (2025, Teil 2)",
+   "dokument_id": "yt:XxPFAQfLyuA",
+   "sekunde": 1561,
+   "zeit": "26:01",
+   "url": "https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1561s",
+   "aussage": "Laut Erzählung auf der Daten-WG 2025 hat Stefan rund 13.000 Leute ausgebildet und die Community bei der Finanzverwaltung bottom-up aufgebaut."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Metadaten als Superkraft",
+   "dokument_id": "yt:UUlPoJOhco8",
+   "sekunde": 954,
+   "zeit": "15:54",
+   "url": "https://www.youtube.com/watch?v=UUlPoJOhco8&t=954s",
+   "aussage": "Aus Metadaten zu Datenmodellen lässt sich ableiten, wie gut ein Team mit Daten umgeht und wo Schulungsbedarf besteht."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Was ist Self-Service und warum ist das so schwer?",
+   "dokument_id": "yt:EVsJ6zyGUWc",
+   "sekunde": 2692,
+   "zeit": "44:52",
+   "url": "https://www.youtube.com/watch?v=EVsJ6zyGUWc&t=2692s",
+   "aussage": "Die klassische Trennung zwischen Fachbereich und IT verliert laut Tom Martens zunehmend an Gültigkeit, weil Kompetenzen aus beiden Welten zusammenwachsen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:lH_-A8NAQ-k",
+   "titel": "Datenmodellierung ist Governance",
+   "datum": "2025-11-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.12,
+   "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k",
+   "sprungmarken": [
+    {
+     "label": "18:17",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1097s",
+     "sekunde": 1097
+    },
+    {
+     "label": "23:28",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1408s",
+     "sekunde": 1408
+    },
+    {
+     "label": "25:50",
+     "url": "https://www.youtube.com/watch?v=lH_-A8NAQ-k&t=1550s",
+     "sekunde": 1550
+    }
+   ]
+  },
+  {
+   "id": "yt:inko8wG9jlY",
+   "titel": "Boring Charts, Better Insights",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.115,
+   "url": "https://www.youtube.com/watch?v=inko8wG9jlY",
+   "sprungmarken": [
+    {
+     "label": "00:36",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=36s",
+     "sekunde": 36
+    },
+    {
+     "label": "02:21",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=141s",
+     "sekunde": 141
+    },
+    {
+     "label": "15:37",
+     "url": "https://www.youtube.com/watch?v=inko8wG9jlY&t=937s",
+     "sekunde": 937
+    }
+   ]
+  },
+  {
+   "id": "yt:9wl_PLvgvyc",
+   "titel": "10 Jahre BI für alle? Was Power BI wirklich verändert hat",
+   "datum": "2025-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.087,
+   "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=0s",
+     "sekunde": 0
+    },
+    {
+     "label": "04:00",
+     "url": "https://www.youtube.com/watch?v=9wl_PLvgvyc&t=240s",
+     "sekunde": 240
+    }
+   ]
+  },
+  {
+   "id": "yt:iB4vHRvaErE",
+   "titel": "Mensch bleiben, wenn Power BI geht",
+   "datum": "2025-11-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=iB4vHRvaErE",
+   "sprungmarken": [
+    {
+     "label": "17:06",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=1026s",
+     "sekunde": 1026
+    },
+    {
+     "label": "30:58",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=1858s",
+     "sekunde": 1858
+    },
+    {
+     "label": "46:31",
+     "url": "https://www.youtube.com/watch?v=iB4vHRvaErE&t=2791s",
+     "sekunde": 2791
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "03:41",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=221s",
+     "sekunde": 221
+    },
+    {
+     "label": "10:01",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=601s",
+     "sekunde": 601
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.038,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "06:12",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=372s",
+     "sekunde": 372
+    }
+   ]
+  },
+  {
+   "id": "yt:oh-3_65IQ2Q",
+   "titel": "KI hat mich abgelöst | Daten-WG Podcast mit Burkhardt Gasber",
+   "datum": "2026-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q",
+   "sprungmarken": [
+    {
+     "label": "00:00",
+     "url": "https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=0s",
+     "sekunde": 0
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "51:44",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=3104s",
+     "sekunde": 3104
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Akarriere",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Akarriere&f=topic%3Akarriere"
+}

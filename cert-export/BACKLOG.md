@@ -4,20 +4,120 @@ Ideen-Sammlung: bewusst **nicht** sofort gebaut, aber nicht vergessen.
 Aufwand: S (< ½ Tag) · M (½–1 Tag) · L (mehrere Tage) · XL (Architektur).
 Neue Ideen bitte als GitHub-Issue anlegen oder hier ergänzen.
 
+## Abgrenzung: ChartKitchen ↔ P&L Statement byDatenWG
+
+Mit **P&L Statement byDatenWG** (`../pnlByDatenWG/`, aktueller Stand auf Branch
+`claude/visual-chartkitchen-git-link-rvi81z`) gibt es ein eigenständiges
+Schwester-Visual für GuV-/P&L-Statements. Die Arbeitsteilung ist bewusst — es
+ist keine Doppelung, sondern eine andere Problemklasse:
+
+- **ChartKitchen = Breite.** Viele Diagrammtypen über beliebige Kategorien aus
+  einer flachen Faktentabelle; die GuV-Modi (Waterfall, GuV-Statement, Tabelle)
+  decken den schnellen Fall ab.
+- **P&L Statement = Tiefe für genau ein Artefakt.** Kontenhierarchie aus einer
+  Dimensionstabelle (Sternschema `L1..Ln` primär, Parent-Child alternativ),
+  `RowType`/`FormulaDef` mit Formel-auf-Formel und Zirkelbezug-Erkennung,
+  dreiteilige Vorzeichenlogik (`SignConvention` · `DisplayInvert` ·
+  `VarianceInvert`), Rechenkern ohne Power-BI-Abhängigkeit isoliert getestet.
+  Dort sind Reconciliation-Fehler Vertrauens-Killer, nicht Schönheitsfehler.
+
+Der strukturelle Unterschied: ChartKitchen konfiguriert solche Sonderfälle über
+**Listen im Formatbereich**, das P&L liest sie **datengetrieben aus der
+Kontendimension**. Für Ad-hoc-Tabellen ist Ersteres richtig, für einen echten
+Kontenrahmen Letzteres.
+
+**Konsequenz für dieses Backlog:** Mehrere Punkte im Block „Fachliche
+Korrektheit" sind im P&L bereits gelöst (unten markiert). Vor dem Bau hier bitte
+prüfen: Braucht ChartKitchen wirklich eine Light-Version für Ad-hoc-Fälle — oder
+gehört der Punkt ins P&L und kann hier entfallen? Sonst droht Parallelentwicklung
+derselben Anforderung auf zwei Architektur-Ebenen.
+
+## Beta-Feedback (extern) — Kandidaten für die nächste Version
+
+### Alexander Korn (Juli 2026)
+
+Erster externer End-to-End-Test: 4 Instanzen (Columns · Bars · Tabelle ·
+KPI-Karten) auf einer Seite, Destatis-Hochschuldaten (~17,4 M Studierende,
+2019–2024), Desktop **und** Service (PBIR + gebündeltes Visual via Fabric
+REST API). Befund: rendert identisch, keine Konsolenfehler. Fünf Punkte:
+
+- [x] **Bug: Rundungshinweis überlagert ΔPY-%-Spaltenkopf** (S) — erledigt in 1.39.0.0. — im
+      Bars-Modus mit vielen Kategorien (17) kollidiert „Summe weicht
+      rundungsbedingt ab" mit der Panel-Überschrift; Hinweis versetzen
+      oder bei Platzmangel unter den Σ-Header ziehen (Screenshot ①).
+- [x] **Schalter „Leerkategorie ausblenden"** (S) — erledigt in 1.39.0.0 (Chart → Layout, Standard aus). — `(blank)`-Kategorien
+      erscheinen als eigene Zeile/Balken/KPI-Karte; Opt-out-Toggle
+      (Standard: anzeigen, damit nichts still verschwindet) für alle Modi
+      inkl. Karten (Screenshot ②).
+- [x] **Tabelle: gemeinsame Nullachse für ΔPY-Balken und ΔPY-%-Pins** (S–M) — erledigt in 1.39.0.0 (geteilte Nullachsen-Position nach Neg-/Pos-Anteilen, inkl. Δ2). —
+      die beiden Varianz-Grafikspalten nutzen unterschiedliche
+      Nullachsen-Positionen, wirkt unruhig; Nulllinien vertikal alignen
+      oder zumindest optisch koppeln (Screenshot ③).
+- [x] **KPI-Karten: Sortieren-Button vom Panel-Rand lösen** (S) — erledigt in 1.39.0.0. — Chip
+      klebt an der Kachelkante; Innenabstand analog zu den
+      Brücken-Buttons.
+- [ ] **Erstlade-Performance bei mehreren Instanzen im Service messen** (M) —
+      4 Instanzen/Seite verlängern die Erstladung spürbar. Analyse:
+      Data-Reduction-Fenster (top 1000) vs. Render-Zeit profilen
+      (Performance Analyzer + `renderingFinished`-Telemetrie), dann
+      entscheiden: Lazy-Render, kleinere Erst-Fetches oder Doku-Hinweis.
+
+### Beta-Tester (Juli 2026, EN — Name nachtragen)
+
+Gesamturteil „the tool is amazing", ein inhaltlicher Wunsch — und zwar ein
+klassischer, den jedes Monatsreporting hat:
+
+- [x] **AC und FC im selben Monat als Split-Säule** (M) — erledigt in 1.40.0.0 (Setting „AC + FC in the same period", Modi Vollmonatsprognose/Restmonat, Columns + Bars, Composite in Σ/Δ/Labels, Tooltip zeigt beide Anteile; Testfall c121). — Zitat: *„if on the
+      category axis I've month, is there a way to manage data that can be
+      either FC and AC in a certain month? It would be great if in the month
+      that contains both FC and AC data, the chosen graph could represent
+      both of them."* Der laufende Monat ist typischerweise halb geschlossen:
+      AC bis Stichtag, FC für den Rest. **Heute:** entweder/oder — FC wird nur
+      gezeigt, wenn AC fehlt.
+      **Gewünscht:** eine Säule mit solidem AC-Sockel + schraffiertem
+      FC-Aufsatz (IBCS-konform).
+      *Teile davon existieren schon* — nicht neu erfinden, sondern
+      übernehmen: die Integrierte Brücke hat die gestapelte AC+FC-Totalsäule,
+      das GuV-Statement die Szenario-Sicht „AC&FC (Split schraffiert)", und
+      das FC-Flag `2` („vorläufig") kann eine Säule solide + überlagert
+      schraffiert zeichnen. Was fehlt, ist der **echte Split je Kategorie im
+      Standard-Columns/Bars-Modus**.
+      **Vor dem Bau zu klären** (der eigentliche Knackpunkt): Wenn AC und FC
+      für denselben Monat geliefert werden — ist FC die *Vollmonatsprognose*
+      (dann Säule = AC + max(0, FC − AC)) oder nur der *Restmonat* (dann
+      Säule = AC + FC)? Braucht eine Konvention oder ein Setting; falsch
+      geraten ergibt doppelt gezählte Monate. Mitzudenken: Δ rechnet gegen
+      das Composite, das Label zeigt die Summe (Einzelteile im Tooltip), die
+      AC|FC-Trennlinie liegt dann *innerhalb* einer Säule statt zwischen
+      zweien, und YTD/kumuliert muss entscheiden, ob der FC-Anteil mitzählt.
+
+### Beta-Feedback KPI-Karten (August 2026)
+
+Zwei Punkte aus der Praxis, beide in 1.41.0.0 gebaut:
+
+- [x] **Karten ohne Kategoriefeld** (S–M) — erledigt in 1.41.0.0. — „nur AC
+      und PY oder FC füllen, ohne Kategorie" war nicht möglich: ohne
+      Kategorie-Rolle lief das Visual in die Landing Page. Jetzt genügen die
+      Measures, der Kartentitel kommt aus dem Namen der AC-Measure
+      (Testfall c122).
+- [x] **Referenzwert statt nur Abweichung auf der Karte** (S–M) — erledigt in
+      1.41.0.0 (Setting „Referenzwerte anzeigen": Basiswert bzw. alle
+      gebundenen Szenarien als eigene Wertzeilen über den Δ-Zeilen;
+      Testfall c123).
+
 ## Barrierefreiheit
 
 - [ ] **Schraffur-Redundanz für „schlecht"** (M) — optionaler Schalter:
       schlechte Varianzen zusätzlich schraffiert (Muster + Farbe = doppelter
       Kanal; hilft auch beim S/W-Druck). Stärkster nächster A11y-Schritt.
-- [ ] **Blau/Orange-Farbpreset** (S) — ColorBrewer-Standard #2C7BB6/#E66101
-      als Dropdown-Preset neben den Pickern (Achromatopsie, S/W-Druck).
+- [x] **Blau/Orange-Farbpreset** (S) — erledigt in 1.39.0.0 (Dropdown in IBCS colors).
 - [x] **▲/▼-Symbole auf KPI-Karten** (S) — erledigt in 1.34.0.0 („Trend-Icons
       ▲▼●" in der Analyse-Gruppe, Tabelle + Karten).
 - [ ] **Fokusverlust nach In-Chart-Rerender** (M) — Zoom/Aufklappen/Sort per
       Enter wirft Tastaturnutzer aus dem Visual; Fokus wiederherstellen.
 - [ ] **ARIA-Semantik aufräumen** (M) — role=option ohne listbox, Chart-Label,
       Tab-Stop-Flut bei vielen Kategorien (Fund aus Ideation-Review).
-- [ ] **Grautöne auf WCAG-Kontrast anheben** (S) — subtle #8A8A8A → ~#6E6E6E.
+- [x] **Grautöne auf WCAG-Kontrast anheben** (S) — erledigt in 1.39.0.0 (Textfarben; UI-Rahmen bewusst belassen, 3:1 genügt).
 
 ## Tabelle & Matrix
 
@@ -58,8 +158,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       (Setting „Position der Σ-Zeile", oben/unten, beim Scrollen fixiert).
 - [ ] **Zeilen-Reihenfolge per Drag** (L) — manuelles Umsortieren, persistiert;
       Verzahnung mit Sort/Hierarchie klären.
-- [ ] **Export-Ansicht „alles aufgeklappt"** (S) — beim Druck/PDF automatisch
-      alle Zeilen- und Spalten-Ebenen öffnen.
+- [x] **Export-Ansicht „alles aufgeklappt"** (S) — erledigt in 1.39.0.0 (Chart → Table, Standard an; auch GuV-Statement).
 
 ### Spalten & Skalierung
 
@@ -71,8 +170,7 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       Monat, Σ-Spalte je aufgeklappter Gruppe.
 - [ ] **Automatische YTD-/Σ-Spalte neben Monatsblöcken** (M) — kumulierte
       Spalte („YTD Jun") bzw. Jahres-Σ rechts der Perioden.
-- [ ] **Spalten-Labels umbenennen** (S) — Zuordnungsliste AC→„Ist", PY→„VJ",
-      PL→„Budget" für Hausbegriffe.
+- [x] **Spalten-Labels umbenennen** (S) — erledigt in 1.39.0.0 (4 Textfelder in Data labels, wirkt auf Titel/Köpfe/Legenden/Tooltips).
 - [ ] **ΔBM-Spalten** (S–M) — Benchmark als echte Wertspalten (ΔBM, ΔBM %)
       statt nur Strich-Marker im Balken.
 - [ ] **Sparklines in der Zeile** (M) — Mini-Trendlinie pro Zeile (letzte N
@@ -87,9 +185,10 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 
 ### Analytik
 
-- [ ] **Abweichungs-Filter „nur Auffälligkeiten"** (S–M) — nur Zeilen über der
-      Materialitätsschwelle zeigen, Rest als „Unauffällig (n)"-Sammelzeile;
-      optional In-Chart-Chip ⚠ (Exception-Reporting).
+- [x] **Abweichungs-Filter „nur Auffälligkeiten"** (S–M) — erledigt in
+      1.42.0.0 (Setting `exceptionOnly` + ⚠-Chip; Sammelzeile über die
+      Top-N-Aggregationsmechanik, Σ-treu; nur Bars/Karten/flache Tabelle,
+      Fußzeilen-Hinweis; Testfälle c128–c129).
 - [ ] **Zielerreichungs-Spalte** (S–M) — AC/PL in % mit Mini-Balken und
       100 %-Marke (Bullet-Logik der Karten wiederverwenden).
 - [ ] **Common-Size-/%-vom-Total-Spalte** (S) — Anteil je Zeile an Σ oder an
@@ -108,20 +207,32 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 
 ### Fachliche Korrektheit
 
+Abgleich mit dem P&L-Visual siehe Abschnitt „Abgrenzung" oben — `↔ P&L`
+markiert Punkte, die dort bereits (oder besser) gelöst sind.
+
 - [ ] **Σ-Aggregation Summe / Ø / letzter Wert** (M) — Bestandsgrößen
       (Headcount, Cash) dürfen nicht summiert werden; Wahl pro Zeile analog
-      zur pct-Logik.
+      zur pct-Logik. *(in beiden Visuals offen — gemeinsame Lösung überlegen)*
 - [ ] **Vorzeichen-Liste** (S) — signList: positiv gelieferte Kosten als
       Abzug anzeigen (−4.200), korrekt in Σ und Formeln.
+      **↔ P&L:** dort als `SignConvention` + `DisplayInvert` + `VarianceInvert`
+      aus der Kontendimension gelöst. Hier nur bauen, wenn Ad-hoc-Tabellen ohne
+      Dimensionstabelle das wirklich brauchen.
 - [ ] **Abschnitts-Überschriften & Leerzeilen** (S) — sectionList:
       Zwischenüberschriften ohne Werte + Trennlinien (GuV-Gliederung).
+      **↔ P&L:** dort `RowType = Separator` — datengetrieben statt Liste.
 - [ ] **Plausibilitäts-Wächter** (S–M) — Formelzeile vs. gleichnamige
       gelieferte Zeile vergleichen, Differenzen mit ⚠ markieren (fängt
-      kaputte Measures).
+      kaputte Measures). **↔ P&L:** teilweise — dort Zirkelbezug-Erkennung und
+      Fehleranzeige an der Zeile; der Abgleich Formel vs. geliefert fehlt noch
+      in beiden.
 - [ ] **FC-Zeilen-Liste** (S) — fcList: Zeilen als Forecast/vorläufig
       markieren → Schraffur + kursiv wie die FC-Notation der Charts.
-- [ ] **Formelzeilen: Feedback bei Fehler** (S) — unauflösbare Formel als
-      Zeile mit „?"-Werten zeigen statt lautlos weglassen.
+      *(im P&L ist FC ein Szenario-Slot, keine Zeilen-Markierung — anderer
+      Anwendungsfall, hier eigenständig sinnvoll)*
+- [x] **Formelzeilen: Feedback bei Fehler** (S) — erledigt in 1.39.0.0 („Label = ?"-Zeile in Tabelle und Matrix).
+      **↔ P&L:** dort bereits gelöst (Fehleranzeige an der Zeile) — Muster von
+      dort übernehmen statt neu erfinden.
 
 ### Interaktion & Integration
 
@@ -155,8 +266,9 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 - [ ] **Skalierungsbänder / Scale Bands** (M) — bei bewusst abweichenden
       Skalen (IBCS CH-Regelgruppe).
 - [ ] **Automatische Ausreißer-Kennzeichnung** (M) — statt nur manuellem Cap.
-- [ ] **Highlight (EMPHASIZE) in allen Modi** (M) — greift bisher nicht in
-      Pareto, Waterfall, IntWf, CatBridge, Stacked.
+- [x] **Highlight (EMPHASIZE) in allen Modi** (M) — erledigt in 1.42.0.0
+      (Pareto, Waterfall, IntWf, CatBridge, Stacked; gemeinsame
+      Band-Hilfsfunktion, hc-Modus als Rahmen; Testfälle c125–c127).
 - [ ] **refLine / fixedMax in allen Modi** (M–L) — wirken bisher nur in
       columns/bars/line; überall respektieren oder Pane-Optionen ausblenden.
 - [ ] **YTD-Reset bei Wochen-Labels** (S) — Kumulierung erkennt Jahreswechsel
@@ -186,17 +298,21 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
       an-/abschaltbar für Report-Autoren.
 - [ ] **Viewer-Layout-Umschalter** (M) — Chart-Slider-Äquivalent: Betrachter
       wechselt zwischen Modi ohne Formatbereich.
-- [ ] **Highlight-Data-API unterstützen** (M) — von pbiviz empfohlen; Voraus-
-      setzung für sauberes Crossfilter-Highlighting (auch fürs Listing schön).
+- [x] **Highlight-Data-API unterstützen** (M) — erledigt in 1.41.0.0
+      (`supportsHighlight`, nicht hervorgehobene Kategorien rendern gedimmt über
+      dieselbe Gruppen-Mechanik wie die eigene Selektion; Testfall c124). Offene
+      Ausbaustufe: echte Teilfüllung der Säule bei anteiliger Hervorhebung statt
+      Dimmen der ganzen Kategorie.
 - [ ] **Adversariale Prüf-Runde 1.25+** (M) — die letzten großen Pakete
       (Matrix-Vollausbau, Formel-pro-Zelle) sind nur selbst-verifiziert;
       volle Agenten-Runde nachholen, sobald Kapazität da ist.
 
 ## Ease of Use (Ideation Juli 2026 — Auswahl 5/6/9 gebaut in 1.34.0.0)
 
-- [ ] **Smart-Start: Modus-Vorschlag nach Feldern** (S) — nach dem Binden
-      erkennt das Visual die Feld-Konstellation und schlägt per Klick den
-      passenden Modus vor („Datum + AC + PL → Säulen mit ΔPL?").
+- [x] **Smart-Start: Modus-Vorschlag nach Feldern** (S) — erledigt in
+      1.42.0.0 (Vorschlags-Chip im Edit-Modus: Struktur→Bars,
+      rowType→Waterfall, colgroup→Matrix, lange Zeitreihe→Line; ✕ verwirft
+      je Konstellation, global abschaltbar; Testfall c130).
 - [ ] **Drillthrough & Rechtsklick-Kontextmenü** (M) — natives Power-BI-
       Kontextmenü (selectionManager.showContextMenu) auf Balken, Brücken-
       Segmenten und Tabellenzeilen; größtes „verhält sich nicht wie
@@ -207,7 +323,9 @@ Konsolidiert aus 4 Ideation-Runden (Juli 2026) + Altbestand, dedupliziert.
 - [ ] **Design-Presets + fx-Farben** (M) — Stil-Dropdown (IBCS klassisch /
       Corporate hell / Dark / Kompakt) setzt Farben+Schriften+Labels als
       Paket; gut/schlecht-Farben per bedingter Formatierung (fx) aus dem
-      Modell steuerbar.
+      Modell steuerbar. *Teil erledigt in 1.43: Dark Mode als
+      Erscheinungsbild (Auto/Hell/Dunkel) mit Theme-Auto-Erkennung —
+      offen bleiben die Stil-Pakete und fx-Farben.*
 - [ ] **Measure-Umschalter-Chip** (M) — mehrere Kennzahlen im AC-Feld, im
       Chart per Chip durchschaltbar (Field Parameters light), persistiert
       und bookmarkfähig.
@@ -228,9 +346,9 @@ Persona-Vorlagen/Share-Code auf die Builder-UX ein.
       Edit-Modus: gebundene Rollen (AC ✓ · PY ✓ · PL —), Modus, aktive
       Sonderoptionen + Warnungen („Basis=PL, aber PL nicht gebunden");
       im Lesemodus unsichtbar.
-- [ ] **Feldrollen-Tooltips** (S) — description je Datenrolle in den
-      capabilities („Plan/Budget → Rahmen-Notation, Basis für ΔPL"),
-      erscheint beim Hover im Feld-Bereich.
+- [x] **Feldrollen-Tooltips** (S) — erledigt in 1.42.0.0 (description +
+      descriptionKey je Datenrolle, lokalisiert in allen vier Sprachen;
+      die alten teils deutschen Hardcode-Texte ersetzt).
 - [ ] **Struktur-Editor als Übersicht** (M) — Overlay mit allen Zeilen als
       Matrix (Σ/Formel/Skip/Hide/Grafik/Einrücken/Invertieren),
       Mehrfachauswahl per Shift-Klick statt Zeile-für-Zeile-Menü.

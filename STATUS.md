@@ -1,73 +1,58 @@
-# Projekt-Status · ChartKitchen byDatenWG
+# Projekt-Status · PowerBI-Kitchen
 
-_Stand: 2026-07-20 · Übergabe-Notiz, damit eine neue Session/Person sofort anknüpfen kann._
+_Stand: 2026-10-23 · Übergabe-Notiz, damit eine neue Session/Person sofort anknüpfen kann._
 
 ## Was ist das
-Ein Power-BI-Custom-Visual „ChartKitchen byDatenWG" — ein Visual mit 13 Diagramm-Modi
-(inspiriert von den IBCS-Prinzipien). Geschäftsmodell: **kostenlos, Open Source (MIT),
-für immer frei; Umsatz über Beratung.** Aktuell **offene Beta**, noch nicht im AppSource.
 
-- **Version:** 1.38.0.0 · API 5.11.0 · GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D`
-- **Repo/Branch:** Arbeitsbranch `claude/inspired-ibcs-power-bi-visual-h04y05`, deckungsgleich mit `main`
-- **Website:** datenwgknowledgekitchen.com (GitHub Pages von `main`, Build ~3 min)
+Monorepo für die Website **datenwgknowledgekitchen.com** (GitHub Pages von `main`)
+und die Power-BI-Custom-Visuals **byDatenWG**. Geschäftsmodell: kostenlos, Open
+Source (ChartKitchen Apache-2.0, P&L/Gantt MIT), für immer frei; Umsatz über Beratung. AppSource-Listing in
+Vorbereitung (hängt organisatorisch, technisch ready). Die Visuals sind
+**IBCS-inspiriert**, bewusst nicht IBCS-zertifiziert.
+
 - **Kontakt:** Michael Tenner · michael.tenner84@gmail.com
+- **Arbeitsbranch der Claude-Sessions:** `claude/chartkitchen-weiterentwicklung-puk00i`
+  (wird nach jedem Squash-Merge auf `origin/main` zurückgesetzt)
+- **Schwester-Repo (nur Downloads):** `Losveratos/power-bi-custom-visuals-bydatenwg`
 
-## Repo-Layout (das Wichtigste)
-- `ibcsInspiredChartDeck/` — der Visual-Quellcode (`src/visual.ts`, `src/settings.ts`,
-  `capabilities.json`), `dist/*.pbiviz` (aktueller Build), `test/test.html` (Harness,
-  ~115 Cases), `CHANGELOG.md`, `BACKLOG.md`, **`AUDIT-2026-07.md`** (Juli-Audit-Bericht).
-- `cert-export/` — Einreichungs-Repo (bei jedem Release mit expliziter Dateiliste synchron gehalten).
-- `chartkitchen-doku.html` / `_en.html` + `.pdf` — Endnutzer-Doku (DE/EN).
-- `chartkitchen-schnellstart.html` / `_en.html` — Schnellstart-/Landing-Seite (mit Beta-Gate).
-- `doku-assets/` — Renders, echte PBI-Screenshots (`pbi/`), Formatbereich-Schemas (`pane/`).
-- `.claude/skills/chartkitchen-report/` — Skill v1 (Report-Bau mit dem Visual, prepare+plan).
-- `tools/encrypt-build.mjs`, `downloads/.gitkeep` — Beta-Download-Gate (siehe unten).
+## Die Produkte (Stand 23.10.2026)
 
-## Was ist live / erledigt
-- **Visual** bis 1.38.0.0 — alle High/Medium-Funde des Juli-Audits behoben, Politur-Paket
-  (Low-Funde) erledigt, horizontales Matrix-Scrollen, Bedienkomfort- und Breite-Pakete,
-  Kommentar-Schriftgröße, Matrix-Werte-Spalten, 4 Sprachen (DE/EN/ES/JA), Tooltips lokalisiert.
-- **Doku** DE+EN (HTML+PDF) mit 13-Modi-Galerie, echten PBI-Screenshots, 84-Settings-Referenz
-  (aus dem Code generiert) inkl. Formatbereich-Schemas, FAQ.
-- **Schnellstart-Seite** DE+EN mit Deep-Links in die Doku + Beta-Disclaimer.
-- **Skill `chartkitchen-report` v1** — Befragung (Zweck/Seiten/Detailtiefe/Navigation/…),
-  drei Blaupausen (Monitoring · Monatsreport · Sales-Analyse), Feld-Vertrag aus capabilities.json,
-  PBIR-Einsetzung über den „Referenz-Instanz"-Trick. **prepare+plan** (schreibt nicht ungefragt).
+| Produkt | Version | Ordner | Hinweise |
+| --- | --- | --- | --- |
+| ChartKitchen byDatenWG | 1.53.0.0 | `ibcsInspiredChartDeck/` | 13 Chart-Modi, Start-Hub, IBCS-Vorlagen C01–C13, 4 Sprachen. GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D` |
+| P&L Statement byDatenWG | 1.6.0.0 | `pnlByDatenWG/` | Mega-Table (Templates T01A–12H), Treiberbaum, Sankey, Start-Hub, IBCS-2.0-Skalierung. GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
+| dataKitchenGantt | 1.15.0.0 | `dataKitchenGantt/` | Gruppenzeilen-Klick überall, skalierungs-fest |
+| MockupKitchen | — | `mockup-kitchen.html` | Browser-Tool, Export für den Skill `mockup-to-powerbi` |
 
-## Offene Punkte (nach Priorität)
-1. **Beta-Download-Gate scharfschalten** — vorbereitet, aber INAKTIV. Ablauf steht als
-   `DOWNLOAD-SLOT`-Kommentar in beiden Schnellstart-Seiten:
-   `node tools/encrypt-build.mjs <dist/….pbiviz> '<PASSWORT>'` → `downloads/chartkitchen-beta.enc`
-   committen → Button-Disabled entfernen + `#dl-gate` sichtbar → `data-filename` setzen.
-   **Wartet auf: Passwort von Michael.** (Client-seitige AES-256-GCM-Entschlüsselung, Passwort
-   nie im Repo; Gate-Mechanik ist end-to-end getestet.)
-2. **AppSource-Listing** — der eigentliche Reichweiten-Blocker (viele Tenants erlauben nur
-   AppSource-Visuals). Wartet auf ein **Partner-Center-Konto** (Partner). Kit unter
-   `cert-export/appsource/`.
-3. **Skill v1 real testen** — gegen eine echte PBIP noch nicht end-to-end validiert
-   (kein Desktop hier). Erster echter Lauf: leeren Report + Visual einmal platziert + als PBIP
-   speichern → Pfad geben → Skill härten (v1→v2).
-4. **Sample-PBIX** für AppSource — baut Michael nebenher beim Testen.
-5. **Microsoft-Zertifizierung** — Code ist zertifizierungsreif (Security-Scan sauber: keine
-   externen Calls/eval/innerHTML/Storage, System-Fonts, offizielle Deps, eslint powerbi-visuals
-   grün). Voraussetzung: AppSource-Listing zuerst.
-6. **Optional:** IBCS-Compliance-Gaps (~28 überwiegend kleine Abweichungen, dokumentiert in
-   `ibcsInspiredChartDeck/AUDIT-2026-07.md`, Kap. 5) · echte Formatbereich-Screenshots statt
-   Schemas · Backlog-Features (BACKLOG.md) · IBCS-Software-Zertifizierung (Geschäftsentscheidung).
+## Release-Konvention (Kurzform)
 
-## Launch-Assets (LinkedIn) — NICHT im Repo
-Die Launch-Videos + Captions liegen nur session-temporär im Scratchpad und sind **Michael
-per Chat geliefert** (nicht versioniert, da Marketing):
-`chartkitchen-show-v2.mp4` (DE) · `chartkitchen-show-en.mp4` (EN) · Poster + Captions (je A/B).
-Der Wettbewerbs-Teardown (`competitive-teardown.md`) ist ebenfalls nur lokal bei Michael
-(bewusst nicht im Repo, da Wettbewerber-Preise/-Vergleich).
+Je Visual-Release: Version in `pbiviz.json` (2×) → `npm run package` → alte dist
+raus → `downloads/` (CK: `chartkitchen-byDatenWG-latest.pbiviz` + `latest.json`)
+→ CHANGELOG oben → Doku + Schnellstart DE/EN Versions-Flip → AGENT-GUIDE-Stand (`npm run guide`)
+→ CK zusätzlich: `cert-export/`-Sync (feste Dateiliste, README nie) und
+`.claude/skills/deploy-to-powerbi/catalog.json` → Commit → PR → Squash-Merge →
+Pages-Workflow prüfen → Schwester-Repo nachziehen. Details: AGENT-GUIDE im
+jeweiligen Visual-Ordner.
 
-## Ship-Konvention (für den nächsten Release)
-Version an beiden Stellen in `pbiviz.json` bumpen → `npx pbiviz package` → alte `dist/*.pbiviz`
-löschen → `.claude/skills/deploy-to-powerbi/catalog.json` Pfad aktualisieren → CHANGELOG-Eintrag
-oben → `cert-export/` mit expliziter Dateiliste synchronisieren (NIE die englische cert-export
-README überschreiben) → Commit → Branch pushen → `main` mergen + pushen. Details/Historie: CHANGELOG.md.
+## Gerade in Arbeit / offen
 
-## Nächste Session — so anknüpfen
-Repo + diese `STATUS.md` lesen, offene Punkte oben. Für das Download-Gate braucht es nur Michaels
-Passwort. Für den Skill-Test eine kleine Beispiel-PBIP mit geladenem Visual.
+- **Talk „One Model, Three Visual Stacks"** (Budapest BI Forum, 17.11.2026):
+  fertiges Demo-Repo-Staging unter `talk-repo-staging/` auf dem Arbeitsbranch —
+  wartet darauf, dass das GitHub-Repo `one-model-three-stacks` angelegt wird;
+  danach dorthin pushen und Fabric-Workspace per Git-Integration verbinden.
+- **AppSource:** Einreichung liegt bei Artur (organisatorisch).
+- **Branch-Hygiene:** `kitchen-refresh-data` gehört dem Refresh-Workflow und
+  bleibt. Einziger Branch mit bewusst ungemergter Arbeit:
+  `claude/mock-upkitche-rayfin-chartkitchen-roqocc` (dwg-Host-Adapter/
+  Fabric-Apps-Spike, Archiv). Alles andere ist gemergt oder zur Löschung
+  freigegeben.
+
+## Nützliche Einstiege
+
+- `CLAUDE.md` — Projekt-Instruktionen (inkl. Design-System: selbst gehostete
+  Fonts, keine Dritt-CDNs, Klick-zum-Laden für Embeds)
+- `ibcsInspiredChartDeck/AGENT-GUIDE.md` / `pnlByDatenWG/AGENT-GUIDE.md` —
+  Property-Referenzen, bekannte Fallen, Testlandschaft
+- `pnlByDatenWG/SPEC-MEGATABLE.md` + `TEMPLATE-GUIDE.md` — Mega-Table-Spezifikation
+- `.claude/skills/` — finance-data-model, chartkitchen-report, pnl-report,
+  deploy-to-powerbi, mockup-to-powerbi, kitchen-update, powerbi-design-framework

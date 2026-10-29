@@ -1,0 +1,1068 @@
+{
+  "meta": {
+    "tool": "MockupKitchen byDatenWG",
+    "version": "0.4.4",
+    "specVersion": 3,
+    "specHash": "typofilter1",
+    "name": "Typografie- und Filter-Testfall",
+    "lang": "de",
+    "exportedAt": "2026-09-24T08:00:00.000Z",
+    "skill": "mockup-to-powerbi"
+  },
+  "report": {
+    "name": "Typografie- und Filter-Testfall",
+    "audience": "Geschäftsführung",
+    "purpose": "Umsatz und Kosten je Region auf Full HD",
+    "decision": "Wo wird nachgesteuert?",
+    "participants": "Controlling, Vertrieb",
+    "version": "0.4.4",
+    "dataDate": "monatlich"
+  },
+  "canvas": {
+    "width": 1920,
+    "height": 1080,
+    "preset": "1920x1080",
+    "uiScale": 1.5
+  },
+  "spacing": {
+    "margin": 24,
+    "gutter": 24,
+    "tilePadding": 18,
+    "base": {
+      "margin": 16,
+      "gutter": 16,
+      "tilePadding": 12
+    }
+  },
+  "design": {
+    "cornerRadius": 6,
+    "tileStyle": "border",
+    "pageBackground": "#F4F4F1",
+    "tileBackground": "#FFFFFF",
+    "headerStyle": "dark",
+    "accent": "#C25A2D",
+    "variancePalette": "teal",
+    "varianceColors": {
+      "good": "#1E8F9E",
+      "bad": "#D64541"
+    },
+    "colors": {
+      "pageBackground": "#F4F4F1",
+      "tileBackground": "#FFFFFF",
+      "ink": "#0F1E2E",
+      "headerBackground": "#0F1E2E",
+      "headerInk": "#FFFFFF"
+    },
+    "darkMode": false,
+    "fontScale": 1.5,
+    "typography": {
+      "basis": "1280px",
+      "scale": 1.1,
+      "title": 13,
+      "sub": 10,
+      "chart": 9
+    }
+  },
+  "zones": {
+    "header": {
+      "x": 0,
+      "y": 0,
+      "w": 1920,
+      "h": 84,
+      "style": "dark",
+      "logoPos": "left",
+      "title": "Vertrieb 2026",
+      "subtitle": "Umsatz und Kosten je Region",
+      "nav": [],
+      "navOn": false,
+      "navPosition": "footer",
+      "navAuto": true,
+      "burger": false
+    },
+    "filter": {
+      "x": 1620,
+      "y": 84,
+      "w": 300,
+      "h": 960,
+      "mode": "right",
+      "side": "right",
+      "collapsible": false,
+      "heading": "Auswahl",
+      "text": "Alle Werte in Tsd. EUR. Stand: Vormonat.",
+      "slicers": [
+        {
+          "table": "DimDate",
+          "name": "Year",
+          "kind": "column",
+          "ref": "DimDate.Year",
+          "isNew": false,
+          "default": "2026",
+          "type": "dropdown"
+        },
+        {
+          "table": "DimRegion",
+          "name": "Region",
+          "kind": "column",
+          "ref": "DimRegion.Region",
+          "isNew": false,
+          "default": null,
+          "type": "tile"
+        },
+        {
+          "table": "DimDate",
+          "name": "Date",
+          "kind": "column",
+          "ref": "DimDate.Date",
+          "isNew": false,
+          "default": null,
+          "type": "date"
+        }
+      ]
+    },
+    "footer": {
+      "x": 0,
+      "y": 1044,
+      "w": 1920,
+      "h": 36,
+      "text": "Quelle: DWH · Stand Vormonat",
+      "nav": [
+        "Übersicht",
+        "Detail"
+      ],
+      "navPosition": "footer"
+    },
+    "content": {
+      "x": 24,
+      "y": 108,
+      "w": 1572,
+      "h": 912
+    }
+  },
+  "pages": [
+    {
+      "id": "pg1",
+      "index": 1,
+      "name": "Übersicht",
+      "question": "Wo stehen Umsatz und Kosten je Region?",
+      "notes": "",
+      "contentRect": {
+        "x": 24,
+        "y": 108,
+        "w": 1572,
+        "h": 912
+      },
+      "visuals": [
+        {
+          "id": "mk_kpi1",
+          "stableId": "kpi1",
+          "slug": "Umsatz",
+          "page": "Übersicht",
+          "kind": "card",
+          "label": "Karte (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "card",
+            "buckets": {
+              "Values": [
+                {
+                  "ref": "_Measures.Umsatz",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Umsatz",
+          "subtitle": "Tsd. EUR",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": null,
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 24,
+            "y": 108,
+            "w": 516,
+            "h": 180
+          },
+          "roles": {
+            "indicator": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_col1",
+          "stableId": "col1",
+          "slug": "Umsatz_je_Region",
+          "page": "Übersicht",
+          "kind": "ncolumn",
+          "label": "Säulendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredColumnChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimRegion.Region",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.Umsatz",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Umsatz je Region",
+          "subtitle": "Ist, Tsd. EUR",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": {
+            "scale": 1.3
+          },
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 564,
+            "y": 108,
+            "w": 1032,
+            "h": 540
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "Umsatz",
+                "kind": "measure",
+                "ref": "_Measures.Umsatz",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "Größere Schrift: Hauptkachel der Seite.",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_txt1",
+          "stableId": "txt1",
+          "slug": "Hinweis",
+          "page": "Übersicht",
+          "kind": "text",
+          "label": "Text",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "textbox",
+            "buckets": {}
+          },
+          "customVisual": null,
+          "title": "Hinweis",
+          "subtitle": "",
+          "content": "Die Regionen sind nach Umsatz sortiert.",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": null,
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 24,
+            "y": 312,
+            "w": 516,
+            "h": 336
+          },
+          "roles": {},
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_bar1",
+          "stableId": "bar1",
+          "slug": "Kosten_je_Region",
+          "page": "Übersicht",
+          "kind": "nbar",
+          "label": "Balkendiagramm (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "clusteredBarChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimRegion.Region",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.Kosten",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Kosten je Region",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "lower",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": null,
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 24,
+            "y": 672,
+            "w": 1572,
+            "h": 348
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "Kosten",
+                "kind": "measure",
+                "ref": "_Measures.Kosten",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": null
+    },
+    {
+      "id": "pg2",
+      "index": 2,
+      "name": "Detail",
+      "question": "Wie läuft AC gegen Plan im Jahresverlauf?",
+      "notes": "",
+      "contentRect": {
+        "x": 24,
+        "y": 108,
+        "w": 1572,
+        "h": 912
+      },
+      "visuals": [
+        {
+          "id": "mk_ck1",
+          "stableId": "ck1",
+          "slug": "AC_vs._PL_je_Monat",
+          "page": "Detail",
+          "kind": "columns",
+          "label": "Säulen (IBCS)",
+          "engine": "ck",
+          "chartKitchenType": "columns",
+          "chartKitchenMode": "columns",
+          "native": {
+            "type": "clusteredColumnChart",
+            "buckets": {
+              "Category": [
+                {
+                  "ref": "DimDate.Month",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Y": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "AC vs. PL je Monat",
+          "subtitle": "",
+          "content": "",
+          "scenario": "AC/PL",
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": "PL",
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": {
+            "scale": 0.85
+          },
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 24,
+            "y": 108,
+            "w": 1572,
+            "h": 450
+          },
+          "roles": {
+            "category": [
+              {
+                "table": "DimDate",
+                "name": "Month",
+                "kind": "column",
+                "ref": "DimDate.Month",
+                "isNew": false
+              }
+            ],
+            "ac": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              }
+            ],
+            "ref": [
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        },
+        {
+          "id": "mk_tab1",
+          "stableId": "tab1",
+          "slug": "Regionen_im_Detail",
+          "page": "Detail",
+          "kind": "matrix",
+          "label": "Matrix (nativ)",
+          "engine": "native",
+          "chartKitchenType": null,
+          "chartKitchenMode": null,
+          "native": {
+            "type": "pivotTable",
+            "buckets": {
+              "Rows": [
+                {
+                  "ref": "DimRegion.Region",
+                  "kind": "column",
+                  "isNew": false
+                }
+              ],
+              "Values": [
+                {
+                  "ref": "_Measures.AC",
+                  "kind": "measure",
+                  "isNew": false
+                },
+                {
+                  "ref": "_Measures.PL",
+                  "kind": "measure",
+                  "isNew": false
+                }
+              ]
+            }
+          },
+          "customVisual": null,
+          "title": "Regionen im Detail",
+          "subtitle": "",
+          "content": "",
+          "scenario": null,
+          "analysis": {
+            "polarity": "higher",
+            "polarityAuto": true,
+            "deltaBasis": null,
+            "deltaBasisAuto": true,
+            "deltaKind": [
+              "abs",
+              "rel"
+            ],
+            "unit": null,
+            "displayUnits": null,
+            "decimals": null,
+            "sort": null,
+            "topN": null,
+            "timeGrain": null,
+            "cumulative": false,
+            "scaleGroup": null,
+            "message": null,
+            "smallMultiples": null,
+            "fieldParam": null
+          },
+          "workshop": {
+            "priority": null,
+            "status": "open",
+            "openQuestion": false
+          },
+          "typography": null,
+          "interaction": {
+            "drillDown": false,
+            "crossFilter": true,
+            "drillThrough": null
+          },
+          "rect": {
+            "x": 24,
+            "y": 582,
+            "w": 1572,
+            "h": 438
+          },
+          "roles": {
+            "rows": [
+              {
+                "table": "DimRegion",
+                "name": "Region",
+                "kind": "column",
+                "ref": "DimRegion.Region",
+                "isNew": false
+              }
+            ],
+            "values": [
+              {
+                "table": "_Measures",
+                "name": "AC",
+                "kind": "measure",
+                "ref": "_Measures.AC",
+                "isNew": false
+              },
+              {
+                "table": "_Measures",
+                "name": "PL",
+                "kind": "measure",
+                "ref": "_Measures.PL",
+                "isNew": false
+              }
+            ]
+          },
+          "notes": "",
+          "link": null,
+          "warnings": []
+        }
+      ],
+      "layoutTree": null
+    }
+  ],
+  "links": [],
+  "model": {
+    "source": "Demo-Modell",
+    "tables": [
+      "DimDate",
+      "DimRegion",
+      "_Measures"
+    ],
+    "usedFields": [
+      {
+        "table": "_Measures",
+        "name": "Umsatz",
+        "kind": "measure",
+        "ref": "_Measures.Umsatz",
+        "isNew": false,
+        "description": "Nettoumsatz",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "Nettoerlös",
+        "renameInModel": false,
+        "confirmed": true,
+        "owner": "Controlling",
+        "source": "ERP",
+        "target": "",
+        "unit": "EUR",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "Kosten",
+        "kind": "measure",
+        "ref": "_Measures.Kosten",
+        "isNew": false,
+        "description": "",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "AC",
+        "kind": "measure",
+        "ref": "_Measures.AC",
+        "isNew": false,
+        "description": "Ist",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "_Measures",
+        "name": "PL",
+        "kind": "measure",
+        "ref": "_Measures.PL",
+        "isNew": false,
+        "description": "Plan",
+        "formatString": "#,##0",
+        "dataType": "measure",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimRegion",
+        "name": "Region",
+        "kind": "column",
+        "ref": "DimRegion.Region",
+        "isNew": false,
+        "description": "",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimDate",
+        "name": "Month",
+        "kind": "column",
+        "ref": "DimDate.Month",
+        "isNew": false,
+        "description": "",
+        "formatString": "",
+        "dataType": "string",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": ""
+      },
+      {
+        "table": "DimDate",
+        "name": "Year",
+        "kind": "column",
+        "ref": "DimDate.Year",
+        "isNew": false,
+        "description": "",
+        "formatString": "",
+        "dataType": "int64",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "default": "2026",
+        "type": "dropdown"
+      },
+      {
+        "table": "DimDate",
+        "name": "Date",
+        "kind": "column",
+        "ref": "DimDate.Date",
+        "isNew": false,
+        "description": "",
+        "formatString": "",
+        "dataType": "dateTime",
+        "alias": "",
+        "renameInModel": false,
+        "confirmed": false,
+        "owner": "",
+        "source": "",
+        "target": "",
+        "unit": "",
+        "note": "",
+        "default": null,
+        "type": "date"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "table": "_Measures",
+      "name": "Umsatz",
+      "kind": "measure",
+      "ref": "_Measures.Umsatz",
+      "isNew": false,
+      "description": "Nettoumsatz",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "Nettoerlös",
+      "renameInModel": false,
+      "confirmed": true,
+      "owner": "Controlling",
+      "source": "ERP",
+      "target": "",
+      "unit": "EUR",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "Kosten",
+      "kind": "measure",
+      "ref": "_Measures.Kosten",
+      "isNew": false,
+      "description": "",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "AC",
+      "kind": "measure",
+      "ref": "_Measures.AC",
+      "isNew": false,
+      "description": "Ist",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "_Measures",
+      "name": "PL",
+      "kind": "measure",
+      "ref": "_Measures.PL",
+      "isNew": false,
+      "description": "Plan",
+      "formatString": "#,##0",
+      "dataType": "measure",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimRegion",
+      "name": "Region",
+      "kind": "column",
+      "ref": "DimRegion.Region",
+      "isNew": false,
+      "description": "",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Month",
+      "kind": "column",
+      "ref": "DimDate.Month",
+      "isNew": false,
+      "description": "",
+      "formatString": "",
+      "dataType": "string",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": ""
+    },
+    {
+      "table": "DimDate",
+      "name": "Year",
+      "kind": "column",
+      "ref": "DimDate.Year",
+      "isNew": false,
+      "description": "",
+      "formatString": "",
+      "dataType": "int64",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "default": "2026",
+      "type": "dropdown"
+    },
+    {
+      "table": "DimDate",
+      "name": "Date",
+      "kind": "column",
+      "ref": "DimDate.Date",
+      "isNew": false,
+      "description": "",
+      "formatString": "",
+      "dataType": "dateTime",
+      "alias": "",
+      "renameInModel": false,
+      "confirmed": false,
+      "owner": "",
+      "source": "",
+      "target": "",
+      "unit": "",
+      "note": "",
+      "default": null,
+      "type": "date"
+    }
+  ],
+  "newFields": [],
+  "issues": [
+    {
+      "level": "error",
+      "code": "A11Y_TILE_SMALL",
+      "text": "Kachel „Umsatz\" ist zu klein (516×180px) (Unter ca. 540×200px ist ein Diagramm praktisch nicht mehr nutzbar. Kachel vergrößern.)",
+      "page": "Übersicht",
+      "visual": "mk_kpi1"
+    },
+    {
+      "level": "warn",
+      "code": "A11Y_CONTRAST_ACCENT",
+      "text": "Akzentfarbe gegen Kachelgrund zu schwach (2.8:1, Ziel ≥ 3:1) (Die Akzentfarbe kennzeichnet aktive Nav-Buttons und Hervorhebungen — bei zu wenig Kontrast wirken diese unauffällig.)",
+      "page": null,
+      "visual": null
+    },
+    {
+      "level": "info",
+      "code": "REPORT_NO_DECISION",
+      "text": "Beispiel-Hinweis ohne Bezug zur Barrierefreiheit.",
+      "page": null,
+      "visual": null
+    }
+  ],
+  "warnings": [
+    "Seite „Übersicht\": Kachel „Umsatz\" ist zu klein (516×180px) (Unter ca. 540×200px ist ein Diagramm praktisch nicht mehr nutzbar. Kachel vergrößern.)",
+    "Akzentfarbe gegen Kachelgrund zu schwach (2.8:1, Ziel ≥ 3:1) (Die Akzentfarbe kennzeichnet aktive Nav-Buttons und Hervorhebungen — bei zu wenig Kontrast wirken diese unauffällig.)"
+  ]
+}

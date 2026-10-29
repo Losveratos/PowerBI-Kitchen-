@@ -34,9 +34,9 @@ Browser-Pendant (identischer Datensatz, kein CSV-Import nötig):
 | `RowType` | Zeilentyp | `Account` \| `Formula` \| `KPI` (Subtotals sind synthetisch — kein eigener RowType nötig, siehe unten) |
 | `FormulaDef` | Formeldefinition | `[Name]`-Referenzen auf andere Zeilen, aufgelöst per Zeilenname (Level-Modus hat keine stabilen Parent-IDs) |
 | `SortOrder` | Sortierung | steuert Reihenfolge der GuV (10er-Schritte je Block) |
-| `SignConvention` | Rechenvorzeichen (±1) | `-1` für alle Kostenzeilen |
+| `SignConvention` | Rechenvorzeichen (±1) | `-1` für alle Kostenzeilen (auch `Income taxes`) |
 | `DisplayInvert` | Anzeige invertieren | `true` bei Kostenzeilen — Werte werden positiv angezeigt, rechnen aber negativ |
-| `VarianceInvert` | Abweichungsfarbe drehen | nur bei `Income taxes` (Steuern unter Plan = gut → grün) |
+| `VarianceInvert` | Abweichungsfarbe drehen | durchgängig `false`. Kosten mit `-1` bewertet die Engine über das Rechenvorzeichen selbst (Steuern unter Plan = grün, Mehrsteuern = rot); `true` zusätzlich würde die Bewertung doppelt drehen. Vorzeichen-Matrix: `.claude/skills/finance-data-model/references/konten-dimension.md` §6 |
 | `Kommentar` | (kein eigenes Well — Kommentar-Feature liest Free-Text je Konto) | 3 Konten kommentiert, siehe unten |
 | `AC` / `PY` / `PL` | AC / PY / PL (als Summe) | monatlich, Summe über gefilterte Monate = YTD |
 | `FC_FY` / `PL_FY` | FC(FY) / PL(FY) (als **Durchschnitt**) | Jahres-Skalare, pro Konto auf jeder Monatszeile identisch — **nicht** summieren |
@@ -79,7 +79,7 @@ Financial result                         (synthetisch)
 ├─ Interest expense                  850110
 └─ Interest & investment income      850120
 EBT                                    F_EBT           = [EBIT]+[Financial result]
-Income taxes                        900110              (VarianceInvert = true)
+Income taxes                        900110              (-1 · true · false, wie alle Kosten)
 Net income                            F_NETINCOME      = [EBT]+[Income taxes]
 Net margin                            K_NETMARGIN       = [Net income]/[Net revenue]
 

@@ -2155,19 +2155,24 @@ function tidyChecks(geom, tag) {
         selRes.treeHint);
     check("allowInteractions = false switches the behaviour off as well",
         selRes.noInteractRows === 0, "rows=" + selRes.noInteractRows);
-    // ---- 25) v0.18: the Sankey flow view over the driver-tree graph
+    // ---- 33) 1.6: the Sankey flow view over the driver-tree graph
     // A stage helper over the Pharma demo (formula P&L) and the plain
     // dimension hierarchy of block 30. readSankey reports what a reader sees:
     // node bars (column, family, fill), ribbons (ends, width, family, fill),
     // the two label lines, clipped / overlapping labels and the toolbar.
     await page.evaluate(() => {
-        window.SK_STAGE = (id, objects, w, h) => {
+        window.SK_STAGE = (id, objects, w, h, locale, hostOpts) => {
             const d = document.createElement("div");
             d.className = "stage"; d.id = id;
             d.style.cssText = `width:${w || 1400}px;height:${h || 900}px;`;
             document.body.appendChild(d);
-            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost("en-US") });
+            const host = makeHost(locale || "en-US", hostOpts);
+            // every write lands in a log, so a fallback can prove it persisted nothing
+            host.persistProperties = (p) => { (window.__skPersist = window.__skPersist || []).push({ id, p }); };
+            const v = new PnlByDatenWG.Visual({ element: d, host });
             v.update({ dataViews: [dv(objects)], viewport: { width: w || 1400, height: h || 900 }, type: 2 });
+            window.__skVis = window.__skVis || {};
+            window.__skVis[id] = v;
             return d;
         };
         window.SK_UI = (extra) => ({ titleBlock: { measureLine: "sankey" },
@@ -2191,8 +2196,10 @@ function tidyChecks(geom, tag) {
                 chev: chev ? chev.firstChild.nodeValue : "",
                 x: +bar.getAttribute("x"), y: +bar.getAttribute("y"), h: +bar.getAttribute("height"),
                 w: +bar.getAttribute("width"), fill: bar.getAttribute("fill"),
+                stroke: bar.getAttribute("stroke"), dash: bar.getAttribute("stroke-dasharray"),
                 tip: bar.querySelector("title") ? bar.querySelector("title").textContent : "",
                 sel: g.getAttribute("data-pnl-sel"),
+                nameFill: nm ? nm.getAttribute("fill") : "",
             };
         });
         const bands = [...stage.querySelectorAll("[data-sk-band]")].map(p => ({
@@ -2200,6 +2207,7 @@ function tidyChecks(geom, tag) {
             src: p.hasAttribute("data-sk-src") ? +p.getAttribute("data-sk-src") : null,
             tgt: p.hasAttribute("data-sk-tgt") ? +p.getAttribute("data-sk-tgt") : null,
             w: +p.getAttribute("data-sk-w"), fam: p.getAttribute("data-sk-fam"), fill: p.getAttribute("fill"),
+            pattern: p.getAttribute("data-sk-pattern"),
         }));
         const clipped = []; const boxes = [];
         if (svg) {
@@ -2226,22 +2234,29 @@ function tidyChecks(geom, tag) {
             .filter(x => x.style.textTransform === "uppercase" && x.style.letterSpacing !== "")
             .map(x => x.textContent);
         const viewHead = [...stage.querySelectorAll("div")].find(x => x.style.textTransform === "uppercase"
-            && x.textContent === "View");
+            && (x.textContent === "View" || x.textContent === "Ansicht"));
         const levelHead = [...stage.querySelectorAll("div")].find(x => x.style.textTransform === "uppercase"
             && x.textContent === "Expand to level");
+        const footer = stage.querySelector('[data-pnl="footer"]');
         return {
             svg: !!svg, nodes, bands, clipped, overlaps, groups,
             viewBtns: viewHead ? [...viewHead.parentElement.querySelectorAll("button")].map(b => b.textContent) : [],
+            activeView: viewHead ? ([...viewHead.parentElement.querySelectorAll("button")]
+                .find(b => b.getAttribute("aria-pressed") === "true") || { textContent: "" }).textContent : "",
             levelBtns: levelHead ? [...levelHead.parentElement.querySelectorAll("button")].map(b => b.textContent) : [],
             zoom: !!stage.querySelector('[data-pnl="zoom-center"]'),
             back: stage.querySelector('[data-pnl="zoom-back"]')
                 ? stage.querySelector('[data-pnl="zoom-back"]').textContent : "",
-            footer: stage.textContent.indexOf("outside the IBCS notation") >= 0,
+            footer: footer ? footer.textContent : "",
             hint: stage.querySelector('[data-pnl="sankey-hint"]')
                 ? stage.querySelector('[data-pnl="sankey-hint"]').textContent : "",
+            empty: stage.querySelector('[data-pnl="sankey-empty"]')
+                ? stage.querySelector('[data-pnl="sankey-empty"]').textContent : "",
+            buttons: stage.querySelectorAll('[data-pnl="head"] button').length,
             rows: stage.querySelectorAll("[data-pnl-row]").length,
             tableRows: [...stage.querySelectorAll("div")].filter(x => x.style.display === "table-row").length,
             treeCards: stage.querySelectorAll("svg > g > g > rect[rx='4']").length,
+            bg: stage.querySelector(".pnl-root") ? stage.querySelector(".pnl-root").style.background : "",
         };
     };
     // the reader also lives in the page, so a stage block can call it in one go
@@ -2337,8 +2352,8 @@ function tidyChecks(geom, tag) {
         && bandFam("Operating expenses", "Research").fam === "bad",
         [bandFam("Pharmaceuticals", "Net revenue").fam, bandFam("Net revenue", "Gross profit").fam,
             bandFam("Net revenue", "Cost of goods sold").fam, bandFam("Operating expenses", "Research").fam].join(","));
-    const rgb = (f) => (/rgb\((\d+),(\d+),(\d+)\)/.exec(f) || []).slice(1).map(Number);
-    const goodBand = rgb(bandFam("Net revenue", "Gross profit").fill || "");
+    const rgb = (f) => (/rgb\((\d+),(\d+),(\d+)\)/.exec(f || "") || []).slice(1).map(Number);
+    const goodBand = rgb(bandFam("Net revenue", "Gross profit").fill);
     check("ribbons are a lightened tint of the node colour",
         goodBand.length === 3 && goodBand[0] > 0x0E && goodBand[1] > 0x85 && goodBand[2] > 0x85 && goodBand[1] < 255,
         bandFam("Net revenue", "Gross profit").fill);
@@ -2355,17 +2370,19 @@ function tidyChecks(geom, tag) {
         /Gross profit · 1\s?201 .*· 71\.3% · ΔPL /.test(gp.tip), gp.tip);
     check("the Sankey hint line documents clicks, hover and the context menu",
         sk.hint.indexOf("tile view") > 0 && sk.hint.indexOf("Right-click") > 0, sk.hint);
-    check("the footer places the flow view outside the IBCS notation", sk.footer);
+    check("the footer places the flow view outside the IBCS notation",
+        sk.footer.indexOf("outside the IBCS notation") > 0, sk.footer);
 
     // (i) toolbar: view, reference, unit, density and levels — no table groups
-    check("the Sankey toolbar keeps view, Δ reference, unit and the level buttons",
-        ["View", "Δ reference", "Unit", "Expand to level"].every(gp2 => sk.groups.indexOf(gp2) >= 0),
+    check("the Sankey toolbar keeps view, Δ reference, unit, density and the level buttons",
+        ["View", "Δ reference", "Unit", "Density", "Expand to level"].every(gp2 => sk.groups.indexOf(gp2) >= 0),
         sk.groups.join(" | "));
     check("the Sankey toolbar hides presets, periods, options and the card modes",
         ["Column preset", "Periods", "Options", "Cards"].every(gp2 => sk.groups.indexOf(gp2) < 0),
         sk.groups.join(" | "));
     check("the view group offers the fifth button Sankey, active",
-        sk.viewBtns.join(",") === "Table,Bars,Waterfall,Tree,Sankey", sk.viewBtns.join(","));
+        sk.viewBtns.join(",") === "Table,Bars,Waterfall,Tree,Sankey" && sk.activeView === "Sankey",
+        sk.viewBtns.join(",") + " active=" + sk.activeView);
     check("the level group carries ⌂ like the tree", sk.levelBtns[0] === "⌂", sk.levelBtns.join(","));
 
     // (e) a click on a node opens the tile view; back returns into the Sankey
@@ -2386,6 +2403,8 @@ function tidyChecks(geom, tag) {
         skz.back === "← Back to Sankey", skz.back);
     check("the tile view opened from the Sankey hides the view group too",
         skz.groups.indexOf("View") < 0 && skz.groups.indexOf("Δ reference") >= 0, skz.groups.join(" | "));
+    check("the tile view opened from the Sankey is the IBCS tile (footer without the flow note)",
+        skz.footer.indexOf("outside the IBCS notation") < 0 && skz.footer.indexOf("IBCS") >= 0, skz.footer);
     await page.evaluate(() => {
         document.getElementById("sk1").querySelector('[data-pnl="zoom-back"]').click();
     });
@@ -2420,8 +2439,8 @@ function tidyChecks(geom, tag) {
         skMenu.log.length === 1 && skMenu.log[0].call === "menu" && skMenu.exp.indexOf(skMenu.log[0].idx) >= 0
         && skMenu.log[0].x === 321 && skMenu.prevented === true, JSON.stringify(skMenu.log));
 
-    // hover: the node's own ribbons stay, the others step back
-    const hov = await page.evaluate(() => {
+    // hover: the node's own ribbons stay, the others step back; the IBCS detail panel opens
+    const hov = await page.evaluate(async () => {
         const st = document.getElementById("sk1");
         const g = [...st.querySelectorAll('[data-pnl="sk-node"]')].find(x => x.getAttribute("data-pnl-id") === "F_GROSSPROFIT");
         const i = g.getAttribute("data-sk-i");
@@ -2430,12 +2449,21 @@ function tidyChecks(geom, tag) {
         const mine = bands.filter(b => b.getAttribute("data-sk-src") === i || b.getAttribute("data-sk-tgt") === i);
         const res = { mine: mine.every(b => b.style.opacity === "1"),
             dimmed: bands.filter(b => mine.indexOf(b) < 0).every(b => b.style.opacity === "0.28") };
+        await new Promise(r => setTimeout(r, 400));
+        // the hover panel is the absolutely positioned card with the scenario grid
+        const panel = [...st.querySelectorAll(".pnl-root > div")].find(d => d.style.position === "absolute"
+            && d.style.pointerEvents === "none" && d.textContent.indexOf("Gross profit") === 0);
+        res.panel = !!panel;
         g.dispatchEvent(new MouseEvent("mouseleave"));
         res.reset = bands.every(b => b.style.opacity === "");
+        res.panelGone = ![...st.querySelectorAll(".pnl-root > div")].some(d => d.style.position === "absolute"
+            && d.style.pointerEvents === "none" && d.textContent.indexOf("Gross profit") === 0);
         return res;
     });
     check("hovering a node keeps its ribbons and dims the rest, leaving restores",
         hov.mine && hov.dimmed && hov.reset, JSON.stringify(hov));
+    check("hovering a node opens the IBCS detail panel of the row, leaving closes it",
+        hov.panel && hov.panelGone, JSON.stringify(hov));
 
     // (g) level buttons, the chevron (▾/▸) and ⌂ drive the flow
     await step(clickLevel, ["sk1", "2"]);
@@ -2462,6 +2490,14 @@ function tidyChecks(geom, tag) {
     check("▾ folds the branch: revenue and cost of sales leave the flow, the node turns ▸",
         !skNode(skl, "Net revenue") && !skNode(skl, "Cost of goods sold") && skNode(skl, "Gross profit").chev === "▸"
         && !skl.zoom, skl.nodes.map(n => n.name).join(","));
+    // the fold state is the tree's own: the tree view shows the same branch folded
+    const sharedFold = await page.evaluate(() => {
+        const p = (window.__skPersist || []).filter(x => x.id === "sk1").pop();
+        const ui = p ? JSON.parse(p.p.merge[0].properties.uiState) : {};
+        return { view: ui.view, folded: (ui.treeCollapsed || []).indexOf("F_GROSSPROFIT") >= 0 };
+    });
+    check("the chevron writes the shared treeCollapsed state (view stays sankey)",
+        sharedFold.view === "sankey" && sharedFold.folded, JSON.stringify(sharedFold));
     await step(clickSkChev, ["sk1", "F_GROSSPROFIT"]);
     skl = await page.evaluate(readSankey, "sk1");
     check("▸ opens it again", skNode(skl, "Net revenue") && skNode(skl, "Materials"),
@@ -2485,6 +2521,20 @@ function tidyChecks(geom, tag) {
     check("a KPI root from the format pane flows from its value operand (EBITDA margin → EBITDA)",
         sk.nodes[0] && sk.nodes[0].name === "EBITDA" && sk.nodes.every(n => n.name.indexOf("margin") < 0),
         sk.nodes.map(n => n.name).join(","));
+    // the format pane's revenue basis rules the % bracket
+    await page.evaluate(() => {
+        window.SK_STAGE("sk2b", Object.assign(window.SK_UI(), { columns: { revenueBase: "Gross profit" } }));
+    });
+    sk = await page.evaluate(readSankey, "sk2b");
+    check("columns.revenueBase moves the 100 % basis (Gross profit = 100 %)",
+        /\(100\.0%\)$/.test((skNode(sk, "Gross profit") || {}).val || ""), (skNode(sk, "Gross profit") || {}).val);
+    // a ratio over ratios only has nothing to pour
+    await page.evaluate(() => {
+        window.SK_STAGE("sk2c", Object.assign(window.SK_UI(), { columns: { treeRoot: "K_NOSUCHROW" } }));
+    });
+    sk = await page.evaluate(readSankey, "sk2c");
+    check("an unknown pane root falls back to the auto root and still flows",
+        sk.svg && sk.nodes[0] && sk.nodes[0].name.indexOf("Net income") === 0, sk.nodes[0] && sk.nodes[0].name);
 
     // the dimension hierarchy of block 30: Total ← categories ← product lines
     await page.evaluate(() => {
@@ -2513,10 +2563,67 @@ function tidyChecks(geom, tag) {
     check("the hierarchy Sankey clips and overlaps no label",
         sk.clipped.length === 0 && sk.overlaps.length === 0, sk.clipped.concat(sk.overlaps).slice(0, 5).join(" | "));
 
-    // ---- 26) v0.18: the author decides which views are offered
+    // ---- 34) 1.6: Sankey in dark mode, high contrast, export, German, folded bars
+    const looks = await page.evaluate(() => {
+        const rs = window.READ_SK;
+        const out = {};
+        window.SK_STAGE("sk-dark", Object.assign(window.SK_UI(), { style: { appearance: "dark" } }));
+        out.dark = rs("sk-dark");
+        window.SK_STAGE("sk-hc", window.SK_UI(), 1400, 900, "en-US",
+            { palette: { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" },
+                foregroundSelected: { value: "#00FFFF" } } });
+        out.hc = rs("sk-hc");
+        window.SK_STAGE("sk-exp", window.SK_UI(), 1400, 900, "en-US", { allowInteractions: false });
+        out.exp = rs("sk-exp");
+        window.SK_STAGE("sk-de", window.SK_UI(), 1400, 900, "de-DE");
+        out.de = rs("sk-de");
+        const z = document.getElementById("sk-de").querySelector('[data-pnl="sk-node"][data-pnl-id="F_EBIT"]');
+        z.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        out.deZoom = rs("sk-de");
+        window.SK_STAGE("sk-fold", Object.assign(window.SK_UI(), { toolbar: { foldable: true } }));
+        out.fold = rs("sk-fold");
+        return out;
+    });
+    const lum = (c) => { const v = rgb(c); return v.length ? (0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]) / 255 : 1; };
+    const dGood = looks.dark.bands.find(b => b.fam === "good");
+    check("dark mode: the profit strand and the costs use the dark variance pair",
+        looks.dark.nodes.filter(n => n.fam === "good").every(n => n.fill === "#3FB3C2")
+        && looks.dark.nodes.filter(n => n.fam === "bad").every(n => n.fill === "#E4635F"),
+        looks.dark.nodes.map(n => n.fam + ":" + n.fill).slice(0, 6).join(","));
+    check("dark mode: the ribbons sink towards the dark paper instead of glowing white",
+        dGood && lum(dGood.fill) < 0.45, dGood && dGood.fill);
+    check("dark mode: labels in light ink on the dark paper",
+        looks.dark.nodes.filter(n => n.val !== "–").every(n => n.nameFill === "#E0E0E0"),
+        looks.dark.nodes.map(n => n.nameFill).slice(0, 4).join(","));
+    check("high contrast: profit solid in the foreground colour, costs outlined, the split dashed",
+        looks.hc.nodes.filter(n => n.fam === "good").every(n => n.fill === "#FFFF00" && !n.stroke)
+        && looks.hc.nodes.filter(n => n.fam === "bad").every(n => n.fill === "#000000" && n.stroke === "#FFFF00" && !n.dash)
+        && looks.hc.nodes.filter(n => n.fam === "gray").every(n => n.fill === "#000000" && n.dash === "3,2"),
+        looks.hc.nodes.map(n => n.fam + ":" + n.fill + ":" + n.stroke + ":" + n.dash).slice(0, 6).join(","));
+    check("high contrast: ribbons carry patterns, not colours (solid · hatch · dots)",
+        looks.hc.bands.filter(b => b.fam === "good").every(b => b.pattern === "solid")
+        && looks.hc.bands.filter(b => b.fam === "bad").every(b => b.pattern === "hatch" && /^url\(#/.test(b.fill))
+        && looks.hc.bands.filter(b => b.fam === "gray").every(b => b.pattern === "dots" && /^url\(#/.test(b.fill)),
+        [...new Set(looks.hc.bands.map(b => b.fam + ":" + b.pattern))].join(","));
+    check("high contrast: the paper is the host background", looks.hc.bg === "rgb(0, 0, 0)", looks.hc.bg);
+    check("export: the Sankey prints without toolbar and without the right-click sentence",
+        looks.exp.svg && looks.exp.buttons === 0 && looks.exp.hint.indexOf("Right-click") < 0
+        && looks.exp.footer.indexOf("outside the IBCS notation") > 0,
+        "svg=" + looks.exp.svg + " buttons=" + looks.exp.buttons + " hint=" + looks.exp.hint);
+    check("German: Sankey button, hint and footer are localized",
+        looks.de.viewBtns.indexOf("Sankey") === 4 && looks.de.hint.indexOf("Kachel-Ansicht") > 0
+        && looks.de.footer.indexOf("außerhalb der IBCS-Notation") > 0,
+        looks.de.viewBtns.join(",") + " / " + looks.de.hint);
+    check("German: the way back from a tile reads „← Zurück zum Sankey“",
+        looks.deZoom.zoom && looks.deZoom.back === "← Zurück zum Sankey", looks.deZoom.back);
+    check("folded control bars take the Sankey hint line along (as in the tree)",
+        looks.fold.svg && looks.fold.hint === "" && looks.fold.buttons === 1, "hint=" + looks.fold.hint + " buttons=" + looks.fold.buttons);
+
+    // ---- 35) 1.6: the author decides which views are offered
     const offer = await page.evaluate(() => {
         const rs = window.READ_SK;
         const res = {};
+        window.__skPersist = [];
         window.SK_STAGE("vo1", { toolbar: { viewSankey: false },
             state: { uiState: JSON.stringify({ view: "table", fit: false }) } }, 1300, 600);
         res.noSankey = rs("vo1");
@@ -2526,6 +2633,12 @@ function tidyChecks(geom, tag) {
         window.SK_STAGE("vo3", { toolbar: { viewSankey: false },
             state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } }, 1300, 600);
         res.fallback = rs("vo3");
+        res.fallbackPersists = window.__skPersist.filter(x => x.id === "vo3").length;
+        // the author switches the Sankey back on: the stored state is still there
+        window.__skVis.vo3.update({ dataViews: [dv({ toolbar: { viewSankey: true },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } })],
+        viewport: { width: 1300, height: 600 }, type: 2 });
+        res.back = rs("vo3");
         window.SK_STAGE("vo4", { toolbar: { viewTable: false, viewSankey: false },
             state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } }, 1300, 600);
         res.fallbackBars = rs("vo4");
@@ -2536,6 +2649,12 @@ function tidyChecks(geom, tag) {
             viewTree: false, viewSankey: false },
         state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } }, 1300, 600);
         res.allOff = rs("vo6");
+        window.SK_STAGE("vo7", { toolbar: { viewTree: false },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, treeZoom: "F_EBITDA", fit: false }) } }, 1300, 600);
+        res.zoomSankey = rs("vo7");
+        window.SK_STAGE("vo8", { toolbar: { viewTable: false, viewBars: false, viewWaterfall: false, viewTree: false },
+            state: { uiState: JSON.stringify({ fit: false }) } }, 1300, 600);
+        res.onlySankey = rs("vo8");
         return res;
     });
     check("viewSankey = off removes the Sankey button, the other four stay",
@@ -2550,21 +2669,26 @@ function tidyChecks(geom, tag) {
         "svg=" + offer.fallback.svg + " rows=" + offer.fallback.tableRows);
     check("the fallback shows the toolbar of the table, not the one of the switched-off view",
         offer.fallback.groups.indexOf("Column preset") >= 0, offer.fallback.groups.join(" | "));
+    check("the fallback is display only: nothing is persisted",
+        offer.fallbackPersists === 0, "persists=" + offer.fallbackPersists);
+    check("switching the view back on restores the stored Sankey",
+        offer.back.svg && offer.back.activeView === "Sankey", "svg=" + offer.back.svg);
     check("the fallback follows the toolbar order (table off → bars)",
         !offer.fallbackBars.svg && offer.fallbackBars.tableRows > 10
-        && offer.fallbackBars.viewBtns.join(",") === "Bars,Waterfall,Tree",
-        offer.fallbackBars.viewBtns.join(","));
+        && offer.fallbackBars.viewBtns.join(",") === "Bars,Waterfall,Tree"
+        && offer.fallbackBars.activeView === "Bars",
+        offer.fallbackBars.viewBtns.join(",") + " active=" + offer.fallbackBars.activeView);
     check("a stored tile view never opens while its carrier view is switched off",
         !offer.zoomOff.zoom && offer.zoomOff.tableRows > 10 && offer.zoomOff.treeCards === 0,
         "zoom=" + offer.zoomOff.zoom + " rows=" + offer.zoomOff.tableRows);
+    check("…but opens from the Sankey, its other carrier, with the way back to the Sankey",
+        offer.zoomSankey.zoom && offer.zoomSankey.back === "← Back to Sankey", offer.zoomSankey.back);
     check("every view switched off still leaves the table on screen",
         offer.allOff.tableRows > 10 && offer.allOff.viewBtns.length === 0,
         "rows=" + offer.allOff.tableRows);
-    const activeFallback = await page.evaluate(() => {
-        const b = [...document.getElementById("vo4").querySelectorAll("button")].find(x => x.textContent === "Bars");
-        return b ? b.style.color : "";
-    });
-    check("the fallback view's button is the active one", activeFallback === "rgb(255, 255, 255)", activeFallback);
+    check("only the Sankey offered: a fresh report opens in it, without a view group",
+        offer.onlySankey.svg && offer.onlySankey.viewBtns.length === 0 && offer.onlySankey.groups.indexOf("View") < 0,
+        "svg=" + offer.onlySankey.svg + " groups=" + offer.onlySankey.groups.join(" | "));
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();

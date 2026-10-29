@@ -1,0 +1,149 @@
+---
+id: "topic:daten-wg"
+name: "Daten-WG"
+typ: thema
+stand: "2026-09-15"
+build: "20260915-2009"
+zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
+dokumente: 84
+kernaussagen: 40
+mit_kernaussagen: 11
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/daten-wg.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json"
+aliase:
+  - "Daten WG"
+  - "DatenWG"
+---
+
+# Daten-WG
+
+Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz. (Stand 2026-03) Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server. (Stand 2026-03) Der ursprüngliche Auslöser für die Idee der Daten-WG war der Kollege Michel, der spontan ein gemeinsames mehrtägiges Event vorschlug. (Stand 2025-05)
+
+## Aliase
+
+Daten WG, DatenWG
+
+## Nachbarthemen
+
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Power BI](power-bi.md) | Daten-WG und Power BI im selben Segment | Heuristik, gezählt |  | 42 |
+| [Microsoft Fabric](microsoft-fabric.md) | Daten-WG und Microsoft Fabric im selben Segment | Heuristik, gezählt |  | 33 |
+| [Visualisierung](visualisierung.md) | Daten-WG und Visualisierung im selben Segment | Heuristik, gezählt |  | 25 |
+| [KI](ki.md) | Daten-WG und KI im selben Segment | Heuristik, gezählt |  | 24 |
+| [Konferenz](konferenz.md) | Daten-WG und Konferenz im selben Segment | Heuristik, gezählt |  | 19 |
+| [Community](community.md) | Daten-WG und Community im selben Segment | Heuristik, gezählt |  | 18 |
+| [Reporting](reporting.md) | Daten-WG und Reporting im selben Segment | Heuristik, gezählt |  | 17 |
+| [Planung](planung.md) | Daten-WG und Planung im selben Segment | Heuristik, gezählt |  | 14 |
+| [Sicherheit](sicherheit.md) | Daten-WG und Sicherheit im selben Segment | Heuristik, gezählt |  | 14 |
+| [Lakehouse](lakehouse.md) | Daten-WG und Lakehouse im selben Segment | Heuristik, gezählt |  | 13 |
+| [Warehouse](warehouse.md) | Daten-WG und Warehouse im selben Segment | Heuristik, gezählt |  | 13 |
+| [Datenmodellierung](datenmodellierung.md) | Daten-WG und Datenmodellierung im selben Segment | Heuristik, gezählt |  | 12 |
+| [OneLake](onelake.md) | Daten-WG und OneLake im selben Segment | Heuristik, gezählt |  | 11 |
+| [Notebook](notebook.md) | Daten-WG und Notebook im selben Segment | Heuristik, gezählt |  | 11 |
+| [SQL](sql.md) | Daten-WG und SQL im selben Segment | Heuristik, gezählt |  | 10 |
+
+## Kernaussagen
+
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:17 | auf die Sekunde | Die Daten-WG veranstaltet im Herbst eine eigene, kleine Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=17s) |
+| Meinung | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:23 | auf die Sekunde | Die Daten-WG möchte mit ihrer Konferenz wachsen und ähnlich groß werden wie die SQL-Konferenz. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=23s) |
+| Fakt | Brian Bønks Rat an kleine Konferenzen – und warum wir ihn ernst nehmen | 2026-05 | 00:34 | auf die Sekunde | Die Daten-WG-Konferenz findet in diesem Jahr bereits zum zweiten Mal statt. | [▶](https://www.youtube.com/watch?v=QyhnWfGih_o&t=34s) |
+| Fakt | Power BI Update April 2026 | 2026-04 | 04:30 | auf die Sekunde | Die Daten-WG-Konferenz findet im Oktober wieder in Köln statt, und die Agenda mit Speakern und Precons ist veröffentlicht. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=270s) |
+| Empfehlung | Power BI Update April 2026 | 2026-04 | 04:33 | auf die Sekunde | Interessierten wird empfohlen, sich die veröffentlichte Agenda der Daten-WG-Konferenz anzusehen und bei Interesse vorbeizukommen. | [▶](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=273s) |
+| Fakt | BI Thinkers Talk nr.75 | 2026-04 | 1:03:30 | auf die Sekunde | Ab Mai sind bei den BI Thinkers Talks ein Auftritt von Stefan Werner sowie ein gemeinsamer Stream mit Ren Fürstenberg und Joris Karle geplant. | [▶](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3810s) |
+| Fakt | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:03 | auf die Sekunde | Die Aufnahme entstand am Stand der Daten-WG auf der SQL Konferenz. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s) |
+| Empfehlung | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:03 | auf die Sekunde | Die Daten-WG lädt Besucher der SQL Konferenz ein, ihren Stand zu besuchen. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=3s) |
+| Fakt | MCP@Daten-WG@SQL Konferenz | 2026-03 | 00:10 | auf die Sekunde | Michael hält auf der SQL Konferenz eine Lunch Session zum Thema MCP-Server. | [▶](https://www.youtube.com/watch?v=l_aHydZyh4s&t=10s) |
+| Fakt | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 2026-03 | 04:41 | Abschnittsanfang | Der Vortrag über den Bullwhip-Effekt wurde beim Daten-WG Offsite als einer von mehreren rund zehnminütigen Impulsvorträgen gehalten. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=281s) |
+| Empfehlung | Gurkenkrise in Island und der Bullwhip-Effekt - Christian Schneider beim Daten-WG Offsite | 2026-03 | 06:10 | auf die Sekunde | Der Redner rät dem Publikum, den Erfahrungsberichten der nachfolgenden Vortragenden genau zuzuhören und die daraus gewonnenen Impulse mit in die eigene Arbeit und das eigene Unternehmen zu nehmen. | [▶](https://www.youtube.com/watch?v=sq8AWk_yNWM&t=370s) |
+| Fakt | Power BI vs. Qlik | 2026-01 | 01:38 | Abschnittsanfang | Arthur und Oliver haben eine dreiteilige Challenge mit identischen Aufgaben in Qlik und Power BI durchgeführt: Basics, Modellierung und Visualisierung. | [▶](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 01:57 | auf die Sekunde | Markus hat sein erstes Update-Video im Mai 2019 veröffentlicht. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=117s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 04:09 | auf die Sekunde | Der ursprüngliche Auslöser für die Idee der Daten-WG war der Kollege Michel, der spontan ein gemeinsames mehrtägiges Event vorschlug. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=249s) |
+| Fakt | BI Thinkers Talk Nr.62 | 2025-05 | 04:56 | Abschnittsanfang | Der BI Thinkers Talk ist mit der aktuellen Folge bei Nummer 62 angekommen, vier Jahre nach der ersten Ausgabe. | [▶](https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=296s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 05:32 | auf die Sekunde | Die ursprüngliche Idee eines einwöchigen Bootcamp-Events wurde verworfen, weil selbst etablierte Branchenevents wie SQLBits kürzer geworden sind. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=332s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 09:21 | auf die Sekunde | Bei der Daten-WG wurde bewusst Raum für Diskussionen nach den Vorträgen eingeplant, statt nach 15 Minuten strikt abzumoderieren. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=561s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 10:01 | auf die Sekunde | Durch die Wohnzimmeratmosphäre der Location gingen Vorträge auf der Daten-WG oft nahtlos in Diskussion und Networking über. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=601s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 12:32 | auf die Sekunde | Für die Daten-WG wurde ein eigener Raum nur fürs Networking eingerichtet, mit Lego, Wii, Super NES und Buffet. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=752s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 13:37 | auf die Sekunde | Die Räume der Daten-WG wurden formattechnisch getrennt in eine unterhaltsamere Mainstage und einen Raum für fachliche Deep-Dive-Vorträge. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=817s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 15:29 | auf die Sekunde | Nach dem großen Zuspruch zu den mehrstündigen Deep-Dive-Vorträgen wird überlegt, diese künftig als separate Precon auszulagern. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=929s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 16:28 | auf die Sekunde | Die zweite Daten-WG am 15. Oktober findet an derselben Location statt, weil sie entscheidend zur besonderen Atmosphäre beitrug. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=988s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 18:49 | auf die Sekunde | Für die Aftercon der Daten-WG wurde ein separates Ticket verkauft, das aber überwiegend im All-in-Paket mit der Precon gebucht wurde. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1129s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 19:59 | auf die Sekunde | Die Aftercon war als Coworking-Format mit einem großen Tisch organisiert, bei dem der Ideenaustausch ganz ohne großen Fernseher funktionierte. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1199s) |
+| Meinung | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 22:08 | auf die Sekunde | Arthur König kann sich vorstellen, kleinere Events im Format der Aftercon künftig öfter anzubieten, statt eineinhalb Jahre bis zur nächsten Daten-WG zu warten. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1328s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 23:24 | auf die Sekunde | Bei der Aftercon bauten Teilnehmende gemeinsam eine Writeback-Funktionalität über Power Apps in einen Power-BI-Bericht. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1404s) |
+| Fakt | Wie war die Daten-WG 2025? (Teil 1) | 2025-05 | 29:55 | auf die Sekunde | Kurz nach der Daten-WG 2025 folgt Ende März das TDWI Barcamp in Köln als nächstes Community-Event. | [▶](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1795s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 04:57 | auf die Sekunde | Die Keynote zur Daten-WG 2025 stellte hypothesenbasiertes Arbeiten vor, also die Frage, was eintreten muss, damit ein Datenprojekt als Erfolg gilt. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=297s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 07:20 | auf die Sekunde | Der Titel der Keynote zur Daten-WG 2025 lautete "Warum Datenprojekte dein Geld verbrennen". | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=440s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 13:28 | auf die Sekunde | Die Deep-Dive-Session zu Data Modelling bei der Daten-WG 2025 dauerte drei Stunden und war trotz kleinerem Raum sehr gut besucht. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=808s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 17:19 | auf die Sekunde | Die anschließende Session mit Kevin, Geller und Oliver füllte die vollen zwei Stunden mit Diskussion und praktischen Demonstrationen. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1039s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 19:26 | auf die Sekunde | Bei der "Visual Ranking Weltmeisterschaft" auf der Daten-WG 2025 stimmten die Teilnehmenden live per Mentimeter ab, welches Visual sie als Champion einstufen. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1166s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 26:01 | auf die Sekunde | Laut Erzählung auf der Daten-WG 2025 hat Stefan rund 13.000 Leute ausgebildet und die Community bei der Finanzverwaltung bottom-up aufgebaut. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1561s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 28:01 | auf die Sekunde | Michaels Vortragsunterlagen zur Interaktivität über API-Schnittstellen wurden bei GitHub veröffentlicht. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1681s) |
+| Meinung | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 29:22 | auf die Sekunde | Nach Marco Geuers Kernbotschaft müssen Führungskräfte anders bewertet und Zielsysteme anders ausgestaltet werden, damit datengetriebenes Arbeiten wirklich funktioniert. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1762s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 30:17 | auf die Sekunde | Das Feedback zur Daten-WG 2025 fiel mit rund 4,8 Sternen sehr positiv aus. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1817s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 30:53 | auf die Sekunde | Der Termin der nächsten Daten-WG wurde bewusst in den Oktober gelegt, um Konflikte mit Jahreswechsel- und Jahresend-Stress zu vermeiden. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1853s) |
+| Fakt | Wie war die Daten-WG? (2025, Teil 2) | 2025-04 | 36:14 | auf die Sekunde | Die nächste Daten-WG ist für den 15. Oktober 2026 angesetzt. | [▶](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=2174s) |
+| Fakt | Fabric & Power BI Quarterly · 2026-2 |  |  | Abschnittsanfang | Die Daten-WG-Konferenz 2026 findet am 15. Oktober statt. | [▶](https://www.youtube.com/watch?v=pTTYySb0Cyg) |
+| Fakt | Was ist Self-Service und warum ist das so schwer? |  |  | Abschnittsanfang | Tom Martens kündigt an, für die Daten-WG-Konferenz im Oktober mehrere Vortragseinreichungen einzureichen. | [▶](https://www.youtube.com/watch?v=EVsJ6zyGUWc) |
+
+## Dokumente
+
+| Dokument | Datum | Abdeckung | Sprungmarken |
+| --- | --- | --- | --- |
+| [#008 · Suchst du unsere Tutorials? Hier sind sie!](https://www.youtube.com/watch?v=10jBGN2K52I) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=10jBGN2K52I&t=0s) |
+| [MCP@Daten-WG@SQL Konferenz](https://www.youtube.com/watch?v=l_aHydZyh4s) | 2026-03-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=l_aHydZyh4s&t=0s) |
+| [So #hackst du einen #PowerBI Bericht](https://www.youtube.com/watch?v=UO6SpU-hKRs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=UO6SpU-hKRs&t=0s) |
+| [Werbung \| Daten WG Offsite in Dortmund – Power BI Event am 29.10.](https://www.youtube.com/watch?v=H0ENBDQnVcs) | 2025-09-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=H0ENBDQnVcs&t=0s) |
+| [Willkommen auf dem Daten-WG Kanal](https://www.youtube.com/watch?v=5atgv1IOijA) | 2025-04-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=5atgv1IOijA&t=0s) |
+| [Wie war die Daten-WG? · Im Gespräch mit Artur König](https://www.youtube.com/watch?v=z4ZeHPzIeeU) | 2025-03-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1s) · [06:26](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=386s) · [14:51](https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=891s) |
+| [Wie war die Daten-WG 2025? (Teil 1)](https://www.youtube.com/watch?v=aEXtFWW-pmo) | 2025-05-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1s) · [01:40](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=100s) · [16:12](https://www.youtube.com/watch?v=aEXtFWW-pmo&t=972s) |
+| [Daten-WG 2026 Lineup](https://www.youtube.com/watch?v=AX7b8_aNekw) | 2026-05-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=AX7b8_aNekw&t=0s) · [07:18](https://www.youtube.com/watch?v=AX7b8_aNekw&t=438s) · [32:09](https://www.youtube.com/watch?v=AX7b8_aNekw&t=1929s) |
+| [Country Indicator Explorer — Lebenszufriedenheit und ihre Korrelate](https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html) | 2026-08-14 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/laender-indikatoren-explorer.html) |
+| [Power BI Update Juni 2025](https://www.youtube.com/watch?v=LnNoXBIG7Lc) | 2025-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=LnNoXBIG7Lc&t=0s) |
+| [Daten-WG Thinkers Talk n61](https://www.youtube.com/watch?v=KMk1k5uCLZU) | 2025-04-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=0s) · [01:34](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=94s) · [07:46](https://www.youtube.com/watch?v=KMk1k5uCLZU&t=466s) |
+| [Was machen die eigentlich? \| Daten-WG Podcast mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=_C69B0i-QQA) | 2026-08-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=_C69B0i-QQA&t=0s) · [10:26](https://www.youtube.com/watch?v=_C69B0i-QQA&t=626s) · [19:05](https://www.youtube.com/watch?v=_C69B0i-QQA&t=1145s) |
+| [Wie war die Daten-WG? (2025, Teil 2)](https://www.youtube.com/watch?v=XxPFAQfLyuA) | 2025-04-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1s) · [12:38](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=758s) · [25:57](https://www.youtube.com/watch?v=XxPFAQfLyuA&t=1557s) |
+| [Power BI Update November 2025](https://www.youtube.com/watch?v=XJZxYNIeEVc) | 2025-11-01 | nur-zeitstempel | [01:17](https://www.youtube.com/watch?v=XJZxYNIeEVc&t=77s) |
+| [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [01:33](https://www.youtube.com/watch?v=luk4S4ukKmg&t=93s) · [03:07](https://www.youtube.com/watch?v=luk4S4ukKmg&t=187s) · [45:26](https://www.youtube.com/watch?v=luk4S4ukKmg&t=2726s) |
+| [Power BI Update April 2026](https://www.youtube.com/watch?v=fbpu8zLG3cc) | 2026-04-01 | kernaussagen+zeitstempel | [04:22](https://www.youtube.com/watch?v=fbpu8zLG3cc&t=262s) |
+| [175 Jahre Klimageschichte zum Anfassen — Waermestreifen 3D](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) | 2026-08-04 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/waermestreifen-3d.html) |
+| [Expanded Tables in DAX verstehen – Beziehungen & Filter erklärt \| Power BI Tutorial](https://www.youtube.com/watch?v=LQQEn7IOb7w) | 2025-12-01 | nur-zeitstempel | [00:01](https://www.youtube.com/watch?v=LQQEn7IOb7w&t=1s) |
+| [Fabric & Power BI Quarterly · 2026-3](https://www.youtube.com/watch?v=PW6MP-SDmRk) | — | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=0s) · [06:11](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=371s) · [45:53](https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2753s) |
+| [Fabric Workload Demo mit Alexander Korn und Lukasz Obst](https://www.youtube.com/watch?v=e50qKdVn-24) | 2026-08-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=e50qKdVn-24&t=0s) · [24:39](https://www.youtube.com/watch?v=e50qKdVn-24&t=1479s) |
+| [Wie viel CO₂ steckt in einem Token? — KI-Energie-Simulator](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) | 2026-07-03 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/ki-co2-simulator.html) |
+| [Power BI vs. Qlik](https://www.youtube.com/watch?v=vd1r02bj9Qk) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=0s) · [01:38](https://www.youtube.com/watch?v=vd1r02bj9Qk&t=98s) |
+| [Microsoft Fabric — Einsteiger-Guide](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Community%20%C2%B7%20Deutschsprachig%20%26%20Video) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Das%20%E2%80%9EOne%20Copy%22-Prinzip) · [Abschnitt](https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Bausteine) |
+| [Business Chart Builder — Anleitung](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/business-chart-builder-anleitung.html#:~:text=Auch%20ohne%20Power%20BI%3A%20schnell%20starten%2C%20annotieren%2C%20ausgeben%20%F0%9F%98%89) |
+| [Report-Design als Framework — ein Skill für Power BI](https://datenwgknowledgekitchen.com/powerbi-design-skill.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/powerbi-design-skill.html#:~:text=Der%20Praxistest%3A%20%2Adiese%20Webseite%20als%20Branding-Quelle%2A) |
+| [BI Thinkers Talk nr.77](https://www.youtube.com/watch?v=eWfTt93anl4) | — | nur-zeitstempel | [01:38](https://www.youtube.com/watch?v=eWfTt93anl4&t=98s) · [33:39](https://www.youtube.com/watch?v=eWfTt93anl4&t=2019s) · [58:26](https://www.youtube.com/watch?v=eWfTt93anl4&t=3506s) |
+| [Objektive Daten gibt es nicht](https://www.youtube.com/watch?v=-_4bfrjRCVo) | 2026-06-01 | nur-zeitstempel | [00:00](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=0s) · [44:22](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2662s) · [45:55](https://www.youtube.com/watch?v=-_4bfrjRCVo&t=2755s) |
+| [Mythos Data Vault und richtig große Modelle](https://www.youtube.com/watch?v=rrCi0lnGrCg) | 2025-07-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=0s) · [00:20](https://www.youtube.com/watch?v=rrCi0lnGrCg&t=20s) |
+| [Die Schweiz faehrt Europa davon — Bahnnutzung 2024](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) | 2026-06-05 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/zugfahrten-infografik.html) |
+| [KI hat mich abgelöst \| Daten-WG Podcast mit Burkhardt Gasber](https://www.youtube.com/watch?v=oh-3_65IQ2Q) | 2026-08-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=0s) · [01:36](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=96s) · [52:53](https://www.youtube.com/watch?v=oh-3_65IQ2Q&t=3173s) |
+| [Power BI Update September 2025](https://www.youtube.com/watch?v=6gQiIbyhWEc) | 2025-09-01 | nur-zeitstempel | [11:14](https://www.youtube.com/watch?v=6gQiIbyhWEc&t=674s) |
+| [Fabric & Power BI Quarterly · 2026-1](https://www.youtube.com/watch?v=TYp5xCAU2AU) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=0s) · [54:53](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3293s) · [56:32](https://www.youtube.com/watch?v=TYp5xCAU2AU&t=3392s) |
+| [Denken in Tabellen](https://www.youtube.com/watch?v=hbUYMyqb6r8) | 2026-01-01 | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=0s) · [25:15](https://www.youtube.com/watch?v=hbUYMyqb6r8&t=1515s) |
+| [Wie wahrscheinlich ist die KI-Apokalypse? — p(doom) im Ueberblick](https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html) | 2026-06-08 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/pdoom-ki-risiko.html) |
+| [Power BI Update Mai 2025](https://www.youtube.com/watch?v=zkfdfc5fo-E) | 2025-05-01 | nur-zeitstempel | [15:03](https://www.youtube.com/watch?v=zkfdfc5fo-E&t=903s) |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Quellen%20%28Auswahl%29) |
+| [Metadaten als Superkraft](https://www.youtube.com/watch?v=UUlPoJOhco8) | — | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=UUlPoJOhco8&t=1s) |
+| [Daten-WG Life-Update \| Fabric Architekturen](https://www.youtube.com/watch?v=J-lN5JN-F5I) | 2026-08-01 | kernaussagen+zeitstempel | [00:01](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1s) · [09:27](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=567s) |
+| [Microsoft Fabric — braucht das wirklich jemand?](https://www.youtube.com/watch?v=mTVeZzshLzE) | — | kernaussagen+zeitstempel | [00:00](https://www.youtube.com/watch?v=mTVeZzshLzE&t=0s) · [46:22](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2782s) |
+| [Was kostet ein klimaneutrales Stromsystem?](https://datenwgknowledgekitchen.com/strommix-story.html) | 2026-08-20 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/strommix-story.html) |
+
+40 von 84 angezeigt, vollständige Liste in der JSON-Datei (https://datenwgknowledgekitchen.com/wissensgraph/library/daten-wg.json).
+
+## Hinweise
+
+Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.
+
+So zitieren: Daten-WG, <Dokumenttitel>, <mm:ss>, <url>
+
+- Wiki-Ansicht: https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Adaten-wg
+- Graph-Sicht: https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Adaten-wg&f=topic%3Adaten-wg

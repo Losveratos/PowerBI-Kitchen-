@@ -1,0 +1,1691 @@
+/* MockupKitchen · App-Kern v0.2: Zustand (mehrere Seiten), Container-Layout, Rendering, Interaktion, Datenmodell (TMDL/Demo) */
+// Einzige Quelle der Tool-Version: Kopfzeile, meta.version der Spec, AGENT-BRIEF und WORKSHOP-DOKU lesen diesen Wert.
+window.MK_VERSION = '0.6.0';
+(function () {
+  'use strict';
+  const CAT = window.MK_CATALOG;
+  const I18N = window.MK_I18N;
+  const t = (key, vars) => I18N.t(key, vars);          // Kurzform für Übersetzungen in der UI-Sprache
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const LS_KEY = 'mockupkitchen.state.v1';
+  // Klappgruppen im rechten Panel (v0.4.8): Zustand je Gruppe im Browser merken (reine Bedienhilfe, kein Projektzustand)
+  const PANEL_LS = 'mockupkitchen.panels.v1'; let panelOpen = {};
+  try { panelOpen = JSON.parse(localStorage.getItem(PANEL_LS) || '{}') || {}; } catch (e) { panelOpen = {}; }
+  function grpState(key, def) { return key in panelOpen ? !!panelOpen[key] : def; }
+  function grpRemember(key, open) { panelOpen[key] = open; try { localStorage.setItem(PANEL_LS, JSON.stringify(panelOpen)); } catch (e) { /* blockiert */ } }
+  function grp(key, title, inner, def, badge) { return `<details class="sub" data-grp="${key}"${grpState(key, def) ? ' open' : ''}><summary>${esc(title)}${badge ? `<span class="cnt">${esc(badge)}</span>` : ''}</summary>${inner}</details>`; }
+  const PAGE_BG = { light: '#F4F4F1', soft: '#EEF1F5', white: '#FFFFFF' };
+  const pageBgOf = d => d.pageBg === 'custom' ? (d.pageBgHex || '#F4F4F1') : (PAGE_BG[d.pageBg] || PAGE_BG.light);
+  const isDark = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return false; const n = parseInt(m[1], 16); const r = n >> 16, g = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) < 128; };
+  // WCAG-Kontrast wie in a11y.js (relative Leuchtdichte), für die Schrift auf dem Kachelgrund
+  const relLum = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return 1; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255].map(c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }).reduce((a, c, i) => a + c * [0.2126, 0.7152, 0.0722][i], 0); };
+  const contrastOf = (a, b) => { const x = relLum(a), y = relLum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  // Schrift, die auf der Kachel tatsächlich gezeichnet wird (Kacheltitel, Skizze, PNG): die gewählte, solange sie 4,5:1 erreicht,
+  // sonst das helle #E6E6E6, wenn das besser lesbar ist. Nach Kontrast statt nach isDark(), sonst bekämen mittlere Töne
+  // (Power-BI-Blau #118DFF, Grün #1AAB40) helle Schrift mit 2,7:1 statt der gewählten dunklen mit 5:1 (B5).
+  // dark: die Schrift ist heller als der Grund, die Skizze nimmt dann ihre Farben für dunkles Papier.
+  const LIGHT_INK = '#E6E6E6';
+  function tileInk(d) {
+    const bg = (d && d.tileBg) || '#FFFFFF', ink = (d && d.ink) || '#0F1E2E'; const r = contrastOf(ink, bg), rl = contrastOf(LIGHT_INK, bg);
+    const light = r < 4.5 && rl > r; const col = light ? LIGHT_INK : ink;
+    return { ink: col, chosen: !light, ratio: r, rendered: light ? rl : r, dark: relLum(col) > relLum(bg) };
+  }
+
+  // ------------------------------------------------------------------ Zustand
+  function defaultState() {
+    // Achtung: S ist hier noch null; die Feldreferenzen der Vorlage löst load() nach dem Zuweisen auf.
+    const tpl = CAT.templates.find(t => t.id === 'kpi4-main-detail');
+    // dflt: Merker für unveränderte Standardtexte (B27, siehe relabelTexts); die Vorlagen-Visuals markiert markTemplate()
+    const p1 = { id: uid(), name: t('state.firstPage'), notes: '', layout: tpl.tree(), dflt: { name: 'state.firstPage' } };
+    return {
+      version: 2, dfltV: DFLT_V, name: t('state.newReport'), dflt: { name: 'state.newReport' },
+      canvas: { w: 1920, h: 1080, preset: '1920x1080' },   // Full HD als Vorgabe; HD/UHD/… über die Auswahl
+      spacing: { margin: 16, gutter: 12, pad: 8 },
+      defScenario: 'AC/PL',
+      chrome: {
+        header: { on: true, h: 56, logoPos: 'left', title: t('state.headerTitle'), sub: t('state.headerSub'), navAuto: true, navOn: true, nav: [], dflt: { title: 'state.headerTitle', sub: 'state.headerSub' } },
+        nav: { on: false, w: 64 },
+        filter: { on: true, side: 'right', w: 200, topH: 56, collapsible: false, fields: [] },
+        footer: { on: true, h: 24, text: t('state.footerText'), dflt: { text: 'state.footerText' } },
+      },
+      design: { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', nativePalette: 'neutral', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' },
+      report: { audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' },
+      lang: I18N.lang,
+      fieldMeta: {},
+      pages: [p1], cur: p1.id,
+      model: CAT.demoModel,
+      newFields: [],
+    };
+  }
+  function migrate(s) {
+    s.report = Object.assign({ audience: '', purpose: '', decision: '', participants: '', version: '0.1', dataDate: '' }, s.report || {});
+    s.lang = (s.lang === 'en' || s.lang === 'de') ? s.lang : I18N.lang; s.fieldMeta = s.fieldMeta || {};
+    if (!s.version || s.version < 2) {
+      const p = { id: uid(), name: s.pageName || t('state.firstPage'), notes: s.notes || '', layout: s.layout || ensureIds(CAT.templates[0].tree()) };
+      s.pages = [p]; s.cur = p.id; delete s.layout; delete s.pageName; delete s.notes;
+      const h = s.chrome.header; h.logoPos = h.logo === false ? 'none' : 'left'; h.navAuto = true; delete h.logo;
+      s.design = { radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D' };
+      s.chrome.filter.topH = 56;
+      s.version = 2;
+    }
+    s.design = Object.assign({ radius: 8, tile: 'border', pageBg: 'light', header: 'light', accent: '#C25A2D', palette: 'teal', nativePalette: 'neutral', pageBgHex: '#F4F4F1', tileBg: '#FFFFFF', ink: '#0F1E2E', headerBg: '#0F1E2E', headerInk: '#FFFFFF' }, s.design || {});
+    s.pages.forEach(p => ensureIds(p.layout));
+    if (!s.pages.find(p => p.id === s.cur)) s.cur = s.pages[0].id;
+    // Stände ohne Merker (vor 0.5.2): einmal markieren und, wo eindeutig, in die Projektsprache heilen (B27)
+    if (!s.dfltV) { try { markLegacy(s); relabelTexts(s.lang, s); relabelDemo(s.lang, s); } catch (e) { /* Stand bleibt wie gespeichert */ } s.dfltV = DFLT_V; }
+    return s;
+  }
+  function ensureIds(node) {
+    if (!node.id) node.id = uid();
+    if (node.type === 'leaf') { if (node.visual) node.visual = normVisual(node.visual); }
+    else node.children.forEach(c => ensureIds(c.node));
+    return node;
+  }
+  function normVisual(v) {
+    const def = CAT.byId[v.kind];
+    const out = Object.assign({ kind: v.kind, engine: def ? def.engine : 'native', title: '', sub: '', scenario: S ? S.defScenario : 'AC/PL', roles: {}, notes: '', link: '', content: '', priority: '', status: 'open', openQuestion: false, analysis: {} }, v);
+    if (def && !def.engines.includes(out.engine)) out.engine = def.engine;
+    out.roles = out.roles || {}; out.analysis = out.analysis || {};
+    if (out.roleRefs) { out.roles = resolveRoleRefs(out.roleRefs, def); delete out.roleRefs; }
+    return out;
+  }
+  // 'Tabelle.Feld'-Referenzen einer Vorlage gegen das geladene Modell auflösen; unbekannte Felder bleiben weg
+  function resolveRoleRefs(refs, def) {
+    const roles = {}; if (!S || !def) return roles;
+    Object.keys(refs).forEach(key => {
+      const r = def.roles.find(x => x.key === key); if (!r) return;
+      const list = refs[key].map(ref => findField(ref)).filter(Boolean).slice(0, r.max);
+      if (list.length) roles[key] = list;
+    });
+    return roles;
+  }
+  function findField(ref) {
+    const i = ref.indexOf('.'); if (i < 0) return null;
+    const table = ref.slice(0, i);
+    // Demo-Measures gibt es je Sprache unter anderem Namen (Umsatz / Revenue): erst den Namen selbst, dann seine Entsprechungen probieren
+    const names = [ref.slice(i + 1)].concat(CAT.fieldAliases ? CAT.fieldAliases(ref.slice(i + 1)) : []);
+    for (const name of names) { const f = lookupField(table, name); if (f) return f; }
+    return null;
+  }
+  // Feld live im geladenen Modell bzw. unter den neu angelegten Feldern suchen (Tabelle und Name getrennt, Punkte im Namen sind erlaubt)
+  function lookupField(table, name) {
+    const t = S.model.tables.find(x => x.name === table);
+    if (t) { const f = t.measures.find(x => x.name === name) || t.columns.find(x => x.name === name); if (f) return { table, name, kind: f.kind, type: f.type || '', isNew: false }; }
+    const nf = S.newFields.find(x => x.table === table && x.name === name);
+    if (nf) return { table, name, kind: nf.kind, type: nf.type || '', isNew: true };
+    return null;
+  }
+  // Status einer Bindung, immer gegen den aktuellen Stand (Review B3): 'model' | 'new' | 'missing'.
+  // Ohne geladenes Modell gibt es nichts zu prüfen; dann gilt das gespeicherte isNew.
+  function fieldStatus(f) {
+    if (!f || !S) return 'model';
+    const hit = lookupField(f.table, f.name); if (hit) return hit.isNew ? 'new' : 'model';
+    return S.model.tables.length ? 'missing' : (f.isNew ? 'new' : 'model');
+  }
+  function eachBinding(fn) {
+    S.pages.forEach(p => visuals(p).forEach(l => Object.keys(l.visual.roles || {}).forEach(key => (l.visual.roles[key] || []).forEach(f => fn(f, l.visual, key, p)))));
+    ((S.chrome.filter || {}).fields || []).forEach(f => fn(f, null, 'filter', null));
+  }
+  // Nach jedem Modellwechsel: isNew wahrheitsgemäß nachziehen und fehlende Felder markieren. Liefert die Zahl fehlender Felder.
+  function syncFieldFlags() {
+    const miss = new Set();
+    eachBinding(f => { const st = fieldStatus(f); f.isNew = st === 'new'; if (st === 'missing') { f.missing = true; miss.add(f.table + '|' + f.name); } else delete f.missing; });
+    return miss.size;
+  }
+  // Szenario-Kürzel aus einem Feldnamen (Review B2/B13). Erkannt werden Kürzel (PL, Umsatz_PY, PYTD) und Wörter (Vorjahr, Budget, Forecast, Plan).
+  // strict: null, wenn nichts eindeutig ist (für Widerspruchsprüfungen); sonst die bisherige lose Erkennung mit PL als Rückfall.
+  const BASIS_RX = [
+    ['PY', /(^|[^A-Z])(PY|VJ)(TD|YTD)?(?![A-Z])|Vorjahr|[Pp]rior ?[Yy]ear|[Pp]revious ?[Yy]ear|[Ll]ast ?[Yy]ear/],
+    ['BU', /(^|[^A-Z])BU(?![A-Z])|Budget/],
+    ['FC', /(^|[^A-Z])FC(?![A-Z])|Forecast|Prognose|Hochrechnung/],
+    ['PL', /(^|[^A-Z])PL(?![A-Z])|Plan/],
+  ];
+  function basisOfName(name, strict) {
+    const s = String(name || ''); const hit = BASIS_RX.find(x => x[1].test(s)); if (hit) return hit[0];
+    if (strict) return null;
+    return /PY|VJ|Vorjahr/i.test(s) ? 'PY' : /BU|Budget/i.test(s) ? 'BU' : /FC|Forecast/i.test(s) ? 'FC' : 'PL';
+  }
+  // Vergleichsszenarien eines Szenario-Strings (alles außer AC): 'AC/PL/FC' → ['PL', 'FC']
+  const SCEN_OPTIONS = ['AC/PL', 'AC/PY', 'AC/PL/FC', 'AC/PL/PY', 'AC/BU', 'PL/FC', 'AC'];
+  function scenRefs(scen) { return String(scen || '').toUpperCase().split(/[^A-Z]+/).filter(x => ['PY', 'PL', 'BU', 'FC'].includes(x)); }
+  // Die Rolle, die bei diesem Typ die Referenz trägt: 'ref' (mit Szenario-Wahl) oder 'goal' (KPI, Tacho; Szenario folgt dem Feld)
+  function refRoleOf(def, v) { const rd = def ? CAT.rolesFor(def, v || { roles: {} }) : []; return rd.some(r => r.key === 'ref') ? 'ref' : (rd.some(r => r.key === 'goal') ? 'goal' : null); }
+  // Widerspruch zwischen Szenario bzw. Δ-Basis und gebundener Referenz (Review B2). null, wenn alles passt oder nichts eindeutig ist.
+  function refMismatch(v) {
+    const def = v && CAT.byId[v.kind]; if (!def || def.plain) return null;
+    const key = refRoleOf(def, v); if (!key) return null;
+    const bound = ((v.roles || {})[key] || []).map((f, idx) => ({ f, idx, b: basisOfName(f.name, true) })).filter(x => x.b);
+    if (!bound.length) return null;
+    // note: „ (PL)" hinter dem Feldnamen, außer der Name ist schon das Kürzel selbst
+    const hit = (x, want, kind) => ({ kind, roleKey: key, idx: x.idx, field: x.f, fieldBasis: x.b, want, scenario: v.scenario, note: String(x.f.name).trim().toUpperCase() === x.b ? '' : ' (' + x.b + ')' });
+    if (key === 'ref') {
+      const want = scenRefs(v.scenario);
+      const off = want.length ? bound.find(x => !want.includes(x.b)) : null;
+      if (off) {
+        // extra: alle Kürzel des Szenarios sind schon gebunden, das Feld ist zusätzlich (z. B. AC/PL mit PL und PY). Dann kein Tausch, nur Szenario erweitern.
+        const free = want.filter(w => !bound.some(x => x.b === w)); const m = hit(off, free[0] || want[0], 'scenario'); if (!free.length) m.extra = true; return m;
+      }
+    }
+    const a = v.analysis || {};
+    if (a.deltaBasis && !bound.some(x => x.b === a.deltaBasis)) return hit(bound[0], a.deltaBasis, 'basis');
+    return null;
+  }
+  // Tauschvorschlag: dasselbe Feld mit getauschtem Kürzel (PL → PY, Umsatz_PL → Umsatz_PY), zuerst in derselben Tabelle. Kein Raten über andere Namen.
+  function swapCandidate(f, want) {
+    const from = basisOfName(f.name, true); if (!from || !want || from === want) return null;
+    const rx = new RegExp('(^|[^A-Z])' + from + '(?![A-Z])'); if (!rx.test(f.name)) return null;
+    const name = f.name.replace(rx, '$1' + want); if (name === f.name) return null;
+    const same = lookupField(f.table, name); if (same && same.kind === f.kind) return same;
+    for (const tb of S.model.tables) { const hit = lookupField(tb.name, name); if (hit && hit.kind === f.kind) return hit; }
+    const nf = S.newFields.find(x => x.name === name && x.kind === f.kind); return nf ? lookupField(nf.table, nf.name) : null;
+  }
+  // Tausch nur anbieten, wenn danach nichts mehr widerspricht. Fordert das getauschte Feld ein anderes Szenario (Δ-Basis BU, Szenario AC/PL,
+  // gebunden PL → BU), zieht das Szenario mit (AC/BU). Sonst endete der Tausch im Gegenhinweis, dessen Tausch wieder zurückführt (B2).
+  function swapPlan(v, mm) {
+    const cand = mm.extra ? null : swapCandidate(mm.field, mm.want); if (!cand) return null;
+    const probe = JSON.parse(JSON.stringify(v)); probe.roles[mm.roleKey][mm.idx] = { table: cand.table, name: cand.name, kind: cand.kind, type: cand.type || '', isNew: !!cand.isNew };
+    let after = refMismatch(probe), scen = null;
+    if (after && after.kind === 'scenario' && !after.extra) { scen = scenarioFor(probe, after); if (scen) { probe.scenario = scen; after = refMismatch(probe); } }
+    return after ? { cand, blocked: true } : { cand, scen };
+  }
+  // Passendes Szenario zur gebundenen Referenz: das aktuelle mit getauschtem Kürzel, sonst die erste Auswahl, die alle gebundenen Kürzel enthält
+  function scenarioFor(v, mm) {
+    const bases = (((v.roles || {})[mm.roleKey]) || []).map(f => basisOfName(f.name, true)).filter(Boolean);
+    const swapped = String(v.scenario || 'AC/PL').split('/').map(x => x === mm.want ? mm.fieldBasis : x).join('/');
+    if (SCEN_OPTIONS.includes(swapped) && bases.every(b => scenRefs(swapped).includes(b))) return swapped;
+    return SCEN_OPTIONS.find(s => s !== 'AC' && bases.every(b => scenRefs(s).includes(b))) || null;
+  }
+  // Szenario, mit dem die Skizze gezeichnet wird: Typen ohne Szenario-Wahl (KPI, Tacho) folgen der gebundenen Referenz bzw. der Δ-Basis (Review B13)
+  function sketchScenario(v, an) {
+    const def = CAT.byId[v.kind] || {}; if (def.plain) return 'AC';
+    if (refRoleOf(def, v) === 'goal' && (((v.roles || {}).goal || []).length || (v.analysis || {}).deltaBasis)) return 'AC/' + (an || analysisOf(v)).deltaBasis;
+    return v.scenario;
+  }
+
+  let S = null, sel = null, zoom = 1, undoStack = [], redoStack = [], lastRects = { leaves: [], gutters: [] };
+  const page = () => S.pages.find(p => p.id === S.cur) || S.pages[0];
+  const ui = () => clamp(S.canvas.w / 1280, 0.6, 3.2);           // Skalierungsfaktor für Schriften/Abstände
+  const ANTI = { pie: true, gauge: true };                         // nicht IBCS-konforme Typen: Skizze wird markiert
+  // Analyse-Angaben einer Kachel mit Defaults auflösen (Vertrag v3): alles Entschiedene steht in v.analysis, Rest wird sichtbar abgeleitet
+  function primaryMeasure(v) { const r = v.roles || {}; const list = r.ac || r.indicator || r.values || r.y || []; return list[0] || null; }
+  // Seitennavigation: 'header' | 'footer' | 'off' (aeltere Staende kennen nur header.navOn)
+  // Typografie: zentrale Basisgroessen (px bei 1280 px Breite) und Skalierung, je Kachel ueberschreibbar
+  const TYPO_DEF = { scale: 1, title: 12, sub: 9.5, chart: 9 };
+  function typo() { return Object.assign({}, TYPO_DEF, (S.design && S.design.typo) || {}); }
+  function tileScale(v) { return (v && v.typo && v.typo.scale) || 1; }
+  function navPosOf(c) { c = c || S.chrome; return c.navPos || (c.header.navOn === false ? 'off' : 'header'); }
+  function navNames(c) { c = c || S.chrome; return c.header.navAuto ? S.pages.map(p => p.name) : (c.header.nav || []); }
+  // Beispielwerte je Kachel (v0.4.7): v.samples = { cats, values, ref } als Rohtext; hier geparst.
+  // Zahlen: eine je Zeile, Semikolon oder Tab; bei einer Zeile auch Leerzeichen. Tausenderpunkte/-kommas nach Sprache.
+  function parseNums(txt) {
+    if (!txt) return [];
+    let toks = String(txt).split(/[\n;\t]+/).map(x => x.trim()).filter(Boolean);
+    if (toks.length === 1) toks = toks[0].split(/\s+/).filter(Boolean);
+    return toks.map(x => { let s = x.replace(/[^0-9,.\-]/g, ''); if (S.lang === 'en') s = s.replace(/,/g, ''); else s = s.replace(/\./g, '').replace(',', '.'); const n = parseFloat(s); return isFinite(n) ? n : null; }).filter(n => n !== null);
+  }
+  function parseCats(txt) { return String(txt || '').split(/[\n;\t,]+/).map(x => x.trim()).filter(Boolean); }
+  function samplesOf(v) {
+    const s = v && v.samples; if (!s) return null;
+    const o = { categories: parseCats(s.cats), values: parseNums(s.values), refValues: parseNums(s.ref) };
+    return (o.categories.length || o.values.length || o.refValues.length) ? o : null;
+  }
+  function samplesOpt(v) {
+    const s = samplesOf(v); const o = {}; if (!s) return o;
+    if (s.categories.length) o.cats = s.categories; if (s.values.length) o.values = s.values; if (s.refValues.length) o.refValues = s.refValues;
+    return o;
+  }
+  function analysisOf(v) {
+    const a = v.analysis || {}; const pm = primaryMeasure(v); const refs = (v.roles && v.roles.ref) || []; const goal = (v.roles && v.roles.goal) || [];
+    const scen = String(v.scenario || 'AC/PL');
+    const basisAuto = refs[0] ? basisOfName(refs[0].name) : (goal[0] ? (basisOfName(goal[0].name, true) || (/PY/i.test(goal[0].name) ? 'PY' : 'PL')) : (scen.includes('PY') ? 'PY' : 'PL'));
+    return {
+      polarity: a.polarity || CAT.polarityFor(pm ? pm.name : v.title), polarityAuto: !a.polarity,
+      deltaBasis: a.deltaBasis || basisAuto, deltaBasisAuto: !a.deltaBasis,
+      deltaKind: a.deltaKind || ['abs', 'rel'],
+      unit: a.unit || '', displayUnits: a.displayUnits || 'auto', decimals: a.decimals == null ? null : a.decimals,
+      sort: a.sort || null, topN: a.topN || null, timeGrain: a.timeGrain || null, cumulative: !!a.cumulative, scaleGroup: a.scaleGroup || '', message: a.message || '',
+      smallMultiples: !!a.smallMultiples, fieldParam: !!a.fieldParam, fieldParamName: a.fieldParamName || '',
+    };
+  }
+
+  // ChartKitchen-Optionen (ab 1.47) als Skizzen-Optionen: nur bei engine ck, damit native Kacheln wie bisher aussehen.
+  // KPI ohne Zeitfeld zeichnet keinen Verlauf (wie das Visual), die Brücke folgt der Ausrichtung (auto = Balken).
+  function ckSketchOpt(v) {
+    const o = {}; if (!v) return o;
+    const bound = key => !!(((v.roles || {})[key]) || []).length;
+    if (v.kind === 'scatter') o.bubble = bound('size');
+    if (v.engine !== 'ck') return o;
+    if (v.kind === 'kpi') o.trend = bound('category') ? CAT.ckValue(v, 'cardTrendChart') : 'off';
+    if (v.kind === 'bridge') o.orient = CAT.ckValue(v, 'bridgeOrientation') === 'columns' ? 'columns' : 'bars';
+    if (v.kind === 'scatter') o.quadrant = CAT.ckValue(v, 'scatterQuadrant');
+    return o;
+  }
+
+  function load() {
+    // Die Sprache des Projekts gewinnt über die zuletzt gemerkte UI-Sprache; ein neues Projekt erbt die UI-Sprache.
+    // Beim Laden wird nichts umbenannt: Stände ohne Merker heilt migrate() einmal (dfltV), danach folgen nur markierte Standardtexte einem Sprachwechsel.
+    try { const raw = localStorage.getItem(LS_KEY); if (raw) { S = migrate(JSON.parse(raw)); I18N.set(S.lang); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Laden nie verhindern */ } return; } } catch (e) { /* ignorieren */ }
+    S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout)));   // erst jetzt ist S gesetzt → Vorlagenfelder werden gebunden
+  }
+  function persist() { try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch (e) { /* voll oder blockiert */ } }
+  // Verlauf: höchstens UNDO_MAX Schritte (Tooltip tip.undo nennt dieselbe Zahl). Fällt ein alter Schritt heraus, merkt sich
+  // undoDropped das, damit Strg+Z am Ende ehrlich „Verlauf voll, ältere verworfen" meldet statt „nichts rückgängig zu machen".
+  // undoDropped: false | 'limit' (Verlauf voll) | 'new' („Neu" hat den älteren Verlauf verworfen)
+  const UNDO_MAX = 200; let undoDropped = false;
+  // undoLabels/redoLabels laufen parallel zu den Stapeln: Name der Aktion (aus toastUndo), damit Strg+Z sagt, was es zurücknimmt (Review 09.10.)
+  let undoLabels = [], redoLabels = [];
+  function pushUndo(s) { undoStack.push(s); undoLabels.push(null); if (undoStack.length > UNDO_MAX) { undoStack.shift(); undoLabels.shift(); if (undoDropped !== 'new') undoDropped = 'limit'; } redoStack = []; redoLabels = []; syncUndoButtons(); }
+  function syncUndoButtons() { const u = $('#btnUndo'), r = $('#btnRedo'); if (u) u.disabled = !undoStack.length && !undoDropped; if (r) r.disabled = !redoStack.length; }
+  let snap = null;
+  function commit(opts) {
+    if (!(opts && opts.noUndo)) { if (snap !== null) pushUndo(snap); snap = null; }
+    persist(); if (opts && opts.keep) renderFocusSoon(); else if (opts && opts.soon) renderSoon(); else render();
+    if (snap === null) snap = JSON.stringify(S);
+  }
+  function mark() { if (snap !== null) pushUndo(snap); snap = JSON.stringify(S); persist(); }
+  // Wiederhergestellte Stände in die aktuelle UI-Sprache bringen (die Sprache ist eine Ansichtseinstellung, kein Bearbeitungsschritt)
+  function syncLang() { if (S.lang !== I18N.lang) { relabelDefaults(I18N.lang); S.lang = I18N.lang; } }
+  function undo() {
+    if (!undoStack.length) return toast(undoDropped === 'new' ? t('toast.undoAfterNew') : undoDropped ? t('toast.undoLimit', { n: UNDO_MAX }) : t('toast.nothingUndo'));
+    redoStack.push(JSON.stringify(S)); const lbl = undoLabels.pop() || null; redoLabels.push(lbl);
+    S = migrate(JSON.parse(undoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); syncUndoButtons();
+    toast(lbl ? t('toast.undoneX', { a: lbl }) : t('toast.undone'));
+  }
+  function redo() {
+    if (!redoStack.length) return toast(t('toast.nothingRedo'));
+    undoStack.push(JSON.stringify(S)); const lbl = redoLabels.pop() || null; undoLabels.push(lbl);
+    S = migrate(JSON.parse(redoStack.pop())); syncLang(); sel = null; snap = null; persist(); render(); snap = JSON.stringify(S); syncUndoButtons();
+    toast(lbl ? t('toast.redoneX', { a: lbl }) : t('toast.redone'));
+  }
+  // ---- Standardtexte und Sprachwechsel (B27) -----------------------------------------------------------------
+  // Ein Standardtext trägt seinen i18n-Schlüssel als Merker: obj.dflt[prop] = 'state.newReport' (Seitenzahlen: ['state.pageN', { n: 2 }]).
+  // Nur markierte Texte folgen einem Sprachwechsel; wer den Text bearbeitet, löscht den Merker (dropDefault). Früher wurde am Wortlaut
+  // geraten, dann wurde ein eigener Text wie „Overview" in einem deutschen Bericht beim Neuladen still zu „Übersicht".
+  const DFLT_V = 1;
+  function setDefault(obj, prop, key, vars) { if (obj) (obj.dflt = obj.dflt || {})[prop] = vars ? [key, vars] : key; }
+  function dropDefault(obj, prop) { if (obj && obj.dflt && prop in obj.dflt) { delete obj.dflt[prop]; if (!Object.keys(obj.dflt).length) delete obj.dflt; } }
+  const tplKeys = () => Object.keys(I18N.dict.de).filter(k => k.indexOf('tpl.t.') === 0);
+  // Vorlagen-Visuals: Titel, Untertitel und Notiz kommen aus tpl.t.* in der UI-Sprache (catalog.js); gleich nach dem Anlegen markieren
+  function markTemplate(node) {
+    const keys = tplKeys();
+    leaves(node).forEach(l => { const v = l.visual; if (!v) return; ['title', 'sub', 'notes'].forEach(prop => { const k = v[prop] ? keys.find(x => I18N.t(x) === v[prop]) : null; if (k) setDefault(v, prop, k); }); });
+    return node;
+  }
+  const boundNames = v => { const s = new Set(); Object.values(v.roles || {}).forEach(list => (list || []).forEach(f => s.add(f.name))); return s; };
+  const allVisuals = st => { const out = []; st.pages.forEach(p => leaves(p.layout).forEach(l => { if (l.visual) out.push(l.visual); })); return out; };
+  // Markierte Texte in die Zielsprache. Ein Merker gilt nur, solange der Text noch einem Wortlaut seines Schlüssels entspricht
+  // (sonst wurde er auf einem Weg ohne dropDefault bearbeitet): dann fällt der Merker weg und der Text bleibt.
+  function relabelTexts(to, st) {
+    st = st || S; let n = 0;
+    const swap = (obj, prop) => {
+      const m = obj && obj.dflt && obj.dflt[prop]; if (!m) return;
+      const key = Array.isArray(m) ? m[0] : m, vars = Array.isArray(m) ? m[1] : undefined, val = obj[prop];
+      if (!I18N.langs.some(l => I18N.tl(l, key, vars) === val)) { dropDefault(obj, prop); return; }
+      const nv = I18N.tl(to, key, vars); if (nv !== val) { obj[prop] = nv; n++; }
+    };
+    swap(st, 'name'); st.pages.forEach(p => swap(p, 'name'));
+    const ch = st.chrome || {}; if (ch.header) { swap(ch.header, 'title'); swap(ch.header, 'sub'); } if (ch.footer) swap(ch.footer, 'text');
+    // Ein Titel, der genau einem gebundenen Feld entspricht (Umsatz auf Umsatz), folgt dem Feld und nicht dem Wörterbuch:
+    // bei einem eigenen Modell bleibt er stehen, beim Demo-Modell benennt ihn relabelDemo zusammen mit dem Feld um.
+    allVisuals(st).forEach(v => { if (!boundNames(v).has(v.title)) swap(v, 'title'); swap(v, 'sub'); swap(v, 'notes'); });
+    return n;
+  }
+  // Demo-Modell: nur wenn es exakt dem Demo-Modell einer anderen Sprache entspricht (nichts geladen, nichts ergänzt)
+  function relabelDemo(to, st) {
+    st = st || S; const others = I18N.langs.filter(l => l !== to);
+    const cur = JSON.stringify(st.model); let demo = null;
+    if (st.model && (st.model.tables || []).length) CAT.demoModels.some(m => others.some(l => { if (JSON.stringify(m.build(l)) === cur) { demo = m; return true; } return false; }));
+    if (!demo) return 0;
+    const fresh = demo.build(to); const ren = {}; const ch = st.chrome || {};
+    st.model.tables.forEach((tb, ti) => { const nt = fresh.tables[ti]; ['measures', 'columns'].forEach(kind => tb[kind].forEach((f, i) => { const nf = nt && nt[kind][i]; if (nf && nf.name !== f.name) ren[tb.name + '|' + f.name] = nf.name; })); });
+    st.model = fresh;
+    const re = f => { const nn = !f.isNew && ren[f.table + '|' + f.name]; if (nn) f.name = nn; return nn; };
+    allVisuals(st).forEach(v => Object.values(v.roles || {}).forEach(list => list.forEach(f => { const old = f.name, nn = re(f); if (nn && v.title === old) v.title = nn; })));
+    ((ch.filter && ch.filter.fields) || []).forEach(re);
+    Object.keys(st.fieldMeta || {}).forEach(k => { const i = k.indexOf('.'); const nn = ren[k.slice(0, i) + '|' + k.slice(i + 1)]; if (nn) { st.fieldMeta[k.slice(0, i) + '.' + nn] = st.fieldMeta[k]; delete st.fieldMeta[k]; } });
+    return 1;
+  }
+  // Sprachwechsel, Rückgängig über einen Sprachwechsel hinweg, Öffnen einer Datei in der anderen Sprache. Liefert die Anzahl der Änderungen.
+  function relabelDefaults(to) { return relabelTexts(to) + relabelDemo(to); }
+  // Einmal für Stände ohne Merker: Texte, die wörtlich ein Standardtext der Projektsprache sind, bekommen den Merker. Texte in der
+  // anderen Sprache nur, wenn der Stand erkennbar dort angelegt wurde (Berichtsname, Kopfband-Untertitel oder Fußzeile lauten wie ihr
+  // Standard, keiner wie der der Projektsprache). Dann heilt relabelTexts sie; ein eigener Text in einem sonst deutschen Stand bleibt.
+  function markLegacy(st) {
+    const L = st.lang === 'en' ? 'en' : 'de', O = L === 'en' ? 'de' : 'en'; const ch = st.chrome || {};
+    const ev = [[st, 'name', 'state.newReport'], [ch.header, 'sub', 'state.headerSub'], [ch.footer, 'text', 'state.footerText']].filter(x => x[0]);
+    const own = ev.filter(([o, p, k]) => o[p] === I18N.tl(L, k)).length, oth = ev.filter(([o, p, k]) => o[p] === I18N.tl(O, k) && o[p] !== I18N.tl(L, k)).length;
+    const heal = oth > 0 && own === 0;
+    const mark = (o, p, k, vars) => { if (!o || typeof o[p] !== 'string' || !o[p]) return false; if (o[p] === I18N.tl(L, k, vars) || (heal && o[p] === I18N.tl(O, k, vars))) { setDefault(o, p, k, vars); return true; } return false; };
+    mark(st, 'name', 'state.newReport');
+    st.pages.forEach(p => { if (!mark(p, 'name', 'state.firstPage')) for (let n = 1; n <= Math.max(99, st.pages.length); n++) if (mark(p, 'name', 'state.pageN', { n })) break; });
+    if (ch.header) { mark(ch.header, 'title', 'state.headerTitle'); mark(ch.header, 'sub', 'state.headerSub'); }
+    if (ch.footer) mark(ch.footer, 'text', 'state.footerText');
+    const keys = tplKeys();
+    allVisuals(st).forEach(v => ['title', 'sub', 'notes'].forEach(prop => keys.some(k => mark(v, prop, k))));
+    return heal;
+  }
+
+  // ------------------------------------------------------------------ Baum-Helfer (aktuelle Seite)
+  function findNode(id, node, parent, idx) {
+    node = node || page().layout;
+    if (node.id === id) return { node, parent, idx };
+    if (node.type !== 'leaf') for (let i = 0; i < node.children.length; i++) { const r = findNode(id, node.children[i].node, node, i); if (r) return r; }
+    return null;
+  }
+  function leaves(node, out) { node = node || page().layout; out = out || []; if (node.type === 'leaf') out.push(node); else node.children.forEach(c => leaves(c.node, out)); return out; }
+  function visuals(p) { return leaves(p ? p.layout : null).filter(l => l.visual); }
+
+  function splitLeaf(id, dir) {
+    const f = findNode(id); if (!f) return;
+    const leaf = f.node; const fresh = { id: uid(), type: 'leaf', visual: null }; const keep = { id: leaf.id, type: 'leaf', visual: leaf.visual };
+    if (f.parent && f.parent.type === 'grid') {
+      // Rasterzelle: ueber mehrere Spuren verbunden -> wieder in einzelne Zellen zerlegen (erste behaelt das Visual); sonst innerhalb der Zelle teilen
+      const cell = f.parent.children[f.idx]; const span = dir === 'row' ? cell.cs : cell.rs;
+      if (span > 1) {
+        const cells = [];
+        for (let k = 0; k < span; k++) { const nd = k === 0 ? cell.node : { id: uid(), type: 'leaf', visual: null }; cells.push(dir === 'row' ? { r: cell.r, c: cell.c + k, rs: cell.rs, cs: 1, node: nd } : { r: cell.r + k, c: cell.c, rs: 1, cs: cell.cs, node: nd }); }
+        f.parent.children.splice(f.idx, 1, ...cells); commit(); return;
+      }
+    }
+    if (f.parent && f.parent.dir === dir) { const ch = f.parent.children[f.idx]; const half = ch.size / 2; ch.size = half; f.parent.children.splice(f.idx + 1, 0, { size: half, node: fresh }); }
+    else {
+      const split = { id: uid(), type: 'split', dir, children: [{ size: 1, node: keep }, { size: 1, node: fresh }] };
+      keep.id = uid();
+      if (f.parent) f.parent.children[f.idx].node = split; else page().layout = split;
+      if (sel === leaf.id) sel = keep.id;
+    }
+    commit();
+  }
+  // Zwei Nachbarn im selben Split verbinden: leere Kachel geht im Nachbarn auf, zwei Leaves werden eines (linke/obere Kachel behaelt ihr Visual)
+  function mergeGridGutter(gi) {
+    const grid = gi.grid, A = gi.cells[0], B = gi.cells[1];
+    const ok = gi.axis === 'col' ? (A.r === B.r && A.rs === B.rs) : (A.c === B.c && A.cs === B.cs);
+    if (!ok) return toast(t('toast.mergeNotRect'));
+    const has = c => c.node.type !== 'leaf' || !!c.node.visual;
+    const lbl = c => c.node.type === 'leaf' && c.node.visual ? (c.node.visual.title || CAT.byId[c.node.visual.kind].label) : t('tab.el');
+    if (has(A) && has(B) && !confirm(t('ask.mergeReplace', { t: lbl(B) }))) return;
+    const keepNode = (has(A) || !has(B)) ? A.node : B.node;
+    const merged = { r: A.r, c: A.c, rs: gi.axis === 'col' ? A.rs : A.rs + B.rs, cs: gi.axis === 'col' ? A.cs + B.cs : A.cs, node: keepNode };
+    grid.children.splice(grid.children.indexOf(A), 1, merged); grid.children.splice(grid.children.indexOf(B), 1);
+    sel = keepNode.type === 'leaf' ? keepNode.id : sel; commit(); toast(t('toast.merged'));
+  }
+  // Baum → echtes Raster, pixelgenau (v0.5.4): alle Kacheln der Seite auf gemeinsame Spuren legen (Spurgewicht = Spurbreite in px).
+  // Gibt null zurück, wenn das Raster eine Kachel um mehr als 2 px verschieben würde oder sich Kacheln überdecken.
+  function pageToGrid(pg) {
+    if (!window.MK_PBIR || !window.MK_PBIR.solveRects) return null;
+    const geo = computeAll(pg); const g = Math.round(S.spacing.gutter * ui()); const leaves = geo.leaves; if (leaves.length < 2) return null;
+    const res = window.MK_PBIR.solveRects(leaves.map(l => ({ r: l.rect, node: l.node })), geo.zones.content, g);
+    if (!res || res.dev > 2) return null;   // Bäume legen ihren Pixelrest anders ab als das Raster: höchstens 2 px Versatz beim Umstellen
+    const children = res.cells.map(c => ({ r: c.r, c: c.c, rs: c.rs, cs: c.cs, node: c.tile.node }));
+    const occ = new Set(); let clash = false;
+    children.forEach(c => { for (let r = c.r; r < c.r + c.rs; r++) for (let k = c.c; k < c.c + c.cs; k++) { const key = r + ':' + k; if (occ.has(key)) clash = true; occ.add(key); } });
+    if (clash) return null;
+    for (let r = 0; r < res.rows.length; r++) for (let k = 0; k < res.cols.length; k++) if (!occ.has(r + ':' + k)) children.push({ r, c: k, rs: 1, cs: 1, node: { id: uid(), type: 'leaf', visual: null } });
+    const grid = { id: uid(), type: 'grid', cols: res.cols, rows: res.rows, children };
+    // Gegenprobe: jede Kachel liegt im Raster auf denselben Pixeln wie vorher
+    const out = { leaves: [], gutters: [] }; layoutRects(grid, geo.zones.content, out, g);
+    const was = new Map(leaves.map(l => [l.node.id, l.rect]));
+    const moved = out.leaves.some(l => { const a = was.get(l.node.id); return a && (Math.abs(a.x - l.rect.x) > 2 || Math.abs(a.y - l.rect.y) > 2 || Math.abs(a.w - l.rect.w) > 2 || Math.abs(a.h - l.rect.h) > 2); });
+    return moved ? null : { grid, gutters: out.gutters };
+  }
+  function mergeGutter(gi) {
+    if (gi.grid) return mergeGridGutter(gi);
+    // Achsen halten (Tester-Feedback 01.10.2026): im verschachtelten Baum verschiebt Verbinden die Nachbarlinien, und über Gruppen
+    // hinweg ging es gar nicht. Deshalb die Seite erst pixelgenau ins Raster überführen und dort die beiden Zellen am „+" verbinden.
+    const pg = page(); const conv = pg.layout.type !== 'grid' ? pageToGrid(pg) : null;
+    if (conv) {
+      const cx = gi.rect.x + gi.rect.w / 2, cy = gi.rect.y + gi.rect.h / 2;
+      const hit = conv.gutters.find(x => x.grid && x.dir === gi.dir && cx >= x.rect.x - 1 && cx <= x.rect.x + x.rect.w + 1 && cy >= x.rect.y - 1 && cy <= x.rect.y + x.rect.h + 1);
+      pg.layout = conv.grid;
+      if (hit) return mergeGridGutter(hit);
+      sel = null; commit(); return toast(t('toast.gridified'));
+    }
+    const p = gi.parent, i = gi.index; const A = p.children[i], B = p.children[i + 1]; if (!A || !B) return;
+    const isLeaf = c => c.node.type === 'leaf', empty = c => isLeaf(c) && !c.node.visual;
+    let keep, drop;
+    if (isLeaf(A) && isLeaf(B)) {
+      if (A.node.visual && B.node.visual && !confirm(t('ask.mergeReplace', { t: B.node.visual.title || CAT.byId[B.node.visual.kind].label }))) return;
+      keep = A; drop = B; if (!A.node.visual && B.node.visual) { keep = B; drop = A; }
+    } else if (empty(A)) { keep = B; drop = A; }
+    else if (empty(B)) { keep = A; drop = B; }
+    else return toast(t('toast.mergeNotPossible'));
+    keep.size += drop.size; p.children.splice(p.children.indexOf(drop), 1);
+    if (p.children.length === 1) { const only = p.children[0].node; const pf = findNode(p.id); if (pf.parent) pf.parent.children[pf.idx].node = only; else page().layout = only; }
+    sel = keep.node.type === 'leaf' ? keep.node.id : sel; commit(); toast(t('toast.merged'));
+  }
+  // „+" am Seitenrand: neue Kachel auf der obersten Ebene einfuegen, alle Kacheln dieser Ebene gleich verteilen (aus 2 gleichen werden 3 gleiche)
+  // Erst an einer Kopie einfügen und nachrechnen: wird dabei eine Kachel schmaler (bzw. niedriger) als die Mindestgröße, bleibt die
+  // Seite unverändert und ein Hinweis sagt warum (B49). Mindestgröße wie die Fehlergrenze in a11y.js (100 × 60 px bei 1280 px Breite).
+  function insertEdge(side) {
+    const dir = (side === 'left' || side === 'right') ? 'row' : 'col'; const atStart = side === 'left' || side === 'top';
+    const pg = page(); const root = JSON.parse(JSON.stringify(pg.layout)); const fresh = { id: uid(), type: 'leaf', visual: null };
+    let next = root;
+    if (root.type === 'grid') {
+      const tracks = dir === 'row' ? root.cols : root.rows; const key = dir === 'row' ? 'c' : 'r'; const at = atStart ? 0 : tracks.length;
+      if (atStart) root.children.forEach(c => { c[key] += 1; });
+      tracks.splice(at, 0, 1); tracks.forEach((v, i) => { tracks[i] = 1; });
+      const other = dir === 'row' ? root.rows.length : root.cols.length;
+      for (let k = 0; k < other; k++) { const nd = k === 0 ? fresh : { id: uid(), type: 'leaf', visual: null }; root.children.push(dir === 'row' ? { r: k, c: at, rs: 1, cs: 1, node: nd } : { r: at, c: k, rs: 1, cs: 1, node: nd }); }
+    } else if (root.type === 'split' && root.dir === dir) {
+      root.children.splice(atStart ? 0 : root.children.length, 0, { size: 1, node: fresh });
+      root.children.forEach(c => { c.size = 1; });
+    } else {
+      const ch = [{ size: 1, node: root }, { size: 1, node: fresh }]; if (atStart) ch.reverse();
+      next = { id: uid(), type: 'split', dir, children: ch };
+    }
+    const k = ui(), dim = dir === 'row' ? 'w' : 'h', min = Math.round((dir === 'row' ? 100 : 60) * k * 10) / 10;
+    const before = {}; computeAll(pg).leaves.forEach(l => { before[l.node.id] = l.rect[dim]; });
+    const out = { leaves: [], gutters: [] }; layoutRects(next, zones().content, out, Math.round(S.spacing.gutter * k));
+    const shrunk = out.leaves.map(l => l.rect[dim]).filter((v, i) => { const b = before[out.leaves[i].node.id]; return v < min && (b == null || v < b); });
+    if (shrunk.length) return toast(t(dir === 'row' ? 'toast.edgeTooNarrow' : 'toast.edgeTooLow', { v: Math.min(...shrunk), min: Math.round(min) }));
+    pg.layout = next; sel = fresh.id; commit(); toast(t('toast.inserted'));
+  }
+  function removeLeaf(id) {
+    const f = findNode(id); if (!f) return;
+    if (!f.parent || f.parent.type === 'grid') { f.node.visual = null; commit(); return; }
+    f.parent.children.splice(f.idx, 1);
+    if (f.parent.children.length === 1) { const only = f.parent.children[0].node; const pf = findNode(f.parent.id); if (pf.parent) pf.parent.children[pf.idx].node = only; else page().layout = only; }
+    if (sel === id) sel = null;
+    commit();
+  }
+  function rebuildGrid(rows, cols) {
+    const olds = visuals().map(l => l.visual);
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) cells.push({ r, c, rs: 1, cs: 1, node: { id: uid(), type: 'leaf', visual: olds.shift() || null } });
+    page().layout = { id: uid(), type: 'grid', cols: Array.from({ length: cols }, () => 1), rows: Array.from({ length: rows }, () => 1), children: cells };
+    sel = null; commit();
+  }
+  function applyTemplate(tplId) {
+    const tpl = CAT.templates.find(t => t.id === tplId); if (!tpl) return;
+    if (visuals().length && !confirm(t('ask.tplReplace', { t: tpl.label, n: visuals().length }))) return;
+    if (!S.model.tables.length) { S.model = JSON.parse(JSON.stringify(CAT.demoModel)); syncFieldFlags(); openMeasureTable(); toast(t('toast.demoLoadedTpl')); }
+    page().layout = markTemplate(ensureIds(tpl.tree())); sel = null; commit(); toast(t('toast.tplSet', { t: tpl.label }));
+  }
+
+  // ------------------------------------------------------------------ Seiten
+  function addPage(name, tplId) {
+    const tpl = CAT.templates.find(t => t.id === (tplId || 'empty'));
+    const p = { id: uid(), name: name || t('state.pageN', { n: S.pages.length + 1 }), notes: '', layout: markTemplate(ensureIds(tpl.tree())) };
+    if (!name) setDefault(p, 'name', 'state.pageN', { n: S.pages.length + 1 });
+    S.pages.push(p); S.cur = p.id; sel = null; commit(); return p;
+  }
+  function dupPage() { const src = page(); const p = JSON.parse(JSON.stringify(src)); p.id = uid(); p.name = src.name + t('state.copySuffix'); dropDefault(p, 'name'); reId(p.layout); S.pages.splice(S.pages.indexOf(src) + 1, 0, p); S.cur = p.id; sel = null; commit(); }
+  function reId(n) { n.id = uid(); if (n.type !== 'leaf') n.children.forEach(c => reId(c.node)); }
+  function delPage(pid) {
+    const p = S.pages.find(x => x.id === pid) || page();
+    if (S.pages.length === 1) return toast(t('toast.lastPage'));
+    if (!confirm(t('ask.delPage', { n: p.name }))) return;
+    const i = S.pages.indexOf(p); const id = p.id; S.pages.splice(i, 1); S.cur = S.pages[Math.max(0, i - 1)].id; sel = null;
+    S.pages.forEach(p => visuals(p).forEach(l => { if (l.visual.link === id) l.visual.link = ''; }));
+    commit();
+  }
+  function movePage(d) { const i = S.pages.indexOf(page()); const j = i + d; if (j < 0 || j >= S.pages.length) return; const [p] = S.pages.splice(i, 1); S.pages.splice(j, 0, p); commit(); }
+  // Seitenreiter sind Knöpfe (Tastatur: Tab, Enter/Leertaste), ✎ und × ebenso, mit Namen im aria-label.
+  // Nach dem Neuzeichnen steht der Fokus wieder auf demselben Knopf, sonst fiele er nach jedem Seitenwechsel auf <body>.
+  function renderPages() {
+    const bar = $('#pagebar'); const fa = document.activeElement;
+    const keep = fa && fa !== bar && bar.contains(fa) ? (fa.id ? '#' + fa.id : ['go', 'renpage', 'delpage'].filter(k => fa.dataset[k]).map(k => `[data-${k}="${CSS.escape(fa.dataset[k])}"]`)[0]) : null;
+    bar.innerHTML = S.pages.map((p, i) => { const act = p.id === S.cur; return `<span class="ptab${act ? ' act' : ''}" data-page="${p.id}"><button type="button" class="pt-go" data-go="${p.id}" title="${esc(t('tip.pageGo', { n: p.name }))}"${act ? ' aria-current="page"' : ''}><span class="n">${i + 1}</span>${esc(p.name)}</button>${act ? `<button type="button" class="x" data-renpage="${p.id}" title="${esc(t('tip.pageRename'))}" aria-label="${esc(t('tip.pageRenameN', { n: p.name }))}">✎</button>` : ''}<button type="button" class="x" data-delpage="${p.id}" title="${esc(t('tip.pageDelete'))}" aria-label="${esc(t('tip.pageDeleteN', { n: p.name }))}">×</button></span>`; }).join('')
+      + `<button class="padd" id="btnAddPage" title="${esc(t('tip.addPage'))}">${esc(t('btn.addPage'))}</button><span class="ptools"><button class="btn sm ghost" id="btnPageLeft" title="${esc(t('tip.pageLeft'))}" aria-label="${esc(t('tip.pageLeft'))}">‹</button><button class="btn sm ghost" id="btnPageRight" title="${esc(t('tip.pageRight'))}" aria-label="${esc(t('tip.pageRight'))}">›</button></span>`;
+    if (keep) { const el = $(keep, bar) || $(`[data-go="${CSS.escape(S.cur)}"]`, bar); if (el) el.focus({ preventScroll: true }); }
+  }
+  $('#pagebar').addEventListener('click', e => {
+    const del = e.target.closest('[data-delpage]'); if (del) { delPage(del.dataset.delpage); return; }
+    const ren = e.target.closest('[data-renpage]'); if (ren) { const p = S.pages.find(x => x.id === ren.dataset.renpage); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); dropDefault(p, 'name'); commit(); } return; }
+    const tab = e.target.closest('[data-page]'); if (tab) { if (tab.dataset.page !== S.cur) { S.cur = tab.dataset.page; sel = null; commit({ noUndo: true }); } return; }
+    if (e.target.id === 'btnAddPage') addPage();
+    if (e.target.id === 'btnPageLeft') movePage(-1);
+    if (e.target.id === 'btnPageRight') movePage(1);
+  });
+  $('#pagebar').addEventListener('dblclick', e => { const el = e.target.closest('[data-page]'); if (!el || e.target.closest('[data-delpage]')) return; const p = S.pages.find(x => x.id === el.dataset.page); const n = prompt(t('ask.pageName'), p.name); if (n && n.trim()) { p.name = n.trim(); dropDefault(p, 'name'); commit(); } });
+
+  // ------------------------------------------------------------------ Geometrie
+  function zones() {
+    const { w, h } = S.canvas; const c = S.chrome; const k = ui(); const m = Math.round(S.spacing.margin * k);
+    let top = 0, bottom = h, left = 0, right = w; const z = {};
+    if (c.nav.on) { const nw = Math.round(c.nav.w * k); z.nav = { x: 0, y: 0, w: nw, h }; left = nw; }
+    if (c.header.on) { const hh = Math.round(c.header.h * k); z.header = { x: left, y: 0, w: w - left, h: hh }; top = hh; }
+    if (c.footer.on) { const fh = Math.round(c.footer.h * k); z.footer = { x: left, y: h - fh, w: w - left, h: fh }; bottom = h - fh; }
+    if (c.filter.on) {
+      if (c.filter.side === 'right') { const fw = Math.round(c.filter.w * k); z.filter = { x: w - fw, y: top, w: fw, h: bottom - top }; right = w - fw; }
+      else if (c.filter.side === 'left') { const fw = Math.round(c.filter.w * k); z.filter = { x: left, y: top, w: fw, h: bottom - top }; left += fw; }
+      else if (c.filter.side === 'top') { const fh = Math.round((c.filter.topH || 56) * k); z.filter = { x: left, y: top, w: right - left, h: fh }; top += fh; }
+      // burger: keine Zone, Button im Kopfband; Panel entsteht per Bookmark
+    }
+    z.content = { x: left + m, y: top + m, w: Math.max(40, right - left - 2 * m), h: Math.max(40, bottom - top - 2 * m) };
+    return z;
+  }
+  function layoutRects(node, rect, out, gutter) {
+    if (node.type === 'leaf') { out.leaves.push({ node, rect: roundRect(rect) }); return; }
+    if (node.type === 'grid') {
+      // Spuren einmal berechnen -> alle Zellen einer Spalte/Zeile liegen exakt auf einer Linie; Pixelrest an den Rand
+      const gg = gutter;
+      const tracks = (arr, start, span) => { const total = arr.reduce((a, b) => a + b, 0) || 1; const inner = span - gg * (arr.length - 1); const sizes = arr.map(s => Math.max(8, Math.floor(inner * s / total))); const rest = Math.max(0, inner - sizes.reduce((a, b) => a + b, 0)); let pos = start + Math.floor(rest / 2); return sizes.map(sz => { const tr = { pos, sz }; pos += sz + gg; return tr; }); };
+      const X = tracks(node.cols, rect.x, rect.w), Y = tracks(node.rows, rect.y, rect.h);
+      const x0 = c => X[c.c].pos, x1 = c => X[Math.min(X.length - 1, c.c + c.cs - 1)].pos + X[Math.min(X.length - 1, c.c + c.cs - 1)].sz;
+      const y0 = c => Y[c.r].pos, y1 = c => Y[Math.min(Y.length - 1, c.r + c.rs - 1)].pos + Y[Math.min(Y.length - 1, c.r + c.rs - 1)].sz;
+      node.children.forEach(cell => layoutRects(cell.node, { x: x0(cell), y: y0(cell), w: x1(cell) - x0(cell), h: y1(cell) - y0(cell) }, out, gutter));
+      node.children.forEach(A => node.children.forEach(B => {
+        if (A.c + A.cs === B.c) { const t0 = Math.max(y0(A), y0(B)), t1 = Math.min(y1(A), y1(B)); if (t1 > t0) out.gutters.push({ grid: node, axis: 'col', boundary: B.c, cells: [A, B], dir: 'row', rect: { x: x0(B) - gg, y: t0, w: gg, h: t1 - t0 } }); }
+        if (A.r + A.rs === B.r) { const t0 = Math.max(x0(A), x0(B)), t1 = Math.min(x1(A), x1(B)); if (t1 > t0) out.gutters.push({ grid: node, axis: 'row', boundary: B.r, cells: [A, B], dir: 'col', rect: { x: t0, y: y0(B) - gg, w: t1 - t0, h: gg } }); }
+      }));
+      return;
+    }
+    const g = gutter, n = node.children.length; const total = node.children.reduce((a, c) => a + c.size, 0) || 1;
+    const span = (node.dir === 'row' ? rect.w : rect.h) - g * (n - 1);
+    // Groessen abrunden; der Pixelrest wandert an den Rand (halb links/oben, halb rechts/unten) statt in die letzte Kachel
+    const sizes = node.children.map(ch => Math.max(8, Math.floor(span * ch.size / total)));
+    const rest = Math.max(0, span - sizes.reduce((a, b) => a + b, 0));
+    let pos = (node.dir === 'row' ? rect.x : rect.y) + Math.floor(rest / 2);
+    node.children.forEach((ch, i) => {
+      const sz = sizes[i];
+      const r = node.dir === 'row' ? { x: pos, y: rect.y, w: sz, h: rect.h } : { x: rect.x, y: pos, w: rect.w, h: sz };
+      layoutRects(ch.node, r, out, gutter);
+      pos += sz + g;
+      if (i < n - 1) out.gutters.push({ parent: node, index: i, dir: node.dir, rect: node.dir === 'row' ? { x: pos - g, y: rect.y, w: g, h: rect.h } : { x: rect.x, y: pos - g, w: rect.w, h: g } });
+    });
+  }
+  function roundRect(r) { return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.w), h: Math.round(r.h) }; }
+  function computeAll(p) { p = p || page(); const z = zones(); const out = { leaves: [], gutters: [], zones: z }; layoutRects(p.layout, z.content, out, Math.round(S.spacing.gutter * ui())); if (p === page()) lastRects = out; return out; }
+  window.MK_GEOM = { zones, computeAll };
+
+  // ------------------------------------------------------------------ Rendering: Seite
+  const pageEl = $('#page'), stage = $('#stage');
+  // Fokus in der Zeichenfläche halten (B42): Kachel mit dieser id, sonst die Seite selbst (tabindex=-1)
+  // fallback: gibt es die Kachel nicht mehr (geteilt, eingefügt über „+"), die gewählte Kachel
+  function focusCanvas(leafId, fallback) { const q = id => id ? pageEl.querySelector(`[data-leaf="${CSS.escape(id)}"]`) : null; (q(leafId) || q(fallback) || pageEl).focus({ preventScroll: true }); }
+  // opts.inspector === false: das Kachel-Panel stehen lassen (Tippen im Panel, renderPageOnly)
+  function render(opts) {
+    const { w, h } = S.canvas; const c = S.chrome; const d = S.design; const k = ui();
+    // innerHTML ersetzt unten alle Kacheln; lag der Fokus darin, fiele er sonst auf <body> und der nächste Tab begänne oben
+    const fa = document.activeElement, faIn = !!fa && fa !== pageEl && pageEl.contains(fa), faTile = faIn && fa.closest('[data-leaf]');
+    pageEl.style.width = w + 'px'; pageEl.style.height = h + 'px'; pageEl.style.transform = 'scale(' + zoom + ')';
+    // Kacheltitel und Eyebrow folgen derselben Kontrast-Regel wie die Skizze (tileInk: tileHtml, render-png), sonst 1:1 auf dunklem Kachelgrund (B5)
+    pageEl.style.setProperty('--ui', k); pageEl.style.setProperty('--zoom', zoom); pageEl.style.setProperty('--tile-r', Math.round(d.radius * k) + 'px'); pageEl.style.setProperty('--page-bg', pageBgOf(d)); pageEl.style.setProperty('--accent', d.accent || '#C25A2D'); pageEl.style.setProperty('--tile-bg', d.tileBg || '#FFFFFF'); pageEl.style.setProperty('--ink-page', tileInk(d).ink); pageEl.style.setProperty('--hdr-bg', d.headerBg || '#0F1E2E'); pageEl.style.setProperty('--hdr-ink', d.headerInk || '#FFFFFF'); const ty = typo(); pageEl.style.setProperty('--fs-title', (ty.title * ty.scale) + 'px'); pageEl.style.setProperty('--fs-sub', (ty.sub * ty.scale) + 'px');
+    pageEl.className = 'page tile-' + (d.tile || 'border');
+    $('#stageInner').style.minWidth = `max(100%, ${Math.round(w * zoom + 56)}px)`; $('#stageInner').style.minHeight = `max(100%, ${Math.round(h * zoom + 56)}px)`;
+    pageEl.style.marginRight = (w * zoom - w) + 'px'; pageEl.style.marginBottom = (h * zoom - h) + 'px';
+    const all = computeAll(); const z = all.zones;
+    let html = '';
+    if (z.nav) html += `<div class="zone nav" style="${css(z.nav)}"><i class="logo"></i>${S.pages.map(p => `<i class="${p.id === S.cur ? 'act' : ''}" title="${esc(p.name)}"></i>`).join('')}</div>`;
+    if (z.header) {
+      const names = navPosOf(c) === 'header' ? navNames(c) : [];
+      const cur = c.header.navAuto ? page().name : names[0];
+      const nav = names.map(n => `<span class="${n === cur ? 'act' : ''}">${esc(n)}</span>`).join('');
+      const logo = pos => c.header.logoPos === pos ? `<div class="logo${pos === 'right' ? ' right' : ''}">LOGO</div>` : '';
+      const burger = c.filter.on && c.filter.side === 'burger' ? `<div class="burger" title="${esc(t('tip.filterMenu'))}"><i></i><i></i><i></i>${c.filter.fields.length ? `<b>${c.filter.fields.length}</b>` : ''}</div>` : '';
+      html += `<div class="zone header ${d.header || 'light'}" style="${css(z.header)}">${burger}${logo('left')}<div style="min-width:0"><div class="ttl">${esc(c.header.title || t('canvas.pageTitle'))}</div>${c.header.sub ? `<div class="sub">${esc(c.header.sub)}</div>` : ''}</div>${nav ? `<div class="nav${c.header.logoPos === 'right' ? ' noauto' : ''}" style="${c.header.logoPos === 'right' ? 'margin-left:auto' : ''}">${nav}</div>` : ''}${logo('right')}</div>`;
+    }
+    if (z.footer) { const fnames = navPosOf(c) === 'footer' ? navNames(c) : []; const fnav = fnames.length ? `<div class="nav">${fnames.map(n => `<span class="${n === page().name ? 'act' : ''}">${esc(n)}</span>`).join('')}</div>` : ''; html += `<div class="zone footer" style="${css(z.footer)}"><span class="ft">${esc(c.footer.text || '')}</span>${fnav}</div>`; }
+    // Zahnrad je Zone: oeffnet den passenden Abschnitt im Reiter Rahmen (Doppelklick auf die Zone tut dasselbe)
+    ['header', 'nav', 'filter', 'footer'].forEach(key => { const r = z[key]; if (!r) return; const gx = r.x + r.w - 26 * k, gy = key === 'footer' ? r.y + (r.h - 22 * k) / 2 : r.y + 4 * k; html += `<div class="zcfg" data-zcfg="${key}" title="${esc(t('tip.zoneCfg'))}" style="left:${gx}px;top:${gy}px">⚙</div>`; });
+    if (z.filter) {
+      const SLG = { dropdown: '▾', list: '☰', tile: '▦', between: '⟷', date: '▤', search: '⌕', relative: '◷', button: '▣' };
+      const sl = (c.filter.fields || []).map((f, i) => { const miss = fieldStatus(f) === 'missing'; return `<div class="sl${miss ? ' missing' : ''}"${miss ? ` title="${esc(f.name + ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }))}"` : ''}><span class="ty" title="${esc(t('opt.slicer.' + (f.type || 'dropdown')))}">${SLG[f.type || 'dropdown'] || '▾'}</span><span class="nm">${esc(f.name)}</span><span class="x" data-rmfilter="${i}" title="${esc(t('tip.slicerRemove'))}">✕</span></div>`; }).join('');
+      const fh = c.filter.heading || {}; const showHead = fh.show === 'on' || (fh.show !== 'off' && !(c.filter.fields || []).length) || (fh.show == null && !!fh.text);
+      const headTxt = fh.text || t('canvas.filter'); const ftxt = c.filter.text ? `<p class="txt">${esc(c.filter.text)}</p>` : '';
+      html += `<div class="zone filter ${c.filter.side}" style="${css(z.filter)}" data-dropfilter="1">${showHead ? `<h4>${esc(headTxt)}${c.filter.collapsible && c.filter.side !== 'top' ? ' ⧉' : ''}</h4>` : ''}${ftxt}${sl}<div class="sl ph">${esc(t('canvas.dropField'))}</div></div>`;
+    }
+    all.leaves.forEach(({ node, rect }) => { html += tileHtml(node, rect); });
+    all.gutters.forEach((g, i) => { html += `<div class="gutter ${g.dir === 'row' ? 'v' : 'h'}" data-gutter="${i}" style="${css(g.rect)}"><button type="button" class="gmerge" data-merge="${i}" title="${esc(t('tip.merge'))}" aria-label="${esc(t('tip.merge'))}">+</button></div>`; });
+    { const c0 = z.content, eb = (side, st) => `<button type="button" class="gedge ${side}" data-edge="${side}" style="${st}" title="${esc(t('tip.edge'))}" aria-label="${esc(t('tip.edge'))}">+</button>`;
+      html += eb('left', `left:${c0.x}px;top:${c0.y + c0.h / 2}px`) + eb('right', `left:${c0.x + c0.w}px;top:${c0.y + c0.h / 2}px`) + eb('top', `left:${c0.x + c0.w / 2}px;top:${c0.y}px`) + eb('bottom', `left:${c0.x + c0.w / 2}px;top:${c0.y + c0.h}px`); }
+    pageEl.innerHTML = html;
+    if (faIn) focusCanvas(faTile ? faTile.dataset.leaf : null, sel);
+    $('#stageInfo').textContent = t('canvas.info', { w, h, cw: z.content.w, ch: z.content.h, k: k.toFixed(2), z: Math.round(zoom * 100) });
+    renderPages(); if (!(opts && opts.inspector === false)) renderInspector(); renderModel(); syncPageInputs();
+  }
+  function css(r) { return `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px`; }
+  // Klick nicht verschlucken (B12): Verlässt man ein Feld per Mausklick auf eine andere Kachel, feuert dessen change-Ereignis
+  // mitten in diesem Klick. Ein sofortiges render() ersetzt das Klickziel zwischen mousedown und mouseup, der Klick ginge verloren
+  // (und N öffnete die alte Kachel). Solange eine Maustaste gedrückt ist, wird deshalb erst nach dem Loslassen neu gezeichnet.
+  let pointerDown = false, renderPending = false;
+  window.addEventListener('pointerdown', () => { pointerDown = true; }, true);
+  // Der Zeitgeber läuft erst nach dem nächsten Ereignis. Ist bis dahin schon der zweite Druck eines Doppelklicks da, wartet das
+  // Neuzeichnen bis zu dessen Loslassen, sonst ersetzt render() die Kachel zwischen pointerdown und pointerup und click/dblclick fehlen.
+  const pointerDone = () => { pointerDown = false; if (renderPending) { renderPending = false; setTimeout(() => { if (pointerDown) { renderPending = true; return; } renderKeepFocus(); }, 0); } };
+  window.addEventListener('pointerup', pointerDone, true); window.addEventListener('pointercancel', pointerDone, true);
+  function renderSoon() { if (pointerDown) renderPending = true; else render(); }
+  // Wie renderSoon, hält aber den Fokus auf dem Bedienelement im Kachel-Panel (Auswahllisten, Häkchen per Tastatur)
+  function renderFocusSoon() { if (pointerDown) renderPending = true; else renderKeepFocus(); }
+  // Wurde mit dem Klick ein anderes Feld im Kachel-Panel fokussiert, steht der Cursor nach dem Neuzeichnen wieder dort.
+  // Dasselbe für Auswahllisten und Häkchen, die per Tastatur geändert wurden: sonst fiele der Fokus nach jeder Änderung auf <body>.
+  const KEEP_ATTR = ['vk', 'an', 'vkb', 'ank', 'engine', 'ckp'];
+  function renderKeepFocus() {
+    const a = document.activeElement; const inIns = a && a.closest && a.closest('#insEl') && a.dataset;
+    const attr = inIns ? KEEP_ATTR.find(x => a.dataset[x] != null) : null;
+    const key = attr ? `[data-${attr}="${CSS.escape(a.dataset[attr])}"]` : null;
+    const s0 = key && a.selectionStart != null ? [a.selectionStart, a.selectionEnd] : null;
+    render();
+    const b = key ? $(key, insEl) : null;
+    if (b) { b.focus({ preventScroll: true }); if (s0 && b.setSelectionRange) try { b.setSelectionRange(s0[0], s0[1]); } catch (e) { /* select/number */ } }
+  }
+
+  function tileHtml(node, rect) {
+    const v = node.visual; const selc = sel === node.id ? ' sel' : ''; const k = ui();
+    const tiny = rect.h < 70 * k || rect.w < 110 * k;
+    // Icon-Knöpfe: aria-label wie title, sonst lesen Screenreader nur die Glyphe vor (B30)
+    const ib = (act, key, glyph) => `<button data-act="${act}" title="${esc(t(key))}" aria-label="${esc(t(key))}">${glyph}</button>`;
+    const acts = `<div class="t-actions">${ib('row', 'tip.splitRow', '⇔')}${ib('col', 'tip.splitCol', '⇕')}${ib('rm', 'tip.tileRemove', '✕')}</div>`;
+    if (!v) return `<div class="tile empty${selc}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(t('canvas.emptyTile'))}" style="${css(rect)}"><span class="plus">+</span><span class="lbl">${tiny ? '' : esc(t('canvas.emptyHint'))}</span>${acts}</div>`;
+    const def = CAT.byId[v.kind] || {}; const pad = Math.round(S.spacing.pad * k);
+    const link = v.link ? S.pages.find(p => p.id === v.link) : null;
+    const chips = roleChips(v) + (link ? `<span class="rchip link" title="${esc(t('tip.linkTo'))}">↗ ${esc(link.name)}</span>` : '');
+    const headH = v.title || v.sub ? (tiny ? 18 : 24) * k : 0;
+    const footH = chips && !tiny ? 18 * k : 0;
+    // Kernaussage (analysis.message) als Botschaftszeile unter dem Kopf (IBCS: Botschaft unter Titel/Untertitel, Review R7); die Skizze wird um die Zeile kleiner
+    const msg = String((v.analysis || {}).message || '').trim();
+    const msgFs = typo().sub * typo().scale * tileScale(v) * k, msgH = msg && !tiny ? Math.round(msgFs * 1.4 + 2 * k) : 0;
+    const bw = Math.max(20, rect.w - 2 * pad - 4), bh = Math.max(12, rect.h - headH - msgH - footH - pad - 6);
+    const an = analysisOf(v);
+    // Leere Pflichtrolle Kennzahl (KPI, Karte, Tacho): „?" statt einer erfundenen Zahl (Review R16)
+    const noMeasure = CAT.rolesFor(def, v).some(r => r.key === 'indicator' && r.req) && !((v.roles || {}).indicator || []).length;
+    const svg = window.MK_SKETCH ? (an.smallMultiples && window.MK_SKETCH.small ? window.MK_SKETCH.small : window.MK_SKETCH)(def.sketch || v.kind, bw, bh, Object.assign({ scenario: sketchScenario(v, an), seed: seedOf(node.id), label: v.sub || '', scale: k, polarity: an.polarity, deltaBasis: an.deltaBasis, variance: { abs: an.deltaKind.includes('abs'), rel: an.deltaKind.includes('rel') }, unit: an.unit, lang: S.lang, content: v.content || '', antiPattern: !!ANTI[v.kind], palette: S.design.palette || 'teal', ink: tileInk(S.design).ink, dark: tileInk(S.design).dark, paper: S.design.tileBg || '#FFFFFF', fontScale: typo().scale * tileScale(v), fonts: { label: typo().chart }, nativePalette: S.design.nativePalette || 'neutral', sort: an.sort, topN: an.topN, noMeasure }, ckSketchOpt(v), samplesOpt(v))) : '';
+    // Notiz: Symbol in der Badge-Zeile, das Popup als eigenes Element der Seite rechtsbündig unter dem Kachelkopf (B47).
+    // In .badges schrumpfte es auf deren Breite (ca. 33 px) und wurde vom overflow:hidden der Kachel abgeschnitten.
+    const noteTxt = v.notes ? v.notes : (v.openQuestion ? t('canvas.openQuestionEmpty') : '');
+    const note = noteTxt ? `<span class="note-ico" data-note="${node.id}" title="${esc(v.notes ? (v.openQuestion ? t('canvas.noteOpen') : t('canvas.note')) : t('canvas.openQuestion'))}">${v.openQuestion ? '?' : '✎'}</span>` : '';
+    // Rechtsbündig öffnet es nach links. Reicht der Platz bis zum linken Seitenrand nicht für die volle Breite (schmale Kachel
+    // links außen), öffnet es linksbündig nach rechts, statt zu einer schmalen Spalte zu schrumpfen. Abstände in Bildschirm-px.
+    const gapP = 6 / zoom, edgeP = 8 / zoom, roomL = Math.floor(rect.x + rect.w - gapP - edgeP), roomR = Math.floor(S.canvas.w - rect.x - gapP - edgeP);
+    const popRight = roomL < 320 / zoom && roomR > roomL;
+    const popPos = popRight ? `left:calc(${rect.x}px + 6px / var(--zoom))` : `right:calc(${S.canvas.w - rect.x - rect.w}px + 6px / var(--zoom))`;
+    const notePop = noteTxt ? `<div class="note-pop" data-note-for="${node.id}" style="top:calc(${rect.y}px + 28px / var(--zoom));${popPos};max-width:min(calc(320px / var(--zoom)), ${Math.max(40, popRight ? roomR : roomL)}px)">${esc(noteTxt)}</div>` : '';
+    const missing = CAT.rolesFor(def, v).filter(r => r.req && !(v.roles[r.key] || []).length).map(r => r.label);
+    // Gebundene Felder, die das geladene Modell nicht kennt (Review B3): roter Punkt auch dann, wenn die Kachel zu klein für Chips ist
+    const gone = []; Object.keys(v.roles || {}).forEach(key => (v.roles[key] || []).forEach(f => { if (fieldStatus(f) === 'missing' && !gone.includes(f.name)) gone.push(f.name); }));
+    const reqTip = [missing.length ? t('canvas.reqEmpty', { roles: missing.join(', ') }) : '', gone.length ? t('canvas.fieldMissing', { f: gone.join(', ') }) : ''].filter(Boolean).join(' · ');
+    const req = reqTip ? `<span class="reqdot" title="${esc(reqTip)}"></span>` : '';
+    const pri = v.priority ? `<span class="pri ${v.priority}" title="${esc(t('tip.badge.' + v.priority))}">${{ must: 'M', should: 'S', could: 'C' }[v.priority] || ''}</span>` : '';
+    const st = v.status && v.status !== 'open' ? `<span class="st ${v.status}" title="${esc(t('canvas.status', { s: t('opt.status.' + v.status) }))}"></span>` : '';
+    return `<div class="tile${selc}${tiny ? ' tiny' : ''}" data-leaf="${node.id}" draggable="true" tabindex="0" aria-label="${esc(v.title || def.label)}" title="${esc(t('smp.tileDrag'))}" style="${css(rect)};padding:${Math.max(0, pad - 6)}px">
+      ${headH ? `<div class="t-head" style="--tf:${tileScale(v)}"><span class="t-title">${esc(v.title || def.label)}</span>${v.sub ? `<span class="t-sub">${esc(v.sub)}</span>` : ''}</div>` : ''}
+      ${msgH ? `<div class="t-msg" title="${esc(msg)}" style="--tf:${tileScale(v)};flex:none;height:${msgH}px;line-height:${msgH}px;padding:0 calc(9px * var(--ui));font-size:calc(var(--fs-sub,9.5px) * var(--ui) * var(--tf,1));font-weight:500;color:var(--ink-page,#0F1E2E);opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(msg)}</div>` : ''}
+      <div class="t-body">${svg}${ANTI[v.kind] ? '<div class="ap"></div>' : ''}</div>
+      ${footH ? `<div class="t-foot">${chips}</div>` : ''}
+      <div class="badges">${req}${st}${pri}${note}<span class="badge${v.engine === 'ck' ? ' ck' : (v.engine === 'custom' ? ' cv' : '')}" title="${esc(t('tip.badge.' + (v.engine === 'ck' ? 'ck' : v.engine === 'deneb' ? 'deneb' : v.engine === 'custom' ? 'cv' : 'pbi')))}">${v.engine === 'ck' ? 'CK' : v.engine === 'deneb' ? 'Deneb' : v.engine === 'custom' ? 'CV' : 'PBI'}</span></div>${acts}</div>${notePop}`;
+  }
+  const notePopFor = ico => pageEl.querySelector(`.note-pop[data-note-for="${CSS.escape(ico.dataset.note || '')}"]`);
+  function roleChips(v) {
+    const out = []; const mm = refMismatch(v);
+    (CAT.byId[v.kind] ? CAT.byId[v.kind].roles : []).forEach(r => (v.roles[r.key] || []).forEach((f, i) => { const c = chipState(f, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); out.push(`<span class="rchip${c.cls}" title="${esc(r.label + c.tip)}">${esc(f.name)}</span>`); }));
+    return out.join('');
+  }
+  // Darstellung eines gebundenen Felds: neu (gestrichelt), fehlt im Modell (rot), passt nicht zum Szenario (gelb) samt Tooltip-Zusatz
+  function chipState(f, mm, v) {
+    const st = fieldStatus(f);
+    if (st === 'missing') return { cls: ' missing', tip: ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }) };
+    if (mm) return { cls: (st === 'new' ? ' new' : '') + ' warn', tip: ' · ' + mismatchText(mm, v) };
+    return { cls: st === 'new' ? ' new' : '', tip: '' };
+  }
+  // Hinweis im Kachel-Panel samt Angebot: passendes Feld binden (nur bei eindeutigem Namen), Szenario angleichen bzw. Δ-Basis zurück auf automatisch
+  function mismatchHtml(v, mm) {
+    if (!mm) return '';
+    const plan = swapPlan(v, mm); const btns = [];
+    if (plan && !plan.blocked) btns.push(`<button type="button" class="btn sm" data-mm="swap">${esc(plan.scen ? t('scen.swapScen', { n: plan.cand.name, s: plan.scen }) : t('scen.swap', { n: plan.cand.name }))}</button>`);
+    if (mm.kind === 'scenario') { const s2 = scenarioFor(v, mm); if (s2) btns.push(`<button type="button" class="btn sm" data-mm="scen" data-s="${esc(s2)}">${esc(t('scen.fixScenario', { s: s2 }))}</button>`); }
+    else btns.push(`<button type="button" class="btn sm" data-mm="auto">${esc(t('scen.autoBasis', { b: mm.fieldBasis }))}</button>`);
+    return `<div class="warn mm" role="status">${esc(mismatchText(mm, v))}${plan || mm.extra ? '' : ' ' + esc(t('scen.noCandidate', { b: mm.want }))}${btns.length ? `<div class="row wrap mm-acts">${btns.join('')}</div>` : ''}</div>`;
+  }
+  function mismatchText(mm, v) { return mm.kind === 'scenario' ? t(mm.extra ? 'scen.mismatchExtra' : 'scen.mismatch', { s: mm.scenario || (v && v.scenario) || '', f: mm.field.name, b: mm.note }) : t('scen.mismatchBasis', { d: mm.want, f: mm.field.name, b: mm.note }); }
+  function seedOf(id) { let h = 7; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 1000; }
+
+  // ------------------------------------------------------------------ Interaktion: Seite
+  pageEl.addEventListener('click', e => {
+    const mg = e.target.closest('[data-merge]');
+    if (mg) {
+      // Verbinden erst beim Klick (B17): Maus ohne Bewegung losgelassen, oder Tastatur (Enter/Leertaste, e.detail === 0)
+      e.stopPropagation(); const press = mergePress; mergePress = null;
+      if (e.detail && (!press || press.moved)) return;
+      const gi = lastRects.gutters[+mg.dataset.merge]; if (gi) mergeGutter(gi); return;
+    }
+    // Rand-„+": die Maus fügt schon beim Drücken ein (mousedown). Enter/Leertaste lösen nur click aus (e.detail === 0), daher hier.
+    const edge = e.target.closest('[data-edge]');
+    if (edge) { e.stopPropagation(); if (!e.detail) insertEdge(edge.dataset.edge); return; }
+    const act = e.target.closest('[data-act]'); const tile = e.target.closest('[data-leaf]'); const rm = e.target.closest('[data-rmfilter]');
+    if (rm) { S.chrome.filter.fields.splice(+rm.dataset.rmfilter, 1); commit(); return; }
+    if (act && tile) {
+      e.stopPropagation(); const id = tile.dataset.leaf; const nm = tileName(id);
+      if (act.dataset.act === 'rm') { removeLeaf(id); toastUndo(nm ? t('toast.act.removed', { t: nm }) : t('toast.act.removedEmpty')); }
+      else { splitLeaf(id, act.dataset.act); toastUndo(t(act.dataset.act === 'row' ? 'toast.act.splitRow' : 'toast.act.splitCol', { t: nm || t('toast.act.emptyTile') })); }
+      return;
+    }
+    const zc = e.target.closest('[data-zcfg]'); if (zc) { openFrameSection(zc.dataset.zcfg); return; }
+    if (e.target.closest('.note-pop')) return;                             // Klick ins angeheftete Popup: stehen lassen
+    const ico = e.target.closest('.note-ico'); const icoPop = ico ? notePopFor(ico) : null;
+    $$('.note-pop.pinned', pageEl).forEach(p => { if (p !== icoPop) p.classList.remove('pinned'); });
+    if (ico) { if (icoPop) icoPop.classList.toggle('pinned'); return; }
+    if (tile) { selectTile(tile.dataset.leaf); return; }
+    // Abwählen ohne render(): ein Neuzeichnen zwischen den beiden Klicks ersetzt das Ziel, dann feuert der Doppelklick auf
+    // Kopfband, Filter und Fußleiste nie (Review 09.10., R9; gleiche Ursache wie früher H1 bei Kacheln)
+    selectTile(null);
+  });
+  // Notiz beim Darüberfahren zeigen (das Popup ist kein Geschwister des Symbols mehr, daher per Klasse statt :hover + )
+  pageEl.addEventListener('mouseover', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico) { const p = notePopFor(ico); if (p) p.classList.add('hover'); } });
+  pageEl.addEventListener('mouseout', e => { const ico = e.target.closest && e.target.closest('.note-ico'); if (ico && !ico.contains(e.relatedTarget)) { const p = notePopFor(ico); if (p) p.classList.remove('hover'); } });
+  // Nur die Kachel selbst: Knöpfe darin (⇔ ⇕ ✕) bekommen Enter/Leertaste als eigenen Klick
+  pageEl.addEventListener('keydown', e => {
+    const tile = e.target.closest && e.target.closest('[data-leaf]'); if (!tile || e.target !== tile) return;
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectTile(tile.dataset.leaf); if (e.key === 'Enter' && !findNode(sel).node.visual) openCatalog(); }
+  });
+  // Auswahl ohne Neu-Rendern der Seite, sonst geht das Zielelement zwischen zwei Klicks verloren (Doppelklick)
+  // Eine gewählte Kachel bringt den Reiter „Kachel" nach vorn: sonst gibt es auf „Seite" oder „Design" keine Ablageziele für Felder (Review 09.10., R8)
+  function showTab(key) { const tb = $('.tab[data-tab="' + key + '"]'); if (tb && !tb.classList.contains('active')) tb.click(); }
+  function selectTile(id) { sel = id; $$('.tile', pageEl).forEach(t => t.classList.toggle('sel', t.dataset.leaf === id)); if (id) showTab('el'); renderInspector(); }
+  function openFrameSection(key) {
+    const tab = $('.tab[data-tab="chrome"]'); if (tab) tab.click();
+    const sec = $('#sec' + key.charAt(0).toUpperCase() + key.slice(1)); if (!sec) return;
+    if (sec.tagName === 'DETAILS') sec.open = true;
+    sec.scrollIntoView({ block: 'start', behavior: 'smooth' }); sec.classList.remove('flash'); void sec.offsetWidth; sec.classList.add('flash');
+    const first = sec.querySelector('input:not([type=checkbox]), select'); if (first) first.focus({ preventScroll: true });
+  }
+  pageEl.addEventListener('dblclick', e => { const zn = e.target.closest('.zone'); if (zn && !e.target.closest('[data-leaf]')) { const key = ['header', 'nav', 'filter', 'footer'].find(k => zn.classList.contains(k)); if (key) { openFrameSection(key); return; } } const tile = e.target.closest('[data-leaf]'); if (tile && !e.target.closest('[data-act]')) { sel = tile.dataset.leaf; openCatalog(); } });
+  stage.addEventListener('click', e => { if (e.target === stage || e.target.id === 'stageInner') { sel = null; render(); } });
+
+  // Zwischenraum ziehen. Das Verbinden-„+" sitzt genau am Griffpunkt: ein Druck darauf merkt sich nur den Kandidaten.
+  // Bewegt sich die Maus mehr als DRAG_PX, wird daraus normales Ziehen; nur ein Klick ohne Bewegung verbindet (B17, im click-Handler).
+  let gdrag = null, mergePress = null;
+  const DRAG_PX = 4;
+  function gutterDrag(gi, e, el) {
+    if (gi.grid) {
+      const arr = gi.axis === 'col' ? gi.grid.cols : gi.grid.rows; const i = gi.boundary - 1; const total = arr.reduce((s, v) => s + v, 0); const cz = lastRects.zones.content;
+      const spanPx = (gi.axis === 'col' ? cz.w : cz.h) - Math.round(S.spacing.gutter * ui()) * (arr.length - 1);
+      if (el) el.classList.add('active');
+      return { gi, arr, i, a0: arr[i], b0: arr[i + 1], unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY };
+    }
+    const p = gi.parent, a = p.children[gi.index], b = p.children[gi.index + 1]; const total = p.children.reduce((s, c) => s + c.size, 0);
+    const kids = lastRects.leaves; const firstLeaf = leaves(p.children[0].node)[0], lastLeaf = leaves(p.children[p.children.length - 1].node).slice(-1)[0];
+    const r0 = kids.find(l => l.node.id === firstLeaf.id).rect, r1 = kids.find(l => l.node.id === lastLeaf.id).rect;
+    const spanPx = (gi.dir === 'row' ? (r1.x + r1.w - r0.x) : (r1.y + r1.h - r0.y)) - Math.round(S.spacing.gutter * ui()) * (p.children.length - 1);
+    if (el) el.classList.add('active');
+    return { gi, a, b, a0: a.size, b0: b.size, unitPerPx: total / spanPx, x0: e.clientX, y0: e.clientY };
+  }
+  pageEl.addEventListener('mousedown', e => {
+    if (e.target.closest('[data-edge]')) { e.preventDefault(); e.stopPropagation(); insertEdge(e.target.closest('[data-edge]').dataset.edge); return; }
+    const mg = e.target.closest('[data-merge]');
+    if (mg) {
+      e.preventDefault(); e.stopPropagation(); mergePress = { moved: false };
+      const gi = lastRects.gutters[+mg.dataset.merge]; if (gi) { gdrag = gutterDrag(gi, e, mg.closest('[data-gutter]')); gdrag.pending = true; }
+      return;
+    }
+    const g = e.target.closest('[data-gutter]'); if (!g) return;
+    const gi = lastRects.gutters[+g.dataset.gutter]; if (!gi) return;
+    e.preventDefault(); gdrag = gutterDrag(gi, e, g);
+  });
+  window.addEventListener('mousemove', e => {
+    if (!gdrag) return;
+    if (gdrag.pending) { if (Math.hypot(e.clientX - gdrag.x0, e.clientY - gdrag.y0) < DRAG_PX) return; gdrag.pending = false; if (mergePress) mergePress.moved = true; }
+    const dpx = (gdrag.gi.dir === 'row' ? e.clientX - gdrag.x0 : e.clientY - gdrag.y0) / zoom;
+    const d = dpx * gdrag.unitPerPx; const minU = 48 * ui() * gdrag.unitPerPx;
+    let na = gdrag.a0 + d, nb = gdrag.b0 - d;
+    if (na < minU) { nb -= (minU - na); na = minU; } if (nb < minU) { na -= (minU - nb); nb = minU; }
+    if (gdrag.arr) { gdrag.arr[gdrag.i] = na; gdrag.arr[gdrag.i + 1] = nb; } else { gdrag.a.size = na; gdrag.b.size = nb; }
+    commit({ noUndo: true });
+  });
+  window.addEventListener('mouseup', () => {
+    if (!gdrag) return;
+    const pending = gdrag.pending; gdrag = null;
+    // Druck ohne Bewegung: nichts geändert, nicht neu zeichnen (sonst verliert der folgende click sein Ziel, das „+")
+    if (pending) { $$('.gutter.active', pageEl).forEach(x => x.classList.remove('active')); return; }
+    mark(); render();
+  });
+
+  let dragTile = null;
+  pageEl.addEventListener('dragstart', e => { const tile = e.target.closest('[data-leaf]'); if (!tile) return; dragTile = tile.dataset.leaf; e.dataTransfer.setData('application/mk-tile', dragTile); e.dataTransfer.effectAllowed = 'move'; setTimeout(() => tile.classList.add('dragging'), 0); });
+  pageEl.addEventListener('dragend', () => { dragTile = null; $$('.dragging', pageEl).forEach(t => t.classList.remove('dragging')); });
+  pageEl.addEventListener('dragover', e => {
+    const t = e.target.closest('[data-leaf],[data-dropfilter]'); if (!t) return; const types = e.dataTransfer.types;
+    if (t.dataset.dropfilter && !types.includes('application/mk-field')) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = types.includes('application/mk-tile') ? 'move' : 'copy';
+    $$('.over', pageEl).forEach(x => x.classList.remove('over')); t.classList.add('over');
+  });
+  pageEl.addEventListener('dragleave', e => { const t = e.target.closest('[data-leaf],[data-dropfilter]'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('over'); });
+  pageEl.addEventListener('drop', e => {
+    const t = e.target.closest('[data-leaf],[data-dropfilter]'); if (!t) return;
+    e.preventDefault(); t.classList.remove('over');
+    const field = e.dataTransfer.getData('application/mk-field'), kind = e.dataTransfer.getData('application/mk-kind'), tileId = e.dataTransfer.getData('application/mk-tile');
+    if (t.dataset.dropfilter) { if (field) addFilterField(JSON.parse(field)); return; }
+    const id = t.dataset.leaf;
+    if (field) { assignField(id, JSON.parse(field)); return; }
+    if (kind) { setKind(id, kind); return; }
+    if (tileId && tileId !== id) swapTiles(tileId, id);
+  });
+
+  function swapTiles(a, b) {
+    const na = findNode(a).node, nb = findNode(b).node; const an = tileName(a), bn = tileName(b); const tmp = na.visual; na.visual = nb.visual; nb.visual = tmp; sel = b; commit();
+    // Ziehen tauscht, statt zu verschieben (es gibt keine freie Stelle): das muss der Toast sagen (Review 09.10., UX)
+    toastUndo(bn ? t('toast.act.swapped', { a: an || t('toast.act.emptyTile'), b: bn }) : t('toast.act.moved', { a: an || t('toast.act.emptyTile') }));
+  }
+  function tileName(id) { const f = findNode(id); const v = f && f.node.visual; if (!v) return ''; return v.title || (CAT.byId[v.kind] || {}).label || v.kind; }
+  function setKind(id, kind) {
+    const n = findNode(id).node; const def = CAT.byId[kind]; if (!def) return;
+    const old = n.visual || {}; const roles = {};
+    const ALIAS = { ac: ['indicator', 'values', 'y'], indicator: ['ac', 'values'], ref: ['goal'], goal: ['ref'], values: ['ac', 'indicator'], category: ['rows', 'field'], rows: ['category'], field: ['category'] };
+    def.roles.forEach(r => { const src = [r.key].concat(ALIAS[r.key] || []).find(k => old.roles && old.roles[k] && old.roles[k].length); if (src) roles[r.key] = old.roles[src].filter(f => r.kind === 'any' || f.kind === r.kind).slice(0, r.max); });
+    n.visual = normVisual(Object.assign({ kind, engine: def.engine, title: old.title || '', sub: old.sub || '', scenario: old.scenario || S.defScenario, roles, notes: old.notes || '', link: old.link || '' }, old.dflt ? { dflt: JSON.parse(JSON.stringify(old.dflt)) } : {}));
+    sel = id; commit();
+  }
+  function assignField(id, f, roleKey) {
+    const hit = findNode(id); if (!hit) return; const n = hit.node;
+    // Leere Kachel: das Visual erst anlegen, wenn die Rolle feststeht (Review B15). Bis dahin nur ein Probe-Stand ohne Schreibzugriff auf den Baum,
+    // sonst bliebe nach „Abbrechen", Esc oder Klick neben das Menü eine ungebundene Geister-Kachel zurück.
+    const newKind = f.kind === 'measure' ? 'kpi' : 'slicer';
+    const probe = n.visual || { kind: newKind, roles: {} }; const def = CAT.byId[probe.kind];
+    const rolesDef = CAT.rolesFor(def, probe);
+    let role = roleKey ? rolesDef.find(r => r.key === roleKey) : null;
+    if (!role) {
+      // passende Rollen (gleiche Feldart oder „any"); genau eine frei → direkt, sonst Menü statt raten (Review Valerie: Rollenzuweisung rät)
+      const fitting = rolesDef.filter(r => r.kind === 'any' || r.kind === f.kind);
+      const free = fitting.filter(r => (probe.roles[r.key] || []).length < r.max);
+      if (free.length === 1 && fitting.length === 1) role = free[0];
+      else if (fitting.length) { showRoleMenu(id, f, fitting, probe); return; }
+      else return toast(t('toast.noRoom', { kind: f.kind === 'measure' ? t('kind.measure') : t('kind.column') }));
+    }
+    if (!n.visual) { n.visual = normVisual({ kind: newKind, engine: CAT.byId[newKind].engine, roles: {} }); if (!n.visual.title) n.visual.title = f.name; }
+    const v = n.visual;
+    const list = v.roles[role.key] = v.roles[role.key] || [];
+    if (list.some(x => x.table === f.table && x.name === f.name)) return toast(t('toast.fieldAssigned'));
+    if (list.length >= role.max) list.shift();
+    list.push({ table: f.table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew });
+    if (!v.title && role.key !== 'category' && role.key !== 'field') v.title = f.name;
+    if (v.kind === 'slicer' && !v.title) v.title = f.name;
+    sel = id; commit(); toastUndo(t('toast.act.assigned', { f: f.name, r: role.label, t: tileName(id) }));
+  }
+  function removeField(id, roleKey, idx) { const v = findNode(id).node.visual; if (!v) return; const f = v.roles[roleKey][idx]; v.roles[roleKey].splice(idx, 1); commit(); if (f) toastUndo(t('toast.act.unassigned', { f: f.name, t: tileName(id) })); }
+  // Kleines Rollenmenü: erscheint, wenn mehrere Datenrollen zum Feld passen (ersetzt bei vollen Rollen den ältesten Eintrag)
+  let roleMenu = null;
+  function showRoleMenu(id, f, roles, v) {
+    closeRoleMenu();
+    const m = document.createElement('div'); m.className = 'rolemenu'; roleMenu = m;
+    m.innerHTML = `<div class="rm-head">${esc(t('role.menuHead', { f: f.name }))}</div>` + roles.map(r => { const cur = v.roles[r.key] || []; const full = cur.length >= r.max; return `<button data-rk="${r.key}"><b>${esc(r.label)}</b><small>${cur.length ? esc(cur.map(x => x.name).join(', ')) + (full ? esc(t('role.replaces', { n: cur[0].name })) : '') : esc(t('role.free'))}</small></button>`; }).join('') + `<button data-rk="">${esc(t('btn.cancel'))}</button>`;
+    document.body.appendChild(m);
+    const tile = document.querySelector(`.tile[data-leaf="${id}"]`); const r = tile ? tile.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };
+    m.style.left = Math.min(innerWidth - 280, Math.max(8, r.left + r.width / 2 - 130)) + 'px'; m.style.top = Math.min(innerHeight - 260, Math.max(8, r.top + r.height / 2 - 40)) + 'px';
+    // Nach der Wahl (auch Abbrechen) steht der Fokus wieder auf der Kachel, nicht auf <body>
+    m.addEventListener('click', e => { const b = e.target.closest('[data-rk]'); if (!b) return; const key = b.dataset.rk; closeRoleMenu(true); if (key) assignField(id, f, key); });
+    m.setAttribute('role', 'group'); m.setAttribute('aria-label', t('role.menuHead', { f: f.name })); m.dataset.leaf = id;
+    const first = m.querySelector('button'); if (first) first.focus({ preventScroll: true });
+    setTimeout(() => document.addEventListener('mousedown', outsideRoleMenu), 0);
+  }
+  function outsideRoleMenu(e) { if (roleMenu && !roleMenu.contains(e.target)) closeRoleMenu(); }
+  function closeRoleMenu(refocus) {
+    if (!roleMenu) return;
+    const id = roleMenu.dataset.leaf; roleMenu.remove(); roleMenu = null; document.removeEventListener('mousedown', outsideRoleMenu);
+    if (refocus) { const tile = id && document.querySelector(`.tile[data-leaf="${id}"]`); if (tile) tile.focus({ preventScroll: true }); }
+  }
+  function addFilterField(f) { const list = S.chrome.filter.fields; if (list.some(x => x.table === f.table && x.name === f.name)) return toast(t('toast.slicerExists')); list.push({ table: f.table, name: f.name, kind: f.kind, isNew: !!f.isNew }); commit(); }
+
+  // ------------------------------------------------------------------ Inspector · Element
+  const insEl = $('#insEl');
+  function renderInspector() {
+    const f = sel ? findNode(sel) : null;
+    if (!f) { insEl.innerHTML = `<p class="hint">${esc(t('hint.pickTile'))}</p><div class="section"><h3>${esc(t('sec.quickstart'))}</h3><ol class="list-dense hint">${[1, 2, 3, 4, 5, 6].map(i => `<li>${esc(t('quickstart.s' + i))}</li>`).join('')}</ol></div>`; return; }
+    const n = f.node, v = n.visual; const rect = (lastRects.leaves.find(l => l.node.id === n.id) || {}).rect || { x: 0, y: 0, w: 0, h: 0 };
+    const dims = `<div class="kv" style="margin-top:8px"><span class="k">${esc(t('canvas.dims.xy'))}</span><span>${rect.x} · ${rect.y}</span><span class="k">${esc(t('canvas.dims.wh'))}</span><span>${rect.w} × ${rect.h} px</span></div>`;
+    if (!v) { insEl.innerHTML = `<button class="typebtn" id="btnPickType" title="${esc(t('tip.pickType'))}"><div class="pv"></div><div><b>${esc(t('btn.pickType'))}</b><small>${esc(t('hint.pickTypeSub'))}</small></div></button><p class="hint">${esc(t('hint.dragField'))}</p>${dims}<div class="section"><button class="btn sm" data-ins="rm" title="${esc(t('tip.removeTile'))}">${esc(t('btn.removeTile'))}</button></div>`; bindInspector(n); return; }
+    const def = CAT.byId[v.kind] || { label: v.kind, roles: [], engines: ['native'] };
+    const an = analysisOf(v); const a = v.analysis || {};
+    const pv = window.MK_SKETCH ? window.MK_SKETCH(def.sketch || v.kind, 64, 36, Object.assign({ scenario: sketchScenario(v, an), deltaBasis: an.deltaBasis, seed: 3, lang: S.lang }, ckSketchOpt(v))) : '';
+    const engines = def.engines.map(e => `<button data-engine="${e}" title="${esc(t('tip.engine.' + e))}" class="${v.engine === e ? 'on ' + e : ''}">${CAT.engineLabel[e]}</button>`).join('');
+    const rolesDef = CAT.rolesFor(def, v); const hasRef = rolesDef.some(r => r.key === 'ref');
+    // Δ-Basis auch bei Typen mit Ziel-Rolle (KPI, Tacho) zeigen: dort folgt das Szenario der gebundenen Referenz (Review B13)
+    const hasBasis = hasRef || rolesDef.some(r => r.key === 'goal');
+    const mm = refMismatch(v);
+    const roles = rolesDef.map(r => {
+      const list = v.roles[r.key] || [];
+      const chips = list.map((x, i) => { const c = chipState(x, mm && mm.roleKey === r.key && mm.idx === i ? mm : null, v); return `<span class="fchip ${x.kind === 'measure' ? 'm' : 'c'}${c.cls}" draggable="false"${c.tip ? ` title="${esc(c.tip.replace(/^ · /, ''))}"` : ''}><span class="ico">${x.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(x.name)}</span><button class="x" data-rmrole="${r.key}" data-i="${i}" title="${esc(t('tip.remove'))}" aria-label="${esc(t('tip.removeNamed', { name: x.name }))}">×</button></span>`; }).join('');
+      const kindLbl = r.kind === 'any' ? t('kind.any') : r.kind === 'measure' ? t('kind.measure') : t('kind.column');
+      return `<div class="role" data-role="${r.key}"><div class="rl" title="${esc(t('tip.role.' + r.labelKey))}">${esc(r.label)}${r.req ? '<span class="req">*</span>' : ''}<span class="k">${esc(kindLbl)} · ${esc(t('canvas.maxN', { n: r.max }))}</span></div>${chips ? `<div class="chips">${chips}</div>` : ''}${list.length < r.max ? `<div class="drop">${esc(t('canvas.dropFieldRole'))} ${esc(t('canvas.orCreate'))} <button type="button" class="lnk" data-newfield="${r.key}" data-newkind="${r.kind}" title="${esc(t('canvas.createHereTip'))}">+ ${esc(t('canvas.createHere'))}</button></div>` : ''}</div>`;
+    }).join('');
+    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const hasMeasure = rolesDef.some(r => ['ac', 'indicator', 'values', 'y'].includes(r.key));
+    const variants = CAT.variantsFor(def) ? grp('variants', t('sec.variants'), `
+      <label class="toggle" style="padding:0 0 6px" title="${esc(t('tip.an.smallMultiples'))}"><input type="checkbox" data-an="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
+      ${an.smallMultiples && !(v.roles.multiples || []).length ? `<p class="hint" style="margin:0 0 8px">${esc(t('lbl.smHint'))}</p>` : ''}
+      <label class="toggle" style="padding:0 0 6px" title="${esc(t('tip.an.fieldParam'))}"><input type="checkbox" data-an="fieldParam"${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
+      ${an.fieldParam ? `<div class="field"><label title="${esc(t('tip.an.fieldParamName'))}">${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-an="fieldParamName" title="${esc(t('tip.an.fieldParamName'))}" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div><p class="hint" style="margin:0 0 8px">${esc(t('lbl.fieldParamHint'))}</p>` : ''}
+    `, false, [an.smallMultiples, an.fieldParam].filter(Boolean).length ? t('grp.on', { n: [an.smallMultiples, an.fieldParam].filter(Boolean).length }) : '') : '';
+    const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
+    // ChartKitchen-Optionen (ab 1.47): nur bei Umsetzung mit ChartKitchen; die Vorgabe des Visuals steht als „(Vorgabe)" in der Liste
+    const ckOpts = v.engine === 'ck' ? CAT.ckOptsFor(v.kind) : [];
+    const ckSet = ckOpts.filter(o => ((v.ckProps || {})[o.key] || o.def) !== o.def).length;
+    const ckBox = ckOpts.length ? grp('ckopts', t('ck.sec'), `
+      <p class="hint" style="margin:0 0 8px">${esc(t('ck.hint'))}</p>
+      <div>${ckOpts.map(o => { const labels = {}; o.values.forEach(x => { labels[x] = esc(o.def === x ? t('ck.dflt', { v: t('ck.opt.' + o.key + '.' + x) }) : t('ck.opt.' + o.key + '.' + x)); }); return `<div class="field"><label title="${esc(t('ck.tip.' + o.key))}">${esc(t('ck.lbl.' + o.key))}</label><select class="ctl" data-ckp="${o.key}" title="${esc(t('ck.tip.' + o.key))}">${opt(o.values, CAT.ckValue(v, o.key), labels)}</select></div>`; }).join('')}</div>
+      ${ckOpts.some(o => o.role && !(v.roles[o.role] || []).length) ? `<p class="hint" style="margin:0 0 8px">${esc(t('ck.trendHint'))}</p>` : ''}
+    `, true, ckSet ? t('grp.set', { n: ckSet }) : '') : '';
+    const analysis = hasMeasure ? grp('analysis', t('sec.analysis'), `
+      <div class="grid2">
+        <div class="field"><label title="${esc(t('tip.an.polarity'))}">${esc(t('lbl.polarity'))}</label><select class="ctl" data-an="polarity" title="${esc(t('tip.an.polarity'))}">${opt(['', 'higher', 'lower'], a.polarity || '', { '': t('opt.polarity.auto', { v: t('opt.polarity.' + an.polarity) }), higher: t('opt.polarity.higher'), lower: t('opt.polarity.lower') })}</select></div>
+        ${hasBasis ? `<div class="field"><label title="${esc(t('tip.an.deltaBasis'))}">${esc(t('lbl.deltaBasis'))}</label><select class="ctl" data-an="deltaBasis" title="${esc(t('tip.an.deltaBasis'))}">${opt(['', 'PL', 'PY', 'BU', 'FC'], a.deltaBasis || '', { '': t('opt.autoBase', { v: an.deltaBasis }), PL: 'PL', PY: 'PY', BU: 'BU', FC: 'FC' })}</select></div>` : '<div></div>'}
+        <div class="field"><label title="${esc(t('tip.an.unit'))}">${esc(t('lbl.unit'))}</label><input class="ctl" data-an="unit" title="${esc(t('tip.an.unit'))}" value="${esc(an.unit)}" placeholder="${esc(t('ph.anUnit'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.displayUnits'))}">${esc(t('lbl.displayUnits'))}</label><select class="ctl" data-an="displayUnits" title="${esc(t('tip.an.displayUnits'))}">${opt(['auto', 'none', 'K', 'M'], an.displayUnits, { auto: t('opt.du.auto'), none: t('opt.du.none'), K: t('opt.du.K'), M: t('opt.du.M') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.decimals'))}">${esc(t('lbl.decimals'))}</label><input class="ctl" type="number" min="0" max="4" data-an="decimals" title="${esc(t('tip.an.decimals'))}" value="${an.decimals == null ? '' : an.decimals}" placeholder="${esc(t('ph.anDecimals'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.deltaKind'))}">${esc(t('lbl.deltaKind'))}</label><div class="row"><label class="toggle" style="padding:0" title="${esc(t('tip.an.deltaAbs'))}"><input type="checkbox" data-ank="abs" ${an.deltaKind.includes('abs') ? 'checked' : ''}> abs</label><label class="toggle" style="padding:0" title="${esc(t('tip.an.deltaRel'))}"><input type="checkbox" data-ank="rel" ${an.deltaKind.includes('rel') ? 'checked' : ''}> %</label></div></div>
+        <div class="field"><label title="${esc(t('tip.an.sort'))}">${esc(t('lbl.sort'))}</label><select class="ctl" data-an="sortBy" title="${esc(t('tip.an.sort'))}">${opt(['', 'value', 'delta', 'category'], an.sort ? an.sort.by : '', { '': t('opt.sort.none'), value: t('opt.sort.value'), delta: t('opt.sort.delta'), category: t('opt.sort.category') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.sortDir'))}">${esc(t('lbl.sortDir'))}</label><select class="ctl" data-an="sortDir" title="${esc(t('tip.an.sortDir'))}">${opt(['desc', 'asc'], an.sort ? an.sort.dir : 'desc', { desc: t('opt.sort.desc'), asc: t('opt.sort.asc') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.topN'))}">${esc(t('lbl.topN'))}</label><input class="ctl" type="number" min="1" max="100" data-an="topN" title="${esc(t('tip.an.topN'))}" value="${an.topN || ''}" placeholder="${esc(t('ph.anTopN'))}"></div>
+        <div class="field"><label title="${esc(t('tip.an.timeGrain'))}">${esc(t('lbl.timeGrain'))}</label><select class="ctl" data-an="timeGrain" title="${esc(t('tip.an.timeGrain'))}">${opt(['', 'day', 'week', 'month', 'quarter', 'year'], an.timeGrain || '', { '': t('opt.grain.none'), day: t('opt.grain.day'), week: t('opt.grain.week'), month: t('opt.grain.month'), quarter: t('opt.grain.quarter'), year: t('opt.grain.year') })}</select></div>
+        <div class="field"><label title="${esc(t('tip.an.scaleGroup'))}">${esc(t('lbl.scaleGroup'))}</label><input class="ctl" data-an="scaleGroup" title="${esc(t('tip.an.scaleGroup'))}" value="${esc(an.scaleGroup)}" placeholder="${esc(t('ph.anScaleGroup'))}"></div>
+        <div class="field"><label class="toggle" style="text-transform:none;letter-spacing:0" title="${esc(t('tip.an.cumulative'))}"><input type="checkbox" data-an="cumulative" ${an.cumulative ? 'checked' : ''}> ${esc(t('lbl.cumulative'))}</label></div>
+      </div>
+      <div class="field"><label title="${esc(t('tip.an.message'))}">${esc(t('lbl.message'))}</label><input class="ctl" data-an="message" title="${esc(t('tip.an.message'))}" value="${esc(an.message)}" placeholder="${esc(t('ph.anMessage'))}"></div>
+    `, false, Object.keys(a).length ? t('grp.set', { n: Object.keys(a).length }) : '') : '';
+    const isText = v.kind === 'text' || v.kind === 'button';
+    insEl.innerHTML = `
+      <button class="btn tilewin-btn" data-tilewin="1" title="${esc(t('tip.tileWindow'))}">⤢ ${esc(t('lbl.tileWindow'))}</button>
+      <button class="typebtn" id="btnPickType" title="${esc(t('tip.pickType'))}"><div class="pv">${pv}</div><div><b>${esc(def.label)}</b><small>${esc(t('hint.changeType', { group: def.group || '' }))}</small></div></button>
+      ${def.note ? `<p class="${def.warnNote ? 'warn' : 'hint'}" style="margin-top:8px">${esc(def.note)}</p>` : ''}
+      <div class="field" style="margin-top:10px"><label title="${esc(t('tip.engineSec'))}">${esc(t('lbl.engine'))}</label><div class="engine">${engines}</div></div>
+      <div class="field"><label title="${esc(t('tip.an.vizTitle'))}">${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-vk="title" title="${esc(t('tip.an.vizTitle'))}" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="field"><label title="${esc(t('tip.an.vizSub'))}">${esc(t('lbl.vizSub'))}</label><input class="ctl" data-vk="sub" title="${esc(t('tip.an.vizSub'))}" value="${esc(v.sub)}" placeholder="${esc(t('ph.vizSub'))}"></div>
+      ${isText ? `<div class="field"><label>${esc(v.kind === 'button' ? t('lbl.btnCaption') : t('lbl.tileText'))}</label><textarea class="ctl" data-vk="content" placeholder="${esc(t('ph.tileText'))}">${esc(v.content || '')}</textarea></div>` : ''}
+      ${hasRef ? `<div class="field"><label title="${esc(t('tip.scenario'))}">${esc(t('lbl.scenario'))}</label><select class="ctl" data-vk="scenario" title="${esc(t('tip.scenario'))}">${SCEN_OPTIONS.map(s => { const tip = t('tip.scenOpt.' + s.toLowerCase().replace(/\W/g, '')); return `<option value="${s}" title="${esc(tip)}" ${v.scenario === s ? 'selected' : ''}>${esc(tip)}</option>`; }).join('')}</select></div>` : ''}
+      ${mismatchHtml(v, mm)}
+      ${variants}
+      ${ckBox}
+      <div class="section"><h3 title="${esc(t('tip.rolesSec'))}">${esc(t('sec.roles'))} <span class="k" style="font-weight:400;text-transform:none;letter-spacing:0">${esc(t('sec.rolesHint'))}</span></h3>${roles || `<p class="hint">${esc(t('hint.noRoles'))}</p>`}</div>
+      ${analysis}
+      ${grp('workshop', t('sec.workshop'), `
+        <div class="grid2">
+          <div class="field"><label title="${esc(t('tip.an.priority'))}">${esc(t('lbl.priority'))}</label><select class="ctl" data-vk="priority" title="${esc(t('tip.an.priority'))}">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
+          <div class="field"><label title="${esc(t('tip.an.status'))}">${esc(t('lbl.status'))}</label><select class="ctl" data-vk="status" title="${esc(t('tip.an.status'))}">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
+        </div>
+        <div class="field"><label title="${esc(t('tip.an.notes'))}">${esc(t('lbl.notes'))}</label><textarea class="ctl" data-vk="notes" title="${esc(t('tip.an.notes'))}" placeholder="${esc(t('ph.notes'))}">${esc(v.notes)}</textarea></div>
+        <label class="toggle" title="${esc(t('tip.an.openQuestion'))}"><input type="checkbox" data-vkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label>
+        <div class="field"><label title="${esc(t('tip.an.link'))}">${esc(t('lbl.link'))}</label><select class="ctl" data-vk="link" title="${esc(t('tip.an.link'))}">${links}</select></div>
+      `, true, v.priority ? t('opt.pri.' + v.priority) : (v.openQuestion ? '?' : ''))}
+      ${dims}
+      <div class="section row wrap"><button class="btn sm" data-ins="clear" title="${esc(t('tip.clearTile'))}">${esc(t('btn.clearTile'))}</button><button class="btn sm" data-ins="rm" title="${esc(t('tip.removeTile'))}">${esc(t('btn.removeTile'))}</button></div>`;
+    bindInspector(n);
+    const wb = $('[data-tilewin]', insEl); if (wb) wb.onclick = () => openTileDialog(n.id);
+  }
+  // Kachel-Fenster: Notiz, Workshop-Status und Verhalten groß in einem Dialog; schreibt direkt in den Zustand
+  function openTileDialog(id) {
+    const hit = findNode(id); const n = hit && hit.node; if (!n || !n.visual) return;
+    const v = n.visual; const def = CAT.byId[v.kind] || { label: v.kind, roles: [] }; const an = analysisOf(v); const it = v.interaction || {};
+    const opt = (list, cur, labels) => list.map(x => `<option value="${x}" ${String(cur) === String(x) ? 'selected' : ''}>${labels ? labels[x] : x}</option>`).join('');
+    const links = `<option value="">${esc(t('opt.linkNone'))}</option>` + S.pages.filter(p => p.id !== S.cur).map(p => `<option value="${p.id}" ${v.link === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+    const hasCat = CAT.rolesFor(def, v).some(r => r.key === 'category'); const canVar = CAT.variantsFor(def); const isText = v.kind === 'text' || v.kind === 'button' || v.kind === 'image';
+    $('#dlgTileH').textContent = v.title || def.label;
+    $('#dlgTileBody').innerHTML = `<div class="tw-grid"><div class="tw-left">
+      <div class="field"><label>${esc(t('lbl.vizTitle'))}</label><input class="ctl" data-tk="title" value="${esc(v.title)}" placeholder="${esc(def.label)}"></div>
+      <div class="field grow"><label>${esc(t('lbl.notes'))}</label><textarea class="ctl big" data-tk="notes" placeholder="${esc(t('ph.notes'))}">${esc(v.notes || '')}</textarea></div>
+      </div><div class="tw-right"><div class="box"><h3>${esc(t('sec.workshop'))}</h3>
+      <div class="grid2">
+        <div class="field"><label>${esc(t('lbl.priority'))}</label><select class="ctl" data-tk="priority">${opt(['', 'must', 'should', 'could'], v.priority || '', { '': t('opt.pri.none'), must: t('opt.pri.must'), should: t('opt.pri.should'), could: t('opt.pri.could') })}</select></div>
+        <div class="field"><label>${esc(t('lbl.status'))}</label><select class="ctl" data-tk="status">${opt(['open', 'agreed', 'approved'], v.status || 'open', { open: t('opt.status.open'), agreed: t('opt.status.agreed'), approved: t('opt.status.approved') })}</select></div>
+      </div>
+      <label class="toggle"><input type="checkbox" data-tkb="openQuestion" ${v.openQuestion ? 'checked' : ''}> ${esc(t('lbl.openQuestion'))}</label></div>
+      ${isText ? '' : `<div class="box"><h3>${esc(t('sec.behaviour'))}</h3>
+      ${hasCat ? `<label class="toggle"><input type="checkbox" data-ti="drillDown" ${it.drillDown ? 'checked' : ''}> ${esc(t('lbl.drillDown'))}</label>` : ''}
+      <label class="toggle"><input type="checkbox" data-ti="crossFilter" ${it.crossFilter === false ? '' : 'checked'}> ${esc(t('lbl.crossFilter'))}</label>
+      <div class="field"><label>${esc(t('lbl.drillThrough'))}</label><select class="ctl" data-tk="link">${links}</select></div></div>`}
+      ${canVar ? `<div class="box"><h3>${esc(t('sec.variants'))}</h3>
+      <label class="toggle"><input type="checkbox" data-ta="smallMultiples" ${an.smallMultiples ? 'checked' : ''}> ${esc(t('lbl.smallMultiples'))}</label>
+      <label class="toggle"><input type="checkbox" data-ta="fieldParam" ${an.fieldParam ? 'checked' : ''}> ${esc(t('lbl.fieldParam'))}</label>
+      <div class="field" ${an.fieldParam ? '' : 'hidden'} data-fpname><label>${esc(t('lbl.fieldParamName'))}</label><input class="ctl" data-ta="fieldParamName" value="${esc(an.fieldParamName)}" placeholder="${esc(t('lbl.fieldParamPh'))}"></div></div>` : ''}${isText ? '' : `<div class="box"><h3>${esc(t('smp.sec'))}</h3><p class="hint" style="margin:0 0 6px">${esc(t('smp.hint'))}</p>
+      <div class="field"><label>${esc(t('smp.cats'))}</label><input class="ctl" data-ts="cats" value="${esc((v.samples || {}).cats || '')}" placeholder="${esc(t('smp.catsPh'))}"></div>
+      <div class="grid2"><div class="field"><label>${esc(t('smp.values'))}</label><input class="ctl" data-ts="values" value="${esc((v.samples || {}).values || '')}" placeholder="${esc(t('smp.valuesPh'))}"></div>
+      <div class="field"><label>${esc(t('smp.ref'))}</label><input class="ctl" data-ts="ref" value="${esc((v.samples || {}).ref || '')}" placeholder="${esc(t('smp.refPh'))}"></div></div></div>`}<div class="box"><h3>${esc(t('sec.typo'))}</h3><div class="field"><label>${esc(t('lbl.tileFont'))}</label><select class="ctl" data-ty="scale">${[['', t('opt.tileFont.auto')], ['0.85', '85 %'], ['1', '100 %'], ['1.15', '115 %'], ['1.3', '130 %'], ['1.5', '150 %']].map(([k, l]) => `<option value="${k}" ${String(tileScale(v)) === k || (k === '' && !(v.typo && v.typo.scale)) ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select></div></div></div></div>`;
+    const body = $('#dlgTileBody');
+    const setAn = (key, val) => { const a = v.analysis = v.analysis || {}; if (val === '' || val === null || val === undefined || val === false) delete a[key]; else a[key] = val; };
+    $$('[data-tk]', body).forEach(x => { const f = () => { v[x.dataset.tk] = x.value; dropDefault(v, x.dataset.tk); persist(); }; x.addEventListener('input', f); x.addEventListener('change', f); });
+    $$('[data-tkb]', body).forEach(x => x.addEventListener('change', () => { v[x.dataset.tkb] = x.checked; persist(); }));
+    $$('[data-ti]', body).forEach(x => x.addEventListener('change', () => { const o = v.interaction = v.interaction || {}; if (x.dataset.ti === 'crossFilter') { if (x.checked) delete o.crossFilter; else o.crossFilter = false; } else { if (x.checked) o[x.dataset.ti] = true; else delete o[x.dataset.ti]; } if (!Object.keys(o).length) delete v.interaction; persist(); }));
+    $$('[data-ts]', body).forEach(x => x.addEventListener('input', () => { const o = v.samples = v.samples || {}; if (x.value.trim()) o[x.dataset.ts] = x.value; else delete o[x.dataset.ts]; if (!Object.keys(o).length) delete v.samples; persist(); }));
+    $$('[data-ty]', body).forEach(x => x.addEventListener('change', () => { const o = v.typo = v.typo || {}; if (x.value === '' || +x.value === 1) delete o.scale; else o.scale = +x.value; if (!Object.keys(o).length) delete v.typo; persist(); }));
+    $$('[data-ta]', body).forEach(x => x.addEventListener('change', () => { if (x.type === 'checkbox') { setAn(x.dataset.ta, x.checked); if (x.dataset.ta === 'fieldParam') { const r = $('[data-fpname]', body); if (r) r.hidden = !x.checked; } } else setAn(x.dataset.ta, x.value); persist(); }));
+    const dlg = $('#dlgTile'); mark();
+    // Schließen über ✕, Esc oder Klick auf den Hintergrund: erst schließen, dann Zustand übernehmen und neu zeichnen.
+    // Nicht am close-Ereignis hängen, das feuert nicht in jedem Browser zuverlässig (Oberfläche blieb sonst stehen).
+    let done = false; const finish = () => { if (done) return; done = true; if (dlg.open) dlg.close(); commit({ noUndo: true }); };
+    dlg.onclose = finish; dlg.oncancel = e => { e.preventDefault(); finish(); };
+    dlg.onclick = e => { if (e.target === dlg) finish(); };
+    $('#dlgTileClose').onclick = finish;
+    dlg.showModal();
+  }
+  function bindInspector(n) {
+    const b = $('#btnPickType'); if (b) b.onclick = openCatalog;
+    $$('[data-ins]', insEl).forEach(x => x.onclick = () => { if (x.dataset.ins === 'rm') removeLeaf(n.id); else { n.visual = null; commit(); } });
+    $$('[data-engine]', insEl).forEach(x => x.onclick = () => { if (n.visual.engine === x.dataset.engine) return; n.visual.engine = x.dataset.engine; commit({ keep: true }); toastUndo(t('toast.act.engine', { t: tileName(n.id), e: CAT.engineLabel[x.dataset.engine] })); });
+    $$('[data-vk]', insEl).forEach(x => {
+      const isSel = x.tagName === 'SELECT';
+      // Text: beim Tippen nur die Seite neu zeichnen, das Feld selbst bleibt stehen. Sonst ersetzte jeder Anschlag das Feld,
+      // das alte meldete change und legte je Buchstabe einen Rückgängig-Schritt an. Ein Schritt entsteht jetzt beim Verlassen.
+      x.addEventListener('input', () => { n.visual[x.dataset.vk] = x.value; dropDefault(n.visual, x.dataset.vk); persist(); if (!isSel) renderPageOnly(); });
+      x.addEventListener('change', () => {
+        n.visual[x.dataset.vk] = x.value; dropDefault(n.visual, x.dataset.vk); mark(); if (isSel) renderFocusSoon();
+        // Szenario gewechselt, gebundene Referenz passt nicht mehr: nicht still weiterrechnen, sondern melden (Review B2). Getauscht wird nur auf Klick im Panel.
+        if (x.dataset.vk === 'scenario') { const mm = refMismatch(n.visual); if (mm && mm.kind === 'scenario') toast(t('scen.toast', { s: n.visual.scenario, f: mm.field.name, b: mm.note })); }
+      });
+    });
+    $$('[data-mm]', insEl).forEach(b => b.onclick = () => {
+      const v = n.visual; const mm = v && refMismatch(v); if (!mm) return render();
+      if (b.dataset.mm === 'swap') {
+        const plan = swapPlan(v, mm); if (!plan || plan.blocked) return render(); const c = plan.cand;
+        v.roles[mm.roleKey][mm.idx] = { table: c.table, name: c.name, kind: c.kind, type: c.type || '', isNew: !!c.isNew };
+        if (plan.scen) v.scenario = plan.scen;
+        commit(); toast(t('toast.refSwapped', { o: mm.field.name, n: c.name }) + (plan.scen ? ' · ' + t('toast.scenAdjusted', { s: plan.scen }) : ''));
+      } else if (b.dataset.mm === 'scen') { v.scenario = b.dataset.s; commit(); toast(t('toast.scenAdjusted', { s: v.scenario })); }
+      else if (b.dataset.mm === 'auto') { if (v.analysis) delete v.analysis.deltaBasis; commit(); toast(t('toast.basisAuto', { b: analysisOf(v).deltaBasis })); }
+    });
+    $$('[data-vkb]', insEl).forEach(x => x.addEventListener('change', () => { n.visual[x.dataset.vkb] = x.checked; commit({ keep: true }); }));
+    // ChartKitchen-Optionen: nur bewusst gewählte Werte merken; die Vorgabe des Visuals löscht den Schlüssel (v.ckProps fällt dann weg)
+    $$('[data-ckp]', insEl).forEach(x => x.addEventListener('change', () => {
+      const v = n.visual; const o = CAT.ckOptsFor(v.kind).find(z => z.key === x.dataset.ckp); if (!o) return;
+      const p = v.ckProps = v.ckProps || {}; if (x.value === o.def) delete p[o.key]; else p[o.key] = x.value;
+      if (!Object.keys(p).length) delete v.ckProps;
+      commit({ keep: true });
+    }));
+    // Analyse-Block: leer = nicht entschieden (Schlüssel wird entfernt), sonst Wert speichern
+    const setAn = (key, val) => { const a = n.visual.analysis = n.visual.analysis || {}; if (val === '' || val === null || val === undefined) delete a[key]; else a[key] = val; };
+    $$('[data-an]', insEl).forEach(x => {
+      const apply = () => {
+        const k = x.dataset.an; let val = x.type === 'checkbox' ? x.checked : x.value;
+        if (k === 'sortBy' || k === 'sortDir') { const by = $('[data-an="sortBy"]', insEl).value; const dir = $('[data-an="sortDir"]', insEl).value; setAn('sort', by ? { by, dir } : ''); }
+        else if (k === 'topN' || k === 'decimals') setAn(k, val === '' ? '' : +val);
+        else if (k === 'cumulative' || k === 'smallMultiples' || k === 'fieldParam') setAn(k, val ? true : '');
+        else if (k === 'displayUnits') setAn(k, val === 'auto' ? '' : val);
+        else setAn(k, val);
+      };
+      x.addEventListener('input', () => { apply(); persist(); if (x.tagName !== 'INPUT' || x.type === 'checkbox') renderFocusSoon(); else renderPageOnly(); });
+      x.addEventListener('change', () => { apply(); mark(); if (x.tagName === 'SELECT') renderFocusSoon(); });
+    });
+    $$('[data-ank]', insEl).forEach(x => x.addEventListener('change', () => { const kinds = $$('[data-ank]', insEl).filter(c => c.checked).map(c => c.dataset.ank); setAn('deltaKind', kinds.length === 2 ? '' : kinds); commit({ keep: true }); }));
+    $$('[data-rmrole]', insEl).forEach(x => x.onclick = () => removeField(n.id, x.dataset.rmrole, +x.dataset.i));
+    $$('[data-newfield]', insEl).forEach(b => b.onclick = e => { e.stopPropagation(); openNewFieldFor(n.id, b.dataset.newfield, b.dataset.newkind); });
+    $$('.role .fchip', insEl).forEach(chip => chip.addEventListener('dblclick', () => { const key = chip.closest('.role').dataset.role; const i = +chip.querySelector('[data-i]').dataset.i; const f = n.visual.roles[key][i]; if (f) openFieldMeta(f); }));
+    $$('.role', insEl).forEach(r => {
+      r.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) { e.preventDefault(); r.classList.add('over'); } });
+      r.addEventListener('dragleave', () => r.classList.remove('over'));
+      r.addEventListener('drop', e => { e.preventDefault(); r.classList.remove('over'); const d = e.dataTransfer.getData('application/mk-field'); if (d) assignField(n.id, JSON.parse(d), r.dataset.role); });
+    });
+  }
+  // Beim Tippen im Kachel-Panel: Seite, Seitenleiste und Prüfungen neu zeichnen, das Panel selbst nicht (das Feld behält Fokus und Cursor)
+  function renderPageOnly() { render({ inspector: false }); }
+
+  $$('.panel.right details.sub[id]').forEach(d => { if (d.id in panelOpen) d.open = !!panelOpen[d.id]; });
+  $('.panel.right').addEventListener('toggle', e => { const d = e.target; if (d && d.matches && d.matches('details.sub')) { const key = d.dataset.grp || d.id; if (key) grpRemember(key, d.open); } }, true);
+  $$('.tab').forEach(tb => tb.onclick = () => { $$('.tab').forEach(x => x.classList.toggle('active', x === tb)); ['el', 'page', 'report', 'chrome', 'design'].forEach(k => { $('#ins' + k[0].toUpperCase() + k.slice(1)).hidden = tb.dataset.tab !== k; }); });
+
+  // ------------------------------------------------------------------ Inspector · Seite / Rahmen / Design
+  const bind = (id, set, ev) => {
+    const el = $('#' + id); if (!el) return; const val = () => el.type === 'checkbox' ? el.checked : el.value;
+    if (ev === 'input') { el.addEventListener('input', () => { set(val()); commit({ noUndo: true }); }); el.addEventListener('change', () => { set(val()); mark(); }); }
+    // Text- und Zahlenfelder melden change beim Verlassen, oft mitten im Klick auf eine Kachel: erst nach dem Klick zeichnen (B12)
+    else el.addEventListener('change', () => { set(val()); commit(el.tagName === 'INPUT' && el.type !== 'checkbox' ? { soon: true } : undefined); });
+    return el;
+  };
+  // Barrierefreiheit: Prüfung über alle Seiten, Ergebnis im Design-Reiter (Modul a11y.js)
+  function a11yFindings() { if (!window.MK_A11Y) return []; const byPage = {}; S.pages.forEach(p => { byPage[p.id] = computeAll(p); }); return window.MK_A11Y.check(S, byPage, { lang: S.lang, catalog: CAT }); }
+  let a11yGuideLang = null;
+  function renderA11y() {
+    const panel = $('#a11yPanel'); if (!panel || !window.MK_A11Y) return;
+    const f = a11yFindings(); panel.innerHTML = window.MK_A11Y.renderList(f, S.lang);
+    const sum = $('#dsA11y > summary'); if (sum) sum.textContent = t('sec.a11y') + ' · ' + window.MK_A11Y.summary(f, S.lang);
+    if (a11yGuideLang !== S.lang) { $('#a11yGuide').innerHTML = window.MK_A11Y.renderGuide(S.lang); a11yGuideLang = S.lang; }
+  }
+  function syncPageInputs() {
+    renderA11y();
+    const c = S.chrome, d = S.design, p = page();
+    $('#projName').value = S.name; $('#rpName').value = S.name; $('#pageName').value = p.name; $('#pageNotes').value = p.notes || ''; $('#pageQuestion').value = p.question || '';
+    const rp = S.report; $('#rpAudience').value = rp.audience; $('#rpPurpose').value = rp.purpose; $('#rpDecision').value = rp.decision; $('#rpVersion').value = rp.version; $('#rpDataDate').value = rp.dataDate; $('#rpParticipants').value = rp.participants; $('#rpLang').value = S.lang || 'de';
+    $('#canvasPreset').value = S.canvas.preset; $('#customSize').hidden = S.canvas.preset !== 'custom'; $('#canvasW').value = S.canvas.w; $('#canvasH').value = S.canvas.h;
+    $('#uiScaleInfo').textContent = t('hint.uiScaleInfo', { k: ui().toFixed(2) });
+    $('#spMargin').value = S.spacing.margin; $('#spGutter').value = S.spacing.gutter; $('#spPad').value = S.spacing.pad; $('#defScenario').value = S.defScenario;
+    $('#hdOn').checked = c.header.on; $('#hdH').value = c.header.h; $('#hdLogoPos').value = c.header.logoPos || 'left'; $('#hdTitle').value = c.header.title; $('#hdSub').value = c.header.sub; $('#hdNavPos').value = navPosOf(c); $('#hdNavAuto').checked = !!c.header.navAuto; $('#hdNav').value = (c.header.nav || []).join(', '); $('#hdNav').disabled = !!c.header.navAuto;
+    $('#nvOn').checked = c.nav.on; $('#nvW').value = c.nav.w;
+    $('#ftOn').checked = c.filter.on; $('#ftSide').value = c.filter.side; const fh0 = c.filter.heading || {}; $('#ftHeadShow').value = fh0.show || 'auto'; $('#ftHeadText').value = fh0.text || ''; $('#ftText').value = c.filter.text || ''; const ty0 = typo(); $('#tyScale').value = String(ty0.scale); $('#tyTitle').value = ty0.title; $('#tySub').value = ty0.sub; $('#tyChart').value = ty0.chart; $('#ftW').value = c.filter.side === 'top' ? (c.filter.topH || 56) : c.filter.w; $('#ftWHint').textContent = c.filter.side === 'top' ? t('hint.height') : t('hint.width'); $('#ftW').disabled = c.filter.side === 'burger';
+    $('#ftCollapsible').checked = c.filter.collapsible; $('#ftCollapsibleRow').style.display = (c.filter.side === 'left' || c.filter.side === 'right') ? '' : 'none';
+    $('#ftFieldList').innerHTML = (c.filter.fields || []).map((f, i) => { const cs = chipState(f, null); return `<div class="row" style="margin-bottom:4px"><span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${cs.cls}" draggable="false" style="margin:0;flex:1;min-width:0"${cs.tip ? ` title="${esc(f.name + cs.tip)}"` : ''}><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span><button class="x" data-rmfilter2="${i}" title="${esc(t('tip.slicerRemove'))}" aria-label="${esc(t('tip.removeNamed', { name: f.name }))}">×</button></span><select class="ctl" data-fttype="${i}" title="${esc(t('lbl.slicerType'))}" style="width:96px;padding:3px 4px;font-size:11px">${['dropdown', 'list', 'tile', 'button', 'between', 'date', 'relative', 'search'].map(k => `<option value="${k}" ${(f.type || 'dropdown') === k ? 'selected' : ''}>${esc(t('opt.slicer.' + k))}</option>`).join('')}</select><input class="ctl" data-ftdef="${i}" value="${esc(f.default || '')}" placeholder="${esc(t('ph.slicerDefault'))}" style="width:90px;padding:3px 6px;font-size:11.5px"></div>`; }).join('') || `<span class="hint">${esc(t('hint.noSlicers'))}</span>`;
+    $('#ffOn').checked = c.footer.on; $('#ffH').value = c.footer.h; $('#ffText').value = c.footer.text;
+    $('#dsRadius').value = String(d.radius); $('#dsTile').value = d.tile; $('#dsPageBg').value = d.pageBg; $('#dsHeader').value = d.header; $('#dsAccent').value = d.accent; $('#dsAccentTxt').textContent = d.accent;
+    $('#dsPalette').value = d.palette || 'teal'; $('#dsNative').value = d.nativePalette || 'neutral'; $('#dsPageBgRow').hidden = d.pageBg !== 'custom'; $('#dsPageBgHex').value = d.pageBgHex || '#F4F4F1'; $('#dsPageBgHexTxt').textContent = d.pageBgHex || '#F4F4F1';
+    $('#dsTileBg').value = d.tileBg || '#FFFFFF'; $('#dsTileBgTxt').textContent = d.tileBg || '#FFFFFF'; $('#dsInk').value = d.ink || '#0F1E2E'; $('#dsInkTxt').textContent = d.ink || '#0F1E2E';
+    // Kontrast direkt am Farbwähler zeigen (B5), nicht nur im eingeklappten Kontrast-Check weiter unten
+    // Die Zahl ist der Kontrast der gewählten Farbe (die übernimmt der Export). Zeichnet die Skizze stattdessen hell (tileInk), sagt der Zusatz das.
+    { const ti = tileInk(d); const warn = $('#dsInkWarn'); const low = ti.ratio < 4.5; warn.hidden = !low;
+      if (low) warn.textContent = t('hint.inkContrast', { r: (Math.round(ti.ratio * 10) / 10).toLocaleString(I18N.lang === 'en' ? 'en' : 'de') }) + (ti.chosen ? '' : ' ' + t('hint.inkAuto')); }
+    $('#dsHeaderRow').hidden = d.header !== 'custom'; $('#dsHeaderBg').value = d.headerBg || '#0F1E2E'; $('#dsHeaderBgTxt').textContent = d.headerBg || '#0F1E2E'; $('#dsHeaderInk').value = d.headerInk || '#FFFFFF'; $('#dsHeaderInkTxt').textContent = d.headerInk || '#FFFFFF';
+    const dsel = $('#demoModelSel'); if (!dsel.options.length || dsel.dataset.lang !== S.lang) { dsel.innerHTML = CAT.demoModels.map(m => `<option value="${m.id}">${esc(m.label)}</option>`).join(''); dsel.dataset.lang = S.lang; dsel.value = S.demoId || 'controlling'; }
+  }
+  // Eigene Eingabe löscht den Standardtext-Merker (B27): der Text folgt dann keinem Sprachwechsel mehr
+  bind('projName', v => { S.name = v; dropDefault(S, 'name'); }, 'input'); bind('rpName', v => { S.name = v; dropDefault(S, 'name'); }, 'input');
+  bind('pageName', v => { page().name = v; dropDefault(page(), 'name'); }, 'input');
+  bind('pageNotes', v => page().notes = v, 'input'); bind('pageQuestion', v => page().question = v, 'input');
+  bind('rpAudience', v => S.report.audience = v, 'input'); bind('rpPurpose', v => S.report.purpose = v, 'input'); bind('rpDecision', v => S.report.decision = v, 'input');
+  bind('rpVersion', v => S.report.version = v, 'input'); bind('rpDataDate', v => S.report.dataDate = v, 'input'); bind('rpParticipants', v => S.report.participants = v, 'input');
+  // Sprache: Auswahlfeld im Reiter „Bericht" und der kleine Umschalter oben führen auf denselben Weg
+  // Unveränderte Standardinhalte ziehen mit um (relabelDefaults); der Wechsel selbst ist kein Rückgängig-Schritt.
+  function setLang(lang) {
+    const to = lang === 'en' ? 'en' : 'de';
+    const n = relabelDefaults(to);
+    S.lang = I18N.set(to);
+    I18N.apply(document);
+    persist(); render(); snap = JSON.stringify(S);
+    toast(n ? t('toast.langSwitchedN', { n }) : t('toast.langSwitched'));
+  }
+  $('#rpLang').addEventListener('change', e => setLang(e.target.value));
+  $('#btnLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
+  $('#ftFieldList').addEventListener('input', e => { const inp = e.target.closest('[data-ftdef]'); if (inp) { S.chrome.filter.fields[+inp.dataset.ftdef].default = inp.value; persist(); } });
+  $('#ftFieldList').addEventListener('change', e => { if (e.target.closest('[data-ftdef]')) mark(); const ts = e.target.closest('[data-fttype]'); if (ts) { S.chrome.filter.fields[+ts.dataset.fttype].type = ts.value; commit(); } });
+  $('#btnPageDup').onclick = dupPage; $('#btnPageDel').onclick = delPage;
+  bind('canvasPreset', v => { S.canvas.preset = v; if (v !== 'custom') { const [w, h] = v.split('x').map(Number); S.canvas.w = w; S.canvas.h = h; fitZoom(); } });
+  bind('canvasW', v => { S.canvas.w = clamp(+v || 1280, 320, 4000); fitZoom(); }); bind('canvasH', v => { S.canvas.h = clamp(+v || 720, 200, 4000); fitZoom(); });
+  bind('spMargin', v => S.spacing.margin = clamp(+v, 0, 64), 'input'); bind('spGutter', v => S.spacing.gutter = clamp(+v, 0, 48), 'input'); bind('spPad', v => S.spacing.pad = clamp(+v, 0, 32), 'input');
+  bind('defScenario', v => S.defScenario = v);
+  bind('hdOn', v => S.chrome.header.on = v); bind('hdH', v => S.chrome.header.h = clamp(+v, 32, 120), 'input'); bind('hdLogoPos', v => S.chrome.header.logoPos = v);
+  bind('ftHeadShow', v => { S.chrome.filter.heading = Object.assign({}, S.chrome.filter.heading, { show: v }); }); bind('ftHeadText', v => { S.chrome.filter.heading = Object.assign({}, S.chrome.filter.heading, { text: v }); }, 'input'); bind('ftText', v => S.chrome.filter.text = v, 'input');
+  bind('tyScale', v => { S.design.typo = Object.assign({}, S.design.typo, { scale: +v || 1 }); }); bind('tyTitle', v => { S.design.typo = Object.assign({}, S.design.typo, { title: +v || 12 }); }); bind('tySub', v => { S.design.typo = Object.assign({}, S.design.typo, { sub: +v || 9.5 }); }); bind('tyChart', v => { S.design.typo = Object.assign({}, S.design.typo, { chart: +v || 9 }); });
+  bind('hdTitle', v => { S.chrome.header.title = v; dropDefault(S.chrome.header, 'title'); }, 'input'); bind('hdSub', v => { S.chrome.header.sub = v; dropDefault(S.chrome.header, 'sub'); }, 'input'); bind('hdNavPos', v => { S.chrome.navPos = v; S.chrome.header.navOn = v === 'header'; }); bind('hdNavAuto', v => S.chrome.header.navAuto = v);
+  bind('hdNav', v => S.chrome.header.nav = v.split(',').map(s => s.trim()).filter(Boolean), 'input');
+  bind('nvOn', v => S.chrome.nav.on = v); bind('nvW', v => S.chrome.nav.w = clamp(+v, 40, 120), 'input');
+  bind('ftOn', v => S.chrome.filter.on = v); bind('ftSide', v => S.chrome.filter.side = v); bind('ftCollapsible', v => S.chrome.filter.collapsible = v);
+  bind('ftW', v => { if (S.chrome.filter.side === 'top') S.chrome.filter.topH = clamp(+v, 40, 160); else S.chrome.filter.w = clamp(+v, 120, 360); }, 'input');
+  $('#ftFieldList').addEventListener('click', e => { const b = e.target.closest('[data-rmfilter2]'); if (b) { S.chrome.filter.fields.splice(+b.dataset.rmfilter2, 1); commit(); } });
+  // ---------------------------------------------------------------- Kennzahlen-Steckbrief (fieldMeta je Tabelle.Feld)
+  let fmRef = null;
+  function fieldInfo(ref) { const i = ref.indexOf('.'); const t = S.model.tables.find(x => x.name === ref.slice(0, i)); if (!t) return null; return t.measures.find(x => x.name === ref.slice(i + 1)) || t.columns.find(x => x.name === ref.slice(i + 1)) || null; }
+  const FORMAT_WISH = { int: '#,0', dec1: '#,0.0', dec2: '#,0.00', k: '#,0.0, "Tsd."', m: '#,0.0,, "Mio."', pct0: '0 %', pct1: '0.0 %', eur: '#,0 "€"', teur: '#,0, "T€"' };
+  function fmtOf(info) { return info && window.MK_FMTINFO ? window.MK_FMTINFO.describe(info.format, S.lang, { dynamic: !!info.formatDynamic }) : null; }
+  function openFieldMeta(f) {
+    fmRef = f.table + '.' + f.name; const m = S.fieldMeta[fmRef] || {}; const info = fieldInfo(fmRef); const nf = S.newFields.find(x => x.table === f.table && x.name === f.name);
+    // Status live bestimmen (Review B3): ein Feld, das es im geladenen Modell nicht mehr gibt, meldet das hier statt still leer zu bleiben
+    const st = fieldStatus(f);
+    $('#fmRef').textContent = fmRef + (st === 'new' ? t('model.isNew') : st === 'missing' ? t('model.isMissing') : '');
+    $('#fmModel').innerHTML = info ? `<span class="k">${esc(t('model.type'))}</span><span>${esc(info.kind === 'measure' ? t('kind.measure') : t('model.colOf', { t: info.type || '' }))}</span><span class="k">${esc(t('model.format'))}</span><span>${fmtOf(info) ? `${esc(fmtOf(info).label)}${fmtOf(info).sample ? ` <span class="fm-sample">${esc(t('dax.sample'))} ${esc(fmtOf(info).sample)}</span>` : ''}${info.format ? `<br><span class="mono fm-raw">${esc(info.format)}</span>` : ''}` : '–'}</span>${info.folder ? `<span class="k">${esc(t('dax.folder'))}</span><span>${esc(info.folder)}</span>` : ''}<span class="k">${esc(t('model.description'))}</span><span>${esc(info.desc || t('model.noDesc'))}</span>` : (nf ? `<span class="k">${esc(t('model.description'))}</span><span>${esc(nf.desc || '–')}</span>` : (st === 'missing' ? `<span class="k">${esc(t('model.status'))}</span><span class="fm-missing">${esc(t('model.missingInfo'))}</span>` : ''));
+    $('#fmAlias').value = m.alias || ''; $('#fmConfirmed').checked = !!m.confirmed; $('#fmRename').checked = !!m.rename; $('#fmOwner').value = m.owner || (nf ? nf.owner || '' : ''); $('#fmSource').value = m.source || (nf ? nf.source || '' : ''); $('#fmTarget').value = m.target || (nf ? nf.target || '' : ''); $('#fmUnit').value = m.unit || (nf ? nf.unit || '' : ''); $('#fmNote').value = m.note || '';
+    // DAX und dynamischer Formatausdruck aus dem TMDL-Import (v0.5.3)
+    const dax = info && info.expr; $('#fmDax').hidden = !dax; $('#fmDaxCode').textContent = dax || '';
+    const fx = info && info.formatExpr; $('#fmFmtExpr').hidden = !fx; $('#fmFmtExprCode').textContent = fx || '';
+    $('#fmNoDax').hidden = !!dax || !info || info.kind !== 'measure';
+    // Warum keine Formel? Altes Import-Format (vor 0.5.3), Demo-Modell oder im TMDL wirklich keine Formel
+    $('#fmNoDax').textContent = !S.model.loadedAt ? t('dax.noneDemo') : (!S.model.parser ? t('dax.noneStale') : t('dax.noneTmdl'));
+    $('#fmDaxNote').value = m.daxNote || ''; $('#fmFormatWish').value = m.formatWish || '';
+    $('#dlgFieldMeta').showModal();
+  }
+  $('#fmOk').onclick = () => {
+    if (!fmRef) return;
+    const m = { alias: $('#fmAlias').value.trim(), confirmed: $('#fmConfirmed').checked, rename: $('#fmRename').checked, owner: $('#fmOwner').value.trim(), source: $('#fmSource').value.trim(), target: $('#fmTarget').value.trim(), unit: $('#fmUnit').value.trim(), note: $('#fmNote').value.trim(), daxNote: $('#fmDaxNote').value.trim(), formatWish: $('#fmFormatWish').value };
+    if (Object.values(m).some(v => v === true || (typeof v === 'string' && v))) S.fieldMeta[fmRef] = m; else delete S.fieldMeta[fmRef];
+    $('#dlgFieldMeta').close(); commit(); toast(t('toast.metaSaved'));
+  };
+  $('#ftFieldList').addEventListener('dragover', e => { if (e.dataTransfer.types.includes('application/mk-field')) e.preventDefault(); });
+  $('#ftFieldList').addEventListener('drop', e => { e.preventDefault(); const d = e.dataTransfer.getData('application/mk-field'); if (d) addFilterField(JSON.parse(d)); });
+  bind('ffOn', v => S.chrome.footer.on = v); bind('ffH', v => S.chrome.footer.h = clamp(+v, 16, 48), 'input'); bind('ffText', v => { S.chrome.footer.text = v; dropDefault(S.chrome.footer, 'text'); }, 'input');
+  bind('dsRadius', v => S.design.radius = +v); bind('dsTile', v => S.design.tile = v); bind('dsPageBg', v => S.design.pageBg = v); bind('dsHeader', v => S.design.header = v);
+  bind('dsAccent', v => S.design.accent = v, 'input'); bind('dsPalette', v => S.design.palette = v); bind('dsNative', v => S.design.nativePalette = v);
+  bind('dsPageBgHex', v => S.design.pageBgHex = v, 'input'); bind('dsTileBg', v => S.design.tileBg = v, 'input'); bind('dsInk', v => S.design.ink = v, 'input'); bind('dsHeaderBg', v => S.design.headerBg = v, 'input'); bind('dsHeaderInk', v => S.design.headerInk = v, 'input');
+  // Inhalt neu aufteilen: Eingaben prüfen statt still zu klemmen (B32), vor dem Verwerfen überzähliger Visuals fragen (B16)
+  function splitErr(bad, keepFocus) {
+    const p = $('#spErr'); p.textContent = bad.length ? t('hint.splitInvalid') : ''; p.hidden = !bad.length;
+    [$('#spRows'), $('#spCols')].forEach(el => { if (bad.includes(el)) { el.setAttribute('aria-invalid', 'true'); el.setAttribute('aria-describedby', 'spErr'); } else { el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); } });
+    if (bad.length && !keepFocus) { bad[0].focus(); bad[0].select(); }
+  }
+  const spOkNum = el => el.value.trim() !== '' && Number.isInteger(+el.value) && el.checkValidity();
+  // Beim Tippen: nur Felder, die schon als ungültig markiert sind und es noch sind, bleiben markiert (nicht beide auf einmal freigeben)
+  ['#spRows', '#spCols'].forEach(s => $(s).addEventListener('input', () => splitErr([$('#spRows'), $('#spCols')].filter(el => el.getAttribute('aria-invalid') === 'true' && !spOkNum(el)), true)));
+  $('#btnSplitRoot').onclick = () => { splitErr([]); $('#dlgSplit').showModal(); };
+  $('#spOk').onclick = () => {
+    const bad = [$('#spRows'), $('#spCols')].filter(el => !spOkNum(el)); if (bad.length) return splitErr(bad);
+    const rows = +$('#spRows').value, cols = +$('#spCols').value;
+    const vs = visuals(), lost = vs.slice(rows * cols);
+    if (lost.length) {
+      const names = lost.map(l => l.visual.title || (CAT.byId[l.visual.kind] || {}).label || l.visual.kind);
+      const list = names.slice(0, 8).join(', ') + (names.length > 8 ? ' ' + t('ask.splitMore', { n: names.length - 8 }) : '');
+      if (!confirm(t('ask.splitReplace', { c: rows * cols, k: vs.length, n: lost.length, t: list }))) return;
+    }
+    rebuildGrid(rows, cols); $('#dlgSplit').close();
+  };
+
+  // ------------------------------------------------------------------ Katalog-Dialog
+  const dlgCat = $('#dlgCatalog');
+  function openCatalog() { if (!sel) return toast(t('toast.pickTileFirst')); renderCatalog(''); dlgCat.showModal(); $('#catSearch').value = ''; $('#catSearch').focus(); }
+  function renderCatalog(q) {
+    q = (q || '').toLowerCase(); const cur = sel ? (findNode(sel).node.visual || {}).kind : null; let html = '';
+    CAT.groups.forEach(g => {
+      const items = CAT.list.filter(k => k.group === g && (!q || (k.label + ' ' + k.id + ' ' + g).toLowerCase().includes(q)));
+      if (!items.length) return;
+      html += `<h3>${esc(g)}</h3><div class="cat-grid">` + items.map(k => `<button class="cat-item${k.id === cur ? ' cur' : ''}" data-kind="${k.id}" draggable="true" title="${esc(k.note || '')}"><div class="pv">${window.MK_SKETCH ? window.MK_SKETCH(k.sketch, 130, 56, { scenario: 'AC/PL', seed: 5, lang: S.lang }) : ''}</div><b>${esc(k.label)}</b><small>${k.engines.map(e => CAT.engineLabel[e]).join(' · ')}</small></button>`).join('') + '</div>';
+    });
+    $('#catBody').innerHTML = html || `<p class="hint">${esc(t('hint.noTypeMatch'))}</p>`;
+  }
+  $('#catSearch').addEventListener('input', e => renderCatalog(e.target.value));
+  $('#catBody').addEventListener('click', e => { const b = e.target.closest('[data-kind]'); if (!b) return; setKind(sel, b.dataset.kind); dlgCat.close(); });
+  $('#catBody').addEventListener('dragstart', e => { const b = e.target.closest('[data-kind]'); if (!b) return; e.dataTransfer.setData('application/mk-kind', b.dataset.kind); dlgCat.close(); });
+
+  // ------------------------------------------------------------------ Vorlagen-Dialog
+  $('#btnNew').onclick = () => { const n = S.pages.reduce((a, p) => a + leaves(p.layout).filter(l => l.visual).length, 0); if ((n || S.pages.length > 1) && !confirm(t('ask.newReplace', { n, p: S.pages.length }))) return; window.MK.reset(); toast(t('toast.newProject')); };
+  // Vorlagenkarten sind per Tab erreichbar und mit Enter/Leertaste wählbar, sonst hat der Dialog nur den Schließen-Knopf
+  $('#btnTemplates').onclick = () => { $('#tplGrid').innerHTML = CAT.templates.map(tp => `<div class="tpl" data-tpl="${tp.id}" role="button" tabindex="0" aria-label="${esc(tp.label)}"><div class="pv">${templateSvg(tp)}</div><b>${esc(tp.label)}</b><small>${esc(tp.desc)}</small></div>`).join(''); $('#dlgTemplates').showModal(); };
+  $('#tplGrid').addEventListener('click', e => { const el = e.target.closest('[data-tpl]'); if (!el) return; applyTemplate(el.dataset.tpl); $('#dlgTemplates').close(); });
+  $('#tplGrid').addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const el = e.target.closest('[data-tpl]'); if (!el) return; e.preventDefault(); el.click(); });
+  function templateSvg(tp) {
+    const tree = tp.tree(); const out = { leaves: [], gutters: [] }; layoutRects(tree, { x: 2, y: 2, w: 196, h: 92 }, out, 3);
+    return `<svg viewBox="0 0 200 96">${out.leaves.map(l => `<rect x="${l.rect.x}" y="${l.rect.y}" width="${l.rect.w}" height="${l.rect.h}" rx="2" fill="${l.node.visual ? '#E9EEF5' : '#fff'}" stroke="#C9C6BA" stroke-dasharray="${l.node.visual ? '' : '3 2'}"/>${l.node.visual ? `<text x="${l.rect.x + 4}" y="${l.rect.y + 11}" font-size="7" fill="#475569" font-family="Geist,system-ui">${esc((CAT.byId[l.node.visual.kind] || {}).label || '').slice(0, Math.max(3, l.rect.w / 5))}</text>` : ''}`).join('')}</svg>`;
+  }
+
+  // ------------------------------------------------------------------ Datenmodell (TMDL / Demo)
+  function parseTmdl(text) {
+    const lines = text.replace(/^﻿/, '').replace(/\r/g, '').split('\n');
+    let table = null, cur = null, pendingDesc = []; const out = [];
+    const unq = s => { s = s.trim(); return (s.startsWith("'") && s.endsWith("'")) ? s.slice(1, -1).replace(/''/g, "'") : s; };
+    // DAX-Formeln (v0.5.3): einzeilig hinter „=", mehrzeilig tiefer eingerückt als die Eigenschaften, oder in ```-Blöcken
+    let expr = null;          // { target, lines, fence, indent }
+    const endExpr = () => {
+      if (!expr) return;
+      const ls = expr.lines; while (ls.length && !ls[ls.length - 1].trim()) ls.pop(); while (ls.length && !ls[0].trim()) ls.shift();
+      const min = ls.filter(l => l.trim()).reduce((m, l) => Math.min(m, l.match(/^ */)[0].length), 1e9);
+      const text = ls.map(l => l.slice(Math.min(min, l.match(/^ */)[0].length)).replace(/^(?: {4})+/, s => '\t'.repeat(s.length / 4))).join('\n').trim();
+      if (expr.key === 'expr') expr.target.expr = text; else if (expr.key === 'formatExpr') expr.target.formatExpr = text;
+      expr = null;
+    };
+    const tmdlValue = v => { v = v.trim(); return (v.length > 1 && v.startsWith('"') && v.endsWith('"')) ? v.slice(1, -1).replace(/""/g, '"') : v; };
+    for (const raw of lines) {
+      const line = raw.replace(/\t/g, '    '); const indent = line.match(/^ */)[0].length; const t = line.trim();
+      if (expr) {
+        if (expr.fence) { if (t === '```') { endExpr(); continue; } expr.lines.push(line); continue; }
+        if (!t || indent > expr.indent) { expr.lines.push(line); continue; }
+        endExpr();
+      }
+      if (!t) continue;
+      if (indent === 0) {
+        if (t.startsWith('table ')) { table = { name: unq(t.slice(6).replace(/\s*\/\/.*$/, '')), columns: [], measures: [], hidden: false, desc: pendingDesc.join(' ') }; out.push(table); cur = null; pendingDesc = []; }
+        else if (t.startsWith('///')) pendingDesc.push(t.slice(3).trim());
+        else { cur = null; pendingDesc = []; }
+        continue;
+      }
+      if (!table) continue;
+      if (indent <= 4 && t.startsWith('///')) { pendingDesc.push(t.slice(3).trim()); continue; }
+      if (indent <= 4) {
+        const m = t.match(/^(measure|column|calculatedColumn|hierarchy)\s+('(?:[^']|'')+'|[^\s=]+)(\s*=.*)?$/);
+        if (m) {
+          const kind = m[1] === 'measure' ? 'measure' : (m[1] === 'hierarchy' ? 'hierarchy' : 'column');
+          cur = { name: unq(m[2]), kind, type: kind === 'measure' ? 'measure' : '', desc: pendingDesc.join(' '), hidden: false, format: '' }; pendingDesc = [];
+          if (kind === 'measure') table.measures.push(cur); else if (kind === 'column') table.columns.push(cur); else cur = null;
+          const rhs = m[3] ? m[3].replace(/^\s*=\s*/, '') : null;
+          if (cur && rhs !== null) {
+            if (rhs.startsWith('```')) expr = { target: cur, key: 'expr', lines: rhs.slice(3).trim() ? [rhs.slice(3)] : [], fence: true, indent };
+            else if (rhs.trim()) cur.expr = rhs.trim();
+            else expr = { target: cur, key: 'expr', lines: [], fence: false, indent: indent + 4 };
+          }
+        } else if (t.startsWith('isHidden') && !cur) table.hidden = true;
+        else { cur = null; pendingDesc = []; }
+        continue;
+      }
+      if (cur && indent <= 8) {
+        if (t.startsWith('dataType:')) cur.type = t.slice(9).trim();
+        else if (t === 'isHidden' || t.startsWith('isHidden:')) cur.hidden = true;
+        else if (t.startsWith('formatString:')) cur.format = tmdlValue(t.slice(13));
+        else if (t.startsWith('description:')) cur.desc = tmdlValue(t.slice(12));
+        else if (t.startsWith('displayFolder:')) cur.folder = tmdlValue(t.slice(14));
+        else if (t.startsWith('formatStringDefinition')) {
+          cur.formatDynamic = true; const rhs = t.replace(/^formatStringDefinition\s*=?\s*/, '');
+          if (rhs.startsWith('```')) expr = { target: cur, key: 'formatExpr', lines: [], fence: true, indent };
+          else if (rhs) cur.formatExpr = rhs; else expr = { target: cur, key: 'formatExpr', lines: [], fence: false, indent };
+        }
+      }
+    }
+    endExpr();
+    return out;
+  }
+  // Modellname (R20), in dieser Reihenfolge: (a) database.tmdl / model.tmdl, (b) Ordner „*.SemanticModel" im Pfad, (c) nachfragen
+  const relPath = f => f.webkitRelativePath || f.__mkPath || '';          // __mkPath: beim Ziehen gesetzt (entry.fullPath)
+  const GENERIC_MODEL = /^(tables|definition|model|database|cultures|expressions)$/i;
+  const stripSm = n => String(n || '').trim().replace(/\.SemanticModel$/i, '');
+  function modelNameFromTmdl(text, kind) {   // „database 'Mein Modell'" bzw. „model Name"; PBIP schreibt oft nur „database" oder „model Model"
+    const m = text.replace(/^﻿/, '').match(new RegExp('^' + kind + "[ \\t]+('(?:[^']|'')+'|\\S+)", 'm'));
+    if (!m) return '';
+    const v = m[1], name = (v.startsWith("'") && v.endsWith("'")) ? v.slice(1, -1).replace(/''/g, "'") : v;
+    return GENERIC_MODEL.test(name) ? '' : stripSm(name);
+  }
+  function modelNameFromPath(files) {
+    for (const f of files) { const hit = relPath(f).split('/').filter(Boolean).slice(0, -1).find(p => /\.SemanticModel$/i.test(p)); if (hit) return stripSm(hit); }
+    return '';
+  }
+  function modelFolderGuess(files) {          // erster Ordnername über der Datei, der nicht „tables" o. Ä. heißt
+    for (const f of files) { const ps = relPath(f).split('/').filter(Boolean); if (ps.length > 1 && !GENERIC_MODEL.test(ps[0])) return ps[0]; }
+    return '';
+  }
+  function renameModel() {
+    if (!S.model.tables.length) return;
+    const ans = prompt(t('ask.modelName'), S.model.source || '');
+    if (ans == null || !stripSm(ans)) return;
+    S.model.source = stripSm(ans); commit();
+  }
+  function ingestTmdlFiles(files) {
+    const tmdl = files.filter(f => /\.tmdl$/i.test(f.name) && !/^(model|database|relationships|expressions|cultures)\.tmdl$/i.test(f.name));
+    if (!tmdl.length) return toast(t('toast.noTmdl', { n: files.length }));
+    const metaFiles = ['database', 'model'].map(k => files.find(f => f.name.toLowerCase() === k + '.tmdl')).filter(Boolean);
+    Promise.all([Promise.all(tmdl.map(f => f.text())), Promise.all(metaFiles.map(f => f.text().then(tx => modelNameFromTmdl(tx, f.name.toLowerCase().replace('.tmdl', '')))))]).then(([texts, metaNames]) => {
+      const tables = []; texts.forEach(txt => parseTmdl(txt).forEach(tb => tables.push(tb)));
+      const good = tables.filter(tb => tb.columns.length || tb.measures.length);
+      if (!good.length) return toast(t('toast.tmdlEmpty'));
+      let name = metaNames.find(Boolean) || modelNameFromPath(files);
+      if (!name) { const ans = prompt(t('ask.modelName'), modelFolderGuess(tmdl)); if (ans && stripSm(ans)) name = stripSm(ans); }   // Abbrechen: bisheriges Label
+      const rel = relPath(tmdl[0]); const src = name || (rel.includes('/') ? rel.split('/')[0] : t('model.tmdlSrc', { n: tmdl.length }));
+      S.model = { tables: good, source: src, loadedAt: new Date().toISOString(), parser: 2 };   // parser 2 = mit DAX-Formeln (v0.5.3)
+      const miss = syncFieldFlags(); openMeasureTable(); commit();
+      toast(t('toast.tmdlOk', { tables: good.length, measures: good.reduce((a, tb) => a + tb.measures.length, 0), columns: good.reduce((a, tb) => a + tb.columns.length, 0) }) + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : ''));
+    }).catch(err => toast(t('toast.readFailed', { msg: err.message })));
+  }
+  $('#btnImportTmdl').onclick = () => $('#fileTmdl').click();
+  $('#fileTmdl').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
+  $('#fileTmdlSingle').addEventListener('change', e => { ingestTmdlFiles(Array.from(e.target.files)); e.target.value = ''; });
+  $('#modelMeta').addEventListener('click', renameModel);
+  $('#modelMeta').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); renameModel(); } });
+  $('#btnDemoModel').onclick = () => { const id = $('#demoModelSel').value || 'controlling'; const m = CAT.demoModels.find(x => x.id === id); S.demoId = id; S.model = m ? m.build() : CAT.demoModel; const miss = syncFieldFlags(); openMeasureTable(); commit(); toast(t('toast.demoLoaded') + (miss ? ' · ' + t('toast.fieldsMissing', { n: miss }) : '')); };
+  function openMeasureTable() { const tb = S.model.tables.find(x => x.measures.length); if (tb) openTables.add(tb.name); }
+  const mdrop = $('#modelDrop');
+  mdrop.addEventListener('click', () => $('#fileTmdlSingle').click());
+  mdrop.addEventListener('dragover', e => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); mdrop.classList.add('over'); } });
+  mdrop.addEventListener('dragleave', () => mdrop.classList.remove('over'));
+  mdrop.addEventListener('drop', async e => {
+    e.preventDefault(); mdrop.classList.remove('over');
+    // Entries synchron einsammeln: nach dem ersten await sind die DataTransfer-Items nicht mehr lesbar
+    const items = Array.from(e.dataTransfer.items || []);
+    const entries = items.map(it => (it.webkitGetAsEntry ? it.webkitGetAsEntry() : null)).filter(Boolean);
+    const flat = Array.from(e.dataTransfer.files || []);
+    const files = [];
+    const walk = entry => new Promise(res => {
+      if (entry.isFile) entry.file(f => { try { f.__mkPath = String(entry.fullPath || '').replace(/^\//, ''); } catch (e) { /* Pfad nur Zusatz */ } files.push(f); res(); }, () => res());
+      else if (entry.isDirectory) { const rd = entry.createReader(); const all = []; const next = () => rd.readEntries(async ents => { if (!ents.length) { for (const en of all) await walk(en); res(); } else { all.push(...ents); next(); } }, () => res()); next(); }
+      else res();
+    });
+    try { for (const en of entries) await walk(en); } catch (err) { /* Fallback unten */ }
+    ingestTmdlFiles(files.length ? files : flat);
+  });
+
+  function usedFieldKeys() {
+    const set = new Set();
+    S.pages.forEach(p => visuals(p).forEach(l => Object.values(l.visual.roles).forEach(list => list.forEach(f => set.add(f.table + '|' + f.name)))));
+    (S.chrome.filter.fields || []).forEach(f => set.add(f.table + '|' + f.name));
+    return set;
+  }
+  const openTables = new Set();
+  function renderModel() {
+    const list = $('#modelList'); const q = ($('#modelSearch').value || '').toLowerCase(); const onlyUsed = $('#onlyUsed').checked; const used = usedFieldKeys(); const m = S.model;
+    const mm = $('#modelMeta'); mm.textContent = m.tables.length ? t('model.meta', { src: m.source || t('model.fallbackSrc'), tables: m.tables.length, measures: m.tables.reduce((a, tb) => a + tb.measures.length, 0) }) : t('model.none');
+    if (m.tables.length) { mm.setAttribute('role', 'button'); mm.tabIndex = 0; mm.title = t('tip.modelName'); } else { mm.removeAttribute('role'); mm.removeAttribute('tabindex'); mm.removeAttribute('title'); }
+    $('#nmTables').innerHTML = Array.from(new Set(m.tables.map(tb => tb.name).concat(S.newFields.map(f => f.table)))).map(n => `<option value="${esc(n)}">`).join('');
+    const chip = (f, table, extra) => {
+      const key = table + '|' + f.name; if (onlyUsed && !used.has(key)) return ''; if (q && !(f.name + ' ' + table).toLowerCase().includes(q)) return '';
+      return `<span class="fchip ${f.kind === 'measure' ? 'm' : 'c'}${f.isNew ? ' new' : ''}${f.missing ? ' missing' : ''}${used.has(key) ? ' used' : ''}" draggable="${f.missing ? 'false' : 'true'}"${f.missing ? ' data-missing="1"' : ''} data-field='${esc(JSON.stringify({ table, name: f.name, kind: f.kind, type: f.type || '', isNew: !!f.isNew }))}' title="${esc((f.desc || '') + (f.type ? ' · ' + f.type : '') + (f.open ? ' · offen: ' + f.open : ''))}"><span class="ico">${f.kind === 'measure' ? 'Σ' : '≡'}</span><span class="nm">${esc(f.name)}</span>${extra || ''}</span>`;
+    };
+    let html = '';
+    // Gebundene Felder, die das geladene Modell nicht kennt (Review B3): sichtbar oben, damit die Suche sie findet
+    const missing = []; const seenMissing = new Set();
+    eachBinding(f => { const k = f.table + '|' + f.name; if (!seenMissing.has(k) && fieldStatus(f) === 'missing') { seenMissing.add(k); missing.push(f); } });
+    if (missing.length) html += `<div class="table-block open missing"><div class="table-head"><span class="car">▸</span>${esc(t('model.missingGroup'))}<span class="cnt">${missing.length}</span></div><div class="table-body">${missing.map(f => chip({ name: f.name, kind: f.kind, type: f.type, missing: true, desc: f.name + ' · ' + t('model.missingTip', { r: f.table + '.' + f.name }) }, f.table)).join('')}</div></div>`;
+    if (S.newFields.length) html += `<div class="table-block open"><div class="table-head"><span class="car">▸</span>${esc(t('model.newGroup'))}<span class="cnt">${S.newFields.length}</span></div><div class="table-body">${S.newFields.map((f, i) => chip(f, f.table, `<button class="x" data-rmnew="${i}" title="${esc(t('tip.rmNewField'))}" aria-label="${esc(t('tip.removeNamed', { name: f.name }))}">×</button>`)).join('')}</div></div>`;
+    if (!m.tables.length && !S.newFields.length) html += `<div class="empty-model"><strong>${esc(t('model.emptyTitle'))}</strong>${esc(t('model.emptyText'))}</div>`;
+    m.tables.forEach(tb => {
+      const inner = tb.measures.map(f => chip(f, tb.name)).join('') + tb.columns.filter(c => !c.hidden || used.has(tb.name + '|' + c.name)).map(f => chip(f, tb.name)).join('');
+      if (!inner) return; const open = openTables.has(tb.name) || !!q || onlyUsed;
+      html += `<div class="table-block${open ? ' open' : ''}" data-table="${esc(tb.name)}"><div class="table-head"><span class="car">▸</span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tb.name)}</span><span class="cnt">${tb.measures.length}Σ ${tb.columns.length}≡</span></div><div class="table-body">${inner}</div></div>`;
+    });
+    list.innerHTML = html;
+  }
+  $('#modelList').addEventListener('dblclick', e => { const c = e.target.closest('[data-field]'); if (c) openFieldMeta(JSON.parse(c.dataset.field)); });
+  $('#modelList').addEventListener('click', e => {
+    // Klick-Fallback zur Feldzuweisung (Tastatur/Touch): Chip anklicken → gewählte Kachel
+    const chip = e.target.closest('[data-field]');
+    if (chip && !e.target.closest('.x') && sel && !chip.dataset.missing) { assignField(sel, JSON.parse(chip.dataset.field)); return; }
+    const rm = e.target.closest('[data-rmnew]');
+    if (rm) {
+      const f = S.newFields[+rm.dataset.rmnew]; if (!f) return;
+      const same = x => x.table === f.table && x.name === f.name;
+      // erst zählen, dann fragen, dann entfernen (sonst wäre der Zustand bei „Abbrechen" schon verändert)
+      let n = S.chrome.filter.fields.filter(same).length;
+      S.pages.forEach(p => visuals(p).forEach(l => Object.values(l.visual.roles).forEach(list => { n += list.filter(same).length; })));
+      if (n && !confirm(t('ask.rmField', { n: f.name, c: n }))) return;
+      S.pages.forEach(p => visuals(p).forEach(l => Object.keys(l.visual.roles).forEach(k => { l.visual.roles[k] = l.visual.roles[k].filter(x => !same(x)); })));
+      S.chrome.filter.fields = S.chrome.filter.fields.filter(x => !same(x));
+      S.newFields.splice(+rm.dataset.rmnew, 1); commit(); if (n) toast(t('toast.fieldRemoved', { n: f.name, c: n })); return;
+    }
+    const h = e.target.closest('.table-head'); if (!h) return; const blk = h.parentElement; const nm = blk.dataset.table; if (!nm) return;
+    blk.classList.toggle('open'); if (blk.classList.contains('open')) openTables.add(nm); else openTables.delete(nm);
+  });
+  $('#modelList').addEventListener('dragstart', e => { const c = e.target.closest('[data-field]'); if (!c) return; e.dataTransfer.setData('application/mk-field', c.dataset.field); e.dataTransfer.effectAllowed = 'copy'; });
+  $('#modelSearch').addEventListener('input', renderModel); $('#onlyUsed').addEventListener('change', renderModel);
+  // Standardtabelle: Measures in die Measure-Tabelle (erste mit Measures, sonst „_Measures"), Dimensionen in die erste Dimensionstabelle
+  const defaultTableFor = kind => { const tb = kind === 'measure' ? S.model.tables.find(x => x.measures.length) : S.model.tables.find(x => x.columns.length && !x.measures.length); return tb ? tb.name : (kind === 'measure' ? '_Measures' : 'DimNeu'); };
+  // Neues Feld direkt aus einer Datenrolle heraus anlegen (erster Workshop: Kennzahlen fehlen oft noch) und sofort binden
+  let pendingNewField = null;
+  function openNewFieldFor(tileId, roleKey, roleKind) {
+    pendingNewField = { tileId, roleKey };
+    $('#nmKind').value = roleKind === 'column' ? 'column' : 'measure';
+    $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); nmTableReset();
+    $('#dlgNewMeasure').showModal(); $('#nmName').focus();
+  }
+  $('#btnNewMeasure').onclick = () => { pendingNewField = null; $('#nmName').value = ''; $('#nmDesc').value = ''; $('#nmOpen').value = ''; $('#nmTable').value = defaultTableFor($('#nmKind').value); nmTableReset(); $('#dlgNewMeasure').showModal(); $('#nmName').focus(); };
+  $('#nmKind').addEventListener('change', () => { $('#nmTable').value = defaultTableFor($('#nmKind').value); nmTableReset(); });
+  // Tabellenname gegen das Modell prüfen (Review B26): vorhandene Tabelle, schon vorgemerkte neue Tabelle, unbekannt (nur mit Häkchen) oder unzulässig (Punkt)
+  const nmTableOf = kind => $('#nmTable').value.trim() || (kind === 'measure' ? '_Measures' : 'DimNeu');
+  function nmTableCheck(strict) {
+    const tb = nmTableOf($('#nmKind').value); const names = S.model.tables.map(x => x.name);
+    const state = tb.includes('.') ? 'dot' : (!names.length || names.includes(tb)) ? 'ok' : S.newFields.some(x => x.table === tb) ? 'staged' : 'unknown';
+    const box = $('#nmTableCheck'), msg = $('#nmTableMsg'), near = $('#nmTableNear');
+    box.hidden = state === 'ok'; $('#nmNewTableRow').hidden = state !== 'unknown'; near.hidden = true;
+    const blocked = state === 'dot' || (strict && state === 'unknown' && !$('#nmNewTable').checked);
+    box.classList.toggle('bad', blocked); $('#nmTable').setAttribute('aria-invalid', blocked ? 'true' : 'false');
+    if (state === 'dot') msg.textContent = t('nm.tableDot');
+    else if (state === 'staged') msg.textContent = t('nm.tableStaged', { tb });
+    else if (state === 'unknown') {
+      msg.textContent = t('nm.tableUnknown', { tb }) + (blocked ? ' ' + t('nm.tableConfirm') : '');
+      const flat = s => s.toLowerCase().replace(/[^a-z0-9äöüß]/g, '');
+      const hit = names.find(n => n.toLowerCase() === tb.toLowerCase()) || names.find(n => flat(n) === flat(tb));
+      if (hit) { near.hidden = false; near.textContent = t('nm.tableNear', { tb: hit }); near.dataset.tb = hit; }
+    }
+    return { state, tb, blocked };
+  }
+  function nmTableReset() { $('#nmNewTable').checked = false; nmTableCheck(false); }
+  $('#nmTable').addEventListener('input', nmTableReset);
+  $('#nmNewTable').addEventListener('change', () => nmTableCheck(false));
+  $('#nmTableNear').addEventListener('click', e => { $('#nmTable').value = e.currentTarget.dataset.tb || ''; nmTableReset(); $('#nmTable').focus(); });
+  $('#nmOk').onclick = () => {
+    const name = $('#nmName').value.trim(); if (!name) return $('#nmName').focus();
+    const kind = $('#nmKind').value;
+    const chk = nmTableCheck(true); if (chk.blocked) return $('#nmTable').focus();
+    const nf = { id: uid(), name, table: chk.tb, kind, desc: $('#nmDesc').value.trim(), open: $('#nmOpen').value.trim(), unit: $('#nmUnit').value.trim(), target: $('#nmTarget').value.trim(), owner: $('#nmOwner').value.trim(), source: $('#nmSource').value.trim(), isNew: true, type: kind === 'measure' ? 'measure' : '' };
+    if (chk.state === 'unknown' || chk.state === 'staged') nf.newTable = true;   // ausdrücklich bestätigt: die Tabelle entsteht neu
+    S.newFields.push(nf); syncFieldFlags();
+    ['nmUnit', 'nmTarget', 'nmOwner', 'nmSource'].forEach(id => { $('#' + id).value = ''; });
+    $('#dlgNewMeasure').close();
+    if (pendingNewField && findNode(pendingNewField.tileId)) { const { tileId, roleKey } = pendingNewField; pendingNewField = null; sel = tileId; assignField(tileId, { table: nf.table, name: nf.name, kind: nf.kind, type: nf.type, isNew: true }, roleKey); toast(t('toast.fieldCreated', { n: name })); return; }
+    commit(); toast(t('toast.fieldCreated', { n: name }));
+  };
+
+  // ------------------------------------------------------------------ Zoom, Toolbar, Tastatur
+  function fitZoom() { const r = stage.getBoundingClientRect(); zoom = clamp(Math.min((r.width - 60) / S.canvas.w, (r.height - 60) / S.canvas.h), 0.1, 2); }
+  $('#btnZoomFit').onclick = () => { fitZoom(); render(); };
+  $('#btnZoomIn').onclick = () => { zoom = clamp(zoom * 1.15, 0.1, 3); render(); };
+  $('#btnZoomOut').onclick = () => { zoom = clamp(zoom / 1.15, 0.1, 3); render(); };
+  window.addEventListener('resize', () => { fitZoom(); render(); });
+  $('#btnHelp').onclick = () => $('#dlgHelp').showModal();
+  // Pixelgenau pruefen (v0.5.0): Befunde je Seite, Ausrichten, Rand/Zwischenraum anpassen
+  function gridCheck(p) { p = p || page(); const geo = computeAll(p); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.check(p.layout, geo, Math.round(S.spacing.gutter * ui())) : { ok: true, findings: [] }; }
+  function gridFix() { const geo = computeAll(); return window.MK_GRIDCHECK ? window.MK_GRIDCHECK.marginFix(page().layout, geo.zones.content, Math.round(S.spacing.gutter * ui()), 8) : null; }
+  const gcAxis = a => t(a === 'cols' ? 'gc.cols' : 'gc.rows');
+  const gcText = f => t('gc.f.' + f.code, Object.assign({}, f, { axis: f.axis ? gcAxis(f.axis) : '' }));
+  const signed = v => (v > 0 ? '+' : '') + v;
+  function openGridCheck(note) {
+    const res = gridCheck(); const fix = gridFix(); const g = Math.round(S.spacing.gutter * ui());
+    const body = $('#dlgGridBody');
+    body.innerHTML = (note || '') + (res.findings.length ? `<ul class="gc-list">${res.findings.map(f => `<li class="${f.level}"><span class="gc-tag ${f.level}">${esc(t('gc.' + f.level))}</span> ${esc(gcText(f))}</li>`).join('')}</ul>` : `<p class="gc-ok">✓ ${esc(t('gc.ok', { g }))}</p>`);
+    $('#dlgGridP').textContent = t('gc.p', { n: res.findings.filter(f => f.level === 'warn').length });
+    $('#gcSnap').hidden = !res.findings.some(f => ['TREE_CONVERTIBLE', 'TRACK_NEAR', 'EDGE_NEAR_X', 'EDGE_NEAR_Y', 'GUTTER_MISMATCH'].includes(f.code)) || res.layoutType === 'leaf';
+    // Label immer setzen (sonst bleibt ein veralteter oder anderssprachiger Text stehen, B10); nur Teile nennen, die sich ändern
+    const needFix = !!(fix && (fix.margin || fix.gutter) && res.findings.some(f => f.code === 'REST_PX'));
+    const what = !needFix ? '' : fix.gutter ? [fix.margin ? t('gc.dMargin', { d: signed(fix.margin) }) : '', t('gc.dGutter', { g: signed(fix.gutter) })].filter(Boolean).join(', ') : signed(fix.margin) + ' px';
+    $('#gcMargin').hidden = !needFix; $('#gcMargin').textContent = needFix ? t('gc.marginBtn', { what }) : t('gc.margin'); $('#gcMargin').title = t('gc.marginTip');
+    if (!$('#dlgGrid').open) $('#dlgGrid').showModal();
+  }
+  $('#btnGridCheck').onclick = () => openGridCheck(); $('#btnGridCheck2').onclick = () => openGridCheck();
+  $('#gcSnap').onclick = () => { const cz = computeAll().zones.content; const r = window.MK_GRIDCHECK.snap(page().layout, uid, { w: cz.w, h: cz.h, g: Math.round(S.spacing.gutter * ui()) }); if (r.layout !== page().layout) page().layout = r.layout; if (r.changed.length) { commit(); toast(t('gc.snapped')); } openGridCheck(); };
+  // „Rand anpassen" (B21): Rand und Zwischenraum sind global. Vorher warnen (mit der voraussichtlichen Wirkung auf die anderen Seiten),
+  // danach alle Seiten neu prüfen und das Ergebnis im Dialog zeigen, statt andere Seiten still zu verschieben.
+  const pageStates = () => S.pages.map(p => ({ p, geo: computeAll(p), gc: gridCheck(p) }));
+  function spacingImpact(before, after) {
+    return before.map((b, i) => {
+      const a = after[i]; if (b.p === page()) return null;
+      const lines = []; const reg = window.MK_GRIDCHECK.regressions(b.geo, a.geo);
+      if (reg.n) lines.push(t('gc.impactTiles', { n: reg.n, v: reg.values ? ` (${reg.values} px)` : '' }));
+      a.gc.findings.filter(f => (f.level === 'warn' || f.code === 'REST_PX') && !b.gc.findings.some(x => x.code === f.code)).forEach(f => lines.push(gcText(f)));
+      return lines.length ? t('gc.impactPage', { p: b.p.name, list: lines.join('; ') }) : null;
+    }).filter(Boolean);
+  }
+  $('#gcMargin').onclick = () => {
+    const fix = gridFix(); if (!fix || (!fix.margin && !fix.gutter)) return;
+    const k = ui(), sp = S.spacing;
+    const m = clamp(Math.round(((Math.round(sp.margin * k) + fix.margin) / k) * 100) / 100, 0, 64), gu = clamp(Math.round(((Math.round(sp.gutter * k) + fix.gutter) / k) * 100) / 100, 0, 48);
+    const before = pageStates();
+    if (S.pages.length > 1) {
+      // Vorschau: mit den neuen Werten rechnen, dann zurückstellen (nichts wird gespeichert)
+      const old = { margin: sp.margin, gutter: sp.gutter }; sp.margin = m; sp.gutter = gu; const guess = spacingImpact(before, pageStates()); sp.margin = old.margin; sp.gutter = old.gutter; computeAll();
+      const more = '\n\n' + (guess.length ? t('ask.marginAffected') + '\n' + guess.join('\n') : t('ask.marginNone'));
+      if (!confirm(t('ask.marginAll', { n: S.pages.length, more }))) return;
+    }
+    sp.margin = m; sp.gutter = gu; commit();
+    const hit = spacingImpact(before, pageStates());
+    toast(hit.length ? t('gc.marginSetWarn', { k: hit.length }) : (S.pages.length > 1 ? t('gc.marginSetAll', { n: S.pages.length }) : t('gc.marginSet')));
+    const note = S.pages.length < 2 ? '' : hit.length
+      ? `<div class="gc-note warn" role="status">${esc(t('gc.allWarn', { n: S.pages.length, k: hit.length }))}<ul>${hit.map(h => `<li>${esc(h)}</li>`).join('')}</ul></div>`
+      : `<div class="gc-note" role="status">✓ ${esc(t('gc.allOk', { n: S.pages.length }))}</div>`;
+    openGridCheck(note);
+  };
+  // Staende vergleichen (v0.4.7): gespeicherte Datei (Zustand oder Spec) gegen den aktuellen Stand
+  let lastDiff = null;
+  // Kachel-Rechtecke für den Vergleich: beide Stände mit dem aktuellen Chrome und Canvas rechnen, damit eine
+  // Zonenänderung (steht einmal unter „Zonen") nicht jede Kachel als verschoben meldet.
+  const diffRects = p => { const m = {}; computeAll(p).leaves.forEach(l => { m[l.node.id] = l.rect; }); return m; };
+  // Gegen eine exportierte Spec: deren Rechtecke sind fest. Den aktuellen Stand deshalb mit Inhaltsbereich und Zwischenraum der Datei
+  // rechnen, sonst meldet eine Rand- oder Zonenänderung jede Kachel als verschoben (sie steht einmal unter Design bzw. Zonen).
+  function specForDiff(old) {
+    const spec = window.MK_EXPORT.buildSpec(); const g = old && old.spacing ? old.spacing.gutter : null; if (typeof g !== 'number') return spec;
+    const byId = {}; ((old && old.pages) || []).forEach(p => { if (p && p.id) byId[p.id] = p; });
+    spec.pages.forEach(sp => {
+      const cr = byId[sp.id] && byId[sp.id].contentRect; const src = S.pages.find(x => x.id === sp.id); if (!src || !cr || !(cr.w > 0) || !(cr.h > 0)) return;
+      const out = { leaves: [], gutters: [] }; layoutRects(src.layout, cr, out, g); const m = {}; out.leaves.forEach(l => { m[l.node.id] = l.rect; });
+      sp.visuals.forEach(v => { if (m[v.stableId]) v.rect = m[v.stableId]; });
+    });
+    return spec;
+  }
+  $('#btnDiff').onclick = () => $('#fileDiff').click();
+  $('#fileDiff').addEventListener('change', e => {
+    const f = e.target.files[0]; if (!f) return;
+    f.text().then(txt => {
+      try {
+        const json = JSON.parse(txt); const other = window.MK_DIFF.from(json, { rects: diffRects }); if (!other) throw new Error('kein Mockup');
+        const cur = other.source === 'spec' ? window.MK_DIFF.fromSpec(specForDiff(json)) : window.MK_DIFF.fromState(S, { rects: diffRects });
+        const res = window.MK_DIFF.compare(other, cur); lastDiff = { res, names: { older: f.name, newer: t('diff.current') } };
+        $('#dlgDiffP').textContent = t('diffui.p', { a: f.name, n: res.counts.total }); $('#dlgDiffBody').innerHTML = window.MK_DIFF.render(res, t); $('#dlgDiff').showModal();
+      } catch (err) { toast(t('toast.notAMockup')); }
+      e.target.value = '';
+    });
+  });
+  $('#btnDiffCopy').onclick = () => { if (!lastDiff) return; copyText(window.MK_DIFF.markdown(lastDiff.res, t, lastDiff.names)).then(() => toast(t('diffui.copied')), () => toast(t('diffui.copyFailed'))); };
+  // Zwischenablage: verweigert der Browser (Rechte, unfokussiertes Dokument, iframe, alter Browser), gibt es eine Meldung statt eines stillen Fehlers
+  function copyText(text) { try { return navigator.clipboard.writeText(text); } catch (err) { return Promise.reject(err); } }
+  $('#btnUndo').onclick = undo; $('#btnRedo').onclick = redo;
+  function togglePresent(on) { document.body.classList.toggle('present', on); const p = document.body.classList.contains('present'); const b = $('#btnPresent'); b.textContent = p ? t('btn.presentEnd') : t('btn.present'); b.setAttribute('data-i18n', p ? 'btn.presentEnd' : 'btn.present'); setTimeout(() => { fitZoom(); render(); }, 30); }
+  $('#btnPresent').onclick = () => togglePresent();
+  $$('dialog [data-close]').forEach(b => b.onclick = () => b.closest('dialog').close());
+  // Tab-Umlauf in offenen Dialogen (B4). Die native Fokusfalle von showModal() springt in Chromium/Edge am Ende der Reihe
+  // kurz auf <body> (kein Fokusring), und scrollbare Dialogflächen werden zu unsichtbaren Stopps. Deshalb die Reihe selbst führen.
+  const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]';
+  function dialogStops(dlg) {
+    const vis = el => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+    return $$(FOCUSABLE + ', .dlg-body, pre.code', dlg).filter(el => {
+      if (el.matches('.dlg-body, pre.code') && (!el.hasAttribute('tabindex') || el.hasAttribute('data-scrollstop'))) {
+        // Scrollfläche ohne eigene Bedienelemente: als Stopp aufnehmen, damit sie per Tastatur scrollbar bleibt
+        const stop = el.scrollHeight > el.clientHeight + 1 && /auto|scroll/.test(getComputedStyle(el).overflowY) && !$$(FOCUSABLE, el).some(vis);
+        if (stop) { el.setAttribute('tabindex', '0'); el.setAttribute('data-scrollstop', ''); } else if (el.hasAttribute('data-scrollstop')) { el.removeAttribute('tabindex'); el.removeAttribute('data-scrollstop'); }
+        return stop && vis(el);
+      }
+      return !el.disabled && el.tabIndex >= 0 && vis(el) && !(el.tagName === 'INPUT' && el.type === 'hidden');
+    });
+  }
+  function openDialog() { const open = $$('dialog[open]'); return open.find(d => d.contains(document.activeElement)) || open[open.length - 1] || null; }
+  function trapTab(e, dlg) {
+    const stops = dialogStops(dlg); e.preventDefault(); if (!stops.length) return;
+    const a = document.activeElement; let i = stops.indexOf(a), j;
+    if (i >= 0) j = (i + (e.shiftKey ? -1 : 1) + stops.length) % stops.length;
+    else if (a && a !== dlg && dlg.contains(a)) {                             // Fokus auf einem Element ohne Stopp: nach Dokumentreihenfolge weiter
+      const after = stops.findIndex(s => a.compareDocumentPosition(s) & Node.DOCUMENT_POSITION_FOLLOWING);
+      j = e.shiftKey ? (after < 0 ? stops.length - 1 : (after - 1 + stops.length) % stops.length) : (after < 0 ? 0 : after);
+    } else j = e.shiftKey ? stops.length - 1 : 0;
+    stops[j].focus();
+  }
+  // Nach dem Schließen: war der Auslöser inzwischen neu gezeichnet (Inspektor, Kachel), stünde der Fokus auf <body>
+  $$('dialog').forEach(d => d.addEventListener('close', () => setTimeout(() => { const a = document.activeElement; if ((!a || a === document.body) && !openDialog()) focusCanvas(sel); }, 0)));
+  window.addEventListener('keydown', e => {
+    const tgt = e.target;
+    // Handy-Hinweis sichtbar (B6): die App dahinter ist ausgeblendet, ihre Kürzel (Strg+E, P, N …) wirken nicht
+    if (!document.body.classList.contains('mobile-ok') && getComputedStyle($('#mobileNote')).display !== 'none') return;
+    // Offenes Rollen-Menü: Esc schließt es, nichts wird zugeordnet (Review B36); andere Kürzel wirken solange nicht auf die Seite
+    // Tab bleibt im Menü (sonst wanderte der Fokus hinaus, das Menü bliebe offen und hielte alle Tasten fest)
+    if (roleMenu) {
+      if (e.key === 'Escape') { e.preventDefault(); closeRoleMenu(true); }
+      else if (e.key === 'Tab') { e.preventDefault(); const bs = $$('button', roleMenu); const i = bs.indexOf(document.activeElement); if (bs.length) bs[i < 0 ? (e.shiftKey ? bs.length - 1 : 0) : (i + (e.shiftKey ? -1 : 1) + bs.length) % bs.length].focus(); }
+      return;
+    }
+    // F1 öffnet die Hilfe (und unterdrückt die Browser-Hilfe); bei offenem Dialog bleibt es still
+    if (e.key === 'F1' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) { e.preventDefault(); if (!openDialog()) $('#btnHelp').click(); return; }
+    const dlgOpen = openDialog(); if (dlgOpen) { if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey) trapTab(e, dlgOpen); return; }   // Esc schließt nativ
+    // Esc in einem Feld: Feld verlassen, Fokus auf die gewählte Kachel (sonst stünde er auf <body>, ohne sichtbaren Ring)
+    if (tgt && tgt.matches && tgt.matches('input,textarea,select')) { if (e.key === 'Escape' && tgt.blur) { tgt.blur(); focusCanvas(sel); } return; }
+    if (e.key === 'Escape') { const pinned = $$('.note-pop.pinned', pageEl); if (pinned.length) { pinned.forEach(p => p.classList.remove('pinned')); return; } if (document.body.classList.contains('present')) togglePresent(false); else { const was = sel; sel = null; render(); const a = document.activeElement; if (!a || a === document.body) focusCanvas(was); } }
+    else if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); $('#btnHelp').click(); }
+    else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey && !e.altKey) togglePresent();
+    else if (e.key.toLowerCase() === 'n' && sel && !e.ctrlKey && !e.metaKey && !e.altKey) { const hit = findNode(sel); if (hit && hit.node.visual) openTileDialog(sel); }
+    else if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); redo(); }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && sel) { const n = findNode(sel).node; if (n.visual) { n.visual = null; commit(); toast(t('toast.tileCleared')); } else removeLeaf(sel); }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); $('#btnSave').click(); }
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); $('#btnExport').click(); }
+  });
+  // Handy-Hinweis (B6): „Trotzdem ansehen" blendet ihn für diese Sitzung aus, die Seite ist dann seitlich scrollbar.
+  // Die Wahl gilt bis zum Schließen des Tabs (sessionStorage), sonst käme der Hinweis nach jedem Neuladen wieder,
+  // z. B. am Desktop mit 200 % Browser-Zoom.
+  const MOBILE_OK = 'mockupkitchen.mobileOk';
+  try { if (sessionStorage.getItem(MOBILE_OK) === '1') document.body.classList.add('mobile-ok'); } catch (e) { /* blockiert */ }
+  $('#mobileGo').onclick = () => { document.body.classList.add('mobile-ok'); try { sessionStorage.setItem(MOBILE_OK, '1'); } catch (e) { /* blockiert */ } fitZoom(); render(); };
+  $('#mobileLang').onclick = () => setLang(I18N.lang === 'de' ? 'en' : 'de');
+  let toastT = null;
+  function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.remove('act'); el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
+  // Benannte Aktion nach commit(): Toast mit „Rückgängig" und Name im Verlauf (Review 09.10.: Teilen, Entfernen, Tauschen, Rollen, Umsetzung waren stumm)
+  function toastUndo(msg) {
+    if (undoStack.length) undoLabels[undoLabels.length - 1] = msg;
+    const el = $('#toast'); el.textContent = msg + ' ';
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = t('toast.undoBtn'); b.onclick = () => { el.classList.remove('show'); undo(); };
+    el.appendChild(b); el.classList.add('show', 'act'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  // Öffnen fragt nur, wenn etwas verloren ginge (B8): nicht bei einem frischen Projekt und nicht, wenn der Stand dem zuletzt
+  // gespeicherten oder geöffneten entspricht. Verglichen wird ohne IDs (die sind je Anlage zufällig).
+  function fingerprint(o) { if (Array.isArray(o)) return '[' + o.map(fingerprint).join(',') + ']'; if (o && typeof o === 'object') return '{' + Object.keys(o).filter(k => k !== 'id' && k !== 'cur' && o[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + fingerprint(o[k])).join(',') + '}'; return JSON.stringify(o); }
+  function isPristine() { const cur = S; let fresh = null; try { S = defaultState(); S.pages.forEach(p => markTemplate(ensureIds(p.layout))); fresh = S; } catch (e) { fresh = null; } finally { S = cur; } return !!fresh && fingerprint(fresh) === fingerprint(S); }
+  let cleanPrint = null;
+
+  // Öffentliche API für export.js
+  window.MK = {
+    get state() { return S; }, set state(v) { S = migrate(v); try { syncFieldFlags(); } catch (e) { /* Prüfung darf das Öffnen nie verhindern */ } sel = null; commit(); },
+    page, visuals, leaves, zones, computeAll, ui, ckSketchOpt, toast, findNode, insertEdge, mergeGutter, fmtOf, FORMAT_WISH, rebuildGrid, splitLeaf, removeLeaf, gridCheck, samplesOf, samplesOpt, catalog: CAT, persist, pageBg: PAGE_BG, pageBgOf, isDark, analysisOf, navPosOf, navNames, typo, tileScale, a11yFindings, primaryMeasure, fieldInfo, seedOf, anti: ANTI,
+    fieldStatus, refMismatch, sketchScenario, basisOfName, syncFieldFlags,
+    setLang, get lang() { return I18N.lang; }, copyText, tileInk,
+    markClean() { cleanPrint = fingerprint(S); }, isUnchanged() { return (cleanPrint !== null && cleanPrint === fingerprint(S)) || isPristine(); },
+    // ensureIds wie in load(): erst mit gesetztem S werden die Vorlagenfelder gebunden (sonst fehlt visual.roles)
+    // Der Verlauf beginnt neu; commit() legt danach den Stand vor „Neu" als einen Schritt ab, Strg+Z holt ihn also zurück.
+    // Das geladene Modell gehört zum Arbeitsplatz, nicht zum Bericht: „Neu" behält es (Review 09.10., R5: TMDL-Import war sonst still weg)
+    reset() { const keep = S ? { model: S.model, demoId: S.demoId } : null; S = defaultState(); if (keep && keep.model) { S.model = keep.model; if (keep.demoId) S.demoId = keep.demoId; } S.pages.forEach(p => markTemplate(ensureIds(p.layout))); syncFieldFlags(); sel = null; undoDropped = undoStack.length ? 'new' : undoDropped; undoStack = []; undoLabels = []; redoStack = []; redoLabels = []; commit(); syncUndoButtons(); },
+  };
+
+  { const vEl = $('#mkVersion'); if (vEl) vEl.textContent = window.MK_VERSION; }
+  load(); I18N.apply(document); snap = JSON.stringify(S); fitZoom(); render(); syncUndoButtons();
+})();

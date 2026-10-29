@@ -1,0 +1,443 @@
+{
+ "id": "tool:eventhouse",
+ "name": "Eventhouse",
+ "typ": "tool",
+ "slug": "eventhouse",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/eventhouse.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/eventhouse.json",
+ "dokumente_gesamt": 11,
+ "kernaussagen_gesamt": 7,
+ "mit_kernaussagen": 3,
+ "aliase": [
+  "KQL",
+  "Kusto",
+  "Real-Time Intelligence",
+  "Eventstream",
+  "Realtime Intelligence"
+ ],
+ "einordnung": "Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings. (Stand 2025-06) Die Kusto Query Language wird unter anderem von Azure Sentinel, Azure Data Explorer und dem Eventhouse in Microsoft Fabric genutzt. (Stand 2025-09) Die Real-Time-Intelligence-Suite in Microsoft Fabric umfasst unter anderem Eventstream, die KQL-Datenbank, Eventhouse, Activator, Echtzeit-Dashboards und KQL-Abfragesätze. (Stand 2025-09)",
+ "nachbarn": [
+  {
+   "id": "tool:semantic-model",
+   "name": "Semantic Model",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "die Abfrage wird dem Eventhaus zugerechnet und nicht dem Dataset",
+   "datei": "semantic-model.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "teil-von",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 20,
+   "beleg": "das ist ein Eventhaus in Fabric",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "topic:echtzeit",
+   "name": "Echtzeit",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 23,
+   "beleg": "",
+   "datei": "echtzeit.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 14,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "spark.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 9,
+   "beleg": "",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:azure",
+   "name": "Azure",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "azure.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "workspace.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 124,
+   "zeit": "02:04",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=124s",
+   "aussage": "Die Kusto Query Language wird unter anderem von Azure Sentinel, Azure Data Explorer und dem Eventhouse in Microsoft Fabric genutzt."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 953,
+   "zeit": "15:53",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=953s",
+   "aussage": "Die Real-Time-Intelligence-Suite in Microsoft Fabric umfasst unter anderem Eventstream, die KQL-Datenbank, Eventhouse, Activator, Echtzeit-Dashboards und KQL-Abfragesätze."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1366,
+   "zeit": "22:46",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1366s",
+   "aussage": "Die Aufbewahrungsfrist im Event House beträgt laut Brian Bønk 7 Tage."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1617,
+   "zeit": "26:57",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1617s",
+   "aussage": "Brian Bønk empfiehlt, in einem Echtzeitsystem nur die für die Fachabteilung tatsächlich relevante Zeitspanne an Daten in der Echtzeitdatenbank vorzuhalten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk nr.64",
+   "dokument_id": "yt:4VVNDNusq4U",
+   "sekunde": 2132,
+   "zeit": "35:32",
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2132s",
+   "aussage": "Wird das Zeitfenster einer DirectQuery-Abfrage auf eine Kusto-/Eventhouse-Datenbank deutlich verkleinert, hält die Fabric-Kapazität im Langzeittest spürbar länger durch."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1015,
+   "zeit": "16:55",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1015s",
+   "aussage": "Das Eventhaus (Eventhouse) in Fabric war fuer Arthur neu, da er den Vorgaenger HDX vorher nicht bewusst wahrgenommen hatte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "dokument_id": "yt:BDnwlOqRElY",
+   "sekunde": 1285,
+   "zeit": "21:25",
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1285s",
+   "aussage": "Aus einer Kusto-Abfrage im Eventhaus laesst sich mit wenigen Klicks direkt ein Power-BI-Report generieren, inklusive der dafuer noetigen Abfrage und Connection Strings."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:BDnwlOqRElY",
+   "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "datum": "2025-06-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.217,
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
+   "sprungmarken": [
+    {
+     "label": "24:07",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1447s",
+     "sekunde": 1447
+    },
+    {
+     "label": "25:58",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1558s",
+     "sekunde": 1558
+    },
+    {
+     "label": "29:14",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1754s",
+     "sekunde": 1754
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.154,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "15:02",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=902s",
+     "sekunde": 902
+    },
+    {
+     "label": "19:47",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1187s",
+     "sekunde": 1187
+    },
+    {
+     "label": "29:29",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s",
+     "sekunde": 1769
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.132,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wer%20geht%20wo%20auf%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Workload-Landkarte%20%28Stand%202026%29",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20Real-Time-Kette",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:4VVNDNusq4U",
+   "titel": "BI Thinkers Talk nr.64",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=4VVNDNusq4U",
+   "sprungmarken": [
+    {
+     "label": "32:06",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=1926s",
+     "sekunde": 1926
+    },
+    {
+     "label": "33:57",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2037s",
+     "sekunde": 2037
+    },
+    {
+     "label": "37:15",
+     "url": "https://www.youtube.com/watch?v=4VVNDNusq4U&t=2235s",
+     "sekunde": 2235
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.057,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "37:56",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2276s",
+     "sekunde": 2276
+    },
+    {
+     "label": "42:49",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=2569s",
+     "sekunde": 2569
+    }
+   ]
+  },
+  {
+   "id": "yt:PW6MP-SDmRk",
+   "titel": "Fabric & Power BI Quarterly · 2026-3",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk",
+   "sprungmarken": [
+    {
+     "label": "42:42",
+     "url": "https://www.youtube.com/watch?v=PW6MP-SDmRk&t=2562s",
+     "sekunde": 2562
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "28:14",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s",
+     "sekunde": 1694
+    }
+   ]
+  },
+  {
+   "id": "yt:KMk1k5uCLZU",
+   "titel": "Daten-WG Thinkers Talk n61",
+   "datum": "2025-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU",
+   "sprungmarken": [
+    {
+     "label": "04:40",
+     "url": "https://www.youtube.com/watch?v=KMk1k5uCLZU&t=280s",
+     "sekunde": 280
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "48:24",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=2904s",
+     "sekunde": 2904
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.023,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "26:22",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=1582s",
+     "sekunde": 1582
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.004,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric-Bausteine",
+     "sekunde": null
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Aeventhouse",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Aeventhouse&f=tool%3Aeventhouse"
+}

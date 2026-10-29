@@ -1,0 +1,54 @@
+[
+  {
+    "visual_type": "card",
+    "name": "v03_Kosten",
+    "title": "Kosten",
+    "x": 546,
+    "y": 72,
+    "width": 253,
+    "height": 119,
+    "fields": {
+      "Values": "_Measures.Kosten"
+    }
+  },
+  {
+    "visual_type": "clusteredBarChart",
+    "name": "v06_PL_je_Produktlinie",
+    "title": "Δ PL je Produktlinie",
+    "x": 719,
+    "y": 203,
+    "width": 345,
+    "height": 477,
+    "fields": {
+      "Category": "DimProduct.Category",
+      "Y": [
+        "_Measures.AC",
+        "_Measures.PL"
+      ]
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "slicer1_Year",
+    "title": "Year",
+    "x": 1088,
+    "y": 96,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "slicer2_Region",
+    "title": "Region",
+    "x": 1088,
+    "y": 160,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimRegion.Region"
+    }
+  }
+]

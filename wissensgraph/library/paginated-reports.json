@@ -1,0 +1,152 @@
+{
+ "id": "tool:paginated-reports",
+ "name": "Paginated Reports",
+ "typ": "tool",
+ "slug": "paginated-reports",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/paginated-reports.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/paginated-reports.json",
+ "dokumente_gesamt": 4,
+ "kernaussagen_gesamt": 2,
+ "mit_kernaussagen": 2,
+ "aliase": [
+  "Paginierte Berichte",
+  "Report Builder",
+  "Paginated Report"
+ ],
+ "einordnung": "Bei diesem gemeinsamen Aftercon-Projekt ging es unter anderem darum, paginierte Berichte per Power Automate in den Bericht einzubinden. (Stand 2025-05) Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen.",
+ "nachbarn": [
+  {
+   "id": "topic:planung",
+   "name": "Planung",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "ist auch ein bisschen Konkurrenz zu Paginonated Reports an einigen Stellen",
+   "datei": "planung.md"
+  },
+  {
+   "id": "tool:power-automate",
+   "name": "Power Automate",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 0,
+   "beleg": "bei mir war es eben so bisschen dieses Power Automat, wie ich paginierte Berichte reinbringe",
+   "datei": "power-automate.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 3,
+   "beleg": "",
+   "datei": "power-bi.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Wie war die Daten-WG 2025? (Teil 1)",
+   "dokument_id": "yt:aEXtFWW-pmo",
+   "sekunde": 1432,
+   "zeit": "23:52",
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1432s",
+   "aussage": "Bei diesem gemeinsamen Aftercon-Projekt ging es unter anderem darum, paginierte Berichte per Power Automate in den Bericht einzubinden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 3090,
+   "zeit": "51:30",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=3090s",
+   "aussage": "Die Intelligence Sheets von Lumel könnten in klassischem, tabellarisch geprägtem Finanz- und Controlling-Reporting Paginated Reports in einigen Fällen ersetzen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:z4ZeHPzIeeU",
+   "titel": "Wie war die Daten-WG? · Im Gespräch mit Artur König",
+   "datum": "2025-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU",
+   "sprungmarken": [
+    {
+     "label": "22:25",
+     "url": "https://www.youtube.com/watch?v=z4ZeHPzIeeU&t=1345s",
+     "sekunde": 1345
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.045,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Grenzen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C2%29%3A%20sieben%20Anforderungen%2C%20sechs%20Red%20Flags%2C%20vier%20neue%20Ausgaben",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:aEXtFWW-pmo",
+   "titel": "Wie war die Daten-WG 2025? (Teil 1)",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo",
+   "sprungmarken": [
+    {
+     "label": "23:09",
+     "url": "https://www.youtube.com/watch?v=aEXtFWW-pmo&t=1389s",
+     "sekunde": 1389
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.025,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "53:04",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3184s",
+     "sekunde": 3184
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Apaginated-reports",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Apaginated-reports&f=tool%3Apaginated-reports"
+}

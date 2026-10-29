@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2176" height="1198" viewBox="0 0 2176 1198" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+<rect width="2176" height="1198" fill="#FFFFFF"/>
+<text x="24" y="42" font-size="17" font-weight="600" fill="#0F1E2E">Übersicht (Management)</text>
+<text x="24" y="58" font-size="11" fill="#475569">uebersicht · 1920×1080 px · 17 Visual(s)</text>
+<rect x="24" y="68" width="1920" height="1080" fill="#FAFAF7" stroke="#475569" stroke-width="1"/>
+<path d="M104 68V1148M184 68V1148M264 68V1148M344 68V1148M424 68V1148M504 68V1148M584 68V1148M664 68V1148M744 68V1148M824 68V1148M904 68V1148M984 68V1148M1064 68V1148M1144 68V1148M1224 68V1148M1304 68V1148M1384 68V1148M1464 68V1148M1544 68V1148M1624 68V1148M1704 68V1148M1784 68V1148M1864 68V1148M24 148H1944M24 228H1944M24 308H1944M24 388H1944M24 468H1944M24 548H1944M24 628H1944M24 708H1944M24 788H1944M24 868H1944M24 948H1944M24 1028H1944M24 1108H1944" stroke="#DDDBD3" stroke-width="1" fill="none"/>
+<rect x="48" y="164" width="1608" height="936" fill="#C25A2D" fill-opacity="0.06" stroke="#C25A2D" stroke-width="1.5" stroke-dasharray="8 5"/>
+<text x="53" y="177" font-size="10" fill="#C25A2D">Content-Zone 24,96 1608×936</text>
+<rect x="1680" y="164" width="240" height="936" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="1688" y="180" font-size="11" fill="#0F1E2E">shape · filter-panel</text>
+<text x="1688" y="192" font-size="9" fill="#475569">240×936</text>
+<rect x="24" y="68" width="1920" height="80" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="32" y="84" font-size="11" fill="#0F1E2E">shape · kopfband</text>
+<text x="32" y="96" font-size="9" fill="#475569">1920×80</text>
+<rect x="1096" y="332" width="560" height="552" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="1104" y="348" font-size="11" fill="#0F1E2E">barChart · detail-visual</text>
+<text x="1104" y="360" font-size="9" fill="#475569">560×552</text>
+<rect x="1634" y="336" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1643" y="346.5" font-size="9" text-anchor="middle" fill="#FFFFFF">7</text>
+<rect x="48" y="1116" width="1600" height="32" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="56" y="1132" font-size="11" fill="#0F1E2E">textbox · fussleiste</text>
+<text x="56" y="1144" font-size="9" fill="#475569">1600×32</text>
+<rect x="48" y="332" width="1024" height="552" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="56" y="348" font-size="11" fill="#0F1E2E">clusteredColumnChart · haupt-visual</text>
+<text x="56" y="360" font-size="9" fill="#475569">1024×552</text>
+<rect x="1050" y="336" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1059" y="346.5" font-size="9" text-anchor="middle" fill="#FFFFFF">6</text>
+<rect x="48" y="164" width="384" height="144" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="56" y="180" font-size="11" fill="#0F1E2E">card · kpi-1</text>
+<text x="56" y="192" font-size="9" fill="#475569">384×144</text>
+<rect x="410" y="168" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="419" y="178.5" font-size="9" text-anchor="middle" fill="#FFFFFF">2</text>
+<rect x="456" y="164" width="384" height="144" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="464" y="180" font-size="11" fill="#0F1E2E">card · kpi-2</text>
+<text x="464" y="192" font-size="9" fill="#475569">384×144</text>
+<rect x="818" y="168" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="827" y="178.5" font-size="9" text-anchor="middle" fill="#FFFFFF">3</text>
+<rect x="864" y="164" width="384" height="144" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="872" y="180" font-size="11" fill="#0F1E2E">card · kpi-3</text>
+<text x="872" y="192" font-size="9" fill="#475569">384×144</text>
+<rect x="1226" y="168" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1235" y="178.5" font-size="9" text-anchor="middle" fill="#FFFFFF">4</text>
+<rect x="1272" y="164" width="384" height="144" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="1280" y="180" font-size="11" fill="#0F1E2E">card · kpi-4</text>
+<text x="1280" y="192" font-size="9" fill="#475569">384×144</text>
+<rect x="1634" y="168" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1643" y="178.5" font-size="9" text-anchor="middle" fill="#FFFFFF">5</text>
+<rect x="48" y="908" width="1608" height="192" fill="#E6EDE9" stroke="#6E9184" stroke-width="1"/>
+<text x="56" y="924" font-size="11" fill="#0F1E2E">tableEx · leiste-unten</text>
+<text x="56" y="936" font-size="9" fill="#475569">1608×192</text>
+<rect x="1634" y="912" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1643" y="922.5" font-size="9" text-anchor="middle" fill="#FFFFFF">8</text>
+<rect x="1840" y="88" width="80" height="40" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="1848" y="104" font-size="11" fill="#0F1E2E">image · l…</text>
+<text x="1848" y="116" font-size="9" fill="#475569">80×40</text>
+<rect x="1544" y="88" width="128" height="40" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="1552" y="104" font-size="11" fill="#0F1E2E">actionButton · na…</text>
+<text x="1552" y="116" font-size="9" fill="#475569">128×40</text>
+<rect x="1688" y="88" width="128" height="40" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="1696" y="104" font-size="11" fill="#0F1E2E">actionButton · na…</text>
+<text x="1696" y="116" font-size="9" fill="#475569">128×40</text>
+<rect x="1432" y="88" width="128" height="40" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="1440" y="104" font-size="11" fill="#0F1E2E">actionButton · na…</text>
+<text x="1440" y="116" font-size="9" fill="#475569">128×40</text>
+<rect x="48" y="92" width="640" height="40" fill="#EFEEE8" stroke="#C2412D" stroke-width="2"/>
+<text x="56" y="108" font-size="11" fill="#0F1E2E">textbox · seitentitel</text>
+<text x="56" y="120" font-size="9" fill="#475569">640×40</text>
+<rect x="666" y="96" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="675" y="106.5" font-size="9" text-anchor="middle" fill="#FFFFFF">1</text>
+<rect x="1696" y="220" width="208" height="56" fill="#E9EFF6" stroke="#C2412D" stroke-width="2"/>
+<text x="1704" y="236" font-size="11" fill="#0F1E2E">slicer · slicer-jahr</text>
+<text x="1704" y="248" font-size="9" fill="#475569">208×56</text>
+<rect x="1882" y="224" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1891" y="234.5" font-size="9" text-anchor="middle" fill="#FFFFFF">10</text>
+<rect x="1696" y="292" width="208" height="56" fill="#E9EFF6" stroke="#C2412D" stroke-width="2"/>
+<text x="1704" y="308" font-size="11" fill="#0F1E2E">slicer · slicer-region</text>
+<text x="1704" y="320" font-size="9" fill="#475569">208×56</text>
+<rect x="1882" y="296" width="18" height="14" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1891" y="306.5" font-size="9" text-anchor="middle" fill="#FFFFFF">11</text>
+<text x="1960" y="82" font-size="11" font-weight="600" fill="#0F1E2E">Legende</text>
+<rect x="1960" y="87" width="16" height="12" fill="#EFEEE8" stroke="#B3AFA4"/>
+<text x="1984" y="96" font-size="10" fill="#475569">Chrome (8)</text>
+<rect x="1960" y="107" width="16" height="12" fill="#E9EFF6" stroke="#7C9DBD"/>
+<text x="1984" y="116" font-size="10" fill="#475569">Slicer (2)</text>
+<rect x="1960" y="127" width="16" height="12" fill="#E6EDE9" stroke="#6E9184"/>
+<text x="1984" y="136" font-size="10" fill="#475569">Daten-Visual (7)</text>
+<rect x="1960" y="147" width="16" height="12" fill="none" stroke="#9A958A" stroke-dasharray="5 3"/>
+<text x="1984" y="156" font-size="10" fill="#475569">Gruppe (0)</text>
+<rect x="1960" y="171" width="16" height="12" fill="#C25A2D" fill-opacity="0.06" stroke="#C25A2D" stroke-dasharray="5 3"/>
+<text x="1984" y="180" font-size="10" fill="#475569">Content-Zone</text>
+<rect x="1960" y="191" width="16" height="12" fill="none" stroke="#C2412D" stroke-width="2"/>
+<text x="1984" y="200" font-size="10" fill="#475569">außerhalb (10)</text>
+<rect x="1960" y="215" width="16" height="12" rx="3" fill="#0F1E2E" fill-opacity="0.75"/>
+<text x="1984" y="224" font-size="10" fill="#475569">tabOrder</text>
+<text x="24" y="1180" font-size="10" fill="#475569">Rasterlinien alle 80 px (Power-BI-Basisraster 8 px — exakte Prüfung: bulk_restyle.py --check) · Zeichenreihenfolge nach z (hinten → vorne)</text>
+</svg>

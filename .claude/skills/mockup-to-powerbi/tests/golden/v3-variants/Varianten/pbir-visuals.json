@@ -1,0 +1,85 @@
+[
+  {
+    "visual_type": "clusteredColumnChart",
+    "name": "mk_col1",
+    "title": "Umsatz je Produktlinie",
+    "x": 16,
+    "y": 72,
+    "width": 508,
+    "height": 296,
+    "fields": {
+      "Category": "DimProduct.Category",
+      "Y": "_Measures.Umsatz",
+      "Rows": "DimRegion.Region"
+    }
+  },
+  {
+    "visual_type": "clusteredBarChart",
+    "name": "mk_bar1",
+    "title": "Umsatz und Kosten",
+    "x": 540,
+    "y": 72,
+    "width": 508,
+    "height": 296,
+    "fields": {
+      "Category": "Achse.Achse",
+      "Series": "DimProduct.Brand",
+      "Y": [
+        "_Measures.Umsatz",
+        "_Measures.Kosten"
+      ]
+    }
+  },
+  {
+    "visual_type": "lineChart",
+    "name": "mk_line1",
+    "title": "Verlauf je Monat",
+    "x": 16,
+    "y": 384,
+    "width": 248,
+    "height": 296,
+    "fields": {
+      "Category": "DimDate.Month",
+      "Series": "DimProduct.Category",
+      "Y": "_Measures.Umsatz"
+    }
+  },
+  {
+    "visual_type": "donutChart",
+    "name": "mk_donut1",
+    "title": "Anteile je Produktlinie",
+    "x": 280,
+    "y": 384,
+    "width": 248,
+    "height": 296,
+    "fields": {
+      "Category": "DimProduct.Category",
+      "Y": "_Measures.Umsatz"
+    }
+  },
+  {
+    "visual_type": "waterfallChart",
+    "name": "mk_wf1",
+    "title": "Ergebnisbruecke",
+    "x": 544,
+    "y": 384,
+    "width": 248,
+    "height": 296,
+    "fields": {
+      "Category": "DimAccount.Account",
+      "Y": "_Measures.AC"
+    }
+  },
+  {
+    "visual_type": "slicer",
+    "name": "mk_slicer_Year_p1",
+    "title": "Year",
+    "x": 1072,
+    "y": 96,
+    "width": 184,
+    "height": 56,
+    "fields": {
+      "Values": "DimDate.Year"
+    }
+  }
+]

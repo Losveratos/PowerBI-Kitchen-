@@ -340,14 +340,20 @@ export function rowsFromLevels(
     const out = [...synth.values(), ...agg.rows];
 
     // synthetic parents inherit the smallest child sort — otherwise their
-    // first-seen data index would shuffle the P&L order at the root level
+    // first-seen data index would shuffle the P&L order at the root level.
+    // A synthetic child passes on only what its own children gave it, never
+    // its placeholder index: with a sort column bound the index (0…n) lives on
+    // another scale than the sort values, and every block with an intermediate
+    // level would jump ahead of the formula rows (Gross profit after D&A).
     const minSort = new Map<string, number>();
     for (let pass = 0; pass < 8; pass++) {
         let changed = false;
         for (const r of out) {
             if (r.parent == null) { continue; }
+            const inherited = minSort.get(r.id);
+            const candidate = r.index === -1 ? inherited : Math.min(r.sort, inherited ?? r.sort);
+            if (candidate == null) { continue; }
             const cur = minSort.get(r.parent);
-            const candidate = Math.min(r.sort, minSort.get(r.id) ?? r.sort);
             if (cur == null || candidate < cur) { minSort.set(r.parent, candidate); changed = true; }
         }
         if (!changed) { break; }
@@ -848,14 +854,66 @@ export function formulaOperands(
 // ---- variances
 
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
-    const ac = node.computed[minuend];
-    const rv = node.computed[ref];
-    if (ac == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
-    const delta = ac - rv;
+    return varianceOf(node.computed[minuend], node.computed[ref], node.row.varianceInvert);
+}
+
+/**
+ * The variance rule on two raw (calculation-signed) values — the single
+ * definition behind variance() and every period block (month, YTD window) that
+ * reads its values from the monthly series instead of node.computed.
+ */
+export function varianceOf(a: number | null, rv: number | null, varianceInvert: boolean): Variance {
+    if (a == null || rv == null) { return { delta: null, deltaPct: null, good: true }; }
+    const delta = a - rv;
     const deltaPct = rv !== 0 ? delta / Math.abs(rv) : null;
     let good = delta >= 0;
-    if (node.row.varianceInvert) { good = !good; }
+    if (varianceInvert) { good = !good; }
     return { delta, deltaPct, good };
+}
+
+/**
+ * Variance in DISPLAY orientation, as an IBCS statement table prints it
+ * (templates T01–T04, see SPEC-MEGATABLE.md):
+ *
+ *  - value rows: Δ and Δ% follow the shown values — a cost row shown positive
+ *    (DisplayInvert) that grows prints "+37.3 / +7%", in red. `good` keeps the
+ *    engine rule (calculation sign + VarianceInvert); `impact` / `impactPct` are
+ *    Δ and Δ% turned into the "good" orientation (≥ 0 ⇔ favourable) — the value
+ *    a "Δ in red if < threshold" test compares, so cost logic needs no extra flag;
+ *  - margin / KPI rows (rowType kpi): Δ in percentage points (`pp`, ×100),
+ *    Δ% as the relative change a / b − 1 of the two ratios.
+ *
+ * `a` / `rv` are raw values of the minuend / reference (node.computed or a
+ * period window of the series). Null when either side is missing.
+ */
+export interface DisplayVariance {
+    d: number;
+    p: number | null;
+    good: boolean;
+    impact: number;
+    impactPct: number | null;
+    pp: boolean;
+}
+
+export function displayVariance(row: InputRow, a: number | null, rv: number | null): DisplayVariance | null {
+    const v = varianceOf(a, rv, row.varianceInvert);
+    if (v.delta == null || a == null || rv == null) { return null; }
+    if (row.rowType === "kpi") {
+        const d = v.delta * 100;
+        const p = rv !== 0 ? a / rv - 1 : null;
+        const flip = row.varianceInvert ? -1 : 1;
+        return { d, p, good: v.good, impact: d * flip, impactPct: p == null ? null : p * flip, pp: true };
+    }
+    const disp = row.displayInvert ? -1 : 1;
+    const eff = row.varianceInvert ? -1 : 1;
+    return {
+        d: v.delta * disp,
+        p: v.deltaPct == null ? null : v.deltaPct * disp,
+        good: v.good,
+        impact: v.delta * eff,
+        impactPct: v.deltaPct == null ? null : v.deltaPct * eff,
+        pp: false,
+    };
 }
 
 /** Value as shown in the value columns (DisplayInvert flips the sign for cost rows). */
@@ -863,6 +921,72 @@ export function displayValue(node: PnlNode, s: Scenario): number | null {
     const v = node.computed[s];
     if (v == null) { return null; }
     return node.row.displayInvert ? -v : v;
+}
+
+/**
+ * Integer quanta `z` with Σ z = target, each z as close to its `y` as the
+ * largest-remainder method allows (ChartKitchen sumSafeAdjust): floors first,
+ * the missing units go to the largest remainders, a surplus is taken from the
+ * smallest. Ties keep the input order.
+ */
+export function largestRemainder(y: number[], target: number): number[] {
+    const out = y.map(v => Math.floor(v));
+    let need = target - out.reduce((a, v) => a + v, 0);
+    if (y.length === 0 || need === 0) { return out; }
+    const order = y.map((v, i) => ({ i, r: v - Math.floor(v) }))
+        .sort((a, b) => (b.r - a.r) || (a.i - b.i)).map(e => e.i);
+    for (let k = 0; need > 0; k++, need--) { out[order[k % order.length]]++; }
+    for (let k = 0; need < 0; k++, need++) { out[order[order.length - 1 - (k % order.length)]]--; }
+    return out;
+}
+
+/**
+ * Sum-safe rounding along the hierarchy (numbers.sumSafeRounding): every value
+ * is rounded to `quantum` (display unit × 10^-decimals) so that the printed
+ * children of a subtotal add up exactly to the printed subtotal. Top-down: a
+ * root (or any row whose value is not its children's sum) rounds normally,
+ * its contributing children (accounts / subtotals with a value) share the
+ * printed parent by largest remainder — the parent's SignConvention included
+ * (parent = sign × Σ children) — and pass their printed value on to their own
+ * children. Formula, margin and separator rows are never distributed: they
+ * keep the exact rounding and start a new distribution below them.
+ *
+ * `read` gives the raw (calculation-signed) value of the period block; the
+ * result maps row id → value that formats exactly at the quantum. Rows
+ * without a value are absent. Rounding of a half is away from zero, like
+ * Intl.NumberFormat.
+ */
+export function sumSafeRound(roots: PnlNode[], read: (n: PnlNode) => number | null, quantum: number): Map<string, number> {
+    const out = new Map<string, number>();
+    if (!(quantum > 0) || !isFinite(quantum)) { return out; }
+    const q = (v: number): number => Math.round((v / quantum) * 1e6) / 1e6;
+    const rnd = (x: number): number => (x < 0 ? -1 : 1) * Math.round(Math.abs(x));
+    const distributable = (n: PnlNode): boolean => n.row.rowType === "account" || n.row.rowType === "subtotal";
+    const visit = (n: PnlNode, printed: number | null): void => {
+        const t = n.row.rowType;
+        const v = t === "kpi" || t === "separator" ? null : read(n);
+        let p: number | null = null;
+        if (v != null && isFinite(v)) {
+            p = printed != null && distributable(n) ? printed : rnd(q(v));
+            out.set(n.row.id, p * quantum);
+        }
+        const kids = n.children.filter(c => distributable(c) && (() => { const cv = read(c); return cv != null && isFinite(cv); })());
+        // only a parent that IS the sum of its children may hand its printed value down
+        let share = false;
+        if (p != null && distributable(n) && kids.length > 0) {
+            const sum = kids.reduce((a, c) => a + (read(c) as number), 0) * (n.row.sign < 0 ? -1 : 1);
+            share = Math.abs(sum - (v as number)) <= 1e-9 * Math.max(1, Math.abs(sum), Math.abs(v as number));
+        }
+        const given = new Map<PnlNode, number>();
+        if (share) {
+            const target = p! * (n.row.sign < 0 ? -1 : 1);
+            const z = largestRemainder(kids.map(c => q(read(c) as number)), target);
+            kids.forEach((c, i) => given.set(c, z[i]));
+        }
+        for (const c of n.children) { visit(c, given.get(c) ?? null); }
+    };
+    for (const r of roots) { visit(r, null); }
+    return out;
 }
 
 /** True when the row carries no value in any scenario (candidate for zero-row hiding). */

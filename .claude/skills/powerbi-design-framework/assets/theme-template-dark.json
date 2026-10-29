@@ -1,0 +1,80 @@
+{
+  "name": "REPLACE — <Firma> Report Theme v1 · Dark",
+  "dataColors": [
+    "#5B8DEF",
+    "#2DD4BF",
+    "#FBBF24",
+    "#A78BFA",
+    "#F472B6",
+    "#94A3B8"
+  ],
+  "foreground": "#E7EAF0",
+  "background": "#1B222D",
+  "tableAccent": "#5B8DEF",
+  "textClasses": {
+    "title": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 12,
+      "color": "#E7EAF0"
+    },
+    "header": {
+      "fontFace": "Segoe UI",
+      "fontSize": 10,
+      "color": "#E7EAF0"
+    },
+    "label": {
+      "fontFace": "Segoe UI",
+      "fontSize": 9,
+      "color": "#A9B4C3"
+    },
+    "callout": {
+      "fontFace": "Segoe UI Semibold",
+      "fontSize": 26,
+      "color": "#E7EAF0"
+    }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#1B222D" } },
+            "transparency": 0
+          }
+        ],
+        "border": [
+          { "show": false, "color": { "solid": { "color": "#2A3341" } } }
+        ],
+        "dropShadow": [
+          { "show": false }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontColor": { "solid": { "color": "#E7EAF0" } },
+            "alignment": "left",
+            "fontSize": 12,
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [
+          {
+            "color": { "solid": { "color": "#10151D" } },
+            "transparency": 0
+          }
+        ],
+        "outspace": [
+          {
+            "color": { "solid": { "color": "#10151D" } },
+            "transparency": 0
+          }
+        ]
+      }
+    }
+  }
+}

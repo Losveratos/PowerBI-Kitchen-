@@ -1,0 +1,77 @@
+---
+id: "tool:zebra-bi"
+name: "Zebra BI"
+typ: tool
+stand: "2026-09-15"
+build: "20260915-2009"
+zitieren_als: "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>"
+dokumente: 12
+kernaussagen: 4
+mit_kernaussagen: 3
+url: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html"
+canonical: "https://datenwgknowledgekitchen.com/wissensgraph/thema/zebra-bi.html"
+markdown: "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.md"
+json: "https://datenwgknowledgekitchen.com/wissensgraph/library/zebra-bi.json"
+aliase:
+  - "Zebra"
+---
+
+# Zebra BI
+
+Zebra BI erzeugt bei einer Abweichungsberechnung standardmäßig ebenfalls einen automatisch generierten Spaltennamen wie "Vorjahr", den man teilweise anpassen muss. (Stand 2025-08) Zebra BI bietet mit Verweisbezeichnungen nach Position bereits eine ähnliche Funktion wie die neue Visual-Calculations-Option, allerdings in einem Untermenü verschachtelt. (Stand 2025-08) Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. (Stand 2026-01)
+
+## Aliase
+
+Zebra
+
+## Nachbarthemen
+
+| Thema | Beziehung (Lesart) | Belastbarkeit | Zitat und Quelle | Gemeinsame Segmente |
+| --- | --- | --- | --- | --- |
+| [Custom Visuals](custom-visuals.md) | Custom Visuals ersetzt Zebra BI | automatisch extrahiert, Quellenstelle vorhanden | „wie lange wird's jetzt dauern einfach Zebra BI nachzucoden“ (BI Thinkers Talk nr.76, 2026-05) | 7 |
+| [Visualisierung](visualisierung.md) | Zebra BI und Visualisierung im selben Segment | Heuristik, gezählt |  | 21 |
+| [Power BI](power-bi.md) | Zebra BI und Power BI im selben Segment | Heuristik, gezählt |  | 16 |
+| [IBCS](ibcs.md) | Zebra BI und IBCS im selben Segment | Heuristik, gezählt |  | 14 |
+| [Reporting](reporting.md) | Zebra BI und Reporting im selben Segment | Heuristik, gezählt |  | 9 |
+| [Lizenzen](lizenzen.md) | Zebra BI und Lizenzen im selben Segment | Heuristik, gezählt |  | 8 |
+| [Planung](planung.md) | Zebra BI und Planung im selben Segment | Heuristik, gezählt |  | 6 |
+| [KI](ki.md) | Zebra BI und KI im selben Segment | Heuristik, gezählt |  | 5 |
+| [Deneb](deneb.md) | Zebra BI und Deneb im selben Segment | Heuristik, gezählt |  | 5 |
+| [DAX](dax.md) | Zebra BI und DAX im selben Segment | Heuristik, gezählt |  | 3 |
+
+## Kernaussagen
+
+Alle Aussagen sind automatisch aus dem Transkript extrahiert und nicht redaktionell geprüft. „Stelle“ sagt, wie genau der Sprung sitzt: auf die Sekunde (im Transkript wiedergefunden) oder Abschnittsanfang (bis zu drei Minuten vor der Aussage).
+
+| Typ | Dokument | Stand | Zeit | Stelle | Aussage | Beleg |
+| --- | --- | --- | --- | --- | --- | --- |
+| Meinung | BI Thinkers Talk nr.76 | 2026-05 | 55:18 | Abschnittsanfang | Einer der Gäste hält es für vorstellbar, mit KI-Vibecoding in überschaubarer Zeit eigene IBCS-Visuals zu bauen, die kommerzielle Tools wie Zebra BI ersetzen könnten. | [▶](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
+| Meinung | BI Thinkers Talk n.72 | 2026-01 | 19:12 | Abschnittsanfang | Gekaufte Custom Visuals wie Zebra BI bieten weniger Anpassungsspielraum als codebasierte Lösungen wie Deneb, weil man an die vom Hersteller vorgesehenen Optionen gebunden bleibt. | [▶](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
+| Fakt | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 37:25 | auf die Sekunde | Zebra BI erzeugt bei einer Abweichungsberechnung standardmäßig ebenfalls einen automatisch generierten Spaltennamen wie "Vorjahr", den man teilweise anpassen muss. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2245s) |
+| Meinung | Daten-WG BI Thinkers Talk nr.66 | 2025-08 | 42:15 | auf die Sekunde | Zebra BI bietet mit Verweisbezeichnungen nach Position bereits eine ähnliche Funktion wie die neue Visual-Calculations-Option, allerdings in einem Untermenü verschachtelt. | [▶](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2535s) |
+
+## Dokumente
+
+| Dokument | Datum | Abdeckung | Sprungmarken |
+| --- | --- | --- | --- |
+| [Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?](https://datenwgknowledgekitchen.com/visual-standards-rechner.html) | 2026-09-15 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Voreinstellungen%20%28Auswahl%2C%20min%20%C2%B7%20wahrscheinlich%20%C2%B7%20max%29) · [Abschnitt](https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.11%3A%20Zeitdynamik%2C%20Cash-out%20und%20neue%20Anforderungen%20%28Annahmen-Audit%20Runde%202%29) |
+| [Daten-WG BI Thinkers Talk nr.66](https://www.youtube.com/watch?v=DQENmzAkNqw) | 2025-08-01 | kernaussagen+zeitstempel | [17:48](https://www.youtube.com/watch?v=DQENmzAkNqw&t=1068s) · [37:16](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2236s) · [42:07](https://www.youtube.com/watch?v=DQENmzAkNqw&t=2527s) |
+| [The Power of User Groups](https://www.youtube.com/watch?v=SSUpe1JON9Y) | 2025-10-01 | nur-zeitstempel | [23:32](https://www.youtube.com/watch?v=SSUpe1JON9Y&t=1412s) |
+| [ChartKitchen byDatenWG — Documentation](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Table%20comfort%3A%20zebra%2C%20grid%2C%20density%2C%20search%2C%20sorting) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku_en.html#:~:text=Table) |
+| [ChartKitchen byDatenWG — Dokumentation](https://datenwgknowledgekitchen.com/chartkitchen-doku.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Tabellen-Komfort%3A%20Zebra%2C%20Gitter%2C%20Dichte%2C%20Suche%2C%20Sortierung) · [Abschnitt](https://datenwgknowledgekitchen.com/chartkitchen-doku.html#:~:text=Tabelle) |
+| [Fabric & Power BI Quarterly · 2026-2](https://www.youtube.com/watch?v=pTTYySb0Cyg) | — | kernaussagen+zeitstempel | [48:27](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=2907s) |
+| [Power BI von A bis Z — Einsteiger-Guide (End-to-End)](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html) | 2026-08-31 | nur-text | [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=06%20%C2%B7%20Deep%20Dive%3A%20%2AIBCS%2A%20%26%20Visualisierung) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=UNIFY%20%E2%80%94%20Apply%20semantic%20notation) · [Abschnitt](https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Outlined%20%C2%B7%20Plan%20%2F%20Budget%20%28PL%2C%20BU%29) |
+| [BI Thinkers Talk n.72](https://www.youtube.com/watch?v=luk4S4ukKmg) | 2026-01-01 | kernaussagen+zeitstempel | [19:12](https://www.youtube.com/watch?v=luk4S4ukKmg&t=1152s) |
+| [BI Thinkers Talk nr.75](https://www.youtube.com/watch?v=BQdSo6ZnmKY) | 2026-04-01 | kernaussagen+zeitstempel | [56:25](https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=3385s) |
+| [BI Thinkers Talk nr.68](https://www.youtube.com/watch?v=VD1N68Fhoco) | 2025-10-01 | nur-zeitstempel | [22:28](https://www.youtube.com/watch?v=VD1N68Fhoco&t=1348s) |
+| [BI Thinkers Talk nr.76](https://www.youtube.com/watch?v=mlkP-6i5Kq8) | 2026-05-01 | kernaussagen+zeitstempel | [55:18](https://www.youtube.com/watch?v=mlkP-6i5Kq8&t=3318s) |
+| [10 Jahre Power BI](https://www.youtube.com/watch?v=ZaDd1uxeLbI) | 2025-07-01 | kernaussagen+zeitstempel | [37:28](https://www.youtube.com/watch?v=ZaDd1uxeLbI&t=2248s) |
+
+## Hinweise
+
+Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video.
+
+So zitieren: Daten-WG, <Dokumenttitel>, <mm:ss>, <url>
+
+- Wiki-Ansicht: https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Azebra-bi
+- Graph-Sicht: https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Azebra-bi&f=tool%3Azebra-bi

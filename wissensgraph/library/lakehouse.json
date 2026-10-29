@@ -1,0 +1,1426 @@
+{
+ "id": "tool:lakehouse",
+ "name": "Lakehouse",
+ "typ": "tool",
+ "slug": "lakehouse",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/lakehouse.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/lakehouse.json",
+ "dokumente_gesamt": 42,
+ "kernaussagen_gesamt": 45,
+ "mit_kernaussagen": 19,
+ "aliase": [
+  "Lake House"
+ ],
+ "einordnung": "In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird. (Stand 2026-08) In diesem Kundenprojekt wurde die Bronze-Schicht bewusst als Lakehouse aufgebaut, ab Silber und Gold aber mit Warehouses gearbeitet, weil sich der Kunde mit Stored Procedures und Views sicherer fuehlt. (Stand 2026-08) Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben. (Stand 2026-08)",
+ "nachbarn": [
+  {
+   "id": "tool:deployment-pipelines",
+   "name": "Deployment Pipelines",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 9,
+   "beleg": "der Analytic Endpunkt vom Lake House wird nicht die Objekte da drin werden nicht übertragen",
+   "datei": "deployment-pipelines.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ersetzt",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 72,
+   "beleg": "wir müssen jetzt zu WHäusern... das neue Warehouse war halt leer, ist in wenigen Klicks angelegt",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "gegensatz",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 72,
+   "beleg": "Beim Warehouse hat man nur append und kann das auch nicht zurück umstellen. Beim Lake House habe ich nur replaced",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 72,
+   "beleg": "mussten wir effektiv die Lake Houses replizieren, Shortcuts in diesen Lake Houses reinsetzen und dann vom Warehouse über fully qualified Links dieser Lakees anziehen",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "tool:direct-lake",
+   "name": "Direct Lake",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 40,
+   "beleg": "der Kunde hat einfach ein Direct Lake Modell letztendlich ... hier quasi ein Modell, was nach dem Deployment immer noch auf dem Lake House im Test hängt",
+   "datei": "direct-lake.md"
+  },
+  {
+   "id": "tool:onelake",
+   "name": "OneLake",
+   "kantentyp": "setzt-voraus",
+   "belastbarkeit": "automatisch extrahiert, Quellenstelle vorhanden",
+   "gemeinsame_segmente": 34,
+   "beleg": "könnte ich sie in OneLake auslagern und in Lakehouse verwenden, um darauf aufbauend ein semantisches Modell zu erstellen",
+   "datei": "onelake.md"
+  },
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 93,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 60,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:notebook",
+   "name": "Notebook",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 51,
+   "beleg": "",
+   "datei": "notebook.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 49,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 48,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "tool:workspace",
+   "name": "Workspace",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 36,
+   "beleg": "",
+   "datei": "workspace.md"
+  },
+  {
+   "id": "tool:delta-lake",
+   "name": "Delta Lake",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 28,
+   "beleg": "",
+   "datei": "delta-lake.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 27,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "tool:spark",
+   "name": "Spark",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 23,
+   "beleg": "",
+   "datei": "spark.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 209,
+   "zeit": "03:29",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=209s",
+   "aussage": "In diesem Projekt wurden Views im Lakehouse ueber Notebooks per Create-and-Replace angelegt, damit sie sich ueber Deployment Pipelines mitversenden lassen und je Umgebung automatisch das passende Lakehouse zugewiesen wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 419,
+   "zeit": "06:59",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=419s",
+   "aussage": "In diesem Kundenprojekt wurde die Bronze-Schicht bewusst als Lakehouse aufgebaut, ab Silber und Gold aber mit Warehouses gearbeitet, weil sich der Kunde mit Stored Procedures und Views sicherer fuehlt."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 446,
+   "zeit": "07:26",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=446s",
+   "aussage": "Beim Import von Navision-Daten muss die Zeitstempel-Datentyp-Korrektur bereits im Bronze-Layer erfolgen, weil reine Zeitwerte sonst zu Fehlern fuehren."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 824,
+   "zeit": "13:44",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=824s",
+   "aussage": "Bei Fabric Deployment Pipelines werden Objekte des SQL-Analytics-Endpunkts eines Lakehouse wie Views nicht mit uebertragen, waehrend das beim Warehouse funktioniert."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1092,
+   "zeit": "18:12",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1092s",
+   "aussage": "Nach dieser Auffassung braucht eine Medaillon-Architektur zwingend drei Schichten, weil Bronze allein dem Ablegen der Rohdaten dient."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1116,
+   "zeit": "18:36",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1116s",
+   "aussage": "Der Gold-Layer muss nicht immer dieselbe Technologie sein, sondern sollte je nach Use Case und Empfaenger gewaehlt werden, etwa Lakehouse fuer ein Data-Analytics-Team oder Warehouse fuer Reporting."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "dokument_id": "yt:e50qKdVn-24",
+   "sekunde": 1146,
+   "zeit": "19:06",
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1146s",
+   "aussage": "Aus einem unspezifischen Prompt hat der Agent Hub eigenstaendig ein Notebook, ein Lakehouse, ein Semantic Model und einen Report erstellt, inklusive eines selbst geschriebenen Fabric Clients fuer die Fabric-APIs."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1182,
+   "zeit": "19:42",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1182s",
+   "aussage": "Bei einem strikten Layering-Ansatz wird Self-Service-Nutzern meist nur per Shortcut Zugriff auf den Gold-Layer gewaehrt, waehrend Bronze und Silber den Data Engineers vorbehalten bleiben."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Life-Update | Fabric Architekturen",
+   "dokument_id": "yt:J-lN5JN-F5I",
+   "sekunde": 1276,
+   "zeit": "21:16",
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1276s",
+   "aussage": "Bei einem Self-Service-Lakehouse-Ansatz werden fertige Daten aus dem Gold-Layer per Shortcut bereitgestellt, damit Fachbereichs-Excel-Mappings nicht mehr zentral in Bronze verwaltet werden muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "GxP Talk - KI im regulierten Umfeld?",
+   "dokument_id": "yt:XtH4JqTwaqM",
+   "sekunde": 1465,
+   "zeit": "24:25",
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1465s",
+   "aussage": "Laut Christoph betreiben mittlerweile die meisten großen Pharmakonzerne hybride Cloud-Umgebungen mit mehreren Anbietern und bauen darin Lakehouses für die Datenaufbereitung auf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric Planning unboxing",
+   "dokument_id": "yt:xCzKEIB4W5I",
+   "sekunde": 2044,
+   "zeit": "34:04",
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s",
+   "aussage": "Als Datenquelle für Planning-Objekte ist aktuell nur eine SQL-Datenbank wählbar, während Inforiver zusätzlich Lakehouse und Warehouse unterstützte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.74",
+   "dokument_id": "yt:rWE0gMx7v7I",
+   "sekunde": 4385,
+   "zeit": "1:13:05",
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4385s",
+   "aussage": "Beim Versuch, verschachtelte Power-Query-Objekte wie Record oder List aus einem Notebook heraus in ein Lakehouse zu schreiben, werden diese aktuell nur als Text gespeichert statt strukturiert aufgelöst."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2144,
+   "zeit": "35:44",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+   "aussage": "Bei einem Direct-Lake-Modell bleibt das Semantic Model nach einem Deployment über eine Deployment Pipeline weiterhin mit dem Lakehouse der Testumgebung verbunden, die Datenquelle wird also nicht automatisch auf die Zielumgebung umgehängt."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 2408,
+   "zeit": "40:08",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2408s",
+   "aussage": "Einer der Sprecher hält doppelte Datenhaltung in einem zweiten Lakehouse für unnötig, wenn ohnehin schon ein Direct-Lake-Modell mit großen Datenmengen im Einsatz ist."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3298,
+   "zeit": "54:58",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
+   "aussage": "Beim Deployment eines Lakehouse über eine Deployment Pipeline werden Views, die im SQL-Endpunkt des Lakehouse angelegt wurden, nicht mit übertragen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk n.73",
+   "dokument_id": "yt:pOJpXxsfUt0",
+   "sekunde": 3298,
+   "zeit": "54:58",
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=3298s",
+   "aussage": "Als Workaround definiert einer der Sprecher View-Definitionen stattdessen in TSQL-Notebooks, damit sie über die Deployment Pipeline mit transportiert werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 2197,
+   "zeit": "36:37",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2197s",
+   "aussage": "Seit kurzem lassen sich Notebooks in Fabric über eine Connection mit einem Service Principal ausführen, wodurch Secrets nicht mehr hartcodiert oder in einer JSON-Datei im Lakehouse abgelegt werden müssen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk n.72",
+   "dokument_id": "yt:luk4S4ukKmg",
+   "sekunde": 3265,
+   "zeit": "54:25",
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3265s",
+   "aussage": "Deployment Pipelines unterstützen Dataflows, Lakehouses und Direct Lake nicht zuverlässig, sodass danach oft manuell mit VS Code nachgearbeitet werden muss."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 80,
+   "zeit": "01:20",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=80s",
+   "aussage": "In der Zielarchitektur schreiben die Integration Services die Daten aus der On-Premises-Umgebung zunächst in ein Azure Storage, von wo sie ins Warehouse oder Lakehouse geladen werden können."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 529,
+   "zeit": "08:49",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=529s",
+   "aussage": "Über einen Shortcut im Fabric-Lakehouse lässt sich der Azure Data Lake Storage Gen2 einbinden, sodass die per SSIS abgelegten Paketdateien im Lakehouse sichtbar und in der Vorschau prüfbar werden."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 609,
+   "zeit": "10:09",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=609s",
+   "aussage": "Die im Lakehouse als Rohdaten liegenden Dateien lassen sich per COPY-INTO-Befehl in eine Warehouse-Tabelle laden oder mit einem Notebook, etwa in Python, weiterverarbeiten."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk - Data Modelling - Fabric Data Days Edition",
+   "dokument_id": "yt:mUALlPmGcEk",
+   "sekunde": 464,
+   "zeit": "07:44",
+   "url": "https://www.youtube.com/watch?v=mUALlPmGcEk&t=464s",
+   "aussage": "Die Medaillon-Architektur mit Bronze-, Silber- und Gold-Schichten entspricht inhaltlich einem klassischen Aufbau aus Staging, Core und Datamarts."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "BI Thinkers Talk nr.67",
+   "dokument_id": "yt:G8s96sHUHac",
+   "sekunde": 1236,
+   "zeit": "20:36",
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1236s",
+   "aussage": "Weil eine zu restriktive Firewall-Security den SQL-Zugriff auf Lakehouse-Tabellen blockierte, baute der Kunde stattdessen ein semantisches Direct-Lake-Modell direkt im Web auf."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1570,
+   "zeit": "26:10",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1570s",
+   "aussage": "Die Verarbeitung pro Gigabyte ist in der Custom-Datenbank laut Brian Bønk etwas teurer als bei Lakehouse und Warehouse in Microsoft Fabric."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1658,
+   "zeit": "27:38",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1658s",
+   "aussage": "Für Echtzeitanalysen nicht mehr relevante ältere Daten können laut Brian Bønk nach OneLake ausgelagert und im Lakehouse als Basis für ein semantisches Modell genutzt werden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Why Passion Beats Niche",
+   "dokument_id": "yt:ihi7UiJ_TtQ",
+   "sekunde": 1769,
+   "zeit": "29:29",
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1769s",
+   "aussage": "In einem Hybrid-Setup in Fabric lassen sich laut Brian Bønk nach OneLake ausgelagerte Daten per Verknüpfung weiterhin zusammen mit nahezu in Echtzeit verfügbaren Live-Daten abfragen."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "dokument_id": "yt:bt81POE-9Ig",
+   "sekunde": 2136,
+   "zeit": "35:36",
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2136s",
+   "aussage": "Im Warehouse ist beim Dataflow-Ziel nur der Modus Append wählbar und nicht mehr umkehrbar, während im Lakehouse nur Replace zur Verfügung steht."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 360,
+   "zeit": "06:00",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=360s",
+   "aussage": "Um aus einem Shortcut wirklich eine nutzbare Tabelle zu machen, muss man weiterhin ein Notebook oder einen Dataflow orchestrieren, da der Shortcut selbst nicht so echtzeitfähig ist, wie er sein könnte."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Daten-WG Thinkers Talk nr.65",
+   "dokument_id": "yt:Fqt4gP1xB5w",
+   "sekunde": 3883,
+   "zeit": "1:04:43",
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3883s",
+   "aussage": "Bei Dataflow Gen1 lag die komplette Speicherschicht in der Hand des Dataflows selbst, während man bei Gen2 sein eigenes Ziel wie Warehouse oder Lakehouse selbst verwalten muss."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "BI Thinkers Talk Nr.62",
+   "dokument_id": "yt:Wwvhv8WA2Qc",
+   "sekunde": 995,
+   "zeit": "16:35",
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=995s",
+   "aussage": "Für das Zurückschreiben aus Power BI wird eine SQL-Datenbank in Fabric statt eines Lakehouse verwendet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 569,
+   "zeit": "09:29",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=569s",
+   "aussage": "Die neue Direct-Lake-Variante verbindet sich nicht mehr über den SQL-Endpoint des Lakehouses, sondern direkt mit den Delta-Tabellen im OneLake."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1124,
+   "zeit": "18:44",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1124s",
+   "aussage": "OneLake Security soll als zentrale Policy Engine Spalten-, Row-Level- und dynamische Tabellenebenen-Sicherheit über Lakehouse, Warehouse und Power BI hinweg abdecken."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly | 2025 Q2",
+   "dokument_id": "yt:lAh9ajR2Nrw",
+   "sekunde": 1307,
+   "zeit": "21:47",
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=1307s",
+   "aussage": "User Data Functions ermöglichen es, Business Logic zu implementieren und zu kapseln und sie anschließend in einem Lakehouse, einer Data Pipeline und einem Warehouse wiederzuverwenden."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 679,
+   "zeit": "11:19",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=679s",
+   "aussage": "Ein zentrales, datenhaltendes Objekt wie ein Lakehouse macht Power-BI-Modelle laut Artur deutlich stabiler und beschleunigt Aktualisierungen von zwei Stunden auf zwei Minuten."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 722,
+   "zeit": "12:02",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=722s",
+   "aussage": "Der erste Quickwin beim Umstieg auf Fabric ist laut Artur, Daten überhaupt persistent abzulegen, statt sie bei jeder Aktualisierung neu zu laden."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q4",
+   "dokument_id": "yt:9TsHkV8sIRo",
+   "sekunde": 1105,
+   "zeit": "18:25",
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1105s",
+   "aussage": "Die Incremental-Refresh-Option für Materialized Lake Views war eines der meistgefragten Kundenfeedbacks und wurde entsprechend veröffentlicht."
+  },
+  {
+   "typ": "Warnung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1191,
+   "zeit": "19:51",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1191s",
+   "aussage": "Werden zwei Dataflows über ein Lakehouse verkettet, stehen am Folgetag keine neuen Daten bereit, weil der SQL-Endpoint des Lakehouse nicht sofort aktualisiert wird."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1233,
+   "zeit": "20:33",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1233s",
+   "aussage": "Da ein Warehouse keine eigenen Shortcuts anlegen kann, mussten im Projekt Lake Houses repliziert werden, um darüber per Shortcut auf Bronze- und Gold-Layer zuzugreifen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1358,
+   "zeit": "22:38",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1358s",
+   "aussage": "Der Wechsel von einem Lakehouse zu einem Warehouse lässt sich in der Praxis in wenigen Minuten umsetzen, da ein neues Warehouse leer und schnell angelegt ist."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1361,
+   "zeit": "22:41",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1361s",
+   "aussage": "Ein Lakehouse wird beim Deployment in einen neuen Workspace leer angelegt, ohne die enthaltenen Daten mitzukopieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 1373,
+   "zeit": "22:53",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1373s",
+   "aussage": "Nach dem letzten Kenntnisstand des Gasts funktioniert OneLake-Security nur auf Ordner-, nicht auf Tabellenebene."
+  },
+  {
+   "typ": "Meinung",
+   "dokument": "Microsoft Fabric — braucht das wirklich jemand?",
+   "dokument_id": "yt:mTVeZzshLzE",
+   "sekunde": 1506,
+   "zeit": "25:06",
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s",
+   "aussage": "Shortcuts gelten laut Martin als das Killer-Feature des Lakehouse."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2088,
+   "zeit": "34:48",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2088s",
+   "aussage": "Tabellen aus einem Lakehouse oder Warehouse lassen sich jetzt direkt in Excel einbinden, aehnlich wie vorher ueber Power BI."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2353,
+   "zeit": "39:13",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2353s",
+   "aussage": "Composite Models sollen kuenftig die Moeglichkeit bieten, Direct-Lake-Tabellen aus mehreren Lakehouses zu kombinieren, ohne mehr zwingend ueber den einen zentralen SQL-Endpunkt konsumieren zu muessen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 2545,
+   "zeit": "42:25",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2545s",
+   "aussage": "Mit der Shortcut-Transformation wird eine per Shortcut verlinkte CSV-Datei automatisch in eine Delta-Tabelle umgewandelt, ohne dass dafuer ein Notebook laufen muss."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:m3xNYfVih0Q",
+   "titel": "Starting with Microsft Fabric the Skills you need",
+   "datum": "2024-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.516,
+   "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q",
+   "sprungmarken": [
+    {
+     "label": "09:42",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=582s",
+     "sekunde": 582
+    },
+    {
+     "label": "27:09",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1629s",
+     "sekunde": 1629
+    },
+    {
+     "label": "32:03",
+     "url": "https://www.youtube.com/watch?v=m3xNYfVih0Q&t=1923s",
+     "sekunde": 1923
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.457,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Wie%20die%20Komponenten%20die%20Schichten%20bedienen",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Typische%20Nutzung",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20das%20Warehouse%20exklusiv%20kann",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:J-lN5JN-F5I",
+   "titel": "Daten-WG Life-Update | Fabric Architekturen",
+   "datum": "2026-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.258,
+   "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I",
+   "sprungmarken": [
+    {
+     "label": "02:11",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=131s",
+     "sekunde": 131
+    },
+    {
+     "label": "12:15",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=735s",
+     "sekunde": 735
+    },
+    {
+     "label": "17:21",
+     "url": "https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s",
+     "sekunde": 1041
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.25,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "19:55",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1195s",
+     "sekunde": 1195
+    },
+    {
+     "label": "21:17",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s",
+     "sekunde": 1277
+    },
+    {
+     "label": "22:53",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1373s",
+     "sekunde": 1373
+    }
+   ]
+  },
+  {
+   "id": "yt:Z6RZjkn_6lY",
+   "titel": "Microsoft Fabric Shortcut Transformation erklärt: Updates im Praxistest",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.222,
+   "url": "https://www.youtube.com/watch?v=Z6RZjkn_6lY",
+   "sprungmarken": [
+    {
+     "label": "00:28",
+     "url": "https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=28s",
+     "sekunde": 28
+    },
+    {
+     "label": "03:04",
+     "url": "https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=184s",
+     "sekunde": 184
+    }
+   ]
+  },
+  {
+   "id": "yt:mTVeZzshLzE",
+   "titel": "Microsoft Fabric — braucht das wirklich jemand?",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.219,
+   "url": "https://www.youtube.com/watch?v=mTVeZzshLzE",
+   "sprungmarken": [
+    {
+     "label": "07:26",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=446s",
+     "sekunde": 446
+    },
+    {
+     "label": "23:00",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1380s",
+     "sekunde": 1380
+    },
+    {
+     "label": "25:06",
+     "url": "https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s",
+     "sekunde": 1506
+    }
+   ]
+  },
+  {
+   "id": "yt:lAh9ajR2Nrw",
+   "titel": "Fabric & Power BI Quarterly | 2025 Q2",
+   "datum": "2025-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw",
+   "sprungmarken": [
+    {
+     "label": "08:28",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=508s",
+     "sekunde": 508
+    },
+    {
+     "label": "10:33",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=633s",
+     "sekunde": 633
+    },
+    {
+     "label": "15:50",
+     "url": "https://www.youtube.com/watch?v=lAh9ajR2Nrw&t=950s",
+     "sekunde": 950
+    }
+   ]
+  },
+  {
+   "id": "yt:_AxvdCW0ST4",
+   "titel": "Microsoft Fabric Time Travel erklärt: Vergangene Daten einfach abfragen",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.2,
+   "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4",
+   "sprungmarken": [
+    {
+     "label": "00:45",
+     "url": "https://www.youtube.com/watch?v=_AxvdCW0ST4&t=45s",
+     "sekunde": 45
+    }
+   ]
+  },
+  {
+   "id": "yt:5HhNQZlB-1E",
+   "titel": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "datum": "2025-12-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.167,
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E",
+   "sprungmarken": [
+    {
+     "label": "01:15",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=75s",
+     "sekunde": 75
+    },
+    {
+     "label": "08:20",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=500s",
+     "sekunde": 500
+    },
+    {
+     "label": "09:45",
+     "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=585s",
+     "sekunde": 585
+    }
+   ]
+  },
+  {
+   "id": "yt:YzfcMurbWNc",
+   "titel": "Power BI-Teams werden Fabric-Datendienstleister",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.136,
+   "url": "https://www.youtube.com/watch?v=YzfcMurbWNc",
+   "sprungmarken": [
+    {
+     "label": "02:40",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=160s",
+     "sekunde": 160
+    },
+    {
+     "label": "25:00",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=1500s",
+     "sekunde": 1500
+    },
+    {
+     "label": "28:09",
+     "url": "https://www.youtube.com/watch?v=YzfcMurbWNc&t=1689s",
+     "sekunde": 1689
+    }
+   ]
+  },
+  {
+   "id": "yt:pOJpXxsfUt0",
+   "titel": "BI Thinkers Talk n.73",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.135,
+   "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0",
+   "sprungmarken": [
+    {
+     "label": "35:44",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2144s",
+     "sekunde": 2144
+    },
+    {
+     "label": "37:17",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2237s",
+     "sekunde": 2237
+    },
+    {
+     "label": "38:59",
+     "url": "https://www.youtube.com/watch?v=pOJpXxsfUt0&t=2339s",
+     "sekunde": 2339
+    }
+   ]
+  },
+  {
+   "id": "yt:GWCHNmLs72M",
+   "titel": "Power BI Update August 2026",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.133,
+   "url": "https://www.youtube.com/watch?v=GWCHNmLs72M",
+   "sprungmarken": [
+    {
+     "label": "05:57",
+     "url": "https://www.youtube.com/watch?v=GWCHNmLs72M&t=357s",
+     "sekunde": 357
+    },
+    {
+     "label": "06:57",
+     "url": "https://www.youtube.com/watch?v=GWCHNmLs72M&t=417s",
+     "sekunde": 417
+    }
+   ]
+  },
+  {
+   "id": "yt:c-LWoo-O5PQ",
+   "titel": "SharePoint direkt in Microsoft Fabric nutzen | Lakehouse, Direct Lake & Power BI",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.133,
+   "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ",
+   "sprungmarken": [
+    {
+     "label": "08:20",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=500s",
+     "sekunde": 500
+    },
+    {
+     "label": "16:12",
+     "url": "https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=972s",
+     "sekunde": 972
+    }
+   ]
+  },
+  {
+   "id": "yt:lp8xNX81R2w",
+   "titel": "Excel mit Microsoft Fabric Shortcut Transformation nutzen (inkl. Schema-Mismatch erklärt)",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=lp8xNX81R2w",
+   "sprungmarken": [
+    {
+     "label": "04:11",
+     "url": "https://www.youtube.com/watch?v=lp8xNX81R2w&t=251s",
+     "sekunde": 251
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.122,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "13:57",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=837s",
+     "sekunde": 837
+    },
+    {
+     "label": "29:00",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1740s",
+     "sekunde": 1740
+    },
+    {
+     "label": "49:49",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=2989s",
+     "sekunde": 2989
+    }
+   ]
+  },
+  {
+   "id": "yt:UnW4wHhw_IY",
+   "titel": "Daten-WG Deep Dive Financial Reporting pt.4",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY",
+   "sprungmarken": [
+    {
+     "label": "01:38",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=98s",
+     "sekunde": 98
+    },
+    {
+     "label": "06:24",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=384s",
+     "sekunde": 384
+    },
+    {
+     "label": "11:34",
+     "url": "https://www.youtube.com/watch?v=UnW4wHhw_IY&t=694s",
+     "sekunde": 694
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "32:02",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=1922s",
+     "sekunde": 1922
+    },
+    {
+     "label": "33:41",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2021s",
+     "sekunde": 2021
+    },
+    {
+     "label": "35:19",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=2119s",
+     "sekunde": 2119
+    }
+   ]
+  },
+  {
+   "id": "yt:z51gWRc0zVc",
+   "titel": "Microsoft Fabric Dataflow Gen2 Kosten verstehen - CU-Verbrauch einfach erklärt",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.111,
+   "url": "https://www.youtube.com/watch?v=z51gWRc0zVc",
+   "sprungmarken": [
+    {
+     "label": "01:34",
+     "url": "https://www.youtube.com/watch?v=z51gWRc0zVc&t=94s",
+     "sekunde": 94
+    }
+   ]
+  },
+  {
+   "id": "yt:Fqt4gP1xB5w",
+   "titel": "Daten-WG Thinkers Talk nr.65",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.093,
+   "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w",
+   "sprungmarken": [
+    {
+     "label": "06:31",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=391s",
+     "sekunde": 391
+    },
+    {
+     "label": "24:40",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=1480s",
+     "sekunde": 1480
+    },
+    {
+     "label": "1:00:37",
+     "url": "https://www.youtube.com/watch?v=Fqt4gP1xB5w&t=3637s",
+     "sekunde": 3637
+    }
+   ]
+  },
+  {
+   "id": "yt:ihi7UiJ_TtQ",
+   "titel": "Why Passion Beats Niche",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.077,
+   "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ",
+   "sprungmarken": [
+    {
+     "label": "25:05",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1505s",
+     "sekunde": 1505
+    },
+    {
+     "label": "26:46",
+     "url": "https://www.youtube.com/watch?v=ihi7UiJ_TtQ&t=1606s",
+     "sekunde": 1606
+    }
+   ]
+  },
+  {
+   "id": "yt:iymmxuXHh44",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 5",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.073,
+   "url": "https://www.youtube.com/watch?v=iymmxuXHh44",
+   "sprungmarken": [
+    {
+     "label": "17:41",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=1061s",
+     "sekunde": 1061
+    },
+    {
+     "label": "54:13",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3253s",
+     "sekunde": 3253
+    },
+    {
+     "label": "57:38",
+     "url": "https://www.youtube.com/watch?v=iymmxuXHh44&t=3458s",
+     "sekunde": 3458
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "11:21",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=681s",
+     "sekunde": 681
+    }
+   ]
+  },
+  {
+   "id": "yt:G8s96sHUHac",
+   "titel": "BI Thinkers Talk nr.67",
+   "datum": "2025-09-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.064,
+   "url": "https://www.youtube.com/watch?v=G8s96sHUHac",
+   "sprungmarken": [
+    {
+     "label": "19:28",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1168s",
+     "sekunde": 1168
+    },
+    {
+     "label": "32:47",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=1967s",
+     "sekunde": 1967
+    },
+    {
+     "label": "41:02",
+     "url": "https://www.youtube.com/watch?v=G8s96sHUHac&t=2462s",
+     "sekunde": 2462
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "07:05",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=425s",
+     "sekunde": 425
+    },
+    {
+     "label": "22:53",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=1373s",
+     "sekunde": 1373
+    }
+   ]
+  },
+  {
+   "id": "yt:e50qKdVn-24",
+   "titel": "Fabric Workload Demo mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=e50qKdVn-24",
+   "sprungmarken": [
+    {
+     "label": "18:59",
+     "url": "https://www.youtube.com/watch?v=e50qKdVn-24&t=1139s",
+     "sekunde": 1139
+    }
+   ]
+  },
+  {
+   "id": "yt:xCzKEIB4W5I",
+   "titel": "Fabric Planning unboxing",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.054,
+   "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I",
+   "sprungmarken": [
+    {
+     "label": "20:19",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1219s",
+     "sekunde": 1219
+    },
+    {
+     "label": "28:51",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=1731s",
+     "sekunde": 1731
+    },
+    {
+     "label": "34:04",
+     "url": "https://www.youtube.com/watch?v=xCzKEIB4W5I&t=2044s",
+     "sekunde": 2044
+    }
+   ]
+  },
+  {
+   "id": "yt:luk4S4ukKmg",
+   "titel": "BI Thinkers Talk n.72",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=luk4S4ukKmg",
+   "sprungmarken": [
+    {
+     "label": "37:07",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=2227s",
+     "sekunde": 2227
+    },
+    {
+     "label": "53:54",
+     "url": "https://www.youtube.com/watch?v=luk4S4ukKmg&t=3234s",
+     "sekunde": 3234
+    }
+   ]
+  },
+  {
+   "id": "yt:DQENmzAkNqw",
+   "titel": "Daten-WG BI Thinkers Talk nr.66",
+   "datum": "2025-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=DQENmzAkNqw",
+   "sprungmarken": [
+    {
+     "label": "53:48",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=3228s",
+     "sekunde": 3228
+    },
+    {
+     "label": "55:34",
+     "url": "https://www.youtube.com/watch?v=DQENmzAkNqw&t=3334s",
+     "sekunde": 3334
+    }
+   ]
+  },
+  {
+   "id": "yt:BQdSo6ZnmKY",
+   "titel": "BI Thinkers Talk nr.75",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY",
+   "sprungmarken": [
+    {
+     "label": "44:31",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2671s",
+     "sekunde": 2671
+    },
+    {
+     "label": "47:52",
+     "url": "https://www.youtube.com/watch?v=BQdSo6ZnmKY&t=2872s",
+     "sekunde": 2872
+    }
+   ]
+  },
+  {
+   "id": "yt:eWfTt93anl4",
+   "titel": "BI Thinkers Talk nr.77",
+   "datum": "",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.049,
+   "url": "https://www.youtube.com/watch?v=eWfTt93anl4",
+   "sprungmarken": [
+    {
+     "label": "53:05",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=3185s",
+     "sekunde": 3185
+    },
+    {
+     "label": "1:01:32",
+     "url": "https://www.youtube.com/watch?v=eWfTt93anl4&t=3692s",
+     "sekunde": 3692
+    }
+   ]
+  },
+  {
+   "id": "yt:bt81POE-9Ig",
+   "titel": "Daten-WG Deep Dive Financial Reporting - part 6",
+   "datum": "2025-08-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.047,
+   "url": "https://www.youtube.com/watch?v=bt81POE-9Ig",
+   "sprungmarken": [
+    {
+     "label": "34:32",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2072s",
+     "sekunde": 2072
+    },
+    {
+     "label": "36:04",
+     "url": "https://www.youtube.com/watch?v=bt81POE-9Ig&t=2164s",
+     "sekunde": 2164
+    }
+   ]
+  },
+  {
+   "id": "yt:rrCi0lnGrCg",
+   "titel": "Mythos Data Vault und richtig große Modelle",
+   "datum": "2025-07-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.045,
+   "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg",
+   "sprungmarken": [
+    {
+     "label": "15:21",
+     "url": "https://www.youtube.com/watch?v=rrCi0lnGrCg&t=921s",
+     "sekunde": 921
+    }
+   ]
+  },
+  {
+   "id": "yt:rWE0gMx7v7I",
+   "titel": "BI Thinkers Talk n.74",
+   "datum": "2026-03-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I",
+   "sprungmarken": [
+    {
+     "label": "58:58",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=3538s",
+     "sekunde": 3538
+    },
+    {
+     "label": "1:11:30",
+     "url": "https://www.youtube.com/watch?v=rWE0gMx7v7I&t=4290s",
+     "sekunde": 4290
+    }
+   ]
+  },
+  {
+   "id": "yt:c90oD4zR1Aw",
+   "titel": "More than PBIX",
+   "datum": "2025-12-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw",
+   "sprungmarken": [
+    {
+     "label": "16:06",
+     "url": "https://www.youtube.com/watch?v=c90oD4zR1Aw&t=966s",
+     "sekunde": 966
+    }
+   ]
+  },
+  {
+   "id": "yt:BDnwlOqRElY",
+   "titel": "Gaming + Real-Time-Analytics in Fabric = Fun-o-Meter @ Fabric Meetup",
+   "datum": "2025-06-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.043,
+   "url": "https://www.youtube.com/watch?v=BDnwlOqRElY",
+   "sprungmarken": [
+    {
+     "label": "20:57",
+     "url": "https://www.youtube.com/watch?v=BDnwlOqRElY&t=1257s",
+     "sekunde": 1257
+    }
+   ]
+  },
+  {
+   "id": "yt:XtH4JqTwaqM",
+   "titel": "GxP Talk - KI im regulierten Umfeld?",
+   "datum": "2026-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.028,
+   "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM",
+   "sprungmarken": [
+    {
+     "label": "23:24",
+     "url": "https://www.youtube.com/watch?v=XtH4JqTwaqM&t=1404s",
+     "sekunde": 1404
+    }
+   ]
+  },
+  {
+   "id": "yt:TYp5xCAU2AU",
+   "titel": "Fabric & Power BI Quarterly · 2026-1",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU",
+   "sprungmarken": [
+    {
+     "label": "28:14",
+     "url": "https://www.youtube.com/watch?v=TYp5xCAU2AU&t=1694s",
+     "sekunde": 1694
+    }
+   ]
+  },
+  {
+   "id": "yt:TYmKrreMO3I",
+   "titel": "Daten-WG Deep Dive Financial Reporting",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=TYmKrreMO3I",
+   "sprungmarken": [
+    {
+     "label": "50:39",
+     "url": "https://www.youtube.com/watch?v=TYmKrreMO3I&t=3039s",
+     "sekunde": 3039
+    }
+   ]
+  },
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.027,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "24:38",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1478s",
+     "sekunde": 1478
+    }
+   ]
+  },
+  {
+   "id": "yt:_Vh5fDfHWz4",
+   "titel": "Daten-WG Special: Power BI vs. Qlik -part2",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4",
+   "sprungmarken": [
+    {
+     "label": "1:05:36",
+     "url": "https://www.youtube.com/watch?v=_Vh5fDfHWz4&t=3936s",
+     "sekunde": 3936
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.022,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Fabric%20vs.%20klassisches%20Power%20BI",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Was%20ist%20f%C3%BCr%20Power-BI-Nutzer%20relevant%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:Wwvhv8WA2Qc",
+   "titel": "BI Thinkers Talk Nr.62",
+   "datum": "2025-05-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.022,
+   "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc",
+   "sprungmarken": [
+    {
+     "label": "12:58",
+     "url": "https://www.youtube.com/watch?v=Wwvhv8WA2Qc&t=778s",
+     "sekunde": 778
+    }
+   ]
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=tool%3Alakehouse",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=tool%3Alakehouse&f=tool%3Alakehouse"
+}

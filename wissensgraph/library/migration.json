@@ -1,0 +1,563 @@
+{
+ "id": "topic:migration",
+ "name": "Migration",
+ "typ": "thema",
+ "slug": "migration",
+ "stand": "2026-09-15",
+ "build": "20260915-2009",
+ "zitieren_als": "Daten-WG, <Dokumenttitel>, <mm:ss>, <url>",
+ "url": "https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html",
+ "canonical": "https://datenwgknowledgekitchen.com/wissensgraph/thema/migration.html",
+ "markdown": "https://datenwgknowledgekitchen.com/wissensgraph/library/migration.md",
+ "json": "https://datenwgknowledgekitchen.com/wissensgraph/library/migration.json",
+ "dokumente_gesamt": 17,
+ "kernaussagen_gesamt": 10,
+ "mit_kernaussagen": 5,
+ "aliase": [
+  "migrieren",
+  "Ablösung",
+  "migriert",
+  "Umstieg"
+ ],
+ "einordnung": "Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch. Das Source-System der Migration hatte über 600 SQL-Tabellen. Das neu gebaute Warehouse hatte am Ende über 150 SQL-Tabellen im Gold-Layer.",
+ "nachbarn": [
+  {
+   "id": "tool:microsoft-fabric",
+   "name": "Microsoft Fabric",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 19,
+   "beleg": "",
+   "datei": "microsoft-fabric.md"
+  },
+  {
+   "id": "tool:power-bi",
+   "name": "Power BI",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 11,
+   "beleg": "",
+   "datei": "power-bi.md"
+  },
+  {
+   "id": "tool:warehouse",
+   "name": "Warehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 10,
+   "beleg": "",
+   "datei": "warehouse.md"
+  },
+  {
+   "id": "topic:lizenzen",
+   "name": "Lizenzen",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 8,
+   "beleg": "",
+   "datei": "lizenzen.md"
+  },
+  {
+   "id": "topic:reporting",
+   "name": "Reporting",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 7,
+   "beleg": "",
+   "datei": "reporting.md"
+  },
+  {
+   "id": "tool:premium",
+   "name": "Premium",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "premium.md"
+  },
+  {
+   "id": "tool:fabric-capacity",
+   "name": "Fabric Capacity",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "fabric-capacity.md"
+  },
+  {
+   "id": "tool:lakehouse",
+   "name": "Lakehouse",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 6,
+   "beleg": "",
+   "datei": "lakehouse.md"
+  },
+  {
+   "id": "tool:dataflow",
+   "name": "Dataflow",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "dataflow.md"
+  },
+  {
+   "id": "topic:visualisierung",
+   "name": "Visualisierung",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "visualisierung.md"
+  },
+  {
+   "id": "tool:sql",
+   "name": "SQL",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "sql.md"
+  },
+  {
+   "id": "tool:excel",
+   "name": "Excel",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "excel.md"
+  },
+  {
+   "id": "topic:refresh",
+   "name": "Refresh",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "refresh.md"
+  },
+  {
+   "id": "tool:data-pipeline",
+   "name": "Data Pipeline",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 5,
+   "beleg": "",
+   "datei": "data-pipeline.md"
+  },
+  {
+   "id": "topic:projektmanagement",
+   "name": "Projektmanagement",
+   "kantentyp": "ko-vorkommen",
+   "belastbarkeit": "Heuristik, gezählt",
+   "gemeinsame_segmente": 4,
+   "beleg": "",
+   "datei": "projektmanagement.md"
+  }
+ ],
+ "kernaussagen": [
+  {
+   "typ": "Empfehlung",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 8,
+   "zeit": "00:08",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=8s",
+   "aussage": "Der Notebook-Aufruf eignet sich, um nach dem Hochladen von On-Premises-Daten Richtung Fabric direkt eine Weiterverarbeitung anzustoßen."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "SSIS Integration Services: Microsoft Fabric Notebook per REST API starten",
+   "dokument_id": "yt:NvtZ-ehiTrg",
+   "sekunde": 383,
+   "zeit": "06:23",
+   "url": "https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=383s",
+   "aussage": "Die vorgestellte Lösung ermöglicht es, Daten per SSIS von einer lokalen Umgebung nach Fabric zu bringen und anschließend automatisiert per Notebook zu importieren."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Push statt Pull: So bringst du On-Prem-Daten mit SSIS nach Microsoft Fabric | Fabric Tutorial",
+   "dokument_id": "yt:5HhNQZlB-1E",
+   "sekunde": 8,
+   "zeit": "00:08",
+   "url": "https://www.youtube.com/watch?v=5HhNQZlB-1E&t=8s",
+   "aussage": "Statt Daten per Pull aus Fabric abzuholen, kann man vorhandene lokale Infrastruktur nutzen, um Daten per Push Richtung Fabric zu bringen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 213,
+   "zeit": "03:33",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=213s",
+   "aussage": "Microsoft hat sich entschieden, DataMarts abzuloesen, weil deren Mehrwert gegenueber Fabric mit Warehouse und Dataflows Gen 2 in der Community zunehmend infrage gestellt wurde."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2025 Q3",
+   "dokument_id": "yt:lZvpCBMKASM",
+   "sekunde": 331,
+   "zeit": "05:31",
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=331s",
+   "aussage": "Fuer kleinere Kunden, die DataMarts bisher ohne Premium Per User genutzt haben, lohnt sich beim Umstieg schon eine kleine F2-Kapazitaet."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 552,
+   "zeit": "09:12",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=552s",
+   "aussage": "Das Source-System der Migration hatte über 600 SQL-Tabellen."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 553,
+   "zeit": "09:13",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=553s",
+   "aussage": "Das neu gebaute Warehouse hatte am Ende über 150 SQL-Tabellen im Gold-Layer."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 937,
+   "zeit": "15:37",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=937s",
+   "aussage": "Der Migration Accelerator in der Fabric Toolbox macht Abhängigkeiten von Dataflow Gen 1 sichtbar, migriert sie aber nicht automatisch."
+  },
+  {
+   "typ": "Fakt",
+   "dokument": "600 SQL-Tabellen in Fabric",
+   "dokument_id": "yt:RtUiF1J5XEg",
+   "sekunde": 954,
+   "zeit": "15:54",
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=954s",
+   "aussage": "Der Kunde des Migrationsprojekts wollte möglichst wenig an der bestehenden ETL-Logik ändern, um alte und neue Lösung eins zu eins vergleichen zu können."
+  },
+  {
+   "typ": "Empfehlung",
+   "dokument": "Fabric & Power BI Quarterly · 2026-2",
+   "dokument_id": "yt:pTTYySb0Cyg",
+   "sekunde": 1212,
+   "zeit": "20:12",
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1212s",
+   "aussage": "Es wird empfohlen, keine neuen Dataflows Gen 1 mehr anzulegen."
+  }
+ ],
+ "dokumente": [
+  {
+   "id": "yt:pTTYySb0Cyg",
+   "titel": "Fabric & Power BI Quarterly · 2026-2",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.189,
+   "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg",
+   "sprungmarken": [
+    {
+     "label": "06:02",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=362s",
+     "sekunde": 362
+    },
+    {
+     "label": "14:21",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=861s",
+     "sekunde": 861
+    },
+    {
+     "label": "15:38",
+     "url": "https://www.youtube.com/watch?v=pTTYySb0Cyg&t=938s",
+     "sekunde": 938
+    }
+   ]
+  },
+  {
+   "id": "yt:3-hXnNLKnAw",
+   "titel": "Automatisierung gewinnt | Daten-WG Podcast mit Reinhard Mense",
+   "datum": "2026-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw",
+   "sprungmarken": [
+    {
+     "label": "04:39",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=279s",
+     "sekunde": 279
+    },
+    {
+     "label": "35:32",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2132s",
+     "sekunde": 2132
+    },
+    {
+     "label": "37:30",
+     "url": "https://www.youtube.com/watch?v=3-hXnNLKnAw&t=2250s",
+     "sekunde": 2250
+    }
+   ]
+  },
+  {
+   "id": "yt:RtUiF1J5XEg",
+   "titel": "600 SQL-Tabellen in Fabric",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.125,
+   "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg",
+   "sprungmarken": [
+    {
+     "label": "07:50",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=470s",
+     "sekunde": 470
+    },
+    {
+     "label": "09:31",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=571s",
+     "sekunde": 571
+    },
+    {
+     "label": "18:22",
+     "url": "https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1102s",
+     "sekunde": 1102
+    }
+   ]
+  },
+  {
+   "id": "yt:zkfdfc5fo-E",
+   "titel": "Power BI Update Mai 2025",
+   "datum": "2025-05-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.071,
+   "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E",
+   "sprungmarken": [
+    {
+     "label": "14:21",
+     "url": "https://www.youtube.com/watch?v=zkfdfc5fo-E&t=861s",
+     "sekunde": 861
+    }
+   ]
+  },
+  {
+   "id": "yt:Z8vpSSOmG24",
+   "titel": "Microsoft Power BI Einführung | Florian Wiefel | Hans-Ulrik Harnisch | M365 Summit Mai 2022",
+   "datum": "2022-06-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.067,
+   "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24",
+   "sprungmarken": [
+    {
+     "label": "36:09",
+     "url": "https://www.youtube.com/watch?v=Z8vpSSOmG24&t=2169s",
+     "sekunde": 2169
+    }
+   ]
+  },
+  {
+   "id": "page:fabric_einsteiger_guide_v1",
+   "titel": "Microsoft Fabric — Einsteiger-Guide",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.062,
+   "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Was%20Fabric%20nicht%20ersetzt",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Die%20wichtigsten%20Regeln",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/fabric_einsteiger_guide_v1.html#:~:text=Sicherheit%20%26%20Kosten",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:_C69B0i-QQA",
+   "titel": "Was machen die eigentlich? | Daten-WG Podcast mit Alexander Korn und Lukasz Obst",
+   "datum": "2026-08-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.062,
+   "url": "https://www.youtube.com/watch?v=_C69B0i-QQA",
+   "sprungmarken": [
+    {
+     "label": "06:32",
+     "url": "https://www.youtube.com/watch?v=_C69B0i-QQA&t=392s",
+     "sekunde": 392
+    }
+   ]
+  },
+  {
+   "id": "yt:lZvpCBMKASM",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q3",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.056,
+   "url": "https://www.youtube.com/watch?v=lZvpCBMKASM",
+   "sprungmarken": [
+    {
+     "label": "03:02",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=182s",
+     "sekunde": 182
+    },
+    {
+     "label": "52:08",
+     "url": "https://www.youtube.com/watch?v=lZvpCBMKASM&t=3128s",
+     "sekunde": 3128
+    }
+   ]
+  },
+  {
+   "id": "yt:vd1r02bj9Qk",
+   "titel": "Power BI vs. Qlik",
+   "datum": "2026-01-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.053,
+   "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk",
+   "sprungmarken": [
+    {
+     "label": "08:52",
+     "url": "https://www.youtube.com/watch?v=vd1r02bj9Qk&t=532s",
+     "sekunde": 532
+    }
+   ]
+  },
+  {
+   "id": "yt:SSUpe1JON9Y",
+   "titel": "The Power of User Groups",
+   "datum": "2025-10-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y",
+   "sprungmarken": [
+    {
+     "label": "16:39",
+     "url": "https://www.youtube.com/watch?v=SSUpe1JON9Y&t=999s",
+     "sekunde": 999
+    }
+   ]
+  },
+  {
+   "id": "yt:KwySyTxW_EI",
+   "titel": "The Day After Tomorrow – Nach der Einführung geht es erst richtig los | Power BI Summit 2023",
+   "datum": "2023-03-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.05,
+   "url": "https://www.youtube.com/watch?v=KwySyTxW_EI",
+   "sprungmarken": [
+    {
+     "label": "42:08",
+     "url": "https://www.youtube.com/watch?v=KwySyTxW_EI&t=2528s",
+     "sekunde": 2528
+    }
+   ]
+  },
+  {
+   "id": "page:visual-standards-rechner",
+   "titel": "Visual-Standards-Rechner: Paid, Flexibel oder MacGyver?",
+   "datum": "2026-09-15",
+   "abdeckung": "nur-text",
+   "anteil": 0.045,
+   "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=v0.12%20%28Paket%20C1%29%3A%20der%20Rechenkern%20rechnet%20Jahr%20fuer%20Jahr",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/visual-standards-rechner.html#:~:text=Klickpfad%20im%20Detail",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:6WhWLcuFvZE",
+   "titel": "Prinzipien oder Paragrafen",
+   "datum": "2026-02-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.037,
+   "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE",
+   "sprungmarken": [
+    {
+     "label": "03:56",
+     "url": "https://www.youtube.com/watch?v=6WhWLcuFvZE&t=236s",
+     "sekunde": 236
+    }
+   ]
+  },
+  {
+   "id": "yt:B0_sSJQVG8w",
+   "titel": "GxP Talk - Testing im GxP-Umfeld",
+   "datum": "2026-04-01",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.029,
+   "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w",
+   "sprungmarken": [
+    {
+     "label": "29:01",
+     "url": "https://www.youtube.com/watch?v=B0_sSJQVG8w&t=1741s",
+     "sekunde": 1741
+    }
+   ]
+  },
+  {
+   "id": "yt:9TsHkV8sIRo",
+   "titel": "Fabric & Power BI Quarterly · 2025 Q4",
+   "datum": "",
+   "abdeckung": "kernaussagen+zeitstempel",
+   "anteil": 0.024,
+   "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo",
+   "sprungmarken": [
+    {
+     "label": "19:29",
+     "url": "https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1169s",
+     "sekunde": 1169
+    }
+   ]
+  },
+  {
+   "id": "page:power_bi_einsteiger_guide_v4",
+   "titel": "Power BI von A bis Z — Einsteiger-Guide (End-to-End)",
+   "datum": "2026-08-31",
+   "abdeckung": "nur-text",
+   "anteil": 0.009,
+   "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html",
+   "sprungmarken": [
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Soll%20man%20von%20Power%20BI%20Premium%20auf%20Fabric%20umstellen%3F",
+     "sekunde": null
+    },
+    {
+     "label": "Abschnitt",
+     "url": "https://datenwgknowledgekitchen.com/power_bi_einsteiger_guide_v4.html#:~:text=Surrogate%20Keys%20vor%20Business%20Keys",
+     "sekunde": null
+    }
+   ]
+  },
+  {
+   "id": "yt:s3CveEVoDvo",
+   "titel": "Von Patronen zu Prozessen (nur Ton)",
+   "datum": "2025-07-01",
+   "abdeckung": "nur-zeitstempel",
+   "anteil": 0.0,
+   "url": "https://www.youtube.com/watch?v=s3CveEVoDvo",
+   "sprungmarken": []
+  }
+ ],
+ "hinweise": [
+  "Kernaussagen und Beziehungen sind maschinell erzeugt und nicht redigiert. Heuristische Kanten zählen Erwähnungen, keine Bedeutung. Bei Widersprüchen gilt das Video."
+ ],
+ "wiki_url": "https://datenwgknowledgekitchen.com/wissensgraph/#n=topic%3Amigration",
+ "graph_url": "https://datenwgknowledgekitchen.com/wissensgraph/graph.html#n=topic%3Amigration&f=topic%3Amigration"
+}

@@ -1,0 +1,5 @@
+# Die Golden-Dateien schreibt `tests/run_tests.py --update` immer mit LF.
+# Ohne diese Regel checkt Git die .sh/.ps1 auf Windows mit CRLF aus, und jeder
+# --update-Lauf meldet sie als geaendert, obwohl sich inhaltlich nichts tut.
+*.sh  text eol=lf
+*.ps1 text eol=lf

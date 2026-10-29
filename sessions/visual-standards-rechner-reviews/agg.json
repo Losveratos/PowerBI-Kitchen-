@@ -1,0 +1,305 @@
+{
+ "n": 20,
+ "agg": {
+  "firstH": {
+   "paid": [
+    2.0,
+    4.0,
+    7.5
+   ],
+   "oss": [
+    4.5,
+    8.5,
+    14
+   ],
+   "deneb": [
+    7.0,
+    12,
+    18
+   ],
+   "core": [
+    10,
+    16,
+    27
+   ]
+  },
+  "reuseH": {
+   "paid": [
+    0.5,
+    1.0,
+    2.0
+   ],
+   "oss": [
+    1.0,
+    2.0,
+    3.5
+   ],
+   "deneb": [
+    1.0,
+    2.5,
+    4.5
+   ],
+   "core": [
+    2.0,
+    4.0,
+    6.5
+   ]
+  },
+  "setupH": {
+   "paid": [
+    18,
+    35,
+    55
+   ],
+   "oss": [
+    10,
+    22,
+    42
+   ],
+   "deneb": [
+    9.0,
+    18,
+    28
+   ],
+   "core": [
+    5.0,
+    14,
+    22
+   ]
+  },
+  "trainH": {
+   "paid": [
+    5.0,
+    8.5,
+    15
+   ],
+   "oss": [
+    8.0,
+    15,
+    26
+   ],
+   "deneb": [
+    20,
+    35,
+    58
+   ],
+   "core": [
+    18,
+    28,
+    43
+   ]
+  },
+  "lightH": {
+   "paid": [
+    0.5,
+    1.5,
+    3.0
+   ],
+   "oss": [
+    1.0,
+    2.0,
+    4.0
+   ],
+   "deneb": [
+    1.5,
+    2.75,
+    4.5
+   ],
+   "core": [
+    1.25,
+    3.0,
+    5.0
+   ]
+  },
+  "maint": {
+   "paid": [
+    6.0,
+    10,
+    18
+   ],
+   "oss": [
+    15,
+    26,
+    38
+   ],
+   "deneb": [
+    11,
+    19,
+    30
+   ],
+   "core": [
+    20,
+    34,
+    52
+   ]
+  },
+  "events": {
+   "paid": [
+    0.2,
+    1.0,
+    2.0
+   ],
+   "oss": [
+    1.0,
+    2.5,
+    4.0
+   ],
+   "deneb": [
+    1.0,
+    2.0,
+    3.0
+   ],
+   "core": [
+    2.0,
+    3.25,
+    5.25
+   ]
+  },
+  "fixH": {
+   "paid": [
+    1.0,
+    3.0,
+    5.5
+   ],
+   "oss": [
+    3.0,
+    7.0,
+    14
+   ],
+   "deneb": [
+    3.0,
+    6.5,
+    12
+   ],
+   "core": [
+    5.0,
+    9.5,
+    17
+   ]
+  },
+  "supH100": {
+   "paid": [
+    2.0,
+    4.0,
+    6.25
+   ],
+   "oss": [
+    3.0,
+    7.0,
+    12
+   ],
+   "deneb": [
+    3.0,
+    6.0,
+    10
+   ],
+   "core": [
+    5.0,
+    9.5,
+    16
+   ]
+  }
+ },
+ "experts": [
+  {
+   "id": "E01",
+   "profile": "Freelance-Power-BI-Consultant, DACH-Mittelstand, Zebra BI + Core Visuals",
+   "note": "Zebra-BI- und Core-Routine aus 30+ Reports drückt diese Zahlen, Deneb-Unerfahrenheit treibt dort Aufwand und Unsicherheit hoch."
+  },
+  {
+   "id": "E02",
+   "profile": "Senior Consultant BI-Beratung, Deneb-Spezialistin, Konzernkunden",
+   "note": "Die eigene Vega-Lite-Bibliothek drückt Deneb-Zahlen deutlich nach unten, Konzern-Governance treibt Paid-Setup nach oben."
+  },
+  {
+   "id": "E03",
+   "profile": "IBCS-zertifizierter Berater, Zebra BI/graphomate/Inforiver, misstraut Workarounds",
+   "note": "15 Jahre IBCS-Praxis heißt eingeschwungene Paid-Tools, aber Core-Workarounds werden konsequent mit Wartungs- und Risikoaufschlag bewertet."
+  },
+  {
+   "id": "E04",
+   "profile": "Power-BI-Trainer, Core Visuals + Deneb, 200+ Teilnehmende",
+   "note": "Aus 200+ Trainings-Teilnehmenden weiß ich: lightH für Deneb ist die kritische Stellschraube, Core-Visuals sind für Fachbereiche fehleranfälliger als gedacht."
+  },
+  {
+   "id": "E05",
+   "profile": "Controllerin im Maschinenbau (400 MA), 5 Jahre Power BI Selbstbau, Core Visuals + SVG-Measures, keine Custom Visuals erlaubt",
+   "note": "Ohne eigene Praxis bei paid/oss/deneb treibt vor allem die vermutete IT-Security-Freigabe die Unsicherheit; bei Core zählt die Bruchanfälligkeit der SVG-Measures bei PBI-Updates."
+  },
+  {
+   "id": "E06",
+   "profile": "Head of FP&A Konzern (12.000 MA), 10 Jahre, Zebra BI seit 3 Jahren mit 40 Erstellern",
+   "note": "Beim Paid-Ansatz kenne ich die Zahlen aus dem echten Konzern-Rollout, bei den anderen drei schätze ich über das zentrale BI-Team und damit vorsichtiger."
+  },
+  {
+   "id": "E07",
+   "profile": "BI-Teamlead Enterprise BI, 12 Jahre, zentrales Team, 200 Reports, Deneb für Sonderfälle, Core als Standard",
+   "note": "Ticket-Historie macht Core und Deneb präzise schätzbar, bei OSS treibt das Abandonment-Risiko Wartung und Breaking-Updates am stärksten nach oben."
+  },
+  {
+   "id": "E08",
+   "profile": "Power-BI-Center-of-Excellence-Lead, 8 Jahre, 120 Fachbereichs-Ersteller, Managed Self-Service",
+   "note": "Governance-Fähigkeit im Self-Service-Modell dominiert: paid und core sind erprobt und schlank, OSS und Deneb kosten das COE zusätzlichen Kontroll- und Betreuungsaufwand."
+  },
+  {
+   "id": "E09",
+   "profile": "Custom-Visual-Entwickler (TypeScript, Power BI Visuals SDK), OSS-Maintainer",
+   "note": "OSS-Zertifizierung und gelebte SDK-Breaking-Changes treiben bei mir setupH, events und fixH für OSS am stärksten nach oben."
+  },
+  {
+   "id": "E10",
+   "profile": "Deneb-Community-MVP, Vega-Lite-Templateautor",
+   "note": "Wiederverwendung von Templates drückt reuseH/firstH bei Deneb stark, während ich die Vega-Lite-Lernkurve bewusst nicht schönrechne."
+  },
+  {
+   "id": "E11",
+   "profile": "DAX-Spezialist, SVG-Measures/DAX-UDFs für IBCS in Matrix und Karten",
+   "note": "Die 175-Measures-Falle und DAX-UDF-Fragilität treiben maint und trainH bei Core am stärksten, reuseH bleibt dank Measure-Bibliothek niedrig."
+  },
+  {
+   "id": "E12",
+   "profile": "Data Engineer / Fabric-Architekt, Betriebs- und Ticket-Perspektive",
+   "note": "Aus Ticket-/Betriebssicht treiben Governance-Freigabe (setupH) und laufender Support (supH100, maint) bei OSS und Core die Zahlen am stärksten, nicht der Erstaufbau."
+  },
+  {
+   "id": "E13",
+   "profile": "Presales-Engineer Paid-Visual-Hersteller",
+   "note": "Paid-Zahlen stammen aus 80+ realen Onboardings und sind bewusst optimistisch, weil Eigenentwicklung dort fast vollständig entfällt."
+  },
+  {
+   "id": "E14",
+   "profile": "Graphomate/Inforiver-Implementierungspartner",
+   "note": "Konzern-Rollouts mit Security-Review und Multi-BU-Abstimmung treiben Setup und Training bei Paid weit über Demo-Niveau."
+  },
+  {
+   "id": "E15",
+   "profile": "Power-BI-Tenant-Admin und Governance-Verantwortliche",
+   "note": "Externe Visuals brauchen volle Security-/Lizenz-Freigabe im Tenant, während native Deneb/Core-Visuals ohne diese Hürde starten, dafür bei Updates und Tickets stärker durchschlagen."
+  },
+  {
+   "id": "E16",
+   "profile": "Revisor / Interne Revision mit BI-Schwerpunkt",
+   "note": "Prüfungen zeigen, dass undokumentierte DAX/SVG-Workarounds bei Core die höchste Wartungsquote und die größten Nachvollziehbarkeits-Lücken erzeugen."
+  },
+  {
+   "id": "E17",
+   "profile": "Werkscontroller Produktion, Report Server on-prem, Core Visuals only",
+   "note": "Eigene Unsicherheit bei Deneb und Paid treibt die Bandbreiten nach oben, nur die Core-Zahlen stützen sich auf echte eigene Erfahrung."
+  },
+  {
+   "id": "E18",
+   "profile": "Business Analystin Vertriebscontrolling, Deneb-Fan, Self-Service-Kultur",
+   "note": "Deneb-Routine und JSON-Vorwissen drücken Aufwand und Schulung bei Deneb deutlich, Self-Service-Kultur erschwert dagegen den Paid-Tool-Rollout."
+  },
+  {
+   "id": "E19",
+   "profile": "Projektleiterin BI-Einführung, 3 Standardisierungsprojekte inkl. Nachkalkulation",
+   "note": "Nachkalkulationen der drei Standardisierungsprojekte zeigen systematisch höhere Wartungs- und Setup-Aufwände als initial geschätzt, besonders bei Core-Workarounds."
+  },
+  {
+   "id": "E20",
+   "profile": "Skeptischer CFO-Stabsmitarbeiter, Excel-Hintergrund, korrigiert Beraterschätzungen konservativ",
+   "note": "Konservative Aufschläge, weil Beraterzahlen in der Vergangenheit regelmäßig nach oben korrigiert werden mussten — v. a. laufende Kosten werden meist zu niedrig angesetzt."
+  }
+ ]
+}

@@ -1,0 +1,104 @@
+{
+  "version": 2,
+  "name": "mockup · Projekt & GuV",
+  "root": "Test.Report",
+  "stop_on_error": false,
+  "steps": [
+    {
+      "id": "format",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_footer_text.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Stand: 5. Werktag · Quelle: DWH",
+        "text.fontSize": 9,
+        "text.fontColor": "#6B7280",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-2",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_header_bg.Visual",
+      "set": {
+        "shape.tileShape": "rectangle",
+        "fill.show": true,
+        "fill.fillColor": "#123B4F",
+        "outline.show": false,
+        "position.z": 0
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-3",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_header_subtitle.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Projekt und Ergebnis",
+        "text.fontSize": 10,
+        "text.fontColor": "#C8CDD4",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-4",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_header_title.Visual",
+      "set": {
+        "fill.show": false,
+        "outline.show": false,
+        "text.text": "Rollout 2026",
+        "text.fontSize": 16,
+        "text.fontColor": "#F7FAFC",
+        "text.horizontalAlignment": "left",
+        "text.verticalAlignment": "middle",
+        "text.bold": true,
+        "position.z": 4
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-5",
+      "op": "set",
+      "select": "Projekt & GuV.Page/chrome_nav_1.Visual",
+      "set": {
+        "fill.show": true,
+        "fill.fillColor": "#E07B39",
+        "text.fontColor": "#FFFFFF",
+        "outline.show": false,
+        "text.text": "Projekt & GuV",
+        "text.fontSize": 10,
+        "text.horizontalAlignment": "center",
+        "text.verticalAlignment": "middle",
+        "position.z": 5
+      },
+      "continue_on_error": true
+    },
+    {
+      "id": "format-6",
+      "op": "set",
+      "select": "Projekt & GuV.Page/mk_card1.Visual",
+      "set": {
+        "background.show": true,
+        "background.color": "#FFFFFF",
+        "background.transparency": 0,
+        "border.show": true,
+        "border.color": "#E5E7EB",
+        "border.width": 1,
+        "dropShadow.show": false,
+        "border.radius": 8,
+        "position.z": 10
+      },
+      "continue_on_error": true
+    }
+  ]
+}
