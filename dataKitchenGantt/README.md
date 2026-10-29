@@ -119,6 +119,9 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
   stehen ausgegraut im Menü und sagen, welche Rolle fehlt. Alles folgt Slicern
   und Crossfiltern; bleibt nichts übrig, erscheint ein Hinweis statt einer
   leeren Fläche.
+  Die **Startansicht** *Alle Vorgänge, zugeklappt* (seit 2.2) öffnet mit allen
+  Gruppen zugeklappt — mit Rolle *Projekt* also ein Summenbalken je Projekt;
+  ⊞ oder Klick auf die Zeile klappt auf.
 
 ### Im Plan
 
@@ -143,7 +146,12 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
   den Punkt seines Ist-Fortschritts: Knick nach links = Rückstand, nach rechts = Vorsprung.
 - **Anordnungsbeziehungen** — Pfeile je Typ: EA verlässt den Vorgänger am Ende
   und trifft den Nachfolger am Anfang, AA Anfang→Anfang, EE Ende→Ende, AE Anfang→Ende.
-- **Basisplan** — Plan als Outline unter dem Ist-Balken, Δ-Spalte, Verzug rot.
+- **Basisplan** — wie MS Project („Balkendiagramm: Überwachung“): oben der farbige
+  **Aktuell**-Balken, direkt darunter der grau gefüllte **Basisplan**-Balken;
+  Meilensteine mit abweichendem Plan zeigen zusätzlich eine kleinere graue Raute.
+  Legende „Aktuell / Basisplan“ in der Leiste, Tooltip mit *Aktuell* und
+  *Basisplan*, Spalte *Δ Basisplan*, Verzug rot. Das „Δ +n t“ an Balken und
+  Rauten ist abschaltbar (*Basisplan → Δ an Balken und Meilensteinen*).
 - Vorgänger als Nummern, aber Rolle *Nr.* nicht gebunden? Die Infozeile sagt es.
 
 ## Hierarchie
@@ -177,11 +185,11 @@ Reihenfolge nach Häufigkeit der Nutzung; jede Karte hat „Auf Standard zurück
 
 | Karte | Gruppen und Inhalt |
 | --- | --- |
-| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Alle / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
+| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Alle / Alle zugeklappt — je Projekt ein Balken / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
 | **Terminplanung** | *Kritischer Pfad*: hervorheben · Puffer als Linie — *Termine*: Überfällige markieren · Stichtage · Fortschrittslinie (aus) — *Kalender*: **Dauer in Arbeitstagen** (aus) · **Feiertage** (`01.01.2026, 03.04.2026` — wirken auf Dauer, Δ, Puffer, kritischen Pfad und die Schattierung) |
 | **Balken** | Balkenfarbe nach Zweig / Status / kritischem Pfad / Feld „Farbe nach" · Legende |
 | **Tabellenspalten** | PSP-Code · Start · Ende · Tage · Puffer · Stichtag · Status · Fortschritt · Wer · Zusatzspalten · **Lange Namen zweizeilig**. Spalten ohne Daten erscheinen nicht; bei Platzmangel weichen sie in fester Reihenfolge |
-| **Basisplan** | Hauptschalter · Δ-Spalte · Verzug-Zeilen rot |
+| **Basisplan** | Hauptschalter (Basisplan-Balken, grau gefüllt unter dem farbigen Aktuell-Balken, wie MS Project „Überwachung“) · Legende Aktuell/Basisplan · Δ an Balken und Meilensteinen · Δ-Spalte · Verzug-Zeilen rot |
 | **Meilensteine** | auf zugeklappten Gruppen · Datum · Name · Beschriftung auf zugeklappten Zeilen · Ende = Start als Meilenstein |
 | **Tooltip** | Hauptschalter, zeilenweise inkl. „Kritisch, Puffer, Stichtag, überfällig" |
 | **Beschriftungen** | Überschrift der Namensspalte, Projekt und Phase/Ebene in Einzahl/Mehrzahl |
@@ -223,14 +231,16 @@ npm run harness        # kompiliert src/gantt.ts nach test/ für den Browser-Tes
 Testharness `test/harness.html`. Samples: Standard „BI-Rollout 2026" ·
 **`?msp=1`** Plan wie aus MS Project (PSP-Code, Nr., Vorgänger mit Typ/Zeitabstand,
 Sammelvorgänge, Stichtage, Feiertage, Statusdatum 16.03.26) · `?ebenen=1`
-mehrstufig über Ebenen-Felder · `?proj=1` Portfolio mit zwei Projekten.
+mehrstufig über Ebenen-Felder · `?proj=1` Portfolio mit zwei Projekten ·
+`?nproj=5` Portfolio aus n Projekten, alle mit Basisplan und wachsendem Verzug ·
+`?tip=<Name>` öffnet den Tooltip eines Balkens (für Screenshots).
 
-Parameter: `?ansicht=haupt|kritisch|ueberfaellig` · `?fl=1` Fortschrittslinie ·
+Parameter: `?ansicht=projekte|haupt|kritisch|ueberfaellig` · `?fl=1` Fortschrittslinie ·
 `?at=1` Arbeitstage · `?fei=…` Feiertage (leer = keine) · `?farbe=status|kritisch|feld` ·
 `?legende=0` · `?zweizeilig=1` · `?kritrolle=1` (Kritisch aus der Rolle statt berechnet) ·
 `?krit=0` `?ueber=0` `?puffer=0` `?stich=0` · `?status=2026-03-16` · `?dark=1` ·
 `?ibcs=1` · `?tw=430` · `?deps=0` · `?wochenenden=0` · `?heute=0` · `?plan=0` ·
-`?delta=0` · `?verzug=0` · `?msnamen=0` · `?mslabel=nurName|beides` · `?gnamen=0` ·
+`?delta=0` · `?pleg=0` (Legende Aktuell/Basisplan) · `?dlbl=0` (kein Δ an Balken) · `?verzug=0` · `?msnamen=0` · `?mslabel=nurName|beides` · `?gnamen=0` ·
 `?kopf=0` · `?tooltip=0` · `?tipzeilen=dauer,wer` · `?zeinheiten=Tage,Monate` ·
 `?nurhaupt=1` · `?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete`.
 

@@ -41,6 +41,9 @@ const TAGE_EINHEIT_ITEMS: powerbi.IEnumMember[] = [
 
 const ANSICHT_ITEMS: powerbi.IEnumMember[] = [
     { value: "alle", displayName: "Alle Vorgänge" },
+    // 2.2: wie "alle", aber jede Gruppe startet zugeklappt — mit Projekt-Rolle
+    // also ein Summenbalken je Projekt (Portfolio-Übersicht)
+    { value: "projekte", displayName: "Alle Vorgänge, zugeklappt (je Projekt ein Balken)" },
     { value: "haupt", displayName: "Nur Hauptmeilensteine" },
     { value: "kritisch", displayName: "Nur kritischer Pfad" },
     { value: "ueberfaellig", displayName: "Nur überfällige" }
@@ -68,7 +71,7 @@ class DarstellungCardSettings extends FormattingSettingsCompositeCard {
     // „Ansicht ▾“ in der Leiste; die gewinnt, bis dieser Wert selbst wechselt.
     startAnsicht = new formattingSettings.ItemDropdown({
         name: "startAnsicht", displayName: "Startansicht", items: ANSICHT_ITEMS, value: ANSICHT_ITEMS[0],
-        description: "Womit das Visual startet. Leser wechseln die Ansicht über „Ansicht ▾“ in der Leiste."
+        description: "Womit das Visual startet. „zugeklappt“ zeigt je Projekt (ohne Projekt: je oberster Ebene) einen Summenbalken. Leser wechseln die Ansicht über „Ansicht ▾“ in der Leiste."
     });
     ibcs = schalter("ibcs", "IBCS-inspiriertes Styling", false, "Monochrom, weißer Hintergrund, Plan als Rahmen — nach den International Business Communication Standards.");
     einrichtung = schalter("einrichtung", "Einrichtungshilfe", true,
@@ -200,8 +203,9 @@ class TooltipCardSettings extends FormattingSettingsCard {
     // Hauptschalter im Kartenkopf: aus = gar kein Tooltip
     anzeigen = schalter("anzeigen", "Tooltip anzeigen", true);
 
-    zeitraum = schalter("zeitraum", "Zeitraum", true);
-    plan = schalter("plan", "Plan (Basisplan)", true);
+    // Bezeichnungen wie im Tooltip selbst: „Aktuell“ = Ist-/Prognosetermine, „Basisplan“ = Plan-Start/-Ende
+    zeitraum = schalter("zeitraum", "Aktuell (Zeitraum)", true);
+    plan = schalter("plan", "Basisplan", true);
     abweichung = schalter("abweichung", "Abweichung", true);
     dauer = schalter("dauer", "Dauer", true);
     status = schalter("status", "Status", true);
@@ -231,14 +235,22 @@ class ZeiteinheitenCardSettings extends FormattingSettingsCard {
 
 class BasisplanCardSettings extends FormattingSettingsCard {
     // Hauptschalter im Kartenkopf
-    anzeigen = schalter("anzeigen", "Plan-Balken anzeigen", true);
+    anzeigen = schalter("anzeigen", "Basisplan-Balken anzeigen", true);
+    // 2.2: Legende „Aktuell“ / „Basisplan“ in der Leiste (nur mit Basisplan-Daten)
+    legende = schalter("legende", "Legende Aktuell/Basisplan", true,
+        "Zeigt in der Leiste „Aktuell“ (farbiger Balken) und „Basisplan“ (grauer Balken darunter), sobald Basisplan-Termine gebunden sind.");
+    // 2.2: „Δ +n t“ hinter Balken- und Meilensteinbeschriftung; der graue
+    // Basisplan-Balken, Tooltip und Δ-Spalte bleiben davon unberührt
+    deltaBeschriftung = schalter("deltaBeschriftung", "Δ an Balken und Meilensteinen", true,
+        "Hängt die Abweichung „Δ +n t“ an die Beschriftung. Aus = nur der graue Basisplan-Balken; Tooltip und Δ-Spalte zeigen sie weiter.");
     deltaSpalte = schalter("deltaSpalte", "Δ-Spalte in der Tabelle", true);
     verzugZeilen = schalter("verzugZeilen", "Verzug-Zeilen rot hinterlegen", true);
 
     name: string = "basisplan";
-    displayName: string = "Basisplan (Plan vs. Ist)";
+    displayName: string = "Basisplan (Aktuell vs. Basisplan)";
+    description: string = "Grauer Basisplan-Balken unter dem farbigen Aktuell-Balken, wie die Überwachungsansicht in MS Project.";
     topLevelSlice: formattingSettings.SimpleSlice = this.anzeigen;
-    slices: Array<FormattingSettingsSlice> = [this.deltaSpalte, this.verzugZeilen];
+    slices: Array<FormattingSettingsSlice> = [this.legende, this.deltaBeschriftung, this.deltaSpalte, this.verzugZeilen];
 }
 
 class SchriftCardSettings extends FormattingSettingsCard {

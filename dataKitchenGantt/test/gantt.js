@@ -181,6 +181,12 @@ function okl(l, c, h, a) {
 function hexA(hex, alpha) {
     return hex + Math.round(alpha * 255).toString(16).padStart(2, '0').toUpperCase();
 }
+// Basisplan wie in MS Project ("Balkendiagramm: Überwachung"): GEFÜLLTER grauer
+// Balken unter dem farbigen Aktuell-Balken. Grau aus dem Theme (sub), im
+// Dunkel-Theme etwas deckender, damit er auf #1E2023 nicht absäuft.
+function planFarbe(t, ibcs) {
+    return hexA(t.sub, ibcs ? 0.6 : (t.panel === '#1E2023' ? 0.7 : 0.6));
+}
 function fmtDate(ms) {
     const d = new Date(ms);
     return ('0' + d.getUTCDate()).slice(-2) + '.' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '.' + String(d.getUTCFullYear()).slice(2);
@@ -226,7 +232,7 @@ const ALL_COLS = [
     { key: 'days', label: 'Tage', w: 46 },
     { key: 'puffer', label: 'Puffer', w: 54 },
     { key: 'stichtag', label: 'Stichtag', w: 74 },
-    { key: 'delta', label: 'Δ Plan', w: 62 },
+    { key: 'delta', label: 'Δ Basisplan', w: 84 },
     { key: 'status', label: 'Status', w: 100 },
     { key: 'pct', label: 'Fortschritt', w: 110 },
     { key: 'ow', label: 'Wer', w: 60 }
@@ -269,6 +275,10 @@ export class GanttRenderer {
     // Startstellung — die Leiste gewinnt, bis die Option selbst wechselt.
     ansicht = 'alle';
     lastOptAnsicht = null;
+    // Startansicht "projekte": Gruppen, deren Klappzustand noch nie gesetzt
+    // wurde, starten zugeklappt — auch solche, die erst ein Filterwechsel bringt.
+    // Was der Leser selbst auf-/zuklappt, bleibt so (Eintrag in collapsed).
+    startZu = false;
     gezeigtN = 0; // Vorgänge, die die aktuelle Ansicht zeigt (Kopfzeile)
     // Planungsanalyse (Netzplan, überfällig) — je Datenstand einmal, s. analyse()
     ana = null;
@@ -1478,6 +1488,11 @@ export class GanttRenderer {
         // erreichen — deshalb ALLE Knoten sammeln, nicht nur die gerade sichtbaren.
         this.projKeys = projNodes.map(n => n.ck);
         this.phaseKeys = grpNodes.map(n => n.ck);
+        // Startansicht "zugeklappt": nur Gruppen ohne eigenen Klappzustand
+        if (this.startZu && this.ansicht === 'alle') {
+            this.nodeTiefe.forEach((_, ck) => { if (!(ck in this.collapsed))
+                this.collapsed[ck] = true; });
+        }
         const emit = (n, depth, hex) => {
             n.children.forEach(ch => {
                 if (ch.node) {
@@ -1643,7 +1658,11 @@ export class GanttRenderer {
         const optAnsicht = o.startAnsicht && o.startAnsicht !== 'alle' ? o.startAnsicht : (o.nurHaupt === true ? 'haupt' : 'alle');
         if (this.lastOptAnsicht !== optAnsicht) {
             this.lastOptAnsicht = optAnsicht;
-            this.wechsleAnsicht(optAnsicht);
+            this.startZu = optAnsicht === 'projekte';
+            // 'projekte' ist Ansicht "alle" — wechsleAnsicht() setzt collapsed
+            // dann nicht zurück, wenn schon "alle" aktiv war; hier ausdrücklich
+            if (!this.wechsleAnsicht(optAnsicht) && this.startZu)
+                this.collapsed = {};
         }
         this.panel.style.background = t.panel;
         this.panel.style.border = '1px solid ' + t.border;
@@ -1681,7 +1700,9 @@ export class GanttRenderer {
         const sig = this.datenVersion + '|' + this.optVersion + '|' + this.ansicht + '|' + dark + '|' + o.ibcs + '|' + zuSig;
         if (!this.itemsCache || sig !== this.itemsSig) {
             this.itemsCache = this.buildItems(dark, o.ibcs);
-            this.itemsSig = sig;
+            // buildItems() klappt bei startZu neue Gruppen zu → Signatur danach bilden
+            const zuSig2 = Object.keys(this.collapsed).filter(k => this.collapsed[k]).join('');
+            this.itemsSig = zuSig2 === zuSig ? sig : this.datenVersion + '|' + this.optVersion + '|' + this.ansicht + '|' + dark + '|' + o.ibcs + '|' + zuSig2;
         }
         const items = this.itemsCache;
         this.lastItems = items;
@@ -1842,8 +1863,26 @@ export class GanttRenderer {
                 this.toolbarAlle.appendChild(b);
             }
         }
-        // ---- Legende zur Balkenfarbe (nur, wenn nicht nach Zweig gefärbt wird)
+        // ---- Legende: zuerst Aktuell/Basisplan (2.2, sobald Basisplan-Daten da
+        // sind), danach die Balkenfarbe (nur, wenn nicht nach Zweig gefärbt wird)
         this.legendeHost.replaceChildren();
+        if (o && o.basisplan !== false && o.basisplanLegende !== false && this.hasPlan) {
+            const ibcs = !!o.ibcs;
+            const aktFarbe = ibcs ? IBCS_AC : (t.panel === '#1E2023' ? PHASE_HEX_DARK[0] : PHASE_HEX_LIGHT[0]);
+            const eintrag = (label, sw, titel) => {
+                const e = el('div', 'display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;color:' + t.sub);
+                e.setAttribute('title', titel);
+                e.appendChild(sw);
+                e.appendChild(el('span', '', label));
+                this.legendeHost.appendChild(e);
+            };
+            // Balkenförmige Muster (breiter als hoch), damit sie sich von den
+            // quadratischen Farbfeldern der Balkenfarbe abheben
+            eintrag('Aktuell', el('div', 'width:16px;height:8px;border-radius:' + (ibcs ? '0' : '2px') + ';flex-shrink:0;background:' + aktFarbe), 'Farbiger Balken = aktueller Terminplan (Start/Ende)');
+            eintrag('Basisplan', el('div', 'width:16px;height:5px;border-radius:' + (ibcs ? '0' : '2px') + ';flex-shrink:0;background:' + planFarbe(t, ibcs)), 'Grauer Balken darunter = Basisplan (Plan-Start/Plan-Ende)');
+            if (o.legende !== false && this.legende.length)
+                this.legendeHost.appendChild(el('div', 'width:1px;height:12px;flex-shrink:0;background:' + t.border));
+        }
         if ((!o || o.legende !== false) && this.legende.length) {
             const max = 6;
             this.legende.slice(0, max).forEach(l => {
@@ -1976,7 +2015,7 @@ export class GanttRenderer {
             { ok: !!r.deps && !nrFehlt, pflicht: false, rolle: nrFehlt ? 'Nr. (zu den Vorgängern)' : 'Vorgänger (+ Nr.)', nutzen: 'Pfeile, kritischer Pfad, Puffer' },
             { ok: !!r.progress, pflicht: false, rolle: 'Fortschritt', nutzen: 'Fortschrittsbalken, überfällige Vorgänge, Fortschrittslinie' },
             { ok: !!r.statusDate, pflicht: false, rolle: 'Statusdatum', nutzen: 'Berichtsstand statt „heute“' },
-            { ok: !!(r.planStart || r.planEnd), pflicht: false, rolle: 'Plan-Start / Plan-Ende', nutzen: 'Plan vs. Ist mit Verzug' }
+            { ok: !!(r.planStart || r.planEnd), pflicht: false, rolle: 'Plan-Start / Plan-Ende', nutzen: 'Grauer Basisplan-Balken, Δ und Verzug' }
         ];
     }
     pruefPunkte() {
@@ -2102,7 +2141,7 @@ export class GanttRenderer {
         if (mn.art === 'ansicht') {
             eintraege = this.ansichtOptionen().map(x => ({
                 label: x.label, ok: x.ok || x.key === this.ansicht, hinweis: x.hinweis, aktiv: x.key === this.ansicht,
-                fn: () => { this.wechsleAnsicht(x.key); }
+                fn: () => { this.startZu = false; this.wechsleAnsicht(x.key); }
             }));
         }
         else {
@@ -2498,15 +2537,23 @@ export class GanttRenderer {
         const phTop = Math.round((m.rowH - m.phBarH) / 2);
         const barTop = Math.round((m.rowH - m.barH) / 2);
         const diaTop = Math.round((m.rowH - m.dia) / 2);
-        // Basisplan-Metriken: Plan als schmaler Outline-Balken UNTER dem Ist-Balken
-        // (IBCS-Szenario-Notation: Ist = gefüllt, Plan = Rahmen)
+        // Basisplan-Metriken: Basisplan als schmaler, GEFÜLLTER grauer Balken
+        // direkt UNTER dem farbigen Aktuell-Balken — wie MS Project
+        // "Balkendiagramm: Überwachung". Bis 2.0 war er nur ein grauer Rahmen;
+        // neben dem blass getönten Aktuell-Balken las sich das vertauscht.
         const planH = Math.max(4, Math.round(6 * m.s));
         const planGap = Math.max(1, Math.round(2 * m.s));
-        const planStroke = ibcs ? IBCS_AC : t.sub;
+        const planFill = planFarbe(t, ibcs);
+        // „Δ +n t“ an den Beschriftungen ist eigens abschaltbar (2.2)
+        const deltaLblOn = planOn && o.deltaBeschriftung !== false;
+        // Mit Basisplan trägt auch der unerledigte Teil des Aktuell-Balkens
+        // deutlich Farbe, damit „farbig oben = Aktuell, grau unten = Basisplan“
+        // auch bei 0 % Fortschritt eindeutig bleibt
+        const aktuellBg = (it, showPlan) => showPlan && !ibcs && /^#[0-9A-Fa-f]{6}$/.test(it.color) ? hexA(it.color, 0.4) : it.soft;
         const gruppenNamen = o.gruppenNamen !== false;
         const mkPlanBar = (ps, pe, topPx, dimmed) => el('div', 'position:absolute;left:' + x(ps) + 'px;top:' + topPx + 'px;width:' + Math.max(2, x(pe + DAY) - x(ps)) + 'px;height:' + planH + 'px;' +
-            'border-radius:' + rad(3) + ';background:transparent;box-shadow:inset 0 0 0 1px ' + planStroke + ';' +
-            'pointer-events:none;opacity:' + (dimmed ? 0.25 : 0.85));
+            'border-radius:' + rad(2) + ';background:' + planFill + ';' +
+            'pointer-events:none;opacity:' + (dimmed ? 0.25 : 1));
         items.slice(vA, vB).forEach(it => {
             const top = topOf[it.id];
             const hov = this.hover === it.id;
@@ -2517,7 +2564,7 @@ export class GanttRenderer {
             if (it.kind === 'phase' || it.kind === 'proj') {
                 const w = Math.max(4, x(it.e + DAY) - x(it.s));
                 const bar = el('div', 'position:absolute;left:' + x(it.s) + 'px;top:' + (top + phTop) + 'px;width:' + w + 'px;height:' + m.phBarH + 'px;' +
-                    'border-radius:' + rad(5) + ';background:' + it.soft + ';overflow:hidden;pointer-events:none' +
+                    'border-radius:' + rad(5) + ';background:' + aktuellBg(it, showPlan) + ';overflow:hidden;pointer-events:none' +
                     (ibcs ? ';box-shadow:inset 0 0 0 1px ' + IBCS_AC : ''));
                 bar.appendChild(el('div', 'height:100%;width:' + (it.pct === null ? 0 : it.pct) + '%;background:' + it.color + ';border-radius:' + rad(5)));
                 this.scrollLayer.appendChild(bar);
@@ -2625,19 +2672,22 @@ export class GanttRenderer {
                     dia.setAttribute('data-task', it.task.key);
                 dia.addEventListener('mouseenter', (ev) => this.tipAt(it, ev));
                 dia.addEventListener('mousemove', (ev) => this.tipAt(it, ev));
-                // Plan-Meilenstein: Outline-Raute an der geplanten Position
-                // (nur wenn sie vom Ist abweicht — sonst läge sie exakt darunter)
+                // Basisplan-Meilenstein: gefüllte graue Raute (etwas kleiner) an der
+                // geplanten Position — nur wenn sie vom Aktuell-Termin abweicht,
+                // sonst läge sie exakt unter der farbigen Raute
                 if (showPlan && it.ps !== it.s) {
-                    this.scrollLayer.appendChild(el('div', 'position:absolute;left:' + (x(it.ps) + this.pxd / 2 - m.dia / 2) + 'px;top:' + (top + diaTop) + 'px;width:' + m.dia + 'px;height:' + m.dia + 'px;' +
-                        'transform:rotate(45deg);border-radius:' + rad(3) + ';background:transparent;' +
-                        'box-shadow:inset 0 0 0 1.5px ' + planStroke + ';pointer-events:none;opacity:' + (dim ? 0.25 : 0.85)));
+                    const pd = Math.max(7, Math.round(m.dia * 0.8));
+                    const pdTop = Math.round((m.rowH - pd) / 2);
+                    this.scrollLayer.appendChild(el('div', 'position:absolute;left:' + (x(it.ps) + this.pxd / 2 - pd / 2) + 'px;top:' + (top + pdTop) + 'px;width:' + pd + 'px;height:' + pd + 'px;' +
+                        'transform:rotate(45deg);border-radius:' + rad(2) + ';background:' + planFill + ';' +
+                        'pointer-events:none;opacity:' + (dim ? 0.25 : 1)));
                 }
                 this.scrollLayer.appendChild(dia);
                 stichMarker(it, top);
                 pufferLinie(it, x(it.s) + this.pxd / 2, top + diaTop + m.dia + 2);
                 const msLbl = el('div', 'position:absolute;left:' + (x(it.s) + this.pxd / 2 + 14) + 'px;top:' + (top + diaTop) + 'px;height:' + m.dia + 'px;' +
                     'display:flex;align-items:center;font-size:' + this.fs(11) + ';font-weight:600;color:' + t.text + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1), [msNamen ? it.name : '', msDatum ? fmtDate(it.s) : ''].filter(v => v !== '').join(' · '));
-                if (planOn && it.delta !== null && it.delta !== 0) {
+                if (deltaLblOn && it.delta !== null && it.delta !== 0) {
                     msLbl.appendChild(el('span', 'margin-left:6px;font-weight:700;font-variant-numeric:tabular-nums;color:' + (it.delta > 0 ? IBCS_RED : (ibcs ? t.text : IBCS_GREEN)), 'Δ ' + fmtDelta(it.delta, u)));
                 }
                 const ueMs = ueberSpan(it);
@@ -2655,7 +2705,7 @@ export class GanttRenderer {
                 const bh = showPlan ? Math.max(10, m.barH - planH - planGap) : m.barH;
                 const bt = showPlan ? Math.round((m.rowH - (bh + planGap + planH)) / 2) : barTop;
                 const bar = el('div', 'position:absolute;left:' + bx + 'px;top:' + (top + bt) + 'px;width:' + bw + 'px;height:' + bh + 'px;' +
-                    'border-radius:' + rad(6) + ';background:' + it.soft + ';cursor:pointer;' +
+                    'border-radius:' + rad(6) + ';background:' + aktuellBg(it, showPlan) + ';cursor:pointer;' +
                     'box-shadow:inset 0 0 0 ' + (blocked || istKrit ? 2 : 1) + 'px ' + outline + (!ibcs && hov ? ',0 3px 10px rgba(0,0,0,0.22)' : '') + ';' +
                     'opacity:' + (dim ? 0.3 : 1));
                 bar.appendChild(el('div', 'position:absolute;left:0;top:0;bottom:0;width:' + pct + '%;background:' + it.color + ';' +
@@ -2676,7 +2726,7 @@ export class GanttRenderer {
                     labelParts.push(it.ow);
                 const lbl = el('div', 'position:absolute;left:' + (bx + bw + 10) + 'px;top:' + (top + bt) + 'px;height:' + bh + 'px;' +
                     'display:flex;align-items:center;font-size:' + this.fs(11) + ';color:' + t.sub + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1), labelParts.join(' · '));
-                if (planOn && it.delta !== null && it.delta !== 0) {
+                if (deltaLblOn && it.delta !== null && it.delta !== 0) {
                     lbl.appendChild(el('span', 'margin-left:6px;font-weight:700;font-variant-numeric:tabular-nums;color:' + (it.delta > 0 ? IBCS_RED : (ibcs ? t.text : IBCS_GREEN)), 'Δ ' + fmtDelta(it.delta, u)));
                 }
                 const ue = ueberSpan(it);
@@ -2768,15 +2818,19 @@ export class GanttRenderer {
             grid.appendChild(el('div', (mono ? 'font-variant-numeric:tabular-nums;' : '') + (fg ? 'color:' + fg + ';font-weight:700' : ''), val));
         };
         const mehrfach = isM && it.msKids.length > 1;
+        // Mit Basisplan heißen die Termine wie in MS Project „Aktuell“ und
+        // „Basisplan“ — sobald der Plan gezeichnet wird oder dieser Tooltip die
+        // Basisplan-Zeile zeigt; ohne Basisplan bleibt es beim neutralen „Zeitraum“
+        const mitPlan = (this.hasPlan && (!o || o.basisplan !== false)) || (it.ps !== null && zeige('plan'));
         if (zeige('zeitraum'))
-            addRow('Zeitraum', isM && !mehrfach ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+            addRow(mitPlan ? 'Aktuell' : 'Zeitraum', isM && !mehrfach ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
         if (mehrfach)
             addRow('Vorkommen', String(it.msKids.length), true);
         // Der Schalter kommt ZUSÄTZLICH zur Datenbedingung: ohne Basisplan gibt
         // es hier nach wie vor nichts zu zeigen.
         if (it.ps !== null) {
             if (zeige('plan'))
-                addRow('Plan', it.ps === it.pe || it.pe === null ? fmtDate(it.ps) : fmtDate(it.ps) + ' – ' + fmtDate(it.pe), true);
+                addRow('Basisplan', it.ps === it.pe || it.pe === null ? fmtDate(it.ps) : fmtDate(it.ps) + ' – ' + fmtDate(it.pe), true);
             if (it.delta !== null && zeige('abweichung'))
                 addRow('Abweichung', fmtDelta(it.delta, tageWort), true, it.delta > 0 ? IBCS_RED : (it.delta < 0 && !ibcs ? IBCS_GREEN : undefined));
         }

@@ -79,7 +79,7 @@
             "displayName": "Plan-Start (Basisplan)",
             "name": "planStart",
             "kind": "GroupingOrMeasure",
-            "description": "Plan vs. Ist: Plan als Rahmen unter dem Ist-Balken."
+            "description": "Basisplan: grau gefüllter Balken unter dem farbigen Aktuell-Balken, wie MS Project „Überwachung“."
         },
         {
             "displayName": "Plan-Ende (Basisplan)",
@@ -245,12 +245,16 @@
                 },
                 "startAnsicht": {
                     "displayName": "Startansicht",
-                    "description": "Mit welcher Ansicht das Visual startet. Im Bericht lässt sie sich über „Ansicht ▾“ in der Leiste jederzeit wechseln.",
+                    "description": "Mit welcher Ansicht das Visual startet. „zugeklappt“ zeigt je Projekt (ohne Projekt: je oberster Ebene) einen Summenbalken. Im Bericht lässt sich die Ansicht über „Ansicht ▾“ und ⊞/⊟ jederzeit wechseln.",
                     "type": {
                         "enumeration": [
                             {
                                 "value": "alle",
                                 "displayName": "Alle Vorgänge"
+                            },
+                            {
+                                "value": "projekte",
+                                "displayName": "Alle Vorgänge, zugeklappt (je Projekt ein Balken)"
                             },
                             {
                                 "value": "haupt",
@@ -407,13 +411,13 @@
                     }
                 },
                 "zeitraum": {
-                    "displayName": "Zeitraum",
+                    "displayName": "Aktuell (Zeitraum)",
                     "type": {
                         "bool": true
                     }
                 },
                 "plan": {
-                    "displayName": "Plan (Basisplan)",
+                    "displayName": "Basisplan",
                     "type": {
                         "bool": true
                     }
@@ -499,10 +503,24 @@
             }
         },
         "basisplan": {
-            "displayName": "Basisplan (Plan vs. Ist)",
+            "displayName": "Basisplan (Aktuell vs. Basisplan)",
             "properties": {
                 "anzeigen": {
-                    "displayName": "Plan-Balken anzeigen",
+                    "displayName": "Basisplan-Balken anzeigen",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "legende": {
+                    "displayName": "Legende Aktuell/Basisplan",
+                    "description": "Zeigt in der Leiste „Aktuell“ (farbiger Balken) und „Basisplan“ (grauer Balken darunter), sobald Basisplan-Termine gebunden sind.",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "deltaBeschriftung": {
+                    "displayName": "Δ an Balken und Meilensteinen",
+                    "description": "Hängt die Abweichung „Δ +n t“ an die Beschriftung von Balken und Meilensteinen. Aus = nur der graue Basisplan-Balken, Tooltip und Δ-Spalte zeigen sie.",
                     "type": {
                         "bool": true
                     }

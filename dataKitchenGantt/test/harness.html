@@ -65,6 +65,9 @@
       zeiteinheiten: auswahl('zeinheiten', ['tage', 'wochen', 'monate', 'quartale', 'jahre']),
       basisplan: params.get('plan') !== '0',
       deltaSpalte: params.get('delta') !== '0',
+      // 2.2: ?pleg=0 → Legende Aktuell/Basisplan aus, ?dlbl=0 → kein „Δ“ an Balken/Rauten
+      basisplanLegende: params.get('pleg') !== '0',
+      deltaBeschriftung: params.get('dlbl') !== '0',
       verzugZeilen: params.get('verzug') !== '0',
       statusDatum: params.has('status') ? Date.parse(params.get('status')) : (MSP ? u(2026, 3, 16) : null),
       zeiteinheit: params.get('ze') || 'auto',
@@ -199,6 +202,21 @@
     let DATA = TASKS;
     if (MSP) DATA = MSP_TASKS;
     else if (params.get('ebenen') === '1') DATA = HIER;
+    else if (Number(params.get('nproj')) > 1) {
+      // ?nproj=5 → Portfolio aus n Projekten (je 45 Tage versetzt), alle mit
+      // Basisplan; Projekt k läuft k·3 Tage hinter seinem Basisplan her
+      const n = Number(params.get('nproj'));
+      const namen = ['PV-Anlage Bottrop', 'Speicher Gladbeck', 'Wind Hünxe', 'PV-Park Dorsten', 'Netzanschluss Marl', 'Wind Kirchhellen', 'PV Haltern'];
+      DATA = [];
+      for (let k = 0; k < n; k++) {
+        const ds = k * 45 * 86400000, verzug = k * 3 * 86400000, pfx = 'P' + k + ':';
+        TASKS.forEach(t => DATA.push({
+          ...t, projekt: namen[k % namen.length], key: pfx + t.key, deps: t.deps.map(d => pfx + d),
+          s: t.s + ds + verzug, e: t.e === null ? null : t.e + ds + verzug,
+          ps: (t.ps ?? t.s) + ds, pe: t.e === null ? null : (t.pe ?? t.e) + ds
+        }));
+      }
+    }
     else if (params.get('proj') === '1') {
       const shift = 120 * 86400000;
       const clone = (t, pfx, projekt, ds) => ({
@@ -217,6 +235,13 @@
     r.setData(DATA);
     r.setOptions(opts());
     window.__gantt = r; // für Debug-Zugriff
+    // ?tip=<Vorgangsname> → Tooltip des ersten passenden Balkens im Chart öffnen (für Screenshots)
+    if (params.has('tip')) setTimeout(() => {
+      const el = [...(r.chartArea || document).querySelectorAll('[data-task]')].find(e => e.getAttribute('data-task').endsWith(params.get('tip')));
+      if (!el) return;
+      const b = el.getBoundingClientRect();
+      el.dispatchEvent(new MouseEvent('mouseenter', { clientX: b.left + b.width / 2, clientY: b.top + b.height / 2 }));
+    }, 300);
   </script>
 </body>
 </html>

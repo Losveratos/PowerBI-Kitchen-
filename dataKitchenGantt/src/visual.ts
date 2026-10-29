@@ -146,7 +146,7 @@ const VORLAGE_BASIS: Eigenschaften = {
     terminplanung: { kritischHervorheben: true, ueberfaelligMarkieren: true, pufferAnzeigen: true, stichtageAnzeigen: true, fortschrittslinie: false, arbeitstage: false },
     balken: { farbeNach: 'zweig', legende: true },
     spalten: { psp: true, start: true, ende: true, tage: true, puffer: true, stichtag: true, status: true, fortschritt: true, wer: true, zusatz: true, zweizeilig: false },
-    basisplan: { anzeigen: true, deltaSpalte: true, verzugZeilen: true }
+    basisplan: { anzeigen: true, legende: true, deltaBeschriftung: true, deltaSpalte: true, verzugZeilen: true }
 };
 const VORLAGE_ABWEICHUNG: Record<string, Eigenschaften> = {
     standard: {},
@@ -507,6 +507,8 @@ export class Visual implements IVisual {
             },
             basisplan: b.anzeigen.value,
             deltaSpalte: b.deltaSpalte.value,
+            basisplanLegende: b.legende.value,
+            deltaBeschriftung: b.deltaBeschriftung.value,
             verzugZeilen: b.verzugZeilen.value,
             statusDatum: this.statusDatum,
             zeiteinheit: String(d.zeiteinheit.value.value),
