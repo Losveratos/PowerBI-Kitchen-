@@ -12,7 +12,12 @@
  * gap vs. the (larger) subtree gap, the one bus per parent that stays inside
  * the column gap, the operator circles on the parent stub (uniform branch) or
  * right before the child card (mixed branch), and the automatic compact cards
- * on deep levels.
+ * on deep levels. 1.7: with ⚡ "only exceptions" the non-exception cards dim
+ * and lose their variance colour, the Sankey colours the exception streams in
+ * their variance tone and greys the rest (high contrast: dashed, no pattern).
+ * Mode "hide": quiet branches fold into one grey "+n" card (the path to every
+ * exception stays), the Sankey bundles quiet streams into "other (n)" with
+ * its ports still adding up.
  *
  * Run: node test/tree-interact.js  (npm run test:tree)
  */
@@ -2689,6 +2694,368 @@ function tidyChecks(geom, tag) {
     check("only the Sankey offered: a fresh report opens in it, without a view group",
         offer.onlySankey.svg && offer.onlySankey.viewBtns.length === 0 && offer.onlySankey.groups.indexOf("View") < 0,
         "svg=" + offer.onlySankey.svg + " groups=" + offer.onlySankey.groups.join(" | "));
+
+    // ---- 1.7 ⚡ "only exceptions" in the tree and the Sankey ----------------------
+    const exc = await page.evaluate(() => {
+        const EXC = { exceptions: { enabled: true, thresholdPct: 8, reference: "py" } };
+        const ui = (view) => ({ state: { uiState: JSON.stringify({ view, treeV: 2, ref: "pl" }) } });
+        const out = {};
+        const cards = (id) => [...document.querySelectorAll(`#${id} g[data-pnl-exc]`)].map(g => ({
+            exc: g.getAttribute("data-pnl-exc"), op: g.getAttribute("opacity"),
+            fills: [...g.querySelectorAll("rect, text")].map(e => e.getAttribute("fill")).filter(Boolean) }));
+        window.SK_STAGE("ex-t0", ui("tree"), 1300, 800);
+        out.t0 = { marked: document.querySelectorAll("#ex-t0 [data-pnl-exc]").length,
+            dim: document.querySelectorAll("#ex-t0 g[opacity]").length };
+        window.SK_STAGE("ex-t1", { ...ui("tree"), ...EXC }, 1300, 800);
+        out.t1 = cards("ex-t1");
+        out.t1note = (document.querySelector('#ex-t1 [data-pnl="exc-note"]') || {}).textContent || "";
+        const sk = (id) => ({
+            nodes: [...document.querySelectorAll(`#${id} g[data-pnl="sk-node"]`)].map(g => ({ fam: g.getAttribute("data-sk-fam"),
+                exc: g.getAttribute("data-sk-exc"), tone: g.getAttribute("data-sk-tone"),
+                fill: g.querySelector("[data-sk-bar]").getAttribute("fill"), dash: g.querySelector("[data-sk-bar]").getAttribute("stroke-dasharray") })),
+            bands: [...document.querySelectorAll(`#${id} [data-sk-band="flow"]`)].map(p => ({ fam: p.getAttribute("data-sk-fam"),
+                exc: p.getAttribute("data-sk-exc"), tone: p.getAttribute("data-sk-tone"), fill: p.getAttribute("fill"),
+                pat: p.getAttribute("data-sk-pattern"), dash: p.getAttribute("stroke-dasharray") })),
+        });
+        window.SK_STAGE("ex-s0", ui("sankey"), 1300, 800);
+        out.s0 = sk("ex-s0");
+        window.SK_STAGE("ex-s1", { ...ui("sankey"), ...EXC }, 1300, 800);
+        out.s1 = sk("ex-s1");
+        window.SK_STAGE("ex-s2", { ...ui("sankey"), ...EXC }, 1300, 800, "en-US", { palette: { isHighContrast: true,
+            foreground: { value: "#FFFF00" }, background: { value: "#000000" }, foregroundSelected: { value: "#00FFFF" } } });
+        out.s2 = sk("ex-s2");
+        return out;
+    });
+    {
+        const q = exc.t1.filter(c => c.exc === "0"); const x = exc.t1.filter(c => c.exc === "1");
+        const GOOD = "#0E8585"; const BAD = "#E02B1D";
+        check("⚡ tree off: no card carries an exception mark or a dimming (renders as before)",
+            exc.t0.marked === 0 && exc.t0.dim === 0, JSON.stringify(exc.t0));
+        check("⚡ tree: non-exception cards are dimmed and carry no variance colour; exceptions keep theirs",
+            q.length > 0 && x.length > 0 && q.every(c => c.op === "0.5" && !c.fills.some(f => f === GOOD || f === BAD))
+            && x.every(c => c.op == null) && x.some(c => c.fills.some(f => f === GOOD || f === BAD)),
+            `${q.length} grey / ${x.length} colour`);
+        check("⚡ tree: the footer note names the fixed reference", /≥ 8 % vs PY$/.test(exc.t1note), exc.t1note);
+        const n1 = exc.s1.nodes; const b1 = exc.s1.bands;
+        check("⚡ Sankey off: no exception marks, the families as before",
+            exc.s0.nodes.every(n => n.exc == null) && exc.s0.bands.every(b => b.exc == null));
+        check("⚡ Sankey: the families stay recorded (data-sk-fam), the colour follows the exception tone",
+            JSON.stringify(n1.map(n => n.fam)) === JSON.stringify(exc.s0.nodes.map(n => n.fam)), "");
+        check("⚡ Sankey nodes: exceptions in the variance colour of their Δ, the rest grey",
+            n1.some(n => n.tone === "good") && n1.some(n => n.tone === "gray")
+            && n1.every(n => (n.tone === "good" ? n.fill === GOOD : n.tone === "bad" ? n.fill === BAD : n.fill === "#B3B3B3")
+                && (n.exc === "0") === (n.tone === "gray")), JSON.stringify(n1.map(n => n.tone)));
+        const fillsOf = (t) => [...new Set(b1.filter(b => b.tone === t).map(b => b.fill))];
+        check("⚡ Sankey streams: exception bands coloured, every other band one grey tint",
+            b1.some(b => b.exc === "1") && b1.some(b => b.exc === "0") && fillsOf("gray").length === 1
+            && !fillsOf("good").includes(fillsOf("gray")[0]) && !fillsOf("bad").includes(fillsOf("gray")[0]),
+            JSON.stringify([fillsOf("good"), fillsOf("bad"), fillsOf("gray")]));
+        const n2 = exc.s2.nodes; const b2 = exc.s2.bands;
+        check("⚡ Sankey high contrast: non-exceptions dashed without pattern (bands and bars)",
+            b2.filter(b => b.exc === "0").length > 0 && b2.filter(b => b.exc === "0").every(b => b.pat === "none" && b.dash)
+            && n2.filter(n => n.exc === "0").every(n => n.dash === "2,2") && b2.filter(b => b.exc === "1").every(b => b.pat !== "none"));
+    }
+
+    // ---- 1.7 polish: ⚡ mode "hide" in the tree and the Sankey ------------------------
+    // tree: the quiet branches of a card fold into ONE grey "+n" card, every exception
+    // and its path to the root stay; Sankey: quiet streams bundled into one grey band
+    // per node and side ("other (n)"), a lone quiet stream becomes an end node — the
+    // ports still add up, the scale stays one, the exceptions stay coloured
+    const hid = await page.evaluate(() => {
+        const EXC = (mode, pct) => ({ exceptions: { enabled: true, thresholdPct: pct, reference: "py", mode } });
+        const ui = (view) => ({ state: { uiState: JSON.stringify({ view, treeV: 2, ref: "pl" }) } });
+        const out = {};
+        const ctxIds = (id) => {
+            const v = window.__skVis[id];
+            const cards = v.treeCtx.cards;
+            const parent = new Map();
+            for (const c of cards) { for (const k of c.children) { parent.set(k, c); } }
+            const exc = cards.filter(c => !c.rest && v.excOf(c.node) === true);
+            // the path from the root to every exception: every ancestor is a card on screen
+            const pathOk = exc.every(c => { let x = c; for (let i = 0; i < 40 && parent.has(x); i++) { x = parent.get(x); } return x === v.treeCtx.rootCard; });
+            return { exc: exc.map(c => c.node.row.id).sort(), pathOk, rests: cards.filter(c => c.rest).map(c => c.rest.length),
+                restsPerParent: cards.map(c => c.children.filter(k => k.rest).length), n: cards.length };
+        };
+        window.SK_STAGE("hd-t1", { ...ui("tree"), ...EXC("gray", 8) }, 1300, 800);
+        window.SK_STAGE("hd-t2", { ...ui("tree"), ...EXC("hide", 8) }, 1300, 800);
+        out.t1 = ctxIds("hd-t1"); out.t2 = ctxIds("hd-t2");
+        const t2 = document.getElementById("hd-t2");
+        out.t2dom = [...t2.querySelectorAll('[data-pnl="tree-rest"]')].map(g => ({ n: +g.getAttribute("data-pnl-rest"),
+            t: g.querySelector("text").textContent, tip: g.querySelector("title").textContent, dash: g.querySelector("rect").getAttribute("stroke-dasharray") }));
+        out.t2note = (t2.querySelector('[data-pnl="exc-note"]') || {}).textContent || "";
+        window.SK_STAGE("hd-s1", { ...ui("sankey"), ...EXC("gray", 10) }, 1300, 800);
+        window.SK_STAGE("hd-s2", { ...ui("sankey"), ...EXC("hide", 10) }, 1300, 800);
+        window.SK_STAGE("hd-s3", { ...ui("sankey"), ...EXC("hide", 5) }, 1300, 800);
+        out.s1 = window.READ_SK("hd-s1"); out.s2 = window.READ_SK("hd-s2"); out.s3 = window.READ_SK("hd-s3");
+        const excIds = (id) => [...document.querySelectorAll(`#${id} g[data-pnl="sk-node"][data-sk-exc="1"]`)].map(g => g.getAttribute("data-pnl-id")).sort();
+        out.s1exc = excIds("hd-s1"); out.s2exc = excIds("hd-s2"); out.s3exc = excIds("hd-s3");
+        out.s3rest = [...document.querySelectorAll('#hd-s3 g[data-sk-rest]')].map(g => ({ n: +g.getAttribute("data-sk-rest"),
+            exc: g.getAttribute("data-sk-exc"), name: g.querySelector("[data-sk-name]") ? g.querySelector("[data-sk-name]").textContent : "" }));
+        out.s2note = (document.querySelector('#hd-s2 [data-pnl="exc-note"]') || {}).textContent || "";
+        out.s3note = (document.querySelector('#hd-s3 [data-pnl="exc-note"]') || {}).textContent || "";
+        // a click on a bundled band opens no tile view
+        const rg = document.querySelector('#hd-s3 g[data-sk-rest]');
+        if (rg) { rg.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+        out.s3zoom = window.__skVis["hd-s3"].ui.treeZoom;
+        // grey mode = 1.7 behaviour: no rest anywhere, no count in the note
+        out.s1rest = document.querySelectorAll("#hd-s1 [data-sk-rest], #hd-t1 [data-pnl=tree-rest]").length;
+        return out;
+    });
+    {
+        const ports = (sk) => {
+            const off = [];
+            for (const n of sk.nodes) {
+                if (n.h <= 6.5) { continue; }
+                const ins = sk.bands.filter(b => b.tgt === n.i).reduce((a, b) => a + b.w, 0);
+                const outs = sk.bands.filter(b => b.src === n.i).reduce((a, b) => a + b.w, 0);
+                const tol = 0.6 + n.h * 0.005;
+                if (ins > 0 && Math.abs(ins - n.h) > tol) { off.push(n.name + " in"); }
+                if (outs > 0 && Math.abs(outs - n.h) > tol) { off.push(n.name + " out"); }
+            }
+            return off;
+        };
+        check("⚡ hide, tree: the quiet branches of a card fold into ONE grey dashed “+n” card (names in the tooltip)",
+            hid.t2dom.length > 0 && hid.t2dom.every(r => /^\+\d+ other$/.test(r.t) && r.dash === "3,2" && /^Below the threshold, combined: /.test(r.tip))
+            && hid.t2.restsPerParent.every(n => n <= 1) && hid.t2.n < hid.t1.n, JSON.stringify(hid.t2dom.slice(0, 3)));
+        check("⚡ hide, tree: every exception card stays, with its whole path to the root",
+            JSON.stringify(hid.t2.exc) === JSON.stringify(hid.t1.exc) && hid.t2.exc.length > 0 && hid.t2.pathOk, JSON.stringify([hid.t1.exc, hid.t2.exc]));
+        const nFold = Number((hid.t2note.match(/(\d+) nodes? below the threshold folded/) || [])[1] || 0);
+        check("⚡ hide, tree: the footer counts the folded nodes (= Σ “+n”)",
+            nFold > 0 && nFold === hid.t2.rests.reduce((a, b) => a + b, 0), hid.t2note);
+        check("⚡ grey mode: no rest card, no rest band (the 1.7 picture)", hid.s1rest === 0);
+        check("⚡ hide, Sankey: fewer nodes, the exception streams stay coloured (same set as grey)",
+            hid.s2.nodes.length < hid.s1.nodes.length && JSON.stringify(hid.s2exc) === JSON.stringify(hid.s1exc) && hid.s2exc.length > 0,
+            `${hid.s1.nodes.length}→${hid.s2.nodes.length} ${hid.s1exc} / ${hid.s2exc}`);
+        check("⚡ hide, Sankey: quiet siblings bundle into one grey band “other (n)”, never an exception, no tile view on click",
+            hid.s3rest.length > 0 && hid.s3rest.every(r => r.n >= 2 && r.exc === "0" && /other \(\d+\)/.test(r.name)) && hid.s3zoom == null
+            && hid.s3exc.length > 0, JSON.stringify(hid.s3rest));
+        check("⚡ hide, Sankey: the ribbons of every port still add up to the node height",
+            ports(hid.s2).length === 0 && ports(hid.s3).length === 0, ports(hid.s2).concat(ports(hid.s3)).join("; "));
+        check("⚡ hide, Sankey: the footer counts the bundled streams",
+            /\d+ streams below the threshold bundled/.test(hid.s2note) && /\d+ streams below the threshold bundled/.test(hid.s3note), hid.s2note + " | " + hid.s3note);
+        const pct = (sk, nm) => { const n = sk.nodes.find(x => x.name.indexOf(nm) === 0); return n ? n.val : ""; };
+        check("⚡ hide, Sankey: the percentages keep their basis (Net revenue) when the revenue side folds away",
+            pct(hid.s2, "Net income") !== "" && pct(hid.s2, "Net income") === pct(hid.s1, "Net income"), pct(hid.s2, "Net income") + " / " + pct(hid.s1, "Net income"));
+    }
+
+    // ---- 1.7 cross-highlight (supportsHighlight): another visual marks a part of the data.
+    // The host then sends the unfiltered query plus `highlights` per measure column. Simulated
+    // selection over the Pharma demo: every account at a share of 25–57 % (by account code),
+    // contract manufacturing (4020…10) not in the selection at all (highlights null).
+    const hl = await page.evaluate(() => {
+        const rs = window.READ_SK;
+        const share = (acc) => { const h = [...String(acc)].reduce((a, c) => a + c.charCodeAt(0), 0); return 0.25 + (h % 5) * 0.08; };
+        const HL = (d) => {
+            const acc = d.categorical.categories.find(c => c.source.roles.account).values;
+            for (const v of d.categorical.values) {
+                v.highlights = v.values.map((x, i) => x == null || /2010$/.test(String(acc[i])) ? null
+                    : Math.round(x * share(acc[i]) * 10) / 10);
+            }
+            return d;
+        };
+        // the same selection as a FILTER delivers it: the marked numbers as the values, and the
+        // data rows without any marked value are not in the query at all (structure rows without
+        // any value — formulas, margins — stay, as they do in the unfiltered query)
+        const AS_FILTER = (d) => {
+            HL(d);
+            const vals = d.categorical.values; const n = vals[0].values.length; const keep = [];
+            for (let i = 0; i < n; i++) {
+                if (vals.some(v => v.highlights[i] != null) || !vals.some(v => v.values[i] != null)) { keep.push(i); }
+            }
+            for (const c of d.categorical.categories) { c.values = keep.map(i => c.values[i]); }
+            for (const v of vals) { v.values = keep.map(i => v.highlights[i]); delete v.highlights; }
+            return d;
+        };
+        const HC = { palette: { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" },
+            foregroundSelected: { value: "#00FFFF" } } };
+        const uiOf = (view, extra) => ({ titleBlock: { measureLine: "hl" },
+            state: { uiState: JSON.stringify(Object.assign({ view, treeV: 2, ref: "pl" }, extra || {})) } });
+        const vis = {};
+        const stage = (id, objects, how, w, h, locale, opts) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:${w || 1300}px;height:${h || 800}px;`;
+            document.body.appendChild(d);
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost(locale || "en-US", opts) });
+            const data = how === "hl" ? HL(dv(objects)) : how === "filter" ? AS_FILTER(dv(objects)) : dv(objects);
+            v.update({ dataViews: [data], viewport: { width: w || 1300, height: h || 800 }, type: 2 });
+            vis[id] = { v, objects, w: w || 1300, h: h || 800 };
+            return d;
+        };
+        const reupdate = (id, how) => {
+            const s = vis[id];
+            const data = how === "hl" ? HL(dv(s.objects)) : how === "filter" ? AS_FILTER(dv(s.objects)) : dv(s.objects);
+            s.v.update({ dataViews: [data], viewport: { width: s.w, height: s.h }, type: 2 });
+        };
+        const sk = (id) => {
+            const st = document.getElementById(id);
+            const r = rs(id);
+            r.ctx = [...st.querySelectorAll('[data-sk-band][data-sk-hl="ctx"]')].length;
+            r.parts = [...st.querySelectorAll('[data-sk-hl="part"]')].map(p => ({
+                src: p.hasAttribute("data-sk-src") ? +p.getAttribute("data-sk-src") : null,
+                tgt: p.hasAttribute("data-sk-tgt") ? +p.getAttribute("data-sk-tgt") : null,
+                w: +p.getAttribute("data-sk-hlw"), fill: p.getAttribute("fill"), pattern: p.getAttribute("data-sk-pattern"),
+                tone: p.getAttribute("data-sk-tone") }));
+            r.inner = [...st.querySelectorAll('[data-pnl="sk-node"]')].map(g => {
+                const ib = g.querySelector("[data-sk-hlbar]");
+                return { i: +g.getAttribute("data-sk-i"), id: g.getAttribute("data-pnl-id"), share: g.getAttribute("data-sk-share"),
+                    exc: g.getAttribute("data-sk-exc"),
+                    h: ib ? +ib.getAttribute("height") : 0, y: ib ? +ib.getAttribute("y") : null, fill: ib ? ib.getAttribute("fill") : "",
+                    pattern: ib ? ib.getAttribute("data-sk-pattern") : null };
+            });
+            r.note = (st.querySelector('[data-pnl="hl-note"]') || {}).textContent || "";
+            return r;
+        };
+        const out = {};
+        // the share the Sankey must show at Net revenue (YTD = all six months here)
+        const rows = window.PNL_DEMO.levelRows;
+        let fullRev = 0; let markRev = 0;
+        rows.forEach(r => {
+            if (r.levels[0] !== "Net revenue" || r.values.ac == null) { return; }
+            fullRev += r.values.ac;
+            if (!/2010$/.test(String(r.account))) { markRev += Math.round(r.values.ac * share(r.account) * 10) / 10; }
+        });
+        out.expRevShare = markRev / fullRev;
+        stage("hl-s0", uiOf("sankey"), "none");
+        out.s0 = sk("hl-s0");
+        out.s0html = document.getElementById("hl-s0").innerHTML;
+        reupdate("hl-s0", "hl");
+        out.s1 = sk("hl-s0");
+        reupdate("hl-s0", "none");
+        out.back = document.getElementById("hl-s0").innerHTML;
+        stage("hl-s2", uiOf("sankey"), "hl", 1300, 800, "en-US", HC);
+        out.hc = sk("hl-s2");
+        stage("hl-s3", Object.assign(uiOf("sankey"), { style: { appearance: "dark" } }), "hl");
+        out.dark = sk("hl-s3");
+        stage("hl-s4", uiOf("sankey"), "hl", 1300, 800, "de-DE");
+        out.de = sk("hl-s4");
+        stage("hl-s5", uiOf("sankey"), "hl", 1300, 800, "en-US", { allowInteractions: false });
+        out.exp = sk("hl-s5");
+        // ⚡ on the marked numbers: the same flags as the selection applied as a filter
+        const EXC = { exceptions: { enabled: true, thresholdPct: 8, reference: "py" } };
+        stage("hl-x1", Object.assign(uiOf("sankey"), EXC), "hl");
+        stage("hl-x2", Object.assign(uiOf("sankey"), EXC), "filter");
+        out.excHl = sk("hl-x1").inner.map(n => n.id + ":" + n.exc);
+        out.excFilter = sk("hl-x2").nodes.map(n => n.id + ":" + document.querySelector(`#hl-x2 [data-sk-i="${n.i}"]`).getAttribute("data-sk-exc"));
+        // the tree: share strips on every value card, the whole in grey on compact cards
+        const cardsOf = (id) => [...document.querySelectorAll(`#${id} svg > g > g`)].filter(g => g.querySelector("rect[rx='4']")).map(g => ({
+            strip: g.querySelector('[data-pnl="tree-hl"]') ? +g.querySelector('[data-pnl="tree-hl"]').getAttribute("data-hl-share") : null,
+            fillW: g.querySelector("[data-hl-fill]") ? +g.querySelector("[data-hl-fill]").getAttribute("width") : 0,
+            trackW: g.querySelector('[data-pnl="tree-hl"] rect') ? +g.querySelector('[data-pnl="tree-hl"] rect').getAttribute("width") : 0,
+            of: g.querySelector('[data-pnl="tree-hl-of"]') ? g.querySelector('[data-pnl="tree-hl-of"]').textContent : "",
+            tip: g.querySelector('[data-pnl="tree-hl"] title') ? g.querySelector('[data-pnl="tree-hl"] title').textContent : "",
+            exc: g.getAttribute("data-pnl-exc") }));
+        // polish: the tree reads a foreign selection exactly like a filter — no strips, no „of“, no note
+        const norm = (h) => h.replace(/(id="|url\(#|href="#)pnl[^")]*/g, "$1pnl");
+        stage("hl-t0", uiOf("tree"), "none", 1300, 800);
+        out.t0html = document.getElementById("hl-t0").innerHTML;
+        reupdate("hl-t0", "hl");
+        out.t1 = cardsOf("hl-t0");
+        out.t1html = norm(document.getElementById("hl-t0").innerHTML);
+        out.t1note = (document.querySelector('#hl-t0 [data-pnl="hl-note"]') || {}).textContent || "";
+        stage("hl-tf", uiOf("tree"), "filter", 1300, 800);
+        out.tfhtml = norm(document.getElementById("hl-tf").innerHTML);
+        // Sankey → Table → Sankey on the same data: the views swap their model, the way back is the same picture
+        reupdate("hl-t0", "none");
+        out.tback = document.getElementById("hl-t0").innerHTML;
+        stage("hl-tx1", Object.assign(uiOf("tree"), EXC), "hl");
+        stage("hl-tx2", Object.assign(uiOf("tree"), EXC), "filter");
+        out.texcHl = cardsOf("hl-tx1").map(c => c.exc);
+        out.texcFilter = cardsOf("hl-tx2").map(c => c.exc);
+        // the tile view opened from the Sankey: like a filter as well
+        stage("hl-z", uiOf("sankey", { treeZoom: "F_EBIT" }), "hl");
+        stage("hl-zf", uiOf("sankey", { treeZoom: "F_EBIT" }), "filter");
+        out.zoom = { tile: !!document.querySelector('#hl-z [data-pnl="zoom-center"]'),
+            note: (document.querySelector('#hl-z [data-pnl="hl-note"]') || {}).textContent || "",
+            same: norm(document.getElementById("hl-z").innerHTML) === norm(document.getElementById("hl-zf").innerHTML) };
+        // one visual, same marked data: Sankey (whole + marked) → table (filter) → Sankey again
+        stage("hl-sw", uiOf("sankey"), "hl");
+        const swBtn = (t) => [...document.querySelectorAll('#hl-sw [data-pnl="head"] button')].find(b => b.textContent === t);
+        const sk1 = norm(document.getElementById("hl-sw").innerHTML);
+        swBtn("Table").click();
+        out.swTable = { note: (document.querySelector('#hl-sw [data-pnl="hl-note"]') || {}).textContent || "",
+            cm: [...document.querySelectorAll("#hl-sw [data-pnl-row]")].some(r => /2010$/.test(r.getAttribute("data-pnl-row"))) };
+        swBtn("Sankey").click();
+        out.swBack = norm(document.getElementById("hl-sw").innerHTML) === sk1;
+        return out;
+    });
+    {
+        const s0 = hl.s0; const s1 = hl.s1;
+        check("highlight: without highlights the Sankey carries no highlight mark at all",
+            s0.ctx === 0 && s0.parts.length === 0 && s0.inner.every(n => n.share == null && n.h === 0) && s0.note === "",
+            `ctx=${s0.ctx} parts=${s0.parts.length}`);
+        check("highlight: the whole keeps its size — every node bar at the same place and height as without highlights",
+            s1.nodes.length === s0.nodes.length && s1.nodes.every((n, i) => n.id === s0.nodes[i].id
+                && Math.abs(n.x - s0.nodes[i].x) < 0.01 && Math.abs(n.y - s0.nodes[i].y) < 0.01 && Math.abs(n.h - s0.nodes[i].h) < 0.01),
+            s1.nodes.length + " vs " + s0.nodes.length);
+        check("highlight: every ribbon of the whole becomes grey context (data-sk-hl = ctx), one grey for all",
+            s1.ctx === s1.bands.length && s1.bands.length > 10 && new Set(s1.bands.map(b => b.fill)).size === 1,
+            `ctx=${s1.ctx}/${s1.bands.length} fills=${[...new Set(s1.bands.map(b => b.fill))].join(",")}`);
+        const bandW = new Map(s1.bands.map(b => [b.src + ">" + b.tgt, b.w]));
+        check("highlight: marked inner ribbons run inside their ribbon (never wider)",
+            s1.parts.length > 10 && s1.parts.every(p => p.w <= (bandW.get(p.src + ">" + p.tgt) ?? 0) + 0.01),
+            s1.parts.filter(p => p.w > (bandW.get(p.src + ">" + p.tgt) ?? 0) + 0.01).map(p => p.src + ">" + p.tgt).join(","));
+        check("highlight: inner ribbons in the flow's colours (profit / cost), not in the grey of the whole",
+            s1.parts.some(p => p.tone === "good") && s1.parts.some(p => p.tone === "bad")
+            && s1.parts.every(p => p.fill !== s1.bands[0].fill), [...new Set(s1.parts.map(p => p.tone))].join(","));
+        const rev = s1.inner.find(n => n.id === "L:Net revenue");
+        const revNode = s1.nodes.find(n => n.id === "L:Net revenue");
+        check("highlight: the node share is the marked part of the whole (Net revenue)",
+            rev && Math.abs(+rev.share - hl.expRevShare) < 1e-3 && Math.abs(rev.h - revNode.h * hl.expRevShare) < 0.05
+            && Math.abs(rev.y - revNode.y) < 0.01, rev && `${rev.share} vs ${hl.expRevShare.toFixed(4)}`);
+        // the port of Net revenue: what its marked ribbons send = its marked bar (marked GP + marked COGS)
+        const out1 = s1.parts.filter(p => p.src === revNode.i).reduce((a, p) => a + p.w, 0);
+        check("highlight: the marked ribbons of a port add up to the marked bar (stacked matching on the marked part)",
+            Math.abs(out1 - rev.h) < 0.6, `${out1.toFixed(2)} vs ${rev.h.toFixed(2)}`);
+        const cm = s1.nodes.find(n => n.name.indexOf("Contract manufacturing") === 0);
+        const cmIn = s1.inner.find(n => n.id === cm.id);
+        check("highlight: a row outside the selection keeps its grey whole, no inner bar, label „– of …“",
+            cmIn.h === 0 && +cmIn.share === 0 && /^– of /.test(cm.val), cm.val);
+        check("highlight: the labels read „marked of whole“",
+            /^\S+ of \S+$/.test(revNode.val.replace(/ | /g, "")), revNode.val);
+        check("highlight: the tooltip names the marked part and its share",
+            /Marked .+ of .+ \(\d+(\.\d)?%\)/.test(revNode.tip), revNode.tip);
+        check("highlight: the hint line explains the inside, the footer note the selection (with the whole of Net revenue)",
+            /coloured inside ∝ the marked part/.test(s1.hint) && /Marked selection from another visual/.test(s1.note)
+            && /Net revenue .+ of .+ in total \(\d/.test(s1.note) && /coloured = marked part, grey = total/.test(s1.note),
+            s1.hint.slice(0, 80) + " | " + s1.note);
+        check("highlight: the way back — the same visual without highlights renders byte-identical to before",
+            hl.back === hl.s0html, "diff at " + [...hl.back].findIndex((c, i) => c !== hl.s0html[i]));
+        const hc = hl.hc;
+        check("highlight · high contrast: the whole dashed without pattern, the marked part as pattern (solid · hatch · dots)",
+            hc.bands.every(b => b.pattern === "none") && hc.parts.length > 0
+            && hc.parts.every(p => p.pattern === (p.tone === "good" ? "solid" : p.tone === "bad" ? "hatch" : "dots"))
+            && hc.parts.filter(p => p.pattern !== "solid").every(p => /^url\(#/.test(p.fill))
+            && hc.inner.filter(n => n.h > 0).every(n => n.pattern != null),
+            [...new Set(hc.parts.map(p => p.tone + ":" + p.pattern))].join(","));
+        const dk = hl.dark;
+        check("highlight · dark mode: the grey whole sinks into the dark paper, the marked part stays apart",
+            dk.bands.length > 0 && lum(dk.bands[0].fill) < 0.45 && dk.parts.every(p => p.fill !== dk.bands[0].fill),
+            dk.bands[0] && dk.bands[0].fill);
+        check("highlight · German: labels „von“, footer and hint localized",
+            /von/.test(hl.de.nodes[0].val) && /Markierte Auswahl aus einem anderen Visual/.test(hl.de.note)
+            && /farbige Innenteil/.test(hl.de.hint), hl.de.nodes[0].val + " | " + hl.de.note.slice(0, 60));
+        check("highlight · export: the marked flow prints with its footer note, without toolbar",
+            hl.exp.svg && hl.exp.buttons === 0 && hl.exp.parts.length > 0 && /Marked selection/.test(hl.exp.note));
+        // (the filtered Sankey has no node for a row outside the selection — compare the common ones)
+        const fIds = new Set(hl.excFilter.map(x => x.split(":")[0]));
+        const excCommon = hl.excHl.filter(x => fIds.has(x.split(":")[0]));
+        check("highlight · ⚡: the exception flags of the marked part equal the flags of the same selection as a filter",
+            JSON.stringify(excCommon) === JSON.stringify(hl.excFilter) && excCommon.some(x => /:1$/.test(x)) && excCommon.some(x => /:0$/.test(x)),
+            excCommon.join(",") + " vs " + hl.excFilter.join(","));
+        // tree and tile view: like a filter (owner: "Cross-Highlight maximal im Sankey, sonst raus — nur Filter")
+        check("highlight · tree: renders byte-identical to the same selection as a filter (no strip, no „of“, no note)",
+            hl.t1html === hl.tfhtml && hl.t1.every(c => c.strip == null && c.of === "") && hl.t1note === "",
+            "diff at " + [...hl.t1html].findIndex((c, i) => c !== hl.tfhtml[i]));
+        check("highlight · tree: the way back without highlights renders byte-identical to before",
+            hl.tback === hl.t0html);
+        check("highlight · tree ⚡: card exception flags equal the filter of the same selection",
+            JSON.stringify(hl.texcHl) === JSON.stringify(hl.texcFilter) && hl.texcHl.includes("0") && hl.texcHl.includes("1"),
+            hl.texcHl.join("") + " vs " + hl.texcFilter.join(""));
+        check("highlight · tile view from the Sankey: opens like a filter — byte-identical, no note",
+            hl.zoom.tile && hl.zoom.note === "" && hl.zoom.same, JSON.stringify(hl.zoom));
+        check("highlight · one visual: Sankey → table switches to the filter picture (row outside gone, no note) and back",
+            hl.swTable.note === "" && !hl.swTable.cm && hl.swBack, JSON.stringify(hl.swTable) + " back " + hl.swBack);
+    }
 
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();

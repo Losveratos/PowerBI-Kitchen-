@@ -23,6 +23,23 @@ export const SERIES_SCENARIOS: Scenario[] = ["ac", "py", "pl", "fc"];
 
 export type RowType = "account" | "subtotal" | "formula" | "kpi" | "separator";
 
+/**
+ * 1.7 stock vs flow (Bestand vs. Fluss): how a STOCK row aggregates over a
+ * period window — "last" = the stand at the end of the window (balance sheet,
+ * cash, working capital, headcount; the default of the stock token), "first"
+ * = the stand at the start of the window (opening balance of a cash-flow
+ * bridge). A flow row (null) sums its months, as before 1.7.
+ */
+export type StockAgg = "last" | "first";
+
+/**
+ * statement.stockMode (1.7): "auto" reads the stock tokens of the row-type
+ * cell (and inherits them to totals), "allStock" treats every row as a stock
+ * (a pure balance sheet without a token column), "allFlow" is the behaviour
+ * before 1.7 — every row a flow, tokens ignored.
+ */
+export type StockMode = "auto" | "allStock" | "allFlow";
+
 export interface InputRow {
     id: string;
     parent: string | null;
@@ -33,6 +50,10 @@ export interface InputRow {
     sign: number;
     displayInvert: boolean;
     varianceInvert: boolean;
+    /** 1.7 explicit stock token of the row-type cell (stock / opening …); absent = none */
+    stock?: StockAgg | null;
+    /** 1.7 explicit flow token (flow / fluss …) — overrides the inheritance of a total or formula */
+    flow?: boolean;
     values: Partial<Record<Scenario, number | null>>;
     /** Monthly series (aligned to PnlModel.months) for sparklines; signed like values. */
     series?: Partial<Record<Scenario, (number | null)[]>>;
@@ -59,6 +80,21 @@ export interface PnlNode {
     error: string | null;
     hasChildren: boolean;
     isOrphanBucket: boolean;
+    /**
+     * 1.7 effective stock class after statement.stockMode, the explicit tokens
+     * and the inheritance (totals / formulas whose operands are all stocks);
+     * null = flow. Optional so that hand-built nodes (tests, the virtual
+     * total) read as flows.
+     */
+    stock?: StockAgg | null;
+    /**
+     * 1.7 a stock is involved below this row (operand, child or deeper): its
+     * period values are then evaluated on the window values of its operands
+     * (windowValue) instead of summing its own monthly series.
+     */
+    stockInside?: boolean;
+    /** 1.7 operands / children mix stocks and flows — the classification followed the first operand */
+    stockMix?: boolean;
 }
 
 export interface PnlModel {
@@ -67,6 +103,21 @@ export interface PnlModel {
     maxDepth: number;
     months: string[];
     warnings: string[];
+    /** 1.7 statement.stockMode the model was built with */
+    stockMode?: StockMode;
+}
+
+/** 1.7 options of buildModel */
+export interface BuildOptions {
+    /** statement.stockMode (default auto) */
+    stockMode?: StockMode;
+    /**
+     * FY outlook from the monthly series where no FY measure is bound (the
+     * visual sets it for models with stock rows): fcfy ← AC up to the last
+     * actuals month + FC for the rest of the year (stocks: the stand at the end
+     * of that combined series), plfy ← PL (stocks: the PL stand at the end).
+     */
+    fyFromSeries?: { fcfy?: boolean; plfy?: boolean };
 }
 
 export interface Variance {
@@ -92,6 +143,10 @@ export interface LevelInputRow {
     sign: number;
     displayInvert: boolean;
     varianceInvert: boolean;
+    /** 1.7 explicit stock token (see InputRow.stock) */
+    stock?: StockAgg | null;
+    /** 1.7 explicit flow token (see InputRow.flow) */
+    flow?: boolean;
     values: Partial<Record<Scenario, number | null>>;
     month: string | null;
     comment: string | null;
@@ -329,6 +384,9 @@ export function rowsFromLevels(
             displayInvert: r.displayInvert, varianceInvert: r.varianceInvert,
             values: { ...r.values }, comment: r.comment,
             month: r.month, index: r.index,
+            // 1.7 the stock / flow tokens travel only when the cell carried one —
+            // a row without a token stays shaped exactly as before
+            ...(r.stock ? { stock: r.stock } : {}), ...(r.flow ? { flow: true } : {}),
         });
     }
 
@@ -396,13 +454,66 @@ export function rowsFromLevels(
     return { rows: out, months: agg.months };
 }
 
-export function parseRowType(raw: unknown): RowType {
-    const s = String(raw ?? "").trim().toLowerCase();
+/** the row-type rule on one lower-case text (unchanged since 1.0) */
+function classifyRowType(s: string): RowType {
     if (s.startsWith("sub") || s.startsWith("zwischen") || s === "sum" || s === "summe") { return "subtotal"; }
     if (s.startsWith("form")) { return "formula"; }
     if (s === "kpi" || s === "ratio" || s === "margin" || s === "kennzahl" || s === "marge" || s === "quote") { return "kpi"; }
     if (s.startsWith("sep") || s.startsWith("trenn") || s.startsWith("leer")) { return "separator"; }
     return "account";
+}
+
+/** 1.7 tokens of the row-type cell: a stock (stand at the end of the window) … */
+export const STOCK_TOKENS = ["stock", "bestand", "balance", "stichtag", "point"];
+/** … an opening stock (stand at the start of the window: the opening balance of a bridge) … */
+export const OPENING_TOKENS = ["opening", "anfangsbestand", "eröffnung", "eroeffnung", "open", "begin"];
+/** … and an explicit flow (overrides the stock inheritance of a total or formula) */
+export const FLOW_TOKENS = ["flow", "fluss", "bewegung", "movement"];
+
+/** what the row-type cell says: the row type plus the 1.7 stock / flow token */
+export interface RowTypeInfo {
+    rowType: RowType;
+    /** explicit stock token — "last" (stock …) or "first" (opening …); null = none */
+    stock: StockAgg | null;
+    /** explicit flow token */
+    flow: boolean;
+}
+
+/**
+ * Read the row-type cell (1.7). Several tokens may share one cell, separated
+ * by comma, semicolon, blank or "|" — "Subtotal stock", "Account; opening",
+ * "Formula | flow". Only a cell that carries a stock / opening / flow token is
+ * split: every other value is read whole by the rule of 1.0 (so no existing
+ * value changes its meaning — "net margin" stays an account, exactly as
+ * before). In a split cell the remaining words decide the row type, the first
+ * word naming one wins; the last stock / opening / flow token wins over an
+ * earlier one.
+ */
+export function parseRowTypeInfo(raw: unknown): RowTypeInfo {
+    const s = String(raw ?? "").trim().toLowerCase();
+    const toks = s.split(/[\s,;|]+/).filter(t => t !== "");
+    let stock: StockAgg | null = null;
+    let flow = false;
+    const rest: string[] = [];
+    for (const t of toks) {
+        if (STOCK_TOKENS.includes(t)) { stock = "last"; flow = false; }
+        else if (OPENING_TOKENS.includes(t)) { stock = "first"; flow = false; }
+        else if (FLOW_TOKENS.includes(t)) { stock = null; flow = true; }
+        else { rest.push(t); }
+    }
+    if (rest.length === toks.length) { return { rowType: classifyRowType(s), stock: null, flow: false }; }
+    let rowType = classifyRowType(rest.join(" "));
+    if (rowType === "account") {
+        for (const t of rest) {
+            const r = classifyRowType(t);
+            if (r !== "account") { rowType = r; break; }
+        }
+    }
+    return { rowType, stock, flow };
+}
+
+export function parseRowType(raw: unknown): RowType {
+    return parseRowTypeInfo(raw).rowType;
 }
 
 export function parseBool(raw: unknown): boolean {
@@ -421,9 +532,10 @@ export function parseSign(raw: unknown): number {
     return s.includes("-") || s.toLowerCase().startsWith("neg") ? -1 : 1;
 }
 
-export function buildModel(rows: InputRow[], orphanLabel: string, months: string[] = []): PnlModel {
+export function buildModel(rows: InputRow[], orphanLabel: string, months: string[] = [], opts: BuildOptions = {}): PnlModel {
     const warnings: string[] = [];
     const byId = new Map<string, PnlNode>();
+    const stockMode: StockMode = opts.stockMode === "allStock" || opts.stockMode === "allFlow" ? opts.stockMode : "auto";
 
     for (const row of rows) {
         if (byId.has(row.id)) {
@@ -504,8 +616,112 @@ export function buildModel(rows: InputRow[], orphanLabel: string, months: string
     let maxDepth = 0;
     for (const n of byId.values()) { maxDepth = Math.max(maxDepth, n.level + 1); }
 
-    computeValues(roots, byId, warnings, months);
-    return { roots, byId, maxDepth, months, warnings };
+    const resolve = resolverOf(byId);
+    // 1.7 stock classification first: the roll-up below reads it
+    classifyStock(byId, resolve, stockMode);
+    computeValues(roots, byId, warnings, months, resolve, opts.fyFromSeries ?? {});
+    const model: PnlModel = { roots, byId, maxDepth, months, warnings };
+    if (stockMode !== "auto") { model.stockMode = stockMode; }
+    return model;
+}
+
+/** reference resolver over a node map: id first, then the unique row name (null = ambiguous) */
+function resolverOf(byId: Map<string, PnlNode>): (id: string) => PnlNode | undefined {
+    const byName = new Map<string, PnlNode | null>();
+    for (const node of byId.values()) {
+        const n = node.row.name;
+        if (!byName.has(n)) { byName.set(n, node); }
+        else if (byName.get(n) !== node) { byName.set(n, null); }
+    }
+    return (id: string): PnlNode | undefined => byId.get(id) ?? (byName.get(id) || undefined);
+}
+
+/** parsed FormulaDef per node (computeValues fills it; windowValue reads it) */
+const AST_OF = new WeakMap<PnlNode, Ast>();
+
+/** the [refs] of a formula in reading order (unresolvable ones skipped) */
+function astRefs(ast: Ast, resolve: (id: string) => PnlNode | undefined, out: PnlNode[] = []): PnlNode[] {
+    switch (ast.kind) {
+        case "ref": { const n = resolve(ast.id); if (n) { out.push(n); } break; }
+        case "neg": astRefs(ast.arg, resolve, out); break;
+        case "bin": astRefs(ast.left, resolve, out); astRefs(ast.right, resolve, out); break;
+        default: break;
+    }
+    return out;
+}
+
+/**
+ * 1.7 stock classification of every node (PnlNode.stock / stockInside /
+ * stockMix), by statement.stockMode:
+ *
+ *  - allFlow:  every row a flow (the behaviour before 1.7, tokens ignored);
+ *  - allStock: every row except separators a stock — an opening token keeps
+ *              its "first" aggregation;
+ *  - auto:     the explicit tokens decide; a total (subtotal, generated level
+ *              node, postable parent) without a token inherits "stock" when all
+ *              of its contributing children are stocks (analogous to the
+ *              DisplayInvert inheritance of the level mode), a formula / KPI
+ *              without a token when all of its operands are stocks. Mixed
+ *              operands (stock ± flow) follow the FIRST operand — a stock
+ *              moved by flows is the closing stand ("last"), so an opening
+ *              balance plus the cash flows gives the closing balance — and
+ *              the row is marked stockMix (edit-mode note). Mixed children of a
+ *              total leave it a flow (stockMix). Several opening stocks
+ *              inherit "first", anything else "last".
+ *
+ * stockInside: a stock is involved anywhere below (children / operands,
+ * transitively) — the visual then evaluates the row's period windows from its
+ * operands (windowValue) instead of summing its own series.
+ */
+function classifyStock(byId: Map<string, PnlNode>, resolve: (id: string) => PnlNode | undefined, mode: StockMode): void {
+    for (const n of byId.values()) { n.stock = null; n.stockInside = false; n.stockMix = false; }
+    if (mode === "allFlow") { return; }
+    if (mode === "allStock") {
+        for (const n of byId.values()) {
+            if (n.row.rowType === "separator") { continue; }
+            n.stock = n.row.stock === "first" ? "first" : "last";
+        }
+        for (const n of byId.values()) {
+            n.stockInside = n.row.rowType !== "separator" && (n.children.length > 0 || n.row.rowType === "formula" || n.row.rowType === "kpi");
+        }
+        return;
+    }
+    const done = new Set<PnlNode>();
+    const busy = new Set<PnlNode>();
+    const visit = (n: PnlNode): void => {
+        if (done.has(n) || busy.has(n)) { return; }
+        busy.add(n);
+        const t = n.row.rowType;
+        let parts: PnlNode[] = [];
+        if (t === "formula" || t === "kpi") {
+            const def = (n.row.formulaDef ?? "").trim();
+            try { parts = def === "" ? [] : astRefs(parseFormula(def), resolve); } catch { parts = []; }
+        } else if (t !== "separator") {
+            parts = n.children.filter(c => c.row.rowType === "account" || c.row.rowType === "subtotal");
+        }
+        for (const p of parts) { visit(p); }
+        const stocks = parts.filter(p => p.stock != null);
+        n.stockInside = parts.some(p => p.stock != null || p.stockInside === true);
+        const mixed = stocks.length > 0 && stocks.length < parts.length;
+        if (t === "separator") {
+            n.stock = null;
+        } else if (n.row.flow) {
+            n.stock = null;
+        } else if (n.row.stock) {
+            n.stock = n.row.stock;
+        } else if (parts.length > 0 && stocks.length === parts.length) {
+            n.stock = stocks.every(p => p.stock === "first") ? "first" : "last";
+        } else if (mixed && (t === "formula" || t === "kpi")) {
+            // stock ± flow: the result follows its first operand
+            n.stock = parts[0].stock != null ? "last" : null;
+        } else {
+            n.stock = null;
+        }
+        n.stockMix = mixed;
+        busy.delete(n);
+        done.add(n);
+    };
+    for (const n of byId.values()) { visit(n); }
 }
 
 /** Sum contribution of a node into its parent: accounts and subtotals count, ratio/separator rows never do. */
@@ -551,10 +767,10 @@ function childSeriesSum(node: PnlNode, s: Scenario): (number | null)[] | null {
  * scenario here; their first-wins rule lives in aggregateMonthly, one level
  * below. The engine's roll-up pass and syntheticTotal() share this definition.
  */
-export function aggregateSubtotal(node: PnlNode): void {
+export function aggregateSubtotal(node: PnlNode, own: (s: Scenario) => number | null | undefined = s => node.row.values[s]): void {
     for (const s of SCENARIOS) {
         const childAcc = childSum(node, s);
-        const base = childAcc != null ? childAcc : node.row.values[s];
+        const base = childAcc != null ? childAcc : own(s);
         node.computed[s] = base == null ? null : base * node.row.sign;
     }
     for (const s of SERIES_SCENARIOS) {
@@ -568,7 +784,85 @@ export function aggregateSubtotal(node: PnlNode): void {
     }
 }
 
-function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: string[], months: string[]): void {
+/**
+ * 1.7 model-wide first / last month index that carries a value of each series
+ * scenario — the stand of a stock row over the whole bound period is read at
+ * these (AC: the last actuals month, PY / PL / FC: normally December).
+ * -1 = the scenario has no monthly value at all.
+ */
+function seriesBounds(byId: Map<string, PnlNode>, n: number): { first: Record<string, number>; last: Record<string, number> } {
+    const first: Record<string, number> = {}; const last: Record<string, number> = {};
+    for (const s of SERIES_SCENARIOS) { first[s] = -1; last[s] = -1; }
+    if (n === 0) { return { first, last }; }
+    for (const node of byId.values()) {
+        for (const s of SERIES_SCENARIOS) {
+            const arr = node.row.series?.[s];
+            if (!arr) { continue; }
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i] == null) { continue; }
+                if (first[s] < 0 || i < first[s]) { first[s] = i; }
+                if (i > last[s]) { last[s] = i; }
+            }
+        }
+    }
+    return { first, last };
+}
+
+function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: string[], months: string[],
+    resolve: (id: string) => PnlNode | undefined, fy: { fcfy?: boolean; plfy?: boolean }): void {
+    const bounds = seriesBounds(byId, months.length);
+    // 1.7 the AC&FC series of the FY fallback: AC up to the last actuals month, FC after it
+    const lastAc = bounds.last.ac;
+    const acFc = (node: PnlNode): (number | null)[] | null => {
+        const ac = node.row.series?.ac; const fc = node.row.series?.fc;
+        if (!ac && !fc) { return null; }
+        return months.map((_, i) => (i <= lastAc ? ac?.[i] ?? null : fc?.[i] ?? null));
+    };
+    const acFcFirst = Math.min(...[bounds.first.ac, bounds.first.fc].filter(i => i >= 0), Infinity);
+    const acFcLast = Math.max(bounds.last.ac, bounds.last.fc);
+    /**
+     * own (raw, unsigned) value of a row in a scenario. 1.7 FY fallback (no FY
+     * measure bound, see BuildOptions.fyFromSeries): a flow's outlook is the
+     * sum of AC&FC (AC up to the last actuals month, FC after it) resp. of PL;
+     * a stock's outlook is the stand at the end (an opening stock: the start)
+     * of that series.
+     */
+    const own = (node: PnlNode, s: Scenario): number | null | undefined => {
+        const v = node.row.values[s];
+        if (v != null || !((s === "fcfy" && fy.fcfy) || (s === "plfy" && fy.plfy))) { return v; }
+        if (s === "plfy") {
+            const arr = node.row.series?.pl;
+            if (!node.stock || !arr) { return node.row.values.pl; }
+            const i = node.stock === "first" ? bounds.first.pl : bounds.last.pl;
+            return i >= 0 ? arr[i] ?? null : null;
+        }
+        const arr = acFc(node);
+        if (!arr) { return node.row.values.fc ?? null; }
+        if (!node.stock) {
+            let sum = 0; let seen = false;
+            for (const x of arr) { if (x != null) { sum += x; seen = true; } }
+            return seen ? sum : null;
+        }
+        const i = node.stock === "first" ? acFcFirst : acFcLast;
+        return i >= 0 && isFinite(i) ? arr[i] ?? null : null;
+    };
+    const useOwn = fy.fcfy === true || fy.plfy === true;
+    /**
+     * 1.7 a stock row over the whole bound period is its stand — at the last
+     * month with a value of that scenario (an opening stock: the first) —
+     * never the sum of its months. Rows without monthly series keep the value
+     * as delivered.
+     */
+    const stockStand = (node: PnlNode): void => {
+        if (!node.stock || months.length === 0) { return; }
+        for (const s of SERIES_SCENARIOS) {
+            const arr = node.series[s];
+            if (!arr) { continue; }
+            const i = node.stock === "first" ? bounds.first[s] : bounds.last[s];
+            node.computed[s] = i >= 0 ? arr[i] ?? null : null;
+        }
+    };
+
     // pass 1: additive values bottom-up (accounts + subtotals)
     const sumNode = (node: PnlNode): void => {
         for (const c of node.children) { sumNode(c); }
@@ -582,13 +876,17 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
 
         if (t !== "account" && t !== "subtotal") { return; } // formula/kpi in pass 2
 
-        if (t === "subtotal") { aggregateSubtotal(node); return; }
+        if (t === "subtotal") {
+            if (useOwn) { aggregateSubtotal(node, s => own(node, s)); } else { aggregateSubtotal(node); }
+            stockStand(node);
+            return;
+        }
 
         // postable parent account: own value + children
         for (const s of SCENARIOS) {
-            const own = node.row.values[s];
+            const own0 = useOwn ? own(node, s) : node.row.values[s];
             const childAcc = childSum(node, s);
-            let acc: number | null = own != null ? own * node.row.sign : null;
+            let acc: number | null = own0 != null ? own0 * node.row.sign : null;
             if (childAcc != null) { acc = (acc ?? 0) + childAcc; }
             node.computed[s] = acc;
         }
@@ -596,29 +894,22 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
         // monthly series roll up with the same semantics (sparklines)
         for (const s of SERIES_SCENARIOS) {
             const ownRaw = node.row.series?.[s];
-            const own = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
+            const ownS = ownRaw ? ownRaw.map(v => (v == null ? null : v * node.row.sign)) : null;
             const childAcc = childSeriesSum(node, s);
-            if (own && childAcc) {
-                node.series[s] = own.map((v, i) =>
+            if (ownS && childAcc) {
+                node.series[s] = ownS.map((v, i) =>
                     v == null && childAcc[i] == null ? null : (v ?? 0) + (childAcc[i] ?? 0));
-            } else if (own || childAcc) {
-                node.series[s] = (own ?? childAcc)!;
+            } else if (ownS || childAcc) {
+                node.series[s] = (ownS ?? childAcc)!;
             }
         }
+        stockStand(node);
     };
     for (const r of roots) { sumNode(r); }
 
     // pass 2: formula / kpi rows with memoized evaluation + cycle detection.
     // [Refs] resolve by id first, then by unique row name — level mode has
     // synthetic path ids, so "[Umsatzerlöse]" must work by name there.
-    const byName = new Map<string, PnlNode | null>(); // null = ambiguous
-    for (const node of byId.values()) {
-        const n = node.row.name;
-        if (!byName.has(n)) { byName.set(n, node); }
-        else if (byName.get(n) !== node) { byName.set(n, null); }
-    }
-    const resolve = (id: string): PnlNode | undefined =>
-        byId.get(id) ?? (byName.get(id) || undefined);
 
     const visiting = new Set<string>();
     const done = new Set<string>();
@@ -638,6 +929,7 @@ function computeValues(roots: PnlNode[], byId: Map<string, PnlNode>, warnings: s
         } else {
             try {
                 const ast = parseFormula(def);
+                AST_OF.set(node, ast);
                 for (const s of SCENARIOS) {
                     node.computed[s] = evalAst(ast, resolve, evalNode, node, n => n.computed[s]);
                     if (node.error) { break; }
@@ -851,6 +1143,101 @@ export function formulaOperands(
     return out;
 }
 
+// ---- 1.7 stock vs flow: period windows
+
+/** one reference resolver per model (windowValue runs per row and scenario) */
+const RESOLVER_OF = new WeakMap<PnlModel, (id: string) => PnlNode | undefined>();
+
+/** the series sum over months lo..hi (null when no month carries a value) — the flow rule */
+function seriesSum(arr: (number | null)[] | undefined, lo: number, hi: number): number | null {
+    if (!arr) { return null; }
+    let sum = 0; let seen = false;
+    for (let i = Math.max(0, lo); i <= hi && i < arr.length; i++) {
+        const v = arr[i];
+        if (v != null) { sum += v; seen = true; }
+    }
+    return seen ? sum : null;
+}
+
+/** true when the period values of this row follow the 1.7 stock rule (a stock, or a stock below it) */
+export function stockish(node: PnlNode): boolean {
+    return node.stock != null || node.stockInside === true;
+}
+
+/** true when any row of the model is a stock (statement.stockMode / tokens) */
+export function modelHasStock(model: PnlModel): boolean {
+    for (const n of model.byId.values()) { if (n.stock != null) { return true; } }
+    return false;
+}
+
+/**
+ * 1.7 raw (calculation-signed) value of a row over the period window of the
+ * months lo..hi (the YTD window: 0..last actuals month):
+ *
+ *  - flow:        the sum of its months (as before);
+ *  - stock:       the stand at the end of the window (hi) — an opening stock
+ *                 the stand at its start (lo); the same Stichtag for every
+ *                 scenario, so Δ PY / PL / FC compare stands of the same month;
+ *  - formula / KPI with a stock among its operands: the formula evaluated on
+ *                 the WINDOW values of its operands (an opening balance plus
+ *                 the year's cash flows = the closing balance; a closing minus
+ *                 an opening stock = the change of the year);
+ *  - a flow total with stocks below: sign × Σ of its children's window values.
+ *
+ * Without monthly series (no period role) every row keeps its delivered value
+ * (node.computed). KPI rows without a stock keep node.computed, like the visual.
+ */
+export function windowValue(model: PnlModel, node: PnlNode, s: Scenario, lo: number, hi: number): number | null {
+    if (model.months.length === 0 || FY_SCENARIOS.includes(s)) { return node.computed[s] ?? null; }
+    let resolve = RESOLVER_OF.get(model);
+    if (!resolve) { resolve = nodeResolver(model); RESOLVER_OF.set(model, resolve); }
+    const memo = new Map<PnlNode, number | null>();
+    const rec = (n: PnlNode): number | null => {
+        if (memo.has(n)) { return memo.get(n)!; }
+        memo.set(n, null); // cycle guard
+        let v: number | null;
+        const t = n.row.rowType;
+        if (t === "separator" || n.error) {
+            v = null;
+        } else if (t === "formula" || t === "kpi") {
+            const ast = AST_OF.get(n);
+            if (ast && stockish(n)) {
+                v = evalAst(ast, resolve, () => undefined, n, rec);
+                if (n.error) { v = null; }
+            } else {
+                v = t === "kpi" ? n.computed[s] ?? null : seriesSum(n.series[s], lo, hi);
+            }
+        } else if (n.stock) {
+            const arr = n.series[s];
+            v = arr ? arr[n.stock === "first" ? lo : hi] ?? null : null;
+        } else if (n.stockInside) {
+            let acc: number | null = null;
+            if (t === "account") {
+                const own = n.row.series?.[s];
+                const o = own ? seriesSum(own, lo, hi) : null;
+                if (o != null) { acc = o * n.row.sign; }
+            }
+            let kids: number | null = null;
+            for (const c of n.children) {
+                if (!contributes(c)) { continue; }
+                const cv = rec(c);
+                if (cv != null) { kids = (kids ?? 0) + cv; }
+            }
+            if (t === "subtotal") {
+                const base = kids != null ? kids : seriesSum(n.row.series?.[s], lo, hi);
+                v = base == null ? null : base * n.row.sign;
+            } else {
+                v = kids == null ? acc : (acc ?? 0) + kids;
+            }
+        } else {
+            v = seriesSum(n.series[s], lo, hi);
+        }
+        memo.set(n, v);
+        return v;
+    };
+    return rec(node);
+}
+
 // ---- variances
 
 export function variance(node: PnlNode, ref: Scenario, minuend: Scenario = "ac"): Variance {
@@ -869,6 +1256,44 @@ export function varianceOf(a: number | null, rv: number | null, varianceInvert: 
     let good = delta >= 0;
     if (varianceInvert) { good = !good; }
     return { delta, deltaPct, good };
+}
+
+/**
+ * 1.7 "Only exceptions" (exceptions.* / toolbar ⚡): the threshold of a row.
+ * `pct` in whole percent (|Δ%| ≥ pct), `abs` in data units (|Δ| ≥ abs, before
+ * k / m scaling); 0 = that threshold is off. `dir` reads the sign of Δ in
+ * DISPLAY orientation against the reference (above / below the reference,
+ * not favourable / unfavourable — that stays the engine rating).
+ */
+export interface ExceptionRule {
+    pct: number;
+    abs: number;
+    dir: "both" | "up" | "down";
+}
+
+/**
+ * True when the variance `v` (raw, calculation-signed — variance(),
+ * varianceOf() or a period block of the visual) of `row` is an exception:
+ * |Δ%| ≥ pct OR |Δ| ≥ abs (one of them is enough), in the direction asked.
+ * A reference of 0 with a non-zero Δ is an infinite Δ% (an exception as soon
+ * as the percent threshold is on). Margin / KPI rows read the percent
+ * threshold in percentage points (Δ pp, ×100); the absolute threshold does
+ * not apply to them. With both thresholds at 0 every non-zero Δ counts.
+ */
+export function isExceptionVariance(row: InputRow, v: Variance, rule: ExceptionRule): boolean {
+    if (v.delta == null || v.delta === 0 || !isFinite(v.delta)) { return false; }
+    const kpi = row.rowType === "kpi";
+    const d = kpi ? v.delta : (row.displayInvert ? -v.delta : v.delta);
+    if (rule.dir === "up" && d <= 0) { return false; }
+    if (rule.dir === "down" && d >= 0) { return false; }
+    const pct = Math.max(0, Number(rule.pct) || 0);
+    const abs = Math.max(0, Number(rule.abs) || 0);
+    const eps = 1e-9;
+    if (pct <= 0 && abs <= 0) { return true; }
+    if (kpi) { return pct > 0 && Math.abs(v.delta * 100) >= pct - eps; }
+    if (abs > 0 && Math.abs(v.delta) >= abs * (1 - eps)) { return true; }
+    if (pct > 0) { return v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps; }
+    return false;
 }
 
 /**
@@ -956,6 +1381,11 @@ export function largestRemainder(y: number[], target: number): number[] {
  * without a value are absent. Rounding of a half is away from zero, like
  * Intl.NumberFormat.
  */
+/** 1.7 the kind of a row for the sum-safe distribution: flow, a stock aggregation, or a mixed total */
+function stockClass(n: PnlNode): string {
+    return n.stock ?? (n.stockInside ? "mix" : "flow");
+}
+
 export function sumSafeRound(roots: PnlNode[], read: (n: PnlNode) => number | null, quantum: number): Map<string, number> {
     const out = new Map<string, number>();
     if (!(quantum > 0) || !isFinite(quantum)) { return out; }
@@ -971,9 +1401,12 @@ export function sumSafeRound(roots: PnlNode[], read: (n: PnlNode) => number | nu
             out.set(n.row.id, p * quantum);
         }
         const kids = n.children.filter(c => distributable(c) && (() => { const cv = read(c); return cv != null && isFinite(cv); })());
-        // only a parent that IS the sum of its children may hand its printed value down
+        // only a parent that IS the sum of its children may hand its printed value down —
+        // 1.7: and only among rows of one kind (all flows, or all stocks of the same
+        // Stichtag): a total that mixes stands and movements, or an opening and a
+        // closing stand, is never distributed
         let share = false;
-        if (p != null && distributable(n) && kids.length > 0) {
+        if (p != null && distributable(n) && kids.length > 0 && kids.every(c => stockClass(c) === stockClass(n))) {
             const sum = kids.reduce((a, c) => a + (read(c) as number), 0) * (n.row.sign < 0 ? -1 : 1);
             share = Math.abs(sum - (v as number)) <= 1e-9 * Math.max(1, Math.abs(sum), Math.abs(v as number));
         }
@@ -1042,9 +1475,68 @@ export function syntheticTotal(model: PnlModel): PnlNode {
         computed: { ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null },
         series: {},
         error: null, hasChildren: model.roots.length > 0, isOrphanBucket: false,
+        stock: null, stockInside: false, stockMix: false,
     };
     aggregateSubtotal(node);
     return node;
+}
+
+/**
+ * 1.7 ⚡ "only exceptions", mode hide: several sibling rows folded into ONE
+ * synthetic leaf row ("other (n)" — the caller names it in the reader's
+ * language). Values and monthly series are the plain sums of the members'
+ * computed values, i.e. exactly what they contribute to their parent's Σ —
+ * a cascade over the folded list therefore closes like the original one
+ * (Σ kept rows + rest = parent). Flags come from the members where they agree;
+ * DisplayInvert follows the majority (it only orients the display, the raw sum
+ * stays the same), VarianceInvert only when every member carries it. A stock
+ * class survives only when all members share it. No comment, no error, no
+ * formula; like syntheticTotal the node is NOT registered in model.byId.
+ */
+export function mergeNodes(members: PnlNode[], id: string, name: string, parent: string | null,
+    srcIdx?: number[]): PnlNode {
+    const first = members[0];
+    const computed = { ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null } as Record<Scenario, number | null>;
+    for (const s of SCENARIOS) {
+        let acc: number | null = null;
+        for (const m of members) {
+            const v = m.computed[s];
+            if (v != null && isFinite(v)) { acc = (acc ?? 0) + v; }
+        }
+        computed[s] = acc;
+    }
+    const series: Partial<Record<Scenario, (number | null)[]>> = {};
+    for (const s of SCENARIOS) {
+        const lists = members.map(m => m.series[s]).filter((x): x is (number | null)[] => x != null);
+        if (lists.length === 0) { continue; }
+        const len = Math.max(...lists.map(l => l.length));
+        const out: (number | null)[] = [];
+        for (let i = 0; i < len; i++) {
+            let acc: number | null = null;
+            for (const l of lists) {
+                const v = l[i];
+                if (v != null && isFinite(v)) { acc = (acc ?? 0) + v; }
+            }
+            out.push(acc);
+        }
+        series[s] = out;
+    }
+    const inv = members.filter(m => m.row.displayInvert).length;
+    const stock = members.every(m => (m.stock ?? null) === (first.stock ?? null)) ? (first.stock ?? null) : null;
+    const row: InputRow = {
+        id, parent, name, sort: members[members.length - 1].row.sort,
+        rowType: "account", formulaDef: null,
+        sign: members.every(m => m.row.sign === first.row.sign) ? first.row.sign : 1,
+        displayInvert: inv * 2 > members.length,
+        varianceInvert: members.every(m => m.row.varianceInvert),
+        values: { ...computed }, series, comment: null, index: first.row.index,
+    };
+    if (srcIdx && srcIdx.length > 0) { row.srcIdx = srcIdx; }
+    return {
+        row, children: [], level: Math.min(...members.map(m => m.level)), computed, series,
+        error: null, hasChildren: false, isOrphanBucket: false,
+        stock, stockInside: members.some(m => m.stockInside === true), stockMix: false,
+    };
 }
 
 // ---- visible rows (expand/collapse)
@@ -1072,4 +1564,77 @@ export function collapseToLevel(roots: PnlNode[], level: number): Set<string> {
     };
     walk(roots);
     return collapsed;
+}
+
+// ---- 1.7 cross-highlight (supportsHighlight): the marked part next to the whole
+
+/**
+ * The marked share of a value, 0..1, measured in the direction of the full
+ * value: a marked part of the same sign reads as its fraction, a marked part
+ * against the sign of the whole (or a missing / zero whole) as 0, a marked
+ * part beyond the whole (non-additive measures) as 1. The Sankey fills its
+ * bars with it, the tree draws it as the share strip of a card.
+ */
+export function markedShare(marked: number | null | undefined, full: number | null | undefined): number {
+    if (marked == null || full == null || !isFinite(marked) || !isFinite(full) || full === 0) { return 0; }
+    const r = marked / full;
+    return r <= 0 ? 0 : r >= 1 ? 1 : r;
+}
+
+/** one stacked matching of sources against targets (see stackPairs) */
+export interface StackMatch {
+    /** amount per matched pair, keyed "i|j" (source index | target index) */
+    pairs: Map<string, number>;
+    /** what each source has left over after the matching */
+    restS: number[];
+    /** what each target has left over after the matching */
+    restT: number[];
+}
+
+/**
+ * The stacked two-pointer matching of the Sankey port, as a pure function:
+ * sources and targets are poured top to bottom, every step moves the smaller
+ * remainder of the current pair. The Sankey runs it a second time on the
+ * marked amounts (same order of sources and targets), so every ribbon knows
+ * which part of it belongs to the marked selection — a marked revenue splits
+ * into a marked gross profit and a marked cost of sales exactly like the
+ * whole does. Negative amounts count as 0.
+ */
+export function stackPairs(S: number[], T: number[]): StackMatch {
+    const pairs = new Map<string, number>();
+    const s = S.map(v => (isFinite(v) && v > 0 ? v : 0));
+    const t = T.map(v => (isFinite(v) && v > 0 ? v : 0));
+    const total = s.reduce((a, b) => a + b, 0) + t.reduce((a, b) => a + b, 0);
+    const eps = Math.max(1e-9, total * 1e-9);
+    const restS = [...s]; const restT = [...t];
+    let i = 0; let j = 0;
+    while (i < s.length && j < t.length) {
+        if (restS[i] <= eps) { restS[i] = Math.max(0, restS[i]); i++; continue; }
+        if (restT[j] <= eps) { restT[j] = Math.max(0, restT[j]); j++; continue; }
+        const amt = Math.min(restS[i], restT[j]);
+        pairs.set(i + "|" + j, (pairs.get(i + "|" + j) ?? 0) + amt);
+        restS[i] -= amt; restT[j] -= amt;
+    }
+    return { pairs, restS, restT };
+}
+
+/**
+ * True when two models carry the same rows in the same tree — the check
+ * behind the second engine run of a cross-highlight: the marked model is
+ * built from the very rows of the full model (only the measure values
+ * differ), so every node of one has its twin in the other by id.
+ */
+export function sameShape(a: PnlModel, b: PnlModel): boolean {
+    if (a.byId.size !== b.byId.size || a.roots.length !== b.roots.length) { return false; }
+    if (a.months.length !== b.months.length || a.months.some((m, i) => m !== b.months[i])) { return false; }
+    for (const [id, n] of a.byId) {
+        const t = b.byId.get(id);
+        if (!t || t.level !== n.level || t.children.length !== n.children.length
+            || (t.row.parent ?? null) !== (n.row.parent ?? null)
+            || t.row.rowType !== n.row.rowType) { return false; }
+        for (let k = 0; k < n.children.length; k++) {
+            if (n.children[k].row.id !== t.children[k].row.id) { return false; }
+        }
+    }
+    return true;
 }

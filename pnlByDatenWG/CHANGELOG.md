@@ -1,5 +1,61 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.7.0.0 (2026-10-29): Bestand & Fluss, Nur Ausnahmen, ganze Kachel, Toolbar-Farben, Cross-Highlight im Sankey
+
+Vier Themen aus dem Nutzertest und der Bewertung „GuV · Cashflow · Bilanz". Ohne die neuen Schalter rendert
+jeder bestehende Bericht byte-identisch (SVG-Vergleich über 374 Stages).
+
+**Bestandsgrößen (Stock vs. Flow).**
+- Zeilentyp-Token `stock` (auch `bestand`, `balance`, `stichtag`, `point`) und `opening` (`anfangsbestand`,
+  `eröffnung`), z. B. `Account stock`. Bestände werden in YTD und FY nicht summiert, sondern als Stand zum
+  Stichtag gezeigt (Anfangsbestand: Stand zu Beginn); FY = Endstand der Vorschau bzw. das gebundene FY-Feld
+  direkt. Δ vergleicht Stände desselben Stichtags. Zellen ohne Token verhalten sich unverändert.
+- Vererbung: Summen sind Bestand, wenn alle Kinder Bestand sind; Formeln und KPIs aus Beständen ebenso,
+  gemischte Formeln folgen dem ersten Operanden; ohne Token zeigt der Bearbeitungsmodus einen Hinweis bei
+  Mischungen. Neue Formatkarte „Bestand & Fluss": Auto (Token) · Alle Zeilen Bestand (Bilanz) · Alle Zeilen
+  Fluss (wie vor 1.7).
+- Templates **T05A · Bilanz** (PY · AC zum Stichtag, ΔPY, ΔPY%; setzt bei Daten ohne Token „Alle Zeilen
+  Bestand") und **T05B · Cashflow** (Anfangsbestand → Flüsse → Endbestand, Kaskaden, Monat | YTD) in der
+  neuen Galerie-Gruppe „Bilanz & Cashflow" und im Template-Dropdown.
+- Ansichten: Mega-Table mit Stichtags-Blöcken, „="-Ketten und Doppellinie unter Bestands-Summen; 12G zeigt
+  Bestände als schraffierten FC-Balken; Zeilen-Waterfall mit Beständen als Anker; Sankey zeigt Bestände als
+  graue Anker. Σ-treue Rundung addiert keine Bestände.
+- Beispieldaten `demoData/bilanz-*.csv` und `demoData/cashflow-*.csv` (Daten-WG Brauerei 2026, kEUR);
+  `validate_model.py` des Skills finance-data-model kennt Bestandszeilen.
+
+**⚡ Nur Ausnahmen — farbig ist, was zählt.**
+- Neue Toolbar-Gruppe „Ausnahmen" (zuklappbar; Darstellung & Toolbar → „Gruppe: Ausnahmen"): Ausnahme ist
+  |Δ%| ≥ Schwelle (Standard 5 %, Stepper 1 … 100 %) oder |Δ| ≥ absolute Schwelle (aus „Wesentlichkeit ab
+  (absolut)") — eins reicht; Margenzeilen in Prozentpunkten; ein sichtbarer Perioden-Block genügt.
+- Referenz Auto (folgt der Δ-Referenz der Ansicht) · PY · PL · FC; Richtung ▲ darüber · ▼ darunter · ▲▼ beide
+  nach dem Vorzeichen von Δ; die Bewertung günstig/ungünstig behält ihre Farben. Bestände vergleichen Stand
+  gegen Stand.
+- Grau nutzt die Mechanik der Wesentlichkeit. **Ausblenden wirkt in jeder Ansicht:** Tabelle, Mega-Table und
+  Balken nehmen ruhige Detailzeilen heraus (auch zugeklappte Gruppen ohne Ausnahme darunter), Wasserfall und
+  Kaskaden-Templates (T04B–E, 12A/G/H) fassen ruhige Schritte je Abschnitt zu „übrige (n)" zusammen — die
+  Kaskade bleibt geschlossen —, der Baum klappt ruhige Äste zu einer grauen „+n"-Karte ein, der Sankey bündelt
+  ruhige Ströme zu einem grauen Band. Eine Fußzeile zählt je Ansicht, auch im Export.
+- Leser bedienen ⚡ selbst; der Zustand ist lesezeichenfähig und in die neue Formatkarte „Ausnahmen"
+  (`exceptions.*`) gespiegelt. Hochkontrast: Nicht-Ausnahmen gestrichelt statt grau. Mit ⚡ aus rendert jeder
+  Bericht wie bisher.
+
+**Fläche → Ganze Kachel nutzen (`layout.maximize`, Standard aus).** Schmale Ränder, kompakte Toolbar
+(Gruppennamen neben den Knöpfen), kompakter Kopf und Fuß; Tabelle, Mega-Table, Balken und Wasserfall
+skalieren auf die Kachelhöhe (×1,6 bis 9 px, danach Scroll); Baum und Sankey füllen die Kachel.
+
+**Toolbar-Farben.** Neue Formatkarte (Knopf-Hintergrund, Knopf-Text, aktiver Knopf Hintergrund/Text, Rahmen);
+leer = automatisch inkl. Dunkelmodus; Hochkontrast ignoriert sie; der Start-Hub bleibt im Familien-Look.
+
+**Cross-Highlight (`supportsHighlight: true`).** Markiert ein Leser einen Teil der Daten in einem anderen
+Visual, zeigt nur der Sankey die Auswahl im Gesamt: das Ganze grau, der markierte Teil als farbige Innen-Bänder
+(„923 von 1 685"), Hochkontrast mit Mustern. Alle anderen Ansichten verhalten sich wie gefiltert. Ohne
+Markierung rendert jeder Bericht unverändert. Hinweis für Autoren: Die Standard-Interaktion anderer Visuals auf
+die GuV wird damit „Hervorheben"; wer ausdrücklich Filtern will, stellt es unter „Interaktionen bearbeiten" am
+auslösenden Visual um — sichtbar ist der Unterschied nur im Sankey.
+
+**Tests:** engine 48, mega-shot 320, tree/Sankey 380, toolbar 388, finance 95, hub 14 + 130, start/dark 102,
+i18n 13 (898 Schlüssel je Sprache); Perf im Budget (Erstrender ≈ 450–600 ms / 1500, Sankey ≈ 165 ms / 1000).
+
 ## 1.6.0.0 (2026-10-28): Sankey — die GuV als Fluss, und der Autor bestimmt, welche Ansichten es gibt
 
 Fünfte Ansicht „Sankey": die GuV als Fluss von links nach rechts über dem Graphen des

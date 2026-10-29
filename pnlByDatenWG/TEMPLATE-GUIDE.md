@@ -1,8 +1,9 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.6.0.0** (28.10.2026). Für die lokale Arbeit in Power BI Desktop —
+Stand: **Visual 1.7.0.0** (29.10.2026), dazu die Bestands-Templates T05A/T05B
+(1.7, in Arbeit). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
-nachzubauen. Referenzbilder liegen in `prototype/refs/`, der interaktive
+nachzubauen, plus Bilanz (T05A) und Cashflow-Brücke (T05B). Referenzbilder liegen in `prototype/refs/`, der interaktive
 HTML-Prototyp in `prototype/megatable.html` (im Browser öffnen, Referenz-Dropdown
 stellt jedes Blatt 1:1 nach — gut zum Vergleichen neben Power BI).
 
@@ -26,6 +27,16 @@ für Kostenzeilen, dazu AC/PY/PL(/FC); für 12G zusätzlich **FC** und sinnvoll
 **PL FY/FC FY**. Beispiel-Daten mit allen Zahlen der Referenzblätter:
 `demoData/` bzw. eingebettet im Prototyp.
 
+**Bilanz und Cashflow (T05A/T05B, 1.7):** Bestände (Bilanzposten, Kasse) als
+**Monatsstände** (ultimo, nie kumuliert) und im **RowType** das Token `stock`
+(`Account stock`), der Anfangsbestand einer Cashflow-Brücke `opening`, der
+Endbestand als Formel `Formula stock` = `[Anfangsbestand]+[Operativ]+[Investiv]+[Finanzierung]`.
+Eine Bilanz ohne RowType-Spalte geht auch: T05A setzt dann
+`statement.stockMode = allStock` (Karte „Bestand & Fluss"). Passiva aus einer
+Saldenliste (Haben-Salden negativ) mit `SignConvention -1`, `DisplayInvert
+false`; `VarianceInvert` nach Fachlogik (Verbindlichkeiten, Rückstellungen:
+true). Beispiel: `demoData/bilanz-*.csv`, `demoData/cashflow-*.csv`.
+
 **Wichtig:** Kostenzeilen bekommen das Trio `SignConvention = -1` ·
 `DisplayInvert = true` · `VarianceInvert = false` (mehr Kosten = rot). **Nicht**
 `-1` zusammen mit `VarianceInvert = true` setzen: das dreht die Bewertung doppelt
@@ -37,7 +48,7 @@ und färbt eine Kostenüberschreitung fälschlich günstig. Die Vorzeichenlogik 
 Drei Wege, dasselbe Ergebnis:
 
 - **Start-Hub (1.3, am anschaulichsten):** Ohne gebundene Felder zeigt das Visual
-  im Bearbeitungsmodus den Hub, Knopf **Templates** öffnet die Galerie: 18 Kacheln
+  im Bearbeitungsmodus den Hub, Knopf **Templates** öffnet die Galerie: 18 Kacheln (1.7: 20)
   mit Mini-Vorschau auf Demo-Daten, seit 1.4 **nach Zweck gruppiert** — siehe
   Tabelle unten — mit Finance-Titel, T-Nummer als Badge und einer Nutzen-Zeile.
   Ein Klick wendet das Template an. Ohne Felder wird die Wahl gespeichert und
@@ -52,6 +63,7 @@ Drei Wege, dasselbe Ergebnis:
   | Struktur-Vergleich | T01A, T01B, T02A, T02B, T02C | Regionen mit Plan-Abweichung · Regionen mit Zwischensummen · Plan-Abweichung als Balken · Ranking nach Ist (YTD) · Ranking nach Abweichung (Monat) |
   | Forecast | T02E, T02F, T03B, T04D, T04E | Forecast gegen Vorjahr · Forecast gegen Plan · Forecast-GuV mit Δ zu Vorjahr und Plan · Forecast-GuV mit Plan-Wasserfall · Forecast-GuV mit Vorjahres-Wasserfall |
   | GuV-Statement | T03A, T04A, T04B, T04C | GuV mit Abweichung zu Vorjahr und Plan · GuV mit Plan-Abweichungsbalken · GuV mit Δ-Wasserfall · GuV mit Vorjahres-Wasserfall |
+  | Bilanz & Cashflow (1.7) | T05A, T05B | Bilanz zum Stichtag · Cashflow-Brücke |
   | Report-Ansichten | 12A, 12G, 12H, klassisch | Wert-Kaskaden Vorjahr und Ist · Jahresausblick (FY) · Planrechnung gegen Vorjahr · Klassische GuV-Tabelle |
 
 - **Toolbar (1.2, am schnellsten):** Im Bearbeitungsmodus steht ganz links in
@@ -61,6 +73,13 @@ Drei Wege, dasselbe Ergebnis:
   „Template-Auswahl im Bearbeitungsmodus".
 - **Formatbereich:** Karte **Spalten & Mega-Table** → erste Gruppe
   **Mega-Table** → Dropdown **Template** (seit 1.2 die erste Gruppe der Karte).
+
+**Bestandsregel (1.7, alle Templates):** Bestände zeigen im Monatsblock den
+Monatsstand, im YTD-Block den Stand der letzten Periode, im FY-Block den
+FC-Endstand; Δ vergleicht Stände zum selben Stichtag. Jedes andere Template
+nimmt ein „Alle Zeilen Bestand" (von T05A) beim Anwenden zurück auf „Auto";
+„↺ Zum Template zurück" erscheint auch, wenn der Bestandsmodus vom Template
+abweicht.
 
 Jedes Template ist nur ein Preset: Es setzt alle Schalter
 (Spalten, Balken/Pins/Wasserfall, Blöcke, Dezimalen) und danach kannst du
@@ -78,6 +97,8 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 | **12A** | PY- und AC-**Wert-Kaskaden** als eigene Spalten + ΔPY-Balken/Pins (Headline bleibt aus; nur 12G und 12H schalten sie ein) | wie T03 |
 | **12G** | FY-Block: YTD voll + Restjahr **schraffiert im selben Balken**, Δ aufs Jahr | FC (+ FY-Werte) |
 | **12H** | Plan-Kaskade umrandet, Varianzbalken **rot/grün umrandet** | PL als Minuend |
+| **T05A** (1.7) | **Bilanz zum Stichtag:** PY (Vorjahresstichtag) · AC · ΔPY · ΔPY%, ein Block mit dem Stichtag-Monat als Titel; Aktiva- und Passiva-Block als „="-Summen mit **Doppelstrich**. PL bei Bedarf per `showPL` / `dPlAbs` dazu. Setzt `statement.stockMode = allStock`, wenn die Daten keine Token tragen (sonst `auto`) | Monatsstände, Periode, AC/PY (PL optional) |
+| **T05B** (1.7) | **Cashflow-Brücke:** Anfangsbestand → operativ · investiv · finanziell → Endbestand als **PY- und AC-Wert-Kaskaden** (Bestände ankern auf der Nulllinie, Flüsse floaten), ΔPY · ΔPY%, Monat \| _YTD; FY-Ausblick über `blockKind = fy` (ohne FY-Measures: FC-Endstand). Setzt `statement.stockMode = auto` | Token `opening` / `stock`, Periode, AC/PY (FC für FY) |
 
 **Szenario-Logik (eine Regel):** Minuend bestimmt die Füllung (AC voll ·
 FC schraffiert · PL umrandet), Referenz bestimmt die Achse
@@ -159,6 +180,12 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
   Umweg „kurz anderes Template und zurück" ist nicht mehr nötig.
 - **Kein Template-Dropdown in der Toolbar:** nur im Bearbeitungsmodus und in der
   Ansicht *Tabelle*; Schalter „Template-Auswahl im Bearbeitungsmodus" prüfen.
+- **Bilanz zeigt neunfache Werte / Summe der Monate:** Bestände ohne Token und
+  `statement.stockMode` auf Auto — T05A erneut anwenden oder Token `stock` in
+  die RowType-Spalte (`Account stock`).
+- **Hinweis „Bestand und Fluss gemischt" unter der Tabelle (Bearbeitung):**
+  eine Formel oder Summe mischt Bestände und Flüsse ohne Token — mit `Formula
+  stock` bzw. `flow` festlegen (der Endbestand einer Cashflow-Brücke: `Formula stock`).
 - **Spalten-Kategorie gebunden, aber keine Blöcke:** Der Mega-Table ignoriert
   sie (Hinweis unter der Tabelle im Bearbeitungsmodus). Sie wirkt in der
   klassischen Tabelle, also Template „Aus".

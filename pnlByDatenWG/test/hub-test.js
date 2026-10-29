@@ -45,10 +45,40 @@ test("only 12G and 12H switch the headline on", () => {
     assert.deepStrictEqual(on, ["12G", "12H"]);
 });
 
-test("the gallery lists the pane's templates in pane order (off first, then T01A … 12H)", () => {
+test("the gallery lists the pane's templates in pane order (off first, then T01A … 12H, 1.7 T05A · T05B)", () => {
     const items = new M.VisualFormattingSettingsModel().columnsCard.template.items.map(i => i.value);
     assert.deepStrictEqual(M.HUB_TEMPLATES, items);
-    assert.strictEqual(M.HUB_TEMPLATES.length, 18);
+    assert.strictEqual(M.HUB_TEMPLATES.length, 20);
+    assert.deepStrictEqual(M.HUB_TEMPLATES.slice(-2), ["T05A", "T05B"]);
+    // capabilities.json carries the same enumeration (the pane reads it, PBIR writes it)
+    const capsT = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"))
+        .objects.columns.properties.template.type.enumeration.map(e => e.value);
+    assert.deepStrictEqual(capsT, items);
+});
+
+test("1.7 stock templates: T05A sets every row a stock without tokens (auto with tokens), T05B auto, P&L templates take back allStock only", () => {
+    const P = M.MEGA_PRESETS;
+    // balance sheet: PY · AC · ΔPY · ΔPY%, one YTD block (the reporting date), no chart
+    assert.ok(P.T05A.showPY && P.T05A.showMin && P.T05A.dPyAbs && P.T05A.dPyPct && !P.T05A.showPL && !P.T05A.valueCascade);
+    assert.strictEqual(P.T05A.blockKind, "ytd"); assert.strictEqual(P.T05A.secondBlock, false);
+    // cash flow: PY + AC value cascades (the bridge), ΔPY · ΔPY%, month | _YTD
+    assert.ok(P.T05B.showPY && P.T05B.showMin && P.T05B.valueCascade && P.T05B.dPyAbs && P.T05B.dPyPct && P.T05B.secondBlock);
+    assert.deepStrictEqual(M.templateSwitches("T05A").stmt, { stockMode: "allStock" });
+    assert.deepStrictEqual(M.templateSwitches("T05A", true).stmt, { stockMode: "auto" }, "tokens decide");
+    assert.deepStrictEqual(M.templateSwitches("T05B").stmt, { stockMode: "auto" });
+    assert.deepStrictEqual(M.templateSwitches("T05B", false, "allStock").stmt, { stockMode: "auto" });
+    for (const t of Object.keys(P).filter(x => !M.STOCK_TEMPLATES.includes(x))) {
+        assert.deepStrictEqual(M.templateSwitches(t).stmt, {}, t + " leaves the mode alone");
+        assert.deepStrictEqual(M.templateSwitches(t, false, "allFlow").stmt, {}, t + " keeps allFlow");
+        assert.deepStrictEqual(M.templateSwitches(t, false, "allStock").stmt, { stockMode: "auto" }, t + " takes back allStock");
+    }
+    assert.strictEqual(M.templateDemo("T05A"), "bilanz");
+    assert.strictEqual(M.templateDemo("T05B"), "cashflow");
+    assert.strictEqual(M.templateDemo("T03A"), undefined);
+    // the balance-sheet preview carries its stock mode, the cash flow's needs none (its example has tokens)
+    assert.deepStrictEqual(M.miniObjects({ view: "table", tpl: "T05A", w: 1, h: 1 }, false).statement, { stockMode: "allStock" });
+    assert.strictEqual(M.miniObjects({ view: "table", tpl: "T05B", w: 1, h: 1 }, false).statement, undefined);
+    assert.strictEqual(M.miniObjects({ view: "table", tpl: "T04B", w: 1, h: 1 }, false).statement, undefined);
 });
 
 test("the tour has eight cards with title + text in the language files, numbered 1..8 (1.6: Sankey last)", () => {
@@ -100,12 +130,13 @@ test("the enum of emptyState.mode: hub first (the default), then demo · fields 
 const caps = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"));
 const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFileSync(path.join(ROOT, "stringResources", l, "resources.resjson"), "utf8")));
 
-test("1.4 gallery: four purpose groups in the owner's order, every template exactly once", () => {
-    assert.deepStrictEqual(M.HUB_GALLERY.map(g => g.id), ["structure", "forecast", "statement", "report"]);
+test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet & cash flow), every template exactly once", () => {
+    assert.deepStrictEqual(M.HUB_GALLERY.map(g => g.id), ["structure", "forecast", "statement", "balance", "report"]);
     const by = Object.fromEntries(M.HUB_GALLERY.map(g => [g.id, g.tiles.map(t => t.tpl)]));
     assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T02A", "T02B", "T02C"]);
     assert.deepStrictEqual(by.forecast, ["T02E", "T02F", "T03B", "T04D", "T04E"]);
     assert.deepStrictEqual(by.statement, ["T03A", "T04A", "T04B", "T04C"]);
+    assert.deepStrictEqual(by.balance, ["T05A", "T05B"]);
     assert.deepStrictEqual(by.report, ["12A", "12G", "12H", "off"]);
     const all = M.HUB_GALLERY.flatMap(g => g.tiles.map(t => t.tpl));
     assert.strictEqual(new Set(all).size, all.length, "no template twice");

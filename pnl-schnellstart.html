@@ -172,7 +172,7 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
     <h1 class="hero-title">P&amp;L Statement <em>byDatenWG</em></h1>
     <p class="dek">Ein eigenständiges Power-BI-Custom-Visual für die <strong>IBCS-inspirierte GuV</strong>: Kontenhierarchie aus deiner Dimensionstabelle, Summen- und Formelzeilen, Szenarien AC · PY · PL · FC mit Δ-Balken und Δ%-Pins — in fünf Ansichten aus einer Datenbindung: <strong>Tabelle</strong>, <strong>Struktur-Bars</strong>, <strong>Zeilen-Waterfall</strong> und <strong>Werttreiberbaum</strong> mit Kachel-Zoom. Klick setzt die Power-BI-Selektion (Cross-Filtering und nativer Drillthrough), Perioden werden aus „JJJJ-MM", Datumsspalten oder Monatsnamen gelesen, und die Schrift folgt einem Preset von HD bis UHD.</p>
     <div class="chips">
-      <span class="chip beta">Version 1.6.0.0</span>
+      <span class="chip beta">Version 1.7.0.0</span>
       <span class="chip">5 Ansichten</span>
       <span class="chip teal">Format-Pane DE · EN</span>
       <span class="chip">IBCS-inspiriert</span>
@@ -184,9 +184,9 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
       <div class="dl-icon">📊</div>
       <div>
         <div class="dl-title">Visual herunterladen</div>
-        <div class="dl-ver">Version <strong>1.6.0.0</strong> · <strong>.pbiviz</strong></div>
+        <div class="dl-ver">Version <strong>1.7.0.0</strong> · <strong>.pbiviz</strong></div>
         <p class="dl-note">Direkt aus dem Repository laden und in Power BI Desktop über <em>Visualisierungen → ⋯ → Visual aus einer Datei importieren</em> einbinden.</p>
-        <a class="dl-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz">.pbiviz laden ↓</a>
+        <a class="dl-btn" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz">.pbiviz laden ↓</a>
         <div class="dl-file">Im <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG/dist">dist-Ordner</a> liegt immer genau die neueste Version — ändert sich die Versionsnummer, ist der Ordner die verlässliche Quelle.</div>
 
         <div class="dl-beta">
@@ -354,6 +354,18 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
         <p>Linksklick auf eine Wertspalte (oder den Kachel-Kopf) setzt die Power-BI-Selektion der Zeile — inklusive aller Quellzeilen des Kontos; Subtotals selektieren die Blätter darunter, Formelzeilen die Blätter ihrer Operanden. Rechtsklick öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite. Abschaltbar über <em>Stil → Selektion &amp; Kontextmenü aktiv</em>.</p>
       </div>
 
+      <div class="tile">
+        <div class="tile-eyebrow">Neu in 1.7</div>
+        <h3>Bilanz &amp; Cashflow</h3>
+        <p>Bestände (Bilanzposten, Kasse) zeigen den Stand zum Stichtag statt der Summe der Monate. Im Zeilentyp das Token <code>stock</code> bzw. <code>opening</code> setzen (<code>Account stock</code>) — oder unter <em>Bestand &amp; Fluss</em> „Alle Zeilen Bestand“ wählen. Fertige Layouts in der Galerie-Gruppe „Bilanz &amp; Cashflow“: <strong>T05A</strong> Bilanz (Stand gegen Vorjahresstichtag, Doppelstrich unter der Bilanzsumme) und <strong>T05B</strong> Cashflow-Brücke (Anfangsbestand → Flüsse → Endbestand). Beispieldaten: <code>demoData/bilanz-*.csv</code>, <code>cashflow-*.csv</code>.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">Neu in 1.7</div>
+        <h3>⚡ Nur Ausnahmen</h3>
+        <p>In der Toolbar-Gruppe <em>Ausnahmen</em> färbt ⚡ nur Zeilen, deren Abweichung gegen PY, PL oder FC die Schwelle erreicht (Standard 5 %, optional ein Betrag); der Rest wird grau oder — mit ⊘ — in jeder Ansicht ausgeblendet bzw. zusammengefasst, Summen bleiben.</p>
+      </div>
+
     </div>
 
     <div class="note">
@@ -383,17 +395,18 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
       <li><strong>Stil → Selektion &amp; Kontextmenü aktiv</strong> — Cross-Filtering und Drillthrough an oder aus.</li>
       <li><strong>Titelblock</strong> — drei IBCS-Zeilen (Berichtseinheit · Kennzahl + Einheit · Zeitraum + Szenarien) plus optionale Message-Zeile.</li>
       <li><strong>Hierarchie</strong> — Standard-Aufklapp-Ebene und Einrückung je Ebene.</li>
+      <li><strong>Neu in 1.7:</strong> <strong>Ausnahmen</strong> (⚡ vorbelegen) · <strong>Toolbar-Farben</strong> (Knöpfe in Hausfarben, leer = automatisch) · <strong>Fläche → Ganze Kachel nutzen</strong> · <strong>Bestand &amp; Fluss</strong> (Bilanz ohne Token).</li>
       <li><strong>Toolbar</strong> — ganz ausblenden oder einzelne Gruppen abschalten; die Einstellungen wirken weiter.</li>
     </ul>
 
     <div class="note">
       <h4>Vollständige Dokumentation</h4>
-      Alle Einstellungen mit Optionen und Standardwerten, die IBCS-Templates T01A–12H, Datenrollen samt Vorzeichen-Trio, Interaktion und Troubleshooting stehen in der <a href="pnl-doku.html">Dokumentation zum P&amp;L Statement</a> — direkt zur <a href="pnl-doku.html#settings">Einstellungs-Referenz</a> oder zu den <a href="pnl-doku.html#templates">IBCS-Templates</a>.
+      Alle Einstellungen mit Optionen und Standardwerten, die IBCS-Templates T01A–12H und T05A/T05B (Bilanz, Cashflow), Datenrollen samt Vorzeichen-Trio, Interaktion und Troubleshooting stehen in der <a href="pnl-doku.html">Dokumentation zum P&amp;L Statement</a> — direkt zur <a href="pnl-doku.html#settings">Einstellungs-Referenz</a> oder zu den <a href="pnl-doku.html#templates">IBCS-Templates</a>.
     </div>
   </section>
 
   <footer class="foot">
-    <strong>P&amp;L Statement byDatenWG</strong> · Version 1.6.0.0<br>
+    <strong>P&amp;L Statement byDatenWG</strong> · Version 1.7.0.0<br>
     Kontakt: Michael Tenner · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a><br>
     Quellcode, Änderungshistorie, Testplan und Demo-Daten: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG">pnlByDatenWG im Repository</a> · Feedback und Fehler: <a href="https://github.com/losveratos/powerbi-kitchen-/issues">GitHub-Issues</a> · <a href="pnl-doku.html">Vollständige Doku</a> · <a href="pnl-beta-post.html">Beta-Post lesen</a>
     <div class="ibcs">Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.</div>

@@ -110,7 +110,10 @@ const templateItems: LocEnumMember[] = [
     { value: "T04E", displayName: "T04E · FC: ΔPY waterfall + pins", key: "Enum_Template_T04E" },
     { value: "12A", displayName: "12A · PY + AC value cascades, ΔPY bars + pins", key: "Enum_Template_12A" },
     { value: "12G", displayName: "12G · FY outlook: PY + AC&FC (YTD + rest of year) cascades, ΔPY", key: "Enum_Template_12G" },
-    { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars outlined", key: "Enum_Template_12H" }
+    { value: "12H", displayName: "12H · plan: PY + PL cascades, ΔPY bars outlined", key: "Enum_Template_12H" },
+    // 1.7 stocks: balance sheet and cash-flow bridge (they also set statement.stockMode)
+    { value: "T05A", displayName: "T05A · balance sheet: PY · AC at the reporting date, ΔPY · ΔPY%", key: "Enum_Template_T05A" },
+    { value: "T05B", displayName: "T05B · cash flow: opening → flows → closing balance, PY + AC cascades, month | YTD", key: "Enum_Template_T05B" }
 ];
 
 /** empty state: the Start hub (1.3, default), the Smart Start demo, the field explanation or the author's own message */
@@ -143,6 +146,39 @@ const megaBlockItems: LocEnumMember[] = [
     { value: "month", displayName: "Month", key: "Enum_MegaBlock_Month" },
     { value: "ytd", displayName: "YTD", key: "Enum_MegaBlock_Ytd" },
     { value: "fy", displayName: "FY outlook (AC&FC vs PL)", key: "Enum_MegaBlock_Fy" }
+];
+
+/**
+ * 1.7 statement.stockMode — stock vs flow (Bestand vs. Fluss): "auto" reads the
+ * stock / opening / flow tokens of the row-type cell, "allStock" makes every
+ * row a stock (a balance sheet without a token column), "allFlow" is the
+ * behaviour before 1.7.
+ */
+const stockModeItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto (tokens in the row type)", key: "Enum_StockMode_Auto" },
+    { value: "allStock", displayName: "Every row a stock (balance sheet)", key: "Enum_StockMode_AllStock" },
+    { value: "allFlow", displayName: "Every row a flow (as before 1.7)", key: "Enum_StockMode_AllFlow" }
+];
+
+/** 1.7 exceptions.reference: the Δ reference of the view (auto) or a fixed one */
+const excRefItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto (the Δ reference of the view)", key: "Enum_ExcRef_Auto" },
+    { value: "py", displayName: "Previous Year (PY)", key: "Enum_ExcRef_Py" },
+    { value: "pl", displayName: "Plan (PL)", key: "Enum_ExcRef_Pl" },
+    { value: "fc", displayName: "Forecast (FC)", key: "Enum_ExcRef_Fc" }
+];
+
+/** 1.7 exceptions.direction: the sign of Δ against the reference (not favourable / unfavourable) */
+const excDirItems: LocEnumMember[] = [
+    { value: "both", displayName: "▲▼ above and below", key: "Enum_ExcDir_Both" },
+    { value: "up", displayName: "▲ above the reference", key: "Enum_ExcDir_Up" },
+    { value: "down", displayName: "▼ below the reference", key: "Enum_ExcDir_Down" }
+];
+
+/** 1.7 exceptions.mode: grey out the rest, or (1.7: in every view) hide / combine it */
+const excModeItems: LocEnumMember[] = [
+    { value: "gray", displayName: "⬚ grey out the rest", key: "Enum_ExcMode_Gray" },
+    { value: "hide", displayName: "⊘ hide / combine the rest", key: "Enum_ExcMode_Hide" }
 ];
 
 /** key of the description that belongs to a display-name key (Toolbar_Show → Desc_Toolbar_Show) */
@@ -250,6 +286,13 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
      */
     showValues = toggle("showValues", "Toolbar_ShowValues", "Group: value columns (scenarios one by one)",
         "Readers combine the value columns freely — AC, PY, PL, FC and Δ against the Δ reference (classic table), analysed scenario · PY · PL (mega table). The column presets stay as quick picks. Default: off", false);
+    /**
+     * 1.7 "Only exceptions": the toolbar group ⚡ (threshold, reference,
+     * direction, mode) — the switches of the card "Exceptions" for readers.
+     * On by default; the button itself starts off (exceptions.enabled).
+     */
+    showExceptions = toggle("showExceptions", "Toolbar_ShowExceptions", "Group: exceptions (⚡)",
+        "Readers colour only the exceptions — rows whose Δ against the reference reaches a threshold — and grey out or hide the rest. Same settings as the card Exceptions. Default: on", true);
     /** 1.2: the template dropdown in the toolbar — edit mode only, readers never see it */
     showTemplate = toggle("showTemplate", "Toolbar_ShowTemplate", "Template picker in edit mode",
         "A compact template dropdown at the start of the toolbar while you edit the report (table view). Readers and exports never see it. Default: on", true);
@@ -272,7 +315,7 @@ export class ToolbarCardSettings extends FormattingSettingsCard {
         this.viewTable, this.viewBars, this.viewWaterfall, this.viewTree, this.viewSankey,
         this.showPresets, this.showReference,
         this.showPeriods, this.showUnit, this.showDensity, this.showLevels, this.showOptions, this.showScenario,
-        this.showValues, this.showTemplate, this.foldable, this.startFolded];
+        this.showValues, this.showExceptions, this.showTemplate, this.foldable, this.startFolded];
 }
 
 /**
@@ -357,9 +400,9 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     treeStatus = toggle("treeStatus", "Columns_TreeStatus", "Driver tree status indicator (Δ colour)",
         "Card edge and Δ% in the card head in the variance colour. Default: on", true);
 
-    // ---- mega table (IBCS templates T01–T04, 12A) ----
+    // ---- mega table (IBCS templates T01–T04, 12A–12H, 1.7 T05A / T05B) ----
     template = dropdown("template", "Mega_Template", "Template (IBCS table)",
-        "Sets the switches below to the template defaults — afterwards every switch is free. Default: off (classic table)",
+        "Sets the switches below to the template defaults — afterwards every switch is free. Balance sheet (T05A) and cash flow (T05B) also set Stocks & flows. Default: off (classic table)",
         templateItems);
     minuend = dropdown("minuend", "Mega_Minuend", "Analysed scenario (minuend)",
         "AC filled, FC hatched, PL outlined; the Δ bars follow the minuend (PL: outlined in red / green, plan statement 12H). The Δ columns compare it with PY / PL. Needs the FC / PL field. Default: AC",
@@ -387,7 +430,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     secondBlock = megaToggle("secondBlock", "Second period block (month | _YTD)", false,
         "Needs the period field: the month of the last actuals left, the year to date right. Default: off");
     blockKind = dropdown("blockKind", "Mega_BlockKind", "Period block",
-        "Month of the last actuals, year to date or FY outlook (AC&FC vs PL, needs the FY fields); with a second block the right one. Default: YTD",
+        "Month of the last actuals, year to date or FY outlook (AC&FC vs PL, needs the FY fields — without them stocks take the FC closing balance); with a second block the right one. Stocks show the balance at the block's reporting date. Default: YTD",
         megaBlockItems, 1);
     leftBlockKind = dropdown("leftBlockKind", "Mega_LeftBlockKind", "Second block (left)",
         "Period of the block left of the period block when the second block is on. Default: month", megaBlockItems, 0);
@@ -433,7 +476,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         name: "columnsMega",
         displayName: "Mega table (IBCS templates)",
         displayNameKey: "Columns_GroupMega",
-        description: "IBCS tables T01–T04 and 12A — visible in the table view",
+        description: "IBCS tables T01–T04, 12A–12H plus balance sheet and cash flow (T05A/T05B) — visible in the table view",
         descriptionKey: "Desc_Columns_GroupMega",
         collapsible: true,
         slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend, this.valueCascade,
@@ -702,6 +745,107 @@ export class HierarchyCardSettings extends FormattingSettingsCard {
     slices = [this.defaultLevel, this.indent];
 }
 
+/**
+ * 1.7 stock vs flow (object `statement`): how the rows aggregate over periods.
+ * A stock (balance sheet item, cash, working capital, headcount) shows the
+ * stand of the last period in the YTD block, the FC end stand in the FY
+ * outlook and its Δ against the reference at the same Stichtag; a flow sums
+ * its months as before. Auto = the row-type tokens decide (default) — a report
+ * without tokens renders exactly as before.
+ */
+export class StatementCardSettings extends FormattingSettingsCard {
+    stockMode = dropdown("stockMode", "Statement_StockMode", "Stocks vs flows",
+        "Auto: rows with the row-type token stock (balance at the end of the period) or opening (balance at its start) are stocks; totals and formulas over stocks inherit it. Every row a stock: a pure balance sheet without a token column. Every row a flow: the behaviour before 1.7. Stocks show the balance of the last period in the YTD block, the FC closing balance in the FY outlook and Δ at the same reporting date. Default: Auto",
+        stockModeItems);
+
+    name: string = "statement";
+    displayName: string = "Stocks & flows";
+    displayNameKey: string = "Card_Statement";
+    description: string = "Balance-sheet items, cash, working capital and headcount as stocks: the balance instead of the sum of the months";
+    descriptionKey: string = "Desc_Card_Statement";
+    slices = [this.stockMode];
+}
+
+/**
+ * 1.7 "Only exceptions" (object `exceptions`): only rows whose Δ against the
+ * reference reaches a threshold keep their variance colour — |Δ%| ≥
+ * thresholdPct or |Δ| ≥ thresholdAbs (one of them is enough), in the chosen
+ * direction, in any visible period block. The rest turns grey (the
+ * materiality mechanics) or — mode "hide" — steps aside in every view (1.7):
+ * detail rows leave table and bars, cascades combine them into "other (n)",
+ * the tree folds them into "+n", the Sankey bundles their streams; totals
+ * and result rows always stay. The toolbar group ⚡ writes the same
+ * properties (plus state.uiState); templates never touch them. Off by default.
+ */
+export class ExceptionsCardSettings extends FormattingSettingsCard {
+    enabled = toggle("enabled", "Exceptions_Enabled", "Only exceptions (⚡)",
+        "Only rows whose Δ against the reference reaches the threshold keep their colour in Δ bars, pins, Δ numbers, tree cards and Sankey streams; the rest is grey. Readers switch it in the toolbar. Default: off", false);
+    thresholdPct = numUpDown("thresholdPct", "Exceptions_ThresholdPct", "Threshold Δ% (from)",
+        "An exception from this |Δ%| on, in whole percent (margin rows: percentage points). 0 = only the absolute threshold. Default: 5", 5, 0, 1000);
+    thresholdAbs = numUpDown("thresholdAbs", "Exceptions_ThresholdAbs", "Threshold Δ absolute (from)",
+        "Also an exception from this |Δ| on, in data units (before k / m scaling) — one of both thresholds is enough. 0 = off; the toolbar offers the value of “Materiality from (absolute)”. Default: 0", 0, 0);
+    reference = dropdown("reference", "Exceptions_Reference", "Reference",
+        "Against which scenario Δ is measured. Auto follows the Δ reference of the view (mega table: its Δ columns). Default: Auto", excRefItems);
+    direction = dropdown("direction", "Exceptions_Direction", "Direction",
+        "Sign of Δ against the reference: above it, below it or both — not favourable / unfavourable, the rating keeps its colours. Default: both", excDirItems);
+    mode = dropdown("mode", "Exceptions_Mode", "Rest",
+        "Grey: every row stays, only the exceptions keep their colour. Hide: the rest steps aside in every view — detail rows below the threshold leave the table, the mega table and the bars; the waterfall and the cascade templates (T04B–E, 12A/G/H) combine them per section into one step “other (n)” (the cascade stays closed); the tree folds quiet branches into a grey “+n” card, the Sankey bundles quiet streams into one grey band per node. Totals and result rows always stay; a footer counts what was hidden or combined. Default: grey", excModeItems);
+
+    name: string = "exceptions";
+    displayName: string = "Exceptions";
+    displayNameKey: string = "Card_Exceptions";
+    description: string = "Colour only the variances that matter: a threshold against PY, PL or FC";
+    descriptionKey: string = "Desc_Card_Exceptions";
+    slices = [this.enabled, this.thresholdPct, this.thresholdAbs, this.reference, this.direction, this.mode];
+}
+
+/**
+ * 1.7 toolbar colours (object `toolbarColors`): the buttons of the REPORT
+ * toolbar in the house colours — inactive fill / label, pressed fill / label
+ * and the frame (button outlines, template dropdown, ☰, the dividers of a
+ * group). Every picker empty = automatic, i.e. exactly today's look, light or
+ * dark (the pressed fill follows style.accentColor). High contrast ignores
+ * them like every colour of the visual. The start hub keeps the family look.
+ */
+export class ToolbarColorsCardSettings extends FormattingSettingsCard {
+    buttonBackground = color("buttonBackground", "TbColors_ButtonBg", "Button background",
+        "Fill of the buttons that are not pressed. Empty = automatic (the paper of the visual, dark in dark mode)", "");
+    buttonText = color("buttonText", "TbColors_ButtonText", "Button text",
+        "Label colour of the buttons that are not pressed. Empty = automatic (the ink of the visual)", "");
+    activeBackground = color("activeBackground", "TbColors_ActiveBg", "Active button background",
+        "Fill of a pressed button (the current view, unit, ⚡ …). Empty = automatic: the accent colour of the card Style (#404040)", "");
+    activeText = color("activeText", "TbColors_ActiveText", "Active button text",
+        "Label colour of a pressed button. Empty = automatic: white on dark fills, dark ink on light ones", "");
+    groupBorder = color("groupBorder", "TbColors_GroupBorder", "Frame (buttons and groups)",
+        "Outline of the buttons, the template dropdown and the ☰ button, and the dividers inside a group. Empty = automatic (a light grey, dark in dark mode)", "");
+
+    name: string = "toolbarColors";
+    displayName: string = "Toolbar colours";
+    displayNameKey: string = "Card_ToolbarColors";
+    description: string = "The buttons of the report toolbar in your colours. Empty = automatic (today's look, light or dark); high contrast ignores them";
+    descriptionKey: string = "Desc_Card_ToolbarColors";
+    slices = [this.buttonBackground, this.buttonText, this.activeBackground, this.activeText, this.groupBorder];
+}
+
+/**
+ * 1.7 layout (object `layout`): maximize uses the whole tile — minimal outer
+ * margins, a toolbar only as tall as needed, compact head and footer lines;
+ * table, mega table and bars scale type and rows to the tile HEIGHT (up to
+ * ×1.6, down to 9 px, then they scroll), tree and Sankey fill the tile. Off by
+ * default: an existing report keeps every pixel.
+ */
+export class LayoutCardSettings extends FormattingSettingsCard {
+    maximize = toggle("maximize", "Layout_Maximize", "Use the whole tile (maximize)",
+        "Minimal outer margins, a toolbar only as tall as needed (group names beside the buttons), compact head and footer lines. Table, mega table and bars scale type and rows to the tile height (up to ×1.6, down to 9 px, then they scroll); tree and Sankey fill the tile. Default: off", false);
+
+    name: string = "layout";
+    displayName: string = "Layout";
+    displayNameKey: string = "Card_Layout";
+    description: string = "How much of the tile the statement uses";
+    descriptionKey: string = "Desc_Card_Layout";
+    slices = [this.maximize];
+}
+
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     toolbarCard = new ToolbarCardSettings();
     columnsCard = new ColumnsCardSettings();
@@ -711,10 +855,19 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     hierarchyCard = new HierarchyCardSettings();
     labelsCard = new ScenarioLabelsCardSettings();
     emptyStateCard = new EmptyStateCardSettings();
+    statementCard = new StatementCardSettings();
+    exceptionsCard = new ExceptionsCardSettings();
+    toolbarColorsCard = new ToolbarColorsCardSettings();
+    layoutCard = new LayoutCardSettings();
 
-    /** pane order by importance: columns (classic + mega) first, then display, numbers, style, title, hierarchy */
-    cards = [this.columnsCard, this.toolbarCard, this.numbersCard, this.labelsCard, this.styleCard, this.titleCard,
-        this.hierarchyCard, this.emptyStateCard];
+    /**
+     * pane order by importance: columns (classic + mega) first, then display, numbers, style, title,
+     * hierarchy, 1.7 stocks & flows (the row semantics, next to the hierarchy), empty state;
+     * 1.7 exceptions right after the toolbar (the ⚡ group writes them), then the toolbar colours;
+     * 1.7 layout (maximize) right after the style
+     */
+    cards = [this.columnsCard, this.toolbarCard, this.exceptionsCard, this.toolbarColorsCard, this.numbersCard, this.labelsCard,
+        this.styleCard, this.layoutCard, this.titleCard, this.hierarchyCard, this.statementCard, this.emptyStateCard];
 }
 
 /** what the visual knows about its data and view — drives the visibility gates of the pane */
@@ -735,12 +888,16 @@ export interface PaneContext {
 export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContext): void {
     const tb = m.toolbarCard;
     for (const s of [tb.showView, tb.showPresets, tb.showReference, tb.showPeriods, tb.showUnit,
-        tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario, tb.showValues, tb.showTemplate]) { s.visible = tb.show.value; }
+        tb.showDensity, tb.showLevels, tb.showOptions, tb.showScenario, tb.showValues, tb.showExceptions,
+        tb.showTemplate]) { s.visible = tb.show.value; }
     // 1.6: the offered views belong to the view group — hidden with it, values kept
     for (const s of [tb.viewTable, tb.viewBars, tb.viewWaterfall, tb.viewTree, tb.viewSankey]) {
         s.visible = tb.show.value && tb.showView.value;
     }
     tb.startFolded.visible = tb.foldable.value;
+    // 1.7 the toolbar colours belong to the toolbar — hidden with it, values kept
+    const tc = m.toolbarColorsCard;
+    for (const s of [tc.buttonBackground, tc.buttonText, tc.activeBackground, tc.activeText, tc.groupBorder]) { s.visible = tb.show.value; }
 
     const c = m.columnsCard;
     const has = ctx.has;

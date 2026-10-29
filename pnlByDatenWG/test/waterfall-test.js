@@ -46,6 +46,11 @@ console.log("  ok · bundle");
                 patterns: svg.querySelectorAll("defs pattern").length,
                 w: parseFloat(svg.getAttribute("width")),
                 h: parseFloat(svg.getAttribute("height")),
+                // 1.7: the zero line and every column's vertical extent (anchor test)
+                zeroY: parseFloat((svg.querySelector(":scope > line") || { getAttribute: () => "NaN" }).getAttribute("y1")),
+                cols: [...svg.querySelectorAll(":scope > rect")].map(r => ({
+                    y0: parseFloat(r.getAttribute("y")), y1: parseFloat(r.getAttribute("y")) + parseFloat(r.getAttribute("height")),
+                })),
             });
         }
         document.querySelectorAll("svg text").forEach(t => {
@@ -91,6 +96,19 @@ console.log("  ok · bundle");
         fail(`w2 (fcfy) fill is ${w2.fill}, expected the hatch pattern`);
     }
     if (w2 && w2.patterns !== 1) { fail("w2: hatch <pattern> missing in defs"); }
+    // 1.7: a cash-flow bridge — the opening and the closing stand (stocks) stand on the
+    // zero line, the flows float between them (each starts where the previous ended)
+    const w7 = report.cases.find(c => c.id === "w7");
+    if (w7 && !w7.missing) {
+        const onZero = (k) => Math.abs(w7.cols[k].y1 - w7.zeroY) < 0.6 || Math.abs(w7.cols[k].y0 - w7.zeroY) < 0.6;
+        if (!onZero(0)) { fail("w7: the opening stand does not anchor at the zero line"); }
+        if (!onZero(4)) { fail("w7: the closing stand does not anchor at the zero line"); }
+        for (const k of [1, 2, 3]) { if (onZero(k)) { fail(`w7: flow ${k} touches the zero line (it must float)`); } }
+        // operating cash flow starts at the top of the opening stand
+        if (Math.abs(w7.cols[1].y1 - w7.cols[0].y0) > 0.6) { fail("w7: the first flow does not start at the opening stand"); }
+        // the last flow ends at the top of the closing stand
+        if (Math.abs(w7.cols[3].y1 - w7.cols[4].y0) > 0.6) { fail("w7: the last flow does not end at the closing stand"); }
+    }
     if (report.clipped.length > 0) {
         fail(report.clipped.length + " clipped svg labels:\n    " + report.clipped.slice(0, 6).join("\n    "));
     }

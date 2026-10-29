@@ -4,9 +4,9 @@
 
 Power-BI-Visual · Enddokumentation
 
-Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum, Sankey und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
+Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H sowie Bilanz und Cashflow (T05A/T05B), dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum, Sankey und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.6.0.0** · Stand · **2026-10-28** · IBCS-inspired
+Version · **1.7.0.0** · Stand · **2026-10-29** · IBCS-inspired
 
 ## Inhalt
 
@@ -21,7 +21,7 @@ Version · **1.6.0.0** · Stand · **2026-10-28** · IBCS-inspired
 9. [Interaktion](#interaction)
 10. [Abweichungen von den IBCS-Blättern](#deviations)
 11. [Troubleshooting](#faq)
-12. [Versionshinweis 1.6.0.0](#version)
+12. [Versionshinweis 1.7.0.0](#version)
 
 ## 01 · Was ist das Visual?
 
@@ -30,7 +30,7 @@ Version · **1.6.0.0** · Stand · **2026-10-28** · IBCS-inspired
 Aus *einer* Datenbindung entstehen fünf Ansichten, umgeschaltet in der Toolbar über dem Statement — Leser brauchen dafür keinen Formatbereich; welche davon angeboten werden, bestimmt der Autor (Kapitel 08):
 
 - **GuV-Statement (Tabelle):** Konten, Zwischensummen, Formel- und Margenzeilen mit den Perioden-Blöcken MTD · YTD · FY-Ausblick, Δ-Balken und Δ%-Pins auf einer Skala je Einheit über alle Zeilen und Blöcke.
-- **Mega-Table:** dieselbe Tabellen-Ansicht als IBCS-Tabelle — Wert- und Δ-Spalten frei kombinierbar, Δ als Zahl, Balken, Pin oder integrierter Wasserfall, Wert-Kaskaden, zwei Perioden-Blöcke, Schwellen mit Fußzeile. Ein Template (T01A … 12H) setzt alle Schalter auf einmal.
+- **Mega-Table:** dieselbe Tabellen-Ansicht als IBCS-Tabelle — Wert- und Δ-Spalten frei kombinierbar, Δ als Zahl, Balken, Pin oder integrierter Wasserfall, Wert-Kaskaden, zwei Perioden-Blöcke, Schwellen mit Fußzeile. Ein Template (T01A … 12H, T05A/T05B) setzt alle Schalter auf einmal.
 - **Struktur-Bars und Zeilen-Waterfall:** dieselben Zeilen als Größenbalken gegen die Referenz bzw. als Kaskade, in der die Ergebniszeilen auf der Nulllinie ankern.
 - **Werttreiberbaum mit Kacheln:** der Formel-Graph als DuPont-Baum (oder, ohne Formelzeilen, die reine Hierarchie) mit Mini-Charts auf jeder Karte; ein Klick öffnet die Kachel-Ansicht des Knotens mit Kombi-Chart, Szenario-Grid und Treibern.
 - **Sankey (seit 1.6):** derselbe Graph als Fluss von links nach rechts — Umsatz-Komponenten grau in den Umsatz, der Gewinn-Strang günstig nach rechts, Kosten ungünstig nach rechts unten in Endknoten; Band-Höhe proportional zum AC-YTD. Bewusst außerhalb der IBCS-Notation; der Kachel-Zoom daraus bleibt IBCS.
@@ -39,7 +39,7 @@ Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404
 
 > **Dokumentierte Abweichung: Teal statt Grün.** Günstige Abweichungen sind standardmäßig Teal (#0E8585), ungünstige Rot (#E02B1D) — statt des IBCS-Grüns #8CB400 / Rot #FF2600. So bleiben die Abweichungen bei Rot-Grün-Sehschwäche lesbar; Legende und Fußzeile nennen die Abweichung. Umschaltbar unter Stil → Abweichungsfarben (IBCS-Grün klassisch) oder per Abweichungsfarben-Preset Blau / Orange (ColorBrewer #2C7BB6 / #E66101, auch ohne Farbsehen und im Schwarzweiß-Druck unterscheidbar). Im Dunkelmodus gilt das ChartKitchen-Paar #3FB3C2 / #E4635F.
 
-Diese Anleitung beschreibt den Stand der Version **1.6.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
+Diese Anleitung beschreibt den Stand der Version **1.7.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.7: **Bestand & Fluss** mit den Templates T05A Bilanz und T05B Cashflow (Kapitel 05 und 07), **⚡ Nur Ausnahmen** (Kapitel 09), die Karten **Fläche** und **Toolbar-Farben** (Kapitel 08) sowie **Cross-Highlight** im Sankey (Kapitel 06 und 09). Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
 ## 02 · Die Produktfamilie
 
@@ -68,6 +68,7 @@ Tiefe · Tabellen & Statements
 Die Ergebnisrechnung Zeile für Zeile — „Was steht in der GuV, und warum weicht sie ab?“.
 
 - **Mega-Table:** die IBCS-Tabellen-Templates T01–T04 sowie 12A, 12G und 12H — Wert-Kaskaden, Δ-Wasserfälle, Pins, Schwellen.
+- **Bilanz & Cashflow:** Bestände zum Stichtag statt Monatssummen — die Templates T05A Bilanz und T05B Cashflow-Brücke neben der GuV. Dazu **⚡ Nur Ausnahmen**: farbig ist nur, was zählt.
 - **Formel-Engine:** Hierarchie, Zwischensummen, Formel- und Margenzeilen direkt aus der Kontendimension (Ebenen-Spalten oder Parent-Child).
 - **Werttreiberbaum:** der Formel-Graph als DuPont-Baum mit Mini-Charts auf jeder Karte und Kachel-Zoom je Knoten.
 - **Sankey:** derselbe Graph als Fluss von links nach rechts — bewusst außerhalb der IBCS-Notation; der Kachel-Zoom bleibt IBCS.
@@ -85,7 +86,7 @@ Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorl
 | Gemeinsam | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 8 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
-| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 11 IBCS-Chart-Vorlagen C01–C13 (ohne C07/C11) in vier Gruppen; ↺ unten links im Chart. | 17 IBCS-Tabellen-Templates T01A–12H plus klassische Tabelle in vier Gruppen; ↺ neben dem Template-Dropdown. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 11 IBCS-Chart-Vorlagen C01–C13 (ohne C07/C11) in vier Gruppen; ↺ unten links im Chart. | 19 IBCS-Tabellen-Templates T01A–12H und T05A/T05B plus klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
 | **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich Kompakt · Full HD · Präsentation; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
 | **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
 | **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
@@ -110,7 +111,7 @@ Jede Unterseite und Ebene trägt oben links die Pille **„← Zurück“**; Esc
 
 ### Die Template-Galerie nach Zweck
 
-18 Kacheln — die klassische Tabelle und die 17 IBCS-Templates (Kapitel 07) — stehen in vier Gruppen, jede mit einem Satz Zweck. Jede Kachel trägt einen Finance-Titel, eine Nutzen-Zeile und die T-Nummer als kleines Badge auf der Vorschau; Templates, die den Forecast analysieren, zeigen eine Vorschau mit simuliertem FC.
+20 Kacheln — die klassische Tabelle und die 19 IBCS-Templates (Kapitel 07) — stehen in fünf Gruppen, jede mit einem Satz Zweck. Jede Kachel trägt einen Finance-Titel, eine Nutzen-Zeile und die T-Nummer als kleines Badge auf der Vorschau; Templates, die den Forecast analysieren, zeigen eine Vorschau mit simuliertem FC.
 
 | Gruppe | Template | Kachel-Titel | Nutzen-Zeile |
 | --- | --- | --- | --- |
@@ -128,6 +129,8 @@ Jede Unterseite und Ebene trägt oben links die Pille **„← Zurück“**; Esc
 |  | T04A | GuV mit Plan-Abweichungsbalken | Jede Zeile mit ΔPL-Balken und -Pins — Kosten- und Erlösabweichungen werden sichtbar. |
 |  | T04B | GuV mit Δ-Wasserfall | Vom Plan- zum Ist-Ergebnis: der integrierte ΔPL-Wasserfall zeigt, was jede Zeile beiträgt. |
 |  | T04C | GuV mit Vorjahres-Wasserfall | Die Ergebnisbrücke zum Vorjahr: ΔPY-Wasserfall auf grauer Achse, Pins für Δ %. |
+| **Bilanz & Cashflow** Bestände zum Stichtag statt Monatssummen — Bilanz und die Brücke vom Anfangs- zum Endbestand. | T05A | Bilanz zum Stichtag | Aktiva und Passiva mit Bilanzsumme (Doppelstrich), Stand gegen Vorjahresstichtag mit ΔPY und ΔPY %. |
+|  | T05B | Cashflow-Brücke | Anfangsbestand → operativ · investiv · finanziell → Endbestand als Kaskade, Monat und YTD, Bestände als Anker. |
 | **Report-Ansichten** Kaskaden, Jahresausblick, Planrechnung — und die klassische Tabelle. | 12A | Wert-Kaskaden Vorjahr und Ist | PY- und AC-Kaskade nebeneinander, ΔPY-Balken und -Pins — die Ergebnisrechnung als Bild. |
 |  | 12G | Jahresausblick (FY) | Ist + Forecast als Gesamtjahr gegen Vorjahr: YTD voll, Restjahr schraffiert, mit Headline. |
 |  | 12H | Planrechnung gegen Vorjahr | Für die Budgetrunde: PL umrandet gegen Vorjahr, Abweichungen umrandet, Headline-Slot. |
@@ -168,7 +171,7 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.6.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.7.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
 3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
@@ -183,7 +186,8 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 1. **PY · PL · FC** binden — jedes gebundene Szenario schaltet seine Δ-Spalten frei.
 2. **Periode (Monat)** binden — für Monats- und YTD-Block, Sparklines und Monatskarten.
 3. Für eine echte GuV: **Zeilentyp**, **Formeldefinition** und das **Vorzeichen-Trio** (Kapitel 05); für den Ganzjahres-Ausblick **FC Gesamtjahr** und **PL Gesamtjahr** als `MAX`-Measures.
-4. Optional ein IBCS-Template wählen: per Klick in der Template-Galerie des Start-Hubs (☰ Start), im Bearbeitungsmodus über das Dropdown **Template** gleich nach ☰ Start in der Toolbar (Ansicht Tabelle) oder über Formatbereich → *Spalten & Mega-Table* → *Template* (Kapitel 07).
+4. Für eine Bilanz oder einen Cashflow: im **Zeilentyp** das Token `stock` bzw. `opening` setzen (`Account stock`) oder unter *Bestand & Fluss* „Alle Zeilen Bestand (Bilanz)“ wählen — Kapitel 05. Fertige Layouts: T05A und T05B.
+5. Optional ein IBCS-Template wählen: per Klick in der Template-Galerie des Start-Hubs (☰ Start), im Bearbeitungsmodus über das Dropdown **Template** gleich nach ☰ Start in der Toolbar (Ansicht Tabelle) oder über Formatbereich → *Spalten & Mega-Table* → *Template* (Kapitel 07).
 
 > Beide Wege Schritt für Schritt — die normale Hierarchie in zwei Minuten und die volle GuV mit Formelzeilen —, eine Beispiel-Kontendimension und die Pharma-Demodaten zum Mitspielen stehen auf der [Schnellstart-Seite](../pnl-schnellstart.html).
 
@@ -212,7 +216,7 @@ Je Rolle höchstens ein Feld, die Ebenen-Spalten höchstens acht. Das Visual lie
 | FC (Forecast) | Kennzahl | Forecast-Wert, schraffiert gezeichnet; kann im Mega-Table das analysierte Szenario sein (T02E/F, T03B, T04D/E). |
 | Periode (Monat) | Gruppierung | Monatsspalte für Sparklines, Monats- und YTD-Block, den zweiten Perioden-Block und die Monatskarten. Gelesen werden JJJJ-MM, JJJJ-MM-TT, ISO-Zeitstempel, JJJJ/MM, Datumsspalten, deutsche und englische Monatsnamen (lang/kurz, mit Jahr) und Zahlen 1–12. „Monat“ ist der letzte Monat *mit AC-Daten*; YTD ist das periodengleiche Fenster bis dorthin. |
 | Spalten-Kategorie | Gruppierung · 1.2 | Optional, nur klassische Tabelle: Der Spaltensatz des YTD-Blocks wiederholt sich je Wert dieses Felds (z. B. Segment oder Quartal) unter einer Gruppen-Kopfzeile, danach folgt der Gesamt-Block. Mega-Table, Balken und Waterfall ignorieren das Feld. |
-| Zeilentyp | Gruppierung | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß-/Kleinschreibung egal). KPI ist eine Margenzeile: %-Anzeige, Δ in Prozentpunkten. |
+| Zeilentyp | Gruppierung | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß-/Kleinschreibung egal). KPI ist eine Margenzeile: %-Anzeige, Δ in Prozentpunkten. Seit 1.7 darf in derselben Zelle ein Token folgen: `stock` (Bestand) oder `opening` (Anfangsbestand), z. B. `Account stock` — siehe „Bestand & Fluss“ unten. |
 | Formeldefinition | Gruppierung | Für Formel- und KPI-Zeilen, z. B. `[EBITDA]/[Umsatz]`: `+ − * /` und Klammern, Verweis per eindeutigem Zeilennamen, Formel auf Formel erlaubt. Ein Zirkelbezug erscheint als Fehler an der Zeile. |
 | Rechenvorzeichen (±1) | Gruppierung | Vorzeichen, mit dem die Zeile rechnet: Erlöse `1`, Kosten `-1`. Eine Zwischensumme ist Vorzeichen × Summe der Kinder. |
 | Anzeige invertieren | Gruppierung | Positiv anzeigen, obwohl der gerechnete Wert negativ ist (Kostenzeilen). Ändert nur die Anzeige, nicht die Rechnung. |
@@ -236,6 +240,31 @@ Drei Felder der Kontendimension steuern, wie eine Zeile rechnet, wie sie aussieh
 > **Beispiel — Kostenzeile „Material“, AC 50 gegen PL 60.** Die Kosten sind in der Faktentabelle positiv gebucht. Mit Rechenvorzeichen `-1` rechnet das Visual −50 gegen −60; die Abweichung des gerechneten Werts ist +10, also *günstig* (Teal) — weniger Kosten als geplant. *Anzeige invertieren* = `true` zeigt die Zeile als 50 und 60. Ergebnis für die typische Kostenzeile (so auch in der Pharma-Demo): `-1` · `true` · `false`.
 >
 > **Die andere Konvention:** Werden Kosten positiv und ohne Rechenvorzeichen (`1`) geliefert und erst per Formel abgezogen, wäre „mehr Kosten“ rechnerisch ein Plus. Dann setzt du *Abweichungsfarbe drehen* = `true` — dasselbe Beispiel ergibt dasselbe Bild: 10 unter Plan, günstig. Kombiniere `-1` nicht zusätzlich mit *Abweichungsfarbe drehen*, außer höhere Werte dieser Zeile sind tatsächlich gut: die Bewertung kippt sonst, und eine Kostenüberschreitung erscheint günstig.
+
+### Bestand & Fluss (1.7)
+
+Eine GuV besteht aus **Flüssen**: Umsatz und Kosten der Monate addieren sich zu YTD und Gesamtjahr. Bilanzposten, Kasse, Working Capital oder Headcount sind dagegen **Bestände** — ein Stand zum Stichtag, der über die Monate nie summiert wird (die Kasse von Januar bis März ist nicht die Summe dreier Kassenstände). Seit 1.7 unterscheidet das Visual beides, damit Bilanz und Cashflow-Brücke neben der GuV stehen können. Die Art legst du in der Rolle *Zeilentyp* mit einem Token fest, das in derselben Zelle hinter dem Zeilentyp steht (getrennt durch Leerzeichen, Komma, Semikolon oder `|`, z. B. `Account stock`, `Formula; stock`):
+
+| Token | Bedeutung | Aliasse |
+| --- | --- | --- |
+| `stock` | Bestand: Stand am Periodenende (Bilanzposten, Kasse, Endbestand). | bestand · balance · stichtag · point |
+| `opening` | Anfangsbestand: Stand am Periodenanfang (Kassen-Anfangsbestand einer Cashflow-Brücke). | anfangsbestand · eröffnung · open · begin |
+| `flow` | Fluss — das ist ohne Token ohnehin der Fall; das Token legt es ausdrücklich fest (z. B. für eine Mischung). | fluss · bewegung · movement |
+
+Zellen ohne Token liest das Visual wie vor 1.7 (ein Zeilentyp wie „net margin“ bleibt ein Account). So wirken die Arten in den Blöcken:
+
+| Fluss vs. Bestand | Monat | YTD | FY-Ausblick | Δ und Δ % |
+| --- | --- | --- | --- | --- |
+| Fluss (ohne Token) | Wert des Monats | Summe der Monate bis zum Stichtag | Σ Ist + Vorschau bzw. das gebundene FY-Feld | Δ der Summen |
+| Bestand (`stock`) | Stand am Monatsende | Stand der letzten Periode (letzter Ist-Monat), nicht summiert | Endstand der Vorschau bzw. das gebundene FY-Feld direkt | Stand gegen Stand zum selben Stichtag (PY = Vorjahresstichtag, im FY-Block das Vorjahres-Endstand) |
+| Anfangsbestand (`opening`) | Stand zu Beginn des Monats | Stand im ersten Monat des Fensters | Stand zu Jahresbeginn | wie Bestand |
+
+- **Vererbung:** Eine Summe ohne Token ist Bestand, wenn alle ihre Kinder Bestand sind; Formeln und KPIs ebenso, wenn alle Operanden Bestand sind. Eine gemischte Formel (Anfangsbestand + Cashflows = Endbestand) folgt dem *ersten* Operanden und zeigt dann den Stand am Ende; eine gemischte Summe bleibt Fluss.
+- **Hinweis bei Mischung:** Mischt eine Formel oder Summe Bestand und Fluss, ohne dass ein Token die Art festlegt, nennt im Bearbeitungsmodus ein Hinweis unter der Tabelle die Zeilen („Bestand und Fluss gemischt …“). Leser sehen ihn nicht. Abhilfe: `stock` oder `flow` im Zeilentyp setzen.
+- **Globaler Schalter:** Formatbereich → *Bestand & Fluss* → *Bestand vs. Fluss*: *Auto (Token im Zeilentyp)* · *Alle Zeilen Bestand (Bilanz)* für eine reine Bilanz ohne Token-Spalte · *Alle Zeilen Fluss (wie vor 1.7)* ignoriert die Token. Standard Auto; ohne Token rendert ein Bericht wie in 1.6.
+- **Darstellung:** Der Mega-Table zeigt Bestands-Summen als „=“-Ketten mit Doppellinie; in Δ-Wasserfall, Wert-Kaskade und Zeilen-Waterfall ankern Bestände auf der Nulllinie, Flüsse floaten dazwischen; 12G zeigt einen Bestand als schraffierten FC-Balken (Endstand, kein YTD-Anteil); der Sankey zeichnet Bestände als graue Anker. Die Σ-treue Rundung addiert nie Bestände mit Bewegungen.
+- **Datenmodell:** Bestände als **Monatsstände (ultimo)** liefern, nie kumuliert. Passiva aus einer Saldenliste (Haben-Salden negativ geliefert) mit Rechenvorzeichen `-1` und *Anzeige invertieren* = `false`; *Abweichungsfarbe drehen* nach Fachlogik (Verbindlichkeiten, Rückstellungen: `true`). Den Entwurf und die Prüfung eines solchen Modells übernimmt der Claude-Skill `finance-data-model` (sein `validate_model.py` kennt Bestandszeilen).
+- **Beispieldaten:** `pnlByDatenWG/demoData/bilanz-dim-konten.csv` + `bilanz-fact.csv` und `cashflow-dim-konten.csv` + `cashflow-fact.csv` (Daten-WG Brauerei 2026, kEUR) — dazu die Templates T05A und T05B (Kapitel 07).
 
 ### Spalten-Kategorie (1.2)
 
@@ -263,7 +292,7 @@ Dieselben Zeilen mit einem Größenbalken je Zeile: AC gegen die Δ-Referenz, da
 
 ### 04 · Zeilen-Waterfall
 
-Die GuV als Kaskade auf der Wurzelebene der Hierarchie: Beiträge kaskadieren, Summen ankern — Ergebnisanker wie Umsatz, Bruttoergebnis, EBITDA, EBIT, EBT und Jahresüberschuss stehen auf der Nulllinie, die Kostenblöcke floaten dazwischen. Je Block eine Kaskade für die Referenz und eine für AC, dazu ΔRef-Balken und ΔRef%-Pin; Blöcke MTD, YTD und FY-Ausblick. Die Kaskaden-Geometrie ist dieselbe Funktion wie im integrierten Δ-Wasserfall des Mega-Tables. Seit 1.5 zeichnen die Δ-Balken in der Skala der Kaskaden, sonst mit rundem Faktor und Hinweis wie in der Balken-Ansicht.
+Die GuV als Kaskade auf der Wurzelebene der Hierarchie: Beiträge kaskadieren, Summen ankern — Ergebnisanker wie Umsatz, Bruttoergebnis, EBITDA, EBIT, EBT und Jahresüberschuss stehen auf der Nulllinie, die Kostenblöcke floaten dazwischen. Je Block eine Kaskade für die Referenz und eine für AC, dazu ΔRef-Balken und ΔRef%-Pin; Blöcke MTD, YTD und FY-Ausblick. Die Kaskaden-Geometrie ist dieselbe Funktion wie im integrierten Δ-Wasserfall des Mega-Tables. Bestände (seit 1.7) ankern wie Ergebniszeilen auf der Nulllinie. Seit 1.5 zeichnen die Δ-Balken in der Skala der Kaskaden, sonst mit rundem Faktor und Hinweis wie in der Balken-Ansicht.
 
 ### 05 · Werttreiberbaum
 
@@ -279,8 +308,10 @@ Die GuV als **Fluss von links nach rechts** — auf demselben Graphen wie der We
 - **Hover** zeigt das IBCS-Detail-Panel und blendet fremde Bänder ab; der Tooltip nennt Wert, Anteil und Δ zur Referenz in den Hausbegriffen.
 - **Rechtsklick** auf einen Knoten öffnet das Kontextmenü mit Selektion und Drillthrough.
 - **▾ / ▸** am Label klappt einen Ast auf und zu, mit `Shift` den ganzen Ast. Klapp-Zustand, Wurzel (⌖ im Baum, Formatbereich) und ⌂ sind dieselben wie im Baum: ein im Sankey zugeklappter Ast ist auch im Baum zu. In sehr vollen Spalten behalten nur die größten Knoten ihr Label, der Rest bleibt über den Tooltip erreichbar.
-- **Toolbar** im Sankey: Ansicht, Δ-Referenz, Einheit, Dichte und Bis Ebene.
+- **Toolbar** im Sankey: Ansicht, Δ-Referenz, Einheit, Dichte, Bis Ebene und die Gruppe Ausnahmen (⚡; Kapitel 09). Mit ⚡ färbt der Sankey Abweichungen statt Fluss-Familien: nur die Ströme der Ausnahmen in der Abweichungsfarbe ihres Δ, der Rest grau; ⊘ bündelt ruhige Ströme eines Knotens zu einem grauen Band „übrige (n)“.
+- **Bestände** (seit 1.7, Kapitel 05) sind neutrale Anker: grauer Knoten, graue Bänder, nie Gewinn-Strang oder Kosten.
 - **Dark Mode und Hochkontrast:** Im Dunkelmodus sinken die Bänder ins dunkle Papier. Im Hochkontrast tragen Muster statt Farben die Aussage — Gewinn gefüllt, Kosten umrandet bzw. schraffiert, Zuflüsse gestrichelt.
+- **Markierungen aus anderen Visuals (Cross-Highlight, seit 1.7):** Markiert ein Leser in einem anderen Visual einen Teil der Daten (Balken, Karte, Slicer-Visual), zeigt der Sankey die Auswahl *im Gesamt*: Knoten und Bänder stehen exakt wie ohne Markierung, das Ganze wird **grau**, und darin erscheint der markierte Teil in den Fluss-Farben — Knoten von oben gefüllt, als **farbige Innen-Bänder** in den Bändern. Die Labels nennen beides („923 von 1 685“), der Tooltip den Anteil („Markiert … (54,8 %)“). Eine Fußzeile sagt es in einem Satz, auch im Export: „◐ Markierte Auswahl aus einem anderen Visual: die Zahlen zeigen den markierten Teil · Net revenue 923 von 1 685 EUR gesamt (54,8 %) · farbig = markierter Teil, grau = Gesamt“. Hochkontrast: das Ganze gestrichelt ohne Muster, der markierte Teil mit Muster. Ohne Markierung rendert der Sankey unverändert. Alle anderen Ansichten verhalten sich bei einer Markierung wie gefiltert (Kapitel 09).
 - **Export und Abos** drucken den Sankey ohne Toolbar, mit dem gespeicherten Klapp-Zustand.
 
 > **Bewusst außerhalb der IBCS-Notation.** Ein Sankey ist keine IBCS-Chartform: Bandbreiten, Farbflächen und Knotenlabels folgen nicht der Szenario-Notation (AC voll · PY grau · PL Rahmen · FC schraffiert) und nicht der Skalenregel „eine Skala je Einheit, Δ gegen eine Referenz“. Der Footer der Ansicht sagt das ausdrücklich. Der Kachel-Zoom, in den man aus dem Sankey springt, bleibt dagegen IBCS. Wer streng nach IBCS berichtet, schaltet den Sankey unter Darstellung & Toolbar ab (Ansicht: Sankey anbieten, Kapitel 08).
@@ -291,7 +322,7 @@ Ein Klick auf das Diagramm einer Baum-Karte (im Sankey: auf einen Knoten oder se
 
 ## 07 · IBCS-Templates
 
-Der Mega-Table stellt die offiziellen IBCS-Templates T01A–T04E sowie die Report-Varianten 12A, 12G und 12H nach. Ein Template ist nur ein **Preset**: Es setzt alle Schalter der Gruppe Mega-Table und die Dezimalstellen (12G und 12H zusätzlich den Headline-Slot) in *einem* Speichervorgang — danach ist jeder Schalter frei, du kannst jedes Element einzeln ein- und ausblenden. Templates wirken nur in der Ansicht *Tabelle*; *Aus (klassische Tabelle)* stellt alle Mega-Schalter zurück.
+Der Mega-Table stellt die offiziellen IBCS-Templates T01A–T04E sowie die Report-Varianten 12A, 12G und 12H nach; seit 1.7 kommen die Bestands-Templates T05A (Bilanz) und T05B (Cashflow) dazu. Ein Template ist nur ein **Preset**: Es setzt alle Schalter der Gruppe Mega-Table und die Dezimalstellen (12G und 12H zusätzlich den Headline-Slot) in *einem* Speichervorgang — danach ist jeder Schalter frei, du kannst jedes Element einzeln ein- und ausblenden. Templates wirken nur in der Ansicht *Tabelle*; *Aus (klassische Tabelle)* stellt alle Mega-Schalter zurück.
 
 - **Template-Galerie (seit 1.3, am anschaulichsten):** Im Start-Hub bzw. über ☰ Start stehen alle Templates als Kacheln mit Vorschau, nach Zweck gruppiert (Kapitel 03); ein Klick wendet an, auch erneut.
 - **Toolbar (seit 1.2, am schnellsten):** Im Bearbeitungsmodus steht gleich nach ☰ Start das Dropdown *Template* (nur Ansicht Tabelle). Es schreibt dieselben Einstellungen wie der Formatbereich; Leser und Export sehen es nie. Abschaltbar über Darstellung & Toolbar → *Template-Auswahl im Bearbeitungsmodus*.
@@ -318,14 +349,25 @@ Der Mega-Table stellt die offiziellen IBCS-Templates T01A–T04E sowie die Repor
 | 12A | PY- und AC-Wert-Kaskaden als eigene Spalten, dazu ΔPY-Balken und Pins | wie T03A | Minuend AC · Wertspalten PY, AC als Wert-Kaskaden · ΔPY-Balken + ΔPY %-Pins · Margenzeilen aus | 0 / 1 |
 | 12G | FY-Ausblick: YTD voll und Restjahr schraffiert im selben Balken, Δ aufs Jahr gegen das ganze Vorjahr | wie T03A + FC Gesamtjahr (+ Periode) | Minuend AC (FY-Block: AC&FC) · Wertspalten PY, AC als Wert-Kaskaden · ΔPY-Balken + ΔPY %-Pins · Perioden-Block FY · Headline-Slot an | 0 / 1 |
 | 12H | Planrechnung: PL-Kaskade umrandet, Kostenzeilen auf blassem Grund, ΔPY-Balken rot/grün umrandet | wie T03A + PL als Minuend | Minuend PL · Wertspalten PY, PL als Wert-Kaskaden · ΔPY-Balken + ΔPY %-Pins · Margenzeilen aus · Headline-Slot an | 0 / 1 |
+| T05A | Bilanz zum Stichtag: PY (Vorjahresstichtag) · AC · ΔPY · ΔPY % als Zahlen, ein Block mit dem Stichtag-Monat als Titel; Aktiva und Passiva als „=“-Summen mit Doppelstrich | Monatsstände (ultimo), Periode, AC / PY; Token `stock` oder Bestand & Fluss = „Alle Zeilen Bestand“ | Minuend AC · Wertspalten PY, AC · ΔPY + ΔPY % als Zahl · ein Block · setzt Bestand & Fluss auf „Alle Zeilen Bestand“, wenn die Daten kein Token tragen (sonst Auto) | 0 / 1 |
+| T05B | Cashflow-Brücke: Anfangsbestand → operativ · investiv · finanziell → Endbestand als PY- und AC-Wert-Kaskaden (Bestände ankern, Flüsse floaten), ΔPY · ΔPY %, Monat \| YTD | Token `opening` / `stock`, Periode, AC / PY (FC Gesamtjahr für den FY-Ausblick) | Minuend AC · Wertspalten PY, AC als Wert-Kaskaden · ΔPY + ΔPY % als Zahl · zweiter Block · Bestand & Fluss = Auto | 0 / 1 |
 
 Für alle Templates gilt: Dezimalstellen Δ % = 1 (seit 1.5 einheitlich; gespeicherte Berichte behalten ihren Wert, bis das Template erneut angewendet wird), Szenario-Unterstreichungen und Zahlen an Balken / Pins / Kaskaden an, Ausreißer-Pfeile für Δ-Balken aus, Perioden-Block YTD (außer 12G: FY), zweiter Block links = Monat; nicht genannte Schalter stehen aus. Der zweite Perioden-Block braucht das Periodenfeld — ohne Periode fallen „Monat“ und der zweite Block still auf einen YTD-Block zurück, ohne FC Gesamtjahr fällt FY auf YTD zurück.
+
+### T05A Bilanz · T05B Cashflow (1.7)
+
+Die beiden Bestands-Templates stehen in der Galerie-Gruppe **Bilanz & Cashflow** (zwischen GuV-Statement und Report-Ansichten, Kapitel 03) und im Template-Dropdown hinter 12H. Sie arbeiten mit Beständen als Monatsständen (Kapitel 05, „Bestand & Fluss“); die Vorschau in der Galerie zeigt eine Beispiel-Bilanz bzw. einen Beispiel-Cashflow.
+
+- **T05A · Bilanz zum Stichtag:** PY (der Stand ein Jahr früher) · AC · ΔPY · ΔPY % in einem Block, dessen Titel der Stichtag-Monat ist. Aktiva und Passiva stehen als „=“-Summen mit Doppelstrich unter der Bilanzsumme. PL lässt sich bei Bedarf über die Wertspalte PL und ΔPL dazuschalten.
+- **T05B · Cashflow-Brücke:** Anfangsbestand → operativ · investiv · finanziell → Endbestand als PY- und AC-Wert-Kaskaden — die Bestände ankern auf der Nulllinie, die Flüsse floaten dazwischen —, dazu ΔPY · ΔPY % und die Blöcke Monat | YTD. Der FY-Ausblick ist über die Block-Art FY zuschaltbar (ohne FY-Measures zeigt er den FC-Endstand). Anfangs- und Endbestand müssen per Token markiert sein: `Account opening` bzw. `Formula stock` mit `[Anfangsbestand]+[Operativ]+[Investiv]+[Finanzierung]`.
+- **Wann der Bestandsmodus gesetzt wird:** T05A setzt *Bestand & Fluss* auf „Alle Zeilen Bestand (Bilanz)“, wenn die Daten kein Token tragen — eine Bilanz ohne Zeilentyp-Spalte funktioniert also —, sonst auf Auto. T05B setzt immer Auto. Jedes andere Template nimmt ein „Alle Zeilen Bestand“ von T05A beim Anwenden wieder auf Auto zurück; „↺ Zum Template zurück“ erscheint auch, wenn der Bestandsmodus vom Template abweicht.
+- **Daten:** Monatsstände ultimo, nie kumuliert; Passiva aus einer Saldenliste mit Rechenvorzeichen `-1` (Kapitel 05). Beispiel: `demoData/bilanz-*.csv` und `cashflow-*.csv`; Modell prüfen mit dem Skill `finance-data-model` (`validate_model.py`).
 
 > Dasselbe Template erneut anwenden geht seit 1.3: ein Klick auf die aktive Kachel der Galerie oder „↺ Zum Template zurück“ neben dem Toolbar-Dropdown stellt den Template-Stand wieder her — das native Dropdown selbst kann einen schon gewählten Eintrag nicht noch einmal melden. Wer Berichte per PBIR schreibt, setzt `columns.template` und `columns.templateApplied` auf denselben Wert, sonst wendet das Visual das Template beim ersten Rendern an und überschreibt die mitgeschriebenen Schalter (siehe [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)). Die Referenzblätter im Vergleich: [TEMPLATE-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md) und der HTML-Prototyp `pnlByDatenWG/prototype/megatable.html`.
 
 ## 08 · Einstellungs-Referenz
 
-Der Formatbereich hat acht Karten in dieser Reihenfolge: **Spalten & Mega-Table** → **Darstellung & Toolbar** → **Zahlen** → **Szenario-Begriffe** → **Stil** → **Titelblock** → **Hierarchie** → **Leer-Zustand**. Die Tabellen listen alle Einstellungen mit Optionen und Standardwert; die Namen entsprechen der deutschen Oberfläche.
+Der Formatbereich hat zwölf Karten in dieser Reihenfolge: **Spalten & Mega-Table** → **Darstellung & Toolbar** → **Ausnahmen** (1.7) → **Toolbar-Farben** (1.7) → **Zahlen** → **Szenario-Begriffe** → **Stil** → **Fläche** (1.7) → **Titelblock** → **Hierarchie** → **Bestand & Fluss** (1.7) → **Leer-Zustand**. Die Tabellen listen alle Einstellungen mit Optionen und Standardwert; die Namen entsprechen der deutschen Oberfläche.
 
 > **Sichtbarkeit:** Der Formatbereich zeigt nur, was zur aktuellen Ansicht und zu den gebundenen Feldern passt — die Mega-Table-Gruppe nur in der Ansicht Tabelle, die Werttreiberbaum-Gruppe nur in Baum und Sankey, ΔPY-Schalter nur mit PY, Schwellen-Felder nur bei eingeschalteten Schwellen. Ein ausgeblendeter Schalter behält seinen Wert; die Ausblendung ändert nie, was gerendert wird. Ohne Daten (und in der Demo) bleibt alles sichtbar. Die Hinweise „Sichtbar …“ in den Tabellen nennen diese Bedingungen.
 
@@ -337,7 +379,7 @@ Seit 1.2 die erste Gruppe der Karte. Sichtbar in der Ansicht Tabelle. Jeder Scha
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| Template (IBCS-Tabelle) | Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. | Optionen: Aus (klassische Tabelle) \| T01A \| T01B \| T02A \| T02B \| T02C \| T02E \| T02F \| T03A \| T03B \| T04A \| T04B \| T04C \| T04D \| T04E \| 12A \| 12G \| 12H · Standard „Aus (klassische Tabelle)“ |
+| Template (IBCS-Tabelle) | Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. | Optionen: Aus (klassische Tabelle) \| T01A \| T01B \| T02A \| T02B \| T02C \| T02E \| T02F \| T03A \| T03B \| T04A \| T04B \| T04C \| T04D \| T04E \| 12A \| 12G \| 12H \| T05A \| T05B · Standard „Aus (klassische Tabelle)“ |
 | Analysiertes Szenario (Minuend) | AC gefüllt, FC schraffiert, PL umrandet; die Δ-Balken folgen dem Minuenden (bei PL rot/grün umrandet, Planrechnung 12H). Die Δ-Spalten vergleichen es mit PY / PL. FC und PL brauchen ihr Feld. Bei PL gibt es kein ΔPL; Wertspalte PL und Wertspalte AC/FC ergeben dann eine PL-Spalte. Sichtbar mit gebundenem FC oder PL. | Optionen: AC (Ist) \| FC (Forecast) \| PL (Planrechnung) · Standard „AC (Ist)“ |
 | Wertspalte PY | Vorjahreswerte als Zahlenspalte. Sichtbar mit gebundenem PY. | An / Aus · Standard Aus |
 | Wertspalte PL | Planwerte als Zahlenspalte. Sichtbar mit gebundenem PL. | An / Aus · Standard Aus |
@@ -392,7 +434,7 @@ Klassische Tabelle, Balken und Wasserfall. Die Vorgaben dieser Gruppe gelten bei
 | Tabelle auf Breite einpassen (Standard) | Staucht die Diagramm-Spalten, bis die Tabelle in den Viewport passt — kein Querscrollen. | An / Aus · Standard Aus |
 | Export: alle Zeilen aufklappen | PDF-/PowerPoint-Export und Abonnements drucken jede Zeile aufgeklappt, egal was am Bildschirm zugeklappt ist. | An / Aus · Standard An |
 | Zeilen hervorheben | Kommagetrennte Zeilennamen (oder IDs), ohne Groß-/Kleinschreibung: ein dezentes Band läuft über alle Spalten dieser Zeilen (IBCS EMPHASIZE). Leer = aus. | Text · Standard leer |
-| Wesentlichkeit ab (absolut) | Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus. | ≥ 0 · Standard 0 |
+| Wesentlichkeit ab (absolut) | Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus. Die Toolbar-Gruppe Ausnahmen (⚡) bietet diesen Wert als absolute Schwelle an (Kapitel 09). | ≥ 0 · Standard 0 |
 | Wesentlichkeit ab (%) | Abweichungen unter diesem Δ % werden in sanftem Grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus. | 0–100 · Standard 0 |
 
 #### Werttreiberbaum
@@ -429,6 +471,7 @@ Was Leser über dem Statement sehen und selbst umschalten dürfen. Eine ausgeble
 | Gruppe: Optionen | % vom Umsatz, Nullzeilen ausblenden, auf Breite einpassen. | An / Aus · Standard An |
 | Gruppe: Szenario (Mega-Table) | Leser schalten das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide des Mega-Tables um. | An / Aus · Standard Aus |
 | Gruppe: Wertspalten (Szenarien einzeln) | Leser kombinieren die Wertspalten frei — AC, PY, PL, FC und Δ gegen die Δ-Referenz (klassische Tabelle), analysiertes Szenario · PY · PL (Mega-Table). Die Spalten-Presets bleiben als Schnellwahl. | An / Aus · Standard Aus |
+| Gruppe: Ausnahmen (⚡) | Leser färben nur die Ausnahmen — Zeilen, deren Δ gegen die Referenz eine Schwelle erreicht — und grauen den Rest aus oder blenden ihn aus. Dieselben Einstellungen wie die Karte Ausnahmen. Die Gruppe steht zuletzt in der Toolbar-Zeile und entfällt in der Kachel-Ansicht und ohne gebundenes PY, PL oder FC. Seit 1.7. | An / Aus · Standard An |
 | Template-Auswahl im Bearbeitungsmodus | Kompaktes Template-Dropdown vorn in der Toolbar, direkt nach ☰ Start, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie. | An / Aus · Standard An |
 | Bedienleisten einklappbar (☰) | Toolbar, Legende und Hinweiszeilen (Skalenhinweis, Baum-Hinweis) klappen hinter einen kleinen ☰-Knopf; eingeklappt bleibt eine schmale Zeile. Für kleine Kacheln. Titel, Spaltenköpfe mit Skalierungsfaktor und die ×n-Marken der Karten bleiben sichtbar; Exporte drucken die Legende immer. Seit 1.5. | An / Aus · Standard Aus |
 | Startzustand eingeklappt | Das Visual öffnet eingeklappt, Leser klappen mit ☰ auf. Die Wahl des Lesers gilt zur Laufzeit und wird nicht gespeichert. Seit 1.5. Sichtbar bei einklappbaren Bedienleisten. | An / Aus · Standard An |
@@ -440,6 +483,33 @@ Was Leser über dem Statement sehen und selbst umschalten dürfen. Eine ausgeble
 > - **Kachel-Zoom** öffnet nur mit aktiver Trägeransicht (Baum oder Sankey). Ist der Baum abgeschaltet, erreicht man die Kachel nur über den Sankey.
 > - **Alle fünf aus** = die Tabelle bleibt. Die **Mega-Table** ist keine eigene Ansicht, sondern ein Template der Tabelle; *Tabelle anbieten* gilt für beide.
 > - **Für Berichte mit fester Ansicht** (z. B. per PBIR-Datei erzeugt) genügt es, die anderen vier Schalter auszuschalten; der Zustand der Leser muss dafür nicht geschrieben werden.
+
+### Ausnahmen (1.7)
+
+Die Vorgaben für ⚡ *Nur Ausnahmen* — Regel, Modi und das Verhalten je Ansicht stehen in Kapitel 09. Ein Klick des Lesers in der Toolbar schreibt dieselben Werte (Spiegel im Formatbereich); eine echte Änderung im Formatbereich gewinnt wie jede Vorgabe. Templates und Hub schreiben diese Karte nie; mit ⚡ aus rendert jeder Bericht wie bisher.
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Nur Ausnahmen (⚡) | Nur Zeilen, deren Δ gegen die Referenz die Schwelle erreicht, behalten ihre Farbe in Δ-Balken, Pins, Δ-Zahlen, Baumkarten und Sankey-Strömen; der Rest ist grau. Leser schalten es in der Toolbar um. | An / Aus · Standard Aus |
+| Schwelle Δ% (ab) | Ausnahme ab diesem \|Δ%\|, in ganzen Prozent (Margenzeilen: Prozentpunkte). 0 = nur die absolute Schwelle. Der Stepper der Toolbar deckt 1 … 100 % ab. | 0–1000 · Standard 5 |
+| Schwelle Δ absolut (ab) | Auch Ausnahme ab diesem \|Δ\|, in Dateneinheiten (vor k/m-Skalierung) — eine der beiden Schwellen reicht. 0 = aus; die Toolbar bietet den Wert von „Wesentlichkeit ab (absolut)“ an. | ≥ 0 · Standard 0 |
+| Referenz | Gegen welches Szenario Δ gemessen wird. Auto folgt der Δ-Referenz der Ansicht (Mega-Table: seinen Δ-Spalten). | Optionen: Auto (Δ-Referenz der Ansicht) \| Vorjahr (PY) \| Plan (PL) \| Forecast (FC) · Standard „Auto (Δ-Referenz der Ansicht)“ |
+| Richtung | Vorzeichen von Δ gegen die Referenz: darüber, darunter oder beides — nicht günstig/ungünstig, die Bewertung behält ihre Farben. | Optionen: ▲▼ darüber und darunter \| ▲ über der Referenz \| ▼ unter der Referenz · Standard „▲▼ darüber und darunter“ |
+| Rest | Grau: alle Zeilen bleiben, nur die Ausnahmen behalten ihre Farbe. Ausblenden: der Rest tritt in jeder Ansicht zurück (Tabelle in Kapitel 09). Zwischensummen und Ergebniszeilen bleiben immer; eine Fußzeile zählt, was ausgeblendet oder zusammengefasst wurde. | Optionen: ⬚ Rest ausgrauen \| ⊘ Rest ausblenden / zusammenfassen · Standard „⬚ Rest ausgrauen“ |
+
+### Toolbar-Farben (1.7)
+
+Die Knöpfe der Berichts-Toolbar in deinen Farben. Alle Farben leer = **automatisch**: genau das Aussehen vor 1.7, hell wie dunkel.
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Knopf-Hintergrund | Füllung der nicht gedrückten Knöpfe. Leer = automatisch (Papier des Visuals, im Dunkelmodus dunkel). | Farbe · Standard leer |
+| Knopf-Text | Beschriftungsfarbe der nicht gedrückten Knöpfe. Leer = automatisch (Tinte des Visuals). | Farbe · Standard leer |
+| Aktiver Knopf: Hintergrund | Füllung eines gedrückten Knopfs (aktuelle Ansicht, Einheit, ⚡ …). Leer = automatisch: die Akzentfarbe der Karte Stil (#404040). | Farbe · Standard leer |
+| Aktiver Knopf: Text | Beschriftungsfarbe eines gedrückten Knopfs. Leer = automatisch: weiß auf dunkler, dunkle Tinte (#1E1E1E) auf heller Füllung. | Farbe · Standard leer |
+| Rahmen (Knöpfe und Gruppen) | Umriss der Knöpfe, des Template-Dropdowns und des ☰-Knopfs sowie die Trennstriche in einer Gruppe. Leer = automatisch (helles Grau, im Dunkelmodus dunkel). | Farbe · Standard leer |
+
+> **Grenzen:** Die Karte gilt nur für die **Berichts-Toolbar** — Knöpfe, ☰, Template-Dropdown und Trennstriche (auch die der Gruppe ⚡). Der Hover tönt die eigene Farbe. Der Start-Hub und sein „☰ Start“-Knopf behalten den Familien-Look. Im **Hochkontrast** ignoriert das Visual die Karte in jeder Ansicht. Leer ist byte-gleich zu einem Bericht ohne die Karte.
 
 ### Zahlen
 
@@ -499,6 +569,21 @@ Hausbegriffe für AC, PY, PL und FC — etwa „Ist“, „VJ“ oder „Budget�
 
 > Im Windows-Hochkontrastmodus ignoriert der Mega-Table alle Farbeinstellungen und unterscheidet die Szenarien über Muster statt Farbe; die klassischen Ansichten behalten ihre Palette.
 
+### Fläche (1.7)
+
+Wie viel der Kachel das Statement nutzt. Der Schalter steht standardmäßig aus; ein bestehender Bericht behält jedes Pixel. Templates setzen ihn nie — es ist eine Entscheidung je Kachel.
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Ganze Kachel nutzen (maximieren) | Minimale Außenränder, eine Toolbar nur so hoch wie nötig (Gruppennamen neben den Knöpfen), kompakte Kopf- und Fußzeilen. Tabelle, Mega-Table und Balken skalieren Schrift und Zeilen auf die Kachelhöhe; Baum und Sankey füllen die Kachel. | An / Aus · Standard Aus |
+
+> **Verhalten und Grenzen:**
+>
+> - **Ränder und Kopf:** 4 px statt 14 px (Tabelle: 2 px); die Toolbar setzt die Gruppennamen neben die Knöpfe, je Gruppe eine Zeile mit engen Abständen — typisch ein bis zwei Zeilen statt drei bis vier. Titel, Legende, Fußnoten und Fuß werden kompakt.
+> - **Tabelle, Mega-Table, Balken, Wasserfall:** Schrift und Zeilen wachsen mit der Kachelhöhe, bis die Seite die Kachel füllt — höchstens ×1,6, nach unten bis 9 px Körperschrift, darunter wird gescrollt. Ein Körper, der schon breiter als die Kachel ist, wächst nicht.
+> - **Baum und Sankey:** Die Karten des Baums wachsen (×0,8 bis ×1,6), bis Breite oder Höhe gefüllt sind; im Sankey geht die gemessene Resthöhe in die Flusshöhe (Mindesthöhe 240 px bleibt).
+> - Die Kachel-Ansicht und der Start-Hub bleiben im Familien-Look unverändert.
+
 ### Titelblock
 
 Der dreizeilige IBCS-Titel (Berichtseinheit · Kennzahl + Einheit · Zeitraum + Szenarien) mit Botschaft, Headline und Fußzeilen. Alle Felder außer dem Hauptschalter sind nur bei eingeschaltetem Titelblock sichtbar.
@@ -521,6 +606,16 @@ Der dreizeilige IBCS-Titel (Berichtseinheit · Kennzahl + Einheit · Zeitraum + 
 | --- | --- | --- |
 | Standard-Aufklapp-Ebene | Wie tief das Statement aufklappt. 0 = alles aufklappen. | 0–8 · Standard 2 |
 | Einrückung je Ebene (px) | Einrückung der Zeilenbeschriftung je Hierarchie-Ebene. | 6–32 · Standard 16 |
+
+### Bestand & Fluss (1.7)
+
+Bilanzposten, Kasse, Working Capital und Headcount als Bestände: der Stand statt der Summe der Monate. Die Art einzelner Zeilen kommt aus dem Zeilentyp-Token (Kapitel 05); diese Karte setzt sie global.
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Bestand vs. Fluss | Auto: Zeilen mit dem Token stock / Bestand (Stand am Periodenende) oder opening / Anfangsbestand (Stand am Periodenanfang) sind Bestände; Summen und Formeln über Beständen erben das. Alle Zeilen Bestand: reine Bilanz ohne Token-Spalte. Alle Zeilen Fluss: Verhalten vor 1.7. Bestände zeigen im YTD-Block den Stand der letzten Periode, im FY-Ausblick den FC-Endstand und Δ zum selben Stichtag. | Optionen: Auto (Token im Zeilentyp) \| Alle Zeilen Bestand (Bilanz) \| Alle Zeilen Fluss (wie vor 1.7) · Standard „Auto (Token im Zeilentyp)“ |
+
+> Die Templates T05A (Bilanz) und T05B (Cashflow) setzen diesen Schalter mit (Kapitel 07); jedes andere Template nimmt „Alle Zeilen Bestand“ beim Anwenden zurück auf Auto.
 
 ### Leer-Zustand
 
@@ -556,6 +651,7 @@ Die Toolbar über dem Statement zeigt je Ansicht nur die Gruppen, die dort etwas
 | Bis Ebene | Tabellen-Ansichten, Baum und Sankey | 1 · 2 · … · Alle; im Baum und Sankey zusätzlich ⌂ (zurück zur obersten Wurzel, ganzer Baum offen). |
 | Szenario · Referenz-Sicht | Mega-Table, mit „Gruppe: Szenario“ | Szenario AC · FC (nur mit FC-Feld), Referenz-Sicht ΔPY · ΔPL · beide. |
 | Optionen | klassische Ansichten bzw. Mega-Table | Klassisch: % vom Umsatz (nur Tabelle), Nullzeilen aus, Einpassen. Mega-Table: Nullzeilen aus. |
+| Ausnahmen (⚡) | alle Ansichten außer der Kachel-Ansicht, mit gebundenem PY, PL oder FC und „Gruppe: Ausnahmen“ (seit 1.7) | ⚡ Nur Ausnahmen an/aus; daneben Schwellen-Stepper \|Δ%\|, „\|Δ\| ≥ …“, Referenz Auto · PY · PL · FC, Richtung ▲ · ▼ · ▲▼ und Modus ⬚ grau · ⊘ ausblenden (Abschnitt unten). |
 | ☰ Bedienleisten | mit „Bedienleisten einklappbar“ (seit 1.5) | Klappt Toolbar, Legende und Hinweiszeilen ein und aus; aufgeklappt führt ☰ die Toolbar an. |
 
 ### Wertspalten- und Szenario-Gruppe
@@ -564,6 +660,31 @@ Die Toolbar über dem Statement zeigt je Ansicht nur die Gruppen, die dort etwas
 - **Mega-Table:** Dieselbe Gruppe schaltet analysiertes Szenario, PY und PL als Leser-Schicht über den Formatbereich-Schaltern. Die letzte Spalte ist gesperrt, damit der Mega-Table nie per Klick in die klassische Tabelle zurückfällt. Ändert der Autor die Wertspalten im Formatbereich, endet die Leser-Wahl.
 - **Gruppe Szenario:** Leser wechseln das analysierte Szenario AC / FC und die Referenz-Sicht ΔPY · ΔPL · beide. Die Filter-Fußzeile nennt die gewählte Sicht.
 
+### ⚡ Nur Ausnahmen (1.7)
+
+In einer GuV mit sechzig Zeilen ist Farbe nur dann eine Aussage, wenn sie selten ist. Die Toolbar-Gruppe **Ausnahmen** mit dem Knopf **⚡** färbt nur Zeilen, deren Abweichung zählt; der Rest wird grau oder tritt zurück. Leser bedienen sie selbst; Autoren geben Vorgaben in der Formatkarte *Ausnahmen* (Kapitel 08) oder blenden die Gruppe unter Darstellung & Toolbar aus. Standard ist ⚡ aus — dann rendert jeder Bericht wie bisher.
+
+- **Regel:** Eine Zeile ist Ausnahme, wenn |Δ%| ≥ Schwelle (Standard 5 %, Stepper − / + in Stufen von 1 bis 100 %) *oder* |Δ| ≥ absolute Schwelle — eins von beiden reicht. Der Knopf „|Δ| ≥ …“ erscheint, sobald „Wesentlichkeit ab (absolut)“ gesetzt ist, und übernimmt diesen Wert. **Margenzeilen** (KPI) messen in Prozentpunkten; die absolute Schwelle gilt für sie nicht.
+- **Ein Block reicht:** Ist irgendein sichtbares Δ der Zeile (jeder Perioden-Block, jede Referenz) über der Schwelle, behalten *alle* ihre Δ-Elemente die Farbe.
+- **Referenz:** *Auto* folgt der Δ-Referenz der Ansicht (im Mega-Table seinen Δ-Spalten), *PY*, *PL* und *FC* messen fest gegen dieses Szenario (nur gebundene Szenarien bekommen einen Knopf). Baum und Sankey messen AC gegen die Referenz im periodengerechten YTD. Bestände vergleichen Stand gegen Stand.
+- **Richtung:** ▲ darüber · ▼ darunter · ▲▼ beide — nach dem Vorzeichen von Δ in Anzeige-Orientierung, *nicht* nach günstig/ungünstig. Die Bewertung behält ihre Farben: Eine Ausnahme ist Teal oder Rot wie sonst auch.
+- **Modus:** ⬚ *grau* lässt alle Zeilen stehen, nur die Ausnahmen behalten ihre Farbe. ⊘ *ausblenden* lässt den Rest in jeder Ansicht zurücktreten (Tabelle unten).
+
+| Ansicht | ⬚ grau | ⊘ ausblenden |
+| --- | --- | --- |
+| Tabelle, Mega-Table (ohne Kaskade), Balken | Δ-Zahlen, Balken und Pins der Nicht-Ausnahmen sanft grau. | Ruhige Detailzeilen verschwinden — auch zugeklappte Gruppen, unter denen keine Ausnahme liegt. Fußzeile: „n Zeilen unter der Schwelle ausgeblendet“. |
+| Zeilen-Waterfall und Kaskaden-Templates (T04B–E, 12A, 12G, 12H) | Wasserfall-Stufen grau. | Je Abschnitt werden mindestens zwei ruhige Schritte zu *einer* Zeile „übrige (n)“ zusammengefasst (grau, kursiv, die Mitglieder im Tooltip). Summe und Kaskade bleiben geschlossen; ein einzelner ruhiger Schritt bleibt, grau. |
+| Werttreiberbaum | Karte halbtransparent, Status-Rand und Δ % grau. | Ruhige Äste klappen zu einer grauen, gestrichelten Karte „+n“ ein; der Pfad von der Wurzel zu jeder Ausnahme bleibt. |
+| Sankey | Färbt Abweichungen statt Fluss-Familien: nur die Ströme der Ausnahmen in der Farbe ihres Δ, der Rest grau. | Ruhige Ströme eines Knotens (ab zwei) werden zu *einem* grauen Sammelband „übrige (n)“ gebündelt; die Knoten-Summen stimmen weiter. |
+| Kachel-Ansicht | Kennt kein ⚡ — die Gruppe entfällt dort. |  |
+
+- **Was immer bleibt:** Zwischensummen, Ergebnis-, Formel-, Margen- und Trennzeilen. Eine offene Gruppe bleibt als Summenzeile stehen, auch wenn alle Kinder zurücktreten; zugeklappte Blöcke der obersten Ebene ebenso.
+- **Fußzeile:** Je Ansicht nennt sie die Regel („⚡ Farbig nur Ausnahmen: |Δ%| ≥ 5 % …“) und zählt, was ausgeblendet oder zusammengefasst wurde — auch im Export.
+- **Lesezeichen und Export:** Der Zustand von ⚡ ist lesezeichenfähig und wirkt sofort; der Export druckt den gespeicherten Zustand ohne Toolbar. Derselbe Zustand steht gespiegelt in der Formatkarte *Ausnahmen*.
+- **Abgrenzung zur Wesentlichkeit:** Die Wesentlichkeit (Spalten & Mega-Table → „Wesentlichkeit ab …“) bleibt unabhängig und immer aktiv — sie graut Abweichungen, die *beide* ihrer Schwellen nicht überschreiten. ⚡ graut, was *keine* seiner Schwellen erreicht. Sind beide an, wird eine Zeile grau, sobald einer der beiden Gründe greift.
+- **Hochkontrast:** Nicht-Ausnahmen erscheinen gestrichelt ohne Füllung und Muster statt grau (Mega-Table, Sankey).
+- **Für PBIR-Berichte** mit festem ⚡ genügt das Objekt `exceptions` (`enabled: true` …); ohne Leser-Schalter `toolbar.showExceptions` ausschalten.
+
 ### Gesperrte Buttons
 
 Ein Knopf, der im aktuellen Zustand nichts ändern würde, ist **gesperrt**: gedimmt, ohne Hover, mit einem Tooltip, der sagt, wo er wirkt — ein Klick speichert nichts. Ob ein Knopf wirkt, prüft die Toolbar gegen die tatsächlich erzeugten Spalten. Typische Fälle: die Δ-Referenz unter dem Preset „AC·PY·PL·FC“ (das seine Referenzen fest zeigt), der FY-Block außerhalb der Presets, die ihn tragen, „% vom Umsatz“ bei ausgeblendetem YTD-Block, der letzte sichtbare Perioden-Block, die letzte Wertspalte oder Δ ohne Referenzfeld, und im Mega-Table eine Szenario-Wahl, die seine Spalten nicht nutzen. Die Perioden-Knöpfe zeigen, was auf dem Bildschirm steht — ein erzwungener YTD-Block liest sich als „an“.
@@ -571,7 +692,7 @@ Ein Knopf, der im aktuellen Zustand nichts ändern würde, ist **gesperrt**: ged
 ### Selektion, Crossfilter & Drillthrough
 
 - **Linksklick** auf eine Wert- oder Diagrammspalte einer Zeile (Tabelle, Mega-Table, Balken, Waterfall) oder auf den Kopf der Kachel setzt die Power-BI-Selektion dieser Zeile — mit allen Quellzeilen des Kontos (z. B. alle Monate). Zwischensummen selektieren die Blätter darunter, Formelzeilen die Blätter ihrer Operanden. Ein zweiter Klick oder ein Klick auf freie Fläche hebt die Selektion auf.
-- **Crossfilter:** Die Selektion filtert die übrige Berichtsseite; die Drillthrough-Schaltflächen der Seite werden mit genau diesem Kontext aktiv. Das Visual selbst unterstützt kein Hervorheben — Cross-Interaktion von außen filtert.
+- **Crossfilter:** Die Selektion filtert die übrige Berichtsseite; die Drillthrough-Schaltflächen der Seite werden mit genau diesem Kontext aktiv. Markiert ein anderes Visual dagegen nur einen Teil der Daten (Hervorheben), gilt der Abschnitt „Markierungen anderer Visuals“ unten.
 - **Rechtsklick** auf eine Zeile, Baum-Karte, Sankey-Knoten, Mikro-Karte oder die große Kachel öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite; in der Kachel-Ansicht erledigt „↗ Drill“ Selektion und Menü in einem Griff.
 - Die Markierung sitzt nur auf dem gewählten Element (blasser Akzent-Waschton und 2 px Unterstrich); andere Zeilen werden nicht abgedunkelt. Je Knoten werden höchstens 2.000 Quellzeilen selektiert; wo der Deckel greift, sagt es der Tooltip.
 - Der Name einer Zeile klappt, das Chevron klappt, ein Klick auf eine Baum-Karte oder einen Sankey-Knoten öffnet die Kachel — selektiert wird über die Wert- und Diagrammspalten. Abschaltbar über Stil → *Selektion & Kontextmenü aktiv*; im Export und in Abos gibt es keine Interaktion.
@@ -580,9 +701,18 @@ Ein Knopf, der im aktuellen Zustand nichts ändern würde, ist **gesperrt**: ged
 2. **Schaltfläche:** auf der Quellseite *Einfügen → Schaltflächen → Leer*, dann *Aktion → Ein*, *Typ = Detailsuche*, *Ziel = Konto-Detail*.
 3. **Benutzen:** im Visual eine Wertspalte anklicken — die Schaltfläche wird aktiv. Alternativ Rechtsklick oder „↗ Drill“ in der Kachel-Ansicht.
 
+### Markierungen anderer Visuals (Cross-Highlight, 1.7)
+
+Seit 1.7 versteht das Visual das *Hervorheben*. Klickt ein Leser in einem anderen Visual (Balken, Karte, Slicer-Visual) auf ein Element, schickt Power BI die ungefilterte Abfrage samt markiertem Anteil:
+
+- **Sankey:** zeigt die Auswahl im Gesamt — das Ganze grau, der markierte Teil als farbige Innen-Bänder, „923 von 1 685“ an den Knoten, Hinweis in der Fußzeile (Kapitel 06).
+- **Alle anderen Ansichten** (Tabelle, Mega-Table, Balken, Wasserfall, Baum, Kachel-Ansicht) verhalten sich **wie gefiltert**: Zeilen ohne markierten Wert verschwinden; Periodenfenster, Skalen, % vom Umsatz, Δ, Wesentlichkeit und ⚡ rechnen auf der Auswahl; es gibt keine Fußzeile.
+- **Hinweis für Autoren:** Die Standard-Interaktion anderer Visuals auf die GuV wird damit *Hervorheben* statt Filtern. Außerhalb des Sankey sieht der Leser dasselbe wie vorher, bestehende Berichte brauchen keine Änderung. Wer ausdrücklich *Filtern* will — auch im Sankey —, stellt es in Power BI Desktop unter Format → *Interaktionen bearbeiten* am auslösenden Visual über das Filter-Symbol der GuV um.
+- Ein Klick in der GuV selbst erzeugt nach Power-BI-Verhalten keine Markierung in der GuV; ihre Selektion (siehe oben) bleibt unberührt. Ohne Markierung rendert jeder Bericht unverändert; Export und Abos drucken das Filter-Bild bzw. den Sankey mit Fußzeile.
+
 ### Lesezeichen (Bookmarks)
 
-Alle Toolbar-Zustände sind im Bericht gespeichert und lesezeichenfähig: Ansicht, Spalten-Preset und Wertspalten, Δ-Referenz, Einheit, Dichte, Optionen, Perioden-Blöcke, zugeklappte Zeilen und offene Sparklines, Wurzel, Faltung, Karten-Diagramm, Status und Zoom des Baums (der Sankey teilt Wurzel, Faltung und Zoom) sowie die Leser-Sicht des Mega-Tables. Ein Lesezeichen mit einem fremden Zustand wirkt sofort. Eine im Formatbereich geänderte Vorgabe gewinnt nur für die geänderte Einstellung, die übrigen Leser-Entscheidungen bleiben. Ein Lesezeichen mit Selektion stellt den Filter über Power BI wieder her; die Markierung im Visual wird dabei nicht nachgezeichnet, ein Lesezeichen ohne Selektion entfernt sie. Zeigt ein Lesezeichen auf eine inzwischen nicht mehr angebotene Ansicht, erscheint die erste angebotene (Kapitel 08).
+Alle Toolbar-Zustände sind im Bericht gespeichert und lesezeichenfähig: Ansicht, Spalten-Preset und Wertspalten, Δ-Referenz, Einheit, Dichte, Optionen, Perioden-Blöcke, zugeklappte Zeilen und offene Sparklines, Wurzel, Faltung, Karten-Diagramm, Status und Zoom des Baums (der Sankey teilt Wurzel, Faltung und Zoom) sowie die Leser-Sicht des Mega-Tables und der Zustand von ⚡ Nur Ausnahmen (Schalter, Schwellen, Referenz, Richtung, Modus). Ein Lesezeichen mit einem fremden Zustand wirkt sofort. Eine im Formatbereich geänderte Vorgabe gewinnt nur für die geänderte Einstellung, die übrigen Leser-Entscheidungen bleiben. Ein Lesezeichen mit Selektion stellt den Filter über Power BI wieder her; die Markierung im Visual wird dabei nicht nachgezeichnet, ein Lesezeichen ohne Selektion entfernt sie. Zeigt ein Lesezeichen auf eine inzwischen nicht mehr angebotene Ansicht, erscheint die erste angebotene (Kapitel 08).
 
 ### Tooltips
 
@@ -689,10 +819,31 @@ Formatbereich → Darstellung & Toolbar → die fünf Schalter *Ansicht: Tabelle
 
 Die Zahlen eines Knotens gehen nicht in seinen Teilen auf, etwa weil ein Summenknoten einen eigenen Wert trägt oder eine Formel eine Konstante enthält. Das Band macht die Lücke sichtbar, statt sie zu verstecken; bei konsistenten Daten erscheint es nie.
 
-## 12 · Versionshinweis 1.6.0.0
+### Kann ich eine Bilanz zeigen?
 
-Diese Dokumentation beschreibt **Version 1.6.0.0** vom 28.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
+Ja, seit 1.7. Liefere die Bilanzposten als **Monatsstände (ultimo)** und kennzeichne sie im *Zeilentyp* mit dem Token `stock` (`Account stock`) — oder wähle, wenn die Kontendimension keine Zeilentyp-Spalte hat, Formatbereich → *Bestand & Fluss* → „Alle Zeilen Bestand (Bilanz)“. Das Template **T05A · Bilanz** (Galerie-Gruppe „Bilanz & Cashflow“) setzt das Layout und, ohne Token, den Schalter gleich mit; für die Brücke vom Anfangs- zum Endbestand gibt es T05B. Details: Kapitel 05 („Bestand & Fluss“) und Kapitel 07.
 
+### Die YTD- oder FY-Zahlen meiner Bilanz sind um ein Vielfaches zu groß.
+
+Die Bestände werden wie Flüsse über die Monate summiert. Setze das Token `stock` bzw. `opening` im Zeilentyp oder wähle *Bestand & Fluss* → „Alle Zeilen Bestand (Bilanz)“. Auch ein Bestands-Measure, das schon kumuliert, ist falsch: geliefert werden Monatsstände.
+
+### Unter der Tabelle steht „Bestand und Fluss gemischt“.
+
+Nur im Bearbeitungsmodus: Eine Formel oder Summe mischt Bestände und Flüsse, ohne dass ein Token die Art festlegt. Eine Formel folgt dem ersten Operanden, eine gemischte Summe bleibt Fluss. Lege die Art mit `stock` oder `flow` im Zeilentyp fest.
+
+### Warum verschwindet nichts, wenn ich „ausblenden“ wähle?
+
+⊘ blendet *ruhige Detailzeilen* aus: Konten und Gruppen, die keine Kinder zeigen (Blatt oder zugeklappt, unterhalb der obersten Ebene) und in sich und darunter keine Ausnahme tragen. Seit 1.7 verschwinden dabei auch **zugeklappte Gruppen ohne Ausnahme darunter** — auf der Standard-Aufklappebene fiel früher oft nichts weg. Es bleiben immer Zwischensummen, offene Gruppen als Summenzeile, Ergebnis-, Formel-, Margen- und Trennzeilen. Verschwindet trotzdem nichts: Der Modus steht noch auf ⬚ grau, die Schwelle ist so niedrig, dass jede Zeile Ausnahme ist (Standard 5 %), die Gruppe fehlt mangels gebundenem PY, PL oder FC, oder du bist in der Kachel-Ansicht, die kein ⚡ kennt.
+
+### Klicke ich in einem anderen Visual, wird der Sankey grau.
+
+Gewollt (Cross-Highlight, seit 1.7): Der Sankey zeigt die Markierung im Gesamt — das Ganze grau, der markierte Teil farbig, in der Fußzeile „… 923 von 1 685 …“. Alle anderen Ansichten verhalten sich wie gefiltert. Soll auch der Sankey filtern, stelle die Interaktion in Power BI Desktop unter Format → *Interaktionen bearbeiten* am auslösenden Visual auf das Filter-Symbol um (Kapitel 09).
+
+## 12 · Versionshinweis 1.7.0.0
+
+Diese Dokumentation beschreibt **Version 1.7.0.0** vom 29.10.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
+
+- **1.7.0.0 · Bestand & Fluss, Nur Ausnahmen, Fläche, Toolbar-Farben, Cross-Highlight im Sankey:** Zeilentyp-Token `stock`/`opening` und Formatkarte „Bestand & Fluss“ — Bestände werden in YTD und FY nicht summiert, sondern als Stand zum Stichtag gezeigt (FY = Forecast-Endstand), Δ vergleicht Stände desselben Stichtags; neue Templates **T05A Bilanz** und **T05B Cashflow** in der Galerie-Gruppe „Bilanz & Cashflow“, Beispieldaten `demoData/bilanz-*.csv`, `cashflow-*.csv`. Toolbar-Gruppe **⚡ Nur Ausnahmen**: nur Zeilen mit |Δ%| ≥ Schwelle (oder |Δ| ≥ absolut) gegen PY/PL/FC behalten ihre Farbe, Richtung ▲/▼/▲▼, Rest grau oder ausgeblendet — Ausblenden wirkt in jeder Ansicht (Kaskaden fassen ruhige Schritte zu „übrige (n)“ zusammen, Baum klappt ruhige Äste zu „+n“, Sankey bündelt ruhige Ströme), lesezeichenfähig, Formatkarte „Ausnahmen“. Formatkarte **Toolbar-Farben** (leer = automatisch). Schalter **Fläche → Ganze Kachel nutzen**: schmale Ränder, kompakte Toolbar, Tabellen skalieren auf die Kachelhöhe, Baum und Sankey füllen die Kachel. **Cross-Highlight**: Markierungen aus anderen Visuals zeigt nur der Sankey als farbigen Teil im grauen Ganzen; alle anderen Ansichten verhalten sich wie gefiltert.
 - **1.6.0.0 · Sankey-Ansicht und „Ansichten anbieten“:** Fünfte Ansicht „Sankey“ — die GuV als Fluss von links nach rechts über dem Graphen des Werttreiberbaums (Gewinnstrang günstig, Kosten zweigen ungünstig ab, Band-Höhe proportional zum AC-YTD), mit Kachel-Zoom, Hover-Panel, Kontextmenü und Äste-Klappen wie im Baum; bewusst außerhalb der IBCS-Notation (der Footer sagt es). Neu unter Darstellung & Toolbar: fünf Schalter, welche Ansichten Leser angeboten bekommen (Tabelle, Baum, Bars, Wasserfall, Sankey); zeigt ein gespeicherter Zustand auf eine abgeschaltete Ansicht, erscheint still die erste angebotene. Hub-Tour mit Karte 8 „Sankey“, vier Sprachen, Dark Mode und Hochkontrast (Muster statt Farbe).
 - **1.5.3.0 · Spaltenkopf auf skalierter Bühne:** In einer Fabric App (Bühne per CSS-Transform skaliert) saß der haftende Spaltenkopf um den Bühnenfaktor zu tief und verdeckte Zeilen; das Visual misst jetzt in Layoutpixeln. In niedrigen Kacheln haften die Fußnoten nur, solange Zeilen sichtbar bleiben; die IBCS-Notationszeile läuft über alle Fußnotenspalten. In Power BI ändert sich nichts.
 - **1.5.2.0 · kosmetische Restpunkte:** IBCS-Notationszeile im Fuß bleibt mit Kommentarblock in der Kachel; Markenhinweis „IBCS Institute“; 12G-Headline „im Forecast“; 12G-YTD-Zahlen vor dem Balken, wenn sie innen nicht passen; Tooltip „pp“; Blöcke und Einkindgruppen in derselben Richtung sortiert wie die Zeilen (T02E/T02F); Verbindungslinien im Δ-Wasserfall an Zahlen unterbrochen; Δ, das auf null rundet, mit Vorzeichen („+0,00“).
@@ -710,13 +861,13 @@ Diese Dokumentation beschreibt **Version 1.6.0.0** vom 28.10.2026 (GUID `pnlByDa
 
 Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md).
 
-**P&L Statement byDatenWG** · Version 1.6.0.0
+**P&L Statement byDatenWG** · Version 1.7.0.0
 
 Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.6.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.6.0.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.7.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
 

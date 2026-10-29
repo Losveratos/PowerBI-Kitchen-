@@ -5,8 +5,14 @@
 //   * a rerender triggered by an expand click
 //   * 1.6: the switch into the Sankey flow view (same data, memoized parse) —
 //     the flow over the card-budgeted graph of 5.000 accounts
-// Fails when first render > 1500 ms, expand rerender > 300 ms or the Sankey
-// switch > 1000 ms.
+//   * 1.7: the same data as stocks (statement.stockMode = allStock): reparse,
+//     every YTD value read as the stand of the last month (windowValue)
+//   * 1.7 cross-highlight: another visual marks every third account at 40 %
+//     (`highlights` next to the values) — two parses, two engine runs — in the
+//     table, then the same highlight in the Sankey (inner ribbons)
+// Fails when first render > 1500 ms, expand rerender > 300 ms, the Sankey
+// switch > 1000 ms, the stock render > 1500 ms, the highlight render > 1500 ms
+// or the highlighted Sankey > 1000 ms.
 const path = require("path");
 
 let chromium;
@@ -161,7 +167,49 @@ function bench(cfg) {
         const sFirstPaint = await paint();
         const sankeyNodes = el.querySelectorAll('[data-pnl="sk-node"]').length;
 
+        // --- 1.7: the same data as stocks (every row a stock): a new parse, stands instead of sums
+        const k0 = performance.now();
+        visual.update({ ...options, dataViews: [{ ...dataView, metadata: { columns: [], objects: {
+            hierarchy: { defaultLevel: 0 }, statement: { stockMode: "allStock" },
+            state: { uiState: JSON.stringify({ view: "table" }) } } } }] });
+        void document.body.offsetHeight;
+        const kFirstPaint = await paint();
+
+        // --- 1.7 cross-highlight: the host adds `highlights` to every measure column
+        const hlValues = dataView.categorical.values.map(c => ({ ...c,
+            highlights: c.values.map((v, i) => (Math.floor(i / M) % 3 === 0 ? Math.round(v * 40) / 100 : null)) }));
+        const hlDv = (ui) => ({ ...dataView, categorical: { ...dataView.categorical, values: hlValues },
+            metadata: { columns: [], objects: { hierarchy: { defaultLevel: 0 }, state: { uiState: JSON.stringify(ui) } } } });
+        const h0 = performance.now();
+        visual.update({ ...options, dataViews: [hlDv({ view: "table" })] });
+        void document.body.offsetHeight;
+        const hFirstPaint = await paint();
+        // polish: the table reads a foreign selection like a filter — no note; only the Sankey has one
+        const hlNote = !el.querySelector('[data-pnl="hl-note"]');
+        const hs0 = performance.now();
+        visual.update({ ...options, dataViews: [hlDv({ view: "sankey", treeV: 2 })] });
+        void document.body.offsetHeight;
+        const hsFirstPaint = await paint();
+        const hlParts = el.querySelectorAll('[data-sk-hl="part"]').length;
+        const hlSkNote = !!el.querySelector('[data-pnl="hl-note"]');
+
+        // --- 1.7 polish: ⚡ hide in the cascade view (quiet steps folded into "other (n)") and the Sankey
+        const excDv = (ui) => ({ ...dataView, metadata: { columns: [], objects: { hierarchy: { defaultLevel: 0 },
+            exceptions: { enabled: true, thresholdPct: 5, mode: "hide" }, state: { uiState: JSON.stringify(ui) } } } });
+        const x0 = performance.now();
+        visual.update({ ...options, dataViews: [excDv({ view: "waterfall" })] });
+        void document.body.offsetHeight;
+        const xFirstPaint = await paint();
+        const excNote = (el.querySelector('[data-pnl="exc-note"]') || {}).textContent || "";
+        const xs0 = performance.now();
+        visual.update({ ...options, dataViews: [excDv({ view: "sankey", treeV: 2 })] });
+        void document.body.offsetHeight;
+        const xsFirstPaint = await paint();
+
         return {
+            excMs: xFirstPaint - x0, excNote, excSankeyMs: xsFirstPaint - xs0,
+            hlMs: hFirstPaint - h0, hlNote,
+            hlSankeyMs: hsFirstPaint - hs0, hlParts, hlSkNote,
             dataRows: N * M,
             domRows, domRowsBottom, windowedAtTop, lastRowReachable,
             updateMs: tUpdate - t0,
@@ -170,6 +218,7 @@ function bench(cfg) {
             reupdateMs: rerenderMs,
             sankeyMs: sFirstPaint - s0,
             sankeyNodes,
+            stockMs: kFirstPaint - k0,
         };
     })();
 }
@@ -194,6 +243,11 @@ function bench(cfg) {
     console.log(`  update, same data  ${ms(r.reupdateMs)}   (memoized parse)`);
     console.log(`  DOM rows           ${r.domRows} at top, ${r.domRowsBottom} at bottom`);
     console.log(`  Sankey switch      ${ms(r.sankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms, ${r.sankeyNodes} nodes)`);
+    console.log(`  stocks (allStock)  ${ms(r.stockMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, reparse + stands)`);
+    console.log(`  highlight (table)  ${ms(r.hlMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, three parses + three engine runs: whole, marked in its shape, filter)`);
+    console.log(`  highlight (Sankey) ${ms(r.hlSankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms, ${r.hlParts} inner ribbons)`);
+    console.log(`  ⚡ hide (waterfall) ${ms(r.excMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, ${(r.excNote.match(/(\d+) steps/) || ["", "0"])[1]} steps folded)`);
+    console.log(`  ⚡ hide (Sankey)    ${ms(r.excSankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms)`);
 
     const fail = [];
     if (errors > 0) { fail.push(errors + " console/page errors"); }
@@ -209,6 +263,17 @@ function bench(cfg) {
     if (r.sankeyMs > SANKEY_BUDGET_MS) {
         fail.push(`Sankey switch ${ms(r.sankeyMs)} > ${SANKEY_BUDGET_MS} ms`);
     }
+    if (r.stockMs > FIRST_RENDER_BUDGET_MS) {
+        fail.push(`stock render ${ms(r.stockMs)} > ${FIRST_RENDER_BUDGET_MS} ms`);
+    }
+    if (!r.hlNote) { fail.push("the highlighted table shows a footer note (it must read like a filter)"); }
+    if (!r.hlSkNote) { fail.push("the highlighted Sankey shows no footer note"); }
+    if (r.hlMs > FIRST_RENDER_BUDGET_MS) { fail.push(`highlight render ${ms(r.hlMs)} > ${FIRST_RENDER_BUDGET_MS} ms`); }
+    if (r.hlParts < 10) { fail.push("the highlighted Sankey drew no inner ribbons (" + r.hlParts + ")"); }
+    if (r.hlSankeyMs > SANKEY_BUDGET_MS) { fail.push(`highlighted Sankey ${ms(r.hlSankeyMs)} > ${SANKEY_BUDGET_MS} ms`); }
+    if (!/steps below the threshold combined/.test(r.excNote)) { fail.push("⚡ hide folded nothing in the waterfall (" + r.excNote + ")"); }
+    if (r.excMs > FIRST_RENDER_BUDGET_MS) { fail.push(`⚡ hide waterfall ${ms(r.excMs)} > ${FIRST_RENDER_BUDGET_MS} ms`); }
+    if (r.excSankeyMs > SANKEY_BUDGET_MS) { fail.push(`⚡ hide Sankey ${ms(r.excSankeyMs)} > ${SANKEY_BUDGET_MS} ms`); }
     if (fail.length > 0) {
         console.error("perf test failed: " + fail.join("; "));
         process.exit(1);
