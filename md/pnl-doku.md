@@ -4,7 +4,7 @@
 
 Power-BI-Visual · Enddokumentation
 
-Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
+Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum, Sankey und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
 Version · **1.6.0.0** · Stand · **2026-10-28** · IBCS-inspired
 
@@ -27,18 +27,19 @@ Version · **1.6.0.0** · Stand · **2026-10-28** · IBCS-inspired
 
 **P&L Statement byDatenWG** ist ein eigenständiges Power-BI-Custom-Visual für die Gewinn- und Verlustrechnung und jede andere Kontenhierarchie — das Schwester-Visual von [ChartKitchen](../chartkitchen-doku.html); beide bilden eine Produktfamilie mit gemeinsamer Notation und Bedienung (Kapitel 02). Es liest die Hierarchie aus deiner Dimensionstabelle (Sternschema-Ebenen L1..Ln oder Parent-Child), rechnet Zwischensummen, Formel- und Margenzeilen selbst und zeigt die Szenarien **AC** (Ist), **PY** (Vorjahr), **PL** (Plan) und **FC** (Forecast) mit ihren Abweichungen.
 
-Aus *einer* Datenbindung entstehen vier Ansichten, umgeschaltet in der Toolbar über dem Statement — Leser brauchen dafür keinen Formatbereich:
+Aus *einer* Datenbindung entstehen fünf Ansichten, umgeschaltet in der Toolbar über dem Statement — Leser brauchen dafür keinen Formatbereich; welche davon angeboten werden, bestimmt der Autor (Kapitel 08):
 
 - **GuV-Statement (Tabelle):** Konten, Zwischensummen, Formel- und Margenzeilen mit den Perioden-Blöcken MTD · YTD · FY-Ausblick, Δ-Balken und Δ%-Pins auf einer Skala je Einheit über alle Zeilen und Blöcke.
 - **Mega-Table:** dieselbe Tabellen-Ansicht als IBCS-Tabelle — Wert- und Δ-Spalten frei kombinierbar, Δ als Zahl, Balken, Pin oder integrierter Wasserfall, Wert-Kaskaden, zwei Perioden-Blöcke, Schwellen mit Fußzeile. Ein Template (T01A … 12H) setzt alle Schalter auf einmal.
 - **Struktur-Bars und Zeilen-Waterfall:** dieselben Zeilen als Größenbalken gegen die Referenz bzw. als Kaskade, in der die Ergebniszeilen auf der Nulllinie ankern.
 - **Werttreiberbaum mit Kacheln:** der Formel-Graph als DuPont-Baum (oder, ohne Formelzeilen, die reine Hierarchie) mit Mini-Charts auf jeder Karte; ein Klick öffnet die Kachel-Ansicht des Knotens mit Kombi-Chart, Szenario-Grid und Treibern.
+- **Sankey (seit 1.6):** derselbe Graph als Fluss von links nach rechts — Umsatz-Komponenten grau in den Umsatz, der Gewinn-Strang günstig nach rechts, Kosten ungünstig nach rechts unten in Endknoten; Band-Höhe proportional zum AC-YTD. Bewusst außerhalb der IBCS-Notation; der Kachel-Zoom daraus bleibt IBCS.
 
 Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404040), PY grau, PL weiß mit Rahmen, FC schraffiert; Beschriftungen außen mit explizitem „+“, eine Skala je Einheit über alle Zeilen und Perioden-Blöcke (nach IBCS 2.0 / ISO 24896), Margenzeilen mit Δ in Prozentpunkten, keine Gitterlinien. Die Oberfläche spricht Deutsch, Englisch, Spanisch und Japanisch (sie folgt der Berichtssprache), kennt einen Dunkelmodus und Hochkontrast und begrüßt Autoren beim Hineinziehen mit einem Start-Hub (Kapitel 03). Das Visual macht keine externen Aufrufe, speichert nichts außerhalb des Berichts und sendet keine Telemetrie.
 
 > **Dokumentierte Abweichung: Teal statt Grün.** Günstige Abweichungen sind standardmäßig Teal (#0E8585), ungünstige Rot (#E02B1D) — statt des IBCS-Grüns #8CB400 / Rot #FF2600. So bleiben die Abweichungen bei Rot-Grün-Sehschwäche lesbar; Legende und Fußzeile nennen die Abweichung. Umschaltbar unter Stil → Abweichungsfarben (IBCS-Grün klassisch) oder per Abweichungsfarben-Preset Blau / Orange (ColorBrewer #2C7BB6 / #E66101, auch ohne Farbsehen und im Schwarzweiß-Druck unterscheidbar). Im Dunkelmodus gilt das ChartKitchen-Paar #3FB3C2 / #E4635F.
 
-Diese Anleitung beschreibt den Stand der Version **1.6.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
+Diese Anleitung beschreibt den Stand der Version **1.6.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
 ## 02 · Die Produktfamilie
 
@@ -69,6 +70,7 @@ Die Ergebnisrechnung Zeile für Zeile — „Was steht in der GuV, und warum wei
 - **Mega-Table:** die IBCS-Tabellen-Templates T01–T04 sowie 12A, 12G und 12H — Wert-Kaskaden, Δ-Wasserfälle, Pins, Schwellen.
 - **Formel-Engine:** Hierarchie, Zwischensummen, Formel- und Margenzeilen direkt aus der Kontendimension (Ebenen-Spalten oder Parent-Child).
 - **Werttreiberbaum:** der Formel-Graph als DuPont-Baum mit Mini-Charts auf jeder Karte und Kachel-Zoom je Knoten.
+- **Sankey:** derselbe Graph als Fluss von links nach rechts — bewusst außerhalb der IBCS-Notation; der Kachel-Zoom bleibt IBCS.
 - **Perioden-Blöcke:** Monat · YTD · FY-Ausblick nebeneinander; Leser schalten Spalten, Referenz und Einheit in der Toolbar.
 - **Struktur-Bars & Zeilen-Waterfall:** dieselben GuV-Zeilen als Größenbalken oder als Kaskade mit Ergebnisankern.
 
@@ -82,7 +84,7 @@ Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorl
 
 | Gemeinsam | ChartKitchen | P&L Statement |
 | --- | --- | --- |
-| **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
+| **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 8 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
 | **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 11 IBCS-Chart-Vorlagen C01–C13 (ohne C07/C11) in vier Gruppen; ↺ unten links im Chart. | 17 IBCS-Tabellen-Templates T01A–12H plus klassische Tabelle in vier Gruppen; ↺ neben dem Template-Dropdown. |
 | **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich Kompakt · Full HD · Präsentation; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
 | **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
@@ -99,7 +101,7 @@ Wer das P&L Statement leer auf die Berichtsseite zieht, sieht seit 1.3 keine Dem
 
 Oben steht der Produktname mit dem Untertitel „Entdecke das Visual, bevor du Felder bindest — oder leg gleich los.“, darunter über die volle Breite der Teal-Knopf **🚀 Loslegen** und vier große Kacheln. Die Ziffern 1–4 öffnen die Kacheln direkt.
 
-- **Was kann das Visual?** — eine Tour in 7 Karten: GuV als Tabelle, Mega-Table mit IBCS-Templates, Werttreiberbaum, Struktur-Balken, Zeilen-Waterfall, Kacheln, Dunkel & Hochkontrast. Jede Karte zeigt ein echtes, verkleinertes Rendering des Visuals über der eingebauten Demo — keine Bilder. Blättern mit ‹ › oder den Pfeiltasten.
+- **Was kann das Visual?** — eine Tour in 8 Karten: GuV als Tabelle, Mega-Table mit IBCS-Templates, Werttreiberbaum, Struktur-Balken, Zeilen-Waterfall, Kacheln, Dunkel & Hochkontrast und — Karte 8 — „Sankey: wohin das Geld fließt“ (mit dem Hinweis, dass er außerhalb der IBCS-Notation liegt). Jede Karte zeigt ein echtes, verkleinertes Rendering des Visuals über der eingebauten Demo — keine Bilder. Blättern mit ‹ › oder den Pfeiltasten.
 - **Templates** — die Template-Galerie nach Zweck (siehe unten).
 - **Demo ansehen** — die Beispiel-GuV mit Pharma-Daten (Smart Start), auf der Ansichten, Toolbar und Templates schon funktionieren.
 - **Felder erklären** — alle 20 Datenrollen in vier Gruppen („Pflicht · Struktur und Ist“, „Szenarien und Zeit“, „Statement-Logik“, „Extras“), je mit einem Satz Zweck und ✓, sobald gebunden. Dazu zwei Prämissen: *IBCS-Notation* (AC voll · PY grau · PL Rahmen bzw. Doppellinie · FC schraffiert; Regel „Minuend → Füllung, Referenz → Achse“) und *Struktur vs. Zeit* (Konten laufen vertikal in Zeilen, die Zeit horizontal in Blöcken Monat | _YTD | FY).
@@ -133,7 +135,7 @@ Jede Unterseite und Ebene trägt oben links die Pille **„← Zurück“**; Esc
 
 - **Klick = anwenden.** Die Kachel schreibt dasselbe wie das Toolbar-Dropdown: Template, alle Schalter, Dezimalstellen und gegebenenfalls den Headline-Slot in einem Speichervorgang. Die aktive Kachel trägt „✓ aktiv“, einen Akzentrahmen und getönten Grund; ein erneuter Klick wendet das Template noch einmal an.
 - **Ohne Felder** wird die Wahl gespeichert („Gespeichert: T03A — wird aktiv, sobald Felder gebunden sind.“) und greift beim Binden.
-- **Im Overlay** (über ☰ Start) wendet ein Klick das Template an, stellt die Ansicht Tabelle ein — auch aus Balken, Waterfall oder Baum — und schließt das Overlay auf dem Ergebnis.
+- **Im Overlay** (über ☰ Start) wendet ein Klick das Template an, stellt die Ansicht Tabelle ein — auch aus Balken, Waterfall, Baum oder Sankey — und schließt das Overlay auf dem Ergebnis.
 
 ### 🚀 Loslegen — die ersten drei Minuten
 
@@ -243,7 +245,7 @@ Ein Feld wie Segment oder Quartal in **Spalten-Kategorie** lässt die klassische
 
 ## 06 · Die Ansichten
 
-Die Toolbar-Gruppe *Ansicht* schaltet zwischen Tabelle, Balken, Wasserfall und Baum. Der Mega-Table ist keine eigene Ansicht, sondern ein Modus der Tabellen-Ansicht; die Kachel-Ansicht öffnet sich aus dem Baum. Die gewählte Ansicht ist ein Leser-Zustand und wird mit dem Bericht und in Lesezeichen gespeichert.
+Die Toolbar-Gruppe *Ansicht* schaltet zwischen Tabelle, Balken, Wasserfall, Baum und Sankey. Der Mega-Table ist keine eigene Ansicht, sondern ein Modus der Tabellen-Ansicht; die Kachel-Ansicht öffnet sich aus dem Baum oder dem Sankey. Welche dieser Ansichten Leser überhaupt angeboten bekommen, legt der Autor fest (Kapitel 08, „Ansichten anbieten“). Die gewählte Ansicht ist ein Leser-Zustand und wird mit dem Bericht und in Lesezeichen gespeichert.
 
 ### 01 · Tabelle (klassisch)
 
@@ -267,9 +269,25 @@ Die GuV als Kaskade auf der Wurzelebene der Hierarchie: Beiträge kaskadieren, S
 
 Der Ergebnisbaum als DuPont-Graph: Wurzel ist die letzte Formel-/KPI-Zeile mit Operanden (oder die im Formatbereich genannte Wurzelzeile), die Kanten tragen die Operatoren ÷ × + − als Kreise. Ohne Formelzeilen wächst der Baum direkt aus der Hierarchie — bei genau einer Wurzel ist sie die Baum-Wurzel, bei mehreren trägt eine virtuelle **Gesamt-Wurzel** sie als Kinder; die Kanten tragen dann das Rechenvorzeichen. Tidy-Layout mit einer Spalte je Ebene, Kompakt-Karten in der Tiefe. Jede Karte zeigt ein Mini-Chart nach Wahl — *Monatssäulen* (AC solide, Referenz dahinter), *Abweichungssäulen* (AC − Referenz je Monat) oder *Mini-Brücke* (Referenz → Δ → AC, YTD) — und optional einen Status-Rand in der Abweichungsfarbe. ▾ klappt einen Knoten auf und zu (Shift: der ganze Ast), ⌖ macht eine Karte zur Wurzel, die Breadcrumb und ⌂ führen zurück; der Hover über einer Karte öffnet die IBCS-Detailansicht. Wird das Kartenbudget erreicht, nennt ein Hinweis die nicht gezeichneten Zweige. Seit 1.5 zeichnen alle Karten derselben Einheit (Beträge; Prozent-Kennzahlen getrennt) in einem Maßstab; bedeckte eine Karte damit weniger als ein Viertel ihrer Fläche, zeichnet sie mit rundem Faktor vergrößert und trägt „×5“ oben rechts, der Tooltip erklärt es. Die Hover-Detailansicht hat bewusst eine eigene Skala und sagt das („Lupe“). Mega-Table- und Finance-Schalter wirken im Baum nicht; er hat seinen eigenen Klapp-Zustand.
 
-### 06 · Kacheln (Kachel-Ansicht)
+### 06 · Sankey (seit 1.6)
 
-Ein Klick auf das Diagramm einer Baum-Karte zoomt den Knoten auf die ganze Fläche: Kombi-Chart aus Monatssäulen (Referenz versetzt hinter AC) und Brücke, darunter das Szenario-Grid, daneben die Mikro-Karten „Zahlt ein auf“ und „Getrieben von“ (bei vielen Treibern blätterbar). Die Seite passt sich in den Viewport ein — das Diagramm ist das elastische Element, das Grid wird bei knapper Höhe kompakter. „← Zurück zum Baum“ und die Breadcrumb führen heraus; „↗ Drill“ setzt die Selektion des Knotens und öffnet das Kontextmenü mit den Drillthrough-Zielen in einem Griff. Quotenzeilen (Margen) zeigen keine Brücke, weil Prozente nicht additiv sind. Die Mikro-Karten einer Spalte teilen eine Skala je Einheit (×n markiert), das Hauptchart ist als Lupe mit eigener Skala gekennzeichnet. In der Toolbar bleiben nur Δ-Referenz und Einheit.
+Die GuV als **Fluss von links nach rechts** — auf demselben Graphen wie der Werttreiberbaum (gleiche Wurzel, gleiche Start-Tiefe, gleicher Klapp-Zustand), nur als Bänder statt als Karten gezeichnet. Die Umsatz-Komponenten fließen **grau** in den Umsatz; der Gewinn-Strang (Gross profit → EBITDA → EBIT → EBT → Net income) läuft in der **günstigen Farbe** nach rechts durch; Kosten zweigen in der **ungünstigen Farbe** nach rechts unten in eigene Endknoten ab. Balken- und Bandhöhe sind proportional zum periodengerechten **AC-YTD**, auf einer gemeinsamen Skala für die ganze Ansicht. Die Labels stehen außen am Knoten mit Name, Wert und % vom Umsatz (Basis: die Umsatzzeile, bei reiner Hierarchie die Fluss-Wurzel); der Platz dafür ist im Layout reserviert, nichts wird abgeschnitten. Die Flussfläche ist mindestens 240 px hoch (skaliert mit dem Schriftgrößen-Preset).
+
+**Fluss-Regel:** Beiträge mit dem Vorzeichen des Knotens fließen von links zu. Gegenbeiträge (Kosten) stehen in seiner Spalte darunter und werden aus demselben Zufluss gespeist; weil jeder Anschluss eines Knotens gestapelt zugeordnet ist, addieren sich seine Bänder zur Knotenhöhe. Ein graues Band *„Sonstige (nicht aufgeschlüsselt)“* erscheint nur bei inkonsistenten Daten, etwa wenn ein Summenknoten einen eigenen Wert trägt oder eine Formel eine Konstante enthält. Eine KPI-Wurzel (Net margin) gibt den Fluss an ihren ersten Wert-Operanden ab; Multiplikation und Division beenden den Fluss, und eine Quote ohne Wertzeile darunter lässt sich nicht als Fluss zeichnen (das Visual nennt dann den Grund).
+
+- **Klick** auf einen Knoten oder sein Label öffnet den Kachel-Zoom (Ansicht 07); „← Zurück zum Sankey“ führt zurück.
+- **Hover** zeigt das IBCS-Detail-Panel und blendet fremde Bänder ab; der Tooltip nennt Wert, Anteil und Δ zur Referenz in den Hausbegriffen.
+- **Rechtsklick** auf einen Knoten öffnet das Kontextmenü mit Selektion und Drillthrough.
+- **▾ / ▸** am Label klappt einen Ast auf und zu, mit `Shift` den ganzen Ast. Klapp-Zustand, Wurzel (⌖ im Baum, Formatbereich) und ⌂ sind dieselben wie im Baum: ein im Sankey zugeklappter Ast ist auch im Baum zu. In sehr vollen Spalten behalten nur die größten Knoten ihr Label, der Rest bleibt über den Tooltip erreichbar.
+- **Toolbar** im Sankey: Ansicht, Δ-Referenz, Einheit, Dichte und Bis Ebene.
+- **Dark Mode und Hochkontrast:** Im Dunkelmodus sinken die Bänder ins dunkle Papier. Im Hochkontrast tragen Muster statt Farben die Aussage — Gewinn gefüllt, Kosten umrandet bzw. schraffiert, Zuflüsse gestrichelt.
+- **Export und Abos** drucken den Sankey ohne Toolbar, mit dem gespeicherten Klapp-Zustand.
+
+> **Bewusst außerhalb der IBCS-Notation.** Ein Sankey ist keine IBCS-Chartform: Bandbreiten, Farbflächen und Knotenlabels folgen nicht der Szenario-Notation (AC voll · PY grau · PL Rahmen · FC schraffiert) und nicht der Skalenregel „eine Skala je Einheit, Δ gegen eine Referenz“. Der Footer der Ansicht sagt das ausdrücklich. Der Kachel-Zoom, in den man aus dem Sankey springt, bleibt dagegen IBCS. Wer streng nach IBCS berichtet, schaltet den Sankey unter Darstellung & Toolbar ab (Ansicht: Sankey anbieten, Kapitel 08).
+
+### 07 · Kacheln (Kachel-Ansicht)
+
+Ein Klick auf das Diagramm einer Baum-Karte (im Sankey: auf einen Knoten oder sein Label) zoomt den Knoten auf die ganze Fläche: Kombi-Chart aus Monatssäulen (Referenz versetzt hinter AC) und Brücke, darunter das Szenario-Grid, daneben die Mikro-Karten „Zahlt ein auf“ und „Getrieben von“ (bei vielen Treibern blätterbar). Die Seite passt sich in den Viewport ein — das Diagramm ist das elastische Element, das Grid wird bei knapper Höhe kompakter. „← Zurück zum Baum“ (aus dem Sankey: „← Zurück zum Sankey“) und die Breadcrumb führen heraus; „↗ Drill“ setzt die Selektion des Knotens und öffnet das Kontextmenü mit den Drillthrough-Zielen in einem Griff. Quotenzeilen (Margen) zeigen keine Brücke, weil Prozente nicht additiv sind. Die Mikro-Karten einer Spalte teilen eine Skala je Einheit (×n markiert), das Hauptchart ist als Lupe mit eigener Skala gekennzeichnet. In der Toolbar bleiben nur Δ-Referenz und Einheit.
 
 ## 07 · IBCS-Templates
 
@@ -309,7 +327,7 @@ Für alle Templates gilt: Dezimalstellen Δ % = 1 (seit 1.5 einheitlich; gespeic
 
 Der Formatbereich hat acht Karten in dieser Reihenfolge: **Spalten & Mega-Table** → **Darstellung & Toolbar** → **Zahlen** → **Szenario-Begriffe** → **Stil** → **Titelblock** → **Hierarchie** → **Leer-Zustand**. Die Tabellen listen alle Einstellungen mit Optionen und Standardwert; die Namen entsprechen der deutschen Oberfläche.
 
-> **Sichtbarkeit:** Der Formatbereich zeigt nur, was zur aktuellen Ansicht und zu den gebundenen Feldern passt — die Mega-Table-Gruppe nur in der Ansicht Tabelle, die Baum-Gruppe nur im Baum, ΔPY-Schalter nur mit PY, Schwellen-Felder nur bei eingeschalteten Schwellen. Ein ausgeblendeter Schalter behält seinen Wert; die Ausblendung ändert nie, was gerendert wird. Ohne Daten (und in der Demo) bleibt alles sichtbar. Die Hinweise „Sichtbar …“ in den Tabellen nennen diese Bedingungen.
+> **Sichtbarkeit:** Der Formatbereich zeigt nur, was zur aktuellen Ansicht und zu den gebundenen Feldern passt — die Mega-Table-Gruppe nur in der Ansicht Tabelle, die Werttreiberbaum-Gruppe nur in Baum und Sankey, ΔPY-Schalter nur mit PY, Schwellen-Felder nur bei eingeschalteten Schwellen. Ein ausgeblendeter Schalter behält seinen Wert; die Ausblendung ändert nie, was gerendert wird. Ohne Daten (und in der Demo) bleibt alles sichtbar. Die Hinweise „Sichtbar …“ in den Tabellen nennen diese Bedingungen.
 
 ### Spalten & Mega-Table
 
@@ -379,7 +397,7 @@ Klassische Tabelle, Balken und Wasserfall. Die Vorgaben dieser Gruppe gelten bei
 
 #### Werttreiberbaum
 
-Start der Baum-Ansicht. Sichtbar in der Ansicht Baum.
+Start der Baum- und der Sankey-Ansicht. Sichtbar in den Ansichten Baum und Sankey. Der Sankey liest davon Wurzelzeile und Start-Tiefe; Karten-Diagramm und Status-Indikator wirken nur im Baum.
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
@@ -396,7 +414,12 @@ Was Leser über dem Statement sehen und selbst umschalten dürfen. Eine ausgeble
 | --- | --- | --- |
 | Toolbar anzeigen (Leser können umschalten) | Knöpfe über dem Statement: Ansicht, Spalten, Einheit, Dichte, Ebenen. | An / Aus · Standard An |
 | Szenario-Legende anzeigen | Chips für AC · PY · PL · FC sowie günstige / ungünstige Δ unter der Toolbar. | An / Aus · Standard An |
-| Gruppe: Ansicht | Tabelle · Balken · Wasserfall · Baum. Sichtbar bei eingeschalteter Toolbar (gilt für alle Gruppen-Schalter). | An / Aus · Standard An |
+| Gruppe: Ansicht | Tabelle · Balken · Wasserfall · Baum · Sankey — nur die darunter angebotenen Ansichten. Sichtbar bei eingeschalteter Toolbar (gilt für alle Gruppen-Schalter). | An / Aus · Standard An |
+| Ansicht: Tabelle anbieten | Leser dürfen zur Tabelle wechseln (klassisch oder Mega-Table). Property `viewTable`. Sichtbar bei eingeschalteter Toolbar und Gruppe Ansicht (gilt für alle fünf Schalter). | An / Aus · Standard An |
+| Ansicht: Balken anbieten | Leser dürfen zu den Struktur-Balken wechseln. Property `viewBars`. | An / Aus · Standard An |
+| Ansicht: Wasserfall anbieten | Leser dürfen zum Zeilen-Wasserfall wechseln. Property `viewWaterfall`. | An / Aus · Standard An |
+| Ansicht: Treiberbaum anbieten | Leser dürfen zum Werttreiberbaum wechseln. Aus: Eine gespeicherte Kachel-Ansicht öffnet nur noch aus dem Sankey. Property `viewTree`. | An / Aus · Standard An |
+| Ansicht: Sankey anbieten | Leser dürfen zur Fluss-Ansicht (Sankey) wechseln — eine bewusste Ergänzung außerhalb der IBCS-Notation. Property `viewSankey`. | An / Aus · Standard An |
 | Gruppe: Spalten-Presets | Spaltensätze der klassischen Tabelle. | An / Aus · Standard An |
 | Gruppe: Δ-Referenz | PY · PL · FC als Basis jeder Δ. | An / Aus · Standard An |
 | Gruppe: Perioden (MTD/YTD/FY) | Perioden-Blöcke der klassischen Tabelle. | An / Aus · Standard An |
@@ -409,6 +432,14 @@ Was Leser über dem Statement sehen und selbst umschalten dürfen. Eine ausgeble
 | Template-Auswahl im Bearbeitungsmodus | Kompaktes Template-Dropdown vorn in der Toolbar, direkt nach ☰ Start, solange du den Bericht bearbeitest (Ansicht Tabelle). Leser und Export sehen es nie. | An / Aus · Standard An |
 | Bedienleisten einklappbar (☰) | Toolbar, Legende und Hinweiszeilen (Skalenhinweis, Baum-Hinweis) klappen hinter einen kleinen ☰-Knopf; eingeklappt bleibt eine schmale Zeile. Für kleine Kacheln. Titel, Spaltenköpfe mit Skalierungsfaktor und die ×n-Marken der Karten bleiben sichtbar; Exporte drucken die Legende immer. Seit 1.5. | An / Aus · Standard Aus |
 | Startzustand eingeklappt | Das Visual öffnet eingeklappt, Leser klappen mit ☰ auf. Die Wahl des Lesers gilt zur Laufzeit und wird nicht gespeichert. Seit 1.5. Sichtbar bei einklappbaren Bedienleisten. | An / Aus · Standard An |
+
+> **Ansichten anbieten (seit 1.6):** Die fünf Schalter (`toolbar.viewTable`, `viewBars`, `viewWaterfall`, `viewTree`, `viewSankey`; alle Standard *an*, damit sich bestehende Berichte nicht ändern) legen fest, welche Ansichten Leser angeboten bekommen.
+>
+> - **Nur angebotene Knöpfe** erscheinen in der Ansichts-Gruppe, in der Reihenfolge Tabelle · Balken · Wasserfall · Baum · Sankey. Bleibt genau eine Ansicht übrig, entfällt die Gruppe ganz.
+> - **Stiller Fallback:** Zeigt ein gespeicherter Zustand oder ein Lesezeichen auf eine abgeschaltete Ansicht, zeichnet das Visual die erste angebotene — ohne den gespeicherten Zustand zu überschreiben. Schaltet der Autor die Ansicht wieder ein, ist sie für diesen Leser wieder da.
+> - **Kachel-Zoom** öffnet nur mit aktiver Trägeransicht (Baum oder Sankey). Ist der Baum abgeschaltet, erreicht man die Kachel nur über den Sankey.
+> - **Alle fünf aus** = die Tabelle bleibt. Die **Mega-Table** ist keine eigene Ansicht, sondern ein Template der Tabelle; *Tabelle anbieten* gilt für beide.
+> - **Für Berichte mit fester Ansicht** (z. B. per PBIR-Datei erzeugt) genügt es, die anderen vier Schalter auszuschalten; der Zustand der Leser muss dafür nicht geschrieben werden.
 
 ### Zahlen
 
@@ -514,15 +545,15 @@ Die Toolbar über dem Statement zeigt je Ansicht nur die Gruppen, die dort etwas
 | ☰ Start | Bearbeitungsmodus, immer als erstes Element | Öffnet den Start-Hub als Overlay: Loslegen, Tour, Templates, Demo, Felder, Doku (Kapitel 03). |
 | Template | Bearbeitungsmodus, Ansicht Tabelle | Dropdown aller IBCS-Templates; schreibt Template und Schalter in einem Speichervorgang. |
 | ↺ Zum Template zurück | Bearbeitungsmodus, Ansicht Tabelle, sobald ein Template-Schalter abweicht | Stellt alle Schalter und Dezimalstellen des gewählten Templates wieder her. |
-| Ansicht | immer, außer in der Kachel-Ansicht | Tabelle · Balken · Wasserfall · Baum. |
+| Ansicht | immer, außer in der Kachel-Ansicht und wenn nur eine Ansicht angeboten wird | Tabelle · Balken · Wasserfall · Baum · Sankey — nur die angebotenen (Kapitel 08). |
 | Spalten-Preset | klassische Tabelle | Die sechs Presets als Schnellwahl. |
 | Wertspalten | klassische Tabelle oder Mega-Table, mit „Gruppe: Wertspalten“ | Klassisch: AC · PY · PL · FC · ΔRef als einzelne Knöpfe. Mega-Table: analysiertes Szenario · PY · PL. |
-| Δ-Referenz | klassische Ansichten, Baum, Kachel | PY · PL · FC — nur gebundene Szenarien bekommen einen Knopf. |
+| Δ-Referenz | klassische Ansichten, Baum, Sankey, Kachel | PY · PL · FC — nur gebundene Szenarien bekommen einen Knopf. |
 | Perioden | klassische Ansichten, ab zwei Blöcken | MTD · YTD · FY. MTD nicht in Balken, FY nur mit beiden FY-Feldern. |
 | Einheit | immer | kEUR · mEUR (bEUR nur ab 50 Mrd. oder wenn der Formatbereich b wählt). |
 | Dichte | außer Kachel-Ansicht | Normal · Kompakt. |
 | Karten | Baum | Monate · Δ · Brücke als Karten-Diagramm, dazu Status (farbiger Kartenrand). |
-| Bis Ebene | Tabellen-Ansichten und Baum | 1 · 2 · … · Alle; im Baum zusätzlich ⌂ (zurück zur obersten Wurzel, ganzer Baum offen). |
+| Bis Ebene | Tabellen-Ansichten, Baum und Sankey | 1 · 2 · … · Alle; im Baum und Sankey zusätzlich ⌂ (zurück zur obersten Wurzel, ganzer Baum offen). |
 | Szenario · Referenz-Sicht | Mega-Table, mit „Gruppe: Szenario“ | Szenario AC · FC (nur mit FC-Feld), Referenz-Sicht ΔPY · ΔPL · beide. |
 | Optionen | klassische Ansichten bzw. Mega-Table | Klassisch: % vom Umsatz (nur Tabelle), Nullzeilen aus, Einpassen. Mega-Table: Nullzeilen aus. |
 | ☰ Bedienleisten | mit „Bedienleisten einklappbar“ (seit 1.5) | Klappt Toolbar, Legende und Hinweiszeilen ein und aus; aufgeklappt führt ☰ die Toolbar an. |
@@ -541,9 +572,9 @@ Ein Knopf, der im aktuellen Zustand nichts ändern würde, ist **gesperrt**: ged
 
 - **Linksklick** auf eine Wert- oder Diagrammspalte einer Zeile (Tabelle, Mega-Table, Balken, Waterfall) oder auf den Kopf der Kachel setzt die Power-BI-Selektion dieser Zeile — mit allen Quellzeilen des Kontos (z. B. alle Monate). Zwischensummen selektieren die Blätter darunter, Formelzeilen die Blätter ihrer Operanden. Ein zweiter Klick oder ein Klick auf freie Fläche hebt die Selektion auf.
 - **Crossfilter:** Die Selektion filtert die übrige Berichtsseite; die Drillthrough-Schaltflächen der Seite werden mit genau diesem Kontext aktiv. Das Visual selbst unterstützt kein Hervorheben — Cross-Interaktion von außen filtert.
-- **Rechtsklick** auf eine Zeile, Baum-Karte, Mikro-Karte oder die große Kachel öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite; in der Kachel-Ansicht erledigt „↗ Drill“ Selektion und Menü in einem Griff.
+- **Rechtsklick** auf eine Zeile, Baum-Karte, Sankey-Knoten, Mikro-Karte oder die große Kachel öffnet das native Kontextmenü mit den Drillthrough-Zielen der Seite; in der Kachel-Ansicht erledigt „↗ Drill“ Selektion und Menü in einem Griff.
 - Die Markierung sitzt nur auf dem gewählten Element (blasser Akzent-Waschton und 2 px Unterstrich); andere Zeilen werden nicht abgedunkelt. Je Knoten werden höchstens 2.000 Quellzeilen selektiert; wo der Deckel greift, sagt es der Tooltip.
-- Der Name einer Zeile klappt, das Chevron klappt, ein Klick auf eine Baum-Karte öffnet die Kachel — selektiert wird über die Wert- und Diagrammspalten. Abschaltbar über Stil → *Selektion & Kontextmenü aktiv*; im Export und in Abos gibt es keine Interaktion.
+- Der Name einer Zeile klappt, das Chevron klappt, ein Klick auf eine Baum-Karte oder einen Sankey-Knoten öffnet die Kachel — selektiert wird über die Wert- und Diagrammspalten. Abschaltbar über Stil → *Selektion & Kontextmenü aktiv*; im Export und in Abos gibt es keine Interaktion.
 
 1. **Zielseite:** neue Seite anlegen (z. B. „Konto-Detail“) und unter *Visualisierungen → Seite auf Detailsuche filtern* genau die Spalte einziehen, die im Visual als *Konto-ID (Key)* gebunden ist — ohne Konto-ID die erste Ebenen-Spalte (L1).
 2. **Schaltfläche:** auf der Quellseite *Einfügen → Schaltflächen → Leer*, dann *Aktion → Ein*, *Typ = Detailsuche*, *Ziel = Konto-Detail*.
@@ -551,11 +582,11 @@ Ein Knopf, der im aktuellen Zustand nichts ändern würde, ist **gesperrt**: ged
 
 ### Lesezeichen (Bookmarks)
 
-Alle Toolbar-Zustände sind im Bericht gespeichert und lesezeichenfähig: Ansicht, Spalten-Preset und Wertspalten, Δ-Referenz, Einheit, Dichte, Optionen, Perioden-Blöcke, zugeklappte Zeilen und offene Sparklines, Wurzel, Faltung, Karten-Diagramm, Status und Zoom des Baums sowie die Leser-Sicht des Mega-Tables. Ein Lesezeichen mit einem fremden Zustand wirkt sofort. Eine im Formatbereich geänderte Vorgabe gewinnt nur für die geänderte Einstellung, die übrigen Leser-Entscheidungen bleiben. Ein Lesezeichen mit Selektion stellt den Filter über Power BI wieder her; die Markierung im Visual wird dabei nicht nachgezeichnet, ein Lesezeichen ohne Selektion entfernt sie.
+Alle Toolbar-Zustände sind im Bericht gespeichert und lesezeichenfähig: Ansicht, Spalten-Preset und Wertspalten, Δ-Referenz, Einheit, Dichte, Optionen, Perioden-Blöcke, zugeklappte Zeilen und offene Sparklines, Wurzel, Faltung, Karten-Diagramm, Status und Zoom des Baums (der Sankey teilt Wurzel, Faltung und Zoom) sowie die Leser-Sicht des Mega-Tables. Ein Lesezeichen mit einem fremden Zustand wirkt sofort. Eine im Formatbereich geänderte Vorgabe gewinnt nur für die geänderte Einstellung, die übrigen Leser-Entscheidungen bleiben. Ein Lesezeichen mit Selektion stellt den Filter über Power BI wieder her; die Markierung im Visual wird dabei nicht nachgezeichnet, ein Lesezeichen ohne Selektion entfernt sie. Zeigt ein Lesezeichen auf eine inzwischen nicht mehr angebotene Ansicht, erscheint die erste angebotene (Kapitel 08).
 
 ### Tooltips
 
-In Tabelle, Mega-Table, Balken und Waterfall zeigen Zeilen, Zellen, Balken, Pins und Kaskaden einen Tooltip mit Zeilenname, den gebundenen Szenarien des Blocks (mit Einheit), der Abweichung je Referenz absolut und in Prozent (Margen in %p), dem Wesentlichkeits-Hinweis, dem Kommentar und gegebenenfalls der Selektions-Kappung. Im hellen Modus ist es der native Power-BI-Tooltip, im Dunkelmodus ein eigener dunkler Kasten. Der Werttreiberbaum nutzt seine Detailansicht beim Hover und SVG-Titel.
+In Tabelle, Mega-Table, Balken und Waterfall zeigen Zeilen, Zellen, Balken, Pins und Kaskaden einen Tooltip mit Zeilenname, den gebundenen Szenarien des Blocks (mit Einheit), der Abweichung je Referenz absolut und in Prozent (Margen in %p), dem Wesentlichkeits-Hinweis, dem Kommentar und gegebenenfalls der Selektions-Kappung. Im hellen Modus ist es der native Power-BI-Tooltip, im Dunkelmodus ein eigener dunkler Kasten. Der Werttreiberbaum nutzt seine Detailansicht beim Hover und SVG-Titel; im Sankey zeigt der Hover das IBCS-Detail-Panel, und der Tooltip nennt Wert, Anteil und Δ zur Referenz.
 
 ### Tastatur
 
@@ -570,7 +601,7 @@ Das Visual stellt die Referenzblätter so genau wie möglich nach, baut aber der
 3. **T03A — Druckfehler der Blätter:** Das Original druckt in ΔPY des Group result versehentlich den ΔPL-Wert (+162.5); das Visual rechnet korrekt (+186.2). Ebenso der Financial-income-Pin in T04C/E (das Visual zeichnet vorzeichenrichtig −9.59) und das Operating result in 12H.
 4. **12A — Pfeilspitzen:** Mehrfach-Pfeilspitzen gekappter Werte (+983 →→→) sind im Visual eine einfache Spitze; der Wert steht ohnehin als Zahl am Element.
 
-Davon unabhängig ist die Teal-Farbgebung eine bewusste, dokumentierte Abweichung (Kapitel 01).
+Davon unabhängig ist die Teal-Farbgebung eine bewusste, dokumentierte Abweichung (Kapitel 01). Ebenfalls außerhalb der IBCS-Notation, aber keine Abweichung von einem Blatt, liegt die Sankey-Ansicht (Kapitel 06).
 
 ## 11 · Troubleshooting
 
@@ -645,6 +676,18 @@ Ein Parent- oder Ebenen-Pfad zeigt ins Leere. Das ist ein gewolltes Datenqualit�
 ### Die Kosten erscheinen günstig, obwohl sie über Plan liegen.
 
 Die Kostenzeile trägt Rechenvorzeichen `-1` *und* Abweichungsfarbe drehen = `true` — die beiden Mechanismen heben sich auf. Bei `-1` die Abweichungsfarbe nicht zusätzlich drehen (Kapitel 05).
+
+### Ist der Sankey IBCS-konform?
+
+Nein, bewusst nicht. Der Sankey (seit 1.6) ist eine Fluss-Ansicht außerhalb der IBCS-Notation; der Footer nennt das, und die Kachel-Ansicht, die ein Klick darin öffnet, bleibt IBCS. Sinnvoll ist er für das Gespräch über die Struktur: wohin fließt der Umsatz, wie viel davon bleibt als Ergebnis, welche Kostenblöcke zehren ihn auf. Für Plan-Ist-Vergleiche, Abweichungsanalysen und den Monatsbericht sind Tabelle, Mega-Table, Balken und Wasserfall die richtige Wahl. Lässt eure Berichtsrichtlinie nur IBCS zu, schaltet ihr den Sankey ab (nächste Frage).
+
+### Wie verstecke ich eine Ansicht vor Lesern?
+
+Formatbereich → Darstellung & Toolbar → die fünf Schalter *Ansicht: Tabelle / Balken / Wasserfall / Treiberbaum / Sankey anbieten* (Standard alle an); Details und Property-Namen in Kapitel 08. Eine ausgeschaltete Ansicht verliert ihren Knopf. Bleibt nur eine Ansicht übrig, entfällt die ganze Ansichts-Gruppe — so lässt sich ein Bericht auf genau eine Ansicht festlegen. Zeigt ein gespeicherter Zustand oder ein Lesezeichen auf eine abgeschaltete Ansicht, erscheint still die erste angebotene; der gespeicherte Zustand wird dabei nicht überschrieben. Die Gruppe selbst blendet *Gruppe: Ansicht* aus.
+
+### Im Sankey erscheint ein graues Band „Sonstige“.
+
+Die Zahlen eines Knotens gehen nicht in seinen Teilen auf, etwa weil ein Summenknoten einen eigenen Wert trägt oder eine Formel eine Konstante enthält. Das Band macht die Lücke sichtbar, statt sie zu verstecken; bei konsistenten Daten erscheint es nie.
 
 ## 12 · Versionshinweis 1.6.0.0
 

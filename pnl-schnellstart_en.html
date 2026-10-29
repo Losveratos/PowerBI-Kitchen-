@@ -170,10 +170,10 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
   <header class="hero">
     <div class="eyebrow">Power BI visual · Quick start</div>
     <h1 class="hero-title">P&amp;L Statement <em>byDatenWG</em></h1>
-    <p class="dek">A standalone Power BI custom visual for the <strong>IBCS-inspired income statement</strong>: the account hierarchy comes from your dimension table, with subtotal and formula rows, scenarios AC · PY · PL · FC, variance bars and Δ% pins — in four views from a single field binding: <strong>table</strong>, <strong>structure bars</strong>, <strong>row waterfall</strong> and a <strong>value driver tree</strong> with card zoom. A click sets the Power BI selection (cross-filtering and native drillthrough), periods are parsed from “YYYY-MM”, date columns or month names, and type sizes follow a preset from HD to UHD.</p>
+    <p class="dek">A standalone Power BI custom visual for the <strong>IBCS-inspired income statement</strong>: the account hierarchy comes from your dimension table, with subtotal and formula rows, scenarios AC · PY · PL · FC, variance bars and Δ% pins — in five views from a single field binding: <strong>table</strong>, <strong>structure bars</strong>, <strong>row waterfall</strong> and a <strong>value driver tree</strong> with card zoom. A click sets the Power BI selection (cross-filtering and native drillthrough), periods are parsed from “YYYY-MM”, date columns or month names, and type sizes follow a preset from HD to UHD.</p>
     <div class="chips">
       <span class="chip">Version 1.6.0.0</span>
-      <span class="chip">4 views</span>
+      <span class="chip">5 views</span>
       <span class="chip teal">Format pane DE · EN</span>
       <span class="chip">IBCS-inspired</span>
     </div>
@@ -308,8 +308,8 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
   </section>
 
   <section class="block">
-    <h2 class="sec-h"><span class="snum">04</span>The four views</h2>
-    <p class="sec-sub">One field binding, four points of view — switched in the toolbar above the statement, without touching the format pane. Every toolbar state is persisted and bookmarkable.</p>
+    <h2 class="sec-h"><span class="snum">04</span>The five views</h2>
+    <p class="sec-sub">One field binding, five points of view — switched in the toolbar above the statement, without touching the format pane. Every toolbar state is persisted and bookmarkable.</p>
     <div class="tiles">
 
       <div class="tile">
@@ -334,6 +334,12 @@ footer.foot .ibcs{font-size:12px;margin-top:12px;color:var(--ink-mute);max-width
         <div class="tile-eyebrow">View 4</div>
         <h3>Value driver tree</h3>
         <p>The result tree — from the formula graph (DuPont) or, when no formula row is bound, from the plain hierarchy. Tidy layout with one column per level, operator circles on the edges, status borders and compact cards from level 4 on. ⌖ re-roots the tree on any card, the breadcrumb leads back.</p>
+      </div>
+
+      <div class="tile">
+        <div class="tile-eyebrow">View 5</div>
+        <h3>Sankey</h3>
+        <p>The P&amp;L as a flow from left to right on the driver-tree graph: revenue components flow grey into revenue, the profit strand runs right in the favourable colour, costs branch off unfavourably into their own end nodes — band height proportional to AC YTD. Clicking a node opens the tile zoom. Deliberately outside IBCS notation; the footer says so. Since 1.6.</p>
       </div>
 
       <div class="tile">

@@ -4,7 +4,7 @@
 
 Power BI visual · End-user documentation
 
-The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H, plus structure bars, row waterfall, value driver tree and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
+The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H, plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
 Version · **1.6.0.0** · As of · **2026-10-28** · IBCS-inspired
 
@@ -27,18 +27,19 @@ Version · **1.6.0.0** · As of · **2026-10-28** · IBCS-inspired
 
 **P&L Statement byDatenWG** is a standalone Power BI custom visual for the income statement and any other account hierarchy — the sister visual of [ChartKitchen](../chartkitchen-doku_en.html); the two form a product family with a shared notation and handling (chapter 02). It reads the hierarchy from your dimension table (star-schema levels L1..Ln or parent-child), computes subtotals, formula and margin rows itself and shows the scenarios **AC** (actual), **PY** (previous year), **PL** (plan) and **FC** (forecast) with their variances.
 
-*One* data binding gives four views, switched in the toolbar above the statement — readers need no format pane for it:
+*One* data binding gives five views, switched in the toolbar above the statement — readers need no format pane for it; which of them are offered is up to the author (chapter 08):
 
 - **P&L statement (table):** accounts, subtotals, formula and margin rows with the period blocks MTD · YTD · FY outlook, Δ bars and Δ% pins on one scale per unit across all rows and blocks.
 - **Mega table:** the same table view as an IBCS table — value and Δ columns freely combined, Δ as number, bar, pin or integrated waterfall, value cascades, two period blocks, thresholds with a footer. A template (T01A … 12H) sets all switches at once.
 - **Structure bars and row waterfall:** the same rows as size bars against the reference, or as a cascade in which the result rows anchor on the zero line.
 - **Value driver tree with tiles:** the formula graph as a DuPont tree (or, without formula rows, the plain hierarchy) with a mini chart on every card; a click opens the node's tile view with combo chart, scenario grid and drivers.
+- **Sankey (since 1.6):** the same graph as a flow from left to right — revenue components gray into revenue, the profit strand favorable to the right, costs unfavorable to the lower right into end nodes; band height proportional to AC YTD. Deliberately outside the IBCS notation; the tile zoom from it stays IBCS.
 
 The notation follows the **IBCS® principles**: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one scale per unit across all rows and period blocks (following IBCS 2.0 / ISO 24896), margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and high contrast, and welcomes authors with a start hub when they drag it onto the page (chapter 03). The visual makes no external calls, stores nothing outside the report and sends no telemetry.
 
 > **Documented deviation: teal instead of green.** Favorable variances are teal (#0E8585) by default, unfavorable ones red (#E02B1D) — instead of the IBCS green #8CB400 / red #FF2600. This keeps variances readable with red–green color-vision deficiency; legend and footer name the deviation. Switch it under Style → Variance colors (IBCS classic green) or with the variance color preset Blue / orange (ColorBrewer #2C7BB6 / #E66101, distinguishable even without color vision and in black-and-white print). Dark mode uses the ChartKitchen pair #3FB3C2 / #E4635F.
 
-This guide describes version **1.6.0.0**. Every default in the settings reference has been checked against the visual's settings model. New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
+This guide describes version **1.6.0.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
 ## 02 · The product family
 
@@ -69,6 +70,7 @@ The income statement row by row — “What is in the P&L, and why does it devia
 - **Mega table:** the IBCS table templates T01–T04 plus 12A, 12G and 12H — value cascades, Δ waterfalls, pins, thresholds.
 - **Formula engine:** hierarchy, subtotals, formula and margin rows straight from the account dimension (level columns or parent-child).
 - **Value driver tree:** the formula graph as a DuPont tree with mini charts on every card and a tile zoom per node.
+- **Sankey:** the same graph as a flow from left to right — deliberately outside the IBCS notation; the tile zoom stays IBCS.
 - **Period blocks:** month · YTD · FY outlook side by side; readers switch columns, reference and unit in the toolbar.
 - **Structure bars & row waterfall:** the same P&L rows as size bars or as a cascade with result anchors.
 
@@ -82,7 +84,7 @@ If you can operate one of the two visuals, you can operate the other: getting st
 
 | Shared | ChartKitchen | P&L Statement |
 | --- | --- | --- |
-| **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
+| **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 8 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
 | **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 11 IBCS chart templates C01–C13 (without C07/C11) in four groups; ↺ at the bottom left of the chart. | 17 IBCS table templates T01A–12H plus the classic table in four groups; ↺ next to the template dropdown. |
 | **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane Compact · Full HD · Presentation; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
 | **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
@@ -99,7 +101,7 @@ Drag P&L Statement onto a report page without fields and since 1.3 you no longer
 
 At the top sits the product name with the subtitle “Explore the visual before you bind fields — or just get going.”, below it the full-width teal button **🚀 Get started** and four large tiles. The digits 1–4 open the tiles directly.
 
-- **What can the visual do?** — a tour in 7 cards: the P&L as a table, mega table with IBCS templates, value driver tree, structure bars, row waterfall, tiles, dark mode & high contrast. Every card shows a real, scaled-down rendering of the visual over the built-in demo — no images. Page with ‹ › or the arrow keys.
+- **What can the visual do?** — a tour in 8 cards: the P&L as a table, mega table with IBCS templates, value driver tree, structure bars, row waterfall, tiles, dark mode & high contrast and — card 8 — “Sankey: where the money flows” (noting that it lies outside the IBCS notation). Every card shows a real, scaled-down rendering of the visual over the built-in demo — no images. Page with ‹ › or the arrow keys.
 - **Templates** — the template gallery by purpose (see below).
 - **Show demo** — the example P&L with pharma data (Smart Start), on which views, toolbar and templates already work.
 - **Explain fields** — all 20 data roles in four groups (“Required · structure and actual”, “Scenarios and time”, “Statement logic”, “Extras”), each with one sentence of purpose and ✓ once bound. Plus two premises: *IBCS notation* (AC filled · PY grey · PL outline or double line · FC hatched; rule “minuend → fill, reference → axis”) and *structure vs time* (accounts run vertically in rows, time horizontally in blocks month | _YTD | FY).
@@ -133,7 +135,7 @@ Every sub-page and level carries the **“← Back”** pill at the top left; Es
 
 - **Click = apply.** The tile writes the same as the toolbar dropdown: template, every switch, decimals and, where relevant, the headline slot in one save. The active tile carries “✓ active”, an accent border and a tinted background; clicking it again applies the template once more.
 - **Without fields** the choice is saved (“Saved: T03A — becomes active once fields are bound.”) and takes effect on binding.
-- **In the overlay** (via ☰ Start) a click applies the template, switches to the table view — from bars, waterfall or tree too — and closes the overlay on the result.
+- **In the overlay** (via ☰ Start) a click applies the template, switches to the table view — from bars, waterfall, tree or Sankey too — and closes the overlay on the result.
 
 ### 🚀 Get started — the first three minutes
 
@@ -243,7 +245,7 @@ A field such as segment or quarter in **Column category** makes the classic tabl
 
 ## 06 · The views
 
-The toolbar group *View* switches between table, bars, waterfall and tree. The mega table is not a view of its own but a mode of the table view; the tile view opens from the tree. The chosen view is reader state and is saved with the report and in bookmarks.
+The toolbar group *View* switches between table, bars, waterfall, tree and Sankey. The mega table is not a view of its own but a mode of the table view; the tile view opens from the tree or the Sankey. Which of these views readers are offered at all is decided by the author (chapter 08, “offer views”). The chosen view is reader state and is saved with the report and in bookmarks.
 
 ### 01 · Table (classic)
 
@@ -267,9 +269,25 @@ The P&L as a cascade on the root level of the hierarchy: contributions cascade, 
 
 The result tree as a DuPont graph: the root is the last formula/KPI row with operands (or the root row named in the format pane), the edges carry the operators ÷ × + − as circles. Without formula rows the tree grows straight from the hierarchy — with exactly one root it is the tree root, with several a virtual **Total root** carries them as children; the edges then carry the calculation sign. Tidy layout with one column per level, compact cards further down. Every card shows a mini chart of your choice — *monthly columns* (AC solid, reference behind), *variance columns* (AC − reference per month) or *mini bridge* (reference → Δ → AC, YTD) — and optionally a status edge in the variance color. ▾ expands and collapses a node (Shift: the whole branch), ⌖ makes a card the root, the breadcrumb and ⌂ lead back; hovering a card opens the IBCS detail view. When the card budget is reached, a note names the branches not drawn. Since 1.5 all cards of the same unit (amounts; percentage measures separately) are drawn on one scale; if a card would then cover less than a quarter of its area, it is magnified by a round factor and carries “×5” at the top right, explained by its tooltip. The hover detail view deliberately keeps its own scale and says so (“magnifying glass”). Mega table and finance switches do not act on the tree; it keeps its own fold state.
 
-### 06 · Tiles (tile view)
+### 06 · Sankey (since 1.6)
 
-A click on the chart of a tree card zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. The micro cards of one column share one scale per unit (×n marked); the main chart is labelled as a magnifying glass with its own scale. Only Δ reference and unit remain in the toolbar.
+The P&L as a **flow from left to right** — on the same graph as the value driver tree (same root, same start depth, same fold state), drawn as bands instead of cards. The revenue components flow **gray** into revenue; the profit strand (Gross profit → EBITDA → EBIT → EBT → Net income) runs through to the right in the **favorable color**; costs branch off to the lower right in the **unfavorable color** into end nodes of their own. Bar and band height are proportional to the period-matched **AC YTD**, on one common scale for the whole view. Labels sit outside the node with name, value and % of revenue (basis: the revenue row, with a plain hierarchy the flow root); the space for them is reserved in the layout, nothing is cut off. The flow area is at least 240 px high (scaled with the font-size preset).
+
+**Flow rule:** contributions with the node's sign flow in from the left. Counter-contributions (costs) stand below it in its column and are fed from the same inflow; because every connection of a node is allocated in a stack, its bands add up to the node height. A gray band *“Other (not broken down)”* appears only with inconsistent data, for example when a total node carries a value of its own or a formula contains a constant. A KPI root (Net margin) hands the flow to its first value operand; multiplication and division end the flow, and a ratio without a value row beneath it cannot be drawn as a flow (the visual then names the reason).
+
+- **Click** on a node or its label opens the tile zoom (view 07); “← Back to Sankey” leads back.
+- **Hover** shows the IBCS detail panel and dims foreign bands; the tooltip names value, share and Δ to the reference in your house terms.
+- **Right click** on a node opens the context menu with selection and drillthrough.
+- **▾ / ▸** at the label folds a branch open and shut, with `Shift` the whole branch. Fold state, root (⌖ in the tree, format pane) and ⌂ are the same as in the tree: a branch folded in the Sankey is folded in the tree too. In very full columns only the largest nodes keep their label, the rest stays reachable through the tooltip.
+- **Toolbar** in the Sankey: View, Δ reference, Unit, Density and Expand to level.
+- **Dark mode and high contrast:** in dark mode the bands sink into the dark paper. In high contrast patterns instead of colors carry the message — profit filled, costs outlined or hatched, inflows dashed.
+- **Export and subscriptions** print the Sankey without the toolbar, with the saved fold state.
+
+> **Deliberately outside the IBCS notation.** A Sankey is not an IBCS chart form: band widths, color areas and node labels do not follow the scenario notation (AC filled · PY gray · PL outline · FC hatched) nor the scale rule “one scale per unit, Δ against one reference”. The view's footer says so explicitly. The tile zoom you jump into from the Sankey, by contrast, stays IBCS. If you report strictly by IBCS, switch the Sankey off under Display & toolbar (View: offer Sankey, chapter 08).
+
+### 07 · Tiles (tile view)
+
+A click on the chart of a tree card (in the Sankey: on a node or its label) zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” (from the Sankey: “← Back to Sankey”) and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. The micro cards of one column share one scale per unit (×n marked); the main chart is labelled as a magnifying glass with its own scale. Only Δ reference and unit remain in the toolbar.
 
 ## 07 · IBCS templates
 
@@ -309,7 +327,7 @@ For every template: decimals Δ % = 1 (uniform since 1.5; saved reports keep the
 
 The format pane has eight cards in this order: **Columns & mega table** → **Display & toolbar** → **Numbers** → **Scenario names** → **Style** → **Title block** → **Hierarchy** → **Empty state**. The tables list every setting with options and default; names follow the English interface.
 
-> **Visibility:** the format pane only shows what fits the current view and the bound fields — the mega table group only in the table view, the tree group only in the tree, ΔPY switches only with PY, threshold fields only while thresholds are on. A hidden switch keeps its value; hiding never changes what renders. Without data (and in the demo) everything stays visible. The “Visible …” notes in the tables name these conditions.
+> **Visibility:** the format pane only shows what fits the current view and the bound fields — the mega table group only in the table view, the value driver tree group only in tree and Sankey, ΔPY switches only with PY, threshold fields only while thresholds are on. A hidden switch keeps its value; hiding never changes what renders. Without data (and in the demo) everything stays visible. The “Visible …” notes in the tables name these conditions.
 
 ### Columns & mega table
 
@@ -379,7 +397,7 @@ Classic table, bars and waterfall. The defaults of this group apply when the rep
 
 #### Value driver tree
 
-Start of the tree view. Visible in the tree view.
+Start of the tree and Sankey views. Visible in the tree and Sankey views. The Sankey reads the root row and the start depth from it; card chart and status indicator act only in the tree.
 
 | Setting | Description | Options / Default |
 | --- | --- | --- |
@@ -396,7 +414,12 @@ What readers see above the statement and what they may switch themselves. A hidd
 | --- | --- | --- |
 | Show toolbar (viewers can switch views) | Buttons above the statement: view, columns, unit, density, levels. | On / Off · Default On |
 | Show scenario legend row | AC · PY · PL · FC chips plus favorable / unfavorable Δ under the toolbar. | On / Off · Default On |
-| Group: view | Table · Bars · Waterfall · Tree. Visible while the toolbar is shown (applies to every group switch). | On / Off · Default On |
+| Group: view | Table · Bars · Waterfall · Tree · Sankey — only the views offered below. Visible while the toolbar is shown (applies to every group switch). | On / Off · Default On |
+| View: offer table | Readers may switch to the table (classic or mega table). Property `viewTable`. Visible while the toolbar and the view group are on (applies to all five switches). | On / Off · Default On |
+| View: offer bars | Readers may switch to the structure bars. Property `viewBars`. | On / Off · Default On |
+| View: offer waterfall | Readers may switch to the row waterfall. Property `viewWaterfall`. | On / Off · Default On |
+| View: offer driver tree | Readers may switch to the value driver tree. Off: a stored tile view opens only from the Sankey. Property `viewTree`. | On / Off · Default On |
+| View: offer Sankey | Readers may switch to the flow view (Sankey) — a deliberate addition outside the IBCS notation. Property `viewSankey`. | On / Off · Default On |
 | Group: column presets | Column sets of the classic table. | On / Off · Default On |
 | Group: Δ reference | PY · PL · FC as the basis of every Δ. | On / Off · Default On |
 | Group: periods (MTD/YTD/FY) | Period blocks of the classic table. | On / Off · Default On |
@@ -409,6 +432,14 @@ What readers see above the statement and what they may switch themselves. A hidd
 | Template picker in edit mode | A compact template dropdown at the front of the toolbar, right after ☰ Start, while you edit the report (table view). Readers and exports never see it. | On / Off · Default On |
 | Control bars collapsible (☰) | Toolbar, legend and hint lines (scale note, tree hint) fold behind a small ☰ button; folded, one slim row remains. For small tiles. Title, column heads with a scaling factor and the ×n marks of the cards stay visible; exports always print the legend. Since 1.5. | On / Off · Default Off |
 | Start collapsed | The visual opens folded, readers unfold it with ☰. The reader's choice applies at run time and is not saved. Since 1.5. Visible with collapsible control bars. | On / Off · Default On |
+
+> **Offering views (since 1.6):** The five switches (`toolbar.viewTable`, `viewBars`, `viewWaterfall`, `viewTree`, `viewSankey`; all default *on*, so existing reports do not change) decide which views readers are offered.
+>
+> - **Only offered buttons** appear in the view group, in the order Table · Bars · Waterfall · Tree · Sankey. If exactly one view is left, the group disappears entirely.
+> - **Silent fallback:** if a stored state or a bookmark points to a switched-off view, the visual draws the first offered one — without overwriting the stored state. If the author switches the view back on, it is back for that reader.
+> - **Tile zoom** opens only with an active carrier view (tree or Sankey). With the tree switched off, the tile is reachable only through the Sankey.
+> - **All five off** = the table remains. The **mega table** is not a view of its own but a template of the table; *offer table* covers both.
+> - **For reports with a fixed view** (e.g. generated as a PBIR file) it is enough to switch off the other four; the readers' state does not have to be written for that.
 
 ### Numbers
 
@@ -514,15 +545,15 @@ The toolbar above the statement shows, per view, only the groups that do somethi
 | ☰ Start | edit mode, always the first element | Opens the start hub as an overlay: get started, tour, templates, demo, fields, docs (chapter 03). |
 | Template | edit mode, table view | Dropdown of all IBCS templates; writes template and switches in one save. |
 | ↺ Back to template | edit mode, table view, once a template switch deviates | Restores every switch and the decimals of the selected template. |
-| View | always, except in the tile view | Table · Bars · Waterfall · Tree. |
+| View | always, except in the tile view and when only one view is offered | Table · Bars · Waterfall · Tree · Sankey — only the offered ones (chapter 08). |
 | Column preset | classic table | The six presets as quick picks. |
 | Value columns | classic table or mega table, with “Group: value columns” | Classic: AC · PY · PL · FC · ΔRef as separate buttons. Mega table: analysed scenario · PY · PL. |
-| Δ reference | classic views, tree, tile | PY · PL · FC — only bound scenarios get a button. |
+| Δ reference | classic views, tree, Sankey, tile | PY · PL · FC — only bound scenarios get a button. |
 | Periods | classic views, from two blocks | MTD · YTD · FY. No MTD in bars, FY only with both FY fields. |
 | Unit | always | kEUR · mEUR (bEUR only from 50 billion or when the format pane picks b). |
 | Density | except the tile view | Normal · Compact. |
 | Cards | tree | Months · Δ · Bridge as the card chart, plus Status (colored card edge). |
-| Expand to level | table views and tree | 1 · 2 · … · All; in the tree also ⌂ (back to the top root, whole tree open). |
+| Expand to level | table views, tree and Sankey | 1 · 2 · … · All; in the tree and Sankey also ⌂ (back to the top root, whole tree open). |
 | Scenario · Reference view | mega table, with “Group: scenario” | Scenario AC · FC (only with the FC field), reference view ΔPY · ΔPL · both. |
 | Options | classic views or mega table | Classic: % of revenue (table only), hide zero rows, fit. Mega table: hide zero rows. |
 | ☰ Control bars | with “Control bars collapsible” (since 1.5) | Folds the toolbar, legend and hint lines in and out; unfolded, ☰ leads the toolbar. |
@@ -541,9 +572,9 @@ A button that would change nothing in the current state is **locked**: dimmed, w
 
 - **Left click** on a value or chart column of a row (table, mega table, bars, waterfall) or on the head of the tile sets the Power BI selection of that row — with all source rows of the account (e.g. every month). Subtotals select the leaves below them, formula rows the leaves of their operands. A second click or a click on empty space clears the selection.
 - **Cross-filter:** the selection filters the rest of the report page; the page's drillthrough buttons become live with exactly this context. The visual itself does not support highlighting — cross-interaction from outside filters it.
-- **Right click** on a row, tree card, micro card or the big tile opens the native context menu with the page's drillthrough targets; in the tile view “↗ Drill” does selection and menu in one go.
+- **Right click** on a row, tree card, Sankey node, micro card or the big tile opens the native context menu with the page's drillthrough targets; in the tile view “↗ Drill” does selection and menu in one go.
 - The marking sits only on the chosen element (pale accent wash and a 2 px underline); other rows are not dimmed. At most 2,000 source rows are selected per node; where the cap applies, the tooltip says so.
-- A row's name folds, the chevron folds, a click on a tree card opens the tile — selection runs through the value and chart columns. Switch it off under Style → *Selection & context menu active*; exports and subscriptions have no interaction.
+- A row's name folds, the chevron folds, a click on a tree card or a Sankey node opens the tile — selection runs through the value and chart columns. Switch it off under Style → *Selection & context menu active*; exports and subscriptions have no interaction.
 
 1. **Target page:** create a new page (e.g. “Account detail”) and drag exactly the column bound as *Account ID (key)* into *Visualizations → Drill through* — without an account ID, the first level column (L1).
 2. **Button:** on the source page *Insert → Buttons → Blank*, then *Action → On*, *Type = Drill through*, *Destination = Account detail*.
@@ -551,11 +582,11 @@ A button that would change nothing in the current state is **locked**: dimmed, w
 
 ### Bookmarks
 
-All toolbar states are saved in the report and bookmarkable: view, column preset and value columns, Δ reference, unit, density, options, period blocks, collapsed rows and open sparklines, root, folding, card chart, status and zoom of the tree, and the reader view of the mega table. A bookmark with a foreign state acts immediately. A default changed in the format pane wins only for the changed setting; the reader's other choices stay. A bookmark with a selection restores the filter through Power BI; the marking inside the visual is not redrawn, and a bookmark without a selection removes it.
+All toolbar states are saved in the report and bookmarkable: view, column preset and value columns, Δ reference, unit, density, options, period blocks, collapsed rows and open sparklines, root, folding, card chart, status and zoom of the tree (the Sankey shares root, folding and zoom), and the reader view of the mega table. A bookmark with a foreign state acts immediately. A default changed in the format pane wins only for the changed setting; the reader's other choices stay. A bookmark with a selection restores the filter through Power BI; the marking inside the visual is not redrawn, and a bookmark without a selection removes it. If a bookmark points to a view that is no longer offered, the first offered one appears (chapter 08).
 
 ### Tooltips
 
-In table, mega table, bars and waterfall, rows, cells, bars, pins and cascades show a tooltip with the row name, the bound scenarios of the block (with unit), the variance per reference in absolute and percent (margins in %p), the materiality note, the comment and, where it applies, the selection cap. In light mode it is the native Power BI tooltip, in dark mode a dark box of its own. The value driver tree uses its hover detail view and SVG titles.
+In table, mega table, bars and waterfall, rows, cells, bars, pins and cascades show a tooltip with the row name, the bound scenarios of the block (with unit), the variance per reference in absolute and percent (margins in %p), the materiality note, the comment and, where it applies, the selection cap. In light mode it is the native Power BI tooltip, in dark mode a dark box of its own. The value driver tree uses its hover detail view and SVG titles; in the Sankey the hover shows the IBCS detail panel, and the tooltip names value, share and Δ to the reference.
 
 ### Keyboard
 
@@ -570,7 +601,7 @@ The visual rebuilds the reference sheets as closely as possible but deliberately
 3. **T03A — misprints of the sheets:** the original prints the ΔPL value (+162.5) by mistake in ΔPY of the group result; the visual calculates correctly (+186.2). The same goes for the financial-income pin in T04C/E (the visual draws −9.59 with the correct sign) and the operating result in 12H.
 4. **12A — arrowheads:** multiple arrowheads on capped values (+983 →→→) are a single arrowhead in the visual; the value stands at the element as a number anyway.
 
-Independently of these, the teal coloring is a deliberate, documented deviation (chapter 01).
+Independently of these, the teal coloring is a deliberate, documented deviation (chapter 01). Also outside the IBCS notation, but not a deviation from a sheet, is the Sankey view (chapter 06).
 
 ## 11 · Troubleshooting
 
@@ -645,6 +676,18 @@ A parent or level path points nowhere. This is an intended data-quality signal: 
 ### Costs show as favorable although they are above plan.
 
 The cost row carries sign convention `-1` *and* variance invert = `true` — the two mechanisms cancel each other out. With `-1`, do not flip the variance color as well (chapter 05).
+
+### Is the Sankey IBCS-compliant?
+
+No, deliberately not. The Sankey (since 1.6) is a flow view outside the IBCS notation; the footer says so, and the tile view that a click inside it opens stays IBCS. It is useful for the conversation about structure: where does the revenue flow, how much of it remains as profit, which cost blocks consume it. For plan-actual comparisons, variance analysis and the monthly report, table, mega table, bars and waterfall are the right choice. If your reporting policy allows only IBCS, switch the Sankey off (next question).
+
+### How do I hide a view from readers?
+
+Format pane → Display & toolbar → the five switches *View: offer table / bars / waterfall / driver tree / Sankey* (default all on); details and property names in chapter 08. A switched-off view loses its button. If only one view is left, the whole view group disappears — that is how you pin a report to exactly one view. If a stored state or a bookmark points to a switched-off view, the first offered one appears silently; the stored state is not overwritten. The group itself is hidden by *Group: view*.
+
+### A gray band “Other” appears in the Sankey.
+
+The numbers of a node do not add up in its parts, for example because a total node carries a value of its own or a formula contains a constant. The band makes the gap visible instead of hiding it; with consistent data it never appears.
 
 ## 12 · Version note 1.6.0.0
 
