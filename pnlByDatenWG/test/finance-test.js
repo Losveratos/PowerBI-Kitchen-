@@ -11,6 +11,8 @@
  *   F6  title block: auto message, footer, filter footer + filterInfo, export
  *   F7  highlight band: classic + mega, high contrast outline, dark ink
  *   F8  materiality: soft Δ bars / pins / numbers / waterfall + tooltip note
+ *   F8b 1.7 ⚡ "only exceptions" together with the materiality: either greys,
+ *       the absolute threshold offered from materialityAbs, one threshold is enough
  *   F9  toolbar scenario group (mega): minuend AC/FC, reference view, locks,
  *       persistence, echo guard, pane change resets the reader view
  *   F10 emptyState: own title / text (no rows · reading view without fields)
@@ -434,6 +436,28 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
         && F8.megaStems.includes("#8A8886") && !F8.offRects.includes("#8A8886"), JSON.stringify([F8.megaRects, F8.megaStems, F8.offRects]));
     await shot("f8m", "finance-f8-materiality.png");
 
+    // ============================================ F8b · 1.7 ⚡ "only exceptions" × materiality
+    const F8b = await page.evaluate(() => {
+        // ΔPL: Alpha +0.1 (7.7 %), Beta +0.4 (40 %), Services +0.1 (20 %, a cost)
+        const run = (id, exc) => {
+            const v = __mk(id, 1100, 420);
+            v.__upd([__dv(FIN_ROWS(), { columns: { preset: "acpldpl", pctRevenue: false, materialityAbs: 0.15 }, numbers: { scaling: "none" },
+                hierarchy: { defaultLevel: 0 }, exceptions: exc })]);
+            const c = __cells(v.__el);
+            const bar = (k) => { const r = c[k].el.children[3].querySelector("rect"); return r ? r.getAttribute("fill") : null; };
+            const absBtn = v.__el.querySelector('[data-pnl="tb-exc-abs"]');
+            return { a: bar("a"), b: bar("b"), y: bar("y"), abs: absBtn ? absBtn.textContent : null };
+        };
+        return { ten: run("f8b1", { enabled: true, thresholdPct: 10 }), fifty: run("f8b2", { enabled: true, thresholdPct: 50 }),
+            either: run("f8b3", { enabled: true, thresholdPct: 50, thresholdAbs: 0.15 }) };
+    });
+    check("F8b ⚡ + materiality: both grey — Beta (material, 40 % ≥ 10 %) coloured; Services (20 %, but |Δ| 0.1 immaterial) and Alpha grey",
+        F8b.ten.b === "#0E8585" && F8b.ten.y === "#8A8886" && F8b.ten.a === "#8A8886", JSON.stringify(F8b.ten));
+    check("F8b ⚡ 50 %: a material Δ that is no exception (Beta 40 %) greys as well", F8b.fifty.b === "#8A8886", JSON.stringify(F8b.fifty));
+    check("F8b ⚡ the toolbar offers the absolute threshold of the materiality (|Δ| ≥ 0.15)", F8b.fifty.abs === "|Δ| ≥ 0.15", F8b.fifty.abs);
+    check("F8b ⚡ |Δ%| ≥ 50 % or |Δ| ≥ 0.15 — one is enough: Beta coloured again",
+        F8b.either.b === "#0E8585" && F8b.either.a === "#8A8886", JSON.stringify(F8b.either));
+
     // ===================================================================== F9 · scenario group
     const F9 = await page.evaluate(() => {
         const out = {};
@@ -599,6 +623,144 @@ check("capabilities: new objects (numbers.financeFormat/sumSafeRounding/scaling 
         return r.getAttribute("stroke");
     });
     check("F11 focus ring (high contrast): foregroundSelected", hcRing === "#00FFFF", hcRing);
+
+    // ---- F12 1.7 cross-highlight (supportsHighlight): another visual marks a part of the data.
+    // Every view but the Sankey — table, mega table, bars, waterfall, tree, tile view — renders
+    // the marked part exactly like the same selection applied as a FILTER (marked values, data
+    // rows without a marked value gone) — byte for byte, without a footer note. Only the Sankey
+    // shows the part inside the whole, with its note. Simulated selection over the Pharma demo:
+    // every account at a share of 25–57 %, contract manufacturing (…2010) outside the selection.
+    check("F12 capabilities: supportsHighlight = true (cross-highlight from other visuals)", caps.supportsHighlight === true);
+    const F12 = await page.evaluate(() => {
+        const share = (acc) => { const h = [...String(acc)].reduce((a, c) => a + c.charCodeAt(0), 0); return 0.25 + (h % 5) * 0.08; };
+        const HL = (d) => {
+            const acc = d.categorical.categories.find(c => c.source.roles.account).values;
+            for (const v of d.categorical.values) {
+                v.highlights = v.values.map((x, i) => x == null || /2010$/.test(String(acc[i])) ? null
+                    : Math.round(x * share(acc[i]) * 10) / 10);
+            }
+            return d;
+        };
+        // the same selection as a FILTER delivers it: the marked numbers as the values, and the
+        // data rows without any marked value are not in the query at all (structure rows without
+        // any value — formulas, margins — stay, as they do in the unfiltered query)
+        const AS_FILTER = (d) => {
+            HL(d);
+            const vals = d.categorical.values; const n = vals[0].values.length; const keep = [];
+            for (let i = 0; i < n; i++) {
+                if (vals.some(v => v.highlights[i] != null) || !vals.some(v => v.values[i] != null)) { keep.push(i); }
+            }
+            for (const c of d.categorical.categories) { c.values = keep.map(i => c.values[i]); }
+            for (const v of vals) { v.values = keep.map(i => v.highlights[i]); delete v.highlights; }
+            return d;
+        };
+        const render = (id, objects, how, locale, opts) => {
+            const el = document.createElement("div");
+            el.className = "stage"; el.id = id; el.style.cssText = "width:1400px;height:760px;";
+            document.body.appendChild(el);
+            const v = new PnlByDatenWG.Visual({ element: el, host: makeHost(locale || "en-US", opts) });
+            v.update({ dataViews: [how === "hl" ? HL(dv(objects)) : how === "filter" ? AS_FILTER(dv(objects)) : dv(objects)],
+                viewport: { width: 1400, height: 760 }, type: 2 });
+            const note = el.querySelector('[data-pnl="hl-note"]');
+            const noteTxt = note ? note.textContent : "";
+            const clone = el.cloneNode(true);
+            const n2 = clone.querySelector('[data-pnl="hl-note"]');
+            if (n2) {
+                // the note rides in a plain wrapper around the footer — without it, the footer stands alone
+                const wrap = n2.parentElement;
+                n2.remove();
+                if (wrap && wrap.attributes.length === 0 && wrap.children.length === 1) { wrap.replaceWith(...wrap.childNodes); }
+            }
+            // svg pattern ids carry the data-view row index (and a per-visual counter) — a filtered
+            // query numbers its rows differently, so they are no part of the picture
+            const html = clone.innerHTML.replace(/(id="|url\(#|href="#)pnl[^")]*/g, "$1pnl");
+            return { html, note: noteTxt, el };
+        };
+        const ui = (view, extra) => ({ state: { uiState: JSON.stringify(Object.assign({ view, ref: "pl", fit: false }, extra || {})) } });
+        const cases = {
+            table: ui("table"),
+            tableMat: Object.assign(ui("table"), { columns: { materialityAbs: 2, materialityPct: 3 } }),
+            tableExcHide: Object.assign(ui("table"), { exceptions: { enabled: true, thresholdPct: 5, reference: "pl", mode: "hide" } }),
+            tableHideZero: ui("table", { hideZero: true }),
+            mega: Object.assign(ui("table"), { columns: { template: "T04B", templateApplied: "T04B" } }),
+            mega12g: Object.assign(ui("table"), { columns: { template: "12G", templateApplied: "12G" } }),
+            bars: ui("bars"),
+            waterfall: ui("waterfall"),
+            // polish: ⚡ hide folds the quiet steps of the cascades into "other (n)" — on the marked values
+            waterfallExcHide: Object.assign(ui("waterfall"), { exceptions: { enabled: true, thresholdPct: 5, reference: "pl", mode: "hide" } }),
+            megaExcHide: Object.assign(ui("table"), { columns: { template: "T04B", templateApplied: "T04B", showPL: true, dPlBar: false, dPlWaterfall: true },
+                exceptions: { enabled: true, thresholdPct: 5, reference: "pl", mode: "hide" } }),
+            // polish: the tree and the tile view (opened from the Sankey) behave like a filter as well
+            tree: ui("tree", { treeV: 2 }),
+            treeExc: Object.assign(ui("tree", { treeV: 2 }), { exceptions: { enabled: true, thresholdPct: 8, reference: "py" } }),
+            tile: ui("sankey", { treeV: 2, treeZoom: "F_EBIT" }),
+        };
+        const out = {};
+        for (const [k, obj] of Object.entries(cases)) {
+            const a = render("f12-" + k + "-hl", obj, "hl");
+            const b = render("f12-" + k + "-f", obj, "filter");
+            const c = render("f12-" + k + "-0", obj, "none");
+            const at = [...a.html].findIndex((ch, i) => ch !== b.html[i]);
+            out[k] = { same: a.html === b.html, at: at + " " + JSON.stringify([a.html.slice(Math.max(0, at - 60), at + 60), b.html.slice(Math.max(0, at - 60), at + 60)]),
+                note: a.note, filterNote: b.note, noneNote: c.note, differsFromWhole: a.html !== c.html,
+                cmRow: [...a.el.querySelectorAll("div")].some(d => d.style.display === "table-row" && /Contract manufacturing/.test(d.textContent)) };
+        }
+        // the Sankey alone shows the marked part inside the whole — with its footer note
+        out.sankey = render("f12-sk", ui("sankey", { treeV: 2 }), "hl").note;
+        out.sankeyF = render("f12-skf", ui("sankey", { treeV: 2 }), "filter").note;
+        out.de = render("f12-de", ui("sankey", { treeV: 2 }), "hl", "de-DE").note;
+        out.exp = render("f12-exp", ui("sankey", { treeV: 2 }), "hl", "en-US", { allowInteractions: false });
+        out.exp = { note: out.exp.note, buttons: out.exp.el.querySelectorAll('[data-pnl="head"] button').length };
+        const tExp = render("f12-texp", ui("table"), "hl", "en-US", { allowInteractions: false });
+        out.tExp = { note: tExp.note, same: tExp.html === render("f12-texpf", ui("table"), "filter", "en-US", { allowInteractions: false }).html };
+        // polish: the ⚡ hide count prints in the export as well (no toolbar there)
+        for (const vw of ["waterfall", "tree", "sankey"]) {
+            const e = render("f12-exc-exp-" + vw, Object.assign(ui(vw, { treeV: 2 }), { exceptions: { enabled: true, thresholdPct: 5, reference: "pl", mode: "hide" } }),
+                "none", "en-US", { allowInteractions: false });
+            out["excExp_" + vw] = { note: (e.el.querySelector('[data-pnl="exc-note"]') || {}).textContent || "",
+                buttons: e.el.querySelectorAll('[data-pnl="head"] button').length };
+        }
+        // the expected share in the note: marked Net revenue / whole Net revenue
+        let full = 0; let mark = 0;
+        PNL_DEMO.levelRows.forEach(r => {
+            if (r.levels[0] !== "Net revenue" || r.values.ac == null) { return; }
+            full += r.values.ac;
+            if (!/2010$/.test(String(r.account))) { mark += Math.round(r.values.ac * share(r.account) * 10) / 10; }
+        });
+        out.expPct = (mark / full * 100).toFixed(1);
+        return out;
+    });
+    // polish (owner: "Cross-Highlight maximal im Sankey, sonst raus — nur Filter"): every view
+    // but the Sankey renders a foreign selection EXACTLY like the same selection as a filter
+    for (const k of ["table", "tableMat", "tableExcHide", "tableHideZero", "mega", "mega12g", "bars", "waterfall", "waterfallExcHide",
+        "megaExcHide", "tree", "treeExc", "tile"]) {
+        const r = F12[k];
+        check(`F12 ${k}: the marked part renders byte-identical to the same selection as a filter`,
+            r.same && r.differsFromWhole, "first difference at " + r.at);
+        check(`F12 ${k}: no highlight footer note (only the Sankey carries one)`,
+            r.note === "" && r.filterNote === "" && r.noneNote === "", r.note);
+    }
+    check("F12 a row outside the selection is gone, as under a filter (no „–“ row left standing)",
+        !F12.table.cmRow && !F12.tableHideZero.cmRow);
+    check("F12 the Sankey alone carries the note: the marked part of the %-of-revenue row against its whole",
+        new RegExp("^◐ Marked selection from another visual: the figures show the marked part · Net revenue .+ of .+ EUR in total \\("
+            + F12.expPct.replace(".", "\\.") + "%\\) · coloured = marked part, grey = total$").test(F12.sankey) && F12.sankeyF === "",
+        F12.sankey + " / expected " + F12.expPct);
+    check("F12 German footer note (Sankey)", /^◐ Markierte Auswahl aus einem anderen Visual: die Zahlen zeigen den markierten Teil · Net revenue .+ von .+ gesamt/.test(F12.de), F12.de);
+    check("F12 export: the Sankey prints its note without toolbar; a table export prints the filter picture",
+        /^◐ Marked selection/.test(F12.exp.note) && F12.exp.buttons === 0 && F12.tExp.note === "" && F12.tExp.same, JSON.stringify([F12.exp, F12.tExp]));
+    check("F12 ⚡ hide in the export: waterfall, tree and Sankey print the rule and what was combined / folded / bundled",
+        /steps below the threshold combined/.test(F12.excExp_waterfall.note) && /below the threshold folded/.test(F12.excExp_tree.note)
+        && /^⚡ Colour only for exceptions/.test(F12.excExp_sankey.note)
+        && ["waterfall", "tree", "sankey"].every(v => F12["excExp_" + v].buttons === 0),
+        JSON.stringify([F12.excExp_waterfall, F12.excExp_tree, F12.excExp_sankey]));
+    await page.evaluate(() => {
+        document.querySelectorAll(".stage").forEach(s => { if (s.id !== "f12-table-hl") { s.style.display = "none"; } });
+        document.querySelectorAll(".case").forEach(c => { c.style.display = "none"; });
+        window.scrollTo(0, 0);
+    });
+    const f12el = await page.$("#f12-table-hl");
+    if (f12el) { await f12el.screenshot({ path: path.join(__dirname, "finance-f12-highlight.png") }); }
 
     await browser.close();
     if (errors > 0) { failures.push(errors + " page errors"); }

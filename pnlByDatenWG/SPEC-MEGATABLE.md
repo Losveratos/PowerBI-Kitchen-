@@ -328,9 +328,13 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 | 12A | AC | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | – | – | – | 0 |
 | 12G | AC (Block FY → AC&FC) | ✓ | – | ✓ | ✓ | bar+pin | – | – | – | ✓ | – | – | 0 |
 | 12H | PL | ✓ | – | ✓ (= PL) | ✓ | bar+pin | – | – | – | – | – | – | 0 |
+| T05A (1.7, Bilanz) | AC | ✓ | – | ✓ | – | num+pct | – | – | – | ✓ | – | – | 0 |
+| T05B (1.7, Cashflow) | AC | ✓ | – | ✓ | ✓ | num+pct | – | ✓ | – | ✓ | – | – | 0 |
 
 12G setzt zusätzlich `blockKind = fy`, 12G/12H setzen `titleBlock.headline = an`
-(alle anderen Templates: `blockKind = ytd`, Headline unangetastet).
+(alle anderen Templates: `blockKind = ytd`, Headline unangetastet). 1.7: T05A
+setzt `statement.stockMode = allStock` (Daten ohne Token) bzw. `auto`, T05B
+`auto`; alle anderen nehmen nur ein `allStock` zurück (`hub.templateStockMode`).
 
 Aus den Daten abgeleitete Stil-Flags (kein Schalter): Vorzeichen-Spalte und
 gepaarter Δ-Kopf nur bei GuV-Daten; Block-Titelzeile nur bei Struktur-Daten;
@@ -804,3 +808,53 @@ Kategorie). Pixel-Regression: m1–m31 byte-identisch zu 1.1.
   jeder Auswahl). Abweichung = ein Schalter der Spalten-Karte oder die Headline
   weicht vom Preset ab; Dezimalstellen zählen nicht.
 - Pixel-Regression: m1–m31 byte-identisch zu 1.2.
+
+### Stand 1.7 · Bestand vs. Fluss (Bilanz, Cashflow)
+
+Zeilen-Semantik aus `engine.ts` (RowType-Token `stock` / `opening` / `flow`,
+`statement.stockMode` auto · allStock · allFlow, Vererbung auf Summen und
+Formeln, gemischt nach dem ersten Operanden — AGENT-GUIDE Falle 20). Ohne
+Bestand rendert jede Bühne wie 1.6 (Pixel-Regression: 59 von 65 bestehenden
+Bühnen byte-identisch, Abweichungen nur Hub-Zählung, Galerie-Gruppe und
+Template-Dropdown).
+
+**Blockarten mit Bestandsregel** (`MegaBlock.value` / `delta` über `megaRaw`):
+
+| Block | Fluss | Bestand (`stock`) | Anfangsbestand (`opening`) |
+|---|---|---|---|
+| Monat (`mtd`) | Monatswert | Monatsstand | Stand am Monatsanfang (Monatswert der Zeile) |
+| YTD (`ytd`) | Σ Monate bis zum Ist-Monat | Stand im letzten Ist-Monat | Stand im ersten Monat des Fensters |
+| FY (`fy`) | `fcFy` / `plFy`, ohne FY-Rollen AC bis Ist-Monat + FC-Rest bzw. Σ PL | `fcFy` / `plFy` wie geliefert (= Endstand), sonst FC- bzw. PL-Endstand (Dezember) | Stand am Jahresanfang |
+| PY im FY-Block | Σ Vorjahr | Vorjahres-Endstand | Vorjahres-Anfangsstand |
+| Δ / Δ% | Differenz der Fenster | Stand gegen Stand zum selben Stichtag | dito |
+
+Formel-/KPI-Zeilen mit Beständen unter den Operanden rechnen auf den
+Fensterwerten ihrer Operanden (`windowValue`): Anfangsbestand + Cashflows =
+Endbestand in jedem Block; eine Summe aus Beständen und Flüssen rechnet
+Vorzeichen × Σ der Fensterwerte ihrer Kinder.
+
+**Layout und Notation:**
+
+- **Statement-Daten:** eine Tabelle mit Beständen ist immer Statement
+  (Vorzeichen-Spalte, gepaarter Δ-Kopf), auch ohne −1 / Formel.
+- **Ketten:** jede Bestands-Summe der obersten Ebene ist ein eigener
+  „="-Block (Aktiva, Passiva), ihre Positionen tragen „+"/„−" auf Ebene 0;
+  Bestände der obersten Ebene (auch der Anfangsbestand) tragen „=" und
+  ankern in Δ-Wasserfall und Wert-Kaskade (`MegaRow.anchor`). Innerhalb einer
+  Bestands-Summe kaskadieren die Positionen ab 0.
+- **Doppelstrich** (`MegaRow.dbl`): Bestands-Summen und -Formeln der obersten
+  Ebene (Bilanzsumme, Endbestand) bekommen unter den Zahlen- und Chart-Spalten
+  zwei 1-px-Tintenlinien (y + h − 3.5 / − 0.5), die Kategorie-Spalte nicht.
+- **Block-Titel:** eine Tabelle nur aus Beständen benennt auch ihren einzigen
+  YTD-Block (der Stichtag-Monat, „September").
+- **12G-Stapel:** ein Bestand (`MegaRow.stock`) hat keinen YTD-Anteil — sein
+  FY-Wert ist der FC-Endstand, ein schraffierter Balken; der Kopf „YTD" über
+  dem Stapel entfällt, wenn die Tabelle nur Bestände hat.
+- **Σ-treue Rundung** verteilt nur unter Zeilen derselben Art.
+
+Tests: `test/engine-test.js` (Token, YTD = Stand, FY-Endstand, Vererbung,
+gemischte Formel, allStock/allFlow, Σ-treue Rundung, Validator-Abgleich),
+`test/mega-shot.js` m39–m42 + p28/p29 (T05A/T05B, Köpfe, Doppelstrich,
+Anker, FY-Endstand, Persist des Bestandsmodus), `test/hub-interact.js` SK
+(Galerie, Persist, Neuaufbau, Echo-Guard, ↺, Hinweis, Sankey),
+`test/waterfall-test.js` w7 (Cashflow-Brücke).

@@ -331,11 +331,20 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     });
     const has = (arr, s) => arr.includes(s);
     // 1.1 Paket B: scenario names after numbers, the empty state last
-    check("Pane: card order columns → display → numbers → scenario names → style → title → hierarchy → empty state",
-        C.order.join(",") === "columns,toolbar,numbers,labels,style,titleBlock,hierarchy,emptyState", C.order.join(","));
+    // 1.7: the exceptions card (⚡) right after the display card whose toolbar group writes it
+    // 1.7 polish: the toolbar colours right after the exceptions, the layout (maximize) right after the style
+    check("Pane: card order columns → display → exceptions (1.7) → toolbar colours (1.7) → numbers → scenario names → style → layout (1.7) → title → hierarchy → stocks & flows (1.7) → empty state",
+        C.order.join(",") === "columns,toolbar,exceptions,toolbarColors,numbers,labels,style,layout,titleBlock,hierarchy,statement,emptyState", C.order.join(","));
     // 1.2: the mega table group (template dropdown) comes first — the owner could not find it
     check("Pane: columns card = mega table | table (tree group gated), style card = colors | type | behavior",
-        C.groups[0].startsWith("columns:columnsMega|columnsGeneral") && C.groups[4] === "style:styleColors|styleType|styleBehavior", C.groups.join(" ; "));
+        C.groups[0].startsWith("columns:columnsMega|columnsGeneral") && C.groups.includes("style:styleColors|styleType|styleBehavior"), C.groups.join(" ; "));
+    check("Pane (1.7 polish): toolbar colours card with its five pickers (hidden with the toolbar), layout card with maximize",
+        ["toolbarColors.buttonBackground", "toolbarColors.buttonText", "toolbarColors.activeBackground", "toolbarColors.activeText",
+            "toolbarColors.groupBorder", "layout.maximize"].every(k => has(C.base, k))
+        && !has(C.noTb, "toolbarColors.activeBackground") && has(C.noTb, "layout.maximize"));
+    check("Pane (1.7): exceptions card with its six slices; ⚡ group switch follows toolbar.show",
+        ["exceptions.enabled", "exceptions.thresholdPct", "exceptions.thresholdAbs", "exceptions.reference", "exceptions.direction",
+            "exceptions.mode", "toolbar.showExceptions"].every(k => has(C.base, k)) && !has(C.noTb, "toolbar.showExceptions"));
     check("Pane (1.1): title footers + auto message follow titleBlock.show, scenario group follows toolbar.show",
         has(C.base, "titleBlock.footer") && has(C.base, "titleBlock.filterFooter") && has(C.base, "titleBlock.autoMessage")
         && has(C.base, "toolbar.showScenario") && !has(C.noTb, "titleBlock.footer") && !has(C.noTb, "toolbar.showScenario"));
@@ -373,6 +382,10 @@ const GERMAN = /[äöüÄÖÜß„]|\b(und|oder|nicht|Zeile|Zeilen|Spalte|Spalte
     check("Pane: the empty visual / demo keeps every data gate open",
         has(C.empty, "columns.minuend") && has(C.empty, "columns.dPyBar") && has(C.empty, "columns.sort") && has(C.empty, "columns.showPctRows"));
     check("Pane: dark mode dropdown in the style card", has(C.base, "style.appearance"));
+    // 1.7 stocks & flows: one dropdown, always visible (a balance sheet without a row-type column needs it too)
+    check("Pane 1.7: statement.stockMode visible with and without data, localized",
+        has(C.base, "statement.stockMode") && has(C.empty, "statement.stockMode") && has(C.regions, "statement.stockMode")
+        && C.deStrings.includes("Bestand & Fluss") && C.deStrings.includes("Alle Zeilen Bestand (Bilanz)"));
     // 1.1 package A
     check("Pane 1.1: export switch in the table group, % of revenue + period block in the mega group",
         has(C.base, "columns.exportExpandAll") && has(C.base, "columns.pctOfRevenue") && has(C.base, "columns.blockKind"));

@@ -86,7 +86,7 @@
             "displayName": "Row type",
             "displayNameKey": "Role_RowType",
             "kind": "Grouping",
-            "description": "Account | Subtotal | Formula | KPI | Separator — drives totals, formulas and margin rows.",
+            "description": "Account | Subtotal | Formula | KPI | Separator — drives totals, formulas and margin rows; for stocks add the token stock (balance at the period end) or opening (balance at its start), e.g. “Account stock”.",
             "descriptionKey": "RoleDesc_RowType"
         },
         {
@@ -434,6 +434,11 @@
                         "bool": true
                     }
                 },
+                "showExceptions": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "showTemplate": {
                     "type": {
                         "bool": true
@@ -694,6 +699,14 @@
                             {
                                 "value": "12H",
                                 "displayName": "12H"
+                            },
+                            {
+                                "value": "T05A",
+                                "displayName": "T05A"
+                            },
+                            {
+                                "value": "T05B",
+                                "displayName": "T05B"
                             }
                         ]
                     }
@@ -1288,6 +1301,159 @@
                 }
             }
         },
+        "statement": {
+            "properties": {
+                "stockMode": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Auto (tokens in the row type)"
+                            },
+                            {
+                                "value": "allStock",
+                                "displayName": "Every row a stock (balance sheet)"
+                            },
+                            {
+                                "value": "allFlow",
+                                "displayName": "Every row a flow (as before 1.7)"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "exceptions": {
+            "properties": {
+                "enabled": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "thresholdPct": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "thresholdAbs": {
+                    "type": {
+                        "numeric": true
+                    }
+                },
+                "reference": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "auto",
+                                "displayName": "Auto (the Δ reference of the view)"
+                            },
+                            {
+                                "value": "py",
+                                "displayName": "Previous Year (PY)"
+                            },
+                            {
+                                "value": "pl",
+                                "displayName": "Plan (PL)"
+                            },
+                            {
+                                "value": "fc",
+                                "displayName": "Forecast (FC)"
+                            }
+                        ]
+                    }
+                },
+                "direction": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "both",
+                                "displayName": "▲▼ above and below"
+                            },
+                            {
+                                "value": "up",
+                                "displayName": "▲ above the reference"
+                            },
+                            {
+                                "value": "down",
+                                "displayName": "▼ below the reference"
+                            }
+                        ]
+                    }
+                },
+                "mode": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "gray",
+                                "displayName": "⬚ grey out the rest"
+                            },
+                            {
+                                "value": "hide",
+                                "displayName": "⊘ hide / combine the rest"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "toolbarColors": {
+            "properties": {
+                "buttonBackground": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "buttonText": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "activeBackground": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "activeText": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "groupBorder": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "layout": {
+            "properties": {
+                "maximize": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
         "state": {
             "properties": {
                 "uiState": {
@@ -1298,7 +1464,7 @@
             }
         }
     },
-    "supportsHighlight": false,
+    "supportsHighlight": true,
     "tooltips": {
         "supportedTypes": {
             "default": true,

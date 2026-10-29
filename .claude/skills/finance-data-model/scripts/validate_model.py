@@ -5,7 +5,13 @@
 Aufruf:
     python3 -I validate_model.py <dim-konto.csv> <fakt-finanz.csv>
         [--kurse <kurse.csv>] [--cc EUR] [--kurs-multiplizieren]
-        [--tol 0.05] [--year 2026] [--ascii]
+        [--tol 0.05] [--year 2026] [--stock-mode auto|allStock|allFlow] [--ascii]
+
+Bestand vs. Fluss (P&L-Visual ab 1.7): RowType-Token stock / bestand /
+balance / stichtag / point (Stand am Periodenende) bzw. opening /
+anfangsbestand / eröffnung / open / begin (Stand am Periodenanfang) und flow
+(Fluss erzwingen), auch zusammen mit dem Zeilentyp in einer Zelle
+("Account stock", "Formula; stock"). --stock-mode spiegelt statement.stockMode.
 
 Variante A (nur Euro) / B (Fremdwährung) erkennt das Skript an einer
 Währungsspalte (Currency/Waehrung) in den Fakten. Bei B sucht es ohne --kurse
@@ -171,6 +177,38 @@ def parse_num(s):
 
 
 # ---------------------------------------------------------------- engine.ts-Spiegel
+
+STOCK_TOKENS = {"stock", "bestand", "balance", "stichtag", "point"}
+OPENING_TOKENS = {"opening", "anfangsbestand", "eröffnung", "eroeffnung", "open", "begin"}
+FLOW_TOKENS = {"flow", "fluss", "bewegung", "movement"}
+
+
+def parse_row_info(raw):
+    """engine.parseRowTypeInfo: (Zeilentyp, Bestand 'last'|'first'|None, Fluss-Token).
+    Nur eine Zelle mit Bestands-/Fluss-Token wird in Wörter zerlegt (Trenner Komma,
+    Semikolon, Leerzeichen, |) — jeder andere Wert wird wie vor 1.7 als Ganzes gelesen."""
+    s = (raw or "").strip().lower()
+    toks = [t for t in re.split(r"[\s,;|]+", s) if t]
+    stock, flow, rest = None, False, []
+    for t in toks:
+        if t in STOCK_TOKENS:
+            stock, flow = "last", False
+        elif t in OPENING_TOKENS:
+            stock, flow = "first", False
+        elif t in FLOW_TOKENS:
+            stock, flow = None, True
+        else:
+            rest.append(t)
+    if len(rest) == len(toks):
+        return parse_row_type(s), None, False
+    rtype = parse_row_type(" ".join(rest))
+    if rtype == "account":
+        for t in rest:
+            if parse_row_type(t) != "account":
+                rtype = parse_row_type(t)
+                break
+    return rtype, stock, flow
+
 
 def parse_row_type(raw):
     s = (raw or "").strip().lower()
@@ -344,6 +382,7 @@ class Node:
         self.val = {}
         self.error = None
         self.unit, self.money = "", True
+        self.stock = None  # 1.7 'last' | 'first' | None (Fluss)
 
 
 def fmt(v, kpi=False):
@@ -362,6 +401,9 @@ def main():
     ap.add_argument("--cc", default="EUR", help="Konzern-/Berichtswährung (Standard EUR)")
     ap.add_argument("--kurs-multiplizieren", action="store_true",
                     help="Kurs = CC je 1 Fremdwährung (multiplizieren). Standard: Fremdwährung je 1 CC (EZB-Notierung, dividieren)")
+    ap.add_argument("--stock-mode", default="auto", choices=["auto", "allStock", "allFlow"],
+                    help="statement.stockMode des Visuals (1.7): auto = Token im RowType, allStock = jede Zeile Bestand "
+                         "(Bilanz ohne Token-Spalte), allFlow = jede Zeile Fluss (Verhalten vor 1.7). Standard: auto")
     ap.add_argument("--ascii", action="store_true", help="[OK]/[WARN]/[FAIL] statt ✓/⚠/✗")
     a = ap.parse_args()
 
@@ -434,8 +476,13 @@ def main():
         if not rid:
             continue
         rt_raw = r[dc["rowtype"]] if dc["rowtype"] else ""
-        if rt_raw.strip().lower() not in KNOWN_ROWTYPES:
-            rt_raw_unknown.append(f"{rid}: '{rt_raw}' → Account")
+        rtype, stock_tok, flow_tok = parse_row_info(rt_raw)
+        rest = [t for t in re.split(r"[\s,;|]+", rt_raw.strip().lower()) if t
+                and t not in STOCK_TOKENS | OPENING_TOKENS | FLOW_TOKENS]
+        known = rt_raw.strip().lower() in KNOWN_ROWTYPES or (
+            (stock_tok or flow_tok) and all(t in KNOWN_ROWTYPES for t in rest))
+        if not known:
+            rt_raw_unknown.append(f"{rid}: '{rt_raw}' → {rtype.capitalize()}")
         sign, clean = parse_sign(r[dc["sign"]]) if dc["sign"] else (1, True)
         if not clean and dc["sign"]:
             sign_odd.append(f"{rid}: '{r[dc['sign']]}' → {sign:+d}")
@@ -447,7 +494,7 @@ def main():
             bool_odd.append(f"{rid}: VarianceInvert '{r[dc['var']]}' → false")
         sort = parse_num(r[dc["sort"]]) if dc["sort"] else None
         rows.append({
-            "id": rid, "line": r["__line__"], "rt_raw": rt_raw, "type": parse_row_type(rt_raw),
+            "id": rid, "line": r["__line__"], "rt_raw": rt_raw, "type": rtype, "stock_tok": stock_tok, "flow_tok": flow_tok,
             "formula": (r[dc["formula"]] if dc["formula"] else "").strip(),
             "sign": sign, "disp": disp, "var": var,
             "sort": sort if isinstance(sort, float) else None, "sort_raw": r[dc["sort"]] if dc["sort"] else "",
@@ -464,6 +511,24 @@ def main():
     R.add("ok", "Zeilentypen (wie das Visual sie liest): " + " · ".join(f"{t} {n}" for t, n in sorted(tcount.items())))
     if rt_raw_unknown:
         R.add("warn", "Unbekannte RowType-Werte — das Visual liest sie als Account", rt_raw_unknown)
+    # 1.7 Bestand vs. Fluss — die Zeilen-Semantik, wie das Visual sie liest
+    smode = a.stock_mode
+    for x in rows:
+        if smode == "allFlow" or x["type"] == "separator":
+            x["stock"] = None
+        elif smode == "allStock":
+            x["stock"] = "first" if x["stock_tok"] == "first" else "last"
+        else:
+            x["stock"] = x["stock_tok"]
+    n_stock = sum(1 for x in rows if x["stock"] == "last")
+    n_open = sum(1 for x in rows if x["stock"] == "first")
+    n_tok = sum(1 for x in rows if x["stock_tok"] or x["flow_tok"])
+    if n_stock or n_open:
+        R.add("ok", f"Bestand vs. Fluss (statement.stockMode = {smode}): {n_stock} Bestand (Stand am Periodenende)"
+              + (f" · {n_open} Anfangsbestand (Stand am Periodenanfang)" if n_open else "")
+              + f" · {len(rows) - n_stock - n_open} Fluss — YTD = Stand der letzten Periode, FY = FC-Endstand, Δ zum selben Stichtag")
+    elif n_tok and smode == "allFlow":
+        R.add("warn", f"{n_tok} Bestands-/Fluss-Token, aber --stock-mode allFlow: das Visual ignoriert sie (statement.stockMode)")
     minus_plus = [f"{x['id']} ('{x['rt_raw']}', SignConvention {x['sign']:+d})" for x in rows
                   if x["rt_raw"].strip() in ("-", "−") and x["sign"] == 1]
     if minus_plus:
@@ -582,6 +647,19 @@ def main():
         if not (orphans or cyc):
             roots = [n for n in nodes.values() if not n.parent]
             R.add("ok", f"Parent-Child konsistent: {len(roots)} Wurzel(n), keine Waisen, keine Zyklen")
+
+    # 1.7 Bestand vs. Fluss: die Zeilen-Semantik je Knoten (Vererbung wie im Visual: eine Summe ohne
+    # Token ist Bestand, wenn alle beitragenden Kinder Bestände sind; Formeln nach ihren Operanden,
+    # gemischt nach dem ersten Operanden — für die Stichprobe zählt nur die Aggregation der Konten)
+    stock_of = {x["id"]: x["stock"] for x in rows}
+    for n in nodes.values():
+        n.stock = stock_of.get(n.id)
+    for _ in range(8):
+        for n in nodes.values():
+            if n.synthetic and n.children and n.stock is None and a.stock_mode != "allFlow":
+                kids = [c for c in n.children if c.type in ("account", "subtotal")]
+                if kids and all(c.stock for c in kids):
+                    n.stock = "first" if all(c.stock == "first" for c in kids) else "last"
 
     # Einheiten: Geld (EUR …) und Mengen (hl, Stk, FTE) dürfen sich in keiner Summe treffen
     unit_of = {x["id"]: x["unit"] for x in rows}
@@ -707,15 +785,32 @@ def main():
     if bool_odd:
         R.add("warn", "Unbekannte Wahrheitswerte — parseBool liest sie als false (erlaubt: true/1/yes/ja/j/x/wahr)", bool_odd)
     combo = defaultdict(list)
+    scombo = defaultdict(list)  # 1.7 Bestände: eigene Regeln
     for x in rows:
         if x["type"] in ("account", "subtotal"):
-            combo[(x["sign"], x["disp"], x["var"])].append(x["id"])
+            (scombo if x["stock"] else combo)[(x["sign"], x["disp"], x["var"])].append(x["id"])
     names = {(1, False, False): "Erlös/Ertrag", (-1, True, False): "Kosten, positiv gebucht (Standard)",
              (1, True, False): "Kosten, negativ gebucht", (1, False, True): "Kosten positiv ohne Vorzeichen / 'mehr ist schlecht'",
              (-1, False, False): "Kosten negativ angezeigt"}
-    R.add("ok", "Kombinationen: " + " · ".join(
-        f"{s:+d}·{str(d).lower()}·{str(v).lower()} ×{len(ids_)}" + (f" ({names[(s, d, v)]})" if (s, d, v) in names else "")
-        for (s, d, v), ids_ in sorted(combo.items(), key=lambda kv: -len(kv[1]))))
+    if combo:
+        R.add("ok", "Kombinationen: " + " · ".join(
+            f"{s:+d}·{str(d).lower()}·{str(v).lower()} ×{len(ids_)}" + (f" ({names[(s, d, v)]})" if (s, d, v) in names else "")
+            for (s, d, v), ids_ in sorted(combo.items(), key=lambda kv: -len(kv[1]))))
+    if scombo:
+        # 1.7 Regel für Bestandszeilen: SignConvention nach Bilanzseite (Aktiva +1; Passiva −1, wenn die Quelle
+        # Haben-Salden negativ liefert), DisplayInvert false, VarianceInvert nach Fachlogik (mehr Verbindlichkeiten,
+        # Rückstellungen, Vorräte oder Forderungen = ungünstig → true). −1 · false · true ist hier KEIN Doppel-Dreh:
+        # das −1 dreht nur das Vorzeichen der Haben-Salden, nicht die Bewertung von Kosten.
+        snames = {(1, False, False): "Aktiva / Kasse", (1, False, True): "Aktiva, mehr ist ungünstig (Working Capital)",
+                  (-1, False, False): "Passiva, mehr ist günstig (Eigenkapital)",
+                  (-1, False, True): "Passiva, mehr ist ungünstig (Verbindlichkeiten, Rückstellungen)"}
+        R.add("ok", "Bestandszeilen: " + " · ".join(
+            f"{s:+d}·{str(d).lower()}·{str(v).lower()} ×{len(ids_)}" + (f" ({snames[(s, d, v)]})" if (s, d, v) in snames else "")
+            for (s, d, v), ids_ in sorted(scombo.items(), key=lambda kv: -len(kv[1]))))
+        sdisp = [f"{i} ({nodes[i].name})" for (s, d, v), l in scombo.items() if d for i in l if i in nodes]
+        if sdisp:
+            R.add("warn", "Bestandszeile mit DisplayInvert true: Bestände zeigen ihr Vorzeichen über SignConvention "
+                  "(Bilanzseite), DisplayInvert bleibt false", sdisp)
     bad1 = [f"{i} ({nodes[i].name})" for (s, d, v), l in combo.items() if s == -1 and v for i in l if i in nodes]
     bad2 = [f"{i} ({nodes[i].name})" for (s, d, v), l in combo.items() if s == 1 and d and v for i in l if i in nodes]
     neg_shown = [f"{i} ({nodes[i].name})" for (s, d, v), l in combo.items() if s == -1 and not d and not v for i in l if i in nodes]
@@ -736,6 +831,8 @@ def main():
         R.add("warn", "SignConvention -1 auf Formel-/KPI-Zeilen wirkt nicht (die Formel bestimmt das Vorzeichen)", fsign)
     if not (bad1 or bad2 or dbl):
         R.add("ok", "Keine doppelt gedrehte Bewertung")
+    # 1.7 Bestände erscheinen positiv: das Vorzeichen der gelieferten Salden passt zur SignConvention
+    stock_ids = {x["id"]: x for x in rows if x["stock"] and x["type"] in ("account", "subtotal")}
 
     # ============================================================ Fakten lesen
     fc = {k: find_col(fh, v) for k, v in FACT_ALIASES.items()}
@@ -849,6 +946,19 @@ def main():
         else:
             R.add("ok", f"Alle {len(calc_rows)} Formel-/KPI-Zeilen haben eine (Leer-)Faktzeile — in der Abnahme prüfen, dass sie erscheinen")
 
+    # 1.7 Vorzeichen der Bestände: gerechnet (Fakt × SignConvention) überwiegend positiv
+    neg_stock = []
+    for rid, x in stock_ids.items():
+        vals = [v for (_, _), vs in facts.get(rid, {}).get("AC", {}).items() for v in vs]
+        if vals and sum(1 for v in vals if v * x["sign"] < 0) > len(vals) / 2:
+            neg_stock.append(f"{rid} ({nodes[rid].name if rid in nodes else rid}): Fakten {'positiv' if vals[0] > 0 else 'negativ'}, "
+                             f"SignConvention {x['sign']:+d} → erscheint negativ")
+    if neg_stock:
+        R.add("warn", "Bestandszeile erscheint negativ — SignConvention nach Bilanzseite: Aktiva +1; Passiva −1, "
+              "wenn die Quelle Haben-Salden negativ liefert (Saldenliste), sonst +1", neg_stock)
+    elif stock_ids:
+        R.add("ok", f"{len(stock_ids)} Bestandszeile(n) erscheinen positiv (SignConvention passt zur Bilanzseite)")
+
     # ============================================================ [6] Perioden
     R.section("[6] Perioden")
     if bad_period:
@@ -952,18 +1062,32 @@ def main():
                             return vs[0]
                     return None
                 plfy, fcfy = first("PL_FY"), first("FC_FY")
+                st = nodes[rid].stock if rid in nodes else None
+                ac_ms = months_by["AC"].get(y, set())
+                if st:
+                    # 1.7 Bestand: der FY-Wert ist der Stand am Jahresende (Anfangsbestand: am Jahresanfang)
+                    mm = 12 if st == "last" else 1
+                    last = max(ac_ms) if ac_ms else 0
+                    if plfy is not None and len(months_by["PL"].get(y, ())) == 12 and abs(plfy - tot("PL", {mm})) > tol:
+                        fy_dev.append(f"{rid} {y}: PL_FY {fmt(plfy)} ≠ PL-Stand {mm:02d} {fmt(tot('PL', {mm}))} (Bestand)")
+                    if fcfy is not None and (sc_map.get("FC") or ac_ms):
+                        src = "AC" if mm <= last else "FC"
+                        if abs(fcfy - tot(src, {mm})) > tol:
+                            fy_dev.append(f"{rid} {y}: FC_FY {fmt(fcfy)} ≠ {src}-Stand {mm:02d} {fmt(tot(src, {mm}))} (Bestand)")
+                    continue
                 if plfy is not None and len(months_by["PL"].get(y, ())) == 12 and abs(plfy - tot("PL")) > tol:
                     fy_dev.append(f"{rid} {y}: PL_FY {fmt(plfy)} ≠ Σ PL {fmt(tot('PL'))}")
-                ac_ms = months_by["AC"].get(y, set())
                 if fcfy is not None and ac_ms and sc_map.get("FC"):
                     last = max(ac_ms)
                     expect = tot("AC", set(range(1, last + 1))) + tot("FC", set(range(last + 1, 13)))
                     if abs(fcfy - expect) > tol:
                         fy_dev.append(f"{rid} {y}: FC_FY {fmt(fcfy)} ≠ AC 01–{last:02d} + FC {last + 1:02d}–12 = {fmt(expect)}")
         if fy_dev:
-            R.add("warn", "FY-Skalare passen nicht zu den Monatswerten (PL_FY = Σ PL · FC_FY = AC bis Ist-Monat + FC Restjahr)", fy_dev)
+            R.add("warn", "FY-Skalare passen nicht zu den Monatswerten (PL_FY = Σ PL · FC_FY = AC bis Ist-Monat + FC Restjahr; "
+                  "Bestand: der Stand am Jahresende, Anfangsbestand: am Jahresanfang)", fy_dev)
         elif not fy_err:
-            R.add("ok", "FY-Skalare konstant je Konto, PL_FY = Σ PL und FC_FY = AC + FC-Restjahr")
+            R.add("ok", "FY-Skalare konstant je Konto, PL_FY = Σ PL und FC_FY = AC + FC-Restjahr"
+                  + (" (Bestände: Stand am Jahresende, Anfangsbestände: am Jahresanfang)" if stock_ids else ""))
 
     # ============================================================ [7] Währung
     rates = {}  # (währung, jahr, monat, kursart) -> kurs
@@ -1099,6 +1223,10 @@ def main():
         if v is not None:
             own[rid][key] = own[rid].get(key, 0.0) + v
 
+    def setv(rid, key, v):
+        if v is not None:
+            own[rid][key] = v
+
     for rid, sc, y, m, v, cur in sorted(entries, key=lambda e: (e[2], e[3])):
         if y != year:
             continue
@@ -1107,6 +1235,24 @@ def main():
                 own[rid][sc] = v
             continue
         cv = conv(rid, sc, y, m, v, cur)
+        st = nodes[rid].stock if rid in nodes else None
+        if st:
+            # 1.7 Bestand: der Stand zum Stichtag statt der Summe der Monate — YTD am letzten Monat mit AC
+            # (Anfangsbestand: am ersten Monat des Fensters), FY am Jahresende (bzw. am Jahresanfang)
+            at = max(window) if st == "last" else min(window)
+            fy_m = 12 if st == "last" else 1
+            if m == at:
+                setv(rid, sc, cv)
+                if sc == "AC" and fx:
+                    setv(rid, "AC_BUD", conv(rid, sc, y, m, v, cur, "BUD"))
+            if sc == "PY" and m == fy_m:
+                setv(rid, "PY_FY", cv)
+            if derive_fy and m == fy_m:
+                if sc == "PL":
+                    setv(rid, "PL_FY", cv)
+                if any_fc and ((sc == "AC" and m <= last) or (sc == "FC" and m > last)):
+                    setv(rid, "FC_FY", cv)
+            continue
         if m in window:
             add(rid, sc, cv)
             if sc == "AC" and fx:
@@ -1215,6 +1361,17 @@ def main():
         nsub = sum(1 for n in nodes.values() if n.type == "subtotal" and n.children)
         R.add("ok", f"Keine Zwischensummen in den Fakten gebucht — {nsub} Zwischensumme(n) entstehen im Visual aus den Kindern")
 
+    # 1.7 Bilanz: zwei Bestands-Wurzeln (Aktiva, Passiva) müssen zum Stichtag gleich sein
+    sroots = [n for n in roots if n.stock and n.type in ("account", "subtotal") and n.val]
+    if len(sroots) == 2 and all(n.stock == "last" for n in sroots):
+        bad_bal = [f"{sc}: {sroots[0].name} {fmt(sroots[0].val.get(sc))} ≠ {sroots[1].name} {fmt(sroots[1].val.get(sc))}"
+                   for sc in ("AC", "PY", "PL", "FC") if sroots[0].val.get(sc) is not None and sroots[1].val.get(sc) is not None
+                   and abs(sroots[0].val[sc] - sroots[1].val[sc]) > tol]
+        if bad_bal:
+            R.add("warn", "Bilanz nicht ausgeglichen (zwei Bestands-Wurzeln zum Stichtag)", bad_bal)
+        else:
+            R.add("ok", f"Bilanz ausgeglichen: {sroots[0].name} = {sroots[1].name} zum Stichtag (AC/PY/PL/FC)")
+
     # (b) Staffelform: Ergebniszeile = laufende Summe aller Konten davor (Voraussetzung für das ChartKitchen-DAX-Muster)
     order = []
 
@@ -1257,6 +1414,8 @@ def main():
         cols = [("AC", "AC"), ("PY", "PY"), ("PL", "PL"), ("ΔPL", "d:AC:PL"), ("PY FY", "PY_FY"), ("PL FY", "PL_FY"),
                 ("AC&FC FY", "FC_FY")]
     R.text("")
+    if any(n.stock for n in nodes.values()):
+        R.text("  ·B = Bestand: Stand zum Stichtag (YTD = Monat " + f"{last:02d}" + ", FY = Dezember) · ·A = Anfangsbestand (Stand am Jahresanfang)")
     R.text(f"  Stichprobe {year}: YTD 01–{last:02d} (letzter Monat mit AC) · FY = Gesamtjahr · Werte wie angezeigt"
            + f", in {sname + ' ' if sname else ''}{cc}"
            + (" (AC/FC zum AKT-, PL zum BUD-, PY zum VJ-Kurs; @BUD = zum Budgetkurs, FX-bereinigt)" if fx else ""))
@@ -1282,6 +1441,9 @@ def main():
                 v = n.val.get(key)
                 cells.append(fmt(None if v is None else v * flip / (1 if kpi else scale), kpi))
         label = ("= " if n.type == "formula" else "  " if kpi else "") + n.name
+        if n.stock:
+            mark = " ·B" if n.stock == "last" else " ·A"
+            label = label[:29 - len(mark)] + mark
         R.text(f"    {label[:29]:<30}" + "".join(f"{c:>11}" for c in cells))
     errs = [n.id for n in nodes.values() if n.error]
     if errs:

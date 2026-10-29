@@ -16,6 +16,7 @@
 <div class="case"><h4>w4 · Verlustfall: negativer Jahresüberschuss + negatives Finanzergebnis · 700×320</h4><div class="stage" id="w4"></div></div>
 <div class="case"><h4>w5 · nur KPI/Separator-Zeilen → Hinweistext · 400×140</h4><div class="stage" id="w5"></div></div>
 <div class="case"><h4>w6 · extrem klein (140×90)</h4><div class="stage" id="w6"></div></div>
+<div class="case"><h4>w7 · 1.7 Cashflow-Brücke: Anfangsbestand (Bestand) → operativ → investiv → finanziell → Endbestand (Bestand) · Bestände als Anker · 700×300</h4><div class="stage" id="w7"></div></div>
 <script src=".tmp-waterfall.js"></script>
 <script>
 const { renderWaterfall } = WF;
@@ -33,6 +34,7 @@ function node(name, rowType, vals, opts) {
     children: [], level: 0,
     computed: Object.assign({ ac: null, py: null, pl: null, fc: null, fcfy: null, plfy: null }, vals),
     series: {}, error: null, hasChildren: false, isOrphanBucket: false,
+    stock: o.stock || null,
   };
 }
 
@@ -72,6 +74,17 @@ const LOSS = [
   node("Jahresfehlbetrag", "formula", { ac: -760 }),
 ];
 
+// 1.7 cash-flow bridge: the opening and the closing stand are stocks (node.stock) —
+// both anchor at the zero line, the flows between them float
+const CASH = [
+  node("Anfangsbestand", "account", { ac: 600 }, { stock: "first" }),
+  node("Operativer Cashflow", "subtotal", { ac: 320 }),
+  node("Investiver Cashflow", "subtotal", { ac: -410 }),
+  node("Finanzierungs-Cashflow", "subtotal", { ac: -280 }),
+  // a delivered closing balance (an account, not a formula): only its stock flag anchors it
+  node("Endbestand", "account", { ac: 230 }, { stock: "last" }),
+];
+
 const ONLY_SKIPPED = [
   node("EBITDA-Marge", "kpi", { ac: 0.16 }),
   node("", "separator", {}),
@@ -99,6 +112,7 @@ draw("w3", PROFIT, "ac", 300, 220, "wf-hatch-3");
 draw("w4", LOSS, "ac", 700, 320, "wf-hatch-4");
 draw("w5", ONLY_SKIPPED, "ac", 400, 140, "wf-hatch-5");
 draw("w6", PROFIT, "ac", 140, 90, "wf-hatch-6");
+draw("w7", CASH, "ac", 700, 300, "wf-hatch-7");
 
 // expose expectations for the node-side assertions
 window.__wfCases = [
@@ -108,6 +122,7 @@ window.__wfCases = [
   { id: "w4", bars: 10 },
   { id: "w5", bars: 0 },
   { id: "w6", bars: 12 },
+  { id: "w7", bars: 5 },
 ];
 </script>
 </body>

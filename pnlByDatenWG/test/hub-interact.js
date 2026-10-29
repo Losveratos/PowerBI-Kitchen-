@@ -9,7 +9,7 @@
  *   T  feature tour: 8 cards (1.6: + Sankey), ‹ › dots arrow keys, every card draws a real
  *      mini rendering (statement, mega table, tree, bars, waterfall, tile view,
  *      dark), nothing is persisted
- *   G  template gallery: 18 mini previews, a click writes ONE persist (like the
+ *   G  template gallery: 20 mini previews (1.7: + balance sheet, cash flow), a click writes ONE persist (like the
  *      toolbar dropdown), without fields it is saved and applies when fields are
  *      bound, a second click on the same template writes again (re-apply)
  *   N  navigation: demo + field guide as sub pages with "← Zurück", Esc, digit
@@ -20,6 +20,11 @@
  *   R  "↺ Zum Template zurück": only with a set template whose switches
  *      deviate, edit mode + table view only, one click writes the template again
  *   L  four languages, dark, palette safety (a dark mini never darkens the hub)
+ *   SK 1.7 stock templates: T05A / T05B previews draw their own example, a pick
+ *      writes statement.stockMode in the same persist (T05A: allStock without
+ *      tokens, auto with tokens), the model is rebuilt at once, the echo guard
+ *      holds the mode through a stale update, a P&L template takes allStock
+ *      back, "↺" appears when the mode left the template
  *
  * Run: node test/hub-interact.js  (npm run test:hub, after node test/build.js)
  */
@@ -291,11 +296,11 @@ function check(label, cond, detail) {
         out.off = { tpl: off[0].properties.template, applied: off[0].properties.templateApplied, nums: off.length };
         return out;
     });
-    check("G the template tile opens the gallery: 18 tiles (17 templates + the classic table), grouped by purpose, all minis drawn",
-        G.ready && G.page === "templates" && G.tiles.length === 18
-        && G.tiles.join() === "T01A,T01B,T02A,T02B,T02C,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,12A,12G,12H,off", G.tiles.join(","));
-    check("G every tile carries a mini rendering", G.minis.length === 18 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
-    check("G 17 of the minis are mega tables (the classic table is the 18th)", G.mega === 17, String(G.mega));
+    check("G the template tile opens the gallery: 20 tiles (19 templates + the classic table), grouped by purpose, all minis drawn",
+        G.ready && G.page === "templates" && G.tiles.length === 20
+        && G.tiles.join() === "T01A,T01B,T02A,T02B,T02C,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,T05A,T05B,12A,12G,12H,off", G.tiles.join(","));
+    check("G every tile carries a mini rendering", G.minis.length === 20 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
+    check("G 19 of the minis are mega tables (the classic table is the 20th)", G.mega === 19, String(G.mega));
     check("G without fields: the note says the choice is saved and applies on binding", /^No fields bound yet/.test(G.noteNoFields || ""), G.noteNoFields);
     check("G the classic table is the active tile before any pick, nothing persisted by browsing",
         G.activeDefault.join() === "tpl-off" && G.persists0 === 0);
@@ -580,8 +585,8 @@ function check(label, cond, detail) {
         out.narrowTourScroll = nr.scrollWidth > nr.clientWidth;
         return out;
     });
-    check("L four languages: home, tour card and gallery are localized, no raw key, 18 tiles",
-        ["en-US", "de-DE", "es-ES", "ja-JP"].every(l => !L[l].raw && L[l].tiles === 18 && L[l].home.length > 80 && L[l].tour.length > 40));
+    check("L four languages: home, tour card and gallery are localized, no raw key, 20 tiles",
+        ["en-US", "de-DE", "es-ES", "ja-JP"].every(l => !L[l].raw && L[l].tiles === 20 && L[l].home.length > 80 && L[l].tour.length > 40));
     check("L German and Japanese differ from English", L["de-DE"].tour !== L["en-US"].tour && L["ja-JP"].tour !== L["en-US"].tour
         && L["es-ES"].tour !== L["en-US"].tour && L["de-DE"].home !== L["en-US"].home);
     check("L Japanese texts are Japanese, Spanish ones Spanish", /[぀-ヿ一-鿿]/.test(L["ja-JP"].tour) && /[ñáéíóú]/i.test(L["es-ES"].tour + L["es-ES"].home));
@@ -619,8 +624,9 @@ function check(label, cond, detail) {
         out.back = !!T.q("q1", '[data-pnl="hub-back"]');
         return out;
     });
-    check("Q four purpose groups with German heads: structure 5 · forecast 5 · P&L 4 · report views 4",
-        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 5], ["forecast", "Forecast", 5], ["statement", "GuV-Statement", 4], ["report", "Report-Ansichten", 4]]),
+    check("Q five purpose groups with German heads: structure 5 · forecast 5 · P&L 4 · balance sheet & cash flow 2 (1.7) · report views 4",
+        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 5], ["forecast", "Forecast", 5], ["statement", "GuV-Statement", 4],
+            ["balance", "Bilanz & Cashflow", 2], ["report", "Report-Ansichten", 4]]),
         JSON.stringify(Q.groups));
     check("Q finance title on the tile, the T number as a small badge, a use line",
         Q.t01a.title === "Regionen mit Plan-Abweichung" && Q.t01a.badge === "T01A" && Q.t01a.use.length > 30
@@ -875,6 +881,9 @@ function check(label, cond, detail) {
         out.groups = ["required", "scenarios", "logic", "extras"].map(g => (T.q("f1", `[data-pnl="fg-${g}"]`) || {}).textContent);
         out.notation = ["ac", "py", "pl", "fc", "rule"].map(x => (T.q("f1", `[data-pnl="fi-note-${x}"]`) || {}).textContent);
         out.axes = (T.q("f1", '[data-pnl="fi-axes"]') || {}).textContent;
+        // 1.7 the premise names stock vs flow too, and the row-type sentence names the token
+        out.stock = (T.q("f1", '[data-pnl="fi-axes"] [data-pnl="fi-stock"]') || {}).textContent || "";
+        out.rowTypeLine = (T.q("f1", '[data-pnl="fg-grid"]') || {}).textContent || "";
         out.pic = (T.q("f1", '[data-pnl="fi-axes-pic"]') || { textContent: "" }).textContent;
         // the 1.2 field guide of emptyState.mode = fields is unchanged (minimal / extended, its switch)
         T.mk("f2", T.empty, { emptyState: { mode: "fields" } }, { viewMode: 1 });
@@ -899,6 +908,9 @@ function check(label, cond, detail) {
         && /Minuend → Füllung, Referenz → Achse/.test(F.notation[4]), JSON.stringify(F.notation));
     check("F premise (b): structure vs time with a pictogram (Monat | _YTD | FY)",
         /vertikal in Zeilen/.test(F.axes) && /horizontal in Blöcken/.test(F.axes) && /Monat/.test(F.pic) && /_YTD/.test(F.pic) && /FY/.test(F.pic), F.axes);
+    check("F 1.7 premise (b) explains stock vs flow (stand in YTD, FC end stand in FY, token stock / opening)",
+        /Bestand vs\. Fluss/.test(F.stock) && /FC-Endstand/.test(F.stock) && /stock \/ opening/.test(F.stock) && /Token stock \/ opening macht/.test(F.rowTypeLine.replace(/das Token/, "Token")),
+        F.stock);
     check("F the 1.2 field guide (mode fields) stays as it was", F.old);
     check("F narrow visual: field guide and checklist without a horizontal scroll, no raw key", F.narrow && F.narrowGo && !F.raw);
 
@@ -928,6 +940,115 @@ function check(label, cond, detail) {
     });
     check("B ← Zurück on every sub page (tour, gallery, demo, fields, get started), in place and in the overlay, and from deeper levels",
         Object.values(B).every(v => v === true || v === "hub"), JSON.stringify(B));
+
+    // ================================================================== 1.7 · S stock templates (balance sheet, cash flow)
+    const SK = await ev(async () => {
+        const T = window.__T; const out = {};
+        const bil = (opt) => (o) => dvRows(STOCK_DEMO.rows("bilanz", opt), o);
+        const cash = (o) => dvRows(STOCK_DEMO.rows("cashflow"), o);
+        const lastMerge = (st) => st.persists[st.persists.length - 1].merge;
+        const objOf = (m, name) => (m.find(x => x.objectName === name) || {}).properties;
+        // the gallery previews draw their own examples (localized names, mega tables)
+        T.mk("s1", T.empty, {}, { viewMode: 1 });
+        T.click("s1", "hub-tile-templates"); await T.ready("s1");
+        const tile = (tpl) => T.q("s1", `[data-pnl="tpl-${tpl}"]`);
+        out.bsMini = tile("T05A").textContent;
+        out.cfMini = tile("T05B").textContent;
+        out.bsMega = !!tile("T05A").querySelector('svg[data-pnl="mega-body"]');
+        out.cfCasc = tile("T05B").querySelectorAll('[data-pnl="mega-conn"] line').length;
+        out.notes = [tile("T05A"), tile("T05B")].map(b => (b.querySelector('[data-pnl="tpl-stock-note"]') || {}).textContent || "");
+        // a pick without fields: ONE persist with the switches AND statement.stockMode
+        const n0 = T.s1.persists.length;
+        T.click("s1", "tpl-T05A");
+        out.pickPersists = T.s1.persists.length - n0;
+        out.pickStmt = objOf(lastMerge(T.s1), "statement");
+        out.pickTpl = objOf(lastMerge(T.s1), "columns").templateApplied;
+        // bound balance sheet without a token: the toolbar pick rebuilds the model at once
+        const st = T.mk("s2", bil(), { hierarchy: { defaultLevel: 0 } }, { viewMode: 1, locale: "de-DE" });
+        const body = () => (T.q("s2", 'svg[data-pnl="mega-body"]') || { textContent: "" }).textContent;
+        const sel = T.q("s2", '[data-pnl="tb-template"]');
+        sel.value = "T05A"; sel.dispatchEvent(new Event("change"));
+        out.beforeEcho = body();
+        out.s2Stmt = objOf(lastMerge(st), "statement");
+        out.s2Persists = st.persists.length;
+        // a stale update (the host has not echoed yet): the mode is held, the stands stay
+        st.update(JSON.parse(JSON.stringify({ ...st.echoes[0], statement: undefined })));
+        out.stale = body();
+        st.flush();
+        out.afterEcho = body();
+        out.reset = !!T.q("s2", '[data-pnl="tb-template-reset"]');
+        // the author switches the mode back by hand: "↺" offers the template again, one click restores it
+        st.objects.statement = { stockMode: "auto" };
+        st.update(); st.flush();
+        out.flowBody = body();
+        out.resetAfter = !!T.q("s2", '[data-pnl="tb-template-reset"]');
+        T.click("s2", "tb-template-reset");
+        out.reapplyStmt = objOf(lastMerge(st), "statement");
+        st.flush();
+        out.reapplied = body();
+        // a P&L template takes "every row a stock" back
+        const sel2 = T.q("s2", '[data-pnl="tb-template"]');
+        sel2.value = "T03A"; sel2.dispatchEvent(new Event("change"));
+        out.t03Stmt = objOf(lastMerge(st), "statement");
+        st.flush();
+        // with tokens in the data T05A leaves the decision to them
+        const st3 = T.mk("s3", bil({ rowType: () => "Account stock" }), {}, { viewMode: 1 });
+        const sel3 = T.q("s3", '[data-pnl="tb-template"]');
+        sel3.value = "T05A"; sel3.dispatchEvent(new Event("change"));
+        out.tokStmt = objOf(lastMerge(st3), "statement");
+        // T05B on the cash flow: auto, the bridge closes (opening 600 → closing 498 in _September)
+        const st4 = T.mk("s4", cash, { statement: { stockMode: "allStock" } }, { viewMode: 1, locale: "de-DE" });
+        const sel4 = T.q("s4", '[data-pnl="tb-template"]');
+        sel4.value = "T05B"; sel4.dispatchEvent(new Event("change"));
+        out.cfStmt = objOf(lastMerge(st4), "statement");
+        st4.flush();
+        out.cfBody = (T.q("s4", 'svg[data-pnl="mega-body"]') || { textContent: "" }).textContent;
+        out.cfHead = (T.q("s4", 'svg[data-pnl="mega-head"]') || { textContent: "" }).textContent;
+        // the edit-mode note: a mixed formula without a token (closing balance "Formula" only) — never for readers
+        const mixed = (o) => dvRows(STOCK_DEMO.rows("cashflow", { rowType: r => (r.account === "CF_END" ? "Formula" : r.rowType) }), o);
+        T.mk("s5", mixed, { hierarchy: { defaultLevel: 1 } }, { viewMode: 1, locale: "de-DE" });
+        out.note = (T.q("s5", '[data-pnl="stock-note"]') || {}).textContent || "";
+        T.mk("s6", mixed, { hierarchy: { defaultLevel: 1 } }, { viewMode: 0, locale: "de-DE" });
+        out.readerNote = !!T.q("s6", '[data-pnl="stock-note"]');
+        out.tokenNote = !!T.q("s4", '[data-pnl="stock-note"]');
+        // the Sankey: stocks are neutral anchors — the opening balance and every band touching it are gray
+        T.mk("s7", cash, { columns: { treeRoot: "Endbestand Zahlungsmittel" }, state: { uiState: JSON.stringify({ view: "sankey" }) } },
+            { viewMode: 1, locale: "de-DE" });
+        const nodes = T.qa("s7", '[data-pnl="sk-node"]').map(g => ({ id: g.getAttribute("data-pnl-id"), fam: g.getAttribute("data-sk-fam"), i: g.getAttribute("data-sk-i") }));
+        const anf = nodes.find(n => n.id === "CF_ANF"); const end = nodes.find(n => n.id === "CF_END");
+        const bandsOf = (n) => T.qa("s7", '[data-pnl="sk-bands"] path').filter(p => p.getAttribute("data-sk-src") === n.i || p.getAttribute("data-sk-tgt") === n.i)
+            .map(p => [p.getAttribute("data-sk-src"), p.getAttribute("data-sk-tgt"), p.getAttribute("data-sk-fam")]);
+        out.sk = { anf: anf && anf.fam, end: end && end.fam, anfBands: anf ? bandsOf(anf) : [], endIdx: end && end.i,
+            outFam: T.qa("s7", '[data-pnl="sk-node"][data-sk-role="out"]').map(g => g.getAttribute("data-sk-fam")) };
+        return out;
+    });
+    check("S T05A / T05B previews draw the balance sheet and the cash flow (own examples, mega tables, a cascade)",
+        /Assets/.test(SK.bsMini) && /Equity and liabilities/.test(SK.bsMini) && SK.bsMega
+        && /Cash at beginning of period/.test(SK.cfMini) && /Cash at end of period/.test(SK.cfMini) && SK.cfCasc > 3,
+        JSON.stringify([SK.bsMini.slice(0, 120), SK.cfMini.slice(0, 120), SK.cfCasc]));
+    check("S the stock tiles name their premise (no token: every row a stock · opening / stock tokens)",
+        /every row a stock/.test(SK.notes[0]) && /opening/.test(SK.notes[1]), JSON.stringify(SK.notes));
+    check("S a T05A pick without fields: one persist, statement.stockMode = allStock with the switches",
+        SK.pickPersists === 1 && SK.pickStmt && SK.pickStmt.stockMode === "allStock" && SK.pickTpl === "T05A", JSON.stringify([SK.pickPersists, SK.pickStmt]));
+    check("S bound balance sheet: the pick shows the stand at the reporting date at once (Kasse 498, Aktiva 8 316), before the echo",
+        /Kasse und Bank/.test(SK.beforeEcho) && /498/.test(SK.beforeEcho) && /8\u202f316|8 316/.test(SK.beforeEcho)
+        && SK.s2Stmt && SK.s2Stmt.stockMode === "allStock", SK.beforeEcho.slice(0, 200));
+    check("S echo guard: a stale update keeps the stock mode, the echo confirms it; no ↺ while it matches",
+        SK.stale === SK.beforeEcho && SK.afterEcho === SK.beforeEcho && !SK.reset);
+    check("S the mode changed by hand: the months are summed again and ↺ appears; ↺ writes allStock again",
+        SK.flowBody !== SK.afterEcho && SK.resetAfter && SK.reapplyStmt && SK.reapplyStmt.stockMode === "allStock" && SK.reapplied === SK.afterEcho,
+        JSON.stringify([SK.resetAfter, SK.reapplyStmt]));
+    check("S a P&L template takes 'every row a stock' back (auto)", SK.t03Stmt && SK.t03Stmt.stockMode === "auto", JSON.stringify(SK.t03Stmt));
+    check("S with stock tokens in the data T05A writes auto (the tokens decide)", SK.tokStmt && SK.tokStmt.stockMode === "auto", JSON.stringify(SK.tokStmt));
+    check("S T05B on the cash flow: auto, month | _September blocks, opening 600 → closing 498 in the YTD block",
+        SK.cfStmt && SK.cfStmt.stockMode === "auto" && /_September/.test(SK.cfHead) && /600/.test(SK.cfBody) && /498/.test(SK.cfBody),
+        JSON.stringify([SK.cfStmt, SK.cfHead.slice(0, 80)]));
+
+    check("SK edit mode names a mixed formula without a token (Endbestand → Bestand), readers and token rows never",
+        /Endbestand Zahlungsmittel → Bestand/.test(SK.note) && /stock/.test(SK.note) && !SK.readerNote && !SK.tokenNote, SK.note);
+    check("SK Sankey: opening and closing balance are neutral anchors; the opening's band into the closing balance is gray, outflows stay red",
+        SK.sk.anf === "gray" && SK.sk.end === "gray" && SK.sk.anfBands.some(b => b[1] === SK.sk.endIdx && b[2] === "gray")
+        && SK.sk.outFam.length > 0 && SK.sk.outFam.every(f => f === "bad"), JSON.stringify(SK.sk));
 
     await browser.close();
     for (const n of notes) { console.log(n); }

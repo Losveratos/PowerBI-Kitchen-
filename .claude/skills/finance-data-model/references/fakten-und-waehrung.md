@@ -295,19 +295,26 @@ als der berichtete Wert zeigt.
 | Art | Beispiel | Additiv über Monate? | Modell |
 |---|---|---|---|
 | Fluss | Ausstoß hl, Absatz Stk | ja | in DimKonto mit `Einheit = hl` als eigene Wurzel (Demo `9000`, `9010`) |
-| Bestand | FTE, Headcount, Lagerbestand hl | **nein** (Ultimo oder Ø) | eigene Faktentabelle, Measure mit `LASTNONBLANK`/`AVERAGEX`, nicht ans P&L-Visual |
+| Bestand | FTE, Headcount, Lagerbestand hl, Bilanzposten, Kasse | **nein** (Ultimo) | P&L-Visual ab 1.7: Monatsstände in den Fakten + RowType-Token `stock` (`konten-dimension.md` §4a); Ø-Bestände weiter als eigenes Measure (`AVERAGEX`) |
 
 - **P&L-Visual:** kennt keine Zeilenformate; alle Zeilen teilen Skala, Einheit
-  und k/m-Skalierung, YTD wird summiert. Mengenzeilen per Visualfilter
-  `DimKonto[Einheit] = "EUR"` ausblenden. Bestandsgrößen dort nie binden.
+  und k/m-Skalierung. Flüsse summiert es im YTD, **Bestände (ab 1.7, Token
+  `stock`/`opening` oder `statement.stockMode = allStock`) zeigen den Stand**:
+  YTD = Stand der letzten Periode, FY = FC-Endstand, Δ zum selben Stichtag.
+  Bestände **ultimo je Monat** liefern (nie kumuliert, nie als Bewegung).
+  Mengenzeilen per Visualfilter `DimKonto[Einheit] = "EUR"` ausblenden;
+  Geld-Bestände (Bilanz, Kasse) und Headcount gehören in eigene Visuals oder
+  eigene Wurzeln, nicht in eine Geld-Summe mit Flüssen.
 - **ChartKitchen:** Tabelle (`orientation = table`) mit
   `chart.rowFormats = "Ausstoß gesamt (hl)=#,0;davon Export (hl)=#,0"` —
   formatierte Zeilen fliegen aus den gemeinsamen €-Skalen. Kennzahlen wie
   Erlös je hl als eigenes DAX-Measure (`DIVIDE ( [Umsatz AC], [Ausstoß AC] )`),
   nicht als KPI-Zeile im P&L-Visual (die zeigt KPI immer in %).
-- **Offen (Backlog, `ibcsInspiredChartDeck/BACKLOG.md`):** „Σ-Aggregation
-  Summe / Ø / letzter Wert" je Zeile — in beiden Visuals noch nicht gebaut.
-  Bis dahin Bestandsgrößen im Modell aggregieren und separat zeigen.
+- **P&L-Visual 1.7:** „letzter Wert" je Zeile ist gebaut (Token `stock`,
+  Anfangsbestand `opening`), Templates T05A (Bilanz) und T05B (Cashflow-Brücke).
+  **Offen (Backlog, `ibcsInspiredChartDeck/BACKLOG.md`):** Ø-Aggregation je Zeile
+  und dieselbe Logik in ChartKitchen — dort Bestandsgrößen weiter im Modell
+  aggregieren und separat zeigen.
 
 In Variante B tragen Mengenzeilen keine Währung (`Currency` leer); das
 Umrechnungs-Measure lässt sie unverändert.

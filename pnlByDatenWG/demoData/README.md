@@ -10,6 +10,24 @@ Semikolon-getrennt, UTF-8 — direkt in Power BI Desktop importierbar
 | `guv-demo-levels.csv` | **Level-Spalten** (L1–L3), flach — eine Datei |
 | `star-dim-konten.csv` + `star-fact-guv.csv` | **Echtes Sternschema**: Dimension + Faktentabelle (Monatsebene), Beziehung über `AccountID` |
 
+**1.7 · Bestand vs. Fluss** (Daten-WG Brauerei 2026, Werte in EUR, AC bis
+September, PY/PL/FC Januar–Dezember, FC als Version 9+3; erzeugt von
+`test/gen-stock.js`, dieselben Zahlen wie die Test-Fixtures):
+
+| Datei | Inhalt |
+|---|---|
+| `bilanz-dim-konten.csv` + `bilanz-fact.csv` | **Bilanz** mit 8 Positionen (Aktiva: Sachanlagen, Vorräte, Forderungen LuL, Kasse und Bank · Passiva: Eigenkapital, Rückstellungen, Verbindlichkeiten Kreditinstitute, Verbindlichkeiten LuL), Monatsstände, RowType `Account stock`, Passiva als Haben-Salden negativ mit `SignConvention -1` |
+| `cashflow-dim-konten.csv` + `cashflow-fact.csv` | **Cashflow-Brücke**: `Anfangsbestand Zahlungsmittel` (`Account opening`) → operativ · investiv · finanziell (Flüsse, Auszahlungen negativ) → `Endbestand Zahlungsmittel` (`Formula stock`, Leer-Faktzeile). Der Endbestand ist jeden Monat die Kasse der Bilanz |
+
+Spaltenvertrag wie der Skill `finance-data-model` (DimKonto + breite
+FaktFinanz mit `PL_FY`/`FC_FY` — für Bestände der Stand am Jahresende, für den
+Anfangsbestand der Stand am Jahresanfang). Prüfen:
+`python3 -I .claude/skills/finance-data-model/scripts/validate_model.py pnlByDatenWG/demoData/bilanz-dim-konten.csv pnlByDatenWG/demoData/bilanz-fact.csv`
+(analog `cashflow-*`) — erwartet: 0 ✗ · 0 ⚠, Bilanz ausgeglichen, YTD-Stichprobe
+September: Aktiva = Passiva = 8 316 TEUR, Kasse/Endbestand 498 TEUR. Im Visual:
+Template **T05A** bzw. **T05B** wählen (ohne RowType-Spalte setzt T05A
+`statement.stockMode = allStock`).
+
 ## Sternschema-Setup (star-dim + star-fact)
 
 1. Beide CSVs importieren (Text/CSV, Semikolon).

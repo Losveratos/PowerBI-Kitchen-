@@ -9,7 +9,15 @@
  * fill of the FC minuend, the axis notation (PY gray / PL double) and the
  * "(↓)" sort indicator with the sorted order; phase 3 (m11..m16): the
  * integrated Δ waterfall T04B–E (cascade, connectors, notation per minuend ×
- * subtrahend) and the value cascades of 12A.
+ * subtrahend) and the value cascades of 12A. 1.7 (m39..m42, p28, p29): stocks —
+ * the balance sheet (T05A: the stand at the reporting date, "=" blocks with the
+ * double rule, statement.stockMode persisted), the cash-flow bridge (T05B:
+ * opening and closing balance anchor at the zero line, the flows float), the
+ * FY outlook of stocks (FC end stand, hatched), the row waterfall and the
+ * classic table over stocks. 1.7 ⚡ "only exceptions" (m43..m46): the rest
+ * greys in T01A while the red thresholds stay, mode "hide" in T04A takes out
+ * exactly the counted detail rows, over the T04B cascade it greys instead,
+ * high contrast draws the rest dashed.
  *
  * Run: node test/mega-shot.js  (after node test/build.js; npm run test:mega)
  */
@@ -97,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -610,6 +618,177 @@ function readMega(id) {
         && numsOf("m15").decimals === 0 && numsOf("m15").pctDecimals === 1);
     check("single switches (m16) persist nothing", !persist.some(x => x.id === "m16"));
     check("synced template (m9) persists nothing", !persist.some(x => x.id === "m9"));
+
+    // ==== 1.7 stock vs flow (Bestand vs. Fluss) ==================================
+    if (S.m39 && S.m40 && S.m41 && S.m42) {
+        // m39 T05A: one titled block (the reporting date), PY · AC · ΔPY (ΔPY% paired), the stands of September
+        check("m39 T05A heads: September · PY AC ΔPY", JSON.stringify(heads("m39")) === JSON.stringify(["September", "PY", "AC", "ΔPY"]), heads("m39").join("|"));
+        check("m39 Kasse und Bank: AC 498 (the September stand, not the sum of nine months), PY 440, ΔPY +58 / +13,2%",
+            has("m39", "498") && has("m39", "440") && has("m39", "+58") && has("m39", "+13,2%") && !has("m39", "4 590"));
+        check("m39 Aktiva = Passiva = 8 316 (bold), both \"=\" rows", cell("m39", "8 316") && cell("m39", "8 316").bold
+            && S.m39.body.filter(x => x.t === nb("8 316")).length === 2 && S.m39.body.filter(x => x.t === "=").length === 2,
+            JSON.stringify(S.m39.body.filter(x => x.t === "=").length));
+        check("m39 liabilities: −690 less bank debt (favourable — VarianceInvert), Eigenkapital +920",
+            has("m39", "-690") && has("m39", "+920"));
+        // the double rule: two ink lines 3 px apart under each balance-sheet total
+        const dbl = await page.evaluate(() => {
+            const body = document.querySelector('#m39 svg[data-pnl="mega-body"]');
+            const rows = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => ({ id: r.getAttribute("data-pnl-row"),
+                y: +r.getAttribute("y"), h: +r.getAttribute("height") }));
+            const lines = [...body.querySelectorAll("g[shape-rendering] > line")].filter(l => l.getAttribute("stroke") === "#404040"
+                && l.getAttribute("y1") === l.getAttribute("y2")).map(l => +l.getAttribute("y1"));
+            const at = (id) => { const r = rows.find(x => x.id === id); if (!r) { return null; }
+                const b = r.y + r.h; return [lines.filter(y => Math.abs(y - (b - 0.5)) < 0.01).length, lines.filter(y => Math.abs(y - (b - 3.5)) < 0.01).length]; };
+            return { aktiva: at("L:Aktiva"), passiva: at("L:Passiva"), kasse: at("A_KASSE") };
+        });
+        check("m39 double rule under Aktiva and Passiva (two ink lines, 3 px apart), none under a position",
+            dbl.aktiva && dbl.aktiva[0] >= 3 && dbl.aktiva[1] >= 3 && dbl.passiva && dbl.passiva[1] >= 3 && dbl.kasse && dbl.kasse[1] === 0,
+            JSON.stringify(dbl));
+        const p39 = (persist.find(x => x.id === "m39") || { p: { merge: [] } }).p.merge;
+        const st39 = (p39.find(o => o.objectName === "statement") || {}).properties || {};
+        const co39 = (p39.find(o => o.objectName === "columns") || {}).properties || {};
+        check("m39 T05A persisted statement.stockMode = allStock in the same merge as the switches (no token in the data)",
+            st39.stockMode === "allStock" && co39.templateApplied === "T05A" && co39.dPyPct === true && co39.showPL === false, JSON.stringify(st39));
+        // m41: the tokens decide (auto), PL by hand: PY PL AC ΔPY ΔPL
+        check("m41 tokens + PL: heads September · PY PL AC ΔPY ΔPL, the same stands (498, 8 316)",
+            JSON.stringify(heads("m41")) === JSON.stringify(["September", "PY", "PL", "AC", "ΔPY", "ΔPL"]) && has("m41", "498") && has("m41", "8 316"),
+            heads("m41").join("|"));
+        check("m41 Kasse ΔPL −37 against the plan stand of September (535)", has("m41", "535") && has("m41", "-37"));
+        // m40 T05B: month | _September, PY + AC cascades, ΔPY · ΔPY%
+        check("m40 T05B heads: September | _September, PY AC ΔPY twice",
+            JSON.stringify(heads("m40")) === JSON.stringify(["September", "_September", "PY", "AC", "ΔPY", "PY", "AC", "ΔPY"]), heads("m40").join("|"));
+        check("m40 YTD bridge: opening 600 → … → closing 498, the month: opening 433 → closing 498", has("m40", "+249") && has("m40", "+58")
+            && S.m40.charts.some(c => c.labels.some(l => l.t === "600")) && S.m40.charts.some(c => c.labels.some(l => l.t === "433"))
+            && S.m40.charts.filter(c => c.labels.some(l => l.t === "498")).length === 2);
+        // the anchors: opening and closing stand start at the axis of the cascade, the first flow starts at the opening's end
+        const anchor = (id, ci) => {
+            const ax = S[id].charts[ci].axes.length ? S[id].charts[ci].axes[0].x : null;
+            const o = rowBar(id, ci, "CF_ANF"); const e = rowBar(id, ci, "CF_END"); const j = rowBar(id, ci, "CF_JUE");
+            return { ax, o, e, j };
+        };
+        const a40 = anchor("m40", 3); // the AC cascade of the _September block
+        check("m40 opening and closing balance anchor at the zero line, net income floats from the opening's end",
+            a40.o && a40.e && a40.j && Math.abs(a40.o.x - a40.ax) < 1 && Math.abs(a40.e.x - a40.ax) < 1 && Math.abs(a40.j.x - (a40.o.x + a40.o.w)) < 1,
+            JSON.stringify(a40));
+        check("m40 \"=\" on the opening and the closing balance, double rule only under the closing balance",
+            S.m40.body.filter(x => x.t === "=").length === 2);
+        // m42: YTD | FY outlook without FY measures — stocks at their FC end stand (hatched), flows AC + FC rest
+        check("m42 blocks _September | FY 2026", heads("m42").includes("_September") && heads("m42").includes("FY 2026"), heads("m42").join("|"));
+        const fyCasc = S.m42.charts[S.m42.charts.length - 1 - 0];
+        check("m42 FY: closing 645 (FC December), opening 600, PY closing 600 (December of the previous year)",
+            S.m42.charts.some(c => c.labels.some(l => l.t === "645")) && S.m42.charts.some(c => c.labels.some(l => l.t === "600")) && has("m42", "+45"));
+        const hatchedEnd = (() => { for (const c of S.m42.charts) { const b = rowBar("m42", S.m42.charts.indexOf(c), "CF_END");
+            if (b && /^url\(/.test(b.fill || "")) { return true; } } return false; })();
+        check("m42 the closing balance in the AC&FC column is one hatched bar (no YTD share in a stock)", hatchedEnd);
+        void fyCasc;
+    }
+    // p28 / p29: the row waterfall and the classic table over stocks
+    const cls = await page.evaluate(() => {
+        const out = {};
+        const st = document.getElementById("p28");
+        const rows = (id) => [...document.getElementById(id).querySelectorAll("[data-pnl-row]")];
+        const geo = (row) => [...row.querySelectorAll("svg")].map(svg => {
+            const r = svg.querySelector("rect"); const lines = [...svg.querySelectorAll("line")];
+            const axis = lines[lines.length - 1];
+            return r && axis ? { x: +r.getAttribute("x"), w: +r.getAttribute("width"), ax: +axis.getAttribute("x1") } : null;
+        }).filter(Boolean).slice(0, 2); // the PL and AC cascade cells (the Δ bar and pin follow)
+        const by = (id, rid) => rows(id).find(r => r.getAttribute("data-pnl-row") === rid);
+        out.anf = geo(by("p28", "CF_ANF")); out.end = geo(by("p28", "CF_END")); out.op = geo(by("p28", "L:Operativer Cashflow"));
+        out.p28text = st.innerText;
+        const kasse = by("p29", "A_KASSE"); const akt = by("p29", "L:Aktiva");
+        out.kasse = kasse ? kasse.innerText : "";
+        out.aktDbl = akt ? [...akt.children].some(c => /double/.test(c.style.borderBottom)) : false;
+        out.kasseDbl = kasse ? [...kasse.children].some(c => /double/.test(c.style.borderBottom)) : true;
+        out.p29tip = [...document.querySelectorAll("#p29 button")].map(b => b.title).filter(t => /stand|balance/i.test(t));
+        return out;
+    });
+    check("p28 row waterfall: opening and closing balance anchor at the axis (PL and AC), operating cash flow floats",
+        cls.anf.length >= 2 && cls.end.length >= 2 && cls.anf.every(g => Math.abs(g.x - g.ax) < 0.6) && cls.end.every(g => Math.abs(g.x - g.ax) < 0.6)
+        && cls.op.length >= 2 && cls.op.every(g => Math.abs(g.x - g.ax) > 2), JSON.stringify([cls.anf, cls.end, cls.op]));
+    check("p28 the PL bridge closes in the YTD window: 600 → 1 331 → −636 → −760 → 535",
+        /600,0/.test(cls.p28text) && /1\u202f331,0|1 331,0/.test(cls.p28text) && /535,0/.test(cls.p28text), cls.p28text.slice(0, 200));
+    check("p29 classic table over a balance sheet: Kasse AC 498.0 / PY 440.0 (the September stands)",
+        /498\.0/.test(cls.kasse) && /440\.0/.test(cls.kasse), cls.kasse);
+    check("p29 double rule under the top-level stock total only", cls.aktDbl && !cls.kasseDbl);
+    check("p29 the period buttons explain the stock rule (tooltips)", cls.p29tip.length >= 2, JSON.stringify(cls.p29tip));
+
+    // ---- 1.7 ⚡ "only exceptions" (m43..m46) ----------------------------------------
+    const exc = await page.evaluate(() => {
+        const note = (id) => (document.querySelector(`#${id} [data-pnl="exc-note"]`) || {}).textContent || "";
+        const texts = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] text`)].map(t => ({
+            t: t.textContent, x: +t.getAttribute("x"), y: +t.getAttribute("y"), fill: t.getAttribute("fill") }));
+        const ids = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] rect[data-pnl-part="cells"]`)].map(r => r.getAttribute("data-pnl-row"));
+        const rectFills = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] g[data-pnl="mega-chart"] rect`)].map(r => r.getAttribute("fill"));
+        const dashed = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] g[data-pnl="mega-chart"] rect[stroke-dasharray="2,2"]`)].length;
+        // closure of a cascade column: a total ("span") reaches exactly as far as its own value
+        const close = (id) => {
+            const L = window.__visuals[id].megaLast; let n = 0; let bad = 0;
+            for (const c of L.cols.filter(c => c.type === "wf" && c.casc)) {
+                // the value the cascade steps with: the row's Δ in its effect on the result
+                const val = new Map();
+                for (const r of L.rows) {
+                    const D = r.id ? L.input.blocks[c.block].delta(r, L.input.t.min, c.ref) : null;
+                    if (D && !D.pp) { val.set(r.id, D.d * (r.eff ?? 1)); }
+                }
+                for (const [rid, seg] of c.casc) {
+                    if (seg.type !== "span" || !val.has(rid)) { continue; }
+                    n++;
+                    if (Math.abs((seg.e - seg.s) - val.get(rid)) > 1e-6 * (1 + Math.abs(val.get(rid)))) { bad++; }
+                }
+                // every "=" row lands where the run before it ended
+                let prev = null;
+                for (const r of L.rows) {
+                    const seg = r.id ? c.casc.get(r.id) : null;
+                    if (!seg) { continue; }
+                    if (seg.type === "anchor" && prev) { n++; if (Math.abs(prev.e - seg.e) > 1e-6 * (1 + Math.abs(seg.e))) { bad++; } }
+                    prev = seg;
+                }
+            }
+            return { n, bad };
+        };
+        return { n43: note("m43"), n44: note("m44"), n45: note("m45"), n46: note("m46"),
+            t3: texts("m3"), t43: texts("m43"), ids10: ids("m10"), ids44: ids("m44"), ids11: ids("m11"), ids45: ids("m45"),
+            f11: rectFills("m11"), f45: rectFills("m45"), d46: dashed("m46"), d5: dashed("m5"),
+            lbl45: [...document.querySelectorAll('#m45 svg[data-pnl="mega-body"] text')].map(t => t.textContent).filter(t => /^other \(/.test(t)),
+            close11: close("m11"), close45: close("m45") };
+    });
+    {
+        const SOFT = "#8A8886";
+        const same = exc.t3.length === exc.t43.length && exc.t3.every((t, i) => t.t === exc.t43[i].t && t.x === exc.t43[i].x);
+        const changed = exc.t3.map((t, i) => [t, exc.t43[i]]).filter(([a, b]) => same && a.fill !== b.fill);
+        const isDelta = (s) => /^[+\u2212-]|%$/.test(s.trim());
+        const red = (arr) => arr.filter(t => t.fill && /^#(E02B1D|FF2600)$/i.test(t.fill)).length;
+        const rowOf = (label) => { const l = exc.t43.find(t => t.t === label); return l ? exc.t43.filter(t => Math.abs(t.y - l.y) < 0.5) : []; };
+        const softIn = (label) => rowOf(label).filter(t => t.fill === SOFT && isDelta(t.t)).length;
+        check("m43 ⚡ T01A: the same table as m3 — only Δ numbers of non-exceptions change, to the soft ink",
+            same && changed.length > 10 && changed.every(([a, b]) => b.fill === SOFT && isDelta(a.t)), String(changed.length));
+        check("m43 ⚡ the explicit “Δ in red if” rule still wins (red numbers unchanged)", red(exc.t3) > 0 && red(exc.t3) === red(exc.t43),
+            `${red(exc.t3)} / ${red(exc.t43)}`);
+        check("m43 ⚡ row rule: Other Europe (no block ≥ 10 %) grey; Austria (ΔPY +11.8 % in the month) keeps its ink",
+            softIn("Other Europe") >= 4 && softIn("Austria") === 0, `${softIn("Other Europe")} / ${softIn("Austria")}`);
+        check("m43 ⚡ footer note names the rule and the references of the view",
+            /Colour only for exceptions: \|Δ%\| ≥ 10 % vs PY · PL$/.test(exc.n43), exc.n43);
+        const gone = exc.ids10.filter(i => !exc.ids44.includes(i));
+        const hidN = Number((exc.n44.match(/(\d+) rows below the threshold hidden/) || [])[1] || 0);
+        check("m44 ⚡ hide in T04A: detail rows leave the table, the note counts exactly them",
+            gone.length > 0 && exc.ids44.every(i => exc.ids10.includes(i)) && hidN === gone.length, `${gone.join(",")} · ${exc.n44}`);
+        check("m44 ⚡ hide: totals (L:…) and the result row (last row) always stay",
+            exc.ids10.filter(i => i.startsWith("L:")).every(i => exc.ids44.includes(i))
+            && exc.ids44[exc.ids44.length - 1] === exc.ids10[exc.ids10.length - 1], JSON.stringify(exc.ids44));
+        // polish: hide over a cascade folds the quiet steps of a section into one "other (n)" step;
+        // a total without an exception below it keeps no children — the cascade stays closed
+        const rest45 = exc.ids45.filter(i => i.startsWith("__exc_rest__"));
+        const nSum = Number((exc.n45.match(/(\d+) steps below the threshold combined/) || [])[1] || 0);
+        check("m45 ⚡ hide over the integrated Δ waterfall (T04B): quiet steps leave, “other (n)” rows take their sum, the note counts them",
+            rest45.length > 0 && exc.ids45.length < exc.ids11.length && nSum > 0 && exc.lbl45.every(l => /^other \(\d+\)$/.test(l))
+            && exc.lbl45.length === rest45.length && exc.f45.includes(SOFT) && !exc.f11.includes(SOFT), `${rest45.length} · ${exc.n45}`);
+        check("m45 ⚡ every kept row of m11 stays, in the same order",
+            JSON.stringify(exc.ids45.filter(i => !i.startsWith("__exc_rest__"))) === JSON.stringify(exc.ids11.filter(i => exc.ids45.includes(i))));
+        check("m45 ⚡ the Δ waterfall stays closed: every total spans exactly its own Δ (m11 and m45)",
+            exc.close11.n >= 3 && exc.close11.bad === 0 && exc.close45.n >= 3 && exc.close45.bad === 0, JSON.stringify([exc.close11, exc.close45]));
+        check("m46 ⚡ high contrast: non-exceptions are dashed outlines (no grey, no pattern); without ⚡ nothing is dashed",
+            exc.d46 > 4 && exc.d5 === 0 && /Colour only/.test(exc.n46), `${exc.d46} / ${exc.d5}`);
+    }
 
     await browser.close();
     for (const n of notes) { console.log(n); }

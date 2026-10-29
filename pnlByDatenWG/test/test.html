@@ -75,10 +75,21 @@
 <div class="case"><h4>p25 · 1.3 emptyState.mode = demo (explizit) · pixelgleich zu p12 (Smart Start unverändert) · de-DE</h4><div class="stage" id="p25" style="width:1200px;height:700px"></div></div>
 <div class="case"><h4>p26 · 1.3 Start-Hub als Overlay über einer gebundenen GuV · Bearbeitungsmodus („☰ Start“ in der Toolbar) · de-DE</h4><div class="stage" id="p26" style="width:1300px;height:700px"></div></div>
 <div class="case"><h4>p27 · 1.3 Toolbar · „↺ Zum Template zurück“ (T03A, ein Schalter abgewählt) · Bearbeitungsmodus · de-DE</h4><div class="stage" id="p27" style="width:1400px;height:640px"></div></div>
+<div class="case"><h4>m39 · 1.7 · T05A Bilanz ohne Token (Template setzt statement.stockMode = allStock) · Stand zum Stichtag September · Aktiva/Passiva mit Doppelstrich · de-DE</h4><div class="stage" id="m39" style="width:1320px;height:640px"></div></div>
+<div class="case"><h4>m40 · 1.7 · T05B Cashflow-Brücke · Anfangsbestand (opening) → Flüsse → Endbestand (Formel stock) · PY- + AC-Kaskaden · Monat | _YTD · de-DE</h4><div class="stage" id="m40" style="width:1500px;height:640px"></div></div>
+<div class="case"><h4>m41 · 1.7 · T05A mit Token „Account stock" (auto) + optionale PL-Spalte und ΔPL · en-US</h4><div class="stage" id="m41" style="width:1320px;height:640px"></div></div>
+<div class="case"><h4>m42 · 1.7 · Cashflow YTD | FY-Ausblick ohne FY-Measures (Endstand aus dem FC-Dezember, Flüsse AC + FC-Rest) · de-DE</h4><div class="stage" id="m42" style="width:1500px;height:640px"></div></div>
+<div class="case"><h4>p28 · 1.7 · Zeilen-Waterfall Cashflow · Anfangs- und Endbestand ankern, Flüsse floaten · PL-Brücke im YTD-Fenster · de-DE</h4><div class="stage" id="p28" style="width:1250px;height:520px"></div></div>
+<div class="case"><h4>p29 · 1.7 · klassische Tabelle Bilanz (stockMode allStock) · YTD = Stand September, Doppelstrich unter Aktiva/Passiva · en-US</h4><div class="stage" id="p29" style="width:1300px;height:560px"></div></div>
+<div class="case"><h4>m43 · 1.7 · ⚡ Nur Ausnahmen · T01A Regionen · |Δ%| ≥ 10 % gegen PY · PL in Monat oder _YTD · Rest grau, rote Schwellen bleiben · Fußzeilen-Hinweis</h4><div class="stage" id="m43" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m44 · 1.7 · ⚡ ausblenden · T04A GuV · Detailzeilen unter 5 % verschwinden, Summen und Ergebniszeilen bleiben (grau, wenn selbst keine Ausnahme) · Hinweis zählt</h4><div class="stage" id="m44" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m45 · 1.7 · ⚡ ausblenden im T04B (integrierter Δ-Wasserfall) · ruhige Schritte je Abschnitt zu „other (n)“ zusammengefasst, Summen ohne Ausnahme darunter ohne Kinder — die Kaskade bleibt geschlossen</h4><div class="stage" id="m45" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
 <script src="demo-data.js"></script>
 <script src="mega-data.js"></script>
+<script src="stock-data.js"></script>
 <script>
 const Visual = PnlByDatenWG.Visual;
 
@@ -472,6 +483,43 @@ runRows("m37", xs(MEGA_DEMO.statement12G(), 1e6), { titleBlock: { ...G12, measur
 // m38 — T02B: month | YTD sorted by the minuend, one Δ scale (1.5 drew "ΔPL ×2" on the month)
 runRows("m38", MEGA_DEMO.regions({ single: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
   columns: { template: "T02B" } });
+
+// ---- 1.7 stock vs flow (Bestand vs. Fluss): test/stock-data.js (test/gen-stock.js) ----
+const BS = { unitLine: "Daten-WG Brauerei", measureLine: "Bilanz in kEUR", periodLine: "30.09.2026 · AC, PY" };
+const CF = { unitLine: "Daten-WG Brauerei", measureLine: "Kapitalflussrechnung in kEUR", periodLine: "2026 · AC, PY" };
+// m39 — T05A on a balance sheet without a token: the template writes statement.stockMode = allStock
+runRows("m39", STOCK_DEMO.rows("bilanz"), { titleBlock: BS, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T05A" } }, "de-DE");
+// m40 — T05B: the cash-flow bridge (opening → flows → closing), month | _YTD
+runRows("m40", STOCK_DEMO.rows("cashflow"), { titleBlock: CF, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T05B" } }, "de-DE");
+// m41 — T05A over tokens (auto), PL switched on by hand: the optional plan column of the balance sheet
+runRows("m41", STOCK_DEMO.rows("bilanz", { rowType: () => "Account stock" }), { titleBlock: { ...BS, measureLine: "Balance sheet in kEUR" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T05A", templateApplied: "T05A", showPY: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+    showPL: true, dPlAbs: true }, numbers: { decimals: 0, pctDecimals: 1 } }, "en-US");
+// m42 — the cash flow with YTD | FY outlook and no FY measure bound: stocks at their FC end stand
+runRows("m42", STOCK_DEMO.rows("cashflow"), { titleBlock: CF, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T05B", templateApplied: "T05B", showPY: true, showMinuend: true, valueCascade: true, dPyAbs: true, dPyPct: true,
+    secondBlock: true, leftBlockKind: "ytd", blockKind: "fy" }, numbers: { decimals: 0, pctDecimals: 1 } }, "de-DE");
+// p28 — the row waterfall of the cash flow: opening and closing balance anchor, the flows float
+runRows("p28", STOCK_DEMO.rows("cashflow"), { titleBlock: CF, hierarchy: { defaultLevel: 1 },
+  state: { uiState: JSON.stringify({ view: "waterfall", ref: "pl", blocks: { mtd: false, ytd: true, fy: false } }) } }, "de-DE");
+// p29 — the classic table over a balance sheet (every row a stock): YTD = the September stand, double rule under the totals
+runRows("p29", STOCK_DEMO.rows("bilanz"), { titleBlock: { ...BS, measureLine: "Balance sheet in kEUR" }, hierarchy: { defaultLevel: 2 },
+  statement: { stockMode: "allStock" }, columns: { preset: "acpydpy" } }, "en-US");
+
+// m43..m46 — 1.7 "only exceptions" (⚡): grey, hide, hide over a cascade (quiet steps folded into "other (n)"), high contrast
+runRows("m43", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01A" },
+  exceptions: { enabled: true, thresholdPct: 10 } });
+(function () {
+  const [r44, o44] = ST("T04", "T04A");
+  runRows("m44", r44, { ...o44, exceptions: { enabled: true, thresholdPct: 5, mode: "hide" } });
+  const [r45, o45] = ST("T04", "T04B");
+  runRows("m45", r45, { ...o45, exceptions: { enabled: true, thresholdPct: 5, mode: "hide" } });
+})();
+runRows("m46", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02A" },
+  exceptions: { enabled: true, thresholdPct: 10 } }, null, { palette: HC });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

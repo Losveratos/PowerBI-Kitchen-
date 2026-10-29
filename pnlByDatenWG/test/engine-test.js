@@ -231,6 +231,7 @@ const lrow = (levels, over = {}) => ({
     sign: over.sign ?? 1, displayInvert: over.displayInvert ?? false,
     varianceInvert: over.varianceInvert ?? false, values: over.values ?? {},
     month: over.month ?? null, comment: over.comment ?? null, index: over.index ?? 0,
+    ...(over.stock ? { stock: over.stock } : {}), ...(over.flow ? { flow: true } : {}),
 });
 const buildLevels = (levelRows, label = "U") => {
     const lr = E.rowsFromLevels(levelRows);
@@ -775,6 +776,395 @@ test("sumSafeRound: random hierarchies — Σ printed children = printed parent,
             assert.ok(Math.abs(sum - p) < 1e-6 * Math.max(1, Math.abs(p)), `iter ${iter}: ${sum} vs ${p}`);
         }
     }
+});
+
+// ---------------------------------------------------------------------------
+// 1.7 stock vs flow (Bestand vs. Fluss) — fixtures of test/gen-stock.js
+const SD = require("./stock-data.js");
+/** level-input rows of a fixture, the row-type cell read like the visual reads it */
+const stockRows = (set, opt) => SD.rows(set, opt).map(r => {
+    const info = E.parseRowTypeInfo(r.rowType);
+    return { ...r, rowType: info.rowType, stock: info.stock, flow: info.flow };
+});
+const stockModel = (set, opt = {}, build = {}) => {
+    const lr = E.rowsFromLevels(stockRows(set, opt));
+    return E.buildModel(lr.rows, "U", lr.months, build);
+};
+const byName = (m, name) => [...m.byId.values()].find(x => x.row.name === name);
+const fx = (set, id) => SD.data[set].find(r => r.id === id);
+const LI = SD.data.acMonths - 1; // September: the last actuals month
+
+test("1.7 row type cell: stock / opening / flow tokens, several per cell, legacy values unchanged", () => {
+    const I = E.parseRowTypeInfo;
+    assert.deepEqual(I("Subtotal stock"), { rowType: "subtotal", stock: "last", flow: false });
+    assert.deepEqual(I("Account; opening"), { rowType: "account", stock: "first", flow: false });
+    assert.deepEqual(I("Formula | flow"), { rowType: "formula", stock: null, flow: true });
+    assert.deepEqual(I("KPI,Stichtag"), { rowType: "kpi", stock: "last", flow: false });
+    assert.deepEqual(I("sum  bestand"), { rowType: "subtotal", stock: "last", flow: false });
+    for (const a of ["stock", "Bestand", "BALANCE", "stichtag", "point"]) {
+        assert.deepEqual(I(a), { rowType: "account", stock: "last", flow: false }, a);
+    }
+    for (const a of ["opening", "Anfangsbestand", "Eröffnung", "begin"]) { assert.equal(I(a).stock, "first", a); }
+    // the last stock / flow token wins
+    assert.equal(I("stock flow").stock, null);
+    assert.equal(I("flow stock").stock, "last");
+    // every value without a token reads exactly as before 1.7 — whole cell, old rule
+    for (const [v, t] of [["Account", "account"], ["Subtotal", "subtotal"], ["Zwischensumme", "subtotal"], ["sum", "subtotal"],
+        ["Formula", "formula"], ["KPI", "kpi"], ["Marge", "kpi"], ["Separator", "separator"], ["+", "account"], ["−", "account"],
+        ["", "account"], ["net margin", "account"], ["Konto (Summe)", "account"], [null, "account"]]) {
+        assert.deepEqual(I(v), { rowType: t, stock: null, flow: false }, String(v));
+        assert.equal(E.parseRowType(v), t);
+    }
+});
+
+test("1.7 balance sheet (allStock): YTD = the stand of the last period, not the sum of the months", () => {
+    const m = stockModel("bilanz", {}, { stockMode: "allStock" });
+    const cash = byName(m, "Kasse und Bank");
+    const k = fx("bilanz", "A_KASSE").series;
+    assert.equal(cash.stock, "last");
+    // whole bound period: AC = the stand of the last actuals month, PY / PL / FC the December stand
+    assert.equal(cash.computed.ac, k.ac[LI]);
+    assert.equal(cash.computed.py, k.py[11]);
+    assert.equal(cash.computed.pl, k.pl[11]);
+    assert.equal(cash.computed.fc, k.fc[11]);
+    // the YTD window (Jan .. Sep): every scenario at the same Stichtag
+    for (const s of ["ac", "py", "pl", "fc"]) { assert.equal(E.windowValue(m, cash, s, 0, LI), k[s][LI], s); }
+    // a month block reads the month's stand
+    assert.equal(cash.series.ac[3], k.ac[3]);
+    // totals inherit: Aktiva = Σ positions at the Stichtag, = Passiva (credit balances −1 → positive)
+    const assets = byName(m, "Aktiva"); const liab = byName(m, "Passiva");
+    assert.equal(assets.stock, "last"); assert.equal(liab.stock, "last");
+    const sum = ["A_SACH", "A_VORR", "A_FORD", "A_KASSE"].reduce((a, id) => a + fx("bilanz", id).series.ac[LI], 0);
+    assert.equal(E.windowValue(m, assets, "ac", 0, LI), sum);
+    assert.equal(E.windowValue(m, liab, "ac", 0, LI), sum, "the balance sheet balances");
+    assert.equal(assets.computed.py, liab.computed.py);
+    // Δ PY at the same Stichtag: the change of the stand over twelve months
+    const v = E.varianceOf(E.windowValue(m, cash, "ac", 0, LI), E.windowValue(m, cash, "py", 0, LI), false);
+    assert.equal(v.delta, k.ac[LI] - k.py[LI]);
+    // allFlow = the behaviour before 1.7: the months are summed
+    const f = stockModel("bilanz", {}, { stockMode: "allFlow" });
+    const fcash = byName(f, "Kasse und Bank");
+    assert.equal(fcash.stock, null);
+    assert.equal(fcash.computed.ac, k.ac.slice(0, LI + 1).reduce((a, b) => a + b, 0));
+    // auto without a token: flows as well (an untouched report keeps its numbers)
+    assert.equal(byName(stockModel("bilanz"), "Kasse und Bank").computed.ac, fcash.computed.ac);
+});
+
+test("1.7 inheritance: totals and formulas over stocks are stocks, mixed children stay a flow", () => {
+    // tokens on the leaves (auto): the generated level nodes inherit
+    const m = stockModel("bilanz", { rowType: () => "Account stock" });
+    assert.equal(byName(m, "Aktiva").stock, "last");
+    assert.equal(byName(m, "Aktiva").stockMix, false);
+    // one flow among the positions: the total stays a flow, marked mixed
+    const mixed = stockModel("bilanz", { rowType: r => (r.account === "A_VORR" ? "Account" : "Account stock") });
+    const a = byName(mixed, "Aktiva");
+    assert.equal(a.stock, null); assert.equal(a.stockMix, true); assert.equal(a.stockInside, true);
+    // a formula over stocks only inherits, an explicit flow token wins
+    const rows = [
+        lrow(["Kasse"], { account: "K", rowType: "account", stock: "last", month: "2026-01", values: { ac: 100, py: 80 } }),
+        lrow(["Kasse"], { account: "K", rowType: "account", stock: "last", month: "2026-02", values: { ac: 130, py: 90 }, index: 1 }),
+        lrow(["Bank"], { account: "B", rowType: "account", stock: "last", month: "2026-01", values: { ac: 10, py: 5 }, index: 2 }),
+        lrow(["Bank"], { account: "B", rowType: "account", stock: "last", month: "2026-02", values: { ac: 20, py: 5 }, index: 3 }),
+        lrow(["Liquidität"], { account: "L", rowType: "formula", formulaDef: "[Kasse]+[Bank]", index: 4 }),
+        lrow(["Quote"], { account: "Q", rowType: "kpi", formulaDef: "[Bank]/[Liquidität]", index: 5 }),
+        lrow(["Veränderung"], { account: "V", rowType: "formula", formulaDef: "[Kasse]-[Bank]", flow: true, index: 6 }),
+    ];
+    const lr = E.rowsFromLevels(rows);
+    const fm = E.buildModel(lr.rows, "U", lr.months);
+    const liq = fm.byId.get("L");
+    assert.equal(liq.stock, "last");
+    assert.equal(liq.computed.ac, 150, "stands at the last month: 130 + 20");
+    assert.equal(E.windowValue(fm, liq, "ac", 0, 1), 150);
+    assert.equal(E.windowValue(fm, liq, "py", 0, 1), 95);
+    assert.equal(fm.byId.get("Q").stock, "last");
+    assert.ok(Math.abs(E.windowValue(fm, fm.byId.get("Q"), "ac", 0, 1) - 20 / 150) < 1e-12, "ratio of the stands");
+    assert.equal(fm.byId.get("V").stock, null, "explicit flow token");
+    assert.equal(fm.byId.get("V").stockInside, true);
+    // without stocks a model carries no stock flag at all
+    const plain = buildLevels([lrow(["Umsatz"], { values: { ac: 5 } })]);
+    assert.ok([...plain.byId.values()].every(x => x.stock == null && !x.stockInside && !x.stockMix));
+});
+
+test("1.7 cash flow: opening (first) → flows → closing (mixed formula, last); the bridge closes in every window", () => {
+    const m = stockModel("cashflow");
+    const open = byName(m, "Anfangsbestand Zahlungsmittel");
+    const close = byName(m, "Endbestand Zahlungsmittel");
+    const op = byName(m, "Operativer Cashflow"); const inv = byName(m, "Investiver Cashflow"); const fin = byName(m, "Finanzierungs-Cashflow");
+    assert.equal(open.stock, "first");
+    assert.equal(close.stock, "last"); assert.equal(close.stockMix, true, "stock + flows");
+    assert.equal(op.stock, null);
+    const kasse = fx("bilanz", "A_KASSE").series;
+    for (const [lo, hi] of [[0, LI], [LI, LI], [0, 0], [3, 7]]) {
+        for (const s of ["ac", "py", "pl", "fc"]) {
+            const w = (n) => E.windowValue(m, n, s, lo, hi);
+            const bridge = w(open) + w(op) + w(inv) + w(fin);
+            assert.ok(Math.abs(bridge - w(close)) < 1e-6, `${s} ${lo}..${hi}: ${bridge} vs ${w(close)}`);
+            // the closing stand is the cash position of the balance sheet at the end of the window
+            assert.equal(w(close), kasse[s][hi], `${s} closing = balance-sheet cash`);
+        }
+    }
+    // YTD: the opening stand of the window is the January opening, not September's
+    assert.equal(E.windowValue(m, open, "ac", 0, LI), fx("cashflow", "CF_ANF").series.ac[0]);
+    // whole bound period: opening of the year, closing of the last actuals month
+    assert.equal(open.computed.ac, fx("cashflow", "CF_ANF").series.ac[0]);
+    assert.equal(close.computed.ac, kasse.ac[LI]);
+    assert.equal(close.computed.py, kasse.py[11]);
+    // without the token the closing formula is classified by its first operand (a stock) as well
+    const m2 = stockModel("cashflow", { rowType: r => (r.account === "CF_END" ? "Formula" : r.rowType) });
+    assert.equal(byName(m2, "Endbestand Zahlungsmittel").stock, "last");
+    // the change of the year = closing − opening, a flow formula over stocks
+    const rows = stockRows("cashflow").concat([lrow(["Veränderung"], { account: "CF_D", rowType: "formula", flow: true,
+        formulaDef: "[Endbestand Zahlungsmittel]-[Anfangsbestand Zahlungsmittel]", sort: 60, index: 999 })]);
+    const lr = E.rowsFromLevels(rows);
+    const m3 = E.buildModel(lr.rows, "U", lr.months);
+    const d = m3.byId.get("CF_D");
+    assert.equal(d.stock, null);
+    const flows = E.windowValue(m3, byName(m3, "Operativer Cashflow"), "ac", 0, LI)
+        + E.windowValue(m3, byName(m3, "Investiver Cashflow"), "ac", 0, LI)
+        + E.windowValue(m3, byName(m3, "Finanzierungs-Cashflow"), "ac", 0, LI);
+    assert.ok(Math.abs(E.windowValue(m3, d, "ac", 0, LI) - flows) < 1e-6, "YTD change = Σ YTD flows");
+});
+
+test("1.7 FY outlook: the FC end stand for stocks (fallback from the series), the FY measures as delivered", () => {
+    const fb = { fyFromSeries: { fcfy: true, plfy: true } };
+    const m = stockModel("cashflow", { noFy: true }, fb);
+    const close = byName(m, "Endbestand Zahlungsmittel");
+    const open = byName(m, "Anfangsbestand Zahlungsmittel");
+    const kasse = fx("bilanz", "A_KASSE").series;
+    assert.equal(close.computed.fcfy, kasse.fc[11], "closing FY = FC December stand");
+    assert.equal(close.computed.plfy, kasse.pl[11]);
+    assert.equal(open.computed.fcfy, fx("cashflow", "CF_ANF").series.ac[0], "opening FY = January opening");
+    // a flow's outlook: AC through September + FC for the rest of the year
+    const jue = fx("cashflow", "CF_JUE").series;
+    const want = jue.ac.slice(0, LI + 1).reduce((a, b) => a + b, 0) + jue.fc.slice(LI + 1).reduce((a, b) => a + b, 0);
+    assert.equal(byName(m, "Jahresüberschuss").computed.fcfy, want);
+    // balance sheet (allStock): every position at its FC December stand
+    const b = stockModel("bilanz", {}, { stockMode: "allStock", ...fb });
+    assert.equal(byName(b, "Kasse und Bank").computed.fcfy, kasse.fc[11]);
+    assert.equal(byName(b, "Aktiva").computed.fcfy, byName(b, "Passiva").computed.fcfy);
+    // with the FY measures bound their value is the end stand already — used as delivered
+    const d = stockModel("bilanz", { fy: true }, { stockMode: "allStock" });
+    assert.equal(byName(d, "Kasse und Bank").computed.fcfy, fx("bilanz", "A_KASSE").fy.fcfy);
+    assert.equal(byName(d, "Kasse und Bank").computed.plfy, fx("bilanz", "A_KASSE").fy.plfy);
+    // no fallback without the option (flows keep "no FY measure, no FY")
+    assert.equal(byName(stockModel("cashflow"), "Jahresüberschuss").computed.fcfy, null);
+});
+
+test("1.7 sum-safe rounding never adds stands to movements", () => {
+    const m = stockModel("bilanz", {}, { stockMode: "allStock" });
+    const read = (n) => E.windowValue(m, n, "ac", 0, LI);
+    const ss = E.sumSafeRound(m.roots, read, 1e5);
+    // stock positions of one Stichtag still add up to their printed total
+    const a = byName(m, "Aktiva");
+    const kids = a.children.reduce((x, c) => x + ss.get(c.row.id), 0);
+    assert.ok(Math.abs(kids - ss.get(a.row.id)) < 1e-6);
+    // a flow total over a stock and a flow is not distributed (plain rounding of each)
+    const rows = [
+        lrow(["Mix", "Bestand"], { account: "S", stock: "last", month: "2026-01", values: { ac: 1.4 } }),
+        lrow(["Mix", "Bestand"], { account: "S", stock: "last", month: "2026-02", values: { ac: 1.6 }, index: 1 }),
+        lrow(["Mix", "Fluss"], { account: "F", month: "2026-01", values: { ac: 0.8 }, index: 2 }),
+        lrow(["Mix", "Fluss"], { account: "F", month: "2026-02", values: { ac: 0.8 }, index: 3 }),
+    ];
+    const lr = E.rowsFromLevels(rows);
+    const mm = E.buildModel(lr.rows, "U", lr.months);
+    const mix = byName(mm, "Mix");
+    assert.equal(mix.stock, null); assert.equal(mix.stockMix, true);
+    const s2 = E.sumSafeRound(mm.roots, n => E.windowValue(mm, n, "ac", 0, 1), 1);
+    assert.ok(Math.abs(E.windowValue(mm, mix, "ac", 0, 1) - 3.2) < 1e-12, "stand 1.6 + movements 1.6");
+    // distributed, the parts would print 2 + 1 = 3; the mixed total keeps plain rounding: 2 · 2 · 3
+    assert.deepEqual([s2.get("S"), s2.get("F"), s2.get(mix.row.id)], [2, 2, 3], "each rounded on its own");
+    // the same total over two flows IS distributed
+    const flowsOnly = E.rowsFromLevels(rows.map(r => ({ ...r, stock: null })));
+    const mf = E.buildModel(flowsOnly.rows, "U", flowsOnly.months);
+    const s3 = E.sumSafeRound(mf.roots, n => n.computed.ac, 1);
+    assert.equal(s3.get("S") + s3.get("F"), s3.get(byName(mf, "Mix").row.id));
+});
+
+test("1.7 the pharma demo is byte-identical in auto and allFlow (no token, no stock)", () => {
+    global.window = global.window || {};
+    require("./demo-data.js");
+    const rows = window.PNL_DEMO.levelRows;
+    const a = E.rowsFromLevels(rows); const b = E.rowsFromLevels(rows);
+    const ma = E.buildModel(a.rows, "U", a.months);
+    const mb = E.buildModel(b.rows, "U", b.months, { stockMode: "allFlow" });
+    for (const [id, n] of ma.byId) {
+        assert.deepEqual(n.computed, mb.byId.get(id).computed, id);
+        assert.deepEqual(n.series, mb.byId.get(id).series, id);
+        assert.equal(n.stock, null); assert.equal(n.stockInside, false);
+    }
+});
+
+test("1.7 demoData CSVs pass the finance-data-model validator and its sample equals the engine", () => {
+    const { spawnSync } = require("child_process");
+    const py = spawnSync("python3", ["--version"], { encoding: "utf8" });
+    if (py.status !== 0) { console.log("       (python3 not found — validator check skipped)"); return; }
+    const V = path.join(ROOT, "..", ".claude", "skills", "finance-data-model", "scripts", "validate_model.py");
+    const run = (set) => spawnSync("python3", ["-I", V, path.join(ROOT, "demoData", set + "-dim-konten.csv"),
+        path.join(ROOT, "demoData", set + "-fact.csv")], { encoding: "utf8" });
+    const sample = (out, name) => {
+        const line = out.split("\n").find(l => l.trim().startsWith(name));
+        return line ? line.trim().slice(30).trim().split(/\s{2,}/).map(x => Number(x.replace(/\s/g, "").replace(/[+]/g, ""))) : null;
+    };
+    const kasse = fx("bilanz", "A_KASSE").series;
+    const b = run("bilanz");
+    assert.equal(b.status, 0, b.stdout + b.stderr);
+    assert.ok(/Ergebnis: 0 ✗ · 0 ⚠/.test(b.stdout), b.stdout.split("\n").slice(-3).join("\n"));
+    assert.ok(/Bilanz ausgeglichen/.test(b.stdout));
+    const m = stockModel("bilanz", { rowType: () => "Account stock" });
+    const akt = sample(b.stdout, "Aktiva");
+    assert.equal(akt[0] * 1000, E.windowValue(m, byName(m, "Aktiva"), "ac", 0, LI), "validator AC = engine YTD stand");
+    assert.equal(akt[1] * 1000, E.windowValue(m, byName(m, "Aktiva"), "py", 0, LI));
+    const c = run("cashflow");
+    assert.equal(c.status, 0, c.stdout + c.stderr);
+    assert.ok(/Ergebnis: 0 ✗ · 0 ⚠/.test(c.stdout), c.stdout.split("\n").slice(-3).join("\n"));
+    const end = sample(c.stdout, "= Endbestand");
+    assert.equal(end[0] * 1000, kasse.ac[LI], "closing AC = the balance-sheet cash of September");
+    assert.equal(end[6] * 1000, kasse.fc[11], "closing AC&FC FY = FC December");
+    const anf = sample(c.stdout, "Anfangsbestand");
+    assert.equal(anf[0] * 1000, fx("cashflow", "CF_ANF").series.ac[0], "opening AC = January opening");
+});
+
+test("1.7 ⚡ isExceptionVariance: |Δ%| or |Δ| (one is enough), direction in display orientation, margins in pp, ref 0", () => {
+    const X = E.isExceptionVariance;
+    const rev = row("rev", null);
+    const cost = row("cost", null, { sign: -1, displayInvert: true });
+    const kpi = row("m", null, { rowType: "kpi" });
+    const V = (a, r, inv = false) => E.varianceOf(a, r, inv);
+    const both = { pct: 5, abs: 0, dir: "both" };
+    assert.equal(X(rev, V(105, 100), both), true, "+5 % reaches 5 %");
+    assert.equal(X(rev, V(104.9, 100), both), false, "+4.9 % stays below");
+    assert.equal(X(rev, V(95, 100), both), true, "−5 % counts too (|Δ%|)");
+    assert.equal(X(rev, V(100, 100), both), false, "no Δ, no exception");
+    assert.equal(X(rev, V(null, 100), both), false, "missing side");
+    // absolute threshold: either one is enough
+    assert.equal(X(rev, V(1030, 1000), { pct: 5, abs: 25, dir: "both" }), true, "+3 % but |Δ| 30 ≥ 25");
+    assert.equal(X(rev, V(1030, 1000), { pct: 5, abs: 50, dir: "both" }), false, "neither");
+    assert.equal(X(rev, V(1030, 1000), { pct: 0, abs: 25, dir: "both" }), true, "absolute only");
+    // direction = sign of Δ as shown: a cost shown positive that grew is "above" (and unfavourable)
+    const grew = V(-120, -100);                       // calculation sign: costs negative, grew by 20
+    assert.equal(grew.good, false, "the rating stays the engine's");
+    assert.equal(X(cost, grew, { pct: 5, abs: 0, dir: "up" }), true, "cost grew → above the reference");
+    assert.equal(X(cost, grew, { pct: 5, abs: 0, dir: "down" }), false);
+    assert.equal(X(rev, V(90, 100), { pct: 5, abs: 0, dir: "up" }), false, "revenue fell → not above");
+    assert.equal(X(rev, V(90, 100), { pct: 5, abs: 0, dir: "down" }), true);
+    // margins: the percent threshold reads percentage points, the absolute one does not apply
+    assert.equal(X(kpi, V(0.12, 0.10), both), false, "+2 pp < 5");
+    assert.equal(X(kpi, V(0.16, 0.10), both), true, "+6 pp ≥ 5");
+    assert.equal(X(kpi, V(0.16, 0.10), { pct: 0, abs: 0.01, dir: "both" }), false, "no absolute threshold on margins");
+    // a reference of 0: an infinite Δ% — an exception once the percent threshold is on
+    assert.equal(X(rev, V(45, 0), both), true);
+    assert.equal(X(rev, V(45, 0), { pct: 0, abs: 50, dir: "both" }), false);
+    // both thresholds 0: every non-zero Δ
+    assert.equal(X(rev, V(100.01, 100), { pct: 0, abs: 0, dir: "both" }), true);
+});
+
+// 1.7 cross-highlight (supportsHighlight): the visual runs the engine twice — the whole
+// from the measure values, the marked part from their highlights. Same rows, same tree,
+// only the numbers differ; formulas, subtotals and margins compute on the marked part.
+test("1.7 cross-highlight: second engine run on the marked part", () => {
+    const months = ["2026-01", "2026-02", "2026-03"];
+    // one data-view row per account and month; the marked part = a region's share
+    const share = { r1: 0.4, r2: 0.25, c1: 0.5, c2: null };   // c2: nothing in the selection
+    const src = [];
+    const mrow = (id, parent, over, m, ac, pl) => src.push({ ...row(id, parent, over), month: m, values: { ac, pl }, index: src.length });
+    for (const m of months) {
+        mrow("r1", "rev", {}, m, 100, 90);
+        mrow("r2", "rev", {}, m, 60, 66);
+        mrow("c1", "cost", {}, m, 50, 45);
+        mrow("c2", "cost", {}, m, 10, 12);
+    }
+    const dims = [
+        row("rev", null, { rowType: "subtotal" }),
+        row("cost", null, { rowType: "subtotal", sign: -1, displayInvert: true }),
+        row("gp", null, { rowType: "formula", formulaDef: "[rev]+[cost]" }),   // cost rolls up negative (sign −1)
+        row("gm", null, { rowType: "kpi", formulaDef: "[gp]/[rev]" }),
+    ];
+    const marked = src.map(r => {
+        const f = share[r.id];
+        return { ...r, values: { ac: f == null ? null : r.values.ac * f, pl: f == null ? null : r.values.pl * f } };
+    });
+    const build = (rows) => {
+        const agg = E.aggregateMonthly(rows);
+        return E.buildModel([...dims.map(d => ({ ...d })), ...agg.rows], "U", agg.months);
+    };
+    const full = build(src); const part = build(marked);
+    assert.ok(E.sameShape(part, full), "same ids, same tree, same months");
+    assert.ok(E.sameShape(full, part), "symmetric");
+    // the whole is untouched by the second run
+    assert.equal(full.byId.get("rev").computed.ac, 480);
+    assert.equal(full.byId.get("gp").computed.ac, 300);
+    // the marked part: subtotals, formulas and margins over the highlights
+    assert.equal(part.byId.get("rev").computed.ac, 3 * (40 + 15));          // 165
+    assert.equal(part.byId.get("cost").computed.ac, -3 * 25);                // −75 — c2 has no marked value
+    assert.equal(part.byId.get("gp").computed.ac, 165 - 75);
+    assert.ok(Math.abs(part.byId.get("gm").computed.ac - 90 / 165) < 1e-12, "the margin of the marked part");
+    assert.deepStrictEqual(part.byId.get("r1").series.ac, [40, 40, 40], "monthly series of the marked part");
+    // a row without any marked value stays in the tree (structure), empty — the zero-row switch hides it
+    assert.ok(part.byId.has("c2"));
+    assert.equal(part.byId.get("c2").computed.ac, null);
+    assert.equal(E.isZeroRow(part.byId.get("c2")), true);
+    // variances on the marked part (what ⚡ and the materiality grey read)
+    const v = E.variance(part.byId.get("rev"), "pl");
+    assert.ok(Math.abs(v.delta - (165 - 3 * (36 + 16.5))) < 1e-9);
+    // a model with another row set is not a twin
+    assert.equal(E.sameShape(build(src.filter(r => r.id !== "c2")), full), false);
+    assert.equal(E.sameShape(E.buildModel([...dims], "U", months.slice(0, 2)), E.buildModel([...dims], "U", months)), false,
+        "different months");
+});
+
+test("1.7 cross-highlight: marked share and the stacked matching of a Sankey port", () => {
+    assert.equal(E.markedShare(25, 100), 0.25);
+    assert.equal(E.markedShare(-25, -100), 0.25, "costs: same direction");
+    assert.equal(E.markedShare(25, -100), 0, "against the sign of the whole");
+    assert.equal(E.markedShare(130, 100), 1, "beyond the whole (non-additive measure) caps at 1");
+    assert.equal(E.markedShare(null, 100), 0);
+    assert.equal(E.markedShare(5, 0), 0);
+    assert.equal(E.markedShare(5, null), 0);
+    // revenue 100 → gross profit 60 + cost of sales 40; marked: revenue 30 → GP 12 + COGS 18
+    const full = E.stackPairs([100], [60, 40]);
+    assert.equal(full.pairs.get("0|0"), 60); assert.equal(full.pairs.get("0|1"), 40);
+    const mk = E.stackPairs([30], [12, 18]);
+    assert.equal(mk.pairs.get("0|0"), 12, "the marked part of the GP ribbon is the marked GP");
+    assert.equal(mk.pairs.get("0|1"), 18, "…and of the COGS ribbon the marked COGS");
+    assert.deepStrictEqual([mk.restS[0], mk.restT[0], mk.restT[1]], [0, 0, 0]);
+    // the same walk as the visual's port: two sources, two targets, a rest
+    const r = E.stackPairs([50, 30], [60, 10]);
+    assert.equal(r.pairs.get("0|0"), 50); assert.equal(r.pairs.get("1|0"), 10); assert.equal(r.pairs.get("1|1"), 10);
+    assert.equal(r.restS[1], 10, "what a source has left over");
+    // negatives and NaN count as nothing
+    const z = E.stackPairs([-5, NaN, 8], [8]);
+    assert.equal(z.pairs.get("2|0"), 8); assert.equal(z.pairs.has("0|0"), false);
+});
+
+test("1.7 ⚡ hide: mergeNodes folds siblings into one rest row that keeps the parent's sum", () => {
+    const m = E.buildModel([
+        row("opex", null, { rowType: "subtotal", sign: -1 }),
+        row("a", "opex", { displayInvert: true, values: { ac: 10, pl: 12 } }),
+        row("b", "opex", { displayInvert: true, values: { ac: 5, pl: 4 } }),
+        row("c", "opex", { displayInvert: true, values: { ac: 7, pl: 7, py: 3 } }),
+        row("d", "opex", { displayInvert: false, varianceInvert: true, values: { ac: 1 } }),
+    ], "U");
+    const [a, b, c, d] = ["a", "b", "c", "d"].map(id => m.byId.get(id));
+    a.series = { ac: [4, 6] }; b.series = { ac: [5, null], pl: [2, 2] };
+    const r = E.mergeNodes([b, c, d], "__rest", "other (3)", "opex", [7, 8]);
+    assert.equal(r.row.id, "__rest"); assert.equal(r.row.name, "other (3)"); assert.equal(r.row.parent, "opex");
+    assert.equal(r.row.rowType, "account"); assert.equal(r.hasChildren, false); assert.equal(r.children.length, 0);
+    assert.equal(r.computed.ac, 13); assert.equal(r.computed.pl, 11); assert.equal(r.computed.py, 3, "only the members that carry it");
+    assert.equal(r.computed.fc, null, "no member carries FC");
+    assert.deepStrictEqual(r.series.ac, [5, null], "series summed per month, null where every member is null");
+    assert.deepStrictEqual(r.series.pl, [2, 2]);
+    // Σ kept + rest = what the parent sums (the cascade closes)
+    assert.equal(a.computed.ac + r.computed.ac, m.byId.get("opex").computed.ac * -1);
+    assert.equal(r.row.displayInvert, true, "display invert by majority (2 of 3)");
+    assert.equal(r.row.varianceInvert, false, "variance invert only when every member carries it");
+    assert.deepStrictEqual(r.row.srcIdx, [7, 8]);
+    assert.equal(r.row.comment, null); assert.equal(r.error, null);
+    assert.equal(r.level, 1);
+    assert.equal(m.byId.has("__rest"), false, "never registered in the model");
+    // a stock class survives only when every member shares it
+    a.stock = "last"; b.stock = "last";
+    assert.equal(E.mergeNodes([a, b], "x", "x", null).stock, "last");
+    assert.equal(E.mergeNodes([a, c], "x", "x", null).stock, null);
 });
 
 console.log(`\n${n} engine test blocks passed`);

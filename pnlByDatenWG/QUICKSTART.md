@@ -80,7 +80,7 @@ Alles aus Weg 1, plus die Struktur-Spalten der Kontendimension:
 
 | Field Well | Feld / Inhalt |
 |---|---|
-| Zeilentyp | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` |
+| Zeilentyp | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator`, optional mit Token `stock` / `opening` (1.7, siehe unten) |
 | Formeldefinition | z. B. `[Gross profit]+[Operating expenses]`, `[EBITDA]/[Net revenue]` — Referenz **per Zeilenname**, Formel auf Formel erlaubt |
 | Rechenvorzeichen (±1) | `1` Erlöse, `-1` Kosten |
 | Anzeige invertieren | `true` bei Kostenzeilen (rechnen negativ, werden positiv angezeigt) |
@@ -110,6 +110,26 @@ YTD 2026-01…2026-06 in mEUR) — Setup und Abnahmewerte in
 Measures: `AC = SUM(...[AC])`, analog PY/PL;
 `FC FY = MAX(...[FC_FY])`, `PL FY = MAX(...[PL_FY])` — **FY-Skalare nie
 summieren**. Gegenrechnen: EBITDA YTD AC = 571,2 · PY 499,6 · PL 532,0 mEUR.
+
+**Bilanz und Cashflow (1.7): Bestand vs. Fluss.** GuV-Zeilen sind Flüsse — YTD
+und FY summieren die Monate. Bilanz- und Kassenpositionen sind **Bestände**: ein
+Stand zum Stichtag, der nie über Monate addiert wird. Das Visual erkennt das am
+Token im Zeilentyp:
+
+| Zeilentyp | Bedeutung | YTD | FY |
+|---|---|---|---|
+| `Account` (ohne Token) | Fluss | Σ Monate | Σ Ist + Vorschau |
+| `Account stock` (auch `bestand`, `balance`, `stichtag`) | Bestand | Stand im letzten Monat | Endstand der Vorschau |
+| `Account opening` (auch `anfangsbestand`) | Anfangsbestand | Stand im ersten Monat | Stand zu Jahresbeginn |
+
+Summen und Formeln erben die Art (alle Kinder Bestand → Summe ist Bestand),
+Δ vergleicht Stände desselben Stichtags, im Waterfall stehen Bestände als
+Anker auf der Nulllinie. Bilanz ohne Token in der Kontendimension → Formatmenü
+**Bestand & Fluss → Bestand vs. Fluss = „Alle Zeilen Bestand (Bilanz)"**.
+Fertige Layouts: Templates **T05A · Bilanz** und **T05B · Cashflow** (Galerie-Gruppe
+„Bilanz & Cashflow"; T05A schaltet ohne Token „Alle Zeilen Bestand" mit ein).
+Beispieldaten: `demoData/bilanz-*.csv` und `demoData/cashflow-*.csv`
+([`demoData/README.md`](demoData/README.md)).
 
 ## 3 · Ragged-Hierarchien
 
@@ -154,7 +174,7 @@ Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf
 
 **Mega-Table:** im Bearbeitungsmodus das Dropdown **Template** links in der
 Toolbar (1.2), oder Formatmenü → **Spalten & Mega-Table → Mega-Table
-(IBCS-Templates, erste Gruppe) → Template** wählen (T01A … T04E, 12A, 12G, 12H). Das Template setzt die Schalter darunter,
+(IBCS-Templates, erste Gruppe) → Template** wählen (T01A … T04E, 12A, 12G, 12H, T05A Bilanz, T05B Cashflow). Das Template setzt die Schalter darunter,
 danach ist jeder Schalter frei: Wertspalten PY · PL · AC/FC, Δ als Zahl, Balken,
 integrierter Wasserfall, Δ% als Zahl oder Pins, zweiter Block Monat | _YTD
 (braucht die Periode), Schwellen mit Fußzeile. Das Formatmenü zeigt nur, was zur
@@ -192,6 +212,33 @@ Szenarien als kleine Dreiecke.
 **Farben ohne Rot/Grün:** Stil → **Abweichungsfarben-Preset → Blau / Orange**
 (ColorBrewer, auch im Schwarzweiß-Druck lesbar).
 
+**Nur Ausnahmen (1.7):** In der Toolbar-Gruppe **Ausnahmen** den Knopf **⚡**
+drücken. Dann behalten nur Zeilen ihre Farbe, deren Δ die Schwelle erreicht
+(Standard |Δ%| ≥ 5 %, mit − / + in Stufen 1 … 100 %); der Rest wird grau.
+Daneben: |Δ| absolut (angeboten, sobald „Wesentlichkeit ab (absolut)" gesetzt
+ist — eine der beiden Schwellen reicht), die Referenz (Auto = die Δ-Referenz der
+Ansicht, sonst PY · PL · FC fest), die Richtung (▲ über · ▼ unter · ▲▼ beide,
+nach dem Vorzeichen von Δ, nicht nach günstig/ungünstig) und der Modus
+(⬚ grau · ⊘ ausblenden — in jeder Ansicht: Detailzeilen verschwinden aus Tabelle,
+Mega-Table und Balken; Wasserfall und Kaskaden-Templates fassen sie je Abschnitt
+zu „übrige (n)“ zusammen, der Baum zu einer „+n“-Karte, der Sankey zu einem
+grauen Band; Summen bleiben). Die Fußzeile nennt die Regel und was ausgeblendet
+oder zusammengefasst ist.
+Leser dürfen das bedienen; derselbe Zustand steht im Formatbereich unter
+**Ausnahmen**. Ausblenden: Darstellung & Toolbar → „Gruppe: Ausnahmen (⚡)".
+
+**Eigene Toolbar-Farben (1.7):** Formatbereich → **Toolbar-Farben**: Knopf-
+Hintergrund, Knopf-Text, aktiver Knopf (Hintergrund/Text) und Rahmen. Leer =
+automatisch; Hochkontrast ignoriert die Farben.
+
+**Ganze Kachel nutzen (1.7):** Formatbereich → **Fläche → Ganze Kachel nutzen**:
+schmale Ränder, eine kompakte Toolbar, Tabelle und Mega-Table wachsen mit der
+Kachelhöhe (bis ×1,6, hinunter bis 9 px), Baum und Sankey füllen die Kachel.
+
+**Markierungen anderer Visuals (1.7):** Klickt ein Leser z. B. einen Balken eines
+anderen Visuals an, zeigt der Sankey den markierten Teil im grauen Gesamt; alle
+anderen Ansichten zeigen die Auswahl genau so, als wäre sie gefiltert.
+
 ## 6 · Drillthrough einrichten (3 Schritte)
 
 1. Zielseite anlegen (z. B. `Konto-Detail`) und unter **Visualisierungen →
@@ -216,6 +263,9 @@ Abnahme-Checks: [`TESTPLAN.md`](TESTPLAN.md) §6a.
 | Zeile zeigt `·` | Referenzname der Formel nicht eindeutig oder Szenario ohne Daten |
 | Zeile zeigt `⚠ Zyklus` (en: `⚠ cycle`) | Zirkelbezug in der Formeldefinition oder in Parent-Child |
 | „Nicht zugeordnet" rot mit ⚠ | Parent-/Level-Pfad zeigt ins Leere — gewolltes Datenqualitäts-Signal |
+| Bilanz-YTD neunfach zu groß | Bestände werden als Fluss summiert → Token `stock` im Zeilentyp oder Bestand & Fluss → „Alle Zeilen Bestand (Bilanz)" |
+| Cashflow-Anfangsbestand zeigt den Septemberstand | Zeile ist `stock` statt `opening` → `Account opening` |
+| Hinweis „Bestand und Fluss gemischt" unter der Tabelle (nur Bearbeitungsmodus) | Formel oder Summe mischt Bestand und Fluss ohne Token (Formel folgt dem ersten Operanden, Summe bleibt Fluss) — Art per `stock`/`flow` im Zeilentyp festlegen |
 
 Vollständiger Aufbau- und Testplan inklusive Reconciliation-Werten:
 [`TESTPLAN.md`](TESTPLAN.md). Feature-Historie: [`CHANGELOG.md`](CHANGELOG.md).

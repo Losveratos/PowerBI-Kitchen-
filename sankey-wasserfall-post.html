@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sankey trifft IBCS-Wasserfall · Daten-WG</title>
+<meta name="description" content="Der IBCS-inspirierte Wasserfall erklärt, wie viel; der Sankey erklärt, wohin. Im P&amp;L-Visual 1.7 sitzen beide auf derselben Datenbindung, und erst Nur Ausnahmen, Cross-Highlight und Bestand &amp; Fluss machen die Kombination im Monatsabschluss wertvoll. Mit echten Renderings der Brauerei-Demo.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/sankey-wasserfall-post.html">
+<link rel="alternate" hreflang="de" href="https://datenwgknowledgekitchen.com/sankey-wasserfall-post.html">
+<link rel="alternate" hreflang="en" href="https://datenwgknowledgekitchen.com/sankey-wasserfall-post_en.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/sankey-wasserfall-post.md">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/sankey-wasserfall-post.html">
+<meta property="og:title" content="Sankey trifft IBCS-Wasserfall">
+<meta property="og:description" content="Warum die Kombination erst dynamisch richtig gut wird: eine Datenbindung, zwei Erzählungen, umschaltbar per Toolbar.">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/posts/sankey-wasserfall/01-wasserfall-t04b.png">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#C25A2D; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(194,90,45,.05),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+@media (max-width:560px){ .container { padding:28px 16px 80px; } }
+
+.back-link {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px;
+  transition:all .15s ease; margin-bottom:40px;
+}
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+.lang-switch { display:inline-flex; align-items:center; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; margin-left:8px; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; }
+.lang-switch:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); margin-bottom:20px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:8px 18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding:16px 0 28px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:40px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose p a, .prose li a { color:var(--accent); }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.prose code { font-family:ui-monospace,"Cascadia Mono","Segoe UI Mono",Consolas,monospace; font-size:.86em; background:var(--bg-soft); padding:1px 5px; border-radius:4px; color:var(--accent-deep); }
+
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(194,90,45,.05) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:26px 30px; margin:36px 0; }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; padding:22px 20px; } }
+
+.figure { margin:32px 0 28px; }
+.figure-embed { border:1px solid var(--line); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--shadow-md); background:#fff; padding:10px; }
+.figure-embed a { display:block; }
+.figure-embed img { width:100%; height:auto; display:block; }
+.figure-cap { font-family:var(--mono); font-size:11.5px; letter-spacing:0.02em; color:var(--ink-mute); margin-top:12px; padding-left:2px; line-height:1.55; max-width:76ch; }
+.figure-cap strong { color:var(--ink-soft); }
+
+.cmp { width:100%; border-collapse:collapse; margin:20px 0 28px; font-size:14px; line-height:1.5; }
+.cmp th { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-mute); text-align:left; padding:8px 10px; border-bottom:2px solid var(--line-strong); }
+.cmp td { vertical-align:top; padding:10px; border-bottom:1px solid var(--line); color:var(--ink-soft); }
+.cmp td:first-child { color:var(--ink-mute); width:46%; }
+.cmp td strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .cmp { font-size:13px; } .cmp th, .cmp td { padding:8px 6px; } }
+
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.src-box.hint { border-left-color:var(--high); background:var(--bg-card); }
+.src-box.read { border-left-color:var(--accent); background:var(--bg-card); }
+.src-box.read strong, .src-box.hint strong { color:var(--ink); }
+
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 22px; border-radius:100px; text-decoration:none; white-space:nowrap; transition:filter .15s ease; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+@media (max-width:560px){ .cta-card { padding:24px 20px; } .cta-btn { white-space:normal; } }
+
+.doc-links { margin:20px 0 0; font-size:14px; color:var(--ink-soft); }
+.doc-links a { color:var(--accent); }
+
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+.post-foot .ibcs { margin-top:12px; font-size:11px; line-height:1.6; }
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<div class="container">
+
+  <a class="back-link" href="index.html#posts-talks">← Zurück zur Knowledge Kitchen</a>
+  <a class="lang-switch" href="sankey-wasserfall-post_en.html" hreflang="en" lang="en">EN</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Power-BI-Visual · Controlling</div>
+    <h1 class="post-title">Sankey trifft <em>IBCS-Wasserfall</em></h1>
+    <p class="post-dek">Warum die Kombination erst dynamisch richtig gut wird. Der Wasserfall erklärt, <strong>wie viel</strong>: Stufen, Vorzeichen, Abweichung, Anker. Der Sankey erklärt, <strong>wohin</strong>: Fluss, Anteile, Struktur. Im P&amp;L-Visual sitzen beide auf derselben Datenbindung, ein Klick in der Toolbar wechselt die Erzählung.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>Oktober 2026</strong></span>
+      <span>Visual · <strong>P&amp;L Statement byDatenWG 1.7.0.0</strong></span>
+      <span>Lesezeit · <strong>~7 min</strong></span>
+    </div>
+  </header>
+
+  <div class="prose">
+
+    <p>Im Monatsabschluss kommen fast immer zwei Fragen. Zuerst: <em>Wie viel liegen wir über oder unter Plan, und woher kommt das?</em> Eine Folie später: <em>Und wohin geht eigentlich das Geld?</em> Für die erste gibt es den Wasserfall, für die zweite habe ich lange eine Excel-Nebenrechnung gebraucht. Mit Version 1.6 hat das P&amp;L-Visual einen Sankey bekommen, mit 1.7 die Schalter, die beide Ansichten zusammenbringen. Durchgespielt mit der Demo-GuV der Daten-WG Brauerei (fiktive Zahlen, Januar bis September 2026).</p>
+
+    <div class="bigstat">
+      <div class="bigstat-num">1 Bindung</div>
+      <div class="bigstat-text"><strong>zwei Erzählungen.</strong> Wasserfall und Sankey lesen dieselbe Kontendimension, dieselben Measures, dieselbe Vorzeichenlogik. Kein zweites Visual, kein zweites Layout, nichts zwischen beiden abzustimmen.</div>
+    </div>
+
+    <div class="src-box hint">
+      <h3>Vorweg: die Grenze beim Export</h3>
+      Solange das Visual nicht über AppSource zertifiziert ist, erscheint es im Power-BI-Service <strong>nicht im PDF- und PowerPoint-Export und nicht in Abo-Mails</strong>. Für die Vorstandsmappe braucht es heute einen zweiten Weg: den PDF-Export aus Power BI Desktop oder einen Screenshot.
+    </div>
+
+    <h2>Wie viel: <em>der Wasserfall</em></h2>
+    <figure class="figure">
+      <div class="figure-embed"><a href="assets/posts/sankey-wasserfall/01-wasserfall-t04b.png"><img src="assets/posts/sankey-wasserfall/01-wasserfall-t04b.png" width="1200" height="800" decoding="async" alt="GuV der Daten-WG Brauerei als Tabelle mit Abweichungs-Wasserfall (Template T04B): Spalten PL und AC, daneben ein integrierter ΔPL-Wasserfall und ΔPL-Prozent-Pins. Fassbier Gastronomie plus 596, Alkoholfrei plus 273, Flaschenbier Handel minus 158, Materialaufwand plus 298, Energie minus 112, Betriebsergebnis plus 451 TEUR über Plan."></a></div>
+      <div class="figure-cap"><strong>Tabelle mit Abweichungs-Wasserfall (Template T04B):</strong> AC gegen Plan mit ΔPL-Wasserfall und ΔPL%-Pins, Jan–Sep 2026 in TEUR (im Einheiten-Schalter als kEUR beschriftet — dieselbe Einheit). Darüber die Toolbar mit den fünf Ansichten.</div>
+    </figure>
+    <p>Die Brauerei liegt nach neun Monaten mit dem Betriebsergebnis bei <strong>2 047 TEUR, 451 über Plan</strong> (+28 %). Die Tabelle mit Abweichungs-Wasserfall (Template T04B) zeigt, wie das zustande kommt: Fassbier in der Gastronomie +596 (der Hitzesommer, Kommentar ①), Alkoholfrei +273, dagegen Flaschenbier im Handel −158 und Merchandise −20. Auf der Kostenseite frisst der Materialaufwand 298 davon, vor allem Malz und Verpackung. Die Energie liegt 112 unter Plan, der Gasvertrag wurde zum Januar neu verhandelt (②; die 15 % im Kommentar sind gegen Vorjahr gerechnet). Jede Stufe hat ein Vorzeichen, jede Zwischensumme ankert, die Skala ist für alle Zeilen dieselbe.</p>
+
+    <div class="src-box read">
+      <h3>Lesehilfe</h3>
+      <strong>AC</strong> = Ist, <strong>PL</strong> = Plan, <strong>PY</strong> = Vorjahr, <strong>FC</strong> = Forecast. <strong>Teal</strong> heißt günstig fürs Ergebnis, <strong>Rot</strong> ungünstig: Darum sind weniger Energiekosten (−112) teal und mehr Malz (+164) rot. <strong>pp</strong> sind Prozentpunkte (Rohertragsmarge −0,7 pp). <strong>_September</strong> bzw. <strong>_Sep</strong> heißt kumuliert bis September (YTD). Alle Beträge in TEUR.
+    </div>
+
+    <h2>Wohin: <em>der Sankey</em></h2>
+    <figure class="figure">
+      <div class="figure-embed"><a href="assets/posts/sankey-wasserfall/02-sankey.png"><img src="assets/posts/sankey-wasserfall/02-sankey.png" width="1200" height="680" loading="lazy" decoding="async" alt="Dieselbe GuV als Sankey: vier Umsatzkanäle fließen grau in die Umsatzerlöse von 18 746 TEUR, der Gewinnstrang läuft teal über Rohertrag, EBITDA und Betriebsergebnis bis zum Jahresüberschuss von 1 246 TEUR, die Kostenblöcke zweigen rot nach rechts unten ab."></a></div>
+      <div class="figure-cap"><strong>Ansicht Sankey:</strong> dieselbe Bindung, ein Klick in der Toolbar. Band- und Balkenhöhe proportional zum Ist, in Klammern der Anteil am Umsatz. Teal und Rot sind hier Familienfarben (Gewinnstrang, Kosten), keine Bewertung, auch wenn die Legende noch „günstige/ungünstige Δ“ sagt.</div>
+    </figure>
+    <p>Gleiche Zahlen, andere Frage. Von 18 746 TEUR Umsatz kommen 43 % aus dem Fassbier und 41 % aus dem Flaschenbier. Zwei Drittel bleiben als Rohertrag, das Personal nimmt allein 28 % des Umsatzes, als Betriebsergebnis bleiben 10,9 %. Das Finanzergebnis ist hier ein Aufwand (−268 Zinsen) und fließt im Sankey ab, als Jahresüberschuss bleiben 6,6 %. Das sieht man im <strong>Abweichungs</strong>-Wasserfall nicht, weil er Abweichungen zeigt und keine Anteile. Ein Struktur-Wasserfall auf Ist-Werten oder eine Spalte „% vom Umsatz“ zeigt Anteile auch; der Sankey zeigt sie als Fluss.</p>
+    <p><strong>Zu den Farben, ehrlich:</strong> Ohne ⚡ sind Teal und Rot im Sankey Familienfarben, Gewinnstrang und Kosten, keine Bewertung. Rot auf dem Personal (+0,8 % gegen Plan) heißt „Kostenblock“, nicht „Problem“. Die Legende im Bild sagt hier noch „günstige/ungünstige Δ“; dass sie je Ansicht umschaltet, steht auf dem Backlog. Mit ⚡ bedeuten die Farben günstig und ungünstig, bei einer Markierung den markierten Teil.</p>
+    <p>Ein Klick auf einen Knoten öffnet die Detailkachel dieser Zeile mit Monatssäulen und Szenarien (<a href="pnl-doku.html#views">Doku</a>).</p>
+    <p><strong>Wann der Sankey nicht passt.</strong> Im Verlustjahr mit negativen Strömen, denn ein Sankey kennt keine Vorzeichen. Bei sehr vielen kleinen Konten. Für die reine Abweichungsanalyse. Auf kleinen Kacheln und im Druck. Und eine Grenze der Metapher: Eine periodengerechte GuV ist kein Geldfluss, Abschreibungen fließen nirgendwohin. „Wohin geht das Geld“ ist bewusst bildlich gemeint.</p>
+
+    <h2>Erst die Dynamik <em>macht es wertvoll</em></h2>
+    <p>Zwei statische Bilder wären nett, mehr nicht. Interessant wird es mit drei Schaltern aus Version 1.7.</p>
+    <p><strong>⚡ Nur Ausnahmen.</strong> Die Schwelle steht in der Toolbar: |Δ%| ≥ 5 % gegen Plan. Im Sankey behalten dann nur die Ströme Farbe, die die Schwelle reißen, jetzt in der Farbe ihrer Abweichung. Bei der Brauerei sind das 7 von 16 Konten (Fassbier, Alkoholfrei und Energie günstig, Merchandise, Malz, Verpackung und Ertragsteuern ungünstig) plus vier Summen; der Rest wird grau.</p>
+    <figure class="figure">
+      <div class="figure-embed"><a href="assets/posts/sankey-wasserfall/03-sankey-ausnahmen.png"><img src="assets/posts/sankey-wasserfall/03-sankey-ausnahmen.png" width="1200" height="760" loading="lazy" decoding="async" alt="Sankey mit aktivem Schalter Nur Ausnahmen, Schwelle 5 Prozent gegen Plan: Fassbier Gastronomie, Alkoholfrei und Energie teal, Merchandise, Malz, Verpackung und Ertragsteuern rot, dazu die Summen Materialaufwand, EBITDA, Betriebsergebnis und Jahresüberschuss farbig, alle übrigen Ströme grau. Flaschenbier Handel bleibt grau."></a></div>
+      <div class="figure-cap"><strong>⚡ 5 % gegen PL im Sankey:</strong> 7 von 16 Konten plus die Summen Materialaufwand, EBITDA, Betriebsergebnis und Jahresüberschuss sind farbig. Flaschenbier Handel liegt mit −2,0 % unter der Schwelle und bleibt als einzelnes Konto grau, obwohl es absolut der größte negative Umsatzschritt ist.</div>
+    </figure>
+    <p>Im Abweichungs-Wasserfall fasst „ausblenden“ die ruhigen Schritte je Abschnitt zusammen: 8 der 16 Kontenschritte gehen in „übrige“ oder in ihre Summe auf, die Kaskade bleibt geschlossen.</p>
+    <figure class="figure">
+      <div class="figure-embed"><a href="assets/posts/sankey-wasserfall/04-wasserfall-ausnahmen.png"><img src="assets/posts/sankey-wasserfall/04-wasserfall-ausnahmen.png" width="1200" height="720" loading="lazy" decoding="async" alt="Abweichungs-Wasserfall mit Nur Ausnahmen im Modus ausblenden: Hopfen und Hefe sind zu übrige (2) zusammengefasst, Personal, Logistik und Marketing zu übrige (3) mit plus 51, Abschreibungen und Zinsaufwand stehen nur noch als Summe. Die Fußzeile meldet 8 Schritte unter der Schwelle."></a></div>
+      <div class="figure-cap"><strong>⚡ ausblenden im Abweichungs-Wasserfall:</strong> „übrige (2)“ im Materialaufwand, „übrige (3)“ im Betriebsaufwand, Abschreibungen und Zinsen nur als Summe. Die Fußzeile zählt mit, auch im PDF-Export aus Desktop und im Druck.</div>
+    </figure>
+    <p>Dabei Vorsicht: <strong>„übrige“ saldiert.</strong> In „übrige (3)“ gleichen 37 TEUR Ersparnis im Marketing 88 TEUR Mehrkosten bei Personal und Logistik aus, übrig bleiben unauffällige +51. Deshalb setze ich beide Schwellen, etwa 5 % oder 100 TEUR (dann ist auch das Flaschenbier mit −158 farbig), und prüfe Sammelschritte im Tooltip. Und die Schwelle sortiert vor, sie urteilt nicht: Die Ertragsteuern (+33 %) folgen mechanisch dem Mehrergebnis, und Malz (+7 %) ist ohne Mengenbereinigung kaum „ungünstig“, wenn mehr Bier verkauft wurde.</p>
+    <p><strong>Cross-Highlight.</strong> Markiert ein Leser in einem anderen Visual einen Teil der Daten, zeigt der Sankey den markierten Teil im grauen Ganzen. Die Demo hat keine Kanalspalte, deshalb hier der Monat: ein Klick auf „Juli“ in einem Säulendiagramm.</p>
+    <figure class="figure">
+      <div class="figure-embed"><a href="assets/posts/sankey-wasserfall/05-sankey-markierung.png"><img src="assets/posts/sankey-wasserfall/05-sankey-markierung.png" width="1200" height="760" loading="lazy" decoding="async" alt="Sankey mit Markierung aus einem anderen Visual: das Gesamtjahr grau, der Juli als farbige Innenbänder. Umsatzerlöse 2 820 von 18 746, EBITDA 819 von 3 174, Betriebsergebnis 691 von 2 047, Jahresüberschuss 463 von 1 246 TEUR."></a></div>
+      <div class="figure-cap"><strong>Markierung „Juli“:</strong> an jedem Knoten „markiert von gesamt“, farbig ist der markierte Teil. Alle anderen Ansichten verhalten sich wie gefiltert, nur der Sankey zeigt den Teil im Ganzen.</div>
+    </figure>
+    <p>Der Juli bringt 15 % des Umsatzes (2 820 von 18 746 TEUR), aber 34 % des Betriebsergebnisses (691 von 2 047). Meine Lesart: der Fixkosten-Hebel eines starken Sommermonats. Das Bild zeigt die Proportion, nicht die Ursache. Mit einer Kanal- oder Regionsspalte geht dasselbe: Klick auf „Export“, und der Sankey zeigt den Export-Anteil auf jeder Ebene.</p>
+    <p>Ansicht, Δ-Referenz, ⚡-Schwelle, Wurzel und Klapp-Zustand speichert Power BI in <strong>Lesezeichen</strong>. Eins „Ausnahmen gegen Plan“ und eins „Struktur“ reichen für die ganze Abschlussbesprechung.</p>
+
+    <h2>Bestand und Fluss: <em>der Cashflow</em></h2>
+    <figure class="figure">
+      <div class="figure-embed"><a href="assets/posts/sankey-wasserfall/06-cashflow-t05b.png"><img src="assets/posts/sankey-wasserfall/06-cashflow-t05b.png" width="1200" height="580" loading="lazy" decoding="async" alt="Cashflow-Brücke (Template T05B) für September und kumuliert bis September: Anfangsbestand Zahlungsmittel 600, operativer Cashflow 1 373, investiver Cashflow minus 715, Finanzierungs-Cashflow minus 760, Endbestand 498 TEUR gegenüber 440 im Vorjahr. Bestände ankern auf der Nulllinie, Flüsse floaten."></a></div>
+      <div class="figure-cap"><strong>Cashflow-Brücke (Template T05B):</strong> Anfangsbestand → Flüsse → Endbestand als PY- und AC-Kaskaden, Monat und kumuliert bis September, in TEUR (im Bild als kEUR beschriftet — dieselbe Einheit). Eigener Demo-Datensatz, nicht mit der GuV oben abgestimmt.</div>
+    </figure>
+    <p>Mit 1.7 kennt das Visual Bestände. Eine Bestandszeile wird nicht über die Monate summiert, sondern als Stand zum Stichtag gezeigt. In der Cashflow-Brücke (Template T05B) ankern Anfangs- und Endbestand auf der Nulllinie, dazwischen floaten die Flüsse: 600 TEUR zu Jahresbeginn, +1 373 aus dem operativen Geschäft, −715 für Investitionen, −760 für Tilgung und Dividende, 498 Ende September (Vorjahr 440).</p>
+    <p>Ehrlich eingeordnet: Die Cashflow-Demo ist ein eigener Datensatz und <strong>nicht mit der GuV oben abgestimmt</strong>. Der Jahresüberschuss steht dort mit 923 statt 1 246, die Abschreibungen mit 495 statt 1 127. Im echten Modell kommen beide aus denselben Konten, und genau das sollte man beim Aufbau prüfen. Der Sankey kann denselben Fluss mit Beständen als grauen Ankern zeichnen, war bei der Kasse aber schlecht lesbar. Deshalb fehlt das Sankey-Bild hier.</p>
+
+    <h2>Warum das im Controlling <em>eine echte Alternative</em> ist</h2>
+    <p>Aus Sicht von jemandem, der den Monatsabschluss präsentiert:</p>
+    <ul>
+      <li><strong>Eine Datenbindung.</strong> Wasserfall und Sankey sind dieselbe GuV. Kein zweiter Bericht zum Nachziehen, zwischen den beiden Ansichten kein zweiter Zahlenstand.</li>
+      <li><strong>Zwei Fragen, ein Visual.</strong> Der Wasserfall beantwortet „wie viel und woher die Abweichung“, der Sankey „wohin fließt es, welcher Kanal treibt es“. </li>
+      <li><strong>⚡ als Teil der Ansicht.</strong> Schwellen setzen kann auch die bedingte Formatierung einer Matrix, ebenso Zebra BI. Der Unterschied: ⚡ wirkt über alle fünf Ansichten, fasst Kaskaden zusammen, und Leser verstellen die Schwelle selbst und speichern sie als Lesezeichen.</li>
+      <li><strong>Segmentfragen ohne neue Seite.</strong> „Wie sieht das nur für den Export aus?“ beantwortet ein Klick im Nachbar-Visual. Hervorheben können native Visuals auch; neu ist die Darstellung als Teil im Ganzen im Sankey.</li>
+      <li><strong>GuV, Cashflow, Bilanz in einer Mechanik.</strong> Mit Bestand &amp; Fluss (T05A Bilanz, T05B Cashflow) gilt dieselbe Bedienung für alle drei Rechenwerke. Für die Cashflow-Brücke braucht das Modell ein Cashflow-Mapping: eine Kontendimension mit Zeilentyp-Token für Bestände und Flüsse.</li>
+      <li><strong>Und Zebra BI?</strong> Fair verglichen: Zebra BI ist zertifiziert, läuft im Service-Export mit und kann Writeback und Kommentare, kostet aber eine Lizenz je Leser. Unseres ist kostenlos und offen, dafür ohne Zertifizierung und ohne Planung.</li>
+      <li><strong>Kosten und Governance.</strong> Kostenlos, Quellcode offen (MIT-Lizenz). Das Visual deklariert <code>privileges: []</code>: keine Netzwerkzugriffe, keine Downloads, kein lokaler Speicher; einzige Ausnahme ist „Doku öffnen“, das einen Link öffnet und keine Daten sendet. Bereitgestellt ohne Gewähr und ohne Support-Zusage, ein Ein-Personen-Projekt mit GitHub-Issues; eingebettete Versionen laufen in Berichten unabhängig vom Projekt weiter. Kommentare ①② kommen aus einer Kommentar-Rolle im Modell (keine Eingabe, kein Writeback), RLS und Rechte ebenso. Konsolidierung und Intercompany macht das Visual nicht, es zeigt, was das Modell liefert. Details: <a href="visuals-sicherheit.html">Sicherheit &amp; Betrieb</a>.</li>
+    </ul>
+    <table class="cmp">
+      <thead><tr><th>Vorher</th><th>Jetzt</th></tr></thead>
+      <tbody>
+        <tr><td>Wasserfall im Bericht, Sankey in einem zweiten Visual oder Tool</td><td><strong>Ein Visual, Umschalter in der Toolbar</strong></td></tr>
+        <tr><td>Wichtige Abweichungen per bedingter Formatierung je Visual oder von Hand markiert</td><td><strong>⚡ mit Schwelle über alle Ansichten</strong>, als Lesezeichen gespeichert</td></tr>
+        <tr><td>Segment-Frage: neue Seite oder Filter, das Gesamtbild ist weg</td><td><strong>Cross-Highlight:</strong> der Teil im grauen Ganzen</td></tr>
+        <tr><td>Cashflow-Brücke in Excel nachgebaut</td><td><strong>Cashflow-Brücke (T05B)</strong> aus der Kontendimension, Bestände ankern</td></tr>
+      </tbody>
+    </table>
+
+    <div class="src-box">
+      <h3>Was man vorher wissen sollte</h3>
+      Der Sankey steht bewusst <strong>außerhalb der IBCS-Notation</strong>, der Footer des Visuals sagt das in dieser Ansicht auch. Für Plan-Ist-Vergleiche und Abweichungsanalysen bleiben Tabelle und Wasserfall das Werkzeug; wer nur IBCS-Formen zulassen will, schaltet den Sankey im Formatbereich ab. Der Wasserfall ist IBCS-inspiriert, nicht zertifiziert. Zum Export siehe oben. Barrierefreiheit: Im Hochkontrast arbeitet der Sankey mit Mustern (Gewinn gefüllt, Kosten umrandet bzw. schraffiert, Zuflüsse gestrichelt), ⚡ setzt dort gestrichelt statt grau ab. Rot/Teal ist für Rot-Grün-Schwäche gewählt; im Graustufendruck geht die Unterscheidung in blassen Bändern verloren.
+    </div>
+
+    <p>Wer es ausprobieren will: Der <a href="pnl-schnellstart.html">Schnellstart</a> führt in zwei Minuten zur ersten GuV, die <a href="pnl-doku.html#views">Doku zu den Ansichten</a> beschreibt den Sankey im Detail.</p>
+
+    <div class="cta-card">
+      <div class="cta-card-text">
+        <span class="k">Version 1.7.0.0 · .pbiviz</span>
+        <h3>Selbst umschalten</h3>
+        <p>Der Schnellstart verlinkt die aktuelle .pbiviz und zeigt die ersten Schritte. Demo-Daten der Brauerei liegen im Repository.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="cta-btn" href="pnl-schnellstart.html">Zum Schnellstart →</a>
+        <a class="cta-btn ghost" href="https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz">.pbiviz laden ↓</a>
+        <a class="cta-btn ghost" href="pnl-doku.html">Zur Doku</a>
+      </div>
+    </div>
+    <p class="doc-links">In der Doku: <a href="pnl-doku.html#views">Die Ansichten (Sankey)</a> · <a href="pnl-doku.html#exceptions">⚡ Nur Ausnahmen</a> · <a href="pnl-doku.html#highlight">Cross-Highlight</a> · <a href="pnl-doku.html#stock">Bestand &amp; Fluss</a> · <a href="pnl-doku.html#t05">T05A/T05B</a> · <a href="visuals-sicherheit.html">Sicherheit &amp; Betrieb</a></p>
+
+    <div class="post-foot">
+      Alle Abbildungen sind echte Renderings des Visuals 1.7.0.0 mit den Demo-Daten der fiktiven Daten-WG Brauerei, aufgenommen im Test-Harness des Visuals. Rückfragen und Gegenbeispiele: <strong>Michael Tenner</strong> · <a href="mailto:michael.tenner84@gmail.com">michael.tenner84@gmail.com</a> · Issues: <a href="https://github.com/losveratos/powerbi-kitchen-/issues">github.com/losveratos/powerbi-kitchen-/issues</a><br>
+      Quellcode, Änderungshistorie und Demo-Daten: <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG">pnlByDatenWG im Repository</a>.
+      <div class="ibcs">Wasserfall und Tabellen sind IBCS-inspiriert (Notation nach den IBCS®-Standards der IBCS Association, CC BY-SA 4.0, ibcs.com); der Sankey ist eine bewusste Ergänzung außerhalb der IBCS-Notation. IBCS® ist eine Marke der IBCS Association. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

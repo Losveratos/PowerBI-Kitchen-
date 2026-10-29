@@ -84,8 +84,10 @@ oder Gesellschaften? Mengen-/FTE-Werte?
      Management — berichtet oder FX-bereinigt?
 4. **Perioden:** Monat oder feiner? Kalender- oder Fiskaljahr (Startmonat)?
    Datenstand / Stichtag?
-5. **Mengen- und FTE-Zeilen:** Ausstoß, Absatz, Headcount? Flussgröße
-   (additiv) oder Bestand (Ultimo)?
+5. **Mengen-, FTE- und Bilanzzeilen:** Ausstoß, Absatz, Headcount, Bilanz,
+   Kasse? Flussgröße (additiv) oder Bestand (Ultimo)? Bestände bekommen im
+   P&L-Visual ab 1.7 das RowType-Token `stock` (Anfangsbestand `opening`,
+   `konten-dimension.md` §4a).
 
 ## Schritt 3 · Ziel-Schema vorschlagen
 
@@ -97,7 +99,8 @@ ChartKitchen-Kategorie-Hierarchie, keine Subtotal-Pflege); Parent-Child nur,
 wenn die Quelle es erzwingt, dann Ebenen per `PATH` ableiten. `RowType`
 kanonisch (`Account · Subtotal · Formula · KPI · Separator`), Formeln per
 eindeutigem Zeilennamen (§5), Vorzeichen-Trio nach der Matrix (§6) —
-**Kostenzeile = `-1 · true · false`; -1 nie mit `VarianceInvert = true`.**
+**Kostenzeile = `-1 · true · false`; -1 nie mit `VarianceInvert = true`**
+(Ausnahme Bestände: Passiva `-1 · false · true`, `konten-dimension.md` §6).
 Spalte `Einheit`, sobald Mengenzeilen dazukommen.
 
 **(b) FaktFinanz** — Konto × Monat, `Datum` = Monatsende, Kosten positiv,
@@ -153,6 +156,8 @@ Mensch es will und die CLI vorhanden ist — wie im Skill `mockup-to-powerbi`
 ```bash
 # Variante A
 python3 -I .claude/skills/finance-data-model/scripts/validate_model.py <dim.csv> <fakt.csv>
+# Bilanz ohne Token-Spalte (wie statement.stockMode = allStock im Visual):
+python3 -I .claude/skills/finance-data-model/scripts/validate_model.py <dim.csv> <fakt.csv> --stock-mode allStock
 # Variante B (Kurstabelle wird neben der Faktentabelle gesucht oder explizit übergeben)
 python3 -I .claude/skills/finance-data-model/scripts/validate_model.py <dim.csv> <fakt.csv> --kurse <kurse.csv> --cc EUR
 ```

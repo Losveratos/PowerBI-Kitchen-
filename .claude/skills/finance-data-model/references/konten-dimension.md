@@ -1,7 +1,8 @@
 # DimKonto — Spaltenvertrag der Kontendimension
 
-Abgeleitet aus `pnlByDatenWG/src/engine.ts` (`parseRowType`, `parseBool`,
-`parseSign`, `rowsFromLevels`, `buildModel`, `parseFormula`), dem Datenvertrag
+Abgeleitet aus `pnlByDatenWG/src/engine.ts` (`parseRowType`/`parseRowTypeInfo`,
+`parseBool`, `parseSign`, `rowsFromLevels`, `buildModel`, `parseFormula`,
+`windowValue`), dem Datenvertrag
 in `pnlByDatenWG/AGENT-GUIDE.md` und `pnl-doku.html` (Kapitel „Datenmodell &
 Rollen"). Wo Doku und Engine auseinanderliegen, gilt die Engine. Beispiel ist
 durchgehend die fiktive **Daten-WG Brauerei** aus `assets/demo-euro/` und
@@ -11,7 +12,7 @@ durchgehend die fiktive **Daten-WG Brauerei** aus `assets/demo-euro/` und
 1. Hierarchie: Ebenen-Spalten oder Parent-Child
 2. Spaltenvertrag
 3. Beispielzeilen (Brauerei)
-4. RowType
+4. RowType (4a · Bestand vs. Fluss)
 5. FormulaDef — Syntax und Auflösung
 6. Vorzeichen-Trio
 7. Wahrheitswerte und Vorzeichen: was die Engine liest
@@ -64,7 +65,7 @@ immer **„Nicht zusammenfassen"** (`summarizeBy: none`).
 | `L1` … `Ln` | Text | Modus A | `levels` | `category` (Hierarchie) | max. 8; keine Lücken; Rechenzeilen füllen nur `L1` |
 | `ParentID` | Text | Modus B | `parent` | — | muss existieren, keine Zyklen |
 | `SortOrder` | Ganzzahl | empfohlen | `sortOrder` | „Nach Spalte sortieren" | Reihenfolge **innerhalb** des Elternknotens; 10er-Schritte je Block |
-| `RowType` | Text | für volle GuV | `rowType` | `rowType` (dieselbe Spalte, ab ChartKitchen 1.53) | §4 |
+| `RowType` | Text | für volle GuV | `rowType` | `rowType` (dieselbe Spalte, ab ChartKitchen 1.53) | §4; Bestände mit Token `stock` / `opening` (§4a) |
 | `FormulaDef` | Text | für Formula/KPI | `formulaDef` | (`formulaRows` von Hand) | §5 |
 | `SignConvention` | Ganzzahl ±1 | für volle GuV | `signConvention` | Basis für das signierte Measure | §6 |
 | `DisplayInvert` | Text/Bool | für volle GuV | `displayInvert` | — | §6, §7 |
@@ -157,6 +158,42 @@ Zeile. Ein übersetzendes `CK_RowType`-Measure (SWITCH auf `sum`/`delta`/`pct`)
 ist nicht mehr nötig. Zusätzlich versteht ChartKitchen Flag-Token wie
 `exclude`, `hide`, `davon`, `invert`; unbekannte Werte meldet es nur im
 Bearbeitungsmodus. Die Vorzeichen-Regeln (§6) bleiben unverändert.
+
+### 4a · Bestand vs. Fluss (P&L-Visual ab 1.7)
+
+Jede Zeile ist entweder ein **Fluss** (Umsatz, Kosten, Cashflows — summiert
+sich über die Monate, Standard) oder ein **Bestand** (Bilanzposten, Kasse,
+Working Capital, Headcount/FTE — zeigt den Stand). Das sagt ein zusätzliches
+Token in derselben `RowType`-Zelle, getrennt durch Leerzeichen, Komma,
+Semikolon oder `|`:
+
+| Token (Groß/klein egal) | Bedeutung | YTD-Block | FY-Ausblick | Δ |
+|---|---|---|---|---|
+| `stock` · `bestand` · `balance` · `stichtag` · `point` | Bestand, Stand am **Periodenende** | Stand der letzten Periode (letzter Monat mit AC) | FC-Endstand (Dezember-FC bzw. `FC_FY`) | Stand gegen Stand zum selben Stichtag |
+| `opening` · `anfangsbestand` · `eröffnung` · `open` · `begin` | Anfangsbestand, Stand am **Periodenanfang** | Stand am Jahresanfang | Stand am Jahresanfang | zum selben Stichtag |
+| `flow` · `fluss` · `bewegung` · `movement` | Fluss erzwingen (gegen die Vererbung) | Summe der Monate | AC + FC-Rest | wie bisher |
+
+Kanonisch: `Account stock`, `Subtotal stock`, `Formula stock`, `Account
+opening`. Eine Zelle **ohne** Token liest das Visual genau wie vor 1.7 (als
+Ganzes) — bestehende Werte ändern nichts. Monatsblöcke bleiben Monatsstände.
+
+- **Vererbung:** Eine Zwischensumme (auch die synthetischen Ebenen-Knoten)
+  ohne Token ist Bestand, wenn alle beitragenden Kinder Bestände sind; eine
+  Formel/KPI, wenn alle Operanden Bestände sind (`[Kasse]+[Bank]`). Gemischte
+  Formeln (Bestand ± Fluss) folgen dem **ersten Operanden**: Anfangsbestand +
+  Cashflows = Endbestand (Bestand). Eine Summe mit gemischten Kindern bleibt
+  Fluss. Beides meldet das Visual im Bearbeitungsmodus, solange kein Token
+  die Zeile festlegt.
+- **Formeln über Beständen** rechnen auf den Fensterwerten ihrer Operanden:
+  `[Endbestand]-[Anfangsbestand]` mit Token `flow` ist die Veränderung des
+  Jahres (= Σ der Cashflows).
+- **Ohne Token-Spalte** (reine Bilanz): Formatbereich „Bestand & Fluss" →
+  `statement.stockMode = allStock` (das Template T05A setzt es selbst);
+  `allFlow` = Verhalten vor 1.7.
+- **Fakten:** Bestände als Monatsstände (Ultimo je Monat) liefern, nie
+  kumuliert oder als Bewegung. `PL_FY`/`FC_FY` eines Bestands = Stand am
+  Jahresende (Anfangsbestand: Jahresanfang), nicht die Summe. Ohne FY-Measures
+  nimmt das Visual bei Modellen mit Beständen den Dezember-FC bzw. -PL.
 
 Im Ebenen-Modus keine eigenen `Subtotal`-Zeilen für Ebenen-Knoten anlegen.
 Mit gebundener `AccountID` entsteht sonst neben der synthetischen
@@ -260,6 +297,25 @@ gerechnete Netto.
 Bei Formel- und KPI-Zeilen wirkt `SignConvention` nicht (die Formel bestimmt
 das Vorzeichen). `VarianceInvert` wirkt dort wie überall.
 
+**Bestandszeilen (1.7, §4a)** folgen einer eigenen Regel:
+`SignConvention` nach **Bilanzseite**, `DisplayInvert = false`,
+`VarianceInvert` nach Fachlogik.
+
+| Sign | DisplayInvert | VarianceInvert | Wann | Beispiel |
+|---:|---|---|---|---|
+| +1 | false | false | Aktiva, mehr ist günstig | Sachanlagen, Kasse und Bank |
+| +1 | false | true | Aktiva, mehr ist ungünstig (gebundenes Working Capital) | Vorräte, Forderungen LuL |
+| -1 | false | false | Passiva, mehr ist günstig | Eigenkapital |
+| -1 | false | true | Passiva, mehr ist ungünstig | Verbindlichkeiten, Rückstellungen |
+
+Passiva tragen `-1`, wenn die Quelle Haben-Salden negativ liefert (Saldenliste,
+Hauptbuch) — dann erscheinen sie positiv. Liefert die Quelle Passiva schon
+positiv, gilt `+1`. **`-1 · false · true` ist bei Beständen kein Doppel-Dreh:**
+das `-1` normiert nur das Vorzeichen der Haben-Salden, es zieht nichts ab —
+mehr Verbindlichkeiten ergeben ein positives Δ, `VarianceInvert` färbt es
+ungünstig. Der Validator unterscheidet das (Abschnitt [4]: „Bestandszeilen").
+Beispiel: `pnlByDatenWG/demoData/bilanz-dim-konten.csv` + `bilanz-fact.csv`.
+
 ## 7 · Wahrheitswerte und Vorzeichen: was die Engine liest
 
 `parseBool` (DisplayInvert, VarianceInvert):
@@ -327,5 +383,9 @@ erzeugt Geisterzeilen und Kreuzprodukte. Wächter-Muster:
 | Zeile doppelt | Subtotal-Zeile auf dem Pfad eines Ebenen-Knotens |
 | Tiefere Ebene fehlt | Ebenen-Lücke (L2 leer, L3 gefüllt) |
 | Rote Zeilen unter „Nicht zugeordnet" | Parent-Child-Waise |
+| Bilanzposten im YTD neunmal so groß | Bestand ohne Token `stock` (oder `statement.stockMode` nicht `allStock`) — die Monatsstände werden summiert |
+| Anfangsbestand im YTD = Stand des letzten Monats | Token `stock` statt `opening` am Anfangsbestand |
+| Passiva negativ | Haben-Salden negativ geliefert, aber `SignConvention +1` (Passiva: -1) |
+| Endbestand ≠ Anfangsbestand + Cashflows | Endbestand als Konto mit eigenen Fakten statt Formel — Datenfehler zeigt sich in der Brücke |
 | Block-Reihenfolge springt | SortOrder fehlt oder nicht fortlaufend |
 | hl-Werte als „Tsd. EUR" | Mengenzeile nicht ausgefiltert |

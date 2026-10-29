@@ -6,7 +6,8 @@
  *  - contributing rows (account/subtotal) become FLOATING segments that
  *    accumulate (positive up, negative down)
  *  - formula rows (EBITDA, EBIT, EBT, Net income) become ANCHOR columns
- *    drawn from the zero line — negative anchors hang below it
+ *    drawn from the zero line — negative anchors hang below it; 1.7: stock
+ *    rows too (opening → flows → closing balance of a cash-flow bridge)
  *  - kpi/separator rows are skipped (they carry no additive contribution)
  *
  * Notation (IBCS 1.2, UNIFY/SIMPLIFY): scenario fill encodes the scenario
@@ -219,8 +220,10 @@ function toBars(rows: PnlNode[], scenario: Scenario): Bar[] {
         const value = type === "kpi" || type === "separator" ? null : node.computed[scenario];
         return value == null || !isFinite(value) ? null : value;
     });
+    // formula rows anchor at zero — and 1.7 every stock row (opening and closing
+    // balance of a cash-flow bridge): the flows between them float
     const segs = cascade(rows.map((node, i) => ({
-        id: String(i), value: vals[i], anchor: node.row.rowType === "formula", children: [],
+        id: String(i), value: vals[i], anchor: node.row.rowType === "formula" || node.stock != null, children: [],
     })), "value");
     const bars: Bar[] = [];
     rows.forEach((node, i) => {

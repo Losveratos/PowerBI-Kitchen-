@@ -12,6 +12,29 @@ export interface TemplateSwitches {
     cols: Record<string, boolean | string>;
     nums: Record<string, number>;
     title: Record<string, boolean>;
+    /** 1.7 statement.stockMode — empty = the template leaves it alone */
+    stmt: Record<string, string>;
+}
+
+/** 1.7 the templates of the stock group: the balance sheet and the cash flow */
+export const STOCK_TEMPLATES = ["T05A", "T05B"];
+
+/**
+ * 1.7 statement.stockMode a template writes, or null when it leaves the mode
+ * alone. `tokens` = the bound data carries stock / flow tokens in the row type
+ * (false while no fields are bound), `cur` = the current mode.
+ *
+ *  - T05A balance sheet: every row a stock when the data carries no token (a
+ *    plain balance sheet), else "auto" (the tokens decide);
+ *  - T05B cash flow: "auto" — the opening and the closing balance are marked
+ *    by their tokens, the flows between them stay flows;
+ *  - every other template is a P&L view: it only takes back an "every row a
+ *    stock" (left behind by T05A), otherwise the mode stays as the author set it.
+ */
+export function templateStockMode(tpl: string, tokens = false, cur = "auto"): string | null {
+    if (tpl === "T05A") { return tokens ? "auto" : "allStock"; }
+    if (tpl === "T05B") { return "auto"; }
+    return cur === "allStock" ? "auto" : null;
 }
 
 /**
@@ -19,7 +42,7 @@ export interface TemplateSwitches {
  * a template is applied (columns + numbers [+ titleBlock.headline]). "off"
  * returns to the classic table and leaves the number format alone.
  */
-export function templateSwitches(tpl: string): TemplateSwitches {
+export function templateSwitches(tpl: string, tokens = false, curStockMode = "auto"): TemplateSwitches {
     const p = MEGA_PRESETS[tpl];
     const cols: Record<string, boolean | string> = {
         minuend: p.min.toLowerCase(),
@@ -36,10 +59,12 @@ export function templateSwitches(tpl: string): TemplateSwitches {
     const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
     // 12G / 12H switch the headline slot on; the other templates leave it alone
     const title: Record<string, boolean> = p.headline ? { headline: true } : {};
-    return { cols, nums, title };
+    const sm = templateStockMode(tpl, tokens, curStockMode);
+    const stmt: Record<string, string> = sm != null ? { stockMode: sm } : {};
+    return { cols, nums, title, stmt };
 }
 
-/** the templates of the gallery, in pane order: "off" (classic table) first, then T01A … 12H */
+/** the templates of the gallery, in pane order: "off" (classic table) first, then T01A … 12H, 1.7 T05A · T05B */
 export const HUB_TEMPLATES: string[] = MEGA_PRESET_KEYS.slice();
 
 /** a tile of the 1.4 gallery: the template plus its finance title and its use line (resjson keys) */
@@ -53,7 +78,7 @@ export interface GalleryTile {
 
 /** a purpose group of the 1.4 gallery (resjson keys of its head and its one-line explanation) */
 export interface GalleryGroup {
-    id: "structure" | "forecast" | "statement" | "report";
+    id: "structure" | "forecast" | "statement" | "balance" | "report";
     title: string;
     sub: string;
     tiles: GalleryTile[];
@@ -63,7 +88,8 @@ const tile = (tpl: string, title: string, use: string): GalleryTile => ({ tpl, t
 
 /**
  * 1.4 template gallery by purpose instead of T numbers: structure comparison
- * (regions, products), forecast, P&L statement, report views. Every template
+ * (regions, products), forecast, P&L statement, 1.7 balance sheet & cash flow,
+ * report views. Every template
  * of the pane appears exactly once; the classic table closes the report views.
  * The keys are literal so the language test sees them.
  */
@@ -87,6 +113,11 @@ export const HUB_GALLERY: GalleryGroup[] = [
         tile("T04A", "UI_TtT04A", "UI_TuT04A"),
         tile("T04B", "UI_TtT04B", "UI_TuT04B"),
         tile("T04C", "UI_TtT04C", "UI_TuT04C"),
+    ] },
+    // 1.7 stocks: the balance sheet at the reporting date and the cash-flow bridge
+    { id: "balance", title: "UI_TgBalance", sub: "UI_TgBalanceX", tiles: [
+        tile("T05A", "UI_TtT05A", "UI_TuT05A"),
+        tile("T05B", "UI_TtT05B", "UI_TuT05B"),
     ] },
     { id: "report", title: "UI_TgReport", sub: "UI_TgReportX", tiles: [
         tile("12A", "UI_Tt12A", "UI_Tu12A"),
@@ -214,6 +245,8 @@ export interface MiniSpec {
     full?: boolean;
     /** carry a synthetic FC scenario (templates that analyse FC) */
     fc?: boolean;
+    /** 1.7 draw the balance-sheet or the cash-flow example instead of the P&L demo */
+    demo?: "bilanz" | "cashflow";
 }
 
 /** a card of the feature tour: texts live in the resjson (UI_Tour<n>T / UI_Tour<n>X) */
@@ -233,6 +266,11 @@ export const TOUR_CARDS: TourCard[] = [
     // 1.6 the flow view — a deliberate addition outside the IBCS notation, so it closes the tour
     { n: 8, mini: { view: "sankey", w: 1250, h: 800 } },
 ];
+
+/** 1.7 the example a template preview draws: the stock templates bring their own data */
+export function templateDemo(tpl: string): "bilanz" | "cashflow" | undefined {
+    return tpl === "T05A" ? "bilanz" : tpl === "T05B" ? "cashflow" : undefined;
+}
 
 /** templates that analyse the FC scenario — their preview needs a forecast the demo does not carry */
 export function templateNeedsFc(tpl: string): boolean {
@@ -260,6 +298,8 @@ export function miniObjects(spec: MiniSpec, dark: boolean): Record<string, Recor
         o.columns = { ...sw.cols, template: tpl, templateApplied: tpl };
         o.numbers = { ...sw.nums };
         if (sw.title.headline != null) { o.titleBlock = { ...o.titleBlock, headline: true }; }
+        // 1.7 the balance-sheet preview needs its stock mode (its example carries no token)
+        if (sw.stmt.stockMode != null && sw.stmt.stockMode !== "auto") { o.statement = { ...sw.stmt }; }
     }
     if (spec.bars) { o.columns = { ...o.columns, barOverlap: true, barTriangles: true }; }
     // the driver tree starts two levels deep: a whole tree does not fit a thumbnail

@@ -44,6 +44,8 @@ Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als *
 - [Post: Fabric Apps im Heimrevier von Power BI (DE)](https://datenwgknowledgekitchen.com/md/fabric-apps-controlling-post.md): Zwei Fabric Apps (Preview, Rayfin CLI) fuer Vertriebscontrolling und Finance Reporting auf einem Semantikmodell, je in etwa einer Stunde mit Coding-Agent, MockupKitchen und ChartKitchen gebaut. Video, Screenshots, Microsoft-Learn-Links, warum Standards wie IBCS (Version 2.0, ISO 24896) mit KI-Agenten wichtig sind, und die Trade-offs (Rechenlogik im App-Code, Git, Preview, Kapazitaet).
 - [Post: Der unsichtbare Kampf (DE)](https://datenwgknowledgekitchen.com/md/der-unsichtbare-kampf-post.md): Interview mit Michael Thomanek (9. Dan Jiu-Jitsu, Jidokan Koeln) ueber sein Buch: Praesenz, Widerstand, das innere Bild von uns selbst, Kampfkunst vs. Selbstverteidigung vs. Kampfsport, und was davon im Projektalltag traegt.
 - [Post: Fabric Apps on Power BI's Home Turf (EN)](https://datenwgknowledgekitchen.com/md/fabric-apps-controlling-post_en.md): Englische Fassung.
+- [Post: Sankey trifft IBCS-Wasserfall (DE)](https://datenwgknowledgekitchen.com/md/sankey-wasserfall-post.md): Wasserfall (wie viel) und Sankey (wohin) auf derselben Datenbindung im P&L-Visual 1.7, durchgespielt an der Brauerei-Demo: T04B-Bruecke gegen Plan, Sankey mit Anteilen, Nur Ausnahmen (5 % gegen PL) in beiden Ansichten, Cross-Highlight eines Monats, Cashflow T05B. Warum das im Controlling eine Alternative zu Excel und zwei Visuals ist; Sankey bewusst ausserhalb der IBCS-Notation.
+- [Post: Sankey meets the IBCS waterfall (EN)](https://datenwgknowledgekitchen.com/md/sankey-wasserfall-post_en.md): Englische Fassung.
 
 ## Guides und Dokumentation
 

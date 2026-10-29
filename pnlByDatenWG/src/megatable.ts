@@ -152,6 +152,17 @@ export interface MegaRow {
     eff?: number;
     /** "=" row of a cascade: drawn from the zero line, restarts the run. Default: formula rows */
     anchor?: boolean;
+    /**
+     * 1.7 a stock row (balance sheet item, opening / closing balance): in a
+     * stacked FY outlook (12G) its value is the FC end stand — the whole bar
+     * is hatched, there is no year-to-date share to stack
+     */
+    stock?: boolean;
+    /**
+     * 1.7 a top-level stock total (balance sheet total, closing balance):
+     * double rule under its figures (the accounting double underline)
+     */
+    dbl?: boolean;
 }
 
 /** Display-oriented variance of one row (engine.displayVariance, scaled). */
@@ -168,6 +179,12 @@ export interface MegaDelta {
     pp: boolean;
     /** below the materiality threshold (columns.materialityAbs / Pct): soft ink instead of good / bad */
     immaterial?: boolean;
+    /**
+     * 1.7 ⚡ "only exceptions": the row is no exception (always together with
+     * `immaterial`, so it greys like it). High contrast cannot grey — there it
+     * is drawn dashed, without fill or pattern.
+     */
+    quiet?: boolean;
 }
 
 export interface MegaBlock {
@@ -366,6 +383,19 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     "12H": preset(P_OFF, {
         min: "PL", showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
         showPctRows: false, decimals: 0, pctDecimals: 1, headline: true,
+    }),
+    // 1.7 balance sheet (stocks): the stand at the reporting date — PY (the stand a
+    // year earlier) · AC · ΔPY · ΔPY%; assets and equity-and-liabilities as two
+    // "=" blocks with the double rule (statement.stockMode: see hub.templateStockMode)
+    T05A: preset(P_OFF, {
+        showPY: true, showMin: true, dPyAbs: true, dPyPct: true, decimals: 0, pctDecimals: 1,
+    }),
+    // 1.7 cash flow: opening balance → operating · investing · financing → closing
+    // balance as PY and AC value cascades (the bridge, stocks anchor), ΔPY · ΔPY%,
+    // month | _YTD (the FY outlook is one switch away: blockKind)
+    T05B: preset(P_OFF, {
+        showPY: true, showMin: true, valueCascade: true, dPyAbs: true, dPyPct: true, secondBlock: true,
+        decimals: 0, pctDecimals: 1,
     }),
 };
 export const MEGA_PRESET_KEYS = Object.keys(MEGA_PRESETS);
@@ -1482,6 +1512,14 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
         if (style.rowRules && r.kind === "acc" && !(contiguous && megaIsBold(next.r))) {
             for (const c of cols) { hline(B, c.x, c.x + c.w, y + h - 0.5, MEGA_C.rule); }
         }
+        // 1.7 a balance-sheet total / closing balance: the double rule under its figures
+        if (r.dbl) {
+            for (const c of cols) {
+                if (c.type === "label") { continue; }
+                hline(B, c.x, c.x + c.w, y + h - 3.5, MEGA_C.ink);
+                hline(B, c.x, c.x + c.w, y + h - 0.5, MEGA_C.ink);
+            }
+        }
     }
     if (style.closing) {
         for (const c of cols) {
@@ -1666,6 +1704,9 @@ function paintChartColumn(
         // below materiality: soft ink, and in high contrast never the hollow "bad" pattern
         const color = ov.D.immaterial ? MEGA_C.soft : ov.D.good ? pal.good : pal.bad;
         const bad = hc && !ov.D.good && !ov.D.immaterial;
+        // 1.7 ⚡ high contrast: no exception = dashed outline, no fill, no pattern
+        const quiet = hc && ov.D.quiet === true;
+        const dashed: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "2,2" };
         const bold = megaIsBold(r);
         // a capped element runs past the largest regular value through the
         // outlier zone, is cut by a break mark and ends in a triangle; its
@@ -1674,10 +1715,10 @@ function paintChartColumn(
         if (c.type === "bar") {
             const xr = X(vv); const x2 = xr + dir * zone;
             const bx = Math.min(c.x0!, x2); const bw = Math.abs(x2 - c.x0!);
-            if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, bad ? hollow : N.area(color, hatch), gBars); }
+            if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, quiet ? dashed : bad ? hollow : N.area(color, hatch), gBars); }
             if (capped) {
                 breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.barH);
-                arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad);
+                arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad || quiet);
                 label(x2 + dir * (G.arrowW + G.lblGap), ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
             } else {
                 const lx = dir > 0 ? Math.max(x2, c.x0! + axisHalf) + G.lblGap : Math.min(x2, c.x0! - axisHalf) - G.lblGap;
@@ -1685,14 +1726,15 @@ function paintChartColumn(
             }
         } else {
             const xr = X(vv); const xh = xr + dir * zone;
-            svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem }, gBars);
+            svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem,
+                "stroke-dasharray": quiet ? "2,2" : null }, gBars);
             if (capped) {
                 breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.pinHead);
-                arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad);
+                arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad || quiet);
                 label(xh + dir * (G.arrowW + G.lblGap), ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             } else {
                 const hs = G.pinHead;
-                rect(xh - hs / 2, cy - hs / 2, hs, hs, bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);
+                rect(xh - hs / 2, cy - hs / 2, hs, hs, quiet ? dashed : bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);
                 const lx = dir > 0 ? Math.max(xh, c.x0!) + hs / 2 + G.lblGap : Math.min(xh, c.x0!) - hs / 2 - G.lblGap;
                 label(lx, ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             }
@@ -1774,7 +1816,8 @@ function paintCascade(
         if (c.type === "wf") {
             const D = blk.delta(r, input.t.min, c.ref!)!;
             // high contrast: an unfavourable step is hollow (good / bad share the foreground)
-            st = input.hc && !D.good && D.d !== 0 && !D.immaterial ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
+            st = input.hc && D.quiet ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "2,2" }
+                : input.hc && !D.good && D.d !== 0 && !D.immaterial ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
                 : N.area(D.immaterial ? MEGA_C.soft : D.good ? pal.good : pal.bad, B.hatch);
             txt = fmt.delta(D.d);
         } else {
@@ -1783,7 +1826,10 @@ function paintCascade(
             st = input.hc && c.scen === "PY" ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "3,2" }
                 : N.value(c.scen!, light, B.hatch);
             txt = fmt.val(blk.value(r, c.scen!)!);
-            if (c.stack && blk.ytd) {
+            if (c.stack && blk.ytd && r.stock) {
+                // 1.7 a stock in the FY outlook is the FC end stand: one hatched bar, no YTD share
+                st = N.value("FC", light, B.hatch);
+            } else if (c.stack && blk.ytd) {
                 const yv = blk.ytd(r);
                 if (yv != null && isFinite(yv)) { ytdPart = { v: yv, t: fmt.val(yv) }; }
             }
