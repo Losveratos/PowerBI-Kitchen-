@@ -16,6 +16,7 @@ import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
 
 import { VisualFormattingSettingsModel, DatenLage } from "./settings";
 import { GanttRenderer, GanttTask, Diagnose, computeTaskColors, parseVorgaenger } from "./gantt";
+import { toUtcMs as toUtcMsRoh } from "./datum";
 
 // ============================================================
 // DataKitchen Gantt — Power-BI-Anbindung.
@@ -32,50 +33,11 @@ interface TaskWithId extends GanttTask {
     selectionId: ISelectionId;
 }
 
-// Text-Termine ausdrücklich lesen. new Date("06.03.2026") deutet Monat und Tag
-// US-amerikanisch und liefert den 3. JUNI — bei deutschen Exporten ein stiller
-// Fehler im ganzen Plan. MS Project schreibt Termine zudem als "Mo 06.03.26 08:00".
-function textDatum(raw: string): number | null {
-    const t = raw.trim().replace(/^[A-Za-zÄÖÜäöü]{2,3}\.?,?\s+/, '');   // Wochentag vorn
-    const gueltig = (y: number, mo: number, d: number): number | null => {
-        if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
-        const ms = Date.UTC(y, mo - 1, d);
-        return new Date(ms).getUTCDate() === d ? ms : null;   // 31.02. o. ä. verwerfen
-    };
-    let m = /^(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})(?!\d)/.exec(t);
-    if (m) return gueltig(m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]), Number(m[2]), Number(m[1]));
-    m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(t);
-    if (m) return gueltig(Number(m[1]), Number(m[2]), Number(m[3]));
-    // Schrägstrich: US-Reihenfolge, außer die erste Zahl kann kein Monat sein
-    m = /^(\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4})(?!\d)/.exec(t);
-    if (m) {
-        const y = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
-        const a = Number(m[1]), b = Number(m[2]);
-        return a > 12 ? gueltig(y, b, a) : gueltig(y, a, b);
-    }
-    const d = new Date(t);
-    return isNaN(d.getTime()) ? null : Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
 let textDatumZaehler = 0;   // je parseData zurückgesetzt; für die Datenprüfung
 
+// Termine → UTC-Mitternacht des gemeinten Kalendertags (Regeln in datum.ts)
 function toUtcMs(v: unknown): number | null {
-    if (v === null || v === undefined || v === '') return null;
-    if (v instanceof Date) {
-        if (isNaN(v.getTime())) return null;
-        return Date.UTC(v.getFullYear(), v.getMonth(), v.getDate());
-    }
-    if (typeof v === 'number' && isFinite(v)) {
-        const d = new Date(v);
-        if (isNaN(d.getTime())) return null;
-        return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-    }
-    if (typeof v === 'string') {
-        const ms = textDatum(v);
-        if (ms !== null) textDatumZaehler++;
-        return ms;
-    }
-    return null;
+    return toUtcMsRoh(v, () => { textDatumZaehler++; });
 }
 
 // Fortschritt kommt gelegentlich als Text ("70 %", "0,7") — z. B. aus FORMAT()-Measures

@@ -4,7 +4,7 @@
         "displayName": "DataKitchen Gantt (Projektplan)",
         "guid": "dataKitchenGanttD7C41F0A93E24B6BA1F3C5E8A20D9B44",
         "visualClassName": "Visual",
-        "version": "2.2.0.0",
+        "version": "2.2.1.0",
         "description": "Projektplan-Gantt nach MS-Project-Vorbild: Gliederung aus PSP-Code oder bis zu 5 Ebenen-Feldern, Sammelvorgänge, Vorgänger mit EA/AA/EE/AE und Zeitabstand, kritischer Pfad und Puffer (aus dem Export oder berechnet), Stichtage, Basisplan als grauer Balken unter dem Aktuell-Balken mit Δ, Fortschrittslinie, Arbeitstage mit Feiertagen, überfällige Vorgänge zum Statusdatum. Ansichten Alle/je Projekt zugeklappt/Hauptmeilensteine/kritischer Pfad/überfällig, Suche, Gliederung bis Ebene n, Crossfilter je Vorgang. Einrichtungshilfe für Ersteller mit Felder-Checkliste, Datenprüfung und Vorlagen. Bis 30.000 Zeilen flüssig.",
         "supportUrl": "https://github.com/",
         "gitHubUrl": ""
@@ -22,5 +22,5 @@
     "capabilities": "capabilities.json",
     "dependencies": null,
     "stringResources": [],
-    "version": "2.2.0.0"
+    "version": "2.2.1.0"
 }

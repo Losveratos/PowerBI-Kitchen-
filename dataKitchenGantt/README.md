@@ -213,6 +213,7 @@ Einstellung starten weiterhin in der Hauptmeilenstein-Ansicht.
 - **30.000 Zeilen**: Zeilen sind virtualisiert, die Planungsanalyse (Netzplan,
   überfällig) ist je Datenstand gecacht, der Baum je Struktur. Erstes Bild ~0,5 s
   mit Vorgängern, Hover ~30 ms.
+- **Termine und Zeitzone** (2.2.1): jeder Wert wird auf seinen Kalendertag als UTC-Mitternacht gebracht — Datum, Zahl und ISO-Zeitstempel mit Zone („…T22:00:00Z“ = lokale Mitternacht) lokal, ISO ohne Zone und TT.MM.JJJJ wörtlich (2.1/2.2 zeigten in MEZ/MESZ alle Termine einen Tag zu früh); Test: `npm run test:datum`.
 - **Berechneter Puffer**: ohne Uhrzeiten endet ein Vorgang am Ende seines letzten
   Tages, ein Meilenstein am Ende seines Tages; ein EA-Nachfolger, der selbst ein
   Vorgang ist, beginnt frühestens am nächsten Arbeitstag. Ohne Stichtage wird
