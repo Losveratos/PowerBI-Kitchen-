@@ -36,6 +36,167 @@ export interface GanttTask {
     color?: string | null; // individuelle Farbe (Format-Pane-Override, hex)
     ps?: number | null;    // Basisplan-Start (ms); null/fehlend = kein Plan
     pe?: number | null;    // Basisplan-Ende (ms)
+    haupt?: boolean;       // Hauptmeilenstein (Rolle "hauptMs"); undefined = Rolle nicht gebunden
+    // --- MS-Project-nahe Felder (alle optional; undefined = Rolle nicht gebunden)
+    nr?: string | null;        // Vorgangs-Nr. — Bezug für Vorgänger wie "12EA+2T"
+    psp?: string | null;       // PSP-Code "2.1.3" — trägt ohne Ebenen-Felder die Hierarchie
+    kritisch?: boolean;        // aus dem Export (MS Project "Kritisch")
+    puffer?: number | null;    // Gesamte Pufferzeit in Arbeitstagen (aus dem Export)
+    stichtag?: number | null;  // Stichtag/Deadline (UTC ms)
+    farbeWert?: string | null; // Wert der Rolle "Farbe nach"
+    zusatz?: string[];         // bereits formatierte Werte der Zusatzspalten
+    depRefs?: DepRef[];        // geparste Vorgänger (sonst gelten deps als Namen, Typ EA)
+}
+
+// Datenprüfung aus dem Einlesen (visual.ts). Für die Einrichtungshilfe: Ersteller
+// sollen sehen, was beim Einlesen still korrigiert oder verworfen wurde.
+export interface Diagnose {
+    zeilen: number;             // Zeilen im DataView
+    ohneName: number;           // übersprungen: Task leer
+    ohneStart: number;          // übersprungen: Start leer/ungültig
+    endeVorStart: number;       // Ende vor Start → auf Start gesetzt
+    textDaten: number;          // Termine kamen als Text (und wurden gelesen)
+    limitErreicht: boolean;     // Datenreduktion von Power BI hat gekürzt
+    fortschrittAnzahl: boolean; // "Fortschritt" als Anzahl zusammengefasst → ignoriert
+    pspDoppelt: number;
+    nrDoppelt: number;
+    rollen: Record<string, boolean>;   // gebundene Rollen
+}
+
+// Vorlagen der Einrichtungshilfe. Welche Einstellungen sie setzen, steht in
+// visual.ts (dort liegen die Objekt- und Eigenschaftsnamen des Formatbereichs).
+export const VORLAGEN: { key: string; label: string; text: string; braucht?: 'haupt' }[] = [
+    { key: 'planer', label: 'Projektplaner', text: 'Wie MS Project: PSP-Spalte, Puffer, Stichtage, Fortschrittslinie, Arbeitstage, Wochenansicht' },
+    { key: 'management', label: 'Management-Übersicht', text: 'Kompakt: Balken nach Status, Fortschritt, Monatsansicht, ohne Planerspalten' },
+    { key: 'meilensteine', label: 'Meilenstein-Portfolio', text: 'Startet mit den Hauptmeilensteinen, Quartalsansicht', braucht: 'haupt' },
+    { key: 'ibcs', label: 'IBCS-Bericht', text: 'Monochrom nach IBCS, Plan vs. Ist mit Δ' },
+    { key: 'standard', label: 'Zurücksetzen', text: 'Alles, was die Vorlagen ändern, wieder auf die Vorgaben' }
+];
+
+export type DepTyp = 'EA' | 'AA' | 'EE' | 'AE';   // Ende-Anfang, Anfang-Anfang, Ende-Ende, Anfang-Ende
+
+export interface DepRef {
+    ref: string;          // Nr. oder Vorgangsname
+    istNr: boolean;       // true = über die Rolle "Nr." auflösen
+    typ: DepTyp;
+    lag: number;          // Zeitabstand in Arbeitstagen (negativ = Überlappung)
+    lagProzent?: number;  // MS Project "EA+50%": Anteil der Vorgängerdauer
+    roh: string;          // Originaltext, für den Tooltip
+}
+
+const DEP_TYP: Record<string, DepTyp> = { EA: 'EA', AA: 'AA', EE: 'EE', AE: 'AE', FS: 'EA', SS: 'AA', FF: 'EE', SF: 'AE' };
+
+// MS-Project-Spalte "Vorgänger" zerlegen: "12;15EA+2T;7AA-1 Tag;3EE+50%".
+// Deutsche (EA/AA/EE/AE) und englische (FS/SS/FF/SF) Kürzel, Einheiten T/Tage/
+// d/day, W/Woche (=5 AT), Mo/Monat (=20 AT), h/Std (=1/8 AT), min, "e"-Präfix
+// (fortlaufend) wird wie Tage gelesen. Nicht-numerische Einträge bleiben
+// Vorgangsnamen — so funktionieren bestehende Berichte mit Namenslisten weiter.
+export function parseVorgaenger(raw: string): DepRef[] {
+    return String(raw).split(/[;,]/).map(x => x.trim()).filter(x => x.length > 0).map((tok): DepRef => {
+        const m = /^(\d+)\s*(EA|AA|EE|AE|FS|SS|FF|SF)?\s*(?:([+-])\s*(\d+(?:[.,]\d+)?)\s*(%|[a-zäöü]*)\.?)?$/i.exec(tok);
+        if (!m) return { ref: tok, istNr: false, typ: 'EA', lag: 0, roh: tok };
+        const typ = DEP_TYP[(m[2] || 'EA').toUpperCase()];
+        let lag = 0;
+        let lagProzent: number | undefined;
+        if (m[4]) {
+            const v = parseFloat(m[4].replace(',', '.')) * (m[3] === '-' ? -1 : 1);
+            const u = (m[5] || '').toLowerCase().replace(/^e(?=[a-zäöü])/, '');
+            if (u === '%') lagProzent = v;
+            else if (/^(w|wo|woche|wochen|wk|wks|week|weeks)$/.test(u)) lag = v * 5;
+            else if (/^(mo|mon|monat|monate|month|months)$/.test(u)) lag = v * 20;
+            else if (/^(h|std|stunde|stunden|hr|hrs|hour|hours)$/.test(u)) lag = v / 8;
+            else if (/^(m|min|minute|minuten|minutes)$/.test(u)) lag = v / 480;
+            else lag = v;   // T, Tag(e), d, day(s) oder ohne Einheit
+        }
+        return { ref: m[1], istNr: true, typ, lag, lagProzent, roh: tok };
+    });
+}
+
+// Feiertage aus dem Formatbereich: "01.01.2026, 03.04.2026" oder ISO "2026-04-03",
+// getrennt durch Komma, Semikolon, Leerzeichen oder Zeilenumbruch
+export function parseFeiertage(raw: string | undefined): number[] {
+    if (!raw) return [];
+    const out: number[] = [];
+    String(raw).split(/[\s,;]+/).forEach(tok => {
+        let m = /^(\d{1,2})\.(\d{1,2})\.(\d{2,4})$/.exec(tok);
+        if (m) {
+            const y = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
+            out.push(Date.UTC(y, Number(m[2]) - 1, Number(m[1])));
+            return;
+        }
+        m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(tok);
+        if (m) out.push(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+    });
+    return out;
+}
+
+// Arbeitskalender Mo–Fr plus Feiertage. Rechnet in UTC-Mitternachten, wie
+// alle Termine im Visual. zwischen() ist O(log n) — wichtig bei 30.000 Zeilen.
+export class Kalender {
+    private fei: number[];          // nur Feiertage, die auf einen Werktag fallen, sortiert
+    private feiSet: Set<number>;
+
+    constructor(feiertage: number[]) {
+        this.fei = feiertage.filter(f => { const d = new Date(f).getUTCDay(); return d !== 0 && d !== 6; })
+            .sort((a, b) => a - b).filter((f, i, a) => i === 0 || a[i - 1] !== f);
+        this.feiSet = new Set(this.fei);
+    }
+
+    public istArbeitstag(ms: number): boolean {
+        const d = new Date(ms).getUTCDay();
+        return d !== 0 && d !== 6 && !this.feiSet.has(ms);
+    }
+
+    public istFeiertag(ms: number): boolean {
+        return this.feiSet.has(ms);
+    }
+
+    public feiertage(): number[] {
+        return this.fei;
+    }
+
+    // Arbeitstage im geschlossenen Intervall [a, b]; b < a → 0
+    public zwischen(a: number, b: number): number {
+        if (b < a) return 0;
+        const tage = Math.round((b - a) / DAY) + 1;
+        const wochen = Math.floor(tage / 7);
+        let n = wochen * 5;
+        let wd = new Date(a + wochen * 7 * DAY).getUTCDay();
+        for (let i = 0; i < tage - wochen * 7; i++) {
+            if (wd !== 0 && wd !== 6) n++;
+            wd = (wd + 1) % 7;
+        }
+        return n - (this.untergrenze(b + 1) - this.untergrenze(a));
+    }
+
+    // vorzeichenbehaftete Arbeitstage von a nach b (positiv, wenn b später liegt)
+    public differenz(a: number, b: number): number {
+        return b >= a ? this.zwischen(a + DAY, b) : -this.zwischen(b + DAY, a);
+    }
+
+    // Datum n Arbeitstage nach ms (n ≥ 0, gerundet)
+    public plus(ms: number, n: number): number {
+        let d = ms;
+        let k = Math.round(n);
+        let schutz = 0;
+        while (k > 0 && schutz++ < 20000) {
+            d += DAY;
+            if (this.istArbeitstag(d)) k--;
+        }
+        return d;
+    }
+
+    private untergrenze(ms: number): number {   // Anzahl Feiertage < ms
+        let lo = 0, hi = this.fei.length;
+        while (lo < hi) { const mid = (lo + hi) >> 1; if (this.fei[mid] < ms) lo = mid + 1; else hi = mid; }
+        return lo;
+    }
+}
+
+// Heute als UTC-Mitternacht des lokalen Kalendertags (wie die Termine aus Power BI)
+function heuteUtc(): number {
+    const n = new Date();
+    return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
 }
 
 export interface GanttOptions {
@@ -46,9 +207,18 @@ export interface GanttOptions {
     heuteLinie: boolean;
     tabellenBreite: number;             // 0 = Tabelle ausblenden
     spalten?: Record<string, boolean>;  // Tabellenspalten einzeln ein-/ausblenden (Schlüssel = ColDef.key)
+    // Eigene Bezeichnungen (Karte "Beschriftungen"). Leer = bisheriger Text.
+    // Einzahl/Mehrzahl getrennt, weil sich der deutsche Plural nicht ableiten lässt.
+    texte?: { spalteTask?: string; projekt1?: string; projektN?: string; ebene1?: string; ebeneN?: string };
     gruppenNamen?: boolean;             // Namen der Gruppenzeilen auch im Chart zeigen (default true)
+    kopfzeile?: boolean;                // Infotext oben links ("3 Projekte · 9 Vorgänge …") (default true)
+    tooltip?: boolean;                  // Hover-Tooltip überhaupt zeichnen (default true)
+    tipZeilen?: Record<string, boolean>;        // einzelne Tooltip-Zeilen (Schlüssel s. renderTip, default jeweils true)
+    zeiteinheiten?: Record<string, boolean>;    // welche Zoomstufen die Leiste anbietet (Schlüssel = Kleinschreibung des Labels)
     basisplan?: boolean;                // Plan-Balken zeichnen (default true)
     deltaSpalte?: boolean;              // Δ-Spalte in der Tabelle (default true)
+    basisplanLegende?: boolean;         // 2.2: Legende „Aktuell“/„Basisplan“ in der Leiste (default true)
+    deltaBeschriftung?: boolean;        // 2.2: „Δ +n t“ an Balken- und Meilensteinbeschriftung (default true)
     verzugZeilen?: boolean;             // Zeilen mit Verzug rot hinterlegen (default true)
     statusDatum?: number | null;        // rote Linie: Statusdatum statt "Heute" (UTC ms)
     zeiteinheit?: string;               // 'auto' | 'Tage' | 'Wochen' | 'Monate' | 'Quartale' | 'Jahre'
@@ -58,6 +228,32 @@ export interface GanttOptions {
     msNamen?: boolean;                  // Name am Meilenstein anzeigen (default true)
     msBeschriftung?: string;            // 'nurDatum' | 'nurName' | 'beides' — Rauten auf zugeklappten Zeilen
     msEndeGleichStart?: boolean;        // Ende = Start ebenfalls als Meilenstein werten (default false)
+    nurHaupt?: boolean;                 // veraltet (bis 1.18): Startstellung "Nur Hauptmeilensteine" — wirkt wie startAnsicht 'haupt'
+    startAnsicht?: string;              // 'alle' | 'sammel' | 'projekte' | 'meilensteine' | 'haupt' | 'kritisch' | 'ueberfaellig'
+                                        // — STARTSTELLUNG von "Ansicht ▾". 'alle' = Gesamter Terminplan (alles auf),
+                                        // 'sammel' = nur die oberste Ebene der Sammelvorgänge (Gruppen zu, Projekte auf),
+                                        // 'projekte' = alles zu (je Projekt ein Balken), 'meilensteine' = nur Meilensteine
+    // 2.3: Leser-Knöpfe in der Leiste (default jeweils true)
+    knopfMeilensteine?: boolean;        // „◆ Meilensteine“: Meilenstein-Zeilen und -Rauten ein/aus
+    knopfBasisplan?: boolean;           // „▭ Basisplan“: Basisplan-Balken/-Rauten, Legende, Δ ein/aus
+    // --- Terminplanung
+    kritischHervorheben?: boolean;      // kritische Vorgänge rot (default true)
+    ueberfaelligMarkieren?: boolean;    // überfällig zum Statusdatum (default true)
+    pufferAnzeigen?: boolean;           // Gesamtpuffer als Linie hinter dem Balken (default true)
+    stichtageAnzeigen?: boolean;        // Stichtag-Marker (default true)
+    fortschrittslinie?: boolean;        // MS-Project-Fortschrittslinie (default false)
+    arbeitstage?: boolean;              // Dauer/Δ/Überfällig in Arbeitstagen statt Kalendertagen (default false)
+    feiertage?: string;                 // Feiertage als Text, s. parseFeiertage()
+    // --- Balken
+    farbeNach?: string;                 // 'zweig' | 'status' | 'kritisch' | 'feld'
+    legende?: boolean;                  // Legende zur Balkenfarbe (default true)
+    namenZweizeilig?: boolean;          // lange Vorgangsnamen auf zwei Zeilen (default false)
+    zusatzKoepfe?: string[];            // Spaltenköpfe der Zusatzspalten (displayName der Felder)
+    // --- Ersteller
+    bearbeiten?: boolean;               // Bericht im Bearbeitungsmodus (nur dann Einrichtungshilfe)
+    einrichtung?: boolean;              // Einrichtungshilfe zeigen (default true)
+    diagnose?: Diagnose;                // Datenprüfung aus dem Einlesen
+    onVorlage?: (key: string) => void;  // Vorlage anwenden (Host persistiert die Einstellungen)
     fontFamily: string;
     fontSize: number;                   // Basisgröße in px (Referenz-Design: 13)
     selectedKeys: ReadonlySet<string> | null;   // aktive Selektion (Dimmen)
@@ -65,6 +261,9 @@ export interface GanttOptions {
     onSelect: (task: GanttTask, ev: MouseEvent) => void;
     onContextMenu: (task: GanttTask, ev: MouseEvent) => void;
     onClear: () => void;
+    // Mehrere Tasks auf einmal selektieren (Hauptmeilenstein-Zeile mit mehreren
+    // Vorkommen). Fehlt der Callback, wird nur das erste Vorkommen selektiert.
+    onSelectMany?: (tasks: GanttTask[], ev: MouseEvent) => void;
     onTableWidth?: (w: number) => void;   // Tabellenbreite per Trenner gezogen (zum Persistieren)
 }
 
@@ -83,6 +282,12 @@ const PHASE_HEX_DARK = ['#67A3E0', '#B38BD2', '#D08D54', '#69B27A', '#DA827B', '
 const IBCS_AC = '#404040';
 const IBCS_RED = '#FF2600';
 const IBCS_GREEN = '#0E8A3E';   // positive Abweichung (früher als Plan)
+// Kritischer Pfad (Rot wie in MS Project) und neutrale Balken für "nicht kritisch"
+const KRIT_LIGHT = '#D23F31';
+const KRIT_DARK = '#F06A5A';
+const NEUTRAL_LIGHT = '#8D96A3';
+const NEUTRAL_DARK = '#7D8692';
+const SUCH_TINT = 'rgba(242,194,48,0.24)';   // Suchtreffer in der Tabelle
 
 // Einheiten-Suffix für Tageswerte: 't' (Default), 'd' oder leer
 function unitSuffix(tageEinheit: string | undefined): string {
@@ -118,6 +323,13 @@ function hexA(hex: string, alpha: number): string {
     return hex + Math.round(alpha * 255).toString(16).padStart(2, '0').toUpperCase();
 }
 
+// Basisplan wie in MS Project ("Balkendiagramm: Überwachung"): GEFÜLLTER grauer
+// Balken unter dem farbigen Aktuell-Balken. Grau aus dem Theme (sub), im
+// Dunkel-Theme etwas deckender, damit er auf #1E2023 nicht absäuft.
+function planFarbe(t: { sub: string; panel: string }, ibcs: boolean): string {
+    return hexA(t.sub, ibcs ? 0.6 : (t.panel === '#1E2023' ? 0.7 : 0.6));
+}
+
 function fmtDate(ms: number): string {
     const d = new Date(ms);
     return ('0' + d.getUTCDate()).slice(-2) + '.' + ('0' + (d.getUTCMonth() + 1)).slice(-2) + '.' + String(d.getUTCFullYear()).slice(2);
@@ -144,6 +356,18 @@ function statusKind(st: string): StatusKind {
     return 'open';   // z. B. "Offen", "Nicht begonnen"
 }
 
+// Balkenfarbe nach Status (Karte "Balken"); ohne Status = neutral
+function statusHex(st: string | null, dark: boolean): string {
+    if (!st) return dark ? NEUTRAL_DARK : NEUTRAL_LIGHT;
+    const k = statusKind(st);
+    if (k === 'done') return dark ? '#69B27A' : '#3E8651';
+    if (k === 'progress') return dark ? '#67A3E0' : '#3D78B2';
+    if (k === 'blocked') return dark ? '#E0705F' : '#C8483B';
+    return dark ? NEUTRAL_DARK : NEUTRAL_LIGHT;
+}
+// je Statusart ein Wort, das statusKind() wiedererkennt (für die Legende)
+const STATUS_BEISPIEL: Record<StatusKind, string> = { done: 'Fertig', progress: 'In Arbeit', blocked: 'Blockiert', open: 'Offen' };
+
 interface Theme {
     bg: string; panel: string; border: string; grid: string;
     text: string; sub: string; weekend: string; hoverBg: string;
@@ -165,11 +389,36 @@ interface RenderItem {
     laneTint: string;
     phaseKey: string | null;
     task: GanttTask | null;
-    depTasks: GanttTask[];
+    links: Link[];          // eingehende Anordnungsbeziehungen (Pfeile, Tooltip)
+    psp: string | null;     // PSP-Code (Gruppen: der ihres Sammelvorgangs)
+    krit: boolean;          // auf dem kritischen Pfad
+    puffer: number | null;  // Gesamtpuffer in Arbeitstagen
+    ueber: number | null;   // überfällig seit n Tagen (null = nicht überfällig/unbekannt)
+    stichtag: number | null;
     ps: number | null;      // Basisplan-Start
     pe: number | null;      // Basisplan-Ende
     delta: number | null;   // Ist-Ende minus Plan-Ende in Tagen (+ = Verzug)
     msKids: GanttTask[];    // Meilensteine einer ZUGEKLAPPTEN Gruppe (Kompakt-Anzeige)
+}
+
+// Eingehende Anordnungsbeziehung, aufgelöst auf den Vorgänger
+interface Link { src: GanttTask; typ: DepTyp; lag: number; lagProzent?: number; roh: string; }
+
+// Ergebnis der Planungsanalyse — teuer (Netzplan über alle Vorgänge), deshalb
+// je Datenstand und Kalender einmal berechnet statt bei jedem Hover-Render.
+interface Analyse {
+    kal: Kalender;
+    statusMs: number;
+    links: Map<string, Link[]>;     // Task-Schlüssel → eingehende Beziehungen
+    krit: Map<string, boolean>;
+    puffer: Map<string, number>;
+    ueber: Map<string, number>;     // Task-Schlüssel → überfällig seit n Tagen
+    kritQuelle: 'rolle' | 'puffer' | 'berechnet' | null;
+    pufferQuelle: 'rolle' | 'berechnet' | null;
+    ueberBestimmbar: boolean;       // Fortschritt oder Status vorhanden
+    unaufgeloest: number;           // Vorgänger-Nr., die keinem Vorgang zugeordnet werden konnten
+    nrGebunden: boolean;
+    zyklen: number;                 // Vorgänger-Kreise (fehlerhafter Plan) — im Netzplan übersprungen
 }
 
 // Knoten des Gruppenbaums. Kinder liegen in EINER geordneten Liste aus
@@ -178,6 +427,7 @@ interface RenderItem {
 interface GNode {
     name: string;
     ck: string;                 // Collapse-Schlüssel = voller Pfad
+    tiefe: number;              // 0 = oberste Ebene (für "Gliederung ▾")
     isProj: boolean;
     children: { node: GNode | null; task: GanttTask | null }[];
     idx: Map<string, number>;   // Kindname → Position in children
@@ -201,14 +451,18 @@ const ALL_COLS: ColDef[] = [
     { key: 'start', label: 'Start', w: 74 },
     { key: 'end', label: 'Ende', w: 74 },
     { key: 'days', label: 'Tage', w: 46 },
-    { key: 'delta', label: 'Δ Plan', w: 62 },
+    { key: 'puffer', label: 'Puffer', w: 54 },
+    { key: 'stichtag', label: 'Stichtag', w: 74 },
+    { key: 'delta', label: 'Δ Basisplan', w: 84 },
     { key: 'status', label: 'Status', w: 100 },
     { key: 'pct', label: 'Fortschritt', w: 110 },
     { key: 'ow', label: 'Wer', w: 60 }
 ];
+const PSP_W = 58;       // PSP-Spalte steht LINKS vom Namen, wie in MS Project
+const ZUSATZ_W = 92;
 // Reihenfolge, in der Spalten bei schmaler Tabelle weichen — Δ bleibt lange
 // sichtbar, weil die Abweichung das wichtigste Steuerungssignal ist
-const DROP_ORDER = ['ow', 'days', 'status', 'pct', 'delta', 'end', 'start'];
+const DROP_ORDER = ['z2', 'z1', 'z0', 'ow', 'stichtag', 'days', 'status', 'puffer', 'pct', 'delta', 'end', 'start'];
 const MIN_TASK_COL = 140;
 
 export class GanttRenderer {
@@ -235,9 +489,52 @@ export class GanttRenderer {
     private m: Metrics = { s: 1, rowH: ROW_H, axisH: AXIS_H, headerH: HEADER_H, barH: 20, phBarH: 9, dia: 14 };
     private phaseKeys: string[] = [];       // Collapse-Schlüssel ALLER Ebenen-Gruppen (jede Tiefe)
     private projKeys: string[] = [];        // Collapse-Schlüssel der Projekt-Ebene ("P:<Name>")
-    private levelCount = 0;                 // Anzahl gebundener Ebenen-Felder (Rolle "phase")
+    private levelCount = 0;                 // wirksame Ebenenzahl (Ebenen-Felder bzw. Tiefe aus dem PSP-Code)
+    private ebenenFelder = 0;               // Anzahl gebundener Ebenen-Felder (Rolle "phase")
     private sammelN = 0;                    // ausgelassene Sammelvorgangs-Zeilen (Kopfzeile)
     private hasProj = false;                // Projekt-Rolle gebunden → 3-Ebenen-Hierarchie
+    private hasHaupt = false;               // mindestens eine Zeile ist Hauptmeilenstein
+    // Ansicht ("Ansicht ▾" in der Leiste). Der Optionswert startAnsicht ist nur die
+    // Startstellung — die Leiste gewinnt, bis die Option selbst wechselt.
+    // 'alle', 'sammel' und 'projekte' zeigen den vollen Umfang und unterscheiden
+    // sich nur im Klappzustand, mit dem Gruppen starten (s. buildItems):
+    // Gruppen, deren Klappzustand noch nie gesetzt wurde, starten zugeklappt —
+    // auch solche, die erst ein Filterwechsel bringt. Was der Leser selbst
+    // auf-/zuklappt, bleibt so (Eintrag in collapsed).
+    private ansicht: 'alle' | 'sammel' | 'projekte' | 'meilensteine' | 'haupt' | 'kritisch' | 'ueberfaellig' = 'alle';
+    private lastOptAnsicht: string | null = null;
+    // 2.3: Leser-Knöpfe „◆ Meilensteine“ / „▭ Basisplan“ — Zustand nur im
+    // Speicher (wie der Klappzustand). true = vom Leser ausgeblendet.
+    private msAus = false;
+    private planAus = false;
+    private lastOptPlan: boolean | null = null;
+    private gezeigtN = 0;                   // Vorgänge, die die aktuelle Ansicht zeigt (Kopfzeile)
+    // Planungsanalyse (Netzplan, überfällig) — je Datenstand einmal, s. analyse()
+    private ana: Analyse | null = null;
+    private anaTasks: GanttTask[] | null = null;
+    private anaSig = '';
+    private zyklen = 0;
+    // Hierarchie aus dem PSP-Code, wenn keine Ebenen-Felder gebunden sind
+    private pspModus = false;
+    private pspName: Map<string, string> = new Map();    // Projekt\0Code → Vorgangsname
+    private pspKinder: Set<string> = new Set();          // Projekt\0Code, die Kinder haben (= Sammelvorgang)
+    private nodeTiefe: Map<string, number> = new Map();  // Collapse-Schlüssel → Tiefe
+    private maxTiefe = -1;
+    private vorfahren: Map<string, string[]> = new Map(); // Task-Schlüssel → Collapse-Schlüssel der Vorfahren
+    private legende: { label: string; farbe: string }[] = [];
+    // Baum-Cache: ein Hover ändert nur this.hover — der Baum bleibt gleich. Ohne
+    // Cache kostet jede Mausbewegung bei 30.000 Zeilen einen kompletten Neuaufbau.
+    private itemsCache: RenderItem[] | null = null;
+    private itemsSig = '';
+    private datenVersion = 0;
+    private optVersion = 0;
+    // Suche und Menüs der Leiste
+    private suche = '';
+    private suchSet: Set<string> = new Set();
+    private suchIdx = -1;
+    private springZiel: string | null = null;            // nach dem nächsten Build dorthin scrollen
+    private menu: { art: 'ansicht' | 'gliederung' | 'einrichtung'; x: number; y: number } | null = null;
+    private lastOptZE: string | null = null;   // Standard-Zeiteinheit: Wechsel passt neu ein
     private lastItems: RenderItem[] = [];   // Items des letzten Renders (für Koordinaten-Treffer)
     private hasPlan = false;                // mindestens ein Task mit Basisplan-Daten
     private sbDrag: { y0: number; sy0: number } | null = null;   // aktiver Scrollbalken-Drag
@@ -250,6 +547,8 @@ export class GanttRenderer {
 
     // Statische DOM-Hülle (einmal gebaut, Inhalte werden je Render ersetzt)
     private root: HTMLElement;
+    private toolbar: HTMLElement;       // ganze Leiste (wird ohne Daten ausgeblendet)
+    private toolbarAlle: HTMLElement;   // ⊞/⊟ ganz links, VOR dem Infotext
     private toolbarInfo: HTMLElement;
     private toolbarBtns: HTMLElement;
     private panel: HTMLElement;
@@ -264,6 +563,11 @@ export class GanttRenderer {
     private scrollLayer: HTMLElement;   // Lanes, Pfeile, Balken (v-scrollt)
     private todayHost: HTMLElement;
     private tipHost: HTMLElement;
+    private leerHinweis: HTMLElement;   // z. B. "Keine Hauptmeilensteine im aktuellen Filter"
+    private suchFeld: HTMLInputElement; // STABIL: ein Neuaufbau je Render würde Fokus und Eingabe verlieren
+    private suchInfo: HTMLElement;
+    private legendeHost: HTMLElement;
+    private menuHost: HTMLElement;      // Overlay für "Ansicht ▾" / "Gliederung ▾"
     private divider: HTMLElement;   // ziehbarer Trenner Tabelle ↔ Chart
     private vTrack: HTMLElement;    // vertikaler Scrollbalken (Spur)
     private vThumb: HTMLElement;    // vertikaler Scrollbalken (Griff)
@@ -273,12 +577,33 @@ export class GanttRenderer {
     constructor(container: HTMLElement) {
         this.container = container;
 
-        this.root = el('div', 'width:100%;height:100%;display:flex;flex-direction:column;font-family:"Segoe UI",-apple-system,sans-serif;font-size:13px;overflow:hidden;user-select:none;padding:8px;box-sizing:border-box');
-        const toolbar = el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 8px;flex-wrap:wrap');
-        this.toolbarInfo = el('div', 'font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis');
+        this.root = el('div', 'position:relative;width:100%;height:100%;display:flex;flex-direction:column;font-family:"Segoe UI",-apple-system,sans-serif;font-size:13px;overflow:hidden;user-select:none;padding:8px;box-sizing:border-box');
+        this.toolbar = el('div', 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 2px 8px;flex-wrap:wrap');
+        // Linke Hälfte: ⊞/⊟ und der Infotext als EIGENE Gruppe. Der Infotext kann
+        // per darstellung.kopfzeile leer sein — die Knöpfe hängen deshalb nicht an
+        // ihm, sondern daneben, und bleiben sichtbar.
+        const linksGrp = el('div', 'display:flex;align-items:center;gap:8px;min-width:0');
+        this.toolbarAlle = el('div', 'display:flex;gap:6px;align-items:center');
+        this.toolbarInfo = el('div', 'font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0');
         this.toolbarBtns = el('div', 'display:flex;gap:8px;align-items:center');
-        toolbar.appendChild(this.toolbarInfo);
-        toolbar.appendChild(this.toolbarBtns);
+        // Suche: findet Vorgänge über Name, PSP-Code und Nr.; Enter springt zum
+        // nächsten Treffer und klappt dafür die Vorfahren auf.
+        this.suchFeld = document.createElement('input');
+        this.suchFeld.type = 'search';
+        this.suchFeld.placeholder = 'Suchen …';
+        this.suchFeld.setAttribute('aria-label', 'Vorgang suchen');
+        this.suchFeld.style.cssText = 'width:128px;height:28px;box-sizing:border-box;border-radius:8px;padding:0 9px;font:inherit;font-size:12px;outline:none;user-select:text';
+        this.suchInfo = el('div', 'font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums');
+        const suchWrap = el('div', 'display:flex;align-items:center;gap:6px');
+        suchWrap.appendChild(this.suchFeld);
+        suchWrap.appendChild(this.suchInfo);
+        this.legendeHost = el('div', 'display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden');
+        linksGrp.appendChild(this.toolbarAlle);
+        linksGrp.appendChild(suchWrap);
+        linksGrp.appendChild(this.toolbarInfo);
+        linksGrp.appendChild(this.legendeHost);
+        this.toolbar.appendChild(linksGrp);
+        this.toolbar.appendChild(this.toolbarBtns);
 
         const panelWrap = el('div', 'flex:1;display:flex;min-height:0');
         this.panel = el('div', 'flex:1;display:flex;min-width:0;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.06)');
@@ -300,8 +625,12 @@ export class GanttRenderer {
         this.bodyClip.appendChild(this.scrollLayer);
         this.todayHost = el('div', 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;overflow:hidden');
         this.tipHost = el('div', 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;overflow:hidden');
+        // Leere Chartfläche ist nicht von "kaputt" zu unterscheiden — bei aktivem
+        // Hauptmeilenstein-Filter steht hier stattdessen ein Hinweis.
+        this.leerHinweis = el('div', 'position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 16px;font-size:12.5px;pointer-events:none;display:none');
         this.chartArea.appendChild(this.axisHost);
         this.chartArea.appendChild(this.bodyClip);
+        this.chartArea.appendChild(this.leerHinweis);
         this.chartArea.appendChild(this.todayHost);
         this.chartArea.appendChild(this.tipHost);
         // Vertikaler Scrollbalken am rechten Rand (sichtbar sobald der Plan
@@ -326,9 +655,11 @@ export class GanttRenderer {
 
         this.landing = el('div', 'flex:1;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;line-height:1.6');
 
-        this.root.appendChild(toolbar);
+        this.menuHost = el('div', 'position:absolute;left:0;top:0;z-index:30;display:none');
+        this.root.appendChild(this.toolbar);
         this.root.appendChild(panelWrap);
         this.root.appendChild(this.landing);
+        this.root.appendChild(this.menuHost);
         this.container.appendChild(this.root);
 
         // --- stabile Event-Verdrahtung (überlebt die Re-Renders) ---
@@ -384,7 +715,8 @@ export class GanttRenderer {
             if (it.id !== d.id) return;
             if (it.kind === 'phase' || it.kind === 'proj') this.togglePhase(it.phaseKey as string);
             else if (it.task) {
-                this.opts.onSelect(it.task, ev);
+                if (it.kind === 'ms' && it.msKids.length > 1 && this.opts.onSelectMany) this.opts.onSelectMany(it.msKids, ev);
+                else this.opts.onSelect(it.task, ev);
                 // Detail-Tooltip wie beim Hover im Chart — verankert am Balken;
                 // zweiter Klick auf dieselbe Zeile blendet ihn wieder aus
                 if (this.tip && this.tip.id === it.id) {
@@ -408,6 +740,20 @@ export class GanttRenderer {
         });
         window.addEventListener('mousemove', this.onWinMove);
         window.addEventListener('mouseup', this.onWinUp);
+        window.addEventListener('mousedown', this.onWinDown, true);
+        window.addEventListener('keydown', this.onWinKey);
+
+        this.suchFeld.addEventListener('input', () => {
+            this.suche = this.suchFeld.value.trim();
+            this.suchIdx = -1;
+            this.invalidate();
+        });
+        this.suchFeld.addEventListener('keydown', (e) => {
+            // Power BI hat eigene Tastenkürzel — Eingaben gehören hier der Suche
+            e.stopPropagation();
+            if (e.key === 'Enter') { e.preventDefault(); this.springeZuTreffer(e.shiftKey ? -1 : 1); }
+            else if (e.key === 'Escape') { this.suchFeld.value = ''; this.suche = ''; this.suchIdx = -1; this.invalidate(); }
+        });
 
         if (typeof ResizeObserver !== 'undefined') {
             this.resizeObs = new ResizeObserver(() => this.invalidate());
@@ -418,6 +764,8 @@ export class GanttRenderer {
     public destroy(): void {
         window.removeEventListener('mousemove', this.onWinMove);
         window.removeEventListener('mouseup', this.onWinUp);
+        window.removeEventListener('mousedown', this.onWinDown, true);
+        window.removeEventListener('keydown', this.onWinKey);
         if (this.resizeObs) this.resizeObs.disconnect();
         this.pending = false;
         if (this.raf) cancelAnimationFrame(this.raf);
@@ -427,12 +775,18 @@ export class GanttRenderer {
 
     public setData(tasks: GanttTask[]): void {
         this.tasks = tasks;
+        this.datenVersion++;
         this.byKey = new Map(tasks.map(t => [t.key, t]));
         // Der Schlüssel ist jetzt der Pfad (Vorgangsnamen sind in großen Plänen
         // nicht eindeutig), Abhängigkeiten werden aber weiter über Namen gepflegt.
         // Namen daher als Zweitindex ergänzen — Pfad-Schlüssel haben Vorrang.
         tasks.forEach(t => { if (!this.byKey.has(t.name)) this.byKey.set(t.name, t); });
-        this.levelCount = tasks.reduce((mx, t) => Math.max(mx, t.path ? t.path.length : (t.phase !== null ? 1 : 0)), 0);
+        this.ebenenFelder = tasks.reduce((mx, t) => Math.max(mx, t.path ? t.path.length : (t.phase !== null ? 1 : 0)), 0);
+        this.levelCount = this.ebenenFelder;
+        // Jedes update() liefert den bereits von Power BI gefilterten DataView —
+        // der Knopf "Nur Hauptmeilensteine" richtet sich also immer nach dem
+        // aktuellen Stand und braucht daneben keine eigene Filterlogik.
+        this.hasHaupt = tasks.some(t => t.haupt === true);
         // Nur neu einpassen, wenn sich die Task-Menge wirklich ändert —
         // sonst springt die Ansicht bei jeder Crossfilter-Interaktion.
         const sig = tasks.map(t => t.key).join('|');
@@ -445,6 +799,7 @@ export class GanttRenderer {
 
     public setOptions(opts: GanttOptions): void {
         this.opts = opts;
+        this.optVersion++;
         this.invalidate();
     }
 
@@ -554,6 +909,12 @@ export class GanttRenderer {
         return this.skala(this.root);
     }
 
+    // Eigene Bezeichnung aus der Karte "Beschriftungen", sonst der bisherige Text
+    private text(k: 'spalteTask' | 'projekt1' | 'projektN' | 'ebene1' | 'ebeneN', vorgabe: string): string {
+        const t = this.opts && this.opts.texte ? this.opts.texte[k] : undefined;
+        return t !== undefined && t !== null && String(t).trim() !== '' ? String(t).trim() : vorgabe;
+    }
+
     private itemAt(host: HTMLElement, clientY: number): RenderItem | null {
         const r = host.getBoundingClientRect();
         if (clientY < r.top || clientY > r.bottom) return null;
@@ -629,10 +990,25 @@ export class GanttRenderer {
             else {
                 const it = this.chartItemAtY(pan.y0);
                 if (it && (it.kind === 'phase' || it.kind === 'proj')) this.togglePhase(it.phaseKey as string);
+                else if (it && it.kind === 'ms' && it.msKids.length > 1 && this.opts.onSelectMany) this.opts.onSelectMany(it.msKids, e);
                 else this.opts.onClear();
             }
         }
         this.invalidate();
+    };
+
+    // Offenes Menü schließt bei jedem Klick daneben (Capture-Phase, damit es auch
+    // Klicks erwischt, die andere Listener per stopPropagation abfangen)
+    private onWinDown = (e: MouseEvent): void => {
+        if (!this.menu) return;
+        const t = e.target as Node | null;
+        if (t && (this.menuHost.contains(t) || ((t as HTMLElement).closest && (t as HTMLElement).closest('[data-menu]')))) return;
+        this.menu = null;
+        this.invalidate();
+    };
+
+    private onWinKey = (e: KeyboardEvent): void => {
+        if (e.key === 'Escape' && this.menu) { this.menu = null; this.invalidate(); }
     };
 
     private tipAt(item: RenderItem, e: MouseEvent): void {
@@ -651,11 +1027,100 @@ export class GanttRenderer {
     // px/Tag je Zeiteinheit (Referenz-Sample + neu Quartale/Jahre)
     private static MODE_PXD: Record<string, number> = { Tage: 24, Wochen: 9, Monate: 3.2, Quartale: 1.1, Jahre: 0.32 };
 
+    // Zeilen, die die aktuelle Ansicht tatsächlich zeigt. Zoom-Fit, "Alles" und
+    // die Suche dürfen sonst auf Vorgänge zielen, die gar nicht zu sehen sind.
+    // Die Ansicht gilt AUCH dann, wenn der (von Power BI bereits gefilterte)
+    // DataView gerade nichts Passendes enthält — ein stiller Rückfall auf den
+    // vollen Plan würde zeigen, was der Nutzer gerade ausgeschlossen hat.
+    private gezeigteTasks(): GanttTask[] {
+        if (this.ansicht === 'haupt') return this.tasks.filter(t => t.haupt === true);
+        if (this.ansicht === 'meilensteine') return this.tasks.filter(t => this.isMs(t));
+        const basis = this.ohneMs() ? this.tasks.filter(t => !this.isMs(t)) : this.tasks;
+        if (this.vollerUmfang()) return basis;
+        const a = this.analyse();
+        if (this.ansicht === 'kritisch') return basis.filter(t => a.krit.get(t.key) === true);
+        return basis.filter(t => a.ueber.has(t.key));
+    }
+
+    // Ansichten ohne Filter: sie unterscheiden sich nur im Start-Klappzustand
+    private vollerUmfang(): boolean {
+        return this.ansicht === 'alle' || this.ansicht === 'sammel' || this.ansicht === 'projekte';
+    }
+
+    // „◆ Meilensteine“ wirkt nur, wo der Knopf angeboten wird: in den beiden
+    // Meilenstein-Ansichten wäre „ohne Meilensteine“ eine leere Fläche
+    private msUmschaltbar(): boolean {
+        return this.ansicht !== 'meilensteine' && this.ansicht !== 'haupt'
+            && (!this.opts || this.opts.knopfMeilensteine !== false);
+    }
+
+    private ohneMs(): boolean {
+        return this.msAus && this.msUmschaltbar();
+    }
+
+    // Basisplan zeichnen: Formatbereich (basisplan.anzeigen) UND Leser-Knopf.
+    // Ist der Knopf abgeschaltet, gilt allein der Formatbereich.
+    private planSichtbar(): boolean {
+        const o = this.opts;
+        if (o && o.basisplan === false) return false;
+        return !(this.planAus && (!o || o.knopfBasisplan !== false));
+    }
+
+    // Gibt es überhaupt Gruppen (Ebenen-Felder oder PSP-Gliederung)?
+    private hatGruppen(): boolean {
+        return this.ebenenFelder > 0 || this.tasks.some(t => !!t.psp && t.psp.indexOf('.') > 0);
+    }
+
+    // Umschalten der Ansicht: der gezeigte Umfang wechselt komplett, deshalb darf
+    // vom alten Stand nichts überleben. Liefert true, wenn sich etwas geändert hat.
+    private wechsleAnsicht(v: string): boolean {
+        const neu = (v === 'sammel' || v === 'projekte' || v === 'meilensteine' || v === 'haupt' || v === 'kritisch' || v === 'ueberfaellig') ? v : 'alle';
+        if (this.ansicht === neu) return false;
+        this.ansicht = neu;
+        this.collapsed = {};
+        this.sy = 0;
+        this.fitted = false;
+        this.tip = null;
+        return true;
+    }
+
+    // Auf eine Menge von Vorgängen einpassen (Toolbar "Auswahl")
+    private einpassen(ts: GanttTask[]): void {
+        const cw = this.chartArea.clientWidth;
+        if (!ts.length || cw <= 0) return;
+        const mn = ts.reduce((a, t) => Math.min(a, t.s), Infinity);
+        const mx = ts.reduce((a, t) => Math.max(a, t.e === null ? t.s : t.e), -Infinity);
+        const span = (mx - mn) / DAY + 16;
+        this.pxd = Math.min(30, Math.max(0.25, (cw - 40) / span));
+        this.view = mn - 6 * DAY;
+        this.mode = '';
+    }
+
+    // Suchtreffer in der aktuellen Ansicht: Name, PSP-Code oder Nr.
+    private suchTreffer(): GanttTask[] {
+        const q = this.suche.toLowerCase();
+        if (!q) return [];
+        return this.gezeigteTasks().filter(t =>
+            t.name.toLowerCase().includes(q)
+            || (!!t.psp && t.psp.toLowerCase().startsWith(q))
+            || (!!t.nr && t.nr === q));
+    }
+
+    private springeZuTreffer(dir: number): void {
+        const tr = this.suchTreffer();
+        if (!tr.length) return;
+        this.suchIdx = ((this.suchIdx < 0 && dir < 0 ? 0 : this.suchIdx) + dir + tr.length) % tr.length;
+        const t = tr[this.suchIdx];
+        (this.vorfahren.get(t.key) || []).forEach(ck => { this.collapsed[ck] = false; });
+        this.springZiel = t.key;
+        this.invalidate();
+    }
+
     private computeFit(erzwingeEinpassen?: boolean): void {
         const cw = this.chartArea.clientWidth;
-        const ts = this.tasks;
+        const ts = this.gezeigteTasks();
         if (!ts.length || cw <= 0) return;
-        const mn = Math.min(...ts.map(x => x.s));
+        const mn = ts.reduce((a, x) => Math.min(a, x.s), Infinity);
         // Standard-Zeiteinheit aus den Optionen: beim ERSTEN Layout fester
         // Maßstab statt Einpassen; der "Alles"-Button passt immer ein
         const ze = this.opts && this.opts.zeiteinheit;
@@ -665,7 +1130,7 @@ export class GanttRenderer {
             this.mode = ze;
             return;
         }
-        const mx = Math.max(...ts.map(x => x.e === null ? x.s : x.e));
+        const mx = ts.reduce((a, x) => Math.max(a, x.e === null ? x.s : x.e), -Infinity);
         const span = (mx - mn) / DAY + 16;
         this.pxd = Math.min(30, Math.max(0.25, (cw - 40) / span));
         this.view = mn - 6 * DAY;
@@ -677,9 +1142,13 @@ export class GanttRenderer {
         this.invalidate();
     }
 
+    // "Heute" zielt auf den Berichtsstand, wenn ein Statusdatum gebunden ist —
+    // in einem Bericht zum 16.03. ist das der relevante Tag, nicht das Systemdatum
     private goToday(): void {
         const cw = this.chartArea.clientWidth;
-        this.setState({ view: Date.now() - cw / 2 / this.pxd * DAY });
+        const o = this.opts;
+        const ziel = o && o.statusDatum !== undefined && o.statusDatum !== null ? o.statusDatum : Date.now();
+        this.setState({ view: ziel - cw / 2 / this.pxd * DAY });
     }
 
     private setMode(m: string): void {
@@ -750,107 +1219,511 @@ export class GanttRenderer {
         return { s, e, pct: anyPct ? Math.round(wp / wd) : null, ps, pe, delta: pe === null ? null : Math.round((e - pe) / DAY) };
     }
 
+    // ---------- Planungsanalyse ----------
+
+    private static pk(t: GanttTask): string {
+        return (t.projekt !== undefined && t.projekt !== null ? t.projekt : '') + '\u0000';
+    }
+
+    // Vorgänger auflösen, kritischen Pfad/Puffer und Überfälligkeit bestimmen.
+    // Gecacht je Datenstand + Kalender + Statusdatum — Hover-Renders kosten so nichts.
+    private analyse(): Analyse {
+        const o = this.opts;
+        const statusMs = o && o.statusDatum !== undefined && o.statusDatum !== null ? o.statusDatum : heuteUtc();
+        const at = !!(o && o.arbeitstage);
+        const sig = (o && o.feiertage ? o.feiertage : '') + '|' + statusMs + '|' + (o && o.msEndeGleichStart ? 1 : 0) + '|' + (at ? 1 : 0);
+        if (this.ana && this.anaTasks === this.tasks && this.anaSig === sig) return this.ana;
+        const kal = new Kalender(parseFeiertage(o ? o.feiertage : undefined));
+        const tasks = this.tasks;
+        const pk = GanttRenderer.pk;
+
+        // --- Vorgänger: Nr. innerhalb desselben Projekts (MS-Project-IDs beginnen
+        // in jedem Plan bei 1), sonst Vorgangsname
+        const nrGebunden = tasks.some(t => t.nr !== undefined && t.nr !== null && t.nr !== '');
+        const byNr = new Map<string, GanttTask>();
+        const byName = new Map<string, GanttTask>();
+        tasks.forEach(t => {
+            if (t.nr) { const k = pk(t) + t.nr; if (!byNr.has(k)) byNr.set(k, t); }
+            const kn = pk(t) + t.name;
+            if (!byName.has(kn)) byName.set(kn, t);
+        });
+        let unaufgeloest = 0;
+        this.zyklen = 0;
+        const links = new Map<string, Link[]>();
+        tasks.forEach(t => {
+            const refs = t.depRefs ? t.depRefs : t.deps.map((d): DepRef => ({ ref: d, istNr: false, typ: 'EA', lag: 0, roh: d }));
+            const ls: Link[] = [];
+            refs.forEach(r => {
+                let src: GanttTask | undefined = r.istNr ? byNr.get(pk(t) + r.ref) : undefined;
+                if (!src) src = byName.get(pk(t) + r.ref) || this.byKey.get(r.ref);
+                if (!src || src === t) { if (r.istNr) unaufgeloest++; return; }
+                ls.push({ src, typ: r.typ, lag: r.lag, lagProzent: r.lagProzent, roh: r.roh });
+            });
+            if (ls.length) links.set(t.key, ls);
+        });
+
+        // --- Puffer: aus dem Export, sonst berechnet (nur wenn Vorgänger da sind)
+        const fertig = (t: GanttTask): boolean => t.pct !== null ? t.pct >= 100 : (!!t.st && statusKind(t.st) === 'done');
+        const puffer = new Map<string, number>();
+        let pufferQuelle: Analyse['pufferQuelle'] = null;
+        if (tasks.some(t => t.puffer !== undefined && t.puffer !== null)) {
+            pufferQuelle = 'rolle';
+            tasks.forEach(t => { if (t.puffer !== undefined && t.puffer !== null) puffer.set(t.key, t.puffer); });
+        } else if (links.size) {
+            pufferQuelle = 'berechnet';
+            this.netzplan(tasks, links, kal).forEach((v, k) => puffer.set(k, v));
+        }
+
+        // --- Kritisch: Rolle > Puffer ≤ 0. Abgeschlossenes ist nie kritisch —
+        // es kann den Endtermin nicht mehr verschieben (wie in MS Project).
+        const krit = new Map<string, boolean>();
+        let kritQuelle: Analyse['kritQuelle'] = null;
+        if (tasks.some(t => t.kritisch !== undefined)) {
+            kritQuelle = 'rolle';
+            tasks.forEach(t => krit.set(t.key, t.kritisch === true));
+        } else if (pufferQuelle) {
+            kritQuelle = pufferQuelle === 'rolle' ? 'puffer' : 'berechnet';
+            tasks.forEach(t => { const p = puffer.get(t.key); krit.set(t.key, p !== undefined && p <= 0 && !fertig(t)); });
+        }
+
+        // --- Überfällig zum Statusdatum: Ende liegt davor, Vorgang ist nicht fertig.
+        // Ohne Fortschritt UND ohne Status ist das nicht bestimmbar — dann nichts markieren.
+        const ueberBestimmbar = tasks.some(t => t.pct !== null || (!!t.st && t.st !== ''));
+        const ueber = new Map<string, number>();
+        if (ueberBestimmbar) tasks.forEach(t => {
+            if (t.pct === null && !t.st) return;
+            if (fertig(t)) return;
+            const ende = this.isMs(t) || t.e === null ? t.s : t.e;
+            if (ende >= statusMs) return;
+            ueber.set(t.key, at ? Math.max(1, kal.differenz(ende, statusMs)) : Math.round((statusMs - ende) / DAY));
+        });
+
+        this.ana = { kal, statusMs, links, krit, puffer, ueber, kritQuelle, pufferQuelle, ueberBestimmbar, unaufgeloest, nrGebunden, zyklen: this.zyklen };
+        this.anaTasks = this.tasks;
+        this.anaSig = sig;
+        return this.ana;
+    }
+
+    // Gesamtpuffer je Vorgang in Arbeitstagen per Rückwärtsrechnung über die
+    // IST-Termine und die Anordnungsbeziehungen. Nur der Rückfall, wenn der Export
+    // weder "Kritisch" noch "Gesamte Pufferzeit" liefert: MS Projects eigene Werte
+    // kennen Uhrzeiten, Ressourcenkalender und Einschränkungen, die hier fehlen.
+    // Konvention ohne Uhrzeiten: ein Vorgang endet am Ende seines letzten Tages,
+    // ein Meilenstein liegt am Ende seines Tages; ein EA-Nachfolger, der selbst
+    // ein Vorgang ist, beginnt frühestens am nächsten Arbeitstag.
+    private netzplan(tasks: GanttTask[], links: Map<string, Link[]>, kal: Kalender): Map<string, number> {
+        const ref0 = tasks.reduce((a, t) => Math.min(a, t.s), Infinity) - 14 * DAY;
+        const ord = (ms: number) => kal.zwischen(ref0, ms);
+        const ES = new Map<string, number>();
+        const EF = new Map<string, number>();
+        const ms = (t: GanttTask) => this.isMs(t) || t.e === null;
+        tasks.forEach(t => {
+            if (ms(t)) { const v = ord(t.s); ES.set(t.key, v); EF.set(t.key, v); return; }
+            const es = ord(t.s - DAY) + 1;
+            ES.set(t.key, es);
+            EF.set(t.key, Math.max(es, ord(t.e as number)));
+        });
+        const byKey = new Map(tasks.map(t => [t.key, t] as [string, GanttTask]));
+        const nach = new Map<string, { u: GanttTask; l: Link }[]>();
+        links.forEach((ls, uKey) => {
+            const u = byKey.get(uKey);
+            if (!u) return;
+            ls.forEach(l => {
+                const a = nach.get(l.src.key);
+                if (a) a.push({ u, l }); else nach.set(l.src.key, [{ u, l }]);
+            });
+        });
+        // Projektende je Projekt: Vorgänge ohne Nachfolger dürfen bis dorthin rutschen
+        const ende = new Map<string, number>();
+        tasks.forEach(t => {
+            const p = GanttRenderer.pk(t);
+            ende.set(p, Math.max(ende.has(p) ? ende.get(p) as number : -Infinity, EF.get(t.key) as number));
+        });
+        // Nachfolger vor Vorgängern: iterative Tiefensuche, Post-Order. Iterativ,
+        // weil lange Ketten (30.000 Zeilen) den Aufrufstapel sprengen würden;
+        // Zyklen in fehlerhaften Plänen werden übersprungen statt endlos zu laufen.
+        const zustand = new Map<string, number>();
+        const reihe: GanttTask[] = [];
+        tasks.forEach(st => {
+            if (zustand.has(st.key)) return;
+            zustand.set(st.key, 1);
+            const stack: { t: GanttTask; i: number }[] = [{ t: st, i: 0 }];
+            while (stack.length) {
+                const top = stack[stack.length - 1];
+                const ns = nach.get(top.t.key) || [];
+                if (top.i < ns.length) {
+                    const nu = ns[top.i++].u;
+                    if (!zustand.has(nu.key)) { zustand.set(nu.key, 1); stack.push({ t: nu, i: 0 }); }
+                    else if (zustand.get(nu.key) === 1) this.zyklen++;   // Rückkante = Kreis
+                } else {
+                    zustand.set(top.t.key, 2);
+                    reihe.push(top.t);
+                    stack.pop();
+                }
+            }
+        });
+        const hatStichtag = tasks.some(t => t.stichtag !== undefined && t.stichtag !== null);
+        const LF = new Map<string, number>();
+        reihe.forEach(t => {
+            let lf = ende.get(GanttRenderer.pk(t)) as number;
+            if (t.stichtag !== undefined && t.stichtag !== null) lf = Math.min(lf, ord(t.stichtag));
+            const dauer = (EF.get(t.key) as number) - (ES.get(t.key) as number);
+            (nach.get(t.key) || []).forEach(({ u, l }) => {
+                const lfU = LF.get(u.key);
+                if (lfU === undefined) return;   // Zyklus
+                const lsU = lfU - ((EF.get(u.key) as number) - (ES.get(u.key) as number));
+                const lag = l.lagProzent !== undefined ? Math.round((dauer + (ms(t) ? 0 : 1)) * l.lagProzent / 100) : l.lag;
+                const versatz = ms(u) ? 0 : 1;
+                const c = l.typ === 'EA' ? lsU - versatz - lag
+                    : l.typ === 'AA' ? lsU - lag + dauer
+                        : l.typ === 'EE' ? lfU - lag
+                            : lfU - lag + dauer;   // AE
+                lf = Math.min(lf, Math.round(c));
+            });
+            LF.set(t.key, lf);
+        });
+        const out = new Map<string, number>();
+        tasks.forEach(t => {
+            const lf = LF.get(t.key);
+            if (lf === undefined) return;
+            const tf = lf - (EF.get(t.key) as number);
+            // Ohne Stichtage kann berechneter Puffer nicht negativ sein; −1 entsteht
+            // dann nur aus der Tagesrundung (Nachfolger am selben Tag) → 0
+            out.set(t.key, hatStichtag ? tf : Math.max(0, tf));
+        });
+        return out;
+    }
+
     // Gruppenpfad einer Zeile: optionale Projektebene, danach die Ebenen-Felder
     // der Rolle "phase" in Feldbrunnen-Reihenfolge. Leere Stufen werden verdichtet
     // (§ "ungleich tiefe Zweige") — sonst entstünden namenlose Zwischengruppen und
     // eine Zeile, die auf Ebene 2 endet, bekäme leere Hüllen bis Ebene 5.
-    private groupPath(t: GanttTask): { name: string; proj: boolean }[] {
-        const segs: { name: string; proj: boolean }[] = [];
+    //
+    // Ohne Ebenen-Felder, aber mit PSP-Code entsteht der Pfad aus dem Code:
+    // "2.1.3" hängt unter den Vorgängen "2" und "2.1" — so wie in MS Project, ganz
+    // ohne vorbereitete Ebenen-Spalten im Modell. Ein Vorgang, unter dem weitere
+    // liegen, ist ein Sammelvorgang und bekommt seine eigene Gruppe. id trennt
+    // gleichnamige Geschwister, die sich nur im PSP-Code unterscheiden.
+    private groupPath(t: GanttTask): { name: string; proj: boolean; id?: string }[] {
+        const segs: { name: string; proj: boolean; id?: string }[] = [];
         if (this.hasProj && t.projekt !== undefined && t.projekt !== null && t.projekt !== '') {
             segs.push({ name: t.projekt, proj: true });
         }
         const lv = t.path && t.path.length ? t.path : (t.phase !== null ? [t.phase] : []);
-        lv.forEach(v => {
-            if (v === null || v === undefined) return;
-            const n = String(v).trim();
-            if (n !== '') segs.push({ name: n, proj: false });
-        });
+        if (lv.length || !this.pspModus || !t.psp) {
+            lv.forEach(v => {
+                if (v === null || v === undefined) return;
+                const n = String(v).trim();
+                if (n !== '') segs.push({ name: n, proj: false });
+            });
+            return segs;
+        }
+        const pk = GanttRenderer.pk(t);
+        const teile = t.psp.split('.').filter(x => x !== '');
+        for (let i = 1; i < teile.length; i++) {
+            const code = teile.slice(0, i).join('.');
+            segs.push({ name: this.pspName.get(pk + code) || code, proj: false, id: 'psp:' + code });
+        }
+        const eigen = teile.join('.');
+        if (this.pspKinder.has(pk + eigen)) segs.push({ name: t.name, proj: false, id: 'psp:' + eigen });
         return segs;
     }
 
+    // Balkenfarbe: 'feld' und 'kritisch' brauchen Daten — sonst bleibt es beim Zweig
+    private farbModus(): 'zweig' | 'status' | 'kritisch' | 'feld' {
+        const f = this.opts && this.opts.farbeNach;
+        if (f === 'status') return 'status';
+        if (f === 'kritisch') return this.analyse().kritQuelle ? 'kritisch' : 'zweig';
+        if (f === 'feld') return this.tasks.some(t => !!t.farbeWert) ? 'feld' : 'zweig';
+        return 'zweig';
+    }
+
     private buildItems(dark: boolean, ibcs: boolean): RenderItem[] {
+        const o = this.opts;
         const pal = dark ? PHASE_HEX_DARK : PHASE_HEX_LIGHT;
-        const msOn = !this.opts || this.opts.msAufPhase !== false;
+        const msOn = !o || o.msAufPhase !== false;
         const projColor = ibcs ? IBCS_AC : (dark ? '#C6C9CF' : '#454851');
         this.hasProj = this.tasks.some(t => t.projekt !== undefined && t.projekt !== null);
+        const ana = this.analyse();
+        const at = !!(o && o.arbeitstage);
+        const neutral = dark ? NEUTRAL_DARK : NEUTRAL_LIGHT;
+        const kritFarbe = dark ? KRIT_DARK : KRIT_LIGHT;
+        this.nodeTiefe = new Map();
+        this.maxTiefe = -1;
+        this.vorfahren = new Map();
+
+        // ---- Balkenfarbe nach Status / kritisch / Feld (Zweig = Vorgabe)
+        const farbModus = this.farbModus();
+        const feldWerte: string[] = [];
+        if (farbModus === 'feld') this.tasks.forEach(t => { if (t.farbeWert && !feldWerte.includes(t.farbeWert)) feldWerte.push(t.farbeWert); });
+        const sonderFarbe = (c: GanttTask): string | null => {
+            if (farbModus === 'status') return statusHex(c.st, dark);
+            if (farbModus === 'kritisch') return ana.krit.get(c.key) ? kritFarbe : neutral;
+            if (farbModus === 'feld') return c.farbeWert ? pal[feldWerte.indexOf(c.farbeWert) % pal.length] : neutral;
+            return null;
+        };
+        this.legende = [];
+        if (!ibcs && farbModus === 'status') {
+            const da = new Set(this.tasks.map(t => t.st ? statusKind(t.st) : 'open'));
+            ([['done', 'Fertig'], ['progress', 'In Arbeit'], ['blocked', 'Blockiert'], ['open', 'Offen']] as [StatusKind, string][])
+                .filter(([k]) => da.has(k))
+                .forEach(([k, l]) => this.legende.push({ label: l, farbe: statusHex(k === 'open' ? null : STATUS_BEISPIEL[k], dark) }));
+        } else if (!ibcs && farbModus === 'kritisch') {
+            this.legende = [{ label: 'Kritisch', farbe: kritFarbe }, { label: 'Nicht kritisch', farbe: neutral }];
+        } else if (!ibcs && farbModus === 'feld') {
+            this.legende = feldWerte.map((v, i) => ({ label: v, farbe: pal[i % pal.length] }));
+        }
+
+        // Abweichung zum Basisplan in Kalender- oder Arbeitstagen (+ = Verzug)
+        const deltaVon = (pe: number | null, ende: number): number | null =>
+            pe === null ? null : (at ? ana.kal.differenz(pe, ende) : Math.round((ende - pe) / DAY));
+
+        const items: RenderItem[] = [];
+        let colorIdx = 0;
+        const emitLeaf = (c: GanttTask, depth: number, hex: string | null, parentCk: string): void => {
+            const zweig = hex !== null ? hex : pal[colorIdx % pal.length];
+            const base = sonderFarbe(c) || zweig;
+            // IBCS: monochrom (solid dark = Ist, outlined = Plan); individuelle
+            // Task-Farben werden im IBCS-Modus bewusst ignoriert.
+            const tColor = !ibcs && c.color ? c.color : (ibcs ? IBCS_AC : base);
+            const tSoft = !ibcs && c.color ? hexA(c.color, 0.18) : (ibcs ? '#FFFFFF' : hexA(base, 0.18));
+            const plan = GanttRenderer.planOf(c);
+            const ende = c.e === null ? c.s : c.e;
+            items.push({
+                id: c.key, kind: this.isMs(c) ? 'ms' : 'task',
+                depth, name: c.name,
+                s: c.s, e: ende, pct: c.pct, st: c.st, ow: c.ow,
+                color: tColor, soft: tSoft,
+                // die Spur behält die Zweigfarbe, auch wenn der Balken nach Status gefärbt ist
+                laneTint: ibcs ? 'transparent' : hexA(zweig, 0.06),
+                phaseKey: parentCk, task: c,
+                links: ana.links.get(c.key) || [],
+                psp: c.psp !== undefined && c.psp !== null ? c.psp : null,
+                krit: ana.krit.get(c.key) === true,
+                puffer: ana.puffer.has(c.key) ? (ana.puffer.get(c.key) as number) : null,
+                ueber: ana.ueber.has(c.key) ? (ana.ueber.get(c.key) as number) : null,
+                stichtag: c.stichtag !== undefined && c.stichtag !== null ? c.stichtag : null,
+                ps: plan.ps, pe: plan.pe, delta: deltaVon(plan.pe, ende), msKids: []
+            });
+        };
+
+        // ---- Hauptmeilenstein-Ansicht: FLACHE Liste statt Hierarchie. Projekt-
+        // und Ebenenzeilen entfallen, damit die Meilensteine als reine Terminliste
+        // lesbar sind; chronologisch, bei gleichem Datum in Datenreihenfolge.
+        // Die Farbe folgt weiter dem Zweig (phase), damit die Herkunft erkennbar
+        // bleibt — ohne die Gruppenzeilen gäbe es sonst gar keinen Hinweis darauf.
+        if (this.ansicht === 'haupt') {
+            this.projKeys = [];
+            this.phaseKeys = [];
+            this.sammelN = 0;
+            const zweige: (string | null)[] = [];
+            this.tasks.forEach(t => { if (!zweige.includes(t.phase)) zweige.push(t.phase); });
+            const farbe = (t: GanttTask) => pal[Math.max(0, zweige.indexOf(t.phase)) % pal.length];
+            // EINE Zeile je Meilensteinname. In Portfolio-Daten kommt derselbe
+            // Hauptmeilenstein mehrfach vor — je Projekt, je Berichtsstand oder
+            // als Kopie auf mehreren Ebenen. Ohne die Projekt- und Ebenenzeilen
+            // stünde er sonst n-mal untereinander, ohne erkennbaren Unterschied.
+            // Jedes Vorkommen wird eine eigene Raute auf der Zeile; völlig
+            // identische (gleiches Projekt, gleiches Datum) fallen zusammen.
+            const gruppen = new Map<string, GanttTask[]>();
+            const reihe: string[] = [];
+            this.tasks
+                .map((t, i) => ({ t, i }))
+                .filter(x => x.t.haupt === true)
+                .sort((a, b) => a.t.s !== b.t.s ? a.t.s - b.t.s : a.i - b.i)
+                .forEach(({ t }) => {
+                    let g = gruppen.get(t.name);
+                    if (!g) { g = []; gruppen.set(t.name, g); reihe.push(t.name); }
+                    const pr = t.projekt !== undefined ? t.projekt : null;
+                    if (!g.some(x => x.s === t.s && (x.projekt !== undefined ? x.projekt : null) === pr)) g.push(t);
+                });
+            this.gezeigtN = reihe.length;
+            reihe.forEach(name => {
+                const inst = gruppen.get(name) as GanttTask[];
+                if (inst.length === 1) { emitLeaf(inst[0], 0, farbe(inst[0]), ''); return; }
+                const base = farbe(inst[0]);
+                items.push({
+                    id: 'hm:' + name, kind: 'ms', depth: 0, name,
+                    // chronologisch sortiert: erstes und letztes Vorkommen spannen die Zeile
+                    s: inst[0].s, e: inst[inst.length - 1].s,
+                    pct: null, st: null, ow: '',
+                    color: ibcs ? IBCS_AC : base,
+                    soft: ibcs ? '#FFFFFF' : hexA(base, 0.18),
+                    laneTint: ibcs ? 'transparent' : hexA(base, 0.06),
+                    phaseKey: '', task: inst[0], links: [],
+                    psp: null, krit: false, puffer: null, ueber: null, stichtag: null,
+                    ps: null, pe: null, delta: null,
+                    msKids: inst
+                });
+            });
+            this.hasPlan = this.tasks.some(c => (c.ps !== undefined && c.ps !== null) || (c.pe !== undefined && c.pe !== null));
+            return items;
+        }
+
+        // ---- PSP-Modus: Namen und Sammelvorgänge je Projekt aus den Codes
+        const pk = GanttRenderer.pk;
+        this.pspModus = this.ebenenFelder === 0 && this.tasks.some(t => !!t.psp);
+        this.pspName = new Map();
+        this.pspKinder = new Set();
+        if (this.pspModus) {
+            this.tasks.forEach(t => {
+                if (!t.psp) return;
+                const k = pk(t) + t.psp;
+                if (!this.pspName.has(k)) this.pspName.set(k, t.name);
+                const teile = t.psp.split('.').filter(x => x !== '');
+                for (let i = 1; i < teile.length; i++) this.pspKinder.add(pk(t) + teile.slice(0, i).join('.'));
+            });
+        }
 
         // ---- Baum aufbauen; Reihenfolge = Erstauftritt und damit die der Rolle
-        // "sort", nach der parseData() bereits sortiert hat.
-        const mk = (name: string, ck: string, proj: boolean): GNode =>
-            ({ name, ck, isProj: proj, children: [], idx: new Map(), all: [] });
-        const root = mk('', '', false);
+        // "sort" (bzw. Nr./PSP), nach der parseData() bereits sortiert hat.
+        const mk = (name: string, ck: string, proj: boolean, tiefe: number): GNode =>
+            ({ name, ck, tiefe, isProj: proj, children: [], idx: new Map(), all: [] });
+        const root = mk('', '', false, -1);
         const projNodes: GNode[] = [];
         const grpNodes: GNode[] = [];
+        const segId = (x: { name: string; id?: string }) => x.id || x.name;
 
         // Sammelvorgänge: MS-Project-Exporte liefern für jeden Knoten ZUSÄTZLICH
         // eine eigene Zeile, deren letzte Ebene den eigenen Namen trägt. Sie würde
         // als namensgleiche Zeile unter ihrer eigenen Gruppe erscheinen. Erkennbar
         // daran, dass unter demselben Pfad noch weitere Zeilen liegen — ein echter
         // Einzelvorgang, der zufällig wie seine Gruppe heißt, bleibt damit erhalten.
-        // Ihre Spanne leitet die Gruppe ohnehin aus den Kindern ab.
+        // Ihre Termine fließen in den Gruppenbalken ein (s. emit).
+        // Gezählt wird je PFAD-PRÄFIX, nicht je vollem Pfad: ein Sammelvorgang,
+        // dessen Kinder ausschließlich weitere Sammelvorgänge sind (PSP 1 → 1.1,
+        // 1.2 …), hat sonst keinen einzigen Vorgang mit GLEICHEM Pfad und stünde
+        // doppelt da — als Gruppe und als namensgleiche Zeile darin.
         const pfade = this.tasks.map(t => this.groupPath(t));
-        const proPfad = new Map<string, number>();
+        const unterPfad = new Map<string, number>();
         pfade.forEach(segs => {
-            const k = segs.map(x => x.name).join('¦');
-            proPfad.set(k, (proPfad.get(k) || 0) + 1);
+            let k = '';
+            for (let d = 0; d < segs.length; d++) {
+                k = d ? k + '¦' + segId(segs[d]) : segId(segs[d]);
+                unterPfad.set(k, (unterPfad.get(k) || 0) + 1);
+            }
         });
-        const istSammel = (t: GanttTask, segs: { name: string; proj: boolean }[]): boolean =>
+        const istSammel = (t: GanttTask, segs: { name: string; proj: boolean; id?: string }[]): boolean =>
             segs.length > 0
             && !segs[segs.length - 1].proj
             && segs[segs.length - 1].name === t.name
-            && (proPfad.get(segs.map(x => x.name).join('¦')) || 0) > 1;
+            && (unterPfad.get(segs.map(segId).join('¦')) || 0) > 1;
+        this.levelCount = this.pspModus
+            ? pfade.reduce((mx, sg) => Math.max(mx, sg.filter(x => !x.proj).length), 0)
+            : this.ebenenFelder;
+
+        // Ansichten "kritisch", "überfällig" und "Nur Meilensteine" filtern die
+        // Vorgänge, behalten aber die Hierarchie: eine Gruppe erscheint, sobald
+        // sie einen Treffer enthält. „◆ Meilensteine“ aus nimmt die Meilensteine
+        // zusätzlich heraus (eine Gruppe NUR aus Meilensteinen entfällt dann).
+        const ohneMs = this.ohneMs();
+        const filter: ((t: GanttTask) => boolean) | null =
+            this.ansicht === 'kritisch' ? (t => ana.krit.get(t.key) === true)
+                : this.ansicht === 'ueberfaellig' ? (t => ana.ueber.has(t.key))
+                    : this.ansicht === 'meilensteine' ? (t => this.isMs(t)) : null;
+        const zeigen: ((t: GanttTask) => boolean) | null = !ohneMs ? filter
+            : (t => !this.isMs(t) && (!filter || filter(t)));
 
         this.sammelN = 0;
+        this.gezeigtN = 0;
+        const sammelZeile = new Map<string, GanttTask>();   // Collapse-Schlüssel → Sammelvorgangs-Datenzeile
         this.tasks.forEach((t, ti) => {
             const segs = pfade[ti];
-            if (istSammel(t, segs)) { this.sammelN++; return; }
+            if (istSammel(t, segs)) {
+                this.sammelN++;
+                // gleicher Schlüssel wie der Gruppenknoten (letzte Stufe ist nie Projekt)
+                sammelZeile.set(segs.map(segId).join('¦'), t);
+                return;
+            }
+            if (zeigen && !zeigen(t)) return;
+            this.gezeigtN++;
             let n = root;
+            const vf: string[] = [];
             for (let d = 0; d < segs.length; d++) {
                 const seg = segs[d];
                 // Projekt- und Ebenenknoten getrennt indizieren, damit ein Projekt
                 // und eine Phase gleichen Namens nicht zusammenfallen
-                const ik = (seg.proj ? 'P\u0000' : 'G\u0000') + seg.name;
+                const ik = (seg.proj ? 'P\u0000' : 'G\u0000') + segId(seg);
                 let pos = n.idx.get(ik);
                 if (pos === undefined) {
-                    const ck = (seg.proj ? 'P:' : '') + segs.slice(0, d + 1).map(x => x.name).join('¦');
-                    const node = mk(seg.name, ck, seg.proj);
+                    const ck = (seg.proj ? 'P:' : '') + segs.slice(0, d + 1).map(segId).join('¦');
+                    const node = mk(seg.name, ck, seg.proj, d);
                     pos = n.children.length;
                     n.idx.set(ik, pos);
                     n.children.push({ node, task: null });
                     (seg.proj ? projNodes : grpNodes).push(node);
+                    this.nodeTiefe.set(ck, d);
+                    if (d > this.maxTiefe) this.maxTiefe = d;
                 }
                 n = n.children[pos].node as GNode;
                 n.all.push(t);
+                vf.push(n.ck);
             }
+            this.vorfahren.set(t.key, vf);
             n.children.push({ node: null, task: t });
         });
+        // Gruppenbalken mit den Terminen des vollständigen Plans, wo die Ansicht
+        // nur AUSBLENDET statt zu filtern: „◆ Meilensteine“ aus (Termine,
+        // Fortschritt und Δ der Gruppen bleiben, wie sie sind) und „Nur
+        // Meilensteine“ (die Gruppe zeigt ihren echten Zeitraum als Rahmen der
+        // Meilensteine — wie „Zugehörige Sammelvorgänge anzeigen“ in MS Project).
+        // Diese Vorgänge fließen nur in die Aggregate bereits vorhandener Gruppen
+        // ein, ohne selbst Zeile oder Gruppe zu erzeugen. „Kritisch“ und
+        // „überfällig“ zählen weiter nur, was sie zeigen.
+        const nurAggregat = (t: GanttTask): boolean => this.ansicht === 'meilensteine'
+            ? !this.isMs(t)
+            : ohneMs && this.isMs(t) && (!filter || filter(t));
+        if (ohneMs || this.ansicht === 'meilensteine') {
+            this.tasks.forEach((t, ti) => {
+                if (!nurAggregat(t)) return;
+                const segs = pfade[ti];
+                if (istSammel(t, segs)) return;
+                let n: GNode = root;
+                for (let d = 0; d < segs.length; d++) {
+                    const pos = n.idx.get((segs[d].proj ? 'P\u0000' : 'G\u0000') + segId(segs[d]));
+                    if (pos === undefined) return;
+                    n = n.children[pos].node as GNode;
+                    n.all.push(t);
+                }
+            });
+        }
+        // Gefilterte Ansichten: Gruppen und Vorgänge in der Reihenfolge des
+        // vollständigen Plans. Der Baum entsteht in der Reihenfolge des ersten
+        // TREFFERS — eine Phase, deren erster Meilenstein spät in den Daten
+        // steht, rutschte sonst hinter ihre Nachfolger.
+        if (zeigen) {
+            const erster = new Map<string, number>();   // Collapse-Schlüssel → erste Datenzeile darunter
+            pfade.forEach((segs, ti) => {
+                for (let d = 0; d < segs.length; d++) {
+                    const ck = (segs[d].proj ? 'P:' : '') + segs.slice(0, d + 1).map(segId).join('¦');
+                    if (!erster.has(ck)) erster.set(ck, ti);
+                }
+            });
+            const zeile = new Map<GanttTask, number>();
+            this.tasks.forEach((t, ti) => zeile.set(t, ti));
+            const rang = (ch: { node: GNode | null; task: GanttTask | null }): number =>
+                ch.node ? (erster.get(ch.node.ck) as number) : (zeile.get(ch.task as GanttTask) as number);
+            const ordnen = (n: GNode): void => {
+                n.children.sort((a, b) => rang(a) - rang(b));
+                n.children.forEach(ch => { if (ch.node) ordnen(ch.node); });
+            };
+            ordnen(root);
+        }
 
-        // "Alles auf/zu" muss auch zugeklappte Teilbäume erreichen — deshalb ALLE
-        // Knoten sammeln, nicht nur die gerade sichtbaren.
+        // "Alles auf/zu" und "Gliederung ▾" müssen auch zugeklappte Teilbäume
+        // erreichen — deshalb ALLE Knoten sammeln, nicht nur die gerade sichtbaren.
         this.projKeys = projNodes.map(n => n.ck);
         this.phaseKeys = grpNodes.map(n => n.ck);
-
-        // ---- Zeilen erzeugen
-        const items: RenderItem[] = [];
-        let colorIdx = 0;
-        const emitLeaf = (c: GanttTask, depth: number, hex: string | null, parentCk: string): void => {
-            const base = hex !== null ? hex : pal[colorIdx % pal.length];
-            // IBCS: monochrom (solid dark = Ist, outlined = Plan); individuelle
-            // Task-Farben werden im IBCS-Modus bewusst ignoriert.
-            const tColor = !ibcs && c.color ? c.color : (ibcs ? IBCS_AC : base);
-            const tSoft = !ibcs && c.color ? hexA(c.color, 0.18) : (ibcs ? '#FFFFFF' : hexA(base, 0.18));
-            const plan = GanttRenderer.planOf(c);
-            items.push({
-                id: c.key, kind: this.isMs(c) ? 'ms' : 'task',
-                depth, name: c.name,
-                s: c.s, e: c.e === null ? c.s : c.e, pct: c.pct, st: c.st, ow: c.ow,
-                color: tColor, soft: tSoft,
-                laneTint: ibcs ? 'transparent' : hexA(base, 0.06),
-                phaseKey: parentCk, task: c,
-                depTasks: c.deps.map(d => this.byKey.get(d)).filter(Boolean) as GanttTask[],
-                ps: plan.ps, pe: plan.pe, delta: plan.delta, msKids: []
-            });
-        };
+        // Start-Klappzustand, nur für Gruppen ohne eigenen Klappzustand:
+        // 'projekte' klappt alles zu (je Projekt ein Balken), 'sammel' nur die
+        // Ebenen-Gruppen — Projekte bleiben offen, sichtbar ist also je Projekt
+        // die oberste Ebene der Sammelvorgänge. Wer eine davon aufklappt, sieht
+        // die nächste Ebene wieder zugeklappt (Drill-down wie „Gliederung“).
+        if (this.ansicht === 'projekte') {
+            this.nodeTiefe.forEach((_, ck) => { if (!(ck in this.collapsed)) this.collapsed[ck] = true; });
+        } else if (this.ansicht === 'sammel') {
+            this.phaseKeys.forEach(ck => { if (!(ck in this.collapsed)) this.collapsed[ck] = true; });
+        }
 
         const emit = (n: GNode, depth: number, hex: string | null): void => {
             n.children.forEach(ch => {
@@ -862,7 +1735,25 @@ export class GanttRenderer {
                     const myHex = g.isProj ? null : (hex !== null ? hex : pal[(colorIdx++) % pal.length]);
                     const base = g.isProj ? projColor : (myHex as string);
                     const zu = !!this.collapsed[g.ck];
-                    const a = GanttRenderer.aggOf(g.all);
+                    const a = { ...GanttRenderer.aggOf(g.all) };
+                    // Der Gruppenbalken nimmt die eigenen Termine des Sammelvorgangs
+                    // mit auf, wo der Export sie liefert (MS Project: auch manuell
+                    // terminierte Sammelvorgänge). Aus Meilensteinen allein entstünde
+                    // bei nur einem Termin sonst gar kein sichtbarer Balken. In den
+                    // gefilterten Ansichten zählt nur, was die Ansicht zeigt
+                    // („Nur Meilensteine“ zeigt den vollen Gruppenzeitraum, s. o.).
+                    const sz = sammelZeile.get(g.ck);
+                    if (sz && (this.vollerUmfang() || this.ansicht === 'meilensteine')) {
+                        a.s = Math.min(a.s, sz.s);
+                        a.e = Math.max(a.e, sz.e === null ? sz.s : sz.e);
+                    }
+                    a.delta = deltaVon(a.pe, a.e);
+                    // Sammelvorgang, der NUR Meilensteine enthält: Balken ja, Rauten
+                    // auf der zugeklappten Zeile nein — sie lägen genau auf den
+                    // Balkenenden; die Meilensteine erscheinen erst beim Aufklappen.
+                    // In „Nur Meilensteine“ besteht jede Gruppe nur aus Meilensteinen —
+                    // dort sollen zugeklappte Gruppen ihre Rauten gerade zeigen.
+                    const nurMs = this.ansicht !== 'meilensteine' && !g.isProj && g.all.length > 0 && g.all.every(c => this.isMs(c));
                     items.push({
                         id: (g.isProj ? 'pr:' : 'ph:') + g.ck,
                         kind: g.isProj ? 'proj' : 'phase',
@@ -871,12 +1762,14 @@ export class GanttRenderer {
                         color: ibcs ? IBCS_AC : base,
                         soft: ibcs ? '#FFFFFF' : hexA(base, g.isProj ? 0.16 : 0.18),
                         laneTint: ibcs ? 'transparent' : hexA(base, g.isProj ? 0.05 : 0.06),
-                        phaseKey: g.ck, task: null, depTasks: [],
+                        phaseKey: g.ck, task: null, links: [],
+                        psp: sz && sz.psp ? sz.psp : null,
+                        krit: false, puffer: null, ueber: null, stichtag: null,
                         ps: a.ps, pe: a.pe, delta: a.delta,
                         // Projektzeile trägt IMMER alle Meilensteine des Projekts
                         // (Portfolio-Übersicht); jede andere Gruppe zeigt sie,
                         // sobald sie zugeklappt ist — auf JEDER Tiefe.
-                        msKids: msOn && (g.isProj || zu) ? g.all.filter(c => this.isMs(c)) : []
+                        msKids: msOn && !ohneMs && (g.isProj || (zu && !nurMs)) ? g.all.filter(c => this.isMs(c)) : []
                     });
                     if (zu) return;
                     emit(g, depth + 1, myHex);
@@ -891,19 +1784,35 @@ export class GanttRenderer {
         return items;
     }
 
+    private zeigePsp(): boolean {
+        const o = this.opts;
+        return (!o || !o.spalten || o.spalten.psp !== false) && this.tasks.some(t => !!t.psp);
+    }
+
     private visibleCols(tableW: number): ColDef[] {
         const s = this.m.s;
+        const ana = this.analyse();
         const hasStatus = this.tasks.some(t => t.st !== null && t.st !== '');
         const hasPct = this.tasks.some(t => t.pct !== null);
         const hasOw = this.tasks.some(t => t.ow !== '');
+        const hasPuffer = ana.puffer.size > 0;
+        const hasStichtag = this.tasks.some(t => t.stichtag !== undefined && t.stichtag !== null);
         const o = this.opts;
-        const showDelta = this.hasPlan && (!o || o.basisplan !== false) && (!o || o.deltaSpalte !== false);
+        const sp = (k: string) => !o || !o.spalten || o.spalten[k] !== false;
+        const showDelta = this.hasPlan && this.planSichtbar() && (!o || o.deltaSpalte !== false);
+        // Spalten ohne Daten erscheinen gar nicht erst — eine leere Spalte
+        // kostet Platz, den der Vorgangsname dringender braucht
         let cols = ALL_COLS
-            .filter(c => (!o || !o.spalten || o.spalten[c.key] !== false))
-            .filter(c => (c.key !== 'status' || hasStatus) && (c.key !== 'pct' || hasPct) && (c.key !== 'ow' || hasOw) && (c.key !== 'delta' || showDelta))
+            .filter(c => sp(c.key))
+            .filter(c => (c.key !== 'status' || hasStatus) && (c.key !== 'pct' || hasPct) && (c.key !== 'ow' || hasOw)
+                && (c.key !== 'delta' || showDelta) && (c.key !== 'puffer' || hasPuffer) && (c.key !== 'stichtag' || hasStichtag))
             .map(c => ({ ...c, w: Math.round(c.w * s) }));
+        if (sp('zusatz') && o && o.zusatzKoepfe) {
+            o.zusatzKoepfe.slice(0, 3).forEach((k, i) => cols.push({ key: 'z' + i, label: k, w: Math.round(ZUSATZ_W * s) }));
+        }
+        const pspW = this.zeigePsp() ? Math.round(PSP_W * s) : 0;
         for (const dropKey of DROP_ORDER) {
-            const total = Math.round(MIN_TASK_COL * s) + cols.reduce((a, c) => a + c.w, 0);
+            const total = pspW + Math.round(MIN_TASK_COL * s) + cols.reduce((a, c) => a + c.w, 0);
             if (total <= tableW) break;
             cols = cols.filter(c => c.key !== dropKey);
         }
@@ -954,20 +1863,48 @@ export class GanttRenderer {
 
         if (!this.tasks.length) {
             this.panel.parentElement && (this.panel.parentElement.style.display = 'none');
-            this.toolbarInfo.parentElement && (this.toolbarInfo.parentElement.style.display = 'none');
+            this.toolbar.style.display = 'none';
             this.landing.style.display = 'flex';
             this.landing.style.color = t.sub;
             this.landing.replaceChildren();
-            const head = el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:6px', 'DataKitchen Gantt');
-            const body = el('div', 'font-size:12.5px', 'Bitte mindestens "Task" und "Start (Datum)" befüllen. Optional: Ende (leer = Meilenstein), Phase, Fortschritt, Status, Wer, Abhängigkeiten.');
-            const wrap = el('div', '');
-            wrap.appendChild(head); wrap.appendChild(body);
+            this.menuHost.style.display = 'none';
+            // Startseite = Einrichtung: welche Felder was freischalten, und warum
+            // gerade nichts zu sehen ist (z. B. alle Starttermine ungültig)
+            // Pflichtfelder gebunden, aber keine Zeilen: meist ein Filter — Leser
+            // sollen dann nicht zum Feldbereich geschickt werden
+            const r = this.rollen();
+            const gebunden = !!(r.task && r.start);
+            const wrap = el('div', 'text-align:left;max-width:520px');
+            wrap.appendChild(el('div', 'font-weight:700;font-size:15px;color:' + t.text + ';margin-bottom:4px', gebunden ? 'Keine Vorgänge' : 'DataKitchen Gantt'));
+            wrap.appendChild(el('div', 'font-size:12.5px;margin-bottom:12px', gebunden
+                ? 'Für die aktuelle Filterauswahl gibt es keine Vorgänge mit gültigem Start.'
+                : 'Felder in den Feldbereich ziehen — für einen MS-Project-Plan reichen Task, Start, Ende, PSP-Code, Nr. und Vorgänger.'));
+            if (!gebunden || this.einrichtungSichtbar()) wrap.appendChild(this.checklistenKnoten(t));
+            if (this.pruefPunkte().length) {
+                wrap.appendChild(el('div', 'font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin:14px 0 7px', 'Warum nichts zu sehen ist'));
+                wrap.appendChild(this.pruefKnoten(t));
+            }
             this.landing.appendChild(wrap);
             return;
         }
         this.panel.parentElement && (this.panel.parentElement.style.display = 'flex');
-        this.toolbarInfo.parentElement && (this.toolbarInfo.parentElement.style.display = 'flex');
+        this.toolbar.style.display = 'flex';
         this.landing.style.display = 'none';
+
+        // Ansicht: der Optionswert ist nur die Startstellung — "Ansicht ▾" in der
+        // Leiste gewinnt, bis die Option selbst wechselt (Muster wie tabellenBreite).
+        // nurHaupt ist der Vorgänger aus 1.16–1.18 und wird weiter respektiert.
+        const optAnsicht = o.startAnsicht && o.startAnsicht !== 'alle' ? o.startAnsicht : (o.nurHaupt === true ? 'haupt' : 'alle');
+        if (this.lastOptAnsicht !== optAnsicht) {
+            this.lastOptAnsicht = optAnsicht;
+            this.wechsleAnsicht(optAnsicht);
+        }
+        // Leser-Knopf „▭ Basisplan“: wechselt der Formatbereich, gilt wieder er
+        const optPlan = o.basisplan !== false;
+        if (this.lastOptPlan !== optPlan) {
+            this.lastOptPlan = optPlan;
+            this.planAus = false;
+        }
 
         this.panel.style.background = t.panel;
         this.panel.style.border = '1px solid ' + t.border;
@@ -988,17 +1925,49 @@ export class GanttRenderer {
         this.tableWrap.style.borderRight = '1px solid ' + t.border;
         this.divider.style.background = this.twDrag ? t.sub : t.border;
 
+        // Wechselt die Standard-Zeiteinheit im Formatbereich (oder per Vorlage),
+        // soll man das sofort sehen — nicht erst nach dem nächsten Laden
+        const ze = o.zeiteinheit || 'auto';
+        if (this.lastOptZE !== ze) {
+            if (this.lastOptZE !== null) this.fitted = false;
+            this.lastOptZE = ze;
+        }
         if (!this.fitted && this.chartArea.clientWidth > 0) {
             // Layout ist nach dem Anhängen synchron messbar → direkt einpassen
             this.fitted = true;
             this.computeFit();
         }
 
-        const items = this.buildItems(dark, o.ibcs);
+        // collapsed wird an vielen Stellen direkt gesetzt — deshalb fließt sein
+        // Inhalt selbst in die Signatur ein statt eines Versionszählers
+        const zuSig = Object.keys(this.collapsed).filter(k => this.collapsed[k]).join('\u0001');
+        const sigKopf = this.datenVersion + '|' + this.optVersion + '|' + this.ansicht + '|' + this.ohneMs() + '|' + dark + '|' + o.ibcs + '|';
+        const sig = sigKopf + zuSig;
+        if (!this.itemsCache || sig !== this.itemsSig) {
+            this.itemsCache = this.buildItems(dark, o.ibcs);
+            // buildItems() klappt in 'sammel'/'projekte' neue Gruppen zu → Signatur danach bilden
+            const zuSig2 = Object.keys(this.collapsed).filter(k => this.collapsed[k]).join('\u0001');
+            this.itemsSig = sigKopf + zuSig2;
+        }
+        const items = this.itemsCache;
         this.lastItems = items;
         const topOf: Record<string, number> = {};
         items.forEach((it, i) => topOf[it.id] = i * this.m.rowH);
         const chH = Math.max(50, this.bodyClip.clientHeight);
+        // Sprung aus Suche/"Auswahl": Zielzeile ins obere Drittel holen und, falls
+        // sie horizontal außerhalb liegt, die Zeitachse dorthin schieben
+        if (this.springZiel) {
+            const z = this.springZiel;
+            this.springZiel = null;
+            const idx = items.findIndex(i => (i.task !== null && i.task.key === z) || i.msKids.some(k => k.key === z));
+            if (idx >= 0) {
+                this.sy = Math.max(0, idx * this.m.rowH - Math.round(chH / 3));
+                const cwi = this.chartArea.clientWidth;
+                const xs = (items[idx].s - this.view) / DAY * this.pxd;
+                if (xs < 20 || xs > cwi - 60) this.view = items[idx].s - (cwi / 3) / this.pxd * DAY;
+                this.hover = items[idx].id;
+            }
+        }
         this.maxSy = Math.max(0, items.length * this.m.rowH - chH);
         const sy = Math.min(this.sy, this.maxSy);
         this.sy = sy;
@@ -1013,14 +1982,60 @@ export class GanttRenderer {
         // Gruppenzeile gerendert und dürfen den Zähler nicht aufblähen.
         const nVg = this.tasks.length - nMs - this.sammelN;
         const pl = (n: number, ein: string, viele: string) => n + ' ' + (n === 1 ? ein : viele);
+        const ana = this.analyse();
         this.toolbarInfo.style.color = t.sub;
-        this.toolbarInfo.textContent =
-            (nPr ? pl(nPr, 'Projekt', 'Projekte') + ' · ' : '') +
-            pl(nVg, 'Vorgang', 'Vorgänge') +
-            (nPh ? ' · ' + (this.levelCount > 1 ? pl(nPh, 'Gruppe', 'Gruppen') : pl(nPh, 'Phase', 'Phasen')) : '') +
-            (nMs ? ' · ' + pl(nMs, 'Meilenstein', 'Meilensteine') : '');
+        // Nur der Text verschwindet — die Leiste selbst (und damit ihre Knöpfe)
+        // bleibt stehen, deshalb hier kein display-Schalten am parentElement.
+        this.toolbarInfo.replaceChildren();
+        if (o.kopfzeile !== false) {
+            // In den gefilterten Ansichten würden die vollen Zähler einen Umfang
+            // behaupten, den das Visual gerade nicht zeigt.
+            const txt = this.ansicht === 'haupt'
+                ? pl(items.length, 'Hauptmeilenstein', 'Hauptmeilensteine') + (() => {
+                    const n = items.reduce((a, i) => a + Math.max(1, i.msKids.length), 0);
+                    return n > items.length ? ' · ' + pl(n, 'Termin', 'Termine') : '';
+                })()
+                : this.ansicht === 'meilensteine' ? pl(this.gezeigtN, 'Meilenstein', 'Meilensteine')
+                : this.ansicht === 'kritisch' ? pl(this.gezeigtN, 'kritischer Vorgang', 'kritische Vorgänge')
+                    : this.ansicht === 'ueberfaellig' ? pl(this.gezeigtN, 'überfälliger Vorgang', 'überfällige Vorgänge') + ' zum ' + fmtDate(ana.statusMs)
+                        : (nPr ? pl(nPr, this.text('projekt1', 'Projekt'), this.text('projektN', 'Projekte')) + ' · ' : '') +
+                        pl(nVg, 'Vorgang', 'Vorgänge') +
+                        (nPh ? ' · ' + (this.levelCount > 1
+                            ? pl(nPh, this.text('ebene1', 'Gruppe'), this.text('ebeneN', 'Gruppen'))
+                            : pl(nPh, this.text('ebene1', 'Phase'), this.text('ebeneN', 'Phasen'))) : '') +
+                        (nMs ? ' · ' + (this.ohneMs() ? 'Meilensteine ausgeblendet' : pl(nMs, 'Meilenstein', 'Meilensteine')) : '');
+            this.toolbarInfo.appendChild(document.createTextNode(txt));
+            // MS-Project-Vorgänger sind Nummern. Ohne gebundene Rolle "Nr." laufen
+            // sie ins Leere — das soll nicht still passieren.
+            if (ana.unaufgeloest > 0) this.toolbarInfo.appendChild(el('span', 'margin-left:6px;color:' + t.today,
+                ana.nrGebunden ? '· ' + ana.unaufgeloest + ' Vorgänger nicht gefunden' : '· Vorgänger als Nr. erkannt — Rolle „Nr.“ binden'));
+        }
+
+        // Ansicht gefiltert, aber der (von Power BI bereits gefilterte) DataView
+        // enthält nichts Passendes: eine leere Fläche wäre von "kaputt" nicht zu
+        // unterscheiden. "Ansicht ▾" bleibt bedienbar (s. renderToolbar).
+        const leer = (!this.vollerUmfang() || this.ohneMs()) && !items.length;
+        this.leerHinweis.style.display = leer ? 'block' : 'none';
+        this.leerHinweis.style.color = t.sub;
+        if (leer) this.leerHinweis.textContent = this.ansicht === 'haupt' ? 'Keine Hauptmeilensteine im aktuellen Filter'
+            : this.ansicht === 'meilensteine' ? 'Keine Meilensteine im aktuellen Filter'
+                : this.ansicht === 'kritisch' ? 'Keine kritischen Vorgänge im aktuellen Filter'
+                    : this.ansicht === 'ueberfaellig' ? 'Keine überfälligen Vorgänge zum ' + fmtDate(ana.statusMs)
+                        : 'Nur Meilensteine im aktuellen Filter — „◆ Meilensteine“ blendet sie wieder ein';
+
+        // Suche: Feld bleibt stehen (Fokus!), nur Farben und Trefferzähler folgen
+        const treffer = this.suchTreffer();
+        this.suchSet = new Set(treffer.map(tk => tk.key));
+        this.suchFeld.style.border = '1px solid ' + t.border;
+        this.suchFeld.style.background = t.panel;
+        this.suchFeld.style.color = t.text;
+        this.suchInfo.style.color = this.suche && !treffer.length ? t.today : t.sub;
+        this.suchInfo.textContent = !this.suche ? ''
+            : !treffer.length ? 'kein Treffer'
+                : (this.suchIdx >= 0 ? (this.suchIdx + 1) + '/' : '') + treffer.length + (this.suchIdx < 0 ? ' Treffer · Enter' : '');
 
         this.renderToolbar(t);
+        this.renderMenu(t);
         this.renderTable(t, items, topOf, sy, tableW, sel, o.ibcs);
         this.renderChart(t, items, topOf, sy, cw, chH, x, o, sel);
         this.renderTip(t, items, o.ibcs);
@@ -1043,86 +2058,464 @@ export class GanttRenderer {
         this.sbGeom = { trackH, thumbH };
     }
 
+    // Knopf im Stil der Leiste; aktiv = gefüllt (wie die Zeiteinheiten-Knöpfe)
+    private mkToolBtn(t: Theme, label: string, titel: string, fn: () => void, wide: boolean, active?: boolean): HTMLElement {
+        const b = el('div',
+            (wide ? 'padding:6px 13px;' : 'width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;') +
+            'border:1px solid ' + t.border + ';border-radius:8px;' +
+            'background:' + (active ? t.text : t.panel) + ';color:' + (active ? t.panel : t.sub) + ';' +
+            'cursor:pointer;font-weight:' + (wide ? '600;font-size:12px' : '700'), label);
+        if (titel) b.setAttribute('title', titel);
+        // mousedown statt click: die Leiste wird bei jedem Render neu gebaut —
+        // fällt ein Render zwischen Drücken und Loslassen, käme click nie an
+        // (derselbe Fehler, der früher das Zuklappen der Zeilen verschluckt hat)
+        b.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            e.preventDefault();
+            fn();
+        });
+        return b;
+    }
+
     private renderToolbar(t: Theme): void {
+        const o = this.opts;
+        const sel = o && o.selectedKeys && o.selectedKeys.size ? o.selectedKeys : null;
+
+        // ---- links: Gliederung. projKeys/phaseKeys enthalten sämtliche Knoten
+        // jeder Tiefe, auch die in zugeklappten Teilbäumen.
+        this.toolbarAlle.replaceChildren();
+        // Einrichtungshilfe: nur für Ersteller (Bearbeitungsmodus) — Leser sehen
+        // sie nie. Gestrichelt, damit sie nicht wie ein Teil des Berichts wirkt.
+        if (this.einrichtungSichtbar()) {
+            const warn = this.pruefPunkte().filter(p => p.stufe === 'warn').length;
+            const b = this.mkToolBtn(t, '✎ Einrichtung', 'Felder, Datenprüfung und Vorlagen — nur im Bearbeitungsmodus sichtbar',
+                () => this.oeffneMenu('einrichtung', b), true, !!this.menu && this.menu.art === 'einrichtung');
+            b.style.borderStyle = 'dashed';
+            b.style.whiteSpace = 'nowrap';
+            b.style.position = 'relative';
+            b.setAttribute('data-menu', '1');
+            if (warn) b.appendChild(el('span',
+                'position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;border-radius:8px;padding:0 4px;box-sizing:border-box;' +
+                'background:' + KRIT_LIGHT + ';color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center', String(warn)));
+            this.toolbarAlle.appendChild(b);
+        }
+        if (this.projKeys.length || this.phaseKeys.length) {
+            const alleKeys = this.projKeys.concat(this.phaseKeys);
+            const setzen = (zu: boolean) => {
+                alleKeys.forEach(k => this.collapsed[k] = zu);
+                this.invalidate();
+            };
+            this.toolbarAlle.appendChild(this.mkToolBtn(t, '⊞', 'Alles aufklappen', () => setzen(false), false));
+            this.toolbarAlle.appendChild(this.mkToolBtn(t, '⊟', 'Alles zuklappen', () => setzen(true), false));
+            // "Gliederung bis Ebene n" wie in MS Project — erst ab zwei Stufen sinnvoll
+            if (this.maxTiefe >= 1) {
+                const b = this.mkToolBtn(t, 'Ebene ▾', 'Gliederung bis Ebene … anzeigen',
+                    () => this.oeffneMenu('gliederung', b), true, !!this.menu && this.menu.art === 'gliederung');
+                b.setAttribute('data-menu', '1');
+                this.toolbarAlle.appendChild(b);
+            }
+        }
+
+        // ---- Legende: zuerst Aktuell/Basisplan (2.2, sobald Basisplan-Daten da
+        // sind), danach die Balkenfarbe (nur, wenn nicht nach Zweig gefärbt wird)
+        this.legendeHost.replaceChildren();
+        if (o && this.planSichtbar() && o.basisplanLegende !== false && this.hasPlan) {
+            const ibcs = !!o.ibcs;
+            const aktFarbe = ibcs ? IBCS_AC : (t.panel === '#1E2023' ? PHASE_HEX_DARK[0] : PHASE_HEX_LIGHT[0]);
+            const eintrag = (label: string, sw: HTMLElement, titel: string) => {
+                const e = el('div', 'display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;color:' + t.sub);
+                e.setAttribute('title', titel);
+                e.appendChild(sw);
+                e.appendChild(el('span', '', label));
+                this.legendeHost.appendChild(e);
+            };
+            // Balkenförmige Muster (breiter als hoch), damit sie sich von den
+            // quadratischen Farbfeldern der Balkenfarbe abheben
+            eintrag('Aktuell', el('div', 'width:16px;height:8px;border-radius:' + (ibcs ? '0' : '2px') + ';flex-shrink:0;background:' + aktFarbe),
+                'Farbiger Balken = aktueller Terminplan (Start/Ende)');
+            eintrag('Basisplan', el('div', 'width:16px;height:5px;border-radius:' + (ibcs ? '0' : '2px') + ';flex-shrink:0;background:' + planFarbe(t, ibcs)),
+                'Grauer Balken darunter = Basisplan (Plan-Start/Plan-Ende)');
+            if (o.legende !== false && this.legende.length) this.legendeHost.appendChild(el('div', 'width:1px;height:12px;flex-shrink:0;background:' + t.border));
+        }
+        if ((!o || o.legende !== false) && this.legende.length) {
+            const max = 6;
+            this.legende.slice(0, max).forEach(l => {
+                const e = el('div', 'display:flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;color:' + t.sub);
+                e.appendChild(el('div', 'width:9px;height:9px;border-radius:2px;flex-shrink:0;background:' + l.farbe));
+                e.appendChild(el('span', '', l.label));
+                this.legendeHost.appendChild(e);
+            });
+            if (this.legende.length > max) this.legendeHost.appendChild(el('span', 'font-size:11px;color:' + t.sub, '+' + (this.legende.length - max)));
+        }
+
+        // ---- rechts: Zeitachse, Navigation, Ansicht
         this.toolbarBtns.replaceChildren();
         const seg = el('div', 'display:flex;border:1px solid ' + t.border + ';border-radius:8px;overflow:hidden;background:' + t.panel);
-        ['Tage', 'Wochen', 'Monate', 'Quartale', 'Jahre'].forEach((m, i) => {
+        const alle = ['Tage', 'Wochen', 'Monate', 'Quartale', 'Jahre'];
+        const ze = o && o.zeiteinheiten;
+        let stufen = ze ? alle.filter(m => ze[m.toLowerCase()] !== false) : alle;
+        // Sind ALLE abgewählt, bliebe eine leere Leiste zurück — eine Sackgasse,
+        // aus der im Bericht (ohne Formatbereich) niemand mehr herausfindet.
+        // Darum in diesem Fall bewusst wieder alle fünf zeigen.
+        if (!stufen.length) stufen = alle;
+        stufen.forEach((m, i) => {
             const active = this.mode === m;
             const b = el('div',
                 'padding:6px 13px;cursor:pointer;font-size:12px;font-weight:600;' +
                 'background:' + (active ? t.text : 'transparent') + ';color:' + (active ? t.panel : t.sub) + ';' +
                 'border-left:' + (i ? '1px solid ' + t.border : 'none'), m);
-            b.addEventListener('click', () => this.setMode(m));
+            b.addEventListener('mousedown', (e) => { if (e.button !== 0) return; e.preventDefault(); this.setMode(m); });
             seg.appendChild(b);
         });
         this.toolbarBtns.appendChild(seg);
-        const mkBtn = (label: string, fn: () => void, wide: boolean) => {
-            const b = el('div',
-                (wide ? 'padding:6px 13px;' : 'width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;') +
-                'border:1px solid ' + t.border + ';border-radius:8px;background:' + t.panel + ';color:' + t.sub + ';cursor:pointer;font-weight:' + (wide ? '600;font-size:12px' : '700'), label);
-            b.addEventListener('click', fn);
+        const mkBtn = (label: string, titel: string, fn: () => void, wide: boolean, active?: boolean): HTMLElement => {
+            const b = this.mkToolBtn(t, label, titel, fn, wide, active);
             this.toolbarBtns.appendChild(b);
+            return b;
         };
-        mkBtn('−', () => this.zoomBy(1 / 1.35), false);
-        mkBtn('+', () => this.zoomBy(1.35), false);
-        mkBtn('Heute', () => this.goToday(), true);
-        mkBtn('Alles', () => this.fitAll(), true);
-        // Alle Projekte/Phasen gemeinsam auf-/zuklappen (einzeln: Klick auf die Zeile)
-        if (this.projKeys.length) {
-            const anyOpen = this.projKeys.some(k => !this.collapsed[k]);
-            mkBtn(anyOpen ? '▾ Projekte' : '▸ Projekte', () => {
-                this.projKeys.forEach(k => this.collapsed[k] = anyOpen);
-                this.invalidate();
-            }, true);
+        mkBtn('−', 'Herauszoomen', () => this.zoomBy(1 / 1.35), false);
+        mkBtn('+', 'Hineinzoomen', () => this.zoomBy(1.35), false);
+        mkBtn('Heute', 'Zum Statusdatum bzw. heute', () => this.goToday(), true);
+        mkBtn('Alles', 'Ganzen Plan einpassen', () => this.fitAll(), true);
+        // "Auswahl" nur, wenn etwas selektiert ist — sonst wäre es ein toter Knopf
+        if (sel) {
+            const ts = this.tasks.filter(tk => sel.has(tk.key));
+            if (ts.length) mkBtn('Auswahl', 'Auf die Auswahl einpassen', () => this.zuAuswahl(ts), true);
         }
-        if (this.phaseKeys.length) {
-            const anyOpen = this.phaseKeys.some(k => !this.collapsed[k]);
-            const lbl = this.levelCount > 1 ? 'Ebenen' : 'Phasen';
-            mkBtn((anyOpen ? '▾ ' : '▸ ') + lbl, () => {
-                this.phaseKeys.forEach(k => this.collapsed[k] = anyOpen);
-                this.invalidate();
-            }, true);
+        // 2.3: Leser-Knöpfe. Gedrückt (gefüllt) = eingeblendet. Sie erscheinen
+        // nur, wo sie etwas bewirken: Meilensteine vorhanden und nicht in einer
+        // der Meilenstein-Ansichten; Basisplan-Daten da und im Formatbereich an.
+        const knopf = (label: string, an: boolean, was: string, id: string, fn: () => void) => {
+            const b = mkBtn(label, was + (an ? ' ausblenden' : ' einblenden'), () => { fn(); this.invalidate(); }, true, an);
+            b.setAttribute('data-knopf', id);
+            b.setAttribute('aria-pressed', an ? 'true' : 'false');
+            b.style.whiteSpace = 'nowrap';
+            if (!an) b.style.textDecoration = 'line-through';
+        };
+        if (o && o.knopfMeilensteine !== false && this.msUmschaltbar() && this.tasks.some(tk => this.isMs(tk))) {
+            // Zoom und Zeitachse bleiben stehen — nur die Zeilen ändern sich
+            knopf('◆ Meilensteine', !this.msAus, 'Meilensteine', 'meilensteine', () => { this.msAus = !this.msAus; this.tip = null; });
         }
+        if (o && o.knopfBasisplan !== false && o.basisplan !== false && this.hasPlan) {
+            knopf('▭ Basisplan', !this.planAus, 'Basisplan', 'basisplan', () => { this.planAus = !this.planAus; this.tip = null; });
+        }
+        // "Ansicht ▾" erscheint, sobald eine Sonderansicht möglich ist — oder aktiv
+        // ist, damit man aus einem leeren Filter immer wieder herauskommt.
+        // Gefüllt nur bei einem echten Filter, nicht bei den Klapp-Ansichten.
+        const opts = this.ansichtOptionen();
+        if (opts.some(x => x.key !== 'alle' && x.ok) || this.ansicht !== 'alle') {
+            const akt = opts.find(x => x.key === this.ansicht);
+            const b = mkBtn((akt ? akt.kurz : 'Ansicht') + ' ▾', 'Ansicht wählen',
+                () => this.oeffneMenu('ansicht', b), true, !this.vollerUmfang());
+            b.setAttribute('data-menu', '1');
+            b.style.whiteSpace = 'nowrap';
+        }
+    }
+
+    // Einträge von "Ansicht ▾". Die ersten vier sind die Sichten eines
+    // Terminplaners (wie die Gliederungs-/Filterwahl in MS Project);
+    // „Je Projekt ein Balken“ nur im Portfolio (mehrere Projekte).
+    private ansichtOptionen(): { key: string; label: string; kurz: string; ok: boolean; hinweis: string }[] {
+        const a = this.analyse();
+        const nPr = new Set(this.tasks.map(tk => tk.projekt).filter(p => p !== undefined && p !== null && p !== '')).size;
+        const liste = [
+            { key: 'sammel', label: 'Sammelvorgänge', kurz: 'Sammelvorgänge', ok: this.hatGruppen(), hinweis: 'Rolle „Phase/Ebene“ oder „PSP-Code“ binden' },
+            { key: 'alle', label: 'Gesamter Terminplan', kurz: 'Gesamter Terminplan', ok: true, hinweis: '' },
+            { key: 'meilensteine', label: 'Nur Meilensteine', kurz: 'Nur Meilensteine', ok: this.tasks.some(tk => this.isMs(tk)), hinweis: 'Keine Meilensteine in den Daten (Ende leer)' },
+            { key: 'haupt', label: 'Nur Hauptmeilensteine', kurz: '◆ Hauptmeilensteine', ok: this.hasHaupt, hinweis: 'Rolle „Hauptmeilenstein“ binden' },
+            { key: 'projekte', label: 'Je Projekt ein Balken', kurz: 'Je Projekt ein Balken', ok: nPr > 1, hinweis: '' },
+            { key: 'kritisch', label: 'Nur kritischer Pfad', kurz: 'Kritischer Pfad', ok: a.kritQuelle !== null, hinweis: 'Rolle „Kritisch“, „Gesamte Pufferzeit“ oder „Vorgänger“ binden' },
+            { key: 'ueberfaellig', label: 'Nur überfällige', kurz: 'Überfällige', ok: a.ueberBestimmbar, hinweis: 'Rolle „Fortschritt“ oder „Status“ binden' }
+        ];
+        // „Je Projekt ein Balken“ ohne Portfolio gar nicht anbieten (außer aktiv)
+        return liste.filter(x => x.key !== 'projekte' || x.ok || this.ansicht === 'projekte');
+    }
+
+    private oeffneMenu(art: 'ansicht' | 'gliederung' | 'einrichtung', btn: HTMLElement): void {
+        if (this.menu && this.menu.art === art) { this.menu = null; this.invalidate(); return; }
+        const r = btn.getBoundingClientRect();
+        const rr = this.root.getBoundingClientRect();
+        const sk = this.skalaRoot();
+        // "Ansicht" sitzt rechts: Menü rechtsbündig am Knopf, sonst linksbündig
+        this.menu = { art, x: ((art === 'ansicht' ? r.right : r.left) - rr.left) / sk, y: (r.bottom - rr.top) / sk + 4 };
+        this.invalidate();
+    }
+
+    private zeigeBisEbene(k: number): void {
+        this.nodeTiefe.forEach((d, ck) => { this.collapsed[ck] = d >= k - 1; });
+        this.invalidate();
+    }
+
+    private istBisEbene(k: number): boolean {
+        let ja = true;
+        this.nodeTiefe.forEach((d, ck) => { if (!!this.collapsed[ck] !== (d >= k - 1)) ja = false; });
+        return ja;
+    }
+
+    private zuAuswahl(ts: GanttTask[]): void {
+        ts.forEach(tk => (this.vorfahren.get(tk.key) || []).forEach(ck => { this.collapsed[ck] = false; }));
+        this.einpassen(ts);
+        this.springZiel = ts[0].key;
+        this.invalidate();
+    }
+
+    // ---------- Einrichtungshilfe (nur Ersteller) ----------
+
+    private einrichtungSichtbar(): boolean {
+        const o = this.opts;
+        return !!o && o.bearbeiten === true && o.einrichtung !== false;
+    }
+
+    // Gebundene Rollen: vom Host (auch ohne gültige Zeilen), sonst aus den Daten
+    // abgeleitet (Testharness)
+    private rollen(): Record<string, boolean> {
+        const d = this.opts && this.opts.diagnose;
+        if (d && Object.keys(d.rollen).length) return d.rollen;
+        const ts = this.tasks;
+        return {
+            task: ts.length > 0, start: ts.length > 0, end: ts.some(t => t.e !== null),
+            psp: ts.some(t => !!t.psp), phase: this.ebenenFelder > 0, projekt: ts.some(t => !!t.projekt),
+            nr: ts.some(t => !!t.nr), deps: ts.some(t => t.deps.length > 0), progress: ts.some(t => t.pct !== null),
+            status: ts.some(t => !!t.st), owner: ts.some(t => !!t.ow),
+            statusDate: !!(this.opts && this.opts.statusDatum !== undefined && this.opts.statusDatum !== null),
+            planStart: ts.some(t => t.ps !== undefined && t.ps !== null), planEnd: ts.some(t => t.pe !== undefined && t.pe !== null),
+            kritisch: ts.some(t => t.kritisch !== undefined), puffer: ts.some(t => t.puffer !== undefined && t.puffer !== null),
+            stichtag: ts.some(t => t.stichtag !== undefined && t.stichtag !== null), hauptMs: this.hasHaupt,
+            farbeNach: ts.some(t => !!t.farbeWert), zusatz: ts.some(t => !!t.zusatz && t.zusatz.length > 0)
+        };
+    }
+
+    // Was fehlt, und was es freischalten würde — in der Sprache des Ergebnisses,
+    // nicht der Rollen: "Pfeile und kritischer Pfad", nicht "Rolle deps".
+    private checkliste(): { ok: boolean; pflicht: boolean; rolle: string; nutzen: string }[] {
+        const r = this.rollen();
+        const a = this.tasks.length ? this.analyse() : null;
+        const nrFehlt = !!a && a.unaufgeloest > 0 && !a.nrGebunden;
+        return [
+            { ok: !!r.task, pflicht: true, rolle: 'Task', nutzen: 'Vorgangsname' },
+            { ok: !!r.start, pflicht: true, rolle: 'Start (Datum)', nutzen: 'ohne Start keine Zeile' },
+            { ok: !!r.end, pflicht: false, rolle: 'Ende (Datum)', nutzen: 'Balken statt nur Rauten' },
+            { ok: !!(r.psp || r.phase), pflicht: false, rolle: 'PSP-Code oder Ebenen', nutzen: 'Gliederung mit Sammelvorgängen' },
+            { ok: !!r.deps && !nrFehlt, pflicht: false, rolle: nrFehlt ? 'Nr. (zu den Vorgängern)' : 'Vorgänger (+ Nr.)', nutzen: 'Pfeile, kritischer Pfad, Puffer' },
+            { ok: !!r.progress, pflicht: false, rolle: 'Fortschritt', nutzen: 'Fortschrittsbalken, überfällige Vorgänge, Fortschrittslinie' },
+            { ok: !!r.statusDate, pflicht: false, rolle: 'Statusdatum', nutzen: 'Berichtsstand statt „heute“' },
+            { ok: !!(r.planStart || r.planEnd), pflicht: false, rolle: 'Plan-Start / Plan-Ende', nutzen: 'Grauer Basisplan-Balken, Δ und Verzug' }
+        ];
+    }
+
+    private pruefPunkte(): { stufe: 'warn' | 'info'; text: string }[] {
+        const out: { stufe: 'warn' | 'info'; text: string }[] = [];
+        const d = this.opts && this.opts.diagnose;
+        const z = (n: number, ein: string, viele: string) => n + ' ' + (n === 1 ? ein : viele);
+        if (d) {
+            if (d.limitErreicht) out.push({ stufe: 'warn', text: 'Datenlimit erreicht: Power BI liefert höchstens 30.000 Zeilen, der Plan ist unvollständig. Seite oder Visual filtern.' });
+            if (d.fortschrittAnzahl) out.push({ stufe: 'warn', text: '„Fortschritt“ ist als Anzahl zusammengefasst (Textspalte?) und wird ignoriert — sonst stünde jeder Vorgang auf 100 %. Eine Zahlenspalte binden oder im Feldbereich „Summe“ wählen.' });
+            if (d.ohneStart) out.push({ stufe: 'warn', text: z(d.ohneStart, 'Zeile', 'Zeilen') + ' ohne gültigen Start übersprungen.' });
+            if (d.nrDoppelt) out.push({ stufe: 'warn', text: z(d.nrDoppelt, 'doppelte Nr.', 'doppelte Nr.') + ' — Vorgänger sind dort mehrdeutig.' });
+            if (d.pspDoppelt) out.push({ stufe: 'warn', text: z(d.pspDoppelt, 'doppelter PSP-Code', 'doppelte PSP-Codes') + ' — die Gliederung ist dort mehrdeutig.' });
+            if (d.ohneName) out.push({ stufe: 'info', text: z(d.ohneName, 'Zeile', 'Zeilen') + ' ohne Vorgangsnamen übersprungen.' });
+            if (d.endeVorStart) out.push({ stufe: 'info', text: z(d.endeVorStart, 'Zeile', 'Zeilen') + ' mit Ende vor Start — Ende auf den Start gesetzt.' });
+            if (d.textDaten) out.push({ stufe: 'info', text: 'Termine kommen als Text und wurden als TT.MM.JJJJ gelesen. Sicherer: im Modell den Datentyp „Datum“ setzen.' });
+        }
+        if (this.tasks.length) {
+            const a = this.analyse();
+            if (a.unaufgeloest) out.push({ stufe: 'warn', text: a.nrGebunden
+                ? z(a.unaufgeloest, 'Vorgänger', 'Vorgänger') + ' nicht gefunden — die Nr. fehlt im Plan oder liegt in einem anderen Projekt.'
+                : 'Vorgänger sind Nummern, aber „Nr.“ ist nicht gebunden — Pfeile und kritischer Pfad fehlen.' });
+            if (a.zyklen) out.push({ stufe: 'warn', text: z(a.zyklen, 'Kreisbezug', 'Kreisbezüge') + ' in den Vorgängern — im kritischen Pfad übersprungen.' });
+            // Kein Datenfehler, aber eine Frage, die Ersteller sonst lange suchen
+            if (this.tasks.length > 100) out.push({ stufe: 'info', text: 'Mehr als 100 Vorgänge: Einzelfarben je Vorgang sind im Formatbereich ausgeblendet. Farben über Balken → Balkenfarbe nach steuern.' });
+        }
+        return out;
+    }
+
+    // Checkliste als DOM — Einrichtungspanel und Startseite ohne Daten teilen sie
+    private checklistenKnoten(t: Theme): HTMLElement {
+        const box = el('div', 'display:grid;grid-template-columns:18px auto 1fr;gap:5px 8px;align-items:baseline;font-size:12px');
+        this.checkliste().forEach(c => {
+            box.appendChild(el('div', 'font-weight:700;color:' + (c.ok ? '#3E8651' : (c.pflicht ? KRIT_LIGHT : t.sub)), c.ok ? '✓' : (c.pflicht ? '!' : '○')));
+            box.appendChild(el('div', 'font-weight:600;white-space:nowrap;color:' + (c.ok ? t.text : (c.pflicht ? KRIT_LIGHT : t.text)), c.rolle));
+            box.appendChild(el('div', 'color:' + t.sub, c.nutzen + (c.pflicht ? ' · Pflicht' : '')));
+        });
+        return box;
+    }
+
+    private pruefKnoten(t: Theme): HTMLElement {
+        const pp = this.pruefPunkte();
+        const box = el('div', 'display:grid;grid-template-columns:18px 1fr;gap:5px 8px;align-items:baseline;font-size:12px');
+        if (!pp.length) {
+            box.appendChild(el('div', 'font-weight:700;color:#3E8651', '✓'));
+            box.appendChild(el('div', 'color:' + t.sub, 'Keine Auffälligkeiten in den Daten.'));
+        }
+        pp.forEach(p => {
+            box.appendChild(el('div', 'font-weight:700;color:' + (p.stufe === 'warn' ? KRIT_LIGHT : t.sub), p.stufe === 'warn' ? '⚠' : 'ℹ'));
+            box.appendChild(el('div', 'color:' + (p.stufe === 'warn' ? t.text : t.sub) + ';line-height:1.35', p.text));
+        });
+        return box;
+    }
+
+    private renderEinrichtung(t: Theme, x: number, y: number): void {
+        const maxH = Math.max(180, this.root.clientHeight - y - 10);
+        // Breite am Visual messen — menuHost selbst hat keine Breite, ein
+        // prozentuales max-width würde das Panel auf wenige Pixel stauchen
+        const breite = Math.max(240, Math.min(440, this.root.clientWidth - x - 10));
+        const box = el('div',
+            'position:absolute;left:' + x + 'px;top:' + y + 'px;width:' + breite + 'px;max-height:' + maxH + 'px;overflow:auto;' +
+            'background:' + t.panel + ';color:' + t.text + ';border:1px solid ' + t.border + ';border-radius:12px;' +
+            'box-shadow:0 14px 36px rgba(0,0,0,0.2);padding:14px 16px;box-sizing:border-box;user-select:text');
+        const kopf = el('div', 'display:flex;align-items:center;justify-content:space-between;margin-bottom:10px');
+        kopf.appendChild(el('div', 'font-weight:700;font-size:14px', 'Einrichtung'));
+        const zu = el('div', 'cursor:pointer;color:' + t.sub + ';font-size:16px;padding:0 4px', '✕');
+        zu.addEventListener('mousedown', (e) => { if (e.button !== 0) return; e.preventDefault(); this.menu = null; this.invalidate(); });
+        kopf.appendChild(zu);
+        box.appendChild(kopf);
+        const titel = (txt: string) => el('div', 'font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:' + t.sub + ';margin:12px 0 7px', txt);
+
+        box.appendChild(titel('Felder'));
+        box.appendChild(this.checklistenKnoten(t));
+        box.appendChild(el('div', 'font-size:11px;color:' + t.sub + ';margin-top:7px;line-height:1.35',
+            'Optional: Kritisch und Gesamte Pufferzeit (sonst berechnet), Stichtag, Projekt, Status, Wer, Hauptmeilenstein, Farbe nach, Zusatzspalten.'));
+
+        box.appendChild(titel('Datenprüfung'));
+        box.appendChild(this.pruefKnoten(t));
+
+        box.appendChild(titel('Vorlagen'));
+        const o = this.opts;
+        VORLAGEN.forEach(v => {
+            const geht = !!(o && o.onVorlage) && (v.braucht !== 'haupt' || this.hasHaupt);
+            const row = el('div', 'display:flex;flex-direction:column;gap:1px;padding:7px 10px;border-radius:8px;margin:0 -10px;' +
+                'cursor:' + (geht ? 'pointer' : 'default') + ';opacity:' + (geht ? 1 : 0.5));
+            row.appendChild(el('div', 'font-weight:600;font-size:12.5px', v.label));
+            row.appendChild(el('div', 'font-size:11px;color:' + t.sub, v.text + (geht || v.braucht !== 'haupt' ? '' : ' — braucht die Rolle „Hauptmeilenstein“')));
+            if (geht) {
+                row.addEventListener('mouseenter', () => { row.style.background = t.hoverBg; });
+                row.addEventListener('mouseleave', () => { row.style.background = 'transparent'; });
+                row.addEventListener('mousedown', (e) => {
+                    if (e.button !== 0) return;
+                    e.preventDefault();
+                    this.menu = null;
+                    (o as GanttOptions).onVorlage!(v.key);
+                    this.invalidate();
+                });
+            }
+            box.appendChild(row);
+        });
+        box.appendChild(el('div', 'font-size:10.5px;color:' + t.sub + ';margin-top:12px;border-top:1px solid ' + t.grid + ';padding-top:8px',
+            'Nur im Bearbeitungsmodus sichtbar — Leser sehen diesen Knopf nicht. Abschaltbar unter Darstellung → Einrichtungshilfe.'));
+        this.menuHost.appendChild(box);
+    }
+
+    // Menü-Overlay. Einträge reagieren auf mousedown (nicht click), weil ein
+    // Render zwischen Drücken und Loslassen den Eintrag ersetzen kann.
+    private renderMenu(t: Theme): void {
+        this.menuHost.replaceChildren();
+        const mn = this.menu;
+        if (!mn) { this.menuHost.style.display = 'none'; return; }
+        this.menuHost.style.display = 'block';
+        if (mn.art === 'einrichtung') { this.renderEinrichtung(t, mn.x, mn.y); return; }
+        type Eintrag = { label: string; ok: boolean; hinweis: string; aktiv: boolean; fn: () => void };
+        let eintraege: Eintrag[];
+        if (mn.art === 'ansicht') {
+            eintraege = this.ansichtOptionen().map(x => ({
+                label: x.label, ok: x.ok || x.key === this.ansicht, hinweis: x.hinweis, aktiv: x.key === this.ansicht,
+                // Erneut gewählt = Klappzustand der Ansicht wiederherstellen
+                fn: () => { if (!this.wechsleAnsicht(x.key)) { this.collapsed = {}; this.sy = 0; } }
+            }));
+        } else {
+            eintraege = [];
+            for (let k = 1; k <= this.maxTiefe + 1; k++) {
+                const kk = k;
+                eintraege.push({
+                    label: 'Ebene ' + k + (k === 1 && this.hasProj ? ' · ' + this.text('projektN', 'Projekte') : ''),
+                    ok: true, hinweis: '', aktiv: this.istBisEbene(k), fn: () => this.zeigeBisEbene(kk)
+                });
+            }
+            eintraege.push({ label: 'Alle Ebenen', ok: true, hinweis: '', aktiv: this.istBisEbene(Infinity), fn: () => this.zeigeBisEbene(Infinity) });
+        }
+        const box = el('div',
+            'position:absolute;left:' + mn.x + 'px;top:' + mn.y + 'px;' + (mn.art === 'ansicht' ? 'transform:translateX(-100%);' : '') +
+            'min-width:220px;background:' + t.panel + ';color:' + t.text + ';border:1px solid ' + t.border + ';border-radius:10px;' +
+            'box-shadow:0 10px 28px rgba(0,0,0,0.18);padding:5px;font-size:12.5px');
+        eintraege.forEach(e => {
+            const row = el('div', 'display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:7px;' +
+                'cursor:' + (e.ok ? 'pointer' : 'default') + ';opacity:' + (e.ok ? 1 : 0.55));
+            row.appendChild(el('div', 'width:14px;flex-shrink:0;font-weight:700', e.aktiv ? '✓' : ''));
+            const txt = el('div', '');
+            txt.appendChild(el('div', 'font-weight:' + (e.aktiv ? 700 : 500), e.label));
+            // Nicht verfügbare Ansichten bleiben sichtbar und sagen, was fehlt —
+            // so findet man die Funktion, statt dass sie still verborgen bleibt
+            if (!e.ok && e.hinweis) txt.appendChild(el('div', 'font-size:11px;color:' + t.sub + ';margin-top:2px', e.hinweis));
+            row.appendChild(txt);
+            if (e.ok) {
+                row.addEventListener('mouseenter', () => { row.style.background = t.hoverBg; });
+                row.addEventListener('mouseleave', () => { row.style.background = 'transparent'; });
+                row.addEventListener('mousedown', (ev) => {
+                    if (ev.button !== 0) return;
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    this.menu = null;
+                    e.fn();
+                    this.invalidate();
+                });
+            }
+            box.appendChild(row);
+        });
+        this.menuHost.appendChild(box);
     }
 
     private renderTable(t: Theme, items: RenderItem[], topOf: Record<string, number>, sy: number, tableW: number, sel: ReadonlySet<string> | null, ibcs: boolean): void {
         if (this.tableWrap.style.display === 'none') return;
         const m = this.m;
         const cols = this.visibleCols(tableW);
-        const gridTemplate = 'minmax(0,1fr) ' + cols.map(c => c.w + 'px').join(' ');
+        const pspW = this.zeigePsp() ? Math.round(PSP_W * m.s) : 0;
+        const gridTemplate = (pspW ? pspW + 'px ' : '') + 'minmax(0,1fr) ' + cols.map(c => c.w + 'px').join(' ');
 
         this.tableHead.style.gridTemplateColumns = gridTemplate;
         this.tableHead.style.color = t.sub;
         this.tableHead.style.borderBottom = '1px solid ' + t.border;
         this.tableHead.style.fontSize = this.fs(10.5);
         this.tableHead.replaceChildren();
-        this.tableHead.appendChild(el('div', '', 'Task'));
+        if (pspW) this.tableHead.appendChild(el('div', '', 'PSP'));
+        this.tableHead.appendChild(el('div', '', this.text('spalteTask', 'Task')));
         cols.forEach(c => this.tableHead.appendChild(
-            el('div', c.key === 'days' ? 'text-align:right;padding-right:12px' : '', c.label)));
+            el('div', (c.key === 'days' || c.key === 'puffer' ? 'text-align:right;padding-right:12px;' : '') +
+                (c.key.charAt(0) === 'z' ? 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px' : ''), c.label)));
 
         this.rowsLayer.style.transform = 'translateY(-' + sy + 'px)';
         this.rowsLayer.replaceChildren();
         const [vA, vB] = this.sichtbar(items.length, sy, this.rowsViewport.clientHeight);
 
         const o = this.opts;
-        const verzugOn = (!o || o.basisplan !== false) && (!o || o.verzugZeilen !== false);
+        const verzugOn = this.planSichtbar() && (!o || o.verzugZeilen !== false);
         const dark = t.panel === '#1E2023';
         const lateTint = hexA(IBCS_RED, dark ? 0.13 : 0.07);
         const u = unitSuffix(o ? o.tageEinheit : undefined);
+        const ana = this.analyse();
+        const at = !!(o && o.arbeitstage);
+        const kritOn = !o || o.kritischHervorheben !== false;
+        const ueberOn = !o || o.ueberfaelligMarkieren !== false;
+        const kritFarbe = dark ? KRIT_DARK : KRIT_LIGHT;
+        const zweizeilig = !!(o && o.namenZweizeilig);
+        const q = this.suche.toLowerCase();
 
         items.slice(vA, vB).forEach(it => {
             const isProj = it.kind === 'proj';
             const isP = it.kind === 'phase' || isProj;   // Gruppenzeile (Projekt oder Phase)
             const isM = it.kind === 'ms';
             const hov = this.hover === it.id;
-            const dim = sel && !isP && it.task && !sel.has(it.task.key);
+            const mehrfach = isM && it.msKids.length > 1;   // Hauptmeilenstein mit mehreren Vorkommen
+            // Sammelzeile gilt als selektiert, sobald EIN Vorkommen selektiert ist
+            const dim = sel && !isP && it.task && (mehrfach ? !it.msKids.some(k => sel.has(k.key)) : !sel.has(it.task.key));
             const late = verzugOn && it.delta !== null && it.delta > 0;
+            // Suchtreffer: Vorgänge über den Trefferindex, Gruppen über ihren Namen
+            const treffer = !!q && (it.task ? this.suchSet.has(it.task.key) || it.msKids.some(k => this.suchSet.has(k.key)) : it.name.toLowerCase().includes(q));
             const row = el('div',
                 'position:absolute;left:0;right:0;top:' + topOf[it.id] + 'px;height:' + m.rowH + 'px;display:grid;' +
                 'grid-template-columns:' + gridTemplate + ';align-items:center;padding-left:14px;' +
-                'background:' + (hov ? t.hoverBg : (late ? lateTint : 'transparent')) + ';border-bottom:1px solid ' + t.grid + ';' +
+                'background:' + (hov ? t.hoverBg : (treffer ? SUCH_TINT : (late ? lateTint : 'transparent'))) + ';border-bottom:1px solid ' + t.grid + ';' +
                 'cursor:pointer;opacity:' + (dim ? 0.45 : 1));
             if (it.task) row.setAttribute('data-task', it.task.key);
+            if (pspW) row.appendChild(el('div', 'font-variant-numeric:tabular-nums;font-size:' + this.fs(11.5) + ';color:' + t.sub + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px', it.psp || ''));
 
             // Task-Zelle: Caret (Gruppe), Farb-Punkt, Name — Einrückung je Tiefe.
             // Der flache Fall (eine Ebene, keine Projektrolle) behält die 14 px
@@ -1136,19 +2529,38 @@ export class GanttRenderer {
                 'width:11px;flex-shrink:0;color:' + t.sub + ';font-size:' + this.fs(9) + ';text-align:center;' +
                 'transform:rotate(' + (isP && !this.collapsed[it.phaseKey as string] ? 90 : 0) + 'deg)',
                 isP ? '▶' : ''));
+            // kritische Vorgänge: roter Punkt — in der Tabelle das ruhigste Signal
             nameCell.appendChild(el('div',
-                'width:' + dot + 'px;height:' + dot + 'px;flex-shrink:0;background:' + it.color + ';' +
+                'width:' + dot + 'px;height:' + dot + 'px;flex-shrink:0;background:' + (kritOn && it.krit ? kritFarbe : it.color) + ';' +
                 'border-radius:' + (ibcs ? '0' : (isM ? '2px' : (isP ? '2.5px' : '50%'))) + ';' +
                 'transform:rotate(' + (isM ? 45 : 0) + 'deg)'));
-            nameCell.appendChild(el('div', 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap', it.name));
+            // Voller Name immer als Hover-Titel; zweizeilig auf Wunsch, weil lange
+            // MS-Project-Namen in der schmalen Spalte sonst unlesbar abbrechen
+            const nameEl = el('div', zweizeilig
+                ? 'overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;line-height:1.15;word-break:break-word'
+                : 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap', it.name);
+            nameEl.setAttribute('title', (it.psp ? it.psp + ' · ' : '') + it.name);
+            nameCell.appendChild(nameEl);
             row.appendChild(nameCell);
 
             const dateFg = isP ? t.text : t.sub;
-            const days = Math.round((it.e - it.s) / DAY) + 1;
+            const days = at ? ana.kal.zwischen(it.s, it.e) : Math.round((it.e - it.s) / DAY) + 1;
+            const rotFett = ';color:' + kritFarbe + ';font-weight:700';
             const numCss = 'font-variant-numeric:tabular-nums;font-size:' + this.fs(12) + ';color:' + dateFg;
             cols.forEach(c => {
                 if (c.key === 'start') row.appendChild(el('div', numCss, fmtDate(it.s)));
-                else if (c.key === 'end') row.appendChild(el('div', numCss, isM ? '–' : fmtDate(it.e)));
+                // überfällig zum Statusdatum: das Ende ist die Stelle, an der man es sucht
+                else if (c.key === 'end') row.appendChild(el('div', numCss + (ueberOn && it.ueber !== null ? rotFett : ''), isM && !(mehrfach && it.e !== it.s) ? '–' : fmtDate(it.e)));
+                else if (c.key === 'puffer') row.appendChild(el('div', 'text-align:right;padding-right:12px;' + numCss + (kritOn && it.krit ? rotFett : ''),
+                    it.puffer === null ? '–' : (Math.round(it.puffer * 10) / 10) + u));
+                else if (c.key === 'stichtag') row.appendChild(el('div', numCss + (it.stichtag !== null && it.e > it.stichtag ? rotFett : ''),
+                    it.stichtag === null ? '–' : fmtDate(it.stichtag)));
+                else if (c.key.charAt(0) === 'z') {
+                    const v = it.task && it.task.zusatz ? (it.task.zusatz[Number(c.key.slice(1))] || '') : '';
+                    const z = el('div', 'font-size:' + this.fs(12) + ';color:' + t.sub + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:6px', v);
+                    if (v) z.setAttribute('title', v);
+                    row.appendChild(z);
+                }
                 else if (c.key === 'days') row.appendChild(el('div', 'text-align:right;padding-right:12px;' + numCss, isM ? '–' : days + u));
                 else if (c.key === 'delta') {
                     // Abweichung zum Basisplan: Rot = Verzug, Grün = früher fertig
@@ -1215,6 +2627,14 @@ export class GanttRenderer {
         const msDatum = o.msDatum !== false;
         const msNamen = o.msNamen !== false;
         const msLblMode = o.msBeschriftung || 'nurDatum';
+        const ana = this.analyse();
+        const dark = t.panel === '#1E2023';
+        const kritOn = o.kritischHervorheben !== false;
+        const ueberOn = o.ueberfaelligMarkieren !== false;
+        const pufferOn = o.pufferAnzeigen !== false;
+        const stichOn = o.stichtageAnzeigen !== false;
+        const kritFarbe = dark ? KRIT_DARK : KRIT_LIGHT;
+        const okFarbe = dark ? '#69B27A' : '#2E8B57';
 
         // --- Achse (Monats-Ticks + Tages-/Wochen-Subticks) ---
         this.axisHost.style.borderBottom = '1px solid ' + t.border;
@@ -1287,6 +2707,13 @@ export class GanttRenderer {
                     'position:absolute;left:' + x(dd) + 'px;width:' + (this.pxd * 2) + 'px;top:0;bottom:0;background:' + t.weekend));
             }
         }
+        if (o.wochenenden && this.pxd >= 3.5) {
+            ana.kal.feiertage().forEach(f => {
+                if (f < this.view - DAY || f > endMs) return;
+                this.fixedLayer.appendChild(el('div',
+                    'position:absolute;left:' + x(f) + 'px;width:' + this.pxd + 'px;top:0;bottom:0;background:' + t.weekend));
+            });
+        }
         gridXs.forEach(g => this.fixedLayer.appendChild(el('div',
             'position:absolute;left:' + g.x + 'px;top:0;bottom:0;border-left:1px solid ' + g.c)));
 
@@ -1294,8 +2721,8 @@ export class GanttRenderer {
         this.scrollLayer.style.transform = 'translateY(-' + sy + 'px)';
         this.scrollLayer.replaceChildren();
 
-        const planOn = o.basisplan !== false && this.hasPlan;
-        const verzugOn = o.basisplan !== false && o.verzugZeilen !== false;
+        const planOn = this.planSichtbar() && this.hasPlan;
+        const verzugOn = this.planSichtbar() && o.verzugZeilen !== false;
         const lateTint = hexA(IBCS_RED, t.panel === '#1E2023' ? 0.13 : 0.07);
         const [vA, vB] = this.sichtbar(items.length, sy, chH);
         items.slice(vA, vB).forEach(it => {
@@ -1308,7 +2735,10 @@ export class GanttRenderer {
                 'border-bottom:1px solid ' + t.grid + (isGrp ? ';cursor:pointer' : '')));
         });
 
-        // Abhängigkeitspfeile (Elbow-Routing wie im Sample)
+        // Abhängigkeitspfeile, Elbow-Routing je Beziehungstyp: EA (Ende→Anfang),
+        // AA, EE, AE. "Von Ende" verlässt den Balken rechts, "von Anfang" links;
+        // "zum Anfang" kommt von links an, "zum Ende" von rechts. Beziehungen
+        // zwischen zwei kritischen Vorgängen sind rot — das ist der kritische Pfad.
         if (o.abhaengigkeiten) {
             const svg = svgEl('svg');
             svg.setAttribute('width', String(cw));
@@ -1316,39 +2746,85 @@ export class GanttRenderer {
             svg.style.cssText = 'position:absolute;left:0;top:0;overflow:visible;pointer-events:none';
             const half = m.rowH / 2;
             items.forEach(it => {
-                if (!it.task) return;
-                it.depTasks.forEach(src => {
+                if (!it.task || !it.links.length) return;
+                const tk = it.task;
+                it.links.forEach(l => {
+                    const src = l.src;
                     const srcId = src.key;
                     if (topOf[srcId] === undefined || topOf[it.id] === undefined) return;
-                    const srcMs = src.e === null;
-                    const fx = srcMs ? x(src.s) + this.pxd / 2 + 8 : x((src.e === null ? src.s : src.e) + DAY) + 2;
                     const fy = topOf[srcId] + half;
-                    const tx = it.kind === 'ms' ? x(it.s) + this.pxd / 2 - 9 : x(it.s) - 3;
                     const ty = topOf[it.id] + half;
                     // außerhalb des Sichtfensters liegende Pfeile gar nicht erst bauen
                     if (Math.max(fy, ty) < sy - m.rowH || Math.min(fy, ty) > sy + chH + m.rowH) return;
-                    const hl = this.hover === srcId || this.hover === it.id;
-                    const selDim = sel && !(sel.has(srcId) || (it.task && sel.has(it.task.key)));
+                    const srcMs = this.isMs(src) || src.e === null;
+                    const vonEnde = l.typ === 'EA' || l.typ === 'EE';
+                    const zuAnfang = l.typ === 'EA' || l.typ === 'AA';
+                    const fx = srcMs ? x(src.s) + this.pxd / 2 + (vonEnde ? 8 : -8)
+                        : (vonEnde ? x((src.e as number) + DAY) + 2 : x(src.s) - 2);
+                    const tx = it.kind === 'ms' ? x(it.s) + this.pxd / 2 + (zuAnfang ? -9 : 9)
+                        : (zuAnfang ? x(it.s) - 3 : x(it.e + DAY) + 3);
+                    const dir = zuAnfang ? 1 : -1;            // Pfeilspitze zeigt nach rechts bzw. links
+                    const stub = fx + (vonEnde ? 8 : -8);
                     let line: string;
-                    if (tx - 10 > fx + 6) line = 'M' + fx + ',' + fy + ' L' + (fx + 8) + ',' + fy + ' L' + (fx + 8) + ',' + ty + ' L' + tx + ',' + ty;
-                    else { const my = fy + half; line = 'M' + fx + ',' + fy + ' L' + (fx + 8) + ',' + fy + ' L' + (fx + 8) + ',' + my + ' L' + (tx - 10) + ',' + my + ' L' + (tx - 10) + ',' + ty + ' L' + tx + ',' + ty; }
-                    const arrow = 'M' + tx + ',' + (ty - 4) + ' L' + (tx + 6) + ',' + ty + ' L' + tx + ',' + (ty + 4) + ' Z';
+                    if (zuAnfang ? tx - 4 >= stub : tx + 4 <= stub) {
+                        line = 'M' + fx + ',' + fy + ' L' + stub + ',' + fy + ' L' + stub + ',' + ty + ' L' + tx + ',' + ty;
+                    } else {
+                        const my = fy + (ty >= fy ? half : -half);
+                        const ax = tx - dir * 10;
+                        line = 'M' + fx + ',' + fy + ' L' + stub + ',' + fy + ' L' + stub + ',' + my + ' L' + ax + ',' + my + ' L' + ax + ',' + ty + ' L' + tx + ',' + ty;
+                    }
+                    const arrow = 'M' + tx + ',' + (ty - 4) + ' L' + (tx + dir * 6) + ',' + ty + ' L' + tx + ',' + (ty + 4) + ' Z';
+                    const hl = this.hover === srcId || this.hover === it.id;
+                    const selDim = sel && !(sel.has(srcId) || sel.has(tk.key));
+                    const kritL = kritOn && it.krit && ana.krit.get(srcId) === true;
+                    const farbe = kritL ? kritFarbe : (hl ? t.text : t.dep);
                     const p1 = svgEl('path');
                     p1.setAttribute('d', line);
                     p1.setAttribute('fill', 'none');
-                    p1.setAttribute('stroke', hl ? t.text : t.dep);
-                    p1.setAttribute('stroke-width', hl ? '2' : '1.25');
-                    p1.setAttribute('opacity', selDim ? '0.25' : (hl ? '1' : '0.85'));
+                    p1.setAttribute('stroke', farbe);
+                    p1.setAttribute('stroke-width', hl || kritL ? '2' : '1.25');
+                    p1.setAttribute('opacity', selDim ? '0.25' : (hl || kritL ? '1' : '0.85'));
                     const p2 = svgEl('path');
                     p2.setAttribute('d', arrow);
-                    p2.setAttribute('fill', hl ? t.text : t.dep);
-                    p2.setAttribute('opacity', selDim ? '0.25' : (hl ? '1' : '0.85'));
+                    p2.setAttribute('fill', farbe);
+                    p2.setAttribute('opacity', selDim ? '0.25' : (hl || kritL ? '1' : '0.85'));
                     svg.appendChild(p1);
                     svg.appendChild(p2);
                 });
             });
             this.scrollLayer.appendChild(svg);
         }
+
+        // Stichtag-Marker: Dreieck am Ende des Stichtags (wie in MS Project),
+        // grün wenn eingehalten, rot wenn das Ende danach liegt
+        const stichMarker = (it: RenderItem, top: number): void => {
+            if (!stichOn || it.stichtag === null) return;
+            const sxp = x(it.stichtag + DAY);
+            const verletzt = it.e > it.stichtag;
+            const farbe = verletzt ? kritFarbe : okFarbe;
+            this.scrollLayer.appendChild(el('div',
+                'position:absolute;left:' + sxp + 'px;top:' + (top + 8) + 'px;height:' + (m.rowH - 12) + 'px;width:0;' +
+                'border-left:1px dashed ' + farbe + ';opacity:0.7;pointer-events:none'));
+            const tri = el('div',
+                'position:absolute;left:' + (sxp - 5) + 'px;top:' + (top + 1) + 'px;width:0;height:0;' +
+                'border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid ' + farbe);
+            tri.setAttribute('title', 'Stichtag ' + fmtDate(it.stichtag) + (verletzt ? ' — überschritten' : ''));
+            this.scrollLayer.appendChild(tri);
+        };
+        // Gesamtpuffer als dünne Linie UNTER dem Balken (wie in MS Project). Auf
+        // Höhe des Balkens würde sie die Beschriftung bei großem Puffer weit vom
+        // eigenen Balken wegschieben.
+        const pufferLinie = (it: RenderItem, vonX: number, y: number): void => {
+            if (!pufferOn || it.puffer === null || it.puffer <= 0) return;
+            const bis = x(ana.kal.plus(it.e, it.puffer) + DAY);
+            if (bis <= vonX + 1) return;
+            this.scrollLayer.appendChild(el('div',
+                'position:absolute;left:' + vonX + 'px;top:' + y + 'px;width:' + (bis - vonX) + 'px;height:2px;background:' + t.sub + ';opacity:0.55;pointer-events:none'));
+            this.scrollLayer.appendChild(el('div',
+                'position:absolute;left:' + (bis - 1) + 'px;top:' + (y - 1) + 'px;width:2px;height:6px;background:' + t.sub + ';opacity:0.55;pointer-events:none'));
+        };
+        const ueberSpan = (it: RenderItem): HTMLElement | null => !ueberOn || it.ueber === null ? null
+            : el('span', 'margin-left:6px;font-weight:700;color:' + kritFarbe, 'überfällig ' + it.ueber + u);
 
         // Balken: Phasen (dünn), Tasks (mit Fortschrittsfüllung), Meilensteine (Raute)
         // IBCS: scharfe Kanten statt runder Ecken, kein Drop-Shadow (Standard 1.2 —
@@ -1358,27 +2834,37 @@ export class GanttRenderer {
         const phTop = Math.round((m.rowH - m.phBarH) / 2);
         const barTop = Math.round((m.rowH - m.barH) / 2);
         const diaTop = Math.round((m.rowH - m.dia) / 2);
-        // Basisplan-Metriken: Plan als schmaler Outline-Balken UNTER dem Ist-Balken
-        // (IBCS-Szenario-Notation: Ist = gefüllt, Plan = Rahmen)
+        // Basisplan-Metriken: Basisplan als schmaler, GEFÜLLTER grauer Balken
+        // direkt UNTER dem farbigen Aktuell-Balken — wie MS Project
+        // "Balkendiagramm: Überwachung". Bis 2.0 war er nur ein grauer Rahmen;
+        // neben dem blass getönten Aktuell-Balken las sich das vertauscht.
         const planH = Math.max(4, Math.round(6 * m.s));
         const planGap = Math.max(1, Math.round(2 * m.s));
-        const planStroke = ibcs ? IBCS_AC : t.sub;
+        const planFill = planFarbe(t, ibcs);
+        // „Δ +n t“ an den Beschriftungen ist eigens abschaltbar (2.2)
+        const deltaLblOn = planOn && o.deltaBeschriftung !== false;
+        // Mit Basisplan trägt auch der unerledigte Teil des Aktuell-Balkens
+        // deutlich Farbe, damit „farbig oben = Aktuell, grau unten = Basisplan“
+        // auch bei 0 % Fortschritt eindeutig bleibt
+        const aktuellBg = (it: RenderItem, showPlan: boolean): string =>
+            showPlan && !ibcs && /^#[0-9A-Fa-f]{6}$/.test(it.color) ? hexA(it.color, 0.4) : it.soft;
         const gruppenNamen = o.gruppenNamen !== false;
         const mkPlanBar = (ps: number, pe: number, topPx: number, dimmed: boolean): HTMLElement => el('div',
             'position:absolute;left:' + x(ps) + 'px;top:' + topPx + 'px;width:' + Math.max(2, x(pe + DAY) - x(ps)) + 'px;height:' + planH + 'px;' +
-            'border-radius:' + rad(3) + ';background:transparent;box-shadow:inset 0 0 0 1px ' + planStroke + ';' +
-            'pointer-events:none;opacity:' + (dimmed ? 0.25 : 0.85));
+            'border-radius:' + rad(2) + ';background:' + planFill + ';' +
+            'pointer-events:none;opacity:' + (dimmed ? 0.25 : 1));
         items.slice(vA, vB).forEach(it => {
             const top = topOf[it.id];
             const hov = this.hover === it.id;
-            const dim = sel && it.task && !sel.has(it.task.key);
+            const dim = sel && it.task && (it.kind === 'ms' && it.msKids.length > 1
+                ? !it.msKids.some(k => sel.has(k.key)) : !sel.has(it.task.key));
             const blocked = ibcs && it.task && it.st && statusKind(it.st) === 'blocked';
             const showPlan = planOn && it.ps !== null;
             if (it.kind === 'phase' || it.kind === 'proj') {
                 const w = Math.max(4, x(it.e + DAY) - x(it.s));
                 const bar = el('div',
                     'position:absolute;left:' + x(it.s) + 'px;top:' + (top + phTop) + 'px;width:' + w + 'px;height:' + m.phBarH + 'px;' +
-                    'border-radius:' + rad(5) + ';background:' + it.soft + ';overflow:hidden;pointer-events:none' +
+                    'border-radius:' + rad(5) + ';background:' + aktuellBg(it, showPlan) + ';overflow:hidden;pointer-events:none' +
                     (ibcs ? ';box-shadow:inset 0 0 0 1px ' + IBCS_AC : ''));
                 bar.appendChild(el('div', 'height:100%;width:' + (it.pct === null ? 0 : it.pct) + '%;background:' + it.color + ';border-radius:' + rad(5)));
                 this.scrollLayer.appendChild(bar);
@@ -1436,46 +2922,100 @@ export class GanttRenderer {
                         }
                     });
                 }
+            } else if (it.kind === 'ms' && it.msKids.length > 1) {
+                // Hauptmeilenstein mit mehreren Vorkommen: je Vorkommen eine Raute,
+                // einzeln anklickbar (data-task) — das selektiert genau dieses
+                // Vorkommen. Projekt und Datum stehen im Hover-Titel; die
+                // Datumsbeschriftung lässt Überlappungen aus, damit bei vielen
+                // Projekten die übrigen lesbar bleiben.
+                let lastRight = -Infinity;
+                const lblFs = 10 * m.s;
+                // Rauten, die sich auf der aktuellen Zoomstufe berühren, bilden einen
+                // Cluster; das Datum kommt HINTER dessen letzte Raute, sonst läge es
+                // unter der Nachbarraute (z. B. 21.06. und 24.06. in Quartalsansicht).
+                const xs = it.msKids.map(ms => x(ms.s) + this.pxd / 2);
+                const clusterEnde = xs.map((_, i) => {
+                    let j = i;
+                    while (j + 1 < xs.length && xs[j + 1] - xs[j] < m.dia + 2) j++;
+                    return xs[j];
+                });
+                const clusterStart = xs.map((v, i) => i === 0 || v - xs[i - 1] >= m.dia + 2);
+                it.msKids.forEach((ms, i) => {
+                    const msDim = sel && !sel.has(ms.key);
+                    const cx = x(ms.s) + this.pxd / 2;
+                    const dEl = el('div',
+                        'position:absolute;left:' + (cx - m.dia / 2) + 'px;top:' + (top + diaTop) + 'px;width:' + m.dia + 'px;height:' + m.dia + 'px;' +
+                        'transform:rotate(45deg);border-radius:' + rad(3) + ';background:' + it.color + ';cursor:pointer;' +
+                        (ibcs ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.25);') +
+                        'opacity:' + (msDim ? 0.3 : 1));
+                    dEl.setAttribute('data-task', ms.key);
+                    const pr = ms.projekt !== undefined && ms.projekt !== null && ms.projekt !== '' ? ms.projekt + ' · ' : '';
+                    dEl.setAttribute('title', pr + ms.name + ' · ' + fmtDate(ms.s));
+                    this.scrollLayer.appendChild(dEl);
+                    if (msDatum && clusterStart[i]) {
+                        const lbl = fmtDate(ms.s);
+                        const w = lbl.length * lblFs * 0.55;
+                        const lx = clusterEnde[i] + m.dia / 2 + 3;
+                        if (lx > lastRight + 4) {
+                            lastRight = lx + w;
+                            this.scrollLayer.appendChild(el('div',
+                                'position:absolute;left:' + lx + 'px;top:' + (top + diaTop) + 'px;height:' + m.dia + 'px;' +
+                                'display:flex;align-items:center;font-size:' + this.fs(10) + ';color:' + t.sub + ';' +
+                                'font-variant-numeric:tabular-nums;white-space:nowrap;pointer-events:none;opacity:' + (msDim ? 0.3 : 1),
+                                lbl));
+                        }
+                    }
+                });
             } else if (it.kind === 'ms') {
                 const dia = el('div',
                     'position:absolute;left:' + (x(it.s) + this.pxd / 2 - m.dia / 2) + 'px;top:' + (top + diaTop) + 'px;width:' + m.dia + 'px;height:' + m.dia + 'px;' +
                     'transform:rotate(45deg);border-radius:' + rad(3) + ';background:' + it.color + ';cursor:pointer;' +
-                    (blocked ? 'box-shadow:inset 0 0 0 2px ' + IBCS_RED + ';' : (ibcs ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.25);')) +
+                    (blocked ? 'box-shadow:inset 0 0 0 2px ' + IBCS_RED + ';'
+                        : kritOn && it.krit ? 'box-shadow:0 0 0 2px ' + kritFarbe + ';'
+                            : (ibcs ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.25);')) +
                     'opacity:' + (dim ? 0.3 : 1));
                 if (it.task) dia.setAttribute('data-task', it.task.key);
                 dia.addEventListener('mouseenter', (ev) => this.tipAt(it, ev as MouseEvent));
                 dia.addEventListener('mousemove', (ev) => this.tipAt(it, ev as MouseEvent));
-                // Plan-Meilenstein: Outline-Raute an der geplanten Position
-                // (nur wenn sie vom Ist abweicht — sonst läge sie exakt darunter)
+                // Basisplan-Meilenstein: gefüllte graue Raute (etwas kleiner) an der
+                // geplanten Position — nur wenn sie vom Aktuell-Termin abweicht,
+                // sonst läge sie exakt unter der farbigen Raute
                 if (showPlan && it.ps !== it.s) {
+                    const pd = Math.max(7, Math.round(m.dia * 0.8));
+                    const pdTop = Math.round((m.rowH - pd) / 2);
                     this.scrollLayer.appendChild(el('div',
-                        'position:absolute;left:' + (x(it.ps as number) + this.pxd / 2 - m.dia / 2) + 'px;top:' + (top + diaTop) + 'px;width:' + m.dia + 'px;height:' + m.dia + 'px;' +
-                        'transform:rotate(45deg);border-radius:' + rad(3) + ';background:transparent;' +
-                        'box-shadow:inset 0 0 0 1.5px ' + planStroke + ';pointer-events:none;opacity:' + (dim ? 0.25 : 0.85)));
+                        'position:absolute;left:' + (x(it.ps as number) + this.pxd / 2 - pd / 2) + 'px;top:' + (top + pdTop) + 'px;width:' + pd + 'px;height:' + pd + 'px;' +
+                        'transform:rotate(45deg);border-radius:' + rad(2) + ';background:' + planFill + ';' +
+                        'pointer-events:none;opacity:' + (dim ? 0.25 : 1)));
                 }
                 this.scrollLayer.appendChild(dia);
+                stichMarker(it, top);
+                pufferLinie(it, x(it.s) + this.pxd / 2, top + diaTop + m.dia + 2);
                 const msLbl = el('div',
                     'position:absolute;left:' + (x(it.s) + this.pxd / 2 + 14) + 'px;top:' + (top + diaTop) + 'px;height:' + m.dia + 'px;' +
                     'display:flex;align-items:center;font-size:' + this.fs(11) + ';font-weight:600;color:' + t.text + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
                     [msNamen ? it.name : '', msDatum ? fmtDate(it.s) : ''].filter(v => v !== '').join(' · '));
-                if (planOn && it.delta !== null && it.delta !== 0) {
+                if (deltaLblOn && it.delta !== null && it.delta !== 0) {
                     msLbl.appendChild(el('span',
                         'margin-left:6px;font-weight:700;font-variant-numeric:tabular-nums;color:' + (it.delta > 0 ? IBCS_RED : (ibcs ? t.text : IBCS_GREEN)),
                         'Δ ' + fmtDelta(it.delta, u)));
                 }
+                const ueMs = ueberSpan(it);
+                if (ueMs) msLbl.appendChild(ueMs);
                 this.scrollLayer.appendChild(msLbl);
             } else {
                 const bx = x(it.s), bw = Math.max(this.pxd, x(it.e + DAY) - x(it.s));
                 const pct = it.pct === null ? 0 : it.pct;
-                const outline = blocked ? IBCS_RED : it.color;
+                const istKrit = kritOn && it.krit;
+                const outline = blocked ? IBCS_RED : (istKrit ? kritFarbe : it.color);
                 // Mit Basisplan: Ist-Balken etwas flacher, damit Ist + Plan
                 // zusammen zentriert in der Zeile sitzen
                 const bh = showPlan ? Math.max(10, m.barH - planH - planGap) : m.barH;
                 const bt = showPlan ? Math.round((m.rowH - (bh + planGap + planH)) / 2) : barTop;
                 const bar = el('div',
                     'position:absolute;left:' + bx + 'px;top:' + (top + bt) + 'px;width:' + bw + 'px;height:' + bh + 'px;' +
-                    'border-radius:' + rad(6) + ';background:' + it.soft + ';cursor:pointer;' +
-                    'box-shadow:inset 0 0 0 ' + (blocked ? 2 : 1) + 'px ' + outline + (!ibcs && hov ? ',0 3px 10px rgba(0,0,0,0.22)' : '') + ';' +
+                    'border-radius:' + rad(6) + ';background:' + aktuellBg(it, showPlan) + ';cursor:pointer;' +
+                    'box-shadow:inset 0 0 0 ' + (blocked || istKrit ? 2 : 1) + 'px ' + outline + (!ibcs && hov ? ',0 3px 10px rgba(0,0,0,0.22)' : '') + ';' +
                     'opacity:' + (dim ? 0.3 : 1));
                 bar.appendChild(el('div',
                     'position:absolute;left:0;top:0;bottom:0;width:' + pct + '%;background:' + it.color + ';' +
@@ -1486,6 +3026,8 @@ export class GanttRenderer {
                 this.scrollLayer.appendChild(bar);
                 if (showPlan) this.scrollLayer.appendChild(
                     mkPlanBar(it.ps as number, it.pe as number, top + bt + bh + planGap, !!dim));
+                stichMarker(it, top);
+                pufferLinie(it, bx + bw, top + bt + bh + 2);
                 const labelParts = [it.name];
                 if (it.pct !== null) labelParts.push(pct + ' %');
                 if (it.ow) labelParts.push(it.ow);
@@ -1493,14 +3035,58 @@ export class GanttRenderer {
                     'position:absolute;left:' + (bx + bw + 10) + 'px;top:' + (top + bt) + 'px;height:' + bh + 'px;' +
                     'display:flex;align-items:center;font-size:' + this.fs(11) + ';color:' + t.sub + ';white-space:nowrap;pointer-events:none;opacity:' + (dim ? 0.3 : 1),
                     labelParts.join(' · '));
-                if (planOn && it.delta !== null && it.delta !== 0) {
+                if (deltaLblOn && it.delta !== null && it.delta !== 0) {
                     lbl.appendChild(el('span',
                         'margin-left:6px;font-weight:700;font-variant-numeric:tabular-nums;color:' + (it.delta > 0 ? IBCS_RED : (ibcs ? t.text : IBCS_GREEN)),
                         'Δ ' + fmtDelta(it.delta, u)));
                 }
+                const ue = ueberSpan(it);
+                if (ue) lbl.appendChild(ue);
                 this.scrollLayer.appendChild(lbl);
             }
         });
+
+        // --- Fortschrittslinie (MS Project): vom Statusdatum zu jedem laufenden
+        // Vorgang an den Punkt seines Ist-Fortschritts und zurück. Knick nach
+        // links = Rückstand, nach rechts = Vorsprung. Fertige und noch nicht
+        // begonnene Vorgänge bleiben auf der Linie.
+        if (o.fortschrittslinie && this.tasks.some(tk => tk.pct !== null)) {
+            const stX = x(ana.statusMs);
+            let d = '';
+            const punkte: [number, number][] = [];
+            items.slice(vA, vB).forEach((it, i) => {
+                const top = topOf[it.id];
+                let px = stX;
+                if (it.kind === 'task' && it.pct !== null && it.pct < 100 && (it.s <= ana.statusMs || it.pct > 0)) {
+                    px = x(it.s) + (x(it.e + DAY) - x(it.s)) * it.pct / 100;
+                    if (Math.abs(px - stX) > 1) punkte.push([px, top + m.rowH / 2]);
+                }
+                d += (i === 0 ? 'M' : 'L') + stX + ',' + (top + 2) + ' L' + px + ',' + (top + m.rowH / 2) + ' L' + stX + ',' + (top + m.rowH - 2) + ' ';
+            });
+            if (d) {
+                const svg = svgEl('svg');
+                svg.setAttribute('width', String(cw));
+                svg.setAttribute('height', String(items.length * m.rowH));
+                svg.style.cssText = 'position:absolute;left:0;top:0;overflow:visible;pointer-events:none';
+                const pth = svgEl('path');
+                pth.setAttribute('d', d);
+                pth.setAttribute('fill', 'none');
+                pth.setAttribute('stroke', t.today);
+                pth.setAttribute('stroke-width', '1.6');
+                pth.setAttribute('stroke-linejoin', 'round');
+                pth.setAttribute('data-fortschrittslinie', '1');
+                svg.appendChild(pth);
+                punkte.forEach(([cx, cy]) => {
+                    const c = svgEl('circle');
+                    c.setAttribute('cx', String(cx));
+                    c.setAttribute('cy', String(cy));
+                    c.setAttribute('r', '2.6');
+                    c.setAttribute('fill', t.today);
+                    svg.appendChild(c);
+                });
+                this.scrollLayer.appendChild(svg);
+            }
+        }
 
         // --- Status-/Heute-Linie ---
         // Mit gebundenem Statusdatum wandert die rote Linie auf den
@@ -1522,6 +3108,11 @@ export class GanttRenderer {
 
     private renderTip(t: Theme, items: RenderItem[], ibcs: boolean): void {
         this.tipHost.replaceChildren();
+        const o = this.opts;
+        if (o && o.tooltip === false) return;
+        // Zeilen einzeln schaltbar; nicht gesetzt = an (Testharness liefert nicht alle)
+        const zl = o && o.tipZeilen;
+        const zeige = (k: string) => !zl || zl[k] !== false;
         if (!this.tip) return;
         const it = items.find(i => i.id === this.tip!.id);
         if (!it) return;
@@ -1529,23 +3120,54 @@ export class GanttRenderer {
         const box = el('div',
             'position:absolute;left:' + this.tip.x + 'px;top:' + this.tip.y + 'px;background:' + t.tipBg + ';color:' + t.tipFg + ';' +
             'border-radius:' + (ibcs ? '0' : '9px') + ';padding:11px 13px;box-shadow:' + (ibcs ? '0 0 0 1px rgba(0,0,0,0.15)' : '0 10px 28px rgba(0,0,0,0.25)') + ';min-width:200px;max-width:300px');
-        box.appendChild(el('div', 'font-weight:700;font-size:' + this.fs(12.5) + ';margin-bottom:7px', it.name));
+        box.appendChild(el('div', 'font-weight:700;font-size:' + this.fs(12.5) + ';margin-bottom:7px', (it.psp ? it.psp + ' · ' : '') + it.name));
+        const ana = this.analyse();
+        const at = !!(o && o.arbeitstage);
+        const tageWort = at ? ' Arbeitstage' : ' Tage';
         const grid = el('div', 'display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:' + this.fs(11.5));
         const addRow = (label: string, val: string, mono?: boolean, fg?: string) => {
             grid.appendChild(el('div', 'color:' + t.tipSub, label));
             grid.appendChild(el('div', (mono ? 'font-variant-numeric:tabular-nums;' : '') + (fg ? 'color:' + fg + ';font-weight:700' : ''), val));
         };
-        addRow('Zeitraum', isM ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+        const mehrfach = isM && it.msKids.length > 1;
+        // Mit Basisplan heißen die Termine wie in MS Project „Aktuell“ und
+        // „Basisplan“ — sobald der Plan gezeichnet wird oder dieser Tooltip die
+        // Basisplan-Zeile zeigt; ohne Basisplan bleibt es beim neutralen „Zeitraum“
+        const mitPlan = (this.hasPlan && (!o || o.basisplan !== false)) || (it.ps !== null && zeige('plan'));
+        if (zeige('zeitraum')) addRow(mitPlan ? 'Aktuell' : 'Zeitraum', isM && !mehrfach ? fmtDate(it.s) : fmtDate(it.s) + ' – ' + fmtDate(it.e), true);
+        if (mehrfach) addRow('Vorkommen', String(it.msKids.length), true);
+        // Der Schalter kommt ZUSÄTZLICH zur Datenbedingung: ohne Basisplan gibt
+        // es hier nach wie vor nichts zu zeigen.
         if (it.ps !== null) {
-            addRow('Plan', it.ps === it.pe || it.pe === null ? fmtDate(it.ps) : fmtDate(it.ps) + ' – ' + fmtDate(it.pe), true);
-            if (it.delta !== null) addRow('Abweichung', fmtDelta(it.delta, ' Tage'), true,
+            if (zeige('plan')) addRow('Basisplan', it.ps === it.pe || it.pe === null ? fmtDate(it.ps) : fmtDate(it.ps) + ' – ' + fmtDate(it.pe), true);
+            if (it.delta !== null && zeige('abweichung')) addRow('Abweichung', fmtDelta(it.delta, tageWort), true,
                 it.delta > 0 ? IBCS_RED : (it.delta < 0 && !ibcs ? IBCS_GREEN : undefined));
         }
-        addRow('Dauer', isM ? 'Meilenstein' : (Math.round((it.e - it.s) / DAY) + 1) + ' Tage');
-        addRow('Status', isM || !it.st ? '–' : it.st);
-        addRow('Fortschritt', isM || it.pct === null ? '–' : it.pct + ' %');
-        addRow('Wer', it.ow || '–');
-        addRow('Hängt ab von', it.depTasks.map(d => d.name).join(', ') || '–');
+        if (zeige('dauer')) addRow('Dauer', isM ? 'Meilenstein' : (at ? ana.kal.zwischen(it.s, it.e) : Math.round((it.e - it.s) / DAY) + 1) + tageWort);
+        if (zeige('status')) addRow('Status', isM || !it.st ? '–' : it.st);
+        if (zeige('fortschritt')) addRow('Fortschritt', isM || it.pct === null ? '–' : it.pct + ' %');
+        if (zeige('wer')) addRow('Wer', it.ow || '–');
+        // Beziehungstyp und Zeitabstand nur, wenn sie vom Standard (EA, ohne Abstand)
+        // abweichen — sonst steht in jeder Zeile dasselbe Rauschen
+        if (zeige('abhaengigkeiten')) addRow('Hängt ab von', it.links.map(l => {
+            const zus = l.typ !== 'EA' || l.lag || l.lagProzent !== undefined
+                ? ' (' + l.typ + (l.lagProzent !== undefined ? (l.lagProzent >= 0 ? '+' : '') + l.lagProzent + ' %'
+                    : l.lag ? (l.lag > 0 ? '+' : '') + (Math.round(l.lag * 10) / 10) + ' AT' : '') + ')' : '';
+            return (l.src.nr ? l.src.nr + ' ' : '') + l.src.name + zus;
+        }).join(', ') || '–');
+        // Planungszeilen: nur, was bestimmbar ist — "berechnet" macht kenntlich,
+        // dass der Wert nicht aus MS Project stammt, sondern aus Terminen + Vorgängern
+        if (zeige('planung') && it.task) {
+            const rot = o && o.dark ? KRIT_DARK : KRIT_LIGHT;
+            if (ana.kritQuelle) addRow('Kritisch', (it.krit ? 'ja' : 'nein') + (ana.kritQuelle === 'berechnet' ? ' (berechnet)' : ''), false,
+                it.krit ? rot : undefined);
+            if (it.puffer !== null) addRow('Puffer', (Math.round(it.puffer * 10) / 10) + ' Arbeitstage' + (ana.pufferQuelle === 'berechnet' ? ' (berechnet)' : ''), true);
+            if (it.stichtag !== null) {
+                const um = it.e > it.stichtag ? (at ? ana.kal.differenz(it.stichtag, it.e) : Math.round((it.e - it.stichtag) / DAY)) : 0;
+                addRow('Stichtag', fmtDate(it.stichtag) + (um > 0 ? ' — überschritten um ' + um + tageWort : ''), true, um > 0 ? rot : undefined);
+            }
+            if (it.ueber !== null) addRow('Überfällig', 'seit ' + it.ueber + tageWort + ' (Stand ' + fmtDate(ana.statusMs) + ')', true, rot);
+        }
         box.appendChild(grid);
         this.tipHost.appendChild(box);
     }
