@@ -204,9 +204,10 @@
     let DATA = TASKS;
     if (MSP) DATA = MSP_TASKS;
     else if (params.get('ebenen') === '1') DATA = HIER;
-    else if (Number(params.get('nproj')) > 1) {
+    else if (Number(params.get('nproj')) >= 1) {
       // ?nproj=5 → Portfolio aus n Projekten (je 45 Tage versetzt), alle mit
       // Basisplan; Projekt k läuft k·3 Tage hinter seinem Basisplan her
+      // (?nproj=1 → ein einzelnes Projekt mit Basisplan)
       const n = Number(params.get('nproj'));
       const namen = ['PV-Anlage Bottrop', 'Speicher Gladbeck', 'Wind Hünxe', 'PV-Park Dorsten', 'Netzanschluss Marl', 'Wind Kirchhellen', 'PV Haltern'];
       DATA = [];
@@ -234,6 +235,17 @@
     }
     // ?leer=1 → keine Daten (Startseite mit Checkliste)
     if (params.get('leer') === '1') DATA = [];
+    // ?ohne=haupt,deps,fortschritt → Rollen „fehlen“ (für das Ansicht-Menü: Leser
+    // sehen nicht verfügbare Ansichten gar nicht, Ersteller ausgegraut mit Hinweis)
+    if (params.has('ohne')) {
+      const ohne = new Set(params.get('ohne').split(','));
+      DATA = DATA.map(t => ({
+        ...t,
+        haupt: ohne.has('haupt') ? false : t.haupt,
+        deps: ohne.has('deps') ? [] : t.deps, depRefs: ohne.has('deps') ? [] : t.depRefs,
+        pct: ohne.has('fortschritt') ? null : t.pct, st: ohne.has('fortschritt') ? null : t.st
+      }));
+    }
     r.setData(DATA);
     r.setOptions(opts());
     window.__gantt = r; // für Debug-Zugriff
@@ -245,6 +257,13 @@
         log.textContent = 'aus: ' + params.get('aus') + (b ? '' : ' (Knopf fehlt)');
       });
     }, 150);
+    // ?menu=ansicht → Menü „Ansicht ▾“ nach dem ersten Bild öffnen (für Screenshots)
+    if (params.get('menu') === 'ansicht') setTimeout(() => {
+      // „Ansicht ▾“ ist der letzte Menüknopf der Leiste (vor ihm: Einrichtung, Ebene ▾)
+      const b = [...document.querySelectorAll('[data-menu="1"]')].pop();
+      if (b) b.dispatchEvent(new MouseEvent('mousedown', { button: 0, bubbles: true }));
+      log.textContent = 'menu: ansicht' + (b ? '' : ' (Knopf fehlt)');
+    }, 200);
     // ?tip=<Vorgangsname> → Tooltip des ersten passenden Balkens im Chart öffnen (für Screenshots)
     if (params.has('tip')) setTimeout(() => {
       const el = [...(r.chartArea || document).querySelectorAll('[data-task]')].find(e => e.getAttribute('data-task').endsWith(params.get('tip')));

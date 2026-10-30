@@ -36,6 +36,7 @@ const ZEITEINHEIT_ITEMS: powerbi.IEnumMember[] = [
 const TAGE_EINHEIT_ITEMS: powerbi.IEnumMember[] = [
     { value: "t", displayName: "t" },
     { value: "d", displayName: "d" },
+    { value: "Tg", displayName: "Tg." },
     { value: "ohne", displayName: "Ohne Einheit" }
 ];
 

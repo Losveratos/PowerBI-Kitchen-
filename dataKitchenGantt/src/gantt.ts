@@ -222,7 +222,7 @@ export interface GanttOptions {
     verzugZeilen?: boolean;             // Zeilen mit Verzug rot hinterlegen (default true)
     statusDatum?: number | null;        // rote Linie: Statusdatum statt "Heute" (UTC ms)
     zeiteinheit?: string;               // 'auto' | 'Tage' | 'Wochen' | 'Monate' | 'Quartale' | 'Jahre'
-    tageEinheit?: string;               // 't' | 'd' | 'ohne'
+    tageEinheit?: string;               // 't' | 'd' | 'Tg' | 'ohne'
     msAufPhase?: boolean;               // Meilensteine auf zugeklappten Phasenzeilen zeigen (default true)
     msDatum?: boolean;                  // Datum am Meilenstein anzeigen (default true)
     msNamen?: boolean;                  // Name am Meilenstein anzeigen (default true)
@@ -287,12 +287,16 @@ const KRIT_LIGHT = '#D23F31';
 const KRIT_DARK = '#F06A5A';
 const NEUTRAL_LIGHT = '#8D96A3';
 const NEUTRAL_DARK = '#7D8692';
+// Projektzeilen (Portfolio-Ebene): Akzent außerhalb der Zweig-Palette (2.3.1)
+const PROJ_LIGHT = '#4F5BB5';
+const PROJ_DARK = '#8F9BEA';
 const SUCH_TINT = 'rgba(242,194,48,0.24)';   // Suchtreffer in der Tabelle
 
-// Einheiten-Suffix für Tageswerte: 't' (Default), 'd' oder leer
+// Einheiten-Suffix für Tageswerte: 't' (Default), 'd', 'Tg' (2.3.1: „Tg.“) oder leer
 function unitSuffix(tageEinheit: string | undefined): string {
     if (tageEinheit === 'ohne') return '';
     if (tageEinheit === 'd') return ' d';
+    if (tageEinheit === 'Tg') return ' Tg.';
     return ' t';
 }
 
@@ -1124,17 +1128,54 @@ export class GanttRenderer {
         // Standard-Zeiteinheit aus den Optionen: beim ERSTEN Layout fester
         // Maßstab statt Einpassen; der "Alles"-Button passt immer ein
         const ze = this.opts && this.opts.zeiteinheit;
+        // 2.3.1: Das erste Bild zeigt die Status-/Heute-Linie. Liegt sie außerhalb
+        // des Plans (Bericht zum 31.07., Plan endet im April), wird der Ausschnitt
+        // so gelegt, dass sie mit etwas Luft dahinter im Bild ist. "Alles" passt
+        // weiter nur den Plan ein; Zoom und Pannen danach bleiben frei.
+        const linie = erzwingeEinpassen ? null : this.linienMs();
         if (!erzwingeEinpassen && ze && GanttRenderer.MODE_PXD[ze]) {
-            this.pxd = GanttRenderer.MODE_PXD[ze];
-            this.view = mn - 6 * DAY;
-            this.mode = ze;
-            return;
+            if (linie === null) {
+                this.pxd = GanttRenderer.MODE_PXD[ze];
+                this.view = mn - 6 * DAY;
+                this.mode = ze;
+                return;
+            }
+            // Gewählte Einheit, sonst die nächst gröbere, bei der neben der
+            // Linie auch Vorgänge im Bild sind — sonst bliebe die Fläche leer
+            const stufen = ['Tage', 'Wochen', 'Monate', 'Quartale', 'Jahre'];
+            for (let i = Math.max(0, stufen.indexOf(ze)); i < stufen.length; i++) {
+                const pxd = GanttRenderer.MODE_PXD[stufen[i]];
+                const sichtbar = cw / pxd * DAY;
+                let view = mn - 6 * DAY;
+                // rechts bleiben 15 % Luft, links mindestens 10 %
+                if (linie > view + sichtbar * 0.85) view = linie - sichtbar * 0.85;
+                else if (linie < view + sichtbar * 0.1) view = linie - sichtbar * 0.1;
+                const imBild = ts.some(x => (x.e === null ? x.s : x.e) + DAY >= view && x.s <= view + sichtbar);
+                if (imBild || i === stufen.length - 1) {
+                    this.pxd = pxd;
+                    this.view = view;
+                    this.mode = stufen[i];
+                    return;
+                }
+            }
         }
-        const mx = ts.reduce((a, x) => Math.max(a, x.e === null ? x.s : x.e), -Infinity);
-        const span = (mx - mn) / DAY + 16;
+        let von = mn;
+        let mx = ts.reduce((a, x) => Math.max(a, x.e === null ? x.s : x.e), -Infinity);
+        if (linie !== null) {
+            von = Math.min(von, linie - 7 * DAY);
+            mx = Math.max(mx, linie + 7 * DAY);
+        }
+        const span = (mx - von) / DAY + 16;
         this.pxd = Math.min(30, Math.max(0.25, (cw - 40) / span));
-        this.view = mn - 6 * DAY;
+        this.view = von - 6 * DAY;
         this.mode = '';
+    }
+
+    // Tag der roten Linie (Statusdatum, sonst heute) — null, wenn sie aus ist
+    private linienMs(): number | null {
+        const o = this.opts;
+        if (!o || !o.heuteLinie) return null;
+        return o.statusDatum !== undefined && o.statusDatum !== null ? o.statusDatum : Date.now();
     }
 
     private fitAll(): void {
@@ -1442,7 +1483,10 @@ export class GanttRenderer {
         const o = this.opts;
         const pal = dark ? PHASE_HEX_DARK : PHASE_HEX_LIGHT;
         const msOn = !o || o.msAufPhase !== false;
-        const projColor = ibcs ? IBCS_AC : (dark ? '#C6C9CF' : '#454851');
+        // 2.3.1: Projektzeilen in einer eigenen Akzentfarbe (Indigo, nicht in der
+        // Zweig-Palette) statt Grau — ein grauer Summenbalken las sich wie der
+        // Basisplan, besonders im Portfolio ohne Basisplan
+        const projColor = ibcs ? IBCS_AC : (dark ? PROJ_DARK : PROJ_LIGHT);
         this.hasProj = this.tasks.some(t => t.projekt !== undefined && t.projekt !== null);
         const ana = this.analyse();
         const at = !!(o && o.arbeitstage);
@@ -1800,13 +1844,15 @@ export class GanttRenderer {
         const o = this.opts;
         const sp = (k: string) => !o || !o.spalten || o.spalten[k] !== false;
         const showDelta = this.hasPlan && this.planSichtbar() && (!o || o.deltaSpalte !== false);
+        // „Tg.“ ist breiter als „t“: Tage- und Puffer-Spalte etwas breiter (2.3.1)
+        const tg = !!o && o.tageEinheit === 'Tg';
         // Spalten ohne Daten erscheinen gar nicht erst — eine leere Spalte
         // kostet Platz, den der Vorgangsname dringender braucht
         let cols = ALL_COLS
             .filter(c => sp(c.key))
             .filter(c => (c.key !== 'status' || hasStatus) && (c.key !== 'pct' || hasPct) && (c.key !== 'ow' || hasOw)
                 && (c.key !== 'delta' || showDelta) && (c.key !== 'puffer' || hasPuffer) && (c.key !== 'stichtag' || hasStichtag))
-            .map(c => ({ ...c, w: Math.round(c.w * s) }));
+            .map(c => ({ ...c, w: Math.round((c.w + (tg ? (c.key === 'days' ? 10 : c.key === 'puffer' ? 8 : 0) : 0)) * s) }));
         if (sp('zusatz') && o && o.zusatzKoepfe) {
             o.zusatzKoepfe.slice(0, 3).forEach((k, i) => cols.push({ key: 'z' + i, label: k, w: Math.round(ZUSATZ_W * s) }));
         }
@@ -2416,7 +2462,10 @@ export class GanttRenderer {
         type Eintrag = { label: string; ok: boolean; hinweis: string; aktiv: boolean; fn: () => void };
         let eintraege: Eintrag[];
         if (mn.art === 'ansicht') {
-            eintraege = this.ansichtOptionen().map(x => ({
+            // 2.3.1: Leser sehen nur, was sie wählen können — „Rolle … binden“
+            // ist ein Hinweis für Ersteller und erscheint nur im Bearbeitungsmodus
+            const ersteller = !!this.opts && this.opts.bearbeiten === true;
+            eintraege = this.ansichtOptionen().filter(x => ersteller || x.ok || x.key === this.ansicht).map(x => ({
                 label: x.label, ok: x.ok || x.key === this.ansicht, hinweis: x.hinweis, aktiv: x.key === this.ansicht,
                 // Erneut gewählt = Klappzustand der Ansicht wiederherstellen
                 fn: () => { if (!this.wechsleAnsicht(x.key)) { this.collapsed = {}; this.sy = 0; } }
@@ -2442,8 +2491,9 @@ export class GanttRenderer {
             row.appendChild(el('div', 'width:14px;flex-shrink:0;font-weight:700', e.aktiv ? '✓' : ''));
             const txt = el('div', '');
             txt.appendChild(el('div', 'font-weight:' + (e.aktiv ? 700 : 500), e.label));
-            // Nicht verfügbare Ansichten bleiben sichtbar und sagen, was fehlt —
-            // so findet man die Funktion, statt dass sie still verborgen bleibt
+            // Nicht verfügbare Ansichten bleiben für Ersteller sichtbar und sagen,
+            // was fehlt — so findet man die Funktion, statt dass sie still
+            // verborgen bleibt (für Leser oben bereits ausgefiltert)
             if (!e.ok && e.hinweis) txt.appendChild(el('div', 'font-size:11px;color:' + t.sub + ';margin-top:2px', e.hinweis));
             row.appendChild(txt);
             if (e.ok) {
@@ -2546,7 +2596,7 @@ export class GanttRenderer {
             const dateFg = isP ? t.text : t.sub;
             const days = at ? ana.kal.zwischen(it.s, it.e) : Math.round((it.e - it.s) / DAY) + 1;
             const rotFett = ';color:' + kritFarbe + ';font-weight:700';
-            const numCss = 'font-variant-numeric:tabular-nums;font-size:' + this.fs(12) + ';color:' + dateFg;
+            const numCss = 'font-variant-numeric:tabular-nums;white-space:nowrap;font-size:' + this.fs(12) + ';color:' + dateFg;
             cols.forEach(c => {
                 if (c.key === 'start') row.appendChild(el('div', numCss, fmtDate(it.s)));
                 // überfällig zum Statusdatum: das Ende ist die Stelle, an der man es sucht
@@ -2862,10 +2912,15 @@ export class GanttRenderer {
             const showPlan = planOn && it.ps !== null;
             if (it.kind === 'phase' || it.kind === 'proj') {
                 const w = Math.max(4, x(it.e + DAY) - x(it.s));
+                // 2.3.1: Ohne Basisplan trägt der offene Teil eines Sammel-/
+                // Projektbalkens die eigene Farbe als Tönung mit Rahmen (wie bei
+                // Vorgängen) — eine blasse Fläche ohne Rahmen las sich wie der
+                // graue Basisplan. Mit Basisplan bleibt es beim Verhalten aus 2.2.
+                const eigenTon = !showPlan && !ibcs && /^#[0-9A-Fa-f]{6}$/.test(it.color);
                 const bar = el('div',
                     'position:absolute;left:' + x(it.s) + 'px;top:' + (top + phTop) + 'px;width:' + w + 'px;height:' + m.phBarH + 'px;' +
-                    'border-radius:' + rad(5) + ';background:' + aktuellBg(it, showPlan) + ';overflow:hidden;pointer-events:none' +
-                    (ibcs ? ';box-shadow:inset 0 0 0 1px ' + IBCS_AC : ''));
+                    'border-radius:' + rad(5) + ';background:' + (eigenTon ? hexA(it.color, 0.28) : aktuellBg(it, showPlan)) + ';overflow:hidden;pointer-events:none' +
+                    (ibcs ? ';box-shadow:inset 0 0 0 1px ' + IBCS_AC : (eigenTon ? ';box-shadow:inset 0 0 0 1px ' + it.color : '')));
                 bar.appendChild(el('div', 'height:100%;width:' + (it.pct === null ? 0 : it.pct) + '%;background:' + it.color + ';border-radius:' + rad(5)));
                 this.scrollLayer.appendChild(bar);
                 // Name der Gruppe am Balkenanfang: ohne Tabelle (oder bei schmaler
