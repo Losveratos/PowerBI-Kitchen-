@@ -211,6 +211,10 @@
                                 "displayName": "d"
                             },
                             {
+                                "value": "Tg",
+                                "displayName": "Tg."
+                            },
+                            {
                                 "value": "ohne",
                                 "displayName": "Ohne Einheit"
                             }

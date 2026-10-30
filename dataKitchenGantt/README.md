@@ -113,6 +113,11 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
   Vorfahren auf, **Umschalt+Enter** zurück, **Esc** leert.
 - **Heute** springt zum Statusdatum, **Alles** passt den Plan ein, **Auswahl**
   (nur bei Selektion) zoomt auf die selektierten Vorgänge.
+- **Erstes Bild** (seit 2.3.1): Ist die Status-/Heute-Linie an, liegt sie
+  beim Öffnen (und nach einem Ansichtswechsel) immer im Bild — bei fester
+  Standard-Zeiteinheit wird der Ausschnitt verschoben (Linie mit Luft dahinter),
+  bei *auto* der eingepasste Bereich bis zur Linie erweitert. *Alles* passt
+  weiter nur den Plan ein.
 - **Ansicht ▾** (seit 2.3 nach den Sichten eines Terminplaners):
   *Sammelvorgänge* (je Projekt nur die oberste Gliederungsebene, zugeklappt;
   Aufklappen zeigt die nächste Ebene wieder zugeklappt) · *Gesamter Terminplan*
@@ -121,8 +126,9 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
   *Nur Hauptmeilensteine* (flache Liste, jeder Name einmal, Vorkommen als
   Rauten) · *Je Projekt ein Balken* (nur mit mehreren Projekten) · *Nur
   kritischer Pfad* · *Nur überfällige*. Die gefilterten Ansichten behalten die
-  Gliederung. Nicht verfügbare Ansichten stehen ausgegraut im Menü und sagen,
-  welche Rolle fehlt. Erneut gewählt, stellt eine Ansicht ihren Klappzustand
+  Gliederung. Nicht verfügbare Ansichten stehen nur im Bearbeitungsmodus
+  ausgegraut im Menü und sagen, welche Rolle fehlt; Leser sehen sie gar nicht
+  (seit 2.3.1). Erneut gewählt, stellt eine Ansicht ihren Klappzustand
   wieder her. Alles folgt Slicern und Crossfiltern; bleibt nichts übrig,
   erscheint ein Hinweis statt einer leeren Fläche.
   Die **Startansicht** *Je Projekt ein Balken* (seit 2.2, Wert `projekte`)
@@ -166,6 +172,11 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
   Legende „Aktuell / Basisplan“ in der Leiste, Tooltip mit *Aktuell* und
   *Basisplan*, Spalte *Δ Basisplan*, Verzug rot. Das „Δ +n t“ an Balken und
   Rauten ist abschaltbar (*Basisplan → Δ an Balken und Meilensteinen*).
+- **Sammel- und Projektbalken** (2.3.1): Projektzeilen tragen eine eigene
+  Akzentfarbe (Indigo) statt Grau. Ohne Basisplan (keine Plan-Rollen,
+  *Basisplan* aus oder Leser-Knopf aus) ist der offene Teil eines Gruppenbalkens
+  in der eigenen Farbe getönt und gerahmt wie bei Vorgängen — nichts außer dem
+  Basisplan ist grau. Mit Basisplan bleibt es beim Bild aus 2.2.
 - Vorgänger als Nummern, aber Rolle *Nr.* nicht gebunden? Die Infozeile sagt es.
 
 ## Hierarchie
@@ -199,7 +210,7 @@ Reihenfolge nach Häufigkeit der Nutzung; jede Karte hat „Auf Standard zurück
 
 | Karte | Gruppen und Inhalt |
 | --- | --- |
-| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Gesamter Terminplan / Sammelvorgänge / je Projekt ein Balken / Meilensteine / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Knöpfe für Leser* (2.3): ◆ Meilensteine · ▭ Basisplan — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
+| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Gesamter Terminplan / Sammelvorgänge / je Projekt ein Balken / Meilensteine / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Knöpfe für Leser* (2.3): ◆ Meilensteine · ▭ Basisplan — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage (`t` Vorgabe · `d` · `Tg` = „Tg.“ seit 2.3.1 · ohne) · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
 | **Terminplanung** | *Kritischer Pfad*: hervorheben · Puffer als Linie — *Termine*: Überfällige markieren · Stichtage · Fortschrittslinie (aus) — *Kalender*: **Dauer in Arbeitstagen** (aus) · **Feiertage** (`01.01.2026, 03.04.2026` — wirken auf Dauer, Δ, Puffer, kritischen Pfad und die Schattierung) |
 | **Balken** | Balkenfarbe nach Zweig / Status / kritischem Pfad / Feld „Farbe nach" · Legende |
 | **Tabellenspalten** | PSP-Code · Start · Ende · Tage · Puffer · Stichtag · Status · Fortschritt · Wer · Zusatzspalten · **Lange Namen zweizeilig**. Spalten ohne Daten erscheinen nicht; bei Platzmangel weichen sie in fester Reihenfolge |
@@ -247,7 +258,8 @@ Testharness `test/harness.html`. Samples: Standard „BI-Rollout 2026" ·
 **`?msp=1`** Plan wie aus MS Project (PSP-Code, Nr., Vorgänger mit Typ/Zeitabstand,
 Sammelvorgänge, Stichtage, Feiertage, Statusdatum 16.03.26) · `?ebenen=1`
 mehrstufig über Ebenen-Felder · `?proj=1` Portfolio mit zwei Projekten ·
-`?nproj=5` Portfolio aus n Projekten, alle mit Basisplan und wachsendem Verzug ·
+`?nproj=5` Portfolio aus n Projekten, alle mit Basisplan und wachsendem Verzug
+(`?nproj=1` ein Projekt) ·
 `?tip=<Name>` öffnet den Tooltip eines Balkens (für Screenshots).
 
 Parameter: `?ansicht=sammel|projekte|meilensteine|haupt|kritisch|ueberfaellig` ·
@@ -259,6 +271,8 @@ Parameter: `?ansicht=sammel|projekte|meilensteine|haupt|kritisch|ueberfaellig` �
 `?ibcs=1` · `?tw=430` · `?deps=0` · `?wochenenden=0` · `?heute=0` · `?plan=0` ·
 `?delta=0` · `?pleg=0` (Legende Aktuell/Basisplan) · `?dlbl=0` (kein Δ an Balken) · `?verzug=0` · `?msnamen=0` · `?mslabel=nurName|beides` · `?gnamen=0` ·
 `?kopf=0` · `?tooltip=0` · `?tipzeilen=dauer,wer` · `?zeinheiten=Tage,Monate` ·
-`?nurhaupt=1` · `?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete`.
+`?nurhaupt=1` · `?txt=Vorgang|Vorhaben|Vorhaben|Paket|Pakete` · `?u=t|d|Tg|ohne` ·
+`?edit=1` (Bearbeitungsmodus) · `?menu=ansicht` (öffnet *Ansicht ▾*) ·
+`?ohne=haupt,deps,fortschritt` (Rollen fehlen lassen).
 
 Zum Testen in Power BI Desktop: `dist/dataKitchenGantt….pbiviz` importieren.
