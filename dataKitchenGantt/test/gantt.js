@@ -273,12 +273,18 @@ export class GanttRenderer {
     hasHaupt = false; // mindestens eine Zeile ist Hauptmeilenstein
     // Ansicht ("Ansicht ▾" in der Leiste). Der Optionswert startAnsicht ist nur die
     // Startstellung — die Leiste gewinnt, bis die Option selbst wechselt.
+    // 'alle', 'sammel' und 'projekte' zeigen den vollen Umfang und unterscheiden
+    // sich nur im Klappzustand, mit dem Gruppen starten (s. buildItems):
+    // Gruppen, deren Klappzustand noch nie gesetzt wurde, starten zugeklappt —
+    // auch solche, die erst ein Filterwechsel bringt. Was der Leser selbst
+    // auf-/zuklappt, bleibt so (Eintrag in collapsed).
     ansicht = 'alle';
     lastOptAnsicht = null;
-    // Startansicht "projekte": Gruppen, deren Klappzustand noch nie gesetzt
-    // wurde, starten zugeklappt — auch solche, die erst ein Filterwechsel bringt.
-    // Was der Leser selbst auf-/zuklappt, bleibt so (Eintrag in collapsed).
-    startZu = false;
+    // 2.3: Leser-Knöpfe „◆ Meilensteine“ / „▭ Basisplan“ — Zustand nur im
+    // Speicher (wie der Klappzustand). true = vom Leser ausgeblendet.
+    msAus = false;
+    planAus = false;
+    lastOptPlan = null;
     gezeigtN = 0; // Vorgänge, die die aktuelle Ansicht zeigt (Kopfzeile)
     // Planungsanalyse (Netzplan, überfällig) — je Datenstand einmal, s. analyse()
     ana = null;
@@ -855,19 +861,47 @@ export class GanttRenderer {
     // DataView gerade nichts Passendes enthält — ein stiller Rückfall auf den
     // vollen Plan würde zeigen, was der Nutzer gerade ausgeschlossen hat.
     gezeigteTasks() {
-        if (this.ansicht === 'alle')
-            return this.tasks;
         if (this.ansicht === 'haupt')
             return this.tasks.filter(t => t.haupt === true);
+        if (this.ansicht === 'meilensteine')
+            return this.tasks.filter(t => this.isMs(t));
+        const basis = this.ohneMs() ? this.tasks.filter(t => !this.isMs(t)) : this.tasks;
+        if (this.vollerUmfang())
+            return basis;
         const a = this.analyse();
         if (this.ansicht === 'kritisch')
-            return this.tasks.filter(t => a.krit.get(t.key) === true);
-        return this.tasks.filter(t => a.ueber.has(t.key));
+            return basis.filter(t => a.krit.get(t.key) === true);
+        return basis.filter(t => a.ueber.has(t.key));
+    }
+    // Ansichten ohne Filter: sie unterscheiden sich nur im Start-Klappzustand
+    vollerUmfang() {
+        return this.ansicht === 'alle' || this.ansicht === 'sammel' || this.ansicht === 'projekte';
+    }
+    // „◆ Meilensteine“ wirkt nur, wo der Knopf angeboten wird: in den beiden
+    // Meilenstein-Ansichten wäre „ohne Meilensteine“ eine leere Fläche
+    msUmschaltbar() {
+        return this.ansicht !== 'meilensteine' && this.ansicht !== 'haupt'
+            && (!this.opts || this.opts.knopfMeilensteine !== false);
+    }
+    ohneMs() {
+        return this.msAus && this.msUmschaltbar();
+    }
+    // Basisplan zeichnen: Formatbereich (basisplan.anzeigen) UND Leser-Knopf.
+    // Ist der Knopf abgeschaltet, gilt allein der Formatbereich.
+    planSichtbar() {
+        const o = this.opts;
+        if (o && o.basisplan === false)
+            return false;
+        return !(this.planAus && (!o || o.knopfBasisplan !== false));
+    }
+    // Gibt es überhaupt Gruppen (Ebenen-Felder oder PSP-Gliederung)?
+    hatGruppen() {
+        return this.ebenenFelder > 0 || this.tasks.some(t => !!t.psp && t.psp.indexOf('.') > 0);
     }
     // Umschalten der Ansicht: der gezeigte Umfang wechselt komplett, deshalb darf
     // vom alten Stand nichts überleben. Liefert true, wenn sich etwas geändert hat.
     wechsleAnsicht(v) {
-        const neu = (v === 'haupt' || v === 'kritisch' || v === 'ueberfaellig') ? v : 'alle';
+        const neu = (v === 'sammel' || v === 'projekte' || v === 'meilensteine' || v === 'haupt' || v === 'kritisch' || v === 'ueberfaellig') ? v : 'alle';
         if (this.ansicht === neu)
             return false;
         this.ansicht = neu;
@@ -1440,10 +1474,16 @@ export class GanttRenderer {
         this.levelCount = this.pspModus
             ? pfade.reduce((mx, sg) => Math.max(mx, sg.filter(x => !x.proj).length), 0)
             : this.ebenenFelder;
-        // Ansichten "kritisch" und "überfällig" filtern die Vorgänge, behalten aber
-        // die Hierarchie: eine Gruppe erscheint, sobald sie einen Treffer enthält.
-        const zeigen = this.ansicht === 'kritisch' ? (t => ana.krit.get(t.key) === true)
-            : this.ansicht === 'ueberfaellig' ? (t => ana.ueber.has(t.key)) : null;
+        // Ansichten "kritisch", "überfällig" und "Nur Meilensteine" filtern die
+        // Vorgänge, behalten aber die Hierarchie: eine Gruppe erscheint, sobald
+        // sie einen Treffer enthält. „◆ Meilensteine“ aus nimmt die Meilensteine
+        // zusätzlich heraus (eine Gruppe NUR aus Meilensteinen entfällt dann).
+        const ohneMs = this.ohneMs();
+        const filter = this.ansicht === 'kritisch' ? (t => ana.krit.get(t.key) === true)
+            : this.ansicht === 'ueberfaellig' ? (t => ana.ueber.has(t.key))
+                : this.ansicht === 'meilensteine' ? (t => this.isMs(t)) : null;
+        const zeigen = !ohneMs ? filter
+            : (t => !this.isMs(t) && (!filter || filter(t)));
         this.sammelN = 0;
         this.gezeigtN = 0;
         const sammelZeile = new Map(); // Collapse-Schlüssel → Sammelvorgangs-Datenzeile
@@ -1484,13 +1524,72 @@ export class GanttRenderer {
             this.vorfahren.set(t.key, vf);
             n.children.push({ node: null, task: t });
         });
+        // Gruppenbalken mit den Terminen des vollständigen Plans, wo die Ansicht
+        // nur AUSBLENDET statt zu filtern: „◆ Meilensteine“ aus (Termine,
+        // Fortschritt und Δ der Gruppen bleiben, wie sie sind) und „Nur
+        // Meilensteine“ (die Gruppe zeigt ihren echten Zeitraum als Rahmen der
+        // Meilensteine — wie „Zugehörige Sammelvorgänge anzeigen“ in MS Project).
+        // Diese Vorgänge fließen nur in die Aggregate bereits vorhandener Gruppen
+        // ein, ohne selbst Zeile oder Gruppe zu erzeugen. „Kritisch“ und
+        // „überfällig“ zählen weiter nur, was sie zeigen.
+        const nurAggregat = (t) => this.ansicht === 'meilensteine'
+            ? !this.isMs(t)
+            : ohneMs && this.isMs(t) && (!filter || filter(t));
+        if (ohneMs || this.ansicht === 'meilensteine') {
+            this.tasks.forEach((t, ti) => {
+                if (!nurAggregat(t))
+                    return;
+                const segs = pfade[ti];
+                if (istSammel(t, segs))
+                    return;
+                let n = root;
+                for (let d = 0; d < segs.length; d++) {
+                    const pos = n.idx.get((segs[d].proj ? 'P\u0000' : 'G\u0000') + segId(segs[d]));
+                    if (pos === undefined)
+                        return;
+                    n = n.children[pos].node;
+                    n.all.push(t);
+                }
+            });
+        }
+        // Gefilterte Ansichten: Gruppen und Vorgänge in der Reihenfolge des
+        // vollständigen Plans. Der Baum entsteht in der Reihenfolge des ersten
+        // TREFFERS — eine Phase, deren erster Meilenstein spät in den Daten
+        // steht, rutschte sonst hinter ihre Nachfolger.
+        if (zeigen) {
+            const erster = new Map(); // Collapse-Schlüssel → erste Datenzeile darunter
+            pfade.forEach((segs, ti) => {
+                for (let d = 0; d < segs.length; d++) {
+                    const ck = (segs[d].proj ? 'P:' : '') + segs.slice(0, d + 1).map(segId).join('¦');
+                    if (!erster.has(ck))
+                        erster.set(ck, ti);
+                }
+            });
+            const zeile = new Map();
+            this.tasks.forEach((t, ti) => zeile.set(t, ti));
+            const rang = (ch) => ch.node ? erster.get(ch.node.ck) : zeile.get(ch.task);
+            const ordnen = (n) => {
+                n.children.sort((a, b) => rang(a) - rang(b));
+                n.children.forEach(ch => { if (ch.node)
+                    ordnen(ch.node); });
+            };
+            ordnen(root);
+        }
         // "Alles auf/zu" und "Gliederung ▾" müssen auch zugeklappte Teilbäume
         // erreichen — deshalb ALLE Knoten sammeln, nicht nur die gerade sichtbaren.
         this.projKeys = projNodes.map(n => n.ck);
         this.phaseKeys = grpNodes.map(n => n.ck);
-        // Startansicht "zugeklappt": nur Gruppen ohne eigenen Klappzustand
-        if (this.startZu && this.ansicht === 'alle') {
+        // Start-Klappzustand, nur für Gruppen ohne eigenen Klappzustand:
+        // 'projekte' klappt alles zu (je Projekt ein Balken), 'sammel' nur die
+        // Ebenen-Gruppen — Projekte bleiben offen, sichtbar ist also je Projekt
+        // die oberste Ebene der Sammelvorgänge. Wer eine davon aufklappt, sieht
+        // die nächste Ebene wieder zugeklappt (Drill-down wie „Gliederung“).
+        if (this.ansicht === 'projekte') {
             this.nodeTiefe.forEach((_, ck) => { if (!(ck in this.collapsed))
+                this.collapsed[ck] = true; });
+        }
+        else if (this.ansicht === 'sammel') {
+            this.phaseKeys.forEach(ck => { if (!(ck in this.collapsed))
                 this.collapsed[ck] = true; });
         }
         const emit = (n, depth, hex) => {
@@ -1508,9 +1607,10 @@ export class GanttRenderer {
                     // mit auf, wo der Export sie liefert (MS Project: auch manuell
                     // terminierte Sammelvorgänge). Aus Meilensteinen allein entstünde
                     // bei nur einem Termin sonst gar kein sichtbarer Balken. In den
-                    // gefilterten Ansichten zählt nur, was die Ansicht zeigt.
+                    // gefilterten Ansichten zählt nur, was die Ansicht zeigt
+                    // („Nur Meilensteine“ zeigt den vollen Gruppenzeitraum, s. o.).
                     const sz = sammelZeile.get(g.ck);
-                    if (sz && this.ansicht === 'alle') {
+                    if (sz && (this.vollerUmfang() || this.ansicht === 'meilensteine')) {
                         a.s = Math.min(a.s, sz.s);
                         a.e = Math.max(a.e, sz.e === null ? sz.s : sz.e);
                     }
@@ -1518,7 +1618,9 @@ export class GanttRenderer {
                     // Sammelvorgang, der NUR Meilensteine enthält: Balken ja, Rauten
                     // auf der zugeklappten Zeile nein — sie lägen genau auf den
                     // Balkenenden; die Meilensteine erscheinen erst beim Aufklappen.
-                    const nurMs = !g.isProj && g.all.length > 0 && g.all.every(c => this.isMs(c));
+                    // In „Nur Meilensteine“ besteht jede Gruppe nur aus Meilensteinen —
+                    // dort sollen zugeklappte Gruppen ihre Rauten gerade zeigen.
+                    const nurMs = this.ansicht !== 'meilensteine' && !g.isProj && g.all.length > 0 && g.all.every(c => this.isMs(c));
                     items.push({
                         id: (g.isProj ? 'pr:' : 'ph:') + g.ck,
                         kind: g.isProj ? 'proj' : 'phase',
@@ -1534,7 +1636,7 @@ export class GanttRenderer {
                         // Projektzeile trägt IMMER alle Meilensteine des Projekts
                         // (Portfolio-Übersicht); jede andere Gruppe zeigt sie,
                         // sobald sie zugeklappt ist — auf JEDER Tiefe.
-                        msKids: msOn && (g.isProj || (zu && !nurMs)) ? g.all.filter(c => this.isMs(c)) : []
+                        msKids: msOn && !ohneMs && (g.isProj || (zu && !nurMs)) ? g.all.filter(c => this.isMs(c)) : []
                     });
                     if (zu)
                         return;
@@ -1563,7 +1665,7 @@ export class GanttRenderer {
         const hasStichtag = this.tasks.some(t => t.stichtag !== undefined && t.stichtag !== null);
         const o = this.opts;
         const sp = (k) => !o || !o.spalten || o.spalten[k] !== false;
-        const showDelta = this.hasPlan && (!o || o.basisplan !== false) && (!o || o.deltaSpalte !== false);
+        const showDelta = this.hasPlan && this.planSichtbar() && (!o || o.deltaSpalte !== false);
         // Spalten ohne Daten erscheinen gar nicht erst — eine leere Spalte
         // kostet Platz, den der Vorgangsname dringender braucht
         let cols = ALL_COLS
@@ -1658,11 +1760,13 @@ export class GanttRenderer {
         const optAnsicht = o.startAnsicht && o.startAnsicht !== 'alle' ? o.startAnsicht : (o.nurHaupt === true ? 'haupt' : 'alle');
         if (this.lastOptAnsicht !== optAnsicht) {
             this.lastOptAnsicht = optAnsicht;
-            this.startZu = optAnsicht === 'projekte';
-            // 'projekte' ist Ansicht "alle" — wechsleAnsicht() setzt collapsed
-            // dann nicht zurück, wenn schon "alle" aktiv war; hier ausdrücklich
-            if (!this.wechsleAnsicht(optAnsicht) && this.startZu)
-                this.collapsed = {};
+            this.wechsleAnsicht(optAnsicht);
+        }
+        // Leser-Knopf „▭ Basisplan“: wechselt der Formatbereich, gilt wieder er
+        const optPlan = o.basisplan !== false;
+        if (this.lastOptPlan !== optPlan) {
+            this.lastOptPlan = optPlan;
+            this.planAus = false;
         }
         this.panel.style.background = t.panel;
         this.panel.style.border = '1px solid ' + t.border;
@@ -1697,12 +1801,13 @@ export class GanttRenderer {
         // collapsed wird an vielen Stellen direkt gesetzt — deshalb fließt sein
         // Inhalt selbst in die Signatur ein statt eines Versionszählers
         const zuSig = Object.keys(this.collapsed).filter(k => this.collapsed[k]).join('\u0001');
-        const sig = this.datenVersion + '|' + this.optVersion + '|' + this.ansicht + '|' + dark + '|' + o.ibcs + '|' + zuSig;
+        const sigKopf = this.datenVersion + '|' + this.optVersion + '|' + this.ansicht + '|' + this.ohneMs() + '|' + dark + '|' + o.ibcs + '|';
+        const sig = sigKopf + zuSig;
         if (!this.itemsCache || sig !== this.itemsSig) {
             this.itemsCache = this.buildItems(dark, o.ibcs);
-            // buildItems() klappt bei startZu neue Gruppen zu → Signatur danach bilden
-            const zuSig2 = Object.keys(this.collapsed).filter(k => this.collapsed[k]).join('');
-            this.itemsSig = zuSig2 === zuSig ? sig : this.datenVersion + '|' + this.optVersion + '|' + this.ansicht + '|' + dark + '|' + o.ibcs + '|' + zuSig2;
+            // buildItems() klappt in 'sammel'/'projekte' neue Gruppen zu → Signatur danach bilden
+            const zuSig2 = Object.keys(this.collapsed).filter(k => this.collapsed[k]).join('\u0001');
+            this.itemsSig = sigKopf + zuSig2;
         }
         const items = this.itemsCache;
         this.lastItems = items;
@@ -1750,14 +1855,15 @@ export class GanttRenderer {
                     const n = items.reduce((a, i) => a + Math.max(1, i.msKids.length), 0);
                     return n > items.length ? ' · ' + pl(n, 'Termin', 'Termine') : '';
                 })()
-                : this.ansicht === 'kritisch' ? pl(this.gezeigtN, 'kritischer Vorgang', 'kritische Vorgänge')
-                    : this.ansicht === 'ueberfaellig' ? pl(this.gezeigtN, 'überfälliger Vorgang', 'überfällige Vorgänge') + ' zum ' + fmtDate(ana.statusMs)
-                        : (nPr ? pl(nPr, this.text('projekt1', 'Projekt'), this.text('projektN', 'Projekte')) + ' · ' : '') +
-                            pl(nVg, 'Vorgang', 'Vorgänge') +
-                            (nPh ? ' · ' + (this.levelCount > 1
-                                ? pl(nPh, this.text('ebene1', 'Gruppe'), this.text('ebeneN', 'Gruppen'))
-                                : pl(nPh, this.text('ebene1', 'Phase'), this.text('ebeneN', 'Phasen'))) : '') +
-                            (nMs ? ' · ' + pl(nMs, 'Meilenstein', 'Meilensteine') : '');
+                : this.ansicht === 'meilensteine' ? pl(this.gezeigtN, 'Meilenstein', 'Meilensteine')
+                    : this.ansicht === 'kritisch' ? pl(this.gezeigtN, 'kritischer Vorgang', 'kritische Vorgänge')
+                        : this.ansicht === 'ueberfaellig' ? pl(this.gezeigtN, 'überfälliger Vorgang', 'überfällige Vorgänge') + ' zum ' + fmtDate(ana.statusMs)
+                            : (nPr ? pl(nPr, this.text('projekt1', 'Projekt'), this.text('projektN', 'Projekte')) + ' · ' : '') +
+                                pl(nVg, 'Vorgang', 'Vorgänge') +
+                                (nPh ? ' · ' + (this.levelCount > 1
+                                    ? pl(nPh, this.text('ebene1', 'Gruppe'), this.text('ebeneN', 'Gruppen'))
+                                    : pl(nPh, this.text('ebene1', 'Phase'), this.text('ebeneN', 'Phasen'))) : '') +
+                                (nMs ? ' · ' + (this.ohneMs() ? 'Meilensteine ausgeblendet' : pl(nMs, 'Meilenstein', 'Meilensteine')) : '');
             this.toolbarInfo.appendChild(document.createTextNode(txt));
             // MS-Project-Vorgänger sind Nummern. Ohne gebundene Rolle "Nr." laufen
             // sie ins Leere — das soll nicht still passieren.
@@ -1767,13 +1873,15 @@ export class GanttRenderer {
         // Ansicht gefiltert, aber der (von Power BI bereits gefilterte) DataView
         // enthält nichts Passendes: eine leere Fläche wäre von "kaputt" nicht zu
         // unterscheiden. "Ansicht ▾" bleibt bedienbar (s. renderToolbar).
-        const leer = this.ansicht !== 'alle' && !items.length;
+        const leer = (!this.vollerUmfang() || this.ohneMs()) && !items.length;
         this.leerHinweis.style.display = leer ? 'block' : 'none';
         this.leerHinweis.style.color = t.sub;
         if (leer)
             this.leerHinweis.textContent = this.ansicht === 'haupt' ? 'Keine Hauptmeilensteine im aktuellen Filter'
-                : this.ansicht === 'kritisch' ? 'Keine kritischen Vorgänge im aktuellen Filter'
-                    : 'Keine überfälligen Vorgänge zum ' + fmtDate(ana.statusMs);
+                : this.ansicht === 'meilensteine' ? 'Keine Meilensteine im aktuellen Filter'
+                    : this.ansicht === 'kritisch' ? 'Keine kritischen Vorgänge im aktuellen Filter'
+                        : this.ansicht === 'ueberfaellig' ? 'Keine überfälligen Vorgänge zum ' + fmtDate(ana.statusMs)
+                            : 'Nur Meilensteine im aktuellen Filter — „◆ Meilensteine“ blendet sie wieder ein';
         // Suche: Feld bleibt stehen (Fokus!), nur Farben und Trefferzähler folgen
         const treffer = this.suchTreffer();
         this.suchSet = new Set(treffer.map(tk => tk.key));
@@ -1866,7 +1974,7 @@ export class GanttRenderer {
         // ---- Legende: zuerst Aktuell/Basisplan (2.2, sobald Basisplan-Daten da
         // sind), danach die Balkenfarbe (nur, wenn nicht nach Zweig gefärbt wird)
         this.legendeHost.replaceChildren();
-        if (o && o.basisplan !== false && o.basisplanLegende !== false && this.hasPlan) {
+        if (o && this.planSichtbar() && o.basisplanLegende !== false && this.hasPlan) {
             const ibcs = !!o.ibcs;
             const aktFarbe = ibcs ? IBCS_AC : (t.panel === '#1E2023' ? PHASE_HEX_DARK[0] : PHASE_HEX_LIGHT[0]);
             const eintrag = (label, sw, titel) => {
@@ -1930,23 +2038,52 @@ export class GanttRenderer {
             if (ts.length)
                 mkBtn('Auswahl', 'Auf die Auswahl einpassen', () => this.zuAuswahl(ts), true);
         }
+        // 2.3: Leser-Knöpfe. Gedrückt (gefüllt) = eingeblendet. Sie erscheinen
+        // nur, wo sie etwas bewirken: Meilensteine vorhanden und nicht in einer
+        // der Meilenstein-Ansichten; Basisplan-Daten da und im Formatbereich an.
+        const knopf = (label, an, was, id, fn) => {
+            const b = mkBtn(label, was + (an ? ' ausblenden' : ' einblenden'), () => { fn(); this.invalidate(); }, true, an);
+            b.setAttribute('data-knopf', id);
+            b.setAttribute('aria-pressed', an ? 'true' : 'false');
+            b.style.whiteSpace = 'nowrap';
+            if (!an)
+                b.style.textDecoration = 'line-through';
+        };
+        if (o && o.knopfMeilensteine !== false && this.msUmschaltbar() && this.tasks.some(tk => this.isMs(tk))) {
+            // Zoom und Zeitachse bleiben stehen — nur die Zeilen ändern sich
+            knopf('◆ Meilensteine', !this.msAus, 'Meilensteine', 'meilensteine', () => { this.msAus = !this.msAus; this.tip = null; });
+        }
+        if (o && o.knopfBasisplan !== false && o.basisplan !== false && this.hasPlan) {
+            knopf('▭ Basisplan', !this.planAus, 'Basisplan', 'basisplan', () => { this.planAus = !this.planAus; this.tip = null; });
+        }
         // "Ansicht ▾" erscheint, sobald eine Sonderansicht möglich ist — oder aktiv
-        // ist, damit man aus einem leeren Filter immer wieder herauskommt
+        // ist, damit man aus einem leeren Filter immer wieder herauskommt.
+        // Gefüllt nur bei einem echten Filter, nicht bei den Klapp-Ansichten.
         const opts = this.ansichtOptionen();
         if (opts.some(x => x.key !== 'alle' && x.ok) || this.ansicht !== 'alle') {
             const akt = opts.find(x => x.key === this.ansicht);
-            const b = mkBtn((akt ? akt.kurz : 'Ansicht') + ' ▾', 'Ansicht wählen', () => this.oeffneMenu('ansicht', b), true, this.ansicht !== 'alle');
+            const b = mkBtn((akt ? akt.kurz : 'Ansicht') + ' ▾', 'Ansicht wählen', () => this.oeffneMenu('ansicht', b), true, !this.vollerUmfang());
             b.setAttribute('data-menu', '1');
+            b.style.whiteSpace = 'nowrap';
         }
     }
+    // Einträge von "Ansicht ▾". Die ersten vier sind die Sichten eines
+    // Terminplaners (wie die Gliederungs-/Filterwahl in MS Project);
+    // „Je Projekt ein Balken“ nur im Portfolio (mehrere Projekte).
     ansichtOptionen() {
         const a = this.analyse();
-        return [
-            { key: 'alle', label: 'Alle Vorgänge', kurz: 'Alle Vorgänge', ok: true, hinweis: '' },
-            { key: 'haupt', label: '◆ Nur Hauptmeilensteine', kurz: '◆ Hauptmeilensteine', ok: this.hasHaupt, hinweis: 'Rolle „Hauptmeilenstein“ binden' },
+        const nPr = new Set(this.tasks.map(tk => tk.projekt).filter(p => p !== undefined && p !== null && p !== '')).size;
+        const liste = [
+            { key: 'sammel', label: 'Sammelvorgänge', kurz: 'Sammelvorgänge', ok: this.hatGruppen(), hinweis: 'Rolle „Phase/Ebene“ oder „PSP-Code“ binden' },
+            { key: 'alle', label: 'Gesamter Terminplan', kurz: 'Gesamter Terminplan', ok: true, hinweis: '' },
+            { key: 'meilensteine', label: 'Nur Meilensteine', kurz: 'Nur Meilensteine', ok: this.tasks.some(tk => this.isMs(tk)), hinweis: 'Keine Meilensteine in den Daten (Ende leer)' },
+            { key: 'haupt', label: 'Nur Hauptmeilensteine', kurz: '◆ Hauptmeilensteine', ok: this.hasHaupt, hinweis: 'Rolle „Hauptmeilenstein“ binden' },
+            { key: 'projekte', label: 'Je Projekt ein Balken', kurz: 'Je Projekt ein Balken', ok: nPr > 1, hinweis: '' },
             { key: 'kritisch', label: 'Nur kritischer Pfad', kurz: 'Kritischer Pfad', ok: a.kritQuelle !== null, hinweis: 'Rolle „Kritisch“, „Gesamte Pufferzeit“ oder „Vorgänger“ binden' },
             { key: 'ueberfaellig', label: 'Nur überfällige', kurz: 'Überfällige', ok: a.ueberBestimmbar, hinweis: 'Rolle „Fortschritt“ oder „Status“ binden' }
         ];
+        // „Je Projekt ein Balken“ ohne Portfolio gar nicht anbieten (außer aktiv)
+        return liste.filter(x => x.key !== 'projekte' || x.ok || this.ansicht === 'projekte');
     }
     oeffneMenu(art, btn) {
         if (this.menu && this.menu.art === art) {
@@ -2141,7 +2278,11 @@ export class GanttRenderer {
         if (mn.art === 'ansicht') {
             eintraege = this.ansichtOptionen().map(x => ({
                 label: x.label, ok: x.ok || x.key === this.ansicht, hinweis: x.hinweis, aktiv: x.key === this.ansicht,
-                fn: () => { this.startZu = false; this.wechsleAnsicht(x.key); }
+                // Erneut gewählt = Klappzustand der Ansicht wiederherstellen
+                fn: () => { if (!this.wechsleAnsicht(x.key)) {
+                    this.collapsed = {};
+                    this.sy = 0;
+                } }
             }));
         }
         else {
@@ -2207,7 +2348,7 @@ export class GanttRenderer {
         this.rowsLayer.replaceChildren();
         const [vA, vB] = this.sichtbar(items.length, sy, this.rowsViewport.clientHeight);
         const o = this.opts;
-        const verzugOn = (!o || o.basisplan !== false) && (!o || o.verzugZeilen !== false);
+        const verzugOn = this.planSichtbar() && (!o || o.verzugZeilen !== false);
         const dark = t.panel === '#1E2023';
         const lateTint = hexA(IBCS_RED, dark ? 0.13 : 0.07);
         const u = unitSuffix(o ? o.tageEinheit : undefined);
@@ -2425,8 +2566,8 @@ export class GanttRenderer {
         // --- scrollende Ebene: Lanes, Abhängigkeiten, Balken ---
         this.scrollLayer.style.transform = 'translateY(-' + sy + 'px)';
         this.scrollLayer.replaceChildren();
-        const planOn = o.basisplan !== false && this.hasPlan;
-        const verzugOn = o.basisplan !== false && o.verzugZeilen !== false;
+        const planOn = this.planSichtbar() && this.hasPlan;
+        const verzugOn = this.planSichtbar() && o.verzugZeilen !== false;
         const lateTint = hexA(IBCS_RED, t.panel === '#1E2023' ? 0.13 : 0.07);
         const [vA, vB] = this.sichtbar(items.length, sy, chH);
         items.slice(vA, vB).forEach(it => {

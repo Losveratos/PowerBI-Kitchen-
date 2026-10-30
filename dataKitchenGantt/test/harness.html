@@ -80,6 +80,8 @@
       nurHaupt: params.get('nurhaupt') === '1',
       // --- 2.0: Planerwerkzeuge (Vorgaben wie im Formatbereich)
       startAnsicht: params.get('ansicht') || 'alle',
+      knopfMeilensteine: params.get('knopfms') !== '0',
+      knopfBasisplan: params.get('knopfplan') !== '0',
       kritischHervorheben: params.get('krit') !== '0',
       ueberfaelligMarkieren: params.get('ueber') !== '0',
       pufferAnzeigen: params.get('puffer') !== '0',
@@ -235,6 +237,14 @@
     r.setData(DATA);
     r.setOptions(opts());
     window.__gantt = r; // für Debug-Zugriff
+    // ?aus=meilensteine,basisplan → Leser-Knöpfe der Leiste nach dem ersten Bild drücken
+    if (params.has('aus')) setTimeout(() => {
+      params.get('aus').split(',').forEach(k => {
+        const b = document.querySelector('[data-knopf="' + k.trim() + '"]');
+        if (b) b.dispatchEvent(new MouseEvent('mousedown', { button: 0, bubbles: true }));
+        log.textContent = 'aus: ' + params.get('aus') + (b ? '' : ' (Knopf fehlt)');
+      });
+    }, 150);
     // ?tip=<Vorgangsname> → Tooltip des ersten passenden Balkens im Chart öffnen (für Screenshots)
     if (params.has('tip')) setTimeout(() => {
       const el = [...(r.chartArea || document).querySelectorAll('[data-task]')].find(e => e.getAttribute('data-task').endsWith(params.get('tip')));

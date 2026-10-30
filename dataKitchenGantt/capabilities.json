@@ -245,16 +245,24 @@
                 },
                 "startAnsicht": {
                     "displayName": "Startansicht",
-                    "description": "Mit welcher Ansicht das Visual startet. „zugeklappt“ zeigt je Projekt (ohne Projekt: je oberster Ebene) einen Summenbalken. Im Bericht lässt sich die Ansicht über „Ansicht ▾“ und ⊞/⊟ jederzeit wechseln.",
+                    "description": "Mit welcher Ansicht das Visual startet. „Sammelvorgänge“ zeigt je Projekt die oberste Gliederungsebene zugeklappt, „Je Projekt ein Balken“ klappt alles zu. Im Bericht lässt sich die Ansicht über „Ansicht ▾“ und ⊞/⊟ jederzeit wechseln.",
                     "type": {
                         "enumeration": [
                             {
                                 "value": "alle",
-                                "displayName": "Alle Vorgänge"
+                                "displayName": "Gesamter Terminplan (alles aufgeklappt)"
+                            },
+                            {
+                                "value": "sammel",
+                                "displayName": "Sammelvorgänge (oberste Ebene)"
                             },
                             {
                                 "value": "projekte",
-                                "displayName": "Alle Vorgänge, zugeklappt (je Projekt ein Balken)"
+                                "displayName": "Je Projekt ein Balken (alles zugeklappt)"
+                            },
+                            {
+                                "value": "meilensteine",
+                                "displayName": "Nur Meilensteine"
                             },
                             {
                                 "value": "haupt",
@@ -273,6 +281,20 @@
                 },
                 "einrichtung": {
                     "displayName": "Einrichtungshilfe",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "knopfMeilensteine": {
+                    "displayName": "Knopf „◆ Meilensteine“",
+                    "description": "Leser blenden Meilenstein-Zeilen und -Rauten über die Leiste ein und aus.",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "knopfBasisplan": {
+                    "displayName": "Knopf „▭ Basisplan“",
+                    "description": "Leser blenden Basisplan-Balken, Legende und Δ über die Leiste ein und aus (nur mit Basisplan-Terminen).",
                     "type": {
                         "bool": true
                     }

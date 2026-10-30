@@ -103,7 +103,7 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
 ### Die Leiste
 
 ```
-[⊞][⊟][Ebene ▾] [Suchen …]  11 Vorgänge · 5 Gruppen     [Tage|Wochen|…] [−][+] [Heute][Alles][Auswahl] [Alle Vorgänge ▾]
+[⊞][⊟][Ebene ▾] [Suchen …]  11 Vorgänge · 5 Gruppen     [Tage|Wochen|…] [−][+] [Heute][Alles][Auswahl] [◆ Meilensteine][▭ Basisplan] [Gesamter Terminplan ▾]
 ```
 
 - **⊞ / ⊟** klappen alles auf bzw. zu. **Ebene ▾** zeigt die Gliederung bis
@@ -113,15 +113,29 @@ Ja/Nein-Felder sind tolerant: `true`, `1`, `ja`, `yes`, `y`, `x`, `wahr` = ja.
   Vorfahren auf, **Umschalt+Enter** zurück, **Esc** leert.
 - **Heute** springt zum Statusdatum, **Alles** passt den Plan ein, **Auswahl**
   (nur bei Selektion) zoomt auf die selektierten Vorgänge.
-- **Ansicht ▾**: *Alle Vorgänge* · *Nur Hauptmeilensteine* (flache Liste, jeder
-  Name einmal, Vorkommen als Rauten) · *Nur kritischer Pfad* · *Nur überfällige*.
-  Die gefilterten Ansichten behalten die Gliederung. Nicht verfügbare Ansichten
-  stehen ausgegraut im Menü und sagen, welche Rolle fehlt. Alles folgt Slicern
-  und Crossfiltern; bleibt nichts übrig, erscheint ein Hinweis statt einer
-  leeren Fläche.
-  Die **Startansicht** *Alle Vorgänge, zugeklappt* (seit 2.2) öffnet mit allen
-  Gruppen zugeklappt — mit Rolle *Projekt* also ein Summenbalken je Projekt;
-  ⊞ oder Klick auf die Zeile klappt auf.
+- **Ansicht ▾** (seit 2.3 nach den Sichten eines Terminplaners):
+  *Sammelvorgänge* (je Projekt nur die oberste Gliederungsebene, zugeklappt;
+  Aufklappen zeigt die nächste Ebene wieder zugeklappt) · *Gesamter Terminplan*
+  (alles aufgeklappt) · *Nur Meilensteine* (alle Meilensteine in ihren Gruppen —
+  nur Gruppen, die Meilensteine enthalten; zugeklappt tragen sie die Rauten) ·
+  *Nur Hauptmeilensteine* (flache Liste, jeder Name einmal, Vorkommen als
+  Rauten) · *Je Projekt ein Balken* (nur mit mehreren Projekten) · *Nur
+  kritischer Pfad* · *Nur überfällige*. Die gefilterten Ansichten behalten die
+  Gliederung. Nicht verfügbare Ansichten stehen ausgegraut im Menü und sagen,
+  welche Rolle fehlt. Erneut gewählt, stellt eine Ansicht ihren Klappzustand
+  wieder her. Alles folgt Slicern und Crossfiltern; bleibt nichts übrig,
+  erscheint ein Hinweis statt einer leeren Fläche.
+  Die **Startansicht** *Je Projekt ein Balken* (seit 2.2, Wert `projekte`)
+  öffnet mit allen Gruppen zugeklappt — mit Rolle *Projekt* also ein
+  Summenbalken je Projekt; ⊞ oder Klick auf die Zeile klappt auf.
+- **◆ Meilensteine** und **▭ Basisplan** (seit 2.3, auch für Leser): blenden
+  Meilenstein-Zeilen und -Rauten bzw. Basisplan-Balken, -Rauten, Legende,
+  Δ-Spalte, Δ-Beschriftung und Verzug-Hinterlegung aus und wieder ein.
+  Gedrückt = sichtbar. Der Zustand gilt nur für die Sitzung (wie der
+  Klappzustand); Zoom und Zeitachse bleiben stehen. *◆ Meilensteine* fehlt in
+  den beiden Meilenstein-Ansichten, *▭ Basisplan* ohne Basisplan-Termine oder bei
+  ausgeschaltetem Basisplan. Beide lassen sich unter *Darstellung → Knöpfe für
+  Leser* abschalten.
 
 ### Im Plan
 
@@ -185,7 +199,7 @@ Reihenfolge nach Häufigkeit der Nutzung; jede Karte hat „Auf Standard zurück
 
 | Karte | Gruppen und Inhalt |
 | --- | --- |
-| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Alle / Alle zugeklappt — je Projekt ein Balken / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
+| **Darstellung** | *Allgemein*: Theme · **Startansicht** (Gesamter Terminplan / Sammelvorgänge / je Projekt ein Balken / Meilensteine / Hauptmeilensteine / kritischer Pfad / überfällige — im Bericht über *Ansicht ▾* wechselbar) · IBCS · Einrichtungshilfe — *Knöpfe für Leser* (2.3): ◆ Meilensteine · ▭ Basisplan — *Zeitachse*: Standard-Zeiteinheit · Einheit für Tage · Wochenenden und Feiertage schattieren · Status-/Heute-Linie — *Plan und Tabelle*: Pfeile · Gruppennamen im Chart · Infozeile · Tabellenbreite |
 | **Terminplanung** | *Kritischer Pfad*: hervorheben · Puffer als Linie — *Termine*: Überfällige markieren · Stichtage · Fortschrittslinie (aus) — *Kalender*: **Dauer in Arbeitstagen** (aus) · **Feiertage** (`01.01.2026, 03.04.2026` — wirken auf Dauer, Δ, Puffer, kritischen Pfad und die Schattierung) |
 | **Balken** | Balkenfarbe nach Zweig / Status / kritischem Pfad / Feld „Farbe nach" · Legende |
 | **Tabellenspalten** | PSP-Code · Start · Ende · Tage · Puffer · Stichtag · Status · Fortschritt · Wer · Zusatzspalten · **Lange Namen zweizeilig**. Spalten ohne Daten erscheinen nicht; bei Platzmangel weichen sie in fester Reihenfolge |
@@ -236,7 +250,9 @@ mehrstufig über Ebenen-Felder · `?proj=1` Portfolio mit zwei Projekten ·
 `?nproj=5` Portfolio aus n Projekten, alle mit Basisplan und wachsendem Verzug ·
 `?tip=<Name>` öffnet den Tooltip eines Balkens (für Screenshots).
 
-Parameter: `?ansicht=projekte|haupt|kritisch|ueberfaellig` · `?fl=1` Fortschrittslinie ·
+Parameter: `?ansicht=sammel|projekte|meilensteine|haupt|kritisch|ueberfaellig` ·
+`?aus=meilensteine,basisplan` (drückt die Leser-Knöpfe nach dem ersten Bild) ·
+`?knopfms=0` `?knopfplan=0` (Knöpfe abgeschaltet) · `?fl=1` Fortschrittslinie ·
 `?at=1` Arbeitstage · `?fei=…` Feiertage (leer = keine) · `?farbe=status|kritisch|feld` ·
 `?legende=0` · `?zweizeilig=1` · `?kritrolle=1` (Kritisch aus der Rolle statt berechnet) ·
 `?krit=0` `?ueber=0` `?puffer=0` `?stich=0` · `?status=2026-03-16` · `?dark=1` ·

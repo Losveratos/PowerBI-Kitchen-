@@ -39,11 +39,17 @@ const TAGE_EINHEIT_ITEMS: powerbi.IEnumMember[] = [
     { value: "ohne", displayName: "Ohne Einheit" }
 ];
 
+// Erster Eintrag = Vorgabe ('alle'). Werte sind stabil; 2.3 benennt die
+// Anzeige nach den vier Sichten eines Terminplaners und ergänzt zwei Werte.
 const ANSICHT_ITEMS: powerbi.IEnumMember[] = [
-    { value: "alle", displayName: "Alle Vorgänge" },
+    { value: "alle", displayName: "Gesamter Terminplan (alles aufgeklappt)" },
+    // 2.3: nur die oberste Ebene der Sammelvorgänge, zugeklappt; Projekte offen
+    { value: "sammel", displayName: "Sammelvorgänge (oberste Ebene)" },
     // 2.2: wie "alle", aber jede Gruppe startet zugeklappt — mit Projekt-Rolle
     // also ein Summenbalken je Projekt (Portfolio-Übersicht)
-    { value: "projekte", displayName: "Alle Vorgänge, zugeklappt (je Projekt ein Balken)" },
+    { value: "projekte", displayName: "Je Projekt ein Balken (alles zugeklappt)" },
+    // 2.3: alle Meilensteine, in ihren Gruppen
+    { value: "meilensteine", displayName: "Nur Meilensteine" },
     { value: "haupt", displayName: "Nur Hauptmeilensteine" },
     { value: "kritisch", displayName: "Nur kritischer Pfad" },
     { value: "ueberfaellig", displayName: "Nur überfällige" }
@@ -71,7 +77,7 @@ class DarstellungCardSettings extends FormattingSettingsCompositeCard {
     // „Ansicht ▾“ in der Leiste; die gewinnt, bis dieser Wert selbst wechselt.
     startAnsicht = new formattingSettings.ItemDropdown({
         name: "startAnsicht", displayName: "Startansicht", items: ANSICHT_ITEMS, value: ANSICHT_ITEMS[0],
-        description: "Womit das Visual startet. „zugeklappt“ zeigt je Projekt (ohne Projekt: je oberster Ebene) einen Summenbalken. Leser wechseln die Ansicht über „Ansicht ▾“ in der Leiste."
+        description: "Womit das Visual startet. „Sammelvorgänge“ zeigt je Projekt die oberste Gliederungsebene zugeklappt, „Je Projekt ein Balken“ klappt alles zu. Leser wechseln die Ansicht über „Ansicht ▾“ in der Leiste."
     });
     ibcs = schalter("ibcs", "IBCS-inspiriertes Styling", false, "Monochrom, weißer Hintergrund, Plan als Rahmen — nach den International Business Communication Standards.");
     einrichtung = schalter("einrichtung", "Einrichtungshilfe", true,
@@ -99,13 +105,21 @@ class DarstellungCardSettings extends FormattingSettingsCompositeCard {
         }
     });
 
+    // 2.3: Knöpfe für Leser in der Leiste (sichtbar auch außerhalb des
+    // Bearbeitungsmodus). Der Zustand gilt nur für die Sitzung des Lesers.
+    knopfMeilensteine = schalter("knopfMeilensteine", "Knopf „◆ Meilensteine“", true,
+        "Leser blenden Meilenstein-Zeilen und -Rauten ein und aus. Erscheint nur, wenn es Meilensteine gibt, und nicht in den Meilenstein-Ansichten.");
+    knopfBasisplan = schalter("knopfBasisplan", "Knopf „▭ Basisplan“", true,
+        "Leser blenden Basisplan-Balken, Legende und Δ ein und aus. Erscheint nur mit Basisplan-Terminen und eingeschaltetem Basisplan.");
+
     allgemein = new FormattingSettingsGroup({ name: "allgemein", displayName: "Allgemein", slices: [this.theme, this.startAnsicht, this.ibcs, this.einrichtung] });
+    knoepfe = new FormattingSettingsGroup({ name: "knoepfe", displayName: "Knöpfe für Leser", slices: [this.knopfMeilensteine, this.knopfBasisplan] });
     zeitachse = new FormattingSettingsGroup({ name: "zeitachse", displayName: "Zeitachse", slices: [this.zeiteinheit, this.tageEinheit, this.wochenenden, this.heuteLinie] });
     planGruppe = new FormattingSettingsGroup({ name: "plan", displayName: "Plan und Tabelle", slices: [this.abhaengigkeiten, this.gruppenNamen, this.kopfzeile, this.tabellenBreite] });
 
     name: string = "darstellung";
     displayName: string = "Darstellung";
-    groups: Array<FormattingSettingsGroup> = [this.allgemein, this.zeitachse, this.planGruppe];
+    groups: Array<FormattingSettingsGroup> = [this.allgemein, this.knoepfe, this.zeitachse, this.planGruppe];
 }
 
 // Planerwerkzeuge. Alles ist an, wo die Daten es hergeben — ohne gebundene
@@ -313,6 +327,9 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
         tp.kritisch.disabled = !d.krit;
         tp.kritisch.disabledReason = d.krit ? undefined : "Braucht „Vorgänger“ (mit „Nr.“), „Kritisch“ oder „Gesamte Pufferzeit“.";
         tp.stichtageAnzeigen.visible = d.stichtag;
+
+        // Ohne Basisplan-Termine gäbe es den Knopf ohnehin nicht
+        this.darstellungCard.knopfBasisplan.visible = d.plan;
 
         const bp = this.basisplanCard;
         bp.disabled = !d.plan;

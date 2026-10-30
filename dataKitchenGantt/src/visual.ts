@@ -438,6 +438,8 @@ export class Visual implements IVisual {
             namenZweizeilig: sp.zweizeilig.value,
             zusatzKoepfe: this.zusatzKoepfe.slice(),
             startAnsicht: String(d.startAnsicht.value.value),
+            knopfMeilensteine: d.knopfMeilensteine.value,
+            knopfBasisplan: d.knopfBasisplan.value,
             kritischHervorheben: pl.kritischHervorheben.value,
             ueberfaelligMarkieren: pl.ueberfaelligMarkieren.value,
             pufferAnzeigen: pl.pufferAnzeigen.value,
