@@ -35,23 +35,11 @@ Aus *einer* Datenbindung entstehen fünf Ansichten, umgeschaltet in der Toolbar 
 - **Werttreiberbaum mit Kacheln:** der Formel-Graph als DuPont-Baum (oder, ohne Formelzeilen, die reine Hierarchie) mit Mini-Charts auf jeder Karte; ein Klick öffnet die Kachel-Ansicht des Knotens mit Kombi-Chart, Szenario-Grid und Treibern.
 - **Sankey (seit 1.6):** derselbe Graph als Fluss von links nach rechts — Umsatz-Komponenten grau in den Umsatz, der Gewinn-Strang günstig nach rechts, Kosten ungünstig nach rechts unten in Endknoten; Band-Höhe proportional zum AC-YTD. Bewusst außerhalb der IBCS-Notation; der Kachel-Zoom daraus bleibt IBCS.
 
-![GuV-Tabelle mit Perioden-Blöcken](../assets/docs/pnl/p01-tabelle.webp)
-
-*Tabelle — Konten, Zwischensummen, Formel- und Margenzeilen, YTD und FY-Ausblick, Δ-Balken und Δ%-Pins.*
-
-![Mega-Table T04B mit ΔPL-Wasserfall](../assets/docs/pnl/p03-t04b.webp)
-
-*Mega-Table, Template T04B — vom Plan- zum Ist-Ergebnis als integrierter Wasserfall.*
-
-![Werttreiberbaum](../assets/docs/pnl/p06-baum.webp)
-
-*Werttreiberbaum — der Formel-Graph mit Mini-Charts auf jeder Karte.*
-
 ![Sankey der GuV](../assets/docs/pnl/p08-sankey.webp)
 
 *Sankey — die GuV als Fluss, Band-Höhe proportional zum AC (bewusst außerhalb der IBCS-Notation).*
 
-Demo-Daten Daten-WG Brauerei, gerendert mit Version 1.7.0.0.
+Alle Bilder: Demo-Daten der fiktiven Daten-WG Brauerei, gerendert mit Version 1.7.0.0 in derselben Breite (1050 px) ohne „Ganze Kachel nutzen“ — gleicher Maßstab in jedem Bild.
 
 Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404040), PY grau, PL weiß mit Rahmen, FC schraffiert; Beschriftungen außen mit explizitem „+“, eine Skala je Einheit über alle Zeilen und Perioden-Blöcke (nach IBCS 2.0 / ISO 24896), Margenzeilen mit Δ in Prozentpunkten, keine Gitterlinien. Die Oberfläche spricht Deutsch, Englisch, Spanisch und Japanisch (sie folgt der Berichtssprache), kennt einen Dunkelmodus und Hochkontrast und begrüßt Autoren beim Hineinziehen mit einem Start-Hub (Kapitel 03). Das Visual macht keine externen Aufrufe, speichert nichts außerhalb des Berichts und sendet keine Telemetrie.
 
@@ -304,7 +292,7 @@ Das Statement: Konten, Zwischensummen, Formel- und Margenzeilen mit Auf- und Zuk
 
 ![Klassische GuV-Tabelle](../assets/docs/pnl/p01-tabelle.webp)
 
-*Spalten-Preset AC·PY·PL·FC mit „% vom Umsatz“, Kommentar-Marken ① ② und Datenqualitäts-Signalen.*
+*Klassische Tabelle auf Ebene 1 mit Leser-Toolbar: Ansicht, Spalten-Preset, Δ-Referenz, Perioden, Einheit, Dichte, Ebene, Optionen, ⚡.*
 
 ### 02 · Mega-Table
 
@@ -338,7 +326,7 @@ Der Ergebnisbaum als DuPont-Graph: Wurzel ist die letzte Formel-/KPI-Zeile mit O
 
 ![Werttreiberbaum](../assets/docs/pnl/p06-baum.webp)
 
-*Jahresüberschuss als Wurzel, Rohertrag und Betriebsaufwand als Treiber; Karten mit Monatssäulen und Δ%.*
+*EBITDA als Wurzel (⌖), Rohertrag und Betriebsaufwand als Treiber; Karten mit Monatssäulen und Δ% gegen Plan, eine Skala je Einheit.*
 
 ### 06 · Sankey (seit 1.6)
 

@@ -35,23 +35,11 @@ Version · **1.7.0.0** · As of · **2026-10-31** · IBCS-inspired
 - **Value driver tree with tiles:** the formula graph as a DuPont tree (or, without formula rows, the plain hierarchy) with a mini chart on every card; a click opens the node's tile view with combo chart, scenario grid and drivers.
 - **Sankey (since 1.6):** the same graph as a flow from left to right — revenue components gray into revenue, the profit strand favorable to the right, costs unfavorable to the lower right into end nodes; band height proportional to AC YTD. Deliberately outside the IBCS notation; the tile zoom from it stays IBCS.
 
-![P&L table with period blocks](../assets/docs/pnl/p01-tabelle-en.webp)
-
-*Table — accounts, subtotals, formula and margin rows, YTD and FY outlook, Δ bars and Δ% pins.*
-
-![Mega table T04B with ΔPL waterfall](../assets/docs/pnl/p03-t04b-en.webp)
-
-*Mega table, template T04B — from plan to actual result as an integrated waterfall.*
-
-![Value driver tree](../assets/docs/pnl/p06-baum-en.webp)
-
-*Value driver tree — the formula graph with mini charts on every card.*
-
 ![Sankey of the P&L](../assets/docs/pnl/p08-sankey-en.webp)
 
 *Sankey — the P&L as a flow, band height proportional to AC (deliberately outside IBCS notation).*
 
-Demo data Daten-WG Brewery (German account names), rendered with version 1.7.0.0.
+All images: demo data of the fictitious Daten-WG Brewery, rendered with version 1.7.0.0 at the same width (1050 px) without “use the whole tile” — the same scale in every image.
 
 The notation follows the **IBCS® principles**: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one scale per unit across all rows and period blocks (following IBCS 2.0 / ISO 24896), margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and high contrast, and welcomes authors with a start hub when they drag it onto the page (chapter 03). The visual makes no external calls, stores nothing outside the report and sends no telemetry.
 
@@ -304,7 +292,7 @@ The statement: accounts, subtotals, formula and margin rows with expand and coll
 
 ![Classic P&L table](../assets/docs/pnl/p01-tabelle-en.webp)
 
-*Column preset AC·PY·PL·FC with “% of revenue”, comment markers ① ② and data-quality signals.*
+*Classic table on level 1 with the reader toolbar: view, column preset, Δ reference, periods, unit, density, level, options, ⚡.*
 
 ### 02 · Mega table
 
@@ -338,7 +326,7 @@ The result tree as a DuPont graph: the root is the last formula/KPI row with ope
 
 ![Value driver tree](../assets/docs/pnl/p06-baum-en.webp)
 
-*Net income as root, gross profit and operating expenses as drivers; cards with monthly columns and Δ%.*
+*EBITDA as root (⌖), gross profit and operating expenses as drivers; cards with monthly columns and Δ% against plan, one scale per unit.*
 
 ### 06 · Sankey (since 1.6)
 
