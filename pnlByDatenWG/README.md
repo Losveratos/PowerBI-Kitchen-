@@ -2,9 +2,10 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.5.3.0**:
-Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H), Struktur-Bars,
-Zeilen-Waterfall und **Werttreiberbaum (DuPont)** mit Kachel-Zoom; Selektion,
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.7.0.0**:
+Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Bilanz T05A und
+Cashflow T05B), Struktur-Bars, Zeilen-Waterfall, **Werttreiberbaum (DuPont)** mit Kachel-Zoom
+und **Sankey**; **Bestand & Fluss** für Bilanz und Cashflow, **⚡ Nur Ausnahmen**, Selektion,
 Drillthrough und natives Kontextmenü; **vier Sprachen** (de · en · es · ja),
 **Start-Hub** (🚀 Loslegen-Checkliste, Tour, Template-Galerie nach Zweck, Demo, Feld-Intro aller Rollen, Schriftgrößen-Leiste und Doku-Link beim Hineinziehen) und **Dark Mode** (Auto · Hell ·
 Dunkel) in der Handschrift von ChartKitchen.
@@ -18,6 +19,10 @@ Toolbar-Zustände sind bookmark-fähig persistiert.
 > Regeln, Perioden-Formate, Drillthrough-Setup und die typischen Fehlerbilder.
 > Web-Fassung: [`pnl-schnellstart.html`](../pnl-schnellstart.html) (DE) /
 > [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
+>
+> **Doku mit Bildern:** [`pnl-doku.html`](../pnl-doku.html) (DE) / [`pnl-doku_en.html`](../pnl-doku_en.html) (EN) ·
+> **Überblick als PDF:** [`pnl-statement-byDatenWG.pdf`](../pnl-statement-byDatenWG.pdf) (DE) /
+> [`pnl-statement-byDatenWG_en.pdf`](../pnl-statement-byDatenWG_en.pdf) (EN).
 >
 > **Für KI-Agenten:** [`AGENT-GUIDE.md`](AGENT-GUIDE.md) — Datenvertrag, alle
 > Properties mit Typ und Default, persistierte Zustände, Fallen, PBIR-Beispiel.
@@ -131,7 +136,11 @@ erzeugt: `node test/gen-demo.js`.
 - 1.2 (erledigt): Ease of Use — freie Wertspalten, Template in der Toolbar,
   Feld-Intro im Leerzustand, Rollen-Reihenfolge, Balken-Notation wie
   ChartKitchen, Spalten-Kategorie (klassische Tabelle)
-- Später: Spalten-Kategorie im Mega-Table, gemischte Einheiten (F8), Exception-Reporting mit Sammelzeile,
+- 1.3–1.5 (erledigt): Start-Hub, Template-Galerie, IBCS-2.0-Skalierung, einklappbare Bedienleisten
+- 1.6 (erledigt): Sankey, „Ansichten anbieten“
+- 1.7 (erledigt): Bestand & Fluss (T05A/T05B), ⚡ Nur Ausnahmen mit Sammelzeilen, Ganze Kachel nutzen,
+  Toolbar-Farben, Cross-Highlight im Sankey
+- Offen: siehe [`BACKLOG.md`](BACKLOG.md) — u. a. Spalten-Kategorie im Mega-Table, gemischte Einheiten (F8),
   AppSource-Zertifizierung, Top-N
 
 > „IBCS" ist eine eingetragene Marke der IBCS Institute.

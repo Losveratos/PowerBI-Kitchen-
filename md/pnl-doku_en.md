@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H as well as balance sheet and cash flow (T05A/T05B), plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.7.0.0** · As of · **2026-10-29** · IBCS-inspired
+Version · **1.7.0.0** · As of · **2026-10-31** · IBCS-inspired
 
 ## Contents
 
@@ -34,6 +34,24 @@ Version · **1.7.0.0** · As of · **2026-10-29** · IBCS-inspired
 - **Structure bars and row waterfall:** the same rows as size bars against the reference, or as a cascade in which the result rows anchor on the zero line.
 - **Value driver tree with tiles:** the formula graph as a DuPont tree (or, without formula rows, the plain hierarchy) with a mini chart on every card; a click opens the node's tile view with combo chart, scenario grid and drivers.
 - **Sankey (since 1.6):** the same graph as a flow from left to right — revenue components gray into revenue, the profit strand favorable to the right, costs unfavorable to the lower right into end nodes; band height proportional to AC YTD. Deliberately outside the IBCS notation; the tile zoom from it stays IBCS.
+
+![P&L table with period blocks](../assets/docs/pnl/p01-tabelle-en.webp)
+
+*Table — accounts, subtotals, formula and margin rows, YTD and FY outlook, Δ bars and Δ% pins.*
+
+![Mega table T04B with ΔPL waterfall](../assets/docs/pnl/p03-t04b-en.webp)
+
+*Mega table, template T04B — from plan to actual result as an integrated waterfall.*
+
+![Value driver tree](../assets/docs/pnl/p06-baum-en.webp)
+
+*Value driver tree — the formula graph with mini charts on every card.*
+
+![Sankey of the P&L](../assets/docs/pnl/p08-sankey-en.webp)
+
+*Sankey — the P&L as a flow, band height proportional to AC (deliberately outside IBCS notation).*
+
+Demo data Daten-WG Brewery (German account names), rendered with version 1.7.0.0.
 
 The notation follows the **IBCS® principles**: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one scale per unit across all rows and period blocks (following IBCS 2.0 / ISO 24896), margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and high contrast, and welcomes authors with a start hub when they drag it onto the page (chapter 03). The visual makes no external calls, stores nothing outside the report and sends no telemetry.
 
@@ -266,6 +284,10 @@ Cells without a token are read as before 1.7 (a row type such as “net margin�
 - **Data model:** Deliver stocks as **month-end balances**, never cumulated. Equity and liabilities from a balance list (credit balances delivered negative) with sign convention `-1` and *Display invert* = `false`; *Variance invert* by business logic (liabilities, provisions: `true`). The Claude skill `finance-data-model` designs and checks such a model (its `validate_model.py` knows stock rows).
 - **Sample data:** `pnlByDatenWG/demoData/bilanz-dim-konten.csv` + `bilanz-fact.csv` and `cashflow-dim-konten.csv` + `cashflow-fact.csv` (Daten-WG brewery 2026, kEUR) — plus the templates T05A and T05B (chapter 07).
 
+![Balance sheet T05A at the reporting date](../assets/docs/pnl/p09-bilanz-en.webp)
+
+*Stocks at the reporting date: T05A balance sheet, totals double-ruled, ΔPY against the prior-year date.*
+
 ### Column category (1.2)
 
 A field such as segment or quarter in **Column category** makes the classic table repeat its column set per category value — the column set of the YTD block (otherwise of the first block) stands under one group header per value, followed by the existing blocks as “Total”. Each category calculates completely, formulas and margins included; the months lie on the calendar of the overall model, and one uniform Δ scale applies across all blocks. At most 24 categories; further values are named in a footnote. “% of revenue” and sum-safe rounding stay in the total block. Measures must be additive (total = sum of the categories), otherwise the total block shows the sum instead of the model value. Mega table, bars and waterfall ignore the role; in edit mode a note below the table says so.
@@ -280,9 +302,17 @@ The toolbar group *View* switches between table, bars, waterfall, tree and Sanke
 
 The statement: accounts, subtotals, formula and margin rows with expand and collapse per row. The columns come from the **column preset** — *AC·PY·PL·FC (full)* (AC, % of revenue, PY with ΔPY bar, PL with ΔPL bar and ΔPL% pin), *AC vs reference*, *AC vs PY·PL·FC* (Δ bar and Δ% pin per bound reference), *AC·PY·ΔPY*, *AC·PL·ΔPL*, *ΔPY% · ΔPL%* (pins only) and since 1.2 *Own selection* (AC, PY, PL, FC and Δ as separate switches). Three period blocks: **MTD** (AC against the Δ reference), **YTD** and the **FY outlook** (AC&FC against PL full year, with both FY fields, in the full preset and in the own selection). All Δ bars share one scale across all rows and period blocks. If a Δ% pin exceeds ±40 %, ±40 % take the inner 80 % of the track; the outlier runs into the outer zone, a break mark separates it and a triangle points in the direction of growth (since 1.5). With a bound period, a chip per row opens a monthly sparkline; comments appear as numbered markers with a footnote.
 
+![Classic P&L table](../assets/docs/pnl/p01-tabelle-en.webp)
+
+*Column preset AC·PY·PL·FC with “% of revenue”, comment markers ① ② and data-quality signals.*
+
 ### 02 · Mega table
 
 As soon as a column switch of the mega table is on in the table view (value column PY, PL or AC/FC, or any ΔPY/ΔPL display), the visual draws the IBCS table; all switches off = classic table. Value and Δ columns combine freely: Δ as a number, as bars on one zero line, as an **integrated waterfall** (each Δ bar starts where the previous one ended, “=” rows restart from the zero line), Δ % as a number or pin; value columns optionally as **value cascades** (12A). One or two **period blocks** (month · YTD · FY outlook) on one shared scale, **thresholds** (“Δ in red if …”) with a footer, margin rows in italics with Δ in percentage points (pp) instead of Δ %, scenario underlines in the header and closing row. With structure data (regions instead of a P&L) there are subtotal blocks with a spacer row and a sort with “(↓)” at the sorting header, the rows of each block and the blocks themselves in the same direction (since 1.5.2, one-child groups like blocks); rows named “Other …” stay at the bottom; a spacer row follows every element of the top visible level, also between two single rows, and a group with exactly one shown child is one row (“Germany · Saxony”) without a repeated subtotal (1.5.1). Pins cap outliers automatically (Tukey fence Q3 + 4 × IQR, one limit for the whole table); the capped element runs into an outlier zone, separated by a break mark, with a triangle and the number outside. From 150 visible rows the mega table only draws the window around the viewport; the export always draws everything. In mega mode the toolbar hides column preset, Δ reference, periods and fit — the columns come from the format pane.
+
+![Mega table T03A](../assets/docs/pnl/p02-t03a-en.webp)
+
+*T03A — the standard statement: PY · PL · AC, ΔPY and ΔPL as numbers, margin row in percentage points.*
 
 > **Scaling following IBCS 2.0 / ISO 24896 (since 1.5):** Same unit, same scale. All Δ bars and Δ waterfalls of all period blocks (month, YTD, FY) share one scale, all Δ% pins a second one; there is no factor between blocks, even if the month gets short (1.5.1). In 12A, 12G and 12H the Δ bars are drawn on the scale of the value cascades. Only if they would fall below the minimum data area there, a round factor (2, 5, 10, 20 …) applies to all Δ columns of the table: the column head names it (“ΔPY ×5”), and a scale note stands right-aligned above the table. Nothing is ever rescaled silently. Capped outliers run into an outlier zone (12 % of the column) with a break mark, a triangle and the number outside. Comment footnotes always stay visible: if space runs short, the visual sets them in several columns, then reduces the row height and finally keeps the block at the bottom edge while the table scrolls behind it.
 
@@ -290,17 +320,33 @@ As soon as a column switch of the mega table is on in the table view (value colu
 
 The same rows with one size bar each: AC against the Δ reference, plus ΔRef bar and ΔRef% pin — a look at the structure of the result without giving up the numbers. Blocks: YTD and (with both FY fields) the FY outlook. The default is a narrow AC bar inside the full reference band. Since 1.2 the **ChartKitchen notation** is available as switches (Columns & mega table → Table): *overlapping scenario bars* puts AC in front at full strength and the reference equally tall, slightly offset behind it (PY gray, PL outlined, FC hatched); *triangle marks* place small triangles at the value of every other bound scenario above the bars — PY filled gray, PL hollow outlined, FC hatched. The notation lives in the shape, not only in the color; the marks enter the value scale and are never clipped. Both switches are off by default, and the view then stays pixel-identical to 1.1. Since 1.5 the Δ bars are drawn on the scale of the value bars: if they reach beyond the column, it gets wider; if they would stay below half a column, a round factor applies, named by the column head (“ΔPL ×5”) and the scale note.
 
+![Structure bars](../assets/docs/pnl/p15-bars-en.webp)
+
+*Structure bars — AC against the reference, ΔPL bars and Δ% pins on one scale per unit.*
+
 ### 04 · Row waterfall
 
 The P&L as a cascade on the root level of the hierarchy: contributions cascade, totals anchor — result anchors such as revenue, gross profit, EBITDA, EBIT, EBT and net income stand on the zero line, the cost blocks float in between. Per block one cascade for the reference and one for AC, plus ΔRef bar and ΔRef% pin; blocks MTD, YTD and FY outlook. The cascade geometry is the same function as in the integrated Δ waterfall of the mega table. Stocks (since 1.7) anchor on the zero line like result rows. Since 1.5 the Δ bars are drawn on the scale of the cascades, otherwise with a round factor and note as in the bars view.
+
+![Row waterfall](../assets/docs/pnl/p03-t04b-en.webp)
+
+*Cascade with result anchors; shown here as mega-table template T04B with ΔPL waterfall and pins.*
 
 ### 05 · Value driver tree
 
 The result tree as a DuPont graph: the root is the last formula/KPI row with operands (or the root row named in the format pane), the edges carry the operators ÷ × + − as circles. Without formula rows the tree grows straight from the hierarchy — with exactly one root it is the tree root, with several a virtual **Total root** carries them as children; the edges then carry the calculation sign. Tidy layout with one column per level, compact cards further down. Every card shows a mini chart of your choice — *monthly columns* (AC solid, reference behind), *variance columns* (AC − reference per month) or *mini bridge* (reference → Δ → AC, YTD) — and optionally a status edge in the variance color. ▾ expands and collapses a node (Shift: the whole branch), ⌖ makes a card the root, the breadcrumb and ⌂ lead back; hovering a card opens the IBCS detail view. When the card budget is reached, a note names the branches not drawn. Since 1.5 all cards of the same unit (amounts; percentage measures separately) are drawn on one scale; if a card would then cover less than a quarter of its area, it is magnified by a round factor and carries “×5” at the top right, explained by its tooltip. The hover detail view deliberately keeps its own scale and says so (“magnifying glass”). Mega table and finance switches do not act on the tree; it keeps its own fold state.
 
+![Value driver tree](../assets/docs/pnl/p06-baum-en.webp)
+
+*Net income as root, gross profit and operating expenses as drivers; cards with monthly columns and Δ%.*
+
 ### 06 · Sankey (since 1.6)
 
 The P&L as a **flow from left to right** — on the same graph as the value driver tree (same root, same start depth, same fold state), drawn as bands instead of cards. The revenue components flow **gray** into revenue; the profit strand (Gross profit → EBITDA → EBIT → EBT → Net income) runs through to the right in the **favorable color**; costs branch off to the lower right in the **unfavorable color** into end nodes of their own. Bar and band height are proportional to the period-matched **AC YTD**, on one common scale for the whole view. Labels sit outside the node with name, value and % of revenue (basis: the revenue row, with a plain hierarchy the flow root); the space for them is reserved in the layout, nothing is cut off. The flow area is at least 240 px high (scaled with the font-size preset).
+
+![Sankey](../assets/docs/pnl/p08-sankey-en.webp)
+
+*Revenue components flow grey into revenue, the profit strand runs favourable to the right, costs unfavourable into end nodes.*
 
 **Flow rule:** contributions with the node's sign flow in from the left. Counter-contributions (costs) stand below it in its column and are fed from the same inflow; because every connection of a node is allocated in a stack, its bands add up to the node height. A gray band *“Other (not broken down)”* appears only with inconsistent data, for example when a total node carries a value of its own or a formula contains a constant. A KPI root (Net margin) hands the flow to its first value operand; multiplication and division end the flow, and a ratio without a value row beneath it cannot be drawn as a flow (the visual then names the reason).
 
@@ -319,6 +365,10 @@ The P&L as a **flow from left to right** — on the same graph as the value driv
 ### 07 · Tiles (tile view)
 
 A click on the chart of a tree card (in the Sankey: on a node or its label) zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” (from the Sankey: “← Back to Sankey”) and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. The micro cards of one column share one scale per unit (×n marked); the main chart is labelled as a magnifying glass with its own scale. Only Δ reference and unit remain in the toolbar.
+
+![Tile view EBITDA](../assets/docs/pnl/p07-kachel-en.webp)
+
+*Tile zoom on EBITDA: bridge PL → AC/FC across months, scenario grid, drivers and recipients.*
 
 ## 07 · IBCS templates
 
@@ -354,6 +404,14 @@ The mega table rebuilds the official IBCS templates T01A–T04E as well as the r
 
 For every template: decimals Δ % = 1 (uniform since 1.5; saved reports keep their value until the template is applied again), scenario underlines and numbers at bars / pins / cascades on, outlier arrows for Δ bars off, period block YTD (except 12G: FY), second block on the left = month; switches not named are off. The second period block needs the period field — without a period, “month” and the second block silently fall back to one YTD block; without FC Full Year, FY falls back to YTD.
 
+![Template 12A](../assets/docs/pnl/p04-12a-en.webp)
+
+*12A — PY and AC value cascades side by side, ΔPY bars with scaling indicator ×2.*
+
+![Template 12G](../assets/docs/pnl/p05-12g-en.webp)
+
+*12G — full-year outlook: YTD solid, rest of year hatched, auto headline as a full sentence.*
+
 ### T05A Balance sheet · T05B Cash flow (1.7)
 
 The two stock templates stand in the gallery group **Balance sheet & cash flow** (between P&L statement and report views, chapter 03) and in the template dropdown after 12H. They work with stocks as month-end balances (chapter 05, “Stocks & flows”); the preview in the gallery shows a sample balance sheet or cash flow.
@@ -362,6 +420,14 @@ The two stock templates stand in the gallery group **Balance sheet & cash flow**
 - **T05B · Cash-flow bridge:** opening balance → operating · investing · financing → closing balance as PY and AC value cascades — the stocks anchor on the zero line, the flows float in between —, plus ΔPY · ΔPY % and the blocks month | YTD. The FY outlook can be added via the block kind FY (without FY measures it shows the FC closing balance). Opening and closing balance must be marked by token: `Account opening` and `Formula stock` with `[Opening]+[Operating]+[Investing]+[Financing]`.
 - **When the stock mode is set:** T05A sets *Stocks & flows* to “Every row a stock (balance sheet)” if the data carries no token — so a balance sheet without a row-type column works —, otherwise to Auto. T05B always sets Auto. Any other template takes an “Every row a stock” left behind by T05A back to Auto when applied; “↺ Back to template” also appears when the stock mode differs from the template.
 - **Data:** month-end balances, never cumulated; equity and liabilities from a balance list with sign convention `-1` (chapter 05). Example: `demoData/bilanz-*.csv` and `cashflow-*.csv`; check the model with the skill `finance-data-model` (`validate_model.py`).
+
+![Cash flow T05B](../assets/docs/pnl/p10-cashflow-en.webp)
+
+*T05B — opening balance → operating · investing · financing → closing balance, stocks as anchors.*
+
+![Cash flow as Sankey](../assets/docs/pnl/p11-cf-sankey-en.webp)
+
+*The same cash flow statement as a Sankey: stocks as grey anchors, outflows unfavourable.*
 
 > Re-applying the same template works since 1.3: a click on the active tile in the gallery or “↺ Back to template” next to the toolbar dropdown restores the template state — the native dropdown itself cannot report an entry that is already selected. If you write reports as PBIR, set `columns.template` and `columns.templateApplied` to the same value; otherwise the visual applies the template on its first render and overwrites the switches you wrote (see the [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)). For comparison with the reference sheets: [TEMPLATE-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/TEMPLATE-GUIDE.md) and the HTML prototype `pnlByDatenWG/prototype/megatable.html`.
 
@@ -539,6 +605,10 @@ House terms for AC, PY, PL and FC — e.g. “Actual”, “LY” or “Budget�
 
 #### Colors & appearance
 
+![Dark mode](../assets/docs/pnl/p14-dark-en.webp)
+
+*Appearance dark (T04B): the ChartKitchen pair #3FB3C2 / #E4635F on dark paper.*
+
 | Setting | Description | Options / Default |
 | --- | --- | --- |
 | Appearance | Dark mode: Auto detects dark report themes from the background colour (luminance below 0.35) and switches ink, axes and surfaces to light tones; pages painted dark by hand need “Dark”. In a light report Auto renders identically to Light. | Options: Auto (follow the report theme) \| Light \| Dark · Default “Auto (follow the report theme)” |
@@ -685,6 +755,14 @@ In a P&L with sixty rows, color is only a statement if it is rare. The toolbar g
 - **High contrast:** Non-exceptions appear dashed without fill and pattern instead of gray (mega table, Sankey).
 - **For PBIR reports** with a fixed ⚡ the object `exceptions` is enough (`enabled: true` …); without a reader switch turn `toolbar.showExceptions` off.
 
+![Sankey with ⚡ exceptions only](../assets/docs/pnl/p12-sankey-exc-en.webp)
+
+*⚡ in the Sankey: only flows with |ΔPL%| ≥ 5 % keep their variance colour, the rest stays grey.*
+
+![Waterfall with quiet rows hidden](../assets/docs/pnl/p13-wf-exc-en.webp)
+
+*Mode ⊘ hide: quiet steps collapse into “others (n)” per section, the cascade stays closed.*
+
 ### Locked buttons
 
 A button that would change nothing in the current state is **locked**: dimmed, without hover, with a tooltip that says where it acts — a click saves nothing. Whether a button acts is checked against the columns actually produced. Typical cases: the Δ reference under the preset “AC·PY·PL·FC” (which shows its references fixed), the FY block outside the presets that carry it, “% of revenue” while the YTD block is hidden, the last visible period block, the last value column or Δ without a reference field, and in the mega table a scenario choice its columns do not use. The period buttons show what is on screen — a forced YTD block reads as “on”.
@@ -709,6 +787,10 @@ Since 1.7 the visual understands *highlighting*. If a reader clicks an element i
 - **All other views** (table, mega table, bars, waterfall, tree, tile view) behave **as if filtered**: rows without a marked value disappear; period window, scales, % of revenue, Δ, materiality and ⚡ calculate on the selection; there is no footer.
 - **Note for authors:** The default interaction of other visuals on the P&L thus becomes *highlight* instead of filter. Outside the Sankey the reader sees the same as before, existing reports need no change. Anyone who explicitly wants *filtering* — in the Sankey too — switches it in Power BI Desktop under Format → *Edit interactions* on the triggering visual via the filter icon of the P&L.
 - A click in the P&L itself creates no mark in the P&L under Power BI behavior; its selection (see above) stays untouched. Without a mark every report renders unchanged; export and subscriptions print the filter picture or the Sankey with its footer.
+
+![Sankey with cross-highlight](../assets/docs/pnl/p16-sankey-hl-en.webp)
+
+*Another visual highlights July: the Sankey shows the highlighted part in colour inside the grey total.*
 
 ### Bookmarks
 
