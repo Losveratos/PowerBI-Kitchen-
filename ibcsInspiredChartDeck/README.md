@@ -7,6 +7,9 @@ in **einem** Visual löst:
 
 ![Screenshot](assets/screenshot.png)
 
+> **Überblick als PDF (A4 quer, alle Modi mit Use Cases):** [Deutsch](../chartkitchen-byDatenWG.pdf) ·
+> [English](../chartkitchen-byDatenWG_en.pdf) · Doku: [chartkitchen-doku.html](../chartkitchen-doku.html)
+
 > **Für KI-Agenten:** [AGENT-GUIDE.md](AGENT-GUIDE.md) — Datenvertrag mit
 > DAX-Fallen, komplette Property-Referenz fürs PBIR-Authoring (inkl.
 > persistierter Zustände), Modus-Matrix und bekannte Stolperfallen.
