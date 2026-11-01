@@ -52,6 +52,7 @@
       if (q.code) p.code = q.code;
       if (q.log) p.log = q.log;
       if (q.inc) p.inc = true;
+      if (q.pool) p.pool = q.pool;
       return p;
     });
 
@@ -73,8 +74,8 @@
         sol.push(m.where(b.a));
         return { o: m.out };
       });
-      key.fill[f.id] = { a: sol, x: f.x, d: f.d, c: 'dax' };
-      return { id: f.id, d: f.d, title: f.title, code: f.code, blanks: blanks };
+      key.fill[f.id] = { a: sol, x: f.x, d: f.d, c: f.c || 'dax' };
+      return { id: f.id, c: f.c || 'dax', d: f.d, title: f.title, code: f.code, blanks: blanks };
     });
 
     pub.PQDEBUG = C.PQDEBUG.map(function (p) {
@@ -93,8 +94,8 @@
         ksteps.push({ a: answers, best: best });
         return { say: st.say, a: m.out.map(function (a) { return { t: a.t }; }) };
       });
-      key.dialog[dl.id] = { steps: ksteps, d: 1, c: 'talk' };
-      return { id: dl.id, who: dl.who, av: dl.av, steps: steps };
+      key.dialog[dl.id] = { steps: ksteps, d: 1, c: dl.c || 'talk' };
+      return { id: dl.id, c: dl.c || 'talk', who: dl.who, av: dl.av, steps: steps };
     });
 
     return { pub: pub, key: key };

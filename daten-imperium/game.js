@@ -41,10 +41,13 @@ const STAFF_BY = Object.fromEntries(STAFF.map(s => [s.id, s]));
 const LV = [0, 60, 160, 320, 560, 900, 1400, 2000];
 const level = xp => { let l = 0; while (l < LV.length - 1 && xp >= LV[l + 1]) l++; return l; };
 const QN = [0, 3, 4, 5, 5];
-const BASE_FEE = [0, 1600, 4000, 8000, 15000];
-const BASE_DAYS = [0, 2, 4, 6, 8];
+const BASE_FEE = [0, 1600, 4000, 8000, 15000, 35000];
+const BASE_DAYS = [0, 2, 4, 6, 8, 8];
 const BANKRUPT = -8000;
 const GOAL = 1000000;
+const CROWN_GOAL = 3000000;
+const CREW_BY = Object.fromEntries(EMPIRE.crew.map(c => [c.id, c]));
+const stars = d => '★'.repeat(d) + '☆'.repeat(Math.max(0, 4 - d));
 
 /* ---------- Lernkarten-Register ---------- */
 const CLINIC_NAMES = {
@@ -69,13 +72,13 @@ const GRADE = (kind, args) => (FULL
 const CARDS = {};
 P.QUIZ.forEach(q => { CARDS[q.id] = { c: q.c, h: q.q, x: FULL ? KEYS.quiz[q.id].x : null }; });
 P.ORDER.forEach(o => { CARDS[o.id] = { c: o.c, h: o.title, x: FULL ? KEYS.order[o.id].x : null }; });
-P.DIALOGS.forEach(d => { CARDS[d.id] = { c: 'talk', h: { de: 'Gespräch: ' + d.who.de, en: 'Conversation: ' + d.who.en }, x: null }; });
+P.DIALOGS.forEach(d => { CARDS[d.id] = { c: d.c || 'talk', h: d.c === 'team' ? { de: 'Teamgespräch: ' + d.who.de, en: 'Team talk: ' + d.who.en } : { de: 'Gespräch: ' + d.who.de, en: 'Conversation: ' + d.who.en }, x: null }; });
 if (FULL) DIALOGS.forEach(d => {
   const best = s => s.a.reduce((m, a) => (a.s > m.s ? a : m), s.a[0]);
   CARDS[d.id].x = { de: d.steps.map(s => best(s).t.de).join(' '), en: d.steps.map(s => best(s).t.en).join(' ') };
 });
 Object.keys(CLINIC_ERRORS).forEach(k => { CARDS['cl-' + k] = { c: 'viz', h: CLINIC_NAMES[k], x: { de: CLINIC_ERRORS[k].de, en: CLINIC_ERRORS[k].en } }; });
-P.FILL.forEach(f => { CARDS[f.id] = { c: 'dax', h: f.title, x: FULL ? KEYS.fill[f.id].x : null }; });
+P.FILL.forEach(f => { CARDS[f.id] = { c: f.c || 'dax', h: f.title, x: FULL ? KEYS.fill[f.id].x : null }; });
 P.PQDEBUG.forEach(p => { CARDS[p.id] = { c: 'pq', h: p.title, x: FULL ? KEYS.pq[p.id].x : null }; });
 // DAX-Werkstatt: nur in der Fabric App (daxlab.js + Ausführer window.DI_DAX gegen das Trainingsmodell)
 const LAB = typeof DAXLAB !== 'undefined' && window.DI_DAX ? DAXLAB : [];
@@ -137,19 +140,47 @@ function newState(firm) {
     cards: {}, posts: [], lastPost: -1, cfp: null, rivals: RIVALS.map(r => ({ n: r.n, v: r.v })), sched: [], overtime: 0,
     ledger: { jobs: 0, other: 0 }, stats: { jobs: 0, perfect: 0, earned: 0 }, won: false, over: false, seenQ: {}, seen: {},
     lastEvent: null, leads: 0, active: false,
+    crew: [], subs: [], stickers: {}, ng: 0, crowns: 0, bestRank: 0, lastConf: -99, lastHack: -99, crowned: false,
   };
 }
-function save() { try { if (S) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
-function load() { try { const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); return s && s.v === 1 ? s : null; } catch (e) { return null; } }
+function save() { if (S) { bumpRank(); checkStickers(); } try { if (S) localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) {} }
+function load() { try { return migrate(JSON.parse(localStorage.getItem(SAVE_KEY) || 'null')); } catch (e) { return null; } }
+/** Alte Spielstände (vor der Imperium-Erweiterung) bekommen die neuen Felder mit Startwerten.
+    Das Format bleibt v1, damit ein Spielstand auch in einer älteren Fassung noch lädt. */
+function migrate(s) {
+  if (!s || s.v !== 1) return null;
+  s.xp = s.xp || {}; CAT_KEYS.forEach(c => { if (typeof s.xp[c] !== 'number') s.xp[c] = 0; });
+  s.stats = Object.assign({ jobs: 0, perfect: 0, earned: 0 }, s.stats);
+  ['crew', 'subs', 'staff', 'retainers', 'mails', 'posts', 'sched', 'rivals', 'idxHist'].forEach(k => { if (!Array.isArray(s[k])) s[k] = []; });
+  if (!s.rivals.length) s.rivals = RIVALS.map(r => ({ n: r.n, v: r.v }));
+  if (!s.idxHist.length) s.idxHist = [s.index || 100];
+  ['items', 'cards', 'seen', 'seenQ', 'stickers'].forEach(k => { if (!s[k] || typeof s[k] !== 'object') s[k] = {}; });
+  const num0 = (k, v) => { if (typeof s[k] !== 'number') s[k] = v; };
+  num0('ng', 0); num0('crowns', 0); num0('bestRank', 0); num0('lastConf', -99); num0('lastHack', -99);
+  if (s.won) s.bestRank = Math.max(s.bestRank, RANKS.findIndex(r => r.v >= GOAL));
+  s.office = Math.min(s.office || 0, OFFICES.length - 1);
+  s.crowned = !!s.crowned;
+  return s;
+}
+const rankIdx = v => Math.max(0, RANKS.indexOf(rankOf(v)));
+/** Höchster je erreichter Rang. Käufe senken den Firmenwert, Freischaltungen bleiben trotzdem. */
+function bumpRank() { const r = rankIdx(firmValue()); if (r > (S.bestRank || 0)) S.bestRank = r; }
+const hasRank = r => (S.bestRank || 0) >= r;
 
-const baseDays = () => 20 + (S.items.coffee ? 2 : 0) + (S.items.headset ? 1 : 0) + S.staff.reduce((a, s) => a + STAFF_BY[s].days, 0);
-const coverCap = () => S.staff.reduce((a, s) => a + STAFF_BY[s].cover, 0);
+const baseDays = () => 20 + (S.items.coffee ? 2 : 0) + (S.items.headset ? 1 : 0) + (S.items.cargo ? 1 : 0) + (S.items.gold ? 3 : 0)
+  + S.staff.reduce((a, s) => a + STAFF_BY[s].days, 0) + S.crew.reduce((a, c) => a + CREW_BY[c].days, 0);
+const coverCap = () => S.staff.reduce((a, s) => a + STAFF_BY[s].cover, 0) + S.crew.reduce((a, c) => a + CREW_BY[c].cover, 0);
 const retainerSum = () => S.retainers.reduce((a, r) => a + r.monthly, 0);
 function costs() {
-  const rent = OFFICES[S.office].rent, living = 1620, salaries = S.staff.reduce((a, s) => a + STAFF_BY[s].salary, 0), subs = S.items.tenant ? 350 : 0;
-  return { rent, living, salaries, subs, total: rent + living + salaries + subs };
+  const rent = OFFICES[S.office].rent, living = 1620, salaries = S.staff.reduce((a, s) => a + STAFF_BY[s].salary, 0);
+  const crew = S.crew.reduce((a, c) => a + CREW_BY[c].monthly, 0), subs = ITEMS.reduce((a, it) => a + (it.monthly && S.items[it.id] ? it.monthly : 0), 0);
+  return { rent, living, salaries, crew, subs, total: rent + living + salaries + crew + subs };
 }
-const firmValue = () => S.cash + OFFICES.slice(0, S.office + 1).reduce((a, o) => a + o.price, 0) * 0.5 + retainerSum() * 6;
+const firmValue = () => S.cash + OFFICES.slice(0, S.office + 1).reduce((a, o) => a + o.price, 0) * 0.5 + retainerSum() * 6
+  + ITEMS.reduce((a, it) => a + (it.asset && S.items[it.id] ? it.price * 0.5 : 0), 0) + (S.subs || []).reduce((a, x) => a + x.v, 0);
+/** Honorar-Aufschläge durch Ausstattung */
+const feeMult = cat => ((cat === 'fabric' || cat === 'sql') && S.items.f64 ? 1.3 : cat === 'fabric' && S.items.tenant ? 1.15 : 1) * (S.items.tower ? 1.05 : 1);
+const talkDays = () => (S.items.jet ? 1 : 3);
 const rankOf = v => RANKS.filter(r => v >= r.v).pop() || RANKS[0];
 const cardCount = () => Object.keys(S.cards).length;
 function addCards(ids) { let n = 0; ids.forEach(id => { if (CARDS[id] && !S.cards[id]) { S.cards[id] = S.month + 1; n++; } }); return n; }
@@ -168,13 +199,16 @@ function gameFor(cat, d) {
   if (cat === 'gov') return r < 0.25 ? 'order' : 'quiz';
   if (cat === 'talk') return r < 0.75 ? 'dialog' : 'order';
   if (cat === 'dax') return LAB.length && r < 0.3 ? 'werkstatt' : r < 0.55 ? 'fill' : d >= 2 && r < 0.65 ? 'order' : 'quiz';
+  if (cat === 'sql') return r < 0.35 ? 'fill' : r < 0.5 ? 'order' : 'quiz';
+  if (cat === 'team') return r < 0.4 ? 'dialog' : r < 0.6 ? 'sprint' : r < 0.72 ? 'order' : 'quiz';
   return 'quiz';
 }
 const GAME_NAMES = {
-  quiz: c => ({ dax: L('DAX-Duell', 'DAX duel'), fabric: L('Item-Entscheid', 'Item decision'), gov: L('Governance-Check', 'Governance check'), pq: L('Power-Query-Quiz', 'Power Query quiz'), viz: L('Viz-Quiz', 'Viz quiz'), model: L('Modell-Quiz', 'Model quiz') }[c] || 'Quiz'),
+  quiz: c => ({ dax: L('DAX-Duell', 'DAX duel'), fabric: L('Item-Entscheid', 'Item decision'), gov: L('Governance-Check', 'Governance check'), pq: L('Power-Query-Quiz', 'Power Query quiz'), viz: L('Viz-Quiz', 'Viz quiz'), model: L('Modell-Quiz', 'Model quiz'), sql: L('SQL-Sprechstunde', 'SQL clinic'), team: L('Team-Coaching', 'Team coaching') }[c] || 'Quiz'),
   star: () => L('Sternschema-Werkstatt', 'Star schema workshop'), order: () => L('Reihenfolge-Puzzle', 'Sequence puzzle'),
-  clinic: () => L('Chart-Klinik', 'Chart clinic'), dialog: () => L('Kundengespräch', 'Client conversation'),
-  fill: () => L('DAX-Lückentext', 'DAX fill-in-the-blank'), werkstatt: () => L('DAX-Werkstatt (echtes Modell)', 'DAX workshop (real model)'), pqdebug: () => L('Power-Query-Debugging', 'Power Query debugging'),
+  clinic: () => L('Chart-Klinik', 'Chart clinic'), dialog: c => (c === 'team' ? L('Teamgespräch', 'Team talk') : L('Kundengespräch', 'Client conversation')),
+  sprint: () => L('Sprint-Planung', 'Sprint planning'), crew: () => L('5-Sterne-Auftrag (zwei Runden)', 'Five-star job (two rounds)'),
+  fill: c => (c === 'sql' ? L('SQL-Lückentext', 'SQL fill-in-the-blank') : L('DAX-Lückentext', 'DAX fill-in-the-blank')), werkstatt: () => L('DAX-Werkstatt (echtes Modell)', 'DAX workshop (real model)'), pqdebug: () => L('Power-Query-Debugging', 'Power Query debugging'),
 };
 function genJob(forceCat, forceD, forceGame) {
   const cat = forceCat || pick(CAT_KEYS);
@@ -183,7 +217,7 @@ function genJob(forceCat, forceD, forceGame) {
   const d = forceD || rnd(Math.max(1, maxD - 2), maxD);
   const cl = pick(CLIENTS), size = SIZES[cl.s];
   const reach = 1 + Math.min(0.3, S.followers / 5000);
-  const fee = r50(BASE_FEE[d] * size.m * (S.index / 100) * (1 + S.rep / 400) * reach * (0.85 + Math.random() * 0.3) * (cat === 'fabric' && S.items.tenant ? 1.15 : 1));
+  const fee = r50(BASE_FEE[d] * size.m * (S.index / 100) * (1 + S.rep / 400) * reach * (0.85 + Math.random() * 0.3) * feeMult(cat));
   return { id: ++S.seq, kind: 'job', from: cl.n, size: cl.s, cat, d, fee, days: BASE_DAYS[d] + rnd(0, 1), game: forceGame || gameFor(cat, d),
     subj: pick(SUBJECTS[cat]), body: BODIES[cat], exp: S.month + rnd(1, 2), read: false };
 }
@@ -223,8 +257,10 @@ function newMails(extra = 0) {
     else { S.mails.push(genJob()); jobs++; }
   }
   if (!S.mails.some(m => m.kind === 'job' && level(S.xp[m.cat]) >= m.d - 1)) S.mails.push(genJob(null, 1));
+  S.crew.forEach(id => S.mails.push(genCrewJob(CREW_BY[id])));
+  if (S.month >= 4 && S.month - S.lastHack >= 6 && !S.mails.some(m => m.kind === 'hack') && Math.random() < 0.4) S.mails.push(genHack());
   const jobsOld = S.mails.filter(m => m.kind === 'job').sort((a, b) => a.id - b.id);
-  while (S.mails.length > 24 && jobsOld.length) { const old = jobsOld.shift(); S.mails = S.mails.filter(m => m !== old); }
+  while (S.mails.length > 24 + S.crew.length && jobsOld.length) { const old = jobsOld.shift(); S.mails = S.mails.filter(m => m !== old); }
 }
 
 /* ---------- Rendering: Titel ---------- */
@@ -243,12 +279,12 @@ function renderTitle() {
     <div class="title-card">
       <p>${L('Köln, Januar 2027. Du sitzt in der WG-Küche, der Laptop steht neben dem Herd, auf dem Konto liegen 5.000 €. Kunden schreiben dir Mails. Löse ihre Aufgaben in Minispielen zu DAX, Sternschema, Fabric, Power Query, Governance und Visualisierung, kassiere Honorare und kauf dir davon Ausstattung, Team und größere Büros.',
         'Cologne, January 2027. You sit in a shared-flat kitchen, laptop next to the stove, €5,000 in the bank. Clients send you emails. Solve their problems in mini games about DAX, star schemas, Fabric, Power Query, governance and visualization, collect fees and buy gear, staff and bigger offices.')}</p>
-      <p><b>${L('Ziel', 'Goal')}:</b> ${L('1 Mio. € Firmenwert. Unter −8.000 € auf dem Konto ist das Spiel vorbei.', '€1M company value. Below −€8,000 in the bank the game is over.')}</p>
+      <p><b>${L('Ziel', 'Goal')}:</b> ${L('1 Mio. € Firmenwert. Unter −8.000 € auf dem Konto ist das Spiel vorbei. Danach geht es weiter: Crew anheuern, eigene Daten-WG-Konferenz, Rivalen übernehmen und ab 3 Mio. die Krönung zur Daten-Königin oder zum Daten-König.', '€1M company value. Below −€8,000 in the bank the game is over. Then it goes on: hire the crew, host your own Daten-WG conference, take over rivals and from €3M get crowned data monarch.')}</p>
       <label for="firm">${L('NAME DEINER FIRMA', 'YOUR COMPANY NAME')}</label>
       <input id="firm" maxlength="32" value="${esc(saved ? saved.firm : L('Küchentisch Consulting', 'Kitchen Table Consulting'))}">
       <div class="row">
         <button class="btn pri" id="go-new">▶ ${L('Neues Spiel', 'New game')}</button>
-        ${saved ? `<button class="btn ok" id="go-load">↻ ${L('Weiterspielen', 'Continue')} · ${esc(saved.firm)} · ${esc(mLabel(saved.month))}</button>` : ''}
+        ${saved ? `<button class="btn ok" id="go-load">↻ ${L('Weiterspielen', 'Continue')} · ${esc(saved.firm)} · ${esc(mLabel(saved.month))}${saved.crowns ? ' ' + '👑'.repeat(Math.min(3, saved.crowns)) : ''}</button>` : ''}
         <button class="btn" id="go-lang">${LANG === 'de' ? 'English' : 'Deutsch'}</button>
       </div>
       <p class="muted" style="margin-top:14px;font-size:13px">${L('Gespeichert wird nur in diesem Browser. Keine Anmeldung, keine Tracker.', 'Progress is stored in this browser only. No sign-in, no trackers.')}</p>
@@ -294,6 +330,7 @@ function showIntro() {
       <li>${L('<b>Fenster</b>: Markt, Tagessatz-Index und Rivalen', '<b>Window</b>: market, day-rate index and rivals')}</li>
       <li>${L('<b>Smartphone</b>: Posten für mehr Netzwerk', '<b>Smartphone</b>: post to grow your network')}</li>
       <li>${L('<b>Kalender</b>: Monat abschließen', '<b>Calendar</b>: close the month')}</li>
+      <li>${L('<b>Imperium</b> (Knopf unten): Crew, eigene Konferenz, Übernahmen und Krone, sobald du groß genug bist', '<b>Empire</b> (button below): crew, own conference, takeovers and crown once you are big enough')}</li>
     </ul>
     <button class="btn pri full" id="go-inbox">📧 ${L('Posteingang öffnen', 'Open inbox')}</button>`);
   $('#go-inbox').onclick = () => openInbox();
@@ -308,6 +345,7 @@ const ACTS = [
   { id: 'shop', ico: '🛒', de: 'Stadt & Shop', en: 'Town & shop' },
   { id: 'post', ico: '📱', de: 'Posten', en: 'Post' },
   { id: 'market', ico: '📈', de: 'Markt', en: 'Market' },
+  { id: 'empire', ico: '👑', de: 'Imperium', en: 'Empire' },
   { id: 'month', ico: '📅', de: 'Monat beenden', en: 'End month', cls: 'end' },
 ];
 function actSub(id) {
@@ -320,6 +358,7 @@ function actSub(id) {
     case 'shop': return L('Ausstattung, Team, Büro', 'Gear, staff, office');
     case 'post': return S.month - S.lastPost > 1 ? L('Netzwerk wartet!', 'Network is waiting!') : L(`${num(S.followers)} Follower`, `${num(S.followers)} followers`);
     case 'market': return L(`Index ${Math.round(S.index)}`, `Index ${Math.round(S.index)}`);
+    case 'empire': return empireSub();
     case 'month': return L(`${S.days} Tage übrig`, `${S.days} days left`);
   }
   return '';
@@ -332,7 +371,7 @@ function spark(h, w = 46, ht = 14, stroke = '#FFC94D') {
 }
 function hud() {
   return `<header class="hud">
-    <div class="logo">${L('DATEN-IMPERIUM', 'DATA EMPIRE')}<small>${esc(S.firm)} · ${esc(rankOf(firmValue())[LANG])}</small></div>
+    <div class="logo">${L('DATEN-IMPERIUM', 'DATA EMPIRE')}<small>${S.crowns ? '👑'.repeat(Math.min(3, S.crowns)) + ' ' : ''}${esc(S.firm)} · ${esc(rankOf(firmValue())[LANG])}</small></div>
     <div class="stats">
       <div class="stat"><span class="k">${L('MONAT', 'MONTH')}</span><span class="v">${esc(mLabel(S.month))}</span></div>
       <div class="stat"><span class="k">${L('TAGE', 'DAYS')}</span><span class="v">${S.days}</span></div>
@@ -391,7 +430,7 @@ function renderMain() {
 function openAct(id) {
   if (S.active) return;
   if (S.over) return showOver();
-  ({ inbox: openInbox, phone: openPhone, skills: openSkills, library: openLibrary, shop: openShop, post: openPost, market: openMarket, month: askEndMonth })[id]();
+  ({ inbox: openInbox, phone: openPhone, skills: openSkills, library: openLibrary, shop: openShop, post: openPost, market: openMarket, empire: openEmpire, month: askEndMonth })[id]();
 }
 
 /* ---------- Pixel-Büro (SVG) ---------- */
@@ -405,7 +444,7 @@ function dom(x, by, k, c = '#4B5563') {
     R(x + tw, by - Math.round(15 * k), gap, Math.round(15 * k), c) + R(x2 + tw, by - Math.round(13 * k), Math.round(24 * k), Math.round(13 * k), c);
 }
 function windowView(x, y, w, h, lv) {
-  let s = R(x, y, w, h, lv === 4 ? '#7DB0EE' : '#9ED2FF') + R(x + w - 22, y + 6, 9, 9, '#FFE27A');
+  let s = R(x, y, w, h, lv >= 4 ? '#7DB0EE' : '#9ED2FF') + R(x + w - 22, y + 6, 9, 9, '#FFE27A');
   s += R(x + 8, y + 10, 18, 4, '#fff') + R(x + 12, y + 7, 10, 3, '#fff') + R(x + 48, y + 18, 22, 4, '#fff') + R(x + 53, y + 15, 12, 3, '#fff');
   const by = y + h;
   if (lv <= 1) {
@@ -433,24 +472,26 @@ function windowView(x, y, w, h, lv) {
 }
 function sceneSVG() {
   const lv = S.office;
-  const walls = ['#E9DFC6', '#C7CCD6', '#E8D5AE', '#A5523A', '#1E2747'];
-  const floors = ['#8A5A3C', '#5A606E', '#9A683F', '#4A3A30', '#2C2C38'];
-  const lines = ['#76492F', '#4E5360', '#875A35', '#3C2F27', '#24242E'];
+  const walls = ['#E9DFC6', '#C7CCD6', '#E8D5AE', '#A5523A', '#1E2747', '#E8E4DA'];
+  const floors = ['#8A5A3C', '#5A606E', '#9A683F', '#4A3A30', '#2C2C38', '#6E8A6B'];
+  const lines = ['#76492F', '#4E5360', '#875A35', '#3C2F27', '#24242E', '#5B7458'];
   let s = R(0, 0, 320, 132, walls[lv]);
   if (lv === 0) { s += R(0, 76, 320, 56, '#D7E7DA'); for (let y = 76; y < 132; y += 8) s += R(0, y, 320, 1, '#B8CDBD'); for (let x = 0; x < 320; x += 8) s += R(x, 76, 1, 56, '#B8CDBD'); }
   if (lv === 1) s += R(0, 98, 320, 2, '#B3B8C3') + R(0, 0, 320, 6, '#9DA3AE');
   if (lv === 2) s += R(0, 9, 320, 3, '#F6E9CC') + R(0, 76, 320, 2, '#D2BB8E');
   if (lv === 3) for (let y = 7; y < 132; y += 7) { s += R(0, y, 320, 1, '#8C4330'); for (let x = (y / 7) % 2 ? 0 : 9; x < 320; x += 18) s += R(x, y - 6, 1, 6, '#8C4330'); }
   if (lv === 4) for (let x = 0; x < 320; x += 40) s += R(x, 0, 1, 132, '#2A3560');
+  if (lv === 5) { for (let x = 0; x < 320; x += 32) s += R(x, 0, 2, 132, '#C9C2B2'); s += R(0, 0, 320, 5, '#2F8A4A'); }
   s += R(0, 132, 320, 48, floors[lv]) + R(0, 132, 320, 2, lines[lv]);
   for (let y = 142; y < 180; y += 9) s += R(0, y, 320, 1, lines[lv]);
   // Fenster
-  const fx = 204, fy = 14, fw = 104, fh = 70, fr = lv === 4 ? '#9AA3B8' : '#3B2A20';
-  s += R(fx - 3, fy - 3, fw + 6, fh + 6, fr) + windowView(fx, fy, fw, fh, lv) + R(fx + fw / 2 - 1, fy, 2, fh, fr) + R(fx, fy + fh / 2 - 1, fw, 2, fr) + R(fx - 6, fy + fh + 3, fw + 12, 4, lv === 4 ? '#7C8599' : '#5A4030');
+  const fx = 204, fy = 14, fw = 104, fh = 70, fr = lv >= 4 ? '#9AA3B8' : '#3B2A20';
+  s += R(fx - 3, fy - 3, fw + 6, fh + 6, fr) + windowView(fx, fy, fw, fh, lv) + R(fx + fw / 2 - 1, fy, 2, fh, fr) + R(fx, fy + fh / 2 - 1, fw, 2, fr) + R(fx - 6, fy + fh + 3, fw + 12, 4, lv >= 4 ? '#7C8599' : '#5A4030');
   if (S.items.tenant) s += R(fx + 4, fy + 4, 16, 9, '#2F8A4A') + `<text x="${fx + 6}" y="${fy + 11}" font-size="5" fill="#fff">F2</text>`;
   // Whiteboard mit Skill-Balken
   s += R(48, 14, 68, 48, '#7A7A7A') + R(50, 16, 64, 44, '#FDFDFB') + `<text x="53" y="23" font-size="4.5" fill="#333">SKILLS</text>`;
-  CAT_KEYS.forEach((c, i) => { const l = level(S.xp[c]); s += R(53, 26 + i * 4.6, 3, 3, CATS[c].color) + R(58, 26 + i * 4.6, Math.max(1, l * 7.4), 3, CATS[c].color); });
+  const sp = Math.min(4.6, 33 / CAT_KEYS.length);
+  CAT_KEYS.forEach((c, i) => { const l = level(S.xp[c]); s += R(53, 26 + i * sp, 3, sp * 0.7, CATS[c].color) + R(58, 26 + i * sp, Math.max(1, l * 7.4), sp * 0.7, CATS[c].color); });
   s += R(48, 62, 68, 2, '#7A7A7A');
   // ChartKitchen-Poster
   s += R(54, 70, 30, 38, '#0F1E2E') + R(58, 96, 4, 8, '#C25A2D') + R(64, 90, 4, 14, '#C25A2D') + R(70, 84, 4, 20, '#FFC94D') + R(76, 92, 4, 12, '#C25A2D') + `<text x="57" y="79" font-size="4" fill="#fff">CHART</text><text x="57" y="84" font-size="3.4" fill="#FFC94D">KITCHEN</text>`;
@@ -499,6 +540,10 @@ function sceneSVG() {
   s += R(286, 104, 8, 8, '#111') + R(287, 105, 6, 5, S.month - S.lastPost > 1 ? '#FFC94D' : '#7FD1FF');
   // Stuhl + Spieler:in (Rückenansicht)
   s += R(206, 116, 30, 18, '#2B2B2B') + R(202, 132, 38, 4, '#2B2B2B') + R(219, 136, 4, 8, '#222') + R(208, 144, 26, 3, '#222');
+  if (S.crowned) s += R(214, 95, 14, 5, '#FFC94D') + R(214, 92, 2, 3, '#FFC94D') + R(220, 91, 2, 4, '#FFC94D') + R(226, 92, 2, 3, '#FFC94D') + R(220, 96, 2, 2, '#C2362F');
+  if (S.items.throne) s += R(200, 108, 6, 30, '#B8860B') + R(236, 108, 6, 30, '#B8860B') + R(199, 104, 8, 4, '#FFC94D') + R(235, 104, 8, 4, '#FFC94D');
+  // Crew am Konferenztisch
+  S.crew.forEach((id, i) => { const x = 252 + i * 14, c = ['#2F8A4A', '#2F6FD6', '#B8327A', '#C25A2D'][i % 4]; s += R(x, 146, 8, 3, '#3B2A20') + R(x, 149, 8, 6, '#E8B98F') + R(x - 1, 155, 10, 10, c) + `<text x="${x + 4}" y="172" font-size="4" fill="#fff" text-anchor="middle">${esc(CREW_BY[id].av)}</text>`; });
   s += R(213, 101, 16, 12, '#3B2A20') + R(211, 105, 2, 4, '#E8B98F') + R(229, 105, 2, 4, '#E8B98F') + R(209, 113, 24, 16, '#C25A2D') + R(219, 113, 4, 4, '#FFE2D2');
   // Hotspots
   const HOT = [
@@ -555,11 +600,11 @@ function openInbox(sel) {
 }
 function locked(m) { return m.kind === 'job' && level(S.xp[m.cat]) < m.d - 1; }
 function mailItem(m) {
-  const right = m.kind === 'job' ? eur(m.fee) : m.kind === 'retainer' ? eur(m.monthly) + L('/M', '/mo') : m.kind === 'incident' ? '⚠' : m.kind === 'tender' ? '⚖' : m.kind === 'cfp' || m.kind === 'talk' ? '🎤' : '';
+  const right = m.kind === 'job' ? eur(m.fee) : m.kind === 'retainer' ? eur(m.monthly) + L('/M', '/mo') : m.kind === 'incident' ? '⚠' : m.kind === 'tender' ? '⚖' : m.kind === 'cfp' || m.kind === 'talk' ? '🎤' : m.kind === 'hack' ? '🏆' : m.kind === 'crown' ? '👑' : '';
   return `<button class="mail ${m.id === selMail ? 'sel' : ''} ${m.read ? '' : 'unread'} ${locked(m) ? 'locked' : ''}" data-id="${m.id}">
     <span class="from"><span>${esc(m.from)}</span><span>${esc(right)}</span></span>
     <span class="subj">${T(m.subj)}</span>
-    <span class="row" style="gap:6px;margin-top:4px">${catChip(m.cat)}${m.kind === 'job' ? `<span class="stars" aria-label="${L('Schwierigkeit', 'Difficulty')} ${m.d}">${'★'.repeat(m.d)}${'☆'.repeat(4 - m.d)}</span>` : ''}</span>
+    <span class="row" style="gap:6px;margin-top:4px">${catChip(m.cat)}${m.kind === 'job' ? `<span class="stars" aria-label="${L('Schwierigkeit', 'Difficulty')} ${m.d}">${stars(m.d)}</span>` : ''}${m.via ? `<span class="chip">🤝 ${esc(CREW_BY[m.via].n)}</span>` : ''}</span>
   </button>`;
 }
 const expTxt = m => L(`bis Ende ${mLabel(m.exp, true)}`, `until end of ${mLabel(m.exp, true)}`);
@@ -569,7 +614,8 @@ function mailDetail(m) {
     const lk = locked(m), lv = level(S.xp[m.cat]), noDays = S.days < m.days;
     return head + `<div class="meta">
       <b>${L('THEMA', 'TOPIC')}</b><span>${catChip(m.cat)}</span>
-      <b>LEVEL</b><span class="stars">${'★'.repeat(m.d)}${'☆'.repeat(4 - m.d)}</span>
+      <b>LEVEL</b><span class="stars">${stars(m.d)}</span>
+      ${m.via ? `<b>${L('VERMITTELT', 'REFERRED')}</b><span>🤝 ${esc(CREW_BY[m.via].n)} · ${T(CREW_BY[m.via].power)}</span>` : ''}
       <b>${L('HONORAR', 'FEE')}</b><span><b>${eur(m.fee)}</b> ${L('bei vollem Erfolg', 'on full success')}</span>
       <b>${L('AUFWAND', 'EFFORT')}</b><span>${m.days} ${L('Arbeitstage', 'work days')}</span>
       <b>${L('SPIEL', 'GAME')}</b><span>${esc(GAME_NAMES[m.game](m.cat))}</span>
@@ -592,9 +638,10 @@ function mailDetail(m) {
       <p><b>${L('Dein Thema', 'Your topic')}:</b></p>
       <div class="seg" id="cfp-cat">${QUIZ_CATS.map(c => `<button data-c="${c}">${T(CATS[c])} · Lv ${level(S.xp[c])}</button>`).join('')}</div>
       <div class="row" style="margin-top:10px"><button class="btn pri" id="m-go" disabled>✉ ${L('Abstract einreichen', 'Submit abstract')} (−1 ${L('Tag', 'day')})</button><button class="btn ghost" id="m-del">${L('Ignorieren', 'Ignore')}</button></div>`;
-  if (m.kind === 'talk') return head + `<div class="meta"><b>EVENT</b><span>${esc(m.conf)}</span><b>${L('THEMA', 'TOPIC')}</b><span>${catChip(m.tcat)}</span><b>${L('AUFWAND', 'EFFORT')}</b><span>3 ${L('Tage inkl. Reise', 'days incl. travel')}</span><b>${L('FRIST', 'DUE')}</b><span>${esc(expTxt(m))}</span></div>
+  if (m.kind === 'talk') return head + `<div class="meta"><b>EVENT</b><span>${esc(m.conf)}</span><b>${L('THEMA', 'TOPIC')}</b><span>${catChip(m.tcat)}</span><b>${L('AUFWAND', 'EFFORT')}</b><span>${talkDays()} ${L('Tage inkl. Reise', 'days incl. travel')}</span><b>${L('FRIST', 'DUE')}</b><span>${esc(expTxt(m))}</span></div>
       <div class="body">${L('Dein Vortrag wurde angenommen! Nach dem Talk stellt das Publikum Fragen. Gute Antworten bringen Speaker-Punkte, Netzwerk und neue Kunden.', 'Your talk was accepted! After the talk the audience asks questions. Good answers bring speaker points, network and new clients.')}</div>
-      <div class="row"><button class="btn pri" id="m-go" ${S.days < 3 ? 'disabled' : ''}>🎤 ${L('Auf die Bühne', 'Go on stage')} (−3 ${L('Tage', 'days')})</button><button class="btn ghost" id="m-del">${L('Absagen', 'Cancel talk')}</button></div>`;
+      <div class="row"><button class="btn pri" id="m-go" ${S.days < talkDays() ? 'disabled' : ''}>🎤 ${L('Auf die Bühne', 'Go on stage')} (−${talkDays()} ${L('Tage', 'days')})</button><button class="btn ghost" id="m-del">${L('Absagen', 'Cancel talk')}</button></div>`;
+  if (m.kind === 'hack' || m.kind === 'crown') return head + empireMailDetail(m);
   if (m.kind === 'phish') return head + `<div class="body">${L('Sehr geehrter Kunde,\n\nwegen eines Lizenzproblems wird Ihr Tenant in 24 Stunden unwiderruflich GELÖSCHT. Melden Sie sich SOFORT an, um das zu verhindern:\n\nhttps://login.fabrlc-cloud-support.example/verify\n\nIhr Cloud Security Team', 'Dear customer,\n\ndue to a license problem your tenant will be permanently DELETED in 24 hours. Sign in NOW to prevent this:\n\nhttps://login.fabrlc-cloud-support.example/verify\n\nYour Cloud Security Team')}</div>
       <div class="row"><button class="btn" id="m-go">🔗 ${L('Link öffnen und anmelden', 'Open link and sign in')}</button><button class="btn ok" id="m-del">🛡 ${L('Als Phishing melden', 'Report as phishing')}</button></div>`;
   // info
@@ -622,10 +669,12 @@ function bindDetail(m) {
   } else if (m.kind === 'talk') {
     go.onclick = () => startTalk(m);
     del.onclick = () => { removeMail(m); S.rep = clamp(S.rep - 2, 0, 100); save(); toast(L('Absage. Reputation −2', 'Cancelled. Reputation −2'), 'bad'); openInbox(); };
+  } else if (m.kind === 'hack' || m.kind === 'crown') {
+    bindEmpireMail(m);
   } else if (m.kind === 'phish') {
     go.onclick = () => { removeMail(m); S.cash -= 1500; S.rep = clamp(S.rep - 1, 0, 100); S.ledger.other -= 1500; const n = addCards(['phish']); save(); sfx('bad');
       resultScreen({ title: L('Autsch!', 'Ouch!'), score: 0, pay: -1500, lines: [L('Die Seite wollte dein Passwort. Die IT-Forensik kostet 1.500 €.', 'The page wanted your password. IT forensics cost €1,500.'), L('Reputation −1', 'Reputation −1'), n ? L('Neue Lernkarte: Phishing erkennen', 'New card: spot phishing') : ''], back: 'inbox' }); };
-    del.onclick = () => { removeMail(m); S.rep = clamp(S.rep + 1, 0, 100); const n = addCards(['phish']); save(); sfx('ok');
+    del.onclick = () => { removeMail(m); S.rep = clamp(S.rep + 1, 0, 100); S.stats.phish = (S.stats.phish || 0) + 1; const n = addCards(['phish']); save(); sfx('ok');
       resultScreen({ title: L('Gut erkannt!', 'Well spotted!'), score: 1, pay: 0, lines: [L('Falsche Domain, Zeitdruck, Drohung: klassisches Phishing.', 'Wrong domain, time pressure, threat: classic phishing.'), L('Reputation +1', 'Reputation +1'), n ? L('Neue Lernkarte: Phishing erkennen', 'New card: spot phishing') : ''], back: 'inbox' }); };
   } else {
     del.onclick = () => { removeMail(m); if (m.xp && m.cat && S.xp[m.cat] != null) S.xp[m.cat] += m.xp; save(); openInbox(); };
@@ -657,6 +706,7 @@ function finishJob(m, score, ids) {
   S.xp[m.cat] += xp; if (m.cat !== 'talk') S.xp.talk += 4;
   const nc = addCards(ids);
   const after = level(S.xp[m.cat]);
+  if (m.d >= 5 && score >= 0.8) S.stats.five = (S.stats.five || 0) + 1;
   let retain = false;
   if (score >= 0.8 && m.d >= 2 && Math.random() < 0.45 && S.retainers.length < 14) {
     S.mails.push({ id: ++S.seq, kind: 'retainer', from: m.from, cat: m.cat, monthly: r50(m.fee * 0.12), exp: S.month + 1, read: false,
@@ -682,11 +732,14 @@ function startJob(m) {
   else if (m.game === 'star') gameStar(done);
   else if (m.game === 'order') gameOrder(leastSeen(P.ORDER.filter(o => o.c === m.cat).length ? P.ORDER.filter(o => o.c === m.cat) : P.ORDER, 'ord'), done);
   else if (m.game === 'clinic') gameClinic(m.d, done);
-  else if (m.game === 'fill') gameFill(m.d, [0, 2, 2, 3, 3][m.d], done);
+  else if (m.game === 'fill') gameFill(m.d, [0, 2, 2, 3, 3][m.d], done, m.cat);
+  else if (m.game === 'sprint') gameSprint(m.d, done);
+  else if (m.game === 'crew') crewJob(m, done);
   else if (m.game === 'werkstatt') gameWerkstatt(m.d, done);
   else if (m.game === 'pqdebug') gamePqDebug(m.d, [0, 2, 2, 2, 3][m.d], done);
-  else gameDialog(leastSeen(P.DIALOGS, 'dlg'), done);
+  else gameDialog(leastSeen(dialogsFor(m.cat), 'dlg'), done);
 }
+const dialogsFor = c => { const l = P.DIALOGS.filter(d => (d.c || 'talk') === (c === 'team' ? 'team' : 'talk')); return l.length ? l : P.DIALOGS; };
 function startIncident(m) {
   S.days -= 1; removeMail(m); S.active = true; save(); renderMain();
   winX.style.visibility = 'hidden'; winTitle.textContent = '⚠ ' + m.from;
@@ -704,7 +757,7 @@ function startIncident(m) {
   } });
 }
 function startTalk(m) {
-  S.days -= 3; removeMail(m); S.active = true; save(); renderMain();
+  S.days -= talkDays(); removeMail(m); S.active = true; S.stats.talks = (S.stats.talks || 0) + 1; save(); renderMain();
   winX.style.visibility = 'hidden'; winTitle.textContent = '🎤 ' + m.conf;
   const d = clamp(level(S.xp[m.tcat]) + 1, 1, 3);
   gameQuiz({ title: L('Q&A auf der Bühne', 'Q&A on stage') + ' · ' + m.conf, cat: m.tcat, d, n: 3, time: 35, onDone: (score, ids) => {
@@ -744,19 +797,20 @@ const gameHead = (title, right = '') => `<div class="gamehead"><span>${esc(title
 const isCode = x => typeof x === 'string' && /[[(]/.test(x);
 
 /* ---------- Minispiel: Quiz ---------- */
-function pickQuestions(cat, d, n, inc) {
-  const md = Math.min(3, d);
+function pickQuestions(cat, d, n, inc, qpool) {
+  const md = d >= 5 ? 4 : Math.min(3, d);
   const okCat = q => !cat || q.c === cat;
-  let pool = P.QUIZ.filter(q => okCat(q) && q.d <= md && !!q.inc === !!inc);
-  if (pool.length < n) pool = pool.concat(P.QUIZ.filter(q => okCat(q) && !pool.includes(q)));
-  if (pool.length < n) pool = pool.concat(P.QUIZ.filter(q => !pool.includes(q) && !!q.inc === !!inc));
+  const src = P.QUIZ.filter(q => (q.pool || '') === (qpool || ''));   // Programmkomitee und Due Diligence nur in ihren Spielen
+  let pool = src.filter(q => okCat(q) && q.d <= md && !!q.inc === !!inc);
+  if (pool.length < n) pool = pool.concat(src.filter(q => okCat(q) && !pool.includes(q) && q.d <= Math.max(md, 3)));
+  if (pool.length < n) pool = pool.concat(src.filter(q => !pool.includes(q) && !!q.inc === !!inc && q.d <= 3));
   const out = shuffle(pool).map(q => ({ q, s: (S.seenQ[q.id] || 0) * 10 + (md - q.d) * 3 + Math.random() * 4 })).sort((a, b) => a.s - b.s).slice(0, n).map(x => x.q);
   out.forEach(q => { S.seenQ[q.id] = (S.seenQ[q.id] || 0) + 1; });
   return out;
 }
 function gameQuiz(o) {
-  const qs = pickQuestions(o.cat, o.d, o.n, o.inc);
-  let i = 0, right = 0, joker = !!S.items.daxbook && !o.practice;
+  const qs = pickQuestions(o.cat, o.d, o.n, o.inc, o.pool);
+  let i = 0, right = 0, joker = (!!S.items.daxbook || !!o.joker) && !o.practice;
   const ids = [];
   const show = () => {
     const q = qs[i];
@@ -985,9 +1039,11 @@ function pickTasks(list, d, n, key) {
 }
 
 /* ---------- Minispiel: DAX-Lückentext ---------- */
-function gameFill(d, n, onDone) {
-  const tasks = pickTasks(P.FILL, d, n, 'fill');
-  const ids = ['fill-intro'];
+function gameFill(d, n, onDone, cat = 'dax') {
+  const list = P.FILL.filter(f => (f.c || 'dax') === cat);
+  const tasks = pickTasks(list.length ? list : P.FILL, d, n, 'fill');
+  const ids = cat === 'dax' ? ['fill-intro'] : [];
+  const gname = cat === 'sql' ? L('SQL-Lückentext', 'SQL fill-in-the-blank') : L('DAX-Lückentext', 'DAX fill-in-the-blank');
   let i = 0, sum = 0;
   const show = () => {
     const f = tasks[i];
@@ -997,8 +1053,8 @@ function gameFill(d, n, onDone) {
       ? `<select class="blank" data-b="${p}" aria-label="${L('Lücke', 'Blank')} ${+p + 1}"><option value="">${L('▾ wählen', '▾ pick')}</option>${opts[+p].map((o, k) => `<option value="${k}">${T(o.o)}</option>`).join('')}</select>`
       : esc(p))).join('');
     const solutionOf = sol => parts.map((p, j) => (j % 2 ? `<mark class="sol">${T(f.blanks[+p].o[sol[+p]])}</mark>` : esc(p))).join('');
-    winBody.innerHTML = gameHead(L('DAX-Lückentext', 'DAX fill-in-the-blank'), `${i + 1}/${tasks.length}`) + `<div class="timer"><i></i></div>` +
-      `<div class="q">${T(f.title)}</div><p class="muted">${L('Füll die Lücken so, dass das Measure stimmt.', 'Fill the blanks so the measure is correct.')}</p>
+    winBody.innerHTML = gameHead(gname, `${i + 1}/${tasks.length}`) + `<div class="timer"><i></i></div>` +
+      `<div class="q">${T(f.title)}</div><p class="muted">${cat === 'sql' ? L('Füll die Lücken so, dass die Abfrage stimmt.', 'Fill the blanks so the query is correct.') : L('Füll die Lücken so, dass das Measure stimmt.', 'Fill the blanks so the measure is correct.')}</p>
       <pre class="code fill">${code}</pre>
       <div class="row" id="f-tools"><button class="btn pri" id="f-chk" disabled>✓ ${L('Prüfen', 'Check')}</button><button class="btn ghost" id="f-giveup">${L('Aufgeben', 'Give up')}</button></div><div id="f-ex"></div>`;
     modal.scrollTop = 0;
@@ -1021,8 +1077,8 @@ function gameFill(d, n, onDone) {
       const last = i === tasks.length - 1;
       $('#f-ex').innerHTML = `<div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div>
         <div class="px-t">${sc === 1 ? '✓ ' + L('ALLES RICHTIG', 'ALL CORRECT') : `${ok}/${sels.length} ` + L('LÜCKEN RICHTIG', 'BLANKS CORRECT')}</div>
-        <pre class="code" style="margin-top:8px">${solutionOf(r.sol)}</pre><p>${T(r.x)}</p>${kitchenLink('dax')}</div></div></div>
-        <div class="row" style="margin-top:12px"><button class="btn pri" id="f-next">${last ? L('Abrechnen', 'Finish') : L('Nächstes Measure', 'Next measure')} ›</button></div>`;
+        <pre class="code" style="margin-top:8px">${solutionOf(r.sol)}</pre><p>${T(r.x)}</p>${kitchenLink(cat)}</div></div></div>
+        <div class="row" style="margin-top:12px"><button class="btn pri" id="f-next">${last ? L('Abrechnen', 'Finish') : cat === 'sql' ? L('Nächste Abfrage', 'Next query') : L('Nächstes Measure', 'Next measure')} ›</button></div>`;
       $('#f-next').focus();
       $('#f-next').onclick = () => { i++; if (i < tasks.length) show(); else onDone(sum / tasks.length, ids); };
     };
@@ -1185,7 +1241,7 @@ function gameDialog(dlg, onDone) {
   const show = () => {
     const st = dlg.steps[i], opts = shuffle(st.a.map((a, k) => ({ t: a.t, k })));   // k = Index in der öffentlichen Fassung
     let busy = false;
-    winBody.innerHTML = gameHead(L('Kundengespräch', 'Client conversation'), `${i + 1}/${dlg.steps.length}`) +
+    winBody.innerHTML = gameHead(dlg.c === 'team' ? L('Teamgespräch', 'Team talk') : L('Kundengespräch', 'Client conversation'), `${i + 1}/${dlg.steps.length}`) +
       `<div class="dlg-line"><div class="avatar">${esc(dlg.av)}</div><div><div class="muted" style="font-size:13px">${T(dlg.who)}</div><div class="bubble">${T(st.say)}</div></div></div>
       <p><b>${L('Deine Antwort', 'Your answer')}:</b></p><div class="opts">${opts.map((a, k) => `<button class="opt" data-k="${k}">${T(a.t)}</button>`).join('')}</div><div id="d-ex"></div>`;
     $$('.opt', winBody).forEach(b => {
@@ -1249,7 +1305,7 @@ function bindTender(m) {
     addCards(['tender']); S.xp.talk += 20;
     if (win) {
       const actual = Math.max(2, Math.round(tr * (0.9 + Math.random() * 0.2)));
-      pay = days * rate; S.cash += pay; S.ledger.jobs += pay; S.rep = clamp(S.rep + 2, 0, 100);
+      pay = days * rate; S.cash += pay; S.ledger.jobs += pay; S.rep = clamp(S.rep + 2, 0, 100); S.stats.tenders = (S.stats.tenders || 0) + 1;
       const fromNow = Math.min(actual, S.days); S.days -= fromNow; S.overtime += actual - fromNow;
       score = clamp(days / actual, 0, 1);
       lines.push(L(`Zuschlag! Tatsächlicher Aufwand: ${actual} Tage, angeboten hattest du ${days}.`, `You won! Actual effort: ${actual} days, you bid ${days}.`));
@@ -1275,6 +1331,7 @@ function openPhone() {
     <p>${L(`Betriebsverträge bringen jeden Monat Geld, wie Bohrtürme. Jeder Vertrag braucht Betreuung: Dein Team deckt <b>${cap}</b> ab, jeder weitere kostet dich <b>1 Arbeitstag</b> pro Monat (aktuell ${unc}).`, `Retainers pay every month, like oil rigs. Each needs care: your team covers <b>${cap}</b>, each extra one costs you <b>1 work day</b> per month (currently ${unc}).`)}</p>
     <div class="sect">${L('BETRIEBSVERTRÄGE', 'RETAINERS')} · ${eur(retainerSum())}${L('/Monat', '/month')}</div>
     <div class="list">${S.retainers.length ? S.retainers.map(r => `<div class="li"><div><div class="t">${esc(r.from)}</div><div class="d">${catChip(r.cat)} ${L('seit', 'since')} ${esc(mLabel(r.since))}</div></div><div class="row"><b>${eur(r.monthly)}</b><button class="btn ghost" data-cancel="${r.id}">${L('Kündigen', 'Cancel')}</button></div></div>`).join('') : `<p class="muted">${L('Noch keine. Sehr gute Ergebnisse bei Aufträgen ab zwei Sternen bringen Vertragsangebote.', 'None yet. Very good results on jobs with two stars or more bring retainer offers.')}</p>`}</div>
+    ${S.crew.length ? `<div class="sect">${L('DATEN-WG-CREW', 'DATEN-WG CREW')}</div><div class="list">${S.crew.map(id => `<div class="li"><div><div class="t">🤝 ${esc(CREW_BY[id].n)}</div><div class="d">+${CREW_BY[id].days} ${L('Tage', 'days')} · ${L('betreut', 'covers')} ${CREW_BY[id].cover} · ${eur(CREW_BY[id].monthly)}${L('/M', '/mo')}</div></div></div>`).join('')}</div>` : ''}
     <div class="sect">${L('TEAM', 'TEAM')} · ${S.staff.length}/${OFFICES[S.office].slots} ${L('Plätze', 'seats')}</div>
     <div class="list">${S.staff.length ? S.staff.map((s, i) => `<div class="li"><div><div class="t">${T(STAFF_BY[s].n)}</div><div class="d">+${STAFF_BY[s].days} ${L('Tage', 'days')} · ${L('betreut', 'covers')} ${STAFF_BY[s].cover} · ${eur(STAFF_BY[s].salary)}${L('/M', '/mo')}</div></div><button class="btn ghost" data-fire="${i}">${L('Entlassen', 'Let go')}</button></div>`).join('') : `<p class="muted">${L('Noch allein. Einstellen kannst du im Shop, sobald dein Büro Plätze hat.', 'Still solo. Hire in the shop once your office has seats.')}</p>`}</div>`);
   $$('[data-cancel]').forEach(b => { b.onclick = () => { S.retainers = S.retainers.filter(r => r.id !== +b.dataset.cancel); S.rep = clamp(S.rep - 1, 0, 100); save(); openPhone(); }; });
@@ -1298,11 +1355,13 @@ function train(c) {
   if (S.days < 1) return;
   S.days -= 1; S.active = true; save(); renderMain(); winX.style.visibility = 'hidden'; winTitle.textContent = L('Weiterbildung', 'Training') + ' · ' + t(CATS[c]);
   const done = (score, ids) => {
-    S.active = false; const xp = Math.round(30 * score) + 4; S.xp[c] += xp; const nc = addCards(ids); save(); renderMain(); sfx('ok');
+    S.active = false; const xp = (Math.round(30 * score) + 4) * (S.items.lab ? 2 : 1); S.xp[c] += xp; const nc = addCards(ids); save(); renderMain(); sfx('ok');
     resultScreen({ title: L('Weiterbildung', 'Training'), score, lines: [`${T(CATS[c])}: +${xp} XP`, nc ? L(`${nc} neue Lernkarte(n)`, `${nc} new card(s)`) : ''] });
   };
   const td = clamp(level(S.xp[c]) + 1, 1, 3), r = Math.random();
-  if (c === 'talk') gameDialog(leastSeen(P.DIALOGS, 'dlg'), done);
+  if (c === 'talk' || (c === 'team' && r < 0.4)) gameDialog(leastSeen(dialogsFor(c), 'dlg'), done);
+  else if (c === 'team' && r < 0.7) gameSprint(td, done);
+  else if (c === 'sql' && r < 0.5) gameFill(td, 2, done, 'sql');
   else if (c === 'dax' && LAB.length && r < 0.35) gameWerkstatt(td, done);
   else if (c === 'dax' && r < 0.6) gameFill(td, 2, done);
   else if (c === 'pq' && r < 0.5) gamePqDebug(td, 2, done);
@@ -1312,11 +1371,12 @@ function train(c) {
 /* ---------- Regal: Kitchen-Bibliothek ---------- */
 let libTab = 'all';
 function openLibrary() {
+  if (libTab === 'stickers') return openAlbum();
   const ids = CARD_IDS.filter(id => libTab === 'all' || CARDS[id].c === libTab);
   const have = ids.filter(id => S.cards[id]);
   openWin(L('Kitchen-Bibliothek', 'Kitchen library') + ` · ${cardCount()}/${CARD_IDS.length}`, `
     <p>${L('Jede gelöste Aufgabe legt eine Lernkarte ins Regal. Sammle alle und schau für die Tiefe in die Knowledge Kitchen.', 'Every solved task puts a learning card on the shelf. Collect them all and dive deeper in the Knowledge Kitchen.')}</p>
-    <div class="tabs"><button data-tab="all" class="${libTab === 'all' ? 'on' : ''}">${L('ALLE', 'ALL')}</button>${CAT_KEYS.map(c => `<button data-tab="${c}" class="${libTab === c ? 'on' : ''}">${T(CATS[c]).toUpperCase()} ${CARD_IDS.filter(id => CARDS[id].c === c && S.cards[id]).length}/${CARD_IDS.filter(id => CARDS[id].c === c).length}</button>`).join('')}</div>
+    <div class="tabs"><button data-tab="all" class="${libTab === 'all' ? 'on' : ''}">${L('ALLE', 'ALL')}</button>${CAT_KEYS.map(c => `<button data-tab="${c}" class="${libTab === c ? 'on' : ''}">${T(CATS[c]).toUpperCase()} ${CARD_IDS.filter(id => CARDS[id].c === c && S.cards[id]).length}/${CARD_IDS.filter(id => CARDS[id].c === c).length}</button>`).join('')}<button data-tab="stickers">★ STICKER ${Object.keys(S.stickers).length}/${EMPIRE.stickers.length}</button></div>
     ${libTab !== 'all' ? `<p>${kitchenLink(libTab)}</p>` : ''}
     <div class="cards">${have.map(id => `<div class="lcard"><div class="row" style="gap:6px;margin-bottom:6px">${catChip(CARDS[id].c)}</div><div class="h">${T(CARDS[id].h)}</div><div>${T(cardX(id))}</div></div>`).join('')}
     ${ids.filter(id => !S.cards[id]).map(() => `<div class="lcard lockedc" aria-label="${L('Noch nicht gesammelt', 'Not collected yet')}">?</div>`).join('')}</div>`);
@@ -1328,17 +1388,19 @@ function openShop() {
   const off = OFFICES[S.office], nxt = OFFICES[S.office + 1], free = off.slots - S.staff.length;
   openWin(L('Stadt & Shop', 'Town & shop') + ` · ${eur(S.cash)}`, `
     <div class="sect">${L('AUSSTATTUNG', 'GEAR')}</div>
-    <div class="list">${ITEMS.map(it => { const own = !!S.items[it.id];
-      return `<div class="li ${own ? 'owned' : ''}"><div><div class="t">${T(it.n)}</div><div class="d">${T(it.d)}</div></div>${own ? (it.monthly ? `<button class="btn ghost" data-unsub="${it.id}">${L('Kündigen', 'Cancel')}</button>` : `<b>✓ ${L('gekauft', 'owned')}</b>`) : `<button class="btn pri" data-buy="${it.id}" ${S.cash < it.price ? 'disabled' : ''}>${it.monthly ? L('Abonnieren', 'Subscribe') : eur(it.price)}</button>`}</div>`; }).join('')}</div>
+    <div class="list">${ITEMS.filter(it => !it.rank || hasRank(it.rank - 1)).map(it => { const own = !!S.items[it.id], lock = it.rank && !hasRank(it.rank);
+      return `<div class="li ${own ? 'owned' : ''} ${lock ? 'lockli' : ''}"><div><div class="t">${lock ? '🔒 ' : ''}${T(it.n)}</div><div class="d">${T(it.d)}${lock ? ' · ' + L('ab Rang', 'from rank') + ' ' + esc(RANKS[it.rank][LANG]) : ''}</div></div>${own ? (it.monthly ? `<button class="btn ghost" data-unsub="${it.id}">${L('Kündigen', 'Cancel')}</button>` : `<b>✓ ${L('gekauft', 'owned')}</b>`) : `<button class="btn pri" data-buy="${it.id}" ${S.cash < it.price || lock ? 'disabled' : ''}>${it.monthly ? L('Abonnieren', 'Subscribe') + ' · ' + eur(it.monthly) + L('/M', '/mo') : eur(it.price)}</button>`}</div>`; }).join('')}</div>
+    ${ITEMS.some(it => it.rank && !hasRank(it.rank - 1)) ? `<p class="muted" style="font-size:13px">${L('Mit jedem neuen Rang tauchen hier weitere Dinge auf.', 'Every new rank reveals more items here.')}</p>` : ''}
     <div class="sect">${L('TEAM EINSTELLEN', 'HIRE STAFF')} · ${free > 0 ? L(`${free} Plätze frei`, `${free} seats free`) : L('keine Plätze frei, größeres Büro nötig', 'no seats free, bigger office needed')}</div>
     <div class="list">${STAFF.map(s => `<div class="li"><div><div class="t">${T(s.n)}</div><div class="d">+${s.days} ${L('Arbeitstage', 'work days')}/${L('Monat', 'month')} · ${L('betreut', 'covers')} ${s.cover} ${L('Verträge', 'retainers')} · ${eur(s.salary)} ${L('Gehalt/Monat', 'salary/month')}</div></div><button class="btn pri" data-hire="${s.id}" ${free < 1 || S.cash < s.hire ? 'disabled' : ''}>${L('Einstellen', 'Hire')} · ${eur(s.hire)}</button></div>`).join('')}</div>
     <div class="sect">${L('BÜRO', 'OFFICE')}</div>
     <div class="list"><div class="li owned"><div><div class="t">${T(off.n)}</div><div class="d">${L('Miete', 'Rent')} ${eur(off.rent)}/${L('Monat', 'month')} · ${off.slots} ${L('Teamplätze', 'team seats')}</div></div><b>${L('aktuell', 'current')}</b></div>
-    ${nxt ? `<div class="li"><div><div class="t">${T(nxt.n)}</div><div class="d">${L('Miete', 'Rent')} ${eur(nxt.rent)}/${L('Monat', 'month')} · ${nxt.slots} ${L('Teamplätze', 'team seats')} · ${L('mehr Anfragen, mehr Prestige', 'more requests, more prestige')}</div></div><button class="btn pri" id="buy-office" ${S.cash < nxt.price ? 'disabled' : ''}>${L('Umziehen', 'Move')} · ${eur(nxt.price)}</button></div>` : `<p class="muted">${L('Höher geht es nicht. Du hast den Daten-Turm.', 'It does not get higher. You own the Data Tower.')}</p>`}</div>`);
-  $$('[data-buy]').forEach(b => { b.onclick = () => { const it = ITEMS.find(x => x.id === b.dataset.buy); if (S.cash < it.price) return; S.cash -= it.price; S.items[it.id] = true; save(); sfx('coin'); toast(L('Gekauft: ', 'Bought: ') + t(it.n), 'good'); renderMain(); openShop(); }; });
+    ${nxt ? `<div class="li"><div><div class="t">${nxt.rank && !hasRank(nxt.rank) ? '🔒 ' : ''}${T(nxt.n)}</div><div class="d">${L('Miete', 'Rent')} ${eur(nxt.rent)}/${L('Monat', 'month')} · ${nxt.slots} ${L('Teamplätze', 'team seats')} · ${nxt.rank && !hasRank(nxt.rank) ? L('ab Rang', 'from rank') + ' ' + esc(RANKS[nxt.rank][LANG]) : L('mehr Anfragen, mehr Prestige', 'more requests, more prestige')}</div></div><button class="btn pri" id="buy-office" ${S.cash < nxt.price || (nxt.rank && !hasRank(nxt.rank)) ? 'disabled' : ''}>${L('Umziehen', 'Move')} · ${eur(nxt.price)}</button></div>` : `<p class="muted">${L('Größer geht es nicht. Du hast den Daten-Campus.', 'It does not get bigger. You own the data campus.')}</p>`}</div>`);
+  $$('[data-buy]').forEach(b => { b.onclick = () => { const it = ITEMS.find(x => x.id === b.dataset.buy); if (S.cash < it.price || (it.rank && !hasRank(it.rank))) return; S.cash -= it.price; S.items[it.id] = true;
+    if (it.id === 'f64') delete S.items.tenant; if (it.id === 'boat') S.rep = clamp(S.rep + 5, 0, 100); save(); sfx('coin'); toast(L('Gekauft: ', 'Bought: ') + t(it.n), 'good'); renderMain(); openShop(); }; });
   $$('[data-unsub]').forEach(b => { b.onclick = () => { delete S.items[b.dataset.unsub]; save(); renderMain(); openShop(); }; });
   $$('[data-hire]').forEach(b => { b.onclick = () => { const s = STAFF_BY[b.dataset.hire]; if (S.cash < s.hire || S.staff.length >= OFFICES[S.office].slots) return; S.cash -= s.hire; S.staff.push(s.id); S.days += Math.round(s.days / 2); save(); sfx('coin'); toast(L('Willkommen im Team!', 'Welcome to the team!'), 'good'); renderMain(); openShop(); }; });
-  if ($('#buy-office')) $('#buy-office').onclick = () => { if (S.cash < nxt.price) return; S.cash -= nxt.price; S.office++; S.rep = clamp(S.rep + 3, 0, 100); save(); sfx('lvl'); toast(L('Umzug geschafft: ', 'Moved to: ') + t(nxt.n), 'good'); renderMain(); openShop(); };
+  if ($('#buy-office')) $('#buy-office').onclick = () => { if (S.cash < nxt.price || (nxt.rank && !hasRank(nxt.rank))) return; S.cash -= nxt.price; S.office++; S.rep = clamp(S.rep + 3, 0, 100); save(); sfx('lvl'); toast(L('Umzug geschafft: ', 'Moved to: ') + t(nxt.n), 'good'); renderMain(); openShop(); };
 }
 
 /* ---------- Smartphone: Posten ---------- */
@@ -1349,6 +1411,8 @@ const HOOKS = {
   viz: { de: 'Vorher, nachher: ein Dashboard ohne Regenbogen.', en: 'Before and after: a dashboard without the rainbow.' },
   pq: { de: 'Diese 5 Power-Query-Schritte retten jeden Monatsimport:', en: 'These 5 Power Query steps save every monthly import:' },
   gov: { de: 'Fünf Versionen derselben Zahl. So haben wir aufgeräumt:', en: 'Five versions of the same number. How we cleaned up:' },
+  sql: { de: 'Eine Zeile WHERE, 40-mal schneller. Was passiert ist:', en: 'One WHERE line, 40 times faster. What happened:' },
+  team: { de: 'Unsere Retro hat sich verändert. Drei Dinge, die geholfen haben:', en: 'Our retro changed. Three things that helped:' },
 };
 function openPost(res) {
   const thisMonth = S.posts.filter(p => p.m === S.month).length;
@@ -1375,8 +1439,8 @@ function openPost(res) {
   };
   const publish = () => {
     const h = hooks(sel.cat).find(x => x.id === sel.hook), v = VIS.find(x => x.id === sel.vis), lv = level(S.xp[sel.cat]);
-    let reach = (14 + S.followers * 0.09) * h.m * v.m * (1 + 0.15 * lv) * (S.items.ring ? 1.3 : 1) * (0.6 + Math.random()) * (thisMonth ? 0.5 : 1);
-    const viral = Math.random() < 0.07; if (viral) reach *= 4;
+    let reach = (14 + S.followers * 0.09) * h.m * v.m * (1 + 0.15 * lv) * (S.items.ring ? 1.3 : 1) * (S.items.studio ? 1.25 : 1) * (0.6 + Math.random()) * (thisMonth ? 0.5 : 1);
+    const viral = Math.random() < 0.07; if (viral) { reach *= 4; S.stats.viral = (S.stats.viral || 0) + 1; }
     const likes = Math.round(reach), com = Math.round(reach * (sel.hook === 'question' ? 0.35 : 0.12)), gain = Math.round(reach * 0.35);
     S.days -= 1; S.followers += gain; S.lastPost = S.month;
     let rep = 0; if (sel.hook === 'concrete' && sel.vis === 'chart' && lv >= 1) rep = 1; if (sel.hook === 'buzz') rep = -1;
@@ -1448,6 +1512,403 @@ async function loadLeaderboard() {
   };
 }
 
+/* ---------- Imperium: Crew, eigene Konferenz, Übernahmen, Hackathon, Krönung ----------
+   Freischaltungen hängen am höchsten je erreichten Rang (S.bestRank), damit große Käufe
+   nichts wieder sperren. Rang 3 = Lakehouse-Baron:in, 4 = Daten-Magnat:in. */
+const crewReady = c => hasRank(3) && c.cats.some(k => level(S.xp[k]) >= 5);
+const confReady = () => hasRank(3) && S.month - S.lastConf >= 12;
+function empireSub() {
+  if (!hasRank(3)) return L(`ab ${RANKS[3].de}`, `from ${RANKS[3].en}`);
+  const n = EMPIRE.crew.filter(c => !S.crew.includes(c.id) && crewReady(c)).length;
+  if (n) return L(`${n} aus der Crew bereit!`, `${n} crew ready!`);
+  if (confReady()) return L('Konferenz planen!', 'Plan your conference!');
+  return L(`Crew ${S.crew.length}/${EMPIRE.crew.length} · ${S.subs.length} Töchter`, `Crew ${S.crew.length}/${EMPIRE.crew.length} · ${S.subs.length} subsidiaries`);
+}
+
+/* Mehrere Minispiele hintereinander, Ergebnis ist der Durchschnitt */
+function chain(steps, onDone, title) {
+  let i = 0, sum = 0;
+  const ids = [];
+  const run = () => steps[i]((sc, idl) => {
+    sum += sc; (idl || []).forEach(x => ids.push(x)); i++;
+    if (i >= steps.length) return onDone(sum / steps.length, ids);
+    stopTimer();
+    winBody.innerHTML = gameHead(title, `${L('Runde', 'Round')} ${i}/${steps.length}`) +
+      `<div class="coins">${Math.round(sc * 100)} %</div><p>${L('Kurz durchatmen, gleich geht es weiter.', 'Catch your breath, the next round is coming.')}</p>
+      <div class="row"><button class="btn pri" id="ch-next">▶ ${L('Runde', 'Round')} ${i + 1}</button></div>`;
+    modal.scrollTop = 0;
+    $('#ch-next').onclick = run;
+  });
+  run();
+}
+
+/* ---------- Crew und 5-Sterne-Aufträge ---------- */
+function genCrewJob(c) {
+  const cat = pick(c.cats), cl = pick(CLIENTS.filter(x => x.s === 'corp' || x.s === 'gov')), size = SIZES[cl.s];
+  const fee = r50(BASE_FEE[5] * size.m * (S.index / 100) * (1 + S.rep / 400) * (0.9 + Math.random() * 0.25) * feeMult(cat));
+  return { id: ++S.seq, kind: 'job', from: cl.n, size: cl.s, cat, d: 5, fee, days: BASE_DAYS[5], game: 'crew', via: c.id,
+    subj: { de: `Über ${c.n}: Großprojekt ${t(CATS[cat])}`, en: `Via ${c.n}: major ${t(CATS[cat])} project` }, body: BODIES[cat], exp: S.month + 1, read: false };
+}
+function catGame(cat, d, next) {
+  if (cat === 'dax' || cat === 'sql') return gameFill(d, 2, next, cat);
+  if (cat === 'viz') return gameClinic(3, next);
+  if (cat === 'model') return gameStar(next);
+  if (cat === 'pq') return gamePqDebug(d, 2, next);
+  if (cat === 'team') return Math.random() < 0.5 ? gameSprint(3, next) : gameDialog(leastSeen(dialogsFor('team'), 'dlg'), next);
+  const ords = P.ORDER.filter(o => o.c === cat);
+  if (ords.length) return gameOrder(leastSeen(ords, 'ord'), next);
+  return gameQuiz({ title: GAME_NAMES.quiz(cat), cat, d: 3, n: 3, onDone: next });
+}
+function crewJob(m, done) {
+  const c = CREW_BY[m.via];
+  chain([
+    next => gameQuiz({ title: L('Expertenrunde mit ', 'Expert round with ') + c.n, cat: m.cat, d: 5, n: 3, joker: true, time: 52, onDone: next }),
+    next => catGame(m.cat, 3, next),
+  ], done, L('5-Sterne-Auftrag', 'Five-star job'));
+}
+
+/* ---------- Imperium-Fenster ---------- */
+function openEmpire() {
+  const v = firmValue(), rk = rankOf(v), nx = RANKS.find(r => r.v > v);
+  const crewCard = c => {
+    const own = S.crew.includes(c.id), ready = crewReady(c);
+    return `<div class="tcard ${own ? 'good' : ''}">
+      <div class="row" style="gap:10px;align-items:center;flex-wrap:nowrap"><div class="avatar">${esc(c.av)}</div><div><h4 style="margin:0">${esc(c.n)}</h4><div class="row" style="gap:4px">${c.cats.map(catChip).join('')}</div></div></div>
+      <p style="font-size:13px;margin:8px 0 4px">${T(c.pitch)}</p><p class="muted" style="font-size:12px;margin:0 0 8px">⭐ ${T(c.power)} · +${c.days} ${L('Tage', 'days')}, ${L('betreut', 'covers')} ${c.cover}</p>
+      ${own ? `<div class="row"><b>✓ ${L('an Bord', 'on board')}</b><button class="btn ghost" data-crewbye="${c.id}">${L('Verabschieden', 'Say goodbye')}</button></div>`
+        : ready ? `<button class="btn pri full" data-crew="${c.id}" ${S.cash < c.fee ? 'disabled' : ''}>🤝 ${L('Anheuern', 'Hire')} · ${eur(c.fee)} + ${eur(c.monthly)}${L('/M', '/mo')}</button>`
+        : `<p class="muted" style="font-size:12px">🔒 ${!hasRank(3) ? L(`ab Rang ${RANKS[3].de}`, `from rank ${RANKS[3].en}`) + L(' und ', ' and ') : ''}${L('Level 5 in ', 'level 5 in ')}${c.cats.map(k => t(CATS[k])).join(L(' oder ', ' or '))}</p>`}</div>`;
+  };
+  const confLine = !hasRank(3) ? `🔒 ${L(`Ab Rang ${RANKS[3].de} veranstaltest du deine eigene Daten-WG-Konferenz.`, `From rank ${RANKS[3].en} you host your own Daten-WG conference.`)}`
+    : S.month - S.lastConf < 12 ? L(`Die nächste Ausgabe ist ab ${mLabel(S.lastConf + 12, true)} möglich.`, `The next edition is possible from ${mLabel(S.lastConf + 12, true)}.`)
+    : L('Bereit: Location wählen, Preise festlegen und als Programmkomitee die Vorträge aussuchen.', 'Ready: pick a venue, set prices and choose the talks as program committee.');
+  const rivals = S.rivals.map((r, i) => ({ ...r, i })).sort((a, b) => b.v - a.v);
+  openWin(L('Imperium', 'Empire'), `
+    <p><b>${esc(rk[LANG])}</b> · ${L('Firmenwert', 'Company value')} ${eur(v)}${nx ? ` · ${L('nächster Rang', 'next rank')}: ${esc(nx[LANG])} ${L('ab', 'at')} ${eur(nx.v)}` : ''}</p>
+    <div class="sect">👑 ${L('KRONE', 'CROWN')}</div>
+    <p>${S.crowned ? L(`Du bist gekrönt${S.crowns > 1 ? ` (${S.crowns}×)` : ''}. Lang lebe ${esc(S.firm)}!`, `You are crowned${S.crowns > 1 ? ` (${S.crowns}×)` : ''}. Long live ${esc(S.firm)}!`)
+      : L(`Ab ${eur(CROWN_GOAL)} Firmenwert wirst du zur Krönung eingeladen. Noch ${eur(Math.max(0, CROWN_GOAL - v))}.`, `From ${eur(CROWN_GOAL)} company value you get invited to the coronation. ${eur(Math.max(0, CROWN_GOAL - v))} to go.`)}</p>
+    ${S.crowned ? `<div class="row"><button class="btn" id="emp-ng">♻ ${L('Neues Spiel plus starten', 'Start new game plus')}</button></div>` : ''}
+    <div class="sect">🤝 ${L('DATEN-WG-CREW', 'DATEN-WG CREW')} · ${S.crew.length}/${EMPIRE.crew.length}</div>
+    <p class="muted" style="font-size:13px">${L('Die Crew bringt jeden Monat 5-Sterne-Aufträge in ihren Themen und hilft dir darin mit Joker und mehr Zeit. Sie zählt nicht als Teamplatz.', 'The crew brings five-star jobs in their topics every month and helps you there with a joker and more time. They do not take team seats.')}</p>
+    <div class="tables">${EMPIRE.crew.map(crewCard).join('')}</div>
+    <div class="sect">🎪 ${L('DEINE DATEN-WG-KONFERENZ', 'YOUR DATEN-WG CONFERENCE')}</div>
+    <p>${confLine}</p>
+    ${confReady() ? `<div class="row"><button class="btn pri" id="emp-conf" ${S.days < 5 ? 'disabled' : ''}>🎪 ${L('Konferenz planen', 'Plan the conference')} (5 ${L('Tage', 'days')})</button></div>` : ''}
+    <div class="sect">🦈 ${L('ÜBERNAHMEN', 'TAKEOVERS')}</div>
+    ${!hasRank(4) ? `<p>🔒 ${L(`Ab Rang ${RANKS[4].de} kannst du Rivalen kaufen, die weniger wert sind als du.`, `From rank ${RANKS[4].en} you can buy rivals worth less than you.`)}</p>` : `
+      <p class="muted" style="font-size:13px">${L('Kaufpreis: 130 % des Firmenwerts. Vorher prüfst du die Bücher (Due Diligence): Wer Risiken findet, drückt den Preis. Wer sie übersieht, zahlt später drauf. Tochterfirmen wachsen weiter, schütten jeden Monat aus und zählen zu deinem Firmenwert.', 'Price: 130 % of company value. First you check the books (due diligence): find risks and the price drops, miss them and you pay later. Subsidiaries keep growing, pay dividends monthly and count towards your company value.')}</p>
+      <div class="list">${rivals.map(r => { const price = r50(r.v * 1.3), ok = v > r.v && S.cash >= price && S.days >= 3;
+        return `<div class="li"><div><div class="t">${esc(r.n)}</div><div class="d">${L('Firmenwert', 'Value')} ${eur(r.v)} · ${L('Preis', 'price')} ${eur(price)}${v <= r.v ? ' · ' + L('noch größer als du', 'still bigger than you') : ''}</div></div><button class="btn pri" data-take="${r.i}" ${ok ? '' : 'disabled'}>🦈 ${L('Übernehmen', 'Take over')} (3 ${L('Tage', 'days')})</button></div>`; }).join('')}</div>`}
+    ${S.subs.length ? `<p style="margin-top:10px"><b>${L('Tochterfirmen', 'Subsidiaries')}</b></p><div class="list">${S.subs.map(x => `<div class="li owned"><div class="t">${esc(x.n)}</div><span>${eur(x.v)} · ${L('seit', 'since')} ${esc(mLabel(x.since))}</span></div>`).join('')}</div>` : ''}
+    <div class="sect">★ STICKER · ${Object.keys(S.stickers).length}/${EMPIRE.stickers.length}</div>
+    <div class="row"><button class="btn" id="emp-album">${L('Sticker-Album öffnen', 'Open sticker album')}</button></div>`);
+  $$('[data-crew]').forEach(b => { b.onclick = () => {
+    const c = CREW_BY[b.dataset.crew]; if (S.cash < c.fee || S.crew.includes(c.id) || !crewReady(c)) return;
+    S.cash -= c.fee; S.ledger.other -= c.fee; S.crew.push(c.id); S.days += 2;
+    S.mails.push(genCrewJob(c)); save(); sfx('lvl'); renderMain();
+    toast(L(`${c.n} ist an Bord! Der erste 5-Sterne-Auftrag liegt im Posteingang.`, `${c.n} is on board! The first five-star job is in your inbox.`), 'good'); openEmpire(); }; });
+  $$('[data-crewbye]').forEach(b => { b.onclick = () => { S.crew = S.crew.filter(x => x !== b.dataset.crewbye); save(); renderMain(); openEmpire(); }; });
+  $$('[data-take]').forEach(b => { b.onclick = () => startTakeover(+b.dataset.take); });
+  if ($('#emp-conf')) $('#emp-conf').onclick = startConference;
+  if ($('#emp-ng')) $('#emp-ng').onclick = () => winConfirm(L('Neues Spiel plus', 'New game plus'), L('Du startest wieder in der WG-Küche. Lernkarten, Sticker und Kronen bleiben, die Rivalen sind stärker.', 'You restart in the shared kitchen. Cards, stickers and crowns stay, the rivals are stronger.'), '♻ ' + L('Los geht es', 'Let us go'), crownNewGamePlus);
+  $('#emp-album').onclick = openAlbum;
+}
+
+/* ---------- Eigene Daten-WG-Konferenz ---------- */
+const confDemand = (pr, cat) => Math.round((60 + S.followers * 0.35 + S.speaker * 12 + S.rep * 6 + S.crew.length * 350) * pr.f * cat.mood * (1 + 0.15 * S.crowns));
+const confSponsors = sc => r50(4000 * (1 + (S.bestRank || 0)) * (0.5 + sc));
+function startConference() {
+  if (!confReady() || S.days < 5) return;
+  const vs = EMPIRE.venues.filter(x => (x.item ? !!S.items[x.item] : hasRank(x.rank)));
+  const sel = { v: vs[vs.length > 1 ? 1 : 0].id, c: 'food', p: 99 };
+  const render = () => {
+    const V = vs.find(x => x.id === sel.v), C = EMPIRE.catering.find(x => x.id === sel.c), Pr = EMPIRE.prices.find(x => x.p === sel.p);
+    const vcost = V.item ? 0 : V.cost, dem = confDemand(Pr, C), exp = Math.min(V.cap, dem);
+    const est = exp * Pr.p + confSponsors(0.75) - vcost - exp * C.pp;
+    openWin(L('Daten-WG-Konferenz planen', 'Plan the Daten-WG conference'), `
+      <p>${L('Deine eigene Konferenz in Köln. Location, Catering und Ticketpreis bestimmen Kosten und Nachfrage, dein Programm entscheidet über den Ruf. Die Crew hält Keynotes und zieht Publikum.', 'Your own conference in Cologne. Venue, catering and ticket price set cost and demand, your program decides the reputation. The crew gives keynotes and draws a crowd.')}</p>
+      <p><b>1. Location</b></p><div class="seg" id="cf-v">${vs.map(x => `<button data-v="${x.id}" class="${sel.v === x.id ? 'on' : ''}">${T(x.n)} · ${num(x.cap)} · ${x.item ? L('eigen', 'own') : eur(x.cost)}</button>`).join('')}</div>
+      <p><b>2. Catering</b></p><div class="seg" id="cf-c">${EMPIRE.catering.map(x => `<button data-v="${x.id}" class="${sel.c === x.id ? 'on' : ''}">${T(x.n)} · ${eur(x.pp)} ${L('p. P.', 'pp')}</button>`).join('')}</div>
+      <p><b>3. Ticket</b></p><div class="seg" id="cf-p">${EMPIRE.prices.map(x => `<button data-v="${x.p}" class="${sel.p === x.p ? 'on' : ''}">${eur(x.p)}</button>`).join('')}</div>
+      <table class="ledger" style="margin:12px 0">
+        <tr><td>${L('Erwartete Nachfrage', 'Expected demand')}</td><td>${num(Math.round(dem * 0.85))} – ${num(Math.round(dem * 1.15))} ${L('Personen', 'people')}</td></tr>
+        <tr><td>${L('Plätze', 'Seats')}</td><td>${num(V.cap)}</td></tr>
+        <tr><td>${L('Keynotes der Crew', 'Crew keynotes')}</td><td>${S.crew.length ? S.crew.map(id => esc(CREW_BY[id].n)).join(', ') : L('keine', 'none')}</td></tr>
+        <tr><td>${L('Location (sofort fällig)', 'Venue (due now)')}</td><td class="negc">−${eur(vcost)}</td></tr>
+        <tr class="sum"><td>${L('Grobe Prognose bei gutem Programm', 'Rough forecast with a good program')}</td><td class="${est >= 0 ? 'pos' : 'negc'}">${eur(est)}</td></tr>
+      </table>
+      <p class="muted" style="font-size:13px">${L('Danach sitzt du im Programmkomitee: Sechs Einreichungen, du nimmst an oder lehnst ab. Ein gutes Programm füllt den Saal, ein schlechtes leert ihn.', 'Then you sit on the program committee: six submissions, you accept or reject. A good program fills the hall, a bad one empties it.')}</p>
+      <div class="row"><button class="btn pri" id="cf-go" ${S.cash < vcost ? 'disabled' : ''}>🎪 ${L('Programmkomitee starten', 'Start the program committee')} (−5 ${L('Tage', 'days')})</button><button class="btn ghost" id="cf-x">${L('Abbrechen', 'Cancel')}</button></div>`);
+    $$('#cf-v button').forEach(b => { b.onclick = () => { sel.v = b.dataset.v; render(); }; });
+    $$('#cf-c button').forEach(b => { b.onclick = () => { sel.c = b.dataset.v; render(); }; });
+    $$('#cf-p button').forEach(b => { b.onclick = () => { sel.p = +b.dataset.v; render(); }; });
+    $('#cf-x').onclick = openEmpire;
+    $('#cf-go').onclick = () => {
+      if (S.cash < vcost || S.days < 5) return;
+      S.days -= 5; S.cash -= vcost; S.ledger.other -= vcost; S.active = true; save(); renderMain();
+      winX.style.visibility = 'hidden'; winTitle.textContent = '🎪 ' + L('Programmkomitee', 'Program committee');
+      gamePC((score, ids) => {
+        S.active = false;
+        const att = Math.min(V.cap, Math.round(dem * (0.55 + 0.6 * score) * (0.92 + Math.random() * 0.16)));
+        const rev = att * Pr.p, spons = confSponsors(score), cater = att * C.pp, net = rev + spons - cater;
+        S.cash += net; S.ledger.other += net;
+        const sp = Math.round(8 + 16 * score) + 4 * S.crew.length, fol = Math.round(att * 0.4), drep = Math.round(2 + 4 * score);
+        S.speaker += sp; S.followers += fol; S.rep = clamp(S.rep + drep, 0, 100); S.leads += 3; S.lastConf = S.month;
+        S.stats.confs = (S.stats.confs || 0) + 1; if (att >= V.cap) S.stats.soldout = (S.stats.soldout || 0) + 1;
+        const nc = addCards(['conference'].concat(ids));
+        save(); renderMain(); sfx('lvl');
+        resultScreen({ title: L('Daten-WG-Konferenz', 'Daten-WG conference'), score, pay: net - vcost, back: 'inbox', lines: [
+          L(`${num(att)} Gäste${att >= V.cap ? ' · AUSVERKAUFT!' : ''} auf ${t(V.n)}`, `${num(att)} guests${att >= V.cap ? ' · SOLD OUT!' : ''} at ${t(V.n)}`),
+          L(`Tickets ${eur(rev)}, Sponsoren ${eur(spons)}, Catering −${eur(cater)}, Location −${eur(vcost)}`, `Tickets ${eur(rev)}, sponsors ${eur(spons)}, catering −${eur(cater)}, venue −${eur(vcost)}`),
+          score >= 0.8 ? L('Das Programm wird gefeiert. Alle reden über deine Konferenz.', 'The program is celebrated. Everyone talks about your conference.') : score >= 0.5 ? L('Solides Programm, ein paar Vorträge waren schwach.', 'Solid program, a few talks were weak.') : L('Zu viele Verkaufsfolien und steile Thesen. Das Publikum geht früh.', 'Too many sales slides and bold claims. The audience leaves early.'),
+          L(`Speaker-Punkte +${sp} · Netzwerk +${num(fol)} · Reputation +${drep}`, `Speaker points +${sp} · network +${num(fol)} · reputation +${drep}`),
+          L('Nächsten Monat melden sich neue Kunden aus dem Publikum.', 'Next month new clients from the audience get in touch.'),
+          nc ? L(`${nc} neue Lernkarte(n)`, `${nc} new card(s)`) : '',
+        ] });
+      });
+    };
+  };
+  render();
+}
+
+/* Programmkomitee: Einreichungen annehmen oder ablehnen */
+function gamePC(onDone, n = 6) {
+  const items = pickQuestions(null, 3, n, false, 'pc');
+  const acc = q => { const i = q.o.findIndex(o => o.de === 'Annehmen'); return i < 0 ? 0 : i; };
+  const pickd = {};
+  let finished = false;
+  const render = () => {
+    winBody.innerHTML = gameHead(L('Programmkomitee', 'Program committee'), `${Object.keys(pickd).length}/${items.length}`) + `<div class="timer"><i></i></div>
+      <p>${L('Welche Vorträge kommen ins Programm? Gute Einreichungen sind konkret, fachlich korrekt und bringen dem Publikum etwas. Verkaufsfolien und falsche Thesen fliegen raus.', 'Which talks make the program? Good submissions are concrete, technically correct and give the audience something. Sales slides and false claims get rejected.')}</p>
+      <div class="list" id="pc-list">${items.map(q => { const a = acc(q), r = 1 - a;
+        return `<div class="li" style="display:block"><div class="row" style="gap:6px;margin-bottom:6px">${catChip(q.c)}</div><div style="margin-bottom:8px">${T(q.q)}</div>
+          <div class="seg" style="max-width:360px"><button data-q="${q.id}" data-k="${a}" class="${pickd[q.id] === a ? 'on' : ''}">✓ ${T(q.o[a])}</button><button data-q="${q.id}" data-k="${r}" class="${pickd[q.id] === r ? 'on' : ''}">✗ ${T(q.o[r])}</button></div><div class="pc-ex" id="pc-${q.id}"></div></div>`; }).join('')}</div>
+      <div class="row" id="pc-tools" style="margin-top:12px"><button class="btn pri" id="pc-chk" ${Object.keys(pickd).length < items.length ? 'disabled' : ''}>✓ ${L('Programm festlegen', 'Fix the program')}</button></div><div id="pc-res"></div>`;
+    $$('#pc-list .seg button').forEach(b => { b.onclick = () => { if (finished) return; pickd[b.dataset.q] = +b.dataset.k; sfx('click'); const top = modal.scrollTop; render(); modal.scrollTop = top; }; });
+    $('#pc-chk').onclick = evaluate;
+  };
+  const evaluate = async () => {
+    if (finished) return;
+    finished = true; stopTimer();
+    if ($('#pc-chk')) $('#pc-chk').disabled = true;
+    const rs = await Promise.all(items.map(q => check('quiz', { id: q.id, choice: pickd[q.id] == null ? -1 : pickd[q.id] })));
+    if (rs.some(r => !r)) { finished = false; if ($('#pc-chk')) $('#pc-chk').disabled = false; return; }
+    let right = 0;
+    items.forEach((q, i) => {
+      const r = rs[i]; if (r.ok) right++; learn(q.id, r.x);
+      $$(`[data-q="${q.id}"]`).forEach(b => { b.disabled = true; if (+b.dataset.k === r.a) b.style.outline = '3px solid var(--green)'; });
+      $('#pc-' + q.id).innerHTML = `<p style="margin-top:6px;font-size:14px">${r.ok ? '✓' : '✗'} ${T(r.x)}</p>`;
+    });
+    const score = right / items.length;
+    sfx(score >= 0.8 ? 'ok' : 'bad');
+    $('#pc-tools').remove();
+    $('#pc-res').innerHTML = `<div class="explain"><b>${right}/${items.length} ${L('richtig entschieden', 'decided correctly')}</b> · ${kitchenLink('talk')}</div>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="pc-done">${L('Konferenz eröffnen', 'Open the conference')} ›</button></div>`;
+    $('#pc-done').onclick = () => onDone(score, items.map(q => q.id));
+  };
+  render();
+  const bar = () => $('.timer', winBody);
+  startTimer(170 * timeMult(), f => { const b = bar(); if (b) { b.firstElementChild.style.width = (f * 100) + '%'; b.classList.toggle('warn', f < 0.2); } }, evaluate);
+}
+
+/* ---------- Übernahmen ---------- */
+function startTakeover(i) {
+  const r = S.rivals[i];
+  if (!r || !hasRank(4)) return;
+  const price = r50(r.v * 1.3);
+  if (firmValue() <= r.v || S.cash < price || S.days < 3) return;
+  S.days -= 3; S.active = true; save(); renderMain();
+  winX.style.visibility = 'hidden'; winTitle.textContent = '🦈 ' + L('Due Diligence', 'Due diligence') + ' · ' + r.n;
+  gameQuiz({ title: L('Due Diligence', 'Due diligence') + ' · ' + r.n, pool: 'dd', cat: null, d: 3, n: 4, time: 45, onDone: (score, ids) => {
+    S.active = false;
+    const paid = r50(price * (1 - 0.2 * score)), hidden = score < 0.5 ? r50(price * 0.25 * (1 - score)) : 0;
+    S.cash -= paid + hidden; S.ledger.other -= paid + hidden;
+    S.rivals = S.rivals.filter(x => x !== r);
+    S.subs.push({ n: r.n, v: r.v, since: S.month });
+    const k = 2 + (score >= 0.75 ? 1 : 0);
+    for (let j = 0; j < k; j++) { const cl = pick(CLIENTS); S.retainers.push({ id: ++S.seq, from: cl.n, cat: pick(QUIZ_CATS), monthly: r50(Math.max(600, r.v * 0.004)), since: S.month }); }
+    const used = new Set(S.rivals.map(x => x.n).concat(S.subs.map(x => x.n)));
+    const nr = EMPIRE.newRivals.find(x => !used.has(x.n)) || { n: pick(EMPIRE.newRivals).n + ' II', f: 0.5 };
+    S.rivals.push({ n: nr.n, v: Math.max(30000, Math.round(firmValue() * nr.f)) });
+    S.stats.takeovers = (S.stats.takeovers || 0) + 1;
+    const nc = addCards(['takeover'].concat(ids));
+    save(); renderMain(); sfx('coin');
+    resultScreen({ title: L('Übernahme', 'Takeover'), score, pay: -(paid + hidden), back: 'inbox', lines: [
+      L(`${r.n} gehört jetzt dir. Kaufpreis ${eur(paid)} statt ${eur(price)}.`, `${r.n} is yours now. Price ${eur(paid)} instead of ${eur(price)}.`),
+      hidden ? L(`Übersehene Altlasten kosten zusätzlich ${eur(hidden)}. Gründlicher prüfen lohnt sich.`, `Overlooked liabilities cost an extra ${eur(hidden)}. A more thorough check pays off.`) : L('Gründlich geprüft, keine bösen Überraschungen.', 'Checked thoroughly, no nasty surprises.'),
+      L(`${k} Betriebsverträge wechseln zu dir. Die Tochter schüttet jeden Monat aus.`, `${k} retainers move to you. The subsidiary pays dividends every month.`),
+      L(`Neuer Rivale am Markt: ${nr.n}`, `New rival on the market: ${nr.n}`),
+      nc ? L(`${nc} neue Lernkarte(n)`, `${nc} new card(s)`) : '',
+    ] });
+  } });
+}
+
+/* ---------- Hackathon und Krönung (kommen per Mail) ---------- */
+function genHack() {
+  const prize = r50(6000 * (1 + (S.bestRank || 0) * 0.6));
+  return { id: ++S.seq, kind: 'hack', from: pick(EMPIRE.hackathons), cat: 'talk', prize, exp: S.month + 1, read: false,
+    subj: { de: 'Einladung zum Hackathon-Wochenende', en: 'Invitation to a hackathon weekend' } };
+}
+function genCrown() {
+  return { id: ++S.seq, kind: 'crown', from: L('Ehrenrat der Daten-WG', 'Daten-WG honorary council'), cat: 'talk', exp: S.month + 2, read: false, pin: true,
+    subj: { de: 'Einladung zur Krönung', en: 'Invitation to your coronation' } };
+}
+function empireMailDetail(m) {
+  if (m.kind === 'hack') return `<div class="meta"><b>EVENT</b><span>${esc(m.from)}</span><b>${L('AUFWAND', 'EFFORT')}</b><span>2 ${L('Tage (ein Wochenende)', 'days (one weekend)')}</span><b>${L('PREISGELD', 'PRIZE')}</b><span><b>${eur(m.prize)}</b> ${L('für Platz 1', 'for first place')}</span><b>${L('FRIST', 'DUE')}</b><span>${esc(expTxt(m))}</span></div>
+      <div class="body">${L('48 Stunden, drei Runden, kein Schlaf. Quiz, Code und ein Modell oder Teamaufgabe unter Zeitdruck. Platz 1 ab 90 %, Platz 2 ab 70 %, Platz 3 ab 50 %.', '48 hours, three rounds, no sleep. Quiz, code and a model or team task under time pressure. First place from 90 %, second from 70 %, third from 50 %.')}</div>
+      <div class="row"><button class="btn pri" id="m-go" ${S.days < 2 ? 'disabled' : ''}>🏆 ${L('Mitmachen', 'Join')} (−2 ${L('Tage', 'days')})</button><button class="btn ghost" id="m-del">${L('Absagen', 'Decline')}</button></div>`;
+  const giver = S.crew.includes('artur') ? 'Artur' : S.crew.length ? CREW_BY[S.crew[0]].n : L('der Ehrenrat', 'the council');
+  return `<div class="body">${L(`Liebe Gründer:innen von ${S.firm},\n\nmit über ${eur(CROWN_GOAL)} Firmenwert seid ihr das größte Datenhaus am Rhein. Auf der Bühne der Daten-WG-Konferenz setzt euch ${giver} die Krone auf.\n\nVorher gibt es eine letzte Prüfung: acht Expertenfragen quer durch alle Themen. Ab 75 % wird gekrönt, sonst gibt es nächsten Monat eine neue Chance.`, `Dear founders of ${S.firm},\n\nwith over ${eur(CROWN_GOAL)} company value you are the biggest data house on the Rhine. On the Daten-WG conference stage ${giver} will place the crown on your head.\n\nFirst there is one last exam: eight expert questions across all topics. From 75 % you are crowned, otherwise there is a new chance next month.`)}</div>
+      <div class="row"><button class="btn pri" id="m-go">👑 ${L('Zur Krönungsprüfung', 'To the coronation exam')}</button><button class="btn ghost" id="m-del">${L('Später', 'Later')}</button></div>`;
+}
+function bindEmpireMail(m) {
+  $('#m-go').onclick = () => (m.kind === 'hack' ? runHack(m) : runCrown(m));
+  $('#m-del').onclick = () => { removeMail(m); save(); openInbox(); };
+}
+function runHack(m) {
+  if (S.days < 2) return;
+  S.days -= 2; removeMail(m); S.active = true; S.lastHack = S.month; save(); renderMain();
+  winX.style.visibility = 'hidden'; winTitle.textContent = '🏆 ' + m.from;
+  const qc = pick(QUIZ_CATS), lv = c => clamp(level(S.xp[c]) + 1, 1, 3);
+  const r2 = pick([next => gameFill(lv('dax'), 2, next, 'dax'), next => gameFill(lv('sql'), 2, next, 'sql'), next => gamePqDebug(lv('pq'), 2, next)]);
+  const r3 = pick([next => gameStar(next), next => gameSprint(2, next), next => gameOrder(leastSeen(P.ORDER, 'ord'), next)]);
+  chain([next => gameQuiz({ title: L('Hackathon · Runde 1', 'Hackathon · round 1') + ' · ' + t(CATS[qc]), cat: qc, d: lv(qc), n: 3, time: 28, onDone: next }), r2, r3], (score, ids) => {
+    S.active = false;
+    const place = score >= 0.9 ? 1 : score >= 0.7 ? 2 : score >= 0.5 ? 3 : 0;
+    const pay = place ? r50(m.prize * [0, 1, 0.4, 0.15][place]) : 0;
+    S.cash += pay; S.ledger.other += pay;
+    const fol = [40, 400, 200, 100][place], sp = [1, 8, 4, 2][place];
+    S.followers += fol; S.speaker += sp; S.rep = clamp(S.rep + [0, 4, 2, 1][place], 0, 100);
+    if (place === 1) S.stats.hackWins = (S.stats.hackWins || 0) + 1;
+    const nc = addCards(ids);
+    save(); renderMain(); sfx(place ? 'lvl' : 'bad');
+    resultScreen({ title: place ? L(`Platz ${place}!`, `Place ${place}!`) : L('Dabei sein ist alles', 'Taking part is what counts'), score, pay, back: 'inbox', lines: [
+      place === 1 ? L('Die Jury ist begeistert. Dein Team trägt den Pokal nach Hause.', 'The jury loves it. Your team carries the trophy home.') : place ? L('Aufs Treppchen geschafft.', 'You made the podium.') : L('Diesmal kein Platz, aber viel gelernt.', 'No podium this time, but lots learned.'),
+      L(`Netzwerk +${fol} · Speaker-Punkte +${sp}`, `Network +${fol} · speaker points +${sp}`),
+      nc ? L(`${nc} neue Lernkarte(n)`, `${nc} new card(s)`) : '',
+    ] });
+  }, m.from);
+}
+function runCrown(m) {
+  removeMail(m); S.active = true; save(); renderMain();
+  winX.style.visibility = 'hidden'; winTitle.textContent = '👑 ' + L('Krönungsprüfung', 'Coronation exam');
+  gameQuiz({ title: L('Krönungsprüfung', 'Coronation exam'), cat: null, d: 5, n: 8, time: 34, onDone: (score, ids) => {
+    S.active = false; addCards(ids);
+    if (score < 0.75) {
+      const again = genCrown(); again.exp = S.month + 1; S.mails.push(again); save(); renderMain(); sfx('bad');
+      return resultScreen({ title: L('Noch nicht', 'Not yet'), score, back: 'inbox', lines: [L('Der Ehrenrat vertagt die Krönung. Nächsten Monat gibt es eine neue Chance, die Einladung liegt schon im Posteingang.', 'The council postpones the coronation. Next month there is a new chance, the invitation is already in your inbox.')] });
+    }
+    S.crowned = true; S.crowns = (S.crowns || 0) + 1;
+    S.rep = clamp(S.rep + 10, 0, 100); S.followers += 1000; S.speaker += 30;
+    save(); renderMain(); sfx('lvl');
+    openWin(L('Krönung', 'Coronation'), `<div class="coins">👑 ${L('LANG LEBE', 'LONG LIVE')} ${esc(S.firm.toUpperCase())} 👑</div>
+      <p>${L(`Aus der WG-Küche ist in ${S.month} Monaten ein Daten-Königreich geworden. ${Math.round(score * 100)} % in der Krönungsprüfung, ${S.stats.jobs} Aufträge, ${cardCount()} Lernkarten.`, `The shared kitchen became a data kingdom in ${S.month} months. ${Math.round(score * 100)} % in the coronation exam, ${S.stats.jobs} jobs, ${cardCount()} learning cards.`)}</p>
+      <p>${L('Du kannst weiter regieren oder mit Krone neu anfangen: Neues Spiel plus behält Lernkarten, Sticker und Kronen, die Rivalen sind dann stärker.', 'You can keep ruling or start over with your crown: new game plus keeps cards, stickers and crowns, and the rivals get stronger.')}</p>
+      <div class="row"><button class="btn pri" id="cr-stay">👑 ${L('Weiter regieren', 'Keep ruling')}</button><button class="btn" id="cr-ng">♻ ${L('Neues Spiel plus', 'New game plus')}</button></div>`);
+    $('#cr-stay').onclick = () => closeWin();
+    $('#cr-ng').onclick = crownNewGamePlus;
+  } });
+}
+function crownNewGamePlus() {
+  const keep = { cards: S.cards, cardText: S.cardText, stickers: S.stickers, crowns: S.crowns, ng: (S.ng || 0) + 1, seenQ: S.seenQ };
+  const firm = S.firm;
+  S = Object.assign(newState(firm), keep);
+  S.rivals.forEach(r => { r.v = Math.round(r.v * (1 + 0.6 * S.ng)); });
+  S.index = Math.max(80, 100 - 5 * S.ng); S.idxHist = [S.index];
+  startMails(); save(); closeWin(true); renderMain(); showIntro();
+  toast(L('Neues Spiel plus: Die Krone bleibt, die Konkurrenz wird härter.', 'New game plus: the crown stays, competition gets tougher.'), 'good');
+}
+
+/* ---------- Minispiel: Sprint-Planung (Softskills & Team, lokal bewertet) ---------- */
+function gameSprint(d, onDone) {
+  const SP = EMPIRE.sprint, people = shuffle(SP.people).slice(0, 3);
+  const can = (p, tk) => (p.sk[tk.c] || 0) >= tk.lv;
+  let tickets = shuffle(SP.tickets.filter(tk => people.some(p => can(p, tk)))).slice(0, 6);
+  if (tickets.length < 6) tickets = tickets.concat(shuffle(SP.tickets.filter(x => !tickets.includes(x))).slice(0, 6 - tickets.length));
+  const total = tickets.reduce((a, x) => a + x.pts, 0), capSum = people.reduce((a, p) => a + p.cap, 0);
+  const fac = total * [0, 1.2, 0.9, 0.72][clamp(d, 1, 3)] / capSum;
+  const caps = people.map(p => Math.max(2, Math.round(p.cap * fac)));
+  const plan = tickets.map(() => -1);
+  /* Wert eines Plans: unpassende Zuteilung liefert nichts, Überlast halbiert alles der Person */
+  const valueOf = a => {
+    const load = people.map((_, j) => a.reduce((s, who, k) => s + (who === j ? tickets[k].pts : 0), 0));
+    let v = 0;
+    a.forEach((who, k) => { if (who >= 0 && can(people[who], tickets[k])) v += tickets[k].val * (load[who] > caps[who] ? 0.5 : 1); });
+    return { v, load };
+  };
+  let best = 0;
+  for (let code = 0; code < Math.pow(4, tickets.length); code++) {
+    const a = []; let c = code; for (let k = 0; k < tickets.length; k++) { a.push((c % 4) - 1); c = Math.floor(c / 4); }
+    best = Math.max(best, valueOf(a).v);
+  }
+  let finished = false;
+  const skillTxt = p => Object.entries(p.sk).map(([c, l]) => `${t(CATS[c])} ${l}`).join(' · ');
+  const render = () => {
+    const { load } = valueOf(plan);
+    winBody.innerHTML = gameHead(L('Sprint-Planung', 'Sprint planning'), `${L('Wert', 'Value')} ${L('max.', 'max')} ${best}`) + `<div class="timer"><i></i></div>
+      <p>${L('Verteile die Tickets auf dein Team oder lass sie im Backlog. Ein Ticket braucht das passende Thema mindestens auf seinem Level. Wer über Kapazität verplant ist, liefert alles nur halb. Ziel: möglichst viel Wert wirklich fertig.', 'Assign the tickets to your team or leave them in the backlog. A ticket needs its topic at least at its level. Anyone planned over capacity delivers everything only half done. Goal: as much value as possible actually finished.')}</p>
+      <div class="tables">${people.map((p, j) => `<div class="tcard"><h4>${esc(p.n)} · ${T(p.r)}</h4><div class="cols">${esc(skillTxt(p))}</div>
+        <div class="bar" style="height:10px;border:2px solid #000;background:#fff;margin-top:6px"><i style="display:block;height:100%;width:${Math.min(100, load[j] / caps[j] * 100)}%;background:${load[j] > caps[j] ? 'var(--red)' : 'var(--green)'}"></i></div>
+        <div class="rows" style="margin-top:4px">${load[j]}/${caps[j]} ${L('Tage', 'days')}${load[j] > caps[j] ? ' · ⚠ ' + L('überlastet', 'overloaded') : ''}</div></div>`).join('')}</div>
+      <div class="list" style="margin-top:10px">${tickets.map((tk, k) => `<div class="li"><div><div class="t">${T(tk.t)}</div><div class="d">${catChip(tk.c)} Lv ${tk.lv} · ${tk.pts} ${L('Tage', 'days')} · ${L('Wert', 'value')} ${tk.val}</div><div class="d" id="sp-fb-${k}"></div></div>
+        <select data-k="${k}" ${finished ? 'disabled' : ''} style="font-family:var(--mono);font-size:13px;padding:6px;border:2px solid #000;background:#fff"><option value="-1">Backlog</option>${people.map((p, j) => `<option value="${j}" ${plan[k] === j ? 'selected' : ''}>${esc(p.n)}</option>`).join('')}</select></div>`).join('')}</div>
+      <div class="row" id="sp-tools" style="margin-top:12px"><button class="btn pri" id="sp-chk">✓ ${L('Sprint starten', 'Start the sprint')}</button><button class="btn ghost" id="sp-giveup">${L('Aufgeben', 'Give up')}</button></div><div id="sp-res"></div>`;
+    $$('select[data-k]', winBody).forEach(sel => { sel.onchange = () => { plan[+sel.dataset.k] = +sel.value; const top = modal.scrollTop; render(); modal.scrollTop = top; }; });
+    $('#sp-chk').onclick = evaluate;
+    $('#sp-giveup').onclick = () => { stopTimer(); onDone(0, []); };
+  };
+  const evaluate = () => {
+    if (finished) return;
+    finished = true; stopTimer();
+    const { v, load } = valueOf(plan), score = best ? clamp(v / best, 0, 1) : 1;
+    render();
+    $('#sp-tools').remove();
+    tickets.forEach((tk, k) => {
+      const who = plan[k], p = people[who];
+      $('#sp-fb-' + k).innerHTML = who < 0 ? L('Im Backlog geblieben', 'Stayed in the backlog')
+        : !can(p, tk) ? `✗ ${esc(p.n)} ${L(`kann ${t(CATS[tk.c])} noch nicht auf Level ${tk.lv}. Pairing statt Wunder!`, `cannot do ${t(CATS[tk.c])} at level ${tk.lv} yet. Pairing, not miracles!`)}`
+        : load[who] > caps[who] ? `~ ${esc(p.n)} ${L('war überlastet, nur halb fertig', 'was overloaded, only half done')}` : `✓ ${L('fertig', 'done')}`;
+    });
+    if (score >= 0.999) S.stats.sprint100 = (S.stats.sprint100 || 0) + 1;
+    sfx(score >= 0.8 ? 'ok' : 'bad');
+    $('#sp-res').innerHTML = `<div class="explain"><div class="lern"><div class="card-ico">${L('KARTE', 'CARD')}</div><div>
+      <div class="px-t">${L('WERT', 'VALUE')} ${v} / ${best} · ${Math.round(score * 100)} %</div><p>${T(EXTRA_CARDS['sprint-plan'].x)}</p>${kitchenLink('team')}</div></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn pri" id="sp-done">${L('Abrechnen', 'Finish')} ›</button></div>`;
+    $('#sp-done').onclick = () => onDone(score, ['sprint-plan']);
+  };
+  render();
+  startTimer(150 * timeMult(), f => { const b = $('.timer', winBody); if (b) { b.firstElementChild.style.width = (f * 100) + '%'; b.classList.toggle('warn', f < 0.2); } }, evaluate);
+}
+
+/* ---------- Sticker-Album ---------- */
+const STICKER_CHECKS = {
+  first: () => S.stats.jobs >= 1, perfect10: () => S.stats.perfect >= 10, phish: () => (S.stats.phish || 0) >= 1,
+  tender: () => (S.stats.tenders || 0) >= 1, stage: () => (S.stats.talks || 0) >= 1, viral: () => (S.stats.viral || 0) >= 1,
+  cowork: () => S.office >= 1, tower: () => S.office >= 4, retainers: () => S.retainers.length >= 10,
+  library: () => cardCount() >= 50, allround: () => CAT_KEYS.every(c => level(S.xp[c]) >= 3), daxlv6: () => level(S.xp.dax) >= 6,
+  sprint: () => (S.stats.sprint100 || 0) >= 1, million: () => !!S.won, crew: () => S.crew.length >= 1,
+  fullcrew: () => S.crew.length >= EMPIRE.crew.length, fivestar: () => (S.stats.five || 0) >= 1, conf: () => (S.stats.confs || 0) >= 1,
+  soldout: () => (S.stats.soldout || 0) >= 1, hack: () => (S.stats.hackWins || 0) >= 1, takeover: () => (S.stats.takeovers || 0) >= 1,
+  mogul: () => S.subs.length >= 3, crown: () => (S.crowns || 0) >= 1, throne: () => !!S.items.throne, ngplus: () => (S.ng || 0) >= 1,
+};
+function checkStickers() {
+  const fresh = EMPIRE.stickers.filter(st => S.stickers[st.id] == null && STICKER_CHECKS[st.id] && STICKER_CHECKS[st.id]());
+  fresh.forEach(st => { S.stickers[st.id] = S.month; });
+  if (!fresh.length || !$('#toast')) return;
+  if (fresh.length <= 2) fresh.forEach(st => toast(`${st.i} ${L('Neuer Sticker', 'New sticker')}: ${t(st.n)}`, 'good'));
+  else toast(L(`★ ${fresh.length} neue Sticker im Album`, `★ ${fresh.length} new stickers in the album`), 'good');
+}
+function openAlbum() {
+  const have = Object.keys(S.stickers).length;
+  openWin(L('Sticker-Album', 'Sticker album') + ` · ${have}/${EMPIRE.stickers.length}`, `
+    <div class="tabs"><button data-tab="all">← ${L('LERNKARTEN', 'CARDS')}</button><button class="on">★ STICKER ${have}/${EMPIRE.stickers.length}</button></div>
+    <p>${L('Sticker gibt es für Meilensteine. Sie bleiben auch bei Neues Spiel plus erhalten.', 'Stickers mark milestones. They stay with you in new game plus.')}</p>
+    <div class="album">${EMPIRE.stickers.map(st => { const got = S.stickers[st.id] != null;
+      return `<div class="sticker ${got ? 'got' : ''}"><div class="si" aria-hidden="true">${got ? esc(st.i) : '?'}</div><div class="sn">${T(st.n)}</div><div class="sd">${T(st.d)}</div>${got ? `<div class="sm">${esc(mLabel(S.stickers[st.id]))}</div>` : ''}</div>`; }).join('')}</div>`);
+  $$('[data-tab]').forEach(b => { b.onclick = () => { libTab = b.dataset.tab; openLibrary(); }; });
+}
+
 /* ---------- Menü ---------- */
 function openMenu() {
   if (S.active) return;
@@ -1473,6 +1934,10 @@ function askEndMonth() {
 function endMonth() {
   const prev = S.month, c = costs(), ret = retainerSum(), cash0 = S.cash, notes = [];
   S.cash += ret; S.cash -= c.total;
+  // Tochterfirmen wachsen und schütten aus
+  let div = 0; S.subs.forEach(x => { x.v = Math.round(x.v * (1 + rnd(1, 5) / 100)); div += Math.round(x.v * 0.012); }); S.cash += div;
+  if (S.items.studio) S.speaker += 2;
+  if (S.items.tower) S.followers += 50;
   const due = S.sched.filter(x => x.m <= prev + 1);
   due.forEach(x => { S.cash += x.cash; notes.push(L(`Zahlungseingang ${eur(x.cash)} (spät, aber da)`, `Incoming payment ${eur(x.cash)} (late, but here)`)); });
   S.sched = S.sched.filter(x => x.m > prev + 1);
@@ -1525,16 +1990,17 @@ function endMonth() {
   if (days < 0) { S.overtime = -days; days = 0; } else S.overtime = 0;
   S.days = days;
   const led = { ...S.ledger }; S.ledger = { jobs: 0, other: 0 };
+  if (!S.crowned && firmValue() >= CROWN_GOAL && !S.mails.some(m => m.kind === 'crown')) { S.mails.push(genCrown()); notes.push(L('👑 Post aus dem Rathaus: Die Krönung wartet!', '👑 Mail from city hall: the coronation awaits!')); }
   const value = firmValue(), win = !S.won && value >= GOAL, over = S.cash < BANKRUPT;
   if (win) S.won = true;
   if (over) S.over = true;
   save(); renderMain();
-  showGazette({ prev, ev, c, ret, led, cash0, notes, fresh, unc, idxD: S.index - i0, value, win, over });
+  showGazette({ prev, ev, c, ret, led, cash0, notes, fresh, unc, idxD: S.index - i0, value, win, over, div });
 }
 function showGazette(g) {
   const all = S.rivals.map(r => ({ ...r })).concat([{ n: S.firm, v: g.value, me: true }]).sort((a, b) => b.v - a.v);
   const head = g.ev ? t(g.ev.h) : L('Ruhiger Monat am Datenmarkt', 'A quiet month on the data market');
-  const net = g.led.jobs + g.led.other + g.ret - g.c.total;
+  const net = g.led.jobs + g.led.other + g.ret + (g.div || 0) - g.c.total;
   sfx(g.over ? 'bad' : 'click');
   openWin(L('Monatsabschluss', 'Month close'), `
     <div class="gazette">
@@ -1550,7 +2016,9 @@ function showGazette(g) {
             <tr><td>${L('Miete', 'Rent')}: ${T(OFFICES[S.office].n)}</td><td class="negc">−${eur(g.c.rent)}</td></tr>
             <tr><td>${L('Lebenshaltung & Software', 'Living & software')}</td><td class="negc">−${eur(g.c.living)}</td></tr>
             ${g.c.salaries ? `<tr><td>${L('Gehälter', 'Salaries')} (${S.staff.length})</td><td class="negc">−${eur(g.c.salaries)}</td></tr>` : ''}
+            ${g.c.crew ? `<tr><td>${L('Daten-WG-Crew', 'Daten-WG crew')} (${S.crew.length})</td><td class="negc">−${eur(g.c.crew)}</td></tr>` : ''}
             ${g.c.subs ? `<tr><td>${L('Abos', 'Subscriptions')}</td><td class="negc">−${eur(g.c.subs)}</td></tr>` : ''}
+            ${g.div ? `<tr><td>${L('Ausschüttung Tochterfirmen', 'Subsidiary dividends')} (${S.subs.length})</td><td class="pos">${eur(g.div)}</td></tr>` : ''}
             <tr class="sum"><td>${L('Monatsergebnis', 'Month result')}</td><td class="${net >= 0 ? 'pos' : 'negc'}">${eur(net)}</td></tr>
             <tr class="sum"><td>${L('Kontostand', 'Bank balance')}</td><td class="${S.cash >= 0 ? 'pos' : 'negc'}">${eur(S.cash)}</td></tr>
           </table>
@@ -1590,6 +2058,6 @@ function showWin() {
 }
 
 /* ---------- Start ---------- */
-if (/[?&]debug\b/.test(location.search)) window.__DI = { get S() { return S; }, genJob, genTender, genCfp, genPhish, genIncident, startJob, finishJob, openInbox, level, firmValue, endMonth, openShop, openPost, openLibrary, openSkills, openMarket, openPhone, renderMain };
+if (/[?&]debug\b/.test(location.search)) window.__DI = { get S() { return S; }, set S(v) { S = v; }, genJob, genTender, genCfp, genPhish, genIncident, genCrewJob, genHack, genCrown, startJob, finishJob, openInbox, level, firmValue, endMonth, openShop, openPost, openLibrary, openSkills, openMarket, openPhone, openEmpire, renderMain, migrate, newState, save, bumpRank, startConference, startTakeover, crownNewGamePlus, gameSprint, renderTitle };
 renderTitle();
 })();

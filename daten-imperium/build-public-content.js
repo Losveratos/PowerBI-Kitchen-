@@ -14,7 +14,7 @@ if (!gameDir || !fnDir) {
   process.exit(1);
 }
 const NAMES = ['CATS', 'QUIZ', 'STAR', 'ORDER', 'CLINIC_ERRORS', 'CLINIC_SETS', 'DIALOGS', 'EXTRA_CARDS', 'CLIENTS',
-  'SIZES', 'SUBJECTS', 'BODIES', 'ITEMS', 'OFFICES', 'STAFF', 'RIVALS', 'CONFS', 'RANKS', 'EVENTS', 'FILL', 'PQDEBUG'];
+  'SIZES', 'SUBJECTS', 'BODIES', 'ITEMS', 'OFFICES', 'STAFF', 'RIVALS', 'CONFS', 'RANKS', 'EVENTS', 'FILL', 'PQDEBUG', 'EMPIRE'];
 const src = fs.readFileSync(path.join(__dirname, 'content.js'), 'utf8').replace(/^'use strict';/m, '');
 const C = new Function(src + '; return {' + NAMES.join(',') + '};')();
 const { pub, key } = SPLIT.split(C);
