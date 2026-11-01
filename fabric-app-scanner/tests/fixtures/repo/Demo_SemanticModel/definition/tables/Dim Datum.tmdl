@@ -1,0 +1,5 @@
+table 'Dim Datum'
+
+	column Jahr
+		dataType: int64
+		sourceColumn: Jahr

@@ -11,12 +11,13 @@ Das Repo hinter **[datenwgknowledgekitchen.com](https://www.datenwgknowledgekitc
 | **ChartKitchen byDatenWG** | `ibcsInspiredChartDeck/` | Custom Visual mit 13 IBCS-inspirierten Chart-Modi (Säulen, Balken, Linien, Waterfall/Brücke, GuV, Tabelle/Matrix, KPI-Karten, Scatter/Bubble …). Quellcode, Tests, `dist/*.pbiviz`, CHANGELOG |
 | **P&L Statement byDatenWG** | `pnlByDatenWG/` | Custom Visual für GuV/P&L: Mega-Table mit IBCS-Templates T01A–12H, Treiberbaum, klassische Tabelle |
 | **dataKitchenGantt** | `dataKitchenGantt/` | Custom Visual: Gantt-/Projektplan |
+| **fabscan** | `fabric-app-scanner/` | Governance-Prüfung für Fabric Apps und den Tenant: Berechnungen in der App, Lineage, Sicherheit, veränderte Abfragen, Abweichungen zum Modell. CLI (`pip install`), Skill für Claude (`.claude/skills/fabscan/`, ZIP in `downloads/`), Fabric-Notebook für den Tenant-Scan |
 | **MockupKitchen & Co** | `mockup-kitchen.html`, `business-chart-builder.html` | Browser-Werkzeuge: Report-Mockups skizzieren, Deneb/Vega-Charts bauen |
 | **Downloads** | `downloads/` | Immer die aktuelle ChartKitchen-.pbiviz (`chartkitchen-byDatenWG-latest.pbiviz` + `latest.json`); P&L-Download zeigt auf `pnlByDatenWG/dist/` |
 | **Doku-Seiten** | `chartkitchen-doku.html`, `pnl-doku.html` (+ `_en`, Schnellstarts) | Endnutzer-Doku der Visuals, DE/EN |
 | **Knowledge Kitchen** | `daten_wg_learn_buckets.html` (= `index.html`-Kern), `scripts/`, `videos.json`, `transcripts.json` | Alle Daten-WG-YouTube-Folgen in 9 Themen-Buckets, Volltextsuche, Kapitel |
 | **Stories & Posts** | `*-story.html`, `*-post.html`, `blog/`, `md/` | Daten-Stories (Kölner Raser, Rhein, Strommix, …), Blog-/LinkedIn-Begleittexte, Markdown-Spiegel der Seiten |
-| **Skills** | `.claude/skills/` | Claude-Code-Skills: Reports mit den Visuals bauen, Finance-Datenmodell, Deneb-Deploy, Mockup-Umsetzung, Kitchen-Update |
+| **Skills** | `.claude/skills/` | Claude-Code-Skills: Reports mit den Visuals bauen, Finance-Datenmodell, Deneb-Deploy, Mockup-Umsetzung, Kitchen-Update, fabscan (Governance-Prüfung für Fabric Apps) |
 | **Einreichung** | `cert-export/` | AppSource-Einreichungsstand von ChartKitchen (wird je Release synchron gehalten) |
 | **Sonstiges** | `assets/` (selbst gehostete Fonts, JS-Vendor), `tests/`, `tools/`, `whitepaper-*`, `wissensgraph/` | Design-System, Playwright-Tests, Social-Media-Vorlagen, Whitepaper |
 

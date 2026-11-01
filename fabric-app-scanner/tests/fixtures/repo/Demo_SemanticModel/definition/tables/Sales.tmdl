@@ -1,0 +1,29 @@
+table Sales
+	lineageTag: x
+
+	measure Umsatz = SUM(Sales[Amount])
+		formatString: #,0
+
+	measure Marge =
+			DIVIDE([DB], [Umsatz])
+		displayFolder: KPI
+
+	measure DB = SUM(Sales[Amount]) - SUM(Sales[Cost])
+
+	column Amount
+		dataType: double
+		sourceColumn: Amount
+
+	column Cost
+		dataType: double
+		isHidden
+		sourceColumn: Cost
+
+	column Region
+		dataType: string
+		sourceColumn: Region
+
+	column Gehalt
+		dataType: double
+		isHidden
+		sourceColumn: Gehalt
