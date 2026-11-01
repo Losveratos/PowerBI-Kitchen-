@@ -111,6 +111,17 @@ def is_service_principal(user: str) -> bool:
     return bool(u) and ("@" not in u or u.startswith("app@") or re.fullmatch(r"[0-9a-f-]{36}(@.*)?", u) is not None)
 
 
+def kql(days: int = 14, include_reports: bool = False, table: str = "SemanticModelLogs") -> str:
+    """KQL für das Monitoring-Eventhouse: QueryEnd der letzten Tage, gleiche Abfragen zusammengefasst."""
+    return (f"{table}\n"
+            f"| where Timestamp > ago({int(days)}d) and OperationName == \"QueryEnd\"\n"
+            "| extend IsReport = tostring(ApplicationContext) has \"ReportId\"\n"
+            f"| where {'true' if include_reports else 'false'} or not(IsReport)\n"
+            "| summarize Count = count(), FirstSeen = min(Timestamp), LastSeen = max(Timestamp), DurationMs = sum(DurationMs)\n"
+            "    by WorkspaceId, WorkspaceName, ItemId, ItemName, ApplicationName, ExecutingUser, EventText, IsReport\n"
+            "| extend OperationName = \"QueryEnd\"")
+
+
 def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 

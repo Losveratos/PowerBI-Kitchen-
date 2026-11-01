@@ -128,13 +128,7 @@ LOGS = """
 # 2 · Tatsächlich ausgeführte Abfragen aus dem Workspace Monitoring (in KQL vorab zusammengefasst)
 from fabscan import querylog
 
-kql = f'''{LOG_TABLE}
-| where Timestamp > ago({DAYS}d) and OperationName == "QueryEnd"
-| extend IsReport = tostring(ApplicationContext) has "ReportId"
-| where {str(INCLUDE_REPORT_QUERIES).lower()} or not(IsReport)
-| summarize Count = count(), FirstSeen = min(Timestamp), LastSeen = max(Timestamp), DurationMs = sum(DurationMs)
-    by WorkspaceId, WorkspaceName, ItemId, ItemName, ApplicationName, ExecutingUser, EventText, IsReport
-| extend OperationName = "QueryEnd"'''
+kql = querylog.kql(DAYS, INCLUDE_REPORT_QUERIES, LOG_TABLE)
 
 log_rows = []
 for mon in MONITORING:
