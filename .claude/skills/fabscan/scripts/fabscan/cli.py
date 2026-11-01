@@ -120,20 +120,25 @@ def cmd_fetch(argv, fetcher=None) -> int:
     ap.add_argument("-o", "--out", default="fabscan-tenant", help="Ausgabeordner (Standard: fabscan-tenant)")
     ap.add_argument("--title", default="")
     ap.add_argument("--fail-on", choices=["fail", "warn", "never"], default="never")
+    ap.add_argument("--ohne-admin", "--no-admin", dest="no_admin", action="store_true",
+                    help="Admin-API überspringen: nur Workspaces mit eigenem Zugriff, Modelle per getDefinition. "
+                         "Ohne den Schalter wechselt fetch bei 401/403 der Admin-API von selbst in diesen Modus.")
     a = ap.parse_args(argv)
-    f = fetcher or fetch.Fetcher(fetch.Auth(a.tenant))
+    f = fetcher or fetch.Fetcher(fetch.Auth(a.tenant), admin=False if a.no_admin else None)
+    if fetcher is not None and a.no_admin:
+        f.admin, f.mode = False, "workspace"
     raw = os.path.join(a.out, "rohdaten")
     try:
         print("1 · Workspaces")
         ids = f.workspaces(a.workspace)
-        print("2 · Modelle (Admin-Scanner-API)")
+        print(f"2 · Modelle ({f.source})")
         results = f.scan(ids)
         os.makedirs(raw, exist_ok=True)
         with open(os.path.join(raw, "scan.json"), "w", encoding="utf-8") as fh:
             json.dump(results, fh, ensure_ascii=False, default=str)
         models = scanapi.load_scan(results)
         print(f"  {len(models)} Semantikmodelle, {sum(m.measure_count for m in models)} Measures")
-        if models and not any(m.tables for m in models):
+        if models and not any(m.tables for m in models) and f.mode == "admin":
             print("  Achtung: keine Tabellen im Scan. Tenant-Einstellungen für detaillierte Metadaten und "
                   "DAX-Ausdrücke prüfen.")
         print("3 · Abfragen (Workspace Monitoring)")
@@ -150,8 +155,11 @@ def cmd_fetch(argv, fetcher=None) -> int:
         return 2
     entries = querylog.load_log(rows)
     log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports))
-    info = {"models": tenant.model_rows(models, log_apps), "scope": "Tenant"}
-    paths = export.write_run(log_apps, a.out, "", a.title or "Tenant-Prüfbericht Fabric Apps", info, scope="Tenant")
+    scope = "Tenant" if f.mode == "admin" else "Workspaces"
+    title = a.title or ("Tenant-Prüfbericht Fabric Apps" if f.mode == "admin"
+                        else "Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)")
+    info = {"models": tenant.model_rows(models, log_apps), "scope": scope}
+    paths = export.write_run(log_apps, a.out, "", title, info, scope=scope)
     print("4 · Bericht\n")
     print(report.to_text(log_apps) if log_apps else "Keine Clients mit Abfragen im Zeitraum (nur Modell-Übersicht).")
     for n in f.notes:
