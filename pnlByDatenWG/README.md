@@ -2,7 +2,7 @@
 
 IBCS-inspiriertes GuV-/P&L-Custom-Visual für Power BI — eigenständiges
 Schwester-Visual von [ChartKitchen byDatenWG](../ibcsInspiredChartDeck/) und der
-[IBCS KPI Card](../ibcsKpiCard/). **Version 1.7.0.0**:
+[IBCS KPI Card](../ibcsKpiCard/). **Version 1.7.1.0**:
 Tabelle mit **Mega-Table** (IBCS-Templates T01–T04, 12A, 12G und 12H, dazu Bilanz T05A und
 Cashflow T05B), Struktur-Bars, Zeilen-Waterfall, **Werttreiberbaum (DuPont)** mit Kachel-Zoom
 und **Sankey**; **Bestand & Fluss** für Bilanz und Cashflow, **⚡ Nur Ausnahmen**, Selektion,
@@ -108,6 +108,7 @@ npm run test:engine   # Unit-Tests des Rechenkerns (Hierarchie, Formeln, Vorzeic
 npm run test:mega     # Mega-Table: Layout-Unit-Tests, Render m1–m31, Template-/Echo-Guard
 npm run test:render   # Headless-Render aller Testfälle -> test/render.png
 npm run test:tree     # Interaktionstest: Baum (Chevrons, Drill, ⌖) + Selektion/Kontextmenü
+npm run test:tile     # 1.7.1: Kachel-Zoom (eine Δ-Skala, „ΔPL ×n“, Ist = 0, Bestände als Stände)
 npm run test:toolbar  # Toolbar-Knöpfe in allen Ansichten, Echo-Guard, Wertspalten-Sweep, Template-Auswahl
 npm run test:ease     # 1.2: Pane-/Rollen-Reihenfolge, Leer-Zustand-Modi, Balken-Notation, Spalten-Kategorie
 npm run test:hub      # 1.3: Start-Hub, Tour, Template-Galerie, Overlay, ↺ Zum Template zurück

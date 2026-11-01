@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.7.0.0** (29.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.7.1.0** (01.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.7.0.0** (29.10.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: true` (1.7: nur der Sankey zeigt eine Markierung anderer Visuals im Gesamt, alle anderen Ansichten verhalten sich wie gefiltert — Falle 22) |
@@ -102,7 +102,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.7.0.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.7.1.0)
 
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
 `stockMode` (`auto` · `allStock` · `allFlow`, Standard `auto`, eigene Karte
@@ -855,6 +855,25 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       240 px bleibt). Baum: Karten ×0,8–1,6 bis Breite oder Höhe gefüllt
       (`treeK`). Kachel-Ansicht und Hub-Minis unverändert. Templates setzen
       den Schalter nicht (Autoren-Entscheidung je Kachel).
+
+24. **Kachel-Zoom und Ist = 0 (1.7.1):**
+    - **`treeZoomCombo`** hat drei Zonen: Δ%-Pins · Δ-Zone · Werte. Jede Δ-Stufe
+      der Kachel liegt auf **einer** Skala (`dPx = unit × mag`), ohne Mindesthöhe
+      (höchstens 1 px). `mag` ∈ 1 · 2 · 5 · … · 100, sichtbar als „ΔPL ×n“ am
+      Zonenlabel (`data-pnl="combo-dlabel"`, `data-mag`); alle Δ null → ×1. Passt
+      das Δ nicht einmal in ×1, schrumpft die ganze Werteskala (`unit = dFit`),
+      nie das Δ allein. Keine Stauchung der Monatssäulen mehr (`mk` entfällt).
+    - **Bestandszeilen** (`node.stock != null`): keine Monatssummen, keine
+      kumulierte Brücke. Gesamtsäule = Stand am Ende der AC&FC-Reihe (`opening`:
+      am Anfang), Δ je Monat steht auf der Δ-Achse. Wer hier wieder `acSum +=`
+      über Monate schreibt, bricht `test:tile`.
+    - **Ist = 0 statt BLANK:** `engine.unpostedActualMonths` erkennt nachlaufende
+      Monate mit Ist 0 in **jeder** Zeile und Forecast im selben Monat;
+      `dropActuals` setzt dort AC auf null. Entschieden wird einmal auf dem ganzen
+      Datenview (`parseRows` ohne `only`/`marked`, Feld `acUnposted`) und auf jede
+      Teilmenge angewendet (Spalten-Kategorie, Cross-Highlight) — sonst hätten
+      Kategorien verschiedene Kalender. Ohne Forecast im Monat bleibt eine 0 eine
+      echte 0. Autorenhinweis `UI_AcUnposted` nur im Bearbeitungsmodus.
 
 ## Verwandte Dateien
 

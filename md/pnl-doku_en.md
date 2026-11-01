@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H as well as balance sheet and cash flow (T05A/T05B), plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.7.0.0** · As of · **2026-10-31** · IBCS-inspired
+Version · **1.7.1.0** · As of · **2026-11-01** · IBCS-inspired
 
 ## Contents
 
@@ -21,7 +21,7 @@ Version · **1.7.0.0** · As of · **2026-10-31** · IBCS-inspired
 9. [Interaction](#interaction)
 10. [Deviations from the IBCS sheets](#deviations)
 11. [Troubleshooting](#faq)
-12. [Version note 1.7.0.0](#version)
+12. [Version note 1.7.1.0](#version)
 
 ## 01 · What is the visual?
 
@@ -39,7 +39,7 @@ Version · **1.7.0.0** · As of · **2026-10-31** · IBCS-inspired
 
 *Sankey — the P&L as a flow, band height proportional to AC (deliberately outside IBCS notation).*
 
-All images: demo data of the fictitious Daten-WG Brewery, rendered with version 1.7.0.0 at the same width (1050 px) without “use the whole tile” — the same scale in every image.
+All images: demo data of the fictitious Daten-WG Brewery, rendered with version 1.7.1.0 at the same width (1050 px) without “use the whole tile” — the same scale in every image.
 
 The notation follows the **IBCS® principles**: AC filled in dark gray (#404040), PY gray, PL white with an outline, FC hatched; labels outside with an explicit “+”, one scale per unit across all rows and period blocks (following IBCS 2.0 / ISO 24896), margin rows with Δ in percentage points, no gridlines. The interface speaks German, English, Spanish and Japanese (it follows the report language), has a dark mode and high contrast, and welcomes authors with a start hub when they drag it onto the page (chapter 03). The visual makes no external calls, stores nothing outside the report and sends no telemetry.
 
@@ -47,7 +47,7 @@ The notation follows the **IBCS® principles**: AC filled in dark gray (#404040)
 
 > **Thank you, IBCS.** This visual is heavily inspired by the ideas of IBCS® – International Business Communication Standards. Without their great resources, exceptional content and, above all, groundbreaking conceptual work, something like this visual would not have been possible. Therefore: thank you. Not sponsored by, licensed by or associated with the IBCS Association.
 
-This guide describes version **1.7.0.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
+This guide describes version **1.7.1.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
 ## 02 · The product family
 
@@ -179,7 +179,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.7.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.7.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
@@ -354,11 +354,11 @@ The P&L as a **flow from left to right** — on the same graph as the value driv
 
 ### 07 · Tiles (tile view)
 
-A click on the chart of a tree card (in the Sankey: on a node or its label) zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” (from the Sankey: “← Back to Sankey”) and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. The micro cards of one column share one scale per unit (×n marked); the main chart is labelled as a magnifying glass with its own scale. Only Δ reference and unit remain in the toolbar.
+A click on the chart of a tree card (in the Sankey: on a node or its label) zooms the node to the full area: combo chart of monthly columns (reference offset behind AC) and bridge, below it the scenario grid, next to it the micro cards “Feeds into” and “Driven by” (pageable when there are many drivers). The page fits itself into the viewport — the chart is the elastic element, the grid gets more compact when height is tight. “← Back to tree” (from the Sankey: “← Back to Sankey”) and the breadcrumb lead out; “↗ Drill” sets the node's selection and opens the context menu with the drillthrough targets in one go. Ratio rows (margins) show no bridge, because percentages are not additive. Since 1.7.1 the main chart has three zones: the Δ% pins on top, the variances in the middle, reference, monthly columns and total column on one value scale below. Every variance of the tile shares one scale with no minimum height; where it magnifies the value scale, the zone label carries the scaling indicator, e.g. *ΔPL ×5*. For **stock rows** the tile shows stands instead of sums: the total column is the stand at the end of the AC&FC series, the Δ per month compares stand with stand and is not cumulated. The micro cards of one column share one scale per unit (×n marked); the main chart is labelled as a magnifying glass with its own scale. Only Δ reference and unit remain in the toolbar.
 
 ![Tile view EBITDA](../assets/docs/pnl/p07-kachel-en.webp)
 
-*Tile zoom on EBITDA: bridge PL → AC/FC across months, scenario grid, drivers and recipients.*
+*Tile zoom on EBITDA: variance zone ΔPL ×2 with the cumulated bridge, below it PL, monthly columns and AC+FC on one value scale; scenario grid, drivers and recipients.*
 
 ## 07 · IBCS templates
 
@@ -859,6 +859,10 @@ Intended: the export prints without the toolbar and fully expanded (switch *Expo
 
 The grouping fields are set to “Summarize” instead of “Don't summarize”.
 
+### The forecast is missing, the tile shows −100 % in the last months.
+
+The actuals measure returns `0` instead of blank for months without postings (typically `+ 0` or `COALESCE`). Since 1.7.1 the visual treats trailing months in which the actual is 0 in every row and the forecast carries a value as not posted and shows the forecast there; in edit mode the footer names the months. The cleaner fix is in the model: let the actuals measure return `BLANK()` for months nobody has posted.
+
 ### The FY columns are many times too large.
 
 The FY measure is defined as `SUM` instead of `MAX` (or `AVERAGE`); the full-year value repeats on every month row.
@@ -911,10 +915,11 @@ Edit mode only: a formula or total mixes stocks and flows without a token fixing
 
 Intended (cross-highlight, since 1.7): the Sankey shows the mark within the total — the whole gray, the marked part colored, “… 923 of 1 685 …” in the footer. All other views behave as if filtered. If the Sankey should filter too, switch the interaction in Power BI Desktop under Format → *Edit interactions* on the triggering visual to the filter icon (chapter 09).
 
-## 12 · Version note 1.7.0.0
+## 12 · Version note 1.7.1.0
 
-This documentation describes **version 1.7.0.0** of 29 October 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
+This documentation describes **version 1.7.1.0** of 1 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
 
+- **1.7.1.0 · Tile zoom to scale:** variances in their own zone with one scale for every Δ and no minimum height, scaling indicator “ΔPL ×n” on the zone label; stock rows in the tile as stands (total column = stand at the end, Δ per month not cumulated); an actuals measure that returns 0 instead of blank for unposted months no longer hides the forecast (trailing months with AC 0 in every row and a forecast count as not posted, hint in edit mode).
 - **1.7.0.0 · Stock & flow, exceptions only, fill the tile, toolbar colours, cross-highlight in the Sankey:** row-type tokens `stock`/`opening` and the format card “Stock & flow” — balances are not summed in YTD and FY but shown as the balance at the reporting date (FY = forecast closing balance), Δ compares balances of the same date; new templates **T05A Balance sheet** and **T05B Cash flow** in the gallery group “Balance sheet & cash flow”, sample data `demoData/bilanz-*.csv`, `cashflow-*.csv`. Toolbar group **⚡ Exceptions only**: only rows with |Δ%| ≥ threshold (or |Δ| ≥ absolute) against PY/PL/FC keep their colour, direction ▲/▼/▲▼, the rest grey or hidden — hiding works in every view (cascades merge quiet steps into “others (n)”, the tree folds quiet branches into “+n”, the Sankey bundles quiet streams), bookmarkable, format card “Exceptions”. Format card **Toolbar colours** (empty = automatic). Switch **Area → Use the whole tile**: narrow margins, compact toolbar, tables scale to the tile height, tree and Sankey fill the tile. **Cross-highlight**: selections made in other visuals are shown only by the Sankey as the coloured part inside the grey whole; all other views behave as filtered.
 - **1.6.0.0 · Sankey view and “offer views”:** fifth view “Sankey” — the P&L as a flow from left to right on the driver-tree graph (profit strand in the favourable colour, costs branching off unfavourably, band height proportional to AC YTD), with tile zoom, hover panel, context menu and branch collapsing as in the tree; deliberately outside IBCS notation (the footer says so). New under Display & Toolbar: five switches deciding which views readers are offered (table, tree, bars, waterfall, Sankey); if a saved state points at a disabled view, the first offered view appears silently. Hub tour card 8 “Sankey”, four languages, dark mode and high contrast (patterns instead of colour).
 - **1.5.3.0 · column header on a scaled stage:** in a Fabric App (stage scaled with a CSS transform) the sticky column header sat too low by the stage factor and covered rows; the visual now measures in layout pixels. In low tiles the footnotes only stick while rows stay visible; the IBCS notation line spans all footnote columns. Nothing changes in Power BI.
@@ -933,13 +938,13 @@ This documentation describes **version 1.7.0.0** of 29 October 2026 (GUID `pnlBy
 
 The complete version history is in the [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md) (German).
 
-**P&L Statement byDatenWG** · Version 1.7.0.0
+**P&L Statement byDatenWG** · Version 1.7.1.0
 
 Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.7.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.7.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.
 
