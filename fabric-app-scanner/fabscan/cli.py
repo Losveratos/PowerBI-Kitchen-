@@ -2,6 +2,7 @@
 
   fabscan [PFAD]                         Apps im Repo prüfen (Standard: aktueller Ordner)
   fabscan --scan-result S --query-log L  Tenant prüfen (Admin-Scanner-API + Abfrage-Logs)
+  fabscan fetch [-w WORKSPACE]           Tenant direkt prüfen (Anmeldung über az login oder Service Principal)
   fabscan notebook [-o DATEI]            Fabric-Notebook für den Tenant-Scan schreiben
   fabscan skill [--ziel ORDNER | --zip DATEI]   Skill für Claude installieren oder als ZIP packen
 
@@ -16,12 +17,12 @@ import json
 import os
 import sys
 
-from . import __version__, checks, export, querylog, report, scanapi, tenant, tmdl
+from . import __version__, checks, export, fetch, querylog, report, scanapi, tenant, tmdl
 
 
 def _scan_parser(prog: str) -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog=prog, description="Governance-Prüfung für Fabric Apps (Rayfin) und den Fabric-Tenant.",
-                                 epilog="Weitere Befehle: fabscan notebook · fabscan skill")
+                                 epilog="Weitere Befehle: fabscan fetch · fabscan notebook · fabscan skill")
     ap.add_argument("repo", nargs="?", default=None, help="Repository mit Apps (rayfin/rayfin.yml) und *.SemanticModel-Ordnern; "
                                                           "Standard: aktueller Ordner, außer im reinen Tenant-Modus")
     ap.add_argument("-o", "--out", default="fabscan-bericht", help="Ausgabeordner (Standard: fabscan-bericht)")
@@ -94,10 +95,71 @@ def cmd_scan(argv) -> int:
               f"Daten:            {paths['json']} · {paths['csv']}")
     else:
         print(paths["html"])
-    if a.fail_on == "never":
+    return _fail_code(apps, a.fail_on)
+
+
+def _fail_code(apps, fail_on: str) -> int:
+    if fail_on == "never":
         return 0
     worst = min((checks.SEV_ORDER[f.severity] for x in apps for f in x.findings), default=9)
-    return 1 if worst <= checks.SEV_ORDER[a.fail_on] else 0
+    return 1 if worst <= checks.SEV_ORDER[fail_on] else 0
+
+
+def cmd_fetch(argv, fetcher=None) -> int:
+    ap = argparse.ArgumentParser(prog="fabscan fetch",
+                                 description="Tenant direkt prüfen: Modelle über die Admin-Scanner-API, tatsächlich "
+                                             "ausgeführte Abfragen aus dem Workspace Monitoring. Nur Lesezugriffe.")
+    ap.add_argument("-w", "--workspace", action="append", default=[],
+                    help="Workspace-Name oder -ID (mehrfach möglich); ohne Angabe alle aktiven Workspaces")
+    ap.add_argument("--monitoring", action="append", default=[], metavar="URI=DATENBANK",
+                    help="Monitoring-KQL-Datenbank; ohne Angabe sucht fabscan sie in den Workspaces")
+    ap.add_argument("--days", type=int, default=14, help="Zeitraum der Abfragen in Tagen (Standard 14)")
+    ap.add_argument("--include-reports", action="store_true", help="auch Abfragen aus Power-BI-Berichten prüfen")
+    ap.add_argument("--tenant", help="Tenant-ID (sonst AZURE_TENANT_ID bzw. der aktuelle az-Kontext)")
+    ap.add_argument("--log-table", default="SemanticModelLogs")
+    ap.add_argument("-o", "--out", default="fabscan-tenant", help="Ausgabeordner (Standard: fabscan-tenant)")
+    ap.add_argument("--title", default="")
+    ap.add_argument("--fail-on", choices=["fail", "warn", "never"], default="never")
+    a = ap.parse_args(argv)
+    f = fetcher or fetch.Fetcher(fetch.Auth(a.tenant))
+    raw = os.path.join(a.out, "rohdaten")
+    try:
+        print("1 · Workspaces")
+        ids = f.workspaces(a.workspace)
+        print("2 · Modelle (Admin-Scanner-API)")
+        results = f.scan(ids)
+        os.makedirs(raw, exist_ok=True)
+        with open(os.path.join(raw, "scan.json"), "w", encoding="utf-8") as fh:
+            json.dump(results, fh, ensure_ascii=False, default=str)
+        models = scanapi.load_scan(results)
+        print(f"  {len(models)} Semantikmodelle, {sum(m.measure_count for m in models)} Measures")
+        if models and not any(m.tables for m in models):
+            print("  Achtung: keine Tabellen im Scan. Tenant-Einstellungen für detaillierte Metadaten und "
+                  "DAX-Ausdrücke prüfen.")
+        print("3 · Abfragen (Workspace Monitoring)")
+        mons = [tuple(m.split("=", 1)) for m in a.monitoring if "=" in m] or f.find_monitoring(ids)
+        rows = []
+        for cluster, db in mons:
+            part = f.logs(cluster, db, a.days, a.include_reports, a.log_table)
+            print(f"  {db}: {len(part)} verschiedene Abfragen")
+            rows += part
+        with open(os.path.join(raw, "abfragen.json"), "w", encoding="utf-8") as fh:
+            json.dump(rows, fh, ensure_ascii=False, default=str)
+    except fetch.FetchError as e:
+        print(f"\nAbbruch: {e}", file=sys.stderr)
+        return 2
+    entries = querylog.load_log(rows)
+    log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports))
+    info = {"models": tenant.model_rows(models, log_apps), "scope": "Tenant"}
+    paths = export.write_run(log_apps, a.out, "", a.title or "Tenant-Prüfbericht Fabric Apps", info, scope="Tenant")
+    print("4 · Bericht\n")
+    print(report.to_text(log_apps) if log_apps else "Keine Clients mit Abfragen im Zeitraum (nur Modell-Übersicht).")
+    for n in f.notes:
+        print(f"\nHinweis: {n}")
+    print(f"\nBericht:          {paths['html']}\nZusammenfassung:  {paths['md']}\n"
+          f"Daten:            {paths['json']} · {paths['csv']}\nRohdaten:         {raw}\n"
+          f"Angemeldet über:  {f.auth.method or '–'}")
+    return _fail_code(log_apps, a.fail_on)
 
 
 def cmd_notebook(argv) -> int:
@@ -128,6 +190,8 @@ def cmd_skill(argv) -> int:
 
 def main(argv=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "fetch":
+        return cmd_fetch(argv[1:])
     if argv and argv[0] == "notebook":
         return cmd_notebook(argv[1:])
     if argv and argv[0] == "skill":

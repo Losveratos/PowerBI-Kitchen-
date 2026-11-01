@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fabscan"
-version = "0.2.0"
+version = "0.3.0"
 description = "Governance-Prüfung für Microsoft Fabric Apps und den Fabric-Tenant: Berechnungen in der App, Lineage, Sicherheit, veränderte Abfragen, Abweichungen zum Semantikmodell."
 readme = "README.md"
 requires-python = ">=3.10"

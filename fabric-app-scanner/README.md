@@ -49,20 +49,36 @@ Weitere Befehle:
 | `fabscan --app NAME` | nur eine App |
 | `fabscan --models ../modelle` | Modelle aus einem anderen Ordner |
 | `fabscan --fail-on fail` | Exit-Code 1 bei kritischen Befunden (für CI) |
+| `fabscan fetch -w WORKSPACE` | Tenant direkt prüfen (Admin-Scanner-API + Workspace Monitoring) |
 | `fabscan notebook` | Fabric-Notebook für den Tenant-Scan schreiben |
 | `fabscan skill` | Skill nach `~/.claude/skills/fabscan` installieren, `--zip datei.zip` für claude.ai |
 
 ### 3 · Den ganzen Tenant prüfen
 
-Welche Anwendungen fragen die Semantikmodelle außerhalb von Power-BI-Berichten ab, und wie? Dafür gibt es ein
-Fabric-Notebook: [`fabscan_tenant.ipynb`](../downloads/fabscan_tenant.ipynb) herunterladen (oder `fabscan notebook`),
+Welche Anwendungen fragen die Semantikmodelle außerhalb von Power-BI-Berichten ab, und wie?
+
+**Direkt vom eigenen Rechner:**
+
+```bash
+az login                                  # oder Service Principal: AZURE_TENANT_ID / AZURE_CLIENT_ID / AZURE_CLIENT_SECRET
+fabscan fetch -w "Mein Workspace" --days 14
+```
+
+`fabscan fetch` liest die Modelle über die Admin-Scanner-API und die tatsächlich ausgeführten Abfragen aus dem
+Workspace Monitoring. Die Monitoring-Datenbank findet es selbst, alternativ `--monitoring <Abfrage-URI>=<Datenbank>`.
+Ohne `-w` prüft es alle aktiven Workspaces. Ergebnis wie immer in `fabscan-tenant/`, dazu die Rohdaten unter
+`rohdaten/`. Nur Lesezugriffe.
+
+**Oder als Fabric-Notebook,** falls lokal kein Zugang zu den Admin-APIs besteht:
+[`fabscan_tenant.ipynb`](../downloads/fabscan_tenant.ipynb) herunterladen (oder `fabscan notebook`),
 in einen Workspace importieren, ein Lakehouse anhängen, Parameter ausfüllen, alle ausführen. fabscan ist darin
 eingebettet.
 
 - **Grundlagen:** die Modelle aus der Admin-Scanner-API und die tatsächlich ausgeführten DAX-Abfragen aus dem
   Workspace Monitoring.
-- **Voraussetzungen:** Fabric-Admin, zwei Tenant-Einstellungen für detaillierte Metadaten, Workspace Monitoring.
-  Details stehen in der ersten Zelle.
+- **Voraussetzungen (für beide Wege):** Fabric-Admin oder ein für Admin-APIs freigegebener Service Principal, die zwei
+  Tenant-Einstellungen *Enhance admin APIs responses with detailed metadata* und *… with DAX and mashup expressions*,
+  Workspace Monitoring in den Workspaces mit den Modellen.
 
 Mit exportierten Dateien geht es auch lokal: `fabscan --scan-result scan.json --query-log logs.csv`.
 

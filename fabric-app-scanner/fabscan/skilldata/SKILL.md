@@ -67,6 +67,17 @@ Nie deployen (`rayfin up`), nie Fabric-Items oder Modelle ändern, keine Geheimn
 
 Für Admins: Welche Anwendungen fragen die Modelle außerhalb von Power-BI-Berichten ab, und wie?
 
+- **Direkt aus dem CLI (am schnellsten):**
+  `python3 <SKILL_DIR>/run.py fetch -w "<Workspace>" --days 14 -o fabscan-tenant`
+  - Liest die Modelle über die Admin-Scanner-API und die Abfragen aus dem Workspace Monitoring.
+  - Findet die Monitoring-Datenbank selbst. Sonst mit `--monitoring <Abfrage-URI>=<KQL-Datenbank>` angeben.
+  - Ohne `-w` prüft es alle aktiven Workspaces.
+  - Anmeldung: `az login` vorher, oder ein Service Principal über `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` und
+    `AZURE_CLIENT_SECRET`.
+  - Nur Lesezugriffe. Braucht Fabric-Admin-Rechte bzw. einen Service Principal, der für Admin-APIs freigegeben ist.
+  - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel fehlende Admin-Rechte, Tenant-Einstellungen,
+    Monitoring aus oder keine Verbindung.
+
 - **Notebook erzeugen:** `python3 <SKILL_DIR>/run.py notebook -o fabscan_tenant.ipynb`.
   Dem Nutzer erklären: In einen Fabric-Workspace importieren, ein Lakehouse anhängen, in der Parameter-Zelle die
   Monitoring-Eventhouses eintragen, alle ausführen. Voraussetzungen stehen in der ersten Zelle (Fabric-Admin,
