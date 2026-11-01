@@ -51,9 +51,11 @@ und die Modell-Metadaten aus der Admin-Scanner-API. Am Ende steht ein Bericht in
 5. Rundet oder bereinigt er Werte schon in der Abfrage?
 
 **Voraussetzungen**
-- Fabric-Administrator oder Service Principal mit Zugriff auf die Admin-APIs.
-- Tenant-Einstellungen für die Scanner-API: *Enhance admin APIs responses with detailed metadata* und
+- Für den ganzen Tenant: Fabric-Administrator oder Service Principal mit Zugriff auf die Admin-APIs, dazu die
+  Tenant-Einstellungen *Enhance admin APIs responses with detailed metadata* und
   *Enhance admin APIs responses with DAX and mashup expressions* (sonst fehlen Tabellen und Measures).
+- **Ohne Admin-Rechte** prüft das Notebook die Workspaces, in denen du Mitglied bist: Modelle per getDefinition
+  (mindestens Rolle Mitwirkender), Monitoring-Eventhouses werden dort selbst gesucht.
 - Für die Abfragen: **Workspace Monitoring** in den Workspaces mit den Modellen (legt ein Monitoring-Eventhouse an).
   Ohne Monitoring zeigt der Bericht nur die Modell-Übersicht.
 - Ein Lakehouse als Standard an das Notebook hängen (dort landen Bericht und Rohdaten).
@@ -63,11 +65,15 @@ planen (z. B. wöchentlich).
 """
 
 PARAMS = """
-# Welche Workspaces? Leer = alle aktiven Workspaces im Tenant (Admin-Rechte nötig). Namen oder IDs.
+# Welche Workspaces? Leer = alle aktiven Workspaces im Tenant (ohne Admin-Rechte: alle eigenen). Namen oder IDs.
 WORKSPACES = []
+
+# Admin-API: None = versuchen, bei fehlenden Rechten nur die eigenen Workspaces prüfen; False = gleich ohne.
+ADMIN_API = None
 
 # Workspace Monitoring: je Monitoring-Eventhouse die Abfrage-URI und die KQL-Datenbank.
 # Zu finden im Workspace unter „Monitoring Eventhouse“ → KQL-Datenbank → Abfrage-URI kopieren.
+# Ohne Admin-Rechte und leer: wird in den geprüften Workspaces selbst gesucht.
 MONITORING = [
     # {"cluster": "https://<id>.<region>.kusto.fabric.microsoft.com", "database": "Monitoring KQL database"},
 ]
@@ -96,31 +102,67 @@ print("fabscan", fabscan.__version__)
 """
 
 SCAN = """
-# 1 · Modelle des Tenants über die Admin-Scanner-API
+# 1 · Modelle: Admin-Scanner-API, ohne Admin-Rechte die eigenen Workspaces per getDefinition
 import datetime as dt, json
-import sempy.fabric.admin as fa
-from fabscan import scanapi
+from fabscan import scanapi, fetch as fsfetch
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 stamp = dt.datetime.now().strftime("%Y-%m-%d")
-
-ws = fa.list_workspaces(workspace_state="Active", workspace_type="Workspace")
-if WORKSPACES:
-    want = {str(w).lower() for w in WORKSPACES}
-    ws = ws[ws["Id"].astype(str).str.lower().isin(want) | ws["Name"].astype(str).str.lower().isin(want)]
-ids = [str(x) for x in ws["Id"]]
-print(f"{len(ids)} Workspaces werden gescannt …")
-
+SCOPE = "Tenant"
 scan_results = []
-for i in range(0, len(ids), 100):
-    scan_results.append(fa.scan_workspaces(workspace=ids[i:i + 100], dataset_schema=True,
-                                           dataset_expressions=True, return_dataframe=False, timeout_seconds=900))
+
+
+class _NotebookAuth:
+    method = "Notebook"
+
+    def token(self, resource):
+        return notebookutils.credentials.getToken("pbi")   # gilt für die Power-BI- und die Fabric-API
+
+
+def _admin_denied(e):
+    t = f"{type(e).__name__} {e}".lower()
+    return any(s in t for s in ("401", "403", "unauthorized", "forbidden", "admin"))
+
+
+use_admin = ADMIN_API is not False
+if use_admin:
+    try:
+        import sempy.fabric.admin as fa
+        ws = fa.list_workspaces(workspace_state="Active", workspace_type="Workspace")
+        if WORKSPACES:
+            want = {str(w).lower() for w in WORKSPACES}
+            ws = ws[ws["Id"].astype(str).str.lower().isin(want) | ws["Name"].astype(str).str.lower().isin(want)]
+        ids = [str(x) for x in ws["Id"]]
+        print(f"{len(ids)} Workspaces werden gescannt …")
+        for i in range(0, len(ids), 100):
+            scan_results.append(fa.scan_workspaces(workspace=ids[i:i + 100], dataset_schema=True,
+                                                   dataset_expressions=True, return_dataframe=False,
+                                                   timeout_seconds=900))
+    except Exception as e:  # noqa: BLE001
+        if ADMIN_API or not _admin_denied(e):
+            raise
+        print("Keine Admin-Rechte: weiter mit den Workspaces, in denen du Mitglied bist (getDefinition).")
+        use_admin = False
+
+if not use_admin:
+    SCOPE = "Workspaces"
+    _f = fsfetch.Fetcher(_NotebookAuth(), request=globals().get("FABSCAN_HTTP") or fsfetch.http, admin=False)
+    ids = _f.workspaces([str(w) for w in WORKSPACES])
+    scan_results = _f.scan(ids)
+    if not MONITORING:
+        MONITORING = [{"cluster": c, "database": d} for c, d in _f.find_monitoring(ids)]
+        print(f"{len(MONITORING)} Monitoring-Eventhouse(s) gefunden")
+    for n in _f.notes:
+        print("Hinweis:", n)
+    if REPORT_TITLE == "Tenant-Prüfbericht Fabric Apps":
+        REPORT_TITLE = "Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)"
+
 with open(f"{OUTPUT_DIR}/scan-{stamp}.json", "w", encoding="utf-8") as fh:
     json.dump(scan_results, fh, ensure_ascii=False, default=str)
 
 models = scanapi.load_scan(scan_results)
 print(f"{len(models)} Semantikmodelle, {sum(m.measure_count for m in models)} Measures")
-if models and not any(m.tables for m in models):
+if models and not any(m.tables for m in models) and SCOPE == "Tenant":
     print("Achtung: keine Tabellen im Scan. Sind die Tenant-Einstellungen für detaillierte Metadaten aktiv?")
 """
 
@@ -156,8 +198,8 @@ from fabscan import export, report, tenant
 
 clients = querylog.clients(entries, include_reports=INCLUDE_REPORT_QUERIES)
 apps = tenant.scan_tenant(models, clients)
-info = {"models": tenant.model_rows(models, apps), "scope": "Tenant"}
-paths = export.write_run(apps, f"{OUTPUT_DIR}/{stamp}", "", REPORT_TITLE, info, scope="Tenant")
+info = {"models": tenant.model_rows(models, apps), "scope": SCOPE}
+paths = export.write_run(apps, f"{OUTPUT_DIR}/{stamp}", "", REPORT_TITLE, info, scope=SCOPE)
 with open(paths["html"], encoding="utf-8") as fh:
     html = fh.read()
 print(report.to_text(apps) if apps else "Keine Clients im Zeitraum.")
@@ -173,7 +215,7 @@ DELTA = """
 # 5 · Befunde als Tabelle fabscan_findings (für einen Power-BI-Bericht über die Zeit)
 if WRITE_DELTA and apps:
     import pandas as pd
-    rows = export.rows(apps, "Tenant", run_date=stamp)   # Datenvertrag wie befunde.csv
+    rows = export.rows(apps, SCOPE, run_date=stamp)      # Datenvertrag wie befunde.csv
     if rows:
         spark.createDataFrame(pd.DataFrame(rows)).write.mode("append").saveAsTable("fabscan_findings")
         print(f"{len(rows)} Befunde in fabscan_findings geschrieben")
