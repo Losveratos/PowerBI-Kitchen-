@@ -336,6 +336,52 @@ export function aggregateMonthly(
 }
 
 /**
+ * 1.7.1 trailing months nobody has posted yet, recognised when the actuals
+ * measure returns 0 instead of BLANK: every row carries AC 0 (none a value
+ * other than 0) in a month behind the last month with a posted (non-zero)
+ * actual, and the forecast carries a value in that very month. Such a month is
+ * the forecast horizon, not an actual month of zeros — kept as AC it would
+ * hide the forecast, end the YTD window in December and draw −100 % variances.
+ * Months before the last posted actual are never touched, and without a
+ * forecast in the month nothing changes.
+ */
+export function unpostedActualMonths(rows: InputRow[], months: string[]): string[] {
+    const n = months.length;
+    if (n === 0) { return []; }
+    const acAny = new Array<boolean>(n).fill(false);
+    const acPosted = new Array<boolean>(n).fill(false);
+    const fcAny = new Array<boolean>(n).fill(false);
+    for (const r of rows) {
+        const ac = r.series?.ac; const fc = r.series?.fc;
+        for (let i = 0; i < n; i++) {
+            const a = ac?.[i];
+            if (a != null) { acAny[i] = true; if (Math.abs(a) > 1e-9) { acPosted[i] = true; } }
+            if (fc?.[i] != null) { fcAny[i] = true; }
+        }
+    }
+    const last = acPosted.lastIndexOf(true);
+    const out: string[] = [];
+    for (let i = last + 1; i < n; i++) {
+        if (acAny[i] && fcAny[i]) { out.push(months[i]); }
+    }
+    return out;
+}
+
+/** 1.7.1 the AC of the given months set to "not posted" (null); everything else unchanged */
+export function dropActuals(rows: InputRow[], months: string[], labels: string[]): InputRow[] {
+    const idx = labels.map(l => months.indexOf(l)).filter(i => i >= 0);
+    if (idx.length === 0) { return rows; }
+    return rows.map(r => {
+        const ac = r.series?.ac;
+        if (!ac || !idx.some(i => ac[i] != null)) { return r; }
+        const next = [...ac];
+        for (const i of idx) { next[i] = null; }
+        // the dropped months held 0 only, the summed AC scalar stays as it is
+        return { ...r, series: { ...r.series, ac: next } };
+    });
+}
+
+/**
  * Star-schema mode: build parent-child InputRows from flattened level
  * columns. Ragged rules (both supported):
  *  - trailing empty levels → the last filled level is the leaf

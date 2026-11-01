@@ -105,13 +105,13 @@ Aus Sicht von jemandem, der den Monatsabschluss präsentiert:
 
 Wer es ausprobieren will: Der [Schnellstart](../pnl-schnellstart.html) führt in zwei Minuten zur ersten GuV, die [Doku zu den Ansichten](../pnl-doku.html#views) beschreibt den Sankey im Detail.
 
-Version 1.7.0.0 · .pbiviz
+Version 1.7.1.0 · .pbiviz
 
 ### Selbst umschalten
 
 Der Schnellstart verlinkt die aktuelle .pbiviz und zeigt die ersten Schritte. Demo-Daten der Brauerei liegen im Repository.
 
-[Zum Schnellstart →](../pnl-schnellstart.html) · [.pbiviz laden ↓](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.0.0.pbiviz) · [Zur Doku](../pnl-doku.html)
+[Zum Schnellstart →](../pnl-schnellstart.html) · [.pbiviz laden ↓](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz) · [Zur Doku](../pnl-doku.html)
 
 In der Doku: [Die Ansichten (Sankey)](../pnl-doku.html#views) · [⚡ Nur Ausnahmen](../pnl-doku.html#exceptions) · [Cross-Highlight](../pnl-doku.html#highlight) · [Bestand & Fluss](../pnl-doku.html#stock) · [T05A/T05B](../pnl-doku.html#t05) · [Sicherheit & Betrieb](../visuals-sicherheit.html)
 

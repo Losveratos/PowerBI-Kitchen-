@@ -1167,4 +1167,29 @@ test("1.7 ⚡ hide: mergeNodes folds siblings into one rest row that keeps the p
     assert.equal(E.mergeNodes([a, c], "x", "x", null).stock, null);
 });
 
+// 1.7.1 an actuals measure that returns 0 instead of BLANK for unposted months
+test("1.7.1 unposted actuals: trailing AC zeros with a forecast become 'not posted'", () => {
+    const months = ["2026-01", "2026-02", "2026-03", "2026-04"];
+    const row = (id, ac, fc) => ({ id, parent: null, name: id, sort: 0, rowType: "account", formulaDef: null, sign: 1,
+        displayInvert: false, varianceInvert: false, values: {}, comment: null, index: 0, series: { ac, fc } });
+    const rows = [row("a", [10, 12, 0, 0], [10, 12, 14, 15]), row("b", [5, 0, 0, 0], [5, 6, 7, 8])];
+    // March and April: AC 0 everywhere behind the last posted month (Feb), FC present
+    assert.deepStrictEqual(E.unpostedActualMonths(rows, months), ["2026-03", "2026-04"]);
+    const out = E.dropActuals(rows, months, ["2026-03", "2026-04"]);
+    assert.deepStrictEqual(out[0].series.ac, [10, 12, null, null]);
+    assert.deepStrictEqual(out[1].series.ac, [5, 0, null, null], "a zero before the last posted month stays an actual");
+    assert.deepStrictEqual(rows[0].series.ac, [10, 12, 0, 0], "the input rows stay untouched");
+    // without a forecast in the month nothing changes (a real zero month)
+    const noFc = [row("a", [10, 12, 0, 0], null)];
+    assert.deepStrictEqual(E.unpostedActualMonths(noFc, months), []);
+    // a posted value anywhere in the month keeps the whole month an actual month
+    const posted = [row("a", [10, 12, 0, 0], [10, 12, 14, 15]), row("b", [5, 0, 3, 0], [5, 6, 7, 8])];
+    assert.deepStrictEqual(E.unpostedActualMonths(posted, months), ["2026-04"]);
+    // nothing to drop: the same array comes back
+    assert.equal(E.dropActuals(rows, months, []), rows);
+    // the model then ends the actuals in February and the forecast fills March/April
+    const m = E.buildModel(out, "x", months);
+    assert.deepStrictEqual(m.byId.get("a").series.ac, [10, 12, null, null]);
+});
+
 console.log(`\n${n} engine test blocks passed`);

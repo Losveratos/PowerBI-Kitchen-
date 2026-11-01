@@ -38,6 +38,7 @@ import {
     syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
     isExceptionVariance, ExceptionRule, markedShare, stackPairs, sameShape, mergeNodes,
+    unpostedActualMonths, dropActuals,
 } from "./engine";
 import {
     layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount, niceFactor, MEGA_PP,
@@ -711,6 +712,8 @@ export class Visual implements IVisual {
     private hostCapped = false;
     /** status lines that belong to the load state, not to the (cached) model */
     private statusWarnings: string[] = [];
+    /** 1.7.1 trailing months with AC 0 everywhere and a forecast — treated as not posted */
+    private acUnposted: string[] = [];
 
     // --- memoization ---
     private lastFingerprint: string | null = null;
@@ -1062,6 +1065,13 @@ export class Visual implements IVisual {
         if (this.catCapped > 0) {
             this.statusWarnings.push(this.tr("UI_ColCatCapped", this.catCapped, CAT_MAX));
         }
+        // 1.7.1 an author hint only: the reader sees the forecast, not the data fix
+        if (this.acUnposted.length > 0 && this.editMode() && !this.demo) {
+            const a = this.acUnposted;
+            const span = a.length === 1 ? this.monthLabel(a[0])
+                : `${this.monthLabel(a[0])}–${this.monthLabel(a[a.length - 1])}`;
+            this.statusWarnings.push(this.tr("UI_AcUnposted", span, a.length));
+        }
     }
 
     private loadingText(): string {
@@ -1394,7 +1404,7 @@ export class Visual implements IVisual {
                 });
             }
             const lr = rowsFromLevels(lrows, sortMode);
-            return { rows: lr.rows, months: lr.months, rowCount: n, has };
+            return { rows: this.trimUnposted(lr.rows, lr.months, only, marked), months: lr.months, rowCount: n, has };
         }
         if (!idCol) { return null; }
 
@@ -1415,7 +1425,18 @@ export class Visual implements IVisual {
             });
         }
         const agg = aggregateMonthly(raw, sortMode);
-        return { rows: agg.rows, months: agg.months, rowCount: n, has };
+        return { rows: this.trimUnposted(agg.rows, agg.months, only, marked), months: agg.months, rowCount: n, has };
+    }
+
+    /**
+     * 1.7.1 months the actuals measure fills with 0 although nobody has posted
+     * them yet (engine.unpostedActualMonths): decided once on the whole data
+     * view, applied to every part (column categories, cross-highlight) so all
+     * models share one calendar.
+     */
+    private trimUnposted(rows: InputRow[], months: string[], only?: Set<number>, marked = false): InputRow[] {
+        if (!only && !marked) { this.acUnposted = unpostedActualMonths(rows, months); }
+        return dropActuals(rows, months, this.acUnposted);
     }
 
     /**
@@ -8889,25 +8910,23 @@ export class Visual implements IVisual {
 
     /**
      * The integrated zoom chart (ChartKitchen "integrated bridge"), one picture
-     * instead of the two stacked charts of v0.11:
+     * in three zones (1.7.1):
      *
-     *   · one baseline over the full width, one value scale for every column;
-     *   · left, the full-height anchors — the second scenario outermost (PY
-     *     solid gray), the reference next to the band (PL outlined, FC hatched);
-     *   · bottom of the band, one column per month, AC solid, forecast months
-     *     hatched, the second scenario as a triangle beside it;
-     *   · above them the cumulated Δ bridge: it starts on the level of the
-     *     reference anchor and floats one step per month across the band, teal
-     *     when favorable, red when not, hatched in the forecast months, thin
-     *     connectors between the steps;
-     *   · on top of that the Δ% pin row of the same months;
-     *   · a vertical rule between the last actual and the first forecast month;
-     *   · right, the stacked AC + FC total column and the total variance badge.
+     *   · top, the Δ% pin row of the months and of the total;
+     *   · middle, the Δ zone: the cumulated Δ bridge of the months (flows) or
+     *     the Δ of the stands per month (stocks, never cumulated), teal when
+     *     favorable, red when not, hatched in the forecast months, the total Δ
+     *     under the total column and the badge at its end. One scale for every
+     *     Δ; where it magnifies the value scale the zone label carries the IBCS
+     *     scaling indicator "ΔPL ×n";
+     *   · bottom, the value zone on one baseline: left the full-height anchors —
+     *     the second scenario outermost (PY solid gray), the reference next to
+     *     the band (PL outlined, FC hatched) —, one column pair per month (AC
+     *     solid, forecast months hatched, the second scenario as a triangle),
+     *     right the stacked AC + FC total (stocks: the stand at the end);
+     *   · a vertical rule between the last actual and the first forecast month.
      *
-     * All full columns and the bridge share one scale. The monthly columns keep
-     * that very scale as long as they fit the lower zone — which they do for
-     * any normal year — and only a degenerate series (one or two months, each
-     * nearly the whole total) compresses them, so the two zones never collide.
+     * Anchors, monthly columns and the total share one value scale.
      */
     private treeZoomCombo(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement): void {
@@ -8921,6 +8940,10 @@ export class Visual implements IVisual {
 
         const { pts, triScen } = this.treeComboPts(node);
         const n = pts.length;
+        // 1.7.1 a stock row shows stands: no sums over months, no cumulated bridge —
+        // the total is the stand at the end of the AC&FC series (an opening stock:
+        // at its start), Δ compares stand with stand of the same month
+        const stock = node.stock != null && this.model!.months.length > 0;
 
         // totals — the bridge must reconcile, so every total is summed over the
         // very months the steps are drawn from, not read from the YTD scalar.
@@ -8929,28 +8952,43 @@ export class Visual implements IVisual {
         // would report a gap against a plan for months nobody has posted yet.
         let refSum: number | null = null; let triSum: number | null = null;
         let acSum = 0; let fcSum = 0; let hasVal = false;
-        for (const p of pts) {
-            if (p.v == null) { continue; }
-            if (p.ref != null) { refSum = (refSum ?? 0) + p.ref; }
-            if (p.tri != null) { triSum = (triSum ?? 0) + p.tri; }
-            hasVal = true;
-            if (p.isFc) { fcSum += p.v; } else { acSum += p.v; }
+        /** stocks: the month whose stand is the total (-1 = none) */
+        let endIdx = -1;
+        if (stock) {
+            const idx = pts.map((p, i) => (p.v != null ? i : -1)).filter(i => i >= 0);
+            endIdx = idx.length === 0 ? -1 : node.stock === "first" ? idx[0] : idx[idx.length - 1];
+            if (endIdx >= 0) {
+                const p = pts[endIdx];
+                hasVal = true;
+                refSum = p.ref; triSum = p.tri;
+                if (p.isFc) { fcSum = p.v!; } else { acSum = p.v!; }
+            }
+        } else {
+            for (const p of pts) {
+                if (p.v == null) { continue; }
+                if (p.ref != null) { refSum = (refSum ?? 0) + p.ref; }
+                if (p.tri != null) { triSum = (triSum ?? 0) + p.tri; }
+                hasVal = true;
+                if (p.isFc) { fcSum += p.v; } else { acSum += p.v; }
+            }
         }
         // a model without monthly series still gets the anchors and the badge
         if (n === 0 || !hasVal) {
             const yv = displayValue(node, "ac");
             const rv = this.has[ref] ? displayValue(node, ref) : null;
             if (yv == null || rv == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
-            acSum = yv; fcSum = 0; refSum = rv;
+            acSum = yv; fcSum = 0; refSum = rv; endIdx = -1;
             triSum = triScen === "" ? null : displayValue(node, triScen);
         }
         if (refSum == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
+        const endFc = stock && endIdx >= 0 && pts[endIdx].isFc;
         const vTot = acSum + fcSum;
         const dTot = vTot - refSum;
         const dTotRaw = dTot * inv;
         const totGood = node.row.varianceInvert ? dTotRaw < 0 : dTotRaw >= 0;
         const totColor = totGood ? this.goodColor() : this.badColor();
         const pctTot = refSum !== 0 ? (dTot / Math.abs(refSum)) : null;
+        const anyFc = stock ? endFc : fcSum !== 0;
 
         // ---------------- horizontal layout
         const totW = Math.max(24 * s, Math.min(46 * s, box.w * 0.05));
@@ -8959,7 +8997,7 @@ export class Visual implements IVisual {
         const bandStart = xRefAnc + totW + 14 * s;
         const badge = signed(dTot);
         const badgeW = Math.max(46 * s, badge.length * lfs * 0.62 + 14 * s);
-        const sideW = fcSum !== 0 ? lfs * 2.1 : 0;
+        const sideW = !stock && fcSum !== 0 ? lfs * 2.1 : 0;
         const bandEnd = box.x + box.w - badgeW - 8 * s - sideW - totW - 14 * s;
         if (bandEnd - bandStart < Math.max(n, 1) * 6) {
             this.treeHint(g, box, s, this.tr("UI_NoWidth"));
@@ -8968,7 +9006,7 @@ export class Visual implements IVisual {
         const slots = Math.max(n, 1);
         const step = (bandEnd - bandStart) / slots;
         const segW = Math.max(4, Math.min(step * 0.70, 30 * s));
-        // the monthly slot now carries the IBCS pair of the card charts: the AC
+        // the monthly slot carries the IBCS pair of the card charts: the AC
         // column in front, the reference column behind it and offset right — so
         // the slot needs room for both plus the triangle strip
         const colW = Math.max(4, Math.min(step * 0.58, 24 * s));
@@ -8976,37 +9014,60 @@ export class Visual implements IVisual {
         const xTot = bandEnd + 14 * s;
         const cxTot = xTot + totW / 2;
 
-        // ---------------- vertical layout
+        // ---------------- vertical layout (1.7.1): pins · Δ zone · value zone
+        //
+        // Until 1.7.0 the Δ bridge floated on the value scale at the height of
+        // the reference total, every step at least 3.5 px — a small account's
+        // variances came out as identical bricks. Now the variances own a zone
+        // between the pin row and the columns, with one scale for every Δ of the
+        // tile; where that scale has to magnify the value scale, the zone label
+        // says so (IBCS scaling indicator "Δ ×n"), and no step has a minimum
+        // height beyond one hairline.
         const headH = hfs + 8 * s;
         const showPins = pts.some(p => p.pct != null);
         const pinH = showPins ? Math.max(52 * s, box.h * 0.18) : 4 * s;
         const pinAxisY = box.y + headH + pinH * 0.56;
         const catH = cfs * 2 + 10 * s;
         const yBase = box.y + box.h - catH;
-        const plotTop = box.y + headH + pinH + lfs + 5 * s;
+        const dTop = box.y + headH + pinH + 2 * s;
+        const dH = Math.max(40 * s, (yBase - dTop) * 0.34);
+        const plotTop = dTop + dH + lfs + 6 * s;
 
-        // one domain for every full column and for the bridge levels
+        // the Δ series: cumulated levels (flows) or the monthly Δ of the stands
+        const dVals: number[] = [0, dTot];
+        if (stock) {
+            for (const p of pts) { if (p.d != null) { dVals.push(p.d); } }
+        } else {
+            let lv = 0;
+            for (const p of pts) { if (p.d != null) { lv += p.d; dVals.push(lv); } }
+        }
+        const dMax = Math.max(...dVals); const dMin = Math.min(...dVals);
+        const dSpan = dMax - dMin || 1;
+        const dFit = Math.max(dH - 2 * lfs - 6 * s, 8 * s) / dSpan;
+
+        // one domain for every full column: anchors, months, total
         let lo = 0; let hi = 0;
         const see = (v: number | null): void => {
             if (v == null) { return; }
             lo = Math.min(lo, v); hi = Math.max(hi, v);
         };
         see(refSum); see(triSum); see(vTot); see(acSum);
-        let level = refSum;
-        for (const p of pts) { see(p.v); see(p.tri); if (p.d != null) { level += p.d; see(level); } }
+        for (const p of pts) { see(p.v); see(p.tri); see(p.ref); }
         if (hi === lo) { hi = lo + 1; }
-        const unit = (yBase - plotTop) / (hi - lo);
+        let unit = (yBase - plotTop) / (hi - lo);
+        // a Δ wider than its zone on the value scale: the whole tile shrinks to
+        // the Δ, so value and Δ keep one scale (×1) instead of a squeezed Δ
+        if (dFit < unit) { unit = dFit; }
+        // nice factors only, and at most ×100: beyond that the variances are
+        // rounding noise against the values and stay hairlines on purpose
+        const NICE = [1, 2, 5, 10, 20, 50, 100];
+        let mag = 1;
+        if (dMax !== dMin) { for (const k of NICE) { if (unit * k <= dFit) { mag = k; } } }
+        const dPx = unit * mag;
         const yOf = (v: number): number => yBase - (v - lo) * unit;
         const axisY = yOf(0);
-        // the monthly columns keep the shared scale unless a very short series
-        // would push them into the bridge — then, and only then, they compress
-        const zoneH = (yBase - plotTop) * 0.42;
-        let maxMon = 0;
-        for (const p of pts) {
-            maxMon = Math.max(maxMon, Math.abs(p.v ?? 0), Math.abs(p.tri ?? 0), Math.abs(p.ref ?? 0));
-        }
-        const mk = maxMon * unit > zoneH && maxMon > 0 ? zoneH / (maxMon * unit) : 1;
-        const mY = (v: number): number => axisY - v * unit * mk;
+        const dAxis = dTop + lfs + 3 * s + dMax * dPx;
+        const yD = (v: number): number => dAxis - v * dPx;
 
         // ---------------- small drawing helpers
         const rect = (x: number, y: number, w: number, h: number,
@@ -9032,7 +9093,7 @@ export class Visual implements IVisual {
         };
         /** text clamped into the chart box, so no label can ever leave the svg */
         const label = (x: number, y: number, txt: string, fs: number, fill: string,
-            anchor: "middle" | "start" | "end" = "middle", weight?: string, halo = false): void => {
+            anchor: "middle" | "start" | "end" = "middle", weight?: string, halo = false): SVGElement => {
             const t = document.createElementNS(ns, "text");
             const half = txt.length * fs * 0.3;
             const min = anchor === "start" ? box.x : box.x + (anchor === "end" ? 2 * half : half);
@@ -9052,6 +9113,7 @@ export class Visual implements IVisual {
             }
             t.textContent = txt;
             g.appendChild(t);
+            return t;
         };
 
         const hatch = this.treeHatchId(svg);
@@ -9080,7 +9142,9 @@ export class Visual implements IVisual {
         const catEvery = Math.max(1, Math.ceil((5 * cfs * 0.6 + 4 * s) / Math.max(step, 1)));
 
         // ---------------- caption
-        label(box.x, box.y + hfs, this.tr("UI_ComboCaption", refUp, fcSum !== 0 ? "/FC" : ""),
+        label(box.x, box.y + hfs, stock
+            ? this.tr("UI_ComboCaptionStock", refUp, anyFc ? "/FC" : "")
+            : this.tr("UI_ComboCaption", refUp, fcSum !== 0 ? "/FC" : ""),
         hfs, C.soft, "start", "600");
 
         // ---------------- Δ% pin row
@@ -9107,7 +9171,7 @@ export class Visual implements IVisual {
                 if (p.pct == null || !marks.has(i)) { return; }
                 pin(cx(i), p.pct, p.good, p.isFc);
             });
-            if (pctTot != null) { pin(cxTot, pctTot, totGood, fcSum !== 0); }
+            if (pctTot != null) { pin(cxTot, pctTot, totGood, anyFc); }
         }
 
         // ---------------- AC | FC divider
@@ -9118,6 +9182,20 @@ export class Visual implements IVisual {
                 .setAttribute("data-pnl", "combo-fcline");
             label(dx + 3 * s, yBase + cfs * 2 + 7 * s, "FC", cfs, C.ac, "start", "600");
         }
+
+        // ---------------- Δ zone: label with the scaling indicator, axis
+        const dLab = label(box.x, dAxis + lfs * 0.35, `Δ${refUp}` + (mag > 1 ? ` ×${mag}` : ""),
+            hfs, C.soft, "start", "600");
+        dLab.setAttribute("data-pnl", "combo-dlabel");
+        dLab.setAttribute("data-mag", String(mag));
+        if (mag > 1) {
+            const tt = document.createElementNS(ns, "title");
+            tt.textContent = this.tr("UI_ComboDeltaMag", mag);
+            dLab.appendChild(tt);
+        }
+        line(bandStart - 4 * s, dAxis, bandEnd + 4 * s, dAxis, C.py, 1.4)
+            .setAttribute("data-pnl", "combo-daxis");
+        line(cxTot - totW / 2 - 2 * s, dAxis, cxTot + totW / 2 + 2 * s, dAxis, C.py, 1.4);
 
         // ---------------- left anchors, full height
         const anchor = (x: number, v: number, scen: Scenario, tag: string): void => {
@@ -9134,11 +9212,10 @@ export class Visual implements IVisual {
         }
         anchor(xRefAnc, refSum, ref, refUp);
 
-        // ---------------- level guides: reference level and the reached total
-        line(xRefAnc + totW, yOf(refSum), cxTot + totW / 2, yOf(refSum), C.gridSoft, 1);
-        line(bandEnd, yOf(vTot), xTot, yOf(vTot), C.gridSoft, 1);
+        // ---------------- level guide: the reference level across to the total
+        line(xRefAnc + totW, yOf(refSum), xTot, yOf(refSum), C.gridSoft, 1);
 
-        // ---------------- bridge steps, monthly columns, month labels
+        // ---------------- Δ per month (bridge steps / stand Δ), monthly columns, labels
         //
         // The monthly zone draws the IBCS pair of the card charts: the AC column
         // in front, the reference column of the same month behind it and offset
@@ -9150,29 +9227,35 @@ export class Visual implements IVisual {
         const acW = hasRefCols ? colW * 0.60 : colW;
         const refW = acW * 1.25;
         const dxPair = hasRefCols ? acW * 0.40 : 0;
-        level = refSum;
+        let level = 0;
         /** x of the bridge step the connector last left (skips empty months) */
         let lastStepX: number | null = null;
         pts.forEach((p, i) => {
             const x = cx(i) - (hasTriCols ? colW * 0.18 : 0);
             if (p.d != null) {
-                // connector at the incoming level, then the floating step
-                const from = lastStepX == null ? xRefAnc + totW : lastStepX + segW / 2;
-                line(from, yOf(level), cx(i) - segW / 2, yOf(level), C.gridSoft, 1);
-                const prev = level;
-                level += p.d;
-                const top = Math.min(yOf(prev), yOf(level));
-                // a small Δ on a big scale must still read as a brick, not a rule
-                const h = Math.max(Math.abs(yOf(prev) - yOf(level)), 3.5 * s);
                 const color = p.good ? this.goodColor() : this.badColor();
+                // flows: the floating step of the cumulated bridge; stocks: the Δ of
+                // the stands of this month, standing on the Δ axis (never cumulated)
+                const from = stock ? 0 : level;
+                const to = stock ? p.d : level + p.d;
+                if (!stock) {
+                    const fromX = lastStepX == null ? bandStart - 4 * s : lastStepX + segW / 2;
+                    line(fromX, yD(level), cx(i) - segW / 2, yD(level), C.gridSoft, 1);
+                    level = to;
+                }
+                const top = Math.min(yD(from), yD(to));
+                // one hairline at least, nothing more: the height is the value
+                const h = Math.max(Math.abs(yD(from) - yD(to)), 1);
                 const sr = p.isFc
                     ? rect(cx(i) - segW / 2, top, segW, h, dHatch(color, p.good), color, 1)
                     : rect(cx(i) - segW / 2, top, segW, h, color);
                 sr.setAttribute("data-pnl", "combo-step");
+                sr.setAttribute("data-d", String(p.d));
                 if (p.isFc) { sr.setAttribute("data-fc", "1"); }
                 lastStepX = cx(i);
                 if (marks.has(i)) {
-                    label(cx(i), p.d >= 0 ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
+                    const up = stock ? p.d >= 0 : p.d >= 0;
+                    label(cx(i), up ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
                         "middle", undefined, true);
                 }
             }
@@ -9183,8 +9266,8 @@ export class Visual implements IVisual {
             // month carries no actual at all, so the gap stays visible as a gap
             if (p.ref != null && this.has[ref]) {
                 const st = this.treeScenFill(ref, hatch);
-                const y = Math.min(mY(p.ref), axisY);
-                const h = Math.abs(mY(p.ref) - axisY);
+                const y = Math.min(yOf(p.ref), axisY);
+                const h = Math.abs(yOf(p.ref) - axisY);
                 const rr = rect(refCx - refW / 2, y, refW, h, st.fill, st.stroke ?? undefined, 1.2);
                 rr.setAttribute("data-pnl", "combo-month-ref");
                 rr.setAttribute("data-scen", ref);
@@ -9199,18 +9282,19 @@ export class Visual implements IVisual {
             }
             // monthly column: AC solid / FC hatched, second scenario as triangle
             if (p.v != null) {
-                const y = Math.min(mY(p.v), axisY);
-                const h = Math.abs(mY(p.v) - axisY);
+                const y = Math.min(yOf(p.v), axisY);
+                const h = Math.abs(yOf(p.v) - axisY);
                 const mr = p.isFc
                     ? rect(acCx - acW / 2, y, acW, h, `url(#${hatch})`, C.ac, 1)
                     : rect(acCx - acW / 2, y, acW, h, C.ac);
                 mr.setAttribute("data-pnl", "combo-month");
+                mr.setAttribute("data-v", String(p.v));
                 if (p.isFc) { mr.setAttribute("data-fc", "1"); }
                 tops.push(y);
             }
             if (p.tri != null && triScen !== "") {
                 const st = this.treeScenFill(triScen, hatch);
-                const ty = mY(p.tri);
+                const ty = yOf(p.tri);
                 const tri = TREE_TRI * s;
                 const tx = refCx + refW / 2 + 1.2 * s;
                 const path = document.createElementNS(ns, "path");
@@ -9235,36 +9319,55 @@ export class Visual implements IVisual {
             }
         });
 
+        // ---------------- total Δ in the Δ zone, right under the total column
+        if (!stock && lastStepX != null) {
+            line(lastStepX + segW / 2, yD(dTot), cxTot - totW * 0.3, yD(dTot), C.gridSoft, 1);
+        }
+        const dTop2 = Math.min(yD(0), yD(dTot));
+        const dTotBar = rect(cxTot - totW * 0.3, dTop2, totW * 0.6, Math.max(Math.abs(yD(0) - yD(dTot)), 1), totColor);
+        dTotBar.setAttribute("data-pnl", "combo-dtotal");
+        dTotBar.setAttribute("data-d", String(dTot));
+
         // ---------------- shared baseline over the full width
         line(box.x, axisY, box.x + box.w, axisY, C.ac, 1.2);
 
-        // ---------------- right: the stacked AC + FC total column
-        const acTop = yOf(acSum);
-        rect(xTot, Math.min(acTop, axisY), totW, Math.abs(acTop - axisY), C.ac)
-            .setAttribute("data-pnl", "combo-total-ac");
-        if (fcSum !== 0) {
+        // ---------------- right: the total column
+        if (stock) {
+            // the stand at the end of the series — hatched when that month is a forecast
             const vTop = yOf(vTot);
-            rect(xTot, Math.min(vTop, acTop), totW, Math.abs(vTop - acTop),
-                `url(#${hatch})`, C.ac, 1.2).setAttribute("data-pnl", "combo-total-fc");
-            label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
-                "middle", undefined, true);
-            label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
-            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, C.onInk);
-            label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
+            const tr = rect(xTot, Math.min(vTop, axisY), totW, Math.abs(vTop - axisY),
+                endFc ? `url(#${hatch})` : C.ac, endFc ? C.ac : undefined, 1.2);
+            tr.setAttribute("data-pnl", endFc ? "combo-total-fc" : "combo-total-ac");
+            label(cxTot, Math.min(vTop, axisY) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
+            const tag = (endFc ? "FC" : "AC") + (endIdx >= 0 ? " " + pts[endIdx].tag : "");
+            label(cxTot, yBase + cfs + 4 * s, tag, cfs, C.soft);
+        } else {
+            const acTop = yOf(acSum);
+            rect(xTot, Math.min(acTop, axisY), totW, Math.abs(acTop - axisY), C.ac)
+                .setAttribute("data-pnl", "combo-total-ac");
+            if (fcSum !== 0) {
+                const vTop = yOf(vTot);
+                rect(xTot, Math.min(vTop, acTop), totW, Math.abs(vTop - acTop),
+                    `url(#${hatch})`, C.ac, 1.2).setAttribute("data-pnl", "combo-total-fc");
+                label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
+                    "middle", undefined, true);
+                label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
+                label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, C.onInk);
+                label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
+            }
+            label(cxTot, Math.min(yOf(vTot), axisY) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
+            label(cxTot, yBase + cfs + 4 * s, fcSum !== 0 ? "AC+FC" : "AC", cfs, C.soft);
         }
-        label(cxTot, yOf(vTot) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
-        label(cxTot, yBase + cfs + 4 * s, fcSum !== 0 ? "AC+FC" : "AC", cfs, C.soft);
 
-        // ---------------- total variance badge
+        // ---------------- total variance badge, at the end of the Δ zone
         const bh = lfs + 9 * s;
         const bcx = box.x + box.w - badgeW / 2;
-        const bcy = Math.min(Math.max((yOf(refSum) + yOf(vTot)) / 2, plotTop + bh / 2), yBase - bh / 2);
+        const bcy = Math.min(Math.max(yD(dTot), dTop + bh / 2), dTop + dH - bh / 2);
         const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, this.cardPaper(), totColor, 1.6);
         bg.setAttribute("rx", (bh / 2).toFixed(2));
         bg.setAttribute("data-pnl", "combo-badge");
         label(bcx, bcy + lfs * 0.36, badge, lfs, totColor, "middle", "600");
     }
-
     /**
      * Value driver tree (DuPont): the P&L drawn as cards in a tidy multi-level
      * tree. The root is a formula or KPI row, its operands branch to the right,

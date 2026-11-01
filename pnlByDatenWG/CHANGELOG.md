@@ -1,5 +1,36 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.7.1.0 (2026-11-01): Kachel-Zoom maßstabsgetreu, Ist = 0 in ungebuchten Monaten, Bestände in der Kachel
+
+Drei Korrekturen aus dem Praxistest der Kachel-Ansicht (Drill auf ein Konto mit Monatsverlauf).
+
+**Abweichungen in der Kachel maßstabsgetreu.** Bis 1.7.0 stand die Δ-Brücke auf der Werteskala in Höhe
+der Referenzsumme, jede Stufe mindestens 3,5 px hoch — bei kleinen Konten wurden alle Monatsabweichungen
+gleich hohe Klötze (Merchandise: −1,31 und −5,88 gleich hoch). Jetzt haben die Abweichungen eine eigene
+Zone zwischen Δ%-Pins und Säulen, mit einer Skala für jedes Δ der Kachel und ohne Mindesthöhe (höchstens
+eine Haarlinie). Vergrößert diese Skala die Werteskala, trägt die Zone den IBCS-Skalierungshinweis
+„ΔPL ×n“ (Faktoren 1 · 2 · 5 · 10 · 20 · 50 · 100, Tooltip erklärt). Sind alle Δ null, bleibt ×1. Das
+Gesamt-Δ steht als Balken unter der Gesamtsäule, die Plakette am Ende der Zone. Anker, Monatssäulen und
+Gesamtsäule teilen weiter eine Werteskala; die Stauchung der Monatssäulen entfällt.
+
+**Ist = 0 statt leer in ungebuchten Monaten.** Liefert das Ist-Measure für Monate ohne Buchung 0 statt
+BLANK, galt der Monat als Ist: der Forecast verschwand (Kachel, 12G, YTD bis Dezember), die Kachel zeigte
+−100 % und eine falsche Summe. Jetzt gelten nachlaufende Monate, in denen das Ist in jeder Zeile 0 ist
+und der Forecast einen Wert hat, als nicht gebucht — für das ganze Modell und alle Teilmodelle
+(Spalten-Kategorie, Cross-Highlight). Monate vor dem letzten gebuchten Ist und Monate ohne Forecast
+bleiben unverändert. Im Bearbeitungsmodus nennt die Fußzeile die Monate und den Fix im Modell
+(Ist-Measure für ungebuchte Monate BLANK liefern). Rechenkern: `unpostedActualMonths`, `dropActuals`.
+
+**Bestände in der Kachel.** Die Kachel summierte bei Bestandszeilen die Monatsstände (Kasse und Bank:
+6 910 statt 498). Jetzt zeigt sie Stände: Monatssäulen = Stand je Monat, Gesamtsäule = Stand am Ende der
+AC&FC-Reihe (Anfangsbestand: am Anfang, schraffiert, wenn der Monat ein Forecast ist), Δ je Monat = Stand
+gegen Stand derselben Referenz, nie kumuliert; Überschrift „Stände + Δ je Monat“.
+
+Ohne Kachel-Zoom und mit BLANK-Ist rendert jeder Bericht wie 1.7.0.
+
+**Tests:** neu `npm run test:tile` (16 Prüfungen: Δ-Skala, Werteskala, Skalierungshinweis, Ist = 0,
+Autorenhinweis, Bestände); engine 49 (+1).
+
 ## 1.7.0.0 (2026-10-29): Bestand & Fluss, Nur Ausnahmen, ganze Kachel, Toolbar-Farben, Cross-Highlight im Sankey
 
 Vier Themen aus dem Nutzertest und der Bewertung „GuV · Cashflow · Bilanz". Ohne die neuen Schalter rendert

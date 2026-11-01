@@ -1,6 +1,6 @@
 # IBCS-Templates mit „P&L Statement byDatenWG" nachstellen · Kurzanleitung
 
-Stand: **Visual 1.7.0.0** (29.10.2026), dazu die Bestands-Templates T05A/T05B
+Stand: **Visual 1.7.1.0** (01.11.2026), dazu die Bestands-Templates T05A/T05B
 (1.7, in Arbeit). Für die lokale Arbeit in Power BI Desktop —
 alles Nötige, um die offiziellen IBCS-Templates (T01A–T04E, 12A, 12G, 12H)
 nachzubauen, plus Bilanz (T05A) und Cashflow-Brücke (T05B). Referenzbilder liegen in `prototype/refs/`, der interaktive
