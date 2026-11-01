@@ -1,0 +1,107 @@
+{
+ "workspaces": [
+  {
+   "id": "9eb531b4-f97a-4dad-99ff-fac0e31fbeb3",
+   "name": "Finance",
+   "type": "Workspace",
+   "state": "Active",
+   "datasets": [
+    {
+     "id": "11111111-2222-3333-4444-555555555555",
+     "name": "Finanzmodell",
+     "targetStorageMode": "Abf",
+     "tables": [
+      {
+       "name": "Sales",
+       "isHidden": false,
+       "columns": [
+        {
+         "name": "Amount",
+         "dataType": "Double"
+        },
+        {
+         "name": "Cost",
+         "dataType": "Double",
+         "isHidden": true
+        },
+        {
+         "name": "Region",
+         "dataType": "String"
+        },
+        {
+         "name": "Gehalt",
+         "dataType": "Double",
+         "isHidden": true
+        }
+       ],
+       "measures": [
+        {
+         "name": "Umsatz",
+         "expression": "SUM(Sales[Amount])"
+        },
+        {
+         "name": "DB",
+         "expression": "SUM(Sales[Amount]) - SUM(Sales[Cost])"
+        },
+        {
+         "name": "Marge",
+         "expression": "DIVIDE([DB], [Umsatz])"
+        }
+       ]
+      },
+      {
+       "name": "Dim Datum",
+       "columns": [
+        {
+         "name": "Jahr",
+         "dataType": "Int64"
+        }
+       ],
+       "measures": []
+      }
+     ],
+     "roles": []
+    },
+    {
+     "id": "66666666-7777-8888-9999-000000000000",
+     "name": "Vertrieb",
+     "targetStorageMode": "Abf",
+     "tables": [
+      {
+       "name": "Angebote",
+       "columns": [
+        {
+         "name": "Summe",
+         "dataType": "Double"
+        },
+        {
+         "name": "Region",
+         "dataType": "String"
+        }
+       ],
+       "measures": [
+        {
+         "name": "Pipeline",
+         "expression": "SUM(Angebote[Summe])"
+        }
+       ]
+      }
+     ],
+     "roles": [
+      {
+       "name": "Region",
+       "modelPermission": "Read",
+       "members": [],
+       "tablePermissions": [
+        {
+         "name": "Angebote",
+         "filterExpression": "[Region] = USERPRINCIPALNAME()"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,4 @@
+role Leser
+	modelPermission: read
+
+	tablePermission Sales = [Region] = "Nord"

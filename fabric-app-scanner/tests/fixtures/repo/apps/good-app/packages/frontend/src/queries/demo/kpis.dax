@@ -1,0 +1,9 @@
+// Kennzahlen je Region und Jahr
+EVALUATE
+SUMMARIZECOLUMNS (
+    Sales[Region],
+    'Dim Datum'[Jahr],
+    "umsatz", [Umsatz],
+    "marge", Sales[Marge]
+)
+ORDER BY Sales[Region]
