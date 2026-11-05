@@ -4,6 +4,13 @@ Verbindlich für die englische Fassung. Ein Begriff, eine Übersetzung — durch
 Fachsprache aus Controlling, Finance und IBCS; im Zweifel der in der Zielgruppe
 gebräuchliche Begriff, nicht die wörtliche Übersetzung.
 
+> **Wo die Übersetzungen stehen (seit 11/2026):** nicht mehr in einer zweiten Datei,
+> sondern im Block `const I18N_EN = {…}` am Anfang von `visual-standards-rechner.html`.
+> Schlüssel ist der deutsche Text. Deutsch bleibt die Quelle; fehlt ein Eintrag,
+> erscheint deutscher Text. Was fehlt, zeigt `node scripts/i18n-check.js`
+> (Quelltext) und die Seite selbst in `window.i18nFehlt` (statisches Markup).
+> Dieses Glossar gilt unverändert — es entscheidet, welcher Begriff eingetragen wird.
+
 ## Die vier Ansätze (Eigennamen, nicht übersetzen)
 | DE | EN |
 |---|---|
