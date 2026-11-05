@@ -77,3 +77,6 @@ i18n/reste.json
 
 # Fabric-Workspace-Backups (koennen interne Daten enthalten — nie committen)
 fabric_backup/
+
+# i18n: Zwischenstand der einmaligen Umstellung auf eine zweisprachige Datei
+i18n/out/

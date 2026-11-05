@@ -13,12 +13,14 @@ on:
       - "tests/rechner/**"
       - "tests/run-all.js"
       - "assets/js/xlsx.full.min.js"
+      - "scripts/i18n-check.js"
       - ".github/workflows/rechner-tests.yml"
   pull_request:
     paths:
       - "visual-standards-rechner.html"
       - "tests/rechner/**"
       - "tests/run-all.js"
+      - "scripts/i18n-check.js"
   workflow_dispatch:
 
 jobs:
@@ -34,6 +36,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Zweisprachigkeit prüfen
+        # Braucht keinen Browser und laeuft in Sekunden: deutscher Text ohne
+        # i18n(...), Aufrufe ohne Woerterbuch-Eintrag, tote Eintraege. Steht
+        # bewusst vor der Playwright-Installation — ein fehlender Eintrag soll
+        # nicht erst nach fuenf Minuten Testlauf auffallen.
+        run: node scripts/i18n-check.js
 
       - name: Playwright und Chromium installieren
         # Kein package.json im Repo-Wurzelverzeichnis: Playwright wird direkt

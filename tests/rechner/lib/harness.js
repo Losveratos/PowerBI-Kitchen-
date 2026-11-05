@@ -22,7 +22,16 @@ function loadPlaywright() {
   try { return require('playwright'); } catch (e) { tried.push('require("playwright")'); }
   const roots = [];
   if (process.env.NODE_PATH) roots.push(...process.env.NODE_PATH.split(path.delimiter).filter(Boolean));
-  try { roots.push(execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim()); } catch (e) { /* npm fehlt */ }
+  /* npm liegt unter Windows als npm.cmd vor; execFileSync('npm', …) findet es nicht und
+     scheitert still. Ohne shell:true fiel die Suche deshalb auf die Unix-Pfade zurueck und
+     meldete "Playwright nicht gefunden", obwohl es global installiert war. */
+  try {
+    roots.push(execFileSync('npm', ['root', '-g'],
+      { encoding: 'utf8', shell: process.platform === 'win32' }).trim());
+  } catch (e) { /* npm fehlt */ }
+  if (process.platform === 'win32' && process.env.APPDATA) {
+    roots.push(path.join(process.env.APPDATA, 'npm', 'node_modules'));
+  }
   roots.push('/opt/node22/lib/node_modules', '/usr/lib/node_modules', '/usr/local/lib/node_modules');
   for (const r of roots) {
     const p = path.join(r, 'playwright');
