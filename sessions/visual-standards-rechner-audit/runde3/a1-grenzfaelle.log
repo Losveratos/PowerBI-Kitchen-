@@ -1,0 +1,209 @@
+
+--- Fall 1 · Horizont 3 / 5 / 10 ---
+OK   [paid] Gesamtkosten steigen monoton mit dem Horizont | 47815.80 < 69045.41 < 141828.58
+OK   [paid] Kosten je Jahr grob stabil (Faktor H10/H3 zwischen 0,5 und 2) | je Jahr H3 15938.60 · H5 13809.08 · H10 14182.86 · Faktor 0.890
+OK   [paid] H=3: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=3
+OK   [paid] H=5: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=5
+OK   [paid] H=10: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=10
+OK   [oss] Gesamtkosten steigen monoton mit dem Horizont | 57086.63 < 79076.15 < 140773.46
+OK   [oss] Kosten je Jahr grob stabil (Faktor H10/H3 zwischen 0,5 und 2) | je Jahr H3 19028.88 · H5 15815.23 · H10 14077.35 · Faktor 0.740
+OK   [oss] H=3: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=3
+OK   [oss] H=5: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=5
+OK   [oss] H=10: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=10
+OK   [deneb] Gesamtkosten steigen monoton mit dem Horizont | 69815.93 < 94628.24 < 161396.70
+OK   [deneb] Kosten je Jahr grob stabil (Faktor H10/H3 zwischen 0,5 und 2) | je Jahr H3 23271.98 · H5 18925.65 · H10 16139.67 · Faktor 0.694
+OK   [deneb] H=3: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=3
+OK   [deneb] H=5: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=5
+OK   [deneb] H=10: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=10
+OK   [core] Gesamtkosten steigen monoton mit dem Horizont | 87525.99 < 121470.40 < 211812.02
+OK   [core] Kosten je Jahr grob stabil (Faktor H10/H3 zwischen 0,5 und 2) | je Jahr H3 29175.33 · H5 24294.08 · H10 21181.20 · Faktor 0.726
+OK   [core] H=3: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=3
+OK   [core] H=5: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=5
+OK   [core] H=10: keine NaN/Infinity/negativ, cf hat H Eintraege | cf.length=10
+
+--- Fall 2 · Viewer 0 / Viewer 1 / 1 Ersteller mit 100.000 Viewern ---
+OK   [Viewer 0][paid] Erwartungswert endlich und nicht negativ | total 50653.76
+OK   [Viewer 0][paid] Simulation P10/P50/P90 endlich | 32715 / 49108 / 77568
+OK   [Viewer 0][oss] Erwartungswert endlich und nicht negativ | total 76662.39
+OK   [Viewer 0][oss] Simulation P10/P50/P90 endlich | 46071 / 75140 / 126747
+OK   [Viewer 0][deneb] Erwartungswert endlich und nicht negativ | total 92207.39
+OK   [Viewer 0][deneb] Simulation P10/P50/P90 endlich | 56522 / 90134 / 144782
+OK   [Viewer 0][core] Erwartungswert endlich und nicht negativ | total 118052.56
+OK   [Viewer 0][core] Simulation P10/P50/P90 endlich | 68845 / 113548 / 197230
+OK   [Viewer 0] Seite zeigt kein NaN / Infinity / undefined | sauber
+OK   [Viewer 0] Break-even-Viewerzahl ist Zahl oder null | 74
+OK   [Viewer 0] Paid-Lizenz > 0 trotz 0 Viewer (Mindestpaket fuer Ersteller) | 2395.76
+OK   [Viewer 1][paid] Erwartungswert endlich und nicht negativ | total 50695.88
+OK   [Viewer 1][paid] Simulation P10/P50/P90 endlich | 32740 / 49153 / 77632
+OK   [Viewer 1][oss] Erwartungswert endlich und nicht negativ | total 76717.94
+OK   [Viewer 1][oss] Simulation P10/P50/P90 endlich | 46111 / 75201 / 126839
+OK   [Viewer 1][deneb] Erwartungswert endlich und nicht negativ | total 92264.56
+OK   [Viewer 1][deneb] Simulation P10/P50/P90 endlich | 56569 / 90180 / 144862
+OK   [Viewer 1][core] Erwartungswert endlich und nicht negativ | total 118136.15
+OK   [Viewer 1][core] Simulation P10/P50/P90 endlich | 68898 / 113621 / 197344
+OK   [Viewer 1] Seite zeigt kein NaN / Infinity / undefined | sauber
+OK   [Viewer 1] Break-even-Viewerzahl ist Zahl oder null | 74
+OK   [1 Ersteller / 100.000 Viewer][paid] Erwartungswert endlich und nicht negativ | total 13786887.54
+OK   [1 Ersteller / 100.000 Viewer][paid] Simulation P10/P50/P90 endlich | 10249718 / 13699358 / 18086345
+OK   [1 Ersteller / 100.000 Viewer][oss] Erwartungswert endlich und nicht negativ | total 4974260.27
+OK   [1 Ersteller / 100.000 Viewer][oss] Simulation P10/P50/P90 endlich | 3276127 / 4914169 / 7622440
+OK   [1 Ersteller / 100.000 Viewer][deneb] Erwartungswert endlich und nicht negativ | total 5266433.66
+OK   [1 Ersteller / 100.000 Viewer][deneb] Simulation P10/P50/P90 endlich | 3446042 / 5214345 / 7860996
+OK   [1 Ersteller / 100.000 Viewer][core] Erwartungswert endlich und nicht negativ | total 7675132.68
+OK   [1 Ersteller / 100.000 Viewer][core] Simulation P10/P50/P90 endlich | 4843666 / 7534654 / 11467015
+OK   [1 Ersteller / 100.000 Viewer] Seite zeigt kein NaN / Infinity / undefined | sauber
+OK   [1 Ersteller / 100.000 Viewer] Break-even-Viewerzahl ist Zahl oder null | 54
+
+--- Fall 3 · Adoptionsgrad 0 % ---
+OK   [paid] ad=0: Rollout liegt in der Groessenordnung des Null-Options-Baus (±20 %) | rollout 21957.25 vs SQ.build 20871.50 (5.20 %)
+OK   [paid] ad=0: Mehrkosten gegen SQ ohne Leserzeit dokumentiert (Standard-Overhead ohne Nutzen) | total 95092.02 = SQ.noRead 47203.31 + Fix 32659.60 (Lizenz 19164.11) + variabler Overhead 15229.11 (32.26 % auf den variablen Teil)
+OK   [oss] ad=0: Rollout liegt in der Groessenordnung des Null-Options-Baus (±20 %) | rollout 22217.55 vs SQ.build 20871.50 (6.45 %)
+OK   [oss] ad=0: Mehrkosten gegen SQ ohne Leserzeit dokumentiert (Standard-Overhead ohne Nutzen) | total 92412.75 = SQ.noRead 47203.31 + Fix 17300.09 (Lizenz 833.33) + variabler Overhead 27909.35 (59.13 % auf den variablen Teil)
+OK   [deneb] ad=0: Rollout liegt in der Groessenordnung des Null-Options-Baus (±20 %) | rollout 24711.06 vs SQ.build 20871.50 (18.40 %)
+OK   [deneb] ad=0: Mehrkosten gegen SQ ohne Leserzeit dokumentiert (Standard-Overhead ohne Nutzen) | total 108647.96 = SQ.noRead 47203.31 + Fix 31273.55 (Lizenz 2500.00) + variabler Overhead 30171.09 (63.92 % auf den variablen Teil)
+OK   [core] ad=0: Rollout liegt in der Groessenordnung des Null-Options-Baus (±20 %) | rollout 24339.98 vs SQ.build 20871.50 (16.62 %)
+OK   [core] ad=0: Mehrkosten gegen SQ ohne Leserzeit dokumentiert (Standard-Overhead ohne Nutzen) | total 114802.20 = SQ.noRead 47203.31 + Fix 24184.67 (Lizenz 0.00) + variabler Overhead 43414.22 (91.97 % auf den variablen Teil)
+OK   [paid] ad=0, ext=0, cx=Core: Rollout == Null-Options-Bau (Cent-genau) | 20871.50 vs 20871.50
+OK   [oss] ad=0, ext=0, cx=Core: Rollout == Null-Options-Bau (Cent-genau) | 20871.50 vs 20871.50
+OK   [deneb] ad=0, ext=0, cx=Core: Rollout == Null-Options-Bau (Cent-genau) | 20871.50 vs 20871.50
+OK   [core] ad=0, ext=0, cx=Core: Rollout == Null-Options-Bau (Cent-genau) | 20871.50 vs 20871.50
+OK   Default-Fall: Abweichung Rollout(ad=0) zu SQ.build je Ansatz dokumentiert | paid 5.20 % · oss 6.45 % · deneb 18.40 % · core 16.62 %
+
+--- Fall 4 · IBCS verbindlich fuer alle Reports ---
+OK   [paid] licViewerShare wirkt als 1 (aus: PERT-Mittel von 60/85/100 = 0,8333) | 0.8333 -> 1
+OK   [paid] Lizenzpreis steigt mit IBCS-Pflicht | 18623.80 -> 22457.02 (20.58 %)
+OK   [paid] Klasse A laeuft ueber den Ansatz: shCore = 0 und indep = 0 | shCore 0 indep 0.00 (aus: shCore 0.5373, indep 17061.09)
+OK   [paid] Gesamt an/aus dokumentiert | 69045.41 -> 65661.26 (-4.90 %)
+OK   [oss] Klasse A laeuft ueber den Ansatz: shCore = 0 und indep = 0 | shCore 0 indep 0.00 (aus: shCore 0.5373, indep 19989.79)
+OK   [oss] Lizenzblock unveraendert (kein Lizenzpreis) | 833.33 / 833.33
+OK   [oss] Gesamt an/aus dokumentiert | 79076.15 -> 77721.54 (-1.71 %)
+OK   [deneb] Klasse A laeuft ueber den Ansatz: shCore = 0 und indep = 0 | shCore 0 indep 0.00 (aus: shCore 0.5373, indep 19868.62)
+OK   [deneb] Lizenzblock unveraendert (kein Lizenzpreis) | 2500.00 / 2500.00
+OK   [deneb] Gesamt an/aus dokumentiert | 94628.24 -> 93380.94 (-1.32 %)
+OK   [core] Klasse A laeuft ueber den Ansatz: shCore = 0 und indep = 0 | shCore 0 indep 0.00 (aus: shCore 0.5373, indep 23192.26)
+OK   [core] Lizenzblock unveraendert (kein Lizenzpreis) | 0.00 / 0.00
+OK   [core] Gesamt an/aus dokumentiert | 121470.40 -> 123494.70 (1.67 %)
+
+--- Fall 5 · Aktives Anbieter-Angebot ---
+OK   Lizenzpreis je Nutzer = 50 EUR, Support 0, Mindestlaufzeit 1, Modell pro Nutzer | {"lic":50,"support":0,"minTerm":1,"lm":"peruser","offer":"X"}
+OK   Lizenzpreis = Σ packU(V_y·lvs + C) · inf^y · 50 EUR (Staffel aus, Mindestpaket an) | 13693.97 vs 13693.97 · Einheiten 40/40/50/50/60 · inf 1.0600
+OK   Staffel wirkt trotz S.licModel = staffel NICHT (sonst waere es 10955.18) | 13693.97
+OK   Ohne Angebot: Lizenz-Anker = PERT-Mittel 85 EUR (40/80/150), Modell staffel | 18623.80 | 85 staffel
+OK   Ungueltiger offerOn (7) faellt auf den Anker zurueck | 18623.80
+
+--- Fall 6 · Budgetfreigabe erst im Folgejahr ---
+OK   [paid] cf[0] = 0, cfHard[0] = 0, hoursIntY[0] = 0 | 0.00 / 24664.00 / 15501.01
+OK   [paid] Σcf = total | 40165.01 / 40165.01
+OK   [paid] Jahr 1 des Betriebs traegt die Einmalkosten (cf[1] > cf[2]) | 24664.00 > 15501.01
+OK   [paid] Nebenfolge dokumentiert: fteY1 = 0 (Aufbaujahr ist Jahr 2), yearly teilt durch H=3 | fteY1 0.12007060954003193 · hoursIntY 0/180/95 · yearly 11214.48 · (total−invest)/2 = 11214.48
+OK   [oss] cf[0] = 0, cfHard[0] = 0, hoursIntY[0] = 0 | 0.00 / 29618.19 / 18036.84
+OK   [oss] Σcf = total | 47655.03 / 47655.03
+OK   [oss] Jahr 1 des Betriebs traegt die Einmalkosten (cf[1] > cf[2]) | 29618.19 > 18036.84
+OK   [oss] Nebenfolge dokumentiert: fteY1 = 0 (Aufbaujahr ist Jahr 2), yearly teilt durch H=3 | fteY1 0.1702601482947979 · hoursIntY 0/255/144 · yearly 13046.37 · (total−invest)/2 = 13046.37
+OK   [deneb] cf[0] = 0, cfHard[0] = 0, hoursIntY[0] = 0 | 0.00 / 38326.39 / 20710.58
+OK   [deneb] Σcf = total | 59036.98 / 59036.98
+OK   [deneb] Jahr 1 des Betriebs traegt die Einmalkosten (cf[1] > cf[2]) | 38326.39 > 20710.58
+OK   [deneb] Nebenfolge dokumentiert: fteY1 = 0 (Aufbaujahr ist Jahr 2), yearly teilt durch H=3 | fteY1 0.18410691111594038 · hoursIntY 0/276/137 · yearly 15184.42 · (total−invest)/2 = 15184.42
+OK   [core] cf[0] = 0, cfHard[0] = 0, hoursIntY[0] = 0 | 0.00 / 44851.92 / 27868.41
+OK   [core] Σcf = total | 72720.34 / 72720.34
+OK   [core] Jahr 1 des Betriebs traegt die Einmalkosten (cf[1] > cf[2]) | 44851.92 > 27868.41
+OK   [core] Nebenfolge dokumentiert: fteY1 = 0 (Aufbaujahr ist Jahr 2), yearly teilt durch H=3 | fteY1 0.22851145513772966 · hoursIntY 0/343/200 · yearly 20328.60 · (total−invest)/2 = 20328.60
+OK   rolloutYears = 3, H = 3, budgetnext: Bestand nur zu 2/3 gehoben (reportsTotal faellt) | mit 15.40 vs ohne 17.09 Reports (Bestand 12)
+
+--- Fall 7 · CapEx an / aus ---
+OK   [paid] Zahlungssumme und Posten identisch | 69045.41 / 69045.41
+OK   [paid] GuV-Wirkung Jahr 1 sinkt um capexBase·(1−1/5) | Aufwand 24144.58 -> 18206.30 · aktivierbar 7422.85 (10.8 % der Summe)
+OK   [oss] Zahlungssumme und Posten identisch | 79076.15 / 79076.15
+OK   [oss] GuV-Wirkung Jahr 1 sinkt um capexBase·(1−1/5) | Aufwand 29062.56 -> 23994.85 · aktivierbar 6334.63 (8.0 % der Summe)
+OK   [deneb] Zahlungssumme und Posten identisch | 94628.24 / 94628.24
+OK   [deneb] GuV-Wirkung Jahr 1 sinkt um capexBase·(1−1/5) | Aufwand 37643.84 -> 31784.73 · aktivierbar 7323.89 (7.7 % der Summe)
+OK   [core] Zahlungssumme und Posten identisch | 121470.40 / 121470.40
+OK   [core] GuV-Wirkung Jahr 1 sinkt um capexBase·(1−1/5) | Aufwand 43927.24 -> 37517.74 · aktivierbar 8011.87 (6.6 % der Summe)
+OK   GuV-Zeilen erscheinen nur bei eingeschalteter Aktivierung | aus: false an: true
+
+--- Fall 8 · Viewer-Deckel unter der Viewerzahl ---
+OK   [paid] Lizenz waechst nicht ueber den Deckel: licF (Nutzerjahre je Kopf) · users = 20 Einheiten je Jahr | 20.000 Einheiten
+OK   [paid] Lizenz mit Deckel 20 < Lizenz ohne Deckel | 9583.06 < 18623.80
+OK   vAvg = 20 (Deckel wirkt ab Jahr 0, nicht erst auf das Wachstum) | 20
+OK   [paid] Deckel 20 bei 40 Viewern == 20 Viewer ohne Wachstum (Deckel ersetzt die Eingabe, Cent-genau) | Deckel 58703.92 · 20 Viewer/0 % 58703.92 · 40 Viewer 69045.41
+OK   [oss] Deckel 20 bei 40 Viewern == 20 Viewer ohne Wachstum (Deckel ersetzt die Eingabe, Cent-genau) | Deckel 77573.41 · 20 Viewer/0 % 77573.41 · 40 Viewer 79076.15
+OK   [deneb] Deckel 20 bei 40 Viewern == 20 Viewer ohne Wachstum (Deckel ersetzt die Eingabe, Cent-genau) | Deckel 93144.85 · 20 Viewer/0 % 93144.85 · 40 Viewer 94628.24
+OK   [core] Deckel 20 bei 40 Viewern == 20 Viewer ohne Wachstum (Deckel ersetzt die Eingabe, Cent-genau) | Deckel 119425.47 · 20 Viewer/0 % 119425.47 · 40 Viewer 121470.40
+
+--- Fall 9 · Bestand 60 Reports auf Paid, Wechsel ---
+OK   [paid] Migration = 0 (Bestand bleibt) | 0.00
+OK   [paid] ohne Bestand: Migration = 0 | 0.00
+OK   [paid] Bestand erhoeht Governance (Pruef-Stichprobe) und Ausstieg | gov +4075.60 · exit 34917.11 -> 136968.62
+OK   [oss] Migration > 0 | 126670.92 = 59.0 % der Summe
+OK   [oss] ohne Bestand: Migration = 0 | 0.00
+OK   [oss] Bestand erhoeht Governance (Pruef-Stichprobe) und Ausstieg | gov +8907.03 · exit 39615.64 -> 155399.46
+OK   [deneb] Migration > 0 | 157372.83 = 60.3 % der Summe
+OK   [deneb] ohne Bestand: Migration = 0 | 0.00
+OK   [deneb] Bestand erhoeht Governance (Pruef-Stichprobe) und Ausstieg | gov +8824.86 · exit 24867.79 -> 97548.35
+OK   [core] Migration > 0 | 207529.86 = 61.4 % der Summe
+OK   [core] ohne Bestand: Migration = 0 | 0.00
+OK   [core] Bestand erhoeht Governance (Pruef-Stichprobe) und Ausstieg | gov +8824.86 · exit 40991.90 -> 160798.06
+
+--- Fall 10 · Gepaarte vs. ungepaarte Ziehung ---
+OK   [paid] Erwartungswert unabhaengig von paired | 69045.41 / 69045.41
+OK   [paid] P50 gepaart vs. ungepaart < 3 % Abstand | 68483 / 68359 (-0.18 %) · P90 98138 / 97670
+OK   [oss] Erwartungswert unabhaengig von paired | 79076.15 / 79076.15
+OK   [oss] P50 gepaart vs. ungepaart < 3 % Abstand | 78037 / 77727 (-0.40 %) · P90 131104 / 133529
+OK   [deneb] Erwartungswert unabhaengig von paired | 94628.24 / 94628.24
+OK   [deneb] P50 gepaart vs. ungepaart < 3 % Abstand | 92677 / 92972 (0.32 %) · P90 149318 / 149705
+OK   [core] Erwartungswert unabhaengig von paired | 121470.40 / 121470.40
+OK   [core] P50 gepaart vs. ungepaart < 3 % Abstand | 117671 / 120355 (2.28 %) · P90 202052 / 208483
+
+--- Fall 11 · Share-Link-Rundlauf ---
+OK   readHash() liest den eigenen Link | Laenge 6151
+OK   S nach Rundlauf feldweise gleich (rc, dist, capex, offers, hAnchor, mUnc, mixOv, flags, g, p, prio) | keine Abweichung
+OK   Erwartungswert Paid vor/nach Rundlauf identisch | 460838.57 / 460838.57
+OK   Link ohne Chart-Mix-Override setzt einen vorhandenen Override zurueck | mixOv nach readHash: null (erwartet null)
+OK   Link mit rc.m stellt die Klassen-Mixe wieder her | 85/15/0
+
+--- Fall 12 · Raster Ersteller × Viewer × Horizont ---
+OK   48 Kombinationen × 4 Ansaetze: endlich, nicht negativ, Σcats = total, Σcf = total, hard+soft = total | max |Σcats−total| 0.00e+0 · max |Σcf−total| 2.79e-9 · Summen von 35536.85 bis 7659557.47
+
+--- Fall 13 · Monotonie ---
+OK   [paid] Gesamtkosten steigen monoton mit den Viewern (Staffel) | 0 Rueckgaenge: 
+OK   [paid] Gesamtkosten monoton mit den Viewern (pro Nutzer, ohne Staffel) | 0 Rueckgaenge []
+OK   [oss] Gesamtkosten monoton mit den Viewern | kein Rueckgang 10…6000
+OK   [deneb] Gesamtkosten monoton mit den Viewern | kein Rueckgang 10…6000
+OK   [core] Gesamtkosten monoton mit den Viewern | kein Rueckgang 10…6000
+OK   [paid] mehr Ersteller: Aufbau nie kleiner (ist von Erstellern unabhaengig), Schulung nie kleiner, Rollout nie kleiner | build 7422.85…7422.85 · train 2485.37…224089.12 · rollout 13214.34…552491.18
+OK   [oss] mehr Ersteller: Aufbau nie kleiner (ist von Erstellern unabhaengig), Schulung nie kleiner, Rollout nie kleiner | build 6334.63…6334.63 · train 3877.81…348977.75 · rollout 16016.62…757398.59
+OK   [deneb] mehr Ersteller: Aufbau nie kleiner (ist von Erstellern unabhaengig), Schulung nie kleiner, Rollout nie kleiner | build 7323.89…7323.89 · train 9566.08…812864.68 · rollout 17885.31…973659.77
+OK   [core] mehr Ersteller: Aufbau nie kleiner (ist von Erstellern unabhaengig), Schulung nie kleiner, Rollout nie kleiner | build 8011.87…8011.87 · train 7256.74…626871.03 · rollout 23585.63…1283979.44
+
+--- Zusatz Z1 · Rollout-Jahre > Horizont, Modelle = 20, Verteilweg Datei, Stunden-Anker, Mengen-Unsicherheit ---
+OK   [paid] rolloutYears = 20 bei H = 3: RY = 3, Werte endlich, reportsTotal wie bei RY = 3 | RY 3 · reportsTotal 17.087 · SQ 17.087
+OK   [paid] 20 Modelle: modF = 1.95, Aufbau skaliert (ohne devH) entsprechend | build 7422.85 -> 14474.57 (×1.95) · total 69045.41 -> 80709.68
+OK   [paid] Verteilweg Datei: Governance aendert sich, Lizenz nicht, endlich | gov 8204.26 -> 9669.48 · maint 8374.78 -> 8858.58
+OK   [paid] Anker Konservativ (×1,5) teurer als Panel, Lizenz gleich | Panel 69045.41 · Kons 88363.85 (27.98 %) · Blind 59492.52
+OK   [oss] rolloutYears = 20 bei H = 3: RY = 3, Werte endlich, reportsTotal wie bei RY = 3 | RY 3 · reportsTotal 17.087 · SQ 17.087
+OK   [oss] 20 Modelle: modF = 1.95, Aufbau skaliert (ohne devH) entsprechend | build 6334.63 -> 12352.54 (×1.95) · total 79076.15 -> 94428.04
+OK   [oss] Verteilweg Datei: Governance aendert sich, Lizenz nicht, endlich | gov 12705.84 -> 14950.21 · maint 21643.65 -> 23428.36
+OK   [oss] Anker Konservativ (×1,5) teurer als Panel, Lizenz gleich | Panel 79076.15 · Kons 114971.65 (45.39 %) · Blind 64188.54
+OK   [deneb] rolloutYears = 20 bei H = 3: RY = 3, Werte endlich, reportsTotal wie bei RY = 3 | RY 3 · reportsTotal 17.087 · SQ 17.087
+OK   [deneb] 20 Modelle: modF = 3.85, Aufbau skaliert (ohne devH) entsprechend | build 7323.89 -> 28196.98 (×3.85) · total 94628.24 -> 141164.54
+OK   [deneb] Verteilweg Datei: Governance aendert sich, Lizenz nicht, endlich | gov 9287.95 -> 10994.05 · maint 23108.15 -> 25259.78
+OK   [deneb] Anker Konservativ (×1,5) teurer als Panel, Lizenz gleich | Panel 94628.24 · Kons 136474.79 (44.22 %) · Blind 86341.67
+OK   [core] rolloutYears = 20 bei H = 3: RY = 3, Werte endlich, reportsTotal wie bei RY = 3 | RY 3 · reportsTotal 17.087 · SQ 17.087
+OK   [core] 20 Modelle: modF = 10.50, Aufbau skaliert (ohne devH) entsprechend | build 8011.87 -> 84124.67 (×10.50) · total 121470.40 -> 351150.46
+OK   [core] Verteilweg Datei: Governance aendert sich, Lizenz nicht, endlich | gov 7683.02 -> 7931.63 · maint 49860.74 -> 54648.72
+OK   [core] Anker Konservativ (×1,5) teurer als Panel, Lizenz gleich | Panel 121470.40 · Kons 189166.96 (55.73 %) · Blind 91272.01
+OK   Mengen-Unsicherheit 20 %: simulate() stellt das Mengengeruest wieder her, Erwartungswert unveraendert | [3,40,12,6.7,5] / [3,40,12,6.7,5]
+OK   Mengen-Unsicherheit 20 %: P50 bewegt sich < 3 %, Band wird breiter | P50 68483 -> 68447 · Band 48573 -> 48817
+
+--- Zusatz Z2 · Eingaben ohne Obergrenze: Lernrate 100 %, Produktivitaetsgewinn > 100 %, extern > 100 % ---
+OK   Lernrate 100 % liefert endliche Zahlen | 69555.38
+OK   Lernrate 99,9 % liefert plausible Zahlen (Rollout < 10 × Default) | rollout 19128.31 (Default 13.214)
+OK   Lernrate exakt 50 % liefert endliche Zahlen (al = 1 − be = 0 -> 0/0 in learnSeg) | 69555.38
+OK   Lernrate 49 % -> 51 % stetig (Rollout aendert sich < 20 %) | rollout 30 % 16608.05 · 49 % 19128.31 · 51 % 19128.31
+OK   Seite mit Lernrate 100 % zeigt kein NaN | sauber · Headline: 3rd-Party paid (Paid) ist mit 69.000 € (P50, mittlerer Fall) über 5 Jahre der bestplatzierte zulässige Ansatz (P10–P90: 50.000 € bis 98.000 €), 283 € je Viewer 
+OK   Produktivitaetsgewinn 150 %/Jahr liefert keine negativen Posten | 53355.08
+OK   Externer Anteil 150 % liefert keine negativen Posten | total 81467.74 hard 67822.49 soft 13645.25
+OK   Fluktuation 300 %/Jahr: endlich (Nachschulung dreifach, kein Deckel) | train 84533.67
+OK   max-Attribute der drei Felder (Information) | {"learn":45,"prodGain":90,"ext":100}
+
+--- Zusatz Z3 · Mengengeruest-Raender: Report-Klassen ohne Charts, Wachstum −100 %, Staffelklippe der Lizenzbasis ---
