@@ -4808,7 +4808,10 @@ function drawTornado(best,ev){
   const mx=niceMax(Math.max(...top.map(i=>Math.max(Math.abs(i.lo),Math.abs(i.hi)))),2);const cx=padL+(W-padL-padR)/2,sc=(W-padL-padR)/2/mx;
   let s='<svg viewBox="0 0 '+W+i18n(' ','s#19')+H+i18n('" role="img" aria-label="Sensitivität">');
   s+='<line x1="'+cx+'" y1="'+padT+'" x2="'+cx+'" y2="'+(H-28)+'" stroke="#23261F"/><text x="'+(cx-sc*mx)+'" y="'+(padT-8)+i18n('" font-size="11" fill="#5B5D52">← günstiger</text><text x="')+(cx+sc*mx)+'" y="'+(padT-8)+i18n('" font-size="11" text-anchor="end" fill="#5B5D52">teurer →</text><text x="')+cx+'" y="'+(H-8)+i18n('" font-size="11" text-anchor="middle" fill="#5B5D52">Basis: Referenzrechnung mit mittleren Annahmen ')+fmtEur(base)+i18n(' (die Karte zeigt den Median P50 der Simulation)</text>');
-  top.forEach((it,i)=>{const y=padT+i*rowH+6;s+='<text x="'+(padL-8)+'" y="'+(y+13)+'" font-size="11.5" text-anchor="end" fill="#23261F">'+esc(it.l.length>34?it.l.slice(0,33)+'…':it.l)+'</text><rect x="'+(padL-208)+'" y="'+(y+2)+'" width="14" height="14" rx="3" fill="'+({V:'#DCEFEB',S:'#FBE9D4',F:'#E7E2D4',E:'#E3E7F7'}[it.src])+'"/><text x="'+(padL-201)+'" y="'+(y+13)+'" font-size="9" text-anchor="middle" fill="#23261F">'+it.src+'</text>';
+  /* Die Farbkachel der Legende kommt aus der Herkunft des Parameters. P (Expertenpanel) kam
+     spaeter dazu und fehlte hier: die Kachel bekam fill="undefined" und wurde schwarz
+     gezeichnet. P teilt sich die Farbe mit E — beide sind Schaetzung, siehe SRC_CLASS. */
+  top.forEach((it,i)=>{const y=padT+i*rowH+6;s+='<text x="'+(padL-8)+'" y="'+(y+13)+'" font-size="11.5" text-anchor="end" fill="#23261F">'+esc(it.l.length>34?it.l.slice(0,33)+'…':it.l)+'</text><rect x="'+(padL-208)+'" y="'+(y+2)+'" width="14" height="14" rx="3" fill="'+({V:'#DCEFEB',S:'#FBE9D4',F:'#E7E2D4',E:'#E3E7F7',P:'#E3E7F7'}[it.src])+'"/><text x="'+(padL-201)+'" y="'+(y+13)+'" font-size="9" text-anchor="middle" fill="#23261F">'+it.src+'</text>';
     [[it.lo,'#6FA96B'],[it.hi,'#C4573A']].forEach(([v,c])=>{const w=Math.abs(v)*sc;const x0=v<0?cx-w:cx;s+='<rect x="'+x0+'" y="'+y+'" width="'+Math.max(w,0)+'" height="18" fill="'+c+'" rx="2" opacity=".85"><title>'+esc(it.l)+' ('+SRC[it.src]+'): '+(v>=0?'+':'−')+fmtEur(Math.abs(v))+'</title></rect>';
       if(Math.abs(v)>1)s+='<text x="'+(v>=0?cx+w+4:cx-w-4)+'" y="'+(y+13)+'" font-size="10.5" text-anchor="'+(v>=0?'start':'end')+'" fill="#23261F">'+(v>=0?'+':'−')+fmtEur(Math.abs(v))+'</text>';});});
   s+='</svg>';document.getElementById('chart-tornado').innerHTML=s+i18n('<div class="chart-legend"><span><i style="background:#6FA96B"></i>Annahme auf Minimum</span><span><i style="background:#C4573A"></i>Annahme auf Maximum</span><span style="color:')+o.tcolor+'">■ '+esc(o.name)+i18n('</span><span>Badge = Quellenlage der Annahme</span></div>');
@@ -5458,7 +5461,11 @@ function bind(){
   if('IntersectionObserver' in window){new IntersectionObserver(([e])=>bar.classList.toggle('show',!e.isIntersecting),{threshold:0}).observe(anchor);}else{window.addEventListener('scroll',()=>{const r=anchor.getBoundingClientRect();bar.classList.toggle('show',r.bottom<0||r.top>innerHeight);},{passive:true});}
   window.addEventListener('beforeprint',()=>{document.getElementById('opt-params').innerHTML=OPTS.map(o=>paramBlock(o.key)).join('<div style="height:14px"></div>');['d-graph-how','d-tree'].forEach(id=>{const d=document.getElementById(id);if(d)d.open=true;});}); /* v0.13: Wirkungsgraph und Entscheidungsbaum drucken mit; v0.19: der Graph selbst ist offen, aufgeklappt werden nur die Erklaerung und der Entscheidungsbaum */
   window.addEventListener('afterprint',renderParams);
-  const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src]++);const tot=cnt.V+cnt.S+cnt.F+cnt.E;document.getElementById('srcbar').innerHTML=['V','S','F','E'].map(k=>'<i style="width:'+Math.max(4,Math.round(cnt[k]/tot*120))+'px;background:'+({V:'#2F7A6F',S:'#B06A1E',F:'#B4B2A2',E:'#5A6BA8'}[k])+'" title="'+k+i18n(': ','tot#1')+cnt[k]+'"></i>').join('')+i18n(' ','tot#2')+cnt.V+i18n(' verifiziert · ')+cnt.S+i18n(' Snippet · ')+cnt.F+i18n(' Faustregel · ')+cnt.E+i18n(' Expertenschätzung, deshalb Bandbreiten statt Punktwerte.');
+  /* Quellenlage-Leiste. P (Expertenpanel) fehlte im Zaehler: cnt['P'] war undefined, der
+     Zuwachs wurde zu NaN, und die neun Panel-Parameter fielen aus der Summe — die Leiste zeigte
+     Anteile eines zu kleinen Ganzen. P zaehlt zur Schaetzung wie E (so auch SRC_CLASS), der
+     Satz darunter nennt beide zusammen "Expertenschätzung". */
+  const cnt={V:0,S:0,F:0,E:0};GLOBAL.concat(OPTP).forEach(p=>cnt[p.src==='P'?'E':p.src]++);const tot=cnt.V+cnt.S+cnt.F+cnt.E;document.getElementById('srcbar').innerHTML=['V','S','F','E'].map(k=>'<i style="width:'+Math.max(4,Math.round(cnt[k]/tot*120))+'px;background:'+({V:'#2F7A6F',S:'#B06A1E',F:'#B4B2A2',E:'#5A6BA8'}[k])+'" title="'+k+i18n(': ','tot#1')+cnt[k]+'"></i>').join('')+i18n(' ','tot#2')+cnt.V+i18n(' verifiziert · ')+cnt.S+i18n(' Snippet · ')+cnt.F+i18n(' Faustregel · ')+cnt.E+i18n(' Expertenschätzung, deshalb Bandbreiten statt Punktwerte.');
 }
 /* ===================== v0.17: Inhaltsverzeichnis, klickbarer Wirkungsgraph, Knoten-Popups =====================
    Keine neue Rechenlogik, keine geaenderten Annahmen. Das Inhaltsverzeichnis spiegelt nur vorhandene
@@ -5475,7 +5482,18 @@ function gotoTarget(id,noflash){
   const el=document.getElementById(id);if(!el)return false;
   const need=neededLevel(el);if(need>S.level)setLevel(need,false);
   openAncestors(el);
-  const go=()=>{try{el.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){try{el.scrollIntoView();}catch(e2){}}
+  /* v0.22: Weich nur auf kurze Strecken. Wechselt der Sprung die Ebene, blendet setLevel()
+     mehrere Tausend Pixel Inhalt OBERHALB des Sichtfensters ein; der Browser haelt den
+     sichtbaren Inhalt fest (Scroll-Anchoring) und scrollt dabei um genau diese Hoehe nach
+     unten. scrollIntoView muss die Strecke danach zurueckgleiten — gemessen: 11.800 px in
+     rund 1,5 Sekunden, waehrend derer die Seite am Leser vorbeirauscht. Ab zwei
+     Fensterhoehen springt sie deshalb hart; die Pruefsuite wirkungsgraph-abschnitt mass
+     genau in dieser Gleitphase (top = −111 statt 52).
+     'instant' und nicht 'auto': html{scroll-behavior:smooth} gilt sonst weiter, denn 'auto'
+     heisst "nimm den Wert aus dem Stylesheet". */
+  const weit=()=>{const r=el.getBoundingClientRect();return Math.abs(r.top)>2*(window.innerHeight||800);};
+  const go=()=>{const b=weit()?'instant':'smooth';
+    try{el.scrollIntoView({behavior:b,block:'start'});}catch(e){try{el.scrollIntoView();}catch(e2){}}
     /* v0.20: Der Fokus muss mitspringen, sonst bleibt die Tastatur im Inhaltsverzeichnis stehen
        und der naechste Tab fuehrt zum naechsten Verzeichniseintrag statt in den Abschnitt.
        preventScroll, damit der weiche Sprung von scrollIntoView nicht verdoppelt wird. */
