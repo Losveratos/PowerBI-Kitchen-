@@ -10,6 +10,8 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://datenwgknowledgekitchen.com/visual-standards-rechner.html">
 <link rel="canonical" href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html">
+<link rel="alternate" hreflang="de" href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html">
+<link rel="alternate" hreflang="en" href="https://datenwgknowledgekitchen.com/visual-standards-calculator.html">
 <link rel="alternate" type="text/markdown" title="Markdown" href="md/visual-standards-rechner.md">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/fonts/space-grotesk/space-grotesk.css">
@@ -983,7 +985,7 @@ const OPTP=[
   {id:'govIntake',label:'Freigabe je Visual-Paket (einmalig)',sub:'Stunden: Security-Review, Architekturboard, AVV; je weiterem Chart-Typ +20 % für das Review des Standards',unit:'h',v:{paid:[4,8,16],oss:[8,24,60],deneb:[1,4,10],core:[0,2,6]},src:'E',srcNote:'Autoren-Schätzung. OSS ohne Zertifikat: das Code-Review liegt komplett bei euch; mit Schalter „OSS-Visual ist zertifiziert“ gilt der Paid-Wert. Deneb ist AppSource-zertifiziert, es bleibt die Tenant-Freigabe. Bis v0.6 wurde je Chart-Typ voll multipliziert (Audit 09/2026)'},
   {id:'govRun',label:'Laufende Governance pro Jahr',sub:'Stunden: Org-Store-Pflege, Versions-Reviews, Tenant-Settings, GPO-Abgleich',unit:'h',v:{paid:[6,16,42],oss:[12,30,80],deneb:[8,18,44],core:[1,3,10]},src:'E',srcNote:'Autoren-Schätzung. Core: nichts einzuspielen, der stille Vorteil von MacGyver. Deneb im Audit 09/2026 von 6·16·40 auf 8·18·44 h angehoben: Primärquelle github.com/deneb-viz/deneb/releases.atom, 2.0.0 als Release am 08.09.2026, laut Release-Text „as published to AppSource“; davor 1.9.1 (31.03.2026) und 1.9.0 (15.03.2026) — zwei Releases in 2026, davon ein Major mit neuem Template-Format. 2.0 durchläuft die Rezertifizierung (Update-Zertifizierung bis 3 Wochen, Produktion bis 2 Wochen laut Microsoft Learn); am 14.10.2026 nachsehen, ob das Badge steht. OSS aus AppSource statt Org-Store halbiert den Posten'},
   {id:'govAudit',label:'Prüfnachweis pro Jahr (Revision)',sub:'Stunden: Chart zeigt, was die Quelle sagt',unit:'h',v:{paid:[2,6,16],oss:[3,8,20],deneb:[4,10,28],core:[4,12,36]},src:'E',srcNote:'Autoren-Schätzung. Core: ohne UDFs bis zu 175 Measures je Abweichungsdiagramm; DAX-UDFs (GA 06/2026) ersetzen die Kopien durch eine Funktion, aber ohne Anzeigeordner und OLS-Vererbung. Vega-Lite-Specs sind Text und diff-fähig. Closed Source (Paid) ist für die Revision nicht einsehbar, das Zertifikat prüft Sicherheit, nicht Richtigkeit'},
-  {id:'course',label:'Kurskosten je Ersteller',sub:'€, extern (Vendor-Training, Vega-Kurs)',unit:'€',v:{paid:[0,200,800],oss:[0,0,300],deneb:[0,400,1500],core:[0,300,1200]},src:'S',srcNote:'EPC Group: 500–2.000 $ je Kopf und Rolle; Zebra BI Academy Grundmodule kostenlos; Deneb/Vega-Lite und DAX-SVG ohne öffentlich bepreiste Kurse, Referenz 2-Tage-Power-BI-Kurs ≈ 1.640 €. Erwartungswert von 0 · 0 · 300 ist 50 €, nicht 0'},
+  {id:'course',label:'Kurskosten je Vorlagen-Bauer',sub:'€ einmalig, extern (Vendor-Training, Vega-Kurs). Gilt je tief geschultem Vorlagen-Bauer, nicht je Ersteller — die Vorlagen-Nutzer bekommen die flache Schulung ohne Kurskosten',unit:'€',v:{paid:[0,200,800],oss:[0,0,300],deneb:[0,400,1500],core:[0,300,1200]},src:'S',srcNote:'EPC Group: 500–2.000 $ je Kopf und Rolle; Zebra BI Academy Grundmodule kostenlos; Deneb/Vega-Lite und DAX-SVG ohne öffentlich bepreiste Kurse, Referenz 2-Tage-Power-BI-Kurs ≈ 1.640 €. Erwartungswert von 0 · 0 · 300 ist 50 €, nicht 0'},
   {id:'maint',label:'Wartungsquote pro Jahr (geplante Anpassungen)',sub:'% von Aufbau + 30 % Rollout: neue Felder, Layout, Fachwünsche. Brüche durch Updates stehen separat in Breaking-Updates',unit:'%',v:{paid:[6,10,18],oss:[12,22,32],deneb:[10,17,27],core:[12,30,48]},src:'P',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Modi paid 10 · oss 26 · deneb 19 · core 34. Im Audit 09/2026 um den Anteil bereinigt, den das Panel mit „bricht bei Monatsupdates“ begründet hat (steckt in Breaking-Updates); Core-Minimum gesenkt, weil ein Standard nur in Matrix und Tabelle keinen 20-%-Boden hat'},
   {id:'events',label:'Breaking-Updates pro Jahr',sub:'Anzahl Ereignisse, die Reports brechen',unit:'n',v:{paid:[0.2,1,2],oss:[0.5,1.5,3],deneb:[1,2,3],core:[2,3,5]},src:'P',srcNote:'Expertenpanel 09/2026 (Modi paid 1.0 · oss 2.5 · deneb 2.0 · core 3.25), Audit 09/2026: Plattform-Brüche sind werkzeugunabhängig, der Unterschied liegt in „wer fixt“ (Fix-Stunden), deshalb OSS näher an Paid. Belegt: Deneb 3 Vorfälle in 24 Monaten (Issues #553, #676, Tooltip 1.6.1), Core/SVG 3–4 Regressionen 2025 (New Card px→%, SVG leer im Service)'},
   {id:'fixH',label:'Stunden je Breaking-Update',sub:'Analyse, Fix, Re-Test',unit:'h',v:{paid:[1,3,5.5],oss:[3,7,14],deneb:[3,6.5,12],core:[5,9.5,17]},src:'P',srcNote:'Expertenpanel 09/2026: 20 simulierte Profile (Sonnet), Median von min/wahrsch./max; Modus je Ansatz: paid 3.0 · oss 7.0 · deneb 6.5 · core 9.5. OSS: kein SLA, AppSource-Update 10–14 Tage bis Produktion, Zertifizierung bis 3 Wochen (Microsoft Learn)'},
@@ -1391,7 +1393,11 @@ function calc(key,draw,override){
     const riskY=riskH*rate0*wy;riskSum+=riskY;
     /* Zahlungsstrom des Jahres, getrennt nach Auszahlung (hart) und intern bewerteter Zeit (weich) */
     const one=(ye===0)?A+switchCost+govOnce+train0:0;
-    const tot=roll+maintY+eventsY+licY+supportY+capacityY+licAdminY+supUsersY+govY+trainRunY+riskY+one;
+    /* chkY gehoert in den Zahlungsstrom: die Konformitaetspruefung steckt ueber gov in der Summe und
+       ueber chkH in den internen Stunden. Bis v0.20 fehlte sie hier — dadurch waren Barwert, Cash-out,
+       Kumulativ-Chart und Amortisation um genau ihren Betrag zu niedrig (Konzern mit IBCS-Pflicht:
+       41.648 EUR, 6,4 % der Gesamtkosten). Gefunden durch die unabhaengige Handrechnung, tests/rechner/handrechnung.md. */
+    const tot=roll+maintY+eventsY+licY+supportY+capacityY+licAdminY+supUsersY+govY+trainRunY+chkY+riskY+one;
     const hardY=licY+supportY+capacityY+(ye===0?owners*p('course')*vatF:0)+(roll+maintY+eventsY+riskY+(ye===0?A+switchCost:0))*hardFrac;
     cf.push(tot);cfHard.push(hardY);cfSoft.push(tot-hardY);
     /* A5: interne Stunden je Jahr, Konvention 1.500 h je FTE und Jahr */
@@ -1428,11 +1434,11 @@ function calc(key,draw,override){
   c.licPrice=lic;c.licViewerShare=lvs;c.licSupport=support;c.licAdminC=licAdmin;c.capacityC=capacity;c.inflF=inflYears;c.licModelEff=lmEff;c.offer=OFR?offerLabel(OFR):null;
   /* Harte Kosten (Auszahlungen: Lizenz, Support, Capacity, Kurse, extern beauftragte Stunden) vs. weiche Kosten (intern bewertete Stunden) */
   const rateBased=A+rollout+switchCost+maint+events+risk;
-  c.hard=lic+support+capacity+owners*p('course')+rateBased*hardFrac;
+  c.hard=lic+support+capacity+owners*p('course')*vatF+rateBased*hardFrac;   /* v0.20: Kurskosten sind Auszahlungen und tragen die Umsatzsteuer wie Lizenz, Support und Capacity — die Cash-out-Tabelle rechnete sie schon immer so, diese Kennzahl nicht */
   c.soft=c.total-c.hard;
   /* Phasen: Erstellung (einmalig) vs. Nutzung/Betrieb (laufend), jeweils direkt (Auszahlung) vs. indirekt (interne Zeit) */
   const creationRate=A+rollout+switchCost;const creation=creationRate+train0+govOnce;
-  const creationHard=creationRate*hardFrac+owners*p('course');
+  const creationHard=creationRate*hardFrac+owners*p('course')*vatF;   /* wie c.hard */
   c.phase={creation:{hard:creationHard,soft:creation-creationHard},usage:{hard:c.hard-creationHard,soft:(c.total-creation)-(c.hard-creationHard)}};
   c.gd=gd;c.pd=pd;
   const disc=1+g('disc')/100;c.npv=cf.reduce((a,v,y)=>a+v/Math.pow(disc,y),0);
@@ -1642,20 +1648,45 @@ function applyParamEdit(sc,id,i,raw){
   if(t[0]>t[1])t[1]=t[0];if(t[2]<t[1])t[2]=t[1];if(t[1]<t[0])t[0]=t[1];
   const lbl=pdef.label||id;
   pendingToast='„'+lbl+'“ = '+t.join(' · ')+(before.some((x,j)=>j!==i&&x!==t[j])?' (Nachbarwerte angepasst, damit min ≤ wahrsch. ≤ max)':'');
-  renderParams();update();return true;
+  scheduleRecalc();return true;   /* v0.21: entprellt statt sofort — siehe scheduleRecalc */
+}
+/* v0.21: Die Bedienelemente der Annahmen-Tabelle werden nur INNERHALB ihrer eigenen Container
+   gesucht. Vorher liefen diese Selektoren ueber das ganze Dokument — und erfassten damit auch die
+   Annahmen-Zeilen im Graph-Popup, das dieselbe .a-row-Struktur benutzt. Bei jeder Aenderung dort
+   haengte renderParams() einen weiteren change-Listener an dieselben Felder: ein Klick loeste zwei
+   Neuberechnungen aus, der naechste vier, dann acht. Beim zehnten Klick waren es 512 - die Seite
+   stand minutenlang. Gemeldet aus dem Test, reproduziert und gemessen (1/2/4/8/16 Aufrufe). */
+/* v0.21: Entprellte Neuberechnung fuer die Annahmen-Felder. Eine Aenderung kostet rund 210 ms
+   (Monte Carlo plus Neuzeichnen der 58 Annahmen-Zeilen). Wer einen Spinner gedrueckt haelt, loest
+   etwa 20 Ereignisse je Sekunde aus - ohne Buendelung staut sich das auf Sekunden. Der Wert selbst
+   wird sofort uebernommen, nur die teure Folgearbeit wartet kurz. Dieselben 90 ms wie bei den
+   Mengengeruest-Feldern, damit sich die Seite ueberall gleich anfuehlt. */
+let recalcTimer=null;
+function scheduleRecalc(){
+  clearTimeout(recalcTimer);
+  recalcTimer=setTimeout(()=>{recalcTimer=null;renderParams();update();},90);
+}
+function flushRecalc(){ if(recalcTimer){clearTimeout(recalcTimer);recalcTimer=null;renderParams();update();} }
+function paramEls(sel){
+  const out=[];
+  ['global-params','opt-params','opt-tabs','lic-seg'].forEach(id=>{
+    const c=document.getElementById(id);
+    if(c)c.querySelectorAll(sel).forEach(e=>out.push(e));
+  });
+  return out;
 }
 function renderParams(){
   document.getElementById('global-params').innerHTML='<div class="a-row head"><div>Annahme</div><div>min</div><div>wahrsch.</div><div>max</div><div></div></div>'+GLOBAL.map(p=>paramRow(p,S.g[p.id],'g')).join('')+'<div class="preset-row" style="margin-top:8px"><span class="preset-lbl">Fabric-Capacity:</span><button class="preset-btn" data-capsku="none">keine (Pro/PPU)</button><button class="preset-btn" data-capsku="f2">F2 · ~2,2–3,7 k€/Jahr</button><button class="preset-btn" data-capsku="f8">F8 · ~8,7–14,8 k€/Jahr</button><button class="preset-btn" data-capsku="f64">F64 · ~70–119 k€/Jahr</button></div>';
-  document.querySelectorAll('[data-capsku]').forEach(b=>b.addEventListener('click',()=>{S.g.capacityCost=b.dataset.capsku==='none'?[0,0,0]:CAP_SKU[b.dataset.capsku].slice();pendingToast='Capacity: '+b.textContent;renderParams();update();}));
+  paramEls('[data-capsku]').forEach(b=>b.addEventListener('click',()=>{S.g.capacityCost=b.dataset.capsku==='none'?[0,0,0]:CAP_SKU[b.dataset.capsku].slice();pendingToast='Capacity: '+b.textContent;renderParams();update();}));
   document.getElementById('opt-tabs').innerHTML=OPTS.map(o=>'<button class="tab'+(activeTab===o.key?' active':'')+'" data-tab="'+o.key+'"><i style="background:'+o.color+'"></i>'+esc(o.tag)+'</button>').join('');
-  document.querySelectorAll('#opt-tabs .tab').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;renderParams();}));
+  paramEls('.tab').forEach(b=>b.addEventListener('click',()=>{activeTab=b.dataset.tab;renderParams();}));
   document.getElementById('opt-params').innerHTML=paramBlock(activeTab);
-  document.querySelectorAll('[data-site]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.licSite=({inforiver:[12000,35000,90000],zebra:[25000,70000,150000],gross:[80000,150000,300000]})[b.dataset.site].slice();pendingToast='Site-Lizenz: '+b.textContent;renderParams();update();}));
-  document.querySelectorAll('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open Source: '+b.textContent;renderParams();update();}));
-  document.querySelectorAll('#lic-seg button').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Lizenzmodell: '+b.textContent;renderParams();update();}));
-  document.querySelectorAll('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
+  paramEls('[data-site]').forEach(b=>b.addEventListener('click',()=>{S.p.paid.licSite=({inforiver:[12000,35000,90000],zebra:[25000,70000,150000],gross:[80000,150000,300000]})[b.dataset.site].slice();pendingToast='Site-Lizenz: '+b.textContent;renderParams();update();}));
+  paramEls('[data-dev]').forEach(b=>b.addEventListener('click',()=>{S.p.oss.devH=({ready:[0,0,0],ki:[40,200,600],classic:[800,2000,3000]})[b.dataset.dev].slice();pendingToast='Open Source: '+b.textContent;renderParams();update();}));
+  paramEls('button[data-lm]').forEach(b=>b.addEventListener('click',()=>{S.licModel=b.dataset.lm;pendingToast='Lizenzmodell: '+b.textContent;renderParams();update();}));
+  paramEls('.a-row input[type=number]').forEach(inp=>inp.addEventListener('change',()=>{
     applyParamEdit(inp.dataset.scope,inp.dataset.id,+inp.dataset.i,inp.value);}));
-  document.querySelectorAll('.a-row').forEach(r=>{const ins=r.querySelectorAll('input');if(ins.length===3){const v=[...ins].map(i=>parseFloat(i.value));ins.forEach(i=>i.classList.toggle('bad',!(v[0]<=v[1]&&v[1]<=v[2])));}});
+  paramEls('.a-row').forEach(r=>{const ins=r.querySelectorAll('input');if(ins.length===3){const v=[...ins].map(i=>parseFloat(i.value));ins.forEach(i=>i.classList.toggle('bad',!(v[0]<=v[1]&&v[1]<=v[2])));}});
 }
 
 /* ===================== Rendering: Ergebnis ===================== */

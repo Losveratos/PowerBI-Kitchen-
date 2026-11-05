@@ -3,7 +3,7 @@
    Herkunft: Scratchpad-Skript test_v17.js (Stand v0.17, auf v0.19 nachgezogen).
    Start:  node tests/rechner/inhaltsverzeichnis-und-graph.test.js
    Laeuft aus jedem Verzeichnis — Pfade kommen aus lib/harness.js. */
-const { chromium, URL: U, artifactDir, skipWizard: skip, reporter } = require('./lib/harness');
+const { chromium, URL: U, artifactDir, waitStable, skipWizard: skip, reporter } = require('./lib/harness');
 const DIR = artifactDir('inhaltsverzeichnis-und-graph');
 const R = reporter('inhaltsverzeichnis-und-graph');
 const ok = R.ok, watch = R.watch, errs = R.errs;
@@ -33,7 +33,7 @@ await p.screenshot({path:DIR+'toc-1240.png',fullPage:false});
 
 /* ---------- 2) Klick springt zum Ziel, oeffnet Details, wechselt die Ebene ---------- */
 const jump=async(id,exp)=>{
-  await p.click('#toc-list [data-toc="'+id+'"]');await p.waitForTimeout(900);
+  await p.click('#toc-list [data-toc="'+id+'"]');await p.waitForTimeout(400);await waitStable(p);
   const r=await p.evaluate(i=>{const el=document.getElementById(i);const b=el.getBoundingClientRect();
     const d=el.tagName==='DETAILS'?el.open:(el.closest('details')?el.closest('details').open:true);
     return {top:Math.round(b.top),vis:b.height>0&&b.width>0,open:d,lv:S.level};},id);
