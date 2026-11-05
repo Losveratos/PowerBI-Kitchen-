@@ -1,5 +1,10 @@
 """Tenant-Daten direkt holen: Admin-Scanner-API und Abfrage-Logs aus dem Workspace Monitoring.
 
+Ohne Fabric-Admin-Rechte (Admin-API antwortet 401/403) fällt fetch in den Workspace-Modus zurück:
+Workspaces aus der normalen Fabric-API (nur die, in denen das Konto Mitglied ist), Modelle per
+getDefinition als TMDL (braucht mindestens die Rolle Mitwirkender), Abfrage-Logs wie gehabt.
+Das Ergebnis hat dasselbe Format wie die Scanner-API, alles danach bleibt gleich.
+
 Anmeldung (erste, die klappt):
 1. Service Principal über AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
 2. Azure CLI (`az login`)
@@ -9,17 +14,19 @@ Nur Lesezugriffe. Nur Python-Standardbibliothek.
 """
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
 import shutil
 import subprocess
+import tempfile
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
-from . import querylog
+from . import querylog, tmdl
 
 POWERBI = "https://api.powerbi.com/v1.0/myorg"
 FABRIC = "https://api.fabric.microsoft.com/v1"
@@ -31,6 +38,10 @@ GUID = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}
 
 class FetchError(RuntimeError):
     pass
+
+
+class AdminDenied(FetchError):
+    """Die Admin-API hat 401/403 geantwortet: kein Fabric-Admin und kein freigegebener Service Principal."""
 
 
 # ---------------------------------------------------------------- Anmeldung
@@ -101,7 +112,15 @@ def http(method: str, url: str, token: str, body=None, timeout: int = 120):
         try:
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 raw = r.read()
-                return r.status, (json.loads(raw) if raw.strip() else {})
+                data = json.loads(raw) if raw.strip() else {}
+                if data is None:            # Fabric antwortet bei 202 teils mit dem Body „null“
+                    data = {}
+                if r.status == 202 and isinstance(data, dict):
+                    # Lang laufende Fabric-Operation: Kopfzeilen für das Abwarten mitgeben.
+                    data.setdefault("_operation", r.headers.get("x-ms-operation-id") or "")
+                    data.setdefault("_location", r.headers.get("Location") or "")
+                    data.setdefault("_retry", r.headers.get("Retry-After") or "")
+                return r.status, data
         except urllib.error.HTTPError as e:
             if e.code in (429, 503) and attempt < 5:
                 time.sleep(min(int(e.headers.get("Retry-After") or 5 * (attempt + 1)), 60))
@@ -116,25 +135,82 @@ def http(method: str, url: str, token: str, body=None, timeout: int = 120):
 
 # ---------------------------------------------------------------- Abläufe
 
+ADMIN_HINT = (" Für die Admin-APIs braucht es die Rolle Fabric-Administrator oder einen Service Principal, "
+              "der in den Tenant-Einstellungen für Admin-APIs freigegeben ist.")
+
+
 class Fetcher:
-    def __init__(self, auth: Auth | None = None, request=http, log=print, sleep=time.sleep):
+    """admin: None = Admin-API versuchen und bei 401/403 in den Workspace-Modus wechseln,
+    True = nur Admin-API, False = gleich Workspace-Modus."""
+
+    def __init__(self, auth: Auth | None = None, request=http, log=print, sleep=time.sleep, admin: bool | None = None):
         self.auth = auth or Auth()
         self.request = request
         self.log = log
         self.sleep = sleep
         self.notes: list[str] = []
+        self.admin = admin
+        self.mode = "workspace" if admin is False else "admin"
+        self.ws_names: dict[str, str] = {}
+
+    @property
+    def source(self) -> str:
+        return "Admin-Scanner-API" if self.mode == "admin" else "Workspace-Modus, getDefinition"
 
     def _call(self, method, url, resource, body=None, ok=(200, 201, 202)):
         status, data = self.request(method, url, self.auth.token(resource), body)
         if status in ok:
             return data
-        hint = ""
-        if status in (401, 403) and "admin" in url:
-            hint = (" Für die Admin-APIs braucht es die Rolle Fabric-Administrator oder einen Service Principal, "
-                    "der in den Tenant-Einstellungen für Admin-APIs freigegeben ist.")
-        raise FetchError(f"{method} {url.split('?')[0]} → {status}.{hint} {data.get('error', '')}".strip())
+        err = data.get("error", "") if isinstance(data, dict) else ""
+        if status in (401, 403) and "/admin/" in url:
+            raise AdminDenied(f"{method} {url.split('?')[0]} → {status}.{ADMIN_HINT} {err}".strip())
+        raise FetchError(f"{method} {url.split('?')[0]} → {status}. {err}".strip())
+
+    # ------------------------------------------------------------ Workspaces
 
     def workspaces(self, wanted: list[str]) -> list[str]:
+        if self.mode == "workspace":
+            return self._workspaces_member(wanted)
+        try:
+            return self._workspaces_admin(wanted)
+        except AdminDenied:
+            if self.admin:
+                raise
+            self.mode = "workspace"
+            self.log("  Keine Admin-Rechte: weiter im Workspace-Modus (nur Workspaces mit eigenem Zugriff)")
+            self.notes.append("Ohne Fabric-Admin-Rechte geprüft (Workspace-Modus): nur Workspaces, in denen das Konto "
+                              "Mitglied ist. Modelle kommen per getDefinition und brauchen mindestens die Rolle "
+                              "Mitwirkender. Für den ganzen Tenant: Rolle Fabric-Administrator oder ein für Admin-APIs "
+                              "freigegebener Service Principal.")
+            return self._workspaces_member(wanted)
+
+    def _workspaces_member(self, wanted: list[str]) -> list[str]:
+        """Workspaces aus der normalen Fabric-API, in denen das Konto Mitglied ist (ohne „Mein Arbeitsbereich“)."""
+        found: list[dict] = []
+        url = f"{FABRIC}/workspaces"
+        while url:
+            data = self._call("GET", url, RES_FABRIC)
+            found += [w for w in data.get("value", []) if (w.get("type") or "Workspace") == "Workspace"]
+            token = data.get("continuationToken")
+            url = f"{FABRIC}/workspaces?continuationToken={urllib.parse.quote(token)}" if token else ""
+        for w in found:
+            self.ws_names[w["id"]] = w.get("displayName", "")
+        if not wanted:
+            ids = [w["id"] for w in found]
+            self.log(f"  {len(ids)} Workspaces mit eigenem Zugriff")
+            return ids
+        ids = []
+        for want in wanted:
+            hits = [w["id"] for w in found
+                    if w["id"].lower() == want.lower() or (w.get("displayName") or "").lower() == want.lower()]
+            if not hits:
+                raise FetchError(f"Workspace „{want}“ nicht gefunden oder kein Zugriff. Ohne Admin-Rechte sind nur "
+                                 "Workspaces sichtbar, in denen das Konto Mitglied ist.")
+            ids += hits
+        self.log(f"  {len(ids)} Workspace(s) ausgewählt")
+        return ids
+
+    def _workspaces_admin(self, wanted: list[str]) -> list[str]:
         if not wanted:
             data = self._call("GET", f"{POWERBI}/admin/workspaces/modified?excludePersonalWorkspaces=true"
                                      f"&excludeInActiveWorkspaces=true", RES_PBI)
@@ -155,7 +231,11 @@ class Fetcher:
         self.log(f"  {len(ids)} Workspace(s) ausgewählt")
         return ids
 
+    # ------------------------------------------------------------ Modelle
+
     def scan(self, ids: list[str], timeout_s: int = 900) -> list[dict]:
+        if self.mode == "workspace":
+            return [self._scan_member(ids, timeout_s)]
         results = []
         for i in range(0, len(ids), 100):
             chunk = ids[i:i + 100]
@@ -177,6 +257,61 @@ class Fetcher:
             results.append(self._call("GET", f"{POWERBI}/admin/workspaces/scanResult/{scan_id}", RES_PBI))
             self.log(f"  Scan {i // 100 + 1}: {len(chunk)} Workspaces gelesen")
         return results
+
+    def _scan_member(self, ids: list[str], timeout_s: int) -> dict:
+        """Baut ein Ergebnis im Format der Scanner-API aus getDefinition (TMDL) je Semantikmodell."""
+        out = {"workspaces": [], "source": "getDefinition"}
+        n_ok = n_err = 0
+        for wid in ids:
+            name = self.ws_names.get(wid)
+            if name is None:
+                status, data = self.request("GET", f"{FABRIC}/workspaces/{wid}", self.auth.token(RES_FABRIC))
+                name = data.get("displayName", wid) if status == 200 else wid
+            ws = {"id": wid, "name": name, "datasets": []}
+            data = self._call("GET", f"{FABRIC}/workspaces/{wid}/semanticModels", RES_FABRIC)
+            for sm in data.get("value", []):
+                ds = {"id": sm.get("id", ""), "name": sm.get("displayName", "?")}
+                try:
+                    ds.update(_dataset_from_parts(ds["name"], self._definition(wid, ds["id"], timeout_s)))
+                    n_ok += 1
+                except FetchError as e:
+                    ds["schemaRetrievalError"] = str(e)
+                    n_err += 1
+                ws["datasets"].append(ds)
+            out["workspaces"].append(ws)
+        self.log(f"  {n_ok} Modelle per getDefinition gelesen" + (f", {n_err} ohne Zugriff" if n_err else ""))
+        if n_err:
+            self.notes.append(f"{n_err} Modell(e) ließen sich nicht lesen (getDefinition braucht mindestens die Rolle "
+                              "Mitwirkender). Sie stehen mit Fehler in der Modell-Übersicht.")
+        return out
+
+    def _definition(self, wid: str, mid: str, timeout_s: int) -> list[dict]:
+        """getDefinition als TMDL; wartet bei 202 auf die lang laufende Operation."""
+        status, data = self.request("POST", f"{FABRIC}/workspaces/{wid}/semanticModels/{mid}/getDefinition?format=TMDL",
+                                    self.auth.token(RES_FABRIC), None)
+        if status == 200:
+            return (data.get("definition") or {}).get("parts", [])
+        if status != 202:
+            err = data.get("error", "") if isinstance(data, dict) else ""
+            raise FetchError(f"getDefinition → {status}. {err}".strip())
+        op = data.get("_operation") or (data.get("_location") or "").rstrip("/").split("/")[-1]
+        if not op:
+            raise FetchError("getDefinition → 202 ohne Operations-ID")
+        waited, delay = 0, int(data.get("_retry") or 2)
+        while True:
+            self.sleep(delay)
+            waited += delay
+            st = self._call("GET", f"{FABRIC}/operations/{op}", RES_FABRIC)
+            state = st.get("status")
+            if state == "Succeeded":
+                break
+            if state in ("Failed", "Undefined"):
+                raise FetchError(f"getDefinition: Operation {state} {st.get('error', '')}".strip())
+            if waited > timeout_s:
+                raise FetchError(f"getDefinition nach {timeout_s} s nicht fertig")
+            delay = min(delay * 2, 30)
+        res = self._call("GET", f"{FABRIC}/operations/{op}/result", RES_FABRIC)
+        return (res.get("definition") or {}).get("parts", [])
 
     def find_monitoring(self, ids: list[str]) -> list[tuple[str, str]]:
         """Monitoring-KQL-Datenbanken in den Workspaces (Name enthält „Monitoring“)."""
@@ -208,6 +343,32 @@ class Fetcher:
                 return kusto_rows(data)
             last = f"{status} {data.get('error', '')}"
         raise FetchError(f"Abfrage-Logs aus {database} nicht lesbar: {last}")
+
+
+def _dataset_from_parts(name: str, parts: list[dict]) -> dict:
+    """TMDL-Teile aus getDefinition → Dataset im Format der Scanner-API (tables, columns, measures, roles)."""
+    with tempfile.TemporaryDirectory(prefix="fabscan-def-") as tmp:
+        folder = os.path.join(tmp, "model.SemanticModel")
+        for p in parts:
+            rel = (p.get("path") or "").replace("\\", "/").lstrip("/")
+            if not rel or ".." in rel.split("/"):
+                continue
+            dest = os.path.join(folder, *rel.split("/"))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            with open(dest, "wb") as fh:
+                fh.write(base64.b64decode(p.get("payload") or ""))
+        model = tmdl.load_model(folder, tmp)
+    if not model.tables:
+        raise FetchError("getDefinition lieferte keine Tabellen (kein TMDL im Ergebnis)")
+    member = lambda m: {"name": m.name, "isHidden": m.hidden, "expression": m.expr, "formatString": m.format}
+    return {
+        "name": name,
+        "tables": [{"name": t.name, "isHidden": t.hidden,
+                    "columns": [member(c) for c in t.columns.values()],
+                    "measures": [member(m) for m in t.measures.values()]} for t in model.tables.values()],
+        "roles": [{"name": r, "tablePermissions": [{"name": tb, "filterExpression": f} for tb, f in perms]}
+                  for r, perms in model.roles.items()],
+    }
 
 
 def kusto_rows(data: dict) -> list[dict]:

@@ -11,8 +11,18 @@ from collections import defaultdict
 HERE = os.path.dirname(__file__)
 FIX = os.path.join(HERE, "fixtures", "tenant")
 sys.path.insert(0, os.path.join(HERE, ".."))
+sys.path.insert(0, HERE)
 
 from fabscan import notebook as build_notebook  # noqa: E402
+from test_fetch import FakeFabric  # noqa: E402
+
+PKG = "/tmp/fabscan_pkg"
+
+
+def _under(path: str, root: str) -> bool:
+    """Plattformfest: unter Windows wird aus /tmp/... ein Pfad wie C:\\tmp\\..."""
+    norm = lambda p: os.path.normcase(os.path.abspath(p))
+    return norm(path).startswith(norm(root))
 
 
 class _Row(dict):
@@ -88,12 +98,17 @@ class Notebook(unittest.TestCase):
         self.assertIn("parameters", cells[1]["metadata"].get("tags", []))
         self.assertTrue(cells[2]["metadata"]["jupyter"]["source_hidden"])
 
-    def test_runs_end_to_end(self):
+    def _run(self, admin_ok=True, monitoring=True):
         log = []
         with open(os.path.join(FIX, "scan_result.json"), encoding="utf-8") as fh:
             scan = json.load(fh)
         admin = types.ModuleType("sempy.fabric.admin")
-        admin.list_workspaces = lambda **kw: {"Id": [w["id"] for w in scan["workspaces"]], "Name": [w["name"] for w in scan["workspaces"]]}
+
+        def list_workspaces(**kw):
+            if not admin_ok:
+                raise RuntimeError("FabricHTTPException: 403 Forbidden on /v1/admin/workspaces")
+            return {"Id": [w["id"] for w in scan["workspaces"]], "Name": [w["name"] for w in scan["workspaces"]]}
+        admin.list_workspaces = list_workspaces
         admin.scan_workspaces = lambda **kw: (log.append(("scan", kw)), scan)[1]
         fake_pd = types.ModuleType("pandas")
         fake_pd.DataFrame = lambda rows: rows
@@ -109,7 +124,8 @@ class Notebook(unittest.TestCase):
         shown = []
         spark = types.SimpleNamespace(read=_Reader(log),
                                       createDataFrame=lambda rows: types.SimpleNamespace(write=_Writer(log)))
-        ns = {"spark": spark, "displayHTML": shown.append,
+        fake = FakeFabric(admin=False)
+        ns = {"spark": spark, "displayHTML": shown.append, "FABSCAN_HTTP": fake,
               "notebookutils": types.SimpleNamespace(credentials=types.SimpleNamespace(getToken=lambda uri: "token"))}
         try:
             for cell in self.nb["cells"]:
@@ -117,8 +133,9 @@ class Notebook(unittest.TestCase):
                     continue
                 src = "".join(cell["source"])
                 if "parameters" in cell["metadata"].get("tags", []):
-                    src += (f"\nOUTPUT_DIR = {self.tmp!r}\n"
-                            "MONITORING = [{'cluster': 'https://x.kusto.fabric.microsoft.com', 'database': 'Monitoring'}]\n")
+                    src += f"\nOUTPUT_DIR = {self.tmp!r}\n"
+                    if monitoring:
+                        src += "MONITORING = [{'cluster': 'https://x.kusto.fabric.microsoft.com', 'database': 'Monitoring'}]\n"
                 exec(compile(src, "notebook", "exec"), ns)
         finally:
             for k in [k for k in sys.modules if k == "fabscan" or k.startswith("fabscan.")]:
@@ -129,7 +146,25 @@ class Notebook(unittest.TestCase):
                     sys.modules.pop(k, None)
                 else:
                     sys.modules[k] = v
-        self.assertTrue(ns["fabscan"].__file__.startswith("/tmp/fabscan_pkg"))
+        return ns, log, shown, fake
+
+    def test_runs_end_to_end(self):
+        ns, log, shown, fake = self._run()
+        self.assertTrue(_under(ns["fabscan"].__file__, PKG))
+        self.assertEqual(ns["SCOPE"], "Tenant")
+        self.assertFalse(fake.calls)                       # Admin-Weg: keine Aufrufe der normalen API
+        self._assert_report(ns, log, shown)
+
+    def test_without_admin_uses_own_workspaces(self):
+        ns, log, shown, fake = self._run(admin_ok=False, monitoring=False)
+        self.assertEqual(ns["SCOPE"], "Workspaces")
+        self.assertEqual(ns["MONITORING"], [{"cluster": "https://trd-abc.z3.kusto.fabric.microsoft.com",
+                                             "database": "Monitoring KQL database"}])   # selbst gefunden
+        self.assertTrue(any("getDefinition" in u for _, u, _ in fake.calls))
+        self.assertIn("eigenem Zugriff", ns["REPORT_TITLE"])
+        self._assert_report(ns, log, shown)
+
+    def _assert_report(self, ns, log, shown):
         self.assertEqual(len(ns["models"]), 2)
         self.assertIn("SemanticModelLogs", dict(log)["query"])
         names = {a.name for a in ns["apps"]}
