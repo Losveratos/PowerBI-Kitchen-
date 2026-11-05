@@ -13,6 +13,6 @@ Abschreibungen;;;Account;;-1;true;false;380;360;380;380
 EBIT;;;Formula;[EBITDA]+[Abschreibungen];1;false;false;;;;
 Finanzergebnis;;;Account;;1;false;false;-95;-80;-90;-100
 EBT;;;Formula;[EBIT]+[Finanzergebnis];1;false;false;;;;
-Steuern;;;Account;;-1;true;true;310;290;320;330
+Steuern;;;Account;;-1;true;false;310;290;320;330
 Jahresüberschuss;;;Formula;[EBT]+[Steuern];1;false;false;;;;
 Umsatzrendite;;;KPI;[Jahresüberschuss]/[Umsatzerlöse];1;false;false;;;;

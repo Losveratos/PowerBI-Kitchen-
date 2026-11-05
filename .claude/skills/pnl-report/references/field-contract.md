@@ -24,7 +24,7 @@ Measure = Kennzahl (`categorical.values`). „max" aus den `conditions`.
 | `formulaDef` | Formeldefinition | Grouping | 1 | z. B. `[EBITDA]/[Net revenue]`; `+ - * /`, Klammern, Formel auf Formel |
 | `signConvention` | Rechenvorzeichen (±1) | Grouping | 1 | Erlös `+1`, Kosten `-1` |
 | `displayInvert` | Anzeige invertieren | Grouping | 1 | Kosten positiv anzeigen (Text „true"/„false" wird selbst geparst) |
-| `varianceInvert` | Abweichungsfarbe drehen | Grouping | 1 | Kosten/Steuern unter Plan = günstig |
+| `varianceInvert` | Abweichungsfarbe drehen | Grouping | 1 | „mehr ist schlecht“ — **nur** bei `signConvention +1` (Kosten positiv geführt, Kosten-Quoten). Bei `-1` (auch Steuern) immer `false`: die Engine übernimmt die Richtung selbst, beides zusammen färbt Mehrkosten günstig (Matrix: `finance-data-model/references/konten-dimension.md` §6) |
 | `period` | Periode (Monat) | Grouping | 1 | Monatssäulen, Sparklines, MTD/YTD |
 | `comment` | Kommentar | Grouping | 1 | Freitext je Konto → Marker + Fußnote |
 | `ac` | AC (Ist) | Measure | 1 | **Pflicht** |

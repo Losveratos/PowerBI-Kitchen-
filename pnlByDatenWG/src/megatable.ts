@@ -83,8 +83,10 @@ export interface MegaGeometry {
     axisPY: number; axisPLGap: number;
 }
 
-export function megaGeometry(fs: number): MegaGeometry {
-    const rowH = Math.round(fs * 1.7);
+export function megaGeometry(fs: number, rowK = 1.7): MegaGeometry {
+    // rowK (1.5.1): row height in fs — below 1.7 only when the visual makes room
+    // for its comment footnotes (MegaInput.rowK), never below 1.3
+    const rowH = Math.round(fs * Math.max(1.3, Math.min(1.7, rowK)));
     return {
         fs, rowH,
         fsSmall: Math.round(fs * 0.85 * 10) / 10,
@@ -150,6 +152,17 @@ export interface MegaRow {
     eff?: number;
     /** "=" row of a cascade: drawn from the zero line, restarts the run. Default: formula rows */
     anchor?: boolean;
+    /**
+     * 1.7 a stock row (balance sheet item, opening / closing balance): in a
+     * stacked FY outlook (12G) its value is the FC end stand — the whole bar
+     * is hatched, there is no year-to-date share to stack
+     */
+    stock?: boolean;
+    /**
+     * 1.7 a top-level stock total (balance sheet total, closing balance):
+     * double rule under its figures (the accounting double underline)
+     */
+    dbl?: boolean;
 }
 
 /** Display-oriented variance of one row (engine.displayVariance, scaled). */
@@ -166,6 +179,12 @@ export interface MegaDelta {
     pp: boolean;
     /** below the materiality threshold (columns.materialityAbs / Pct): soft ink instead of good / bad */
     immaterial?: boolean;
+    /**
+     * 1.7 ⚡ "only exceptions": the row is no exception (always together with
+     * `immaterial`, so it greys like it). High contrast cannot grey — there it
+     * is drawn dashed, without fill or pattern.
+     */
+    quiet?: boolean;
 }
 
 export interface MegaBlock {
@@ -273,6 +292,12 @@ export interface MegaInput {
      */
     fixedMax?: number;
     fixedVarMax?: number;
+    /**
+     * 1.5.1: row height in font sizes (default 1.7, clamped to 1.3..1.7) — the
+     * visual sets the table tighter when the comment footnotes would otherwise
+     * fall below the visible area
+     */
+    rowK?: number;
 }
 
 // ============================================================================
@@ -305,10 +330,10 @@ const P_OFF: MegaPreset = {
 const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...base, ...o });
 
 /**
- * Template presets (SPEC "Defaults je Preset"). Δ% decimals follow the
- * prototype's derived rule and are written to numbers.pctDecimals: regions
- * max(1, d), statements d ≥ 2 ? 1 : 0 for Δ% numbers, pins max(1, d)
- * (statement pins with d = 0 → 0: 12A).
+ * Template presets (SPEC "Defaults je Preset"). Δ% numbers and pins carry ONE
+ * decimal in every template (1.5, written to numbers.pctDecimals) — until 1.4
+ * they followed the reference sheets (T03 / 12-series 0, T04B–E 2), and the
+ * same deviation read differently from template to template.
  */
 const T01A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
@@ -319,10 +344,10 @@ const T02A = preset(P_OFF, {
 });
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
-    decimals: 1, pctDecimals: 0,
+    decimals: 1, pctDecimals: 1,
 });
 const T04A = preset(P_OFF, { showPL: true, showMin: true, dPlBar: true, dPlPin: true, decimals: 1, pctDecimals: 1 });
-const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 2 });
+const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1 });
 const T04C = preset(T04B, {
     showPY: true, showPL: false, dPlWf: false, dPlPin: false, dPyWf: true, dPyPin: true,
 });
@@ -347,17 +372,30 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     T04E: preset(T04C, { min: "FC" }),
     "12A": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 0,
+        showPctRows: false, decimals: 0, pctDecimals: 1,
     }),
     // 12G: FY outlook — PY year vs AC&FC stacked (YTD solid + rest of year hatched), ΔPY on the year
     "12G": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        blockKind: "fy", decimals: 0, pctDecimals: 0, headline: true,
+        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true,
     }),
     // 12H: plan statement — PL (outlined) vs PY, Δ bars tinted pale
     "12H": preset(P_OFF, {
         min: "PL", showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 0, headline: true,
+        showPctRows: false, decimals: 0, pctDecimals: 1, headline: true,
+    }),
+    // 1.7 balance sheet (stocks): the stand at the reporting date — PY (the stand a
+    // year earlier) · AC · ΔPY · ΔPY%; assets and equity-and-liabilities as two
+    // "=" blocks with the double rule (statement.stockMode: see hub.templateStockMode)
+    T05A: preset(P_OFF, {
+        showPY: true, showMin: true, dPyAbs: true, dPyPct: true, decimals: 0, pctDecimals: 1,
+    }),
+    // 1.7 cash flow: opening balance → operating · investing · financing → closing
+    // balance as PY and AC value cascades (the bridge, stocks anchor), ΔPY · ΔPY%,
+    // month | _YTD (the FY outlook is one switch away: blockKind)
+    T05B: preset(P_OFF, {
+        showPY: true, showMin: true, valueCascade: true, dPyAbs: true, dPyPct: true, secondBlock: true,
+        decimals: 0, pctDecimals: 1,
     }),
 };
 export const MEGA_PRESET_KEYS = Object.keys(MEGA_PRESETS);
@@ -371,8 +409,8 @@ interface ScenNotation {
     mark: "solid" | "hatch" | "gray" | "double"; fill: MegaFillKind; axis?: "gray" | "double";
     /**
      * fill of the Δ elements (bars, waterfall steps) when this scenario is the
-     * minuend: AC solid, FC hatched, PL tinted — the pale good / bad tone in an
-     * ink outline (12H). PY is never a minuend.
+     * minuend: AC solid, FC hatched, PL outlined in good / bad on paper (12H,
+     * 1.5.1; 1.1 to 1.5 tinted pale). PY is never a minuend.
      */
     area: MegaFillKind;
     /** value cascade (12A): palette tone of the scenario, and of its cost rows ("hell abgesetzt") —
@@ -383,7 +421,11 @@ const SCENARIO_NOTATION: Record<MegaScen, ScenNotation> = {
     AC: { mark: "solid", fill: "solid", area: "solid", tone: "ink", toneLight: "soft" },
     FC: { mark: "hatch", fill: "hatch", area: "hatch", tone: "ink", toneLight: "soft" },
     PY: { mark: "gray", fill: "solid", area: "solid", axis: "gray", tone: "py", toneLight: "pyLight" },
-    PL: { mark: "double", fill: "outline", area: "tint", axis: "double", tone: "ink", toneLight: "ink" },
+    // 1.5.1: PL Δ elements outlined in good / bad on paper (12H): the minuend
+    // decides the fill (AC solid, FC hatched, PL outlined), like its hollow pin
+    // heads and its outlined value cascade; the pale tint of 1.1 to 1.5 read
+    // like "below materiality"
+    PL: { mark: "double", fill: "outline", area: "outline", axis: "double", tone: "ink", toneLight: "ink" },
 };
 
 /** share of the paper in a plan tint (12H: pale teal / red; on dark paper the dark pendants) */
@@ -404,11 +446,39 @@ export function megaTint(color: string, share = MEGA_TINT): string {
 
 export interface MegaPaint { fill: string; stroke: string | null; sw: number; dash?: string; }
 
+/** WCAG contrast ratio of two #RGB / #RRGGBB colours (null when either is no hex colour) */
+export function megaContrast(a: string, b: string): number | null {
+    const lum = (c: string): number | null => {
+        const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((c || "").trim());
+        if (!m) { return null; }
+        const h = m[1].length === 3 ? m[1].split("").map(x => x + x).join("") : m[1];
+        const ch = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
+            .map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+        return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+    };
+    const x = lum(a); const y = lum(b);
+    if (x == null || y == null) { return null; }
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+/**
+ * 1.5.1: text colour for a number on a filled bar — the paper tone or the text
+ * ink, whichever contrasts more; null when neither reaches 4.5:1 (WCAG AA)
+ */
+export function megaReadableOn(fill: string): string | null {
+    let best: string | null = null; let bestC = 0;
+    for (const c of [MEGA_C.white, MEGA_C.text]) {
+        const k = megaContrast(c, fill);
+        if (k != null && k > bestC) { best = c; bestC = k; }
+    }
+    return bestC >= 4.5 ? best : null;
+}
+
 /**
  * notation(minuend, subtrahend):
  *   minuend  (AC | FC | PL) → FILL:  AC solid, FC hatched (+ 1 px outline in the
- *            same colour), PL tinted (pale good / bad in a 1 px ink outline, 12H;
- *            high contrast: solid — no mid tones)
+ *            same colour), PL outlined (1 px good / bad outline on paper, 12H,
+ *            1.5.1; high contrast: solid)
  *   subtrahend (PY | PL) → AXIS: PY gray line, PL double line
  * The same table yields the scenario mark of every scenario (column-head and
  * closing underline): AC solid ink · PY solid gray · PL double · FC hatched,
@@ -429,7 +499,9 @@ export function notation(minuend: MegaMin, subtrahend: MegaRef | null, hc = fals
                 : kind === "tint" && !hc ? { fill: megaTint(color), stroke: MEGA_C.ink, sw: 1 }
                     : { fill: color, stroke: null, sw: 0 };
     return {
-        area: (color, hatch) => paintOf(m.area, color, hatch),
+        // high contrast: good and bad share the foreground and "bad" is hollow;
+        // an outlined PL area stays solid there, or the two could not be told apart
+        area: (color, hatch) => hc && m.area === "outline" ? { fill: color, stroke: null, sw: 0 } : paintOf(m.area, color, hatch),
         head: (hatch) => paintOf(m.fill, MEGA_C.ink, hatch),
         axis: s.axis ?? "gray",
         mark: (scen) => SCENARIO_NOTATION[scen].mark,
@@ -465,8 +537,13 @@ export function megaDecimals(x: number, max = 4): number {
     return max;
 }
 
+/** 1.5.1: the typographic minus (U+2212) of every number — the same glyph as ChartKitchen */
+export const MEGA_MINUS = "−";
+/** 1.5.1: suffix of a percentage-point difference (narrow no-break space + "pp") */
+export const MEGA_PP = " pp";
+
 /**
- * explicit "+", "-" as minus, zero without a sign (also a rounded −0.0).
+ * explicit "+", "−" (U+2212) as minus, zero without a sign (also a rounded −0.0).
  * Finance format (`fin`, ChartKitchen labels.financeFormat): a negative number
  * goes into parentheses with its unit inside — (1 234), (12.5%) — positive Δ
  * keep their "+", an exact zero prints "–" (a rounded zero stays "0.0").
@@ -474,18 +551,22 @@ export function megaDecimals(x: number, max = 4): number {
  * ("<-20"), not a figure.
  */
 export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false): MegaFmt {
+    // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
+    // "−0,0") — beside a pin or bar that visibly points one way an unsigned
+    // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
+    const tiny = (v: number): boolean => Math.abs(v) > 1e-9;
     const signed = (v: number, d: number, plus: boolean): string => {
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        const zero = r === 0;
-        return (v < 0 && !zero ? "-" : plus && !zero ? "+" : "") + num(r, d);
+        const zero = r === 0 && !(plus && tiny(v));
+        return (v < 0 && !zero ? MEGA_MINUS : plus && !zero ? "+" : "") + num(r, d);
     };
     const fs = (v: number, d: number, plus: boolean, unit = ""): string => {
         if (!fin) { return signed(v, d, plus) + unit; }
         if (v === 0) { return "–"; }
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        if (r === 0) { return num(r, d) + unit; }
+        if (r === 0 && !(plus && tiny(v))) { return num(r, d) + unit; }
         return v < 0 ? "(" + num(r, d) + unit + ")" : (plus ? "+" : "") + num(r, d) + unit;
     };
     return {
@@ -493,10 +574,14 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         delta: v => fs(v, dec, true),
         pct: p => fs(p * 100, pdec, true, "%"),
         pin: p => fs(p * 100, pdec, true),
-        margin: m => fs(m * 100, dec, false, "%"),
-        pp: x => fs(x, dec, true, "%p"),
-        // margin rows: relative change of the ratio, WITH the % sign (T03A "+23%");
-        // %p stays the sign of the point difference (pp)
+        // 1.5.1: margins and their Δ are percentages — they carry the Δ% decimals
+        // (pctDecimals), not the decimals of the amounts (52.24 % next to 1-decimal
+        // Δ% read like two different kinds of number); the point difference reads
+        // "pp" (percentage points), not "%p"
+        margin: m => fs(m * 100, pdec, false, "%"),
+        pp: x => fs(x, pdec, true, MEGA_PP),
+        // relative change of a ratio — no longer printed in the table (a Δ% of a
+        // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
         share: p => fs(p * 100, pdec, false, "%"),
         signed,
@@ -511,8 +596,23 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
  * Tukey fence (factor 4) on |values|: fence = Q3 + 4 × (Q3 − Q1), from 8
  * values on; cap = largest |value| ≤ fence (Infinity = nothing capped).
  * Matches 12A (+983/+391 capped, +95 fits), T02A (+16.5 fits), T04 (+25.6 fits).
+ * `zone` (1.5, IBCS UN 5.3): share of a chart column reserved beyond the
+ * largest regular value — a capped element runs into it, carries a break mark
+ * and ends in a triangle in its growth direction.
  */
-export const MEGA_OUTLIER = { fence: 4, minN: 8 };
+export const MEGA_OUTLIER = { fence: 4, minN: 8, zone: 0.12 };
+
+/**
+ * Magnification factors of a scaling indicator (1.5, IBCS UN 5.2 / CH 4.3):
+ * the largest of 1 · 2 · 5 · 10 · 20 · 50 … that is ≤ x — round factors a
+ * reader can multiply in his head ("ΔPY ×5").
+ */
+export function niceFactor(x: number): number {
+    if (!isFinite(x) || x < 1) { return 1; }
+    const p = Math.pow(10, Math.floor(Math.log10(x) + 1e-9));
+    const m = x / p;
+    return (m >= 5 - 1e-9 ? 5 : m >= 2 - 1e-9 ? 2 : 1) * p;
+}
 export function outlierCap(values: number[]): number {
     const a = values.map(Math.abs).filter(x => x > 0).sort((x, y) => x - y);
     if (a.length < MEGA_OUTLIER.minN) { return Infinity; }
@@ -567,6 +667,10 @@ export interface MegaCol {
     els?: MegaEl[];
     cap?: number;
     inner?: number;
+    /** inner width from the share of the free width, before any growth for a minimum data span */
+    baseInner?: number;
+    /** 1.5.1: margin rows whose point difference is printed at the axis of this Δ bar / waterfall column */
+    ppRows?: { r: MegaRow; D: MegaDelta }[];
     kSelf?: number;
     k?: number;
     x0?: number;
@@ -576,6 +680,27 @@ export interface MegaCol {
     stack?: boolean;
     /** second head text of a stacked column ("YTD", left-aligned over the solid part) */
     head2?: string;
+    /** px reserved beyond the largest regular value for capped elements (outlier zone, UN 5.3) */
+    zone?: number;
+    /**
+     * 1.5 scaling indicator: this column is drawn at `mag` × the table scale of
+     * its unit (round factor, head reads "ΔPY ×5"). Absent = the table scale.
+     */
+    mag?: number;
+}
+
+/**
+ * 1.5: one magnified group of chart columns — the scale note lists them.
+ * 1.5.1: only the Δ family against the value cascades, one factor for the
+ * whole table (block −1 = every block)
+ */
+export interface MegaMag {
+    block: number;
+    /** "delta" (Δ bars + Δ waterfalls) · "valueCascade" · "pct" (pins) */
+    family: string;
+    factor: number;
+    /** heads of the magnified columns, without the factor */
+    heads: string[];
 }
 
 export interface MegaCellText {
@@ -606,7 +731,14 @@ export interface MegaLayout {
     /** font size + row height of the column heads and block titles (headFs; default fs / rowH) */
     headFs: number; headRowH: number;
     bodyBottom: number; footY: number; height: number;
+    /** final k per block × family ("0:delta", "1:pct", "0:valueCascade") — equal within a unit unless magnified */
     famK: Record<string, number>;
+    /**
+     * 1.5: the table scale per unit ("amount": Δ bars, Δ waterfalls and value
+     * cascades of every block; "pct": every pin) and the magnified groups
+     */
+    unitK: Record<string, number>;
+    mags: MegaMag[];
     cellText: (c: MegaCol, r: MegaRow) => MegaCellText | null;
 }
 
@@ -699,18 +831,47 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
         const v = b.value(r, ref);
         return a == null || v == null ? -Infinity : a - v;
     };
-    const out: MegaRow[] = []; let run: MegaRow[] = [];
-    const flush = (): void => {
-        const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
-        out.push(...rest, ...run.filter(r => r.other)); run = [];
+    const sortRuns = (list: MegaRow[]): MegaRow[] => {
+        const out: MegaRow[] = []; let run: MegaRow[] = [];
+        const flush = (): void => {
+            const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
+            out.push(...rest, ...run.filter(r => r.other)); run = [];
+        };
+        for (const r of list) {
+            if (r.kind === "acc") {
+                if (run.length && run[0].group !== r.group) { flush(); }
+                run.push(r);
+            } else { flush(); out.push(r); }
+        }
+        flush();
+        return out;
     };
+    // 1.5.2: the elements of the top visible level (the stretches between
+    // spacer rows: a region block, a one-child group "Germany · Saxony", a
+    // region without countries) are sorted too — in the same direction as
+    // the rows inside them, by the key of their last row (the block total or
+    // the single row). Until 1.5.1 the blocks kept the data order (T02F
+    // Handel −1.38 before Export +0.17 while the rows ran the other way) and
+    // single rows were never sorted (T02E). A stretch holding a cascade
+    // anchor (the grand total) keeps its place, "Other …" goes last.
+    const segs: MegaRow[][] = [[]];
     for (const r of rows) {
-        if (r.kind === "acc") {
-            if (run.length && run[0].group !== r.group) { flush(); }
-            run.push(r);
-        } else { flush(); out.push(r); }
+        if (r.kind === "gap") { segs.push([]); } else { segs[segs.length - 1].push(r); }
     }
-    flush();
+    const real = segs.filter(s => s.length > 0);
+    if (real.length < 2) { return { rows: sortRuns(rows), info: { ref, block: bi } }; }
+    const fixed = (s: MegaRow[]): boolean => s.some(r => megaAnchor(r));
+    const segKey = (s: MegaRow[]): number => key(s[s.length - 1]);
+    const free = real.filter(s => !fixed(s));
+    const order = [...free.filter(s => !s[s.length - 1].other).sort((x, y) => segKey(y) - segKey(x)),
+        ...free.filter(s => s[s.length - 1].other)];
+    let fi = 0;
+    const gaps = rows.filter(r => r.kind === "gap");
+    const out: MegaRow[] = [];
+    real.forEach((s, i) => {
+        if (i > 0 && gaps.length) { out.push(gaps[Math.min(i - 1, gaps.length - 1)]); }
+        out.push(...sortRuns(fixed(s) ? s : order[fi++]));
+    });
     return { rows: out, info: { ref, block: bi } };
 }
 
@@ -754,7 +915,7 @@ function cascadeText(input: MegaInput, fmt: MegaFmt, c: MegaCol, r: MegaRow): st
 
 export function layoutMega(input: MegaInput): MegaLayout {
     const { t, blocks } = input;
-    const G = megaGeometry(input.fs);
+    const G = megaGeometry(input.fs, input.rowK);
     const nb = blocks.length;
     const ord = orderRows(input);
     const rows = ord.rows;
@@ -808,10 +969,12 @@ export function layoutMega(input: MegaInput): MegaLayout {
             return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), ...redText(red) };
         }
         if (c.type === "dpct") {
-            if (D.p == null) { return null; }
+            // 1.5.1: a margin row has no relative Δ% (a percentage of a
+            // percentage) — its Δ is the point difference in the Δ column
+            if (D.p == null || pct) { return null; }
             const imp = D.impactPct;
             const red = t.thresholds && !pct && imp != null && imp < blk.th.pct - 1e-9;
-            return { ...base, t: pct ? fmt.rel(D.p) : fmt.pct(D.p), ...redText(red) };
+            return { ...base, t: fmt.pct(D.p), ...redText(red) };
         }
         return null;
     };
@@ -900,12 +1063,32 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const footY = bodyBottom + (style.closing ? G.markH + 4 : 2);
     const height = footY + (style.thresholds ? G.rowH : 0) + 4;
 
-    // ---- scale per block × family --------------------------------------------
+    // ---- scale: one per unit over the whole table (1.5, IBCS 2.0 / ISO 24896) --
+    // Same unit, same scale: the Δ bars, Δ waterfalls and value cascades of
+    // every period block share ONE k ("amount"), every Δ% pin another ("pct").
+    // A block or column that would become unreadable at that scale is drawn
+    // magnified by a round factor and says so in its head ("ΔPY ×5") and in
+    // the scale note — never rescaled silently (UN 5.2, CH 4.3 / 4.5).
     const lblW = (s: string, bold: boolean): number => t.labels ? tw(s, G.fs, bold) + G.lblGap : 0;
     for (const c of charts) {
         const blk = blocks[c.block];
         c.els = [{ p: 0, q: 0, a: 3, c: 3 }]; // the axis itself
         c.vals = [];
+        // 1.5.1: margin rows next to Δ bars / a Δ waterfall (T04A–E) print their
+        // point difference as a number at the axis — the same "+8.6 pp" the Δ
+        // column of T03 shows (columns.showPctRows decides both); a percentage
+        // point is no amount, so it never becomes a bar
+        if ((c.type === "bar" || c.type === "wf") && t.labels
+            && !cols.some(x => x.type === "delta" && x.block === c.block && x.ref === c.ref)) {
+            for (const { r } of R) {
+                if (r.kind !== "pct") { continue; }
+                const D = blk.delta(r, t.min, c.ref!);
+                if (!D || !D.pp || !isFinite(D.d)) { continue; }
+                const w = tw(fmt.pp(D.d), G.fsSmall, false, true) + G.lblGap;
+                (c.ppRows = c.ppRows ?? []).push({ r, D });
+                c.els.push(D.d >= 0 ? { p: 0, q: 0, a: 0, c: w + 3 } : { p: 0, q: 0, a: w + 3, c: 0 });
+            }
+        }
         if (c.type === "wf") {
             // Δ waterfall: the Δ of every row in its effect on the result
             c.casc = megaCascade(R.map(x => x.r), r => {
@@ -929,14 +1112,22 @@ export function layoutMega(input: MegaInput): MegaLayout {
             if (v != null && isFinite(v)) { c.vals.push({ r, v, D }); }
         }
     }
-    // outlier cap per block × family (all pin columns of a block share it)
-    for (let b = 0; b < nb; b++) {
-        for (const fam of ["pin", "bar"] as MegaColType[]) {
-            const cs = charts.filter(c => c.block === b && c.type === fam);
-            const allV = ([] as number[]).concat(...cs.map(c => c.vals!.map(o => o.v)));
-            const cap = fam === "pin" || t.capBars ? outlierCap(allV) : Infinity;
-            cs.forEach(c => { c.cap = cap; });
+    // outlier cap: ONE limit per family over all blocks (all pin columns of the
+    // table share it, the Δ bars another). Tukey decides per block what is an
+    // outlier there (a month's amounts are no outliers of the year); the common
+    // limit is the largest regular value of any block, so a value that stays
+    // regular in one block is never capped in another
+    for (const fam of ["pin", "bar"] as MegaColType[]) {
+        const cs = charts.filter(c => c.type === fam);
+        let cap = -Infinity; let any = false;
+        for (let b = 0; b < nb; b++) {
+            const allV = ([] as number[]).concat(...cs.filter(c => c.block === b).map(c => c.vals!.map(o => Math.abs(o.v))));
+            if (!allV.length) { continue; }
+            const capB = fam === "pin" || t.capBars ? outlierCap(allV) : Infinity;
+            if (capB !== Infinity) { any = true; }
+            cap = Math.max(cap, capB === Infinity ? Math.max(...allV) : capB);
         }
+        cs.forEach(c => { c.cap = any ? cap : Infinity; });
     }
     // scale sync (fixedMax / fixedVarMax): phantom elements hold the scale at
     // least at [0, max] (value cascades) / ±max (Δ bars and Δ waterfalls),
@@ -950,6 +1141,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
             c.els!.push({ p: -F, q: 0, a: lblW(fmt.delta(-F), true), c: 0 }, { p: 0, q: F, a: 0, c: lblW(fmt.delta(F), true) });
         }
     };
+    const blk0 = (c: MegaCol): MegaBlock => blocks[c.block];
     for (const c of charts) {
         if (c.casc) {
             for (const { r } of R) {
@@ -957,27 +1149,37 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 if (!seg) { continue; }
                 const lw = lblW(cascadeText(input, fmt, c, r), megaIsBold(r));
                 const up = seg.e >= seg.s;
-                c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? 0 : lw, c: up ? lw : 0 });
+                // 1.5.2 (12G): room for the YTD number before the bar start, where
+                // it stands when the solid part is too short to hold it
+                const yv = c.stack && blk0(c).ytd ? blk0(c).ytd!(r) : null;
+                const yw = yv != null && isFinite(yv) ? lblW(fmt.val(yv), megaIsBold(r)) : 0;
+                c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? yw : lw, c: up ? lw : yw });
             }
             phantom(c);
             continue;
         }
         const side = c.type === "pin" ? G.pinHead / 2 + G.lblGap : 0;
+        // the outlier zone: ~12 % of the column, at least two triangle lengths
+        c.zone = Math.max(2 * G.arrowW, Math.round(MEGA_OUTLIER.zone * (c.w - 2 * G.pad)));
         for (const { r, v, D } of c.vals!) {
             const capped = Math.abs(v) > c.cap!;
             const vv = capped ? Math.sign(v) * c.cap! : v;
             const text = c.type === "bar" ? fmt.delta(v) : fmt.pin(D.p!);
-            const extra = capped ? G.arrowW : side + lblW(text, megaIsBold(r));
+            // a capped element: zone + triangle, its number outside beyond the tip
+            const extra = (capped ? c.zone + G.arrowW : side) + lblW(text, megaIsBold(r));
             if (vv >= 0) { c.els!.push({ p: 0, q: vv, a: 0, c: extra }); }
             else { c.els!.push({ p: vv, q: 0, a: extra, c: 0 }); }
         }
         phantom(c);
     }
-    // families: Δ bars + Δ waterfall share "delta", pins "pct", value cascades "valueCascade"
+    // groups: per block, Δ bars + Δ waterfall share "delta", pins "pct", value
+    // cascades "valueCascade"; units: "delta" and "valueCascade" are amounts
     const family = (c: MegaCol): string => c.type === "pin" ? "pct" : c.type === "vwf" ? "valueCascade" : "delta";
+    const unitOf = (fam: string): string => fam === "pct" ? "pct" : "amount";
     const famK: Record<string, number> = {};
     for (const c of charts) {
         c.inner = c.w - 2 * G.pad;
+        c.baseInner = c.inner;
         c.kSelf = solveK(c.els!, c.inner);
         // minimum data span: the drawn area (without labels) must stay ≥ minSpan —
         // the column grows (the table scrolls) instead of collapsing the bars
@@ -988,12 +1190,12 @@ export function layoutMega(input: MegaInput): MegaLayout {
             c.inner = Math.ceil(a + b); c.w = c.inner + 2 * G.pad; c.kSelf = kMin;
         }
     }
-    // one k per block × family = the smallest k of its columns. The minimum data
-    // span holds per column only at that column's own k — a family partner with
-    // far larger values (ΔPL bars next to tiny ΔPY bars, a cascade next to bars)
-    // can push the shared k below it. Then the family k is raised to what the
-    // smallest column needs, as far as every column of the family can grow up to
-    // its width limit (chartMax / vwfMax; a column already wider keeps its
+    // (1) one k per block × family = the smallest k of its columns. The minimum
+    // data span holds per column only at that column's own k — a family partner
+    // with far larger values (ΔPL bars next to tiny ΔPY bars, a cascade next to
+    // bars) can push the shared k below it. Then the family k is raised to what
+    // the smallest column needs, as far as every column of the family can grow
+    // up to its width limit (chartMax / vwfMax; a column already wider keeps its
     // width); the binding columns grow to the needs at that k — the table
     // scrolls instead of collapsing bars. Beyond that limit the shared scale
     // wins: a column of tiny values next to huge ones stays short (comparable
@@ -1005,6 +1207,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const list = fams.get(key);
         if (list) { list.push(c); } else { fams.set(key, [c]); }
     }
+    const groupK = new Map<string, number>();
     for (const [key, cs] of fams) {
         let k = Math.min(...cs.map(c => c.kSelf!));
         const live = cs.filter(c => spanOf(c) > 0);
@@ -1021,7 +1224,65 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 }
             }
         }
+        groupK.set(key, k);
+    }
+    // (2) one k per unit over the whole table = the smallest group k
+    const unitK: Record<string, number> = {};
+    for (const [key, cs] of fams) {
+        const u = unitOf(family(cs[0]));
+        unitK[u] = Math.min(unitK[u] ?? Infinity, groupK.get(key)!);
+    }
+    // (3) 1.5.1: blocks of one table (month | YTD | FY) never get a factor
+    // against each other — every Δ bar / Δ waterfall of every block draws at
+    // ONE Δ scale, every pin at ONE pin scale (T02B drew "ΔPL ×2" on the month
+    // while T02C, almost the same ratio, stayed ×1). The only factor left is
+    // the Δ family against the value cascades (12A, 12G, 12H): when the largest
+    // Δ span would fall below the minimum data span at the cascade scale, ALL
+    // Δ columns of the table are drawn magnified by one round factor (the one
+    // the tightest Δ group still holds) and their heads say so ("ΔPY ×5").
+    const mags: MegaMag[] = [];
+    const deltaKeys = [...fams.keys()].filter(key => family(fams.get(key)![0]) === "delta");
+    const hasCascade = [...fams.values()].some(cs => family(cs[0]) === "valueCascade");
+    let deltaMag = 1;
+    if (hasCascade && deltaKeys.length) {
+        const kU = unitK.amount;
+        const span = Math.max(...deltaKeys.map(key => Math.max(...fams.get(key)!.map(spanOf))));
+        const kG = Math.min(...deltaKeys.map(key => groupK.get(key)!));
+        if (span > 0 && span * kU < G.minSpan && kG >= 2 * kU * (1 - 1e-9)) {
+            const m = niceFactor(kG / kU * (1 + 1e-9));
+            if (m >= 2) { deltaMag = m; }
+        }
+    }
+    for (const [key, cs] of fams) {
+        const fam = family(cs[0]);
+        let k = unitK[unitOf(fam)];
+        if (fam === "delta" && deltaMag > 1) {
+            k *= deltaMag;
+            cs.forEach(c => { c.mag = deltaMag; });
+        }
         famK[key] = k;
+    }
+    if (deltaMag > 1) {
+        const heads: string[] = [];
+        for (const key of deltaKeys) { for (const c of fams.get(key)!) { if (!heads.includes(c.head)) { heads.push(c.head); } } }
+        mags.push({ block: -1, family: "delta", factor: deltaMag, heads });
+    }
+    // a column that grew for a scale it no longer draws at (its own or its
+    // block's k, above the table scale) shrinks back to what the table scale
+    // needs — never below its share of the free width
+    for (const c of charts) {
+        const [a, b] = megaNeeds(c.els!, famK[c.block + ":" + family(c)]);
+        const inner = Math.max(c.baseInner!, Math.ceil(a + b));
+        if (inner < c.inner!) { c.inner = inner; c.w = inner + 2 * G.pad; }
+    }
+    // the scaling indicator sits in the head of every magnified column; a
+    // column too narrow for the longer head grows (the extra width is slack,
+    // the scale stays)
+    for (const c of charts) {
+        if (!c.mag) { continue; }
+        c.head += " ×" + c.mag;
+        const need = Math.ceil(tw(c.head, headFs) + 2 * G.pad + (c.head2 ? tw(c.head2, headFs) + G.pad : 0));
+        if (need > c.w) { c.inner = c.inner! + need - c.w; c.w = need; }
     }
     let x = 0;
     for (const c of cols) { x += gapPx(c.gap); c.x = x; x += c.w; }
@@ -1035,7 +1296,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
 
     return {
         G, input, fmt, rows, R, cols, charts, N, NB, style, sortInfo, tableW,
-        blockTitleY, colHeadY, markY, bodyTop, headH, headFs, headRowH, bodyBottom, footY, height, famK, cellText,
+        blockTitleY, colHeadY, markY, bodyTop, headH, headFs, headRowH, bodyBottom, footY, height, famK, unitK, mags, cellText,
     };
 }
 
@@ -1251,6 +1512,14 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
         if (style.rowRules && r.kind === "acc" && !(contiguous && megaIsBold(next.r))) {
             for (const c of cols) { hline(B, c.x, c.x + c.w, y + h - 0.5, MEGA_C.rule); }
         }
+        // 1.7 a balance-sheet total / closing balance: the double rule under its figures
+        if (r.dbl) {
+            for (const c of cols) {
+                if (c.type === "label") { continue; }
+                hline(B, c.x, c.x + c.w, y + h - 3.5, MEGA_C.ink);
+                hline(B, c.x, c.x + c.w, y + h - 0.5, MEGA_C.ink);
+            }
+        }
     }
     if (style.closing) {
         for (const c of cols) {
@@ -1385,13 +1654,40 @@ function paintChartColumn(
             fill: hollow ? MEGA_C.white : fill, stroke: hollow ? MEGA_C.ink : null, "stroke-width": hollow ? 1 : null,
         }, g);
     };
+    // break mark of a capped element (UN 5.3): two slanted strokes in the paper
+    // tone cut the bar / stem just past the largest regular value
+    const breakMark = (xb: number, cy: number, dir: number, hgt: number): void => {
+        const h = hgt / 2 + 2; const s = 2.5;
+        const d = [0, 3.5].map(o => {
+            const xm = xb + dir * o;
+            return `M${xm - s},${cy + h} L${xm + s},${cy - h}`;
+        }).join(" ");
+        svgEl("path", { d, stroke: MEGA_C.white, "stroke-width": 1.6, fill: "none", "data-pnl": "mega-break" }, g);
+    };
     // high contrast: good and bad share the foreground — unfavourable is hollow
     const hollow: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 };
     const hatch = B.hatch;
+    // 1.5.2: boxes of the numbers a cascade connector must not run through
+    const avoid: { x0: number; x1: number; y0: number; y1: number }[] = [];
+    // 1.5.1: the point difference of a margin row, as a number at the axis (T04)
+    for (const { r, D } of c.ppRows ?? []) {
+        const i = R.findIndex(x => x.r === r);
+        if (i < 0 || (win && (i < win.from || i >= win.to))) { continue; }
+        const { y, h: rh } = R[i];
+        const up = D.d >= 0;
+        const px = up ? c.x0! + axisHalf + G.lblGap : c.x0! - axisHalf - G.lblGap;
+        const py = base(y, rh, G.fsSmall);
+        const pw = input.measure(fmt.pp(D.d), G.fsSmall, false, true);
+        avoid.push({ x0: up ? px : px - pw, x1: up ? px + pw : px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
+        text(B, px, py, fmt.pp(D.d), {
+            anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
+            color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
+        }).setAttribute("data-pnl", "mega-pp");
+    }
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)
         paintCascade(L, c, B, g, X, label, vline, rect, paintAxis, pal,
-            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf }, win);
+            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf }, win, avoid);
         return;
     }
     const byRow = new Map(c.vals!.map(v => [v.r, v]));
@@ -1408,27 +1704,37 @@ function paintChartColumn(
         // below materiality: soft ink, and in high contrast never the hollow "bad" pattern
         const color = ov.D.immaterial ? MEGA_C.soft : ov.D.good ? pal.good : pal.bad;
         const bad = hc && !ov.D.good && !ov.D.immaterial;
+        // 1.7 ⚡ high contrast: no exception = dashed outline, no fill, no pattern
+        const quiet = hc && ov.D.quiet === true;
+        const dashed: MegaPaint = { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "2,2" };
         const bold = megaIsBold(r);
+        // a capped element runs past the largest regular value through the
+        // outlier zone, is cut by a break mark and ends in a triangle; its
+        // number stands outside beyond the tip
+        const zone = capped ? c.zone ?? 2 * G.arrowW : 0;
         if (c.type === "bar") {
-            const x2 = X(vv);
+            const xr = X(vv); const x2 = xr + dir * zone;
             const bx = Math.min(c.x0!, x2); const bw = Math.abs(x2 - c.x0!);
-            if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, bad ? hollow : N.area(color, hatch), gBars); }
+            if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, quiet ? dashed : bad ? hollow : N.area(color, hatch), gBars); }
             if (capped) {
-                arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad);
-                label(x2 - dir * 3, ty, fmt.delta(v), dir > 0 ? "end" : "start", bold, true);
+                breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.barH);
+                arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad || quiet);
+                label(x2 + dir * (G.arrowW + G.lblGap), ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
             } else {
                 const lx = dir > 0 ? Math.max(x2, c.x0! + axisHalf) + G.lblGap : Math.min(x2, c.x0! - axisHalf) - G.lblGap;
                 label(lx, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
             }
         } else {
-            const xh = X(vv);
-            svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem }, gBars);
+            const xr = X(vv); const xh = xr + dir * zone;
+            svgEl("line", { x1: c.x0!, x2: xh, y1: cy, y2: cy, stroke: color, "stroke-width": G.pinStem,
+                "stroke-dasharray": quiet ? "2,2" : null }, gBars);
             if (capped) {
-                arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad);
-                label(xh - dir * 3, ty, fmt.pin(ov.D.p!), dir > 0 ? "end" : "start", bold, true);
+                breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.pinHead);
+                arrow(xh + dir * G.arrowW, cy, dir, G.pinHead + 2, color, bad || quiet);
+                label(xh + dir * (G.arrowW + G.lblGap), ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             } else {
                 const hs = G.pinHead;
-                rect(xh - hs / 2, cy - hs / 2, hs, hs, bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);
+                rect(xh - hs / 2, cy - hs / 2, hs, hs, quiet ? dashed : bad ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1 } : N.head(hatch), gBars);
                 const lx = dir > 0 ? Math.max(xh, c.x0!) + hs / 2 + G.lblGap : Math.min(xh, c.x0!) - hs / 2 - G.lblGap;
                 label(lx, ty, fmt.pin(ov.D.p!), dir > 0 ? "start" : "end", bold);
             }
@@ -1456,6 +1762,7 @@ function paintCascade(
     pal: { good: string; bad: string },
     axis: { x: number; half: number },
     win?: { from: number; to: number },
+    avoid: { x0: number; x1: number; y0: number; y1: number }[] = [],
 ): void {
     const { G, R, input } = L;
     const N = L.NB[c.block] ?? L.N;
@@ -1469,8 +1776,18 @@ function paintCascade(
     const gConn = svgEl("g", { "shape-rendering": "crispEdges", "data-pnl": "mega-conn" }, g);
     const base = (y: number, h: number): number => y + h / 2 + G.fs * 0.35;
     const near = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-6 * Math.max(1, Math.abs(a), Math.abs(b));
+    // 1.5.2: connectors are collected and drawn last, interrupted where a
+    // number sits on their line (T04B/C/E: "−0,25" and the margin rows' "pp"
+    // were crossed by the run of a total through its child rows)
+    const conns: { x: number; ya: number; yb: number }[] = [];
     const conn = (v: number, ya: number, yb: number): void => {
-        if (yb - ya > 0.5 && yb >= wTop && ya <= wBot) { vline(B, Math.round(X(v)) + 0.5, ya, yb, MEGA_C.soft, 1, gConn); }
+        if (yb - ya > 0.5 && yb >= wTop && ya <= wBot) { conns.push({ x: Math.round(X(v)) + 0.5, ya, yb }); }
+    };
+    const labelBox = (x: number, y: number, s: string, anchor: string, bold: boolean): void => {
+        if (!input.t.labels || !s) { return; }
+        const w = input.measure(s, G.fs, bold, false);
+        avoid.push({ x0: anchor === "end" ? x - w : anchor === "middle" ? x - w / 2 : x,
+            x1: anchor === "end" ? x : anchor === "middle" ? x + w / 2 : x + w, y0: y - G.fs * 0.85, y1: y + G.fs * 0.25 });
     };
     let last: { v: number; yb: number } | null = null;   // run end of the last drawn segment
     const spanFrom = new Map<string, { v: number; yb: number }>(); // total → run before its first child
@@ -1499,7 +1816,8 @@ function paintCascade(
         if (c.type === "wf") {
             const D = blk.delta(r, input.t.min, c.ref!)!;
             // high contrast: an unfavourable step is hollow (good / bad share the foreground)
-            st = input.hc && !D.good && D.d !== 0 && !D.immaterial ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
+            st = input.hc && D.quiet ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "2,2" }
+                : input.hc && !D.good && D.d !== 0 && !D.immaterial ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1.4 }
                 : N.area(D.immaterial ? MEGA_C.soft : D.good ? pal.good : pal.bad, B.hatch);
             txt = fmt.delta(D.d);
         } else {
@@ -1508,7 +1826,10 @@ function paintCascade(
             st = input.hc && c.scen === "PY" ? { fill: MEGA_C.white, stroke: MEGA_C.ink, sw: 1, dash: "3,2" }
                 : N.value(c.scen!, light, B.hatch);
             txt = fmt.val(blk.value(r, c.scen!)!);
-            if (c.stack && blk.ytd) {
+            if (c.stack && blk.ytd && r.stock) {
+                // 1.7 a stock in the FY outlook is the FC end stand: one hatched bar, no YTD share
+                st = N.value("FC", light, B.hatch);
+            } else if (c.stack && blk.ytd) {
                 const yv = blk.ytd(r);
                 if (yv != null && isFinite(yv)) { ytdPart = { v: yv, t: fmt.val(yv) }; }
             }
@@ -1527,13 +1848,28 @@ function paintCascade(
             if (solidB - solidA > 0.01 || restB - restA <= 0.01) {
                 rect(solidA, top, Math.max(solidB - solidA, 1), G.barH, N.value("AC", light, B.hatch), g);
             }
-            // the YTD number inside the solid part, on the paper tone, when it fits
+            // the YTD number inside the solid part when it fits, in the paper tone
+            // or the text ink, whichever reads better on that fill (1.5.1: the
+            // light cost tone took white at ~3:1). 1.5.2: otherwise (too short,
+            // or below 4.5:1 WCAG AA) it stands outside before the bar start
+            // ("1,94 ▓▒ 2,73") — 1.5.1 dropped it, 12G lost 10 of 19 YTD values
             if (input.t.labels) {
                 const w = input.measure(ytdPart.t, G.fs, megaIsBold(r), false);
-                if (w + 6 <= solidB - solidA) {
+                const ink = megaReadableOn(N.value("AC", light, B.hatch).fill);
+                if (!(w + 6 <= solidB - solidA && ink)) {
+                    const upS = seg.e >= seg.s;
+                    const ox = upS ? xs - G.lblGap : xs + G.lblGap;
+                    labelBox(ox, base(y, rh), ytdPart.t, upS ? "end" : "start", megaIsBold(r));
+                    svgEl("text", {
+                        x: ox, y: base(y, rh), "text-anchor": upS ? "end" : "start",
+                        "font-weight": megaIsBold(r) ? "bold" : null, fill: MEGA_C.text, "data-pnl": "mega-ytd",
+                        "data-pos": "out",
+                    }, g).textContent = ytdPart.t;
+                } else {
+                    labelBox((solidA + solidB) / 2, base(y, rh), ytdPart.t, "middle", megaIsBold(r));
                     svgEl("text", {
                         x: (solidA + solidB) / 2, y: base(y, rh), "text-anchor": "middle",
-                        "font-weight": megaIsBold(r) ? "bold" : null, fill: MEGA_C.white, "data-pnl": "mega-ytd",
+                        "font-weight": megaIsBold(r) ? "bold" : null, fill: ink, "data-pnl": "mega-ytd",
                     }, g).textContent = ytdPart.t;
                 }
             }
@@ -1562,6 +1898,18 @@ function paintCascade(
             const l0 = up ? lx : lx - w; const l1 = up ? lx + w : lx;
             crosses = l0 < axis.x + axis.half + 0.5 && l1 > axis.x - axis.half - 0.5;
         }
+        labelBox(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r));
         label(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r), crosses);
+    }
+    const pad = 1.5;
+    for (const k of conns) {
+        const cut = avoid.filter(b => k.x >= b.x0 - pad && k.x <= b.x1 + pad && b.y1 > k.ya && b.y0 < k.yb)
+            .sort((a, b) => a.y0 - b.y0);
+        let y0 = k.ya;
+        for (const b of cut) {
+            if (b.y0 - 1 > y0) { vline(B, k.x, y0, b.y0 - 1, MEGA_C.soft, 1, gConn); }
+            y0 = Math.max(y0, b.y1 + 1);
+        }
+        if (k.yb - y0 > 0.5) { vline(B, k.x, y0, k.yb, MEGA_C.soft, 1, gConn); }
     }
 }

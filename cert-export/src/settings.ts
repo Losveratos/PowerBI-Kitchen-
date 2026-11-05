@@ -60,9 +60,9 @@ const cumulativeKindItems: LocEnumMember[] = [
 ];
 
 const fontPresetItems: LocEnumMember[] = [
-    { value: "compact", displayName: "Compact (dashboard tile)", key: "Enum_FontPreset_Compact" },
+    { value: "compact", displayName: "HD (dashboard tile)", key: "Enum_FontPreset_Compact" },
     { value: "fullhd", displayName: "Full HD (1080p)", key: "Enum_FontPreset_FullHd" },
-    { value: "presentation", displayName: "Presentation (4K / projector)", key: "Enum_FontPreset_Presentation" }
+    { value: "presentation", displayName: "UHD (4K / projector)", key: "Enum_FontPreset_Presentation" }
 ];
 
 const valueColumnsItems: LocEnumMember[] = [
@@ -363,7 +363,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "invertList",
         displayName: "Invert per category",
         displayNameKey: "Chart_InvertList",
-        description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter.",
+        description: "Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „invert“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Chart_InvertList",
         placeholder: "z. B. Opex, Materialaufwand",
         value: ""
@@ -468,7 +468,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "highlight",
         displayName: "Highlight categories",
         displayNameKey: "Chart_Highlight",
-        description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat.",
+        description: "Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „emphasize“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Chart_Highlight",
         placeholder: "z. B. Jul, Aug",
         value: ""
@@ -521,6 +521,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         description: "Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert.",
         descriptionKey: "Desc_Chart_Buttons",
         value: true
+    });
+
+    chipMenu = new formattingSettings.ToggleSwitch({
+        name: "chipMenu",
+        displayName: "Fold chart controls (☰)",
+        displayNameKey: "Chart_ChipMenu",
+        description: "Klappt die Bedienleisten im Chart (Sortieren, YTD, Achsenschnitt, ΔPY/ΔPL, ⇅, ▶, Ausnahme-Chip) hinter ein kleines ☰ oben rechts. Ein Klick klappt sie auf, ein zweiter wieder zu; nichts wird gespeichert. Aus (Standard): Bedienleisten wie bisher immer sichtbar.",
+        descriptionKey: "Desc_Chart_ChipMenu",
+        value: false
     });
 
     pyTriangle = new formattingSettings.ToggleSwitch({
@@ -661,11 +670,23 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: bridgeOrientationItems[0]
     });
 
+    // 1.52.1: shortened anchors with a visible axis break, the steps of the bridge
+    // keep one linear scale (IBCS UN 5.3) — integrated bridge, vertical category
+    // bridge and waterfall
+    bridgeBreak = new formattingSettings.ToggleSwitch({
+        name: "bridgeBreak",
+        displayName: "Shorten anchors (axis break)",
+        displayNameKey: "Chart_BridgeBreak",
+        description: "Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden. Alle Stufen bleiben in einer Skala. Gekürzt wird nur, wenn alle Stände jenseits des Schnitts liegen — bei rein negativen Brücken (integrierte und Kategorie-Brücke) gespiegelt unter der Nulllinie, über Null hinweg nie. Standard: aus.",
+        descriptionKey: "Desc_Chart_BridgeBreak",
+        value: false
+    });
+
     bridgeGroup = new formattingSettings.Group({
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation]
+        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -691,7 +712,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "resultList",
         displayName: "Result rows",
         displayNameKey: "Table_ResultList",
-        description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker) — Alternative zur Waterfall-Typ-Rolle.",
+        description: "Kommagetrennte Zeilennamen, die als Ergebniszeilen formatiert werden (fett, Trennlinie, vom Σ ausgenommen; im Wasserfall als Anker). Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „total“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_ResultList",
         placeholder: "z. B. EBIT, Rohertrag",
         value: ""
@@ -701,7 +722,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "skipList",
         displayName: "Skip rows (exclude from totals)",
         displayNameKey: "Table_SkipList",
-        description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt.",
+        description: "Kommagetrennte Zeilennamen, die nicht in Σ-Zeile, Skalen und Wasserfall-Kaskade einfließen (z. B. nachrichtliche Positionen). Die Zeile bleibt sichtbar, wird aber dezent dargestellt. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „exclude“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_SkipList",
         placeholder: "z. B. Davon-Positionen",
         value: ""
@@ -711,7 +732,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "hideList",
         displayName: "Hide rows",
         displayNameKey: "Table_HideList",
-        description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar.",
+        description: "Kommagetrennte Zeilennamen, die nur ausgeblendet werden — Σ-Zeile, Skalen und Formeln rechnen weiter mit ihnen (anders als „Aus Summen ausnehmen“). Auch per Klick im Struktur-Modus setzbar. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „hide“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_HideList",
         placeholder: "z. B. Sonstige, Intern",
         value: ""
@@ -721,7 +742,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartList",
         displayName: "Chart only these rows",
         displayNameKey: "Table_ChartList",
-        description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer.",
+        description: "Kommagetrennte Zeilennamen: Wenn befüllt, zeigen nur diese Zeilen die Balken-/Pin-Grafiken — alle anderen bleiben reine Zahlenzeilen. Leer = Grafiken überall. Die Σ-Zeile behält ihre Grafik immer. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „graphic“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_ChartList",
         placeholder: "z. B. Umsatz, EBIT",
         value: ""
@@ -731,7 +752,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "indentList",
         displayName: "Indent rows (davon)",
         displayNameKey: "Table_IndentList",
-        description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“.",
+        description: "Kommagetrennte Zeilennamen, die als „davon:“-Positionen eingerückt und dezent dargestellt werden — ohne Hierarchie-Feld. Meist kombiniert mit „Aus Summen ausnehmen“. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „davon“ — Feld und Liste ergänzen sich.",
         descriptionKey: "Desc_Table_IndentList",
         placeholder: "z. B. davon Export",
         value: ""
@@ -913,6 +934,15 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    cardSameScale = new formattingSettings.ToggleSwitch({
+        name: "cardSameScale",
+        displayName: "Same scale for all cards",
+        displayNameKey: "Cards_SameScale",
+        description: "Alle Mini-Brücken teilen einen Maßstab: gleiche Beträge ergeben gleich hohe Balken (IBCS: identische Skalen). Für Karten derselben Kennzahl je Kategorie (z. B. Umsatz je Kanal). Aus: jede Karte skaliert für sich, nötig bei Karten mit verschiedenen Einheiten.",
+        descriptionKey: "Desc_Cards_SameScale",
+        value: false
+    });
+
     cardTrendChart = new formattingSettings.ItemDropdown({
         name: "cardTrendChart",
         displayName: "Trend mini chart",
@@ -958,7 +988,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "KPI cards",
         displayNameKey: "Group_Cards",
         slices: [this.cardStatusBasis, this.cardHighlight, this.cardRefValues, this.cardSort,
-            this.cardBars, this.cardTrendChart, this.cardTrendValue, this.cardTint,
+            this.cardBars, this.cardSameScale, this.cardTrendChart, this.cardTrendValue, this.cardTint,
             this.cardTintStrength, this.cardBullet, this.cardBulletZoom]
     });
 
@@ -1132,14 +1162,25 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartInteraction",
         displayName: "Interaction in the report",
         displayNameKey: "Group_Interaction",
-        slices: [this.chartButtons, this.cumulativeButton, this.compareClick]
+        slices: [this.chartButtons, this.cumulativeButton, this.compareClick, this.chipMenu]
+    });
+
+    // 1.52.1: series names of stacked columns/bars right at the stack (IBCS) instead
+    // of a key above the chart; falls back to the key when they do not fit
+    stackLegendDirect = new formattingSettings.ToggleSwitch({
+        name: "stackLegendDirect",
+        displayName: "Stack legend at the stack",
+        displayNameKey: "Chart_StackLegendDirect",
+        description: "Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben.",
+        descriptionKey: "Desc_Chart_StackLegendDirect",
+        value: true
     });
 
     displayGroup = new formattingSettings.Group({
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.exportExpandAll]
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.exportExpandAll]
     });
 
     name: string = "chart";
@@ -1255,7 +1296,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         name: "fontPreset",
         displayName: "Size preset",
         displayNameKey: "Labels_FontPreset",
-        description: "Skaliert alle Schriften im Visual auf einmal: Kompakt ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · Präsentation ×2.",
+        description: "Skaliert alle Schriften im Visual auf einmal: HD ×1 (Standard) · Full HD ×1,5 (empfohlen für 1080p-Berichte) · UHD ×2.",
         descriptionKey: "Desc_Labels_FontPreset",
         items: fontPresetItems,
         value: fontPresetItems[0]
@@ -1313,6 +1354,17 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         description: "Rundet die Wertbeschriftungen nach dem Restwertverfahren so, dass sie exakt auf die Σ-Kopfzeile aufaddieren — keine Rundungsdifferenz-Nachfragen mehr. Aus = mathematisch exakte Einzelrundung, dafür erscheint bei Abweichung ein Rundungshinweis unter der Σ-Zeile.",
         descriptionKey: "Desc_Labels_SumSafe",
         value: false
+    });
+
+    // 1.52.1: unit suffix on every label ("18,5M") or bare numbers with the unit in
+    // the title only ("18,5", title „… in Mio. EUR")
+    unitSuffix = new formattingSettings.ToggleSwitch({
+        name: "unitSuffix",
+        displayName: "Unit on every label",
+        displayNameKey: "Labels_UnitSuffix",
+        description: "An = jede Beschriftung trägt Größenordnung und Einheit („18,5M“). Aus = nur die Zahl („18,5“), die Einheit steht einmal im Titel („Nettoumsatz in Mio. EUR“), so wie es IBCS empfiehlt.",
+        descriptionKey: "Desc_Labels_UnitSuffix",
+        value: true
     });
 
     labelDensity = new formattingSettings.ItemDropdown({
@@ -1388,6 +1440,7 @@ export class LabelsCardSettings extends FormattingSettingsCard {
         this.displayUnits,
         this.financeFormat,
         this.sumSafeRounding,
+        this.unitSuffix,
         this.labelAc,
         this.labelPy,
         this.labelPl,

@@ -1,0 +1,19 @@
+id: good-app
+services:
+  auth:
+    enabled: true
+    password:
+      enabled: false
+    allowedRedirectUris:
+      - http://localhost:5173
+  staticHosting:
+    assetAccess: protected
+connectors:
+  - name: demo
+    type: fabric-semanticmodel
+    config:
+      workspaceId: 9eb531b4-f97a-4dad-99ff-fac0e31fbeb3
+      itemId: 56f44b5a-9b2f-4540-86aa-a400d0c2a7c2
+    auth:
+      type: delegated
+    version: "1"

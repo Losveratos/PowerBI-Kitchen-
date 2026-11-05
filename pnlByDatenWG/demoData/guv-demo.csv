@@ -16,6 +16,6 @@ da;;Abschreibungen;50;Account;;-1;true;false;380;360;380;380
 ebit;;EBIT;51;Formula;[ebitda]+[da];1;false;false;;;;
 fin;;Finanzergebnis;60;Account;;1;false;false;-95;-80;-90;-100
 ebt;;EBT;61;Formula;[ebit]+[fin];1;false;false;;;;
-tax;;Steuern;70;Account;;-1;true;true;310;290;320;330
+tax;;Steuern;70;Account;;-1;true;false;310;290;320;330
 ni;;Jahresüberschuss;80;Formula;[ebt]+[tax];1;false;false;;;;
 m_ni;;Umsatzrendite;81;KPI;[ni]/[s_rev];1;false;false;;;;

@@ -17,10 +17,12 @@ Vergleich hat keine Botschaft — immer Szenarien (PL/PY/FC) + Abweichung zeigen
    - Rangfolge/Vergleich je Element → `bars` (absteigend sortiert)
    - 80/20-Konzentration → `pareto`
    - Vorher/Nachher je Element (2 Zustände) → `dumbbell` (Struktur) bzw. `slope` (2 Zeitpunkte)
-   - Root-Cause / Beitrag zu einem Ergebnis (Umsatz→Kosten→EBIT) → `waterfall` (+`rowType` sum/delta)
+   - Root-Cause / Beitrag zu einem Ergebnis (Umsatz→Kosten→EBIT) → `waterfall` (+`rowType`: `total` bzw. `sum` für Zwischensummen, `delta` für Bewegungen)
    - Abweichungs-Brücke je Kategorie (was treibt ΔPL?) → `catbridge`
 4. **GuV / Konten-Statement mit Ergebniszeilen und Margen?** → `pnl`
-   (+`resultList`/`formulaRows`/`invertList`).
+   (+`rowType` aus der Kontendimension: `total`/`pct`/`invert`/`davon` …; `formulaRows`
+   für berechnete Zeilen. Die Listen `resultList`/`invertList` nur als Fallback
+   ohne RowType-Spalte; Modell dafür siehe Skill `finance-data-model`).
 5. **Viele Kennzahlen × Perioden/Szenarien tabellarisch, druck-/boardtauglich?**
    → `table` (Matrix via `colgroup`, max. 2 Ebenen).
 6. **Eine Dimension aufgeteilt, gleiche Skala je Kachel?** → beliebiger Basis-

@@ -32,22 +32,28 @@ import { VisualFormattingSettingsModel, PaneContext, applyPaneGates, localizeSet
 import { UI_EN, fillArgs } from "./i18n";
 import {
     buildModel, flattenVisible, collapseToLevel, variance, displayValue,
-    parseRowType, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
+    parseRowTypeInfo, parseBool, parseSign, rowsFromLevels, aggregateMonthly,
+    windowValue, stockish, modelHasStock, BuildOptions, StockMode,
     isZeroRow, revenueBase, formulaOperands, nodeResolver, Variance,
     syntheticTotal, TOTAL_ID, parsePeriod, displayVariance, sumSafeRound, varianceOf, sortMonths,
     FormulaOp, InputRow, LevelInputRow, PeriodSort, PnlModel, PnlNode, Scenario,
+    isExceptionVariance, ExceptionRule, markedShare, stackPairs, sameShape, mergeNodes,
+    unpostedActualMonths, dropActuals,
 } from "./engine";
 import {
-    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount,
+    layoutMega, paintMega, megaActive, activeRefs, setMegaPalette, buildColumns, MEGA_PRESETS, parseAmount, niceFactor, MEGA_PP,
     MegaBlock, MegaDelta, MegaRef, MegaRow, MegaScen, MegaToggles, MegaLayout, MegaPaintOpts, MegaPainted,
 } from "./megatable";
 import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
-import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc,
+import { buildStockDemoRows } from "./demo-stock";
+import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc, templateDemo, templateStockMode,
     HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl } from "./hub";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
+/** 1.5.1: the typographic minus (U+2212) in every number, as in ChartKitchen */
+const MINUS = "−";
 
 /**
  * The palette of the visual. `C` is the live palette every painter reads at
@@ -233,6 +239,20 @@ const TREE_HEAD_GAP = 10;
  * many diamond references or a deep account hierarchy must stay bounded.
  */
 const TREE_MAX_CARDS = 400;
+/**
+ * Sankey flow view (1.6, px at font scale 1): node bar width, the smallest bar
+ * a node ever gets (null / zero / tiny values stay visible and clickable), the
+ * vertical air between two stacked nodes, and the column pitch limits.
+ */
+const SANKEY_BAR_W = 12;
+const SANKEY_MIN_H = 6;
+const SANKEY_GAP = 8;
+const SANKEY_COL_MIN = 72;
+const SANKEY_COL_MAX = 260;
+/** a band is tinted this far towards the paper — the node bar keeps the full colour */
+const SANKEY_TINT = 0.5;
+/** relaxation sweeps that straighten the ribbons (d3-sankey style) */
+const SANKEY_RELAX = 6;
 /** Scenario-triangle size (px at font scale 1) — IBCS UN 4.1. */
 const TREE_TRI = 5.5;
 /**
@@ -283,7 +303,9 @@ const FIT_LABEL_MIN = 0.78;
 /** measure-and-correct rounds the fit solver is allowed (it converges in 1–2). */
 const FIT_PASSES = 3;
 
-type ViewMode = "table" | "bars" | "waterfall" | "tree";
+type ViewMode = "table" | "bars" | "waterfall" | "tree" | "sankey";
+/** 1.6: every view in toolbar order — also the fallback order of a view the author switched off */
+const VIEW_ORDER: ViewMode[] = ["table", "bars", "waterfall", "tree", "sankey"];
 type Preset = "full" | "acref" | "acpydpy" | "acpldpl" | "dpct" | "dall" | "custom";
 /** 1.2 preset "custom": the value columns as independent switches, Δ = bar + pin against the Δ reference */
 interface ValSet { ac: boolean; py: boolean; pl: boolean; fc: boolean; d: boolean }
@@ -295,6 +317,33 @@ type Density = "normal" | "compact";
 type HubPage = "hub" | "tour" | "templates" | "demo" | "fields" | "start";
 /** Mini chart drawn inside a driver-tree card. */
 type TreeCardMode = "months" | "delta" | "bridge";
+/**
+ * 1.7 "Only exceptions" (toolbar ⚡ / card exceptions): the same six settings
+ * as the format pane, short names. on = exceptions.enabled, pct / abs =
+ * thresholdPct (whole percent) / thresholdAbs (data units), ref / dir / mode.
+ */
+interface ExcState {
+    on: boolean;
+    pct: number;
+    abs: number;
+    ref: "auto" | "py" | "pl" | "fc";
+    dir: "both" | "up" | "down";
+    mode: "gray" | "hide";
+}
+/**
+ * 1.7 ⚡ mode "hide" in the cascade views (row waterfall, mega tables with a
+ * Δ waterfall or value cascade): the sibling lists in which the quiet detail
+ * rows of one section were folded into one rest row "other (n)". Lists
+ * without a fold are not stored — they read their own children.
+ */
+interface ExcPlan {
+    roots: PnlNode[];
+    kids: Map<string, PnlNode[]>;
+}
+/** id prefix of a ⚡ rest row / card / band (never a real row id) */
+const EXC_REST = "__exc_rest__";
+/** threshold steps of the ⚡ stepper (whole percent) */
+const EXC_STEPS = [1, 2, 3, 5, 10, 15, 20, 25, 30, 40, 50, 75, 100];
 
 interface UiState {
     view: ViewMode;
@@ -345,6 +394,12 @@ interface UiState {
     vals: ValSet;
     /** 1.2 the reader's value columns of the mega table; null = the author's switches */
     megaVals: MegaVals | null;
+    /**
+     * 1.7 "Only exceptions" as the reader set it in the toolbar ⚡ group (the
+     * toolbar mirrors it into exceptions.* in the same write). Starts as the
+     * pane values; a pane change wins (syncPaneDefaults), like every default.
+     */
+    exc: ExcState;
 }
 
 /** current schema version of the persisted tree state (see UiState.treeV) */
@@ -377,6 +432,8 @@ interface TreeCard {
     collapsed: boolean;
     /** the branch below this card is the account hierarchy, not the formula */
     drill: boolean;
+    /** 1.7 ⚡ hide: a rest card — the quiet branches folded into it ("+n" in the tree, one band in the Sankey) */
+    rest?: PnlNode[];
 }
 
 /** Everything the toolbar and the tree renderer need about the current graph. */
@@ -397,6 +454,60 @@ interface TreeCtx {
     kidsOf: Map<string, string[]>;
     /** breadcrumb from the home root down to the picked root */
     path: PnlNode[];
+}
+
+/** colour family of a Sankey node or band: neutral inflow, profit strand, cost outflow */
+type SkFam = "gray" | "good" | "bad";
+
+/**
+ * One node of the Sankey flow (1.6). The flow is laid out over the pruned
+ * driver-tree cards: a node either feeds its parent from the left ("in" — the
+ * income and profit strand) or leaves it as an outflow to the right ("out" —
+ * the cost side, decomposed further to the right into its own end nodes).
+ */
+interface SkNode {
+    i: number;
+    card: TreeCard;
+    node: PnlNode;
+    /** signed period-matched AC (computed orientation: costs negative) */
+    v: number;
+    /** AC as the table shows it (display orientation), null = no value */
+    d: number | null;
+    col: number;
+    role: "in" | "out";
+    fam: SkFam;
+    /** belongs to the cost side (an outflow or anything hanging below one) */
+    costSide: boolean;
+    /** reading-order index of the strand node that spawned this cost side (vertical order) */
+    anchor: number;
+    dfs: number;
+    h: number;
+    y: number;
+    x: number;
+    label: boolean;
+    /** label placement: left of the bar, right of it, or centred above it */
+    side: "left" | "right" | "top";
+    parent: SkNode | null;
+    /** 1.7 cross-highlight: the marked part, signed like v (undefined = no highlight) */
+    m?: number;
+    /** 1.7 cross-highlight: the marked part as the table shows it (display orientation) */
+    md?: number | null;
+}
+
+/** One ribbon: a share of a node's port flowing into a share of another node's port. */
+interface SkBand {
+    src: SkNode | null;
+    tgt: SkNode | null;
+    /** offsets on the source out-port / target in-port (value units) */
+    so: number;
+    to: number;
+    /** thickness in value units (|flow|) */
+    t: number;
+    fam: SkFam;
+    /** owner of the matching that produced it (rest bands hang on it) */
+    owner: SkNode;
+    /** 1.7 cross-highlight: the marked part of this ribbon, 0..t (value units) */
+    hl?: number;
 }
 
 /**
@@ -485,6 +596,8 @@ interface GeoCache {
     maxPosD: number;
     maxNegD: number;
     wf: Map<string, Map<string, { s: number; e: number }>>;
+    /** 1.5: some Δ% pin of the table runs past ±40 % — the pin lanes reserve an outlier zone */
+    pOver: boolean;
 }
 
 /** Pixel geometry of one table render (see tableGeo). */
@@ -503,6 +616,16 @@ interface TableGeo {
     pinW: number;
     valW: number;
     maxAbsDelta: number;
+    /**
+     * 1.5 (IBCS 2.0 / ISO 24896): px per data unit of the Δ bars next to value
+     * bars or cascades — the value scale, or a round multiple of it (`dMag`,
+     * head "ΔPL ×5") when the Δ would be unreadable there. 0 = the Δ bars stand
+     * alone (table view) and keep the uniform Δ scale ±maxAbsDelta.
+     */
+    dPpu: number;
+    dMag: number;
+    /** 1.5: the pin lanes keep ±40 % in the inner 80 %, the rest is the outlier zone */
+    pinZone: boolean;
     vbarW: number;
     vAxisX: number;
     vPpu: number;
@@ -532,6 +655,30 @@ export class Visual implements IVisual {
 
     private root: HTMLElement;
     private model: PnlModel | null = null;
+    /**
+     * 1.7 cross-highlight (supportsHighlight): set only while the Sankey is on
+     * screen and another visual marks a part of the data — then `model` is the
+     * MARKED part in the shape of the whole (hlPart) and this is the whole
+     * (built from the `values`): the Sankey draws the marked part inside it.
+     * Every other view (table, mega table, bars, waterfall, tree, tile view)
+     * reads the marked part exactly like a filter (hlFilter) and this stays
+     * null. null = no highlight or not the Sankey (see hlSelect).
+     */
+    private hlFull: PnlModel | null = null;
+    /** 1.7 cross-highlight: the whole and the marked part in its shape (the Sankey's pair) */
+    private hlWhole: PnlModel | null = null;
+    private hlPart: PnlModel | null = null;
+    /**
+     * 1.7 cross-highlight: the marked part as a FILTER delivers it — rows with
+     * data in the whole but none in the selection are gone, months and models
+     * from what is left (null = no highlight; "empty" = the selection has no data)
+     */
+    private hlFilter: { model: PnlModel; cats: { label: string; model: PnlModel }[] | null } | "empty" | null = null;
+    /** the model object the caches were built for (a swap bumps modelVer) */
+    private hlShown: PnlModel | null = null;
+    /** synthetic total root of hlFull (tree / Sankey over a plain hierarchy), per modelVer */
+    private hlTotal: PnlNode | null = null;
+    private hlTotalVer = -1;
     private has: Record<Scenario, boolean> = { ac: false, py: false, pl: false, fc: false, fcfy: false, plfy: false };
     private comments: { n: number; node: PnlNode; text: string }[] = [];
     private locale = "en-US";
@@ -565,6 +712,8 @@ export class Visual implements IVisual {
     private hostCapped = false;
     /** status lines that belong to the load state, not to the (cached) model */
     private statusWarnings: string[] = [];
+    /** 1.7.1 trailing months with AC 0 everywhere and a forecast — treated as not posted */
+    private acUnposted: string[] = [];
 
     // --- memoization ---
     private lastFingerprint: string | null = null;
@@ -616,11 +765,18 @@ export class Visual implements IVisual {
     private headStuck = false;
     /** resolved height of the integrated zoom chart (see ZOOM_CHART_H) */
     private zoomChartH = ZOOM_CHART_H;
+    /** 1.5 tree cards: shared px per unit per "unit:mode" (measuring pass, then drawing); null = every chart for itself */
+    private treeScl: { collect: boolean; fit: Map<string, number>; mags: number } | null = null;
+    /** 1.5 collapsible control bars: the reader's ☰ choice (null = toolbar.startFolded) — runtime only */
+    private tbOpen: boolean | null = null;
     /** pager refresh of the tile-view neighbour columns (rebuilt every render) */
     private pagerSync: (() => void)[] = [];
     /** memoized "last month with AC data" over the whole model (see mtdIndex) */
     private mtdCache = -2;
     private mtdCacheVer = -1;
+    /** 1.7 memoized "the model carries stocks" (see stockModel) */
+    private stockMemo = false;
+    private stockVer = -1;
     /** instance suffix for svg pattern ids (several visuals per page) */
     private static instances = 0;
     private uid = "t" + (++Visual.instances).toString(36);
@@ -661,6 +817,8 @@ export class Visual implements IVisual {
         nums: Record<string, number>;
         /** titleBlock switches a template sets (12G / 12H: headline) */
         title: Record<string, boolean>;
+        /** 1.7 statement.stockMode a template sets (T05A / T05B; others take back "allStock") */
+        stmt: Record<string, string>;
         ttl: number;
     } | null = null;
     /** virtualized mega table (> MEGA_VIRT_MIN_ROWS rows): the complete layout + the painted window */
@@ -674,6 +832,8 @@ export class Visual implements IVisual {
     private measureCtx: CanvasRenderingContext2D | null = null;
     /** Intl number formats of the mega table per decimal count */
     private megaNf = new Map<string, Intl.NumberFormat>();
+    /** 1.5.1: the last mega layout (megaFitNotes reads its rows) */
+    private megaLast: MegaLayout | null = null;
 
     // --- 1.1 Paket B: tooltips · sum-safe rounding · filter footer ---
     /** host tooltip service (null in shims without one) */
@@ -723,6 +883,42 @@ export class Visual implements IVisual {
     private catBound = false;
     /** category values beyond CAT_MAX that got no block */
     private catCapped = 0;
+    /** 1.7 a ⚡ click waits for persistUi to mirror ui.exc into exceptions.* */
+    private excDirty = false;
+    /** 1.7 exceptions signatures this visual wrote (their echo is no author change) */
+    private excWritten: string[] = [];
+    /** 1.7 per render: node id → exception (see excOf) */
+    private excMemo: Map<string, boolean> | null = null;
+    private excFnCache: ((n: PnlNode) => boolean) | null = null;
+    /** 1.7 per render: detail rows the mode "hide" took out of the table */
+    private excHidden = 0;
+    /** 1.7 toolbar colours: true while the report toolbar is being built (its buttons take toolbarColors) */
+    private tbPaint = false;
+    /**
+     * 1.7 layout.maximize: the factor on the type scale of the statement body
+     * (table, mega table, bars, waterfall) that fills the tile height — 1 while
+     * maximize is off, so nothing moves by a pixel
+     */
+    private bodyK = 1;
+    /** 1.7 layout.maximize: the factor on the card / bar size of the tree, and the extra flow height of the Sankey */
+    private treeK = 1;
+    private skExtraH = 0;
+    /**
+     * 1.7 per render, mode "hide": what the count means — rows taken out (table,
+     * bars), steps folded into "other (n)" (waterfall, cascade templates), tree
+     * nodes folded into a "+n" card, Sankey streams bundled into one band
+     */
+    private excHiddenKind: "rows" | "steps" | "cards" | "flows" = "rows";
+    /** 1.7 per render: rest rows / cards / bands built from the folded members */
+    private excRestCount = 0;
+    /** 1.7 per render: rest node id → its members (sum-safe values, selection, highlight twin) */
+    private excRests = new Map<string, { node: PnlNode; members: PnlNode[] }>();
+    /** 1.7 per render: rest node id → the same rest over the whole (cross-highlight) */
+    private excRestTwin = new Map<string, PnlNode>();
+    /** 1.7 per render: node id → an exception in the node or below it */
+    private excBelowMemo: Map<string, boolean> | null = null;
+    /** 1.7 per render: the folded sibling lists of the cascade views (null = not built yet) */
+    private excPlanCache: ExcPlan | null | undefined = undefined;
 
     constructor(options: VisualConstructorOptions) {
         this.host = options.host;
@@ -776,6 +972,8 @@ export class Visual implements IVisual {
             localizeSettings(this.settings, k => this.trOpt(k));
             this.syncEmptyMode();
             this.syncFontPreset();
+            // 1.7 a stock mode a template just wrote decides the parse — before the fingerprint
+            this.holdPendingStockMode();
             this.dark = this.resolveDarkMode();
             this.applyPalette();
             if (!dataView) {
@@ -798,12 +996,10 @@ export class Visual implements IVisual {
                 // fields are bound: the hub starts at its home page the next time
                 this.hubPage = "hub"; this.hubSaved = null;
                 if (parsed.rows.length === 0) {
-                    this.model = null; this.vs = null; this.lastFingerprint = null; this.catModels = null;
+                    this.model = null; this.hlFull = null; this.vs = null; this.lastFingerprint = null; this.catModels = null;
                     this.renderEmpty(); this.events.renderingFinished(options); return;
                 }
-                this.model = buildModel(parsed.rows, this.tr("UI_NotAssigned"), parsed.months);
-                this.buildCatModels(dataView, parsed.months);
-                this.has = parsed.has;
+                this.buildModels(dataView, parsed);
                 this.loadedRows = parsed.rowCount;
                 this.lastFingerprint = fp;
                 this.modelVer++;
@@ -869,6 +1065,13 @@ export class Visual implements IVisual {
         if (this.catCapped > 0) {
             this.statusWarnings.push(this.tr("UI_ColCatCapped", this.catCapped, CAT_MAX));
         }
+        // 1.7.1 an author hint only: the reader sees the forecast, not the data fix
+        if (this.acUnposted.length > 0 && this.editMode() && !this.demo) {
+            const a = this.acUnposted;
+            const span = a.length === 1 ? this.monthLabel(a[0])
+                : `${this.monthLabel(a[0])}–${this.monthLabel(a[a.length - 1])}`;
+            this.statusWarnings.push(this.tr("UI_AcUnposted", span, a.length));
+        }
     }
 
     private loadingText(): string {
@@ -889,6 +1092,8 @@ export class Visual implements IVisual {
         // so it belongs in the fingerprint — otherwise switching it in the
         // format pane would silently reuse the previously ordered model
         const parts: string[] = ["ps:" + this.periodSortMode()];
+        // 1.7 statement.stockMode decides the aggregation of the rows (parse-time)
+        if (this.stockMode() !== "auto") { parts.push("sm:" + this.stockMode()); }
         for (const c of cat.categories ?? []) {
             const v = c.values;
             parts.push((c.source.queryName ?? c.source.displayName ?? "") + "#" + v.length
@@ -903,6 +1108,18 @@ export class Visual implements IVisual {
             }
             parts.push((m.source.queryName ?? m.source.displayName ?? "") + "#" + v.length
                 + "#" + sum.toString() + "#" + cnt);
+            // 1.7 cross-highlight: a marked part (or a different one) is new data —
+            // only present while another visual marks something, so a report
+            // without highlights keeps its fingerprint
+            const h = (m as DataViewValueColumn).highlights;
+            if (Array.isArray(h)) {
+                let hs = 0; let hc = 0;
+                for (let i = 0; i < h.length; i++) {
+                    const x = h[i];
+                    if (typeof x === "number") { hs += x; hc++; }
+                }
+                parts.push("hl#" + h.length + "#" + hs.toString() + "#" + hc);
+            }
         }
         return parts.join("|");
     }
@@ -920,7 +1137,7 @@ export class Visual implements IVisual {
     private paneContext(): PaneContext {
         const real = this.model != null && !this.demo;
         return {
-            view: this.ui?.view ?? null,
+            view: this.ui ? this.view() : null,
             has: real ? {
                 py: this.has.py, pl: this.has.pl, fc: this.has.fc, period: this.model!.months.length > 1, fy: this.has.fcfy,
             } : null,
@@ -930,7 +1147,147 @@ export class Visual implements IVisual {
 
     // ---------------- data ----------------
 
-    private parseRows(dataView: DataView, only?: Set<number>): {
+    /** 1.7 statement.stockMode (format pane) */
+    private stockMode(): StockMode {
+        const v = String(this.settings?.statementCard?.stockMode?.value?.value ?? "auto");
+        return v === "allStock" || v === "allFlow" ? v : "auto";
+    }
+
+    /**
+     * 1.7 build options of a model: statement.stockMode, and — only when the
+     * model carries stocks — the FY outlook from the monthly series where no
+     * FY measure is bound (a stock's outlook is its FC end stand, so a balance
+     * sheet needs no special measure). Without stocks the options change
+     * nothing: a report without tokens builds exactly as before.
+     */
+    private buildOptions(rows: InputRow[], has: Record<Scenario, boolean>): BuildOptions {
+        const stockMode = this.stockMode();
+        const anyStock = stockMode === "allStock" || (stockMode === "auto" && rows.some(r => r.stock != null));
+        if (!anyStock) { return stockMode === "auto" ? {} : { stockMode }; }
+        return {
+            stockMode,
+            fyFromSeries: { fcfy: !has.fcfy && has.fc, plfy: !has.plfy && has.pl },
+        };
+    }
+
+    /**
+     * The models of one data view: statement.stockMode + the FY fallback from
+     * the series (1.7), the main model, the column-category models and the
+     * bound-scenario flags. 1.7 cross-highlight: when another visual marks a
+     * part of the data (the measure columns carry `highlights`), the engine
+     * runs twice — the whole from `values` (kept in hlFull) and the marked
+     * part from `highlights` (the model every view reads). Both come from the
+     * very same rows, so they share ids, tree and months; only the numbers
+     * differ. Without highlights this is exactly the build before 1.7.
+     */
+    private buildModels(dataView: DataView, parsed: { rows: InputRow[]; months: string[]; has: Record<Scenario, boolean> }): void {
+        const opts = this.buildOptions(parsed.rows, parsed.has);
+        const full = buildModel(parsed.rows, this.tr("UI_NotAssigned"), parsed.months, opts);
+        this.model = full;
+        this.hlFull = null; this.hlWhole = null; this.hlPart = null; this.hlFilter = null; this.hlShown = null;
+        this.buildCatModels(dataView, parsed.months, opts);
+        if (this.highlighted(dataView)) {
+            // the Sankey's pair: the marked part in the shape of the whole
+            const marked = this.parseRows(dataView, undefined, true);
+            if (marked && marked.rows.length > 0) {
+                const rows = marked.rows.map(r => this.alignSeries(r, marked.months, parsed.months));
+                const part = buildModel(rows, this.tr("UI_NotAssigned"), parsed.months, opts);
+                // a twin that does not match row for row (cannot happen with one data
+                // view, defensive) leaves the Sankey without its context
+                if (sameShape(part, full)) { this.hlPart = part; this.hlWhole = full; }
+            }
+            // every other view: the selection exactly as a filter delivers it — a data
+            // row with values in the whole but none in the selection is not in the
+            // query; structure rows without any value (formulas, separators) stay
+            const keep = this.hlFilterRows(dataView);
+            const filt = keep.size > 0 ? this.parseRows(dataView, keep, true) : null;
+            if (filt && filt.rows.length > 0) {
+                const fo = this.buildOptions(filt.rows, filt.has);
+                const fm = buildModel(filt.rows, this.tr("UI_NotAssigned"), filt.months, fo);
+                const keepCats = this.catModels;
+                this.buildCatModels(dataView, filt.months, fo, true, keep);
+                this.hlFilter = { model: fm, cats: this.catModels };
+                this.catModels = keepCats;
+            } else { this.hlFilter = "empty"; }
+            this.model = this.hlFilter !== "empty" ? this.hlFilter.model : full;
+            if (this.hlFilter !== "empty") { this.catModels = this.hlFilter.cats; }
+        }
+        this.hlShown = this.model;
+        this.has = { ...parsed.has, fcfy: parsed.has.fcfy || opts.fyFromSeries?.fcfy === true,
+            plfy: parsed.has.plfy || opts.fyFromSeries?.plfy === true };
+    }
+
+    /**
+     * 1.7 cross-highlight: the data-view rows a filter on the same selection
+     * would deliver — every row with a marked value, plus every row without
+     * any value in the whole (structure: formula, margin, separator rows).
+     */
+    private hlFilterRows(dataView: DataView): Set<number> {
+        const cols = (dataView.categorical?.values ?? []).filter(v => Visual.HL_ROLES.some(r => (v.source.roles ?? {})[r])) as DataViewValueColumn[];
+        const n = cols.reduce((a, c) => Math.max(a, c.values.length), 0);
+        const keep = new Set<number>();
+        for (let i = 0; i < n; i++) {
+            let any = false; let marked = false;
+            for (const c of cols) {
+                if (c.values[i] != null) { any = true; }
+                if ((c.highlights ? c.highlights[i] : c.values[i]) != null) { marked = true; }
+            }
+            if (marked || !any) { keep.add(i); }
+        }
+        return keep;
+    }
+
+    /**
+     * 1.7 cross-highlight, per render: only the Sankey (not its tile view)
+     * shows the marked part inside the whole; every other view reads the
+     * filter model. A swap of the model object invalidates the per-model caches.
+     * Returns false when the selection has no data for a filter-like view
+     * (the empty state renders instead).
+     */
+    private hlSelect(): boolean {
+        if (this.hlFilter == null || !this.ui) { return true; }
+        const vw = this.view();
+        const flow = vw === "sankey" && this.ui.treeZoom == null && this.hlPart != null;
+        let next: PnlModel | null;
+        if (flow) { next = this.hlPart; this.hlFull = this.hlWhole; }
+        else {
+            this.hlFull = null;
+            if (this.hlFilter === "empty") { return false; }
+            next = this.hlFilter.model;
+            this.catModels = this.hlFilter.cats;
+        }
+        if (next && next !== this.hlShown) {
+            this.model = next;
+            this.hlShown = next;
+            this.modelVer++;
+            this.scanCache = null;
+            this.geoCache = null;
+            this.selIdxCache.clear();
+            this.selIdCache.clear();
+            this.resolveFn = null;
+        }
+        return true;
+    }
+
+    /** the scenario measure roles — the columns whose `highlights` mark a part of the data */
+    private static readonly HL_ROLES = ["ac", "py", "pl", "fc", "fcFy", "plFy"];
+
+    /**
+     * 1.7 another visual marks a part of the data: the host sends the
+     * unfiltered query and, next to the values, a `highlights` array per
+     * measure column (null where the marked part has no data). The filter-info
+     * text measure does not count — it is no scenario.
+     */
+    private highlighted(dataView: DataView | undefined): boolean {
+        for (const v of dataView?.categorical?.values ?? []) {
+            const roles = v.source.roles ?? {};
+            if (!Visual.HL_ROLES.some(r => roles[r])) { continue; }
+            if (Array.isArray((v as DataViewValueColumn).highlights)) { return true; }
+        }
+        return false;
+    }
+
+    private parseRows(dataView: DataView, only?: Set<number>, marked = false): {
         rows: InputRow[]; months: string[]; rowCount: number; has: Record<Scenario, boolean>;
     } | null {
         const cat = dataView.categorical;
@@ -955,7 +1312,9 @@ export class Visual implements IVisual {
 
         const num = (col: DataViewValueColumn | undefined, i: number): number | null => {
             if (!col) { return null; }
-            const v = col.values[i];
+            // 1.7 cross-highlight: the marked part reads the column's highlights
+            // (a column without them — defensive — keeps its full value)
+            const v = marked && col.highlights ? col.highlights[i] : col.values[i];
             if (v == null) { return null; }
             const n = typeof v === "number" ? v : Number(v);
             return isFinite(n) ? n : null;
@@ -1005,14 +1364,27 @@ export class Visual implements IVisual {
             ac: num(acCol, i), py: num(pyCol, i), pl: num(plCol, i), fc: num(fcCol, i),
             fcfy: num(fcFyCol, i), plfy: num(plFyCol, i),
         });
-        const attrs = (i: number): Pick<LevelInputRow, "rowType" | "formulaDef" | "sign" | "displayInvert" | "varianceInvert" | "comment"> => ({
-            rowType: parseRowType(txt(typeCol, i)),
-            formulaDef: txt(formulaCol, i),
-            sign: signCol ? parseSign(txt(signCol, i)) : 1,
-            displayInvert: dispCol ? parseBool(txt(dispCol, i)) : false,
-            varianceInvert: varCol ? parseBool(txt(varCol, i)) : false,
-            comment: key(commentCol, i),
-        });
+        // 1.7 the row-type cell may carry a stock / opening / flow token as well —
+        // read once per distinct text (a month-grain model repeats a handful of values)
+        const rtCache = new Map<string | null, ReturnType<typeof parseRowTypeInfo>>();
+        const rowTypeOf = (i: number): ReturnType<typeof parseRowTypeInfo> => {
+            const raw = txt(typeCol, i);
+            let info = rtCache.get(raw);
+            if (!info) { info = parseRowTypeInfo(raw); rtCache.set(raw, info); }
+            return info;
+        };
+        const attrs = (i: number): Pick<LevelInputRow, "rowType" | "formulaDef" | "sign" | "displayInvert" | "varianceInvert" | "comment" | "stock" | "flow"> => {
+            const info = rowTypeOf(i);
+            return {
+                rowType: info.rowType,
+                formulaDef: txt(formulaCol, i),
+                sign: signCol ? parseSign(txt(signCol, i)) : 1,
+                displayInvert: dispCol ? parseBool(txt(dispCol, i)) : false,
+                varianceInvert: varCol ? parseBool(txt(varCol, i)) : false,
+                comment: key(commentCol, i),
+                ...(info.stock ? { stock: info.stock } : {}), ...(info.flow ? { flow: true } : {}),
+            };
+        };
 
         if (levelCols.length > 0 && !parentCol) {
             const lrows: LevelInputRow[] = [];
@@ -1032,7 +1404,7 @@ export class Visual implements IVisual {
                 });
             }
             const lr = rowsFromLevels(lrows, sortMode);
-            return { rows: lr.rows, months: lr.months, rowCount: n, has };
+            return { rows: this.trimUnposted(lr.rows, lr.months, only, marked), months: lr.months, rowCount: n, has };
         }
         if (!idCol) { return null; }
 
@@ -1053,7 +1425,18 @@ export class Visual implements IVisual {
             });
         }
         const agg = aggregateMonthly(raw, sortMode);
-        return { rows: agg.rows, months: agg.months, rowCount: n, has };
+        return { rows: this.trimUnposted(agg.rows, agg.months, only, marked), months: agg.months, rowCount: n, has };
+    }
+
+    /**
+     * 1.7.1 months the actuals measure fills with 0 although nobody has posted
+     * them yet (engine.unpostedActualMonths): decided once on the whole data
+     * view, applied to every part (column categories, cross-highlight) so all
+     * models share one calendar.
+     */
+    private trimUnposted(rows: InputRow[], months: string[], only?: Set<number>, marked = false): InputRow[] {
+        if (!only && !marked) { this.acUnposted = unpostedActualMonths(rows, months); }
+        return dropActuals(rows, months, this.acUnposted);
     }
 
     /**
@@ -1065,7 +1448,7 @@ export class Visual implements IVisual {
      * Period-like values sort into calendar order, anything else keeps the
      * data order; blanks come last; more than CAT_MAX values are cut.
      */
-    private buildCatModels(dataView: DataView, months: string[]): void {
+    private buildCatModels(dataView: DataView, months: string[], opts: BuildOptions = {}, marked = false, keep?: Set<number>): void {
         this.catModels = null; this.catBound = false; this.catCapped = 0;
         const col = (dataView.categorical?.categories ?? []).find(c => c.source.roles && c.source.roles["colCategory"]);
         if (!col) { return; }
@@ -1079,6 +1462,8 @@ export class Visual implements IVisual {
                     k = `${raw.getFullYear()}-${String(raw.getMonth() + 1).padStart(2, "0")}-${String(raw.getDate()).padStart(2, "0")}`;
                 }
             } else if (raw != null) { k = String(raw).trim(); }
+            // 1.7 cross-highlight as a filter: only the rows the filter keeps
+            if (keep && !keep.has(i)) { continue; }
             const arr = groups.get(k);
             if (arr) { arr.push(i); } else { groups.set(k, [i]); }
         }
@@ -1087,11 +1472,11 @@ export class Visual implements IVisual {
         if (keys.length > CAT_MAX) { this.catCapped = keys.length - CAT_MAX; keys = keys.slice(0, CAT_MAX); }
         const out: { label: string; model: PnlModel }[] = [];
         for (const k of keys) {
-            const parsed = this.parseRows(dataView, new Set(groups.get(k)));
+            const parsed = this.parseRows(dataView, new Set(groups.get(k)), marked);
             if (!parsed || parsed.rows.length === 0) { continue; }
             const rows = parsed.rows.map(r => this.alignSeries(r, parsed.months, months));
             out.push({ label: k === "" ? this.tr("UI_ColCatBlank") : this.catLabel(k),
-                model: buildModel(rows, this.tr("UI_NotAssigned"), months) });
+                model: buildModel(rows, this.tr("UI_NotAssigned"), months, opts) });
         }
         this.catModels = out.length > 0 ? out : null;
     }
@@ -1123,7 +1508,7 @@ export class Visual implements IVisual {
 
     /** column categories apply to the classic TABLE view only */
     private catInView(): boolean {
-        return this.catModels != null && this.ui != null && this.ui.view === "table" && !this.megaInView();
+        return this.catModels != null && this.ui != null && this.view() === "table" && !this.megaInView();
     }
 
     // ---------------- selection · cross-filtering · context menu ----------------
@@ -1380,7 +1765,44 @@ export class Visual implements IVisual {
             megaRef: "",
             vals: this.paneVals(),
             megaVals: null,
+            exc: this.paneExc(),
         };
+    }
+
+    /** 1.7 the exceptions card of the format pane as an ExcState */
+    private paneExc(): ExcState {
+        const e = this.settings.exceptionsCard;
+        const en = <T extends string>(v: unknown, ok: readonly T[], d: T): T => ok.indexOf(String(v) as T) >= 0 ? String(v) as T : d;
+        const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) && x >= 0 ? x : d; };
+        return {
+            on: e.enabled.value === true,
+            pct: num(e.thresholdPct.value, 5),
+            abs: num(e.thresholdAbs.value, 0),
+            ref: en(e.reference.value?.value, ["auto", "py", "pl", "fc"] as const, "auto"),
+            dir: en(e.direction.value?.value, ["both", "up", "down"] as const, "both"),
+            mode: en(e.mode.value?.value, ["gray", "hide"] as const, "gray"),
+        };
+    }
+
+    /** 1.7 a stored / partial ⚡ state over a base: unknown or broken fields keep the base */
+    private normExc(raw: unknown, base: ExcState): ExcState {
+        if (raw == null || typeof raw !== "object") { return base; }
+        const r = raw as Partial<Record<keyof ExcState, unknown>>;
+        const en = <T extends string>(v: unknown, ok: readonly T[], d: T): T => ok.indexOf(String(v) as T) >= 0 ? String(v) as T : d;
+        const num = (v: unknown, d: number): number => { const x = Number(v); return v != null && isFinite(x) && x >= 0 ? x : d; };
+        return {
+            on: typeof r.on === "boolean" ? r.on : base.on,
+            pct: num(r.pct, base.pct),
+            abs: num(r.abs, base.abs),
+            ref: en(r.ref, ["auto", "py", "pl", "fc"] as const, base.ref),
+            dir: en(r.dir, ["both", "up", "down"] as const, base.dir),
+            mode: en(r.mode, ["gray", "hide"] as const, base.mode),
+        };
+    }
+
+    /** 1.7 an ExcState as a comparable string (pane snapshot, echo guard) */
+    private excSig(x: ExcState | null | undefined): string {
+        return x == null ? "" : [x.on ? 1 : 0, x.pct, x.abs, x.ref, x.dir, x.mode].join("|");
     }
 
     /** the own-selection switches of the format pane (preset "custom") */
@@ -1408,6 +1830,7 @@ export class Visual implements IVisual {
             megaRef: this.megaPaneSig(),
             vals: JSON.stringify(this.paneVals()),
             megaVals: [s.columnsCard.showPY, s.columnsCard.showPL, s.columnsCard.showMinuend].map(x => (x.value ? "1" : "0")).join(""),
+            exc: this.excSig(this.paneExc()),
         };
     }
 
@@ -1431,7 +1854,7 @@ export class Visual implements IVisual {
         let took = false;
         for (const k of Object.keys(now)) {
             if (now[k] === prev[k]) { continue; }
-            if (k !== "megaMin" && k !== "megaRef" && k !== "megaVals") { took = true; }
+            if (k !== "megaMin" && k !== "megaRef" && k !== "megaVals" && k !== "exc") { took = true; }
             switch (k) {
                 case "preset": ui.preset = d.preset; break;
                 case "ref": ui.ref = d.ref; break;
@@ -1450,9 +1873,52 @@ export class Visual implements IVisual {
                 case "megaRef": if (ui.megaRef !== "") { took = true; ui.megaRef = ""; } break;
                 case "vals": ui.vals = d.vals; break;
                 case "megaVals": if (ui.megaVals != null) { took = true; ui.megaVals = null; } break;
+                // 1.7 the toolbar mirrors ⚡ into exceptions.* — the host's echo of
+                // that write (or of an earlier click) is no author change
+                case "exc":
+                    if (now.exc === this.excSig(ui.exc) || this.excWritten.includes(now.exc)) { break; }
+                    took = true; ui.exc = d.exc; break;
             }
         }
         return took;
+    }
+
+    /**
+     * 1.6: the views the author offers the readers (format pane → toolbar), in
+     * toolbar order. Switching every one of them off would leave nothing to
+     * draw — the table then stays, as the one view every data shape supports.
+     */
+    private offeredViews(): ViewMode[] {
+        const t = this.settings?.toolbarCard;
+        if (!t) { return [...VIEW_ORDER]; }
+        const on: Record<ViewMode, boolean> = {
+            table: t.viewTable.value !== false,
+            bars: t.viewBars.value !== false,
+            waterfall: t.viewWaterfall.value !== false,
+            tree: t.viewTree.value !== false,
+            sankey: t.viewSankey.value !== false,
+        };
+        const out = VIEW_ORDER.filter(v => on[v]);
+        return out.length > 0 ? out : ["table"];
+    }
+
+    /**
+     * The view this render really draws: ui.view, or — when it names a view
+     * the author no longer offers (an old state, a bookmark) or one this build
+     * does not know — the first offered one. A pure display fallback: ui.view
+     * is never rewritten here, so switching the view back on in the format
+     * pane restores exactly what the reader had. Every read of the view goes
+     * through here; only clicks write ui.view.
+     */
+    private view(): ViewMode {
+        const offered = this.offeredViews();
+        const v = this.ui?.view;
+        return v != null && offered.indexOf(v) >= 0 ? v : offered[0];
+    }
+
+    /** 1.6: the Sankey itself is on screen (not a tile view opened from it) */
+    private sankeyInView(): boolean {
+        return this.ui != null && this.view() === "sankey" && this.ui.treeZoom == null;
     }
 
     private resolveRef(pref: string): Scenario {
@@ -1494,7 +1960,10 @@ export class Visual implements IVisual {
                     delete parsed.treeRoot;
                     delete parsed.treeCollapsed;
                 }
-                this.ui = { ...this.defaultUi(), ...parsed };
+                const base = this.defaultUi();
+                this.ui = { ...base, ...parsed };
+                // 1.7 a stored ⚡ state is read field by field (older or hand-written states)
+                this.ui.exc = this.normExc(parsed.exc, base.exc);
                 this.lastApplied = str;
                 this.stateLoaded = true;
             } catch { /* keep current */ }
@@ -1508,7 +1977,7 @@ export class Visual implements IVisual {
     private persistUi(): void {
         if (!this.ui) { return; }
         // the demo is explored locally — nothing of it may land in the report
-        if (this.demo) { return; }
+        if (this.demo) { this.excDirty = false; return; }
         if (this.model) {
             this.ui.collapsed = this.ui.collapsed.filter(id => this.model!.byId.has(id));
             this.ui.spark = this.ui.spark.filter(id => this.model!.byId.has(id));
@@ -1531,9 +2000,17 @@ export class Visual implements IVisual {
         this.pendingPersist = json;
         this.pendingTtl = UI_ECHO_TTL;
         this.lastApplied = json;
-        this.host.persistProperties({
-            merge: [{ objectName: "state", selector: null, properties: { uiState: json } }],
-        });
+        const merge: powerbi.VisualObjectInstance[] = [{ objectName: "state", selector: null, properties: { uiState: json } }];
+        // 1.7 a ⚡ click: the exceptions card mirrors the toolbar in the same write
+        if (this.excDirty) {
+            this.excDirty = false;
+            const x = this.ui.exc;
+            this.excWritten = [...this.excWritten.slice(-(UI_ECHO_TTL - 1)), this.excSig(x)];
+            merge.push({ objectName: "exceptions", selector: null, properties: {
+                enabled: x.on, thresholdPct: x.pct, thresholdAbs: x.abs, reference: x.ref, direction: x.dir, mode: x.mode,
+            } });
+        }
+        this.host.persistProperties({ merge });
     }
 
     // ---------------- formatting ----------------
@@ -1613,7 +2090,8 @@ export class Visual implements IVisual {
      */
     private resolveHighContrast(): { fg: string; bg: string; sel: string } | null {
         const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
-        if (!palette || !palette.isHighContrast || !this.megaInView()) { return null; }
+        // 1.6: the Sankey speaks colour families — in high contrast it draws them as patterns
+        if (!palette || !palette.isHighContrast || !(this.megaInView() || this.sankeyInView())) { return null; }
         const fg = palette.foreground?.value || "#000000";
         const bg = palette.background?.value || "#FFFFFF";
         return { fg, bg, sel: palette.foregroundSelected?.value || fg };
@@ -1657,7 +2135,7 @@ export class Visual implements IVisual {
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const pf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: pdec, maximumFractionDigits: pdec });
         const grp = (nfr: Intl.NumberFormat, v: number): string =>
-            nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+            nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
         if (this.finance()) {
             // finance convention (ChartKitchen financeFormat): negatives in
             // parentheses with the unit inside, exact zero "–", a rounded zero
@@ -1745,9 +2223,42 @@ export class Visual implements IVisual {
         const v = this.settings.styleCard.cardBackground.value?.value || "#FFF";
         return this.dark && /^#fff(fff)?$/i.test(v) ? DARK_CARD : v;
     }
+    /**
+     * Layout pixels per screen pixel. The visual can sit inside a scaled stage
+     * (CSS transform, e.g. a Fabric App canvas at 1.25× or 2×). Then
+     * getBoundingClientRect reports screen pixels while top, height, width and
+     * scrollTop work in layout pixels: a sticky offset measured that way pushed
+     * the column header down into the rows. In Power BI the factor is 1.
+     */
+    private zoom(): number {
+        const w = this.root.offsetWidth;
+        const r = this.root.getBoundingClientRect().width;
+        return w > 0 && r > 0 ? r / w : 1;
+    }
+
+    /** getBoundingClientRect in layout pixels (see zoom) */
+    private rect(el: Element): { top: number; bottom: number; left: number; right: number; width: number; height: number } {
+        const b = el.getBoundingClientRect();
+        const z = this.zoom();
+        return { top: b.top / z, bottom: b.bottom / z, left: b.left / z, right: b.right / z, width: b.width / z, height: b.height / z };
+    }
+
     /** whether head block and column headers stay on screen while scrolling */
     private sticky(): boolean {
         return this.settings.styleCard.stickyHeader.value;
+    }
+
+    /** 1.7 layout.maximize — the whole tile for the statement (never in the hub's mini renderings) */
+    private maxi(): boolean {
+        return this.settings?.layoutCard?.maximize?.value === true && !this.miniSpec;
+    }
+    /** side gutter of head, notes, footer, tree and Sankey: 14 px, maximized 4 px */
+    private gut(): number {
+        return this.maxi() ? 4 : 14;
+    }
+    /** side padding of the table and the mega table: TABLE_PAD_X, maximized 2 px */
+    private padX(): number {
+        return this.maxi() ? 2 : TABLE_PAD_X;
     }
     /**
      * The one type scale of the visual: the size preset (HD 1 · Full HD 1.25 ·
@@ -1781,6 +2292,8 @@ export class Visual implements IVisual {
      */
     private headerFs(base: number): number {
         const v = Math.round(Number(this.settings.styleCard.headerFontSize.value) || 0);
+        // 1.7 maximize: the column heads grow and shrink with the body
+        if (this.bodyK !== 1) { return Math.round(this.k(v < 7 || v > 20 ? base : base * (v / 9)) * this.bodyK * 10) / 10; }
         return this.k(v < 7 || v > 20 ? base : base * (v / 9));
     }
     /** header ink of the table — an empty override keeps the built-in soft gray */
@@ -1798,7 +2311,10 @@ export class Visual implements IVisual {
      * Falls back to the last month when no AC series exists at all.
      */
     private mtdIndex(): number {
-        const model = this.model!;
+        // 1.7 cross-highlight: the period window is the report's, never the marked
+        // part's — a marked customer without August sales still reads YTD _Aug,
+        // the same window as the whole it is drawn in (hlFull has the same months)
+        const model = this.hlFull ?? this.model!;
         const n = model.months.length;
         if (n === 0) { return -1; }
         if (this.mtdCacheVer === this.modelVer && this.mtdCache >= -1) { return this.mtdCache; }
@@ -1832,8 +2348,37 @@ export class Visual implements IVisual {
         return n === 0 || li < 0 || li >= n - 1;
     }
 
-    /** raw month sum of a scenario over the period-matched YTD window */
-    private ytdRawSum(node: PnlNode, sc: Scenario): number | null {
+    /** 1.7 the model carries stocks (memoized per model) */
+    private stockModel(): boolean {
+        if (this.stockVer !== this.modelVer) { this.stockMemo = this.model != null && modelHasStock(this.model); this.stockVer = this.modelVer; }
+        return this.stockMemo;
+    }
+
+    /**
+     * 1.7 the value the bars and waterfall views draw: in a model with stocks
+     * every row reads the period window of its block (all scenarios at one
+     * Stichtag — a cash-flow bridge closes for AC, PY and PL alike); a model
+     * without stocks keeps the whole bound period, exactly as before.
+     */
+    private viewDisplay(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario): number | null {
+        if (block !== "fy" && this.stockModel()) { return this.blockDisplay(node, block, scen); }
+        return displayValue(node, scen);
+    }
+
+    /** 1.7 the row follows the stock rule here (a stock or a stock below it) and the period field is bound */
+    private stockWin(node: PnlNode): boolean {
+        return stockish(node) && this.model!.months.length > 0;
+    }
+
+    /**
+     * raw month sum of a scenario over the period-matched YTD window — 1.7: a
+     * stock row's stand at the end of the window (an opening stock: at its
+     * start), a formula over stocks evaluated on its operands' window values
+     * (engine.windowValue)
+     */
+    private ytdRawSum(node: PnlNode, sc: Scenario, model: PnlModel = this.model!): number | null {
+        // 1.7 cross-highlight: a node of hlFull resolves its stock operands in hlFull
+        if (this.stockWin(node)) { return windowValue(model, node, sc, 0, this.mtdIndex()); }
         const arr = node.series[sc];
         if (!arr) { return null; }
         const li = this.mtdIndex();
@@ -1855,16 +2400,21 @@ export class Visual implements IVisual {
      * exactly the engine value. Ratio rows keep the engine value — they are
      * intensive figures, not month sums.
      */
-    private ytdDisplay(node: PnlNode, sc: Scenario): number | null {
-        if (this.ytdFull() || node.row.rowType === "kpi"
+    private ytdDisplay(node: PnlNode, sc: Scenario, model: PnlModel = this.model!): number | null {
+        // 1.7 a stock always reads its window (the same Stichtag for every scenario)
+        if ((!this.stockWin(node) && (this.ytdFull() || node.row.rowType === "kpi"))
             || sc === "fcfy" || sc === "plfy") { return displayValue(node, sc); }
-        const v = this.ytdRawSum(node, sc);
+        const v = this.ytdRawSum(node, sc, model);
         if (v == null) { return null; }
         return node.row.displayInvert ? -v : v;
     }
 
     /** Δ = AC − reference over the period-matched YTD window (raw, no invert) */
     private ytdVariance(node: PnlNode, ref: Scenario): Variance {
+        // 1.7 stocks: Δ of the stands at the same Stichtag (the last actuals month)
+        if (this.stockWin(node)) {
+            return varianceOf(this.ytdRawSum(node, "ac"), this.ytdRawSum(node, ref), node.row.varianceInvert);
+        }
         if (this.ytdFull() || node.row.rowType === "kpi") { return variance(node, ref, "ac"); }
         const a = this.ytdRawSum(node, "ac");
         const r = this.ytdRawSum(node, ref);
@@ -2052,7 +2602,7 @@ export class Visual implements IVisual {
         // (edit mode, room enough); readers and exports keep the landing text
         if (mode === "hub" && this.demoAllowed() && this.hubPage !== "demo") {
             if (this.demo) { this.leaveDemo(); }
-            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.model = null; this.hlFull = null; this.vs = null; this.lastFingerprint = null;
             this.catModels = null;
             // echo guard + pane-chosen template, as in the demo path below
             this.syncMegaTemplate(dataView);
@@ -2064,7 +2614,7 @@ export class Visual implements IVisual {
         // demo in edit mode; readers and exports keep the landing text below
         if ((mode === "fields" || mode === "message") && this.startAllowed()) {
             if (this.demo) { this.leaveDemo(); }
-            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.model = null; this.hlFull = null; this.vs = null; this.lastFingerprint = null;
             this.catModels = null;
             this.root.style.background = this.pageBg();
             this.root.replaceChildren(mode === "fields" ? this.fieldGuide(dataView, missing) : this.startMessage());
@@ -2072,7 +2622,7 @@ export class Visual implements IVisual {
         }
         if (!this.demoAllowed()) {
             if (this.demo) { this.leaveDemo(); }
-            this.model = null; this.vs = null; this.lastFingerprint = null;
+            this.model = null; this.hlFull = null; this.vs = null; this.lastFingerprint = null;
             this.renderLanding();
             return;
         }
@@ -2107,7 +2657,33 @@ export class Visual implements IVisual {
             : base;
         const lr = rowsFromLevels(rows, "auto");
         this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months);
+        this.hlFull = null;
         this.has = { ac: true, py: true, pl: true, fc, fcfy: true, plfy: true };
+        this.catModels = null; this.catBound = false; this.catCapped = 0;
+        this.loadedRows = lr.rows.length;
+        this.modelVer++;
+        this.scanCache = null;
+        this.geoCache = null;
+        this.resetSelection();
+        this.selCat = null;
+        this.statusWarnings = [];
+        this.demo = true;
+        this.demoLocale = this.locale;
+    }
+
+    /**
+     * 1.7 the balance-sheet or the cash-flow example as the model of a mini
+     * rendering (the gallery previews of T05A / T05B) — built like real data:
+     * statement.stockMode of the mini's format objects, the FY outlook from the
+     * monthly series.
+     */
+    private installStockDemoModel(set: "bilanz" | "cashflow"): void {
+        const lr = rowsFromLevels(buildStockDemoRows(set, k => this.tr(k)), "auto");
+        const has: Record<Scenario, boolean> = { ac: true, py: true, pl: true, fc: true, fcfy: false, plfy: false };
+        const opts = this.buildOptions(lr.rows, has);
+        this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months, opts);
+        this.hlFull = null;
+        this.has = { ...has, fcfy: opts.fyFromSeries?.fcfy === true, plfy: opts.fyFromSeries?.plfy === true };
         this.catModels = null; this.catBound = false; this.catCapped = 0;
         this.loadedRows = lr.rows.length;
         this.modelVer++;
@@ -2124,7 +2700,7 @@ export class Visual implements IVisual {
     private leaveDemo(): void {
         this.demo = false;
         this.demoMissing = null;
-        this.model = null;
+        this.model = null; this.hlFull = null;
         this.vs = null;
         this.ui = null;
         this.stateLoaded = false;
@@ -2842,7 +3418,7 @@ export class Visual implements IVisual {
         // a thumbnail never scrolls; the overlay's full demo does
         if (!spec.full) { this.root.style.overflow = "hidden"; }
         this.applyPalette();
-        this.installDemoModel(spec.fc === true);
+        if (spec.demo) { this.installStockDemoModel(spec.demo); } else { this.installDemoModel(spec.fc === true); }
         this.ui = this.defaultUi();
         this.ui.view = spec.view;
         if (spec.zoom) { this.ui.treeZoom = spec.zoom; }
@@ -2863,6 +3439,7 @@ export class Visual implements IVisual {
         const keys: [string, string][] = [
             ["UI_Tour1T", "UI_Tour1X"], ["UI_Tour2T", "UI_Tour2X"], ["UI_Tour3T", "UI_Tour3X"], ["UI_Tour4T", "UI_Tour4X"],
             ["UI_Tour5T", "UI_Tour5X"], ["UI_Tour6T", "UI_Tour6X"], ["UI_Tour7T", "UI_Tour7X"],
+            ["UI_Tour8T", "UI_Tour8X"],
         ];
         const total = TOUR_CARDS.length;
         const i = Math.max(0, Math.min(this.hubTour, total - 1));
@@ -3021,7 +3598,9 @@ export class Visual implements IVisual {
             `color:${C.text};background:${ground};border:${active ? 2 : 1}px solid ${edge};border-radius:10px;` +
             `padding:${active ? pad - 1 : pad}px;width:${tileW}px;box-sizing:border-box;cursor:pointer;` +
             `box-shadow:${active ? C.shadowHover : C.shadow};transition:${TRANSITION};`;
-        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl) };
+        const demoSet = templateDemo(tpl);
+        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl),
+            ...(demoSet ? { demo: demoSet } : {}) };
         b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
         // the T number: a small badge on the preview's top right corner
         const badge = document.createElement("span");
@@ -3057,6 +3636,14 @@ export class Visual implements IVisual {
         if (tpl !== "off" && templateNeedsFc(tpl)) {
             const f = document.createElement("span");
             f.textContent = this.tr("UI_TplFcNote");
+            f.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;`;
+            cap.appendChild(f);
+        }
+        // 1.7 the stock templates preview their own example and need stock rows in the data
+        if (demoSet) {
+            const f = document.createElement("span");
+            f.setAttribute("data-pnl", "tpl-stock-note");
+            f.textContent = this.tr(demoSet === "bilanz" ? "UI_TplStockNoteBs" : "UI_TplStockNoteCf");
             f.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;`;
             cap.appendChild(f);
         }
@@ -3185,6 +3772,12 @@ export class Visual implements IVisual {
         t.textContent = this.tr("UI_FpAxesX");
         row.appendChild(t);
         box.appendChild(row);
+        // 1.7 the second axis of the time: a flow adds its months up, a stock shows its stand
+        const st = document.createElement("div");
+        st.setAttribute("data-pnl", "fi-stock");
+        st.style.cssText = `margin-top:${this.kpx(6)};`;
+        st.textContent = this.tr("UI_FpStockX");
+        box.appendChild(st);
         return box;
     }
 
@@ -3583,7 +4176,7 @@ export class Visual implements IVisual {
     /** cache key for the scans that depend on model + shown Δ combinations only */
     private scanKey(): string {
         const ui = this.ui!;
-        const k: (string | number | boolean)[] = [this.modelVer, ui.view, ui.preset, ui.ref,
+        const k: (string | number | boolean)[] = [this.modelVer, this.view(), ui.preset, ui.ref,
             ui.blocks.mtd, ui.blocks.ytd, ui.blocks.fy];
         // 1.2: the own selection and the column categories change the Δ columns too
         if (ui.preset === "custom") { k.push(JSON.stringify(ui.vals)); }
@@ -3653,8 +4246,20 @@ export class Visual implements IVisual {
     }
 
     private renderView(): void {
+        if (!this.model || !this.ui) { return; }
+        // 1.7 cross-highlight: the Sankey reads the marked part in the whole, every other view the filter model
+        if (!this.hlSelect()) { this.renderEmpty(); return; }
         const model = this.model; const ui = this.ui;
-        if (!model || !ui) { return; }
+        // 1.6: the view on screen — ui.view, or the first offered one. The tile
+        // view belongs to the view it was opened from (tree or Sankey); any
+        // other view, or a carrier the author switched off, never shows it —
+        // the stored id simply waits for its view to come back
+        const vw = this.view();
+        if (vw === "sankey" && ui.treeZoom != null && this.resolver()(ui.treeZoom) == null) {
+            // a tile id the model no longer knows: back to the flow itself
+            ui.treeZoom = null;
+        }
+        const zoomed = (vw === "tree" || vw === "sankey") && ui.treeZoom != null;
         // several visuals may share one document (test harness) — every render
         // re-arms its own palette before it paints
         this.applyPalette();
@@ -3666,6 +4271,18 @@ export class Visual implements IVisual {
         this.floatHeadEl = null;
         this.darkTip = null;
         this.ssCache.clear();
+        // 1.7 the ⚡ exception test follows the view, the reference and the blocks of this render
+        this.excMemo = null;
+        this.excFnCache = null;
+        this.excHidden = 0;
+        this.excHiddenKind = "rows";
+        this.excRestCount = 0;
+        this.excRests.clear();
+        this.excRestTwin.clear();
+        this.excBelowMemo = null;
+        this.excPlanCache = undefined;
+        // 1.7 maximize: every render starts from the plain scale and measures again
+        this.bodyK = 1; this.treeK = 1; this.skExtraH = 0;
         this.root.replaceChildren();
         this.root.style.background = this.pageBg();
         this.comments = [];
@@ -3681,8 +4298,12 @@ export class Visual implements IVisual {
         const scan = fvm != null && fvm > scanRaw.maxAbsDelta ? { ...scanRaw, maxAbsDelta: fvm } : scanRaw;
         const fmt = this.makeFmt(scan.maxAbsVal);
         // the driver-tree graph drives the tree AND its toolbar groups (depth
-        // buttons, breadcrumb) — build it before the toolbar
-        this.treeCtx = ui.view === "tree" ? this.buildTreeCtx() : null;
+        // buttons, breadcrumb) — build it before the toolbar. The Sankey grows
+        // over the same graph, started at its first value row (flow root); its
+        // tile view reads the plain tree graph, so the zoom behaves the same
+        // wherever it was opened from
+        this.treeCtx = vw === "tree" || zoomed ? this.buildTreeCtx()
+            : vw === "sankey" ? this.buildTreeCtx(true) : null;
 
         // the head block — title, toolbar, legend and the scale note ride in one
         // wrapper so they can be frozen above the scrolling body as one piece
@@ -3694,27 +4315,79 @@ export class Visual implements IVisual {
             (this.sticky() ? "position:sticky;top:0;z-index:30;" : "");
         if (this.demo && !this.miniQuiet()) { head.appendChild(this.buildDemoBanner()); }
         if (this.settings.titleCard.show.value) { head.appendChild(this.buildTitle(fmt)); }
+        // 1.5: collapsible control bars — folded, one slim row with ☰ remains
+        const folded = this.tbFolded();
+        if (folded) { head.appendChild(this.buildTbBurger()); }
         // an export prints no buttons nobody can press (the legend stays: it explains the notation)
-        if (this.settings.toolbarCard.show.value && !this.exporting()) { head.appendChild(this.buildToolbar()); }
+        if (this.settings.toolbarCard.show.value && !this.exporting() && !folded) {
+            // 1.7 toolbar colours: every button built in here is a toolbar button
+            this.tbPaint = true;
+            try {
+                const tb = this.buildToolbar();
+                if (this.tbCollapsible()) { tb.insertBefore(this.tbFoldButton(), tb.firstChild); }
+                head.appendChild(tb);
+            } finally { this.tbPaint = false; }
+        }
         if (this.awaitingSegment) { head.appendChild(this.buildLoadingBar()); }
-        if (this.settings.toolbarCard.showLegend.value) { head.appendChild(this.buildLegend()); }
+        if (this.settings.toolbarCard.showLegend.value && !folded) {
+            // toolbar off but legend on: the fold button leads the legend row
+            if (this.tbCollapsible() && !(this.settings.toolbarCard.show.value && !this.exporting())) {
+                head.appendChild(this.buildTbBurger());
+            }
+            head.appendChild(this.buildLegend());
+        }
         // the mega table is a mode of the TABLE view only — a template must
         // never take over Bars or Waterfall (1.0.0 did, and the toolbar of those
         // views then drove a body that ignored every one of its buttons)
         const mega = this.megaInView();
-        if (ui.view !== "tree" && !mega) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
+        if (vw !== "tree" && vw !== "sankey" && !mega && !folded) { head.appendChild(this.scaleNote(fmt, scan.maxAbsDelta)); }
         if (head.childElementCount > 0) {
             this.root.appendChild(head);
             this.headEl = head;
         }
 
-        if (ui.view === "tree") {
+        if (vw === "sankey" && !zoomed) {
+            // 1.6 the flow view: fitted to the stage height, labels outside
+            let flow = this.buildSankey(fmt);
+            this.root.appendChild(flow);
+            this.buildFootnotes(fmt);
+            this.root.appendChild(this.buildFooter(true));
+            // 1.7 maximize: the measured slack (or overflow) of the page goes into the flow height
+            for (let pass = 0; this.maxi() && pass < 2; pass++) {
+                const avail = this.root.clientHeight;
+                if (!avail) { break; }
+                const slack = avail - this.contentHeight() - 2;
+                if (Math.abs(slack) <= 4) { break; }
+                this.skExtraH += slack;
+                const fresh = this.buildSankey(fmt);
+                this.root.replaceChild(fresh, flow);
+                flow = fresh;
+            }
+            this.root.scrollTop = keepScroll;
+        } else if (vw === "tree" || zoomed) {
             // the tile view fits the viewport: build, measure, squeeze the chart
             this.zoomChartH = Math.round(ZOOM_CHART_H * this.fontScale());
             let tree = this.buildTree(fmt);
             this.root.appendChild(tree);
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
+            // 1.7 maximize: the cards grow (or shrink) until the tree fills the tile — ×0.8 … ×1.6
+            for (let pass = 0; this.maxi() && ui.treeZoom == null && pass < 3; pass++) {
+                const svg = tree.querySelector("svg") as SVGSVGElement | null;
+                const availH = this.root.clientHeight;
+                if (!svg || !availH) { break; }
+                const r = this.rect(svg);
+                if (r.width <= 0 || r.height <= 0) { break; }
+                const roomH = availH - (this.contentHeight() - r.height) - 2;
+                const roomW = this.root.clientWidth - 2 * this.gut() - 4;
+                const f = Math.min(roomW / r.width, roomH / r.height);
+                const next = Math.max(0.8, Math.min(1.6, this.treeK * f));
+                if (Math.abs(next - this.treeK) < 0.02) { break; }
+                this.treeK = next;
+                const fresh = this.buildTree(fmt);
+                this.root.replaceChild(fresh, tree);
+                tree = fresh;
+            }
             this.root.scrollTop = keepScroll;
             if (ui.treeZoom != null) {
                 // one page, no vertical scrolling: the chart takes what the rest
@@ -3747,14 +4420,22 @@ export class Visual implements IVisual {
             // correction pass: when the body brings a vertical scrollbar along,
             // the few pixels it takes come out of the chart columns instead of
             // pushing a horizontal scrollbar in
-            const table = this.buildMega(fmt, 0);
+            let table = this.buildMega(fmt, 0);
             this.root.appendChild(table);
             const over = this.root.scrollWidth - this.root.clientWidth;
-            if (over > 0 && over <= 40) { this.root.replaceChild(this.buildMega(fmt, over), table); }
+            const shrink = over > 0 && over <= 40 ? over : 0;
+            if (shrink) { const t2 = this.buildMega(fmt, shrink); this.root.replaceChild(t2, table); table = t2; }
             this.appendScaleFixedNote();
             this.appendCatNote();
-            this.buildFootnotes(fmt);
-            this.root.appendChild(this.buildFooter());
+            this.appendStockNote();
+            const notes = this.buildFootnotes(fmt);
+            const footer = this.buildFooter();
+            this.root.appendChild(footer);
+            // 1.7 maximize: type and rows follow the tile height
+            if (this.maxi()) {
+                table = this.fillHeight(table, ui.density === "compact" ? 11 : 13, () => this.buildMega(fmt, shrink));
+            }
+            this.megaFitNotes(fmt, table, notes, shrink, footer);
             this.root.scrollTop = keepScroll;
             this.syncMegaWindow();
         } else {
@@ -3772,12 +4453,57 @@ export class Visual implements IVisual {
             }
             this.appendScaleFixedNote();
             this.appendCatNote();
+            this.appendStockNote();
             this.buildFootnotes(fmt);
             this.root.appendChild(this.buildFooter());
+            // 1.7 maximize: type and rows follow the tile height (fit to width keeps its squeeze)
+            if (this.maxi()) {
+                body = this.fillHeight(body, ui.density === "compact" ? 10 : 11, () => {
+                    this.fitK = 1; this.fitPad = CELL_PAD;
+                    return this.buildTable(fmt, scan.maxAbsDelta);
+                });
+                for (let pass = 0; ui.fit && pass < FIT_PASSES; pass++) {
+                    if (!this.solveFit(fmt, scan.maxAbsDelta)) { break; }
+                    const tighter = this.buildTable(fmt, scan.maxAbsDelta);
+                    this.root.replaceChild(tighter, body);
+                    body = tighter;
+                }
+            }
             this.root.scrollTop = keepScroll;
         }
         this.applySticky();
         this.measureWindow();
+    }
+
+    /**
+     * 1.7 layout.maximize: scale the statement body (bodyK on the type scale)
+     * until the page fills the tile height — at most ×1.6, at least down to a
+     * 9 px body font (`base` = body font size at scale 1), beyond that the
+     * rows scroll. Growing never pushes the body past the tile width.
+     * Measures, rebuilds, measures again (rows round to whole pixels).
+     */
+    private fillHeight(cur: HTMLElement, base: number, build: () => HTMLElement): HTMLElement {
+        const avail = this.root.clientHeight;
+        if (!avail) { return cur; }
+        const lo = Math.min(1, 9 / (base * this.fontScale()));
+        const hi = 1.6;
+        for (let pass = 0; pass < 4; pass++) {
+            const h = this.rect(cur).height;
+            if (h <= 0) { break; }
+            const room = avail - (this.contentHeight() - h) - 2;
+            let k = Math.max(lo, Math.min(hi, this.bodyK * room / h));
+            // a body already wider than the tile does not grow; a grown one gives width back
+            const over = this.root.scrollWidth - this.root.clientWidth;
+            if (k > this.bodyK && over > 1) { k = this.bodyK; }
+            const wide = over > 1 && this.bodyK > 1;
+            if (wide) { k = Math.max(1, Math.min(k, this.bodyK * this.root.clientWidth / this.root.scrollWidth - 0.01)); }
+            if (Math.abs(k - this.bodyK) < 0.01 && !wide) { break; }
+            this.bodyK = k;
+            const fresh = build();
+            this.root.replaceChild(fresh, cur);
+            cur = fresh;
+        }
+        return cur;
     }
 
     /**
@@ -3789,8 +4515,8 @@ export class Visual implements IVisual {
     private contentHeight(): number {
         const last = this.root.lastElementChild as HTMLElement | null;
         if (!last) { return 0; }
-        const rb = this.root.getBoundingClientRect();
-        return Math.ceil(last.getBoundingClientRect().bottom - rb.top + this.root.scrollTop);
+        const rb = this.rect(this.root);
+        return Math.ceil(this.rect(last).bottom - rb.top + this.root.scrollTop);
     }
 
     /**
@@ -3804,7 +4530,7 @@ export class Visual implements IVisual {
         const note = document.createElement("div");
         note.setAttribute("data-pnl", "scale-fixed");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
-            `padding:2px ${TABLE_PAD_X + 14}px 0 ${TABLE_PAD_X + 14}px;`;
+            `padding:2px ${this.padX() + this.gut()}px 0 ${this.padX() + this.gut()}px;`;
         const fmt = this.makeFmt(this.scans().maxAbsVal);
         const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
         const part = (v: number | null, key: string): string =>
@@ -3820,14 +4546,128 @@ export class Visual implements IVisual {
      * exports never see the note.
      */
     private appendCatNote(): void {
-        if (!this.catBound || this.catInView() || !this.ui || this.ui.view === "tree") { return; }
+        if (!this.catBound || this.catInView() || !this.ui || this.view() === "tree" || this.view() === "sankey") { return; }
         if ((this.viewMode != null && this.viewMode < 1) || this.exporting()) { return; }
         const note = document.createElement("div");
         note.setAttribute("data-pnl", "cat-note");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
-            `padding:2px ${TABLE_PAD_X + 14}px 0 ${TABLE_PAD_X + 14}px;`;
+            `padding:2px ${this.padX() + this.gut()}px 0 ${this.padX() + this.gut()}px;`;
         note.textContent = this.tr("UI_ColCatIgnored");
         this.root.appendChild(note);
+    }
+
+    /**
+     * Edit mode only (1.7): rows whose operands / children mix stocks and flows
+     * and that carry no explicit token — a formula took the class of its first
+     * operand, a total stayed a flow. The note names them and the way to decide
+     * (token stock / flow in the row type). Readers and exports never see it.
+     */
+    private appendStockNote(): void {
+        if (!this.model || (this.viewMode != null && this.viewMode < 1) || this.exporting() || this.miniSpec) { return; }
+        const mixed = [...this.model.byId.values()].filter(n => n.stockMix && n.row.stock == null && !n.row.flow);
+        if (mixed.length === 0) { return; }
+        const list = mixed.slice(0, 6).map(n => `${n.row.name} → ${this.tr(n.stock != null ? "UI_StockAsStock" : "UI_StockAsFlow")}`);
+        if (mixed.length > 6) { list.push("…"); }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "stock-note");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};font-style:italic;` +
+            `padding:2px ${this.padX() + this.gut()}px 0 ${this.padX() + this.gut()}px;`;
+        note.textContent = this.tr("UI_StockMixNote", list.join(" · "));
+        this.root.appendChild(note);
+    }
+
+    /**
+     * 1.5 scale note of the mega table (IBCS UN 5.2): the table draws one scale
+     * per unit across all period blocks; the note appears only when something
+     * deviates from that — a block or column magnified by a round factor (its
+     * head carries "×5" as well) or a scale held by fixedMax / fixedVarMax. In
+     * edit mode the fixed scale is already named by the author note under the
+     * table ("Scale fixed"), so the note leaves it out there. Null = no note.
+     */
+    private megaScaleNote(L: MegaLayout, fmt: Fmt): HTMLElement | null {
+        const parts: string[] = [];
+        const blocks = L.input.blocks;
+        if (L.mags.length) {
+            const list = L.mags.map(m => m.heads.join(" · ")
+                + (blocks.length > 1 && blocks[m.block]?.name ? " " + blocks[m.block].name : "") + " ×" + m.factor);
+            parts.push(this.tr("UI_MegaScaleMag", list.join(", ")));
+        }
+        const authorNote = (this.viewMode == null || this.viewMode >= 1) && !this.exporting();
+        if (!authorNote && (this.fixedMax() != null || this.fixedVarMax() != null)) {
+            const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
+            const part = (v: number | null, key: string): string =>
+                v == null ? "" : this.tr(key, fmt.val(v) + (unit ? " " + unit : ""));
+            parts.push(this.tr("UI_MegaScaleFixed",
+                [part(this.fixedMax(), "UI_ScaleFixedVal"), part(this.fixedVarMax(), "UI_ScaleFixedVar")].filter(Boolean).join(" · ")));
+        }
+        if (!parts.length) { return null; }
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "scale-note");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;box-sizing:border-box;` +
+            `width:${Math.ceil(L.tableW)}px;padding:0 0 3px 0;`;
+        note.textContent = [this.tr("UI_MegaScale"), ...parts].join(" · ");
+        return note;
+    }
+
+    /** 1.5: toolbar.foldable — the control bars may fold (never in an export) */
+    private tbCollapsible(): boolean {
+        return this.settings?.toolbarCard?.foldable?.value === true && !this.exporting() && !this.miniQuiet();
+    }
+
+    /** 1.5: the control bars are folded right now (the reader's choice, else toolbar.startFolded) */
+    private tbFolded(): boolean {
+        if (!this.tbCollapsible()) { return false; }
+        return this.tbOpen == null ? this.settings.toolbarCard.startFolded.value : !this.tbOpen;
+    }
+
+    /** 1.5: the ☰ button that folds / unfolds the control bars */
+    private tbFoldButton(): HTMLElement {
+        const folded = this.tbFolded();
+        const b = document.createElement("button");
+        b.setAttribute("data-pnl", "tb-burger");
+        b.setAttribute("aria-expanded", String(!folded));
+        const label = this.tr(folded ? "UI_TbExpand" : "UI_TbCollapse");
+        b.setAttribute("aria-label", label);
+        b.title = label;
+        b.textContent = "☰";
+        // 1.7 toolbar colours: the ☰ is a toolbar button (automatic = card fill, ink, control edge)
+        const own = this.tbPaint ? this.settings.toolbarColorsCard : null;
+        const hc = (this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined)?.isHighContrast;
+        const pick = (v: string | undefined, auto: string): string => (own && !hc && v ? v : auto);
+        b.style.cssText = `font-family:${FONT};font-size:${this.kpx(12)};line-height:1;cursor:pointer;` +
+            `padding:${this.kpx(3)} ${this.kpx(7)};border-radius:4px;border:1px solid ${pick(own?.groupBorder.value?.value, C.ctlEdge)};` +
+            `background:${pick(own?.buttonBackground.value?.value, this.cardBg())};color:${pick(own?.buttonText.value?.value, C.text)};align-self:flex-end;`;
+        b.onclick = (e: Event): void => {
+            e.stopPropagation();
+            this.tbOpen = folded;
+            this.rerender();
+        };
+        return b;
+    }
+
+    /** 1.5: the slim row of folded control bars — only the ☰ button (unfolded without toolbar: the row above the legend) */
+    private buildTbBurger(): HTMLElement {
+        const row = document.createElement("div");
+        // folded: the slim row; unfolded without a toolbar: the row leading the legend
+        row.setAttribute("data-pnl", this.tbFolded() ? "tb-folded" : "tb-lead");
+        row.style.cssText = `display:flex;padding:${this.kpx(4)} ${this.gut()}px ${this.kpx(2)} ${this.gut()}px;`;
+        this.tbPaint = true;
+        try { row.appendChild(this.tbFoldButton()); } finally { this.tbPaint = false; }
+        return row;
+    }
+
+    /**
+     * 1.5: the classic scale note follows the geometry of the table just
+     * built — next to value bars or cascades (bars and waterfall view) the Δ
+     * bars share the value scale, or carry a round magnification that the
+     * column head names as well ("ΔPL ×5").
+     */
+    private syncScaleNote(geo: TableGeo): void {
+        const note = this.headEl?.querySelector('[data-pnl="scale-note"]') as HTMLElement | null
+            ?? this.root.querySelector('[data-pnl="scale-note"]') as HTMLElement | null;
+        if (!note || geo.dPpu <= 0) { return; }
+        note.textContent = geo.dMag > 1 ? this.tr("UI_ScaleNoteMag", geo.dMag) : this.tr("UI_ScaleNoteValue");
+        note.setAttribute("data-mag", String(geo.dMag));
     }
 
     /** the uniform-Δ-scale note — part of the frozen head, not of the table */
@@ -3835,7 +4675,7 @@ export class Visual implements IVisual {
         const note = document.createElement("div");
         note.setAttribute("data-pnl", "scale-note");
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};text-align:right;` +
-            `padding:0 ${TABLE_PAD_X}px 3px ${TABLE_PAD_X}px;`;
+            `padding:0 ${this.padX()}px 3px ${this.padX()}px;`;
         note.textContent = this.tr("UI_ScaleNote",
             fmt.val(maxAbsDelta) + " " + fmt.suffix + this.settings.numbersCard.unitText.value);
         return note;
@@ -3851,12 +4691,12 @@ export class Visual implements IVisual {
     private applySticky(): void {
         this.syncHeadShadow();
         if (!this.sticky()) { return; }
-        let top = this.headEl ? Math.round(this.headEl.getBoundingClientRect().height) : 0;
+        let top = this.headEl ? Math.round(this.rect(this.headEl).height) : 0;
         const zoomHead = this.root.querySelector('[data-pnl="zoom-head"]') as HTMLElement | null;
         if (zoomHead) {
             zoomHead.style.top = top + "px";
             zoomHead.style.boxShadow = `0 -1px 0 ${this.pageBg()}`;
-            top += Math.round(zoomHead.getBoundingClientRect().height);
+            top += Math.round(this.rect(zoomHead).height);
         }
         // the mega table's head svg is an ordinary block — it sticks by itself
         const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
@@ -3892,7 +4732,7 @@ export class Visual implements IVisual {
     private zoomPostLayout(): void {
         const tile = this.root.querySelector('[data-pnl="zoom-center"]') as HTMLElement | null;
         if (tile) {
-            const h = Math.round(tile.getBoundingClientRect().height);
+            const h = Math.round(this.rect(tile).height);
             const cols = this.root.querySelectorAll('[data-pnl="zoom-side"]');
             for (let i = 0; i < cols.length; i++) { (cols[i] as HTMLElement).style.height = h + "px"; }
         }
@@ -3909,9 +4749,9 @@ export class Visual implements IVisual {
             // measure the real pitch (sub-pixel): rounding a card height would
             // let a hairline of the next card peek out — exactly the stump the
             // pager exists to avoid
-            const r0 = first.getBoundingClientRect();
+            const r0 = this.rect(first);
             const second = list.children[1] as HTMLElement | undefined;
-            const pitch = second ? second.getBoundingClientRect().top - r0.top
+            const pitch = second ? this.rect(second).top - r0.top
                 : r0.height + this.k(MICRO_CARD_GAP);
             const gap = Math.max(pitch - r0.height, 0);
             if (pitch <= 0) { continue; }
@@ -3924,7 +4764,7 @@ export class Visual implements IVisual {
     /** visible status line while further data segments are still on their way */
     private buildLoadingBar(): HTMLElement {
         const bar = document.createElement("div");
-        bar.style.cssText = `margin:2px 14px 0 14px;padding:${this.kpx(4)} ${this.kpx(8)};` +
+        bar.style.cssText = `margin:2px ${this.gut()}px 0 ${this.gut()}px;padding:${this.kpx(4)} ${this.kpx(8)};` +
             `font-size:${this.kpx(10)};` +
             `color:${C.loading};border:1px solid ${C.loading};border-radius:2px;` +
             `display:inline-block;`;
@@ -3991,8 +4831,8 @@ export class Visual implements IVisual {
     private measureWindow(): void {
         const vs = this.vs;
         if (!vs) { return; }
-        const rootBox = this.root.getBoundingClientRect();
-        const topBox = vs.top.getBoundingClientRect();
+        const rootBox = this.rect(this.root);
+        const topBox = this.rect(vs.top);
         vs.bodyTop = topBox.top - rootBox.top + this.root.scrollTop;
         this.syncWindow();
     }
@@ -4027,7 +4867,8 @@ export class Visual implements IVisual {
     /** which Δ combinations the current view shows (drives the uniform scale) */
     private deltaCombos(): { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy"; cat?: number }[] {
         const out: { ref: Scenario; minuend: Scenario; block: "mtd" | "ytd" | "fy"; cat?: number }[] = [];
-        if (this.ui!.view === "tree") { return out; } // the tree shows no Δ bars
+        const vw = this.view();
+        if (vw === "tree" || vw === "sankey") { return out; } // tree and flow show no Δ bars
         // exactly the Δ columns on screen — read from the column specs, so the
         // uniform scale can never span a block the toolbar has switched off
         // (or miss one it shows) — every reference × minuend × block once.
@@ -4053,7 +4894,8 @@ export class Visual implements IVisual {
     private buildTitle(fmt: Fmt): HTMLElement {
         const t = this.settings.titleCard;
         const wrap = document.createElement("div");
-        wrap.style.cssText = "padding:12px 14px 4px 14px;";
+        // 1.7 maximize: a compact head
+        wrap.style.cssText = this.maxi() ? "padding:4px 4px 2px 4px;" : "padding:12px 14px 4px 14px;";
         let msg = t.message.value.trim();
         // headline slot (1.1, IBCS 12-series): the message moves out of the bold
         // line above the title into a large line beside it; without an own
@@ -4138,10 +4980,12 @@ export class Visual implements IVisual {
             b.setAttribute("aria-disabled", "true");
             b.setAttribute("data-pnl-locked", "1");
         }
-        const acc = this.accent();
+        // 1.7 toolbar colours (automatic = the values before 1.7)
+        const tc = this.tbColors();
+        const acc = tc.actBg;
         const rest = active
-            ? `background:${acc};border:1px solid ${acc};color:${this.onAccent()};font-weight:600;`
-            : `background:${C.paper};border:1px solid ${C.ctlEdge};color:${C.text};font-weight:400;`;
+            ? `background:${acc};border:1px solid ${acc};color:${tc.actFg};font-weight:600;`
+            : `background:${tc.bg};border:1px solid ${tc.edge};color:${tc.fg};font-weight:400;`;
         b.style.cssText =
             `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
             `padding:${this.kpx(3.5)} ${this.kpx(10)};cursor:pointer;` +
@@ -4155,15 +4999,47 @@ export class Visual implements IVisual {
         // hover is a tint, never a jump: the inactive button warms up, the
         // active one lifts a shade so both stay recognisably the same control
         b.onmouseenter = (): void => {
-            if (active) { b.style.background = this.accentSoft(0.14); b.style.borderColor = this.accentSoft(0.14); }
-            else { b.style.background = C.ctlHover; b.style.borderColor = C.cardEdgeHover; }
+            if (active) { b.style.background = tc.actHover; b.style.borderColor = tc.actHover; }
+            else { b.style.background = tc.hoverBg; b.style.borderColor = tc.hoverEdge; }
         };
         b.onmouseleave = (): void => {
             if (active) { b.style.background = acc; b.style.borderColor = acc; }
-            else { b.style.background = C.paper; b.style.borderColor = C.ctlEdge; }
+            else { b.style.background = tc.bg; b.style.borderColor = tc.edge; }
         };
         b.onclick = (e) => { e.stopPropagation(); onClick(); this.persistUi(); this.rerender(); };
         return b;
+    }
+
+    /**
+     * 1.7 toolbar colours (card toolbarColors) of the report toolbar: every
+     * empty picker is automatic — exactly the pre-1.7 values (paper, ink, the
+     * accent of the style card with white / dark text, the light control
+     * edge; dark mode included). High contrast ignores them. Outside the
+     * toolbar (empty-state switches, hub) the automatic values always apply.
+     */
+    private tbColors(): { bg: string; fg: string; actBg: string; actFg: string; edge: string;
+        hoverBg: string; hoverEdge: string; actHover: string } {
+        const tc = this.settings?.toolbarColorsCard;
+        const palette = this.host.colorPalette as powerbi.extensibility.ISandboxExtendedColorPalette | undefined;
+        const own = (v: string | undefined): string => (this.tbPaint && !palette?.isHighContrast && v ? v : "");
+        const bg = own(tc?.buttonBackground.value?.value);
+        const fg = own(tc?.buttonText.value?.value);
+        const actBg = own(tc?.activeBackground.value?.value);
+        const actFg = own(tc?.activeText.value?.value);
+        const edge = own(tc?.groupBorder.value?.value);
+        const acc = actBg || this.accent();
+        const paper = this.dark ? this.darkPaper() : "#FFFFFF";
+        return {
+            bg: bg || C.paper,
+            fg: fg || C.text,
+            actBg: acc,
+            actFg: actFg || (actBg ? (relLuminance(actBg) > 0.45 ? "#1E1E1E" : "#FFF") : this.onAccent()),
+            edge: edge || C.ctlEdge,
+            // hover is a tint, never a jump: an own fill warms up towards its text
+            hoverBg: bg ? (this.tint(bg, 0.08, fg || C.text) ?? bg) : C.ctlHover,
+            hoverEdge: edge || C.cardEdgeHover,
+            actHover: actBg ? (this.tint(actBg, 0.14, paper) ?? actBg) : this.accentSoft(0.14),
+        };
     }
 
     /** caps label of a control group — the one type style for every section head */
@@ -4190,9 +5066,10 @@ export class Visual implements IVisual {
         sel.setAttribute("data-pnl", "tb-template");
         sel.title = this.tr("UI_TbTemplateTip");
         sel.setAttribute("aria-label", this.tr("UI_TbTemplate"));
+        const tc = this.tbColors();
         sel.style.cssText = `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;` +
-            `padding:${this.kpx(2.5)} ${this.kpx(4)};border-radius:4px;border:1px solid ${C.ctlEdge};` +
-            `background:${C.paper};color:${C.text};cursor:pointer;max-width:${this.k(230)}px;`;
+            `padding:${this.kpx(2.5)} ${this.kpx(4)};border-radius:4px;border:1px solid ${tc.edge};` +
+            `background:${tc.bg};color:${tc.fg};cursor:pointer;max-width:${this.k(230)}px;`;
         const cur = String(tpl.value?.value ?? "off");
         for (const it of tpl.items ?? []) {
             const o = document.createElement("option");
@@ -4235,6 +5112,9 @@ export class Visual implements IVisual {
             if (!this.megaSliceIs(k, v)) { return tpl; }
         }
         if (sw.title.headline != null && this.settings.titleCard.headline.value !== sw.title.headline) { return tpl; }
+        // 1.7 a stock template whose stock mode was changed afterwards
+        const sm = templateStockMode(tpl, this.stockTokens(), this.stockMode());
+        if (sm != null && sm !== this.stockMode()) { return tpl; }
         return null;
     }
 
@@ -4256,11 +5136,14 @@ export class Visual implements IVisual {
 
     private tbGroup(label: string, buttons: HTMLElement[]): HTMLElement {
         const g = document.createElement("div");
-        g.style.cssText = `display:flex;flex-direction:column;gap:${this.kpx(4)};`;
+        // 1.7 maximize: the group name stands beside its buttons — one line per group instead of two
+        const side = this.maxi();
+        g.style.cssText = side ? `display:flex;flex-direction:row;align-items:center;gap:${this.kpx(5)};`
+            : `display:flex;flex-direction:column;gap:${this.kpx(4)};`;
         const row = document.createElement("div");
         row.style.cssText = `display:flex;gap:${this.kpx(4)};flex-wrap:wrap;`;
         buttons.forEach(b => row.appendChild(b));
-        g.appendChild(this.capsLabel(label)); g.appendChild(row);
+        g.appendChild(this.capsLabel(label, side ? 8 : 8.5)); g.appendChild(row);
         return g;
     }
 
@@ -4273,8 +5156,10 @@ export class Visual implements IVisual {
         const acc = this.accent();
         const b = document.createElement("button");
         b.setAttribute("data-pnl", "zoom-back");
-        b.textContent = this.tr("UI_BackToTree");
-        b.title = this.tr("UI_BackToTreeTip");
+        // 1.6: the way back names where it leads — the view the tile was opened from
+        const fromFlow = this.view() === "sankey";
+        b.textContent = this.tr(fromFlow ? "UI_BackToSankey" : "UI_BackToTree");
+        b.title = this.tr(fromFlow ? "UI_BackToSankeyTip" : "UI_BackToTreeTip");
         b.style.cssText = `font-family:${FONT};font-size:${this.kpx(13)};font-weight:600;line-height:1.3;` +
             `padding:${this.kpx(8)} ${this.kpx(16)};cursor:pointer;border-radius:6px;border:1px solid ${acc};` +
             `background:${acc};color:${this.onAccent()};transition:${TRANSITION};box-shadow:${C.shadow};`;
@@ -4295,38 +5180,54 @@ export class Visual implements IVisual {
     private buildToolbar(): HTMLElement {
         const ui = this.ui!;
         const bar = document.createElement("div");
-        bar.style.cssText = `display:flex;gap:${this.kpx(16)} ${this.kpx(20)};flex-wrap:wrap;` +
+        // 1.7 maximize: only as tall as needed — group names beside the buttons (tbGroup), tight gaps
+        bar.style.cssText = this.maxi()
+            ? `display:flex;gap:${this.kpx(4)} ${this.kpx(12)};flex-wrap:wrap;padding:${this.kpx(3)} 4px ${this.kpx(2)} 4px;align-items:center;`
+            : `display:flex;gap:${this.kpx(16)} ${this.kpx(20)};flex-wrap:wrap;` +
             `padding:${this.kpx(8)} 14px ${this.kpx(6)} 14px;align-items:flex-end;`;
 
         const tset = this.settings.toolbarCard;
         // Tile view: everything that cannot change the tile disappears. Only the
         // Δ reference and the unit reach the zoom chart, so only those two stay —
         // the header belongs to the back button and the breadcrumb.
-        const inZoom = ui.view === "tree" && ui.treeZoom != null;
+        // 1.6: the view on screen (the first offered one when ui.view is switched off)
+        const vw = this.view();
+        const graphView = vw === "tree" || vw === "sankey";
+        const inZoom = graphView && ui.treeZoom != null;
         // 1.3/1.4 the Start hub as an overlay — an authoring aid, edit mode only;
         // since 1.4 the first control of the toolbar, framed in the accent
         if (this.editMode() && !this.miniSpec) { bar.appendChild(this.hubOpenButton()); }
         // 1.2 template picker first — edit mode only (an authoring control, it
         // writes the format pane), table view only (templates shape the table)
-        if (tset.showTemplate.value && this.editMode() && ui.view === "table") {
+        if (tset.showTemplate.value && this.editMode() && vw === "table") {
             bar.appendChild(this.templatePicker());
         }
-        if (tset.showView.value && !inZoom) { bar.appendChild(this.tbGroup(this.tr("UI_TbView"), [
-            this.tbBtn(this.tr("UI_TbTable"), ui.view === "table", () => { ui.view = "table"; }),
-            this.tbBtn(this.tr("UI_TbBars"), ui.view === "bars", () => { ui.view = "bars"; },
+        // 1.6: only the views the author offers; a single one leaves nothing to
+        // choose, so the whole group steps aside
+        const offered = this.offeredViews();
+        const viewBtns: Record<ViewMode, () => HTMLElement> = {
+            table: () => this.tbBtn(this.tr("UI_TbTable"), vw === "table", () => { ui.view = "table"; }),
+            bars: () => this.tbBtn(this.tr("UI_TbBars"), vw === "bars", () => { ui.view = "bars"; },
                 this.tr("UI_TbBarsTip")),
-            this.tbBtn(this.tr("UI_TbWaterfall"), ui.view === "waterfall", () => { ui.view = "waterfall"; },
-                this.tr("UI_TbWaterfallTip")),
-            this.tbBtn(this.tr("UI_TbTree"), ui.view === "tree", () => { ui.view = "tree"; },
+            // 1.7 with stocks: the opening / closing balance anchors as well
+            waterfall: () => this.tbBtn(this.tr("UI_TbWaterfall"), vw === "waterfall", () => { ui.view = "waterfall"; },
+                this.tr(this.stockModel() ? "UI_TbWaterfallStockTip" : "UI_TbWaterfallTip")),
+            tree: () => this.tbBtn(this.tr("UI_TbTree"), vw === "tree", () => { ui.view = "tree"; },
                 this.tr("UI_TbTreeTip")),
-        ])); }
+            sankey: () => this.tbBtn(this.tr("UI_TbSankey"), vw === "sankey", () => { ui.view = "sankey"; },
+                this.tr("UI_TbSankeyTip")),
+        };
+        if (tset.showView.value && !inZoom && offered.length > 1) {
+            bar.appendChild(this.tbGroup(this.tr("UI_TbView"), offered.map(v => viewBtns[v]())));
+        }
 
         // column presets, periods and options describe the table layout — the
-        // driver tree follows the formula graph instead. The Δ reference and the
-        // expand level do apply to it: they drive the card variances and the
-        // depth of the opened graph.
-        const tableViews = ui.view !== "tree" && !inZoom;
-        const isTree = ui.view === "tree" && !inZoom;
+        // driver tree and the Sankey follow the graph instead. The Δ reference
+        // and the expand level do apply to them: they drive the card variances
+        // (Sankey: the tooltips) and the depth of the opened graph.
+        const tableViews = !graphView && !inZoom;
+        const isTree = vw === "tree" && !inZoom;
+        const isGraph = graphView && !inZoom;
         // the mega table takes its columns from the format pane switches —
         // presets, Δ reference, period blocks and fit belong to the classic table
         const mega = this.megaInView();
@@ -4335,7 +5236,7 @@ export class Visual implements IVisual {
         // bars and waterfall views build their columns from the Δ reference and
         // the period blocks alone (up to 1.0.0 both groups showed there and did
         // nothing)
-        const classicTable = classic && ui.view === "table";
+        const classicTable = classic && vw === "table";
 
         // Does a toolbar change alter the columns on screen? The column specs
         // are the one truth for the table, bars and waterfall views — a change
@@ -4391,7 +5292,7 @@ export class Visual implements IVisual {
         }
 
         const refs: Scenario[] = (["py", "pl", "fc"] as Scenario[]).filter(s => this.has[s]);
-        if (refs.length > 0 && tset.showReference.value && (classic || isTree || inZoom)) {
+        if (refs.length > 0 && tset.showReference.value && (classic || isGraph || inZoom)) {
             // the tree and the tile always follow the reference; the column
             // views only where a column is built from it ("AC vs Ref", the MTD
             // block, bars, waterfall) — elsewhere the preset fixes its references
@@ -4405,15 +5306,20 @@ export class Visual implements IVisual {
         // on) and lock where a click would change nothing: the FY block outside
         // the presets that carry it, the last block that keeps the table alive
         const pb: HTMLElement[] = [];
+        // 1.7 with stocks in the model the period buttons say how each block reads them
+        const stocks = this.stockModel();
+        const stockTip = (key: "mtd" | "ytd" | "fy"): string | undefined => !stocks ? undefined
+            : key === "mtd" ? this.tr("UI_TbMtdStockTip")
+                : key === "ytd" ? this.tr("UI_TbYtdStockTip", this.ytdMarker()) : this.tr("UI_TbFyStockTip");
         const periodBtn = (key: "mtd" | "ytd" | "fy", label: string): HTMLElement => {
             const live = changes(u => { u.blocks[key] = !u.blocks[key]; });
             const tip = live ? undefined
                 : key === "fy" && !shownBlocks.has("fy") ? this.tr("UI_TbFyNoEffect", this.tr("UI_PresetFull"))
                     : this.tr("UI_TbLastBlock");
-            return this.tbBtn(label, shownBlocks.has(key), () => { ui.blocks[key] = !ui.blocks[key]; }, undefined, tip);
+            return this.tbBtn(label, shownBlocks.has(key), () => { ui.blocks[key] = !ui.blocks[key]; }, stockTip(key), tip);
         };
         if (classic) {
-            if (ui.view !== "bars" && this.model!.months.length > 1) { pb.push(periodBtn("mtd", "MTD")); }
+            if (vw !== "bars" && this.model!.months.length > 1) { pb.push(periodBtn("mtd", "MTD")); }
             pb.push(periodBtn("ytd", "YTD"));
             if (this.has.fcfy && this.has.plfy) { pb.push(periodBtn("fy", "FY")); }
         }
@@ -4451,9 +5357,9 @@ export class Visual implements IVisual {
         }
 
         const treeDepth = this.treeCtx ? this.treeCtx.depth : 1;
-        const maxL = Math.min(isTree ? treeDepth : this.model!.maxDepth, 8);
+        const maxL = Math.min(isGraph ? treeDepth : this.model!.maxDepth, 8);
         const lvlBtns: HTMLElement[] = [];
-        if (isTree) {
+        if (isGraph) {
             lvlBtns.push(this.tbBtn("⌂", false, () => {
                 ui.treeRoot = "";
                 ui.treeCollapsed = null;
@@ -4461,14 +5367,14 @@ export class Visual implements IVisual {
         }
         for (let l = 1; l < maxL; l++) {
             lvlBtns.push(this.tbBtn(String(l), false, () => {
-                if (isTree) { ui.treeCollapsed = this.treeCtx ? [...this.treeCtx.levels[l]] : []; }
+                if (isGraph) { ui.treeCollapsed = this.treeCtx ? [...this.treeCtx.levels[l]] : []; }
                 else { ui.collapsed = [...collapseToLevel(this.model!.roots, l)]; }
             }));
         }
         lvlBtns.push(this.tbBtn(this.tr("UI_TbAll"), false, () => {
-            if (isTree) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
+            if (isGraph) { ui.treeCollapsed = []; } else { ui.collapsed = []; }
         }));
-        if (tset.showLevels.value && (tableViews || isTree)) {
+        if (tset.showLevels.value && (tableViews || isGraph)) {
             bar.appendChild(this.tbGroup(this.tr("UI_TbLevels"), lvlBtns));
         }
 
@@ -4494,7 +5400,86 @@ export class Visual implements IVisual {
             this.tbBtn(this.tr("UI_TbHideZero"), ui.hideZero, () => { ui.hideZero = !ui.hideZero; }),
             this.tbBtn(this.tr("UI_TbFit"), ui.fit, () => { ui.fit = !ui.fit; }, this.tr("UI_TbFitTip")),
         ])); }
+        // 1.7 ⚡ "only exceptions" — a reader control like the others, last in the
+        // row; nothing to compare without a reference field, nothing to do in a tile
+        if (tset.showExceptions.value && !inZoom && this.excRefChoices().length > 0) {
+            bar.appendChild(this.excGroup());
+        }
         return bar;
+    }
+
+    /**
+     * 1.7 toolbar group "Exceptions": ⚡ on / off, and while on the threshold
+     * stepper (Δ %, plus the absolute threshold of the materiality setting),
+     * the reference (Auto · PY · PL · FC), the direction (▲ · ▼ · ▲▼) and the
+     * mode (grey · hide). Every click writes state.uiState AND mirrors the six
+     * values into exceptions.* in the same persist (persistUi, excDirty).
+     */
+    private excGroup(): HTMLElement {
+        const ui = this.ui!;
+        const x = ui.exc;
+        const set = (patch: Partial<ExcState>): void => { ui.exc = { ...ui.exc, ...patch }; this.excDirty = true; };
+        // off: only the ⚡ under the group label — an existing toolbar grows by as
+        // little as possible; on: the full label plus the controls
+        const main = this.tbBtn(x.on ? this.tr("UI_TbExcOnly") : "⚡", x.on, () => set({ on: !x.on }),
+            this.tr("UI_TbExcTip", this.excRuleText()));
+        main.setAttribute("data-pnl", "tb-exc");
+        main.setAttribute("aria-label", this.tr("UI_TbExcOnly"));
+        const out: HTMLElement[] = [main];
+        if (x.on) {
+            const rule = (): HTMLElement => {
+                const r = document.createElement("span");
+                r.setAttribute("aria-hidden", "true");
+                r.style.cssText = `align-self:stretch;border-left:1px solid ${this.tbColors().edge};margin:0 ${this.kpx(2)};`;
+                return r;
+            };
+            const mark = (b: HTMLElement, key: string): HTMLElement => { b.setAttribute("data-pnl", "tb-exc-" + key); return b; };
+            // threshold: − [|Δ%| ≥ 5 %] + over the steps 1 … 100 %
+            const lower = [...EXC_STEPS].reverse().find(v => v < x.pct - 1e-9);
+            const higher = EXC_STEPS.find(v => v > x.pct + 1e-9);
+            out.push(rule());
+            out.push(mark(this.tbBtn("−", false, () => set({ pct: lower ?? x.pct }), this.tr("UI_TbExcLess"),
+                lower == null ? this.tr("UI_TbExcLess") : undefined), "less"));
+            const val = document.createElement("span");
+            val.setAttribute("data-pnl", "tb-exc-pct");
+            val.style.cssText = `font-family:${FONT};font-size:${this.kpx(10.5)};line-height:1.35;color:${C.text};` +
+                `padding:${this.kpx(3.5)} ${this.kpx(2)};white-space:nowrap;font-variant-numeric:tabular-nums;`;
+            val.textContent = this.tr("UI_ExcRulePct", new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 }).format(x.pct));
+            out.push(val);
+            out.push(mark(this.tbBtn("+", false, () => set({ pct: higher ?? x.pct }), this.tr("UI_TbExcMore"),
+                higher == null ? this.tr("UI_TbExcMore") : undefined), "more"));
+            // the absolute threshold — offered with the value of "Materiality from (absolute)"
+            const matAbs = Number(this.settings.columnsCard.materialityAbs.value) || 0;
+            if (x.abs > 0 || matAbs > 0) {
+                const v = x.abs > 0 ? x.abs : matAbs;
+                out.push(mark(this.tbBtn(this.tr("UI_ExcRuleAbs", this.excAbsText(v)), x.abs > 0,
+                    () => set({ abs: x.abs > 0 ? 0 : matAbs }), this.tr("UI_TbExcAbsTip", this.excAbsText(v))), "abs"));
+            }
+            // reference: Auto follows the Δ reference of the view
+            out.push(rule());
+            const choices = this.excRefChoices();
+            const ref = x.ref !== "auto" && choices.indexOf(x.ref) >= 0 ? x.ref : "auto";
+            out.push(mark(this.tbBtn(this.tr("UI_TbExcAuto"), ref === "auto", () => set({ ref: "auto" }),
+                this.tr("UI_TbExcAutoTip", this.excAutoLabel())), "ref-auto"));
+            for (const r of choices) {
+                out.push(mark(this.tbBtn(this.relabel(r.toUpperCase()), ref === r, () => set({ ref: r as ExcState["ref"] }),
+                    this.tr("UI_TbExcRefTip", this.relabel(r.toUpperCase()))), "ref-" + r));
+            }
+            // direction: the sign of Δ against the reference
+            out.push(rule());
+            out.push(mark(this.tbBtn("▲", x.dir === "up", () => set({ dir: "up" }), this.tr("UI_TbExcUpTip")), "up"));
+            out.push(mark(this.tbBtn("▼", x.dir === "down", () => set({ dir: "down" }), this.tr("UI_TbExcDownTip")), "down"));
+            out.push(mark(this.tbBtn("▲▼", x.dir === "both", () => set({ dir: "both" }), this.tr("UI_TbExcBothTip")), "both"));
+            // mode: grey out the rest, or hide its detail rows
+            out.push(rule());
+            out.push(mark(this.tbBtn(this.tr("UI_TbExcGray"), x.mode === "gray", () => set({ mode: "gray" }),
+                this.tr("UI_TbExcGrayTip")), "gray"));
+            out.push(mark(this.tbBtn(this.tr("UI_TbExcHide"), x.mode === "hide", () => set({ mode: "hide" }),
+                this.tr("UI_TbExcHideTip")), "hide"));
+        }
+        const g = this.tbGroup(this.tr("UI_TbExc"), out);
+        g.setAttribute("data-pnl", "tb-exc-group");
+        return g;
     }
 
     private legendChip(style: "ac" | "py" | "pl" | "fc"): HTMLElement {
@@ -4517,7 +5502,7 @@ export class Visual implements IVisual {
     private buildLegend(): HTMLElement {
         const bar = document.createElement("div");
         bar.style.cssText = `display:flex;gap:${this.kpx(16)};flex-wrap:wrap;align-items:center;` +
-            `padding:${this.kpx(6)} 14px;font-size:${this.kpx(10)};color:${C.soft};`;
+            (this.maxi() ? `padding:${this.kpx(2)} 4px;` : `padding:${this.kpx(6)} 14px;`) + `font-size:${this.kpx(10)};color:${C.soft};`;
         const item = (chipEl: HTMLElement | null, label: string, color?: string): void => {
             const s = document.createElement("span");
             if (chipEl) { s.appendChild(chipEl); }
@@ -4609,14 +5594,15 @@ export class Visual implements IVisual {
         const fyOn = this.has.fcfy && this.has.plfy && ui.blocks.fy;
         const blocks: Block[] = [];
 
-        if (ui.view === "waterfall" || ui.view === "bars") {
+        const vw = this.view();
+        if (vw === "waterfall" || vw === "bars") {
             const r = this.has[ui.ref] ? ui.ref : (this.has.pl ? "pl" : "py");
-            const kind = ui.view === "waterfall" ? "wbar" : "vbar";
+            const kind = vw === "waterfall" ? "wbar" : "vbar";
             const mk = (block: "mtd" | "ytd" | "fy"): ColSpec[] => {
                 const specs: ColSpec[] = [];
                 const ref: Scenario = block === "fy" ? "plfy" : r;
                 const minuend: Scenario = block === "fy" ? "fcfy" : "ac";
-                if (ui.view === "waterfall") {
+                if (vw === "waterfall") {
                     if (this.has[ref]) { specs.push({ kind: "wbar", scen: ref, block, label: block === "fy" ? "PL" : ref.toUpperCase() }); }
                     specs.push({ kind: "wbar", scen: minuend, block, label: block === "fy" ? "AC&FC" : "AC" });
                 } else {
@@ -4628,7 +5614,7 @@ export class Visual implements IVisual {
                 }
                 return specs;
             };
-            if (ui.view === "waterfall" && ui.blocks.mtd && months.length > 1) {
+            if (vw === "waterfall" && ui.blocks.mtd && months.length > 1) {
                 blocks.push({ key: "mtd", label: mtdLabel, specs: mk("mtd") });
             }
             if (ui.blocks.ytd || blocks.length === 0 && !fyOn) {
@@ -4781,10 +5767,11 @@ export class Visual implements IVisual {
         // the type scale reaches the geometry as well: rows, label lanes, value
         // columns and the drawn bars grow with the type, so a Full-HD or UHD
         // table stays the same picture — only bigger — and never clips a number
-        const fscale = this.fontScale();
+        // 1.7 layout.maximize: the body scale that fills the tile height (1 otherwise)
+        const fscale = this.fontScale() * this.bodyK;
         const rowH = Math.round((compact ? 18 : 23) * fscale);
         const fs = Math.round((compact ? 10 : 11) * fscale);
-        const BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
+        let BAR_HALF = Math.max(34 * k * fscale, FIT_BAR_HALF_MIN);
         const PIN_HALF = Math.max(24 * k * fscale, FIT_PIN_HALF_MIN);
         const lk = Math.max(k, FIT_LABEL_MIN);
         const labelFs = fs * lk;
@@ -4799,7 +5786,6 @@ export class Visual implements IVisual {
         const laneSlack = (fscale - 1) * 3;
         const dLabelW = Math.ceil(gc.dLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
         const pLabelW = Math.ceil(gc.pLabelLen * (labelFs * 0.52 + laneSlack)) + 4;
-        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
         const pinW = 2 * (PIN_HALF + pLabelW + 4) + 8;
         const valW = Math.round((compact ? 66 : 76) * lk * fscale);
 
@@ -4816,6 +5802,21 @@ export class Visual implements IVisual {
             vAxisX = 4 + vLabelW + gc.maxNegD * vPpu;
             vbarW = span + 2 * (vLabelW + 4) + 8;
         }
+        // 1.5: same unit, same scale — next to value bars or cascades the Δ
+        // bars take the value scale. Δ that reach the lane widen it; Δ that
+        // would stay below half a lane are magnified by a round factor
+        // (2 · 5 · 10 …) and say so in the head ("ΔPL ×5") and the scale note
+        let dPpu = 0; let dMag = 1;
+        if (vPpu > 0 && cols.some(c => c.kind === "bar") && maxAbsDelta > 0) {
+            const dSpan = maxAbsDelta * vPpu;
+            dPpu = vPpu;
+            if (dSpan >= BAR_HALF) { BAR_HALF = dSpan; }
+            else if (dSpan < BAR_HALF / 2) {
+                dMag = niceFactor(BAR_HALF / dSpan * (1 + 1e-9));
+                dPpu = vPpu * dMag;
+            }
+        }
+        const barW = 2 * (BAR_HALF + dLabelW + 4) + 8;
 
         const gapW = Math.round(18 * fscale);
         let colsW = 0;
@@ -4826,6 +5827,7 @@ export class Visual implements IVisual {
                         : c.kind === "bar" ? barW : pinW);
         }
         return { rowH, fs, labelFs, barLabelFs, valLabelFs, BAR_HALF, PIN_HALF, barW, pinW, valW, maxAbsDelta,
+            dPpu, dMag, pinZone: gc.pOver,
             vbarW, vAxisX, vPpu, vLabelW, gapW,
             sepExtraH: Math.round(SEP_EXTRA_H * fscale),
             sparkH: Math.round(SPARK_ROW_H * fscale), colsW };
@@ -4844,8 +5846,8 @@ export class Visual implements IVisual {
         const table = this.tableEl;
         const avail = this.root.clientWidth;
         if (!table || avail <= 0) { return false; }
-        const now = table.getBoundingClientRect().width;
-        const room = avail - 2 * TABLE_PAD_X;
+        const now = this.rect(table).width;
+        const room = avail - 2 * this.padX();
         if (now <= room) { return false; }
         const cols = this.flatCols(this.colSpecs());
         const gc = this.geoScans(cols, fmt);
@@ -4871,8 +5873,18 @@ export class Visual implements IVisual {
     private buildTable(fmt: Fmt, maxAbsDelta: number): HTMLElement {
         const model = this.model!; const ui = this.ui!;
         const collapsed = new Set(ui.collapsed);
-        let visible = flattenVisible(model.roots, collapsed);
+        // 1.7 ⚡ hide in the waterfall: the quiet steps of a section as one "other (n)" row
+        const plan = this.excPlan();
+        let visible = plan ? this.excFlatten(collapsed) : flattenVisible(model.roots, collapsed);
         if (ui.hideZero) { visible = visible.filter(n => n.row.rowType === "separator" || !isZeroRow(n)); }
+        // 1.7 ⚡ mode "hide": detail rows below the threshold leave the table (counted for the note);
+        // 1.7 also folded groups without an exception below them
+        if (this.excHideActive()) {
+            const before = visible.length;
+            visible = visible.filter(n => !this.excQuiet(n, collapsed));
+            this.excHidden = before - visible.length;
+            this.excHiddenKind = "rows";
+        }
 
         const revBase = revenueBase(model, this.settings.columnsCard.revenueBase.value);
         const blocks = this.colSpecs();
@@ -4884,6 +5896,7 @@ export class Visual implements IVisual {
         // waterfall view: cascade segments per scenario (tree order, expand-independent)
         this.wfSegs = gc.wf;
         const geo = this.tableGeo(cols, gc, maxAbsDelta, this.fitK, this.fitPad);
+        this.syncScaleNote(geo);
 
         // comment footnotes are numbered over ALL visible rows, not just the
         // rows currently in the DOM (windowed rendering)
@@ -4897,7 +5910,7 @@ export class Visual implements IVisual {
         }
 
         const wrap = document.createElement("div");
-        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;`;
+        wrap.style.cssText = this.maxi() ? "padding:0 2px 2px 2px;" : `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;`;
 
         const table = document.createElement("div");
         table.style.cssText = "display:table;border-collapse:collapse;";
@@ -4957,10 +5970,12 @@ export class Visual implements IVisual {
             num.decimals.value, num.pctDecimals.value, this.locale];
         // 1.2 triangle marks widen the value scale of the bars view
         if (this.settings.columnsCard.barTriangles.value) { keyParts.push("tri"); }
+        // 1.7 ⚡ hide in the waterfall: the folded steps change the cascade
+        if (this.excPlan()) { keyParts.push("exc", JSON.stringify(this.ui!.exc), this.ui!.collapsed.join("|")); }
         const key = keyParts.join("~");
         if (this.geoCache && this.geoCache.key === key) { return this.geoCache; }
 
-        let dLabelLen = 2; let pLabelLen = 3;
+        let dLabelLen = 2; let pLabelLen = 3; let pOver = false;
         for (const node of model.byId.values()) {
             if (node.row.rowType === "kpi") { continue; }
             for (const c of cols) {
@@ -4975,7 +5990,10 @@ export class Visual implements IVisual {
                     // caps the needle at ±40%, never the number. Measuring the
                     // capped value sized the lane for "+40.0%▸" and clipped
                     // "+220.0%▸" (p2). Within ±40% nothing changes.
-                    if (v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
+                    if (v.deltaPct != null) {
+                        pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length);
+                        if (Math.abs(v.deltaPct) > 0.4) { pOver = true; }
+                    }
                 }
             }
         }
@@ -4988,7 +6006,10 @@ export class Visual implements IVisual {
                 if (node.row.rowType === "kpi") { continue; }
                 const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                 if (c.kind === "bar" && v.delta != null) { dLabelLen = Math.max(dLabelLen, fmt.val(v.delta, true).length); }
-                if (c.kind === "pin" && v.deltaPct != null) { pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length); }
+                if (c.kind === "pin" && v.deltaPct != null) {
+                    pLabelLen = Math.max(pLabelLen, (fmt.pct(v.deltaPct, true) + "▸").length);
+                    if (Math.abs(v.deltaPct) > 0.4) { pOver = true; }
+                }
             }
         }
 
@@ -5000,20 +6021,24 @@ export class Visual implements IVisual {
             if (wf.has(wkey)) { continue; }
             const read = c.block === "mtd"
                 ? (n: PnlNode): number | null => n.series[c.scen!]?.[li] ?? null
-                : (n: PnlNode): number | null => n.computed[c.scen!];
+                // 1.7 a model with stocks reads the YTD window (opening, flows and closing of one window)
+                : this.stockModel() && c.block !== "fy" ? (n: PnlNode): number | null => this.ytdRawSum(n, c.scen!)
+                    : (n: PnlNode): number | null => n.computed[c.scen!];
             wf.set(wkey, this.cascadeSegments(read));
         }
 
         let maxPosD = 0; let maxNegD = 0; let vLabelLen = 2;
         if (wf.size > 0) {
+            // 1.7 the ⚡ rest steps of the waterfall belong to the scale as well
+            const rests = [...this.excRests.values()].map(r => r.node);
             for (const [wkey, segs] of wf) {
                 const scen = wkey.split(":")[1] as Scenario;
-                for (const node of model.byId.values()) {
+                for (const node of rests.length > 0 ? [...model.byId.values(), ...rests] : model.byId.values()) {
                     const seg = segs.get(node.row.id);
                     if (!seg) { continue; }
                     maxPosD = Math.max(maxPosD, seg.s, seg.e);
                     maxNegD = Math.max(maxNegD, -seg.s, -seg.e);
-                    const v = displayValue(node, scen);
+                    const v = this.viewDisplay(node, wkey.split(":")[0] as "mtd" | "ytd" | "fy", scen);
                     if (v != null) { vLabelLen = Math.max(vLabelLen, fmt.val(v).length); }
                 }
             }
@@ -5025,10 +6050,11 @@ export class Visual implements IVisual {
                 // 1.2 triangle marks: their scenarios share the value scale
                 for (const t of this.barTriScens(c)) { scens.add(t); }
             }
+            const vblock = (cols.find(c => c.kind === "vbar")?.block ?? "ytd");
             for (const node of model.byId.values()) {
                 if (node.row.rowType === "kpi" || node.row.rowType === "separator") { continue; }
                 for (const sc of scens) {
-                    const v = displayValue(node, sc);
+                    const v = sc === "fcfy" || sc === "plfy" ? displayValue(node, sc) : this.viewDisplay(node, vblock, sc);
                     if (v == null) { continue; }
                     if (v >= 0) { maxPosD = Math.max(maxPosD, v); } else { maxNegD = Math.max(maxNegD, -v); }
                     vLabelLen = Math.max(vLabelLen, fmt.val(v).length);
@@ -5036,7 +6062,7 @@ export class Visual implements IVisual {
             }
         }
 
-        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf };
+        this.geoCache = { key, dLabelLen, pLabelLen, vLabelLen, maxPosD, maxNegD, wf, pOver };
         return this.geoCache;
     }
 
@@ -5091,14 +6117,14 @@ export class Visual implements IVisual {
             for (let i = 0; i < src.length; i++) {
                 const d = dst[i] as HTMLElement;
                 d.style.visibility = "visible";
-                d.style.width = (src[i] as HTMLElement).getBoundingClientRect().width.toFixed(2) + "px";
+                d.style.width = this.rect(src[i] as HTMLElement).width.toFixed(2) + "px";
                 d.style.boxSizing = "border-box";
                 d.style.overflow = "hidden";
             }
             wrap.appendChild(clone);
         }
-        const rb = this.root.getBoundingClientRect();
-        const tb = table.getBoundingClientRect();
+        const rb = this.rect(this.root);
+        const tb = this.rect(table);
         wrap.style.left = (tb.left - rb.left + this.root.scrollLeft).toFixed(2) + "px";
         this.floatTop = topOffset;
         this.root.appendChild(wrap);
@@ -5131,7 +6157,7 @@ export class Visual implements IVisual {
         return row;
     }
 
-    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number }): HTMLElement {
+    private headerRow(cols: ColSpec[], geo: { valW: number; barW: number; pinW: number; vbarW: number; fs: number; gapW: number; dMag: number }): HTMLElement {
         const row = document.createElement("div");
         row.style.cssText = "display:table-row;";
         const gapFs = this.headerFs(9);
@@ -5149,7 +6175,10 @@ export class Visual implements IVisual {
                 const style = c.scen === "ac" ? "ac" : c.scen === "py" ? "py" : (c.scen === "fc" || c.scen === "fcfy") ? "fc" : "pl";
                 cell.appendChild(this.legendChip(style as "ac"));
             }
-            cell.appendChild(document.createTextNode(c.label));
+            // 1.5 scaling indicator: Δ bars magnified against the value bars
+            const mag = c.kind === "bar" && geo.dMag > 1 ? " ×" + geo.dMag : "";
+            cell.appendChild(document.createTextNode(c.label + mag));
+            if (mag) { cell.setAttribute("data-pnl", "scale-mag"); }
             row.appendChild(cell);
         }
         return row;
@@ -5203,7 +6232,10 @@ export class Visual implements IVisual {
         }
         // small account id (only when it differs from the display name and is not synthetic)
         const rid = node.row.id;
-        if (!rid.startsWith("L:") && rid !== node.row.name && rid !== "__unassigned__") {
+        // 1.7 ⚡ hide: a rest row "other (n)" — soft italic, its members in the tooltip
+        const rest = this.excRests.get(rid);
+        if (rest) { name.style.color = C.soft; name.style.fontStyle = "italic"; }
+        if (!rid.startsWith("L:") && rid !== node.row.name && rid !== "__unassigned__" && !rest) {
             const idEl = document.createElement("span");
             idEl.style.cssText = `font-size:${this.kpx(8)};color:${C.soft};margin-right:${this.kpx(6)};`;
             idEl.textContent = rid;
@@ -5241,7 +6273,7 @@ export class Visual implements IVisual {
             name.appendChild(inc);
         }
         // 12M sparkline chip
-        if (node.series.ac && this.model!.months.length > 1) {
+        if (node.series.ac && this.model!.months.length > 1 && !rest) {
             const chip = document.createElement("span");
             const active = ui.spark.includes(node.row.id);
             chip.textContent = `${this.model!.months.length}M`;
@@ -5267,10 +6299,22 @@ export class Visual implements IVisual {
             this.bindSelect(row, node, false);
             row.setAttribute("data-pnl-row", node.row.id);
         }
+        if (rest) {
+            row.setAttribute("data-pnl-row", node.row.id);
+            row.setAttribute("data-pnl-rest", String(rest.members.length));
+            const names = rest.members.slice(0, 12).map(m => m.row.name);
+            if (rest.members.length > 12) { names.push("…"); }
+            name.title = this.tr("UI_ExcRestTip", names.join(" · "));
+        }
         // one tooltip for the whole row — name, scenarios, Δ, comment (1.1)
         const tipBlock = (cols.find(c => c.block === "ytd") ?? cols.find(c => c.block != null))?.block ?? "ytd";
         this.bindTip(row, node, () => this.tipItems(node, fmt, tipBlock, null));
-        const mat = this.materiality();
+        // 1.7 ⚡ "only exceptions": a row that is no exception takes the materiality grey
+        // (one mechanism — the same soft ink in numbers, bars and pins)
+        const quiet = this.excOf(node) === false;
+        if (quiet) { row.setAttribute("data-pnl-exc", "0"); } else if (this.excCfg()) { row.setAttribute("data-pnl-exc", "1"); }
+        const mat0 = this.materiality();
+        const mat = quiet ? (): boolean => true : mat0;
         const selected = canSelect && this.isSelected(node);
         if (selected) { row.setAttribute("data-pnl-sel", "1"); }
         const accent = this.accent();
@@ -5287,6 +6331,8 @@ export class Visual implements IVisual {
                 cell = this.cell(geo.valW, "right", geo.fs);
                 cell.style.cssText += "font-variant-numeric:tabular-nums;";
                 if (isSum) { cell.style.fontWeight = "600"; }
+                // 1.7 a top-level stock total (balance-sheet total, closing balance): double rule
+                if (isSum && node.level === 0 && node.stock != null) { cell.style.borderBottom = `3px double ${C.line}`; }
                 const bv = isRatio ? this.blockDisplay(node, c.block ?? "ytd", c.scen!)
                     : this.valDisplay(node, c.block ?? "ytd", c.scen!, fmt);
                 cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
@@ -5306,11 +6352,12 @@ export class Visual implements IVisual {
             } else {
                 const v = this.blockVariance(node, c.block ?? "ytd", c.ref!, c.minuend!);
                 // below materiality (columns.materialityAbs / Pct): soft ink; margin rows are exempt
+                // (1.7 ⚡: not from the exception rule — a margin that is no exception greys too)
                 const soft = !isRatio && mat(v.delta, v.deltaPct);
                 if (isRatio) {
                     cell = this.cell(c.kind === "bar" ? geo.barW : geo.pinW, "center", geo.fs - 1);
                     if (c.kind === "bar" && v.delta != null) {
-                        cell.style.color = v.good ? this.goodColor() : this.badColor();
+                        cell.style.color = quiet ? C.soft : v.good ? this.goodColor() : this.badColor();
                         cell.style.fontStyle = "italic";
                         cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
                     }
@@ -5376,7 +6423,8 @@ export class Visual implements IVisual {
         if (isRatio) {
             const cell = this.cell(c.kind === "bar" ? geo.barW : geo.pinW, "center", geo.fs - 1);
             if (c.kind === "bar" && v.delta != null) {
-                cell.style.color = v.good ? this.goodColor() : this.badColor();
+                // 1.7 ⚡: the row of the whole statement decides (mat answers true for every Δ then)
+                cell.style.color = mat(null, null) ? C.soft : v.good ? this.goodColor() : this.badColor();
                 cell.style.fontStyle = "italic";
                 cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
             }
@@ -5415,12 +6463,14 @@ export class Visual implements IVisual {
     }
 
     private deltaBarCell(v: { delta: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number }, fmt: Fmt,
+        geo: { rowH: number; fs: number; barLabelFs: number; BAR_HALF: number; barW: number; maxAbsDelta: number; dPpu: number }, fmt: Fmt,
         soft = false, labelDelta: number | null = null): HTMLElement {
         const cell = this.cell(geo.barW, "left", geo.fs);
         if (v.delta == null) { return cell; }
         const w = geo.barW - 8; const h = geo.rowH - 4; const mid = w / 2;
-        const frac = geo.maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / geo.maxAbsDelta, 1) : 0;
+        // next to value bars / cascades the value scale (1.5), else the uniform Δ scale
+        const frac = geo.dPpu > 0 ? Math.min(Math.abs(v.delta) * geo.dPpu / geo.BAR_HALF, 1)
+            : geo.maxAbsDelta > 0 ? Math.min(Math.abs(v.delta) / geo.maxAbsDelta, 1) : 0;
         const len = Math.max(frac * geo.BAR_HALF, v.delta === 0 ? 0 : 1.5);
         const x = v.delta >= 0 ? mid : mid - len;
         const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
@@ -5453,15 +6503,21 @@ export class Visual implements IVisual {
     }
 
     private deltaPinCell(v: { deltaPct: number | null; good: boolean }, c: ColSpec,
-        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number }, fmt: Fmt,
+        geo: { rowH: number; fs: number; barLabelFs: number; PIN_HALF: number; pinW: number; pinZone: boolean }, fmt: Fmt,
         soft = false): HTMLElement {
         const cell = this.cell(geo.pinW, "left", geo.fs);
         if (v.deltaPct == null) { return cell; }
         const w = geo.pinW - 8; const h = geo.rowH - 4; const mid = w / 2;
         const cap = 0.4;
         const clamped = this.capPct(v.deltaPct);
-        const px = mid + (clamped / cap) * geo.PIN_HALF;
         const overflow = Math.abs(v.deltaPct) > cap;
+        // 1.5 (IBCS UN 5.3): with an outlier anywhere in the table, ±40 % take
+        // the inner 80 % of the lane; a pin beyond runs on into the outlier
+        // zone, is cut by a break mark and ends in a triangle — before, it
+        // stopped exactly where +40 % stops
+        const reg = geo.pinZone ? geo.PIN_HALF * 0.8 : geo.PIN_HALF;
+        const dir = v.deltaPct >= 0 ? 1 : -1;
+        const px = overflow && geo.pinZone ? mid + dir * geo.PIN_HALF : mid + (clamped / cap) * reg;
         const color = soft ? C.soft : v.good ? this.goodColor() : this.badColor();
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
@@ -5473,22 +6529,41 @@ export class Visual implements IVisual {
         needle.setAttribute("y1", String(h / 2)); needle.setAttribute("y2", String(h / 2));
         needle.setAttribute("stroke", color); needle.setAttribute("stroke-width", "1.4");
         svg.appendChild(needle);
-        const head = document.createElementNS(ns, "circle");
-        head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
-        head.setAttribute("r", overflow ? "2" : "2.8");
-        // pin head carries the minuend's scenario fill (IBCS): FC → outlined
-        if (c.minuend === "fcfy") {
-            head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
-        } else { head.setAttribute("fill", color); }
-        svg.appendChild(head);
+        let tip = px;
+        if (overflow && geo.pinZone) {
+            // break mark just past the regular maximum, triangle in growth direction
+            const xb = mid + dir * (reg + 2);
+            const brk = document.createElementNS(ns, "path");
+            brk.setAttribute("d", [0, 2.5].map(o => `M${xb + dir * o - 1.5},${h / 2 + 3} L${xb + dir * o + 1.5},${h / 2 - 3}`).join(" "));
+            brk.setAttribute("stroke", C.paper); brk.setAttribute("stroke-width", "1.4"); brk.setAttribute("fill", "none");
+            brk.setAttribute("data-pnl", "pin-break");
+            svg.appendChild(brk);
+            const tw = 4.5;
+            const tri = document.createElementNS(ns, "path");
+            tri.setAttribute("d", `M${px + dir * tw},${h / 2} L${px},${h / 2 - 3.2} L${px},${h / 2 + 3.2} Z`);
+            tri.setAttribute("fill", color);
+            tri.setAttribute("data-pnl", "pin-outlier");
+            svg.appendChild(tri);
+            tip = px + dir * tw;
+        } else {
+            const head = document.createElementNS(ns, "circle");
+            head.setAttribute("cx", String(px)); head.setAttribute("cy", String(h / 2));
+            head.setAttribute("r", overflow ? "2" : "2.8");
+            // pin head carries the minuend's scenario fill (IBCS): FC → outlined
+            if (c.minuend === "fcfy") {
+                head.setAttribute("fill", C.paper); head.setAttribute("stroke", color); head.setAttribute("stroke-width", "1.4");
+            } else { head.setAttribute("fill", color); }
+            svg.appendChild(head);
+        }
         const txt = document.createElementNS(ns, "text");
         const anchor = v.deltaPct >= 0 ? "start" : "end";
-        const tx = v.deltaPct >= 0 ? Math.max(px + 4, mid + 4) : Math.min(px - 4, mid - 4);
+        const tx = v.deltaPct >= 0 ? Math.max(tip + 4, mid + 4) : Math.min(tip - 4, mid - 4);
         txt.setAttribute("x", String(tx)); txt.setAttribute("y", String(h / 2 + geo.fs * 0.32));
         txt.setAttribute("text-anchor", anchor);
         txt.setAttribute("font-size", String(geo.barLabelFs)); txt.setAttribute("font-family", FONT);
         txt.setAttribute("fill", color);
-        txt.textContent = fmt.pct(v.deltaPct, true) + (overflow ? "▸" : "");
+        // the triangle marks the outlier; without the zone the "▸" of 1.4 stays
+        txt.textContent = fmt.pct(v.deltaPct, true) + (overflow && !geo.pinZone ? "▸" : "");
         svg.appendChild(txt);
         cell.appendChild(svg);
         return cell;
@@ -5502,17 +6577,20 @@ export class Visual implements IVisual {
     private cascadeSegments(read: (n: PnlNode) => number | null): Map<string, { s: number; e: number }> {
         // the shared cascade geometry of waterfall.ts in parent-first ("value")
         // mode: root formulas anchor, nested formulas carry no segment
-        const node = (n: PnlNode, root: boolean): CascadeNode => {
+        // 1.7 a stock anchors as well (opening → flows → closing balance) — inside a
+        // stock total its positions compose the stand, they do not anchor again
+        const node = (n: PnlNode, root: boolean, inStock = false): CascadeNode => {
             const t = n.row.rowType;
             const skip = t === "kpi" || t === "separator" || (!root && t === "formula");
             return {
                 id: n.row.id,
                 value: skip ? null : read(n),
-                anchor: root && t === "formula",
-                children: skip ? [] : n.children.map(c => node(c, false)),
+                anchor: (root && t === "formula") || (n.stock != null && !inStock),
+                // 1.7 ⚡ hide: the sibling lists with the quiet steps folded into "other (n)"
+                children: skip ? [] : this.excKids(n).map(c => node(c, false, inStock || n.stock != null)),
             };
         };
-        return cascade(this.model!.roots.map(r => node(r, true)), "value");
+        return cascade(this.excRoots().map(r => node(r, true)), "value");
     }
 
     /** row-waterfall cell: floating segment or anchor bar in scenario notation */
@@ -5556,7 +6634,8 @@ export class Visual implements IVisual {
         if (isPlan || hatch) { rect.setAttribute("stroke", C.ac); rect.setAttribute("stroke-width", "1"); }
         svg.appendChild(rect);
         // FY outlook AC&FC composite: realized AC share solid, FC remainder stays hatched
-        if (block === "fy" && scen === "fcfy") {
+        // (1.7: a stock's outlook is its FC end stand — no realized share inside it)
+        if (block === "fy" && scen === "fcfy" && node.stock == null) {
             const acv = node.computed.ac;
             const tot = node.computed.fcfy;
             if (acv != null && tot != null && tot !== 0 && acv / tot > 0 && Math.abs(acv) <= Math.abs(tot)) {
@@ -5579,7 +6658,10 @@ export class Visual implements IVisual {
         svg.appendChild(axis);
         // label: display value, outside — right of segment for growth, left for decrease
         const li = this.model!.months.length - 1;
-        const rawV = block === "mtd" ? (node.series[scen]?.[li] ?? null) : node.computed[scen];
+        // 1.7 a model with stocks labels the value of the bar's own window
+        const rawV = this.stockModel() && block !== "fy"
+            ? (block === "mtd" ? (node.series[scen]?.[this.mtdIndex()] ?? null) : this.ytdRawSum(node, scen))
+            : block === "mtd" ? (node.series[scen]?.[li] ?? null) : node.computed[scen];
         const dv = rawV == null ? null : (node.row.displayInvert ? -rawV : rawV);
         if (dv != null) {
             const grow = (rawV ?? 0) >= 0;
@@ -5619,8 +6701,10 @@ export class Visual implements IVisual {
             cell.textContent = fmt.pct(displayValue(node, c.scen!));
             return cell;
         }
-        const v = displayValue(node, c.scen!);
-        const r = displayValue(node, c.ref!);
+        // 1.7 a model with stocks reads the block's period window (viewDisplay)
+        const vb = c.block ?? "ytd";
+        const v = this.viewDisplay(node, vb, c.scen!);
+        const r = this.viewDisplay(node, vb, c.ref!);
         if (v == null && r == null) { return cell; }
         const ns = "http://www.w3.org/2000/svg";
         const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
@@ -5644,7 +6728,7 @@ export class Visual implements IVisual {
         };
         const cc = this.settings.columnsCard;
         const overlap = cc.barOverlap.value;
-        const tris = this.barTriScens(c).map(sc => ({ sc, v: displayValue(node, sc) })).filter(t => t.v != null);
+        const tris = this.barTriScens(c).map(sc => ({ sc, v: this.viewDisplay(node, c.block ?? "ytd", sc) })).filter(t => t.v != null);
         // 1.2 triangle marks sit in a strip above the bars — the bars give up that strip
         const triS = tris.length > 0 ? Math.max(3.5, Math.min(6, (h - 3) * 0.3)) : 0;
         const top = 1.5 + (triS > 0 ? triS + 0.5 : 0);
@@ -5932,14 +7016,18 @@ export class Visual implements IVisual {
      * collapse sets per depth level, the pruned tree and the breadcrumb from
      * the author/auto root down to the re-rooted card.
      */
-    private buildTreeCtx(): TreeCtx | null {
+    private buildTreeCtx(flow = false): TreeCtx | null {
         const ui = this.ui!;
         const resolve = this.treeResolver();
         const home = this.treeLookup(this.settings.columnsCard.treeRoot.value, resolve)
             ?? this.treeDefaultRoot(resolve);
         const picked = this.treeLookup(ui.treeRoot, resolve);
-        const root = picked ?? home;
+        let root = picked ?? home;
         if (!root) { return null; }
+        // 1.6 the Sankey cannot pour a ratio: a KPI root (net margin …) hands
+        // the flow to its first value operand (net income …) — breadcrumb,
+        // re-root and tile view keep reading the same rows as the tree does
+        if (flow) { root = this.flowRoot(root, resolve); }
 
         const rootCard = this.treeCards(root, resolve);
         const full = this.treeCollect(rootCard);
@@ -5965,7 +7053,12 @@ export class Visual implements IVisual {
         const authorLvl = Math.round(Number(this.settings.columnsCard.treeLevel.value) || 0);
         const auto = authorLvl >= 1 ? levels[Math.min(authorLvl, depth)] : [];
         const collapsed = ui.treeCollapsed ?? auto;
+        // 1.7 ⚡ hide: which branches hold an exception is read on the whole built
+        // graph, the fold itself follows the reader's folds
+        const hide = this.excHideMode();
+        const fold = hide === "tree" || hide === "flow" ? this.excFoldGraph(rootCard, flow) : null;
         this.treePrune(rootCard, new Set(collapsed));
+        if (fold) { fold(); }
 
         // breadcrumb: path through the formula graph from home to the picked root
         let path: PnlNode[] = [];
@@ -5986,6 +7079,27 @@ export class Visual implements IVisual {
             resolve, home, picked, root, rootCard, cards: this.treeCollect(rootCard),
             depth, levels, auto, kidsOf, path,
         };
+    }
+
+    /**
+     * 1.6: first value row under a KPI / ratio root, depth first along the
+     * operand order — `[Net income]/[Net revenue]` flows from Net income. A
+     * root that already carries values is its own flow root; a ratio over
+     * ratios only is kept (the Sankey then says it has nothing to pour).
+     */
+    private flowRoot(root: PnlNode, resolve: (id: string) => PnlNode | undefined): PnlNode {
+        const seen = new Set<string>();
+        const walk = (n: PnlNode): PnlNode | null => {
+            if (n.row.rowType !== "kpi") { return n; }
+            if (seen.has(n.row.id)) { return null; }
+            seen.add(n.row.id);
+            for (const o of formulaOperands(n, resolve)) {
+                const hit = walk(o.child);
+                if (hit) { return hit; }
+            }
+            return null;
+        };
+        return walk(root) ?? root;
     }
 
     /** move a whole subtree down (tidy-layout correction pass) */
@@ -6046,7 +7160,7 @@ export class Visual implements IVisual {
         const a = Math.abs(scaled);
         const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
-        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
     }
 
     private fitLabel(s: string, maxW: number, fs: number): string {
@@ -6250,6 +7364,52 @@ export class Visual implements IVisual {
      * three value labels are drawn — first, last and the absolute extremum —
      * and only the outer periods carry a tag.
      */
+    /**
+     * 1.5 (IBCS 2.0 / ISO 24896, UN 5.2): the scale a card chart of the tree
+     * draws at. `key` = unit + card mode ("amt:months", "pct:delta" …). In the
+     * measuring pass (treeScl.collect) the card records its own fit (px per
+     * unit); while drawing it gets the shared scale of its unit — the smallest
+     * fit, so every card fits — or, when its data would cover less than a
+     * quarter of its room at that scale, a round multiple (2 · 5 · 10 …) that
+     * the card names as "×5". Outside a tree (hover zoom, tile) treeScl is
+     * null: the chart keeps its own fit.
+     */
+    private treeScaleOf(key: string, fit: number, extent: number, room: number): { ppu: number; mag: number } {
+        const sc = this.treeScl;
+        if (!sc || !isFinite(fit) || fit <= 0) { return { ppu: fit, mag: 1 }; }
+        if (sc.collect) {
+            sc.fit.set(key, Math.min(sc.fit.get(key) ?? Infinity, fit));
+            return { ppu: fit, mag: 1 };
+        }
+        const shared = Math.min(sc.fit.get(key) ?? fit, fit);
+        if (extent * shared < 0.25 * room && fit >= 2 * shared * (1 - 1e-9)) {
+            const m = niceFactor(fit / shared * (1 + 1e-9));
+            if (m >= 2) { sc.mags++; return { ppu: shared * m, mag: m }; }
+        }
+        return { ppu: shared, mag: 1 };
+    }
+
+    /** 1.5: the scaling indicator of a magnified card chart — "×5" in its top right corner */
+    private treeMagMark(g: SVGGElement, box: { x: number; y: number; w: number; h: number }, mag: number, s: number): void {
+        if (mag <= 1) { return; }
+        const ns = "http://www.w3.org/2000/svg";
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", (box.x + box.w).toFixed(2));
+        t.setAttribute("y", (box.y + 6.5 * s).toFixed(2));
+        t.setAttribute("text-anchor", "end");
+        t.setAttribute("font-size", (7 * s).toFixed(1));
+        t.setAttribute("font-family", FONT);
+        t.setAttribute("font-weight", "600");
+        t.setAttribute("fill", C.soft);
+        t.setAttribute("data-pnl", "tree-mag");
+        t.setAttribute("data-factor", String(mag));
+        t.textContent = "×" + mag;
+        const tt = document.createElementNS(ns, "title");
+        tt.textContent = this.tr("UI_TreeMagTip", mag);
+        t.appendChild(tt);
+        g.appendChild(t);
+    }
+
     private treeMini(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement, rightInset: number): void {
         const ns = "http://www.w3.org/2000/svg";
@@ -6268,8 +7428,11 @@ export class Visual implements IVisual {
         if (max === min) { max = min + 1; }
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
-        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":months", (bot - top) / (max - min), max - min, bot - top);
+        const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
+        this.treeMagMark(g, box, sc.mag, s);
 
         const rect = (x: number, w: number, v: number, fill: string, stroke: string | null, sw: number): void => {
             const y = Math.min(yOf(v), zeroY);
@@ -6399,8 +7562,11 @@ export class Visual implements IVisual {
         if (max === min) { max = min + 1; }
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
-        const yOf = (v: number): number => bot - ((v - min) / (max - min)) * (bot - top);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":delta", (bot - top) / (max - min), max - min, bot - top);
+        const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
+        this.treeMagMark(g, box, sc.mag, s);
 
         // label the one or two biggest swings only, and never two neighbours —
         // adjacent labels are exactly the crowding this mode avoids
@@ -6471,8 +7637,11 @@ export class Visual implements IVisual {
         const availW = Math.max(box.w - labW - valW - rightInset, 8 * s);
         const lo = Math.min(0, acv ?? 0, refv ?? 0);
         const hi = Math.max(0, acv ?? 0, refv ?? 0);
-        const S = availW / ((hi - lo) || 1);
+        // 1.5: one scale per unit across the cards (or a marked magnification)
+        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":bridge", availW / ((hi - lo) || 1), (hi - lo) || 1, availW);
+        const S = sc.ppu;
         const xz = x0 + (0 - lo) * S;
+        this.treeMagMark(g, { x: box.x, y: box.y - 1.5 * s, w: box.w, h: box.h }, sc.mag, s);
         const xOf = (v: number): number => xz + v * S;
 
         const rows = refv != null ? 3 : 1;
@@ -6683,6 +7852,8 @@ export class Visual implements IVisual {
             draw(g, svg);
         };
         const zs = 1.15 * zk;
+        // 1.5: the hover zoom is a magnifying glass — its charts keep their own scale, and say so
+        caption(this.tr("UI_ZoomOwnScale"));
         caption(this.tr("UI_CapMonths", refUp));
         chart(this.k(104), (g, svg) => this.treeMini(g, node, { x: 0, y: 2, w: inner, h: this.k(100) }, zs, fmt, svg, 0));
         caption(this.tr("UI_CapDelta", refUp));
@@ -6706,8 +7877,8 @@ export class Visual implements IVisual {
 
         // ---- place next to the card, clamped to the visible viewport
         this.root.appendChild(box);
-        const ar = anchor.getBoundingClientRect();
-        const rr = this.root.getBoundingClientRect();
+        const ar = this.rect(anchor);
+        const rr = this.rect(this.root);
         const bh = box.offsetHeight;
         let left = ar.right - rr.left + this.root.scrollLeft + 10;
         if (left + W > this.root.scrollLeft + this.root.clientWidth - 6) {
@@ -6853,7 +8024,14 @@ export class Visual implements IVisual {
         // status indicator: 3 px edge + Δ% in the header, both in the variance
         // colour — the card body itself stays white (IBCS)
         const va = ui.treeStatus ? this.treeVariance(card.node) : null;
-        const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
+        // 1.7 ⚡ "only exceptions": a card that is no exception steps back — grey
+        // status, the whole card dimmed; exceptions keep their variance colour
+        const exc = this.excOf(card.node);
+        const vColor = va == null ? null : exc === false ? C.soft : (va.good ? this.goodColor() : this.badColor());
+        if (exc != null) {
+            g.setAttribute("data-pnl-exc", exc ? "1" : "0");
+            if (!exc) { g.setAttribute("opacity", "0.5"); }
+        }
         if (vColor) {
             const edge = document.createElementNS(ns, "rect");
             edge.setAttribute("x", (card.x + 0.5).toFixed(2));
@@ -6936,6 +8114,43 @@ export class Visual implements IVisual {
             u.textContent = unit;
             g.appendChild(u);
         }
+        // 1.7 cross-highlight: the card shows the marked part (its chart and
+        // value); a strip along the top edge fills to the marked share of the
+        // whole (not on ratio cards: a share of a margin means nothing), and a
+        // compact card adds the whole in grey after its value
+        const hp = this.hlFull ? this.hlPair(card.node) : null;
+        const hlOfTxt = hp ? this.tr("UI_HlOfShort",
+            hp.f == null ? "–" : isRatio ? geo.fmt.pct(hp.f) : this.treeNum(hp.f, geo.fmt)) : "";
+        if (hp) {
+            if (!isRatio) {
+                const sx = card.x + pad + (vColor ? 3 * s : 0);
+                const sw = geo.cw - 2 * pad - (vColor ? 3 * s : 0);
+                const sg = document.createElementNS(ns, "g") as SVGGElement;
+                sg.setAttribute("data-pnl", "tree-hl");
+                sg.setAttribute("data-hl-share", hp.share.toFixed(4));
+                const track = document.createElementNS(ns, "rect");
+                track.setAttribute("x", sx.toFixed(2)); track.setAttribute("y", (card.y + 2).toFixed(2));
+                track.setAttribute("width", Math.max(sw, 1).toFixed(2)); track.setAttribute("height", (2 * s).toFixed(2));
+                // the share is a LENGTH (ink on a light track) — readable without colour,
+                // so it needs no high-contrast variant (the tree keeps its palette, Falle 17)
+                track.setAttribute("fill", C.gridSoft);
+                sg.appendChild(track);
+                if (hp.share > 0) {
+                    const fill = document.createElementNS(ns, "rect");
+                    fill.setAttribute("data-hl-fill", "1");
+                    fill.setAttribute("x", sx.toFixed(2)); fill.setAttribute("y", (card.y + 2).toFixed(2));
+                    fill.setAttribute("width", Math.max(sw * hp.share, 0.8).toFixed(2));
+                    fill.setAttribute("height", (2 * s).toFixed(2));
+                    fill.setAttribute("fill", C.ac);
+                    sg.appendChild(fill);
+                }
+                const st = document.createElementNS(ns, "title");
+                st.textContent = this.tr("UI_HlMarked", hp.m == null ? "–" : this.treeNum(hp.m, geo.fmt),
+                    (hp.f == null ? "–" : this.treeNum(hp.f, geo.fmt)) + (unit ? " " + unit : ""), geo.fmt.pct(hp.share));
+                sg.appendChild(st);
+                g.appendChild(sg);
+            }
+        }
 
         const title = document.createElementNS(ns, "text");
         title.setAttribute("x", (card.x + pad + (vColor ? 3 * s : 0)).toFixed(2));
@@ -6969,8 +8184,18 @@ export class Visual implements IVisual {
             v.setAttribute("font-weight", "600");
             v.setAttribute("fill", C.text);
             const vTxt = acv == null ? "–" : isRatio ? geo.fmt.pct(acv) : this.treeNum(acv, geo.fmt);
-            v.textContent = this.fitLabel(vTxt,
-                geo.cw - 2 * pad - (vColor ? 3 * s : 0) - (card.hasKids ? 20 * s : 0), vfs);
+            const vRoom = geo.cw - 2 * pad - (vColor ? 3 * s : 0) - (card.hasKids ? 20 * s : 0);
+            v.textContent = this.fitLabel(vTxt, vRoom, vfs);
+            // 1.7 cross-highlight: "923  of 1 685" — the whole in grey, where it fits
+            if (hlOfTxt !== "" && (vTxt.length + 1) * vfs * 0.56 + hlOfTxt.length * vfs * 0.8 * 0.56 <= vRoom) {
+                const of = document.createElementNS(ns, "tspan");
+                of.setAttribute("data-pnl", "tree-hl-of");
+                of.setAttribute("fill", C.soft);
+                of.setAttribute("font-weight", "400");
+                of.setAttribute("font-size", (vfs * 0.8).toFixed(1));
+                of.textContent = " " + hlOfTxt;
+                v.appendChild(of);
+            }
             g.appendChild(v);
             const mt = this.treeMonthsTip(card.node, geo.fmt);
             const err = card.node.error ? " ⚠ " + this.trMsg(card.node.error) : "";
@@ -7078,30 +8303,7 @@ export class Visual implements IVisual {
                 ? this.tr("UI_Expand")
                 : this.tr("UI_Collapse");
             ch.appendChild(ct);
-            const toggle = (e: Event): void => {
-                e.stopPropagation();
-                const ctx = this.treeCtx;
-                const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
-                const id = card.node.row.id;
-                if (cur.has(id)) {
-                    // plain click opens only this node — the children keep
-                    // their own remembered fold state; Shift opens the limb
-                    cur.delete(id);
-                    if ((e as MouseEvent).shiftKey) {
-                        const done = new Set<string>();
-                        const stack = [id];
-                        while (stack.length > 0) {
-                            const n = stack.pop()!;
-                            if (done.has(n)) { continue; }
-                            done.add(n);
-                            cur.delete(n);
-                            for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
-                        }
-                    }
-                } else { cur.add(id); }
-                ui.treeCollapsed = [...cur];
-                this.persistUi(); this.rerender();
-            };
+            const toggle = (e: Event): void => this.treeToggle(card, e as MouseEvent);
             hit.style.cursor = "pointer"; ch.style.cursor = "pointer";
             hit.onclick = toggle; ch.onclick = toggle;
             g.appendChild(hit); g.appendChild(ch);
@@ -7123,6 +8325,35 @@ export class Visual implements IVisual {
         // hover zoom: after a short dwell the card opens its IBCS detail view
         this.treeHoverZoom(g, card.node, geo.fmt);
         return g;
+    }
+
+    /**
+     * ▸ / ▾ of a tree card or a Sankey label (shared since 1.6): a plain click
+     * opens or folds exactly this node — its children keep their own
+     * remembered fold state; Shift opens the whole limb below it.
+     */
+    private treeToggle(card: TreeCard, e: MouseEvent): void {
+        e.stopPropagation();
+        const ui = this.ui!;
+        const ctx = this.treeCtx;
+        const cur = new Set(ui.treeCollapsed ?? ctx?.auto ?? []);
+        const id = card.node.row.id;
+        if (cur.has(id)) {
+            cur.delete(id);
+            if (e.shiftKey) {
+                const done = new Set<string>();
+                const stack = [id];
+                while (stack.length > 0) {
+                    const n = stack.pop()!;
+                    if (done.has(n)) { continue; }
+                    done.add(n);
+                    cur.delete(n);
+                    for (const k of ctx?.kidsOf.get(n) ?? []) { stack.push(k); }
+                }
+            }
+        } else { cur.add(id); }
+        ui.treeCollapsed = [...cur];
+        this.persistUi(); this.rerender();
     }
 
     /** breadcrumb over a path of cards: every segment but the last is a jump */
@@ -7360,6 +8591,22 @@ export class Visual implements IVisual {
             chart(h, (g, svg) => this.treeZoomCombo(g, node,
                 { x: 1, y: 2, w: inner - 2, h: h - 6 }, 1.25 * k * sc, fmt, svg));
         }
+        // 1.5: the tile is a magnifying glass of one card — its chart keeps its
+        // own scale and says so in its top right corner (no extra line: the
+        // tile is fitted to the page height)
+        const zsvgs = tile.querySelectorAll("svg");
+        const zsvg = zsvgs.length ? zsvgs[zsvgs.length - 1] : null;
+        if (zsvg) {
+            const t = document.createElementNS(ns, "text");
+            t.setAttribute("x", String(inner - 2)); t.setAttribute("y", String(Math.round(9 * k)));
+            t.setAttribute("text-anchor", "end");
+            t.setAttribute("font-size", (8 * k).toFixed(1));
+            t.setAttribute("font-family", FONT);
+            t.setAttribute("fill", C.soft);
+            t.setAttribute("data-pnl", "zoom-own-scale");
+            t.textContent = this.tr("UI_ZoomOwnScale");
+            zsvg.appendChild(t);
+        }
         const skipped = isRatio ? 0 : this.treeMissingMonths(node);
         if (skipped > 0) {
             // months without actuals and without a forecast are not zero months:
@@ -7437,9 +8684,16 @@ export class Visual implements IVisual {
         list.style.cssText = "flex:1 1 auto;min-height:0;position:relative;" +
             "overflow-y:auto;overflow-x:hidden;";
         const more = items.length - TREE_ZOOM_CARDS_MAX;
-        for (const it of items.slice(0, TREE_ZOOM_CARDS_MAX)) {
+        // 1.5: the micro cards of a column share one scale per unit (measuring
+        // pass first, magnified cards say "×5"), like the cards of the tree
+        const shown = items.slice(0, TREE_ZOOM_CARDS_MAX);
+        this.treeScl = { collect: true, fit: new Map(), mags: 0 };
+        for (const it of shown) { this.treeMicroCard(it.node, it.op, fmt, w, side); }
+        this.treeScl.collect = false;
+        for (const it of shown) {
             list.appendChild(this.treeMicroCard(it.node, it.op, fmt, w, side));
         }
+        this.treeScl = null;
 
         const arrow = (dir: -1 | 1): HTMLElement => {
             const b = document.createElement("button");
@@ -7656,25 +8910,23 @@ export class Visual implements IVisual {
 
     /**
      * The integrated zoom chart (ChartKitchen "integrated bridge"), one picture
-     * instead of the two stacked charts of v0.11:
+     * in three zones (1.7.1):
      *
-     *   · one baseline over the full width, one value scale for every column;
-     *   · left, the full-height anchors — the second scenario outermost (PY
-     *     solid gray), the reference next to the band (PL outlined, FC hatched);
-     *   · bottom of the band, one column per month, AC solid, forecast months
-     *     hatched, the second scenario as a triangle beside it;
-     *   · above them the cumulated Δ bridge: it starts on the level of the
-     *     reference anchor and floats one step per month across the band, teal
-     *     when favorable, red when not, hatched in the forecast months, thin
-     *     connectors between the steps;
-     *   · on top of that the Δ% pin row of the same months;
-     *   · a vertical rule between the last actual and the first forecast month;
-     *   · right, the stacked AC + FC total column and the total variance badge.
+     *   · top, the Δ% pin row of the months and of the total;
+     *   · middle, the Δ zone: the cumulated Δ bridge of the months (flows) or
+     *     the Δ of the stands per month (stocks, never cumulated), teal when
+     *     favorable, red when not, hatched in the forecast months, the total Δ
+     *     under the total column and the badge at its end. One scale for every
+     *     Δ; where it magnifies the value scale the zone label carries the IBCS
+     *     scaling indicator "ΔPL ×n";
+     *   · bottom, the value zone on one baseline: left the full-height anchors —
+     *     the second scenario outermost (PY solid gray), the reference next to
+     *     the band (PL outlined, FC hatched) —, one column pair per month (AC
+     *     solid, forecast months hatched, the second scenario as a triangle),
+     *     right the stacked AC + FC total (stocks: the stand at the end);
+     *   · a vertical rule between the last actual and the first forecast month.
      *
-     * All full columns and the bridge share one scale. The monthly columns keep
-     * that very scale as long as they fit the lower zone — which they do for
-     * any normal year — and only a degenerate series (one or two months, each
-     * nearly the whole total) compresses them, so the two zones never collide.
+     * Anchors, monthly columns and the total share one value scale.
      */
     private treeZoomCombo(g: SVGGElement, node: PnlNode, box: { x: number; y: number; w: number; h: number },
         s: number, fmt: Fmt, svg: SVGSVGElement): void {
@@ -7688,6 +8940,10 @@ export class Visual implements IVisual {
 
         const { pts, triScen } = this.treeComboPts(node);
         const n = pts.length;
+        // 1.7.1 a stock row shows stands: no sums over months, no cumulated bridge —
+        // the total is the stand at the end of the AC&FC series (an opening stock:
+        // at its start), Δ compares stand with stand of the same month
+        const stock = node.stock != null && this.model!.months.length > 0;
 
         // totals — the bridge must reconcile, so every total is summed over the
         // very months the steps are drawn from, not read from the YTD scalar.
@@ -7696,28 +8952,43 @@ export class Visual implements IVisual {
         // would report a gap against a plan for months nobody has posted yet.
         let refSum: number | null = null; let triSum: number | null = null;
         let acSum = 0; let fcSum = 0; let hasVal = false;
-        for (const p of pts) {
-            if (p.v == null) { continue; }
-            if (p.ref != null) { refSum = (refSum ?? 0) + p.ref; }
-            if (p.tri != null) { triSum = (triSum ?? 0) + p.tri; }
-            hasVal = true;
-            if (p.isFc) { fcSum += p.v; } else { acSum += p.v; }
+        /** stocks: the month whose stand is the total (-1 = none) */
+        let endIdx = -1;
+        if (stock) {
+            const idx = pts.map((p, i) => (p.v != null ? i : -1)).filter(i => i >= 0);
+            endIdx = idx.length === 0 ? -1 : node.stock === "first" ? idx[0] : idx[idx.length - 1];
+            if (endIdx >= 0) {
+                const p = pts[endIdx];
+                hasVal = true;
+                refSum = p.ref; triSum = p.tri;
+                if (p.isFc) { fcSum = p.v!; } else { acSum = p.v!; }
+            }
+        } else {
+            for (const p of pts) {
+                if (p.v == null) { continue; }
+                if (p.ref != null) { refSum = (refSum ?? 0) + p.ref; }
+                if (p.tri != null) { triSum = (triSum ?? 0) + p.tri; }
+                hasVal = true;
+                if (p.isFc) { fcSum += p.v; } else { acSum += p.v; }
+            }
         }
         // a model without monthly series still gets the anchors and the badge
         if (n === 0 || !hasVal) {
             const yv = displayValue(node, "ac");
             const rv = this.has[ref] ? displayValue(node, ref) : null;
             if (yv == null || rv == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
-            acSum = yv; fcSum = 0; refSum = rv;
+            acSum = yv; fcSum = 0; refSum = rv; endIdx = -1;
             triSum = triScen === "" ? null : displayValue(node, triScen);
         }
         if (refSum == null) { this.treeHint(g, box, s, `Δ${refUp} –`); return; }
+        const endFc = stock && endIdx >= 0 && pts[endIdx].isFc;
         const vTot = acSum + fcSum;
         const dTot = vTot - refSum;
         const dTotRaw = dTot * inv;
         const totGood = node.row.varianceInvert ? dTotRaw < 0 : dTotRaw >= 0;
         const totColor = totGood ? this.goodColor() : this.badColor();
         const pctTot = refSum !== 0 ? (dTot / Math.abs(refSum)) : null;
+        const anyFc = stock ? endFc : fcSum !== 0;
 
         // ---------------- horizontal layout
         const totW = Math.max(24 * s, Math.min(46 * s, box.w * 0.05));
@@ -7726,7 +8997,7 @@ export class Visual implements IVisual {
         const bandStart = xRefAnc + totW + 14 * s;
         const badge = signed(dTot);
         const badgeW = Math.max(46 * s, badge.length * lfs * 0.62 + 14 * s);
-        const sideW = fcSum !== 0 ? lfs * 2.1 : 0;
+        const sideW = !stock && fcSum !== 0 ? lfs * 2.1 : 0;
         const bandEnd = box.x + box.w - badgeW - 8 * s - sideW - totW - 14 * s;
         if (bandEnd - bandStart < Math.max(n, 1) * 6) {
             this.treeHint(g, box, s, this.tr("UI_NoWidth"));
@@ -7735,7 +9006,7 @@ export class Visual implements IVisual {
         const slots = Math.max(n, 1);
         const step = (bandEnd - bandStart) / slots;
         const segW = Math.max(4, Math.min(step * 0.70, 30 * s));
-        // the monthly slot now carries the IBCS pair of the card charts: the AC
+        // the monthly slot carries the IBCS pair of the card charts: the AC
         // column in front, the reference column behind it and offset right — so
         // the slot needs room for both plus the triangle strip
         const colW = Math.max(4, Math.min(step * 0.58, 24 * s));
@@ -7743,37 +9014,60 @@ export class Visual implements IVisual {
         const xTot = bandEnd + 14 * s;
         const cxTot = xTot + totW / 2;
 
-        // ---------------- vertical layout
+        // ---------------- vertical layout (1.7.1): pins · Δ zone · value zone
+        //
+        // Until 1.7.0 the Δ bridge floated on the value scale at the height of
+        // the reference total, every step at least 3.5 px — a small account's
+        // variances came out as identical bricks. Now the variances own a zone
+        // between the pin row and the columns, with one scale for every Δ of the
+        // tile; where that scale has to magnify the value scale, the zone label
+        // says so (IBCS scaling indicator "Δ ×n"), and no step has a minimum
+        // height beyond one hairline.
         const headH = hfs + 8 * s;
         const showPins = pts.some(p => p.pct != null);
         const pinH = showPins ? Math.max(52 * s, box.h * 0.18) : 4 * s;
         const pinAxisY = box.y + headH + pinH * 0.56;
         const catH = cfs * 2 + 10 * s;
         const yBase = box.y + box.h - catH;
-        const plotTop = box.y + headH + pinH + lfs + 5 * s;
+        const dTop = box.y + headH + pinH + 2 * s;
+        const dH = Math.max(40 * s, (yBase - dTop) * 0.34);
+        const plotTop = dTop + dH + lfs + 6 * s;
 
-        // one domain for every full column and for the bridge levels
+        // the Δ series: cumulated levels (flows) or the monthly Δ of the stands
+        const dVals: number[] = [0, dTot];
+        if (stock) {
+            for (const p of pts) { if (p.d != null) { dVals.push(p.d); } }
+        } else {
+            let lv = 0;
+            for (const p of pts) { if (p.d != null) { lv += p.d; dVals.push(lv); } }
+        }
+        const dMax = Math.max(...dVals); const dMin = Math.min(...dVals);
+        const dSpan = dMax - dMin || 1;
+        const dFit = Math.max(dH - 2 * lfs - 6 * s, 8 * s) / dSpan;
+
+        // one domain for every full column: anchors, months, total
         let lo = 0; let hi = 0;
         const see = (v: number | null): void => {
             if (v == null) { return; }
             lo = Math.min(lo, v); hi = Math.max(hi, v);
         };
         see(refSum); see(triSum); see(vTot); see(acSum);
-        let level = refSum;
-        for (const p of pts) { see(p.v); see(p.tri); if (p.d != null) { level += p.d; see(level); } }
+        for (const p of pts) { see(p.v); see(p.tri); see(p.ref); }
         if (hi === lo) { hi = lo + 1; }
-        const unit = (yBase - plotTop) / (hi - lo);
+        let unit = (yBase - plotTop) / (hi - lo);
+        // a Δ wider than its zone on the value scale: the whole tile shrinks to
+        // the Δ, so value and Δ keep one scale (×1) instead of a squeezed Δ
+        if (dFit < unit) { unit = dFit; }
+        // nice factors only, and at most ×100: beyond that the variances are
+        // rounding noise against the values and stay hairlines on purpose
+        const NICE = [1, 2, 5, 10, 20, 50, 100];
+        let mag = 1;
+        if (dMax !== dMin) { for (const k of NICE) { if (unit * k <= dFit) { mag = k; } } }
+        const dPx = unit * mag;
         const yOf = (v: number): number => yBase - (v - lo) * unit;
         const axisY = yOf(0);
-        // the monthly columns keep the shared scale unless a very short series
-        // would push them into the bridge — then, and only then, they compress
-        const zoneH = (yBase - plotTop) * 0.42;
-        let maxMon = 0;
-        for (const p of pts) {
-            maxMon = Math.max(maxMon, Math.abs(p.v ?? 0), Math.abs(p.tri ?? 0), Math.abs(p.ref ?? 0));
-        }
-        const mk = maxMon * unit > zoneH && maxMon > 0 ? zoneH / (maxMon * unit) : 1;
-        const mY = (v: number): number => axisY - v * unit * mk;
+        const dAxis = dTop + lfs + 3 * s + dMax * dPx;
+        const yD = (v: number): number => dAxis - v * dPx;
 
         // ---------------- small drawing helpers
         const rect = (x: number, y: number, w: number, h: number,
@@ -7799,7 +9093,7 @@ export class Visual implements IVisual {
         };
         /** text clamped into the chart box, so no label can ever leave the svg */
         const label = (x: number, y: number, txt: string, fs: number, fill: string,
-            anchor: "middle" | "start" | "end" = "middle", weight?: string, halo = false): void => {
+            anchor: "middle" | "start" | "end" = "middle", weight?: string, halo = false): SVGElement => {
             const t = document.createElementNS(ns, "text");
             const half = txt.length * fs * 0.3;
             const min = anchor === "start" ? box.x : box.x + (anchor === "end" ? 2 * half : half);
@@ -7819,6 +9113,7 @@ export class Visual implements IVisual {
             }
             t.textContent = txt;
             g.appendChild(t);
+            return t;
         };
 
         const hatch = this.treeHatchId(svg);
@@ -7847,7 +9142,9 @@ export class Visual implements IVisual {
         const catEvery = Math.max(1, Math.ceil((5 * cfs * 0.6 + 4 * s) / Math.max(step, 1)));
 
         // ---------------- caption
-        label(box.x, box.y + hfs, this.tr("UI_ComboCaption", refUp, fcSum !== 0 ? "/FC" : ""),
+        label(box.x, box.y + hfs, stock
+            ? this.tr("UI_ComboCaptionStock", refUp, anyFc ? "/FC" : "")
+            : this.tr("UI_ComboCaption", refUp, fcSum !== 0 ? "/FC" : ""),
         hfs, C.soft, "start", "600");
 
         // ---------------- Δ% pin row
@@ -7874,7 +9171,7 @@ export class Visual implements IVisual {
                 if (p.pct == null || !marks.has(i)) { return; }
                 pin(cx(i), p.pct, p.good, p.isFc);
             });
-            if (pctTot != null) { pin(cxTot, pctTot, totGood, fcSum !== 0); }
+            if (pctTot != null) { pin(cxTot, pctTot, totGood, anyFc); }
         }
 
         // ---------------- AC | FC divider
@@ -7885,6 +9182,20 @@ export class Visual implements IVisual {
                 .setAttribute("data-pnl", "combo-fcline");
             label(dx + 3 * s, yBase + cfs * 2 + 7 * s, "FC", cfs, C.ac, "start", "600");
         }
+
+        // ---------------- Δ zone: label with the scaling indicator, axis
+        const dLab = label(box.x, dAxis + lfs * 0.35, `Δ${refUp}` + (mag > 1 ? ` ×${mag}` : ""),
+            hfs, C.soft, "start", "600");
+        dLab.setAttribute("data-pnl", "combo-dlabel");
+        dLab.setAttribute("data-mag", String(mag));
+        if (mag > 1) {
+            const tt = document.createElementNS(ns, "title");
+            tt.textContent = this.tr("UI_ComboDeltaMag", mag);
+            dLab.appendChild(tt);
+        }
+        line(bandStart - 4 * s, dAxis, bandEnd + 4 * s, dAxis, C.py, 1.4)
+            .setAttribute("data-pnl", "combo-daxis");
+        line(cxTot - totW / 2 - 2 * s, dAxis, cxTot + totW / 2 + 2 * s, dAxis, C.py, 1.4);
 
         // ---------------- left anchors, full height
         const anchor = (x: number, v: number, scen: Scenario, tag: string): void => {
@@ -7901,11 +9212,10 @@ export class Visual implements IVisual {
         }
         anchor(xRefAnc, refSum, ref, refUp);
 
-        // ---------------- level guides: reference level and the reached total
-        line(xRefAnc + totW, yOf(refSum), cxTot + totW / 2, yOf(refSum), C.gridSoft, 1);
-        line(bandEnd, yOf(vTot), xTot, yOf(vTot), C.gridSoft, 1);
+        // ---------------- level guide: the reference level across to the total
+        line(xRefAnc + totW, yOf(refSum), xTot, yOf(refSum), C.gridSoft, 1);
 
-        // ---------------- bridge steps, monthly columns, month labels
+        // ---------------- Δ per month (bridge steps / stand Δ), monthly columns, labels
         //
         // The monthly zone draws the IBCS pair of the card charts: the AC column
         // in front, the reference column of the same month behind it and offset
@@ -7917,29 +9227,35 @@ export class Visual implements IVisual {
         const acW = hasRefCols ? colW * 0.60 : colW;
         const refW = acW * 1.25;
         const dxPair = hasRefCols ? acW * 0.40 : 0;
-        level = refSum;
+        let level = 0;
         /** x of the bridge step the connector last left (skips empty months) */
         let lastStepX: number | null = null;
         pts.forEach((p, i) => {
             const x = cx(i) - (hasTriCols ? colW * 0.18 : 0);
             if (p.d != null) {
-                // connector at the incoming level, then the floating step
-                const from = lastStepX == null ? xRefAnc + totW : lastStepX + segW / 2;
-                line(from, yOf(level), cx(i) - segW / 2, yOf(level), C.gridSoft, 1);
-                const prev = level;
-                level += p.d;
-                const top = Math.min(yOf(prev), yOf(level));
-                // a small Δ on a big scale must still read as a brick, not a rule
-                const h = Math.max(Math.abs(yOf(prev) - yOf(level)), 3.5 * s);
                 const color = p.good ? this.goodColor() : this.badColor();
+                // flows: the floating step of the cumulated bridge; stocks: the Δ of
+                // the stands of this month, standing on the Δ axis (never cumulated)
+                const from = stock ? 0 : level;
+                const to = stock ? p.d : level + p.d;
+                if (!stock) {
+                    const fromX = lastStepX == null ? bandStart - 4 * s : lastStepX + segW / 2;
+                    line(fromX, yD(level), cx(i) - segW / 2, yD(level), C.gridSoft, 1);
+                    level = to;
+                }
+                const top = Math.min(yD(from), yD(to));
+                // one hairline at least, nothing more: the height is the value
+                const h = Math.max(Math.abs(yD(from) - yD(to)), 1);
                 const sr = p.isFc
                     ? rect(cx(i) - segW / 2, top, segW, h, dHatch(color, p.good), color, 1)
                     : rect(cx(i) - segW / 2, top, segW, h, color);
                 sr.setAttribute("data-pnl", "combo-step");
+                sr.setAttribute("data-d", String(p.d));
                 if (p.isFc) { sr.setAttribute("data-fc", "1"); }
                 lastStepX = cx(i);
                 if (marks.has(i)) {
-                    label(cx(i), p.d >= 0 ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
+                    const up = stock ? p.d >= 0 : p.d >= 0;
+                    label(cx(i), up ? top - 2.5 * s : top + h + lfs, signed(p.d), lfs, color,
                         "middle", undefined, true);
                 }
             }
@@ -7950,8 +9266,8 @@ export class Visual implements IVisual {
             // month carries no actual at all, so the gap stays visible as a gap
             if (p.ref != null && this.has[ref]) {
                 const st = this.treeScenFill(ref, hatch);
-                const y = Math.min(mY(p.ref), axisY);
-                const h = Math.abs(mY(p.ref) - axisY);
+                const y = Math.min(yOf(p.ref), axisY);
+                const h = Math.abs(yOf(p.ref) - axisY);
                 const rr = rect(refCx - refW / 2, y, refW, h, st.fill, st.stroke ?? undefined, 1.2);
                 rr.setAttribute("data-pnl", "combo-month-ref");
                 rr.setAttribute("data-scen", ref);
@@ -7966,18 +9282,19 @@ export class Visual implements IVisual {
             }
             // monthly column: AC solid / FC hatched, second scenario as triangle
             if (p.v != null) {
-                const y = Math.min(mY(p.v), axisY);
-                const h = Math.abs(mY(p.v) - axisY);
+                const y = Math.min(yOf(p.v), axisY);
+                const h = Math.abs(yOf(p.v) - axisY);
                 const mr = p.isFc
                     ? rect(acCx - acW / 2, y, acW, h, `url(#${hatch})`, C.ac, 1)
                     : rect(acCx - acW / 2, y, acW, h, C.ac);
                 mr.setAttribute("data-pnl", "combo-month");
+                mr.setAttribute("data-v", String(p.v));
                 if (p.isFc) { mr.setAttribute("data-fc", "1"); }
                 tops.push(y);
             }
             if (p.tri != null && triScen !== "") {
                 const st = this.treeScenFill(triScen, hatch);
-                const ty = mY(p.tri);
+                const ty = yOf(p.tri);
                 const tri = TREE_TRI * s;
                 const tx = refCx + refW / 2 + 1.2 * s;
                 const path = document.createElementNS(ns, "path");
@@ -8002,36 +9319,55 @@ export class Visual implements IVisual {
             }
         });
 
+        // ---------------- total Δ in the Δ zone, right under the total column
+        if (!stock && lastStepX != null) {
+            line(lastStepX + segW / 2, yD(dTot), cxTot - totW * 0.3, yD(dTot), C.gridSoft, 1);
+        }
+        const dTop2 = Math.min(yD(0), yD(dTot));
+        const dTotBar = rect(cxTot - totW * 0.3, dTop2, totW * 0.6, Math.max(Math.abs(yD(0) - yD(dTot)), 1), totColor);
+        dTotBar.setAttribute("data-pnl", "combo-dtotal");
+        dTotBar.setAttribute("data-d", String(dTot));
+
         // ---------------- shared baseline over the full width
         line(box.x, axisY, box.x + box.w, axisY, C.ac, 1.2);
 
-        // ---------------- right: the stacked AC + FC total column
-        const acTop = yOf(acSum);
-        rect(xTot, Math.min(acTop, axisY), totW, Math.abs(acTop - axisY), C.ac)
-            .setAttribute("data-pnl", "combo-total-ac");
-        if (fcSum !== 0) {
+        // ---------------- right: the total column
+        if (stock) {
+            // the stand at the end of the series — hatched when that month is a forecast
             const vTop = yOf(vTot);
-            rect(xTot, Math.min(vTop, acTop), totW, Math.abs(vTop - acTop),
-                `url(#${hatch})`, C.ac, 1.2).setAttribute("data-pnl", "combo-total-fc");
-            label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
-                "middle", undefined, true);
-            label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
-            label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, C.onInk);
-            label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
+            const tr = rect(xTot, Math.min(vTop, axisY), totW, Math.abs(vTop - axisY),
+                endFc ? `url(#${hatch})` : C.ac, endFc ? C.ac : undefined, 1.2);
+            tr.setAttribute("data-pnl", endFc ? "combo-total-fc" : "combo-total-ac");
+            label(cxTot, Math.min(vTop, axisY) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
+            const tag = (endFc ? "FC" : "AC") + (endIdx >= 0 ? " " + pts[endIdx].tag : "");
+            label(cxTot, yBase + cfs + 4 * s, tag, cfs, C.soft);
+        } else {
+            const acTop = yOf(acSum);
+            rect(xTot, Math.min(acTop, axisY), totW, Math.abs(acTop - axisY), C.ac)
+                .setAttribute("data-pnl", "combo-total-ac");
+            if (fcSum !== 0) {
+                const vTop = yOf(vTot);
+                rect(xTot, Math.min(vTop, acTop), totW, Math.abs(vTop - acTop),
+                    `url(#${hatch})`, C.ac, 1.2).setAttribute("data-pnl", "combo-total-fc");
+                label(xTot + totW / 2, (vTop + acTop) / 2 + lfs * 0.35, num(fcSum), lfs, C.text,
+                    "middle", undefined, true);
+                label(xTot + totW + 3 * s, (vTop + acTop) / 2 + lfs * 0.35, "FC", cfs, C.soft, "start");
+                label(xTot + totW / 2, (acTop + axisY) / 2 + lfs * 0.35, num(acSum), lfs, C.onInk);
+                label(xTot + totW + 3 * s, (acTop + axisY) / 2 + lfs * 0.35, "AC", cfs, C.soft, "start");
+            }
+            label(cxTot, Math.min(yOf(vTot), axisY) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
+            label(cxTot, yBase + cfs + 4 * s, fcSum !== 0 ? "AC+FC" : "AC", cfs, C.soft);
         }
-        label(cxTot, yOf(vTot) - 3 * s, num(vTot), lfs, C.text, "middle", "600");
-        label(cxTot, yBase + cfs + 4 * s, fcSum !== 0 ? "AC+FC" : "AC", cfs, C.soft);
 
-        // ---------------- total variance badge
+        // ---------------- total variance badge, at the end of the Δ zone
         const bh = lfs + 9 * s;
         const bcx = box.x + box.w - badgeW / 2;
-        const bcy = Math.min(Math.max((yOf(refSum) + yOf(vTot)) / 2, plotTop + bh / 2), yBase - bh / 2);
+        const bcy = Math.min(Math.max(yD(dTot), dTop + bh / 2), dTop + dH - bh / 2);
         const bg = rect(bcx - badgeW / 2, bcy - bh / 2, badgeW, bh, this.cardPaper(), totColor, 1.6);
         bg.setAttribute("rx", (bh / 2).toFixed(2));
         bg.setAttribute("data-pnl", "combo-badge");
         label(bcx, bcy + lfs * 0.36, badge, lfs, totColor, "middle", "600");
     }
-
     /**
      * Value driver tree (DuPont): the P&L drawn as cards in a tidy multi-level
      * tree. The root is a formula or KPI row, its operands branch to the right,
@@ -8052,7 +9388,7 @@ export class Visual implements IVisual {
     private buildTree(fmt: Fmt): HTMLElement {
         const ui = this.ui!;
         const wrap = document.createElement("div");
-        wrap.style.cssText = "padding:4px 14px 10px 14px;";
+        wrap.style.cssText = this.maxi() ? "padding:2px 4px 2px 4px;" : "padding:4px 14px 10px 14px;";
 
         const ctx = this.treeCtx;
         if (!ctx) {
@@ -8075,7 +9411,8 @@ export class Visual implements IVisual {
             ui.treeZoom = null;
         }
 
-        const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1);
+        // 1.7 maximize: treeK lets the cards fill the tile (1 otherwise)
+        const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1) * this.treeK;
         const cw = TREE_CARD_W * s;
         const chFull = TREE_CARD_H * s; const chSmall = TREE_CARD_H_COMPACT * s;
         const gx = TREE_GAP_X * s; const gy = TREE_GAP_Y * s; const sub = TREE_GAP_SUB * s;
@@ -8087,7 +9424,8 @@ export class Visual implements IVisual {
         // automatic, independent of the format pane
         const setHeights = (allCompact: boolean): void => {
             for (const c of all) {
-                c.compact = allCompact || c.depth >= TREE_COMPACT_LEVEL;
+                // 1.7 a ⚡ rest card ("+n") is always compact
+                c.compact = allCompact || c.depth >= TREE_COMPACT_LEVEL || c.rest != null;
                 c.h = c.compact ? chSmall : chFull;
             }
         };
@@ -8112,7 +9450,8 @@ export class Visual implements IVisual {
         note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
         note.textContent = this.tr("UI_TreeHint")
             + (this.interactive() ? this.tr("UI_TreeHintInteract") : "");
-        wrap.appendChild(note);
+        // 1.5: folded control bars take the hint line along (the cards keep their ×n marks)
+        if (!this.tbFolded()) { wrap.appendChild(note); }
 
         const ns = "http://www.w3.org/2000/svg";
         const pad = 6;
@@ -8182,10 +9521,890 @@ export class Visual implements IVisual {
                 });
             }
         }
+        // 1.5: one scale per unit across the cards — a measuring pass on a
+        // detached svg collects every card's own fit, the drawing pass then
+        // uses the smallest one (magnified cards say "×5")
+        this.treeScl = { collect: true, fit: new Map(), mags: 0 };
+        const scratch = document.createElementNS(ns, "svg") as SVGSVGElement;
         for (const c of all) {
+            if (!c.compact && !c.rest) { this.treeCardG(c, { cw, s, fmt, svg: scratch }, false); }
+        }
+        this.treeScl.collect = false;
+        for (const c of all) {
+            // 1.7 ⚡ hide: the folded quiet branches of a card — one grey "+n" card
+            if (c.rest) { inner.appendChild(this.treeRestG(c, cw, s)); continue; }
             // any branching card can become the root — formula rows as well as
             // subtotals that open into their account hierarchy
             inner.appendChild(this.treeCardG(c, { cw, s, fmt, svg }, c !== rootCard && c.hasKids));
+        }
+        const mags = this.treeScl.mags;
+        this.treeScl = null;
+        // the hint line names the rule — and the magnified cards when there are any
+        note.textContent += " " + this.tr(mags > 0 ? "UI_TreeScaleMag" : "UI_TreeScale");
+        note.setAttribute("data-pnl", "tree-scale-note");
+        wrap.appendChild(svg);
+        return wrap;
+    }
+
+    /**
+     * 1.7 ⚡ hide: the compact grey card of the quiet branches folded at one
+     * parent — "+n other", dashed edge, the names in its tooltip. It holds
+     * no value of its own (operands under different operators do not add up).
+     */
+    private treeRestG(card: TreeCard, cw: number, s: number): SVGGElement {
+        const ns = "http://www.w3.org/2000/svg";
+        const g = document.createElementNS(ns, "g") as SVGGElement;
+        const members = card.rest ?? [];
+        g.setAttribute("data-pnl", "tree-rest");
+        g.setAttribute("data-pnl-exc", "0");
+        g.setAttribute("data-pnl-rest", String(members.length));
+        g.setAttribute("data-pnl-id", card.node.row.id);
+        const h = Math.max(14 * s, card.h * 0.72);
+        const y = card.y + (card.h - h) / 2;
+        const box = document.createElementNS(ns, "rect");
+        box.setAttribute("x", card.x.toFixed(2)); box.setAttribute("y", y.toFixed(2));
+        box.setAttribute("width", (cw * 0.62).toFixed(2)); box.setAttribute("height", h.toFixed(2));
+        box.setAttribute("rx", "4"); box.setAttribute("fill", this.cardBg());
+        box.setAttribute("stroke", C.cardEdge); box.setAttribute("stroke-width", "1");
+        box.setAttribute("stroke-dasharray", "3,2");
+        g.appendChild(box);
+        const t = document.createElementNS(ns, "text");
+        t.setAttribute("x", (card.x + 8 * s).toFixed(2));
+        t.setAttribute("y", (y + h / 2 + 3.4 * s).toFixed(2));
+        t.setAttribute("font-size", (9.5 * s).toFixed(1));
+        t.setAttribute("font-family", FONT);
+        t.setAttribute("fill", C.soft);
+        t.textContent = this.tr("UI_ExcRestShort", members.length);
+        g.appendChild(t);
+        const tip = document.createElementNS(ns, "title");
+        const names = members.slice(0, 12).map(m => m.row.name);
+        if (members.length > 12) { names.push("…"); }
+        tip.textContent = this.tr("UI_ExcRestTip", names.join(" · "));
+        g.appendChild(tip);
+        return g;
+    }
+
+    // ---------------- Sankey flow view (1.6) ----------------
+
+    /**
+     * A #RGB / #RRGGBB colour mixed towards `toward` by `t` (0 = itself, 1 =
+     * `toward`) — the bands are the node colour lifted towards the paper, so
+     * in dark mode they sink into the dark ground instead of glowing white.
+     * Null when either colour is no hex value.
+     */
+    private tint(color: string, t: number, toward: string): string | null {
+        const hex6 = (c: string): string | null => {
+            let h = (c || "").trim().replace("#", "");
+            if (/^[0-9a-f]{3}$/i.test(h)) { h = h.split("").map(ch => ch + ch).join(""); }
+            return /^[0-9a-f]{6}$/i.test(h) ? h : null;
+        };
+        const a = hex6(color); const b = hex6(toward);
+        if (!a || !b) { return null; }
+        const mix = (i: number): number => {
+            const c = parseInt(a.slice(i * 2, i * 2 + 2), 16);
+            const p = parseInt(b.slice(i * 2, i * 2 + 2), 16);
+            return Math.round(c + (p - c) * t);
+        };
+        return `rgb(${mix(0)},${mix(1)},${mix(2)})`;
+    }
+
+    /**
+     * The value one flow node carries: period-matched YTD AC (the same window
+     * the Δ figures use). `v` is signed the way the engine computes (costs
+     * negative), `d` is what the table shows (display invert applied).
+     */
+    private flowValue(node: PnlNode): { v: number; d: number | null } {
+        // 1.7 cross-highlight: the flow is drawn at the size of the whole — the
+        // marked part (flowOf on the node itself) fills it from the inside
+        if (this.hlFull) {
+            const f = this.hlFullNode(node);
+            if (f) { return this.flowOf(f, this.hlFull); }
+        }
+        return this.flowOf(node);
+    }
+
+    /** flowValue of one node, evaluated in `model` (the node's own model) */
+    private flowOf(node: PnlNode, model: PnlModel = this.model!): { v: number; d: number | null } {
+        const d = this.ytdDisplay(node, "ac", model);
+        if (d == null || !isFinite(d)) { return { v: 0, d: null }; }
+        return { v: node.row.displayInvert ? -d : d, d };
+    }
+
+    /**
+     * 1.7 cross-highlight: the twin of a (marked) node in the whole — same id,
+     * the virtual total root included. null without a highlight.
+     */
+    private hlFullNode(node: PnlNode): PnlNode | null {
+        const full = this.hlFull;
+        if (!full) { return null; }
+        if (node.row.id === TOTAL_ID) {
+            if (this.hlTotal == null || this.hlTotalVer !== this.modelVer) {
+                this.hlTotal = syntheticTotal(full);
+                this.hlTotal.row.name = this.tr("UI_Total");
+                this.hlTotalVer = this.modelVer;
+            }
+            return this.hlTotal;
+        }
+        return full.byId.get(node.row.id) ?? this.excRestTwin.get(node.row.id) ?? null;
+    }
+
+    /**
+     * 1.7 cross-highlight: marked and full period-matched YTD AC of one row (the
+     * value its card, its Sankey node and the footer talk about), display
+     * signed, plus the marked share of the whole. null without a highlight.
+     */
+    private hlPair(node: PnlNode): { m: number | null; f: number | null; share: number } | null {
+        const f = this.hlFullNode(node);
+        if (!f || !this.hlFull) { return null; }
+        const m = this.ytdDisplay(node, "ac");
+        const fv = this.ytdDisplay(f, "ac", this.hlFull);
+        return { m, f: fv, share: markedShare(m, fv) };
+    }
+
+    /**
+     * Signed contribution of a child to its parent: along the account
+     * hierarchy the child's computed value (times the parent's own sign, the
+     * way the engine rolls a subtotal up), along a formula the operand value
+     * with its + / − operator. Products and ratios do not flow (null).
+     */
+    private flowContribution(drill: boolean, parent: PnlNode, op: FormulaOp | null, v: number): number | null {
+        if (drill) { return parent.row.sign === -1 ? -v : v; }
+        if (op === "×" || op === "÷") { return null; }
+        return op === "−" ? -v : v;
+    }
+
+    /**
+     * Whether a row can be poured at all: a formula of + / − operands or an
+     * account hierarchy. A product or a ratio (×, ÷) ends the flow — the
+     * Sankey draws it as an end node without a chevron.
+     */
+    private flowable(node: PnlNode, resolve: (id: string) => PnlNode | undefined): boolean {
+        if (node.row.rowType === "kpi") { return false; }
+        const b = this.treeBranches(node, resolve);
+        const kids = b.kids.filter(o => o.child.row.rowType !== "kpi");
+        if (kids.length === 0) { return false; }
+        return b.drill || kids.every(o => o.op === "+" || o.op === "−");
+    }
+
+    /**
+     * Profit strand: a row where something is deducted — a formula of + / −
+     * operands, or any row whose branches carry a contribution against its own
+     * sign (gross profit = revenue − cost of sales). A plain revenue split
+     * (segments → revenue) deducts nothing and stays neutral gray.
+     */
+    private flowDeducts(node: PnlNode, resolve: (id: string) => PnlNode | undefined): boolean {
+        if (!this.flowable(node, resolve)) { return false; }
+        const b = this.treeBranches(node, resolve);
+        if (!b.drill) { return true; }
+        const s = this.flowValue(node).v < 0 ? -1 : 1;
+        return b.kids.some(o => {
+            const c = this.flowContribution(true, node, o.op, this.flowValue(o.child).v);
+            return c != null && c * s < 0;
+        });
+    }
+
+    /**
+     * The flow graph over the pruned driver-tree cards. Every node pours into
+     * its parent along one rule, applied recursively:
+     *
+     *  - an "in" node (income, profit) is fed from the LEFT by the children
+     *    whose contribution has its own sign; the children against its sign
+     *    (costs) sit in its own column, below, and are fed by the same inflow —
+     *    revenue splits into gross profit and cost of sales;
+     *  - an "out" node (a cost) pours to the RIGHT into the children of its own
+     *    sign (its decomposition, red end nodes); children against its sign
+     *    (an interest income inside the financial result) stand next to it and
+     *    pour along.
+     *
+     * Each node therefore runs exactly one matching (its sources against its
+     * targets, stacked top to bottom) — the bands of one port add up to the
+     * node, whatever is left over becomes a gray "other" rest band.
+     */
+    private sankeyGraph(rootCard: TreeCard, resolve: (id: string) => PnlNode | undefined):
+        { nodes: SkNode[]; bands: SkBand[] } {
+        const nodes: SkNode[] = [];
+        const bands: SkBand[] = [];
+        let dfs = 0;
+        // 1.7 cross-highlight: the flow keeps the size of the whole (flowValue),
+        // every node and ribbon also learns its marked part (flowOf the node itself)
+        const hl = this.hlFull != null;
+        const mk = (card: TreeCard, col: number, role: "in" | "out", parent: SkNode | null,
+            costSide: boolean, anchor: number): SkNode => {
+            const fv = this.flowValue(card.node);
+            let fam: SkFam = "gray";
+            // 1.7 a stock is an anchor of the flow (opening / closing balance): neutral,
+            // never part of the profit strand nor a cost
+            if (card.node.stock != null) { fam = "gray"; }
+            else if (role === "out") { fam = "bad"; }
+            else if (!costSide && this.flowDeducts(card.node, resolve)) { fam = "good"; }
+            const n: SkNode = {
+                i: nodes.length, card, node: card.node, v: fv.v, d: fv.d, col, role, fam, costSide, anchor,
+                dfs: dfs++, h: 0, y: 0, x: 0, label: true, side: "top", parent,
+            };
+            if (hl) { const mv = this.flowOf(card.node); n.m = mv.v; n.md = mv.d; }
+            nodes.push(n);
+            return n;
+        };
+        const famOf = (src: SkNode | null, tgt: SkNode | null): SkFam => {
+            const flowOut = (x: SkNode | null): boolean => x?.role === "out" && x.node.stock == null;
+            if (flowOut(src) || flowOut(tgt)) { return "bad"; }
+            if (src == null || tgt == null) { return "gray"; }
+            // 1.7 a band into or out of a stock carries no profit / cost colour
+            if (src.node.stock != null || tgt.node.stock != null) { return "gray"; }
+            return tgt.fam;
+        };
+        type Port = { n: SkNode; len: number; ml?: number };
+        const match = (owner: SkNode, S: Port[], T: Port[]): void => {
+            const total = S.reduce((a, b) => a + b.len, 0) + T.reduce((a, b) => a + b.len, 0);
+            const eps = Math.max(1e-9, total * 1e-9);
+            // 1.7 cross-highlight: the same stacked matching over the marked
+            // amounts — a ribbon's marked part is what the marked flow sends
+            // along the very same pair (never more than the ribbon itself)
+            const mm = hl ? stackPairs(S.map(x => x.ml ?? 0), T.map(x => x.ml ?? 0)) : null;
+            const part = (b: SkBand, m: number | undefined): SkBand => {
+                if (mm) { b.hl = Math.max(0, Math.min(b.t, m ?? 0)); }
+                return b;
+            };
+            let i = 0; let j = 0; let a = 0; let b = 0;
+            while (i < S.length && j < T.length) {
+                if (S[i].len - a <= eps) { i++; a = 0; continue; }
+                if (T[j].len - b <= eps) { j++; b = 0; continue; }
+                const amt = Math.min(S[i].len - a, T[j].len - b);
+                bands.push(part({ src: S[i].n, tgt: T[j].n, so: a, to: b, t: amt, fam: famOf(S[i].n, T[j].n), owner },
+                    mm?.pairs.get(i + "|" + j)));
+                a += amt; b += amt;
+            }
+            // what one side has left over is the node's own rest — drawn as a
+            // gray stub only when it is more than rounding noise
+            const restMin = Math.max(eps, Math.abs(owner.v) * 0.005);
+            for (; i < S.length; i++, a = 0) {
+                const left = S[i].len - a;
+                if (left > restMin) { bands.push(part({ src: S[i].n, tgt: null, so: a, to: 0, t: left, fam: "gray", owner }, mm?.restS[i])); }
+            }
+            for (; j < T.length; j++, b = 0) {
+                const left = T[j].len - b;
+                if (left > restMin) { bands.push(part({ src: null, tgt: T[j].n, so: 0, to: b, t: left, fam: "gray", owner }, mm?.restT[j])); }
+            }
+        };
+        const visit = (X: SkNode): void => {
+            const card = X.card;
+            const kids = card.children.filter(k => k.node.row.rowType !== "kpi");
+            if (kids.length === 0) { return; }
+            if (!card.drill && kids.some(k => k.op === "×" || k.op === "÷")) { return; }
+            const sX = X.v < 0 ? -1 : 1;
+            const same: { card: TreeCard; c: number; ml?: number }[] = [];
+            const opp: { card: TreeCard; c: number; ml?: number }[] = [];
+            for (const k of kids) {
+                const c = this.flowContribution(card.drill, card.node, k.op, this.flowValue(k.node).v) ?? 0;
+                const o: { card: TreeCard; c: number; ml?: number } = { card: k, c };
+                if (hl) {
+                    // the marked contribution, measured along the whole's direction
+                    const cm = this.flowContribution(card.drill, card.node, k.op, this.flowOf(k.node).v) ?? 0;
+                    o.ml = c === 0 ? 0 : Math.max(0, cm * Math.sign(c));
+                }
+                (c * sX >= 0 ? same : opp).push(o);
+            }
+            const costAnchor = X.costSide ? X.anchor : X.dfs;
+            const own = (): Port => (hl ? { n: X, len: Math.abs(X.v), ml: Math.max(0, (X.m ?? 0) * sX) }
+                : { n: X, len: Math.abs(X.v) });
+            const port = (n: SkNode, o: { c: number; ml?: number }): Port =>
+                (hl ? { n, len: Math.abs(o.c), ml: o.ml } : { n, len: Math.abs(o.c) });
+            if (X.role === "in") {
+                const S: Port[] = [];
+                const T: Port[] = [own()];
+                for (const o of same) {
+                    const n = mk(o.card, X.col - 1, "in", X, X.costSide, X.anchor);
+                    visit(n);
+                    S.push(port(n, o));
+                }
+                for (const o of opp) {
+                    const n = mk(o.card, X.col, "out", X, true, costAnchor);
+                    visit(n);
+                    T.push(port(n, o));
+                }
+                match(X, S, T);
+            } else {
+                const S: Port[] = [own()];
+                const T: Port[] = [];
+                for (const o of opp) {
+                    const n = mk(o.card, X.col, "in", X, true, costAnchor);
+                    visit(n);
+                    S.push(port(n, o));
+                }
+                for (const o of same) {
+                    const n = mk(o.card, X.col + 1, "out", X, true, costAnchor);
+                    visit(n);
+                    T.push(port(n, o));
+                }
+                match(X, S, T);
+            }
+        };
+        const root = mk(rootCard, 0, "in", null, false, 0);
+        visit(root);
+        return { nodes, bands };
+    }
+
+    /**
+     * Sankey view (1.6): the driver-tree graph as a flow from left to right —
+     * revenue components on the left, the profit strand running to the bottom
+     * line on the right, costs branching off downwards into their own end
+     * nodes. Bar and ribbon heights are proportional to the period-matched AC
+     * on one common scale. A deliberate addition outside the IBCS notation;
+     * clicking a node opens the IBCS tile view, a right click the host menu.
+     * Dark mode lifts the bands towards the dark paper; high contrast draws
+     * the three colour families as patterns (solid · outlined/hatched · dashed/dotted).
+     */
+    private buildSankey(fmt: Fmt): HTMLElement {
+        const ui = this.ui!;
+        const wrap = document.createElement("div");
+        wrap.setAttribute("data-pnl", "sankey-wrap");
+        wrap.style.cssText = this.maxi() ? "padding:2px 4px 2px 4px;" : "padding:4px 14px 10px 14px;";
+        const ctx = this.treeCtx;
+        const hint = (text: string): HTMLElement => {
+            const h = document.createElement("div");
+            h.setAttribute("data-pnl", "sankey-empty");
+            h.style.cssText = `font-size:${this.kpx(11)};color:${C.soft};line-height:1.55;` +
+                `padding:10px 0;max-width:${this.k(620)}px;`;
+            h.textContent = text;
+            wrap.appendChild(h);
+            return wrap;
+        };
+        if (!ctx) { return hint(this.tr("UI_SankeyNeedsRows")); }
+        if (ctx.root.row.rowType === "kpi") { return hint(this.tr("UI_SankeyRatioRoot")); }
+
+        const resolve = ctx.resolve;
+        const { nodes, bands } = this.sankeyGraph(ctx.rootCard, resolve);
+        // 1.7 ⚡ "only exceptions": the Sankey speaks variances instead of its
+        // families — the streams of the exceptions in the favourable /
+        // unfavourable colour of their Δ (the engine rating, VarianceInvert),
+        // every other node and band grey (high contrast: dashed, no pattern).
+        // A band is the stream of the node it belongs to: the child of a
+        // parent-child pair, between siblings the cost it feeds, else its target.
+        const excOn = this.excCfg() != null;
+        const excRef = this.excGraphRef();
+        const tone = (n: SkNode | null): SkFam => {
+            if (n == null || this.excOf(n.node) !== true || !this.has[excRef]) { return "gray"; }
+            return this.ytdVariance(n.node, excRef).good ? "good" : "bad";
+        };
+        const bandSubject = (b: SkBand): SkNode | null => {
+            const { src, tgt } = b;
+            if (src && tgt) {
+                if (tgt.parent === src) { return tgt; }
+                if (src.parent === tgt) { return src; }
+                if (tgt.role === "out") { return tgt; }
+                if (src.role === "out") { return src; }
+            }
+            return tgt ?? src;
+        };
+        // comment footnotes follow the nodes on screen (numbering in reading order)
+        this.treeComments(nodes.map(n => n.card));
+
+        // ---- head: breadcrumb (re-rooted), then the hint line
+        if (ctx.path.length > 1) {
+            wrap.appendChild(this.treeBreadcrumb(ctx.path, (node, i) => {
+                ui.treeRoot = i === 0 ? "" : node.row.id;
+                ui.treeCollapsed = null;
+            }, this.tr("UI_BackToCard")));
+        }
+        const unit = (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+        const ytdLbl = this.relabel(this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`);
+        const note = document.createElement("div");
+        note.setAttribute("data-pnl", "sankey-hint");
+        note.style.cssText = `font-size:${this.kpx(9)};color:${C.soft};margin:0;padding:0;line-height:1.5;`;
+        note.textContent = this.tr(this.hlFull ? "UI_SankeyHintHl" : "UI_SankeyHint",
+            this.relabel(unit ? this.tr("UI_SankeyHead", ytdLbl, unit) : this.tr("UI_SankeyHeadNoUnit", ytdLbl)))
+            + (this.interactive() ? this.tr("UI_SankeyHintInteract") : "");
+        // 1.5: folded control bars take the hint line along (as in the tree)
+        if (!this.tbFolded()) { wrap.appendChild(note); }
+
+        // ---- percent basis: the %-of-revenue row, if it is part of a P&L flow;
+        // a plain hierarchy (or a root outside revenue) reads against its root
+        const override = (this.settings.columnsCard.revenueBase.value ?? "").trim();
+        let baseNode: PnlNode | null = null;
+        const inFlow = (n: PnlNode | null): boolean => n != null && nodes.some(x => x.node === n);
+        const rb = revenueBase(this.model!, override);
+        if (override !== "" && rb) { baseNode = rb; }
+        // 1.7 ⚡ hide may fold the revenue side away — the percentages keep their basis
+        else if (rb && (inFlow(rb) || (this.excHiddenKind === "flows" && this.excHidden > 0))
+            && nodes.some(x => x.node.row.rowType === "formula")) { baseNode = rb; }
+        const baseV = baseNode ? Math.abs(this.flowValue(baseNode).v) : Math.abs(nodes[0].v);
+
+        // ---- geometry on the type scale
+        const s = this.fontScale() * (ui.density === "compact" ? 0.9 : 1);
+        const barW = SANKEY_BAR_W * s;
+        const minH = SANKEY_MIN_H * s;
+        const gap = SANKEY_GAP * s;
+        const fs1 = 10 * s; const fs2 = 9.5 * s;
+        const lh2 = fs2 * 1.3;
+        const labelH = fs1 * 1.25 + lh2 + 2 * s;
+        const cols = nodes.map(n => n.col);
+        const minCol = Math.min(...cols); const maxCol = Math.max(...cols);
+        const nCols = maxCol - minCol + 1;
+        for (const n of nodes) {
+            n.side = nCols === 1 || n.col === maxCol ? "right" : n.col === minCol ? "left" : "top";
+        }
+
+        // stage height the flow is fitted into (head and hint above it, footer below);
+        // layout pixels (1.5.3) — a scaled stage must not shrink the flow twice
+        const headH = this.headEl ? this.rect(this.headEl).height : 0;
+        const stageH = this.root.clientHeight || this.vpH || 600;
+        // 1.7 maximize: the measured slack of the first pass joins the flow (skExtraH); 240 stays the floor
+        const availH = Math.max(this.k(240), stageH - headH - this.k(120) + this.skExtraH);
+
+        // fixed vertical order per column, in reading order of the strand: every
+        // strand node is followed by the cost side it spawned (cost of sales
+        // right under gross profit), so an inflow and the outflows it feeds sit
+        // next to each other and the red ribbons fan out without crossing
+        const byCol = new Map<number, SkNode[]>();
+        for (const n of nodes) {
+            const list = byCol.get(n.col) ?? [];
+            list.push(n);
+            byCol.set(n.col, list);
+        }
+        for (const list of byCol.values()) {
+            const key = (n: SkNode): number => n.costSide ? n.anchor : n.dfs;
+            list.sort((a, b) => (key(a) - key(b))
+                || (Number(a.costSide) - Number(b.costSide)) || a.dfs - b.dfs);
+        }
+        // crowded columns keep the labels of their largest nodes only — the
+        // others answer through their tooltip, nothing is clipped or stacked
+        const maxLabels = Math.max(3, Math.floor(3 * availH / labelH));
+        for (const list of byCol.values()) {
+            if (list.length <= maxLabels) { continue; }
+            const keep = new Set([...list].sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).slice(0, maxLabels));
+            for (const n of list) { n.label = keep.has(n) || n.i === 0; }
+        }
+
+        /** minimal distance from the top of `p` to the top of `n` (same column) */
+        const need = (p: SkNode, n: SkNode): number => {
+            let d = p.h + gap + (n.label && n.side === "top" ? labelH : 0);
+            if (n.label && p.label && n.side !== "top") { d = Math.max(d, p.h / 2 + labelH + 2 * s - n.h / 2); }
+            return d;
+        };
+        const minTop = (n: SkNode): number =>
+            !n.label ? 0 : n.side === "top" ? labelH : Math.max(0, labelH / 2 - n.h / 2);
+
+        const layout = (k: number): number => {
+            for (const n of nodes) { n.h = Math.max(minH, Math.abs(n.v) * k); }
+            let maxNeed = 0;
+            for (const list of byCol.values()) {
+                let y = 0;
+                list.forEach((n, i) => {
+                    y = i === 0 ? minTop(n) : Math.max(minTop(n), y + need(list[i - 1], n));
+                    n.y = y;
+                });
+                const last = list[list.length - 1];
+                maxNeed = Math.max(maxNeed, last.y + last.h);
+            }
+            const H = Math.max(availH, maxNeed);
+            const resolveCol = (list: SkNode[]): void => {
+                for (let i = 0; i < list.length; i++) {
+                    const lo = i === 0 ? minTop(list[i]) : list[i - 1].y + need(list[i - 1], list[i]);
+                    list[i].y = Math.max(list[i].y, lo, minTop(list[i]));
+                }
+                const last = list[list.length - 1];
+                if (last.y + last.h > H) {
+                    last.y = H - last.h;
+                    for (let i = list.length - 2; i >= 0; i--) {
+                        list[i].y = Math.min(list[i].y, list[i + 1].y - need(list[i], list[i + 1]));
+                    }
+                    for (let i = 0; i < list.length; i++) {
+                        const lo = i === 0 ? minTop(list[i]) : list[i - 1].y + need(list[i - 1], list[i]);
+                        list[i].y = Math.max(list[i].y, lo);
+                    }
+                }
+            };
+            // relaxation: every node drifts towards the height at which its
+            // ribbons run straight, sweeping right-to-left and back
+            const colKeys = [...byCol.keys()].sort((a, b) => a - b);
+            for (let it = 0; it < SANKEY_RELAX; it++) {
+                const alpha = Math.pow(0.85, it);
+                for (const dir of [-1, 1]) {
+                    const order = dir < 0 ? [...colKeys].reverse() : colKeys;
+                    for (const c of order) {
+                        const list = byCol.get(c)!;
+                        for (const n of list) {
+                            let acc = 0; let w = 0;
+                            for (const b of bands) {
+                                if (b.src == null || b.tgt == null || b.t <= 0) { continue; }
+                                if (dir > 0 && b.tgt === n) { acc += (b.src.y + b.so * k - b.to * k) * b.t; w += b.t; }
+                                if (dir < 0 && b.src === n) { acc += (b.tgt.y + b.to * k - b.so * k) * b.t; w += b.t; }
+                            }
+                            if (w > 0) { n.y += (acc / w - n.y) * alpha; }
+                        }
+                        resolveCol(list);
+                    }
+                }
+            }
+            // lift the whole flow so the topmost column touches its own minimum
+            let lift = Infinity;
+            for (const list of byCol.values()) { lift = Math.min(lift, list[0].y - minTop(list[0])); }
+            if (isFinite(lift) && lift > 0) { for (const n of nodes) { n.y -= lift; } }
+            let bottom = 0;
+            for (const n of nodes) {
+                bottom = Math.max(bottom, n.y + n.h,
+                    n.label && n.side !== "top" ? n.y + n.h / 2 + labelH / 2 : 0);
+            }
+            return bottom;
+        };
+        // one common scale over all columns: the fullest column fills the
+        // stage, the rest of the height is air and labels
+        let maxSum = 0; let maxAir = 0;
+        for (const list of byCol.values()) {
+            maxSum = Math.max(maxSum, list.reduce((a, n) => a + Math.abs(n.v), 0));
+            maxAir = Math.max(maxAir, list.length * (gap + labelH) + labelH);
+        }
+        let k = maxSum > 0 ? Math.max((availH - maxAir) / maxSum, (availH * 0.35) / maxSum) : 0;
+        let height = layout(k);
+        for (let pass = 0; pass < 2 && maxSum > 0 && height > availH * 1.03; pass++) {
+            const over = height - availH;
+            const ink = maxSum * k;
+            if (ink <= over * 1.2) { break; }
+            k = k * (ink - over) / ink;
+            height = layout(k);
+        }
+
+        // ---- horizontal: label margins left and right, column pitch between
+        const wFactor = 0.62;
+        const nameOf = (n: SkNode): string => {
+            const cno = this.commentNo.get(n.node.row.id);
+            return n.node.row.name + (cno != null ? " " + String.fromCharCode(0x2460 + cno - 1) : "");
+        };
+        const hlOn = this.hlFull != null;
+        const valTxt = (n: SkNode): string => {
+            if (n.d == null || n.d === 0) { return "–"; }
+            // 1.7 cross-highlight: "marked of whole" — the share is the filled bar
+            if (hlOn) { return this.tr("UI_HlOf", n.md == null ? "–" : this.treeNum(n.md, fmt), this.treeNum(n.d, fmt)); }
+            const pct = baseV > 0 ? " (" + fmt.pct(Math.abs(n.v) / baseV) + ")" : "";
+            return this.treeNum(n.d, fmt) + pct;
+        };
+        const chevOf = (n: SkNode): string => {
+            if (!this.flowable(n.node, resolve)) { return ""; }
+            if (n.card.collapsed) { return "▸"; }
+            return n.card.children.length > 0 ? "▾" : "";
+        };
+        const chevW = 11 * s;
+        const pad = 6;
+        const availW = (this.root.clientWidth || this.vpW || 900) - 2 * this.gut() - 2 * pad - 4;
+        // the outer label lanes give way on a narrow stage — names shorten,
+        // the columns keep their room for the ribbons
+        const sideMax = Math.min(this.k(170), Math.max(this.k(90), availW * 0.16));
+        const textW = (n: SkNode, name: string): number => Math.max(
+            name.length * fs1 * wFactor + (chevOf(n) ? chevW : 0), valTxt(n).length * fs2 * wFactor);
+        let leftW = 0; let rightW = 0;
+        for (const n of nodes) {
+            if (!n.label || n.side === "top") { continue; }
+            const w = Math.min(sideMax, textW(n, nameOf(n))) + 8 * s;
+            if (n.side === "left") { leftW = Math.max(leftW, w); } else { rightW = Math.max(rightW, w); }
+        }
+        const pitch = nCols === 1 ? 0 : Math.max(this.k(SANKEY_COL_MIN), Math.min(this.k(SANKEY_COL_MAX),
+            (availW - leftW - rightW - barW) / (nCols - 1)));
+        for (const n of nodes) { n.x = leftW + (n.col - minCol) * pitch; }
+        const svgW = leftW + (nCols - 1) * pitch + barW + rightW;
+        const topW = Math.max(this.k(60), pitch - 10 * s);
+
+        const ns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(ns, "svg") as SVGSVGElement;
+        svg.setAttribute("data-pnl", "sankey");
+        svg.setAttribute("width", String(Math.ceil(svgW + 2 * pad)));
+        svg.setAttribute("height", String(Math.ceil(height + 2 * pad)));
+        svg.style.cssText = `display:block;margin-top:${this.k(TREE_HEAD_GAP)}px;`;
+        const inner = document.createElementNS(ns, "g") as SVGGElement;
+        inner.setAttribute("transform", `translate(${pad},${pad})`);
+        svg.appendChild(inner);
+
+        const famColor = (f: SkFam): string =>
+            f === "good" ? this.goodColor() : f === "bad" ? this.badColor() : C.py;
+        // high contrast: one ink, the families told apart by pattern — profit
+        // solid, costs hatched / outlined, the neutral split dotted / dashed
+        const hc = this.hc;
+        let hatchId = ""; let dotId = "";
+        if (hc) {
+            hatchId = `pnlskhatch${this.uid}`;
+            this.hatchPattern(svg, ns, hatchId, hc.fg);
+            dotId = `pnlskdot${this.uid}`;
+            const defs = document.createElementNS(ns, "defs");
+            const p = document.createElementNS(ns, "pattern");
+            p.setAttribute("id", dotId); p.setAttribute("width", "4"); p.setAttribute("height", "4");
+            p.setAttribute("patternUnits", "userSpaceOnUse");
+            const bg = document.createElementNS(ns, "rect");
+            bg.setAttribute("width", "4"); bg.setAttribute("height", "4"); bg.setAttribute("fill", hc.bg);
+            const dot = document.createElementNS(ns, "circle");
+            dot.setAttribute("cx", "2"); dot.setAttribute("cy", "2"); dot.setAttribute("r", "0.9");
+            dot.setAttribute("fill", hc.fg);
+            p.appendChild(bg); p.appendChild(dot); defs.appendChild(p); svg.appendChild(defs);
+        }
+        const paper = this.pageBg();
+
+        // ---- ribbons first, nodes and labels on top
+        const bandG = document.createElementNS(ns, "g") as SVGGElement;
+        bandG.setAttribute("data-pnl", "sk-bands");
+        inner.appendChild(bandG);
+        const bandEls: { el: SVGPathElement; b: SkBand }[] = [];
+        const stub = Math.min(pitch * 0.4, this.k(40)) || this.k(30);
+        const f2 = (v: number): string => v.toFixed(2);
+        // 1.7 cross-highlight: the whole steps back into one light grey (high
+        // contrast: a dashed outline), the marked part runs inside it in the
+        // colours of the flow — a little more saturated than the plain Sankey
+        const ctxBand = this.tint(C.py, 0.55, paper) ?? C.py;
+        const ctxBar = this.tint(C.py, 0.35, paper) ?? C.py;
+        const hlPattern = (tn: SkFam): string => tn === "good" ? "solid" : tn === "bad" ? "hatch" : "dots";
+        const hlFillHc = (tn: SkFam): string => tn === "good" ? hc!.fg : `url(#${tn === "bad" ? hatchId : dotId})`;
+        for (const b of bands) {
+            const t = b.t * k;
+            if (t <= 0.05) { continue; }
+            const y0 = b.src ? b.src.y + b.so * k : b.tgt!.y + b.to * k;
+            const y1 = b.tgt ? b.tgt.y + b.to * k : y0;
+            const x0 = b.src ? b.src.x + barW : b.tgt!.x - stub;
+            const x1 = b.tgt ? b.tgt.x : x0 + stub;
+            const xm = (x0 + x1) / 2;
+            const ribbon = (w: number): string =>
+                `M${f2(x0)},${f2(y0)}C${f2(xm)},${f2(y0)} ${f2(xm)},${f2(y1)} ${f2(x1)},${f2(y1)}`
+                + `L${f2(x1)},${f2(y1 + w)}C${f2(xm)},${f2(y1 + w)} ${f2(xm)},${f2(y0 + w)} ${f2(x0)},${f2(y0 + w)}Z`;
+            const p = document.createElementNS(ns, "path") as SVGPathElement;
+            p.setAttribute("d", ribbon(t));
+            const bTone: SkFam = excOn ? (b.src != null && b.tgt != null ? tone(bandSubject(b)) : "gray") : b.fam;
+            const bQuiet = excOn && bTone === "gray";
+            if (excOn) { p.setAttribute("data-sk-exc", bQuiet ? "0" : "1"); p.setAttribute("data-sk-tone", bTone); }
+            if (hc && bQuiet) {
+                // high contrast: no grey — a dashed outline without fill or pattern
+                p.setAttribute("fill", hc.bg);
+                p.setAttribute("stroke", hc.fg); p.setAttribute("stroke-width", "0.8"); p.setAttribute("stroke-dasharray", "3,2");
+                p.setAttribute("data-sk-pattern", "none");
+            } else if (hc) {
+                if (bTone === "good") { p.setAttribute("fill", hc.fg); p.setAttribute("fill-opacity", "0.4"); }
+                else { p.setAttribute("fill", `url(#${bTone === "bad" ? hatchId : dotId})`); }
+                p.setAttribute("data-sk-pattern", bTone === "good" ? "solid" : bTone === "bad" ? "hatch" : "dots");
+            } else {
+                const base = famColor(bTone);
+                const tinted = this.tint(base, SANKEY_TINT, paper);
+                p.setAttribute("fill", tinted ?? base);
+                p.setAttribute("fill-opacity", tinted ? "0.92" : "0.45");
+            }
+            p.setAttribute("data-sk-band", b.src && b.tgt ? "flow" : "rest");
+            p.setAttribute("data-sk-fam", b.fam);
+            p.setAttribute("data-sk-w", f2(t));
+            if (b.src) { p.setAttribute("data-sk-src", String(b.src.i)); }
+            if (b.tgt) { p.setAttribute("data-sk-tgt", String(b.tgt.i)); }
+            p.style.transition = "opacity .12s ease";
+            if (!b.src || !b.tgt) {
+                const tt = document.createElementNS(ns, "title");
+                tt.textContent = this.tr("UI_SankeyOther") + " · " + this.treeNum(b.t, fmt) + (unit ? " " + unit : "");
+                p.appendChild(tt);
+            }
+            bandG.appendChild(p);
+            bandEls.push({ el: p, b });
+            if (hlOn) {
+                // the whole: grey context (high contrast: dashed outline, no pattern)
+                const inner = p.getAttribute("fill") ?? "";
+                p.setAttribute("data-sk-hl", "ctx");
+                if (hc) {
+                    p.setAttribute("fill", hc.bg); p.removeAttribute("fill-opacity");
+                    p.setAttribute("stroke", hc.fg); p.setAttribute("stroke-width", "0.8"); p.setAttribute("stroke-dasharray", "3,2");
+                    p.setAttribute("data-sk-pattern", "none");
+                } else {
+                    p.setAttribute("fill", ctxBand); p.setAttribute("fill-opacity", "0.92");
+                }
+                // the marked part: top-aligned inside the ribbon, in the flow's colour
+                const w = Math.min(t, (b.hl ?? 0) * k);
+                if (w > 0.05) {
+                    const q = document.createElementNS(ns, "path") as SVGPathElement;
+                    q.setAttribute("d", ribbon(w));
+                    q.setAttribute("data-sk-hl", "part");
+                    q.setAttribute("data-sk-hlw", f2(w));
+                    q.setAttribute("data-sk-tone", bTone);
+                    if (b.src) { q.setAttribute("data-sk-src", String(b.src.i)); }
+                    if (b.tgt) { q.setAttribute("data-sk-tgt", String(b.tgt.i)); }
+                    if (hc) {
+                        q.setAttribute("fill", hlFillHc(bTone));
+                        if (bTone === "good") { q.setAttribute("fill-opacity", "0.55"); }
+                        q.setAttribute("data-sk-pattern", hlPattern(bTone));
+                    } else {
+                        q.setAttribute("fill", this.tint(famColor(bTone), SANKEY_TINT * 0.4, paper) ?? inner);
+                        q.setAttribute("fill-opacity", "0.95");
+                    }
+                    q.setAttribute("pointer-events", "none");
+                    q.style.transition = "opacity .12s ease";
+                    bandG.appendChild(q);
+                    bandEls.push({ el: q, b });
+                }
+            }
+        }
+
+        const refUp = this.relabel(ui.ref.toUpperCase());
+        for (const n of nodes) {
+            const g = document.createElementNS(ns, "g") as SVGGElement;
+            g.setAttribute("data-pnl", "sk-node");
+            g.setAttribute("data-sk-i", String(n.i));
+            g.setAttribute("data-sk-col", String(n.col - minCol));
+            g.setAttribute("data-sk-fam", n.fam);
+            g.setAttribute("data-sk-role", n.role);
+            g.setAttribute("data-pnl-id", n.node.row.id);
+            const zero = n.d == null || n.d === 0;
+            const nTone: SkFam = excOn ? tone(n) : n.fam;
+            const nQuiet = excOn && nTone === "gray";
+            if (excOn) { g.setAttribute("data-sk-exc", nQuiet ? "0" : "1"); g.setAttribute("data-sk-tone", nTone); }
+            const color = famColor(nTone);
+            const bar = document.createElementNS(ns, "rect");
+            bar.setAttribute("data-sk-bar", "1");
+            bar.setAttribute("x", f2(n.x)); bar.setAttribute("y", f2(n.y));
+            bar.setAttribute("width", f2(barW)); bar.setAttribute("height", f2(n.h));
+            bar.setAttribute("rx", f2(Math.min(2 * s, n.h / 2)));
+            if (hc && nTone !== "good") {
+                // outlined (costs) or dashed (neutral split, 1.7: no exception) — never colour alone
+                bar.setAttribute("fill", hc.bg);
+                bar.setAttribute("stroke", hc.fg);
+                bar.setAttribute("stroke-width", nQuiet ? "1" : "1.4");
+                if (nTone === "gray") { bar.setAttribute("stroke-dasharray", nQuiet ? "2,2" : "3,2"); }
+            } else {
+                bar.setAttribute("fill", color);
+            }
+            if (zero) { bar.setAttribute("fill-opacity", "0.45"); }
+            bar.style.cursor = "pointer";
+            g.appendChild(bar);
+            // 1.7 cross-highlight: the bar is the whole (grey), filled from the top
+            // with the marked part in the node's colour — the share at a glance
+            const share = hlOn ? markedShare(n.md, n.d) : 0;
+            if (hlOn) {
+                g.setAttribute("data-sk-share", share.toFixed(4));
+                bar.setAttribute("data-sk-hl", "ctx");
+                if (hc) {
+                    bar.setAttribute("fill", hc.bg);
+                    bar.setAttribute("stroke", hc.fg); bar.setAttribute("stroke-width", "1"); bar.setAttribute("stroke-dasharray", "3,2");
+                } else {
+                    bar.setAttribute("fill", ctxBar); bar.removeAttribute("stroke"); bar.removeAttribute("stroke-dasharray");
+                }
+                const mh = Math.min(n.h, Math.max(0, (n.m ?? 0) * (n.v < 0 ? -1 : 1)) * k);
+                if (mh > 0.05) {
+                    const ib = document.createElementNS(ns, "rect");
+                    ib.setAttribute("data-sk-hlbar", "1");
+                    ib.setAttribute("x", f2(n.x)); ib.setAttribute("y", f2(n.y));
+                    ib.setAttribute("width", f2(barW)); ib.setAttribute("height", f2(mh));
+                    ib.setAttribute("rx", f2(Math.min(2 * s, mh / 2)));
+                    if (hc) {
+                        ib.setAttribute("fill", hlFillHc(nTone));
+                        ib.setAttribute("stroke", hc.fg); ib.setAttribute("stroke-width", "1");
+                        ib.setAttribute("data-sk-pattern", hlPattern(nTone));
+                    } else {
+                        ib.setAttribute("fill", color);
+                    }
+                    ib.setAttribute("pointer-events", "none");
+                    g.appendChild(ib);
+                }
+            }
+
+            // tooltip: name · value · % · Δ against the toolbar reference
+            const va = this.treeVariance(n.node);
+            const tipParts = [n.node.row.name, (n.d == null ? "–" : this.treeNum(n.d, fmt)) + (unit ? " " + unit : "")];
+            if (hlOn) {
+                tipParts[1] = this.tr("UI_HlMarked", n.md == null ? "–" : this.treeNum(n.md, fmt),
+                    (n.d == null ? "–" : this.treeNum(n.d, fmt)) + (unit ? " " + unit : ""), fmt.pct(share));
+            }
+            if (!zero && baseV > 0) { tipParts.push(fmt.pct(Math.abs(n.v) / baseV)); }
+            if (va && va.delta != null) {
+                tipParts.push(`Δ${refUp} ${this.treeNum(va.delta, fmt)}`
+                    + (va.deltaPct != null ? ` (${fmt.pct(va.deltaPct, true)})` : ""));
+            }
+            const tip = tipParts.join(" · ") + this.selCapNote(n.node);
+            const bt = document.createElementNS(ns, "title");
+            bt.textContent = tip;
+            bar.appendChild(bt);
+
+            if (n.label) {
+                const lg = document.createElementNS(ns, "g") as SVGGElement;
+                lg.style.cursor = "pointer";
+                let x: number; let anchor: string; let y1: number;
+                if (n.side === "left") { x = n.x - 5 * s; anchor = "end"; y1 = n.y + n.h / 2 - labelH / 2 + fs1; }
+                else if (n.side === "right") { x = n.x + barW + 5 * s; anchor = "start"; y1 = n.y + n.h / 2 - labelH / 2 + fs1; }
+                else { x = n.x + barW / 2; anchor = "middle"; y1 = n.y - 4 * s - lh2 - 1 * s; }
+                const maxW = n.side === "top" ? topW : sideMax;
+                const chev = chevOf(n);
+                const nameT = document.createElementNS(ns, "text");
+                nameT.setAttribute("data-sk-name", "1");
+                nameT.setAttribute("x", f2(x)); nameT.setAttribute("y", f2(y1));
+                nameT.setAttribute("text-anchor", anchor);
+                nameT.setAttribute("font-size", fs1.toFixed(1));
+                nameT.setAttribute("font-family", FONT);
+                nameT.setAttribute("font-weight", "600");
+                nameT.setAttribute("fill", zero ? C.soft : C.text);
+                // a quiet halo keeps a label readable where it crosses a ribbon
+                nameT.setAttribute("stroke", paper); nameT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
+                nameT.setAttribute("stroke-linejoin", "round"); nameT.setAttribute("paint-order", "stroke");
+                const nameTxt = this.fitLabel(nameOf(n), (maxW - (chev ? chevW : 0)) * 0.56 / wFactor, fs1);
+                const chevSpan = (): SVGTSpanElement => {
+                    const c = document.createElementNS(ns, "tspan") as SVGTSpanElement;
+                    c.setAttribute("data-sk-chev", "1");
+                    c.setAttribute("fill", C.soft);
+                    c.setAttribute("font-weight", "400");
+                    c.textContent = chev;
+                    const ct = document.createElementNS(ns, "title");
+                    ct.textContent = this.tr(chev === "▸" ? "UI_Expand" : "UI_Collapse");
+                    c.appendChild(ct);
+                    c.style.cursor = "pointer";
+                    c.addEventListener("click", (e: Event) => this.treeToggle(n.card, e as MouseEvent));
+                    return c;
+                };
+                // the chevron sits on the side of the label that faces the bar
+                if (chev && anchor !== "end") { nameT.appendChild(chevSpan()); }
+                nameT.appendChild(document.createTextNode((chev && anchor !== "end" ? " " : "") + nameTxt
+                    + (chev && anchor === "end" ? " " : "")));
+                if (chev && anchor === "end") { nameT.appendChild(chevSpan()); }
+                lg.appendChild(nameT);
+                const valT = document.createElementNS(ns, "text");
+                valT.setAttribute("data-sk-val", "1");
+                valT.setAttribute("x", f2(x)); valT.setAttribute("y", f2(y1 + lh2));
+                valT.setAttribute("text-anchor", anchor);
+                valT.setAttribute("font-size", fs2.toFixed(1));
+                valT.setAttribute("font-family", FONT);
+                valT.setAttribute("fill", zero ? C.soft : C.text);
+                valT.setAttribute("stroke", paper); valT.setAttribute("stroke-width", (2.5 * s).toFixed(1));
+                valT.setAttribute("stroke-linejoin", "round"); valT.setAttribute("paint-order", "stroke");
+                valT.setAttribute("font-variant-numeric", "tabular-nums");
+                valT.textContent = valTxt(n);
+                lg.appendChild(valT);
+                const lt = document.createElementNS(ns, "title");
+                lt.textContent = tip;
+                lg.appendChild(lt);
+                g.appendChild(lg);
+            }
+
+            // 1.7 ⚡ hide: a bundled rest band "other (n)" has no tile of its own
+            const rest = n.card.rest;
+            if (rest) {
+                g.setAttribute("data-sk-rest", String(rest.length));
+                bar.style.cursor = "default";
+                const names = rest.slice(0, 12).map(m => m.row.name);
+                if (rest.length > 12) { names.push("…"); }
+                bt.textContent = tip + " · " + this.tr("UI_ExcRestTip", names.join(" · "));
+            }
+            // left click (bar or label) → the tile view of this row
+            if (!rest) {
+                g.addEventListener("click", (e: Event) => {
+                    e.stopPropagation();
+                    ui.treeZoom = n.node.row.id;
+                    this.persistUi(); this.rerender();
+                });
+            }
+            // hover: this node and its ribbons stay, everything else steps back
+            g.addEventListener("mouseenter", () => {
+                for (const be of bandEls) {
+                    const on = be.b.src === n || be.b.tgt === n || (be.b.owner === n && (!be.b.src || !be.b.tgt));
+                    be.el.style.opacity = on ? "1" : "0.28";
+                }
+            });
+            g.addEventListener("mouseleave", () => { for (const be of bandEls) { be.el.style.opacity = ""; } });
+            // selection: the left click belongs to the tile view (as on a tree
+            // card), so a node carries the RIGHT click — the native context menu
+            if (this.selectable(n.node)) {
+                this.bindSelect(g, n.node, false);
+                if (this.isSelected(n.node)) {
+                    bar.setAttribute("stroke", this.accent());
+                    bar.setAttribute("stroke-width", "2");
+                    g.setAttribute("data-pnl-sel", "1");
+                }
+            }
+            if (!rest) { this.treeHoverZoom(g, n.node, fmt); }
+            inner.appendChild(g);
         }
         wrap.appendChild(svg);
         return wrap;
@@ -8246,7 +10465,7 @@ export class Visual implements IVisual {
 
     /** the mega table really renders: switches on AND the table view is active */
     private megaInView(): boolean {
-        return this.ui != null && this.ui.view === "table" && this.megaOn();
+        return this.ui != null && this.view() === "table" && this.megaOn();
     }
 
     /**
@@ -8278,6 +10497,12 @@ export class Visual implements IVisual {
                 const sl = k === "headline" ? this.settings.titleCard.headline : null;
                 if (sl && sl.value !== v) { synced = false; sl.value = v; }
             }
+            // 1.7 the stock mode is held before the parse (holdPendingStockMode); here
+            // only its echo counts: the persisted object must carry the written value
+            for (const [k, v] of Object.entries(pend.stmt)) {
+                const o = dataView?.metadata?.objects?.["statement"];
+                if (k === "stockMode" && (o == null || String(o["stockMode"] ?? "auto") !== v)) { synced = false; }
+            }
             pend.ttl--;
             if (synced || pend.ttl <= 0) { this.megaPending = null; }
             if (!synced && this.megaPending) { applied = pend.applied; }
@@ -8292,7 +10517,7 @@ export class Visual implements IVisual {
     }
 
     private applyMegaTemplate(tpl: string, picked = false): void {
-        const sw = templateSwitches(tpl);
+        const sw = templateSwitches(tpl, this.stockTokens(), this.stockMode());
         const cols: Record<string, boolean | string> = {
             // toolbar pick (1.2): the dropdown itself travels in the same write
             // and under the same pending guard as the switches
@@ -8306,14 +10531,64 @@ export class Visual implements IVisual {
         if (nums.decimals != null) { nc.decimals.value = nums.decimals; }
         if (nums.pctDecimals != null) { nc.pctDecimals.value = nums.pctDecimals; }
         if (title.headline != null) { this.settings.titleCard.headline.value = title.headline; }
-        this.megaPending = { applied: tpl, cols, nums, title, ttl: 5 };
+        // 1.7 statement.stockMode (T05A: every row a stock without tokens; T05B: auto; the
+        // P&L templates take back an "every row a stock") — a changed mode rebuilds the model now
+        const stmt = sw.stmt;
+        const modeBefore = this.stockMode();
+        if (stmt.stockMode != null) { this.setStockModeSlice(stmt.stockMode); }
+        this.megaPending = { applied: tpl, cols, nums, title, stmt, ttl: 5 };
         this.megaSessionTpl = tpl;
         const merge: powerbi.VisualObjectInstance[] = [
             { objectName: "columns", selector: null, properties: { ...cols, templateApplied: tpl } },
         ];
         if (tpl !== "off") { merge.push({ objectName: "numbers", selector: null, properties: { ...nums } }); }
         if (title.headline != null) { merge.push({ objectName: "titleBlock", selector: null, properties: { ...title } }); }
+        if (stmt.stockMode != null) { merge.push({ objectName: "statement", selector: null, properties: { ...stmt } }); }
         this.host.persistProperties({ merge });
+        if (this.stockMode() !== modeBefore) { this.rebuildForStockMode(); }
+    }
+
+    /** 1.7 the bound data carries stock / flow tokens in its row-type cells */
+    private stockTokens(): boolean {
+        if (!this.model || this.demo) { return false; }
+        for (const n of this.model.byId.values()) { if (n.row.stock != null || n.row.flow) { return true; } }
+        return false;
+    }
+
+    /** 1.7 statement.stockMode slice (local; the persist travels with the template) */
+    private setStockModeSlice(v: string): void {
+        const sl = this.settings.statementCard.stockMode;
+        const it = (sl.items as powerbi.IEnumMember[]).find(x => String(x.value) === v);
+        if (it) { sl.value = it; }
+    }
+
+    /**
+     * 1.7 while a template's stock mode waits for its echo, a stale update must
+     * not parse the data with the old mode (the mode is a parse-time decision,
+     * see fingerprint) — the pending value is set before the fingerprint.
+     */
+    private holdPendingStockMode(): void {
+        const v = this.megaPending?.stmt?.stockMode;
+        if (v != null && this.stockMode() !== v) { this.setStockModeSlice(v); }
+    }
+
+    /**
+     * 1.7 a template changed statement.stockMode: the model is parsed again from
+     * the last data view right away, so the very render after the pick already
+     * aggregates the rows by the new mode (the host's echo would come one update
+     * later). The demo and an empty visual have nothing to rebuild.
+     */
+    private rebuildForStockMode(): void {
+        const dv = this.lastDv;
+        if (!dv || !this.model || this.demo) { return; }
+        const parsed = this.parseRows(dv);
+        if (!parsed || parsed.rows.length === 0) { return; }
+        this.buildModels(dv, parsed);
+        this.lastFingerprint = this.fingerprint(dv);
+        this.modelVer++;
+        this.scanCache = null;
+        this.geoCache = null;
+        this.resetSelection();
     }
 
     /** a mega switch of the columns card by property name (toggle or dropdown) */
@@ -8340,7 +10615,8 @@ export class Visual implements IVisual {
     private megaStatement(): boolean {
         for (const n of this.model!.byId.values()) {
             const r = n.row;
-            if (r.rowType === "formula" || r.rowType === "kpi" || r.sign < 0 || r.displayInvert) { return true; }
+            // 1.7 a balance sheet or a cash flow is a statement too (stock rows)
+            if (r.rowType === "formula" || r.rowType === "kpi" || r.sign < 0 || r.displayInvert || n.stock != null) { return true; }
         }
         return false;
     }
@@ -8353,8 +10629,9 @@ export class Visual implements IVisual {
             const li = this.mtdIndex();
             return li >= 0 ? (node.series[s]?.[li] ?? null) : null;
         }
-        // the period-matched YTD window of the classic table (see ytdDisplay)
-        if (this.ytdFull() || node.row.rowType === "kpi") { return node.computed[s]; }
+        // the period-matched YTD window of the classic table (see ytdDisplay);
+        // 1.7 a stock always reads its window
+        if (!this.stockWin(node) && (this.ytdFull() || node.row.rowType === "kpi")) { return node.computed[s]; }
         return this.ytdRawSum(node, s);
     }
 
@@ -8383,32 +10660,71 @@ export class Visual implements IVisual {
         const nodes = new Map<string, PnlNode>();
         type Item = { node: PnlNode | null; kind: MegaRow["kind"]; level: number; op: string };
         const items: Item[] = [];
-        const roots = model.roots;
+        // 1.7 ⚡ hide in a cascade template: the quiet steps of a section folded into "other (n)"
+        const roots = this.excRoots();
+        const kidsOf = (n: PnlNode): PnlNode[] => this.excKids(n);
         const first = roots.find(r => r.row.rowType !== "separator");
         const chainStart = statement && first && first.hasChildren
             && (first.row.rowType === "subtotal" || first.row.rowType === "account") ? first : null;
-        const glyph = (n: PnlNode): string => n.row.displayInvert ? "-" : "+";
+        const glyph = (n: PnlNode): string => n.row.displayInvert ? MINUS : "+";
+        // 1.7 every top-level stock total opens a chain of its own: a balance
+        // sheet is two "=" blocks (assets, equity and liabilities), not assets
+        // plus a summand
+        const stockChain = (x: PnlNode | null): boolean => x != null && x.level === 0 && x.stock != null
+            && x.hasChildren && (x.row.rowType === "subtotal" || x.row.rowType === "account");
+        const rootOf = (x: PnlNode): PnlNode => {
+            let cur = x;
+            for (let i = 0; i < 64 && cur.row.parent != null; i++) {
+                const p = model.byId.get(cur.row.parent);
+                if (!p) { break; }
+                cur = p;
+            }
+            return cur;
+        };
         const realRoots = roots.filter(r => r.row.rowType !== "separator");
         const soleRoot = realRoots.length === 1 ? realRoots[0] : null;
-        const keep = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
+        const keepZero = (n: PnlNode): boolean => !(ui.hideZero && isZeroRow(n));
+        // 1.7 ⚡ mode "hide": detail rows below the threshold leave the table (counted for the note);
+        // 1.7 folded groups without an exception below them as well
+        const hideExc = this.excHideActive();
+        let excHidden = 0;
+        const keep = (n: PnlNode): boolean => keepZero(n) && !(hideExc && this.excQuiet(n, collapsed));
+        const struct = subtotals && !statement;
+        // 1.5.1: a structure group with exactly one shown child carries no
+        // subtotal that only repeats that child (Germany / Saxony): the child
+        // stands alone, named after both ("Germany · Saxony"), like a region
+        // without countries (Poland)
+        const single = new Map<string, string>();
 
         const emit = (n: PnlNode, under: PnlNode | null): void => {
             const t = n.row.rowType;
             if (t === "separator") { items.push({ node: null, kind: "gap", level: 0, op: "" }); return; }
             if (t === "kpi" && !showPct) { return; }
             const open = n.hasChildren && !collapsed.has(n.row.id);
-            if (open) { for (const c of n.children) { emit(c, n); } }
+            if (open && struct && n !== soleRoot) {
+                const kids = kidsOf(n).filter(c => c.row.rowType !== "separator" && keep(c));
+                if (kids.length === 1) {
+                    const k = kids[0];
+                    if (k.row.name !== n.row.name) { single.set(k.row.id, `${single.get(n.row.id) ?? n.row.name} · ${k.row.name}`); }
+                    else if (single.has(n.row.id)) { single.set(k.row.id, single.get(n.row.id)!); }
+                    emit(k, n);
+                    return;
+                }
+            }
+            if (open) { for (const c of kidsOf(n)) { emit(c, n); } }
             // structure data without subtotal blocks: only leaves and the top totals
             if (open && !subtotals && n.level > 0) { return; }
-            if (!keep(n)) { return; }
+            if (!keep(n)) { if (hideExc && keepZero(n)) { excHidden++; } return; }
             const kind: MegaRow["kind"] = t === "formula" ? "formula" : t === "kpi" ? "pct"
                 : t === "subtotal" || n.hasChildren || n.isOrphanBucket ? "sum" : "acc";
             let level = 0; let op = "";
             if (statement) {
-                const inChain = chainStart != null && under === chainStart;
-                level = Math.max(0, n.level - (inChain || this.megaUnderChain(n, chainStart) ? 1 : 0));
+                const inChain = (chainStart != null && under === chainStart) || stockChain(under);
+                const underStock = n.level > 0 && stockChain(rootOf(n));
+                level = Math.max(0, n.level - (inChain || this.megaUnderChain(n, chainStart) || underStock ? 1 : 0));
                 if (t === "kpi") { op = ""; }
-                else if (n.level === 0) { op = t === "formula" || n === chainStart ? "=" : glyph(n); }
+                // 1.7 a top-level stock (balance, opening / closing stand) is an "=" row
+                else if (n.level === 0) { op = t === "formula" || n === chainStart || n.stock != null ? "=" : glyph(n); }
                 else if (inChain) { op = glyph(n); }
             }
             items.push({ node: n, kind, level, op });
@@ -8422,6 +10738,19 @@ export class Visual implements IVisual {
             for (const it of items) { if (it.node) { dupe.set(it.node.row.name, (dupe.get(it.node.row.name) ?? 0) + 1); } }
         }
 
+        // 1.5.1: the element of the top visible level a row belongs to (its
+        // ancestor right below a single grand total, else its root)
+        const topLevel = soleRoot ? 1 : 0;
+        const topOf = (n: PnlNode): string => {
+            let cur = n;
+            for (let i = 0; i < 64 && cur.level > topLevel && cur.row.parent != null; i++) {
+                const p = model.byId.get(cur.row.parent);
+                if (!p) { break; }
+                cur = p;
+            }
+            return cur.row.id;
+        };
+
         // comment footnotes are numbered in reading order of this table
         this.comments = [];
         this.commentNo.clear();
@@ -8434,10 +10763,15 @@ export class Visual implements IVisual {
             }
             const n = it.node;
             // spacer row: a new block after a bold total (T03), and the grand
-            // total right below its last subtotal block (T01B "World")
+            // total right below its last subtotal block (T01B "World").
+            // 1.5.1: structure data with subtotal blocks separates EVERY
+            // element of the top visible level (the level below a single
+            // grand total) from the next one — a region block, a region
+            // without countries (Poland, Slovakia: 1.5 left two such rows in
+            // a row without a gap), a one-child group and the grand total
             if (prev && prev.node && it.kind !== "pct" && (
                 (prev.kind === "sum" || prev.kind === "formula") && it.kind === "acc"
-                || it.kind === "sum" && prev.kind === "sum" && prev.node.row.parent === n.row.id && subtotals && !statement
+                || struct && topOf(prev.node) !== topOf(n)
             )) {
                 if (out.length && out[out.length - 1].kind !== "gap") { out.push(this.megaGap()); }
             }
@@ -8455,7 +10789,8 @@ export class Visual implements IVisual {
                 suffix.push({ t: " ≈", color: C.loading });
             }
             const parent = n.row.parent ? model.byId.get(n.row.parent) : undefined;
-            const name = (dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name;
+            const name = single.get(n.row.id)
+                ?? ((dupe.get(n.row.name) ?? 0) > 1 && parent ? `${n.row.name} ${parent.row.name}` : n.row.name);
             // cascades (T04 Δ waterfall, 12A value cascade): "=" rows anchor —
             // formula rows, the statement's chain start, the single grand total
             // of a structure hierarchy; every other row steps with the effect
@@ -8463,7 +10798,7 @@ export class Visual implements IVisual {
             const anchor = it.kind === "formula" || it.op === "="
                 || (!statement && soleRoot === n && it.kind === "sum");
             const disp = n.row.displayInvert ? -1 : 1;
-            out.push({
+            const row: MegaRow = {
                 id: n.row.id,
                 label: (n.isOrphanBucket ? "⚠ " : "") + name,
                 kind: it.kind, op: it.op, level: it.level,
@@ -8472,10 +10807,18 @@ export class Visual implements IVisual {
                 suffix: suffix.length ? suffix : undefined,
                 eff: anchor ? disp : disp * this.megaParentSign(n),
                 anchor,
-            });
+            };
+            // 1.7 stocks: the FY outlook is their FC end stand (no YTD share to stack);
+            // a top-level stock total carries the double rule of a balance-sheet total
+            if (n.stock != null) {
+                row.stock = true;
+                if (n.level === 0 && (it.kind === "sum" || it.kind === "formula")) { row.dbl = true; }
+            }
+            out.push(row);
             if (it.kind !== "pct") { prev = it; }
         }
         while (out.length && out[out.length - 1].kind === "gap") { out.pop(); }
+        if (hideExc) { this.excHidden = excHidden; this.excHiddenKind = "rows"; }
         return { rows: out, nodes };
     }
 
@@ -8536,7 +10879,7 @@ export class Visual implements IVisual {
         return ctx.measureText(t).width;
     }
 
-    private buildMega(fmt: Fmt, shrink: number): HTMLElement {
+    private buildMega(fmt: Fmt, shrink: number, rowK?: number): HTMLElement {
         const model = this.model!; const ui = this.ui!;
         const cc = this.settings.columnsCard;
         const t = this.megaToggles();
@@ -8556,11 +10899,21 @@ export class Visual implements IVisual {
         const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => this.megaScenOf(key, s);
         const revBase = t.share ? revenueBase(model, cc.revenueBase.value) : null;
         const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
-        const th = [
-            { abs: num(cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
-            { abs: num(cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
-        ];
         const div = fmt.div;
+        // 1.5.1: the built-in thresholds (−20 / −220) are thousands — at a
+        // larger scaling they are converted (−20 k = −0.02 at "m", −0.00002 at
+        // "b"; until 1.5 nothing turned red at millions). Without scaling the
+        // numbers are taken as already shown in the author's unit and keep
+        // −20 / −220 as before. A value the author set stays in display units,
+        // exactly as typed.
+        const thObjs = this.lastDv?.metadata?.objects?.["columns"];
+        const thSet = (k: string): boolean => thObjs != null && thObjs[k] != null && isFinite(Number(thObjs[k]));
+        const thAbs = (k: string, v: unknown, d: number): number =>
+            thSet(k) ? num(v, d) : div > 1e3 ? d * 1e3 / div : d;
+        const th = [
+            { abs: thAbs("thresholdAbs", cc.thresholdAbs.value, -20), pct: num(cc.thresholdPct.value, -10) / 100 },
+            { abs: thAbs("thresholdYtdAbs", cc.thresholdYtdAbs.value, -220), pct: num(cc.thresholdYtdPct.value, -10) / 100 },
+        ];
         const raw = (n: PnlNode, key: BlockKey, s: MegaScen): number | null => {
             const sc = scenOf(key, s);
             return sc == null ? null : this.megaRaw(n, key, sc);
@@ -8573,12 +10926,15 @@ export class Visual implements IVisual {
         };
         const mat = this.materiality();
         const fyStack = t.min === "AC";
+        // 1.7 a table of stocks only (a balance sheet) names its single block: the Stichtag month
+        const stockOnly = nodes.size > 0 && [...nodes.values()].every(n => n.stock != null
+            || n.row.rowType === "kpi" || n.row.rowType === "separator");
         const blocks: MegaBlock[] = keys.map((key, bi) => ({
             name: key === "fy" ? "FY" + (year ? " " + year : "")
                 : !monthName ? "" : key === "mtd" ? monthName : (twoBlocks || !statement ? "_" + monthName : monthName),
             th: th[bi],
             // a single month / FY block names itself (a single YTD statement never did)
-            titled: !twoBlocks && key !== "ytd",
+            titled: !twoBlocks && (key !== "ytd" || stockOnly),
             alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
             // 12G: the FY outlook's AC&FC is mostly forecast — its Δ elements are
             // hatched, and its value cascade stacks the YTD actuals (solid) in front
@@ -8586,7 +10942,8 @@ export class Visual implements IVisual {
             minFill: key === "fy" && fyStack ? "FC" : undefined,
             ytd: key === "fy" && fyStack ? (r: MegaRow): number | null => {
                 const n = nodes.get(r.id);
-                if (!n || n.row.rowType === "kpi") { return null; }
+                // 1.7 a stock's outlook is its FC end stand — no YTD share to stack
+                if (!n || n.row.rowType === "kpi" || n.stock != null) { return null; }
                 const rv = this.megaRaw(n, "ytd", "ac");
                 return rv == null ? null : (n.row.displayInvert ? -rv : rv) / div;
             } : undefined,
@@ -8603,8 +10960,12 @@ export class Visual implements IVisual {
                 if (!n) { return null; }
                 const D = displayVariance(n.row, raw(n, key, min), raw(n, key, ref));
                 if (!D) { return null; }
-                if (D.pp) { return D; }
+                // 1.7 ⚡: a row that is no exception takes the materiality grey; `quiet`
+                // tells the high-contrast painter to draw it dashed instead of patterned
+                const quiet = this.excOf(n) === false;
+                if (D.pp) { return quiet ? { ...D, immaterial: true, quiet: true } : D; }
                 const out: MegaDelta = { ...D, d: D.d / div, impact: D.impact / div };
+                if (quiet) { out.immaterial = true; out.quiet = true; }
                 if (ssOn) {
                     // the printed Δ is the difference of the printed values
                     const a = ssRaw(n, key, min); const b = ssRaw(n, key, ref);
@@ -8624,14 +10985,16 @@ export class Visual implements IVisual {
                 return v == null || b == null || b === 0 ? null : Math.abs(v / b);
             } : undefined,
         }));
-        const fscale = this.fontScale();
+        // 1.7 layout.maximize: the body scale that fills the tile height (1 otherwise)
+        const fscale = this.fontScale() * this.bodyK;
         const fs = Math.round((ui.density === "compact" ? 11 : 13) * fscale);
-        const avail = (this.root.clientWidth || 1000) - 2 * TABLE_PAD_X - shrink;
+        const avail = (this.root.clientWidth || 1000) - 2 * this.padX() - shrink;
         // style.headerFontSize reaches the mega heads too: 9 px is the built-in
         // head size of the classic table, so the factor v / 9 scales fs; 0 (or
         // anything outside 7..20) keeps the heads at fs exactly
         const hv = Math.round(Number(this.settings.styleCard.headerFontSize.value) || 0);
         const headFs = hv < 7 || hv > 20 ? fs : Math.round(fs * hv / 9 * 10) / 10;
+        const stockOnlyHead = stockOnly;
         const L = layoutMega({
             rows, blocks, t, statement, fs, viewW: Math.max(320, avail),
             dec: this.settings.numbersCard.decimals.value,
@@ -8645,11 +11008,14 @@ export class Visual implements IVisual {
             hc: this.hc != null,
             fin: this.finance(),
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
-            ytdHead: "YTD",
+            // 1.7 a table of stocks only has no year-to-date share in its FY outlook
+            ytdHead: stockOnlyHead ? "" : "YTD",
             // scale sync (numbers.fixedMax / fixedVarMax): data units → display units
             fixedMax: this.fixedMax() != null ? this.fixedMax()! / div : undefined,
             fixedVarMax: this.fixedVarMax() != null ? this.fixedVarMax()! / div : undefined,
+            rowK,
         });
+        this.megaLast = L;
         const ns = "http://www.w3.org/2000/svg";
         const opts: MegaPaintOpts = {
             font: FONT,
@@ -8677,7 +11043,12 @@ export class Visual implements IVisual {
 
         const wrap = document.createElement("div");
         wrap.setAttribute("data-pnl", "mega");
-        wrap.style.cssText = `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;width:max-content;`;
+        wrap.style.cssText = (this.maxi() ? "padding:0 2px 2px 2px;" : `padding:2px ${TABLE_PAD_X}px 8px ${TABLE_PAD_X}px;`) + "width:max-content;";
+        // 1.5: the scale note above the table — magnified blocks / columns and
+        // fixed scales are named for every reader, the export included
+        // (the gallery's mini previews stay quiet: their heads carry the factor)
+        const note = this.miniQuiet() || this.tbFolded() ? null : this.megaScaleNote(L, fmt);
+        if (note) { wrap.appendChild(note); }
         const headWrap = document.createElement("div");
         headWrap.setAttribute("data-pnl", "mega-head-wrap");
         headWrap.style.cssText = `background:${this.pageBg()};`;
@@ -8741,7 +11112,7 @@ export class Visual implements IVisual {
         const R = vs.L.R;
         if (R.length === 0) { return; }
         // body pixel 0 = layout y headH (the body svg's viewBox starts there)
-        const top = this.root.getBoundingClientRect().top - vs.body.getBoundingClientRect().top + vs.L.headH;
+        const top = this.rect(this.root).top - this.rect(vs.body).top + vs.L.headH;
         const viewH = this.root.clientHeight || 800;
         const at = (y: number): number => {
             let lo = 0; let hi = R.length - 1;
@@ -8812,6 +11183,13 @@ export class Visual implements IVisual {
      */
     private ssRaw(node: PnlNode, block: "mtd" | "ytd" | "fy", scen: Scenario, fmt: Fmt): number | null {
         if (!this.sumSafeOn() || node.row.rowType === "kpi" || !this.model) { return null; }
+        // 1.7 a ⚡ rest row prints the sum of its members' printed values
+        const members = this.excRests.get(node.row.id)?.members;
+        if (members) {
+            let acc: number | null = null;
+            for (const m of members) { const v = this.ssRaw(m, block, scen, fmt); if (v != null) { acc = (acc ?? 0) + v; } }
+            return acc;
+        }
         const dec = this.settings.numbersCard.decimals.value;
         const key = `${block}|${scen}|${fmt.div}|${dec}`;
         let m = this.ssCache.get(key);
@@ -8852,6 +11230,434 @@ export class Visual implements IVisual {
             if (mAbs > 0 && d != null && Math.abs(d) < mAbs) { return true; }
             return mPct > 0 && p != null && Math.abs(p * 100) < mPct;
         };
+    }
+
+    // ---- 1.7 "Only exceptions" (toolbar ⚡ / card exceptions) ----
+
+    /** the ⚡ setting in force — the reader's toolbar state — or null while it is off */
+    private excCfg(): ExcState | null {
+        const x = this.ui?.exc;
+        return x && x.on && this.model ? x : null;
+    }
+
+    /**
+     * The reference scenarios a ⚡ rule may name in the view on screen: the
+     * bound ones except the mega table's analysed scenario (it is the minuend).
+     */
+    private excRefChoices(): Scenario[] {
+        const min = this.megaInView() ? this.megaToggles().min : "AC";
+        return (["py", "pl", "fc"] as Scenario[]).filter(r => this.has[r] && r.toUpperCase() !== min);
+    }
+
+    /** the scenario(s) "auto" stands for right now — for the tooltip and the footer note */
+    private excAutoLabel(): string {
+        if (this.megaInView()) {
+            const refs = activeRefs(this.megaToggles());
+            if (refs.length > 0) { return refs.map(r => this.relabel(r)).join(" · "); }
+        }
+        const vw = this.view();
+        const combos = vw === "tree" || vw === "sankey" ? [] : this.deltaCombos().filter(c => c.cat == null);
+        const refs = [...new Set(combos.map(c => (c.ref === "plfy" ? "pl" : c.ref).toUpperCase()))];
+        if (refs.length > 0) { return refs.map(r => this.relabel(r)).join(" · "); }
+        const r = this.has[this.ui!.ref] ? this.ui!.ref : (this.has.pl ? "pl" : "py");
+        return this.relabel(r.toUpperCase());
+    }
+
+    /**
+     * The exception test of this render, built once: it reads the Δ on screen
+     * — every visible period block × the reference (auto: the Δ columns of the
+     * view, else the toolbar's Δ reference; fixed: that one in every visible
+     * block). One pair crossing the threshold is enough. Mega table: its
+     * analysed scenario against PY / PL (megaRaw, as its Δ columns); tree and
+     * Sankey: AC vs the reference over the YTD window (their cards). The
+     * rating itself is the engine's (isExceptionVariance). Memoized per node
+     * until the next render. null = ⚡ off.
+     */
+    private excFn(): ((n: PnlNode) => boolean) | null {
+        const x = this.excCfg();
+        if (!x) { return null; }
+        if (this.excFnCache) { return this.excFnCache; }
+        if (this.excMemo == null) { this.excMemo = new Map(); }
+        const memo = this.excMemo;
+        const rule: ExceptionRule = { pct: x.pct, abs: x.abs, dir: x.dir };
+        let test: (n: PnlNode) => boolean;
+        const fixed: Scenario | null = x.ref !== "auto" && this.has[x.ref] ? x.ref : null;
+        if (this.megaInView()) {
+            const t = this.megaToggles();
+            const keys = this.megaKeys();
+            const SC: Record<string, MegaScen> = { py: "PY", pl: "PL", fc: "FC" };
+            let refs: MegaScen[] = fixed && SC[fixed] !== t.min ? [SC[fixed]] : activeRefs(t);
+            if (refs.length === 0) { refs = [this.has.pl && t.min !== "PL" ? "PL" : "PY"]; }
+            const pairs: { key: "mtd" | "ytd" | "fy"; a: Scenario; r: Scenario }[] = [];
+            for (const key of keys) {
+                for (const ref of refs) {
+                    const a = this.megaScenOf(key, t.min); const r = this.megaScenOf(key, ref);
+                    if (a && r && a !== r && this.has[r]) { pairs.push({ key, a, r }); }
+                }
+            }
+            test = n => pairs.some(p => isExceptionVariance(n.row,
+                varianceOf(this.megaRaw(n, p.key, p.a), this.megaRaw(n, p.key, p.r), n.row.varianceInvert), rule));
+        } else {
+            const vw = this.view();
+            const autoRef: Scenario = this.has[this.ui!.ref] ? this.ui!.ref : (this.has.pl ? "pl" : "py");
+            type Pair = { block: "mtd" | "ytd" | "fy"; ref: Scenario; minuend: Scenario };
+            const graph = vw === "tree" || vw === "sankey";
+            let pairs: Pair[] = graph ? [{ block: "ytd", ref: this.excGraphRef(), minuend: "ac" }]
+                : this.deltaCombos().filter(c => c.cat == null).map(c => ({ block: c.block, ref: c.ref, minuend: c.minuend }));
+            if (fixed && pairs.length > 0 && !graph) {
+                const seen = new Set<string>();
+                const out: Pair[] = [];
+                for (const p of pairs) {
+                    // the FY block compares AC&FC with PL FY / the whole PY
+                    const ref: Scenario | null = p.block !== "fy" ? fixed : fixed === "pl" ? "plfy" : fixed === "py" ? "py" : null;
+                    if (ref == null || ref === p.minuend || !this.has[ref] || seen.has(p.block)) { continue; }
+                    seen.add(p.block);
+                    out.push({ block: p.block, ref, minuend: p.minuend });
+                }
+                pairs = out;
+            }
+            if (pairs.length === 0) { pairs = [{ block: "ytd", ref: fixed ?? autoRef, minuend: "ac" }]; }
+            pairs = pairs.filter(p => this.has[p.ref]);
+            test = n => pairs.some(p => isExceptionVariance(n.row, this.blockVariance(n, p.block, p.ref, p.minuend), rule));
+        }
+        this.excFnCache = (n: PnlNode): boolean => {
+            const hit = memo.get(n.row.id);
+            if (hit != null) { return hit; }
+            const v = test(n);
+            memo.set(n.row.id, v);
+            return v;
+        };
+        return this.excFnCache;
+    }
+
+    /** 1.7 the reference of the ⚡ rule in tree and Sankey: the fixed one, else the toolbar's Δ reference */
+    private excGraphRef(): Scenario {
+        const x = this.ui?.exc;
+        if (x && x.ref !== "auto" && this.has[x.ref]) { return x.ref; }
+        return this.has[this.ui!.ref] ? this.ui!.ref : (this.has.pl ? "pl" : "py");
+    }
+
+    /** 1.7: true = exception (keeps its colour), false = grey, null = ⚡ off */
+    private excOf(node: PnlNode): boolean | null {
+        const f = this.excFn();
+        return f ? f(node) : null;
+    }
+
+    /**
+     * 1.7 mode "hide" — how the view on screen takes the rest out (null = it
+     * does not: ⚡ off, mode grey, or the tile view):
+     *  - "drop": table, mega table without cascades, bars — the quiet detail
+     *    rows leave, totals and result rows stay;
+     *  - "sum": row waterfall and mega tables with a cascade column (Δ
+     *    waterfall T04B–E, value cascades 12A / 12G / 12H) — the quiet detail
+     *    rows of one section become ONE rest row "other (n)", the cascade stays
+     *    closed (excPlan);
+     *  - "tree": the quiet branches of a card fold into one grey "+n" card;
+     *  - "flow": the Sankey bundles the quiet streams of a node into one band.
+     */
+    private excHideMode(): "drop" | "sum" | "tree" | "flow" | null {
+        const x = this.excCfg();
+        if (!x || x.mode !== "hide" || !this.ui) { return null; }
+        const vw = this.view();
+        if (vw === "tree" || vw === "sankey") {
+            if (this.ui.treeZoom != null) { return null; }
+            return vw === "tree" ? "tree" : "flow";
+        }
+        if (vw === "waterfall") { return "sum"; }
+        if (vw === "table" && this.megaInView()) {
+            const t = this.megaToggles();
+            if (t.valueCascade || t.d.PY.wf || t.d.PL.wf) { return "sum"; }
+        }
+        return "drop";
+    }
+
+    /** 1.7/1.7 the views that take rows out (table, bars, mega without cascades) */
+    private excHideActive(): boolean {
+        return this.excHideMode() === "drop";
+    }
+
+    /** 1.7 an exception in this row or anywhere below it (memoized per render) */
+    private excBelow(n: PnlNode): boolean {
+        if (this.excBelowMemo == null) { this.excBelowMemo = new Map(); }
+        const memo = this.excBelowMemo;
+        const hit = memo.get(n.row.id);
+        if (hit != null) { return hit; }
+        memo.set(n.row.id, false);
+        let v = this.excOf(n) === true;
+        for (const c of n.children) {
+            if (v) { break; }
+            if (c.row.rowType !== "separator" && this.excBelow(c)) { v = true; }
+        }
+        memo.set(n.row.id, v);
+        return v;
+    }
+
+    /**
+     * 1.7 a detail row as the reader sees it that holds no exception: an
+     * account or group row that shows no children — a leaf, or a group folded
+     * below the top level — with no exception in itself or below it. Formula,
+     * margin and separator rows, the orphan bucket, open groups (they stay as
+     * sum rows, even when every child left) and folded top-level blocks never
+     * qualify. Up to 1.7 only leaf accounts did, so at the default expand
+     * level (folded level groups) nothing left the table.
+     */
+    private excQuiet(n: PnlNode, collapsed: ReadonlySet<string>): boolean {
+        const t = n.row.rowType;
+        if ((t !== "account" && t !== "subtotal") || n.isOrphanBucket || n.row.id.startsWith(EXC_REST)) { return false; }
+        if (n.hasChildren && (n.level === 0 || !collapsed.has(n.row.id))) { return false; }
+        return !this.excBelow(n);
+    }
+
+    /**
+     * 1.7 the rest row of folded siblings: their sum as one leaf ("other (n)"),
+     * registered with its members (sum-safe values, selection over all their
+     * source rows, the twin over the whole for a cross-highlight). The id
+     * names the parent, the first member and the count — stable while the
+     * fold stays the same, new when it changes (selection caches are per id).
+     */
+    private excRestNode(parent: PnlNode | null, members: PnlNode[], tag = ""): PnlNode {
+        const id = `${EXC_REST}${parent?.row.id ?? ""}|${tag}|${members[0].row.id}|${members.length}`;
+        const name = this.tr("UI_ExcRest", members.length);
+        const idx: number[] = [];
+        for (const m of members) { for (const i of this.nodeIndices(m)) { idx.push(i); } }
+        const node = mergeNodes(members, id, name, parent?.row.id ?? null, idx);
+        if (parent) { node.level = parent.level + 1; }
+        this.excRests.set(id, { node, members });
+        // a rest is never an exception — its sum must not turn it into one
+        this.excFn();
+        this.excMemo?.set(id, false);
+        if (this.hlFull) {
+            const twins = members.map(m => this.hlFullNode(m)).filter((x): x is PnlNode => x != null);
+            if (twins.length === members.length) { this.excRestTwin.set(id, mergeNodes(twins, id, name, node.row.parent)); }
+        }
+        return node;
+    }
+
+    /**
+     * 1.7 the folded sibling lists of the cascade views (mode "sum"): per
+     * sibling list (children of an open row, or the top level), the quiet
+     * detail rows of one section — the stretch between two anchors (formula,
+     * margin or separator rows, a stock anchor; on the top level every row
+     * that can never be quiet) — become ONE rest row at the end of the
+     * section, when at least two of them are quiet (a single quiet step stays
+     * as it is, grey). Σ kept + rest = what the section contributed, so every
+     * cascade over the lists closes as before.
+     */
+    private excPlan(): ExcPlan | null {
+        if (this.excPlanCache !== undefined) { return this.excPlanCache; }
+        if (this.excHideMode() !== "sum" || !this.model || !this.ui) { this.excPlanCache = null; return null; }
+        const collapsed = new Set(this.ui.collapsed);
+        let merged = 0; let rests = 0;
+        const anchorish = (n: PnlNode, parent: PnlNode | null): boolean => {
+            const t = n.row.rowType;
+            if (t === "formula" || t === "kpi" || t === "separator") { return true; }
+            if (n.stock != null && (parent == null || parent.stock == null)) { return true; }
+            // the top level: blocks that never fold away split the run as well
+            return parent == null && n.hasChildren;
+        };
+        const fold = (list: PnlNode[], parent: PnlNode | null): PnlNode[] | null => {
+            const out: PnlNode[] = [];
+            let sec: PnlNode[] = [];
+            let quiet: PnlNode[] = [];
+            let changed = false;
+            const flush = (): void => {
+                if (quiet.length >= 2) {
+                    const q = new Set(quiet);
+                    for (const n of sec) { if (!q.has(n)) { out.push(n); } }
+                    out.push(this.excRestNode(parent, quiet, String(rests)));
+                    merged += quiet.length; rests++;
+                    changed = true;
+                } else { out.push(...sec); }
+                sec = []; quiet = [];
+            };
+            // every child of an open row quiet: the row itself already is their sum —
+            // it stays as a step of its own, without children ("other (n)" would only repeat it)
+            if (parent && list.length > 0 && list.every(n => n.row.rowType === "separator" || this.excQuiet(n, collapsed))) {
+                merged += list.filter(n => n.row.rowType !== "separator").length;
+                return [];
+            }
+            for (const n of list) {
+                if (anchorish(n, parent)) { flush(); out.push(n); continue; }
+                sec.push(n);
+                if (this.excQuiet(n, collapsed)) { quiet.push(n); }
+            }
+            flush();
+            return changed ? out : null;
+        };
+        const kids = new Map<string, PnlNode[]>();
+        const walk = (n: PnlNode): void => {
+            if (!n.hasChildren || collapsed.has(n.row.id)) { return; }
+            for (const c of n.children) { walk(c); }
+            const f = fold(n.children, n);
+            if (f) { kids.set(n.row.id, f); }
+        };
+        for (const r of this.model.roots) { walk(r); }
+        const roots = fold(this.model.roots, null) ?? this.model.roots;
+        this.excHidden = merged;
+        this.excRestCount = rests;
+        this.excHiddenKind = "steps";
+        this.excPlanCache = { roots, kids };
+        return this.excPlanCache;
+    }
+
+    /** 1.7 the children a cascade view shows for a row (folded by excPlan, else its own) */
+    private excKids(n: PnlNode): PnlNode[] {
+        return this.excPlan()?.kids.get(n.row.id) ?? n.children;
+    }
+
+    /** 1.7 flattenVisible over the folded sibling lists of excPlan */
+    private excFlatten(collapsed: ReadonlySet<string>): PnlNode[] {
+        const out: PnlNode[] = [];
+        const walk = (nodes: PnlNode[]): void => {
+            for (const n of nodes) {
+                out.push(n);
+                if (n.hasChildren && !collapsed.has(n.row.id)) { walk(this.excKids(n)); }
+            }
+        };
+        walk(this.excRoots());
+        return out;
+    }
+
+    /** 1.7 the top-level rows a cascade view shows */
+    private excRoots(): PnlNode[] {
+        return this.excPlan()?.roots ?? this.model!.roots;
+    }
+
+    /**
+     * 1.7 tree and Sankey (mode "tree" / "flow"): the quiet branches of every
+     * card fold away. A branch is quiet when neither its card nor any card
+     * below it in the built graph is an exception — so the path from the root
+     * to every exception stays. Tree: all quiet branches of a card become ONE
+     * compact grey "+n" card (its op the common op, else none). Sankey: the
+     * quiet streams of a node are bundled per operator and side (inflow /
+     * outflow) into one grey band "other (n)" when there are at least two; a
+     * lone quiet stream stays itself, but as an end node (its quiet sources fold
+     * into it).
+     * Runs on the built graph before the reader's folds are applied, so a
+     * folded card still counts the exceptions below it.
+     */
+    private excFoldGraph(rootCard: TreeCard, flow: boolean): () => void {
+        const keep = new Map<TreeCard, boolean>();
+        const mark = (c: TreeCard): boolean => {
+            let v = this.excOf(c.node) === true;
+            for (const k of c.children) { if (mark(k)) { v = true; } }
+            keep.set(c, v);
+            return v;
+        };
+        mark(rootCard);
+        // applied after the reader's folds (treePrune)
+        return (): void => {
+            let folded = 0; let rests = 0;
+            const walk = (c: TreeCard): void => {
+                if (c.children.length === 0) { return; }
+                // the Sankey pours no margins (they never become a stream)
+                const quiet = c.children.filter(k => !keep.get(k) && !(flow && k.node.row.rowType === "kpi"));
+                for (const k of c.children) { if (keep.get(k) || quiet.indexOf(k) < 0) { walk(k); } }
+                if (quiet.length === 0) { return; }
+                const kept = c.children.filter(k => quiet.indexOf(k) < 0);
+                const restCard = (members: TreeCard[], op: FormulaOp | null, tag: string): TreeCard => ({
+                    node: this.excRestNode(c.node, members.map(m => m.node), tag),
+                    op, depth: c.depth + 1, children: [], x: 0, y: 0, h: c.h, compact: true,
+                    hasKids: false, moreKids: 0, collapsed: false, drill: false, rest: members.map(m => m.node),
+                });
+                if (!flow) {
+                    const op = quiet.every(k => k.op === quiet[0].op) ? quiet[0].op : null;
+                    c.children = [...kept, restCard(quiet, op, "t")];
+                    folded += quiet.length; rests++;
+                    return;
+                }
+                // Sankey: one band per operator and side; a lone quiet stream stays itself
+                const groups = new Map<string, TreeCard[]>();
+                for (const k of quiet) {
+                    const ct = this.flowContribution(c.drill, c.node, k.op, this.flowValue(k.node).v) ?? 0;
+                    const key = `${k.op ?? ""}|${ct < 0 ? "-" : "+"}`;
+                    const g = groups.get(key) ?? [];
+                    g.push(k);
+                    groups.set(key, g);
+                }
+                const out = [...kept];
+                let gi = 0;
+                // a lone quiet stream stays itself, as an end node: what pours into it is quiet as well
+                const count = (k: TreeCard): number => k.children.reduce((a, x) => a + 1 + count(x), 0);
+                for (const g of groups.values()) {
+                    if (g.length < 2) {
+                        for (const k of g) { folded += count(k); k.children = []; }
+                        out.push(...g);
+                        continue;
+                    }
+                    out.push(restCard(g, g[0].op, "f" + gi++));
+                    folded += g.length; rests++;
+                }
+                c.children = out;
+            };
+            walk(rootCard);
+            this.excHidden = folded;
+            this.excRestCount = rests;
+            this.excHiddenKind = flow ? "flows" : "cards";
+        };
+    }
+
+    /** 1.7 footer line while ⚡ is on: "⚡ Colour only for exceptions: … · 12 rows below the threshold hidden" */
+    private excNote(): string | null {
+        if (!this.excCfg()) { return null; }
+        const parts = [this.tr("UI_ExcNote", this.excRuleText())];
+        const n = this.excHidden;
+        if (n > 0) {
+            const kind = this.excHiddenKind;
+            if (kind === "rows") { parts.push(n === 1 ? this.tr("UI_ExcHidden1") : this.tr("UI_ExcHidden", n)); }
+            else if (kind === "steps") { parts.push(this.tr("UI_ExcSummed", n)); }
+            else if (kind === "cards") { parts.push(n === 1 ? this.tr("UI_ExcFoldedCards1") : this.tr("UI_ExcFoldedCards", n)); }
+            else { parts.push(this.tr("UI_ExcBundled", n)); }
+        }
+        return parts.join(" · ");
+    }
+
+    /**
+     * 1.7 cross-highlight footer line (on screen and in the export): what the
+     * figures are, the marked part of the %-of-revenue row (or the first root)
+     * against its whole, and how the Sankey / tree draw the two. null without
+     * a highlight.
+     */
+    private hlNote(): string | null {
+        if (!this.hlFull || !this.model || !this.ui) { return null; }
+        const parts = [this.tr("UI_HlNote")];
+        const base = revenueBase(this.hlFull, (this.settings.columnsCard.revenueBase.value ?? "").trim());
+        const node = base ? this.model.byId.get(base.row.id) : undefined;
+        const p = node ? this.hlPair(node) : null;
+        if (node && p && p.f != null && p.f !== 0) {
+            const fmt = this.makeFmt(this.scans().maxAbsVal);
+            const unit = (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+            parts.push(this.tr("UI_HlNoteTotal", node.row.name,
+                p.m == null ? "–" : this.treeNum(p.m, fmt), this.treeNum(p.f, fmt) + (unit ? " " + unit : ""),
+                fmt.pct(p.share)));
+        }
+        const vw = this.view();
+        if (this.ui.treeZoom == null || (vw !== "tree" && vw !== "sankey")) {
+            if (vw === "sankey") { parts.push(this.tr("UI_HlNoteFlow")); }
+            else if (vw === "tree") { parts.push(this.tr("UI_HlNoteTree")); }
+        }
+        return parts.join(" · ");
+    }
+
+    /** 1.7 the rule in words: "|Δ%| ≥ 5 % or |Δ| ≥ 50k vs PL · above" (button tooltip, footer note) */
+    private excRuleText(): string {
+        const x = this.ui?.exc;
+        if (!x) { return ""; }
+        const nf = new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 });
+        const parts: string[] = [];
+        if (x.pct > 0 || x.abs <= 0) { parts.push(this.tr("UI_ExcRulePct", nf.format(x.pct))); }
+        if (x.abs > 0) { parts.push(this.tr("UI_ExcRuleAbs", this.excAbsText(x.abs))); }
+        const ref = x.ref !== "auto" && this.has[x.ref] ? this.relabel(x.ref.toUpperCase()) : this.excAutoLabel();
+        let out = parts.join(" " + this.tr("UI_ExcOr") + " ") + " " + this.tr("UI_ExcVs", ref);
+        if (x.dir !== "both") { out += " · " + this.tr(x.dir === "up" ? "UI_ExcDirUp" : "UI_ExcDirDown"); }
+        return out;
+    }
+
+    /** an absolute threshold (data units) in short form: 50 000 → "50k" */
+    private excAbsText(v: number): string {
+        const a = Math.abs(v);
+        const [div, suf] = a >= 1e9 ? [1e9, "b"] : a >= 1e6 ? [1e6, "m"] : a >= 1e3 ? [1e3, "k"] : [1, ""];
+        return new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 }).format(v / div) + suf;
     }
 
     /** columns.highlight as a lower-case set of row names / ids */
@@ -8949,7 +11755,7 @@ export class Visual implements IVisual {
                 const D = displayVariance(node.row, a, r);
                 if (!D) { continue; }
                 if (D.pp) {
-                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", "%p") });
+                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", MEGA_PP) });
                     continue;
                 }
                 const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);
@@ -9049,11 +11855,13 @@ export class Visual implements IVisual {
     private moveDarkTip(e: MouseEvent): void {
         const d = this.darkTip;
         if (!d) { return; }
-        const r = this.root.getBoundingClientRect();
-        let x = e.clientX - r.left + 14;
-        let y = e.clientY - r.top + 14;
-        if (x + d.offsetWidth > r.width - 4) { x = Math.max(4, e.clientX - r.left - d.offsetWidth - 14); }
-        if (y + d.offsetHeight > r.height - 4) { y = Math.max(4, e.clientY - r.top - d.offsetHeight - 14); }
+        const r = this.rect(this.root);
+        const z = this.zoom();
+        const cx = e.clientX / z; const cy = e.clientY / z;
+        let x = cx - r.left + 14;
+        let y = cy - r.top + 14;
+        if (x + d.offsetWidth > r.width - 4) { x = Math.max(4, cx - r.left - d.offsetWidth - 14); }
+        if (y + d.offsetHeight > r.height - 4) { y = Math.max(4, cy - r.top - d.offsetHeight - 14); }
         // the root scrolls — the box lives in its content coordinates
         d.style.left = `${x + this.root.scrollLeft}px`;
         d.style.top = `${y + this.root.scrollTop}px`;
@@ -9227,6 +12035,13 @@ export class Visual implements IVisual {
      * the weakest driver (leaf rows, ranked by their effect: favourable Δ up,
      * unfavourable down). Mega table: its minuend and first reference, display
      * orientation; classic: AC vs the toolbar reference. YTD window.
+     * 1.5: one complete sentence (IBCS SAY: a message, not a keyword list) —
+     * "EBIT liegt 691 Tsd. EUR (−29 %) unter Vorjahr; stärkster Treiber ist
+     * Lizenzen mit +120 Tsd. EUR Mehrertrag, größte Belastung ist Logistik mit
+     * +813 Tsd. EUR Mehrkosten." 1.5.1: the drivers carry the Δ the table
+     * shows (a cost overrun is +813 there) and name its effect in words; they
+     * are still ranked by their effect on the result. A minuend other than AC
+     * is named in the subject ("liegt im Plan").
      */
     private autoMessage(fmt: Fmt): string {
         const model = this.model; const ui = this.ui;
@@ -9262,24 +12077,76 @@ export class Visual implements IVisual {
             : roots.length === 1 ? roots[0] : syntheticTotal(model);
         const total = dv(result);
         if (!total) { return ""; }
-        const unit = fmt.suffix + this.settings.numbersCard.unitText.value;
-        const refName = this.relabel(ref === "plfy" ? "PL" : ref.toUpperCase());
-        const parts = [(result.row.name ? result.row.name + " " : "") + `Δ${refName} ${fmt.val(total.d, true)}${unit ? " " + unit : ""}`
-            + (total.p != null ? ` (${fmt.pct(total.p, true)})` : "")];
-        const drivers: { n: PnlNode; d: number; score: number }[] = [];
+        const unit = this.titleUnit(fmt);
+        // number and unit never break apart ("+721 Mio. | EUR" in a narrow headline)
+        const withUnit = (s: string): string => s + (unit ? " " + unit.replace(/ /g, " ") : "");
+        const code = ref === "plfy" ? "PL" : ref.toUpperCase();
+        // the reference by name ("Vorjahr", "Plan"); house terms (labels.labelPy …) win
+        const refName = this.relabel(code) !== code ? this.relabel(code) : this.tr(code === "PY" ? "UI_AutoRefPY" : "UI_AutoRefPL");
+        // 1.5.1: a minuend other than AC is named in the subject ("EBIT liegt im
+        // Plan … über Vorjahr", 12H; "im Forecast" for FC) — house terms win
+        // 1.5.2: an FY outlook with minuend AC compares AC&FC (YTD actual plus
+        // the forecast of the rest of the year) — the subject says so ("EBIT
+        // liegt im Forecast … unter Vorjahr", 12G), not like a booked actual
+        const minCode: string = mt ? (block === "fy" && mt.min === "AC" ? "FC" : mt.min) : "AC";
+        const minName = minCode === "AC" ? "" : this.relabel(minCode) !== minCode ? this.relabel(minCode)
+            : this.tr(minCode === "PL" ? "UI_AutoRefPL" : "UI_AutoScenFC");
+        const inScen = minName ? this.tr("UI_AutoIn", minName) : "";
+        const name = result.row.name || this.tr("UI_AutoResult");
+        // 1.5.1: Δ% with the typographic minus and a narrow space before "%" ("−28,5 %")
+        const pctH = (p: number): string => fmt.pct(p, true).replace("%", " %");
+        const amount = withUnit(fmt.val(Math.abs(total.d))) + (total.p != null ? ` (${pctH(total.p)})` : "");
+        let sentence = total.d === 0 ? this.tr("UI_AutoEq", name, refName, inScen)
+            : this.tr(total.d > 0 ? "UI_AutoAbove" : "UI_AutoBelow", name, amount, refName, inScen);
+        const drivers: { n: PnlNode; score: number; d: number; good: boolean }[] = [];
         for (const n of model.byId.values()) {
             if (n.hasChildren || n.row.rowType !== "account") { continue; }
             const v = dv(n);
             if (!v || v.d === 0) { continue; }
-            drivers.push({ n, d: v.d, score: v.good ? Math.abs(v.d) : -Math.abs(v.d) });
+            drivers.push({ n, score: v.good ? Math.abs(v.d) : -Math.abs(v.d), d: v.d, good: v.good });
         }
+        // 1.5.1: a driver reads with the Δ the table shows (sign and all: a cost
+        // overrun is +813, as in the Δ column) and its effect in words —
+        // "größte Belastung ist Logistik mit +0,81 Mio. EUR Mehrkosten". The
+        // ranking still goes by the effect on the result.
+        const effect = (x: { d: number; good: boolean }): string => this.tr(
+            x.good ? (x.d > 0 ? "UI_AutoEffIncome" : "UI_AutoEffSaving") : (x.d > 0 ? "UI_AutoEffCost" : "UI_AutoEffShortfall"),
+            withUnit(fmt.val(x.d, true)));
+        const tail: string[] = [];
         if (drivers.length >= 3) {
             drivers.sort((x, y) => y.score - x.score);
             const best = drivers[0]; const worst = drivers[drivers.length - 1];
-            if (best !== worst && best.score > 0) { parts.push(`${this.tr("UI_AutoBest")}: ${best.n.row.name} (${fmt.val(best.d, true)})`); }
-            if (best !== worst && worst.score < 0) { parts.push(`${this.tr("UI_AutoWorst")}: ${worst.n.row.name} (${fmt.val(worst.d, true)})`); }
+            if (best !== worst && best.score > 0) { tail.push(this.tr("UI_AutoBest", best.n.row.name, effect(best))); }
+            if (best !== worst && worst.score < 0) { tail.push(this.tr("UI_AutoWorst", worst.n.row.name, effect(worst))); }
         }
-        return parts.join(" · ");
+        if (tail.length) { sentence += this.tr("UI_AutoJoin") + tail.join(this.tr("UI_AutoAnd")); }
+        return sentence + this.tr("UI_AutoEnd");
+    }
+
+    /**
+     * 1.5: the unit of the title's measure line ("… in Tsd. EUR" → "Tsd. EUR",
+     * "… en kEUR", "…単位：kEUR") — the generated message names amounts the way
+     * the title does. 1.5.1: the unit may also stand before a comma or a
+     * bracket ("GuV in Mio. EUR, Jahresausblick gegen Vorjahr"); of several
+     * "in …" phrases the last one that looks like a unit wins. Without one, the
+     * visual's own unit in words: scaling + numbers.unitText ("Mio. EUR",
+     * "Tsd. EUR"), never the code "mEUR".
+     */
+    private titleUnit(fmt: Fmt): string {
+        const unitText = this.settings.numbersCard.unitText.value.trim();
+        const line = this.settings.titleCard.measureLine.value.trim();
+        const looksLikeUnit = (s: string): boolean =>
+            /[A-Z]{3}|[€$£¥%]|千|百万|億/.test(s) || /\b(?:tsd|mio|mrd|thousand|million|billion|miles|millones|mill)\b/i.test(s)
+            || (unitText !== "" && s.includes(unitText));
+        const found: string[] = [];
+        for (const m of line.matchAll(/(?:^|\s)(?:in|en)\s+([^,;·|()\n]{1,24}?)\s*(?=[,;·|()]|$)/gi)) { found.push(m[1].trim()); }
+        const jp = /単位[:：]\s*([^,;·|()、。\s][^,;·|()、。]{0,18}?)\s*(?=[,;·|()、。]|$)/.exec(line);
+        if (jp) { found.push(jp[1].trim()); }
+        for (let i = found.length - 1; i >= 0; i--) {
+            if (found[i] && looksLikeUnit(found[i])) { return found[i]; }
+        }
+        const key = fmt.suffix === "k" ? "UI_UnitK" : fmt.suffix === "m" ? "UI_UnitM" : fmt.suffix === "b" ? "UI_UnitB" : "";
+        return (key ? this.tr(key, unitText) : unitText).replace(/\s+/g, " ").trim();
     }
 
     /** first non-empty value of the bound filterInfo text measure */
@@ -9321,13 +12188,14 @@ export class Visual implements IVisual {
 
     // ---------------- footnotes / footer ----------------
 
-    private buildFootnotes(fmt: Fmt): void {
+    private buildFootnotes(fmt: Fmt): HTMLElement | null {
         void fmt;
         const model = this.model!;
         const warnings = [...this.statusWarnings, ...model.warnings];
-        if (this.comments.length === 0 && warnings.length === 0) { return; }
+        if (this.comments.length === 0 && warnings.length === 0) { return null; }
         const box = document.createElement("div");
-        box.style.cssText = "padding:8px 14px 4px 14px;max-width:960px;";
+        box.setAttribute("data-pnl", "footnotes");
+        box.style.cssText = (this.maxi() ? "padding:2px 4px 2px 4px;" : "padding:8px 14px 4px 14px;") + "max-width:960px;";
         const h = document.createElement("div");
         h.style.cssText = `font-size:${this.kpx(9)};font-weight:700;letter-spacing:.08em;` +
             `color:${C.soft};margin-bottom:4px;`;
@@ -9335,7 +12203,8 @@ export class Visual implements IVisual {
         box.appendChild(h);
         for (const cm of this.comments) {
             const li = document.createElement("div");
-            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;`;
+            li.style.cssText = `font-size:${this.kpx(10)};line-height:1.5;margin-bottom:3px;break-inside:avoid;`;
+            li.setAttribute("data-pnl", "footnote");
             const m = document.createElement("span");
             m.style.cssText = `color:${C.comment};margin-right:6px;`;
             m.textContent = String.fromCharCode(0x2460 + cm.n - 1);
@@ -9352,23 +12221,129 @@ export class Visual implements IVisual {
             box.appendChild(li);
         }
         this.root.appendChild(box);
+        return box;
     }
 
-    private buildFooter(): HTMLElement {
+    /**
+     * 1.5.1: every comment marked in the mega table (①, ②, ③ …) must be
+     * readable without scrolling — in a fixed tile the footnotes used to fall
+     * below the visible area (12A ③, 12G ② ③). When the footnotes end below
+     * the viewport: (1) they are set in columns, (2) the table rows are set
+     * tighter (row height down to 1.3 × the font size, a layout of its own,
+     * scales unchanged in kind), (3) if that is still not enough, the footnote
+     * block sticks to the bottom edge while the table scrolls behind it.
+     * Exports print everything in flow and are left alone.
+     */
+    private megaFitNotes(fmt: Fmt, table: HTMLElement, notes: HTMLElement | null, shrink: number, footer?: HTMLElement): void {
+        if (!notes || this.comments.length === 0 || this.exporting() || this.miniQuiet()) { return; }
+        const avail = this.root.clientHeight;
+        if (!avail) { return; }
+        // 1.5.2: the footer (IBCS notation line, title footers) belongs to the
+        // block that must fit — measuring only the footnotes cut the notation
+        // line off below the tile edge as soon as a comment was shown (T03, T04, 12A/G/H)
+        const lastEl = (): HTMLElement => footer && footer.parentNode === this.root ? footer : notes;
+        const bottom = (): number => Math.ceil(this.rect(lastEl()).bottom
+            - this.rect(this.root).top + this.root.scrollTop);
+        if (bottom() <= avail) { return; }
+        // (1) columns: one comment per line, as many columns as the width holds
+        if (this.comments.length > 1) {
+            notes.style.maxWidth = "none";
+            notes.style.columnWidth = this.kpx(300);
+            notes.style.columnGap = this.kpx(24);
+            const head = notes.firstElementChild as HTMLElement | null;
+            if (head) { head.style.columnSpan = "all"; }
+        }
+        let over = bottom() - avail;
+        // (2) tighter rows
+        const L = this.megaLast;
+        if (over > 0 && L && L.R.length > 0) {
+            const gaps = L.rows.filter(r => r.kind === "gap").length;
+            const per = over / (L.R.length + 0.5 * gaps);
+            const rowK = (L.G.rowH - per - 0.5) / L.G.fs;
+            if (rowK < 1.7) {
+                const tight = this.buildMega(fmt, shrink, rowK);
+                this.root.replaceChild(tight, table);
+                over = bottom() - avail;
+            }
+        }
+        // (3) still too tall: the footnotes stay on screen at the bottom edge,
+        // the footer rides along inside the sticky block
+        if (over > 0) {
+            // the footer spans all comment columns, otherwise the notation line
+            // is torn into column fragments
+            if (footer && footer.parentNode === this.root) { notes.appendChild(footer); footer.style.columnSpan = "all"; }
+            // only while the rows keep a usable window: frozen head, column
+            // header and a sticky footnote block together ate small tiles
+            // completely (a Fabric App tile showed title and footnotes only)
+            const megaHead = this.root.querySelector('[data-pnl="mega-head-wrap"]') as HTMLElement | null;
+            const frozen = this.sticky() ? (this.headEl?.offsetHeight ?? 0) + (megaHead?.offsetHeight ?? 0) : 0;
+            const rowH = L ? L.G.rowH : this.k(20);
+            if (avail - frozen - notes.offsetHeight < Math.max(5 * rowH, 0.3 * avail)) { return; }
+            notes.setAttribute("data-pnl-sticky", "1");
+            notes.style.position = "sticky";
+            notes.style.bottom = "0";
+            notes.style.zIndex = "20";
+            notes.style.background = this.pageBg();
+            notes.style.borderTop = `1px solid ${C.gridSoft}`;
+        }
+    }
+
+    private buildFooter(flow = false): HTMLElement {
         const f = document.createElement("div");
-        f.style.cssText = `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};` +
-            `margin-top:8px;font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
+        f.setAttribute("data-pnl", "footer");
+        // 1.7 maximize: a compact foot
+        const mx = this.maxi();
+        f.style.cssText = (mx ? `padding:3px 4px 3px 4px;border-top:1px solid ${C.gridSoft};margin-top:2px;`
+            : `padding:10px 14px 12px 14px;border-top:1px solid ${C.gridSoft};margin-top:8px;`) +
+            `font-size:${this.kpx(8.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;
         const vm = this.varianceMode();
         const dev = vm !== "ibcs" && !this.hc ? this.tr(vm === "blueOrange" ? "UI_FooterDevBo" : "UI_FooterDev") : "";
-        f.textContent = this.tr("UI_FooterIbcs", dev);
+        // 1.6: the Sankey is a deliberate addition next to the IBCS views — the
+        // footer says so instead of letting it pass as IBCS notation
+        const flowNote = flow ? this.tr("UI_FooterSankey") : "";
+        f.textContent = this.tr("UI_FooterIbcs", flowNote + dev);
         // title-block footers (1.1): data status / source, then the filter context
         const lines = this.titleFooterLines();
+        // 1.7 ⚡ "only exceptions": the rule (and how many detail rows it hid) —
+        // on screen and in the export, so a grey row never reads as "no variance"
+        const excNote = this.excNote();
+        // 1.7 cross-highlight: the figures are the marked part of another visual's selection
+        const hlNote = this.hlNote();
+        if (excNote || hlNote) {
+            const wrapE = document.createElement("div");
+            if (excNote) {
+                const n = document.createElement("div");
+                n.setAttribute("data-pnl", "exc-note");
+                n.style.cssText = `padding:${mx ? 2 : 8}px ${this.gut()}px 0 ${this.gut()}px;font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
+                    `max-width:${this.k(960)}px;`;
+                n.textContent = excNote;
+                wrapE.appendChild(n);
+            }
+            if (hlNote) {
+                const n = document.createElement("div");
+                n.setAttribute("data-pnl", "hl-note");
+                n.style.cssText = `padding:${excNote || mx ? (mx ? 2 : 4) : 8}px ${this.gut()}px 0 ${this.gut()}px;font-size:${this.kpx(9.5)};color:${C.soft};` +
+                    `line-height:1.5;max-width:${this.k(960)}px;`;
+                n.textContent = hlNote;
+                wrapE.appendChild(n);
+            }
+            if (lines.length > 0) {
+                const tf = document.createElement("div");
+                tf.setAttribute("data-pnl", "title-footer");
+                tf.style.cssText = `padding:${mx ? 2 : 4}px ${this.gut()}px 0 ${this.gut()}px;font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
+                    `max-width:${this.k(960)}px;`;
+                for (const l of lines) { const d = document.createElement("div"); d.textContent = l; tf.appendChild(d); }
+                wrapE.appendChild(tf);
+            }
+            wrapE.appendChild(f);
+            return wrapE;
+        }
         if (lines.length === 0) { return f; }
         const wrap = document.createElement("div");
         const tf = document.createElement("div");
         tf.setAttribute("data-pnl", "title-footer");
-        tf.style.cssText = `padding:8px 14px 0 14px;font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
+        tf.style.cssText = `padding:${mx ? 2 : 8}px ${this.gut()}px 0 ${this.gut()}px;font-size:${this.kpx(9.5)};color:${C.soft};line-height:1.5;` +
             `max-width:${this.k(960)}px;`;
         for (const l of lines) {
             const d = document.createElement("div");

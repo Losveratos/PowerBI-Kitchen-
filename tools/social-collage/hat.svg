@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+  <!-- Daten-WG chef-hat logo: white hat, black outline, teal accent arcs,
+       yellow/teal bar chart, DWG wordmark -->
+  <defs>
+    <style>
+      .ink  { fill: #111111; }
+      .teal { fill: #1E8F9E; }
+      .yel  { fill: #F5B301; }
+    </style>
+  </defs>
+
+  <!-- chef hat silhouette: three lobes + rounded body, thick black outline -->
+  <g stroke="#111111" stroke-width="26" stroke-linejoin="round">
+    <path fill="#FFFFFF" d="
+      M 320 52
+      C 250 52 196 100 186 160
+      C 120 156 62 204 62 274
+      C 62 330 96 372 146 386
+      L 146 500
+      C 146 542 176 570 218 570
+      L 422 570
+      C 464 570 494 542 494 500
+      L 494 386
+      C 544 372 578 330 578 274
+      C 578 204 520 156 454 160
+      C 444 100 390 52 320 52
+      Z"/>
+  </g>
+
+  <!-- teal accent arcs inside the left and right lobes -->
+  <path fill="none" stroke="#1E8F9E" stroke-width="16" stroke-linecap="round"
+        d="M 140 226 C 118 260 116 306 138 344"/>
+  <path fill="none" stroke="#1E8F9E" stroke-width="16" stroke-linecap="round"
+        d="M 500 226 C 522 260 524 306 502 344"/>
+
+  <!-- bar chart: yellow / teal / tall yellow on a black baseline -->
+  <g stroke="#111111" stroke-width="14" stroke-linejoin="round">
+    <rect class="yel"  x="212" y="296" width="62" height="86"  rx="8"/>
+    <rect class="teal" x="292" y="248" width="62" height="134" rx="8"/>
+    <rect class="yel"  x="372" y="188" width="62" height="194" rx="8"/>
+  </g>
+  <rect class="ink" x="188" y="384" width="268" height="16" rx="8"/>
+
+  <!-- DWG wordmark -->
+  <g font-family="Arial Black, Arial, sans-serif" font-weight="900"
+     font-size="128" text-anchor="middle"
+     stroke="#111111" stroke-width="12" paint-order="stroke" stroke-linejoin="round">
+    <text x="234" y="528" class="teal">D</text>
+    <text x="330" y="528" class="yel">W</text>
+    <text x="428" y="528" fill="#FFFFFF">G</text>
+  </g>
+</svg>

@@ -1299,6 +1299,29 @@ KAMPF_POST = {
     },
 }
 
+# --- Sicherheit & Betrieb (visuals-sicherheit[_en]) --------------------------
+# Eigenes Layout: .wrap > topbar + header.hero + section.block (Tabellen, Listen,
+# Hinweisboxen, Checkliste mit Befehlen).
+SICHERHEIT_COMMON = {
+    "root": ".wrap",
+    "drop": [
+        ".topbar",      # Seiten-Chrome
+        "h1",           # H1 liefert der Kopfblock
+    ],
+    "inline_join": {
+        "chips": " · ",
+    },
+    "inline_sep": {
+        "snum": " · ",
+        "cn": ". ",        # Nummer der Checklisten-Schritte
+    },
+    "blockquote": [".notebox", ".ibcs"],
+    "custom": {
+        "dl.facts": h_def_list,
+        "pre": h_code,
+    },
+}
+
 PAGES: list[dict] = [
     {
         **DOKU_COMMON,
@@ -1347,6 +1370,20 @@ PAGES: list[dict] = [
         "basename": "chartkitchen-schnellstart_en",
         "lang": "en",
         "title": "ChartKitchen byDatenWG — Quick Start",
+    },
+
+    # --- Sicherheit & Betrieb der byDatenWG-Visuals (Admin-Seite, DE/EN)
+    {
+        **SICHERHEIT_COMMON,
+        "basename": "visuals-sicherheit",
+        "lang": "de",
+        "title": "Sicherheit & Betrieb der byDatenWG-Visuals",
+    },
+    {
+        **SICHERHEIT_COMMON,
+        "basename": "visuals-sicherheit_en",
+        "lang": "en",
+        "title": "Security & Deployment of the byDatenWG Visuals",
     },
 
     # --- P&L Statement byDatenWG: Volldoku (gleiches Markup wie chartkitchen-doku)
@@ -1573,12 +1610,40 @@ PAGES: list[dict] = [
         **KAMPF_POST,
         "basename": "der-unsichtbare-kampf-post",
         "lang": "de",
-        "title": "Der unsichtbare Kampf — Interview mit Michael Thomanek (Entwurf)",
+        "title": "Der unsichtbare Kampf — Interview mit Michael Thomanek",
         "append_md": (
             "---\n\n"
             "## Weiterlesen\n\n"
             "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/der-unsichtbare-kampf-post.html\n"
             "- Alle Beiträge: [beitraege.html](../beitraege.html)\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "sankey-wasserfall-post",
+        "lang": "de",
+        "title": "Sankey trifft IBCS-Wasserfall",
+        "append_md": (
+            "---\n\n"
+            "## Weiterlesen\n\n"
+            "- HTML (maßgeblich): https://datenwgknowledgekitchen.com/sankey-wasserfall-post.html\n"
+            "- Englische Fassung: [sankey-wasserfall-post_en.html](../sankey-wasserfall-post_en.html) · "
+            "[sankey-wasserfall-post_en.md](sankey-wasserfall-post_en.md)\n"
+            "- Doku des Visuals: [pnl-doku.md](pnl-doku.md) · Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html)\n"
+        ),
+    },
+    {
+        **POST_COMMON,
+        "basename": "sankey-wasserfall-post_en",
+        "lang": "en",
+        "title": "Sankey meets the IBCS waterfall",
+        "append_md": (
+            "---\n\n"
+            "## Read on\n\n"
+            "- HTML (authoritative): https://datenwgknowledgekitchen.com/sankey-wasserfall-post_en.html\n"
+            "- German version: [sankey-wasserfall-post.html](../sankey-wasserfall-post.html) · "
+            "[sankey-wasserfall-post.md](sankey-wasserfall-post.md)\n"
+            "- Visual documentation: [pnl-doku_en.md](pnl-doku_en.md) · Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html)\n"
         ),
     },
 ]

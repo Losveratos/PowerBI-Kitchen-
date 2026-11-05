@@ -56,7 +56,7 @@
 <div class="case"><h4>KPI-Karten (Kacheln) · AC+PY+PL, ein FC</h4><div class="stage" id="c42" style="width:960px;height:400px"></div></div>
 <div class="case"><h4>KPI-Karten · flacher Streifen (1420×130) — Δ-Zeilen + Brücke rutschen nach rechts</h4><div class="stage" id="c43" style="width:1420px;height:130px"></div></div>
 <div class="case"><h4>Pareto · Small Multiples + Σ Gesamt — gemeinsame Skala (Fix 1.12.3)</h4><div class="stage" id="c44" style="width:960px;height:420px"></div></div>
-<div class="case"><h4>Integrierte Brücke · negative Werte → Hinweis statt kaputtem SVG (Fix 1.12.4)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
+<div class="case"><h4>Integrierte Brücke · rein negative Werte → Split-Layout mit Nulllinie (1.53.0; 1.12.4–1.52.4: Hinweis)</h4><div class="stage" id="c45" style="width:960px;height:280px"></div></div>
 <div class="case"><h4>FC-Revision · AC/FC vs. FC Vormonat (Basis „fcrev") + Datenstand-Fußzeile</h4><div class="stage" id="c46" style="width:960px;height:460px"></div></div>
 <div class="case"><h4>KPI-Karten · Per-KPI-Invert (Opex invertiert: Mehrkosten rot)</h4><div class="stage" id="c47" style="width:960px;height:260px"></div></div>
 <div class="case"><h4>QTD · Fiskaljahr ab April — Reset an jedem Quartalsstart</h4><div class="stage" id="c48" style="width:960px;height:420px"></div></div>
@@ -494,7 +494,8 @@ const pmCats = [], pmMult = [], pmAc = [];
 run("c44", dataView(pmCats, [col("actual", pmAc, "#,0 €")],
   { chart: { orientation: "pareto", multiplesTotal: true } }, pmMult), 960, 420);
 
-// negative series in the integrated bridge: explicit hint, no broken rects
+// negative series in the integrated bridge: 1.53.0 split layout (zero line on top,
+// monthly strip below); 1.12.4–1.52.4 drew a hint here
 run("c45", dataView(months.slice(0, 6),
   [col("actual", [-820, -771, -900, -955, -1020, -980]), col("previousYear", [-760, -800, -850, -900, -940, -1010])],
   { chart: { orientation: "intwaterfall" } }), 960, 280);
@@ -762,11 +763,10 @@ run("c49", dataView(["Umsatz", "Materialaufwand", "Bruttoergebnis", "Marge %", "
 </script>
 
 <!-- ==== Audit 2026-07: Edge-Case-Haertung (Suiten minimal-negativ & kombi-stress) ==== -->
-<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → heute unsichtbar, erwartet: Hinweis oder korrektes Rendering</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
+<div class="case"><h4>Kategorie-Brücke · ausschließlich negative Werte → Nulllinie rechts, Balken nach links (1.53.0; bis 1.52.4: Hinweis)</h4><div class="stage" id="c90" style="width:1200px;height:600px"></div></div>
 <script>
-// Kategorie-Brücke · ausschließlich negative Werte → Balken kollabieren (fehlender maxV-Guard)
-// all-negative category bridge: maxV degenerates to 1 (visual.ts renderCategoryBridge),
-// bars collapse to invisible slivers — should show the same hint as the integrated bridge
+// Kategorie-Brücke · ausschließlich negative Werte — 1.34.3–1.52.4 Hinweis, ab 1.53.0
+// gezeichnet: Domäne [min, 0] (catBridgeDomain), Nulllinie rechts, Labels links
 run("c90", dataView(["Nord","Süd","Ost","West"],
   [col("actual", [-179, -89, -42, -67]), col("previousYear", [-135, -68, -35, -66])],
   { chart: { orientation: "catbridge" } }), 1200, 600);
@@ -780,11 +780,11 @@ run("c91", dataView(["Umsatz","Material","Personal","Sondereffekt","Steuern"],
   [col("actual", [5000, -3200, -1500, 900, -1200], "#,0 T€")],
   { chart: { orientation: "waterfall" }, ibcsTitle: { kpi: "Ergebnis", period: "2026" } }), 960, 380);
 </script>
-<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → Negativ-Hinweis pro Kachel, Nachbar-Kachel intakt</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
+<div class="case"><h4>Integrierte Brücke · Multiples · sameScale + eine negative Kachel → beide Kacheln split, gemeinsame Skala (1.53.0; bis 1.52.4: Hinweis)</h4><div class="stage" id="c92" style="width:1340px;height:640px"></div></div>
 <script>
 // Integrierte Brücke · Multiples sameScale mit einer komplett negativen Kachel
-// one all-negative tile inside a sameScale multiples grid: the negative tile must show
-// the explicit hint, the positive tile must keep rendering (no shared-scale poisoning)
+// one all-negative tile inside a sameScale multiples grid: 1.53.0 both tiles draw the
+// split layout on one shared range (until 1.52.4: hint in the negative tile)
 const ngCats = [], ngMult = [], ngAc = [], ngPy = [];
 ["Nord", "Süd"].forEach((r, ri) => {
   ["Q1","Q2","Q3","Q4"].forEach((q, qi) => {
@@ -2696,6 +2696,523 @@ addStage("c238", "Leser (viewMode 0) ohne Daten · Leser-Karte: Produktname · i
   addStage("c238c", "Export (allowInteractions = false) ohne Daten · dieselbe Leser-Karte", 960, 300);
   runCap("c238c", emptyDv({}), 960, 300, { viewMode: 1, noInteract: true });
   check(document.querySelector("#c238c svg").innerHTML === document.querySelector("#c238 svg").innerHTML, "c238c: Export = Leser-Karte");
+}
+</script>
+<script>
+// ======================================================================
+// 1.53.0 · Negative Brücken (c239+) — Integrierte Brücke und Kategorie-Brücke
+// zeichnen negative Werte statt eines Hinweises: Nulllinie, Anker ab Null (auch
+// nach unten), Stufen schwebend in echter Höhe und Richtung, Färbung nach
+// Vorzeichen-Logik (Invert), Labels außen, Achsenschnitt nur einseitig
+// ======================================================================
+const NB = { GOOD: "#1E8F9E", BAD: "#D64541", AC: "#404040", PY: "#B3B3B3" };
+const nbQ = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+const nbAttr = (el, a) => parseFloat(el.getAttribute(a));
+const nbFill = el => (el.getAttribute("fill") || "").toUpperCase();
+const nbStroke = el => (el.getAttribute("stroke") || "").toUpperCase();
+const nbBottom = r => nbAttr(r, "y") + nbAttr(r, "height");
+const nbTexts = id => nbQ(id, "svg text").map(t => t.textContent.trim()).filter(Boolean);
+// no hint, no NaN anywhere in the SVG
+function nbSane(id) {
+  const hint = nbTexts(id).some(t => /does not support|unterstützt keine|not drawn in this state/.test(t));
+  const nan = /NaN|Infinity/.test(document.querySelector(`#${id} svg`).outerHTML);
+  check(!hint && !nan, `${id}: Chart statt Hinweis, keine NaN/Infinity-Attribute`);
+  check(!nbQ(id, 'svg g[data-icd-locked="1"] title').some(t => /not drawn in this state/.test(t.textContent)),
+    `${id}: Brücken-Chips nicht wegen „kein Chart“ gesperrt`);
+}
+// cascade bricks of the integrated bridge / vertical category bridge: good/bad
+// filled, hatched or (high contrast) hollow rects inside the category groups
+const nbIsBrick = (r, good, bad) => [good, bad].includes(nbFill(r)) || /url\(#icd-hatch-(good|bad)/.test(r.getAttribute("fill") || "")
+  || ([good, bad].includes(nbStroke(r)) && r.getAttribute("stroke-width") === "1.4");
+const nbBricks = (id, good = NB.GOOD, bad = NB.BAD) => nbQ(id, "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => nbIsBrick(r, good, bad)) || null);
+const nbGood = (r, good = NB.GOOD) => nbFill(r) === good || /hatch-good/.test(r.getAttribute("fill") || "") || nbStroke(r) === good;
+// anchor/total columns: rects outside the category groups
+const nbAnchors = (id, fill) => nbQ(id, "svg rect").filter(r => !r.closest("g.icd-cat") && !r.closest("[data-icd]") && nbFill(r) === fill);
+// glyph boxes of numeric labels — pairwise overlap (declutter rule: 18 % leading off)
+function nbOverlaps(id, filter) {
+  const boxes = nbQ(id, "svg text").filter(t => /\d/.test(t.textContent) && (!filter || filter(t))).map(t => {
+    const b = t.getBBox(); const sh = b.height * 0.18; return { t: t.textContent, x0: b.x + 0.5, x1: b.x + b.width - 0.5, y0: b.y + sh, y1: b.y + b.height - sh };
+  }).filter(b => b.x1 > b.x0);
+  const hits = [];
+  boxes.forEach((a, i) => boxes.slice(i + 1).forEach(b => {
+    if (Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > 0.5 && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 0.5) { hits.push(a.t + "×" + b.t); }
+  }));
+  return hits;
+}
+
+// ---- c239: Integrierte Brücke · Ergebnis mit Verlustmonaten (alle Stände ≥ 0)
+const nbMon = months;
+const nbEAc = [520, 310, -180, 440, -120, 610, 380, 290, null, null, null, null].map(v => v == null ? null : v * 1000);
+const nbEFc = [null, null, null, null, null, null, null, null, 350, -50, 420, 550].map(v => v == null ? null : v * 1000);
+const nbEPy = [450, 280, 120, 390, -80, 500, 410, 220, 300, 100, 360, 480].map(v => v * 1000);
+const nbEbit = (extra) => dataView(nbMon, [col("actual", nbEAc, "#,0"), col("forecast", nbEFc, "#,0"), col("previousYear", nbEPy, "#,0")],
+  Object.assign({ chart: { orientation: "intwaterfall", comparisonMode: "py" } }, extra || {}));
+addStage("c239", "Integrierte Brücke · Ergebnis mit Verlustmonaten (Mär, Mai, Okt) — Monatssäulen hängen unter der gemeinsamen Nulllinie, Anker ab Null", 1200, 520);
+{
+  runCap("c239", nbEbit(), 1200, 520);
+  nbSane("c239");
+  const zl = nbQ("c239", '[data-icd="bridge-zero"]')[0];
+  const yZ = zl ? nbAttr(zl, "y1") : NaN;
+  check(!!zl && !nbQ("c239", '[data-icd="bridge-month-zero"]').length, "c239: eine gemeinsame Nulllinie (Layout „zero“), kein zweiter Monats-Nullstrich");
+  const py = nbAnchors("c239", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  check(py && Math.abs(nbBottom(py) - yZ) < 0.6, "c239: PY-Anker steht auf der Nulllinie");
+  // monthly AC columns: negative months hang below the zero line, positive ones stand on it
+  const acCols = nbQ("c239", "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => nbFill(r) === NB.AC || (/icd-hatch\b|icd-hatch-[0-9]|url\(#icd-hatch"?\)?$/.test(r.getAttribute("fill") || "") && nbStroke(r) === NB.AC)
+    || (nbStroke(r) === NB.AC && !nbIsBrick(r, NB.GOOD, NB.BAD))) || null);
+  const vals = nbEAc.map((v, i) => v ?? nbEFc[i]);
+  const dirOk = acCols.every((r, i) => r && (vals[i] < 0 ? Math.abs(nbAttr(r, "y") - yZ) < 0.6 && nbBottom(r) > yZ + 1 : Math.abs(nbBottom(r) - yZ) < 0.6));
+  check(dirOk, "c239: Monatssäulen vorzeichenrichtig an der Nulllinie (Verlustmonate nach unten)");
+  // labels of loss months sit below their column, above the category names
+  const g3 = nbQ("c239", "g.icd-cat")[2];
+  const lbl = [...g3.querySelectorAll("text")].find(t => /^[−-]180K$/.test(t.textContent.trim()));
+  const catY = Math.max(...nbQ("c239", "g.icd-cat text").filter(t => months.includes(t.textContent)).map(t => nbAttr(t, "y")));
+  check(lbl && nbAttr(lbl, "y") > nbBottom(acCols[2]) && nbAttr(lbl, "y") < catY - 4, "c239: Label „−180K“ unter der Mär-Säule, über den Monatsnamen");
+  // bricks: true direction and color (ΔPY sign logic)
+  const br = nbBricks("c239");
+  const dd = vals.map((v, i) => v - nbEPy[i]);
+  check(br.every((r, i) => r && (dd[i] === 0 || nbGood(r) === dd[i] > 0)), "c239: Stufen gut/schlecht nach ΔPY-Vorzeichen");
+  const kA = nbAttr(py, "height") / nbEPy.reduce((a, b) => a + b, 0);
+  const hDev = br.map((r, i) => Math.abs(nbAttr(r, "height") - Math.max(1, Math.abs(dd[i]) * kA)));
+  check(Math.max(...hDev) < 0.6, "c239: Stufen in echter Höhe auf der Ankerskala");
+  const ov = nbOverlaps("c239", t => !/%$/.test(t.textContent));
+  check(ov.length === 0, "c239: Wertlabels überlappen nicht " + JSON.stringify(ov));
+}
+
+// ---- c240: Integrierte Brücke · Start negativ (Vorjahresverlust) → Ende positiv
+const nbSAc = [100, 200, 150, 300, 250, 400].map(v => v * 1000);
+const nbSPy = [-400, -300, -350, -200, -250, -100].map(v => v * 1000);
+const nbStart = (extra, w, h) => dataView(nbMon.slice(0, 6), [col("actual", nbSAc, "#,0"), col("previousYear", nbSPy, "#,0")],
+  Object.assign({ chart: Object.assign({ orientation: "intwaterfall", comparisonMode: "py" }, (extra || {}).chart || {}) }, extra && extra.colors ? { colors: extra.colors } : {}));
+addStage("c240", "Integrierte Brücke · PY −1,6 Mio. (Verlust) → AC +1,4 Mio. — Kaskade kreuzt die Nulllinie, Monatssäulen im eigenen Streifen (Layout „split“)", 1100, 520);
+{
+  runCap("c240", nbStart(), 1100, 520);
+  nbSane("c240");
+  const zl = nbQ("c240", '[data-icd="bridge-zero"]')[0], ml = nbQ("c240", '[data-icd="bridge-month-zero"]')[0];
+  const yZ = zl ? nbAttr(zl, "y1") : NaN;
+  check(!!zl && !!ml && nbAttr(ml, "y1") > yZ + 40, "c240: Nulllinie der Kaskade + eigener Monats-Nullstrich darunter");
+  const py = nbAnchors("c240", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const ac = nbAnchors("c240", NB.AC).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  check(py && Math.abs(nbAttr(py, "y") - yZ) < 0.6 && nbBottom(py) > yZ + 20, "c240: PY-Anker (Verlust) hängt ab der Nulllinie nach unten");
+  check(ac && Math.abs(nbBottom(ac) - yZ) < 0.6 && nbAttr(ac, "y") < yZ - 20, "c240: AC-Anker steht ab der Nulllinie nach oben");
+  const kPy = nbAttr(py, "height") / 1.6e6, kAc = nbAttr(ac, "height") / 1.4e6;
+  check(Math.abs(kPy / kAc - 1) < 0.02, "c240: beide Anker auf EINER Skala (px je Einheit)");
+  const br = nbBricks("c240");
+  check(br.every(r => r && nbGood(r)), "c240: jede Monatsstufe ist eine Verbesserung (gut)");
+  const pyLbl = nbQ("c240", "svg text").find(t => /^[−-]1\.600K$/.test(t.textContent.trim()));
+  check(pyLbl && nbAttr(pyLbl, "y") > nbBottom(py), "c240: PY-Label unter dem negativen Anker (außen)");
+  check(nbTexts("c240").includes("+3.000K"), "c240: Gesamtabweichung +3.000K im Kreis");
+  const ov = nbOverlaps("c240");
+  check(ov.length === 0, "c240: Wertlabels überlappen nicht " + JSON.stringify(ov));
+}
+
+// ---- c241: Kategorie-Brücke · Kostenbrücke rein negativ (PY → AC)
+const nbCost = ["Personal", "Material", "Energie", "Miete"];
+const nbCAc = [-2600, -1900, -700, -350].map(v => v * 1000), nbCPy = [-2400, -2000, -550, -350].map(v => v * 1000);
+const nbCostDv = (chart) => dataView(nbCost, [col("actual", nbCAc, "#,0"), col("previousYear", nbCPy, "#,0")],
+  { chart: Object.assign({ orientation: "catbridge", comparisonMode: "py" }, chart || {}) });
+addStage("c241", "Kategorie-Brücke (Balken) · Kostenbrücke rein negativ — Nulllinie rechts, Balken nach links, Mehrkosten schlecht", 1100, 460);
+{
+  runCap("c241", nbCostDv(), 1100, 460);
+  nbSane("c241");
+  const zl = nbQ("c241", '[data-icd="bridge-zero"]')[0];
+  const xZ = zl ? nbAttr(zl, "x1") : NaN;
+  const py = nbAnchors("c241", NB.PY).sort((a, b) => nbAttr(b, "width") - nbAttr(a, "width"))[0];
+  check(!!zl && py && Math.abs(nbAttr(py, "x") + nbAttr(py, "width") - xZ) < 0.6, "c241: Nulllinie sichtbar, PY-Summe ab Null nach links");
+  const br = nbQ("c241", "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => [NB.GOOD, NB.BAD, NB.PY].includes(nbFill(r)) && Math.abs(nbAttr(r, "height") - Math.max(5, 0)) >= 0 && r.getAttribute("y") && nbAttr(r, "width") >= 2 && nbFill(r) !== NB.PY) || null);
+  const dd = nbCAc.map((v, i) => v - nbCPy[i]);
+  check(br.every((r, i) => dd[i] === 0 || (r && nbGood(r) === dd[i] > 0)), "c241: Mehrkosten (Δ < 0) schlecht, Einsparung gut");
+  // value labels of negative rows: left of the bar end, right of the category names
+  const names = nbQ("c241", "g.icd-cat text").filter(t => nbCost.includes(t.textContent));
+  const nameR = Math.max(...names.map(t => t.getBBox().x + t.getBBox().width));
+  const lbls = nbQ("c241", "g.icd-cat text").filter(t => /^[−-]\d/.test(t.textContent.trim()) && !/%$/.test(t.textContent));
+  check(lbls.length >= 6 && lbls.every(t => t.getAttribute("text-anchor") === "end" && t.getBBox().x > nameR), "c241: negative Labels links am Balkenende, rechts der Kategorienamen");
+  const ov = nbOverlaps("c241");
+  check(ov.length === 0, "c241: Wertlabels überlappen nicht " + JSON.stringify(ov));
+  addStage("c241b", "Kategorie-Brücke (Balken) · dieselbe Kostenbrücke mit chart.invert — Färbung kippt", 1100, 460);
+  runCap("c241b", nbCostDv({ invert: true }), 1100, 460);
+  nbSane("c241b");
+  const b2 = nbQ("c241b", "g.icd-cat").map(g => [...g.querySelectorAll("rect")].find(r => [NB.GOOD, NB.BAD].includes(nbFill(r))) || null);
+  check(b2.every((r, i) => dd[i] === 0 || (r && nbGood(r) === dd[i] < 0)), "c241b: Invert respektiert (Δ < 0 jetzt gut)");
+  addStage("c241c", "Kategorie-Brücke (Säulen) · Kostenbrücke rein negativ — Nulllinie oben, Anker hängen, Labels unter negativen Segmenten", 1000, 460);
+  runCap("c241c", nbCostDv({ bridgeOrientation: "columns" }), 1000, 460);
+  nbSane("c241c");
+  const pyc = nbAnchors("c241c", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const acc = nbAnchors("c241c", NB.AC).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const yTop = Math.min(nbAttr(pyc, "y"), nbAttr(acc, "y"));
+  const zLine = nbQ("c241c", "svg line").find(l => Math.abs(nbAttr(l, "y1") - yTop) < 0.6 && nbAttr(l, "y1") === nbAttr(l, "y2"));
+  check(Math.abs(nbAttr(pyc, "y") - nbAttr(acc, "y")) < 0.6 && !!zLine, "c241c: PY- und AC-Anker hängen ab derselben (sichtbaren) Nulllinie");
+  const pyL = nbQ("c241c", "svg text").find(t => /^[−-]5,30M$/.test(t.textContent.trim()));
+  check(pyL && nbAttr(pyL, "y") > nbBottom(pyc), "c241c: Anker-Label unter dem negativen Anker");
+  const ov3 = nbOverlaps("c241c");
+  check(ov3.length === 0, "c241c: Wertlabels überlappen nicht " + JSON.stringify(ov3));
+  addStage("c241d", "Kategorie-Brücke (Säulen) · Ergebnis −3 → −1 (Verlust halbiert) — alle Stufen gut, nach oben", 900, 420);
+  runCap("c241d", dataView(["A", "B", "C"], [col("actual", [-400, -300, -300].map(v => v * 1000), "#,0"), col("previousYear", [-1500, -1000, -500].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns" } }), 900, 420);
+  nbSane("c241d");
+  const b4 = nbQ("c241d", "g.icd-cat rect").filter(r => [NB.GOOD, NB.BAD].includes(nbFill(r)) && nbAttr(r, "width") > 6);
+  check(b4.length === 3 && b4.every(r => nbFill(r) === NB.GOOD), "c241d: drei gute Stufen");
+}
+
+// ---- c242: Nulldurchgang EINES Schritts (Anker +2 → Schritt −5 → −3): das Segment kreuzt die Nulllinie in voller Höhe
+addStage("c242", "Integrierte Brücke · Nulldurchgang eines Schritts: PY +2,0 → Q2 −5,0 → AC −3,0", 900, 480);
+{
+  runCap("c242", dataView(["Q1", "Q2", "Q3"], [col("actual", [500, -4000, 500].map(v => v * 1000), "#,0"), col("previousYear", [600, 1000, 400].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py" } }), 900, 480);
+  nbSane("c242");
+  const yZ = nbAttr(nbQ("c242", '[data-icd="bridge-zero"]')[0], "y1");
+  const py = nbAnchors("c242", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const k = nbAttr(py, "height") / 2e6;
+  const q2 = nbBricks("c242")[1];
+  check(q2 && nbAttr(q2, "y") < yZ - 10 && nbBottom(q2) > yZ + 10, "c242: Q2-Segment kreuzt die Nulllinie");
+  check(q2 && Math.abs(nbAttr(q2, "height") - 5e6 * k) < 0.6 && !nbGood(q2), "c242: Q2-Segment in voller Höhe (5,0 auf der Ankerskala), schlecht");
+  const ac = nbAnchors("c242", NB.AC).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  check(Math.abs(nbAttr(ac, "y") - yZ) < 0.6 && Math.abs(nbAttr(ac, "height") - 3e6 * k) < 0.6, "c242: AC-Anker −3,0 ab der Nulllinie nach unten");
+  addStage("c242b", "Kategorie-Brücke (Säulen) · Nulldurchgang eines Schritts: PY +2,0 → A −5,0 → AC −3,0", 800, 420);
+  runCap("c242b", dataView(["A", "B"], [col("actual", [-3500, 500].map(v => v * 1000), "#,0"), col("previousYear", [1500, 500].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns" } }), 800, 420);
+  nbSane("c242b");
+  const pyc = nbAnchors("c242b", NB.PY).sort((a, b) => nbAttr(b, "height") - nbAttr(a, "height"))[0];
+  const yZc = nbBottom(pyc), kc = nbAttr(pyc, "height") / 2e6;
+  const a = nbQ("c242b", "g.icd-cat rect").find(r => nbFill(r) === NB.BAD);
+  check(a && nbAttr(a, "y") < yZc - 10 && nbBottom(a) > yZc + 10 && Math.abs(nbAttr(a, "height") - 5e6 * kc) < 0.6, "c242b: Segment kreuzt die Nulllinie in voller Höhe");
+}
+
+// c242c/d: horizontal category bridge — a level crossing the row's own values: that
+// row gets two tiers (bars above, brick below) instead of the brick covering the bar
+{
+  addStage("c242c", "Kategorie-Brücke (Balken) · Nulldurchgang eines Schritts: PY +2,0 → A −5,0 → AC −3,0 — Zeile A zweistufig", 1000, 380);
+  runCap("c242c", dataView(["A", "B"], [col("actual", [-3500, 500].map(v => v * 1000), "#,0"), col("previousYear", [1500, 500].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py" } }), 1000, 380);
+  nbSane("c242c");
+  const xZ = nbAttr(nbQ("c242c", '[data-icd="bridge-zero"]')[0], "x1");
+  const py = nbAnchors("c242c", NB.PY).sort((a, b) => nbAttr(b, "width") - nbAttr(a, "width"))[0];
+  const k = nbAttr(py, "width") / 2e6;
+  const rowA = nbQ("c242c", "g.icd-cat")[0];
+  const brick = [...rowA.querySelectorAll("rect")].find(r => nbFill(r) === NB.BAD);
+  const acBar = [...rowA.querySelectorAll("rect")].find(r => nbFill(r) === NB.AC);
+  check(brick && nbAttr(brick, "x") < xZ - 10 && nbAttr(brick, "x") + nbAttr(brick, "width") > xZ + 10
+    && Math.abs(nbAttr(brick, "width") - 5e6 * k) < 0.6, "c242c: Segment kreuzt die Nulllinie in voller Länge (5,0)");
+  check(rowA.getAttribute("data-icd") === "bridge-row-tiered" && nbAttr(brick, "y") >= nbBottom(acBar) - 0.5,
+    "c242c: Zeile A zweistufig — Stufe unter dem AC-Balken statt darüber gemalt");
+  check(nbQ("c242c", "g.icd-cat")[1].getAttribute("data-icd") !== "bridge-row-tiered", "c242c: Zeile B ohne Kollision bleibt einstufig");
+  const ov = nbOverlaps("c242c");
+  check(ov.length === 0, "c242c: Wertlabels überlappen nicht " + JSON.stringify(ov));
+  addStage("c242d", "Kategorie-Brücke (Balken) · gemischte Vorzeichen, AC + PY + PL (PY-Dreiecke) — Kaskade läuft durch die Zeilenbalken", 1100, 460);
+  runCap("c242d", dataView(["A", "B", "C", "D"], [col("actual", [1200, -2500, 800, -600].map(v => v * 1000), "#,0"), col("previousYear", [1000, 500, 900, -200].map(v => v * 1000), "#,0"),
+    col("plan", [1100, 200, 1000, -400].map(v => v * 1000), "#,0")], { chart: { orientation: "catbridge", comparisonMode: "py" } }), 1100, 460);
+  nbSane("c242d");
+  const rows = nbQ("c242d", "g.icd-cat");
+  const tiers = rows.filter(g => g.getAttribute("data-icd") === "bridge-row-tiered").map(g => g.querySelector("text").textContent);
+  check(JSON.stringify(tiers) === '["B","D"]', "c242d: genau die Zeilen B und D zweistufig " + JSON.stringify(tiers));
+  const ov2 = nbOverlaps("c242d", t => !/%$/.test(t.textContent));
+  check(ov2.length === 0, "c242d: Wertlabels überlappen nicht " + JSON.stringify(ov2));
+  check(!rows.filter(g => g.getAttribute("data-icd") === "bridge-row-tiered").some(g => {
+    const br = [...g.querySelectorAll("rect")].find(r => [NB.GOOD, NB.BAD].includes(nbFill(r)));
+    const ac = [...g.querySelectorAll("rect")].find(r => nbFill(r) === NB.AC);
+    return br && ac && nbAttr(br, "y") < nbBottom(ac) - 0.5;
+  }), "c242d: in zweistufigen Zeilen liegt keine Stufe über einem AC-Balken");
+}
+
+// ---- c243: Small Multiples · eine Kachel negativ — gemeinsame Skala über alle Kacheln
+addStage("c243", "Integrierte Brücke · Small Multiples, multiplesSameScale, nur „Süd“ startet negativ — beide Kacheln split, gleiche Nulllinie und px je Einheit", 1340, 560);
+{
+  const cats = [], mult = [], acv = [], pyv = [];
+  ["Nord", "Süd"].forEach((r, ri) => ["Q1", "Q2", "Q3", "Q4"].forEach((q, qi) => {
+    cats.push(q); mult.push(r);
+    acv.push(ri === 0 ? [1450, 980, 620, 410][qi] : [120, 80, 150, 60][qi]);
+    pyv.push(ri === 0 ? [1300, 1040, 590, 380][qi] : [-200, -150, 40, -90][qi]);
+  }));
+  runCap("c243", dataView(cats, [col("actual", acv), col("previousYear", pyv)], { chart: { orientation: "intwaterfall", multiplesSameScale: true } }, mult), 1340, 560);
+  nbSane("c243");
+  const zl = nbQ("c243", '[data-icd="bridge-zero"]'), ml = nbQ("c243", '[data-icd="bridge-month-zero"]');
+  check(zl.length === 2 && ml.length === 2 && Math.abs(nbAttr(zl[0], "y1") - nbAttr(zl[1], "y1")) < 0.6, "c243: zwei Kacheln, beide split, Nulllinie auf gleicher Höhe");
+  const pys = nbAnchors("c243", NB.PY).filter(r => nbAttr(r, "height") > 2).sort((a, b) => nbAttr(a, "x") - nbAttr(b, "x"));
+  const k1 = nbAttr(pys[0], "height") / 3310, k2 = nbAttr(pys[1], "height") / 400;
+  check(pys.length === 2 && Math.abs(k1 / k2 - 1) < 0.02, `c243: gleiche px je Einheit (${k1.toFixed(4)} / ${k2.toFixed(4)})`);
+  addStage("c243b", "Integrierte Brücke · Small Multiples ohne gleiche Skala — positive Kachel bleibt klassisch, negative split", 1340, 560);
+  runCap("c243b", dataView(cats, [col("actual", acv), col("previousYear", pyv)], { chart: { orientation: "intwaterfall" } }, mult), 1340, 560);
+  nbSane("c243b");
+  check(nbQ("c243b", '[data-icd="bridge-month-zero"]').length === 1, "c243b: nur die negative Kachel im Split-Layout");
+  addStage("c243c", "Kategorie-Brücke · Small Multiples, multiplesSameScale, „Süd“ rein negativ — Nulllinie in beiden Kacheln, gleiche px je Einheit", 1340, 520);
+  const ccats = [], cmult = [], cac = [], cpy = [];
+  ["Nord", "Süd"].forEach((r, ri) => ["A", "B", "C"].forEach((c, ci) => {
+    ccats.push(c); cmult.push(r);
+    cac.push(ri === 0 ? [900, 600, 300][ci] : [-400, -250, -120][ci]);
+    cpy.push(ri === 0 ? [850, 640, 280][ci] : [-380, -260, -100][ci]);
+  }));
+  runCap("c243c", dataView(ccats, [col("actual", cac), col("previousYear", cpy)], { chart: { orientation: "catbridge", multiplesSameScale: true } }, cmult), 1340, 520);
+  nbSane("c243c");
+  const czl = nbQ("c243c", '[data-icd="bridge-zero"]');
+  // the two PY total rows (widest grey bars outside the category rows): Nord 1.770, Süd −740
+  const cpys = nbAnchors("c243c", NB.PY).sort((a, b) => nbAttr(b, "width") - nbAttr(a, "width")).slice(0, 2);
+  const ck1 = nbAttr(cpys[0], "width") / 1770, ck2 = nbAttr(cpys[1], "width") / 740;
+  check(czl.length === 2 && cpys.length === 2 && Math.abs(ck1 / ck2 - 1) < 0.02, `c243c: Nulllinie in beiden Kacheln, gleiche px je Einheit (${ck1.toFixed(4)} / ${ck2.toFixed(4)})`);
+}
+
+// ---- c244: Dark Mode + Hochkontrast
+addStage("c244", "Integrierte Brücke · Verlustmonate im Dark Mode", 1200, 520, "#1E1E1E");
+{
+  runCap("c244", nbEbit({ colors: { appearance: "dark" } }), 1200, 520, { themeBg: "#1E1E1E" });
+  nbSane("c244");
+  const br = nbBricks("c244", "#3FB3C2", "#E4635F");
+  check(br.filter(Boolean).length === 12 && br.some(r => nbFill(r) === "#E4635F"), "c244: Stufen in den Dark-Farben (#3FB3C2 / #E4635F)");
+  const zl = nbQ("c244", '[data-icd="bridge-zero"]')[0];
+  check(zl && nbStroke(zl) !== NB.AC, "c244: Nulllinie in heller Tinte");
+  addStage("c244b", "Kategorie-Brücke (Säulen) · rein negativ im Hochkontrast — schlechte Stufen hohl", 1000, 460, "#000");
+  runCap("c244b", nbCostDv({ bridgeOrientation: "columns" }), 1000, 460, { hc: true });
+  nbSane("c244b");
+  const hollow = nbQ("c244b", "g.icd-cat rect").filter(r => nbFill(r) === "#000000" && r.getAttribute("stroke-width") === "1.4");
+  check(hollow.length >= 2, "c244b: schlechte Stufen als Umriss (Muster statt Farbe)");
+  addStage("c244c", "Integrierte Brücke · Start negativ im Hochkontrast", 1100, 520, "#000");
+  runCap("c244c", nbStart(), 1100, 520, { hc: true });
+  nbSane("c244c");
+  check(nbQ("c244c", '[data-icd="bridge-month-zero"]').length === 1, "c244c: Split-Layout auch im Hochkontrast");
+}
+
+// ---- c245: Export-Kontext (keine Interaktion)
+addStage("c245", "Integrierte Brücke · Start negativ im Export (allowInteractions = false) — ohne Chips, gleiche Geometrie", 1100, 520);
+{
+  runCap("c245", nbStart(), 1100, 520, { noInteract: true, viewMode: 0 });
+  nbSane("c245");
+  check(!nbQ("c245", "svg g[role=button]").length && nbQ("c245", '[data-icd="bridge-zero"]').length === 1, "c245: keine In-Chart-Knöpfe, Nulllinie da");
+  const strip = (id) => document.querySelector(`#${id} svg`).innerHTML.replace(/<g[^>]*role="button"[\s\S]*?<\/g>/g, "");
+  const zA = nbAttr(nbQ("c240", '[data-icd="bridge-zero"]')[0], "y1"), zB = nbAttr(nbQ("c245", '[data-icd="bridge-zero"]')[0], "y1");
+  check(Math.abs(zA - zB) < 0.6 && strip("c245").length > 0, "c245: Nulllinie wie am Bildschirm (c240)");
+}
+
+// ---- c246: Achsenschnitt (chart.bridgeBreak) nur, wenn sinnvoll
+addStage("c246", "Integrierte Brücke · Kosten rein negativ + bridgeBreak — gespiegelter Schnitt unter der Nulllinie", 1100, 520);
+{
+  const kAc = [-2100, -2000, -2300, -2200, -2400, -2200].map(v => v * 1000), kPy = [-2000, -2100, -2100, -2200, -2200, -2300].map(v => v * 1000);
+  runCap("c246", dataView(nbMon.slice(0, 6), [col("actual", kAc, "#,0"), col("previousYear", kPy, "#,0")],
+    { chart: { orientation: "intwaterfall", comparisonMode: "py", bridgeBreak: true } }), 1100, 520);
+  nbSane("c246");
+  const mk = nbQ("c246", '[data-icd="bridge-break"]')[0];
+  const cap = nbTexts("c246").find(t => /axis broken from|Achse ab/.test(t)) || "";
+  check(!!mk && /from [−-]\d/.test(cap), `c246: Schnitt gesetzt, Titel nennt den negativen Schnittwert („${cap}“)`);
+  const br = nbBricks("c246");
+  const dd = kAc.map((v, i) => v - kPy[i]);
+  const ks = br.map((r, i) => Math.abs(dd[i]) > 0 ? nbAttr(r, "height") / Math.abs(dd[i]) : null).filter(v => v != null);
+  check(Math.max(...ks) / Math.min(...ks) < 1.03, "c246: Stufen linear in einer Skala jenseits des Schnitts");
+  addStage("c246b", "Kategorie-Brücke (Säulen) · Kosten rein negativ + bridgeBreak", 1000, 460);
+  runCap("c246b", dataView(nbCost, [col("actual", [-52600, -31900, -10700, -5350].map(v => v * 1000), "#,0"), col("previousYear", [-51400, -32600, -10100, -5350].map(v => v * 1000), "#,0")],
+    { chart: { orientation: "catbridge", comparisonMode: "py", bridgeOrientation: "columns", bridgeBreak: true } }), 1000, 460);
+  nbSane("c246b");
+  check(nbQ("c246b", '[data-icd="bridge-break"]').length === 1, "c246b: gespiegelter Schnitt in der Kategorie-Brücke");
+  addStage("c246c", "Integrierte Brücke · Start negativ + bridgeBreak — Brücke kreuzt Null, KEIN Schnitt", 1100, 520);
+  runCap("c246c", nbStart({ chart: { bridgeBreak: true } }), 1100, 520);
+  nbSane("c246c");
+  check(!nbQ("c246c", '[data-icd="bridge-break"]').length, "c246c: über Null wird nicht geschnitten");
+}
+
+// ---- c247: KPI-Karten · Mini-Brücke mit Verlust (seit 1.34.3 vorzeichenfähig) — Regression
+addStage("c247", "KPI-Karten · EBIT −80 vs. PY +20 und Kosten negativ — Mini-Brücke mit Nulllinie", 960, 260);
+{
+  runCap("c247", dataView(["EBIT", "Kosten", "Umsatz"], [col("actual", [-80, -420, 980], "#,0 T€"), col("previousYear", [20, -400, 900], "#,0 T€")],
+    { chart: { orientation: "cards" } }), 960, 260);
+  nbSane("c247");
+  const svg = document.querySelector("#c247 svg"), vb = svg.getBoundingClientRect();
+  const out = [...svg.querySelectorAll("rect")].filter(r => { const b = r.getBoundingClientRect(); return b.height > 0 && (b.top < vb.top - 0.5 || b.bottom > vb.bottom + 0.5); });
+  check(out.length === 0, "c247: alle Mini-Brücken-Rechtecke im Zeichenbereich");
+}
+</script>
+<script>
+// ======================================================================
+// 1.53 · rowType-Token (c248+) — die Rolle „Waterfall-Typ" trägt die Zeilen-
+// Struktur als Daten: Token je Zeile (Komma, Semikolon, Leerzeichen, |),
+// vereinigt mit den Komma-Listen. Nachweis über SVG-Gleichheit gegen die
+// Listen-Variante (gleiche Semantik) plus gezielte Einzelchecks
+// ======================================================================
+const rtCats = ["Umsatz", "Materialaufwand", "Rohertrag", "Personalaufwand", "davon Boni", "Sonstige", "Intern", "EBIT", "nachrichtlich: Export"];
+const rtAc = [9800, -4200, 5600, -2400, -300, -450, -120, 2630, 3100];
+const rtPy = [9100, -3900, 5200, -2300, -260, -500, -100, 2300, 2800];
+const rtLists = { resultList: "Rohertrag, EBIT", skipList: "davon Boni, nachrichtlich: Export", indentList: "davon Boni",
+  hideList: "Intern", invertList: "Materialaufwand, Personalaufwand", highlight: "EBIT",
+  chartList: "Umsatz, Materialaufwand, Rohertrag, EBIT" };
+const rtTokens = ["graphic", "invert, graphic", "total, graphic", "invert", "davon, exclude", "", "hide", "total, emphasize, graphic", "exclude"];
+const rtDv = (chart, types) => dataView(rtCats, [col("actual", rtAc, "#,0 T€"), col("previousYear", rtPy, "#,0 T€")],
+  { chart: Object.assign({ orientation: "table" }, chart) }, null, types);
+// SVG without instance-specific pattern/clip ids (icd-hatch-<n> …)
+const rtSvg = id => document.querySelector(`#${id} svg`).outerHTML
+  .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+const rtRow = (id, label) => nbQ(id, "g.icd-cat").find(g => [...g.querySelectorAll("text")].some(t => t.textContent.trim() === label));
+const rtName = (id, label) => nbQ(id, "g.icd-cat text").find(t => t.textContent.trim() === label);
+
+// ---- c248: GuV-Tabelle mit Token statt Listen — pixelgleich zur Listen-Variante
+addStage("c248", "Tabelle · GuV mit rowType-Token (total · davon · exclude · hide · invert · emphasize · graphic) statt Komma-Listen", 1200, 440);
+addStage("c248L", "Tabelle · dieselbe GuV über die sieben Komma-Listen (Referenz für c248)", 1200, 440);
+{
+  runCap("c248", rtDv({}, rtTokens), 1200, 440);
+  runCap("c248L", rtDv(rtLists), 1200, 440);
+  check(rtSvg("c248") === rtSvg("c248L"), "c248: Token-Rolle zeichnet exakt wie die Komma-Listen (SVG gleich)");
+  const bold = l => (rtName("c248", l)?.getAttribute("font-weight") ?? "") === "700";
+  check(bold("Rohertrag") && bold("EBIT") && !bold("Umsatz"), "c248: total → Ergebniszeilen fett (Anker)");
+  check(rtName("c248", "davon Boni").getBBox().x > rtName("c248", "Personalaufwand").getBBox().x + 8
+    && rtName("c248", "davon Boni").getAttribute("font-style") === "italic", "c248: davon eingerückt + exclude kursiv");
+  check(!nbTexts("c248").includes("Intern"), "c248: hide blendet „Intern“ aus");
+  // marks of a row (without the full-width white hit rect)
+  const fills = l => [...(rtRow("c248", l)?.querySelectorAll("rect") ?? [])].map(nbFill).filter(f => f !== "#FFFFFF");
+  check(fills("Personalaufwand").length === 0 && fills("Sonstige").length === 0 && fills("Umsatz").length > 0,
+    "c248: graphic begrenzt die Grafiken auf die markierten Zeilen");
+  // Materialaufwand ΔPY = −300: ohne invert schlecht, mit invert gut
+  check(fills("Materialaufwand").includes(NB.GOOD) && !fills("Materialaufwand").includes(NB.BAD), "c248: invert dreht die Bewertung (ΔPY −300 = gut)");
+  check(nbQ("c248", 'svg rect[fill-opacity="0.07"]').length === 1, "c248: emphasize hebt genau eine Zeile hervor (EBIT)");
+  check(!nbQ("c248", '[data-icd="rowtype-note"]').length, "c248: bekannte Token → kein Hinweis");
+  // ohne Token und Listen: alles anders (Probe, dass die Token wirken)
+  addStage("c248n", "Tabelle · dieselben Zeilen ohne Token und Listen (Gegenprobe)", 1200, 440);
+  runCap("c248n", rtDv({}), 1200, 440);
+  check(rtSvg("c248n") !== rtSvg("c248") && nbTexts("c248n").includes("Intern"), "c248n: Gegenprobe ohne Token unterscheidet sich");
+}
+
+// ---- c249: Wasserfall (GuV-Kaskade) mit Token = Listen; exclude fällt aus der Kaskade
+addStage("c249", "Waterfall · GuV-Kaskade mit Token (total als Anker, exclude nicht in der Kaskade, invert)", 1100, 420);
+addStage("c249L", "Waterfall · dieselbe Kaskade über resultList/skipList/invertList (Referenz)", 1100, 420);
+{
+  const wfCats = ["Umsatz", "Materialaufwand", "Rohertrag", "Personalaufwand", "EBIT", "nachrichtlich: Export"];
+  const wfAc = [9800, -4200, 5600, -2970, 2630, 3100], wfPy = [9100, -3900, 5200, -2900, 2300, 2800];
+  const dv = (chart, types) => dataView(wfCats, [col("actual", wfAc, "#,0 T€"), col("previousYear", wfPy, "#,0 T€")],
+    { chart: Object.assign({ orientation: "waterfall" }, chart) }, null, types);
+  runCap("c249", dv({}, ["", "invert", "total", "invert", "total", "exclude"]), 1100, 420);
+  runCap("c249L", dv({ resultList: "Rohertrag, EBIT", skipList: "nachrichtlich: Export", invertList: "Materialaufwand, Personalaufwand" },
+    ["", "", "", "", "", ""]), 1100, 420);
+  check(rtSvg("c249") === rtSvg("c249L"), "c249: Kaskade mit Token gleich der Listen-Variante (SVG gleich)");
+  check(!nbTexts("c249").includes("nachrichtlich: Export"), "c249: exclude-Zeile nicht in der Kaskade");
+}
+
+// ---- c250: GuV-Statement — total-Token wirkt wie das bisherige „sum"
+addStage("c250", "GuV-Statement · „Total“/„Zwischensumme“-Token statt „sum“ (Anker, Klappgruppen)", 1280, 420);
+addStage("c250L", "GuV-Statement · dieselben Zeilen mit den alten Werten sum/delta (Referenz)", 1280, 420);
+{
+  const pc = ["Umsatz", "Material", "Rohertrag", "Personal", "Opex", "EBIT"];
+  const pa = [9800, -4200, 5600, -2400, -570, 2630], pp = [9100, -3900, 5200, -2300, -600, 2300];
+  const dv = types => dataView(pc, [col("actual", pa, "#,0 T€"), col("previousYear", pp, "#,0 T€")],
+    { chart: { orientation: "pnl" } }, null, types);
+  runCap("c250", dv(["Detail", "normal", "Total", "konto", "", "Zwischensumme"]), 1280, 420);
+  runCap("c250L", dv(["delta", "delta", "sum", "delta", "delta", "sum"]), 1280, 420);
+  check(rtSvg("c250") === rtSvg("c250L"), "c250: total/zwischensumme = sum, detail/normal/konto/leer = delta (SVG gleich)");
+}
+
+// ---- c251: Mischung Rolle + Liste = Vereinigung
+addStage("c251", "Tabelle · Mischung: ein Teil per Token, der Rest per Liste — Vereinigung = c248L", 1200, 440);
+{
+  runCap("c251", rtDv({ resultList: "EBIT", skipList: "nachrichtlich: Export", hideList: "Intern", highlight: "EBIT",
+    invertList: "Personalaufwand", chartList: "Umsatz, EBIT" },
+    ["graphic", "invert graphic", "total graphic", "", "davon exclude", "", "", "", ""]), 1200, 440);
+  check(rtSvg("c251") === rtSvg("c248L"), "c251: Rolle ∪ Liste zeichnet wie die vollständigen Listen");
+  // gleiche Angabe doppelt (Token + Liste) ändert nichts
+  addStage("c251b", "Tabelle · Token UND Liste für dieselben Zeilen — keine Doppelwirkung", 1200, 440);
+  runCap("c251b", rtDv(rtLists, rtTokens), 1200, 440);
+  check(rtSvg("c251b") === rtSvg("c248L"), "c251b: doppelte Angabe (Token + Liste) = einfache");
+}
+
+// ---- c252: Mehrfach-Token mit verschiedenen Trennern, Groß/klein, deutsche Aliasse
+addStage("c252", "Tabelle · Mehrfach-Token mit ; | Leerzeichen , und deutschen Aliassen (Summe, Kosten, nachrichtlich, ausblenden, hervorheben, grafik)", 1200, 440);
+{
+  runCap("c252", rtDv({}, ["Grafik", "KOSTEN | chart", "Ergebnis;GRAFIK", "invertieren", "Davon,Ausnehmen", "  ", "ausblenden",
+    "summe  hervorheben|graphic", "memo"]), 1200, 440);
+  check(rtSvg("c252") === rtSvg("c248L"), "c252: Trenner , ; | Leerzeichen + Aliasse = kanonische Token");
+  check(!nbQ("c252", '[data-icd="rowtype-note"]').length, "c252: alle Aliasse bekannt → kein Hinweis");
+}
+
+// ---- c253: unbekannte Token → dezenter Hinweis (Bearbeitungsmodus), Rest wirkt weiter
+addStage("c253", "Tabelle · Tippfehler „sume“ und „ivnert“ — ignoriert, aber im Chart gemeldet", 1200, 440);
+{
+  const types = rtTokens.slice();
+  types[2] = "sume, graphic"; types[1] = "ivnert graphic";
+  runCap("c253", rtDv({}, types), 1200, 440);
+  const note = nbQ("c253", '[data-icd="rowtype-note"] text')[0];
+  // „sume“ beginnt mit „sum“ (Präfix-Regel ≤ 1.52) und ist deshalb bekannt
+  check(!!note && /„ivnert“/.test(note.textContent) && !/sume/.test(note.textContent),
+    `c253: Hinweis nennt nur das unbekannte Token („${note ? note.textContent : "–"}“)`);
+  check(!!note && /^Waterfall type: unknown entry ignored/.test(note.textContent), "c253: Hinweistext aus Fallback/resjson");
+  // „sume“ beginnt mit „sum“ → bleibt (wie ≤ 1.52) Ergebniszeile; „ivnert“ ignoriert
+  check((rtName("c253", "Rohertrag")?.getAttribute("font-weight") ?? "") === "700", "c253: sum…-Präfix bleibt Ergebniszeile");
+  const f = [...(rtRow("c253", "Materialaufwand")?.querySelectorAll("rect") ?? [])].map(nbFill);
+  check(f.includes(NB.BAD) && !f.includes(NB.GOOD), "c253: unbekanntes „ivnert“ wirkt nicht, graphic daneben schon");
+  addStage("c253b", "Tabelle · gleiche Tippfehler in der Leseansicht (viewMode 0) — kein Hinweis", 1200, 440);
+  runCap("c253b", rtDv({}, types), 1200, 440, { viewMode: 0 });
+  check(!nbQ("c253b", '[data-icd="rowtype-note"]').length, "c253b: Leser sehen den Hinweis nicht");
+  addStage("c253c", "Tabelle · gleiche Tippfehler im Export (allowInteractions = false) — kein Hinweis", 1200, 440);
+  runCap("c253c", rtDv({}, types), 1200, 440, { noInteract: true });
+  check(!nbQ("c253c", '[data-icd="rowtype-note"]').length, "c253c: Export ohne Hinweis");
+}
+
+// ---- c254: Rolle nur mit Flag-Token (KPI-Karten) — keine GuV-Struktur, kein Wasserfall-Vorschlag
+addStage("c254", "KPI-Karten · Rolle trägt nur „invert“ (Kosten) — wie invertList, ohne Smart-Start-Vorschlag „GuV-Wasserfall?“", 960, 260);
+addStage("c254L", "KPI-Karten · dieselbe Wertung über invertList (Referenz)", 960, 260);
+{
+  const kc = ["Umsatz", "Kosten", "Marge", "Retouren"];
+  const dv = (chart, types) => dataView(kc, [col("actual", [980, 420, 560, 35], "#,0 T€"), col("previousYear", [900, 400, 500, 30], "#,0 T€")],
+    { chart: Object.assign({ orientation: "cards" }, chart) }, null, types);
+  runCap("c254", dv({}, [null, "kosten", null, "invert"]), 960, 260);
+  runCap("c254L", dv({ invertList: "Kosten, Retouren" }), 960, 260);
+  check(rtSvg("c254") === rtSvg("c254L"), "c254: Flag-Token = invertList (SVG gleich)");
+  const wfTip = id => nbQ(id, "svg g[role=button]").some(g => /waterfall/i.test(g.getAttribute("aria-label") || ""));
+  check(!wfTip("c254"), "c254: reine Flag-Rolle schlägt keinen GuV-Wasserfall vor");
+  addStage("c254d", "KPI-Karten · Rolle mit altem Wert „delta“ — Vorschlag „GuV-Wasserfall?“ wie bisher", 960, 260);
+  runCap("c254d", dv({}, ["delta", "delta", "delta", "delta"]), 960, 260);
+  check(wfTip("c254d"), "c254d: alter Strukturwert schlägt weiter den Wasserfall vor (Regression)");
+}
+
+// ---- c255: Struktur-Menü — per Token gesetzte Eigenschaften erscheinen angehakt und gesperrt
+addStage("c255", "Tabelle · Struktur-Modus: Klick auf „Materialaufwand“ — Invert + Grafik per Token gesetzt (gesperrt)", 1200, 440);
+{
+  runCap("c255", rtDv({ structureEdit: true }, rtTokens), 1200, 440);
+  const g = rtRow("c255", "Materialaufwand");
+  const r = g.getBoundingClientRect();
+  g.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: r.left + 40, clientY: r.top + r.height / 2 }));
+  const labels = nbQ("c255", "label");
+  const locked = labels.filter(l => l.getAttribute("data-icd-role") === "1");
+  const cbOf = l => l.querySelector("input");
+  check(labels.length === 6 && locked.length === 2 && locked.every(l => cbOf(l).checked && cbOf(l).disabled),
+    `c255: zwei Häkchen aus der Rolle, angehakt + gesperrt (${locked.map(l => l.textContent).join(" · ")})`);
+  check(labels.filter(l => !l.getAttribute("data-icd-role")).every(l => !cbOf(l).disabled), "c255: übrige Häkchen bleiben bedienbar");
+  check(/Waterfall type field/.test(locked[0]?.title || ""), "c255: Tooltip erklärt die Sperre");
+  check(window.__persist.c255.length === 0, "c255: Öffnen persistiert nichts");
+}
+
+// ---- c256: Hierarchie — Token gelten für die Blattzeile, die den rowType-Wert trägt
+const rtHierDv = (chart, types) => ({
+  metadata: { columns: [], objects: { chart: Object.assign({ orientation: "table", tableExpanded: JSON.stringify(["¦Erlöse", "¦Kosten"]) }, chart) } },
+  categorical: {
+    categories: [
+      { source: { displayName: "Bereich", roles: { category: true } }, values: ["Erlöse", "Erlöse", "Kosten", "Kosten", "Kosten"] },
+      { source: { displayName: "Konto", roles: { category: true } }, values: ["Inland", "Export", "Material", "Personal", "Intern"] },
+      ...(types ? [{ source: { displayName: "Typ", roles: { rowType: true } }, values: types }] : [])
+    ],
+    values: [col("actual", [6200, 3600, -4200, -2400, -120], "#,0 T€"), col("previousYear", [5900, 3200, -3900, -2300, -100], "#,0 T€")]
+  }
+});
+addStage("c256", "Tabelle · Hierarchie Bereich › Konto: „invert“ auf Material/Personal, „hide invert“ auf Intern (Blattebene)", 1200, 360);
+addStage("c256L", "Tabelle · dieselbe Hierarchie über invertList/hideList (Referenz)", 1200, 360);
+{
+  runCap("c256", rtHierDv({}, [null, "", "invert", "invert", "hide invert"]), 1200, 360);
+  runCap("c256L", rtHierDv({ invertList: "Material, Personal, Intern", hideList: "Intern" }, [null, "", null, null, null]), 1200, 360);
+  check(rtSvg("c256") === rtSvg("c256L"), "c256: Hierarchie mit Token = Listen (SVG gleich)");
+  const t = nbTexts("c256");
+  check(!t.includes("Intern") && t.some(x => /Kosten/.test(x)) && t.includes("Material"), "c256: Blatt „Intern“ weg, Elternzeile „Kosten“ bleibt");
+}
+
+// ---- c257: Regression — alte Werte und Präfix-Regel (sum…/pct…, alles andere = Bewegung) unverändert
+addStage("c257", "Tabelle · alte rowType-Schreibweisen (Summe, SUM, sum1, leer, beliebiger Text) — Geometrie wie c25", 1200, 420);
+addStage("c257L", "Tabelle · c25-Daten mit den kanonischen Werten delta/sum (Referenz)", 1200, 420);
+{
+  const dv = types => dataView(tabRows, [col("actual", tabAc, "#,0 T€"), col("previousYear", tabPy, "#,0 T€")],
+    { chart: { orientation: "table" } }, null, types);
+  runCap("c257", dv(["Erlös", "delta", "", "Summe", "x", "Delta", "SUM1"]), 1200, 420);
+  runCap("c257L", dv(tabTypes), 1200, 420);
+  const strip = id => rtSvg(id).replace(/<g data-icd="rowtype-note">[\s\S]*?<\/g>/, "");
+  check(strip("c257") === strip("c257L"), "c257: alte Schreibweisen zeichnen wie bisher (SVG ohne Hinweis gleich)");
+  const note = nbQ("c257", '[data-icd="rowtype-note"] text')[0];
+  check(!!note && /„erlös“ · „x“/.test(note.textContent), `c257: freie Texte werden als unbekannt gemeldet („${note ? note.textContent : "–"}“)`);
+  check(!nbQ("c25", '[data-icd="rowtype-note"]').length && !nbQ("c257L", '[data-icd="rowtype-note"]').length, "c257: sum/delta (c25) ohne Hinweis");
+}
+
+// ---- Feld-Intro (c203): die Rollen-Zeile „Waterfall-Typ" nennt die Token im Tooltip
+{
+  const tip = nbQ("c203", 'g[data-fi-row="rowType"] title')[0]?.textContent || "";
+  check(/sum\/pct \+ tokens/.test(tip) && /exclude · hide · davon · invert · emphasize · graphic/.test(tip),
+    "c203: Feld-Intro erklärt die rowType-Token (Zeile + Tooltip)");
 }
 </script>
 </body>

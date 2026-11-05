@@ -103,7 +103,7 @@ Entscheidung markieren:
 | `formulaDef` | Weg 2 | z. B. `[Gross profit]+[Operating expenses]`; Referenz **per Zeilenname** |
 | `signConvention` | Weg 2 | `+1` Erlös, `-1` Kosten |
 | `displayInvert` | Weg 2 | Kosten positiv anzeigen |
-| `varianceInvert` | Weg 2 | Kosten/Steuern unter Plan = günstig |
+| `varianceInvert` | Weg 2 | „mehr ist schlecht“ — **nur** für Zeilen mit `signConvention +1` (Kosten positiv geführt, Kosten-Quoten). Bei `-1` (auch Steuern) `false`: die Engine bewertet über das Vorzeichen schon richtig; beides zusammen färbt Mehrkosten günstig (Vorzeichen-Matrix: Skill `finance-data-model`, `konten-dimension.md` §6) |
 | `comment` | optional | Freitext je Konto → Marker + Fußnote |
 | `period` | empfohlen | Monatsspalte; ohne sie keine Monatssäulen/Sparklines |
 | `ac` | **Pflicht** | Ist-Measure |

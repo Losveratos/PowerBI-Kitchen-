@@ -44,7 +44,8 @@
     ['Power BI von A bis Z', 'power_bi_einsteiger_guide_v4.html', 'Einsteiger-Guide End-to-End'],
     ['Microsoft Fabric End-to-End', 'fabric_einsteiger_guide_v1.html', 'Einsteiger-Guide'],
     ['IBCS-Trainer', 'ibcs-trainer.html', 'Quiz und „Finde den Verstoß“'],
-    ['Fabric Alchemie', 'fabric-alchemie-post.html', 'Lernspiel nach Little-Alchemy-Prinzip']
+    ['Fabric Alchemie', 'fabric-alchemie-post.html', 'Lernspiel nach Little-Alchemy-Prinzip'],
+    ['Daten-Imperium', 'daten-imperium.html', 'Retro-Lernspiel mit DAX, Fabric & Co.']
   ];
   var WERKZEUGE = [
     ['Skizzieren & bauen', [

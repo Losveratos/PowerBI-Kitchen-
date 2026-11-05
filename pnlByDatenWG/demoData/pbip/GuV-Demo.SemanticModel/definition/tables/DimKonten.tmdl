@@ -67,7 +67,7 @@ table DimKonten
 							{"it", "Betriebsaufwand", "IT & Infrastruktur", null, 36.0, "Account", null, -1.0, "true", "false"},
 							{"da", "Abschreibungen", "Abschreibungen", null, 50.0, "Account", null, -1.0, "true", "false"},
 							{"fin", "Finanzergebnis", "Finanzergebnis", null, 60.0, "Account", null, 1.0, "false", "false"},
-							{"tax", "Steuern", "Steuern", null, 70.0, "Account", null, -1.0, "true", "true"},
+							{"tax", "Steuern", "Steuern", null, 70.0, "Account", null, -1.0, "true", "false"},
 							{"ebitda", "EBITDA", null, null, 40.0, "Formula", "[Umsatzerlöse]+[Sonst. betr. Erträge]+[Betriebsaufwand]", 1.0, "false", "false"},
 							{"m_ebitda", "EBITDA-Marge", null, null, 41.0, "KPI", "[EBITDA]/[Umsatzerlöse]", 1.0, "false", "false"},
 							{"ebit", "EBIT", null, null, 51.0, "Formula", "[EBITDA]+[Abschreibungen]", 1.0, "false", "false"},

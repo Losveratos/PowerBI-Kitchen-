@@ -1,0 +1,120 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  :root { --ink:#0F1E2E; --soft:#475569; --teal:#0E8585; --yel:#F5B301; --paper:#FAFAF7; --grout:#E3E1DC; }
+  body { margin:0; width:1584px; height:396px; background:var(--paper); font-family:'Segoe UI',system-ui,Arial,sans-serif; color:var(--ink); overflow:hidden; position:relative; }
+  /* Fliesenspiegel links */
+  .tiles { position:absolute; left:-30px; top:-30px; width:800px; height:456px; display:grid;
+    grid-template-columns:repeat(6,130px); grid-auto-rows:130px; gap:6px; transform:rotate(-3deg); }
+  .tile { background:#fff; border:1px solid var(--grout); border-radius:8px; display:flex; align-items:center; justify-content:center;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.6), 0 1px 2px rgba(15,30,46,.05); }
+  .tile svg { width:92px; height:92px; }
+  .tile.blank { background:linear-gradient(135deg,#fff 0%,#F6F5F1 100%); }
+  .tile.teal { background:var(--teal); border-color:var(--teal); }
+  .tile.yel { background:var(--yel); border-color:var(--yel); }
+  /* Verblassen nach rechts */
+  .fade { position:absolute; left:380px; top:0; width:520px; height:396px;
+    background:linear-gradient(90deg, rgba(250,250,247,0) 0%, rgba(250,250,247,.88) 55%, var(--paper) 100%); }
+  /* Rechte Seite */
+  .right { position:absolute; left:730px; top:0; right:0; height:100%; display:flex; flex-direction:column; justify-content:center; padding-right:70px; }
+  .brandline { display:flex; align-items:center; gap:22px; }
+  .brandline img { width:96px; height:96px; filter:drop-shadow(0 3px 6px rgba(15,30,46,.15)); }
+  .wordmark { font-size:52px; font-weight:800; letter-spacing:-1px; line-height:1.05; }
+  .wordmark .wg { color:var(--teal); }
+  .wordmark small { display:block; font-size:22px; font-weight:650; color:var(--soft); letter-spacing:4px; text-transform:uppercase; margin-top:6px; }
+  .tag { margin-top:22px; font-size:23px; color:var(--ink); font-weight:550; }
+  .tag b { color:var(--teal); }
+  .chips { margin-top:18px; display:flex; gap:10px; }
+  .chip { font-size:16.5px; font-weight:700; padding:7px 16px; border-radius:999px; border:1.5px solid var(--grout); background:#fff; color:var(--soft); }
+  .chip.t { background:var(--teal); border-color:var(--teal); color:#fff; }
+  .chip.y { background:var(--yel); border-color:var(--yel); color:var(--ink); }
+  .url { margin-top:20px; font-size:18px; color:var(--soft); letter-spacing:.5px; }
+</style>
+<div class="tiles" id="tiles"></div>
+<div class="fade"></div>
+<div class="right">
+  <div class="brandline">
+    <img src="hat.svg">
+    <div class="wordmark">Daten-<span class="wg">WG</span> <small>meets Kitchen</small></div>
+  </div>
+  <div class="tag">Where data moves in — and reporting gets <b>cooked properly</b>.</div>
+  <div class="chips">
+    <span class="chip t">IBCS-inspired</span>
+    <span class="chip">Power BI Visuals</span>
+    <span class="chip">Deneb &amp; SVG</span>
+    <span class="chip y">free &amp; open source</span>
+  </div>
+  <div class="url">datenwgknowledgekitchen.com · daten-wg.com</div>
+</div>
+<script>
+const ink='#0F1E2E', soft='#9AA4B0', teal='#0E8585', yel='#F5B301', red='#E02B1D', grey='#B9BDC2';
+function svgWrap(inner){ return `<svg viewBox="0 0 100 100">${inner}</svg>`; }
+const charts = [
+  // Säulen AC/PY + FC schraffiert
+  svgWrap(`<defs><pattern id="h1" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="6" stroke="${ink}" stroke-width="1.6"/></pattern></defs>
+    <rect x="10" y="50" width="10" height="35" fill="${grey}"/><rect x="22" y="42" width="10" height="43" fill="${ink}"/>
+    <rect x="40" y="44" width="10" height="41" fill="${grey}"/><rect x="52" y="36" width="10" height="49" fill="${ink}"/>
+    <rect x="70" y="38" width="10" height="47" fill="${grey}"/><rect x="82" y="28" width="10" height="57" fill="url(#h1)" stroke="${ink}" stroke-width="1.6"/>
+    <line x1="6" y1="85" x2="96" y2="85" stroke="${ink}" stroke-width="2.5"/>`),
+  // Wasserfall
+  svgWrap(`<rect x="8" y="30" width="14" height="55" fill="${ink}"/><rect x="26" y="30" width="14" height="16" fill="${teal}"/>
+    <rect x="44" y="46" width="14" height="12" fill="${red}"/><rect x="62" y="46" width="14" height="14" fill="${teal}"/>
+    <rect x="80" y="46" width="14" height="39" fill="${ink}"/><line x1="4" y1="85" x2="98" y2="85" stroke="${ink}" stroke-width="2.5"/>`),
+  // Linie + Marker
+  svgWrap(`<polyline points="8,70 28,58 48,64 68,40 92,30" fill="none" stroke="${ink}" stroke-width="3.4"/>
+    <circle cx="68" cy="40" r="5" fill="${ink}"/><circle cx="92" cy="30" r="5" fill="#fff" stroke="${ink}" stroke-width="3"/>
+    <line x1="6" y1="85" x2="96" y2="85" stroke="${ink}" stroke-width="2.5"/>`),
+  // Varianz-Balken + Pins
+  svgWrap(`<line x1="50" y1="8" x2="50" y2="88" stroke="${ink}" stroke-width="2.5"/>
+    <rect x="50" y="14" width="26" height="9" fill="${teal}"/><rect x="30" y="30" width="20" height="9" fill="${red}"/>
+    <rect x="50" y="46" width="34" height="9" fill="${teal}"/><rect x="38" y="62" width="12" height="9" fill="${red}"/>
+    <rect x="50" y="76" width="18" height="9" fill="${teal}"/>`),
+  // Scatter/Bubble
+  svgWrap(`<circle cx="30" cy="62" r="7" fill="${grey}"/><circle cx="48" cy="48" r="10" fill="${ink}"/>
+    <circle cx="70" cy="34" r="13" fill="${teal}"/><circle cx="78" cy="64" r="6" fill="${red}"/>
+    <line x1="10" y1="85" x2="92" y2="85" stroke="${ink}" stroke-width="2.5"/><line x1="12" y1="14" x2="12" y2="87" stroke="${ink}" stroke-width="2.5"/>`),
+  // Tabelle
+  svgWrap(`<line x1="12" y1="26" x2="88" y2="26" stroke="${ink}" stroke-width="3"/>
+    <rect x="14" y="34" width="30" height="7" fill="${soft}"/><rect x="60" y="34" width="16" height="7" fill="${teal}"/>
+    <rect x="14" y="48" width="30" height="7" fill="${soft}"/><rect x="60" y="48" width="10" height="7" fill="${red}"/>
+    <rect x="14" y="62" width="30" height="7" fill="${soft}"/><rect x="60" y="62" width="20" height="7" fill="${teal}"/>
+    <line x1="12" y1="78" x2="88" y2="78" stroke="${ink}" stroke-width="1.6"/><line x1="12" y1="81.5" x2="88" y2="81.5" stroke="${ink}" stroke-width="1.6"/>`),
+  // Treiberbaum
+  svgWrap(`<rect x="8" y="40" width="22" height="16" rx="3" fill="${ink}"/>
+    <rect x="58" y="16" width="22" height="14" rx="3" fill="#fff" stroke="${ink}" stroke-width="2.4"/>
+    <rect x="58" y="44" width="22" height="14" rx="3" fill="${teal}"/>
+    <rect x="58" y="70" width="22" height="14" rx="3" fill="${yel}"/>
+    <path d="M30,48 C45,48 45,23 58,23 M30,48 C45,48 45,51 58,51 M30,48 C45,48 45,77 58,77" fill="none" stroke="${soft}" stroke-width="2.4"/>`),
+  // Wärmestreifen (Klima-Story)
+  svgWrap(`<rect x="10" y="20" width="8" height="60" fill="#3B6FB5"/><rect x="19" y="20" width="8" height="60" fill="#6E9BD0"/>
+    <rect x="28" y="20" width="8" height="60" fill="#A9C4E4"/><rect x="37" y="20" width="8" height="60" fill="#E8EDF2"/>
+    <rect x="46" y="20" width="8" height="60" fill="#F2C9B0"/><rect x="55" y="20" width="8" height="60" fill="#E89A6F"/>
+    <rect x="64" y="20" width="8" height="60" fill="#D96A45"/><rect x="73" y="20" width="8" height="60" fill="#C43D2B"/>
+    <rect x="82" y="20" width="8" height="60" fill="#9E1B1B"/>`),
+  // Sankey (Strommix-Rechner)
+  svgWrap(`<path d="M10,22 C45,22 55,16 90,16 L90,30 C55,30 45,36 10,36 Z" fill="${teal}" opacity=".85"/>
+    <path d="M10,40 C45,40 55,42 90,36 L90,48 C55,52 45,50 10,52 Z" fill="${yel}" opacity=".9"/>
+    <path d="M10,56 C45,56 55,58 90,54 L90,62 C55,66 45,66 10,66 Z" fill="${grey}"/>
+    <path d="M10,70 C45,70 55,70 90,68 L90,84 C55,86 45,80 10,80 Z" fill="${ink}" opacity=".85"/>`),
+  // Karten-Punkte (Köln blitzt / Raser-Story)
+  svgWrap(`<path d="M18,80 C30,60 36,58 44,44 C50,34 62,30 82,22" fill="none" stroke="${grey}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M14,34 C34,40 52,56 86,62" fill="none" stroke="${grey}" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+    <circle cx="44" cy="44" r="7" fill="${red}"/><circle cx="60" cy="33" r="5" fill="${red}" opacity=".8"/>
+    <circle cx="30" cy="62" r="4.5" fill="${red}" opacity=".65"/><circle cx="70" cy="58" r="4" fill="${ink}" opacity=".5"/>
+    <circle cx="24" cy="38" r="3.5" fill="${ink}" opacity=".4"/>`),
+  // Kachel-Kartogramm (Länder-Atlas)
+  svgWrap(`<g stroke="#fff" stroke-width="2.4">
+    <rect x="22" y="14" width="18" height="18" fill="${grey}"/><rect x="42" y="14" width="18" height="18" fill="${teal}" opacity=".55"/>
+    <rect x="12" y="34" width="18" height="18" fill="${teal}" opacity=".8"/><rect x="32" y="34" width="18" height="18" fill="${teal}"/>
+    <rect x="52" y="34" width="18" height="18" fill="${yel}"/><rect x="72" y="34" width="18" height="18" fill="${grey}" opacity=".6"/>
+    <rect x="22" y="54" width="18" height="18" fill="${ink}" opacity=".85"/><rect x="42" y="54" width="18" height="18" fill="${teal}" opacity=".4"/>
+    <rect x="62" y="54" width="18" height="18" fill="${grey}"/><rect x="32" y="74" width="18" height="18" fill="${yel}" opacity=".7"/></g>`)
+];
+const grid = document.getElementById('tiles');
+const order = [0,'blank',7,'teal',2,8, 3,9,4,'yel',5,'blank', 10,6,'blank',1,'blank',7, 8,'blank','teal',9,'blank',10];
+for (const o of order) {
+  const d = document.createElement('div');
+  if (o === 'blank' || o === 'teal' || o === 'yel') { d.className = 'tile ' + (o === 'blank' ? 'blank' : o); }
+  else { d.className = 'tile'; d.innerHTML = charts[o]; }
+  grid.appendChild(d);
+}
+</script>

@@ -1,0 +1,10 @@
+AccountID;AccountName;L1;L2;SortOrder;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert;Einheit;Comment
+CF_ANF;Anfangsbestand Zahlungsmittel;Anfangsbestand Zahlungsmittel;;10;Account opening;;1;false;false;EUR;Anfangsbestand: Stand am Periodenbeginn (Token opening).
+CF_JUE;Jahresüberschuss;Operativer Cashflow;Jahresüberschuss;21;Account;;1;false;false;EUR;
+CF_ABS;Abschreibungen;Operativer Cashflow;Abschreibungen;22;Account;;1;false;false;EUR;
+CF_WC;Veränderung Working Capital;Operativer Cashflow;Veränderung Working Capital;23;Account;;1;false;false;EUR;
+CF_INV;Investitionen Sachanlagen;Investiver Cashflow;Investitionen Sachanlagen;31;Account;;1;false;false;EUR;
+CF_DES;Anlagenabgänge;Investiver Cashflow;Anlagenabgänge;32;Account;;1;false;false;EUR;
+CF_TIL;Tilgung Darlehen;Finanzierungs-Cashflow;Tilgung Darlehen;41;Account;;1;false;false;EUR;
+CF_DIV;Dividende;Finanzierungs-Cashflow;Dividende;42;Account;;1;false;false;EUR;
+CF_END;Endbestand Zahlungsmittel;Endbestand Zahlungsmittel;;50;Formula stock;[Anfangsbestand Zahlungsmittel]+[Operativer Cashflow]+[Investiver Cashflow]+[Finanzierungs-Cashflow];1;false;false;EUR;Endbestand = Anfangsbestand + Cashflows (Formel, Token stock).

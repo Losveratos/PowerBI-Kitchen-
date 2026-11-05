@@ -7,5 +7,5 @@
         "types": [],
         "outDir": "."
     },
-    "files": ["../src/gantt.ts"]
+    "files": ["../src/gantt.ts", "../src/datum.ts"]
 }

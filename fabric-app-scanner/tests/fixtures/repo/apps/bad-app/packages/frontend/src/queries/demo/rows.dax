@@ -1,0 +1,13 @@
+DEFINE
+    MEASURE Sales[Umsatz] = SUM ( Sales[Amount] ) * 1.19
+    MEASURE Sales[Bonus] = SUM ( Sales[Gehalt] ) * 0.1
+EVALUATE
+SELECTCOLUMNS (
+    FILTER ( ALL ( Sales ), Sales[Region] = "Nord" ),
+    "region", TRIM ( Sales[Region] ),
+    "amount", ROUND ( Sales[Amount], 0 ),
+    "cost", Sales[Cost],
+    "gehalt", Sales[Gehalt],
+    "old", Sales[Alt],
+    "x", Gone[Feld]
+)

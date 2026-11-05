@@ -1,0 +1,46 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  :root { --ink:#0F1E2E; --soft:#475569; --teal:#0E8585; --yel:#F5B301; --paper:#F4F3EE; }
+  body { margin:0; width:1200px; height:675px; background:
+    radial-gradient(1200px 600px at 85% -10%, #E8F2F2 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #FBF3DC 0%, transparent 55%),
+    var(--paper);
+    font-family:'Segoe UI',system-ui,Arial,sans-serif; color:var(--ink); overflow:hidden; position:relative; }
+  .shot { position:absolute; background:#fff; padding:10px 10px 30px; border-radius:6px;
+    box-shadow:0 14px 34px rgba(15,30,46,.22), 0 3px 8px rgba(15,30,46,.12); }
+  .shot img { display:block; border-radius:3px; }
+  .shot .cap { position:absolute; bottom:7px; left:12px; font-size:13px; font-weight:700; color:var(--soft); letter-spacing:.4px; }
+  .s1 { top:150px; left:36px; transform:rotate(-2deg); z-index:1; }
+  .s1 img { width:520px; }
+  .s2 { top:38px; left:625px; transform:rotate(1.5deg); z-index:2; }
+  .s2 img { width:520px; }
+  .s3 { top:382px; left:300px; transform:rotate(-1deg); z-index:3; }
+  .s3 img { width:440px; }
+  .head { position:absolute; top:30px; left:40px; z-index:5; width:560px; }
+  .eyebrow { font-size:15px; letter-spacing:3px; color:var(--teal); font-weight:800; text-transform:uppercase; }
+  .head h1 { font-size:30px; margin:4px 0 0; font-weight:800; }
+  .dates { position:absolute; right:30px; bottom:30px; z-index:6; background:var(--ink); color:#fff;
+    border-radius:14px; padding:20px 24px 16px; width:330px; box-shadow:0 16px 40px rgba(15,30,46,.35); }
+  .dates .t { font-size:14px; letter-spacing:2.5px; color:#7FD1D1; font-weight:800; text-transform:uppercase; margin-bottom:12px; }
+  .row { display:flex; justify-content:space-between; align-items:baseline; padding:7px 0; border-top:1px solid rgba(255,255,255,.14); }
+  .row:first-of-type { border-top:none; }
+  .row .c { font-size:17px; font-weight:650; }
+  .row .d { font-size:15px; color:#F5D77A; font-weight:800; white-space:nowrap; margin-left:12px; }
+  .row .sub { font-size:12.5px; color:#AEB8C4; margin-top:1px; }
+  .brand { display:flex; align-items:center; gap:10px; margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,.14); font-size:13.5px; color:#AEB8C4; }
+  .brand img { width:34px; height:34px; }
+  .brand b { color:#fff; }
+</style>
+<div class="head">
+  <div class="eyebrow">Budapest BI &amp; Analytics Forum · Nov 17, 2026</div>
+  <h1>Finance Reporting in Power&nbsp;BI</h1>
+</div>
+<div class="shot s1"><img src="mockup-shot.png"><div class="cap">MOCKUPKITCHEN · sketch → report</div></div>
+<div class="shot s2"><img src="../video/out/still-3-ck-c03-dark.png"><div class="cap">CHARTKITCHEN · C03 columns + variances</div></div>
+<div class="shot s3"><img src="../video/out/still-1-pnl-t02a-megatable.png"><div class="cap">P&amp;L STATEMENT · T02A mega table</div></div>
+<div class="dates">
+  <div class="t">Catch me live · Budapest</div>
+  <div class="row"><div><div class="c">One Model, Three Visual Stacks Compared</div><div class="sub">Core visuals + SVG · Deneb · custom visuals — honest trade-offs</div></div></div>
+  <div class="row"><div><div class="c">Nov 17, 2026</div><div class="sub">Danubius Hotel Helia · budapestbi.hu</div></div></div>
+  <div class="brand"><img src="hat.svg"><div><b>Michael Tenner</b> · Daten-WG</div></div></div>
+</div>

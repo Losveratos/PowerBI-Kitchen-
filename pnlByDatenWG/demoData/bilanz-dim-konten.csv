@@ -1,0 +1,9 @@
+AccountID;AccountName;L1;L2;SortOrder;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert;Einheit;Comment
+A_SACH;Sachanlagen;Aktiva;Sachanlagen;11;Account stock;;1;false;false;EUR;Investition Abfüllanlage im Juni.
+A_VORR;Vorräte;Aktiva;Vorräte;12;Account stock;;1;false;true;EUR;
+A_FORD;Forderungen LuL;Aktiva;Forderungen LuL;13;Account stock;;1;false;true;EUR;
+A_KASSE;Kasse und Bank;Aktiva;Kasse und Bank;14;Account stock;;1;false;false;EUR;
+P_EK;Eigenkapital;Passiva;Eigenkapital;21;Account stock;;-1;false;false;EUR;
+P_RUECK;Rückstellungen;Passiva;Rückstellungen;22;Account stock;;-1;false;true;EUR;Rückstellungen höher = ungünstig (VarianceInvert).
+P_BANK;Verbindlichkeiten Kreditinstitute;Passiva;Verbindlichkeiten Kreditinstitute;23;Account stock;;-1;false;true;EUR;
+P_VLUL;Verbindlichkeiten LuL;Passiva;Verbindlichkeiten LuL;24;Account stock;;-1;false;true;EUR;

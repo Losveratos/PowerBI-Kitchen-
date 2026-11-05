@@ -9,7 +9,15 @@
  * fill of the FC minuend, the axis notation (PY gray / PL double) and the
  * "(↓)" sort indicator with the sorted order; phase 3 (m11..m16): the
  * integrated Δ waterfall T04B–E (cascade, connectors, notation per minuend ×
- * subtrahend) and the value cascades of 12A.
+ * subtrahend) and the value cascades of 12A. 1.7 (m39..m42, p28, p29): stocks —
+ * the balance sheet (T05A: the stand at the reporting date, "=" blocks with the
+ * double rule, statement.stockMode persisted), the cash-flow bridge (T05B:
+ * opening and closing balance anchor at the zero line, the flows float), the
+ * FY outlook of stocks (FC end stand, hatched), the row waterfall and the
+ * classic table over stocks. 1.7 ⚡ "only exceptions" (m43..m46): the rest
+ * greys in T01A while the red thresholds stay, mode "hide" in T04A takes out
+ * exactly the counted detail rows, over the T04B cascade it greys instead,
+ * high contrast draws the rest dashed.
  *
  * Run: node test/mega-shot.js  (after node test/build.js; npm run test:mega)
  */
@@ -59,7 +67,9 @@ function readMega(id) {
             rects: [...g.querySelectorAll("rect")].map(r => ({ fill: r.getAttribute("fill"), stroke: r.getAttribute("stroke"),
                 w: +r.getAttribute("width"), h: +r.getAttribute("height") })),
             stems: [...g.querySelectorAll("g:not([shape-rendering]) > line")].length,
-            arrows: g.querySelectorAll("path").length,
+            arrows: g.querySelectorAll('path:not([data-pnl="mega-break"])').length,
+            // 1.5: break marks of capped elements (outlier zone, UN 5.3)
+            breaks: g.querySelectorAll('path[data-pnl="mega-break"]').length,
         };
     });
     const rowIds = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => r.getAttribute("data-pnl-row"));
@@ -94,7 +104,8 @@ function readMega(id) {
     await page.waitForTimeout(600);
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
-        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31"];
+        "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -107,20 +118,23 @@ function readMega(id) {
     }
     const heads = id => S[id] ? S[id].head.map(t => t.t) : [];
     // numbers group with a narrow no-break space (U+202F) — tests write a blank
-    const nb = t => t.replace(/(\d) (\d)/g, "$1\u202F$2");
+    // 1.5.1: numbers carry the typographic minus (U+2212) — tests write "-85"
+    const nb = t => t.replace(/(\d) (\d)/g, "$1\u202F$2").replace(/(^|[<(\s])-(?=\d)/g, "$1\u2212");
     const has = (id, t) => S[id] && S[id].body.some(x => x.t === nb(t));
-    const cell = (id, t) => S[id] && S[id].body.find(x => x.t === t);
+    const cell = (id, t) => S[id] && S[id].body.find(x => x.t === nb(t));
 
     // ---- T03A: column set, values, %p row, marks, sign column ---------------
     check("m1 T03A heads PY PL AC ΔPY ΔPL (paired Δ%)", JSON.stringify(heads("m1")) === JSON.stringify(["PY", "PL", "AC", "ΔPY", "ΔPL"]), heads("m1").join("|"));
     check("m1 Sales revenue AC 1 031.2", has("m1", "1 031.2"));
     check("m1 Operating expenses ΔPY +37.4 (display orientation, costs up)", has("m1", "+37.4"));
-    check("m1 Operating expenses ΔPY% +7%", has("m1", "+7%"));
+    check("m1 Operating expenses ΔPY% +6.6% (1.5: one Δ% decimal in every template)", has("m1", "+6.6%"));
     check("m1 Gross margin AC 45.3% italic", cell("m1", "45.3%") && cell("m1", "45.3%").italic);
-    check("m1 Gross margin ΔPY +8.6%p", has("m1", "+8.6%p"));
-    check("m1 Gross margin ΔPY% relative +23% (with % sign, T03A)", has("m1", "+23%") && !has("m1", "+23"));
+    check("m1 Gross margin ΔPY +8.6 pp (1.5.1: pp, Δ% decimals)", has("m1", "+8.6\u202Fpp"));
+    check("m1 Gross margin: no relative Δ% any more (1.5.1)", !has("m1", "+23%") && !has("m1", "+23"));
     check("m1 Group result AC 422.2 bold", cell("m1", "422.2") && cell("m1", "422.2").bold);
-    check("m1 sign column: = / + / -", has("m1", "=") && has("m1", "+") && has("m1", "-"));
+    check("m1 sign column: = / + / − (U+2212)", has("m1", "=") && has("m1", "+") && has("m1", "\u2212"));
+    check("1.5.1 no hyphen-minus in front of a number anywhere (m1, m3, m5, m15)", ["m1", "m3", "m5", "m15"].every(id => S[id]
+        && !S[id].body.some(x => /(^|[^A-Za-z])-\d/.test(x.t)) && !S[id].charts.some(c => c.labels.some(l => /(^|[^A-Za-z])-\d/.test(l.t)))));
     check("m1 head marks: AC solid ink + PY gray", S.m1 && S.m1.headRects.some(r => r.fill === "#404040" && r.h === 4)
         && S.m1.headRects.some(r => r.fill === "#B3B3B3" && r.h === 4));
     check("m1 no chart columns", S.m1 && S.m1.charts.length === 0);
@@ -137,7 +151,7 @@ function readMega(id) {
     check("m3 World AC month 3 254 + YTD 32 489", has("m3", "3 254") && has("m3", "32 489"));
     check("m3 duplicate leaves named after their region", has("m3", "Other Europe") && has("m3", "Other Americas"));
     check("m3 no subtotal rows (Europe hidden)", !has("m3", "Europe"));
-    const red = (id, t) => S[id] && S[id].body.some(x => x.t === t && x.fill === "#E02B1D");
+    const red = (id, t) => S[id] && S[id].body.some(x => x.t === nb(t) && x.fill === "#E02B1D");
     check("m3 Germany ΔPY -85 red (< -20)", red("m3", "-85"));
     check("m3 Germany ΔPY% -24.6% red (< -10%)", red("m3", "-24.6%"));
     check("m3 Austria ΔPY +59 not red", has("m3", "+59") && !red("m3", "+59"));
@@ -245,8 +259,10 @@ function readMega(id) {
         check("m11 Purchases +11.12 (raw Δ, cost) left of its bar, bar red", pur && pur.anchor === "end"
             && wf.bars.some(b => b.fill === "#E02B1D" && Math.abs(b.x - 3 - pur.x) < 0.6));
         check("m11 Group result +6.04 bold", wf.labels.some(l => l.t === "+6.04" && l.bold));
-        check("m11 pins with 2 decimals (+25.26)", S.m11.charts[1].labels.some(l => l.t === "+25.26"));
-        check("m11 margin row keeps its %p-free values (10.99%)", has("m11", "10.99%"));
+        check("m11 pins with one decimal (+25.3, 1.5)", S.m11.charts[1].labels.some(l => l.t === "+25.3"));
+        // 1.5.1: the margin carries the Δ% decimals (11.0 %, not 10.99 %), its Δ prints as pp at the waterfall axis
+        check("m11 margin row with pctDecimals (11.0%, not 10.99%)", has("m11", "11.0%") && !has("m11", "10.99%"));
+        check("m11 margin row: +0.8 pp at the ΔPL waterfall axis, no bar", wf.labels.some(l => l.t === "+0.8\u202Fpp"));
         // the cascade really runs on: Other op. income starts where Sales revenue ended
         const ids11 = S.m11.rowIds; const y11 = S.m11.rowY;
         const seg = id => { const i = ids11.indexOf(id); return wf.bars.find(b => b.y > y11[i] && b.y < y11[i] + 22); };
@@ -266,7 +282,7 @@ function readMega(id) {
         check("m15 value labels (Sales revenue AC 1 061 bold, Operating expenses 752)",
             ac.labels.some(l => l.t === nb("1 061") && l.bold) && ac.labels.some(l => l.t === "752"));
         check("m15 cascade connectors", py.conn >= 15 && ac.conn >= 15, `${py.conn}/${ac.conn}`);
-        check("m15 ΔPY% outliers +983 / +391 capped with arrows", D.charts[3].arrows === 2);
+        check("m15 ΔPY% outliers +983.3 / +390.9 capped: triangle + break mark each", D.charts[3].arrows === 2 && D.charts[3].breaks === 2);
         check("m15 no gray row rules, no head rules (12A)", !D.ruleColors.includes("#D9D9D9") && D.headLines === 0);
         check("m15 no margin row", !D.body.some(x => /%$/.test(x.t)));
         check("m15 one value-cascade scale for PY and AC (same Licences px per kEUR)", (() => {
@@ -280,7 +296,7 @@ function readMega(id) {
         const D = S.m16;
         check("m16 six chart columns (bar, waterfall, pins per block)", D.charts.length === 6);
         const wf0 = D.charts[1];
-        check("m16 subtotal blocks span their regions (Europe -36 left of its bar)", wf0.labels.some(l => l.t === "-36" && l.bold && l.anchor === "end"));
+        check("m16 subtotal blocks span their regions (Europe -36 left of its bar)", wf0.labels.some(l => l.t === "\u221236" && l.bold && l.anchor === "end"));
         check("m16 World anchored on the zero line", (() => {
             const i = D.rowIds.indexOf("L:World"); const y = D.rowY[i];
             const b = wf0.bars.find(r => r.y > y && r.y < y + 22);
@@ -297,7 +313,8 @@ function readMega(id) {
 
     // ==== 1.1 package A ==========================================================
     // fix 1 — margin rows: relative Δ% with %, %p only for the point difference
-    check("m2 T03B margin row relative +21% / +20% (with %)", has("m2", "+21%") && has("m2", "+20%") && has("m2", "+7.7%p"));
+    // 1.5.1: margin rows: the point difference in pp, no relative Δ% (a percentage of a percentage)
+    check("m2 T03B margin row +7.7 pp, no relative +21% / +20%", has("m2", "+7.7\u202Fpp") && !has("m2", "+21%") && !has("m2", "+20%"));
     // fix 3 — legend = the scenarios the mega columns show; axis note only for real Δ axes
     const lg = id => S[id] ? S[id].legend : "";
     check("m7 T02F legend PL + FC only (no AC, no PY)", /PL plan/.test(lg("m7")) && /FC forecast/.test(lg("m7"))
@@ -324,7 +341,7 @@ function readMega(id) {
             bars.every(c => c.bars.some(b => b.fill === "#000000" && b.stroke === "#FFFF00") && c.bars.some(b => b.fill === "#FFFF00" && !b.stroke)));
         check("m19 HC: unfavourable pin heads hollow", D.charts[1].rects.some(r => r.fill === "#000000" && r.stroke === "#FFFF00" && r.w === 8));
         check("m19 HC: PY head mark dashed", D.pyMarkDashed === 2, String(D.pyMarkDashed));
-        check("m19 HC: red threshold numbers underlined (-85, -274)", D.underlined.includes("-85") && D.underlined.includes("-274")
+        check("m19 HC: red threshold numbers underlined (−85, −274)", D.underlined.includes("\u221285") && D.underlined.includes("\u2212274")
             && !D.underlined.includes("+59"), D.underlined.join(","));
         check("m19 HC: no teal note in the legend", !/teal/.test(D.legend));
     }
@@ -347,8 +364,8 @@ function readMega(id) {
     // fix 10 — % of revenue in the mega table
     if (S.m24) {
         check("m24 % Rev right after AC", JSON.stringify(heads("m24").slice(0, 4)) === JSON.stringify(["PY", "PL", "AC", "% Rev"]), heads("m24").join("|"));
-        const lic = cell("m24", "87%");
-        check("m24 Licences 87% italic, right-aligned", lic && lic.italic && lic.anchor === "end");
+        const lic = cell("m24", "86.9%");
+        check("m24 Licences 86.9% italic, right-aligned", lic && lic.italic && lic.anchor === "end");
         check("m24 off by default (m1 has no % Rev)", !heads("m1").includes("% Rev"));
     }
     // fix 4 — sort indicator moves to the category head when the sorting column is off
@@ -361,39 +378,58 @@ function readMega(id) {
     // ---- 1.1 Paket C ------------------------------------------------------------
     const pageInfo = await page.evaluate(() => {
         const o = {};
-        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15"]) {
+        for (const id of ["m27", "m28", "m29", "m30", "m1", "m15", "m5", "m11", "m33", "m36", "m37", "m38"]) {
             const st = document.getElementById(id);
             const hl = st.querySelector('[data-pnl="headline"]');
             const note = st.querySelector('[data-pnl="scale-fixed"]');
+            const sn = st.querySelector('[data-pnl="scale-note"]');
             o[id] = { headline: hl ? hl.textContent : null, headlineFs: hl ? parseFloat(hl.style.fontSize) : 0,
-                note: note ? note.textContent : null, text: st.innerText,
-                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill") })) };
+                note: note ? note.textContent : null, scaleNote: sn ? sn.textContent : null, text: st.innerText,
+                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill"), out: t.getAttribute("data-pos") === "out" })) };
         }
         return o;
     });
     if (S.m27) {
         check("m27 12G heads: FY 2025 · PY · YTD + AC&FC · ΔPY · ΔPY%", ["FY 2025", "PY", "YTD", "AC&FC", "ΔPY", "ΔPY%"].every(h => heads("m27").includes(h)),
             heads("m27").join("|"));
-        // the stacked bar: YTD inside (paper tone), the year outside (Licences 538 ▓ 1 434, Sales revenue 637 ▓ 1 698)
+        // the stacked bar: YTD inside, the year outside (Licences 538 ▓ 1 434, Sales revenue 637 ▓ 1 698)
         const ytd = pageInfo.m27.ytd.map(x => x.t);
-        check("m27 YTD numbers inside the solid part (538, 637, 196, 267, 200) on the paper tone",
-            ["538", "637", "196", "267", "200"].every(x => ytd.includes(x)) && pageInfo.m27.ytd.every(x => x.fill === "#FFFFFF"), ytd.join(","));
+        const fillOf = t => (pageInfo.m27.ytd.find(x => x.t === t) || {}).fill;
+        // 1.5.2: a YTD number that no longer fits the solid part moves before the bar in ink
+        const posOf = t => (pageInfo.m27.ytd.find(x => x.t === t) || {}).out;
+        check("m27 YTD numbers inside the solid part (538, 637, 267) on the paper tone",
+            ["538", "637", "267"].every(x => ytd.includes(x) && fillOf(x) === "#FFFFFF" && !posOf(x)), ytd.join(","));
+        check("m27 short YTD numbers (196, 200) before the bar start in dark ink (1.5.2)",
+            ["196", "200"].every(x => ytd.includes(x) && posOf(x) && fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
+        // 1.5.1: on the light cost tone (#8A8886) the number is dark ink (≥ 4.5:1), not white (~3.5:1)
+        check("m27 YTD numbers of cost rows (227, 451) in dark ink on the light tone (1.5.1)",
+            ["227", "451"].every(x => fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
         check("m27 year numbers outside (1 434, 1 698, 1 202)", has("m27", "1 434") && has("m27", "1 698") && has("m27", "1 202"));
         const vwf = S.m27.charts[1];
+        // 1.5.2: every stacked row shows its YTD number — inside when it fits, else before the bar start
+        const stacked = vwf.bars.filter(b => /^url\(/.test(b.fill)).length;
+        check("m27 every stacked row carries its YTD number (inside or before the bar)",
+            pageInfo.m27.ytd.length >= stacked && pageInfo.m27.ytd.some(x => x.out), `${pageInfo.m27.ytd.length} / ${stacked} ` + JSON.stringify(pageInfo.m27.ytd));
         check("m27 AC&FC cascade: solid YTD + hatched rest of year per row", vwf.bars.filter(b => /^url\(/.test(b.fill)).length >= 15
             && vwf.bars.filter(b => b.fill === "#404040").length >= 8, JSON.stringify(vwf.bars.slice(0, 4)));
         // Δ on the year: Licences +721 (1 434 − 713), Sales revenue +885, bars hatched (AC&FC mostly forecast)
         check("m27 ΔPY on the year (+721, +885, +637 costs)", has("m27", "+721") && has("m27", "+885") && has("m27", "+637"));
         check("m27 ΔPY bars hatched", S.m27.charts[2].bars.length > 10 && S.m27.charts[2].bars.every(b => /^url\(/.test(b.fill)));
         check("m27 legend explains the hatch (FC) next to PY + AC", /FC/.test(S.m27.legend) && /PY/.test(S.m27.legend) && /AC/.test(S.m27.legend));
-        check("m27 headline slot: generated message, large", /^Group result ΔPY \+144/.test(pageInfo.m27.headline || "")
+        // 1.5: one sentence, drivers with their effect on the result, the unit of the title line
+        // 1.5.1: drivers with the Δ the table shows (+262 for the cost overrun), unit and effect in words, "%" after a narrow space
+        // 1.5.2: FY outlook with minuend AC = AC&FC, the subject says "forecast"
+        check("m27 headline slot: generated sentence, large", pageInfo.m27.headline === "Group result (forecast) is 144\u00A0kEUR (+76.6\u202F%) above previous year; "
+            + "strongest driver is Licences with +721\u00A0kEUR higher income, largest drag is Purchases with +262\u00A0kEUR higher costs."
             && pageInfo.m27.headlineFs >= 16, JSON.stringify(pageInfo.m27.headline));
     }
     if (S.m28) {
         check("m28 12H heads PY | PL | ΔPY | ΔPY%", JSON.stringify(heads("m28")) === JSON.stringify(["PY", "PL", "ΔPY", "ΔPY%"]), heads("m28").join("|"));
         const bars = S.m28.charts[2].bars;
-        check("m28 ΔPY bars tinted pale teal / red in an ink outline", bars.length > 10
-            && bars.every(b => (b.fill === "#BCDDDD" || b.fill === "#F6C4C0") && b.stroke === "#404040"), JSON.stringify(bars.slice(0, 3)));
+        // 1.5.1: PL minuend = outlined Δ bars (good / bad outline on paper), no pale tint any more
+        check("m28 ΔPY bars outlined teal / red on paper", bars.length > 10
+            && bars.every(b => b.fill === "#FFFFFF" && (b.stroke === "#0E8585" || b.stroke === "#E02B1D"))
+            && bars.some(b => b.stroke === "#E02B1D"), JSON.stringify(bars.slice(0, 3)));
         check("m28 PL cascade outlined, cost rows on the pale ground", S.m28.charts[1].bars.some(b => b.fill === "#FFFFFF" && b.stroke === "#404040")
             && S.m28.charts[1].bars.some(b => b.fill === "#F2F2F2"));
         check("m28 PL pins: outlined heads", S.m28.charts[3].rects.some(r => r.fill === "#FFFFFF" && r.stroke === "#404040"));
@@ -404,8 +440,11 @@ function readMega(id) {
     }
     if (S.m29) {
         const bars = S.m29.charts[2].bars;
-        check("m29 dark + blue/orange: tints of #5BA3DC / #F0821E toward the dark paper", bars.length > 10
-            && bars.every(b => b.fill === "#2F4353" || b.fill === "#593A1E"), [...new Set(bars.map(b => b.fill))].join(","));
+        check("m29 dark + blue/orange: Δ bars outlined #5BA3DC / #F0821E on the dark paper", bars.length > 10
+            && bars.every(b => b.fill === "#1E1E1E" && (b.stroke === "#5BA3DC" || b.stroke === "#F0821E")), [...new Set(bars.map(b => b.fill + b.stroke))].join(","));
+        // 1.5.1: the minuend PL is named in the subject of the generated headline
+        check("m29 headline names the plan in the subject: “Group result (plan) is …”", /^Group result \(plan\) is 111\u00A0kEUR \(\+59\.0\u202F%\) above previous year; /.test(pageInfo.m29.headline || ""),
+            JSON.stringify(pageInfo.m29.headline));
         check("m29 pins in #5BA3DC / #F0821E, no teal", S.m29.paints.includes("#5BA3DC") && S.m29.paints.includes("#F0821E")
             && !S.m29.paints.includes("#3FB3C2"));
         check("m29 deviation notes name blue / orange", /blue \/ orange/.test(pageInfo.m29.text) && !/teal replaces/.test(pageInfo.m29.text));
@@ -454,6 +493,107 @@ function readMega(id) {
         check("below the threshold every row is painted (m15: 20 rows)", S.m15.rowIds.length === 20, String(S.m15.rowIds.length));
     }
 
+    // ==== 1.5 · IBCS 2.0 / ISO 24896 scaling ======================================
+    const rowBar = (id, ci, rowId) => {
+        const i = S[id].rowIds.indexOf(rowId); const y = S[id].rowY[i];
+        return S[id].charts[ci].bars.find(b => b.y > y && b.y < y + 22);
+    };
+    if (S.m5) {
+        // 1.5.1: one Δ scale over month and YTD, no factor between blocks (1.5 drew the month "ΔPL ×5")
+        check("m5 no scaling indicator between blocks (two plain ΔPL heads)",
+            !heads("m5").some(h => /×/.test(h)) && heads("m5").filter(h => h === "ΔPL").length === 2, heads("m5").join("|"));
+        check("m5 no scale note (nothing magnified, nothing fixed)", pageInfo.m5.scaleNote === null, pageInfo.m5.scaleNote);
+        const m = rowBar("m5", 0, "L:World¦Europe"); const y = rowBar("m5", 2, "L:World¦Europe");
+        const ratio = m && y ? (m.w / 36) / (y.w / 653) : 0;
+        check("m5 px per kEUR: month = YTD (Europe −36 vs −653, ratio 1)", Math.abs(ratio - 1) < 0.05, String(ratio));
+        // pins: one scale over both blocks; Japan +65.5 % capped into the outlier zone
+        const pinY = S.m5.charts[3];
+        const jp = pinY.labels.find(l => l.t === "+65.5"); const cn = pinY.labels.find(l => l.t === "+24.6");
+        check("m5 Japan +65.5 runs past China +24.6 (outlier zone), break mark + triangle, number outside",
+            pinY.breaks === 1 && pinY.arrows === 1 && jp && cn && jp.anchor === "start" && jp.x0 > cn.x0 + 10,
+            JSON.stringify({ jp, cn, b: pinY.breaks }));
+        check("m5 no paper halo on capped numbers any more", S.m5.charts.every(c => c.halos.length === 0));
+    }
+    if (S.m15) {
+        const i = S.m15.rowIds.indexOf(S.m15.rowIds.find(r => /lic$/.test(r)));
+        const yy = S.m15.rowY[i];
+        const ac = S.m15.charts[1].bars.find(b => b.y > yy && b.y < yy + 22);
+        const dpy = S.m15.charts[2].bars.find(b => b.y > yy && b.y < yy + 22);
+        const r = ac && dpy ? (dpy.w / 183) / (ac.w / 896) : 0;
+        check("m15 ΔPY bars on the scale of the value cascades (Licences +183 vs AC 896: same px per kEUR)",
+            Math.abs(r - 1) < 0.03 && !heads("m15").some(h => /×/.test(h)), String(r));
+        check("m15 no scale note (nothing magnified, nothing fixed)", pageInfo.m15.scaleNote === null, pageInfo.m15.scaleNote);
+    }
+    if (S.m32) {
+        const ids = S.m32.rowIds; const ys = S.m32.rowY;
+        const iSk = ids.findIndex(r => /Slovakia$/.test(r)); const iCz = ids.findIndex(r => /Czechia$/.test(r));
+        check("m32 single-node regions Czechia / Slovakia shown as rows", iCz >= 0 && iSk === iCz + 1, ids.join(","));
+        check("m32 spacer between Slovakia and the next row (1.5.1: Hungary · Budapest)", iSk >= 0 && ys[iSk + 1] - ys[iSk] > 22 + 5
+            && /Budapest$/.test(ids[iSk + 1]), `${ys[iSk]} → ${ys[iSk + 1]} ${ids[iSk + 1]}`);
+        check("m32 spacer after Europe stays (sum → row)", iCz > 0 && ys[iCz] - ys[iCz - 1] > 22 + 5);
+        // 1.5.1: a gap after EVERY element of the top level, also between two single rows
+        check("m32 gap between Czechia and Slovakia (1.5.1: every top-level element)", ys[iSk] - ys[iCz] > 22 + 5, `${ys[iCz]} → ${ys[iSk]}`);
+        // 1.5.1: Hungary has one child — no subtotal that repeats Budapest, one row "Hungary · Budapest" between gaps
+        const iHu = ids.findIndex(r => /Budapest$/.test(r));
+        const labels32 = S.m32.body.map(x => x.t);
+        check("m32 one-child group: one row “Hungary · Budapest”, no Hungary subtotal", iHu === iSk + 1
+            && labels32.includes("Hungary · Budapest") && !labels32.includes("Hungary") && !ids.some(r => /Hungary$/.test(r)), ids.join(","));
+        check("m32 one-child group stands between gaps like the others", ys[iHu] - ys[iSk] > 22 + 5 && ys[iHu + 1] - ys[iHu] > 22 + 5);
+    }
+    // ==== 1.5.1 ====================================================================
+    if (S.m34) {
+        // numbers.scaling m: the built-in thresholds −20 / −220 (thousands) are −0.02 / −0.22
+        check("m34 thresholds converted at m: footer <−0.02 / <−0.22", has("m34", "<-0.02") && has("m34", "<-0.22") && !has("m34", "<-20"));
+        const redM = t => { const c = cell("m34", t); return c && c.fill === "#E02B1D"; };
+        check("m34 Germany ΔPY −0.085 red (< −0.02), YTD −0.274 red (< −0.22), Austria +0.059 not", redM("-0.085") && redM("-0.274")
+            && !redM("+0.059"));
+    }
+    if (S.m38) {
+        // T02B: one Δ scale over month and YTD, no factor between blocks
+        check("m38 T02B: no ×n in any head", !heads("m38").some(h => /×/.test(h)), heads("m38").join("|"));
+        const m = rowBar("m38", 0, "L:World¦Europe"); const y = rowBar("m38", 2, "L:World¦Europe");
+        const ratio = m && y ? (m.w / 36) / (y.w / 653) : 0;
+        check("m38 px per kEUR: month = YTD (ratio 1)", Math.abs(ratio - 1) < 0.05, String(ratio));
+        check("m38 no scale note", pageInfo.m38.scaleNote === null, pageInfo.m38.scaleNote);
+    }
+    if (pageInfo.m36) {
+        check("m36 de-DE headline: unit before the comma (Mio. EUR), Δ and effect in words, −/narrow space",
+            pageInfo.m36.headline === "Group result liegt im Forecast 144\u00A0Mio.\u00A0EUR (+76,6\u202F%) über Vorjahr; stärkster Treiber ist Licences mit "
+            + "+721\u00A0Mio.\u00A0EUR Mehrertrag, größte Belastung ist Purchases mit +262\u00A0Mio.\u00A0EUR Mehrkosten.", JSON.stringify(pageInfo.m36.headline));
+        check("m37 de-DE headline without a measure line: unit from scaling + unitText (Mio. EUR, never mEUR)",
+            /^Group result liegt im Forecast 144\u00A0Mio\.\u00A0EUR /.test(pageInfo.m37.headline || "") && !/mEUR/.test(pageInfo.m37.headline || ""),
+            JSON.stringify(pageInfo.m37.headline));
+    }
+    if (S.m35) {
+        // every comment marked in the table (①②③) is visible in the tile without scrolling
+        const fit = await page.evaluate(() => {
+            const st = document.getElementById("m35");
+            const root = st.firstElementChild;
+            const rb = root.getBoundingClientRect();
+            const notes = [...st.querySelectorAll('[data-pnl="footnote"]')];
+            const foot = st.querySelector('[data-pnl="footer"]');
+            const fb = foot ? foot.getBoundingClientRect() : null;
+            return { n: notes.length, scroll: root.scrollTop,
+                inside: notes.map(li => { const b = li.getBoundingClientRect(); return b.top >= rb.top - 0.5 && b.bottom <= rb.bottom + 0.5; }),
+                footer: !!fb && fb.top >= rb.top - 0.5 && fb.bottom <= rb.bottom + 0.5,
+                marks: (st.querySelector('svg[data-pnl="mega-body"]').textContent.match(/[①②③]/g) || []).length };
+        });
+        check("m35 three comments marked in the table and all three footnotes inside the visible tile",
+            fit.n === 3 && fit.marks === 3 && fit.inside.every(Boolean) && fit.scroll === 0, JSON.stringify(fit));
+        // 1.5.2: the IBCS notation line under the footnotes is inside the tile too
+        check("m35 the footer (IBCS notation line) is inside the visible tile", fit.footer, JSON.stringify(fit));
+    }
+    if (S.m33) {
+        const bar = S.m33.charts[0];
+        const ws = bar.bars.map(b => b.w).sort((a, b) => b - a);
+        check("m33 capped Δ bars: break mark + triangle each (Consulting, Purchases, Sales revenue, Operating expenses)",
+            bar.breaks >= 2 && bar.breaks === bar.arrows, `${bar.breaks} / ${bar.arrows}`);
+        check("m33 a capped bar runs ≥ 15 px past the longest regular bar", ws[bar.breaks - 1] - ws[bar.breaks] >= 15, ws.slice(0, 6).join(","));
+    }
+    check("footer names IBCS 2.0 (ISO 24896), not certified", /IBCS® Standards 2\.0 \(ISO 24896\)/.test(pageInfo.m1.text)
+        && !/Standards 1\.2/.test(pageInfo.m1.text) && /not certified/.test(pageInfo.m1.text)
+        && /trademark of the IBCS Institute/.test(pageInfo.m1.text) && !/HICHERT/.test(pageInfo.m1.text));
+
     // ---- preset dropdown wrote the switches (persistProperties payload) ----------
     const persist = await page.evaluate(() => (window.__persist || []).map(x => ({ id: x.id, p: x.p })));
     const m1p = persist.find(x => x.id === "m1");
@@ -461,23 +601,194 @@ function readMega(id) {
     const numObj = m1p && m1p.p.merge.find(o => o.objectName === "numbers");
     check("preset T03A persisted the switches + templateApplied", colObj && colObj.properties.templateApplied === "T03A"
         && colObj.properties.dPyAbs === true && colObj.properties.dPlPct === true && colObj.properties.secondBlock === false);
-    check("preset T03A persisted decimals 1 / Δ% 0", numObj && numObj.properties.decimals === 1 && numObj.properties.pctDecimals === 0);
+    check("preset T03A persisted decimals 1 / Δ% 1", numObj && numObj.properties.decimals === 1 && numObj.properties.pctDecimals === 1);
     check("single switches (m8) persist nothing", !persist.some(x => x.id === "m8"));
     const tplP = (id) => { const x = persist.find(q => q.id === id); return x ? x.p.merge : []; };
     const colsOf = id => (tplP(id).find(o => o.objectName === "columns") || {}).properties || {};
     const numsOf = id => (tplP(id).find(o => o.objectName === "numbers") || {}).properties || {};
-    check("preset T04B persisted dPlWaterfall + pins, decimals 2 / Δ% 2", colsOf("m11").templateApplied === "T04B"
+    check("preset T04B persisted dPlWaterfall + pins, decimals 2 / Δ% 1", colsOf("m11").templateApplied === "T04B"
         && colsOf("m11").dPlWaterfall === true && colsOf("m11").dPlBar === false && colsOf("m11").dPlPin === true
-        && numsOf("m11").decimals === 2 && numsOf("m11").pctDecimals === 2);
+        && numsOf("m11").decimals === 2 && numsOf("m11").pctDecimals === 1);
     check("preset T04C persisted dPyWaterfall, PY column, no PL", colsOf("m12").dPyWaterfall === true && colsOf("m12").showPY === true
         && colsOf("m12").showPL === false && colsOf("m12").dPlWaterfall === false);
     check("presets T04D / T04E persisted minuend FC", colsOf("m13").minuend === "fc" && colsOf("m14").minuend === "fc"
         && colsOf("m13").dPlWaterfall === true && colsOf("m14").dPyWaterfall === true);
-    check("preset 12A persisted valueCascade + ΔPY bars/pins, no margins, decimals 0 / 0", colsOf("m15").valueCascade === true
+    check("preset 12A persisted valueCascade + ΔPY bars/pins, no margins, decimals 0 / Δ% 1", colsOf("m15").valueCascade === true
         && colsOf("m15").dPyBar === true && colsOf("m15").dPyPin === true && colsOf("m15").showPctRows === false
-        && numsOf("m15").decimals === 0 && numsOf("m15").pctDecimals === 0);
+        && numsOf("m15").decimals === 0 && numsOf("m15").pctDecimals === 1);
     check("single switches (m16) persist nothing", !persist.some(x => x.id === "m16"));
     check("synced template (m9) persists nothing", !persist.some(x => x.id === "m9"));
+
+    // ==== 1.7 stock vs flow (Bestand vs. Fluss) ==================================
+    if (S.m39 && S.m40 && S.m41 && S.m42) {
+        // m39 T05A: one titled block (the reporting date), PY · AC · ΔPY (ΔPY% paired), the stands of September
+        check("m39 T05A heads: September · PY AC ΔPY", JSON.stringify(heads("m39")) === JSON.stringify(["September", "PY", "AC", "ΔPY"]), heads("m39").join("|"));
+        check("m39 Kasse und Bank: AC 498 (the September stand, not the sum of nine months), PY 440, ΔPY +58 / +13,2%",
+            has("m39", "498") && has("m39", "440") && has("m39", "+58") && has("m39", "+13,2%") && !has("m39", "4 590"));
+        check("m39 Aktiva = Passiva = 8 316 (bold), both \"=\" rows", cell("m39", "8 316") && cell("m39", "8 316").bold
+            && S.m39.body.filter(x => x.t === nb("8 316")).length === 2 && S.m39.body.filter(x => x.t === "=").length === 2,
+            JSON.stringify(S.m39.body.filter(x => x.t === "=").length));
+        check("m39 liabilities: −690 less bank debt (favourable — VarianceInvert), Eigenkapital +920",
+            has("m39", "-690") && has("m39", "+920"));
+        // the double rule: two ink lines 3 px apart under each balance-sheet total
+        const dbl = await page.evaluate(() => {
+            const body = document.querySelector('#m39 svg[data-pnl="mega-body"]');
+            const rows = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => ({ id: r.getAttribute("data-pnl-row"),
+                y: +r.getAttribute("y"), h: +r.getAttribute("height") }));
+            const lines = [...body.querySelectorAll("g[shape-rendering] > line")].filter(l => l.getAttribute("stroke") === "#404040"
+                && l.getAttribute("y1") === l.getAttribute("y2")).map(l => +l.getAttribute("y1"));
+            const at = (id) => { const r = rows.find(x => x.id === id); if (!r) { return null; }
+                const b = r.y + r.h; return [lines.filter(y => Math.abs(y - (b - 0.5)) < 0.01).length, lines.filter(y => Math.abs(y - (b - 3.5)) < 0.01).length]; };
+            return { aktiva: at("L:Aktiva"), passiva: at("L:Passiva"), kasse: at("A_KASSE") };
+        });
+        check("m39 double rule under Aktiva and Passiva (two ink lines, 3 px apart), none under a position",
+            dbl.aktiva && dbl.aktiva[0] >= 3 && dbl.aktiva[1] >= 3 && dbl.passiva && dbl.passiva[1] >= 3 && dbl.kasse && dbl.kasse[1] === 0,
+            JSON.stringify(dbl));
+        const p39 = (persist.find(x => x.id === "m39") || { p: { merge: [] } }).p.merge;
+        const st39 = (p39.find(o => o.objectName === "statement") || {}).properties || {};
+        const co39 = (p39.find(o => o.objectName === "columns") || {}).properties || {};
+        check("m39 T05A persisted statement.stockMode = allStock in the same merge as the switches (no token in the data)",
+            st39.stockMode === "allStock" && co39.templateApplied === "T05A" && co39.dPyPct === true && co39.showPL === false, JSON.stringify(st39));
+        // m41: the tokens decide (auto), PL by hand: PY PL AC ΔPY ΔPL
+        check("m41 tokens + PL: heads September · PY PL AC ΔPY ΔPL, the same stands (498, 8 316)",
+            JSON.stringify(heads("m41")) === JSON.stringify(["September", "PY", "PL", "AC", "ΔPY", "ΔPL"]) && has("m41", "498") && has("m41", "8 316"),
+            heads("m41").join("|"));
+        check("m41 Kasse ΔPL −37 against the plan stand of September (535)", has("m41", "535") && has("m41", "-37"));
+        // m40 T05B: month | _September, PY + AC cascades, ΔPY · ΔPY%
+        check("m40 T05B heads: September | _September, PY AC ΔPY twice",
+            JSON.stringify(heads("m40")) === JSON.stringify(["September", "_September", "PY", "AC", "ΔPY", "PY", "AC", "ΔPY"]), heads("m40").join("|"));
+        check("m40 YTD bridge: opening 600 → … → closing 498, the month: opening 433 → closing 498", has("m40", "+249") && has("m40", "+58")
+            && S.m40.charts.some(c => c.labels.some(l => l.t === "600")) && S.m40.charts.some(c => c.labels.some(l => l.t === "433"))
+            && S.m40.charts.filter(c => c.labels.some(l => l.t === "498")).length === 2);
+        // the anchors: opening and closing stand start at the axis of the cascade, the first flow starts at the opening's end
+        const anchor = (id, ci) => {
+            const ax = S[id].charts[ci].axes.length ? S[id].charts[ci].axes[0].x : null;
+            const o = rowBar(id, ci, "CF_ANF"); const e = rowBar(id, ci, "CF_END"); const j = rowBar(id, ci, "CF_JUE");
+            return { ax, o, e, j };
+        };
+        const a40 = anchor("m40", 3); // the AC cascade of the _September block
+        check("m40 opening and closing balance anchor at the zero line, net income floats from the opening's end",
+            a40.o && a40.e && a40.j && Math.abs(a40.o.x - a40.ax) < 1 && Math.abs(a40.e.x - a40.ax) < 1 && Math.abs(a40.j.x - (a40.o.x + a40.o.w)) < 1,
+            JSON.stringify(a40));
+        check("m40 \"=\" on the opening and the closing balance, double rule only under the closing balance",
+            S.m40.body.filter(x => x.t === "=").length === 2);
+        // m42: YTD | FY outlook without FY measures — stocks at their FC end stand (hatched), flows AC + FC rest
+        check("m42 blocks _September | FY 2026", heads("m42").includes("_September") && heads("m42").includes("FY 2026"), heads("m42").join("|"));
+        const fyCasc = S.m42.charts[S.m42.charts.length - 1 - 0];
+        check("m42 FY: closing 645 (FC December), opening 600, PY closing 600 (December of the previous year)",
+            S.m42.charts.some(c => c.labels.some(l => l.t === "645")) && S.m42.charts.some(c => c.labels.some(l => l.t === "600")) && has("m42", "+45"));
+        const hatchedEnd = (() => { for (const c of S.m42.charts) { const b = rowBar("m42", S.m42.charts.indexOf(c), "CF_END");
+            if (b && /^url\(/.test(b.fill || "")) { return true; } } return false; })();
+        check("m42 the closing balance in the AC&FC column is one hatched bar (no YTD share in a stock)", hatchedEnd);
+        void fyCasc;
+    }
+    // p28 / p29: the row waterfall and the classic table over stocks
+    const cls = await page.evaluate(() => {
+        const out = {};
+        const st = document.getElementById("p28");
+        const rows = (id) => [...document.getElementById(id).querySelectorAll("[data-pnl-row]")];
+        const geo = (row) => [...row.querySelectorAll("svg")].map(svg => {
+            const r = svg.querySelector("rect"); const lines = [...svg.querySelectorAll("line")];
+            const axis = lines[lines.length - 1];
+            return r && axis ? { x: +r.getAttribute("x"), w: +r.getAttribute("width"), ax: +axis.getAttribute("x1") } : null;
+        }).filter(Boolean).slice(0, 2); // the PL and AC cascade cells (the Δ bar and pin follow)
+        const by = (id, rid) => rows(id).find(r => r.getAttribute("data-pnl-row") === rid);
+        out.anf = geo(by("p28", "CF_ANF")); out.end = geo(by("p28", "CF_END")); out.op = geo(by("p28", "L:Operativer Cashflow"));
+        out.p28text = st.innerText;
+        const kasse = by("p29", "A_KASSE"); const akt = by("p29", "L:Aktiva");
+        out.kasse = kasse ? kasse.innerText : "";
+        out.aktDbl = akt ? [...akt.children].some(c => /double/.test(c.style.borderBottom)) : false;
+        out.kasseDbl = kasse ? [...kasse.children].some(c => /double/.test(c.style.borderBottom)) : true;
+        out.p29tip = [...document.querySelectorAll("#p29 button")].map(b => b.title).filter(t => /stand|balance/i.test(t));
+        return out;
+    });
+    check("p28 row waterfall: opening and closing balance anchor at the axis (PL and AC), operating cash flow floats",
+        cls.anf.length >= 2 && cls.end.length >= 2 && cls.anf.every(g => Math.abs(g.x - g.ax) < 0.6) && cls.end.every(g => Math.abs(g.x - g.ax) < 0.6)
+        && cls.op.length >= 2 && cls.op.every(g => Math.abs(g.x - g.ax) > 2), JSON.stringify([cls.anf, cls.end, cls.op]));
+    check("p28 the PL bridge closes in the YTD window: 600 → 1 331 → −636 → −760 → 535",
+        /600,0/.test(cls.p28text) && /1\u202f331,0|1 331,0/.test(cls.p28text) && /535,0/.test(cls.p28text), cls.p28text.slice(0, 200));
+    check("p29 classic table over a balance sheet: Kasse AC 498.0 / PY 440.0 (the September stands)",
+        /498\.0/.test(cls.kasse) && /440\.0/.test(cls.kasse), cls.kasse);
+    check("p29 double rule under the top-level stock total only", cls.aktDbl && !cls.kasseDbl);
+    check("p29 the period buttons explain the stock rule (tooltips)", cls.p29tip.length >= 2, JSON.stringify(cls.p29tip));
+
+    // ---- 1.7 ⚡ "only exceptions" (m43..m46) ----------------------------------------
+    const exc = await page.evaluate(() => {
+        const note = (id) => (document.querySelector(`#${id} [data-pnl="exc-note"]`) || {}).textContent || "";
+        const texts = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] text`)].map(t => ({
+            t: t.textContent, x: +t.getAttribute("x"), y: +t.getAttribute("y"), fill: t.getAttribute("fill") }));
+        const ids = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] rect[data-pnl-part="cells"]`)].map(r => r.getAttribute("data-pnl-row"));
+        const rectFills = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] g[data-pnl="mega-chart"] rect`)].map(r => r.getAttribute("fill"));
+        const dashed = (id) => [...document.querySelectorAll(`#${id} svg[data-pnl="mega-body"] g[data-pnl="mega-chart"] rect[stroke-dasharray="2,2"]`)].length;
+        // closure of a cascade column: a total ("span") reaches exactly as far as its own value
+        const close = (id) => {
+            const L = window.__visuals[id].megaLast; let n = 0; let bad = 0;
+            for (const c of L.cols.filter(c => c.type === "wf" && c.casc)) {
+                // the value the cascade steps with: the row's Δ in its effect on the result
+                const val = new Map();
+                for (const r of L.rows) {
+                    const D = r.id ? L.input.blocks[c.block].delta(r, L.input.t.min, c.ref) : null;
+                    if (D && !D.pp) { val.set(r.id, D.d * (r.eff ?? 1)); }
+                }
+                for (const [rid, seg] of c.casc) {
+                    if (seg.type !== "span" || !val.has(rid)) { continue; }
+                    n++;
+                    if (Math.abs((seg.e - seg.s) - val.get(rid)) > 1e-6 * (1 + Math.abs(val.get(rid)))) { bad++; }
+                }
+                // every "=" row lands where the run before it ended
+                let prev = null;
+                for (const r of L.rows) {
+                    const seg = r.id ? c.casc.get(r.id) : null;
+                    if (!seg) { continue; }
+                    if (seg.type === "anchor" && prev) { n++; if (Math.abs(prev.e - seg.e) > 1e-6 * (1 + Math.abs(seg.e))) { bad++; } }
+                    prev = seg;
+                }
+            }
+            return { n, bad };
+        };
+        return { n43: note("m43"), n44: note("m44"), n45: note("m45"), n46: note("m46"),
+            t3: texts("m3"), t43: texts("m43"), ids10: ids("m10"), ids44: ids("m44"), ids11: ids("m11"), ids45: ids("m45"),
+            f11: rectFills("m11"), f45: rectFills("m45"), d46: dashed("m46"), d5: dashed("m5"),
+            lbl45: [...document.querySelectorAll('#m45 svg[data-pnl="mega-body"] text')].map(t => t.textContent).filter(t => /^other \(/.test(t)),
+            close11: close("m11"), close45: close("m45") };
+    });
+    {
+        const SOFT = "#8A8886";
+        const same = exc.t3.length === exc.t43.length && exc.t3.every((t, i) => t.t === exc.t43[i].t && t.x === exc.t43[i].x);
+        const changed = exc.t3.map((t, i) => [t, exc.t43[i]]).filter(([a, b]) => same && a.fill !== b.fill);
+        const isDelta = (s) => /^[+\u2212-]|%$/.test(s.trim());
+        const red = (arr) => arr.filter(t => t.fill && /^#(E02B1D|FF2600)$/i.test(t.fill)).length;
+        const rowOf = (label) => { const l = exc.t43.find(t => t.t === label); return l ? exc.t43.filter(t => Math.abs(t.y - l.y) < 0.5) : []; };
+        const softIn = (label) => rowOf(label).filter(t => t.fill === SOFT && isDelta(t.t)).length;
+        check("m43 ⚡ T01A: the same table as m3 — only Δ numbers of non-exceptions change, to the soft ink",
+            same && changed.length > 10 && changed.every(([a, b]) => b.fill === SOFT && isDelta(a.t)), String(changed.length));
+        check("m43 ⚡ the explicit “Δ in red if” rule still wins (red numbers unchanged)", red(exc.t3) > 0 && red(exc.t3) === red(exc.t43),
+            `${red(exc.t3)} / ${red(exc.t43)}`);
+        check("m43 ⚡ row rule: Other Europe (no block ≥ 10 %) grey; Austria (ΔPY +11.8 % in the month) keeps its ink",
+            softIn("Other Europe") >= 4 && softIn("Austria") === 0, `${softIn("Other Europe")} / ${softIn("Austria")}`);
+        check("m43 ⚡ footer note names the rule and the references of the view",
+            /Colour only for exceptions: \|Δ%\| ≥ 10 % vs PY · PL$/.test(exc.n43), exc.n43);
+        const gone = exc.ids10.filter(i => !exc.ids44.includes(i));
+        const hidN = Number((exc.n44.match(/(\d+) rows below the threshold hidden/) || [])[1] || 0);
+        check("m44 ⚡ hide in T04A: detail rows leave the table, the note counts exactly them",
+            gone.length > 0 && exc.ids44.every(i => exc.ids10.includes(i)) && hidN === gone.length, `${gone.join(",")} · ${exc.n44}`);
+        check("m44 ⚡ hide: totals (L:…) and the result row (last row) always stay",
+            exc.ids10.filter(i => i.startsWith("L:")).every(i => exc.ids44.includes(i))
+            && exc.ids44[exc.ids44.length - 1] === exc.ids10[exc.ids10.length - 1], JSON.stringify(exc.ids44));
+        // polish: hide over a cascade folds the quiet steps of a section into one "other (n)" step;
+        // a total without an exception below it keeps no children — the cascade stays closed
+        const rest45 = exc.ids45.filter(i => i.startsWith("__exc_rest__"));
+        const nSum = Number((exc.n45.match(/(\d+) steps below the threshold combined/) || [])[1] || 0);
+        check("m45 ⚡ hide over the integrated Δ waterfall (T04B): quiet steps leave, “other (n)” rows take their sum, the note counts them",
+            rest45.length > 0 && exc.ids45.length < exc.ids11.length && nSum > 0 && exc.lbl45.every(l => /^other \(\d+\)$/.test(l))
+            && exc.lbl45.length === rest45.length && exc.f45.includes(SOFT) && !exc.f11.includes(SOFT), `${rest45.length} · ${exc.n45}`);
+        check("m45 ⚡ every kept row of m11 stays, in the same order",
+            JSON.stringify(exc.ids45.filter(i => !i.startsWith("__exc_rest__"))) === JSON.stringify(exc.ids11.filter(i => exc.ids45.includes(i))));
+        check("m45 ⚡ the Δ waterfall stays closed: every total spans exactly its own Δ (m11 and m45)",
+            exc.close11.n >= 3 && exc.close11.bad === 0 && exc.close45.n >= 3 && exc.close45.bad === 0, JSON.stringify([exc.close11, exc.close45]));
+        check("m46 ⚡ high contrast: non-exceptions are dashed outlines (no grey, no pattern); without ⚡ nothing is dashed",
+            exc.d46 > 4 && exc.d5 === 0 && /Colour only/.test(exc.n46), `${exc.d46} / ${exc.d5}`);
+    }
 
     await browser.close();
     for (const n of notes) { console.log(n); }

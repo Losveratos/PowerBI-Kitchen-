@@ -1,0 +1,24 @@
+AccountID;AccountName;L1;L2;L3;SortOrder;RowType;FormulaDef;SignConvention;DisplayInvert;VarianceInvert;Einheit;Comment
+4000;Fassbier Gastronomie;Umsatzerlöse;Fassbier Gastronomie;;11;Account;;1;false;false;EUR;Hitzesommer: Fassbier-Absatz Juni bis August deutlich über Plan.
+4100;Flaschenbier Handel;Umsatzerlöse;Flaschenbier Handel;;12;Account;;1;false;false;EUR;
+4200;Alkoholfrei;Umsatzerlöse;Alkoholfrei;;13;Account;;1;false;false;EUR;
+4300;Merchandise;Umsatzerlöse;Merchandise;;14;Account;;1;false;false;EUR;
+5000;Malz;Materialaufwand;Malz;;21;Account;;-1;true;false;EUR;
+5010;Hopfen;Materialaufwand;Hopfen;;22;Account;;-1;true;false;EUR;
+5020;Hefe & Sonstiges;Materialaufwand;Hefe & Sonstiges;;23;Account;;-1;true;false;EUR;
+5030;Verpackung;Materialaufwand;Verpackung;;24;Account;;-1;true;false;EUR;
+F_ROHERTRAG;Rohertrag;Rohertrag;;;25;Formula;[Umsatzerlöse]+[Materialaufwand];1;false;false;EUR;
+K_ROHERTRAGSMARGE;Rohertragsmarge;Rohertragsmarge;;;26;KPI;[Rohertrag]/[Umsatzerlöse];1;false;false;EUR;
+6000;Energie;Betriebsaufwand;Energie;;31;Account;;-1;true;false;EUR;Gasliefervertrag zum Januar neu verhandelt, Arbeitspreis rund 15 % unter Vorjahr.
+6100;Personal;Betriebsaufwand;Personal;;32;Account;;-1;true;false;EUR;
+6200;Logistik;Betriebsaufwand;Logistik;;33;Account;;-1;true;false;EUR;
+6300;Marketing;Betriebsaufwand;Marketing;;34;Account;;-1;true;false;EUR;
+F_EBITDA;EBITDA;EBITDA;;;40;Formula;[Rohertrag]+[Betriebsaufwand];1;false;false;EUR;
+7000;Abschreibungen Sudhaus;Abschreibungen;Abschreibungen Sudhaus;;51;Account;;-1;true;false;EUR;
+7010;Abschreibungen Anlagen;Abschreibungen;Abschreibungen Anlagen;;52;Account;;-1;true;false;EUR;
+F_BETRIEBSERGEBNIS;Betriebsergebnis;Betriebsergebnis;;;55;Formula;[EBITDA]+[Abschreibungen];1;false;false;EUR;
+7500;Zinsaufwand;Finanzergebnis;Zinsaufwand;;61;Account;;-1;true;false;EUR;
+7600;Ertragsteuern;Ertragsteuern;;;70;Account;;-1;true;false;EUR;
+F_JUEBERSCHUSS;Jahresüberschuss;Jahresüberschuss;;;80;Formula;[Betriebsergebnis]+[Finanzergebnis]+[Ertragsteuern];1;false;false;EUR;
+9000;Ausstoß gesamt (hl);Ausstoß gesamt (hl);;;90;Account;;1;false;false;hl;
+9010;davon Export (hl);davon Export (hl);;;91;Account;;1;false;false;hl;

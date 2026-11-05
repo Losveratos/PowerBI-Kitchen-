@@ -74,7 +74,8 @@ test("every tr(\"…\") key of the visual exists", () => {
     // 1.4: the hub's catalogues (gallery groups + tiles, field roles, checklist) name their keys in src/hub.ts
     const hub = fs.readFileSync(path.join(ROOT, "src/hub.ts"), "utf8");
     for (const m of hub.matchAll(/"(UI_[A-Za-z0-9_]+)"/g)) { used.add(m[1]); }
-    const demo = fs.readFileSync(path.join(ROOT, "src/demo.ts"), "utf8");
+    // the Smart Start demo and (1.7) the balance-sheet / cash-flow examples of the gallery
+    const demo = fs.readFileSync(path.join(ROOT, "src/demo.ts"), "utf8") + fs.readFileSync(path.join(ROOT, "src/demo-stock.ts"), "utf8");
     const levels = [...demo.matchAll(/levels: (\[[^\]]*\])/g)].flatMap(m => JSON.parse(m[1]));
     const refs = [...demo.matchAll(/\[@([A-Za-z]+)\]/g)].map(m => m[1]);
     for (const k of [...levels, ...refs]) { used.add("UI_DN_" + k); }
@@ -161,6 +162,12 @@ test("src/demo.ts is in sync with its generator (test/gen-demo.js)", () => {
     const { execFileSync } = require("child_process");
     const fresh = execFileSync(process.execPath, [path.join(__dirname, "gen-demo.js"), "--print"], { encoding: "utf8" });
     assert.strictEqual(fs.readFileSync(path.join(ROOT, "src/demo.ts"), "utf8"), fresh);
+});
+
+test("1.7 the stock fixtures (test/stock-data.js, src/demo-stock.ts, demoData/*.csv) are in sync with test/gen-stock.js", () => {
+    const { execFileSync } = require("child_process");
+    const out = execFileSync(process.execPath, [path.join(__dirname, "gen-stock.js"), "--check"], { encoding: "utf8" });
+    assert.ok(/up to date/.test(out), out);
 });
 
 fs.unlinkSync(OUT);

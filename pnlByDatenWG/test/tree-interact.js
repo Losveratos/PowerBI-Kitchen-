@@ -12,7 +12,12 @@
  * gap vs. the (larger) subtree gap, the one bus per parent that stays inside
  * the column gap, the operator circles on the parent stub (uniform branch) or
  * right before the child card (mixed branch), and the automatic compact cards
- * on deep levels.
+ * on deep levels. 1.7: with ⚡ "only exceptions" the non-exception cards dim
+ * and lose their variance colour, the Sankey colours the exception streams in
+ * their variance tone and greys the rest (high contrast: dashed, no pattern).
+ * Mode "hide": quiet branches fold into one grey "+n" card (the path to every
+ * exception stays), the Sankey bundles quiet streams into "other (n)" with
+ * its ports still adding up.
  *
  * Run: node test/tree-interact.js  (npm run test:tree)
  */
@@ -974,7 +979,7 @@ function tidyChecks(geom, tag) {
         zoomBar.groups.indexOf("Feeds into") >= 0 && zoomBar.groups.indexOf("Driven by") >= 0,
         zoomBar.groups.join(" | "));
     check("no view button survives in the tile view",
-        ["Table", "Bars", "Waterfall", "Tree"].every(t => zoomBar.buttons.indexOf(t) < 0),
+        ["Table", "Bars", "Waterfall", "Tree", "Sankey"].every(t => zoomBar.buttons.indexOf(t) < 0),
         zoomBar.buttons.join(","));
     check("the back button is the dominant control of the tile header",
         zoomBar.back != null && parseFloat(zoomBar.back.fs) >= 13
@@ -2155,6 +2160,903 @@ function tidyChecks(geom, tag) {
         selRes.treeHint);
     check("allowInteractions = false switches the behaviour off as well",
         selRes.noInteractRows === 0, "rows=" + selRes.noInteractRows);
+    // ---- 33) 1.6: the Sankey flow view over the driver-tree graph
+    // A stage helper over the Pharma demo (formula P&L) and the plain
+    // dimension hierarchy of block 30. readSankey reports what a reader sees:
+    // node bars (column, family, fill), ribbons (ends, width, family, fill),
+    // the two label lines, clipped / overlapping labels and the toolbar.
+    await page.evaluate(() => {
+        window.SK_STAGE = (id, objects, w, h, locale, hostOpts) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id;
+            d.style.cssText = `width:${w || 1400}px;height:${h || 900}px;`;
+            document.body.appendChild(d);
+            const host = makeHost(locale || "en-US", hostOpts);
+            // every write lands in a log, so a fallback can prove it persisted nothing
+            host.persistProperties = (p) => { (window.__skPersist = window.__skPersist || []).push({ id, p }); };
+            const v = new PnlByDatenWG.Visual({ element: d, host });
+            v.update({ dataViews: [dv(objects)], viewport: { width: w || 1400, height: h || 900 }, type: 2 });
+            window.__skVis = window.__skVis || {};
+            window.__skVis[id] = v;
+            return d;
+        };
+        window.SK_UI = (extra) => ({ titleBlock: { measureLine: "sankey" },
+            state: { uiState: JSON.stringify(Object.assign({ view: "sankey", treeV: 2, ref: "pl" }, extra || {})) } });
+    });
+    const readSankey = (id) => {
+        const stage = document.getElementById(id);
+        // own text only — <title> children and the chevron tspan stay out
+        const own = (t) => t ? [...t.childNodes].filter(c => c.nodeType === 3)
+            .map(c => c.nodeValue).join("").trim() : "";
+        const svg = stage.querySelector('svg[data-pnl="sankey"]');
+        const nodes = [...stage.querySelectorAll('[data-pnl="sk-node"]')].map(g => {
+            const bar = g.querySelector("[data-sk-bar]");
+            const nm = g.querySelector("[data-sk-name]");
+            const vl = g.querySelector("[data-sk-val]");
+            const chev = g.querySelector("[data-sk-chev]");
+            return {
+                i: +g.getAttribute("data-sk-i"), col: +g.getAttribute("data-sk-col"),
+                fam: g.getAttribute("data-sk-fam"), role: g.getAttribute("data-sk-role"),
+                id: g.getAttribute("data-pnl-id"), name: own(nm), val: vl ? vl.textContent : "",
+                chev: chev ? chev.firstChild.nodeValue : "",
+                x: +bar.getAttribute("x"), y: +bar.getAttribute("y"), h: +bar.getAttribute("height"),
+                w: +bar.getAttribute("width"), fill: bar.getAttribute("fill"),
+                stroke: bar.getAttribute("stroke"), dash: bar.getAttribute("stroke-dasharray"),
+                tip: bar.querySelector("title") ? bar.querySelector("title").textContent : "",
+                sel: g.getAttribute("data-pnl-sel"),
+                nameFill: nm ? nm.getAttribute("fill") : "",
+            };
+        });
+        const bands = [...stage.querySelectorAll("[data-sk-band]")].map(p => ({
+            kind: p.getAttribute("data-sk-band"),
+            src: p.hasAttribute("data-sk-src") ? +p.getAttribute("data-sk-src") : null,
+            tgt: p.hasAttribute("data-sk-tgt") ? +p.getAttribute("data-sk-tgt") : null,
+            w: +p.getAttribute("data-sk-w"), fam: p.getAttribute("data-sk-fam"), fill: p.getAttribute("fill"),
+            pattern: p.getAttribute("data-sk-pattern"),
+        }));
+        const clipped = []; const boxes = [];
+        if (svg) {
+            const sw = parseFloat(svg.getAttribute("width")); const sh = parseFloat(svg.getAttribute("height"));
+            svg.querySelectorAll("text").forEach(t => {
+                const b = t.getBBox();
+                const tr = 6; // translate of the inner group
+                if (b.x + tr < -0.5 || b.x + tr + b.width > sw + 0.5 || b.y + tr < -0.5 || b.y + tr + b.height > sh + 0.5) {
+                    clipped.push(t.textContent);
+                }
+                boxes.push({ t: own(t) || t.textContent, x: b.x, y: b.y, w: b.width, h: b.height });
+            });
+        }
+        const overlaps = [];
+        for (let a = 0; a < boxes.length; a++) {
+            for (let b = a + 1; b < boxes.length; b++) {
+                const A = boxes[a]; const B = boxes[b];
+                if (A.x < B.x + B.w - 1 && B.x < A.x + A.w - 1 && A.y < B.y + B.h - 1 && B.y < A.y + A.h - 1) {
+                    overlaps.push(A.t + " / " + B.t);
+                }
+            }
+        }
+        const groups = [...stage.querySelectorAll("div")]
+            .filter(x => x.style.textTransform === "uppercase" && x.style.letterSpacing !== "")
+            .map(x => x.textContent);
+        const viewHead = [...stage.querySelectorAll("div")].find(x => x.style.textTransform === "uppercase"
+            && (x.textContent === "View" || x.textContent === "Ansicht"));
+        const levelHead = [...stage.querySelectorAll("div")].find(x => x.style.textTransform === "uppercase"
+            && x.textContent === "Expand to level");
+        const footer = stage.querySelector('[data-pnl="footer"]');
+        return {
+            svg: !!svg, nodes, bands, clipped, overlaps, groups,
+            viewBtns: viewHead ? [...viewHead.parentElement.querySelectorAll("button")].map(b => b.textContent) : [],
+            activeView: viewHead ? ([...viewHead.parentElement.querySelectorAll("button")]
+                .find(b => b.getAttribute("aria-pressed") === "true") || { textContent: "" }).textContent : "",
+            levelBtns: levelHead ? [...levelHead.parentElement.querySelectorAll("button")].map(b => b.textContent) : [],
+            zoom: !!stage.querySelector('[data-pnl="zoom-center"]'),
+            back: stage.querySelector('[data-pnl="zoom-back"]')
+                ? stage.querySelector('[data-pnl="zoom-back"]').textContent : "",
+            footer: footer ? footer.textContent : "",
+            hint: stage.querySelector('[data-pnl="sankey-hint"]')
+                ? stage.querySelector('[data-pnl="sankey-hint"]').textContent : "",
+            empty: stage.querySelector('[data-pnl="sankey-empty"]')
+                ? stage.querySelector('[data-pnl="sankey-empty"]').textContent : "",
+            buttons: stage.querySelectorAll('[data-pnl="head"] button').length,
+            rows: stage.querySelectorAll("[data-pnl-row]").length,
+            tableRows: [...stage.querySelectorAll("div")].filter(x => x.style.display === "table-row").length,
+            treeCards: stage.querySelectorAll("svg > g > g > rect[rx='4']").length,
+            bg: stage.querySelector(".pnl-root") ? stage.querySelector(".pnl-root").style.background : "",
+        };
+    };
+    // the reader also lives in the page, so a stage block can call it in one go
+    await page.addScriptTag({ content: "window.READ_SK = " + readSankey.toString() + ";" });
+    const skNode = (sk, nm) => sk.nodes.find(n => n.name.indexOf(nm) === 0);
+    const skCols = (sk) => new Set(sk.nodes.map(n => n.col)).size;
+    const numericLevels = (sk) => sk.levelBtns.filter(b => /^\d+$/.test(b)).length;
+
+    await page.evaluate(() => { window.SK_STAGE("sk1", window.SK_UI()); });
+    await page.waitForTimeout(200);
+    let sk = await page.evaluate(readSankey, "sk1");
+
+    // (h) the KPI root (Net margin) cannot be poured — the flow starts at Net income
+    check("the Sankey renders an svg flow with nodes and ribbons",
+        sk.svg && sk.nodes.length >= 20 && sk.bands.length >= 20,
+        "nodes=" + sk.nodes.length + " bands=" + sk.bands.length);
+    check("a KPI root hands the flow to its first value operand (Net income)",
+        sk.nodes[0] && sk.nodes[0].name.indexOf("Net income") === 0, sk.nodes[0] && sk.nodes[0].name);
+    check("no ratio / KPI node takes part in the flow",
+        sk.nodes.every(n => n.name.indexOf("margin") < 0), sk.nodes.map(n => n.name).join(","));
+
+    // (a) columns: one per graph level, root on the right, leaves on the left
+    const maxColSk = Math.max(...sk.nodes.map(n => n.col));
+    check("column count equals the depth of the flow graph",
+        skCols(sk) === numericLevels(sk) + 1 && skCols(sk) === 7,
+        "cols=" + skCols(sk) + " levels=" + sk.levelBtns.join(""));
+    check("the flow root sits in the rightmost column",
+        sk.nodes[0].col === maxColSk, "root col " + sk.nodes[0].col + " / max " + maxColSk);
+    check("the revenue leaves sit in the leftmost column",
+        ["Pharmaceuticals", "Consumer Health", "Contract manufacturing"]
+            .every(nm => skNode(sk, nm) && skNode(sk, nm).col === 0),
+        sk.nodes.filter(n => n.col === 0).map(n => n.name).join(","));
+    check("the profit strand runs left to right (Gross profit → EBITDA → EBIT → EBT → Net income)",
+        ["Gross profit", "EBITDA", "EBIT", "EBT", "Net income"].map(nm => skNode(sk, nm))
+            .every((n, i, a) => n && (i === 0 || n.col === a[i - 1].col + 1)),
+        ["Gross profit", "EBITDA", "EBIT", "EBT", "Net income"].map(nm => (skNode(sk, nm) || {}).col).join(","));
+    check("node bars are slim vertical bars",
+        sk.nodes.every(n => n.w >= 10 && n.w <= 14), sk.nodes.map(n => n.w).join(","));
+    check("costs branch off in the column of the row they are deducted from",
+        skNode(sk, "Cost of goods sold").col === skNode(sk, "Gross profit").col
+        && skNode(sk, "Operating expenses").col === skNode(sk, "EBITDA").col
+        && skNode(sk, "Income taxes").col === skNode(sk, "Net income").col,
+        ["Cost of goods sold", "Operating expenses", "Income taxes"].map(nm => (skNode(sk, nm) || {}).col).join(","));
+    check("a cost pours to the right into its own red end nodes",
+        skNode(sk, "Research").col === skNode(sk, "Operating expenses").col + 1
+        && skNode(sk, "Materials").col === skNode(sk, "Cost of goods sold").col + 1);
+    check("within a column the profit strand stays above its costs",
+        skNode(sk, "Gross profit").y < skNode(sk, "Cost of goods sold").y
+        && skNode(sk, "Net income").y < skNode(sk, "Income taxes").y);
+
+    // (b) ribbons are proportional: the bands of a port add up to the node
+    const portOff = [];
+    for (const n of sk.nodes) {
+        if (n.h <= 6.5) { continue; } // minimum-height bars carry more than their value
+        const ins = sk.bands.filter(b => b.tgt === n.i).reduce((a, b) => a + b.w, 0);
+        const outs = sk.bands.filter(b => b.src === n.i).reduce((a, b) => a + b.w, 0);
+        const tol = 0.6 + n.h * 0.005;
+        if (ins > 0 && Math.abs(ins - n.h) > tol) { portOff.push(n.name + " in " + ins.toFixed(1) + "/" + n.h); }
+        if (outs > 0 && Math.abs(outs - n.h) > tol) { portOff.push(n.name + " out " + outs.toFixed(1) + "/" + n.h); }
+    }
+    check("the ribbons of every port add up to the node height", portOff.length === 0, portOff.join("; "));
+    const kOf = (nm) => { const n = skNode(sk, nm); return n.h / parseFloat(n.val.split(" (")[0].replace(/[^\d.]/g, "")); };
+    check("one common scale: bar height ∝ value across all columns",
+        Math.abs(kOf("Net revenue") / kOf("Pharmaceuticals") - 1) < 0.02
+        && Math.abs(kOf("Net revenue") / kOf("Operating expenses") - 1) < 0.02
+        && Math.abs(kOf("Net revenue") / kOf("Net income") - 1) < 0.02,
+        [kOf("Net revenue"), kOf("Pharmaceuticals"), kOf("Operating expenses"), kOf("Net income")]
+            .map(v => v.toFixed(4)).join(","));
+    const nr = skNode(sk, "Net revenue"); const gp = skNode(sk, "Gross profit"); const cogs = skNode(sk, "Cost of goods sold");
+    const nrToGp = sk.bands.filter(b => b.src === nr.i && b.tgt === gp.i).reduce((a, b) => a + b.w, 0);
+    const nrToCogs = sk.bands.filter(b => b.src === nr.i && b.tgt === cogs.i).reduce((a, b) => a + b.w, 0);
+    check("revenue splits into gross profit and cost of sales by value",
+        Math.abs(nrToGp - gp.h) < 0.6 && Math.abs(nrToCogs - cogs.h) < 0.6,
+        "→GP " + nrToGp.toFixed(1) + "/" + gp.h + " →COGS " + nrToCogs.toFixed(1) + "/" + cogs.h);
+    check("no rest band is needed on the consistent demo P&L",
+        sk.bands.every(b => b.kind === "flow"), sk.bands.filter(b => b.kind !== "flow").length + " rest");
+
+    // (c) colour families: costs red, profit strand teal, revenue split gray
+    const GOOD = "#0E8585"; const BAD = "#E02B1D"; const GRAY = "#B3B3B3";
+    const famIs = (names, fam, fill) => names.map(nm => skNode(sk, nm))
+        .filter(n => !n || n.fam !== fam || n.fill !== fill).map(n => n ? n.name + ":" + n.fam + ":" + n.fill : "?");
+    let off = famIs(["Cost of goods sold", "Materials", "Operating expenses", "Research", "Income taxes",
+        "Depreciation & amort", "Interest expense"], "bad", BAD);
+    check("cost nodes carry the bad colour family", off.length === 0, off.join(","));
+    off = famIs(["Gross profit", "EBITDA", "EBIT", "EBT", "Net income"], "good", GOOD);
+    check("the profit strand carries the good colour family", off.length === 0, off.join(","));
+    off = famIs(["Net revenue", "Pharmaceuticals", "Consumer Health", "Contract manufacturing"], "gray", GRAY);
+    check("the revenue split stays neutral gray", off.length === 0, off.join(","));
+    const bandFam = (s, t) => (sk.bands.find(b => b.src === skNode(sk, s).i && b.tgt === skNode(sk, t).i) || {});
+    check("ribbons take the family of where they flow: gray in, teal on, red off",
+        bandFam("Pharmaceuticals", "Net revenue").fam === "gray" && bandFam("Net revenue", "Gross profit").fam === "good"
+        && bandFam("Net revenue", "Cost of goods sold").fam === "bad"
+        && bandFam("Operating expenses", "Research").fam === "bad",
+        [bandFam("Pharmaceuticals", "Net revenue").fam, bandFam("Net revenue", "Gross profit").fam,
+            bandFam("Net revenue", "Cost of goods sold").fam, bandFam("Operating expenses", "Research").fam].join(","));
+    const rgb = (f) => (/rgb\((\d+),(\d+),(\d+)\)/.exec(f || "") || []).slice(1).map(Number);
+    const goodBand = rgb(bandFam("Net revenue", "Gross profit").fill);
+    check("ribbons are a lightened tint of the node colour",
+        goodBand.length === 3 && goodBand[0] > 0x0E && goodBand[1] > 0x85 && goodBand[2] > 0x85 && goodBand[1] < 255,
+        bandFam("Net revenue", "Gross profit").fill);
+
+    // (d) labels: name, value and the %-of-revenue bracket, never clipped
+    check("every node label reads value (xx.x%)",
+        sk.nodes.filter(n => n.val !== "–").every(n => /\(\d+(\.\d)?%\)$/.test(n.val)),
+        sk.nodes.map(n => n.val).filter(v => !/\(\d+(\.\d)?%\)$/.test(v)).join(" | "));
+    check("Net revenue is the 100 % basis, Gross profit its share",
+        /\(100\.0%\)$/.test(nr.val) && /^1\s?201 \(71\.3%\)$/.test(gp.val), nr.val + " / " + gp.val);
+    check("the Sankey clips no label", sk.clipped.length === 0, sk.clipped.join(", "));
+    check("no two Sankey labels overlap", sk.overlaps.length === 0, sk.overlaps.slice(0, 6).join(" | "));
+    check("a node tooltip names value, share and the Δ against the reference",
+        /Gross profit · 1\s?201 .*· 71\.3% · ΔPL /.test(gp.tip), gp.tip);
+    check("the Sankey hint line documents clicks, hover and the context menu",
+        sk.hint.indexOf("tile view") > 0 && sk.hint.indexOf("Right-click") > 0, sk.hint);
+    check("the footer places the flow view outside the IBCS notation",
+        sk.footer.indexOf("outside the IBCS notation") > 0, sk.footer);
+
+    // (i) toolbar: view, reference, unit, density and levels — no table groups
+    check("the Sankey toolbar keeps view, Δ reference, unit, density and the level buttons",
+        ["View", "Δ reference", "Unit", "Density", "Expand to level"].every(gp2 => sk.groups.indexOf(gp2) >= 0),
+        sk.groups.join(" | "));
+    check("the Sankey toolbar hides presets, periods, options and the card modes",
+        ["Column preset", "Periods", "Options", "Cards"].every(gp2 => sk.groups.indexOf(gp2) < 0),
+        sk.groups.join(" | "));
+    check("the view group offers the fifth button Sankey, active",
+        sk.viewBtns.join(",") === "Table,Bars,Waterfall,Tree,Sankey" && sk.activeView === "Sankey",
+        sk.viewBtns.join(",") + " active=" + sk.activeView);
+    check("the level group carries ⌂ like the tree", sk.levelBtns[0] === "⌂", sk.levelBtns.join(","));
+
+    // (e) a click on a node opens the tile view; back returns into the Sankey
+    await page.evaluate(() => {
+        const g = [...document.getElementById("sk1").querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === "F_EBITDA");
+        g.querySelector("[data-sk-bar]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await page.waitForTimeout(250);
+    let skz = await page.evaluate(readSankey, "sk1");
+    const zTitle = await page.evaluate(() => {
+        const t = document.getElementById("sk1").querySelector('[data-pnl="zoom-title"]');
+        return t ? t.textContent : "";
+    });
+    check("a click on a Sankey node opens the tile view of that row",
+        skz.zoom && !skz.svg && zTitle.indexOf("EBITDA") === 0, "zoom=" + skz.zoom + " title=" + zTitle);
+    check("the back button names the view it returns to",
+        skz.back === "← Back to Sankey", skz.back);
+    check("the tile view opened from the Sankey hides the view group too",
+        skz.groups.indexOf("View") < 0 && skz.groups.indexOf("Δ reference") >= 0, skz.groups.join(" | "));
+    check("the tile view opened from the Sankey is the IBCS tile (footer without the flow note)",
+        skz.footer.indexOf("outside the IBCS notation") < 0 && skz.footer.indexOf("IBCS") >= 0, skz.footer);
+    await page.evaluate(() => {
+        document.getElementById("sk1").querySelector('[data-pnl="zoom-back"]').click();
+    });
+    await page.waitForTimeout(250);
+    skz = await page.evaluate(readSankey, "sk1");
+    check("back returns into the Sankey (the view stays sankey)",
+        skz.svg && !skz.zoom && skz.nodes.length === sk.nodes.length && skz.viewBtns.length === 5,
+        "svg=" + skz.svg + " nodes=" + skz.nodes.length);
+    // a click on the label opens the tile view as well
+    await page.evaluate(() => {
+        const g = [...document.getElementById("sk1").querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === "L:Net revenue");
+        g.querySelector("[data-sk-val]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await page.waitForTimeout(250);
+    skz = await page.evaluate(readSankey, "sk1");
+    check("a click on a node label opens its tile view too", skz.zoom, "zoom=" + skz.zoom);
+    await page.evaluate(() => { document.getElementById("sk1").querySelector('[data-pnl="zoom-back"]').click(); });
+    await page.waitForTimeout(200);
+
+    // (f) right click → native context menu with the selection of that node
+    const skMenu = await page.evaluate(() => {
+        window.__selReset();
+        const g = [...document.getElementById("sk1").querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === "L:Cost of goods sold");
+        const ev = new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 321, clientY: 123 });
+        g.querySelector("[data-sk-bar]").dispatchEvent(ev);
+        return { log: window.__selLog.slice(), prevented: ev.defaultPrevented,
+            exp: PNL_DEMO.levelRows.map((r, i) => [r, i]).filter(p => p[0].levels[0] === "Cost of goods sold").map(p => p[1]) };
+    });
+    check("a right click on a Sankey node opens the context menu with its selection id",
+        skMenu.log.length === 1 && skMenu.log[0].call === "menu" && skMenu.exp.indexOf(skMenu.log[0].idx) >= 0
+        && skMenu.log[0].x === 321 && skMenu.prevented === true, JSON.stringify(skMenu.log));
+
+    // hover: the node's own ribbons stay, the others step back; the IBCS detail panel opens
+    const hov = await page.evaluate(async () => {
+        const st = document.getElementById("sk1");
+        const g = [...st.querySelectorAll('[data-pnl="sk-node"]')].find(x => x.getAttribute("data-pnl-id") === "F_GROSSPROFIT");
+        const i = g.getAttribute("data-sk-i");
+        g.dispatchEvent(new MouseEvent("mouseenter"));
+        const bands = [...st.querySelectorAll("[data-sk-band]")];
+        const mine = bands.filter(b => b.getAttribute("data-sk-src") === i || b.getAttribute("data-sk-tgt") === i);
+        const res = { mine: mine.every(b => b.style.opacity === "1"),
+            dimmed: bands.filter(b => mine.indexOf(b) < 0).every(b => b.style.opacity === "0.28") };
+        await new Promise(r => setTimeout(r, 400));
+        // the hover panel is the absolutely positioned card with the scenario grid
+        const panel = [...st.querySelectorAll(".pnl-root > div")].find(d => d.style.position === "absolute"
+            && d.style.pointerEvents === "none" && d.textContent.indexOf("Gross profit") === 0);
+        res.panel = !!panel;
+        g.dispatchEvent(new MouseEvent("mouseleave"));
+        res.reset = bands.every(b => b.style.opacity === "");
+        res.panelGone = ![...st.querySelectorAll(".pnl-root > div")].some(d => d.style.position === "absolute"
+            && d.style.pointerEvents === "none" && d.textContent.indexOf("Gross profit") === 0);
+        return res;
+    });
+    check("hovering a node keeps its ribbons and dims the rest, leaving restores",
+        hov.mine && hov.dimmed && hov.reset, JSON.stringify(hov));
+    check("hovering a node opens the IBCS detail panel of the row, leaving closes it",
+        hov.panel && hov.panelGone, JSON.stringify(hov));
+
+    // (g) level buttons, the chevron (▾/▸) and ⌂ drive the flow
+    await step(clickLevel, ["sk1", "2"]);
+    let skl = await page.evaluate(readSankey, "sk1");
+    check("level 2 leaves Net income with its two operands",
+        skl.nodes.length === 3 && skCols(skl) === 2 && skNode(skl, "EBT") && skNode(skl, "Income taxes"),
+        skl.nodes.map(n => n.name).join(","));
+    await step(clickLevel, ["sk1", "All"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("All opens the whole flow again", skl.nodes.length === sk.nodes.length, "nodes=" + skl.nodes.length);
+    const clickSkChev = (args) => {
+        const g = [...document.getElementById(args[0]).querySelectorAll('[data-pnl="sk-node"]')]
+            .find(x => x.getAttribute("data-pnl-id") === args[1]);
+        const c = g ? g.querySelector("[data-sk-chev]") : null;
+        if (!c) { return false; }
+        c.dispatchEvent(new MouseEvent("click", { bubbles: true, shiftKey: !!args[2] }));
+        return true;
+    };
+    check("a node with a branch carries a ▾ at its label",
+        skNode(skl, "Gross profit").chev === "▾" && skNode(skl, "Pharmaceuticals").chev === "",
+        skNode(skl, "Gross profit").chev + "/" + skNode(skl, "Pharmaceuticals").chev);
+    await step(clickSkChev, ["sk1", "F_GROSSPROFIT"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("▾ folds the branch: revenue and cost of sales leave the flow, the node turns ▸",
+        !skNode(skl, "Net revenue") && !skNode(skl, "Cost of goods sold") && skNode(skl, "Gross profit").chev === "▸"
+        && !skl.zoom, skl.nodes.map(n => n.name).join(","));
+    // the fold state is the tree's own: the tree view shows the same branch folded
+    const sharedFold = await page.evaluate(() => {
+        const p = (window.__skPersist || []).filter(x => x.id === "sk1").pop();
+        const ui = p ? JSON.parse(p.p.merge[0].properties.uiState) : {};
+        return { view: ui.view, folded: (ui.treeCollapsed || []).indexOf("F_GROSSPROFIT") >= 0 };
+    });
+    check("the chevron writes the shared treeCollapsed state (view stays sankey)",
+        sharedFold.view === "sankey" && sharedFold.folded, JSON.stringify(sharedFold));
+    await step(clickSkChev, ["sk1", "F_GROSSPROFIT"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("▸ opens it again", skNode(skl, "Net revenue") && skNode(skl, "Materials"),
+        skl.nodes.map(n => n.name).join(","));
+    await step(clickLevel, ["sk1", "1"]);
+    await step(clickSkChev, ["sk1", "F_NETINCOME", true]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("Shift + ▸ opens the whole limb at once", skl.nodes.length === sk.nodes.length,
+        "nodes=" + skl.nodes.length);
+    await step(clickLevel, ["sk1", "1"]);
+    await step(clickLevel, ["sk1", "⌂"]);
+    skl = await page.evaluate(readSankey, "sk1");
+    check("⌂ returns to the untouched whole flow", skl.nodes.length === sk.nodes.length,
+        "nodes=" + skl.nodes.length);
+
+    // another KPI root named in the format pane: EBITDA margin → EBITDA
+    await page.evaluate(() => {
+        window.SK_STAGE("sk2", Object.assign(window.SK_UI(), { columns: { treeRoot: "K_EBITDAMARGIN" } }));
+    });
+    sk = await page.evaluate(readSankey, "sk2");
+    check("a KPI root from the format pane flows from its value operand (EBITDA margin → EBITDA)",
+        sk.nodes[0] && sk.nodes[0].name === "EBITDA" && sk.nodes.every(n => n.name.indexOf("margin") < 0),
+        sk.nodes.map(n => n.name).join(","));
+    // the format pane's revenue basis rules the % bracket
+    await page.evaluate(() => {
+        window.SK_STAGE("sk2b", Object.assign(window.SK_UI(), { columns: { revenueBase: "Gross profit" } }));
+    });
+    sk = await page.evaluate(readSankey, "sk2b");
+    check("columns.revenueBase moves the 100 % basis (Gross profit = 100 %)",
+        /\(100\.0%\)$/.test((skNode(sk, "Gross profit") || {}).val || ""), (skNode(sk, "Gross profit") || {}).val);
+    // a ratio over ratios only has nothing to pour
+    await page.evaluate(() => {
+        window.SK_STAGE("sk2c", Object.assign(window.SK_UI(), { columns: { treeRoot: "K_NOSUCHROW" } }));
+    });
+    sk = await page.evaluate(readSankey, "sk2c");
+    check("an unknown pane root falls back to the auto root and still flows",
+        sk.svg && sk.nodes[0] && sk.nodes[0].name.indexOf("Net income") === 0, sk.nodes[0] && sk.nodes[0].name);
+
+    // the dimension hierarchy of block 30: Total ← categories ← product lines
+    await page.evaluate(() => {
+        window.PNL_DIM_STAGE("sk-dim", 1300, 800, { ...window.PNL_DIM_UI, view: "sankey" });
+    });
+    await page.waitForTimeout(250);
+    sk = await page.evaluate(readSankey, "sk-dim");
+    check("a plain dimension hierarchy flows too: 13 nodes in three columns",
+        sk.nodes.length === 13 && skCols(sk) === 3 && skCols(sk) === numericLevels(sk) + 1,
+        "nodes=" + sk.nodes.length + " cols=" + skCols(sk));
+    check("the virtual total is the flow root on the right",
+        sk.nodes[0].name === "Total" && sk.nodes[0].col === 2, sk.nodes[0].name + "@" + sk.nodes[0].col);
+    check("product lines on the left, categories in between",
+        ["Rx", "Care", "Lab", "Logistics"].every(nm => skNode(sk, nm) && skNode(sk, nm).col === 0)
+        && ["Pharma", "Services"].every(nm => skNode(sk, nm).col === 1));
+    check("a revenue-only hierarchy stays entirely neutral gray (nothing is deducted)",
+        sk.nodes.every(n => n.fam === "gray" && n.fill === GRAY) && sk.bands.every(b => b.fam === "gray"),
+        sk.nodes.map(n => n.name + ":" + n.fam).join(","));
+    const dimPort = sk.nodes.filter(n => n.h > 6.5).filter(n => {
+        const ins = sk.bands.filter(b => b.tgt === n.i).reduce((a, b) => a + b.w, 0);
+        return ins > 0 && Math.abs(ins - n.h) > 0.6 + n.h * 0.005;
+    });
+    check("hierarchy ribbons add up to their category", dimPort.length === 0, dimPort.map(n => n.name).join(","));
+    check("a plain hierarchy reads % of its total root",
+        /\(100\.0%\)$/.test(sk.nodes[0].val), sk.nodes[0].val);
+    check("the hierarchy Sankey clips and overlaps no label",
+        sk.clipped.length === 0 && sk.overlaps.length === 0, sk.clipped.concat(sk.overlaps).slice(0, 5).join(" | "));
+
+    // ---- 34) 1.6: Sankey in dark mode, high contrast, export, German, folded bars
+    const looks = await page.evaluate(() => {
+        const rs = window.READ_SK;
+        const out = {};
+        window.SK_STAGE("sk-dark", Object.assign(window.SK_UI(), { style: { appearance: "dark" } }));
+        out.dark = rs("sk-dark");
+        window.SK_STAGE("sk-hc", window.SK_UI(), 1400, 900, "en-US",
+            { palette: { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" },
+                foregroundSelected: { value: "#00FFFF" } } });
+        out.hc = rs("sk-hc");
+        window.SK_STAGE("sk-exp", window.SK_UI(), 1400, 900, "en-US", { allowInteractions: false });
+        out.exp = rs("sk-exp");
+        window.SK_STAGE("sk-de", window.SK_UI(), 1400, 900, "de-DE");
+        out.de = rs("sk-de");
+        const z = document.getElementById("sk-de").querySelector('[data-pnl="sk-node"][data-pnl-id="F_EBIT"]');
+        z.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        out.deZoom = rs("sk-de");
+        window.SK_STAGE("sk-fold", Object.assign(window.SK_UI(), { toolbar: { foldable: true } }));
+        out.fold = rs("sk-fold");
+        return out;
+    });
+    const lum = (c) => { const v = rgb(c); return v.length ? (0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]) / 255 : 1; };
+    const dGood = looks.dark.bands.find(b => b.fam === "good");
+    check("dark mode: the profit strand and the costs use the dark variance pair",
+        looks.dark.nodes.filter(n => n.fam === "good").every(n => n.fill === "#3FB3C2")
+        && looks.dark.nodes.filter(n => n.fam === "bad").every(n => n.fill === "#E4635F"),
+        looks.dark.nodes.map(n => n.fam + ":" + n.fill).slice(0, 6).join(","));
+    check("dark mode: the ribbons sink towards the dark paper instead of glowing white",
+        dGood && lum(dGood.fill) < 0.45, dGood && dGood.fill);
+    check("dark mode: labels in light ink on the dark paper",
+        looks.dark.nodes.filter(n => n.val !== "–").every(n => n.nameFill === "#E0E0E0"),
+        looks.dark.nodes.map(n => n.nameFill).slice(0, 4).join(","));
+    check("high contrast: profit solid in the foreground colour, costs outlined, the split dashed",
+        looks.hc.nodes.filter(n => n.fam === "good").every(n => n.fill === "#FFFF00" && !n.stroke)
+        && looks.hc.nodes.filter(n => n.fam === "bad").every(n => n.fill === "#000000" && n.stroke === "#FFFF00" && !n.dash)
+        && looks.hc.nodes.filter(n => n.fam === "gray").every(n => n.fill === "#000000" && n.dash === "3,2"),
+        looks.hc.nodes.map(n => n.fam + ":" + n.fill + ":" + n.stroke + ":" + n.dash).slice(0, 6).join(","));
+    check("high contrast: ribbons carry patterns, not colours (solid · hatch · dots)",
+        looks.hc.bands.filter(b => b.fam === "good").every(b => b.pattern === "solid")
+        && looks.hc.bands.filter(b => b.fam === "bad").every(b => b.pattern === "hatch" && /^url\(#/.test(b.fill))
+        && looks.hc.bands.filter(b => b.fam === "gray").every(b => b.pattern === "dots" && /^url\(#/.test(b.fill)),
+        [...new Set(looks.hc.bands.map(b => b.fam + ":" + b.pattern))].join(","));
+    check("high contrast: the paper is the host background", looks.hc.bg === "rgb(0, 0, 0)", looks.hc.bg);
+    check("export: the Sankey prints without toolbar and without the right-click sentence",
+        looks.exp.svg && looks.exp.buttons === 0 && looks.exp.hint.indexOf("Right-click") < 0
+        && looks.exp.footer.indexOf("outside the IBCS notation") > 0,
+        "svg=" + looks.exp.svg + " buttons=" + looks.exp.buttons + " hint=" + looks.exp.hint);
+    check("German: Sankey button, hint and footer are localized",
+        looks.de.viewBtns.indexOf("Sankey") === 4 && looks.de.hint.indexOf("Kachel-Ansicht") > 0
+        && looks.de.footer.indexOf("außerhalb der IBCS-Notation") > 0,
+        looks.de.viewBtns.join(",") + " / " + looks.de.hint);
+    check("German: the way back from a tile reads „← Zurück zum Sankey“",
+        looks.deZoom.zoom && looks.deZoom.back === "← Zurück zum Sankey", looks.deZoom.back);
+    check("folded control bars take the Sankey hint line along (as in the tree)",
+        looks.fold.svg && looks.fold.hint === "" && looks.fold.buttons === 1, "hint=" + looks.fold.hint + " buttons=" + looks.fold.buttons);
+
+    // ---- 35) 1.6: the author decides which views are offered
+    const offer = await page.evaluate(() => {
+        const rs = window.READ_SK;
+        const res = {};
+        window.__skPersist = [];
+        window.SK_STAGE("vo1", { toolbar: { viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "table", fit: false }) } }, 1300, 600);
+        res.noSankey = rs("vo1");
+        window.SK_STAGE("vo2", { toolbar: { viewBars: false, viewWaterfall: false, viewTree: false, viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "table", fit: false }) } }, 1300, 600);
+        res.onlyTable = rs("vo2");
+        window.SK_STAGE("vo3", { toolbar: { viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } }, 1300, 600);
+        res.fallback = rs("vo3");
+        res.fallbackPersists = window.__skPersist.filter(x => x.id === "vo3").length;
+        // the author switches the Sankey back on: the stored state is still there
+        window.__skVis.vo3.update({ dataViews: [dv({ toolbar: { viewSankey: true },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } })],
+        viewport: { width: 1300, height: 600 }, type: 2 });
+        res.back = rs("vo3");
+        window.SK_STAGE("vo4", { toolbar: { viewTable: false, viewSankey: false },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, fit: false }) } }, 1300, 600);
+        res.fallbackBars = rs("vo4");
+        window.SK_STAGE("vo5", { toolbar: { viewTree: false },
+            state: { uiState: JSON.stringify({ view: "tree", treeV: 2, treeZoom: "F_EBITDA", fit: false }) } }, 1300, 600);
+        res.zoomOff = rs("vo5");
+        window.SK_STAGE("vo6", { toolbar: { viewTable: false, viewBars: false, viewWaterfall: false,
+            viewTree: false, viewSankey: false },
+        state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } }, 1300, 600);
+        res.allOff = rs("vo6");
+        window.SK_STAGE("vo7", { toolbar: { viewTree: false },
+            state: { uiState: JSON.stringify({ view: "sankey", treeV: 2, treeZoom: "F_EBITDA", fit: false }) } }, 1300, 600);
+        res.zoomSankey = rs("vo7");
+        window.SK_STAGE("vo8", { toolbar: { viewTable: false, viewBars: false, viewWaterfall: false, viewTree: false },
+            state: { uiState: JSON.stringify({ fit: false }) } }, 1300, 600);
+        res.onlySankey = rs("vo8");
+        return res;
+    });
+    check("viewSankey = off removes the Sankey button, the other four stay",
+        offer.noSankey.viewBtns.join(",") === "Table,Bars,Waterfall,Tree", offer.noSankey.viewBtns.join(","));
+    check("one offered view only: the view group disappears, the table renders",
+        offer.onlyTable.groups.indexOf("View") < 0 && offer.onlyTable.viewBtns.length === 0
+        && offer.onlyTable.tableRows > 10 && !offer.onlyTable.svg,
+        offer.onlyTable.groups.join(" | ") + " rows=" + offer.onlyTable.tableRows);
+    check("a persisted Sankey state falls back to the first offered view (table)",
+        !offer.fallback.svg && offer.fallback.tableRows > 10
+        && offer.fallback.viewBtns.join(",") === "Table,Bars,Waterfall,Tree",
+        "svg=" + offer.fallback.svg + " rows=" + offer.fallback.tableRows);
+    check("the fallback shows the toolbar of the table, not the one of the switched-off view",
+        offer.fallback.groups.indexOf("Column preset") >= 0, offer.fallback.groups.join(" | "));
+    check("the fallback is display only: nothing is persisted",
+        offer.fallbackPersists === 0, "persists=" + offer.fallbackPersists);
+    check("switching the view back on restores the stored Sankey",
+        offer.back.svg && offer.back.activeView === "Sankey", "svg=" + offer.back.svg);
+    check("the fallback follows the toolbar order (table off → bars)",
+        !offer.fallbackBars.svg && offer.fallbackBars.tableRows > 10
+        && offer.fallbackBars.viewBtns.join(",") === "Bars,Waterfall,Tree"
+        && offer.fallbackBars.activeView === "Bars",
+        offer.fallbackBars.viewBtns.join(",") + " active=" + offer.fallbackBars.activeView);
+    check("a stored tile view never opens while its carrier view is switched off",
+        !offer.zoomOff.zoom && offer.zoomOff.tableRows > 10 && offer.zoomOff.treeCards === 0,
+        "zoom=" + offer.zoomOff.zoom + " rows=" + offer.zoomOff.tableRows);
+    check("…but opens from the Sankey, its other carrier, with the way back to the Sankey",
+        offer.zoomSankey.zoom && offer.zoomSankey.back === "← Back to Sankey", offer.zoomSankey.back);
+    check("every view switched off still leaves the table on screen",
+        offer.allOff.tableRows > 10 && offer.allOff.viewBtns.length === 0,
+        "rows=" + offer.allOff.tableRows);
+    check("only the Sankey offered: a fresh report opens in it, without a view group",
+        offer.onlySankey.svg && offer.onlySankey.viewBtns.length === 0 && offer.onlySankey.groups.indexOf("View") < 0,
+        "svg=" + offer.onlySankey.svg + " groups=" + offer.onlySankey.groups.join(" | "));
+
+    // ---- 1.7 ⚡ "only exceptions" in the tree and the Sankey ----------------------
+    const exc = await page.evaluate(() => {
+        const EXC = { exceptions: { enabled: true, thresholdPct: 8, reference: "py" } };
+        const ui = (view) => ({ state: { uiState: JSON.stringify({ view, treeV: 2, ref: "pl" }) } });
+        const out = {};
+        const cards = (id) => [...document.querySelectorAll(`#${id} g[data-pnl-exc]`)].map(g => ({
+            exc: g.getAttribute("data-pnl-exc"), op: g.getAttribute("opacity"),
+            fills: [...g.querySelectorAll("rect, text")].map(e => e.getAttribute("fill")).filter(Boolean) }));
+        window.SK_STAGE("ex-t0", ui("tree"), 1300, 800);
+        out.t0 = { marked: document.querySelectorAll("#ex-t0 [data-pnl-exc]").length,
+            dim: document.querySelectorAll("#ex-t0 g[opacity]").length };
+        window.SK_STAGE("ex-t1", { ...ui("tree"), ...EXC }, 1300, 800);
+        out.t1 = cards("ex-t1");
+        out.t1note = (document.querySelector('#ex-t1 [data-pnl="exc-note"]') || {}).textContent || "";
+        const sk = (id) => ({
+            nodes: [...document.querySelectorAll(`#${id} g[data-pnl="sk-node"]`)].map(g => ({ fam: g.getAttribute("data-sk-fam"),
+                exc: g.getAttribute("data-sk-exc"), tone: g.getAttribute("data-sk-tone"),
+                fill: g.querySelector("[data-sk-bar]").getAttribute("fill"), dash: g.querySelector("[data-sk-bar]").getAttribute("stroke-dasharray") })),
+            bands: [...document.querySelectorAll(`#${id} [data-sk-band="flow"]`)].map(p => ({ fam: p.getAttribute("data-sk-fam"),
+                exc: p.getAttribute("data-sk-exc"), tone: p.getAttribute("data-sk-tone"), fill: p.getAttribute("fill"),
+                pat: p.getAttribute("data-sk-pattern"), dash: p.getAttribute("stroke-dasharray") })),
+        });
+        window.SK_STAGE("ex-s0", ui("sankey"), 1300, 800);
+        out.s0 = sk("ex-s0");
+        window.SK_STAGE("ex-s1", { ...ui("sankey"), ...EXC }, 1300, 800);
+        out.s1 = sk("ex-s1");
+        window.SK_STAGE("ex-s2", { ...ui("sankey"), ...EXC }, 1300, 800, "en-US", { palette: { isHighContrast: true,
+            foreground: { value: "#FFFF00" }, background: { value: "#000000" }, foregroundSelected: { value: "#00FFFF" } } });
+        out.s2 = sk("ex-s2");
+        return out;
+    });
+    {
+        const q = exc.t1.filter(c => c.exc === "0"); const x = exc.t1.filter(c => c.exc === "1");
+        const GOOD = "#0E8585"; const BAD = "#E02B1D";
+        check("⚡ tree off: no card carries an exception mark or a dimming (renders as before)",
+            exc.t0.marked === 0 && exc.t0.dim === 0, JSON.stringify(exc.t0));
+        check("⚡ tree: non-exception cards are dimmed and carry no variance colour; exceptions keep theirs",
+            q.length > 0 && x.length > 0 && q.every(c => c.op === "0.5" && !c.fills.some(f => f === GOOD || f === BAD))
+            && x.every(c => c.op == null) && x.some(c => c.fills.some(f => f === GOOD || f === BAD)),
+            `${q.length} grey / ${x.length} colour`);
+        check("⚡ tree: the footer note names the fixed reference", /≥ 8 % vs PY$/.test(exc.t1note), exc.t1note);
+        const n1 = exc.s1.nodes; const b1 = exc.s1.bands;
+        check("⚡ Sankey off: no exception marks, the families as before",
+            exc.s0.nodes.every(n => n.exc == null) && exc.s0.bands.every(b => b.exc == null));
+        check("⚡ Sankey: the families stay recorded (data-sk-fam), the colour follows the exception tone",
+            JSON.stringify(n1.map(n => n.fam)) === JSON.stringify(exc.s0.nodes.map(n => n.fam)), "");
+        check("⚡ Sankey nodes: exceptions in the variance colour of their Δ, the rest grey",
+            n1.some(n => n.tone === "good") && n1.some(n => n.tone === "gray")
+            && n1.every(n => (n.tone === "good" ? n.fill === GOOD : n.tone === "bad" ? n.fill === BAD : n.fill === "#B3B3B3")
+                && (n.exc === "0") === (n.tone === "gray")), JSON.stringify(n1.map(n => n.tone)));
+        const fillsOf = (t) => [...new Set(b1.filter(b => b.tone === t).map(b => b.fill))];
+        check("⚡ Sankey streams: exception bands coloured, every other band one grey tint",
+            b1.some(b => b.exc === "1") && b1.some(b => b.exc === "0") && fillsOf("gray").length === 1
+            && !fillsOf("good").includes(fillsOf("gray")[0]) && !fillsOf("bad").includes(fillsOf("gray")[0]),
+            JSON.stringify([fillsOf("good"), fillsOf("bad"), fillsOf("gray")]));
+        const n2 = exc.s2.nodes; const b2 = exc.s2.bands;
+        check("⚡ Sankey high contrast: non-exceptions dashed without pattern (bands and bars)",
+            b2.filter(b => b.exc === "0").length > 0 && b2.filter(b => b.exc === "0").every(b => b.pat === "none" && b.dash)
+            && n2.filter(n => n.exc === "0").every(n => n.dash === "2,2") && b2.filter(b => b.exc === "1").every(b => b.pat !== "none"));
+    }
+
+    // ---- 1.7 polish: ⚡ mode "hide" in the tree and the Sankey ------------------------
+    // tree: the quiet branches of a card fold into ONE grey "+n" card, every exception
+    // and its path to the root stay; Sankey: quiet streams bundled into one grey band
+    // per node and side ("other (n)"), a lone quiet stream becomes an end node — the
+    // ports still add up, the scale stays one, the exceptions stay coloured
+    const hid = await page.evaluate(() => {
+        const EXC = (mode, pct) => ({ exceptions: { enabled: true, thresholdPct: pct, reference: "py", mode } });
+        const ui = (view) => ({ state: { uiState: JSON.stringify({ view, treeV: 2, ref: "pl" }) } });
+        const out = {};
+        const ctxIds = (id) => {
+            const v = window.__skVis[id];
+            const cards = v.treeCtx.cards;
+            const parent = new Map();
+            for (const c of cards) { for (const k of c.children) { parent.set(k, c); } }
+            const exc = cards.filter(c => !c.rest && v.excOf(c.node) === true);
+            // the path from the root to every exception: every ancestor is a card on screen
+            const pathOk = exc.every(c => { let x = c; for (let i = 0; i < 40 && parent.has(x); i++) { x = parent.get(x); } return x === v.treeCtx.rootCard; });
+            return { exc: exc.map(c => c.node.row.id).sort(), pathOk, rests: cards.filter(c => c.rest).map(c => c.rest.length),
+                restsPerParent: cards.map(c => c.children.filter(k => k.rest).length), n: cards.length };
+        };
+        window.SK_STAGE("hd-t1", { ...ui("tree"), ...EXC("gray", 8) }, 1300, 800);
+        window.SK_STAGE("hd-t2", { ...ui("tree"), ...EXC("hide", 8) }, 1300, 800);
+        out.t1 = ctxIds("hd-t1"); out.t2 = ctxIds("hd-t2");
+        const t2 = document.getElementById("hd-t2");
+        out.t2dom = [...t2.querySelectorAll('[data-pnl="tree-rest"]')].map(g => ({ n: +g.getAttribute("data-pnl-rest"),
+            t: g.querySelector("text").textContent, tip: g.querySelector("title").textContent, dash: g.querySelector("rect").getAttribute("stroke-dasharray") }));
+        out.t2note = (t2.querySelector('[data-pnl="exc-note"]') || {}).textContent || "";
+        window.SK_STAGE("hd-s1", { ...ui("sankey"), ...EXC("gray", 10) }, 1300, 800);
+        window.SK_STAGE("hd-s2", { ...ui("sankey"), ...EXC("hide", 10) }, 1300, 800);
+        window.SK_STAGE("hd-s3", { ...ui("sankey"), ...EXC("hide", 5) }, 1300, 800);
+        out.s1 = window.READ_SK("hd-s1"); out.s2 = window.READ_SK("hd-s2"); out.s3 = window.READ_SK("hd-s3");
+        const excIds = (id) => [...document.querySelectorAll(`#${id} g[data-pnl="sk-node"][data-sk-exc="1"]`)].map(g => g.getAttribute("data-pnl-id")).sort();
+        out.s1exc = excIds("hd-s1"); out.s2exc = excIds("hd-s2"); out.s3exc = excIds("hd-s3");
+        out.s3rest = [...document.querySelectorAll('#hd-s3 g[data-sk-rest]')].map(g => ({ n: +g.getAttribute("data-sk-rest"),
+            exc: g.getAttribute("data-sk-exc"), name: g.querySelector("[data-sk-name]") ? g.querySelector("[data-sk-name]").textContent : "" }));
+        out.s2note = (document.querySelector('#hd-s2 [data-pnl="exc-note"]') || {}).textContent || "";
+        out.s3note = (document.querySelector('#hd-s3 [data-pnl="exc-note"]') || {}).textContent || "";
+        // a click on a bundled band opens no tile view
+        const rg = document.querySelector('#hd-s3 g[data-sk-rest]');
+        if (rg) { rg.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+        out.s3zoom = window.__skVis["hd-s3"].ui.treeZoom;
+        // grey mode = 1.7 behaviour: no rest anywhere, no count in the note
+        out.s1rest = document.querySelectorAll("#hd-s1 [data-sk-rest], #hd-t1 [data-pnl=tree-rest]").length;
+        return out;
+    });
+    {
+        const ports = (sk) => {
+            const off = [];
+            for (const n of sk.nodes) {
+                if (n.h <= 6.5) { continue; }
+                const ins = sk.bands.filter(b => b.tgt === n.i).reduce((a, b) => a + b.w, 0);
+                const outs = sk.bands.filter(b => b.src === n.i).reduce((a, b) => a + b.w, 0);
+                const tol = 0.6 + n.h * 0.005;
+                if (ins > 0 && Math.abs(ins - n.h) > tol) { off.push(n.name + " in"); }
+                if (outs > 0 && Math.abs(outs - n.h) > tol) { off.push(n.name + " out"); }
+            }
+            return off;
+        };
+        check("⚡ hide, tree: the quiet branches of a card fold into ONE grey dashed “+n” card (names in the tooltip)",
+            hid.t2dom.length > 0 && hid.t2dom.every(r => /^\+\d+ other$/.test(r.t) && r.dash === "3,2" && /^Below the threshold, combined: /.test(r.tip))
+            && hid.t2.restsPerParent.every(n => n <= 1) && hid.t2.n < hid.t1.n, JSON.stringify(hid.t2dom.slice(0, 3)));
+        check("⚡ hide, tree: every exception card stays, with its whole path to the root",
+            JSON.stringify(hid.t2.exc) === JSON.stringify(hid.t1.exc) && hid.t2.exc.length > 0 && hid.t2.pathOk, JSON.stringify([hid.t1.exc, hid.t2.exc]));
+        const nFold = Number((hid.t2note.match(/(\d+) nodes? below the threshold folded/) || [])[1] || 0);
+        check("⚡ hide, tree: the footer counts the folded nodes (= Σ “+n”)",
+            nFold > 0 && nFold === hid.t2.rests.reduce((a, b) => a + b, 0), hid.t2note);
+        check("⚡ grey mode: no rest card, no rest band (the 1.7 picture)", hid.s1rest === 0);
+        check("⚡ hide, Sankey: fewer nodes, the exception streams stay coloured (same set as grey)",
+            hid.s2.nodes.length < hid.s1.nodes.length && JSON.stringify(hid.s2exc) === JSON.stringify(hid.s1exc) && hid.s2exc.length > 0,
+            `${hid.s1.nodes.length}→${hid.s2.nodes.length} ${hid.s1exc} / ${hid.s2exc}`);
+        check("⚡ hide, Sankey: quiet siblings bundle into one grey band “other (n)”, never an exception, no tile view on click",
+            hid.s3rest.length > 0 && hid.s3rest.every(r => r.n >= 2 && r.exc === "0" && /other \(\d+\)/.test(r.name)) && hid.s3zoom == null
+            && hid.s3exc.length > 0, JSON.stringify(hid.s3rest));
+        check("⚡ hide, Sankey: the ribbons of every port still add up to the node height",
+            ports(hid.s2).length === 0 && ports(hid.s3).length === 0, ports(hid.s2).concat(ports(hid.s3)).join("; "));
+        check("⚡ hide, Sankey: the footer counts the bundled streams",
+            /\d+ streams below the threshold bundled/.test(hid.s2note) && /\d+ streams below the threshold bundled/.test(hid.s3note), hid.s2note + " | " + hid.s3note);
+        const pct = (sk, nm) => { const n = sk.nodes.find(x => x.name.indexOf(nm) === 0); return n ? n.val : ""; };
+        check("⚡ hide, Sankey: the percentages keep their basis (Net revenue) when the revenue side folds away",
+            pct(hid.s2, "Net income") !== "" && pct(hid.s2, "Net income") === pct(hid.s1, "Net income"), pct(hid.s2, "Net income") + " / " + pct(hid.s1, "Net income"));
+    }
+
+    // ---- 1.7 cross-highlight (supportsHighlight): another visual marks a part of the data.
+    // The host then sends the unfiltered query plus `highlights` per measure column. Simulated
+    // selection over the Pharma demo: every account at a share of 25–57 % (by account code),
+    // contract manufacturing (4020…10) not in the selection at all (highlights null).
+    const hl = await page.evaluate(() => {
+        const rs = window.READ_SK;
+        const share = (acc) => { const h = [...String(acc)].reduce((a, c) => a + c.charCodeAt(0), 0); return 0.25 + (h % 5) * 0.08; };
+        const HL = (d) => {
+            const acc = d.categorical.categories.find(c => c.source.roles.account).values;
+            for (const v of d.categorical.values) {
+                v.highlights = v.values.map((x, i) => x == null || /2010$/.test(String(acc[i])) ? null
+                    : Math.round(x * share(acc[i]) * 10) / 10);
+            }
+            return d;
+        };
+        // the same selection as a FILTER delivers it: the marked numbers as the values, and the
+        // data rows without any marked value are not in the query at all (structure rows without
+        // any value — formulas, margins — stay, as they do in the unfiltered query)
+        const AS_FILTER = (d) => {
+            HL(d);
+            const vals = d.categorical.values; const n = vals[0].values.length; const keep = [];
+            for (let i = 0; i < n; i++) {
+                if (vals.some(v => v.highlights[i] != null) || !vals.some(v => v.values[i] != null)) { keep.push(i); }
+            }
+            for (const c of d.categorical.categories) { c.values = keep.map(i => c.values[i]); }
+            for (const v of vals) { v.values = keep.map(i => v.highlights[i]); delete v.highlights; }
+            return d;
+        };
+        const HC = { palette: { isHighContrast: true, foreground: { value: "#FFFF00" }, background: { value: "#000000" },
+            foregroundSelected: { value: "#00FFFF" } } };
+        const uiOf = (view, extra) => ({ titleBlock: { measureLine: "hl" },
+            state: { uiState: JSON.stringify(Object.assign({ view, treeV: 2, ref: "pl" }, extra || {})) } });
+        const vis = {};
+        const stage = (id, objects, how, w, h, locale, opts) => {
+            const d = document.createElement("div");
+            d.className = "stage"; d.id = id; d.style.cssText = `width:${w || 1300}px;height:${h || 800}px;`;
+            document.body.appendChild(d);
+            const v = new PnlByDatenWG.Visual({ element: d, host: makeHost(locale || "en-US", opts) });
+            const data = how === "hl" ? HL(dv(objects)) : how === "filter" ? AS_FILTER(dv(objects)) : dv(objects);
+            v.update({ dataViews: [data], viewport: { width: w || 1300, height: h || 800 }, type: 2 });
+            vis[id] = { v, objects, w: w || 1300, h: h || 800 };
+            return d;
+        };
+        const reupdate = (id, how) => {
+            const s = vis[id];
+            const data = how === "hl" ? HL(dv(s.objects)) : how === "filter" ? AS_FILTER(dv(s.objects)) : dv(s.objects);
+            s.v.update({ dataViews: [data], viewport: { width: s.w, height: s.h }, type: 2 });
+        };
+        const sk = (id) => {
+            const st = document.getElementById(id);
+            const r = rs(id);
+            r.ctx = [...st.querySelectorAll('[data-sk-band][data-sk-hl="ctx"]')].length;
+            r.parts = [...st.querySelectorAll('[data-sk-hl="part"]')].map(p => ({
+                src: p.hasAttribute("data-sk-src") ? +p.getAttribute("data-sk-src") : null,
+                tgt: p.hasAttribute("data-sk-tgt") ? +p.getAttribute("data-sk-tgt") : null,
+                w: +p.getAttribute("data-sk-hlw"), fill: p.getAttribute("fill"), pattern: p.getAttribute("data-sk-pattern"),
+                tone: p.getAttribute("data-sk-tone") }));
+            r.inner = [...st.querySelectorAll('[data-pnl="sk-node"]')].map(g => {
+                const ib = g.querySelector("[data-sk-hlbar]");
+                return { i: +g.getAttribute("data-sk-i"), id: g.getAttribute("data-pnl-id"), share: g.getAttribute("data-sk-share"),
+                    exc: g.getAttribute("data-sk-exc"),
+                    h: ib ? +ib.getAttribute("height") : 0, y: ib ? +ib.getAttribute("y") : null, fill: ib ? ib.getAttribute("fill") : "",
+                    pattern: ib ? ib.getAttribute("data-sk-pattern") : null };
+            });
+            r.note = (st.querySelector('[data-pnl="hl-note"]') || {}).textContent || "";
+            return r;
+        };
+        const out = {};
+        // the share the Sankey must show at Net revenue (YTD = all six months here)
+        const rows = window.PNL_DEMO.levelRows;
+        let fullRev = 0; let markRev = 0;
+        rows.forEach(r => {
+            if (r.levels[0] !== "Net revenue" || r.values.ac == null) { return; }
+            fullRev += r.values.ac;
+            if (!/2010$/.test(String(r.account))) { markRev += Math.round(r.values.ac * share(r.account) * 10) / 10; }
+        });
+        out.expRevShare = markRev / fullRev;
+        stage("hl-s0", uiOf("sankey"), "none");
+        out.s0 = sk("hl-s0");
+        out.s0html = document.getElementById("hl-s0").innerHTML;
+        reupdate("hl-s0", "hl");
+        out.s1 = sk("hl-s0");
+        reupdate("hl-s0", "none");
+        out.back = document.getElementById("hl-s0").innerHTML;
+        stage("hl-s2", uiOf("sankey"), "hl", 1300, 800, "en-US", HC);
+        out.hc = sk("hl-s2");
+        stage("hl-s3", Object.assign(uiOf("sankey"), { style: { appearance: "dark" } }), "hl");
+        out.dark = sk("hl-s3");
+        stage("hl-s4", uiOf("sankey"), "hl", 1300, 800, "de-DE");
+        out.de = sk("hl-s4");
+        stage("hl-s5", uiOf("sankey"), "hl", 1300, 800, "en-US", { allowInteractions: false });
+        out.exp = sk("hl-s5");
+        // ⚡ on the marked numbers: the same flags as the selection applied as a filter
+        const EXC = { exceptions: { enabled: true, thresholdPct: 8, reference: "py" } };
+        stage("hl-x1", Object.assign(uiOf("sankey"), EXC), "hl");
+        stage("hl-x2", Object.assign(uiOf("sankey"), EXC), "filter");
+        out.excHl = sk("hl-x1").inner.map(n => n.id + ":" + n.exc);
+        out.excFilter = sk("hl-x2").nodes.map(n => n.id + ":" + document.querySelector(`#hl-x2 [data-sk-i="${n.i}"]`).getAttribute("data-sk-exc"));
+        // the tree: share strips on every value card, the whole in grey on compact cards
+        const cardsOf = (id) => [...document.querySelectorAll(`#${id} svg > g > g`)].filter(g => g.querySelector("rect[rx='4']")).map(g => ({
+            strip: g.querySelector('[data-pnl="tree-hl"]') ? +g.querySelector('[data-pnl="tree-hl"]').getAttribute("data-hl-share") : null,
+            fillW: g.querySelector("[data-hl-fill]") ? +g.querySelector("[data-hl-fill]").getAttribute("width") : 0,
+            trackW: g.querySelector('[data-pnl="tree-hl"] rect') ? +g.querySelector('[data-pnl="tree-hl"] rect').getAttribute("width") : 0,
+            of: g.querySelector('[data-pnl="tree-hl-of"]') ? g.querySelector('[data-pnl="tree-hl-of"]').textContent : "",
+            tip: g.querySelector('[data-pnl="tree-hl"] title') ? g.querySelector('[data-pnl="tree-hl"] title').textContent : "",
+            exc: g.getAttribute("data-pnl-exc") }));
+        // polish: the tree reads a foreign selection exactly like a filter — no strips, no „of“, no note
+        const norm = (h) => h.replace(/(id="|url\(#|href="#)pnl[^")]*/g, "$1pnl");
+        stage("hl-t0", uiOf("tree"), "none", 1300, 800);
+        out.t0html = document.getElementById("hl-t0").innerHTML;
+        reupdate("hl-t0", "hl");
+        out.t1 = cardsOf("hl-t0");
+        out.t1html = norm(document.getElementById("hl-t0").innerHTML);
+        out.t1note = (document.querySelector('#hl-t0 [data-pnl="hl-note"]') || {}).textContent || "";
+        stage("hl-tf", uiOf("tree"), "filter", 1300, 800);
+        out.tfhtml = norm(document.getElementById("hl-tf").innerHTML);
+        // Sankey → Table → Sankey on the same data: the views swap their model, the way back is the same picture
+        reupdate("hl-t0", "none");
+        out.tback = document.getElementById("hl-t0").innerHTML;
+        stage("hl-tx1", Object.assign(uiOf("tree"), EXC), "hl");
+        stage("hl-tx2", Object.assign(uiOf("tree"), EXC), "filter");
+        out.texcHl = cardsOf("hl-tx1").map(c => c.exc);
+        out.texcFilter = cardsOf("hl-tx2").map(c => c.exc);
+        // the tile view opened from the Sankey: like a filter as well
+        stage("hl-z", uiOf("sankey", { treeZoom: "F_EBIT" }), "hl");
+        stage("hl-zf", uiOf("sankey", { treeZoom: "F_EBIT" }), "filter");
+        out.zoom = { tile: !!document.querySelector('#hl-z [data-pnl="zoom-center"]'),
+            note: (document.querySelector('#hl-z [data-pnl="hl-note"]') || {}).textContent || "",
+            same: norm(document.getElementById("hl-z").innerHTML) === norm(document.getElementById("hl-zf").innerHTML) };
+        // one visual, same marked data: Sankey (whole + marked) → table (filter) → Sankey again
+        stage("hl-sw", uiOf("sankey"), "hl");
+        const swBtn = (t) => [...document.querySelectorAll('#hl-sw [data-pnl="head"] button')].find(b => b.textContent === t);
+        const sk1 = norm(document.getElementById("hl-sw").innerHTML);
+        swBtn("Table").click();
+        out.swTable = { note: (document.querySelector('#hl-sw [data-pnl="hl-note"]') || {}).textContent || "",
+            cm: [...document.querySelectorAll("#hl-sw [data-pnl-row]")].some(r => /2010$/.test(r.getAttribute("data-pnl-row"))) };
+        swBtn("Sankey").click();
+        out.swBack = norm(document.getElementById("hl-sw").innerHTML) === sk1;
+        return out;
+    });
+    {
+        const s0 = hl.s0; const s1 = hl.s1;
+        check("highlight: without highlights the Sankey carries no highlight mark at all",
+            s0.ctx === 0 && s0.parts.length === 0 && s0.inner.every(n => n.share == null && n.h === 0) && s0.note === "",
+            `ctx=${s0.ctx} parts=${s0.parts.length}`);
+        check("highlight: the whole keeps its size — every node bar at the same place and height as without highlights",
+            s1.nodes.length === s0.nodes.length && s1.nodes.every((n, i) => n.id === s0.nodes[i].id
+                && Math.abs(n.x - s0.nodes[i].x) < 0.01 && Math.abs(n.y - s0.nodes[i].y) < 0.01 && Math.abs(n.h - s0.nodes[i].h) < 0.01),
+            s1.nodes.length + " vs " + s0.nodes.length);
+        check("highlight: every ribbon of the whole becomes grey context (data-sk-hl = ctx), one grey for all",
+            s1.ctx === s1.bands.length && s1.bands.length > 10 && new Set(s1.bands.map(b => b.fill)).size === 1,
+            `ctx=${s1.ctx}/${s1.bands.length} fills=${[...new Set(s1.bands.map(b => b.fill))].join(",")}`);
+        const bandW = new Map(s1.bands.map(b => [b.src + ">" + b.tgt, b.w]));
+        check("highlight: marked inner ribbons run inside their ribbon (never wider)",
+            s1.parts.length > 10 && s1.parts.every(p => p.w <= (bandW.get(p.src + ">" + p.tgt) ?? 0) + 0.01),
+            s1.parts.filter(p => p.w > (bandW.get(p.src + ">" + p.tgt) ?? 0) + 0.01).map(p => p.src + ">" + p.tgt).join(","));
+        check("highlight: inner ribbons in the flow's colours (profit / cost), not in the grey of the whole",
+            s1.parts.some(p => p.tone === "good") && s1.parts.some(p => p.tone === "bad")
+            && s1.parts.every(p => p.fill !== s1.bands[0].fill), [...new Set(s1.parts.map(p => p.tone))].join(","));
+        const rev = s1.inner.find(n => n.id === "L:Net revenue");
+        const revNode = s1.nodes.find(n => n.id === "L:Net revenue");
+        check("highlight: the node share is the marked part of the whole (Net revenue)",
+            rev && Math.abs(+rev.share - hl.expRevShare) < 1e-3 && Math.abs(rev.h - revNode.h * hl.expRevShare) < 0.05
+            && Math.abs(rev.y - revNode.y) < 0.01, rev && `${rev.share} vs ${hl.expRevShare.toFixed(4)}`);
+        // the port of Net revenue: what its marked ribbons send = its marked bar (marked GP + marked COGS)
+        const out1 = s1.parts.filter(p => p.src === revNode.i).reduce((a, p) => a + p.w, 0);
+        check("highlight: the marked ribbons of a port add up to the marked bar (stacked matching on the marked part)",
+            Math.abs(out1 - rev.h) < 0.6, `${out1.toFixed(2)} vs ${rev.h.toFixed(2)}`);
+        const cm = s1.nodes.find(n => n.name.indexOf("Contract manufacturing") === 0);
+        const cmIn = s1.inner.find(n => n.id === cm.id);
+        check("highlight: a row outside the selection keeps its grey whole, no inner bar, label „– of …“",
+            cmIn.h === 0 && +cmIn.share === 0 && /^– of /.test(cm.val), cm.val);
+        check("highlight: the labels read „marked of whole“",
+            /^\S+ of \S+$/.test(revNode.val.replace(/ | /g, "")), revNode.val);
+        check("highlight: the tooltip names the marked part and its share",
+            /Marked .+ of .+ \(\d+(\.\d)?%\)/.test(revNode.tip), revNode.tip);
+        check("highlight: the hint line explains the inside, the footer note the selection (with the whole of Net revenue)",
+            /coloured inside ∝ the marked part/.test(s1.hint) && /Marked selection from another visual/.test(s1.note)
+            && /Net revenue .+ of .+ in total \(\d/.test(s1.note) && /coloured = marked part, grey = total/.test(s1.note),
+            s1.hint.slice(0, 80) + " | " + s1.note);
+        check("highlight: the way back — the same visual without highlights renders byte-identical to before",
+            hl.back === hl.s0html, "diff at " + [...hl.back].findIndex((c, i) => c !== hl.s0html[i]));
+        const hc = hl.hc;
+        check("highlight · high contrast: the whole dashed without pattern, the marked part as pattern (solid · hatch · dots)",
+            hc.bands.every(b => b.pattern === "none") && hc.parts.length > 0
+            && hc.parts.every(p => p.pattern === (p.tone === "good" ? "solid" : p.tone === "bad" ? "hatch" : "dots"))
+            && hc.parts.filter(p => p.pattern !== "solid").every(p => /^url\(#/.test(p.fill))
+            && hc.inner.filter(n => n.h > 0).every(n => n.pattern != null),
+            [...new Set(hc.parts.map(p => p.tone + ":" + p.pattern))].join(","));
+        const dk = hl.dark;
+        check("highlight · dark mode: the grey whole sinks into the dark paper, the marked part stays apart",
+            dk.bands.length > 0 && lum(dk.bands[0].fill) < 0.45 && dk.parts.every(p => p.fill !== dk.bands[0].fill),
+            dk.bands[0] && dk.bands[0].fill);
+        check("highlight · German: labels „von“, footer and hint localized",
+            /von/.test(hl.de.nodes[0].val) && /Markierte Auswahl aus einem anderen Visual/.test(hl.de.note)
+            && /farbige Innenteil/.test(hl.de.hint), hl.de.nodes[0].val + " | " + hl.de.note.slice(0, 60));
+        check("highlight · export: the marked flow prints with its footer note, without toolbar",
+            hl.exp.svg && hl.exp.buttons === 0 && hl.exp.parts.length > 0 && /Marked selection/.test(hl.exp.note));
+        // (the filtered Sankey has no node for a row outside the selection — compare the common ones)
+        const fIds = new Set(hl.excFilter.map(x => x.split(":")[0]));
+        const excCommon = hl.excHl.filter(x => fIds.has(x.split(":")[0]));
+        check("highlight · ⚡: the exception flags of the marked part equal the flags of the same selection as a filter",
+            JSON.stringify(excCommon) === JSON.stringify(hl.excFilter) && excCommon.some(x => /:1$/.test(x)) && excCommon.some(x => /:0$/.test(x)),
+            excCommon.join(",") + " vs " + hl.excFilter.join(","));
+        // tree and tile view: like a filter (owner: "Cross-Highlight maximal im Sankey, sonst raus — nur Filter")
+        check("highlight · tree: renders byte-identical to the same selection as a filter (no strip, no „of“, no note)",
+            hl.t1html === hl.tfhtml && hl.t1.every(c => c.strip == null && c.of === "") && hl.t1note === "",
+            "diff at " + [...hl.t1html].findIndex((c, i) => c !== hl.tfhtml[i]));
+        check("highlight · tree: the way back without highlights renders byte-identical to before",
+            hl.tback === hl.t0html);
+        check("highlight · tree ⚡: card exception flags equal the filter of the same selection",
+            JSON.stringify(hl.texcHl) === JSON.stringify(hl.texcFilter) && hl.texcHl.includes("0") && hl.texcHl.includes("1"),
+            hl.texcHl.join("") + " vs " + hl.texcFilter.join(""));
+        check("highlight · tile view from the Sankey: opens like a filter — byte-identical, no note",
+            hl.zoom.tile && hl.zoom.note === "" && hl.zoom.same, JSON.stringify(hl.zoom));
+        check("highlight · one visual: Sankey → table switches to the filter picture (row outside gone, no note) and back",
+            hl.swTable.note === "" && !hl.swTable.cm && hl.swBack, JSON.stringify(hl.swTable) + " back " + hl.swBack);
+    }
+
     await page.screenshot({ path: __dirname + "/tree-interact.png", fullPage: false });
     await browser.close();
 

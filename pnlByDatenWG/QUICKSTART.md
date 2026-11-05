@@ -5,7 +5,7 @@ Hierarchie plus die Kennzahlen (zwei Minuten). **Weg 2** ergänzt die Felder,
 die daraus eine echte GuV machen — Zeilentypen, Formelzeilen, Vorzeichen,
 Kommentare.
 
-Version **1.4.1.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
+Version **1.5.3.0** · GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 Web-Fassung dieser Anleitung: [`pnl-schnellstart.html`](../pnl-schnellstart.html)
 (DE) · [`pnl-schnellstart_en.html`](../pnl-schnellstart_en.html) (EN).
 
@@ -23,7 +23,7 @@ einer Datei importieren**. Das Visual großzügig aufziehen (mind. ~1200×800 px
 Toolbar und zwei Spaltenblöcke brauchen Breite).
 
 **Start-Hub (1.3):** Frisch auf die Seite gezogen, zeigt das Visual im
-Bearbeitungsmodus vier große Knöpfe: **Was kann das Visual?** (sieben Karten mit
+Bearbeitungsmodus vier große Knöpfe: **Was kann das Visual?** (acht Karten mit
 echten Mini-Renderings), **Templates** (Galerie mit Vorschau — ein Klick wendet
 das Template an; ohne Felder wird die Wahl gespeichert und greift beim Binden),
 **Demo ansehen** und **Felder erklären**. Esc geht zurück, die Ziffern 1–4 öffnen
@@ -80,11 +80,11 @@ Alles aus Weg 1, plus die Struktur-Spalten der Kontendimension:
 
 | Field Well | Feld / Inhalt |
 |---|---|
-| Zeilentyp | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` |
+| Zeilentyp | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator`, optional mit Token `stock` / `opening` (1.7, siehe unten) |
 | Formeldefinition | z. B. `[Gross profit]+[Operating expenses]`, `[EBITDA]/[Net revenue]` — Referenz **per Zeilenname**, Formel auf Formel erlaubt |
 | Rechenvorzeichen (±1) | `1` Erlöse, `-1` Kosten |
 | Anzeige invertieren | `true` bei Kostenzeilen (rechnen negativ, werden positiv angezeigt) |
-| Abweichungsfarbe drehen | `true`, wo „unter Plan" gut ist (Kosten, Steuern) |
+| Abweichungsfarbe drehen | `false` bei allen Zeilen mit `-1` (auch Steuern): die Engine bewertet über das Vorzeichen schon richtig. `true` nur für positiv geführte Kosten (`+1`) und Kosten-Quoten, bei denen mehr schlecht ist |
 | Kommentar | Freitext je Konto → nummerierter Marker + Fußnote |
 | FC Gesamtjahr · PL Gesamtjahr | Jahres-Skalare für den FY-Ausblicksblock |
 
@@ -111,6 +111,26 @@ Measures: `AC = SUM(...[AC])`, analog PY/PL;
 `FC FY = MAX(...[FC_FY])`, `PL FY = MAX(...[PL_FY])` — **FY-Skalare nie
 summieren**. Gegenrechnen: EBITDA YTD AC = 571,2 · PY 499,6 · PL 532,0 mEUR.
 
+**Bilanz und Cashflow (1.7): Bestand vs. Fluss.** GuV-Zeilen sind Flüsse — YTD
+und FY summieren die Monate. Bilanz- und Kassenpositionen sind **Bestände**: ein
+Stand zum Stichtag, der nie über Monate addiert wird. Das Visual erkennt das am
+Token im Zeilentyp:
+
+| Zeilentyp | Bedeutung | YTD | FY |
+|---|---|---|---|
+| `Account` (ohne Token) | Fluss | Σ Monate | Σ Ist + Vorschau |
+| `Account stock` (auch `bestand`, `balance`, `stichtag`) | Bestand | Stand im letzten Monat | Endstand der Vorschau |
+| `Account opening` (auch `anfangsbestand`) | Anfangsbestand | Stand im ersten Monat | Stand zu Jahresbeginn |
+
+Summen und Formeln erben die Art (alle Kinder Bestand → Summe ist Bestand),
+Δ vergleicht Stände desselben Stichtags, im Waterfall stehen Bestände als
+Anker auf der Nulllinie. Bilanz ohne Token in der Kontendimension → Formatmenü
+**Bestand & Fluss → Bestand vs. Fluss = „Alle Zeilen Bestand (Bilanz)"**.
+Fertige Layouts: Templates **T05A · Bilanz** und **T05B · Cashflow** (Galerie-Gruppe
+„Bilanz & Cashflow"; T05A schaltet ohne Token „Alle Zeilen Bestand" mit ein).
+Beispieldaten: `demoData/bilanz-*.csv` und `demoData/cashflow-*.csv`
+([`demoData/README.md`](demoData/README.md)).
+
 ## 3 · Ragged-Hierarchien
 
 - **Leere tiefere Level** → die letzte gefüllte Ebene ist das Blatt.
@@ -133,7 +153,7 @@ Perioden-Sortierung** auf **„Datenreihenfolge (Fiskaljahr)"**. `Automatisch`
 sortiert kalendarisch, sobald alle Labels lesbar sind; `Kalenderjahr` erzwingt
 Jan..Dez.
 
-## 5 · Die vier Ansichten (Toolbar) und die Mega-Table
+## 5 · Die fünf Ansichten (Toolbar) und die Mega-Table
 
 | Ansicht | Was sie zeigt |
 |---|---|
@@ -141,14 +161,20 @@ Jan..Dez.
 | Struktur-Bars | dieselben Zeilen mit Größenbalken — die Struktur des Ergebnisses |
 | Zeilen-Waterfall | die GuV als Kaskade; Ergebnisanker auf der Nulllinie, Kostenblöcke floaten (Wurzelebene der Hierarchie) |
 | Werttreiberbaum | aus dem Formel-Graphen (DuPont) oder aus der reinen Hierarchie; Tidy-Layout, Operator-Kreise, ⌖-Re-Root, Breadcrumb |
+| Sankey (1.6) | derselbe Graph als Fluss von links nach rechts: Umsatz-Komponenten grau, Gewinn-Strang in der günstigen Farbe, Kosten in der ungünstigen nach rechts unten; Höhe ∝ AC (YTD), Labels mit Wert und % vom Umsatz — bewusst außerhalb der IBCS-Notation |
 
-**Kachel-Zoom:** Klick auf ein Karten-Diagramm zoomt den Knoten auf die ganze
+Welche Ansichten angeboten werden, steuert der Autor unter **Darstellung &
+Toolbar → „Ansicht: … anbieten"** (1.6, alle Standard an); bleibt nur eine
+übrig, verschwindet die Ansichts-Gruppe. Die Mega-Table ist keine eigene
+Ansicht, sondern ein Template der Tabelle.
+
+**Kachel-Zoom:** Klick auf ein Karten-Diagramm (im Sankey: auf einen Knoten) zoomt den Knoten auf die ganze
 Fläche — Kombi-Chart mit Monaten und Brücke, Szenario-Grid, „Zahlt ein auf" und
 „Getrieben von". Alle Toolbar-Zustände sind persistiert und lesezeichenfähig.
 
 **Mega-Table:** im Bearbeitungsmodus das Dropdown **Template** links in der
 Toolbar (1.2), oder Formatmenü → **Spalten & Mega-Table → Mega-Table
-(IBCS-Templates, erste Gruppe) → Template** wählen (T01A … T04E, 12A, 12G, 12H). Das Template setzt die Schalter darunter,
+(IBCS-Templates, erste Gruppe) → Template** wählen (T01A … T04E, 12A, 12G, 12H, T05A Bilanz, T05B Cashflow). Das Template setzt die Schalter darunter,
 danach ist jeder Schalter frei: Wertspalten PY · PL · AC/FC, Δ als Zahl, Balken,
 integrierter Wasserfall, Δ% als Zahl oder Pins, zweiter Block Monat | _YTD
 (braucht die Periode), Schwellen mit Fußzeile. Das Formatmenü zeigt nur, was zur
@@ -160,7 +186,7 @@ führt zurück.
 Periode): der AC&FC-Balken zeigt Ist bis heute voll und den Rest des Jahres
 schraffiert, die Δ-Spalten vergleichen das Jahr mit dem Vorjahr. **12H** ist die
 Planrechnung (analysiertes Szenario = PL, braucht PL): Plan umrandet, Δ-Balken
-blass getönt. Beide schalten den **Headline-Slot** an (Titelblock →
+rot/grün umrandet. Beide schalten den **Headline-Slot** an (Titelblock →
 „Headline-Slot"): die Botschaft groß neben dem Titel — eigene Botschaft oder,
 wenn leer, die generierte.
 
@@ -186,6 +212,33 @@ Szenarien als kleine Dreiecke.
 **Farben ohne Rot/Grün:** Stil → **Abweichungsfarben-Preset → Blau / Orange**
 (ColorBrewer, auch im Schwarzweiß-Druck lesbar).
 
+**Nur Ausnahmen (1.7):** In der Toolbar-Gruppe **Ausnahmen** den Knopf **⚡**
+drücken. Dann behalten nur Zeilen ihre Farbe, deren Δ die Schwelle erreicht
+(Standard |Δ%| ≥ 5 %, mit − / + in Stufen 1 … 100 %); der Rest wird grau.
+Daneben: |Δ| absolut (angeboten, sobald „Wesentlichkeit ab (absolut)" gesetzt
+ist — eine der beiden Schwellen reicht), die Referenz (Auto = die Δ-Referenz der
+Ansicht, sonst PY · PL · FC fest), die Richtung (▲ über · ▼ unter · ▲▼ beide,
+nach dem Vorzeichen von Δ, nicht nach günstig/ungünstig) und der Modus
+(⬚ grau · ⊘ ausblenden — in jeder Ansicht: Detailzeilen verschwinden aus Tabelle,
+Mega-Table und Balken; Wasserfall und Kaskaden-Templates fassen sie je Abschnitt
+zu „übrige (n)“ zusammen, der Baum zu einer „+n“-Karte, der Sankey zu einem
+grauen Band; Summen bleiben). Die Fußzeile nennt die Regel und was ausgeblendet
+oder zusammengefasst ist.
+Leser dürfen das bedienen; derselbe Zustand steht im Formatbereich unter
+**Ausnahmen**. Ausblenden: Darstellung & Toolbar → „Gruppe: Ausnahmen (⚡)".
+
+**Eigene Toolbar-Farben (1.7):** Formatbereich → **Toolbar-Farben**: Knopf-
+Hintergrund, Knopf-Text, aktiver Knopf (Hintergrund/Text) und Rahmen. Leer =
+automatisch; Hochkontrast ignoriert die Farben.
+
+**Ganze Kachel nutzen (1.7):** Formatbereich → **Fläche → Ganze Kachel nutzen**:
+schmale Ränder, eine kompakte Toolbar, Tabelle und Mega-Table wachsen mit der
+Kachelhöhe (bis ×1,6, hinunter bis 9 px), Baum und Sankey füllen die Kachel.
+
+**Markierungen anderer Visuals (1.7):** Klickt ein Leser z. B. einen Balken eines
+anderen Visuals an, zeigt der Sankey den markierten Teil im grauen Gesamt; alle
+anderen Ansichten zeigen die Auswahl genau so, als wäre sie gefiltert.
+
 ## 6 · Drillthrough einrichten (3 Schritte)
 
 1. Zielseite anlegen (z. B. `Konto-Detail`) und unter **Visualisierungen →
@@ -210,14 +263,17 @@ Abnahme-Checks: [`TESTPLAN.md`](TESTPLAN.md) §6a.
 | Zeile zeigt `·` | Referenzname der Formel nicht eindeutig oder Szenario ohne Daten |
 | Zeile zeigt `⚠ Zyklus` (en: `⚠ cycle`) | Zirkelbezug in der Formeldefinition oder in Parent-Child |
 | „Nicht zugeordnet" rot mit ⚠ | Parent-/Level-Pfad zeigt ins Leere — gewolltes Datenqualitäts-Signal |
+| Bilanz-YTD neunfach zu groß | Bestände werden als Fluss summiert → Token `stock` im Zeilentyp oder Bestand & Fluss → „Alle Zeilen Bestand (Bilanz)" |
+| Cashflow-Anfangsbestand zeigt den Septemberstand | Zeile ist `stock` statt `opening` → `Account opening` |
+| Hinweis „Bestand und Fluss gemischt" unter der Tabelle (nur Bearbeitungsmodus) | Formel oder Summe mischt Bestand und Fluss ohne Token (Formel folgt dem ersten Operanden, Summe bleibt Fluss) — Art per `stock`/`flow` im Zeilentyp festlegen |
 
 Vollständiger Aufbau- und Testplan inklusive Reconciliation-Werten:
 [`TESTPLAN.md`](TESTPLAN.md). Feature-Historie: [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
-Notation nach den IBCS®-Standards 1.2 der IBCS Association (CC BY-SA 4.0,
+Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0,
 ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei
-Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke der
-HICHERT+FAISST GmbH. Dieses Visual ist nicht von der IBCS Association
+Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des
+IBCS Institute. Dieses Visual ist nicht von der IBCS Association
 zertifiziert und steht in keiner Verbindung zu ihr.
