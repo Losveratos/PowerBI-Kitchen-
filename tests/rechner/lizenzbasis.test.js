@@ -14,14 +14,19 @@ const ok = R.ok, watch = R.watch, errs = R.errs;
    Stunden-Ansatz verglichen wird. Wenn diese Auswahl bewusst geaendert wird, ist die
    be-Zeile hier neu zu messen — die vier Gesamtkosten duerfen sich dabei NICHT bewegen. */
 const REF={
-  pilot:{paid:39660,oss:53265,deneb:59327,core:79563,be:47},
-  mittelstand:{paid:70424,oss:74480,deneb:89562,core:112474,be:56},
+  /* v0.23 (Runde 3): paid und be neu gemessen. Die Volumenstaffel kauft seitdem die guenstigste deckende Stufe
+     (A1-B1, monoton) — im Konzern-Preset ist die Stufe ab 2.001 Nutzern mit Mindestmenge billiger als 1.530 Plaetze
+     zu 0,45, deshalb paid 726.050 -> 676.492. be kommt aus crossViewers() per Intervallhalbierung statt aus dem
+     groben Raster (A2-B3). oss, deneb und core sind auf den Euro unveraendert — der Rechenkern ausserhalb der
+     Paid-Lizenz ist nicht betroffen. */
+  pilot:{paid:39660,oss:53265,deneb:59327,core:79563,be:46},
+  mittelstand:{paid:70086,oss:74480,deneb:89562,core:112474,be:55},
   /* be seit dem Aufraeum-Durchgang vor 1.0: 580 -> 918. licenseBreakEven() vergleicht seitdem nur
      noch gegen ZULAESSIGE Stunden-Ansaetze. Im Konzern-Preset ist Open Source per Red Flag "nur
      zertifizierte Visuals" ausgeschlossen; 580 war der Wert gegen genau diesen ausgeschlossenen
      Ansatz, 918 ist der Wert gegen den guenstigsten zulaessigen (Deneb). Die vier Gesamtkosten
      sind dabei auf den Euro unveraendert geblieben — der Rechenkern ist nicht betroffen. */
-  konzern:{paid:726050,oss:531710,deneb:613913,core:803820,be:918},
+  konzern:{paid:676492,oss:531710,deneb:613913,core:803820,be:937},
 };
 const setShare=async(p,v)=>{await p.evaluate(x=>{S.g.licViewerShare=[x,x,x];update();},v);await p.waitForTimeout(400);};
 const snap=p=>p.evaluate(()=>{const o={};['paid','oss','deneb','core'].forEach(k=>{const e=expected(k);

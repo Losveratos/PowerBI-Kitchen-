@@ -43,7 +43,12 @@ console.log('  (Preset Konzern, 4.000 Ziehungen je Lauf)');
 OPTSK.forEach(k=>{const a=mu[0][k],b=mu[10][k],c=mu[20][k];
   console.log('  '+k.padEnd(6)+' aus   P10 '+f(a.p10)+' P50 '+f(a.p50)+' P90 '+f(a.p90)+'  Band '+f(a.w));
   console.log('         \u00b110 % Band '+f(b.w)+' (+'+((b.w/a.w-1)*100).toFixed(1)+' %)   \u00b120 % Band '+f(c.w)+' (+'+((c.w/a.w-1)*100).toFixed(1)+' %)');
-  ok(c.w>a.w,'Band '+k+' wird mit \u00b120 % breiter');ok(c.w>b.w,'\u00b120 % breiter als \u00b110 % ('+k+')');});
+  /* v0.23: Bei Paid liegt das Konzern-Preset auf einem Plateau der Volumenstaffel (die naechste Stufe mit Mindestmenge
+     ist billiger, siehe staffelUnits): die Lizenz haengt dort nicht an der genauen Nutzerzahl, die Mengen-Unsicherheit
+     verbreitert das Band nur ueber die Stunden \u2014 um Zehntelprozent, mit 4.000 Ziehungen im Rauschen. Deshalb bei Paid
+     \u201enicht schmaler" statt \u201ebreiter". */
+  const tol=k==='paid'?0.995:1;
+  ok(c.w>a.w*tol,'Band '+k+' wird mit \u00b120 % breiter');ok(c.w>b.w*tol,'\u00b120 % breiter als \u00b110 % ('+k+')');});
 
 console.log('\n== 3 · Sicherheits-Leiste ==');
 const cert=await page.evaluate(()=>{update();return OPTS.map(o=>{const sp=certSplit(lastSim[o.key]);return {k:o.key,b:sp.b,f:sp.f,e:sp.e,sum:sp.b+sp.f+sp.e};});});

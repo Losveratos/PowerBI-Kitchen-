@@ -5,7 +5,7 @@
 - **Quelle:** https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 - **Autor:innen:** Michael Tenner & Diana Ackermann · Daten-WG Knowledge Kitchen
 - **Anlass:** Pre-Conference „Visual Standards in Power BI für Controlling und Finance | Von Paid über Flexibel bis MacGyver", Daten-WG 2026, 14.10.2026, Köln
-- **Stand:** v0.20 · 09/2026 (drei Ebenen nach Shneiderman plus ein gefuehrter Einstieg davor; Annahmen-Audit Runde 2 vom 11.09.2026. Pakete A und B: gepaarte Ziehung, Cash-out je Jahr, Amortisation, Stunden und FTE, P50/P75/P90, Ausstiegskosten, Viewer-Deckel, drei neue Anforderungen, Modifier „Organizational Store". Paket C1: Jahresschleife im Rechenkern mit fuenf neuen Annahmen. Paket C2: sieben neue Anforderungen, sechs neue Red Flags, Adoptionsgrad, Semantikmodelle, Verteilweg, Vorlaufzeit, CapEx/OpEx, Stunden-Anker, Unsicherheit im Mengengeruest und Sicherheits-Leiste. v0.13: Entscheidungspfad, Wirkungsgraph, Entscheidungsbaum, ohne die Rechenlogik zu aendern. v0.14: Report-Klassen und IBCS-Pflicht als eigener Kostentreiber. v0.15: Anbieter-Angebote als haerteste Evidenz im Modell. v0.16: gefuehrter Einstieg (Ebene 0) und Lesehilfe, dazu Vereinfachungen in Ebene 1 und 2 ohne Aenderung an Annahmen oder Rechenlogik. v0.17: Inhaltsverzeichnis als mitlaufende Seitenleiste und ein klickbarer Wirkungsgraph, der zugleich zweite Bedienoberflaeche ist. v0.18: die Lizenzmenge kennt die Report-Klassen — Korrektur aus einer unabhaengigen Pruefung, sie wirkt zugunsten von 3rd-Party paid. v0.19: der Wirkungsgraph steht vor den Eingaben statt am Seitenende, das Inhaltsverzeichnis gruppiert nach Seitenbereich. v0.20: Aufraeum-Durchgang vor der 1.0 — Barrierefreiheit, Grenzen-Abschnitt, Pruefinfrastruktur im Repository) · Sprache DE · rein clientseitig, keine Server-Anbindung
+- **Stand:** v0.23 · 11/2026 — Pruefrunde 3, siehe Abschnitt „v0.21 bis v0.23" unten. Basis v0.20 · 09/2026 (drei Ebenen nach Shneiderman plus ein gefuehrter Einstieg davor; Annahmen-Audit Runde 2 vom 11.09.2026. Pakete A und B: gepaarte Ziehung, Cash-out je Jahr, Amortisation, Stunden und FTE, P50/P75/P90, Ausstiegskosten, Viewer-Deckel, drei neue Anforderungen, Modifier „Organizational Store". Paket C1: Jahresschleife im Rechenkern mit fuenf neuen Annahmen. Paket C2: sieben neue Anforderungen, sechs neue Red Flags, Adoptionsgrad, Semantikmodelle, Verteilweg, Vorlaufzeit, CapEx/OpEx, Stunden-Anker, Unsicherheit im Mengengeruest und Sicherheits-Leiste. v0.13: Entscheidungspfad, Wirkungsgraph, Entscheidungsbaum, ohne die Rechenlogik zu aendern. v0.14: Report-Klassen und IBCS-Pflicht als eigener Kostentreiber. v0.15: Anbieter-Angebote als haerteste Evidenz im Modell. v0.16: gefuehrter Einstieg (Ebene 0) und Lesehilfe, dazu Vereinfachungen in Ebene 1 und 2 ohne Aenderung an Annahmen oder Rechenlogik. v0.17: Inhaltsverzeichnis als mitlaufende Seitenleiste und ein klickbarer Wirkungsgraph, der zugleich zweite Bedienoberflaeche ist. v0.18: die Lizenzmenge kennt die Report-Klassen — Korrektur aus einer unabhaengigen Pruefung, sie wirkt zugunsten von 3rd-Party paid. v0.19: der Wirkungsgraph steht vor den Eingaben statt am Seitenende, das Inhaltsverzeichnis gruppiert nach Seitenbereich. v0.20: Aufraeum-Durchgang vor der 1.0 — Barrierefreiheit, Grenzen-Abschnitt, Pruefinfrastruktur im Repository) · Sprache DE · rein clientseitig, keine Server-Anbindung
 - **Zitierhinweis:** Michael Tenner & Diana Ackermann, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/visual-standards-rechner.html — Abruf mit Datum angeben.
 - **Hinweis fuer Agenten:** Diese Markdown-Fassung beschreibt Modell, Voreinstellungen und Quellenlage. Regler, Simulation, Charts und Export sind nur in der HTML-Fassung nutzbar.
 - **Offenlegung:** ChartKitchen byDatenWG, das Beispiel fuer „Open Source / Eigenentwicklung", ist ein Projekt der Autor:innen.
@@ -395,10 +395,37 @@ Der Methodiktext war ein einziger Absatz mit **2.368 Woertern**, in dem die gesa
 
 ### Was fuer die 1.0 noch fehlt
 
-- Der **Rechenkern ist nirgends gegen eine unabhaengige Rechnung geprueft**. Alle Referenzwerte sind selbst gemessen; das faengt unbeabsichtigte Aenderungen, aber keinen systematischen Fehler. Ein von Hand durchgerechnetes Mini-Szenario waere die ehrliche Absicherung.
-- **Keine CI.** Nichts hindert einen Commit mit roten Tests.
-- Die **statischen Zahlen im Entscheidungsbaum** haelt keine Pruefung gegen den Rechenkern — genau der Fall, der zweimal veraltet ist.
-- Die **Monte-Carlo-Seite** und der **Inhalt des Excel-Exports** sind nicht abgedeckt.
+Stand v0.20; was seither erledigt ist, steht in Klammern.
+
+- Der **Rechenkern ist nirgends gegen eine unabhaengige Rechnung geprueft**. (Seit v0.21: `tests/rechner/handrechnung.md` rechnet ein Mini-Szenario nur aus dieser Beschreibung nach, `handrechnung.test.js` haelt den Rechner dagegen.)
+- **Keine CI.** (Seit v0.21: `.github/workflows/rechner-tests.yml` faehrt alle Suiten; seit v0.22 davor `scripts/i18n-check.js`.)
+- Die **statischen Zahlen im Entscheidungsbaum** haelt keine Pruefung gegen den Rechenkern. (Seit v0.23 gibt es sie nicht mehr: der Baum rechnet live, siehe unten.)
+- Die **Monte-Carlo-Seite** und der **Inhalt des Excel-Exports** sind nicht abgedeckt. (Seit v0.22 prueft `englische-fassung.test.js` die Monte-Carlo-Seite auf Sprache und Fremd-CDN und den Excel-Export auf Blattnamen; die Zahlen darin bleiben ungeprueft.)
+
+## v0.21 bis v0.23: Entprellung, zwei Sprachen, Pruefrunde 3
+
+**v0.21** entprellt die Neuberechnung der Annahmen-Felder und sucht deren Bedienelemente nur noch im eigenen Container (ein Freeze im Graph-Popup war die Folge der globalen Suche).
+
+**v0.22** traegt beide Sprachen in einer Datei: Deutsch steht im Quelltext, Englisch im Woerterbuch `I18N_EN` am Anfang der Datei, der Umschalter oben rechts laedt mit `?lang=en` neu und nimmt die Eingaben ueber den Share-Link mit. Dazu zaehlt die Quellenlage-Leiste die Herkunft „Expertenpanel" (P) mit (vorher fielen neun Annahmen aus der Summe), die Legende im Tornado bekommt fuer P eine Farbe, und weite Spruenge springen hart statt 1,5 Sekunden zu gleiten.
+
+**v0.23** ist die dritte Pruefrunde (`sessions/visual-standards-rechner-audit/runde3/`: Grenzfaelle mit 187 Pruefungen, Leser-Sicht mit 778 Pruefungen, Annahmen-Dossier zur Open-Source-Option). Umgesetzt:
+
+- **Ein Kipp-Punkt, eine Verhandlungsgrenze.** Bis v0.22 nannte der Chart-Satz den Kipp-Punkt aus seiner Polylinie („ab 64"), Ebene 1 und Knoten 3 aus einem groben Raster („77"); die Verhandlungsgrenze stand in Ebene 1 mit einer anderen Naeherung als in Ebene 3 (Grosskonzern mit Site-Lizenz: 464 gegen 20 €). Jetzt loesen `crossViewers()` und `negotiationCeiling()` beide Groessen per Intervallhalbierung am echten Modell; die Grenze verschwindet, wenn Paid per K.O. ausgeschlossen ist.
+- **Volumenstaffel als Paketkauf.** Die Stufe galt als Treppe auf alle Einheiten: 100 Plaetze × 0,8 kosteten mehr als 110 × 0,6, Paid wurde mit mehr Viewern sprunghaft billiger (19 Rueckgaenge im Sweep). Jetzt kauft der Kunde die guenstigste Stufe, die ihn abdeckt — notfalls mehr Plaetze als noetig (`staffelUnits()`), so wie Zebra BI Pakete zu 10 und 50 Nutzern verkauft (Preisseite, Abruf 06.11.2026). Die Stufenfaktoren bleiben. Die Paid-Lizenz sinkt ueberall dort, wo die naechste Stufe mit ihrer Mindestmenge billiger ist als die eigene (im Konzern-Preset: 2.010 Plaetze zu 0,45 statt 1.530 zu 0,45 — Paid 726.050 -> 676.492 €, −7 %); Pilot und Mittelstand bewegen sich um 0 bis 0,5 %.
+- **Der Entscheidungsbaum rechnet live.** Die Verhaeltnisse in den Knoten 3 bis 5 (Kipp-Punkt bei 80 / 33 / 170 €, Bibliotheks-Effekt) fuellt `renderTree()` bei jedem `update()` mit den aktuellen Annahmen, ohne K.O.-Regeln, gegen den guenstigsten Stunden-Ansatz. Die statischen Werte vom Stand v0.19 (1 : 12 bis 1 : 26) waren auf 1 : 16 bis 1 : 28 gewandert, der Pilot stand bei 1 : 58.
+- **Eingabegrenzen.** Lernrate max. 45 % (50 oder 100 % ergaben NaN auf der ganzen Seite), Fremdanteil max. 100 %, Produktivitaetsgewinn max. 90 %; `readHash()` setzt den Experten-Override zurueck; bei Budget im Folgejahr fiel die letzte Bestandstranche aus dem Horizont und die Kennzahl je Jahr teilte durch H statt H − 1.
+- **Open-Source-Annahmen gegen Manifest und Doku.** `datares` 2 → 3 (`privileges: []` vom Host erzwungen, Bundle-Scan dokumentiert, kein Dritt-Audit) und `a11y` 2 → 3 (Tastaturfokus, Hochkontrast, ARIA im Code, keine formale Pruefung) — beide ohne Kostenwirkung. Zehn Notizen aktualisiert: Verteilweg statt „AppSource", Agent-Skill vorhanden, Copilot-Grenze, Lizenzen Apache-2.0/MIT, Release-Takt, Zertifizierungsstand 24.10.2026; sechs Quellen ergaenzt, eigene als solche gekennzeichnet. Offen bleiben Einschaetzungen ohne Beleg (`govIntake`, `events`, Panel-Stunden); selbst alle zugunsten von OSS gesetzt waeren das −4,6 % im Mittelstand, −0,9 % im Konzern, keine Rangfolge kippt.
+- **Fuenf Szenario-Presets** (zweite Reihe in Ebene 1), jedes mit Hinweis, wofuer es taugt und wofuer nicht. Ein Preset ist ein Ausgangspunkt: Red Flags, Must-Anforderungen, Report-Klassen, IBCS-Pflicht, Bestand, Verteilweg und Eigenentwicklung stehen danach auf Voreinstellung, plus das Genannte; der Toast zaehlt es auf.
+
+| Preset | Mengen | setzt zusaetzlich |
+|---|---|---|
+| Konzern mit Org-Store | 25 / 1.500 | nur zertifizierte Visuals, OSS ueber Organizational Store, Verteilweg Org-Store |
+| Oeffentliche Verwaltung | 6 / 300 | kein Vorsteuerabzug, Budget im Folgejahr, Vergaberecht, Barrierefreiheit als Must, Klassen 70/20/10 |
+| Finance mit IBCS-Pflicht | 5 / 150 | IBCS verbindlich fuer alle Reports, Klassen 20/40/40 |
+| Abloesung eines Bestands | 8 / 400 | heute Paid im Einsatz, 60 Bestandsreports |
+| Eigenbau statt fertig | 1 / 10 | Open Source mit Eigenentwicklung 40 · 200 · 600 h |
+
+Nebenbefund der Runde, nicht umgesetzt: Zebra BI nennt auf der Preisseite heute 696 € je Jahr fuer 10 Nutzer und 3.240 € fuer 50 (65–70 € je Nutzer); der Anker „Zebra-Niveau" im Rechner steht bei 90 · 170 · 300 € aus aelteren Snippets.
 
 ## Modellunsicherheit je Ansatz (v0.12)
 
