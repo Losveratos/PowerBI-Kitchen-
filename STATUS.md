@@ -40,6 +40,13 @@ jeweiligen Visual-Ordner.
   fertiges Demo-Repo-Staging unter `talk-repo-staging/` auf dem Arbeitsbranch —
   wartet darauf, dass das GitHub-Repo `one-model-three-stacks` angelegt wird;
   danach dorthin pushen und Fabric-Workspace per Git-Integration verbinden.
+- **Wohlstandsatlas** (`wohlstandsatlas.html`, neu 11/2026, Spielwiese): Weltkarte zu BIP pro Kopf,
+  Kaufkraft, Haushalten, Gini und Dichte für 217 Länder und rund 6.000 Regionen auf vier Ebenen.
+  `wohlstandsatlas.html`, `wohlstandsatlas/atlas-data.js` (Karten + Daten, ~5 MB) und
+  `wohlstandsatlas/wohlstandsatlas-einheiten.csv` sind **generiert** – nicht von Hand ändern.
+  Die Datenpipeline (Merge der Länder- und Regionalstatistiken, Validierung, Build) liegt noch
+  außerhalb des Repos; offen: Pipeline ins Repo holen, Full-HD-Layout, Zeitreihen für Regionen.
+  Bibliotheken lokal: `assets/js/vendor/d3-7.9.0.min.js`, `topojson-client-3.1.0.min.js`.
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
 - **Branch-Hygiene:** `kitchen-refresh-data` gehört dem Refresh-Workflow und
   bleibt. Einziger Branch mit bewusst ungemergter Arbeit:

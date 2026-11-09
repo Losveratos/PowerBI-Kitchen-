@@ -60,6 +60,7 @@
       ['IBCS-Trainer', 'ibcs-trainer.html']
     ]],
     ['Spielwiese', [
+      ['Wohlstandsatlas', 'wohlstandsatlas.html'],
       ['Länder-Indikatoren-Explorer', 'laender-indikatoren-explorer.html'],
       ['KI-CO₂-Simulator', 'ki-co2-simulator.html'],
       ['Daten-WG-Spiel', 'daten-wg-game.html']

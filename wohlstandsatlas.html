@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wohlstandsatlas · Wie die Welt strukturiert ist · Daten-WG</title>
+<meta name="description" content="Interaktiver Weltatlas: BIP pro Kopf, Kaufkraft, Haushaltseinkommen, Ungleichheit und Bevölkerungsdichte für 217 Länder und rund 6.000 Regionen – von Bundesländern bis zu Kreisen, US-Counties, chinesischen Präfekturen und Metropolregionen. Mit Schwellen-Highlight, Anteil an der Weltbevölkerung und Daten als CSV.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Wohlstandsatlas – wo stehst du im Vergleich zur Welt?">
+<meta property="og:description" content="217 Länder, rund 6.000 Regionen, 10 Kennzahlen: BIP, Kaufkraft, Haushalte, Gini, Dichte. Karte, Quadrat-Ansicht, Verteilung und Geschichten.">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/wohlstandsatlas.html">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/wohlstandsatlas.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/wohlstandsatlas.md">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="assets/favicon-16.png" sizes="16x16">
+<link rel="stylesheet" href="assets/fonts/fraunces/fraunces.css">
+<link rel="stylesheet" href="assets/fonts/geist/geist.css">
+<link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+/* Layout: headline that states the finding, story entry points, controls, the map (or squares), then the
+   distribution band right below it, then the profile of the selected place and the user's own group. */
+:root{
+  --bg:#FAFAF7; --surface:#FFFFFF; --ink:#0F1E2E; --muted:#475569; --line:#DEDBD2;
+  --sea:#EDEFEC; --nodata:#d6dcd9; --dim:#e6eae8; --sel:#C25A2D; --grp:#6B4FB8; --warn:#9A3F12; --hatch:rgba(30,45,40,.28);
+  --r1:#f3f0c7; --r2:#d4e6a4; --r3:#9fd08c; --r4:#5fb47f; --r5:#2f8f78; --r6:#1e6a6e; --r7:#1c445c;
+  --c1:#E69F00; --c2:#CC79A7; --c3:#0072B2; --c4:#009E73; --c5:#C9B400; --c6:#56B4E9;
+  --display:"Fraunces",ui-serif,Georgia,serif;
+  --body:"Geist",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1720; --surface:#16202B; --ink:#E6ECF1; --muted:#9AA8B5; --line:#2A3744;
+  --sea:#121B24; --nodata:#2a3531; --dim:#1b2522; --sel:#EE8A57; --grp:#AE97F2; --warn:#F0A36B; --hatch:rgba(230,240,235,.22);
+  --r1:#2b3d4f; --r2:#24566a; --r3:#1f7277; --r4:#3a917a; --r5:#6faf74; --r6:#b0cd73; --r7:#efe68c;
+  --c1:#F5B83D; --c2:#E39BC4; --c3:#4FA3E0; --c4:#2FC497; --c5:#EDE15B; --c6:#8ACDF2; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1720; --surface:#16202B; --ink:#E6ECF1; --muted:#9AA8B5; --line:#2A3744;
+  --sea:#121B24; --nodata:#2a3531; --dim:#1b2522; --sel:#EE8A57; --grp:#AE97F2; --warn:#F0A36B; --hatch:rgba(230,240,235,.22);
+  --r1:#2b3d4f; --r2:#24566a; --r3:#1f7277; --r4:#3a917a; --r5:#6faf74; --r6:#b0cd73; --r7:#efe68c;
+  --c1:#F5B83D; --c2:#E39BC4; --c3:#4FA3E0; --c4:#2FC497; --c5:#EDE15B; --c6:#8ACDF2; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+header{display:grid;gap:6px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(1.5rem,4.5vw,2.3rem);letter-spacing:-.02em;margin:0;line-height:1.05}
+.lead{font-size:clamp(1rem,2.4vw,1.2rem);margin:0;max-width:62ch;text-wrap:pretty}
+.lead b{font-weight:600}
+.sub{color:var(--muted);font-size:.8rem;margin:0}
+.row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;align-items:center}
+.row::-webkit-scrollbar{display:none}
+@media (max-width:700px){.row.scroll{-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent);padding-right:28px}}
+.lab{flex:none;font:600 .68rem var(--body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-right:2px}
+.chip{flex:none;font:500 .82rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.grp[aria-pressed="true"]{background:var(--grp);border-color:var(--grp);color:#1d1200}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.chip.story{border-style:dashed}
+.chip.story[aria-pressed="true"]{border-style:solid}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.storybox{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--sel);border-radius:10px;padding:12px 14px;display:grid;gap:4px}
+.storybox h2{font:700 1.05rem var(--display);margin:0}
+.storybox p{margin:0;max-width:70ch}
+.storybox .x{justify-self:start;font:500 .78rem var(--body);background:none;border:0;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline}
+.explain{font-size:.82rem;color:var(--muted);margin:0;max-width:80ch}
+.explain b{color:var(--ink);font-weight:600}
+details.settings{display:grid;gap:8px}
+details.settings>summary{cursor:pointer;font:600 .72rem var(--body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);list-style:none}
+details.settings>summary::-webkit-details-marker{display:none}
+details.settings>summary::before{content:"▸ ";}
+details.settings[open]>summary::before{content:"▾ ";}
+details.settings .inner{display:grid;gap:8px;margin-top:8px}
+.mapbox{position:relative;background:var(--sea);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+#map{display:block;width:100%;touch-action:none;cursor:grab}
+.zoom{position:absolute;left:8px;bottom:8px;display:flex;flex-wrap:wrap;gap:4px}
+.zoom button{font:500 .75rem var(--body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer}
+@media (max-width:560px){.zoom{position:static;padding:8px;background:var(--surface);border-top:1px solid var(--line)}}
+.sqpanel{display:grid;gap:8px}
+.sqpanel[hidden],.legend[hidden],.zoom[hidden],.storybox[hidden]{display:none}
+.sqlegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.75rem;color:var(--muted);align-items:center}
+.sqlegend span{display:inline-flex;align-items:center;gap:5px}
+.sqlegend i{display:inline-block;width:11px;height:11px;border-radius:2px}
+.sqlegend .lab2{font-weight:600;color:var(--ink)}
+.sqlegend .note{flex-basis:100%;color:var(--warn)}
+.legend{display:flex;flex-direction:column;gap:4px}
+.legend .bar{display:grid;grid-template-columns:repeat(7,1fr);height:10px;border-radius:3px;overflow:hidden}
+.legend .ticks{display:grid;grid-template-columns:repeat(7,1fr);font:400 .66rem var(--mono);color:var(--muted)}
+.legend .cap{font-size:.75rem;color:var(--muted)}
+.keys{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.75rem;color:var(--muted)}
+.keys span{display:inline-flex;align-items:center;gap:6px}
+.keys svg{border-radius:2px;border:1px solid var(--line)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
+.kind{font:500 .72rem var(--body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+h2{font-family:var(--display);font-weight:700;font-size:1.6rem;margin:2px 0 0;letter-spacing:-.01em;text-wrap:balance}
+h3{font:600 .76rem var(--body);margin:0;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.big{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.big .v{font:500 2rem var(--mono);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.big .rank{font-size:.88rem;color:var(--ink)}
+.big .rank small{color:var(--muted);font-size:.78rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.stat{display:grid;gap:1px}
+.stat .n{font:500 1.2rem var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .l{font-size:.78rem;color:var(--muted)}
+.hlrow{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.hlrow>.row{min-width:0;max-width:100%}
+.slider{display:flex;align-items:center;gap:10px;flex:1;min-width:220px}
+.slider input{flex:1;min-width:0;accent-color:var(--sel)}
+.slider output{font:500 .9rem var(--mono);min-width:9ch;text-align:right;font-variant-numeric:tabular-nums}
+.sentence{font-size:1.02rem;max-width:72ch;margin:0}
+.sentence b{font-weight:600}
+.split3{font-size:.82rem;color:var(--muted);margin:0}
+.dist{width:100%;height:auto;display:block;cursor:crosshair;touch-action:pan-y}
+.dist text{fill:var(--muted);font:400 10px var(--mono)}
+.dist .axis{stroke:var(--line)}
+.dist .thr{stroke:var(--sel);stroke-width:1.5;stroke-dasharray:4 3}
+.dist .ref{stroke:var(--ink);stroke-width:1;stroke-dasharray:2 3;opacity:.7}
+.dist .reft{fill:var(--ink)}
+.dist rect.sel{stroke:var(--sel);stroke-width:2}
+.dist .capmark{fill:var(--muted)}
+.find{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.find input[type=text]{flex:1;min-width:180px;font:400 .9rem var(--body);padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.toast{font-size:.8rem;color:var(--muted)}
+.neighbors{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:.9rem;align-content:start}
+.neighbors .me{font-weight:600;color:var(--sel)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+.cmp{display:grid}
+.cmp button{all:unset;display:grid;grid-template-columns:minmax(0,1fr) auto;row-gap:2px;column-gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+.cmp button:focus-visible{outline:2px solid var(--sel)}
+.cmp button[aria-current="true"] .lab3{color:var(--ink);font-weight:600}
+.cmp .lab3{color:var(--muted);font-size:.85rem}
+.cmp .like{font-size:.82rem;min-width:0;grid-column:1/-1;color:var(--muted)}
+.cmp .like b{color:var(--ink);font-weight:600}
+.chain{font-size:.85rem;color:var(--muted)}
+.chain button{all:unset;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.chain button:hover{color:var(--ink)}
+.cols{display:grid;gap:12px}
+@media (min-width:900px){.cols{grid-template-columns:1.25fr 1fr;align-items:start}}
+.inner2{display:grid;gap:14px}
+@media (min-width:640px){.inner2{grid-template-columns:1fr 1fr;align-items:start}}
+.members{display:flex;flex-wrap:wrap;gap:6px}
+.members button{font:500 .78rem var(--body);background:transparent;color:var(--ink);border:1px solid var(--grp);border-radius:999px;padding:4px 10px;cursor:pointer}
+.members button span{color:var(--muted);margin-left:4px}
+.hint{font-size:.85rem;color:var(--muted);margin:0}
+.dq{font-size:.82rem;color:var(--muted);display:grid;gap:4px}
+.dq .warn{color:var(--warn)}
+.spark{width:100%;max-width:440px;height:auto;display:block}
+.spark text{fill:var(--muted);font:400 10px var(--mono)}
+.spark path.l{fill:none;stroke:var(--ink);stroke-width:1.6}
+.spark path.a{fill:var(--r3);opacity:.35}
+.spark circle{fill:var(--sel)}
+.notes{font-size:.82rem;color:var(--muted);max-width:78ch;display:grid;gap:6px}
+.notes p{margin:0}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.78rem;padding:5px 8px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-130%);z-index:3}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+h1{font-variation-settings:"opsz" 96;font-weight:650;letter-spacing:-.01em}
+.kc-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
+.kc-eyebrow a{color:inherit}
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+
+
+<div class="wrap">
+  <header>
+    <p class="kc-eyebrow"><a href="beitraege.html#werkzeuge">Spielwiese</a> · Daten-WG Knowledge Kitchen</p>
+    <h1>Wohlstandsatlas</h1>
+    <p class="lead" id="lead"></p>
+    <p class="sub" id="sub"></p>
+  </header>
+
+  <div class="row scroll" role="group" aria-label="Geschichten"><span class="lab">Geschichten</span><span id="stories" style="display:contents"></span></div>
+  <div class="storybox" id="storybox" hidden><h2 id="storytitle"></h2><p id="storytext"></p><button class="x" type="button" id="storyclose">Geschichte schließen</button></div>
+
+  <div class="row scroll" role="group" aria-label="Kennzahl"><span class="lab">Kennzahl</span><span id="metrics" style="display:contents"></span></div>
+  <p class="explain" id="explain"></p>
+  <details class="settings" id="settings" open><summary>Darstellung</summary><div class="inner">
+    <div class="row scroll" role="group" aria-label="Detailgrad"><span class="lab">Detail</span><span id="levels" style="display:contents"></span></div>
+    <div class="row scroll" role="group" aria-label="Ansicht" id="views"><span class="lab">Ansicht</span>
+      <button class="chip" type="button" data-v="map">Karte</button><button class="chip" type="button" data-v="squares">Quadrate</button>
+      <span class="lab" style="margin-left:10px">Farbstufen</span>
+      <button class="chip" type="button" data-cw="countries">je ⅐ der Länder</button><button class="chip" type="button" data-cw="people">je ⅐ der Menschheit</button></div>
+  </div></details>
+  <div id="sqpanel" class="sqpanel" hidden>
+    <div class="row scroll" role="group" aria-label="Gruppieren nach"><span class="lab">Gruppieren</span><span id="sqgroup" style="display:contents"></span></div>
+    <div class="row scroll" role="group" aria-label="Färben nach"><span class="lab">Färben</span><span id="sqcolor" style="display:contents"></span></div>
+    <div class="row scroll" role="group" aria-label="Was ein Quadrat ist"><span class="lab">Einheit</span><span id="squnit" style="display:contents"></span></div>
+    <div class="sqlegend" id="sqlegend"></div>
+  </div>
+  <div class="mapbox">
+    <canvas id="map" role="img" aria-label="Weltkarte oder Quadrat-Ansicht, nach Kennzahl eingefärbt"></canvas>
+    <div class="zoom" id="zoom"></div>
+    <div class="tip" id="tip" hidden></div>
+  </div>
+  <div class="legend"><div class="bar" id="lbar"></div><div class="ticks" id="lticks"></div><div class="cap" id="lcap"></div>
+    <div class="keys"><span><svg width="16" height="12" aria-hidden="true"><rect width="16" height="12" fill="url(#kNo)"/></svg>Keine Daten</span>
+      <span><svg width="16" height="12" aria-hidden="true"><rect width="16" height="12" fill="var(--r4)"/><rect width="16" height="12" fill="url(#kWhole)"/></svg>Nur Landeswert, keine Regionaldaten</span>
+      <span><svg width="16" height="12" aria-hidden="true"><rect width="16" height="12" fill="var(--r4)"/><rect width="16" height="12" fill="url(#kDisp)"/></svg>Umstrittenes Gebiet</span>
+      <svg width="0" height="0" style="position:absolute"><defs>
+        <pattern id="kNo" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)"><rect width="5" height="5" fill="var(--nodata)"/><line x1="0" y1="0" x2="0" y2="5" stroke="var(--muted)" stroke-width="1.1" stroke-opacity=".55"/></pattern>
+        <pattern id="kWhole" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="7" stroke="var(--hatch)" stroke-width="1"/></pattern>
+        <pattern id="kDisp" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(-45)"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--ink)" stroke-width="1.2" stroke-opacity=".6"/></pattern>
+      </defs></svg></div></div>
+
+  <section class="panel" aria-label="Wie ist die Welt verteilt">
+    <p class="sentence" id="sentence"></p>
+    <div class="hlrow">
+      <div class="row" role="group" aria-label="Hervorheben"><span class="lab">Hervorheben</span>
+        <button class="chip" id="hl-off" type="button">Aus</button>
+        <button class="chip" id="hl-above" type="button">Alle darüber</button>
+        <button class="chip" id="hl-below" type="button">Alle darunter</button>
+      </div>
+      <label class="slider" for="thr"><span class="lab">Schwelle</span>
+        <input type="range" id="thr" min="0" max="1000" step="1"><output id="thrv"></output></label>
+    </div>
+    <div class="stats" id="hlstats"></div>
+    <p class="split3" id="split3"></p>
+    <div><h3 id="disttitle"></h3><svg class="dist" id="dist" role="img" aria-label="Verteilung der Weltbevölkerung nach Kennzahl"></svg></div>
+  </section>
+
+  <div class="find"><input type="text" id="q" list="names" placeholder="Region oder Land suchen, z. B. München, Texas, Japan" autocomplete="off"><datalist id="names"></datalist>
+    <button class="chip grp" id="grpmode" type="button" aria-pressed="false">Gruppe bilden</button>
+    <div class="actions"><button class="chip" type="button" id="cite">Aussage mit Quelle kopieren</button>
+      <button class="chip" type="button" id="png" hidden>Bild speichern</button>
+      <button class="chip" type="button" id="csv" hidden>Tabelle speichern</button>
+      <span class="toast" id="toast" aria-live="polite"></span></div></div>
+
+  <div class="cols">
+    <section class="panel" id="card" aria-live="polite"></section>
+    <section class="panel" id="group"></section>
+  </div>
+  <div class="notes" id="notes"></div>
+</div>
+
+<script src="assets/js/vendor/d3-7.9.0.min.js"></script>
+<script src="assets/js/vendor/topojson-client-3.1.0.min.js"></script>
+<script src="wohlstandsatlas/atlas-data.js"></script>
+<script>
+const TOPO = WA.topo;
+const DATA = WA.data;
+const META = {"eu_avg": 63861.96832288343, "reg_years": {"USA": ["2024"], "AUS": ["2024"], "BOL": ["2023"], "BRA": ["2023"], "CAN": ["2025"], "CHL": ["2024"], "CHN": ["2024"], "COL": ["2024"], "ECU": ["2023"], "EGY": ["2021"], "IDN": ["2024"], "IND": ["2024"], "IRN": ["2018"], "JPN": ["2022"], "KAZ": ["2024"], "KEN": ["2024"], "KOR": ["2024"], "MEX": ["2024"], "MYS": ["2024"], "PER": ["2024"], "PHL": ["2024"], "RUS": ["2024"], "THA": ["2023"], "TZA": ["2024"], "UKR": ["2021"], "UZB": ["2024"], "VNM": ["2024"], "ZAF": ["2024"], "DEU": ["2023"], "BEL": ["2023"], "GRC": ["2023"], "ESP": ["2023"], "FRA": ["2023"], "ITA": ["2023"], "MLT": ["2023"], "NLD": ["2023"], "PRT": ["2023"], "TUR": ["2023"], "ALB": ["2022"], "AUT": ["2023"], "BGR": ["2023"], "CZE": ["2023"], "DNK": ["2023"], "EST": ["2023"], "FIN": ["2023"], "HRV": ["2023"], "HUN": ["2023"], "IRL": ["2023"], "LTU": ["2023"], "LVA": ["2023"], "MKD": ["2023"], "POL": ["2023"], "ROU": ["2023"], "SRB": ["2023"], "SWE": ["2023"], "SVN": ["2023"], "SVK": ["2023"], "GBR": ["2023"], "CHE": ["2024"], "NOR": ["2023"]}, "small_pop": 50000, "link": "https://datenwgknowledgekitchen.com/wohlstandsatlas.html", "target": "kitchen", "subtitle": "Länder 2024 · Verteilung innerhalb der Länder 2018–2025, hochgerechnet auf 2024 · 217 Länder und Gebiete, 6.051 Regionen in 60 Ländern, 674 Metropolregionen", "notes": "<p><b>Was du siehst.</b> Wirtschaftsleistung, Haushaltskonsum und Bevölkerungsdichte für 217 Länder und Gebiete und ihre Regionen. Länder ohne amtliche Regionaldaten sind schraffiert und werden als Ganzes gezeigt.</p>\n<p><b>Länderwerte.</b> Weltbank (World Development Indicators, Stand Oktober 2026, Jahr 2024). Wo die Weltbank nur alte Werte hat (Venezuela, Jemen, Südsudan) oder ein Gebiet fehlt (Taiwan, Puerto Rico), stammen die Werte vom Internationalen Währungsfonds (World Economic Outlook, Oktober 2026). Eritrea, Kuba und Nordkorea haben nur alte oder keine Werte.</p>\n<p><b>So werden Regionen berechnet.</b> Jede Region bekommt ihren Anteil am BIP und an der Bevölkerung ihres Landes laut nationaler Statistik und diesen Anteil an den Landeswerten 2024. So summieren sich Regionen genau zum Land, und jede Ebene deckt die ganze Welt ab. Wirtschaftsleistung ohne Region (US-Bundesaktivität im Ausland, Norwegens Förderung auf See) ist als eigene Einheit ohne Kartenfläche geführt. Die Jahre der Regionaldaten unterscheiden sich je Land (meist 2023–2025, Ukraine 2021, Iran 2018); sie bestimmen nur die Verteilung innerhalb des Landes.</p>\n<p><b>Regionale Quellen.</b> Europa: Eurostat (NUTS-3, meist 2023), Schweiz BFS, Norwegen SSB, Großbritannien ONS. USA: BEA und Census Bureau (Bundesstaaten und Counties 2024). Kanada: Statistics Canada. Mexiko: INEGI. Brasilien: IBGE. Russland: Rosstat. Japan: Cabinet Office. Südkorea: KOSTAT. China: NBS und städtische Statistikkommuniqués. Indien: MOSPI. Weitere Länder: die nationalen Statistikämter; Quelle und Jahr stehen bei jeder Region. Grenzen: Eurostat GISCO, US Census, Natural Earth.</p>\n<p><b>Kennzahlen.</b> KKP = Kaufkraftparität in internationalen Dollar (Int.$). „Haushalte/Kopf“: Länder = Konsumausgaben der privaten Haushalte (Weltbank); Regionen = Landeswert × regionales verfügbares Einkommen pro Kopf im Verhältnis zum Land (Eurostat, ONS, BEA, Statistics Canada, NBS, Cabinet Office, KOSTAT). „Regionale Kaufkraft“ nutzt regionale Preisindizes, wo es sie gibt (USA: BEA, Deutschland: Kreise); sonst gilt das Preisniveau des Landes. BNE = Bruttonationaleinkommen (Weltbank; Irland: GNI* des CSO). EU-Index = BIP pro Kopf (KKP) im Verhältnis zum EU-27-Schnitt, eine Annäherung an die offizielle Einstufung. Gini = Einkommensungleichheit innerhalb eines Landes (Weltbank über Gapminder, jüngster Wert bis 2024), dieselben Werte wie im <a href=\"laender-indikatoren-explorer.html\">Länder-Indikatoren-Explorer</a> der Knowledge Kitchen.</p>\n<p><b>Ränge und Ausreißer.</b> Einheiten unter 50.000 Einwohnern bekommen keinen Rang und keinen Ländervergleich: Einzelne Ölfelder oder Firmen verzerren dort alles. Regionen mit mehr als doppelt so hohem BIP pro Kopf wie ihr Land sind markiert (Pendler, Konzernsitze, Rohstoffe). Die Verteilungsgrafik kappt die obersten 0,5 % der Bevölkerung; gekappte Balken haben ein kleines Dreieck.</p>\n<p><b>Anteile an der Welt.</b> Bezugsgröße ist immer die gesamte Weltbevölkerung aller Länder (8,1 Mrd.); wer keine Daten hat, wird als „ohne Daten“ ausgewiesen. Der Anteil „darunter“ hängt von der Ebene ab: Feinere Regionen zeigen die Unterschiede genauer.</p>\n<p><b>Umstrittene Gebiete</b> sind schraffiert markiert, mit dem Status im Tooltip. Die Krim hat keine Daten; die russischen Werte enthalten weder die Krim noch die 2022 besetzten Gebiete.</p>\n<p><b>Grenzen der Methode.</b> Preise innerhalb eines Landes gelten außer in den USA und Deutschland als gleich. Das BIP zählt am Arbeitsort, die Bevölkerung am Wohnort – Kernstädte wirken deshalb reicher als ihr Umland; die Ebene „Metropolregionen“ gleicht das aus, wo es sie gibt. Die Daten einiger Länder (China, Russland) gelten als weniger verlässlich.</p>\n"};
+const TS = WA.ts;
+
+// ---------- formatting (German, 3 significant digits for values) ----------
+const de = d3.formatLocale({decimal:",",thousands:".",grouping:[3],currency:["",""]});
+const f0 = de.format(",.0f"), f1 = de.format(",.1f");
+const sig = (v,n=3)=>{ if(!v) return v; const p=Math.pow(10, Math.floor(Math.log10(Math.abs(v)))-(n-1)); return Math.round(v/p)*p; };
+function nice(v){ if(v==null||!isFinite(v)) return "–"; const s=sig(v); return Math.abs(s)>=10?f0(s):f1(s); }
+function big(v){ if(v==null||!isFinite(v)) return "–"; const a=Math.abs(v);
+  if(a>=1e12) return f1(v/1e12)+" Bio."; if(a>=1e9) return f1(v/1e9)+" Mrd."; if(a>=1e6) return f1(v/1e6)+" Mio."; if(a>=1e4) return f0(sig(v)); return f0(v); }
+const r2 = de.format(",.2r");
+function pct(x){ if(x==null||!isFinite(x)) return "–"; const p=x*100;
+  if(p>99.9&&p<100) return "über 99,9 %"; if(p>0&&p<0.01) return "unter 0,01 %";
+  return (p>=10?f0(p):p>=1?f1(p):r2(p))+" %"; }
+function tick(v){ if(v==null) return ""; const a=Math.abs(v);
+  if(a>=1e12) return f0(v/1e12)+" Bio."; if(a>=1e9) return f0(v/1e9)+" Mrd."; if(a>=1e6) return f0(v/1e6)+" Mio."; if(a>=1e4) return f0(v/1e3)+" Tsd."; if(a>=1000) return f0(sig(v,2)); return a<10?f1(v):f0(v); }
+const IS="Int.$";
+const METRICS = [
+  {k:"gdp_pc_ppp", label:"BIP/Kopf (KKP)", unit:"internationale Dollar, laufende Preise", fmt:v=>nice(v)+" "+IS, word:["höherem","niedrigerem"], noun:"BIP pro Kopf (KKP)",
+   info:"<b>Wirtschaftsleistung pro Einwohner</b>, kaufkraftbereinigt: 1 internationaler Dollar kauft überall so viel wie 1 US-Dollar in den USA. Gezählt wird am Arbeitsort."},
+  {k:"hh_pc_ppp", label:"Haushalte/Kopf (KKP)", unit:"internationale Dollar", fmt:v=>nice(v)+" "+IS, word:["höherem","niedrigerem"], noun:"Haushaltskonsum pro Kopf",
+   info:"<b>Was bei den Menschen ankommt:</b> Länder = Konsumausgaben der Haushalte pro Kopf; Regionen = dieser Wert × regionales Haushaltseinkommen im Verhältnis zum Land. Gezählt wird am Wohnort, deshalb ohne Pendler- und Konzern-Effekte."},
+  {k:"gdp_pc_rp", label:"Regionale Kaufkraft", unit:"internationale Dollar zu regionalen Preisen", fmt:v=>nice(v)+" "+IS, word:["höherer","niedrigerer"], noun:"BIP pro Kopf zu regionalen Preisen",
+   info:"<b>BIP pro Kopf, bereinigt um regionale Preise</b> (Mieten, Dienstleistungen). Regionale Preisindizes gibt es hier für die USA und Deutschland; überall sonst gilt das Landespreisniveau."},
+  {k:"gdp_pc_ppp_real", label:"BIP/Kopf real", unit:"internationale Dollar, Preise 2021", fmt:v=>nice(v)+" "+IS, word:["höherem","niedrigerem"], noun:"reales BIP pro Kopf",
+   info:"<b>BIP pro Kopf in konstanten Preisen von 2021.</b> Für den Vergleich über die Zeit gedacht – siehe Verlauf 2000–2024 in der Profilkarte."},
+  {k:"gdp_pc_usd", label:"BIP/Kopf nominal", unit:"US-Dollar, laufende Preise", fmt:v=>nice(v)+" US$", word:["höherem","niedrigerem"], noun:"nominales BIP pro Kopf",
+   info:"<b>BIP pro Kopf in US-Dollar zum Wechselkurs</b>, ohne Kaufkraftbereinigung. Zeigt, was eine Wirtschaft auf dem Weltmarkt wert ist."},
+  {k:"gni_pc_ppp", label:"BNE/Kopf (KKP)", unit:"internationale Dollar", fmt:v=>nice(v)+" "+IS, word:["höherem","niedrigerem"], noun:"Nationaleinkommen pro Kopf", countryOnly:true,
+   info:"<b>Bruttonationaleinkommen pro Kopf</b>: was den Einwohnern eines Landes zufließt (Irland: bereinigtes Nationaleinkommen GNI*). Nur auf Länderebene verfügbar."},
+  {k:"eu_index", label:"EU-Index", unit:"BIP/Kopf (KKP) in % des EU-27-Schnitts", fmt:v=>f0(v)+" (EU = 100)", word:["höherem","niedrigerem"], noun:"BIP pro Kopf im EU-Vergleich", scope:"EU",
+   thresholds:[50,75,90,100,125,150],
+   info:"<b>BIP pro Kopf in % des EU-Durchschnitts.</b> Unter 75 gelten Regionen in der EU-Kohäsionspolitik als „weniger entwickelt“. Die offizielle Einstufung nutzt NUTS-2, Kaufkraftstandards und Dreijahresmittel – hier eine Annäherung."},
+  {k:"gdp_usd", label:"BIP gesamt", unit:"US-Dollar, laufende Preise", fmt:v=>big(v)+" US$", log:true, word:["größerer","kleinerer"], noun:"Wirtschaftsleistung", total:true,
+   info:"<b>Gesamte Wirtschaftsleistung</b> in US-Dollar. Große Einheiten gewinnen automatisch – für Wohlstand die Pro-Kopf-Werte nutzen."},
+  {k:"density", label:"Bevölkerungsdichte", unit:"Einwohner je km²", fmt:v=>nice(v)+" Einw./km²", log:true, word:["höherer","niedrigerer"], noun:"Bevölkerungsdichte",
+   info:"<b>Einwohner je km².</b> Regionen: Gesamtfläche aus den Grenzen; Länder: Landfläche."},
+  {k:"gini", label:"Ungleichheit (Gini)", unit:"Gini-Index der Einkommen, 0–100", fmt:v=>f1(v), word:["höherer","niedrigerer"], noun:"Einkommensungleichheit (Gini)", countryOnly:true, invert:true, last:true,
+   info:"<b>Wie ungleich die Einkommen innerhalb eines Landes verteilt sind:</b> 0 = alle haben gleich viel, 100 = einer hat alles. Weltbank (über Gapminder), jüngster Wert bis 2024 – dieselben Zahlen wie im Länder-Indikatoren-Explorer der Knowledge Kitchen. Nur auf Länderebene."}
+];
+const LEVELS = ["Länder","Bundesländer-Ebene","Feinste Ebene","Metropolregionen"];
+const LEVEL_INFO = ["Jedes Land als Ganzes.","Erste Verwaltungsebene: Bundesländer, US-Bundesstaaten, Kantone, Provinzen, Präfekturen.",
+  "Das Kleinste, was es gibt: Kreise und NUTS-3-Regionen in Europa, Counties in den USA, Präfekturen in China.",
+  "Funktionale Räume: Städte samt Umland (EU-Metropolregionen, US-Metropolregionen) und der ländliche Rest. Ohne Pendler-Verzerrung."];
+const fill = i=>`var(--r${i+1})`;
+const DQ_NOTE = {CHN:"Chinas Regionaldaten gelten als weniger verlässlich; Städte melden teils geschönte Zahlen, die nicht mit den Provinzsummen abgestimmt sind.",
+  RUS:"Russische Daten seit 2022 sind eingeschränkt prüfbar; die Werte enthalten weder die Krim noch die 2022 besetzten Gebiete.",
+  IND:"Indiens Bevölkerung je Bundesstaat beruht auf Projektionen; der letzte Zensus ist von 2011.",
+  IRL:"Irlands BIP ist durch Gewinne internationaler Konzerne stark überhöht. Das bereinigte Nationaleinkommen (BNE-Kennzahl) liegt deutlich niedriger.",
+  LUX:"Luxemburgs BIP pro Kopf ist durch rund 230.000 Grenzpendler überhöht, die dort arbeiten, aber nicht wohnen.",
+  VEN:"Venezuela: Weltbankwerte veraltet, hier ersetzt durch IWF-Schätzungen mit großer Unsicherheit.",
+  NOR:"Norwegens Öl- und Gasförderung auf See gehört zu keiner Provinz und ist als eigene Einheit (ohne Kartenfläche) geführt.",
+  UKR:"Ukrainische Regionaldaten sind von 2021, vor dem russischen Angriff. Für Donezk und Luhansk umfasst das BIP nur den damals von der Regierung kontrollierten Teil, die Einwohner aber das ganze Gebiet – die Pro-Kopf-Werte dort sind zu niedrig.",
+  IRN:"Irans Regionaldaten sind von 2018 (letztes verfügbares Statistisches Jahrbuch), die Bevölkerung vom Zensus 2016.",
+  KEN:"Kenias Regionen folgen den alten acht Provinzen; die Bevölkerung je Provinz ist aus Pro-Kopf-Werten abgeleitet.",
+  EGY:"Ägyptens Regionaldaten sind von 2021 (Planungsministerium).",
+  UZB:"Usbekistan ordnet rund 13 % seines BIP keiner Region zu; die Regionswerte sind auf das ganze Land hochgerechnet.",
+  MYS:"Malaysias Offshore-Förderung (rund 3,5 % des BIP) gehört zu keinem Bundesstaat und ist anteilig verteilt.",
+  CHL:"Chile ordnet rund 10 % seines BIP keiner Region zu; die Regionswerte sind auf das ganze Land hochgerechnet.",
+  COL:"Bogotá und Cundinamarca bilden in den Kartengrenzen eine Einheit.",
+  AUS:"Australiens Werte beziehen sich auf das Fiskaljahr 2024/25.",
+  VNM:"Vietnams Provinzen in den Grenzen vor der Gebietsreform vom Juli 2025; BIP aus Pro-Kopf-Werten abgeleitet."};
+
+// ---------- data ----------
+const units = DATA.units, byId = new Map(units.map(u=>[u.id,u]));
+units.forEach((u,i)=>u._i=i);
+const countries = units.filter(u=>u.kind==="Land/Gebiet");
+const peers = countries.filter(u=>u.pop>=1e6);
+const WORLD = {pop:d3.sum(countries,u=>u.pop||0), ppp:d3.sum(countries,u=>u.gdp_ppp||0), usd:d3.sum(countries,u=>u.gdp_usd||0)};
+const ranked = u=> u.pop>=META.small_pop || u.kind==="Land/Gebiet";
+
+let metric = METRICS[0], level = 2, hlMode = "off", thr = null, groupMode = false, classMode = "countries", story = null;
+const group = new Set();
+let selected = byId.get("DE300") || byId.get("DEU");
+const atLevel = ()=>units.filter(u=>u.lv.includes(level) && !u.nogeo);
+const atLevelAll = ()=>units.filter(u=>u.lv.includes(level));
+
+// ---------- square mode: each square = 5 million people (default) or one region, binned and coloured ----------
+const CONTS = ["Afrika","Asien","Europa","Nord- & Mittelamerika","Südamerika","Ozeanien"];
+const CONT_SHORT = {"Nord- & Mittelamerika":"N-Amerika","Südamerika":"S-Amerika"};
+const PEOPLE_STEP = 5e6;
+let view = "map", sqGroup = "gdp_pc_ppp", sqColor = "cont", sqUnit = "people", sqDirty = true;
+let squares = [], sqBins = [], sqAnim = null, sqS = 4;
+
+const keyCont = u => CONTS.indexOf(u.ct);
+function groupDef(){
+  if(sqGroup==="cont") return {n:CONTS.length, of:u=>keyCont(u), label:i=>CONTS[i], short:i=>CONT_SHORT[CONTS[i]]||CONTS[i]};
+  const m = METRICS.find(x=>x.k===sqGroup) || metric, sc = scaleOf(m.k);
+  const edges = m.thresholds ? [-Infinity, ...m.thresholds, Infinity] : [sc.lo, ...sc.q, Infinity];
+  const lab = v=> v===-Infinity?"":tick(v);
+  return {n:7, of:u=>u[m.k]==null?-1:sc.cls(u[m.k]),
+    label:i=> i===0&&m.thresholds ? `< ${edges[1]}` : i===6 ? `${lab(edges[6])} +` : `${lab(edges[i])}–${lab(edges[i+1])}`,
+    short:i=> i===0&&m.thresholds ? `<${edges[1]}` : `${lab(edges[i])}${i===6?"+":""}`, m};
+}
+function colorOf(u){
+  if(hlMode!=="off" && !passes(u)) return C.dim;
+  if(sqColor==="cont") return C.c[keyCont(u)] || C.nodata;
+  const v = u[sqColor]; return v==null ? C.nodata : C.r[scaleOf(sqColor).cls(v)];
+}
+function colorKey(u){ return sqColor==="cont" ? keyCont(u) : (u[sqColor]==null ? -1 : scaleOf(sqColor).cls(u[sqColor])); }
+
+function layoutSquares(){
+  const gd = groupDef(), list = atLevel().filter(u=>u.pop), sortK = gd.m ? gd.m.k : metric.k;
+  const bins = d3.range(gd.n).map(i=>({i, label:gd.label(i), short:gd.short(i), units:[], pop:0}));
+  for(const u of list){ const b=gd.of(u); if(b>=0&&bins[b]){ bins[b].units.push(u); bins[b].pop+=u.pop; } }
+  for(const b of bins) b.units.sort((a,c)=> (colorKey(c)-colorKey(a)) || ((c[sortK]||0)-(a[sortK]||0)));
+  for(const b of bins){
+    b.sq = [];
+    if(sqUnit==="region") b.units.forEach(u=>b.sq.push({u, key:u.id}));
+    else { const n=Math.round(b.pop/PEOPLE_STEP); let acc=0, j=0;
+      for(let i=0;i<n;i++){ const t=(i+.5)*PEOPLE_STEP; while(j<b.units.length-1 && acc+b.units[j].pop<t){ acc+=b.units[j].pop; j++; } b.sq.push({u:b.units[j], key:b.units[j].id+"#"+i}); } }
+  }
+  const padX=6, top=34, bottom=36, W=CW, H=CH, bw=(W-padX*(bins.length+1))/bins.length, ah=H-top-bottom;
+  let lo=.6, hi=40;
+  for(let it=0;it<30;it++){ const s=(lo+hi)/2, cols=Math.max(1,Math.floor(bw/s));
+    const ok=bins.every(b=>Math.ceil(b.sq.length/cols)*s<=ah); if(ok) lo=s; else hi=s; }
+  const s=lo, cols=Math.max(1,Math.floor(bw/s)); sqS=s;
+  const next=[];
+  bins.forEach((b,bi)=>{
+    const x0=padX+bi*(bw+padX)+(bw-cols*s)/2;
+    b.x=padX+bi*(bw+padX); b.w=bw;
+    b.sq.forEach((q,i)=>{ q.x=x0+(i%cols)*s; q.y=H-bottom-(Math.floor(i/cols)+1)*s; q.s=s; q.c=colorOf(q.u); next.push(q); });
+    b.topY = H-bottom-Math.ceil(b.sq.length/cols)*s;
+  });
+  const from = new Map(squares.map(q=>[q.key,q]));
+  for(const q of next){ const p=from.get(q.key); q.fx=p?p.x:q.x; q.fy=p?p.y:H-bottom; q.fs=p?p.s:0; }
+  squares=next; sqBins=bins; sqDirty=false;
+  sqAnim = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? null : {t0:performance.now(), d:650};
+}
+function drawSquares(){
+  if(sqDirty) layoutSquares();
+  const now=performance.now(); let t=1;
+  if(sqAnim){ t=Math.min(1,(now-sqAnim.t0)/sqAnim.d); t=d3.easeCubicInOut(t); if(t>=1) sqAnim=null; }
+  cx.setTransform(dpr,0,0,dpr,0,0); cx.fillStyle=C.surface; cx.fillRect(0,0,CW,CH);
+  const gap = sqS>=3 ? Math.max(.5, sqS*.14) : 0;
+  for(const q of squares){
+    const x=q.fx+(q.x-q.fx)*t, y=q.fy+(q.y-q.fy)*t, s=(q.fs+(q.s-q.fs)*t)-gap;
+    if(s<=0) continue; cx.fillStyle=q.c; cx.fillRect(x,y,s,s);
+  }
+  for(const q of squares){ if(group.has(q.u.id)){ cx.strokeStyle=C.grp; cx.lineWidth=Math.max(1,sqS*.18); cx.strokeRect(q.x+.5,q.y+.5,q.s-gap-1,q.s-gap-1); } }
+  for(const q of squares){ if(q.u===selected){ cx.strokeStyle=C.sel; cx.lineWidth=Math.max(1.5,sqS*.25); cx.strokeRect(q.x,q.y,q.s-gap,q.s-gap); } }
+  const narrow = CW<560;
+  cx.textAlign="center"; cx.fillStyle=C.muted;
+  for(const b of sqBins){
+    const mid=b.x+b.w/2;
+    cx.font=`500 ${narrow?10:11}px ${C.mono}`;
+    cx.fillText(narrow? b.short : b.label, mid, CH-20);
+    cx.font=`400 ${narrow?9:10}px ${C.mono}`;
+    const cnt = sqUnit==="region" ? f0(b.units.length) : big(b.pop);
+    cx.fillText(cnt, mid, Math.min(CH-40, b.topY-6));
+    cx.fillText(pct(b.pop/WORLD.pop), mid, CH-7);
+  }
+  if(sqAnim) redraw();
+}
+function hitSquares(mx,my){ for(const q of squares){ if(mx>=q.x&&mx<q.x+q.s&&my>=q.y&&my<q.y+q.s) return q; } return null; }
+function sqTip(q){ return tipText(q.u) + (sqUnit==="people" ? " · 1 Quadrat = 5 Mio. Menschen" : ""); }
+
+function sqLegend(){
+  const el=document.getElementById("sqlegend");
+  if(sqColor==="cont") el.innerHTML = CONTS.map((c,i)=>`<span><i style="background:var(--c${i+1})"></i>${c}</span>`).join("");
+  else { const m=METRICS.find(x=>x.k===sqColor), sc=scaleOf(sqColor);
+    const t = m.thresholds ? ["< "+m.thresholds[0], ...m.thresholds.map(String)] : [sc.lo,...sc.q].map(v=>tick(v)+"+");
+    el.innerHTML = `<span class="lab2">${m.label}</span>` + t.map((v,i)=>`<span><i style="background:var(--r${i+1})"></i>${v}</span>`).join(""); }
+  if(hlMode!=="off") el.innerHTML += `<span><i style="background:var(--dim);border:1px solid var(--line)"></i>außerhalb der Schwelle</span>`;
+  el.innerHTML += `<span style="flex-basis:100%">Über jeder Säule: ${sqUnit==="region"?"Zahl der Regionen":"Zahl der Menschen"} · darunter: Anteil an der Weltbevölkerung. Antippen wählt die Region aus.</span>`;
+  if(sqUnit==="region"){ const lv=atLevel(); const top=d3.rollups(lv,v=>v.length,u=>u.country).sort((a,b)=>b[1]-a[1])[0];
+    if(top && top[1]/lv.length>.25) el.innerHTML += `<span class="note">Achtung: ${pct(top[1]/lv.length)} der Einheiten auf dieser Ebene liegen in ${byId.get(top[0]).name}. Pro Region gezählt dominiert die Gebietsgliederung – „5 Mio. Menschen“ zeigt die Welt fairer.</span>`; }
+}
+function sqControls(){
+  const opts = [{k:"cont",label:"Kontinent"}, ...METRICS.filter(m=>!m.countryOnly||level===0).map(m=>({k:m.k,label:m.label}))];
+  const fillChips = (id, cur, set) => d3.select("#"+id).selectAll("button").data(opts,d=>d.k).join("button").attr("type","button").attr("class","chip")
+    .text(d=>d.label).attr("aria-pressed",d=>d.k===cur).on("click",(e,d)=>{ set(d.k); sqDirty=true; sqControls(); redraw(); writeHash(); });
+  fillChips("sqgroup", sqGroup, k=>{ sqGroup=k; });
+  fillChips("sqcolor", sqColor, k=>{ sqColor=k; });
+  d3.select("#squnit").selectAll("button").data([["people","1 Quadrat = 5 Mio. Menschen"],["region","1 Quadrat = 1 Region"]]).join("button")
+    .attr("type","button").attr("class","chip").text(d=>d[1]).attr("aria-pressed",d=>d[0]===sqUnit).on("click",(e,d)=>{ sqUnit=d[0]; sqDirty=true; sqControls(); redraw(); writeHash(); });
+  sqLegend();
+}
+function setView(v, silent){
+  view=v; tipEl.hidden=true;
+  document.querySelectorAll("#views .chip[data-v]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===view));
+  document.getElementById("sqpanel").hidden = view!=="squares";
+  document.getElementById("zoom").hidden = view!=="map";
+  document.querySelector(".legend").hidden = view!=="map";
+  cv.style.cursor = view==="map" ? "grab" : "default";
+  if(view==="squares"){ squares=[]; sqDirty=true; sqControls(); }
+  redraw(); if(!silent) writeHash();
+}
+document.querySelectorAll("#views .chip[data-v]").forEach(b=>b.onclick=()=>{ setView(b.dataset.v); });
+
+
+// ---------- theme colours for canvas (CSS tokens resolved at draw time) ----------
+let C = {}, PAT = {};
+function readTheme(){
+  const cs = getComputedStyle(document.documentElement), v = n=>cs.getPropertyValue(n).trim();
+  C = {sea:v("--sea"), bg:v("--bg"), surface:v("--surface"), ink:v("--ink"), muted:v("--muted"), line:v("--line"), nodata:v("--nodata"),
+       dim:v("--dim"), sel:v("--sel"), grp:v("--grp"), hatch:v("--hatch"),
+       r:[1,2,3,4,5,6,7].map(i=>v("--r"+i)), c:[1,2,3,4,5,6].map(i=>v("--c"+i)), mono:v("--mono"), body:v("--body"), display:v("--display")};
+  PAT = {};
+}
+function hatch(bg, fg, alpha, size=6, dir=1){   // diagonal hatch as a canvas pattern, constant on screen
+  const key = [bg,fg,alpha,size,dir].join("|"); if(PAT[key]) return PAT[key];
+  const n = Math.round(size*dpr), c = document.createElement("canvas"); c.width = c.height = n; const x = c.getContext("2d");
+  if(bg){ x.fillStyle = bg; x.fillRect(0,0,n,n); }
+  x.strokeStyle = fg; x.globalAlpha = alpha; x.lineWidth = 1.1*dpr; x.beginPath();
+  if(dir>0){ x.moveTo(-1,n+1); x.lineTo(n+1,-1); x.moveTo(-1,1); x.lineTo(1,-1); x.moveTo(n-1,n+1); x.lineTo(n+1,n-1); }
+  else { x.moveTo(-1,-1); x.lineTo(n+1,n+1); x.moveTo(n-1,-1); x.lineTo(n+1,1); x.moveTo(-1,n-1); x.lineTo(1,n+1); }
+  x.stroke();
+  return PAT[key] = x.createPattern(c, "repeat");
+}
+
+// ---------- colour classes ----------
+const SCALES = {};
+function scaleOf(k){
+  if(SCALES[k]) return SCALES[k];
+  const M = METRICS.find(m=>m.k===k) || {};
+  let q;
+  if(M.thresholds) q = M.thresholds;
+  else {
+    const list = countries.filter(u=>u[k]!=null&&u.pop);
+    if(classMode==="people"){ // 7 classes with equal population each
+      const s=list.slice().sort((a,b)=>a[k]-b[k]), tot=d3.sum(s,u=>u.pop); q=[]; let acc=0, j=1;
+      for(const u of s){ acc+=u.pop; while(j<7 && acc>=j/7*tot){ q.push(u[k]); j++; } }
+    } else q = d3.scaleQuantile().domain(list.map(u=>u[k])).range(d3.range(7)).quantiles();
+  }
+  const lo = M.thresholds ? null : d3.min(countries, u=>u[k]);
+  return SCALES[k] = {cls:v=>d3.bisectRight(q,v), q, lo};
+}
+
+// ---------- map (canvas) ----------
+const BW = 960, BH = 500;
+const O = TOPO.objects;
+function rewind(f){ const gm=f.geometry; if(!gm) return f;
+  const polys = gm.type==="Polygon"?[gm.coordinates]:gm.type==="MultiPolygon"?gm.coordinates:[];
+  for(const poly of polys) for(const ring of poly){ if(d3.geoArea({type:"Polygon",coordinates:[ring]})>2*Math.PI) ring.reverse(); }
+  return f; }
+const feat = name => O[name] ? topojson.feature(TOPO, O[name]).features.map(rewind) : [];
+const LAYER_NAMES = ["countries","us","n1","n2","n3","adm1","uscounties","cnpref","ovs1","ovs2","ovs3","metro","disputed"];
+const LAYERS = Object.fromEntries(LAYER_NAMES.map(n=>[n,feat(n)]));
+const SUBLAYERS = ["us","adm1","n1","n2","n3","uscounties","cnpref","ovs1","ovs2","ovs3","metro"];
+const proj = d3.geoEqualEarth().fitExtent([[6,6],[BW-6,BH-6]], {type:"FeatureCollection",features:LAYERS.countries});
+const path = d3.geoPath(proj);
+const P2 = new Map();
+function geom(f){ let o=P2.get(f); if(!o){ o={p:new Path2D(path(f)||""), b:path.bounds(f), c:path.centroid(f), f}; P2.set(f,o); } return o; }
+const borderPath = new Path2D(path(topojson.mesh(TOPO,O.countries,(a,b)=>a!==b)));
+const dispItems = LAYERS.disputed.map(geom);
+// members of metro units, for selection and groups
+units.forEach(u=>{ if(u.mem) u._members=u.mem; });
+
+const mapbox = document.querySelector(".mapbox"), cv = document.getElementById("map"), cx = cv.getContext("2d");
+let CW=0, CH=0, dpr=1, s0=1, oy=0, T=d3.zoomIdentity;
+let items = [], strokeAll = new Path2D();
+function sizeCanvas(){
+  dpr = Math.min(3, window.devicePixelRatio||1);
+  CW = mapbox.clientWidth;
+  CH = Math.round(CW < 560 ? Math.min(window.innerHeight*0.6, CW*0.62) : Math.min(CW*0.52, window.innerHeight*0.78));
+  cv.style.height = CH+"px"; cv.width = Math.round(CW*dpr); cv.height = Math.round(CH*dpr);
+  s0 = CW/BW; oy = (CH - BH*s0)/2; PAT = {};
+  zoom.extent([[0,0],[CW,CH]]).translateExtent([[0,Math.min(0,oy)],[CW,Math.max(CH,CH-oy)]]);
+}
+function featuresForLevel(){
+  const out=[];
+  for(const f of LAYERS.countries){ const u=byId.get(f.properties.id); if(!u||u.lv.includes(level)) out.push(f); }
+  if(level>0) for(const L of SUBLAYERS) for(const f of LAYERS[L]){ const u=byId.get(f.properties.id); if(u&&u.lv.includes(level)) out.push(f); }
+  return out;
+}
+function drawLevel(){
+  items = featuresForLevel().map(f=>{ const g=geom(f); return {g, u:byId.get(f.properties.id), fill:null}; });
+  strokeAll = new Path2D(); for(const it of items) strokeAll.addPath(it.g.p);
+  sqDirty=true;
+}
+function applyT(c){ c.setTransform(dpr,0,0,dpr,0,0); c.translate(T.x,T.y); c.scale(T.k,T.k); c.translate(0,oy); c.scale(s0,s0); }
+let raf=0; function redraw(){ if(!raf) raf=requestAnimationFrame(()=>{ raf=0; view==="map"?drawMap():drawSquares(); }); }
+const toScreen = p=>[ (p[0]*s0)*T.k+T.x, (p[1]*s0+oy)*T.k+T.y ];
+function drawMap(){
+  const k = T.k*s0, px = 1/k;
+  cx.setTransform(1,0,0,1,0,0); cx.fillStyle=C.sea; cx.fillRect(0,0,cv.width,cv.height);
+  applyT(cx);
+  const vx0=(-T.x/T.k)/s0, vx1=((CW-T.x)/T.k)/s0, vy0=(-T.y/T.k-oy)/s0, vy1=((CH-T.y)/T.k-oy)/s0;
+  const vis = b=>!(b[1][0]<vx0||b[0][0]>vx1||b[1][1]<vy0||b[0][1]>vy1);
+  const mat = new DOMMatrix().scale(1/(T.k*s0));
+  const noData = hatch(C.nodata, C.muted, .55), whole = hatch(null, C.hatch, 1, 8), dispT = hatch(null, C.ink, .55, 6, -1), dispO = hatch(C.nodata, C.ink, .6, 6, -1);
+  [noData, whole, dispT, dispO].forEach(p=>p.setTransform(mat));
+  for(const it of items){ if(!vis(it.g.b)) continue; cx.fillStyle = it.fill || noData; cx.fill(it.g.p); }
+  if(level>0 && !metric.countryOnly) for(const it of items){ if(it.u&&it.u.kind==="Land/Gebiet"&&vis(it.g.b)){ cx.fillStyle=whole; cx.fill(it.g.p); } }
+  cx.lineJoin="round";
+  cx.strokeStyle=C.bg; cx.globalAlpha = Math.min(1, .35+.12*T.k); cx.lineWidth = Math.min(.8, .12+.06*T.k)*px; cx.stroke(strokeAll); cx.globalAlpha=1;
+  cx.strokeStyle=C.ink; cx.globalAlpha=.55; cx.lineWidth=.8*px; cx.stroke(borderPath); cx.globalAlpha=1;
+  for(const it of dispItems){ if(!vis(it.b)) continue; cx.fillStyle = it.f.properties.opaque ? dispO : dispT; cx.fill(it.p);
+    cx.setLineDash([2*px,2*px]); cx.strokeStyle=C.ink; cx.lineWidth=.7*px; cx.stroke(it.p); cx.setLineDash([]); }
+  for(const it of items){ if(it.u&&group.has(it.u.id)){ cx.strokeStyle=C.grp; cx.lineWidth=2*px; cx.stroke(it.g.p); } }
+  for(const it of items){ if(it.u===selected){ cx.strokeStyle=C.bg; cx.lineWidth=4.5*px; cx.stroke(it.g.p); cx.strokeStyle=C.sel; cx.lineWidth=2.4*px; cx.stroke(it.g.p); } }
+  labels(vis);
+}
+// labels: the selected place, the extremes on screen, and named places of the active story
+function labels(vis){
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  const k=metric.k, placed=[], out=[];
+  const sel = items.find(i=>i.u===selected);
+  if(sel) out.push({it:sel, text:selected.name, strong:true});
+  const onScreen = items.filter(i=>i.u&&i.u[k]!=null&&ranked(i.u)&&i.u.pop>=1e6&&vis(i.g.b)&&i!==sel&&(i.g.b[1][0]-i.g.b[0][0])*s0*T.k>14);
+  if(!metric.total && onScreen.length>4){
+    const s=onScreen.slice().sort((a,b)=>b.u[k]-a.u[k]);
+    s.slice(0,3).concat(s.slice(-2)).forEach(i=>out.push({it:i, text:`${i.u.name} ${metric.fmt(i.u[k]).replace(" "+IS,"").replace(" US$","")}`}));
+  }
+  const fs = CW<560?11:12;
+  for(const o of out){
+    let [x,y]=toScreen(o.it.g.c); if(!isFinite(x)) continue;
+    cx.font=`${o.strong?600:500} ${fs}px ${C.body}`; const w=cx.measureText(o.text).width;
+    const r={x:x-w/2-3,y:y-fs-2,w:w+6,h:fs+6};
+    if(r.x<2||r.y<2||r.x+r.w>CW-2||r.y+r.h>CH-2) continue;
+    if(placed.some(p=>!(r.x>p.x+p.w||r.x+r.w<p.x||r.y>p.y+p.h||r.y+r.h<p.y))) continue;
+    placed.push(r);
+    cx.lineWidth=3.5; cx.strokeStyle=C.bg; cx.lineJoin="round"; cx.miterLimit=2; cx.textAlign="center";
+    cx.strokeText(o.text,x,y-3); cx.fillStyle=o.strong?C.sel:C.ink; cx.fillText(o.text,x,y-3);
+  }
+}
+function hitMap(mx,my){
+  applyT(cx);
+  const px=((mx-T.x)/T.k)/s0, py=((my-T.y)/T.k-oy)/s0;
+  for(let i=items.length-1;i>=0;i--){ const it=items[i], b=it.g.b;
+    if(px<b[0][0]||px>b[1][0]||py<b[0][1]||py>b[1][1]) continue;
+    if(cx.isPointInPath(it.g.p, mx*dpr, my*dpr)){
+      const d=dispItems.find(di=>{const bb=di.b; return px>=bb[0][0]&&px<=bb[1][0]&&py>=bb[0][1]&&py<=bb[1][1]&&cx.isPointInPath(di.p,mx*dpr,my*dpr);});
+      return Object.assign({}, it, {disp:d?d.f:null});
+    } }
+  for(const it of dispItems){ const b=it.b; if(px>=b[0][0]&&px<=b[1][0]&&py>=b[0][1]&&py<=b[1][1]&&cx.isPointInPath(it.p,mx*dpr,my*dpr)) return {disp:it.f}; }
+  return null;
+}
+const zoom = d3.zoom().scaleExtent([1,80]).filter(e=>view==="map" && (!e.button||e.type==="wheel"))
+  .on("zoom", e=>{ T=e.transform; tipEl.hidden=true; redraw(); });
+d3.select(cv).call(zoom);
+const VIEWS = [["Welt",null],["Europa",[[-11,35],[33,63]]],["Amerika",[[-140,-45],[-50,62]]],["Asien",[[62,0],[148,56]]],["Afrika",[[-18,-35],[52,37]]],["Deutschland",[[5.5,47.2],[15.5,55.1]]],["Auswahl","sel"]];
+d3.select("#zoom").selectAll("button").data(VIEWS).join("button").attr("type","button").text(d=>d[0]).on("click",(e,d)=>{ if(view!=="map") setView("map"); zoomTo(d[1]); });
+function zoomTo(b){
+  if(!b){ d3.select(cv).transition().duration(600).call(zoom.transform,d3.zoomIdentity); return; }
+  let x0,x1,y0,y1;
+  if(b==="sel"){ const it=items.find(i=>i.u===selected); if(!it) return; [[x0,y0],[x1,y1]]=it.g.b; const pad=Math.max(x1-x0,y1-y0)*1.5; x0-=pad;x1+=pad;y0-=pad;y1+=pad; }
+  else { const sw=proj(b[0]), ne=proj(b[1]); x0=sw[0];x1=ne[0];y0=ne[1];y1=sw[1]; }
+  const X0=x0*s0, X1=x1*s0, Y0=y0*s0+oy, Y1=y1*s0+oy;
+  const k = Math.min(80, 0.92/Math.max((X1-X0)/CW,(Y1-Y0)/CH));
+  d3.select(cv).transition().duration(700).call(zoom.transform, d3.zoomIdentity.translate(CW/2,CH/2).scale(k).translate(-(X0+X1)/2,-(Y0+Y1)/2));
+}
+const tipEl = document.getElementById("tip");
+function showTip(mx,my,text){ tipEl.textContent=text; tipEl.style.left=mx+"px"; tipEl.style.top=my+"px"; tipEl.hidden=false; }
+function tipText(u, f, disp){
+  let t;
+  if(!u) t = `${f&&f.properties.name||""}: keine Daten`;
+  else { const v=u[metric.k];
+    t = `${u.name}: ${v!=null? metric.fmt(v) + (view==="map"&&level>0&&u.kind==="Land/Gebiet"&&!metric.countryOnly?" (nur Landeswert)":"") : (metric.scope==="EU"?"nicht in der EU":"keine Daten")}`;
+    if(u.small) t+=" · sehr klein"; else if(u.hot) t+=" · Pendler-/Firmenstandort"; }
+  if(disp) t += ` · ${disp.properties.name}: ${disp.properties.note}`;
+  return t;
+}
+let down=null, hoverRaf=0;
+cv.addEventListener("pointerdown",e=>{ down=[e.clientX,e.clientY]; });
+cv.addEventListener("pointermove",e=>{
+  if(e.pointerType!=="mouse") return;
+  const r=cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  if(hoverRaf) return; hoverRaf=requestAnimationFrame(()=>{ hoverRaf=0;
+    if(view==="map"){ const h=hitMap(mx,my); if(!h){ tipEl.hidden=true; cv.style.cursor="grab"; return; }
+      cv.style.cursor="pointer"; showTip(mx,my, h.g? tipText(h.u, h.g.f, h.disp) : `${h.disp.properties.name}: ${h.disp.properties.note}`); }
+    else { const s=hitSquares(mx,my); if(!s){ tipEl.hidden=true; cv.style.cursor="default"; return; } cv.style.cursor="pointer"; showTip(mx,my, sqTip(s)); }
+  });
+});
+cv.addEventListener("pointerleave",()=>{ tipEl.hidden=true; });
+cv.addEventListener("click",e=>{
+  if(down && Math.hypot(e.clientX-down[0], e.clientY-down[1])>5) return;
+  const r=cv.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top;
+  if(view==="map"){ const h=hitMap(mx,my); if(h&&h.u) pick(h.u); else if(h&&h.disp) showTip(mx,my,`${h.disp.properties.name}: ${h.disp.properties.note}`); }
+  else { const s=hitSquares(mx,my); if(s) pick(s.u); }
+});
+
+// ---------- colour + highlight ----------
+let sortedVals = [];
+function passes(u){ const v=u[metric.k]; if(hlMode==="off"||thr==null) return true; if(v==null) return false; return hlMode==="above"? v>thr : v<thr; }
+function recolor(){
+  const lv = atLevel(); sortedVals = lv.map(u=>u[metric.k]).filter(v=>v!=null).sort(d3.ascending);
+  const sc = scaleOf(metric.k);
+  for(const it of items){ const u=it.u, v=u&&u[metric.k];
+    if(u&&v!=null) it.fill = hlMode!=="off"&&!passes(u) ? C.dim : C.r[sc.cls(v)];
+    else it.fill = (u && metric.scope==="EU" && u.flag!=="missing") ? C.nodata : null; }
+  d3.select("#lbar").selectAll("span").data(d3.range(7)).join("span").style("background",fill);
+  const ticks = metric.thresholds ? ["< "+metric.thresholds[0], ...metric.thresholds.map(String)] : [sc.lo, ...sc.q].map(tick);
+  d3.select("#lticks").selectAll("span").data(ticks).join("span").text(d=>d);
+  const lvlMax = d3.max(lv.filter(u=>ranked(u)&&u[metric.k]!=null), u=>u[metric.k]);
+  document.getElementById("lcap").textContent = `${metric.label} · ${metric.unit} · ` +
+    (metric.thresholds? "feste Stufen" : classMode==="people" ? "jede Farbe = ein Siebtel der Menschheit (Länderwerte)" : "jede Farbe = ein Siebtel der Länder der Welt") +
+    ` · höchster Wert (ab 50.000 Einw.): ${lvlMax!=null?metric.fmt(lvlMax):"–"}`;
+  sqDirty=true;
+  redraw();
+}
+
+
+// ---------- controls ----------
+d3.select("#metrics").selectAll("button").data(METRICS).join("button").attr("type","button").attr("class","chip")
+  .text(d=>d.label).on("click",(e,d)=>setMetric(d));
+function setMetric(d){ metric=d; if(metric.countryOnly && level!==0){ setLevel(0,true); } thr=selected[metric.k]??null; update(); }
+d3.select("#levels").selectAll("button").data(LEVELS).join("button").attr("type","button").attr("class","chip")
+  .text(d=>d).attr("title",(d,i)=>LEVEL_INFO[i]).on("click",(e,d)=>setLevel(LEVELS.indexOf(d)));
+function setLevel(l,silent){
+  level=l;
+  if(!selected.lv.includes(level)){
+    let u=selected;
+    if(level===0) u=byId.get(selected.country);
+    else if(level===3){ u=units.find(x=>x.lv.includes(3)&&x._members&&x._members.includes(selected.id)) || units.find(x=>x.lv.includes(3)&&(x.id===selected.parent||x.id===selected.id||anc(selected).includes(x.id))) || units.find(x=>x.lv.includes(3)&&x.country===selected.country); }
+    else if(level<Math.min(...selected.lv.filter(x=>x<3).concat([9]))){ while(u&&!u.lv.includes(level)) u=byId.get(u.parent); }
+    else { u=units.find(x=>x.lv.includes(level)&&anc(x).includes(selected.id)) || byId.get(selected.country); }
+    if(u&&u.lv.includes(level)){ selected=u; thr=selected[metric.k]??thr; }
+  }
+  drawLevel(); if(!silent) update();
+}
+["off","above","below"].forEach(m=>document.getElementById("hl-"+m).onclick=()=>{ hlMode=m; if(thr==null) thr=selected[metric.k]; update(); });
+const thrEl=document.getElementById("thr");
+thrEl.addEventListener("input",()=>{ thr=d3.quantileSorted(sortedVals, +thrEl.value/1000); if(hlMode==="off") hlMode="above"; update(true); });
+document.getElementById("grpmode").onclick=()=>{ groupMode=!groupMode; if(groupMode&&!group.size) addToGroup(selected); update(); };
+document.querySelectorAll("#views [data-cw]").forEach(b=>b.onclick=()=>{ classMode=b.dataset.cw; for(const k in SCALES) delete SCALES[k]; update(); });
+d3.select("#names").selectAll("option").data(units.filter(u=>!u.nogeo).filter(u=>u.name).sort((a,b)=>a.name.localeCompare(b.name,"de"))).join("option").attr("value",d=>d.name);
+document.getElementById("q").addEventListener("change",e=>{
+  const v=e.target.value.trim().toLowerCase(); if(!v) return;
+  const cand=units.filter(x=>(x.name||"").toLowerCase()===v&&!x.nogeo); const u=cand.find(x=>x.lv.includes(level))||cand[0]||units.find(x=>(x.name||"").toLowerCase().startsWith(v)&&!x.nogeo);
+  if(u){ if(!u.lv.includes(level)){ level=Math.max(...u.lv.filter(l=>l<=2)); drawLevel(); } pick(u); e.target.value=""; e.target.blur(); }
+});
+
+// ---------- selection + group ----------
+function anc(u){ const a=[]; let p=u.parent; let guard=0; while(p&&guard++<6){ a.push(p); p=byId.get(p)?.parent; if(p===a[a.length-1]) break; } return a; }
+function overlaps(a,b){ if(a.id===b.id) return true; if(a._members&&b._members) return a._members.some(m=>b._members.includes(m));
+  const mA=a._members||[a.id], mB=b._members||[b.id];
+  return mA.some(x=>x===b.id||anc(byId.get(x)).includes(b.id)) || mB.some(x=>x===a.id||anc(byId.get(x)).includes(a.id)); }
+function addToGroup(u){ for(const id of [...group]) if(overlaps(byId.get(id),u)) group.delete(id); group.add(u.id); }
+function pick(u){
+  if(groupMode){ if(group.has(u.id)) group.delete(u.id); else addToGroup(u); }
+  selected=u; thr=u[metric.k]??thr; update();
+}
+
+// ---------- distribution band ----------
+function weightedQuantile(list,k,q){ const s=list.filter(u=>u[k]!=null&&u.pop).sort((a,b)=>a[k]-b[k]); const tot=d3.sum(s,u=>u.pop); let acc=0;
+  for(const u of s){ acc+=u.pop; if(acc>=q*tot) return u[k]; } return s.length?s[s.length-1][k]:null; }
+function worldMean(k){ if(k==="gdp_pc_ppp") return WORLD.ppp/WORLD.pop; if(k==="gdp_pc_usd") return WORLD.usd/WORLD.pop;
+  const l=atLevel().filter(u=>u[k]!=null&&u.pop); return d3.sum(l,u=>u[k]*u.pop)/d3.sum(l,u=>u.pop); }
+function hlStats(){
+  const lv=atLevel().filter(u=>u[metric.k]!=null);
+  const inS = hlMode==="off"? lv : lv.filter(passes);
+  const withData=d3.sum(lv,u=>u.pop||0);
+  return {n:inS.length, total:lv.length, pop:d3.sum(inS,u=>u.pop||0), ppp:d3.sum(inS,u=>u.gdp_ppp||0), noData:WORLD.pop-withData};
+}
+function band(fromSlider){
+  ["off","above","below"].forEach(m=>document.getElementById("hl-"+m).setAttribute("aria-pressed",hlMode===m));
+  if(!fromSlider && thr!=null && sortedVals.length){ thrEl.value = Math.round(1000*d3.bisectLeft(sortedVals,thr)/Math.max(1,sortedVals.length-1)); }
+  document.getElementById("thrv").textContent = thr!=null?metric.fmt(thr):"–";
+  const s=hlStats();
+  const ref = thr!=null && selected[metric.k]===thr ? ` als ${selected.name}` : "";
+  const word = hlMode==="below"? metric.word[1] : metric.word[0];
+  document.getElementById("sentence").innerHTML = hlMode==="off"
+    ? `Wähle <b>Alle darüber</b> oder <b>Alle darunter</b>, um zu sehen, wie viele Menschen weltweit über oder unter <b>${selected.name}</b> liegen. Mit dem Regler verschiebst du die Schwelle.`
+    : `<b>${big(s.pop)} Menschen</b> leben in Gebieten mit ${word} ${metric.noun}${ref} (${metric.fmt(thr)}). Das sind <b>${pct(s.pop/WORLD.pop)}</b> der Weltbevölkerung und <b>${pct(s.ppp/WORLD.ppp)}</b> der Weltwirtschaft.`;
+  document.getElementById("hlstats").innerHTML = [
+    [f0(s.n), `von ${f0(s.total)} Einheiten auf dieser Ebene`],
+    [big(s.pop), `Menschen · ${pct(s.pop/WORLD.pop)} der Welt`],
+    [big(s.ppp)+" "+IS, `Wirtschaftsleistung (KKP) · ${pct(s.ppp/WORLD.ppp)} der Welt`],
+    [s.pop? nice(s.ppp/s.pop)+" "+IS:"–", `BIP pro Kopf (KKP) dieser Menschen`],
+  ].map(([n,l])=>`<div class="stat"><span class="n">${n}</span><span class="l">${l}</span></div>`).join("");
+  const v=selected[metric.k];
+  if(v!=null && !metric.total){ const lv=atLevel().filter(u=>u[metric.k]!=null); const below=d3.sum(lv.filter(u=>u[metric.k]<v),u=>u.pop||0), above=d3.sum(lv.filter(u=>u[metric.k]>v),u=>u.pop||0);
+    document.getElementById("split3").textContent = `Bezogen auf ${selected.name}: darunter ${pct(below/WORLD.pop)} · darüber ${pct(above/WORLD.pop)} · gleich ${pct((WORLD.pop-below-above-s.noData)/WORLD.pop)} · ohne Daten ${pct(s.noData/WORLD.pop)} der Weltbevölkerung. Die Anteile hängen von der Ebene ab: Je feiner die Regionen, desto genauer.`; }
+  else document.getElementById("split3").textContent="";
+  dist();
+}
+function dist(){
+  const s=d3.select("#dist"), el=document.getElementById("dist");
+  const DW=Math.max(280, el.parentElement.clientWidth), DH=CW<560?170:200, m={l:8,r:8,t:10,b:30};
+  s.attr("viewBox",`0 0 ${DW} ${DH}`); s.selectAll("*").remove();
+  const k=metric.k, byGdp=metric.total;
+  const wOf = u=> byGdp ? (u.gdp_usd||0) : (u.pop||0);
+  const data = atLevel().filter(u=>u[k]!=null&&wOf(u)>0).sort((a,b)=>a[k]-b[k]);
+  if(!data.length){ document.getElementById("disttitle").textContent="Keine Daten auf dieser Ebene"; return; }
+  const tot = d3.sum(data,wOf); let acc=0;
+  for(const u of data){ u._x0=acc/tot; acc+=wOf(u); u._x1=acc/tot; }
+  document.getElementById("disttitle").textContent = byGdp
+    ? `Weltwirtschaft nach Größe der Einheiten · Breite = Anteil am Welt-BIP`
+    : `Die Welt nach ${metric.noun} · Breite = Anteil an der Weltbevölkerung (mit Daten)`;
+  const x=d3.scaleLinear().domain([0,1]).range([m.l,DW-m.r]);
+  const ext=d3.extent(data,u=>u[k]);
+  const pAt = data.find(u=>u._x1>=0.995); const cap = metric.log? ext[1] : Math.min(ext[1], (pAt?pAt[k]:ext[1])*1.15);
+  const y=(metric.log?d3.scaleLog().domain([Math.max(ext[0],1e-3),ext[1]]):d3.scaleLinear().domain([0,cap])).range([DH-m.b,m.t]).nice().clamp(true);
+  const sc=scaleOf(k);
+  s.selectAll("rect.b").data(data).join("rect").attr("class",u=>"b"+(u===selected?" sel":""))
+    .attr("x",u=>x(u._x0)).attr("width",u=>Math.max(.6,x(u._x1)-x(u._x0)))
+    .attr("y",u=>y(u[k])).attr("height",u=>Math.max(0,DH-m.b-y(u[k])))
+    .attr("fill",u=>passes(u)?fill(sc.cls(u[k])):"var(--dim)");
+  s.selectAll("rect.sel").raise();
+  // bars cut at the top get a small mark, so the clipping is visible
+  data.filter(u=>!metric.log&&u[k]>y.domain()[1]&&x(u._x1)-x(u._x0)>1.5).forEach(u=>s.append("path").attr("class","capmark")
+    .attr("d",`M${x((u._x0+u._x1)/2)-3},${m.t+5}L${x((u._x0+u._x1)/2)},${m.t}L${x((u._x0+u._x1)/2)+3},${m.t+5}Z`));
+  s.append("line").attr("class","axis").attr("x1",m.l).attr("x2",DW-m.r).attr("y1",DH-m.b).attr("y2",DH-m.b);
+  s.selectAll("text.x").data([0,.25,.5,.75,1]).join("text").attr("class","x").attr("x",x).attr("y",DH-m.b+14)
+    .attr("text-anchor",(d,i)=>i===0?"start":i===4?"end":"middle").text(d=>f0(d*100)+" %");
+  s.append("text").attr("x",DW-m.r).attr("y",DH-4).attr("text-anchor","end").text(byGdp?"kumulierter Anteil am Welt-BIP":"kumulierter Anteil der Weltbevölkerung");
+  const yt=y.ticks(4).filter(t=>(!metric.log||Math.log10(t)%1===0)&&y(t)>14);
+  s.selectAll("text.y").data(yt).join("text").attr("class","y").attr("x",m.l+2).attr("y",d=>y(d)-3).text(tick);
+  if(!byGdp && !metric.log){
+    const refs=[[worldMean(k),"Weltschnitt"],[weightedQuantile(atLevel(),k,.5),"mittlerer Mensch"]].filter(r=>r[0]!=null&&y(r[0])>m.t+8);
+    refs.forEach(([v,l],i)=>{ s.append("line").attr("class","ref").attr("x1",m.l).attr("x2",DW-m.r).attr("y1",y(v)).attr("y2",y(v));
+      const near=refs.length===2&&Math.abs(y(refs[0][0])-y(refs[1][0]))<14;
+      s.append("text").attr("class","reft").attr("x",i?DW-m.r-2:m.l+2).attr("text-anchor",i?"end":"start").attr("y",near&&i?y(v)+11:y(v)-3).text(`${l}: ${metric.fmt(v)}`); });
+  }
+  if(hlMode!=="off"&&thr!=null) s.append("line").attr("class","thr").attr("x1",m.l).attr("x2",DW-m.r).attr("y1",y(thr)).attr("y2",y(thr));
+  if(selected[k]!=null && data.includes(selected)){ const cx2=x((selected._x0+selected._x1)/2), cy=y(selected[k]);
+    s.append("circle").attr("cx",cx2).attr("cy",cy).attr("r",4.5).attr("fill","var(--sel)");
+    s.append("text").attr("x",cx2>DW*0.7?cx2-7:cx2+7).attr("y",Math.max(12,cy-6)).attr("text-anchor",cx2>DW*0.7?"end":"start").style("fill","var(--sel)").text(selected.name); }
+  s.on("click",e=>{ const [px]=d3.pointer(e); const p=x.invert(px); const u=data.find(d=>d._x0<=p&&d._x1>=p); if(u) pick(u); });
+}
+
+// ---------- headline ----------
+function lead(){
+  const k = (metric.total||metric.k==="density"||metric.scope) ? "gdp_pc_ppp" : metric.k, M=METRICS.find(x=>x.k===k);
+  const med = weightedQuantile(atLevel(),k,.5);
+  const v = selected[k];
+  let t = `Die Hälfte der Menschheit lebt in Gebieten mit weniger als <b>${M.fmt(med)}</b> ${M.noun}.`;
+  if(v!=null){ const lv=atLevel().filter(u=>u[k]!=null); const below=d3.sum(lv.filter(u=>u[k]<v),u=>u.pop||0);
+    t += ` <b>${selected.name}</b> liegt mit ${M.fmt(v)} über <b>${pct(below/WORLD.pop)}</b> der Weltbevölkerung.`; }
+  document.getElementById("lead").innerHTML = t;
+}
+
+// ---------- profile card ----------
+const ratio=(a,b)=>Math.abs(Math.log(a/b));
+function nearest(v,k,skip){ return v==null?null:peers.filter(c=>c[k]!=null&&c.id!==skip).sort((a,b)=>ratio(a[k],v)-ratio(b[k],v))[0]; }
+function popShareBelow(u,k){ const lv=atLevel().filter(x=>x[k]!=null); return d3.sum(lv.filter(x=>x[k]<u[k]),x=>x.pop||0)/WORLD.pop; }
+function dq(u){
+  const L=[], sp=(DATA.split[u.id]||[]), c=byId.get(u.country);
+  if(u.flag==="missing") L.push(`<span class="warn">Für diese Region liegen keine Daten vor.</span>`);
+  if(u.small) L.push(`<span class="warn">Weniger als ${f0(META.small_pop)} Einwohner: zu klein für einen fairen Vergleich, daher ohne Rang. Einzelne Betriebe oder Rohstoffe können den Wert stark verzerren.</span>`);
+  if(u.hot) L.push(`<span class="warn">BIP pro Kopf mehr als doppelt so hoch wie im Landesschnitt. ${u.pop>5e6?"Ein Wirtschaftszentrum des Landes: Hier ballen sich Industrie, Dienstleistungen und Konzernsitze.":"Typisch für Pendlerzentren, Konzernsitze oder Rohstoffförderung: Die Wirtschaftsleistung entsteht hier, viele Beschäftigte wohnen aber woanders."} ${u.hh_pc_ppp?`Haushalte: ${nice(u.hh_pc_ppp)} ${IS} pro Kopf.`:""}</span>`);
+  if(u.kind==="Land/Gebiet"){
+    L.push(`Quelle: ${u.src}, ${u.year}`);
+    if(u.old_year) L.push(`<span class="warn">Teilweise ältere Werte, der älteste von ${u.old_year}.</span>`);
+    if(level>0 && !sp.includes(Math.min(level,2))) L.push(`<span class="warn">Keine amtlichen Regionaldaten${u.note?` (${u.note})`:""}: Das Land wird auf dieser Ebene als Ganzes gezeigt.</span>`);
+  } else if(u.flag!=="missing"){
+    L.push(`Verteilung innerhalb des Landes: ${u.src}, Jahr ${u.year}. Hochgerechnet auf die Landeswerte 2024 (${c?c.src:"Weltbank"}).`);
+    if(u.flag==="estimate") L.push(`<span class="warn">Teilweise geschätzt (z. B. nach Einwohnern aufgeteilt oder Bevölkerungsprojektion).</span>`);
+    if(u.flag==="older") L.push(`<span class="warn">Ältere Regionaldaten (${u.year}).</span>`);
+    if(u.price_index) L.push(`Regionales Preisniveau: ${f0(u.price_index)} (Land = 100).`);
+    if(u.hh_note && metric.k==="hh_pc_ppp") L.push(`Haushaltswert: ${u.hh_note} (feinere Daten gibt es hier nicht).`);
+  }
+  if(DQ_NOTE[u.country]) L.push(DQ_NOTE[u.country]);
+  return `<div class="dq">${L.map(x=>`<span>${x}</span>`).join("")}</div>`;
+}
+function rankBand(u,k){ const lv=atLevel().filter(x=>x[k]!=null&&ranked(x)).sort((a,b)=>b[k]-a[k]); const r=lv.indexOf(u)+1; if(!r) return "";
+  const p=r/lv.length, band = p<=.01?"oberstes 1 %":p<=.05?"oberste 5 %":p<=.1?"oberste 10 %":p<=.25?"oberes Viertel":p<=.5?"obere Hälfte":p<=.75?"untere Hälfte":p<=.9?"unteres Viertel":"unterste 10 %";
+  return `${band} der Einheiten <small>(Rang ${f0(r)} von ${f0(lv.length)}, ohne Einheiten unter ${f0(META.small_pop)} Einw.)</small>`; }
+function spark(u){
+  const c=u.kind==="Land/Gebiet"?u.id:u.country, s=TS&&TS.series[c]; if(!s) return "";
+  const pts=s.map((v,i)=>[TS.start+i,v]).filter(p=>p[1]!=null); if(pts.length<5) return "";
+  const W=440,H=90,m={l:4,r:52,t:8,b:16}; const x=d3.scaleLinear().domain(d3.extent(pts,p=>p[0])).range([m.l,W-m.r]);
+  const y=d3.scaleLinear().domain([0,d3.max(pts,p=>p[1])]).nice().range([H-m.b,m.t]);
+  const line=d3.line().x(p=>x(p[0])).y(p=>y(p[1])), area=d3.area().x(p=>x(p[0])).y0(H-m.b).y1(p=>y(p[1]));
+  const a=pts[0], b=pts[pts.length-1], g=(b[1]/a[1]-1);
+  const name = c===u.id ? u.name : `${byId.get(c).name} insgesamt`;
+  return `<div style="display:grid;gap:4px"><h3>Reales BIP pro Kopf ${a[0]}–${b[0]} · ${name}</h3>
+    <svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Verlauf"><path class="a" d="${area(pts)}"/><path class="l" d="${line(pts)}"/>
+    <circle cx="${x(b[0])}" cy="${y(b[1])}" r="3"/><text x="${x(b[0])+5}" y="${y(b[1])+4}">${tick(b[1])}</text>
+    <text x="${m.l}" y="${H-3}">${a[0]}</text><text x="${W-m.r}" y="${H-3}" text-anchor="end">${b[0]}</text></svg>
+    <span class="hint">${g>=0?"+":""}${f0(g*100)} % seit ${a[0]} (konstante Preise 2021)</span></div>`;
+}
+function card(){
+  const u=selected, k=metric.k, v=u[k];
+  const chain = anc(u).map(id=>byId.get(id)).filter(Boolean).filter((c,i,arr)=>c.name!==u.name&&(i===0||c.name!==arr[i-1].name));
+  const ladder = peers.filter(c=>c[k]!=null&&c.id!==u.id).concat(v!=null&&ranked(u)?[u]:[]).sort((a,b)=>b[k]-a[k]);
+  const i = ladder.indexOf(u), win = i<0?[]:ladder.slice(Math.max(0,i-3), i+4);
+  const el=document.getElementById("card");
+  el.innerHTML = `
+    <div><div class="kind">${u.kind||"Region"}</div><h2>${u.name}</h2>
+      ${chain.length?`<div class="chain">${chain.map(c=>`<button type="button" data-id="${c.id}">${c.name}</button>`).join(" · ")}</div>`:""}</div>
+    ${dq(u)}
+    <div class="big"><span class="v">${v!=null?metric.fmt(v):"keine Daten"}</span>
+      <span class="rank">${v!=null&&ranked(u)&&!metric.total?rankBand(u,k):""}</span></div>
+    <div class="stats">
+      <div class="stat"><span class="n">${big(u.pop)}</span><span class="l">Einwohner · ${pct((u.pop||0)/WORLD.pop)} der Welt</span></div>
+      <div class="stat"><span class="n">${u.gdp_ppp?pct(u.gdp_ppp/WORLD.ppp):"–"}</span><span class="l">Anteil an der Weltwirtschaft (KKP)</span></div>
+      ${v!=null&&!metric.total?`<div class="stat"><span class="n">${pct(popShareBelow(u,k))}</span><span class="l">der Weltbevölkerung liegen darunter</span></div>`:""}
+    </div>
+    ${spark(u)}
+    <div class="inner2">
+      <div style="display:grid;gap:8px;min-width:0"><h3>Auf einer Stufe mit (Länder ab 1 Mio. Einw.)</h3>
+        <div class="neighbors">${win.map(c=>`<span class="${c===u?"me":""}">${c.name}</span><span class="num ${c===u?"me":""}">${metric.fmt(c[k])}</span>`).join("")||'<span class="hint">Kein Vergleich möglich</span>'}</div></div>
+      <div style="display:grid;gap:8px;min-width:0"><h3>Alle Kennzahlen · ähnlichstes Land</h3>
+        <div class="cmp">${METRICS.map(m=>{const nc=ranked(u)?nearest(u[m.k],m.k,u.id):null;
+          return `<button type="button" data-k="${m.k}" aria-current="${m===metric}"><span class="lab3">${m.label}</span><span class="num">${u[m.k]!=null?m.fmt(u[m.k]):"–"}</span><span class="like">${nc&&!m.total?`≈ <b>${nc.name}</b>`:""}</span></button>`}).join("")}</div></div>
+    </div>`;
+  el.querySelectorAll(".cmp button").forEach(b=>b.onclick=()=>setMetric(METRICS.find(m=>m.k===b.dataset.k)));
+  el.querySelectorAll(".chain button").forEach(b=>b.onclick=()=>{ const p=byId.get(b.dataset.id); level=Math.max(...p.lv.filter(l=>l<=2)); drawLevel(); pick(p); });
+}
+
+// ---------- group panel ----------
+function groupPanel(){
+  const el=document.getElementById("group"); const m=[...group].map(id=>byId.get(id)).filter(Boolean);
+  document.getElementById("grpmode").setAttribute("aria-pressed",groupMode);
+  if(!m.length){
+    el.innerHTML = `<div><div class="kind">Gruppe</div><h2>Eigene Gruppe</h2></div>
+      <p class="hint">Tippe auf <b>Gruppe bilden</b> und dann auf Regionen oder Länder, um sie zusammenzurechnen. Zum Beispiel Bayern und Baden-Württemberg gegen Kalifornien oder alle Kreise einer Metropolregion.</p>`;
+    return;
+  }
+  const pop=d3.sum(m,u=>u.pop||0), usd=d3.sum(m,u=>u.gdp_usd||0), ppp=d3.sum(m,u=>u.gdp_ppp||0), real=d3.sum(m,u=>u.gdp_real||0), area=d3.sum(m,u=>u.area_km2||0);
+  const wavg=k=>{ const w=m.filter(u=>u[k]!=null&&u.pop); return w.length&&d3.sum(w,u=>u.pop)>0.9*pop? d3.sum(w,u=>u[k]*u.pop)/d3.sum(w,u=>u.pop):null; };
+  const g={pop, gdp_usd:usd, gdp_pc_usd:usd/pop, gdp_pc_ppp:ppp/pop, gdp_pc_ppp_real:real/pop, density:area?pop/area:null,
+           hh_pc_ppp:wavg("hh_pc_ppp"), gdp_pc_rp:wavg("gdp_pc_rp"), eu_index:wavg("eu_index"), gni_pc_ppp:null};
+  el.innerHTML = `<div><div class="kind">Gruppe · ${m.length} ${m.length===1?"Einheit":"Einheiten"}</div><h2>Eigene Gruppe</h2></div>
+    <div class="members">${m.map(u=>`<button type="button" data-id="${u.id}" aria-label="${u.name} entfernen">${u.name}<span>×</span></button>`).join("")}</div>
+    <div class="stats">
+      <div class="stat"><span class="n">${big(pop)}</span><span class="l">Einwohner · ${pct(pop/WORLD.pop)} der Welt</span></div>
+      <div class="stat"><span class="n">${pct(ppp/WORLD.ppp)}</span><span class="l">der Weltwirtschaft (KKP)</span></div>
+    </div>
+    <div class="cmp">${METRICS.filter(mm=>!mm.countryOnly).map(mm=>{const v=g[mm.k]; const nc=nearest(v,mm.k);
+      return `<button type="button" data-k="${mm.k}" aria-current="${mm===metric}"><span class="lab3">${mm.label}</span><span class="num">${v!=null?mm.fmt(v):"–"}</span><span class="like">${nc&&!mm.total?`≈ <b>${nc.name}</b>`:""}</span></button>`}).join("")}</div>
+    <div class="row"><button class="chip" type="button" id="grpclear">Gruppe leeren</button></div>`;
+  el.querySelectorAll(".members button").forEach(b=>b.onclick=()=>{group.delete(b.dataset.id); update();});
+  el.querySelectorAll(".cmp button").forEach(b=>b.onclick=()=>setMetric(METRICS.find(x=>x.k===b.dataset.k)));
+  document.getElementById("grpclear").onclick=()=>{group.clear(); update();};
+}
+
+// ---------- link that restores the whole view (#ID--m2--l1--vq--ha--t67000--cp--up--g12x40) ----------
+function writeHash(){
+  const parts=[selected.id, "m"+METRICS.indexOf(metric), "l"+level, "v"+(view==="map"?"m":"q"), "h"+hlMode[0], "c"+classMode[0], "u"+sqUnit[0]];
+  if(thr!=null&&hlMode!=="off") parts.push("t"+Math.round(thr));
+  if(group.size) parts.push("g"+[...group].map(id=>byId.get(id)._i.toString(36)).join("x"));
+  try{ history.replaceState(null,"","#"+parts.join("--")); }catch(e){}
+}
+function readHash(){
+  let h; try{ h=decodeURIComponent(location.hash.slice(1)); }catch(e){ return false; } if(!h) return false;
+  const [id,...ps]=h.split("--"); if(!byId.has(id)) return false;
+  selected=byId.get(id);
+  for(const p of ps){ const t=p[0], v=p.slice(1);
+    if(t==="m"&&METRICS[+v]) metric=METRICS[+v];
+    if(t==="l"&&+v>=0&&+v<=3) level=+v;
+    if(t==="v") view = v==="q"?"squares":"map";
+    if(t==="h") hlMode = v==="a"?"above":v==="b"?"below":"off";
+    if(t==="c") classMode = v==="p"?"people":"countries";
+    if(t==="u") sqUnit = v==="r"?"region":"people";
+    if(t==="t") thr=+v;
+    if(t==="g") v.split("x").forEach(s=>{ const u=units[parseInt(s,36)]; if(u) group.add(u.id); });
+  }
+  if(!selected.lv.includes(level)) level=Math.max(...selected.lv.filter(l=>l<=2));
+  if(metric.countryOnly){ level=0; if(selected.kind!=="Land/Gebiet") selected=byId.get(selected.country)||selected; }
+  if(thr==null) thr=selected[metric.k]??null;
+  return true;
+}
+
+// ---------- cite + export ----------
+const toast=t=>{ const el=document.getElementById("toast"); el.textContent=t; clearTimeout(toast._t); toast._t=setTimeout(()=>el.textContent="",4000); };
+function citeText(){
+  const v=selected[metric.k];
+  const srcs = new Set(["Weltbank WDI 2024"]); if(selected.kind!=="Land/Gebiet"&&selected.src) srcs.add(`${selected.src} ${selected.year}`);
+  let t = v!=null ? `${selected.name}: ${metric.label} ${metric.fmt(v)}${ranked(selected)&&!metric.total?` – mehr als bei ${pct(popShareBelow(selected,metric.k))} der Weltbevölkerung`:""}.` : `${selected.name}: keine Daten.`;
+  if(hlMode!=="off") t += " " + document.getElementById("sentence").textContent;
+  return `${t} Quelle: ${[...srcs].join("; ")}; Berechnung Wohlstandsatlas (${LEVELS[level]}). ${META.link}${location.hash}`;
+}
+document.getElementById("cite").onclick=()=>{
+  const t=citeText();
+  const fallback=()=>{ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); toast("Text markiert – jetzt kopieren."); setTimeout(()=>ta.remove(),8000); };
+  try{ navigator.clipboard.writeText(t).then(()=>toast("Kopiert."), fallback); }catch(e){ fallback(); }
+};
+let downloads=null;
+(async()=>{
+  if(META.target==="kitchen"){ // normal website: plain browser download
+    downloads={save:async({filename,data})=>{ const b=data instanceof Blob?data:new Blob(["\ufeff"+data],{type:"text/csv;charset=utf-8"});
+      const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=filename; document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1500); }};
+  } else { try{ downloads = window.claude && await window.claude.use("downloads"); }catch(e){ downloads=null; } }
+  if(downloads){ document.getElementById("png").hidden=false; document.getElementById("csv").hidden=false; } })();
+async function save(filename,data){ try{ await downloads.save({filename,data}); toast(META.target==="kitchen"?"Download gestartet.":"Gespeichert."); }
+  catch(e){ if(e&&e.code==="declined") toast("Abgebrochen."); else toast("Speichern ist hier nicht möglich."); } }
+document.getElementById("csv").onclick=()=>{
+  const cols=["id","name","kind","country","pop","area_km2",...METRICS.map(m=>m.k),"year","src","flag"];
+  const esc=v=>v==null?"":(/[",;\n]/.test(String(v))?`"${String(v).replace(/"/g,'""')}"`:String(v));
+  const rows=atLevelAll().map(u=>cols.map(c=>esc(u[c])).join(","));
+  save(`wohlstandsatlas_${LEVELS[level].replace(/\W+/g,"_").toLowerCase()}.csv`, cols.join(",")+"\n"+rows.join("\n"));
+};
+document.getElementById("png").onclick=()=>{
+  const pad=24*dpr, foot=64*dpr, head=56*dpr, out=document.createElement("canvas");
+  out.width=cv.width+2*pad; out.height=cv.height+head+foot; const o=out.getContext("2d");
+  o.fillStyle=C.bg; o.fillRect(0,0,out.width,out.height); o.drawImage(cv,pad,head);
+  o.fillStyle=C.ink; o.font=`700 ${22*dpr}px ${C.display||"sans-serif"}`; o.fillText(`Wohlstandsatlas · ${metric.label}`, pad, 34*dpr);
+  o.font=`400 ${12*dpr}px ${C.body}`; o.fillStyle=C.muted;
+  o.fillText(`${LEVELS[level]} · ${metric.unit}${selected?` · markiert: ${selected.name}`:""}`, pad, 50*dpr);
+  o.fillText(`Quelle: Weltbank WDI 2024, IWF, Eurostat und nationale Statistikämter; Berechnung Wohlstandsatlas`, pad, head+cv.height+26*dpr);
+  o.fillText(META.link, pad, head+cv.height+44*dpr);
+  out.toBlob(b=>{ if(b) save(`wohlstandsatlas_${metric.k}.png`, b); }, "image/png");
+};
+
+// ---------- stories ----------
+function findName(n){ return units.find(u=>u.name===n&&!u.nogeo); }
+const STORIES=[
+  {t:"Die Welt in Menschen", run(){ setView("squares",true); level=2; drawLevel(); sqUnit="people"; sqGroup="gdp_pc_ppp"; sqColor="cont"; metric=METRICS[0]; hlMode="off"; },
+   text(){ const med=weightedQuantile(atLevel(),"gdp_pc_ppp",.5); return `Jedes Quadrat steht für 5 Millionen Menschen. Die Hälfte der Menschheit lebt in Regionen unter ${METRICS[0].fmt(med)} pro Kopf – vor allem in Asien und Afrika. ${(()=>{ const sc=scaleOf("gdp_pc_ppp"), lu=atLevel().filter(u=>u.gdp_pc_ppp!=null&&u.pop); const top=lu.filter(u=>sc.cls(u.gdp_pc_ppp)>=5); return `In den beiden obersten Stufen leben ${pct(d3.sum(top,u=>u.pop)/WORLD.pop)} der Menschheit, sie erwirtschaften aber ${pct(d3.sum(top,u=>u.gdp_ppp||0)/WORLD.ppp)} der Weltwirtschaft.`; })()}`; }},
+  {t:"Wer ist reicher als Berlin?", run(){ setView("map",true); level=2; drawLevel(); metric=METRICS[0]; selected=byId.get("DE300")||selected; thr=selected.gdp_pc_ppp; hlMode="above"; zoomTo(null); },
+   text(){ const s=hlStats(); return `Nur ${pct(s.pop/WORLD.pop)} der Menschheit leben in Regionen mit höherem BIP pro Kopf als Berlin. Diese ${big(s.pop)} Menschen erwirtschaften ${pct(s.ppp/WORLD.ppp)} der Weltwirtschaft – fast alle in Nordamerika, Westeuropa, Ostasien, am Golf und in Russlands Metropolen.`; }},
+  {t:"China: Küste gegen Inland", run(){ setView("map",true); level=2; drawLevel(); metric=METRICS[0]; hlMode="off"; selected=units.find(u=>u.id==="CN310000")||selected; zoomTo([[73,18],[135,54]]); },
+   text(){ const sh=units.find(u=>u.id==="CN310000"), gs=byId.get("CN-GS"); const a=sh&&nearest(sh.gdp_pc_ppp,"gdp_pc_ppp"), b=gs&&nearest(gs.gdp_pc_ppp,"gdp_pc_ppp");
+     return sh&&gs?`Shanghai liegt mit ${METRICS[0].fmt(sh.gdp_pc_ppp)} pro Kopf etwa auf dem Niveau von ${a.name}, die Provinz Gansu im Nordwesten mit ${METRICS[0].fmt(gs.gdp_pc_ppp)} auf dem von ${b.name}. Ein Land, zwei Welten: Der Reichtum konzentriert sich an der Ostküste.`:""; }},
+  {t:"Wenn BIP täuscht", run(){ setView("map",true); level=2; drawLevel(); metric=METRICS[0]; hlMode="off"; selected=findName("Wolfsburg")||selected; zoomTo([[5.5,47.2],[15.5,55.1]]); },
+   text(){ const w=findName("Wolfsburg"); const ch=byId.get("CHE");
+     return w?`Wolfsburg erwirtschaftet ${METRICS[0].fmt(w.gdp_pc_ppp)} pro Kopf – mehr als die Schweiz (${METRICS[0].fmt(ch.gdp_pc_ppp)}). Der Grund: VW. Viele Beschäftigte pendeln aus dem Umland ein. Wechsle zur Kennzahl „Haushalte/Kopf“ oder zur Ebene „Metropolregionen“, und der Ausreißer verschwindet.`:""; }},
+  {t:"EU: unter 75 %", run(){ setView("map",true); level=2; drawLevel(); metric=METRICS.find(m=>m.k==="eu_index"); selected=byId.get("DE300")||selected; thr=75; hlMode="below"; zoomTo([[-11,35],[33,63]]); },
+   text(){ const eu=atLevel().filter(u=>u.eu_index!=null); const below=d3.sum(eu.filter(u=>u.eu_index<75),u=>u.pop), tot=d3.sum(eu,u=>u.pop);
+     return `Regionen unter 75 % des EU-Durchschnitts gelten als „weniger entwickelt“ und bekommen die höchste Förderung. Auf Kreisebene trifft das hier auf ${pct(below/tot)} der EU-Bevölkerung zu – vor allem im Osten und Süden. Die offizielle Einstufung rechnet mit NUTS-2-Regionen und Dreijahresmitteln.`; }},
+  {t:"Kaufkraft vor Ort", run(){ setView("map",true); level=1; drawLevel(); metric=METRICS.find(m=>m.k==="gdp_pc_rp"); hlMode="off"; selected=byId.get("USA-MS")||selected; zoomTo([[-125,24],[-66,50]]); },
+   text(){ const ms=byId.get("USA-MS"), ny=byId.get("USA-NY"); if(!ms||!ms.price_index) return "Regionale Preisdaten werden noch geladen.";
+     return `In Mississippi liegt das Preisniveau bei ${f0(ms.price_index)} % des US-Schnitts, in New York bei ${f0(ny.price_index)} %. Zu regionalen Preisen schrumpft der Abstand: Mississippi kommt auf ${METRICS[2].fmt(ms.gdp_pc_rp)} statt ${METRICS[0].fmt(ms.gdp_pc_ppp)} pro Kopf.`; }},
+  {t:"Metropolen statt Kreise", run(){ setView("map",true); level=3; drawLevel(); metric=METRICS[0]; hlMode="off"; selected=units.find(u=>u.lv.includes(3)&&/München|Munich/.test(u.name))||selected; zoomTo([[-11,35],[33,63]]); },
+   text(){ return `Kreisgrenzen trennen Städte von ihrem Umland – deshalb wirken Arbeitsorte reich und Wohnorte arm. Die Ebene „Metropolregionen“ fasst Stadt und Umland zusammen. So werden Paris, München oder New York mit der Welt vergleichbar.`; }},
+];
+d3.select("#stories").selectAll("button").data(STORIES).join("button").attr("type","button").attr("class","chip story").text(d=>d.t)
+  .on("click",(e,d)=>{ story=d; d.run(); update(); });
+document.getElementById("storyclose").onclick=()=>{ story=null; update(); };
+function storyBox(){
+  const box=document.getElementById("storybox"); box.hidden=!story;
+  d3.selectAll("#stories .chip").attr("aria-pressed",d=>d===story);
+  if(story){ document.getElementById("storytitle").textContent=story.t; document.getElementById("storytext").textContent=story.text(); }
+}
+
+function update(fromSlider){
+  d3.selectAll("#metrics .chip").attr("aria-pressed",d=>d===metric);
+  d3.selectAll("#levels .chip").attr("aria-pressed",(d,i)=>i===level).property("disabled",(d,i)=>metric.countryOnly&&i>0);
+  document.querySelectorAll("#views [data-cw]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cw===classMode));
+  document.getElementById("explain").innerHTML = metric.info + ` <span>· Ebene: ${LEVEL_INFO[level]}</span>`;
+  recolor(); band(fromSlider);
+  if(!fromSlider){ card(); groupPanel(); lead(); storyBox(); }
+  if(view==="squares") sqControls();
+  writeHash();
+}
+
+document.getElementById("sub").textContent = META.subtitle;
+document.getElementById("notes").innerHTML = META.notes;
+readHash();
+if(!selected.lv.includes(level)) level=Math.max(...selected.lv.filter(l=>l<=2));
+if(thr==null) thr = selected[metric.k] ?? null;
+if(window.matchMedia("(max-width:700px)").matches) document.getElementById("settings").open=false;
+readTheme(); sizeCanvas(); drawLevel(); setView(view,true); update();
+document.querySelectorAll("#views .chip[data-v]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===view));
+let rz; window.addEventListener("resize",()=>{clearTimeout(rz); rz=setTimeout(()=>{ const w=CW; sizeCanvas(); if(w!==CW){ T=d3.zoomIdentity; d3.select(cv).call(zoom.transform,T);} sqDirty=true; squares=[]; redraw(); band(); },150);});
+const onTheme=()=>{ readTheme(); recolor(); groupPanel(); };
+try{ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", onTheme); }catch(e){}
+new MutationObserver(onTheme).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+window.addEventListener("hashchange",()=>{ const before=selected; if(readHash()){ drawLevel(); setView(view,true); update(); } });
+</script>
+
+</body>
+</html>
