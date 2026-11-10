@@ -575,7 +575,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
 <section class="prose" style="padding-bottom:20px" id="you-head">
   <div class="kicker">Jetzt du</div>
   <h2>Wo steht deine Heimat?</h2>
-  <p>Tipp einen Ort ein: einen Kreis, eine Stadt, ein Bundesland, einen Bundesstaat oder ein Land. Gezeigt wird, wie viele Menschen weltweit in ärmeren Regionen leben.
+  <p>Tipp einen Ort ein: einen Kreis, eine Stadt, ein Bundesland, einen Bundesstaat oder ein Land. Gezeigt wird, wie viele Menschen weltweit in Regionen mit niedrigerem BIP pro Kopf leben.
   Mit einem zweiten Ort wird daraus dein eigener Vergleich, und den kannst du als Link weitergeben.</p>
 </section>
 <section class="you" id="you">
@@ -603,7 +603,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   <h2>Was diese Zahlen nicht sagen</h2>
 </section>
 <div class="limits">
-  <div class="limit-card"><h4>Regionen, keine Menschen</h4><p>Jede Prozentzahl hier ordnet Menschen nach dem Durchschnitt ihrer Region ein. In jeder Region gibt es Ärmere und Reichere, in Köln wie in Kerala. Wie viele einzelne Menschen ärmer sind als jemand in OSL, sagt die Zahl nicht.</p></div>
+  <div class="limit-card"><h4>Regionen, keine Menschen</h4><p>Jede Prozentzahl hier ordnet Menschen nach dem Durchschnitt ihrer Region ein. In jeder Region gibt es Ärmere und Reichere, in Köln wie in Kerala. Wie viele einzelne Menschen weniger haben als jemand in OSL, sagt die Zahl nicht.</p></div>
   <div class="limit-card"><h4>Durchschnitt, kein Einkommen</h4><p>BIP pro Kopf ist die Wirtschaftsleistung einer Region geteilt durch ihre Einwohner. Dazu gehören Gewinne von Unternehmen und Abschreibungen, die bei keinem Haushalt ankommen.</p></div>
   <div class="limit-card"><h4>Arbeitsort gegen Wohnort</h4><p>Das BIP entsteht, wo gearbeitet wird. Das prägt beide Enden der deutschen Rangliste: Wolfsburg ist der Sitz von Volkswagen. Die Südwestpfalz liegt rund um Pirmasens und neben Zweibrücken, zwei kreisfreien Städten, deren Wirtschaftsleistung getrennt gezählt wird.</p></div>
   <div class="limit-card"><h4>Ein Preisniveau je Land</h4><p>Außer in Deutschland und den USA rechnet der Atlas jedes Land mit einem einzigen Preisniveau. Teure Städte wie Shanghai oder Moskau wirken dadurch reicher, als sie zu Preisen vor Ort wären.</p></div>
@@ -824,7 +824,7 @@ const act2 = (function(){
   const bl=el("g",{class:"o2 o3"},svg);
   if(MOBILE) txt(bl,C.X(pl)-12,yb-18,`${pw(W.between_share,"knapp")} dazwischen`,{class:"lab-strong sm halo","text-anchor":"end"});
   else { txt(bl,C.X(pl)+6,yb-35,pw(W.between_share,"knapp"),{class:"lab-strong"}); txt(bl,C.X(pl)+6,yb-15,"dazwischen",{class:"sm"}); }
-  // Härtetest: vier Ebenen
+  // Gegenprobe: vier Ebenen
   const ht=el("g",{class:"o3"},svg), names=["Länder","Bundesländer","Kreise","Metropolregionen"];
   const cO=MOBILE?560:400, cK=MOBILE?720:480, rh=MOBILE?36:24, bw2=MOBILE?600:360;   // Kasten endet vor dem Streifen zwischen OSL und Köln
   const bxx=MOBILE?400:480, byy=MOBILE?620:326;

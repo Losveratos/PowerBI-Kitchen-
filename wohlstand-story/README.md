@@ -66,9 +66,9 @@ wohlstand-story/
 
 - **BIP pro Kopf (KKP), 2024, internationale Dollar.** Regionen = Anteil an BIP und Bevölkerung laut Statistikamt
   (Deutschland: Eurostat NUTS-3 2023) × Weltbank-Landeswert 2024.
-- **„x % der Menschheit leben in ärmeren Regionen“:** Einwohner aller Einheiten der feinsten Ebene mit niedrigerem
-  BIP pro Kopf, geteilt durch die Weltbevölkerung (inkl. 39 Mio. ohne Daten im Nenner). Der Härtetest rechnet dasselbe
-  auf allen vier Ebenen des Atlas.
+- **„x % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf“:** Einwohner aller Einheiten der feinsten Ebene mit
+  niedrigerem BIP pro Kopf, geteilt durch die Weltbevölkerung (inkl. 39 Mio. ohne Daten im Nenner). Die Gegenprobe in Akt 2
+  rechnet dasselbe auf allen vier Ebenen des Atlas.
 - **Quadrate:** 1 Quadrat = 5 Mio. Menschen. Der Wert eines Quadrats ist der seiner Bevölkerungsmitte (Platz auf der Skala).
   Das Land wird so verteilt, dass jedes Land so viele Quadrate bekommt, wie es Menschen hat (auf ein Quadrat genau):
   Jedes Quadrat geht an das Land mit dem größten noch nicht vergebenen Bevölkerungsanteil in seinem Abschnitt.

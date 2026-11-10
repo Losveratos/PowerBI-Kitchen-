@@ -35,7 +35,7 @@ for m in re.finditer(r'<div class="kicker">(.*?)</div>|<h2>(.*?)</h2>|<h3>(.*?)<
     elif h2: out.append(f"\n## {plain(h2)}\n")
     elif h3: out.append(f"\n### {plain(h3)}\n")
     elif h4: out.append(f"\n**{plain(h4)}.** {plain(p4)}\n")
-    elif summ: out.append(f"\n### {plain(summ)}\n")
+    elif summ and "als Tabelle" not in summ: out.append(f"\n### {plain(summ)}\n")   # die Tabelle füllt das Skript der Seite; ihre Werte stehen oben unter „Kennzahlen“
     elif li: out.append(f"- {plain(li)}")
     elif p and plain(p): out.append(plain(p) + "\n")
 
@@ -53,7 +53,7 @@ except Exception:
 
 md = f"""# Zwei Heimaten. Eine Welt.
 
-> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang {P['koeln']['de_rank']} und Rang {P['osl']['de_rank']} von {P['osl']['de_n']} Kreisen. In der Welt stehen beide weit oben: Rund {round(P['osl']['world_below']['2'])} % bzw. rund {round(P['koeln']['world_below']['2'])} % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis ({D['germany']['poorest']['name']}) liegt bei rund {round(D['germany']['poorest']['world_below'])} %. Deutschland steht unter den Ländern seit {D['trend']['start']} auf demselben Platz, der Vorsprung zur Mitte der Welt ist aber vom {str(D['trend']['first']['x_med']).replace('.', ',')}-Fachen auf das {str(D['trend']['last']['x_med']).replace('.', ',')}-Fache geschrumpft.
+> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang {P['koeln']['de_rank']} und Rang {P['osl']['de_rank']} von {P['osl']['de_n']} Kreisen. In der Welt stehen beide weit oben: Rund {round(P['osl']['world_below']['2'])} % bzw. rund {round(P['koeln']['world_below']['2'])} % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis ({D['germany']['poorest']['name']}) liegt bei rund {round(D['germany']['poorest']['world_below'])} %. Deutschland steht unter den Ländern seit {D['trend']['start']} auf demselben Platz, der Vorsprung zur Mitte der Welt ist aber vom gut {int(D['trend']['first']['x_med'])}-Fachen auf das gut {int(D['trend']['last']['x_med'])}-Fache geschrumpft.
 
 - **Quelle:** {URL}
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen

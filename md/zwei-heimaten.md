@@ -1,6 +1,6 @@
 # Zwei Heimaten. Eine Welt.
 
-> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang 28 und Rang 307 von 400 Kreisen. In der Welt stehen beide weit oben: Rund 86 % bzw. rund 98 % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis (Südwestpfalz) liegt bei rund 73 %. Deutschland steht unter den Ländern seit 2000 auf demselben Platz, der Vorsprung zur Mitte der Welt ist aber vom 12,3-Fachen auf das 4,3-Fache geschrumpft.
+> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang 28 und Rang 307 von 400 Kreisen. In der Welt stehen beide weit oben: Rund 86 % bzw. rund 98 % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis (Südwestpfalz) liegt bei rund 73 %. Deutschland steht unter den Ländern seit 2000 auf demselben Platz, der Vorsprung zur Mitte der Welt ist aber vom gut 12-Fachen auf das gut 4-Fache geschrumpft.
 
 - **Quelle:** https://datenwgknowledgekitchen.com/zwei-heimaten.html
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
@@ -190,7 +190,7 @@ Der mittlere Mensch dieser Welt lebt in einer Region mit rund 15.000 Int.$ pro K
 
 ## Wo steht deine Heimat?
 
-Tipp einen Ort ein: einen Kreis, eine Stadt, ein Bundesland, einen Bundesstaat oder ein Land. Gezeigt wird, wie viele Menschen weltweit in ärmeren Regionen leben. Mit einem zweiten Ort wird daraus dein eigener Vergleich, und den kannst du als Link weitergeben.
+Tipp einen Ort ein: einen Kreis, eine Stadt, ein Bundesland, einen Bundesstaat oder ein Land. Gezeigt wird, wie viele Menschen weltweit in Regionen mit niedrigerem BIP pro Kopf leben. Mit einem zweiten Ort wird daraus dein eigener Vergleich, und den kannst du als Link weitergeben.
 
 Zum Ausprobieren:
 
@@ -198,7 +198,7 @@ Zum Ausprobieren:
 
 ## Was diese Zahlen nicht sagen
 
-**Regionen, keine Menschen.** Jede Prozentzahl hier ordnet Menschen nach dem Durchschnitt ihrer Region ein. In jeder Region gibt es Ärmere und Reichere, in Köln wie in Kerala. Wie viele einzelne Menschen ärmer sind als jemand in OSL, sagt die Zahl nicht.
+**Regionen, keine Menschen.** Jede Prozentzahl hier ordnet Menschen nach dem Durchschnitt ihrer Region ein. In jeder Region gibt es Ärmere und Reichere, in Köln wie in Kerala. Wie viele einzelne Menschen weniger haben als jemand in OSL, sagt die Zahl nicht.
 
 **Durchschnitt, kein Einkommen.** BIP pro Kopf ist die Wirtschaftsleistung einer Region geteilt durch ihre Einwohner. Dazu gehören Gewinne von Unternehmen und Abschreibungen, die bei keinem Haushalt ankommen.
 
@@ -243,6 +243,3 @@ Das Modell ist eher zu gleichmäßig: Auf die ärmere Hälfte der Menschen entfa
 - [B] hochgerechnet: regionale Verteilung aus der Statistik eines früheren Jahres, auf den Landeswert 2024 übertragen.
 - [C] grob: Der Wert gilt für eine größere Region als die genannte, oder er stammt aus einer Modellrechnung.
 - Ohne Kennzeichen: Werte, die direkt aus amtlichen Landeszahlen folgen, oder einfache Rechnungen daraus.
-
-### Die wichtigsten Zahlen als Tabelle
-
