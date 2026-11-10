@@ -16,6 +16,7 @@ TPL = (ROOT / "story_template.html").read_text(encoding="utf-8").replace("&nbsp;
 P, W, M = D["places"], D["world"], D["meta"]
 K, L = P["koeln"], P["osl"]
 C = W["compare"]
+G = D["germany"]
 
 
 def de(v, d=0):
@@ -42,6 +43,11 @@ EXPECT = {
     "85,1": de(min(L["world_below"].values()), 1), "85,8 %": f"{de(max(L['world_below'].values()), 1)} %",
     "99,3 %": f"{de(max(K['world_below'].values()), 1)} %",
     "5.929 Regionen": f"{de(M['n_fine'])} Regionen", "8,1 Mrd.": f"{de(M['world_pop'] / 1e9, 1)} Mrd.",
+    # Schätzfrage und Akt 2 / Schritt 5: letzter und erster Kreis in Deutschland
+    "letzter Kreis": f"<b>{G['poorest']['name']}</b> mit {h(G['poorest']['gdp'])} Int.$", "Rang 400": f"{G['poorest']['name']} steht in Deutschland auf Rang {K['de_n']}",
+    "73,4 %": f"{de(G['poorest']['world_below'], 1)} %</span>", "Wolfsburg 99,5 %": f"{G['richest']['name']} bei <span class=\"big\">{de(G['richest']['world_below'], 1)} %</span>",
+    "rechtes Viertel": "nur das rechte Viertel" if 22 <= G["richest"]["world_below"] - G["poorest"]["world_below"] <= 28 else "!!",
+    "Kreise im Atlas": f"letzten Platz der {K['de_n']} Kreise",
     # Akt 3
     "1.624 Quadraten": f"{de(M['n_sq'])} Quadraten", "1.134 Mio.": f"{de(W['above_osl_mio'])} Mio.",
     "USA (283 Mio.)": f"USA ({de(round(top['USA']))} Mio.)", "China (120 Mio.)": f"China ({de(round(top['CHN']))} Mio.)",

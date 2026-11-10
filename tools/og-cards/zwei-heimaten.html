@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>OG Zwei Heimaten</title>
+<link rel="stylesheet" href="../../assets/fonts/inter/inter.css">
+<link rel="stylesheet" href="../../assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1200px;height:630px;overflow:hidden;background:#0c0c0c}
+.card{position:relative;width:1200px;height:630px;overflow:hidden;background:#0c0c0c;font-family:Inter,sans-serif}
+canvas{position:absolute;inset:0;width:1200px;height:630px;opacity:.8}
+.shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(12,12,12,.88) 0%,rgba(12,12,12,.6) 60%,rgba(12,12,12,.3) 100%)}
+.in{position:absolute;left:52px;top:56px;right:48px;bottom:52px}
+.kick{font:600 22px "JetBrains Mono",monospace;letter-spacing:.2em;color:#f0b54a}
+h1{margin-top:22px;font-weight:800;font-size:92px;line-height:1.04;letter-spacing:-.025em;color:#fff}
+h1 em{font-style:normal;color:#f0b54a}
+.rows{margin-top:40px;font-weight:600;font-size:30px;line-height:1.5;white-space:nowrap;letter-spacing:-.012em}
+.k{color:#f0b54a}.l{color:#86b6ef}
+.foot{position:absolute;left:0;bottom:0;font:500 22px "JetBrains Mono",monospace;color:#b9b7ac}
+</style></head><body>
+<div class="card"><canvas id="cv" width="1200" height="630"></canvas><div class="shade"></div>
+<div class="in">
+<div class="kick">WOHLSTANDSATLAS · EINE DATENSTORY</div>
+<h1>Zwei Heimaten.<br><em>Eine</em> Welt.</h1>
+<div class="rows"><div class="k" id="rk"></div><div class="l" id="rl"></div></div>
+<div class="foot">datenwgknowledgekitchen.com · Michael Tenner</div>
+</div></div>
+<script>
+(function(){
+const D=window.__STORY__; if(!D) throw new Error("story data missing");
+const nf=new Intl.NumberFormat("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1});
+const line=(name,p)=>`${name} · Rang ${p.de_rank} von ${p.de_n}${name==="Köln"?" in Deutschland":""} · vor ${nf.format(p.world_below["2"])} % der Menschheit`;
+rk.textContent=line("Köln",D.places.koeln); rl.textContent=line("Oberspreewald-Lausitz",D.places.osl);
+const cx=cv.getContext("2d"), sq=D.squares, n=sq.length, COLS=58, ROWS=Math.ceil(n/COLS);
+const iO=sq.findIndex(s=>s[1]>=D.places.osl.gdp), iK=sq.findIndex(s=>s[1]>=D.places.koeln.gdp);
+const W=1200,H=630,s=Math.max(W/COLS,H/ROWS)*1.0, ox=(W-COLS*s)/2, oy=(H-ROWS*s)/2;
+for(let i=0;i<n;i++){const col=i%COLS,row=Math.floor(i/COLS),x=ox+col*s,y=oy+(ROWS-1-row)*s;
+ cx.fillStyle=i>=iK?"rgba(240,181,74,.75)":i>=iO?"rgba(134,182,239,.55)":"rgba(195,194,183,"+(0.10+0.25*i/n)+")";
+ cx.fillRect(x+1,y+1,s-2,s-2);}
+})();
+</script></body></html>

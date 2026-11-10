@@ -127,15 +127,34 @@ compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"])} for k in
            if k in by}
 
 # ---------- Quadrate: 1 Quadrat = 5 Mio. Menschen, sortiert nach BIP pro Kopf ----------
+# Der Wert eines Quadrats ist der seiner Bevölkerungsmitte (Position auf der Skala). Das Land wird so verteilt,
+# dass jedes Land so viele Quadrate bekommt, wie es Menschen hat: Jedes Quadrat sammelt die Einwohner aller
+# Regionen in seinem Abschnitt je Land ein und geht an das Land mit dem größten noch nicht vergebenen Anteil,
+# das in diesem Abschnitt vorkommt. Kleine Länder können deshalb weiter fehlen, große stimmen auf ein Quadrat genau.
+# (Nur nach der Bevölkerungsmitte vergeben bekäme Deutschland mit seinen 400 kleinen Kreisen 10 statt 17 Quadrate.)
+CONT = {"Afrika": 0, "Asien": 1, "Europa": 2, "Nord- & Mittelamerika": 3, "Südamerika": 4, "Ozeanien": 5}
 n_sq = round(WORLD / SQUARE)
-squares, acc, ui = [], 0.0, 0
+step = sum(u["pop"] for u in fine) / n_sq
+starts, acc = [], 0.0
+for u in fine:
+    starts.append(acc); acc += u["pop"]
+cont_of = {u["country"]: CONT.get(u.get("ct"), 6) for u in fine}
+share = [defaultdict(float) for _ in range(n_sq)]       # Einwohner je Land in jedem Quadrat-Abschnitt
+for u, st in zip(fine, starts):
+    end, q = st + u["pop"], min(n_sq - 1, int(st // step))
+    while q < n_sq and q * step < end:
+        share[q][u["country"]] += max(0.0, min(end, (q + 1) * step) - max(st, q * step))
+        q += 1
+squares, open_pop, mi = [], defaultdict(float), 0
 for q in range(n_sq):
-    mid = (q + 0.5) * SQUARE * (sum(u["pop"] for u in fine) / (n_sq * SQUARE))
-    while ui < len(fine) - 1 and acc + fine[ui]["pop"] < mid:
-        acc += fine[ui]["pop"]; ui += 1
-    u = fine[ui]
-    squares.append([u["country"], r(u["gdp_pc_ppp"]), {"Afrika": 0, "Asien": 1, "Europa": 2, "Nord- & Mittelamerika": 3,
-                                                       "Südamerika": 4, "Ozeanien": 5}.get(u.get("ct"), 6)])
+    for c, p in share[q].items():
+        open_pop[c] += p
+    while mi < len(fine) - 1 and starts[mi] + fine[mi]["pop"] < (q + 0.5) * step:
+        mi += 1
+    c = max(share[q], key=lambda c: open_pop[c])        # nur Länder, die in diesem Abschnitt wirklich vorkommen
+    open_pop[c] -= step
+    squares.append([c, r(fine[mi]["gdp_pc_ppp"]), cont_of[c]])
+names = {c: by[c]["name"] for c in sorted({q[0] for q in squares}) if c in by}
 
 # ---------- Deutschlandkarte: Kreise als SVG-Pfade ----------
 tr = topo["transform"]
@@ -187,8 +206,16 @@ def centroid(gid):
     return [round(sum(xs) / len(xs), 1), round(sum(ys) / len(ys), 1)]
 
 
+def de_end(u):
+    """Kreis am Ende der deutschen Rangfolge, eingeordnet in die Welt (feinste Ebene)."""
+    return {"id": u["id"], "name": u["name"], "gdp": r(u["gdp_pc_ppp"]), "world_below": r(below(u["gdp_pc_ppp"], "gdp_pc_ppp", FINE) * 100, 1)}
+
+
 germany = {"kreise": kreise, "koeln_xy": centroid(KOELN), "osl_xy": centroid(OSL),
-           "w": round((15.1 - LON0) * COS * K), "h": round((LAT0 - 47.2) * K)}
+           "w": round((15.1 - LON0) * COS * K), "h": round((LAT0 - 47.2) * K),
+           "poorest": de_end(de_fine[-1]), "richest": de_end(de_fine[0])}
+# Länder über 1 Mio. Einwohner für „entspricht etwa dem Niveau von …“ im Vergleich zweier Orte
+countries = sorted(([c["name"], r(c["gdp_pc_ppp"])] for c in lvl(0) if c.get("gdp_pc_ppp") and c["pop"] > 1e6), key=lambda x: x[1])
 
 # ---------- „Wo stehst du?“: alle Einheiten der feinsten Ebene ----------
 # feinste Ebene plus Bundesländer/-staaten und ganze Länder, damit „Bayern“ oder „Texas“ gefunden werden;
@@ -221,6 +248,8 @@ D = {
               "compare": compare},
     "curve": curve,
     "squares": squares,
+    "names": names,
+    "countries": countries,
     "germany": germany,
     "search": search,
 }
@@ -229,5 +258,6 @@ OUT.write_text(json.dumps(D, ensure_ascii=False, separators=(",", ":")), encodin
 print(f"✓ {OUT.relative_to(REPO)} · {OUT.stat().st_size / 1024:.0f} KB · {len(kreise)} Kreise · {n_sq} Quadrate · {len(search)} Orte")
 for k in ("koeln", "osl"):
     p = P[k]; print(f"  {p['name']}: {p['gdp']} Int.$, Welt darunter {p['world_below']}, DE-Rang {p.get('de_rank')}/{p.get('de_n')}")
+print("  DE-Spanne", germany["poorest"], germany["richest"])
 print("  Median", D["world"]["median"], D["world"]["median_name"], "| Mittel", D["world"]["mean"], "| zwischen", D["world"]["between_share"],
       "| ärmere Hälfte", D["world"]["poor_half_share"], "% BIP | über OSL", D["world"]["above_osl_mio"], "Mio | über Köln", D["world"]["above_koeln_mio"])

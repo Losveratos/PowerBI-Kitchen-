@@ -6,7 +6,7 @@
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
 - **Extrahiert aus:** `zwei-heimaten.html` (Text aus `wohlstand-story/story_template.html`) · Stand 2026-11-10
 - **Zitierhinweis:** Michael Tenner, Daten-WG Knowledge Kitchen, https://datenwgknowledgekitchen.com/zwei-heimaten.html — Abruf mit Datum angeben. Weiterverwendung mit Quellenangabe erwünscht.
-- **Hinweis für Agenten:** Diese Markdown-Fassung enthält den Text der Story. Grafiken (Deutschlandkarte, Kurve der Menschheit, Quadrate, Balken) und die Suche „Wo steht deine Heimat?“ gibt es nur in der HTML-Fassung; die wichtigsten Zahlen stehen unten als Tabelle.
+- **Hinweis für Agenten:** Diese Markdown-Fassung enthält den Text der Story. Grafiken (Deutschlandkarte, Kurve der Menschheit, Quadrate, Balken), die Schätzfrage und der Vergleich eigener Orte („Wo steht deine Heimat?“, teilbar als `zwei-heimaten.html#vs=<ID>,<ID>` mit den IDs aus der CSV des Atlas) gibt es nur in der HTML-Fassung; die wichtigsten Zahlen stehen unten als Tabelle.
 - **Datengrundlage:** [Wohlstandsatlas](https://datenwgknowledgekitchen.com/md/wohlstandsatlas.md): Weltbank WDI 2024, IWF WEO, Eurostat (NUTS-3 2023), Regionaler Preisindex 2022 (BBSR/IW). Regionen = Anteil laut Statistikamt × Landeswert 2024 (hochgerechnet).
 - **Reproduzierbarkeit:** `wohlstand-story/scripts/build_story_data.py` rechnet alle Zahlen aus den Atlasdaten, `check_numbers.py` prüft jede Zahl im Text.
 
@@ -58,11 +58,13 @@ Gemessen an der Bevölkerung: 81,2 % der Menschen in Deutschland wohnen in einem
 
 So sieht Deutschland in fast jedem Ranking aus: hier der reiche Westen, dort der Osten, der als abgehängt gilt. Jetzt nehmen wir den Rest der Welt dazu.
 
+Auf dem letzten Platz der 400 Kreise steht die **Südwestpfalz** mit 30.300 Int.$ pro Kopf. Was schätzt du: Wie viel Prozent der Menschheit leben in Regionen mit einem noch niedrigeren Wert?
+
 ## Akt 2 · Die Welt dazunehmen
 
 ### Der mittlere Mensch lebt in Kerala
 
-Die Kurve stellt die ganze Menschheit in eine Reihe, vom ärmsten Ort links bis zum reichsten rechts. Genau in der Mitte, bei 50 %, steht der mittlere Mensch: Seine Region kommt auf 15.300 Int.$. Das ist das Niveau des indischen Bundesstaats Kerala.
+Die Kurve stellt die ganze Menschheit in eine Reihe, vom ärmsten Ort links bis zum reichsten rechts. Genau in der Mitte, bei 50 %, steht der mittlere Mensch: Seine Region kommt auf 15.300 Int.$. Das ist das Niveau des indischen Bundesstaats [Kerala](wohlstandsatlas.html#IN-KL--m0--l2--z1).
 
 Der Weltdurchschnitt liegt mit 24.500 Int.$ höher, weil wenige reiche Regionen ihn nach oben ziehen. Die ärmere Hälfte der Menschheit erwirtschaftet nur 15,8 % der Weltwirtschaft.
 
@@ -83,6 +85,12 @@ Was in Deutschland wie ein Graben aussieht, ist im Weltmaßstab ein schmaler Str
 Solche Prozentwerte hängen davon ab, wie fein man die Welt zerlegt: in Länder, Bundesländer, Kreise oder Metropolregionen. Für OSL ist das egal: Auf allen vier Ebenen liegt der Kreis zwischen 85,1 und 85,8 %, Köln zwischen 98,3 und 99,3 %.
 
 Die Aussage steht also, egal wie man zählt.
+
+### Und der letzte Platz in Deutschland?
+
+Die Südwestpfalz steht in Deutschland auf Rang 400. In der Welt liegt sie bei 73,4 %. Ganz vorn steht Wolfsburg bei 99,5 %.
+
+Alle 400 Kreise zusammen belegen auf der Kurve also nur das rechte Viertel. Der ganze deutsche Vergleich, vom ersten bis zum letzten Platz, spielt sich dort ab.
 
 ## Akt 3 · Wer noch auf der Stufe von OSL steht
 
@@ -142,7 +150,7 @@ Der mittlere Mensch dieser Welt lebt in einer Region mit 15.300 Int.$ pro Kopf. 
 
 ## Wo steht deine Heimat?
 
-Tipp einen Kreis, eine Stadt oder eine Region ein. Gezeigt wird, wie viele Menschen weltweit in ärmeren Regionen leben.
+Tipp einen Ort ein: einen Kreis, eine Stadt, ein Bundesland, einen Bundesstaat oder ein Land. Gezeigt wird, wie viele Menschen weltweit in ärmeren Regionen leben. Mit einem zweiten Ort wird daraus dein eigener Vergleich, und den kannst du als Link weitergeben.
 
 [Im Wohlstandsatlas weiterschauen →](wohlstandsatlas.html)
 
@@ -170,7 +178,7 @@ Die ganze Tabelle gibt es als [CSV](wohlstandsatlas/wohlstandsatlas-einheiten.cs
 
 „85,6 % der Menschheit leben in ärmeren Regionen“ heißt: Summe der Einwohner aller Regionen weltweit mit niedrigerem BIP pro Kopf als OSL, geteilt durch die Weltbevölkerung (8,12 Mrd.). Regionen ohne Daten (39 Mio. Menschen) zählen im Nenner mit, nicht im Zähler.
 
-Die Quadrate in Akt 3 sind gerundet: Jedes bekommt die Region, in der seine Bevölkerungsmitte liegt. Die Zahlen im Text sind dagegen exakt über alle Regionen summiert, deshalb weichen Quadrate pro Land leicht ab.
+Die Quadrate in Akt 3 sind gerundet: Jedes steht an der Stelle der Skala, an der seine Bevölkerungsmitte liegt, und jedes Land bekommt so viele Quadrate, wie es Menschen hat (auf ein Quadrat genau). Kleine Länder unter 5 Mio. Einwohnern können fehlen. Die Zahlen im Text sind exakt über alle Regionen summiert.
 
 Gezählt wird auf der feinsten Ebene des Atlas: Kreise in Europa, Counties in den USA, Präfekturen in China, Bundesstaaten in Indien, sonst das ganze Land. Der Härtetest in Akt 2 rechnet dasselbe auf allen vier Ebenen.
 

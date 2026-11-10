@@ -9,6 +9,10 @@
 <meta property="og:title" content="Wohlstandsatlas – wo stehst du im Vergleich zur Welt?">
 <meta property="og:description" content="217 Länder, rund 6.000 Regionen, 10 Kennzahlen: BIP, Kaufkraft, Haushalte, Gini, Dichte. Karte, Quadrat-Ansicht, Verteilung und Geschichten.">
 <meta property="og:url" content="https://datenwgknowledgekitchen.com/wohlstandsatlas.html">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/og/wohlstandsatlas.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://datenwgknowledgekitchen.com/wohlstandsatlas.html">
 <link rel="alternate" type="text/markdown" title="Markdown" href="md/wohlstandsatlas.md">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32">
@@ -237,6 +241,7 @@ h1{font-variation-settings:"opsz" 96;font-weight:650;letter-spacing:-.01em}
 <script src="assets/js/vendor/d3-7.9.0.min.js"></script>
 <script src="assets/js/vendor/topojson-client-3.1.0.min.js"></script>
 <script src="wohlstandsatlas/atlas-data.js"></script>
+<script src="wohlstandsatlas/atlas-extras.js"></script>
 <script>
 const TOPO = WA.topo;
 const DATA = WA.data;
@@ -962,7 +967,7 @@ function storyBox(){
 
 function update(fromSlider){
   d3.selectAll("#metrics .chip").attr("aria-pressed",d=>d===metric);
-  d3.selectAll("#levels .chip").attr("aria-pressed",(d,i)=>i===level).property("disabled",(d,i)=>metric.countryOnly&&i>0);
+  d3.selectAll("#levels .chip").attr("aria-pressed",(d,i)=>i===level).property("disabled",(d,i)=>!!(metric.countryOnly&&i>0));
   document.querySelectorAll("#views [data-cw]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cw===classMode));
   document.getElementById("explain").innerHTML = metric.info + ` <span>· Ebene: ${LEVEL_INFO[level]}</span>`;
   recolor(); band(fromSlider);

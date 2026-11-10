@@ -14,11 +14,26 @@ python3 -I wohlstand-story/scripts/build_story_data.py  # Atlasdaten → data/st
 python3 -I wohlstand-story/scripts/build_story_html.py  # story_template.html + JSON → ../zwei-heimaten.html
 python3 -I wohlstand-story/scripts/check_numbers.py     # prüft die im Text ausgeschriebenen Zahlen gegen story_data.json
 python3 -I wohlstand-story/scripts/build_md.py          # Text der Story → ../md/zwei-heimaten.md (danach scripts/build_llms_full.py)
+node wohlstand-story/scripts/check_page.js              # Browser-Test der fertigen Seite (Playwright, startet eigenen Server)
+node tools/og-cards/build.js                            # Vorschaubild assets/og/zwei-heimaten.png neu, wenn sich Zahlen ändern
 ```
 
 **Regel:** Jede Zahl der Story stammt aus `data/story_data.json`, und die entsteht ausschließlich per Skript aus
-`wohlstandsatlas/atlas-data.js`, also aus denselben Daten wie der Atlas. Ändern sich die Atlasdaten, alle drei Schritte
+`wohlstandsatlas/atlas-data.js`, also aus denselben Daten wie der Atlas. Ändern sich die Atlasdaten, alle Schritte
 neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr passt.
+
+## Bausteine der Seite
+
+- **Vier Akte** mit mitlaufender Grafik (Deutschlandkarte + Rangfolge, Kurve der Menschheit, 1.624 Quadrate, Balken).
+  Auf dem Handy (bis 760 px) zeichnet jede Grafik im Hochformat (viewBox 1060 × 1080 statt 1060 × 640).
+- **Schätzfrage** vor Akt 2 (`#quiz`): letzter Platz der deutschen Kreise im Weltmaßstab. Die Auflösung und die eigene
+  Schätzung erscheinen in Akt 2 / Schritt 5 auf der Kurve (Band „alle 400 Kreise“).
+- **„Wo steht deine Heimat?“** (`#you`): ein oder zwei eigene Orte auf der Kurve, mit Faktor und Anteil der Menschheit
+  dazwischen. Die Suche verzeiht Umlaut-Schreibweisen und Tippfehler. Der Zustand steht in der Adresse:
+  `zwei-heimaten.html#vs=<ID>` oder `#vs=<ID1>,<ID2>` (IDs der Atlas-Einheiten, Spalte `id` der CSV). Der Wohlstandsatlas
+  verlinkt so aus der Profilkarte einer Region hierher; umgekehrt führen die Knöpfe unter dem Diagramm mit
+  `wohlstandsatlas.html#<ID>--m0--l<Ebene>--z1` in den Atlas (`--z1` = auf die Region zoomen).
+- **Vorschaubild** fürs Teilen: `assets/og/zwei-heimaten.png`, erzeugt mit `tools/og-cards/build.js` aus `story_data.json`.
 
 ## Ordner
 
@@ -26,7 +41,7 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 wohlstand-story/
 ├── story_template.html   ← Seite (HTML/CSS/JS, Platzhalter /*__DATA__*/null für die Daten)
 ├── data/story_data.json  ← verdichtete Kennzahlen, Weltkurve, Quadrate, Deutschlandkarte (Kreispfade), Suchliste
-└── scripts/              ← build_story_data / build_story_html / check_numbers / build_md
+└── scripts/              ← build_story_data / build_story_html / check_numbers / build_md / check_page
 ```
 
 ## Kennzahlen und Definitionen
@@ -36,8 +51,12 @@ wohlstand-story/
 - **„x % der Menschheit leben in ärmeren Regionen“:** Einwohner aller Einheiten der feinsten Ebene mit niedrigerem
   BIP pro Kopf, geteilt durch die Weltbevölkerung (inkl. 39 Mio. ohne Daten im Nenner). Der Härtetest rechnet dasselbe
   auf allen vier Ebenen des Atlas.
-- **Quadrate:** 1 Quadrat = 5 Mio. Menschen; jedes Quadrat bekommt die Einheit, in der seine Bevölkerungsmitte liegt.
-  Kleine Länder können deshalb in der Quadrat-Ansicht fehlen, die Summen im Text sind exakt gerechnet.
+- **Quadrate:** 1 Quadrat = 5 Mio. Menschen. Der Wert eines Quadrats ist der seiner Bevölkerungsmitte (Platz auf der Skala).
+  Das Land wird so verteilt, dass jedes Land so viele Quadrate bekommt, wie es Menschen hat (auf ein Quadrat genau):
+  Jedes Quadrat geht an das Land mit dem größten noch nicht vergebenen Bevölkerungsanteil in seinem Abschnitt.
+  Kleine Länder können weiter fehlen, die Summen im Text sind exakt gerechnet.
+- **Letzter und erster Kreis:** `germany.poorest` / `germany.richest` in `story_data.json`, mit Anteil der Menschheit
+  darunter auf der feinsten Ebene.
 - **Luftlinie:** Rathaus Köln bis Rathaus Senftenberg (Kreisstadt OSL), Großkreis.
 
 ## Quellen

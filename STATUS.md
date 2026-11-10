@@ -47,6 +47,18 @@ jeweiligen Visual-Ordner.
   Die Datenpipeline (Merge der Länder- und Regionalstatistiken, Validierung, Build) liegt noch
   außerhalb des Repos; offen: Pipeline ins Repo holen, Full-HD-Layout, Zeitreihen für Regionen.
   Bibliotheken lokal: `assets/js/vendor/d3-7.9.0.min.js`, `topojson-client-3.1.0.min.js`.
+  **Erweiterungen von Hand (11/2026), beim nächsten Generator-Lauf übernehmen:** (1) im `<head>` vier Zeilen
+  `og:image` (+ Breite, Höhe) und `twitter:card` für `assets/og/wohlstandsatlas.png`; (2) nach
+  `<script src="wohlstandsatlas/atlas-data.js">` und **vor** dem Inline-Skript die Zeile
+  `<script src="wohlstandsatlas/atlas-extras.js"></script>`; (3) in `update()` `!!(metric.countryOnly&&i>0)` statt
+  `metric.countryOnly&&i>0` (sonst bleiben die Ebenen-Chips nach BNE/Gini gesperrt).
+  `wohlstandsatlas/atlas-extras.js` ist **handgepflegt** (nicht generiert) und dockt an die Funktionen des Inline-Skripts
+  an: Zoom-Deep-Link `--z1`, „Link kopieren“, Block „Gleichauf auf anderen Kontinenten“ in der Profilkarte, Geschichte
+  „Zwei Heimaten“, Link „In der Story vergleichen“ (`zwei-heimaten.html#vs=<ID>`), eindeutige Suchvorschläge
+  „Name (Art, Land)“, Zeile „Weiterlesen“, Taste „/“ für die Suche. Fehlt eine erwartete Funktion, überspringt die Datei
+  das jeweilige Feature mit einer Konsolenwarnung.
+- **Zwei Heimaten** (`zwei-heimaten.html`, Datenstory aus dem Atlas): generiert aus `wohlstand-story/` (Pipeline und
+  Bausteine im dortigen README). Vorschaubilder fürs Teilen: `tools/og-cards/build.js` → `assets/og/`.
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
 - **Branch-Hygiene:** `kitchen-refresh-data` gehört dem Refresh-Workflow und
   bleibt. Einziger Branch mit bewusst ungemergter Arbeit:

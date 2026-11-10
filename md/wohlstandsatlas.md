@@ -7,6 +7,7 @@
 - **Stand:** Länderwerte 2024 (Weltbank WDI, Ausgabe Oktober 2026; IWF WEO Oktober 2026 für fehlende oder veraltete Länder) · diese Fassung 2026-11
 - **Zitierhinweis:** Michael Tenner, Daten-WG Knowledge Kitchen, Wohlstandsatlas, https://datenwgknowledgekitchen.com/wohlstandsatlas.html — Abruf mit Datum angeben. Weiterverwendung mit Quellenangabe erwünscht.
 - **Hinweis für Agenten:** Diese Markdown-Fassung enthält Methodik, Quellen und die wichtigsten Kennzahlen. Karte, Quadrat-Ansicht, Schwellen-Highlight und Gruppenvergleich gibt es nur in der HTML-Fassung. Die vollständige Tabelle aller Einheiten liegt als CSV vor (siehe unten).
+- **Direktlinks:** `wohlstandsatlas.html#<ID>--m0--l2--z1` öffnet eine Einheit (ID aus der CSV, Spalte `id`) auf der feinsten Ebene und zoomt hin (`l0` Länder, `l1` Bundesländer-Ebene, `l3` Metropolregionen; ohne `--z1` bleibt die Weltkarte). Zwei Einheiten im direkten Vergleich: `zwei-heimaten.html#vs=<ID1>,<ID2>` in der Datenstory [Zwei Heimaten](https://datenwgknowledgekitchen.com/md/zwei-heimaten.md).
 - **Wichtige Einschränkung:** Regionalwerte sind Hochrechnungen (Anteil laut nationaler Statistik × Landeswert 2024), keine amtlichen Werte für 2024. Innerhalb eines Landes gelten außer in den USA und Deutschland dieselben Preise.
 
 ---

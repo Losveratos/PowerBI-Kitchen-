@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><title>OG Wohlstandsatlas</title>
+<link rel="stylesheet" href="../../assets/fonts/fraunces/fraunces.css">
+<link rel="stylesheet" href="../../assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<link rel="stylesheet" href="../../assets/fonts/geist/geist.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1200px;height:630px;overflow:hidden;background:#FAFAF7}
+.card{position:relative;width:1200px;height:630px;overflow:hidden;background:#FAFAF7;color:#0F1E2E}
+.map{position:absolute;right:0;top:0;width:780px;height:630px;background:#FAFAF7 center/cover no-repeat}
+.fade{position:absolute;right:0;top:0;width:780px;height:630px;background:linear-gradient(90deg,#FAFAF7 0%,#FAFAF7 22%,rgba(250,250,247,0) 48%)}
+.in{position:absolute;left:64px;top:64px;bottom:52px;width:600px}
+.kick{font:600 22px "JetBrains Mono",monospace;letter-spacing:.2em;color:#1e6a6e}
+h1{margin-top:24px;font-family:Fraunces,serif;font-weight:700;font-size:80px;line-height:1.02;white-space:nowrap;letter-spacing:-.02em}
+p{max-width:470px;margin-top:30px;font-family:Geist,sans-serif;font-weight:500;font-size:33px;line-height:1.3;color:#1f2f40}
+.foot{position:absolute;left:0;bottom:0;font:500 22px "JetBrains Mono",monospace;color:#475569}
+</style></head><body>
+<div class="card"><div class="map" id="map"></div><div class="fade"></div>
+<div class="in"><div class="kick">KENNZAHLEN-ATLAS</div><h1>Wohlstandsatlas</h1>
+<p>BIP pro Kopf für 217 Länder und rund 6.000 Regionen – auf einer Skala.</p>
+<div class="foot">datenwgknowledgekitchen.com</div></div></div>
+<script>if(window.__MAP__) map.style.backgroundImage="url("+window.__MAP__+")";</script>
+</body></html>

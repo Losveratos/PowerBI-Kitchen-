@@ -19,7 +19,8 @@ URL = "https://datenwgknowledgekitchen.com/zwei-heimaten.html"
 
 def plain(s):
     s = re.sub(r"<span class=\"conf[^\"]*\"[^>]*>(\w)</span>", r" [\1]", s)
-    s = re.sub(r"<a [^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>", lambda m: f"[{m.group(2)}]({m.group(1)})", s)
+    s = re.sub(r"<button[^>]*>.*?</button>", "", s, flags=re.S)          # Knöpfe gibt es nur in der HTML-Fassung
+    s = re.sub(r"<a [^>]*href=\"([^\"]+)\"[^>]*>(.*?)</a>", lambda m: f"[{m.group(2)}]({m.group(1)})" if m.group(2).strip() else "", s)
     s = re.sub(r"<b>(.*?)</b>", r"**\1**", s)
     s = re.sub(r"<[^>]+>", "", s)
     return re.sub(r"\s+", " ", html.unescape(s)).strip()
@@ -58,7 +59,7 @@ md = f"""# Zwei Heimaten. Eine Welt.
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
 - **Extrahiert aus:** `zwei-heimaten.html` (Text aus `wohlstand-story/story_template.html`) · Stand {stand}
 - **Zitierhinweis:** Michael Tenner, Daten-WG Knowledge Kitchen, {URL} — Abruf mit Datum angeben. Weiterverwendung mit Quellenangabe erwünscht.
-- **Hinweis für Agenten:** Diese Markdown-Fassung enthält den Text der Story. Grafiken (Deutschlandkarte, Kurve der Menschheit, Quadrate, Balken) und die Suche „Wo steht deine Heimat?“ gibt es nur in der HTML-Fassung; die wichtigsten Zahlen stehen unten als Tabelle.
+- **Hinweis für Agenten:** Diese Markdown-Fassung enthält den Text der Story. Grafiken (Deutschlandkarte, Kurve der Menschheit, Quadrate, Balken), die Schätzfrage und der Vergleich eigener Orte („Wo steht deine Heimat?“, teilbar als `zwei-heimaten.html#vs=<ID>,<ID>` mit den IDs aus der CSV des Atlas) gibt es nur in der HTML-Fassung; die wichtigsten Zahlen stehen unten als Tabelle.
 - **Datengrundlage:** [Wohlstandsatlas](https://datenwgknowledgekitchen.com/md/wohlstandsatlas.md): Weltbank WDI 2024, IWF WEO, Eurostat (NUTS-3 2023), Regionaler Preisindex 2022 (BBSR/IW). Regionen = Anteil laut Statistikamt × Landeswert 2024 (hochgerechnet).
 - **Reproduzierbarkeit:** `wohlstand-story/scripts/build_story_data.py` rechnet alle Zahlen aus den Atlasdaten, `check_numbers.py` prüft jede Zahl im Text.
 
