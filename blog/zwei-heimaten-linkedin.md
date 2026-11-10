@@ -20,7 +20,6 @@
 > | 98,3 % (Köln) | Kopf-Zusammenfassung; Akt 2 · „Köln bei 98 %, und dazwischen fast niemand" |
 > | 12,7 % zwischen OSL und Köln | Akt 2 · „Köln bei 98 %, und dazwischen fast niemand" |
 > | Südwestpfalz, Rang 400, 73,4 % | Akt 2 · „Und der letzte Platz in Deutschland?" |
-> | Niveau von Polen, Estland, Mississippi | Akt 3 · „Reicher als OSL"; Schluss „Weit auseinander, und doch ganz oben" |
 > | BIP zählt am Arbeitsort, Braunkohle-Ausstieg | Akt 4 · „Faktor 2,2"; Schluss; „Was diese Zahlen nicht sagen" |
 > | rund 5.500 Orte im Vergleich | nicht im Text: `wohlstand-story/data/story_data.json`, Liste `search` hat 5.494 Einträge |
 
