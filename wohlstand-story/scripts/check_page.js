@@ -56,6 +56,8 @@ const ok = (cond, msg) => { console.log((cond ? "✓ " : "✗ ") + msg); if (!co
     ok(/dazwischen|Zwischen beiden leben/.test(await page.textContent("#you-out")), `${name}: Vergleich zeigt den Anteil dazwischen`);
     await page.fill("#you-b", "Leipzg");
     ok((await page.textContent("#you-b-sug li b").catch(() => "")) === "Leipzig", `${name}: Tippfehler „Leipzg“ findet Leipzig`);
+    await page.fill("#you-b", "xyzqq");
+    ok(/Kein Ort gefunden/.test(await page.textContent("#you-b-sug").catch(() => "")), `${name}: erfolglose Suche sagt „Kein Ort gefunden“`);
     ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${name}: kein horizontales Scrollen`);
     ok(errs.length === 0, `${name}: keine Konsolenfehler${errs.length ? " – " + errs.join(" | ") : ""}`);
     ok(foreign.length === 0, `${name}: keine Anfragen an fremde Server${foreign.length ? " – " + foreign.join(", ") : ""}`);

@@ -166,6 +166,7 @@ a:hover{color:var(--ink)}
 .you-sug li b{font-weight:600}
 .you-sug li span{font-family:var(--mono);font-size:11.5px;color:var(--muted-chart);text-align:right}
 .you-sug li:hover,.you-sug li.on{background:rgba(194,131,26,.22)}
+.you-sug li.none{cursor:default;color:var(--muted-chart);font-size:13.5px;background:none}
 .you-ex{font-family:var(--mono);font-size:12px;color:var(--muted-chart);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
 .you-ex button{font:inherit;color:var(--ink-2);background:none;border:1px solid var(--ring);border-radius:999px;padding:5px 12px;cursor:pointer}
 .you-ex button:hover{color:var(--ink);border-color:var(--amber)}
@@ -825,7 +826,9 @@ const act4 = (function(){
     const draw=()=>{ ul.innerHTML=""; items.forEach((s,j)=>{ const li=document.createElement("li"); li.setAttribute("role","option"); li.id=`${ul.id}-${j}`; li.setAttribute("aria-selected",String(j===act)); if(j===act) li.className="on";
         const b=document.createElement("b"), sp=document.createElement("span"); b.textContent=s[0]; sp.textContent=where(s); li.append(b,sp);
         li.addEventListener("pointerdown",ev=>{ ev.preventDefault(); choose(s); }); ul.appendChild(li); });
-      ul.hidden=!items.length; inp.setAttribute("aria-expanded",String(!!items.length));
+      if(!items.length && inp.value.trim().length>=3){ const li=document.createElement("li"); li.className="none"; li.setAttribute("role","option"); li.setAttribute("aria-disabled","true");
+        li.textContent="Kein Ort gefunden. Versuch es mit einem Kreis, einer Stadt, einem Bundesland oder einem Land."; ul.appendChild(li); }
+      ul.hidden=!ul.children.length; inp.setAttribute("aria-expanded",String(!ul.hidden));
       if(act>=0) inp.setAttribute("aria-activedescendant",`${ul.id}-${act}`); else inp.removeAttribute("aria-activedescendant"); };
     inp.addEventListener("input",()=>{ items=find(inp.value); act=-1; draw(); if(state[i]){ state[i]=null; render(true); } });
     inp.addEventListener("focus",()=>{ if(inp.value.trim()&&!state[i]){ items=find(inp.value); draw(); } });
@@ -866,9 +869,9 @@ const act4 = (function(){
     if(!sel.length){ out.innerHTML=`Zum Vergleich meine beiden Orte: <span class="l">OSL</span> liegt bei ${fmt(P.osl.world_below["2"],1)}&nbsp;%, <span class="k">Köln</span> bei ${fmt(P.koeln.world_below["2"],1)}&nbsp;%.`; }
     else {
       const card=x=>{ const s=x.s, c=likeCountry(s[2], s[3]==="Land/Gebiet"?s[0]:null), rk=deRank(s[4]);
-        const extra=[rk?`Rang ${rk} von ${deSorted.length} in Deutschland`:"", c?`etwa das Niveau von ${esc(c[0])}`:"", s[5]?"":"ganze Region, gegen die feinste Ebene gerechnet"].filter(Boolean).join(" · ");
+        const extra=[rk?`Rang ${rk} von ${deSorted.length} in Deutschland`:"", c?`Vergleichsland: ${esc(c[0])}`:"", s[5]?"":"ganze Region, gegen die feinste Ebene gerechnet"].filter(Boolean).join(" · ");
         return `<div class="duo-card c${x.i}"><div class="duo-h"><span class="duo-n">${x.i+1}</span><b>${esc(s[0])}</b></div><div class="duo-w">${esc(where(s))}</div>
-          <div class="duo-v">${fmt(s[2])} Int.$</div><div class="duo-p"><b>${fmt(x.p,1)}&nbsp;%</b> der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf</div>${extra?`<div class="duo-x">${extra}</div>`:""}</div>`; };
+          <div class="duo-v">${r100(s[2])} Int.$</div><div class="duo-p"><b>${fmt(x.p,1)}&nbsp;%</b> der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf</div>${extra?`<div class="duo-x">${extra}</div>`:""}</div>`; };
       let sum;
       if(sel.length===2){
         if(ids[0]===ids[1]) sum="Das ist zweimal derselbe Ort.";
