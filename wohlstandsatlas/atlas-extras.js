@@ -220,7 +220,7 @@
       var W = split.clientWidth, top = split.getBoundingClientRect().top + window.scrollY;
       lastTop = top;
       var avail = window.innerHeight - top - 16;
-      var w = Math.round(Math.max(W * 0.4, Math.min(W * 0.66, (avail - 2) / 0.52 + 2)));
+      var w = Math.round(Math.max(W * 0.45, Math.min(W * 0.66, (avail - 2) / 0.52 + 2)));
       split.style.setProperty("--wx-mapw", w + "px");
     }
     var orig = sizeCanvas;
@@ -238,7 +238,16 @@
     // web fonts can change the height of the text above the map once they arrive
     try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (wide.matches) { var w = CW; fit(); if (mb.clientWidth !== w) relayoutKeep(); } }); } catch (e) {}
 
-    // F · wide layout: when the height above the map changes (story box, explanation, key figures),
+    // F · wide layout: an open story stands at the top of the right column, next to the map, so the map
+    // does not move down; below 1500 px it goes back under the story chips
+    var sb = document.getElementById("storybox"), sbHome = sb && sb.previousElementSibling;
+    function placeStory() {
+      if (!sb || !sbHome) return;
+      if (wide.matches) { if (sb.parentNode !== cols) cols.insertBefore(sb, cols.firstChild); }
+      else if (sb.previousElementSibling !== sbHome) sbHome.insertAdjacentElement("afterend", sb);
+    }
+    try { placeStory(); wide.addEventListener("change", placeStory); } catch (e) { warn("Layout (Geschichte)", e); }
+    // when the height above the map changes (story box, explanation, key figures),
     // compute the map size again. The visible part of the map is kept (same centre, same zoom factor);
     // a zoom that is still running (story just started) is simply started again with the new size.
     var lastZoom = null, origZoomTo = zoomTo;

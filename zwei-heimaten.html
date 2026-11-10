@@ -20,14 +20,16 @@
 <link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
 <style>
 /* Designsystem: Geschwister von rhein-story.html und koelner-raser-story.html (gleiche Flächen, Typo, Scrolly-Mechanik).
-   Farben nach Aufgabe: Amber = Köln, Blau = Oberspreewald-Lausitz, Rot = mittlerer Mensch / Warnung.
+   Farben nach Aufgabe: Amber = Köln, Blau = Oberspreewald-Lausitz, Rot = nur der mittlere Mensch.
+   Violett/Mint = eigene Orte im Vergleich; Akt 3 hat eigene Gruppenfarben (Indien, China, Afrika, übrige Welt).
    Palette #c2831a/#3987e5/#e66767 aus der Raser-Story (dort gegen #1a1a19 geprüft). */
 :root{
   --bg:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781; --muted-chart:#a3a19a;
   --grid:#2c2c2a; --axis:#383835;
   --amber:#c2831a; --amber-soft:#f0b54a;   /* Köln */
   --blue:#3987e5; --blue-soft:#86b6ef;     /* Oberspreewald-Lausitz */
-  --red:#e66767;                           /* mittlerer Mensch, eigener Ort 1 */
+  --red:#e66767;                           /* nur: mittlerer Mensch */
+  --violet:#b77ee8;                        /* eigener Ort 1 */
   --mint:#7ed6a5;                          /* eigener Ort 2, eigene Schätzung */
   --card:rgba(20,21,23,.82); --ring:rgba(255,255,255,.14);
   --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
@@ -82,6 +84,21 @@ b{color:var(--ink)}
   .step{min-height:80vh;align-items:center;justify-content:flex-start;padding-bottom:0}
   .step-card{width:min(400px,100%)}
 }
+/* schmale Desktop-Schirme: Untertitel kürzer; unter 1280 px steht der Titel über statt in der Grafik */
+@media (min-width:1020px) and (max-width:1439px){ .fig-title .wide{display:none} }
+@media (min-width:1020px) and (max-width:1279px){
+  .scrolly .fig{display:flex;flex-direction:column}
+  .scrolly .fig .fig-title{position:static;order:-1;padding:0 2px 10px}
+}
+/* Handy und Tablet: Die Grafik steht oben fest und deckend über den Karten. Die Karten laufen im Bereich darunter
+   und verschwinden nach oben hinter der Grafik. Die Grafik ist nie höher als 58 % des Schirms. */
+@media (max-width:1019px){
+  .graphic{z-index:6;height:auto;max-height:58svh;align-items:flex-start;padding:6px 0 8px;background:var(--bg);box-shadow:0 14px 14px -10px rgba(13,13,13,.95)}
+  .scrolly .fig{display:flex;flex-direction:column;max-height:calc(58svh - 14px)}
+  .scrolly .fig svg{flex:0 1 auto;min-height:0}
+  .steps{z-index:1;padding:18px 0 30svh}
+  .step{min-height:0;align-items:flex-start;padding:0 0 14svh}
+}
 .step.is-active .step-card{opacity:1;transform:none}
 .step-card .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--amber-soft);text-transform:uppercase;margin-bottom:8px;display:block}
 .step-card h3{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--ink);margin-bottom:8px;line-height:1.25}
@@ -93,7 +110,7 @@ b{color:var(--ink)}
 .src{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .conf{display:inline-block;font-family:var(--mono);font-size:10px;line-height:1;padding:2px 5px;border:1px solid var(--ring);color:var(--ink-2);margin-left:4px;vertical-align:1px;cursor:help}
 .conf.b{border-color:var(--blue);color:var(--blue-soft)}
-.conf.c{border-color:var(--red);color:var(--red)}
+.conf.c{border-color:var(--muted);color:var(--ink-2)}
 
 /* ---------- SVG ---------- */
 svg text{font-family:var(--mono);fill:var(--muted-chart);font-size:13px}
@@ -123,6 +140,8 @@ svg text{font-family:var(--mono);fill:var(--muted-chart);font-size:13px}
 .curve-fill{transition:opacity 1.2s ease .5s}
 .fig[data-step="-1"] .curve-line{stroke-dashoffset:1}
 .fig[data-step="-1"] .curve-fill{opacity:0}
+.bars{transition:opacity .7s ease}
+.fig[data-step="4"] .bars{opacity:0}
 .halo{paint-order:stroke;stroke:#1a1a19;stroke-width:5px;stroke-linejoin:round}
 .t-g{fill:var(--mint);font-weight:600}
 svg text.badge{fill:#0d0d0d;font-weight:700;font-size:13px}
@@ -149,6 +168,14 @@ details.gloss[open]>summary::before{transform:rotate(90deg)}
 .gloss-body li{margin-bottom:6px}
 a{color:var(--ink-2)}
 a:hover{color:var(--ink)}
+.keytab{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+.keytab th,.keytab td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
+.keytab thead th{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-chart);font-weight:500}
+.keytab td{font-family:var(--mono);white-space:nowrap}
+.keytab tbody th{font-weight:400}
+.keytab td.k{color:var(--amber-soft)} .keytab td.l{color:var(--blue-soft)}
+.keytab tr.sep th,.keytab tr.sep td{border-top:1px solid var(--axis)}
+@media (max-width:520px){ .keytab{font-size:12.5px} .keytab th,.keytab td{padding:6px 4px} .keytab td{white-space:normal} }
 
 /* ---------- Wo stehst du? ---------- */
 .you{max-width:1100px;margin:0 auto;padding:0 24px 40px}
@@ -157,7 +184,7 @@ a:hover{color:var(--ink)}
 .you-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
 .you-field{position:relative;flex:1 1 300px}
 .you-field label{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-chart);margin-bottom:6px}
-.you-field label i{width:10px;height:10px;border-radius:50%;background:var(--red)}
+.you-field label i{width:10px;height:10px;border-radius:50%;background:var(--violet)}
 .you-field.b label i{background:var(--mint)}
 .you-field input{width:100%;background:var(--surface);border:1px solid var(--ring);color:var(--ink);font-family:var(--mono);font-size:16px;padding:12px 14px;border-radius:0}
 .you-field input:focus{outline:2px solid var(--amber);outline-offset:0}
@@ -172,10 +199,10 @@ a:hover{color:var(--ink)}
 .you-ex button:hover{color:var(--ink);border-color:var(--amber)}
 .you-out{font-size:16px;color:var(--ink-2);min-height:3.2em;margin:4px 0 16px}
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
-.duo-card{background:var(--surface);border:1px solid var(--ring);border-top:2px solid var(--red);padding:16px 18px}
+.duo-card{background:var(--surface);border:1px solid var(--ring);border-top:2px solid var(--violet);padding:16px 18px}
 .duo-card.c1{border-top-color:var(--mint)}
 .duo-h{display:flex;gap:10px;align-items:center;font-size:18px;line-height:1.25}
-.duo-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--red);color:#0d0d0d;font-family:var(--mono);font-weight:700;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.duo-n{flex:none;width:22px;height:22px;border-radius:50%;background:var(--violet);color:#0d0d0d;font-family:var(--mono);font-weight:700;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
 .c1 .duo-n{background:var(--mint)}
 .duo-w{font-family:var(--mono);font-size:11.5px;color:var(--muted-chart);margin:2px 0 10px 32px}
 .duo-v{font-family:var(--mono);font-weight:600;font-size:24px;color:var(--ink)}
@@ -220,16 +247,12 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   svg text{font-size:30px}
   svg text.sm{font-size:25px}
   .hero-meta{gap:10px 20px}
-  .graphic{padding-top:8px}
   svg text.badge{font-size:26px}
   .halo{stroke-width:10px}
-  /* Hochformat-Grafik: nie höher, als über der einlaufenden Textkarte Platz ist */
-  .scrolly .fig svg{max-height:max(250px,calc(58svh - 122px))}
   .fig-title .s{font-size:11px}
   .fig-title .wide{display:none}
-  @media (max-height:700px){ .scrolly .fig-title .s{display:none} .scrolly .fig svg{max-height:max(250px,calc(58svh - 70px))} }
+  @media (max-height:700px){ .scrolly .fig-title .s{display:none} }
   .duo-v{font-size:21px}
-  .step{min-height:100svh}
   .hero-eyebrow{letter-spacing:.12em;font-size:11px}
   .fig{width:100vw;padding:0 6px;display:flex;flex-direction:column}
   .fig .fig-title{position:static;order:-1;padding:14px 10px 10px}
@@ -295,7 +318,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
 <section class="scrolly" data-act="1" id="akt-1">
   <div class="graphic">
     <div class="fig" id="g1" data-step="-1">
-      <svg id="svg1" viewBox="0 0 1060 640" role="img" aria-label="Deutschlandkarte der 400 Kreise nach BIP pro Kopf und Rangfolge aller Kreise, Köln und Oberspreewald-Lausitz markiert"></svg>
+      <svg id="svg1" viewBox="0 0 1060 640" role="img" aria-describedby="key-table" aria-label="Deutschlandkarte der 400 Kreise nach BIP pro Kopf und Rangfolge aller Kreise, Köln und Oberspreewald-Lausitz markiert"></svg>
       <div class="fig-title"><div class="t">Akt 1 · In Deutschland weit auseinander</div><div class="s">BIP pro Kopf (KKP) 2024 · 400 Kreise · je heller, desto höher<span class="wide"> (acht gleich große Gruppen)</span> · Maus/Tippen für Details</div></div>
     </div>
   </div>
@@ -349,7 +372,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
 <section class="scrolly" data-act="2" id="akt-2">
   <div class="graphic">
     <div class="fig" id="g2" data-step="-1">
-      <svg id="svg2" viewBox="0 0 1060 640" role="img" aria-label="Die Menschheit sortiert nach BIP pro Kopf ihrer Region, mit Markierung von Oberspreewald-Lausitz und Köln"></svg>
+      <svg id="svg2" viewBox="0 0 1060 640" role="img" aria-describedby="key-table" aria-label="Die Menschheit sortiert nach BIP pro Kopf ihrer Region, mit Markierung von Oberspreewald-Lausitz und Köln"></svg>
       <div class="fig-title"><div class="t">Akt 2 · Die Welt dazunehmen</div><div class="s">Alle 8,1 Mrd. Menschen, sortiert nach dem BIP pro Kopf (KKP) ihrer Region · 5.929 Regionen · log. Skala</div></div>
     </div>
   </div>
@@ -407,7 +430,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
 <section class="scrolly" data-act="3" id="akt-3">
   <div class="graphic">
     <div class="fig" id="g3" data-step="-1">
-      <svg id="svg3" viewBox="0 0 1060 640" role="img" aria-label="1.624 Quadrate zu je 5 Millionen Menschen, sortiert nach BIP pro Kopf ihrer Region"></svg>
+      <svg id="svg3" viewBox="0 0 1060 640" role="img" aria-describedby="key-table" aria-label="1.624 Quadrate zu je 5 Millionen Menschen, sortiert nach BIP pro Kopf ihrer Region"></svg>
       <div class="fig-title"><div class="t">Akt 3 · Wer reicher ist, und wer auf derselben Stufe steht</div><div class="s">1 Quadrat = 5 Mio. Menschen · unten links die ärmsten Regionen, oben rechts die reichsten</div></div>
     </div>
   </div>
@@ -456,7 +479,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
 <section class="scrolly" data-act="4" id="akt-4">
   <div class="graphic">
     <div class="fig" id="g4" data-step="-1">
-      <svg id="svg4" viewBox="0 0 1060 640" role="img" aria-label="Köln und Oberspreewald-Lausitz im Vergleich: BIP pro Kopf, Metropolregion, regionale Kaufkraft, Haushaltskonsum"></svg>
+      <svg id="svg4" viewBox="0 0 1060 640" role="img" aria-describedby="key-table" aria-label="Köln und Oberspreewald-Lausitz im Vergleich: BIP pro Kopf, Metropolregion, regionale Kaufkraft, Haushaltskonsum"></svg>
       <div class="fig-title"><div class="t">Akt 4 · Der Haken: Was der Abstand wirklich misst</div><div class="s">Int.$ pro Kopf 2024 · Köln gegen Oberspreewald-Lausitz</div></div>
     </div>
   </div>
@@ -593,6 +616,9 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
     <li><span class="conf c">C</span> grob: Der Wert gilt für eine größere Region als die genannte, oder er stammt aus einer Modellrechnung.</li>
     <li>Ohne Kennzeichen: Werte, die direkt aus amtlichen Landeszahlen folgen, oder einfache Rechnungen daraus.</li></ul>
   </div></details>
+  <details class="gloss" id="key-numbers"><summary>Die wichtigsten Zahlen als Tabelle</summary><div class="gloss-body">
+    <table class="keytab" id="key-table"><thead><tr><th scope="col">Kennzahl</th><th scope="col">Köln</th><th scope="col">OSL</th></tr></thead><tbody></tbody></table>
+  </div></details>
 </section>
 
 <footer>
@@ -606,6 +632,12 @@ const DATA = {"meta":{"source":"Wohlstandsatlas, Daten-WG Knowledge Kitchen (Wel
 const NS = "http://www.w3.org/2000/svg";
 const fmt = (v,d=0)=>v==null?"–":v.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});
 const r3 = v=>fmt(+(+v).toPrecision(3));   // drei geltende Stellen, wie im Atlas
+const r2 = v=>fmt(+(+v).toPrecision(2));   // zwei geltende Stellen („rund 15.000“)
+/* Prozent als ganze Zahl, gerundet wie im Text: „rund“ rundet, „knapp“ rundet auf, „über“ ab */
+const pr = (v,w="rund")=> w==="über"? Math.floor(v) : w==="knapp"? Math.ceil(v) : Math.round(v);
+const pw = (v,w="rund")=>`${w} ${fmt(pr(v,w))} %`;
+/* ganze Prozent ohne Beiwort; knapp unter 100 heißt „über 99“, knapp über 0 „unter 1“ */
+const pint = v=> v>99 && v<100 ? "über 99" : v>0 && v<1 ? "unter 1" : fmt(Math.round(v));
 const esc = s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function el(tag, attrs={}, parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
 function txt(parent, x, y, s, attrs={}){ const t=el("text",{x,y,...attrs},parent); t.textContent=s; return t; }
@@ -617,7 +649,8 @@ const tall = svg=>{ if(MOBILE) svg.setAttribute("viewBox",`0 0 1060 ${VB_H}`); }
 /* Näherungsbreite eines Textes in JetBrains Mono (Zeichenbreite 0,6 em), in viewBox-Einheiten */
 const tw = (s, small)=>s.length*0.6*(MOBILE?(small?25:30):13);
 const P = DATA.places, W = DATA.world;
-const COL = {k:"#f0b54a", l:"#86b6ef", m:"#e66767", g:"#7ed6a5", ink:"#ffffff", mut:"#a3a19a"};
+const COL = {k:"#f0b54a", l:"#86b6ef", m:"#e66767", g:"#7ed6a5", v:"#b77ee8", ink:"#ffffff", mut:"#a3a19a"};
+const HI = "#f2efe2", DIM = "#2a2a28", DIMB = "#3d5a80";   // hell hervorgehoben, gedämpft, gedämpftes Blau
 const tip = document.getElementById("tip");
 function showTip(ev, html){ tip.innerHTML=html; tip.style.opacity=1; const x=Math.min(ev.clientX+14, innerWidth-tip.offsetWidth-8); tip.style.left=x+"px"; tip.style.top=(ev.clientY+14)+"px"; }
 function hideTip(){ tip.style.opacity=0; }
@@ -662,40 +695,65 @@ const act1 = (function(){
   const svg=document.getElementById("svg1"), fig=document.getElementById("g1"), G=DATA.germany; tall(svg);
   const qs=G.kreise.map(k=>k.v).sort((a,b)=>a-b), qcut=RAMP.map((_,i)=>qs[Math.floor(qs.length*i/RAMP.length)]);
   const qcol=v=>{ let c=0; for(let i=0;i<qcut.length;i++) if(v>=qcut[i]) c=i; return RAMP[c]; };
-  const H=MOBILE?600:560, sc=H/G.h, mx=MOBILE?(1060-G.w*sc)/2:40, my=MOBILE?16:66;
+  /* Schritt 4: alle Kreise höchstens 5 % über oder unter OSL (ohne OSL selbst) */
+  const T=W.tight, near=k=>k.id!==P.osl.id && Math.abs(k.v/P.osl.gdp-1)<=0.05;
+  const colOf=(k,hl)=> k.id===P.koeln.id? COL.k : k.id===P.osl.id? COL.l : !hl? qcol(k.v) : near(k)? HI : DIM;
+  // Karte: auf dem Desktop unter dem Titelbereich, auf dem Handy oben
+  const H=MOBILE?540:490, sc=H/G.h, mx=MOBILE?(1060-G.w*sc)/2:40, my=MOBILE?10:112, mR=mx+G.w*sc;
   const mapWrap=el("g",{class:"mapg"},svg);
   const map=el("g",{transform:`translate(${mx},${my}) scale(${sc})`},mapWrap);
-  G.kreise.forEach(k=>{
+  const paths=G.kreise.map(k=>{
     const p=el("path",{d:k.d,class:"kreis",fill:qcol(k.v)},map);
     p.addEventListener("mousemove",ev=>showTip(ev,`<b>${esc(k.n)}</b><br><span class="q">BIP/Kopf</span> ${fmt(k.v)} Int.$<br><span class="q">Einwohner</span> ${fmt(k.p)}`));
-    p.addEventListener("mouseleave",hideTip);
-  });
-  const mk=(xy,cls,lab,dx,anchor)=>{ const g=el("g",{},mapWrap); const x=mx+xy[0]*sc, y=my+xy[1]*sc;
-    el("circle",{cx:x,cy:y,r:MOBILE?18:13,class:cls},g); el("circle",{cx:x,cy:y,r:MOBILE?5:3,fill:cls==="mk-k"?COL.k:COL.l},g);
-    txt(g,x+dx,y+(MOBILE?10:5),lab,{class:cls==="mk-k"?"t-k":"t-l","text-anchor":anchor}); return g; };
-  mk(G.koeln_xy,"mk-k","Köln",MOBILE?-26:-20,"end"); mk(G.osl_xy,"mk-l","OSL",MOBILE?26:20,"start");
-  // Rangfolge: 400 Säulen
-  const sorted=[...G.kreise].sort((a,b)=>b.v-a.v), RX=MOBILE?150:540, RW=MOBILE?860:490, RY=MOBILE?720:110, RH=MOBILE?250:440;
+    p.addEventListener("mouseleave",hideTip); return p; });
+  // Marken; die Namen stehen außerhalb der Kreisflächen (Köln links, OSL rechts der Karte)
+  const mk=(xy,cls,lab,right)=>{ const g=el("g",{},mapWrap), x=mx+xy[0]*sc, y=my+xy[1]*sc, r=MOBILE?18:13, col=cls==="mk-k"?COL.k:COL.l;
+    el("circle",{cx:x,cy:y,r,class:cls},g); el("circle",{cx:x,cy:y,r:MOBILE?5:3,fill:col},g);
+    const lx=right? mR+(MOBILE?12:8) : mx-(MOBILE?10:4);
+    el("line",{x1:right?x+r:x-r,x2:right?lx-3:lx+3,y1:y,y2:y,stroke:col,"stroke-width":MOBILE?3:1.5},g);
+    txt(g,lx,y+(MOBILE?10:5),lab,{class:(cls==="mk-k"?"t-k":"t-l")+" halo","text-anchor":right?"start":"end"}); return g; };
+  mk(G.koeln_xy,"mk-k","Köln",false); mk(G.osl_xy,"mk-l","OSL",true);
+  // Legende der acht Graustufen: niedrig → hoch, mit kleinstem und größtem Wert
+  const lg=el("g",{},svg), ls=MOBILE?34:14, lh=MOBILE?22:10, ly=MOBILE?600:628, s1=`niedrig · ${r3(qs[0])}`, s2=`${r3(qs[qs.length-1])} · hoch`;
+  const lw=tw(s1,true)+tw(s2,true)+RAMP.length*ls+(MOBILE?32:16); let lx=MOBILE?(1060-lw)/2:mx;
+  txt(lg,lx,ly,s1,{class:"sm"}); lx+=tw(s1,true)+(MOBILE?16:8);
+  RAMP.forEach((c,i)=>el("rect",{x:lx+i*ls,y:ly-lh+(MOBILE?0:1),width:ls-1,height:lh,fill:c,stroke:"rgba(255,255,255,.14)","stroke-width":.5},lg));
+  txt(lg,lx+RAMP.length*ls+(MOBILE?16:8),ly,s2,{class:"sm"});
+  // Rangfolge: 400 Säulen, Achse logarithmisch
+  const sorted=[...G.kreise].sort((a,b)=>b.v-a.v), RX=MOBILE?150:540, RW=MOBILE?860:490, RY=MOBILE?720:140, RH=MOBILE?230:410;
   const yv=v=>RY+RH-(Math.log(v)-Math.log(20000))/(Math.log(300000)-Math.log(20000))*RH;
   const rank=el("g",{class:"s1"},svg);
+  txt(rank,MOBILE?24:RX-70,MOBILE?RY-62:RY-34,"Int.$ pro Kopf, logarithmisch",{class:"sm"});
   [25000,50000,100000,200000].forEach(v=>{ el("line",{x1:RX,x2:RX+RW,y1:yv(v),y2:yv(v),class:"tick"},rank); txt(rank,RX-8,yv(v)+(MOBILE?9:4),fmt(v/1000)+" Tsd.",{class:"sm","text-anchor":"end"}); });
   const bw=RW/sorted.length;
-  sorted.forEach((k,i)=>{ const isK=k.id===P.koeln.id, isL=k.id===P.osl.id;
-    el("rect",{x:RX+i*bw,y:yv(k.v),width:Math.max(bw-.2,.8),height:RY+RH-yv(k.v),class:"col",fill:isK?COL.k:isL?COL.l:qcol(k.v)},rank); });
+  const cols=sorted.map((k,i)=>el("rect",{x:RX+i*bw,y:yv(k.v),width:Math.max(bw-.2,.8),height:RY+RH-yv(k.v),class:"col",fill:colOf(k,false)},rank));
   // Beschriftung rechts der Säule; reicht der Platz nicht, links davon
   const lab=(id,cls,s,ly)=>{ const i=sorted.findIndex(k=>k.id===id), x=RX+i*bw+bw/2, y=yv(sorted[i].v), left=x+6+tw(s)>1052;
-    el("line",{x1:x,x2:x,y1:y-4,y2:ly+6,stroke:cls==="t-k"?COL.k:COL.l,"stroke-width":1.5},rank); txt(rank,left?x-6:x+6,ly,s,{class:cls,"text-anchor":left?"end":"start"}); };
-  lab(P.koeln.id,"t-k",`Köln · Rang ${P.koeln.de_rank}`,RY-10); lab(P.osl.id,"t-l",`OSL · Rang ${P.osl.de_rank}`,yv(P.osl.gdp)-60);
-  txt(rank,RX,RY+RH+(MOBILE?32:22),"Rang 1",{class:"sm"}); txt(rank,RX+RW,RY+RH+(MOBILE?32:22),`Rang ${sorted.length}`,{class:"sm","text-anchor":"end"});
-  // Schritt 3: Anteil der Menschen in Deutschland
-  const st=el("g",{class:"s2"},svg);
-  const bx=RX, by=RY+RH+(MOBILE?78:50), bwid=RW;
-  const bsplit=bx+bwid*P.osl.de_richer_share/100;
-  el("rect",{x:bx,y:by,width:bsplit-bx,height:16,fill:"#9a9584"},st);
-  el("rect",{x:bsplit,y:by,width:bx+bwid-bsplit,height:16,fill:"#34332f"},st);
-  el("line",{x1:bsplit,x2:bsplit,y1:by-4,y2:by+20,stroke:COL.l,"stroke-width":3},st);
-  txt(st,bx,by-(MOBILE?12:8),`${fmt(P.osl.de_richer_share,1)} % leben in reicheren Kreisen als OSL`,{class:"t-l sm"});
-  return {step(i){ fig.dataset.step=i; }};
+    el("line",{x1:x,x2:x,y1:y-4,y2:ly+6,stroke:cls==="t-k"?COL.k:COL.l,"stroke-width":1.5},rank); txt(rank,left?x-6:x+6,ly,s,{class:cls+" halo","text-anchor":left?"end":"start"}); };
+  lab(P.koeln.id,"t-k",`Köln · Rang ${P.koeln.de_rank}`,RY-10); lab(P.osl.id,"t-l",`OSL · Rang ${P.osl.de_rank}`,yv(P.osl.gdp)-(MOBILE?70:60));
+  const yr=RY+RH+(MOBILE?32:22);
+  txt(rank,RX,yr,"Rang 1",{class:"sm"}); txt(rank,RX+RW,yr,`Rang ${sorted.length}`,{class:"sm","text-anchor":"end"});
+  // Schritt 3: Anteil der Menschen in Deutschland, die in reicheren Kreisen leben (OSL und Köln)
+  const st=el("g",{class:"o2"},svg), bx=RX, by=MOBILE?1022:RY+RH+52, bh=MOBILE?18:14, bwid=RW;
+  const bsplit=bx+bwid*P.osl.de_richer_share/100, ksplit=bx+bwid*P.koeln.de_richer_share/100;
+  el("rect",{x:bx,y:by,width:bsplit-bx,height:bh,fill:"#9a9584"},st);
+  el("rect",{x:bsplit,y:by,width:bx+bwid-bsplit,height:bh,fill:"#34332f"},st);
+  el("line",{x1:bsplit,x2:bsplit,y1:by-4,y2:by+bh+4,stroke:COL.l,"stroke-width":3},st);
+  el("line",{x1:ksplit,x2:ksplit,y1:by-4,y2:by+bh+(MOBILE?10:6),stroke:COL.k,"stroke-width":3},st);
+  txt(st,bx,by-(MOBILE?12:7),`${fmt(Math.round(P.osl.de_richer_share))} % leben in reicheren Kreisen als OSL`,{class:"t-l sm"});
+  txt(st,ksplit-4,by+bh+(MOBILE?34:17),`Köln: ${fmt(Math.round(P.koeln.de_richer_share))} %`,{class:"t-k sm"});
+  // Schritt 4: das enge Mittelfeld, Klammer unter den hervorgehobenen Säulen
+  const nr=el("g",{class:"o3"},svg), idx=sorted.map((k,i)=>near(k)||k.id===P.osl.id?i:-1).filter(i=>i>=0);
+  const xa=RX+idx[0]*bw, xb=RX+(idx[idx.length-1]+1)*bw, yk=RY+RH+(MOBILE?8:5);
+  el("path",{d:`M${xa},${yk} v${MOBILE?10:6} H${xb} v${MOBILE?-10:-6}`,fill:"none",stroke:HI,"stroke-width":MOBILE?3:1.5},nr);
+  const nl1=`${T.n_near5} Kreise höchstens 5 % von OSL entfernt`, nl2=`Rang ${T.rank_plus5} bis ${T.rank_minus5}`;
+  if(MOBILE){ txt(nr,RX,by-12,nl1,{class:"lab-strong sm"}); txt(nr,RX,by+28,nl2,{class:"lab-strong sm"}); }
+  else txt(nr,RX,by+bh-3,`${nl1} · ${nl2}`,{class:"lab-strong sm"});
+  let hl=null;
+  function paint(on){ if(on===hl) return; hl=on;
+    G.kreise.forEach((k,i)=>paths[i].setAttribute("fill",!on? qcol(k.v) : k.id===P.osl.id? COL.l : near(k)? HI : DIM));
+    sorted.forEach((k,i)=>cols[i].setAttribute("fill",colOf(k,on))); }
+  return {step(i){ fig.dataset.step=i; paint(i===3); }, nearCount:()=>G.kreise.filter(near).length};
 })();
 
 /* ================================================================
@@ -708,6 +766,7 @@ function curveChart(svg, box, opts={}){
   [1000,5000,15000,50000,100000,200000].forEach(v=>{ el("line",{x1:x0,x2:x0+w,y1:Y(v),y2:Y(v),class:"tick"},g); txt(g,x0-8,Y(v)+(MOBILE?9:4),v>=1000?fmt(v/1000)+" Tsd.":fmt(v),{"text-anchor":"end",class:"sm"}); });
   [0,25,50,75,100].forEach(p=>{ txt(g,X(p),y0+h+(MOBILE?34:20),p+" %",{"text-anchor":"middle",class:"sm"}); });
   if(opts.xlabel) txt(g,x0+w,y0+h+(MOBILE?72:42),opts.xlabel,{"text-anchor":"end",class:"sm"});
+  if(opts.ylabel) txt(g,MOBILE?24:26,y0+h/2,opts.ylabel,{"text-anchor":"middle",class:"sm",transform:`rotate(-90 ${MOBILE?24:26} ${y0+h/2})`});
   // Treppenpfad
   let d=`M${X(0)},${Y(Math.max(lo,DATA.curve[0][1]))}`;
   for(let i=0;i<DATA.curve.length;i++){ const c=DATA.curve[i], nx=i+1<DATA.curve.length?DATA.curve[i+1][0]:100; const y=Y(Math.max(lo,Math.min(hi,c[1])));
@@ -728,35 +787,41 @@ function marker(svg, C, pct, v, cls, label, cssClass, side="left"){
 const act2 = (function(){
   const svg=document.getElementById("svg2"), fig=document.getElementById("g2"); tall(svg);
   const B=MOBILE?{x0:160,y0:30,w:860,h:900}:{x0:110,y0:100,w:880,h:440}, yb=B.y0+B.h;
-  const C=curveChart(svg,B,{xlabel:"Anteil der Menschheit, von arm nach reich →"});
-  const med=el("g",{},svg);
-  marker(med,C,50,W.median,"m",MOBILE?`Mitte · ${r3(W.median)}`:`mittlerer Mensch · ${r3(W.median)} Int.$ (${W.median_name})`);
+  const C=curveChart(svg,B,{xlabel:"Anteil der Menschheit, von arm nach reich →",ylabel:"BIP pro Kopf in Int.$ (logarithmisch)"});
+  const med=el("g",{},svg), mx50=C.X(50)-12, my50=C.Y(W.median);
+  marker(med,C,50,W.median,"m","");
+  if(MOBILE){ txt(med,mx50,my50-52,"Mitte der Welt",{class:"t-m halo","text-anchor":"end"}); txt(med,mx50,my50-14,`rund ${r2(W.median)} Int.$`,{class:"t-m halo","text-anchor":"end"}); }
+  else txt(med,mx50,my50-12,`Mitte der Welt · rund ${r2(W.median)} Int.$`,{class:"t-m halo","text-anchor":"end"});
   const pl=P.osl.world_below["2"], pk=P.koeln.world_below["2"];
-  marker(svg,C,pl,P.osl.gdp,"l",MOBILE?`OSL ${fmt(pl,1)} %`:`OSL · ${fmt(pl,1)} % darunter`,"s1");
-  marker(svg,C,pk,P.koeln.gdp,"k",`Köln · ${fmt(pk,1)} %`,"s2");
+  marker(svg,C,pl,P.osl.gdp,"l",`OSL · ${pw(pl)}`,"s1");
+  marker(svg,C,pk,P.koeln.gdp,"k",`Köln · ${pw(pk)}`,"s2");
   // Streifen zwischen den beiden Orten; die Beschriftung nur in Schritt 3 und 4
   el("rect",{x:C.X(pl),y:B.y0,width:C.X(pk)-C.X(pl),height:B.h,fill:"rgba(240,181,74,.08)",class:"s2"},svg);
   const bl=el("g",{class:"o2 o3"},svg);
-  if(MOBILE) txt(bl,C.X(pl)-12,yb-18,`${fmt(W.between_share,1)} % dazwischen`,{class:"lab-strong sm halo","text-anchor":"end"});
-  else { txt(bl,C.X(pl)+6,yb-35,`${fmt(W.between_share,1)} %`,{class:"lab-strong"}); txt(bl,C.X(pl)+6,yb-15,"dazwischen",{class:"sm"}); }
+  if(MOBILE) txt(bl,C.X(pl)-12,yb-18,`${pw(W.between_share,"knapp")} dazwischen`,{class:"lab-strong sm halo","text-anchor":"end"});
+  else { txt(bl,C.X(pl)+6,yb-35,pw(W.between_share,"knapp"),{class:"lab-strong"}); txt(bl,C.X(pl)+6,yb-15,"dazwischen",{class:"sm"}); }
   // Härtetest: vier Ebenen
   const ht=el("g",{class:"o3"},svg), names=["Länder","Bundesländer","Kreise","Metropolregionen"];
   const cO=MOBILE?560:420, cK=MOBILE?720:520, rh=MOBILE?36:24, bw2=MOBILE?600:400;
-  const bxx=MOBILE?400:470, byy=MOBILE?640:350;
+  const bxx=MOBILE?400:490, byy=MOBILE?620:326;
   ht.setAttribute("transform",`translate(${bxx-(MOBILE?165:140)},${byy-118})`);
-  el("rect",{x:MOBILE?165:140,y:118,width:bw2,height:70+rh*4+(MOBILE?20:0),fill:"#141413",stroke:"rgba(255,255,255,.14)"},ht);
+  el("rect",{x:MOBILE?165:140,y:118,width:bw2,height:70+rh*5+(MOBILE?40:12),fill:"#141413",stroke:"rgba(255,255,255,.14)"},ht);
   txt(ht,MOBILE?180:158,MOBILE?152:144,MOBILE?"Anteil darunter je Ebene":"Anteil der Menschheit darunter, je Ebene",{class:"lab-strong sm"});
   txt(ht,cO,MOBILE?190:172,"OSL",{class:"t-l sm","text-anchor":"end"}); txt(ht,cK,MOBILE?190:172,"Köln",{class:"t-k sm","text-anchor":"end"});
   names.forEach((nm,i)=>{ const y=(MOBILE?226:198)+i*rh; txt(ht,MOBILE?180:158,y,MOBILE?["Länder","Bundesl.","Kreise","Metro"][i]:nm,{class:"sm"});
     txt(ht,cO,y,fmt(P.osl.world_below[i],1)+" %",{class:"t-l sm","text-anchor":"end"});
     txt(ht,cK,y,fmt(P.koeln.world_below[i],1)+" %",{class:"t-k sm","text-anchor":"end"}); });
+  // dazu: wie stark ein um ±5 % anderer Wert von OSL den Anteil verschiebt
+  const y5=(MOBILE?226:198)+4*rh+(MOBILE?22:12);
+  el("line",{x1:MOBILE?180:158,x2:(MOBILE?165:140)+bw2-15,y1:y5-rh+(MOBILE?6:4),y2:y5-rh+(MOBILE?6:4),stroke:"rgba(255,255,255,.14)"},ht);
+  txt(ht,MOBILE?180:158,y5,`OSL mit ±5 % beim Wert: ${fmt(Math.round(W.tight.world_minus5))} bis ${fmt(Math.round(W.tight.world_plus5))} %`,{class:"t-l sm"});
   // Schritt 5: ganz Deutschland, vom letzten bis zum ersten Kreis
   const GE=DATA.germany, lo=GE.poorest, hi=GE.richest, de=el("g",{class:"o4"},svg), xl=C.X(lo.world_below), xr=C.X(hi.world_below), sm=MOBILE?" sm":"";
   el("rect",{x:xl,y:B.y0,width:xr-xl,height:B.h,fill:"rgba(255,255,255,.07)"},de);
   [xl,xr].forEach(x=>el("line",{x1:x,x2:x,y1:B.y0,y2:yb,stroke:"#fff","stroke-width":1.2,"stroke-dasharray":"2 4",opacity:.75},de));
   el("circle",{cx:xl,cy:C.Y(lo.gdp),r:MOBILE?8:5,fill:"#fff"},de); el("circle",{cx:xr,cy:C.Y(hi.gdp),r:MOBILE?8:5,fill:"#fff"},de);
-  txt(de,xl-10,C.Y(lo.gdp)-(MOBILE?18:14),`${lo.name} · ${fmt(lo.world_below,1)} %`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
-  txt(de,xr-8,B.y0+(MOBILE?46:18),`${hi.name} · ${fmt(hi.world_below,1)} %`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
+  txt(de,xl-10,C.Y(lo.gdp)-(MOBILE?18:14),`${lo.name} · ${pw(lo.world_below)}`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
+  txt(de,xr-8,B.y0+(MOBILE?46:18),`${hi.name} · ${pw(hi.world_below,"über")}`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
   if(MOBILE) txt(de,xr-6,yb-84,`Deutschland: alle ${GE.kreise.length} Kreise`,{class:"lab-strong halo sm","text-anchor":"end"});
   else { el("path",{d:`M${xl},${yb+3} v5 H${xr} v-5`,fill:"none",stroke:"#fff","stroke-width":1.5},de);
     txt(de,(xl+xr)/2,yb+22,`${GE.kreise.length} deutsche Kreise`,{class:"lab-strong halo","text-anchor":"middle"}); }
@@ -788,30 +853,37 @@ const act2 = (function(){
 ================================================================ */
 const act3 = (function(){
   const svg=document.getElementById("svg3"), fig=document.getElementById("g3"), sq=DATA.squares; tall(svg);
-  const CONT=["#a0784a","#5f9483","#9a8bc4","#b8798c","#8a9a4e","#6b86a8","#666"], CN=["Afrika","Asien","Europa","Nord- & Mittelamerika","Südamerika","Ozeanien"];
+  /* Schritt 1: vier Gruppen statt Kontinente. Farben weder Amber/Blau/Rot noch Mint; auch bei Rot-Grün-Schwäche
+     über Helligkeit unterscheidbar (China hell, Indien violett, Afrika petrol, übrige Welt dunkelgrau). */
+  const GC=["#a98be0","#e9e2c4","#3f9e8c","#45443f"], GN=["Indien","China","Afrika","übrige Welt"];
+  const grp=q=> q[0]==="IND"?0 : q[0]==="CHN"?1 : q[2]===0?2 : 3;
   const COLS=MOBILE?42:58, s=MOBILE?24:15, x0=(1060-COLS*s)/2, rows=Math.ceil(sq.length/COLS), y0=(MOBILE?14:96)+rows*s;
   const rects=sq.map((q,i)=>{ const c=i%COLS, rr=Math.floor(i/COLS);
-    const e=el("rect",{x:x0+c*s+1,y:y0-(rr+1)*s+1,width:s-2,height:s-2,class:"sq",fill:CONT[q[2]]},svg);
+    const e=el("rect",{x:x0+c*s+1,y:y0-(rr+1)*s+1,width:s-2,height:s-2,class:"sq",fill:GC[grp(q)]},svg);
     e.style.transitionDelay=(REDUCED?0:rr*14)+"ms";   // Farbwechsel läuft als Welle von unten nach oben
     e.addEventListener("mousemove",ev=>showTip(ev,`<b>${esc(DATA.names[q[0]]||q[0])}</b><br><span class="q">Regionen um</span> ${r3(q[1])} Int.$<br><span class="q">1 Quadrat =</span> 5 Mio. Menschen`)); e.addEventListener("mouseleave",hideTip); return e; });
-  // Legende der Kontinente, bricht um, wenn die Zeile voll ist
-  const leg=el("g",{class:"o0"},svg), bs=MOBILE?20:11; let lx=x0, ly=y0+(MOBILE?42:26);
-  CN.forEach((n,i)=>{ const wd=bs+6+tw(n,true)+(MOBILE?30:18); if(lx>x0 && lx+wd>x0+COLS*s+20){ lx=x0; ly+=MOBILE?38:20; }
-    el("rect",{x:lx,y:ly-bs+1,width:bs,height:bs,fill:CONT[i]},leg); txt(leg,lx+bs+6,ly,n,{class:"sm"}); lx+=wd; });
-  const notes=el("g",{},svg), ny=y0+(MOBILE?44:26);
+  // Legende der vier Gruppen direkt unter den Quadraten, mit Zahl der Quadrate
+  const leg=el("g",{class:"o0"},svg), bs=MOBILE?20:11, cnt=[0,0,0,0]; sq.forEach(q=>cnt[grp(q)]++);
+  let lx=x0, ly=y0+(MOBILE?44:26);
+  GN.forEach((n,i)=>{ const t=`${n} (${fmt(cnt[i])})`, wd=bs+8+tw(t,true)+(MOBILE?34:22); if(lx>x0 && lx+wd>x0+COLS*s+20){ lx=x0; ly+=MOBILE?38:20; }
+    el("rect",{x:lx,y:ly-bs+1,width:bs,height:bs,fill:GC[i],stroke:"rgba(255,255,255,.25)","stroke-width":.5},leg); txt(leg,lx+bs+8,ly,t,{class:"sm lab-strong"}); lx+=wd; });
+  const notes=el("g",{},svg), ny=y0+(MOBILE?44:26), nc=MOBILE?" sm":"";
   const iO=sq.findIndex(q=>q[1]>P.osl.gdp), iK=sq.findIndex(q=>q[1]>P.koeln.gdp);
-  const n1=el("g",{class:"o1"},notes); txt(n1,x0,ny,`${fmt(W.above_osl_mio)} Mio. Menschen leben in Regionen reicher als OSL`,{class:"t-l"});
-  const n2=el("g",{class:"o2"},notes); txt(n2,x0,ny,`${fmt(W.cn_above_osl_mio)} Mio. davon in China · aus Indien: ${fmt(W.in_above_osl_mio)}`,{class:"t-m"});
-  const n3=el("g",{class:"o3"},notes); txt(n3,x0,ny,`${fmt(W.above_koeln_mio)} Mio. Menschen leben in Regionen reicher als Köln`,{class:"t-k"});
+  const band=W.near_osl_band/100, near=q=>Math.abs(q[1]/P.osl.gdp-1)<=band;
+  txt(el("g",{class:"o1"},notes),x0,ny,`${fmt(W.above_osl_mio)} Mio. Menschen leben in Regionen reicher als OSL`,{class:"t-l"+nc});
+  txt(el("g",{class:"o2"},notes),x0,ny,`${fmt(W.near_osl_mio)} Mio. Menschen in Regionen auf der Stufe von OSL (±${W.near_osl_band} %)`,{class:"lab-strong"+nc});
+  txt(el("g",{class:"o3"},notes),x0,ny,`${fmt(W.cn_above_osl_mio)} Mio. davon in China · aus Indien: ${fmt(W.in_above_osl_mio)}`,{class:"lab-strong"+nc});
+  txt(el("g",{class:"o4"},notes),x0,ny,`${fmt(W.above_koeln_mio)} Mio. Menschen leben in Regionen reicher als Köln`,{class:"t-k"+nc});
   function paint(i){
-    rects.forEach((e,j)=>{ const q=sq[j]; let f;
-      if(i<=0) f=CONT[q[2]];
-      else if(i===1) f= j>=iO? COL.l : "#34332f";
-      else if(i===2) f= q[0]==="CHN" ? (j>=iO? COL.m : "#6b3a3a") : (j>=iO? "#3d5a80" : "#2a2a28");
-      else f= j>=iK? COL.k : j>=iO? "#3d5a80" : "#2a2a28";
+    rects.forEach((e,j)=>{ const q=sq[j], up=j>=iO; let f;
+      if(i<=0) f=GC[grp(q)];
+      else if(i===1) f= up? COL.l : "#34332f";
+      else if(i===2) f= near(q)? HI : up? DIMB : DIM;                                  // ±10 % um OSL
+      else if(i===3) f= q[0]==="CHN" ? (up? HI : "#77746a") : (up? DIMB : DIM);        // China: über OSL kräftig, darunter gedämpft
+      else f= j>=iK? COL.k : up? DIMB : DIM;
       e.setAttribute("fill",f); });
   }
-  return {step(i){ fig.dataset.step=i; paint(i); }};
+  return {step(i){ fig.dataset.step=i; paint(i); }, nearCount:()=>sq.filter(near).length};
 })();
 
 /* ================================================================
@@ -819,24 +891,62 @@ const act3 = (function(){
 ================================================================ */
 const act4 = (function(){
   const svg=document.getElementById("svg4"), fig=document.getElementById("g4"); tall(svg);
+  const bars=el("g",{class:"bars"},svg);
   const rows=[
     {lab:"BIP pro Kopf", k:P.koeln.gdp, l:P.osl.gdp, s:0},
     {lab:MOBILE?"Metropolregion":"BIP pro Kopf, Metropolregion Köln", k:P.koeln.metro_gdp, l:null, s:1},
     {lab:MOBILE?"regionale Preise":"zu regionalen Preisen", k:P.koeln.rp, l:P.osl.rp, s:2},
-    {lab:MOBILE?"Einkommen*":"Einkommen, als Konsum*", k:P.koeln.hh, l:P.osl.hh, s:3, sub:"* RB Köln / Brandenburg"}];
-  const X0=330, XW=MOBILE?560:620, max=120000, x=v=>XW*v/max;
-  const top=MOBILE?96:134, rowH=MOBILE?230:108, bh=MOBILE?62:30, gap=MOBILE?10:6, yA=MOBILE?60:120, yB=MOBILE?1010:575;
-  (MOBILE?[0,50000,100000]:[0,25000,50000,75000,100000]).forEach(v=>{ el("line",{x1:X0+x(v),x2:X0+x(v),y1:yA,y2:yB,class:"tick"},svg); txt(svg,X0+x(v),yB+(MOBILE?36:22),v?fmt(v/1000)+" Tsd.":"0",{"text-anchor":"middle",class:"sm"}); });
-  rows.forEach((r,i)=>{ const y=top+i*rowH, g=el("g",{class:"s"+r.s},svg), t1=y+bh*.72, y2=y+bh+gap, t2=y2+bh*.72, f=r.l!=null? r.k/r.l : 0;
+    {lab:"Konsum der Haushalte*", k:P.koeln.hh, l:P.osl.hh, s:3, sub:"* RB Köln / Brandenburg", other:true}];
+  const X0=MOBILE?400:330, XW=MOBILE?500:620, max=120000, x=v=>XW*v/max;
+  const top=MOBILE?96:130, rowH=MOBILE?230:104, bh=MOBILE?62:30, gap=MOBILE?10:6, yA=MOBILE?60:120, yB=MOBILE?1010:580;
+  const sepY=MOBILE?736:446, extra=MOBILE?60:36;   // die vierte Zeile ist eine andere Messgröße: abgesetzt
+  (MOBILE?[0,50000,100000]:[0,25000,50000,75000,100000]).forEach(v=>{ el("line",{x1:X0+x(v),x2:X0+x(v),y1:yA,y2:yB,class:"tick"},bars); txt(bars,X0+x(v),yB+(MOBILE?36:22),v?fmt(v/1000)+" Tsd.":"0",{"text-anchor":"middle",class:"sm"}); });
+  rows.forEach((r,i)=>{ const y=top+i*rowH+(r.other?extra:0), g=el("g",{class:"s"+r.s},bars), t1=y+bh*.72, y2=y+bh+gap, t2=y2+bh*.72, f=r.l!=null? r.k/r.l : 0;
+    if(r.other){ el("rect",{x:0,y:sepY-(MOBILE?6:4),width:1060,height:y-sepY+bh*2+gap+(MOBILE?22:12),fill:"#1a1a19"},g);   // Gitter hinter der Überschrift abdecken
+      el("line",{x1:MOBILE?24:40,x2:X0+XW,y1:sepY,y2:sepY,stroke:"rgba(255,255,255,.35)","stroke-width":MOBILE?2:1,"stroke-dasharray":"6 4"},g);
+      txt(g,MOBILE?24:40,sepY+(MOBILE?36:20),"Andere Messgröße: Konsum der Haushalte, größere Regionen",{class:"sm lab-strong"});
+      (MOBILE?[0,50000,100000]:[0,25000,50000,75000,100000]).forEach(v=>el("line",{x1:X0+x(v),x2:X0+x(v),y1:y-6,y2:y2+bh+6,class:"tick"},g)); }
     txt(g,X0-14,t1,r.lab,{"text-anchor":"end",class:"lab-strong"});
     el("rect",{x:X0,y:y,width:x(r.k),height:bh,fill:COL.k,class:"bar"},g); txt(g,X0+x(r.k)+8,t1,r3(r.k),{class:"t-k"});
     if(r.l!=null){ el("rect",{x:X0,y:y2,width:x(r.l),height:bh,fill:COL.l,class:"bar"},g); txt(g,X0+x(r.l)+8,t2,r3(r.l),{class:"t-l"});
       txt(g,X0-14,t2,r.sub? r.sub : "Faktor "+fmt(Math.round(f*(f<1.5?100:10))/(f<1.5?100:10),f<1.5?2:1),{"text-anchor":"end",class:"sm"}); }
-    else txt(g,X0-14,t2,"Stadt + Umland",{"text-anchor":"end",class:"sm"});
+    else { txt(g,X0+8,t2,"—",{class:"t-l"}); txt(g,X0-14,t2,"Stadt + Umland",{"text-anchor":"end",class:"sm"}); }
   });
-  const lg=el("g",{},svg), ly=MOBILE?24:94, lb=MOBILE?22:12;
+  const lg=el("g",{},bars), ly=MOBILE?24:94, lb=MOBILE?22:12;
   el("rect",{x:X0,y:ly,width:lb,height:lb,fill:COL.k},lg); txt(lg,X0+lb+6,ly+lb-2,"Köln",{class:"t-k"});
   el("rect",{x:X0+(MOBILE?130:90),y:ly,width:lb,height:lb,fill:COL.l},lg); txt(lg,X0+(MOBILE?130:90)+lb+6,ly+lb-2,"Oberspreewald-Lausitz",{class:"t-l"});
+
+  /* Schritt 5 (folgt): Überschlag, wo die Einwohner beider Orte in der Welt stehen.
+     Daten: DATA.persons = {osl:{p10,p25,p50,p75,p90}, koeln:{…}} als Weltperzentile 0–100. Ohne Daten nichts zeichnen. */
+  const PERS=DATA.persons||window.__persons;
+  if(PERS&&PERS.osl&&PERS.koeln){
+    const g=el("g",{class:"o4"},svg), PX=MOBILE?60:150, PW=MOBILE?940:820, X=v=>PX+PW*v/100;
+    const yT=MOBILE?60:128, yR=MOBILE?[400,640]:[262,384], yAx=MOBILE?790:470, lw=MOBILE?5:2.5, bH=MOBILE?40:22, r=MOBILE?13:8;
+    txt(g,PX,yT,"Überschlag: Wo die Menschen beider Orte in der Welt stehen",{class:"lab-strong"+(MOBILE?" sm":"")});
+    txt(g,PX,yT+(MOBILE?38:22),"Anteil der Menschheit in Regionen mit niedrigerem BIP pro Kopf",{class:"sm"});
+    [0,25,50,75,100].forEach(v=>{ el("line",{x1:X(v),x2:X(v),y1:yR[0]-(MOBILE?110:70),y2:yAx-(MOBILE?30:16),class:"tick"},g); txt(g,X(v),yAx,v+" %",{class:"sm","text-anchor":v?v===100?"end":"middle":"start"}); });
+    // mittlerer Mensch (Rot nur hier)
+    el("line",{x1:X(50),x2:X(50),y1:yR[0]-(MOBILE?110:70),y2:yAx-(MOBILE?30:16),stroke:COL.m,"stroke-width":MOBILE?3:1.5,"stroke-dasharray":"5 4"},g);
+    txt(g,X(50)-8,yR[0]-(MOBILE?84:54),"mittlerer Mensch",{class:"t-m sm halo","text-anchor":"end"});
+    [["osl","l","OSL"],["koeln","k","Köln"]].forEach(([key,cls,nm],i)=>{ const d=PERS[key], y=yR[i], col=COL[cls];
+      el("line",{x1:X(d.p10),x2:X(d.p90),y1:y,y2:y,stroke:col,"stroke-width":lw},g);
+      el("rect",{x:X(d.p25),y:y-bH/2,width:Math.max(2,X(d.p75)-X(d.p25)),height:bH,fill:col},g);
+      el("circle",{cx:X(d.p50),cy:y,r,fill:"#fff",stroke:"#1a1a19","stroke-width":MOBILE?4:2.5},g);
+      // direkte Beschriftung: Name und Median darüber, Spannweite darunter
+      const head=`${nm} · Mitte ${pint(d.p50)} %`, hx=Math.min(X(d.p50), X(100)-tw(head,MOBILE)/2);
+      txt(g,hx,y-bH/2-(MOBILE?16:10),head,{class:"t-"+cls+" halo"+(MOBILE?" sm":""),"text-anchor":"middle"});
+      const foot=`die mittlere Hälfte ${pint(d.p25)}–${pint(d.p75)} %, 80 % zwischen ${pint(d.p10)} und ${pint(d.p90)} %`;
+      txt(g,Math.max(PX,Math.min(X(d.p10),X(100)-tw(foot,true))),y+bH/2+(MOBILE?40:22),foot,{class:"sm halo"});
+    });
+    // Lesehilfe
+    const ky=yAx+(MOBILE?80:40), kx=PX, kc="#c3c2b7";
+    el("line",{x1:kx,x2:kx+(MOBILE?90:56),y1:ky-(MOBILE?8:4),y2:ky-(MOBILE?8:4),stroke:kc,"stroke-width":lw},g);
+    el("rect",{x:kx+(MOBILE?22:14),y:ky-(MOBILE?8:4)-bH/4,width:MOBILE?46:28,height:bH/2,fill:kc},g);
+    el("circle",{cx:kx+(MOBILE?45:28),cy:ky-(MOBILE?8:4),r:r*.7,fill:"#fff",stroke:"#1a1a19","stroke-width":2},g);
+    const kt=["Linie: 10. bis 90. Perzentil der Einwohner","Balken: 25. bis 75. · Punkt: Median"];
+    if(MOBILE){ txt(g,kx+110,ky,kt[0],{class:"sm"}); txt(g,kx+110,ky+36,kt[1],{class:"sm"}); }
+    else txt(g,kx+70,ky,kt.join(" · "),{class:"sm"});
+  }
   return {step(i){ fig.dataset.step=i; }};
 })();
 
@@ -892,9 +1002,10 @@ const act4 = (function(){
   }
   const fields=[field(0),field(1)];
 
-  if(MOBILE) svg.setAttribute("viewBox","0 0 1060 520");
-  const C=curveChart(svg,{x0:MOBILE?160:110,y0:20,w:MOBILE?850:880,h:MOBILE?430:230}), B=C.box, yb=B.y0+B.h;
-  const layer=el("g",{},svg), UC=["m","g"];
+  if(MOBILE) svg.setAttribute("viewBox","0 0 1060 780");
+  const C=curveChart(svg,{x0:MOBILE?160:110,y0:20,w:MOBILE?850:880,h:MOBILE?670:230}), B=C.box, yb=B.y0+B.h;
+  const layer=el("g",{},svg), UC=["v","g"];   // Ort 1 violett, Ort 2 mint (Rot bleibt dem mittleren Menschen)
+  const betw=d=> d<10? fmt(d,1) : fmt(Math.round(d));   // „dazwischen“: eine Nachkommastelle nur unter 10 %
   const pct=v=>{ // Anteil der Menschheit in Regionen mit niedrigerem Wert
     let lo=0, hi=DATA.curve.length; while(lo<hi){ const m=(lo+hi)>>1; if(DATA.curve[m][1]<v) lo=m+1; else hi=m; }
     return lo<DATA.curve.length? DATA.curve[lo][0] : 100 - DATA.meta.nodata_mio/DATA.meta.world_pop*1e6*100; };
@@ -910,24 +1021,26 @@ const act4 = (function(){
       el("circle",{cx:x,cy:y,r:MOBILE?8:5,fill:"#1a1a19",stroke:COL[cls],"stroke-width":MOBILE?4:2.5},layer);
       const near=sel.some(u=>Math.abs(C.X(u.p)-x)<(MOBILE?110:60) && Math.abs(C.Y(u.v)-y)<(MOBILE?60:30));   // eigene Marke direkt daneben: Name weglassen
       if(!near) txt(layer,x-10,y-(MOBILE?14:9),nm,{class:"t-"+cls+" sm","text-anchor":"end"}); });
-    if(sel.length===2 && ids[0]!==ids[1]){ const a=Math.min(sel[0].p,sel[1].p), b=Math.max(sel[0].p,sel[1].p), s=`${fmt(b-a,1)} % dazwischen`, half=tw(s,true)/2+6;
+    if(sel.length===2 && ids[0]!==ids[1]){ const a=Math.min(sel[0].p,sel[1].p), b=Math.max(sel[0].p,sel[1].p), s=`${betw(b-a)} % dazwischen`, half=tw(s,true)/2+6;
       el("rect",{x:C.X(a),y:B.y0,width:C.X(b)-C.X(a),height:B.h,fill:"rgba(255,255,255,.07)"},layer);
       txt(layer,Math.max(B.x0+half,Math.min(B.x0+B.w-half,(C.X(a)+C.X(b))/2)),yb-(MOBILE?16:10),s,{class:"lab-strong sm halo","text-anchor":"middle"}); }
     sel.forEach(x=>{ const g=marker(layer,C,x.p,x.v,UC[x.i],"");
       el("circle",{cx:C.X(x.p),cy:C.Y(x.v),r:MOBILE?19:11,fill:COL[UC[x.i]]},g);
       txt(g,C.X(x.p),C.Y(x.v)+(MOBILE?10:4.5),String(x.i+1),{class:"badge","text-anchor":"middle"}); });
 
-    if(!sel.length){ out.innerHTML=`Zum Vergleich meine beiden Orte: <span class="l">OSL</span> liegt bei ${fmt(P.osl.world_below["2"],1)}&nbsp;%, <span class="k">Köln</span> bei ${fmt(P.koeln.world_below["2"],1)}&nbsp;%.`; }
+    if(!sel.length){ out.innerHTML=`Zum Vergleich meine beiden Orte: <span class="l">OSL</span> liegt bei ${pw(P.osl.world_below["2"]).replace(" %","&nbsp;%")}, <span class="k">Köln</span> bei ${pw(P.koeln.world_below["2"]).replace(" %","&nbsp;%")}.`; }
     else {
       const card=x=>{ const s=x.s, c=likeCountry(s[2], s[3]==="Land/Gebiet"?s[0]:null), rk=deRank(s[4]);
         const extra=[rk?`Rang ${rk} von ${deSorted.length} in Deutschland`:"", c?`Vergleichsland: ${esc(c[0])}`:"", s[5]?"":"ganze Region, gegen die feinste Ebene gerechnet"].filter(Boolean).join(" · ");
         return `<div class="duo-card c${x.i}"><div class="duo-h"><span class="duo-n">${x.i+1}</span><b>${esc(s[0])}</b></div><div class="duo-w">${esc(where(s))}</div>
-          <div class="duo-v">${r3(s[2])} Int.$</div><div class="duo-p"><b>${fmt(x.p,1)}&nbsp;%</b> der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf</div>${extra?`<div class="duo-x">${extra}</div>`:""}</div>`; };
+          <div class="duo-v">${r3(s[2])} Int.$</div><div class="duo-p"><b>${pint(x.p)}&nbsp;%</b> der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf</div>${extra?`<div class="duo-x">${extra}</div>`:""}</div>`; };
       let sum;
       if(sel.length===2){
         if(ids[0]===ids[1]) sum="Das ist zweimal derselbe Ort.";
         else { const [hi,lo]=sel[0].s[2]>=sel[1].s[2]?[sel[0],sel[1]]:[sel[1],sel[0]], f=hi.s[2]/lo.s[2];
-          sum=`${esc(hi.s[0])} kommt auf das <b>${fmt(f,f<1.5?2:1)}-Fache</b> von ${esc(lo.s[0])}. Zwischen beiden leben <b>${fmt(Math.abs(hi.p-lo.p),1)}&nbsp;%</b> der Menschheit. Zwischen Köln und OSL sind es ${fmt(W.between_share,1)}&nbsp;%.`; }
+          const mine=ids.includes(P.koeln.id)||ids.includes(P.osl.id);
+          sum=`${esc(hi.s[0])} kommt auf das <b>${fmt(f,f<1.5?2:1)}-Fache</b> von ${esc(lo.s[0])}. Zwischen beiden leben <b>${betw(Math.abs(hi.p-lo.p))}&nbsp;%</b> der Menschheit.`+
+            (mine? "" : ` Zwischen Köln und OSL sind es ${pw(W.between_share,"knapp").replace(" %","&nbsp;%")}.`); }
       } else { const s=sel[0].s;
         const rel = s[4]===P.koeln.id||s[4]===P.osl.id ? "genau auf einem meiner beiden Punkte" : s[2]>P.koeln.gdp? "über Köln" : s[2]>P.osl.gdp? "zwischen OSL und Köln" : "unter OSL";
         sum=`Damit steht ${esc(s[0])} ${rel}. Nimm einen zweiten Ort dazu, dann siehst du, wie viele Menschen zwischen beiden leben.`; }
@@ -963,10 +1076,50 @@ const act4 = (function(){
    Scroll-Steuerung (wie rhein-story.html)
 ================================================================ */
 const ACTS={1:act1,2:act2,3:act3,4:act4};
-const io=new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(!e.isIntersecting) return;
+function onStep(entries){ entries.forEach(e=>{ if(!e.isIntersecting) return;
   const step=e.target, act=step.closest(".scrolly").dataset.act, idx=+step.dataset.idx;
-  step.parentElement.querySelectorAll(".step").forEach(s=>s.classList.toggle("is-active",s===step)); ACTS[act].step(idx); }); },{rootMargin:"-42% 0px -42% 0px"});
-document.querySelectorAll(".step").forEach(s=>io.observe(s));
+  step.parentElement.querySelectorAll(".step").forEach(s=>s.classList.toggle("is-active",s===step)); ACTS[act].step(idx); }); }
+/* Desktop: ein Schritt wird aktiv, wenn er die Bildmitte kreuzt.
+   Handy/Tablet: die Grafik steht oben; aktiv wird der Schritt, dessen Oberkante eine Linie knapp unter der Grafik kreuzt
+   (ein Drittel des freien Bereichs darunter). Die Karte ist dann ganz unter der Grafik und gut lesbar. */
+const WIDE=matchMedia("(min-width:1020px)");
+let stepIOs=[];
+function setupSteps(){
+  stepIOs.forEach(o=>o.disconnect()); stepIOs=[];
+  document.querySelectorAll(".scrolly").forEach(sec=>{
+    let rm="-42% 0px -42% 0px";
+    if(!WIDE.matches){ const gh=sec.querySelector(".graphic").offsetHeight, line=Math.round(gh+(innerHeight-gh)/3);
+      rm=`-${line}px 0px -${Math.max(0,innerHeight-line-2)}px 0px`; }
+    const o=new IntersectionObserver(onStep,{rootMargin:rm}); sec.querySelectorAll(".step").forEach(s=>o.observe(s)); stepIOs.push(o); });
+}
+setupSteps();
+let stepT=0, lastW=innerWidth, lastH=innerHeight;
+addEventListener("resize",()=>{ clearTimeout(stepT); stepT=setTimeout(()=>{ if(innerWidth===lastW && Math.abs(innerHeight-lastH)<60) return; lastW=innerWidth; lastH=innerHeight; setupSteps(); },200); });
+/* Die wichtigsten Zahlen als Tabelle (Zum Nachprüfen); die Akt-Grafiken verweisen per aria-describedby darauf */
+(function keyTable(){
+  const tb=document.querySelector("#key-table tbody"); if(!tb) return;
+  const K=P.koeln, L=P.osl, G=DATA.germany, lv=["Länder","Bundesländer","Kreise","Metropolregionen"];
+  const rows=[
+    ["BIP pro Kopf (KKP, Int.$)", r3(K.gdp), r3(L.gdp)],
+    [`Rang in Deutschland (von ${K.de_n} Kreisen)`, fmt(K.de_rank), fmt(L.de_rank)],
+    ["Menschen in Deutschland in reicheren Kreisen", fmt(Math.round(K.de_richer_share))+" %", fmt(Math.round(L.de_richer_share))+" %"],
+    ["Anteil der Menschheit in Regionen darunter", pw(K.world_below["2"]), pw(L.world_below["2"])],
+    ...lv.map((n,i)=>[`… gerechnet auf der Ebene ${n}`, fmt(K.world_below[i],1)+" %", fmt(L.world_below[i],1)+" %"]),
+    ["BIP pro Kopf, Metropolregion (Int.$)", r3(K.metro_gdp), "—", "sep"],
+    ["Preisniveau (Deutschland = 100)", fmt(K.price), fmt(L.price)],
+    ["BIP pro Kopf zu regionalen Preisen (Int.$)", r3(K.rp), r3(L.rp)],
+    ["Konsum der Haushalte pro Kopf (Int.$), RB Köln / Brandenburg", r3(K.hh), r3(L.hh)],
+    ["… Anteil der Menschheit darunter", pw(K.world_below_hh), pw(L.world_below_hh)],
+  ];
+  const both=[
+    ["Mitte der Welt (mittlerer Mensch)", `rund ${r2(W.median)} Int.$`],
+    ["Weltdurchschnitt", `${r3(W.mean)} Int.$`],
+    [`Letzter Kreis: ${G.poorest.name}`, `${r3(G.poorest.gdp)} Int.$ · ${pw(G.poorest.world_below)} der Menschheit darunter`],
+    [`Erster Kreis: ${G.richest.name}`, `${r3(G.richest.gdp)} Int.$ · ${pw(G.richest.world_below,"über")} der Menschheit darunter`],
+  ];
+  tb.innerHTML=rows.map(r=>`<tr${r[3]?' class="sep"':""}><th scope="row">${esc(r[0])}</th><td class="k">${r[1]}</td><td class="l">${r[2]}</td></tr>`).join("")+
+    both.map((r,i)=>`<tr${i?"":' class="sep"'}><th scope="row">${esc(r[0])}</th><td colspan="2">${r[1]}</td></tr>`).join("");
+})();
 document.querySelectorAll(".scrolly").forEach(sec=>{ new IntersectionObserver((es,obs)=>{ es.forEach(e=>{ if(e.isIntersecting){ const a=sec.dataset.act; if(document.getElementById("g"+a).dataset.step==="-1") ACTS[a].step(0); obs.disconnect(); } }); },{threshold:.35}).observe(sec); });
 /* Punkte am rechten Rand: zeigen, in welchem Abschnitt man ist, und springen dorthin */
 (function nav(){
