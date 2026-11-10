@@ -97,7 +97,7 @@ b{color:var(--ink)}
   .scrolly .fig{display:flex;flex-direction:column;max-height:calc(58svh - 14px)}
   .scrolly .fig svg{flex:0 1 auto;min-height:0}
   .steps{z-index:1;padding:18px 0 30svh}
-  .step{min-height:0;align-items:flex-start;padding:0 0 14svh}
+  .step{min-height:0;align-items:flex-start;padding:0 0 8svh}
 }
 .step.is-active .step-card{opacity:1;transform:none}
 .step-card .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--amber-soft);text-transform:uppercase;margin-bottom:8px;display:block}
@@ -255,7 +255,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   .duo-v{font-size:21px}
   .hero-eyebrow{letter-spacing:.12em;font-size:11px}
   .fig{width:100vw;padding:0 6px;display:flex;flex-direction:column}
-  .fig .fig-title{position:static;order:-1;padding:14px 10px 10px}
+  .fig .fig-title{position:static;order:-1;padding:10px 10px 6px}
   .hero .home-pill{top:14px;left:12px;font-size:11px;padding:6px 12px}
   .you{padding-left:12px;padding-right:12px}
   .you .fig{width:100%;padding:0}
@@ -802,8 +802,8 @@ const act2 = (function(){
   else { txt(bl,C.X(pl)+6,yb-35,pw(W.between_share,"knapp"),{class:"lab-strong"}); txt(bl,C.X(pl)+6,yb-15,"dazwischen",{class:"sm"}); }
   // Härtetest: vier Ebenen
   const ht=el("g",{class:"o3"},svg), names=["Länder","Bundesländer","Kreise","Metropolregionen"];
-  const cO=MOBILE?560:420, cK=MOBILE?720:520, rh=MOBILE?36:24, bw2=MOBILE?600:400;
-  const bxx=MOBILE?400:490, byy=MOBILE?620:326;
+  const cO=MOBILE?560:400, cK=MOBILE?720:480, rh=MOBILE?36:24, bw2=MOBILE?600:360;   // Kasten endet vor dem Streifen zwischen OSL und Köln
+  const bxx=MOBILE?400:480, byy=MOBILE?620:326;
   ht.setAttribute("transform",`translate(${bxx-(MOBILE?165:140)},${byy-118})`);
   el("rect",{x:MOBILE?165:140,y:118,width:bw2,height:70+rh*5+(MOBILE?40:12),fill:"#141413",stroke:"rgba(255,255,255,.14)"},ht);
   txt(ht,MOBILE?180:158,MOBILE?152:144,MOBILE?"Anteil darunter je Ebene":"Anteil der Menschheit darunter, je Ebene",{class:"lab-strong sm"});
@@ -917,13 +917,14 @@ const act4 = (function(){
   el("rect",{x:X0+(MOBILE?130:90),y:ly,width:lb,height:lb,fill:COL.l},lg); txt(lg,X0+(MOBILE?130:90)+lb+6,ly+lb-2,"Oberspreewald-Lausitz",{class:"t-l"});
 
   /* Schritt 5 (folgt): Überschlag, wo die Einwohner beider Orte in der Welt stehen.
-     Daten: DATA.persons = {osl:{p10,p25,p50,p75,p90}, koeln:{…}} als Weltperzentile 0–100. Ohne Daten nichts zeichnen. */
+     Daten: DATA.persons = {osl:{p10,p25,p50,p75,p90}, koeln:{…}} als Weltperzentile 0–100 (Modellrechnung über den Konsum).
+     Ohne Daten nichts zeichnen; window.__persons dient nur dem Browser-Test. */
   const PERS=DATA.persons||window.__persons;
   if(PERS&&PERS.osl&&PERS.koeln){
     const g=el("g",{class:"o4"},svg), PX=MOBILE?60:150, PW=MOBILE?940:820, X=v=>PX+PW*v/100;
     const yT=MOBILE?60:128, yR=MOBILE?[400,640]:[262,384], yAx=MOBILE?790:470, lw=MOBILE?5:2.5, bH=MOBILE?40:22, r=MOBILE?13:8;
     txt(g,PX,yT,"Überschlag: Wo die Menschen beider Orte in der Welt stehen",{class:"lab-strong"+(MOBILE?" sm":"")});
-    txt(g,PX,yT+(MOBILE?38:22),"Anteil der Menschheit in Regionen mit niedrigerem BIP pro Kopf",{class:"sm"});
+    txt(g,PX,yT+(MOBILE?38:22),MOBILE?"Anteil der Menschheit darunter, nach Konsum · Modell":"Anteil der Menschheit darunter, gemessen am Konsum der Haushalte pro Kopf · Modellrechnung",{class:"sm"});
     [0,25,50,75,100].forEach(v=>{ el("line",{x1:X(v),x2:X(v),y1:yR[0]-(MOBILE?110:70),y2:yAx-(MOBILE?30:16),class:"tick"},g); txt(g,X(v),yAx,v+" %",{class:"sm","text-anchor":v?v===100?"end":"middle":"start"}); });
     // mittlerer Mensch (Rot nur hier)
     el("line",{x1:X(50),x2:X(50),y1:yR[0]-(MOBILE?110:70),y2:yAx-(MOBILE?30:16),stroke:COL.m,"stroke-width":MOBILE?3:1.5,"stroke-dasharray":"5 4"},g);
@@ -935,8 +936,10 @@ const act4 = (function(){
       // direkte Beschriftung: Name und Median darüber, Spannweite darunter
       const head=`${nm} · Mitte ${pint(d.p50)} %`, hx=Math.min(X(d.p50), X(100)-tw(head,MOBILE)/2);
       txt(g,hx,y-bH/2-(MOBILE?16:10),head,{class:"t-"+cls+" halo"+(MOBILE?" sm":""),"text-anchor":"middle"});
-      const foot=`die mittlere Hälfte ${pint(d.p25)}–${pint(d.p75)} %, 80 % zwischen ${pint(d.p10)} und ${pint(d.p90)} %`;
-      txt(g,Math.max(PX,Math.min(X(d.p10),X(100)-tw(foot,true))),y+bH/2+(MOBILE?40:22),foot,{class:"sm halo"});
+      // rechtsbündig an 100 %, damit die Linie des mittleren Menschen frei bleibt
+      const f1=`mittlere Hälfte ${pint(d.p25)}–${pint(d.p75)} %`, f2=`80 % zwischen ${pint(d.p10)} und ${pint(d.p90)} %`;
+      if(MOBILE){ txt(g,X(100),y+bH/2+40,f1,{class:"sm halo","text-anchor":"end"}); txt(g,X(100),y+bH/2+76,f2,{class:"sm halo","text-anchor":"end"}); }
+      else txt(g,X(100),y+bH/2+22,`${f1}, ${f2}`,{class:"sm halo","text-anchor":"end"});
     });
     // Lesehilfe
     const ky=yAx+(MOBILE?80:40), kx=PX, kc="#c3c2b7";

@@ -116,7 +116,7 @@ async function mobileScan(page, name) {
     ok(near10 && Math.abs(near10.n - near10.mio / 5) <= 3 && near10.lab.includes(`${near10.mio} Mio.`),
       `${name}: Akt 3/3 hebt ${near10 && near10.n} Quadrate ±10 % um OSL hervor (≈ ${near10 && near10.mio} Mio. / 5 = ${near10 && (near10.mio / 5).toFixed(1)})`);
     ok(await page.evaluate(() => document.querySelectorAll("#svg2 .o4 text").length >= 4), `${name}: Band „alle Kreise“ und Schätzung in Akt 2 gezeichnet`);
-    ok(await page.evaluate(() => document.querySelectorAll("#svg4 .o4").length === 0 && !DATA.persons), `${name}: ohne DATA.persons keine Überschlag-Grafik`);
+    ok(await page.evaluate(() => document.querySelectorAll("#svg4 .o4").length === (DATA.persons ? 1 : 0)), `${name}: Überschlag-Grafik genau dann gezeichnet, wenn DATA.persons da ist`);
     ok(await page.evaluate(() => ![...document.querySelectorAll("#svg1 *, #svg3 *, #svg4 *")].some(e => /#e66767/i.test(e.getAttribute("fill") || ""))), `${name}: kein Rot in Akt 1, 3, 4`);
     if (mobile) await mobileScan(page, name);
 
@@ -156,8 +156,10 @@ async function mobileScan(page, name) {
       scrollTo({ top: mobile ? c.top + scrollY - (g + (innerHeight - g) / 3) + 20 : c.top + scrollY + c.height / 2 - innerHeight / 2, behavior: "instant" }); }, !!mobile);
     await pg.waitForTimeout(1200);
     const st = await pg.evaluate(() => ({ step: document.getElementById("g4").dataset.step, bars: getComputedStyle(document.querySelector("#svg4 .bars")).opacity,
-      pers: getComputedStyle(document.querySelector("#svg4 .o4")).opacity, txt: document.querySelector("#svg4 .o4").textContent }));
-    ok(st.step === "4" && st.bars === "0" && st.pers === "1" && /OSL · Mitte 84 %/.test(st.txt) && /Köln · Mitte 96 %/.test(st.txt), `${name}: Spannen für OSL und Köln gezeichnet, Balken ausgeblendet`);
+      pers: getComputedStyle(document.querySelector("#svg4 .o4")).opacity, txt: document.querySelector("#svg4 .o4").textContent,
+      want: ["osl", "koeln"].map(k => Math.round((DATA.persons || window.__persons)[k].p50)) }));
+    ok(st.step === "4" && st.bars === "0" && st.pers === "1" && st.txt.includes(`OSL · Mitte ${st.want[0]} %`) && st.txt.includes(`Köln · Mitte ${st.want[1]} %`),
+      `${name}: Spannen für OSL und Köln gezeichnet (Median ${st.want.join(" / ")} %), Balken ausgeblendet`);
     if (mobile) await mobileScan(pg, name);
     ok(errs.length === 0, `${name}: keine Konsolenfehler${errs.length ? " – " + errs.join(" | ") : ""}`);
     await pg.close();
