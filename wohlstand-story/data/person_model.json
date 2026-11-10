@@ -1,0 +1,1632 @@
+{
+ "meta": {
+  "titel": "Personenmodell (Überschlag) zur Story „Zwei Heimaten“",
+  "quelle": "wohlstandsatlas/atlas-data.js, feinste Ebene (FINE = 2)",
+  "skript": "wohlstand-story/scripts/person_model.py",
+  "kennzeichnung": "Modellrechnung, kein Messwert. Verteilung innerhalb der Regionen angenommen (Form und Gini), nicht beobachtet.",
+  "stuetzstellen": {
+   "welt": 100,
+   "kalibrierung": 40
+  },
+  "rechenzeit_s": 58.8
+ },
+ "hauptvariante": {
+  "id": "hh|within|lognormal",
+  "basis": "Konsum der Haushalte pro Kopf (KKP)",
+  "gini": "Gini innerhalb der Region kalibriert",
+  "form": "lognormal",
+  "begruendung": "Konsum der Haushalte statt BIP, weil das BIP am Arbeitsort zählt (Pendler, Konzernsitze: Köln 114.600 gegenüber 38.700 Int.$ Haushaltskonsum) und keine Größe ist, die bei Personen ankommt; die Gini-Werte der Länder beschreiben Einkommen bzw. Konsum, nicht BIP-Anteile. Gini innerhalb der Regionen kalibriert, damit die Mischung aller Regionen eines Landes genau dessen Gini ergibt – sonst würde die Ungleichheit zwischen den Regionen doppelt gezählt. Lognormal als übliche Standardannahme; die log-logistische Form ist Gegenprobe. Nachteil: Für Köln und OSL liegen Haushaltswerte nur für Regierungsbezirk Köln bzw. Brandenburg vor (NUTS-2)."
+ },
+ "methode": "Überschlag, kein Messwert: Für jede der rund 5.900 Regionen der feinsten Atlas-Ebene nehmen wir an, dass das Haushaltseinkommen (gemessen als Konsum der Haushalte pro Kopf, KKP) der Einwohner lognormal um den Regionswert streut. Wie stark, folgt aus dem Gini des Landes (Weltbank); weil ein Teil der Ungleichheit eines Landes zwischen seinen Regionen liegt, wird die Streuung innerhalb der Regionen so gewählt, dass alle Regionen zusammen wieder genau den Landes-Gini ergeben. Aus allen Regionen entsteht eine Weltverteilung über 8,1 Mrd. Menschen, in die wir die Einwohner von OSL, Köln und Deutschland einordnen. Gegenproben mit BIP statt Konsum, Gini ±5 Punkte und einer zweiten Verteilungsform ergeben die angegebenen Spannen; nur Aussagen, die in allen Varianten gleich ausgehen, stehen im Text.",
+ "annahmen": {
+  "verteilungsform": "lognormal (Hauptvariante); log-logistisch (Fisk) als Gegenprobe",
+  "gini_ersatz": {
+   "regel": "Länder ohne Gini: bevölkerungsgewichteter Median der Länder-Gini des Kontinents (Feld ct)",
+   "laender": 54,
+   "bevoelkerung": 58935518.0,
+   "anteil_welt_prozent": 0.73,
+   "kontinentwerte": {
+    "Asien": 39.1,
+    "Afrika": 42.0,
+    "Europa": 35.8,
+    "Südamerika": 54.7,
+    "Ozeanien": 34.4,
+    "Nord- & Mittelamerika": 46.5
+   }
+  },
+  "gini_verschiebung": "±5 Punkte, gekappt auf 15–70",
+  "gini_innen": "Je Land per Bisektion so gewählt, dass die Mischung der Regionsverteilungen den Landes-Gini trifft; Untergrenze 10 Punkte; Länder mit nur einer Einheit behalten den Landes-Gini.",
+  "kalibrierung": {
+   "gdp|lognormal": {
+    "deu_gini_innen": 28.9,
+    "deu_gini_zwischen_regionen": 20.7,
+    "auf_untergrenze": [
+     "EGY",
+     "THA",
+     "UKR",
+     "IRL"
+    ],
+    "gini_innen_bevgew_mittel": 34.2,
+    "gini_land_bevgew_mittel": 41.1
+   },
+   "gdp|fisk": {
+    "deu_gini_innen": 29.7,
+    "deu_gini_zwischen_regionen": 20.7,
+    "auf_untergrenze": [
+     "EGY",
+     "THA",
+     "UKR",
+     "IRL"
+    ],
+    "gini_innen_bevgew_mittel": 35.0,
+    "gini_land_bevgew_mittel": 41.1
+   },
+   "hh|lognormal": {
+    "deu_gini_innen": 35.0,
+    "deu_gini_zwischen_regionen": 4.4,
+    "auf_untergrenze": [],
+    "gini_innen_bevgew_mittel": 39.9,
+    "gini_land_bevgew_mittel": 41.1
+   },
+   "hh|fisk": {
+    "deu_gini_innen": 35.2,
+    "deu_gini_zwischen_regionen": 4.4,
+    "auf_untergrenze": [],
+    "gini_innen_bevgew_mittel": 40.8,
+    "gini_land_bevgew_mittel": 41.1
+   },
+   "hh_b0|lognormal": {
+    "deu_gini_innen": 35.0,
+    "deu_gini_zwischen_regionen": 4.4,
+    "auf_untergrenze": [],
+    "gini_innen_bevgew_mittel": 40.4,
+    "gini_land_bevgew_mittel": 41.1
+   },
+   "hh_b1|lognormal": {
+    "deu_gini_innen": 35.0,
+    "deu_gini_zwischen_regionen": 4.4,
+    "auf_untergrenze": [
+     "EGY",
+     "THA",
+     "UKR"
+    ],
+    "gini_innen_bevgew_mittel": 36.2,
+    "gini_land_bevgew_mittel": 41.1
+   }
+  },
+  "haushaltskonsum": {
+   "atlas_einheiten_mit_wert": 5884,
+   "atlas_bev_mit_wert": 7431834117.745,
+   "atlas_einheiten_nur_landeswert": 862,
+   "atlas_bev_nur_landeswert": 3104909331.4,
+   "ersetzt_einheiten": 45,
+   "ersetzt_bev": 647871043.0,
+   "laender_ohne_weltbank_konsum": [
+    "ABW",
+    "AND",
+    "ARG",
+    "ATG",
+    "BMU",
+    "BRB",
+    "COD",
+    "CUW",
+    "CYM",
+    "DMA",
+    "ERI",
+    "FRO",
+    "FSM",
+    "GRD",
+    "GRL",
+    "GUY",
+    "JAM",
+    "JOR",
+    "KNA",
+    "LAO",
+    "LBR",
+    "LCA",
+    "MHL",
+    "MMR",
+    "NGA",
+    "NRU",
+    "PNG",
+    "PRI",
+    "SOM",
+    "SSD",
+    "SUR",
+    "SWZ",
+    "SXM",
+    "SYR",
+    "TCA",
+    "TKM",
+    "TTO",
+    "TUV",
+    "TWN",
+    "URY",
+    "VCT",
+    "VEN",
+    "XKX",
+    "YEM",
+    "ZWE"
+   ],
+   "regel": "Atlaswert, wo er regionale Information trägt (auch NUTS-2- oder Provinzwert). Wo der Atlas nur den Landeswert hat oder gar keinen: Landeswert × (BIP pro Kopf der Region / des Landes)^β, je Land auf den Landeswert normiert. Land ohne Weltbank-Konsum: BIP pro Kopf × Median-Verhältnis Konsum/BIP des Kontinents.",
+   "beta": 0.392,
+   "beta_herleitung": "Median der bevölkerungsgewichteten Steigungen ln(hh_r/hh_Land) ~ ln(BIP_r/BIP_Land) über Länder mit echten Regionaldaten (Ebene 1)",
+   "beta_je_land": {
+    "AUT": -0.19,
+    "BEL": 0.14,
+    "BRA": 0.68,
+    "CAN": 0.44,
+    "CHN": 0.73,
+    "DEU": 0.32,
+    "DNK": 0.22,
+    "ESP": 0.72,
+    "FRA": 0.39,
+    "GBR": 0.65,
+    "GRC": 0.39,
+    "ITA": 0.63,
+    "JPN": 0.44,
+    "KOR": 0.21,
+    "NLD": 0.2,
+    "POL": 0.38,
+    "PRT": 0.39,
+    "USA": 0.66
+   },
+   "verhaeltnis_konsum_bip_kontinent": {
+    "Asien": 0.523,
+    "Afrika": 0.723,
+    "Europa": 0.527,
+    "Ozeanien": 0.492,
+    "Nord- & Mittelamerika": 0.679,
+    "Südamerika": 0.629
+   },
+   "gegenproben": "β = 0 (Landeswert) und β = 1 (proportional zum BIP)"
+  },
+  "mittlerer_einwohner": "Median der Personen eines Ortes (nicht der Mittelwert)",
+  "nicht_modelliert": [
+   "Ungleichheit innerhalb von Köln bzw. OSL selbst (nur über die Variante Köln +5 / OSL −5 abgetastet)",
+   "regionale Preisunterschiede in Deutschland (Story-Variante ‚regionale Kaufkraft‘)",
+   "Unterschiede zwischen Einkommens- und Konsum-Gini der Weltbank-Erhebungen",
+   "Haushaltskonsum aus Volkswirtschaftlicher Gesamtrechnung liegt über Haushaltsbefragungen"
+  ]
+ },
+ "ergebnisse_hauptvariante": {
+  "osl_p10": {
+   "label": "Weltperzentil: ärmstes Zehntel in OSL (P10)",
+   "wert": 70.9657,
+   "gerundet": 71,
+   "min": 60.5969,
+   "max": 76.6032,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "hh|nat-5|fisk",
+   "spanne_gdp": [
+    60.6,
+    73.13
+   ],
+   "spanne_hh": [
+    66.58,
+    76.6
+   ]
+  },
+  "osl_p25": {
+   "label": "Weltperzentil: OSL P25",
+   "wert": 80.8643,
+   "gerundet": 81,
+   "min": 72.253,
+   "max": 83.8914,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "hh|nat-5|fisk",
+   "spanne_gdp": [
+    72.25,
+    79.53
+   ],
+   "spanne_hh": [
+    78.32,
+    83.89
+   ]
+  },
+  "osl_p50": {
+   "label": "Weltperzentil: mittlerer Mensch in OSL (Median)",
+   "wert": 88.9576,
+   "gerundet": 89,
+   "min": 82.9446,
+   "max": 89.8452,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "hh|nat-5|fisk",
+   "spanne_gdp": [
+    82.94,
+    85.61
+   ],
+   "spanne_hh": [
+    87.91,
+    89.85
+   ]
+  },
+  "osl_p75": {
+   "label": "Weltperzentil: OSL P75",
+   "wert": 94.2878,
+   "gerundet": 94,
+   "min": 90.3524,
+   "max": 94.3945,
+   "min_variante": "gdp|nat-5|fisk",
+   "max_variante": "hh|nat-5|lognormal",
+   "spanne_gdp": [
+    90.35,
+    90.89
+   ],
+   "spanne_hh": [
+    93.87,
+    94.39
+   ]
+  },
+  "osl_p90": {
+   "label": "Weltperzentil: reichstes Zehntel in OSL (P90)",
+   "wert": 97.0667,
+   "gerundet": 97,
+   "min": 93.9734,
+   "max": 97.0711,
+   "min_variante": "gdp|within_stadtland|lognormal",
+   "max_variante": "hh|nat+5|lognormal",
+   "spanne_gdp": [
+    93.97,
+    95.27
+   ],
+   "spanne_hh": [
+    96.7,
+    97.07
+   ]
+  },
+  "koeln_p10": {
+   "label": "Weltperzentil: ärmstes Zehntel in Köln (P10)",
+   "wert": 73.0494,
+   "gerundet": 73,
+   "min": 67.3039,
+   "max": 87.6406,
+   "min_variante": "hh|within_stadtland|lognormal",
+   "max_variante": "gdp|within|fisk",
+   "spanne_gdp": [
+    80.0,
+    87.64
+   ],
+   "spanne_hh": [
+    67.3,
+    78.36
+   ]
+  },
+  "koeln_p25": {
+   "label": "Weltperzentil: Köln P25",
+   "wert": 82.4597,
+   "gerundet": 82,
+   "min": 79.4533,
+   "max": 92.7225,
+   "min_variante": "hh|within_stadtland|lognormal",
+   "max_variante": "gdp|within|fisk",
+   "spanne_gdp": [
+    87.99,
+    92.72
+   ],
+   "spanne_hh": [
+    79.45,
+    85.34
+   ]
+  },
+  "koeln_p50": {
+   "label": "Weltperzentil: mittlerer Mensch in Köln (Median)",
+   "wert": 90.0584,
+   "gerundet": 90,
+   "min": 89.0224,
+   "max": 95.9468,
+   "min_variante": "hh|nat+5|lognormal",
+   "max_variante": "gdp|within|fisk",
+   "spanne_gdp": [
+    94.01,
+    95.95
+   ],
+   "spanne_hh": [
+    89.02,
+    90.97
+   ]
+  },
+  "koeln_p75": {
+   "label": "Weltperzentil: Köln P75",
+   "wert": 94.9493,
+   "gerundet": 95,
+   "min": 94.5287,
+   "max": 97.9218,
+   "min_variante": "hh|nat+5|fisk",
+   "max_variante": "gdp|within_stadtland|lognormal",
+   "spanne_gdp": [
+    97.23,
+    97.92
+   ],
+   "spanne_hh": [
+    94.53,
+    95.09
+   ]
+  },
+  "koeln_p90": {
+   "label": "Weltperzentil: reichstes Zehntel in Köln (P90)",
+   "wert": 97.4225,
+   "gerundet": 97,
+   "min": 97.2226,
+   "max": 98.9085,
+   "min_variante": "hh|nat-5|fisk",
+   "max_variante": "gdp|within_stadtland|lognormal",
+   "spanne_gdp": [
+    98.55,
+    98.91
+   ],
+   "spanne_hh": [
+    97.22,
+    97.67
+   ]
+  },
+  "osl_mean_world_below": {
+   "label": "Anteil der Menschheit (Personen) unter dem OSL-Mittelwert",
+   "wert": 91.8172,
+   "gerundet": 92,
+   "min": 87.1439,
+   "max": 92.1964,
+   "min_variante": "gdp|nat-5|lognormal",
+   "max_variante": "hh|nat+5|fisk",
+   "spanne_gdp": [
+    87.14,
+    88.25
+   ],
+   "spanne_hh": [
+    91.69,
+    92.2
+   ]
+  },
+  "koeln_mean_world_below": {
+   "label": "Anteil der Menschheit (Personen) unter dem Kölner Mittelwert",
+   "wert": 92.7004,
+   "gerundet": 93,
+   "min": 92.5299,
+   "max": 96.9183,
+   "min_variante": "hh|nat+5|lognormal",
+   "max_variante": "gdp|within|fisk",
+   "spanne_gdp": [
+    96.13,
+    96.92
+   ],
+   "spanne_hh": [
+    92.53,
+    93.04
+   ]
+  },
+  "between_means": {
+   "label": "Anteil der Menschheit zwischen OSL- und Kölner Mittelwert",
+   "wert": 0.8832,
+   "gerundet": 1,
+   "min": 0.8149,
+   "max": 9.5589,
+   "min_variante": "hh|nat+5|fisk",
+   "max_variante": "gdp|nat-5|lognormal",
+   "spanne_gdp": [
+    8.2,
+    9.56
+   ],
+   "spanne_hh": [
+    0.81,
+    0.94
+   ]
+  },
+  "koeln_below_osl_median": {
+   "label": "Anteil der Kölner unter dem mittleren (Median-)Einwohner von OSL",
+   "wert": 45.4011,
+   "gerundet": 45,
+   "min": 6.2273,
+   "max": 52.8146,
+   "min_variante": "gdp|within|lognormal",
+   "max_variante": "hh|within_stadtland|lognormal",
+   "spanne_gdp": [
+    6.23,
+    14.05
+   ],
+   "spanne_hh": [
+    43.9,
+    52.81
+   ]
+  },
+  "osl_above_koeln_median": {
+   "label": "Anteil der OSL-Einwohner über dem mittleren (Median-)Kölner",
+   "wert": 45.4011,
+   "gerundet": 45,
+   "min": 5.0561,
+   "max": 53.8283,
+   "min_variante": "gdp|within_stadtland|lognormal",
+   "max_variante": "hh|within_stadtland|lognormal",
+   "spanne_gdp": [
+    5.06,
+    14.05
+   ],
+   "spanne_hh": [
+    43.9,
+    53.83
+   ]
+  },
+  "koeln_p10_minus_osl_p50": {
+   "label": "Weltperzentil Köln-P10 minus Weltperzentil OSL-Median (Prozentpunkte)",
+   "wert": -15.9082,
+   "gerundet": -16,
+   "min": -22.5137,
+   "max": 2.8645,
+   "min_variante": "hh|within_stadtland|lognormal",
+   "max_variante": "gdp|within|fisk",
+   "spanne_gdp": [
+    -2.94,
+    2.86
+   ],
+   "spanne_hh": [
+    -22.51,
+    -11.49
+   ]
+  },
+  "median_gap": {
+   "label": "Abstand der Weltperzentile: mittlerer Kölner minus mittlerer OSL-Einwohner (Prozentpunkte)",
+   "wert": 1.1008,
+   "gerundet": 1,
+   "min": -0.782,
+   "max": 11.2752,
+   "min_variante": "hh|within_stadtland|lognormal",
+   "max_variante": "gdp|nat-5|fisk",
+   "spanne_gdp": [
+    9.82,
+    11.28
+   ],
+   "spanne_hh": [
+    -0.78,
+    1.12
+   ]
+  },
+  "osl_spread_p10_p90": {
+   "label": "Spannweite innerhalb OSL: Weltperzentil P90 minus P10 (Prozentpunkte)",
+   "wert": 26.101,
+   "gerundet": 26,
+   "min": 20.2223,
+   "max": 34.6709,
+   "min_variante": "hh|nat-5|fisk",
+   "max_variante": "gdp|nat+5|lognormal",
+   "spanne_gdp": [
+    20.84,
+    34.67
+   ],
+   "spanne_hh": [
+    20.22,
+    30.49
+   ]
+  },
+  "koeln_spread_p10_p90": {
+   "label": "Spannweite innerhalb Kölns: Weltperzentil P90 minus P10 (Prozentpunkte)",
+   "wert": 24.373,
+   "gerundet": 24,
+   "min": 11.0378,
+   "max": 30.3691,
+   "min_variante": "gdp|within|fisk",
+   "max_variante": "hh|within_stadtland|lognormal",
+   "spanne_gdp": [
+    11.04,
+    18.69
+   ],
+   "spanne_hh": [
+    18.87,
+    30.37
+   ]
+  },
+  "deu_p10": {
+   "label": "Weltperzentil: ärmstes Zehntel in Deutschland (P10)",
+   "wert": 72.9726,
+   "gerundet": 73,
+   "min": 66.0747,
+   "max": 78.2501,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "hh|nat-5|fisk",
+   "spanne_gdp": [
+    66.07,
+    73.89
+   ],
+   "spanne_hh": [
+    68.63,
+    78.25
+   ]
+  },
+  "deu_p50": {
+   "label": "Weltperzentil: mittlerer Mensch in Deutschland",
+   "wert": 90.1043,
+   "gerundet": 90,
+   "min": 87.7736,
+   "max": 91.0134,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "hh|nat-5|fisk",
+   "spanne_gdp": [
+    87.77,
+    89.78
+   ],
+   "spanne_hh": [
+    89.07,
+    91.01
+   ]
+  },
+  "deu_p90": {
+   "label": "Weltperzentil: reichstes Zehntel in Deutschland (P90)",
+   "wert": 97.4657,
+   "gerundet": 97,
+   "min": 97.2814,
+   "max": 97.7088,
+   "min_variante": "hh|nat-5|fisk",
+   "max_variante": "gdp|within_stadtland|lognormal",
+   "spanne_gdp": [
+    97.49,
+    97.71
+   ],
+   "spanne_hh": [
+    97.28,
+    97.47
+   ]
+  },
+  "deu_above_world_median": {
+   "label": "Anteil der Menschen in Deutschland über dem Weltmedian",
+   "wert": 99.1071,
+   "gerundet": 99,
+   "min": 97.7457,
+   "max": 99.7392,
+   "min_variante": "gdp|nat+5|fisk",
+   "max_variante": "hh|nat-5|lognormal",
+   "spanne_gdp": [
+    97.75,
+    99.57
+   ],
+   "spanne_hh": [
+    97.98,
+    99.74
+   ]
+  },
+  "osl_above_world_median": {
+   "label": "Anteil der OSL-Einwohner über dem Weltmedian",
+   "wert": 98.8236,
+   "gerundet": 99,
+   "min": 96.2801,
+   "max": 99.896,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "gdp|within_stadtland|lognormal",
+   "spanne_gdp": [
+    96.28,
+    99.9
+   ],
+   "spanne_hh": [
+    97.61,
+    99.72
+   ]
+  },
+  "koeln_above_world_median": {
+   "label": "Anteil der Kölner über dem Weltmedian",
+   "wert": 99.135,
+   "gerundet": 99,
+   "min": 97.5373,
+   "max": 99.9965,
+   "min_variante": "hh|within_stadtland|lognormal",
+   "max_variante": "gdp|within|lognormal",
+   "spanne_gdp": [
+    99.51,
+    100.0
+   ],
+   "spanne_hh": [
+    97.54,
+    99.76
+   ]
+  },
+  "world_gini": {
+   "label": "Globaler Gini des Modells (0–1)",
+   "wert": 0.5854,
+   "gerundet": 0.585,
+   "min": 0.5641,
+   "max": 0.6474,
+   "min_variante": "hh|nat-5|fisk",
+   "max_variante": "gdp|nat+5|lognormal",
+   "spanne_gdp": [
+    0.59,
+    0.65
+   ],
+   "spanne_hh": [
+    0.56,
+    0.62
+   ]
+  },
+  "poor_half_share": {
+   "label": "Anteil der ärmeren Weltbevölkerungshälfte am Welt-Gesamt (%)",
+   "wert": 12.7176,
+   "gerundet": 13,
+   "min": 9.1583,
+   "max": 14.0259,
+   "min_variante": "gdp|nat+5|lognormal",
+   "max_variante": "hh|nat-5|fisk",
+   "spanne_gdp": [
+    9.16,
+    11.83
+   ],
+   "spanne_hh": [
+    10.92,
+    14.03
+   ]
+  }
+ },
+ "plausibilitaet": {
+  "welt_gini_hauptvariante": 0.585,
+  "welt_gini_spanne": [
+   0.564,
+   0.647
+  ],
+  "aermere_haelfte_hauptvariante": 12.7,
+  "aermere_haelfte_spanne": [
+   9.2,
+   14.0
+  ],
+  "nur_regionen_gini_null": {
+   "aermere_haelfte": 15.8,
+   "welt_gini": 0.514
+  },
+  "literatur": {
+   "welt_gini_einkommen": "rund 0,6–0,7",
+   "aermere_haelfte_einkommen": "rund 8–9 %"
+  },
+  "deu_gini_modell_hauptvariante": 0.352,
+  "deu_gini_weltbank": 0.35200000000000004
+ },
+ "pruefungen": {
+  "bevoelkerung": {
+   "welt_nenner": 8118457948.0,
+   "feinste_ebene": 8118453733.745,
+   "mit_daten": 8079705160.745,
+   "ohne_daten": 38752787.255000114,
+   "ohne_daten_einheiten": [
+    "ASM",
+    "CHI",
+    "CUB",
+    "GIB",
+    "GUM",
+    "IMN",
+    "LIE",
+    "MAF",
+    "MCO",
+    "MNP",
+    "NCL",
+    "PRK",
+    "PYF",
+    "VGB"
+   ],
+   "regel": "Wie in der Story: Nenner ist die ganze Weltbevölkerung, Menschen ohne Daten zählen nie als ‚darunter‘. Alle Anteile könnten dadurch um höchstens 0.5 Prozentpunkte zu niedrig sein.",
+   "summe_stuetzstellen": 8079705160.745,
+   "welt_cdf_oben": 8079705160.744998,
+   "summe_wert_rel_fehler": 0.0
+  },
+  "gini_null": {
+   "osl_world_below": 85.5596737396385,
+   "koeln_world_below": 98.26813606477886,
+   "between": 12.70846232514036,
+   "poor_half_share": 15.777870874172372,
+   "world_gini": 0.5136197737980901,
+   "story": {
+    "osl": 85.6,
+    "koeln": 98.3,
+    "between": 12.7,
+    "poor_half_share": 15.8
+   },
+   "fisk_osl": 85.55967373971612,
+   "fisk_koeln": 98.26813606550886
+  },
+  "aufloesung": {
+   "k_points": [
+    100,
+    200
+   ],
+   "k_cal": [
+    40,
+    80
+   ],
+   "max_abw_prozentpunkte": 0.022245081043564596,
+   "world_gini": [
+    0.5854309680702712,
+    0.5853769474962416
+   ],
+   "poor_half_share": [
+    12.717608373802383,
+    12.724633134466936
+   ],
+   "gdp_nat_world_gini": [
+    0.6227027570186698,
+    0.6228159184283011
+   ]
+  }
+ },
+ "grafik": {
+  "osl": {
+   "P10": 71.0,
+   "P25": 80.9,
+   "P50": 89.0,
+   "P75": 94.3,
+   "P90": 97.1,
+   "P10_spanne": [
+    60.6,
+    76.6
+   ],
+   "P90_spanne": [
+    94.0,
+    97.1
+   ],
+   "Mittelwert_als_Region_Story": 85.6
+  },
+  "koeln": {
+   "P10": 73.0,
+   "P25": 82.5,
+   "P50": 90.1,
+   "P75": 94.9,
+   "P90": 97.4,
+   "P10_spanne": [
+    67.3,
+    87.6
+   ],
+   "P90_spanne": [
+    97.2,
+    98.9
+   ],
+   "Mittelwert_als_Region_Story": 98.3
+  },
+  "deu": {
+   "P10": 73.0,
+   "P50": 90.1,
+   "P90": 97.5
+  },
+  "hinweis": "Werte = Anteil der Weltbevölkerung (in %), der weniger hat als die Person an diesem Perzentil des Ortes; Hauptvariante; Spannen über alle Varianten."
+ },
+ "varianten": {
+  "gdp|nat|lognormal": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Landes-Gini",
+   "form": "lognormal",
+   "osl_p10": 64.312,
+   "osl_p25": 74.375,
+   "osl_p50": 83.7,
+   "osl_p75": 90.773,
+   "osl_p90": 95.039,
+   "osl_mean_world_below": 87.386,
+   "koeln_p10": 83.25,
+   "koeln_p25": 89.842,
+   "koeln_p50": 94.837,
+   "koeln_p75": 97.595,
+   "koeln_p90": 98.751,
+   "koeln_mean_world_below": 96.4,
+   "between_means": 9.014,
+   "koeln_below_osl_median": 10.657,
+   "osl_above_koeln_median": 10.657,
+   "koeln_p10_minus_osl_p50": -0.451,
+   "median_gap": 11.137,
+   "osl_spread_p10_p90": 30.727,
+   "koeln_spread_p10_p90": 15.502,
+   "koeln_p10_to_osl_median_ratio": 0.977,
+   "deu_p10": 69.467,
+   "deu_p50": 88.584,
+   "deu_p90": 97.622,
+   "world_median_value": 11136.047,
+   "deu_above_world_median": 98.816,
+   "osl_above_world_median": 97.948,
+   "koeln_above_world_median": 99.95,
+   "gini_w_osl": 35.2,
+   "gini_w_koeln": 35.2,
+   "world_gini": 0.623,
+   "poor_half_share": 10.269,
+   "deu_model_gini": 0.404
+  },
+  "gdp|nat|fisk": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Landes-Gini",
+   "form": "fisk",
+   "osl_p10": 66.166,
+   "osl_p25": 75.827,
+   "osl_p50": 84.004,
+   "osl_p75": 90.481,
+   "osl_p90": 94.875,
+   "osl_mean_world_below": 87.809,
+   "koeln_p10": 84.581,
+   "koeln_p25": 90.904,
+   "koeln_p50": 95.132,
+   "koeln_p75": 97.481,
+   "koeln_p90": 98.621,
+   "koeln_mean_world_below": 96.617,
+   "between_means": 8.808,
+   "koeln_below_osl_median": 9.249,
+   "osl_above_koeln_median": 9.249,
+   "koeln_p10_minus_osl_p50": 0.577,
+   "median_gap": 11.128,
+   "osl_spread_p10_p90": 28.709,
+   "koeln_spread_p10_p90": 14.04,
+   "koeln_p10_to_osl_median_ratio": 1.031,
+   "deu_p10": 71.005,
+   "deu_p50": 88.875,
+   "deu_p90": 97.578,
+   "world_median_value": 11042.017,
+   "deu_above_world_median": 98.573,
+   "osl_above_world_median": 97.723,
+   "koeln_above_world_median": 99.763,
+   "gini_w_osl": 35.2,
+   "gini_w_koeln": 35.2,
+   "world_gini": 0.618,
+   "poor_half_share": 10.602,
+   "deu_model_gini": 0.398
+  },
+  "gdp|nat-5|lognormal": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Landes-Gini − 5",
+   "form": "lognormal",
+   "osl_p10": 67.998,
+   "osl_p25": 76.394,
+   "osl_p50": 84.355,
+   "osl_p75": 90.675,
+   "osl_p90": 94.705,
+   "osl_mean_world_below": 87.144,
+   "koeln_p10": 86.25,
+   "koeln_p25": 91.571,
+   "koeln_p50": 95.605,
+   "koeln_p75": 97.839,
+   "koeln_p90": 98.8,
+   "koeln_mean_world_below": 96.703,
+   "between_means": 9.559,
+   "koeln_below_osl_median": 7.148,
+   "osl_above_koeln_median": 7.148,
+   "koeln_p10_minus_osl_p50": 1.894,
+   "median_gap": 11.25,
+   "osl_spread_p10_p90": 26.707,
+   "koeln_spread_p10_p90": 12.55,
+   "koeln_p10_to_osl_median_ratio": 1.106,
+   "deu_p10": 72.679,
+   "deu_p50": 89.306,
+   "deu_p90": 97.699,
+   "world_median_value": 11900.43,
+   "deu_above_world_median": 99.51,
+   "osl_above_world_median": 99.154,
+   "koeln_above_world_median": 99.994,
+   "gini_w_osl": 30.2,
+   "gini_w_koeln": 30.2,
+   "world_gini": 0.6,
+   "poor_half_share": 11.328,
+   "deu_model_gini": 0.363
+  },
+  "gdp|nat-5|fisk": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Landes-Gini − 5",
+   "form": "fisk",
+   "osl_p10": 69.334,
+   "osl_p25": 77.44,
+   "osl_p50": 84.51,
+   "osl_p75": 90.352,
+   "osl_p90": 94.54,
+   "osl_mean_world_below": 87.417,
+   "koeln_p10": 87.156,
+   "koeln_p25": 92.341,
+   "koeln_p50": 95.785,
+   "koeln_p75": 97.715,
+   "koeln_p90": 98.683,
+   "koeln_mean_world_below": 96.842,
+   "between_means": 9.425,
+   "koeln_below_osl_median": 6.527,
+   "osl_above_koeln_median": 6.527,
+   "koeln_p10_minus_osl_p50": 2.647,
+   "median_gap": 11.275,
+   "osl_spread_p10_p90": 25.206,
+   "koeln_spread_p10_p90": 11.526,
+   "koeln_p10_to_osl_median_ratio": 1.151,
+   "deu_p10": 73.696,
+   "deu_p50": 89.461,
+   "deu_p90": 97.669,
+   "world_median_value": 11804.15,
+   "deu_above_world_median": 99.223,
+   "osl_above_world_median": 98.729,
+   "koeln_above_world_median": 99.91,
+   "gini_w_osl": 30.2,
+   "gini_w_koeln": 30.2,
+   "world_gini": 0.597,
+   "poor_half_share": 11.542,
+   "deu_model_gini": 0.36
+  },
+  "gdp|nat+5|lognormal": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Landes-Gini + 5",
+   "form": "lognormal",
+   "osl_p10": 60.597,
+   "osl_p25": 72.253,
+   "osl_p50": 82.945,
+   "osl_p75": 90.769,
+   "osl_p90": 95.268,
+   "osl_mean_world_below": 87.643,
+   "koeln_p10": 80.003,
+   "koeln_p25": 87.989,
+   "koeln_p50": 94.014,
+   "koeln_p75": 97.324,
+   "koeln_p90": 98.688,
+   "koeln_mean_world_below": 96.133,
+   "between_means": 8.49,
+   "koeln_below_osl_median": 14.052,
+   "osl_above_koeln_median": 14.052,
+   "koeln_p10_minus_osl_p50": -2.942,
+   "median_gap": 11.069,
+   "osl_spread_p10_p90": 34.671,
+   "koeln_spread_p10_p90": 18.685,
+   "koeln_p10_to_osl_median_ratio": 0.859,
+   "deu_p10": 66.075,
+   "deu_p50": 87.774,
+   "deu_p90": 97.543,
+   "world_median_value": 10271.229,
+   "deu_above_world_median": 97.778,
+   "osl_above_world_median": 96.28,
+   "koeln_above_world_median": 99.79,
+   "gini_w_osl": 40.2,
+   "gini_w_koeln": 40.2,
+   "world_gini": 0.647,
+   "poor_half_share": 9.158,
+   "deu_model_gini": 0.446
+  },
+  "gdp|nat+5|fisk": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Landes-Gini + 5",
+   "form": "fisk",
+   "osl_p10": 63.014,
+   "osl_p25": 74.187,
+   "osl_p50": 83.454,
+   "osl_p75": 90.528,
+   "osl_p90": 95.106,
+   "osl_mean_world_below": 88.246,
+   "koeln_p10": 81.936,
+   "koeln_p25": 89.437,
+   "koeln_p50": 94.461,
+   "koeln_p75": 97.234,
+   "koeln_p90": 98.549,
+   "koeln_mean_world_below": 96.443,
+   "between_means": 8.197,
+   "koeln_below_osl_median": 11.925,
+   "osl_above_koeln_median": 11.925,
+   "koeln_p10_minus_osl_p50": -1.518,
+   "median_gap": 11.007,
+   "osl_spread_p10_p90": 32.092,
+   "koeln_spread_p10_p90": 16.613,
+   "koeln_p10_to_osl_median_ratio": 0.924,
+   "deu_p10": 68.222,
+   "deu_p50": 88.254,
+   "deu_p90": 97.488,
+   "world_median_value": 10202.418,
+   "deu_above_world_median": 97.746,
+   "osl_above_world_median": 96.502,
+   "koeln_above_world_median": 99.512,
+   "gini_w_osl": 40.2,
+   "gini_w_koeln": 40.2,
+   "world_gini": 0.64,
+   "poor_half_share": 9.644,
+   "deu_model_gini": 0.438
+  },
+  "gdp|within|lognormal": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Gini innerhalb der Region kalibriert",
+   "form": "lognormal",
+   "osl_p10": 68.68,
+   "osl_p25": 76.983,
+   "osl_p50": 84.743,
+   "osl_p75": 90.891,
+   "osl_p90": 94.735,
+   "osl_mean_world_below": 87.33,
+   "koeln_p10": 87.262,
+   "koeln_p25": 92.258,
+   "koeln_p50": 95.878,
+   "koeln_p75": 97.883,
+   "koeln_p90": 98.786,
+   "koeln_mean_world_below": 96.815,
+   "between_means": 9.485,
+   "koeln_below_osl_median": 6.227,
+   "osl_above_koeln_median": 6.227,
+   "koeln_p10_minus_osl_p50": 2.518,
+   "median_gap": 11.135,
+   "osl_spread_p10_p90": 26.055,
+   "koeln_spread_p10_p90": 11.525,
+   "koeln_p10_to_osl_median_ratio": 1.142,
+   "deu_p10": 73.421,
+   "deu_p50": 89.746,
+   "deu_p90": 97.709,
+   "world_median_value": 12468.389,
+   "deu_above_world_median": 99.572,
+   "osl_above_world_median": 99.268,
+   "koeln_above_world_median": 99.997,
+   "gini_w_osl": 28.866,
+   "gini_w_koeln": 28.866,
+   "world_gini": 0.591,
+   "poor_half_share": 11.814,
+   "deu_model_gini": 0.352
+  },
+  "gdp|within|fisk": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "Gini innerhalb der Region kalibriert",
+   "form": "fisk",
+   "osl_p10": 69.404,
+   "osl_p25": 77.67,
+   "osl_p50": 84.776,
+   "osl_p75": 90.605,
+   "osl_p90": 94.67,
+   "osl_mean_world_below": 87.627,
+   "koeln_p10": 87.641,
+   "koeln_p25": 92.722,
+   "koeln_p50": 95.947,
+   "koeln_p75": 97.755,
+   "koeln_p90": 98.678,
+   "koeln_mean_world_below": 96.918,
+   "between_means": 9.292,
+   "koeln_below_osl_median": 6.274,
+   "osl_above_koeln_median": 6.274,
+   "koeln_p10_minus_osl_p50": 2.865,
+   "median_gap": 11.171,
+   "osl_spread_p10_p90": 25.266,
+   "koeln_spread_p10_p90": 11.038,
+   "koeln_p10_to_osl_median_ratio": 1.163,
+   "deu_p10": 73.886,
+   "deu_p50": 89.78,
+   "deu_p90": 97.698,
+   "world_median_value": 12199.548,
+   "deu_above_world_median": 99.205,
+   "osl_above_world_median": 98.697,
+   "koeln_above_world_median": 99.912,
+   "gini_w_osl": 29.729,
+   "gini_w_koeln": 29.729,
+   "world_gini": 0.592,
+   "poor_half_share": 11.834,
+   "deu_model_gini": 0.356
+  },
+  "gdp|within_stadtland|lognormal": {
+   "basis": "BIP pro Kopf (KKP)",
+   "gini": "kalibriert, Köln +5 / OSL −5",
+   "form": "lognormal",
+   "osl_p10": 73.134,
+   "osl_p25": 79.528,
+   "osl_p50": 85.614,
+   "osl_p75": 90.614,
+   "osl_p90": 93.973,
+   "osl_mean_world_below": 87.331,
+   "koeln_p10": 83.842,
+   "koeln_p25": 90.563,
+   "koeln_p50": 95.437,
+   "koeln_p75": 97.922,
+   "koeln_p90": 98.909,
+   "koeln_mean_world_below": 96.815,
+   "between_means": 9.485,
+   "koeln_below_osl_median": 12.784,
+   "osl_above_koeln_median": 5.056,
+   "koeln_p10_minus_osl_p50": -1.772,
+   "median_gap": 9.823,
+   "osl_spread_p10_p90": 20.839,
+   "koeln_spread_p10_p90": 15.067,
+   "koeln_p10_to_osl_median_ratio": 0.914,
+   "deu_p10": 73.412,
+   "deu_p50": 89.727,
+   "deu_p90": 97.709,
+   "world_median_value": 12468.39,
+   "deu_above_world_median": 99.572,
+   "osl_above_world_median": 99.896,
+   "koeln_above_world_median": 99.946,
+   "gini_w_osl": 23.866,
+   "gini_w_koeln": 33.866,
+   "world_gini": 0.591,
+   "poor_half_share": 11.814,
+   "deu_model_gini": 0.353
+  },
+  "hh|nat|lognormal": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Landes-Gini",
+   "form": "lognormal",
+   "osl_p10": 71.013,
+   "osl_p25": 80.79,
+   "osl_p50": 88.881,
+   "osl_p75": 94.243,
+   "osl_p90": 97.036,
+   "osl_mean_world_below": 91.773,
+   "koeln_p10": 73.049,
+   "koeln_p25": 82.368,
+   "koeln_p50": 89.98,
+   "koeln_p75": 94.904,
+   "koeln_p90": 97.391,
+   "koeln_mean_world_below": 92.655,
+   "between_means": 0.882,
+   "koeln_below_osl_median": 45.432,
+   "osl_above_koeln_median": 45.432,
+   "koeln_p10_minus_osl_p50": -15.832,
+   "median_gap": 1.099,
+   "osl_spread_p10_p90": 26.023,
+   "koeln_spread_p10_p90": 24.342,
+   "koeln_p10_to_osl_median_ratio": 0.471,
+   "deu_p10": 72.975,
+   "deu_p50": 90.026,
+   "deu_p90": 97.434,
+   "world_median_value": 6674.68,
+   "deu_above_world_median": 99.151,
+   "osl_above_world_median": 98.882,
+   "koeln_above_world_median": 99.178,
+   "gini_w_osl": 35.2,
+   "gini_w_koeln": 35.2,
+   "world_gini": 0.593,
+   "poor_half_share": 12.329,
+   "deu_model_gini": 0.354
+  },
+  "hh|nat|fisk": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Landes-Gini",
+   "form": "fisk",
+   "osl_p10": 73.175,
+   "osl_p25": 82.167,
+   "osl_p50": 89.154,
+   "osl_p75": 94.048,
+   "osl_p90": 96.896,
+   "osl_mean_world_below": 92.12,
+   "koeln_p10": 75.072,
+   "koeln_p25": 83.655,
+   "koeln_p50": 90.262,
+   "koeln_p75": 94.738,
+   "koeln_p90": 97.257,
+   "koeln_mean_world_below": 92.996,
+   "between_means": 0.876,
+   "koeln_below_osl_median": 44.757,
+   "osl_above_koeln_median": 44.757,
+   "koeln_p10_minus_osl_p50": -14.082,
+   "median_gap": 1.108,
+   "osl_spread_p10_p90": 23.721,
+   "koeln_spread_p10_p90": 22.184,
+   "koeln_p10_to_osl_median_ratio": 0.497,
+   "deu_p10": 74.984,
+   "deu_p50": 90.307,
+   "deu_p90": 97.305,
+   "world_median_value": 6587.487,
+   "deu_above_world_median": 98.8,
+   "osl_above_world_median": 98.543,
+   "koeln_above_world_median": 98.816,
+   "gini_w_osl": 35.2,
+   "gini_w_koeln": 35.2,
+   "world_gini": 0.587,
+   "poor_half_share": 12.8,
+   "deu_model_gini": 0.347
+  },
+  "hh|nat-5|lognormal": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Landes-Gini − 5",
+   "form": "lognormal",
+   "osl_p10": 75.254,
+   "osl_p25": 83.026,
+   "osl_p50": 89.716,
+   "osl_p75": 94.395,
+   "osl_p90": 96.954,
+   "osl_mean_world_below": 91.865,
+   "koeln_p10": 77.139,
+   "koeln_p25": 84.523,
+   "koeln_p50": 90.816,
+   "koeln_p75": 95.09,
+   "koeln_p90": 97.345,
+   "koeln_mean_world_below": 92.799,
+   "between_means": 0.934,
+   "koeln_below_osl_median": 44.629,
+   "osl_above_koeln_median": 44.629,
+   "koeln_p10_minus_osl_p50": -12.577,
+   "median_gap": 1.1,
+   "osl_spread_p10_p90": 21.7,
+   "koeln_spread_p10_p90": 20.206,
+   "koeln_p10_to_osl_median_ratio": 0.533,
+   "deu_p10": 77.044,
+   "deu_p50": 90.861,
+   "deu_p90": 97.397,
+   "world_median_value": 7105.513,
+   "deu_above_world_median": 99.739,
+   "osl_above_world_median": 99.631,
+   "koeln_above_world_median": 99.755,
+   "gini_w_osl": 30.2,
+   "gini_w_koeln": 30.2,
+   "world_gini": 0.567,
+   "poor_half_share": 13.703,
+   "deu_model_gini": 0.305
+  },
+  "hh|nat-5|fisk": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Landes-Gini − 5",
+   "form": "fisk",
+   "osl_p10": 76.603,
+   "osl_p25": 83.891,
+   "osl_p50": 89.845,
+   "osl_p75": 94.192,
+   "osl_p90": 96.826,
+   "osl_mean_world_below": 92.096,
+   "koeln_p10": 78.357,
+   "koeln_p25": 85.339,
+   "koeln_p50": 90.969,
+   "koeln_p75": 94.918,
+   "koeln_p90": 97.223,
+   "koeln_mean_world_below": 93.036,
+   "between_means": 0.941,
+   "koeln_below_osl_median": 43.897,
+   "osl_above_koeln_median": 43.897,
+   "koeln_p10_minus_osl_p50": -11.488,
+   "median_gap": 1.124,
+   "osl_spread_p10_p90": 20.222,
+   "koeln_spread_p10_p90": 18.866,
+   "koeln_p10_to_osl_median_ratio": 0.555,
+   "deu_p10": 78.25,
+   "deu_p50": 91.013,
+   "deu_p90": 97.281,
+   "world_median_value": 7013.214,
+   "deu_above_world_median": 99.407,
+   "osl_above_world_median": 99.258,
+   "koeln_above_world_median": 99.419,
+   "gini_w_osl": 30.2,
+   "gini_w_koeln": 30.2,
+   "world_gini": 0.564,
+   "poor_half_share": 14.026,
+   "deu_model_gini": 0.3
+  },
+  "hh|nat+5|lognormal": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Landes-Gini + 5",
+   "form": "lognormal",
+   "osl_p10": 66.577,
+   "osl_p25": 78.316,
+   "osl_p50": 87.913,
+   "osl_p75": 94.026,
+   "osl_p90": 97.071,
+   "osl_mean_world_below": 91.693,
+   "koeln_p10": 68.688,
+   "koeln_p25": 79.96,
+   "koeln_p50": 89.022,
+   "koeln_p75": 94.665,
+   "koeln_p90": 97.399,
+   "koeln_mean_world_below": 92.53,
+   "between_means": 0.837,
+   "koeln_below_osl_median": 46.042,
+   "osl_above_koeln_median": 46.042,
+   "koeln_p10_minus_osl_p50": -19.225,
+   "median_gap": 1.109,
+   "osl_spread_p10_p90": 30.494,
+   "koeln_spread_p10_p90": 28.711,
+   "koeln_p10_to_osl_median_ratio": 0.414,
+   "deu_p10": 68.634,
+   "deu_p50": 89.069,
+   "deu_p90": 97.435,
+   "world_median_value": 6173.993,
+   "deu_above_world_median": 98.131,
+   "osl_above_world_median": 97.664,
+   "koeln_above_world_median": 98.161,
+   "gini_w_osl": 40.2,
+   "gini_w_koeln": 40.2,
+   "world_gini": 0.62,
+   "poor_half_share": 10.918,
+   "deu_model_gini": 0.404
+  },
+  "hh|nat+5|fisk": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Landes-Gini + 5",
+   "form": "fisk",
+   "osl_p10": 69.586,
+   "osl_p25": 80.347,
+   "osl_p50": 88.418,
+   "osl_p75": 93.866,
+   "osl_p90": 96.923,
+   "osl_mean_world_below": 92.196,
+   "koeln_p10": 71.598,
+   "koeln_p25": 81.881,
+   "koeln_p50": 89.518,
+   "koeln_p75": 94.529,
+   "koeln_p90": 97.256,
+   "koeln_mean_world_below": 93.011,
+   "between_means": 0.815,
+   "koeln_below_osl_median": 45.405,
+   "osl_above_koeln_median": 45.405,
+   "koeln_p10_minus_osl_p50": -16.82,
+   "median_gap": 1.099,
+   "osl_spread_p10_p90": 27.337,
+   "koeln_spread_p10_p90": 25.658,
+   "koeln_p10_to_osl_median_ratio": 0.445,
+   "deu_p10": 71.527,
+   "deu_p50": 89.563,
+   "deu_p90": 97.297,
+   "world_median_value": 6105.843,
+   "deu_above_world_median": 97.982,
+   "osl_above_world_median": 97.606,
+   "koeln_above_world_median": 98.001,
+   "gini_w_osl": 40.2,
+   "gini_w_koeln": 40.2,
+   "world_gini": 0.612,
+   "poor_half_share": 11.574,
+   "deu_model_gini": 0.393
+  },
+  "hh|within|lognormal": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Gini innerhalb der Region kalibriert",
+   "form": "lognormal",
+   "osl_p10": 70.966,
+   "osl_p25": 80.864,
+   "osl_p50": 88.958,
+   "osl_p75": 94.288,
+   "osl_p90": 97.067,
+   "osl_mean_world_below": 91.817,
+   "koeln_p10": 73.049,
+   "koeln_p25": 82.46,
+   "koeln_p50": 90.058,
+   "koeln_p75": 94.949,
+   "koeln_p90": 97.422,
+   "koeln_mean_world_below": 92.7,
+   "between_means": 0.883,
+   "koeln_below_osl_median": 45.401,
+   "osl_above_koeln_median": 45.401,
+   "koeln_p10_minus_osl_p50": -15.908,
+   "median_gap": 1.101,
+   "osl_spread_p10_p90": 26.101,
+   "koeln_spread_p10_p90": 24.373,
+   "koeln_p10_to_osl_median_ratio": 0.473,
+   "deu_p10": 72.973,
+   "deu_p50": 90.104,
+   "deu_p90": 97.466,
+   "world_median_value": 6843.578,
+   "deu_above_world_median": 99.107,
+   "osl_above_world_median": 98.824,
+   "koeln_above_world_median": 99.135,
+   "gini_w_osl": 34.981,
+   "gini_w_koeln": 34.981,
+   "world_gini": 0.585,
+   "poor_half_share": 12.718,
+   "deu_model_gini": 0.352
+  },
+  "hh|within|fisk": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "Gini innerhalb der Region kalibriert",
+   "form": "fisk",
+   "osl_p10": 73.105,
+   "osl_p25": 82.187,
+   "osl_p50": 89.198,
+   "osl_p75": 94.082,
+   "osl_p90": 96.915,
+   "osl_mean_world_below": 92.16,
+   "koeln_p10": 75.026,
+   "koeln_p25": 83.685,
+   "koeln_p50": 90.305,
+   "koeln_p75": 94.769,
+   "koeln_p90": 97.274,
+   "koeln_mean_world_below": 93.034,
+   "between_means": 0.873,
+   "koeln_below_osl_median": 44.757,
+   "osl_above_koeln_median": 44.757,
+   "koeln_p10_minus_osl_p50": -14.172,
+   "median_gap": 1.107,
+   "osl_spread_p10_p90": 23.811,
+   "koeln_spread_p10_p90": 22.248,
+   "koeln_p10_to_osl_median_ratio": 0.497,
+   "deu_p10": 74.936,
+   "deu_p50": 90.35,
+   "deu_p90": 97.322,
+   "world_median_value": 6642.128,
+   "deu_above_world_median": 98.772,
+   "osl_above_world_median": 98.509,
+   "koeln_above_world_median": 98.789,
+   "gini_w_osl": 35.2,
+   "gini_w_koeln": 35.2,
+   "world_gini": 0.586,
+   "poor_half_share": 12.893,
+   "deu_model_gini": 0.347
+  },
+  "hh|within_stadtland|lognormal": {
+   "basis": "Konsum der Haushalte pro Kopf (KKP)",
+   "gini": "kalibriert, Köln +5 / OSL −5",
+   "form": "lognormal",
+   "osl_p10": 75.901,
+   "osl_p25": 83.458,
+   "osl_p50": 89.818,
+   "osl_p75": 94.213,
+   "osl_p90": 96.704,
+   "osl_mean_world_below": 91.818,
+   "koeln_p10": 67.304,
+   "koeln_p25": 79.453,
+   "koeln_p50": 89.036,
+   "koeln_p75": 94.935,
+   "koeln_p90": 97.673,
+   "koeln_mean_world_below": 92.701,
+   "between_means": 0.883,
+   "koeln_below_osl_median": 52.815,
+   "osl_above_koeln_median": 53.828,
+   "koeln_p10_minus_osl_p50": -22.514,
+   "median_gap": -0.782,
+   "osl_spread_p10_p90": 20.804,
+   "koeln_spread_p10_p90": 30.369,
+   "koeln_p10_to_osl_median_ratio": 0.367,
+   "deu_p10": 72.912,
+   "deu_p50": 90.095,
+   "deu_p90": 97.468,
+   "world_median_value": 6843.542,
+   "deu_above_world_median": 99.089,
+   "osl_above_world_median": 99.722,
+   "koeln_above_world_median": 97.537,
+   "gini_w_osl": 29.981,
+   "gini_w_koeln": 39.981,
+   "world_gini": 0.585,
+   "poor_half_share": 12.718,
+   "deu_model_gini": 0.353
+  },
+  "hh_b0|within|lognormal": {
+   "basis": "Konsum, fehlende Regionen = Landeswert",
+   "gini": "Gini innerhalb der Region kalibriert",
+   "form": "lognormal",
+   "osl_p10": 70.952,
+   "osl_p25": 80.856,
+   "osl_p50": 88.958,
+   "osl_p75": 94.29,
+   "osl_p90": 97.069,
+   "osl_mean_world_below": 91.819,
+   "koeln_p10": 73.036,
+   "koeln_p25": 82.453,
+   "koeln_p50": 90.059,
+   "koeln_p75": 94.952,
+   "koeln_p90": 97.424,
+   "koeln_mean_world_below": 92.703,
+   "between_means": 0.883,
+   "koeln_below_osl_median": 45.401,
+   "osl_above_koeln_median": 45.401,
+   "koeln_p10_minus_osl_p50": -15.922,
+   "median_gap": 1.102,
+   "osl_spread_p10_p90": 26.117,
+   "koeln_spread_p10_p90": 24.388,
+   "koeln_p10_to_osl_median_ratio": 0.473,
+   "deu_p10": 72.959,
+   "deu_p50": 90.105,
+   "deu_p90": 97.467,
+   "world_median_value": 6844.292,
+   "deu_above_world_median": 99.107,
+   "osl_above_world_median": 98.823,
+   "koeln_above_world_median": 99.135,
+   "gini_w_osl": 34.981,
+   "gini_w_koeln": 34.981,
+   "world_gini": 0.585,
+   "poor_half_share": 12.721,
+   "deu_model_gini": 0.352
+  },
+  "hh_b1|within|lognormal": {
+   "basis": "Konsum, fehlende Regionen ∝ BIP",
+   "gini": "Gini innerhalb der Region kalibriert",
+   "form": "lognormal",
+   "osl_p10": 71.289,
+   "osl_p25": 80.963,
+   "osl_p50": 88.873,
+   "osl_p75": 94.232,
+   "osl_p90": 97.058,
+   "osl_mean_world_below": 91.71,
+   "koeln_p10": 73.331,
+   "koeln_p25": 82.524,
+   "koeln_p50": 89.956,
+   "koeln_p75": 94.912,
+   "koeln_p90": 97.414,
+   "koeln_mean_world_below": 92.605,
+   "between_means": 0.895,
+   "koeln_below_osl_median": 45.401,
+   "osl_above_koeln_median": 45.401,
+   "koeln_p10_minus_osl_p50": -15.542,
+   "median_gap": 1.083,
+   "osl_spread_p10_p90": 25.769,
+   "koeln_spread_p10_p90": 24.083,
+   "koeln_p10_to_osl_median_ratio": 0.473,
+   "deu_p10": 73.256,
+   "deu_p50": 90.001,
+   "deu_p90": 97.457,
+   "world_median_value": 6816.427,
+   "deu_above_world_median": 99.122,
+   "osl_above_world_median": 98.843,
+   "koeln_above_world_median": 99.149,
+   "gini_w_osl": 34.981,
+   "gini_w_koeln": 34.981,
+   "world_gini": 0.587,
+   "poor_half_share": 12.722,
+   "deu_model_gini": 0.352
+  }
+ },
+ "aussagen_geprueft": [
+  {
+   "satz": "Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich.",
+   "spanne": {
+    "osl_p10": [
+     61,
+     77
+    ]
+   },
+   "robust": true,
+   "hinweis": ""
+  },
+  {
+   "satz": "Auch das ärmste Zehntel in OSL steht noch vor rund zwei Dritteln der Menschheit.",
+   "spanne": {
+    "osl_p10": [
+     61,
+     77
+    ]
+   },
+   "robust": false,
+   "hinweis": "Spanne reicht über ‚rund zwei Drittel‘ hinaus; nur als ‚mehr als 60 %‘ haltbar."
+  },
+  {
+   "satz": "Der mittlere Mensch in OSL wie in Köln steht in der Welt vor mehr als 80 % der Menschheit.",
+   "spanne": {
+    "osl_p50": [
+     83,
+     90
+    ],
+    "koeln_p50": [
+     89,
+     96
+    ]
+   },
+   "robust": true,
+   "hinweis": ""
+  },
+  {
+   "satz": "Schon innerhalb von OSL liegen ärmstes und reichstes Zehntel in der Welt weiter auseinander als der mittlere Mensch in OSL und der in Köln.",
+   "spanne": {
+    "median_gap": [
+     -1,
+     11
+    ],
+    "osl_spread_p10_p90": [
+     20,
+     35
+    ]
+   },
+   "robust": true,
+   "hinweis": "Für Köln allein nicht haltbar (Kölner Spannweite mit BIP nur rund 11 Punkte, weil oben in der Welt wenig Platz ist)."
+  },
+  {
+   "satz": "Das ärmste Zehntel in Köln steht in der Welt höchstens dort, wo der mittlere Mensch in OSL steht.",
+   "spanne": {
+    "koeln_p10_minus_osl_p50": [
+     -23,
+     3
+    ]
+   },
+   "robust": true,
+   "hinweis": "Mit BIP etwa gleichauf, mit Haushaltskonsum deutlich darunter."
+  },
+  {
+   "satz": "Das ärmste Zehntel in Köln steht in der Welt etwa dort, wo der mittlere Mensch in OSL steht.",
+   "spanne": {
+    "koeln_p10_minus_osl_p50": [
+     -23,
+     3
+    ]
+   },
+   "robust": false,
+   "hinweis": "Gilt nur mit BIP als Basis; mit Haushaltskonsum liegt das Kölner Zehntel 15–23 Punkte tiefer."
+  },
+  {
+   "satz": "Rund ein Drittel der Kölner liegt unter dem mittleren Einwohner von OSL.",
+   "spanne": {
+    "koeln_below_osl_median": [
+     6,
+     53
+    ]
+   },
+   "robust": false,
+   "hinweis": "Spanne zu breit: BIP rund 5–14 %, Haushaltskonsum rund 44–53 %."
+  },
+  {
+   "satz": "Fast alle Menschen in Deutschland haben mehr als der mittlere Mensch der Welt.",
+   "spanne": {
+    "deu_above_world_median": [
+     98,
+     100
+    ]
+   },
+   "robust": true,
+   "hinweis": ""
+  },
+  {
+   "satz": "Der mittlere Mensch in Deutschland steht vor rund 90 % der Menschheit.",
+   "spanne": {
+    "deu_p50": [
+     88,
+     91
+    ]
+   },
+   "robust": true,
+   "hinweis": ""
+  }
+ ]
+}

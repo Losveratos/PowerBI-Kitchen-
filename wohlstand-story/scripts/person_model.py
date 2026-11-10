@@ -376,11 +376,13 @@ class Model:
         R["koeln_below_osl_median"] = self.unit_cdf(KOELN, osl_med) * 100
         R["osl_above_koeln_median"] = (1 - self.unit_cdf(OSL, kol_med)) * 100
         R["koeln_p10_minus_osl_p50"] = R["koeln_p10"] - R["osl_p50"]
+        R["median_gap"] = R["koeln_p50"] - R["osl_p50"]
+        R["osl_spread_p10_p90"] = R["osl_p90"] - R["osl_p10"]
+        R["koeln_spread_p10_p90"] = R["koeln_p90"] - R["koeln_p10"]
         R["koeln_p10_to_osl_median_ratio"] = self.unit_q(KOELN, 0.1) / osl_med
         de = [t for t in self.units if t[1] == "DEU"]
         for p in (10, 50, 90):
             R[f"deu_p{p}"] = self.world_below(self.mix_q(de, p / 100)) * 100
-        wmed = self.mix_q(self.units, 0.5 * WORLD / DATA_POP) if False else None
         # Weltmedian: Wert, unter dem die Hälfte der Weltbevölkerung (Nenner wie Story) liegt
         lo, hi = math.log(10.0), math.log(1e7)
         for _ in range(60):
@@ -517,6 +519,9 @@ LABELS = {
     "koeln_below_osl_median": "Anteil der Kölner unter dem mittleren (Median-)Einwohner von OSL",
     "osl_above_koeln_median": "Anteil der OSL-Einwohner über dem mittleren (Median-)Kölner",
     "koeln_p10_minus_osl_p50": "Weltperzentil Köln-P10 minus Weltperzentil OSL-Median (Prozentpunkte)",
+    "median_gap": "Abstand der Weltperzentile: mittlerer Kölner minus mittlerer OSL-Einwohner (Prozentpunkte)",
+    "osl_spread_p10_p90": "Spannweite innerhalb OSL: Weltperzentil P90 minus P10 (Prozentpunkte)",
+    "koeln_spread_p10_p90": "Spannweite innerhalb Kölns: Weltperzentil P90 minus P10 (Prozentpunkte)",
     "deu_p10": "Weltperzentil: ärmstes Zehntel in Deutschland (P10)",
     "deu_p50": "Weltperzentil: mittlerer Mensch in Deutschland",
     "deu_p90": "Weltperzentil: reichstes Zehntel in Deutschland (P90)",
@@ -650,24 +655,36 @@ def rng(key):
     return e["min"], e["max"]
 
 
-def pct(x):
-    return f"{round(x)} %"
-
-
+R0 = lambda k: (round(rng(k)[0]), round(rng(k)[1]))
 robust = []
-nicht = []
+
+
+def claim(satz, keys, ok, note=""):
+    robust.append({"satz": satz, "spanne": {k: R0(k) for k in keys}, "robust": bool(ok), "hinweis": note})
+
+
 lo, hi = rng("osl_p10")
-robust.append({"satz": "Auch das ärmste Zehntel in OSL steht in der Welt noch vor rund zwei Dritteln der Menschheit.",
-               "spanne": f"{round(lo)}–{round(hi)} %", "robust": lo >= 60 and hi <= 75})
-lo, hi = rng("koeln_p10")
-lo2, hi2 = rng("osl_p50")
-robust.append({"satz": "Das ärmste Zehntel in Köln steht in der Welt etwa dort, wo der mittlere Mensch in OSL steht.",
-               "spanne": f"Köln-P10 {round(lo)}–{round(hi)} %, OSL-Median {round(lo2)}–{round(hi2)} %; Differenz "
-                         f"{round(rng('koeln_p10_minus_osl_p50')[0])} bis {round(rng('koeln_p10_minus_osl_p50')[1])} Prozentpunkte",
-               "robust": abs(rng("koeln_p10_minus_osl_p50")[0]) <= 5 and abs(rng("koeln_p10_minus_osl_p50")[1]) <= 5})
-lo, hi = rng("koeln_below_osl_median")
-robust.append({"satz": "Rund ein Drittel der Kölner liegt unter dem mittleren Einwohner von OSL.",
-               "spanne": f"{round(lo)}–{round(hi)} %", "robust": lo >= 25 and hi <= 40})
+claim("Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich.", ["osl_p10"], lo >= 60)
+claim("Auch das ärmste Zehntel in OSL steht noch vor rund zwei Dritteln der Menschheit.", ["osl_p10"],
+      lo >= 62 and hi <= 72, "Spanne reicht über ‚rund zwei Drittel‘ hinaus; nur als ‚mehr als 60 %‘ haltbar.")
+claim("Der mittlere Mensch in OSL wie in Köln steht in der Welt vor mehr als 80 % der Menschheit.",
+      ["osl_p50", "koeln_p50"], min(rng("osl_p50")[0], rng("koeln_p50")[0]) >= 80)
+claim("Schon innerhalb von OSL liegen ärmstes und reichstes Zehntel in der Welt weiter auseinander als der mittlere Mensch in OSL und der in Köln.",
+      ["median_gap", "osl_spread_p10_p90"], rng("median_gap")[1] < rng("osl_spread_p10_p90")[0],
+      "Für Köln allein nicht haltbar (Kölner Spannweite mit BIP nur rund 11 Punkte, weil oben in der Welt wenig Platz ist).")
+claim("Das ärmste Zehntel in Köln steht in der Welt höchstens dort, wo der mittlere Mensch in OSL steht.",
+      ["koeln_p10_minus_osl_p50"], rng("koeln_p10_minus_osl_p50")[1] <= 4,
+      "Mit BIP etwa gleichauf, mit Haushaltskonsum deutlich darunter.")
+claim("Das ärmste Zehntel in Köln steht in der Welt etwa dort, wo der mittlere Mensch in OSL steht.",
+      ["koeln_p10_minus_osl_p50"], max(abs(x) for x in rng("koeln_p10_minus_osl_p50")) <= 4,
+      "Gilt nur mit BIP als Basis; mit Haushaltskonsum liegt das Kölner Zehntel 15–23 Punkte tiefer.")
+claim("Rund ein Drittel der Kölner liegt unter dem mittleren Einwohner von OSL.", ["koeln_below_osl_median"],
+      rng("koeln_below_osl_median")[0] >= 25 and rng("koeln_below_osl_median")[1] <= 40,
+      "Spanne zu breit: BIP rund 5–14 %, Haushaltskonsum rund 44–53 %.")
+claim("Fast alle Menschen in Deutschland haben mehr als der mittlere Mensch der Welt.", ["deu_above_world_median"],
+      rng("deu_above_world_median")[0] >= 97)
+claim("Der mittlere Mensch in Deutschland steht vor rund 90 % der Menschheit.", ["deu_p50"],
+      rng("deu_p50")[0] >= 87 and rng("deu_p50")[1] <= 92)
 out["aussagen_geprueft"] = robust
 
 out["meta"]["rechenzeit_s"] = round(time.time() - t0, 1)
@@ -699,4 +716,4 @@ for i, r in RES.items():
     print(f"{i:34s}" + "".join(f"{r[c]:7.3f}" if c == "world_gini" else f"{r[c]:7.1f}" for c in cols)
           + ("   ← Haupt" if i == vid(MAIN) else ""))
 for s in robust:
-    print(("ROBUST   " if s["robust"] else "NICHT    ") + s["satz"] + "  [" + s["spanne"] + "]")
+    print(("ROBUST   " if s["robust"] else "NICHT    ") + s["satz"] + "  " + json.dumps(s["spanne"]))

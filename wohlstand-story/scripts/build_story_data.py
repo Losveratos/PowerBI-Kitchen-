@@ -244,6 +244,23 @@ for u in sorted((u for u in U if u.get("pop") and u.get("gdp_pc_ppp") and not u.
     cn = by[u["country"]]["name"] if u["country"] in by else u["country"]
     search.append([u["name"], cn if u["kind"] != "Land/Gebiet" else "", r(u["gdp_pc_ppp"]), u["kind"], u["id"], FINE in u["lv"]])
 
+# ---------- Überschlag: wo die einzelnen Menschen stehen (Modellrechnung aus person_model.py) ----------
+# Nur Größen, die in allen Rechenvarianten in dieselbe Richtung gehen, mit ihrer Spanne über die Varianten.
+PM = ROOT / "data" / "person_model.json"
+persons = None
+if PM.exists():
+    pm = json.loads(PM.read_text(encoding="utf-8"))
+    main, var = pm["ergebnisse_hauptvariante"], list(pm["varianten"].values())
+    span = lambda key: [r(main[key]["min"], 1), r(main[key]["max"], 1)]
+    assert all(abs(main[k]["min"] - min(x[k] for x in var)) < 0.01 and abs(main[k]["max"] - max(x[k] for x in var)) < 0.01
+               for k in ("osl_p10", "osl_p50", "koeln_p50", "median_gap", "deu_above_world_median")), "Spannen passen nicht zu den Varianten"
+    pick = lambda who: {q: r(main[f"{who}_{q}"]["wert"], 1) for q in ("p10", "p25", "p50", "p75", "p90")}
+    persons = {"osl": pick("osl"), "koeln": pick("koeln"),
+               "deu": {q: r(main[f"deu_{q}"]["wert"], 1) for q in ("p10", "p50", "p90")},
+               "n_variants": len(var), "basis": pm["hauptvariante"]["basis"],
+               "span": {k: span(k) for k in ("osl_p10", "osl_p50", "koeln_p10", "koeln_p50", "deu_p50", "median_gap",
+                                              "osl_spread_p10_p90", "koeln_spread_p10_p90", "deu_above_world_median")}}
+
 D = {
     "meta": {"source": "Wohlstandsatlas, Daten-WG Knowledge Kitchen (Weltbank WDI 2024, IWF WEO, Eurostat und nationale Statistikämter)",
              "world_pop": r(WORLD), "world_ppp_bn": r(WORLD_PPP / 1e9), "nodata_mio": r(nodata / 1e6),
@@ -270,12 +287,15 @@ D = {
     "germany": germany,
     "search": search,
 }
+if persons:
+    D["persons"] = persons
 OUT.parent.mkdir(parents=True, exist_ok=True)
 OUT.write_text(json.dumps(D, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 print(f"✓ {OUT.relative_to(REPO)} · {OUT.stat().st_size / 1024:.0f} KB · {len(kreise)} Kreise · {n_sq} Quadrate · {len(search)} Orte")
 for k in ("koeln", "osl"):
     p = P[k]; print(f"  {p['name']}: {p['gdp']} Int.$, Welt darunter {p['world_below']}, DE-Rang {p.get('de_rank')}/{p.get('de_n')}")
 print("  eng:", tight, "| ungeteilte Länder", len(whole), "von", len(lvl(0)), "| ±10 % um OSL", r(near10 / 1e6), "Mio.")
+print("  Personen-Überschlag:", persons and persons["span"])
 print("  DE-Spanne", germany["poorest"], germany["richest"])
 print("  Median", D["world"]["median"], D["world"]["median_name"], "| Mittel", D["world"]["mean"], "| zwischen", D["world"]["between_share"],
       "| ärmere Hälfte", D["world"]["poor_half_share"], "% BIP | über OSL", D["world"]["above_osl_mio"], "Mio | über Köln", D["world"]["above_koeln_mio"])
