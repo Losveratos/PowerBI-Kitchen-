@@ -42,7 +42,7 @@ for m in re.finditer(r'<div class="kicker">(.*?)</div>|<h2>(.*?)</h2>|<h3>(.*?)<
 P, W = D["places"], D["world"]
 dot = lambda v: f"{v:,}".replace(",", ".")
 rows = "\n".join(f"| {lab} | {dot(P['koeln'][k])} | {dot(P['osl'][k])} |" for lab, k in
-                 [("BIP pro Kopf (KKP, Int.$)", "gdp"), ("zu regionalen Preisen (Int.$)", "rp"), ("verfügbares Einkommen als Konsum (Int.$, RB Köln / Brandenburg)", "hh")])
+                 [("BIP pro Kopf (KKP, Int.$)", "gdp"), ("zu regionalen Preisen (Int.$)", "rp"), ("Konsum der Haushalte pro Kopf, verteilt nach verfügbarem Einkommen (Int.$, RB Köln / Brandenburg)", "hh")])
 lv = "\n".join(f"| {n} | {str(P['osl']['world_below'][str(i)]).replace('.', ',')} % | {str(P['koeln']['world_below'][str(i)]).replace('.', ',')} % |"
                for i, n in enumerate(["Länder", "Bundesländer", "Kreise (feinste Ebene)", "Metropolregionen"]))
 try:
@@ -53,7 +53,7 @@ except Exception:
 
 md = f"""# Zwei Heimaten. Eine Welt.
 
-> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang {P['koeln']['de_rank']} und Rang {P['osl']['de_rank']} von {P['osl']['de_n']} Kreisen. In der Welt stehen beide weit oben: Rund {round(P['osl']['world_below']['2'])} % bzw. rund {round(P['koeln']['world_below']['2'])} % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis ({D['germany']['poorest']['name']}) liegt bei rund {round(D['germany']['poorest']['world_below'])} %. Deutschland steht unter den Ländern seit {D['trend']['start']} auf demselben Platz, der Vorsprung zur Mitte der Welt ist aber vom gut {int(D['trend']['first']['x_med'])}-Fachen auf das gut {int(D['trend']['last']['x_med'])}-Fache geschrumpft.
+> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang {P['koeln']['de_rank']} und Rang {P['osl']['de_rank']} von {P['osl']['de_n']} Kreisen. In der Welt stehen beide weit oben: Rund {round(P['osl']['world_below']['2'])} % bzw. rund {round(P['koeln']['world_below']['2'])} % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis ({D['germany']['poorest']['name']}) liegt bei rund {round(D['germany']['poorest']['world_below'])} %. Deutschland steht heute so weit oben wie {D['trend']['start']} ({round(D['trend']['first']['below'])} % → {round(D['trend']['last']['below'])} % der Menschheit in Ländern mit niedrigerem BIP pro Kopf), sein Vorsprung vor dem Weltdurchschnitt ist aber vom {str(D['trend']['first']['x_mean']).replace('.', ',')}-Fachen auf das {str(D['trend']['last']['x_mean']).replace('.', ',')}-Fache geschrumpft.
 
 - **Quelle:** {URL}
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
@@ -81,7 +81,7 @@ Weltdurchschnitt {W['mean']:,} Int.$, mittlerer Mensch {W['median']:,} Int.$ ({W
 
 Wie eng es ist: {W['tight']['n_near5']} andere Kreise liegen höchstens 5 % von OSL entfernt (Rang {W['tight']['rank_plus5']} bis {W['tight']['rank_minus5']} bei ±5 %); beim Konsum der Haushalte stehen die größeren Regionen in der Welt bei {str(P['koeln']['world_below_hh']).replace('.', ',')} % und {str(P['osl']['world_below_hh']).replace('.', ',')} %.
 
-Deutschland unter den Ländern (reales BIP pro Kopf, Länder über 5 Mio. Einwohner): Platz {D['trend']['first']['rank5']} im Jahr {D['trend']['start']}, Platz {D['trend']['last']['rank5']} im Jahr {D['trend']['end']}; seit 2019 {str(D['trend']['since2019']['DEU']).replace('.', ',').replace('-', '−')} %, USA +{str(D['trend']['since2019']['USA']).replace('.', ',')} %, Polen +{str(D['trend']['since2019']['POL']).replace('.', ',')} %.
+Deutschland unter den {D['trend']['n']} Ländern mit durchgehender Reihe (reales BIP pro Kopf, Int.$ von 2021; Anteile und Durchschnitt mit der Bevölkerung von 2024 gewichtet; Taiwan fehlt): Platz {D['trend']['first']['rank']} im Jahr {D['trend']['start']}, Platz {D['trend']['last']['rank']} im Jahr {D['trend']['end']}; das {str(D['trend']['first']['x_mean']).replace('.', ',')}-Fache des Weltdurchschnitts {D['trend']['start']}, das {str(D['trend']['last']['x_mean']).replace('.', ',')}-Fache {D['trend']['end']}; reales BIP pro Kopf seit 2019 {str(D['trend']['since2019']['DEU']).replace('.', ',').replace('-', '−')} %, USA +{str(D['trend']['since2019']['USA']).replace('.', ',')} %, Polen +{str(D['trend']['since2019']['POL']).replace('.', ',')} %.
 """.replace("24,505", "24.505").replace("15,265", "15.265")
 md += "\n" + "\n".join(out).replace("\n\n\n", "\n\n") + "\n"
 (REPO / "md" / "zwei-heimaten.md").write_text(md, encoding="utf-8")

@@ -129,7 +129,7 @@ compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"])} for k in
 
 # ---------- Wie eng es ist ----------
 # Mittelfeld der deutschen Kreise: Wer liegt höchstens 5 % über oder unter OSL, und wohin rutscht OSL mit ±5 %?
-rank_at = lambda v: sum(1 for x in de_fine if x["gdp_pc_ppp"] > v) + 1
+rank_at = lambda v: sum(1 for x in de_fine if x["id"] != OSL and x["gdp_pc_ppp"] > v) + 1   # OSL selbst zählt nicht mit
 tight = {
     "n_near5": sum(1 for x in de_fine if x["id"] != OSL and osl_v * 0.95 <= x["gdp_pc_ppp"] <= osl_v * 1.05),
     "rank_plus5": rank_at(osl_v * 1.05), "rank_minus5": rank_at(osl_v * 0.95),
@@ -261,14 +261,19 @@ def year_stats(y):
         acc += cty[c]["pop"]
         if acc >= full_pop / 2:
             med = TS[c][i]; med_name = cty[c]["name"]; break
-    return {"deu": r(de), "med": r(med), "med_name": med_name, "x_med": r(de / med, 1),
+    mean = sum(TS[c][i] * cty[c]["pop"] for c in full) / full_pop
+    return {"deu": r(de), "med": r(med), "med_name": med_name, "x_med": r(de / med, 1), "mean": r(mean), "x_mean": r(de / mean, 1),
             "below": r(sum(cty[c]["pop"] for c in full if TS[c][i] < de) / full_pop * 100, 1),
-            "rank5": sum(1 for c in full if TS[c][i] > de and cty[c]["pop"] > 5e6) + 1}
+            "rank": sum(1 for c in full if TS[c][i] > de) + 1}
 
 
 grow = lambda c, a, b: r((TS[c][b - Y0] / TS[c][a - Y0] - 1) * 100, 1)
 trend = {"start": Y0, "end": YN, "n": len(full), "pop_share": r(full_pop / WORLD * 100),
          "deu": [r(v) for v in TS["DEU"]], "med": [year_stats(y)["med"] for y in range(Y0, YN + 1)],
+         "mean": [year_stats(y)["mean"] for y in range(Y0, YN + 1)],
+         # größtes Land ohne durchgehende Reihe, das heute vor Deutschland läge (laufende KKP)
+         "missing_ahead": [u["name"] for u in sorted(lvl(0), key=lambda u: -u["pop"])
+                           if u["id"] not in full and (u.get("gdp_pc_ppp") or 0) > by["DEU"]["gdp_pc_ppp"] and u["pop"] > 5e6],
          "first": year_stats(Y0), "last": year_stats(YN),
          "since2019": {c: grow(c, 2019, YN) for c in ("DEU", "USA", "POL")},
          "since2000": {c: grow(c, Y0, YN) for c in ("DEU", "USA", "POL", "CHN")}}

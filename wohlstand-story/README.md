@@ -29,10 +29,13 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 - **Vier Akte** mit mitlaufender Grafik (Deutschlandkarte + Rangfolge, Kurve der Menschheit, 1.624 Quadrate, Balken),
   zusammen 19 Schritte. Unter 1020 px steht die Grafik oben fest und die Textkarten laufen darunter; bis 760 px zeichnet
   jede Grafik im Hochformat (viewBox 1060 × 1080 statt 1060 × 640).
-- **„Eng“ an drei Stellen:** Akt 1 / Schritt 4 (61 Kreise höchstens 5 % von OSL entfernt), Akt 4 / Schritt 4 (Konsum der
+- **„Eng“ an drei Stellen:** Akt 1 / Schritt 4 (61 Kreise höchstens 5 % von OSL entfernt, Rang 276 bis 337 bei ±5 %), Akt 4 / Schritt 4 (Konsum der
   Haushalte: in der Welt keine 2 Punkte auseinander), Akt 4 / Schritt 5 (Überschlag für einzelne Menschen).
 - **„Und früher?“** (`#zeit`): Deutschland unter den Ländern 2000 bis 2024 aus den Zeitreihen des Atlas (reales BIP pro Kopf,
-  alle Jahre mit der Bevölkerung von 2024 gewichtet): gleicher Platz, schrumpfender Vorsprung zur Mitte der Welt.
+  Anteile und Weltdurchschnitt mit der Bevölkerung von 2024 gewichtet, weil der Atlas keine Bevölkerung je Jahr führt):
+  so weit oben wie 2000 (92 → 93 %, Platz 22 → 21 von 187 Ländern, Taiwan fehlt), Vorsprung vor dem Weltdurchschnitt vom
+  gut 4-Fachen auf das knapp 3-Fache. Bezug ist bewusst der Durchschnitt: Das „Land des mittleren Menschen“ war 2000 China
+  über ein breites Band der Verteilung, der Faktor dazu (12 → 4) überzeichnet die Veränderung.
 - **Schätzfrage** vor Akt 2 (`#quiz`): letzter Platz der deutschen Kreise im Weltmaßstab. Die Auflösung und die eigene
   Schätzung erscheinen in Akt 2 / Schritt 5 auf der Kurve (Band „alle 400 Kreise“).
 - **„Wo steht deine Heimat?“** (`#you`): ein oder zwei eigene Orte auf der Kurve, mit Faktor und Anteil der Menschheit

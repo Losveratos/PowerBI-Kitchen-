@@ -146,6 +146,7 @@ svg text{font-family:var(--mono);fill:var(--muted-chart);font-size:13px}
 .fig[data-step="4"] .bars{opacity:0}
 .halo{paint-order:stroke;stroke:#1a1a19;stroke-width:5px;stroke-linejoin:round}
 .t-g{fill:var(--mint);font-weight:600}
+.t-avg{fill:#c3bda7;font-weight:600}
 svg text.badge{fill:#0d0d0d;font-weight:700;font-size:13px}
 
 /* ---------- Kästen, Grenzen, Methode ---------- */
@@ -354,10 +355,10 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
     </div></div>
     <div class="step" data-idx="3"><div class="step-card" style="border-top-color:var(--blue)">
       <span class="n">Akt 1 / Schritt 4</span>
-      <h3>Das Mittelfeld ist eng</h3>
-      <p>Rang 307 klingt nach weit hinten. Aber in der Mitte der Rangliste liegen die Kreise dicht beieinander:
+      <h3>Die Rangliste ist enger, als sie aussieht</h3>
+      <p>Rang 307 klingt nach weit hinten. Aber in diesem Teil der Rangliste liegen die Kreise dicht beieinander:
       <span class="big">61</span> andere Kreise liegen höchstens 5&nbsp;% über oder unter OSL.</p>
-      <p>Mit 5&nbsp;% mehr stünde OSL auf Rang 276, mit 5&nbsp;% weniger auf Rang 338. So genau, wie ein Rang aussieht, ist er nicht.
+      <p>Mit 5&nbsp;% mehr stünde OSL auf Rang 276, mit 5&nbsp;% weniger auf Rang 337. So genau, wie ein Rang aussieht, ist er nicht.
       Jetzt nehmen wir den Rest der Welt dazu.</p>
     </div></div>
   </div>
@@ -462,7 +463,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <span class="n">Akt 3 / Schritt 3</span>
       <h3>Auf derselben Stufe: Japan, Portugal, Polen</h3>
       <p>Hell markiert sind die Menschen, deren Region höchstens 10&nbsp;% über oder unter OSL liegt: <span class="big">379 Mio.</span></p>
-      <p>Auf dieser Stufe stehen ganze Länder wie <a href="wohlstandsatlas.html#JPN--m0--l2--z1"><b>Japan</b></a> (54.200), <a href="wohlstandsatlas.html#PRT--m0--l2--z1"><b>Portugal</b></a> (52.500), <a href="wohlstandsatlas.html#POL--m0--l2--z1"><b>Polen</b></a> (51.300) und <a href="wohlstandsatlas.html#EST--m0--l2--z1"><b>Estland</b></a> (50.400),
+      <p>Auf dieser Stufe liegt der Landesdurchschnitt von <a href="wohlstandsatlas.html#JPN--m0--l2--z1"><b>Japan</b></a> (54.200), <a href="wohlstandsatlas.html#PRT--m0--l2--z1"><b>Portugal</b></a> (52.500), <a href="wohlstandsatlas.html#POL--m0--l2--z1"><b>Polen</b></a> (51.300) und <a href="wohlstandsatlas.html#EST--m0--l2--z1"><b>Estland</b></a> (50.400),
       dazu der US-Bundesstaat <a href="wohlstandsatlas.html#USA-MS--m0--l2--z1"><b>Mississippi</b></a> (53.000).</p>
     </div></div>
     <div class="step" data-idx="3"><div class="step-card">
@@ -470,8 +471,8 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <h3>Shanghai liegt vor OSL, mit einem Vorbehalt</h3>
       <p>Hell markiert ist jetzt China: <span class="big">120 Mio.</span> Chinesen leben in Städten und Präfekturen mit höherem BIP pro Kopf als OSL,
       darunter <a href="wohlstandsatlas.html#CN-SH--m0--l2--z1"><b>Shanghai</b></a> (61.900) und <a href="wohlstandsatlas.html#CN-BJ--m0--l2--z1"><b>Peking</b></a> (65.000).<span class="conf b" title="hochgerechnet; Chinas Regionaldaten gelten zudem als weniger verlässlich">B</span></p>
-      <p>Der Vorbehalt: Der Atlas rechnet ganz China mit denselben Preisen. In Shanghai und Peking ist das Leben teurer als im Landesschnitt,
-      mit den Preisen vor Ort wäre der Vorsprung kleiner. Indien hat keinen Bundesstaat über OSL. Der reichste, Sikkim, kommt auf 33.600 Int.$.</p>
+      <p>Der Vorbehalt: Der Atlas rechnet ganz China mit denselben Preisen. In Shanghai und Peking ist das Leben teurer als im Landesschnitt.
+      Liegt das Preisniveau in Shanghai rund 11&nbsp;% über dem chinesischen Schnitt, ist der Vorsprung vor OSL weg. Indien hat keinen Bundesstaat über OSL. Der reichste, Sikkim, kommt auf 33.600 Int.$.</p>
     </div></div>
     <div class="step" data-idx="4"><div class="step-card">
       <span class="n">Akt 3 / Schritt 5</span>
@@ -541,17 +542,18 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
 <!-- ================= UND FRÜHER ================= -->
 <section class="prose" style="padding-bottom:20px" id="zeit">
   <div class="kicker">Und früher?</div>
-  <h2>Seit 2000 auf demselben Platz, mit schrumpfendem Vorsprung</h2>
+  <h2>Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung</h2>
   <p>Bisher ging es um ein einziges Jahr. Für ganze Länder reicht der Atlas bis 2000 zurück, in festen Preisen.
-  Deutschland steht heute dort, wo es damals stand: unter den Ländern mit mehr als 5 Mio. Einwohnern auf Platz 13, 2000 wie 2024.
-  Rund 93&nbsp;% der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, im Jahr 2000 waren es 92&nbsp;%.</p>
-  <p>Geschrumpft ist der Abstand zur Mitte. Im Jahr 2000 war Deutschlands BIP pro Kopf gut 12-mal so hoch wie im Land des mittleren Menschen, heute ist es gut 4-mal so hoch.
-  Die Mitte der Welt hat aufgeholt, allen voran China. Und seit 2019 ist Deutschland nicht mehr gewachsen, während die USA um knapp 10&nbsp;% und Polen um 18&nbsp;% zugelegt haben.</p>
-  <p>„Immer noch oben“ stimmt also. „So weit vorn wie früher“ stimmt nicht.</p>
+  Deutschland steht heute so weit oben wie damals: Rund 93&nbsp;% der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, im Jahr 2000 waren es 92&nbsp;%.
+  Unter den 187 Ländern der Reihe stand Deutschland damals auf Platz 22, heute auf Platz 21. Taiwan fehlt in der Reihe und läge heute davor.</p>
+  <p>Geschrumpft ist der Vorsprung. Im Jahr 2000 war Deutschlands BIP pro Kopf gut 4-mal so hoch wie der Weltdurchschnitt, heute ist es knapp 3-mal so hoch.
+  Gemessen am Land des mittleren Menschen, im Jahr 2000 war das China, ist der Abstand noch stärker gefallen.
+  Und seit 2019 ist das reale BIP pro Kopf in Deutschland nicht mehr gewachsen, während es in den USA um knapp 10&nbsp;% und in Polen um 18&nbsp;% gestiegen ist.</p>
+  <p>„Immer noch oben“ stimmt also. „Mit so großem Vorsprung wie früher“ stimmt nicht.</p>
 </section>
 <section class="zeit">
-  <div class="fig static"><svg id="svg6" viewBox="0 0 1060 360" role="img" aria-label="Reales BIP pro Kopf 2000 bis 2024: Deutschland und das Land des mittleren Menschen. Der Abstand schrumpft von gut dem Zwölffachen auf gut das Vierfache."></svg></div>
-  <p class="zeit-src">Reales BIP pro Kopf in Int.$ von 2021 · 187 Länder mit durchgehender Reihe (98&nbsp;% der Weltbevölkerung) · alle Jahre mit der Bevölkerung von 2024 gewichtet · logarithmische Achse</p>
+  <div class="fig static"><svg id="svg6" viewBox="0 0 1060 360" role="img" aria-label="Reales BIP pro Kopf 2000 bis 2024: Deutschland, der Weltdurchschnitt und das Land des mittleren Menschen. Deutschlands Vorsprung vor dem Weltdurchschnitt schrumpft vom gut Vierfachen auf das knapp Dreifache."></svg></div>
+  <p class="zeit-src">Reales BIP pro Kopf in Int.$ von 2021 · 187 Länder mit durchgehender Reihe (98&nbsp;% der Weltbevölkerung) · Weltdurchschnitt und Anteile mit der Bevölkerung von 2024 gewichtet, weil der Atlas keine Bevölkerung je Jahr führt · logarithmische Achse</p>
 </section>
 
 <!-- ================= EPILOG ================= -->
@@ -559,15 +561,15 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   <div class="kicker">Was bleibt</div>
   <h2>Wir meckern auf hohem Niveau</h2>
   <p class="lede">In Deutschland trennen Köln und OSL 279 Plätze. In der Welt stehen beide ganz oben, und zwischen ihnen ist es enger, als die Rangliste aussieht.</p>
-  <p>Eng ist es an mehreren Stellen. Im deutschen Mittelfeld liegen 61 Kreise höchstens 5&nbsp;% von OSL entfernt.
+  <p>Eng ist es an mehreren Stellen. In der deutschen Rangliste liegen 61 Kreise höchstens 5&nbsp;% von OSL entfernt.
   Beim Konsum der Haushalte stehen beide Regionen in der Welt keine 2 Punkte auseinander.<!--PERSONEN-FAZIT-->
   Und überschlägt man, wo die einzelnen Menschen stehen, liegt innerhalb von OSL mehr Abstand zwischen Arm und Reich als zwischen dem mittleren Menschen dort und dem in Köln.</p>
   <p>Das heißt nicht, dass es den Abstand nicht gibt. Die Lausitz steckt mitten im Ausstieg aus der Braunkohle, und Faktor 2,2 bleibt Faktor 2,2,
   auch wenn Pendler und Preise ihn kleiner machen. Und wer über den Stillstand seit 2019 klagt, hat die Zahlen auf seiner Seite.</p>
-  <p>Aber es verschiebt den Maßstab. Deutschland steht unter den größeren Ländern seit 2000 auf demselben Platz. Selbst im letzten der 400 Kreise ist das BIP pro Kopf höher als in den Regionen, in denen rund 73&nbsp;% der Menschheit leben.
+  <p>Aber es verschiebt den Maßstab. Deutschland steht heute so weit oben wie im Jahr 2000. Selbst im letzten der 400 Kreise ist das BIP pro Kopf höher als in den Regionen, in denen rund 73&nbsp;% der Menschheit leben.
   Der Kreis, den Rankings „abgehängt“ nennen, steht auf dem Niveau Japans, Polens und Estlands.
-  Und nach dem Überschlag aus Akt 4 stehen fast alle Menschen in Deutschland über der Mitte der Welt.
-  Wer in Deutschland über seinen Tabellenplatz klagt, klagt über einen Platz am oberen Ende der Welt. Das gilt auch für mich.</p>
+  Und nach dem Überschlag aus Akt 4 haben fast alle Menschen in Deutschland mehr als der mittlere Mensch der Welt.</p>
+  <p>Mein Schluss daraus: Wer in Deutschland über seinen Platz in der Rangliste klagt, klagt über einen Platz am oberen Ende der Welt. Das gilt auch für mich.</p>
   <p>Der mittlere Mensch dieser Welt lebt in einer Region mit rund 15.000 Int.$ pro Kopf. Das ist weniger als ein Drittel von OSL.</p>
 </section>
 
@@ -983,22 +985,23 @@ const act4 = (function(){
 (function zeit(){
   const svg=document.getElementById("svg6"), T=DATA.trend; if(!svg||!T) return;
   const H=MOBILE?640:360; svg.setAttribute("viewBox",`0 0 1060 ${H}`);
-  const x0=MOBILE?150:110, x1=MOBILE?700:800, y0=MOBILE?40:30, y1=H-(MOBILE?70:46), lo=3000, hi=80000;
+  const x0=MOBILE?150:110, x1=MOBILE?690:700, y0=MOBILE?40:30, y1=H-(MOBILE?70:46), lo=3000, hi=80000;
   const X=y=>x0+(y-T.start)/(T.end-T.start)*(x1-x0), Y=v=>y1-(Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo))*(y1-y0);
   [5000,10000,20000,50000].forEach(v=>{ el("line",{x1:x0,x2:x1,y1:Y(v),y2:Y(v),class:"tick"},svg); txt(svg,x0-8,Y(v)+(MOBILE?9:4),fmt(v/1000)+" Tsd.",{"text-anchor":"end",class:"sm"}); });
   [2000,2005,2010,2015,2020,T.end].forEach(y=>txt(svg,X(y),y1+(MOBILE?36:20),String(y),{"text-anchor":"middle",class:"sm"}));
   const w=MOBILE?4:2.5, line=(arr,col)=>el("path",{d:arr.map((v,i)=>(i?"L":"M")+X(T.start+i).toFixed(1)+","+Y(v).toFixed(1)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-linejoin":"round"},svg);
   // Abstand am Anfang und am Ende: gestrichelte Senkrechte mit dem Faktor
   const mal=x=>(x-Math.round(x)>=0?"gut ":"knapp ")+Math.round(x)+"-mal";
+  const AVG="#c3bda7";   // Weltdurchschnitt; Rot bleibt dem mittleren Menschen vorbehalten
   [[T.start,T.first,"start",10],[T.end,T.last,"end",-10]].forEach(([y,st,anchor,dx])=>{
-    el("line",{x1:X(y),x2:X(y),y1:Y(st.deu),y2:Y(st.med),stroke:COL.mut,"stroke-width":1.5,"stroke-dasharray":"3 4"},svg);
-    txt(svg,X(y)+dx,(Y(st.deu)+Y(st.med))/2+(MOBILE?10:4),mal(st.x_med),{class:"lab-strong halo","text-anchor":anchor}); });
-  line(T.med,COL.m); line(T.deu,COL.ink);
+    el("line",{x1:X(y),x2:X(y),y1:Y(st.deu),y2:Y(st.mean),stroke:COL.mut,"stroke-width":1.5,"stroke-dasharray":"3 4"},svg);
+    txt(svg,X(y)+dx,(Y(st.deu)+Y(st.mean))/2+(MOBILE?10:4),mal(st.x_mean),{class:"lab-strong halo","text-anchor":anchor}); });
+  el("path",{d:T.med.map((v,i)=>(i?"L":"M")+X(T.start+i).toFixed(1)+","+Y(v).toFixed(1)).join(""),fill:"none",stroke:COL.m,"stroke-width":MOBILE?2.5:1.5,"stroke-linejoin":"round"},svg);
+  line(T.mean,AVG); line(T.deu,COL.ink);
   const last=T.deu.length-1;
-  [[T.deu,COL.ink,"Deutschland","lab-strong"],[T.med,COL.m,"Mitte der Welt","t-m"]].forEach(([arr,col,name,cls])=>{
+  [[T.deu,COL.ink,"Deutschland","Deutschland","lab-strong"],[T.mean,AVG,"Weltdurchschnitt","Welt-Ø","t-avg"],[T.med,COL.m,"Land des mittleren Menschen","Mitte","t-m"]].forEach(([arr,col,name,short,cls])=>{
     el("circle",{cx:X(T.start),cy:Y(arr[0]),r:MOBILE?7:4.5,fill:col},svg); el("circle",{cx:X(T.end),cy:Y(arr[last]),r:MOBILE?7:4.5,fill:col},svg);
-    if(MOBILE){ txt(svg,x1+16,Y(arr[last])-4,name,{class:cls}); txt(svg,x1+16,Y(arr[last])+30,r3(arr[last]),{class:cls+" sm"}); }
-    else txt(svg,x1+14,Y(arr[last])+4,`${name} · ${r3(arr[last])} Int.$`,{class:cls}); });
+    txt(svg,x1+(MOBILE?16:14),Y(arr[last])+(MOBILE?10:4),MOBILE?`${short} ${r3(arr[last])}`:`${name} · ${r3(arr[last])} Int.$`,{class:cls+(MOBILE?" sm":"")}); });
 })();
 
 /* ================================================================
