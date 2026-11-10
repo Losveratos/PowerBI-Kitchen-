@@ -38,6 +38,7 @@ DOCS = [
     ("md/visual-standards-rechner.md", "md/visual-standards-rechner.md"),
     ("md/laender-indikatoren-explorer.md", "md/laender-indikatoren-explorer.md"),
     ("md/wohlstandsatlas.md", "md/wohlstandsatlas.md"),
+    ("md/zwei-heimaten.md", "md/zwei-heimaten.md"),
     ("md/zugfahrten-europa.md", "md/zugfahrten-europa.md"),
     ("md/waermestreifen-3d.md", "md/waermestreifen-3d.md"),
     ("md/powerbi_praxis_pfad.md", "md/powerbi_praxis_pfad.md"),

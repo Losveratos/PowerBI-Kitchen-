@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zwei Heimaten · Köln, die Lausitz und der Rest der Welt</title>
+<meta name="description" content="Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang 28 und Rang 307 von 400 Kreisen. In der Welt stehen beide ganz oben. Eine Datenstory aus dem Wohlstandsatlas.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Zwei Heimaten: Köln, die Lausitz und der Rest der Welt">
+<meta property="og:description" content="In Deutschland weit auseinander, in der Welt beide ganz oben: Mehr als 85 % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf als der Oberspreewald-Lausitz-Kreis.">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/zwei-heimaten.html">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/zwei-heimaten.html">
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/zwei-heimaten.md">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32">
+<link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+/* Designsystem: Geschwister von rhein-story.html und koelner-raser-story.html (gleiche Flächen, Typo, Scrolly-Mechanik).
+   Farben nach Aufgabe: Amber = Köln, Blau = Oberspreewald-Lausitz, Rot = mittlerer Mensch / Warnung.
+   Palette #c2831a/#3987e5/#e66767 aus der Raser-Story (dort gegen #1a1a19 geprüft). */
+:root{
+  --bg:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --muted:#898781; --muted-chart:#a3a19a;
+  --grid:#2c2c2a; --axis:#383835;
+  --amber:#c2831a; --amber-soft:#f0b54a;   /* Köln */
+  --blue:#3987e5; --blue-soft:#86b6ef;     /* Oberspreewald-Lausitz */
+  --red:#e66767;                           /* mittlerer Mensch */
+  --card:rgba(20,21,23,.82); --ring:rgba(255,255,255,.14);
+  --sans:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink-2);font-family:var(--sans);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+::selection{background:var(--amber);color:#fff}
+.k{color:var(--amber-soft)} .l{color:var(--blue-soft)} .m{color:var(--red)}
+b{color:var(--ink)}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;text-align:center}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.9}
+.hero-vignette{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse 52% 48% at 50% 48%,rgba(13,13,13,.92) 0%,rgba(13,13,13,.66) 55%,rgba(13,13,13,0) 100%),
+             linear-gradient(to bottom,rgba(13,13,13,.55),rgba(13,13,13,0) 22%,rgba(13,13,13,0) 78%,rgba(13,13,13,.85))}
+.hero-inner{position:relative;max-width:900px;padding:32px 24px;z-index:2}
+.hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:22px}
+.hero h1{font-weight:750;font-size:clamp(40px,7.4vw,86px);line-height:1.04;color:var(--ink);letter-spacing:-.02em}
+.hero h1 em{font-style:normal;color:var(--amber-soft)}
+.hero-sub{margin:28px auto 0;max-width:640px;font-size:clamp(16px,2vw,19px)}
+.hero-meta{margin-top:40px;display:flex;gap:28px;justify-content:center;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.hero-meta b{font-weight:600}
+.hero-scroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);animation:bob 2.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}
+
+/* ---------- Prosa ---------- */
+.prose{max-width:660px;margin:0 auto;padding:80px 24px}
+.prose h2{font-weight:700;letter-spacing:-.015em;font-size:clamp(26px,3.4vw,36px);color:var(--ink);margin-bottom:18px;line-height:1.2}
+.prose p{margin-bottom:16px}
+.prose .lede{font-size:19px;color:var(--ink)}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:14px}
+
+/* ---------- Scrolly-Gerüst (wie rhein-story.html) ---------- */
+.scrolly{position:relative}
+.graphic{position:sticky;top:0;height:100svh;display:flex;align-items:flex-start;justify-content:center;overflow:hidden;padding-top:2vh}
+.fig{position:relative;width:min(1100px,99vw)}
+.fig svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--ring)}
+.fig-title{position:absolute;top:24px;left:30px;right:30px;pointer-events:none}
+.fig-title .t{font-weight:700;letter-spacing:-.015em;font-size:clamp(16px,2vw,21px);color:var(--ink)}
+.fig-title .s{font-family:var(--mono);font-size:12px;color:var(--muted-chart);margin-top:3px}
+.steps{position:relative;z-index:5;padding-bottom:4vh;pointer-events:none}
+.step{min-height:88svh;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4vh;pointer-events:none}
+.step-card{pointer-events:auto;width:min(440px,92vw);background:var(--card);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--ring);border-top:2px solid var(--amber);padding:22px 24px;opacity:.5;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+@media (min-width:1020px){
+  .scrolly{display:grid;grid-template-columns:minmax(340px,430px) minmax(0,1fr);column-gap:6px}
+  .graphic{grid-area:1/2;height:100vh;align-items:center;padding:0 20px 0 0}
+  .fig{width:100%;max-width:1400px}
+  .steps{grid-area:1/1;padding:0 0 6vh clamp(12px,2.5vw,36px)}
+  .step{min-height:80vh;align-items:center;justify-content:flex-start;padding-bottom:0}
+  .step-card{width:min(400px,100%)}
+}
+.step.is-active .step-card{opacity:1;transform:none}
+.step-card .n{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--amber-soft);text-transform:uppercase;margin-bottom:8px;display:block}
+.step-card h3{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--ink);margin-bottom:8px;line-height:1.25}
+.step-card p{font-size:14.5px;line-height:1.6}
+.step-card p+p{margin-top:8px}
+.big{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--ink)}
+.src{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.conf{display:inline-block;font-family:var(--mono);font-size:10px;line-height:1;padding:2px 5px;border:1px solid var(--ring);color:var(--ink-2);margin-left:4px;vertical-align:1px;cursor:help}
+.conf.b{border-color:var(--blue);color:var(--blue-soft)}
+.conf.c{border-color:var(--red);color:var(--red)}
+
+/* ---------- SVG ---------- */
+svg text{font-family:var(--mono);fill:var(--muted-chart);font-size:13px}
+.tick{stroke:var(--grid);stroke-width:1}
+.axisline{stroke:var(--axis);stroke-width:1}
+.lab-strong{fill:var(--ink);font-weight:600}
+.fade{transition:opacity .7s ease}
+.mk-k{stroke:var(--amber-soft);fill:none;stroke-width:2.5}
+.mk-l{stroke:var(--blue-soft);fill:none;stroke-width:2.5}
+.t-k{fill:var(--amber-soft);font-weight:600} .t-l{fill:var(--blue-soft);font-weight:600} .t-m{fill:var(--red);font-weight:600}
+/* Akt-Zustände: Gruppen mit class="sN" sind ab Schritt N sichtbar, "oN" nur in Schritt N */
+.fig .s1,.fig .s2,.fig .s3,.fig .o0,.fig .o1,.fig .o2,.fig .o3{opacity:0;transition:opacity .7s ease}
+.fig[data-step="0"] .o0,.fig[data-step="1"] .o1,.fig[data-step="2"] .o2,.fig[data-step="3"] .o3{opacity:1}
+.fig[data-step="1"] .s1,.fig[data-step="2"] .s1,.fig[data-step="3"] .s1,.fig[data-step="2"] .s2,.fig[data-step="3"] .s2,.fig[data-step="3"] .s3{opacity:1}
+.kreis{transition:fill .7s ease,opacity .7s ease;stroke:#0d0d0d;stroke-width:.6}
+.col{transition:fill .7s ease}
+.sq{transition:fill .7s ease}
+.bar{transition:width .9s cubic-bezier(.2,.7,.3,1),opacity .6s ease}
+
+/* ---------- Kästen, Grenzen, Methode ---------- */
+.kasten{width:min(660px,calc(100vw - 32px));margin:32px auto;padding:20px 24px;background:var(--surface);border:1px solid var(--ring);border-left:3px solid var(--amber)}
+.kasten.blue{border-left-color:var(--blue)}
+.kasten-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber-soft);margin-bottom:10px}
+.kasten.blue .kasten-kicker{color:var(--blue-soft)}
+.kasten p{font-size:14.5px;line-height:1.6}
+.kasten p+p{margin-top:10px}
+.limits{max-width:1000px;margin:0 auto;padding:0 24px 90px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.limit-card{background:var(--surface);border:1px solid var(--ring);padding:20px}
+.limit-card h4{font-weight:700;letter-spacing:-.015em;color:var(--ink);font-size:16px;margin-bottom:8px}
+.limit-card p{font-size:13.5px;line-height:1.55}
+details.gloss{background:var(--surface);border:1px solid var(--ring);margin:10px 0}
+details.gloss>summary{cursor:pointer;list-style:none;font-weight:700;font-size:15px;color:var(--ink);padding:14px 18px;display:flex;gap:10px;align-items:baseline}
+details.gloss>summary::-webkit-details-marker{display:none}
+details.gloss>summary::before{content:"▸";font-family:var(--mono);color:var(--amber-soft);transition:transform .2s ease}
+details.gloss[open]>summary::before{transform:rotate(90deg)}
+.gloss-body{padding:0 18px 16px;font-size:14px;line-height:1.6}
+.gloss-body p+p{margin-top:10px}
+.gloss-body ul{margin:10px 0 0;padding-left:18px}
+.gloss-body li{margin-bottom:6px}
+a{color:var(--ink-2)}
+a:hover{color:var(--ink)}
+
+/* ---------- Wo stehst du? ---------- */
+.you{max-width:1100px;margin:0 auto;padding:0 24px 40px}
+.you-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.you-bar input{flex:1 1 300px;background:var(--surface);border:1px solid var(--ring);color:var(--ink);font-family:var(--mono);font-size:15px;padding:12px 14px}
+.you-bar input:focus{outline:2px solid var(--amber);outline-offset:0}
+.you-out{font-size:17px;color:var(--ink);min-height:3.2em;margin:4px 0 16px}
+.you-out .big{font-size:17px}
+.cta{display:inline-block;font-family:var(--mono);font-size:13px;padding:11px 18px;border:1px solid var(--amber);color:var(--amber-soft);text-decoration:none;letter-spacing:.04em}
+.cta:hover{background:rgba(194,131,26,.14);color:var(--ink)}
+#tip{position:fixed;pointer-events:none;background:#222320;border:1px solid var(--ring);padding:8px 11px;font-family:var(--mono);font-size:12px;color:var(--ink);opacity:0;transition:opacity .15s ease;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.5);white-space:nowrap;line-height:1.55}
+#tip .q{color:var(--muted)}
+.home-pill{display:inline-block;font-family:var(--mono);font-size:12px;line-height:1.2;padding:8px 16px;border:1px solid var(--ring);border-radius:999px;background:rgba(26,26,25,.55);backdrop-filter:blur(8px);color:var(--ink-2);text-decoration:none;letter-spacing:.04em}
+.home-pill:hover{color:var(--ink);border-color:rgba(255,255,255,.32)}
+.hero .home-pill{position:absolute;top:22px;left:24px;z-index:6}
+footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);line-height:2}
+
+@media (max-width:760px){
+  svg text{font-size:30px}
+  svg text.sm{font-size:25px}
+  .hero-meta{gap:10px 20px}
+  .graphic{padding-top:8px}
+  #g1[data-step="1"] .mapg,#g1[data-step="2"] .mapg{opacity:.18}
+  .mapg{transition:opacity .7s ease}
+  .step{min-height:100svh}
+  .hero-eyebrow{letter-spacing:.12em;font-size:11px}
+  .fig{width:100vw;padding:0 6px;display:flex;flex-direction:column}
+  .fig .fig-title{position:static;order:-1;padding:14px 10px 10px}
+  .hero .home-pill{top:14px;left:12px;font-size:11px;padding:6px 12px}
+  .you{padding-left:12px;padding-right:12px}
+  .you .fig{width:100%;padding:0}
+  #tip{white-space:normal;max-width:calc(100vw - 16px)}
+}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="mini"></script>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-vignette" aria-hidden="true"></div>
+  <a class="home-pill" href="index.html#posts-talks">← Daten-WG Knowledge Kitchen</a>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Wohlstandsatlas · Eine Datenstory</div>
+    <h1>Zwei Heimaten.<br><em>Eine</em> Welt.</h1>
+    <p class="hero-sub">Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander:
+    Rang 28 und Rang 307 von 400 Kreisen. Dann habe ich die Welt dazugenommen:
+    In Regionen mit niedrigerem BIP pro Kopf als OSL leben <b>mehr als 85&nbsp;% der Menschheit</b>.</p>
+    <div class="hero-meta">
+      <span><b>495 km</b> Luftlinie</span>
+      <span>Köln <b class="k">114.600 Int.$</b></span>
+      <span>OSL <b class="l">51.300 Int.$</b></span>
+      <span>1 Quadrat = <b>5 Mio.</b> Menschen</span>
+    </div>
+  </div>
+  <div class="hero-scroll">scrollen ↓</div>
+</header>
+
+<!-- ================= PROLOG ================= -->
+<section class="prose">
+  <div class="kicker">Prolog</div>
+  <h2>Zwei Orte, aus denen ich komme</h2>
+  <p class="lede">Ich komme aus Köln und aus dem Oberspreewald-Lausitz-Kreis, kurz OSL, im Süden Brandenburgs.
+  In jeder deutschen Statistik liegen die beiden weit auseinander.</p>
+  <p>Köln ist Domstadt, Medienstadt, Versicherungsstadt. OSL liegt mitten im Lausitzer Braunkohle-Revier, das gerade aus der Kohle aussteigt,
+  und im Vergleich der deutschen Kreise steht der Kreis weit unten. Für diese Story habe ich beide Orte in den
+  <a href="wohlstandsatlas.html">Wohlstandsatlas</a> gelegt: Wirtschaftsleistung für 217 Länder und rund 6.000 Regionen weltweit,
+  alle auf dieselbe Kaufkraft umgerechnet. Und dann gefragt, was von „weit auseinander“ übrig bleibt,
+  wenn man nicht mehr nur auf Deutschland schaut.</p>
+  <p>Vorweg zur Währung: <b>Int.$</b> sind internationale Dollar. Ein Int.$ kauft in jedem Land so viel,
+  wie ein US-Dollar in den USA kauft. So lassen sich Köln, Kerala und Chicago auf einer Skala vergleichen.
+  Gemessen wird das <b>BIP pro Kopf</b>, also die Wirtschaftsleistung einer Region geteilt durch ihre Einwohner.
+  Das ist kein Einkommen, und es hat einen Haken, zu dem ich in Akt 4 komme.</p>
+</section>
+
+<!-- ================= AKT 1 · Deutschland ================= -->
+<section class="scrolly" data-act="1" id="akt-1">
+  <div class="graphic">
+    <div class="fig" id="g1" data-step="-1">
+      <svg id="svg1" viewBox="0 0 1060 640" role="img" aria-label="Deutschlandkarte der 400 Kreise nach BIP pro Kopf und Rangfolge aller Kreise, Köln und Oberspreewald-Lausitz markiert"></svg>
+      <div class="fig-title"><div class="t">Akt 1 · In Deutschland weit auseinander</div><div class="s">BIP pro Kopf (KKP) 2024 · 400 Kreise · je heller, desto höher (acht gleich große Gruppen) · Maus/Tippen für Details</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 1</span>
+      <h3>Zwei Punkte, 495 km</h3>
+      <p><span class="k">Köln</span> im Westen, der <span class="l">Oberspreewald-Lausitz-Kreis</span> (OSL) im Osten,
+      zwischen Cottbus und Dresden. Auf der Karte ist jeder Kreis nach seiner Wirtschaftsleistung pro Kopf eingefärbt.</p>
+      <p>Das Muster kennt man: hell im Süden und Westen, dunkler im Osten, hell in den großen Städten.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 2</span>
+      <h3>Rang 28 und Rang 307</h3>
+      <p>Alle 400 Kreise der Größe nach: <span class="k">Köln</span> kommt auf <span class="big k">114.600 Int.$</span> pro Kopf, Rang 28.
+      <span class="l">OSL</span> auf <span class="big l">51.300 Int.$</span>, Rang 307.<span class="conf b" title="Regionalwert hochgerechnet: Eurostat-Verteilung 2023 × Weltbank-Landeswert 2024">B</span></p>
+      <p>Das ist ein Faktor von <span class="big">2,2</span>. Der Durchschnitt Deutschlands liegt bei 74.000 Int.$, dazwischen.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 1 / Schritt 3</span>
+      <h3>81&nbsp;% der Menschen in Deutschland leben in reicheren Kreisen</h3>
+      <p>Gemessen an der Bevölkerung: <span class="big">81,2&nbsp;%</span> der Menschen in Deutschland wohnen in einem Kreis mit höherem
+      BIP pro Kopf als OSL. In Köln ist es umgekehrt: Nur <span class="big">10,8&nbsp;%</span> leben in reicheren Kreisen.</p>
+      <p>So sieht Deutschland in fast jedem Ranking aus: hier der reiche Westen, dort der Osten, der als abgehängt gilt.
+      Jetzt nehmen wir den Rest der Welt dazu.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 2 · Die Welt ================= -->
+<section class="scrolly" data-act="2" id="akt-2">
+  <div class="graphic">
+    <div class="fig" id="g2" data-step="-1">
+      <svg id="svg2" viewBox="0 0 1060 640" role="img" aria-label="Die Menschheit sortiert nach BIP pro Kopf ihrer Region, mit Markierung von Oberspreewald-Lausitz und Köln"></svg>
+      <div class="fig-title"><div class="t">Akt 2 · Die Welt dazunehmen</div><div class="s">Alle 8,1 Mrd. Menschen, sortiert nach dem BIP pro Kopf (KKP) ihrer Region · 5.929 Regionen · log. Skala</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 1</span>
+      <h3>Der mittlere Mensch lebt in Kerala</h3>
+      <p>Die Kurve stellt die ganze Menschheit in eine Reihe, vom ärmsten Ort links bis zum reichsten rechts.
+      Genau in der Mitte, bei 50&nbsp;%, steht <span class="m">der mittlere Mensch</span>: Seine Region kommt auf
+      <span class="big m">15.300 Int.$</span>. Das ist das Niveau des indischen Bundesstaats Kerala.</p>
+      <p>Der Weltdurchschnitt liegt mit 24.500 Int.$ höher, weil wenige reiche Regionen ihn nach oben ziehen.
+      Die ärmere Hälfte der Menschheit erwirtschaftet nur <span class="big">15,8&nbsp;%</span> der Weltwirtschaft.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card" style="border-top-color:var(--blue)">
+      <span class="n">Akt 2 / Schritt 2</span>
+      <h3>OSL steht bei 85&nbsp;%</h3>
+      <p>Jetzt die Linie auf Höhe von <span class="l">OSL</span>, 51.300 Int.$. Sie trifft die Kurve weit rechts:
+      <span class="big l">85,6&nbsp;%</span> der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf.<span class="conf b" title="hochgerechnet">B</span></p>
+      <p>Der Kreis, der in Deutschland auf Rang 307 steht, liegt in der Welt unter den obersten 15&nbsp;%.
+      Sein BIP pro Kopf ist 3,4-mal so hoch wie in der Region des mittleren Menschen.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 3</span>
+      <h3>Köln bei 98&nbsp;%, und dazwischen fast niemand</h3>
+      <p><span class="k">Köln</span> liegt bei <span class="big k">98,3&nbsp;%</span>.<span class="conf b" title="Regionalwert hochgerechnet">B</span> Zwischen meinen beiden Herkunftsorten, also zwischen
+      51.300 und 114.600 Int.$, leben nur <span class="big">12,7&nbsp;%</span> der Menschheit.</p>
+      <p>Was in Deutschland wie ein Graben aussieht, ist im Weltmaßstab ein schmaler Streifen ganz oben.</p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 2 / Schritt 4</span>
+      <h3>Härtetest: gilt das auch anders gezählt?</h3>
+      <p>Solche Prozentwerte hängen davon ab, wie fein man die Welt zerlegt: in Länder, Bundesländer, Kreise oder Metropolregionen.
+      Für OSL ist das egal: Auf allen vier Ebenen liegt der Kreis zwischen <span class="big l">85,1</span> und <span class="big l">85,8&nbsp;%</span>,
+      Köln zwischen <span class="big k">98,3</span> und <span class="big k">99,3&nbsp;%</span>.</p>
+      <p>Die Aussage steht also, egal wie man zählt.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 3 · Quadrate ================= -->
+<section class="scrolly" data-act="3" id="akt-3">
+  <div class="graphic">
+    <div class="fig" id="g3" data-step="-1">
+      <svg id="svg3" viewBox="0 0 1060 640" role="img" aria-label="1.624 Quadrate zu je 5 Millionen Menschen, sortiert nach BIP pro Kopf ihrer Region"></svg>
+      <div class="fig-title"><div class="t">Akt 3 · Wer noch auf der Stufe von OSL steht</div><div class="s">1 Quadrat = 5 Mio. Menschen · unten links die ärmsten Regionen, oben rechts die reichsten</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 1</span>
+      <h3>Die Welt in 1.624 Quadraten</h3>
+      <p>Jedes Quadrat steht für 5 Millionen Menschen, sortiert nach dem Wohlstand ihrer Region und eingefärbt nach Kontinent.
+      Das untere Drittel sind vor allem Indien, Pakistan, Nigeria, Äthiopien und der Kongo. In der Mitte: China, Indien, Indonesien, Bangladesch.
+      Oben China, die USA, Russland, Japan und Europa.</p>
+      <p>Deutschlands 84 Mio. Menschen wären knapp 17 Quadrate.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card" style="border-top-color:var(--blue)">
+      <span class="n">Akt 3 / Schritt 2</span>
+      <h3>Reicher als OSL: 1,1 Mrd. Menschen</h3>
+      <p>In Blau alle Menschen, deren Region ein höheres BIP pro Kopf hat als <span class="l">OSL</span>:
+      <span class="big l">1.134 Mio.</span> Am meisten in den USA (283 Mio.), dann China (120 Mio.), Deutschland, Japan, Frankreich.</p>
+      <p>Auf der Stufe von OSL stehen ganze Länder wie <b>Polen</b> (51.300) und <b>Estland</b> (50.400), dazu der US-Bundesstaat <b>Mississippi</b> (53.000).</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card" style="border-top-color:var(--red)">
+      <span class="n">Akt 3 / Schritt 3</span>
+      <h3>Shanghai liegt vor OSL</h3>
+      <p>In Rot China: <span class="big">120 Mio.</span> Chinesen leben in Städten und Präfekturen, die reicher sind als OSL,
+      darunter <b>Shanghai</b> (61.900) und <b>Peking</b> (65.000).<span class="conf b" title="hochgerechnet; Chinas Regionaldaten gelten zudem als weniger verlässlich">B</span></p>
+      <p>Indien dagegen hat keinen Bundesstaat über OSL. Der reichste, Sikkim, kommt auf 33.600 Int.$.</p>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card">
+      <span class="n">Akt 3 / Schritt 4</span>
+      <h3>Reicher als Köln: 101 Mio.</h3>
+      <p>In Gelb, ganz oben rechts: Menschen in Regionen reicher als <span class="k">Köln</span>,
+      zusammen <span class="big k">101 Mio.</span>, gut 1&nbsp;% der Menschheit: Singapur, Mailand, Paris, Warschau, Hamburg, viele US-Großstädte und die russischen Öl- und Gasbezirke.</p>
+      <p>Köln steht gleichauf mit <b>Moskau</b> (114.700) und zwischen <b>Norwegen</b> und <b>Katar</b>.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= AKT 4 · Kaufkraft ================= -->
+<section class="scrolly" data-act="4" id="akt-4">
+  <div class="graphic">
+    <div class="fig" id="g4" data-step="-1">
+      <svg id="svg4" viewBox="0 0 1060 640" role="img" aria-label="Köln und Oberspreewald-Lausitz im Vergleich: BIP pro Kopf, Metropolregion, regionale Kaufkraft, Haushaltskonsum"></svg>
+      <div class="fig-title"><div class="t">Akt 4 · Der Haken: Was der Abstand wirklich misst</div><div class="s">Int.$ pro Kopf 2024 · Köln gegen Oberspreewald-Lausitz</div></div>
+    </div>
+  </div>
+  <div class="steps">
+    <div class="step" data-idx="0"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 1</span>
+      <h3>Faktor 2,2</h3>
+      <p>Der Ausgangspunkt: <span class="k">114.600</span> gegen <span class="l">51.300</span> Int.$ BIP pro Kopf.
+      Aber das BIP zählt dort, wo gearbeitet wird. Die Einwohner zählen dort, wo geschlafen wird.</p>
+      <p>Das wirkt in beide Richtungen: Köln holt sich die Wirtschaftsleistung seiner Einpendler, OSL verliert die seiner Auspendler nach Cottbus, Dresden und Berlin.</p>
+    </div></div>
+    <div class="step" data-idx="1"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 2</span>
+      <h3>Köln arbeitet für das Umland mit</h3>
+      <p>Jeden Morgen pendeln Hunderttausende nach Köln, ihre Wirtschaftsleistung zählt in der Stadt, sie selbst wohnen im Umland.
+      Nimmt man den <b>Großraum Köln</b> als Ganzes (Köln mit Leverkusen, Rhein-Erft- und Rheinisch-Bergischem Kreis), sinkt der Wert auf <span class="big k">89.100 Int.$</span>, etwa das Niveau der USA.</p>
+    </div></div>
+    <div class="step" data-idx="2"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 3</span>
+      <h3>In Köln kostet alles mehr</h3>
+      <p>Preise sind in Köln höher als im Bundesschnitt (Preisniveau <span class="big k">109</span>), in OSL niedriger (<span class="big l">92</span>).
+      Rechnet man das heraus, wird aus Faktor 2,2 ein Faktor <span class="big">1,9</span>:
+      <span class="k">104.800</span> gegen <span class="l">55.600</span> Int.$.</p>
+      <span class="src">Preisniveau: Regionaler Preisindex 2022 von BBSR und IW, Deutschland = 100</span>
+    </div></div>
+    <div class="step" data-idx="3"><div class="step-card" style="border-top-color:var(--red)">
+      <span class="n">Akt 4 / Schritt 4</span>
+      <h3>Beim Einkommen näher beieinander</h3>
+      <p>Beim verfügbaren Einkommen der Haushalte liegen die größeren Regionen dicht beieinander: Regierungsbezirk Köln <span class="k">38.700</span>,
+      Brandenburg <span class="l">35.900</span> Int.$, Faktor <span class="big">1,08</span>. Umgerechnet auf den Konsum pro Kopf, damit es zu den anderen Balken passt.
+      Dahinter steckt auch Umverteilung: Steuern, Renten, der Finanzausgleich zwischen Bund und Ländern.</p>
+      <p>Wichtig: Im Atlas gibt es diese Werte nur für die größeren Regionen, nicht für Köln und OSL selbst.<span class="conf c" title="Grobe Auflösung: Wert gilt für eine größere Region">C</span>
+      Die Richtung ist klar, die genauen Zahlen der beiden Kreise nicht.</p>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= EPILOG ================= -->
+<section class="prose">
+  <div class="kicker">Was bleibt</div>
+  <h2>Weit auseinander, und doch ganz oben</h2>
+  <p class="lede">In Deutschland trennen Köln und OSL 279 Plätze. In der Welt trennt sie ein Streifen, in dem nur 13&nbsp;% der Menschen leben.</p>
+  <p>Das heißt nicht, dass es den Abstand nicht gibt. Die Lausitz steckt mitten im Ausstieg aus der Braunkohle, und Faktor 2,2 bleibt Faktor 2,2,
+  auch wenn Pendler und Preise ihn kleiner machen. Aber es verschiebt den Maßstab: Der Kreis, den Rankings „abgehängt“ nennen,
+  steht auf dem Niveau Polens, Estlands und Mississippis. Und vor mehr als 85&nbsp;% der Menschheit.</p>
+  <p>Der mittlere Mensch dieser Welt lebt in einer Region mit 15.300 Int.$ pro Kopf. Das ist weniger als ein Drittel von OSL.</p>
+</section>
+
+<!-- ================= WO STEHST DU ================= -->
+<section class="prose" style="padding-bottom:20px">
+  <div class="kicker">Jetzt du</div>
+  <h2>Wo steht deine Heimat?</h2>
+  <p>Tipp einen Kreis, eine Stadt oder eine Region ein. Gezeigt wird, wie viele Menschen weltweit in ärmeren Regionen leben.</p>
+</section>
+<section class="you" id="you">
+  <div class="you-bar"><input id="you-in" list="you-list" placeholder="z. B. München, Bayern, Texas, Kerala, Polen …" autocomplete="off" aria-label="Region suchen"><datalist id="you-list"></datalist></div>
+  <div class="you-out" id="you-out" aria-live="polite"></div>
+  <div class="fig static"><svg id="svg5" viewBox="0 0 1060 300" role="img" aria-label="Deine Region auf der Kurve der Menschheit"></svg></div>
+  <p style="margin-top:22px"><a class="cta" id="you-atlas" href="wohlstandsatlas.html">Im Wohlstandsatlas weiterschauen →</a></p>
+</section>
+
+<!-- ================= GRENZEN ================= -->
+<section class="prose" style="padding-bottom:30px">
+  <div class="kicker">Ehrlich bleiben</div>
+  <h2>Was diese Zahlen nicht sagen</h2>
+</section>
+<div class="limits">
+  <div class="limit-card"><h4>Durchschnitt, kein Einkommen</h4><p>BIP pro Kopf ist die Wirtschaftsleistung einer Region geteilt durch ihre Einwohner. Wie sie sich auf die Menschen verteilt, sagt die Zahl nicht. Auch in Köln leben arme Menschen.</p></div>
+  <div class="limit-card"><h4>Hochgerechnet</h4><p>Im Atlas liegen Regionalwerte meist bis 2023 vor. Jede Region bekommt ihren Anteil am Land laut Statistikamt (für Deutschland Eurostat 2023) und diesen Anteil am Landeswert der Weltbank 2024. Kennzeichen <span class="conf b">B</span>.</p></div>
+  <div class="limit-card"><h4>Arbeitsort gegen Wohnort</h4><p>Das BIP entsteht, wo gearbeitet wird. Städte mit vielen Einpendlern wirken reicher, als ihre Einwohner sind. Köln ist so eine Stadt.</p></div>
+  <div class="limit-card"><h4>Ungleich feine Welt</h4><p>Deutschland ist in 400 Kreise zerlegt, Indien nur in 34 Bundesstaaten und Territorien, manche Länder gar nicht. Deshalb habe ich in Akt 2 alle vier Ebenen geprüft.</p></div>
+  <div class="limit-card"><h4>Grobe Einkommenswerte</h4><p>Das verfügbare Einkommen liegt im Atlas nur für größere Regionen vor, hier Regierungsbezirk Köln und Land Brandenburg. Kennzeichen <span class="conf c">C</span>.</p></div>
+</div>
+
+<section class="prose" style="padding-top:10px">
+  <div class="kicker">Methoden &amp; Daten</div>
+  <h2>Zum Nachprüfen</h2>
+  <details class="gloss"><summary>Woher die Zahlen kommen</summary><div class="gloss-body">
+    <p>Alle Werte stammen aus dem <a href="wohlstandsatlas.html">Wohlstandsatlas</a> der Knowledge Kitchen. Länder: Weltbank, World Development Indicators (2024), für einzelne Länder der IWF.
+    Regionen in Europa: Eurostat (NUTS-3, meist 2023). Regionale Preisniveaus in Deutschland: Regionaler Preisindex 2022 von BBSR und IW. Weitere Länder: nationale Statistikämter, Quelle und Jahr stehen im Atlas bei jeder Region.</p>
+    <p>Die ganze Tabelle gibt es als <a href="wohlstandsatlas/wohlstandsatlas-einheiten.csv">CSV</a>. Jede Zahl dieser Seite entsteht per Skript aus diesen Daten (<code>wohlstand-story/scripts/</code>) und wird vor jeder Veröffentlichung gegen den Text geprüft.</p>
+  </div></details>
+  <details class="gloss"><summary>Wie die Prozentwerte gerechnet sind</summary><div class="gloss-body">
+    <p>„85,6&nbsp;% der Menschheit leben in ärmeren Regionen“ heißt: Summe der Einwohner aller Regionen weltweit mit niedrigerem BIP pro Kopf als OSL, geteilt durch die Weltbevölkerung (8,12 Mrd.).
+    Regionen ohne Daten (39 Mio. Menschen) zählen im Nenner mit, nicht im Zähler.</p>
+    <p>Die Quadrate in Akt 3 sind gerundet: Jedes bekommt die Region, in der seine Bevölkerungsmitte liegt. Die Zahlen im Text sind dagegen exakt über alle Regionen summiert, deshalb weichen Quadrate pro Land leicht ab.</p>
+    <p>Gezählt wird auf der feinsten Ebene des Atlas: Kreise in Europa, Counties in den USA, Präfekturen in China, Bundesstaaten in Indien, sonst das ganze Land. Der Härtetest in Akt 2 rechnet dasselbe auf allen vier Ebenen.</p>
+  </div></details>
+  <details class="gloss"><summary>Die Kennzeichen B und C</summary><div class="gloss-body">
+    <ul><li><span class="conf b">B</span> hochgerechnet: regionale Verteilung aus der Statistik eines früheren Jahres, auf den Landeswert 2024 übertragen.</li>
+    <li><span class="conf c">C</span> grob: Der Wert gilt für eine größere Region als die genannte.</li>
+    <li>Ohne Kennzeichen: Werte, die direkt aus amtlichen Landeszahlen folgen, oder einfache Rechnungen daraus.</li></ul>
+  </div></details>
+</section>
+
+<footer>
+  <div><a href="wohlstandsatlas.html">Wohlstandsatlas</a> · <a href="laender-indikatoren-explorer.html">Länder-Indikatoren-Explorer</a> · <a href="rhein-story.html">Rhein-Story</a> · <a href="koelner-raser-story.html">Köln blitzt</a></div>
+  <div>Michael Tenner · Daten-WG Knowledge Kitchen · Daten: Weltbank, IWF, Eurostat, nationale Statistikämter</div>
+</footer>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const NS = "http://www.w3.org/2000/svg";
+const fmt = (v,d=0)=>v==null?"–":v.toLocaleString("de-DE",{minimumFractionDigits:d,maximumFractionDigits:d});
+const r100 = v=>fmt(Math.round(v/100)*100);
+function el(tag, attrs={}, parent){ const e=document.createElementNS(NS,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, attrs={}){ const t=el("text",{x,y,...attrs},parent); t.textContent=s; return t; }
+const MOBILE = matchMedia("(max-width:760px)").matches;
+const P = DATA.places, W = DATA.world;
+const COL = {k:"#f0b54a", l:"#86b6ef", m:"#e66767", ink:"#ffffff", mut:"#a3a19a"};
+const tip = document.getElementById("tip");
+function showTip(ev, html){ tip.innerHTML=html; tip.style.opacity=1; const x=Math.min(ev.clientX+14, innerWidth-tip.offsetWidth-8); tip.style.left=x+"px"; tip.style.top=(ev.clientY+14)+"px"; }
+function hideTip(){ tip.style.opacity=0; }
+/* gemeinsame Graustufen-Rampe für BIP pro Kopf (log), damit Amber und Blau herausstechen */
+const RAMP = ["#262624","#34332f","#47453f","#5e5b53","#7a7669","#9a9584","#c3bda7","#e8e2c8"];
+const rampOf = (v, lo, hi)=>RAMP[Math.max(0, Math.min(RAMP.length-1, Math.floor((Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo))*RAMP.length)))];
+
+/* ================================================================
+   Hero: 1.624 Quadrate = die Menschheit; Köln und OSL leuchten
+================================================================ */
+(function hero(){
+  const cv=document.getElementById("hero-canvas"), cx=cv.getContext("2d");
+  const sq=DATA.squares, n=sq.length, COLS=58, ROWS=Math.ceil(n/COLS);
+  const iO = sq.findIndex(s=>s[1]>=P.osl.gdp), iK = sq.findIndex(s=>s[1]>=P.koeln.gdp);
+  const t0=performance.now(); const delay=sq.map(()=>Math.random()*1800);
+  function size(){ const d=devicePixelRatio||1; cv.width=cv.clientWidth*d; cv.height=cv.clientHeight*d; cx.setTransform(d,0,0,d,0,0); }
+  size(); addEventListener("resize", size);
+  function frame(now){
+    const w=cv.clientWidth, h=cv.clientHeight, s=Math.min(w/(COLS+4), h/(ROWS+4)), ox=(w-COLS*s)/2, oy=(h-ROWS*s)/2;
+    cx.clearRect(0,0,w,h);
+    const t=now-t0;
+    for(let i=0;i<n;i++){
+      const a=Math.max(0,Math.min(1,(t-delay[i])/600)); if(!a) continue;
+      const col=i%COLS, row=Math.floor(i/COLS);
+      const x=ox+col*s, y=oy+(ROWS-1-row)*s;
+      let c = i>=iK ? COL.k : i>=iO ? "rgba(134,182,239,.55)" : "rgba(195,194,183,"+(0.10+0.25*i/n)+")";
+      if(i===iO||i===iK){ const p=.6+.4*Math.sin(t/420); c = i===iK? `rgba(240,181,74,${p})` : `rgba(134,182,239,${p+.1})`; }
+      cx.globalAlpha=a; cx.fillStyle=c; cx.fillRect(x+1,y+1,s-2,s-2);
+    }
+    cx.globalAlpha=1;
+    if(t<4000 || !matchMedia("(prefers-reduced-motion:reduce)").matches) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ================================================================
+   Akt 1: Deutschlandkarte + Rangfolge
+================================================================ */
+const act1 = (function(){
+  const svg=document.getElementById("svg1"), fig=document.getElementById("g1"), G=DATA.germany;
+  const lo=Math.min(...G.kreise.map(k=>k.v)), hi=Math.max(...G.kreise.map(k=>k.v));
+  const qs=G.kreise.map(k=>k.v).sort((a,b)=>a-b), qcut=RAMP.map((_,i)=>qs[Math.floor(qs.length*i/RAMP.length)]);
+  const qcol=v=>{ let c=0; for(let i=0;i<qcut.length;i++) if(v>=qcut[i]) c=i; return RAMP[c]; };
+  const H=560, sc=H/G.h, mx=40, my=66;
+  const mapWrap=el("g",{class:"mapg"},svg);
+  const map=el("g",{transform:`translate(${mx},${my}) scale(${sc})`},mapWrap);
+  G.kreise.forEach(k=>{
+    const p=el("path",{d:k.d,class:"kreis",fill:qcol(k.v)},map);
+    p.addEventListener("mousemove",ev=>showTip(ev,`<b>${k.n}</b><br><span class="q">BIP/Kopf</span> ${fmt(k.v)} Int.$<br><span class="q">Einwohner</span> ${fmt(k.p)}`));
+    p.addEventListener("mouseleave",hideTip);
+  });
+  const mk=(xy,cls,lab,dx,anchor)=>{ const g=el("g",{},mapWrap); const x=mx+xy[0]*sc, y=my+xy[1]*sc;
+    el("circle",{cx:x,cy:y,r:13,class:cls},g); el("circle",{cx:x,cy:y,r:3,fill:cls==="mk-k"?COL.k:COL.l},g);
+    txt(g,x+dx,y+5,lab,{class:cls==="mk-k"?"t-k":"t-l","text-anchor":anchor}); return g; };
+  mk(G.koeln_xy,"mk-k","Köln",MOBILE?20:-20,MOBILE?"start":"end"); mk(G.osl_xy,"mk-l","OSL",20,"start");
+  // Rangfolge rechts: 400 Säulen
+  const sorted=[...G.kreise].sort((a,b)=>b.v-a.v), RX=540, RW=490, RY=110, RH=440;
+  const yv=v=>RY+RH-(Math.log(v)-Math.log(20000))/(Math.log(300000)-Math.log(20000))*RH;
+  const rank=el("g",{class:"s1"},svg);
+  [25000,50000,100000,200000].forEach(v=>{ el("line",{x1:RX,x2:RX+RW,y1:yv(v),y2:yv(v),class:"tick"},rank); txt(rank,RX-8,yv(v)+4,fmt(v/1000)+" Tsd.",{class:"sm","text-anchor":"end"}); });
+  const bw=RW/sorted.length;
+  sorted.forEach((k,i)=>{ const isK=k.id===P.koeln.id, isL=k.id===P.osl.id;
+    el("rect",{x:RX+i*bw,y:yv(k.v),width:Math.max(bw-.2,.8),height:RY+RH-yv(k.v),class:"col",fill:isK?COL.k:isL?COL.l:qcol(k.v)},rank); });
+  const lab=(id,cls,s,ly)=>{ const i=sorted.findIndex(k=>k.id===id), x=RX+i*bw+bw/2, y=yv(sorted[i].v);
+    el("line",{x1:x,x2:x,y1:y-4,y2:ly+6,stroke:cls==="t-k"?COL.k:COL.l,"stroke-width":1.5},rank); txt(rank,x+6,ly,s,{class:cls,"text-anchor":"start"}); };
+  lab(P.koeln.id,"t-k",`Köln · Rang ${P.koeln.de_rank}`,RY-10); lab(P.osl.id,"t-l",`OSL · Rang ${P.osl.de_rank}`,yv(P.osl.gdp)-60);
+  txt(rank,RX,RY+RH+22,"Rang 1",{class:"sm"}); txt(rank,RX+RW,RY+RH+22,"Rang 400",{class:"sm","text-anchor":"end"});
+  // Schritt 3: Anteil der Deutschen
+  const st=el("g",{class:"s2"},svg);
+  const bx=RX, by=RY+RH+50, bwid=RW;
+  const bsplit=bx+bwid*P.osl.de_richer_share/100;
+  el("rect",{x:bx,y:by,width:bsplit-bx,height:16,fill:"#9a9584"},st);
+  el("rect",{x:bsplit,y:by,width:bx+bwid-bsplit,height:16,fill:"#34332f"},st);
+  el("line",{x1:bsplit,x2:bsplit,y1:by-4,y2:by+20,stroke:COL.l,"stroke-width":3},st);
+  txt(st,bx,by-8,`${fmt(P.osl.de_richer_share,1)} % der Menschen in Deutschland wohnen in reicheren Kreisen als OSL`,{class:"t-l sm"});
+  return {step(i){ fig.dataset.step=i; }};
+})();
+
+/* ================================================================
+   Akt 2: Kurve der Menschheit
+================================================================ */
+function curveChart(svg, box, opts={}){
+  const {x0,y0,w,h}=box, lo=500, hi=300000;
+  const X=p=>x0+p/100*w, Y=v=>y0+h-(Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo))*h;
+  const g=el("g",{},svg);
+  [1000,5000,15000,50000,100000,200000].forEach(v=>{ el("line",{x1:x0,x2:x0+w,y1:Y(v),y2:Y(v),class:"tick"},g); txt(g,x0-8,Y(v)+4,v>=1000?fmt(v/1000)+" Tsd.":fmt(v),{"text-anchor":"end",class:"sm"}); });
+  [0,25,50,75,100].forEach(p=>{ txt(g,X(p),y0+h+20,p+" %",{"text-anchor":"middle",class:"sm"}); });
+  if(opts.xlabel) txt(g,x0+w,y0+h+42,opts.xlabel,{"text-anchor":"end",class:"sm"});
+  // Treppenpfad
+  let d=`M${X(0)},${Y(Math.max(lo,DATA.curve[0][1]))}`;
+  for(let i=0;i<DATA.curve.length;i++){ const c=DATA.curve[i], nx=i+1<DATA.curve.length?DATA.curve[i+1][0]:100; const y=Y(Math.max(lo,Math.min(hi,c[1])));
+    d+=`L${X(c[0]).toFixed(1)},${y.toFixed(1)}L${X(nx).toFixed(1)},${y.toFixed(1)}`; }
+  el("path",{d:d+`L${X(100)},${y0+h}L${X(0)},${y0+h}Z`,fill:"rgba(195,194,183,.10)"},g);
+  el("path",{d,fill:"none",stroke:"#c3c2b7","stroke-width":2},g);
+  return {X,Y,g};
+}
+function marker(svg, C, pct, v, cls, label, cssClass, side="left"){
+  const g=el("g",{class:cssClass||""},svg), col=cls==="k"?COL.k:cls==="l"?COL.l:COL.m, x=C.X(pct), y=C.Y(v);
+  el("line",{x1:C.X(0),x2:x,y1:y,y2:y,stroke:col,"stroke-width":1.5,"stroke-dasharray":"5 4"},g);
+  el("line",{x1:x,x2:x,y1:y,y2:C.Y(500),stroke:col,"stroke-width":1.5,"stroke-dasharray":"5 4"},g);
+  el("circle",{cx:x,cy:y,r:6,fill:col},g);
+  txt(g, side==="left"? x-12 : x+12, y-12, label, {class:"t-"+cls,"text-anchor":side==="left"?"end":"start"});
+  return g;
+}
+const act2 = (function(){
+  const svg=document.getElementById("svg2"), fig=document.getElementById("g2");
+  const C=curveChart(svg,{x0:MOBILE?160:110,y0:100,w:MOBILE?850:880,h:440},{xlabel:"Anteil der Menschheit, von arm nach reich →"});
+  const med=el("g",{},svg);
+  marker(med,C,50,W.median,"m",MOBILE?`Mitte · ${r100(W.median)}`:`mittlerer Mensch · ${r100(W.median)} Int.$ (${W.median_name})`);
+  const pl=P.osl.world_below["2"], pk=P.koeln.world_below["2"];
+  marker(svg,C,pl,P.osl.gdp,"l",MOBILE?`OSL ${fmt(pl,1)} %`:`OSL · ${fmt(pl,1)} % darunter`,"s1");
+  marker(svg,C,pk,P.koeln.gdp,"k",`Köln · ${fmt(pk,1)} %`,"s2");
+  const band=el("g",{class:"s2"},svg);
+  el("rect",{x:C.X(pl),y:100,width:C.X(pk)-C.X(pl),height:440,fill:"rgba(240,181,74,.08)"},band);
+  txt(band,C.X(pl)+6,505,`${fmt(W.between_share,1)} %`,{class:"lab-strong"});
+  txt(band,C.X(pl)+6,525,"dazwischen",{class:"sm"});
+  // Härtetest: vier Ebenen
+  const ht=el("g",{class:"o3"},svg), names=["Länder","Bundesländer","Kreise","Metropolregionen"];
+  const cO=MOBILE?560:420, cK=MOBILE?720:520, rh=MOBILE?36:24, bw2=MOBILE?600:400;
+  const bxx=MOBILE?380:470, byy=MOBILE?300:350;
+  ht.setAttribute("transform",`translate(${bxx-(MOBILE?165:140)},${byy-118})`);
+  el("rect",{x:MOBILE?165:140,y:118,width:bw2,height:70+rh*4+(MOBILE?20:0),fill:"#141413",stroke:"rgba(255,255,255,.14)"},ht);
+  txt(ht,MOBILE?180:158,MOBILE?152:144,MOBILE?"Anteil darunter je Ebene":"Anteil der Menschheit darunter, je Ebene",{class:"lab-strong sm"});
+  txt(ht,cO,MOBILE?190:172,"OSL",{class:"t-l sm","text-anchor":"end"}); txt(ht,cK,MOBILE?190:172,"Köln",{class:"t-k sm","text-anchor":"end"});
+  names.forEach((nm,i)=>{ const y=(MOBILE?226:198)+i*rh; txt(ht,MOBILE?180:158,y,MOBILE?["Länder","Bundesl.","Kreise","Metro"][i]:nm,{class:"sm"});
+    txt(ht,cO,y,fmt(P.osl.world_below[i],1)+" %",{class:"t-l sm","text-anchor":"end"});
+    txt(ht,cK,y,fmt(P.koeln.world_below[i],1)+" %",{class:"t-k sm","text-anchor":"end"}); });
+  return {step(i){ fig.dataset.step=i; }};
+})();
+
+/* ================================================================
+   Akt 3: Quadrate
+================================================================ */
+const act3 = (function(){
+  const svg=document.getElementById("svg3"), fig=document.getElementById("g3"), sq=DATA.squares;
+  const CONT=["#a0784a","#5f9483","#9a8bc4","#b8798c","#8a9a4e","#6b86a8","#666"], CN=["Afrika","Asien","Europa","Nord- & Mittelamerika","Südamerika","Ozeanien"];
+  const COLS=58, s=15, x0=(1060-COLS*s)/2, rows=Math.ceil(sq.length/COLS), y0=96+rows*s;
+  const rects=sq.map((q,i)=>{ const c=i%COLS, rr=Math.floor(i/COLS);
+    const e=el("rect",{x:x0+c*s+1,y:y0-(rr+1)*s+1,width:s-2,height:s-2,class:"sq",fill:CONT[q[2]]},svg);
+    e.addEventListener("mousemove",ev=>showTip(ev,`${q[0]} · ${fmt(q[1])} Int.$<br><span class="q">5 Mio. Menschen</span>`)); e.addEventListener("mouseleave",hideTip); return e; });
+  const leg=el("g",{class:"o0"},svg); let lx=x0;
+  CN.forEach((n,i)=>{ el("rect",{x:lx,y:y0+16,width:11,height:11,fill:CONT[i]},leg); const t=txt(leg,lx+16,y0+26,n,{class:"sm"}); lx+=16+n.length*8.2+18; });
+  const notes=el("g",{},svg);
+  const iO=sq.findIndex(q=>q[1]>P.osl.gdp), iK=sq.findIndex(q=>q[1]>P.koeln.gdp);
+  const n1=el("g",{class:"o1"},notes); txt(n1,x0,y0+26,`${fmt(W.above_osl_mio)} Mio. Menschen leben in Regionen reicher als OSL`,{class:"t-l"});
+  const n2=el("g",{class:"o2"},notes); txt(n2,x0,y0+26,`${fmt(W.cn_above_osl_mio)} Mio. davon in China · aus Indien: ${fmt(W.in_above_osl_mio)}`,{class:"t-m"});
+  const n3=el("g",{class:"o3"},notes); txt(n3,x0,y0+26,`${fmt(W.above_koeln_mio)} Mio. Menschen leben in Regionen reicher als Köln`,{class:"t-k"});
+  function paint(i){
+    rects.forEach((e,j)=>{ const q=sq[j]; let f;
+      if(i<=0) f=CONT[q[2]];
+      else if(i===1) f= j>=iO? COL.l : "#34332f";
+      else if(i===2) f= q[0]==="CHN" ? (j>=iO? COL.m : "#6b3a3a") : (j>=iO? "#3d5a80" : "#2a2a28");
+      else f= j>=iK? COL.k : j>=iO? "#3d5a80" : "#2a2a28";
+      e.setAttribute("fill",f); });
+  }
+  return {step(i){ fig.dataset.step=i; paint(i); }};
+})();
+
+/* ================================================================
+   Akt 4: Balken Köln gegen OSL
+================================================================ */
+const act4 = (function(){
+  const svg=document.getElementById("svg4"), fig=document.getElementById("g4");
+  const rows=[
+    {lab:"BIP pro Kopf", k:P.koeln.gdp, l:P.osl.gdp, s:0},
+    {lab:MOBILE?"Metropolregion":"BIP pro Kopf, Metropolregion Köln", k:P.koeln.metro_gdp, l:null, s:1},
+    {lab:MOBILE?"regionale Preise":"zu regionalen Preisen", k:P.koeln.rp, l:P.osl.rp, s:2},
+    {lab:MOBILE?"Einkommen*":"Einkommen, als Konsum*", k:P.koeln.hh, l:P.osl.hh, s:3, sub:"* RB Köln / Brandenburg"}];
+  const X0=MOBILE?330:330, XW=MOBILE?560:620, max=120000, x=v=>XW*v/max;
+  (MOBILE?[0,50000,100000]:[0,25000,50000,75000,100000]).forEach(v=>{ el("line",{x1:X0+x(v),x2:X0+x(v),y1:120,y2:575,class:"tick"},svg); txt(svg,X0+x(v),597,v?fmt(v/1000)+" Tsd.":"0",{"text-anchor":"middle",class:"sm"}); });
+  rows.forEach((r,i)=>{ const y=134+i*108, g=el("g",{class:r.s?"s"+r.s:""},svg);
+    txt(g,X0-14,y+22,r.lab,{"text-anchor":"end",class:"lab-strong"});
+    el("rect",{x:X0,y:y,width:x(r.k),height:30,fill:COL.k,class:"bar"},g); txt(g,X0+x(r.k)+8,y+21,r100(r.k),{class:"t-k"});
+    if(r.l!=null){ el("rect",{x:X0,y:y+36,width:x(r.l),height:30,fill:COL.l,class:"bar"},g); txt(g,X0+x(r.l)+8,y+57,r100(r.l),{class:"t-l"});
+      txt(g,X0-14,y+57,r.sub? r.sub : "Faktor "+fmt(Math.round(r.k/r.l*(r.k/r.l<1.5?100:10))/(r.k/r.l<1.5?100:10),r.k/r.l<1.5?2:1),{"text-anchor":"end",class:"sm"}); }
+    else txt(g,X0-14,y+57,"Stadt + Umland",{"text-anchor":"end",class:"sm"});
+  });
+  const lg=el("g",{},svg); el("rect",{x:X0,y:94,width:12,height:12,fill:COL.k},lg); txt(lg,X0+18,104,"Köln",{class:"t-k"}); el("rect",{x:X0+(MOBILE?120:90),y:94,width:12,height:12,fill:COL.l},lg); txt(lg,X0+(MOBILE?138:108),104,"Oberspreewald-Lausitz",{class:"t-l"});
+  return {step(i){ fig.dataset.step=i; }};
+})();
+
+/* ================================================================
+   Wo stehst du?
+================================================================ */
+(function you(){
+  const inp=document.getElementById("you-in"), out=document.getElementById("you-out"), dl=document.getElementById("you-list"), svg=document.getElementById("svg5");
+  const kind=s=>s[3]==="Land/Gebiet"?"Land":s[3];
+  const S=DATA.search, label=s=>`${s[0]} (${[kind(s),s[1]].filter(Boolean).join(", ")})`;
+  dl.innerHTML=S.map(s=>`<option value="${label(s).replace(/"/g,"&quot;")}">`).join("");
+  if(MOBILE) svg.setAttribute("viewBox","0 0 1060 520");
+  const C=curveChart(svg,{x0:MOBILE?160:110,y0:20,w:MOBILE?850:880,h:MOBILE?430:230});
+  const pct=v=>{ // Anteil der Menschheit in Regionen mit niedrigerem Wert
+    let lo=0, hi=DATA.curve.length; while(lo<hi){ const m=(lo+hi)>>1; if(DATA.curve[m][1]<v) lo=m+1; else hi=m; }
+    return lo<DATA.curve.length? DATA.curve[lo][0] : 100 - DATA.meta.nodata_mio/DATA.meta.world_pop*1e6*100; };
+  marker(svg,C,P.osl.world_below["2"],P.osl.gdp,"l","OSL","", "left");
+  marker(svg,C,P.koeln.world_below["2"],P.koeln.gdp,"k","Köln","", "left");
+  let mine=null;
+  function show(s){
+    if(mine) mine.remove(); const p=pct(s[2]);
+    mine=marker(svg,C,p,Math.max(500,s[2]),"m",s[0],"", p>60?"left":"right");
+    const rel = s[4]===P.koeln.id||s[4]===P.osl.id ? "genau auf einem meiner beiden Punkte" : s[2]>P.koeln.gdp? "über Köln" : s[2]>P.osl.gdp? "zwischen OSL und Köln" : "unter OSL";
+    out.innerHTML=`<b>${s[0]}</b> (${[kind(s),s[1]].filter(Boolean).join(", ")}) kommt auf <span class="big">${fmt(s[2])} Int.$</span> BIP pro Kopf. <span class="big">${fmt(p,1)}&nbsp;%</span> der Menschheit leben in Regionen mit niedrigerem Wert. Damit steht ${s[0]} ${rel}.${s[5]?"":" <span style=\"color:var(--muted)\">(Ganze Region gegen die feinste Ebene gerechnet.)</span>"}`;
+    document.getElementById("you-atlas").textContent=`${s[0]} im Wohlstandsatlas ansehen →`;
+    document.getElementById("you-atlas").href=`wohlstandsatlas.html#${s[4]}--m0--l2`;
+  }
+  inp.addEventListener("change",()=>{ const v=inp.value.trim().toLowerCase(); if(!v) return; const s=S.find(s=>label(s).toLowerCase()===v)||S.find(s=>s[0].toLowerCase()===v)||S.find(s=>s[0].toLowerCase().startsWith(v)); if(s) show(s); else out.textContent="Nicht gefunden. Versuch es mit dem Namen eines Kreises, einer Stadt, eines Bundeslands, Bundesstaats oder Landes."; });
+  out.innerHTML=`Zum Vergleich: <span class="l">OSL</span> ${fmt(P.osl.world_below["2"],1)} %, <span class="k">Köln</span> ${fmt(P.koeln.world_below["2"],1)} %.`;
+})();
+
+/* ================================================================
+   Scroll-Steuerung (wie rhein-story.html)
+================================================================ */
+const ACTS={1:act1,2:act2,3:act3,4:act4};
+const io=new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(!e.isIntersecting) return;
+  const step=e.target, act=step.closest(".scrolly").dataset.act, idx=+step.dataset.idx;
+  step.parentElement.querySelectorAll(".step").forEach(s=>s.classList.toggle("is-active",s===step)); ACTS[act].step(idx); }); },{rootMargin:"-42% 0px -42% 0px"});
+document.querySelectorAll(".step").forEach(s=>io.observe(s));
+document.querySelectorAll(".scrolly").forEach(sec=>{ new IntersectionObserver((es,obs)=>{ es.forEach(e=>{ if(e.isIntersecting){ const a=sec.dataset.act; if(document.getElementById("g"+a).dataset.step==="-1") ACTS[a].step(0); obs.disconnect(); } }); },{threshold:.35}).observe(sec); });
+</script>
+</body>
+</html>

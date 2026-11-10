@@ -25,6 +25,7 @@ EXCLUDE_FILES = {
     "daten_wg_learn_buckets.html",     # Arbeitskopie der Startseite
     "library/index.html",              # reine Weiterleitung auf wissensgraph/
     "koeln-raser/story_template.html", # Vorlage, keine Seite
+    "wohlstand-story/story_template.html",  # Vorlage, keine Seite
     "pnl-treiberbaum-standalone.html", # Bundle, ersetzt beim Laden das ganze Dokument; läuft im iframe von pnl-treiberbaum-demo.html
 }
 EXCLUDE_DIRS = (
@@ -42,7 +43,7 @@ FOOTER = {
 }
 MINI = {
     "zugfahrten-europa-2024.html", "zugfahrten-europa-2024-animiert.html", "waermestreifen-3d.html",
-    "rhein-story.html", "strommix-story.html", "koelner-raser-story.html",
+    "rhein-story.html", "strommix-story.html", "koelner-raser-story.html", "zwei-heimaten.html",
     "koelner-raser-story-v1.html", "koelner-raser-story-v2.html", "eauto-klimabilanz.html",
     "pdoom-ki-risiko.html", "pdoom-rollen.html", "pdoom-verteilung.html", "pdoom-zeitverlauf.html",
     "fermi_paradox_en.html", "pnl-treiberbaum-demo.html",

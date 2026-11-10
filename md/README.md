@@ -183,6 +183,7 @@ Konfidenzstufen beachten".
 | `powerbi-design-skill.md` | `powerbi-design-skill.html` | generiert · `scripts/build_md.py` |
 | `prototyping-pnl-treiberbaum.md` / `_en.md` | `prototyping-pnl-treiberbaum.html` / `_en.html` | generiert · `scripts/build_md.py` |
 | `laender-indikatoren-explorer.md` | `laender-indikatoren-explorer.html` | einmalig extrahiert |
+| `zwei-heimaten.md` | `zwei-heimaten.html` | einmalig geschrieben (Text der Story, Zahlen aus `wohlstand-story/data/story_data.json`) |
 | `wohlstandsatlas.md` | `wohlstandsatlas.html` | einmalig geschrieben (Methodik aus den Seiten-Hinweisen, Kennzahlen aus den Atlasdaten) |
 | `pdoom-ki-risiko.md` | `pdoom-ki-risiko.html` | einmalig extrahiert |
 | `ki-co2-simulator.md` | `ki-co2-simulator.html` | einmalig extrahiert (Annahmen und Quellenanhang aus dem JS) |
