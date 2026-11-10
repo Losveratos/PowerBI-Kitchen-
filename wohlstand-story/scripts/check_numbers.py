@@ -26,51 +26,80 @@ def de(v, d=0):
     return f"{v:,.{d}f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
-h = lambda v: de(round(v / 100) * 100)          # auf Hunderter gerundet: 114.600
+def h(v):
+    """auf drei geltende Stellen, wie im Atlas und im Text: 114.620 → 115.000, 51.305 → 51.300"""
+    return de(float(f"{v:.3g}"))
+
+
 top = {x["iso"]: x["mio"] for x in W["above_osl"]}
+T = W["tight"]
+rnd = lambda v: de(round(v))                    # ganze Prozent
+top_share = 100 - L["world_below"]["2"]         # Anteil der Menschheit in Regionen über OSL
 
 EXPECT = {
     # Hero, Akt 1
-    "494 km": f"{de(M['dist_km'])} km",
-    "Köln 114.600": h(K["gdp"]), "OSL 51.300": h(L["gdp"]),
+    "495 km": f"{de(M['dist_km'])} km",
+    "Köln 115.000": f"{h(K['gdp'])} Int.$", "OSL 51.300": f"{h(L['gdp'])} Int.$",
     "Rang 28": f"Rang {K['de_rank']}", "Rang 307": f"Rang {L['de_rank']}", "400 Kreise": f"{K['de_n']} Kreise",
-    "mehr als 85 %": f"mehr als {int(L['world_below']['2'])} % der Menschheit",
-    "Faktor 2,2": f"Faktor {de(W['koeln_x_osl'], 1)}",
-    "Deutschland 74.000": f"{de(round(P['deu']['gdp'], -3))} Int.$",
-    "81,2 %": f"{de(L['de_richer_share'], 1)} %", "10,8 %": f"{de(K['de_richer_share'], 1)} %",
+    "Faktor 2,2": f"Faktor von <span class=\"big\">{de(W['koeln_x_osl'], 1)}</span>",
+    "Deutschland 74.000": f"{h(P['deu']['gdp'])} Int.$",
+    "81 %": f"{rnd(L['de_richer_share'])} %</span> der Menschen in Deutschland", "11 %": f"Nur <span class=\"big\">{rnd(K['de_richer_share'])} %</span>",
+    "vier von fünf": "Vier von fünf" if 77 <= L["de_richer_share"] <= 83 else "!!",
+    "61 Kreise ±5 %": f"<span class=\"big\">{T['n_near5']}</span> andere Kreise liegen höchstens 5 %",
+    "Rang 276 / 338": f"auf Rang {T['rank_plus5']}, mit 5 % weniger auf Rang {T['rank_minus5']}",
+    # Schätzfrage
+    "letzter Kreis": f"<b>{G['poorest']['name']}</b> mit {h(G['poorest']['gdp'])} Int.$", "Kreise im Atlas": f"letzten Platz der {K['de_n']} Kreise",
     # Akt 2
-    "15.300": h(W["median"]), "Kerala": W["median_name"], "24.500": h(W["mean"]),
-    "15,8 %": f"{de(W['poor_half_share'], 1)} %", "85,6 %": f"{de(L['world_below']['2'], 1)} %",
-    "3,4-mal": f"{de(W['osl_x_median'], 1)}-mal so hoch", "98,3 %": f"{de(K['world_below']['2'], 1)} %",
-    "12,7 %": f"{de(W['between_share'], 1)} %",
+    "Mitte 15.000": f"rund <span class=\"big m\">{de(round(W['median'], -3))} Int.$</span>", "Kerala": W["median_name"],
+    "Ost-Java": "Ost-Java" if abs(C["ID-JI"]["gdp"] / W["median"] - 1) < 0.06 else "!!", "24.500": h(W["mean"]),
+    "16 %": f"{rnd(W['poor_half_share'])} %</span> der Weltwirtschaft", "rund 86 %": f"Rund <span class=\"big l\">{rnd(L['world_below']['2'])} %</span> der Menschheit", "rund 86 % (Titel)": f"OSL steht bei rund {rnd(L['world_below']['2'])} %",
+    "rund 86 % (Gegenprobe)": f"„rund {rnd(L['world_below']['2'])} %“ und keine Nachkommastelle",
+    "oberstes Siebtel": "zum obersten Siebtel" if 13.5 < top_share < 15.5 else "!!",
+    "3,4-mal": f"{de(W['osl_x_median'], 1)}-mal so hoch", "rund 98 %": f"rund <span class=\"big k\">{rnd(K['world_below']['2'])} %</span>",
+    "knapp 13 %": f"knapp <span class=\"big\">{rnd(W['between_share'])} %</span> der Menschheit wohnen" if W["between_share"] < round(W["between_share"]) else "!!",
     "85,1": de(min(L["world_below"].values()), 1), "85,8 %": f"{de(max(L['world_below'].values()), 1)} %",
-    "99,3 %": f"{de(max(K['world_below'].values()), 1)} %",
+    "98,3": de(min(K["world_below"].values()), 1), "99,3 %": f"{de(max(K['world_below'].values()), 1)} %",
+    "weniger als ein Punkt": "um weniger als einen Punkt" if max(L["world_below"].values()) - min(L["world_below"].values()) < 1 else "!!",
+    "157 von 217": f"{W['n_whole']} der {W['n_countries']} Länder", "84 bis 87 %": f"auf {rnd(T['world_minus5'])} bis {rnd(T['world_plus5'])} %",
     "5.929 Regionen": f"{de(M['n_fine'])} Regionen", "8,1 Mrd.": f"{de(M['world_pop'] / 1e9, 1)} Mrd.",
-    # Schätzfrage und Akt 2 / Schritt 5: letzter und erster Kreis in Deutschland
-    "letzter Kreis": f"<b>{G['poorest']['name']}</b> mit {h(G['poorest']['gdp'])} Int.$", "Rang 400": f"{G['poorest']['name']} steht in Deutschland auf Rang {K['de_n']}",
-    "73,4 %": f"{de(G['poorest']['world_below'], 1)} %</span>", "Wolfsburg 99,5 %": f"{G['richest']['name']} bei <span class=\"big\">{de(G['richest']['world_below'], 1)} %</span>",
-    "gut ein Viertel": "nur gut ein Viertel, ganz rechts" if 25 < G["richest"]["world_below"] - G["poorest"]["world_below"] <= 29 and G["richest"]["world_below"] > 99 else "!!",
-    "Kreise im Atlas": f"letzten Platz der {K['de_n']} Kreise",
+    "Rang 400": f"{G['poorest']['name']} steht in Deutschland auf Rang {K['de_n']}",
+    "rund 73 %": f"rund <span class=\"big\">{rnd(G['poorest']['world_below'])} %</span>", "über 99 %": f"{G['richest']['name']}, der Sitz von Volkswagen, bei über <span class=\"big\">{int(G['richest']['world_below'])} %</span>",
+    "gut ein Viertel": "nur gut ein Viertel auf, ganz rechts" if 25 < G["richest"]["world_below"] - G["poorest"]["world_below"] <= 29 and G["richest"]["world_below"] > 99 else "!!",
     # Akt 3
     "1.624 Quadraten": f"{de(M['n_sq'])} Quadraten",
     "Deutschland 84 Mio.": f"Deutschlands {de(P['deu']['pop'] / 1e6)} Mio. Menschen",
-    "knapp 17 Quadrate": f"knapp {SQ_DE} Quadrate" if 0 < SQ_DE - P["deu"]["pop"] / M["square"] < 0.5 else "!!", "1.134 Mio.": f"{de(W['above_osl_mio'])} Mio.",
+    "knapp 17 Quadrate": f"knapp {SQ_DE} Quadrate" if 0 < SQ_DE - P["deu"]["pop"] / M["square"] < 0.5 else "!!",
+    "1.134 Mio.": f"{de(W['above_osl_mio'])} Mio.", "1,1 Mrd.": f"{de(W['above_osl_mio'] / 1000, 1)} Mrd. Menschen",
+    "ein Siebtel": "Das ist ein Siebtel der Menschheit. Sechs Siebtel" if 13.5 < W["above_osl_mio"] * 1e6 / M["world_pop"] * 100 < 15 else "!!",
     "USA (283 Mio.)": f"USA ({de(round(top['USA']))} Mio.)", "China (120 Mio.)": f"China ({de(round(top['CHN']))} Mio.)",
+    "379 Mio. ±10 %": f"höchstens {W['near_osl_band']} % über oder unter OSL liegt: <span class=\"big\">{de(W['near_osl_mio'])} Mio.</span>",
+    "Japan (54.200)": f"Japan</b> ({h(C['JPN']['gdp'])})", "Portugal (52.500)": f"Portugal</b> ({h(C['PRT']['gdp'])})",
     "Polen (51.300)": f"Polen</b> ({h(C['POL']['gdp'])})", "Estland (50.400)": f"Estland</b> ({h(C['EST']['gdp'])})",
-    "Mississippi (53.000)": f"Mississippi</b> ({de(round(C['USA-MS']['gdp'], -3))})",
+    "Mississippi (53.000)": f"Mississippi</b> ({h(C['USA-MS']['gdp'])})",
+    "auf der Stufe ±10 %": "ok" if all(abs(C[k]["gdp"] / L["gdp"] - 1) <= 0.1 for k in ("JPN", "PRT", "POL", "EST", "USA-MS")) else "!!",
     "120 Mio. Chinesen": f"{de(W['cn_above_osl_mio'])} Mio.</span> Chinesen",
     "Shanghai (61.900)": f"Shanghai</b> ({h(C['CN-SH']['gdp'])})", "Peking (65.000)": f"Peking</b> ({h(C['CN-BJ']['gdp'])})",
     "Indien 0": "keinen Bundesstaat über OSL" if W["in_above_osl_mio"] == 0 else "!!",
     "Sikkim 33.600": f"Sikkim, kommt auf {h(C['IN-SK']['gdp'])}",
-    "101 Mio.": f"{de(W['above_koeln_mio'])} Mio.", "Moskau (114.700)": f"Moskau</b> ({h(C['RU-MOS']['gdp'])})",
+    "rund 100 Mio.": f"rund <span class=\"big k\">{de(round(W['above_koeln_mio'], -1))} Mio.</span>", "Moskau (115.000)": f"Moskau</b> ({h(C['RU-MOS']['gdp'])})",
+    "Moskau auf Kölns Stufe": "ok" if abs(C["RU-MOS"]["gdp"] / K["gdp"] - 1) < 0.02 else "!!",
+    "Norwegen < Köln < Katar": "ok" if C["NOR"]["gdp"] < K["gdp"] < C["QAT"]["gdp"] else "!!",
     # Akt 4
-    "Metro 89.100": h(K["metro_gdp"]), "Preis 109": f"{de(K['price'])}</span>", "Preis 92": f"({de(L['price'])}</span>)" if False else f"(<span class=\"big l\">{de(L['price'])}</span>)",
-    "Faktor 1,9": f"Faktor <span class=\"big\">{de(W['rp_ratio'], 1)}</span>", "104.800": h(K["rp"]), "55.600": h(L["rp"]),
+    "Metro 89.100": h(K["metro_gdp"]), "Preis 109": f"{de(K['price'])}</span>", "Preis 92": f"(<span class=\"big l\">{de(L['price'])}</span>)",
+    "Faktor 1,9": f"Faktor <span class=\"big\">{de(W['rp_ratio'], 1)}</span>", "105.000": f"<span class=\"k\">{h(K['rp'])}</span>", "55.600": h(L["rp"]),
     "38.700": h(K["hh"]), "35.900": h(L["hh"]), "Faktor 1,08": f"Faktor <span class=\"big\">{de(W['hh_ratio'], 2)}</span>",
-    # Epilog, Methode
-    "279 Plätze": f"{de(L['de_rank'] - K['de_rank'])} Plätze", "13 % der Menschen": f"{de(W['between_share'])} % der Menschen",
+    "86 und 84 %": f"bei rund {rnd(K['world_below_hh'])} und {rnd(L['world_below_hh'])} %", "keine 2 Punkte": "keine 2 Punkte auseinander" if 1 < W["hh_gap"] < 2 else "!!",
+    # Fazit, Grenzen, Methode
+    "279 Plätze": f"{de(L['de_rank'] - K['de_rank'])} Plätze", "61 Kreise (Fazit)": f"liegen {T['n_near5']} Kreise höchstens 5 %",
+    "73 % (Fazit)": f"rund {rnd(G['poorest']['world_below'])} % der Menschheit leben",
+    "Niveau Japans": "ok" if abs(C["JPN"]["gdp"] / L["gdp"] - 1) <= 0.1 else "!!",
+    "15.000 (Fazit)": f"mit rund {de(round(W['median'], -3))} Int.$ pro Kopf", "weniger als ein Drittel": "weniger als ein Drittel von OSL" if W["median"] < L["gdp"] / 3 else "!!",
+    "157 Länder (Grenzen)": f"{W['n_whole']} Länder gar nicht",
+    "genau 85,6 / 98,3 / 12,7": f"{de(L['world_below']['2'], 1)} % für OSL und {de(K['world_below']['2'], 1)} % für Köln, dazwischen {de(W['between_share'], 1)} %",
+    "genau 114.620 / 51.305": f"Köln genau {de(K['gdp'])}, OSL {de(L['gdp'])}",
     "8,12 Mrd.": f"{de(M['world_pop'] / 1e9, 2)} Mrd.", "39 Mio.": f"{de(M['nodata_mio'])} Mio. Menschen",
 }
+TPL += " ok "          # Bedingungen ohne Textstelle liefern "ok" oder "!!"
 
 bad = [(k, v) for k, v in EXPECT.items() if v not in TPL]
 for k, v in EXPECT.items():

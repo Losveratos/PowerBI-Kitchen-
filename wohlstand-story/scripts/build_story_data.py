@@ -123,8 +123,22 @@ above_osl, above_koeln = above_by_country(osl_v), above_by_country(kol_v)
 cn_fine = [u for u in fine if u["country"] == "CHN"]
 in_fine = [u for u in fine if u["country"] == "IND"]
 compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"])} for k in
-           ("CN-SH", "CN-BJ", "USA-MS", "RU-MOS", "IN-KL", "IN-SK", "POL", "EST", "NOR", "QAT", "IN-BR", "M-DE004M")
+           ("CN-SH", "CN-BJ", "USA-MS", "RU-MOS", "IN-KL", "IN-SK", "POL", "EST", "NOR", "QAT", "IN-BR", "M-DE004M",
+            "JPN", "PRT", "ID-JI", "JP-34")
            if k in by}
+
+# ---------- Wie eng es ist ----------
+# Mittelfeld der deutschen Kreise: Wer liegt höchstens 5 % über oder unter OSL, und wohin rutscht OSL mit ±5 %?
+rank_at = lambda v: sum(1 for x in de_fine if x["gdp_pc_ppp"] > v) + 1
+tight = {
+    "n_near5": sum(1 for x in de_fine if x["id"] != OSL and osl_v * 0.95 <= x["gdp_pc_ppp"] <= osl_v * 1.05),
+    "rank_plus5": rank_at(osl_v * 1.05), "rank_minus5": rank_at(osl_v * 0.95),
+    "world_plus5": r(below(osl_v * 1.05, "gdp_pc_ppp", FINE) * 100, 1), "world_minus5": r(below(osl_v * 0.95, "gdp_pc_ppp", FINE) * 100, 1),
+}
+# Länder, die der Atlas nicht zerlegt: dieselbe Einheit auf allen vier Ebenen (die Gegenprobe in Akt 2 prüft sie nicht)
+whole = [u for u in lvl(0) if set(u["lv"]) >= {0, 1, 2, 3}]
+# Menschen in Regionen auf der Stufe von OSL (höchstens 10 % darüber oder darunter)
+near10 = sum(u["pop"] for u in fine if osl_v * 0.9 <= u["gdp_pc_ppp"] <= osl_v * 1.1)
 
 # ---------- Quadrate: 1 Quadrat = 5 Mio. Menschen, sortiert nach BIP pro Kopf ----------
 # Der Wert eines Quadrats ist der seiner Bevölkerungsmitte (Position auf der Skala). Das Land wird so verteilt,
@@ -245,7 +259,10 @@ D = {
               "above_osl": above_osl[:8], "above_koeln": above_koeln[:6],
               "cn_above_osl_mio": r(sum(u["pop"] for u in cn_fine if u["gdp_pc_ppp"] > osl_v) / 1e6),
               "in_above_osl_mio": r(sum(u["pop"] for u in in_fine if u["gdp_pc_ppp"] > osl_v) / 1e6),
-              "compare": compare},
+              "compare": compare,
+              "tight": tight, "n_countries": len(lvl(0)), "n_whole": len(whole), "whole_bn": r(sum(u["pop"] for u in whole) / 1e9, 2),
+              "near_osl_mio": r(near10 / 1e6), "near_osl_band": 10,
+              "hh_gap": r(abs(P["koeln"]["world_below_hh"] - P["osl"]["world_below_hh"]), 1)},
     "curve": curve,
     "squares": squares,
     "names": names,
@@ -258,6 +275,7 @@ OUT.write_text(json.dumps(D, ensure_ascii=False, separators=(",", ":")), encodin
 print(f"✓ {OUT.relative_to(REPO)} · {OUT.stat().st_size / 1024:.0f} KB · {len(kreise)} Kreise · {n_sq} Quadrate · {len(search)} Orte")
 for k in ("koeln", "osl"):
     p = P[k]; print(f"  {p['name']}: {p['gdp']} Int.$, Welt darunter {p['world_below']}, DE-Rang {p.get('de_rank')}/{p.get('de_n')}")
+print("  eng:", tight, "| ungeteilte Länder", len(whole), "von", len(lvl(0)), "| ±10 % um OSL", r(near10 / 1e6), "Mio.")
 print("  DE-Spanne", germany["poorest"], germany["richest"])
 print("  Median", D["world"]["median"], D["world"]["median_name"], "| Mittel", D["world"]["mean"], "| zwischen", D["world"]["between_share"],
       "| ärmere Hälfte", D["world"]["poor_half_share"], "% BIP | über OSL", D["world"]["above_osl_mio"], "Mio | über Köln", D["world"]["above_koeln_mio"])
