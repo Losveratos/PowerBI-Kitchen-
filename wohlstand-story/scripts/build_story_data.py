@@ -123,7 +123,7 @@ above_osl, above_koeln = above_by_country(osl_v), above_by_country(kol_v)
 cn_fine = [u for u in fine if u["country"] == "CHN"]
 in_fine = [u for u in fine if u["country"] == "IND"]
 compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"])} for k in
-           ("CN-SH", "CN-BJ", "USA-MS", "RU-MOS", "IN-KL", "POL", "EST", "NOR", "QAT", "IN-BR", "DE91C", "M-DE004M")
+           ("CN-SH", "CN-BJ", "USA-MS", "RU-MOS", "IN-KL", "IN-SK", "POL", "EST", "NOR", "QAT", "IN-BR", "M-DE004M")
            if k in by}
 
 # ---------- Quadrate: 1 Quadrat = 5 Mio. Menschen, sortiert nach BIP pro Kopf ----------
@@ -191,8 +191,17 @@ germany = {"kreise": kreise, "koeln_xy": centroid(KOELN), "osl_xy": centroid(OSL
            "w": round((15.1 - LON0) * COS * K), "h": round((LAT0 - 47.2) * K)}
 
 # ---------- „Wo stehst du?“: alle Einheiten der feinsten Ebene ----------
-search = [[u["name"], by[u["country"]]["name"] if u["country"] in by else u["country"], r(u["gdp_pc_ppp"]), u["kind"], u["id"]]
-          for u in sorted(fine, key=lambda u: -u["pop"]) if (u["pop"] or 0) >= 10000 and not u.get("nogeo")]
+# feinste Ebene plus Bundesländer/-staaten und ganze Länder, damit „Bayern“ oder „Texas“ gefunden werden;
+# größere Einheiten zuerst, so gewinnt bei gleichem Namen der Bundesstaat Texas vor Texas County
+seen, search = set(), []
+for u in sorted((u for u in U if u.get("pop") and u.get("gdp_pc_ppp") and not u.get("nogeo") and (u["pop"] or 0) >= 10000
+                 and (FINE in u["lv"] or 1 in u["lv"] or 0 in u["lv"]) and not u["id"].startswith(("M-", "R-"))),
+                key=lambda u: -u["pop"]):
+    if u["id"] in seen:
+        continue
+    seen.add(u["id"])
+    cn = by[u["country"]]["name"] if u["country"] in by else u["country"]
+    search.append([u["name"], cn if u["kind"] != "Land/Gebiet" else "", r(u["gdp_pc_ppp"]), u["kind"], u["id"], FINE in u["lv"]])
 
 D = {
     "meta": {"source": "Wohlstandsatlas, Daten-WG Knowledge Kitchen (Weltbank WDI 2024, IWF WEO, Eurostat und nationale Statistikämter)",

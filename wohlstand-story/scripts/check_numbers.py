@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 D = json.loads((ROOT / "data" / "story_data.json").read_text(encoding="utf-8"))
-TPL = (ROOT / "story_template.html").read_text(encoding="utf-8")
+TPL = (ROOT / "story_template.html").read_text(encoding="utf-8").replace("&nbsp;", " ")
 P, W, M = D["places"], D["world"], D["meta"]
 K, L = P["koeln"], P["osl"]
 C = W["compare"]
@@ -37,7 +37,7 @@ EXPECT = {
     # Akt 2
     "15.300": h(W["median"]), "Kerala": W["median_name"], "24.500": h(W["mean"]),
     "15,8 %": f"{de(W['poor_half_share'], 1)} %", "85,6 %": f"{de(L['world_below']['2'], 1)} %",
-    "3,4-Fachen": f"{de(W['osl_x_median'], 1)}-Fachen", "98,3 %": f"{de(K['world_below']['2'], 1)} %",
+    "3,4-mal": f"{de(W['osl_x_median'], 1)}-mal so hoch", "98,3 %": f"{de(K['world_below']['2'], 1)} %",
     "12,7 %": f"{de(W['between_share'], 1)} %",
     "85,1": de(min(L["world_below"].values()), 1), "85,8 %": f"{de(max(L['world_below'].values()), 1)} %",
     "99,3 %": f"{de(max(K['world_below'].values()), 1)} %",
@@ -49,7 +49,8 @@ EXPECT = {
     "Mississippi (53.000)": f"Mississippi</b> ({de(round(C['USA-MS']['gdp'], -3))})",
     "120 Mio. Chinesen": f"{de(W['cn_above_osl_mio'])} Mio.</span> Chinesen",
     "Shanghai (61.900)": f"Shanghai</b> ({h(C['CN-SH']['gdp'])})", "Peking (65.000)": f"Peking</b> ({h(C['CN-BJ']['gdp'])})",
-    "Indien 0": "keine einzige Region" if W["in_above_osl_mio"] == 0 else "!!",
+    "Indien 0": "keinen Bundesstaat über OSL" if W["in_above_osl_mio"] == 0 else "!!",
+    "Sikkim 33.600": f"Sikkim, kommt auf {h(C['IN-SK']['gdp'])}",
     "101 Mio.": f"{de(W['above_koeln_mio'])} Mio.", "Moskau (114.700)": f"Moskau</b> ({h(C['RU-MOS']['gdp'])})",
     # Akt 4
     "Metro 89.100": h(K["metro_gdp"]), "Preis 109": f"{de(K['price'])}</span>", "Preis 92": f"({de(L['price'])}</span>)" if False else f"(<span class=\"big l\">{de(L['price'])}</span>)",

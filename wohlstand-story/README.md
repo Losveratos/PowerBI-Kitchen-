@@ -13,6 +13,7 @@ Ergebnis: [`/zwei-heimaten.html`](../zwei-heimaten.html) · Markdown-Fassung: [`
 python3 -I wohlstand-story/scripts/build_story_data.py  # Atlasdaten → data/story_data.json
 python3 -I wohlstand-story/scripts/build_story_html.py  # story_template.html + JSON → ../zwei-heimaten.html
 python3 -I wohlstand-story/scripts/check_numbers.py     # prüft die im Text ausgeschriebenen Zahlen gegen story_data.json
+python3 -I wohlstand-story/scripts/build_md.py          # Text der Story → ../md/zwei-heimaten.md (danach scripts/build_llms_full.py)
 ```
 
 **Regel:** Jede Zahl der Story stammt aus `data/story_data.json`, und die entsteht ausschließlich per Skript aus
@@ -25,7 +26,7 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 wohlstand-story/
 ├── story_template.html   ← Seite (HTML/CSS/JS, Platzhalter /*__DATA__*/null für die Daten)
 ├── data/story_data.json  ← verdichtete Kennzahlen, Weltkurve, Quadrate, Deutschlandkarte (Kreispfade), Suchliste
-└── scripts/              ← build_story_data / build_story_html / check_numbers
+└── scripts/              ← build_story_data / build_story_html / check_numbers / build_md
 ```
 
 ## Kennzahlen und Definitionen
@@ -42,4 +43,4 @@ wohlstand-story/
 ## Quellen
 
 Weltbank WDI (2024), IWF WEO (Oktober 2026), Eurostat (NUTS-3, regionale Haushaltseinkommen), regionale Preisniveaus
-der deutschen Kreise; Grenzen: Eurostat GISCO. Details und alle weiteren Länder: Methodik des Wohlstandsatlas.
+der deutschen Kreise (Regionaler Preisindex 2022, BBSR/IW); Grenzen: Eurostat GISCO. Details und alle weiteren Länder: Methodik des Wohlstandsatlas.
