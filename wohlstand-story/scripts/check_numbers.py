@@ -17,6 +17,7 @@ P, W, M = D["places"], D["world"], D["meta"]
 K, L = P["koeln"], P["osl"]
 C = W["compare"]
 G = D["germany"]
+SQ_DE = sum(1 for q in D["squares"] if q[0] == "DEU")      # Quadrate, die in Akt 3 an Deutschland gehen
 
 
 def de(v, d=0):
@@ -49,7 +50,9 @@ EXPECT = {
     "rechtes Viertel": "nur das rechte Viertel" if 22 <= G["richest"]["world_below"] - G["poorest"]["world_below"] <= 28 else "!!",
     "Kreise im Atlas": f"letzten Platz der {K['de_n']} Kreise",
     # Akt 3
-    "1.624 Quadraten": f"{de(M['n_sq'])} Quadraten", "1.134 Mio.": f"{de(W['above_osl_mio'])} Mio.",
+    "1.624 Quadraten": f"{de(M['n_sq'])} Quadraten",
+    "Deutschland 84 Mio.": f"Deutschlands {de(P['deu']['pop'] / 1e6)} Mio. Menschen",
+    "knapp 17 Quadrate": f"knapp {SQ_DE} Quadrate" if 0 < SQ_DE - P["deu"]["pop"] / M["square"] < 0.5 else "!!", "1.134 Mio.": f"{de(W['above_osl_mio'])} Mio.",
     "USA (283 Mio.)": f"USA ({de(round(top['USA']))} Mio.)", "China (120 Mio.)": f"China ({de(round(top['CHN']))} Mio.)",
     "Polen (51.300)": f"Polen</b> ({h(C['POL']['gdp'])})", "Estland (50.400)": f"Estland</b> ({h(C['EST']['gdp'])})",
     "Mississippi (53.000)": f"Mississippi</b> ({de(round(C['USA-MS']['gdp'], -3))})",

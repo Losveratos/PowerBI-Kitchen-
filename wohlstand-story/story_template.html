@@ -150,6 +150,8 @@ a:hover{color:var(--ink)}
 
 /* ---------- Wo stehst du? ---------- */
 .you{max-width:1100px;margin:0 auto;padding:0 24px 40px}
+.you .fig{width:100%}
+#quiz-out:focus{outline:none}
 .you-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
 .you-field{position:relative;flex:1 1 300px}
 .you-field label{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-chart);margin-bottom:6px}
@@ -713,6 +715,7 @@ const act2 = (function(){
   go.addEventListener("click",()=>{ const g=+inp.value, d=Math.round(Math.abs(g-truth));
     const how = d<=3 ? "Das ist so gut wie ein Treffer." : `Deine Schätzung lag ${d} Prozentpunkte zu ${g<truth?"niedrig":"hoch"}.`;
     out.innerHTML=`Es sind <span class="big">${fmt(truth,1)}&nbsp;%</span>. ${how} Wo das auf der Kurve der Menschheit liegt, zeigt Akt 2.`;
+    out.tabIndex=-1; out.focus({preventScroll:true});
     inp.disabled=true; go.disabled=true; echo.textContent=`Deine Schätzung von vorhin: ${fmt(g)} %.`; act2.guess(g); });
 })();
 
@@ -797,8 +800,8 @@ const act4 = (function(){
     for(const e of idx()){ const r = (e.a===f||e.b===f)?0 : (e.a.startsWith(f)||e.b.startsWith(f))?1 : ((" "+e.a).includes(" "+f)||(" "+e.b).includes(" "+f))?2 : (f.length>=3&&(e.a.includes(f)||e.b.includes(f)))?3 : -1;
       if(r>=0 && hit[r].length<n) hit[r].push(e.s); }
     let res=[...new Set(hit.flat())].slice(0,n);
-    if(!res.length && f.length>=4){   // nichts gefunden: Tippfehler zulassen (bis zu zwei Zeichen)
-      const cand=[]; for(const e of idx()){ const d=Math.min(lev(f,e.a,2),lev(f,e.b,2),lev(f,e.a.slice(0,f.length),2)); if(d<=2) cand.push([d,e.s]); }
+    if(!res.length && f.length>=4){   // nichts gefunden: Tippfehler zulassen (ein Zeichen, ab sechs Zeichen zwei)
+      const max=f.length<6?1:2, cand=[]; for(const e of idx()){ const d=Math.min(lev(f,e.a,max),lev(f,e.b,max),lev(f,e.a.slice(0,f.length),max)); if(d<=max) cand.push([d,e.s]); }
       res=cand.sort((x,y)=>x[0]-y[0]).slice(0,n).map(c=>c[1]); }
     return res; }
 
@@ -806,7 +809,7 @@ const act4 = (function(){
   function field(i){
     const inp=document.getElementById(i?"you-b":"you-a"), ul=document.getElementById(i?"you-b-sug":"you-a-sug"); let items=[], act=-1;
     const close=()=>{ ul.hidden=true; inp.setAttribute("aria-expanded","false"); inp.removeAttribute("aria-activedescendant"); act=-1; };
-    const choose=s=>{ state[i]=s; inp.value=s[0]; close(); render(true); };
+    const choose=s=>{ state[i]=s; inp.value=s[0]; items=[]; close(); render(true); };
     const draw=()=>{ ul.innerHTML=""; items.forEach((s,j)=>{ const li=document.createElement("li"); li.setAttribute("role","option"); li.id=`${ul.id}-${j}`; li.setAttribute("aria-selected",String(j===act)); if(j===act) li.className="on";
         const b=document.createElement("b"), sp=document.createElement("span"); b.textContent=s[0]; sp.textContent=where(s); li.append(b,sp);
         li.addEventListener("pointerdown",ev=>{ ev.preventDefault(); choose(s); }); ul.appendChild(li); });
@@ -835,7 +838,7 @@ const act4 = (function(){
 
   function render(push){
     layer.innerHTML="";
-    const sel=state.map((s,i)=>s&&{s,i,p:pct(s[2]),v:Math.max(500,s[2])}).filter(Boolean), ids=sel.map(x=>x.s[4]);
+    const sel=state.map((s,i)=>s&&{s,i,p:pct(s[2]),v:Math.min(300000,Math.max(500,s[2]))}).filter(Boolean), ids=sel.map(x=>x.s[4]);
     // meine beiden Orte als feste Bezugspunkte
     [[P.osl,"l","OSL"],[P.koeln,"k","Köln"]].forEach(([pl,cls,nm])=>{ if(ids.includes(pl.id)) return; const x=C.X(pl.world_below["2"]), y=C.Y(pl.gdp);
       el("circle",{cx:x,cy:y,r:MOBILE?8:5,fill:"#1a1a19",stroke:COL[cls],"stroke-width":MOBILE?4:2.5},layer);
@@ -865,19 +868,21 @@ const act4 = (function(){
       out.innerHTML=`<div class="duo">${sel.map(card).join("")}</div><p class="duo-sum">${sum}</p>`;
     }
     links.forEach((a,i)=>{ const x=sel[i];
-      if(x){ a.hidden=false; a.textContent=`${x.s[0]} im Wohlstandsatlas ansehen →`; a.href=atlas(x.s); }
+      if(x && !(i===1 && ids[0]===ids[1])){ a.hidden=false; a.textContent=`${x.s[0]} im Wohlstandsatlas ansehen →`; a.href=atlas(x.s); }
       else if(i===0){ a.hidden=false; a.textContent="Im Wohlstandsatlas weiterschauen →"; a.href="wohlstandsatlas.html"; }
       else a.hidden=true; });
     share.hidden=!sel.length;
-    if(push) history.replaceState(null,"", sel.length? "#vs="+state.filter(Boolean).map(s=>s[4]).join(",") : location.pathname+location.search);
+    if(push) history.replaceState(null,"", sel.length? vsHash() : location.pathname+location.search);
   }
+  /* „#vs=ID1,ID2“; ist nur Ort 2 gesetzt, „#vs=,ID2“, damit er beim Öffnen wieder auf Platz 2 steht */
+  const vsHash=()=>"#vs="+(state[0]?state[0][4]:"")+(state[1]?","+state[1][4]:"");
   function fromHash(scroll){ const m=/^#vs=([^&]*)/.exec(location.hash); if(!m) return;
     let raw=m[1]; try{ raw=decodeURIComponent(raw); }catch(e){}
     const got=raw.split(",").slice(0,2).map(id=>byId.get(id)||null);
     state[0]=got[0]||null; state[1]=got[1]||null; fields[0].set(state[0]); fields[1].set(state[1]); render(false);
     if(scroll&&(state[0]||state[1])){ const h=document.getElementById("you-head"); try{ h.scrollIntoView({behavior:"instant",block:"start"}); }catch(e){ h.scrollIntoView(); } } }
   const LABEL=share.textContent;
-  share.addEventListener("click",async()=>{ const url=location.href; let ok=false;
+  share.addEventListener("click",async()=>{ const url=location.origin+location.pathname+location.search+vsHash(); let ok=false;
     try{ await navigator.clipboard.writeText(url); ok=true; }
     catch(e){ const t=document.createElement("textarea"); t.value=url; t.style.position="fixed"; t.style.opacity="0"; document.body.appendChild(t); t.select(); try{ ok=document.execCommand("copy"); }catch(_){} t.remove(); }
     share.textContent= ok?"Link kopiert":"Kopieren nicht möglich, bitte die Adresse oben nutzen"; setTimeout(()=>{ share.textContent=LABEL; },2200); });

@@ -66,6 +66,12 @@ const ok = (cond, msg) => { console.log((cond ? "✓ " : "✗ ") + msg); if (!co
   await page.goto(base + "#vs=DE212,IN-KL", { waitUntil: "load" }); await page.waitForTimeout(400);
   ok(await page.inputValue("#you-a") === "München" && await page.inputValue("#you-b") === "Kerala", "Link #vs=DE212,IN-KL belegt beide Orte vor");
   ok(Math.abs(await page.evaluate(() => document.getElementById("you-head").getBoundingClientRect().top)) < 4, "Link springt zum Vergleich");
+  await page.goto(base + "#vs=,UKI31", { waitUntil: "load" }); await page.waitForTimeout(400);
+  ok(await page.inputValue("#you-a") === "" && (await page.inputValue("#you-b")).startsWith("Camden"), "Link #vs=,UKI31 belegt nur Ort 2");
+  ok(await page.evaluate(() => { const c = [...document.querySelectorAll("#svg5 circle")].pop(); return +c.getAttribute("cy") - +c.getAttribute("r") >= 0; }), "Marke bleibt bei Werten über 300.000 Int.$ im Diagramm");
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.evaluate(() => { location.hash = "#akt-2"; }); await page.click("#you-share");
+  ok((await page.evaluate(() => navigator.clipboard.readText())).endsWith("zwei-heimaten.html#vs=,UKI31"), "„Link kopieren“ liefert den Vergleich, auch nach einem Sprung zu einem Abschnitt");
   await page.goto(base + "#vs=GIBTESNICHT", { waitUntil: "load" });
   ok(await page.inputValue("#you-a") === "", "unbekannte ID im Link wird ignoriert");
   await browser.close(); server.close();
