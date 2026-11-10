@@ -27,7 +27,7 @@ h1 em{font-style:normal;color:#f0b54a}
 (function(){
 const D=window.__STORY__; if(!D) throw new Error("story data missing");
 const nf=new Intl.NumberFormat("de-DE",{minimumFractionDigits:1,maximumFractionDigits:1});
-const line=(name,p)=>`${name} · Rang ${p.de_rank} von ${p.de_n}${name==="Köln"?" in Deutschland":""} · vor ${nf.format(p.world_below["2"])} % der Menschheit`;
+const line=(name,p)=>`${name} · Rang ${p.de_rank} von ${p.de_n}${name==="Köln"?" in Deutschland":""} · vor rund ${Math.round(p.world_below["2"])} % der Menschheit`;
 rk.textContent=line("Köln",D.places.koeln); rl.textContent=line("Oberspreewald-Lausitz",D.places.osl);
 const cx=cv.getContext("2d"), sq=D.squares, n=sq.length, COLS=58, ROWS=Math.ceil(n/COLS);
 const iO=sq.findIndex(s=>s[1]>=D.places.osl.gdp), iK=sq.findIndex(s=>s[1]>=D.places.koeln.gdp);

@@ -2,7 +2,8 @@
 
 Scrollytelling-Datenstory aus dem [Wohlstandsatlas](../wohlstandsatlas.html), erzählt aus der Sicht von Michael Tenner:
 Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander (Rang 28 und 307 von 400 Kreisen),
-in der Welt stehen beide weit oben. Geschwister-Stück zu `rhein-story.html` und `koelner-raser-story.html`
+in der Welt stehen beide weit oben. Grundaussage seit der Überarbeitung 11/2026: Wir vergleichen uns in Deutschland am oberen
+Ende der Welt, und zwischen den beiden Orten ist es enger, als die Rangliste aussieht. Geschwister-Stück zu `rhein-story.html` und `koelner-raser-story.html`
 (gleiches Designsystem, gleiche Scrolly-Mechanik).
 
 Ergebnis: [`/zwei-heimaten.html`](../zwei-heimaten.html) · Markdown-Fassung: [`/md/zwei-heimaten.md`](../md/zwei-heimaten.md)
@@ -10,7 +11,8 @@ Ergebnis: [`/zwei-heimaten.html`](../zwei-heimaten.html) · Markdown-Fassung: [`
 ## Pipeline
 
 ```bash
-python3 -I wohlstand-story/scripts/build_story_data.py  # Atlasdaten → data/story_data.json
+python3 -I wohlstand-story/scripts/person_model.py      # nur bei neuen Atlasdaten: Überschlag für einzelne Menschen → data/person_model.json (~1 min)
+python3 -I wohlstand-story/scripts/build_story_data.py  # Atlasdaten (+ person_model.json) → data/story_data.json
 python3 -I wohlstand-story/scripts/build_story_html.py  # story_template.html + JSON → ../zwei-heimaten.html
 python3 -I wohlstand-story/scripts/check_numbers.py     # prüft die im Text ausgeschriebenen Zahlen gegen story_data.json
 python3 -I wohlstand-story/scripts/build_md.py          # Text der Story → ../md/zwei-heimaten.md (danach scripts/build_llms_full.py)
@@ -24,8 +26,13 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 
 ## Bausteine der Seite
 
-- **Vier Akte** mit mitlaufender Grafik (Deutschlandkarte + Rangfolge, Kurve der Menschheit, 1.624 Quadrate, Balken).
-  Auf dem Handy (bis 760 px) zeichnet jede Grafik im Hochformat (viewBox 1060 × 1080 statt 1060 × 640).
+- **Vier Akte** mit mitlaufender Grafik (Deutschlandkarte + Rangfolge, Kurve der Menschheit, 1.624 Quadrate, Balken),
+  zusammen 19 Schritte. Unter 1020 px steht die Grafik oben fest und die Textkarten laufen darunter; bis 760 px zeichnet
+  jede Grafik im Hochformat (viewBox 1060 × 1080 statt 1060 × 640).
+- **„Eng“ an drei Stellen:** Akt 1 / Schritt 4 (61 Kreise höchstens 5 % von OSL entfernt), Akt 4 / Schritt 4 (Konsum der
+  Haushalte: in der Welt keine 2 Punkte auseinander), Akt 4 / Schritt 5 (Überschlag für einzelne Menschen).
+- **„Und früher?“** (`#zeit`): Deutschland unter den Ländern 2000 bis 2024 aus den Zeitreihen des Atlas (reales BIP pro Kopf,
+  alle Jahre mit der Bevölkerung von 2024 gewichtet): gleicher Platz, schrumpfender Vorsprung zur Mitte der Welt.
 - **Schätzfrage** vor Akt 2 (`#quiz`): letzter Platz der deutschen Kreise im Weltmaßstab. Die Auflösung und die eigene
   Schätzung erscheinen in Akt 2 / Schritt 5 auf der Kurve (Band „alle 400 Kreise“).
 - **„Wo steht deine Heimat?“** (`#you`): ein oder zwei eigene Orte auf der Kurve, mit Faktor und Anteil der Menschheit
@@ -41,8 +48,19 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 wohlstand-story/
 ├── story_template.html   ← Seite (HTML/CSS/JS, Platzhalter /*__DATA__*/null für die Daten)
 ├── data/story_data.json  ← verdichtete Kennzahlen, Weltkurve, Quadrate, Deutschlandkarte (Kreispfade), Suchliste
-└── scripts/              ← build_story_data / build_story_html / check_numbers / build_md / check_page
+└── scripts/              ← person_model / build_story_data / build_story_html / check_numbers / build_md / check_page
 ```
+
+## Regeln für den Text
+
+- **Regionen, nicht Menschen:** Prozentwerte zählen Menschen nach dem Durchschnitt ihrer Region. Also „Regionen, in denen
+  … wohnen“, nie „… % der Menschen sind ärmer“.
+- **Rundung:** ganze Prozent mit „rund/knapp/über“ (85,6 % → „rund 86 %“), Werte in Int.$ mit drei geltenden Stellen wie im
+  Atlas (114.620 → 115.000). Eine Nachkommastelle nur in der Gegenprobe und in „Zum Nachprüfen“. Grund: ±5 % beim Wert eines
+  kleinen Kreises verschieben den Anteil um rund einen Punkt und den Rang um 30 Plätze.
+- **Überschlag:** Aus `person_model.json` kommen nur Aussagen in den Text, die in allen Rechenvarianten gleich ausgehen, mit
+  der vorsichtigeren Grenze der Spanne.
+- **Farben:** Amber = Köln, Blau = OSL, Rot nur für den mittleren Menschen.
 
 ## Kennzahlen und Definitionen
 

@@ -182,6 +182,9 @@ a:hover{color:var(--ink)}
 /* ---------- Wo stehst du? ---------- */
 .you{max-width:1100px;margin:0 auto;padding:0 24px 40px}
 .you .fig{width:100%}
+.zeit{max-width:1100px;margin:0 auto;padding:0 24px 30px}
+.zeit .fig{width:100%}
+.zeit-src{font-family:var(--mono);font-size:11.5px;color:var(--muted-chart);margin-top:10px;line-height:1.6}
 #quiz-out:focus{outline:none}
 .you-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px}
 .you-field{position:relative;flex:1 1 300px}
@@ -261,6 +264,8 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   .hero .home-pill{top:14px;left:12px;font-size:11px;padding:6px 12px}
   .you{padding-left:12px;padding-right:12px}
   .you .fig{width:100%;padding:0}
+  .zeit{padding-left:12px;padding-right:12px}
+  .zeit .fig{padding:0}
   #tip{white-space:normal;max-width:calc(100vw - 16px)}
 }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{animation:none!important;transition:none!important} }
@@ -274,6 +279,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   <a href="#akt-2"><span>Akt 2 · Die Welt</span></a>
   <a href="#akt-3"><span>Akt 3 · Wer noch da steht</span></a>
   <a href="#akt-4"><span>Akt 4 · Der Haken</span></a>
+  <a href="#zeit"><span>Und früher?</span></a>
   <a href="#you-head"><span>Deine Orte</span></a>
 </nav>
 
@@ -532,6 +538,22 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   </div>
 </section>
 
+<!-- ================= UND FRÜHER ================= -->
+<section class="prose" style="padding-bottom:20px" id="zeit">
+  <div class="kicker">Und früher?</div>
+  <h2>Seit 2000 auf demselben Platz, mit schrumpfendem Vorsprung</h2>
+  <p>Bisher ging es um ein einziges Jahr. Für ganze Länder reicht der Atlas bis 2000 zurück, in festen Preisen.
+  Deutschland steht heute dort, wo es damals stand: unter den Ländern mit mehr als 5 Mio. Einwohnern auf Platz 13, 2000 wie 2024.
+  Rund 93&nbsp;% der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, im Jahr 2000 waren es 92&nbsp;%.</p>
+  <p>Geschrumpft ist der Abstand zur Mitte. Im Jahr 2000 war Deutschlands BIP pro Kopf gut 12-mal so hoch wie im Land des mittleren Menschen, heute ist es gut 4-mal so hoch.
+  Die Mitte der Welt hat aufgeholt, allen voran China. Und seit 2019 ist Deutschland nicht mehr gewachsen, während die USA um knapp 10&nbsp;% und Polen um 18&nbsp;% zugelegt haben.</p>
+  <p>„Immer noch oben“ stimmt also. „So weit vorn wie früher“ stimmt nicht.</p>
+</section>
+<section class="zeit">
+  <div class="fig static"><svg id="svg6" viewBox="0 0 1060 360" role="img" aria-label="Reales BIP pro Kopf 2000 bis 2024: Deutschland und das Land des mittleren Menschen. Der Abstand schrumpft von gut dem Zwölffachen auf gut das Vierfache."></svg></div>
+  <p class="zeit-src">Reales BIP pro Kopf in Int.$ von 2021 · 187 Länder mit durchgehender Reihe (98&nbsp;% der Weltbevölkerung) · alle Jahre mit der Bevölkerung von 2024 gewichtet · logarithmische Achse</p>
+</section>
+
 <!-- ================= EPILOG ================= -->
 <section class="prose">
   <div class="kicker">Was bleibt</div>
@@ -541,8 +563,8 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   Beim Konsum der Haushalte stehen beide Regionen in der Welt keine 2 Punkte auseinander.<!--PERSONEN-FAZIT-->
   Und überschlägt man, wo die einzelnen Menschen stehen, liegt innerhalb von OSL mehr Abstand zwischen Arm und Reich als zwischen dem mittleren Menschen dort und dem in Köln.</p>
   <p>Das heißt nicht, dass es den Abstand nicht gibt. Die Lausitz steckt mitten im Ausstieg aus der Braunkohle, und Faktor 2,2 bleibt Faktor 2,2,
-  auch wenn Pendler und Preise ihn kleiner machen.</p>
-  <p>Aber es verschiebt den Maßstab. Selbst im letzten der 400 Kreise ist das BIP pro Kopf höher als in den Regionen, in denen rund 73&nbsp;% der Menschheit leben.
+  auch wenn Pendler und Preise ihn kleiner machen. Und wer über den Stillstand seit 2019 klagt, hat die Zahlen auf seiner Seite.</p>
+  <p>Aber es verschiebt den Maßstab. Deutschland steht unter den größeren Ländern seit 2000 auf demselben Platz. Selbst im letzten der 400 Kreise ist das BIP pro Kopf höher als in den Regionen, in denen rund 73&nbsp;% der Menschheit leben.
   Der Kreis, den Rankings „abgehängt“ nennen, steht auf dem Niveau Japans, Polens und Estlands.
   Und nach dem Überschlag aus Akt 4 stehen fast alle Menschen in Deutschland über der Mitte der Welt.
   Wer in Deutschland über seinen Tabellenplatz klagt, klagt über einen Platz am oberen Ende der Welt. Das gilt auch für mich.</p>
@@ -953,6 +975,30 @@ const act4 = (function(){
     else txt(g,kx+70,ky,kt.join(" · "),{class:"sm"});
   }
   return {step(i){ fig.dataset.step=i; }};
+})();
+
+/* ================================================================
+   Und früher? Deutschland und das Land des mittleren Menschen, 2000 bis 2024 (reales BIP pro Kopf)
+================================================================ */
+(function zeit(){
+  const svg=document.getElementById("svg6"), T=DATA.trend; if(!svg||!T) return;
+  const H=MOBILE?640:360; svg.setAttribute("viewBox",`0 0 1060 ${H}`);
+  const x0=MOBILE?150:110, x1=MOBILE?700:800, y0=MOBILE?40:30, y1=H-(MOBILE?70:46), lo=3000, hi=80000;
+  const X=y=>x0+(y-T.start)/(T.end-T.start)*(x1-x0), Y=v=>y1-(Math.log(v)-Math.log(lo))/(Math.log(hi)-Math.log(lo))*(y1-y0);
+  [5000,10000,20000,50000].forEach(v=>{ el("line",{x1:x0,x2:x1,y1:Y(v),y2:Y(v),class:"tick"},svg); txt(svg,x0-8,Y(v)+(MOBILE?9:4),fmt(v/1000)+" Tsd.",{"text-anchor":"end",class:"sm"}); });
+  [2000,2005,2010,2015,2020,T.end].forEach(y=>txt(svg,X(y),y1+(MOBILE?36:20),String(y),{"text-anchor":"middle",class:"sm"}));
+  const w=MOBILE?4:2.5, line=(arr,col)=>el("path",{d:arr.map((v,i)=>(i?"L":"M")+X(T.start+i).toFixed(1)+","+Y(v).toFixed(1)).join(""),fill:"none",stroke:col,"stroke-width":w,"stroke-linejoin":"round"},svg);
+  // Abstand am Anfang und am Ende: gestrichelte Senkrechte mit dem Faktor
+  const mal=x=>(x-Math.round(x)>=0?"gut ":"knapp ")+Math.round(x)+"-mal";
+  [[T.start,T.first,"start",10],[T.end,T.last,"end",-10]].forEach(([y,st,anchor,dx])=>{
+    el("line",{x1:X(y),x2:X(y),y1:Y(st.deu),y2:Y(st.med),stroke:COL.mut,"stroke-width":1.5,"stroke-dasharray":"3 4"},svg);
+    txt(svg,X(y)+dx,(Y(st.deu)+Y(st.med))/2+(MOBILE?10:4),mal(st.x_med),{class:"lab-strong halo","text-anchor":anchor}); });
+  line(T.med,COL.m); line(T.deu,COL.ink);
+  const last=T.deu.length-1;
+  [[T.deu,COL.ink,"Deutschland","lab-strong"],[T.med,COL.m,"Mitte der Welt","t-m"]].forEach(([arr,col,name,cls])=>{
+    el("circle",{cx:X(T.start),cy:Y(arr[0]),r:MOBILE?7:4.5,fill:col},svg); el("circle",{cx:X(T.end),cy:Y(arr[last]),r:MOBILE?7:4.5,fill:col},svg);
+    if(MOBILE){ txt(svg,x1+16,Y(arr[last])-4,name,{class:cls}); txt(svg,x1+16,Y(arr[last])+30,r3(arr[last]),{class:cls+" sm"}); }
+    else txt(svg,x1+14,Y(arr[last])+4,`${name} · ${r3(arr[last])} Int.$`,{class:cls}); });
 })();
 
 /* ================================================================

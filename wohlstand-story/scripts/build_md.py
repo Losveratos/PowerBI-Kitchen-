@@ -53,7 +53,7 @@ except Exception:
 
 md = f"""# Zwei Heimaten. Eine Welt.
 
-> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang {P['koeln']['de_rank']} und Rang {P['osl']['de_rank']} von {P['osl']['de_n']} Kreisen. In der Welt stehen beide weit oben: {str(P['osl']['world_below']['2']).replace('.', ',')} % bzw. {str(P['koeln']['world_below']['2']).replace('.', ',')} % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf.
+> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang {P['koeln']['de_rank']} und Rang {P['osl']['de_rank']} von {P['osl']['de_n']} Kreisen. In der Welt stehen beide weit oben: Rund {round(P['osl']['world_below']['2'])} % bzw. rund {round(P['koeln']['world_below']['2'])} % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis ({D['germany']['poorest']['name']}) liegt bei rund {round(D['germany']['poorest']['world_below'])} %. Deutschland steht unter den Ländern seit {D['trend']['start']} auf demselben Platz, der Vorsprung zur Mitte der Welt ist aber vom {str(D['trend']['first']['x_med']).replace('.', ',')}-Fachen auf das {str(D['trend']['last']['x_med']).replace('.', ',')}-Fache geschrumpft.
 
 - **Quelle:** {URL}
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
@@ -65,6 +65,8 @@ md = f"""# Zwei Heimaten. Eine Welt.
 
 ## Kennzahlen
 
+Genaue Rechenwerte. Im Text der Story stehen sie gerundet (ganze Prozent, Int.$ mit drei geltenden Stellen), weil sich kleine Kreise nicht auf den Zehntelpunkt messen lassen.
+
 | Kennzahl | Köln | Oberspreewald-Lausitz |
 |---|---|---|
 {rows}
@@ -75,7 +77,11 @@ Anteil der Menschheit in Regionen mit niedrigerem BIP pro Kopf, je Ebene des Atl
 |---|---|---|
 {lv}
 
-Weltdurchschnitt {W['mean']:,} Int.$, mittlerer Mensch {W['median']:,} Int.$ ({W['median_name']}); zwischen OSL und Köln leben {str(W['between_share']).replace('.', ',')} % der Menschheit.
+Weltdurchschnitt {W['mean']:,} Int.$, mittlerer Mensch {W['median']:,} Int.$ ({W['median_name']}); zwischen OSL und Köln liegen Regionen mit {str(W['between_share']).replace('.', ',')} % der Menschheit.
+
+Wie eng es ist: {W['tight']['n_near5']} andere Kreise liegen höchstens 5 % von OSL entfernt (Rang {W['tight']['rank_plus5']} bis {W['tight']['rank_minus5']} bei ±5 %); beim Konsum der Haushalte stehen die größeren Regionen in der Welt bei {str(P['koeln']['world_below_hh']).replace('.', ',')} % und {str(P['osl']['world_below_hh']).replace('.', ',')} %.
+
+Deutschland unter den Ländern (reales BIP pro Kopf, Länder über 5 Mio. Einwohner): Platz {D['trend']['first']['rank5']} im Jahr {D['trend']['start']}, Platz {D['trend']['last']['rank5']} im Jahr {D['trend']['end']}; seit 2019 {str(D['trend']['since2019']['DEU']).replace('.', ',').replace('-', '−')} %, USA +{str(D['trend']['since2019']['USA']).replace('.', ',')} %, Polen +{str(D['trend']['since2019']['POL']).replace('.', ',')} %.
 """.replace("24,505", "24.505").replace("15,265", "15.265")
 md += "\n" + "\n".join(out).replace("\n\n\n", "\n\n") + "\n"
 (REPO / "md" / "zwei-heimaten.md").write_text(md, encoding="utf-8")

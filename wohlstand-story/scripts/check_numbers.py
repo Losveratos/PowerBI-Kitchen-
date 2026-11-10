@@ -24,6 +24,7 @@ PS = D["persons"]["span"]                                  # Spannen der Modellr
 PMJ = json.loads((ROOT / "data" / "person_model.json").read_text(encoding="utf-8"))
 _ov = PMJ["ergebnisse_hauptvariante"]["koeln_below_osl_median"]
 OV = {"gdp": _ov["spanne_gdp"], "hh": _ov["spanne_hh"]}    # Anteil der Kölner unter dem mittleren Menschen in OSL
+TR = D["trend"]                                            # Deutschland unter den Ländern, 2000 bis 2024
 SQ_DE = sum(1 for q in D["squares"] if q[0] == "DEU")      # Quadrate, die in Akt 3 an Deutschland gehen
 
 
@@ -103,6 +104,17 @@ EXPECT = {
     "fast alle über der Mitte": "fast alle Menschen in Deutschland über der Mitte der Welt" if PS["deu_above_world_median"][0] > 97 else "!!",
     "Überlappung BIP 6–14 %": f"{rnd(OV['gdp'][0])} bis {rnd(OV['gdp'][1])} % der Kölner", "Überlappung Konsum 44–53 %": f"mit dem Konsum {rnd(OV['hh'][0])} bis {rnd(OV['hh'][1])} %",
     "ärmere Hälfte 9–14 %": f"{rnd(PMJ['plausibilitaet']['aermere_haelfte_spanne'][0])} bis {rnd(PMJ['plausibilitaet']['aermere_haelfte_spanne'][1])} % des Gesamten",
+    # Und früher? (Länder, reales BIP pro Kopf 2000–2024)
+    "Platz 13, 2000 wie 2024": f"auf Platz {TR['last']['rank5']}, {TR['start']} wie {TR['end']}" if TR["first"]["rank5"] == TR["last"]["rank5"] else "!!",
+    "93 % / 92 %": f"Rund {rnd(TR['last']['below'])} % der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, im Jahr {TR['start']} waren es {rnd(TR['first']['below'])} %",
+    "gut 12-mal": f"gut {int(TR['first']['x_med'])}-mal so hoch wie im Land des mittleren Menschen" if TR["first"]["x_med"] % 1 < 0.5 else "!!",
+    "gut 4-mal": f"heute ist es gut {int(TR['last']['x_med'])}-mal so hoch" if TR["last"]["x_med"] % 1 < 0.5 else "!!",
+    "China holt auf": "allen voran China" if TR["first"]["med_name"] == "China" and TR["since2000"]["CHN"] > 3 * TR["since2000"]["POL"] else "!!",
+    "seit 2019 nicht gewachsen": "seit 2019 ist Deutschland nicht mehr gewachsen" if TR["since2019"]["DEU"] <= 0.5 else "!!",
+    "USA knapp 10 %, Polen 18 %": f"die USA um knapp {math.ceil(TR['since2019']['USA'])} % und Polen um {rnd(TR['since2019']['POL'])} %" if TR["since2019"]["USA"] % 1 >= 0.5 else "!!",
+    "187 Länder, 98 %": f"{TR['n']} Länder mit durchgehender Reihe ({rnd(TR['pop_share'])} % der Weltbevölkerung)",
+    "gleicher Platz (Fazit)": "seit 2000 auf demselben Platz" if TR["first"]["rank5"] == TR["last"]["rank5"] and TR["start"] == 2000 else "!!",
+    "Stillstand seit 2019 (Fazit)": "Stillstand seit 2019" if abs(TR["since2019"]["DEU"]) < 1 else "!!",
     # Fazit, Grenzen, Methode
     "279 Plätze": f"{de(L['de_rank'] - K['de_rank'])} Plätze", "61 Kreise (Fazit)": f"liegen {T['n_near5']} Kreise höchstens 5 %",
     "73 % (Fazit)": f"rund {rnd(G['poorest']['world_below'])} % der Menschheit leben",

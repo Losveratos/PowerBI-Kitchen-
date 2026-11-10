@@ -26,10 +26,10 @@ def load_atlas():
     i = s.index("window.WA={topo:") + len("window.WA={topo:")
     j = s.index(",\ndata:")
     k = s.index(",\nts:")
-    return json.loads(s[i:j]), json.loads(s[j + len(",\ndata:"):k])
+    return json.loads(s[i:j]), json.loads(s[j + len(",\ndata:"):k]), json.loads(s[k + len(",\nts:"):s.rindex("}")])
 
 
-topo, data = load_atlas()
+topo, data, ts = load_atlas()
 U = data["units"]
 by = {u["id"]: u for u in U}
 lvl = lambda l: [u for u in U if l in u["lv"] and u.get("pop")]
@@ -244,6 +244,35 @@ for u in sorted((u for u in U if u.get("pop") and u.get("gdp_pc_ppp") and not u.
     cn = by[u["country"]]["name"] if u["country"] in by else u["country"]
     search.append([u["name"], cn if u["kind"] != "Land/Gebiet" else "", r(u["gdp_pc_ppp"]), u["kind"], u["id"], FINE in u["lv"]])
 
+# ---------- Und früher? Deutschland unter den Ländern der Welt, 2000 bis 2024 ----------
+# Reales BIP pro Kopf (Int.$ von 2021) aus den Länder-Zeitreihen des Atlas. Bevölkerung je Jahr hat der Atlas nicht,
+# deshalb werden alle Jahre mit der Bevölkerung von 2024 gewichtet. Nur Länder mit durchgehender Reihe.
+TS, Y0 = ts["series"], ts["start"]
+cty = {u["id"]: u for u in lvl(0)}
+full = [c for c in TS if c in cty and all(v is not None for v in TS[c])]
+full_pop = sum(cty[c]["pop"] for c in full)
+YN = Y0 + len(TS["DEU"]) - 1
+
+
+def year_stats(y):
+    i, de = y - Y0, TS["DEU"][y - Y0]
+    acc, med = 0.0, None
+    for c in sorted(full, key=lambda c: TS[c][i]):
+        acc += cty[c]["pop"]
+        if acc >= full_pop / 2:
+            med = TS[c][i]; med_name = cty[c]["name"]; break
+    return {"deu": r(de), "med": r(med), "med_name": med_name, "x_med": r(de / med, 1),
+            "below": r(sum(cty[c]["pop"] for c in full if TS[c][i] < de) / full_pop * 100, 1),
+            "rank5": sum(1 for c in full if TS[c][i] > de and cty[c]["pop"] > 5e6) + 1}
+
+
+grow = lambda c, a, b: r((TS[c][b - Y0] / TS[c][a - Y0] - 1) * 100, 1)
+trend = {"start": Y0, "end": YN, "n": len(full), "pop_share": r(full_pop / WORLD * 100),
+         "deu": [r(v) for v in TS["DEU"]], "med": [year_stats(y)["med"] for y in range(Y0, YN + 1)],
+         "first": year_stats(Y0), "last": year_stats(YN),
+         "since2019": {c: grow(c, 2019, YN) for c in ("DEU", "USA", "POL")},
+         "since2000": {c: grow(c, Y0, YN) for c in ("DEU", "USA", "POL", "CHN")}}
+
 # ---------- Überschlag: wo die einzelnen Menschen stehen (Modellrechnung aus person_model.py) ----------
 # Nur Größen, die in allen Rechenvarianten in dieselbe Richtung gehen, mit ihrer Spanne über die Varianten.
 PM = ROOT / "data" / "person_model.json"
@@ -289,12 +318,14 @@ D = {
 }
 if persons:
     D["persons"] = persons
+D["trend"] = trend
 OUT.parent.mkdir(parents=True, exist_ok=True)
 OUT.write_text(json.dumps(D, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 print(f"✓ {OUT.relative_to(REPO)} · {OUT.stat().st_size / 1024:.0f} KB · {len(kreise)} Kreise · {n_sq} Quadrate · {len(search)} Orte")
 for k in ("koeln", "osl"):
     p = P[k]; print(f"  {p['name']}: {p['gdp']} Int.$, Welt darunter {p['world_below']}, DE-Rang {p.get('de_rank')}/{p.get('de_n')}")
 print("  eng:", tight, "| ungeteilte Länder", len(whole), "von", len(lvl(0)), "| ±10 % um OSL", r(near10 / 1e6), "Mio.")
+print("  Zeit:", trend["first"], "→", trend["last"], trend["since2019"], trend["n"], "Länder,", trend["pop_share"], "% der Welt")
 print("  Personen-Überschlag:", persons and persons["span"])
 print("  DE-Spanne", germany["poorest"], germany["richest"])
 print("  Median", D["world"]["median"], D["world"]["median_name"], "| Mittel", D["world"]["mean"], "| zwischen", D["world"]["between_share"],
