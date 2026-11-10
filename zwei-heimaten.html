@@ -87,6 +87,8 @@ b{color:var(--ink)}
 .step-card h3{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--ink);margin-bottom:8px;line-height:1.25}
 .step-card p{font-size:14.5px;line-height:1.6}
 .step-card p+p{margin-top:8px}
+.step-card a{text-decoration-color:var(--muted);text-underline-offset:3px}
+.step-card a:hover{text-decoration-color:var(--amber-soft)}
 .big{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--ink)}
 .src{display:block;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .conf{display:inline-block;font-family:var(--mono);font-size:10px;line-height:1;padding:2px 5px;border:1px solid var(--ring);color:var(--ink-2);margin-left:4px;vertical-align:1px;cursor:help}
@@ -164,6 +166,9 @@ a:hover{color:var(--ink)}
 .you-sug li b{font-weight:600}
 .you-sug li span{font-family:var(--mono);font-size:11.5px;color:var(--muted-chart);text-align:right}
 .you-sug li:hover,.you-sug li.on{background:rgba(194,131,26,.22)}
+.you-ex{font-family:var(--mono);font-size:12px;color:var(--muted-chart);display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+.you-ex button{font:inherit;color:var(--ink-2);background:none;border:1px solid var(--ring);border-radius:999px;padding:5px 12px;cursor:pointer}
+.you-ex button:hover{color:var(--ink);border-color:var(--amber)}
 .you-out{font-size:16px;color:var(--ink-2);min-height:3.2em;margin:4px 0 16px}
 .duo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .duo-card{background:var(--surface);border:1px solid var(--ring);border-top:2px solid var(--red);padding:16px 18px}
@@ -221,6 +226,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   .scrolly .fig svg{max-height:max(250px,calc(58svh - 122px))}
   .fig-title .s{font-size:11px}
   .fig-title .wide{display:none}
+  @media (max-height:700px){ .scrolly .fig-title .s{display:none} .scrolly .fig svg{max-height:max(250px,calc(58svh - 70px))} }
   .duo-v{font-size:21px}
   .step{min-height:100svh}
   .hero-eyebrow{letter-spacing:.12em;font-size:11px}
@@ -376,7 +382,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <h3>Und der letzte Platz in Deutschland?</h3>
       <p>Die Südwestpfalz steht in Deutschland auf Rang 400. In der Welt liegt sie bei <span class="big">73,4&nbsp;%</span>.
       Ganz vorn steht Wolfsburg bei <span class="big">99,5&nbsp;%</span>.</p>
-      <p>Alle 400 Kreise zusammen belegen auf der Kurve also nur das rechte Viertel.
+      <p>Alle 400 Kreise zusammen belegen auf der Kurve also nur gut ein Viertel, ganz rechts.
       Der ganze deutsche Vergleich, vom ersten bis zum letzten Platz, spielt sich dort ab.</p>
       <p id="quiz-echo"></p>
     </div></div>
@@ -405,13 +411,13 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <h3>Reicher als OSL: 1,1 Mrd. Menschen</h3>
       <p>In Blau alle Menschen, deren Region ein höheres BIP pro Kopf hat als <span class="l">OSL</span>:
       <span class="big l">1.134 Mio.</span> Am meisten in den USA (283 Mio.), dann China (120 Mio.), Deutschland, Japan, Frankreich.</p>
-      <p>Auf der Stufe von OSL stehen ganze Länder wie <b>Polen</b> (51.300) und <b>Estland</b> (50.400), dazu der US-Bundesstaat <b>Mississippi</b> (53.000).</p>
+      <p>Auf der Stufe von OSL stehen ganze Länder wie <a href="wohlstandsatlas.html#POL--m0--l2--z1"><b>Polen</b></a> (51.300) und <a href="wohlstandsatlas.html#EST--m0--l2--z1"><b>Estland</b></a> (50.400), dazu der US-Bundesstaat <a href="wohlstandsatlas.html#USA-MS--m0--l2--z1"><b>Mississippi</b></a> (53.000).</p>
     </div></div>
     <div class="step" data-idx="2"><div class="step-card" style="border-top-color:var(--red)">
       <span class="n">Akt 3 / Schritt 3</span>
       <h3>Shanghai liegt vor OSL</h3>
       <p>In Rot China: <span class="big">120 Mio.</span> Chinesen leben in Städten und Präfekturen, die reicher sind als OSL,
-      darunter <b>Shanghai</b> (61.900) und <b>Peking</b> (65.000).<span class="conf b" title="hochgerechnet; Chinas Regionaldaten gelten zudem als weniger verlässlich">B</span></p>
+      darunter <a href="wohlstandsatlas.html#CN-SH--m0--l2--z1"><b>Shanghai</b></a> (61.900) und <a href="wohlstandsatlas.html#CN-BJ--m0--l2--z1"><b>Peking</b></a> (65.000).<span class="conf b" title="hochgerechnet; Chinas Regionaldaten gelten zudem als weniger verlässlich">B</span></p>
       <p>Indien dagegen hat keinen Bundesstaat über OSL. Der reichste, Sikkim, kommt auf 33.600 Int.$.</p>
     </div></div>
     <div class="step" data-idx="3"><div class="step-card">
@@ -419,7 +425,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <h3>Reicher als Köln: 101 Mio.</h3>
       <p>In Gelb, ganz oben rechts: Menschen in Regionen reicher als <span class="k">Köln</span>,
       zusammen <span class="big k">101 Mio.</span>, gut 1&nbsp;% der Menschheit: Singapur, Mailand, Paris, Warschau, Hamburg, viele US-Großstädte und die russischen Öl- und Gasbezirke.</p>
-      <p>Köln steht gleichauf mit <b>Moskau</b> (114.700) und zwischen <b>Norwegen</b> und <b>Katar</b>.</p>
+      <p>Köln steht gleichauf mit <a href="wohlstandsatlas.html#RU-MOS--m0--l2--z1"><b>Moskau</b></a> (114.700) und zwischen <a href="wohlstandsatlas.html#NOR--m0--l2--z1"><b>Norwegen</b></a> und <a href="wohlstandsatlas.html#QAT--m0--l2--z1"><b>Katar</b></a>.</p>
     </div></div>
   </div>
 </section>
@@ -493,6 +499,10 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <input id="you-b" type="text" placeholder="z. B. Texas, Polen, Leipzig …" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="you-b-sug">
       <ul class="you-sug" id="you-b-sug" role="listbox" aria-label="Vorschläge für Ort 2" hidden></ul></div>
   </div>
+  <p class="you-ex">Zum Ausprobieren:
+    <button type="button" data-vs="DE212,DED51">München und Leipzig</button>
+    <button type="button" data-vs="DE2,USA-TX">Bayern und Texas</button>
+    <button type="button" data-vs="CN310000,IN-KL">Shanghai und Kerala</button></p>
   <div class="you-out" id="you-out" aria-live="polite"></div>
   <div class="fig static"><svg id="svg5" viewBox="0 0 1060 300" role="img" aria-label="Deine Orte auf der Kurve der Menschheit"></svg></div>
   <p class="you-actions"><button class="cta" id="you-share" type="button" hidden>Link zu diesem Vergleich kopieren</button>
@@ -695,7 +705,9 @@ const act2 = (function(){
   el("circle",{cx:xl,cy:C.Y(lo.gdp),r:MOBILE?8:5,fill:"#fff"},de); el("circle",{cx:xr,cy:C.Y(hi.gdp),r:MOBILE?8:5,fill:"#fff"},de);
   txt(de,xl-10,C.Y(lo.gdp)-(MOBILE?18:14),`${lo.name} · ${fmt(lo.world_below,1)} %`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
   txt(de,xr-8,B.y0+(MOBILE?46:18),`${hi.name} · ${fmt(hi.world_below,1)} %`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
-  txt(de,MOBILE?xr-6:xl+8,yb-(MOBILE?84:70),`Deutschland: alle ${GE.kreise.length} Kreise`,{class:"lab-strong halo"+sm,"text-anchor":MOBILE?"end":"start"});
+  if(MOBILE) txt(de,xr-6,yb-84,`Deutschland: alle ${GE.kreise.length} Kreise`,{class:"lab-strong halo sm","text-anchor":"end"});
+  else { el("path",{d:`M${xl},${yb+3} v5 H${xr} v-5`,fill:"none",stroke:"#fff","stroke-width":1.5},de);
+    txt(de,(xl+xr)/2,yb+22,`${GE.kreise.length} deutsche Kreise`,{class:"lab-strong halo","text-anchor":"middle"}); }
   // Schätzung aus der Schätzfrage, falls abgegeben
   const gm=el("g",{class:"o4"},svg);
   function guess(v){ gm.innerHTML=""; if(v==null) return; const x=C.X(v), s=`deine Schätzung: ${fmt(v)} %`, half=tw(s,true)/2+6;
@@ -876,10 +888,12 @@ const act4 = (function(){
   }
   /* „#vs=ID1,ID2“; ist nur Ort 2 gesetzt, „#vs=,ID2“, damit er beim Öffnen wieder auf Platz 2 steht */
   const vsHash=()=>"#vs="+(state[0]?state[0][4]:"")+(state[1]?","+state[1][4]:"");
+  function setBoth(ids, push){ const got=ids.slice(0,2).map(id=>byId.get(id)||null);
+    state[0]=got[0]||null; state[1]=got[1]||null; fields[0].set(state[0]); fields[1].set(state[1]); render(push); }
+  document.querySelectorAll(".you-ex button").forEach(b=>b.addEventListener("click",()=>setBoth(b.dataset.vs.split(","),true)));
   function fromHash(scroll){ const m=/^#vs=([^&]*)/.exec(location.hash); if(!m) return;
     let raw=m[1]; try{ raw=decodeURIComponent(raw); }catch(e){}
-    const got=raw.split(",").slice(0,2).map(id=>byId.get(id)||null);
-    state[0]=got[0]||null; state[1]=got[1]||null; fields[0].set(state[0]); fields[1].set(state[1]); render(false);
+    setBoth(raw.split(","),false);
     if(scroll&&(state[0]||state[1])){ const h=document.getElementById("you-head"); try{ h.scrollIntoView({behavior:"instant",block:"start"}); }catch(e){ h.scrollIntoView(); } } }
   const LABEL=share.textContent;
   share.addEventListener("click",async()=>{ const url=location.origin+location.pathname+location.search+vsHash(); let ok=false;

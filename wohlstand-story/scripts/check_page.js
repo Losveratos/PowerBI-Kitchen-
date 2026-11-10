@@ -72,6 +72,8 @@ const ok = (cond, msg) => { console.log((cond ? "✓ " : "✗ ") + msg); if (!co
   await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
   await page.evaluate(() => { location.hash = "#akt-2"; }); await page.click("#you-share");
   ok((await page.evaluate(() => navigator.clipboard.readText())).endsWith("zwei-heimaten.html#vs=,UKI31"), "„Link kopieren“ liefert den Vergleich, auch nach einem Sprung zu einem Abschnitt");
+  await page.click('.you-ex button[data-vs="DE2,USA-TX"]');
+  ok(await page.inputValue("#you-a") === "Bayern" && await page.inputValue("#you-b") === "Texas" && await page.evaluate(() => location.hash) === "#vs=DE2,USA-TX", "Beispiel „Bayern und Texas“ belegt beide Orte");
   await page.goto(base + "#vs=GIBTESNICHT", { waitUntil: "load" });
   ok(await page.inputValue("#you-a") === "", "unbekannte ID im Link wird ignoriert");
   await browser.close(); server.close();

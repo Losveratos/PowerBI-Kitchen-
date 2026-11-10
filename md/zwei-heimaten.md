@@ -90,7 +90,7 @@ Die Aussage steht also, egal wie man zählt.
 
 Die Südwestpfalz steht in Deutschland auf Rang 400. In der Welt liegt sie bei 73,4 %. Ganz vorn steht Wolfsburg bei 99,5 %.
 
-Alle 400 Kreise zusammen belegen auf der Kurve also nur das rechte Viertel. Der ganze deutsche Vergleich, vom ersten bis zum letzten Platz, spielt sich dort ab.
+Alle 400 Kreise zusammen belegen auf der Kurve also nur gut ein Viertel, ganz rechts. Der ganze deutsche Vergleich, vom ersten bis zum letzten Platz, spielt sich dort ab.
 
 ## Akt 3 · Wer noch auf der Stufe von OSL steht
 
@@ -104,11 +104,11 @@ Deutschlands 84 Mio. Menschen wären knapp 17 Quadrate.
 
 In Blau alle Menschen, deren Region ein höheres BIP pro Kopf hat als OSL: 1.134 Mio. Am meisten in den USA (283 Mio.), dann China (120 Mio.), Deutschland, Japan, Frankreich.
 
-Auf der Stufe von OSL stehen ganze Länder wie **Polen** (51.300) und **Estland** (50.400), dazu der US-Bundesstaat **Mississippi** (53.000).
+Auf der Stufe von OSL stehen ganze Länder wie [**Polen**](wohlstandsatlas.html#POL--m0--l2--z1) (51.300) und [**Estland**](wohlstandsatlas.html#EST--m0--l2--z1) (50.400), dazu der US-Bundesstaat [**Mississippi**](wohlstandsatlas.html#USA-MS--m0--l2--z1) (53.000).
 
 ### Shanghai liegt vor OSL
 
-In Rot China: 120 Mio. Chinesen leben in Städten und Präfekturen, die reicher sind als OSL, darunter **Shanghai** (61.900) und **Peking** (65.000). [B]
+In Rot China: 120 Mio. Chinesen leben in Städten und Präfekturen, die reicher sind als OSL, darunter [**Shanghai**](wohlstandsatlas.html#CN-SH--m0--l2--z1) (61.900) und [**Peking**](wohlstandsatlas.html#CN-BJ--m0--l2--z1) (65.000). [B]
 
 Indien dagegen hat keinen Bundesstaat über OSL. Der reichste, Sikkim, kommt auf 33.600 Int.$.
 
@@ -116,7 +116,7 @@ Indien dagegen hat keinen Bundesstaat über OSL. Der reichste, Sikkim, kommt auf
 
 In Gelb, ganz oben rechts: Menschen in Regionen reicher als Köln, zusammen 101 Mio., gut 1 % der Menschheit: Singapur, Mailand, Paris, Warschau, Hamburg, viele US-Großstädte und die russischen Öl- und Gasbezirke.
 
-Köln steht gleichauf mit **Moskau** (114.700) und zwischen **Norwegen** und **Katar**.
+Köln steht gleichauf mit [**Moskau**](wohlstandsatlas.html#RU-MOS--m0--l2--z1) (114.700) und zwischen [**Norwegen**](wohlstandsatlas.html#NOR--m0--l2--z1) und [**Katar**](wohlstandsatlas.html#QAT--m0--l2--z1).
 
 ## Akt 4 · Der Haken: Was der Abstand wirklich misst
 
@@ -151,6 +151,8 @@ Der mittlere Mensch dieser Welt lebt in einer Region mit 15.300 Int.$ pro Kopf. 
 ## Wo steht deine Heimat?
 
 Tipp einen Ort ein: einen Kreis, eine Stadt, ein Bundesland, einen Bundesstaat oder ein Land. Gezeigt wird, wie viele Menschen weltweit in ärmeren Regionen leben. Mit einem zweiten Ort wird daraus dein eigener Vergleich, und den kannst du als Link weitergeben.
+
+Zum Ausprobieren:
 
 [Im Wohlstandsatlas weiterschauen →](wohlstandsatlas.html)
 

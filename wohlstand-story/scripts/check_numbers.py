@@ -7,12 +7,14 @@ steht hier mit ihrer Herleitung; nach einem neuen Datenstand meldet das Skript, 
     python3 -I wohlstand-story/scripts/check_numbers.py      # Exit-Code 1 bei Abweichung
 """
 import json
+import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 D = json.loads((ROOT / "data" / "story_data.json").read_text(encoding="utf-8"))
 TPL = (ROOT / "story_template.html").read_text(encoding="utf-8").replace("&nbsp;", " ")
+TPL = re.sub(r"</?a\b[^>]*>", "", TPL)                     # Links im Fließtext ändern nichts an den Zahlen
 P, W, M = D["places"], D["world"], D["meta"]
 K, L = P["koeln"], P["osl"]
 C = W["compare"]
@@ -47,7 +49,7 @@ EXPECT = {
     # Schätzfrage und Akt 2 / Schritt 5: letzter und erster Kreis in Deutschland
     "letzter Kreis": f"<b>{G['poorest']['name']}</b> mit {h(G['poorest']['gdp'])} Int.$", "Rang 400": f"{G['poorest']['name']} steht in Deutschland auf Rang {K['de_n']}",
     "73,4 %": f"{de(G['poorest']['world_below'], 1)} %</span>", "Wolfsburg 99,5 %": f"{G['richest']['name']} bei <span class=\"big\">{de(G['richest']['world_below'], 1)} %</span>",
-    "rechtes Viertel": "nur das rechte Viertel" if 22 <= G["richest"]["world_below"] - G["poorest"]["world_below"] <= 28 else "!!",
+    "gut ein Viertel": "nur gut ein Viertel, ganz rechts" if 25 < G["richest"]["world_below"] - G["poorest"]["world_below"] <= 29 and G["richest"]["world_below"] > 99 else "!!",
     "Kreise im Atlas": f"letzten Platz der {K['de_n']} Kreise",
     # Akt 3
     "1.624 Quadraten": f"{de(M['n_sq'])} Quadraten",
