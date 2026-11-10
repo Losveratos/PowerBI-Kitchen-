@@ -16,11 +16,25 @@
  *  7. Eindeutige Suchvorschläge „Name (Art, Land)", größere Einheit gewinnt
  *  8. Querverweise Datenstory + Länder-Indikatoren-Explorer
  *  9. Tastatur: „/" fokussiert die Suche, Esc verlässt sie
+ * 10. Layout: Chip-Zeilen brechen auf breiten Schirmen um, Quadrate-Steuerung unter der Grafik,
+ *     ab 1500 px Karte und Profilkarte nebeneinander (Kartenbreite passend zur Fensterhöhe)
+ * 11. Rückmeldung an der Karte nach Auswahl (Name, Wert, „Details ↓")
+ * 12. Erklärtext mobil auf zwei Zeilen gekürzt, „mehr" klappt ihn auf
+ * 13. Ausreißer (hot) nicht als automatische Extrem-Labels; Legende nennt den Ausreißer
+ * 14. Geschichte „Die Welt in Menschen" setzt die Auswahl zurück
+ * 15. Hash-Wechsel auf derselben Seite startet vom Grundzustand (keine Reste von Gruppe/Schwelle)
+ * Der Ladehinweis „Karte wird geladen …" steht im HTML (.wx-loading) und blendet sich per CSS aus,
+ * sobald das Inline-Skript die Kartenfläche bemisst (#map bekommt dann ein style-Attribut).
  */
 (function () {
   "use strict";
   var HASH0 = "";
   try { HASH0 = location.hash || ""; } catch (e) {}
+
+  // hashchange: this listener is registered before the page's own one (this file loads first),
+  // so a feature can bring the state back to the start values before the page reads the new hash
+  var hashPre = null;
+  try { window.addEventListener("hashchange", function (e) { if (hashPre) { try { hashPre(e); } catch (x) { warn("Hash-Wechsel", x); } } }); } catch (e) {}
 
   function warn(name, e) { try { console.warn("[atlas-extras] " + name + " übersprungen:", e && e.message ? e.message : e); } catch (_) {} }
   function fn(x) { return typeof x === "function"; }
@@ -40,8 +54,38 @@
     "#storytext a{font-weight:600;white-space:nowrap}",
     ".wx-related{margin:0;font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 16px;align-items:baseline}",
     ".wx-related .lab{margin-right:0}",
-    // the story row got an eighth chip: let it wrap on wide screens instead of cutting the last chip off
-    "@media (min-width:701px){.row[aria-label=\"Geschichten\"]{flex-wrap:wrap;overflow-x:visible}}"
+    // chip rows wrap on wide screens instead of hiding the last chips behind a horizontal scroll
+    "@media (min-width:701px){.row.scroll{flex-wrap:wrap;overflow-x:visible}}",
+    // "Darstellung": both rows side by side where there is room
+    "@media (min-width:1100px){details.settings .inner{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:center}}",
+    // twins block sits right under the key figures now
+    ".wx-card{display:grid;gap:12px;min-width:0;padding-top:2px}",
+    // map + profile card side by side on large screens (wrappers are inert below that)
+    ".wx-split,.wx-main{display:contents}",
+    "@media (min-width:1500px){.wrap{max-width:1760px}",
+    "  .wx-split{display:grid;grid-template-columns:var(--wx-mapw,minmax(0,1fr)) minmax(0,1fr);gap:20px;align-items:start}",
+    "  .wx-main{display:flex;flex-direction:column;gap:12px;min-width:0}",
+    "  .wx-split>.cols{grid-template-columns:minmax(0,1fr)}}",
+    // feedback line at the map
+    ".wx-pick{display:flex;align-items:center;gap:4px 10px;padding:7px 10px;font-size:.85rem;background:var(--surface);border-top:1px solid var(--line);min-width:0}",
+    ".wx-pick .lab{margin:0}",
+    ".wx-pick .wx-pk-n{font-weight:600;color:var(--sel);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".wx-pick .num{flex:none;white-space:nowrap}",
+    ".wx-pick .wx-pk-go{margin-left:auto;flex:none;font:500 .78rem var(--body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:4px 10px;cursor:pointer;white-space:nowrap}",
+    ".wx-pick .wx-pk-go:hover{border-color:var(--ink)}",
+    "@media (min-width:561px){.wx-pick{position:absolute;left:8px;top:8px;max-width:calc(100% - 16px);border:1px solid var(--line);border-radius:8px;display:none;z-index:2}.wx-pick.on{display:flex}}",
+    "@media (min-width:1500px){.wx-pick.on{display:none}}",
+    "@keyframes wx-flash{from{box-shadow:inset 0 0 0 2px var(--sel)}to{box-shadow:inset 0 0 0 2px transparent}}",
+    ".wx-pick.flash{animation:wx-flash 1.1s ease-out}",
+    "@media (prefers-reduced-motion:reduce){.wx-pick.flash{animation:none}}",
+    // explanation: two lines on phones, "mehr" opens it
+    "#explain{position:relative}",
+    ".wx-more{display:none;font:500 .78rem var(--body);background:none;border:0;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}",
+    "@media (max-width:700px){",
+    "  #explain.wx-clamp:not(.wx-open){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}",
+    "  #explain.wx-clamp .wx-more{display:inline}",
+    "  #explain.wx-clamp:not(.wx-open) .wx-more{position:absolute;right:0;bottom:0;padding-left:2.2em;background:linear-gradient(90deg,transparent,var(--bg) 1.6em)}",
+    "  #explain.wx-clamp.wx-fits .wx-more{display:none}}"
   ].join("\n");
 
   // ---------- shared state ----------
@@ -106,6 +150,51 @@
 
   feature("Stil", function () { return true; }, function () {
     var st = document.createElement("style"); st.id = "atlas-extras-css"; st.textContent = CSS; document.head.appendChild(st);
+  });
+
+  // 10 · layout: squares controls under the chart; from 1500 px map and profile card side by side.
+  // Runs before the zoom link so that a --z1 zoom is computed with the final canvas size.
+  feature("Layout", function () {
+    return fn(sizeCanvas) && fn(redraw) && fn(band) && typeof zoom !== "undefined" && typeof cv !== "undefined" && typeof d3 !== "undefined" &&
+      !!document.querySelector(".wrap > .mapbox") && !!document.getElementById("sqpanel");
+  }, function () {
+    var mb = document.querySelector(".wrap > .mapbox"), sq = document.getElementById("sqpanel");
+    var lg = mb.nextElementSibling, pn = lg && lg.nextElementSibling, fd = pn && pn.nextElementSibling, cols = fd && fd.nextElementSibling;
+    // controls of the squares view go below the chart (like the map legend), so the chart starts higher
+    mb.insertAdjacentElement("afterend", sq);
+    // wrap map … search and the card column; the wrappers are display:contents below 1500 px
+    if (!(lg && lg.classList.contains("legend") && pn && pn.classList.contains("panel") && fd && fd.classList.contains("find") && cols && cols.classList.contains("cols"))) {
+      warn("Layout (Nebeneinander)", "Aufbau der Seite unerwartet"); return;
+    }
+    var split = document.createElement("div"), main = document.createElement("div");
+    split.className = "wx-split"; main.className = "wx-main";
+    mb.parentNode.insertBefore(split, mb);
+    [mb, sq, lg, pn, fd].forEach(function (x) { main.appendChild(x); });
+    split.appendChild(main); split.appendChild(cols);
+
+    var wide = window.matchMedia("(min-width:1500px)");
+    // map width so that the whole map fits under its top edge (canvas height = 0.52 × width in this range)
+    function fit() {
+      if (!wide.matches) { split.style.removeProperty("--wx-mapw"); return; }
+      var W = split.clientWidth, top = split.getBoundingClientRect().top + window.scrollY;
+      var avail = window.innerHeight - top - 16;
+      var w = Math.round(Math.max(W * 0.5, Math.min(W * 0.66, (avail - 2) / 0.52 + 2)));
+      split.style.setProperty("--wx-mapw", w + "px");
+    }
+    var orig = sizeCanvas;
+    sizeCanvas = function () {
+      try { fit(); } catch (e) { warn("Layout (Breite)", e); }
+      return orig.apply(this, arguments);
+    };
+    // same steps as the page's own resize handler
+    function relayout() {
+      var w = CW, h = CH; sizeCanvas();
+      if (w !== CW || h !== CH) { T = d3.zoomIdentity; d3.select(cv).call(zoom.transform, T); }
+      sqDirty = true; squares = []; redraw(); band();
+    }
+    relayout();
+    // web fonts can change the height of the text above the map once they arrive
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (wide.matches) { var w = CW; fit(); if (mb.clientWidth !== w) relayout(); } }); } catch (e) {}
   });
 
   // 1 · restore the region after a country-only metric
@@ -200,9 +289,12 @@
             '<span>Datenstory „Zwei Heimaten“: ' + esc(u.name) + ' neben einer zweiten Region</span></p>');
         }
         if (parts.length) {
-          var box = document.createElement("div"); box.className = "wx-card"; box.style.cssText = "display:grid;gap:14px;min-width:0";
+          var box = document.createElement("div"); box.className = "wx-card";
           box.innerHTML = parts.join("");
-          el.appendChild(box);
+          // right after the three key figures (inhabitants / share of world economy / share below),
+          // i.e. before the time series and "Auf einer Stufe mit"; fall back to the end of the card
+          var stats = el.querySelector(":scope > .stats");
+          if (stats) stats.insertAdjacentElement("afterend", box); else el.appendChild(box);
           box.querySelectorAll(".wx-twins button[data-id]").forEach(function (b) {
             b.addEventListener("click", function () { goTo(byId.get(b.getAttribute("data-id")), true); });
           });
@@ -324,6 +416,131 @@
         e.preventDefault(); q.focus();
       } else if (e.key === "Escape" && e.target === q) { q.blur(); }
     });
+  });
+
+  // 11 · feedback at the map after a pick: name, value, jump to the profile card.
+  // Phones: a line right under the map. Desktop: a small box on the map, shown after the first click on it.
+  // From 1500 px the profile card stands next to the map, the box stays hidden there.
+  feature("Rückmeldung an der Karte", function () { return fn(card) && !!document.querySelector(".mapbox") && !!document.getElementById("card"); }, function () {
+    var mb = document.querySelector(".mapbox"), bar = document.createElement("div"), last = null;
+    bar.className = "wx-pick";
+    mb.insertBefore(bar, document.getElementById("zoom") || null);
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    function render() {
+      var u = selected; if (!u) return;
+      var v = u[metric.k];
+      bar.innerHTML = '<span class="lab">Auswahl</span><span class="wx-pk-n"></span><span class="num"></span>' +
+        '<button type="button" class="wx-pk-go" aria-label="Zur Profilkarte">Details ↓</button>';
+      bar.querySelector(".wx-pk-n").textContent = u.name;
+      bar.querySelector(".num").textContent = v != null ? metric.fmt(v) : "keine Daten";
+      bar.querySelector(".wx-pk-n").title = u.name;
+      if (last && last !== u) { bar.classList.remove("flash"); void bar.offsetWidth; bar.classList.add("flash"); }
+      last = u;
+    }
+    bar.addEventListener("click", function (e) {
+      if (!e.target.closest(".wx-pk-go")) return;
+      var c = document.getElementById("card");
+      c.scrollIntoView({behavior: reduce.matches ? "auto" : "smooth", block: "start"});
+      if (!c.hasAttribute("tabindex")) c.setAttribute("tabindex", "-1");
+      try { c.focus({preventScroll: true}); } catch (x) {}
+    });
+    var cvs = document.getElementById("map");
+    if (cvs) cvs.addEventListener("click", function () { bar.classList.add("on"); });
+    var orig = card;
+    card = function () {
+      var r = orig.apply(this, arguments);
+      try { render(); } catch (e) { warn("Rückmeldung an der Karte (Render)", e); }
+      return r;
+    };
+  });
+
+  // 12 · explanation text: two lines on phones, "mehr" opens it (nothing removed, only folded)
+  feature("Erklärtext mobil", function () { return fn(update) && !!document.getElementById("explain"); }, function () {
+    var ex = document.getElementById("explain"), open = false;
+    var phone = window.matchMedia("(max-width:700px)");
+    ex.classList.add("wx-clamp");
+    function addMore() {
+      var b = ex.querySelector(".wx-more");
+      if (!b) {
+        b = document.createElement("button"); b.type = "button"; b.className = "wx-more";
+        b.addEventListener("click", function () { open = !open; ex.classList.toggle("wx-open", open); addMore(); });
+        ex.appendChild(document.createTextNode(" ")); ex.appendChild(b);
+      }
+      b.textContent = open ? "weniger" : "mehr";
+      b.setAttribute("aria-expanded", open ? "true" : "false");
+      b.setAttribute("aria-label", open ? "Erklärung einklappen" : "Ganze Erklärung zeigen");
+      // nothing to open when the text fits into two lines anyway
+      ex.classList.remove("wx-fits");
+      if (!open && phone.matches && ex.scrollHeight <= ex.clientHeight + 2) ex.classList.add("wx-fits");
+    }
+    var orig = update;
+    update = function () {
+      var r = orig.apply(this, arguments);
+      try { addMore(); } catch (e) { warn("Erklärtext mobil (Render)", e); }
+      return r;
+    };
+    try { phone.addEventListener("change", addMore); } catch (e) {}
+    addMore();
+  });
+
+  // 13 · outliers (hot = BIP pro Kopf mehr als doppelt so hoch wie im Land: Pendler, Konzernsitze, Rohstoffe)
+  // are not chosen as automatic extreme labels for the GDP-per-head metrics; data and colours stay as they are.
+  // The legend's "höchster Wert" names the outlier and adds the highest value without outliers.
+  feature("Ausreißer-Labels", function () { return fn(labels) && fn(recolor) && typeof items !== "undefined" && fn(ranked) && !!document.getElementById("lcap"); }, function () {
+    var GDPK = /^(gdp_pc_|eu_index$)/;
+    var origL = labels;
+    labels = function () {
+      if (!GDPK.test(metric.k)) return origL.apply(this, arguments);
+      var all = items;
+      try {
+        items = all.filter(function (i) { return !(i.u && i.u.hot && i.u !== selected); });
+        return origL.apply(this, arguments);
+      } finally { items = all; }
+    };
+    var origR = recolor;
+    recolor = function () {
+      var r = origR.apply(this, arguments);
+      try {
+        var k = metric.k;
+        if (GDPK.test(k)) {
+          var lv = atLevel().filter(function (u) { return ranked(u) && u[k] != null; });
+          var top = null, topN = null;
+          lv.forEach(function (u) { if (!top || u[k] > top[k]) top = u; if (!u.hot && (!topN || u[k] > topN[k])) topN = u; });
+          if (top && top.hot) {
+            var cap = document.getElementById("lcap");
+            cap.textContent += " (" + top.name + ", als Ausreißer markiert: Pendler, Konzernsitze oder Rohstoffe" +
+              (topN ? "; ohne Ausreißer " + metric.fmt(topN[k]) + ", " + topN.name + (countryName(topN) ? " (" + countryName(topN) + ")" : "") : "") + ")";
+          }
+        }
+      } catch (e) { warn("Ausreißer-Legende", e); }
+      return r;
+    };
+  });
+
+  // 14 · story "Die Welt in Menschen": start from the page's default selection instead of the previous region
+  feature("Geschichte Welt in Menschen", function () { return typeof STORIES !== "undefined" && Array.isArray(STORIES); }, function () {
+    var s = STORIES.find(function (x) { return x.t === "Die Welt in Menschen"; });
+    if (!s || !fn(s.run)) { warn("Geschichte Welt in Menschen", "Geschichte nicht gefunden"); return; }
+    var orig = s.run;
+    s.run = function () {
+      var r = orig.apply(this, arguments);
+      var d = byId.get("DE300") || byId.get("DEU");
+      if (d && d.lv.includes(level)) { selected = d; thr = d[metric.k] != null ? d[metric.k] : null; }
+      return r;
+    };
+  });
+
+  // 15 · hashchange on the same page: start from the default state, like opening the link fresh
+  // (otherwise groups add up and threshold/highlight of the previous view stay)
+  feature("Hash-Wechsel", function () { return fn(readHash) && typeof group !== "undefined" && typeof METRICS !== "undefined" && typeof SCALES !== "undefined"; }, function () {
+    hashPre = function (e) {
+      var url = (e && e.newURL) || location.href;
+      if (!byId.has(hashId(url))) return;                  // not a view link: the page ignores it, so do we
+      group.clear(); hlMode = "off"; thr = null; metric = METRICS[0]; level = 2; view = "map";
+      sqUnit = "people"; story = null;
+      if (classMode !== "countries") { classMode = "countries"; }
+      for (var key in SCALES) delete SCALES[key];        // colour classes depend on classMode
+    };
   });
 
   function init() {

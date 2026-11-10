@@ -161,6 +161,7 @@ h3{font:600 .76rem var(--body);margin:0;text-transform:uppercase;letter-spacing:
 h1{font-variation-settings:"opsz" 96;font-weight:650;letter-spacing:-.01em}
 .kc-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 2px}
 .kc-eyebrow a{color:inherit}
+.wx-loading{position:absolute;inset:0;display:grid;place-items:center;font:500 .85rem var(--body);color:var(--muted);pointer-events:none}#map[style]~.wx-loading{display:none}
 </style>
 </head>
 <body>
@@ -195,6 +196,7 @@ h1{font-variation-settings:"opsz" 96;font-weight:650;letter-spacing:-.01em}
   </div>
   <div class="mapbox">
     <canvas id="map" role="img" aria-label="Weltkarte oder Quadrat-Ansicht, nach Kennzahl eingefärbt"></canvas>
+    <div class="wx-loading" role="status">Karte wird geladen …</div>
     <div class="zoom" id="zoom"></div>
     <div class="tip" id="tip" hidden></div>
   </div>
