@@ -159,8 +159,8 @@ async function mobileScan(page, name) {
     const st = await pg.evaluate(() => ({ step: document.getElementById("g4").dataset.step, bars: getComputedStyle(document.querySelector("#svg4 .bars")).opacity,
       pers: getComputedStyle(document.querySelector("#svg4 .o4")).opacity, txt: document.querySelector("#svg4 .o4").textContent,
       want: ["osl", "koeln"].map(k => Math.round((DATA.persons || window.__persons)[k].p50)) }));
-    ok(st.step === "4" && st.bars === "0" && st.pers === "1" && st.txt.includes(`OSL · Mitte ${st.want[0]} %`) && st.txt.includes(`Köln · Mitte ${st.want[1]} %`),
-      `${name}: Spannen für OSL und Köln gezeichnet (Median ${st.want.join(" / ")} %), Balken ausgeblendet`);
+    ok(st.step === "4" && st.bars === "0" && st.pers === "1" && st.txt.includes(`OSL · mittlerer Mensch bei ${st.want[0]} %`) && st.txt.includes(`Köln · mittlerer Mensch bei ${st.want[1]} %`),
+      `${name}: Spannen für OSL und Köln gezeichnet (mittlerer Mensch bei ${st.want.join(" / ")} %), Balken ausgeblendet`);
     if (mobile) await mobileScan(pg, name);
     ok(errs.length === 0, `${name}: keine Konsolenfehler${errs.length ? " – " + errs.join(" | ") : ""}`);
     await pg.close();

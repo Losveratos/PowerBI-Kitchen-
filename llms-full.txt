@@ -4146,9 +4146,9 @@ Wichtig: Im Atlas gibt es diese Werte nur für die größeren Regionen, nicht f�
 
 ### Und die einzelnen Menschen?
 
-Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag: Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist, dann steht der mittlere Mensch in OSL wie in Köln vor mehr als 80 % der Menschheit. Auch das ärmste Zehntel in OSL hat noch mehr als 60 % hinter sich. [C]
+Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag: Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist, dann steht der mittlere Mensch in OSL bei 89 %, der in Köln bei 90 % der Menschheit. In allen 20 gerechneten Varianten sind es mehr als 80 %. [C]
 
-Zwischen dem mittleren Menschen in Köln und dem in OSL liegen dabei höchstens 12 Punkte. Zwischen dem ärmsten und dem reichsten Zehntel in OSL sind es mindestens 20.
+Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich. Zwischen den mittleren Menschen beider Orte liegen höchstens 12 Punkte, zwischen dem ärmsten und dem reichsten Zehntel in OSL mindestens 20.
 
 ## Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung
 

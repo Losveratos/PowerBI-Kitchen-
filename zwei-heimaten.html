@@ -530,11 +530,11 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <h3>Und die einzelnen Menschen?</h3>
       <p>Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag:
       Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist,
-      dann steht der mittlere Mensch in OSL wie in Köln vor mehr als <span class="big">80&nbsp;%</span> der Menschheit.
-      Auch das ärmste Zehntel in OSL hat noch mehr als 60&nbsp;% hinter sich.<span class="conf c" title="Modellrechnung, keine Messung">C</span></p>
-      <p>Zwischen dem mittleren Menschen in Köln und dem in OSL liegen dabei höchstens 12 Punkte.
-      Zwischen dem ärmsten und dem reichsten Zehntel in OSL sind es mindestens 20.</p>
-      <span class="src">Modellrechnung, keine Messung. Spannen über 20 Rechenvarianten, Details unter „Zum Nachprüfen“.</span>
+      dann steht der mittlere Mensch in OSL bei <span class="big l">89&nbsp;%</span>, der in Köln bei <span class="big k">90&nbsp;%</span> der Menschheit.
+      In allen 20 gerechneten Varianten sind es mehr als 80&nbsp;%.<span class="conf c" title="Modellrechnung, keine Messung">C</span></p>
+      <p>Auch das ärmste Zehntel in OSL hat noch mehr als 60&nbsp;% der Menschheit hinter sich.
+      Zwischen den mittleren Menschen beider Orte liegen höchstens 12 Punkte, zwischen dem ärmsten und dem reichsten Zehntel in OSL mindestens 20.</p>
+      <span class="src">Modellrechnung, keine Messung. Die Grafik zeigt die Hauptrechnung mit dem Konsum einzelner Menschen, deshalb weichen ihre Werte von den 86 und 98&nbsp;% aus Akt 2 ab. Details unter „Zum Nachprüfen“.</span>
     </div></div>
   </div>
 </section>
@@ -850,7 +850,7 @@ const act2 = (function(){
   txt(de,xr-8,B.y0+(MOBILE?46:18),`${hi.name} · ${pw(hi.world_below,"über")}`,{class:"lab-strong halo"+sm,"text-anchor":"end"});
   if(MOBILE) txt(de,xr-6,yb-84,`Deutschland: alle ${GE.kreise.length} Kreise`,{class:"lab-strong halo sm","text-anchor":"end"});
   else { el("path",{d:`M${xl},${yb+3} v5 H${xr} v-5`,fill:"none",stroke:"#fff","stroke-width":1.5},de);
-    txt(de,(xl+xr)/2,yb+22,`${GE.kreise.length} deutsche Kreise`,{class:"lab-strong halo","text-anchor":"middle"}); }
+    txt(de,(xl+xr)/2,yb-10,`${GE.kreise.length} deutsche Kreise`,{class:"lab-strong halo","text-anchor":"middle"}); }
   // Schätzung aus der Schätzfrage, falls abgegeben
   const gm=el("g",{class:"o4"},svg);
   function guess(v){ gm.innerHTML=""; if(v==null) return; const x=C.X(v), s=`deine Schätzung: ${fmt(v)} %`, half=tw(s,true)/2+6;
@@ -950,7 +950,7 @@ const act4 = (function(){
     const g=el("g",{class:"o4"},svg), PX=MOBILE?60:150, PW=MOBILE?940:820, X=v=>PX+PW*v/100;
     const yT=MOBILE?60:128, yR=MOBILE?[400,640]:[262,384], yAx=MOBILE?790:470, lw=MOBILE?5:2.5, bH=MOBILE?40:22, r=MOBILE?13:8;
     txt(g,PX,yT,"Überschlag: Wo die Menschen beider Orte in der Welt stehen",{class:"lab-strong"+(MOBILE?" sm":"")});
-    txt(g,PX,yT+(MOBILE?38:22),MOBILE?"Anteil der Menschheit darunter, nach Konsum · Modell":"Anteil der Menschheit darunter, gemessen am Konsum der Haushalte pro Kopf · Modellrechnung",{class:"sm"});
+    txt(g,PX,yT+(MOBILE?38:22),MOBILE?"Anteil der Menschheit darunter, nach Konsum · Modell":"Anteil der Menschheit darunter, gemessen am Konsum · Hauptrechnung des Modells",{class:"sm"});
     [0,25,50,75,100].forEach(v=>{ el("line",{x1:X(v),x2:X(v),y1:yR[0]-(MOBILE?110:70),y2:yAx-(MOBILE?30:16),class:"tick"},g); txt(g,X(v),yAx,v+" %",{class:"sm","text-anchor":v?v===100?"end":"middle":"start"}); });
     // mittlerer Mensch (Rot nur hier)
     el("line",{x1:X(50),x2:X(50),y1:yR[0]-(MOBILE?110:70),y2:yAx-(MOBILE?30:16),stroke:COL.m,"stroke-width":MOBILE?3:1.5,"stroke-dasharray":"5 4"},g);
@@ -960,10 +960,10 @@ const act4 = (function(){
       el("rect",{x:X(d.p25),y:y-bH/2,width:Math.max(2,X(d.p75)-X(d.p25)),height:bH,fill:col},g);
       el("circle",{cx:X(d.p50),cy:y,r,fill:"#fff",stroke:"#1a1a19","stroke-width":MOBILE?4:2.5},g);
       // direkte Beschriftung: Name und Median darüber, Spannweite darunter
-      const head=`${nm} · Mitte ${pint(d.p50)} %`, hx=Math.min(X(d.p50), X(100)-tw(head,MOBILE)/2);
+      const head=`${nm} · mittlerer Mensch bei ${pint(d.p50)} %`, hx=Math.min(X(d.p50), X(100)-tw(head,MOBILE)/2);
       txt(g,hx,y-bH/2-(MOBILE?16:10),head,{class:"t-"+cls+" halo"+(MOBILE?" sm":""),"text-anchor":"middle"});
       // rechtsbündig an 100 %, damit die Linie des mittleren Menschen frei bleibt
-      const f1=`mittlere Hälfte ${pint(d.p25)}–${pint(d.p75)} %`, f2=`80 % zwischen ${pint(d.p10)} und ${pint(d.p90)} %`;
+      const f1=`mittlere Hälfte: ${pint(d.p25)} bis ${pint(d.p75)} %`, f2=`ärmstes bis reichstes Zehntel: ${pint(d.p10)} bis ${pint(d.p90)} %`;
       if(MOBILE){ txt(g,X(100),y+bH/2+40,f1,{class:"sm halo","text-anchor":"end"}); txt(g,X(100),y+bH/2+76,f2,{class:"sm halo","text-anchor":"end"}); }
       else txt(g,X(100),y+bH/2+22,`${f1}, ${f2}`,{class:"sm halo","text-anchor":"end"});
     });
@@ -972,11 +972,12 @@ const act4 = (function(){
     el("line",{x1:kx,x2:kx+(MOBILE?90:56),y1:ky-(MOBILE?8:4),y2:ky-(MOBILE?8:4),stroke:kc,"stroke-width":lw},g);
     el("rect",{x:kx+(MOBILE?22:14),y:ky-(MOBILE?8:4)-bH/4,width:MOBILE?46:28,height:bH/2,fill:kc},g);
     el("circle",{cx:kx+(MOBILE?45:28),cy:ky-(MOBILE?8:4),r:r*.7,fill:"#fff",stroke:"#1a1a19","stroke-width":2},g);
-    const kt=["Linie: 10. bis 90. Perzentil der Einwohner","Balken: 25. bis 75. · Punkt: Median"];
-    if(MOBILE){ txt(g,kx+110,ky,kt[0],{class:"sm"}); txt(g,kx+110,ky+36,kt[1],{class:"sm"}); }
-    else txt(g,kx+70,ky,kt.join(" · "),{class:"sm"});
+    const kt=["Linie: vom ärmsten bis zum reichsten Zehntel der Einwohner","Balken: die mittlere Hälfte · Punkt: der mittlere Mensch"];
+    // zwei Zeilen: in einer Zeile läuft die Lesehilfe am Desktop über den Rand
+    txt(g,kx+(MOBILE?110:70),ky,kt[0],{class:"sm"}); txt(g,kx+(MOBILE?110:70),ky+(MOBILE?36:19),kt[1],{class:"sm"});
   }
-  return {step(i){ fig.dataset.step=i; }};
+  const sub=fig.querySelector(".fig-title .s"), sub0=sub?sub.textContent:"";
+  return {step(i){ fig.dataset.step=i; if(sub) sub.textContent = (+i===4&&PERS) ? "Anteil der Menschheit darunter · Modellrechnung für einzelne Menschen" : sub0; }};
 })();
 
 /* ================================================================
@@ -1049,7 +1050,7 @@ const act4 = (function(){
     inp.addEventListener("focus",()=>{ if(inp.value.trim()&&!state[i]){ items=find(inp.value); draw(); } });
     inp.addEventListener("keydown",ev=>{
       if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ if(!items.length) return; ev.preventDefault(); act=(act+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length; draw(); }
-      else if(ev.key==="Enter"){ ev.preventDefault(); const s=items[act>=0?act:0]||find(inp.value,1)[0]; if(s) choose(s); else if(inp.value.trim()) out.textContent="Nicht gefunden. Versuch es mit dem Namen eines Kreises, einer Stadt, eines Bundeslands, Bundesstaats oder Landes."; }
+      else if(ev.key==="Enter"){ ev.preventDefault(); const s=items[act>=0?act:0]||find(inp.value,1)[0]; if(s) choose(s); }
       else if(ev.key==="Escape") close(); });
     inp.addEventListener("blur",()=>setTimeout(close,150));
     return {set(s){ inp.value=s?s[0]:""; }};
@@ -1093,7 +1094,7 @@ const act4 = (function(){
         if(ids[0]===ids[1]) sum="Das ist zweimal derselbe Ort.";
         else { const [hi,lo]=sel[0].s[2]>=sel[1].s[2]?[sel[0],sel[1]]:[sel[1],sel[0]], f=hi.s[2]/lo.s[2];
           const mine=ids.includes(P.koeln.id)||ids.includes(P.osl.id);
-          sum=`${esc(hi.s[0])} kommt auf das <b>${fmt(f,f<1.5?2:1)}-Fache</b> von ${esc(lo.s[0])}. Zwischen beiden leben <b>${betw(Math.abs(hi.p-lo.p))}&nbsp;%</b> der Menschheit.`+
+          sum=`${esc(hi.s[0])} kommt auf das <b>${fmt(f,f<1.5?2:f<10?1:0)}-Fache</b> von ${esc(lo.s[0])}. Zwischen beiden leben <b>${betw(Math.abs(hi.p-lo.p))}&nbsp;%</b> der Menschheit.`+
             (mine? "" : ` Zwischen Köln und OSL sind es ${pw(W.between_share,"knapp").replace(" %","&nbsp;%")}.`); }
       } else { const s=sel[0].s;
         const rel = s[4]===P.koeln.id||s[4]===P.osl.id ? "genau auf einem meiner beiden Punkte" : s[2]>P.koeln.gdp? "über Köln" : s[2]>P.osl.gdp? "zwischen OSL und Köln" : "unter OSL";
