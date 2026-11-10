@@ -96,7 +96,9 @@ b{color:var(--ink)}
   .graphic{z-index:6;height:auto;max-height:58svh;align-items:flex-start;padding:6px 0 8px;background:var(--bg);box-shadow:0 14px 14px -10px rgba(13,13,13,.95)}
   .scrolly .fig{display:flex;flex-direction:column;max-height:calc(58svh - 14px)}
   .scrolly .fig svg{flex:0 1 auto;min-height:0}
-  .steps{z-index:1;padding:18px 0 30svh}
+  .scrolly .fig .fig-title{position:static;order:-1;padding:10px 10px 6px}
+  .fig-title .wide{display:none}
+  .steps{z-index:1;padding:18px 0 4svh}
   .step{min-height:0;align-items:flex-start;padding:0 0 8svh}
 }
 .step.is-active .step-card{opacity:1;transform:none}
@@ -1120,8 +1122,9 @@ addEventListener("resize",()=>{ clearTimeout(stepT); stepT=setTimeout(()=>{ if(i
     [`Letzter Kreis: ${G.poorest.name}`, `${r3(G.poorest.gdp)} Int.$ · ${pw(G.poorest.world_below)} der Menschheit darunter`],
     [`Erster Kreis: ${G.richest.name}`, `${r3(G.richest.gdp)} Int.$ · ${pw(G.richest.world_below,"über")} der Menschheit darunter`],
   ];
-  tb.innerHTML=rows.map(r=>`<tr${r[3]?' class="sep"':""}><th scope="row">${esc(r[0])}</th><td class="k">${r[1]}</td><td class="l">${r[2]}</td></tr>`).join("")+
-    both.map((r,i)=>`<tr${i?"":' class="sep"'}><th scope="row">${esc(r[0])}</th><td colspan="2">${r[1]}</td></tr>`).join("");
+  const nb=v=>String(v).replace(/(rund|über|knapp) /g,"$1&nbsp;").replace(/ (%|Int\.\$)/g,"&nbsp;$1");   // Zahl und Einheit nicht trennen
+  tb.innerHTML=rows.map(r=>`<tr${r[3]?' class="sep"':""}><th scope="row">${esc(r[0])}</th><td class="k">${nb(r[1])}</td><td class="l">${nb(r[2])}</td></tr>`).join("")+
+    both.map((r,i)=>`<tr${i?"":' class="sep"'}><th scope="row">${esc(r[0])}</th><td colspan="2">${nb(r[1])}</td></tr>`).join("");
 })();
 document.querySelectorAll(".scrolly").forEach(sec=>{ new IntersectionObserver((es,obs)=>{ es.forEach(e=>{ if(e.isIntersecting){ const a=sec.dataset.act; if(document.getElementById("g"+a).dataset.step==="-1") ACTS[a].step(0); obs.disconnect(); } }); },{threshold:.35}).observe(sec); });
 /* Punkte am rechten Rand: zeigen, in welchem Abschnitt man ist, und springen dorthin */

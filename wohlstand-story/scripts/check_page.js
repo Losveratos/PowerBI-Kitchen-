@@ -58,7 +58,8 @@ async function mobileScan(page, name) {
           if (c.top < g.bottom - 1) out.late.push(`Akt ${act}/${+idx + 1}: Karte ${Math.round(c.top)} < Grafik ${Math.round(g.bottom)}`);
           prev = act_;
         }
-        if (c.bottom < g.bottom + 30 || c.top > innerHeight - 30) out.unreadable.push(`Akt ${act}/${+idx + 1} @${Math.round(y - y0)}`);
+        const ending = sec.getBoundingClientRect().bottom - g.bottom < innerHeight * 0.15;   // Sektion endet: letzte Karte läuft mit aus
+        if (!ending && (c.bottom < g.bottom + 30 || c.top > innerHeight - 30)) out.unreadable.push(`Akt ${act}/${+idx + 1} @${Math.round(y - y0)}`);
       }
     }
     return out;
