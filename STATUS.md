@@ -45,18 +45,25 @@ jeweiligen Visual-Ordner.
   `wohlstandsatlas.html`, `wohlstandsatlas/atlas-data.js` (Karten + Daten, ~5 MB) und
   `wohlstandsatlas/wohlstandsatlas-einheiten.csv` sind **generiert** – nicht von Hand ändern.
   Die Datenpipeline (Merge der Länder- und Regionalstatistiken, Validierung, Build) liegt noch
-  außerhalb des Repos; offen: Pipeline ins Repo holen, Full-HD-Layout, Zeitreihen für Regionen.
+  außerhalb des Repos; offen: Pipeline ins Repo holen, Zeitreihen für Regionen.
   Bibliotheken lokal: `assets/js/vendor/d3-7.9.0.min.js`, `topojson-client-3.1.0.min.js`.
   **Erweiterungen von Hand (11/2026), beim nächsten Generator-Lauf übernehmen:** (1) im `<head>` vier Zeilen
   `og:image` (+ Breite, Höhe) und `twitter:card` für `assets/og/wohlstandsatlas.png`; (2) nach
   `<script src="wohlstandsatlas/atlas-data.js">` und **vor** dem Inline-Skript die Zeile
   `<script src="wohlstandsatlas/atlas-extras.js"></script>`; (3) in `update()` `!!(metric.countryOnly&&i>0)` statt
-  `metric.countryOnly&&i>0` (sonst bleiben die Ebenen-Chips nach BNE/Gini gesperrt).
+  `metric.countryOnly&&i>0` (sonst bleiben die Ebenen-Chips nach BNE/Gini gesperrt); (4) am Ende des `<style>`-Blocks
+  die Regel `.wx-loading{…}#map[style]~.wx-loading{display:none}` und (5) direkt nach `<canvas id="map" …>` die Zeile
+  `<div class="wx-loading" role="status">Karte wird geladen …</div>` (Ladehinweis, verschwindet ohne JavaScript-Hilfe,
+  sobald die Karte bemessen ist).
   `wohlstandsatlas/atlas-extras.js` ist **handgepflegt** (nicht generiert) und dockt an die Funktionen des Inline-Skripts
   an: Zoom-Deep-Link `--z1`, „Link kopieren“, Block „Gleichauf auf anderen Kontinenten“ in der Profilkarte, Geschichte
   „Zwei Heimaten“, Link „In der Story vergleichen“ (`zwei-heimaten.html#vs=<ID>`), eindeutige Suchvorschläge
-  „Name (Art, Land)“, Zeile „Weiterlesen“, Taste „/“ für die Suche. Fehlt eine erwartete Funktion, überspringt die Datei
-  das jeweilige Feature mit einer Konsolenwarnung.
+  „Name (Art, Land)“, Zeile „Weiterlesen“, Taste „/“ für die Suche; seit der zweiten Runde außerdem das Breitbild-Layout
+  (ab 1500 px Karte und Profilkarte nebeneinander, Chip-Zeilen brechen um), auf dem Handy der einklappbare Erklärtext
+  und die Zeile „Auswahl · Name · Wert · Details ↓“ unter der Karte, Karten-Labels ohne Ausreißer (`hot`) samt Zusatz in
+  der Legende, sauberer Zustand bei Hash-Wechsel. Fehlt eine erwartete Funktion, überspringt die Datei das jeweilige
+  Feature mit einer Konsolenwarnung. Bekannt: Ist im Breitbild eine Geschichte offen, rutscht die Karte um deren Höhe
+  nach unten.
 - **Zwei Heimaten** (`zwei-heimaten.html`, Datenstory aus dem Atlas): generiert aus `wohlstand-story/` (Pipeline und
   Bausteine im dortigen README). Vorschaubilder fürs Teilen: `tools/og-cards/build.js` → `assets/og/`.
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
