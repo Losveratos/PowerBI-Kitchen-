@@ -62,8 +62,13 @@ jeweiligen Visual-Ordner.
   (ab 1500 px Karte und Profilkarte nebeneinander, Chip-Zeilen brechen um), auf dem Handy der einklappbare Erklärtext
   und die Zeile „Auswahl · Name · Wert · Details ↓“ unter der Karte, Karten-Labels ohne Ausreißer (`hot`) samt Zusatz in
   der Legende, sauberer Zustand bei Hash-Wechsel. Fehlt eine erwartete Funktion, überspringt die Datei das jeweilige
-  Feature mit einer Konsolenwarnung. Bekannt: Ist im Breitbild eine Geschichte offen, rutscht die Karte um deren Höhe
-  nach unten.
+  Feature mit einer Konsolenwarnung. Dritte Runde (nach zwei Fachgutachten, keine neue Handänderung am HTML):
+  Block heißt „Ähnlich auf anderen Kontinenten“ und nennt die Unsicherheit der Hochrechnung (je Kontinent die
+  bevölkerungsreichste Einheit innerhalb von ±5 %); fünf Kennzahlen vorn, der Rest hinter „Weitere Kennzahlen“;
+  Suche im Seitenkopf; Farbstufen richtig als Siebtel beschriftet; Hinweis „Rang zählt Einheiten, Anteil zählt
+  Menschen“; Geschichte „Wenn BIP täuscht“ führt in drei Schritten; Geschichten-Kasten im Breitbild neben der Karte;
+  Warnhinweis bei Regionen der Ukraine (Verteilung von 2021). Offen für den Generator: Der Median in der Überschrift
+  („15.200 Int.$“) teilt nur durch die Menschen mit Daten, die Story durch die ganze Weltbevölkerung (15.265).
 - **Zwei Heimaten** (`zwei-heimaten.html`, Datenstory aus dem Atlas): generiert aus `wohlstand-story/` (Pipeline und
   Bausteine im dortigen README). Vorschaubilder fürs Teilen: `tools/og-cards/build.js` → `assets/og/`.
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
