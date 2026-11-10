@@ -124,7 +124,7 @@ async function mobileScan(page, name) {
     // Tabelle der wichtigsten Zahlen
     const tab = await page.evaluate(() => ({ rows: document.querySelectorAll("#key-table tbody tr").length, txt: document.querySelector("#key-table").textContent,
       desc: [1, 2, 3, 4].every(i => document.getElementById("svg" + i).getAttribute("aria-describedby") === "key-table") }));
-    ok(tab.rows >= 15 && /115\.000.*51\.300/.test(tab.txt) && /rund 15\.000 Int\.\$/.test(tab.txt) && tab.desc, `${name}: Zahlentabelle gefüllt (${tab.rows} Zeilen), Grafiken verweisen darauf`);
+    ok(tab.rows >= 15 && /115\.000.*51\.300/.test(tab.txt) && /rund\s15\.000\sInt\.\$/.test(tab.txt) && tab.desc, `${name}: Zahlentabelle gefüllt (${tab.rows} Zeilen), Grafiken verweisen darauf`);
 
     // Vergleich zweier Orte: Umlaut-Schreibweise, Kreisstadt-Alias, Tippfehler
     await page.evaluate(() => document.getElementById("you-head").scrollIntoView({ behavior: "instant" }));
