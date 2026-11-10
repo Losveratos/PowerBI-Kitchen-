@@ -7,6 +7,7 @@ steht hier mit ihrer Herleitung; nach einem neuen Datenstand meldet das Skript, 
     python3 -I wohlstand-story/scripts/check_numbers.py      # Exit-Code 1 bei Abweichung
 """
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -19,6 +20,10 @@ P, W, M = D["places"], D["world"], D["meta"]
 K, L = P["koeln"], P["osl"]
 C = W["compare"]
 G = D["germany"]
+PS = D["persons"]["span"]                                  # Spannen der Modellrechnung über alle Varianten
+PMJ = json.loads((ROOT / "data" / "person_model.json").read_text(encoding="utf-8"))
+_ov = PMJ["ergebnisse_hauptvariante"]["koeln_below_osl_median"]
+OV = {"gdp": _ov["spanne_gdp"], "hh": _ov["spanne_hh"]}    # Anteil der Kölner unter dem mittleren Menschen in OSL
 SQ_DE = sum(1 for q in D["squares"] if q[0] == "DEU")      # Quadrate, die in Akt 3 an Deutschland gehen
 
 
@@ -89,6 +94,15 @@ EXPECT = {
     "Faktor 1,9": f"Faktor <span class=\"big\">{de(W['rp_ratio'], 1)}</span>", "105.000": f"<span class=\"k\">{h(K['rp'])}</span>", "55.600": h(L["rp"]),
     "38.700": h(K["hh"]), "35.900": h(L["hh"]), "Faktor 1,08": f"Faktor <span class=\"big\">{de(W['hh_ratio'], 2)}</span>",
     "86 und 84 %": f"bei rund {rnd(K['world_below_hh'])} und {rnd(L['world_below_hh'])} %", "keine 2 Punkte": "keine 2 Punkte auseinander" if 1 < W["hh_gap"] < 2 else "!!",
+    # Akt 4 / Schritt 5: Überschlag für einzelne Menschen (nur Aussagen, die in allen Varianten gelten)
+    "mittlerer Mensch > 80 %": "vor mehr als <span class=\"big\">80 %</span> der Menschheit" if min(PS["osl_p50"][0], PS["koeln_p50"][0]) > 80 else "!!",
+    "ärmstes Zehntel OSL > 60 %": "noch mehr als 60 % hinter sich" if PS["osl_p10"][0] > 60 else "!!",
+    "höchstens 12 Punkte": f"höchstens {math.ceil(PS['median_gap'][1])} Punkte",
+    "mindestens 20": f"sind es mindestens {int(PS['osl_spread_p10_p90'][0])}" if PS["osl_spread_p10_p90"][0] > PS["median_gap"][1] else "!!",
+    "20 Varianten": f"über {D['persons']['n_variants']} Rechenvarianten", "20 Varianten (Methode)": f"Gerechnet sind {D['persons']['n_variants']} Varianten",
+    "fast alle über der Mitte": "fast alle Menschen in Deutschland über der Mitte der Welt" if PS["deu_above_world_median"][0] > 97 else "!!",
+    "Überlappung BIP 6–14 %": f"{rnd(OV['gdp'][0])} bis {rnd(OV['gdp'][1])} % der Kölner", "Überlappung Konsum 44–53 %": f"mit dem Konsum {rnd(OV['hh'][0])} bis {rnd(OV['hh'][1])} %",
+    "ärmere Hälfte 9–14 %": f"{rnd(PMJ['plausibilitaet']['aermere_haelfte_spanne'][0])} bis {rnd(PMJ['plausibilitaet']['aermere_haelfte_spanne'][1])} % des Gesamten",
     # Fazit, Grenzen, Methode
     "279 Plätze": f"{de(L['de_rank'] - K['de_rank'])} Plätze", "61 Kreise (Fazit)": f"liegen {T['n_near5']} Kreise höchstens 5 %",
     "73 % (Fazit)": f"rund {rnd(G['poorest']['world_below'])} % der Menschheit leben",

@@ -493,6 +493,17 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       <p>Wichtig: Im Atlas gibt es diese Werte nur für die größeren Regionen, nicht für Köln und OSL selbst.<span class="conf c" title="Grobe Auflösung: Wert gilt für eine größere Region">C</span></p>
     </div></div>
 <!--PERSONEN-SCHRITT-->
+    <div class="step" data-idx="4"><div class="step-card">
+      <span class="n">Akt 4 / Schritt 5</span>
+      <h3>Und die einzelnen Menschen?</h3>
+      <p>Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag:
+      Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist,
+      dann steht der mittlere Mensch in OSL wie in Köln vor mehr als <span class="big">80&nbsp;%</span> der Menschheit.
+      Auch das ärmste Zehntel in OSL hat noch mehr als 60&nbsp;% hinter sich.<span class="conf c" title="Modellrechnung, keine Messung">C</span></p>
+      <p>Zwischen dem mittleren Menschen in Köln und dem in OSL liegen dabei höchstens 12 Punkte.
+      Zwischen dem ärmsten und dem reichsten Zehntel in OSL sind es mindestens 20.</p>
+      <span class="src">Modellrechnung, keine Messung. Spannen über 20 Rechenvarianten, Details unter „Zum Nachprüfen“.</span>
+    </div></div>
   </div>
 </section>
 
@@ -502,11 +513,13 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   <h2>Wir meckern auf hohem Niveau</h2>
   <p class="lede">In Deutschland trennen Köln und OSL 279 Plätze. In der Welt stehen beide ganz oben, und zwischen ihnen ist es enger, als die Rangliste aussieht.</p>
   <p>Eng ist es an mehreren Stellen. Im deutschen Mittelfeld liegen 61 Kreise höchstens 5&nbsp;% von OSL entfernt.
-  Beim Konsum der Haushalte stehen beide Regionen in der Welt keine 2 Punkte auseinander.<!--PERSONEN-FAZIT--></p>
+  Beim Konsum der Haushalte stehen beide Regionen in der Welt keine 2 Punkte auseinander.<!--PERSONEN-FAZIT-->
+  Und überschlägt man, wo die einzelnen Menschen stehen, liegt innerhalb von OSL mehr Abstand zwischen Arm und Reich als zwischen dem mittleren Menschen dort und dem in Köln.</p>
   <p>Das heißt nicht, dass es den Abstand nicht gibt. Die Lausitz steckt mitten im Ausstieg aus der Braunkohle, und Faktor 2,2 bleibt Faktor 2,2,
   auch wenn Pendler und Preise ihn kleiner machen.</p>
   <p>Aber es verschiebt den Maßstab. Selbst im letzten der 400 Kreise ist das BIP pro Kopf höher als in den Regionen, in denen rund 73&nbsp;% der Menschheit leben.
   Der Kreis, den Rankings „abgehängt“ nennen, steht auf dem Niveau Japans, Polens und Estlands.
+  Und nach dem Überschlag aus Akt 4 stehen fast alle Menschen in Deutschland über der Mitte der Welt.
   Wer in Deutschland über seinen Tabellenplatz klagt, klagt über einen Platz am oberen Ende der Welt. Das gilt auch für mich.</p>
   <p>Der mittlere Mensch dieser Welt lebt in einer Region mit rund 15.000 Int.$ pro Kopf. Das ist weniger als ein Drittel von OSL.</p>
 </section>
@@ -567,9 +580,17 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
     <p>Gezählt wird auf der feinsten Ebene des Atlas: Kreise in Europa, Counties in den USA, Präfekturen in China, Bundesstaaten in Indien, sonst das ganze Land. Die Gegenprobe in Akt 2 rechnet dasselbe auf allen vier Ebenen.</p>
     <p>Werte in Int.$ sind wie im Atlas auf drei Stellen gerundet (Köln genau 114.620, OSL 51.305).</p>
   </div></details>
+  <details class="gloss"><summary>Der Überschlag für einzelne Menschen</summary><div class="gloss-body">
+    <p>Akt 4 endet mit einer Modellrechnung, keiner Messung. Für jede der 5.929 Regionen nehme ich an, dass der Konsum der Haushalte pro Kopf um den Wert der Region streut, und zwar so stark, dass alle Regionen eines Landes zusammen dessen Ungleichheit (Gini-Index der Weltbank) ergeben.
+    Daraus entsteht eine Verteilung über alle Menschen der Welt, in die sich die Einwohner von OSL, Köln und Deutschland einordnen lassen.</p>
+    <p>Gerechnet sind 20 Varianten: mit dem BIP statt dem Konsum, mit 5 Punkten mehr oder weniger Ungleichheit, mit einer zweiten Verteilungsform. Im Text stehen nur Aussagen, die in allen 20 gleich ausgehen, jeweils mit der vorsichtigeren Grenze.
+    Nicht dazu gehört, wie stark sich beide Orte überlappen: Mit dem BIP gerechnet liegen 6 bis 14&nbsp;% der Kölner unter dem mittleren Menschen in OSL, mit dem Konsum 44 bis 53&nbsp;%.</p>
+    <p>Das Modell ist eher zu gleichmäßig: Auf die ärmere Hälfte der Menschen entfallen darin 9 bis 14&nbsp;% des Gesamten, Studien zur weltweiten Einkommensverteilung nennen 8 bis 9&nbsp;%. Für Köln und OSL selbst kennt der Atlas den Konsum nur auf der Ebene des Regierungsbezirks Köln und des Landes Brandenburg.
+    Das Skript liegt unter <code>wohlstand-story/scripts/person_model.py</code>.</p>
+  </div></details>
   <details class="gloss"><summary>Die Kennzeichen B und C</summary><div class="gloss-body">
     <ul><li><span class="conf b">B</span> hochgerechnet: regionale Verteilung aus der Statistik eines früheren Jahres, auf den Landeswert 2024 übertragen.</li>
-    <li><span class="conf c">C</span> grob: Der Wert gilt für eine größere Region als die genannte.</li>
+    <li><span class="conf c">C</span> grob: Der Wert gilt für eine größere Region als die genannte, oder er stammt aus einer Modellrechnung.</li>
     <li>Ohne Kennzeichen: Werte, die direkt aus amtlichen Landeszahlen folgen, oder einfache Rechnungen daraus.</li></ul>
   </div></details>
 </section>
