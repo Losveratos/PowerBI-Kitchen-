@@ -67,7 +67,12 @@ jeweiligen Visual-Ordner.
   bevölkerungsreichste Einheit innerhalb von ±5 %); fünf Kennzahlen vorn, der Rest hinter „Weitere Kennzahlen“;
   Suche im Seitenkopf; Farbstufen richtig als Siebtel beschriftet; Hinweis „Rang zählt Einheiten, Anteil zählt
   Menschen“; Geschichte „Wenn BIP täuscht“ führt in drei Schritten; Geschichten-Kasten im Breitbild neben der Karte;
-  Warnhinweis bei Regionen der Ukraine (Verteilung von 2021). Offen für den Generator: Der Median in der Überschrift
+  Warnhinweis bei Regionen der Ukraine (Verteilung von 2021). Vierte Runde (Feinschliff, ebenfalls ohne neue Handänderung am HTML): Detail, Ansicht und Farbstufen in einer
+  Steuerzeile über der Karte (Karten-Oberkante bei 1366 px von 485 auf 390), alle acht Geschichten führen in zwei bis
+  drei Schritten, die Überschrift bleibt bei offener Geschichte ruhig, „Alle Kennzahlen“ in der Profilkarte ist
+  eingeklappt, Hinweis bei Verteilungen, die fünf oder mehr Jahre älter sind als der Landeswert (derzeit Iran).
+  Browser-Test: `node wohlstandsatlas/check_atlas.js` (105 Prüfungen, ~2 min, startet eigenen Server).
+  Offen für den Generator: Der Median in der Überschrift
   („15.200 Int.$“) teilt nur durch die Menschen mit Daten, die Story durch die ganze Weltbevölkerung (15.265).
 - **Zwei Heimaten** (`zwei-heimaten.html`, Datenstory aus dem Atlas): generiert aus `wohlstand-story/` (Pipeline und
   Bausteine im dortigen README). Vorschaubilder fürs Teilen: `tools/og-cards/build.js` → `assets/og/`.

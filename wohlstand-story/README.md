@@ -79,7 +79,11 @@ Einkommen je Einwohner auf Kreisebene (VGR der Länder, `income`) und die Bevöl
   kleinen Kreises verschieben den Anteil um rund einen Punkt und den Rang um 30 Plätze.
 - **Überschlag:** Aus `person_model.json` kommen nur Aussagen in den Text, die in allen Rechenvarianten gleich ausgehen, mit
   der vorsichtigeren Grenze der Spanne.
-- **Farben:** Amber = Köln, Blau = OSL, Rot nur für den mittleren Menschen.
+- **Farben, je eine Bedeutung:** Amber = Köln, Blau = OSL und „über OSL“, Rot nur der mittlere Mensch, Magenta nur
+  „höchstens 10 % von OSL entfernt“ (Akt 1 und Akt 3), Weiß nur China in Akt 3, Graustufen der Karte „je heller, desto
+  höher“. Das Farbsystem steht als Kommentar am Kopf des `<style>`-Blocks im Template.
+- **Handy:** Beschriftungen in den Grafiken effektiv mindestens 11 px bei 390 px Breite (10 px bei 360 px);
+  `check_page.js` misst das je Schritt.
 
 ## Kennzahlen und Definitionen
 

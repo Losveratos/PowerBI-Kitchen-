@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /* Browser-Test der fertigen Story (zwei-heimaten.html): lädt die Seite in mehreren Breiten, läuft alle Schritte ab
    und prüft, dass jede Grafik ihrem Schritt folgt, das Handy-Muster (Grafik oben fest, Karten laufen darunter und
-   verschwinden hinter ihr), die Hervorhebungen (±5 % in Akt 1, ±10 % in Akt 3), die Zahlentabelle, die
-   Überschlag-Grafik (nur mit DATA.persons), Schätzfrage, Vergleich zweier Orte und den Link-Zustand (#vs=…).
+   verschwinden hinter ihr), den Vertrag Schritt → Grafik (15 Schritte: 3/4/4/4; ±10 % um OSL in Akt 1 und 3,
+   Unsicherheit in Akt 2, China und Ländermarken in Akt 3, Einkommen und Spannen in Akt 4), Schriftgrößen auf dem Handy,
+   Texte innerhalb der Grafik, Zurückscrollen, die Zahlentabellen, Schätzfrage, Vergleich zweier Orte und den Link (#vs=…).
 
      node wohlstand-story/scripts/check_page.js        # Exit-Code 1 bei Fehlern
 
@@ -23,8 +24,42 @@ const server = http.createServer((req, res) => {
 const fails = [];
 const ok = (cond, msg) => { console.log((cond ? "✓ " : "✗ ") + msg); if (!cond) fails.push(msg); };
 
-const HI = "#f2efe2";   // Farbe „hell hervorgehoben“ im Template
-const TEST_PERSONS = { osl: { p10: 64, p25: 75, p50: 84, p75: 91, p90: 96 }, koeln: { p10: 83, p25: 91, p50: 96, p75: 99, p90: 99.7 } };
+/* Schritt j ansteuern. Desktop: Kartenmitte in die Bildmitte; Handy: Kartenoberkante knapp unter die Aktivierungslinie */
+async function goStep(page, j, mobile) {
+  await page.evaluate(([j, mobile]) => { const s = document.querySelectorAll(".scrolly .step")[j], c = s.querySelector(".step-card").getBoundingClientRect();
+    const g = s.closest(".scrolly").querySelector(".graphic").offsetHeight;
+    const target = mobile ? c.top + scrollY - (g + (innerHeight - g) / 3) + 20 : c.top + scrollY + c.height / 2 - innerHeight / 2;
+    scrollTo({ top: target, behavior: "instant" }); }, [j, !!mobile]);
+}
+/* Im Browser: Messung der sichtbaren Texte einer Akt-Grafik (effektive Schriftgröße = font-size × gerenderte Breite / viewBox-Breite,
+   Bounding-Box innerhalb der Grafik) und Zustand der Hervorhebungen je Schritt */
+const BROWSER_HELPERS = () => {
+  const vis = e => { for (let n = e; n && n.tagName !== "svg"; n = n.parentNode) { const cs = getComputedStyle(n); if (cs.display === "none" || cs.visibility === "hidden" || +cs.opacity < 0.05) return false; } return true; };
+  window.measure = (a, minPx) => { const svg = document.getElementById("svg" + a), r = svg.getBoundingClientRect(), k = r.width / svg.viewBox.baseVal.width, small = [], out = []; let min = 99;
+    svg.querySelectorAll("text").forEach(t => { if (!t.textContent.trim() || !vis(t)) return; const px = parseFloat(getComputedStyle(t).fontSize) * k; min = Math.min(min, px);
+      if (minPx && px < minPx - 0.05) small.push(`„${t.textContent.slice(0, 24)}“ ${px.toFixed(1)} px`);
+      const b = t.getBoundingClientRect(); if (b.left < r.left - 1 || b.right > r.right + 1 || b.top < r.top - 1 || b.bottom > r.bottom + 1) out.push(`„${t.textContent.slice(0, 24)}“`); });
+    return { small, out, min }; };
+  window.probe = (a, i) => { const q = s => [...document.querySelectorAll(s)], op = e => e && +getComputedStyle(e).opacity > 0.95, T = DATA.world.tight, W = DATA.world;
+    const visTxt = s => q(s).filter(e => op(e.closest("g[class]") || e)).map(t => t.textContent).join(" | ");
+    const res = { minPx: measure(a, 0).min, T, W };
+    if (a === "1" && i === 2) { res.near = { cols: q("#svg1 rect.col").filter(r => r.getAttribute("fill") === NEAR).length, map: q("#svg1 path.kreis").filter(r => r.getAttribute("fill") === NEAR).length,
+      lab: q("#svg1 g.o2 text").map(t => t.textContent).join(" "), op: q("#svg1 g.o2").every(op) }; res.share = fmt(Math.round(DATA.places.osl.de_richer_share)); }
+    if (a === "2" && i === 1) { const g = document.querySelector("#svg2 g.o1"); res.unc = { op: op(g), w: +g.querySelector("rect").getAttribute("width"), lab: g.querySelector("text").textContent }; }
+    if (a === "2" && i === 3) res.band = q("#svg2 g.o3 text").length;
+    if (a === "3") { const fl = c => q("#svg3 rect.sq").filter(r => r.getAttribute("fill") === c).length;
+      Object.assign(res, { cn: fl(CHINA), blue: fl(COL.l), near: fl(NEAR), amber: fl(COL.k), lab: q(`#svg3 g.o${i} text`).map(t => t.textContent).join(" "), fa: fmt(W.above_osl_mio), fc: fmt(W.cn_above_osl_mio) });
+      const L = q("#svg3 [data-cmp]").filter(t => op(t.closest("g.o2"))), bx = L.map(t => t.getBoundingClientRect());
+      res.cmp = L.map(t => t.textContent); res.cmpOverlap = bx.some((b, x) => bx.some((c, y) => y > x && b.left < c.right && c.left < b.right && b.top < c.bottom && c.top < b.bottom)); }
+    if (a === "4") { const rows = q("#svg4 .bars > g[class^=s]");
+      res.vis = { s0: rows.filter(g => g.classList.contains("s0") && op(g)).length, s1: rows.filter(g => g.classList.contains("s1") && op(g)).length, s2: rows.filter(g => g.classList.contains("s2") && op(g)).length };
+      res.lab = rows.filter(op).map(g => g.textContent).join(" ");
+      const ib = q("#svg4 .bars g.s2 rect.bar"), I = DATA.income; res.inc = { ratio: +ib[0].getAttribute("width") / +ib[1].getAttribute("width"), want: I.koeln.int / I.osl.int,
+        k: r3(I.koeln.int), l: r3(I.osl.int), f: fmt(I.ratio, 2), lab: document.querySelector("#svg4 .bars g.s2").textContent };
+      const pg = document.querySelector("#svg4 g.o3"); res.pers = pg && { op: op(pg), bars: +getComputedStyle(document.querySelector("#svg4 .bars")).opacity > 0.05, txt: pg.textContent,
+        want: ["osl", "koeln"].map(k => Math.round(DATA.persons[k].p50)), sub: document.querySelector("#g4 .fig-title .s").textContent }; }
+    return JSON.parse(JSON.stringify(res, (k, v) => typeof v === "function" ? undefined : v)); };
+};
 
 /* Handy-Prüfung: jede Akt-Sektion in kleinen Schritten durchscrollen. An jeder Stelle muss die Grafik vollständig
    sichtbar und oben liegen (kein Kartenteil darüber); im Moment der Aktivierung liegt die aktive Karte ganz unter der
@@ -79,12 +114,13 @@ async function mobileScan(page, name) {
   const base = `http://127.0.0.1:${server.address().port}/zwei-heimaten.html`;
   const browser = await chromium.launch();
   for (const [name, viewport, mobile] of [["Desktop 1366", { width: 1366, height: 800 }], ["Handy 390", { width: 390, height: 844 }, true],
-    ["Handy 360", { width: 360, height: 640 }, true], ["Tablet 800", { width: 800, height: 1000 }, true], ["Full HD", { width: 1920, height: 1080 }]]) {
+    ["Handy 360", { width: 360, height: 640 }, true], ["Tablet 800", { width: 800, height: 1000 }, true], ["Desktop 1440", { width: 1440, height: 900 }], ["Full HD", { width: 1920, height: 1080 }]]) {
     const page = await browser.newPage({ viewport });
     const errs = [], foreign = [];
     page.on("pageerror", e => errs.push(e.message));
     page.on("console", m => { if (m.type() === "error") errs.push(m.text()); });
     page.on("request", r => { if (!r.url().startsWith("http://127.0.0.1")) foreign.push(r.url()); });
+    await page.addInitScript(BROWSER_HELPERS);
     await page.goto(base, { waitUntil: "load" });
 
     // Schätzfrage
@@ -94,31 +130,64 @@ async function mobileScan(page, name) {
     // alle Schritte: Karte in den Aktivierungsbereich holen, Grafik muss den Schritt übernehmen
     const steps = await page.evaluate(() => [...document.querySelectorAll(".scrolly .step")].map(s => ({ act: s.closest(".scrolly").dataset.act, idx: s.dataset.idx })));
     const perAct = {}; steps.forEach(s => perAct[s.act] = (perAct[s.act] || 0) + 1);
-    let wrong = [], near5 = null, near10 = null;
+    const wrong = [], small = [], outside = [], st = {};
+    const minPx = viewport.width <= 360 ? 10 : viewport.width <= 400 ? 11 : 0;
     for (let j = 0; j < steps.length; j++) {
-      await page.evaluate(([j, mobile]) => { const s = document.querySelectorAll(".scrolly .step")[j], c = s.querySelector(".step-card").getBoundingClientRect();
-        const g = s.closest(".scrolly").querySelector(".graphic").offsetHeight;
-        // Desktop: Kartenmitte in die Bildmitte; Handy: Kartenoberkante knapp unter die Aktivierungslinie
-        const target = mobile ? c.top + scrollY - (g + (innerHeight - g) / 3) + 20 : c.top + scrollY + c.height / 2 - innerHeight / 2;
-        scrollTo({ top: target, behavior: "instant" }); }, [j, !!mobile]);
+      await goStep(page, j, mobile);
       await page.waitForTimeout(250);
-      const got = await page.evaluate(a => document.getElementById("g" + a).dataset.step, steps[j].act);
-      if (got !== steps[j].idx) wrong.push(`Akt ${steps[j].act}/${+steps[j].idx + 1}→${got}`);
-      if (steps[j].act === "1" && steps[j].idx === "3") { await page.waitForTimeout(800); near5 = await page.evaluate(hi => ({ cols: [...document.querySelectorAll("#svg1 rect.col")].filter(r => r.getAttribute("fill") === hi).length,
-        map: [...document.querySelectorAll("#svg1 path.kreis")].filter(r => r.getAttribute("fill") === hi).length, want: DATA.world.tight.n_near5,
-        lab: [...document.querySelectorAll("#svg1 .o3 text")].map(t => t.textContent).join(" "), op: getComputedStyle(document.querySelector("#svg1 .o3")).opacity, t: DATA.world.tight }), HI); }
-      if (steps[j].act === "3" && steps[j].idx === "2") { await page.waitForTimeout(800); near10 = await page.evaluate(hi => ({ n: [...document.querySelectorAll("#svg3 rect.sq")].filter(r => r.getAttribute("fill") === hi).length,
-        mio: DATA.world.near_osl_mio, lab: document.querySelector("#svg3 .o2 text").textContent }), HI); }
+      const { act, idx } = steps[j], key = `${act}/${idx}`;
+      const got = await page.evaluate(a => document.getElementById("g" + a).dataset.step, act);
+      if (got !== idx) wrong.push(`Akt ${act}/${+idx + 1}→${got}`);
+      await page.waitForTimeout(1000);   // Übergänge abwarten (Quadrate laufen als Welle bis ~1 s)
+      const m = await page.evaluate(([a, minPx]) => measure(a, minPx), [act, minPx]).catch(e => ({ err: e.message }));
+      if (m.err) { small.push(m.err); continue; }
+      m.small.forEach(t => small.push(`Akt ${act}/${+idx + 1}: ${t}`)); m.out.forEach(t => outside.push(`Akt ${act}/${+idx + 1}: ${t}`));
+      st[key] = await page.evaluate(([a, i]) => probe(a, i), [act, +idx]);
     }
-    ok(steps.length >= 18 && perAct[1] === 4 && perAct[2] === 5 && perAct[3] === 5 && perAct[4] >= 4 && wrong.length === 0,
+    ok(steps.length === 15 && perAct[1] === 3 && perAct[2] === 4 && perAct[3] === 4 && perAct[4] === 4 && wrong.length === 0,
       `${name}: ${steps.length} Schritte (Akt 1–4: ${[1, 2, 3, 4].map(a => perAct[a]).join("/")}), Grafik folgt jedem Schritt${wrong.length ? " – falsch: " + wrong.join(", ") : ""}`);
-    ok(near5 && near5.cols === near5.want && near5.map === near5.want && near5.op === "1" && near5.lab.includes(`${near5.want} Kreise höchstens 5 % von OSL entfernt`) && near5.lab.includes(`Rang ${near5.t.rank_plus5} bis ${near5.t.rank_minus5}`),
-      `${name}: Akt 1/4 hebt ${near5 && near5.cols} Säulen und ${near5 && near5.map} Kreise ±5 % um OSL hervor (erwartet ${near5 && near5.want}), Beschriftung „${near5 && near5.lab}“`);
-    ok(near10 && Math.abs(near10.n - near10.mio / 5) <= 3 && near10.lab.includes(`${near10.mio} Mio.`),
-      `${name}: Akt 3/3 hebt ${near10 && near10.n} Quadrate ±10 % um OSL hervor (≈ ${near10 && near10.mio} Mio. / 5 = ${near10 && (near10.mio / 5).toFixed(1)})`);
-    ok(await page.evaluate(() => document.querySelectorAll("#svg2 .o4 text").length >= 4), `${name}: Band „alle Kreise“ und Schätzung in Akt 2 gezeichnet`);
-    ok(await page.evaluate(() => document.querySelectorAll("#svg4 .o4").length === (DATA.persons ? 1 : 0)), `${name}: Überschlag-Grafik genau dann gezeichnet, wenn DATA.persons da ist`);
+    if (minPx) ok(small.length === 0, `${name}: alle sichtbaren Grafik-Texte effektiv ≥ ${minPx} px (kleinste: ${Math.min(...Object.values(st).map(s => s.minPx)).toFixed(1)} px)${small.length ? " – " + small.slice(0, 4).join(", ") : ""}`);
+    ok(outside.length === 0, `${name}: kein sichtbarer Text ragt aus seiner Grafik${outside.length ? " – " + outside.slice(0, 4).join(", ") : ""}`);
+    // Akt 1 / Schritt 3: Balken 81 % und die Kreise höchstens ±tight.band % um OSL in Säulen und Karte
+    { const s = st["1/2"]; ok(s && s.near.cols === s.T.n_near && s.near.map === s.T.n_near && s.near.op && s.near.lab.includes(`${s.T.n_near} Kreise`) && s.near.lab.includes(`höchstens ${s.T.band} %`)
+        && s.near.lab.includes(`Rang ${s.T.rank_plus} bis ${s.T.rank_minus}`) && s.near.lab.includes(`${s.share} % leben in reicheren Kreisen als OSL`),
+      `${name}: Akt 1/3 hebt ${s && s.near.cols} Säulen und ${s && s.near.map} Kreise ±${s && s.T.band} % um OSL hervor (erwartet ${s && s.T.n_near}), Balken und Beschriftung „${s && s.near.lab.replace(/\s+/g, " ")}“`); }
+    // Akt 2 / Schritt 2: Unsicherheitsbereich; keine Gegenprobe-Tabelle mehr im SVG
+    { const s = st["2/1"]; ok(s && s.unc.op && s.unc.w > 0 && s.unc.lab.includes(`${Math.round(s.T.world_minus)} bis ${Math.round(s.T.world_plus)} %`),
+      `${name}: Akt 2/2 zeigt den Bereich ${s && Math.round(s.T.world_minus)} bis ${s && Math.round(s.T.world_plus)} % um OSL („${s && s.unc.lab}“)`); }
+    ok(await page.evaluate(() => ![...document.querySelectorAll("#svg2 text")].some(t => /Bundesl|Metropol|je Ebene/.test(t.textContent)) && document.querySelectorAll("table.probe tbody tr").length === 4),
+      `${name}: Gegenprobe nicht mehr in der Grafik, dafür HTML-Tabelle table.probe mit 4 Zeilen`);
+    ok(st["2/3"] && st["2/3"].band >= 4, `${name}: Band „alle Kreise“ und Schätzung in Akt 2 / Schritt 4 gezeichnet`);
+    // Akt 3
+    { const s = st["3/1"]; ok(s && Math.abs(s.cn - s.W.cn_above_osl_mio / 5) <= 3 && Math.abs(s.cn + s.blue - s.W.above_osl_mio / 5) <= 4 && s.lab.includes(`${s.fa} Mio.`) && s.lab.includes(`${s.fc} Mio.`),
+      `${name}: Akt 3/2: ${s && s.blue} Quadrate blau, ${s && s.cn} China weiß über OSL (≈ ${s && s.W.cn_above_osl_mio} Mio. / 5), Unterzeile „${s && s.lab}“`); }
+    { const s = st["3/2"]; ok(s && Math.abs(s.near - s.W.near_osl_mio / 5) <= 3 && s.lab.includes(`${s.W.near_osl_mio} Mio.`) && s.cmp.includes("Japan") && s.cmp.includes("Polen") && (mobile || s.cmp.length === 5) && !s.cmpOverlap,
+      `${name}: Akt 3/3: ${s && s.near} Quadrate ±10 % um OSL (≈ ${s && s.W.near_osl_mio} Mio. / 5), Ländermarken ${s && s.cmp.join(", ")}${s && s.cmpOverlap ? " – ÜBERLAPPEN" : ""}`); }
+    ok(st["3/3"] && st["3/3"].amber > 0 && Math.abs(st["3/3"].amber - st["3/3"].W.above_koeln_mio / 5) <= 2, `${name}: Akt 3/4: ${st["3/3"] && st["3/3"].amber} Quadrate reicher als Köln in Amber`);
+    // Akt 4
+    { const a = st["4/0"], b = st["4/1"]; ok(a && b && a.vis.s0 && !a.vis.s1 && b.vis.s1 === 2 && b.lab.includes("Metropolregion") && b.lab.includes("Preise") && !b.vis.s2,
+      `${name}: Akt 4/2: Metropolregion und regionale Preise erscheinen gemeinsam (Schritt 1: ${a && a.vis.s1} Zeilen, Schritt 2: ${b && b.vis.s1})`); }
+    { const s = st["4/2"]; ok(s && s.vis.s2 && Math.abs(s.inc.ratio - s.inc.want) < 0.01 && s.inc.lab.includes(s.inc.k) && s.inc.lab.includes(s.inc.l) && s.inc.lab.includes("Faktor " + s.inc.f),
+      `${name}: Akt 4/3: Einkommens-Balken passen zu DATA.income (${s && s.inc.k} / ${s && s.inc.l}, Faktor ${s && s.inc.f})`); }
+    { const s = st["4/3"]; ok(s && s.pers.op && !s.pers.bars && s.pers.txt.includes(`OSL · mittlerer Mensch bei ${s.pers.want[0]} %`) && s.pers.txt.includes(`Köln · mittlerer Mensch bei ${s.pers.want[1]} %`) && /Modellrechnung/.test(s.pers.sub),
+      `${name}: Akt 4/4: Spannen für OSL und Köln (mittlerer Mensch bei ${s && s.pers.want.join(" / ")} %), Balken ausgeblendet, Untertitel umgeschaltet`); }
+    // Rückwärts: Akt 2 von Schritt 4 auf 3, Akt 1 von 3 auf 2, Akt 4 von 4 auf 3
+    { const back = [];
+      for (const [act, from, to, check] of [["2", 3, 2, "band"], ["1", 2, 1, "near"], ["4", 3, 2, "pers"], ["3", 2, 1, "sq"]]) {
+        const ix = steps.findIndex(s => s.act === act && +s.idx === from), iy = steps.findIndex(s => s.act === act && +s.idx === to);
+        await goStep(page, ix, mobile); await page.waitForTimeout(900); await goStep(page, iy, mobile); await page.waitForTimeout(1100);
+        const r = await page.evaluate(([a, to, check]) => { const f = document.getElementById("g" + a), op = s => +getComputedStyle(document.querySelector(s)).opacity;
+          if (f.dataset.step !== String(to)) return "Schritt " + f.dataset.step;
+          if (check === "band") return op("#svg2 g.o3") === 0 && op("#svg2 g.o2") === 1 || "Band noch sichtbar";
+          if (check === "near") return [...document.querySelectorAll("#svg1 rect.col")].every(r => r.getAttribute("fill") !== NEAR) && op("#svg1 g.o2") === 0 || "Hervorhebung bleibt";
+          if (check === "pers") return op("#svg4 .bars") === 1 && op("#svg4 g.o3") === 0 || "Spannen bleiben";
+          return [...document.querySelectorAll("#svg3 rect.sq")].every(r => r.getAttribute("fill") !== NEAR) && op("#svg3 g.o1") === 1 || "Quadrate falsch"; }, [act, to, check]);
+        if (r !== true) back.push(`Akt ${act} ${from + 1}→${to + 1}: ${r}`); }
+      ok(back.length === 0, `${name}: Zurückscrollen stellt den vorigen Zustand her${back.length ? " – " + back.join(", ") : ""}`); }
+    ok(await page.evaluate(() => document.querySelectorAll("#svg4 .o3").length === (DATA.persons ? 1 : 0)), `${name}: Überschlag-Grafik genau dann gezeichnet, wenn DATA.persons da ist`);
     ok(await page.evaluate(() => ![...document.querySelectorAll("#svg1 *, #svg3 *, #svg4 *")].some(e => /#e66767/i.test(e.getAttribute("fill") || ""))), `${name}: kein Rot in Akt 1, 3, 4`);
+    ok(await page.evaluate(() => [1, 2, 3, 4].every(i => (document.getElementById("svg" + i).getAttribute("aria-label") || "").length > 80) && /Rang 248 bis 361|höchstens/.test(document.getElementById("svg1").getAttribute("aria-label"))),
+      `${name}: Akt-Grafiken haben ein aria-label für die neue Schrittfolge`);
     if (mobile) await mobileScan(page, name);
 
     // Tabelle der wichtigsten Zahlen
@@ -145,34 +214,13 @@ async function mobileScan(page, name) {
     await page.close();
   }
 
-  // Überschlag (Akt 4, Schritt 5): Testdaten nur im Browser unterschieben, Karte für den Test einhängen
-  for (const [name, viewport, mobile] of [["Überschlag Desktop", { width: 1366, height: 800 }], ["Überschlag Handy", { width: 390, height: 844 }, true]]) {
-    const pg = await browser.newPage({ viewport }); const errs = []; pg.on("pageerror", e => errs.push(e.message));
-    await pg.addInitScript(p => { window.__persons = p;
-      new MutationObserver((ms, o) => { const s = document.querySelector("#akt-4 .steps"); if (s && s.querySelector(".step[data-idx='3']") && !s.querySelector("[data-idx='4']")) {
-        const d = document.createElement("div"); d.className = "step"; d.dataset.idx = "4"; d.innerHTML = '<div class="step-card"><h3>Test</h3><p>Nur im Test.</p></div>'; s.appendChild(d); o.disconnect(); } }).observe(document, { childList: true, subtree: true }); }, TEST_PERSONS);
-    await pg.goto(base, { waitUntil: "load" });
-    ok(await pg.evaluate(() => document.querySelectorAll("#akt-4 .step").length) === 5, `${name}: Testkarte als fünfter Schritt eingehängt`);
-    await pg.evaluate(mobile => { const c = document.querySelector("#akt-4 .step[data-idx='4'] .step-card").getBoundingClientRect(), g = document.querySelector("#akt-4 .graphic").offsetHeight;
-      scrollTo({ top: mobile ? c.top + scrollY - (g + (innerHeight - g) / 3) + 20 : c.top + scrollY + c.height / 2 - innerHeight / 2, behavior: "instant" }); }, !!mobile);
-    await pg.waitForTimeout(1200);
-    const st = await pg.evaluate(() => ({ step: document.getElementById("g4").dataset.step, bars: getComputedStyle(document.querySelector("#svg4 .bars")).opacity,
-      pers: getComputedStyle(document.querySelector("#svg4 .o4")).opacity, txt: document.querySelector("#svg4 .o4").textContent,
-      want: ["osl", "koeln"].map(k => Math.round((DATA.persons || window.__persons)[k].p50)) }));
-    ok(st.step === "4" && st.bars === "0" && st.pers === "1" && st.txt.includes(`OSL · mittlerer Mensch bei ${st.want[0]} %`) && st.txt.includes(`Köln · mittlerer Mensch bei ${st.want[1]} %`),
-      `${name}: Spannen für OSL und Köln gezeichnet (mittlerer Mensch bei ${st.want.join(" / ")} %), Balken ausgeblendet`);
-    if (mobile) await mobileScan(pg, name);
-    ok(errs.length === 0, `${name}: keine Konsolenfehler${errs.length ? " – " + errs.join(" | ") : ""}`);
-    await pg.close();
-  }
-
   // reduzierte Bewegung: nichts bleibt unsichtbar
   { const pg = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce" });
     await pg.goto(base, { waitUntil: "load" });
-    await pg.evaluate(() => { const c = document.querySelector("#akt-2 .step[data-idx='4'] .step-card").getBoundingClientRect(), g = document.querySelector("#akt-2 .graphic").offsetHeight;
+    await pg.evaluate(() => { const c = document.querySelector("#akt-2 .step[data-idx='3'] .step-card").getBoundingClientRect(), g = document.querySelector("#akt-2 .graphic").offsetHeight;
       scrollTo({ top: c.top + scrollY - (g + (innerHeight - g) / 3) + 20, behavior: "instant" }); });
     await pg.waitForTimeout(300);
-    ok(await pg.evaluate(() => getComputedStyle(document.querySelector("#svg2 .o4")).opacity === "1" && getComputedStyle(document.querySelector("#akt-2 .step.is-active .step-card")).opacity === "1"),
+    ok(await pg.evaluate(() => getComputedStyle(document.querySelector("#svg2 .o3")).opacity === "1" && getComputedStyle(document.querySelector("#akt-2 .step.is-active .step-card")).opacity === "1"),
       "reduzierte Bewegung: Grafik und aktive Karte sofort sichtbar");
     await pg.close(); }
 

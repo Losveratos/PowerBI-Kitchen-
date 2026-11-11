@@ -30,10 +30,11 @@
  * 20. Geschichten in Schritten mit „Weiter →" / „← Zurück" (alle außer einschrittigen; Zahlen zur Laufzeit aus den Daten),
  *     Kasten mit fester Mindesthöhe je Geschichte, nach „Weiter" holt die Seite die Karte in den Blick
  * 21. Steuerung kompakt: Detail · Ansicht · Farbstufen (aufklappbar) in einer Zeile über der Karte, Erklärtext auch am
- *     Desktop einzeilig mit „mehr", Unterzeile mit den Datenjahren unter die Legende
+ *     Desktop einzeilig mit „mehr", Unterzeile mit den Datenjahren unter die Legende; unter 1500 px (ohne Handy)
+ *     ist die Karte höchstens 72 % der Fensterhöhe hoch (Seite: 78 %)
  * 22. Überschrift: während einer Geschichte nur der feste Median-Satz (springt nicht, widerspricht dem Kasten nicht);
  *     Haushaltswerte, die nur für eine größere Region gelten, sagen das in der Überschrift
- * 23. Profilkarte geordnet: Wert, Kennzahlen, Warnungen, Story-Link, Ähnliche; Zeitreihe und „Auf einer Stufe mit“
+ * 23. Profilkarte geordnet: Wert, Warnungen, Kennzahlen, Story-Link, Ähnliche; Zeitreihe und „Auf einer Stufe mit“
  *     danach; „Alle Kennzahlen · ähnlichstes Land“ eingeklappt (Zustand bleibt bei neuer Auswahl); Quellen am Ende
  * 24. Hinweis, wenn die regionale Verteilung fünf oder mehr Jahre älter ist als der Landeswert
  * 25. Bewegung reduzieren: Zoom-Übergänge springen bei prefers-reduced-motion direkt ans Ziel
@@ -213,6 +214,14 @@
     if (/Landeswert/.test(n)) return "Landeswert, keine regionalen Einkommensdaten";
     return n;
   }
+  function hhFor(u) {
+    var n = u && u.hh_note; if (!n) return "";
+    if (/NUTS-2/.test(n)) return "für die größere NUTS-2-Region";
+    if (/Landeswert/.test(n)) return "für das ganze Land";
+    return "für die übergeordnete Region";
+  }
+  // "Hangzhou (杭州市; Zhejiang, China)" instead of two pairs of brackets
+  function named(x) { var wo = where(x); if (!wo) return x.name; return /\)$/.test(x.name) ? x.name.replace(/\)$/, "; " + wo + ")") : x.name + " (" + wo + ")"; }
 
   function storyEligible(u) {
     return !!u && !/^[MR]-/.test(u.id) && (u.lv.indexOf(0) >= 0 || u.lv.indexOf(1) >= 0 || u.lv.indexOf(2) >= 0) &&
@@ -268,6 +277,12 @@
       var on = bC.find(function (b) { return b.getAttribute("aria-pressed") === "true"; });
       t.textContent = open ? "Farbstufen ▾" : "Farbstufen ▸";
       t.title = on ? "Farbstufen: " + on.textContent : "Farbstufen";
+      // phones: the level row scrolls sideways; keep the active level in sight
+      var a = lvRow.querySelector('.chip[aria-pressed="true"]');
+      if (a && lvRow.scrollWidth > lvRow.clientWidth + 1) {
+        var l = a.offsetLeft - lvRow.offsetLeft, rr = l + a.offsetWidth;
+        if (l < lvRow.scrollLeft || rr > lvRow.scrollLeft + lvRow.clientWidth - 32) lvRow.scrollLeft = Math.max(0, rr - lvRow.clientWidth + 40);
+      }
     }
     t.addEventListener("click", function () { open = !open; render(); });
     // #views keeps all four buttons (the page script finds them as "#views …")
@@ -521,7 +536,8 @@
     var allOpen = false;   // "Alle Kennzahlen · ähnlichstes Land": closed by default, the state survives a new selection
     function arrange(el, dqEl, bigEl) {
       if (dqEl && bigEl) {
-        var ws = [].slice.call(dqEl.querySelectorAll(":scope > .warn"));
+        // the page wraps each note in a <span>; a note is a warning when it is or holds a .warn
+        var ws = [].slice.call(dqEl.children).filter(function (c) { return c.classList.contains("warn") || !!c.querySelector(".warn"); });
         if (ws.length) {
           var wb = document.createElement("div"); wb.className = "dq wx-warns";
           ws.forEach(function (w) { wb.appendChild(w); });
@@ -564,8 +580,7 @@
           pct(popShareBelow(k, "gdp_pc_ppp")) + ".";
         try {
           var a = twins(o, m), b = twins(k, m);
-          if (a && a.length && b && b.length) t += " Ähnlich hoch: " + a[0].name + " (" + where(a[0]) + ") wie " + o.name + ", " +
-            b[0].name + " (" + where(b[0]) + ") wie " + k.name + ".";
+          if (a && a.length && b && b.length) t += " Ähnlich hoch: " + named(a[0]) + " wie " + o.name + ", " + named(b[0]) + " wie " + k.name + ".";
         } catch (e) {}
         return t;
       }};
@@ -887,7 +902,8 @@
            var by = d3.rollups(l, function (a) { return sumPop(a); }, function (x) { return x.ct; }).filter(function (c) { return c[0]; }).sort(function (a, b) { return b[1] - a[1]; });
            var t = "Nur " + pct(sumPop(l) / WORLD.pop) + " der Menschheit leben in Regionen mit höherem BIP pro Kopf als Berlin (" + MG.fmt(v) + "). Diese " + big(sumPop(l)) +
              " Menschen erwirtschaften " + pct(d3.sum(l, function (x) { return x.gdp_ppp || 0; }) / WORLD.ppp) + " der Weltwirtschaft.";
-           if (by.length >= 2) t += " Die meisten leben in " + by[0][0] + " (" + big(by[0][1]) + ") und " + by[1][0] + " (" + big(by[1][1]) + ").";
+           var cn = function (c) { return c.replace(" & ", " und "); };
+           if (by.length >= 2) t += " Die meisten leben in " + cn(by[0][0]) + " (" + big(by[0][1]) + ") und " + cn(by[1][0]) + " (" + big(by[1][1]) + ").";
            return t;
          }},
         {run: function () { set({level: 2, sel: BERLIN, hl: "above", thr: v, zoom: DE_BOX}); },
@@ -1005,7 +1021,7 @@
              k.name + " sogar rund " + pct(popBelow(k.gdp_pc_ppp, "gdp_pc_ppp", 2)) + ". Hervorgehoben: alle Regionen über OSL.";
            try {
              var a = twins(o, MG), b = twins(k, MG);
-             if (a && a.length && b && b.length) t += " Ähnlich hoch: " + a[0].name + " (" + where(a[0]) + ") wie OSL, " + b[0].name + " (" + where(b[0]) + ") wie " + k.name + ".";
+             if (a && a.length && b && b.length) t += " Ähnlich hoch: " + named(a[0]) + " wie OSL, " + named(b[0]) + " wie " + k.name + ".";
            } catch (e) {}
            return t;
          }},
@@ -1036,7 +1052,7 @@
          text: function () {
            return "Gezählt am Wohnort sieht es anders aus: Beim Haushaltskonsum pro Kopf kommt Wolfsburg auf " + MH.fmt(W.hh_pc_ppp) +
              (DEU.hh_pc_ppp != null ? (W.hh_pc_ppp < DEU.hh_pc_ppp ? " – weniger als der deutsche Schnitt (" : " – etwa so viel wie der deutsche Schnitt (") + MH.fmt(DEU.hh_pc_ppp) + ")" : "") + "." +
-             (W.hh_note ? " Der Wert gilt nicht für Wolfsburg allein: " + hhPhrase(W) + "." : "");
+             (W.hh_note ? " Der Wert gilt " + hhFor(W) + ", nicht für Wolfsburg allein." : "");
          }},
         {ok: function () { return !!metro; },
          run: function () { set({level: 3, sel: metro, zoom: DE_BOX}); },
@@ -1080,8 +1096,8 @@
       var seen = Math.max(0, Math.min(vh, r.bottom) - Math.max(0, r.top)) / Math.max(1, r.height);
       if (seen >= 0.9 || r.top < 0) return;
       var want = r.height > vh - 16 ? r.top - 8 : r.bottom - vh + 8;
-      var br = btn.getBoundingClientRect();
-      want = Math.min(want, br.top - 8);
+      // never past the top of the story box: its text must stay readable
+      want = Math.min(want, box.getBoundingClientRect().top - 8, btn.getBoundingClientRect().top - 8);
       if (want > 2) window.scrollBy({top: want, behavior: reduce.matches ? "auto" : "smooth"});
     }
     function go(d, btn) {

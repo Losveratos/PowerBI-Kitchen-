@@ -41,6 +41,9 @@ function serve(port) {
     await atlas.goto('http://127.0.0.1:8766/wohlstandsatlas.html', { waitUntil: 'load' });
     await atlas.addStyleTag({ content: '#zoom,.zoom,#tip,.tip{display:none!important}' });
     await atlas.waitForTimeout(4000);
+    // ohne automatische Beschriftungen: Das Vorschaubild schneidet die Karte zu (cover), Labels am Rand wären angeschnitten
+    await atlas.evaluate(() => { labels = function () {}; redraw(); });
+    await atlas.waitForTimeout(300);
     await atlas.locator('#map').scrollIntoViewIfNeeded();
     const buf = await atlas.locator('#map').screenshot();
     await atlas.close();

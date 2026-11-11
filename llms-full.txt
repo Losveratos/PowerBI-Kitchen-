@@ -4082,7 +4082,7 @@ Alle 400 Kreise zusammen spannen auf der Kurve also nur gut ein Viertel auf, gan
 
 ### Die Welt in 1.624 Quadraten
 
-Jedes Quadrat steht für 5 Millionen Menschen, sortiert nach dem BIP pro Kopf ihrer Region. Farbig sind Indien, China und Afrika. Das untere Drittel sind vor allem Indien, Pakistan, Nigeria, Äthiopien und der Kongo. In der Mitte: China, Indien, Indonesien, Bangladesch. Oben China, die USA, Russland, Japan und Europa.
+Jedes Quadrat steht für 5 Millionen Menschen, sortiert nach dem BIP pro Kopf ihrer Region. Markiert sind Indien, China und Afrika. Das untere Drittel sind vor allem Indien, Pakistan, Nigeria, Äthiopien und der Kongo. In der Mitte: China, Indien, Indonesien, Bangladesch. Oben China, die USA, Russland, Japan und Europa.
 
 Deutschlands 84 Mio. Menschen wären knapp 17 Quadrate.
 
