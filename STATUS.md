@@ -71,6 +71,12 @@ jeweiligen Visual-Ordner.
   („15.200 Int.$“) teilt nur durch die Menschen mit Daten, die Story durch die ganze Weltbevölkerung (15.265).
 - **Zwei Heimaten** (`zwei-heimaten.html`, Datenstory aus dem Atlas): generiert aus `wohlstand-story/` (Pipeline und
   Bausteine im dortigen README). Vorschaubilder fürs Teilen: `tools/og-cards/build.js` → `assets/og/`.
+  Seit 11/2026 gegen die Originalquellen geprüft: `wohlstand-story/scripts/fetch_sources.py` holt Eurostat, Weltbank und
+  die VGR der Länder nach `wohlstand-story/data/sources/` (Prüfbericht `ABGLEICH.md`: alle 400 Kreise höchstens 0,004 %
+  Abweichung zum Atlas). Das Skript braucht Netz zu `ec.europa.eu`, `api.worldbank.org` und `www.statistikportal.de`;
+  in Claude-Cloud-Sitzungen erlaubt das die Umgebung „powerbi-kitchen“. Offen aus dem Abgleich: Die Statistischen Ämter
+  haben einen neueren Rechenstand (August 2025: Köln Rang 27, OSL Rang 300), der Atlas steht auf Eurostat 2023; der Gini
+  für Deutschland im Atlas (35,2) weicht vom jüngsten Wert der Weltbank ab (33,7 für 2022).
 - **AppSource:** Einreichung liegt bei Artur (organisatorisch).
 - **Branch-Hygiene:** `kitchen-refresh-data` gehört dem Refresh-Workflow und
   bleibt. Einziger Branch mit bewusst ungemergter Arbeit:

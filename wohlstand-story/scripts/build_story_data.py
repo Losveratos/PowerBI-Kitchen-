@@ -248,31 +248,42 @@ for u in sorted((u for u in U if u.get("pop") and u.get("gdp_pc_ppp") and not u.
     cn = by[u["country"]]["name"] if u["country"] in by else u["country"]
     search.append([u["name"], cn if u["kind"] != "Land/Gebiet" else "", r(u["gdp_pc_ppp"]), u["kind"], u["id"], FINE in u["lv"]])
 
+# ---------- Originalquellen (data/sources/, abgerufen mit fetch_sources.py) ----------
+SRC_DIR = ROOT / "data" / "sources"
+src = lambda name: json.loads((SRC_DIR / name).read_text(encoding="utf-8"))
+
 # ---------- Und früher? Deutschland unter den Ländern der Welt, 2000 bis 2024 ----------
-# Reales BIP pro Kopf (Int.$ von 2021) aus den Länder-Zeitreihen des Atlas. Bevölkerung je Jahr hat der Atlas nicht,
-# deshalb werden alle Jahre mit der Bevölkerung von 2024 gewichtet. Nur Länder mit durchgehender Reihe.
+# Reales BIP pro Kopf (Int.$ von 2021) aus den Länder-Zeitreihen des Atlas, gewichtet mit der Bevölkerung des
+# jeweiligen Jahres (Weltbank SP.POP.TOTL; der Atlas selbst führt nur die Bevölkerung von 2024). Nur Länder mit
+# durchgehender Reihe und Bevölkerung in allen Jahren.
 TS, Y0 = ts["series"], ts["start"]
+WBP = src("worldbank_pop.json")
+assert WBP["jahre"][0] == Y0, "Zeitreihen und Bevölkerung beginnen nicht im selben Jahr"
+POPY = WBP["werte"]
 cty = {u["id"]: u for u in lvl(0)}
-full = [c for c in TS if c in cty and all(v is not None for v in TS[c])]
-full_pop = sum(cty[c]["pop"] for c in full)
+full = [c for c in TS if c in cty and all(v is not None for v in TS[c]) and c in POPY and all(v is not None for v in POPY[c])]
 YN = Y0 + len(TS["DEU"]) - 1
 
 
 def year_stats(y):
     i, de = y - Y0, TS["DEU"][y - Y0]
+    pop = {c: POPY[c][i] for c in full}
+    tot = sum(pop.values())
     acc, med = 0.0, None
     for c in sorted(full, key=lambda c: TS[c][i]):
-        acc += cty[c]["pop"]
-        if acc >= full_pop / 2:
+        acc += pop[c]
+        if acc >= tot / 2:
             med = TS[c][i]; med_name = cty[c]["name"]; break
-    mean = sum(TS[c][i] * cty[c]["pop"] for c in full) / full_pop
+    mean = sum(TS[c][i] * pop[c] for c in full) / tot
     return {"deu": r(de), "med": r(med), "med_name": med_name, "x_med": r(de / med, 1), "mean": r(mean), "x_mean": r(de / mean, 1),
-            "below": r(sum(cty[c]["pop"] for c in full if TS[c][i] < de) / full_pop * 100, 1),
+            "below": r(sum(pop[c] for c in full if TS[c][i] < de) / tot * 100, 1),
             "rank": sum(1 for c in full if TS[c][i] > de) + 1}
 
 
 grow = lambda c, a, b: r((TS[c][b - Y0] / TS[c][a - Y0] - 1) * 100, 1)
-trend = {"start": Y0, "end": YN, "n": len(full), "pop_share": r(full_pop / WORLD * 100),
+trend = {"start": Y0, "end": YN, "n": len(full),
+         "pop_share": r(sum(cty[c]["pop"] for c in full) / WORLD * 100),
+         "pop_source": f"{WBP['quelle']}, {WBP['indikator']}, Stand {WBP['stand']}",
          "deu": [r(v) for v in TS["DEU"]], "med": [year_stats(y)["med"] for y in range(Y0, YN + 1)],
          "mean": [year_stats(y)["mean"] for y in range(Y0, YN + 1)],
          # größtes Land ohne durchgehende Reihe, das heute vor Deutschland läge (laufende KKP)
@@ -281,6 +292,51 @@ trend = {"start": Y0, "end": YN, "n": len(full), "pop_share": r(full_pop / WORLD
          "first": year_stats(Y0), "last": year_stats(YN),
          "since2019": {c: grow(c, 2019, YN) for c in ("DEU", "USA", "POL")},
          "since2000": {c: grow(c, Y0, YN) for c in ("DEU", "USA", "POL", "CHN")}}
+
+# ---------- Verfügbares Einkommen auf Kreisebene (VGR der Länder) ----------
+# Der Atlas kennt Haushaltswerte nur für Regierungsbezirke und Länder. Für Köln und OSL selbst liefern die Statistischen
+# Ämter das verfügbare Einkommen je Einwohner. In den Weltvergleich kommt es nach der Logik des Atlas:
+# Kreiswert relativ zu Deutschland × Konsum der Haushalte pro Kopf in Deutschland (KKP).
+VE = src("vgrdl_verfuegbares_einkommen_kreise.json")
+VY = VE["jahre"][-1]
+ve = {k: x["werte"][VY] for k, x in VE["regionen"].items() if x["ebene"] == "Kreis" and x["werte"].get(VY)}
+ve_de = VE["regionen"]["DE"]["werte"][VY]
+ve_sorted = sorted(ve.values(), reverse=True)
+
+
+def inc(uid):
+    e = ve[uid]
+    v = e / ve_de * by["DEU"]["hh_pc_ppp"]
+    return {"eur": e, "int": r(v), "rank": ve_sorted.index(e) + 1, "world_below": r(below(v, "hh_pc_ppp", FINE) * 100, 1)}
+
+
+income = {"year": int(VY), "n": len(ve), "de_eur": ve_de, "koeln": inc(KOELN), "osl": inc(OSL),
+          "ratio": r(ve[KOELN] / ve[OSL], 2), "band": BAND,
+          "n_near": sum(1 for k, e in ve.items() if k != OSL and ve[OSL] * (1 - BAND / 100) <= e <= ve[OSL] * (1 + BAND / 100)),
+          "source": f"{VE['quelle']}, Tabelle 2.4, Berechnungsstand {VE['berechnungsstand']}"}
+income["world_gap"] = r(abs(income["koeln"]["world_below"] - income["osl"]["world_below"]), 1)
+
+# ---------- Abgleich mit den Originalquellen (für „Zum Nachprüfen“) ----------
+# BIP pro Kopf der Kreise aus Eurostat nachgerechnet (Anteil am Land × Landeswert der Weltbank 2024) und mit dem Atlas verglichen.
+EU = src("eurostat_nuts3_de.json")
+WBG = src("worldbank_gdp_pc_ppp_2024.json")
+eu_de = EU["regionen"]["DE"]
+ey = str(by[OSL]["year"])
+eu_pc = {k: (x[f"bip_mio_eur_{ey}"] / x[f"bev_tsd_{ey}"]) / (eu_de[f"bip_mio_eur_{ey}"] / eu_de[f"bev_tsd_{ey}"]) * WBG["werte"]["DEU"]
+         for k, x in EU["regionen"].items() if x["level"] == 3}
+dev = {k: abs(by[k]["gdp_pc_ppp"] / v - 1) * 100 for k, v in eu_pc.items() if k in by}
+eu_rank = {k: i + 1 for i, (k, _) in enumerate(sorted(eu_pc.items(), key=lambda kv: -kv[1]))}
+at_rank = {x["id"]: i + 1 for i, x in enumerate(de_fine)}
+# neuerer Rechenstand der Statistischen Ämter: Ränge dort
+VB = src("vgrdl_bip_kreise.json")
+vb = {k: x["bip_eur_je_ew"][ey] for k, x in VB["regionen"].items() if x["ebene"] == "Kreis" and x["bip_eur_je_ew"].get(ey)}
+vb_sorted = sorted(vb.values(), reverse=True)
+wb_keys = ("DEU", "POL", "EST", "JPN", "PRT", "NOR", "QAT", "USA", "CHN", "IND", "IDN", "RUS")
+checks = {"eurostat_year": int(ey), "eurostat_stand": EU["tabellen"]["nama_10r_3gdp"]["stand"][:10], "wb_stand": WBG["stand"],
+          "n_kreise": len(dev), "max_dev_pct": r(max(dev.values()), 3), "ranks_identical": all(eu_rank[k] == at_rank[k] for k in dev),
+          "wb_deu": r(WBG["werte"]["DEU"]), "n_countries": len(wb_keys),
+          "max_dev_countries_pct": r(max(abs(by[c]["gdp_pc_ppp"] / WBG["werte"][c] - 1) * 100 for c in wb_keys), 3),
+          "vgrdl_stand": VB["berechnungsstand"], "vgrdl_rank": {"koeln": vb_sorted.index(vb[KOELN]) + 1, "osl": vb_sorted.index(vb[OSL]) + 1}}
 
 # ---------- Überschlag: wo die einzelnen Menschen stehen (Modellrechnung aus person_model.py) ----------
 # Nur Größen, die in allen Rechenvarianten in dieselbe Richtung gehen, mit ihrer Spanne über die Varianten.
@@ -328,6 +384,8 @@ D = {
 if persons:
     D["persons"] = persons
 D["trend"] = trend
+D["income"] = income
+D["checks"] = checks
 OUT.parent.mkdir(parents=True, exist_ok=True)
 OUT.write_text(json.dumps(D, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
 print(f"✓ {OUT.relative_to(REPO)} · {OUT.stat().st_size / 1024:.0f} KB · {len(kreise)} Kreise · {n_sq} Quadrate · {len(search)} Orte")
@@ -335,6 +393,8 @@ for k in ("koeln", "osl"):
     p = P[k]; print(f"  {p['name']}: {p['gdp']} Int.$, Welt darunter {p['world_below']}, DE-Rang {p.get('de_rank')}/{p.get('de_n')}")
 print("  eng:", tight, "| ungeteilte Länder", len(whole), "von", len(lvl(0)), "| ±10 % um OSL", r(near10 / 1e6), "Mio.")
 print("  Zeit:", trend["first"], "→", trend["last"], trend["since2019"], trend["n"], "Länder,", trend["pop_share"], "% der Welt")
+print("  Einkommen (Kreise):", income)
+print("  Abgleich:", checks)
 print("  Personen-Überschlag:", persons and persons["span"])
 print("  DE-Spanne", germany["poorest"], germany["richest"])
 print("  Median", D["world"]["median"], D["world"]["median_name"], "| Mittel", D["world"]["mean"], "| zwischen", D["world"]["between_share"],

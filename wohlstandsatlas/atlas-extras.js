@@ -27,7 +27,16 @@
  * 17. Suche in den Kopf der Seite (dasselbe Feld #q samt Vorschlagsliste, nur verschoben)
  * 18. Farbstufen-Chips: „je 1/7 der Länder / der Menschheit" (der Code rechnet in Siebteln)
  * 19. Profilkarte: Rang zählt Einheiten, Anteil zählt Menschen (kurzer Hinweis); Ukraine-Hinweis
- * 20. Geschichte „Wenn BIP täuscht" in drei Schritten mit „Weiter →" / „← Zurück"
+ * 20. Geschichten in Schritten mit „Weiter →" / „← Zurück" (alle außer einschrittigen; Zahlen zur Laufzeit aus den Daten),
+ *     Kasten mit fester Mindesthöhe je Geschichte, nach „Weiter" holt die Seite die Karte in den Blick
+ * 21. Steuerung kompakt: Detail · Ansicht · Farbstufen (aufklappbar) in einer Zeile über der Karte, Erklärtext auch am
+ *     Desktop einzeilig mit „mehr", Unterzeile mit den Datenjahren unter die Legende
+ * 22. Überschrift: während einer Geschichte nur der feste Median-Satz (springt nicht, widerspricht dem Kasten nicht);
+ *     Haushaltswerte, die nur für eine größere Region gelten, sagen das in der Überschrift
+ * 23. Profilkarte geordnet: Wert, Kennzahlen, Warnungen, Story-Link, Ähnliche; Zeitreihe und „Auf einer Stufe mit“
+ *     danach; „Alle Kennzahlen · ähnlichstes Land“ eingeklappt (Zustand bleibt bei neuer Auswahl); Quellen am Ende
+ * 24. Hinweis, wenn die regionale Verteilung fünf oder mehr Jahre älter ist als der Landeswert
+ * 25. Bewegung reduzieren: Zoom-Übergänge springen bei prefers-reduced-motion direkt ans Ziel
  * Breitbild (ab 1500 px): Ändert sich die Höhe über der Karte (Geschichte, Erklärtext, Kennzahlen),
  * wird die Kartengröße neu berechnet und der Ausschnitt beibehalten.
  * Der Ladehinweis „Karte wird geladen …" steht im HTML (.wx-loading) und blendet sich per CSS aus,
@@ -85,14 +94,37 @@
     "@keyframes wx-flash{from{box-shadow:inset 0 0 0 2px var(--sel)}to{box-shadow:inset 0 0 0 2px transparent}}",
     ".wx-pick.flash{animation:wx-flash 1.1s ease-out}",
     "@media (prefers-reduced-motion:reduce){.wx-pick.flash{animation:none}}",
-    // explanation: two lines on phones, "mehr" opens it
+    // explanation: one line (phones: two lines), "mehr" opens it
     "#explain{position:relative}",
     ".wx-more{display:none;font:500 .78rem var(--body);background:none;border:0;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px}",
-    "@media (max-width:700px){",
-    "  #explain.wx-clamp:not(.wx-open){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}",
-    "  #explain.wx-clamp .wx-more{display:inline}",
-    "  #explain.wx-clamp:not(.wx-open) .wx-more{position:absolute;right:0;bottom:0;padding-left:2.2em;background:linear-gradient(90deg,transparent,var(--bg) 1.6em)}",
-    "  #explain.wx-clamp.wx-fits .wx-more{display:none}}",
+    "#explain.wx-clamp:not(.wx-open){display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;line-clamp:1;overflow:hidden}",
+    "#explain.wx-clamp .wx-more{display:inline}",
+    "#explain.wx-clamp:not(.wx-open) .wx-more{position:absolute;right:0;bottom:0;padding-left:2.2em;background:linear-gradient(90deg,transparent,var(--bg) 1.6em)}",
+    "#explain.wx-clamp.wx-fits .wx-more{display:none}",
+    "@media (max-width:700px){#explain.wx-clamp:not(.wx-open){-webkit-line-clamp:2;line-clamp:2}}",
+    // compact controls: Detail · Ansicht · Farbstufen in one row
+    ".wx-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 24px;min-width:0}",
+    ".wx-g{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}",
+    ".wx-g .chip[hidden]{display:none}",
+    ".wx-cwt{flex:none;font:500 .82rem var(--body);border:1px dashed var(--line);background:none;color:var(--muted);padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}",
+    ".wx-cwt:hover{color:var(--ink);border-color:var(--ink)}",
+    "@media (max-width:700px){.wx-ctl{gap:8px 16px}",
+    "  .wx-g-lv{flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;padding-right:28px;-webkit-mask-image:linear-gradient(90deg,#000 82%,transparent);mask-image:linear-gradient(90deg,#000 82%,transparent)}",
+    "  .wx-g-lv::-webkit-scrollbar{display:none}}",
+    ".wx-sub{margin:0}",
+    // profile card: folded table, warnings near the value
+    "details.wx-all{display:grid;gap:8px;min-width:0}",
+    "details.wx-all>summary{cursor:pointer;font:600 .76rem var(--body);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);list-style:none;padding:2px 0}",
+    "details.wx-all>summary::-webkit-details-marker{display:none}",
+    "details.wx-all>summary::before{content:\"▸ \"}",
+    "details.wx-all[open]>summary::before{content:\"▾ \"}",
+    "details.wx-all>summary:hover{color:var(--ink)}",
+    "details.wx-all>.cmp{margin-top:6px}",
+    "#card .inner2.wx-one{grid-template-columns:minmax(0,1fr)}",
+    ".wx-warns{margin-top:-4px}",
+    // keyboard focus where the page's own CSS resets it (all:unset)
+    ".chain button:focus-visible{outline:2px solid var(--sel);outline-offset:2px;border-radius:3px}",
+    ".cmp button:focus-visible{outline-offset:2px;border-radius:3px}",
     // twins: country next to the name
     ".wx-twins .wx-where{font-weight:400;color:var(--muted)}",
     // key figures: secondary metrics behind "Weitere Kennzahlen" (the active one always stays visible)
@@ -115,7 +147,7 @@
     ".wx-sfoot .x{margin-left:auto}",
     ".wx-steps{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}",
     ".wx-steps[hidden]{display:none}",
-    ".wx-steps .wx-stepn{font:500 .75rem var(--mono);color:var(--muted)}",
+    ".wx-steps .wx-stepn{font:500 .75rem var(--mono);color:var(--muted);min-width:9.5ch}",
     // card: rank counts units, share counts people
     ".wx-rankhint{font-size:.8rem}"
   ].join("\n");
@@ -123,6 +155,7 @@
   // ---------- shared state ----------
   var zOn = false, zUnit = null;          // --z1: zoom on the selection while it stays selected
   var M0 = null;                           // BIP/Kopf (KKP)
+  var OLD_YEARS = 5;                       // regional distribution this many years older than the national value: hint
   function setZoomFlag(on) {
     zOn = !!on; zUnit = on ? selected : null;
     if (fn(writeHash)) writeHash();
@@ -167,6 +200,20 @@
     return [pn, countryName(x)].filter(Boolean).join(", ");
   }
 
+  // state-independent helpers (stories measure all their steps up front, so their texts must not read the current level)
+  function mk(k) { return METRICS.find(function (m) { return m.k === k; }); }
+  function at(lv) { return units.filter(function (u) { return u.lv.includes(lv) && !u.nogeo; }); }
+  function popBelow(v, k, lv) { return d3.sum(at(lv).filter(function (x) { return x[k] != null && x[k] < v; }), function (x) { return x.pop || 0; }) / WORLD.pop; }
+  function popAbove(v, k, lv) { return d3.sum(at(lv).filter(function (x) { return x[k] != null && x[k] > v; }), function (x) { return x.pop || 0; }) / WORLD.pop; }
+  function times(a, b) { return f1(a / b).replace(/,0$/, ""); }
+  // household values that exist only for a larger region (hh_note in the data)
+  function hhPhrase(u) {
+    var n = u && u.hh_note; if (!n) return "";
+    if (/NUTS-2/.test(n)) return "Wert der größeren NUTS-2-Region";
+    if (/Landeswert/.test(n)) return "Landeswert, keine regionalen Einkommensdaten";
+    return n;
+  }
+
   function storyEligible(u) {
     return !!u && !/^[MR]-/.test(u.id) && (u.lv.indexOf(0) >= 0 || u.lv.indexOf(1) >= 0 || u.lv.indexOf(2) >= 0) &&
       (u.pop || 0) >= 1e4 && u.gdp_pc_ppp != null;
@@ -193,6 +240,49 @@
     var st = document.createElement("style"); st.id = "atlas-extras-css"; st.textContent = CSS; document.head.appendChild(st);
   });
 
+  // 21 · compact controls above the map: Detail · Ansicht · Farbstufen in one row (Farbstufen folded), the explanation
+  // in one line (feature 12) and the line with the data years under the legend. Runs before the layout, so the wide
+  // layout measures the final height above the map.
+  feature("Steuerung kompakt", function () {
+    var v = document.getElementById("views"), lv = document.getElementById("levels"), st = document.getElementById("settings");
+    return !!v && !!lv && !!st && !!lv.parentNode && st.contains(v) && v.querySelectorAll(".chip[data-v]").length === 2 && v.querySelectorAll("[data-cw]").length === 2;
+  }, function () {
+    var views = document.getElementById("views"), st = document.getElementById("settings"), lvRow = document.getElementById("levels").parentNode;
+    var bV = [].slice.call(views.querySelectorAll(".chip[data-v]")), bC = [].slice.call(views.querySelectorAll("[data-cw]"));
+    var labs = [].slice.call(views.querySelectorAll(".lab"));
+    function grp(cls, name, nodes) {
+      var g = document.createElement("div"); g.className = "wx-g " + cls; g.setAttribute("role", "group"); g.setAttribute("aria-label", name);
+      nodes.forEach(function (n) { if (n) g.appendChild(n); }); return g;
+    }
+    // Detail: the page's own row, now one group inside the control row
+    lvRow.className = "wx-g wx-g-lv";
+    var gV = grp("wx-g-v", "Ansicht", [labs[0]].concat(bV));
+    // Farbstufen: a button opens the two chips (they keep their aria-pressed from the page script)
+    var t = document.createElement("button"); t.type = "button"; t.className = "wx-cwt"; t.id = "wx-cwt"; t.setAttribute("aria-controls", "wx-cw");
+    var gC = grp("wx-g-cw", "Farbstufen", [t].concat(bC)); gC.id = "wx-cw";
+    if (labs[1]) labs[1].remove();
+    var open = false;
+    function render() {
+      bC.forEach(function (b) { b.hidden = !open; });
+      t.setAttribute("aria-expanded", open ? "true" : "false");
+      var on = bC.find(function (b) { return b.getAttribute("aria-pressed") === "true"; });
+      t.textContent = open ? "Farbstufen ▾" : "Farbstufen ▸";
+      t.title = on ? "Farbstufen: " + on.textContent : "Farbstufen";
+    }
+    t.addEventListener("click", function () { open = !open; render(); });
+    // #views keeps all four buttons (the page script finds them as "#views …")
+    views.className = "wx-ctl"; views.removeAttribute("role"); views.removeAttribute("aria-label");
+    views.textContent = "";
+    views.appendChild(lvRow); views.appendChild(gV); views.appendChild(gC);
+    st.parentNode.insertBefore(views, st);
+    st.hidden = true; st.style.display = "none";
+    render();
+    try { if (fn(update)) { var o = update; update = function () { var r = o.apply(this, arguments); try { render(); } catch (e) {} return r; }; } } catch (e) {}
+    // line with the data years: under the legend instead of in the header
+    var sub = document.getElementById("sub"), lg = document.querySelector(".wrap > .legend");
+    if (sub && lg) { sub.classList.add("wx-sub"); lg.insertAdjacentElement("afterend", sub); }
+  });
+
   // 10 · layout: squares controls under the chart; from 1500 px map and profile card side by side.
   // Runs before the zoom link so that a --z1 zoom is computed with the final canvas size.
   feature("Layout", function () {
@@ -200,17 +290,20 @@
       !!document.querySelector(".wrap > .mapbox") && !!document.getElementById("sqpanel");
   }, function () {
     var mb = document.querySelector(".wrap > .mapbox"), sq = document.getElementById("sqpanel");
-    var lg = mb.nextElementSibling, pn = lg && lg.nextElementSibling, fd = pn && pn.nextElementSibling, cols = fd && fd.nextElementSibling;
+    var lg = document.querySelector(".wrap > .legend"), pn = document.querySelector(".wrap > section.panel"), fd = document.querySelector(".wrap > .find"), cols = document.querySelector(".wrap > .cols");
+    var sub = document.querySelector(".wrap > .wx-sub");
     // controls of the squares view go below the chart (like the map legend), so the chart starts higher
     mb.insertAdjacentElement("afterend", sq);
     // wrap map … search and the card column; the wrappers are display:contents below 1500 px
-    if (!(lg && lg.classList.contains("legend") && pn && pn.classList.contains("panel") && fd && fd.classList.contains("find") && cols && cols.classList.contains("cols"))) {
+    var order = [mb, sq, lg, sub, pn, fd, cols].filter(Boolean);
+    var inOrder = order.every(function (x, j) { return !j || (order[j - 1].compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING); });
+    if (!(lg && pn && fd && cols && inOrder)) {
       warn("Layout (Nebeneinander)", "Aufbau der Seite unerwartet"); return;
     }
     var split = document.createElement("div"), main = document.createElement("div");
     split.className = "wx-split"; main.className = "wx-main";
     mb.parentNode.insertBefore(split, mb);
-    [mb, sq, lg, pn, fd].forEach(function (x) { main.appendChild(x); });
+    [mb, sq, lg, sub, pn, fd].filter(Boolean).forEach(function (x) { main.appendChild(x); });
     split.appendChild(main); split.appendChild(cols);
 
     var wide = window.matchMedia("(min-width:1500px)"), lastTop = null;
@@ -223,10 +316,22 @@
       var w = Math.round(Math.max(W * 0.45, Math.min(W * 0.66, (avail - 2) / 0.52 + 2)));
       split.style.setProperty("--wx-mapw", w + "px");
     }
+    // 21 · below 1500 px (not on phones): the map at most 72 % of the window height (page: 78 %), so that together
+    // with the compact controls at least two thirds of it are in the first screen on 1366×800
+    function capH() {
+      if (wide.matches || CW < 560) return;
+      var ch = Math.round(Math.min(CW * 0.52, window.innerHeight * 0.72));
+      if (!(ch > 0) || ch >= CH) return;
+      CH = ch; cv.style.height = CH + "px"; cv.height = Math.round(CH * dpr);
+      oy = (CH - BH * s0) / 2; PAT = {};
+      zoom.extent([[0, 0], [CW, CH]]).translateExtent([[0, Math.min(0, oy)], [CW, Math.max(CH, CH - oy)]]);
+    }
     var orig = sizeCanvas;
     sizeCanvas = function () {
       try { fit(); } catch (e) { warn("Layout (Breite)", e); }
-      return orig.apply(this, arguments);
+      var r = orig.apply(this, arguments);
+      try { capH(); } catch (e) { warn("Layout (Höhe)", e); }
+      return r;
     };
     // same steps as the page's own resize handler
     function relayout() {
@@ -324,7 +429,7 @@
   feature("Link kopieren", function () { return !!document.getElementById("cite"); }, function () {
     var cite = document.getElementById("cite"), b = document.createElement("button");
     b.className = "chip"; b.type = "button"; b.id = "copylink"; b.textContent = "Link kopieren";
-    b.setAttribute("aria-label", "Link zu dieser Ansicht kopieren");
+    b.setAttribute("aria-label", "Link kopieren: Adresse dieser Ansicht");
     cite.insertAdjacentElement("afterend", b);
     var say = function (t) { if (fn(toast)) toast(t); };
     b.addEventListener("click", function () {
@@ -373,36 +478,68 @@
               }).join("") + '</div>'
             : '<p class="hint">Keine Region auf einem anderen Kontinent liegt innerhalb von ±5 %.</p>') +
             '<p class="hint" style="font-size:.78rem">Die Regionalwerte sind Hochrechnungen; ±5 % entspricht etwa ihrer Unsicherheit. ' +
-            'Gezeigt wird je Kontinent die Einheit mit den meisten Einwohnern in diesem Bereich (gleiche Ebene und Kennzahl, ab 100.000 Einwohnern, ohne Ausreißer).</p></div>');
+            'Je Kontinent die Einheit mit den meisten Einwohnern in diesem Bereich (gleiche Ebene, ab 100.000 Einwohnern, ohne Ausreißer).</p></div>');
+        }
+        var dqEl = el.querySelector(":scope > .dq");
+        function addWarn(cls, text) {
+          if (!dqEl || dqEl.querySelector("." + cls)) return;
+          var w = document.createElement("span"); w.className = "warn " + cls; w.textContent = text;
+          var src = [].find.call(dqEl.children, function (c) { return /^Verteilung innerhalb des Landes/.test(c.textContent); });
+          if (src) src.insertAdjacentElement("afterend", w); else dqEl.appendChild(w);
         }
         // Ukraine: regional shares from 2021, spread onto the 2024 national value
-        if (u.country === "UKR" && u.kind !== "Land/Gebiet") {
-          var dqEl = el.querySelector(".dq");
-          if (dqEl && !dqEl.querySelector(".wx-ukr")) {
-            var w = document.createElement("span"); w.className = "warn wx-ukr";
-            w.textContent = "Verteilung von 2021, vor dem Krieg; für die besetzten Gebiete nicht belastbar.";
-            var src = [].find.call(dqEl.children, function (c) { return /^Verteilung innerhalb des Landes/.test(c.textContent); });
-            if (src) src.insertAdjacentElement("afterend", w); else dqEl.appendChild(w);
+        if (u.country === "UKR" && u.kind !== "Land/Gebiet") addWarn("wx-ukr", "Verteilung von 2021, vor dem Krieg; für die besetzten Gebiete nicht belastbar.");
+        // 24 · regional distribution OLD_YEARS or more years older than the national value (only with readable years)
+        if (u.kind !== "Land/Gebiet" && u.flag !== "missing") {
+          var cu = byId.get(u.country), uy = String(u.year == null ? "" : u.year), cy = String(cu && cu.year != null ? cu.year : "");
+          if (/^\d{4}$/.test(uy) && /^\d{4}$/.test(cy) && +cy - +uy >= OLD_YEARS) {
+            addWarn("wx-old", "Verteilung von " + uy + ", also " + (+cy - +uy) + " Jahre älter als der Landeswert.");
           }
         }
         if (storyEligible(u)) {
           parts.push('<p class="wx-links"><a href="zwei-heimaten.html#vs=' + encodeURIComponent(u.id) + '">In der Story vergleichen →</a>' +
             '<span>Datenstory „Zwei Heimaten“: ' + esc(u.name) + ' neben einer zweiten Region</span></p>');
         }
+        // the story link goes before the twins block (shorter, and the way out to the story)
+        if (parts.length > 1 && /wx-links/.test(parts[parts.length - 1])) parts.splice(parts[0].indexOf("wx-rankhint") >= 0 ? 1 : 0, 0, parts.pop());
+        var stats = el.querySelector(":scope > .stats"), bigEl = el.querySelector(":scope > .big");
         if (parts.length) {
           var box = document.createElement("div"); box.className = "wx-card";
           box.innerHTML = parts.join("");
           // right after the three key figures (inhabitants / share of world economy / share below),
           // i.e. before the time series and "Auf einer Stufe mit"; fall back to the end of the card
-          var stats = el.querySelector(":scope > .stats");
           if (stats) stats.insertAdjacentElement("afterend", box); else el.appendChild(box);
           box.querySelectorAll(".wx-twins button[data-id]").forEach(function (b) {
             b.addEventListener("click", function () { goTo(byId.get(b.getAttribute("data-id")), true); });
           });
         }
+        // 23 · order by importance: warnings next to the value, sources and notes at the end, the table folded
+        try { arrange(el, dqEl, bigEl); } catch (e) { warn("Profilkarte (Ordnung)", e); }
       } catch (e) { warn("Profilkarte (Render)", e); }
       return r;
     };
+    var allOpen = false;   // "Alle Kennzahlen · ähnlichstes Land": closed by default, the state survives a new selection
+    function arrange(el, dqEl, bigEl) {
+      if (dqEl && bigEl) {
+        var ws = [].slice.call(dqEl.querySelectorAll(":scope > .warn"));
+        if (ws.length) {
+          var wb = document.createElement("div"); wb.className = "dq wx-warns";
+          ws.forEach(function (w) { wb.appendChild(w); });
+          bigEl.insertAdjacentElement("afterend", wb);
+        }
+        if (dqEl.children.length) el.appendChild(dqEl); else dqEl.remove();
+      }
+      var inner = el.querySelector(":scope > .inner2");
+      if (!inner || inner.children.length !== 2) return;
+      var col = inner.children[1], cmp = col.querySelector(".cmp"), h = col.querySelector("h3");
+      if (!cmp || !h) return;
+      var det = document.createElement("details"); det.className = "wx-all"; det.open = allOpen;
+      var sm = document.createElement("summary"); sm.textContent = h.textContent; det.appendChild(sm); det.appendChild(cmp);
+      det.addEventListener("toggle", function () { allOpen = det.open; });
+      col.remove(); inner.classList.add("wx-one");
+      inner.insertAdjacentElement("afterend", det);
+      if (dqEl && dqEl.parentNode === el) el.appendChild(dqEl);
+    }
   });
 
   // 5 · story "Zwei Heimaten"
@@ -411,7 +548,7 @@
       typeof d3 !== "undefined" && byId.has("DE40B") && byId.has("DEA23");
   }, function () {
     var OSL = "DE40B", KOE = "DEA23";
-    var ZH = {t: "Zwei Heimaten",
+    var ZH = {t: "Zwei Heimaten", link: {href: "zwei-heimaten.html", text: "Die ganze Geschichte lesen →"},
       run: function () {
         setView("map", true); level = 2; drawLevel(); metric = M0 || METRICS[0]; hlMode = "off";
         selected = byId.get(OSL) || selected; thr = selected[metric.k] != null ? selected[metric.k] : thr;
@@ -439,9 +576,9 @@
     storyBox = function () {
       var r = orig.apply(this, arguments);
       try {
-        if (story === ZH) {
+        if (story && story.link) {
           var p = document.getElementById("storytext"), a = document.createElement("a");
-          a.href = "zwei-heimaten.html"; a.textContent = "Die ganze Geschichte lesen →";
+          a.href = story.link.href; a.textContent = story.link.text;
           p.appendChild(document.createTextNode(" ")); p.appendChild(a);
         }
       } catch (e) {}
@@ -531,7 +668,7 @@
       var u = selected; if (!u) return;
       var v = u[metric.k];
       bar.innerHTML = '<span class="lab">Auswahl</span><span class="wx-pk-n"></span><span class="num"></span>' +
-        '<button type="button" class="wx-pk-go" aria-label="Zur Profilkarte">Details ↓</button>';
+        '<button type="button" class="wx-pk-go" aria-label="Details in der Profilkarte">Details <span aria-hidden="true">↓</span></button>';
       bar.querySelector(".wx-pk-n").textContent = u.name;
       bar.querySelector(".num").textContent = v != null ? metric.fmt(v) : "keine Daten";
       bar.querySelector(".wx-pk-n").title = u.name;
@@ -569,10 +706,10 @@
       }
       b.textContent = open ? "weniger" : "mehr";
       b.setAttribute("aria-expanded", open ? "true" : "false");
-      b.setAttribute("aria-label", open ? "Erklärung einklappen" : "Ganze Erklärung zeigen");
-      // nothing to open when the text fits into two lines anyway
+      b.setAttribute("aria-label", open ? "weniger: Erklärung einklappen" : "mehr: ganze Erklärung zeigen");
+      // nothing to open when the text fits into its lines anyway (one line, two on phones)
       ex.classList.remove("wx-fits");
-      if (!open && phone.matches && ex.scrollHeight <= ex.clientHeight + 2) ex.classList.add("wx-fits");
+      if (!open && ex.scrollHeight <= ex.clientHeight + 2) ex.classList.add("wx-fits");
     }
     var orig = update;
     update = function () {
@@ -581,6 +718,7 @@
       return r;
     };
     try { phone.addEventListener("change", addMore); } catch (e) {}
+    var rzT = 0; window.addEventListener("resize", function () { clearTimeout(rzT); rzT = setTimeout(function () { try { addMore(); } catch (e) {} }, 160); });
     addMore();
   });
 
@@ -685,74 +823,343 @@
     b.textContent = "je 1/7 der Menschheit"; b.title = "Sieben Farben, jede Farbe umfasst gleich viele Menschen (nach Länderwerten)";
   });
 
-  // 20 · story "Wenn BIP täuscht" in three steps that switch the view themselves
-  feature("Geschichte in Schritten", function () {
-    return typeof STORIES !== "undefined" && Array.isArray(STORIES) && fn(storyBox) && fn(findName) && fn(setView) && fn(zoomTo) && !!document.getElementById("storybox") && !!document.getElementById("storyclose");
+  // 20 · stories in steps: every story with a real sequence of findings gets two or three steps that switch the
+  // view themselves (metric, level, view, selection, highlight, zoom). One line "← Zurück · Schritt n von m · Weiter →".
+  // All numbers come from the data at run time, rounded like everywhere in the atlas. The texts do not read the current
+  // state, so the box can reserve the height of its longest step and does not jump while stepping.
+  feature("Geschichten in Schritten", function () {
+    return typeof STORIES !== "undefined" && Array.isArray(STORIES) && fn(storyBox) && fn(findName) && fn(setView) && fn(zoomTo) &&
+      fn(drawLevel) && fn(update) && fn(nearest) && fn(weightedQuantile) && fn(scaleOf) && typeof group !== "undefined" &&
+      !!document.getElementById("storybox") && !!document.getElementById("storyclose") && !!document.getElementById("storytext");
   }, function () {
-    var S = STORIES.find(function (x) { return x.t === "Wenn BIP täuscht"; });
-    var W = findName("Wolfsburg"), DEU = byId.get("DEU"), CHE = byId.get("CHE");
-    if (!S || !W || !DEU || !CHE || W.gdp_pc_ppp == null) { warn("Geschichte in Schritten", "Geschichte oder Daten fehlen"); return; }
-    var MH = METRICS.find(function (m) { return m.k === "hh_pc_ppp"; }), MG = M0 || METRICS[0];
-    var metro = units.find(function (x) { return x.lv.includes(3) && x._members && x._members.includes(W.id) && x.gdp_pc_ppp != null; });
-    var DE_BOX = [[5.5, 47.2], [15.5, 55.1]];
-    function deRank(k) {
-      var l = units.filter(function (x) { return x.country === "DEU" && x.lv.includes(2) && x[k] != null; }).sort(function (a, b) { return b[k] - a[k]; });
-      return {r: l.indexOf(W) + 1, n: l.length};
+    var MG = M0 || METRICS[0], MH = mk("hh_pc_ppp"), MR = mk("gdp_pc_rp"), ME = mk("eu_index");
+    var DE_BOX = [[5.5, 47.2], [15.5, 55.1]], EU_BOX = [[-11, 35], [33, 63]], CN_BOX = [[73, 18], [135, 54]], US_BOX = [[-125, 24], [-66, 50]];
+    var BERLIN = byId.get("DE300"), DEU = byId.get("DEU");
+    var g = function (id) { return byId.get(id); };
+    // one call sets the whole state of a step (order matters: level before selection, view last but zoom)
+    function set(o) {
+      level = o.level; drawLevel();
+      metric = o.m || MG;
+      if (o.sel) selected = o.sel;
+      hlMode = o.hl || "off";
+      thr = o.thr != null ? o.thr : (selected[metric.k] != null ? selected[metric.k] : null);
+      if (o.group) { group.clear(); o.group.forEach(function (id) { group.add(id); }); }
+      if (o.sq) { sqGroup = o.sq[0]; sqColor = o.sq[1]; sqUnit = o.sq[2]; }
+      setView(o.view || "map", true);
+      if ((o.view || "map") === "map" && o.zoom !== undefined) zoomTo(o.zoom);
     }
-    var steps = [
-      {run: function () { level = 2; drawLevel(); metric = MG; selected = W; thr = W.gdp_pc_ppp; hlMode = "off"; zoomTo(DE_BOX); },
-       text: function () {
-         var r = deRank("gdp_pc_ppp");
-         return "Wolfsburg erwirtschaftet " + MG.fmt(W.gdp_pc_ppp) + " BIP pro Kopf – " +
-           (r.r === 1 ? "mehr als jeder andere der " + f0(r.n) + " Kreise in Deutschland" : "Rang " + f0(r.r) + " von " + f0(r.n) + " Kreisen in Deutschland") +
-           " und mehr als die Schweiz (" + MG.fmt(CHE.gdp_pc_ppp) + "). Der Grund: VW. Das BIP zählt am Arbeitsort, viele Beschäftigte wohnen aber im Umland.";
-       }},
-      {ok: function () { return MH && W.hh_pc_ppp != null; },
-       run: function () { level = 2; drawLevel(); metric = MH; selected = W; thr = W.hh_pc_ppp; hlMode = "off"; zoomTo(DE_BOX); },
-       text: function () {
-         return "Gezählt am Wohnort sieht es anders aus: Beim Haushaltskonsum pro Kopf kommt Wolfsburg auf " + MH.fmt(W.hh_pc_ppp) +
-           (DEU.hh_pc_ppp != null ? (W.hh_pc_ppp < DEU.hh_pc_ppp ? " – weniger als der deutsche Schnitt (" : " – etwa so viel wie der deutsche Schnitt (") + MH.fmt(DEU.hh_pc_ppp) + ")" : "") + "." +
-           (W.hh_note ? " Diesen Wert gibt es nur für die größere Region (" + W.hh_note + "), nicht für Wolfsburg allein." : "");
-       }},
-      {ok: function () { return !!metro; },
-       run: function () { level = 3; drawLevel(); metric = MG; selected = metro; thr = metro.gdp_pc_ppp; hlMode = "off"; zoomTo(DE_BOX); },
-       text: function () {
-         return "Die Ebene Metropolregionen fasst Stadt und Umland zusammen. " + metro.name + " kommt auf " + MG.fmt(metro.gdp_pc_ppp) +
-           " pro Kopf, rund " + pct(metro.gdp_pc_ppp / W.gdp_pc_ppp) + " des Wolfsburger Werts" +
-           (metro.gdp_pc_ppp > DEU.gdp_pc_ppp ? " und noch über dem deutschen Schnitt (" + MG.fmt(DEU.gdp_pc_ppp) + ")." : ".") + " Der Ausreißer verschwindet.";
-       }}
-    ].filter(function (s) { return !s.ok || s.ok(); });
-    var i = 0;
-    S.steps = steps;
-    S.run = function () { setView("map", true); i = 0; steps[0].run(); };
-    S.text = function () { return steps[i].text(); };
+    function deUnits(k) { return at(2).filter(function (x) { return x.country === "DEU" && x[k] != null; }); }
+    function rankDE(u, k) { var l = deUnits(k).sort(function (a, b) { return b[k] - a[k]; }); return {r: l.indexOf(u) + 1, n: l.length}; }
+    function sumPop(l) { return d3.sum(l, function (x) { return x.pop || 0; }); }
 
-    var box = document.getElementById("storybox"), close = document.getElementById("storyclose");
+    var DEF = {};
+    // ---- Die Welt in Menschen: people → continents → units instead of people
+    DEF["Die Welt in Menschen"] = function (s) {
+      var run0 = s.run, text0 = s.text;
+      function lowShare(ct) {
+        var sc = scaleOf("gdp_pc_ppp"), l = at(2).filter(function (u) { return u.ct === ct && u.gdp_pc_ppp != null && u.pop; });
+        return sumPop(l.filter(function (u) { return sc.cls(u.gdp_pc_ppp) <= 1; })) / sumPop(l);
+      }
+      return [
+        {run: function () { run0.call(s); }, text: function () { return text0.call(s); }},
+        {run: function () { set({level: 2, view: "squares", sq: ["cont", "gdp_pc_ppp", "people"], sel: BERLIN}); },
+         text: function () {
+           return "Dieselben Menschen nach Kontinenten geordnet und nach BIP pro Kopf gefärbt: In Afrika leben " + pct(lowShare("Afrika")) +
+             " in den beiden untersten Farbstufen, in Asien " + pct(lowShare("Asien")) + ", in Europa " + pct(lowShare("Europa")) + ".";
+         }},
+        {run: function () { set({level: 2, view: "squares", sq: ["gdp_pc_ppp", "cont", "region"], sel: BERLIN}); },
+         text: function () {
+           var l = at(2), w = function (u) { return u.ct === "Europa" || u.ct === "Nord- & Mittelamerika"; };
+           var nU = l.filter(w).length / l.length, nP = sumPop(l.filter(w)) / WORLD.pop, us = l.filter(function (u) { return u.country === "USA"; }).length / l.length;
+           return "Zählt man Regionen statt Menschen, kippt das Bild: " + pct(nU) + " der Einheiten auf dieser Ebene liegen in Europa sowie Nord- und Mittelamerika, " +
+             "dort leben aber nur " + pct(nP) + " der Menschen. Allein die USA stellen " + pct(us) + " der Einheiten. Deshalb zählt der Atlas in Menschen.";
+         }}
+      ];
+    };
+    // ---- Wer ist reicher als Berlin?: the world → Germany
+    DEF["Wer ist reicher als Berlin?"] = function () {
+      if (!BERLIN || BERLIN.gdp_pc_ppp == null || !DEU) return [];
+      var v = BERLIN.gdp_pc_ppp;
+      return [
+        {run: function () { set({level: 2, sel: BERLIN, hl: "above", thr: v, zoom: null}); },
+         text: function () {
+           var l = at(2).filter(function (x) { return x.gdp_pc_ppp != null && x.gdp_pc_ppp > v; });
+           var by = d3.rollups(l, function (a) { return sumPop(a); }, function (x) { return x.ct; }).filter(function (c) { return c[0]; }).sort(function (a, b) { return b[1] - a[1]; });
+           var t = "Nur " + pct(sumPop(l) / WORLD.pop) + " der Menschheit leben in Regionen mit höherem BIP pro Kopf als Berlin (" + MG.fmt(v) + "). Diese " + big(sumPop(l)) +
+             " Menschen erwirtschaften " + pct(d3.sum(l, function (x) { return x.gdp_ppp || 0; }) / WORLD.ppp) + " der Weltwirtschaft.";
+           if (by.length >= 2) t += " Die meisten leben in " + by[0][0] + " (" + big(by[0][1]) + ") und " + by[1][0] + " (" + big(by[1][1]) + ").";
+           return t;
+         }},
+        {run: function () { set({level: 2, sel: BERLIN, hl: "above", thr: v, zoom: DE_BOX}); },
+         text: function () {
+           var all = deUnits("gdp_pc_ppp"), up = all.filter(function (x) { return x.gdp_pc_ppp > v; });
+           return "Auch in Deutschland liegt Berlin nicht vorn: " + f0(up.length) + " der " + f0(all.length) + " Kreise haben ein höheres BIP pro Kopf, dort leben " +
+             pct(sumPop(up) / sumPop(all)) + " der Menschen in Deutschland.";
+         }}
+      ];
+    };
+    // ---- China: Shanghai and Gansu → everything below the national value
+    DEF["China: Küste gegen Inland"] = function (s) {
+      var run0 = s.run, text0 = s.text, SH = g("CN310000"), CHN = g("CHN");
+      if (!SH || !CHN || CHN.gdp_pc_ppp == null) return [];
+      return [
+        {run: function () { run0.call(s); }, text: function () { return text0.call(s); }},
+        {run: function () { set({level: 2, sel: SH, hl: "below", thr: CHN.gdp_pc_ppp, zoom: CN_BOX}); },
+         text: function () {
+           var l = at(2).filter(function (x) { return x.country === "CHN" && x.gdp_pc_ppp != null; });
+           var lo = l.filter(function (x) { return x.gdp_pc_ppp < CHN.gdp_pc_ppp; });
+           return "Hervorgehoben sind alle Regionen unter dem chinesischen Landeswert von " + MG.fmt(CHN.gdp_pc_ppp) + ". In China sind das " + f0(lo.length) + " von " +
+             f0(l.length) + " Präfekturen mit " + pct(sumPop(lo) / sumPop(l)) + " der Einwohner – über dem Landeswert liegt vor allem die Ostküste.";
+         }}
+      ];
+    };
+    // ---- EU: unter 75 %: districts → larger regions → Germany
+    DEF["EU: unter 75 %"] = function () {
+      if (!ME) return [];
+      function share(lv, c) {
+        var e = at(lv).filter(function (u) { return u.eu_index != null && (!c || u.country === c); });
+        var lo = e.filter(function (u) { return u.eu_index < 75; });
+        return {p: sumPop(lo) / sumPop(e), n: lo.length, t: e.length};
+      }
+      return [
+        {run: function () { set({level: 2, m: ME, sel: BERLIN, hl: "below", thr: 75, zoom: EU_BOX}); },
+         text: function () {
+           return "Regionen unter 75 % des EU-Durchschnitts gelten als „weniger entwickelt“ und bekommen die höchste Förderung. Auf Kreisebene trifft das hier auf " +
+             pct(share(2).p) + " der EU-Bevölkerung zu – vor allem im Osten und Süden.";
+         }},
+        {run: function () { set({level: 1, m: ME, sel: BERLIN, hl: "below", thr: 75, zoom: EU_BOX}); },
+         text: function () {
+           return "Auf der gröberen Bundesländer-Ebene sind es nur " + pct(share(1).p) + ": Große Regionen gleichen arme und reiche Kreise aus. " +
+             "Wie viele Menschen als „weniger entwickelt“ gelten, hängt also auch an den Grenzen. Die offizielle Einstufung rechnet mit NUTS-2-Regionen und Dreijahresmitteln.";
+         }},
+        {run: function () { set({level: 2, m: ME, sel: BERLIN, hl: "below", thr: 75, zoom: DE_BOX}); },
+         text: function () {
+           var d = share(2, "DEU");
+           return "In Deutschland liegen " + f0(d.n) + " der " + f0(d.t) + " Kreise unter 75 %, mit zusammen " + pct(d.p) + " der Einwohner.";
+         }}
+      ];
+    };
+    // ---- Kaufkraft vor Ort: national prices → regional prices → Germany
+    DEF["Kaufkraft vor Ort"] = function () {
+      var MS = g("USA-MS"), NY = g("USA-NY"), MUC = g("DE212");
+      if (!MR || !MS || !NY || !MS.price_index || !NY.price_index || MS.gdp_pc_rp == null || NY.gdp_pc_rp == null) return [];
+      var steps = [
+        {run: function () { set({level: 1, sel: MS, zoom: US_BOX}); },
+         text: function () {
+           return "Zum Preisniveau der ganzen USA gerechnet kommt New York auf " + MG.fmt(NY.gdp_pc_ppp) + " BIP pro Kopf, Mississippi auf " + MG.fmt(MS.gdp_pc_ppp) +
+             " – rund " + times(NY.gdp_pc_ppp, MS.gdp_pc_ppp) + "-mal so viel.";
+         }},
+        {run: function () { set({level: 1, m: MR, sel: MS, zoom: US_BOX}); },
+         text: function () {
+           return "In Mississippi liegt das Preisniveau bei " + f0(MS.price_index) + " % des US-Schnitts, in New York bei " + f0(NY.price_index) + " %. Zu regionalen Preisen schrumpft der Abstand: " +
+             "Mississippi kommt auf " + MR.fmt(MS.gdp_pc_rp) + ", New York auf " + MR.fmt(NY.gdp_pc_rp) + " – nur noch rund " + times(NY.gdp_pc_rp, MS.gdp_pc_rp) + "-mal so viel.";
+         }}
+      ];
+      var de = deUnits("price_index").filter(function (x) { return x.gdp_pc_rp != null; }).sort(function (a, b) { return b.price_index - a.price_index; });
+      if (MUC && de.length > 2 && de[0] === MUC) {
+        var lo = de[de.length - 1];
+        steps.push({run: function () { set({level: 2, m: MR, sel: MUC, zoom: DE_BOX}); },
+          text: function () {
+            return "Regionale Preise gibt es hier auch für Deutschland: Am teuersten ist München (Preisniveau " + f0(MUC.price_index) + ", Deutschland = 100), am günstigsten " +
+              lo.name + " (" + f0(lo.price_index) + "). Zu regionalen Preisen sinkt Münchens Wert von " + MG.fmt(MUC.gdp_pc_ppp) + " auf " + MR.fmt(MUC.gdp_pc_rp) + ".";
+          }});
+      }
+      return steps;
+    };
+    // ---- Metropolen statt Kreise: districts around Munich → metro regions
+    DEF["Metropolen statt Kreise"] = function () {
+      var MM = units.find(function (u) { return u.lv.includes(3) && /München|Munich/.test(u.name) && u._members && u.gdp_pc_ppp != null; });
+      var MUC = g("DE212");
+      if (!MM || !MUC) return [];
+      var mem = MM._members.map(g).filter(function (u) { return u && u.lv.includes(2) && u.gdp_pc_ppp != null; }).sort(function (a, b) { return b.gdp_pc_ppp - a.gdp_pc_ppp; });
+      if (mem.length < 3) return [];
+      var hi = mem[0], lo = mem[mem.length - 1], MUC_BOX = [[10.6, 47.7], [12.4, 48.7]];
+      return [
+        {run: function () { set({level: 2, sel: MUC, zoom: MUC_BOX}); },
+         text: function () {
+           return "Kreisgrenzen trennen Städte von ihrem Umland. Rund um München reicht das BIP pro Kopf von " + MG.fmt(lo.gdp_pc_ppp) + " (" + lo.name + ") bis " +
+             MG.fmt(hi.gdp_pc_ppp) + " (" + hi.name + ") – je nachdem, wo die Firmen sitzen und wo die Beschäftigten wohnen.";
+         }},
+        {run: function () { set({level: 3, sel: MM, zoom: EU_BOX}); },
+         text: function () {
+           return "Die Ebene Metropolregionen fasst Stadt und Umland zusammen: Die Metropolregion München kommt auf " + MG.fmt(MM.gdp_pc_ppp) + " pro Kopf. " +
+             "So werden Paris, München oder New York mit der Welt vergleichbar, ohne Pendler-Verzerrung.";
+         }}
+      ];
+    };
+    // ---- Zwei Heimaten: Germany → the world → where the households are
+    DEF["Zwei Heimaten"] = function (s) {
+      var o = g("DE40B"), k = g("DEA23");
+      if (!o || !k || o.gdp_pc_ppp == null || k.gdp_pc_ppp == null) return [];
+      var short = function (u) { return u.id === "DE40B" ? "OSL" : u.name; };
+      return [
+        {run: function () { set({level: 2, sel: o, group: [k.id], zoom: DE_BOX}); },
+         text: function () {
+           var ro = rankDE(o, "gdp_pc_ppp"), rk = rankDE(k, "gdp_pc_ppp");
+           return o.name + " (OSL) kommt auf " + MG.fmt(o.gdp_pc_ppp) + " BIP pro Kopf, " + k.name + " auf " + MG.fmt(k.gdp_pc_ppp) + " – rund " + times(k.gdp_pc_ppp, o.gdp_pc_ppp) +
+             "-mal so viel. In Deutschland steht OSL auf Rang " + f0(ro.r) + " von " + f0(ro.n) + " Kreisen, " + k.name + " auf Rang " + f0(rk.r) + ".";
+         }},
+        {run: function () { set({level: 2, sel: o, group: [k.id], hl: "above", thr: o.gdp_pc_ppp, zoom: null}); },
+         text: function () {
+           var t = "Weltweit liegen trotzdem beide weit vorn: rund " + pct(popBelow(o.gdp_pc_ppp, "gdp_pc_ppp", 2)) + " der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf als OSL, gemessen an " +
+             k.name + " sogar rund " + pct(popBelow(k.gdp_pc_ppp, "gdp_pc_ppp", 2)) + ". Hervorgehoben: alle Regionen über OSL.";
+           try {
+             var a = twins(o, MG), b = twins(k, MG);
+             if (a && a.length && b && b.length) t += " Ähnlich hoch: " + a[0].name + " (" + where(a[0]) + ") wie OSL, " + b[0].name + " (" + where(b[0]) + ") wie " + k.name + ".";
+           } catch (e) {}
+           return t;
+         }},
+        {ok: function () { return MH && o.hh_pc_ppp != null && k.hh_pc_ppp != null; },
+         run: function () { set({level: 2, m: MH, sel: o, group: [k.id], zoom: DE_BOX}); },
+         text: function () {
+           var t = "Beim Konsum der Haushalte pro Kopf, gezählt am Wohnort, liegen beide nah beieinander: OSL kommt auf " + MH.fmt(o.hh_pc_ppp) + ", " + k.name + " auf " + MH.fmt(k.hh_pc_ppp);
+           if (o.hh_note && k.hh_note && /NUTS-2/.test(o.hh_note + k.hh_note)) t += " (Werte der größeren NUTS-2-Regionen Brandenburg und Regierungsbezirk Köln)";
+           return t + ". Weltweit liegen damit rund " + pct(popBelow(o.hh_pc_ppp, "hh_pc_ppp", 2)) + " und rund " + pct(popBelow(k.hh_pc_ppp, "hh_pc_ppp", 2)) + " der Menschheit darunter – ähnlich weit oben.";
+         }}
+      ];
+    };
+    // ---- Wenn BIP täuscht: workplace → place of residence → metro region
+    DEF["Wenn BIP täuscht"] = function () {
+      var W = findName("Wolfsburg"), CHE = g("CHE");
+      if (!W || !DEU || !CHE || W.gdp_pc_ppp == null) return [];
+      var metro = units.find(function (x) { return x.lv.includes(3) && x._members && x._members.includes(W.id) && x.gdp_pc_ppp != null; });
+      return [
+        {run: function () { set({level: 2, sel: W, zoom: DE_BOX}); },
+         text: function () {
+           var r = rankDE(W, "gdp_pc_ppp");
+           return "Wolfsburg erwirtschaftet " + MG.fmt(W.gdp_pc_ppp) + " BIP pro Kopf – " +
+             (r.r === 1 ? "mehr als jeder andere der " + f0(r.n) + " Kreise in Deutschland" : "Rang " + f0(r.r) + " von " + f0(r.n) + " Kreisen in Deutschland") +
+             " und mehr als die Schweiz (" + MG.fmt(CHE.gdp_pc_ppp) + "). Der Grund: VW. Das BIP zählt am Arbeitsort, viele Beschäftigte wohnen aber im Umland.";
+         }},
+        {ok: function () { return MH && W.hh_pc_ppp != null; },
+         run: function () { set({level: 2, m: MH, sel: W, zoom: DE_BOX}); },
+         text: function () {
+           return "Gezählt am Wohnort sieht es anders aus: Beim Haushaltskonsum pro Kopf kommt Wolfsburg auf " + MH.fmt(W.hh_pc_ppp) +
+             (DEU.hh_pc_ppp != null ? (W.hh_pc_ppp < DEU.hh_pc_ppp ? " – weniger als der deutsche Schnitt (" : " – etwa so viel wie der deutsche Schnitt (") + MH.fmt(DEU.hh_pc_ppp) + ")" : "") + "." +
+             (W.hh_note ? " Der Wert gilt nicht für Wolfsburg allein: " + hhPhrase(W) + "." : "");
+         }},
+        {ok: function () { return !!metro; },
+         run: function () { set({level: 3, sel: metro, zoom: DE_BOX}); },
+         text: function () {
+           return "Die Ebene Metropolregionen fasst Stadt und Umland zusammen. " + metro.name + " kommt auf " + MG.fmt(metro.gdp_pc_ppp) +
+             " pro Kopf, rund " + pct(metro.gdp_pc_ppp / W.gdp_pc_ppp) + " des Wolfsburger Werts" +
+             (metro.gdp_pc_ppp > DEU.gdp_pc_ppp ? " und noch über dem deutschen Schnitt (" + MG.fmt(DEU.gdp_pc_ppp) + ")." : ".") + " Der Ausreißer verschwindet.";
+         }}
+      ];
+    };
+
+    var i = 0, single = [];
+    STORIES.forEach(function (s) {
+      var b = DEF[s.t]; if (!b) { single.push(s.t); return; }
+      var steps;
+      try {
+        steps = b(s).filter(function (st) { return !st.ok || st.ok(); });
+        steps.forEach(function (st) { var t = st.text(); if (!t || /NaN|undefined|Infinity/.test(t)) throw new Error("Text unvollständig: " + s.t); });
+      } catch (e) { warn("Geschichte in Schritten (" + s.t + ")", e); return; }
+      if (steps.length < 2) { single.push(s.t); return; }
+      s.steps = steps;
+      s.run = function () { i = 0; steps[0].run(); };
+      s.text = function () { return steps[Math.min(i, steps.length - 1)].text(); };
+    });
+
+    var box = document.getElementById("storybox"), close = document.getElementById("storyclose"), p = document.getElementById("storytext");
     var nav = document.createElement("div"); nav.className = "wx-steps"; nav.hidden = true;
     nav.setAttribute("role", "group"); nav.setAttribute("aria-label", "Schritte der Geschichte");
-    nav.innerHTML = '<button type="button" class="chip" data-d="-1">← Zurück</button><span class="wx-stepn" aria-live="polite"></span><button type="button" class="chip" data-d="1">Weiter →</button>';
+    nav.innerHTML = '<button type="button" class="chip" data-d="-1" aria-label="Zurück zum vorigen Schritt"><span aria-hidden="true">←</span> Zurück</button>' +
+      '<span class="wx-stepn" aria-live="polite"></span>' +
+      '<button type="button" class="chip" data-d="1" aria-label="Weiter zum nächsten Schritt">Weiter <span aria-hidden="true">→</span></button>';
     // steps and "Geschichte schließen" share one line
     var foot = document.createElement("div"); foot.className = "wx-sfoot";
     box.insertBefore(foot, close); foot.appendChild(nav); foot.appendChild(close);
     var prev = nav.querySelector('[data-d="-1"]'), next = nav.querySelector('[data-d="1"]'), num = nav.querySelector(".wx-stepn");
-    function go(d) {
-      var j = Math.max(0, Math.min(steps.length - 1, i + d)); if (j === i || story !== S) return;
-      i = j; steps[i].run(); update();
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // after a step: bring the map into view (phones: it lies below the box), the button keeps the focus and stays visible
+    function bringMap(btn) {
+      var mb = document.querySelector(".mapbox"); if (!mb) return;
+      var r = mb.getBoundingClientRect(), vh = window.innerHeight;
+      var seen = Math.max(0, Math.min(vh, r.bottom) - Math.max(0, r.top)) / Math.max(1, r.height);
+      if (seen >= 0.9 || r.top < 0) return;
+      var want = r.height > vh - 16 ? r.top - 8 : r.bottom - vh + 8;
+      var br = btn.getBoundingClientRect();
+      want = Math.min(want, br.top - 8);
+      if (want > 2) window.scrollBy({top: want, behavior: reduce.matches ? "auto" : "smooth"});
+    }
+    function go(d, btn) {
+      var S = story; if (!S || !S.steps) return;
+      var j = Math.max(0, Math.min(S.steps.length - 1, i + d)); if (j === i) return;
+      i = j; S.steps[i].run(); update();
+      try { bringMap(btn); } catch (e) {}
     }
     nav.addEventListener("click", function (e) {
       var b = e.target.closest("button[data-d]"); if (!b || b.disabled) return;
-      go(+b.getAttribute("data-d"));
+      go(+b.getAttribute("data-d"), b);
       // keep the keyboard focus on a usable button
       if (b.disabled) (b === next ? prev : next).focus();
     });
+    // fixed height: the box reserves the height of its longest step, so stepping does not move the map
+    var measured = null;
+    function measure() {
+      p.style.minHeight = "";
+      measured = null;
+      if (!story || !story.steps || box.hidden || !p.clientWidth) return;
+      var keep = [].slice.call(p.childNodes), h = 0;
+      story.steps.forEach(function (st) {
+        p.textContent = st.text();
+        if (story.link) { var a = document.createElement("a"); a.textContent = story.link.text; a.href = story.link.href; p.appendChild(document.createTextNode(" ")); p.appendChild(a); }
+        h = Math.max(h, p.getBoundingClientRect().height);
+      });
+      p.textContent = ""; keep.forEach(function (n) { p.appendChild(n); });
+      p.style.minHeight = Math.ceil(h) + "px";
+      measured = {s: story, w: p.clientWidth};
+    }
     var orig = storyBox;
     storyBox = function () {
       var r = orig.apply(this, arguments);
       try {
-        var on = story === S && steps.length > 1;
+        var on = !!(story && story.steps);
         nav.hidden = !on;
-        if (on) { num.textContent = "Schritt " + (i + 1) + " von " + steps.length; prev.disabled = i === 0; next.disabled = i === steps.length - 1; }
+        if (on) { num.textContent = "Schritt " + (i + 1) + " von " + story.steps.length; prev.disabled = i === 0; next.disabled = i === story.steps.length - 1; }
+        if (!story) { p.style.minHeight = ""; measured = null; }
+        else if (!measured || measured.s !== story || measured.w !== p.clientWidth) measure();
       } catch (e) { warn("Geschichte in Schritten (Render)", e); }
+      return r;
+    };
+    var rz = 0;
+    window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { try { if (story && story.steps) measure(); } catch (e) {} }, 180); });
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (story && story.steps) measure(); }); } catch (e) {}
+    window.__wxSingleStories = single;
+  });
+
+  // 22 · headline: while a story is open only the fixed sentence with the median (BIP/Kopf, finest level), so the
+  // headline neither jumps between steps nor contradicts the story box. Otherwise the page's own headline; a household
+  // value that exists only for a larger region says so.
+  feature("Überschrift", function () { return fn(lead) && fn(weightedQuantile) && !!document.getElementById("lead"); }, function () {
+    var orig = lead, MGm = M0 || METRICS[0], MH = mk("hh_pc_ppp"), med2 = null;
+    lead = function () {
+      var r = orig.apply(this, arguments);
+      try {
+        var el = document.getElementById("lead");
+        if (story) {
+          if (med2 == null) med2 = weightedQuantile(at(2), "gdp_pc_ppp", .5);
+          el.innerHTML = "Die Hälfte der Menschheit lebt in Gebieten mit weniger als <b>" + esc(MGm.fmt(med2)) + "</b> " + esc(MGm.noun) + ".";
+          return r;
+        }
+        var k = (metric.total || metric.k === "density" || metric.scope) ? "gdp_pc_ppp" : metric.k, u = selected;
+        if (k === "hh_pc_ppp" && MH && u && u.hh_note && u.hh_pc_ppp != null) {
+          var a = " liegt mit " + MH.fmt(u.hh_pc_ppp) + " über", b = " liegt mit " + MH.fmt(u.hh_pc_ppp) + " (" + hhPhrase(u) + ") über";
+          if (el.innerHTML.indexOf(a) >= 0) el.innerHTML = el.innerHTML.split(a).join(b);
+        }
+      } catch (e) { warn("Überschrift (Render)", e); }
+      return r;
+    };
+  });
+
+  // 25 · prefers-reduced-motion: zoom transitions jump to their end (the page's zoomTo animates 600–700 ms)
+  feature("Bewegung reduzieren", function () { return fn(zoomTo) && typeof cv !== "undefined"; }, function () {
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)"), orig = zoomTo;
+    zoomTo = function () {
+      var r = orig.apply(this, arguments);
+      try { if (reduce.matches && cv.__transition) for (var id in cv.__transition) cv.__transition[id].duration = 0; } catch (e) {}
       return r;
     };
   });

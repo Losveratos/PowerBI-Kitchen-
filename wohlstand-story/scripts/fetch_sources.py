@@ -14,11 +14,13 @@ der Abgleich (data/sources/ABGLEICH.md) nachvollziehbar und wiederholbar ist:
                 SI.POV.GINI       Gini-Index, Deutschland                       → worldbank_gini_deu.json
   VGR der Länder Reihe 2 Band 3, Tabelle 2.4: verfügbares Einkommen der privaten
                 Haushalte je Einwohner, Kreise (Excel)                          → vgrdl_verfuegbares_einkommen_kreise.json
+                Reihe 2 Band 1, Tabellen 1.1/5/6: BIP, Einwohner, BIP je Einwohner,
+                Kreise, jüngster Rechenstand (Excel)                            → vgrdl_bip_kreise.json
 
     python3 -I wohlstand-story/scripts/fetch_sources.py
 
-Nur Standardbibliothek; openpyxl wird ausschließlich für die Excel-Datei der VGRdL gebraucht (pip install openpyxl).
-Geschrieben wird nur unter data/sources/. Die Excel-Datei wird im Speicher gelesen, nicht abgelegt.
+Nur Standardbibliothek; openpyxl wird ausschließlich für die Excel-Dateien der VGRdL gebraucht (pip install openpyxl).
+Geschrieben wird nur unter data/sources/. Die Excel-Dateien werden im Speicher gelesen, nicht abgelegt.
 Fällt eine Quelle aus, werden die übrigen trotzdem geschrieben; der Exit-Code ist dann 1.
 """
 import datetime
@@ -39,8 +41,6 @@ UA = "wohlstand-story-fetch/1.0 (python urllib)"
 
 ESTAT = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/"
 WB = "https://api.worldbank.org/v2/"
-VGRDL_PAGE = "https://www.statistikportal.de/de/vgrdl/ergebnisse-kreisebene/einkommen-kreise"
-VGRDL_FALLBACK = "https://www.statistikportal.de/sites/default/files/2026-01/vgrdl_r2b3_bs2024.xlsx"
 
 
 class FetchError(RuntimeError):
@@ -210,47 +210,87 @@ def worldbank():
     })
 
 
-# ---------- VGR der Länder: verfügbares Einkommen je Einwohner, Kreise ----------
-def vgrdl():
+# ---------- VGR der Länder (statistikportal.de): Kreisergebnisse als Excel ----------
+VGRDL = "https://www.statistikportal.de/de/vgrdl/ergebnisse-kreisebene/"
+
+
+def vgrdl_workbook(page_url, stem, fallback):
+    """Sucht die aktuelle Excel-Datei (Dateiname beginnt mit `stem`) auf der Seite, lädt sie in den Speicher, öffnet sie."""
     try:
-        import openpyxl  # nur hier gebraucht
+        import openpyxl  # nur für die Excel-Dateien der VGRdL gebraucht
     except ImportError:
-        raise FetchError("openpyxl fehlt (pip install openpyxl) – nötig nur für die Excel-Datei der VGRdL")
-    page = get(VGRDL_PAGE).decode("utf-8", "replace")
-    links = re.findall(r'href="([^"]*vgrdl_r2b3_[^"]*\.xlsx)"', page)
-    url = urllib.request.urljoin(VGRDL_PAGE, links[0]) if links else VGRDL_FALLBACK
-    m = re.search(r"vgrdl_r2b3_[^\"]*\.xlsx.{0,800}?Berechnungsstand:\s*([A-Za-zä]+ \d{4})", page, re.S)
-    stand = m.group(1) if m else None
+        raise FetchError("openpyxl fehlt (pip install openpyxl) – nötig nur für die Excel-Dateien der VGRdL")
+    page = get(page_url).decode("utf-8", "replace")
+    links = re.findall(rf'href="([^"]*{stem}[^"]*\.xlsx)"', page)
+    url = urllib.request.urljoin(page_url, links[0]) if links else fallback
+    m = re.search(rf"{stem}[^\"]*\.xlsx.{{0,1500}}?Berechnungsstand:\s*([A-Za-zä]+ \d{{4}})", page, re.S)
     raw = get(url)
     if len(raw) > 30e6:
-        raise FetchError(f"VGRdL-Excel unerwartet groß ({len(raw)} Bytes)")
-    wb_ = openpyxl.load_workbook(io.BytesIO(raw), read_only=True, data_only=True)
-    if "2.4" not in wb_.sheetnames:
-        raise FetchError(f"VGRdL-Excel: Tabelle 2.4 fehlt (Blätter: {wb_.sheetnames})")
-    ws = wb_["2.4"]
-    rows = list(ws.iter_rows(values_only=True))
-    title = " · ".join(str(c).strip() for c in (rows[1][0], rows[2][0]) if c)
-    head = next(r for r in rows if r and r[0] == "Lfd. Nr.")
-    years = [c for c in head if isinstance(c, int)]
-    ycol = {y: head.index(y) for y in years}
-    keep = years[-3:]
+        raise FetchError(f"VGRdL-Excel unerwartet groß ({len(raw)} Bytes): {url}")
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        wb_ = openpyxl.load_workbook(io.BytesIO(raw), read_only=True, data_only=True)
+    return wb_, url, (m.group(1) if m else None)
+
+
+def vgrdl_table(wb_, sheet, n_years, digits=0):
+    """Liest eine Kreistabelle (Lfd. Nr. | EU-Code | Regionalschlüssel | Land | NUTS 1 | NUTS 2 | NUTS 3 | Gebietseinheit | Jahre …)."""
+    if sheet not in wb_.sheetnames:
+        raise FetchError(f"VGRdL-Excel: Tabelle {sheet} fehlt (Blätter: {wb_.sheetnames})")
+    rows = list(wb_[sheet].iter_rows(values_only=True))
+    title = " · ".join(str(c).strip() for c in (rows[0][0], rows[1][0], rows[2][0]) if c)
+    head = next((r for r in rows if r and r[0] == "Lfd. Nr."), None)
+    if head is None or head[1] != "EU-Code":
+        raise FetchError(f"VGRdL-Excel, Tabelle {sheet}: Kopfzeile nicht gefunden")
+    years = [c for c in head if isinstance(c, int)][-n_years:]
     reg = {}
     for r in rows:
         if not r or not isinstance(r[0], (int, float)) or not r[1]:
             continue
         code = str(r[1]).strip()
         ebene = "Kreis" if str(r[6] or "").strip() == "3" else "Regierungsbezirk" if str(r[5] or "").strip() == "2" else \
-            "Land" if len(code) == 3 else "Deutschland" if code == "DE" else "sonst"
-        vals = {str(y): (round(r[ycol[y]]) if isinstance(r[ycol[y]], (int, float)) else None) for y in keep}
-        reg[code] = {"ags": str(r[2]).strip() if r[2] is not None else None, "name": str(r[7]).strip(), "ebene": ebene, "eur_je_ew": vals}
+            "Deutschland" if code == "DE" else "Land"
+        val = lambda x: (round(x, digits) if digits else round(x)) if isinstance(x, (int, float)) else None
+        reg[code] = {"ags": str(r[2]).strip() if r[2] is not None else None, "name": str(r[7]).strip(), "ebene": ebene,
+                     "werte": {str(y): val(r[head.index(y)]) for y in years}}
     n = sum(1 for x in reg.values() if x["ebene"] == "Kreis")
     if n < 390:
-        raise FetchError(f"VGRdL-Excel: nur {n} Kreise gelesen")
+        raise FetchError(f"VGRdL-Excel, Tabelle {sheet}: nur {n} Kreise gelesen")
+    return title, [str(y) for y in years], reg
+
+
+def vgrdl_einkommen():
+    wb_, url, stand = vgrdl_workbook(VGRDL + "einkommen-kreise", "vgrdl_r2b3_",
+                                     "https://www.statistikportal.de/sites/default/files/2026-01/vgrdl_r2b3_bs2024.xlsx")
+    title, years, reg = vgrdl_table(wb_, "2.4", 3)
     write("vgrdl_verfuegbares_einkommen_kreise.json", {
         "quelle": "Arbeitskreis „Volkswirtschaftliche Gesamtrechnungen der Länder“ (VGRdL), Reihe 2 Band 3",
-        "tabelle": title, "datei": url, "berechnungsstand": stand, "abruf": TODAY,
+        "tabelle": "2.4 · " + title, "datei": url, "berechnungsstand": stand, "abruf": TODAY,
         "einheit": "EUR je Einwohner (verfügbares Einkommen der privaten Haushalte einschl. privater Organisationen ohne Erwerbszweck)",
-        "jahre": keep, "hinweis": "Schlüssel = EU-Code (NUTS); ags = Regionalschlüssel. Werte auf ganze Euro gerundet.",
+        "jahre": years, "hinweis": "Schlüssel = EU-Code (NUTS); ags = Regionalschlüssel. Werte auf ganze Euro gerundet.",
+        "regionen": reg,
+    })
+
+
+def vgrdl_bip():
+    wb_, url, stand = vgrdl_workbook(VGRDL + "bruttoinlandsprodukt-bruttowertschoepfung-kreise", "vgrdl_r2b1_",
+                                     "https://www.statistikportal.de/sites/default/files/2026-09/vgrdl_r2b1_bs2025_4.xlsx")
+    t1, years, bip = vgrdl_table(wb_, "1.1", 2, digits=3)
+    t5, _, ew = vgrdl_table(wb_, "5", 2, digits=3)
+    t6, _, pc = vgrdl_table(wb_, "6", 2)
+    reg = {}
+    for code, x in bip.items():
+        reg[code] = {"ags": x["ags"], "name": x["name"], "ebene": x["ebene"], "bip_mio_eur": x["werte"],
+                     "einwohner_tsd": ew.get(code, {}).get("werte"), "bip_eur_je_ew": pc.get(code, {}).get("werte")}
+    write("vgrdl_bip_kreise.json", {
+        "quelle": "Arbeitskreis „Volkswirtschaftliche Gesamtrechnungen der Länder“ (VGRdL), Reihe 2 Band 1",
+        "tabellen": {"1.1": t1, "5": t5, "6": t6}, "datei": url, "berechnungsstand": stand, "abruf": TODAY,
+        "einheiten": {"bip_mio_eur": "Mio. EUR, jeweilige Preise", "einwohner_tsd": "1000 Personen (Jahresdurchschnitt)",
+                      "bip_eur_je_ew": "EUR je Einwohner"},
+        "jahre": years,
+        "hinweis": "Neuerer Rechenstand als Eurostat nama_10r_3gdp (Revision 2024 der VGRdL). Schlüssel = EU-Code; "
+                   "drei Thüringer Kreise tragen hier ein angehängtes x (DEG06x, DEG09x, DEG0Rx; Gebietsstand ab 2024).",
         "regionen": reg,
     })
 
@@ -259,7 +299,7 @@ def main():
     print(f"Quellen abrufen → {OUT.relative_to(ROOT.parent)} (Abruf {TODAY})")
     failed = []
     for name, fn in (("Eurostat NUTS-3", eurostat_nuts3), ("Eurostat Haushaltseinkommen", eurostat_hhinc),
-                     ("Weltbank", worldbank), ("VGR der Länder", vgrdl)):
+                     ("Weltbank", worldbank), ("VGRdL Einkommen", vgrdl_einkommen), ("VGRdL BIP", vgrdl_bip)):
         try:
             fn()
         except FetchError as e:

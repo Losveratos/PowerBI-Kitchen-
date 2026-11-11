@@ -11,8 +11,9 @@ Ergebnis: [`/zwei-heimaten.html`](../zwei-heimaten.html) · Markdown-Fassung: [`
 ## Pipeline
 
 ```bash
+python3 -I wohlstand-story/scripts/fetch_sources.py     # nur zum Auffrischen: Originalquellen → data/sources/ (braucht Netz zu Eurostat, Weltbank, Statistikportal)
 python3 -I wohlstand-story/scripts/person_model.py      # nur bei neuen Atlasdaten: Überschlag für einzelne Menschen → data/person_model.json (~1 min)
-python3 -I wohlstand-story/scripts/build_story_data.py  # Atlasdaten (+ person_model.json) → data/story_data.json
+python3 -I wohlstand-story/scripts/build_story_data.py  # Atlasdaten (+ person_model.json, data/sources/) → data/story_data.json
 python3 -I wohlstand-story/scripts/build_story_html.py  # story_template.html + JSON → ../zwei-heimaten.html
 python3 -I wohlstand-story/scripts/check_numbers.py     # prüft die im Text ausgeschriebenen Zahlen gegen story_data.json
 python3 -I wohlstand-story/scripts/build_md.py          # Text der Story → ../md/zwei-heimaten.md (danach scripts/build_llms_full.py)
@@ -30,13 +31,14 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
   zusammen 15 Schritte (3/4/4/4). Unter 1020 px steht die Grafik oben fest und die Textkarten laufen darunter; bis 760 px zeichnet
   jede Grafik im Hochformat (viewBox 1060 × 1080 statt 1060 × 640).
 - **„Eng“ an drei Stellen:** Akt 1 / Schritt 3 (113 Kreise höchstens 10 % von OSL entfernt, Rang 248 bis 361), Akt 4 / Schritt 3
-  (Konsum der Haushalte: in der Welt keine 2 Punkte auseinander), Akt 4 / Schritt 4 (Überschlag für einzelne Menschen).
+  (verfügbares Einkommen der beiden Kreise: Faktor 1,14 statt 2,2; 179 Kreise höchstens 10 % von OSL entfernt), Akt 4 / Schritt 4
+  (Überschlag für einzelne Menschen).
 - **Eine Toleranz:** „Auf derselben Stufe“ heißt überall höchstens 10 % über oder unter OSL (`BAND` in `build_story_data.py`):
   bei den Kreisen (Akt 1), bei den Menschen der Welt (Akt 3) und bei der Unsicherheit des Werts (Akt 2: 83 bis 88 %).
 - **„Und früher?“** (`#zeit`): Deutschland unter den Ländern 2000 bis 2024 aus den Zeitreihen des Atlas (reales BIP pro Kopf,
-  Anteile und Weltdurchschnitt mit der Bevölkerung von 2024 gewichtet, weil der Atlas keine Bevölkerung je Jahr führt):
+  Anteile und Weltdurchschnitt mit der Bevölkerung des jeweiligen Jahres gewichtet, Weltbank `SP.POP.TOTL`):
   so weit oben wie 2000 (92 → 93 %, Platz 22 → 21 von 187 Ländern, Taiwan fehlt), Vorsprung vor dem Weltdurchschnitt vom
-  gut 4-Fachen auf das knapp 3-Fache. Bezug ist bewusst der Durchschnitt: Das „Land des mittleren Menschen“ war 2000 China
+  knapp 4-Fachen auf das knapp 3-Fache. Bezug ist bewusst der Durchschnitt: Das „Land des mittleren Menschen“ war 2000 China
   über ein breites Band der Verteilung, der Faktor dazu (12 → 4) überzeichnet die Veränderung.
 - **Schätzfrage** vor Akt 2 (`#quiz`): letzter Platz der deutschen Kreise im Weltmaßstab. Die Auflösung und die eigene
   Schätzung erscheinen in Akt 2 / Schritt 5 auf der Kurve (Band „alle 400 Kreise“).
@@ -53,8 +55,20 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 wohlstand-story/
 ├── story_template.html   ← Seite (HTML/CSS/JS, Platzhalter /*__DATA__*/null für die Daten)
 ├── data/story_data.json  ← verdichtete Kennzahlen, Weltkurve, Quadrate, Deutschlandkarte (Kreispfade), Suchliste
-└── scripts/              ← person_model / build_story_data / build_story_html / check_numbers / build_md / check_page
+├── data/person_model.json← Ergebnis der Modellrechnung für einzelne Menschen (20 Varianten)
+├── data/sources/         ← Originalquellen, aufbereitet (Eurostat, Weltbank, VGR der Länder) + Prüfbericht ABGLEICH.md
+└── scripts/              ← fetch_sources / person_model / build_story_data / build_story_html / check_numbers / build_md / check_page
 ```
+
+## Abgleich mit den Originalquellen
+
+Der Atlas selbst entsteht außerhalb des Repos. Damit die Story nicht nur gegen den Atlas geprüft ist, rechnet
+`build_story_data.py` das BIP pro Kopf aller 400 deutschen Kreise aus Eurostat (`nama_10r_3gdp`, `nama_10r_3popgdp`) und dem
+Landeswert der Weltbank nach und vergleicht es mit dem Atlas (`checks` in `story_data.json`; Stand 11/2026: höchstens
+0,004 % Abweichung, alle Ränge gleich). Aus den Quellen kommen außerdem zwei Größen, die der Atlas nicht hat: das verfügbare
+Einkommen je Einwohner auf Kreisebene (VGR der Länder, `income`) und die Bevölkerung der Länder je Jahr (Weltbank, für
+„Und früher?“). Einzelheiten und offene Punkte (neuerer Rechenstand der Ämter: Rang 27 und 300; Gini Deutschland) stehen in
+`data/sources/ABGLEICH.md`.
 
 ## Regeln für den Text
 

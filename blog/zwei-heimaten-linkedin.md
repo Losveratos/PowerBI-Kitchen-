@@ -21,7 +21,7 @@
 > | rund 73 % (Südwestpfalz, letzter Kreis) | Akt 2 · „Und der letzte Platz in Deutschland?" |
 > | 113 Kreise, mehr als jeder vierte, höchstens 10 % von OSL entfernt | Akt 1 · „Die Rangliste ist enger, als sie aussieht" |
 > | Japan, Portugal, Polen auf derselben Stufe | Akt 3 · „Auf derselben Stufe: Japan, Portugal, Polen" |
-> | rund 93 % heute gegen 92 % im Jahr 2000; Vorsprung vor dem Weltdurchschnitt gut 4-mal gegen knapp 3-mal; seit 2019 pro Kopf nicht mehr gewachsen | „Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung" (in der HTML-Fassung mit dem Kicker „Und früher?") |
+> | rund 93 % heute gegen 92 % im Jahr 2000; Vorsprung vor dem Weltdurchschnitt knapp 4-mal gegen knapp 3-mal; seit 2019 pro Kopf nicht mehr gewachsen | „Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung" (in der HTML-Fassung mit dem Kicker „Und früher?") |
 > | BIP zählt am Arbeitsort, kein Einkommen, Braunkohle-Ausstieg | Akt 4 · „Faktor 2,2"; „Wir meckern auf hohem Niveau"; „Was diese Zahlen nicht sagen" |
 > | „meckere ich weniger" | nur in der HTML-Fassung, Hero (`zwei-heimaten.html`, nicht in `md/zwei-heimaten.md`) |
 > | „Wir meckern auf hohem Niveau, ich eingeschlossen" | „Wir meckern auf hohem Niveau" („Das gilt auch für mich") |
@@ -38,7 +38,7 @@ Ich komme aus dem Oberspreewald-Lausitz-Kreis (OSL) in Südbrandenburg und aus K
 
 Die Rangliste sieht weiter auseinander aus, als es ist: 113 Kreise, mehr als jeder vierte, liegen höchstens 10 % von OSL entfernt, und Japan, Portugal und Polen stehen auf derselben Stufe.
 
-Die Gegenseite gibt es auch. Deutschland steht heute so weit oben wie im Jahr 2000: Rund 93 % der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, damals 92 %. Der Vorsprung vor dem Weltdurchschnitt ist aber vom gut 4-Fachen auf das knapp 3-Fache geschrumpft, und seit 2019 wächst das BIP pro Kopf nicht mehr. Wer wie ich über den Stillstand klagt, hat die Zahlen auf seiner Seite.
+Die Gegenseite gibt es auch. Deutschland steht heute so weit oben wie im Jahr 2000: Rund 93 % der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, damals 92 %. Der Vorsprung vor dem Weltdurchschnitt ist aber vom knapp 4-Fachen auf das knapp 3-Fache geschrumpft, und seit 2019 wächst das BIP pro Kopf nicht mehr. Wer wie ich über den Stillstand klagt, hat die Zahlen auf seiner Seite.
 
 BIP pro Kopf ist kein Einkommen, und die Lausitz steckt mitten im Kohleausstieg. Wir meckern trotzdem auf hohem Niveau, ich eingeschlossen. Seitdem ich nachgerechnet habe, meckere ich weniger.
 
@@ -73,6 +73,6 @@ https://datenwgknowledgekitchen.com/zwei-heimaten.html#you-head
 1. **Vorschaubild (vorhanden):** `assets/og/zwei-heimaten.png`, 1200×630. Passt zur Hauptfassung, weil es die Zahlen der ersten Zeilen zeigt.
    *Alternativtext:* Dunkles Raster aus kleinen Quadraten. Titel „Zwei Heimaten. Eine Welt.“ Darunter zwei Zeilen: Köln, Rang 28 von 400 in Deutschland, vor rund 98 % der Menschheit. Oberspreewald-Lausitz, Rang 307 von 400, vor rund 86 % der Menschheit.
 2. **„Und früher?“ (Screenshot aus dem gleichnamigen Abschnitt):** Deutschland gegen den Weltdurchschnitt, reales BIP pro Kopf 2000 bis 2024. Zeigt in einem Bild, dass Deutschland so weit oben steht wie im Jahr 2000 und der Vorsprung trotzdem schrumpft.
-   *Alternativtext:* Liniendiagramm, reales BIP pro Kopf 2000 bis 2024 auf logarithmischer Achse. Drei Linien: Deutschland, der Weltdurchschnitt und das Land des mittleren Menschen. Deutschlands Vorsprung vor dem Weltdurchschnitt ist von gut dem 4-Fachen im Jahr 2000 auf knapp das 3-Fache geschrumpft.
+   *Alternativtext:* Liniendiagramm, reales BIP pro Kopf 2000 bis 2024 auf logarithmischer Achse. Drei Linien: Deutschland, der Weltdurchschnitt und das Land des mittleren Menschen. Deutschlands Vorsprung vor dem Weltdurchschnitt ist von knapp dem 4-Fachen im Jahr 2000 auf knapp das 3-Fache geschrumpft.
 3. **Der Vergleich (Screenshot aus „Wo steht deine Heimat?“):** zwei ausgefüllte Karten, etwa mit einem der Beispiele der Seite („München und Leipzig“). Passt zur Kurzfassung, weil es zeigt, was man selbst tun kann. Vor dem Screenshot die Werte auf der Seite ablesen und in den Alternativtext übernehmen, keine Zahlen aus dem Kopf.
    *Alternativtext:* Eingabefeld „Wo steht deine Heimat?“ mit zwei Orten. Für jeden Ort eine Karte mit BIP pro Kopf und dem Anteil der Menschheit in Regionen mit niedrigerem Wert, darunter der Anteil der Menschheit, der zwischen beiden lebt.

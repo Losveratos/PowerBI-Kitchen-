@@ -24,6 +24,8 @@ PS = D["persons"]["span"]                                  # Spannen der Modellr
 PMJ = json.loads((ROOT / "data" / "person_model.json").read_text(encoding="utf-8"))
 _ov = PMJ["ergebnisse_hauptvariante"]["koeln_below_osl_median"]
 OV = {"gdp": _ov["spanne_gdp"], "hh": _ov["spanne_hh"]}    # Anteil der Kölner unter dem mittleren Menschen in OSL
+IN = D["income"]                                           # verfügbares Einkommen der Kreise (VGR der Länder)
+CK = D["checks"]                                           # Abgleich mit Eurostat und Weltbank
 TR = D["trend"]                                            # Deutschland unter den Ländern, 2000 bis 2024
 SQ_DE = sum(1 for q in D["squares"] if q[0] == "DEU")      # Quadrate, die in Akt 3 an Deutschland gehen
 
@@ -98,8 +100,14 @@ EXPECT = {
     # Akt 4
     "Metro 89.100": h(K["metro_gdp"]), "Preis 109": f"{de(K['price'])}</span>", "Preis 92": f"in OSL bei <span class=\"big l\">{de(L['price'])}</span>",
     "Faktor 1,9": f"Faktor <span class=\"big\">{de(W['rp_ratio'], 1)}</span>", "105.000": f"<span class=\"k\">{h(K['rp'])}</span>", "55.600": h(L["rp"]),
-    "38.700": h(K["hh"]), "35.900": h(L["hh"]), "Faktor 1,08": f"Faktor <span class=\"big\">{de(W['hh_ratio'], 2)}</span>",
-    "86 und 84 %": f"bei rund {rnd(K['world_below_hh'])} und {rnd(L['world_below_hh'])} %", "keine 2 Punkte": "keine 2 Punkte auseinander" if 1 < W["hh_gap"] < 2 else "!!",
+    # Akt 4 / Schritt 3: verfügbares Einkommen der beiden Kreise (VGR der Länder), umgerechnet
+    "Einkommen 28.800 / 25.100": f"in Köln <span class=\"big k\">{h(IN['koeln']['eur'])}</span>,\n      in OSL <span class=\"big l\">{h(IN['osl']['eur'])}</span> Euro im Jahr",
+    "Faktor 1,14": f"Faktor <span class=\"big\">{de(IN['ratio'], 2)}</span> statt {de(W['koeln_x_osl'], 1)}",
+    "179 Kreise beim Einkommen": f"{IN['n_near']} Kreise, fast jeder zweite, liegen beim Einkommen höchstens {IN['band']} %" if 0.42 < IN["n_near"] / (IN["n"] - 1) < 0.5 else "!!",
+    "39.400 / 34.400": f"<span class=\"k\">{h(IN['koeln']['int'])}</span> gegen <span class=\"l\">{h(IN['osl']['int'])}</span> Int.$",
+    "86 und 84 %": f"bei rund {rnd(IN['koeln']['world_below'])} und {rnd(IN['osl']['world_below'])} %", "knapp 3 Punkte": f"knapp {math.ceil(IN['world_gap'])} Punkte auseinander" if IN["world_gap"] % 1 >= 0.5 else "!!",
+    "Einkommen 2023": f"Verfügbares Einkommen {IN['year']}",
+    "Faktor 1,14 (Fazit)": f"trennt Köln und OSL Faktor {de(IN['ratio'], 2)} statt {de(W['koeln_x_osl'], 1)}",
     # Akt 4 / Schritt 5: Überschlag für einzelne Menschen (nur Aussagen, die in allen Varianten gelten)
     "Hauptrechnung 89 / 90 %": f"in OSL bei <span class=\"big l\">{rnd(D['persons']['osl']['p50'])} %</span>, der in Köln bei <span class=\"big k\">{rnd(D['persons']['koeln']['p50'])} %</span>",
     "mittlerer Mensch > 80 %": "sind es mehr als 80 %" if min(PS["osl_p50"][0], PS["koeln_p50"][0]) > 80 else "!!",
@@ -114,7 +122,7 @@ EXPECT = {
     "so weit oben wie damals": "so weit oben wie damals" if TR["last"]["below"] >= TR["first"]["below"] and abs(TR["last"]["rank"] - TR["first"]["rank"]) <= 2 else "!!",
     "Platz 22 → 21 von 187": f"Unter den {TR['n']} Ländern der Reihe stand Deutschland damals auf Platz {TR['first']['rank']}, heute auf Platz {TR['last']['rank']}",
     "Taiwan fehlt": "Taiwan fehlt in der Reihe und läge heute davor" if TR["missing_ahead"] == ["Taiwan"] else "!!",
-    "gut 4-mal (Durchschnitt)": f"gut {int(TR['first']['x_mean'])}-mal so hoch wie der Weltdurchschnitt" if TR["first"]["x_mean"] % 1 < 0.5 else "!!",
+    "knapp 4-mal (Durchschnitt)": f"knapp {math.ceil(TR['first']['x_mean'])}-mal so hoch wie der Weltdurchschnitt" if TR["first"]["x_mean"] % 1 >= 0.5 else "!!",
     "knapp 3-mal": f"heute ist es knapp {math.ceil(TR['last']['x_mean'])}-mal so hoch" if TR["last"]["x_mean"] % 1 >= 0.5 else "!!",
     "Median 2000 China, noch stärker": "im Jahr 2000 war das China, ist der Abstand noch stärker gefallen" if TR["first"]["med_name"] == "China" and TR["first"]["x_med"] / TR["last"]["x_med"] > TR["first"]["x_mean"] / TR["last"]["x_mean"] else "!!",
     "seit 2019 pro Kopf nicht gewachsen": "seit 2019 ist das reale BIP pro Kopf in Deutschland nicht mehr gewachsen" if TR["since2019"]["DEU"] <= 0 else "!!",
@@ -122,6 +130,11 @@ EXPECT = {
     "187 Länder, 98 %": f"{TR['n']} Länder mit durchgehender Reihe ({rnd(TR['pop_share'])} % der Weltbevölkerung)",
     "Stillstand seit 2019 (Fazit)": "Stillstand seit 2019" if abs(TR["since2019"]["DEU"]) < 1 else "!!",
     "Shanghai 11 %": f"rund {rnd((C['CN-SH']['gdp'] / L['rp'] - 1) * 100)} % über dem chinesischen Schnitt",
+    # Abgleich mit den Originalquellen
+    "400 Kreise, 0,004 %": f"aller {CK['n_kreise']} deutschen Kreise" if CK["ranks_identical"] else "!!", "max. Abweichung": f"um höchstens {de(CK['max_dev_pct'], 3)} % ab, alle Ränge sind gleich",
+    "Eurostat-Jahr": f"<code>nama_10r_3popgdp</code>, {CK['eurostat_year']})",
+    "zwölf Länder": f"Zwölf geprüfte Länderwerte weichen ebenfalls um höchstens {de(CK['max_dev_countries_pct'], 3)} % ab" if CK["n_countries"] == 12 else "!!",
+    "Rang 27 / 300 (neuerer Stand)": f"({CK['vgrdl_stand']}) stünden Köln und OSL auf Rang {CK['vgrdl_rank']['koeln']} und {CK['vgrdl_rank']['osl']}",
     # Fazit, Grenzen, Methode
     "279 Plätze": f"{de(L['de_rank'] - K['de_rank'])} Plätze", "113 Kreise (Fazit)": f"{T['n_near']} Kreise liegen höchstens {T['band']} % von OSL entfernt",
     "73 % (Fazit)": f"rund {rnd(G['poorest']['world_below'])} % der Menschheit leben",
