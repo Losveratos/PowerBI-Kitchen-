@@ -1,6 +1,6 @@
 # Zwei Heimaten. Eine Welt.
 
-> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang 28 und Rang 307 von 400 Kreisen. In der Welt stehen beide weit oben: Rund 86 % bzw. rund 98 % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis (Südwestpfalz) liegt bei rund 73 %. Deutschland steht heute so weit oben wie 2000 (92 % → 93 % der Menschheit in Ländern mit niedrigerem BIP pro Kopf), sein Vorsprung vor dem Weltdurchschnitt ist aber vom 3,9-Fachen auf das 2,9-Fache geschrumpft.
+> Köln und der Oberspreewald-Lausitz-Kreis liegen in Deutschland weit auseinander: Rang 28 und Rang 307 von 400 Kreisen (Eurostat 2023; nach dem neueren Rechenstand der Statistischen Ämter Rang 27 und 300). In der Welt stehen beide weit oben: Rund 86 % bzw. rund 98 % der Menschheit leben in Regionen mit niedrigerem BIP pro Kopf, und selbst der letzte deutsche Kreis (Südwestpfalz) liegt bei rund 73 %. Deutschland steht heute so weit oben wie 2000 (92 % → 93 % der Menschheit in Ländern mit niedrigerem BIP pro Kopf), sein Vorsprung vor dem Weltdurchschnitt ist aber vom knapp 4-Fachen auf das knapp 3-Fache geschrumpft.
 
 - **Quelle:** https://datenwgknowledgekitchen.com/zwei-heimaten.html
 - **Autor:** Michael Tenner · Daten-WG Knowledge Kitchen
@@ -106,7 +106,7 @@ Deutschlands 84 Mio. Menschen wären knapp 17 Quadrate.
 
 In Blau alle Menschen, deren Region ein höheres BIP pro Kopf hat als OSL: 1.134 Mio., ein Siebtel der Menschheit. Am meisten in den USA (283 Mio.), dann China (120 Mio.), Deutschland, Japan, Frankreich.
 
-Hell hervorgehoben ist China, darunter [**Shanghai**](wohlstandsatlas.html#CN-SH--m0--l2--z1) (61.900) und [**Peking**](wohlstandsatlas.html#CN-BJ--m0--l2--z1) (65.000). [B] Mit einem Vorbehalt: Der Atlas rechnet ganz China mit denselben Preisen. Liegt das Preisniveau in Shanghai rund 11 % über dem chinesischen Schnitt, ist der Vorsprung vor OSL weg. Indien hat keinen Bundesstaat über OSL.
+Hell hervorgehoben ist China, darunter [**Shanghai**](wohlstandsatlas.html#CN-SH--m0--l2--z1) (61.900) und [**Peking**](wohlstandsatlas.html#CN-BJ--m0--l2--z1) (65.000). [B] Mit einem Vorbehalt: Der Atlas rechnet ganz China mit denselben Preisen. Rechnet man beide zu Preisen vor Ort (OSL dann 55.600 Int.$), reichen rund 11 % höhere Preise in Shanghai, und der Vorsprung ist weg. Indien hat keinen Bundesstaat über OSL.
 
 ### Auf derselben Stufe: Japan, Portugal, Polen
 
@@ -118,7 +118,7 @@ Auf dieser Stufe liegt der Landesdurchschnitt von [**Japan**](wohlstandsatlas.ht
 
 In Gelb, ganz oben rechts: Menschen in Regionen mit höherem BIP pro Kopf als Köln, zusammen rund 100 Mio., gut 1 % der Menschheit: Singapur, Mailand, Paris, Warschau, Hamburg, viele US-Großstädte und die russischen Öl- und Gasbezirke.
 
-Köln steht auf der Stufe von [**Moskau**](wohlstandsatlas.html#RU-MOS--m0--l2--z1) (115.000) und zwischen [**Norwegen**](wohlstandsatlas.html#NOR--m0--l2--z1) und [**Katar**](wohlstandsatlas.html#QAT--m0--l2--z1).
+Köln steht auf der Stufe von [**Moskau**](wohlstandsatlas.html#RU-MOS--m0--l2--z1) (115.000) und zwischen [**Norwegen**](wohlstandsatlas.html#NOR--m0--l2--z1) und [**Katar**](wohlstandsatlas.html#QAT--m0--l2--z1). Moskau liegt hauchdünn davor, seine 13 Mio. Einwohner zählen deshalb zu den rund 100 Mio.
 
 ## Akt 4 · Der Haken: Was der Abstand wirklich misst
 
@@ -136,15 +136,15 @@ Dazu kommen die Preise: In Köln liegt das Preisniveau bei 109, in OSL bei 92 (D
 
 ### Beim Einkommen rücken sie zusammen
 
-Was bei den Haushalten ankommt, zeigt das verfügbare Einkommen je Einwohner: in Köln 28.800, in OSL 25.100 Euro im Jahr. Das ist Faktor 1,14 statt 2,2. 179 Kreise, fast jeder zweite, liegen beim Einkommen höchstens 10 % von OSL entfernt.
+Was bei den Haushalten ankommt, zeigt das verfügbare Einkommen je Einwohner: in Köln 28.800, in OSL 25.100 Euro im Jahr. Das ist Faktor 1,14 statt 2,2. 179 Kreise, knapp die Hälfte, liegen beim Einkommen höchstens 10 % von OSL entfernt.
 
 Umgerechnet auf den Konsum pro Kopf, damit es zu den anderen Balken passt, sind das 39.400 gegen 34.400 Int.$. In der Welt stehen beide damit bei rund 86 und 84 %, knapp 3 Punkte auseinander. [B] Dahinter steckt auch Umverteilung: Steuern, Renten, der Finanzausgleich zwischen Bund und Ländern.
 
 ### Und die einzelnen Menschen?
 
-Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag: Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist, dann steht der mittlere Mensch in OSL bei 89 %, der in Köln bei 90 % der Menschheit. In allen 20 gerechneten Varianten sind es mehr als 80 %. [C]
+Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag: Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist, dann steht der mittlere Mensch in OSL bei 89 %, der in Köln bei 91 % der Menschheit. In allen 20 gerechneten Varianten sind es mehr als 80 %. [C]
 
-Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich. Zwischen den mittleren Menschen beider Orte liegen höchstens 12 Punkte, zwischen dem ärmsten und dem reichsten Zehntel in OSL mindestens 20.
+Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich. Zwischen den mittleren Menschen beider Orte liegen höchstens 12 Punkte, zwischen dem ärmsten und dem reichsten Zehntel in OSL mindestens 18.
 
 ## Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung
 
@@ -194,7 +194,11 @@ Zum Ausprobieren:
 
 Alle Werte stammen aus dem [Wohlstandsatlas](wohlstandsatlas.html) der Knowledge Kitchen. Länder: Weltbank, World Development Indicators (2024), für einzelne Länder der IWF. Regionen in Europa: Eurostat (NUTS-3, meist 2023). Regionale Preisniveaus in Deutschland: Regionaler Preisindex 2022 von BBSR und IW. Weitere Länder: nationale Statistikämter, Quelle und Jahr stehen im Atlas bei jeder Region.
 
-Gegen die Originalquellen nachgerechnet (Abruf 11.11.2026): Das BIP pro Kopf aller 400 deutschen Kreise, aus Eurostat (Tabellen nama_10r_3gdp und nama_10r_3popgdp, 2023) und dem Landeswert der Weltbank neu gerechnet, weicht vom Atlas um höchstens 0,004 % ab, alle Ränge sind gleich. Zwölf geprüfte Länderwerte weichen ebenfalls um höchstens 0,004 % ab. Nach dem neueren Rechenstand der Statistischen Ämter (August 2025) stünden Köln und OSL auf Rang 27 und 300; an den Anteilen in der Welt ändert das nichts. Der Prüfbericht liegt unter wohlstand-story/data/sources/ABGLEICH.md.
+Gegen die Originalquellen nachgerechnet (Abruf 11.11.2026): Der Atlas gibt Eurostat richtig wieder. Das BIP pro Kopf aller 400 deutschen Kreise, aus den Tabellen nama_10r_3gdp und nama_10r_3popgdp (2023) und dem Landeswert der Weltbank neu gerechnet, weicht um höchstens 0,004 % ab, alle Ränge sind gleich. Zwölf geprüfte Länderwerte weichen ebenfalls um höchstens 0,004 % ab.
+
+Das prüft die Rechnung, nicht die Daten: Eurostat führt für 2023 vorläufige Werte. Nach dem neueren Rechenstand der Statistischen Ämter (August 2025) weichen 25 Kreise um mehr als 5 % ab, am stärksten um 34,9 %. Köln und OSL stünden auf Rang 27 und 300, ihre Werte ändern sich um 0,0 und 1,3 %. An den Anteilen in der Welt ändert das nichts. Auch deshalb rechnet diese Story überall mit einer Toleranz von 10 %. Der Prüfbericht liegt unter wohlstand-story/data/sources/ABGLEICH.md.
+
+Lizenzen: Eurostat und Weltbank (World Development Indicators) stellen ihre Daten unter CC BY 4.0 bereit. Die Ergebnisse der Volkswirtschaftlichen Gesamtrechnungen der Länder dürfen mit Quellenangabe weiterverwendet werden.
 
 Die ganze Tabelle gibt es als [CSV](wohlstandsatlas/wohlstandsatlas-einheiten.csv). Jede Zahl dieser Seite entsteht per Skript aus diesen Daten (wohlstand-story/scripts/) und wird vor jeder Veröffentlichung gegen den Text geprüft.
 
@@ -216,11 +220,11 @@ Ein Beweis ist das nicht. 157 der 217 Länder gibt es im Atlas nur als Ganzes, s
 
 ### Der Überschlag für einzelne Menschen
 
-Akt 4 endet mit einer Modellrechnung, keiner Messung. Für jede der 5.929 Regionen nehme ich an, dass der Konsum der Haushalte pro Kopf um den Wert der Region streut, und zwar so stark, dass alle Regionen eines Landes zusammen dessen Ungleichheit (Gini-Index aus dem Atlas) ergeben. Daraus entsteht eine Verteilung über alle Menschen der Welt, in die sich die Einwohner von OSL, Köln und Deutschland einordnen lassen.
+Akt 4 endet mit einer Modellrechnung, keiner Messung. Für jede der 5.929 Regionen nehme ich an, dass der Konsum der Haushalte pro Kopf um den Wert der Region streut, und zwar so stark, dass alle Regionen eines Landes zusammen dessen Ungleichheit (Gini-Index aus dem Atlas, für Deutschland der jüngste Wert der Weltbank: 33,7) ergeben. Daraus entsteht eine Verteilung über alle Menschen der Welt, in die sich die Einwohner von OSL, Köln und Deutschland einordnen lassen.
 
-Gerechnet sind 20 Varianten: mit dem BIP statt dem Konsum, mit 5 Punkten mehr oder weniger Ungleichheit, mit einer zweiten Verteilungsform. Im Text stehen nur Aussagen, die in allen 20 gleich ausgehen, jeweils mit der vorsichtigeren Grenze. Nicht dazu gehört, wie stark sich beide Orte überlappen: Mit dem BIP gerechnet liegen 6 bis 14 % der Kölner unter dem mittleren Menschen in OSL, mit dem Konsum 44 bis 53 %.
+Gerechnet sind 20 Varianten: mit dem BIP statt dem Konsum, mit 5 Punkten mehr oder weniger Ungleichheit, mit einer zweiten Verteilungsform. Im Text stehen nur Aussagen, die in allen 20 gleich ausgehen, jeweils mit der vorsichtigeren Grenze. Nicht dazu gehört, wie stark sich beide Orte überlappen: Mit dem BIP gerechnet liegen 5 bis 13 % der Kölner unter dem mittleren Menschen in OSL, mit dem Konsum 38 bis 49 %.
 
-Das Modell ist eher zu gleichmäßig: Auf die ärmere Hälfte der Menschen entfallen darin 9 bis 14 % des Gesamten, Studien zur weltweiten Einkommensverteilung nennen 8 bis 9 %. Für Köln und OSL selbst rechnet das Modell mit den Werten des Regierungsbezirks Köln und des Landes Brandenburg, feinere kennt der Atlas nicht. Das Skript liegt unter wohlstand-story/scripts/person_model.py.
+Das Modell ist eher zu gleichmäßig: Auf die ärmere Hälfte der Menschen entfallen darin 9 bis 14 % des Gesamten, Studien zur weltweiten Einkommensverteilung nennen 8 bis 9 %. Für die deutschen Kreise rechnet das Modell mit dem verfügbaren Einkommen des Kreises, für den Rest der Welt mit den gröberen Haushaltswerten des Atlas. Das Skript liegt unter wohlstand-story/scripts/person_model.py.
 
 ### Die Kennzeichen B und C
 

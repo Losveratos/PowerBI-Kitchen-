@@ -122,7 +122,7 @@ def above_by_country(v):
 above_osl, above_koeln = above_by_country(osl_v), above_by_country(kol_v)
 cn_fine = [u for u in fine if u["country"] == "CHN"]
 in_fine = [u for u in fine if u["country"] == "IND"]
-compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"])} for k in
+compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"]), "mio": r(by[k]["pop"] / 1e6, 1)} for k in
            ("CN-SH", "CN-BJ", "USA-MS", "RU-MOS", "IN-KL", "IN-SK", "POL", "EST", "NOR", "QAT", "IN-BR", "M-DE004M",
             "JPN", "PRT", "ID-JI", "JP-34")
            if k in by}
@@ -331,12 +331,17 @@ at_rank = {x["id"]: i + 1 for i, x in enumerate(de_fine)}
 VB = src("vgrdl_bip_kreise.json")
 vb = {k: x["bip_eur_je_ew"][ey] for k, x in VB["regionen"].items() if x["ebene"] == "Kreis" and x["bip_eur_je_ew"].get(ey)}
 vb_sorted = sorted(vb.values(), reverse=True)
+vb_de = VB["regionen"]["DE"]["bip_eur_je_ew"][ey]
+# Wie stark verschiebt der neuere Rechenstand die Kreiswerte? (nur Kreise mit unverändertem Gebiet)
+vb_dev = {k: abs((v / vb_de * by["DEU"]["gdp_pc_ppp"]) / by[k]["gdp_pc_ppp"] - 1) * 100 for k, v in vb.items() if k in by}
 wb_keys = ("DEU", "POL", "EST", "JPN", "PRT", "NOR", "QAT", "USA", "CHN", "IND", "IDN", "RUS")
 checks = {"eurostat_year": int(ey), "eurostat_stand": EU["tabellen"]["nama_10r_3gdp"]["stand"][:10], "wb_stand": WBG["stand"],
           "n_kreise": len(dev), "max_dev_pct": r(max(dev.values()), 3), "ranks_identical": all(eu_rank[k] == at_rank[k] for k in dev),
           "wb_deu": r(WBG["werte"]["DEU"]), "n_countries": len(wb_keys),
           "max_dev_countries_pct": r(max(abs(by[c]["gdp_pc_ppp"] / WBG["werte"][c] - 1) * 100 for c in wb_keys), 3),
-          "vgrdl_stand": VB["berechnungsstand"], "vgrdl_rank": {"koeln": vb_sorted.index(vb[KOELN]) + 1, "osl": vb_sorted.index(vb[OSL]) + 1}}
+          "vgrdl_stand": VB["berechnungsstand"], "vgrdl_rank": {"koeln": vb_sorted.index(vb[KOELN]) + 1, "osl": vb_sorted.index(vb[OSL]) + 1},
+          "vgrdl_n": len(vb_dev), "vgrdl_n_over5": sum(1 for v in vb_dev.values() if v > 5), "vgrdl_max_dev_pct": r(max(vb_dev.values()), 1),
+          "vgrdl_dev": {"koeln": r(vb_dev[KOELN], 1), "osl": r(vb_dev[OSL], 1)}}
 
 # ---------- Überschlag: wo die einzelnen Menschen stehen (Modellrechnung aus person_model.py) ----------
 # Nur Größen, die in allen Rechenvarianten in dieselbe Richtung gehen, mit ihrer Spanne über die Varianten.

@@ -11,7 +11,9 @@ Nur Standardbibliothek. Aufruf:
 
     python3 -I wohlstand-story/scripts/person_model.py
 
-Einzige Datenquelle: wohlstandsatlas/atlas-data.js (Ladecode wie in build_story_data.py).
+Datenquelle: wohlstandsatlas/atlas-data.js (Ladecode wie in build_story_data.py). Für Deutschland kommen zwei Werte aus
+den Originalquellen unter data/sources/ dazu, weil der Atlas sie gröber oder abweichend führt: das verfügbare Einkommen
+der 400 Kreise (VGR der Länder; der Atlas kennt Haushaltswerte nur für Regierungsbezirke) und der Gini-Index (Weltbank).
 """
 import json
 import math
@@ -24,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
 SRC = REPO / "wohlstandsatlas" / "atlas-data.js"
 OUT = ROOT / "data" / "person_model.json"
+SOURCES = ROOT / "data" / "sources"
 
 KOELN, OSL = "DEA23", "DE40B"
 FINE = 2
@@ -85,6 +88,13 @@ for c in COUNTRIES:
         GINI[c["id"]] = CONT_GINI[c.get("ct")]
         GINI_IMPUTED.append(c["id"])
 gini_imp_pop = sum(by[c]["pop"] for c in GINI_IMPUTED)
+# Deutschland: jüngster Gini der Weltbank statt des Atlaswerts (der Atlas führt 35,2, die Weltbank nennt 33,7 für 2022)
+GINI_DEU_SRC = None
+_g = ROOT / "data" / "sources" / "worldbank_gini_deu.json"
+if _g.exists():
+    _gj = json.loads(_g.read_text(encoding="utf-8"))
+    GINI["DEU"] = _gj["juengster"]["wert"]
+    GINI_DEU_SRC = f"Weltbank SI.POV.GINI, {_gj['juengster']['jahr']}"
 
 # ---------------------------------------------------------------------------
 # Basisgrößen je Einheit
@@ -126,12 +136,30 @@ def country_hh(cid):
 FLAT = "nur Landeswert (keine regionalen Einkommensdaten)"
 
 
+def kreis_hh():
+    """Konsum der Haushalte pro Kopf der deutschen Kreise: verfügbares Einkommen je Einwohner des Kreises (VGR der Länder)
+    relativ zu Deutschland × Haushaltskonsum pro Kopf in Deutschland (Atlas). Dieselbe Logik wie in build_story_data.py."""
+    f = SOURCES / "vgrdl_verfuegbares_einkommen_kreise.json"
+    if not f.exists():
+        return {}, None
+    ve = json.loads(f.read_text(encoding="utf-8"))
+    year = ve["jahre"][-1]
+    de = ve["regionen"]["DE"]["werte"][year]
+    return ({k: x["werte"][year] / de * by["DEU"]["hh_pc_ppp"] for k, x in ve["regionen"].items()
+             if x["ebene"] == "Kreis" and x["werte"].get(year) and k in by}, f"{ve['quelle']}, {year}")
+
+
+KREIS_HH, KREIS_HH_SRC = kreis_hh()
+
+
 def hh_values(beta):
     """Haushaltskonsum pro Kopf je Einheit. Atlaswert, wo er regionale Information trägt; sonst
     Landeswert × (BIP_r/BIP_Land)^beta, je Land auf den Landeswert normiert."""
     val, imp = {}, defaultdict(list)
     for u in FINE_DATA:
-        if u.get("hh_pc_ppp") and u.get("hh_note") != FLAT:
+        if u["id"] in KREIS_HH:                       # deutsche Kreise: Kreiswert der Statistischen Ämter
+            val[u["id"]] = KREIS_HH[u["id"]]
+        elif u.get("hh_pc_ppp") and u.get("hh_note") != FLAT:
             val[u["id"]] = u["hh_pc_ppp"]
         else:
             imp[u["country"]].append(u)
@@ -571,6 +599,7 @@ out = {
         "kennzeichnung": "Modellrechnung, kein Messwert. Verteilung innerhalb der Regionen angenommen (Form und Gini), nicht beobachtet.",
         "stuetzstellen": {"welt": K_POINTS, "kalibrierung": K_CAL},
         "rechenzeit_s": None,
+        "deutschland": {"kreiswerte": KREIS_HH_SRC, "kreise_mit_wert": len(KREIS_HH), "gini": GINI["DEU"], "gini_quelle": GINI_DEU_SRC},
     },
     "hauptvariante": {
         "id": vid(MAIN), "basis": BASE_LABEL[MAIN[0]], "gini": GINI_LABEL[MAIN[1]], "form": MAIN[2],
@@ -580,13 +609,14 @@ out = {
             "der Länder beschreiben Einkommen bzw. Konsum, nicht BIP-Anteile. Gini innerhalb der Regionen kalibriert, "
             "damit die Mischung aller Regionen eines Landes genau dessen Gini ergibt – sonst würde die Ungleichheit "
             "zwischen den Regionen doppelt gezählt. Lognormal als übliche Standardannahme; die log-logistische "
-            "Form ist Gegenprobe. Nachteil: Für Köln und OSL liegen Haushaltswerte nur für Regierungsbezirk Köln "
-            "bzw. Brandenburg vor (NUTS-2)."),
+            "Form ist Gegenprobe. Für die deutschen Kreise, also auch Köln und OSL, stammt der Wert aus dem "
+            "verfügbaren Einkommen je Einwohner des Kreises (VGR der Länder), umgelegt auf den Haushaltskonsum "
+            "Deutschlands; der Atlas selbst kennt dort nur Werte für Regierungsbezirke."),
     },
     "methode": (
         "Überschlag, kein Messwert: Für jede der rund 5.900 Regionen der feinsten Atlas-Ebene nehmen wir an, dass "
         "das Haushaltseinkommen (gemessen als Konsum der Haushalte pro Kopf, KKP) der Einwohner lognormal um den "
-        "Regionswert streut. Wie stark, folgt aus dem Gini des Landes (Weltbank); weil ein Teil der Ungleichheit "
+        "Regionswert streut. Wie stark, folgt aus dem Gini des Landes (Atlas; Deutschland: Weltbank); weil ein Teil der Ungleichheit "
         "eines Landes zwischen seinen Regionen liegt, wird die Streuung innerhalb der Regionen so gewählt, dass "
         "alle Regionen zusammen wieder genau den Landes-Gini ergeben. Aus allen Regionen entsteht eine "
         "Weltverteilung über 8,1 Mrd. Menschen, in die wir die Einwohner von OSL, Köln und Deutschland einordnen. "
