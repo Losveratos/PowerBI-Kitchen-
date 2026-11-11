@@ -141,7 +141,7 @@ def eurostat_nuts3():
 
 def eurostat_hhinc():
     geos = ["DE", "DEA2", "DE40", "DEA", "DE4"]
-    d = estat("nama_10r_2hhinc", geo=geos, na_item=["B6N", "P3"], direct="BAL",
+    d = estat("nama_10r_2hhinc", geo=geos, na_item="B6N", direct="BAL",
               unit=["EUR_HAB", "PPS_EU27_2020_HAB", "MIO_EUR"], sinceTimePeriod="2019")
     out = {}
     for key, (v, st) in d["rows"].items():
@@ -151,7 +151,7 @@ def eurostat_hhinc():
     write("eurostat_hhinc_nuts2.json", {
         "quelle": "Eurostat", "tabelle": "nama_10r_2hhinc", "titel": d["label"], "stand": d["updated"], "abruf": TODAY,
         "einheiten": {"EUR_HAB": "EUR je Einwohner", "PPS_EU27_2020_HAB": "KKS (EU27 ab 2020) je Einwohner", "MIO_EUR": "Mio. EUR"},
-        "merkmale": {"B6N": "verfügbares Einkommen, netto (Saldo), private Haushalte inkl. POoE", "P3": "Konsumausgaben"},
+        "merkmal": {"B6N": "verfügbares Einkommen, netto (Saldo), private Haushalte inkl. private Organisationen ohne Erwerbszweck"},
         "regionen": out,
     })
 
@@ -229,7 +229,7 @@ def vgrdl():
         raise FetchError(f"VGRdL-Excel: Tabelle 2.4 fehlt (Blätter: {wb_.sheetnames})")
     ws = wb_["2.4"]
     rows = list(ws.iter_rows(values_only=True))
-    title = " ".join(str(c) for c in (rows[1][0], rows[2][0]) if c)
+    title = " · ".join(str(c).strip() for c in (rows[1][0], rows[2][0]) if c)
     head = next(r for r in rows if r and r[0] == "Lfd. Nr.")
     years = [c for c in head if isinstance(c, int)]
     ycol = {y: head.index(y) for y in years}
@@ -248,7 +248,7 @@ def vgrdl():
         raise FetchError(f"VGRdL-Excel: nur {n} Kreise gelesen")
     write("vgrdl_verfuegbares_einkommen_kreise.json", {
         "quelle": "Arbeitskreis „Volkswirtschaftliche Gesamtrechnungen der Länder“ (VGRdL), Reihe 2 Band 3",
-        "tabelle": "2.4 " + title, "datei": url, "berechnungsstand": stand, "abruf": TODAY,
+        "tabelle": title, "datei": url, "berechnungsstand": stand, "abruf": TODAY,
         "einheit": "EUR je Einwohner (verfügbares Einkommen der privaten Haushalte einschl. privater Organisationen ohne Erwerbszweck)",
         "jahre": keep, "hinweis": "Schlüssel = EU-Code (NUTS); ags = Regionalschlüssel. Werte auf ganze Euro gerundet.",
         "regionen": reg,
