@@ -234,6 +234,7 @@ a:hover{color:var(--ink)}
 .duo-p{font-size:14.5px;margin-top:4px}
 .duo-x{font-family:var(--mono);font-size:11.5px;color:var(--muted-chart);margin-top:10px;line-height:1.6}
 .duo-sum{font-size:17px;color:var(--ink);margin:16px 0 4px}
+.duo-ref{display:block;margin-top:6px;font-family:var(--mono);font-size:12px;color:var(--muted-chart)}
 .you-actions{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap}
 .cta{display:inline-block;font-family:var(--mono);font-size:13px;padding:11px 18px;border:1px solid var(--amber);color:var(--amber-soft);text-decoration:none;letter-spacing:.04em;background:none;cursor:pointer;border-radius:0}
 .cta:hover{background:rgba(194,131,26,.14);color:var(--ink)}
@@ -388,7 +389,7 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
   <div class="quiz-row">
     <input type="range" id="quiz-in" min="0" max="100" step="1" value="50" aria-label="Deine Schätzung in Prozent">
     <output id="quiz-val" for="quiz-in">50 %</output>
-    <button type="button" id="quiz-go">Auflösen</button>
+    <button type="button" id="quiz-go">Schätzung merken</button>
   </div>
   <p id="quiz-out" aria-live="polite"></p>
 </section>
@@ -532,7 +533,8 @@ footer{border-top:1px solid var(--grid);padding:44px 24px 60px;text-align:center
       dann steht der mittlere Mensch in OSL bei <span class="big l">89&nbsp;%</span>, der in Köln bei <span class="big k">91&nbsp;%</span> der Menschheit.
       In allen 20 gerechneten Varianten sind es mehr als 80&nbsp;%.<span class="conf c" title="Modellrechnung, keine Messung">C</span></p>
       <p>Auch das ärmste Zehntel in OSL hat noch mehr als 60&nbsp;% der Menschheit hinter sich.
-      Zwischen den mittleren Menschen beider Orte liegen höchstens 12 Punkte, zwischen dem ärmsten und dem reichsten Zehntel in OSL mindestens 18.</p>
+      Zwischen den mittleren Menschen beider Orte liegen in der Hauptrechnung 2 Punkte, in keiner Variante mehr als 12.
+      Zwischen dem ärmsten und dem reichsten Zehntel in OSL sind es mindestens 18.</p>
       <span class="src">Modellrechnung, keine Messung. Die Grafik zeigt die Hauptrechnung mit dem Konsum einzelner Menschen, deshalb weichen ihre Werte von den 86 und 98&nbsp;% aus Akt 2 ab. Details unter „Zum Nachprüfen“.</span>
     </div></div>
   </div>
@@ -903,9 +905,9 @@ const act2 = (function(){
   const upd=()=>{ val.textContent=inp.value+" %"; }; inp.addEventListener("input",upd); upd();
   go.addEventListener("click",()=>{ const g=+inp.value, d=Math.round(Math.abs(g-truth));
     const how = d<=3 ? "Das ist so gut wie ein Treffer." : `Deine Schätzung lag ${d} Prozentpunkte zu ${g<truth?"niedrig":"hoch"}.`;
-    out.innerHTML=`Es sind rund <span class="big">${fmt(truth)}&nbsp;%</span>. ${how} Wo das auf der Kurve der Menschheit liegt, zeigt Akt 2.`;
+    out.innerHTML=`Gemerkt: <span class="big">${fmt(g)}&nbsp;%</span>. Die Auflösung kommt am Ende von Akt 2, auf der Kurve der Menschheit.`;
     out.tabIndex=-1; out.focus({preventScroll:true});
-    inp.disabled=true; go.disabled=true; echo.textContent=`Deine Schätzung von vorhin: ${fmt(g)} %.`; act2.guess(g); });
+    inp.disabled=true; go.disabled=true; echo.textContent=`Deine Schätzung von vorhin: ${fmt(g)} %. ${how}`; act2.guess(g); });
 })();
 
 /* ================================================================
@@ -918,7 +920,7 @@ const act3 = (function(){
   const GC=["#a98be0",CHINA,"#3f9e8c","#45443f"], GN=["Indien","China","Afrika","übrige Welt"];
   const grp=q=> q[0]==="IND"?0 : q[0]==="CHN"?1 : q[2]===0?2 : 3;
   // Oben bleibt Platz für die Ländernamen in Schritt 3, unten für zwei Zeilen Beschriftung
-  const COLS=MOBILE?48:58, s=MOBILE?21:15, x0=(1060-COLS*s)/2, rows=Math.ceil(sq.length/COLS), top=MOBILE?96:118, y0=top+rows*s;
+  const COLS=MOBILE?52:58, s=MOBILE?20:15, x0=(1060-COLS*s)/2, rows=Math.ceil(sq.length/COLS), top=MOBILE?130:128, y0=top+rows*s;
   const pos=j=>({x:x0+(j%COLS)*s, y:y0-(Math.floor(j/COLS)+1)*s});
   const rects=sq.map((q,i)=>{ const p=pos(i), rr=Math.floor(i/COLS);
     const e=el("rect",{x:p.x+1,y:p.y+1,width:s-2,height:s-2,class:"sq",fill:GC[grp(q)]},svg);
@@ -941,11 +943,17 @@ const act3 = (function(){
   // Schritt 3: auf derselben Stufe (±near_osl_band %), dazu die Stellen der Skala, an denen die genannten Länder liegen
   const n2=el("g",{class:"o2"},notes);
   swatch(n2,x0,ny,NEAR); txt(n2,x0+sw+8,ny,MOBILE?`${fmt(W.near_osl_mio)} Mio. auf der Stufe von OSL (±${W.near_osl_band} %)`:`${fmt(W.near_osl_mio)} Mio. Menschen in Regionen auf der Stufe von OSL (±${W.near_osl_band} %)`,{class:"t-n"+nc});
-  txt(n2,x0,ny2,MOBILE?"Namen: Durchschnitt des Landes":"Namen: Stelle der Skala, an der der Durchschnitt des Landes liegt",{class:"sm"});
-  const CMP=["JPN","POL","PRT","EST","USA-MS"].filter(id=>W.compare[id]), placed=[], lvY=MOBILE?[top-14,top-54]:[top-10,top-28], pad=MOBILE?10:8;
+  txt(n2,x0,ny2,MOBILE?`oben: −${W.near_osl_band} % links bis +${W.near_osl_band} % rechts, blau = OSL`:`Leiste oben: Landesdurchschnitte von −${W.near_osl_band} % (links) bis +${W.near_osl_band} % (rechts) um OSL · blaue Marke = OSL`,{class:"sm"});
+  /* Werteleiste über den Quadraten: Die Quadrate sind zeilenweise sortiert, eine Marke am Quadrat stünde deshalb für
+     den niedrigeren Wert weiter rechts. Auf der Leiste steht jedes Land an der Stelle seines Werts. */
+  const CMP=["JPN","POL","PRT","EST","USA-MS"].filter(id=>W.compare[id]), placed=[], pad=MOBILE?10:8;
+  const axY=top-(MOBILE?8:5), lvY=MOBILE?[axY-12,axY-58]:[axY-7,axY-26], SW=COLS*s, XV=v=>x0+((v/P.osl.gdp-(1-band))/(2*band))*SW;
   const mg=el("g",{},n2), lineC="#c3c2b7";
-  CMP.forEach(id=>{ const c=W.compare[id], j=sq.findIndex(q=>q[1]>=c.gdp); if(j<0) return;
-    const p=pos(j), cx=p.x+s/2, nm=c.name, w=tw(nm,false);
+  el("line",{x1:x0,x2:x0+SW,y1:axY,y2:axY,stroke:lineC,"stroke-width":MOBILE?2.5:1.2},mg);
+  [x0,x0+SW].forEach(x=>el("line",{x1:x,x2:x,y1:axY-(MOBILE?8:4),y2:axY+(MOBILE?8:4),stroke:lineC,"stroke-width":MOBILE?2.5:1.2},mg));
+  el("path",{d:`M${XV(P.osl.gdp)},${axY+(MOBILE?9:5)} l${MOBILE?-9:-5},${MOBILE?-18:-10} h${MOBILE?18:10} Z`,fill:COL.l},mg);
+  CMP.forEach(id=>{ const c=W.compare[id]; if(Math.abs(c.gdp/P.osl.gdp-1)>band) return;
+    const cx=XV(c.gdp), nm=c.name, tEl=txt(mg,0,0,nm,{class:"lab-strong"+nc,"data-cmp":id}), w=tEl.getComputedTextLength()||tw(nm,false);
     // erste freie Lage: Ebene 0 vor 1, mittig vor links-/rechtsbündig; Führungslinie darf kein Etikett darunter schneiden
     let got=null;
     for(let lv=0; lv<lvY.length && !got; lv++) for(const a of ["middle","start","end"]){
@@ -953,10 +961,10 @@ const act3 = (function(){
       if(placed.some(q=>q.lv===lv && x1<q.x2+pad && x2>q.x1-pad)) continue;
       if(lv>0 && placed.some(q=>q.lv<lv && cx>q.x1-4 && cx<q.x2+4)) continue;
       got={lv,x1,x2}; break; }
-    if(!got) return; placed.push(got);
-    el("rect",{x:p.x,y:p.y,width:s,height:s,fill:"none",stroke:lineC,"stroke-width":MOBILE?3:1.5},mg);
-    el("line",{x1:cx,x2:cx,y1:p.y,y2:lvY[got.lv]+(MOBILE?8:4),stroke:lineC,"stroke-width":MOBILE?2.5:1},mg);
-    txt(mg,got.x1,lvY[got.lv],nm,{class:"lab-strong"+nc,"data-cmp":id}); });
+    if(!got){ tEl.remove(); return; } placed.push(got);
+    el("line",{x1:cx,x2:cx,y1:axY,y2:lvY[got.lv]+(MOBILE?8:4),stroke:lineC,"stroke-width":MOBILE?2.5:1},mg);
+    el("circle",{cx,cy:axY,r:MOBILE?5:3,fill:lineC},mg);
+    tEl.setAttribute("x",got.x1); tEl.setAttribute("y",lvY[got.lv]); });
   // Schritt 4: reicher als Köln
   txt(el("g",{class:"o3"},notes),x0,ny,MOBILE?`${fmt(W.above_koeln_mio)} Mio. reicher als Köln`:`${fmt(W.above_koeln_mio)} Mio. Menschen leben in Regionen reicher als Köln`,{class:"t-k"+nc});
   function paint(i){
@@ -987,10 +995,10 @@ const act4 = (function(){
     {lab:"BIP pro Kopf", labM:"BIP pro Kopf", k:P.koeln.gdp, l:P.osl.gdp, s:0},
     {lab:"BIP pro Kopf, Metropolregion Köln", labM:"Metropolregion Köln", k:P.koeln.metro_gdp, l:null, s:1},
     {lab:"zu regionalen Preisen", labM:"zu regionalen Preisen", k:P.koeln.rp, l:P.osl.rp, s:1},
-    {lab:"Verfügbares Einkommen*", labM:"Verfügbares Einkommen*", k:IN.koeln.int, l:IN.osl.int, s:2, other:true, f:"Faktor "+fmt(IN.ratio,2)}];
+    {lab:"Einkommen, in Konsum umgerechnet*", labM:"Einkommen, umgerechnet*", k:IN.koeln.int, l:IN.osl.int, s:2, other:true, f:"Faktor "+fmt(IN.ratio,2)}];
   const TK=MOBILE?[0,50000,100000]:[0,25000,50000,75000,100000];
   const sepTxt=MOBILE?"Andere Messgröße: verfügbares Einkommen":"Andere Messgröße: verfügbares Einkommen der Haushalte";
-  const foot=[`* Kreiswerte der Statistischen Ämter ${IN.year},`,"in Int.$ umgerechnet"];
+  const foot=[MOBILE?`* Einkommen ${IN.year}: Köln ${r3(IN.koeln.eur)} €, OSL ${r3(IN.osl.eur)} €,`:`* Verfügbares Einkommen ${IN.year}: Köln ${r3(IN.koeln.eur)} €, OSL ${r3(IN.osl.eur)} € (Statistische Ämter),`,"über den Konsum der Haushalte in Int.$ umgerechnet"];
   if(MOBILE){
     /* Handy: Bezeichnung über den Balken (volle Breite), Faktor rechts daneben; Gitter nur je Zeile */
     const X0=30, XW=830, x=v=>XW*v/120000, bh=40, gap=6, heads=[100,250,390,600], sepY=520;
@@ -1014,11 +1022,11 @@ const act4 = (function(){
     const top=130, rowH=104, bh=30, gap=6, yA=120, yB=580, sepY=446, extra=36;   // die vierte Zeile ist eine andere Messgröße: abgesetzt
     TK.forEach(v=>{ el("line",{x1:X0+x(v),x2:X0+x(v),y1:yA,y2:yB,class:"tick"},bars); txt(bars,X0+x(v),yB+22,v?fmt(v/1000)+" Tsd.":"0",{"text-anchor":"middle",class:"sm"}); });
     rows.forEach((r,i)=>{ const y=top+i*rowH+(r.other?extra:0), g=el("g",{class:"s"+r.s},bars), t1=y+bh*.72, y2=y+bh+gap, t2=y2+bh*.72;
-      if(r.other){ el("rect",{x:0,y:sepY-4,width:1060,height:y-sepY+bh*2+gap+40,fill:"#1a1a19"},g);   // Gitter hinter Überschrift und Fußnote abdecken
+      if(r.other){ el("rect",{x:0,y:sepY-4,width:1060,height:y-sepY+bh*2+gap+46,fill:"#1a1a19"},g);   // Gitter hinter Überschrift und Fußnote abdecken
         el("line",{x1:40,x2:X0+XW,y1:sepY,y2:sepY,stroke:"rgba(255,255,255,.35)","stroke-width":1,"stroke-dasharray":"6 4"},g);
         txt(g,40,sepY+20,sepTxt,{class:"sm lab-strong"});
         TK.forEach(v=>el("line",{x1:X0+x(v),x2:X0+x(v),y1:y-6,y2:y2+bh+6,class:"tick"},g));
-        txt(g,40,y2+bh+26,foot.join(" "),{class:"sm"}); }
+        txt(g,40,y2+bh+22,foot[0],{class:"sm"}); txt(g,40,y2+bh+36,foot[1],{class:"sm"}); }
       txt(g,X0-14,t1,r.lab,{"text-anchor":"end",class:"lab-strong"});
       el("rect",{x:X0,y:y,width:x(r.k),height:bh,fill:COL.k,class:"bar"},g); txt(g,X0+x(r.k)+8,t1,r3(r.k),{class:"t-k"});
       if(r.l!=null){ el("rect",{x:X0,y:y2,width:x(r.l),height:bh,fill:COL.l,class:"bar"},g); txt(g,X0+x(r.l)+8,t2,r3(r.l),{class:"t-l"});
@@ -1051,8 +1059,7 @@ const act4 = (function(){
       const head=`${nm} · mittlerer Mensch bei ${pint(d.p50)} %`;
       txt(g,X(100),y-bH/2-(MOBILE?18:10),head,{class:"t-"+cls+" halo"+sm,"text-anchor":"end"});
       const f1=`mittlere Hälfte: ${pint(d.p25)} bis ${pint(d.p75)} %`, f2=`ärmstes bis reichstes Zehntel: ${pint(d.p10)} bis ${pint(d.p90)} %`;
-      if(MOBILE){ txt(g,X(100),y+bH/2+44,f1,{class:"sm halo","text-anchor":"end"}); txt(g,X(100),y+bH/2+82,f2,{class:"sm halo","text-anchor":"end"}); }
-      else txt(g,X(100),y+bH/2+22,`${f1}, ${f2}`,{class:"sm halo","text-anchor":"end"});
+      txt(g,X(100),y+bH/2+(MOBILE?44:20),f1,{class:"sm halo","text-anchor":"end"}); txt(g,X(100),y+bH/2+(MOBILE?82:37),f2,{class:"sm halo","text-anchor":"end"});
     });
     // Lesehilfe
     const ky=yAx+(MOBILE?72:40), kx=PX, kc="#c3c2b7", kd=MOBILE?110:70;
@@ -1136,13 +1143,13 @@ const act4 = (function(){
         li.textContent="Kein Ort gefunden. Versuch es mit einem Kreis, einer Stadt, einem Bundesland oder einem Land."; ul.appendChild(li); }
       ul.hidden=!ul.children.length; inp.setAttribute("aria-expanded",String(!ul.hidden));
       if(act>=0) inp.setAttribute("aria-activedescendant",`${ul.id}-${act}`); else inp.removeAttribute("aria-activedescendant"); };
-    inp.addEventListener("input",()=>{ items=find(inp.value); act=-1; draw(); if(state[i]){ state[i]=null; render(true); } });
-    inp.addEventListener("focus",()=>{ if(inp.value.trim()&&!state[i]){ items=find(inp.value); draw(); } });
+    inp.addEventListener("input",()=>{ items=find(inp.value); act=-1; draw(); if(state[i] && !inp.value.trim()){ state[i]=null; render(true); } });   // Auswahl erst löschen, wenn das Feld leer ist
+    inp.addEventListener("focus",()=>{ if(state[i]) inp.select(); else if(inp.value.trim()){ items=find(inp.value); draw(); } });
     inp.addEventListener("keydown",ev=>{
       if(ev.key==="ArrowDown"||ev.key==="ArrowUp"){ if(!items.length) return; ev.preventDefault(); act=(act+(ev.key==="ArrowDown"?1:-1)+items.length)%items.length; draw(); }
       else if(ev.key==="Enter"){ ev.preventDefault(); const s=items[act>=0?act:0]||find(inp.value,1)[0]; if(s) choose(s); }
       else if(ev.key==="Escape") close(); });
-    inp.addEventListener("blur",()=>setTimeout(close,150));
+    inp.addEventListener("blur",()=>setTimeout(()=>{ close(); if(state[i] && inp.value!==state[i][0]) inp.value=state[i][0]; },150));   // angefangene Eingabe ohne Auswahl: zurück zum gewählten Ort
     return {set(s){ inp.value=s?s[0]:""; }};
   }
   const fields=[field(0),field(1)];
@@ -1185,7 +1192,7 @@ const act4 = (function(){
         else { const [hi,lo]=sel[0].s[2]>=sel[1].s[2]?[sel[0],sel[1]]:[sel[1],sel[0]], f=hi.s[2]/lo.s[2];
           const mine=ids.includes(P.koeln.id)||ids.includes(P.osl.id);
           sum=`${esc(hi.s[0])} kommt auf das <b>${fmt(f,f<1.5?2:f<10?1:0)}-Fache</b> von ${esc(lo.s[0])}. Zwischen beiden leben <b>${betw(Math.abs(hi.p-lo.p))}&nbsp;%</b> der Menschheit.`+
-            (mine? "" : ` Zwischen Köln und OSL sind es ${pw(W.between_share,"knapp").replace(" %","&nbsp;%")}.`); }
+            (mine? "" : `<span class="duo-ref">Zum Vergleich: Zwischen Köln und OSL sind es ${pw(W.between_share,"knapp").replace(" %","&nbsp;%")}.</span>`); }
       } else { const s=sel[0].s;
         const rel = s[4]===P.koeln.id||s[4]===P.osl.id ? "genau auf einem meiner beiden Punkte" : s[2]>P.koeln.gdp? "über Köln" : s[2]>P.osl.gdp? "zwischen OSL und Köln" : "unter OSL";
         sum=`Damit steht ${esc(s[0])} ${rel}. Nimm einen zweiten Ort dazu, dann siehst du, wie viele Menschen zwischen beiden leben.`; }

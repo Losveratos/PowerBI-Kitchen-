@@ -4128,7 +4128,7 @@ Umgerechnet auf den Konsum pro Kopf, damit es zu den anderen Balken passt, sind 
 
 Alle Zahlen bisher sind Durchschnitte von Regionen. In jeder Region gibt es Ärmere und Reichere. Ein Überschlag: Verteilt man den Konsum in jeder Region der Welt so ungleich, wie es die Statistik für ihr Land ausweist, dann steht der mittlere Mensch in OSL bei 89 %, der in Köln bei 91 % der Menschheit. In allen 20 gerechneten Varianten sind es mehr als 80 %. [C]
 
-Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich. Zwischen den mittleren Menschen beider Orte liegen höchstens 12 Punkte, zwischen dem ärmsten und dem reichsten Zehntel in OSL mindestens 18.
+Auch das ärmste Zehntel in OSL hat noch mehr als 60 % der Menschheit hinter sich. Zwischen den mittleren Menschen beider Orte liegen in der Hauptrechnung 2 Punkte, in keiner Variante mehr als 12. Zwischen dem ärmsten und dem reichsten Zehntel in OSL sind es mindestens 18.
 
 ## Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung
 

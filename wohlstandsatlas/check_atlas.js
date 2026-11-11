@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* Browser-Test des Wohlstandsatlas (wohlstandsatlas.html + wohlstandsatlas/atlas-extras.js): die wichtigsten Prüfungen
-   aller vier Überarbeitungsrunden in einer Datei.
+   aller fünf Überarbeitungsrunden in einer Datei.
 
-     node wohlstandsatlas/check_atlas.js        # Exit-Code 1 bei Fehlern, Laufzeit etwa 2–3 Minuten
+     node wohlstandsatlas/check_atlas.js        # Exit-Code 1 bei Fehlern, Laufzeit etwa 2–3 Minuten (Grenze: 5 Minuten)
 
    Braucht Playwright mit Chromium (wie wohlstand-story/scripts/check_page.js). Startet einen eigenen kleinen Server
    auf dem Repo-Root. Geprüft wird im echten Browser:
@@ -10,10 +10,13 @@
        Auswahl nach Nur-Länder-Kennzahl, alle Geschichten × Kennzahlen × Ebenen ohne Fehler
    R2  Breitbild (Karte und Profilkarte nebeneinander), Treffer von Klicks, Handy-Rückmeldezeile, Ausreißer-Labels,
        Zustands-Reset bei Hash-Wechsel, Ladehinweis
-   R3  „Ähnlich auf anderen Kontinenten“ (±5 %, bevölkerungsreichste je Kontinent), fünf Kennzahlen vorn,
+   R3  „Ähnlich auf anderen Kontinenten“ (seit R5: höchstens 10 % wie in der Datenstory, bevölkerungsreichste je Kontinent), fünf Kennzahlen vorn,
        Suche im Seitenkopf, Farbstufen in Siebteln, Rang-Hinweis, Ukraine-Hinweis
    R4  Karte im ersten Bildschirm, geführte Geschichten in Schritten, ruhige Überschrift, kein Springen des Kastens,
-       Profilkarte geordnet mit eingeklappter Tabelle, Hinweis bei alter Verteilung, Tastatur und Namen */
+       Profilkarte geordnet mit eingeklappter Tabelle, Hinweis bei alter Verteilung, Tastatur und Namen
+   R5  „Geschichte schließen“ stellt den Zustand vor der ersten Geschichte her (alle acht, Abbruch in Schritt 2, direkter
+       Wechsel, Zoom und --z1), Kennzahl-Name über dem großen Wert, Toleranz 10 % im Block und im Text, „Zwei Heimaten“
+       Schritt 3 nennt die größeren Regionen und verweist auf die Story, Handy: Kasten und Karte beim Öffnen im Blick */
 const http = require("node:http"), fs = require("node:fs"), path = require("node:path");
 let chromium;
 try { ({ chromium } = require("playwright")); }
@@ -87,7 +90,8 @@ async function run(browser) {
       `${w}: Erweiterungen da (Ähnliche, Story-Link, Link kopieren, Weiterlesen), Erklärtext gekürzt, kein Querüberlauf, keine Fehler`, { c, errors });
     if (w === 1920) {
       const side = await page.evaluate(() => { const c = document.getElementById("card").getBoundingClientRect(), m = cv.getBoundingClientRect(); return { cardLeft: c.left, mapRight: m.right, dTop: Math.abs(c.top - m.top), cardH: c.height, mapBottom: m.bottom, sharp: cv.width === Math.round(CW * dpr) }; });
-      ok(side.cardLeft > side.mapRight && side.dTop < 4 && side.sharp && side.cardH <= 1100, "1920: Profilkarte neben der Karte, oben bündig, höchstens 1100 px hoch, Canvas scharf", side);
+      // R5: Grenze 1100 → 1160 px: mit 10 % Toleranz zeigt Köln drei ähnliche Einheiten statt einer, dazu der Kennzahl-Name über dem Wert
+      ok(side.cardLeft > side.mapRight && side.dTop < 4 && side.sharp && side.cardH <= 1160, "1920: Profilkarte neben der Karte, oben bündig, höchstens 1160 px hoch, Canvas scharf", side);
     }
     await ctx.close();
   }
@@ -118,13 +122,128 @@ async function run(browser) {
       await page.click('.wx-steps [data-d="-1"]'); await page.waitForTimeout(350);
       ok(stateOk(await st(page), exp[exp.length - 2]), `${w} „${t}“: „← Zurück“ stellt den vorigen Schritt her`);
       if (t === "Zwei Heimaten") ok(/51\.300 Int\.\$/.test(rec[0].text) && /115\.000 Int\.\$/.test(rec[0].text) && /rund 86 %/.test(rec[1].text) && /rund 98 %/.test(rec[1].text) && /Ähnlich hoch:/.test(rec[1].text) &&
-        /nah beieinander/.test(rec[2].text) && !/gleichauf/i.test(rec.map(r => r.text).join(" ")) && rec.every(r => r.link === "zwei-heimaten.html"), `${w} Zwei Heimaten: 51.300/115.000, rund 86 %/98 %, „Ähnlich hoch“, Haushalte nah beieinander, Link zur Story`, rec.map(r => r.text));
+        /nah beieinander/.test(rec[2].text) && !/gleichauf/i.test(rec.map(r => r.text).join(" ")) && rec[0].link === "zwei-heimaten.html" && rec[1].link === "zwei-heimaten.html" && rec[2].link === "zwei-heimaten.html#akt-4",
+        `${w} Zwei Heimaten: 51.300/115.000, rund 86 %/98 %, „Ähnlich hoch“, Haushalte nah beieinander, Link zur Story (Schritt 3: Akt 4)`, rec.map(r => [r.text, r.link]));
       if (t === "Wenn BIP täuscht") ok(/270\.000 Int\.\$/.test(rec[0].text) && /37\.000 Int\.\$/.test(rec[1].text) && /größere NUTS-2-Region, nicht für Wolfsburg allein/.test(rec[1].text) && !/Wolfsburg/.test(rec[1].lead) && /Metropolregionen/.test(rec[2].text),
         `${w} Wenn BIP täuscht: 270.000 → 37.000 (gilt für die größere Region, Überschrift nennt Wolfsburg nicht) → Metropolregion`, rec.map(r => [r.text, r.lead]));
       await page.click("#storyclose"); await page.waitForTimeout(200);
       ok(/ liegt mit /.test(await page.evaluate(() => document.getElementById("lead").textContent)), `${w} „${t}“: nach dem Schließen wieder die volle Überschrift`);
     }
     ok(!errors.length, `${w}: Geschichten ohne Fehler`, errors);
+    await ctx.close();
+  }
+
+  // ---------- R5: Zustand nach dem Schließen einer Geschichte ----------
+  {
+    const { ctx, page, errors } = await open(browser, { width: 1366, height: 800 }, "", { reducedMotion: "reduce" });
+    const full = p => page.evaluate(() => ({ sel: selected.id, level, metric: metric.k, view, hl: hlMode, thr, cm: classMode, gm: groupMode, sq: [sqGroup, sqColor, sqUnit], grp: [...group],
+      k: +T.k.toFixed(3), x: Math.round(T.x), y: Math.round(T.y), hash: location.hash }));
+    const g = await page.evaluate(() => byId.get("DEA23")._i.toString(36));
+    // Ausgangszustand mit allem, was eine Geschichte verstellt: Kennzahl, Ebene, Hervorhebung + Schwelle, Farbstufen, Gruppe, Zoom
+    await page.evaluate(h => { location.hash = h; }, `#USA-TX--m1--l1--vm--ha--cp--t40000--g${g}`); await page.waitForTimeout(350);
+    await page.click("#zoom >> text=Europa"); await page.waitForTimeout(150);
+    const s0 = await full(page);
+    const names = Object.keys(STORY), diff = (a, b) => Object.keys(a).filter(k => JSON.stringify(a[k]) !== JSON.stringify(b[k]));
+    const res = {};
+    for (let j = 0; j < names.length; j++) {
+      const t = names[j], t2 = names[(j + 1) % names.length], r = {};
+      // a) Abbruch in Schritt 2
+      await page.click(`#stories .chip >> text="${t}"`); await page.waitForTimeout(120);
+      const changed = diff(await full(page), s0).length;
+      await page.click('.wx-steps [data-d="1"]'); await page.waitForTimeout(120);
+      await page.click("#storyclose"); await page.waitForTimeout(150);
+      r.abbruch = diff(await full(page), s0); r.changed = changed;
+      r.focus = await page.evaluate(() => document.activeElement && document.activeElement.textContent);
+      // b) direkter Wechsel in die nächste Geschichte (Schritt 2), dann schließen
+      await page.click(`#stories .chip >> text="${t}"`); await page.waitForTimeout(100);
+      await page.click('.wx-steps [data-d="1"]'); await page.waitForTimeout(100);
+      await page.click(`#stories .chip >> text="${t2}"`); await page.waitForTimeout(100);
+      await page.click('.wx-steps [data-d="1"]'); await page.waitForTimeout(100);
+      await page.click("#storyclose"); await page.waitForTimeout(150);
+      r.wechsel = diff(await full(page), s0);
+      res[t] = r;
+    }
+    ok(names.every(t => !res[t].abbruch.length && !res[t].wechsel.length && res[t].changed > 0 && res[t].focus === t),
+      "Alle 8 Geschichten: Schließen (auch in Schritt 2 und nach direktem Wechsel) stellt Kennzahl, Ebene, Ansicht, Farbstufen, Hervorhebung, Schwelle, Gruppe, Auswahl, Zoom und Hash wieder her; Fokus zurück auf den Geschichten-Knopf",
+      { s0, res });
+    // Hash nach dem Schließen beschreibt den Zustand: neu laden ergibt denselben Zustand
+    const h1 = s0.hash;
+    const re = await open(browser, { width: 1366, height: 800 }, h1);
+    const s1 = await re.page.evaluate(() => ({ sel: selected.id, level, metric: metric.k, view, hl: hlMode, thr, cm: classMode, grp: [...group] }));
+    ok(["sel", "level", "metric", "view", "hl", "thr", "cm", "grp"].every(k => JSON.stringify(s1[k]) === JSON.stringify(s0[k])), "Hash nach dem Schließen öffnet denselben Zustand", { s0, s1 });
+    await re.ctx.close();
+    // Zoom-Link --z1 bleibt erhalten, Mausrad-/Kennzahlwechsel in der Geschichte wird ebenfalls zurückgenommen
+    await page.evaluate(() => { location.hash = "#DE40B--m0--l2--z1"; }); await page.waitForTimeout(900);
+    const z0 = await full(page);
+    await page.click('#stories .chip >> text="China: Küste gegen Inland"'); await page.waitForTimeout(150);
+    await page.click("#metrics >> text=Bevölkerungsdichte"); await page.click('#levels >> text="Länder"'); await page.waitForTimeout(100);
+    await page.click("#storyclose"); await page.waitForTimeout(200);
+    const z1 = await full(page);
+    ok(!diff(z1, z0).length && /--z1$/.test(z1.hash), "Geschichte über einem --z1-Link: nach dem Schließen wieder dieselbe Auswahl, derselbe Zoom und --z1 im Link", { z0, z1 });
+    ok(!errors.length, "R5 Schließen: keine Fehler", errors);
+    await ctx.close();
+  }
+  {
+    // mit Animation: der Zoom kehrt nach dem Übergang an den Ausgangspunkt zurück
+    const { ctx, page, errors } = await open(browser, { width: 1366, height: 800 }, "#DEA23--m2--l2");
+    await page.click("#zoom >> text=Asien"); await page.waitForTimeout(900);
+    const a = await st(page);
+    await page.click('#stories .chip >> text="Kaufkraft vor Ort"'); await page.waitForTimeout(900);
+    await page.click("#storyclose"); await page.waitForTimeout(900);
+    const b = await st(page);
+    ok(a.sel === b.sel && a.metric === b.metric && a.level === b.level && Math.abs(a.k - b.k) < 1e-3 && a.hash === b.hash && !errors.length, "Mit Animation: Zoom-Ausschnitt nach dem Schließen wie vorher", { a, b, errors });
+    await ctx.close();
+  }
+
+  // ---------- R5: Kennzahl-Name in der Profilkarte, „Zwei Heimaten“ Schritt 3 ----------
+  {
+    const { ctx, page, errors } = await open(browser, { width: 1366, height: 800 }, "#DEA23--m0--l2", { reducedMotion: "reduce" });
+    const lab = await page.evaluate(async () => { const out = [];
+      for (const h of ["#DEA23--m0--l2", "#DE40B--m1--l2", "#USA-TX--m1--l1", "#DEA23--m2--l2", "#DEA23--m8--l2", "#DEU--m9--l0"]) {
+        location.hash = h; await new Promise(r => setTimeout(r, 200));
+        const l = document.querySelector("#card .big .wx-mlab"), v = document.querySelector("#card .big .v");
+        out.push({ h, m: metric.label, l: l && l.textContent, above: !!l && l.getBoundingClientRect().bottom <= v.getBoundingClientRect().top + 1,
+          upper: !!l && getComputedStyle(l).textTransform === "uppercase", note: selected.hh_note || null }); }
+      return out; });
+    ok(lab.every(x => x.above && x.upper && (x.h === "#DE40B--m1--l2" ? x.l === x.m + " · Wert der größeren NUTS-2-Region" : x.l === x.m)) && new Set(lab.map(x => x.m)).size >= 5,
+      "Profilkarte: Name der aktiven Kennzahl in Versalien über dem großen Wert (6 Fälle, 5 Kennzahlen), Haushaltswert der größeren Region gekennzeichnet", lab);
+    // Klick auf eine Kennzahl in „Alle Kennzahlen“ wechselt auch das Label
+    await page.evaluate(() => { location.hash = "#DEA23--m0--l2"; }); await page.waitForTimeout(200);
+    await page.evaluate(() => { const d = document.querySelector("#card details.wx-all"); d.open = true; });
+    await page.click('#card details.wx-all .cmp button[data-k="gdp_pc_usd"]'); await page.waitForTimeout(150);
+    ok(await page.evaluate(() => document.querySelector("#card .big .wx-mlab").textContent === "BIP/Kopf nominal"), "Profilkarte: Label folgt dem Kennzahlwechsel");
+    // „Zwei Heimaten“ Schritt 3: wessen Wert, Zahlen aus den Daten, Verweis auf die Story ohne Zahlen aus der Story
+    const zh = await page.evaluate(() => {
+      const s = STORIES.find(x => x.t === "Zwei Heimaten"), st3 = s.steps[2], o = byId.get("DE40B"), k = byId.get("DEA23"), MH = METRICS.find(m => m.k === "hh_pc_ppp");
+      const t = st3.text(), want = [`der Regierungsbezirk Köln auf ${MH.fmt(k.hh_pc_ppp)}`, `das Land Brandenburg auf ${MH.fmt(o.hh_pc_ppp)}`];
+      // Ausweichtext, falls die Daten einmal keine NUTS-2-Werte mehr wären
+      const n0 = [o.hh_note, k.hh_note]; o.hh_note = null; k.hh_note = null; const fb = st3.text(); o.hh_note = "Wert der übergeordneten Region"; const fb2 = st3.text(); o.hh_note = n0[0]; k.hh_note = n0[1];
+      return { t, want, has: want.every(w => t.includes(w)), link: st3.link, fb, fb2 }; });
+    ok(zh.has && /^Für Haushalte kennt der Atlas nur den Regierungsbezirk Köln und das Land Brandenburg, nicht die beiden Kreise: /.test(zh.t) && /Die Datenstory rechnet mit den Werten der beiden Kreise selbst\.$/.test(zh.t) &&
+      zh.link && zh.link.href === "zwei-heimaten.html#akt-4" && !BAD.test(zh.t) && !/39\.400|34\.400|1,14/.test(zh.t) &&
+      /OSL kommt auf [\d.]+ Int\.\$, Köln auf [\d.]+ Int\.\$\. Weltweit/.test(zh.fb) && /\(teils Wert einer größeren Region\)/.test(zh.fb2) && !BAD.test(zh.fb + zh.fb2),
+      "Zwei Heimaten Schritt 3: Werte als Regierungsbezirk Köln / Land Brandenburg benannt (aus den Daten), Hinweis und Link auf Akt 4 der Story ohne Story-Zahlen; Ausweichtexte ohne NaN/undefined", zh);
+    ok(!errors.length, "R5 Profilkarte/Zwei Heimaten: keine Fehler", errors);
+    await ctx.close();
+  }
+
+  // ---------- R5: Handy, beim Öffnen einer Geschichte Kasten und Karte im Blick ----------
+  for (const [w, h, rm] of [[390, 844, "reduce"], [360, 640, "reduce"], [390, 844, "no-preference"]]) {
+    const { ctx, page, errors } = await open(browser, { width: w, height: h }, "#DEA23--m0--l2", { reducedMotion: rm, hasTouch: true, isMobile: true });
+    const rec = {};
+    for (const t of Object.keys(STORY)) {
+      if (rm !== "reduce" && !["Zwei Heimaten", "Die Welt in Menschen"].includes(t)) continue;
+      await page.evaluate(() => scrollTo(0, 0)); await page.waitForTimeout(60);
+      await page.click(`#stories .chip >> text="${t}"`); await page.waitForTimeout(rm === "reduce" ? 120 : 900);
+      rec[t] = await page.evaluate(() => { const b = document.getElementById("storybox").getBoundingClientRect(), tx = document.getElementById("storytext").getBoundingClientRect(), m = cv.getBoundingClientRect(),
+        a = document.activeElement;
+        return { boxTop: Math.round(b.top), txtBot: Math.round(tx.bottom), mapTop: Math.round(m.top), mapMid: Math.round(m.top + m.height / 2), vh: innerHeight, step: document.querySelector(".wx-steps .wx-stepn").textContent,
+          focus: a && (a.id === "storybox" ? "box" : a.closest("#stories") ? "chip" : a.tagName), focusSeen: !!a && a.getBoundingClientRect().bottom > 0 && a.getBoundingClientRect().top < innerHeight }; });
+      await page.click("#storyclose"); await page.waitForTimeout(100);
+    }
+    const ks = Object.keys(rec);
+    ok(ks.every(t => rec[t].boxTop >= 0 && rec[t].txtBot <= rec[t].vh && rec[t].mapMid <= rec[t].vh && /^Schritt 1 von/.test(rec[t].step) && (rec[t].focus === "box" || rec[t].focus === "chip") && rec[t].focusSeen) && !errors.length,
+      `${w}×${h}${rm === "reduce" ? " (ohne Animation)" : ""}: beim Öffnen von ${ks.length} Geschichten Kasten samt Text und mindestens die obere Hälfte der Karte im Blick, Fokus sichtbar`, { rec, errors });
     await ctx.close();
   }
 
@@ -142,19 +261,21 @@ async function run(browser) {
     const wid = await page.evaluate(() => findName("Wolfsburg").id);
     await page.evaluate(h => { location.hash = h; }, `#${wid}--m1--l2`); await page.waitForTimeout(350);
     ok(/Wolfsburg liegt mit 37\.000 Int\.\$ \(Wert der größeren NUTS-2-Region\) über/.test(await page.evaluate(() => document.getElementById("lead").textContent)), "Überschrift: Haushaltswert von Wolfsburg als Wert der größeren NUTS-2-Region gekennzeichnet");
-    // Zwillinge (R3): je Kontinent die bevölkerungsreichste Einheit innerhalb ±5 %, Klick wählt und zoomt
-    for (const id of ["DE40B", "DEA23", "US48201"]) {
+    // Zwillinge (R3, R5): je Kontinent die bevölkerungsreichste Einheit höchstens 10 % darüber oder darunter (wie die Datenstory), Klick wählt und zoomt
+    for (const id of ["DE40B", "DEA23", "DE212", "US48201", "CN330100"]) {
       await page.evaluate(h => { location.hash = h; }, `#${id}--m0--l2`); await page.waitForTimeout(300);
       const r = await page.evaluate(() => {
         const sel = selected, k = metric.k, v = sel[k], ref = {};
         atLevel().forEach(x => { const w = x[k]; if (w == null || !(w > 0) || x === sel || x.country === sel.country || x.ct === sel.ct || !x.ct) return;
           if (x.small || x.hot || x.nogeo || x.flag === "missing" || !(x.pop >= 1e5) || x.kind === "Land/Gebiet" || x.kind === "nicht zugeordnet" || x.kind === "Offshore") return;
-          if (Math.abs(w / v - 1) > 0.05) return; if (!ref[x.ct] || x.pop > ref[x.ct].pop) ref[x.ct] = x; });
+          if (Math.abs(w / v - 1) > 0.10) return; if (!ref[x.ct] || x.pop > ref[x.ct].pop) ref[x.ct] = x; });
         const box = document.querySelector("#card .wx-twins");
         return { h3: box && box.querySelector("h3").textContent, note: box && box.textContent, shown: box ? [...box.querySelectorAll("button[data-id]")].map(b => b.dataset.id) : [],
+          names: box ? [...box.querySelectorAll("button[data-id] .wx-n")].map(b => b.textContent) : [],
           ref: Object.values(ref).sort((a, b) => b.pop - a.pop).slice(0, 3).map(x => x.id) };
       });
-      ok(r.h3 === "Ähnlich auf anderen Kontinenten" && /Hochrechnungen/.test(r.note) && /±5 %/.test(r.note) && JSON.stringify(r.shown) === JSON.stringify(r.ref) && r.shown.length > 0, `${id}: „Ähnlich auf anderen Kontinenten“ stimmt mit unabhängiger Nachrechnung`, r);
+      ok(r.h3 === "Ähnlich auf anderen Kontinenten" && /Hochrechnungen und können sich bei Revisionen um mehrere Prozent ändern/.test(r.note) && /höchstens 10 % darüber oder darunter/.test(r.note) && !/±/.test(r.note) &&
+        JSON.stringify(r.shown) === JSON.stringify(r.ref) && r.shown.length > 0, `${id}: „Ähnlich auf anderen Kontinenten“ (10 %) stimmt mit unabhängiger Nachrechnung: ${r.names.join(" · ")}`, r);
     }
     const first = await page.evaluate(() => document.querySelector("#card .wx-twins button[data-id]").dataset.id);
     await page.click(`#card .wx-twins button[data-id="${first}"]`); await page.waitForTimeout(1000);

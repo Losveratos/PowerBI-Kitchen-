@@ -125,7 +125,7 @@ async function mobileScan(page, name) {
 
     // Schätzfrage
     await page.fill("#quiz-in", "40"); await page.click("#quiz-go");
-    ok(/Es sind rund \d+\s%/.test(await page.textContent("#quiz-out")), `${name}: Schätzfrage löst auf`);
+    ok(/Gemerkt: \d+\s%/.test(await page.textContent("#quiz-out")) && /Deine Schätzung von vorhin: \d+ %\. (Das ist so gut wie ein Treffer|Deine Schätzung lag \d+ Prozentpunkte)/.test(await page.textContent("#quiz-echo")), `${name}: Schätzfrage merkt die Schätzung, die Auflösung steht in Akt 2`);
 
     // alle Schritte: Karte in den Aktivierungsbereich holen, Grafik muss den Schritt übernehmen
     const steps = await page.evaluate(() => [...document.querySelectorAll(".scrolly .step")].map(s => ({ act: s.closest(".scrolly").dataset.act, idx: s.dataset.idx })));

@@ -10,7 +10,8 @@
  *  1. Auswahl nach einer Nur-Länder-Kennzahl (BNE, Gini) wiederherstellen
  *  2. Deep-Link mit Zoom: Hash-Teil --z1
  *  3. Knopf „Link kopieren"
- *  4. Profilkarte: „Ähnlich auf anderen Kontinenten" (±5 %, je Kontinent die bevölkerungsreichste Einheit)
+ *  4. Profilkarte: „Ähnlich auf anderen Kontinenten" (höchstens 10 % darüber oder darunter wie in der Datenstory,
+ *     je Kontinent die bevölkerungsreichste Einheit); über dem großen Wert der Name der Kennzahl
  *  5. Geschichte „Zwei Heimaten"
  *  6. Profilkarte: „In der Story vergleichen →" (zwei-heimaten.html#vs=ID)
  *  7. Eindeutige Suchvorschläge „Name (Art, Land)", größere Einheit gewinnt
@@ -38,6 +39,9 @@
  *     danach; „Alle Kennzahlen · ähnlichstes Land“ eingeklappt (Zustand bleibt bei neuer Auswahl); Quellen am Ende
  * 24. Hinweis, wenn die regionale Verteilung fünf oder mehr Jahre älter ist als der Landeswert
  * 25. Bewegung reduzieren: Zoom-Übergänge springen bei prefers-reduced-motion direkt ans Ziel
+ * 26. „Geschichte schließen" stellt den Zustand vor der ersten geöffneten Geschichte wieder her (Kennzahl, Ebene, Ansicht,
+ *     Farbstufen, Hervorhebung/Schwelle, Gruppe, Auswahl, Zoom); Handy: der Kasten steht direkt über der Karte, beim Öffnen
+ *     rückt die Seite Kasten und Karte in den Blick
  * Breitbild (ab 1500 px): Ändert sich die Höhe über der Karte (Geschichte, Erklärtext, Kennzahlen),
  * wird die Kartengröße neu berechnet und der Ausschnitt beibehalten.
  * Der Ladehinweis „Karte wird geladen …" steht im HTML (.wx-loading) und blendet sich per CSS aus,
@@ -150,13 +154,23 @@
     ".wx-steps[hidden]{display:none}",
     ".wx-steps .wx-stepn{font:500 .75rem var(--mono);color:var(--muted);min-width:9.5ch}",
     // card: rank counts units, share counts people
-    ".wx-rankhint{font-size:.8rem}"
+    ".wx-rankhint{font-size:.8rem}",
+    // card: metric name above the big value
+    ".big .wx-mlab{flex:0 0 100%;margin-bottom:-4px}",
+    // story box: phones keep the step line short ("Schritt" only for screen readers), keyboard focus after opening
+    ".wx-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}",
+    "@media (min-width:701px){.wx-steps .wx-sw{position:static;width:auto;height:auto;overflow:visible;clip:auto;clip-path:none}}",
+    "@media (max-width:700px){.wx-steps .wx-stepn{min-width:0}.wx-sfoot{gap:6px 14px}}",
+    "#storybox:focus{outline:none}#storybox:focus-visible{outline:2px solid var(--sel);outline-offset:2px}"
   ].join("\n");
 
   // ---------- shared state ----------
   var zOn = false, zUnit = null;          // --z1: zoom on the selection while it stays selected
   var M0 = null;                           // BIP/Kopf (KKP)
-  var OLD_YEARS = 5;                       // regional distribution this many years older than the national value: hint
+  var OLD_YEARS = 5;
+  // "similar": at most 10 % above or below, as in the data story zwei-heimaten.html (regional values are estimates
+  // and move by several per cent with revisions)
+  var TWIN_TOL = 0.10;                       // regional distribution this many years older than the national value: hint
   function setZoomFlag(on) {
     zOn = !!on; zUnit = on ? selected : null;
     if (fn(writeHash)) writeHash();
@@ -185,8 +199,8 @@
       if (level > 0 && x.kind === "Land/Gebiet") return;             // nur echte Regionen, keine Länder ohne Regionaldaten
       if (x.kind === "nicht zugeordnet" || x.kind === "Offshore") return;
       var d = Math.abs(w / v - 1);
-      if (d > 0.05) return;
-      // within ±5 % all candidates are equally close given the uncertainty of the regional estimates:
+      if (d > TWIN_TOL) return;
+      // within the tolerance all candidates are equally close given the uncertainty of the regional estimates:
       // the unit with more inhabitants wins (better known), the smaller distance only breaks ties
       var b = best[x.ct];
       if (!b || x.pop > b.u.pop || (x.pop === b.u.pop && d < b.d)) best[x.ct] = {u: x, d: d};
@@ -359,14 +373,16 @@
     try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (wide.matches) { var w = CW; fit(); if (mb.clientWidth !== w) relayoutKeep(); } }); } catch (e) {}
 
     // F · wide layout: an open story stands at the top of the right column, next to the map, so the map
-    // does not move down; below 1500 px it goes back under the story chips
-    var sb = document.getElementById("storybox"), sbHome = sb && sb.previousElementSibling;
+    // does not move down; phones (26): directly above the map, so text and map fit into one screen;
+    // otherwise it stays under the story chips
+    var sb = document.getElementById("storybox"), sbHome = sb && sb.previousElementSibling, phoneMq = window.matchMedia("(max-width:700px)");
     function placeStory() {
       if (!sb || !sbHome) return;
       if (wide.matches) { if (sb.parentNode !== cols) cols.insertBefore(sb, cols.firstChild); }
+      else if (phoneMq.matches) { if (sb.nextElementSibling !== mb) mb.parentNode.insertBefore(sb, mb); }
       else if (sb.previousElementSibling !== sbHome) sbHome.insertAdjacentElement("afterend", sb);
     }
-    try { placeStory(); wide.addEventListener("change", placeStory); } catch (e) { warn("Layout (Geschichte)", e); }
+    try { placeStory(); wide.addEventListener("change", placeStory); phoneMq.addEventListener("change", placeStory); } catch (e) { warn("Layout (Geschichte)", e); }
     // when the height above the map changes (story box, explanation, key figures),
     // compute the map size again. The visible part of the map is kept (same centre, same zoom factor);
     // a zoom that is still running (story just started) is simply started again with the new size.
@@ -475,6 +491,14 @@
         var el = document.getElementById("card"), u = selected;
         if (!el || !u) return r;
         var tw = twins(u), parts = [], k = metric.k, v = u[k];
+        // name of the active metric above the big value (after a metric switch the number alone does not say what it measures);
+        // household values that exist only for a larger region say so here
+        var big0 = el.querySelector(":scope > .big");
+        if (big0) {
+          var ml = document.createElement("span"); ml.className = "kind wx-mlab";
+          ml.textContent = metric.label + (k === "hh_pc_ppp" && v != null && u.hh_note ? " · " + hhPhrase(u) : "");
+          big0.insertBefore(ml, big0.firstChild);
+        }
         // rank (in .big) counts units, the share below (third key figure) counts people
         if (v != null && ranked(u) && !metric.total) {
           parts.push('<p class="hint wx-rankhint">' + (level === 0
@@ -491,9 +515,10 @@
                   '<span class="wx-n">' + esc(x.name) + (wo ? ' <span class="wx-where">(' + esc(wo) + ')</span>' : "") + '</span><span class="num">' + esc(metric.fmt(x[k])) + '</span>' +
                   '<span class="like">' + esc([kindLabel(x), x.ct, big(x.pop) + " Einw."].filter(Boolean).join(" · ")) + ' · ' + ds + '</span></button>';
               }).join("") + '</div>'
-            : '<p class="hint">Keine Region auf einem anderen Kontinent liegt innerhalb von ±5 %.</p>') +
-            '<p class="hint" style="font-size:.78rem">Die Regionalwerte sind Hochrechnungen; ±5 % entspricht etwa ihrer Unsicherheit. ' +
-            'Je Kontinent die Einheit mit den meisten Einwohnern in diesem Bereich (gleiche Ebene, ab 100.000 Einwohnern, ohne Ausreißer).</p></div>');
+            : '<p class="hint">Keine Region auf einem anderen Kontinent liegt höchstens ' + f0(TWIN_TOL * 100) + ' % darüber oder darunter.</p>') +
+            '<p class="hint" style="font-size:.78rem">Die Regionalwerte sind Hochrechnungen und können sich bei Revisionen um mehrere Prozent ändern. ' +
+            'Gezeigt: je Kontinent die bevölkerungsreichste Einheit höchstens ' + f0(TWIN_TOL * 100) + ' % darüber oder darunter ' +
+            '(gleiche Ebene, ab 100.000 Einwohnern, ohne Ausreißer).</p></div>');
         }
         var dqEl = el.querySelector(":scope > .dq");
         function addWarn(cls, text) {
@@ -866,6 +891,18 @@
     function deUnits(k) { return at(2).filter(function (x) { return x.country === "DEU" && x[k] != null; }); }
     function rankDE(u, k) { var l = deUnits(k).sort(function (a, b) { return b[k] - a[k]; }); return {r: l.indexOf(u) + 1, n: l.length}; }
     function sumPop(l) { return d3.sum(l, function (x) { return x.pop || 0; }); }
+    // the larger region a German household value belongs to (hh_note "NUTS-2-Wert"): the whole Land when the Land has the
+    // same value, otherwise the Regierungsbezirk (NUTS-2 in Germany). Only names, all values come from the data.
+    var RB = {DE11: "Stuttgart", DE12: "Karlsruhe", DE13: "Freiburg", DE14: "Tübingen", DE21: "Oberbayern", DE22: "Niederbayern", DE23: "Oberpfalz",
+      DE24: "Oberfranken", DE25: "Mittelfranken", DE26: "Unterfranken", DE27: "Schwaben", DE71: "Darmstadt", DE72: "Gießen", DE73: "Kassel",
+      DEA1: "Düsseldorf", DEA2: "Köln", DEA3: "Münster", DEA4: "Detmold", DEA5: "Arnsberg"};
+    function nuts2(u) {
+      if (!u || u.country !== "DEU" || u.hh_pc_ppp == null) return null;
+      var p = u.parent && byId.get(u.parent);
+      if (p && p.hh_pc_ppp != null && Math.abs(p.hh_pc_ppp - u.hh_pc_ppp) < 0.5) return {acc: "das Land " + p.name, nom: "das Land " + p.name};
+      var rb = RB[String(u.id).slice(0, 4)];
+      return rb ? {acc: "den Regierungsbezirk " + rb, nom: "der Regierungsbezirk " + rb} : null;
+    }
 
     var DEF = {};
     // ---- Die Welt in Menschen: people → continents → units instead of people
@@ -1027,9 +1064,21 @@
          }},
         {ok: function () { return MH && o.hh_pc_ppp != null && k.hh_pc_ppp != null; },
          run: function () { set({level: 2, m: MH, sel: o, group: [k.id], zoom: DE_BOX}); },
+         // the atlas has household values only for the larger NUTS-2 regions; the data story uses the districts' own
+         // incomes. Say whose value this is and point to the story, without copying any number from the story.
+         link: o.hh_note && k.hh_note && /NUTS-2/.test(o.hh_note) && /NUTS-2/.test(k.hh_note) && nuts2(o) && nuts2(k)
+           ? {href: "zwei-heimaten.html#akt-4", text: "Zur Datenstory, Akt 4 →"} : null,
          text: function () {
-           var t = "Beim Konsum der Haushalte pro Kopf, gezählt am Wohnort, liegen beide nah beieinander: OSL kommt auf " + MH.fmt(o.hh_pc_ppp) + ", " + k.name + " auf " + MH.fmt(k.hh_pc_ppp);
-           if (o.hh_note && k.hh_note && /NUTS-2/.test(o.hh_note + k.hh_note)) t += " (Werte der größeren NUTS-2-Regionen Brandenburg und Regierungsbezirk Köln)";
+           var ro = nuts2(o), rk = nuts2(k), t;
+           if (o.hh_note && k.hh_note && /NUTS-2/.test(o.hh_note) && /NUTS-2/.test(k.hh_note) && ro && rk) {
+             t = "Für Haushalte kennt der Atlas nur " + rk.acc + " und " + ro.acc + ", nicht die beiden Kreise: Beim Konsum der Haushalte pro Kopf, gezählt am Wohnort, kommt " +
+               rk.nom + " auf " + MH.fmt(k.hh_pc_ppp) + ", " + ro.nom + " auf " + MH.fmt(o.hh_pc_ppp) + " – nah beieinander. Weltweit liegen rund " +
+               pct(popBelow(k.hh_pc_ppp, "hh_pc_ppp", 2)) + " und rund " + pct(popBelow(o.hh_pc_ppp, "hh_pc_ppp", 2)) + " der Menschheit darunter. " +
+               "Die Datenstory rechnet mit den Werten der beiden Kreise selbst.";
+             return t;
+           }
+           t = "Beim Konsum der Haushalte pro Kopf, gezählt am Wohnort, liegen beide nah beieinander: OSL kommt auf " + MH.fmt(o.hh_pc_ppp) + ", " + k.name + " auf " + MH.fmt(k.hh_pc_ppp);
+           if (o.hh_note || k.hh_note) t += " (" + (o.hh_note && k.hh_note ? "Werte der größeren Regionen" : "teils Wert einer größeren Region") + ")";
            return t + ". Weltweit liegen damit rund " + pct(popBelow(o.hh_pc_ppp, "hh_pc_ppp", 2)) + " und rund " + pct(popBelow(k.hh_pc_ppp, "hh_pc_ppp", 2)) + " der Menschheit darunter – ähnlich weit oben.";
          }}
       ];
@@ -1074,6 +1123,12 @@
       } catch (e) { warn("Geschichte in Schritten (" + s.t + ")", e); return; }
       if (steps.length < 2) { single.push(s.t); return; }
       s.steps = steps;
+      // a step may carry its own link (instead of the story's link below the text)
+      var link0 = s.link;
+      s.linkFor = function (st) { return (st && st.link) || link0; };
+      if (steps.some(function (st) { return st.link; })) {
+        Object.defineProperty(s, "link", {configurable: true, enumerable: true, get: function () { return s.linkFor(steps[Math.min(i, steps.length - 1)]); }});
+      }
       s.run = function () { i = 0; steps[0].run(); };
       s.text = function () { return steps[Math.min(i, steps.length - 1)].text(); };
     });
@@ -1121,7 +1176,8 @@
       var keep = [].slice.call(p.childNodes), h = 0;
       story.steps.forEach(function (st) {
         p.textContent = st.text();
-        if (story.link) { var a = document.createElement("a"); a.textContent = story.link.text; a.href = story.link.href; p.appendChild(document.createTextNode(" ")); p.appendChild(a); }
+        var lk = story.linkFor ? story.linkFor(st) : story.link;
+        if (lk) { var a = document.createElement("a"); a.textContent = lk.text; a.href = lk.href; p.appendChild(document.createTextNode(" ")); p.appendChild(a); }
         h = Math.max(h, p.getBoundingClientRect().height);
       });
       p.textContent = ""; keep.forEach(function (n) { p.appendChild(n); });
@@ -1134,7 +1190,7 @@
       try {
         var on = !!(story && story.steps);
         nav.hidden = !on;
-        if (on) { num.textContent = "Schritt " + (i + 1) + " von " + story.steps.length; prev.disabled = i === 0; next.disabled = i === story.steps.length - 1; }
+        if (on) { num.innerHTML = '<span class="wx-sr wx-sw">Schritt </span>' + (i + 1) + " von " + story.steps.length; prev.disabled = i === 0; next.disabled = i === story.steps.length - 1; }
         if (!story) { p.style.minHeight = ""; measured = null; }
         else if (!measured || measured.s !== story || measured.w !== p.clientWidth) measure();
       } catch (e) { warn("Geschichte in Schritten (Render)", e); }
@@ -1144,6 +1200,79 @@
     window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { try { if (story && story.steps) measure(); } catch (e) {} }, 180); });
     try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (story && story.steps) measure(); }); } catch (e) {}
     window.__wxSingleStories = single;
+  });
+
+  // 26 · closing a story brings back the state from before the first story that was opened (metric, level, view, colour
+  // classes, highlight and threshold, group, selection, zoom; also after closing midway or after switching straight from
+  // one story to another). Phones: opening a story moves story box and map into view together (the box stands directly
+  // above the map there, see the layout), the focus goes to the box when the story chip leaves the screen.
+  feature("Geschichte schließen", function () {
+    return typeof STORIES !== "undefined" && fn(update) && fn(drawLevel) && fn(setView) && typeof zoom !== "undefined" && typeof cv !== "undefined" &&
+      typeof group !== "undefined" && typeof SCALES !== "undefined" && typeof d3 !== "undefined" &&
+      !!document.getElementById("stories") && !!document.getElementById("storyclose") && !!document.getElementById("storybox");
+  }, function () {
+    var chips = document.getElementById("stories"), close = document.getElementById("storyclose"), box = document.getElementById("storybox");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)"), phone = window.matchMedia("(max-width:700px)");
+    var snap = null;
+    function take() {
+      var k = T.k;
+      return {sel: selected, metric: metric, level: level, view: view, hl: hlMode, thr: thr, cm: classMode, grp: [].concat(Array.from(group)), gm: groupMode,
+        sq: [sqGroup, sqColor, sqUnit], k: k, bx: ((CW / 2 - T.x) / k) / s0, by: ((CH / 2 - T.y) / k - oy) / s0, z: !!(zOn && zUnit === selected)};
+    }
+    function restore(s) {
+      selected = s.sel; metric = s.metric; level = s.level; hlMode = s.hl; thr = s.thr; groupMode = s.gm;
+      group.clear(); s.grp.forEach(function (id) { group.add(id); });
+      sqGroup = s.sq[0]; sqColor = s.sq[1]; sqUnit = s.sq[2];
+      if (classMode !== s.cm) { classMode = s.cm; for (var key in SCALES) delete SCALES[key]; }
+      drawLevel();
+      setView(s.view, true);
+      // the visible part of the map as it was (same centre and zoom factor, also if the canvas size changed meanwhile)
+      var t = s.k === 1 ? d3.zoomIdentity : d3.zoomIdentity.translate(CW / 2 - s.bx * s0 * s.k, CH / 2 - (s.by * s0 + oy) * s.k).scale(s.k);
+      var c = d3.select(cv); c.interrupt();
+      if (s.view === "map" && !reduce.matches) c.transition().duration(600).call(zoom.transform, t); else c.call(zoom.transform, t);
+      zOn = s.z; zUnit = s.z ? selected : null;
+    }
+    // capture phase on the chip container: runs before the chip's own click handler, i.e. before the story changes anything
+    chips.addEventListener("click", function (e) {
+      if (story || !e.target.closest(".chip")) return;
+      try { snap = take(); zOn = false; zUnit = null; } catch (x) { snap = null; warn("Geschichte schließen (Zustand merken)", x); }
+    }, true);
+    // bubble phase: after the story has run and rendered
+    chips.addEventListener("click", function (e) {
+      var chip = e.target.closest(".chip"); if (!chip || !story) return;
+      try { showOpen(chip); } catch (x) { warn("Geschichte schließen (Blick)", x); }
+    });
+    function showOpen(chip) {
+      if (!phone.matches || box.hidden) return;
+      var mb = document.querySelector(".mapbox"); if (!mb) return;
+      var b = box.getBoundingClientRect(), m = mb.getBoundingClientRect(), cr = chip.getBoundingClientRect(), vh = window.innerHeight;
+      var by = 0;
+      // already fine when the whole box and the upper half of the map are on screen; otherwise the box top goes just under
+      // the screen edge (never further: the box must stay in view)
+      if (!(b.top >= 0 && b.bottom <= vh && m.top + m.height / 2 <= vh)) {
+        by = b.top - 8;
+        if (Math.abs(by) > 2) window.scrollBy({top: by, behavior: reduce.matches ? "auto" : "smooth"}); else by = 0;
+      }
+      // keep the keyboard focus where the user can see it: the story box, when the chip leaves the screen
+      var ct = cr.top - by;
+      if (ct < 0 || ct + cr.height > vh) {
+        if (!box.hasAttribute("tabindex")) box.setAttribute("tabindex", "-1");
+        box.setAttribute("role", "region"); box.setAttribute("aria-labelledby", "storytitle");
+        try { box.focus({preventScroll: true}); } catch (x) {}
+      }
+    }
+    close.onclick = function () {
+      var was = story, hadFocus = document.activeElement === close;
+      story = null;
+      if (snap) { try { restore(snap); } catch (x) { warn("Geschichte schließen (Zustand)", x); } }
+      snap = null;
+      update();
+      // the close button disappears with the box: the focus goes back to the chip of the story
+      if (hadFocus && was) {
+        var c = [].find.call(chips.querySelectorAll(".chip"), function (x) { return x.__data__ === was; });
+        if (c) { try { c.focus({preventScroll: true}); } catch (x) {} }
+      }
+    };
   });
 
   // 22 · headline: while a story is open only the fixed sentence with the median (BIP/Kopf, finest level), so the
