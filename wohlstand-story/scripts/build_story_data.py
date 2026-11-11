@@ -128,17 +128,21 @@ compare = {k: {"name": by[k]["name"], "gdp": r(by[k]["gdp_pc_ppp"])} for k in
            if k in by}
 
 # ---------- Wie eng es ist ----------
-# Mittelfeld der deutschen Kreise: Wer liegt höchstens 5 % über oder unter OSL, und wohin rutscht OSL mit ±5 %?
+# Eine Toleranz für die ganze Story: "auf derselben Stufe" heißt höchstens BAND % über oder unter OSL.
+# Wie viele Kreise liegen so nah an OSL, und wohin rutscht OSL in Deutschland und in der Welt mit ±BAND %?
+BAND = 10
+lo_v, hi_v = osl_v * (1 - BAND / 100), osl_v * (1 + BAND / 100)
 rank_at = lambda v: sum(1 for x in de_fine if x["id"] != OSL and x["gdp_pc_ppp"] > v) + 1   # OSL selbst zählt nicht mit
 tight = {
-    "n_near5": sum(1 for x in de_fine if x["id"] != OSL and osl_v * 0.95 <= x["gdp_pc_ppp"] <= osl_v * 1.05),
-    "rank_plus5": rank_at(osl_v * 1.05), "rank_minus5": rank_at(osl_v * 0.95),
-    "world_plus5": r(below(osl_v * 1.05, "gdp_pc_ppp", FINE) * 100, 1), "world_minus5": r(below(osl_v * 0.95, "gdp_pc_ppp", FINE) * 100, 1),
+    "band": BAND,
+    "n_near": sum(1 for x in de_fine if x["id"] != OSL and lo_v <= x["gdp_pc_ppp"] <= hi_v),
+    "rank_plus": rank_at(hi_v), "rank_minus": rank_at(lo_v),
+    "world_plus": r(below(hi_v, "gdp_pc_ppp", FINE) * 100, 1), "world_minus": r(below(lo_v, "gdp_pc_ppp", FINE) * 100, 1),
 }
 # Länder, die der Atlas nicht zerlegt: dieselbe Einheit auf allen vier Ebenen (die Gegenprobe in Akt 2 prüft sie nicht)
 whole = [u for u in lvl(0) if set(u["lv"]) >= {0, 1, 2, 3}]
 # Menschen in Regionen auf der Stufe von OSL (höchstens 10 % darüber oder darunter)
-near10 = sum(u["pop"] for u in fine if osl_v * 0.9 <= u["gdp_pc_ppp"] <= osl_v * 1.1)
+near10 = sum(u["pop"] for u in fine if lo_v <= u["gdp_pc_ppp"] <= hi_v)
 
 # ---------- Quadrate: 1 Quadrat = 5 Mio. Menschen, sortiert nach BIP pro Kopf ----------
 # Der Wert eines Quadrats ist der seiner Bevölkerungsmitte (Position auf der Skala). Das Land wird so verteilt,
@@ -312,7 +316,7 @@ D = {
               "in_above_osl_mio": r(sum(u["pop"] for u in in_fine if u["gdp_pc_ppp"] > osl_v) / 1e6),
               "compare": compare,
               "tight": tight, "n_countries": len(lvl(0)), "n_whole": len(whole), "whole_bn": r(sum(u["pop"] for u in whole) / 1e9, 2),
-              "near_osl_mio": r(near10 / 1e6), "near_osl_band": 10,
+              "near_osl_mio": r(near10 / 1e6), "near_osl_band": BAND,
               "hh_gap": r(abs(P["koeln"]["world_below_hh"] - P["osl"]["world_below_hh"]), 1)},
     "curve": curve,
     "squares": squares,

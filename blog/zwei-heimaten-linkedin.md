@@ -19,7 +19,7 @@
 > | rund 86 % (OSL) | Kopf-Zusammenfassung; Akt 2 · „OSL steht bei rund 86 %" |
 > | rund 98 % (Köln), knapp 13 % dazwischen | Kopf-Zusammenfassung; Akt 2 · „Köln bei rund 98 %, dazwischen ein schmaler Streifen" |
 > | rund 73 % (Südwestpfalz, letzter Kreis) | Akt 2 · „Und der letzte Platz in Deutschland?" |
-> | 61 Kreise höchstens 5 % von OSL entfernt | Akt 1 · „Das Mittelfeld ist eng" |
+> | 113 Kreise, mehr als jeder vierte, höchstens 10 % von OSL entfernt | Akt 1 · „Die Rangliste ist enger, als sie aussieht" |
 > | Japan, Portugal, Polen auf derselben Stufe | Akt 3 · „Auf derselben Stufe: Japan, Portugal, Polen" |
 > | rund 93 % heute gegen 92 % im Jahr 2000; Vorsprung vor dem Weltdurchschnitt gut 4-mal gegen knapp 3-mal; seit 2019 pro Kopf nicht mehr gewachsen | „Seit 2000 gleich weit oben, mit schrumpfendem Vorsprung" (in der HTML-Fassung mit dem Kicker „Und früher?") |
 > | BIP zählt am Arbeitsort, kein Einkommen, Braunkohle-Ausstieg | Akt 4 · „Faktor 2,2"; „Wir meckern auf hohem Niveau"; „Was diese Zahlen nicht sagen" |
@@ -36,7 +36,7 @@ Der letzte deutsche Kreis steht vor rund 73 % der Menschheit. Mein Heimatkreis, 
 
 Ich komme aus dem Oberspreewald-Lausitz-Kreis (OSL) in Südbrandenburg und aus Köln. Köln steht auf Rang 28, mit 115.000 Int.$ BIP pro Kopf gegen 51.300 in OSL. In der Welt liegt Köln bei rund 98 %, dazwischen wohnen knapp 13 % der Menschheit. Gemeint sind Menschen in Regionen mit niedrigerem BIP pro Kopf.
 
-Die Rangliste sieht weiter auseinander aus, als es ist: 61 Kreise liegen höchstens 5 % von OSL entfernt, und Japan, Portugal und Polen stehen auf derselben Stufe.
+Die Rangliste sieht weiter auseinander aus, als es ist: 113 Kreise, mehr als jeder vierte, liegen höchstens 10 % von OSL entfernt, und Japan, Portugal und Polen stehen auf derselben Stufe.
 
 Die Gegenseite gibt es auch. Deutschland steht heute so weit oben wie im Jahr 2000: Rund 93 % der Menschheit leben in Ländern mit niedrigerem BIP pro Kopf, damals 92 %. Der Vorsprung vor dem Weltdurchschnitt ist aber vom gut 4-Fachen auf das knapp 3-Fache geschrumpft, und seit 2019 wächst das BIP pro Kopf nicht mehr. Wer wie ich über den Stillstand klagt, hat die Zahlen auf seiner Seite.
 

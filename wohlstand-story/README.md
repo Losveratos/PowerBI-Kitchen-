@@ -27,10 +27,12 @@ neu laufen lassen; `check_numbers.py` meldet jede Zahl im Text, die nicht mehr p
 ## Bausteine der Seite
 
 - **Vier Akte** mit mitlaufender Grafik (Deutschlandkarte + Rangfolge, Kurve der Menschheit, 1.624 Quadrate, Balken),
-  zusammen 19 Schritte. Unter 1020 px steht die Grafik oben fest und die Textkarten laufen darunter; bis 760 px zeichnet
+  zusammen 15 Schritte (3/4/4/4). Unter 1020 px steht die Grafik oben fest und die Textkarten laufen darunter; bis 760 px zeichnet
   jede Grafik im Hochformat (viewBox 1060 × 1080 statt 1060 × 640).
-- **„Eng“ an drei Stellen:** Akt 1 / Schritt 4 (61 Kreise höchstens 5 % von OSL entfernt, Rang 276 bis 337 bei ±5 %), Akt 4 / Schritt 4 (Konsum der
-  Haushalte: in der Welt keine 2 Punkte auseinander), Akt 4 / Schritt 5 (Überschlag für einzelne Menschen).
+- **„Eng“ an drei Stellen:** Akt 1 / Schritt 3 (113 Kreise höchstens 10 % von OSL entfernt, Rang 248 bis 361), Akt 4 / Schritt 3
+  (Konsum der Haushalte: in der Welt keine 2 Punkte auseinander), Akt 4 / Schritt 4 (Überschlag für einzelne Menschen).
+- **Eine Toleranz:** „Auf derselben Stufe“ heißt überall höchstens 10 % über oder unter OSL (`BAND` in `build_story_data.py`):
+  bei den Kreisen (Akt 1), bei den Menschen der Welt (Akt 3) und bei der Unsicherheit des Werts (Akt 2: 83 bis 88 %).
 - **„Und früher?“** (`#zeit`): Deutschland unter den Ländern 2000 bis 2024 aus den Zeitreihen des Atlas (reales BIP pro Kopf,
   Anteile und Weltdurchschnitt mit der Bevölkerung von 2024 gewichtet, weil der Atlas keine Bevölkerung je Jahr führt):
   so weit oben wie 2000 (92 → 93 %, Platz 22 → 21 von 187 Ländern, Taiwan fehlt), Vorsprung vor dem Weltdurchschnitt vom
@@ -59,7 +61,7 @@ wohlstand-story/
 - **Regionen, nicht Menschen:** Prozentwerte zählen Menschen nach dem Durchschnitt ihrer Region. Also „Regionen, in denen
   … wohnen“, nie „… % der Menschen sind ärmer“.
 - **Rundung:** ganze Prozent mit „rund/knapp/über“ (85,6 % → „rund 86 %“), Werte in Int.$ mit drei geltenden Stellen wie im
-  Atlas (114.620 → 115.000). Eine Nachkommastelle nur in der Gegenprobe und in „Zum Nachprüfen“. Grund: ±5 % beim Wert eines
+  Atlas (114.620 → 115.000). Eine Nachkommastelle nur in der Gegenprobe unter „Zum Nachprüfen“. Grund: ±5 % beim Wert eines
   kleinen Kreises verschieben den Anteil um rund einen Punkt und den Rang um 30 Plätze.
 - **Überschlag:** Aus `person_model.json` kommen nur Aussagen in den Text, die in allen Rechenvarianten gleich ausgehen, mit
   der vorsichtigeren Grenze der Spanne.
