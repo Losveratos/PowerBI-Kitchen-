@@ -49,7 +49,8 @@ Weitere Befehle:
 | `fabscan --app NAME` | nur eine App |
 | `fabscan --models ../modelle` | Modelle aus einem anderen Ordner |
 | `fabscan --fail-on fail` | Exit-Code 1 bei kritischen Befunden (für CI) |
-| `fabscan fetch -w WORKSPACE` | Tenant direkt prüfen (Admin-Scanner-API + Workspace Monitoring) |
+| `fabscan fetch -w WORKSPACE` | Tenant direkt prüfen (Admin-Scanner-API + Workspace Monitoring), ohne Admin-Rechte die eigenen Workspaces |
+| `fabscan fetch --ohne-admin` | gleich im Workspace-Modus prüfen (normale Fabric-API, Modelle per getDefinition) |
 | `fabscan notebook` | Fabric-Notebook für den Tenant-Scan schreiben |
 | `fabscan skill` | Skill nach `~/.claude/skills/fabscan` installieren, `--zip datei.zip` für claude.ai |
 
@@ -69,6 +70,16 @@ Workspace Monitoring. Die Monitoring-Datenbank findet es selbst, alternativ `--m
 Ohne `-w` prüft es alle aktiven Workspaces. Ergebnis wie immer in `fabscan-tenant/`, dazu die Rohdaten unter
 `rohdaten/`. Nur Lesezugriffe.
 
+**Ohne Fabric-Admin-Rechte** antwortet die Admin-API mit 401 oder 403. `fetch` wechselt dann von selbst in den
+Workspace-Modus (oder gleich mit `--ohne-admin`):
+
+- Workspaces aus der normalen Fabric-API, also nur die, in denen das eigene Konto Mitglied ist.
+- Modelle per `getDefinition` als TMDL. Dafür braucht es mindestens die Rolle *Mitwirkender*. Modelle ohne Zugriff
+  stehen mit Fehler in der Modell-Übersicht.
+- Abfragen wie gehabt aus dem Workspace Monitoring. Keine Tenant-Einstellungen für Admin-APIs nötig.
+- Der Bericht heißt dann „Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)“ und zeigt den Hinweis, dass es
+  ein Teilscan ist.
+
 **Oder als Fabric-Notebook,** falls lokal kein Zugang zu den Admin-APIs besteht:
 [`fabscan_tenant.ipynb`](../downloads/fabscan_tenant.ipynb) herunterladen (oder `fabscan notebook`),
 in einen Workspace importieren, ein Lakehouse anhängen, Parameter ausfüllen, alle ausführen. fabscan ist darin
@@ -76,7 +87,7 @@ eingebettet.
 
 - **Grundlagen:** die Modelle aus der Admin-Scanner-API und die tatsächlich ausgeführten DAX-Abfragen aus dem
   Workspace Monitoring.
-- **Voraussetzungen (für beide Wege):** Fabric-Admin oder ein für Admin-APIs freigegebener Service Principal, die zwei
+- **Voraussetzungen für den ganzen Tenant (für beide Wege):** Fabric-Admin oder ein für Admin-APIs freigegebener Service Principal, die zwei
   Tenant-Einstellungen *Enhance admin APIs responses with detailed metadata* und *… with DAX and mashup expressions*,
   Workspace Monitoring in den Workspaces mit den Modellen.
 

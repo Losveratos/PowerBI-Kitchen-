@@ -74,9 +74,13 @@ Für Admins: Welche Anwendungen fragen die Modelle außerhalb von Power-BI-Beric
   - Ohne `-w` prüft es alle aktiven Workspaces.
   - Anmeldung: `az login` vorher, oder ein Service Principal über `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` und
     `AZURE_CLIENT_SECRET`.
-  - Nur Lesezugriffe. Braucht Fabric-Admin-Rechte bzw. einen Service Principal, der für Admin-APIs freigegeben ist.
-  - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel fehlende Admin-Rechte, Tenant-Einstellungen,
-    Monitoring aus oder keine Verbindung.
+  - Nur Lesezugriffe. Für den ganzen Tenant braucht es Fabric-Admin-Rechte bzw. einen Service Principal, der für
+    Admin-APIs freigegeben ist.
+  - **Ohne Admin-Rechte** wechselt `fetch` bei 401/403 von selbst in den Workspace-Modus (oder gleich mit
+    `--ohne-admin`): nur Workspaces, in denen das Konto Mitglied ist, Modelle per getDefinition (mindestens Rolle
+    Mitwirkender). Dem Nutzer dann sagen, dass es ein Teilscan ist und welche Modelle ohne Zugriff blieben.
+  - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel Tenant-Einstellungen, Monitoring aus, kein Zugriff
+    auf den Workspace oder keine Verbindung.
 
 - **Notebook erzeugen:** `python3 <SKILL_DIR>/run.py notebook -o fabscan_tenant.ipynb`.
   Dem Nutzer erklären: In einen Fabric-Workspace importieren, ein Lakehouse anhängen, in der Parameter-Zelle die
