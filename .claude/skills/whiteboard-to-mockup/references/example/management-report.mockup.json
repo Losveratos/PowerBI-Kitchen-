@@ -1,0 +1,939 @@
+{
+  "version": 2,
+  "dfltV": 1,
+  "name": "Management Report · Workshop-Board",
+  "canvas": {
+    "w": 1280,
+    "h": 720,
+    "preset": "1280x720"
+  },
+  "spacing": {
+    "margin": 16,
+    "gutter": 12,
+    "pad": 8
+  },
+  "defScenario": "AC/PL",
+  "chrome": {
+    "header": {
+      "on": true,
+      "h": 56,
+      "logoPos": "left",
+      "title": "Management Report",
+      "sub": "",
+      "navAuto": true,
+      "navOn": true,
+      "nav": []
+    },
+    "nav": {
+      "on": false,
+      "w": 64
+    },
+    "filter": {
+      "on": false,
+      "side": "right",
+      "w": 200,
+      "topH": 56,
+      "collapsible": false,
+      "fields": []
+    },
+    "footer": {
+      "on": true,
+      "h": 24,
+      "text": "Stand: 18.09.2026 · Quelle: DWH · Kontakt: Controlling",
+      "dflt": {
+        "text": "state.footerText"
+      }
+    }
+  },
+  "design": {
+    "radius": 8,
+    "tile": "border",
+    "pageBg": "light",
+    "header": "light",
+    "accent": "#C25A2D",
+    "palette": "teal",
+    "nativePalette": "neutral",
+    "pageBgHex": "#F4F4F1",
+    "tileBg": "#FFFFFF",
+    "ink": "#0F1E2E",
+    "headerBg": "#0F1E2E",
+    "headerInk": "#FFFFFF"
+  },
+  "report": {
+    "audience": "GF",
+    "purpose": "Monatliche Steuerung Umsatz und Marge",
+    "decision": "Maßnahmen bei Planabweichung > 5 %",
+    "participants": "",
+    "version": "0.1",
+    "dataDate": ""
+  },
+  "lang": "de",
+  "fieldMeta": {},
+  "pages": [
+    {
+      "id": "i8x4wdw",
+      "name": "Übersicht",
+      "notes": "",
+      "question": "Liegen wir im Plan?",
+      "layout": {
+        "id": "dxpmhma",
+        "type": "grid",
+        "cols": [
+          316,
+          312,
+          130,
+          189,
+          253
+        ],
+        "rows": [
+          120,
+          232,
+          232
+        ],
+        "children": [
+          {
+            "r": 0,
+            "c": 0,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "g3ekgk1",
+              "type": "leaf",
+              "visual": {
+                "kind": "kpi",
+                "engine": "ck",
+                "title": "Umsatz",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "Typ auf dem Board nicht genannt, aus der Größe geschätzt",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "0znzh9q",
+              "type": "leaf",
+              "visual": {
+                "kind": "kpi",
+                "engine": "ck",
+                "title": "Kosten",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "Typ auf dem Board nicht genannt, aus der Größe geschätzt",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "rs": 1,
+            "cs": 2,
+            "node": {
+              "id": "flthecx",
+              "type": "leaf",
+              "visual": {
+                "kind": "kpi",
+                "engine": "ck",
+                "title": "Deckungsbeitrag",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "Typ auf dem Board nicht genannt, aus der Größe geschätzt",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 4,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "orat3u2",
+              "type": "leaf",
+              "visual": {
+                "kind": "kpi",
+                "engine": "ck",
+                "title": "Marge",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "Typ auf dem Board nicht genannt, aus der Größe geschätzt",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "rs": 2,
+            "cs": 3,
+            "node": {
+              "id": "qmw4xbi",
+              "type": "leaf",
+              "visual": {
+                "kind": "wfint",
+                "engine": "ck",
+                "title": "Δ PL je Produktlinie",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "thgc07p",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 1,
+            "c": 3,
+            "rs": 1,
+            "cs": 2,
+            "node": {
+              "id": "2mqhav8",
+              "type": "leaf",
+              "visual": {
+                "kind": "varint",
+                "engine": "ck",
+                "title": "Umsatz AC/FC vs PL je Monat",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 2,
+            "c": 3,
+            "rs": 1,
+            "cs": 2,
+            "node": {
+              "id": "o07chbw",
+              "type": "leaf",
+              "visual": {
+                "kind": "text",
+                "engine": "native",
+                "title": "Kommentar",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "thgc07p",
+      "name": "Detail Produktlinie",
+      "notes": "",
+      "question": "",
+      "layout": {
+        "id": "kdl5dnz",
+        "type": "grid",
+        "cols": [
+          612,
+          118,
+          176,
+          306
+        ],
+        "rows": [
+          148,
+          448
+        ],
+        "children": [
+          {
+            "r": 0,
+            "c": 0,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "im5aj4a",
+              "type": "leaf",
+              "visual": {
+                "kind": "line",
+                "engine": "ck",
+                "title": "Detail: gewählte Produktlinie",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "rs": 1,
+            "cs": 2,
+            "node": {
+              "id": "9x48xz8",
+              "type": "leaf",
+              "visual": {
+                "kind": "kpi",
+                "engine": "ck",
+                "title": "Umsatz",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "Typ auf dem Board nicht genannt, aus der Größe geschätzt",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 3,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "jhsu675",
+              "type": "leaf",
+              "visual": {
+                "kind": "kpi",
+                "engine": "ck",
+                "title": "Marge %",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "Typ auf dem Board nicht genannt, aus der Größe geschätzt",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "rs": 1,
+            "cs": 2,
+            "node": {
+              "id": "iikz8xf",
+              "type": "leaf",
+              "visual": {
+                "kind": "table",
+                "engine": "ck",
+                "title": "Einzelpositionen",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 1,
+            "c": 2,
+            "rs": 1,
+            "cs": 2,
+            "node": {
+              "id": "hb0lfkk",
+              "type": "leaf",
+              "visual": {
+                "kind": "line",
+                "engine": "ck",
+                "title": "Verlauf 24 Monate",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": true,
+                "analysis": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "59bd8qi",
+      "name": "Projekt & GuV",
+      "notes": "",
+      "question": "Liegt das Rollout im Plan und was kostet es?",
+      "layout": {
+        "id": "5oaw10i",
+        "type": "grid",
+        "cols": [
+          618,
+          618
+        ],
+        "rows": [
+          298,
+          298
+        ],
+        "children": [
+          {
+            "r": 0,
+            "c": 0,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "aob81u8",
+              "type": "leaf",
+              "visual": {
+                "kind": "gantt",
+                "engine": "custom",
+                "title": "Rollout-Plan",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "agreed",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "rs": 2,
+            "cs": 1,
+            "node": {
+              "id": "8idqezo",
+              "type": "leaf",
+              "visual": {
+                "kind": "pnl",
+                "engine": "custom",
+                "title": "GuV nach Ebenen",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "agreed",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 1,
+            "c": 0,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "xg9zu9z",
+              "type": "leaf",
+              "visual": {
+                "kind": "text",
+                "engine": "native",
+                "title": "Hinweis",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "k5otl83",
+      "name": "Varianten",
+      "notes": "",
+      "question": "Wie sieht dieselbe Zahl je Region, Produktlinie und Produkt aus?",
+      "layout": {
+        "id": "bwkyo9k",
+        "type": "grid",
+        "cols": [
+          406,
+          408,
+          410
+        ],
+        "rows": [
+          608
+        ],
+        "children": [
+          {
+            "r": 0,
+            "c": 0,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "c4sbs7c",
+              "type": "leaf",
+              "visual": {
+                "kind": "ncolumn",
+                "engine": "native",
+                "title": "Umsatz je Produktlinie",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 1,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "nhjpo6b",
+              "type": "leaf",
+              "visual": {
+                "kind": "nline",
+                "engine": "native",
+                "title": "Verlauf je Region",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          },
+          {
+            "r": 0,
+            "c": 2,
+            "rs": 1,
+            "cs": 1,
+            "node": {
+              "id": "972jnwf",
+              "type": "leaf",
+              "visual": {
+                "kind": "nbar",
+                "engine": "native",
+                "title": "Rangliste",
+                "sub": "",
+                "scenario": "AC/PL",
+                "roles": {},
+                "notes": "",
+                "link": "",
+                "content": "",
+                "priority": "",
+                "status": "open",
+                "openQuestion": false,
+                "analysis": {}
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "cur": "i8x4wdw",
+  "model": {
+    "source": "Demo · Controlling",
+    "tables": [
+      {
+        "name": "DimDate",
+        "desc": "Kalender",
+        "columns": [
+          {
+            "name": "Date",
+            "kind": "column",
+            "type": "dateTime",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Year",
+            "kind": "column",
+            "type": "int64",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Quarter",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Month",
+            "kind": "column",
+            "type": "string",
+            "desc": "Monatsname, sortiert nach MonthKey",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "MonthKey",
+            "kind": "column",
+            "type": "int64",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "IsForecast",
+            "kind": "column",
+            "type": "int64",
+            "desc": "1 = Forecast-Monat, 0 = Ist",
+            "hidden": false,
+            "format": ""
+          }
+        ],
+        "measures": []
+      },
+      {
+        "name": "DimProduct",
+        "desc": "Produkte",
+        "columns": [
+          {
+            "name": "Product",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Category",
+            "kind": "column",
+            "type": "string",
+            "desc": "Produktlinie",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Brand",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          }
+        ],
+        "measures": []
+      },
+      {
+        "name": "DimRegion",
+        "desc": "Regionen",
+        "columns": [
+          {
+            "name": "Region",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Country",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "SalesOffice",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          }
+        ],
+        "measures": []
+      },
+      {
+        "name": "DimCustomer",
+        "desc": "Kunden",
+        "columns": [
+          {
+            "name": "Customer",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "Segment",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "KeyAccount",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          }
+        ],
+        "measures": []
+      },
+      {
+        "name": "DimAccount",
+        "desc": "GuV-Konten",
+        "columns": [
+          {
+            "name": "Account",
+            "kind": "column",
+            "type": "string",
+            "desc": "GuV-Position",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "AccountGroup",
+            "kind": "column",
+            "type": "string",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          },
+          {
+            "name": "SortKey",
+            "kind": "column",
+            "type": "int64",
+            "desc": "",
+            "hidden": false,
+            "format": ""
+          }
+        ],
+        "measures": []
+      },
+      {
+        "name": "_Measures",
+        "desc": "Kennzahlen",
+        "columns": [],
+        "measures": [
+          {
+            "name": "AC",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Ist",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "PY",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Vorjahr",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "PL",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Plan",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "FC",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Forecast",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "BU",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Budget",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "ΔPL",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "AC − PL",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "ΔPL%",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "(AC − PL) / PL",
+            "hidden": false,
+            "format": "0.0%"
+          },
+          {
+            "name": "ΔPY",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "AC − PY",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "ΔPY%",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "(AC − PY) / PY",
+            "hidden": false,
+            "format": "0.0%"
+          },
+          {
+            "name": "Umsatz",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "Kosten",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "Marge",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Umsatz − Kosten",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "Marge%",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "",
+            "hidden": false,
+            "format": "0.0%"
+          },
+          {
+            "name": "Menge",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "Aufträge",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "Kunden",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "",
+            "hidden": false,
+            "format": "#,##0"
+          },
+          {
+            "name": "Ø Auftragswert",
+            "kind": "measure",
+            "type": "measure",
+            "desc": "Umsatz / Aufträge",
+            "hidden": false,
+            "format": "#,##0"
+          }
+        ]
+      }
+    ]
+  },
+  "newFields": []
+}

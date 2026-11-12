@@ -1,0 +1,12 @@
+{
+  "color": "white",
+  "h": 72,
+  "kind": "rounded",
+  "size": "body",
+  "text": "**Entscheidung:** Maßnahmen bei Planabweichung > 5 %",
+  "textAlign": "left",
+  "type": "shape",
+  "w": 390,
+  "x": 24,
+  "y": 416
+}

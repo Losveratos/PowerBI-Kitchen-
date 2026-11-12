@@ -1,0 +1,12 @@
+{
+  "bends": [
+    "v",
+    187,
+    -416
+  ],
+  "color": "terracotta",
+  "from": "e20",
+  "label": "Drill-through",
+  "to": "e12",
+  "type": "arrow"
+}
