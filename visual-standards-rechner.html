@@ -6154,8 +6154,12 @@ const hadLink=readHash();renderReqs();renderFlags();renderParams();renderSources
    geht es an derselben Stelle weiter. Ohne das waere man nach dem Umschalten im
    Rechner, weil der Link jetzt Einstellungen traegt. */
 const wizBack=(function(){try{const v=sessionStorage.getItem('vsr-wiz');sessionStorage.removeItem('vsr-wiz');return v===null?null:Math.max(0,Math.min(WIZ_STEPS.length-1,+v||0));}catch(e){return null;}})();
+/* v0.23.1 (Budapest BI Forum, 11/2026): ?preset=<key> laedt ein Preset direkt in den Rechner,
+   ohne gefuehrten Einstieg — kurz genug fuer QR-Code und Folie (z. B. ?lang=en&preset=finance).
+   Ein Link mit Einstellungen (#s=…) gewinnt, unbekannte Schluessel werden ignoriert. */
+const qPreset=(function(){try{const k=new URLSearchParams(location.search).get('preset');return k&&Object.prototype.hasOwnProperty.call(PRESETS,k)?k:null;}catch(e){return null;}})();
 if(wizBack!==null){wizStart();if(wizBack)wizGo(wizBack);}
-else if(!hadLink)wizStart();
+else if(!hadLink){const pb=qPreset&&document.querySelector('[data-preset="'+qPreset+'"]');if(pb)pb.click();else wizStart();}
 </script>
 
 <style media="print">
