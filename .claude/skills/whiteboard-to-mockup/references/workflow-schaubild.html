@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Vom Whiteboard zur Power-BI-Seite · Schaubild</title>
+<link rel="stylesheet" href="../../../../assets/fonts/fraunces/fraunces.css">
+<link rel="stylesheet" href="../../../../assets/fonts/geist/geist.css">
+<link rel="stylesheet" href="../../../../assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+  @page { size: A4 landscape; margin: 0; }
+  :root { --bg:#FAFAF7; --card:#FFFFFF; --ink:#0F1E2E; --soft:#475569; --accent:#C25A2D; --line:#D9D6CC; --yellow:#F6E3A1; --green:#CFE6D2; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { width: 297mm; height: 210mm; background: var(--bg); color: var(--ink); font-family: 'Geist', sans-serif; padding: 12mm 14mm 9mm; display: flex; flex-direction: column; }
+  .mono { font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: .08em; text-transform: uppercase; color: var(--soft); }
+  h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 27pt; line-height: 1.05; margin: 2mm 0 2mm; }
+  .lead { font-size: 11.5pt; color: var(--soft); margin: 0 0 6mm; max-width: 200mm; }
+  .flow { display: grid; grid-template-columns: 1fr 13mm 1fr 13mm 1fr; align-items: stretch; }
+  .step { background: var(--card); border: 1px solid var(--line); border-radius: 3mm; padding: 4.5mm 5mm 4mm; display: flex; flex-direction: column; }
+  .step .num { font-family: 'Fraunces', serif; font-size: 20pt; color: var(--accent); line-height: 1; }
+  .step h2 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 15pt; margin: 1mm 0 .5mm; }
+  .step .verb { font-size: 10pt; font-weight: 600; margin-bottom: 2.5mm; }
+  .pic { height: 27mm; border: 1px solid var(--line); border-radius: 2mm; background: var(--bg); margin-bottom: 3mm; position: relative; overflow: hidden; }
+  .step ul { margin: 0; padding-left: 4mm; font-size: 9pt; line-height: 1.4; color: var(--ink); }
+  .step li { margin-bottom: .6mm; }
+  .out { margin-top: auto; padding-top: 2.5mm; border-top: 1px dashed var(--line); font-size: 8.5pt; color: var(--soft); }
+  .out b { color: var(--ink); font-weight: 600; }
+  .arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5mm; }
+  .arrow svg { width: 11mm; height: 6mm; }
+  .arrow span { font-family: 'JetBrains Mono', monospace; font-size: 6pt; color: var(--soft); text-align: center; line-height: 1.3; }
+  .loop { margin: 2.5mm 0 5mm; display: flex; align-items: center; gap: 3mm; font-size: 8.5pt; color: var(--soft); }
+  .loop svg { width: 9mm; height: 5mm; flex: none; }
+  h3 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 13pt; margin: 0 0 2.5mm; }
+  .gains { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3mm; }
+  .gain { border-left: 1.2mm solid var(--accent); padding: .5mm 0 .5mm 3mm; }
+  .gain b { display: block; font-size: 9.5pt; margin-bottom: .8mm; }
+  .gain span { font-size: 8.3pt; color: var(--soft); line-height: 1.35; display: block; }
+  footer { margin-top: auto; padding-top: 3mm; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8mm; font-size: 7.6pt; color: var(--soft); }
+  footer p { margin: 0; max-width: 205mm; }
+  /* kleine Skizzen: auf 80 mm gezeichnet, auf die Kartenbreite skaliert */
+  .pic .in { position: absolute; left: 0; top: 0; width: 80mm; height: 30mm; transform-origin: 0 0; transform: scale(.875); }
+  .b { position: absolute; border: 1px solid #B9B5A8; border-radius: 1mm; background: #fff; }
+  .b.y { background: var(--yellow); } .b.g { background: var(--green); }
+  .bar { position: absolute; bottom: 0; background: var(--ink); width: 2.2mm; }
+</style>
+</head>
+<body>
+  <div class="mono">Daten-WG Knowledge Kitchen · Workflow</div>
+  <h1>Vom Whiteboard zur Power-BI-Seite</h1>
+  <p class="lead">Drei Schritte, drei Werkzeuge: gemeinsam klären, verbindlich festlegen, automatisch bauen. Jeder Schritt übergibt eine Datei an den nächsten.</p>
+
+  <div class="flow">
+    <div class="step">
+      <div class="num">1</div>
+      <h2>Claude-Whiteboard</h2>
+      <div class="verb">Klären · alle gleichzeitig</div>
+      <div class="pic"><div class="in">
+        <div class="b" style="left:4mm;top:4mm;width:20mm;height:9mm"></div>
+        <div class="b" style="left:4mm;top:15mm;width:20mm;height:11mm"></div>
+        <div class="b" style="left:30mm;top:4mm;width:46mm;height:3mm"></div>
+        <div class="b" style="left:30mm;top:9mm;width:14mm;height:6mm"></div>
+        <div class="b y" style="left:46mm;top:9mm;width:14mm;height:6mm"></div>
+        <div class="b" style="left:62mm;top:9mm;width:14mm;height:6mm"></div>
+        <div class="b g" style="left:30mm;top:17mm;width:28mm;height:9mm"></div>
+        <div class="b" style="left:60mm;top:17mm;width:16mm;height:9mm"></div>
+      </div></div>
+      <ul>
+        <li>Auftrag: Zielgruppe, Zweck, Entscheidung</li>
+        <li>Je Berichtsseite eine Leitfrage</li>
+        <li>Kacheln als Blöcke: Titel, Typ, Lage, Größe</li>
+        <li>Gelb = offen, Grün = abgestimmt</li>
+      </ul>
+      <div class="out">Ergebnis: <b>bemaltes Board</b> mit Seiten-Skizzen</div>
+    </div>
+
+    <div class="arrow">
+      <svg viewBox="0 0 44 24"><path d="M2 12h34M28 4l10 8-10 8" fill="none" stroke="#C25A2D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Board<br>auslesen</span>
+    </div>
+
+    <div class="step">
+      <div class="num">2</div>
+      <h2>MockupKitchen</h2>
+      <div class="verb">Festlegen · eine Person</div>
+      <div class="pic"><div class="in">
+        <div class="b" style="left:4mm;top:4mm;width:72mm;height:3mm;background:#0F1E2E;border-color:#0F1E2E"></div>
+        <div class="b" style="left:4mm;top:9mm;width:16.5mm;height:6mm"></div>
+        <div class="b" style="left:22.5mm;top:9mm;width:16.5mm;height:6mm"></div>
+        <div class="b" style="left:41mm;top:9mm;width:16.5mm;height:6mm"></div>
+        <div class="b" style="left:59.5mm;top:9mm;width:16.5mm;height:6mm"></div>
+        <div class="b" style="left:4mm;top:17mm;width:44mm;height:9.5mm">
+          <div class="bar" style="left:4mm;height:4mm"></div><div class="bar" style="left:9mm;height:6.5mm"></div><div class="bar" style="left:14mm;height:3mm;background:#C25A2D"></div><div class="bar" style="left:19mm;height:5mm"></div><div class="bar" style="left:24mm;height:7.5mm"></div><div class="bar" style="left:29mm;height:4.5mm"></div><div class="bar" style="left:34mm;height:6mm"></div>
+        </div>
+        <div class="b" style="left:50mm;top:17mm;width:26mm;height:9.5mm"></div>
+      </div></div>
+      <ul>
+        <li>Skizze kommt als Raster an, nichts wird abgetippt</li>
+        <li>Kachel-Typ wählen, Felder ans Modell binden</li>
+        <li>Prüfungen: Pflichtfelder, Raster, Barrierefreiheit</li>
+        <li>Läuft im Browser, ohne Konto und Server</li>
+      </ul>
+      <div class="out">Ergebnis: <b>mockup-spec.json</b>, Agent-Brief, Workshop-Doku</div>
+    </div>
+
+    <div class="arrow">
+      <svg viewBox="0 0 44 24"><path d="M2 12h34M28 4l10 8-10 8" fill="none" stroke="#C25A2D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Spec<br>Export</span>
+    </div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <h2>Claude Code</h2>
+      <div class="verb">Bauen · der Agent</div>
+      <div class="pic"><div class="in">
+        <div class="b" style="left:4mm;top:4mm;width:30mm;height:22.5mm;border-style:dashed"></div>
+        <div class="b" style="left:7mm;top:7mm;width:24mm;height:2mm;background:#D9D6CC;border:0"></div>
+        <div class="b" style="left:7mm;top:11mm;width:18mm;height:2mm;background:#D9D6CC;border:0"></div>
+        <div class="b" style="left:7mm;top:15mm;width:21mm;height:2mm;background:#D9D6CC;border:0"></div>
+        <div class="b" style="left:7mm;top:19mm;width:14mm;height:2mm;background:#C25A2D;border:0"></div>
+        <div class="b" style="left:40mm;top:4mm;width:36mm;height:22.5mm"></div>
+        <div class="b" style="left:42mm;top:6mm;width:32mm;height:2.5mm;background:#0F1E2E;border-color:#0F1E2E"></div>
+        <div class="b" style="left:42mm;top:10.5mm;width:9.5mm;height:5mm"></div><div class="b" style="left:53.2mm;top:10.5mm;width:9.5mm;height:5mm"></div><div class="b" style="left:64.5mm;top:10.5mm;width:9.5mm;height:5mm"></div>
+        <div class="b" style="left:42mm;top:17.5mm;width:32mm;height:7mm"></div>
+      </div></div>
+      <ul>
+        <li>Spec prüfen, Plan zeigen, auf Freigabe warten</li>
+        <li>Seiten, Visuals, Slicer, Navigation anlegen</li>
+        <li>Neue Kennzahlen im Modell ergänzen</li>
+        <li>Abnahme gegen das Sollbild</li>
+      </ul>
+      <div class="out">Ergebnis: <b>Power-BI-Bericht</b> im PBIP-Projekt</div>
+    </div>
+  </div>
+
+  <div class="loop">
+    <svg viewBox="0 0 36 20"><path d="M34 4v6a6 6 0 0 1-6 6H6M12 10l-7 6 7 6" transform="translate(0,-4)" fill="none" stroke="#475569" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span><b style="color:var(--ink)">Rückweg für die Review-Runde:</b> Ein fertiges Mockup lässt sich wieder als Board auslegen, damit alle kommentieren. Ein zweiter Baulauf ändert nur, was sich geändert hat.</span>
+  </div>
+
+  <h3>Was der Ablauf bringt</h3>
+  <div class="gains">
+    <div class="gain"><b>Erst die Frage</b><span>Jede Seite beginnt mit ihrer Leitfrage, nicht mit einem Diagrammtyp.</span></div>
+    <div class="gain"><b>Alle arbeiten mit</b><span>Auf dem Board schieben und kommentieren alle zugleich, statt einer Person beim Klicken zuzusehen.</span></div>
+    <div class="gain"><b>Kein Abtippen</b><span>Lage und Größe der Blöcke werden übernommen. Im Test lagen die Kacheln höchstens 6 px daneben.</span></div>
+    <div class="gain"><b>Geprüft vor dem Bau</b><span>Fehlende Felder, zu kleine Kacheln und offene Fragen fallen im Mockup auf, nicht im fertigen Bericht.</span></div>
+    <div class="gain"><b>Wiederholbar</b><span>Dieselbe Spec ergibt denselben Bericht. Jeder Lauf ist nachprüfbar.</span></div>
+  </div>
+
+  <footer>
+    <p><b>Grenzen:</b> Das Board kennt kein Datenmodell, Felder werden erst in MockupKitchen gebunden. Fehlt der Typ auf einem Block, wird er geschätzt und als offene Frage markiert. Filterbereich, Navigation und Gestaltung kommen nicht vom Board. Der Schritt Board → MockupKitchen ist bisher an einem Demo-Board getestet.</p>
+    <span class="mono" style="white-space:nowrap">datenwgknowledgekitchen.com</span>
+  </footer>
+</body>
+</html>
