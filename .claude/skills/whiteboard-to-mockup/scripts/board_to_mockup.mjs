@@ -74,6 +74,11 @@ const containers = els.filter(e => e.type === 'container');
 const shapes = els.filter(e => e.type === 'shape');
 const arrows = els.filter(e => e.type === 'arrow');
 const tables = els.filter(e => e.type === 'table');
+// Bilder aus der Kitchen-Palette (kitchen_palette.mjs): der Kachel-Typ steht im Link des Bildes
+const kindOfImage = e => { const m = /#kind=([a-z0-9]+)$/i.exec(String(e.href || '')); return m ? m[1] : null; };
+const images = els.filter(e => e.type === 'image' && kindOfImage(e));
+const labels = els.filter(e => e.type === 'text' && e.size !== 'title' && e.size !== 'huge');
+const isPalette = c => /^(kitchen-kacheln|palette)\b/.test(norm(c.text));
 const isBrief = c => /^(auftrag|brief|steckbrief|report)\b/.test(norm(c.text));
 const isFields = c => /^(kennzahlen|measures|kpis|felder)\b/.test(norm(c.text));
 const warnings = [];
@@ -92,7 +97,7 @@ containers.filter(isFields).forEach(c => tables.filter(t => inside({ x: t.x, y: 
 }));
 
 const title = (els.find(e => e.type === 'text' && e.size === 'title') || {}).text || 'Bericht';
-const pages = containers.filter(c => !isBrief(c) && !isFields(c)).sort((a, b) => (a.y - b.y) || (a.x - b.x)).map(c => {
+const pages = containers.filter(c => !isBrief(c) && !isFields(c) && !isPalette(c)).sort((a, b) => (a.y - b.y) || (a.x - b.x)).map(c => {
   const [name, ...rest] = plain(c.text).split(' · '); let question = rest.join(' · ').trim(); if (/leitfrage fehlt/i.test(question)) question = '';
   const mine = shapes.filter(s => inside(s, c));
   const pad = 24; const box = { x: c.x + pad, y: c.y + pad, w: c.w - 2 * pad, h: c.h - 2 * pad };
@@ -101,6 +106,11 @@ const pages = containers.filter(c => !isBrief(c) && !isFields(c)).sort((a, b) =>
   const tiles = mine.filter(s => s !== header).map(s => {
     const lines = String(s.text || '').split('\n').map(plain).filter(Boolean);
     return { id: s.id, rect: { x: s.x - box.x, y: s.y - box.y, w: s.w, h: s.h }, title: lines[0] || '', hint: lines.slice(1).join(' '), color: s.color || 'green' };
+  });
+  // Palette-Bild in der Sektion = Kachel mit festem Typ; ein loser Text darauf oder direkt darüber ist ihr Titel
+  images.filter(im => inside(im, c)).forEach(im => {
+    const lab = labels.find(t => t.x >= im.x - 8 && t.x <= im.x + im.w && t.y >= im.y - 48 && t.y <= im.y + im.h);
+    tiles.push({ id: im.id, rect: { x: im.x - box.x, y: im.y - box.y, w: im.w, h: im.h }, title: lab ? plain(lab.text).split('\n')[0] : '', hint: '', color: 'white', kindExact: kindOfImage(im) });
   });
   return { boardId: c.id, name: name.trim() || 'Seite', question, box, hasHeader: !!header, headerTitle: header ? plain(header.text) : '', tiles };
 });
@@ -113,7 +123,7 @@ const links = arrows.filter(a => typeof a.from === 'string' && typeof a.to === '
 
 // Typ je Kachel: 1. exakter Katalogname in der zweiten Zeile (rechnet das Kitchen unten), 2. Stichwort, 3. Größe
 pages.forEach(p => p.tiles.forEach(t => {
-  t.kind = kindOf(t.title, t.hint);
+  t.kind = t.kindExact || kindOf(t.title, t.hint);
   if (!t.kind) {
     t.guessed = true;
     // kleine Kachel ohne Typ: im Workshop fast immer eine Kennzahl
@@ -171,7 +181,8 @@ const result = await pg.evaluate(({ pages, links, report, measures, title }) => 
         if (clash) { skipped++; return; }
         for (let r = c.r; r < c.r + c.rs; r++) for (let q = c.c; q < c.c + c.cs; q++) occ[r][q] = c.tile;
         const t = c.tile.t; const exact = t.hint && byLabel[lab(t.hint)]; if (exact) { t.kind = exact; t.guessed = false; }
-        const def = CAT.byId[t.kind]; kinds[t.kind] = (kinds[t.kind] || 0) + 1; if (t.guessed) guessed.push({ page: p.name, title: t.title, kind: t.kind }); const id = uid(); leafId[t.id] = { id, page: p.boardId };
+        if (!CAT.byId[t.kind]) { t.kind = 'text'; t.guessed = true; }
+        const def = CAT.byId[t.kind]; if (!t.title) t.title = def.label; kinds[t.kind] = (kinds[t.kind] || 0) + 1; if (t.guessed) guessed.push({ page: p.name, title: t.title, kind: t.kind }); const id = uid(); leafId[t.id] = { id, page: p.boardId };
         const visual = { kind: t.kind, engine: def ? def.engine : 'native', title: t.title, sub: '', roles: {}, link: '', content: '', priority: '', analysis: {},
           notes: t.guessed ? 'Typ auf dem Board nicht genannt, aus der Größe geschätzt' + (t.hint ? ' (' + t.hint + ')' : '') : '',
           status: t.color === 'green' ? 'agreed' : 'open', openQuestion: t.color === 'yellow' || !!t.guessed };

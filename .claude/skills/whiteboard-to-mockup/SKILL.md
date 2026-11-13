@@ -36,6 +36,7 @@ Mehr braucht es nicht; alles andere auf dem Board wird ignoriert.
 | Jede andere Sektion, Titel `Name · Leitfrage` | eine Berichtsseite mit Frage |
 | Flacher Block über die ganze Breite am oberen Rand der Sektion | Kopfband, Text = Berichtstitel |
 | Block in der Sektion: 1. Zeile Titel, 2. Zeile Typ | Kachel; Lage und Größe zählen |
+| Bild aus der Sektion „Kitchen-Kacheln", in eine Seite kopiert | Kachel genau dieses Typs; ein loser Text darauf oder direkt darüber ist ihr Titel |
 | Gelber Block | offene Frage an der Kachel |
 | Grüner Block | Status „abgestimmt" |
 | Pfeil von einer Kachel auf eine Seiten-Sektion | Verknüpfung (Drill-through) |
@@ -52,7 +53,10 @@ immer im Bericht an den Nutzer nennen.
 1. Board aus dem Artifact-Typ „Whiteboard" anlegen (Titel wie vom Nutzer genannt).
 2. `python3 scripts/spec_to_board.py --starter <out-dir> "<Berichtsname>"`.
    Die ausgegebene Zeile ist die Schreibliste für `ArtifactData` `batch`.
-3. Link nennen. Das Board ist privat, bis der Nutzer es teilt.
+3. Kachel-Palette dazulegen: `node scripts/kitchen_palette.mjs <out-dir> --y <unter dem Inhalt> --start <nächste e-Nummer>`
+   rendert alle Kachel-Typen des Kitchen-Katalogs mit ihrer Skizze als Bild (51 Typen, sechs Gruppen)
+   und gibt drei Schreiblisten aus. Der Typ steht im Link des Bildes (`…#kind=<id>`), Kopien behalten ihn.
+4. Link nennen. Das Board ist privat, bis der Nutzer es teilt.
 
 ## Ablauf B · Board → MockupKitchen
 
@@ -86,6 +90,9 @@ abgestimmten.
 - Die Regeln für eine gute Seite stehen nicht hier, sondern in
   `powerbi-design-framework/references/design-rules.md`; die Blaupausen in
   `chartkitchen-report/references/blueprints.md`.
+- Die Palette liegt als eingebettete Bilder auf dem Board (zusammen rund 650 KB, je Kopie etwa 13 KB dazu;
+  ein Board fasst 2 MB). Bei sehr vielen Kopien die Bilder als Assets hochladen und `src` ersetzen.
+- Die Sektion „Kitchen-Kacheln" selbst ist keine Berichtsseite und wird beim Auslesen übersprungen.
 - Grenzen: höchstens 800 Elemente je Board; Filterbereich, Navigation und
   Gestaltung kommen nicht vom Board, sondern mit den Kitchen-Vorgaben
   (Filterbereich aus). Der Rückweg kennt nur die Leinwand 1280 × 720.

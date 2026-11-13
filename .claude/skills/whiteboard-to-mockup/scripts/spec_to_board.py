@@ -52,7 +52,7 @@ def build(spec, starter=False):
     add({"type": "shape", "kind": "rounded", "x": X0 + CW + 338, "y": 84, "w": 170, "h": 44, "color": "green", "size": "small", "text": "abgestimmt"})
     if starter:
         add({"type": "text", "x": X0 + CW + 144, "y": 224, "size": "body", "wrap": 380,
-             "text": "**So geht's**\n- Eine Sektion je Berichtsseite, im Titel: Name · Leitfrage\n- Ein Block je Kachel: erste Zeile Titel, zweite Zeile Typ (KPI, Linie, Balken, Wasserfall, Tabelle, GuV, Text …)\n- Größe und Lage des Blocks zählen\n- Pfeil von einer Kachel auf eine Seite: Drill-through"})
+             "text": "**So geht's**\n- Eine Sektion je Berichtsseite, im Titel: Name · Leitfrage\n- Ein Block je Kachel: erste Zeile Titel, zweite Zeile Typ (KPI, Linie, Balken, Wasserfall, Tabelle, GuV, Text …)\n- Oder: ein Bild aus den Kitchen-Kacheln unten kopieren, in die Seite ziehen und auf Größe ziehen\n- Größe und Lage zählen\n- Pfeil von einer Kachel auf eine Seite: Drill-through"})
 
     issue_ids = {i["visual"] for i in spec.get("issues", []) if i.get("visual") and i.get("level") == "warn"}
     conts, tiles, geo = [], [], {}
