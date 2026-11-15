@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One Model, Three Visual Stacks · Budapest BI Forum 2026</title>
+<meta name="description" content="Finance Reporting in Power BI: One Model, Three Visual Stacks Compared. Slide deck for Budapest BI Forum 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;700;900&display=swap">
+<style>
+:root{
+  --bi-blue:#00356B; --bi-deep:#002650; --bi-orange:#FF9819;
+  --bg:#FAFAF7; --card:#fff; --ink:#0F1E2E; --soft:#475569; --accent:#C25A2D; --line:#dfe3e8; --tint:#F3EFE8;
+  --py:#9AA5B1; --good:#2E8B7A; --bad:#C0392B;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#111;overflow:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;color:var(--ink)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg)}
+.slide{position:absolute;inset:0;padding:72px 96px 96px;display:none;flex-direction:column;background:var(--bg);transform-origin:0 0}
+.slide.on{display:flex}
+.slide.bi{color:#fff;font-family:'Exo 2','Segoe UI',sans-serif;background:radial-gradient(1400px 600px at 15% 20%,rgba(255,255,255,.07),transparent 60%),radial-gradient(1000px 500px at 85% 75%,rgba(0,0,0,.18),transparent 60%),linear-gradient(160deg,#003C78 0%,var(--bi-blue) 45%,var(--bi-deep) 100%)}
+.slide.bi .waves{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.slide.bi .waves svg{width:100%;height:100%}
+.slide.bi>*{position:relative}
+.topline{display:flex;justify-content:space-between;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:20px}
+.topline .dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--bi-orange);margin-right:12px;vertical-align:middle}
+.bi h1{font-weight:900;font-size:108px;line-height:1;margin:0 0 28px;max-width:16ch}
+.bi h1 em{font-style:normal;color:var(--bi-orange)}
+.bi .sub{font-weight:500;font-size:34px;max-width:38ch;opacity:.92;margin:0 0 40px;line-height:1.3}
+.bi .who{font-weight:700;font-size:28px} .bi .who span{font-weight:500;opacity:.85}
+.bi .bottom{display:flex;justify-content:space-between;align-items:flex-end;font-size:22px;opacity:.95}
+.bi .pill{border:3px solid var(--bi-orange);border-radius:999px;padding:8px 22px;font-weight:700;font-size:20px;letter-spacing:.06em}
+.grow{flex:1;display:flex;flex-direction:column;justify-content:center}
+/* speaker */
+.spk{display:grid;grid-template-columns:1fr 680px;gap:72px;align-items:center}
+.spk img.photo{width:680px;height:680px;object-fit:cover;border-radius:28px;box-shadow:0 24px 70px rgba(0,0,0,.45)}
+.slide a{color:inherit;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:5px}
+.slide.bi a{text-decoration-color:var(--bi-orange)}
+.slide a:hover{color:var(--accent)} .slide.bi a:hover{color:var(--bi-orange)}
+/* scored matrix */
+table.sc{width:100%;border-collapse:collapse;font-size:21px}
+table.sc th{text-align:left;color:var(--soft);font-weight:600;font-size:18px;padding:6px 10px;border-bottom:2px solid var(--ink);vertical-align:bottom}
+table.sc td{padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.2}
+table.sc td:first-child{font-weight:700;white-space:nowrap}
+table.sc td:first-child small{font-weight:400}
+.dots{display:block;letter-spacing:3px;font-size:22px;line-height:1}
+.dots.g{color:var(--good)} .dots.m{color:#8a94a6} .dots.b{color:var(--bad)}
+table.sc small{display:block;color:var(--soft);font-size:17px;line-height:1.2;margin-top:2px}
+.sc-legend{display:flex;gap:28px;font-size:19px;color:var(--soft);margin-top:12px;align-items:center}
+.spk h2{font-weight:900;font-size:84px;margin:0 0 8px;line-height:1}
+.spk .role{font-size:32px;font-weight:700;color:var(--bi-orange);margin:0 0 24px}
+.spk p{font-family:'Segoe UI',system-ui,sans-serif;font-size:26px;line-height:1.45;max-width:50ch;margin:0 0 28px;opacity:.95}
+.spk img{width:560px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.qrs{display:flex;gap:56px}
+.qr{display:flex;gap:18px;align-items:center;font-family:'Segoe UI',system-ui,sans-serif;font-size:22px}
+.qr svg{width:170px;height:170px;background:#fff;padding:10px;border-radius:12px;shape-rendering:crispEdges}
+.qr b{display:block;font-family:'Exo 2',sans-serif;font-size:26px} .qr span{opacity:.85}
+
+/* kitchen slides */
+.kicker{font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
+h2.t{font-size:64px;line-height:1.08;margin:0 0 14px;max-width:26ch}
+.lead{font-size:30px;color:var(--soft);margin:0 0 34px;max-width:60ch;line-height:1.35}
+.cols{display:grid;gap:36px;flex:1;min-height:0}
+.c2{grid-template-columns:1fr 1fr} .c3{grid-template-columns:1fr 1fr 1fr} .c21{grid-template-columns:1.25fr 1fr}
+.fig{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 28px 18px;box-shadow:0 2px 6px rgba(15,30,46,.05);display:flex;flex-direction:column;min-height:0}
+.fig-title{font-size:26px;color:var(--soft);margin:0 0 10px} .fig-title b{color:var(--ink)}
+.fig svg{width:100%;height:100%;flex:1;min-height:0}
+.card.sm{padding:16px 22px} .card.sm h3{font-size:26px;margin:4px 0 6px} .card.sm p{font-size:22px}
+.cap{font-size:22px;color:var(--soft);margin:12px 0 0;line-height:1.35}
+.fig img{width:100%;height:100%;object-fit:contain;object-position:center top;flex:1;min-height:0;display:block}
+.fig .crop{flex:1;min-height:0;overflow:hidden;border-radius:6px} .fig .crop img{height:auto;object-fit:unset}
+.ph{flex:1;min-height:0;border:2px dashed #b9c2cc;border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--soft);font-size:26px;text-align:center;padding:40px;line-height:1.4}
+.card.pc{padding:16px 22px} .card.pc .n{font-size:18px} .card.pc li{font-size:22px;margin-bottom:6px;line-height:1.3} .card.pc p{font-size:22px;line-height:1.3}
+.slide.code .card.pc{padding:12px 18px} .slide.code pre{font-size:17px;line-height:1.3;margin:6px 0 8px;padding:10px 12px} .slide.code .card.pc p{font-size:19px;margin:0} .slide.code .grow{justify-content:flex-start}
+.strip{display:flex;gap:14px;margin-top:28px} .strip figure{margin:0;flex:1;min-width:0} .strip img{width:100%;display:block;border:1px solid var(--line);border-radius:8px;background:#fff} .strip figcaption{font-size:20px;color:var(--soft);margin-top:6px}
+.ex{display:grid;grid-template-columns:1fr 1fr;gap:28px;flex:1;min-height:0;margin-top:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 28px}
+.card.acc{border-left:8px solid var(--accent)}
+.card .n{font-size:20px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.card h3{margin:6px 0 10px;font-size:32px;line-height:1.15}
+.card p,.card li{font-size:26px;line-height:1.4;margin:0}
+.card ul{margin:0;padding-left:1.1em} .card li{margin-bottom:10px}
+.big{font-size:40px;line-height:1.3;max-width:34ch}
+svg text{font-family:'Segoe UI',system-ui,sans-serif;fill:var(--ink)}
+.ts{font-size:20px;fill:var(--soft)} .tm{font-size:22px} .tb{font-size:26px;font-weight:700}
+.foot{position:absolute;left:96px;right:96px;bottom:28px;display:flex;justify-content:space-between;gap:48px;font-size:20px;color:var(--soft);line-height:1.3}
+.foot>span:last-child{text-align:right;flex:0 0 auto;max-width:45%}
+h2.t{font-family:'Exo 2','Segoe UI',sans-serif;font-weight:800}
+.steps{display:flex;gap:14px;margin-top:18px}
+.step{font-size:22px;padding:8px 18px;border-radius:999px;border:2px solid var(--line);color:var(--soft)}
+.step.on{border-color:var(--accent);color:var(--accent);font-weight:700}
+
+/* IBCS page */
+.success{display:grid;grid-template-columns:repeat(7,1fr);gap:16px}
+.success .r{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px 12px}
+.success .r b{display:block;font-size:28px;font-family:'Exo 2',sans-serif;color:var(--accent)}
+.success .r span{font-size:26px;line-height:1.3;color:var(--soft);display:block;margin-top:6px}
+.success .r{padding:20px 22px 24px;min-height:380px}
+.success .r b{font-size:52px;line-height:1}
+.success .r span b{display:block;font-size:30px;color:var(--ink);margin:10px 0 4px}
+.brackets{display:grid;grid-template-columns:repeat(7,1fr);gap:16px;margin:4px 0 10px}
+.brackets div{border-top:4px solid var(--accent);padding-top:8px;font-size:22px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.brackets div span{color:var(--soft);font-weight:600;letter-spacing:.04em;text-transform:none}
+.legend{display:flex;gap:36px;align-items:center;font-size:28px;margin-top:14px;flex-wrap:wrap}
+.cols.tight .card{padding:18px 24px} .cols.tight .card li{font-size:22px;margin-bottom:6px;line-height:1.3}
+.legend i{display:inline-block;width:44px;height:28px;vertical-align:middle;margin-right:12px;border:2px solid var(--ink)}
+.legend .ac{background:#404040;border-color:#404040} .legend .py{background:#B3B3B3;border-color:#B3B3B3} .legend .pl{background:#fff} .legend .fc{background:repeating-linear-gradient(45deg,#fff 0 4px,var(--ink) 4px 6px)}
+.legend .g{background:var(--good);border-color:var(--good)} .legend .b{background:var(--bad);border-color:var(--bad)}
+
+/* P&L table */
+table.pnl{width:100%;border-collapse:collapse;font-size:28px;font-variant-numeric:tabular-nums}
+table.pnl th{font-weight:600;color:var(--soft);text-align:right;padding:8px 10px;border-bottom:2px solid var(--ink);font-size:20px}
+table.pnl th:first-child{text-align:left}
+table.pnl td{padding:10px 10px;text-align:right;border-bottom:1px solid #eee;white-space:nowrap}
+table.pnl td:first-child{text-align:left}
+table.pnl tr.sub td{font-weight:700;border-top:2px solid var(--ink)}
+table.pnl tr.kpi td{font-style:italic;color:var(--soft)}
+table.pnl .vb{display:inline-block;width:150px;height:18px;position:relative;vertical-align:middle}
+table.pnl .vb i{position:absolute;top:0;height:18px;display:block}
+table.pnl .vb:before{content:"";position:absolute;left:75px;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+table.pnl .sign{font-family:ui-monospace,Consolas,monospace;font-size:22px;color:var(--ink)}
+
+/* ladder */
+.ladder{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;flex:1;margin-bottom:24px}
+.rung{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 18px;position:relative;display:flex;flex-direction:column}
+.rung .where{margin-top:auto;align-self:flex-start}
+.rung.future{border:2px dashed #9AA5B1}
+.rung .no{font-family:'Exo 2',sans-serif;font-weight:900;font-size:52px;color:var(--accent);line-height:1}
+.rung h3{font-size:28px;margin:8px 0 10px;line-height:1.15}
+.rung p{font-size:26px;color:var(--soft);line-height:1.3;margin:0 0 12px}
+.rung .where{font-size:20px;color:var(--ink);background:var(--tint);border-radius:8px;padding:6px 10px;display:inline-block}
+.rung.future{border-style:dashed;background:transparent}
+
+/* matrix */
+table.mx{width:100%;border-collapse:collapse;font-size:24px}
+table.mx th{text-align:left;color:var(--soft);font-weight:600;font-size:20px;padding:8px 12px;border-bottom:2px solid var(--ink)}
+table.mx td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.3}
+table.mx td:first-child{font-weight:700;white-space:nowrap}
+table.mx td.plus::before{content:"+ ";color:var(--good);font-weight:900} table.mx td.minus::before{content:"− ";color:var(--bad);font-weight:900}
+
+/* demo slide */
+.demo{display:grid;grid-template-columns:1fr 420px;gap:60px;align-items:center;flex:1}
+.demo .word{font-family:'Exo 2',sans-serif;font-weight:900;font-size:160px;line-height:1;color:var(--accent);letter-spacing:-.02em}
+.demo ul{font-size:28px;line-height:1.4;margin:16px 0 0;padding-left:1.1em}
+.demo .qr svg{width:300px;height:300px}
+
+/* statement-first reveal */
+.slide.on{z-index:2} .slide.leaving{display:flex;z-index:1}
+.slide>.kicker,.slide>h2.t{transform-origin:0 0;transition:transform .5s cubic-bezier(.22,.61,.36,1)}
+.slide:not(.bi)>:not(.kicker):not(h2.t):not(.crumb){transition:opacity .4s ease-out .2s,transform .4s ease-out .2s}
+.slide.stmt>:not(.kicker):not(h2.t):not(.crumb){opacity:0;transform:translateY(24px);transition-duration:.25s;transition-delay:0s}
+.slide.inst,.slide.inst *{transition:none!important}
+.crumb{position:absolute;right:96px;top:28px;font-size:20px;color:var(--soft)}
+
+/* overview */
+#ov{position:absolute;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column;align-items:center;padding:44px 64px 40px}
+#stage.ovopen #ov{display:flex}
+.ov-top{font-family:'Exo 2','Segoe UI',sans-serif;font-weight:800;font-size:48px;line-height:1.1;text-align:center}
+.ov-top em{font-style:normal;color:var(--accent)}
+.ov-hint{font-size:20px;color:var(--soft);margin:8px 0 0}
+.ov-groups{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:30px;width:100%}
+.ov-main{display:flex;align-items:flex-start;justify-content:center;gap:8px}
+.ov-arrow{align-self:flex-start;margin-top:200px;font-size:44px;color:#b9c2cc;line-height:1;padding:0 2px}
+.ov-g{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px 16px}
+.ov-g.here{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ov-gt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;margin:0 0 10px;cursor:pointer;font-family:'Exo 2','Segoe UI',sans-serif;font-weight:800;font-size:25px;line-height:1.1;min-height:66px}
+.ov-gt .no{font-size:16px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-family:'Segoe UI',system-ui,sans-serif;font-weight:700}
+.ov-gt small{font-family:'Segoe UI',system-ui,sans-serif;font-weight:400;font-size:17px;color:var(--soft);white-space:nowrap}
+.ov-gt:hover span{color:var(--accent)}
+.ov-row{display:flex;flex-direction:column;gap:12px}
+.ov-appx .ov-gt{flex-direction:row;align-items:baseline;gap:14px;min-height:0;margin-bottom:10px}
+.ov-appx .ov-row{flex-direction:row;flex-wrap:wrap;gap:12px;max-width:1130px}
+.th{width:220px;height:124px;flex:0 0 auto;position:relative;overflow:hidden;border-radius:8px;background:var(--bg);box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.ov-appx .th{width:176px;height:99px}
+.th:hover{box-shadow:0 0 0 2px var(--soft)}
+.th.cur{box-shadow:0 0 0 3px var(--accent)}
+.th>.slide{display:flex;inset:auto;left:0;top:0;width:1920px;height:1080px;transform:scale(.1146);pointer-events:none}
+.ov-appx .th>.slide{transform:scale(.0917)}
+#chaps{position:fixed;left:0;right:0;bottom:0;height:4px;display:flex;gap:6px;z-index:6}
+#chaps i{display:block;position:relative;overflow:hidden;background:rgba(127,127,127,.3)}
+#chaps b{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--accent);transition:width .2s}
+#bar{display:none}
+@media (prefers-reduced-motion:reduce){.slide,.slide *,#chaps b{transition:none!important}}
+
+/* v2: split figure slides (4a/4b) */
+.slide.side>.kicker,.slide.side>h2.t,.slide.side>.lead{max-width:860px}
+.sidefig{position:absolute;right:96px;top:84px;bottom:84px;width:860px;padding:16px 20px 14px}
+.sidefig img{object-position:center center}
+/* v2: ladder brackets */
+.lbr{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin:6px 0 10px}
+.lbr div{font-size:24px;font-weight:700;color:var(--accent);border-top:4px solid var(--accent);padding-top:6px}
+.lbr div.host{color:var(--soft);border-top-color:#9AA5B1}
+.rung .note{font-size:22px;line-height:1.3;color:var(--ink);background:var(--tint);border-left:4px solid var(--accent);border-radius:6px;padding:8px 10px;margin:0 0 12px}
+/* v2: matrix ratings, one colour */
+.dots{display:flex;gap:6px;margin:2px 0 4px;letter-spacing:0}
+.dots b{display:block;width:18px;height:18px;border-radius:50%;border:2px solid var(--ink);background:var(--ink)}
+.dots b.o{background:transparent}
+table.sc td.num{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+table.sc td.num small{font-weight:400}
+.foot .dots{display:inline-flex;vertical-align:-2px;gap:4px;margin:0 6px 0 0}
+.foot .dots b{width:15px;height:15px}
+.dec .row.acc{padding-left:20px}
+table.sc td.ko{outline:3px solid var(--bad);outline-offset:-4px}
+/* v2: decision slide */
+.dec{display:flex;flex-direction:column;gap:14px;flex:1;justify-content:center}
+.dec .row{display:grid;grid-template-columns:72px 1fr;gap:24px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 28px}
+.dec .row b.k{font-family:'Exo 2',sans-serif;font-weight:900;font-size:52px;color:var(--accent);line-height:1}
+.dec .row p{font-size:30px;line-height:1.3;margin:0}
+.dec .row.acc{border-left:8px solid var(--accent)}
+/* v2: closing slide */
+.close{display:grid;grid-template-columns:1fr 380px;gap:80px;align-items:center}
+.close .thesis{font-weight:900;font-size:64px;line-height:1.12;margin:0 0 40px}
+.close .thanks{font-weight:900;font-size:44px;color:var(--bi-orange);margin:0 0 12px}
+.close .qr svg{width:300px;height:300px;padding:14px}
+.close .qr{flex-direction:column;align-items:center;text-align:center;font-size:24px}
+/* v2: appendix figures hug their image */
+.slide.appx .cols.c21{align-items:start}
+.slide.appx .cols.c21>.fig{align-self:start}
+.slide.appx .cols.c21>.fig>img{height:auto;flex:0 0 auto;max-height:640px}
+.slide.appx .cols.c21>.grow{justify-content:flex-start}
+.calc-img{filter:grayscale(1)}
+
+/* chrome */
+#hud{position:fixed;right:18px;bottom:12px;font-size:16px;color:#777;z-index:5;font-family:'Segoe UI',sans-serif;display:none}
+body.hud #hud{display:block}
+#bar{position:fixed;left:0;bottom:0;height:4px;background:var(--accent);z-index:6;transition:width .2s}
+@page{size:1920px 1080px;margin:0}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{overflow:visible;background:#fff}#stage{position:static;transform:none!important}.slide{position:relative;display:flex!important;width:1920px;height:1080px;page-break-after:always}#hud,#bar,#chaps,#ov{display:none!important}.slide>*{opacity:1!important;transform:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1 COVER -->
+<section class="slide bi on" data-chapter="Intro">
+  <div class="waves"><svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><path d="M0,720 C300,560 520,900 860,760 S1400,520 1920,700 L1920,1080 L0,1080 Z" fill="rgba(0,0,0,.14)"/><path d="M0,840 C380,700 600,1000 980,860 S1500,660 1920,820 L1920,1080 L0,1080 Z" fill="rgba(0,0,0,.14)"/><path d="M0,260 C420,120 700,420 1100,260 S1600,80 1920,220 L1920,0 L0,0 Z" fill="rgba(255,255,255,.05)"/></svg></div>
+  <div class="topline"><span><span class="dot"></span>Budapest BI Forum 2026</span><span>Power BI &amp; Fabric · DataViz · Finance Analytics</span></div>
+  <div class="grow">
+    <h1>One Model,<br>Three Visual Stacks <em>Compared</em></h1>
+    <p class="sub">Finance reporting in Power BI: the same questions, one lean model, and the same P&amp;L page built every way Power BI allows. Everything costs. Nothing always wins.</p>
+    <p class="who">Michael Tenner <span>· Daten-WG by platformimpulse · Köln</span></p>
+  </div>
+  <div class="bottom"><span>November 17, 2026 · Budapest · Danubius Hotel Helia</span><span class="pill">40 min · most of it live</span></div>
+</section>
+
+<!-- 2 SPEAKER -->
+<section class="slide bi" data-chapter="Intro">
+  <div class="waves"><svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><path d="M0,900 C400,760 700,1040 1100,880 S1600,700 1920,860 L1920,1080 L0,1080 Z" fill="rgba(0,0,0,.14)"/></svg></div>
+  <div class="topline"><span><span class="dot"></span>Who is talking</span><span>Daten-WG Knowledge Kitchen</span></div>
+  <div class="grow spk">
+    <div>
+      <h2>Michael Tenner</h2>
+      <p class="role">Full Stack Power BI Engineer · Daten-WG by platformimpulse</p>
+      <p>Finance and controlling reporting on Power BI and Fabric. Builds the open-source visuals ChartKitchen and P&amp;L Statement byDatenWG, writes the <a href="https://datenwgknowledgekitchen.com" target="_blank" rel="noopener">Daten-WG Knowledge Kitchen</a>, and compares things that all cost money.</p>
+      <div class="qrs">
+        <div class="qr"><svg viewBox="0 0 35 35" aria-label="QR code to the session material"><path stroke="#0f1e2e" d="M1 1.5h7m3 0h1m8 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m4 0h2m2 0h2m1 0h1m1 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m3 0h5m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h4m1 0h1m2 0h3m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h4m2 0h2m5 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h1m2 0h1m1 0h1m2 0h3m2 0h1m-25 1h1m1 0h5m3 0h2m2 0h1m1 0h2m8 0h5m-27 1h1m4 0h1m2 0h2m2 0h2m1 0h3m1 0h1m2 0h2m1 0h2m-31 1h2m1 0h1m1 0h3m3 0h1m1 0h5m6 0h3m1 0h1m1 0h2m-32 1h1m1 0h1m1 0h2m2 0h1m1 0h4m2 0h3m1 0h3m1 0h2m2 0h4m-31 1h6m2 0h4m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h3m1 0h2m-32 1h2m1 0h2m1 0h2m1 0h3m2 0h1m2 0h2m2 0h2m3 0h1m1 0h4m-33 1h4m2 0h1m3 0h1m2 0h1m1 0h3m4 0h1m2 0h2m4 0h1m-32 1h1m1 0h3m3 0h1m5 0h2m2 0h2m1 0h1m2 0h3m1 0h3m-31 1h1m1 0h1m1 0h1m1 0h2m7 0h1m1 0h1m4 0h1m1 0h2m1 0h2m3 0h1m-33 1h2m1 0h2m2 0h2m3 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m-33 1h1m4 0h2m2 0h4m1 0h2m2 0h1m1 0h3m1 0h1m2 0h2m1 0h1m-26 1h1m1 0h1m1 0h1m1 0h2m2 0h2m2 0h3m4 0h6m-32 1h2m1 0h1m2 0h2m1 0h1m3 0h3m2 0h3m3 0h2m1 0h3m2 0h1m-33 1h1m1 0h2m1 0h1m4 0h4m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1m-33 1h1m1 0h1m1 0h1m1 0h3m2 0h4m9 0h2m3 0h1m1 0h1m-32 1h1m1 0h3m5 0h5m1 0h1m4 0h2m2 0h2m2 0h2m-31 1h1m1 0h2m2 0h1m3 0h2m4 0h2m4 0h1m1 0h6m1 0h1m-24 1h2m1 0h2m3 0h2m1 0h1m3 0h2m3 0h1m1 0h1m-31 1h7m3 0h1m4 0h3m2 0h5m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h5m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h3m2 0h2m3 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h3m2 0h2m2 0h4m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h4m3 0h1m3 0h2m-28 1h1m5 0h1m4 0h2m1 0h2m2 0h2m1 0h2m2 0h1m2 0h3m-31 1h7m1 0h5m1 0h2m1 0h1m4 0h4m1 0h1m1 0h1m1 0h1"/></svg><div><b>Slides &amp; material</b><span><a href="https://github.com/Losveratos/BI-Forum-Budapest-2026" target="_blank" rel="noopener">github.com/Losveratos/<br>BI-Forum-Budapest-2026</a></span></div></div>
+        <div class="qr"><svg viewBox="0 0 35 35" aria-label="QR code to LinkedIn"><path stroke="#0f1e2e" d="M1 1.5h7m3 0h3m3 0h1m1 0h4m1 0h1m2 0h7m-33 1h1m5 0h1m2 0h4m2 0h2m1 0h1m5 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h3m1 0h4m4 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h5m5 0h2m3 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h4m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m2 0h2m4 0h2m1 0h2m4 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h1m1 0h1m3 0h1m1 0h1m2 0h4m-23 1h1m1 0h5m2 0h1m3 0h2m2 0h1m1 0h1m2 0h1m1 0h1m1 0h5m-31 1h3m2 0h1m1 0h1m2 0h2m1 0h1m2 0h4m3 0h1m2 0h2m1 0h2m1 0h1m-33 1h3m3 0h1m2 0h2m1 0h6m3 0h1m2 0h3m1 0h1m1 0h2m-32 1h6m2 0h1m1 0h4m2 0h6m1 0h1m2 0h1m1 0h4m-31 1h7m4 0h1m1 0h1m1 0h1m2 0h1m3 0h1m1 0h1m1 0h3m-30 1h5m5 0h2m3 0h1m1 0h3m2 0h3m1 0h1m2 0h4m-33 1h1m1 0h2m1 0h3m3 0h1m2 0h4m4 0h1m2 0h2m2 0h3m-28 1h1m2 0h1m2 0h3m2 0h1m5 0h1m3 0h2m2 0h2m-29 1h3m1 0h5m2 0h1m1 0h1m1 0h1m4 0h4m1 0h2m3 0h1m-32 1h3m4 0h3m3 0h1m3 0h3m2 0h5m1 0h2m1 0h1m-32 1h1m1 0h2m1 0h1m1 0h1m1 0h1m3 0h2m2 0h1m1 0h2m3 0h4m1 0h2m-32 1h2m2 0h2m1 0h1m1 0h1m1 0h1m4 0h1m4 0h1m1 0h1m2 0h5m-31 1h1m1 0h2m1 0h3m1 0h5m4 0h3m3 0h2m1 0h3m2 0h1m-33 1h1m4 0h1m1 0h1m1 0h2m3 0h4m1 0h1m2 0h3m1 0h1m2 0h1m2 0h1m-33 1h1m2 0h4m2 0h4m1 0h1m5 0h1m3 0h2m1 0h1m2 0h2m-32 1h1m2 0h1m3 0h1m2 0h1m1 0h3m1 0h1m2 0h8m3 0h1m-31 1h1m4 0h7m1 0h1m3 0h2m3 0h1m1 0h5m2 0h1m-24 1h2m1 0h2m3 0h6m1 0h2m3 0h1m1 0h1m1 0h1m-33 1h7m3 0h2m1 0h5m3 0h4m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m2 0h1m1 0h3m1 0h2m1 0h5m3 0h5m-33 1h1m1 0h3m1 0h1m1 0h4m1 0h1m2 0h1m3 0h1m3 0h6m-30 1h1m1 0h3m1 0h1m1 0h8m1 0h3m1 0h3m1 0h1m2 0h2m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h4m1 0h5m2 0h8m1 0h2m-31 1h1m5 0h1m3 0h1m1 0h1m1 0h2m5 0h3m1 0h1m2 0h3m-31 1h7m1 0h2m2 0h1m1 0h2m1 0h1m1 0h1m2 0h4m1 0h1m1 0h1m1 0h1"/></svg><div><b>LinkedIn</b><span><a href="https://www.linkedin.com/in/michael-tenner-5b885970/" target="_blank" rel="noopener">linkedin.com/in/<br>michael-tenner-5b885970</a></span></div></div>
+      </div>
+    </div>
+    <img class="photo" src="assets/michael-tenner.webp" alt="Michael Tenner">
+  </div>
+  <div class="bottom"><span><a href="https://datenwgknowledgekitchen.com" target="_blank" rel="noopener">datenwgknowledgekitchen.com</a> · <a href="https://www.daten-wg.de" target="_blank" rel="noopener">daten-wg.de</a></span><span></span></div>
+</section>
+
+<!-- 3 WHAT DO WE WANT TO SEE (build-up) -->
+<section class="slide" data-chapter="What we want to see" data-frags="4">
+  <div class="kicker">What do we want to see?</div>
+  <h2 class="t">Actual. Then compared to something.</h2>
+  <p class="lead">Previous year, plan, forecast. Not always all of them, but always the same four, and always the same way.</p>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title" id="t3"><b>Revenue</b> · actual by month</p><svg viewBox="0 0 1000 480" id="g3"></svg></div>
+    <div class="cols c2" style="gap:16px;align-content:start;flex:0 0 auto">
+      <div class="card sm acc" data-frag="0"><div class="n">AC</div><h3>What happened</h3><p>The number itself. Solid, dark, the only thing that is real.</p></div>
+      <div class="card sm" data-frag="1"><div class="n">vs PY</div><h3>Better than last year?</h3><p>Easiest comparison, least useful alone. Last year had its own one-offs.</p></div>
+      <div class="card sm" data-frag="2"><div class="n">vs PL</div><h3>Did we keep the promise?</h3><p>Plan or budget, the outline we committed to. The variance is the story.</p></div>
+      <div class="card sm" data-frag="3"><div class="n">FC</div><h3>Where do we land?</h3><p>Forecast fills the open months, hatched, because it is not real yet.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Demo model DWG Industries, net revenue, million EUR</span><span>→ to add the next comparison</span></div>
+</section>
+
+<!-- 4a TIME -->
+<section class="slide side" data-chapter="What we want to see">
+  <div class="kicker">… in time</div>
+  <h2 class="t">Time runs as columns</h2>
+  <p class="lead">Months left to right, the scenarios are the third axis. The ΔPY bars sit on the scale of the columns: +22 m is nine percent of the 245 m January column. The Δ % pins keep their own unit.</p>
+  <div class="fig sidefig"><p class="fig-title"><b>Time</b> · revenue by month, AC vs PY · ΔPY and ΔPY % on top</p><img src="assets/pbi3-plan-gap-time.png" alt="ChartKitchen column chart, revenue by month, actual vs prior year with variance"></div>
+  <div class="foot"><span>Own visual shown: ChartKitchen byDatenWG · page "Plan gap" of the demo report</span><span>Δ on the base scale</span></div>
+</section>
+
+<!-- 4b STRUCTURE -->
+<section class="slide side" data-chapter="What we want to see">
+  <div class="kicker">… and in structure</div>
+  <h2 class="t">Structure runs as bars</h2>
+  <p class="lead">Same visual, rotated, same notation: AC filled, PL outlined, ΔPL and ΔPL % beside. Four companies below plan, Mobility FR with −32.3 m. The variance column says so without a second chart.</p>
+  <div class="fig sidefig"><p class="fig-title"><b>Structure</b> · revenue by company, AC vs PL · ΔPL and ΔPL % beside</p><img src="assets/pbi3-plan-gap-structure.png" alt="ChartKitchen bar chart, revenue by company, actual vs plan with variance"></div>
+  <div class="foot"><span>Own visual shown: ChartKitchen byDatenWG · page "Plan gap" of the demo report</span><span>One visual, two directions, Δ on the base scale in each chart</span></div>
+</section>
+
+<!-- 5 IBCS ON ONE PAGE -->
+<section class="slide" data-chapter="What we want to see">
+  <div class="kicker">The notation has a name</div>
+  <h2 class="t">IBCS on one page</h2>
+  <p class="lead" style="margin-bottom:16px">The SUCCESS rules. We are not members and not certified: inspiration, with the notation taken literally.</p>
+  <div class="brackets"><div style="grid-column:span 3">Notation <span>· Simplify · Unify · Check</span></div><div style="grid-column:span 4">Composition <span>· Say · Express · Structure · Condense</span></div></div>
+  <div class="success">
+    <div class="r"><b>S</b><span><b>Simplify</b>no clutter, no decoration, no 3D</span></div>
+    <div class="r"><b>U</b><span><b>Unify</b>the notation: scenarios, variances, time, structure</span></div>
+    <div class="r"><b>C</b><span><b>Check</b>integrity: same scale, no truncated axes</span></div>
+    <div class="r"><b>S</b><span><b>Say</b>one message per page, as a sentence above the chart, highlighted in it</span></div>
+    <div class="r"><b>E</b><span><b>Express</b>the right chart type for the question</span></div>
+    <div class="r"><b>S</b><span><b>Structure</b>consistent, hierarchical, MECE</span></div>
+    <div class="r"><b>C</b><span><b>Condense</b>more information per page, small multiples</span></div>
+  </div>
+  <div class="legend" style="margin-top:56px;gap:30px"><span><i class="ac"></i>AC actual</span><span><i class="py"></i>PY previous year</span><span><i class="pl"></i>PL plan</span><span><i class="fc"></i>FC forecast</span><span><i class="g"></i>favourable</span><span><i class="b"></i>unfavourable</span><span>Δ on the base scale, or a scale band</span></div>
+  <div class="foot"><span>SUCCESS cards adapted from the IBCS® Standards 2.0 by the IBCS Association, CC BY-SA 4.0 (<a href="https://www.ibcs.com/standards" target="_blank" rel="noopener">ibcs.com/standards</a>); this slide is shared under the same licence · IBCS® is a registered trademark of the IBCS Institute</span><span>IBCS 2.0 is aligned with ISO 24896 · <a href="https://datenwgknowledgekitchen.com/ibcs-trainer.html" target="_blank" rel="noopener">IBCS trainer</a></span></div>
+</section>
+
+<!-- 6 P&L: A CALCULATION -->
+<section class="slide" data-chapter="How it fits Power BI">
+  <div class="kicker">Not a ranking</div>
+  <h2 class="t" style="max-width:none">A P&amp;L is a calculation, not a structure</h2>
+  <p class="lead" style="margin-bottom:16px;max-width:none">IBCS treats it as a calculation scheme: operators (+ − =), subtotals, a vertical calculation waterfall, never sorted by size. It needs a hierarchy, formulas and a sign.</p>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>P&amp;L Statement byDatenWG</b> · demo report, template T03A: PY, PL, AC, ΔPY, ΔPL</p>
+      <div class="crop"><img src="assets/pbi3-group-pnl-statement-en.png" alt="Group P&L statement from the demo report"></div>
+      <p class="cap">Group P&amp;L of DWG Industries, nine companies. Revenue <b>+12.8 % reported · +8.7 % organic at PY rates</b> (acquisition Digital JP +3.7 pp, FX +0.4 pp). Δ = AC − PL of the shown value; colour carries good or bad (IBCS).</p></div>
+    <div class="grow">
+      <div class="card pc acc"><div class="n">Four things a bar chart never knew</div>
+        <ul style="margin-top:10px"><li><b>Hierarchy and subtotals.</b> Net revenue is not in the fact table, it is the children added with their signs.</li><li><b>Formulas.</b> Gross profit, EBITDA, margins. Formula on formula.</li><li><b>The sign.</b> A cost row calculates with −1, shows positive, and "less" is favourable. One wrong and an overrun turns green.</li><li><b>Windows.</b> Month, YTD and full year from the same monthly rows, forecast hatched where actuals stop.</li></ul></div>
+      <p class="cap" style="margin-top:16px">Management P&amp;L, cost-of-sales format with D&amp;A shown separately. Under IFRS 18 (from 2027) EBITDA becomes a disclosed MPM: one more formula row in the account dimension, not a new report.</p>
+      <p class="big" style="margin:16px 0 0;font-size:26px;color:var(--ink);max-width:none">Every stack has to solve these four somewhere: in DAX, in a spec, or inside the visual. Where it lands decides cost, maintainability, and who can change it in two years.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6b THE MODEL -->
+<section class="slide" data-chapter="How it fits Power BI">
+  <div class="kicker">One model, already built</div>
+  <h2 class="t">The model answers the questions. The visuals only draw them.</h2>
+  <p class="lead" style="margin-bottom:18px;max-width:none;font-size:28px">One account dimension, one fact table at month grain, a date table, a rate table related to date and currency. Thin role measures, no time intelligence in the model. The same model under every rung.</p>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Star schema, one snowflake branch (region)</b> · DWG Industries, nine companies, seven currencies</p>
+      <svg viewBox="0 0 1000 520" role="img" aria-label="Star schema of the finance model">
+        <rect x="20" y="90" width="330" height="340" rx="10" fill="#fff" stroke="#C25A2D" stroke-width="3"/>
+        <text x="36" y="122" font-size="26" font-weight="700">DimAccount</text>
+        <text x="36" y="152" font-size="19" fill="#475569">AccountID · Name DE/EN · L1…L6</text>
+        <text x="36" y="178" font-size="19" fill="#475569">RowType · stock token · SortOrder</text>
+        <text x="36" y="204" font-size="19" fill="#475569">FormulaDef  [EBITDA]/[Revenue]</text>
+        <rect x="30" y="218" width="310" height="92" rx="6" fill="#FBE9DF"/>
+        <text x="40" y="244" font-size="19">SignConvention  ±1</text>
+        <text x="40" y="270" font-size="19">DisplayInvert  true / false</text>
+        <text x="40" y="296" font-size="19">VarianceInvert  true / false</text>
+        <text x="36" y="336" font-size="19" fill="#475569">Comment DE/EN</text>
+        <text x="36" y="400" font-size="18" fill="#475569">296 rows: P&amp;L 128 · BS 102 · CF 66</text>
+        <rect x="400" y="90" width="340" height="340" rx="10" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
+        <text x="416" y="122" font-size="26" font-weight="700">FactFinance</text>
+        <text x="416" y="152" font-size="19" fill="#475569">AccountID · EntityID · month end</text>
+        <rect x="410" y="166" width="320" height="66" rx="6" fill="#FBE9DF"/>
+        <text x="420" y="192" font-size="19">AC · PY · PL · FC  twelve months each</text>
+        <text x="420" y="218" font-size="19">PL_FY · FC_FY  full-year scalars</text>
+        <text x="416" y="264" font-size="19" fill="#475569">each in EUR and local currency (LC)</text>
+        <text x="416" y="290" font-size="19" fill="#475569">AC empty for open months, never 0</text>
+        <text x="416" y="316" font-size="19" fill="#475569">stocks as balances, never cumulated</text>
+        <text x="416" y="400" font-size="18" fill="#475569">63,936 rows: 296 × 9 × 24 months</text>
+        <rect x="440" y="10" width="260" height="56" rx="10" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
+        <text x="456" y="46" font-size="22" font-weight="700">Date <tspan font-size="18" font-weight="400" fill="#475569">  Date · Month · Year</tspan></text>
+        <rect x="780" y="10" width="210" height="56" rx="10" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
+        <text x="794" y="44" font-size="20" font-weight="700">DimRegion <tspan font-size="16" font-weight="400" fill="#475569">3 regions</tspan></text>
+        <rect x="780" y="90" width="210" height="110" rx="10" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
+        <text x="794" y="122" font-size="22" font-weight="700">DimEntity</text>
+        <text x="794" y="152" font-size="17" fill="#475569">9 companies · segment</text>
+        <text x="794" y="176" font-size="17" fill="#475569">region · currency</text>
+        <rect x="780" y="250" width="210" height="120" rx="10" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
+        <text x="794" y="282" font-size="22" font-weight="700">FactRates</text>
+        <text x="794" y="310" font-size="17" fill="#475569">168 · month × currency</text>
+        <text x="794" y="334" font-size="17" fill="#475569">average, closing, budget</text>
+        <text x="794" y="358" font-size="17" fill="#475569">budget view in DAX</text>
+        <rect x="780" y="410" width="210" height="56" rx="10" fill="#fff" stroke="#0F1E2E" stroke-width="2"/>
+        <text x="794" y="444" font-size="20" font-weight="700">DimCurrency <tspan font-size="16" font-weight="400" fill="#475569">7</tspan></text>
+        <rect x="400" y="456" width="360" height="52" rx="10" fill="#fff" stroke="#9AA5B1" stroke-dasharray="3 4"/>
+        <text x="416" y="489" font-size="16" fill="#475569">Measures: AC · PY · PL · FC · PL FY · FC FY · LC</text>
+        <line x1="350" y1="260" x2="400" y2="260" stroke="#0F1E2E" stroke-width="2"/><text x="356" y="250" font-size="16" fill="#475569">1 : *</text>
+        <line x1="570" y1="66" x2="570" y2="90" stroke="#0F1E2E" stroke-width="2"/>
+        <line x1="740" y1="145" x2="780" y2="145" stroke="#0F1E2E" stroke-width="2"/><text x="744" y="168" font-size="16" fill="#475569">*:1</text>
+        <line x1="885" y1="66" x2="885" y2="90" stroke="#0F1E2E" stroke-width="2"/>
+        <line x1="885" y1="370" x2="885" y2="410" stroke="#0F1E2E" stroke-width="2"/>
+        <path d="M700,38 H760 V300 H780" fill="none" stroke="#0F1E2E" stroke-width="2"/><text x="706" y="30" font-size="16" fill="#475569">date</text>
+                <line x1="570" y1="430" x2="570" y2="456" stroke="#9AA5B1" stroke-width="2" stroke-dasharray="3 4"/>
+      </svg></div>
+    <div class="cols c2" style="gap:14px;grid-auto-rows:1fr">
+      <div class="card sm"><div class="n">Rule 1</div><h3>Month grain, empty not zero</h3><p>A 0 in November makes November an actual month. PY, PL and FC cover all twelve months.</p></div>
+      <div class="card sm"><div class="n">Rule 2</div><h3>Full year is a scalar</h3><p>Repeated on every month row: MAX per account, company and year, then summed. SUM is twelve times too large.</p></div>
+      <div class="card sm"><div class="n">Rule 3</div><h3>Sign trio in the dimension</h3><p>Cost row: −1 · shown positive · less is favourable. Three flags, three jobs: compute, display, judge. Get one wrong and an overrun turns green.</p></div>
+      <div class="card sm"><div class="n">Rule 4</div><h3>Thin measures, no YTD</h3><p>One measure per role. The visual cuts month, YTD and FY from the last month with actuals. Forecast versions and restated PY are one more column or a version dimension in the fact; the visuals do not change.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Trap every rung inherits: ten actual months against twelve plan months; one flag in the date table (Period status = Actual) prevents it. Budget rate and FX effect are measures; a day-3 adjustment is one small fact table and one switch. · <a href="https://github.com/Losveratos/BI-Forum-Budapest-2026" target="_blank" rel="noopener">GitHub</a> · A9–A11</span><span>Rules: in the model</span></div>
+</section>
+
+<!-- 7 STACK LADDER -->
+<section class="slide" data-chapter="How it fits Power BI">
+  <div class="kicker">How does this fit Power BI?</div>
+  <h2 class="t" style="max-width:none">Every rung works. Each one pays differently.</h2>
+  <div class="lbr"><div style="grid-column:span 3">Stack 1 · Core + SVG</div><div>Stack 2 · Deneb</div><div>Stack 3 · Custom visual</div><div class="host">Host</div></div>
+  <div class="ladder">
+    <div class="rung"><div class="no">1</div><h3>Pure Power BI</h3><p>Core visuals, no code, notation only approximated.</p><p>Copilot can build and edit it today (paid capacity F2+/P1+).</p><span class="where">Rules: in your head</span></div>
+    <div class="rung"><div class="no">2</div><h3>DAX only</h3><p>Measures, a line table for subtotals, format strings.</p><p>Everything auditable, every change is a measure.</p><span class="where">Rules: in DAX</span></div>
+    <div class="rung"><div class="no">3</div><h3>SVG measures + UDF</h3><p>Measures return SVG images in table cells.</p><p>UDFs GA since June 2026, IBCS packages on daxlib.org.</p><span class="where">Rules: in DAX</span></div>
+    <div class="rung"><div class="no">4</div><h3>Deneb (Vega) · HTML</h3><p>The chart is a Vega-Lite spec: text, Git, templates.</p><p>Deneb and HTML Content (lite) are Microsoft-certified; full HTML Content is not.</p><p class="note">Microsoft announced native Vega-Lite for Power BI at FabCon 2026, no date yet. Specs written today stay portable.</p><span class="where">Rules: in the spec</span></div>
+    <div class="rung"><div class="no">5</div><h3>Custom visual</h3><p><b>Open:</b> ChartKitchen, P&amp;L Statement byDatenWG, free, you maintain it.</p><p><b>Paid:</b> Zebra BI, Inforiver, graphomate, IBCS-certified, licence per reader.</p><span class="where">Rules: inside the visual</span></div>
+    <div class="rung future"><div class="no">6</div><h3>Fabric Apps</h3><p>The same charts as React ports, outside the report canvas.</p><p>Preview, some regions, readers need Build permission on the model, no Git sync yet.</p><span class="where">Rules: at risk of moving into app code</span></div>
+  </div>
+  <div class="foot"><span>Not on the ladder, same model underneath: paginated reports for the close pack, Excel connected to the model for controllers.<br>Coding agents build visuals in hours today, which moves every rung · own visuals shown: ChartKitchen and P&amp;L Statement byDatenWG</span><span>Same model under all six</span></div>
+</section>
+
+<!-- 8 DEMO -->
+<section class="slide" data-chapter="Demo">
+  <div class="kicker">Now the report</div>
+  <div class="demo">
+    <div>
+      <div class="word">Demo</div>
+      <ul>
+        <li>One report, one page per rung, one model: DWG Industries, nine companies, seven currencies.</li>
+        <li>Same P&amp;L page, same numbers. Switch the company slicer in each. Who is still right, who is still fast?</li>
+        <li>Performance Analyzer on screen, DAX time and render time apart.</li>
+        <li>Day three, 10:40: one booking changes, every rung shows the same new number, because none of them owns a number: net income 151.6 → 155.6 on every P&amp;L page, stamp included.</li>
+        <li>Every page states its data-as-of: actual to October, plan and forecast to December.</li>
+      </ul>
+      <div class="strip">
+        <figure><img src="assets/demo-rung1-pure.png" alt="Pure Power BI page"><figcaption>Rung 1 · core visuals</figcaption></figure>
+        <figure><img src="assets/demo-rung2-dax.png" alt="DAX only page"><figcaption>Rung 2 · DAX text</figcaption></figure>
+        <figure><img src="assets/demo-rung3-svg.png" alt="SVG measures page"><figcaption>Rung 3 · SVG, UDF</figcaption></figure>
+        <figure><img src="assets/demo-rung4-deneb.png" alt="Deneb page"><figcaption>Rung 4 · Deneb</figcaption></figure>
+        <figure><img src="assets/demo-rung5a-custom.png" alt="Custom visual page built with ChartKitchen and P&amp;L Statement byDatenWG"><figcaption>Rung 5a · custom</figure>
+        <figure><img src="assets/demo-close-adjusted.png" alt="Rung 1 page with the day-3 adjustment switched on"><figcaption>Day 3 · one switch</figcaption></figure>
+      </div>
+    </div>
+    <div class="qr"><div><svg viewBox="0 0 35 35" aria-label="QR code to GitHub"><path stroke="#0f1e2e" d="M1 1.5h7m3 0h1m8 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m4 0h2m2 0h2m1 0h1m1 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m3 0h5m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h4m1 0h1m2 0h3m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h4m2 0h2m5 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h1m2 0h1m1 0h1m2 0h3m2 0h1m-25 1h1m1 0h5m3 0h2m2 0h1m1 0h2m8 0h5m-27 1h1m4 0h1m2 0h2m2 0h2m1 0h3m1 0h1m2 0h2m1 0h2m-31 1h2m1 0h1m1 0h3m3 0h1m1 0h5m6 0h3m1 0h1m1 0h2m-32 1h1m1 0h1m1 0h2m2 0h1m1 0h4m2 0h3m1 0h3m1 0h2m2 0h4m-31 1h6m2 0h4m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h3m1 0h2m-32 1h2m1 0h2m1 0h2m1 0h3m2 0h1m2 0h2m2 0h2m3 0h1m1 0h4m-33 1h4m2 0h1m3 0h1m2 0h1m1 0h3m4 0h1m2 0h2m4 0h1m-32 1h1m1 0h3m3 0h1m5 0h2m2 0h2m1 0h1m2 0h3m1 0h3m-31 1h1m1 0h1m1 0h1m1 0h2m7 0h1m1 0h1m4 0h1m1 0h2m1 0h2m3 0h1m-33 1h2m1 0h2m2 0h2m3 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m-33 1h1m4 0h2m2 0h4m1 0h2m2 0h1m1 0h3m1 0h1m2 0h2m1 0h1m-26 1h1m1 0h1m1 0h1m1 0h2m2 0h2m2 0h3m4 0h6m-32 1h2m1 0h1m2 0h2m1 0h1m3 0h3m2 0h3m3 0h2m1 0h3m2 0h1m-33 1h1m1 0h2m1 0h1m4 0h4m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1m-33 1h1m1 0h1m1 0h1m1 0h3m2 0h4m9 0h2m3 0h1m1 0h1m-32 1h1m1 0h3m5 0h5m1 0h1m4 0h2m2 0h2m2 0h2m-31 1h1m1 0h2m2 0h1m3 0h2m4 0h2m4 0h1m1 0h6m1 0h1m-24 1h2m1 0h2m3 0h2m1 0h1m3 0h2m3 0h1m1 0h1m-31 1h7m3 0h1m4 0h3m2 0h5m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h5m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h3m2 0h2m3 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h3m2 0h2m2 0h4m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h4m3 0h1m3 0h2m-28 1h1m5 0h1m4 0h2m1 0h2m2 0h2m1 0h2m2 0h1m2 0h3m-31 1h7m1 0h5m1 0h2m1 0h1m4 0h4m1 0h1m1 0h1m1 0h1"/></svg><p style="font-size:24px;margin:14px 0 0;text-align:center"><a href="https://github.com/Losveratos/BI-Forum-Budapest-2026" target="_blank" rel="noopener">github.com/Losveratos/<br>BI-Forum-Budapest-2026</a></p></div></div>
+  </div>
+</section>
+
+<!-- 9 CALCULATOR -->
+<section class="slide" data-chapter="What it costs">
+  <div class="kicker">What do we have to consider?</div>
+  <h2 class="t" style="max-width:none">Everything costs. Nothing always wins.</h2>
+  <p class="lead" style="margin-bottom:22px">The Visual Standards Calculator: four approaches, three-point estimates, 1,500 scenarios, P10 to P90 per reader and year.</p>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Live</b> · preset "Finance with mandatory IBCS": 5 authors, 150 readers, 80 EUR anchor, 5 years · <a href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html?lang=en" target="_blank" rel="noopener">open the calculator ↗</a></p><img class="calc-img" src="assets/calc-finance-preset.png" alt="Calculator result for the finance preset" style="object-position:center top"><p class="cap">Paid and Open source are indistinguishable within the band at about 144 EUR per reader and year; Deneb 1.2 times, Core + SVG 1.8 times as much. From about 176 readers for these 5 authors the licence per head costs more than the cheapest hours-based approach.</p><p class="cap" style="font-size:20px;border-top:1px solid var(--line);padding-top:10px">Hours at 125 EUR/h fully loaded · Power BI Pro/PPU or Fabric capacity excluded (same for every stack, larger than any difference shown) · list prices, no escalation, no discounting.</p></div>
+    <div class="card pc acc"><div class="n">What flips the ranking</div>
+      <ul style="margin-top:12px"><li><b>Negotiate below ~92 EUR</b> per user and year and Paid beats building it yourself at 150 readers.</li><li><b>Readers per creator.</b> Licences scale with heads, hours do not. Here the tipping point is 176 readers for 5 authors; it moves with the licence anchor.</li><li><b>Licence anchor.</b> 33, 80 or 170 EUR per user: Inforiver level, mixed, Zebra level. Anchors include support, add-ons and enterprise tiers; Zebra BI list price is about 65–70 EUR per user and year at 10–50 users.</li><li><b>A template library</b> for Deneb and Core: hours per chart drop to 0.6 and 0.7.</li><li><b>Red flags.</b> "Core visuals only" leaves Core. "IBCS certificate mandatory" leaves Paid.</li><li><b>Semantic models.</b> A visual is a tenant object, a DAX function lives per model: twenty models, Core +209 %.</li></ul>
+      <p style="margin-top:12px;font-size:20px;color:var(--soft)">Michael Tenner &amp; Diana Ackermann · in the browser, settings travel in the link</p></div>
+  </div>
+  <div class="foot"><span>3 of 58 assumptions verified: read the P10–P90 band, not the P50.</span><span><a href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html?lang=en" target="_blank" rel="noopener">datenwgknowledgekitchen.com/visual-standards-rechner.html</a></span></div>
+</section>
+
+<!-- 10 SUMMARY MATRIX -->
+<section class="slide" data-chapter="What it costs">
+  <div class="kicker">Summary · three stacks: rungs 1–3 Core + SVG, rung 4 Deneb, rung 5 custom visual</div>
+  <h2 class="t" style="max-width:none;font-size:56px">Rules in the model. Pick the rung by who pays and who maintains.</h2>
+  <p class="lead" style="margin-bottom:4px;font-size:28px;max-width:none;color:var(--ink)">Because the rules sit in the model, switching the visual later is a report rebuild, not a migration.</p>
+  <p class="lead" style="margin-bottom:10px;font-size:22px;max-width:none">Ratings from calculator, demo and seven reviews; I build rung 5a, discount my ratings there.</p>
+  <table class="sc">
+    <thead><tr><th>Rung</th><th>IBCS fit (as shown today)</th><th>Platform risk</th><th style="min-width:220px">Cost per reader and year<br>150 readers, 5 authors</th><th>Maintainability</th><th>Self-service with AI</th><th>Export &amp; audit trail</th><th>Avoid when</th></tr></thead>
+    <tbody>
+      <tr><td>1 Pure Power BI<small>rules in your head</small></td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>no hatching, variance by hand</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>Q&amp;A retires 02/2027</small></td><td class="num">€259<small>Core+SVG; a plain page is cheaper</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>every page hand-built; subtotals via a line table</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>Copilot builds it (paid capacity)</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>export, subscriptions, logic visible</small></td><td><small>IBCS mandatory for all reports</small></td></tr>
+      <tr><td>2 DAX only<small>rules in DAX</small></td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>numbers and colour only</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>low</small></td><td class="num">€259</td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>every change a measure</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>agents write DAX, readers cannot</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>all in the model; Excel export carries the bar as text</small></td><td><small>more than a handful of pages</small></td></tr>
+      <tr><td>3 SVG measures + UDF<small>rules in DAX</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>notation yes, interaction no</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>Service rendering regressions</small></td><td class="num">€259</td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>per model: 20 models +209&nbsp;%</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>UDF library helps authors</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>Excel export carries the SVG text, not the bar</small></td><td><small>many models, capacity at the limit</small></td></tr>
+      <tr><td>4 Deneb (Vega) · HTML<small>rules in the spec</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>anything you spec, if you spec it</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>Deneb v2 = new visual, opt-in</small></td><td class="num">€176</td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>JSON in Git, templates to keep</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>agents yes, Copilot no, readers no</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>Microsoft-certified</small></td><td><small>nobody will maintain JSON</small></td></tr>
+      <tr><td>5a Custom visual, open<small>rules inside the visual</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>built for it, not certified</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>certification rules</small></td><td class="num">€148</td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>your repo, abandonment risk</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>readers switch views, agents bind roles</small></td><td class="ko"><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>no PDF/PPT export, no subscriptions: knock-out for a board pack</small></td><td><small>export or subscriptions are a must</small></td></tr>
+      <tr><td>5b Custom visual, paid<small>rules inside the visual</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>certified software; conformity still the author's job</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>vendor pricing</small></td><td class="num">€144<small>tips at 176 readers</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>vendor roadmap and support</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>readers yes, closed to agents</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>export yes, logic closed</small></td><td><small>no licence budget, publish-to-web</small></td></tr>
+      <tr><td>6 Fabric Apps<small>rules at risk in app code</small></td><td><i class="dots"><b></b><b></b><b class="o"></b></i><small>same React ports, not shown</small></td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>preview, no Git</small></td><td class="num"><span style="font-size:18px;font-weight:400">capacity today, Pro/PPU announced</span></td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>no Git sync yet</small></td><td><i class="dots"><b></b><b></b><b></b></i><small>built by coding agents</small></td><td><i class="dots"><b></b><b class="o"></b><b class="o"></b></i><small>logic leaves the model; readers need Build on the model</small></td><td><small>audit wants the logic in the model</small></td></tr>
+    </tbody>
+  </table>
+  <div class="foot"><span><i class="dots"><b></b><b></b><b></b></i> strong · <i class="dots"><b></b><b></b><b class="o"></b></i> workable · <i class="dots"><b></b><b class="o"></b><b class="o"></b></i> weak or knock-out · sources: <a href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html?lang=en" target="_blank" rel="noopener">calculator v0.23</a>, its audit, seven expert reviews, the demo</span><span>If your board pack is a PDF from the Service, rung 5a is out today.</span></div>
+</section>
+
+<!-- 11 YOUR DECISION -->
+<section class="slide" data-chapter="Your decision">
+  <div class="kicker">Your decision</div>
+  <h2 class="t" style="max-width:none">Your decision in four numbers</h2>
+  <p class="lead" style="margin-bottom:8px;max-width:none">Readers per author, licence price, your hourly rate, PDF required?</p>
+  <div class="dec">
+    <div class="row acc"><b class="k">1</b><p><b>Rules first:</b> sign, FY scalar, currency, FX effect, close status go into the semantic model. Done once, every stack can be dropped later.</p></div>
+    <div class="row"><b class="k">2</b><p><b>PDF export or subscriptions mandatory</b> (board pack): rungs 1, 4 or 5b. Rung 5a is out today.</p></div>
+    <div class="row"><b class="k">3</b><p><b>Above ~35 readers per author</b>, IBCS mandatory, licence under ~92 EUR: 5b. Below: 4, or 5a if someone in-house can maintain the source.</p></div>
+    <div class="row"><b class="k">4</b><p><b>Not included:</b> Pro/PPU/Fabric capacity (same for all), training, change management. Horizon 3 years, 125 EUR/h.</p></div>
+    <div class="row"><b class="k">5</b><p><b>Send me your four numbers</b>, you get the calculator link with your preset.</p></div>
+  </div>
+  <div class="foot"><span>Thresholds from the calculator, finance preset · <a href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html?lang=en" target="_blank" rel="noopener">datenwgknowledgekitchen.com/visual-standards-rechner.html</a></span><span>Fabric Apps: appendix A8</span></div>
+</section>
+
+<!-- 12 CLOSING -->
+<section class="slide bi" data-chapter="Your decision">
+  <div class="waves"><svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"><path d="M0,900 C400,760 700,1040 1100,880 S1600,700 1920,860 L1920,1080 L0,1080 Z" fill="rgba(0,0,0,.14)"/></svg></div>
+  <div class="topline"><span><span class="dot"></span>Budapest BI Forum 2026</span><span>One Model, Three Visual Stacks Compared</span></div>
+  <div class="grow close">
+    <div>
+      <p class="thesis">Put the rules in the model this quarter. Pick the visual per audience. Re-decide when the reader count doubles.</p>
+      <p class="thanks">Thank you</p>
+      <p class="who">Michael Tenner <span>· Daten-WG by platformimpulse · Köln</span></p>
+    </div>
+    <div class="qr"><svg viewBox="0 0 35 35" aria-label="QR code to GitHub"><path stroke="#0f1e2e" d="M1 1.5h7m3 0h1m8 0h3m1 0h1m2 0h7m-33 1h1m5 0h1m4 0h2m2 0h2m1 0h1m1 0h3m3 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m3 0h5m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h4m1 0h1m2 0h3m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h4m2 0h2m5 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h2m1 0h1m2 0h1m1 0h1m2 0h3m2 0h1m-25 1h1m1 0h5m3 0h2m2 0h1m1 0h2m8 0h5m-27 1h1m4 0h1m2 0h2m2 0h2m1 0h3m1 0h1m2 0h2m1 0h2m-31 1h2m1 0h1m1 0h3m3 0h1m1 0h5m6 0h3m1 0h1m1 0h2m-32 1h1m1 0h1m1 0h2m2 0h1m1 0h4m2 0h3m1 0h3m1 0h2m2 0h4m-31 1h6m2 0h4m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m1 0h3m1 0h2m-32 1h2m1 0h2m1 0h2m1 0h3m2 0h1m2 0h2m2 0h2m3 0h1m1 0h4m-33 1h4m2 0h1m3 0h1m2 0h1m1 0h3m4 0h1m2 0h2m4 0h1m-32 1h1m1 0h3m3 0h1m5 0h2m2 0h2m1 0h1m2 0h3m1 0h3m-31 1h1m1 0h1m1 0h1m1 0h2m7 0h1m1 0h1m4 0h1m1 0h2m1 0h2m3 0h1m-33 1h2m1 0h2m2 0h2m3 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m2 0h2m1 0h2m1 0h1m-33 1h1m4 0h2m2 0h4m1 0h2m2 0h1m1 0h3m1 0h1m2 0h2m1 0h1m-26 1h1m1 0h1m1 0h1m1 0h2m2 0h2m2 0h3m4 0h6m-32 1h2m1 0h1m2 0h2m1 0h1m3 0h3m2 0h3m3 0h2m1 0h3m2 0h1m-33 1h1m1 0h2m1 0h1m4 0h4m1 0h2m2 0h1m1 0h1m1 0h1m1 0h2m2 0h1m2 0h1m-33 1h1m1 0h1m1 0h1m1 0h3m2 0h4m9 0h2m3 0h1m1 0h1m-32 1h1m1 0h3m5 0h5m1 0h1m4 0h2m2 0h2m2 0h2m-31 1h1m1 0h2m2 0h1m3 0h2m4 0h2m4 0h1m1 0h6m1 0h1m-24 1h2m1 0h2m3 0h2m1 0h1m3 0h2m3 0h1m1 0h1m-31 1h7m3 0h1m4 0h3m2 0h5m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h1m1 0h1m3 0h2m1 0h2m1 0h5m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h4m2 0h3m2 0h2m3 0h6m-30 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h3m2 0h2m2 0h4m2 0h1m1 0h3m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h4m3 0h1m3 0h2m-28 1h1m5 0h1m4 0h2m1 0h2m2 0h2m1 0h2m2 0h1m2 0h3m-31 1h7m1 0h5m1 0h2m1 0h1m4 0h4m1 0h1m1 0h1m1 0h1"/></svg><div><b>Slides, model &amp; data</b><span><a href="https://github.com/Losveratos/BI-Forum-Budapest-2026" target="_blank" rel="noopener">github.com/Losveratos/<br>BI-Forum-Budapest-2026</a></span></div></div>
+  </div>
+  <div class="bottom"><span>November 17, 2026 · Budapest</span><span class="pill">Questions?</span></div>
+</section>
+
+<!-- APPENDIX -->
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A1 · the calculator</div>
+  <h2 class="t">Why Paid and Open source tie at 150 readers</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Why this result, and what turns it</b> · calculator, level 1, finance preset</p><img src="assets/calc-finance-why.png" alt="Calculator explanation of the result"></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Three levers explain the gap</div><ul style="margin-top:8px"><li><b>Ratio 1:30.</b> Paid pays 58,000 EUR in licences over five years. Open source saves that but needs 528 more hours, valued at 66,000 EUR. A tie.</li><li><b>Licence price.</b> Anchor 80 EUR per user and year. Parity with Open source at about 92 EUR: the negotiation ceiling, not the list price.</li><li><b>Hours per chart.</b> Panel values per reused chart: paid 1 h, open source 2 h, Deneb 2.5 h, Core 4 h, unmeasured.</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">What holds, what does not</div><p>The order of magnitude per reader and the reader count where licences dominate hold. The order of Paid and Open source hangs on unmeasured hour assumptions. Of 58 assumptions, 3 are verified, 9 search snippets, 3 rules of thumb, 9 simulated panel, 34 authors' estimates.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Visual Standards Calculator v0.23 · Michael Tenner &amp; Diana Ackermann · <a href="https://datenwgknowledgekitchen.com/visual-standards-rechner.html?lang=en" target="_blank" rel="noopener">datenwgknowledgekitchen.com/visual-standards-rechner.html</a></span><span>Indication, not a quote</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A2 · rung 1</div>
+  <h2 class="t" style="max-width:none">Pure Power BI: the one stack Copilot can touch</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Core visuals</b> · matrix with sign-aware measures and conditional formatting, column and bar chart</p><img src="assets/demo-rung1-pure.png" alt="Demo report page built with core visuals only: income statement matrix, revenue by month, revenue by company"><p class="cap">Demo report, rung 1: Gross profit, EBITDA and Net income come from a line table (pnl-lines) and four line measures; signed AC, PY, PL, ΔPL, data bars and font colour from rules. No plan outline, no variance panel.</p></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>Copilot builds and edits reports only with core visuals (paid capacity)</li><li>No approval, no vendor, runs in Report Server, sovereign cloud, publish-to-web</li><li>Best theme control, ALM and Git, drill, copy to PowerPoint</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>Notation only approximated: no hatching, no variance panels, no scenario outlines</li><li>Deprecation is not zero: Q&amp;A goes away in February 2027.</li>
+<li>Subtotals need a line table and four measures (rules in DAX); the plain matrix alone stops at the sum</li><li>Every page is hand-built; nothing to reuse between reports</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>IBCS is mandatory for all reports, or readers expect to switch views themselves.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Facts from the calculator and its audit, 09/2026</span><span>Rules: in your head</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A3 · rung 2</div>
+  <h2 class="t" style="max-width:none">DAX only: everything auditable, everything a measure</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>DAX only</b> · unicode text bars and sparklines from measures, colour from a status measure</p><img src="assets/demo-rung2-dax-tile.png" alt="Demo report page with variance bars and sparklines drawn as unicode text by DAX measures"><p class="cap">Demo report, rung 2: variance bar and month pattern are text (REPT and block characters), colour comes from a status measure; Gross profit, EBITDA and Net income come from the same line table as on rung 1. Cheap and portable, fragile in alignment, no scale band.</p></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>Everything lives in the model and shows up in an audit</li><li>No visual dependency, survives every Power BI update</li><li>Sign logic and subtotals reusable across pages: a line table and four line measures</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>Every change is a measure change, workaround upkeep</li><li>Calculator assumptions for Core: maintenance 12 / 30 / 48 % per year, three breaking updates a year at 9.5 h each</li><li>No real notation: no hatching, variance only as numbers or colour</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>More than a handful of pages, or the team does not love DAX.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Facts from the calculator and its audit, 09/2026</span><span>Rules: in DAX</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A4 · rung 3</div>
+  <h2 class="t">DAX + SVG + UDF: far, but handmade</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>SVG measures + UDF</b> · hand-written SVG next to PowerofBI.IBCS 0.11.0 (daxlib.org), both rendered as image URLs in the matrix</p><img src="assets/demo-rung3-svg-tile.png" alt="Demo report page with SVG variance bars and AC columns with plan outline rendered inside the core matrix"><p class="cap">Demo report, rung 3: the hand-written ΔPL SVG (double line = plan) next to two one-call UDF measures from PowerofBI.IBCS: absolute variance bar and relative variance pin, scaled across all rows, bold on the total. The library needs model culture en-US and compatibility level 1702; size, tooltips and export stay the limits.</p></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>DAX user-defined functions GA since June 2026 (compatibility level 1702); SVG and IBCS packages on daxlib.org: DaxLib.SVG, PowerofBI.IBCS</li><li>Full notation possible: hatching, outlines, variance bars, pins</li><li>Text in the model: Git-able, diff-able, auditable</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>A waterfall costs about four times a plain chart; author estimate 2.2 / 3.5 / 5.5, no source</li><li>Test every SVG measure in the Service before release; Excel export carries the SVG text, not the bar</li><li>A function lives per model, a visual per tenant: at twenty models Core rises 209 percent</li><li>UDFs: no display folders, no translations, no inherited OLS</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>Many semantic models, capacity at the limit, or the CU cost of DAX-rendered images is unmeasured in your tenant.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Facts from the calculator and its audit, 09/2026</span><span>Rules: in DAX</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A5 · rung 4</div>
+  <h2 class="t">Deneb and HTML: flexibility paid in template upkeep</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Deneb</b> · Business Chart Builder templates 'Integrated variance' and 'Structural variance analysis' on the demo model</p><img src="assets/demo-rung4-deneb-tile.png" alt="Deneb visual from the demo report: revenue by month with plan outline and plan variance on the same scale"><p class="cap">Demo report, rung 4: Vega-Lite specs, written as text and injected into the visual; Deneb comes from AppSource and is certified. The <a href="https://datenwgknowledgekitchen.com/business-chart-builder.html" target="_blank" rel="noopener">Business Chart Builder</a> exports these templates.</p></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>Certified, on AppSource, free; passes "certified visuals only"</li><li>Specs are text: diff-able, in Git, they survive the host visual</li><li>Template libraries exist (vegaviz, DenebIBCS); coding agents write Vega well</li>
+<li>Vega-Lite announced as native Power BI feature at FabCon 2026 (no date): specs stay portable</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>About 35 hours of training per template builder</li>
+<li>Deneb 2.0 is a separate certified visual; v1 stays certified, migration via template export/import</li><li>Copilot cannot edit it; drill 2 of 5, mobile 2 of 5</li><li>Maintenance 10 to 27 percent, governance 8 to 44 hours a year; three incidents in 24 months</li><li>Hierarchy, subtotals and formulas come pre-computed from DAX or get built into the spec</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>Nobody on the team will maintain JSON in two years, or interactive collapse and drill are required.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Facts from the calculator and its audit, 09/2026; Deneb release notes</span><span>Rules: in the spec</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A6 · rung 5a</div>
+  <h2 class="t">Custom visual, open: fastest build, your own upkeep</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>P&amp;L Statement byDatenWG</b> · template T03A on the demo model</p><img src="assets/pbi3-group-pnl-statement-en.png" alt="Group P&L statement of the demo model, template T03A"><p class="cap">Template T04B adds integrated ΔPL bars and pins.</p></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>Bind the roles, the visual computes hierarchy, subtotals, formulas, sign trio and windows; one template click</li><li>Five views from one binding: table, mega table, bars, driver tree, Sankey; readers switch themselves</li><li>No licence, no telemetry, no external calls; agent guide for AI authors</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>Not Microsoft-certified: no PDF or PowerPoint export and no subscriptions in the Service, also when delivered through the org store</li><li>Approval 8 / 24 / 60 hours; maintenance 12 to 32 percent; abandonment risk 3 to 13 percent a year</li><li>30,000-row window like every custom visual; fetchMoreData raises it to 1,048,576 rows</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>The tenant allows certified visuals only and offers no organizational store, or nobody owns the visual's roadmap.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Facts from the P&amp;L Statement documentation, the calculator and its audit, 09/2026. Disclosure: the speaker's own project.</span><span>Rules: inside the visual</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A7 · rung 5b</div>
+  <h2 class="t">Custom visual, paid: finished, certified, per head</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Zebra BI</b> · working capital overview: KPI cards, table with ΔPL waterfall, monthly bridge</p><img src="assets/zebra-working-capital.png" alt="Zebra BI working capital dashboard in Power BI"><p class="cap">Zebra BI for Power BI: 14-day trial, then team plans (list price about 65–70 EUR per user and year at 10–50 users, vendor page 11/2026; quotes differ). Inforiver and graphomate follow similar models. The same P&amp;L page in one of them is still to capture.</p></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>IBCS-certified out of the box; the free visuals are not</li><li>Finished: fastest path to a standard page, vendor support, roadmap; a 14-day trial to start with</li><li>Readers switch views and comment without an author</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>Licence per user, tiered; list prices from the vendor page 11/2026, quotes differ</li><li>In the finance preset the licence per head tips against you at 176 readers for 5 authors; the point moves with the price</li><li>AppSource licence enforcement is absent in Report Server, sovereign cloud, publish-to-web and app-owns-data embedding; vendors with their own keys fill the gap</li><li>Closed source: calculation logic not inspectable; price rises arrive as model changes</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>No licence budget, publish-to-web, or an audit wants to read the calculation. Report Server only with vendor licence keys.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Facts from the calculator and its audit, 09/2026; Zebra BI list price from the vendor page, 11/2026</span><span>Rules: inside the visual</span></div>
+</section>
+
+<section class="slide appx" data-chapter="Appendix">
+  <div class="kicker">Appendix · A8 · rung 6 · what's next</div>
+  <h2 class="t">Fabric Apps: the same visuals, outside the canvas</h2>
+  <div class="cols c21">
+    <div class="fig"><p class="fig-title"><b>Sales controlling app</b> · ChartKitchen as a React port in a Fabric App, live DAX on the semantic model</p><img src="assets/fabric-apps-live.jpg" alt="Fabric App with ChartKitchen visuals"></div>
+    <div class="grow">
+      <div class="card pc"><div class="n">Plus</div><ul style="margin-top:8px"><li>Zoom from one chart into small multiples, driver trees, details on demand, filter panels</li><li>One spec, two targets: the dwg CLI writes report and app, same visuals, same DAX; a parity test fails when numbers differ (early preview, developed in public)</li><li>Four apps in the demo workspace, about an hour each to build with coding agents</li></ul></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">Minus</div><ul style="margin-top:8px"><li>Every reader needs Build permission on the semantic model; preview, regional, not in Fabric Git</li><li>Small F-SKUs throttle quickly</li><li>When the model is weak, the app calculates in the browser: fast, invisible to auditors</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Avoid when</div><p>The audit wants the calculation logic in the model, or the capacity is already at the limit. Fabric Apps add what reports cannot. They do not replace your semantic model.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span><a href="https://github.com/Losveratos/dwg-cli" target="_blank" rel="noopener">github.com/Losveratos/dwg-cli</a> · <a href="https://github.com/Losveratos/BI-Forum-Budapest-2026" target="_blank" rel="noopener">github.com/Losveratos/BI-Forum-Budapest-2026</a> · <a href="https://github.com/Losveratos/fabric-apps-byDatenWG" target="_blank" rel="noopener">github.com/Losveratos/fabric-apps-byDatenWG</a></span><span>Rules: at risk of moving into app code</span></div>
+</section>
+
+<section class="slide" data-chapter="Appendix">
+  <div class="kicker">Appendix · A9 · questions four and five</div>
+  <h2 class="t" style="max-width:none">Currency: compute local, translate after</h2>
+  <div class="cols c21">
+    <div class="card pc"><div class="n">Which rate for which comparison</div>
+      <table class="mx" style="margin-top:8px;font-size:22px"><thead><tr><th>Measure</th><th>Column</th><th>Rate type</th><th>Purpose</th></tr></thead>
+      <tbody><tr><td>AC signed</td><td>AC</td><td>current, monthly average</td><td>reported actual</td></tr><tr><td>PL signed</td><td>PL</td><td>budget, fixed per plan year</td><td>plan, at budget rate</td></tr><tr><td>PY signed</td><td>PY</td><td>prior-year actual rate</td><td>prior year as reported then</td></tr><tr><td>AC signed @BUD</td><td>AC LC</td><td>budget, per currency and year</td><td>actual without currency moves</td></tr><tr><td>FX effect</td><td colspan="2">[AC signed] − [AC signed @BUD]</td><td>its own line, not noise</td></tr><tr><td>ΔPL @BUD</td><td colspan="2">[AC signed @BUD] − [PL signed @BUD]</td><td>operating variance</td></tr><tr><td>AC LC</td><td>AC</td><td>none</td><td>one currency in the filter, else blank</td></tr></tbody></table>
+      <p style="margin-top:12px">Income statement and cash flow at average rate, balance sheet at closing rate (IAS 21). Facts keep local currency; the rate table holds average, closing and budget rate per currency. Rates for every period and type, or DIVIDE goes blank silently; several currencies in one filter blank the local-currency measures on purpose.</p></div>
+    <div class="grow" style="justify-content:flex-start">
+      <div class="fig" style="flex:1;padding:16px 20px 14px"><p class="fig-title" style="font-size:22px"><b>FX and close</b> · demo page, actual rate vs budget rate</p><img src="assets/demo-fx-close.png" alt="Demo report page FX and close: revenue at actual and budget rate with FX effect"></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">In the demo · Jan–Oct 2026 · EUR m</div><p>Net revenue 2,817.6 at actual rates, 2,803.3 at budget rate: FX effect +14.3. Automation CH alone +4.4 (203.2 vs 198.8): the franc, not sales. Net income: FX effect +0.8; ΔPL −24.7 reported, −24.5 at budget rate.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Budget rate in the model: <code>fact-kurse[Kurs Budget]</code>, one rate per currency and year. Caveat: the demo plan in EUR was translated at actual rates in the generator, so ΔPL @BUD compares against the plan re-translated from local currency at the budget rate.</span><span>Rules: in the model</span></div>
+</section>
+
+<section class="slide" data-chapter="Appendix">
+  <div class="kicker">Appendix · A10 · how the model was built</div>
+  <h2 class="t" style="max-width:none">A generated group, reconciled to the cent</h2>
+  <div class="cols c2">
+    <div class="grow">
+      <div class="card pc"><div class="n">The data</div><ul style="margin-top:8px"><li><b>DWG Industries SE</b>, a fictional industrial group: four segments, three regions, nine companies, seven currencies (EUR, CHF, PLN, CZK, USD, AUD, JPY), about 3.4 bn EUR revenue in 2026</li><li>Seven CSV files from one Python generator with a fixed seed, byte-identical on every run: <code>generate_demokit.py</code></li><li><b>fact-abschluss</b>: 63,936 rows, account × company × month, AC/PY/PL/FC each in EUR and in local currency; values in base units, the visuals scale</li><li><b>dim-konten</b>: 296 lines, P&amp;L 128, balance sheet 102, cash flow 66, names in German and English, sign trio, stock and opening tokens</li><li><b>fact-kurse</b>: 168 monthly rates, average and closing, plus one budget rate per currency and year</li><li><b>For the demo:</b> fact-nachbuchung (one day-3 booking, Mobility FR, +4.0 m), the switch close-status, and pnl-lines, 14 statement lines with Gross profit, EBITDA, EBIT, EBT, Net income</li><li>Time: actual January 2025 to October 2026, forecast November and December, plan for both years; PY is the actual shifted by twelve months, at the rate of that month</li></ul></div>
+    </div>
+    <div class="grow">
+      <div class="card pc"><div class="n">The wiring</div><ul style="margin-top:8px"><li>Translation happens in the generator, not in DAX (the budget-rate view is the one exception): P&amp;L and cash flow at average rate, balance sheet at closing rate (IAS 21); the cash-flow bridge is derived from balance-sheet movements, so every movement appears exactly once</li><li><code>build_model_tmdl.py</code> writes the TMDL: five dimensions, two fact tables, thin measures; the three demo tables and their measures were added by hand</li><li><code>reconciliation.txt</code> holds the acceptance values: FY 2026 forecast (FC 10+2) revenue 3,440 m and EBITDA 495 m recomputed from the CSVs; the balance sheet control row is zero in every filter</li><li>The report spec <code>budapest.json</code> binds the English columns; <code>dwg check</code>: 6 pages, 8 tiles, 0 problems; <code>pbir validate --fields</code>: 236 fields resolved</li><li>Page filter: Period status = Actual, so ten actual months never meet twelve plan months</li></ul></div>
+      <div class="card pc acc" style="margin-top:14px"><div class="n">Why generated</div><p>Synthetic data can be published, reconciled and regenerated. Real data could not be shown, and a hand-made sample would not survive a sign-trio check. Synthetic group: entities are third-party only, no intercompany, no elimination entity, NCI only in the balance sheet. The model does not consolidate, it reports.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Demo kit README and <code>reconciliation.txt</code> in <a href="https://github.com/Losveratos/BI-Forum-Budapest-2026" target="_blank" rel="noopener">the material repository</a> · built for P&amp;L Statement byDatenWG 1.7</span><span>Rules: in the model</span></div>
+</section>
+
+<section class="slide code" data-chapter="Appendix">
+  <div class="kicker">Appendix · A11 · the DAX that matters</div>
+  <h2 class="t" style="max-width:none">Six measures carry the whole statement</h2>
+  <div class="cols c2" style="gap:18px">
+    <div class="grow">
+      <div class="card pc"><div class="n">1 · Role measures, one per scenario, nothing else</div><pre>AC = SUM ( 'fact-abschluss'[AC Wert] )
+PY = SUM ( 'fact-abschluss'[PY Wert] )
+PL = SUM ( 'fact-abschluss'[PL Wert] )
+FC = SUM ( 'fact-abschluss'[FC Wert] )</pre><p>No YTD, no sign, no time intelligence. The visual cuts month, YTD and full year itself.</p></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">2 · Sign-aware blocks for the chart tiles</div><pre>Revenue AC =
+CALCULATE (
+    SUMX ( 'fact-abschluss',
+        'fact-abschluss'[AC Wert]
+          * RELATED ( 'dim-konten'[SignConvention] ) ),
+    KEEPFILTERS ( 'dim-konten'[L1 EN] = "Net revenue" )
+)</pre><p>A plain SUM would add sales deductions instead of subtracting them.</p></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">3 · Subtotals without a custom visual: a line table</div><pre>AC line =
+VAR _Type = SELECTEDVALUE ( 'pnl-lines'[Line Type] )
+VAR _Line = SELECTEDVALUE ( 'pnl-lines'[Line] )
+VAR _Upto = SELECTEDVALUE ( 'pnl-lines'[Upto Sort] )
+RETURN SWITCH ( _Type,
+  "line",     CALCULATE ( [AC signed], KEEPFILTERS (
+                TREATAS ( { _Line }, 'dim-konten'[L1 EN] ) ) ),
+  "subtotal", CALCULATE ( [AC signed],
+                KEEPFILTERS ( 'dim-konten'[L1 Sort] &lt; _Upto ) ) )</pre><p>A subtotal sums every line above it. PL, PY and ΔPL line work the same way.</p></div>
+    </div>
+    <div class="grow">
+      <div class="card pc"><div class="n">4 · The full-year scalar: MAX per account, company and year, then summed</div><pre>FC FY =
+VAR _Scope =
+    SUMMARIZE ( 'fact-abschluss',
+        'fact-abschluss'[AccountID],
+        'fact-abschluss'[EntityID],
+        'dim-datum'[Jahr] )
+RETURN
+    SUMX ( _Scope, CALCULATE ( MAX ( 'fact-abschluss'[FC_FY] ) ) )</pre><p>SUM would be twelve times too large. A plain MAX returns the largest single account-company cell, 215 m instead of 3,440 m.</p></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">5 · Local currency only when it means something</div><pre>AC LC =
+IF ( HASONEVALUE ( 'dim-gesellschaft'[Währung] ),
+     SUM ( 'fact-abschluss'[AC LW Wert] ) )</pre><p>Several currencies in the filter: blank on purpose. Adding CHF to JPY is not a number.</p></div>
+      <div class="card pc" style="margin-top:14px"><div class="n">6 · Stocks at the reporting date</div><p><code>AC at reporting date</code> sums flows over the window, takes balance-sheet stocks at the last date and opening balances at the first date, driven by the account's <code>Zeitaggregation</code> token. That is what lets the balance sheet and the cash-flow bridge sit next to the P&amp;L in one visual.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>From <code>fact-abschluss.tmdl</code> of the demo model · Currency translation and security stay in the model. Time windows: the custom visual cuts them itself; on rungs 1–4 one flag in the date table does it.</span><span>Rules: in the model</span></div>
+</section>
+
+</div>
+<div id="bar"></div><div id="hud"></div>
+
+<script>
+// ---- charts
+const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// demo model DWG Industries, net revenue, million EUR, 2026 (rounded)
+const AC=[245,259,295,287,297,308,251,251,316,309,null,null];
+const PY=[223,236,273,252,261,269,218,219,274,273,267,277];
+const PL=[239,251,292,284,294,309,251,249,307,305,300,308];
+const FC=[null,null,null,null,null,null,null,null,null,null,301,314];
+const C_AC='#404040',C_PY='#B3B3B3';
+const hatch=(id,col='#0F1E2E')=>`<pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="${col}" stroke-width="2.4"/></pattern>`;
+
+// time chart. opts: {w,h, py,pl,fc,var}
+function timeChart(el,o){
+  const W=o.w,H=o.h,x0=60,slot=(W-x0-30)/12,base=H-44,top=o.var?H*0.46:96,scale=(base-top)/340;
+  let s=`<defs>${hatch(el+'h')}${hatch(el+'hr','#C0392B')}${hatch(el+'hg','#2E8B7A')}</defs>`;
+  const L=[[C_AC,'AC',true],[C_PY,'PY',o.py],['none','PL',o.pl],[`url(#${el}h)`,'FC',o.fc]].filter(l=>l[2]);
+  let lx=x0; s+=L.map(([f,t])=>{const r=`<rect x="${lx}" y="12" width="28" height="20" fill="${f}" stroke="#0F1E2E" stroke-width="${f===C_AC||f===C_PY?0:2}"/><text x="${lx+36}" y="29" class="tm">${t}</text>`;lx+=110;return r;}).join('');
+  if(o.var){const vy=top-84;s+=`<text x="${x0}" y="${vy-72}" class="ts">ΔPL, m EUR · hatched where the variance rests on forecast</text><line x1="${x0}" y1="${vy}" x2="${W-30}" y2="${vy}" stroke="#0F1E2E"/>`;
+    for(let i=0;i<12;i++){const v=(AC[i]??FC[i])-PL[i],h=Math.abs(v)*1.4,cx=x0+i*slot+slot/2,fc=AC[i]==null;
+      const fill=fc?(v>=0?`url(#${el}hg)`:`url(#${el}hr)`):(v>=0?'#2E8B7A':'#C0392B');
+      s+=`<rect x="${cx-15}" y="${v>=0?vy-h:vy}" width="30" height="${h}" fill="${fill}" ${fc?`stroke="${v>=0?'#2E8B7A':'#C0392B'}" stroke-width="1.5"`:''}/><text x="${cx}" y="${v>=0?vy-h-8:vy+h+22}" class="ts" text-anchor="middle">${v>0?'+':''}${v}</text>`;}}
+  s+=`<line x1="${x0}" y1="${base}" x2="${W-30}" y2="${base}" stroke="#0F1E2E" stroke-width="2"/>`;
+  for(let i=0;i<12;i++){const x=x0+i*slot, show=AC[i]!=null||o.fc; if(!show&&!o.pl&&!o.py){s+=`<text x="${x+slot/2}" y="${base+30}" class="tm" text-anchor="middle">${M[i]}</text>`;continue;}
+    if(o.py){const h=PY[i]*scale;s+=`<rect x="${x+6}" y="${base-h}" width="${slot*0.3}" height="${h}" fill="${C_PY}"/>`;}
+    if(o.pl){const h=PL[i]*scale;s+=`<rect x="${x+slot*0.34}" y="${base-h}" width="${slot*0.5}" height="${h}" fill="none" stroke="#0F1E2E" stroke-width="2"/>`;}
+    const v=AC[i]??(o.fc?FC[i]:null);
+    if(AC[i]!=null){const h=AC[i]*scale;s+=`<rect x="${x+slot*0.4}" y="${base-h}" width="${slot*0.38}" height="${h}" fill="${C_AC}"/>`;}
+    else if(o.fc){const h=FC[i]*scale;s+=`<rect x="${x+slot*0.4}" y="${base-h}" width="${slot*0.38}" height="${h}" fill="url(#${el}h)" stroke="#0F1E2E" stroke-width="1.5"/>`;}
+    if(v!=null&&!o.var){const topY=base-Math.max(v,o.pl?PL[i]:0,o.py?PY[i]:0)*scale;s+=`<text x="${x+slot*0.59}" y="${topY-8}" class="ts" text-anchor="middle">${v}</text>`;}
+    s+=`<text x="${x+slot/2}" y="${base+30}" class="tm" text-anchor="middle">${M[i]}</text>`;}
+  document.getElementById(el).innerHTML=s;
+}
+function structChart(el){
+  const rows=[['Germany',842,860],['USA',488,470],['Poland',402,380],['France',355,362],['Japan',318,340],['Switzerland',201,196],['UK',140,152],['Italy',92,90],['Netherlands',46,48]];
+  const W=900,lx=170,top=60,rh=44,max=900,bw=400,vx=750,vs=3;
+  let s=`<text x="${lx}" y="30" class="tm">AC solid, PL outlined, m EUR</text><text x="${vx}" y="30" class="tm" text-anchor="middle">ΔPL</text><line x1="${vx}" y1="${top-8}" x2="${vx}" y2="${top+rows.length*rh}" stroke="#0F1E2E"/>`;
+  rows.forEach(([n,ac,pl],i)=>{const y=top+i*rh,v=ac-pl,h=Math.abs(v)*vs;
+    s+=`<text x="${lx-12}" y="${y+27}" class="tm" text-anchor="end">${n}</text><rect x="${lx}" y="${y+6}" width="${pl/max*bw}" height="28" fill="none" stroke="#0F1E2E" stroke-width="2"/><rect x="${lx}" y="${y+11}" width="${ac/max*bw}" height="18" fill="#0F1E2E"/><text x="${lx+Math.max(ac,pl)/max*bw+12}" y="${y+27}" class="tm">${ac}</text>`;
+    s+=`<rect x="${v>=0?vx:vx-h}" y="${y+10}" width="${h}" height="20" fill="${v>=0?'#2E8B7A':'#C0392B'}"/><text x="${v>=0?vx+h+8:vx-h-8}" y="${y+27}" class="tm" text-anchor="${v>=0?'start':'end'}">${v>0?'+':''}${v}</text>`;});
+  s+=`<line x1="${lx}" y1="${top-8}" x2="${lx}" y2="${top+rows.length*rh}" stroke="#0F1E2E" stroke-width="2"/>`;
+  document.getElementById(el).innerHTML=s;
+}
+const frag3=[{py:false,pl:false,fc:false,t:'<b>Revenue</b> · actual by month'},{py:true,pl:false,fc:false,t:'<b>Revenue</b> · actual vs previous year'},{py:true,pl:true,fc:false,t:'<b>Revenue</b> · actual vs previous year and plan'},{py:true,pl:true,fc:true,t:'<b>Revenue</b> · landing 3,433 (AC Jan–Oct + FC Nov–Dec) vs PL 3,389, +1.3 %'}];
+function draw3(f){const o=frag3[f];timeChart('g3',{w:1000,h:480,...o,var:false});document.getElementById('t3').innerHTML=o.t;
+  document.querySelectorAll('#stage>.slide [data-frag]').forEach(c=>c.style.opacity=(+c.dataset.frag<=f)?1:.5);}
+// slide 4 and 5 use real renders now; the schematic chart functions stay for slide 3
+
+// ---- deck: scale, navigate, fragments, statement-first reveal, overview
+const slides=[...document.querySelectorAll('#stage>.slide')]; let cur=0, frag=0, revealed=true, ovOpen=false, sel=0, leaveT=0, ov=null;
+const stage=document.getElementById('stage');
+const RM=matchMedia('(prefers-reduced-motion: reduce)'), still=()=>RM.matches;
+const isContent=s=>!s.classList.contains('bi');
+const nfr=i=>+(slides[i].dataset.frags||1);
+function fit(){const s=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform=`translate(-50%,-50%) scale(${s})`;stage.style.transformOrigin='center';}
+
+// groups (data-chapter), breadcrumb, chapter progress
+const groups=[];
+slides.forEach((s,i)=>{const name=s.dataset.chapter||'';let g=groups[groups.length-1];if(!g||g.name!==name){g={name,idx:[]};groups.push(g);}g.idx.push(i);s._g=g;});
+slides.forEach((s,i)=>{if(!isContent(s))return;const c=document.createElement('div');c.className='crumb';c.textContent=s._g.name;s.appendChild(c);});
+const chaps=document.createElement('div');chaps.id='chaps';
+groups.forEach(g=>{const seg=document.createElement('i');seg.style.flex=g.idx.length;seg.title=g.name;g.fill=document.createElement('b');seg.appendChild(g.fill);chaps.appendChild(seg);});
+document.body.appendChild(chaps);
+
+// statement state: kicker + title centred and enlarged (FLIP via transform, no reflow)
+const parts=s=>[s.querySelector(':scope>.kicker'),s.querySelector(':scope>h2.t')].filter(Boolean);
+function measure(s,els){
+  els.forEach(e=>e.style.transform='none');
+  const sr=s.getBoundingClientRect(),k=sr.width/1920;let L=1e9,R=-1e9;
+  els.forEach(e=>{const r=document.createRange();r.selectNodeContents(e);const b=r.getBoundingClientRect();L=Math.min(L,(b.left-sr.left)/k);R=Math.max(R,(b.right-sr.left)/k);});
+  const last=els[els.length-1],T=els[0].offsetTop,B=last.offsetTop+last.offsetHeight;
+  const sc=s.querySelector(':scope>h2.t')?1.5:2.4,cx=(1920-sc*(R-L))/2,cy=(1080-sc*(B-T))/2-20;
+  return els.map(e=>`translate(${(cx+sc*(e.offsetLeft-L)-e.offsetLeft).toFixed(1)}px,${(cy+sc*(e.offsetTop-T)-e.offsetTop).toFixed(1)}px) scale(${sc})`);
+}
+function setStmt(s,on,anim){
+  if(!isContent(s))return;anim=anim&&!still();const els=parts(s);
+  s.classList.add('inst');let tr=[];
+  if(on){const keep=els.map(e=>e.style.transform);tr=measure(s,els);els.forEach((e,i)=>e.style.transform=keep[i]);}
+  void s.offsetWidth;if(anim)s.classList.remove('inst');
+  els.forEach((e,i)=>e.style.transform=on?tr[i]:'');
+  s.classList.toggle('stmt',on);void s.offsetWidth;s.classList.remove('inst');
+}
+
+// navigation
+function render(){document.getElementById('hud').textContent=`${cur+1} / ${slides.length}`;document.getElementById('bar').style.width=((cur+1)/slides.length*100)+'%';
+  groups.forEach(g=>g.fill.style.width=(g.idx.filter(i=>i<=cur).length/g.idx.length*100)+'%');
+  if(location.hash!=='#'+(cur+1))location.hash='#'+(cur+1);}
+function enter(n,{stmt=false,f=0,anim=true}={}){
+  n=Math.max(0,Math.min(slides.length-1,n));const old=slides[cur],nw=slides[n];anim=anim&&!still()&&old!==nw;
+  clearTimeout(leaveT);
+  slides.forEach(s=>{s.classList.remove('leaving');if(s!==nw){s.classList.remove('on');if(s!==old||!anim)setStmt(s,false,false);}});
+  cur=n;frag=f;revealed=!(stmt&&isContent(nw));
+  nw.classList.add('on');if(nw.dataset.frags)draw3(frag);
+  setStmt(nw,!revealed,false);
+  if(anim){old.classList.add('leaving');nw.animate([{opacity:0},{opacity:1}],{duration:180,easing:'ease-out'});
+    leaveT=setTimeout(()=>{old.classList.remove('leaving');if(old!==slides[cur])setStmt(old,false,false);},200);}
+  render();
+}
+// programmatic API (render script): slide i fully revealed at fragment f, no animation
+function show(n,f=0){closeOv();enter(n,{f,anim:false});}
+function next(){const s=slides[cur];
+  if(!revealed){revealed=true;setStmt(s,false,true);return;}
+  if(frag<nfr(cur)-1){frag++;draw3(frag);return;}
+  if(cur<slides.length-1)enter(cur+1,{stmt:true});}
+function prev(){const s=slides[cur];
+  if(revealed&&frag>0){frag--;draw3(frag);return;}
+  if(revealed&&isContent(s)){revealed=false;setStmt(s,true,true);return;}
+  if(cur>0)enter(cur-1,{f:nfr(cur-1)-1});}
+window.deckState=()=>({slide:cur,frag,revealed,overview:ovOpen});
+
+// overview: groups as blocks, live thumbnails (clones, ids stripped)
+function sanitize(c,i){
+  c.classList.remove('stmt','leaving','inst');c.classList.add('on');c.removeAttribute('data-frags');c.removeAttribute('data-chapter');
+  const ids={};c.querySelectorAll('[id]').forEach(e=>{if(e.closest('defs')){ids[e.id]=`ov${i}-${e.id}`;e.id=ids[e.id];}else e.removeAttribute('id');});
+  c.querySelectorAll('[fill],[stroke]').forEach(e=>['fill','stroke'].forEach(a=>{const m=(e.getAttribute(a)||'').match(/^url\(#(.+)\)$/);if(m&&ids[m[1]])e.setAttribute(a,`url(#${ids[m[1]]})`);}));
+  c.querySelectorAll('[data-frag]').forEach(e=>e.removeAttribute('data-frag'));
+  c.querySelectorAll('.kicker,h2.t').forEach(e=>e.style.transform='');
+  c.setAttribute('aria-hidden','true');c.inert=true;return c;
+}
+function buildOv(){
+  ov=document.createElement('div');ov.id='ov';
+  const h1=slides[0].querySelector('h1'),top=document.createElement('div');top.className='ov-top';
+  top.innerHTML=h1?h1.innerHTML.replace(/<br\s*\/?>/gi,' '):document.title;ov.appendChild(top);
+  const hint=document.createElement('div');hint.className='ov-hint';hint.textContent='Click a slide to open it · o or Esc to return';ov.appendChild(hint);
+  const wrap=document.createElement('div');wrap.className='ov-groups';ov.appendChild(wrap);
+  slides.forEach((s,i)=>{if(s.dataset.frags&&i!==cur)draw3(nfr(i)-1);});
+  if(slides[cur].dataset.frags)draw3(nfr(cur)-1);
+  const main=document.createElement('div');main.className='ov-main';wrap.appendChild(main);let step=0;
+  groups.forEach((g,gi)=>{
+    const isApp=/appendix/i.test(g.name);
+    const b=document.createElement('div');b.className='ov-g'+(isApp?' ov-appx':'');
+    const t=document.createElement('div');t.className='ov-gt';t.dataset.g=gi;
+    const a=g.idx[0]+1,z=g.idx[g.idx.length-1]+1;
+    t.innerHTML=(isApp?'':`<span class="no">Act ${++step}</span>`)+`<span></span><small>${a===z?'slide '+a:'slides '+a+'–'+z}</small>`;t.querySelector('span:not(.no)').textContent=g.name;b.appendChild(t);
+    const row=document.createElement('div');row.className='ov-row';
+    g.idx.forEach(i=>{const th=document.createElement('div');th.className='th';th.dataset.i=i;th.title=`${i+1}`;th.appendChild(sanitize(slides[i].cloneNode(true),i));row.appendChild(th);});
+    b.appendChild(row);
+    if(isApp){wrap.appendChild(b);}else{if(main.children.length){const ar=document.createElement('div');ar.className='ov-arrow';ar.textContent='→';main.appendChild(ar);}main.appendChild(b);}});
+  slides.forEach(s=>{if(s.dataset.frags)draw3(frag);});
+  stage.appendChild(ov);
+  ov.addEventListener('click',e=>{const th=e.target.closest('.th');if(th){zoomTo(+th.dataset.i);return;}
+    const gt=e.target.closest('.ov-gt');if(gt)zoomTo(groups[+gt.dataset.g].idx[0]);});
+}
+function mark(){ov.querySelectorAll('.th').forEach(t=>t.classList.toggle('cur',+t.dataset.i===sel));
+  ov.querySelectorAll('.ov-g').forEach((b,gi)=>b.classList.toggle('here',groups[gi].idx.includes(sel)));}
+function openOv(){if(ovOpen)return;if(!ov)buildOv();ovOpen=true;sel=cur;mark();stage.classList.add('ovopen');
+  if(!still())ov.animate([{opacity:0,transform:'scale(1.04)'},{opacity:1,transform:'none'}],{duration:220,easing:'ease-out'});}
+function closeOv(){if(!ovOpen)return;ovOpen=false;stage.classList.remove('ovopen');}
+function zoomTo(i){
+  const th=ov&&ov.querySelector(`.th[data-i="${i}"]`);ovOpen=false;sel=i;
+  enter(i,{f:nfr(i)-1,anim:false});
+  if(still()||!th){stage.classList.remove('ovopen');return;}
+  const r=th.getBoundingClientRect(),sr=stage.getBoundingClientRect(),k=sr.width/1920,s=slides[i];
+  s.style.zIndex=30;
+  const an=s.animate([{transform:`translate(${(r.left-sr.left)/k}px,${(r.top-sr.top)/k}px) scale(${r.width/k/1920})`},{transform:'none'}],{duration:380,easing:'cubic-bezier(.2,.7,.2,1)'});
+  an.onfinish=an.oncancel=()=>{s.style.zIndex='';if(!ovOpen)stage.classList.remove('ovopen');};
+}
+
+// input
+addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const k=e.key;
+  if(ovOpen){
+    if(k==='Escape'||k==='o'||k==='O'){e.preventDefault();closeOv();}
+    else if(['ArrowRight','ArrowDown','PageDown',' '].includes(k)){e.preventDefault();sel=Math.min(slides.length-1,sel+1);mark();}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(k)){e.preventDefault();sel=Math.max(0,sel-1);mark();}
+    else if(k==='Home'){sel=0;mark();}else if(k==='End'){sel=slides.length-1;mark();}
+    else if(k==='Enter'){e.preventDefault();zoomTo(sel);}
+    return;}
+  if(k==='h'||k==='H'){document.body.classList.toggle('hud');return;}
+  if(k==='o'||k==='O'||k==='Escape'){e.preventDefault();openOv();return;}
+  if(['ArrowRight','PageDown',' '].includes(k)){e.preventDefault();next();}
+  if(['ArrowLeft','PageUp'].includes(k)){e.preventDefault();prev();}
+  if(k==='Home')show(0);if(k==='End')show(slides.length-1);});
+addEventListener('click',e=>{if(e.target.closest('a,#ov')||ovOpen)return;(e.clientX>innerWidth/2?next:prev)();});
+addEventListener('hashchange',()=>{const n=(parseInt(location.hash.slice(1))||1)-1;if(n!==cur)show(n);});
+addEventListener('beforeprint',()=>slides.forEach(s=>{if(s.dataset.frags)draw3(nfr(slides.indexOf(s))-1);}));
+addEventListener('afterprint',()=>{if(slides[cur].dataset.frags)draw3(frag);else slides.forEach(s=>{if(s.dataset.frags)draw3(0);});});
+if(document.fonts)document.fonts.addEventListener('loadingdone',()=>{if(!revealed)setStmt(slides[cur],true,false);});
+addEventListener('resize',fit);fit();
+show((parseInt(location.hash.slice(1))||1)-1);
+</script>
+</body>
+</html>
