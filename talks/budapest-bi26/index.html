@@ -151,6 +151,10 @@ table.mx td.plus::before{content:"+ ";color:var(--good);font-weight:900} table.m
 .slide.stmt>:not(.kicker):not(h2.t):not(.crumb){opacity:0;transform:translateY(24px);transition-duration:.25s;transition-delay:0s}
 .slide.inst,.slide.inst *{transition:none!important}
 .crumb{position:absolute;right:96px;top:28px;font-size:20px;color:var(--soft)}
+/* statement state scales kicker+title 1.5x without reflow: cap their layout width so the scaled text fits the 1920 slide and long titles wrap onto two lines */
+.slide.stmt>.kicker,.slide.measuring>.kicker{max-width:1120px;text-wrap:balance}
+.slide.stmt>h2.t,.slide.measuring>h2.t{text-wrap:balance}
+.slide.stmt>h2.t[style*="max-width"],.slide.measuring>h2.t[style*="max-width"]{max-width:1120px!important}
 
 /* overview */
 #ov{position:absolute;inset:0;z-index:20;background:var(--bg);display:none;flex-direction:column;align-items:center;padding:44px 64px 40px}
@@ -764,11 +768,12 @@ document.body.appendChild(chaps);
 // statement state: kicker + title centred and enlarged (FLIP via transform, no reflow)
 const parts=s=>[s.querySelector(':scope>.kicker'),s.querySelector(':scope>h2.t')].filter(Boolean);
 function measure(s,els){
-  els.forEach(e=>e.style.transform='none');
+  s.classList.add('measuring');els.forEach(e=>e.style.transform='none');
   const sr=s.getBoundingClientRect(),k=sr.width/1920;let L=1e9,R=-1e9;
   els.forEach(e=>{const r=document.createRange();r.selectNodeContents(e);const b=r.getBoundingClientRect();L=Math.min(L,(b.left-sr.left)/k);R=Math.max(R,(b.right-sr.left)/k);});
   const last=els[els.length-1],T=els[0].offsetTop,B=last.offsetTop+last.offsetHeight;
   const sc=s.querySelector(':scope>h2.t')?1.5:2.4,cx=(1920-sc*(R-L))/2,cy=(1080-sc*(B-T))/2-20;
+  s.classList.remove('measuring');
   return els.map(e=>`translate(${(cx+sc*(e.offsetLeft-L)-e.offsetLeft).toFixed(1)}px,${(cy+sc*(e.offsetTop-T)-e.offsetTop).toFixed(1)}px) scale(${sc})`);
 }
 function setStmt(s,on,anim){
