@@ -1,0 +1,660 @@
+{
+ "estimator": "Sonnet 5.5 (Schätzer C, skeptischer Controller/CFO-Berater)",
+ "segments": {
+  "klein": {
+   "share": 0.38,
+   "creators": [
+    1,
+    2,
+    4
+   ],
+   "viewers": [
+    5,
+    20,
+    60
+   ],
+   "ssShare": [
+    40,
+    70,
+    100
+   ],
+   "types": [
+    3,
+    5,
+    7
+   ],
+   "reportsFactor": [
+    0.5,
+    0.9,
+    1.3
+   ],
+   "models": [
+    1,
+    2,
+    4
+   ],
+   "horizon": {
+    "3": 0.5,
+    "5": 0.4,
+    "10": 0.1
+   },
+   "licAnchor": {
+    "inforiver": 0.55,
+    "enterprise": 0.35,
+    "zebra": 0.1
+   },
+   "siteLicense": 0.02,
+   "reportClasses": {
+    "op": 0.3,
+    "mix": 0.5,
+    "mgmt": 0.2
+   },
+   "ibcsAll": 0.05,
+   "baseline": {
+    "none": 0.45,
+    "paid": 0.12,
+    "oss": 0.06,
+    "deneb": 0.07,
+    "core": 0.3
+   },
+   "existingPerCreator": [
+    3,
+    8,
+    20
+   ],
+   "dist": {
+    "none": 0.45,
+    "app": 0.35,
+    "org": 0.05,
+    "file": 0.15
+   },
+   "library": 0.08,
+   "ossBuild": {
+    "ready": 0.6,
+    "ki": 0.3,
+    "classic": 0.1
+   },
+   "flags": {
+    "certonly": 0.15,
+    "orgstore": 0.35,
+    "coreonly": 0.05,
+    "ibcsmust": 0.02,
+    "nobudget": 0.3,
+    "rs": 0.05,
+    "embed": 0.04,
+    "sovereign": 0.01,
+    "novat": 0.03,
+    "budgetnext": 0.25,
+    "euonly": 0.08,
+    "noext": 0.03,
+    "revision": 0.05
+   },
+   "must": {
+    "ibcscert": 0.03,
+    "mscert": 0.2,
+    "export": 0.45,
+    "writeback": 0.1,
+    "maint": 0.55,
+    "copilot": 0.1,
+    "a11y": 0.1,
+    "rs": 0.04,
+    "paginated": 0.08,
+    "exit": 0.15,
+    "sla": 0.12,
+    "bus": 0.3,
+    "datares": 0.15,
+    "interact": 0.4,
+    "drill": 0.35
+   }
+  },
+  "mittelstand": {
+   "share": 0.3,
+   "creators": [
+    2,
+    4,
+    10
+   ],
+   "viewers": [
+    30,
+    120,
+    400
+   ],
+   "ssShare": [
+    20,
+    45,
+    80
+   ],
+   "types": [
+    4,
+    6,
+    8
+   ],
+   "reportsFactor": [
+    0.6,
+    1,
+    1.4
+   ],
+   "models": [
+    2,
+    4,
+    8
+   ],
+   "horizon": {
+    "3": 0.4,
+    "5": 0.5,
+    "10": 0.1
+   },
+   "licAnchor": {
+    "inforiver": 0.45,
+    "enterprise": 0.4,
+    "zebra": 0.15
+   },
+   "siteLicense": 0.06,
+   "reportClasses": {
+    "op": 0.3,
+    "mix": 0.5,
+    "mgmt": 0.2
+   },
+   "ibcsAll": 0.06,
+   "baseline": {
+    "none": 0.35,
+    "paid": 0.22,
+    "oss": 0.05,
+    "deneb": 0.08,
+    "core": 0.3
+   },
+   "existingPerCreator": [
+    4,
+    10,
+    25
+   ],
+   "dist": {
+    "none": 0.35,
+    "app": 0.35,
+    "org": 0.15,
+    "file": 0.15
+   },
+   "library": 0.12,
+   "ossBuild": {
+    "ready": 0.5,
+    "ki": 0.3,
+    "classic": 0.2
+   },
+   "flags": {
+    "certonly": 0.25,
+    "orgstore": 0.45,
+    "coreonly": 0.06,
+    "ibcsmust": 0.05,
+    "nobudget": 0.2,
+    "rs": 0.08,
+    "embed": 0.05,
+    "sovereign": 0.01,
+    "novat": 0.04,
+    "budgetnext": 0.25,
+    "euonly": 0.1,
+    "noext": 0.05,
+    "revision": 0.12
+   },
+   "must": {
+    "ibcscert": 0.06,
+    "mscert": 0.28,
+    "export": 0.55,
+    "writeback": 0.15,
+    "maint": 0.55,
+    "copilot": 0.1,
+    "a11y": 0.12,
+    "rs": 0.06,
+    "paginated": 0.12,
+    "exit": 0.18,
+    "sla": 0.2,
+    "bus": 0.45,
+    "datares": 0.2,
+    "interact": 0.4,
+    "drill": 0.38
+   }
+  },
+  "gehoben": {
+   "share": 0.08,
+   "creators": [
+    5,
+    12,
+    30
+   ],
+   "viewers": [
+    200,
+    800,
+    3000
+   ],
+   "ssShare": [
+    10,
+    30,
+    60
+   ],
+   "types": [
+    5,
+    6,
+    8
+   ],
+   "reportsFactor": [
+    0.7,
+    1,
+    1.5
+   ],
+   "models": [
+    4,
+    8,
+    20
+   ],
+   "horizon": {
+    "3": 0.3,
+    "5": 0.5,
+    "10": 0.2
+   },
+   "licAnchor": {
+    "inforiver": 0.25,
+    "enterprise": 0.5,
+    "zebra": 0.25
+   },
+   "siteLicense": 0.2,
+   "reportClasses": {
+    "op": 0.35,
+    "mix": 0.45,
+    "mgmt": 0.2
+   },
+   "ibcsAll": 0.1,
+   "baseline": {
+    "none": 0.25,
+    "paid": 0.3,
+    "oss": 0.05,
+    "deneb": 0.08,
+    "core": 0.32
+   },
+   "existingPerCreator": [
+    5,
+    12,
+    30
+   ],
+   "dist": {
+    "none": 0.15,
+    "app": 0.3,
+    "org": 0.4,
+    "file": 0.15
+   },
+   "library": 0.2,
+   "ossBuild": {
+    "ready": 0.4,
+    "ki": 0.3,
+    "classic": 0.3
+   },
+   "flags": {
+    "certonly": 0.4,
+    "orgstore": 0.55,
+    "coreonly": 0.08,
+    "ibcsmust": 0.1,
+    "nobudget": 0.12,
+    "rs": 0.1,
+    "embed": 0.08,
+    "sovereign": 0.02,
+    "novat": 0.05,
+    "budgetnext": 0.2,
+    "euonly": 0.12,
+    "noext": 0.1,
+    "revision": 0.25
+   },
+   "must": {
+    "ibcscert": 0.1,
+    "mscert": 0.4,
+    "export": 0.65,
+    "writeback": 0.22,
+    "maint": 0.55,
+    "copilot": 0.12,
+    "a11y": 0.22,
+    "rs": 0.08,
+    "paginated": 0.18,
+    "exit": 0.25,
+    "sla": 0.35,
+    "bus": 0.6,
+    "datares": 0.3,
+    "interact": 0.42,
+    "drill": 0.45
+   }
+  },
+  "konzern": {
+   "share": 0.03,
+   "creators": [
+    15,
+    40,
+    150
+   ],
+   "viewers": [
+    1000,
+    5000,
+    30000
+   ],
+   "ssShare": [
+    5,
+    25,
+    50
+   ],
+   "types": [
+    5,
+    7,
+    10
+   ],
+   "reportsFactor": [
+    0.7,
+    1,
+    1.6
+   ],
+   "models": [
+    10,
+    25,
+    80
+   ],
+   "horizon": {
+    "3": 0.2,
+    "5": 0.5,
+    "10": 0.3
+   },
+   "licAnchor": {
+    "inforiver": 0.15,
+    "enterprise": 0.5,
+    "zebra": 0.35
+   },
+   "siteLicense": 0.45,
+   "reportClasses": {
+    "op": 0.4,
+    "mix": 0.4,
+    "mgmt": 0.2
+   },
+   "ibcsAll": 0.12,
+   "baseline": {
+    "none": 0.15,
+    "paid": 0.3,
+    "oss": 0.05,
+    "deneb": 0.1,
+    "core": 0.4
+   },
+   "existingPerCreator": [
+    5,
+    15,
+    40
+   ],
+   "dist": {
+    "none": 0.08,
+    "app": 0.22,
+    "org": 0.55,
+    "file": 0.15
+   },
+   "library": 0.3,
+   "ossBuild": {
+    "ready": 0.3,
+    "ki": 0.3,
+    "classic": 0.4
+   },
+   "flags": {
+    "certonly": 0.55,
+    "orgstore": 0.6,
+    "coreonly": 0.1,
+    "ibcsmust": 0.12,
+    "nobudget": 0.08,
+    "rs": 0.12,
+    "embed": 0.1,
+    "sovereign": 0.03,
+    "novat": 0.06,
+    "budgetnext": 0.15,
+    "euonly": 0.15,
+    "noext": 0.2,
+    "revision": 0.4
+   },
+   "must": {
+    "ibcscert": 0.12,
+    "mscert": 0.55,
+    "export": 0.75,
+    "writeback": 0.28,
+    "maint": 0.6,
+    "copilot": 0.18,
+    "a11y": 0.35,
+    "rs": 0.1,
+    "paginated": 0.22,
+    "exit": 0.35,
+    "sla": 0.55,
+    "bus": 0.75,
+    "datares": 0.4,
+    "interact": 0.45,
+    "drill": 0.5
+   }
+  },
+  "finanz": {
+   "share": 0.1,
+   "creators": [
+    3,
+    10,
+    40
+   ],
+   "viewers": [
+    100,
+    800,
+    8000
+   ],
+   "ssShare": [
+    5,
+    20,
+    50
+   ],
+   "types": [
+    4,
+    6,
+    8
+   ],
+   "reportsFactor": [
+    0.7,
+    1,
+    1.5
+   ],
+   "models": [
+    3,
+    8,
+    30
+   ],
+   "horizon": {
+    "3": 0.25,
+    "5": 0.5,
+    "10": 0.25
+   },
+   "licAnchor": {
+    "inforiver": 0.2,
+    "enterprise": 0.5,
+    "zebra": 0.3
+   },
+   "siteLicense": 0.22,
+   "reportClasses": {
+    "op": 0.35,
+    "mix": 0.4,
+    "mgmt": 0.25
+   },
+   "ibcsAll": 0.08,
+   "baseline": {
+    "none": 0.25,
+    "paid": 0.25,
+    "oss": 0.03,
+    "deneb": 0.06,
+    "core": 0.41
+   },
+   "existingPerCreator": [
+    4,
+    12,
+    30
+   ],
+   "dist": {
+    "none": 0.08,
+    "app": 0.15,
+    "org": 0.62,
+    "file": 0.15
+   },
+   "library": 0.2,
+   "ossBuild": {
+    "ready": 0.3,
+    "ki": 0.3,
+    "classic": 0.4
+   },
+   "flags": {
+    "certonly": 0.7,
+    "orgstore": 0.45,
+    "coreonly": 0.2,
+    "ibcsmust": 0.08,
+    "nobudget": 0.15,
+    "rs": 0.22,
+    "embed": 0.04,
+    "sovereign": 0.08,
+    "novat": 0.85,
+    "budgetnext": 0.25,
+    "euonly": 0.35,
+    "noext": 0.3,
+    "revision": 0.75
+   },
+   "must": {
+    "ibcscert": 0.1,
+    "mscert": 0.7,
+    "export": 0.65,
+    "writeback": 0.22,
+    "maint": 0.6,
+    "copilot": 0.1,
+    "a11y": 0.3,
+    "rs": 0.18,
+    "paginated": 0.3,
+    "exit": 0.4,
+    "sla": 0.65,
+    "bus": 0.75,
+    "datares": 0.6,
+    "interact": 0.4,
+    "drill": 0.45
+   }
+  },
+  "oeffentlich": {
+   "share": 0.11,
+   "creators": [
+    1,
+    3,
+    10
+   ],
+   "viewers": [
+    30,
+    200,
+    1500
+   ],
+   "ssShare": [
+    10,
+    35,
+    70
+   ],
+   "types": [
+    3,
+    5,
+    7
+   ],
+   "reportsFactor": [
+    0.5,
+    0.9,
+    1.3
+   ],
+   "models": [
+    1,
+    3,
+    8
+   ],
+   "horizon": {
+    "3": 0.3,
+    "5": 0.5,
+    "10": 0.2
+   },
+   "licAnchor": {
+    "inforiver": 0.55,
+    "enterprise": 0.35,
+    "zebra": 0.1
+   },
+   "siteLicense": 0.1,
+   "reportClasses": {
+    "op": 0.5,
+    "mix": 0.35,
+    "mgmt": 0.15
+   },
+   "ibcsAll": 0.03,
+   "baseline": {
+    "none": 0.4,
+    "paid": 0.06,
+    "oss": 0.03,
+    "deneb": 0.03,
+    "core": 0.48
+   },
+   "existingPerCreator": [
+    3,
+    8,
+    20
+   ],
+   "dist": {
+    "none": 0.15,
+    "app": 0.15,
+    "org": 0.45,
+    "file": 0.25
+   },
+   "library": 0.06,
+   "ossBuild": {
+    "ready": 0.35,
+    "ki": 0.25,
+    "classic": 0.4
+   },
+   "flags": {
+    "certonly": 0.65,
+    "orgstore": 0.35,
+    "coreonly": 0.25,
+    "ibcsmust": 0.02,
+    "nobudget": 0.4,
+    "rs": 0.3,
+    "embed": 0.06,
+    "sovereign": 0.12,
+    "novat": 0.9,
+    "budgetnext": 0.55,
+    "euonly": 0.5,
+    "noext": 0.55,
+    "revision": 0.45
+   },
+   "must": {
+    "ibcscert": 0.03,
+    "mscert": 0.55,
+    "export": 0.55,
+    "writeback": 0.08,
+    "maint": 0.6,
+    "copilot": 0.05,
+    "a11y": 0.55,
+    "rs": 0.25,
+    "paginated": 0.45,
+    "exit": 0.45,
+    "sla": 0.4,
+    "bus": 0.65,
+    "datares": 0.65,
+    "interact": 0.3,
+    "drill": 0.3
+   }
+  }
+ },
+ "rationale": {
+  "share": "Schätzung ohne Websuche: Zahlenmäßig dominieren KMU, aber nur ein Teil führt bis Ende 2027 aktiv einen Finance-Visual-Standard ein; Finanz und Öffentlich überproportional vertreten, weil Standardisierungsdruck und Revision hoch sind.",
+  "klein": "Wenige Köpfe, viel Self-Service; Budget oft knapp, Core-Visuals oder nichts im Einsatz. Schätzung.",
+  "mittelstand": "Kleines Controlling-/BI-Team, Excel-Altlast; gekaufte Visuals nur wo Budget da ist. Schätzung.",
+  "gehoben": "Mehr Governance, Org-Store üblich, Site-Lizenz wird verhandelt. Schätzung.",
+  "konzern": "CoE, zentrale Freigabe, hohe Revisionsanforderung; Site-Lizenz wahrscheinlich, aber Beschaffung langsam. Schätzung.",
+  "finanz": "Kein Vorsteuerabzug, strenge Tenant-Regeln (certified only), Revision und Datenresidenz sind oft K.O. Schätzung.",
+  "oeffentlich": "Vergaberecht, kein Budget vor Folgejahr, Report Server und Core-only häufig, Barrierefreiheit Pflicht (BITV). Schätzung.",
+  "baseline": "Skeptisch: Die meisten haben heute keinen echten Standard, sondern Core-Visuals mit Workarounds; gekaufte Visuals sind Minderheit, weil Lizenzbudget in Praxis schwer durchzusetzen ist.",
+  "flags/must": "Muss-Kriterien werden in Ausschreibungen gern gesetzt, in der Praxis aber verhandelt; ich setze mittlere Werte für mscert, export, bus, sla und niedrige für ibcscert, copilot, writeback. Schätzung."
+ },
+ "sources": [],
+ "biggest_uncertainties": [
+  "Keine Websuche durchgeführt; alle Anteile sind begründete Schätzungen, ohne belegte Größenverteilung der Power-BI-Organisationen im DACH-Raum.",
+  "Anteil der Organisationen mit certified-only bzw. Core-only Tenant-Policy, besonders in KMU und Mittelstand.",
+  "Tatsächliche Quote von Site-Lizenzen und Preisverhandlungen bei Konzernen.",
+  "Wie viele KMU überhaupt einen formalen Standard einführen statt weiter ad hoc zu bauen (Gewichtung des Segments klein).",
+  "Ob Must-Kriterien real K.O. sind oder in der Beschaffung aufgeweicht werden."
+ ]
+}

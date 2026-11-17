@@ -1,0 +1,42 @@
+{
+"estimator":"Claude Sonnet 5.5 (Schaetzer B, IT-/BI-Leitungs-Perspektive, ohne Websuche)",
+"segments":{
+"klein":{"share":0.50,"creators":[1,2,4],"viewers":[5,25,100],"ssShare":[40,70,100],"types":[3,5,7],"reportsFactor":[0.5,1,1.5],"models":[1,2,4],"horizon":{"3":0.5,"5":0.4,"10":0.1},"licAnchor":{"inforiver":0.55,"enterprise":0.35,"zebra":0.10},"siteLicense":0.02,"reportClasses":{"op":0.30,"mix":0.50,"mgmt":0.20},"ibcsAll":0.05,"baseline":{"none":0.45,"paid":0.12,"oss":0.03,"deneb":0.05,"core":0.35},"existingPerCreator":[3,10,25],"dist":{"none":0.45,"app":0.35,"org":0.05,"file":0.15},"library":0.10,"ossBuild":{"ready":0.6,"ki":0.3,"classic":0.1},
+"flags":{"certonly":0.10,"orgstore":0.30,"coreonly":0.05,"ibcsmust":0.02,"nobudget":0.25,"rs":0.05,"embed":0.05,"sovereign":0.01,"novat":0.02,"budgetnext":0.25,"euonly":0.05,"noext":0.03,"revision":0.05},
+"must":{"ibcscert":0.03,"mscert":0.15,"export":0.45,"writeback":0.08,"maint":0.55,"copilot":0.08,"a11y":0.08,"rs":0.04,"paginated":0.10,"exit":0.20,"sla":0.08,"bus":0.35,"datares":0.12,"interact":0.50,"drill":0.50}},
+"mittelstand":{"share":0.25,"creators":[2,4,10],"viewers":[30,150,600],"ssShare":[20,45,80],"types":[4,6,8],"reportsFactor":[0.6,1,1.6],"models":[2,4,10],"horizon":{"3":0.4,"5":0.5,"10":0.1},"licAnchor":{"inforiver":0.45,"enterprise":0.40,"zebra":0.15},"siteLicense":0.08,"reportClasses":{"op":0.30,"mix":0.50,"mgmt":0.20},"ibcsAll":0.08,"baseline":{"none":0.35,"paid":0.20,"oss":0.03,"deneb":0.07,"core":0.35},"existingPerCreator":[4,12,30],"dist":{"none":0.35,"app":0.35,"org":0.15,"file":0.15},"library":0.15,"ossBuild":{"ready":0.55,"ki":0.30,"classic":0.15},
+"flags":{"certonly":0.20,"orgstore":0.40,"coreonly":0.06,"ibcsmust":0.04,"nobudget":0.15,"rs":0.08,"embed":0.05,"sovereign":0.01,"novat":0.03,"budgetnext":0.25,"euonly":0.08,"noext":0.05,"revision":0.15},
+"must":{"ibcscert":0.06,"mscert":0.25,"export":0.55,"writeback":0.12,"maint":0.60,"copilot":0.12,"a11y":0.12,"rs":0.06,"paginated":0.15,"exit":0.25,"sla":0.15,"bus":0.50,"datares":0.18,"interact":0.50,"drill":0.55}},
+"gehoben":{"share":0.06,"creators":[6,15,40],"viewers":[200,800,3000],"ssShare":[15,35,70],"types":[5,7,10],"reportsFactor":[0.6,1,1.8],"models":[4,10,30],"horizon":{"3":0.25,"5":0.55,"10":0.20},"licAnchor":{"inforiver":0.35,"enterprise":0.45,"zebra":0.20},"siteLicense":0.30,"reportClasses":{"op":0.25,"mix":0.45,"mgmt":0.30},"ibcsAll":0.12,"baseline":{"none":0.25,"paid":0.25,"oss":0.04,"deneb":0.08,"core":0.38},"existingPerCreator":[5,15,40],"dist":{"none":0.15,"app":0.30,"org":0.40,"file":0.15},"library":0.25,"ossBuild":{"ready":0.45,"ki":0.30,"classic":0.25},
+"flags":{"certonly":0.35,"orgstore":0.55,"coreonly":0.08,"ibcsmust":0.08,"nobudget":0.08,"rs":0.10,"embed":0.08,"sovereign":0.02,"novat":0.08,"budgetnext":0.25,"euonly":0.15,"noext":0.10,"revision":0.30},
+"must":{"ibcscert":0.10,"mscert":0.40,"export":0.65,"writeback":0.20,"maint":0.60,"copilot":0.20,"a11y":0.25,"rs":0.08,"paginated":0.20,"exit":0.35,"sla":0.35,"bus":0.65,"datares":0.30,"interact":0.55,"drill":0.60}},
+"konzern":{"share":0.02,"creators":[20,60,250],"viewers":[1000,5000,30000],"ssShare":[10,25,60],"types":[6,8,12],"reportsFactor":[0.5,1,2],"models":[10,30,100],"horizon":{"3":0.15,"5":0.50,"10":0.35},"licAnchor":{"inforiver":0.20,"enterprise":0.50,"zebra":0.30},"siteLicense":0.55,"reportClasses":{"op":0.25,"mix":0.40,"mgmt":0.35},"ibcsAll":0.15,"baseline":{"none":0.15,"paid":0.30,"oss":0.05,"deneb":0.10,"core":0.40},"existingPerCreator":[5,15,40],"dist":{"none":0.05,"app":0.20,"org":0.60,"file":0.15},"library":0.35,"ossBuild":{"ready":0.35,"ki":0.30,"classic":0.35},
+"flags":{"certonly":0.50,"orgstore":0.65,"coreonly":0.10,"ibcsmust":0.12,"nobudget":0.04,"rs":0.12,"embed":0.10,"sovereign":0.03,"novat":0.10,"budgetnext":0.20,"euonly":0.25,"noext":0.20,"revision":0.40},
+"must":{"ibcscert":0.12,"mscert":0.55,"export":0.70,"writeback":0.30,"maint":0.55,"copilot":0.30,"a11y":0.45,"rs":0.10,"paginated":0.30,"exit":0.45,"sla":0.55,"bus":0.80,"datares":0.45,"interact":0.55,"drill":0.65}},
+"finanz":{"share":0.08,"creators":[3,12,60],"viewers":[100,800,8000],"ssShare":[5,20,50],"types":[5,7,10],"reportsFactor":[0.6,1,1.8],"models":[3,8,30],"horizon":{"3":0.15,"5":0.50,"10":0.35},"licAnchor":{"inforiver":0.25,"enterprise":0.50,"zebra":0.25},"siteLicense":0.25,"reportClasses":{"op":0.25,"mix":0.40,"mgmt":0.35},"ibcsAll":0.12,"baseline":{"none":0.20,"paid":0.25,"oss":0.03,"deneb":0.07,"core":0.45},"existingPerCreator":[5,15,40],"dist":{"none":0.10,"app":0.15,"org":0.55,"file":0.20},"library":0.20,"ossBuild":{"ready":0.30,"ki":0.30,"classic":0.40},
+"flags":{"certonly":0.65,"orgstore":0.50,"coreonly":0.20,"ibcsmust":0.10,"nobudget":0.05,"rs":0.25,"embed":0.05,"sovereign":0.05,"novat":0.95,"budgetnext":0.25,"euonly":0.45,"noext":0.35,"revision":0.80},
+"must":{"ibcscert":0.10,"mscert":0.60,"export":0.70,"writeback":0.25,"maint":0.55,"copilot":0.12,"a11y":0.35,"rs":0.20,"paginated":0.40,"exit":0.50,"sla":0.60,"bus":0.80,"datares":0.60,"interact":0.50,"drill":0.60}},
+"oeffentlich":{"share":0.09,"creators":[1,4,15],"viewers":[50,300,3000],"ssShare":[10,30,60],"types":[4,6,8],"reportsFactor":[0.5,1,1.6],"models":[2,5,15],"horizon":{"3":0.20,"5":0.50,"10":0.30},"licAnchor":{"inforiver":0.45,"enterprise":0.40,"zebra":0.15},"siteLicense":0.15,"reportClasses":{"op":0.45,"mix":0.40,"mgmt":0.15},"ibcsAll":0.04,"baseline":{"none":0.40,"paid":0.08,"oss":0.04,"deneb":0.03,"core":0.45},"existingPerCreator":[3,10,25],"dist":{"none":0.20,"app":0.15,"org":0.35,"file":0.30},"library":0.08,"ossBuild":{"ready":0.35,"ki":0.25,"classic":0.40},
+"flags":{"certonly":0.55,"orgstore":0.35,"coreonly":0.25,"ibcsmust":0.03,"nobudget":0.30,"rs":0.30,"embed":0.10,"sovereign":0.15,"novat":0.90,"budgetnext":0.55,"euonly":0.60,"noext":0.50,"revision":0.50},
+"must":{"ibcscert":0.04,"mscert":0.45,"export":0.60,"writeback":0.10,"maint":0.60,"copilot":0.08,"a11y":0.55,"rs":0.25,"paginated":0.45,"exit":0.50,"sla":0.40,"bus":0.70,"datares":0.55,"interact":0.40,"drill":0.45}}
+},
+"rationale":{
+"share":"Schaetzung ohne Quelle: DACH-Unternehmen sind zu >99 % KMU, aber Power-BI-Produktivnutzer mit Finance-Standard-Vorhaben sind zu den mittleren Groessen verschoben; klein 50 %, Mittelstand 25 %, Finanz 8 % und Oeffentlich 9 % (Kommunen/Hochschulen/Krankenhaeuser) als eigene Segmente, gehoben 6 %, Konzern 2 % (wenige hundert Organisationen).",
+"klein":"Schaetzung: 1-3 Ersteller, Self-Service hoch, wenig Budget und selten restriktive Tenant-Regeln; Core-Workarounds und 'none' dominieren die Baseline.",
+"mittelstand":"Schaetzung: kleines Controlling-/BI-Team, haeufig AppSource-Visuals im Einsatz, Beratungsabhaengigkeit, Bus-Faktor ist ein haeufiges Thema.",
+"gehoben":"Schaetzung: BI-Team plus Fachbereichs-Ersteller, Organizational Store verbreitet, Site-Lizenzen werden verhandelt, Revision/Datenresidenz spielen mit.",
+"konzern":"Schaetzung: Center of Excellence, Governance-getrieben; certified-only oder Org-Store, Site-Lizenz wahrscheinlich, lange Horizonte, viele Modelle.",
+"finanz":"Schaetzung: Vorsteuerabzug weitgehend nicht vorhanden (Banken/Versicherungen/Krankenhaeuser), Revision und Tenant-Restriktionen hoch, Report Server und paginierte Berichte ueberdurchschnittlich.",
+"oeffentlich":"Schaetzung: Haushalts-/Vergaberecht, EU-Datenstandort, Budget oft erst im Folgejahr, Barrierefreiheit (BITV) als Must haeufig, Report Server und Sovereign-Szenarien ueberdurchschnittlich, IBCS selten.",
+"flags/must":"Schaetzung aus Projekterfahrung (Mittelstand und Konzern); keine belastbare Statistik zu 'certified only' oder Report-Server-Anteilen gefunden bzw. gesucht.",
+"baseline":"Schaetzung: Bei Standardisierungsvorhaben ist 'noch nichts Einheitliches' (none/core) der Normalfall; gekaufte Visuals steigen mit der Groesse."
+},
+"sources":[],
+"biggest_uncertainties":[
+"Segmentanteile (share): keine Quelle verwendet; insbesondere Anteil klein vs. Mittelstand in der Grundgesamtheit 'will in 12 Monaten einen Finance-Standard einfuehren'.",
+"Anteil certonly/coreonly je Segment (v. a. finanz, oeffentlich, konzern); in der Praxis stark variabel und selten dokumentiert.",
+"Baseline-Verteilung (paid vs. core vs. none) und Bestandsreports je Ersteller; haengt stark davon ab, wie viele schon ein Visual gekauft haben.",
+"Must-Wahrscheinlichkeiten (sla, mscert, a11y, paginated) sind Erfahrungswerte, keine Erhebung.",
+"Viewer- und Ersteller-Spannen bei Konzern/Finanz (Schwanz nach oben, sehr breit)."
+]
+}

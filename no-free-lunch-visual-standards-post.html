@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No free lunch: 100.000 Firmen, vier Wege zum Visual-Standard · Daten-WG</title>
+<link rel="alternate" type="text/markdown" title="Markdown" href="blog/no-free-lunch-visual-standards.md">
+<meta name="description" content="Wir haben 100.000 Organisationen durch den Visual-Standards-Rechner geschickt: Paid-Visual, Open Source, Deneb oder Core + SVG. Keiner der vier Wege gewinnt immer. Welche Kosten zählen und welche Entscheidungen die Rangfolge kippen.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="No free lunch: 100.000 Firmen, vier Wege, kein Sieger">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/posts/no-free-lunch/no-free-lunch-1.png">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#C25A2D; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(194,90,45,.06),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+.back-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; margin-bottom:40px; }
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); font-weight:700; margin-bottom:18px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding-bottom:28px; border-bottom:1px solid var(--line); margin-bottom:8px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose p a { color:var(--accent); }
+.prose p code, .prose li code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.86em; background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(194,90,45,.06) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:24px 28px; margin:28px 0; box-shadow:var(--shadow-sm); }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+.quote { border-left:3px solid var(--topic); background:var(--bg-soft); border-radius:0 var(--radius) var(--radius) 0; padding:14px 18px; margin:18px 0 24px; font-size:14.5px; color:var(--ink-soft); line-height:1.55; }
+.quote .ts { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:12px; color:var(--accent); text-decoration:none; margin-right:8px; white-space:nowrap; }
+.quote .k { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:4px; }
+.step { display:grid; grid-template-columns:56px 1fr; gap:20px; align-items:start; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 26px; margin:16px 0; box-shadow:var(--shadow-sm); }
+.step-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:2.2rem; line-height:1; color:var(--topic); }
+.step h3 { font-family:var(--serif); font-weight:600; font-size:1.1rem; color:var(--black); margin-bottom:6px; }
+.step h3 span { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-left:8px; }
+.step p { font-size:14.5px; color:var(--ink-soft); margin:0; line-height:1.6; }
+.step p strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .step { grid-template-columns:1fr; gap:8px; } }
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:12px 0 28px; }
+.tbl th, .tbl td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink-soft); }
+.tbl th { font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); }
+.tbl td:first-child { color:var(--ink); font-weight:600; }
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 18px; border-radius:100px; text-decoration:none; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+.lang-switch { display:inline-flex; align-items:center; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; margin-left:8px; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; }
+.lang-switch:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+figure { margin:24px 0 32px; }
+figure img { display:block; width:100%; height:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--bg-card); }
+figcaption { font-size:13px; color:var(--ink-mute); margin-top:8px; line-height:1.5; }
+.kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:24px 0 30px; }
+.kpi { background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow-sm); }
+.kpi .v { font-family:var(--serif); font-weight:300; font-style:italic; font-size:2.3rem; line-height:1; color:var(--topic); }
+.kpi .l { font-size:13.5px; color:var(--ink-soft); margin-top:6px; line-height:1.45; }
+@media (max-width:640px){ .kpis { grid-template-columns:1fr; } }
+.tbl td.num, .tbl th.num { text-align:right; font-variant-numeric:tabular-nums; }
+.tbl td.num { color:var(--ink); }
+.sw { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:7px; vertical-align:baseline; }
+.tbl-wrap { overflow-x:auto; }
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Visual-Standards-Rechner · Simulation</div>
+    <h1 class="post-title">No free lunch: <em>100.000 Firmen</em>, vier Wege, kein Sieger</h1>
+    <p class="post-dek">Paid-Visual, Open Source, Deneb oder Core Visuals mit SVG: Welcher Weg zum visuellen Standard in Power BI ist der günstigste? Wir haben die Frage nicht einer Firma gestellt, sondern 100.000. Die Antwort: Jeder Weg gewinnt irgendwo, keiner überall, und jeder kostet etwas, nur an einer anderen Stelle.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>November 2026</strong></span>
+      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.23</a></strong></span>
+      <span>Daten · <strong><a href="assets/posts/no-free-lunch/ergebnis.json">ergebnis.json</a></strong></span>
+    </div>
+  </header>
+
+  <div class="prose">
+
+    <figure>
+      <img src="assets/posts/no-free-lunch/no-free-lunch-1.png" alt="Infografik No free lunch, Folie 1: Anteil der Organisationen, bei denen ein Weg am günstigsten ist, in drei Linsen, und die Hebel Größe, Horizont, Lizenzpreis und Bestand" loading="lazy" width="1080" height="1350">
+      <figcaption>Folie 1 von 2. Als PDF-Karussell für LinkedIn: <a href="assets/posts/no-free-lunch/no-free-lunch-carousel.pdf">no-free-lunch-carousel.pdf</a>.</figcaption>
+    </figure>
+
+    <h2>Die Frage <em>hinter dem Rechner</em></h2>
+    <p>Der <a href="visual-standards-rechner.html">Visual-Standards-Rechner</a> beantwortet für eine Organisation, was ein visueller Standard für Controlling und Finance über drei, fünf oder zehn Jahre kostet: mit einem gekauften Visual (Paid), einem fertigen Open-Source-Visual, Deneb-Vorlagen oder Core Visuals mit SVG-Measures. Die naheliegende Frage danach lautet: <strong>Und welcher Weg ist denn nun der richtige?</strong></p>
+    <p>Die ehrliche Antwort ist „kommt drauf an". Das klingt nach Ausweichen, also haben wir es durchgerechnet. Nicht für einen Fall, sondern für eine ganze Population von Organisationen, mit demselben Rechenkern, den der Rechner im Browser benutzt.</p>
+
+    <div class="kpis">
+      <div class="kpi"><div class="v">30&nbsp;%</div><div class="l">höchster Anteil, den ein einzelner Weg bekommt, wenn die Rahmenbedingungen zählen</div></div>
+      <div class="kpi"><div class="v">47&nbsp;%</div><div class="l">dürfen ihren rechnerisch günstigsten Weg nicht nehmen; der Ersatz kostet im Median +60&nbsp;%</div></div>
+      <div class="kpi"><div class="v">1 von 5</div><div class="l">hätte trotz richtiger Rechnung im Nachhinein anders gewählt, weil die Zukunft streut</div></div>
+    </div>
+
+    <h2>So haben wir <em>simuliert</em></h2>
+    <div class="step"><div class="step-num">1</div><div><h3>Population schätzen <span>drei KI-Agents, blind</span></h3><p>Wie sehen Organisationen im DACH-Raum aus, die Power BI nutzen und einen visuellen Standard einführen wollen? Größe, Betriebsmodell, Horizont, was heute schon im Haus ist, welche Tenant-Regeln gelten, welche Anforderungen als Must auf der Liste stehen. Drei Agents haben das unabhängig voneinander geschätzt, einer mit Claude Opus, zwei mit Claude Sonnet, jeder mit einer anderen Perspektive (neutral, BI-Leitung, skeptischer Controller). Keiner kannte die Kostenlogik des Rechners. <strong>Übernommen wurde der Median.</strong></p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>100.000 Organisationen ziehen <span>sechs Segmente</span></h3><p>Aus dieser Population entstehen 100.000 Profile. Jede Organisation läuft durch den <strong>unveränderten Rechenkern</strong> des Rechners: einmal mit den Erwartungswerten aller Annahmen (das ist die Empfehlung, die der Rechner geben würde) und einmal mit einer gepaarten Zufallsziehung (das ist eine Welt, wie sie tatsächlich hätte kommen können).</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>Drei Linsen <span>was darf man überhaupt?</span></h3><p>Erst nur die Kosten. Dann mit den harten Rahmenbedingungen (nur zertifizierte Visuals, kein Lizenzbudget, Report Server, Custom Visuals gesperrt). Dann zusätzlich mit den Must-Kriterien aus der Anforderungsliste, die einen Weg per K.O. ausschließen.</p></div></div>
+
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Segment</th><th class="num">Anteil</th><th class="num">Ersteller</th><th class="num">Viewer</th><th class="num">nur zertifiziert</th><th class="num">kein Lizenzbudget</th><th class="num">heute nichts</th></tr></thead>
+      <tbody><tr><td>Klein (&lt; 250 MA)</td><td class='num'>44&nbsp;%</td><td class='num'>2</td><td class='num'>20</td><td class='num'>10&nbsp;%</td><td class='num'>30&nbsp;%</td><td class='num'>48&nbsp;%</td></tr><tr><td>Mittelstand</td><td class='num'>29&nbsp;%</td><td class='num'>4</td><td class='num'>120</td><td class='num'>20&nbsp;%</td><td class='num'>20&nbsp;%</td><td class='num'>37&nbsp;%</td></tr><tr><td>Gehobener Mittelstand</td><td class='num'>7&nbsp;%</td><td class='num'>15</td><td class='num'>800</td><td class='num'>35&nbsp;%</td><td class='num'>12&nbsp;%</td><td class='num'>25&nbsp;%</td></tr><tr><td>Konzern</td><td class='num'>3&nbsp;%</td><td class='num'>60</td><td class='num'>5.000</td><td class='num'>50&nbsp;%</td><td class='num'>5&nbsp;%</td><td class='num'>14&nbsp;%</td></tr><tr><td>Bank, Versicherung, Klinik</td><td class='num'>8&nbsp;%</td><td class='num'>10</td><td class='num'>800</td><td class='num'>65&nbsp;%</td><td class='num'>15&nbsp;%</td><td class='num'>27&nbsp;%</td></tr><tr><td>Öffentliche Hand</td><td class='num'>8&nbsp;%</td><td class='num'>4</td><td class='num'>200</td><td class='num'>55&nbsp;%</td><td class='num'>40&nbsp;%</td><td class='num'>43&nbsp;%</td></tr></tbody>
+    </table></div>
+    <p style="font-size:13.5px">Ersteller und Viewer: wahrscheinlichster Wert der Dreipunkt-Schätzung. Gewichtet ist nach Anzahl Organisationen, nicht nach Nutzern. Deshalb dominieren kleine und mittlere Organisationen, ein Konzern zählt so viel wie ein Handwerksbetrieb. Die vollständige Population steht in <a href="assets/posts/no-free-lunch/population.json">population.json</a>.</p>
+
+    <h2>Ergebnis 1: <em>Kein Weg gewinnt immer</em></h2>
+    <p>Anteil der Organisationen, bei denen der jeweilige Weg über den Horizont am wenigsten kostet:</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Linse</th><th class="num"><span class="sw" style="background:#eb6834"></span>Paid</th><th class="num"><span class="sw" style="background:#1baf7a"></span>Open Source</th><th class="num"><span class="sw" style="background:#2a78d6"></span>Deneb</th><th class="num"><span class="sw" style="background:#eda100"></span>Core + SVG</th><th class="num">kein Weg</th></tr></thead>
+      <tbody><tr><td>Nur Kosten</td><td class='num'>68&nbsp;%</td><td class='num'>12&nbsp;%</td><td class='num'>10&nbsp;%</td><td class='num'>10&nbsp;%</td><td class='num'>0&nbsp;%</td></tr><tr><td>+ harte Regeln (Tenant, Budget, Report Server)</td><td class='num'>45&nbsp;%</td><td class='num'>17&nbsp;%</td><td class='num'>17&nbsp;%</td><td class='num'>19&nbsp;%</td><td class='num'>1&nbsp;%</td></tr><tr><td>+ Must-Listen aus der Anforderung</td><td class='num'>28&nbsp;%</td><td class='num'>15&nbsp;%</td><td class='num'>15&nbsp;%</td><td class='num'>30&nbsp;%</td><td class='num'>11&nbsp;%</td></tr></tbody>
+    </table></div>
+    <p>Auf reine Kosten gerechnet liegt Paid in gut zwei Dritteln der Fälle vorn. Das liegt an der Population: Die meisten Organisationen sind klein, und bei 20 Lesern ist eine Lizenz billiger als jede Stunde, die man in Deneb-Vorlagen oder SVG-Measures steckt. Sobald die Rahmenbedingungen zählen, verliert Paid seinen Vorsprung. Mit den Must-Listen liegen Paid und Core gleichauf, Open Source und Deneb teilen sich ein knappes Drittel. Und in 11&nbsp;% der Organisationen bleibt kein Weg übrig, weil sich die Musts gegenseitig ausschließen.</p>
+    <p>Das Bild hängt nicht an einem der drei Schätzer. Rechnet man jede Population einzeln, verschieben sich die Anteile, die Aussage bleibt:</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Population (mit Must-Listen)</th><th class="num">Paid</th><th class="num">Open Source</th><th class="num">Deneb</th><th class="num">Core + SVG</th><th class="num">kein Weg</th></tr></thead>
+      <tbody><tr><td>Schätzer A · Opus</td><td class='num'>31&nbsp;%</td><td class='num'>24&nbsp;%</td><td class='num'>17&nbsp;%</td><td class='num'>20&nbsp;%</td><td class='num'>8&nbsp;%</td></tr><tr><td>Schätzer B · Sonnet</td><td class='num'>27&nbsp;%</td><td class='num'>13&nbsp;%</td><td class='num'>14&nbsp;%</td><td class='num'>34&nbsp;%</td><td class='num'>11&nbsp;%</td></tr><tr><td>Schätzer C · Sonnet</td><td class='num'>27&nbsp;%</td><td class='num'>12&nbsp;%</td><td class='num'>16&nbsp;%</td><td class='num'>32&nbsp;%</td><td class='num'>12&nbsp;%</td></tr></tbody>
+    </table></div>
+
+    <h2>Ergebnis 2: <em>Was die Rangfolge kippt</em></h2>
+    <p>Fünf Größen entscheiden, welcher Weg vorn liegt. Keine davon ist eine Eigenschaft des Tools.</p>
+    <ul>
+      <li><strong>Größe.</strong> Bei weniger als 25 Lesern gewinnt Paid in 90&nbsp;% der Fälle, bei 1.000 bis 3.000 Lesern nur noch in 28&nbsp;%. Die Lizenz wächst mit jedem Kopf, eine Vorlage nicht. Ganz oben kommt Paid wieder (44&nbsp;%), weil große Häuser Site-Lizenzen verhandeln: ab 3.000 Lesern liegt Paid mit Site-Lizenz in 60&nbsp;% vorn, mit Staffelpreis in 30&nbsp;%.</li>
+      <li><strong>Horizont.</strong> Über drei Jahre gewinnt Paid in 74&nbsp;% der Fälle, über zehn Jahre in 53&nbsp;%. Lizenzen laufen jedes Jahr, Aufbau zahlt man einmal.</li>
+      <li><strong>Lizenzpreis.</strong> Auf Inforiver-Niveau (33&nbsp;€ je Nutzer und Jahr) liegt Paid in 80&nbsp;% vorn, auf Zebra-Niveau (170&nbsp;€, abgeleitet) in 40&nbsp;%. „Paid" ist keine Kategorie mit einem Preis.</li>
+      <li><strong>Was schon im Haus ist.</strong> Der stärkste einzelne Prädiktor. Steht heute schon Deneb im Einsatz, gewinnt Deneb in 76&nbsp;% der Fälle, auf der grünen Wiese in 9&nbsp;%. Bei Open Source: 66&nbsp;% gegen 14&nbsp;%. Migration ist der Posten, den kaum jemand mitrechnet.</li>
+      <li><strong>Rahmenbedingungen.</strong> In 47&nbsp;% der Organisationen ist der günstigste Weg nicht zulässig. Paid fällt am häufigsten heraus (65&nbsp;%, davon 38&nbsp;% schon durch harte Regeln wie fehlendes Lizenzbudget oder Report Server), Core am seltensten (20&nbsp;%).</li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Viewer</th><th class="num">Organisationen</th><th class="num">Paid</th><th class="num">Open Source</th><th class="num">Deneb</th><th class="num">Core + SVG</th></tr></thead>
+      <tbody><tr><td>unter 25</td><td class='num'>30.180</td><td class='num'>90&nbsp;%</td><td class='num'>4&nbsp;%</td><td class='num'>3&nbsp;%</td><td class='num'>3&nbsp;%</td></tr><tr><td>25–99</td><td class='num'>26.691</td><td class='num'>80&nbsp;%</td><td class='num'>8&nbsp;%</td><td class='num'>6&nbsp;%</td><td class='num'>6&nbsp;%</td></tr><tr><td>100–299</td><td class='num'>22.641</td><td class='num'>57&nbsp;%</td><td class='num'>18&nbsp;%</td><td class='num'>14&nbsp;%</td><td class='num'>12&nbsp;%</td></tr><tr><td>300–999</td><td class='num'>11.698</td><td class='num'>35&nbsp;%</td><td class='num'>23&nbsp;%</td><td class='num'>21&nbsp;%</td><td class='num'>21&nbsp;%</td></tr><tr><td>1.000–2.999</td><td class='num'>6.184</td><td class='num'>28&nbsp;%</td><td class='num'>25&nbsp;%</td><td class='num'>25&nbsp;%</td><td class='num'>22&nbsp;%</td></tr><tr><td>ab 3.000</td><td class='num'>2.606</td><td class='num'>44&nbsp;%</td><td class='num'>15&nbsp;%</td><td class='num'>20&nbsp;%</td><td class='num'>21&nbsp;%</td></tr></tbody>
+    </table></div>
+    <p style="font-size:13.5px">Anteil, bei dem der Weg auf reine Kosten am günstigsten ist, je Größenklasse.</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Weg</th><th class="num">K.O. gesamt</th><th class="num">davon harte Regeln</th><th>häufigste Gründe (Anteil aller Organisationen)</th></tr></thead>
+      <tbody><tr><td><span class="sw" style="background:#eb6834"></span>3rd-Party paid</td><td class='num'>65&nbsp;%</td><td class='num'>38&nbsp;%</td><td>Must „kein Vendor-Lock-in" (25&nbsp;%), kein Lizenzbudget (25&nbsp;%), Must „läuft im Report Server" (17&nbsp;%)</td></tr><tr><td><span class="sw" style="background:#1baf7a"></span>Open Source</td><td class='num'>53&nbsp;%</td><td class='num'>24&nbsp;%</td><td>Must „Support mit SLA" (22&nbsp;%), Must „Paginated Reports (RDL)" (15&nbsp;%), nur zertifizierte Visuals (14&nbsp;%)</td></tr><tr><td><span class="sw" style="background:#2a78d6"></span>Deneb / Vega</td><td class='num'>43&nbsp;%</td><td class='num'>12&nbsp;%</td><td>Must „Paginated Reports (RDL)" (15&nbsp;%), Must „Writeback im Visual" (13&nbsp;%), Must „Copilot erstellt Reports" (9&nbsp;%)</td></tr><tr><td><span class="sw" style="background:#eda100"></span>Core + SVG</td><td class='num'>20&nbsp;%</td><td class='num'>4&nbsp;%</td><td>Must „Writeback im Visual" (13&nbsp;%), Must „IBCS-zertifiziert" (5&nbsp;%), IBCS-Zertifikat Pflicht (4&nbsp;%)</td></tr></tbody>
+    </table></div>
+
+    <figure>
+      <img src="assets/posts/no-free-lunch/no-free-lunch-2.png" alt="Infografik No free lunch, Folie 2: Kostenmix je Weg, Kosten eines Dogmas und sechs Fragen vor der Toolfrage" loading="lazy" width="1080" height="1350">
+      <figcaption>Folie 2 von 2: Wofür das Geld fließt, was ein Dogma kostet, und sechs Fragen vor der Toolfrage.</figcaption>
+    </figure>
+
+    <h2>Ergebnis 3: <em>Jeder zahlt, nur woanders</em></h2>
+    <p>Kein Weg ist gratis. Die Kosten verschieben sich nur zwischen den Blöcken:</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Weg</th><th class="num">Lizenz &amp; Support</th><th class="num">Aufbau &amp; Migration</th><th class="num">Rollout &amp; Schulung</th><th class="num">Wartung &amp; Updates</th><th class="num">Governance, Support, Risiko</th><th class="num">eigene Zeit</th><th class="num">Ausstieg</th></tr></thead>
+      <tbody><tr><td><span class="sw" style="background:#eb6834"></span>3rd-Party paid</td><td class='num'>25&nbsp;%</td><td class='num'>25&nbsp;%</td><td class='num'>26&nbsp;%</td><td class='num'>9&nbsp;%</td><td class='num'>14&nbsp;%</td><td class='num'>57&nbsp;%</td><td class='num'>54&nbsp;%</td></tr><tr><td><span class="sw" style="background:#1baf7a"></span>Open Source</td><td class='num'>1&nbsp;%</td><td class='num'>32&nbsp;%</td><td class='num'>24&nbsp;%</td><td class='num'>26&nbsp;%</td><td class='num'>18&nbsp;%</td><td class='num'>75&nbsp;%</td><td class='num'>44&nbsp;%</td></tr><tr><td><span class="sw" style="background:#2a78d6"></span>Deneb / Vega</td><td class='num'>2&nbsp;%</td><td class='num'>29&nbsp;%</td><td class='num'>36&nbsp;%</td><td class='num'>20&nbsp;%</td><td class='num'>13&nbsp;%</td><td class='num'>65&nbsp;%</td><td class='num'>28&nbsp;%</td></tr><tr><td><span class="sw" style="background:#eda100"></span>Core + SVG</td><td class='num'>0&nbsp;%</td><td class='num'>20&nbsp;%</td><td class='num'>31&nbsp;%</td><td class='num'>40&nbsp;%</td><td class='num'>9&nbsp;%</td><td class='num'>69&nbsp;%</td><td class='num'>34&nbsp;%</td></tr></tbody>
+    </table></div>
+    <p style="font-size:13.5px">Anteil an den Gesamtkosten über den Horizont, Mittel über alle Organisationen. „Eigene Zeit" = intern bewertete Stunden. „Ausstieg" = was ein Wechsel nach dem Horizont kosten würde, im Verhältnis zur Summe (Median); er ist nicht in der Summe enthalten.</p>
+    <ul>
+      <li><strong>Paid</strong> zahlt Lizenz, rund ein Viertel der Kosten. Trotzdem sind mehr als die Hälfte eigene Stunden: Ein gekauftes Visual baut keinen Report. Und der Ausstieg ist am teuersten, weil die Definitionen am Visual des Herstellers hängen.</li>
+      <li><strong>Open Source</strong> zahlt keine Lizenz, dafür Wartung, Freigabe und das Risiko, dass das Projekt eingestellt wird. Drei Viertel der Kosten sind eigene Zeit.</li>
+      <li><strong>Deneb</strong> zahlt beim Lernen: Schulung und Rollout sind der größte Block, der Ausstieg ist am billigsten, weil Vega-Lite-Specs das Visual überleben.</li>
+      <li><strong>Core + SVG</strong> zahlt in der Wartung: 40&nbsp;% der Kosten fließen in das Nachziehen von Workarounds. Billig ist der Weg nur, wenn er schon steht.</li>
+    </ul>
+
+    <h2>Ergebnis 4: <em>Was ein Dogma kostet</em></h2>
+    <p>„Wir nehmen immer X" ist eine bequeme Regel. So sieht sie aus, über alle Organisationen gerechnet (mit allen Rahmenbedingungen):</p>
+    <div class="tbl-wrap"><table class="tbl">
+      <thead><tr><th>Regel</th><th class="num">überhaupt zulässig</th><th class="num">am günstigsten</th><th class="num">Mehrkosten, wo zulässig</th><th class="num">FTE intern (Median)</th></tr></thead>
+      <tbody><tr><td><span class="sw" style="background:#eb6834"></span>Immer 3rd-Party paid</td><td class='num'>35&nbsp;%</td><td class='num'>28&nbsp;%</td><td class='num'>+15&nbsp;%</td><td class='num'>0,1</td></tr><tr><td><span class="sw" style="background:#1baf7a"></span>Immer Open Source</td><td class='num'>47&nbsp;%</td><td class='num'>15&nbsp;%</td><td class='num'>+60&nbsp;%</td><td class='num'>0,21</td></tr><tr><td><span class="sw" style="background:#2a78d6"></span>Immer Deneb / Vega</td><td class='num'>57&nbsp;%</td><td class='num'>15&nbsp;%</td><td class='num'>+34&nbsp;%</td><td class='num'>0,16</td></tr><tr><td><span class="sw" style="background:#eda100"></span>Immer Core + SVG</td><td class='num'>80&nbsp;%</td><td class='num'>30&nbsp;%</td><td class='num'>+36&nbsp;%</td><td class='num'>0,22</td></tr></tbody>
+    </table></div>
+    <p>Paid ist dort, wo es erlaubt ist, das billigste Dogma (+15&nbsp;%), aber es ist nur in 35&nbsp;% der Organisationen erlaubt. Core ist fast überall zulässig und kostet dafür rund ein Drittel mehr als nötig. Open Source als Dogma ist am teuersten, weil es auch die Fälle einschließt, in denen das Visual erst gebaut werden muss: Mit einem fertigen Visual kostet die Regel +20&nbsp;%, mit KI-gestützter Eigenentwicklung +48&nbsp;%, mit klassischer Eigenentwicklung +175&nbsp;%. Die Schätzer haben angenommen, dass gut vier von zehn Organisationen selbst bauen würden.</p>
+
+    <h2>Ergebnis 5: <em>Auch die richtige Rechnung irrt</em></h2>
+    <p>Bei der einzelnen Organisation ist die Rangfolge meist klar: Im Median liegt der zweitbeste Weg 34&nbsp;% über dem besten, nur bei 13&nbsp;% sind es weniger als 10&nbsp;%. Wer rechnet, bekommt also eine deutliche Antwort. Aber die Zukunft streut. In 20&nbsp;% der simulierten Welten wäre im Nachhinein ein anderer Weg billiger gewesen als der empfohlene, im Median um 26&nbsp;%. Das ist kein Fehler der Rechnung, das ist der Preis der Unsicherheit. Deshalb zeigt der Rechner Bandbreiten statt Punktwerte.</p>
+
+    <h2>Sechs Fragen <em>vor</em> der Toolfrage</h2>
+    <ul>
+      <li><strong>Wie viele lesen in fünf Jahren mit?</strong> Die Lizenz je Kopf wächst mit jedem Leser, die Stunden kaum.</li>
+      <li><strong>Über welchen Horizont rechnet ihr?</strong> Drei Jahre begünstigen das Kaufen, zehn Jahre das Bauen.</li>
+      <li><strong>Was ist heute schon im Haus?</strong> Der Bestand ist der stärkste Hebel, weil Migration teuer ist.</li>
+      <li><strong>Welche Regeln sind wirklich hart?</strong> Certified-only, Lizenzbudget, Report Server: Sie streichen Wege, bevor gerechnet wird.</li>
+      <li><strong>Welche Musts sind wirklich Must?</strong> Ein K.O. zu viel kostet im Median +60&nbsp;%, im oberen Viertel mehr als das Doppelte.</li>
+      <li><strong>Wer pflegt es in drei Jahren?</strong> Wartung und Fluktuation fressen den Vorsprung, den Bauen am Anfang hat.</li>
+    </ul>
+
+    <div class="src-box">
+      <h3>Ehrlich eingeordnet</h3>
+      <p style="margin-bottom:10px">Die Population ist <strong>keine Erhebung</strong>. Sie stammt aus drei unabhängigen Schätzungen durch Sprachmodelle (Claude Opus und zweimal Claude Sonnet), Median übernommen. Nur einer der Schätzer hat Quellen gesucht (Destatis-Größenklassen, BARC, Microsoft Learn), die übrigen Werte sind begründete Schätzungen. Am unsichersten sind die Segmentanteile, die Verbreitung von „nur zertifizierte Visuals" und die Must-Wahrscheinlichkeiten. Gerade die Musts treiben die dritte Linse: „Paginated Reports als Must" und „kein Vendor-Lock-in als Must" sind die beiden stärksten Einzelfaktoren dort. Wer seine eigene Anforderungsliste kennt, sollte die zweite Linse lesen.</p>
+      <p style="margin-bottom:10px">Die Kostenannahmen sind die des Rechners (v0.23): Stundenwerte aus einem simulierten Expertenpanel, Preise aus Herstellerseiten und Such-Auszügen, viele Autoren-Schätzungen, alle mit Quelle im Rechner. Gerankt wird hier nur nach Kosten (Erwartungswert), ohne den Anforderungs-Score, den der Rechner mit 30&nbsp;% gewichtet. Dass Core + SVG auf der grünen Wiese nie am günstigsten ist, ist eine Eigenschaft dieser Annahmen (Stunden je Chart, Wartungsquote), keine Messung.</p>
+      <p style="margin:0">Offenlegung: ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source. Die Simulation ist ein Indikator für Muster, keine Empfehlung für eine einzelne Organisation. Dafür gibt es den Rechner.</p>
+    </div>
+
+    <h2>Daten und <em>Skripte</em></h2>
+    <ul>
+      <li><a href="assets/posts/no-free-lunch/ergebnis.json">ergebnis.json</a>: alle Auswertungen dieser Seite</li>
+      <li><a href="assets/posts/no-free-lunch/population.json">population.json</a>: die zusammengeführte Population; die drei Rohschätzungen und der Auftrag an die Agents unter <code>sessions/visual-standards-population-100k/</code></li>
+      <li><code>tools/rechner-population-100k.js</code> (Simulation im Browser-Rechenkern, rund 75&nbsp;s für 100.000 Organisationen), <code>tools/rechner-population-merge.py</code>, <code>tools/rechner-population-analyse.py</code></li>
+      <li><a href="assets/posts/no-free-lunch/no-free-lunch-carousel.pdf">Infografik als PDF</a> · <a href="assets/posts/no-free-lunch/infografik.html">als HTML</a></li>
+    </ul>
+
+    <div class="cta-card">
+      <div class="cta-card-text">
+        <span class="k">Selbst rechnen</span>
+        <h3>Eure Organisation statt 100.000</h3>
+        <p>Sieben Fragen, dann seht ihr, welcher Weg bei euch vorn liegt und welche Annahme das Ergebnis kippt.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="cta-btn" href="visual-standards-rechner.html">Zum Rechner →</a>
+        <a class="cta-btn ghost" href="finance-reporting-budapest-post.html">Sechs Sprossen</a>
+      </div>
+    </div>
+
+    <div class="post-foot">
+      Fragen, Feedback, eigene Zahlen: <strong>Michael Tenner</strong> · Daten-WG Knowledge Kitchen · <a href="impressum.html">Impressum</a>
+      <br><a href="blog/no-free-lunch-visual-standards.md">📄 Diese Seite als Markdown</a>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,949 @@
+{
+ "N": 100000,
+ "segments": [
+  "klein",
+  "mittelstand",
+  "gehoben",
+  "konzern",
+  "finanz",
+  "oeffentlich"
+ ],
+ "win_free": {
+  "core": 0.0962,
+  "paid": 0.6834,
+  "deneb": 0.1016,
+  "oss": 0.1188
+ },
+ "win_ok": {
+  "core": 0.3042,
+  "paid": 0.2841,
+  "deneb": 0.1519,
+  "oss": 0.1509,
+  "none": 0.109
+ },
+ "win_by_seg": {
+  "klein": {
+   "n": 44387,
+   "free": {
+    "paid": 0.8889,
+    "core": 0.0323,
+    "deneb": 0.0328,
+    "oss": 0.046
+   },
+   "ok": {
+    "paid": 0.3918,
+    "core": 0.2345,
+    "none": 0.049,
+    "oss": 0.1909,
+    "deneb": 0.1338
+   }
+  },
+  "mittelstand": {
+   "n": 28964,
+   "free": {
+    "core": 0.0994,
+    "paid": 0.6562,
+    "deneb": 0.107,
+    "oss": 0.1374
+   },
+   "ok": {
+    "core": 0.2847,
+    "none": 0.1099,
+    "deneb": 0.1599,
+    "paid": 0.284,
+    "oss": 0.1614
+   }
+  },
+  "gehoben": {
+   "n": 7292,
+   "free": {
+    "paid": 0.4217,
+    "oss": 0.1967,
+    "deneb": 0.1695,
+    "core": 0.2122
+   },
+   "ok": {
+    "deneb": 0.1546,
+    "paid": 0.1843,
+    "core": 0.3304,
+    "oss": 0.123,
+    "none": 0.2078
+   }
+  },
+  "konzern": {
+   "n": 2650,
+   "free": {
+    "deneb": 0.1502,
+    "paid": 0.5181,
+    "core": 0.2238,
+    "oss": 0.1079
+   },
+   "ok": {
+    "paid": 0.1989,
+    "none": 0.2898,
+    "deneb": 0.1219,
+    "core": 0.3272,
+    "oss": 0.0623
+   }
+  },
+  "finanz": {
+   "n": 8280,
+   "free": {
+    "paid": 0.2728,
+    "oss": 0.2368,
+    "deneb": 0.2499,
+    "core": 0.2405
+   },
+   "ok": {
+    "none": 0.281,
+    "deneb": 0.1791,
+    "core": 0.4133,
+    "paid": 0.0798,
+    "oss": 0.0467
+   }
+  },
+  "oeffentlich": {
+   "n": 8427,
+   "free": {
+    "core": 0.1394,
+    "oss": 0.258,
+    "deneb": 0.2258,
+    "paid": 0.3768
+   },
+   "ok": {
+    "oss": 0.0581,
+    "deneb": 0.1998,
+    "none": 0.11,
+    "core": 0.6013,
+    "paid": 0.0307
+   }
+  }
+ },
+ "win_by_viewers": [
+  {
+   "lo": 0,
+   "hi": 25,
+   "n": 30180,
+   "free": {
+    "paid": 0.9007,
+    "deneb": 0.0306,
+    "oss": 0.0381,
+    "core": 0.0306
+   },
+   "ok": {
+    "paid": 0.395,
+    "core": 0.233,
+    "none": 0.0504,
+    "oss": 0.1887,
+    "deneb": 0.1329
+   }
+  },
+  {
+   "lo": 25,
+   "hi": 100,
+   "n": 26691,
+   "free": {
+    "paid": 0.7957,
+    "core": 0.061,
+    "oss": 0.0819,
+    "deneb": 0.0614
+   },
+   "ok": {
+    "paid": 0.334,
+    "core": 0.2757,
+    "none": 0.0758,
+    "deneb": 0.1442,
+    "oss": 0.1702
+   }
+  },
+  {
+   "lo": 100,
+   "hi": 300,
+   "n": 22641,
+   "free": {
+    "core": 0.1175,
+    "deneb": 0.135,
+    "paid": 0.5722,
+    "oss": 0.1753
+   },
+   "ok": {
+    "core": 0.3471,
+    "deneb": 0.1711,
+    "paid": 0.2225,
+    "oss": 0.142,
+    "none": 0.1173
+   }
+  },
+  {
+   "lo": 300,
+   "hi": 1000,
+   "n": 11698,
+   "free": {
+    "paid": 0.3472,
+    "core": 0.2114,
+    "oss": 0.2282,
+    "deneb": 0.2133
+   },
+   "ok": {
+    "deneb": 0.169,
+    "oss": 0.0833,
+    "none": 0.2076,
+    "paid": 0.1144,
+    "core": 0.4257
+   }
+  },
+  {
+   "lo": 1000,
+   "hi": 3000,
+   "n": 6184,
+   "free": {
+    "deneb": 0.2461,
+    "core": 0.2243,
+    "oss": 0.2463,
+    "paid": 0.2833
+   },
+   "ok": {
+    "none": 0.2464,
+    "paid": 0.1224,
+    "core": 0.374,
+    "oss": 0.0831,
+    "deneb": 0.174
+   }
+  },
+  {
+   "lo": 3000,
+   "hi": 1000000000,
+   "n": 2606,
+   "free": {
+    "deneb": 0.2011,
+    "paid": 0.4432,
+    "core": 0.2095,
+    "oss": 0.1462
+   },
+   "ok": {
+    "paid": 0.1692,
+    "none": 0.2847,
+    "deneb": 0.1527,
+    "core": 0.3361,
+    "oss": 0.0572
+   }
+  }
+ ],
+ "win_by_horizon": {
+  "3": {
+   "n": 39175,
+   "free": {
+    "core": 0.1126,
+    "paid": 0.7398,
+    "oss": 0.0786,
+    "deneb": 0.069
+   }
+  },
+  "5": {
+   "n": 45706,
+   "free": {
+    "paid": 0.686,
+    "core": 0.0939,
+    "deneb": 0.0983,
+    "oss": 0.1218
+   }
+  },
+  "10": {
+   "n": 15119,
+   "free": {
+    "paid": 0.5296,
+    "core": 0.0606,
+    "oss": 0.2138,
+    "deneb": 0.196
+   }
+  }
+ },
+ "ko_rate": {
+  "paid": 0.6479,
+  "oss": 0.526,
+  "deneb": 0.4296,
+  "core": 0.2014
+ },
+ "ko_reasons": {
+  "paid": [
+   [
+    "must:exit",
+    0.2522
+   ],
+   [
+    "flag:nobudget",
+    0.2468
+   ],
+   [
+    "must:rs",
+    0.1688
+   ],
+   [
+    "must:paginated",
+    0.1521
+   ],
+   [
+    "flag:rs",
+    0.1003
+   ],
+   [
+    "must:copilot",
+    0.0926
+   ]
+  ],
+  "oss": [
+   [
+    "must:sla",
+    0.2154
+   ],
+   [
+    "must:paginated",
+    0.1521
+   ],
+   [
+    "flag:certonly",
+    0.1384
+   ],
+   [
+    "must:copilot",
+    0.0926
+   ],
+   [
+    "flag:coreonly",
+    0.0866
+   ],
+   [
+    "must:ibcscert",
+    0.0517
+   ]
+  ],
+  "deneb": [
+   [
+    "must:paginated",
+    0.1521
+   ],
+   [
+    "must:writeback",
+    0.1273
+   ],
+   [
+    "must:copilot",
+    0.0926
+   ],
+   [
+    "flag:coreonly",
+    0.0866
+   ],
+   [
+    "must:ibcscert",
+    0.0517
+   ],
+   [
+    "flag:ibcsmust",
+    0.0389
+   ]
+  ],
+  "core": [
+   [
+    "must:writeback",
+    0.1273
+   ],
+   [
+    "must:ibcscert",
+    0.0517
+   ],
+   [
+    "flag:ibcsmust",
+    0.0389
+   ]
+  ]
+ },
+ "none_feasible": 0.109,
+ "constraint_flip": 0.4659,
+ "constraint_price": {
+  "p50": 0.5976985198233855,
+  "p75": 1.2199300003998743,
+  "p90": 2.034929145085259
+ },
+ "gap12": {
+  "n": 59735,
+  "lt5": 0.0666,
+  "lt10": 0.127,
+  "lt25": 0.3579,
+  "p50": 0.3411469181151463
+ },
+ "hindsight": {
+  "same": 0.8043,
+  "regret_p50": 0.26286730673078906,
+  "regret_p90": 0.8783623266580188
+ },
+ "dogma": {
+  "paid": {
+   "feasible": 0.3521,
+   "best": 0.2841,
+   "within10": 0.2979,
+   "excess_p50": 0.0,
+   "excess_p90": 0.3023122894106247,
+   "excess_eur_viewer_p50": 0.0,
+   "excess_total_pct": 0.15482172737745087
+  },
+  "oss": {
+   "feasible": 0.474,
+   "best": 0.1509,
+   "within10": 0.1707,
+   "excess_p50": 0.32703499391788626,
+   "excess_p90": 2.2494286050629695,
+   "excess_eur_viewer_p50": 113.69339619387625,
+   "excess_total_pct": 0.5964336802166775
+  },
+  "deneb": {
+   "feasible": 0.5704,
+   "best": 0.1519,
+   "within10": 0.1774,
+   "excess_p50": 0.2827065976131502,
+   "excess_p90": 1.0284542417666227,
+   "excess_eur_viewer_p50": 103.54795333422335,
+   "excess_total_pct": 0.3420848618492843
+  },
+  "core": {
+   "feasible": 0.7986,
+   "best": 0.3042,
+   "within10": 0.3253,
+   "excess_p50": 0.3793665381752538,
+   "excess_p90": 1.768158707319615,
+   "excess_eur_viewer_p50": 86.87959356701236,
+   "excess_total_pct": 0.35728718876505516
+  }
+ },
+ "cost_mix": {
+  "paid": {
+   "lic": 0.2534,
+   "build": 0.096,
+   "switch": 0.1556,
+   "rollout": 0.1988,
+   "train": 0.0602,
+   "maint": 0.0933,
+   "gov": 0.1315,
+   "risk": 0.0111
+  },
+  "oss": {
+   "lic": 0.0053,
+   "build": 0.1254,
+   "switch": 0.1926,
+   "rollout": 0.177,
+   "train": 0.0604,
+   "maint": 0.2564,
+   "gov": 0.1437,
+   "risk": 0.039
+  },
+  "deneb": {
+   "lic": 0.0163,
+   "build": 0.0746,
+   "switch": 0.217,
+   "rollout": 0.211,
+   "train": 0.1501,
+   "maint": 0.1988,
+   "gov": 0.1163,
+   "risk": 0.0159
+  },
+  "core": {
+   "lic": 0.0,
+   "build": 0.1009,
+   "switch": 0.1007,
+   "rollout": 0.2193,
+   "train": 0.0908,
+   "maint": 0.3968,
+   "gov": 0.0821,
+   "risk": 0.0094
+  }
+ },
+ "hard_share": {
+  "paid": 0.4312,
+  "oss": 0.2512,
+  "deneb": 0.3531,
+  "core": 0.3106
+ },
+ "phase": {
+  "paid": [
+   0.1497,
+   0.337,
+   0.2814,
+   0.2319
+  ],
+  "oss": [
+   0.154,
+   0.3853,
+   0.0972,
+   0.3635
+  ],
+  "deneb": [
+   0.2375,
+   0.3313,
+   0.1156,
+   0.3156
+  ],
+  "core": [
+   0.1602,
+   0.302,
+   0.1504,
+   0.3875
+  ]
+ },
+ "per_viewer": {
+  "paid": {
+   "p10": 78.82779998094554,
+   "p50": 293.19101483038577,
+   "p90": 979.579019895743
+  },
+  "oss": {
+   "p10": 85.25483886994277,
+   "p50": 479.8033955056161,
+   "p90": 2019.1804704755161
+  },
+  "deneb": {
+   "p10": 78.02041822186368,
+   "p50": 442.52729242501204,
+   "p90": 1648.2914036511243
+  },
+  "core": {
+   "p10": 99.60482713209538,
+   "p50": 566.8874529648408,
+   "p90": 2018.7690674098492
+  }
+ },
+ "exit_ratio": {
+  "paid": 0.5355599025535428,
+  "oss": 0.44150848717898994,
+  "deneb": 0.2759987958352794,
+  "core": 0.3437386200971522
+ },
+ "fte": {
+  "paid": {
+   "p50": 0.09833333333333333,
+   "p90": 0.38626666666666665
+  },
+  "oss": {
+   "p50": 0.20644444444444446,
+   "p90": 0.9164533333333339
+  },
+  "deneb": {
+   "p50": 0.15853333333333333,
+   "p90": 0.6154755555555561
+  },
+  "core": {
+   "p50": 0.21506666666666668,
+   "p90": 0.7878800000000007
+  }
+ },
+ "winner_profile": {
+  "paid": {
+   "n": 28409,
+   "viewers_p50": 30.0,
+   "creators_p50": 3.0,
+   "h10": 0.116,
+   "seg": {
+    "klein": 0.6122,
+    "konzern": 0.0186,
+    "mittelstand": 0.2896,
+    "gehoben": 0.0473,
+    "finanz": 0.0233,
+    "oeffentlich": 0.0091
+   }
+  },
+  "oss": {
+   "n": 15090,
+   "viewers_p50": 35.0,
+   "creators_p50": 3.0,
+   "h10": 0.15,
+   "seg": {
+    "oeffentlich": 0.0325,
+    "klein": 0.5616,
+    "gehoben": 0.0594,
+    "mittelstand": 0.3099,
+    "finanz": 0.0256,
+    "konzern": 0.0109
+   }
+  },
+  "deneb": {
+   "n": 15186,
+   "viewers_p50": 91.0,
+   "creators_p50": 3.0,
+   "h10": 0.198,
+   "seg": {
+    "gehoben": 0.0742,
+    "konzern": 0.0213,
+    "mittelstand": 0.305,
+    "finanz": 0.0977,
+    "oeffentlich": 0.1109,
+    "klein": 0.391
+   }
+  },
+  "core": {
+   "n": 30419,
+   "viewers_p50": 111.0,
+   "creators_p50": 4.0,
+   "h10": 0.15,
+   "seg": {
+    "mittelstand": 0.2711,
+    "klein": 0.3421,
+    "konzern": 0.0285,
+    "gehoben": 0.0792,
+    "finanz": 0.1125,
+    "oeffentlich": 0.1666
+   }
+  }
+ },
+ "win_flags": {
+  "core": 0.1915,
+  "paid": 0.4493,
+  "deneb": 0.1705,
+  "oss": 0.1747,
+  "none": 0.0139
+ },
+ "ko_flags": {
+  "paid": 0.3764,
+  "oss": 0.2363,
+  "deneb": 0.1217,
+  "core": 0.0389
+ },
+ "win_by_baseline": {
+  "none": {
+   "n": 40256,
+   "free": {
+    "paid": 0.7724,
+    "oss": 0.1421,
+    "deneb": 0.0855
+   }
+  },
+  "paid": {
+   "n": 15109,
+   "free": {
+    "paid": 0.9061,
+    "deneb": 0.0407,
+    "oss": 0.0532
+   }
+  },
+  "oss": {
+   "n": 4605,
+   "free": {
+    "paid": 0.301,
+    "oss": 0.6612,
+    "deneb": 0.0378
+   }
+  },
+  "deneb": {
+   "n": 6248,
+   "free": {
+    "deneb": 0.7639,
+    "paid": 0.235,
+    "oss": 0.0011
+   }
+  },
+  "core": {
+   "n": 33782,
+   "free": {
+    "core": 0.2847,
+    "paid": 0.613,
+    "deneb": 0.0342,
+    "oss": 0.0681
+   }
+  }
+ },
+ "win_by_lic": {
+  "inforiver": {
+   "n": 48701,
+   "free": {
+    "core": 0.0669,
+    "paid": 0.8035,
+    "deneb": 0.0655,
+    "oss": 0.0642
+   }
+  },
+  "enterprise": {
+   "n": 37034,
+   "free": {
+    "paid": 0.6357,
+    "core": 0.1101,
+    "deneb": 0.1161,
+    "oss": 0.1381
+   }
+  },
+  "zebra": {
+   "n": 14265,
+   "free": {
+    "paid": 0.3975,
+    "core": 0.1601,
+    "oss": 0.2551,
+    "deneb": 0.1872
+   }
+  }
+ },
+ "mi": [
+  [
+   "Must: paginated",
+   0.2247
+  ],
+  [
+   "Must: writeback",
+   0.1718
+  ],
+  [
+   "Flag: nobudget",
+   0.1558
+  ],
+  [
+   "Must: exit",
+   0.1485
+  ],
+  [
+   "Must: copilot",
+   0.1288
+  ],
+  [
+   "Segment",
+   0.1204
+  ],
+  [
+   "Flag: coreonly",
+   0.1198
+  ],
+  [
+   "Must: ibcscert",
+   0.1027
+  ],
+  [
+   "Heutiger Ansatz",
+   0.0965
+  ],
+  [
+   "OSS fertig/selbst gebaut",
+   0.077
+  ],
+  [
+   "Must: sla",
+   0.0769
+  ],
+  [
+   "Flag: ibcsmust",
+   0.0764
+  ],
+  [
+   "Größe (Viewer)",
+   0.0755
+  ],
+  [
+   "Ersteller",
+   0.0576
+  ],
+  [
+   "Semantikmodelle",
+   0.0543
+  ],
+  [
+   "Flag: rs",
+   0.0526
+  ],
+  [
+   "Flag: novat",
+   0.0518
+  ],
+  [
+   "Must: rs",
+   0.0428
+  ],
+  [
+   "Flag: certonly",
+   0.0373
+  ],
+  [
+   "Flag: revision",
+   0.0248
+  ],
+  [
+   "Verteilweg",
+   0.0235
+  ],
+  [
+   "Flag: noext",
+   0.0195
+  ],
+  [
+   "Flag: euonly",
+   0.0162
+  ],
+  [
+   "Must: datares",
+   0.0157
+  ],
+  [
+   "Site-Lizenz",
+   0.0148
+  ],
+  [
+   "Must: a11y",
+   0.0106
+  ],
+  [
+   "Must: mscert",
+   0.0105
+  ],
+  [
+   "Must: bus",
+   0.0095
+  ],
+  [
+   "Lizenz-Preisniveau",
+   0.0075
+  ],
+  [
+   "Flag: orgstore",
+   0.0069
+  ],
+  [
+   "Horizont",
+   0.006
+  ],
+  [
+   "Vorlagenbibliothek",
+   0.0033
+  ],
+  [
+   "Flag: sovereign",
+   0.003
+  ],
+  [
+   "Report-Klassen",
+   0.0028
+  ],
+  [
+   "Flag: budgetnext",
+   0.0019
+  ],
+  [
+   "Must: export",
+   0.0019
+  ],
+  [
+   "Must: drill",
+   0.001
+  ],
+  [
+   "IBCS für alle Reports",
+   0.0006
+  ],
+  [
+   "Flag: embed",
+   0.0002
+  ],
+  [
+   "Must: interact",
+   0.0001
+  ],
+  [
+   "Must: maint",
+   0.0
+  ]
+ ],
+ "mi_H": 2.2111783861543315,
+ "mi_free": [
+  [
+   "Heutiger Ansatz",
+   0.3532
+  ],
+  [
+   "Segment",
+   0.1637
+  ],
+  [
+   "Größe (Viewer)",
+   0.1553
+  ],
+  [
+   "Ersteller",
+   0.0943
+  ],
+  [
+   "Semantikmodelle",
+   0.0913
+  ],
+  [
+   "OSS fertig/selbst gebaut",
+   0.0779
+  ],
+  [
+   "Lizenz-Preisniveau",
+   0.0652
+  ],
+  [
+   "Site-Lizenz",
+   0.0592
+  ],
+  [
+   "Verteilweg",
+   0.038
+  ],
+  [
+   "Horizont",
+   0.0297
+  ],
+  [
+   "Report-Klassen",
+   0.0231
+  ],
+  [
+   "Vorlagenbibliothek",
+   0.0101
+  ],
+  [
+   "IBCS für alle Reports",
+   0.0007
+  ]
+ ],
+ "robust": {
+  "opus": {
+   "free": {
+    "core": 0.0496,
+    "paid": 0.7369,
+    "oss": 0.1453,
+    "deneb": 0.0682
+   },
+   "ok": {
+    "core": 0.1978,
+    "paid": 0.3119,
+    "deneb": 0.1678,
+    "oss": 0.2447,
+    "none": 0.0777
+   }
+  },
+  "sonnet-1": {
+   "free": {
+    "core": 0.1271,
+    "paid": 0.6621,
+    "deneb": 0.1132,
+    "oss": 0.0977
+   },
+   "ok": {
+    "core": 0.3443,
+    "paid": 0.274,
+    "deneb": 0.1427,
+    "oss": 0.1301,
+    "none": 0.1088
+   }
+  },
+  "sonnet-2": {
+   "free": {
+    "core": 0.1175,
+    "paid": 0.6443,
+    "deneb": 0.1299,
+    "oss": 0.1084
+   },
+   "ok": {
+    "core": 0.323,
+    "paid": 0.2739,
+    "deneb": 0.1627,
+    "oss": 0.1197,
+    "none": 0.1207
+   }
+  }
+ }
+}
