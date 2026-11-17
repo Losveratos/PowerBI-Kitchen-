@@ -1,0 +1,40 @@
+{
+  "estimator": "Sonnet 5.5 (Schaetzer B, skeptische CoE-Sicht, ohne Websuche)",
+  "factors": {
+    "paid": {"firstH":[0.85,0.95,1.05],"reuseH":[0.6,0.8,1.0],"maint":[0.8,0.92,1.05],"fixH":[0.85,0.95,1.05],"trainH":[0.9,1.05,1.3],"rampH":[0.8,0.95,1.1],"supH100":[0.75,0.9,1.0],"govRun":[0.95,1.05,1.25]},
+    "oss": {"firstH":[0.6,0.8,1.05],"reuseH":[0.55,0.75,0.95],"maint":[0.6,0.8,1.0],"fixH":[0.55,0.75,1.0],"trainH":[0.9,1.05,1.3],"rampH":[0.6,0.8,1.0],"supH100":[0.75,0.9,1.0],"govRun":[0.95,1.1,1.35],"devH":[0.8,1.0,1.2]},
+    "deneb": {"firstH":[0.55,0.75,1.0],"reuseH":[0.45,0.65,0.9],"maint":[0.6,0.8,1.0],"fixH":[0.55,0.75,1.0],"trainH":[0.6,0.8,1.05],"rampH":[0.55,0.75,1.0],"supH100":[0.75,0.9,1.0],"govRun":[0.95,1.1,1.3]},
+    "core": {"firstH":[0.6,0.8,1.05],"reuseH":[0.5,0.7,0.95],"maint":[0.65,0.85,1.05],"fixH":[0.6,0.8,1.05],"trainH":[0.75,0.9,1.1],"rampH":[0.65,0.85,1.05],"supH100":[0.8,0.92,1.0],"govRun":[0.95,1.1,1.3]}
+  },
+  "aiCostPerCreatorYear": [350, 900, 2400],
+  "aiCostShareVisual": [0.15, 0.3, 0.5],
+  "adoption": {"konzern":[0.25,0.45,0.65],"gehoben":[0.2,0.4,0.6],"mittelstand":[0.15,0.3,0.5],"klein":[0.15,0.3,0.55],"finanz":[0.1,0.25,0.45],"oeffentlich":[0.05,0.15,0.3]},
+  "rationale": {
+    "paid": "Schaetzung: GUI-Konfiguration eines Hersteller-Visuals mit undokumentiertem Schema; KI hilft nur beim Kopieren/Variieren von PBIR-JSON (reuseH) und kaum beim Erstaufbau. Geringster Hebel aller Wege.",
+    "oss": "Schaetzung auf Basis der gemischten Evidenz (METR 2025 -19 %, Update 2026 +4 bis +20 %, Peng +55,8 % nur Greenfield): Wartung bestehender Codebasis ist die METR-nahe Situation, daher nur ca. 20-25 % Ersparnis im Modus; Agent-Guide und Tests helfen.",
+    "deneb": "Schaetzung: Vega-Lite-JSON ist textuell, diff-faehig und LLMs kennen es gut; Deneb-spezifische Eigenheiten (Datensatzname, pbiContainer, Quoting) bremsen. Staerkster Hebel, vor allem bei Rollout und Migration.",
+    "core": "Schaetzung: DAX ist gut abgedeckt, SVG-Measures und UDF-Workarounds sind fehleranfaellig und schwer zu verifizieren; Massenaenderungen von Measures via TMDL profitieren, Erstaufbau weniger.",
+    "reuseH": "Schaetzung: Wiederholung nach Vorlage ist der Fall, in dem Agents am verlaesslichsten sind (Greenfield-nah, klares Muster), daher groesste Reduktion.",
+    "maint": "Schaetzung: Wartung ist die METR-Situation (erfahrene Entwickler, bekannte Codebasis); Ersparnis moderat, Tail bis ca. 1,0.",
+    "fixH": "Schaetzung: Fehlersuche nach Breaking-Updates profitiert von Diff/Spec-Lesen, aber Ursache liegt oft in undokumentiertem Power-BI-Verhalten, das das Modell nicht kennt.",
+    "trainH": "Schaetzung: Schulung muss zusaetzlich KI-Umgang und Pruefkompetenz abdecken; bei Deneb/core sinkt der Syntaxanteil, bei paid/oss steigt der Gesamtaufwand eher.",
+    "rampH": "Schaetzung: KI beschleunigt Einarbeitung in unbekannte Syntax (Deneb, DAX/SVG) deutlich, in GUI-Tools kaum.",
+    "supH100": "Schaetzung: Chatbot/Doku-Assistent entlastet Standardfragen leicht; Viewer-Support bleibt groesstenteils menschlich.",
+    "govRun": "Schaetzung: Mehr KI-generierter Output muss reviewt werden (Review-Burden, Halluzinationen, Datenschutz, Prompt-Richtlinien); Governance steigt tendenziell, oeffentlich/finanz staerker.",
+    "devH": "Basis 200 h ist bereits KI-gestuetzt, 2.000 h klassisch; Faktor um 1,0 zur Vermeidung von Doppelzaehlung, Unsicherheit liegt eher im Basiswert.",
+    "aiCostPerCreatorYear": "Schaetzung: Copilot Business/Enterprise ca. 200-420 EUR/Jahr plus Claude/Agent-Seat oder Token-Verbrauch; Mode 900 EUR, hi bei intensiver Agent-Nutzung mit API-Tokens.",
+    "aiCostShareVisual": "Schaetzung: Ersteller nutzen KI auch fuer SQL, Power Query, Doku und E-Mail; ca. ein Drittel fuer Visual-/Report-Pflege.",
+    "adoption": "Schaetzung Ende 2026: regelmaessige, wirksame Nutzung fuer Report-Bau (nicht nur Lizenz vorhanden). Konzerne haben Lizenzen, aber Datenschutz-/Betriebsrat-Huerden; oeffentlich und Finanz am bremsendsten."
+  },
+  "sources": [
+    {"title":"METR RCT 2025 (Becker et al.): Early-2025 AI on experienced OSS developer productivity","url":"https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/","used_for":"Obergrenze/pessimistisches hi bei Wartung (aus dem Brief, nicht neu recherchiert)"},
+    {"title":"Peng et al. 2023: The Impact of AI on Developer Productivity (Copilot)","url":"https://arxiv.org/abs/2302.06590","used_for":"Optimistisches lo bei Greenfield/Wiederholung (aus dem Brief, nicht neu recherchiert)"}
+  ],
+  "biggest_uncertainties": [
+    "Keine neue Websuche; Zahlen sind begruendete Schaetzungen, nur METR und Peng stammen aus dem Brief.",
+    "Ob Wartung/Fix (hoher Kontextanteil, undokumentiertes Power-BI-Verhalten) eher METR-nah (Faktor ca. 1,0) oder Greenfield-nah (0,6) ausfaellt.",
+    "Review- und Governance-Mehraufwand durch KI-Output, der Einsparungen im Konzern teils aufzehren kann (hi > 1 bei govRun).",
+    "Echte Adoption fuer Report-Bau Ende 2026 versus bloss vorhandene Lizenzen; Datenschutz und Mitbestimmung.",
+    "Token-/Agent-Kosten bei intensiver Nutzung mit Coding-Agents (hi 2.400 EUR) und Preisentwicklung."
+  ]
+}

@@ -1,0 +1,1202 @@
+[
+ {
+  "id": "G01",
+  "name": "Verbandsgemeinde Soonwald-Nahe",
+  "industry": "Kommunalverwaltung (Verbandsgemeinde)",
+  "city": "Kirn",
+  "employees": 320,
+  "segment": "oeffentlich",
+  "story": "Die Kämmerei stellt gerade auf ein doppisches Berichtswesen um und will dem Verbandsgemeinderat statt Excel-Tabellen verständliche Plan-Ist-Vergleiche vorlegen. Es gibt eine halbe Stelle Controlling und praktisch kein Geld für Lizenzen; die Haushaltsplanung für das nächste Jahr ist bereits beschlossen. Die Ratsmitglieder bekommen die Berichte als PDF, gelesen wird im Haus nur von der Verwaltungsspitze und den Fachbereichen.",
+  "decider": "Kämmerer, mit Zustimmung des Bürgermeisters",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   15,
+   30,
+   55
+  ],
+  "reports": [
+   3,
+   6,
+   12
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   0,
+   3,
+   8
+  ],
+  "ssShare": 5,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 0.6,
+   "novat": 0.9,
+   "noext": 0.8,
+   "budgetnext": 0.5,
+   "euonly": 0.5,
+   "certonly": 0.4,
+   "coreonly": 0.2
+  },
+  "must": {
+   "export": 0.8,
+   "maint": 0.5,
+   "a11y": 0.5,
+   "bus": 0.5
+  },
+  "why": "Sehr kleines Team, kein Budget und PDF als wichtigster Verteilweg: Ein Standard muss ohne Lizenzkosten und ohne Spezialwissen tragen."
+ },
+ {
+  "id": "G02",
+  "name": "Regiobus Allgäu-Schwaben GmbH",
+  "industry": "Öffentlicher Nahverkehr (Regionalbus)",
+  "city": "Kempten (Allgäu)",
+  "employees": 780,
+  "segment": "oeffentlich",
+  "story": "Das kommunal getragene Busunternehmen muss gegenüber dem Aufgabenträger Zuschussbedarf, Fahrgeldeinnahmen und Kosten je Nutzwagenkilometer monatlich nachweisen. Die Standardberichte laufen heute als Core-Visuals mit SVG-Messages, die nur noch zwei Leute pflegen können. Gewünscht ist ein Standard, der auch die Betriebshöfe mit eigenen Auswertungen versorgt.",
+  "decider": "Kaufmännischer Geschäftsführer",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   25,
+   45,
+   90
+  ],
+  "reports": [
+   8,
+   14,
+   25
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   2,
+   6,
+   12
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 9,
+  "dist": "org",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "certonly": 0.6,
+   "orgstore": 0.4,
+   "novat": 0.3,
+   "revision": 0.4,
+   "euonly": 0.4,
+   "budgetnext": 0.3
+  },
+  "must": {
+   "export": 0.6,
+   "drill": 0.7,
+   "themeable": 0.4,
+   "maint": 0.4,
+   "copyppt": 0.3,
+   "a11y": 0.3,
+   "mobile": 0.2
+  },
+  "why": "Teilweise vorsteuerabzugsberechtigt, operative Berichte mit Drilldown in die Betriebshöfe und ein bereits vorhandener Core-Visual-Bestand mit Vorlagenbibliothek."
+ },
+ {
+  "id": "G03",
+  "name": "Bundesamt für Beschaffungssteuerung und Vertragswesen",
+  "industry": "Bundesbehörde (Beschaffung)",
+  "city": "Bonn",
+  "employees": 3400,
+  "segment": "oeffentlich",
+  "story": "Das Amt verantwortet das Haushalts- und Kostencontrolling für mehrere Ressorts und steuert Plan-Ist-Abweichungen von rund 140 Kostenstellenbereichen. Die Referate sind gewohnt, jedes sein eigenes Format zu pflegen; die Amtsleitung will einen einheitlichen Standard für Haushaltsvollzug und KLR. Daten dürfen die Bundes-Infrastruktur nicht verlassen, und Barrierefreiheit nach BITV ist Dauerthema der Aufsicht.",
+  "decider": "Abteilungsleitung Haushalt und Controlling, Freigabe durch das Haus-IT-Referat",
+  "creators": [
+   4,
+   7,
+   14
+  ],
+  "viewers": [
+   100,
+   220,
+   450
+  ],
+  "reports": [
+   15,
+   30,
+   60
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   4,
+   7,
+   12
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 15,
+  "horizon": 10,
+  "licAnchor": "zebra",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 18,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "sovereign": 0.6,
+   "euonly": 1.0,
+   "rs": 0.5,
+   "coreonly": 0.5,
+   "noext": 0.7,
+   "revision": 0.8,
+   "certonly": 0.7,
+   "novat": 1.0,
+   "budgetnext": 0.6
+  },
+  "must": {
+   "datares": 0.8,
+   "a11y": 0.9,
+   "exit": 0.6,
+   "export": 0.7,
+   "pin": 0.6,
+   "bus": 0.6,
+   "sla": 0.5,
+   "alm": 0.5,
+   "version": 0.4,
+   "rs": 0.3
+  },
+  "why": "Strengste Rahmenbedingungen im Panel (Datenhoheit, Barrierefreiheit, Vergaberecht) bei langem Horizont und offener Verteilung."
+ },
+ {
+  "id": "G04",
+  "name": "Universität Lausitz-Spreewald",
+  "industry": "Hochschule (Universität)",
+  "city": "Cottbus",
+  "employees": 3200,
+  "segment": "oeffentlich",
+  "story": "Das Dezernat Finanzen will Drittmittelprojekte, Lehrbudgets und Berufungszusagen nach einheitlicher Notation berichten; bisher bauen Fakultäten und Institute eigene Power-BI-Berichte mit einem Open-Source-Visual und zahllosen Eigenheiten. Zentral stehen wenige Leute zur Verfügung, die Fakultäten sollen aber selbst weiterbauen dürfen. Beschafft wird erst nach Haushaltsfreigabe im nächsten Jahr.",
+  "decider": "Kanzlerin bzw. Dezernatsleitung Finanzen, Beratung durch das Rechenzentrum",
+  "creators": [
+   3,
+   5,
+   9
+  ],
+  "viewers": [
+   60,
+   120,
+   250
+  ],
+  "reports": [
+   10,
+   18,
+   35
+  ],
+  "types": [
+   4,
+   6,
+   8
+  ],
+  "models": [
+   3,
+   4,
+   8
+  ],
+  "growth": [
+   2,
+   8,
+   20
+  ],
+  "ssShare": 35,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "oss",
+  "existing": 12,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "novat": 1.0,
+   "nobudget": 0.4,
+   "budgetnext": 0.5,
+   "noext": 0.5,
+   "euonly": 0.6,
+   "certonly": 0.3,
+   "orgstore": 0.3
+  },
+  "must": {
+   "export": 0.5,
+   "drill": 0.6,
+   "maint": 0.6,
+   "a11y": 0.6,
+   "exit": 0.5,
+   "interact": 0.5,
+   "pin": 0.3,
+   "writeback": 0.2
+  },
+  "why": "Dezentraler Self-Service mit viel Wildwuchs und kein Vorsteuerabzug, dazu ein bereits vorhandener Open-Source-Bestand."
+ },
+ {
+  "id": "G05",
+  "name": "Stadtwerke Hellweg-Lippe GmbH",
+  "industry": "Stadtwerke (Energie, Wasser, Bäder)",
+  "city": "Soest",
+  "employees": 1350,
+  "segment": "oeffentlich",
+  "story": "Das Beteiligungscontrolling der Stadt und der Aufsichtsrat verlangen monatlich Spartenergebnisse und Netzentgelt-Abweichungen in gleicher Notation. Heute kommt ein gekauftes Visual zum Einsatz, das pro Nutzer abgerechnet wird; mit wachsender Leserschaft aus den Sparten rechnet sich das nicht mehr. Der IT-Betrieb lässt Visuals nur zertifiziert oder über den Organizational Store zu.",
+  "decider": "Leiter Controlling und Finanzen, Abstimmung mit der IT-Sicherheit",
+  "creators": [
+   3,
+   5,
+   8
+  ],
+  "viewers": [
+   60,
+   110,
+   180
+  ],
+  "reports": [
+   14,
+   22,
+   40
+  ],
+  "types": [
+   6,
+   7,
+   9
+  ],
+  "models": [
+   4,
+   6,
+   9
+  ],
+  "growth": [
+   2,
+   5,
+   10
+  ],
+  "ssShare": 25,
+  "horizon": 10,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 24,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 0.8,
+   "orgstore": 0.6,
+   "revision": 0.7,
+   "ibcsmust": 0.15,
+   "noext": 0.3,
+   "budgetnext": 0.2,
+   "euonly": 0.3
+  },
+  "must": {
+   "mscert": 0.6,
+   "export": 0.8,
+   "exportdata": 0.5,
+   "sla": 0.6,
+   "themeable": 0.5,
+   "exit": 0.5,
+   "scale": 0.5,
+   "alm": 0.4,
+   "paginated": 0.4,
+   "ibcscert": 0.2,
+   "datares": 0.3
+  },
+  "why": "Normaler mittelgroßer Versorger mit voller Vorsteuer, bestehendem Bezahl-Visual und echtem Wechseldruck wegen steigender Nutzerzahl."
+ },
+ {
+  "id": "G06",
+  "name": "Handwerkskammer Niederrhein-Süd",
+  "industry": "Kammer (Körperschaft des öffentlichen Rechts)",
+  "city": "Neuss",
+  "employees": 190,
+  "segment": "oeffentlich",
+  "story": "Die Hauptgeschäftsführung will Wirtschaftsplan, Beitragsaufkommen und Bildungszentren-Ergebnisse vor Vorstand und Vollversammlung in einheitlicher Form zeigen. Neben den Führungskräften im Haus lesen rund 30 ehrenamtliche Mitglieder von Vorstand und Ausschüssen mit, die Zugang über Gast-Einladungen bekommen. Als Kammer gilt Vergaberecht, und die Berichte gehen regelmäßig ans Ministerium und die Rechnungsprüfung.",
+  "decider": "Hauptgeschäftsführer und Leiter Finanzen",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   25,
+   55,
+   90
+  ],
+  "reports": [
+   4,
+   8,
+   14
+  ],
+  "types": [
+   3,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   -2,
+   2,
+   6
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "novat": 1.0,
+   "nobudget": 0.4,
+   "budgetnext": 0.6,
+   "noext": 0.7,
+   "euonly": 0.5,
+   "revision": 0.6,
+   "certonly": 0.3
+  },
+  "must": {
+   "export": 0.8,
+   "copyppt": 0.5,
+   "maint": 0.6,
+   "design": 0.4,
+   "a11y": 0.3,
+   "bus": 0.5
+  },
+  "why": "Klein, aber mit externen Lesern aus dem Ehrenamt, Ausschreibungspflicht und Bedarf an Berichtsexport für Gremien."
+ },
+ {
+  "id": "G07",
+  "name": "Berufsgenossenschaft Metall- und Holzverarbeitung West",
+  "industry": "Gesetzliche Unfallversicherung (Berufsgenossenschaft)",
+  "city": "Bochum",
+  "employees": 1150,
+  "segment": "oeffentlich",
+  "story": "Die BG berichtet Beitragsaufkommen, Rehabilitationskosten und Verwaltungskosten an Vorstand und Aufsicht. Ein kleines Team hat dafür Deneb-Vorlagen gebaut, die bei einer Prüfung durch die Aufsichtsbehörde nachvollziehbar sein müssen. Das Wissen steckt in zwei Köpfen, einer davon geht in drei Jahren in den Ruhestand.",
+  "decider": "Leiter Rechnungswesen und Controlling, Zustimmung der Geschäftsführung",
+  "creators": [
+   2,
+   4,
+   6
+  ],
+  "viewers": [
+   50,
+   90,
+   160
+  ],
+  "reports": [
+   10,
+   16,
+   28
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   3,
+   4,
+   6
+  ],
+  "growth": [
+   0,
+   2,
+   6
+  ],
+  "ssShare": 10,
+  "horizon": 10,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "deneb",
+  "existing": 14,
+  "dist": "file",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "novat": 1.0,
+   "revision": 0.9,
+   "euonly": 0.8,
+   "noext": 0.6,
+   "certonly": 0.5,
+   "budgetnext": 0.4,
+   "rs": 0.3,
+   "sovereign": 0.2
+  },
+  "must": {
+   "version": 0.6,
+   "alm": 0.6,
+   "exit": 0.7,
+   "bus": 0.6,
+   "maint": 0.4,
+   "a11y": 0.5,
+   "sla": 0.4,
+   "export": 0.6,
+   "themeable": 0.4,
+   "datares": 0.5
+  },
+  "why": "Bestehende Code-Lösung mit Nachvollziehbarkeitspflicht und Personenrisiko; der Wechsel hängt daran, ob jemand die Rechenlogik prüfen kann."
+ },
+ {
+  "id": "G08",
+  "name": "Stadt Wettenried (Kanton Zürich)",
+  "industry": "Stadtverwaltung (Schweiz)",
+  "city": "Wettenried",
+  "employees": 2100,
+  "segment": "oeffentlich",
+  "story": "Das Finanzdepartement berichtet nach HRM2 an Stadtrat und Gemeinderat und nutzt bereits Zebra BI für einzelne Berichte. Die Verträge laufen aus, und die Verwaltung will für zwei Departemente zusätzlich Leserzahlen aufbauen, aber nicht jeden Platz einzeln zahlen. Nach Datenschutzgesetz soll die Verarbeitung im Inland oder zumindest in der EU bleiben.",
+  "decider": "Finanzvorsteher gemeinsam mit der Leitung Informatik",
+  "creators": [
+   3,
+   6,
+   10
+  ],
+  "viewers": [
+   90,
+   160,
+   300
+  ],
+  "reports": [
+   12,
+   22,
+   40
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   3,
+   5,
+   8
+  ],
+  "growth": [
+   1,
+   4,
+   10
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "zebra",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 15,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "novat": 0.6,
+   "certonly": 0.5,
+   "euonly": 0.7,
+   "noext": 0.4,
+   "sovereign": 0.3,
+   "budgetnext": 0.4,
+   "revision": 0.6
+  },
+  "must": {
+   "datares": 0.6,
+   "export": 0.7,
+   "drill": 0.6,
+   "mscert": 0.5,
+   "maint": 0.5,
+   "copyppt": 0.4,
+   "a11y": 0.4,
+   "themeable": 0.4,
+   "sla": 0.3
+  },
+  "why": "Etablierter Zebra-Kunde, der über Site-Lizenz verhandelt, mit Schweizer Datenstandort und teilweisem Vorsteuerabzug."
+ },
+ {
+  "id": "G09",
+  "name": "Stadtgemeinde Traunfelden",
+  "industry": "Gemeindeverwaltung (Österreich)",
+  "city": "Traunfelden (Oberösterreich)",
+  "employees": 1050,
+  "segment": "oeffentlich",
+  "story": "Die Finanzabteilung muss nach VRV 2015 Ergebnis-, Finanzierungs- und Vermögenshaushalt für Gemeinderat und Gemeindeaufsicht darstellen. Die Gemeindeverbände stellen kostenlos SVG-/DAX-Vorlagen bereit, mit denen schon sechs Berichte laufen. Die Stadt führt neben dem Hoheitsbereich auch Kindergärten, Altenheim und Bauhof, die zum Teil umsatzsteuerlich anders behandelt werden.",
+  "decider": "Finanzdirektor mit Amtsleiter-Runde",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   30,
+   55,
+   100
+  ],
+  "reports": [
+   6,
+   10,
+   18
+  ],
+  "types": [
+   4,
+   5,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   0,
+   3,
+   8
+  ],
+  "ssShare": 15,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 6,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "novat": 0.7,
+   "nobudget": 0.3,
+   "noext": 0.6,
+   "euonly": 0.5,
+   "certonly": 0.4,
+   "budgetnext": 0.5,
+   "revision": 0.5,
+   "coreonly": 0.25
+  },
+  "must": {
+   "export": 0.8,
+   "maint": 0.6,
+   "copyppt": 0.4,
+   "a11y": 0.4,
+   "mobile": 0.3,
+   "exit": 0.3,
+   "scale": 0.3
+  },
+  "why": "Kostenfreie Vorlagen vom Verband sind eine reale Alternative; zugleich ist die Umsatzsteuerlage je Betrieb gemischt."
+ },
+ {
+  "id": "G10",
+  "name": "Abfallwirtschaft Südheide AöR",
+  "industry": "Kommunale Abfallwirtschaft (Anstalt öffentlichen Rechts)",
+  "city": "Celle",
+  "employees": 430,
+  "segment": "oeffentlich",
+  "story": "Die Anstalt kalkuliert Gebühren für den Landkreis und muss Kostenüberdeckungen, Fahrzeugkosten und Deponienachsorge sauber ausweisen. Das zweiköpfige Controlling hat noch keinen Standard, der Verwaltungsrat bekommt Papierauszüge. Vor jeder Gebührenanpassung prüft die Kommunalaufsicht die Rechenwege, deshalb soll nachvollziehbar sein, wie Zahlen entstehen.",
+  "decider": "Vorstand der AöR, auf Vorschlag des Controllings",
+  "creators": [
+   1,
+   2,
+   4
+  ],
+  "viewers": [
+   14,
+   28,
+   50
+  ],
+  "reports": [
+   4,
+   7,
+   12
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   2,
+   6
+  ],
+  "ssShare": 30,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "file",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "novat": 0.3,
+   "nobudget": 0.3,
+   "budgetnext": 0.5,
+   "noext": 0.4,
+   "revision": 0.5,
+   "certonly": 0.2,
+   "euonly": 0.3
+  },
+  "must": {
+   "export": 0.4,
+   "drill": 0.5,
+   "interact": 0.6,
+   "maint": 0.5,
+   "exportdata": 0.5,
+   "bus": 0.5,
+   "pin": 0.2
+  },
+  "why": "Kurzer Horizont, zwei Leute und Gebührenrecht, das Nachvollziehbarkeit verlangt; Vorsteuerabzug nur teils eingeschränkt."
+ },
+ {
+  "id": "G11",
+  "name": "Ausgleichskasse Nordwestschweiz",
+  "industry": "Sozialversicherung (Ausgleichskasse AHV/IV)",
+  "city": "Olten",
+  "employees": 640,
+  "segment": "oeffentlich",
+  "story": "Die Kasse hat die Management-Berichte freiwillig nach IBCS umgestellt und für alle Berichte verbindlich gemacht; bisher bauen zwei Controller Deneb-Vorlagen und pflegen sie in Git. Die Aufsicht beim Bundesamt verlangt Nachvollziehbarkeit und Datenhaltung in der Schweiz. Als nächster Schritt sollen Abteilungsleiter ihre Kennzahlen selbst anpassen können, ohne Code.",
+  "decider": "Leiter Finanzen und Controlling, Genehmigung durch die Direktion",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   30,
+   60,
+   110
+  ],
+  "reports": [
+   8,
+   13,
+   22
+  ],
+  "types": [
+   4,
+   6,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   5
+  ],
+  "growth": [
+   -2,
+   1,
+   5
+  ],
+  "ssShare": 10,
+  "horizon": 10,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": true,
+  "baseline": "deneb",
+  "existing": 7,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "novat": 1.0,
+   "euonly": 0.8,
+   "sovereign": 0.4,
+   "certonly": 0.7,
+   "orgstore": 0.3,
+   "revision": 0.8,
+   "noext": 0.6,
+   "budgetnext": 0.3,
+   "ibcsmust": 0.2
+  },
+  "must": {
+   "datares": 0.7,
+   "mscert": 0.5,
+   "a11y": 0.5,
+   "version": 0.5,
+   "alm": 0.5,
+   "sla": 0.4,
+   "bus": 0.6,
+   "export": 0.7,
+   "exit": 0.6,
+   "pin": 0.5,
+   "maint": 0.5,
+   "ibcscert": 0.2
+  },
+  "why": "IBCS ist hier schon verbindlich und eine Code-Lösung läuft; interessant ist, ob sie bei Ausbau zum Self-Service skaliert."
+ },
+ {
+  "id": "G12",
+  "name": "Landesrundfunkanstalt Mainfranken-Rhön",
+  "industry": "Öffentlich-rechtlicher Rundfunk",
+  "city": "Würzburg",
+  "employees": 1300,
+  "segment": "oeffentlich",
+  "story": "Die Anstalt meldet Programm-, Technik- und Verwaltungskosten an den Rundfunkrat und den Verwaltungsrat und vergleicht sich mit Schwesteranstalten. Seit zwei Jahren läuft ein gekauftes Visual im Controlling, das nun auf Hauptabteilungen ausgeweitet werden soll. Beitragsfinanziert, aber mit gewerblichen Tochtergesellschaften, daher nur teilweise Vorsteuerabzug.",
+  "decider": "Verwaltungsdirektor mit Leitung Controlling",
+  "creators": [
+   3,
+   5,
+   8
+  ],
+  "viewers": [
+   50,
+   95,
+   170
+  ],
+  "reports": [
+   10,
+   16,
+   30
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   3,
+   5,
+   7
+  ],
+  "growth": [
+   -3,
+   1,
+   5
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 11,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "novat": 0.6,
+   "revision": 0.7,
+   "budgetnext": 0.3,
+   "euonly": 0.5,
+   "noext": 0.4,
+   "certonly": 0.6,
+   "orgstore": 0.5
+  },
+  "must": {
+   "mscert": 0.5,
+   "export": 0.7,
+   "copyppt": 0.6,
+   "drill": 0.5,
+   "themeable": 0.5,
+   "design": 0.4,
+   "exit": 0.5,
+   "alm": 0.3,
+   "writeback": 0.3,
+   "a11y": 0.5
+  },
+  "why": "Management-lastige Berichte für Gremien, leicht negatives Viewer-Wachstum und gemischte Steuerlage."
+ },
+ {
+  "id": "G13",
+  "name": "Brauerei Kehlmann GmbH",
+  "industry": "Brauerei (familiengeführt, mit Gastronomie)",
+  "city": "Bamberg",
+  "employees": 85,
+  "segment": "klein",
+  "story": "Die Inhaberfamilie hat einen Controller eingestellt, der Absatz, Deckungsbeiträge je Sorte und die Gastro-Betriebe vergleichen soll. Neben Geschäftsführung, Braumeister und Vertriebsleitung lesen auch Steuerberaterin und Hausbank über Gastzugang mit. Nichts davon ist kompliziert, aber alles soll ohne Zusatzlizenzen laufen.",
+  "decider": "Geschäftsführender Gesellschafter",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   5,
+   9,
+   16
+  ],
+  "reports": [
+   2,
+   4,
+   7
+  ],
+  "types": [
+   3,
+   4,
+   6
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 0,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 0.5,
+   "noext": 0.3,
+   "budgetnext": 0.3,
+   "certonly": 0.1
+  },
+  "must": {
+   "export": 0.5,
+   "maint": 0.5,
+   "bus": 0.6,
+   "interact": 0.4
+  },
+  "why": "Der ganz normale Kleinbetrieb: ein Ersteller, wenige Leser, keine Sonderlage."
+ },
+ {
+  "id": "G14",
+  "name": "Alpensolar Installationstechnik GmbH",
+  "industry": "Photovoltaik-Installation und Service",
+  "city": "Kufstein",
+  "employees": 120,
+  "segment": "klein",
+  "story": "Der Betrieb wächst jedes Jahr kräftig, und Geschäftsführung und Projektleiter wollen Projektmargen und Auftragsbestand selbst auswerten. Es gibt keinen BI-Fachmann; zwei Projektleiter bauen nebenher Berichte mit Core-Visuals. Mitarbeitende im Außendienst sollen die wichtigsten Zahlen auf dem Handy sehen.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   8,
+   14,
+   24
+  ],
+  "reports": [
+   3,
+   5,
+   9
+  ],
+  "types": [
+   3,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   1,
+   3
+  ],
+  "growth": [
+   8,
+   15,
+   25
+  ],
+  "ssShare": 50,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 3,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 0.2,
+   "budgetnext": 0.3,
+   "noext": 0.2
+  },
+  "must": {
+   "maint": 0.6,
+   "mobile": 0.5,
+   "interact": 0.4,
+   "copilot": 0.3,
+   "export": 0.3,
+   "design": 0.3
+  },
+  "why": "Starkes Wachstum bei sehr kleiner Basis und Self-Service ohne zentrales Team."
+ },
+ {
+  "id": "G15",
+  "name": "Weberei Stauffer AG",
+  "industry": "Technische Textilien (Weberei)",
+  "city": "St. Gallen",
+  "employees": 420,
+  "segment": "mittelstand",
+  "story": "Die Controllerin hat mit Deneb eine kleine Vorlagenbibliothek für Abweichungs- und Wasserfallcharts gebaut, die Werke in der Schweiz und in Tschechien berichten in CHF und EUR. Ein Wechsel auf ein fertiges Visual würde Lizenzkosten bringen, Deneb braucht aber weiter Fachwissen. Berichte werden als Datei in Power BI Desktop verteilt, ein Store ist nicht eingerichtet.",
+  "decider": "CFO",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   25,
+   45,
+   80
+  ],
+  "reports": [
+   6,
+   10,
+   18
+  ],
+  "types": [
+   4,
+   6,
+   8
+  ],
+  "models": [
+   2,
+   3,
+   5
+  ],
+  "growth": [
+   2,
+   6,
+   12
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "deneb",
+  "existing": 6,
+  "dist": "file",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "certonly": 0.2,
+   "euonly": 0.3,
+   "budgetnext": 0.3,
+   "noext": 0.2
+  },
+  "must": {
+   "maint": 0.5,
+   "export": 0.5,
+   "themeable": 0.4,
+   "bus": 0.5,
+   "version": 0.3,
+   "exit": 0.4
+  },
+  "why": "Funktionierende Deneb-Lösung mit klarer Personenabhängigkeit und Mehrwährungsberichten, aber ohne Governance-Zwang."
+ },
+ {
+  "id": "G16",
+  "name": "Kolbe Gebäudetechnik GmbH",
+  "industry": "Gebäudetechnik (Heizung, Lüftung, Elektro)",
+  "city": "Dortmund",
+  "employees": 1100,
+  "segment": "mittelstand",
+  "story": "Niederlassungsleiter, Projektleiter und Bauleiter sollen Auftragsbestand, Nachkalkulation und Mehrleistungen in einheitlicher Form sehen; neben dem Büro wird viel auf Tablets und Handys gelesen. Ein Open-Source-Visual ist in zehn Berichten im Einsatz, wird aber von den Bauleitern als unhandlich empfunden. Die Geschäftsführung hält eine Lizenz pro Nutzer wegen schnell wachsender Leserzahl für riskant.",
+  "decider": "Kaufmännischer Leiter",
+  "creators": [
+   3,
+   5,
+   9
+  ],
+  "viewers": [
+   70,
+   140,
+   260
+  ],
+  "reports": [
+   12,
+   24,
+   45
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   3,
+   5,
+   8
+  ],
+  "growth": [
+   3,
+   8,
+   20
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "oss",
+  "existing": 10,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 0.3,
+   "orgstore": 0.3,
+   "budgetnext": 0.2,
+   "noext": 0.1,
+   "embed": 0.1
+  },
+  "must": {
+   "mobile": 0.7,
+   "interact": 0.6,
+   "drill": 0.7,
+   "maint": 0.5,
+   "exportdata": 0.6,
+   "export": 0.5,
+   "writeback": 0.3,
+   "copilot": 0.3,
+   "pin": 0.3
+  },
+  "why": "Operative, mobile Leserschaft mit stark wachsender Nutzerzahl und einem bereits genutzten Open-Source-Visual."
+ },
+ {
+  "id": "G17",
+  "name": "Papierfabrik Ellern GmbH & Co. KG",
+  "industry": "Papierindustrie (Spezialpapiere, familiengeführt)",
+  "city": "Düren",
+  "employees": 580,
+  "segment": "mittelstand",
+  "story": "Der Finanzchef kommt aus einem Konzern und hat IBCS für alle Management-Berichte beschlossen; das monatliche Berichtsheft geht weiterhin gedruckt an die Gesellschafter. Ein gekauftes Visual ist im Einsatz, die Lizenzkosten sind im Verhältnis zu den wenigen Lesern hoch. Teile des Reportings laufen noch auf einem Report Server im Werksnetz.",
+  "decider": "Geschäftsführer Finanzen",
+  "creators": [
+   2,
+   3,
+   4
+  ],
+  "viewers": [
+   30,
+   55,
+   95
+  ],
+  "reports": [
+   8,
+   12,
+   20
+  ],
+  "types": [
+   4,
+   6,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   0,
+   3,
+   8
+  ],
+  "ssShare": 10,
+  "horizon": 10,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 8,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "ibcsmust": 0.5,
+   "rs": 0.3,
+   "certonly": 0.4,
+   "revision": 0.3,
+   "euonly": 0.1,
+   "budgetnext": 0.2
+  },
+  "must": {
+   "ibcscert": 0.5,
+   "mscert": 0.5,
+   "export": 0.7,
+   "copyppt": 0.7,
+   "paginated": 0.4,
+   "scale": 0.6,
+   "design": 0.5,
+   "drill": 0.3,
+   "sla": 0.4,
+   "exit": 0.4,
+   "rs": 0.2
+  },
+  "why": "IBCS-Pflicht und gedrucktes Berichtsheft treffen auf Gesellschafter-Kostendruck bei überschaubarer Leserzahl."
+ }
+]

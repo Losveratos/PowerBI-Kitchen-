@@ -1,0 +1,94 @@
+{
+  "estimator": "Claude Opus 5.5 (Schätzer A, unabhängig)",
+  "factors": {
+    "paid": {
+      "firstH":  [0.80, 0.92, 1.05],
+      "reuseH":  [0.55, 0.75, 0.95],
+      "maint":   [0.85, 0.95, 1.05],
+      "fixH":    [0.85, 0.95, 1.10],
+      "trainH":  [0.80, 0.90, 1.00],
+      "rampH":   [0.75, 0.88, 1.00],
+      "supH100": [0.80, 0.92, 1.02],
+      "govRun":  [0.95, 1.05, 1.20]
+    },
+    "oss": {
+      "firstH":  [0.50, 0.70, 0.95],
+      "reuseH":  [0.45, 0.65, 0.90],
+      "maint":   [0.55, 0.75, 1.05],
+      "fixH":    [0.50, 0.70, 1.00],
+      "trainH":  [0.55, 0.75, 0.95],
+      "rampH":   [0.50, 0.70, 0.95],
+      "supH100": [0.80, 0.92, 1.02],
+      "govRun":  [1.00, 1.15, 1.40],
+      "devH":    [0.40, 0.65, 1.00]
+    },
+    "deneb": {
+      "firstH":  [0.45, 0.65, 0.95],
+      "reuseH":  [0.45, 0.65, 0.90],
+      "maint":   [0.50, 0.70, 1.00],
+      "fixH":    [0.45, 0.65, 0.95],
+      "trainH":  [0.45, 0.65, 0.90],
+      "rampH":   [0.40, 0.60, 0.85],
+      "supH100": [0.85, 0.95, 1.05],
+      "govRun":  [0.95, 1.10, 1.30]
+    },
+    "core": {
+      "firstH":  [0.50, 0.70, 1.00],
+      "reuseH":  [0.40, 0.60, 0.90],
+      "maint":   [0.50, 0.70, 1.00],
+      "fixH":    [0.50, 0.72, 1.05],
+      "trainH":  [0.60, 0.78, 0.95],
+      "rampH":   [0.55, 0.72, 0.95],
+      "supH100": [0.85, 0.95, 1.05],
+      "govRun":  [1.00, 1.30, 2.00]
+    }
+  },
+  "aiCostPerCreatorYear": [230, 600, 1800],
+  "aiCostShareVisual": [0.10, 0.25, 0.40],
+  "adoption": {
+    "konzern":     [0.35, 0.55, 0.75],
+    "gehoben":     [0.25, 0.42, 0.60],
+    "mittelstand": [0.15, 0.30, 0.45],
+    "klein":       [0.10, 0.22, 0.40],
+    "finanz":      [0.20, 0.35, 0.55],
+    "oeffentlich": [0.05, 0.15, 0.30]
+  },
+  "rationale": {
+    "Gesamtniveau": "Modi von 0,65–0,75 auf textbasierten Wegen entsprechen +35–55 % Produktivität; das liegt zwischen den Feldexperimenten (Copilot bei Microsoft/Accenture/Dell: +26 % PRs pro Woche, also Faktor ~0,8; Echoes-of-AI-RCT: −31 % Bearbeitungszeit) und bewusst unter Peng et al. (+56 %, Greenfield). Höher als METR, weil Report-Ersteller meist keine Experten in sehr großen fremden Codebasen sind und die Aufgaben kleinteilig und repetitiv sind; Agenten-Fähigkeiten Ende 2026 sind besser als 2023–2025. Schätzung.",
+    "paid": "KI kann nur PBIR-JSON kopieren/variieren; die Visual-Logik und das undokumentierte Property-Schema bleiben eine Blackbox, Agenten erfinden dort Property-Namen. Nur der Rollout (reuseH, Kopieren von Visual-JSON auf viele Seiten) profitiert deutlich. Schätzung.",
+    "paid.fixH": "Breaking-Updates beim Hersteller-Visual löst der Hersteller; intern bleibt Diagnose und Nachkonfiguration in der GUI, KI hilft kaum, hi > 1 wegen agentengenerierter PBIR-Varianten, die mitgezogen werden müssen. Schätzung.",
+    "oss": "Dokumentierte Properties + Agent-Guide + TypeScript-Quellcode sind das ideale Agenten-Terrain; Report-JSON und Bugfixes werden spürbar schneller. Wartung bleibt teurer als gedacht (hi > 1), weil KI-Code mehr Churn erzeugt und Review braucht (DORA 2025: mehr Durchsatz, aber mehr Instabilität). Schätzung, gestützt auf DORA/Echoes.",
+    "oss.devH": "Faktor auf den Eigenbau-Aufwand. Wenn der Rechner devH schon mit dem KI-gestützten Wert (~200 h) ansetzt, ist 1,0 zu nehmen, sonst Doppelzählung. Auf den klassischen Wert bezogen wären 0,1–0,3 plausibel. Schätzung.",
+    "deneb": "LLMs schreiben Vega-Lite-JSON gut, Specs sind diff-fähig und klein; der hohe Lern-Aufwand (trainH 35 h, rampH 70 h) sinkt am stärksten, weil der Agent Syntax-Wissen ersetzt. Deneb-Eigenheiten (named dataset, pbiContainer-Signale, Quoting) und visuelle Prüfung begrenzen den Effekt. Schätzung.",
+    "core": "DAX-Generierung ist inzwischen zuverlässig (DAXBench v2: Top-Modelle 90–96 % korrekt, one-shot), Massenanpassungen über TMDL sind ein Paradebeispiel für Agenten (reuseH 0,6). SVG-in-DAX-Workarounds brauchen aber visuelle Iteration, Regressionen nach Updates sind oft Rendering-Verhalten, das der Agent nicht sieht. Quelle DAXBench + Schätzung.",
+    "core.govRun": "Basis nur 3 h p. a.; automatisierte Massenänderungen an Measures erfordern Review, Tests und Freigaben, daher relativ starker Anstieg (Mode 1,3, hi 2,0) bei kleinem Absolutwert. Schätzung.",
+    "govRun": "Auf allen Wegen ≥ 1 im Mode: KI-generierte Änderungen müssen geprüft werden, Konzern-Governance verlangt Freigaben für Agenten-Zugriff auf Repos/Workspaces; GitClear-Hinweise auf mehr Review-Runden. Schätzung.",
+    "supH100": "Anwender-Support sinkt wenig: KI-gestützte FAQ/Doku-Erstellung hilft, aber Viewer-Fragen betreffen fachliche Logik. Schätzung.",
+    "trainH/rampH": "KI ersetzt einen Teil der Einarbeitung (Erklären von Code/Specs/DAX), aber Ersteller müssen genug verstehen, um KI-Ergebnisse zu prüfen (Comprehension-Gap-Studien); daher Einsparung am größten, wo die Syntaxhürde hoch ist (Deneb), am kleinsten bei GUI (paid). Schätzung.",
+    "aiCostPerCreatorYear": "GitHub Copilot Business 19 $/Monat (~210 €/a), Enterprise 39 $ + GitHub Enterprise Cloud 21 $ (~650 €/a); M365 Copilot ~30 $/Monat; agentische Nutzung (Claude Code, Copilot-AI-Credits seit Juni 2026) erzeugt Token-/Credit-Überhang. Mode 600 € = typischer Mix aus Copilot-Seat plus moderatem Agenten-Verbrauch; hi 1.800 € bei intensiver Agenten-Nutzung mit Premium-Modellen.",
+    "aiCostShareVisual": "Report-Ersteller verbringen den Großteil ihrer Zeit mit Datenmodell, ETL, Analyse und Fachabstimmung; der Anteil der Visual-Standard-Pflege an der KI-Nutzung liegt eher bei einem Viertel. Schätzung.",
+    "adoption": "Destatis IKT-Erhebung 2025: 57 % der Großunternehmen, 36 % der mittleren, 23 % der kleinen nutzen KI überhaupt; DORA 2025: 90 % der Entwickler nutzen KI, aber 61 % nie Agenten-Modus. Report-Ersteller sind oft Fachanwender; Nutzung speziell für PBIR/TMDL/Spec-Arbeit liegt daher unter der generellen KI-Nutzung. Finanzsektor und öffentliche Hand bremsen wegen Freigabe-/Datenschutzprozessen. Schätzung auf Basis dieser Quellen."
+  },
+  "sources": [
+    {"title": "METR: Uplift update (24.02.2026)", "url": "https://metr.org/blog/2026-02-24-uplift-update/", "used_for": "Untere Grenze der Produktivitätseffekte bei erfahrenen Entwicklern; Unsicherheit/Selektionseffekte"},
+    {"title": "GitHub/Accenture: Quantifying GitHub Copilot's impact in the enterprise", "url": "https://github.blog/ai-and-ml/generative-ai/research-quantifying-github-copilots-impact-in-the-enterprise-with-accenture/", "used_for": "Unternehmens-Feldexperiment, +8,7 % PRs bei Accenture"},
+    {"title": "The Effects of Generative AI on High Skilled Work: Three Field Experiments (Microsoft/Accenture/Dell, +26 % PRs)", "url": "https://www.socialscienceregistry.org/trials/14530", "used_for": "Kalibrierung des Gesamtniveaus (Faktor ~0,8 bei 2023er-Tools)"},
+    {"title": "Echoes of AI: Downstream Effects of AI Assistants on Software Maintainability (arXiv 2507.00788)", "url": "https://arxiv.org/abs/2507.00788v3", "used_for": "RCT: −31 % Bearbeitungszeit, keine messbare Verschlechterung der Wartbarkeit"},
+    {"title": "DORA 2025 State of AI-assisted Software Development Report", "url": "https://research.google/pubs/dora-2025-state-of-ai-assisted-software-development-report/", "used_for": "Adoption 90 %, mehr Durchsatz aber mehr Instabilität -> Governance/Wartung hi > 1"},
+    {"title": "SQLBI: DAX LLM Benchmark v2", "url": "https://www.sqlbi.com/blog/marco/2026/10/27/dax-llm-benchmark-v2/", "used_for": "DAX-Generierungsqualität (core)"},
+    {"title": "Tabular Editor: AI agents that work with TMDL files", "url": "https://tabulareditor.com/blog/ai-agents-that-work-with-tmdl-files", "used_for": "Praxisreife von Agenten auf TMDL (core)"},
+    {"title": "Microsoft Learn: Power BI agentic development overview", "url": "https://learn.microsoft.com/en-us/power-bi/developer/agentic/power-bi-agentic-overview", "used_for": "Offizielle Agenten-Skills für PBIP/PBIR/TMDL; PBIR-Reife"},
+    {"title": "data-goblin/power-bi-agentic-development", "url": "https://github.com/data-goblin/power-bi-agentic-development", "used_for": "Community-Tooling für Agenten auf PBIR (reuseH aller Wege)"},
+    {"title": "GitHub Copilot pricing 2026 (eesel.ai)", "url": "https://eesel.ai/blog/github-copilot-pricing", "used_for": "Seat-Preise 19/39 $ und AI-Credits ab Juni 2026"},
+    {"title": "statistiken-aktuell.de: KI in Unternehmen Deutschland (Destatis IKT-Erhebung 2025)", "url": "https://statistiken-aktuell.de/ki-unternehmen-deutschland-2026-datenmonitor/", "used_for": "Adoption nach Unternehmensgröße (Sekundärquelle)"},
+    {"title": "Destatis PM 2024: Jedes fünfte Unternehmen nutzt KI", "url": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2024/11/PD24_444_52911.html", "used_for": "Größenklassen-Gefälle der KI-Nutzung (Vorjahr, Primärquelle)"}
+  ],
+  "biggest_uncertainties": [
+    "Gesamtniveau des Produktivitätseffekts: Evidenz reicht von −19 % (METR 2025) bis +56 % (Peng 2023); keine Studie misst Power-BI-Report-/Visual-Pflege direkt.",
+    "Wartung und Governance: ob KI-Churn und zusätzlicher Review-Aufwand die Einsparungen auffressen (DORA: mehr Instabilität); deshalb hi-Werte nahe oder über 1.",
+    "Basis von oss.devH: unklar, ob der Rechner bereits den KI-gestützten Wert (200 h) verwendet — dann Faktor 1,0, sonst Doppelzählung.",
+    "Adoption je Ebene: Destatis/Bitkom messen generelle KI-Nutzung, nicht Agenten-Nutzung durch Report-Ersteller; zudem hängt sie stark von Konzern-Freigaben (Agentenzugriff auf Repos, Tenant-Policies) ab.",
+    "KI-Kosten: Umstellung auf verbrauchsbasierte Credits (Copilot ab Juni 2026) und Token-Kosten agentischer Nutzung machen Kosten je Ersteller sehr streuend.",
+    "Visuelle Verifikation: Agenten sehen gerenderte Charts meist nicht; bei SVG-Measures (core) und Deneb-Layouts kann Iterationsaufwand den Vorteil schmälern."
+  ]
+}
