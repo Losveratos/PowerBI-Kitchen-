@@ -125,6 +125,9 @@ html = f"""<!DOCTYPE html>
     <div id="detail-top"></div>
     <div class="pchart" id="pchart" role="list"></div>
 
+    <h2>Wo welcher Weg <em>gewinnt</em></h2>
+    <div id="where"></div>
+
     <h2>Was die Antwort <em>wackeln lässt</em></h2>
     <p>Für jede Firma haben wir gemessen, welcher unsichere Input die Gewinner-Verteilung am stärksten verschiebt (Abstand der Verteilungen mit und ohne Schalter bzw. im unteren und oberen Drittel einer Menge). So oft war es der stärkste Treiber:</p>
     <div id="drvcount"></div>

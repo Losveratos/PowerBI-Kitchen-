@@ -1,0 +1,1633 @@
+[
+  {
+    "id": "B01",
+    "name": "Kreissparkasse Lautertal-Hohenfels",
+    "industry": "Sparkasse",
+    "city": "Kaiserslautern",
+    "employees": 780,
+    "segment": "finanz",
+    "story": "Vorstandsreporting und Vertriebssteuerung laufen seit zwei Jahren in Power BI auf Basis von OSPlus-Exporten, jede Abteilung zeichnet Abweichungen anders. Die Interne Revision hat im letzten Prüfbericht bemängelt, dass die Rechenlogik hinter den Grafiken nicht nachvollziehbar ist. Der Tenant lässt bislang nur zertifizierte Visuals zu.",
+    "decider": "Bereichsleiter Gesamtbanksteuerung, Freigabe durch den Vorstand",
+    "creators": [
+      3,
+      4,
+      6
+    ],
+    "viewers": [
+      60,
+      90,
+      140
+    ],
+    "reports": [
+      12,
+      18,
+      28
+    ],
+    "types": [
+      5,
+      6,
+      7
+    ],
+    "models": [
+      3,
+      4,
+      6
+    ],
+    "growth": [
+      0,
+      2,
+      5
+    ],
+    "ssShare": 15,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 14,
+    "dist": "org",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "certonly": 0.8,
+      "orgstore": 0.4,
+      "revision": 1,
+      "budgetnext": 0.3
+    },
+    "must": {
+      "mscert": 0.6,
+      "export": 0.9,
+      "exportdata": 0.7,
+      "drill": 0.5,
+      "version": 0.4,
+      "bus": 0.5,
+      "pin": 0.3
+    },
+    "why": "Typische Sparkasse mit gut bekannten Mengen: die Revision will die Rechenlogik sehen und der Tenant ist auf zertifizierte Visuals beschränkt."
+  },
+  {
+    "id": "B02",
+    "name": "Raiffeisenbank Altmühlgrund eG",
+    "industry": "Genossenschaftsbank",
+    "city": "Eichstätt",
+    "employees": 140,
+    "segment": "finanz",
+    "story": "Ein Controller baut den Monatsbericht für Vorstand und Aufsichtsrat nebenbei in Power BI Pro. Der Vorstand möchte endlich einen einheitlichen Look, für Lizenzen ist dieses Jahr aber kein Geld eingeplant. Eine Fusion mit der Nachbarbank ist in zwei bis drei Jahren im Gespräch.",
+    "decider": "Vorstand Marktfolge",
+    "creators": [
+      1,
+      1,
+      2
+    ],
+    "viewers": [
+      8,
+      12,
+      20
+    ],
+    "reports": [
+      3,
+      5,
+      9
+    ],
+    "types": [
+      4,
+      5,
+      6
+    ],
+    "models": [
+      1,
+      2,
+      3
+    ],
+    "growth": [
+      -5,
+      0,
+      30
+    ],
+    "ssShare": 0,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 4,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "nobudget": 0.8,
+      "revision": 0.5,
+      "noext": 0.3
+    },
+    "must": {
+      "bus": 0.9,
+      "export": 0.7,
+      "copyppt": 0.6,
+      "maint": 0.5
+    },
+    "why": "Ein-Personen-Setup mit Null-Budget und offener Fusion: das Kopfmonopol wiegt schwerer als jede Lizenzfrage."
+  },
+  {
+    "id": "B03",
+    "name": "Bankhaus Wehrli Sutter & Cie. AG",
+    "industry": "Privatbank / Vermögensverwaltung",
+    "city": "Zürich",
+    "employees": 410,
+    "segment": "finanz",
+    "story": "Die Privatbank nutzt seit 2022 ein gekauftes Premium-Visual für Kosten- und Kundensegment-Reporting, die Lizenzverlängerung steht an und der Preis ist gestiegen. Der CFO arbeitet folienbasiert, fast alles landet als PowerPoint im Verwaltungsrat. Daten dürfen die Schweiz nicht verlassen.",
+    "decider": "CFO",
+    "creators": [
+      2,
+      3,
+      4
+    ],
+    "viewers": [
+      25,
+      35,
+      45
+    ],
+    "reports": [
+      8,
+      10,
+      14
+    ],
+    "types": [
+      6,
+      7,
+      8
+    ],
+    "models": [
+      2,
+      3,
+      3
+    ],
+    "growth": [
+      0,
+      3,
+      6
+    ],
+    "ssShare": 10,
+    "horizon": 5,
+    "licAnchor": "zebra",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": true,
+    "baseline": "paid",
+    "existing": 10,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "revision": 0.6
+    },
+    "must": {
+      "copyppt": 0.9,
+      "export": 0.8,
+      "datares": 0.9,
+      "sla": 0.7,
+      "design": 0.5,
+      "ibcscert": 0.3
+    },
+    "why": "Bestandskunde eines teuren Visuals mit wenigen, aber anspruchsvollen Lesern: Migrationsaufwand gegen Lizenzersparnis."
+  },
+  {
+    "id": "B04",
+    "name": "Hanseatische Feuer- und Sachversicherung VVaG",
+    "industry": "Sachversicherung",
+    "city": "Hamburg",
+    "employees": 2300,
+    "segment": "finanz",
+    "story": "Das BI-Team hat 2023 Deneb-Templates für Schadenquoten und Combined Ratio gebaut, die gut laufen, aber nur zwei Personen verstehen Vega-Lite. Die Fachbereiche wollen Achsen und Kommentare selbst ändern, und als Nächstes soll das Solvency-II-nahe Berichtswesen umgestellt werden.",
+    "decider": "Leiter Konzerncontrolling mit dem IT-Architekturboard",
+    "creators": [
+      6,
+      9,
+      14
+    ],
+    "viewers": [
+      250,
+      400,
+      650
+    ],
+    "reports": [
+      25,
+      40,
+      70
+    ],
+    "types": [
+      6,
+      7,
+      9
+    ],
+    "models": [
+      6,
+      9,
+      14
+    ],
+    "growth": [
+      2,
+      6,
+      12
+    ],
+    "ssShare": 30,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": true,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "deneb",
+    "existing": 32,
+    "dist": "none",
+    "library": true,
+    "ossBuild": "ki",
+    "flags": {
+      "revision": 0.7,
+      "certonly": 0.2
+    },
+    "must": {
+      "alm": 0.9,
+      "bus": 0.9,
+      "maint": 0.8,
+      "version": 0.8,
+      "themeable": 0.6,
+      "interact": 0.6,
+      "exit": 0.5
+    },
+    "why": "Großer Deneb-Bestand mit Wartungsrisiko: zeigt, ob eine Code-Lösung einen Personalwechsel übersteht."
+  },
+  {
+    "id": "B05",
+    "name": "Bausparkasse Neckarau AG",
+    "industry": "Bausparkasse",
+    "city": "Ludwigsburg",
+    "employees": 950,
+    "segment": "finanz",
+    "story": "Der Tenant erlaubt nur Microsoft-zertifizierte Visuals; das Controlling behilft sich mit SVG-Measures, die bei größeren Matrizen spürbar langsam werden. Die IT-Sicherheit prüft gerade, ob ein unzertifiziertes Open-Source-Visual ausnahmsweise über den Organizational Store freigegeben werden darf.",
+    "decider": "CISO gemeinsam mit dem Leiter Controlling",
+    "creators": [
+      3,
+      5,
+      8
+    ],
+    "viewers": [
+      80,
+      120,
+      200
+    ],
+    "reports": [
+      10,
+      15,
+      22
+    ],
+    "types": [
+      5,
+      6,
+      7
+    ],
+    "models": [
+      3,
+      4,
+      5
+    ],
+    "growth": [
+      -2,
+      1,
+      4
+    ],
+    "ssShare": 20,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 12,
+    "dist": "org",
+    "library": true,
+    "ossBuild": "ready",
+    "flags": {
+      "certonly": 1,
+      "orgstore": 0.5,
+      "revision": 0.6
+    },
+    "must": {
+      "datares": 0.9,
+      "mscert": 0.8,
+      "pin": 0.7,
+      "scale": 0.5,
+      "version": 0.3
+    },
+    "why": "Zertifizierungspflicht mit offener Org-Store-Ausnahme: entschieden wird im Sicherheitsgremium, nicht über die Kosten."
+  },
+  {
+    "id": "B06",
+    "name": "Sparkassen-Datenservice Nord GmbH",
+    "industry": "Verbund-Dienstleister für Sparkassen",
+    "city": "Hannover",
+    "employees": 620,
+    "segment": "finanz",
+    "story": "Die Verbundtochter soll Standard-Steuerungsberichte zentral bauen und als App an Mitgliedssparkassen ausrollen. Wie viele der 38 Häuser mitmachen, ist offen; zugesagt haben bisher zwölf. Ein Visual-Standard existiert noch nicht, die Budgetfreigabe hängt am Verbandsgremium im nächsten Jahr.",
+    "decider": "Geschäftsführung, Beschluss im Verwaltungsrat des Verbands",
+    "creators": [
+      5,
+      8,
+      12
+    ],
+    "viewers": [
+      600,
+      1500,
+      4000
+    ],
+    "reports": [
+      15,
+      25,
+      45
+    ],
+    "types": [
+      6,
+      7,
+      8
+    ],
+    "models": [
+      4,
+      8,
+      15
+    ],
+    "growth": [
+      5,
+      25,
+      60
+    ],
+    "ssShare": 5,
+    "horizon": 10,
+    "licAnchor": "enterprise",
+    "siteLicense": true,
+    "reportClasses": "mix",
+    "ibcsAll": true,
+    "baseline": "none",
+    "existing": 0,
+    "dist": "org",
+    "library": false,
+    "ossBuild": "classic",
+    "flags": {
+      "certonly": 0.7,
+      "orgstore": 0.6,
+      "revision": 0.8,
+      "euonly": 0.5,
+      "budgetnext": 0.5,
+      "noext": 0.4
+    },
+    "must": {
+      "alm": 0.9,
+      "pin": 0.8,
+      "themeable": 0.8,
+      "datares": 0.8,
+      "version": 0.7,
+      "exit": 0.7,
+      "sla": 0.6,
+      "scale": 0.6
+    },
+    "why": "Riesige, sehr unsichere Leserzahl bei zentralem Bau: Pro-Nutzer-Lizenzen skalieren hier brutal, die Wartung bleibt zentral."
+  },
+  {
+    "id": "B07",
+    "name": "Steirische Gewerbebank AG",
+    "industry": "Regionalbank",
+    "city": "Graz",
+    "employees": 520,
+    "segment": "finanz",
+    "story": "Der neue CFO kommt aus einem Konzern mit IBCS-zertifiziertem Reporting und will zertifizierte Software zur Pflicht machen. Das Controlling nutzt seit einem Jahr ein günstiges gekauftes Visual in sechs Berichten und möchte Kommentare direkt im Chart erfassen.",
+    "decider": "CFO",
+    "creators": [
+      2,
+      4,
+      5
+    ],
+    "viewers": [
+      40,
+      70,
+      110
+    ],
+    "reports": [
+      6,
+      12,
+      20
+    ],
+    "types": [
+      5,
+      6,
+      8
+    ],
+    "models": [
+      2,
+      3,
+      4
+    ],
+    "growth": [
+      0,
+      4,
+      10
+    ],
+    "ssShare": 25,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": true,
+    "baseline": "paid",
+    "existing": 6,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "ibcsmust": 0.7
+    },
+    "must": {
+      "ibcscert": 0.7,
+      "export": 0.6,
+      "writeback": 0.5,
+      "copyppt": 0.4,
+      "sla": 0.3
+    },
+    "why": "IBCS-Zertifikat als mögliches K.O.-Kriterium: hier entscheidet die Überzeugung eines neuen CFO, nicht die Kostenrechnung."
+  },
+  {
+    "id": "B08",
+    "name": "BKK Rhein-Mosel-Werke",
+    "industry": "Betriebskrankenkasse",
+    "city": "Neuwied",
+    "employees": 410,
+    "segment": "finanz",
+    "story": "Das Finanzcontrolling vergleicht Leistungsausgaben mit den Zuweisungen aus dem Gesundheitsfonds und berichtet an Vorstand und Verwaltungsrat. Als Körperschaft öffentlichen Rechts hat die Kasse keinen vollen Vorsteuerabzug, Sozialdaten dürfen den Tenant nicht verlassen. Fusionsdruck lässt die Belegschaft eher schrumpfen.",
+    "decider": "Vorstand mit Zustimmung der Datenschutzbeauftragten",
+    "creators": [
+      2,
+      3,
+      4
+    ],
+    "viewers": [
+      30,
+      45,
+      60
+    ],
+    "reports": [
+      8,
+      12,
+      16
+    ],
+    "types": [
+      4,
+      5,
+      6
+    ],
+    "models": [
+      2,
+      3,
+      4
+    ],
+    "growth": [
+      -4,
+      -1,
+      2
+    ],
+    "ssShare": 10,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "op",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 9,
+    "dist": "file",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "novat": 1,
+      "euonly": 0.8,
+      "noext": 0.6,
+      "revision": 0.5,
+      "certonly": 0.4
+    },
+    "must": {
+      "datares": 1,
+      "export": 0.7,
+      "exportdata": 0.6,
+      "a11y": 0.4
+    },
+    "why": "Kein Vorsteuerabzug und Sozialdatenschutz verteuern Lizenzen und schränken Dienstleister ein: ein Finanzfall mit öffentlichem Charakter."
+  },
+  {
+    "id": "B09",
+    "name": "Kontor Direktbank AG",
+    "industry": "Digitalbank",
+    "city": "Berlin",
+    "employees": 260,
+    "segment": "finanz",
+    "story": "Die junge Bank mit Vollbanklizenz arbeitet Git-first mit PBIP, und Copilot sowie eigene Agenten sollen Berichte über PBIR erzeugen. Fachbereiche bauen viel selbst, das Team wächst schnell und hat noch keinen Chart-Standard.",
+    "decider": "Head of Data",
+    "creators": [
+      8,
+      15,
+      30
+    ],
+    "viewers": [
+      80,
+      150,
+      260
+    ],
+    "reports": [
+      20,
+      35,
+      70
+    ],
+    "types": [
+      5,
+      7,
+      8
+    ],
+    "models": [
+      4,
+      6,
+      10
+    ],
+    "growth": [
+      10,
+      25,
+      50
+    ],
+    "ssShare": 70,
+    "horizon": 3,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "op",
+    "ibcsAll": false,
+    "baseline": "none",
+    "existing": 0,
+    "dist": "none",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "revision": 0.3
+    },
+    "must": {
+      "alm": 0.9,
+      "version": 0.8,
+      "themeable": 0.7,
+      "agentic": 0.6,
+      "exit": 0.6,
+      "copilot": 0.5,
+      "interact": 0.5,
+      "mobile": 0.3
+    },
+    "why": "Hoher Self-Service-Anteil, starkes Wachstum und KI-Agenten als Ersteller: Code-nahe Wege haben Heimvorteil, Nutzerlizenzen wachsen mit."
+  },
+  {
+    "id": "B10",
+    "name": "Ostschweizer Lebensversicherungs-Genossenschaft",
+    "industry": "Lebensversicherung",
+    "city": "St. Gallen",
+    "employees": 680,
+    "segment": "finanz",
+    "story": "Der Versicherer berichtet an Verwaltungsrat und Aufsicht, die Daten müssen im Schweizer Rechenzentrum bleiben. Parallel zum Power-BI-Service läuft ein Report Server on-premises, ob das so bleibt, ist offen. Für den Jahresbericht braucht es ein gedrucktes Berichtsheft.",
+    "decider": "Leiter Finanzen & Aktuariat",
+    "creators": [
+      2,
+      3,
+      5
+    ],
+    "viewers": [
+      40,
+      60,
+      90
+    ],
+    "reports": [
+      6,
+      10,
+      15
+    ],
+    "types": [
+      4,
+      6,
+      7
+    ],
+    "models": [
+      2,
+      3,
+      5
+    ],
+    "growth": [
+      0,
+      2,
+      4
+    ],
+    "ssShare": 10,
+    "horizon": 10,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 7,
+    "dist": "file",
+    "library": true,
+    "ossBuild": "classic",
+    "flags": {
+      "rs": 0.6,
+      "certonly": 0.5,
+      "sovereign": 0.3
+    },
+    "must": {
+      "datares": 1,
+      "rs": 0.6,
+      "pin": 0.6,
+      "paginated": 0.5,
+      "sla": 0.4
+    },
+    "why": "Report Server on-premises ist halb gesetzt: das schränkt Custom Visuals stark ein und verschiebt die Gewichte Richtung Core/SVG."
+  },
+  {
+    "id": "B11",
+    "name": "Volksbank Kraichgau-Hardt eG",
+    "industry": "Genossenschaftsbank (in Fusion)",
+    "city": "Bruchsal",
+    "employees": 1100,
+    "segment": "finanz",
+    "story": "Zwei Volksbanken fusionieren 2027: die eine nutzt ein gekauftes Visual, die andere SVG-Measures. Das künftige gemeinsame Controlling muss sich auf einen Standard einigen, Budget gibt es erst nach dem Fusionsstichtag.",
+    "decider": "Gemeinsamer Lenkungsausschuss beider Vorstände",
+    "creators": [
+      3,
+      6,
+      10
+    ],
+    "viewers": [
+      70,
+      140,
+      260
+    ],
+    "reports": [
+      12,
+      22,
+      40
+    ],
+    "types": [
+      5,
+      6,
+      8
+    ],
+    "models": [
+      3,
+      6,
+      9
+    ],
+    "growth": [
+      -10,
+      0,
+      15
+    ],
+    "ssShare": 25,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "paid",
+    "existing": 18,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "budgetnext": 0.8,
+      "revision": 0.6,
+      "certonly": 0.3
+    },
+    "must": {
+      "export": 0.6,
+      "exit": 0.6,
+      "maint": 0.5,
+      "bus": 0.5,
+      "copyppt": 0.4
+    },
+    "why": "Zwei Bestände, eine Entscheidung: sehr breite Bandbreiten durch die Fusion und verschobenes Budget."
+  },
+  {
+    "id": "B12",
+    "name": "Versorgungswerk der Architektenkammer Mittelrhein",
+    "industry": "Berufsständische Versorgungseinrichtung",
+    "city": "Mainz",
+    "employees": 55,
+    "segment": "finanz",
+    "story": "Das Versorgungswerk verwaltet knapp 2 Mrd. Euro Kapitalanlagen und berichtet an Vertreterversammlung und Aufsichtsausschuss vor allem als gedrucktes Berichtsheft. Power BI wird nur intern genutzt, bisher hat ein externer Dienstleister geholfen.",
+    "decider": "Geschäftsführer",
+    "creators": [
+      1,
+      1,
+      2
+    ],
+    "viewers": [
+      5,
+      8,
+      14
+    ],
+    "reports": [
+      2,
+      4,
+      6
+    ],
+    "types": [
+      4,
+      5,
+      6
+    ],
+    "models": [
+      1,
+      1,
+      2
+    ],
+    "growth": [
+      0,
+      0,
+      3
+    ],
+    "ssShare": 0,
+    "horizon": 10,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": true,
+    "baseline": "none",
+    "existing": 0,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "novat": 0.7,
+      "noext": 0.4,
+      "nobudget": 0.2
+    },
+    "must": {
+      "export": 0.9,
+      "paginated": 0.8,
+      "bus": 0.7,
+      "maint": 0.6,
+      "sla": 0.4
+    },
+    "why": "Winzige Leserzahl und ein gedrucktes Berichtsheft als Hauptprodukt: paginierte Notation zählt mehr als Interaktivität."
+  },
+  {
+    "id": "B13",
+    "name": "Klinikverbund Oberschwaben-Bodensee gGmbH",
+    "industry": "Kommunaler Klinikverbund",
+    "city": "Ravensburg",
+    "employees": 5400,
+    "segment": "oeffentlich",
+    "story": "Vier Kliniken im kommunalen Verbund, Medizin- und Finanzcontrolling bauen bislang getrennt. Die Krankenhausreform mit Leistungsgruppen erzwingt eine neue Steuerung, offen ist, ob Chefärzte und Stationsleitungen die Berichte bekommen. Externe Unterstützung geht nur über eine Ausschreibung.",
+    "decider": "Kaufmännische Geschäftsführung, IT-Leitung mit Vetorecht",
+    "creators": [
+      5,
+      8,
+      14
+    ],
+    "viewers": [
+      150,
+      300,
+      600
+    ],
+    "reports": [
+      15,
+      25,
+      45
+    ],
+    "types": [
+      5,
+      6,
+      8
+    ],
+    "models": [
+      4,
+      7,
+      12
+    ],
+    "growth": [
+      0,
+      10,
+      30
+    ],
+    "ssShare": 30,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "op",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 11,
+    "dist": "org",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "novat": 1,
+      "euonly": 0.9,
+      "noext": 0.8,
+      "certonly": 0.5,
+      "orgstore": 0.3,
+      "budgetnext": 0.4
+    },
+    "must": {
+      "datares": 1,
+      "drill": 0.8,
+      "interact": 0.6,
+      "exportdata": 0.5,
+      "mobile": 0.4,
+      "a11y": 0.3
+    },
+    "why": "Die Leserzahl hängt am offenen Rollout auf Chefärzte: breite Viewer-Spanne trifft Vergaberecht und fehlenden Vorsteuerabzug."
+  },
+  {
+    "id": "B14",
+    "name": "Diakonische Altenhilfe Weserbergland gGmbH",
+    "industry": "Pflegeträger (Diakonie)",
+    "city": "Hameln",
+    "employees": 1250,
+    "segment": "oeffentlich",
+    "story": "Vierzehn Pflegeheime und ambulante Dienste; die Controllerin ist die einzige Power-BI-Person im Haus. Belegung, Personal und Pflegesätze müssen gegenüber der Pflegesatzkommission sauber erklärt werden, für Lizenzen ist kaum Geld da.",
+    "decider": "Geschäftsführer auf Vorschlag der Controllerin",
+    "creators": [
+      1,
+      1,
+      2
+    ],
+    "viewers": [
+      20,
+      30,
+      45
+    ],
+    "reports": [
+      4,
+      6,
+      10
+    ],
+    "types": [
+      4,
+      4,
+      6
+    ],
+    "models": [
+      1,
+      2,
+      3
+    ],
+    "growth": [
+      0,
+      3,
+      8
+    ],
+    "ssShare": 0,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "op",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 5,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "novat": 1,
+      "nobudget": 0.6,
+      "noext": 0.3
+    },
+    "must": {
+      "bus": 1,
+      "maint": 0.7,
+      "export": 0.6,
+      "mobile": 0.4
+    },
+    "why": "Kopfmonopol in der Pflege ohne Vorsteuerabzug: Lizenzkosten schlagen voll durch, Wissenssicherung ist das eigentliche Risiko."
+  },
+  {
+    "id": "B15",
+    "name": "Stadtwerke Unstrut-Saale GmbH",
+    "industry": "Stadtwerke (Querverbund)",
+    "city": "Naumburg (Saale)",
+    "employees": 480,
+    "segment": "oeffentlich",
+    "story": "Strom, Gas, Wärme, Bäder und ÖPNV unter einem Dach; ein externer Berater hat 2022 Deneb-Berichte gebaut und ist nicht mehr verfügbar. Der Aufsichtsrat will durchgängig IBCS-Notation, ein neuer Dienstleisterauftrag müsste ausgeschrieben werden.",
+    "decider": "Kaufmännischer Geschäftsführer",
+    "creators": [
+      2,
+      2,
+      4
+    ],
+    "viewers": [
+      35,
+      50,
+      80
+    ],
+    "reports": [
+      8,
+      12,
+      18
+    ],
+    "types": [
+      5,
+      6,
+      7
+    ],
+    "models": [
+      3,
+      4,
+      6
+    ],
+    "growth": [
+      0,
+      2,
+      5
+    ],
+    "ssShare": 10,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "mix",
+    "ibcsAll": true,
+    "baseline": "deneb",
+    "existing": 9,
+    "dist": "none",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "noext": 0.9,
+      "euonly": 0.6,
+      "budgetnext": 0.4
+    },
+    "must": {
+      "bus": 0.9,
+      "maint": 0.8,
+      "exit": 0.6,
+      "copyppt": 0.5,
+      "version": 0.3
+    },
+    "why": "Verwaister Deneb-Bestand ohne Dienstleister und mit Ausschreibungspflicht: die Frage ist, wer den Code künftig wartet."
+  },
+  {
+    "id": "B16",
+    "name": "Landkreis Mittelweser",
+    "industry": "Kommunalverwaltung (Landkreis)",
+    "city": "Nienburg/Weser",
+    "employees": 1350,
+    "segment": "oeffentlich",
+    "story": "Die Kämmerei will Haushaltsplan und Quartalsberichte für den Kreistag in einheitlicher Notation zeigen. Zusätzlich soll ein Bürgerhaushalt-Dashboard per Publish-to-web öffentlich werden, und BITV 2.0 ist verpflichtend.",
+    "decider": "Kämmerer, Mittel beschließt der Kreistag",
+    "creators": [
+      2,
+      3,
+      6
+    ],
+    "viewers": [
+      60,
+      110,
+      200
+    ],
+    "reports": [
+      6,
+      10,
+      18
+    ],
+    "types": [
+      4,
+      5,
+      7
+    ],
+    "models": [
+      2,
+      3,
+      5
+    ],
+    "growth": [
+      0,
+      3,
+      8
+    ],
+    "ssShare": 20,
+    "horizon": 10,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": false,
+    "baseline": "none",
+    "existing": 0,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "euonly": 1,
+      "novat": 0.8,
+      "embed": 0.7,
+      "noext": 0.7,
+      "budgetnext": 0.6
+    },
+    "must": {
+      "a11y": 0.9,
+      "export": 0.7,
+      "datares": 0.7,
+      "paginated": 0.5,
+      "exit": 0.4
+    },
+    "why": "Publish-to-web plus Barrierefreiheitspflicht: das schließt manche Visuals faktisch aus, unabhängig vom Preis."
+  },
+  {
+    "id": "B17",
+    "name": "Landesamt für Haushalt und Besoldung",
+    "industry": "Landesbehörde",
+    "city": "Magdeburg",
+    "employees": 1800,
+    "segment": "oeffentlich",
+    "story": "Die zentrale Landesbehörde liefert Haushaltsvollzugsberichte an elf Ministerien. Power BI läuft im Landesrechenzentrum auf dem Report Server, die Cloud nur für unkritische Daten; eine Sovereign-Cloud-Variante wird geprüft. Vergabe und Datenstandort sind streng geregelt.",
+    "decider": "Abteilungsleitung Haushalt im Finanzministerium und Landes-CIO",
+    "creators": [
+      4,
+      6,
+      10
+    ],
+    "viewers": [
+      200,
+      350,
+      700
+    ],
+    "reports": [
+      10,
+      18,
+      30
+    ],
+    "types": [
+      4,
+      6,
+      8
+    ],
+    "models": [
+      3,
+      5,
+      8
+    ],
+    "growth": [
+      0,
+      5,
+      20
+    ],
+    "ssShare": 15,
+    "horizon": 10,
+    "licAnchor": "enterprise",
+    "siteLicense": true,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 15,
+    "dist": "file",
+    "library": true,
+    "ossBuild": "classic",
+    "flags": {
+      "euonly": 1,
+      "noext": 1,
+      "rs": 0.8,
+      "certonly": 0.7,
+      "revision": 0.6,
+      "budgetnext": 0.5,
+      "sovereign": 0.4
+    },
+    "must": {
+      "datares": 1,
+      "rs": 0.8,
+      "a11y": 0.8,
+      "paginated": 0.7,
+      "exit": 0.6,
+      "sla": 0.5
+    },
+    "why": "Report Server, Sovereign-Cloud-Option und harte Vergaberegeln: der Lösungsraum ist schon vor der Kostenrechnung eng."
+  },
+  {
+    "id": "B18",
+    "name": "Hochschule für angewandte Wissenschaften Rhein-Lahn",
+    "industry": "Hochschule",
+    "city": "Koblenz",
+    "employees": 720,
+    "segment": "oeffentlich",
+    "story": "Haushalts- und Drittmittelcontrolling für sechs Fachbereiche, die Dekanate wollen ihren Mittelverbrauch sehen. Gebaut wird zu einem guten Teil von studentischen Hilfskräften, die jedes Semester wechseln. Barrierefreiheit ist Pflicht.",
+    "decider": "Kanzlerin",
+    "creators": [
+      2,
+      4,
+      8
+    ],
+    "viewers": [
+      40,
+      70,
+      120
+    ],
+    "reports": [
+      5,
+      9,
+      15
+    ],
+    "types": [
+      4,
+      5,
+      6
+    ],
+    "models": [
+      2,
+      3,
+      4
+    ],
+    "growth": [
+      0,
+      5,
+      15
+    ],
+    "ssShare": 40,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 4,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "novat": 0.9,
+      "euonly": 0.6,
+      "nobudget": 0.5,
+      "budgetnext": 0.5
+    },
+    "must": {
+      "a11y": 0.9,
+      "bus": 0.8,
+      "maint": 0.7,
+      "design": 0.7,
+      "exit": 0.4
+    },
+    "why": "Wechselnde studentische Ersteller verlangen einen Standard, der ohne Disziplin und ohne Code-Kenntnisse funktioniert."
+  },
+  {
+    "id": "B19",
+    "name": "Finanzverwaltung Kanton Seetal",
+    "industry": "Kantonsverwaltung",
+    "city": "Aarau",
+    "employees": 900,
+    "segment": "oeffentlich",
+    "story": "Der Kanton rechnet nach HRM2, Ämter und Departemente berichten an Regierungsrat und Grossen Rat. Die Ämter sollen im Managed Self-Service selbst bauen, wie viele mitziehen, ist offen. IBCS ist per Regierungsratsbeschluss verbindlich, Beschaffung läuft nach IVöB.",
+    "decider": "Leiter Finanzverwaltung mit der kantonalen Informatik",
+    "creators": [
+      3,
+      6,
+      12
+    ],
+    "viewers": [
+      120,
+      250,
+      500
+    ],
+    "reports": [
+      10,
+      20,
+      40
+    ],
+    "types": [
+      5,
+      6,
+      8
+    ],
+    "models": [
+      4,
+      8,
+      15
+    ],
+    "growth": [
+      0,
+      8,
+      25
+    ],
+    "ssShare": 50,
+    "horizon": 10,
+    "licAnchor": "enterprise",
+    "siteLicense": true,
+    "reportClasses": "mix",
+    "ibcsAll": true,
+    "baseline": "none",
+    "existing": 0,
+    "dist": "org",
+    "library": false,
+    "ossBuild": "classic",
+    "flags": {
+      "noext": 0.8,
+      "euonly": 0.6,
+      "certonly": 0.6,
+      "orgstore": 0.4,
+      "sovereign": 0.2
+    },
+    "must": {
+      "datares": 1,
+      "themeable": 0.8,
+      "design": 0.8,
+      "exit": 0.7,
+      "a11y": 0.7,
+      "maint": 0.6,
+      "sla": 0.5
+    },
+    "why": "Dezentraler Self-Service in vielen Ämtern bei verbindlichem IBCS: Konsistenz ohne Disziplin wird zum Kernkriterium."
+  },
+  {
+    "id": "B20",
+    "name": "Österreichische Förderabwicklungsagentur GmbH",
+    "industry": "Bundeseigene Förderagentur",
+    "city": "Wien",
+    "employees": 380,
+    "segment": "oeffentlich",
+    "story": "Die Agentur wickelt Bundesförderungen ab; Rechnungshof und Ministerium verlangen nachvollziehbare Abweichungsberichte zu den Förderbudgets, die monatlich als PDF verschickt werden. Ein gekauftes Visual ist in fünf Berichten im Einsatz, welche Programme in drei Jahren noch laufen, ist unklar.",
+    "decider": "Geschäftsführung, vorbereitet von der Controlling-Leitung",
+    "creators": [
+      2,
+      3,
+      4
+    ],
+    "viewers": [
+      30,
+      50,
+      80
+    ],
+    "reports": [
+      5,
+      8,
+      12
+    ],
+    "types": [
+      4,
+      5,
+      6
+    ],
+    "models": [
+      2,
+      2,
+      3
+    ],
+    "growth": [
+      -5,
+      0,
+      10
+    ],
+    "ssShare": 10,
+    "horizon": 3,
+    "licAnchor": "enterprise",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": false,
+    "baseline": "paid",
+    "existing": 5,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "revision": 0.9,
+      "euonly": 0.9,
+      "noext": 0.7,
+      "novat": 0.6
+    },
+    "must": {
+      "export": 1,
+      "paginated": 0.6,
+      "version": 0.6,
+      "datares": 0.6,
+      "exit": 0.5
+    },
+    "why": "Kurzer Horizont und eine Revision, die die Rechenlogik prüfen will: Black-Box-Visuals müssen sich erklären können."
+  },
+  {
+    "id": "B21",
+    "name": "Ev.-luth. Kirchenkreisverband Unterelbe",
+    "industry": "Kirchliche Verwaltung",
+    "city": "Stade",
+    "employees": 1600,
+    "segment": "oeffentlich",
+    "story": "Das Kirchenkreisamt verwaltet die Haushalte von rund 60 Kirchengemeinden und 25 Kitas; die Kirchensteuer sinkt und Gemeinden fusionieren. Synode und ehrenamtliche Kirchenvorstände sollen die Finanzen verstehen, meist auf Papier. Das Lizenzbudget ist faktisch null.",
+    "decider": "Leitung Kirchenkreisamt, Beschluss im Kirchenkreisvorstand",
+    "creators": [
+      1,
+      2,
+      3
+    ],
+    "viewers": [
+      40,
+      80,
+      150
+    ],
+    "reports": [
+      3,
+      6,
+      12
+    ],
+    "types": [
+      4,
+      5,
+      6
+    ],
+    "models": [
+      1,
+      2,
+      3
+    ],
+    "growth": [
+      -8,
+      -3,
+      5
+    ],
+    "ssShare": 10,
+    "horizon": 10,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mgmt",
+    "ibcsAll": false,
+    "baseline": "none",
+    "existing": 0,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "novat": 1,
+      "nobudget": 0.8,
+      "budgetnext": 0.5,
+      "noext": 0.4
+    },
+    "must": {
+      "export": 0.8,
+      "bus": 0.7,
+      "maint": 0.6,
+      "mobile": 0.5,
+      "a11y": 0.3
+    },
+    "why": "Schrumpfende Organisation mit ehrenamtlichen Lesern und Null-Budget: negatives Wachstum und Druck-PDF statt Interaktivität."
+  },
+  {
+    "id": "B22",
+    "name": "Sozialwerk Ruhr-Emscher e.V.",
+    "industry": "Wohlfahrtsverband",
+    "city": "Gelsenkirchen",
+    "employees": 8200,
+    "segment": "oeffentlich",
+    "story": "Kitas, Pflege, Jugend- und Eingliederungshilfe in vier Regionen; rund 120 Einrichtungsleitungen sollen ihre Monatszahlen auf dem Diensthandy sehen. Die Regionen bauen im Managed Self-Service, bisher mit SVG-Measures. Der fehlende Vorsteuerabzug macht jede Nutzerlizenz knapp ein Fünftel teurer.",
+    "decider": "Vorstand Finanzen mit der IT-Leitung",
+    "creators": [
+      6,
+      10,
+      18
+    ],
+    "viewers": [
+      250,
+      450,
+      800
+    ],
+    "reports": [
+      15,
+      25,
+      40
+    ],
+    "types": [
+      5,
+      6,
+      7
+    ],
+    "models": [
+      4,
+      6,
+      10
+    ],
+    "growth": [
+      3,
+      8,
+      15
+    ],
+    "ssShare": 35,
+    "horizon": 5,
+    "licAnchor": "enterprise",
+    "siteLicense": true,
+    "reportClasses": "op",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 20,
+    "dist": "org",
+    "library": false,
+    "ossBuild": "ki",
+    "flags": {
+      "novat": 1,
+      "nobudget": 0.3,
+      "certonly": 0.3
+    },
+    "must": {
+      "mobile": 0.9,
+      "maint": 0.7,
+      "themeable": 0.6,
+      "design": 0.6,
+      "interact": 0.5,
+      "exportdata": 0.4
+    },
+    "why": "Viele mobile Leser im Betrieb bei vollem Vorsteuer-Nachteil: Pro-Nutzer-Lizenzen eskalieren, Mobile-Tauglichkeit wird zum K.O."
+  },
+  {
+    "id": "B23",
+    "name": "Zweckverband Wasser und Abwasser Elbaue-Fläming",
+    "industry": "Wasserversorgung / Abwasser",
+    "city": "Lutherstadt Wittenberg",
+    "employees": 190,
+    "segment": "oeffentlich",
+    "story": "Die kaufmännische Leitung möchte Wirtschaftsplan-Abweichungen und die Gebührenkalkulation einheitlich darstellen. Ein Controller, ein IT-Administrator, ein Dutzend Leser in Verbandsversammlung und Geschäftsführung, keine Sonderregeln.",
+    "decider": "Verbandsgeschäftsführer",
+    "creators": [
+      1,
+      2,
+      2
+    ],
+    "viewers": [
+      10,
+      15,
+      25
+    ],
+    "reports": [
+      3,
+      5,
+      7
+    ],
+    "types": [
+      4,
+      5,
+      5
+    ],
+    "models": [
+      1,
+      2,
+      2
+    ],
+    "growth": [
+      0,
+      0,
+      3
+    ],
+    "ssShare": 0,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": false,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 3,
+    "dist": "app",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "novat": 0.3,
+      "noext": 0.3
+    },
+    "must": {
+      "export": 0.6,
+      "bus": 0.6
+    },
+    "why": "Bewusst unspektakulärer Kleinfall als Referenzpunkt: wenige Leser, wenige Berichte, keine exotischen Rahmenbedingungen."
+  },
+  {
+    "id": "B24",
+    "name": "Landesbetrieb Zentrale IT-Dienste Saar-Mosel",
+    "industry": "Landes-IT-Dienstleister",
+    "city": "Saarbrücken",
+    "employees": 950,
+    "segment": "oeffentlich",
+    "story": "Der Landesbetrieb betreibt Power BI Report Server für rund 40 Landesdienststellen und will einen Chart-Standard als Shared Service anbieten. Welche Dienststellen mitmachen, ist offen; ein Cloud-Tenant wird parallel pilotiert, und im Sicherheitskonzept steht ein mögliches Verbot von Custom Visuals.",
+    "decider": "Direktor des Landesbetriebs mit dem IT-Lenkungsrat",
+    "creators": [
+      6,
+      15,
+      40
+    ],
+    "viewers": [
+      300,
+      1200,
+      3000
+    ],
+    "reports": [
+      20,
+      50,
+      120
+    ],
+    "types": [
+      5,
+      7,
+      8
+    ],
+    "models": [
+      8,
+      20,
+      45
+    ],
+    "growth": [
+      5,
+      20,
+      50
+    ],
+    "ssShare": 30,
+    "horizon": 10,
+    "licAnchor": "enterprise",
+    "siteLicense": true,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "core",
+    "existing": 25,
+    "dist": "file",
+    "library": true,
+    "ossBuild": "classic",
+    "flags": {
+      "euonly": 1,
+      "noext": 1,
+      "rs": 0.9,
+      "certonly": 0.6,
+      "sovereign": 0.5,
+      "coreonly": 0.4,
+      "budgetnext": 0.4
+    },
+    "must": {
+      "datares": 1,
+      "rs": 0.9,
+      "exit": 0.8,
+      "pin": 0.8,
+      "alm": 0.7,
+      "sla": 0.6,
+      "scale": 0.6,
+      "a11y": 0.6
+    },
+    "why": "Shared Service mit extrem breiter Nutzerspanne, Report-Server-Pflicht und drohendem Custom-Visual-Verbot."
+  },
+  {
+    "id": "B25",
+    "name": "Universität für Technik und Wirtschaft Oberösterreich",
+    "industry": "Universität",
+    "city": "Linz",
+    "employees": 2600,
+    "segment": "oeffentlich",
+    "story": "Wissensbilanz und Leistungsvereinbarung mit dem Ministerium verlangen belastbare Kennzahlen; neben dem zentralen Controlling haben die Fakultäten eigene Power-BI-Leute. Ein Institut nutzt bereits ein Open-Source-Visual in sieben Berichten, das Rektorat will vereinheitlichen.",
+    "decider": "Vizerektor für Finanzen",
+    "creators": [
+      4,
+      8,
+      15
+    ],
+    "viewers": [
+      120,
+      220,
+      400
+    ],
+    "reports": [
+      10,
+      18,
+      30
+    ],
+    "types": [
+      5,
+      6,
+      8
+    ],
+    "models": [
+      3,
+      6,
+      10
+    ],
+    "growth": [
+      0,
+      6,
+      15
+    ],
+    "ssShare": 45,
+    "horizon": 5,
+    "licAnchor": "inforiver",
+    "siteLicense": true,
+    "reportClasses": "mix",
+    "ibcsAll": false,
+    "baseline": "oss",
+    "existing": 7,
+    "dist": "org",
+    "library": false,
+    "ossBuild": "ready",
+    "flags": {
+      "euonly": 0.8,
+      "novat": 0.7,
+      "noext": 0.5,
+      "certonly": 0.2
+    },
+    "must": {
+      "exit": 0.8,
+      "a11y": 0.7,
+      "maint": 0.6,
+      "exportdata": 0.5,
+      "interact": 0.5,
+      "alm": 0.4
+    },
+    "why": "Einzige Persona mit gelebtem Open-Source-Bestand: testet, ob dieser Weg gegen Lizenzangebote mit Campus-Rabatt besteht."
+  }
+]

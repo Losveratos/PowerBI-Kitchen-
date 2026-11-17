@@ -1,0 +1,1551 @@
+[
+ {
+  "id": "C01",
+  "name": "Brandt Verpackungstechnik GmbH",
+  "industry": "Maschinenbau (Verpackungsmaschinen)",
+  "city": "Biberach",
+  "employees": 620,
+  "segment": "mittelstand",
+  "story": "Familiengeführter Maschinenbauer mit drei Standorten. Das Controlling baut seit zwei Jahren Monatsberichte in Power BI, jede Abteilung nutzt eigene Balkendiagramme. Der neue CFO will vergleichbare Abweichungsdarstellungen, bevor die Gesellschafter im Beirat Zahlen sehen.",
+  "decider": "CFO",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   40,
+   70,
+   120
+  ],
+  "reports": [
+   8,
+   12,
+   20
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   5,
+   10,
+   20
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 9,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.3,
+   "orgstore": 0.3
+  },
+  "must": {
+   "interact": 0.7,
+   "export": 0.6,
+   "themeable": 0.5,
+   "maint": 0.4
+  },
+  "why": "Typischer Mittelständler im Übergang von Eigenbau-Core-Visuals zu einem Standard, ohne harte Auflagen."
+ },
+ {
+  "id": "C02",
+  "name": "Hofmeister Backwaren KG",
+  "industry": "Lebensmittel (Industriebäckerei)",
+  "city": "Passau",
+  "employees": 1450,
+  "segment": "gehoben",
+  "story": "Mehrere Werke und Filialnetz, SAP-Controlling mit starker Plan-Ist-Kultur. Für die Werksleiter soll ein einheitlicher Standard für Deckungsbeitrag und Ausschuss kommen. Der Betriebsrat fragt bei jedem Zugriff auf Leistungsdaten nach.",
+  "decider": "Leiter Controlling",
+  "creators": [
+   4,
+   6,
+   10
+  ],
+  "viewers": [
+   200,
+   350,
+   600
+  ],
+  "reports": [
+   15,
+   25,
+   40
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   3,
+   4,
+   6
+  ],
+  "growth": [
+   0,
+   8,
+   20
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 24,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 0.8,
+   "budgetnext": 0.3
+  },
+  "must": {
+   "export": 0.8,
+   "mobile": 0.6,
+   "interact": 0.7,
+   "mscert": 0.6,
+   "a11y": 0.3
+  },
+  "why": "Viele operative Leser, bestehende Bezahlvisuals und eine Site-Lizenz-Verhandlung mit Zertifizierungsbedarf."
+ },
+ {
+  "id": "C03",
+  "name": "Wiesinger Großhandel für Haustechnik",
+  "industry": "Großhandel (Sanitär/Heizung)",
+  "city": "Linz",
+  "employees": 340,
+  "segment": "mittelstand",
+  "story": "Großhändler mit 12 Niederlassungen in Österreich. Ein Excel-Reporting wurde vor einem Jahr durch Power BI ersetzt, Abweichungen werden nur als Tabellen mit Ampeln gezeigt. Der Geschäftsführer will Reports, die man in Sekunden versteht.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   30,
+   50,
+   90
+  ],
+  "reports": [
+   5,
+   8,
+   14
+  ],
+  "types": [
+   3,
+   4,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   5,
+   12,
+   25
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {},
+  "must": {
+   "export": 0.5,
+   "interact": 0.5
+  },
+  "why": "Schlanker Fall ohne Altlasten und ohne Sonderanforderungen, Preis steht im Vordergrund."
+ },
+ {
+  "id": "C04",
+  "name": "Kranz & Söhne Bau GmbH",
+  "industry": "Bau (Hoch- und Tiefbau)",
+  "city": "Regensburg",
+  "employees": 780,
+  "segment": "mittelstand",
+  "story": "Bauunternehmen mit Projektcontrolling je Baustelle. Die Bauleiter lesen Soll-Ist-Kosten auf dem Tablet auf der Baustelle. Ein externer Berater hat bereits ein paar Deneb-Charts gebaut, die nur er pflegen kann.",
+  "decider": "Leiter Rechnungswesen",
+  "creators": [
+   2,
+   3,
+   4
+  ],
+  "viewers": [
+   60,
+   110,
+   180
+  ],
+  "reports": [
+   10,
+   18,
+   30
+  ],
+  "types": [
+   4,
+   5,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 15,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "deneb",
+  "existing": 14,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "noext": 0.2
+  },
+  "must": {
+   "mobile": 0.8,
+   "bus": 0.6,
+   "maint": 0.5,
+   "interact": 0.6
+  },
+  "why": "Wissensinsel bei Deneb-Lösung und Mobilnutzung auf der Baustelle sind die Reibungspunkte."
+ },
+ {
+  "id": "C05",
+  "name": "Nordlicht Logistik Holding",
+  "industry": "Logistik (Kontraktlogistik, Spedition)",
+  "city": "Hamburg",
+  "employees": 2900,
+  "segment": "gehoben",
+  "story": "Holding mit sieben operativen Gesellschaften, jede mit eigenem Controller und eigenem Power-BI-Stil. Konsolidierung der Berichte für den Vorstand ist der Auslöser. Die IT verlangt zentrale Steuerung, die Gesellschaften wollen Freiheit.",
+  "decider": "Leiter Konzerncontrolling",
+  "creators": [
+   6,
+   10,
+   16
+  ],
+  "viewers": [
+   300,
+   500,
+   900
+  ],
+  "reports": [
+   30,
+   45,
+   70
+  ],
+  "types": [
+   6,
+   8,
+   10
+  ],
+  "models": [
+   5,
+   8,
+   12
+  ],
+  "growth": [
+   5,
+   10,
+   25
+  ],
+  "ssShare": 35,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 40,
+  "dist": "org",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.9,
+   "orgstore": 0.8,
+   "budgetnext": 0.2
+  },
+  "must": {
+   "themeable": 0.8,
+   "alm": 0.7,
+   "export": 0.7,
+   "design": 0.7,
+   "scale": 0.6,
+   "sla": 0.4
+  },
+  "why": "Dezentrale Gesellschaften, harter Standardisierungsdruck und ein Bestand an gekauften Visuals."
+ },
+ {
+  "id": "C06",
+  "name": "Meixner Präzisionsteile GmbH",
+  "industry": "Hidden Champion (Zerspanung, Automotive-Zulieferer)",
+  "city": "Schwäbisch Gmünd",
+  "employees": 410,
+  "segment": "mittelstand",
+  "story": "Weltmarktführer in einer Nische, sehr nüchtern geführt, Gesellschafter lesen Zahlen auf Papier. Das Controlling-Berichtsheft wird monatlich gedruckt und soll dieselbe Notation wie die Power-BI-Seiten nutzen.",
+  "decider": "Geschäftsführender Gesellschafter",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   15,
+   25,
+   40
+  ],
+  "reports": [
+   6,
+   10,
+   16
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   1,
+   2,
+   2
+  ],
+  "growth": [
+   0,
+   3,
+   10
+  ],
+  "ssShare": 10,
+  "horizon": 10,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "core",
+  "existing": 11,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "novat": 0.2
+  },
+  "must": {
+   "paginated": 0.9,
+   "ibcscert": 0.5,
+   "copyppt": 0.7,
+   "export": 0.8,
+   "exit": 0.4
+  },
+  "why": "Wenige Leser, aber Management-lastig mit gedrucktem Berichtsheft und sehr hoher Qualitätserwartung."
+ },
+ {
+  "id": "C07",
+  "name": "Datenhafen Systems GmbH",
+  "industry": "IT-Dienstleister (Managed Services)",
+  "city": "Karlsruhe",
+  "employees": 260,
+  "segment": "mittelstand",
+  "story": "Mittelgroßer IT-Dienstleister, selbst technisch versiert. Die Mitarbeitenden bauen gern selbst, deshalb wächst die Report-Landschaft wild. Der CFO will einen Standard, der Entwicklern gefällt, also Code, Git und Review.",
+  "decider": "Leiter Controlling",
+  "creators": [
+   4,
+   6,
+   10
+  ],
+  "viewers": [
+   25,
+   45,
+   80
+  ],
+  "reports": [
+   6,
+   12,
+   25
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   2,
+   4,
+   6
+  ],
+  "growth": [
+   5,
+   15,
+   30
+  ],
+  "ssShare": 60,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "deneb",
+  "existing": 10,
+  "dist": "file",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {},
+  "must": {
+   "alm": 0.8,
+   "version": 0.8,
+   "agentic": 0.5,
+   "themeable": 0.6,
+   "copilot": 0.3
+  },
+  "why": "Technikaffin und code-nah, daher spannend für Deneb mit Versionskontrolle und KI-Erstellung."
+ },
+ {
+  "id": "C08",
+  "name": "Sonnleitner Medizintechnik AG",
+  "industry": "Medizintechnik (Implantate, Instrumente)",
+  "city": "Tuttlingen",
+  "employees": 530,
+  "segment": "mittelstand",
+  "story": "Regulierte Branche mit Auditpflichten. Controlling berichtet an eine US-Mutter, die Notation ist dort schon IBCS-nah. Validierte Software ist Pflicht, jede Änderung am Visual muss dokumentiert sein.",
+  "decider": "Leiter Finanzen",
+  "creators": [
+   2,
+   3,
+   4
+  ],
+  "viewers": [
+   35,
+   55,
+   90
+  ],
+  "reports": [
+   8,
+   12,
+   18
+  ],
+  "types": [
+   4,
+   6,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   0,
+   5,
+   12
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 9,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 1,
+   "revision": 0.7,
+   "sovereign": 0.1
+  },
+  "must": {
+   "mscert": 0.9,
+   "pin": 0.7,
+   "version": 0.5,
+   "sla": 0.6,
+   "export": 0.6
+  },
+  "why": "Validierungs- und Audit-Anforderungen machen Versionshoheit und Zertifizierung entscheidend."
+ },
+ {
+  "id": "C09",
+  "name": "Rheinland Mobilitätsgruppe",
+  "industry": "Mobilität (Fahrzeughandel und Leasing)",
+  "city": "Düsseldorf",
+  "employees": 3800,
+  "segment": "gehoben",
+  "story": "Autohandelsgruppe mit Leasingtochter, über 60 Standorte. Controlling berichtet täglich Verkaufszahlen und monatlich Margen. Stark wachsende Zahl von Standortleitern, die lesen müssen.",
+  "decider": "Bereichsleiter BI und Controlling",
+  "creators": [
+   5,
+   8,
+   14
+  ],
+  "viewers": [
+   800,
+   1500,
+   2500
+  ],
+  "reports": [
+   25,
+   40,
+   70
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   4,
+   6,
+   9
+  ],
+  "growth": [
+   10,
+   20,
+   35
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": true,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 30,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 0.7,
+   "budgetnext": 0.4
+  },
+  "must": {
+   "mobile": 0.8,
+   "export": 0.7,
+   "interact": 0.8,
+   "exportdata": 0.6,
+   "mscert": 0.5
+  },
+  "why": "Sehr viele Leser; Preis pro Nutzer vs. Site-Lizenz ist der Kern der Rechnung."
+ },
+ {
+  "id": "C10",
+  "name": "Fuchs Feinkost GmbH",
+  "industry": "Lebensmittel (Feinkost, Eigenmarken)",
+  "city": "Ulm",
+  "employees": 190,
+  "segment": "mittelstand",
+  "story": "Kleiner Mittelständler, Controlling ist ein einzelner Mann plus Teilzeitkraft. Power BI läuft seit einem Jahr. Er hat von IBCS gehört und möchte schönere Reports, aber ohne großes Projekt und ohne Beraterkosten.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   10,
+   18,
+   30
+  ],
+  "reports": [
+   3,
+   5,
+   8
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 0,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 0.5
+  },
+  "must": {
+   "bus": 0.4,
+   "maint": 0.5
+  },
+  "why": "Ein-Personen-Controlling, kaum Budget, Risiko durch Wissen bei einer Person."
+ },
+ {
+  "id": "C11",
+  "name": "Altmann Anlagenbau GmbH & Co. KG",
+  "industry": "Maschinenbau (Sonderanlagen, Projektgeschäft)",
+  "city": "Chemnitz",
+  "employees": 880,
+  "segment": "mittelstand",
+  "story": "Projektgeschäft mit langen Laufzeiten und Plan-Ist-Vergleich je Projekt. Seit dem Eigentümerwechsel zu einer Beteiligungsgesellschaft sollen Berichte monatlich standardisiert an den Investor gehen. Bisher Core-Visuals mit viel DAX-Handarbeit.",
+  "decider": "Kaufmännischer Leiter",
+  "creators": [
+   2,
+   4,
+   6
+  ],
+  "viewers": [
+   50,
+   90,
+   160
+  ],
+  "reports": [
+   12,
+   20,
+   35
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   3,
+   4,
+   6
+  ],
+  "growth": [
+   0,
+   6,
+   15
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "core",
+  "existing": 22,
+  "dist": "org",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "orgstore": 0.4,
+   "certonly": 0.5,
+   "revision": 0.4
+  },
+  "must": {
+   "ibcscert": 0.3,
+   "export": 0.7,
+   "scale": 0.6,
+   "copyppt": 0.6
+  },
+  "why": "Viel vorhandene SVG-/DAX-Handarbeit und eine Bibliothek, Wechsel lohnt sich vielleicht nicht."
+ },
+ {
+  "id": "C12",
+  "name": "Lindemann Spedition & Lager",
+  "industry": "Logistik (Stückgut, Lagerlogistik)",
+  "city": "Bremen",
+  "employees": 470,
+  "segment": "mittelstand",
+  "story": "Traditionsspedition mit schmalen Margen, Kostenstellencontrolling steht im Fokus. Die Disponenten lesen nur wenige Kennzahlen, das Management mehr. Der IT-Leiter ist skeptisch gegenüber Zusatzsoftware wegen der Wartung.",
+  "decider": "IT-Leiter",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   30,
+   60,
+   100
+  ],
+  "reports": [
+   6,
+   10,
+   16
+  ],
+  "types": [
+   3,
+   4,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   5,
+   10
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 8,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "coreonly": 0.5,
+   "nobudget": 0.3
+  },
+  "must": {
+   "maint": 0.6,
+   "pin": 0.4,
+   "datares": 0.4
+  },
+  "why": "Skeptische IT mit Tendenz zu Core-only, Frage ob ein Standard mit nativen Mitteln reicht."
+ },
+ {
+  "id": "C13",
+  "name": "Alpenstahl Beteiligungs AG",
+  "industry": "Industrie (Stahlverarbeitung, Mehrwerke)",
+  "city": "Graz",
+  "employees": 2100,
+  "segment": "gehoben",
+  "story": "Börsennahes Unternehmen mit Konzernberichtspflicht, aber noch ohne Konzernstruktur im SAP-Sinne. Der Vorstand verlangt IBCS in allen Reports, ein Projekt mit Wirtschaftsprüfer-Beteiligung.",
+  "decider": "Finanzvorstand",
+  "creators": [
+   5,
+   8,
+   12
+  ],
+  "viewers": [
+   250,
+   400,
+   700
+  ],
+  "reports": [
+   30,
+   50,
+   80
+  ],
+  "types": [
+   7,
+   8,
+   10
+  ],
+  "models": [
+   4,
+   6,
+   8
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 25,
+  "horizon": 5,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 36,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 0.9,
+   "revision": 0.9,
+   "ibcsmust": 0.6
+  },
+  "must": {
+   "ibcscert": 0.7,
+   "mscert": 0.8,
+   "export": 0.8,
+   "sla": 0.6,
+   "scale": 0.7
+  },
+  "why": "IBCS-Pflicht mit Revision, hoher Preisanker, wenig Spielraum für Eigenbau."
+ },
+ {
+  "id": "C14",
+  "name": "Kellermann Bauzulieferer",
+  "industry": "Bau (Baustoffhandel und Fertigteile)",
+  "city": "Salzburg",
+  "employees": 300,
+  "segment": "mittelstand",
+  "story": "Baustoffhändler mit eigenem Fertigteilwerk. Controlling noch stark in Excel, Power BI wird gerade ausgerollt. Zahlreiche Leser sind Vertriebsmitarbeiter, die keine Lust auf komplizierte Charts haben.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   40,
+   80,
+   150
+  ],
+  "reports": [
+   4,
+   7,
+   12
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   10,
+   20,
+   40
+  ],
+  "ssShare": 5,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.4
+  },
+  "must": {
+   "interact": 0.5,
+   "mobile": 0.4
+  },
+  "why": "Ausrollphase mit stark wachsender Leserschaft, ohne Bestand und ohne Vorgaben."
+ },
+ {
+  "id": "C15",
+  "name": "Quellwasser Getränke GmbH",
+  "industry": "Lebensmittel (Getränkeabfüller)",
+  "city": "Freiburg",
+  "employees": 360,
+  "segment": "mittelstand",
+  "story": "Regionaler Abfüller mit Handelspartnern. Die Controllerin baut Reports im Nebenjob, Fachbereiche sollen aber Kommentare zu Abweichungen direkt im Bericht hinterlassen können.",
+  "decider": "Leiterin Controlling",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   20,
+   35,
+   60
+  ],
+  "reports": [
+   5,
+   8,
+   12
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   5,
+   12
+  ],
+  "ssShare": 25,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "oss",
+  "existing": 6,
+  "dist": "file",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {},
+  "must": {
+   "writeback": 0.6,
+   "maint": 0.6,
+   "interact": 0.5
+  },
+  "why": "Bereits ein Open-Source-Visual im Einsatz, Writeback-Wunsch kann den Ausschlag geben."
+ },
+ {
+  "id": "C16",
+  "name": "Hartmann Medical Supply GmbH",
+  "industry": "Großhandel (Medizinprodukte)",
+  "city": "Mannheim",
+  "employees": 230,
+  "segment": "mittelstand",
+  "story": "Großhändler für Praxen und Kliniken, von einem PE-Fonds übernommen. Der Fonds fordert ein standardisiertes Monatsreporting binnen drei Monaten, Zeitreihen AC/PY/PL/FC sind Pflicht. Ein externer Berater begleitet.",
+  "decider": "Geschäftsführer (vom Fonds eingesetzt)",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   12,
+   20,
+   35
+  ],
+  "reports": [
+   5,
+   8,
+   12
+  ],
+  "types": [
+   5,
+   6,
+   7
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   0,
+   0,
+   10
+  ],
+  "ssShare": 10,
+  "horizon": 3,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.2
+  },
+  "must": {
+   "export": 0.8,
+   "copyppt": 0.7,
+   "ibcscert": 0.3,
+   "exit": 0.5
+  },
+  "why": "PE-Druck mit knapper Frist und kurzem Horizont, Haltedauer des Investors begrenzt."
+ },
+ {
+  "id": "C17",
+  "name": "Vogel Industrie-Gruppe",
+  "industry": "PE-geführte Buy-and-Build-Gruppe (Industrieservice)",
+  "city": "München",
+  "employees": 1600,
+  "segment": "gehoben",
+  "story": "Elf zugekaufte Firmen mit je eigenem ERP. Ein zentrales Finance-Team soll monatlich ein Reporting-Paket für den Fonds liefern. Jeder Zukauf bringt eigene Reports mit, das Wachstum ist unplanbar.",
+  "decider": "Group CFO",
+  "creators": [
+   4,
+   8,
+   15
+  ],
+  "viewers": [
+   100,
+   200,
+   500
+  ],
+  "reports": [
+   20,
+   40,
+   90
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   6,
+   10,
+   18
+  ],
+  "growth": [
+   10,
+   25,
+   50
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "core",
+  "existing": 25,
+  "dist": "org",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.8,
+   "orgstore": 0.6,
+   "revision": 0.5,
+   "budgetnext": 0.2
+  },
+  "must": {
+   "themeable": 0.7,
+   "exit": 0.7,
+   "scale": 0.8,
+   "design": 0.8,
+   "alm": 0.5,
+   "bus": 0.5
+  },
+  "why": "Unplanbares Wachstum durch Zukäufe, breite Mengenspannen bei Erstellern und Modellen."
+ },
+ {
+  "id": "C18",
+  "name": "Lehmann Elektro-Großhandel",
+  "industry": "Großhandel (Elektrotechnik)",
+  "city": "Nürnberg",
+  "employees": 520,
+  "segment": "mittelstand",
+  "story": "Mehrstufige Großhandelsgruppe, Margencontrolling je Warengruppe. Die BI-Abteilung ist gut ausgestattet und baut vieles selbst, hat aber nie einheitliche Regeln festgelegt. Bestehende Reports nutzen dieselben Farben für unterschiedliche Bedeutungen.",
+  "decider": "Leiter BI",
+  "creators": [
+   3,
+   4,
+   6
+  ],
+  "viewers": [
+   80,
+   150,
+   260
+  ],
+  "reports": [
+   12,
+   22,
+   35
+  ],
+  "types": [
+   5,
+   7,
+   8
+  ],
+  "models": [
+   3,
+   5,
+   7
+  ],
+  "growth": [
+   5,
+   10,
+   20
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 30,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {},
+  "must": {
+   "themeable": 0.7,
+   "design": 0.6,
+   "scale": 0.6,
+   "maint": 0.4
+  },
+  "why": "Reifes BI-Team, Bibliothek vorhanden, Kernfrage ist Aufwand der Migration von 30 Bestandsreports."
+ },
+ {
+  "id": "C19",
+  "name": "Stoll Logistics Services",
+  "industry": "Logistik (Kontraktlogistik, Automotive)",
+  "city": "Stuttgart",
+  "employees": 950,
+  "segment": "mittelstand",
+  "story": "Dienstleister mit Kundenverträgen, in denen Reports an Kunden gehen. Einige Berichte werden extern gezeigt, daher spielen Datenschutz und Einbettung eine Rolle. Ein Kunde verlangt IBCS-konforme Darstellung.",
+  "decider": "Leiter Controlling",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   60,
+   100,
+   220
+  ],
+  "reports": [
+   8,
+   14,
+   25
+  ],
+  "types": [
+   4,
+   6,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   5,
+   10,
+   25
+  ],
+  "ssShare": 15,
+  "horizon": 5,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 12,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "embed": 0.6,
+   "euonly": 0.4,
+   "certonly": 0.5
+  },
+  "must": {
+   "ibcscert": 0.5,
+   "datares": 0.6,
+   "export": 0.6,
+   "mscert": 0.5,
+   "a11y": 0.3
+  },
+  "why": "Externe Berichtsempfänger und Kundenvorgabe IBCS, Einbettung beeinflusst die Visual-Wahl."
+ },
+ {
+  "id": "C20",
+  "name": "Kaltenbach Bau- und Immobilien AG",
+  "industry": "Bau (Projektentwicklung und Bauträger)",
+  "city": "Zürich",
+  "employees": 410,
+  "segment": "mittelstand",
+  "story": "Bauträger mit Projektportfolio, jedes Projekt hat eigene Kalkulation. Schweizer Datenstandort ist den Eigentümern wichtig, Cloud-Dienste werden kritisch geprüft. Controlling berichtet an einen kleinen Verwaltungsrat.",
+  "decider": "CFO",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   20,
+   30,
+   50
+  ],
+  "reports": [
+   6,
+   9,
+   14
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   3,
+   8
+  ],
+  "ssShare": 10,
+  "horizon": 10,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 7,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "euonly": 0.5,
+   "sovereign": 0.2,
+   "coreonly": 0.3
+  },
+  "must": {
+   "datares": 0.7,
+   "exit": 0.5,
+   "export": 0.6,
+   "pin": 0.4
+  },
+  "why": "Datenhoheit steht über Komfort, Custom Visuals könnten ausgeschlossen werden."
+ },
+ {
+  "id": "C21",
+  "name": "Berghoff Chemie-Handel AG",
+  "industry": "Handel und Distribution (Spezialchemie)",
+  "city": "Basel",
+  "employees": 1250,
+  "segment": "gehoben",
+  "story": "Internationaler Distributor mit Sitz in der Schweiz, Berichte in Deutsch und Englisch. Mehrwährung ist alltäglich, Berichtspaket geht monatlich ans Board. Revisionsnähe, Reports werden vor Veröffentlichung geprüft.",
+  "decider": "Head of Finance",
+  "creators": [
+   3,
+   5,
+   8
+  ],
+  "viewers": [
+   120,
+   200,
+   350
+  ],
+  "reports": [
+   15,
+   25,
+   40
+  ],
+  "types": [
+   6,
+   7,
+   9
+  ],
+  "models": [
+   3,
+   5,
+   7
+  ],
+  "growth": [
+   0,
+   6,
+   15
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 18,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "certonly": 0.8,
+   "revision": 0.8,
+   "novat": 0.3
+  },
+  "must": {
+   "ibcscert": 0.6,
+   "export": 0.8,
+   "copyppt": 0.7,
+   "a11y": 0.4,
+   "sla": 0.5,
+   "datares": 0.4
+  },
+  "why": "Hohe Qualitätsansprüche, bestehende Premium-Visuals, Mehrsprachigkeit und Revisionslogik."
+ },
+ {
+  "id": "C22",
+  "name": "Pfeifer Landtechnik GmbH",
+  "industry": "Maschinenbau (Landmaschinen, Ersatzteile)",
+  "city": "Ravensburg",
+  "employees": 570,
+  "segment": "mittelstand",
+  "story": "Landmaschinenhersteller mit Händlernetz. Das Controlling möchte ein Standard-Set an Charts, eine KI soll bei der Erstellung helfen. Der Geschäftsführer hat Copilot-Vorträge besucht und erwartet Wunder.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   2,
+   3,
+   4
+  ],
+  "viewers": [
+   40,
+   70,
+   120
+  ],
+  "reports": [
+   6,
+   10,
+   18
+  ],
+  "types": [
+   4,
+   5,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   5,
+   10,
+   20
+  ],
+  "ssShare": 35,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.3
+  },
+  "must": {
+   "copilot": 0.6,
+   "agentic": 0.4,
+   "maint": 0.5,
+   "themeable": 0.4
+  },
+  "why": "KI-Erwartungen der Geschäftsführung, noch keine Erfahrung, Abgleich mit der Realität nötig."
+ },
+ {
+  "id": "C23",
+  "name": "Winkler Holzwerke",
+  "industry": "Hidden Champion (Holzwerkstoffe, Export)",
+  "city": "Rosenheim",
+  "employees": 680,
+  "segment": "mittelstand",
+  "story": "Exportstarker Familienbetrieb mit Werken in Deutschland und Osteuropa. Fremdwährungsberichte sind Alltag, Controlling von drei Werken wird zusammengeführt. Der Eigentümer bestimmt mit.",
+  "decider": "Geschäftsführender Gesellschafter",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   30,
+   55,
+   100
+  ],
+  "reports": [
+   8,
+   12,
+   20
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   0,
+   5,
+   12
+  ],
+  "ssShare": 15,
+  "horizon": 10,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "oss",
+  "existing": 10,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "orgstore": 0.3,
+   "certonly": 0.4
+  },
+  "must": {
+   "export": 0.7,
+   "exit": 0.6,
+   "scale": 0.7,
+   "bus": 0.4,
+   "interact": 0.4
+  },
+  "why": "Gewachsener OSS-Einsatz, langer Horizont und Eigentümer mit Vorliebe für Unabhängigkeit."
+ },
+ {
+  "id": "C24",
+  "name": "Thalmann Gebäudeservice GmbH",
+  "industry": "Dienstleistung (Facility Management)",
+  "city": "Wien",
+  "employees": 1100,
+  "segment": "mittelstand",
+  "story": "Facility-Dienstleister mit vielen Objektleitern, die Kostenstellen und Margen lesen. Einfache, schnelle Reports statt perfekter Notation, aber viel Fluktuation bei Mitarbeitern.",
+  "decider": "Leiter Controlling",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   250,
+   450,
+   800
+  ],
+  "reports": [
+   8,
+   15,
+   28
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   5,
+   15,
+   35
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": true,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 11,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.4,
+   "budgetnext": 0.3
+  },
+  "must": {
+   "mobile": 0.7,
+   "maint": 0.5,
+   "interact": 0.4
+  },
+  "why": "Viele Leser mit hoher Fluktuation und einfacher Nutzung, Site-Lizenz gegen Staffelpreis."
+ },
+ {
+  "id": "C25",
+  "name": "Ostwind Handelsgruppe",
+  "industry": "Einzelhandel/Großhandel Mischkonzern (Familiengruppe)",
+  "city": "Leipzig",
+  "employees": 2400,
+  "segment": "gehoben",
+  "story": "Handelsgruppe mit Cash-and-Carry und Onlinehandel, mehrere Managementebenen. Ein gemeinsamer Standard soll die uneinheitlichen Reports der Sparten ablösen. Der Beirat verlangt Transparenz über Kosten und Nutzen der Entscheidung.",
+  "decider": "Beiratsvorsitzender gemeinsam mit CFO",
+  "creators": [
+   4,
+   7,
+   12
+  ],
+  "viewers": [
+   400,
+   700,
+   1200
+  ],
+  "reports": [
+   20,
+   35,
+   60
+  ],
+  "types": [
+   5,
+   7,
+   9
+  ],
+  "models": [
+   4,
+   6,
+   10
+  ],
+  "growth": [
+   5,
+   12,
+   25
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "deneb",
+  "existing": 26,
+  "dist": "file",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "budgetnext": 0.5,
+   "noext": 0.3,
+   "revision": 0.4
+  },
+  "must": {
+   "design": 0.6,
+   "alm": 0.5,
+   "export": 0.6,
+   "bus": 0.6,
+   "sla": 0.3,
+   "version": 0.5
+  },
+  "why": "Deneb-Bestand mit Bibliothek, großer Leserkreis, Beirat will die Kostenlogik nachvollziehen."
+ }
+]

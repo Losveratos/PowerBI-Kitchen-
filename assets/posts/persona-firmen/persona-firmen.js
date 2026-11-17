@@ -72,6 +72,13 @@ function show(id,scroll){sel=id;const r=R.find(x=>x.id===id);if(!r)return;
   draw();if(scroll)$('detail').scrollIntoView({behavior:'smooth',block:'nearest'});}
 function mini(d,l){return `<div style="display:flex;align-items:center;gap:8px"><span style="font-size:11.5px;color:var(--ink-mute);width:48px">${l}</span><div class="mini" style="flex:1">${d.map((v,i)=>v>.004?`<span style="flex:${v};background:${COL[O[i]]}" title="${ON[O[i]]}: ${pc(v)}"></span>`:'').join('')}</div></div>`;}
 
+/* ---------- Wo welcher Weg gewinnt ---------- */
+{const med=a=>{const s=a.slice().sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:0;};
+ const rows=O.map((o,i)=>{const g=R.filter(r=>r.maj===i);if(!g.length)return '';
+  return `<tr><td><span class="sw" style="background:${o==='none'?'#B4B2A2':COL[o]}"></span>${ON[o]}</td><td class="num">${g.length}</td><td class="num">${nf(med(g.map(r=>r.viewers[1])))}</td><td class="num">${g.filter(r=>r.horizon===10).length}</td><td class="num">${pc(med(g.map(r=>r.mc.ko[0])))}</td><td class="num">${pc(med(g.map(r=>r.conf)))}</td></tr>`;}).join('');
+ $('where').innerHTML=`<p>Gruppiert nach dem Weg, der bei einer Firma am häufigsten gewinnt:</p><div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Mehrheit</th><th class="num">Firmen</th><th class="num">Leser (Median)</th><th class="num">10 Jahre Horizont</th><th class="num">Paid fällt per K.O. raus (Median)</th><th class="num">Sicherheit (Median)</th></tr></thead><tbody>${rows}</tbody></table></div>
+ <p>Paid gewinnt dort, wo nichts gegen eine Lizenz spricht: Bei diesen Firmen fällt Paid praktisch nie per K.O. heraus. Bei allen anderen Gruppen ist Paid in mehr als der Hälfte der Zukünfte gar nicht zulässig. Deneb gewinnt bei den Firmen mit den meisten Lesern und den längsten Horizonten. Core gewinnt zur Hälfte dort, wo es schon steht, und dort, wo Custom Visuals gesperrt sind. Der Persona-Satz ist bewusst breit und kein Abbild des Markts: Gehobener Mittelstand, Konzerne, Banken und öffentliche Hand stellen über die Hälfte der Firmen. Die Anteile sind deshalb nicht mit der <a href="no-free-lunch-visual-standards-post.html">Simulation mit 100.000 Firmen</a> vergleichbar.</p>`;}
+
 /* ---------- Treiber-Zählung ---------- */
 const dc={};R.forEach(r=>{const d=r.mc.drivers[0];if(d&&d.tv>=.05)dc[d.id]=(dc[d.id]||0)+1;else dc['_none']=(dc['_none']||0)+1;});
 const dl=Object.entries(dc).sort((a,b)=>b[1]-a[1]);const dmx=Math.max(...dl.map(x=>x[1]));
@@ -101,7 +108,7 @@ $('authors').innerHTML=`<p>Die beiden Modelle haben verschiedene Ecken des Markt
 <tr><td>Münzwurf-Firmen (&lt; 50 %)</td><td class="num">${A.coin}</td><td class="num">${S.coin}</td></tr>
 ${O.map(o=>`<tr><td>Mehrheit ${ON[o]}</td><td class="num">${A.m[o]||0}</td><td class="num">${S.m[o]||0}</td></tr>`).join('')}
 </tbody></table></div>`;
-if(DATA.verdict)$('verdict').innerHTML=`<div class="src-box" style="border-left-color:var(--topic)"><h3>Urteil des Opus-Reviewers</h3>${DATA.verdict.split(/\n{2,}/).map(p=>`<p style="margin-bottom:8px">${esc(p.replace(/\*\*/g,''))}</p>`).join('')}</div>`;
+if(DATA.verdict)$('verdict').innerHTML=`<div class="src-box" style="border-left-color:var(--topic)"><h3>Urteil des Opus-Reviewers</h3><p class="note" style="margin-bottom:8px">Wörtlich aus dem Review-Log. Vorsicht: Hier bewertet Opus auch Firmen, die Opus geschrieben hat.</p>${DATA.verdict.split(/\n{2,}/).map(p=>`<p style="margin-bottom:8px">${esc(p.replace(/\*\*/g,'').replace(/`/g,''))}</p>`).join('')}</div>`;
 
 /* ---------- Tabelle ---------- */
 $('tbl').innerHTML=`<thead><tr><th>ID</th><th>Firma</th><th>Segment</th><th class="num">Leser</th><th class="num">Paid</th><th class="num">OSS</th><th class="num">Deneb</th><th class="num">Core</th><th class="num">kein</th><th>Punkt</th></tr></thead><tbody>`+

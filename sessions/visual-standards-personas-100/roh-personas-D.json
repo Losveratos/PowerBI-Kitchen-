@@ -1,0 +1,1568 @@
+[
+ {
+  "id": "D01",
+  "name": "Lumora Systems GmbH",
+  "industry": "B2B-SaaS (Startup)",
+  "city": "Berlin",
+  "employees": 45,
+  "segment": "klein",
+  "story": "Seed-finanziertes Startup, das sein erstes MRR-/Burn-Reporting in Power BI aufsetzt, weil Investoren monatlich ein einheitliches Bild wollen. Der CFO baut selbst, Wachstum der Belegschaft ist schnell und schwer planbar.",
+  "decider": "CFO",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   12,
+   25,
+   60
+  ],
+  "reports": [
+   4,
+   8,
+   16
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   20,
+   60,
+   120
+  ],
+  "ssShare": 60,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.2
+  },
+  "must": {
+   "export": 0.5,
+   "maint": 0.4,
+   "copyppt": 0.6,
+   "bus": 0.3
+  },
+  "why": "Grüne Wiese mit extrem unsicherem Wachstum und kurzem Horizont."
+ },
+ {
+  "id": "D02",
+  "name": "Fahrwerk Logistics Software AG",
+  "industry": "Logistik-Software (Scale-up)",
+  "city": "München",
+  "employees": 380,
+  "segment": "mittelstand",
+  "story": "Series-C-Scale-up mit drei Standorten; Finance hat in zwei Jahren ein Dutzend wilde Excel-zu-Power-BI-Reports gebaut. Der neue Head of FP&A will einen Standard, bevor der Börsengang vorbereitet wird.",
+  "decider": "Head of FP&A (mit CFO-Freigabe)",
+  "creators": [
+   3,
+   5,
+   9
+  ],
+  "viewers": [
+   80,
+   160,
+   350
+  ],
+  "reports": [
+   15,
+   30,
+   60
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   3,
+   5,
+   8
+  ],
+  "growth": [
+   30,
+   60,
+   120
+  ],
+  "ssShare": 35,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": true,
+  "baseline": "deneb",
+  "existing": 9,
+  "dist": "org",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.5,
+   "orgstore": 0.5,
+   "revision": 0.6
+  },
+  "must": {
+   "alm": 0.8,
+   "themeable": 0.7,
+   "version": 0.6,
+   "agentic": 0.4,
+   "copilot": 0.4,
+   "scale": 0.7,
+   "export": 0.6
+  },
+  "why": "Hohe Wachstumsunsicherheit plus IPO-Druck auf Nachvollziehbarkeit und ALM."
+ },
+ {
+  "id": "D03",
+  "name": "Pixelwerk Kommunikation GmbH",
+  "industry": "Digitalagentur",
+  "city": "Hamburg",
+  "employees": 28,
+  "segment": "klein",
+  "story": "Die Agentur steuert Kampagnenbudgets für zwölf Kunden und zeigt ihnen Ergebnisse in Power BI Embedded-Seiten. Die Controllerin soll einheitliche Abweichungsdarstellung liefern, die auch Kunden auf Anhieb lesen.",
+  "decider": "Geschäftsführerin",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   15,
+   40,
+   90
+  ],
+  "reports": [
+   6,
+   10,
+   20
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   5
+  ],
+  "growth": [
+   10,
+   35,
+   80
+  ],
+  "ssShare": 40,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 6,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "embed": 0.6
+  },
+  "must": {
+   "interact": 0.7,
+   "copyppt": 0.6,
+   "design": 0.5,
+   "a11y": 0.3
+  },
+  "why": "Viewer sind teils Kunden außerhalb der Firma, Lizenzmodell je Nutzer wird dadurch schwer zu zählen."
+ },
+ {
+  "id": "D04",
+  "name": "Kanzlei Brandl & Partner Steuerberatung",
+  "industry": "Steuerberatung",
+  "city": "Stuttgart",
+  "employees": 35,
+  "segment": "klein",
+  "story": "Kleine Steuerberatungskanzlei, die Mandanten ein monatliches BWA-Dashboard aus DATEV-Daten anbietet. Zwei Berater bauen alles selbst, Mandanten sehen nur PDF und Link.",
+  "decider": "Kanzleiinhaber",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   40,
+   90,
+   200
+  ],
+  "reports": [
+   3,
+   6,
+   12
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   15,
+   40,
+   90
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "noext": 0.5,
+   "euonly": 0.6
+  },
+  "must": {
+   "export": 0.9,
+   "datares": 0.7,
+   "copyppt": 0.2,
+   "bus": 0.5
+  },
+  "why": "Datenschutz-sensibel, PDF-Export zwingend, Kundenkreis nicht im eigenen Tenant."
+ },
+ {
+  "id": "D05",
+  "name": "Rheinmain Wirtschaftsprüfung GmbH WPG",
+  "industry": "Wirtschaftsprüfung",
+  "city": "Frankfurt am Main",
+  "employees": 120,
+  "segment": "mittelstand",
+  "story": "WP-Gesellschaft, die Prüfungsanalysen und interne Controlling-Reports in Power BI standardisiert. Die Revision verlangt, dass jede Rechenlogik nachvollziehbar und versioniert ist, Visuals aus unbekannter Quelle sind ein Thema.",
+  "decider": "Partner IT & Methodik",
+  "creators": [
+   3,
+   5,
+   8
+  ],
+  "viewers": [
+   60,
+   110,
+   180
+  ],
+  "reports": [
+   10,
+   20,
+   40
+  ],
+  "types": [
+   5,
+   6,
+   7
+  ],
+  "models": [
+   3,
+   4,
+   6
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 20,
+  "horizon": 10,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 14,
+  "dist": "app",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "certonly": 0.9,
+   "revision": 1,
+   "euonly": 0.7,
+   "sovereign": 0.2
+  },
+  "must": {
+   "version": 0.9,
+   "datares": 0.8,
+   "mscert": 0.8,
+   "alm": 0.7,
+   "sla": 0.6,
+   "ibcscert": 0.3
+  },
+  "why": "Revision und Zertifizierungsdruck, Bestand mit gekauftem Visual, Wechsel nur mit lückenloser Nachvollziehbarkeit."
+ },
+ {
+  "id": "D06",
+  "name": "Brotkorb Franchise GmbH",
+  "industry": "Bäckerei-Franchise",
+  "city": "Köln",
+  "employees": 90,
+  "segment": "mittelstand",
+  "story": "Franchisegeber mit 140 Filialen, die monatlich Umsatz, Wareneinsatz und Personalkosten pro Standort an die Betreiber spiegeln. Die Zentrale baut, Franchisenehmer lesen nur, aber ständig kommen Standorte dazu.",
+  "decider": "Leiter Controlling",
+  "creators": [
+   2,
+   3,
+   5
+  ],
+  "viewers": [
+   150,
+   300,
+   600
+  ],
+  "reports": [
+   8,
+   14,
+   25
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   5,
+   15,
+   35
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 10,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.4,
+   "orgstore": 0.4,
+   "embed": 0.4
+  },
+  "must": {
+   "mobile": 0.7,
+   "export": 0.6,
+   "themeable": 0.5,
+   "exportdata": 0.4
+  },
+  "why": "Sehr viele Leser mit wenigen Erstellern, Lizenzkosten skalieren stark mit Franchisenehmern."
+ },
+ {
+  "id": "D07",
+  "name": "FitBase Studios Franchise",
+  "industry": "Fitness-Franchise",
+  "city": "Wien",
+  "employees": 60,
+  "segment": "klein",
+  "story": "Junges Franchise-System mit 38 Studios in Österreich; Controlling ist ein Zwei-Personen-Team. Studio-Leiter wollen KPIs auf dem Handy, die Zentrale will Plan-Ist-Abweichungen.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   45,
+   90,
+   160
+  ],
+  "reports": [
+   4,
+   8,
+   14
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   20,
+   40,
+   80
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.3
+  },
+  "must": {
+   "mobile": 0.9,
+   "interact": 0.6,
+   "export": 0.3,
+   "maint": 0.5
+  },
+  "why": "Mobile-Pflicht und Franchisenehmer als Leser, ansonsten wenig Spezialfälle."
+ },
+ {
+  "id": "D08",
+  "name": "Nordwasser Einkaufsverbund eG",
+  "industry": "Handwerksgruppe (SHK-Einkaufsverbund)",
+  "city": "Hannover",
+  "employees": 70,
+  "segment": "klein",
+  "story": "Genossenschaft von 85 Installationsbetrieben, die Einkaufs- und Boni-Auswertungen für Mitglieder bereitstellt. Die Geschäftsführung will ein einheitliches Zahlenbild, hat aber nur eine Controllerin und ein externes Büro für technische Hilfe.",
+  "decider": "Vorstand",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   60,
+   100,
+   180
+  ],
+  "reports": [
+   5,
+   8,
+   15
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   2,
+   2
+  ],
+  "growth": [
+   0,
+   10,
+   25
+  ],
+  "ssShare": 0,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "noext": 0.3,
+   "budgetnext": 0.4
+  },
+  "must": {
+   "export": 0.7,
+   "bus": 0.5,
+   "maint": 0.4
+  },
+  "why": "Genossenschaftsstruktur mit vielen externen Lesern und fast keinem eigenen BI-Know-how."
+ },
+ {
+  "id": "D09",
+  "name": "Bergmann Dachbau Gruppe AG",
+  "industry": "Handwerksgruppe (Dach/Fassade)",
+  "city": "Zürich",
+  "employees": 55,
+  "segment": "klein",
+  "story": "Gruppe aus sieben Dachdecker- und Spenglerbetrieben, die nach einer Übernahmewelle vergleichbare Projektergebnisse braucht. Die IT hat Custom Visuals im Tenant gesperrt, nachdem ein Add-in Probleme machte.",
+  "decider": "Finanzleiter",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   20,
+   35,
+   60
+  ],
+  "reports": [
+   4,
+   6,
+   10
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   8,
+   20
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 5,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "classic",
+  "flags": {
+   "coreonly": 0.9,
+   "certonly": 0.9,
+   "euonly": 0.4
+  },
+  "must": {
+   "themeable": 0.6,
+   "pin": 0.5,
+   "export": 0.5,
+   "scale": 0.4
+  },
+  "why": "Custom Visuals gesperrt, Core-Workarounds die einzige Option."
+ },
+ {
+  "id": "D10",
+  "name": "Verband Süddeutscher Metallbetriebe e.V.",
+  "industry": "Arbeitgeber-/Branchenverband",
+  "city": "Düsseldorf",
+  "employees": 40,
+  "segment": "klein",
+  "story": "Der Verband erstellt Mitgliederstatistiken und Benchmarks für 600 Betriebe, intern gesteuert über ein Controlling mit drei Personen. Mitgliedsbeiträge decken die Kosten, Mehrwertsteuer ist weitgehend nicht abziehbar.",
+  "decider": "Hauptgeschäftsführer",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   30,
+   60,
+   120
+  ],
+  "reports": [
+   4,
+   8,
+   14
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   3
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 15,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "oss",
+  "existing": 4,
+  "dist": "file",
+  "library": false,
+  "ossBuild": "ready",
+  "flags": {
+   "novat": 0.9,
+   "budgetnext": 0.6,
+   "euonly": 0.5
+  },
+  "must": {
+   "exit": 0.5,
+   "export": 0.6,
+   "design": 0.4
+  },
+  "why": "Nicht abziehbare Vorsteuer verteuert Zukäufe, OSS-Fertigvisual als Bestand."
+ },
+ {
+  "id": "D11",
+  "name": "Sportverein Union Graz 1904 e.V.",
+  "industry": "Sportverein",
+  "city": "Graz",
+  "employees": 25,
+  "segment": "klein",
+  "story": "Großer Verein mit mehreren Sparten und ehrenamtlichem Vorstand, der Sponsoring, Mitgliedsbeiträge und Sparten-Budgets abbildet. Die Kasse wird von einer Teilzeitkraft betreut, Lizenzgeld gibt es keines.",
+  "decider": "Kassier des Vereins (ehrenamtlich)",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   8,
+   15,
+   30
+  ],
+  "reports": [
+   2,
+   3,
+   6
+  ],
+  "types": [
+   3,
+   4,
+   4
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   0,
+   10,
+   40
+  ],
+  "ssShare": 0,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 0.95,
+   "novat": 0.8,
+   "noext": 0.4
+  },
+  "must": {
+   "bus": 0.8,
+   "exit": 0.5,
+   "export": 0.3
+  },
+  "why": "Nahezu kein Budget und Ehrenamts-Fluktuation, Wissen darf nicht an einer Person hängen."
+ },
+ {
+  "id": "D12",
+  "name": "Kleiderschrank.de GmbH",
+  "industry": "E-Commerce Mode",
+  "city": "Leipzig",
+  "employees": 85,
+  "segment": "klein",
+  "story": "Online-Modehändler mit starkem saisonalem Geschäft; Marketing, Einkauf und Controlling bauen alle eigene Reports auf dem gleichen Modell. Die Geschäftsführung will endlich einheitliche Abweichungsdarstellung statt jeder-wie-er-will.",
+  "decider": "Leiter Finance & BI",
+  "creators": [
+   3,
+   6,
+   12
+  ],
+  "viewers": [
+   40,
+   80,
+   140
+  ],
+  "reports": [
+   12,
+   25,
+   45
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   5
+  ],
+  "growth": [
+   10,
+   25,
+   60
+  ],
+  "ssShare": 65,
+  "horizon": 3,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 18,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.3
+  },
+  "must": {
+   "design": 0.7,
+   "themeable": 0.6,
+   "maint": 0.7,
+   "copilot": 0.5,
+   "agentic": 0.3
+  },
+  "why": "Hoher Self-Service-Anteil und Disziplinfrage statt Technikfrage."
+ },
+ {
+  "id": "D13",
+  "name": "Wohnwerk Möbelhandel GmbH & Co. KG",
+  "industry": "E-Commerce Möbel",
+  "city": "Salzburg",
+  "employees": 140,
+  "segment": "mittelstand",
+  "story": "Möbel-Onlinehändler mit eigenem Lager und Showrooms; BI-Team aus vier Personen pflegt Sortiments-, Retouren- und Deckungsbeitragsreports. Ein Wechsel des bisherigen gekauften Visuals steht an, weil der Vertrag in 14 Monaten endet.",
+  "decider": "Head of BI",
+  "creators": [
+   3,
+   4,
+   6
+  ],
+  "viewers": [
+   70,
+   130,
+   220
+  ],
+  "reports": [
+   20,
+   35,
+   60
+  ],
+  "types": [
+   6,
+   7,
+   8
+  ],
+  "models": [
+   4,
+   5,
+   7
+  ],
+  "growth": [
+   5,
+   15,
+   40
+  ],
+  "ssShare": 30,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "paid",
+  "existing": 28,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "orgstore": 0.3,
+   "budgetnext": 0.5
+  },
+  "must": {
+   "export": 0.7,
+   "drill": 0.8,
+   "interact": 0.7,
+   "exit": 0.6,
+   "scale": 0.5
+  },
+  "why": "Klassischer Vertragsablauf-Fall mit realem Migrationsaufwand und Verhandlung der Site-Lizenz."
+ },
+ {
+  "id": "D14",
+  "name": "Zillertal Alpine Hotels AG",
+  "industry": "Hotelgruppe",
+  "city": "Innsbruck",
+  "employees": 210,
+  "segment": "mittelstand",
+  "story": "Gruppe aus neun Hotels mit starker Saisonalität; Revenue-Management und Controlling berichten Auslastung, ADR, RevPAR und GOP. Die Hoteldirektoren lesen mobil und erwarten gleiche Darstellung über alle Häuser.",
+  "decider": "Group Controller",
+  "creators": [
+   2,
+   3,
+   4
+  ],
+  "viewers": [
+   40,
+   80,
+   140
+  ],
+  "reports": [
+   8,
+   15,
+   25
+  ],
+  "types": [
+   5,
+   6,
+   7
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   -10,
+   5,
+   20
+  ],
+  "ssShare": 15,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "sovereign": 0.1,
+   "budgetnext": 0.4
+  },
+  "must": {
+   "mobile": 0.8,
+   "export": 0.7,
+   "scale": 0.6,
+   "copyppt": 0.5,
+   "a11y": 0.2
+  },
+  "why": "Saisonale Schwankung der Nutzerzahl und Mobilfokus bei kleinem Team."
+ },
+ {
+  "id": "D15",
+  "name": "Seeblick Boutique Hotels AG",
+  "industry": "Boutique-Hotelgruppe",
+  "city": "Luzern",
+  "employees": 60,
+  "segment": "klein",
+  "story": "Drei Häuser am See, geführt von einem Eigentümerpaar, das monatlich Zahlen mit dem Treuhänder bespricht. Reports sollen im Besprechungsraum auf dem Bildschirm sauber aussehen und als PDF ins Archiv.",
+  "decider": "Eigentümerin/Direktorin",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   6,
+   10,
+   20
+  ],
+  "reports": [
+   3,
+   4,
+   7
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 20,
+  "horizon": 5,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "noext": 0.2
+  },
+  "must": {
+   "export": 0.9,
+   "copyppt": 0.5,
+   "bus": 0.5,
+   "a11y": 0.1
+  },
+  "why": "Winzige Nutzerzahl macht Staffelpreise eines Premium-Visuals fraglich, Preisanker hoch."
+ },
+ {
+  "id": "D16",
+  "name": "Hartmann Controlling Boutique",
+  "industry": "Controlling-Beratung",
+  "city": "Basel",
+  "employees": 18,
+  "segment": "klein",
+  "story": "Beratungsboutique, die für KMU-Mandanten Controllingreports in deren Power-BI-Tenants baut und selbst ein Standardset als Baukasten pflegt. Jeder Mandant entscheidet allein, was er installieren darf.",
+  "decider": "Managing Partner",
+  "creators": [
+   2,
+   4,
+   6
+  ],
+  "viewers": [
+   40,
+   150,
+   400
+  ],
+  "reports": [
+   10,
+   25,
+   60
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   5,
+   10,
+   20
+  ],
+  "growth": [
+   20,
+   40,
+   100
+  ],
+  "ssShare": 5,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": true,
+  "baseline": "deneb",
+  "existing": 20,
+  "dist": "file",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "certonly": 0.4,
+   "coreonly": 0.2,
+   "embed": 0.3,
+   "budgetnext": 0.2
+  },
+  "must": {
+   "exit": 0.8,
+   "maint": 0.5,
+   "alm": 0.5,
+   "version": 0.5,
+   "bus": 0.7,
+   "agentic": 0.4
+  },
+  "why": "Ersteller vs. Leser stark entkoppelt, Verteilweg und Lizenz hängen vom jeweiligen Mandanten ab."
+ },
+ {
+  "id": "D17",
+  "name": "Datenbrücke Consulting GmbH",
+  "industry": "IT-Beratung mit Mandanten-Embedded",
+  "city": "Nürnberg",
+  "employees": 95,
+  "segment": "mittelstand",
+  "story": "Beratung betreibt ein Embedded-Portal, in dem Mandanten ihre Finanzkennzahlen sehen; ISV-Lizenzierung der Visuals ist ungeklärt. Der Vertrieb verspricht branchenübergreifend einheitliche IBCS-Optik.",
+  "decider": "Geschäftsführer Analytics",
+  "creators": [
+   4,
+   6,
+   10
+  ],
+  "viewers": [
+   300,
+   900,
+   2500
+  ],
+  "reports": [
+   15,
+   30,
+   70
+  ],
+  "types": [
+   5,
+   6,
+   8
+  ],
+  "models": [
+   6,
+   10,
+   18
+  ],
+  "growth": [
+   20,
+   45,
+   120
+  ],
+  "ssShare": 35,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mix",
+  "ibcsAll": true,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "app",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "embed": 1,
+   "certonly": 0.6,
+   "euonly": 0.4
+  },
+  "must": {
+   "sla": 0.8,
+   "themeable": 0.8,
+   "export": 0.6,
+   "ibcscert": 0.5,
+   "a11y": 0.5,
+   "scale": 0.6,
+   "alm": 0.6
+  },
+  "why": "Lizenzrechnung für externe Embedded-Leser, die Zählung der Nutzer ist selbst unsicher."
+ },
+ {
+  "id": "D18",
+  "name": "Presswerk Kessler GmbH",
+  "industry": "Maschinenbau-Zulieferer",
+  "city": "Chemnitz",
+  "employees": 160,
+  "segment": "mittelstand",
+  "story": "Zulieferer mit ausschließlich lokalem Power BI Report Server, weil Produktionsdaten das Haus nicht verlassen dürfen. Der Controller pflegt alles allein, Updates des Report Servers kommen nur zweimal im Jahr.",
+  "decider": "Kaufmännischer Leiter",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   40,
+   70,
+   110
+  ],
+  "reports": [
+   6,
+   10,
+   18
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   4
+  ],
+  "growth": [
+   0,
+   5,
+   10
+  ],
+  "ssShare": 5,
+  "horizon": 10,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 9,
+  "dist": "file",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "rs": 1,
+   "coreonly": 0.5,
+   "certonly": 0.5
+  },
+  "must": {
+   "rs": 1,
+   "pin": 0.7,
+   "bus": 0.7,
+   "export": 0.5
+  },
+  "why": "Report Server entscheidet fast alles, welche Visuals dort überhaupt laufen, ist die Kernfrage."
+ },
+ {
+  "id": "D19",
+  "name": "Seniorenhaus Rosengarten gGmbH",
+  "industry": "Pflegeheim-Betreiber",
+  "city": "Kassel",
+  "employees": 70,
+  "segment": "klein",
+  "story": "Gemeinnütziger Betreiber von vier Heimen mit Report Server on-prem aus Datenschutzgründen. Belegungs- und Kostenreports gehen monatlich an Träger und Aufsicht, mit begrenztem Budget und nur einem IT-Verantwortlichen.",
+  "decider": "Geschäftsführer",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   10,
+   20,
+   40
+  ],
+  "reports": [
+   4,
+   6,
+   10
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   2,
+   2
+  ],
+  "growth": [
+   0,
+   5,
+   10
+  ],
+  "ssShare": 5,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "rs": 0.9,
+   "novat": 0.7,
+   "budgetnext": 0.5,
+   "euonly": 0.7,
+   "noext": 0.4
+  },
+  "must": {
+   "rs": 0.9,
+   "export": 0.8,
+   "paginated": 0.5,
+   "bus": 0.6
+  },
+  "why": "Kombination Report Server, nicht abziehbare Vorsteuer und Träger-Vorgaben, wenige Nutzer."
+ },
+ {
+  "id": "D20",
+  "name": "Stiftung Zukunftswerk",
+  "industry": "Gemeinnützige Stiftung",
+  "city": "Bern",
+  "employees": 15,
+  "segment": "klein",
+  "story": "Förderstiftung, die Projektbudgets und Mittelabflüsse in Power BI zeigt, finanziert von Spenden. Es gibt keine Lizenzmittel für Zusatzsoftware, die Geschäftsführerin baut die Reports nebenbei.",
+  "decider": "Geschäftsführerin",
+  "creators": [
+   1,
+   1,
+   1
+  ],
+  "viewers": [
+   6,
+   10,
+   18
+  ],
+  "reports": [
+   2,
+   3,
+   5
+  ],
+  "types": [
+   3,
+   3,
+   4
+  ],
+  "models": [
+   1,
+   1,
+   1
+  ],
+  "growth": [
+   0,
+   3,
+   10
+  ],
+  "ssShare": 0,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 1,
+   "novat": 0.8
+  },
+  "must": {
+   "export": 0.5,
+   "bus": 0.5
+  },
+  "why": "Harter Null-Euro-Fall mit nur einer Person, die alles macht."
+ },
+ {
+  "id": "D21",
+  "name": "Voltamo Hardware GmbH",
+  "industry": "Hardware-Startup",
+  "city": "Dresden",
+  "employees": 12,
+  "segment": "klein",
+  "story": "Bootstrapped Startup mit erstem Seriengeschäft, der Gründer will monatliche Plan-Ist-Sichten ohne weitere Fixkosten. Excel plus eine Power-BI-Pro-Lizenz sind alles, was es gibt.",
+  "decider": "Gründer/CEO",
+  "creators": [
+   1,
+   1,
+   2
+  ],
+  "viewers": [
+   3,
+   6,
+   12
+  ],
+  "reports": [
+   2,
+   4,
+   8
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   1,
+   2
+  ],
+  "growth": [
+   20,
+   60,
+   150
+  ],
+  "ssShare": 70,
+  "horizon": 3,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "nobudget": 0.8,
+   "budgetnext": 0.4
+  },
+  "must": {
+   "exit": 0.4,
+   "export": 0.3,
+   "maint": 0.5
+  },
+  "why": "Fast Null-Budget und extrem breite Wachstumsspanne bei winziger Basis."
+ },
+ {
+  "id": "D22",
+  "name": "Heinz Brüning Lebensmittelgroßhandel KG",
+  "industry": "Lebensmittel-Großhandel",
+  "city": "Regensburg",
+  "employees": 230,
+  "segment": "mittelstand",
+  "story": "Gut geführtes Familienunternehmen ohne besondere Auflagen; Controlling hat fünf Personen, die Geschäftsführung will saubere Standardberichte statt Einzellösungen. Bisher Core-Visuals mit Handarbeit.",
+  "decider": "Kaufmännischer Geschäftsführer",
+  "creators": [
+   3,
+   4,
+   6
+  ],
+  "viewers": [
+   60,
+   100,
+   170
+  ],
+  "reports": [
+   15,
+   25,
+   40
+  ],
+  "types": [
+   5,
+   6,
+   7
+  ],
+  "models": [
+   3,
+   4,
+   5
+  ],
+  "growth": [
+   0,
+   8,
+   20
+  ],
+  "ssShare": 25,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": false,
+  "reportClasses": "mix",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 16,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {},
+  "must": {
+   "export": 0.5,
+   "drill": 0.5,
+   "maint": 0.4,
+   "design": 0.4
+  },
+  "why": "Der ganz normale Mittelständler ohne Sonderlagen als Gegengewicht zu den Spezialfällen."
+ },
+ {
+  "id": "D23",
+  "name": "Tageblatt Verlag Oberösterreich GmbH",
+  "industry": "Regionalverlag",
+  "city": "Linz",
+  "employees": 65,
+  "segment": "klein",
+  "story": "Verlag mit Print-, Digital- und Anzeigengeschäft, dessen Reports Erlöse nach Produktlinien abbilden. Der Leiter Controlling hat seinen Wechsel angekündigt, Wissensverlust droht.",
+  "decider": "Verlagsleiter",
+  "creators": [
+   1,
+   2,
+   3
+  ],
+  "viewers": [
+   25,
+   45,
+   80
+  ],
+  "reports": [
+   6,
+   10,
+   16
+  ],
+  "types": [
+   4,
+   5,
+   6
+  ],
+  "models": [
+   2,
+   3,
+   3
+  ],
+  "growth": [
+   -5,
+   0,
+   10
+  ],
+  "ssShare": 10,
+  "horizon": 5,
+  "licAnchor": "zebra",
+  "siteLicense": false,
+  "reportClasses": "mgmt",
+  "ibcsAll": true,
+  "baseline": "paid",
+  "existing": 8,
+  "dist": "none",
+  "library": false,
+  "ossBuild": "ki",
+  "flags": {
+   "budgetnext": 0.4
+  },
+  "must": {
+   "bus": 0.9,
+   "export": 0.7,
+   "copyppt": 0.6,
+   "ibcscert": 0.3,
+   "maint": 0.5
+  },
+  "why": "Bestand mit gekauftem Visual, Know-how-Risiko durch Personalwechsel und IBCS-Pflicht im Haus."
+ },
+ {
+  "id": "D24",
+  "name": "Ingenieurbüro Wesermann & Kollegen GmbH",
+  "industry": "Ingenieurbüro",
+  "city": "Bremen",
+  "employees": 48,
+  "segment": "klein",
+  "story": "Projektgetriebenes Büro mit 40 laufenden Projekten und Auswertung von Stunden, Budget und Marge. Die Projektleiter erstellen Berichte selbst und niemand koordiniert das Aussehen.",
+  "decider": "Prokurist",
+  "creators": [
+   3,
+   6,
+   10
+  ],
+  "viewers": [
+   20,
+   40,
+   60
+  ],
+  "reports": [
+   10,
+   20,
+   40
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   5,
+   15
+  ],
+  "ssShare": 70,
+  "horizon": 5,
+  "licAnchor": "inforiver",
+  "siteLicense": false,
+  "reportClasses": "op",
+  "ibcsAll": false,
+  "baseline": "core",
+  "existing": 15,
+  "dist": "none",
+  "library": true,
+  "ossBuild": "ki",
+  "flags": {
+   "noext": 0.3
+  },
+  "must": {
+   "design": 0.8,
+   "maint": 0.7,
+   "themeable": 0.6,
+   "copilot": 0.5
+  },
+  "why": "Ausgeprägter Self-Service, Frage ist Disziplin und Einheitlichkeit statt Technik."
+ },
+ {
+  "id": "D25",
+  "name": "Ärztenetz Breisgau eG",
+  "industry": "Ärzte-/Praxisverbund",
+  "city": "Freiburg im Breisgau",
+  "employees": 60,
+  "segment": "klein",
+  "story": "Genossenschaft aus 45 Praxen mit gemeinsamer Abrechnungsauswertung; Ärzte sind weitgehend umsatzsteuerbefreit, damit ist kein voller Vorsteuerabzug möglich. Patientennahe Daten bleiben strikt im EU-Raum.",
+  "decider": "Vorstand und Geschäftsführung",
+  "creators": [
+   1,
+   2,
+   2
+  ],
+  "viewers": [
+   50,
+   90,
+   150
+  ],
+  "reports": [
+   4,
+   7,
+   12
+  ],
+  "types": [
+   3,
+   4,
+   5
+  ],
+  "models": [
+   1,
+   2,
+   3
+  ],
+  "growth": [
+   0,
+   10,
+   25
+  ],
+  "ssShare": 5,
+  "horizon": 5,
+  "licAnchor": "enterprise",
+  "siteLicense": true,
+  "reportClasses": "mgmt",
+  "ibcsAll": false,
+  "baseline": "none",
+  "existing": 0,
+  "dist": "org",
+  "library": false,
+  "ossBuild": "classic",
+  "flags": {
+   "novat": 1,
+   "euonly": 0.9,
+   "certonly": 0.7,
+   "orgstore": 0.5,
+   "revision": 0.2,
+   "noext": 0.3
+  },
+  "must": {
+   "datares": 0.9,
+   "mscert": 0.6,
+   "export": 0.6,
+   "a11y": 0.4
+  },
+  "why": "Vorsteuer, EU-Datenhaltung und zertifizierte Visuals zusammen bei vielen Lesern in externen Praxen."
+ }
+]
