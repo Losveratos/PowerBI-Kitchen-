@@ -1,0 +1,64 @@
+  <a class="back-link" href="persona-firmen-simulation.html">← 150 Persona-Firmen</a>
+  <header>
+    <div class="post-eyebrow">Report · Visual-Standards-Rechner · 10.000 Firmen</div>
+    <h1 class="post-title">10.000 Firmen: <em>wann was gewinnt</em></h1>
+    <p class="post-dek">Paid, Open Source, Deneb oder Core + SVG? 10.000 Firmen mit Mitarbeiterzahlen nach der realen Größenverteilung, jede 200-mal durch den Rechner geschickt, mit KI-gestützter Pflege im Konzern. Dazu ein Kontrafaktum-Test: 17 Hebel einzeln umgeschaltet, um zu sehen, was die Entscheidung wirklich kippt.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>November 2026</strong></span>
+      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.23</a></strong></span>
+    </div>
+  </header>
+  <div class="prose">
+    <div class="kpis" id="kpis"></div>
+
+    <h2>Das Ergebnis <em>in einem Satz</em></h2>
+    <p id="lead"></p>
+
+    <h2>Wer gewinnt, <em>insgesamt</em></h2>
+    <div class="legend" id="legend"></div>
+    <div id="total"></div>
+
+    <h2>Wann was gewinnt: <em>nach Größe</em></h2>
+    <p>Anteil der Firmen je Größenklasse, in denen der Weg in den meisten Zukünften am günstigsten zulässigen ist. Rechts: was der günstigste Weg je Viewer und Jahr kostet (Median).</p>
+    <div id="bands"></div>
+    <p class="note" id="bandnote"></p>
+
+    <h2>Was die Entscheidung <em>treibt</em></h2>
+    <p>Für 1.000 zufällig gezogene Firmen haben wir jeden Hebel einzeln umgeschaltet, alles andere gleich gelassen und beide Fassungen gepaart simuliert (dieselben 100 Zukünfte). Gezählt wird, bei wie vielen Firmen dadurch ein anderer Weg gewinnt. Darunter: wie sich der Gewinner-Anteil jedes Wegs verschiebt.</p>
+    <h3 style="font-size:1.1rem;margin:22px 0 4px">Harte Weichen <span class="note">— Regeln und Musts, die Wege ausschließen</span></h3>
+    <div id="lev-hard"></div>
+    <h3 style="font-size:1.1rem;margin:26px 0 4px">Kostenhebel <span class="note">— verschieben Kosten, schließen nichts aus</span></h3>
+    <div id="lev-cost"></div>
+
+    <h2>Wann was gewinnt: <em>die Regeln</em></h2>
+    <div id="rules"></div>
+
+    <h2>Nach <em>Sektor und Ebene</em></h2>
+    <div id="sector"></div>
+
+    <h2>Die <em>Population</em></h2>
+    <p>Mitarbeiterzahlen der 10.000 Firmen. Die Verteilung folgt den Größenklassen des Unternehmensregisters, gewichtet mit der Wahrscheinlichkeit, dass eine Firma dieser Größe Power BI nutzt und einen Standard einführen will. Darum sind kleine Firmen häufig, Konzerne selten (wie im echten Markt), aber nicht so extrem wie in der reinen Unternehmenszählung.</p>
+    <div class="hist" id="hist"></div><div class="hlab" id="hlab"></div>
+    <p class="note" id="popnote" style="margin-top:10px"></p>
+
+    <div class="src-box">
+      <h3>So ist es gemacht, und wo es wackelt</h3>
+      <p style="margin-bottom:10px"><strong>Firmen:</strong> Die Mitarbeiterzahl stammt aus einer Verteilung nach Unternehmensregister (rund 17.300 Unternehmen ab 250 Beschäftigten in Deutschland, Destatis; 635 mit mehr als 2.999, IW Köln, Daten 2022). Gewichtet ist sie mit gesetzten Wahrscheinlichkeiten für Power-BI-Nutzung und Standard-Absicht je Größe. Banken, Versicherungen und Kliniken stellen 5 %, die öffentliche Hand 10 %. Jede Firma übernimmt Rahmenbedingungen, Musts, Bestand und Horizont von einer der 150 geprüften Persona-Firmen ähnlicher Größe (geschrieben von Claude Opus und Sonnet). Ihre Mengen werden auf die echte Mitarbeiterzahl skaliert. Die 10.000 sind also Varianten von 150 Vorlagen, keine 10.000 unabhängigen Geschichten.</p>
+      <p style="margin-bottom:10px"><strong>Warum ein Kontrafaktum-Test statt Korrelation:</strong> Weil die Firmen ihre Merkmale gebündelt von Vorlagen erben, verwechselt eine reine Korrelationsanalyse (Random Forest, Entscheidungsbaum) Vorlage und Ursache. Der Baum spaltete zum Beispiel an „Must Mobile“, was kein echter Hebel ist. Der Kontrafaktum-Test schaltet dagegen einen Hebel im Rechenkern um und misst die Wirkung direkt.</p>
+      <p style="margin-bottom:10px"><strong>Nicht im Ranking:</strong> Der Hebel „Site-Lizenz verhandelbar“. Selbst bei Firmen ab 500 Lesern ist die Site-Pauschale nach den Rechner-Annahmen meist teurer als der Staffelpreis, und eine Firma würde dann einfach Staffel wählen. Der Test bildet diese Wahl nicht ab.</p>
+      <p style="margin:0"><strong>Kosten:</strong> Annahmen des Visual-Standards-Rechners v0.23, KI-Effekt als Mittel zweier unabhängiger Schätzungen (Opus und Sonnet), Ranking nur nach Kosten unter den zulässigen Wegen. 200 Zukünfte je Firma im Hauptlauf, 100 im Kontrafaktum-Test. Offenlegung: ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source.</p>
+    </div>
+
+    <h2>Daten und <em>Skripte</em></h2>
+    <ul>
+      <li><code>tools/rechner-personas-10k.py</code> (Firmen erzeugen) · <code>tools/rechner-personas-mc-v2.js</code> (Simulation) · <code>tools/rechner-personas-10k-analyse.py</code> · <code>tools/rechner-personas-cf.py</code> + <code>tools/rechner-personas-cf-analyse.py</code> (Kontrafaktum) · <code>tools/rechner-10k-report.py</code> (dieser Report)</li>
+      <li>Ergebnisse: <a href="assets/posts/persona-firmen/report-10k.json">report-10k.json</a> · <a href="assets/posts/persona-firmen/kontrafaktum.json">kontrafaktum.json</a></li>
+      <li>Die 150 Vorlagen mit Story: <a href="persona-firmen-simulation.html">150 Persona-Firmen</a> · die anonyme Population: <a href="no-free-lunch-visual-standards-post.html">No free lunch, 100.000 Firmen</a></li>
+    </ul>
+    <div class="cta-card">
+      <div class="cta-card-text"><span class="k">Selbst rechnen</span><h3>Eure Firma statt 10.000</h3><p>Die harten Weichen zuerst klären, dann rechnen: Der Rechner zeigt auch, welche Annahme das Ergebnis kippt.</p></div>
+      <div class="cta-actions"><a class="cta-btn" href="visual-standards-rechner.html">Zum Rechner →</a></div>
+    </div>
+    <div class="post-foot">Michael Tenner · Daten-WG Knowledge Kitchen · <a href="impressum.html">Impressum</a></div>
+  </div>

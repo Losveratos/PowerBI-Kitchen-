@@ -15,12 +15,13 @@ const {chromium}=require('playwright');const fs=require('fs');const path=require
 const FILE='file://'+path.resolve(__dirname,'..','visual-standards-rechner.html');
 const PER=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const KI=JSON.parse(fs.readFileSync(process.argv[3],'utf8'));
 const OUT=process.argv[4]||'personas-mc-v2.json';const N=+(process.argv[5]||5000);
+const ONLY=process.argv[6]||''; /* optional: nur ein Szenario rechnen (base|konzern|alle), z. B. für Kontrafaktum-Läufe */
 (async()=>{
   const b=await chromium.launch();const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
   await p.goto(FILE,{waitUntil:'load'});await p.waitForTimeout(300);
   const res=[];const t0=Date.now();
   for(let k=0;k<PER.length;k++){
-    const r=await p.evaluate(({P,KI,N,k})=>{
+    const r=await p.evaluate(({P,KI,N,k,ONLY})=>{
       function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
       let R=mb(0xBEEF00+k*104729);
       const gam=a=>{if(a<1)return gam(a+1)*Math.pow(R(),1/a);const d=a-1/3,c=1/Math.sqrt(9*d);for(;;){let x,v;do{const u1=R(),u2=R();x=Math.sqrt(-2*Math.log(u1||1e-12))*Math.cos(2*Math.PI*u2);v=1+c*x;}while(v<=0);v=v*v*v;const u=R();if(u<1-.0331*x*x*x*x)return d*v;if(Math.log(u)<.5*x*x+d*(1-v+Math.log(v)))return d*v;}};
@@ -47,7 +48,7 @@ const OUT=process.argv[4]||'personas-mc-v2.json';const N=+(process.argv[5]||5000
       function resetP(snap){OK4.forEach(o=>S.p[o]=JSON.parse(JSON.stringify(snap[o])));}
       const winOf=(tot,ko)=>{let w=-1;for(let j=0;j<4;j++)if(!ko[j]&&(w<0||tot[j]<tot[w]))w=j;return w;};
       const lvl=P.segment;const adoptT=(KI.adoption||{})[lvl]||[0,0,0];
-      const MODES=['base','konzern','alle'];
+      const MODES=ONLY?[ONLY]:['base','konzern','alle'];
       const acc={};MODES.forEach(m=>acc[m]={W:[0,0,0,0,0],PV:[[],[],[],[]],AI:[],best:[]});
       const KO=[0,0,0,0];const users=[];const WINB=[];const B={};const X={viewers:[],creators:[]};
       flags.forEach(([f,v])=>{if(+v<1)B['flag:'+f]=[];});must.forEach(([m,v])=>{if(+v<1)B['must:'+m]=[];});
@@ -65,7 +66,7 @@ const OUT=process.argv[4]||'personas-mc-v2.json';const N=+(process.argv[5]||5000
           if(aiOn&&a>0){setAI(a);aiCost=S.creators*aiPer*a*S.horizon;}
           const tot=OK4.map(o=>{setScenario(s0);return calc(o,pert).total+aiCost;});
           const w=winOf(tot,ko);const A=acc[m];A.W[w<0?4:w]++;A.AI.push(aiCost/div);for(let j=0;j<4;j++)A.PV[j].push(tot[j]/div);
-          A.best.push(w<0?null:tot[w]/div);if(m==='base')WINB.push(w);});}
+          A.best.push(w<0?null:tot[w]/div);if(m===MODES[0])WINB.push(w);});}
       const qs=(arr,pp)=>{const s=arr.filter(v=>v!=null).sort((x,y)=>x-y);if(!s.length)return null;const ii=(s.length-1)*pp,lo=Math.floor(ii),hi=Math.ceil(ii);return s[lo]+(s[hi]-s[lo])*(ii-lo);};
       const dist=idx=>{const c=[0,0,0,0,0];idx.forEach(i=>c[WINB[i]<0?4:WINB[i]]++);return c.map(v=>v/Math.max(1,idx.length));};
       const tv=(x,y)=>.5*x.reduce((s,v,j)=>s+Math.abs(v-y[j]),0);const drivers=[];
@@ -76,9 +77,9 @@ const OUT=process.argv[4]||'personas-mc-v2.json';const N=+(process.argv[5]||5000
       MODES.forEach(m=>{const A=acc[m];out.modes[m]={win:A.W.map(v=>v/N),perV:A.PV.map(a1=>[qs(a1,.1),qs(a1,.5),qs(a1,.9)]),
         best:[qs(A.best,.1),qs(A.best,.5),qs(A.best,.9)],ai:qs(A.AI,.5)};});
       /* gepaarte Ersparnis je Weg durch KI (Modus 'alle' gegen 'base'), Median je Viewer und Jahr */
-      out.aiDelta=[0,1,2,3].map(j=>qs(acc.alle.PV[j].map((v,i)=>v-acc.base.PV[j][i]),.5));
+      out.aiDelta=acc.alle&&acc.base?[0,1,2,3].map(j=>qs(acc.alle.PV[j].map((v,i)=>v-acc.base.PV[j][i]),.5)):null;
       return out;
-    },{P:PER[k],KI,N,k});
+    },{P:PER[k],KI,N,k,ONLY});
     res.push(r);process.stdout.write(`\r${k+1}/${PER.length} (${((Date.now()-t0)/1000).toFixed(0)} s)`);
   }
   console.log('');if(errs.length)console.log('PAGE ERRORS',errs.slice(0,5));
