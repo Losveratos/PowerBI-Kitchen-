@@ -43,7 +43,7 @@ const OUT=process.argv[4]||'personas-mc-v2.json';const N=+(process.argv[5]||5000
       /* KI anwenden: Stundenannahmen je Weg skalieren (Dreipunkt × Dreipunkt, komonoton) */
       const keep={};OK4.forEach(o=>keep[o]=JSON.parse(JSON.stringify(S.p[o])));
       function setAI(a){OK4.forEach(o=>{const F=(KI.factors||{})[o]||{};for(const prm in F){const v=S.p[o][prm];if(!Array.isArray(v))continue;
-        if(prm==='devH'&&P.ossBuild==='ready')continue;const f=tri(F[prm]);S.p[o][prm]=v.map((x,i)=>x*(1-a*(1-f[i]))).sort((x,y)=>x-y);}});}
+        if(prm==='devH'&&P.ossBuild!=='classic')continue; /* KI-gestützte Eigenentwicklung (200 h) enthält den Effekt schon */const f=tri(F[prm]);S.p[o][prm]=v.map((x,i)=>x*(1-a*(1-f[i]))).sort((x,y)=>x-y);}});}
       function resetP(snap){OK4.forEach(o=>S.p[o]=JSON.parse(JSON.stringify(snap[o])));}
       const winOf=(tot,ko)=>{let w=-1;for(let j=0;j<4;j++)if(!ko[j]&&(w<0||tot[j]<tot[w]))w=j;return w;};
       const lvl=P.segment;const adoptT=(KI.adoption||{})[lvl]||[0,0,0];

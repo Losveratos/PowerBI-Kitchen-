@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Baut persona-firmen-simulation.html aus Personas + Monte-Carlo-Ergebnis.
-Aufruf: python3 tools/rechner-personas-page.py <personas.json> <mc.json> [review-log.md]
+"""Baut persona-firmen-simulation.html (v2) aus Personas + Monte-Carlo-Ergebnis v2 (tools/rechner-personas-mc-v2.js).
+Aufruf: python3 tools/rechner-personas-page.py <personas.json> <mc-v2.json> [review-log.md ...]
 Die Seite bettet alle Daten ein (keine Nachlade-Requests) und übernimmt das CSS des No-free-lunch-Posts."""
 import json, re, sys
 from pathlib import Path
@@ -8,26 +8,32 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 pers = json.load(open(sys.argv[1], encoding="utf-8"))
 mc = json.load(open(sys.argv[2], encoding="utf-8"))
-review = Path(sys.argv[3]).read_text(encoding="utf-8") if len(sys.argv) > 3 else ""
+reviews = [Path(x).read_text(encoding="utf-8") for x in sys.argv[3:]]
 byid = {r["id"]: r for r in mc["results"]}
 KEEP = ["id", "name", "industry", "city", "employees", "segment", "story", "decider", "why", "creators", "viewers", "reports",
         "types", "models", "growth", "ssShare", "horizon", "licAnchor", "siteLicense", "reportClasses", "ibcsAll", "baseline",
         "existing", "dist", "library", "ossBuild", "flags", "must", "author"]
+r4 = lambda v: None if v is None else round(v, 4)
+r0 = lambda v: None if v is None else round(v)
+def rnd(v):
+    if isinstance(v, float): return round(v, 3)
+    if isinstance(v, list): return [rnd(x) for x in v]
+    return v
 rows = []
 for p in pers:
     r = byid[p["id"]]
     d = {k: p.get(k) for k in KEEP}
-    d["mc"] = {"win": [round(x, 4) for x in r["win"]], "winFree": [round(x, 4) for x in r["winFree"]], "ko": [round(x, 4) for x in r["ko"]],
-               "perV": [[round(c["p10"]), round(c["p50"]), round(c["p90"])] for c in r["perV"]],
-               "rec": r["rec"]["win"], "recKo": r["rec"]["ko"], "gap50": r["gap50"], "close10": r["close10"],
-               "drivers": [{k: (round(v, 3) if isinstance(v, float) else ([round(x, 3) for x in v] if isinstance(v, list) else v)) for k, v in dd.items()} for dd in r["drivers"][:3]]}
+    d["mc"] = {"users": round(r["users"]), "ko": [r4(x) for x in r["ko"]], "aiDelta": [r0(x) for x in r["aiDelta"]],
+               "modes": {m: {"win": [r4(x) for x in v["win"]], "perV": [[r0(x) for x in t] for t in v["perV"]],
+                             "best": [r0(x) for x in v["best"]], "ai": r0(v["ai"])} for m, v in r["modes"].items()},
+               "drivers": [{k: rnd(v) for k, v in dd.items()} for dd in r["drivers"][:3]]}
     rows.append(d)
-# Review-Gesamturteil (Absätze nach der letzten Überschrift) für die Seite
-verdict = ""
-if review:
-    m = re.split(r"\n#+ [^\n]*(Gesamt|Urteil|Fazit)[^\n]*\n", review)
-    verdict = m[-1].strip() if len(m) > 1 else ""
-data = {"N": mc["N"], "rows": rows, "verdict": verdict}
+verdicts = []
+for i, rv in enumerate(reviews):
+    m = re.split(r"\n#+ [^\n]*(?:Gesamt|Urteil|Fazit)[^\n]*\n", rv)
+    if len(m) > 1:
+        verdicts.append({"t": "Urteil des Opus-Reviewers" + (f", Runde {i+1}" if len(reviews) > 1 else ""), "x": m[-1].strip()})
+data = {"N": mc["N"], "rows": rows, "verdicts": verdicts, "ki": mc["ki"]}
 
 src = (REPO / "no-free-lunch-visual-standards-post.html").read_text(encoding="utf-8")
 css = src[src.index("<style>"):src.index("</style>")]
@@ -42,7 +48,7 @@ select.chip { padding-right:6px; }
 .legend i { display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
 .pchart { border-top:1px solid var(--line); }
 .seg-h { font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-mute); padding:12px 0 4px; }
-.prow { display:grid; grid-template-columns:minmax(0,230px) 1fr 52px; gap:10px; align-items:center; padding:3px 4px; border-radius:6px; cursor:pointer; }
+.prow { display:grid; grid-template-columns:minmax(0,230px) 1fr 46px 64px; gap:10px; align-items:center; padding:3px 4px; border-radius:6px; cursor:pointer; }
 .prow:hover, .prow.sel { background:var(--bg-soft); }
 .prow .nm { font-size:13px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .prow .nm b { font-family:var(--mono); font-size:11px; color:var(--ink-mute); font-weight:600; margin-right:6px; }
@@ -51,7 +57,11 @@ select.chip { padding-right:6px; }
 .bar .none { background:repeating-linear-gradient(45deg,#B4B2A2 0 3px,#E7E4DA 3px 6px); }
 .prow .cf { font-family:var(--mono); font-size:12px; text-align:right; color:var(--ink); }
 .prow .cf.lo { color:var(--ink-mute); }
-@media (max-width:640px){ .prow { grid-template-columns:110px 1fr 40px; } .prow .nm { font-size:12px; } }
+.prow .pv { font-family:var(--mono); font-size:11.5px; text-align:right; color:var(--ink-soft); }
+@media (max-width:640px){ .prow { grid-template-columns:100px 1fr 38px 54px; } .prow .nm { font-size:12px; } .prow .pv { font-size:10.5px; } }
+.ubar { display:flex; align-items:center; gap:8px; min-width:140px; } .ubar i { display:block; height:14px; border-radius:3px; } .ubar span { font-family:var(--mono); font-size:12px; white-space:nowrap; }
+@media (max-width:640px){ .kpis { grid-template-columns:1fr; } }
+.tbl td.num { white-space:nowrap; }
 .detail { background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 24px; margin:22px 0 10px; box-shadow:var(--shadow-sm); }
 .detail h3 { font-family:var(--serif); font-weight:500; font-size:1.45rem; color:var(--black); margin-bottom:2px; }
 .detail .sub { font-size:13.5px; color:var(--ink-mute); margin-bottom:12px; }
@@ -86,11 +96,11 @@ html = f"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>100 Persona-Firmen, 5.000 Zukünfte · Visual-Standards · Daten-WG</title>
-<meta name="description" content="100 fiktive DACH-Organisationen, geschrieben von Claude Opus und Claude Sonnet, je 5.000-mal durch den Visual-Standards-Rechner simuliert: Wie sicher ist die Antwort Paid, Open Source, Deneb oder Core + SVG, und was lässt sie kippen?">
+<title>150 Persona-Firmen, KI-Pflege und Kosten je Viewer · Daten-WG</title>
+<meta name="description" content="150 fiktive DACH-Organisationen (25 je Ebene), von Claude Opus und Sonnet geschrieben und geprüft, je 5.000-mal durch den Visual-Standards-Rechner simuliert, mit KI-gestützter Pflege im Konzern. Kosten je Viewer und Jahr, Gesamtrating gewichtet nach Nutzern.">
 <link rel="canonical" href="https://datenwgknowledgekitchen.com/persona-firmen-simulation.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="100 Persona-Firmen, 5.000 Zukünfte je Firma">
+<meta property="og:title" content="150 Persona-Firmen: Wer gewinnt, wenn Konzerne mit KI pflegen?">
 <meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/posts/persona-firmen/persona-firmen.png">
 {css}</style>
 </head>
@@ -99,9 +109,9 @@ html = f"""<!DOCTYPE html>
 <div class="container">
   <a class="back-link" href="no-free-lunch-visual-standards-post.html">← No free lunch</a>
   <header>
-    <div class="post-eyebrow">Post · Visual-Standards-Rechner · Persona-Simulation</div>
-    <h1 class="post-title">100 Firmen, <em>5.000 Zukünfte</em> je Firma</h1>
-    <p class="post-dek">Nach den 100.000 anonymen Firmen jetzt 100 mit Namen, Geschichte und offenen Fragen. Jede wird 5.000-mal durch den Rechner geschickt, mit schwankenden Mengen, unsicheren Rahmenbedingungen und allen Kostenannahmen in ihrer Bandbreite. Die Frage ist nicht mehr nur „welcher Weg?", sondern „wie sicher?".</p>
+    <div class="post-eyebrow">Post · Visual-Standards-Rechner · Persona-Simulation v2</div>
+    <h1 class="post-title">150 Firmen, <em>KI-Pflege</em> und was ein Viewer kostet</h1>
+    <p class="post-dek">25 fiktive Firmen je Ebene, vom Kleinbetrieb bis zum Konzern, jede 5.000-mal durch den Rechner geschickt. Neu: Konzerne pflegen ihre Visuals mit KI-Assistenten und Coding-Agents, alle Kosten stehen je Viewer und Jahr, und das Gesamtrating zählt Nutzer statt Firmen.</p>
     <div class="post-meta">
       <span>Von <strong>Michael Tenner</strong></span>
       <span>Stand · <strong>November 2026</strong></span>
@@ -110,53 +120,59 @@ html = f"""<!DOCTYPE html>
     </div>
   </header>
   <div class="prose">
-    <div class="kpis" id="kpis"></div>
+    <div class="filters f-mode"><span class="lbl">Szenario</span></div>
+    <div class="kpis"><div class="kpi" id="k-rate"></div><div class="kpi" id="k-sure"></div><div class="kpi" id="k-coin"></div></div>
 
-    <h2>So ist es <em>gemacht</em></h2>
-    <div class="step"><div class="step-num">1</div><div><h3>100 Personas schreiben <span>2× Opus, 2× Sonnet</span></h3><p>Vier Agents haben je 25 fiktive Organisationen beschrieben: Konzerne und gehobener Mittelstand (Opus), Banken, Kliniken und öffentliche Hand (Opus), Mittelstand (Sonnet), Kleine und Sonderfälle (Sonnet). Jede mit Story, Entscheider, Mengen als Spanne und Rahmenbedingungen als Wahrscheinlichkeit: 1 steht fest, 0,5 wird diskutiert. Keiner kannte die Kostenlogik des Rechners.</p></div></div>
-    <div class="step"><div class="step-num">2</div><div><h3>Review <span>Opus als Berater</span></h3><p>Ein weiterer Opus-Agent hat alle 100 auf Realismus und Widersprüche geprüft (Leser zu Mitarbeitenden, Report Server ohne passendes Must, Site-Lizenz bei 15 Lesern) und minimal korrigiert, ohne auf ein Ergebnis hin zu ändern.</p></div></div>
-    <div class="step"><div class="step-num">3</div><div><h3>Monte Carlo je Firma <span>{mc['N']:,} Ziehungen</span></h3><p>Je Ziehung schwanken die Mengen der Firma, ihr Wachstum, die unsicheren Schalter und Musts (gewürfelt nach ihrer Wahrscheinlichkeit) und alle Kostenannahmen des Rechners. Gewinner ist der günstigste zulässige Weg über den Horizont. Zum Vergleich steht die „Punkt-Rechnung": wahrscheinlichste Mengen, Schalter ab 50 %, Erwartungswerte.</p></div></div>
+    <h2>Gesamtrating <em>nach Nutzern</em></h2>
+    <p>Eine Firma mit 5.000 Nutzern zählt hier 250-mal so viel wie eine mit 20. Für jede Firma gilt: Wie oft ist der Weg in ihren Zukünften am günstigsten zulässigen? Das gewichten wir mit ihren Nutzern und summieren über alle 150.</p>
+    <div id="rating"></div>
 
-    <h2>Die 100 Firmen <em>auf einen Blick</em></h2>
-    <p>Jede Zeile ist eine Firma, der Balken zeigt, wie oft welcher Weg in ihren {mc['N']:,} Zukünften am günstigsten war. Rechts der Anteil des häufigsten Wegs: <strong>Wie sicher ist die Antwort?</strong> Klick auf eine Zeile öffnet die Firma.</p>
-    <div class="filters" id="f-seg"><span class="lbl">Segment</span></div>
+    <h2>Was ein Viewer <em>je Ebene</em> kostet</h2>
+    <div id="levels"></div>
+
+    <h2>Was <em>KI-Pflege</em> im Konzern ändert</h2>
+    <p>Im Szenario „KI-Pflege im Konzern" nutzen die Ersteller der Konzerne KI-Assistenten und Coding-Agents, um Charts zu bauen, auszurollen und zu warten. Wie stark das die Stunden senkt, haben zwei Agents unabhängig geschätzt (Opus und Sonnet, mit Quellen von METR bis DORA), gerechnet wird mit dem Mittel. Die KI ist nicht gratis: Lizenzen und Tokens kosten, und KI-Code braucht mehr Review.</p>
+    <div id="ai"></div>
+
+    <h2>Die 150 Firmen <em>auf einen Blick</em></h2>
+    <p>Jede Zeile ist eine Firma: der Balken zeigt, wie oft welcher Weg in ihren 5.000 Zukünften am günstigsten war, dann der Anteil des häufigsten Wegs (wie sicher?) und die Kosten des günstigsten Wegs je Viewer und Jahr. Klick öffnet die Firma.</p>
+    <div class="filters f-mode"><span class="lbl">Szenario</span></div>
+    <div class="filters" id="f-seg"><span class="lbl">Ebene</span></div>
     <div class="filters" id="f-more"><span class="lbl">Autor</span></div>
     <div class="legend" id="legend"></div>
     <div id="detail-top"></div>
     <div class="pchart" id="pchart" role="list"></div>
 
-    <h2>Wo welcher Weg <em>gewinnt</em></h2>
-    <div id="where"></div>
-
     <h2>Was die Antwort <em>wackeln lässt</em></h2>
-    <p>Für jede Firma haben wir gemessen, welcher unsichere Input die Gewinner-Verteilung am stärksten verschiebt (Abstand der Verteilungen mit und ohne Schalter bzw. im unteren und oberen Drittel einer Menge). So oft war es der stärkste Treiber:</p>
     <div id="drvcount"></div>
-
-    <h2>Punkt-Rechnung <em>gegen</em> Monte Carlo</h2>
-    <div id="recvs"></div>
 
     <h2>Opus- und Sonnet-Firmen <em>im Vergleich</em></h2>
     <div id="authors"></div>
     <div id="verdict"></div>
 
-    <details class="tv"><summary>Alle 100 als Tabelle</summary><div class="tbl-wrap"><table class="tbl small" id="tbl"></table></div></details>
+    <details class="tv"><summary>Alle 150 als Tabelle</summary><div class="tbl-wrap"><table class="tbl small" id="tbl"></table></div></details>
+
+    <h2>So ist es <em>gemacht</em></h2>
+    <div class="step"><div class="step-num">1</div><div><h3>150 Personas <span>25 je Ebene, Opus und Sonnet</span></h3><p>Sieben Agents haben die Firmen geschrieben, jeder für eine Ecke des Markts, ohne die Kostenlogik zu kennen: Konzerne, Banken und Versicherungen von Opus, Mittelstand, Kleine und öffentliche Hand überwiegend von Sonnet. Zwei Review-Runden durch Opus haben Widersprüche korrigiert (Leser größer als die Belegschaft, fehlender Vorsteuer-Schalter, Doppelungen). Die Ebene folgt der Größe: klein unter 250 Mitarbeitenden, Konzern über 10.000.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>KI-Effekt schätzen <span>Opus + Sonnet, unabhängig</span></h3><p>Multiplikatoren auf die Stunden je Weg (Erstbau, Rollout, Wartung, Fixes, Schulung, Governance), KI-Kosten je Ersteller und der Adoptionsgrad je Ebene. Gerechnet wird mit dem Mittel beider Schätzungen.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>Monte Carlo, gepaart <span>5.000 Zukünfte je Firma, drei Szenarien</span></h3><p>Je Ziehung schwanken Mengen, Wachstum, unsichere Schalter und Musts sowie alle Kostenannahmen des Rechners. Dieselbe Ziehung wird ohne KI, mit KI im Konzern und mit KI überall gerechnet, so dass Unterschiede nur aus der KI kommen. Realismus: Viewer wachsen höchstens bis zur Belegschaft (oder bis zum oberen Viewer-Wert, wenn externe Leser dazukommen).</p></div></div>
 
     <div class="src-box">
       <h3>Ehrlich eingeordnet</h3>
-      <p style="margin-bottom:10px">Die Firmen sind <strong>erfunden</strong>, von Sprachmodellen geschrieben und von einem Sprachmodell geprüft. Ähnlichkeiten mit echten Organisationen sind nicht beabsichtigt. Sie sind keine repräsentative Stichprobe, sondern ein absichtlich breiter Satz von Fällen: 25 je Ecke des Markts, Sonderfälle überrepräsentiert.</p>
-      <p style="margin-bottom:10px">Die Kostenannahmen sind die des Rechners (v0.23), mit Quelle an jedem Wert im Rechner. Gerankt wird nur nach Kosten unter den zulässigen Wegen, ohne den Anforderungs-Score. Die Wahrscheinlichkeiten für Schalter und Musts sind Einschätzungen der Agents, wie offen eine Frage in der jeweiligen Firma ist.</p>
-      <p style="margin:0">Offenlegung: ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source.</p>
+      <p style="margin-bottom:10px">Die Firmen sind <strong>erfunden</strong>, von Sprachmodellen geschrieben und geprüft. 25 je Ebene ist eine Setzung, kein Abbild des Markts: Im echten Markt gibt es viel mehr kleine Firmen als Konzerne. Das Gesamtrating nach Nutzern gleicht das teilweise aus, weil es Nutzer statt Firmen zählt, bleibt aber an diese Auswahl gebunden.</p>
+      <p style="margin-bottom:10px">Für den KI-Effekt auf Power-BI-Report-Pflege gibt es <strong>keine direkte Messung</strong>. Die Studien reichen von −19 % (METR 2025, erfahrene Entwickler) bis +56 % (Greenfield-Aufgabe). Die Faktoren sind Schätzungen mit Bandbreite, und sie skalieren mit dem Adoptionsgrad.</p>
+      <p style="margin:0">Kostenannahmen = Visual-Standards-Rechner v0.23. Gerankt wird nach Kosten unter den zulässigen Wegen, ohne Anforderungs-Score. Offenlegung: ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source.</p>
     </div>
 
     <h2>Daten und <em>Skripte</em></h2>
     <ul>
-      <li><a href="assets/posts/persona-firmen/personas.json">personas.json</a>: die 100 geprüften Personas · <a href="assets/posts/persona-firmen/mc-ergebnis.json">mc-ergebnis.json</a>: Monte-Carlo-Ergebnis je Firma</li>
-      <li>Aufträge an die Agents, Rohfassungen und Review-Log unter <code>sessions/visual-standards-personas-100/</code></li>
-      <li><code>tools/rechner-personas-mc.js</code> (Simulation im Browser-Rechenkern) · <code>tools/rechner-personas-page.py</code> (diese Seite)</li>
+      <li><a href="assets/posts/persona-firmen/personas.json">personas.json</a> (150 geprüfte Personas) · <a href="assets/posts/persona-firmen/mc-ergebnis.json">mc-ergebnis.json</a> · <a href="assets/posts/persona-firmen/ki-annahmen.json">ki-annahmen.json</a></li>
+      <li>Aufträge, Rohfassungen, KI-Schätzungen und Review-Logs unter <code>sessions/visual-standards-personas-100/</code></li>
+      <li><code>tools/rechner-personas-mc-v2.js</code> (Simulation im Browser-Rechenkern) · <code>tools/rechner-personas-page.py</code> (diese Seite)</li>
     </ul>
 
     <div class="cta-card">
-      <div class="cta-card-text"><span class="k">Selbst rechnen</span><h3>Eure Firma als 101.</h3><p>Im Rechner unter „Monte Carlo" lässt sich dieselbe Frage für eure Eingaben stellen: wie sicher ist die Rangfolge?</p></div>
+      <div class="cta-card-text"><span class="k">Selbst rechnen</span><h3>Eure Firma als 151.</h3><p>Im Rechner lässt sich die Frage für eure Eingaben stellen, inklusive Monte-Carlo-Seite.</p></div>
       <div class="cta-actions"><a class="cta-btn" href="visual-standards-rechner.html">Zum Rechner →</a><a class="cta-btn ghost" href="no-free-lunch-visual-standards-post.html">100.000 Firmen</a></div>
     </div>
     <div class="post-foot">Fragen, Feedback, eigene Zahlen: <strong>Michael Tenner</strong> · Daten-WG Knowledge Kitchen · <a href="impressum.html">Impressum</a></div>
@@ -169,5 +185,5 @@ const DATA={json.dumps(data, ensure_ascii=False)};
 </body>
 </html>
 """
-(REPO / "persona-firmen-simulation.html").write_text(html.replace("5,000", "5.000").replace(f"{mc['N']:,}", f"{mc['N']:,}".replace(",", ".")), encoding="utf-8")
+(REPO / "persona-firmen-simulation.html").write_text(html, encoding="utf-8")
 print("geschrieben: persona-firmen-simulation.html", len(html))
