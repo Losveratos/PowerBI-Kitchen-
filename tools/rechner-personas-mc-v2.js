@@ -37,10 +37,13 @@ const ONLY=process.argv[6]||''; /* optional: nur ein Szenario rechnen (base|konz
         S.rc.sh=(WIZ_RC[P.reportClasses]||WIZ_RC.mix).slice();S.ibcsAll=!!P.ibcsAll;syncDerived();
         S.baseline=['paid','oss','deneb','core'].includes(P.baseline)?P.baseline:'none';S.existing=S.baseline==='none'?0:Math.max(0,Math.round(+P.existing||0));
         S.dist=DIST[P.dist]?P.dist:'none';S.lib=!!P.library;S.p.oss.devH=(DEV_PRESETS[P.ossBuild]||DEV_PRESETS.ready).slice();
-        if(P.growth)S.g.growth=tri(P.growth);S.viewerCap=cap;}
+        if(P.growth)S.g.growth=tri(P.growth);S.viewerCap=cap;
+        /* Szenario-Überschreibungen (z. B. gepflegtes OSS-Visual): Annahmen je Weg und Erfüllungsgrade */
+        if(P.pOver)for(const o in P.pOver)for(const prm in P.pOver[o])S.p[o][prm]=tri(P.pOver[o][prm]);
+        if(P.capOver)for(const id in P.capOver){if(S.cap[id])P.capOver[id].forEach((v,j)=>{if(v!=null)S.cap[id][j]=v;});}}
       function apply(on){FLAGS.forEach(f=>S.flags[f.id]=false);REQS.forEach(r=>S.prio[r.id]=r.def);
         on.flags.forEach(f=>{if(f==='orgstore'&&!on.flags.has('certonly'))return;S.flags[f]=true;});
-        if(S.flags.orgstore)S.dist='org';if(S.flags.rs)S.prio.rs='M';on.must.forEach(m=>S.prio[m]='M');}
+        if(S.flags.orgstore)S.dist='org';if(S.flags.rs)S.prio.rs='M';on.must.forEach(m=>S.prio[m]='M');(P.forceFlags||[]).forEach(f=>S.flags[f]=true);}
       /* KI anwenden: Stundenannahmen je Weg skalieren (Dreipunkt × Dreipunkt, komonoton) */
       const keep={};OK4.forEach(o=>keep[o]=JSON.parse(JSON.stringify(S.p[o])));
       function setAI(a){OK4.forEach(o=>{const F=(KI.factors||{})[o]||{};for(const prm in F){const v=S.p[o][prm];if(!Array.isArray(v))continue;
@@ -49,7 +52,7 @@ const ONLY=process.argv[6]||''; /* optional: nur ein Szenario rechnen (base|konz
       const winOf=(tot,ko)=>{let w=-1;for(let j=0;j<4;j++)if(!ko[j]&&(w<0||tot[j]<tot[w]))w=j;return w;};
       const lvl=P.segment;const adoptT=(KI.adoption||{})[lvl]||[0,0,0];
       const MODES=ONLY?[ONLY]:['base','konzern','alle'];
-      const acc={};MODES.forEach(m=>acc[m]={W:[0,0,0,0,0],PV:[[],[],[],[]],AI:[],best:[]});
+      const acc={};MODES.forEach(m=>acc[m]={W:[0,0,0,0,0],PV:[[],[],[],[]],AI:[],best:[],GAP:[[],[],[],[]]});
       const KO=[0,0,0,0];const users=[];const WINB=[];const B={};const X={viewers:[],creators:[]};
       flags.forEach(([f,v])=>{if(+v<1)B['flag:'+f]=[];});must.forEach(([m,v])=>{if(+v<1)B['must:'+m]=[];});
       for(let i=0;i<N;i++){base();
@@ -66,7 +69,8 @@ const ONLY=process.argv[6]||''; /* optional: nur ein Szenario rechnen (base|konz
           if(aiOn&&a>0){setAI(a);aiCost=S.creators*aiPer*a*S.horizon;}
           const tot=OK4.map(o=>{setScenario(s0);return calc(o,pert).total+aiCost;});
           const w=winOf(tot,ko);const A=acc[m];A.W[w<0?4:w]++;A.AI.push(aiCost/div);for(let j=0;j<4;j++)A.PV[j].push(tot[j]/div);
-          A.best.push(w<0?null:tot[w]/div);if(m===MODES[0])WINB.push(w);});}
+          A.best.push(w<0?null:tot[w]/div);
+          if(w>=0){const sec=[0,1,2,3].filter(j=>j!==w&&!ko[j]).map(j=>tot[j]);if(sec.length)A.GAP[w].push((Math.min(...sec)-tot[w])/S.horizon);}if(m===MODES[0])WINB.push(w);});}
       const qs=(arr,pp)=>{const s=arr.filter(v=>v!=null).sort((x,y)=>x-y);if(!s.length)return null;const ii=(s.length-1)*pp,lo=Math.floor(ii),hi=Math.ceil(ii);return s[lo]+(s[hi]-s[lo])*(ii-lo);};
       const dist=idx=>{const c=[0,0,0,0,0];idx.forEach(i=>c[WINB[i]<0?4:WINB[i]]++);return c.map(v=>v/Math.max(1,idx.length));};
       const tv=(x,y)=>.5*x.reduce((s,v,j)=>s+Math.abs(v-y[j]),0);const drivers=[];
@@ -74,7 +78,7 @@ const ONLY=process.argv[6]||''; /* optional: nur ein Szenario rechnen (base|konz
       for(const key in X){const xs=X[key];if(new Set(xs).size<3)continue;const lo=qs(xs,1/3),hi=qs(xs,2/3);const a1=[],c1=[];xs.forEach((v,i)=>{if(v<=lo)a1.push(i);else if(v>=hi)c1.push(i);});if(a1.length<N*.1||c1.length<N*.1)continue;const da=dist(a1),db=dist(c1);drivers.push({id:'qty:'+key,tv:tv(da,db),lo:da,hi:db,loV:lo,hiV:hi});}
       drivers.sort((x,y)=>y.tv-x.tv);
       const out={id:P.id,users:qs(users,.5),ko:KO.map(v=>v/N),drivers:drivers.slice(0,3).map(d=>({...d,tv:Math.round(d.tv*1000)/1000})),modes:{}};
-      MODES.forEach(m=>{const A=acc[m];out.modes[m]={win:A.W.map(v=>v/N),perV:A.PV.map(a1=>[qs(a1,.1),qs(a1,.5),qs(a1,.9)]),
+      MODES.forEach(m=>{const A=acc[m];out.modes[m]={gapYr:A.GAP.map(g=>qs(g,.5)),win:A.W.map(v=>v/N),perV:A.PV.map(a1=>[qs(a1,.1),qs(a1,.5),qs(a1,.9)]),
         best:[qs(A.best,.1),qs(A.best,.5),qs(A.best,.9)],ai:qs(A.AI,.5)};});
       /* gepaarte Ersparnis je Weg durch KI (Modus 'alle' gegen 'base'), Median je Viewer und Jahr */
       out.aiDelta=acc.alle&&acc.base?[0,1,2,3].map(j=>qs(acc.alle.PV[j].map((v,i)=>v-acc.base.PV[j][i]),.5)):null;

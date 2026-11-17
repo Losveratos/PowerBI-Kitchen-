@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Baut den Report „10.000 Firmen: wann was gewinnt" als HTML (Website-Fassung und eigenständige Fassung).
-Aufruf: python3 tools/rechner-10k-report.py <report10k.json> <cf-result.json> <personas-10k.json> <mc10k-*.json ...>
+Aufruf: python3 tools/rechner-10k-report.py [--oss oss-fte.json] <report10k.json> <cf-result.json> <personas-10k.json> <mc10k-*.json ...>
 Schreibt visual-standards-10000-firmen.html (Repo) und downloads/visual-standards-10000-firmen-standalone.html."""
 import json, sys
+OSS = None
+if "--oss" in sys.argv:
+    i = sys.argv.index("--oss"); OSS = json.load(open(sys.argv[i + 1], encoding="utf-8")); del sys.argv[i:i + 2]
 from collections import Counter
 from pathlib import Path
 
@@ -33,7 +36,7 @@ edges = [20, 50, 100, 250, 500, 1000, 2000, 5000, 10000, 50000, 10**9]
 hist = []
 for lo, hi in zip(edges[:-1], edges[1:]):
     hist.append({"lo": lo, "hi": hi, "n": sum(1 for p in P.values() if lo <= p["employees"] < hi or (lo == 20 and p["employees"] < 20))})
-data = {"rep": rep, "cf": cf, "hist": hist, "U": U}
+data = {"rep": rep, "cf": cf, "hist": hist, "U": U, "oss": OSS}
 
 src = (REPO / "no-free-lunch-visual-standards-post.html").read_text(encoding="utf-8")
 css = src[src.index("<style>") + 7:src.index("</style>")]
