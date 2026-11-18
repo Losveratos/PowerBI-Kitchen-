@@ -1,0 +1,100 @@
+{
+  "estimator": "Claude Opus",
+  "pOver": {
+    "setupH": [10, 24, 48],
+    "firstH": [3, 6.5, 12],
+    "reuseH": [0.8, 1.7, 3],
+    "trainH": [12, 20, 34],
+    "lightH": [1, 2.5, 4.5],
+    "rampH": [14, 32, 76],
+    "govIntake": [12, 34, 90],
+    "govRun": [18, 42, 100],
+    "govAudit": [4, 10, 26],
+    "maint": [13, 24, 35],
+    "events": [1, 2.5, 5],
+    "dep": [4, 9, 18],
+    "cxComplex": [1.25, 1.6, 2.4],
+    "leadWeeks": [3, 7, 18],
+    "support": [0, 0, 0]
+  },
+  "capOver": {
+    "drill": 4,
+    "writeback": 3,
+    "a11y": 2,
+    "agentic": 4,
+    "mobile": 2,
+    "maint": 4,
+    "version": 4
+  },
+  "ck_heute": {
+    "certAvailable": false,
+    "note": "Stand 18.11.2026: Keines der beiden Visuals steht in AppSource, keines ist Microsoft-zertifiziert, keines ist IBCS-zertifiziert. ChartKitchen hat ein Einreichungs-Kit (ibcsInspiredChartDeck/appsource/SUBMISSION-CHECKLIST.md), es fehlen Sample-PBIX und Partner-Center-Konto; laut BACKLOG.md und STATUS.md 'liegt bei Artur (organisatorisch)', ohne Termin. Für das P&L-Visual gibt es kein Einreichungs-Paket (pnlByDatenWG/BACKLOG.md: 'Zertifizierung → Service-Export: liegt organisatorisch bei Artur'). Eine Websuche fand kein AppSource-Listing. Folgen: Verteilung per .pbiviz-Datei (Direktdownload) oder Organizational Store; im Service kein PDF/PPT-Export und keine Abo-Mails mit den Visuals; bei der Tenant-Einstellung 'nur zertifizierte Visuals' nur über den Org-Store nutzbar. Versionshoheit bleibt voll beim Kunden (pin = 5). mscert und export bleiben 1."
+  },
+  "ck_zert": {
+    "certFee": [0, 0, 500],
+    "lagWeeks": [3, 6, 14],
+    "pOverExtra": {
+      "govIntake": [6, 14, 30],
+      "govRun": [10, 26, 64],
+      "govAudit": [3, 8, 20],
+      "leadWeeks": [1, 3, 8],
+      "fixH": [2, 5, 10],
+      "events": [0.8, 2, 4]
+    },
+    "note": "Annahme: BEIDE Pakete sind gelistet und zertifiziert. Ist nur ChartKitchen zertifiziert (wahrscheinlicher, weil nur dafür ein Kit existiert), bleiben GuV-Seiten mit dem P&L-Visual ohne Service-Export, und es gelten für das P&L-Paket die ck_heute-Werte — die Organisation sollte das Szenario dann als Mischfall rechnen. certFee: Es gibt keinen Sponsoring-Kanal und keine Gebühr; Finanzierung über freiwillige Beratung. Der Pflichtbetrag ist 0, der Modus 0; das Maximum 500 € steht für freiwillige Unterstützung (z. B. Anteil eines Beratungstags), die keinen Anspruch begründet. Genau daraus folgt ein Risiko: Der Rezertifizierungsaufwand (Rechner certRunH 8/40/120 h/Jahr, bei dieser Release-Frequenz eher am oberen Rand) wird von niemandem bezahlt; die Zertifizierung kann daher verfallen oder Versionen weit hinterherhinken. lagWeeks: Microsoft prüft Updates bis 3 Wochen, danach bis 2 Wochen bis Produktion (Microsoft Learn, Zertifizierungs-FAQ). Bei 93 ChartKitchen-Releases in 16 Wochen (CHANGELOG 06.07.–24.10.2026) kann nicht jede Version zertifiziert werden; realistisch sind gebündelte Zertifizierungsstände, die 3–14 Wochen hinter dem Repo-Stand liegen. pOverExtra: Freigabe sinkt Richtung Paid-Wert, aber zwei Pakete (je 4/8/16 h, teils gemeinsam); Governance sinkt, weil Microsofts Codeprüfung einen Teil des Code-Reviews ersetzt. Aber: AppSource-Visuals aktualisieren sich in Berichten automatisch, das Einfrieren einer Version geht dann nur über den Org-Store. Verhaltensänderungen wie 1.46 oder 1.52 kämen ohne Testphase in die Berichte. Die Zertifizierung prüft Sicherheit und Konformität, nicht die Richtigkeit der Rechnung."
+  },
+  "pros": [
+    {"t": "Fertiges, breites IBCS-nahes Funktionsset in zwei Paketen: ChartKitchen mit 13 Chart-Modi (Säulen, Balken, Linie, Wasserfall, Integrierte/Kategorie-Brücke, Tabelle/Matrix, GuV-Statement, KPI-Karten, Pareto, Dumbbell, Slope, Scatter) und Vorlagen C01–C13. Das P&L-Visual bringt Mega-Table T01–T05B, Treiberbaum und Sankey mit. devH = 0 ist berechtigt.", "src": "ibcsInspiredChartDeck/README.md, AGENT-GUIDE.md (Modus-Wahl); pnlByDatenWG/README.md"},
+    {"t": "Ungewöhnlich gute Agenten-Tauglichkeit: Die Property-Referenz im AGENT-GUIDE wird aus capabilities.json und settings.ts generiert und gegen Drift geprüft (npm run guide:check). Drei Skills (chartkitchen-report, pnl-report, finance-data-model mit validate_model.py) bereiten PBIR-Definitionen und das Datenmodell vor.", "src": "ibcsInspiredChartDeck/AGENT-GUIDE.md, package.json; .claude/skills/*"},
+    {"t": "Ein Datenvertrag für beide Visuals: Die rowType-Token in ChartKitchen 1.53 verstehen die RowType-Werte des P&L-Visuals (Subtotal, Formula, KPI …). Eine Spalte DimKonto[RowType] speist damit beide Visuals.", "src": "ibcsInspiredChartDeck/AGENT-GUIDE.md (rowType-Token)"},
+    {"t": "Datenresidenz und Prüfbarkeit: privileges = [] in beiden capabilities.json, kein innerHTML, eval, fetch oder XHR im Quellcode (grep). Einzige Ausnahme ist host.launchUrl für den Doku-Link, nur im Bearbeitungsmodus und nur auf Klick. Der Quellcode ist offen (ChartKitchen Apache-2.0, P&L MIT laut package.json). Das senkt auch die technische Hürde einer späteren Zertifizierung.", "src": "capabilities.json (beide), src/visual.ts (grep), NOTICE"},
+    {"t": "Skalierung nach IBCS 2.0 / ISO 24896 als Standard, abgesichert durch Geometrie-Tests (test:scale, test:notation). Vorher gab es dokumentierte Eigen-Audits mit Befundlisten, darunter 6 kritische Skalierungsbefunde, die 1.52 adressiert.", "src": "ibcsInspiredChartDeck/CHANGELOG.md 1.52.0.0, AUDIT-2026-10-SKALIERUNG.md; pnlByDatenWG/CHANGELOG.md 1.5.0.0"},
+    {"t": "Vier Sprachen (de, en, es, ja) für Formatbereich und In-Chart-Texte; beim P&L-Visual prüft ein Test die Gleichheit der Sprachdateien (test:i18n). Doku und Schnellstart gibt es auf DE und EN.", "src": "ibcsInspiredChartDeck/README.md (Sprachen); pnlByDatenWG/README.md (Entwicklung)"},
+    {"t": "Power-BI-Integration über den generischen OSS-Wert hinaus: Drilldown auf der Kategorie-Rolle, Drillthrough über das native Kontextmenü (showContextMenu), Berichtsseiten-Tooltips (canvas), fetchMoreData bis 30.000 Zeilen. Beim P&L-Visual gibt es Performance-Tests mit 5.000 und 2.000 Konten.", "src": "capabilities.json (drilldown, tooltips), src/visual.ts; pnlByDatenWG/README.md (test:perf, test:megaperf)"},
+    {"t": "Keine Lizenzkosten. Volle Versionshoheit bei Datei-Import oder Org-Store: Die Organisation bestimmt, wann sie welche Version übernimmt.", "src": "STATUS.md (Geschäftsmodell), REQS pin"}
+  ],
+  "cons": [
+    {"t": "Weder AppSource noch Microsoft-Zertifizierung, ohne Termin. Im Service gibt es keinen PDF/PPT-Export und keine Abo-Mails mit den Visuals. Für das P&L-Visual existiert nicht einmal ein Einreichungs-Paket. Die Einreichung hängt an einer Person (organisatorisch).", "src": "ibcsInspiredChartDeck/BACKLOG.md (Doku & Launch), appsource/SUBMISSION-CHECKLIST.md, pnlByDatenWG/BACKLOG.md, STATUS.md; Websuche ohne Listing"},
+    {"t": "Extrem hoher Release-Takt: 93 ChartKitchen-Versionen vom 06.07. bis 24.10.2026 (oft mehrere am Tag) und 39 P&L-Versionen vom 01.08. bis 01.11.2026. Jede übernommene Version braucht eine Regressionsprüfung. Für eine Zertifizierung müssten Versionen gebündelt werden.", "src": "ibcsInspiredChartDeck/CHANGELOG.md, pnlByDatenWG/CHANGELOG.md (Versionsköpfe gezählt)"},
+    {"t": "Belegte Brüche und Verhaltensänderungen in wenigen Monaten: In 1.28 wechselte die GUID (Berichte müssen das Visual neu hinzufügen). In 1.46 wurde supportsHighlight von true auf false gestellt, die Cross-Interaktion änderte sich. In 1.52 und P&L 1.5.0 heißt es: 'Bestehende Berichte ändern ihr Bild … nicht abschaltbar'.", "src": "ibcsInspiredChartDeck/CHANGELOG.md 1.28.0.0, 1.46.0.0, 1.52.0.0; pnlByDatenWG/CHANGELOG.md 1.5.0.0"},
+    {"t": "Kleiner Herausgeberkreis: Die Git-Historie der Visual-Ordner zeigt einen menschlichen Autor plus KI-Sessions (Claude). Es gibt keinen Sponsoring-Kanal und keine SLA, die Finanzierung läuft über Beratung. Das Wissen liegt praktisch bei einer Person; das Projekt ist erst rund 4 Monate alt.", "src": "git log --format=%an (ibcsInspiredChartDeck, pnlByDatenWG); STATUS.md; REQS sla, OPTP support"},
+    {"t": "Qualitätsreife: Die Eigen-Audits fanden 2 schwere und 19 mittlere Befunde (07/2026) sowie 6 kritische Skalierungsbefunde (10/2026). Die großen Pakete seit 1.25 sind laut BACKLOG 'nur selbst-verifiziert'. Alle Audits sind KI-Eigenprüfungen, keine Fremdprüfung. Bei ChartKitchen besteht der Code im Kern aus einer Datei: visual.ts hat 17.288 Zeilen, das P&L-Visual rund 18.300 Zeilen in src. Ein externes Code-Review ist damit teuer.", "src": "AUDIT-2026-07.md, AUDIT-2026-10-SKALIERUNG.md, BACKLOG.md (Interaktion & Technik), wc -l src/*.ts"},
+    {"t": "Doku-Drift und Unstimmigkeiten: Der Steckbrief im ChartKitchen-AGENT-GUIDE nennt 'Lizenz MIT', LICENSE und package.json sagen Apache-2.0. Der Skill pnl-report beschreibt das P&L-Visual als 'v0.17.0.0 Beta' (aktuell 1.7.1). TESTPLAN.md des P&L-Visuals steht auf v0.3.0.0. Der Ordner pnlByDatenWG hat keine eigene LICENSE-Datei, nur 'license: MIT' in package.json. Die ChartKitchen-Tests sind Render- und Geometrie-Harnesses, es gibt keine Unit-Tests des Rechenkerns.", "src": "ibcsInspiredChartDeck/AGENT-GUIDE.md (Steckbrief) vs. LICENSE; .claude/skills/pnl-report/SKILL.md; pnlByDatenWG/TESTPLAN.md; ls pnlByDatenWG; ibcsInspiredChartDeck/package.json scripts"},
+    {"t": "Lücken bei Barrierefreiheit und Mobile: Offen sind ARIA-Semantik ('role=option ohne listbox, Tab-Stop-Flut'), Fokusverlust nach Rerender und Touch/Pointer-Events. Eine formale WCAG-Prüfung fehlt.", "src": "ibcsInspiredChartDeck/BACKLOG.md (Barrierefreiheit, Interaktion & Technik)"},
+    {"t": "Zwei Pakete mit Überschneidung und hoher Komplexität: ChartKitchen hat einen eigenen GuV-Statement- und Tabellen-Modus neben dem P&L-Visual (Varianten-Risiko). Die Standard-Abweichungsfarben unterscheiden sich (ChartKitchen #1E8F9E/#D64541, P&L #0E8585/#E02B1D). Die Chart-Karte hat rund 50 Einstellungen (UX-Audit). Der DAX-Wächter gegen Geisterzeilen ist 'die wichtigste Falle überhaupt'. Freigabe und Schulung fallen je Paket an.", "src": "ibcsInspiredChartDeck/src/settings.ts, pnlByDatenWG/README.md, AUDIT-2026-10-UX.md, AGENT-GUIDE.md (DAX-Regel)"},
+    {"t": "Ausstieg per Fork nur mit eigenem Branding: Die Namen und das Logo sind ausdrücklich nicht mitlizenziert. Eine geänderte Identität hat schon einmal (1.28) alle Berichte gezwungen, das Visual neu hinzuzufügen.", "src": "ibcsInspiredChartDeck/NOTICE, CHANGELOG.md 1.28.0.0"}
+  ],
+  "rationale": {
+    "setupH": "Zwei Pakete sind zu verteilen (Datei oder Org-Store), und das P&L-Visual verlangt eine eigene Kontendimension (RowType, FormulaDef, Vorzeichen-Trio). Demo-Daten und der Skill finance-data-model gleichen das teilweise aus. Netto leicht über dem generischen Wert, eine Schätzung.",
+    "firstH": "Vorlagen mit einem Klick (ChartKitchen C01–C13, P&L T01–T05B, Start-Hub ab ChartKitchen 1.50 und P&L 1.3), dazu AGENT-GUIDE und Skills: Das rückt den Wert Richtung Paid (2/4/7.5). Der anspruchsvolle Datenvertrag und rund 50 Einstellungen halten ihn darüber. Schätzung.",
+    "reuseH": "Vorlage plus PBIR-Kopie nach der Property-Referenz geht schneller als bei einem generischen OSS-Visual. Ohne Messung nur leicht gesenkt.",
+    "trainH": "Zwei Visuals mit großer Oberfläche (13 Modi, 5 P&L-Ansichten, Mega-Table-Templates, Vorzeichen-Trio, rowType-Token). Gute Doku in DE/EN dämpft den Wert. Schulung fällt je Paket an, deshalb rund ×1,3 auf den generischen Wert. Schätzung.",
+    "lightH": "Leser bedienen viele In-Chart-Elemente (Chips, ☰-Menü, Toolbar, ⚡ Nur Ausnahmen, Kachel-Zoom). Mehr Bedienung bedeutet mehr Einweisung. Schätzung.",
+    "rampH": "Zwei Pakete und eine komplexe Fachlogik (Vorzeichen-Dreierlogik, Token). Die starke Doku verhindert einen größeren Aufschlag. Schätzung.",
+    "govIntake": "Generisch gilt der Wert für ein Paket. Hier sind es zwei, mit gemeinsamer Herkunft und dokumentiertem Bundle-Scan (visuals-sicherheit.html), aber rund 36.000 Zeilen TypeScript. Der zweite Freigabefall kostet etwa 40–50 % des ersten, der Maximalwert steigt durch den Codeumfang.",
+    "govRun": "Bei 93 und 39 Releases in 3–4 Monaten muss die Organisation laufend entscheiden, welche Version sie übernimmt, und Verhaltensänderungen prüfen (1.46, 1.52, P&L 1.5). Das gilt je Paket. Belegt durch die beiden CHANGELOGs.",
+    "govAudit": "Zwei Pakete sind nachzuweisen (Version, Build, Rechenweg). Der offene Code und die ausführlichen CHANGELOGs erleichtern das, deshalb nur leicht erhöht.",
+    "maint": "Der hohe Takt und nicht abschaltbare Bildänderungen erhöhen die Pflege von Vorlagen und Berichten (Screenshots, Abo-PDFs, Seitenlayouts). Stabile Property-Namen (CHANGELOG: 'Property-Namen bleiben') begrenzen den Aufschlag. Schätzung.",
+    "events": "In rund 4 Monaten: GUID-Wechsel 1.28 (harter Bruch), Interaktionswechsel 1.46, Skalierung 1.52 und P&L 1.5.0 (Bildänderung). Annualisiert wären das deutlich über 3. Die Organisation übernimmt Versionen aber gebündelt, und das Projekt dürfte ruhiger werden. Deshalb 1/2,5/5 statt 0,5/1,5/3.",
+    "dep": "Bus-Faktor praktisch 1, Finanzierung über Beratung einer Person, Projektalter rund 4 Monate, kein Sponsoring. Der offene, baubare Quellcode mildert das: Der Code überlebt den Herausgeber. Deshalb über dem generischen Wert, aber unter einer Verdopplung. Schätzung.",
+    "cxComplex": "Die generische Begründung lautete, der Funktionsumfang ende 'vor Kommentierung und beliebigen Kombinationen'. Hier gibt es Kommentare, Kombi-Linie, Stapel, Small Multiples, Doppel-Varianz und Brücken; komplexe Charts sind fertig. Die Audit-Funde in den Spezialmodi halten den Wert über Paid (1.2/1.4/1.8).",
+    "leadWeeks": "Zwei Pakete ohne Zertifikat gehen ins Security-Review; ein Bundle-Scan liegt vor. Leicht über dem generischen Wert.",
+    "support": "Es gibt keinen Sponsoring-Kanal (Rechner-Notiz zu OPTP support, STATUS.md). Beratung ist ein eigener, optionaler Einkauf und kein Beitrag zum Visual. Deshalb 0/0/0.",
+    "drill": "In capabilities.json steht drilldown auf category; Drillthrough läuft über selectionManager.showContextMenu (beide Visuals), Canvas-Tooltips sind deklariert. Damit ist die Anforderung auf Paid-Niveau erfüllt.",
+    "writeback": "Kommentare kommen per Text-Measure aus dem Modell (beide Visuals), dazu gibt es in ChartKitchen den Kommentar-Modus, der im Bericht speichert (AGENT-GUIDE editComments). Für Anmerkungen reicht das. Writeback in eine Quelle oder Planung fehlt, deshalb 3 und nicht höher.",
+    "a11y": "Tastaturfokus, Hochkontrast und ARIA sind vorhanden. Bekannte offene Mängel im BACKLOG (ARIA-Semantik, Fokusverlust, Tab-Stop-Flut) und keine formale Prüfung sprechen bei Pflicht-Barrierefreiheit (BITV) für eine Warnung, also 2 statt 3.",
+    "agentic": "Generierter AGENT-GUIDE mit Drift-Check, drei Skills und ein gemeinsamer Datenvertrag. Abzug für die Skill-Drift (pnl-report nennt 0.17 Beta) und weil alles nur 'vorbereiten + Plan' ist, ohne Fremdtest. Trotzdem 4.",
+    "mobile": "Touch- und Mobile-Support steht offen im BACKLOG ('Pointer-Events statt reiner Maus-Events'). Viele Bedienelemente setzen Hover oder Drag voraus. Deshalb Warnung statt erfüllt.",
+    "maint": "Ohne Code bedienbar, aber Fachbereiche brauchen DAX-Wissen (Wächter-Muster gegen Geisterzeilen, FY-Skalar per MAX) und Verständnis der Vorzeichen-Dreierlogik. Rund 50 Einstellungen in der Chart-Karte (UX-Audit). Deshalb 4 statt 5.",
+    "version": "Offener Code mit sehr ausführlichen CHANGELOGs (2.067 bzw. 2.166 Zeilen), dazu eine generierte Property-Referenz. Report-Definitionen als PBIR-JSON lassen sich per Diff vergleichen; versteckte persistierte Zustände sind dokumentiert. Das liegt über dem generischen OSS-Wert.",
+    "bus": "Bewusst unverändert bei 3: Beim Herausgeber ist der Bus-Faktor rund 1 (das steckt in dep). Im Haus des Kunden verteilen AGENT-GUIDE, Doku und Skills das Wissen aber gut."
+  },
+  "biggest_uncertainties": [
+    "Ob und wann AppSource-Listing und Zertifizierung kommen (kein Termin, organisatorisch an eine Person gebunden; für das P&L-Visual gibt es nicht einmal ein Paket). Das entscheidet über export/mscert und damit über K.O.-Kriterien.",
+    "Der echte Freigabe- und Governance-Aufwand in einer fremden Organisation: Es gibt keine protokollierte externe Freigabe. Die Werte für govIntake und govRun sind Schätzungen ohne Messung.",
+    "Ob sich der Release-Takt nach der Gründungsphase beruhigt. Die Werte für events und govRun sind aus 3–4 Monaten hochgerechnet, einer untypischen Aufbauphase.",
+    "Fortbestand des Herausgebers: Die Finanzierung über Beratung und eine Schlüsselperson machen dep zur größten Einzelunsicherheit. Externe Nutzerzahlen oder Issue-Daten fehlen völlig.",
+    "Wer die laufende Rezertifizierung bei ck_zert bezahlt: Ohne Gebühr oder Sponsoring kann die Zertifizierung verfallen oder weit hinterherhinken. lagWeeks könnte deutlich über 14 Wochen liegen.",
+    "Die tatsächliche Fehlerdichte im Feld: Alle Audits sind KI-Eigenprüfungen am Test-Harness, nicht in Power BI Desktop oder im Service bei echten Kunden."
+  ]
+}

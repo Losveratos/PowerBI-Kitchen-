@@ -1,0 +1,1421 @@
+{
+ "n": 10000,
+ "users": 1229045.005445771,
+ "variants": {
+  "heute": {
+   "firms": [
+    0.455405,
+    0.08229299999999999,
+    0.24013600000000002,
+    0.22216599999999997,
+    0.0
+   ],
+   "users": [
+    0.41125248171441003,
+    0.13902749944872178,
+    0.2576354223048983,
+    0.1920845965319698,
+    0.0
+   ],
+   "bands": [
+    {
+     "lo": 0,
+     "hi": 249,
+     "n": 6368,
+     "firms": [
+      0.46539886934673363,
+      0.04289258793969849,
+      0.23995131909547737,
+      0.25175722361809044,
+      0.0
+     ]
+    },
+    {
+     "lo": 250,
+     "hi": 999,
+     "n": 2266,
+     "firms": [
+      0.4955736981465137,
+      0.11231906443071492,
+      0.22420564872021184,
+      0.16790158870255956,
+      0.0
+     ]
+    },
+    {
+     "lo": 1000,
+     "hi": 9999,
+     "n": 1299,
+     "firms": [
+      0.33951501154734415,
+      0.2178983833718245,
+      0.26981524249422634,
+      0.17277136258660508,
+      0.0
+     ]
+    },
+    {
+     "lo": 10000,
+     "hi": 1000000000,
+     "n": 67,
+     "firms": [
+      0.3938805970149254,
+      0.18246268656716416,
+      0.22104477611940299,
+      0.20261194029850746,
+      0.0
+     ]
+    }
+   ],
+   "sector": {
+    "wirtschaft": [
+     0.46259833274627216,
+     0.06667195021721263,
+     0.23772983444874957,
+     0.23299988258776566,
+     0.0
+    ],
+    "finanz": [
+     0.4862450592885375,
+     0.19233201581027667,
+     0.2226185770750988,
+     0.09880434782608695,
+     0.0
+    ],
+    "oeffentlich": [
+     0.37672466734902765,
+     0.16147901740020473,
+     0.27018423746161724,
+     0.1916120777891505,
+     0.0
+    ]
+   },
+   "flip": 0.0,
+   "trans": [],
+   "ossMajority": 0.0795,
+   "gap": {
+    "p25": 3359.0462181473035,
+    "p50": 4881.113088299348,
+    "p75": 11421.748478858726,
+    "n": 795
+   },
+   "poolPerFirm": 540.9983506709574,
+   "ossKo": 0.4436615,
+   "certUse": 0.1829835,
+   "certWin": 0.0411555,
+   "certWinUsers": 0.08721525894244783,
+   "ossMajSize": 902
+  },
+  "ck_heute": {
+   "firms": [
+    0.44931099999999996,
+    0.115898,
+    0.223146,
+    0.21164499999999997,
+    0.0
+   ],
+   "users": [
+    0.4269831201857184,
+    0.10898857055440925,
+    0.27130274547011496,
+    0.19272556378975741,
+    0.0
+   ],
+   "bands": [
+    {
+     "lo": 0,
+     "hi": 249,
+     "n": 6368,
+     "firms": [
+      0.44714745603015077,
+      0.1147126256281407,
+      0.20321529522613066,
+      0.23492462311557788,
+      0.0
+     ]
+    },
+    {
+     "lo": 250,
+     "hi": 999,
+     "n": 2266,
+     "firms": [
+      0.5003751103265666,
+      0.11273168578993821,
+      0.22433804060017654,
+      0.16255516328331862,
+      0.0
+     ]
+    },
+    {
+     "lo": 1000,
+     "hi": 9999,
+     "n": 1299,
+     "firms": [
+      0.3725481139337952,
+      0.12528483448806774,
+      0.3185142417244034,
+      0.18365280985373364,
+      0.0
+     ]
+    },
+    {
+     "lo": 10000,
+     "hi": 1000000000,
+     "n": 67,
+     "firms": [
+      0.41619402985074627,
+      0.15365671641791045,
+      0.22813432835820896,
+      0.20201492537313434,
+      0.0
+     ]
+    }
+   ],
+   "sector": {
+    "wirtschaft": [
+     0.45153575202536106,
+     0.11811788188329224,
+     0.21151814019020782,
+     0.2188282259011389,
+     0.0
+    ],
+    "finanz": [
+     0.5247529644268775,
+     0.07418972332015811,
+     0.28390316205533594,
+     0.11715415019762845,
+     0.0
+    ],
+    "oeffentlich": [
+     0.39084442169907885,
+     0.11814738996929376,
+     0.29304503582395086,
+     0.19796315250767657,
+     0.0
+    ]
+   },
+   "flip": 0.1163,
+   "trans": [
+    [
+     "oss",
+     "paid",
+     0.0354
+    ],
+    [
+     "oss",
+     "deneb",
+     0.0348
+    ],
+    [
+     "deneb",
+     "oss",
+     0.0172
+    ],
+    [
+     "deneb",
+     "paid",
+     0.0093
+    ]
+   ],
+   "ossMajority": 0.0323,
+   "gap": {
+    "p25": 3268.2472460644835,
+    "p50": 4739.6912074681,
+    "p75": 7290.769804225069,
+    "n": 323
+   },
+   "poolPerFirm": 536.5681189263923,
+   "ossKo": 0.6237699999999999,
+   "certUse": 0.0,
+   "certWin": 0.0,
+   "certWinUsers": 0.0,
+   "ossMajSize": 340
+  },
+  "ck_zert": {
+   "firms": [
+    0.366737,
+    0.303175,
+    0.14435250000000002,
+    0.1857355,
+    0.0
+   ],
+   "users": [
+    0.3451801995807381,
+    0.3118523317886621,
+    0.17517441321606836,
+    0.16779305541453135,
+    0.0
+   ],
+   "bands": [
+    {
+     "lo": 0,
+     "hi": 249,
+     "n": 6368,
+     "firms": [
+      0.37133401381909553,
+      0.2855802449748744,
+      0.13426743090452262,
+      0.20881831030150755,
+      0.0
+     ]
+    },
+    {
+     "lo": 250,
+     "hi": 999,
+     "n": 2266,
+     "firms": [
+      0.4032744924977935,
+      0.30796337157987647,
+      0.14682700794351278,
+      0.1419351279788173,
+      0.0
+     ]
+    },
+    {
+     "lo": 1000,
+     "hi": 9999,
+     "n": 1299,
+     "firms": [
+      0.281270207852194,
+      0.37986143187066973,
+      0.18946112394149348,
+      0.14940723633564282,
+      0.0
+     ]
+    },
+    {
+     "lo": 10000,
+     "hi": 1000000000,
+     "n": 67,
+     "firms": [
+      0.3511194029850746,
+      0.32671641791044775,
+      0.1446268656716418,
+      0.17753731343283582,
+      0.0
+     ]
+    }
+   ],
+   "sector": {
+    "wirtschaft": [
+     0.36884055418574613,
+     0.29705177879535044,
+     0.13982505577081134,
+     0.19428261124809204,
+     0.0
+    ],
+    "finanz": [
+     0.43004940711462447,
+     0.30718379446640315,
+     0.17229249011857709,
+     0.09047430830039525,
+     0.0
+    ],
+    "oeffentlich": [
+     0.3156090071647902,
+     0.3544779938587513,
+     0.1693500511770727,
+     0.16056294779938587,
+     0.0
+    ]
+   },
+   "flip": 0.2713,
+   "trans": [
+    [
+     "deneb",
+     "oss",
+     0.1423
+    ],
+    [
+     "paid",
+     "oss",
+     0.0954
+    ],
+    [
+     "paid",
+     "core",
+     0.0095
+    ],
+    [
+     "core",
+     "oss",
+     0.0089
+    ]
+   ],
+   "ossMajority": 0.3258,
+   "gap": {
+    "p25": 2610.0246737117027,
+    "p50": 3523.644994279201,
+    "p75": 5718.27666721593,
+    "n": 3258
+   },
+   "poolPerFirm": 1424.4189709206175,
+   "ossKo": 0.21399249999999997,
+   "certUse": 0.6106064999999999,
+   "certWin": 0.22461,
+   "certWinUsers": 0.2641183177866388,
+   "ossMajSize": 158
+  }
+ },
+ "p150": {
+  "heute": {
+   "users": [
+    0.4421900221352532,
+    0.18082832314486239,
+    0.2169410112996888,
+    0.1600406434201957,
+    0.0
+   ],
+   "firms": [
+    0.43846399999999996,
+    0.15098,
+    0.24208133333333332,
+    0.16847466666666666,
+    0.0
+   ],
+   "ossKo": 0.4130066666666667
+  },
+  "ck_heute": {
+   "users": [
+    0.47417577831493063,
+    0.09546166858363395,
+    0.25835388496293715,
+    0.17200866813849833,
+    0.0
+   ],
+   "firms": [
+    0.455128,
+    0.11217466666666667,
+    0.261072,
+    0.17162533333333332,
+    0.0
+   ],
+   "ossKo": 0.685072
+  },
+  "ck_zert": {
+   "users": [
+    0.4178748279006143,
+    0.2625025431155622,
+    0.16908941057587532,
+    0.15053321840794823,
+    0.0
+   ],
+   "firms": [
+    0.37079066666666666,
+    0.319664,
+    0.16427333333333333,
+    0.145272,
+    0.0
+   ],
+   "ossKo": 0.24745866666666666
+  }
+ },
+ "boot": {
+  "heute": {
+   "p1": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "lo": [
+    0.358123653619409,
+    0.10579568052236303,
+    0.22853578642964484,
+    0.15674690873848082,
+    0.0
+   ],
+   "hi": [
+    0.462144176269397,
+    0.1737163382265193,
+    0.2895974347754563,
+    0.22835759831909308,
+    0.0
+   ]
+  },
+  "ck_heute": {
+   "p1": [
+    1.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "lo": [
+    0.37495074742877904,
+    0.0924067728661596,
+    0.23796464226381592,
+    0.15864097609782915,
+    0.0
+   ],
+   "hi": [
+    0.47452309881216304,
+    0.12879631505360936,
+    0.3049018289008598,
+    0.22724675879537654,
+    0.0
+   ]
+  },
+  "ck_zert": {
+   "p1": [
+    0.755,
+    0.245,
+    0.0,
+    0.0
+   ],
+   "lo": [
+    0.2951182588373088,
+    0.2823216217547574,
+    0.152614776203094,
+    0.1330353953051941,
+    0.0
+   ],
+   "hi": [
+    0.39073347058735114,
+    0.3457673502498298,
+    0.19996464361937907,
+    0.2027739609874154,
+    0.0
+   ]
+  }
+ },
+ "ann": {
+  "method": "Mittel je Dreipunkt-Ecke bzw. Mittel der Fähigkeiten (abgerundet) aus Claude Opus, Claude Sonnet",
+  "pOver": {
+   "cxComplex": [
+    1.175,
+    1.55,
+    2.3
+   ],
+   "dep": [
+    4.5,
+    10,
+    19
+   ],
+   "events": [
+    1,
+    2.5,
+    5
+   ],
+   "firstH": [
+    3.25,
+    6.75,
+    12
+   ],
+   "govAudit": [
+    3.5,
+    9.5,
+    24
+   ],
+   "govIntake": [
+    12,
+    33,
+    82.5
+   ],
+   "govRun": [
+    16,
+    39,
+    95
+   ],
+   "leadWeeks": [
+    2.5,
+    6.5,
+    17.0
+   ],
+   "lightH": [
+    1,
+    2.5,
+    4.5
+   ],
+   "maint": [
+    12.5,
+    23.0,
+    33.5
+   ],
+   "rampH": [
+    14,
+    32,
+    75.5
+   ],
+   "reuseH": [
+    0.8,
+    1.7,
+    3
+   ],
+   "setupH": [
+    10.0,
+    23.0,
+    45.0
+   ],
+   "supH100": [
+    2.75,
+    6.0,
+    10.5
+   ],
+   "support": [
+    0.0,
+    0.0,
+    500.0
+   ],
+   "trainH": [
+    11,
+    19,
+    32
+   ]
+  },
+  "capOver": {
+   "a11y": 2,
+   "agentic": 4,
+   "bus": 2,
+   "drill": 4,
+   "exportdata": 2,
+   "maint": 4,
+   "mobile": 2,
+   "version": 3,
+   "writeback": 2
+  },
+  "certFee": [
+   0,
+   125,
+   1000
+  ],
+  "lagWeeks": [
+   3,
+   7,
+   17
+  ],
+  "pOverExtra_zert": {
+   "dep": [
+    4,
+    9,
+    17.5
+   ],
+   "events": [
+    0.8,
+    1.9,
+    3.75
+   ],
+   "fixH": [
+    2.5,
+    6.0,
+    12.0
+   ],
+   "govAudit": [
+    3,
+    8.5,
+    21
+   ],
+   "govIntake": [
+    9,
+    23,
+    52.5
+   ],
+   "govRun": [
+    12,
+    31,
+    77
+   ],
+   "leadWeeks": [
+    1.5,
+    4.5,
+    12.0
+   ]
+  },
+  "generic": {
+   "pOver": {
+    "cxComplex": [
+     1.4,
+     1.9,
+     2.9
+    ],
+    "dep": [
+     3.0,
+     7.0,
+     13.0
+    ],
+    "events": [
+     0.5,
+     1.5,
+     3.0
+    ],
+    "firstH": [
+     4.5,
+     8.5,
+     14.0
+    ],
+    "govAudit": [
+     3.0,
+     8.0,
+     20.0
+    ],
+    "govIntake": [
+     8.0,
+     24.0,
+     60.0
+    ],
+    "govRun": [
+     12.0,
+     30.0,
+     80.0
+    ],
+    "leadWeeks": [
+     2.0,
+     6.0,
+     16.0
+    ],
+    "lightH": [
+     1.0,
+     2.0,
+     4.0
+    ],
+    "maint": [
+     12.0,
+     22.0,
+     32.0
+    ],
+    "rampH": [
+     12.0,
+     28.0,
+     70.0
+    ],
+    "reuseH": [
+     1.0,
+     2.0,
+     3.5
+    ],
+    "setupH": [
+     10.0,
+     22.0,
+     42.0
+    ],
+    "supH100": [
+     2.5,
+     5.5,
+     10.0
+    ],
+    "support": [
+     0.0,
+     0.0,
+     1000.0
+    ],
+    "trainH": [
+     8.0,
+     15.0,
+     26.0
+    ]
+   },
+   "capOver": {
+    "a11y": 3,
+    "agentic": 3,
+    "bus": 3,
+    "drill": 3,
+    "exportdata": 3,
+    "maint": 5,
+    "mobile": 3,
+    "version": 3,
+    "writeback": 2
+   }
+  },
+  "spread": {
+   "pOver": {
+    "cxComplex": {
+     "n": 2,
+     "values": [
+      [
+       1.25,
+       1.6,
+       2.4
+      ],
+      [
+       1.1,
+       1.5,
+       2.2
+      ]
+     ]
+    },
+    "dep": {
+     "n": 2,
+     "values": [
+      [
+       4,
+       9,
+       18
+      ],
+      [
+       5,
+       11,
+       20
+      ]
+     ]
+    },
+    "events": {
+     "n": 2,
+     "values": [
+      [
+       1,
+       2.5,
+       5
+      ],
+      [
+       1,
+       2.5,
+       5
+      ]
+     ]
+    },
+    "firstH": {
+     "n": 2,
+     "values": [
+      [
+       3,
+       6.5,
+       12
+      ],
+      [
+       3.5,
+       7,
+       12
+      ]
+     ]
+    },
+    "govAudit": {
+     "n": 2,
+     "values": [
+      [
+       4,
+       10,
+       26
+      ],
+      [
+       3,
+       9,
+       22
+      ]
+     ]
+    },
+    "govIntake": {
+     "n": 2,
+     "values": [
+      [
+       12,
+       34,
+       90
+      ],
+      [
+       12,
+       32,
+       75
+      ]
+     ]
+    },
+    "govRun": {
+     "n": 2,
+     "values": [
+      [
+       18,
+       42,
+       100
+      ],
+      [
+       14,
+       36,
+       90
+      ]
+     ]
+    },
+    "leadWeeks": {
+     "n": 2,
+     "values": [
+      [
+       3,
+       7,
+       18
+      ],
+      [
+       2.0,
+       6.0,
+       16.0
+      ]
+     ]
+    },
+    "lightH": {
+     "n": 2,
+     "values": [
+      [
+       1,
+       2.5,
+       4.5
+      ],
+      [
+       1,
+       2.5,
+       4.5
+      ]
+     ]
+    },
+    "maint": {
+     "n": 2,
+     "values": [
+      [
+       13,
+       24,
+       35
+      ],
+      [
+       12.0,
+       22.0,
+       32.0
+      ]
+     ]
+    },
+    "rampH": {
+     "n": 2,
+     "values": [
+      [
+       14,
+       32,
+       76
+      ],
+      [
+       14,
+       32,
+       75
+      ]
+     ]
+    },
+    "reuseH": {
+     "n": 2,
+     "values": [
+      [
+       0.8,
+       1.7,
+       3
+      ],
+      [
+       0.8,
+       1.7,
+       3
+      ]
+     ]
+    },
+    "setupH": {
+     "n": 2,
+     "values": [
+      [
+       10,
+       24,
+       48
+      ],
+      [
+       10.0,
+       22.0,
+       42.0
+      ]
+     ]
+    },
+    "supH100": {
+     "n": 2,
+     "values": [
+      [
+       2.5,
+       5.5,
+       10.0
+      ],
+      [
+       3,
+       6.5,
+       11
+      ]
+     ]
+    },
+    "support": {
+     "n": 2,
+     "values": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       0.0,
+       0.0,
+       1000.0
+      ]
+     ]
+    },
+    "trainH": {
+     "n": 2,
+     "values": [
+      [
+       12,
+       20,
+       34
+      ],
+      [
+       10,
+       18,
+       30
+      ]
+     ]
+    }
+   },
+   "capOver": {
+    "a11y": [
+     2,
+     3
+    ],
+    "agentic": [
+     4,
+     4
+    ],
+    "bus": [
+     3,
+     2
+    ],
+    "drill": [
+     4,
+     4
+    ],
+    "exportdata": [
+     3,
+     2
+    ],
+    "maint": [
+     4,
+     5
+    ],
+    "mobile": [
+     2,
+     2
+    ],
+    "version": [
+     4,
+     3
+    ],
+    "writeback": [
+     3,
+     2
+    ]
+   },
+   "pOverExtra": {
+    "cxComplex": {
+     "n": 2,
+     "values": [
+      [
+       1.25,
+       1.6,
+       2.4
+      ],
+      [
+       1.1,
+       1.5,
+       2.2
+      ]
+     ]
+    },
+    "dep": {
+     "n": 2,
+     "values": [
+      [
+       4,
+       9,
+       18
+      ],
+      [
+       4,
+       9,
+       17
+      ]
+     ]
+    },
+    "events": {
+     "n": 2,
+     "values": [
+      [
+       0.8,
+       2,
+       4
+      ],
+      [
+       0.8,
+       1.8,
+       3.5
+      ]
+     ]
+    },
+    "firstH": {
+     "n": 2,
+     "values": [
+      [
+       3,
+       6.5,
+       12
+      ],
+      [
+       3.5,
+       7,
+       12
+      ]
+     ]
+    },
+    "fixH": {
+     "n": 2,
+     "values": [
+      [
+       2,
+       5,
+       10
+      ],
+      [
+       3.0,
+       7.0,
+       14.0
+      ]
+     ]
+    },
+    "govAudit": {
+     "n": 2,
+     "values": [
+      [
+       3,
+       8,
+       20
+      ],
+      [
+       3,
+       9,
+       22
+      ]
+     ]
+    },
+    "govIntake": {
+     "n": 2,
+     "values": [
+      [
+       6,
+       14,
+       30
+      ],
+      [
+       12,
+       32,
+       75
+      ]
+     ]
+    },
+    "govRun": {
+     "n": 2,
+     "values": [
+      [
+       10,
+       26,
+       64
+      ],
+      [
+       14,
+       36,
+       90
+      ]
+     ]
+    },
+    "leadWeeks": {
+     "n": 2,
+     "values": [
+      [
+       1,
+       3,
+       8
+      ],
+      [
+       2.0,
+       6.0,
+       16.0
+      ]
+     ]
+    },
+    "lightH": {
+     "n": 2,
+     "values": [
+      [
+       1,
+       2.5,
+       4.5
+      ],
+      [
+       1,
+       2.5,
+       4.5
+      ]
+     ]
+    },
+    "maint": {
+     "n": 2,
+     "values": [
+      [
+       13,
+       24,
+       35
+      ],
+      [
+       12.0,
+       22.0,
+       32.0
+      ]
+     ]
+    },
+    "rampH": {
+     "n": 2,
+     "values": [
+      [
+       14,
+       32,
+       76
+      ],
+      [
+       14,
+       32,
+       75
+      ]
+     ]
+    },
+    "reuseH": {
+     "n": 2,
+     "values": [
+      [
+       0.8,
+       1.7,
+       3
+      ],
+      [
+       0.8,
+       1.7,
+       3
+      ]
+     ]
+    },
+    "setupH": {
+     "n": 2,
+     "values": [
+      [
+       10,
+       24,
+       48
+      ],
+      [
+       10.0,
+       22.0,
+       42.0
+      ]
+     ]
+    },
+    "supH100": {
+     "n": 2,
+     "values": [
+      [
+       2.5,
+       5.5,
+       10.0
+      ],
+      [
+       3,
+       6.5,
+       11
+      ]
+     ]
+    },
+    "support": {
+     "n": 2,
+     "values": [
+      [
+       0,
+       0,
+       0
+      ],
+      [
+       0.0,
+       0.0,
+       1000.0
+      ]
+     ]
+    },
+    "trainH": {
+     "n": 2,
+     "values": [
+      [
+       12,
+       20,
+       34
+      ],
+      [
+       10,
+       18,
+       30
+      ]
+     ]
+    }
+   }
+  }
+ },
+ "agents": [
+  {
+   "estimator": "Claude Opus",
+   "pros": [
+    {
+     "t": "Fertiges, breites IBCS-nahes Funktionsset in zwei Paketen: ChartKitchen mit 13 Chart-Modi (Säulen, Balken, Linie, Wasserfall, Integrierte/Kategorie-Brücke, Tabelle/Matrix, GuV-Statement, KPI-Karten, Pareto, Dumbbell, Slope, Scatter) und Vorlagen C01–C13. Das P&L-Visual bringt Mega-Table T01–T05B, Treiberbaum und Sankey mit. devH = 0 ist berechtigt.",
+     "src": "ibcsInspiredChartDeck/README.md, AGENT-GUIDE.md (Modus-Wahl); pnlByDatenWG/README.md"
+    },
+    {
+     "t": "Ungewöhnlich gute Agenten-Tauglichkeit: Die Property-Referenz im AGENT-GUIDE wird aus capabilities.json und settings.ts generiert und gegen Drift geprüft (npm run guide:check). Drei Skills (chartkitchen-report, pnl-report, finance-data-model mit validate_model.py) bereiten PBIR-Definitionen und das Datenmodell vor.",
+     "src": "ibcsInspiredChartDeck/AGENT-GUIDE.md, package.json; .claude/skills/*"
+    },
+    {
+     "t": "Ein Datenvertrag für beide Visuals: Die rowType-Token in ChartKitchen 1.53 verstehen die RowType-Werte des P&L-Visuals (Subtotal, Formula, KPI …). Eine Spalte DimKonto[RowType] speist damit beide Visuals.",
+     "src": "ibcsInspiredChartDeck/AGENT-GUIDE.md (rowType-Token)"
+    },
+    {
+     "t": "Datenresidenz und Prüfbarkeit: privileges = [] in beiden capabilities.json, kein innerHTML, eval, fetch oder XHR im Quellcode (grep). Einzige Ausnahme ist host.launchUrl für den Doku-Link, nur im Bearbeitungsmodus und nur auf Klick. Der Quellcode ist offen (ChartKitchen Apache-2.0, P&L MIT laut package.json). Das senkt auch die technische Hürde einer späteren Zertifizierung.",
+     "src": "capabilities.json (beide), src/visual.ts (grep), NOTICE"
+    },
+    {
+     "t": "Skalierung nach IBCS 2.0 / ISO 24896 als Standard, abgesichert durch Geometrie-Tests (test:scale, test:notation). Vorher gab es dokumentierte Eigen-Audits mit Befundlisten, darunter 6 kritische Skalierungsbefunde, die 1.52 adressiert.",
+     "src": "ibcsInspiredChartDeck/CHANGELOG.md 1.52.0.0, AUDIT-2026-10-SKALIERUNG.md; pnlByDatenWG/CHANGELOG.md 1.5.0.0"
+    },
+    {
+     "t": "Vier Sprachen (de, en, es, ja) für Formatbereich und In-Chart-Texte; beim P&L-Visual prüft ein Test die Gleichheit der Sprachdateien (test:i18n). Doku und Schnellstart gibt es auf DE und EN.",
+     "src": "ibcsInspiredChartDeck/README.md (Sprachen); pnlByDatenWG/README.md (Entwicklung)"
+    },
+    {
+     "t": "Power-BI-Integration über den generischen OSS-Wert hinaus: Drilldown auf der Kategorie-Rolle, Drillthrough über das native Kontextmenü (showContextMenu), Berichtsseiten-Tooltips (canvas), fetchMoreData bis 30.000 Zeilen. Beim P&L-Visual gibt es Performance-Tests mit 5.000 und 2.000 Konten.",
+     "src": "capabilities.json (drilldown, tooltips), src/visual.ts; pnlByDatenWG/README.md (test:perf, test:megaperf)"
+    },
+    {
+     "t": "Keine Lizenzkosten. Volle Versionshoheit bei Datei-Import oder Org-Store: Die Organisation bestimmt, wann sie welche Version übernimmt.",
+     "src": "STATUS.md (Geschäftsmodell), REQS pin"
+    }
+   ],
+   "cons": [
+    {
+     "t": "Weder AppSource noch Microsoft-Zertifizierung, ohne Termin. Im Service gibt es keinen PDF/PPT-Export und keine Abo-Mails mit den Visuals. Für das P&L-Visual existiert nicht einmal ein Einreichungs-Paket. Die Einreichung hängt an einer Person (organisatorisch).",
+     "src": "ibcsInspiredChartDeck/BACKLOG.md (Doku & Launch), appsource/SUBMISSION-CHECKLIST.md, pnlByDatenWG/BACKLOG.md, STATUS.md; Websuche ohne Listing"
+    },
+    {
+     "t": "Extrem hoher Release-Takt: 93 ChartKitchen-Versionen vom 06.07. bis 24.10.2026 (oft mehrere am Tag) und 39 P&L-Versionen vom 01.08. bis 01.11.2026. Jede übernommene Version braucht eine Regressionsprüfung. Für eine Zertifizierung müssten Versionen gebündelt werden.",
+     "src": "ibcsInspiredChartDeck/CHANGELOG.md, pnlByDatenWG/CHANGELOG.md (Versionsköpfe gezählt)"
+    },
+    {
+     "t": "Belegte Brüche und Verhaltensänderungen in wenigen Monaten: In 1.28 wechselte die GUID (Berichte müssen das Visual neu hinzufügen). In 1.46 wurde supportsHighlight von true auf false gestellt, die Cross-Interaktion änderte sich. In 1.52 und P&L 1.5.0 heißt es: 'Bestehende Berichte ändern ihr Bild … nicht abschaltbar'.",
+     "src": "ibcsInspiredChartDeck/CHANGELOG.md 1.28.0.0, 1.46.0.0, 1.52.0.0; pnlByDatenWG/CHANGELOG.md 1.5.0.0"
+    },
+    {
+     "t": "Kleiner Herausgeberkreis: Die Git-Historie der Visual-Ordner zeigt einen menschlichen Autor plus KI-Sessions (Claude). Es gibt keinen Sponsoring-Kanal und keine SLA, die Finanzierung läuft über Beratung. Das Wissen liegt praktisch bei einer Person; das Projekt ist erst rund 4 Monate alt.",
+     "src": "git log --format=%an (ibcsInspiredChartDeck, pnlByDatenWG); STATUS.md; REQS sla, OPTP support"
+    },
+    {
+     "t": "Qualitätsreife: Die Eigen-Audits fanden 2 schwere und 19 mittlere Befunde (07/2026) sowie 6 kritische Skalierungsbefunde (10/2026). Die großen Pakete seit 1.25 sind laut BACKLOG 'nur selbst-verifiziert'. Alle Audits sind KI-Eigenprüfungen, keine Fremdprüfung. Bei ChartKitchen besteht der Code im Kern aus einer Datei: visual.ts hat 17.288 Zeilen, das P&L-Visual rund 18.300 Zeilen in src. Ein externes Code-Review ist damit teuer.",
+     "src": "AUDIT-2026-07.md, AUDIT-2026-10-SKALIERUNG.md, BACKLOG.md (Interaktion & Technik), wc -l src/*.ts"
+    },
+    {
+     "t": "Doku-Drift und Unstimmigkeiten: Der Steckbrief im ChartKitchen-AGENT-GUIDE nennt 'Lizenz MIT', LICENSE und package.json sagen Apache-2.0. Der Skill pnl-report beschreibt das P&L-Visual als 'v0.17.0.0 Beta' (aktuell 1.7.1). TESTPLAN.md des P&L-Visuals steht auf v0.3.0.0. Der Ordner pnlByDatenWG hat keine eigene LICENSE-Datei, nur 'license: MIT' in package.json. Die ChartKitchen-Tests sind Render- und Geometrie-Harnesses, es gibt keine Unit-Tests des Rechenkerns.",
+     "src": "ibcsInspiredChartDeck/AGENT-GUIDE.md (Steckbrief) vs. LICENSE; .claude/skills/pnl-report/SKILL.md; pnlByDatenWG/TESTPLAN.md; ls pnlByDatenWG; ibcsInspiredChartDeck/package.json scripts"
+    },
+    {
+     "t": "Lücken bei Barrierefreiheit und Mobile: Offen sind ARIA-Semantik ('role=option ohne listbox, Tab-Stop-Flut'), Fokusverlust nach Rerender und Touch/Pointer-Events. Eine formale WCAG-Prüfung fehlt.",
+     "src": "ibcsInspiredChartDeck/BACKLOG.md (Barrierefreiheit, Interaktion & Technik)"
+    },
+    {
+     "t": "Zwei Pakete mit Überschneidung und hoher Komplexität: ChartKitchen hat einen eigenen GuV-Statement- und Tabellen-Modus neben dem P&L-Visual (Varianten-Risiko). Die Standard-Abweichungsfarben unterscheiden sich (ChartKitchen #1E8F9E/#D64541, P&L #0E8585/#E02B1D). Die Chart-Karte hat rund 50 Einstellungen (UX-Audit). Der DAX-Wächter gegen Geisterzeilen ist 'die wichtigste Falle überhaupt'. Freigabe und Schulung fallen je Paket an.",
+     "src": "ibcsInspiredChartDeck/src/settings.ts, pnlByDatenWG/README.md, AUDIT-2026-10-UX.md, AGENT-GUIDE.md (DAX-Regel)"
+    },
+    {
+     "t": "Ausstieg per Fork nur mit eigenem Branding: Die Namen und das Logo sind ausdrücklich nicht mitlizenziert. Eine geänderte Identität hat schon einmal (1.28) alle Berichte gezwungen, das Visual neu hinzuzufügen.",
+     "src": "ibcsInspiredChartDeck/NOTICE, CHANGELOG.md 1.28.0.0"
+    }
+   ],
+   "heute": "Stand 18.11.2026: Keines der beiden Visuals steht in AppSource, keines ist Microsoft-zertifiziert, keines ist IBCS-zertifiziert. ChartKitchen hat ein Einreichungs-Kit (ibcsInspiredChartDeck/appsource/SUBMISSION-CHECKLIST.md), es fehlen Sample-PBIX und Partner-Center-Konto; laut BACKLOG.md und STATUS.md 'liegt bei Artur (organisatorisch)', ohne Termin. Für das P&L-Visual gibt es kein Einreichungs-Paket (pnlByDatenWG/BACKLOG.md: 'Zertifizierung → Service-Export: liegt organisatorisch bei Artur'). Eine Websuche fand kein AppSource-Listing. Folgen: Verteilung per .pbiviz-Datei (Direktdownload) oder Organizational Store; im Service kein PDF/PPT-Export und keine Abo-Mails mit den Visuals; bei der Tenant-Einstellung 'nur zertifizierte Visuals' nur über den Org-Store nutzbar. Versionshoheit bleibt voll beim Kunden (pin = 5). mscert und export bleiben 1.",
+   "zert": "Annahme: BEIDE Pakete sind gelistet und zertifiziert. Ist nur ChartKitchen zertifiziert (wahrscheinlicher, weil nur dafür ein Kit existiert), bleiben GuV-Seiten mit dem P&L-Visual ohne Service-Export, und es gelten für das P&L-Paket die ck_heute-Werte — die Organisation sollte das Szenario dann als Mischfall rechnen. certFee: Es gibt keinen Sponsoring-Kanal und keine Gebühr; Finanzierung über freiwillige Beratung. Der Pflichtbetrag ist 0, der Modus 0; das Maximum 500 € steht für freiwillige Unterstützung (z. B. Anteil eines Beratungstags), die keinen Anspruch begründet. Genau daraus folgt ein Risiko: Der Rezertifizierungsaufwand (Rechner certRunH 8/40/120 h/Jahr, bei dieser Release-Frequenz eher am oberen Rand) wird von niemandem bezahlt; die Zertifizierung kann daher verfallen oder Versionen weit hinterherhinken. lagWeeks: Microsoft prüft Updates bis 3 Wochen, danach bis 2 Wochen bis Produktion (Microsoft Learn, Zertifizierungs-FAQ). Bei 93 ChartKitchen-Releases in 16 Wochen (CHANGELOG 06.07.–24.10.2026) kann nicht jede Version zertifiziert werden; realistisch sind gebündelte Zertifizierungsstände, die 3–14 Wochen hinter dem Repo-Stand liegen. pOverExtra: Freigabe sinkt Richtung Paid-Wert, aber zwei Pakete (je 4/8/16 h, teils gemeinsam); Governance sinkt, weil Microsofts Codeprüfung einen Teil des Code-Reviews ersetzt. Aber: AppSource-Visuals aktualisieren sich in Berichten automatisch, das Einfrieren einer Version geht dann nur über den Org-Store. Verhaltensänderungen wie 1.46 oder 1.52 kämen ohne Testphase in die Berichte. Die Zertifizierung prüft Sicherheit und Konformität, nicht die Richtigkeit der Rechnung.",
+   "unsicher": [
+    "Ob und wann AppSource-Listing und Zertifizierung kommen (kein Termin, organisatorisch an eine Person gebunden; für das P&L-Visual gibt es nicht einmal ein Paket). Das entscheidet über export/mscert und damit über K.O.-Kriterien.",
+    "Der echte Freigabe- und Governance-Aufwand in einer fremden Organisation: Es gibt keine protokollierte externe Freigabe. Die Werte für govIntake und govRun sind Schätzungen ohne Messung.",
+    "Ob sich der Release-Takt nach der Gründungsphase beruhigt. Die Werte für events und govRun sind aus 3–4 Monaten hochgerechnet, einer untypischen Aufbauphase.",
+    "Fortbestand des Herausgebers: Die Finanzierung über Beratung und eine Schlüsselperson machen dep zur größten Einzelunsicherheit. Externe Nutzerzahlen oder Issue-Daten fehlen völlig.",
+    "Wer die laufende Rezertifizierung bei ck_zert bezahlt: Ohne Gebühr oder Sponsoring kann die Zertifizierung verfallen oder weit hinterherhinken. lagWeeks könnte deutlich über 14 Wochen liegen.",
+    "Die tatsächliche Fehlerdichte im Feld: Alle Audits sind KI-Eigenprüfungen am Test-Harness, nicht in Power BI Desktop oder im Service bei echten Kunden."
+   ]
+  },
+  {
+   "estimator": "Claude Sonnet",
+   "pros": [
+    {
+     "t": "Fertig und nachweislich breit: 13 Chart-Modi, IBCS-Vorlagen C01-C13, Mega-Table-Templates T01-12H, Treiberbaum, Sankey, Bilanz/Cashflow; keine Eigenentwicklung noetig (devH = 0).",
+     "src": "STATUS.md, ibcsInspiredChartDeck/README.md, pnlByDatenWG/README.md"
+    },
+    {
+     "t": "Starke Agent-Unterstuetzung: generierter AGENT-GUIDE (npm run guide aus capabilities.json), Skills chartkitchen-report, pnl-report, finance-data-model, deploy-to-powerbi beschleunigen den Report-Aufbau (Voraussetzung: einmal von Hand platzierte Referenz-Instanz).",
+     "src": ".claude/skills/*/SKILL.md, ibcsInspiredChartDeck/AGENT-GUIDE.md"
+    },
+    {
+     "t": "Ehrlich abgegrenzte IBCS-Notation und gute Testbasis: 327 Render-Stages, Suiten test:scale/notation/export, vier interne Audits (Skalierung, IBCS, UX), Funde dokumentiert und grossteils abgearbeitet.",
+     "src": "AGENT-GUIDE.md (Testlandschaft), AUDIT-2026-*.md, CHANGELOG 1.39/1.52/1.53"
+    },
+    {
+     "t": "Sicherheitsprofil gut pruefbar: privileges leer, externalJS null, keine externen Calls, Quellcode offen (Apache-2.0, NOTICE sauber), npm audit 0 laut Checkliste; das senkt das Security-Review, ersetzt aber kein Fremd-Audit.",
+     "src": "capabilities.json, appsource/SUBMISSION-CHECKLIST.md, NOTICE, visuals-sicherheit.html"
+    },
+    {
+     "t": "Interaktion und Daten: Drilldown auf Kategorie, Tooltips, Selektion/Cross-Filter, Kommentare, P&L mit Drillthrough per Kontextmenue; fetchMoreData bis 30.000 Kategoriezeilen.",
+     "src": "capabilities.json, AGENT-GUIDE.md Steckbrief, pnlByDatenWG/README.md F11/F12"
+    },
+    {
+     "t": "Vier Sprachen (de/en/es/ja bei P&L, 694 resjson-Keys je Sprache bei CK), Dark Mode, Hochkontrast, Start-Hub mit Tour und Vorlagengalerie senken Schulungs- und Erstaufwand.",
+     "src": "pnlByDatenWG/README.md, AGENT-GUIDE.md"
+    },
+    {
+     "t": "Kein Lizenzpreis, Code einsehbar fuer Revision und Fork; Berichte sind trotzdem an das Visual gebunden, aber Ausstieg ueber Quellcode moeglich.",
+     "src": "LICENSE, STATUS.md"
+    }
+   ],
+   "cons": [
+    {
+     "t": "Nicht zertifiziert, nicht in AppSource, P&L ohne Einreichungspaket, kein Termin: Service-Export, Abos und Tenants mit 'nur zertifizierte Visuals' scheitern; Verteilung per Datei oder Org-Store.",
+     "src": "STATUS.md, appsource/SUBMISSION-CHECKLIST.md, pnlByDatenWG/BACKLOG.md, Websuche"
+    },
+    {
+     "t": "Sehr hoher Release-Takt (93 CK-Eintraege in ca. 16 Wochen, P&L ca. 40 in drei Monaten) bei sehr junger Historie (Start 07/2026): Review-, Test- und Rollout-Last fuer jede uebernommene Version, kaum Feld-Erfahrung.",
+     "src": "ibcsInspiredChartDeck/CHANGELOG.md, pnlByDatenWG/CHANGELOG.md"
+    },
+    {
+     "t": "Kompatibilitaetsbrueche sind belegt: Umbenennung mit neuer GUID in 1.28 (Berichte mussten das Visual neu hinzufuegen), 1.52 aenderte das Bild bestehender Berichte gewollt; dazu zwei Pakete mit eigenen Staenden. Es gibt nur einen 'latest'-Download, kein Versionsarchiv.",
+     "src": "CHANGELOG.md Z. 1218, Rechner-Notiz events, downloads/"
+    },
+    {
+     "t": "Bus-Faktor 1-2 und keine Finanzierung ausser Beratung, kein SLA, kein Sponsoring-Kanal; Entwicklung stark KI-gestuetzt, eine einzelne 9.700-Zeilen-Datei visual.ts; Fortbestand ungewiss.",
+     "src": "STATUS.md, AUDIT-2026-10-IBCS.md (visual.ts 9.749 Z.), Schaetzung fuer Bus-Faktor"
+    },
+    {
+     "t": "Nicht IBCS-zertifiziert, bewusst nur 'inspired'; Audits fanden kritische Skalierungsluecken (S1-S5, S13) in Sonder- und Kombimodi; Fix-Stand der Einzelpunkte nur teilweise belegt, ohne Fremdpruefung.",
+     "src": "AUDIT-2026-10-SKALIERUNG.md, AUDIT-2026-10-IBCS.md, NOTICE"
+    },
+    {
+     "t": "Barrierefreiheit unvollstaendig: offene Backlog-Punkte Fokusverlust nach Rerender, unsaubere ARIA-Semantik, Schraffur-Redundanz; keine formale Pruefung. Keine Export-Daten (privileges leer), kein Mobile-Nachweis.",
+     "src": "BACKLOG.md Abschnitt Barrierefreiheit, capabilities.json"
+    },
+    {
+     "t": "Grosse Bedienoberflaeche (ca. 50 Slices in der Chart-Karte, 13 Modi, UX-Audit: wichtigste Entscheidung versteckt) und Skills brauchen eine manuell platzierte Referenz-Instanz; Lernkurve hoeher als bei einem Click-Tool.",
+     "src": "AUDIT-2026-10-UX.md, chartkitchen-report/SKILL.md"
+    },
+    {
+     "t": "Eigenevaluation ohne unabhaengigen Praxistest in fremder Organisation; einziger externer Test ist Beta-Feedback (Alexander Korn, Juli 2026). Doku-Inkonsistenz bei der Lizenz (AGENT-GUIDE sagt MIT, LICENSE/NOTICE Apache-2.0) ist ein kleines Legal-Thema.",
+     "src": "BACKLOG.md Beta-Feedback, AGENT-GUIDE.md Steckbrief vs. LICENSE"
+    }
+   ],
+   "heute": "Keines der beiden Visuals ist in AppSource gelistet oder Microsoft-zertifiziert (STATUS.md 23.10.2026: Listing in Vorbereitung, haengt organisatorisch; ibcsInspiredChartDeck/appsource/SUBMISSION-CHECKLIST.md: fast alle Partner-Center-Schritte offen, u. a. Konto, Sample-pbix, Datenschutz-URL; laut Rechner-Notiz Stand 24.10.2026 nicht eingereicht, kein Termin). Fuer P&L Statement gibt es nicht einmal ein Einreichungspaket (nur Notiz in pnlByDatenWG/BACKLOG.md: Zertifizierung liegt organisatorisch bei Artur). Eine Websuche (11/2026) fand keinen AppSource-Eintrag. Verteilung nur per .pbiviz-Datei bzw. Organizational Store; Service-Export (PDF/PPT/Abo) funktioniert nicht, Tenant-Setting nur zertifizierte Visuals blockt beide. mscert und export bleiben bei 1.",
+   "zert": "Szenario nach AppSource-Listung und Microsoft-Zertifizierung beider Visuals, ohne Termin. Die Autoren verlangen kein Geld (kostenlos, fuer immer frei, Finanzierung ueber Beratung; STATUS.md), ein Pflichtbeitrag ist unwahrscheinlich. certFee ist deshalb eine Schaetzung freiwilliger Beitraege oder optionaler Beratung (Untergrenze 0), niedriger als der generische OSS-Wert 150/800/2550. Mit Zertifizierung gilt Paid-Niveau fuer mscert/export/Freigabe. Release-Takt: ChartKitchen hat 93 Eintraege in ca. 16 Wochen (1.1 am 06.07. bis 1.53 am 24.10.2026), P&L rund 40 Releases in drei Monaten. Microsoft prueft Updates laut Learn bis 3 Wochen plus 10-14 Tage bis Produktion, also gar nicht jede Version zertifizierbar: zertifizierte Fassung hinkt voraussichtlich 3-20 Wochen hinterher, Modus 8 Wochen (Schaetzung). Dafuer weniger Breaking-Ereignisse pro Jahr, weil nur gebuendelte Staende ankommen; Abkuendigungsrisiko leicht niedriger durch Listing, aber Bus-Faktor bleibt.",
+   "unsicher": [
+    "Ob und wann AppSource-Listung und Zertifizierung tatsaechlich kommen (laeuft organisatorisch ueber eine Person, kein Termin, P&L ohne Paket) und ob der Zertifizierungsprozess bei diesem Release-Takt durchhaltbar ist.",
+    "Langfristige Pflege: Bus-Faktor, KI-gestuetzte Entwicklung ohne Fremd-Review, ob der Takt nach der Aufbauphase (Juli bis Oktober 2026) sinkt und Breaking Changes seltener werden.",
+    "Reale Stunden je Chart und Governance: alle Werte sind Schaetzungen ohne Messung in einer fremden Organisation; gerade govIntake/govRun fuer zwei Pakete.",
+    "Echte Barrierefreiheit und Mobile-Verhalten sind ungeprueft; ob die Skalierungs-Audit-Funde alle behoben sind, ist nur teilweise belegt.",
+    "Ob eine nutzende Organisation Geld fuer Zertifizierung zahlen soll oder kann: kein Modell dafuer im Repo, certFee ist reine Annahme."
+   ]
+  }
+ ]
+}
