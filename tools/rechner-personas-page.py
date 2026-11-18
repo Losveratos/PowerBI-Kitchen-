@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Baut persona-firmen-simulation.html (v2) aus Personas + Monte-Carlo-Ergebnis v2 (tools/rechner-personas-mc-v2.js).
-Aufruf: python3 tools/rechner-personas-page.py <personas.json> <mc-v2.json> [review-log.md ...]
+"""Baut persona-firmen-simulation.html aus Personas + Monte-Carlo-Ergebnis v3 (tools/rechner-personas-mc-v3.js, Rechner v0.24).
+Aufruf: python3 tools/rechner-personas-page.py <personas.json> <mc-v3.json> [review-log.md ...]
+Enthält einen Bootstrap über die Firmen für das Gesamtrating nach Nutzern (Befund Review 3).
 Die Seite bettet alle Daten ein (keine Nachlade-Requests) und übernimmt das CSS des No-free-lunch-Posts."""
 import json, re, sys
 from pathlib import Path
@@ -24,8 +25,11 @@ for p in pers:
     r = byid[p["id"]]
     d = {k: p.get(k) for k in KEEP}
     d["mc"] = {"users": round(r["users"]), "ko": [r4(x) for x in r["ko"]], "aiDelta": [r0(x) for x in r["aiDelta"]],
+               "strictNone": r4(r.get("strictNone")), "negotiated": r4(r.get("negotiated")),
                "modes": {m: {"win": [r4(x) for x in v["win"]], "perV": [[r0(x) for x in t] for t in v["perV"]],
-                             "best": [r0(x) for x in v["best"]], "ai": r0(v["ai"])} for m, v in r["modes"].items()},
+                             "best": [r0(x) for x in v["best"]], "ai": r0(v["ai"]), "sq": r0(v.get("sq")), "beatSQ": r4(v.get("beatSQ")),
+                             "bestHard": r4(v.get("bestHard")), "notBest": r4(v.get("notBest")), "regretIfWrong": r4(v.get("regretIfWrong"))}
+                         for m, v in r["modes"].items()},
                "drivers": [{k: rnd(v) for k, v in dd.items()} for dd in r["drivers"][:3]]}
     rows.append(d)
 verdicts = []
@@ -33,7 +37,20 @@ for i, rv in enumerate(reviews):
     m = re.split(r"\n#+ [^\n]*(?:Gesamt|Urteil|Fazit)[^\n]*\n", rv)
     if len(m) > 1:
         verdicts.append({"t": "Urteil des Opus-Reviewers" + (f", Runde {i+1}" if len(reviews) > 1 else ""), "x": m[-1].strip()})
-data = {"N": mc["N"], "rows": rows, "verdicts": verdicts, "ki": mc["ki"]}
+# Bootstrap über die Firmen: Unsicherheit des Gesamtratings nach Nutzern
+import random
+rng = random.Random(20261118)
+boot = {}
+for m in ["base", "konzern", "alle"]:
+    shares, first = [], [0] * 4
+    for _ in range(2000):
+        smp = [rng.choice(rows) for _ in rows]
+        u = sum(x["mc"]["users"] for x in smp)
+        sh = [sum(x["mc"]["users"] * x["mc"]["modes"][m]["win"][j] for x in smp) / u for j in range(5)]
+        shares.append(sh); first[max(range(4), key=lambda j: sh[j])] += 1
+    q = lambda j, pp: sorted(s_[j] for s_ in shares)[int(pp * (len(shares) - 1))]
+    boot[m] = {"lo": [q(j, .05) for j in range(5)], "hi": [q(j, .95) for j in range(5)], "p1": [c / len(shares) for c in first]}
+data = {"N": mc["N"], "rows": rows, "verdicts": verdicts, "ki": mc["ki"], "boot": boot}
 
 src = (REPO / "no-free-lunch-visual-standards-post.html").read_text(encoding="utf-8")
 css = src[src.index("<style>"):src.index("</style>")]
@@ -119,13 +136,13 @@ html = f"""<!DOCTYPE html>
       <span>Daten · <strong><a href="assets/posts/persona-firmen/personas.json">personas.json</a></strong></span>
     </div>
   </header>
-<div class="src-box" style="border-left-color:#8B2E2E;margin-top:22px"><h3>Vorläufig: Experten-Review mit Korrekturbedarf</h3>Fünf Experten-Agents haben diese Simulationen am 18.11.2026 geprüft und Korrekturbedarf gefunden: an der K.O.-Matrix des Rechners (u. a. RDL, Report Server, Lock-in, Export bei unzertifiziertem Open Source), an der Auswertung (Kontrafaktum, Beschriftung der Gewinner-Anteile, Klumpen bei den Vorlagen) und am Szenario „Open Source mit 1 FTE“. Die Zahlen auf dieser Seite gelten bis zur Korrektur als vorläufig. <a href="visual-standards-review.html">Zum Review →</a></div>
+<div class="src-box" style="border-left-color:#2A857A;margin-top:22px"><h3>Aktualisiert nach Experten-Review (Rechner v0.24)</h3>Fünf Experten-Agents haben diese Simulation am 18.11.2026 geprüft. Umgesetzt: K.O.-Matrix des Rechners angeglichen, fester Zufallsstrom je Schalter und Must, IBCS-Zertifikat einmal gezogen, Must-Listen verhandelbar, wenn sonst kein Weg bleibt, Bootstrap-Intervalle für das Gesamtrating, richtige Beschriftung der Gewinner-Anteile. <a href="visual-standards-review.html">Zum Review und zur Umsetzung →</a></div>
   <div class="prose">
     <div class="filters f-mode"><span class="lbl">Szenario</span></div>
     <div class="kpis"><div class="kpi" id="k-rate"></div><div class="kpi" id="k-sure"></div><div class="kpi" id="k-coin"></div></div>
 
     <h2>Gesamtrating <em>nach Nutzern</em></h2>
-    <p>Eine Firma mit 5.000 Nutzern zählt hier 250-mal so viel wie eine mit 20. Für jede Firma gilt: Wie oft ist der Weg in ihren Zukünften am günstigsten zulässigen? Das gewichten wir mit ihren Nutzern und summieren über alle 150.</p>
+    <p>Eine Firma mit 5.000 Nutzern zählt hier 250-mal so viel wie eine mit 20. Für jede Firma zählt, in welchem Anteil ihrer Zukünfte der Weg der günstigste zulässige ist; diese Anteile gewichten wir mit ihren Nutzern. Wie stabil die Reihenfolge ist, zeigt ein Bootstrap über die 150 Firmen.</p>
     <div id="rating"></div>
 
     <h2>Was ein Viewer <em>je Ebene</em> kostet</h2>
@@ -156,20 +173,20 @@ html = f"""<!DOCTYPE html>
     <h2>So ist es <em>gemacht</em></h2>
     <div class="step"><div class="step-num">1</div><div><h3>150 Personas <span>25 je Ebene, Opus und Sonnet</span></h3><p>Sieben Agents haben die Firmen geschrieben, jeder für eine Ecke des Markts, ohne die Kostenlogik zu kennen: Konzerne, Banken und Versicherungen von Opus, Mittelstand, Kleine und öffentliche Hand überwiegend von Sonnet. Zwei Review-Runden durch Opus haben Widersprüche korrigiert (Leser größer als die Belegschaft, fehlender Vorsteuer-Schalter, Doppelungen). Die Ebene folgt der Größe: klein unter 250 Mitarbeitenden, Konzern über 10.000.</p></div></div>
     <div class="step"><div class="step-num">2</div><div><h3>KI-Effekt schätzen <span>Opus + Sonnet, unabhängig</span></h3><p>Multiplikatoren auf die Stunden je Weg (Erstbau, Rollout, Wartung, Fixes, Schulung, Governance), KI-Kosten je Ersteller und der Adoptionsgrad je Ebene. Gerechnet wird mit dem Mittel beider Schätzungen.</p></div></div>
-    <div class="step"><div class="step-num">3</div><div><h3>Monte Carlo, gepaart <span>5.000 Zukünfte je Firma, drei Szenarien</span></h3><p>Je Ziehung schwanken Mengen, Wachstum, unsichere Schalter und Musts sowie alle Kostenannahmen des Rechners. Dieselbe Ziehung wird ohne KI, mit KI im Konzern und mit KI überall gerechnet, so dass Unterschiede nur aus der KI kommen. Realismus: Viewer wachsen höchstens bis zur Belegschaft (oder bis zum oberen Viewer-Wert, wenn externe Leser dazukommen).</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>Monte Carlo, gepaart <span>5.000 Zukünfte je Firma, drei Szenarien, Rechner v0.24</span></h3><p>Je Ziehung schwanken Mengen, Wachstum, unsichere Schalter und Musts (fester Zufallsstrom je Schalter, das IBCS-Zertifikat wird einmal gezogen) sowie alle Kostenannahmen des Rechners. Bleibt in einer Zukunft kein Weg zulässig, verhandelt die Firma ihre Must-Liste: erst fallen die unsicheren Musts, dann alle; harte Schalter bleiben. Dieselbe Ziehung wird ohne KI, mit KI im Konzern und mit KI überall gerechnet, so dass Unterschiede nur aus der KI kommen. Realismus: Viewer wachsen höchstens bis zur Belegschaft (oder bis zum oberen Viewer-Wert, wenn externe Leser dazukommen).</p></div></div>
 
     <div class="src-box">
       <h3>Ehrlich eingeordnet</h3>
       <p style="margin-bottom:10px">Die Firmen sind <strong>erfunden</strong>, von Sprachmodellen geschrieben und geprüft. 25 je Ebene ist eine Setzung, kein Abbild des Markts: Im echten Markt gibt es viel mehr kleine Firmen als Konzerne. Das Gesamtrating nach Nutzern gleicht das teilweise aus, weil es Nutzer statt Firmen zählt, bleibt aber an diese Auswahl gebunden.</p>
       <p style="margin-bottom:10px">Für den KI-Effekt auf Power-BI-Report-Pflege gibt es <strong>keine direkte Messung</strong>. Die Studien reichen von −19 % (METR 2025, erfahrene Entwickler) bis +56 % (Greenfield-Aufgabe). Die Faktoren sind Schätzungen mit Bandbreite, und sie skalieren mit dem Adoptionsgrad.</p>
-      <p style="margin:0">Kostenannahmen = Visual-Standards-Rechner v0.23. Gerankt wird nach Kosten unter den zulässigen Wegen, ohne Anforderungs-Score. Offenlegung: ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source.</p>
+      <p style="margin:0">Kostenannahmen = Visual-Standards-Rechner v0.24 (K.O.-Matrix nach Experten-Review angeglichen). Gerankt wird nach Kosten unter den zulässigen Wegen, ohne Anforderungs-Score. <strong>Offenlegung:</strong> ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source; auch die Deneb-Vorlagen des Business Chart Builders (Schalter „Vorlagenbibliothek“) sind von uns. Der Rechner nennt selbst eine Schlagseite zugunsten dieser Ansätze.</p>
     </div>
 
     <h2>Daten und <em>Skripte</em></h2>
     <ul>
       <li><a href="assets/posts/persona-firmen/personas.json">personas.json</a> (150 geprüfte Personas) · <a href="assets/posts/persona-firmen/mc-ergebnis.json">mc-ergebnis.json</a> · <a href="assets/posts/persona-firmen/ki-annahmen.json">ki-annahmen.json</a></li>
       <li>Aufträge, Rohfassungen, KI-Schätzungen und Review-Logs unter <code>sessions/visual-standards-personas-100/</code></li>
-      <li><code>tools/rechner-personas-mc-v2.js</code> (Simulation im Browser-Rechenkern) · <code>tools/rechner-personas-page.py</code> (diese Seite)</li>
+      <li><code>tools/rechner-personas-mc-v3.js</code> (Simulation im Browser-Rechenkern; v2 für die erste Fassung) · <code>tools/rechner-personas-page.py</code> (diese Seite)</li>
       <li>Weiter: <a href="visual-standards-10000-firmen.html">10.000 Firmen mit realen Mitarbeiterzahlen: wann was gewinnt und was die Entscheidung treibt</a></li>
     </ul>
 
