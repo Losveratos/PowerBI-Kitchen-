@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Baut persona-firmen-simulation.html aus Personas + Monte-Carlo-Ergebnis v3 (tools/rechner-personas-mc-v3.js, Rechner v0.24).
+"""Baut persona-firmen-simulation.html aus Personas + Monte-Carlo-Ergebnis v3 (tools/rechner-personas-mc-v3.js, Rechner v0.25).
 Aufruf: python3 tools/rechner-personas-page.py <personas.json> <mc-v3.json> [review-log.md ...]
 Enthält einen Bootstrap über die Firmen für das Gesamtrating nach Nutzern (Befund Review 3).
 Die Seite bettet alle Daten ein (keine Nachlade-Requests) und übernimmt das CSS des No-free-lunch-Posts."""
@@ -7,6 +7,9 @@ import json, re, sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+REF = None  # v0.25: optionaler Vergleichslauf ohne Zertifizierungs-Option (CERT_OPTION=0)
+if "--ref" in sys.argv:
+    i = sys.argv.index("--ref"); REF = json.load(open(sys.argv[i + 1], encoding="utf-8")); del sys.argv[i:i + 2]
 pers = json.load(open(sys.argv[1], encoding="utf-8"))
 mc = json.load(open(sys.argv[2], encoding="utf-8"))
 reviews = [Path(x).read_text(encoding="utf-8") for x in sys.argv[3:]]
@@ -57,9 +60,16 @@ cert = {m: {"use": sum(x["mc"]["modes"][m]["certUse"] or 0 for x in rows) / len(
             "ossUsers": sum(x["mc"]["users"] * x["mc"]["modes"][m]["win"][1] for x in rows) / UT} for m in ["base", "konzern", "alle"]}
 CK = cert["konzern"]
 pc = lambda x: f"{100 * x:.1f}".replace(".", ",") + " %"
-CERT_FAZIT = ("Die Option macht Open Source oft zulässig, aber selten billiger als den Weg, der ohnehin zulässig war."
-              if CK["winUsers"] < 0.5 * max(1e-9, CK["use"]) else
-              "Ein großer Teil dieser Zukünfte endet mit Open Source als günstigstem Weg: Die Zertifizierung ist hier oft den Preis wert.")
+share_c = CK["winUsers"] / max(1e-9, CK["ossUsers"])
+CERT_FAZIT = f"{'Fast zwei Drittel' if .6 <= share_c < .67 else 'Rund ' + pc(share_c)} der Open-Source-Siege nach Nutzern gibt es also nur mit Zertifikat."
+if REF:
+    ru = {r["id"]: r for r in REF["results"]}
+    UR = sum(x["mc"]["users"] for x in rows)
+    refU = [sum(x["mc"]["users"] * ru[x["id"]]["modes"]["konzern"]["win"][j] for x in rows) / UR for j in range(5)]
+    nowU = [sum(x["mc"]["users"] * x["mc"]["modes"]["konzern"]["win"][j] for x in rows) / UR for j in range(5)]
+    cert["ref"] = {"users": refU, "now": nowU}
+    CERT_FAZIT += (f" Gegenprobe mit denselben Zukünften, aber ohne die Option: Open Source käme auf {pc(refU[1])} der Nutzer statt {pc(nowU[1])}. "
+                   f"Die Punkte kommen von Deneb ({pc(refU[2])} → {pc(nowU[2])}), Paid ({pc(refU[0])} → {pc(nowU[0])}) und Core ({pc(refU[3])} → {pc(nowU[3])}).")
 data = {"N": mc["N"], "rows": rows, "cert": cert, "verdicts": verdicts, "ki": mc["ki"], "boot": boot}
 
 src = (REPO / "no-free-lunch-visual-standards-post.html").read_text(encoding="utf-8")
@@ -157,7 +167,7 @@ html = f"""<!DOCTYPE html>
 
     <h2>Zertifizierung <em>als Option</em></h2>
     <p>Ohne Zertifikat fällt ein Open-Source-Visual bei PDF/PPT-Export, Abos und in Tenants mit „nur zertifizierte Visuals“ raus. Seit Rechner v0.25 darf die Firma es zertifizieren lassen und zahlt dafür: bei einem fertigen Visual einen Beitrag an den Maintainer (150 bis 2.550 €, meist 800 € im Jahr), beim Eigenbau rund 100 Stunden für die Erstzertifizierung und rund 40 Stunden je Jahr für Rezertifizierungen, und das nur, wenn sie ihr Visual öffentlich auf AppSource listen will (geschätzt gut jede vierte). Die Firma nimmt die Zertifizierung, wenn sie Open Source erst zulässig macht oder billiger ist.</p>
-    <p>Ergebnis im Szenario KI-Pflege im Konzern: In {pc(CK["use"])} aller Zukünfte rechnet Open Source zertifiziert. Open Source holt {pc(CK["ossUsers"])} der Nutzer, davon {pc(CK["winUsers"])} mit Zertifikat. {CERT_FAZIT}</p>
+    <p>Ergebnis im Szenario KI-Pflege im Konzern: Über alle Firmen gemittelt geht Open Source in {pc(CK["use"])} der Zukünfte zertifiziert in den Vergleich. Open Source holt {pc(CK["ossUsers"])} der Nutzer, {pc(CK["winUsers"]).replace(" %", " Punkte")} davon mit Zertifikat. {CERT_FAZIT}</p>
 
     <h2>Was ein Viewer <em>je Ebene</em> kostet</h2>
     <div id="levels"></div>

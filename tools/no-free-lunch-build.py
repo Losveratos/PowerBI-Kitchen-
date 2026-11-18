@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Baut den Post „No free lunch“ aus dem Ergebnis der 100k-Simulation: Infografik-Daten, Post-HTML, Markdown.
-Aufruf: python3 tools/no-free-lunch-build.py <result.json> <population.json>
+Aufruf: python3 tools/no-free-lunch-build.py <result.json> <population.json> [result-ohne-zertifizierungsoption.json]
 Danach die Infografik rendern: NODE_PATH=$(npm root -g) node tools/no-free-lunch-render.js
 Alle Zahlen kommen aus result.json (tools/rechner-population-analyse.py)."""
 import json, re, sys
@@ -9,6 +9,9 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 R = json.load(open(sys.argv[1], encoding="utf-8"))
 POP = json.load(open(sys.argv[2], encoding="utf-8"))["segments"]
+# v0.25: optional dritter Lauf ohne Zertifizierungs-Option (CERT_OPTION=0), nur für den Vergleich im Text
+NC = json.load(open(sys.argv[3], encoding="utf-8")) if len(sys.argv) > 3 else None
+CE = R.get("cert")
 O = ["paid", "oss", "deneb", "core"]
 N = {"paid": "3rd-Party paid", "oss": "Open Source", "deneb": "Deneb / Vega", "core": "Core + SVG"}
 C = {"paid": "#eb6834", "oss": "#1baf7a", "deneb": "#2a78d6", "core": "#eda100"}
@@ -80,9 +83,15 @@ KN = {"must:exit": "Must „kein Vendor-Lock-in“", "flag:nobudget": "kein Lize
 kr = R["ko_reasons"]
 korows = "".join(f"<tr><td>{sw(o)}{N[o]}</td><td class='num'>{pc(R['ko_rate'][o])}</td><td class='num'>{pc(R['ko_flags'][o])}</td><td>{', '.join(KN.get(k, k) + ' (' + str(round(100 * v)) + '&nbsp;%)' for k, v in kr[o][:3])}</td></tr>" for o in O)
 bl = R["win_by_baseline"]; H = R["hindsight"]; gp = R["gap12"]; wn = R["win_ok"]
+OSS_TXT = f"<strong>Open Source kommt auf {pc(wn['oss'])}</strong>. Ohne Zertifikat kann ein Open-Source-Visual im Service weder PDF/PPT exportieren noch abonniert werden. Seit Rechner v0.25 darf es zertifiziert werden, und das kostet: beim fertigen Visual einen Beitrag an den Maintainer, beim Eigenbau Stunden für Erst- und Rezertifizierung"
+if CE:
+    OSS_TXT += f". {pc(CE['used'])} der Organisationen rechnen Open Source zertifiziert, {pc(CE['oss_winners_cert'])} der Open-Source-Gewinner brauchen das Zertifikat"
+if NC:
+    OSS_TXT += f". Ohne diese Option käme Open Source auf {pc(NC['win_ok'].get('oss', 0))} (Deneb {pc(NC['win_ok'].get('deneb', 0))} statt {pc(wn['deneb'])}, Paid {pc(NC['win_ok'].get('paid', 0))} statt {pc(wn['paid'])}). Die Zertifizierung ist für Open Source der entscheidende Hebel, und sie geht vor allem zulasten von Deneb, dem anderen günstigen Weg mit Zertifikat"
+OSS_TXT += "."
 lead_o = max(O, key=lambda o: wn.get(o, 0)); sec_o = sorted(O, key=lambda o: -wn.get(o, 0))[1]
 
-BANNER = '''<div class="src-box" style="border-left-color:#2A857A;margin-top:22px"><h3>Aktualisiert nach Experten-Review (Rechner v0.24)</h3>Fünf Experten-Agents haben diese Simulation am 18.11.2026 geprüft. Daraufhin wurde die K.O.-Matrix des Rechners angeglichen (RDL für alle gleich, Report Server und Lock-in bei Paid Warnung statt K.O., unzertifiziertes Open Source scheidet bei Export- und Zertifizierungs-Pflicht aus, Deneb bei SLA-Pflicht), das IBCS-Zertifikat wird nur noch einmal gezogen, und alle Zahlen sind neu gerechnet. <a href="visual-standards-review.html">Zum Review und zur Umsetzung →</a></div>'''
+BANNER = '''<div class="src-box" style="border-left-color:#2A857A;margin-top:22px"><h3>Aktualisiert nach Experten-Review (Rechner v0.24)</h3>Fünf Experten-Agents haben diese Simulation am 18.11.2026 geprüft. Daraufhin wurde die K.O.-Matrix des Rechners angeglichen (RDL für alle gleich, Report Server und Lock-in bei Paid Warnung statt K.O., unzertifiziertes Open Source scheidet bei Export- und Zertifizierungs-Pflicht aus, Deneb bei SLA-Pflicht), das IBCS-Zertifikat wird nur noch einmal gezogen, und alle Zahlen sind neu gerechnet. <a href="visual-standards-review.html">Zum Review und zur Umsetzung →</a><br><strong>Neu mit v0.25:</strong> Open Source darf zertifiziert werden, gegen Kosten: Beitrag an den Maintainer bei einem fertigen Visual, Stunden für Erst- und Rezertifizierung beim Eigenbau (nur wenn die Organisation die öffentliche AppSource-Listung akzeptiert). Alle Zahlen sind damit neu gerechnet.</div>'''
 
 body = f'''<!DOCTYPE html>
 <html lang="de">
@@ -110,8 +119,8 @@ body = f'''<!DOCTYPE html>
     <p class="post-dek">Paid-Visual, Open Source, Deneb oder Core Visuals mit SVG: Welcher Weg zum visuellen Standard in Power BI ist der günstigste? Wir haben die Frage nicht einer Firma gestellt, sondern 100.000. Die Antwort: Jeder Weg gewinnt irgendwo, keiner überall, und jeder kostet etwas, nur an einer anderen Stelle.</p>
     <div class="post-meta">
       <span>Von <strong>Michael Tenner</strong></span>
-      <span>Stand · <strong>18. November 2026 (v0.24)</strong></span>
-      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.24</a></strong></span>
+      <span>Stand · <strong>18. November 2026 (v0.25)</strong></span>
+      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.25</a></strong></span>
       <span>Daten · <strong><a href="assets/posts/no-free-lunch/ergebnis.json">ergebnis.json</a></strong></span>
     </div>
   </header>
@@ -136,7 +145,7 @@ body = f'''<!DOCTYPE html>
 
     <h2>So haben wir <em>simuliert</em></h2>
     <div class="step"><div class="step-num">1</div><div><h3>Population schätzen <span>drei KI-Agents, blind</span></h3><p>Wie sehen Organisationen im DACH-Raum aus, die Power BI nutzen und einen visuellen Standard einführen wollen? Größe, Betriebsmodell, Horizont, was heute schon im Haus ist, welche Tenant-Regeln gelten, welche Anforderungen als Must auf der Liste stehen. Drei Agents haben das unabhängig voneinander geschätzt, einer mit Claude Opus, zwei mit Claude Sonnet, jeder mit einer anderen Perspektive (neutral, BI-Leitung, skeptischer Controller). Keiner kannte die Kostenlogik des Rechners. <strong>Übernommen wurde der Median.</strong></p></div></div>
-    <div class="step"><div class="step-num">2</div><div><h3>100.000 Organisationen ziehen <span>sechs Segmente</span></h3><p>Aus dieser Population entstehen 100.000 Profile. Jede Organisation läuft durch den <strong>Rechenkern v0.24</strong>: einmal mit den Erwartungswerten aller Annahmen (das ist die Empfehlung, die der Rechner geben würde) und einmal mit einer gepaarten Zufallsziehung (das ist eine Welt, wie sie tatsächlich hätte kommen können).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div><h3>100.000 Organisationen ziehen <span>sechs Segmente</span></h3><p>Aus dieser Population entstehen 100.000 Profile. Jede Organisation läuft durch den <strong>Rechenkern v0.25</strong>: einmal mit den Erwartungswerten aller Annahmen (das ist die Empfehlung, die der Rechner geben würde) und einmal mit einer gepaarten Zufallsziehung (das ist eine Welt, wie sie tatsächlich hätte kommen können).</p></div></div>
     <div class="step"><div class="step-num">3</div><div><h3>Vier Linsen <span>was darf man überhaupt?</span></h3><p>Erst nur die Kosten. Dann mit den harten Rahmenbedingungen (nur zertifizierte Visuals, kein Lizenzbudget, Custom Visuals gesperrt, IBCS-Zertifikat Pflicht). Dann zusätzlich mit den Must-Kriterien aus der Anforderungsliste, die einen Weg per K.O. ausschließen. Und schließlich so, wie es in der Praxis läuft: Bleibt kein Weg übrig, wird die Must-Liste verhandelt.</p></div></div>
 
     <div class="tbl-wrap"><table class="tbl">
@@ -151,7 +160,7 @@ body = f'''<!DOCTYPE html>
       <thead><tr><th>Linse</th><th class="num">{sw('paid')}Paid</th><th class="num">{sw('oss')}Open Source</th><th class="num">{sw('deneb')}Deneb</th><th class="num">{sw('core')}Core + SVG</th><th class="num">kein Weg</th></tr></thead>
       <tbody>{lensrows}</tbody>
     </table></div>
-    <p>Auf reine Kosten gerechnet liegt Paid in gut zwei Dritteln der Fälle vorn. Das liegt an der Population: Die meisten Organisationen sind klein, und bei 20 Lesern ist eine Lizenz billiger als jede Stunde, die man in Deneb-Vorlagen oder SVG-Measures steckt. Mit Rahmenbedingungen und Musts bleibt Paid vorn ({pc(wn['paid'])}), Core + SVG ist Zweiter ({pc(wn['core'])}): Core übersteht fast jede Regel, weil es nichts zu installieren gibt. <strong>Open Source fällt auf {pc(wn['oss'])}</strong>: Ein nicht zertifiziertes Visual kann im Service weder PDF/PPT exportieren noch abonniert werden, und diese Anforderung steht bei {pc(dict(kr['oss']).get('must:export', 0))} der Organisationen als Must auf der Liste. Für Open Source ist die Microsoft-Zertifizierung damit der entscheidende Hebel, nicht der Preis.</p>
+    <p>Auf reine Kosten gerechnet liegt Paid in gut zwei Dritteln der Fälle vorn. Das liegt an der Population: Die meisten Organisationen sind klein, und bei 20 Lesern ist eine Lizenz billiger als jede Stunde, die man in Deneb-Vorlagen oder SVG-Measures steckt. Mit Rahmenbedingungen und Musts bleibt Paid vorn ({pc(wn['paid'])}), Core + SVG ist Zweiter ({pc(wn['core'])}): Core übersteht fast jede Regel, weil es nichts zu installieren gibt. {OSS_TXT}</p>
     <p>Das Bild hängt nicht an einem der drei Schätzer. Rechnet man jede Population einzeln, verschieben sich die Anteile (Paid {pcm(rob['paid'][0])}–{pcm(rob['paid'][1])}, Core {pcm(rob['core'][0])}–{pcm(rob['core'][1])}), die Aussage bleibt:</p>
     <div class="tbl-wrap"><table class="tbl">
       <thead><tr><th>Population (mit Must-Listen)</th><th class="num">Paid</th><th class="num">Open Source</th><th class="num">Deneb</th><th class="num">Core + SVG</th><th class="num">kein Weg</th></tr></thead>
@@ -191,7 +200,7 @@ body = f'''<!DOCTYPE html>
     <p style="font-size:13.5px">Anteile: Mittel über alle Organisationen. „Eigene Zeit" = intern bewertete Stunden. FTE und € je Viewer: Median über alle Organisationen (Erwartungswert). „Ausstieg" = was ein Wechsel nach dem Horizont kosten würde, im Verhältnis zur Summe (Median); nicht in der Summe enthalten.</p>
     <ul>
       <li><strong>Paid</strong> zahlt Lizenz, rund ein Viertel der Kosten. Trotzdem ist mehr als die Hälfte eigene Zeit, weil ein gekauftes Visual keinen Report baut. In absoluten Zahlen braucht Paid aber am wenigsten eigene Zeit ({dec(R['fte']['paid']['p50'])} FTE im Median) und ist je Viewer am günstigsten. Der Ausstieg ist am teuersten, weil die Definitionen am Visual des Herstellers hängen.</li>
-      <li><strong>Open Source</strong> zahlt keine Lizenz, dafür Wartung, Freigabe und das Risiko, dass das Projekt eingestellt wird. Drei Viertel der Kosten sind eigene Zeit.</li>
+      <li><strong>Open Source</strong> zahlt keine Lizenz, dafür Wartung, Freigabe und das Risiko, dass das Projekt eingestellt wird, und wo es zertifiziert sein muss, den Beitrag an den Maintainer oder die Stunden für die Rezertifizierung. {pc(1 - R['hard_share']['oss'])} der Kosten sind eigene Zeit.</li>
       <li><strong>Deneb</strong> zahlt beim Lernen: Schulung und Rollout sind der größte Block, der Ausstieg ist am billigsten, weil Vega-Lite-Specs das Visual überleben.</li>
       <li><strong>Core + SVG</strong> zahlt in der Wartung: {round(100 * cm['core']['maint'])}&nbsp;% der Kosten fließen in das Nachziehen von Workarounds. Billig ist der Weg nur, wenn er schon steht.</li>
     </ul>
@@ -220,7 +229,7 @@ body = f'''<!DOCTYPE html>
     <div class="src-box">
       <h3>Ehrlich eingeordnet</h3>
       <p style="margin-bottom:10px">Die Population ist <strong>keine Erhebung</strong>. Sie stammt aus drei unabhängigen Schätzungen durch Sprachmodelle (Claude Opus und zweimal Claude Sonnet), Median übernommen. Nur einer der Schätzer hat Quellen gesucht (Destatis-Größenklassen, BARC, Microsoft Learn). Am unsichersten sind die Segmentanteile, die Verbreitung von „nur zertifizierte Visuals" und die Must-Wahrscheinlichkeiten. Musts werden unabhängig voneinander gezogen; deshalb gibt es die vierte Linse, in der eine Organisation ihre Liste verhandelt, wenn sonst nichts übrig bleibt.</p>
-      <p style="margin-bottom:10px">Die Kostenannahmen sind die des Rechners (v0.24): Stundenwerte aus einem simulierten Expertenpanel, Preise aus Herstellerseiten und Such-Auszügen, viele Autoren-Schätzungen, alle mit Quelle im Rechner. Gerankt wird hier nur nach Kosten, ohne den Anforderungs-Score, den der Rechner mit 30&nbsp;% gewichtet. Die K.O.-Bewertungen hat ein Review durch fünf Experten-Agents korrigiert; vorher benachteiligten sie Paid (RDL, Report Server, Lock-in) und begünstigten Open Source (Export und Zertifizierung). <a href="visual-standards-review.html">Was das Review gefunden hat</a>.</p>
+      <p style="margin-bottom:10px">Die Kostenannahmen sind die des Rechners (v0.24): Stundenwerte aus einem simulierten Expertenpanel, Preise aus Herstellerseiten und Such-Auszügen, viele Autoren-Schätzungen, alle mit Quelle im Rechner. Gerankt wird hier nur nach Kosten, ohne den Anforderungs-Score, den der Rechner mit 30&nbsp;% gewichtet. Die Zertifizierung für Open Source ist seit v0.25 eine Option mit Kosten (Mittel zweier unabhängiger Agent-Schätzungen), die eine Organisation nimmt, wenn sie Open Source zulässig oder billiger macht. Die K.O.-Bewertungen hat ein Review durch fünf Experten-Agents korrigiert; vorher benachteiligten sie Paid (RDL, Report Server, Lock-in) und begünstigten Open Source (Export und Zertifizierung). <a href="visual-standards-review.html">Was das Review gefunden hat</a>.</p>
       <p style="margin:0"><strong>Offenlegung:</strong> ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source. Auch die Deneb-Vorlagen des Business Chart Builders stammen von uns; sie stehen hinter dem Schalter „Vorlagenbibliothek vorhanden". Der Rechner nennt selbst sechs bekannte Lücken, von denen vier zugunsten der Ansätze wirken, die wir vertreten. Die Simulation ist ein Indikator für Muster, keine Empfehlung für eine einzelne Organisation. Dafür gibt es den Rechner.</p>
     </div>
 
@@ -268,12 +277,12 @@ d = "| Regel | zulässig | am günstigsten | Mehrkosten, wo zulässig |\n|:--|--
     f"| Immer {N[o]} | {pcm(dg[o]['feasible'])} | {pcm(dg[o]['best'])} | +{round(100 * dg[o]['excess_total_pct'])} % |\n" for o in O)
 md = f"""# No free lunch: 100.000 Firmen, vier Wege, kein Sieger
 
-> Post · Visual-Standards-Rechner · Simulation · Von Michael Tenner · Stand 18. November 2026 (Rechner v0.24, nach Experten-Review)
+> Post · Visual-Standards-Rechner · Simulation · Von Michael Tenner · Stand 18. November 2026 (Rechner v0.25, nach Experten-Review, Zertifizierung als Option)
 > HTML-Fassung: https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html
 > Daten: https://datenwgknowledgekitchen.com/assets/posts/no-free-lunch/ergebnis.json
 > Review: https://datenwgknowledgekitchen.com/visual-standards-review.html
 
-Paid-Visual, Open Source, Deneb oder Core Visuals mit SVG: Welcher Weg zum visuellen Standard in Power BI ist der günstigste? 100.000 synthetische Organisationen durch den Rechenkern des Visual-Standards-Rechners (v0.24). Ergebnis: Jeder Weg gewinnt irgendwo, keiner überall, und jeder kostet etwas, nur an einer anderen Stelle.
+Paid-Visual, Open Source, Deneb oder Core Visuals mit SVG: Welcher Weg zum visuellen Standard in Power BI ist der günstigste? 100.000 synthetische Organisationen durch den Rechenkern des Visual-Standards-Rechners (v0.25). Ergebnis: Jeder Weg gewinnt irgendwo, keiner überall, und jeder kostet etwas, nur an einer anderen Stelle.
 
 ## Methode
 
@@ -284,7 +293,7 @@ Paid-Visual, Open Source, Deneb oder Core Visuals mit SVG: Welcher Weg zum visue
 ## Ergebnis 1: Kein Weg gewinnt immer
 
 {t}
-Robust über die drei Einzelschätzungen (mit Must-Listen): Paid {pcm(rob['paid'][0])}–{pcm(rob['paid'][1])}, Core {pcm(rob['core'][0])}–{pcm(rob['core'][1])}, Deneb {pcm(rob['deneb'][0])}–{pcm(rob['deneb'][1])}, Open Source {pcm(rob['oss'][0])}–{pcm(rob['oss'][1])}. Open Source scheitert meist an der Must „PDF/PPT-Export & Abos", die ein unzertifiziertes Visual nicht erfüllt.
+Robust über die drei Einzelschätzungen (mit Must-Listen): Paid {pcm(rob['paid'][0])}–{pcm(rob['paid'][1])}, Core {pcm(rob['core'][0])}–{pcm(rob['core'][1])}, Deneb {pcm(rob['deneb'][0])}–{pcm(rob['deneb'][1])}, Open Source {pcm(rob['oss'][0])}–{pcm(rob['oss'][1])}. {re.sub('<[^>]+>', '', OSS_TXT).replace('&nbsp;', ' ')}
 
 ## Ergebnis 2: Was die Rangfolge kippt
 
@@ -307,7 +316,7 @@ Je Organisation ist die Rangfolge meist klar (Abstand Platz 1 zu 2 im Median {ro
 ## Ehrlich eingeordnet
 
 - Population aus KI-Schätzungen, keine Erhebung; Musts unabhängig gezogen (deshalb die Linse „verhandelbar").
-- Kostenannahmen = Visual-Standards-Rechner v0.24; K.O.-Matrix nach Experten-Review angeglichen. Ranking nur nach Kosten, ohne Anforderungs-Score.
+- Kostenannahmen = Visual-Standards-Rechner v0.25; K.O.-Matrix nach Experten-Review angeglichen, Zertifizierung für Open Source als Option mit Kosten. Ranking nur nach Kosten, ohne Anforderungs-Score.
 - Offenlegung: ChartKitchen byDatenWG (Open Source) und die Deneb-Vorlagen des Business Chart Builders sind eigene Projekte der Autoren; der Rechner nennt selbst eine Schlagseite zugunsten dieser Ansätze.
 """
 (REPO / "blog/no-free-lunch-visual-standards.md").write_text(md, encoding="utf-8")

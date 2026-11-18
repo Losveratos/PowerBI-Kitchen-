@@ -17,6 +17,8 @@ def prevalence(k):
     if k == "ibcsall": return sum(1 for p in POP if p.get("ibcsAll")) / len(POP)
     if k == "bibliothek": return sum(1 for p in POP if p.get("library")) / len(POP)
     if k == "ossbau": return sum(1 for p in POP if p.get("ossBuild") != "ready") / len(POP)
+    # v0.25: Option verfügbar bei fertigem Visual immer, beim Eigenbau mit p = 0,275 (öffentliche AppSource-Listung akzeptiert)
+    if k == "zertifizierung": return sum(1 if p.get("ossBuild", "ready") == "ready" else .275 for p in POP) / len(POP)
     return None
 meta = json.load(open(f"{d}/cf-meta.json", encoding="utf-8"))
 O = ["paid", "oss", "deneb", "core", "none"]

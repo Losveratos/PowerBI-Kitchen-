@@ -1,0 +1,30 @@
+{
+ "win_free": {
+  "core": 0.0962,
+  "paid": 0.6834,
+  "deneb": 0.1016,
+  "oss": 0.1188
+ },
+ "win_ok": {
+  "core": 0.2566,
+  "paid": 0.504,
+  "deneb": 0.1343,
+  "oss": 0.0494,
+  "none": 0.0557
+ },
+ "win_neg": {
+  "core": 0.2724,
+  "paid": 0.5128,
+  "deneb": 0.1427,
+  "oss": 0.0571,
+  "none": 0.0149
+ },
+ "ko_rate": {
+  "paid": 0.3744,
+  "oss": 0.7775,
+  "deneb": 0.4436,
+  "core": 0.1704
+ },
+ "none_feasible": 0.0557,
+ "constraint_flip": 0.4336
+}

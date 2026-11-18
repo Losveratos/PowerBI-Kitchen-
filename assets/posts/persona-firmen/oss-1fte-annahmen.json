@@ -1,5 +1,8 @@
 {
  "heute": {},
+ "heute_ohne_option": {
+  "certOpt": false
+ },
  "oss_1fte": {
   "ossBuild": "ready",
   "pOver": {
@@ -37,47 +40,7 @@
    }
   }
  },
- "oss_1fte_zert": {
-  "ossBuild": "ready",
-  "pOver": {
-   "oss": {
-    "events": [
-     0.3,
-     1,
-     2
-    ],
-    "fixH": [
-     1.5,
-     3.5,
-     7
-    ],
-    "maint": [
-     8,
-     14,
-     22
-    ],
-    "govRun": [
-     10,
-     22,
-     60
-    ],
-    "supH100": [
-     2,
-     4.5,
-     8
-    ],
-    "dep": [
-     3,
-     6,
-     11
-    ]
-   }
-  },
-  "forceFlags": [
-   "osscert"
-  ]
- },
- "oss_3fte_zert_abo": {
+ "oss_3fte_abo": {
   "ossBuild": "ready",
   "pOver": {
    "oss": {
@@ -115,12 +78,14 @@
      1400,
      2800,
      5600
+    ],
+    "certFee": [
+     0,
+     0,
+     0
     ]
    }
-  },
-  "forceFlags": [
-   "osscert"
-  ]
+  }
  },
  "deneb_lib_1fte": {
   "library": true,

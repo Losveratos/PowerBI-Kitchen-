@@ -28,7 +28,7 @@ db = sorted(r["modes"]["alle"]["best"][1] - r["modes"]["base"]["best"][1] for r 
 cf = {k: v for k, v in cf.items() if k != "site"}
 cf["ki"] = {"label": "KI-Pflege: keine → mit dem Adoptionsgrad der Ebene (alle 10.000 Firmen)", "n": len(R), "flip": flip, "flipUsers": flipU,
             "trans": [[a, b, c / len(R)] for (a, b), c in trans], "dshare": dsh, "dbest": db[len(db) // 2]}
-HARD = {"copilot", "paginated", "coreonly", "ibcscert", "nobudget", "exit", "rs", "certonly", "sla"}
+HARD = {"zertifizierung", "copilot", "paginated", "coreonly", "ibcscert", "nobudget", "exit", "rs", "certonly", "sla"}
 for k in cf:
     cf[k]["kind"] = "hard" if k in HARD else "cost"
 # MA-Verteilung
@@ -81,7 +81,7 @@ def page(standalone):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>10.000 Firmen: Wann welcher Visual-Standard gewinnt · Daten-WG</title>
-<meta name="description" content="10.000 Firmen mit realistischen Mitarbeiterzahlen durch den Visual-Standards-Rechner: wann Paid, Open Source, Deneb oder Core + SVG gewinnt, und welche Entscheidungen den Ausschlag geben (Kontrafaktum-Test mit 18 Hebeln, Rechner v0.24).">
+<meta name="description" content="10.000 Firmen mit realistischen Mitarbeiterzahlen durch den Visual-Standards-Rechner: wann Paid, Open Source, Deneb oder Core + SVG gewinnt, und welche Entscheidungen den Ausschlag geben (Kontrafaktum-Test mit 19 Hebeln, Rechner v0.25).">
 <link rel="canonical" href="{SITE}visual-standards-10000-firmen.html">
 <style>{css}</style>
 </head>
