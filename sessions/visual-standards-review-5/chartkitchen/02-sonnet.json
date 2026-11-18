@@ -1,0 +1,86 @@
+{
+  "estimator": "Claude Sonnet",
+  "pOver": {
+    "firstH": [3.5, 7, 12],
+    "reuseH": [0.8, 1.7, 3],
+    "trainH": [10, 18, 30],
+    "lightH": [1, 2.5, 4.5],
+    "rampH": [14, 32, 75],
+    "supH100": [3, 6.5, 11],
+    "govIntake": [12, 32, 75],
+    "govRun": [14, 36, 90],
+    "govAudit": [3, 9, 22],
+    "events": [1, 2.5, 5],
+    "dep": [5, 11, 20],
+    "cxComplex": [1.1, 1.5, 2.2]
+  },
+  "capOver": {
+    "exportdata": 2,
+    "drill": 4,
+    "agentic": 4,
+    "mobile": 2,
+    "bus": 2
+  },
+  "ck_heute": {
+    "certAvailable": false,
+    "note": "Keines der beiden Visuals ist in AppSource gelistet oder Microsoft-zertifiziert (STATUS.md 23.10.2026: Listing in Vorbereitung, haengt organisatorisch; ibcsInspiredChartDeck/appsource/SUBMISSION-CHECKLIST.md: fast alle Partner-Center-Schritte offen, u. a. Konto, Sample-pbix, Datenschutz-URL; laut Rechner-Notiz Stand 24.10.2026 nicht eingereicht, kein Termin). Fuer P&L Statement gibt es nicht einmal ein Einreichungspaket (nur Notiz in pnlByDatenWG/BACKLOG.md: Zertifizierung liegt organisatorisch bei Artur). Eine Websuche (11/2026) fand keinen AppSource-Eintrag. Verteilung nur per .pbiviz-Datei bzw. Organizational Store; Service-Export (PDF/PPT/Abo) funktioniert nicht, Tenant-Setting nur zertifizierte Visuals blockt beide. mscert und export bleiben bei 1."
+  },
+  "ck_zert": {
+    "certFee": [0, 250, 1500],
+    "lagWeeks": [3, 8, 20],
+    "pOverExtra": {
+      "events": [0.8, 1.8, 3.5],
+      "dep": [4, 9, 17]
+    },
+    "note": "Szenario nach AppSource-Listung und Microsoft-Zertifizierung beider Visuals, ohne Termin. Die Autoren verlangen kein Geld (kostenlos, fuer immer frei, Finanzierung ueber Beratung; STATUS.md), ein Pflichtbeitrag ist unwahrscheinlich. certFee ist deshalb eine Schaetzung freiwilliger Beitraege oder optionaler Beratung (Untergrenze 0), niedriger als der generische OSS-Wert 150/800/2550. Mit Zertifizierung gilt Paid-Niveau fuer mscert/export/Freigabe. Release-Takt: ChartKitchen hat 93 Eintraege in ca. 16 Wochen (1.1 am 06.07. bis 1.53 am 24.10.2026), P&L rund 40 Releases in drei Monaten. Microsoft prueft Updates laut Learn bis 3 Wochen plus 10-14 Tage bis Produktion, also gar nicht jede Version zertifizierbar: zertifizierte Fassung hinkt voraussichtlich 3-20 Wochen hinterher, Modus 8 Wochen (Schaetzung). Dafuer weniger Breaking-Ereignisse pro Jahr, weil nur gebuendelte Staende ankommen; Abkuendigungsrisiko leicht niedriger durch Listing, aber Bus-Faktor bleibt."
+  },
+  "pros": [
+    {"t": "Fertig und nachweislich breit: 13 Chart-Modi, IBCS-Vorlagen C01-C13, Mega-Table-Templates T01-12H, Treiberbaum, Sankey, Bilanz/Cashflow; keine Eigenentwicklung noetig (devH = 0).", "src": "STATUS.md, ibcsInspiredChartDeck/README.md, pnlByDatenWG/README.md"},
+    {"t": "Starke Agent-Unterstuetzung: generierter AGENT-GUIDE (npm run guide aus capabilities.json), Skills chartkitchen-report, pnl-report, finance-data-model, deploy-to-powerbi beschleunigen den Report-Aufbau (Voraussetzung: einmal von Hand platzierte Referenz-Instanz).", "src": ".claude/skills/*/SKILL.md, ibcsInspiredChartDeck/AGENT-GUIDE.md"},
+    {"t": "Ehrlich abgegrenzte IBCS-Notation und gute Testbasis: 327 Render-Stages, Suiten test:scale/notation/export, vier interne Audits (Skalierung, IBCS, UX), Funde dokumentiert und grossteils abgearbeitet.", "src": "AGENT-GUIDE.md (Testlandschaft), AUDIT-2026-*.md, CHANGELOG 1.39/1.52/1.53"},
+    {"t": "Sicherheitsprofil gut pruefbar: privileges leer, externalJS null, keine externen Calls, Quellcode offen (Apache-2.0, NOTICE sauber), npm audit 0 laut Checkliste; das senkt das Security-Review, ersetzt aber kein Fremd-Audit.", "src": "capabilities.json, appsource/SUBMISSION-CHECKLIST.md, NOTICE, visuals-sicherheit.html"},
+    {"t": "Interaktion und Daten: Drilldown auf Kategorie, Tooltips, Selektion/Cross-Filter, Kommentare, P&L mit Drillthrough per Kontextmenue; fetchMoreData bis 30.000 Kategoriezeilen.", "src": "capabilities.json, AGENT-GUIDE.md Steckbrief, pnlByDatenWG/README.md F11/F12"},
+    {"t": "Vier Sprachen (de/en/es/ja bei P&L, 694 resjson-Keys je Sprache bei CK), Dark Mode, Hochkontrast, Start-Hub mit Tour und Vorlagengalerie senken Schulungs- und Erstaufwand.", "src": "pnlByDatenWG/README.md, AGENT-GUIDE.md"},
+    {"t": "Kein Lizenzpreis, Code einsehbar fuer Revision und Fork; Berichte sind trotzdem an das Visual gebunden, aber Ausstieg ueber Quellcode moeglich.", "src": "LICENSE, STATUS.md"}
+  ],
+  "cons": [
+    {"t": "Nicht zertifiziert, nicht in AppSource, P&L ohne Einreichungspaket, kein Termin: Service-Export, Abos und Tenants mit 'nur zertifizierte Visuals' scheitern; Verteilung per Datei oder Org-Store.", "src": "STATUS.md, appsource/SUBMISSION-CHECKLIST.md, pnlByDatenWG/BACKLOG.md, Websuche"},
+    {"t": "Sehr hoher Release-Takt (93 CK-Eintraege in ca. 16 Wochen, P&L ca. 40 in drei Monaten) bei sehr junger Historie (Start 07/2026): Review-, Test- und Rollout-Last fuer jede uebernommene Version, kaum Feld-Erfahrung.", "src": "ibcsInspiredChartDeck/CHANGELOG.md, pnlByDatenWG/CHANGELOG.md"},
+    {"t": "Kompatibilitaetsbrueche sind belegt: Umbenennung mit neuer GUID in 1.28 (Berichte mussten das Visual neu hinzufuegen), 1.52 aenderte das Bild bestehender Berichte gewollt; dazu zwei Pakete mit eigenen Staenden. Es gibt nur einen 'latest'-Download, kein Versionsarchiv.", "src": "CHANGELOG.md Z. 1218, Rechner-Notiz events, downloads/"},
+    {"t": "Bus-Faktor 1-2 und keine Finanzierung ausser Beratung, kein SLA, kein Sponsoring-Kanal; Entwicklung stark KI-gestuetzt, eine einzelne 9.700-Zeilen-Datei visual.ts; Fortbestand ungewiss.", "src": "STATUS.md, AUDIT-2026-10-IBCS.md (visual.ts 9.749 Z.), Schaetzung fuer Bus-Faktor"},
+    {"t": "Nicht IBCS-zertifiziert, bewusst nur 'inspired'; Audits fanden kritische Skalierungsluecken (S1-S5, S13) in Sonder- und Kombimodi; Fix-Stand der Einzelpunkte nur teilweise belegt, ohne Fremdpruefung.", "src": "AUDIT-2026-10-SKALIERUNG.md, AUDIT-2026-10-IBCS.md, NOTICE"},
+    {"t": "Barrierefreiheit unvollstaendig: offene Backlog-Punkte Fokusverlust nach Rerender, unsaubere ARIA-Semantik, Schraffur-Redundanz; keine formale Pruefung. Keine Export-Daten (privileges leer), kein Mobile-Nachweis.", "src": "BACKLOG.md Abschnitt Barrierefreiheit, capabilities.json"},
+    {"t": "Grosse Bedienoberflaeche (ca. 50 Slices in der Chart-Karte, 13 Modi, UX-Audit: wichtigste Entscheidung versteckt) und Skills brauchen eine manuell platzierte Referenz-Instanz; Lernkurve hoeher als bei einem Click-Tool.", "src": "AUDIT-2026-10-UX.md, chartkitchen-report/SKILL.md"},
+    {"t": "Eigenevaluation ohne unabhaengigen Praxistest in fremder Organisation; einziger externer Test ist Beta-Feedback (Alexander Korn, Juli 2026). Doku-Inkonsistenz bei der Lizenz (AGENT-GUIDE sagt MIT, LICENSE/NOTICE Apache-2.0) ist ein kleines Legal-Thema.", "src": "BACKLOG.md Beta-Feedback, AGENT-GUIDE.md Steckbrief vs. LICENSE"}
+  ],
+  "rationale": {
+    "firstH": "Eingebaute Vorlagen C01-C13, Mega-Table-Templates, Start-Hub und Skills senken den Erstaufbau gegenueber generischem OSS (README, AGENT-GUIDE). Keine Messung, Schaetzung; Obergrenze bleibt wegen grosser Oberflaeche (UX-Audit).",
+    "reuseH": "Vorlage plus Referenz-Instanz plus Skill machen Wiederverwendung schnell, aber Paid bleibt wegen Feld-Mapping und Property-Vielfalt vorn. Schaetzung.",
+    "trainH": "Zwei Visual-Pakete mit grosser Property-Flaeche (ca. 50 Slices, 13 Modi, Mega-Table); Doku und Schnellstart helfen, mindern aber nicht die Breite. Schaetzung.",
+    "lightH": "Zweites Paket verlangt eine zweite kurze Einweisung; Start-Hub gleicht aus. Schaetzung.",
+    "rampH": "Kleine Community, wenig Fremd-Material, zwei Visuals; neue Bauer brauchen mehr als bei Paid. Schaetzung.",
+    "supH100": "Kein Support-Kanal ausser GitHub-Issues und Beratung; Notation und Features gross und neu. Schaetzung.",
+    "govIntake": "Zwei Pakete, je eigene Pruefung; Pruefhilfen (visuals-sicherheit.html, leere privileges) senken je Paket, Summe aber ueber generisch. Ohne protokollierte Freigabe in fremder Organisation, Schaetzung.",
+    "govRun": "Release-Takt macht Versions-Reviews teuer, solange man nicht einfriert; Einfrieren spart Governance, kostet Features. CHANGELOG-Zaehlung als Beleg.",
+    "govAudit": "Rechenlogik offen und getestet, aber sehr gross (visual.ts ca. 9.700 Zeilen) und von zwei Visuals; Nachweis ist Eigenleistung. Schaetzung.",
+    "events": "Belegt: GUID-Wechsel 1.28, gewollte Bildaenderung 1.52, Alt-Zustand-Migration P&L 0.9.2; bei Update-Takt von ca. 1 Release je 2 Tage steigt Wahrscheinlichkeit; zwei Pakete.",
+    "dep": "Junges Projekt (07/2026), Bus-Faktor 1-2, Finanzierung nur ueber Beratung, KI-gestuetzte Entwicklung; Apache-2.0 erlaubt Fork und mildert. Fuer 3 Jahre Horizont hoeher als generisch. Schaetzung.",
+    "cxComplex": "ChartKitchen liefert Wasserfall mit Szenario-Notation, Kommentare, Bruecken, Drilldown selbst, genau das, was der Rechner beim generischen OSS als Luecke annimmt (README, AGENT-GUIDE).",
+    "exportdata": "capabilities.json: privileges leer, also kein ExportContent. Damit nur Summarized-Data-Export moeglich; Wert 2 statt 3.",
+    "drill": "capabilities.json deklariert drilldown (category), tooltips inkl. Canvas, Selektion, P&L mit Kontextmenue/Drillthrough (pnlByDatenWG/README.md F12). 4 statt 3.",
+    "agentic": "Generierter AGENT-GUIDE, vier Skills, llms.txt; staerkster Agent-Support im Vergleich, aber einzelner Herausgeber, ohne Fremdtest und mit manueller Referenz-Instanz. 4.",
+    "mobile": "Kein Hinweis auf Mobile-Layout oder -Test in README/AGENT-GUIDE/capabilities; Rendering auf kleinen Flaechen ungeprueft (Schaetzung); 2.",
+    "bus": "Wenige Herausgeber (michael.tenner84, Artur), keine Finanzierung ausser Beratung, kein Sponsoring-Modell (STATUS.md). 2.",
+    "a11y": "Bewusst nicht ueberschrieben (3): Tastatur, Hochkontrast und WCAG-Grautoene vorhanden, aber Backlog nennt Fokusverlust und ARIA-Probleme; Grenzfall 2/3.",
+    "mscert/export": "Unveraendert 1 bis zur Zertifizierung; danach Paid-Wert gemaess Rechner-Mechanik.",
+    "certFee": "Keine Preisliste. Geschaeftsmodell 'kostenlos fuer immer' (STATUS.md), Zertifizierung als Aufwand der Autoren; Beitrag oder Beratung nur freiwillig, deshalb Untergrenze 0 und Mitte 250. Schaetzung.",
+    "lagWeeks": "Microsoft Learn: Update-Pruefung bis 3 Wochen plus 10-14 Tage Produktion; bei ca. 6 Releases je Woche muessen Staende gebuendelt werden. Schaetzung 3-8-20 Wochen."
+  },
+  "biggest_uncertainties": [
+    "Ob und wann AppSource-Listung und Zertifizierung tatsaechlich kommen (laeuft organisatorisch ueber eine Person, kein Termin, P&L ohne Paket) und ob der Zertifizierungsprozess bei diesem Release-Takt durchhaltbar ist.",
+    "Langfristige Pflege: Bus-Faktor, KI-gestuetzte Entwicklung ohne Fremd-Review, ob der Takt nach der Aufbauphase (Juli bis Oktober 2026) sinkt und Breaking Changes seltener werden.",
+    "Reale Stunden je Chart und Governance: alle Werte sind Schaetzungen ohne Messung in einer fremden Organisation; gerade govIntake/govRun fuer zwei Pakete.",
+    "Echte Barrierefreiheit und Mobile-Verhalten sind ungeprueft; ob die Skalierungs-Audit-Funde alle behoben sind, ist nur teilweise belegt.",
+    "Ob eine nutzende Organisation Geld fuer Zertifizierung zahlen soll oder kann: kein Modell dafuer im Repo, certFee ist reine Annahme."
+  ]
+}
