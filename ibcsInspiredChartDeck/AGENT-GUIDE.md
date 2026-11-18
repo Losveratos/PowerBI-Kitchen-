@@ -51,7 +51,7 @@ resjson-Keys je Sprache (Stand 1.52.0; 1.52.4 + Brücken-Arbeit: 691; mit den ro
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
 | Aktuelles Paket | `dist/*.pbiviz` · stabiler Download: `https://datenwgknowledgekitchen.com/downloads/chartkitchen-byDatenWG-latest.pbiviz` |
 | Datenlimit | `dataReductionAlgorithm window 1000` + `fetchMoreData` (ab 1.49): weitere Segmente werden nachgeladen, Sicherheitsgrenze 30.000 Kategoriezeilen; Kappung wird im Chart gemeldet |
-| Lizenz | MIT · keine externen Calls, kein Storage, kein Telemetrie |
+| Lizenz | Apache-2.0 · keine externen Calls, kein Storage, kein Telemetrie |
 
 ## Feld-Rollen (Datenvertrag)
 
