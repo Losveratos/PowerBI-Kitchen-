@@ -1,0 +1,25 @@
+{
+"estimator":"Sonnet 5.5 (Schaetzer B)",
+"selfInitH":[40,100,240],
+"selfReleasesPerYear":[1,3,6],
+"selfRecertH":[6,12,28],
+"selfLeadWeeks":[5,9,18],
+"selfFeasible":0.3,
+"maintFeePerOrgYear":[0,400,1500],
+"maintLagWeeks":[1,3,6],
+"rationale":{
+"selfInitH":"Partner-Center-Konto (Firmenverifizierung), AppSource-Listing, Repo mit Branch 'certification', ESLint-Plugin, npm audit ohne moderate/high, kein eval/fetch/innerHTML/Minify, Rendering Events API, Testdaten, Support-Seite. Bei KI-Bau haeufig Nacharbeit an Lint/Audit; Ablehnungsschleifen (Hash-Mismatch, Branch) einkalkuliert. Schaetzung auf Basis der MS-Anforderungen.",
+"selfReleasesPerYear":"Nur Releases, die in den Store gehen, muessen neu zertifiziert werden; Schaetzung: Quartalsrhythmus, Bugfix-Buendelung.",
+"selfRecertH":"Branch aktualisieren, Audit/Lint/Package-Hash pruefen, Submission, Rueckfragen; Schaetzung. Dauert laenger, wenn npm audit neue Funde hat.",
+"selfLeadWeeks":"MS-FAQ: Erstzertifizierung bis ca. 4 Wochen, neues Visual 10-14 Tage bis Produktion, Badge bis 3 Wochen; plus Konto-Einrichtung und mind. eine Ablehnungsrunde.",
+"selfFeasible":"Zertifizierung setzt Partner-Center-Freigabe/AppSource-Veroeffentlichung voraus, d.h. oeffentliche Listung; Quellcode muss MS-Team zugaenglich sein. Fuer interne/branchenspezifische Visuals oft unerwuenscht; Schaetzung 30 %.",
+"maintFeePerOrgYear":"Schaetzung: Maintainer-Aufwand ca. 40-80 h/Jahr, verteilt auf viele Nutzer; faire Quote pro Org wenige hundert Euro, oft 0 bei Sponsor-Modell.",
+"maintLagWeeks":"Update erscheint erst nach ca. 1 Woche AppSource-Freigabe plus bis 2 Wochen Produktionsausrollung und bis 3 Wochen Zertifizierung; Maintainer bündelt Releases."
+},
+"sources":[
+{"title":"Get your Power BI visuals certified","url":"https://learn.microsoft.com/en-us/power-bi/developer/visuals/power-bi-custom-visuals-certified","used_for":"Anforderungen, Branch certification, Verbote, Zeitplan, Partner-Center-Pflicht"},
+{"title":"Power BI custom visuals FAQ","url":"https://learn.microsoft.com/en-in/power-bi/developer/visuals/power-bi-custom-visuals-faq","used_for":"Bearbeitungszeit bis 4 Wochen (neu) / 3 Wochen (Update), laut Suchergebnis"},
+{"title":"Community: Submission Rejection - remote branch","url":"https://community.fabric.microsoft.com/t5/Custom-Visuals-Development/Submission-Rejection-due-to-Error-Could-not-find-remote-branch/m-p/1649271","used_for":"typische Ablehnungsgruende"}
+],
+"biggest_uncertainties":["Qualitaet/Lint-Zustand des Eigenbaus (Aufwand Init)","Ob oeffentliche Listung akzeptabel ist","Tatsaechliche Ablehnungsrunden und Reviewer-Wartezeit","Beitragsbereitschaft/Modell des Maintainers"]
+}

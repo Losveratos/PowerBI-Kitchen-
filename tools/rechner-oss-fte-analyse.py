@@ -43,10 +43,13 @@ for v, R in V.items():
                           "gap": {"p25": gaps[len(gaps) // 4] if gaps else None, "p50": gaps[len(gaps) // 2] if gaps else None, "p75": gaps[3 * len(gaps) // 4] if gaps else None, "n": len(gaps)},
                           "poolPerFirm": pool / len(ids),
                           "ossKo": sum(r["ko"][1] for r in rows) / len(rows),
+                          "certUse": sum(r["modes"][M].get("certUse", 0) for r in rows) / len(rows),
+                          "certWin": sum(r["modes"][M].get("certWin", 0) for r in rows) / len(rows),
+                          "certWinUsers": sum(r["users"] * r["modes"][M].get("certWin", 0) for r in rows) / U,
                           "ossMajSize": sorted(P[i]["employees"] for i in ossMaj)[len(ossMaj) // 2] if ossMaj else None}
 json.dump(res, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 for v, x in res["variants"].items():
-    print(v, "Firmen", [round(100 * a, 1) for a in x["firms"]], "Nutzer", [round(100 * a, 1) for a in x["users"]], "flip", round(100 * x["flip"], 1), "OSS-Mehrheit", round(100 * x["ossMajority"], 1), "OSS-KO", round(100 * x["ossKo"], 1))
+    print(v, "Firmen", [round(100 * a, 1) for a in x["firms"]], "Nutzer", [round(100 * a, 1) for a in x["users"]], "flip", round(100 * x["flip"], 1), "OSS-Mehrheit", round(100 * x["ossMajority"], 1), "OSS-KO", round(100 * x["ossKo"], 1), "Zert genutzt/gewinnt", round(100 * x["certUse"], 1), round(100 * x["certWin"], 1))
     print("   Bänder", [(b["lo"], [round(100 * a) for a in b["firms"]]) for b in x["bands"]])
     print("   Sektor", {k: [round(100 * a) for a in s] for k, s in x["sector"].items()})
     print("   Vorsprung €/Jahr (wo OSS Mehrheit)", {k: (round(v2) if isinstance(v2, float) else v2) for k, v2 in x["gap"].items()}, "Pool je Firma", round(x["poolPerFirm"]), "MA med", x["ossMajSize"], "trans", [(a, b, round(100 * c, 1)) for a, b, c in x["trans"]])

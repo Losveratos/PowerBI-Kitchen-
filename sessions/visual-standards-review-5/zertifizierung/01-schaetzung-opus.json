@@ -1,0 +1,34 @@
+{
+  "estimator": "claude-opus-5-5 (Schätzer A)",
+  "selfInitH": [40, 95, 240],
+  "selfReleasesPerYear": [1, 3, 6],
+  "selfRecertH": [6, 16, 40],
+  "selfLeadWeeks": [6, 11, 24],
+  "selfFeasible": 0.25,
+  "maintFeePerOrgYear": [300, 1200, 3600],
+  "maintLagWeeks": [1, 3, 8],
+  "rationale": {
+    "selfInitH": "Schätzung, aufgebaut aus den Microsoft-Anforderungen: Partner-Center-Konto inkl. Firmenverifizierung (~8–16 h), Listing-Assets (Logo 300x300, 1–5 Screenshots 1366x768, offline lauffähiges Beispiel-PBIX, Support-URL, Datenschutzerklärung, EULA, ~16–24 h), Code-Härtung auf null ESLint-Fehler mit eslint-plugin-powerbi-visuals, npm audit ohne moderate/high, kein innerHTML/fetch/eval, Rendering Events API, keine Konsolenfehler bei beliebigen Daten, eigenes Repo mit Branch 'certification' (~20–60 h), Tests (~10–20 h), Rechts-/Compliance-Abstimmung (~6–16 h) und 1–2 Nacharbeitsrunden nach Ablehnung (~10–40 h). KI-gebaute Visuals (~200 h) liegen eher am oberen Ende, weil generierter Code häufiger innerHTML, unsichere DOM-Zugriffe und veraltete Abhängigkeiten enthält.",
+    "selfReleasesPerYear": "Schätzung: Ein internes Standard-Visual bekommt typischerweise 2–4 Feature- oder Fix-Releases im Jahr. Laut Microsoft-FAQ durchläuft jede neue Version die gleichen Zertifizierungsprüfungen, daher zählt jedes Release.",
+    "selfRecertH": "Schätzung: Je Release fallen an: Abhängigkeiten aktualisieren, bis npm audit wieder sauber ist, auf die neueste powerbi-visuals-tools/API heben, Lint, Regressionstest mit dem Beispiel-PBIX, Branch 'certification' aktualisieren, Einreichung und Notizen im Partner Center. Bei einer Ablehnung kommen 10–20 h dazu.",
+    "selfLeadWeeks": "Quelle Microsoft Learn: Die Erstzertifizierung dauert bis zu 4 Wochen, AppSource-Freigabe ca. 1 Woche, danach 10–14 Tage bis zur Produktion in Desktop/Service, das Badge erscheint bis zu 3 Wochen nach Freigabe. Dazu kommen geschätzt 1–3 Wochen für Kontoverifizierung, 2–6 Wochen Vorbereitung und je Ablehnung 2–4 Wochen.",
+    "selfFeasible": "Quelle Microsoft-FAQ: 'Does a certified Power BI visual have to be in the marketplace? Yes. Private visuals aren't certified.' Das Visual muss also öffentlich im AppSource gelistet sein, mit Firmen-Publisherprofil, EULA, Support-URL und Datenschutzerklärung. Das .pbiviz-Paket (nicht minifiziertes JS) kann jeder herunterladen. Der Quellcode selbst darf privat bleiben. Für die meisten Organisationen mit einem internen Corporate-Standard ist das aus IP-, Marken-, Support- und Haftungsgründen nicht akzeptabel. Der Anteil 0,25 ist eine Schätzung.",
+    "maintFeePerOrgYear": "Benchmark GitHub Sponsors von Deneb (zertifiziertes Open-Source-Visual, ein Maintainer): Stufen 5/50/150/250/750 USD je Monat, also ~550–2.750 €/Jahr für Bronze bis Gold. Zum Zeitpunkt der Abfrage gab es nur 9 Sponsoren. Eigene Rechnung (Schätzung): Pflege inkl. Zertifizierung ~150–400 h/Jahr × ~80–100 €/h ≈ 12–40 T€/Jahr, verteilt auf ~10–40 zahlende Organisationen ≈ 0,3–3,6 T€. Der reine Zertifizierungsanteil (Releases × Rezertifizierung plus Partner-Center-Pflege) liegt bei etwa 25–40 % dieses Betrags.",
+    "maintLagWeeks": "Quelle Microsoft Learn: Die Zertifizierung eines Updates dauert bis zu 3 Wochen. Bis zur Produktion in Desktop/Service vergehen bis zu 2 Wochen, die Versionsangabe in AppSource wird nach ca. 1 Woche aktualisiert. Der Modus von 3 Wochen ist eine Schätzung. Das obere Ende (8 Wochen) deckt Ablehnungen und das Bündeln von Releases durch den Maintainer ab, um Zertifizierungsrunden zu sparen. GitHub-/Dev-Builds sind deshalb oft deutlich weiter als die zertifizierte Store-Version."
+  },
+  "sources": [
+    {"title": "Get your Power BI visuals certified (Microsoft Learn)", "url": "https://learn.microsoft.com/en-us/power-bi/developer/visuals/power-bi-custom-visuals-certified", "used_for": "Anforderungen (Repo/Branch certification, ESLint, npm audit, keine externen Aufrufe, kein innerHTML/eval, keine Minifizierung, Rendering Events), Ablauf im Partner Center, Publikationszeitplan"},
+    {"title": "Frequently asked questions about Power BI visuals (Microsoft Learn)", "url": "https://learn.microsoft.com/en-us/power-bi/developer/visuals/power-bi-custom-visuals-faq", "used_for": "Erstzertifizierung bis 4 Wochen, Update bis 3 Wochen; jedes Update wird erneut geprüft; abgelehnte Updates; 'Private visuals aren't certified'; Org-Store behält Zertifizierung nur für AppSource-Visuals"},
+    {"title": "Publish Power BI visuals to Partner Center (Microsoft Learn)", "url": "https://learn.microsoft.com/en-us/power-bi/developer/visuals/office-store", "used_for": "Pflicht-Assets (pbiviz, Beispiel-PBIX offline, Logo, Screenshots, Support-URL, Datenschutz, EULA), Registrierung im Partner Center"},
+    {"title": "Export entire reports to PowerPoint (Microsoft Learn)", "url": "https://learn.microsoft.com/en-us/power-bi/collaborate-share/end-user-powerpoint", "used_for": "Bestätigung: Nicht zertifizierte Custom Visuals blockieren den PowerPoint-Export"},
+    {"title": "Manage Power BI visuals admin settings / organizational visuals (Microsoft Learn)", "url": "https://learn.microsoft.com/en-us/fabric/admin/organizational-visuals", "used_for": "Org-Store-Visuals sind von der Einstellung 'nur zertifizierte Visuals' ausgenommen"},
+    {"title": "GitHub Sponsors: deneb-viz", "url": "https://github.com/sponsors/deneb-viz", "used_for": "Benchmark für Beitragsstufen eines zertifizierten Open-Source-Visuals mit einem Maintainer"}
+  ],
+  "biggest_uncertainties": [
+    "Ob ein über den Org-Store verteiltes, nicht zertifiziertes Eigenbau-Visual trotzdem PDF/PPT-Export und Abos erlaubt: Die Doku nennt nur zertifizierte Visuals als Ausnahme. Wenn nicht, bleibt die öffentliche AppSource-Listung der einzige Weg, und selfFeasible bestimmt die Machbarkeit.",
+    "Wie viele Ablehnungsrunden real anfallen. Es gibt kaum öffentliche Erfahrungsberichte, Community-Threads waren nicht abrufbar (403). Jede Runde kostet 2–4 Wochen und 10–40 h.",
+    "Wie viele Organisationen tatsächlich zahlen: Bei Deneb sind es trotz großer Nutzerbasis nur 9 Sponsoren. Der faire Beitrag je Organisation hängt stark davon ab, ob sich die Kosten auf 5 oder 50 Zahler verteilen.",
+    "Aufwand der Firmenverifizierung im Partner Center und der Rechtsprüfung von EULA/Datenschutz/Support-Zusage. Er schwankt je nach Organisation (Konzern vs. Mittelstand) stark.",
+    "Ob Microsoft künftig private oder Tenant-gebundene Zertifizierung oder strengere Audits einführt (z. B. pbiviz --certification-audit seit Tools 6.1). Beides könnte den Rezertifizierungsaufwand ändern."
+  ]
+}

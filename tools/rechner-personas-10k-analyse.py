@@ -201,6 +201,12 @@ res["regret"] = {"notBest": med([r["modes"][M].get("notBest") for r in R]), "ifW
 conf = [max(r["modes"][M]["win"]) for r in R]
 res["conf"] = {"sure": sum(c >= .8 for c in conf) / n, "coin": sum(c < .5 for c in conf) / n, "median": float(np.median(conf))}
 res["templates"] = len(set(P[r["id"]]["template"] for r in R))
+# v0.25: Zertifizierung als Option für Open Source (Anteil der Zukünfte, in denen OSS zertifiziert gerechnet wird / damit gewinnt)
+if "certUse" in R[0]["modes"][M]:
+    res["cert"] = {"use": sum(r["modes"][M]["certUse"] for r in R) / n, "win": sum(r["modes"][M]["certWin"] for r in R) / n,
+                   "winUsers": sum(r["users"] * r["modes"][M]["certWin"] for r in R) / res["usersTotal"],
+                   "ossWinUsers": res["total"][M]["users"][1]}
+    print("cert", res["cert"])
 json.dump(res, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=lambda o: dict(o) if isinstance(o, Counter) else str(o))
 print("Gesamt Nutzer", {m: [round(100 * x, 1) for x in res["total"][m]["users"]] for m in MODES})
 print("Gesamt Firmen", {m: [round(100 * x, 1) for x in res["total"][m]["firms"]] for m in MODES})

@@ -28,7 +28,8 @@ for p in pers:
                "strictNone": r4(r.get("strictNone")), "negotiated": r4(r.get("negotiated")),
                "modes": {m: {"win": [r4(x) for x in v["win"]], "perV": [[r0(x) for x in t] for t in v["perV"]],
                              "best": [r0(x) for x in v["best"]], "ai": r0(v["ai"]), "sq": r0(v.get("sq")), "beatSQ": r4(v.get("beatSQ")),
-                             "bestHard": r4(v.get("bestHard")), "notBest": r4(v.get("notBest")), "regretIfWrong": r4(v.get("regretIfWrong"))}
+                             "bestHard": r4(v.get("bestHard")), "notBest": r4(v.get("notBest")), "regretIfWrong": r4(v.get("regretIfWrong")),
+                             "certUse": r4(v.get("certUse")), "certWin": r4(v.get("certWin"))}
                          for m, v in r["modes"].items()},
                "drivers": [{k: rnd(v) for k, v in dd.items()} for dd in r["drivers"][:3]]}
     rows.append(d)
@@ -50,7 +51,16 @@ for m in ["base", "konzern", "alle"]:
         shares.append(sh); first[max(range(4), key=lambda j: sh[j])] += 1
     q = lambda j, pp: sorted(s_[j] for s_ in shares)[int(pp * (len(shares) - 1))]
     boot[m] = {"lo": [q(j, .05) for j in range(5)], "hi": [q(j, .95) for j in range(5)], "p1": [c / len(shares) for c in first]}
-data = {"N": mc["N"], "rows": rows, "verdicts": verdicts, "ki": mc["ki"], "boot": boot}
+UT = sum(x["mc"]["users"] for x in rows)
+cert = {m: {"use": sum(x["mc"]["modes"][m]["certUse"] or 0 for x in rows) / len(rows),
+            "winUsers": sum(x["mc"]["users"] * (x["mc"]["modes"][m]["certWin"] or 0) for x in rows) / UT,
+            "ossUsers": sum(x["mc"]["users"] * x["mc"]["modes"][m]["win"][1] for x in rows) / UT} for m in ["base", "konzern", "alle"]}
+CK = cert["konzern"]
+pc = lambda x: f"{100 * x:.1f}".replace(".", ",") + " %"
+CERT_FAZIT = ("Die Option macht Open Source oft zulässig, aber selten billiger als den Weg, der ohnehin zulässig war."
+              if CK["winUsers"] < 0.5 * max(1e-9, CK["use"]) else
+              "Ein großer Teil dieser Zukünfte endet mit Open Source als günstigstem Weg: Die Zertifizierung ist hier oft den Preis wert.")
+data = {"N": mc["N"], "rows": rows, "cert": cert, "verdicts": verdicts, "ki": mc["ki"], "boot": boot}
 
 src = (REPO / "no-free-lunch-visual-standards-post.html").read_text(encoding="utf-8")
 css = src[src.index("<style>"):src.index("</style>")]
@@ -132,11 +142,11 @@ html = f"""<!DOCTYPE html>
     <div class="post-meta">
       <span>Von <strong>Michael Tenner</strong></span>
       <span>Stand · <strong>November 2026</strong></span>
-      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.23</a></strong></span>
+      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.25</a></strong></span>
       <span>Daten · <strong><a href="assets/posts/persona-firmen/personas.json">personas.json</a></strong></span>
     </div>
   </header>
-<div class="src-box" style="border-left-color:#2A857A;margin-top:22px"><h3>Aktualisiert nach Experten-Review (Rechner v0.24)</h3>Fünf Experten-Agents haben diese Simulation am 18.11.2026 geprüft. Umgesetzt: K.O.-Matrix des Rechners angeglichen, fester Zufallsstrom je Schalter und Must, IBCS-Zertifikat einmal gezogen, Must-Listen verhandelbar, wenn sonst kein Weg bleibt, Bootstrap-Intervalle für das Gesamtrating, richtige Beschriftung der Gewinner-Anteile. <a href="visual-standards-review.html">Zum Review und zur Umsetzung →</a></div>
+<div class="src-box" style="border-left-color:#2A857A;margin-top:22px"><h3>Aktualisiert nach Experten-Review (Rechner v0.24)</h3>Fünf Experten-Agents haben diese Simulation am 18.11.2026 geprüft. Umgesetzt: K.O.-Matrix des Rechners angeglichen, fester Zufallsstrom je Schalter und Must, IBCS-Zertifikat einmal gezogen, Must-Listen verhandelbar, wenn sonst kein Weg bleibt, Bootstrap-Intervalle für das Gesamtrating, richtige Beschriftung der Gewinner-Anteile. <a href="visual-standards-review.html">Zum Review und zur Umsetzung →</a><br><strong>Neu mit v0.25:</strong> Die Microsoft-Zertifizierung ist für Open Source eine wählbare Option mit Kosten (Eigenbau: Erstzertifizierung und Rezertifizierung in Stunden, nur wenn die Firma eine öffentliche AppSource-Listung akzeptiert; fertiges Visual: Beitrag an den Maintainer). Alle Zahlen sind damit neu gerechnet.</div>
   <div class="prose">
     <div class="filters f-mode"><span class="lbl">Szenario</span></div>
     <div class="kpis"><div class="kpi" id="k-rate"></div><div class="kpi" id="k-sure"></div><div class="kpi" id="k-coin"></div></div>
@@ -144,6 +154,10 @@ html = f"""<!DOCTYPE html>
     <h2>Gesamtrating <em>nach Nutzern</em></h2>
     <p>Eine Firma mit 5.000 Nutzern zählt hier 250-mal so viel wie eine mit 20. Für jede Firma zählt, in welchem Anteil ihrer Zukünfte der Weg der günstigste zulässige ist; diese Anteile gewichten wir mit ihren Nutzern. Wie stabil die Reihenfolge ist, zeigt ein Bootstrap über die 150 Firmen.</p>
     <div id="rating"></div>
+
+    <h2>Zertifizierung <em>als Option</em></h2>
+    <p>Ohne Zertifikat fällt ein Open-Source-Visual bei PDF/PPT-Export, Abos und in Tenants mit „nur zertifizierte Visuals“ raus. Seit Rechner v0.25 darf die Firma es zertifizieren lassen und zahlt dafür: bei einem fertigen Visual einen Beitrag an den Maintainer (150 bis 2.550 €, meist 800 € im Jahr), beim Eigenbau rund 100 Stunden für die Erstzertifizierung und rund 40 Stunden je Jahr für Rezertifizierungen, und das nur, wenn sie ihr Visual öffentlich auf AppSource listen will (geschätzt gut jede vierte). Die Firma nimmt die Zertifizierung, wenn sie Open Source erst zulässig macht oder billiger ist.</p>
+    <p>Ergebnis im Szenario KI-Pflege im Konzern: In {pc(CK["use"])} aller Zukünfte rechnet Open Source zertifiziert. Open Source holt {pc(CK["ossUsers"])} der Nutzer, davon {pc(CK["winUsers"])} mit Zertifikat. {CERT_FAZIT}</p>
 
     <h2>Was ein Viewer <em>je Ebene</em> kostet</h2>
     <div id="levels"></div>
@@ -173,13 +187,13 @@ html = f"""<!DOCTYPE html>
     <h2>So ist es <em>gemacht</em></h2>
     <div class="step"><div class="step-num">1</div><div><h3>150 Personas <span>25 je Ebene, Opus und Sonnet</span></h3><p>Sieben Agents haben die Firmen geschrieben, jeder für eine Ecke des Markts, ohne die Kostenlogik zu kennen: Konzerne, Banken und Versicherungen von Opus, Mittelstand, Kleine und öffentliche Hand überwiegend von Sonnet. Zwei Review-Runden durch Opus haben Widersprüche korrigiert (Leser größer als die Belegschaft, fehlender Vorsteuer-Schalter, Doppelungen). Die Ebene folgt der Größe: klein unter 250 Mitarbeitenden, Konzern über 10.000.</p></div></div>
     <div class="step"><div class="step-num">2</div><div><h3>KI-Effekt schätzen <span>Opus + Sonnet, unabhängig</span></h3><p>Multiplikatoren auf die Stunden je Weg (Erstbau, Rollout, Wartung, Fixes, Schulung, Governance), KI-Kosten je Ersteller und der Adoptionsgrad je Ebene. Gerechnet wird mit dem Mittel beider Schätzungen.</p></div></div>
-    <div class="step"><div class="step-num">3</div><div><h3>Monte Carlo, gepaart <span>5.000 Zukünfte je Firma, drei Szenarien, Rechner v0.24</span></h3><p>Je Ziehung schwanken Mengen, Wachstum, unsichere Schalter und Musts (fester Zufallsstrom je Schalter, das IBCS-Zertifikat wird einmal gezogen) sowie alle Kostenannahmen des Rechners. Bleibt in einer Zukunft kein Weg zulässig, verhandelt die Firma ihre Must-Liste: erst fallen die unsicheren Musts, dann alle; harte Schalter bleiben. Dieselbe Ziehung wird ohne KI, mit KI im Konzern und mit KI überall gerechnet, so dass Unterschiede nur aus der KI kommen. Realismus: Viewer wachsen höchstens bis zur Belegschaft (oder bis zum oberen Viewer-Wert, wenn externe Leser dazukommen).</p></div></div>
+    <div class="step"><div class="step-num">3</div><div><h3>Monte Carlo, gepaart <span>5.000 Zukünfte je Firma, drei Szenarien, Rechner v0.25</span></h3><p>Je Ziehung schwanken Mengen, Wachstum, unsichere Schalter und Musts (fester Zufallsstrom je Schalter, das IBCS-Zertifikat wird einmal gezogen) sowie alle Kostenannahmen des Rechners. Bleibt in einer Zukunft kein Weg zulässig, verhandelt die Firma ihre Must-Liste: erst fallen die unsicheren Musts, dann alle; harte Schalter bleiben. Dieselbe Ziehung wird ohne KI, mit KI im Konzern und mit KI überall gerechnet, so dass Unterschiede nur aus der KI kommen. Realismus: Viewer wachsen höchstens bis zur Belegschaft (oder bis zum oberen Viewer-Wert, wenn externe Leser dazukommen).</p></div></div>
 
     <div class="src-box">
       <h3>Ehrlich eingeordnet</h3>
       <p style="margin-bottom:10px">Die Firmen sind <strong>erfunden</strong>, von Sprachmodellen geschrieben und geprüft. 25 je Ebene ist eine Setzung, kein Abbild des Markts: Im echten Markt gibt es viel mehr kleine Firmen als Konzerne. Das Gesamtrating nach Nutzern gleicht das teilweise aus, weil es Nutzer statt Firmen zählt, bleibt aber an diese Auswahl gebunden.</p>
       <p style="margin-bottom:10px">Für den KI-Effekt auf Power-BI-Report-Pflege gibt es <strong>keine direkte Messung</strong>. Die Studien reichen von −19 % (METR 2025, erfahrene Entwickler) bis +56 % (Greenfield-Aufgabe). Die Faktoren sind Schätzungen mit Bandbreite, und sie skalieren mit dem Adoptionsgrad.</p>
-      <p style="margin:0">Kostenannahmen = Visual-Standards-Rechner v0.24 (K.O.-Matrix nach Experten-Review angeglichen). Gerankt wird nach Kosten unter den zulässigen Wegen, ohne Anforderungs-Score. <strong>Offenlegung:</strong> ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source; auch die Deneb-Vorlagen des Business Chart Builders (Schalter „Vorlagenbibliothek“) sind von uns. Der Rechner nennt selbst eine Schlagseite zugunsten dieser Ansätze.</p>
+      <p style="margin:0">Kostenannahmen = Visual-Standards-Rechner v0.25 (K.O.-Matrix nach Experten-Review angeglichen, Zertifizierung für Open Source als Option mit Kosten). Gerankt wird nach Kosten unter den zulässigen Wegen, ohne Anforderungs-Score. <strong>Offenlegung:</strong> ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source; auch die Deneb-Vorlagen des Business Chart Builders (Schalter „Vorlagenbibliothek“) sind von uns. Der Rechner nennt selbst eine Schlagseite zugunsten dieser Ansätze.</p>
     </div>
 
     <h2>Daten und <em>Skripte</em></h2>

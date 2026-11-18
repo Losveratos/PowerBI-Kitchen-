@@ -1,0 +1,40 @@
+{
+ "method": "Mittel zweier unabhängiger Schätzungen (Claude Opus, Claude Sonnet), 11/2026",
+ "selfInitH": [
+  40.0,
+  97.5,
+  240.0
+ ],
+ "selfReleasesPerYear": [
+  1.0,
+  3.0,
+  6.0
+ ],
+ "selfRecertH": [
+  6.0,
+  14.0,
+  34.0
+ ],
+ "certRunH": [
+  8,
+  40,
+  120
+ ],
+ "certRunNote": "Releases × Stunden je Rezertifizierung; die Ecken der beiden Dreipunkte nicht multipliziert (6–204 h wäre zu breit), sondern auf 8–40–120 h gesetzt",
+ "selfLeadWeeks": [
+  5.5,
+  10.0,
+  21.0
+ ],
+ "selfFeasible": 0.275,
+ "maintFeePerOrgYear": [
+  150.0,
+  800.0,
+  2550.0
+ ],
+ "maintLagWeeks": [
+  1.0,
+  3.0,
+  7.0
+ ]
+}

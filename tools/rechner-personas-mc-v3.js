@@ -16,18 +16,22 @@
       Weg billiger ist als die Null-Option; Cash-Anteil (harte Auszahlungen) je Weg; Regret der Mehrheitswahl (Review 2, 3).
    5. Szenario-Felder je Persona: pOver (Dreipunkt je Weg/Parameter), pMul (Faktor auf einen Parameter aller vier Wege),
       capOver (Erfüllungsgrade), forceFlags.
+   6. v0.25: Zertifizierung als Option für Open Source mit Kosten (CERT_OPTION=0 schaltet ab; CERT_SELF_FEAS = Anteil, der
+      die öffentliche AppSource-Listung eines Eigenbaus akzeptiert, Standard 0,275). Ausgabe certUse / certWin je Modus.
    Unverändert: KI-Pflege als gepaartes Szenario (base / konzern / alle), Viewer-Deckel, Gewinner = günstigster zulässiger Weg. */
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const FILE='file://'+path.resolve(__dirname,'..','visual-standards-rechner.html');
 const PER=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const KI=JSON.parse(fs.readFileSync(process.argv[3],'utf8'));
 const OUT=process.argv[4]||'personas-mc-v3.json';const N=+(process.argv[5]||5000);const ONLY=process.argv[6]||'';
 const SEED=+(process.env.SEED_OFFSET||0);const NEG=process.env.NEGOTIATE!=='0';
+const CERT=process.env.CERT_OPTION!=='0';const SELF_FEAS=+(process.env.CERT_SELF_FEAS||0.275);
 (async()=>{
   const b=await chromium.launch();const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
   await p.goto(FILE,{waitUntil:'load'});await p.waitForTimeout(300);
   const res=[];const t0=Date.now();
   for(let k=0;k<PER.length;k++){
-    const r=await p.evaluate(({P,KI,N,k,ONLY,SEED,NEG})=>{
+    const r=await p.evaluate(({P,KI,N,k,ONLY,SEED,NEG,CERT,SELF_FEAS})=>{
+      const FORCED=(P.forceFlags||[]).includes('osscert');
       function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
       let R=mb(0xBEEF00+k*104729+SEED*7919);
       const gam=a=>{if(a<1)return gam(a+1)*Math.pow(R(),1/a);const d=a-1/3,c=1/Math.sqrt(9*d);for(;;){let x,v;do{const u1=R(),u2=R();x=Math.sqrt(-2*Math.log(u1||1e-12))*Math.cos(2*Math.PI*u2);v=1+c*x;}while(v<=0);v=v*v*v;const u=R();if(u<1-.0331*x*x*x*x)return d*v;if(Math.log(u)<.5*x*x+d*(1-v+Math.log(v)))return d*v;}};
@@ -59,7 +63,7 @@ const SEED=+(process.env.SEED_OFFSET||0);const NEG=process.env.NEGOTIATE!=='0';
       const winOf=(tot,ko)=>{let w=-1;for(let j=0;j<4;j++)if(!ko[j]&&(w<0||tot[j]<tot[w]))w=j;return w;};
       const lvl=P.segment;const adoptT=(KI.adoption||{})[lvl]||[0,0,0];
       const MODES=ONLY?[ONLY]:['base','konzern','alle'];
-      const acc={};MODES.forEach(m=>acc[m]={W:[0,0,0,0,0],PV:[[],[],[],[]],HV:[[],[],[],[]],AI:[],best:[],bestHard:[],GAP:[[],[],[],[]],TOT:[],WIN:[],SQ:[],beatSQ:0,beatSQnr:0,nSQ:0});
+      const acc={};MODES.forEach(m=>acc[m]={certUse:0,certWin:0,W:[0,0,0,0,0],PV:[[],[],[],[]],HV:[[],[],[],[]],AI:[],best:[],bestHard:[],GAP:[[],[],[],[]],TOT:[],WIN:[],SQ:[],beatSQ:0,beatSQnr:0,nSQ:0});
       const KO=[0,0,0,0];const users=[];const WINB=[];const B={};const X={viewers:[],creators:[]};let nNeg=0,nNone=0,nStrict=0;
       FLALL.forEach(f=>{const q=f==='ibcsmust'?pIBCS:pf(f);if(q>0&&q<1)B['flag:'+f]=[];});REQALL.forEach(m=>{if(m==='ibcscert')return;const q=pm(m);if(q>0&&q<1)B['must:'+m]=[];});
       for(let i=0;i<N;i++){base();
@@ -69,8 +73,13 @@ const SEED=+(process.env.SEED_OFFSET||0);const NEG=process.env.NEGOTIATE!=='0';
         FLALL.forEach(f=>{const u=R();const q=f==='ibcsmust'?pIBCS:pf(f);const x=u<q;if(x)fl.add(f);if(B['flag:'+f])B['flag:'+f].push(x?1:0);});
         REQALL.forEach(m=>{const u=R();if(m==='ibcscert'){if(fl.has('ibcsmust')){mu.add(m);if(pIBCS>=1)muHard.add(m);}return;}
           const q=pm(m);const x=u<q;if(x){mu.add(m);if(q>=1)muHard.add(m);}if(B['must:'+m])B['must:'+m].push(x?1:0);});
-        apply(fl,mu);let ko=koNow();
-        if(ko.every(v=>v)){nStrict++;if(NEG){apply(fl,muHard);ko=koNow();if(ko.every(v=>v)){apply(fl,new Set());ko=koNow();}nNeg++;}}
+        /* v0.25: Zertifizierung als Option für Open Source (fester Platz im Zufallsstrom). Bei Eigenbau nur, wenn die Firma
+           die öffentliche AppSource-Listung akzeptiert (CERT_SELF_FEAS). Open Source ist zulässig, wenn es unzertifiziert
+           ODER zertifiziert zulässig ist; gerechnet wird je Zukunft der günstigere zulässige Fall. */
+        const uF=R();const certAvail=CERT&&P.certOpt!==false&&!FORCED&&(P.ossBuild==='ready'||uF<SELF_FEAS);let koU1=0,koC1=1;
+        const koEff=()=>{const k=koNow();koU1=k[1];koC1=1;if(certAvail){S.flags.osscert=true;koC1=koNow()[1];S.flags.osscert=false;}k[1]=(koU1&&koC1)?1:0;return k;};
+        apply(fl,mu);let ko=koEff();
+        if(ko.every(v=>v)){nStrict++;if(NEG){apply(fl,muHard);ko=koEff();if(ko.every(v=>v)){apply(fl,new Set());ko=koEff();}nNeg++;}}
         if(ko.every(v=>v))nNone++;
         ko.forEach((v,j)=>KO[j]+=v);
         const a=pt(adoptT),aiPer=pt(KI.aiCostPerCreatorYear||[0,0,0])*pt(KI.aiCostShareVisual||[0,0,0]);
@@ -81,7 +90,10 @@ const SEED=+(process.env.SEED_OFFSET||0);const NEG=process.env.NEGOTIATE!=='0';
         MODES.forEach(m=>{const aiOn=m==='alle'||(m==='konzern'&&lvl==='konzern');resetP(snap);let aiCost=0;
           if(aiOn&&a>0){setAI(a);aiCost=S.creators*aiPer*a*S.horizon;}
           const cs=OK4.map(o=>{setScenario(s0);return calc(o,pert);});const tot=cs.map(c=>c.total+aiCost);const hard=cs.map(c=>c.hard+aiCost);
-          const w=winOf(tot,ko);const A=acc[m];A.W[w<0?4:w]++;A.AI.push(aiCost/div);for(let j=0;j<4;j++){A.PV[j].push(tot[j]/div);A.HV[j].push(hard[j]/div);}
+          let usedC=false;
+          if(certAvail&&!koC1){S.flags.osscert=true;setScenario(s0);const cc=calc('oss',pert);S.flags.osscert=false;const tC=cc.total+aiCost;
+            if(koU1||tC<tot[1]){tot[1]=tC;hard[1]=cc.hard+aiCost;usedC=true;}}
+          const w=winOf(tot,ko);const A=acc[m];A.W[w<0?4:w]++;if(usedC)A.certUse++;if(usedC&&w===1)A.certWin++;A.AI.push(aiCost/div);for(let j=0;j<4;j++){A.PV[j].push(tot[j]/div);A.HV[j].push(hard[j]/div);}
           A.best.push(w<0?null:tot[w]/div);A.bestHard.push(w<0?null:hard[w]/tot[w]);A.TOT.push(tot);A.WIN.push(ko.map(v=>!v));
           A.SQ.push(sq.total/div);if(w>=0){A.nSQ++;if(tot[w]<sq.total)A.beatSQ++;if(tot[w]<sq.noRead)A.beatSQnr++;}
           if(w>=0){const sec=[0,1,2,3].filter(j=>j!==w&&!ko[j]).map(j=>tot[j]);if(sec.length)A.GAP[w].push((Math.min(...sec)-tot[w])/S.horizon);}if(m===MODES[0])WINB.push(w);});}
@@ -95,14 +107,14 @@ const SEED=+(process.env.SEED_OFFSET||0);const NEG=process.env.NEGOTIATE!=='0';
       MODES.forEach(m=>{const A=acc[m];const maj=[0,1,2,3].reduce((x,j)=>A.W[j]>A.W[x]?j:x,0);
         /* Regret: Was kostet es, in jeder Zukunft beim Mehrheitsweg zu bleiben, gegenüber dem dort günstigsten zulässigen Weg? */
         const reg=[];let notBest=0,nReg=0,majKO=0;A.TOT.forEach((t,i)=>{const okv=A.WIN[i];if(!okv[maj]){majKO++;return;}const w=winOf(t,okv.map(v=>!v));if(w<0)return;nReg++;if(w!==maj)notBest++;reg.push((t[maj]-t[w])/t[w]);});
-        out.modes[m]={gapYr:A.GAP.map(g=>qs(g,.5)),win:A.W.map(v=>v/N),perV:A.PV.map(a1=>[qs(a1,.1),qs(a1,.5),qs(a1,.9)]),hardShare:[0,1,2,3].map(j=>{const h=qs(A.HV[j],.5),t=qs(A.PV[j],.5);return t?h/t:null;}),
+        out.modes[m]={certUse:A.certUse/N,certWin:A.certWin/N,gapYr:A.GAP.map(g=>qs(g,.5)),win:A.W.map(v=>v/N),perV:A.PV.map(a1=>[qs(a1,.1),qs(a1,.5),qs(a1,.9)]),hardShare:[0,1,2,3].map(j=>{const h=qs(A.HV[j],.5),t=qs(A.PV[j],.5);return t?h/t:null;}),
           best:[qs(A.best,.1),qs(A.best,.5),qs(A.best,.9)],bestHard:qs(A.bestHard,.5),ai:qs(A.AI,.5),sq:qs(A.SQ,.5),beatSQ:A.nSQ?A.beatSQ/A.nSQ:null,beatSQnr:A.nSQ?A.beatSQnr/A.nSQ:null,
           majority:maj,regret50:qs(reg,.5),regret90:qs(reg,.9),regretIfWrong:qs(reg.filter(x=>x>0),.5),notBest:nReg?notBest/nReg:null,majKO:majKO/N};});
       out.aiDelta=acc.alle&&acc.base?[0,1,2,3].map(j=>qs(acc.alle.PV[j].map((v,i)=>v-acc.base.PV[j][i]),.5)):null;
       return out;
-    },{P:PER[k],KI,N,k,ONLY,SEED,NEG});
+    },{P:PER[k],KI,N,k,ONLY,SEED,NEG,CERT,SELF_FEAS});
     res.push(r);if(k%25===0||k===PER.length-1)process.stdout.write(`\r${k+1}/${PER.length} (${((Date.now()-t0)/1000).toFixed(0)} s)`);
   }
   console.log('');if(errs.length)console.log('PAGE ERRORS',errs.slice(0,5));
-  fs.writeFileSync(OUT,JSON.stringify({N,version:'v3',seedOffset:SEED,negotiate:NEG,opts:['paid','oss','deneb','core'],ki:KI,results:res}));console.log('geschrieben:',OUT);await b.close();
+  fs.writeFileSync(OUT,JSON.stringify({N,version:'v3',certOption:CERT,certSelfFeas:SELF_FEAS,seedOffset:SEED,negotiate:NEG,opts:['paid','oss','deneb','core'],ki:KI,results:res}));console.log('geschrieben:',OUT);await b.close();
 })();

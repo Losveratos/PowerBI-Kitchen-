@@ -204,6 +204,18 @@ R["mi_H"] = H
 Yf = [w[0] for w in W]
 R["mi_free"] = sorted([[k, round(mi(v, Yf), 4)] for k, v in feats.items() if not k.startswith(("Flag", "Must"))], key=lambda x: -x[1])
 
+# 9e · v0.25: Zertifizierung als Option für Open Source (Spalte ossCert: 0 keine Option, 1 nicht genutzt, 2 genutzt)
+if "ossCert" in c:
+    oc = c["ossCert"]
+    win_oss = [i for i in range(N) if W[i][1] == 1]
+    R["cert"] = {"available": round(sum(1 for x in oc if x >= 1) / N, 4),
+                 "used": round(sum(1 for x in oc if x == 2) / N, 4),
+                 "oss_winners": len(win_oss),
+                 "oss_winners_cert": round(sum(1 for i in win_oss if oc[i] == 2) / max(1, len(win_oss)), 4),
+                 "by_build": {b: round(sum(1 for i in range(N) if c["ossBuild"][i] == k and oc[i] == 2) /
+                                       max(1, sum(1 for i in range(N) if c["ossBuild"][i] == k)), 4)
+                              for k, b in enumerate(["ready", "ki", "classic"])}}
+
 # 10 · Robustheit über die Einzel-Schätzer
 R["robust"] = {}
 for f in others:
@@ -214,6 +226,7 @@ for f in others:
         "ok": share(Counter(O[w[1]] if w[1] >= 0 else "none" for w in W2), n2)}
 
 json.dump(R, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+print("cert", R.get("cert"))
 for k in ["win_free", "win_ok", "ko_rate", "none_feasible", "constraint_flip", "constraint_price", "gap12", "hindsight"]:
     print(k, R[k])
 print("dogma", json.dumps(R["dogma"], indent=0))

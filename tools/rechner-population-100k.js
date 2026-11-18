@@ -12,16 +12,18 @@
      - "draw": eine gepaarte PERT-Ziehung je Ansatz (setScenario je Organisation, für alle vier Ansätze gleich)
        = was in dieser einen Welt tatsächlich angefallen wäre
      - K.O. und Anforderungs-Score aus evaluate()
+   v0.25: Zertifizierung als Option für Open Source (CERT_OPTION=0 schaltet ab, CERT_SELF_FEAS = Anteil, der eine öffentliche
+   AppSource-Listung des Eigenbaus akzeptiert); Spalte ossCert: 0 keine Option, 1 Option nicht genutzt, 2 genutzt.
    Ausgabe: kompakte Spalten-Arrays (eine Zeile je Organisation). */
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
 const FILE='file://'+path.resolve(__dirname,'..','visual-standards-rechner.html');
-const POP=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const OUT=process.argv[3]||'firms.json';const N=+(process.argv[4]||100000);
+const POP=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const CERT_OPT=process.env.CERT_OPTION!=='0';const CERT_SELF_FEAS=+(process.env.CERT_SELF_FEAS||0.275);const OUT=process.argv[3]||'firms.json';const N=+(process.argv[4]||100000);
 (async()=>{
   const b=await chromium.launch();const p=await b.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
   await p.goto(FILE,{waitUntil:'load'});await p.waitForTimeout(300);
   const BATCH=5000;const cols={};let meta=null;const t0=Date.now();
   for(let start=0;start<N;start+=BATCH){
-    const r=await p.evaluate(({POP,start,n})=>{
+    const r=await p.evaluate(({POP,start,n,CERT_OPT,CERT_SELF_FEAS})=>{
       /* ---------- eigener Zufallsstrom für das Profil ---------- */
       function mb(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
       let R=Math.random;
@@ -60,24 +62,33 @@ const POP=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const OUT=process.
         if(S.flags.rs)S.prio.rs='M';
         let mm=0;const MK=Object.keys(G.must);MK.forEach((k,j)=>{if(k==='ibcscert'){if(S.flags.ibcsmust){S.prio[k]='M';mm|=1<<j;}return;}if(bern(G.must[k])){S.prio[k]='M';mm|=1<<j;}});
         /* ---------- Rechnen ---------- */
+        const koIdsNow=()=>OK4.map(k=>{const ids=[];allReqs().forEach(rq=>{if(S.prio[rq.id]==='M'&&capOf(rq,k)>=1&&capOf(rq,k)<=1)ids.push('must:'+rq.id);});
+          FLAGS.forEach(f=>{if(!S.flags[f.id]||f.modifier||!f.excl[k])return;if(f.id==='certonly'&&(k==='oss'||k==='deneb')&&(S.flags.osscert||S.flags.orgstore))return;ids.push('flag:'+f.id);});return ids;});
         const ev=evaluate();const ko=OK4.map(k=>ev[k].ko.length>0?1:0);
-        /* K.O.-Gründe je Ansatz als IDs (gleiche Regeln wie evaluate) */
-        const koIds=OK4.map(k=>{const ids=[];allReqs().forEach(rq=>{if(S.prio[rq.id]==='M'&&capOf(rq,k)>=1&&capOf(rq,k)<=1)ids.push('must:'+rq.id);});
-          FLAGS.forEach(f=>{if(!S.flags[f.id]||f.modifier||!f.excl[k])return;if(f.id==='certonly'&&(k==='oss'||k==='deneb')&&(S.flags.osscert||S.flags.orgstore))return;ids.push('flag:'+f.id);});return ids;});const sc=OK4.map(k=>ev[k].scorePct);
+        const koIds=koIdsNow();const sc=OK4.map(k=>ev[k].scorePct);
         const div=Math.max(1,viewersAvg(pertMean(S.g.growth))*S.horizon);
         const exp=OK4.map(k=>calc(k,pertMean));
         const s0=(0xC0FFEE+i*7919)>>>0;
         const drw=OK4.map(k=>{setScenario(s0);return calc(k,pert);});
+        /* v0.25: Zertifizierung als Option für Open Source. Verfügbar bei einem fertigen Visual immer, bei Eigenbau nur, wenn die
+           Organisation die öffentliche AppSource-Listung akzeptiert (p = CERT_SELF_FEAS). Open Source rechnet dann mit dem
+           günstigeren zulässigen Fall (Erwartungswert entscheidet, die Ziehung folgt derselben Wahl). */
+        let ossCert=0;
+        const certAvail=CERT_OPT&&(ob==='ready'||R()<CERT_SELF_FEAS);
+        if(certAvail){S.flags.osscert=true;const evC=evaluate();const koC=evC.oss.ko.length>0?1:0;const koIdsC=koIdsNow();
+          const expC=calc('oss',pertMean);setScenario(s0);const drwC=calc('oss',pert);S.flags.osscert=false;
+          const useC=!koC&&(ko[1]||expC.total<exp[1].total);
+          if(useC){exp[1]=expC;drw[1]=drwC;ossCert=2;ko[1]=0;koIds[1]=[];sc[1]=evC.oss.scorePct;}else{ossCert=1;if(ko[1]&&koC)koIds[1]=koIdsC[1];}}
         rows.push([SEG.indexOf(sk),S.creators,S.viewers,S.ssShare,S.horizon,['inforiver','enterprise','zebra'].indexOf(la),site?1:0,['op','mix','mgmt'].indexOf(rc),S.ibcsAll?1:0,
           ['none','paid','oss','deneb','core'].indexOf(bl),S.existing,['none','app','org','file'].indexOf(S.dist),S.lib?1:0,['ready','ki','classic'].indexOf(ob),fm,mm,S.reports,S.models,S.types,div,
           ko,koIds,sc,exp.map(c=>Math.round(c.total)),drw.map(c=>Math.round(c.total)),
           drw.map(c=>CATS.map(([k])=>Math.round(c[k]))),drw.map(c=>Math.round(c.hard)),exp.map(c=>Math.round(c.hoursInt||0)),exp.map(c=>Math.round(c.exitCost||0)),
-          drw.map(c=>[Math.round(c.phase.creation.hard),Math.round(c.phase.creation.soft),Math.round(c.phase.usage.hard),Math.round(c.phase.usage.soft)])]);
+          drw.map(c=>[Math.round(c.phase.creation.hard),Math.round(c.phase.creation.soft),Math.round(c.phase.usage.hard),Math.round(c.phase.usage.soft)]),ossCert]);
       }
       return {rows,meta:{SEG,FL,MUST:Object.keys(POP.segments[SEG[0]].must),CATS:CATS.map(c=>c[0]),OPTS:OK4}};
-    },{POP,start,n:Math.min(BATCH,N-start)});
+    },{POP,start,n:Math.min(BATCH,N-start),CERT_OPT,CERT_SELF_FEAS});
     if(!meta)meta=r.meta;
-    r.rows.forEach(row=>{['seg','creators','viewers','ssShare','horizon','licAnchor','site','rc','ibcsAll','baseline','existing','dist','lib','ossBuild','flags','must','reports','models','types','div','ko','koIds','score','exp','draw','cats','hard','hoursInt','exitCost','phase'].forEach((k,j)=>(cols[k]=cols[k]||[]).push(row[j]));});
+    r.rows.forEach(row=>{['seg','creators','viewers','ssShare','horizon','licAnchor','site','rc','ibcsAll','baseline','existing','dist','lib','ossBuild','flags','must','reports','models','types','div','ko','koIds','score','exp','draw','cats','hard','hoursInt','exitCost','phase','ossCert'].forEach((k,j)=>(cols[k]=cols[k]||[]).push(row[j]));});
     process.stdout.write(`\r${Math.min(start+BATCH,N)} / ${N}  (${((Date.now()-t0)/1000).toFixed(0)} s)`);
   }
   console.log('');if(errs.length)console.log('PAGE ERRORS',errs.slice(0,5));

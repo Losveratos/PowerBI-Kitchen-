@@ -38,6 +38,7 @@ LEVERS = {
     "groesse": ("Größe: halb so groß → doppelt so groß (MA, Leser, Ersteller, Reports)", lambda p: size(p, .5), lambda p: size(p, 2)),
     "horizont": ("Horizont: 3 → 10 Jahre", lambda p: p.update(horizon=3), lambda p: p.update(horizon=10)),
     "lizenzpreis": ("Lizenzpreis Paid: 33 € → 170 € je Nutzer und Jahr", lambda p: p.update(licAnchor="inforiver"), lambda p: p.update(licAnchor="zebra")),
+    "zertifizierung": ("Zertifizierung für Open Source als Option (mit Kosten): nein → ja", lambda p: p.update(certOpt=False), lambda p: p.update(certOpt=True)),
     "stunden": ("Stunden je Chart (Erstbau und Rollout, alle Wege): −30 % → +30 %", lambda p: p.update(pMul={"firstH": .7, "reuseH": .7}), lambda p: p.update(pMul={"firstH": 1.3, "reuseH": 1.3})),
     "wartung": ("Wartungsquote (alle Wege): −30 % → +30 %", lambda p: p.update(pMul={"maint": .7}), lambda p: p.update(pMul={"maint": 1.3})),
     "bestand": ("Bestand: grüne Wiese → heutiger Bestand bleibt", lambda p: p.update(baseline="none", existing=0), lambda p: None),
