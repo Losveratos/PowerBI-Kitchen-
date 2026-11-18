@@ -1,0 +1,112 @@
+  <a class="back-link" href="visual-standards-10000-firmen.html">← Report 10.000 Firmen</a>
+  <header>
+    <div class="post-eyebrow">Review · Visual-Standards-Simulationen · fünf Experten-Agents</div>
+    <h1 class="post-title">Fünf Experten prüfen: <em>Was hält, was nicht</em></h1>
+    <p class="post-dek">Die drei Simulationen (100.000 Firmen, 150 Persona-Firmen, 10.000 Firmen mit Kontrafaktum und OSS-Szenario) haben wir von fünf unabhängigen Experten-Agents prüfen lassen, jede mit eigener Rolle und Zugriff auf alle Daten, Skripte und den Rechenkern. Ergebnis: fünfmal 3 von 5. Die Rechnung ist sauber und reproduzierbar, aber mehrere Schlagzeilen tragen nicht, und einige Fehler gehen auf uns.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>18. November 2026</strong></span>
+      <span>Reviews · <strong>3× Claude Opus, 2× Claude Sonnet</strong></span>
+    </div>
+  </header>
+  <div class="prose">
+
+    <div class="kpis">
+      <div class="kpi"><div class="v">5 × 3/5</div><div class="l">Alle fünf Reviewer geben 3 von 5: verwendbar nach Korrekturen, so nicht veröffentlichen.</div></div>
+      <div class="kpi"><div class="v">4 von 5</div><div class="l">haben die Zahlen mit dem unveränderten Rechenkern nachgerechnet und exakt bzw. auf 0,1 Prozentpunkte getroffen.</div></div>
+      <div class="kpi"><div class="v">11</div><div class="l">kritische Befunde, die meisten zur K.O.-Matrix des Rechners und zum OSS-1-FTE-Szenario.</div></div>
+    </div>
+
+    <h2>Die fünf <em>Reviewer</em></h2>
+    <p>Jede Persona wurde vorab entworfen und bekam dasselbe Dossier: die drei Ergebnisse als Text, alle Daten, Skripte, Aufträge an die früheren Agents und die Annahmen des Rechners mit Quellen. Die Aufgabe: zwölf Kernaussagen mit „hält / wackelt / falsch“ bewerten, Befunde mit Beleg und Korrekturvorschlag liefern. Keine Persona sah die anderen Reviews.</p>
+    <!--CARDS-->
+
+    <h2>Zwölf Aussagen, <em>fünf Urteile</em></h2>
+    <!--MATRIX-->
+
+    <h2>Was <em>hält</em></h2>
+    <ul>
+      <li><strong>Die Rechnung.</strong> Vier Reviewer haben Teile mit dem Rechenkern neu gerechnet und die gespeicherten Zahlen getroffen. Die Ziehungen im Rechner sind sauber gekoppelt (ein Zufallsstrom je Parameter, alle vier Wege sehen dieselbe Zukunft). Alles ist mit Seeds, Skripten und Rohdaten reproduzierbar.</li>
+      <li><strong>„Jeder zahlt, nur woanders“ (C3)</strong> und <strong>„KI-Pflege ändert die Rangfolge kaum“ (C5)</strong> halten bei vier von fünf. Bei C5 halten die Reviewer die Adoption eher für zu hoch und die Wartungs-Faktoren für zu optimistisch (METR misst −19 %). Beides würde den kleinen Effekt nur weiter verkleinern.</li>
+      <li><strong>Die Grundbotschaft:</strong> Erst Regeln und Musts klären, dann rechnen, und jedes Must hat einen Preis. Alle fünf halten sie für richtig und nützlich.</li>
+      <li><strong>Kontrafaktum statt Korrelation</strong> ist die richtige Wahl, auch das Verwerfen des Entscheidungsbaums. Nur die Ausführung hat einen Fehler (siehe unten).</li>
+      <li><strong>Die Zerlegung im OSS-Szenario</strong> („nur fertig / nur Pflege / beides“) zeigt ehrlich, dass Pflege allein wenig bringt. Einzelne Verschlechterungen kosten OSS nur 2 bis 4 Prozentpunkte (Review 5).</li>
+    </ul>
+
+    <h2>Was <em>nicht hält</em></h2>
+
+    <h3 style="font-size:1.12rem;margin:20px 0 6px">1 · Die K.O.-Matrix des Rechners ist an mehreren Stellen inkonsistent</h3>
+    <p>Ein Must schließt einen Weg aus, wenn sein Erfüllungsgrad 1 ist; bei 2 gibt es nur eine Warnung. Diese Setzungen treiben die dritte Linse und die harten Hebel, und mehrere widersprechen den eigenen Texten des Rechners:</p>
+    <ul>
+      <li><strong>RDL-Asymmetrie</strong> (Reviews 1, 4): „Berichtsheft in RDL“ schließt Paid, OSS und Deneb aus, Core nur mit Warnung. Der Rechner schreibt aber selbst, dass der RDL-Zweitbau alle vier Wege trifft.</li>
+      <li><strong>Report Server</strong> (Reviews 1, 4): Paid wird hart ausgeschlossen, obwohl Zebra BI und Inforiver dort über eigene Lizenzwege laufen. Der Rechner schreibt selbst „Hersteller-eigene Lizenzwege je Produkt prüfen“.</li>
+      <li><strong>„Kein Vendor-Lock-in“</strong> (Reviews 2, 4): Das ist der häufigste K.O.-Grund für Paid (25 %), obwohl der Ausstieg ohnehin separat bepreist wird. Im Einkauf heißt das meist Exit-Klausel, nicht „kein Anbieter“.</li>
+      <li><strong>Unzertifiziertes Open Source</strong> (Review 1): Bei den Musts „PDF/PPT-Export & Abos“ und „Microsoft-zertifiziert“ gibt es nur eine Warnung. Im Service lassen sich unzertifizierte Visuals aber nicht exportieren oder abonnieren; der Rechner schreibt das in seiner eigenen Warnung. <strong>Dieser Fehler begünstigt unsere eigene Kategorie.</strong></li>
+      <li><strong>Deneb und SLA</strong> (Review 1): Deneb übersteht ein SLA-Must, obwohl es nur GitHub-Sponsoring gibt.</li>
+      <li><strong>IBCS-Zertifikat doppelt gezogen</strong> (Review 2): Flag und Must werden unabhängig gezogen, der K.O.-Anteil liegt dadurch bei 8,7 % statt 5,2 %.</li>
+    </ul>
+    <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Nachrechnung der Reviewer (100k, dritte Linse)</th><th class="num">Paid</th><th class="num">OSS</th><th class="num">Deneb</th><th class="num">Core</th><th class="num">kein Weg</th></tr></thead><tbody>
+      <tr><td>Veröffentlicht</td><td class="num">28 %</td><td class="num">15 %</td><td class="num">15 %</td><td class="num">30 %</td><td class="num">11 %</td></tr>
+      <tr><td>RDL symmetrisch, Core auch K.O. (Review 4)</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num">19 %</td><td class="num">23 %</td></tr>
+      <tr><td>RDL, Report Server, SLA korrigiert, ohne Copilot-Must (Review 1)</td><td class="num">42 %</td><td class="num">17 %</td><td class="num">12 %</td><td class="num">22 %</td><td class="num"></td></tr>
+      <tr><td>Alle Paid-Korrekturen inkl. Lock-in als Warnung, Preissteigerung, Kurs (Review 4)</td><td class="num">43 %</td><td class="num"></td><td class="num"></td><td class="num">17 %</td><td class="num"></td></tr>
+      <tr><td>OSS bei Export/Zertifizierung korrekt ausgeschlossen (Review 1)</td><td class="num"></td><td class="num">6 %</td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+    </tbody></table></div>
+    <p class="note">Leere Zellen: von den Reviewern nicht berichtet. Die Korrekturen wirken in beide Richtungen: Paid gewinnt deutlich, Core und OSS verlieren. Die Aussage „Paid und Core gleichauf“ (C1) hält damit nicht.</p>
+
+    <h3 style="font-size:1.12rem;margin:24px 0 6px">2 · Rechen- und Darstellungsfehler, die auf uns gehen</h3>
+    <ul>
+      <li><strong>Gebrochene Kopplung im Kontrafaktum</strong> (Review 3): Variante A löscht den Schalter, statt ihn auf 0 zu setzen. Damit verschiebt sich der Zufallsstrom, und A und B sehen verschiedene Mengen. Allein das Rauschen kippt so 7–9 % der Gewinner (Placebo-Lauf). Sauber gekoppelt fällt „nur zertifizierte Visuals“ von 19 auf 12 %, „SLA“ von 16 auf 9 %. Die Spitze hält (Copilot 90 %, kein Lizenzbudget 57 %).</li>
+      <li><strong>Kontrafaktum falsch gelesen</strong> (Reviews 1, 2, 3): 51–91 % gelten, wenn eine Regel bei allen Firmen gilt. Gewichtet mit ihrer echten Verbreitung kippen die harten Weichen nur 3–10 % der Firmen, der Lizenzpreis 33 %. „Harte Weichen schlagen jeden Kostenhebel“ ist so nicht belegt. Belegt ist: <em>Wo</em> eine harte Weiche gilt, entscheidet sie fast immer. Außerdem fehlen die Stundentreiber, die der Rechner selbst als wichtigste Stellschraube nennt.</li>
+      <li><strong>Falsch beschriftete Gewinner-Anteile</strong> (Review 3): Gerechnet ist der Mittelwert der Gewinner-Anteile über die Zukünfte, beschriftet ist es als „Anteil der Firmen, in denen der Weg am häufigsten gewinnt“. Nach der beschrifteten Definition steht es nach Nutzern Paid 48 % zu Deneb 33 %, nicht 37 zu 36.</li>
+      <li><strong>„47 %“ zu niedrig</strong> (Review 3): Die 11 % ohne jeden zulässigen Weg fehlen; richtig sind 57,5 %. Und „1 von 5 hätte anders gewählt“ heißt unter Firmen, die wirklich wählen können, 29 %.</li>
+      <li><strong>Klumpenrisiko in den 10.000</strong> (Review 3): Effektiv stecken rund 55 Vorlagen dahinter, nach Nutzern 18. Eine einzige Vorlage (eine IT-Beratung mit Mandantenportal, etwa 17 Nutzer je Mitarbeitendem) stellt 20,5 % aller Nutzer. Ohne sie führt Deneb (36,5 %) vor Paid (31,1 %). Im Bootstrap über die Vorlagen ist die Reihenfolge Paid vor Deneb ein Münzwurf (p = 0,52). 27 % der Firmen haben mehr Nutzer als Mitarbeitende.</li>
+      <li><strong>Unabhängig gezogene Musts</strong> (Review 1): 29 % der Konzerne haben im 100k-Lauf gar keinen zulässigen Weg. In der Praxis wird eine Must-Liste verhandelt, bis ein Weg übrig bleibt.</li>
+    </ul>
+
+    <h3 style="font-size:1.12rem;margin:24px 0 6px">3 · Das Szenario „Open Source mit 1 FTE“ ist ein Bestfall</h3>
+    <ul>
+      <li><strong>Die Kapazität der einen Stelle ist nicht modelliert</strong> (Review 5): Gerechnet wird nur die Entlastung der Firmen, als könne eine Person rund 2.100 neue Firmen pro Jahr betreuen. Dazu kommt, dass jedes Update eines zertifizierten Visuals neu zertifiziert werden muss. Mit 3 Stellen, die jede zehnte Firma trägt (≈ 2.150 € je Firma und Jahr), liegt wieder Paid vorn (31 % gegen 27 %). Alles realistisch kombiniert, plus eine Vorlagenbibliothek auch für Deneb, ergibt einen Dreikampf: OSS 24 %, Deneb 27 %, Paid 26 %.</li>
+      <li><strong>Bus-Faktor</strong> (Reviews 1, 4): Ein Abkündigungsrisiko von 2 % für eine einzelne Person widerspricht der eigenen Fluktuationsannahme von 11 %.</li>
+      <li><strong>„Die FTE wäre finanzierbar“ ist falsch gefolgert</strong> (Reviews 2, 3, 5): Der „Vorsprung“ ist der Abstand zum Zweitbesten, nicht der Nutzen der Pflege. Er bestand schon heute (5.238 € bei den heutigen OSS-Firmen), ist zu rund 75 % interne Zeit statt Budget und wurde nur in Zukünften gemessen, in denen OSS gewinnt. Die Rechnung nutzte zudem die Mehrheitsquote (48 %) statt der Schlagzeilen-Zahl (38 %). Mit 846 € als echten Kosten wechselt der Gewinner bei 6 % der Firmen.</li>
+      <li><strong>Fehlendes Gegenszenario</strong> (Review 5): Nur der eigene Weg bekommt eine geschenkte Pflegestelle. Eine Deneb-Vorlagenbibliothek allein hebt Deneb von 28 auf 35 %.</li>
+    </ul>
+
+    <h3 style="font-size:1.12rem;margin:24px 0 6px">4 · Die Offenlegung ist unvollständig</h3>
+    <ul>
+      <li>Wir nennen nur ChartKitchen. Auch die Deneb-Vorlagen (Business Chart Builder) und damit der Schalter „Vorlagenbibliothek vorhanden“ sind Eigenprodukte (Review 2).</li>
+      <li>Der Rechner räumt selbst eine „bekannte Schlagseite“ zugunsten der Autoren ein; das fehlt in allen drei Posts (Review 2).</li>
+      <li>Die Paid-nachteiligen Modellentscheidungen (RDL, Report Server, Lock-in, Preissteigerung und Kurs) sind nicht als solche ausgewiesen (Review 4). Gleichzeitig gilt: Absolut hat Paid die wenigsten eigenen Stunden (0,10 FTE gegen 0,16–0,22) und die niedrigsten Kosten je Viewer. Die Darstellung in Anteilen verdeckt das.</li>
+      <li>Der OSS-1-FTE-Abschnitt liest sich als Finanzierungs-Pitch für das eigene Projekt (Reviews 2, 5).</li>
+    </ul>
+
+    <h2>Unsere <em>Antwort</em></h2>
+    <p>Die Reviews treffen. Vier Fehler gehen direkt auf meine Auswertung: die gebrochene Kopplung im Kontrafaktum, die falsch beschrifteten Gewinner-Anteile, die zu niedrigen 47 % und die Finanzierungsrechnung, die einen Abstand als Nutzen las und die günstigere Quote nahm. Die übrigen Befunde betreffen Annahmen und die K.O.-Matrix des Rechners selbst. Dort sind die Setzungen zum Teil asymmetrisch, und zwar in beide Richtungen: gegen Paid (RDL, Report Server, Lock-in) und für Open Source (Export und Zertifizierung). Die Simulationen haben diese Schieflagen nur vervielfältigt.</p>
+    <p>Bis die Korrekturen umgesetzt sind, gelten die drei Seiten als vorläufig. Sie tragen einen Hinweis auf dieses Review.</p>
+
+    <h2>Korrektur<em>plan</em></h2>
+    <div class="tbl-wrap"><table class="tbl small"><thead><tr><th>Priorität</th><th>Was</th><th>Wo</th></tr></thead><tbody>
+      <tr><td>1</td><td>K.O.-Matrix angleichen: RDL für alle vier gleich behandeln; Report Server bei Paid als Warnung mit Prüfhinweis; „kein Vendor-Lock-in“ als Warnung plus Ausstiegskosten statt K.O.; unzertifiziertes OSS bei Export und Zertifizierung ausschließen; Deneb bei SLA ausschließen; IBCS-Zertifikat nur einmal ziehen</td><td>Rechner (Produktentscheidung) und alle Simulationen</td></tr>
+      <tr><td>2</td><td>Kontrafaktum neu: Schalter auf 0 statt löschen, Placebo-Lauf als Rauschboden, Treiber zusätzlich nach Verbreitung gewichtet, Stundentreiber (Stunden je Chart, Wartungsquote) als Hebel ergänzen</td><td>10k-Report</td></tr>
+      <tr><td>3</td><td>Gewinner-Definition vereinheitlichen und richtig beschriften (Mittel der Gewinner-Anteile <em>oder</em> Mehrheit), Bootstrap-Intervalle über die Vorlagen, Nutzer auf die Belegschaft deckeln, Einfluss der stärksten Vorlage ausweisen</td><td>150 Personas, 10k-Report</td></tr>
+      <tr><td>4</td><td>Musts als verhandelbar modellieren (Sensitivität: Must-Liste wird gelockert, bis ein Weg übrig bleibt), Null-Option, Cash gegen interne Zeit und Regret statt nur Gewinnerhäufigkeit</td><td>alle</td></tr>
+      <tr><td>5</td><td>OSS-1-FTE neu: Pflegekapazität mit der Zahl der Nutzer-Firmen skalieren, Bus-Faktor, Sponsoring als echte Kosten, symmetrisches Gegenszenario (dieselbe FTE für eine Deneb- bzw. Core-Bibliothek); die Überschrift „finanzierbar“ streichen</td><td>10k-Report</td></tr>
+      <tr><td>6</td><td>Offenlegung erweitern: Deneb-Vorlagen als Eigenprodukt, die eingeräumte Schlagseite des Rechners, Paid-nachteilige Setzungen; absolute Stunden und Euro neben den Anteilen zeigen; 47 % → 57,5 %</td><td>alle drei Seiten</td></tr>
+    </tbody></table></div>
+
+    <h2>Alle Befunde <em>nach Schwere</em></h2>
+    <!--FINDINGS-->
+
+    <h2>Die Reviews <em>im Wortlaut</em></h2>
+    <!--FULL-->
+
+    <div class="src-box">
+      <h3>Zum Verfahren</h3>
+      <p style="margin:0">Die fünf Reviewer sind Sprachmodelle in vorgegebenen Rollen (drei mit Claude Opus, zwei mit Claude Sonnet), keine echten Personen. Sie hatten Lesezugriff auf das ganze Repository und durften Daten und den Rechner nachrechnen, aber nichts ändern. Dossier, Reviews (JSON und Text) und ihre Nachrechnungs-Skripte liegen unter <code>sessions/visual-standards-review-5/</code>.</p>
+    </div>
+    <div class="cta-card">
+      <div class="cta-card-text"><span class="k">Die geprüften Seiten</span><h3>Vorläufig, mit Hinweis</h3><p>Die drei Seiten bleiben erreichbar und verweisen auf dieses Review, bis die Korrekturen umgesetzt sind.</p></div>
+      <div class="cta-actions"><a class="cta-btn" href="no-free-lunch-visual-standards-post.html">100.000 Firmen</a><a class="cta-btn ghost" href="persona-firmen-simulation.html">150 Personas</a><a class="cta-btn ghost" href="visual-standards-10000-firmen.html">10.000 Firmen</a></div>
+    </div>
+    <div class="post-foot">Michael Tenner · Daten-WG Knowledge Kitchen · <a href="impressum.html">Impressum</a></div>
+  </div>

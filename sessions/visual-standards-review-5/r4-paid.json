@@ -1,0 +1,172 @@
+{
+ "persona": "Lizenz- und Einkaufsmanager (ex Hersteller Paid-Visual), Anwalt von Paid",
+ "verdicts": {
+  "C1": {
+   "rating": "wackelt",
+   "why": "Rechnung reproduziert (40k-Lauf: 68/28/15/15/31/11). Die Must-Linse 'Core 30 vor Paid 28' kippt aber bei plausiblen Paid-Korrekturen: Exit-Must nur als Warnung gibt Paid 36 vs Core 30; alle fuenf Paid-Korrekturen zusammen Paid 43 vs Core 17. Kostenlinse 68 % haelt."
+  },
+  "C2": {
+   "rating": "wackelt",
+   "why": "Die 47 % haengen an K.O.-Regeln, die Paid hart treffen (Exit 25 %, Report Server 17 %+10 %, kein Budget 25 %). Mindestens Report Server und Exit sind als K.O. fuer Paid strittig. Der Befund 'viele Musts schliessen den guenstigsten aus' bleibt qualitativ."
+  },
+  "C3": {
+   "rating": "wackelt",
+   "why": "Anteile stimmen, sind aber Anteile: in Euro hat Paid die niedrigsten eigenen Stunden (0,10 vs 0,21 FTE) und die niedrigsten Gesamtkosten je Viewer (293 vs 443-567 EUR P50). 'Teuerster Ausstieg' beruht auf Bindungsgrad-Werten 0,95 vs 0,8 ohne Messung und steht nicht in der Summe."
+  },
+  "C4": {
+   "rating": "hält",
+   "why": "Rechnerisch plausibel; die Unsicherheit ist eine Eigenschaft der Eingaben. Fuer Paid nicht besonders verzerrend."
+  },
+  "C5": {
+   "rating": "hält",
+   "why": "Paid wird durch KI kaum entlastet (-1 EUR), das ist als Schaetzung nachvollziehbar; Rangaenderung klein. Faktoren sind Schaetzungen, nicht Messungen."
+  },
+  "C6": {
+   "rating": "wackelt",
+   "why": "Richtung stimmt (klein: Paid), aber 'Core sobald Custom Visuals ausgeschlossen' ist trivial; 'Core bei RDL' ist Modellartefakt. Ab 1.000 MA Deneb stuetzt sich auf Paid-Preis-Annahmen (Anker 80 EUR, Preissteigerung 5 %)."
+  },
+  "C7": {
+   "rating": "wackelt",
+   "why": "Paid 37 vs Deneb 36 ist ein Gleichstand innerhalb der Modellunsicherheit; die Reihenfolge ist nicht belastbar. Die Aussage 'Paid und Deneb fuehren' ist in Ordnung."
+  },
+  "C8": {
+   "rating": "wackelt",
+   "why": "Der Befund 'Weichen schlagen Kostenhebel' ist robust, aber die Top-Zahlen (RDL 87 %, Copilot 91 %) sind teils Konstruktion: Muss-Schalter mit 100 % K.O. gegen drei Wege gegen einen Weg mit Cap 2. Der Vergleich Hebel gegen Hebel ist ungleich skaliert (binaere Weichen vs. Preis x5)."
+  },
+  "C9": {
+   "rating": "nicht beurteilbar",
+   "why": "Szenario ist als Autorenfall gekennzeichnet. Die Pflege-Parameter sind gesetzt (Paid-Werte uebernommen), ein Maintainer ist Bus-Faktor 1, SLA-K.O. bleibt. Ob ein solches Visual existiert und zertifiziert wird, ist offen."
+  },
+  "C10": {
+   "rating": "wackelt",
+   "why": "Arithmetik stimmt (123-177 TEUR / 2.092 = 59-85 EUR). Tragfaehigkeit nicht: 4.400 Organisationen/Jahr ist gesetzt, volle Beteiligung ist Free-Rider-Annahme, und ein Hersteller finanziert mit der FTE auch Support, Vertrieb, Rechtliches."
+  },
+  "C11": {
+   "rating": "wackelt",
+   "why": "Median dreier LLM-Schaetzungen und 150 Vorlagen skaliert auf 10k sind als Muster-Indikator ok, nicht als Marktabbild; Opus-Schaetzer weicht bei OSS und Core deutlich ab (OSS 24 vs 12-13, Core 20 vs 32-34). Kontrafaktum statt Korrelation ist richtig."
+  },
+  "C12": {
+   "rating": "wackelt",
+   "why": "Offenlegung des Interessenkonflikts ist vorhanden und ehrlich. Nicht offengelegt/quantifiziert sind die Paid-nachteiligen Modellentscheidungen (RDL-Asymmetrie, Report-Server-K.O., Exit-K.O., Bindungsgrad) und dass Kernzahlen von Autorenannahmen ohne Quelle abhaengen."
+  }
+ },
+ "findings": [
+  {
+   "severity": "kritisch",
+   "area": "Methodik",
+   "claim": "C1/C6/C8",
+   "issue": "Must 'Paginated Reports (RDL)' schliesst Paid, OSS und Deneb per K.O. aus (Cap 1), Core + SVG aber nur mit Warnung (Cap 2), obwohl der Rechner selbst schreibt, RDL sei fuer alle vier Ansaetze ein zweiter Bau. Core-SVG-Measures laufen in RDL nicht.",
+   "evidence": "visual-standards-rechner.html REQS 'paginated' cap [1,1,1,2]; md Grenzen: 'bei allen vier Ansaetzen gleichermassen'. Nachrechnung 40.000 Firmen: Core Cap 1 setzen -> Core 30,6 -> 18,6 %, 'kein Weg' 10,7 -> 22,8 %; Must ausschalten -> Paid 31,9, Core 22,8. 15 % aller Firmen haben das Must; Paid-K.O.-Grund Nr. 4.",
+   "fix": "Paginated entweder fuer alle vier K.O. (oder fuer keinen) oder als eigenen Zusatzkostenblock; Core-Gewinnerzahlen neu rechnen.",
+   "impact": "Core-Vorsprung in der Must-Linse (30 %) verliert 8-12 Pp.; die Headline 'Core vorn' kippt. Im 10k-Kontrafaktum ist der RDL-Hebel (87 %) damit weitgehend Artefakt."
+  },
+  {
+   "severity": "kritisch",
+   "area": "Annahme",
+   "claim": "C1/C2",
+   "issue": "K.O. fuer Paid bei Report Server ist hart, obwohl der Rechner selbst 'Hersteller-eigene Lizenzwege je Produkt pruefen' schreibt. Zebra BI wirbt mit Report-Server-Unterstuetzung und Lizenzschluessel; Inforiver bietet On-Prem-Variante mit selbst generiertem Visual.",
+   "evidence": "Websuche: help.zebrabi.com (Report Server, Lizenz auch beim Konsum ueber Report Server); docs.inforiver.com/inforiver-enterprise-on-prem. Rechner: FLAGS rs excl.paid; Population: Flag rs 5-30 % plus Must rs 4-25 % (zusammen 17 % K.O.-Grund). Variante 'Report Server als Warnung fuer Paid': Paid 28,4 -> 32,4 %.",
+   "fix": "Report Server fuer Paid als Warnung mit Herstellerpruefung; Wahrscheinlichkeit des Report-Server-Szenarios in DACH gegenpruefen.",
+   "impact": "+4 Pp. Paid in der Must-Linse, etwa 7 % der Paid-K.O.s entfallen."
+  },
+  {
+   "severity": "kritisch",
+   "area": "Annahme",
+   "claim": "C1/C2/C8",
+   "issue": "Must 'kein Vendor-Lock-in' (Cap Paid 1) ist der haeufigste K.O.-Grund fuer Paid (25 %), obwohl Einkauf darunter meist Exit-Klauseln, Datenexport, Escrow, Kuendigungsrechte versteht, nicht 'kein Anbieter'. Das Lock-in-Risiko ist zugleich in der Kennzahl 'Ausstieg' bepreist, nur nicht in der Summe.",
+   "evidence": "REQS exit cap [1,3,4,5]; ergebnis.json ko_reasons paid must:exit 0.2522. Variante Exit Cap 2 (Warnung): Paid 28,4 -> 36,1 %, Core 30,6 -> 29,9 %. Persona Stadtwerke hat 'kein Vendor-Lock-in' mit 50 %, oeffentliche Hand im Population-Segment 50 %.",
+   "fix": "Exit als gestuftes Kriterium (Vertrag, Datenportabilitaet, Escrow) statt Binar-K.O.; Wahrscheinlichkeiten gegen reale Ausschreibungen pruefen.",
+   "impact": "Dreht die Rangfolge Paid/Core in der Must-Linse (Paid 36 vs Core 30)."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Interessenkonflikt",
+   "claim": "C3",
+   "issue": "Der Ausstieg 'Paid 54 % vs Deneb 28 %' beruht auf selbstgesetzten Bindungsgrad-Werten (Paid 0,95, OSS 0,80). Auch ein OSS-Visual wie ChartKitchen hat Property-Schema und Datenrollen, an denen die Berichte haengen; Quellcode macht den Report nicht portabel.",
+   "evidence": "md 'Bindungsgrad beim Ausstieg' 0,8-0,95-1 / 0,6-0,8-0,95: 'Autoren-Schaetzung, eine Messung gibt es nicht'; ergebnis.json exit_ratio paid 0.536 oss 0.442.",
+   "fix": "OSS-Bindung auf Paid-Niveau oder getrennt ausweisen: Report-Portabilitaet vs. Codezugang.",
+   "impact": "Betrifft die Erzaehlung (C3), nicht die Rangfolge; Exit-Must-K.O. (OSS Cap 3) haengt ebenfalls daran."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Darstellung",
+   "claim": "C3",
+   "issue": "Kostenanteile werden als 'Jeder zahlt, nur woanders' gelesen. Paid hat bei Anteilen 57 % 'eigene Zeit', aber absolut die niedrigsten eigenen Stunden und niedrigsten Gesamtkosten je Viewer. Die Tabelle erzeugt den Eindruck von Gleichstand.",
+   "evidence": "ergebnis.json fte p50 paid 0.098 vs oss 0.206 deneb 0.159 core 0.215; per_viewer p50 paid 293, oss 480, deneb 443, core 567; hard_share paid 0.43.",
+   "fix": "Absolute Euro/Stunden neben die Anteile; Titelsatz differenzieren.",
+   "impact": "Aussage kippt nicht, wirkt aber systematisch gegen Paid."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Darstellung",
+   "claim": "C1",
+   "issue": "Die erste Kennzahl der Seite ('30 % hoechster Anteil') waehlt die Linse mit den meisten Autorenannahmen (Must-Listen). Auf Kosten gewinnt Paid in 68 %. Wer nur die Kachel liest, versteht 'kein Weg dominiert' als Ergebnis der Kosten.",
+   "evidence": "Post-Kopf; ergebnis.json win_free paid 0.683.",
+   "fix": "Alle drei Linsen gleichrangig in der Kopfzeile, mit Hinweis welche am staerksten von LLM-Wahrscheinlichkeiten abhaengt.",
+   "impact": "Framing, keine Zahl falsch."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Methodik",
+   "claim": "C1/C7",
+   "issue": "Ranking nach reinen Kosten unter 'zulaessigen' Wegen ignoriert, dass zulaessig nicht gleich tauglich heisst: Core hat in 100 % der Firmen mindestens eine Must-Warnung (IBCS nur per Workaround), Paid in 0 %. Mittlerer Anforderungs-Score Paid 71 %, Core 64 %, OSS 50 %, Deneb 47 %.",
+   "evidence": "40k-Nachrechnung: Firmen mit Must-Warnung Paid 0 %, OSS 73 %, Deneb 91 %, Core 100 %; mit Rechner-Default 70 % Kosten/30 % Score Core 31,7 vs Paid 30,1 (kaum Aenderung).",
+   "fix": "Zusaetzliche Spalte 'Core gewinnt mit Warnung zu IBCS-Notation' ausweisen; Anteil ohne Warnungen berichten.",
+   "impact": "Aendert die Rangfolge nicht, aber die Bedeutung von 'Core 30 %'."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Annahme",
+   "claim": "C6/C1",
+   "issue": "Preissteigerung Paid Modus 5 % p.a. beruht auf Modellwechseln eines Herstellers und auf Microsofts Pro-Erhoehung, nicht auf Vertragspraxis. Enterprise-Vertraege haben Preisbindung oder CPI-Deckel. USD wird 1:1 als EUR gerechnet (Paid bis 14 % zu teuer, dokumentiert).",
+   "evidence": "md Voreinstellungen; Varianten: Inflation 3 % -> Paid kosten 68,0 -> 69,4 %; Lizenz x0,88 -> 70,1 %.",
+   "fix": "Preisklausel als Szenario, EUR-Kontrahierung als Option; Quelle fuer 5 % streichen oder ersetzen.",
+   "impact": "Klein (1-2 Pp. auf der Kostenlinse), aber Richtung einseitig gegen Paid; in Kombination mit den anderen Korrekturen 71,4 %."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Interessenkonflikt",
+   "claim": "C9/C10",
+   "issue": "Das 1-FTE-Szenario setzt OSS auf Paid-Zuverlaessigkeit (Abkuendigungsrisiko 2 %, Fix-Stunden), obwohl eine Person Bus-Faktor 1 ist. Der eigene Rechner wertet Deneb mit 'ein Maintainer' mit Cap 2 beim Must 'Wissen bei mehr als einer Person' (Warnung), OSS aber mit 3.",
+   "evidence": "oss-1fte-annahmen.json dep [1,2,4]; REQS 'bus' cap [5,3,2,3]; Population: Bus-Must 30-75 %. ",
+   "fix": "Bus-Faktor fuer OSS mit einem Maintainer gleich Deneb bewerten oder die FTE als 2 Personen kalkulieren; SLA-/Support-Aufwand eines Herstellers einrechnen.",
+   "impact": "Der OSS-Anstieg (10 -> 38 %) ist eine Obergrenze."
+  },
+  {
+   "severity": "wichtig",
+   "area": "Interessenkonflikt",
+   "claim": "C12",
+   "issue": "Mehrere OSS-Cap-Bewertungen sind auf das eigene Produkt zugeschnitten (agentic 3, a11y 3, datares 3, mscert-Hinweis), waehrend Paid-Faehigkeiten 'je Produkt zu pruefen' heissen. Die Kategorie 'Open Source' ist praktisch ChartKitchen.",
+   "evidence": "REQS notes zu mscert, export, agentic, a11y, datares.",
+   "fix": "OSS-Spalte aus Sicht eines generischen OSS-Visuals bewerten, ChartKitchen als Fallbeispiel separat.",
+   "impact": "Betrifft v.a. Score und Warnungen, K.O.-Bild wenig."
+  },
+  {
+   "severity": "klein",
+   "area": "Methodik",
+   "claim": "C11",
+   "issue": "Opus-Schaetzer weicht stark ab (OSS 24 %, Core 20 %), der Median pro Feld mischt Meinungen; Gleichstand Paid/Core entsteht teils durch Mittelung.",
+   "evidence": "ergebnis.json robust: opus ok core 0.198, paid 0.312, oss 0.245; sonnet-1 core 0.344 paid 0.274.",
+   "fix": "Spannweite der drei Schaetzer als Band im Headline-Wert.",
+   "impact": "Core-Platz 1 vs Paid ist nur in zwei von drei Populationen zu sehen."
+  }
+ ],
+ "missing": [
+  "Preisverhandlung: realisierte Rabatte, Mehrjahres-Preisbindung, Testphasen als Szenario",
+  "Mehrwert gekaufter Visuals ausserhalb der Chart-Stunden (Planung, Writeback, Support-SLA mit Reaktionszeit) in Euro statt nur als Score",
+  "Vertragsmodell Paid: Creator-only vs. Viewer-Lizenz und reale Lizenzdurchsetzung",
+  "Zweiter Bau in RDL als Kostenblock fuer alle vier Wege",
+  "Sensitivitaet gegen die LLM-Wahrscheinlichkeiten der Musts (Reale Ausschreibungsdaten)",
+  "Plausibilitaetscheck der Stunden je Chart gegen Herstellerangaben oder Pilotmessung (5 Charts je Weg bauen)"
+ ],
+ "strengths": [
+  "Reproduzierbar: Rechenkern und Skripte offen, 100k-Ergebnis in meinem 40k-Lauf auf 0,1 Pp. nachgerechnet",
+  "Interessenkonflikt steht in jedem Post, Grenzen und Unsicherheit werden benannt",
+  "Kontrafaktum statt Korrelation, gepaarte Ziehungen",
+  "Paid wird in Kostenlinse und Preislogik (Staffel, Site-Lizenz, Preisanker) differenziert und nicht als ein Preis behandelt"
+ ],
+ "overall": {
+  "score": 3,
+  "summary": "Die Rechnung ist sauber und nachvollziehbar, die Kostenlinse (Paid vorn, bei kleinen Firmen klar) ist belastbar. Die auffaelligsten Aussagen entstehen aber nicht aus Kosten, sondern aus K.O.-Regeln, die Paid hart und Core mild behandeln (RDL-Asymmetrie, Report-Server-K.O., Binar-K.O. fuer Lock-in). Mit fuenf Paid-Korrekturen steht Paid in der Must-Linse bei 43 % gegen Core 17 % statt 28 gegen 31. Die Offenlegung nennt nur den Interessenkonflikt des Autors fuer OSS, nicht die Paid-nachteiligen Modellentscheidungen. Veroeffentlichen mit Korrekturen und Bandbreiten, nicht so."
+ }
+}
