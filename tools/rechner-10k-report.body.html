@@ -2,14 +2,14 @@
   <header>
     <div class="post-eyebrow">Report · Visual-Standards-Rechner · 10.000 Firmen</div>
     <h1 class="post-title">10.000 Firmen: <em>wann was gewinnt</em></h1>
-    <p class="post-dek">Paid, Open Source, Deneb oder Core + SVG? 10.000 Firmen mit Mitarbeiterzahlen nach der realen Größenverteilung, jede 200-mal durch den Rechner geschickt, mit KI-gestützter Pflege im Konzern. Dazu ein Kontrafaktum-Test: 17 Hebel einzeln umgeschaltet, um zu sehen, was die Entscheidung wirklich kippt.</p>
+    <p class="post-dek">Paid, Open Source, Deneb oder Core + SVG? 10.000 Firmen mit Mitarbeiterzahlen nach der realen Größenverteilung, jede 200-mal durch den Rechner (v0.24) geschickt, mit KI-gestützter Pflege im Konzern. Dazu ein Kontrafaktum-Test mit 18 Hebeln, um zu sehen, was die Entscheidung wirklich kippt, und wie oft das in der Praxis vorkommt.</p>
     <div class="post-meta">
       <span>Von <strong>Michael Tenner</strong></span>
       <span>Stand · <strong>November 2026</strong></span>
-      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.23</a></strong></span>
+      <span>Werkzeug · <strong><a href="visual-standards-rechner.html">Visual-Standards-Rechner v0.24</a></strong></span>
     </div>
   </header>
-<div class="src-box" style="border-left-color:#8B2E2E;margin-top:22px"><h3>Vorläufig: Experten-Review mit Korrekturbedarf</h3>Fünf Experten-Agents haben diese Simulationen am 18.11.2026 geprüft und Korrekturbedarf gefunden: an der K.O.-Matrix des Rechners (u. a. RDL, Report Server, Lock-in, Export bei unzertifiziertem Open Source), an der Auswertung (Kontrafaktum, Beschriftung der Gewinner-Anteile, Klumpen bei den Vorlagen) und am Szenario „Open Source mit 1 FTE“. Die Zahlen auf dieser Seite gelten bis zur Korrektur als vorläufig. <a href="visual-standards-review.html">Zum Review →</a></div>
+<div class="src-box" style="border-left-color:#2A857A;margin-top:22px"><h3>Aktualisiert nach Experten-Review (Rechner v0.24)</h3>Fünf Experten-Agents haben diesen Report am 18.11.2026 geprüft. Umgesetzt: K.O.-Matrix des Rechners angeglichen, Leser bei externen Lesern gedeckelt und solche Vorlagen heruntergewichtet, Cluster-Bootstrap über die Vorlagen, gekoppeltes Kontrafaktum mit Kontrollfällen und Verbreitung, Stundentreiber als Hebel, Must-Listen verhandelbar, Open-Source-Szenario mit Bus-Faktor, Pflicht-Abo und Gegenszenario. <a href="visual-standards-review.html">Zum Review und zur Umsetzung →</a></div>
   <div class="prose">
     <div class="kpis" id="kpis"></div>
 
@@ -21,12 +21,12 @@
     <div id="total"></div>
 
     <h2>Wann was gewinnt: <em>nach Größe</em></h2>
-    <p>Anteil der Firmen je Größenklasse, in denen der Weg in den meisten Zukünften am günstigsten zulässigen ist. Rechts: was der günstigste Weg je Viewer und Jahr kostet (Median).</p>
+    <p>Mittlerer Anteil der Zukünfte, in denen der Weg der günstigste zulässige ist, je Größenklasse. Rechts: was der günstigste Weg je Viewer und Jahr kostet (Median).</p>
     <div id="bands"></div>
     <p class="note" id="bandnote"></p>
 
     <h2>Was die Entscheidung <em>treibt</em></h2>
-    <p>Für 1.000 zufällig gezogene Firmen haben wir jeden Hebel einzeln umgeschaltet, alles andere gleich gelassen und beide Fassungen gepaart simuliert (dieselben 100 Zukünfte). Gezählt wird, bei wie vielen Firmen dadurch ein anderer Weg gewinnt. Darunter: wie sich der Gewinner-Anteil jedes Wegs verschiebt.</p>
+    <p>Für 1.000 zufällig gezogene Firmen haben wir jeden Hebel einzeln umgeschaltet, alles andere gleich gelassen und beide Fassungen gepaart simuliert (dieselben 100 Zukünfte, fester Zufallsstrom je Schalter und Must). Gezählt wird, bei wie vielen Firmen dadurch ein anderer Weg gewinnt: die Wirkung, <em>wo</em> der Hebel gilt. Für Schalter und Musts steht dazu, wie verbreitet sie sind, und daraus der Beitrag in der Population.</p>
     <h3 style="font-size:1.1rem;margin:22px 0 4px">Harte Weichen <span class="note">— Regeln und Musts, die Wege ausschließen</span></h3>
     <div id="lev-hard"></div>
     <h3 style="font-size:1.1rem;margin:26px 0 4px">Kostenhebel <span class="note">— verschieben Kosten, schließen nichts aus</span></h3>
@@ -52,13 +52,13 @@
       <h3>So ist es gemacht, und wo es wackelt</h3>
       <p style="margin-bottom:10px"><strong>Firmen:</strong> Die Mitarbeiterzahl stammt aus einer Verteilung nach Unternehmensregister (rund 17.300 Unternehmen ab 250 Beschäftigten in Deutschland, Destatis; 635 mit mehr als 2.999, IW Köln, Daten 2022). Gewichtet ist sie mit gesetzten Wahrscheinlichkeiten für Power-BI-Nutzung und Standard-Absicht je Größe. Banken, Versicherungen und Kliniken stellen 5 %, die öffentliche Hand 10 %. Jede Firma übernimmt Rahmenbedingungen, Musts, Bestand und Horizont von einer der 150 geprüften Persona-Firmen ähnlicher Größe (geschrieben von Claude Opus und Sonnet). Ihre Mengen werden auf die echte Mitarbeiterzahl skaliert. Die 10.000 sind also Varianten von 150 Vorlagen, keine 10.000 unabhängigen Geschichten.</p>
       <p style="margin-bottom:10px"><strong>Warum ein Kontrafaktum-Test statt Korrelation:</strong> Weil die Firmen ihre Merkmale gebündelt von Vorlagen erben, verwechselt eine reine Korrelationsanalyse (Random Forest, Entscheidungsbaum) Vorlage und Ursache. Der Baum spaltete zum Beispiel an „Must Mobile“, was kein echter Hebel ist. Der Kontrafaktum-Test schaltet dagegen einen Hebel im Rechenkern um und misst die Wirkung direkt.</p>
-      <p style="margin-bottom:10px"><strong>Nicht im Ranking:</strong> Der Hebel „Site-Lizenz verhandelbar“. Selbst bei Firmen ab 500 Lesern ist die Site-Pauschale nach den Rechner-Annahmen meist teurer als der Staffelpreis, und eine Firma würde dann einfach Staffel wählen. Der Test bildet diese Wahl nicht ab.</p>
-      <p style="margin:0"><strong>Kosten:</strong> Annahmen des Visual-Standards-Rechners v0.23, KI-Effekt als Mittel zweier unabhängiger Schätzungen (Opus und Sonnet), Ranking nur nach Kosten unter den zulässigen Wegen. 200 Zukünfte je Firma im Hauptlauf, 100 im Kontrafaktum-Test. Offenlegung: ChartKitchen byDatenWG ist unser eigenes Open-Source-Projekt und fällt in die Kategorie Open Source.</p>
+      <p style="margin-bottom:10px"><strong>Nach dem Review geändert:</strong> Vorlagen mit externen Lesern (Franchise, Verbände, Mandantenportale) sind im Vorlagensatz überrepräsentiert; sie gehen mit Gewicht 0,35 ein, und externe Leser sind bei 3 je Mitarbeitendem gedeckelt (vorher stellte eine einzige Vorlage 20 % aller Nutzer). Der Hebel „Site-Lizenz“ ist entfallen, weil der Test die Wahl zwischen Staffel und Site nicht abbildet. Das Kontrafaktum nutzt jetzt einen festen Zufallsstrom je Schalter; ein wirkungsloser Hebel kippt dadurch exakt 0 %.</p>
+      <p style="margin:0"><strong>Kosten:</strong> Annahmen des Visual-Standards-Rechners v0.24, KI-Effekt als Mittel zweier unabhängiger Schätzungen (Opus und Sonnet), Ranking nur nach Kosten unter den zulässigen Wegen; bleibt kein Weg zulässig, wird die Must-Liste verhandelt. 200 Zukünfte je Firma im Hauptlauf, 100 im Kontrafaktum-Test. <strong>Offenlegung:</strong> ChartKitchen byDatenWG (Open Source) und die Deneb-Vorlagen des Business Chart Builders sind eigene Projekte der Autoren; der Rechner nennt selbst eine Schlagseite zugunsten dieser Ansätze.</p>
     </div>
 
     <h2>Daten und <em>Skripte</em></h2>
     <ul>
-      <li><code>tools/rechner-personas-10k.py</code> (Firmen erzeugen) · <code>tools/rechner-personas-mc-v2.js</code> (Simulation) · <code>tools/rechner-personas-10k-analyse.py</code> · <code>tools/rechner-personas-cf.py</code> + <code>tools/rechner-personas-cf-analyse.py</code> (Kontrafaktum) · <code>tools/rechner-10k-report.py</code> (dieser Report)</li>
+      <li><code>tools/rechner-personas-10k.py</code> (Firmen erzeugen) · <code>tools/rechner-personas-mc-v3.js</code> (Simulation) · <code>tools/rechner-personas-10k-analyse.py</code> · <code>tools/rechner-personas-cf.py</code> + <code>tools/rechner-personas-cf-analyse.py</code> (Kontrafaktum) · <code>tools/rechner-10k-report.py</code> (dieser Report)</li>
       <li>Ergebnisse: <a href="assets/posts/persona-firmen/report-10k.json">report-10k.json</a> · <a href="assets/posts/persona-firmen/kontrafaktum.json">kontrafaktum.json</a></li>
       <li>Die 150 Vorlagen mit Story: <a href="persona-firmen-simulation.html">150 Persona-Firmen</a> · die anonyme Population: <a href="no-free-lunch-visual-standards-post.html">No free lunch, 100.000 Firmen</a></li>
     </ul>

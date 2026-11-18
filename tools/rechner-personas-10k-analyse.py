@@ -161,6 +161,42 @@ def node(i):
 
 
 res["tree"] = node(0)
+# 6b · Seit dem Review: Cluster-Bootstrap über die Vorlagen (die Firmen sind skalierte Varianten von Vorlagen),
+#      Mehrheits-Definition neben dem Mittel der Gewinner-Anteile, Konzentration, Null-Option, Verhandlung
+import random as _rnd
+byT = defaultdict(list)
+for r in R:
+    byT[P[r["id"]]["template"]].append(r)
+TK = list(byT.keys())
+_rg = _rnd.Random(20261118)
+bs = {"users": [], "firms": [], "p1u": [0] * 4, "p1f": [0] * 4}
+for _ in range(1000):
+    smp = [r for t in (_rg.choice(TK) for _ in TK) for r in byT[t]]
+    uu = sum(r["users"] for r in smp)
+    su = [sum(r["users"] * r["modes"][M]["win"][j] for r in smp) / uu for j in range(5)]
+    sf = [sum(r["modes"][M]["win"][j] for r in smp) / len(smp) for j in range(5)]
+    bs["users"].append(su); bs["firms"].append(sf)
+    bs["p1u"][max(range(4), key=lambda j: su[j])] += 1; bs["p1f"][max(range(4), key=lambda j: sf[j])] += 1
+qq = lambda L, j, pp: sorted(x[j] for x in L)[int(pp * (len(L) - 1))]
+res["boot"] = {"users": {"lo": [qq(bs["users"], j, .05) for j in range(5)], "hi": [qq(bs["users"], j, .95) for j in range(5)], "p1": [c / 1000 for c in bs["p1u"]]},
+               "firms": {"lo": [qq(bs["firms"], j, .05) for j in range(5)], "hi": [qq(bs["firms"], j, .95) for j in range(5)], "p1": [c / 1000 for c in bs["p1f"]]}}
+uT = Counter()
+for r in R:
+    uT[P[r["id"]]["template"]] += r["users"]
+cT = Counter(P[r["id"]]["template"] for r in R)
+res["templatesEff"] = {"firms": 1 / sum((v / n) ** 2 for v in cT.values()), "users": 1 / sum((v / res["usersTotal"]) ** 2 for v in uT.values()),
+                       "topUser": [[k, v / res["usersTotal"]] for k, v in uT.most_common(3)],
+                       "usersGtEmp": sum(1 for r in R if P[r["id"]]["creators"][1] + P[r["id"]]["viewers"][1] > P[r["id"]]["employees"]) / n}
+majv = [max(range(5), key=lambda j: r["modes"][M]["win"][j]) for r in R]
+res["majorityShares"] = {"firms": [sum(1 for v in majv if v == j) / n for j in range(5)],
+                         "users": [sum(r["users"] for r, v in zip(R, majv) if v == j) / res["usersTotal"] for j in range(5)]}
+res["negotiation"] = {"strictNone": sum(r.get("strictNone", 0) for r in R) / n, "none": sum(r.get("none", 0) for r in R) / n}
+for b in res["bands"]:
+    g = [r for r in R if b["lo"] <= P[r["id"]]["employees"] <= b["hi"]]
+    b["sq"] = med([r["modes"][M].get("sq") for r in g]); b["beatSQ"] = med([r["modes"][M].get("beatSQ") for r in g])
+    b["bestHard"] = med([r["modes"][M].get("bestHard") for r in g])
+res["regret"] = {"notBest": med([r["modes"][M].get("notBest") for r in R]), "ifWrong": med([r["modes"][M].get("regretIfWrong") for r in R])}
+
 # 7 · Sicherheit
 conf = [max(r["modes"][M]["win"]) for r in R]
 res["conf"] = {"sure": sum(c >= .8 for c in conf) / n, "coin": sum(c < .5 for c in conf) / n, "median": float(np.median(conf))}
@@ -174,3 +210,5 @@ for b in res["bands"]:
     print(b["lo"], b["n"], [round(100 * x) for x in b["firms"]], "best €/V", b["best"])
 print("KI", res["ai"]["delta_konzern"], {m: [round(100 * x, 1) for x in v] for m, v in res["ai"]["shift_konzern_users"].items()})
 print("conf", res["conf"])
+print("boot", {k: [round(x, 3) for x in v["p1"]] for k, v in res["boot"].items()}, "users lo/hi", [(round(a, 3), round(b, 3)) for a, b in zip(res["boot"]["users"]["lo"], res["boot"]["users"]["hi"])])
+print("templatesEff", res["templatesEff"]); print("majority", {k: [round(100 * x, 1) for x in v] for k, v in res["majorityShares"].items()}); print("neg", res["negotiation"], "regret", res["regret"])

@@ -81,7 +81,7 @@ def page(standalone):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>10.000 Firmen: Wann welcher Visual-Standard gewinnt · Daten-WG</title>
-<meta name="description" content="10.000 Firmen mit realistischen Mitarbeiterzahlen durch den Visual-Standards-Rechner: wann Paid, Open Source, Deneb oder Core + SVG gewinnt, und welche Entscheidungen den Ausschlag geben (Kontrafaktum-Test mit 17 Hebeln).">
+<meta name="description" content="10.000 Firmen mit realistischen Mitarbeiterzahlen durch den Visual-Standards-Rechner: wann Paid, Open Source, Deneb oder Core + SVG gewinnt, und welche Entscheidungen den Ausschlag geben (Kontrafaktum-Test mit 18 Hebeln, Rechner v0.24).">
 <link rel="canonical" href="{SITE}visual-standards-10000-firmen.html">
 <style>{css}</style>
 </head>

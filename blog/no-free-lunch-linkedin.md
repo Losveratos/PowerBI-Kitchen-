@@ -1,9 +1,10 @@
 # LinkedIn-Posts · No free lunch (Visual-Standards-Rechner, 100.000 Firmen)
 
 > **Fassungen zum Kopieren**, deutsch und englisch, jeweils als eigener Post gedacht.
+> Stand: 18.11.2026, Rechner v0.24 (nach Experten-Review neu gerechnet).
 >
 > **Publish-Checkliste:**
-> 1. Prüfen, dass live ist: `https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html`.
+> 1. Prüfen, dass live ist: `https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html` und `…/visual-standards-review.html`.
 > 2. Als Dokument (Karussell) anhängen: `assets/posts/no-free-lunch/no-free-lunch-carousel.pdf` (2 Folien, 4:5). Alternativ die beiden PNGs `no-free-lunch-1.png` und `no-free-lunch-2.png`.
 > 3. Nach dem Posten den Kommentar-Baustein als ersten eigenen Kommentar setzen.
 
@@ -15,41 +16,45 @@
 
 Die ehrliche Antwort lautet „kommt drauf an". Das klingt nach Ausweichen. Also haben wir es durchgerechnet.
 
-100.000 simulierte Organisationen, vier Wege: gekauftes Visual, Open Source, Deneb, Core + SVG. Jede Firma läuft durch denselben Rechenkern wie unser Visual-Standards-Rechner. Wie die Firmen aussehen (Größe, Bestand, Tenant-Regeln, Must-Listen), haben drei KI-Agents unabhängig geschätzt, einmal Claude Opus, zweimal Claude Sonnet. Wir haben den Median genommen.
+100.000 simulierte Organisationen, vier Wege: gekauftes Visual, Open Source, Deneb, Core + SVG. Jede Firma läuft durch denselben Rechenkern wie unser Visual-Standards-Rechner. Wie die Firmen aussehen (Größe, Bestand, Tenant-Regeln, Must-Listen), haben drei KI-Agents unabhängig geschätzt, einmal Claude Opus, zweimal Claude Sonnet.
+
+Dann haben wir das Ergebnis von fünf Experten-Agents zerlegen lassen: Konzern-CoE, CFO-Berater, Statistiker, Einkäufer als Anwalt von Paid, Open-Source-Maintainer. Urteil: fünfmal 3 von 5. Die Rechnung stimmte, aber unsere K.O.-Regeln waren schief, gegen Paid und für unsere eigene Kategorie. Wir haben den Rechner korrigiert und alles neu gerechnet.
 
 Ergebnis: No free lunch.
 
-→ Nur auf Kosten gerechnet liegt Paid in 68 % der Fälle vorn. Mit den Rahmenbedingungen (certified-only, kein Lizenzbudget, Report Server, Must-Kriterien) sind es nur noch 28 %. Dann liegt Core + SVG mit 30 % gleichauf.
-→ 47 % dürfen ihren günstigsten Weg gar nicht nehmen. Der zulässige Ersatz kostet im Median 60 % mehr.
-→ Die Rangfolge kippt mit der Größe, dem Horizont, dem Lizenzpreis und vor allem damit, was schon im Haus ist. Bei unter 25 Lesern gewinnt Paid in 90 % der Fälle, bei 1.000 bis 3.000 Lesern in 28 %.
-→ Jeder zahlt, nur woanders. Paid zahlt Lizenz und hat den teuersten Ausstieg. Open Source zahlt in Wartung und Freigabe. Deneb zahlt beim Lernen. Core zahlt in der Wartung: 40 % der Kosten gehen ins Nachziehen von Workarounds.
-→ Ein Dogma kostet. „Immer Paid" ist nur in 35 % der Firmen überhaupt erlaubt. „Immer Core" geht fast überall und kostet dort rund ein Drittel mehr als nötig.
+→ Nur auf Kosten gerechnet liegt Paid in 68 % der Fälle vorn. Mit Tenant-Regeln, Budget und Must-Listen sind es 50 %, dahinter Core + SVG mit 26 %, Deneb 13 %, Open Source 5 %.
+→ 43 % dürfen ihren günstigsten Weg nicht nehmen. Der zulässige Ersatz kostet im Median 59 % mehr.
+→ Die Rangfolge kippt mit Größe, Horizont, Lizenzpreis und Bestand. Bei unter 25 Lesern gewinnt Paid in 90 % der Fälle, bei 1.000 bis 3.000 Lesern in 28 % (nur Kosten).
+→ Jeder zahlt, nur woanders. Paid zahlt Lizenz und hat den teuersten Ausstieg, braucht aber absolut die wenigsten eigenen Stunden. Open Source zahlt in Wartung und Freigabe. Deneb beim Lernen. Core in der Wartung.
+→ Open Source steht und fällt mit der Microsoft-Zertifizierung: Ohne sie gibt es im Service keinen PDF-/PPT-Export und keine Abos, und das ist bei jeder zweiten Firma ein Must.
+→ Ein Dogma kostet. „Immer Paid" ist in 63 % der Firmen erlaubt und kostet dort 14 % mehr als nötig. „Immer Core" geht fast überall und kostet 50 % mehr.
 
-Die Toolfrage ist die letzte Frage. Davor stehen sechs andere: Wie viele lesen in fünf Jahren mit? Über welchen Horizont rechnet ihr? Was ist schon im Haus? Welche Regeln sind wirklich hart? Welche Musts sind wirklich Must? Und wer pflegt es in drei Jahren?
+Die Toolfrage ist die letzte Frage. Davor: Wie viele lesen in fünf Jahren mit? Über welchen Horizont rechnet ihr? Was ist schon im Haus? Welche Regeln sind wirklich hart? Welche Musts sind wirklich Must? Wer pflegt es in drei Jahren?
 
-Methode, alle Zahlen, Rohdaten und Skripte:
+Methode, alle Zahlen, Rohdaten, Skripte:
 https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html
 
-Für eure eigene Organisation statt 100.000:
+Was die fünf Reviewer gefunden haben und was wir geändert haben:
+https://datenwgknowledgekitchen.com/visual-standards-review.html
+
+Für eure eigene Organisation:
 https://datenwgknowledgekitchen.com/visual-standards-rechner.html
 
 #PowerBI #IBCS #Controlling #Reporting #Deneb #DatenWG
 
 **Kommentar-Baustein:**
-Ehrlich dazu: Die Population ist keine Erhebung, sondern eine KI-Schätzung (Median aus drei Agents). Am wackligsten sind die Must-Wahrscheinlichkeiten, die treiben die dritte Linse. Die Kostenannahmen sind die des Rechners, mit Quelle an jedem Wert. Und ja: ChartKitchen ist unser eigenes Open-Source-Visual und fällt in die Kategorie Open Source. Rohschätzungen und Skripte liegen im Repo.
+Ehrlich dazu: Die Population ist keine Erhebung, sondern eine KI-Schätzung (Median aus drei Agents). Am wackligsten sind die Must-Wahrscheinlichkeiten. ChartKitchen (Open Source) und die Deneb-Vorlagen des Business Chart Builders sind unsere eigenen Projekte. Genau deshalb haben wir das Review veröffentlicht, inklusive der Fehler, die auf uns gingen.
 
 ---
 
 ## DE · Kurzfassung
 
-Paid, Open Source, Deneb oder Core + SVG? Wir haben 100.000 Firmen simuliert.
+Paid, Open Source, Deneb oder Core + SVG? Wir haben 100.000 Firmen simuliert und das Ergebnis von fünf Experten-Agents zerlegen lassen.
 
 Nur Kosten: Paid gewinnt 68 %.
-Mit echten Rahmenbedingungen: Paid 28 %, Core 30 %, Open Source 15 %, Deneb 15 %, und 11 % haben gar keinen zulässigen Weg.
+Mit echten Rahmenbedingungen: Paid 50 %, Core 26 %, Deneb 13 %, Open Source 5 %.
 
-Keiner gewinnt immer. Jeder zahlt, nur woanders: Lizenz, Wartung, Lernkurve oder Workarounds.
-
-Die Entscheidung fällt vor der Toolfrage: Größe, Horizont, Bestand, harte Regeln, echte Musts.
+Keiner gewinnt immer. Jeder zahlt, nur woanders: Lizenz, Wartung, Lernkurve oder Workarounds. Und Open Source braucht vor allem eins: eine Zertifizierung.
 
 https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html
 
@@ -63,19 +68,22 @@ https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html
 
 The honest answer is "it depends". That sounds like dodging. So we ran the numbers.
 
-100,000 simulated organisations, four paths: a paid custom visual, open source, Deneb, core visuals with SVG. Every organisation runs through the same cost engine as our Visual Standards Calculator. What the organisations look like (size, existing stack, tenant rules, must-have lists) was estimated independently by three AI agents, one on Claude Opus and two on Claude Sonnet. We took the median.
+100,000 simulated organisations, four paths: a paid custom visual, open source, Deneb, core visuals with SVG. Every organisation runs through the same cost engine as our Visual Standards Calculator. What the organisations look like was estimated independently by three AI agents, one on Claude Opus and two on Claude Sonnet.
+
+Then we had five expert agents tear the result apart: an enterprise BI CoE lead, a CFO advisor, a statistician, a procurement manager arguing for paid visuals, and an open-source maintainer. Verdict: five times 3 out of 5. The maths held, but our knockout rules were skewed, against paid and in favour of our own category. We fixed the calculator and re-ran everything.
 
 Result: no free lunch.
 
-→ On cost alone, paid wins in 68% of cases. Add the real constraints (certified-only tenants, no license budget, Report Server, must-haves) and it drops to 28%. Core + SVG ties at 30%.
-→ 47% cannot use their cheapest path at all. The permitted alternative costs a median 60% more.
-→ The ranking flips with size, horizon, license price and, most of all, with what is already in place. Under 25 readers paid wins 90% of the time, at 1,000 to 3,000 readers 28%.
-→ Everyone pays, just somewhere else. Paid pays license and has the most expensive exit. Open source pays in maintenance and approval. Deneb pays in learning. Core pays in maintenance: 40% of its cost goes into keeping workarounds alive.
-→ Dogma has a price. "Always paid" is only allowed in 35% of organisations. "Always core" works almost everywhere and costs about a third more than necessary.
+→ On cost alone, paid wins in 68% of cases. With tenant rules, budget and must-haves it is 50%, followed by core + SVG at 26%, Deneb 13%, open source 5%.
+→ 43% cannot use their cheapest path. The permitted alternative costs a median 59% more.
+→ The ranking flips with size, horizon, license price and what is already in place.
+→ Everyone pays, just somewhere else. Paid has the license and the most expensive exit, but needs the fewest internal hours in absolute terms.
+→ Open source lives or dies with Microsoft certification: without it there is no PDF/PPT export and no subscriptions in the service, a must for every second organisation.
 
-The tool question comes last. Six questions come first: how many people will read this in five years, what horizon you calculate with, what is already in place, which rules are truly hard, which must-haves are truly must, and who maintains it in three years.
-
-Method, all numbers, raw data and scripts (German page):
+Method, numbers, raw data and scripts (German):
 https://datenwgknowledgekitchen.com/no-free-lunch-visual-standards-post.html
+
+What the five reviewers found and what we changed:
+https://datenwgknowledgekitchen.com/visual-standards-review.html
 
 #PowerBI #IBCS #FinancialReporting #Deneb #DataViz
