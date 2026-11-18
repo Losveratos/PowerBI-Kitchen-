@@ -18,7 +18,7 @@ Aufruf: python3 tools/rechner-personas-10k.py <personas-150.json> <out.json> [N]
 4. Vorlage: eine der 150 geprüften Personas derselben Ebene (bzw. desselben Sektors), gewählt nach Nähe der
    Mitarbeiterzahl (Gewicht exp(−Δlog²/(2·0,7²))). Rahmenbedingungen, Musts, Bestand, Horizont, Lizenzniveau usw.
    kommen aus der Vorlage; Mengen werden auf die neue Mitarbeiterzahl skaliert:
-   Viewer × r^0,85, Ersteller × r^0,6, Reports × r^0,6, Modelle × r^0,4, Bestandsreports × r^0,6, r = MA_neu / MA_Vorlage.
+   Viewer × r^0,85 (höchstens Belegschaft; bei externen Lesern Verhältnis der Vorlage, höchstens 3 je MA; Vorlagen mit externen Lesern mit Gewicht 0,35, weil der Vorlagensatz sie überrepräsentiert), Ersteller × r^0,6, Reports × r^0,6, Modelle × r^0,4, Bestandsreports × r^0,6, r = MA_neu / MA_Vorlage.
 Quellen der Eckwerte: Destatis Unternehmensregister (≈ 17.300 Unternehmen ab 250 Beschäftigte),
 IW Köln, Analysen 157 (635 Unternehmen mit mehr als 2.999 Beschäftigten, 2022)."""
 import json, math, random, sys
@@ -51,8 +51,12 @@ def level(e):
     return "klein" if e < 250 else "mittelstand" if e < 2000 else "gehoben" if e <= 10000 else "konzern"
 
 
+EXT_W = .35   # Vorlagen mit externen Lesern (Franchise, Verbände, Mandantenportale) sind im Vorlagensatz überrepräsentiert
+
+
 def pick(cands, e):
-    w = [math.exp(-(math.log(e) - math.log(max(1, c["employees"]))) ** 2 / (2 * .7 ** 2)) for c in cands]
+    w = [math.exp(-(math.log(e) - math.log(max(1, c["employees"]))) ** 2 / (2 * .7 ** 2)) * (EXT_W if c["viewers"][1] + c["creators"][1] > c["employees"] else 1)
+         for c in cands]
     return rng.choices(cands, weights=w)[0]
 
 
@@ -83,9 +87,13 @@ for i in range(N):
     p["segment"] = seg
     p["sector"] = sector
     p["level"] = level(e)
-    p["viewers"] = scale(t["viewers"], r, .85)
-    vmax = max(e, t["viewers"][2]) if t["viewers"][2] > t["employees"] else e
-    p["viewers"] = sorted(min(v, vmax) for v in p["viewers"])
+    # Externe Leser (Vorlage hat mehr Leser als Mitarbeitende, z. B. Mandantenportal): Verhältnis Leser/MA der Vorlage
+    # beibehalten (Exponent 1) und bei 3 deckeln; sonst Leser höchstens = Belegschaft. Bis zum Review wurde hier auf die
+    # absolute Leserzahl der Vorlage gedeckelt — eine 30-MA-Firma bekam so bis zu 2.500 Leser (Befund Review 3).
+    ext = t["viewers"][2] > t["employees"]
+    p["viewers"] = scale(t["viewers"], r, 1.0 if ext else .85)
+    vmax = e * min(3.0, t["viewers"][2] / max(1, t["employees"])) if ext else e
+    p["viewers"] = sorted(max(1, min(v, round(vmax))) for v in p["viewers"])
     p["creators"] = scale(t["creators"], r, .6)
     p["creators"] = sorted(min(c, max(1, p["viewers"][2])) for c in p["creators"])
     p["reports"] = scale(t["reports"], r, .6)

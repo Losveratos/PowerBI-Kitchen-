@@ -2,7 +2,9 @@
 """Kontrafaktum-Varianten: je Hebel zwei Fassungen (A/B) derselben Stichprobe von Personas.
 Aufruf: python3 tools/rechner-personas-cf.py <personas-10k.json> <outdir> [Stichprobe] [seed]
 Für jeden Hebel entstehen <outdir>/cf-<hebel>-A.json und -B.json in identischer Reihenfolge, so dass die
-Simulation (rechner-personas-mc-v2.js, gleicher Index = gleicher Zufallsstrom) gepaart vergleicht.
+Simulation (rechner-personas-mc-v3.js: gleicher Index = gleicher Zufallsstrom, fester Strom je Schalter/Must) gepaart
+vergleicht. Dazu cf-placebo-A/B: zweimal dieselbe Fassung; B wird mit SEED_OFFSET gerechnet und misst den Rauschboden.
+Der Hebel „Site-Lizenz“ ist seit dem Review entfallen (die Wahl Staffel/Site bildet der Test nicht ab).
 A = Hebel "aus" bzw. kleiner Wert, B = Hebel "an" bzw. großer Wert. Alles andere bleibt die Persona."""
 import json, os, random, sys, copy
 
@@ -36,7 +38,8 @@ LEVERS = {
     "groesse": ("Größe: halb so groß → doppelt so groß (MA, Leser, Ersteller, Reports)", lambda p: size(p, .5), lambda p: size(p, 2)),
     "horizont": ("Horizont: 3 → 10 Jahre", lambda p: p.update(horizon=3), lambda p: p.update(horizon=10)),
     "lizenzpreis": ("Lizenzpreis Paid: 33 € → 170 € je Nutzer und Jahr", lambda p: p.update(licAnchor="inforiver"), lambda p: p.update(licAnchor="zebra")),
-    "site": ("Site-Lizenz verhandelbar (nur Firmen ab 500 Lesern): nein → ja", lambda p: p.update(siteLicense=False), lambda p: p.update(siteLicense=True)),
+    "stunden": ("Stunden je Chart (Erstbau und Rollout, alle Wege): −30 % → +30 %", lambda p: p.update(pMul={"firstH": .7, "reuseH": .7}), lambda p: p.update(pMul={"firstH": 1.3, "reuseH": 1.3})),
+    "wartung": ("Wartungsquote (alle Wege): −30 % → +30 %", lambda p: p.update(pMul={"maint": .7}), lambda p: p.update(pMul={"maint": 1.3})),
     "bestand": ("Bestand: grüne Wiese → heutiger Bestand bleibt", lambda p: p.update(baseline="none", existing=0), lambda p: None),
     "bibliothek": ("Vorlagenbibliothek für Deneb/Core: nein → ja", lambda p: p.update(library=False), lambda p: p.update(library=True)),
     "ossbau": ("Open Source: fertiges Visual → selbst bauen (KI-gestützt)", lambda p: p.update(ossBuild="ready"), lambda p: p.update(ossBuild="ki")),
@@ -51,13 +54,12 @@ LEVERS = {
     "copilot": ("Must Copilot baut Reports: nein → ja", lambda p: setmust(p, "copilot", 0), lambda p: setmust(p, "copilot", 1)),
     "sla": ("Must Support mit SLA: nein → ja", lambda p: setmust(p, "sla", 0), lambda p: setmust(p, "sla", 1)),
 }
+LEVERS["placebo"] = ("Placebo: dieselbe Fassung, anderer Zufallsstrom (Rauschboden)", lambda p: None, lambda p: None)
 meta = {}
 for key, (label, fa, fb) in LEVERS.items():
     A, B = [], []
     for p in S:
         if key == "bestand" and p.get("baseline", "none") == "none":
-            continue
-        if key == "site" and p["viewers"][1] < 500:  # Site-Lizenz ist nur ab einigen hundert Lesern eine reale Option
             continue
         a, b = copy.deepcopy(p), copy.deepcopy(p)
         fa(a); fb(b)

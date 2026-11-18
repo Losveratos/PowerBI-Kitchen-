@@ -84,6 +84,9 @@ const boxes=await P.$$eval('#wiz-pane input[data-wflag]',e=>e.map(x=>x.dataset.w
 console.log('  Checkliste: '+boxes.join(', '));
 ok(boxes.length===5,'fuenf Red Flags als Checkliste');
 await P.click('input[data-wflag="rs"]');await P.waitForTimeout(700);
+/* v0.24: Report Server ist bei Paid nur noch eine Warnung (Hersteller-Lizenzwege). Damit der Zwischenstand einen
+   Ausschluss zeigt, kommt „kein Lizenzbudget“ dazu — das schliesst Paid weiterhin aus. */
+await P.click('input[data-wflag="nobudget"]');await P.waitForTimeout(700);
 await P.click('input[data-wflag="ibcsAll"]');await P.waitForTimeout(700);
 await P.click('input[data-wflag="certonly"]');await P.waitForTimeout(700);   /* war durch das Preset gesetzt: wieder aus */
 const st4=await P.evaluate(()=>({rs:!!S.flags.rs,ia:!!S.ibcsAll,cert:!!S.flags.certonly,

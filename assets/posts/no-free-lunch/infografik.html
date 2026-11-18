@@ -85,7 +85,7 @@ svg text{font-family:Geist,system-ui,sans-serif}
   </div>
 
   <div class="foot">
-    <div>Rechenkern: Visual-Standards-Rechner v0.23 · Population: Median aus drei unabhängigen KI-Schätzungen (1× Claude Opus, 2× Claude Sonnet) · Indikation, kein Business Case</div>
+    <div>Rechenkern: Visual-Standards-Rechner v0.24 (nach Experten-Review) · Population: Median aus drei unabhängigen KI-Schätzungen (1× Claude Opus, 2× Claude Sonnet) · Indikation, kein Business Case</div>
     <div class="url">datenwgknowledgekitchen.com</div>
   </div>
 </section>
@@ -121,7 +121,7 @@ svg text{font-family:Geist,system-ui,sans-serif}
 </section>
 
 <script>
-const D={"lens": [{"k": "Nur Kosten", "s": "keine Einschränkung", "v": {"paid": 68, "oss": 12, "deneb": 10, "core": 10, "none": 0}}, {"k": "+ harte Rahmenbedingungen", "s": "Tenant-Regeln, Budget, Report Server", "v": {"paid": 45, "oss": 17, "deneb": 17, "core": 19, "none": 1}}, {"k": "+ Must-Listen", "s": "K.O.-Kriterien aus der Anforderung", "v": {"paid": 28, "oss": 15, "deneb": 15, "core": 30, "none": 11}}], "size": [90, 28], "hor": [74, 53], "lic": [80, 40], "base": {"paid": [77, 91], "oss": [14, 66], "deneb": [9, 76], "core": [0, 28]}, "flip": 47, "flipPrice": 60, "flipP75": 122, "hind": 20, "regret": 26, "none": 11, "groups": [["lic", "Lizenz & Support"], ["build", "Aufbau & Migration"], ["roll", "Rollout & Schulung"], ["maint", "Wartung & Updates"], ["gov", "Governance, Support, Risiko"]], "mix": {"paid": [25.3, 25.2, 25.9, 9.3, 14.3], "oss": [0.5, 31.8, 23.7, 25.6, 18.3], "deneb": [1.6, 29.2, 36.1, 19.9, 13.2], "core": [0.0, 20.2, 31.0, 39.7, 9.2]}, "hard": {"paid": 43, "oss": 25, "deneb": 35, "core": 31}, "exit": {"paid": 54, "oss": 44, "deneb": 28, "core": 34}, "fte": {"paid": 0.1, "oss": 0.21, "deneb": 0.16, "core": 0.22}, "dogma": {"paid": {"feas": 35, "ex": 15, "best": 28}, "oss": {"feas": 47, "ex": 60, "best": 15}, "deneb": {"feas": 57, "ex": 34, "best": 15}, "core": {"feas": 80, "ex": 36, "best": 30}}, "robust": {"opus": {"paid": 31, "oss": 24, "deneb": 17, "core": 20, "none": 8}, "sonnet-1": {"paid": 27, "oss": 13, "deneb": 14, "core": 34, "none": 11}, "sonnet-2": {"paid": 27, "oss": 12, "deneb": 16, "core": 32, "none": 12}}, "gap": 34, "gap10": 13, "N": 100000};
+const D={"lens": [{"k": "Nur Kosten", "s": "keine Einschränkung", "v": {"paid": 68, "oss": 12, "deneb": 10, "core": 10, "none": 0}}, {"k": "+ harte Regeln", "s": "Tenant-Regeln, Lizenzbudget", "v": {"paid": 49, "oss": 16, "deneb": 15, "core": 18, "none": 1}}, {"k": "+ Must-Listen", "s": "K.O. aus der Anforderung", "v": {"paid": 50, "oss": 5, "deneb": 13, "core": 26, "none": 6}}], "size": [90, 28], "hor": [74, 53], "lic": [80, 40], "base": {"paid": [77, 91], "oss": [14, 66], "deneb": [9, 76], "core": [0, 28]}, "flip": 43, "flipPrice": 59, "flipP75": 114, "hind": 17, "regret": 25, "none": 6, "groups": [["lic", "Lizenz & Support"], ["build", "Aufbau & Migration"], ["roll", "Rollout & Schulung"], ["maint", "Wartung & Updates"], ["gov", "Governance, Support, Risiko"]], "mix": {"paid": [25.3, 25.2, 25.9, 9.3, 14.3], "oss": [0.5, 31.8, 23.7, 25.6, 18.3], "deneb": [1.6, 29.2, 36.1, 19.9, 13.2], "core": [0.0, 20.2, 31.0, 39.7, 9.2]}, "hard": {"paid": 43, "oss": 25, "deneb": 35, "core": 31}, "exit": {"paid": 54, "oss": 44, "deneb": 28, "core": 34}, "fte": {"paid": 0.1, "oss": 0.21, "deneb": 0.16, "core": 0.22}, "dogma": {"paid": {"feas": 63, "ex": 14, "best": 50}, "oss": {"feas": 22, "ex": 82, "best": 5}, "deneb": {"feas": 56, "ex": 45, "best": 13}, "core": {"feas": 83, "ex": 50, "best": 26}}, "N": 100000};
 const OPT=[{k:'paid',n:'3rd-Party paid',t:'Paid'},{k:'oss',n:'Open Source',t:'Flexibel · fertig'},{k:'deneb',n:'Deneb / Vega',t:'Flexibel · Code'},{k:'core',n:'Core + SVG',t:'MacGyver'}];
 const COL={paid:'#eb6834',oss:'#1baf7a',deneb:'#2a78d6',core:'#eda100',none:'#B4B2A2'};
 const INK='#0F1E2E',SOFT='#475569',MUTE='#6B7280',LINE='#E4E1D6',SURF='#FAFAF7';
@@ -132,7 +132,7 @@ const SHORT={paid:'Paid',oss:'Open Source',deneb:'Deneb',core:'Core + SVG'};
 
 /* ---- Linsen: drei gestapelte 100-%-Balken ---- */
 (function(){const s=$('lens');const L=270,W=936-L-4,bh=56,gap=20;let h=`<defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#E4E1D6"/><rect width="3.5" height="8" fill="#B4B2A2"/></pattern></defs>`;
-  const LL=[['Nur Kosten','keine Einschränkung'],['+ harte Regeln','Tenant, Budget, Report Server'],['+ Must-Listen','K.O. aus der Anforderung']];
+  const LL=[['Nur Kosten','keine Einschränkung'],['+ harte Regeln','Tenant-Regeln, Lizenzbudget'],['+ Must-Listen','K.O. aus der Anforderung']];
   D.lens.forEach((ln,i)=>{ln={...ln,k:LL[i][0],s:LL[i][1]};const y=i*(bh+gap)+6;h+=`<text x="0" y="${y+25}" font-size="21" font-weight="600" fill="${INK}">${ln.k}</text><text x="0" y="${y+50}" font-size="15.5" fill="${MUTE}">${ln.s}</text>`;
     let x=L;const tot=OPT.reduce((a,o)=>a+ln.v[o.k],0)+ln.v.none;
     [...OPT.map(o=>o.k),'none'].forEach(k=>{const v=ln.v[k];if(!v)return;const w=v/tot*W;
@@ -160,7 +160,7 @@ const SHORT={paid:'Paid',oss:'Open Source',deneb:'Deneb',core:'Core + SVG'};
     <text x="${x(b)+14}" y="${y+5}" font-size="15" fill="${INK}"><tspan font-weight="700">${b} %</tspan> <tspan fill="${SOFT}">${SHORT[o.k]}</tspan></text>`;});
   s.innerHTML=h.replace(/<text x="\d+(\.\d+)?" y="\d+" font-size="15.5" font-weight="600" text-anchor="end"[^>]*>[^<]*<\/text>/g,'');})();
 $('flipBig').textContent=D.flip+' %';
-$('flipTxt').innerHTML=`der Organisationen <b>dürfen ihren rechnerisch günstigsten Weg nicht nehmen</b>: Tenant-Regel, Budget, Report Server oder ein Must. Der zulässige Ersatz kostet im Median <b>+${D.flipPrice} %</b>.`;
+$('flipTxt').innerHTML=`der Organisationen <b>dürfen ihren rechnerisch günstigsten Weg nicht nehmen</b>: Tenant-Regel, Lizenzbudget oder ein Must. Der zulässige Ersatz kostet im Median <b>+${D.flipPrice} %</b>.`;
 
 /* ---- Folie 2: Kostenmix als Raster Weg × Kostenblock, Balken je Zelle auf gemeinsamer Skala ---- */
 (function(){const s=$('mix');const L=236,CW=(936-L)/5,BW=CW-48,top=56,rh=64;const G=D.groups;const mx=Math.max(...OPT.flatMap(o=>D.mix[o.k]));
@@ -182,7 +182,7 @@ const CH=[
  ['Wie viele lesen in fünf Jahren mit?','Lizenz je Kopf wächst mit jedem Leser.'],
  ['Über welchen Horizont rechnet ihr?','Drei Jahre helfen Kaufen, zehn dem Bauen.'],
  ['Was ist heute schon im Haus?','Migration ist der unterschätzte Posten.'],
- ['Welche Regeln sind wirklich hart?','Certified-only, Budget, Report Server.'],
+ ['Welche Regeln sind wirklich hart?','Certified-only, Lizenzbudget, Export-Pflicht.'],
  ['Welche Musts sind wirklich Must?','Ein K.O. zu viel kostet im Median +'+D.flipPrice+' %.'],
  ['Wer pflegt es in drei Jahren?','Wartung frisst den Vorsprung beim Bauen.']];
 $('checks').innerHTML=CH.map((c,i)=>`<div class="chk"><div class="num">${i+1}</div><div><b>${c[0]}</b><span>${c[1]}</span></div></div>`).join('');

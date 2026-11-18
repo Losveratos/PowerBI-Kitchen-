@@ -83,8 +83,10 @@ for j, o in enumerate(O):
     R["ko_reasons"][o] = [[k, round(v / N, 4)] for k, v in cnt.most_common(6)]
 R["none_feasible"] = round(sum(1 for w in W if w[1] < 0) / N, 4)
 # Kippt die Rahmenbedingung den Gewinner?
-flip = sum(1 for w in W if w[1] >= 0 and w[1] != w[0])
+# seit dem Review: Firmen ohne jeden zulässigen Weg zählen mit (vorher fehlten sie, 47 % statt 57,5 %)
+flip = sum(1 for w in W if w[1] != w[0])
 R["constraint_flip"] = round(flip / N, 4)
+R["constraint_flip_feasible"] = round(sum(1 for w in W if w[1] >= 0 and w[1] != w[0]) / N, 4)
 # Preis der Rahmenbedingung: Mehrkosten des zulässigen Besten gegen den freien Besten
 pc = [c["exp"][i][W[i][1]] / c["exp"][i][W[i][0]] - 1 for i in range(N) if W[i][1] >= 0 and W[i][1] != W[i][0]]
 R["constraint_price"] = {"p50": q(pc, .5), "p75": q(pc, .75), "p90": q(pc, .9)}
@@ -102,8 +104,9 @@ R["gap12"] = {"n": len(gaps), "lt5": round(sum(g < .05 for g in gaps) / len(gaps
 
 # 5 · Unsicherheit: Empfehlung (Erwartungswert) gegen realisierte Welt (eine gepaarte Ziehung)
 hit = [W[i][1] == W[i][2] for i in range(N) if W[i][1] >= 0]
+hit2 = [W[i][1] == W[i][2] for i in range(N) if len(W[i][3]) >= 2]
 reg = [c["draw"][i][W[i][1]] / c["draw"][i][W[i][2]] - 1 for i in range(N) if W[i][1] >= 0 and W[i][1] != W[i][2]]
-R["hindsight"] = {"same": round(sum(hit) / len(hit), 4), "regret_p50": q(reg, .5), "regret_p90": q(reg, .9)}
+R["hindsight"] = {"same": round(sum(hit) / len(hit), 4), "same_choice": round(sum(hit2) / len(hit2), 4), "n_choice": len(hit2), "regret_p50": q(reg, .5), "regret_p90": q(reg, .9)}
 
 # 6 · Dogma: jede Organisation nimmt Ansatz X
 R["dogma"] = {}
@@ -161,6 +164,8 @@ for i in range(N):
     al = [j for j in range(4) if not any(r.startswith("flag:") for r in c["koIds"][i][j])]
     okF.append(min(al, key=lambda j: c["exp"][i][j]) if al else -1)
 R["win_flags"] = share(Counter(O[w] if w >= 0 else "none" for w in okF), N)
+R["win_neg"] = share(Counter(O[W[i][1]] if W[i][1] >= 0 else (O[okF[i]] if okF[i] >= 0 else "none") for i in range(N)), N)
+R["negotiated"] = round(sum(1 for i in range(N) if W[i][1] < 0 and okF[i] >= 0) / N, 4)
 R["ko_flags"] = {o: round(sum(1 for i in range(N) if any(r.startswith("flag:") for r in c["koIds"][i][j])) / N, 4) for j, o in enumerate(O)}
 
 # 9c · Bestandseffekt: Gewinnquote (frei) je heutigem Ansatz

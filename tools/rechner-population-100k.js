@@ -52,10 +52,13 @@ const POP=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));const OUT=process.
         const bl=pick(G.baseline);S.baseline=bl;S.existing=bl==='none'?0:Math.max(1,Math.round(S.creators*pt(G.existingPerCreator)));
         S.dist=pick(G.dist);S.lib=bern(G.library);
         const ob=pick(G.ossBuild);S.p.oss.devH=DEV_PRESETS[ob].slice();
-        let fm=0;FL.forEach((f,j)=>{if(f==='orgstore')return;if(bern(G.flags[f])){S.flags[f]=true;fm|=1<<j;}});
+        /* v0.24-Lauf: Schalter „IBCS-Zertifikat Pflicht“ und Must „IBCS-zertifiziertes Visual“ sind dieselbe Sache — einmal
+           ziehen mit p = max(beide), beide setzen (Befund Review 2: vorher doppelt gezogen, K.O.-Anteil 8,7 statt 5,2 %). */
+        const pIBCS=Math.max(+(G.flags.ibcsmust||0),+(G.must.ibcscert||0));
+        let fm=0;FL.forEach((f,j)=>{if(f==='orgstore')return;if(bern(f==='ibcsmust'?pIBCS:G.flags[f])){S.flags[f]=true;fm|=1<<j;}});
         if(S.flags.certonly&&bern(G.flags.orgstore)){S.flags.orgstore=true;S.dist='org';fm|=1<<12;}
         if(S.flags.rs)S.prio.rs='M';
-        let mm=0;const MK=Object.keys(G.must);MK.forEach((k,j)=>{if(bern(G.must[k])){S.prio[k]='M';mm|=1<<j;}});
+        let mm=0;const MK=Object.keys(G.must);MK.forEach((k,j)=>{if(k==='ibcscert'){if(S.flags.ibcsmust){S.prio[k]='M';mm|=1<<j;}return;}if(bern(G.must[k])){S.prio[k]='M';mm|=1<<j;}});
         /* ---------- Rechnen ---------- */
         const ev=evaluate();const ko=OK4.map(k=>ev[k].ko.length>0?1:0);
         /* K.O.-Gründe je Ansatz als IDs (gleiche Regeln wie evaluate) */

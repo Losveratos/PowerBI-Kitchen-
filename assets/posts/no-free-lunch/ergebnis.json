@@ -15,11 +15,11 @@
   "oss": 0.1188
  },
  "win_ok": {
-  "core": 0.3042,
-  "paid": 0.2841,
-  "deneb": 0.1519,
-  "oss": 0.1509,
-  "none": 0.109
+  "core": 0.2566,
+  "paid": 0.504,
+  "deneb": 0.1343,
+  "oss": 0.0494,
+  "none": 0.0557
  },
  "win_by_seg": {
   "klein": {
@@ -31,11 +31,11 @@
     "oss": 0.046
    },
    "ok": {
-    "paid": 0.3918,
-    "core": 0.2345,
-    "none": 0.049,
-    "oss": 0.1909,
-    "deneb": 0.1338
+    "paid": 0.5629,
+    "core": 0.1888,
+    "oss": 0.0728,
+    "deneb": 0.1435,
+    "none": 0.032
    }
   },
   "mittelstand": {
@@ -47,11 +47,11 @@
     "oss": 0.1374
    },
    "ok": {
-    "core": 0.2847,
-    "none": 0.1099,
-    "deneb": 0.1599,
-    "paid": 0.284,
-    "oss": 0.1614
+    "core": 0.2379,
+    "deneb": 0.1317,
+    "paid": 0.5261,
+    "oss": 0.0446,
+    "none": 0.0596
    }
   },
   "gehoben": {
@@ -63,11 +63,11 @@
     "core": 0.2122
    },
    "ok": {
-    "deneb": 0.1546,
-    "paid": 0.1843,
-    "core": 0.3304,
-    "oss": 0.123,
-    "none": 0.2078
+    "core": 0.2895,
+    "paid": 0.4909,
+    "deneb": 0.1145,
+    "oss": 0.021,
+    "none": 0.0841
    }
   },
   "konzern": {
@@ -79,11 +79,11 @@
     "oss": 0.1079
    },
    "ok": {
-    "paid": 0.1989,
-    "none": 0.2898,
-    "deneb": 0.1219,
-    "core": 0.3272,
-    "oss": 0.0623
+    "deneb": 0.0411,
+    "paid": 0.5472,
+    "none": 0.1155,
+    "core": 0.2906,
+    "oss": 0.0057
    }
   },
   "finanz": {
@@ -95,11 +95,11 @@
     "core": 0.2405
    },
    "ok": {
-    "none": 0.281,
-    "deneb": 0.1791,
-    "core": 0.4133,
-    "paid": 0.0798,
-    "oss": 0.0467
+    "core": 0.4138,
+    "paid": 0.3768,
+    "none": 0.1178,
+    "deneb": 0.0845,
+    "oss": 0.0071
    }
   },
   "oeffentlich": {
@@ -111,11 +111,11 @@
     "paid": 0.3768
    },
    "ok": {
-    "oss": 0.0581,
-    "deneb": 0.1998,
-    "none": 0.11,
-    "core": 0.6013,
-    "paid": 0.0307
+    "core": 0.4844,
+    "deneb": 0.19,
+    "none": 0.0631,
+    "paid": 0.2407,
+    "oss": 0.0218
    }
   }
  },
@@ -131,11 +131,11 @@
     "core": 0.0306
    },
    "ok": {
-    "paid": 0.395,
-    "core": 0.233,
-    "none": 0.0504,
-    "oss": 0.1887,
-    "deneb": 0.1329
+    "paid": 0.5668,
+    "core": 0.1884,
+    "oss": 0.0708,
+    "deneb": 0.1417,
+    "none": 0.0323
    }
   },
   {
@@ -149,11 +149,11 @@
     "deneb": 0.0614
    },
    "ok": {
-    "paid": 0.334,
-    "core": 0.2757,
-    "none": 0.0758,
-    "deneb": 0.1442,
-    "oss": 0.1702
+    "paid": 0.5443,
+    "core": 0.2208,
+    "deneb": 0.1338,
+    "oss": 0.0571,
+    "none": 0.044
    }
   },
   {
@@ -167,11 +167,11 @@
     "oss": 0.1753
    },
    "ok": {
-    "core": 0.3471,
-    "deneb": 0.1711,
-    "paid": 0.2225,
-    "oss": 0.142,
-    "none": 0.1173
+    "core": 0.2894,
+    "paid": 0.4608,
+    "deneb": 0.145,
+    "none": 0.0629,
+    "oss": 0.0419
    }
   },
   {
@@ -185,11 +185,11 @@
     "deneb": 0.2133
    },
    "ok": {
-    "deneb": 0.169,
-    "oss": 0.0833,
-    "none": 0.2076,
-    "paid": 0.1144,
-    "core": 0.4257
+    "core": 0.3774,
+    "paid": 0.3863,
+    "deneb": 0.1261,
+    "none": 0.0908,
+    "oss": 0.0194
    }
   },
   {
@@ -203,11 +203,11 @@
     "paid": 0.2833
    },
    "ok": {
-    "none": 0.2464,
-    "paid": 0.1224,
-    "core": 0.374,
-    "oss": 0.0831,
-    "deneb": 0.174
+    "core": 0.3708,
+    "none": 0.1019,
+    "paid": 0.4052,
+    "deneb": 0.1088,
+    "oss": 0.0133
    }
   },
   {
@@ -221,11 +221,11 @@
     "oss": 0.1462
    },
    "ok": {
-    "paid": 0.1692,
-    "none": 0.2847,
-    "deneb": 0.1527,
-    "core": 0.3361,
-    "oss": 0.0572
+    "deneb": 0.0587,
+    "paid": 0.5023,
+    "core": 0.3147,
+    "none": 0.1174,
+    "oss": 0.0069
    }
   }
  ],
@@ -259,46 +259,38 @@
   }
  },
  "ko_rate": {
-  "paid": 0.6479,
-  "oss": 0.526,
-  "deneb": 0.4296,
-  "core": 0.2014
+  "paid": 0.3744,
+  "oss": 0.7775,
+  "deneb": 0.4436,
+  "core": 0.1704
  },
  "ko_reasons": {
   "paid": [
-   [
-    "must:exit",
-    0.2522
-   ],
    [
     "flag:nobudget",
     0.2468
    ],
    [
-    "must:rs",
-    0.1688
-   ],
-   [
-    "must:paginated",
-    0.1521
-   ],
-   [
-    "flag:rs",
-    0.1003
-   ],
-   [
     "must:copilot",
-    0.0926
+    0.0893
+   ],
+   [
+    "flag:coreonly",
+    0.0866
    ]
   ],
   "oss": [
    [
-    "must:sla",
-    0.2154
+    "must:export",
+    0.5226
    ],
    [
-    "must:paginated",
-    0.1521
+    "must:mscert",
+    0.2695
+   ],
+   [
+    "must:sla",
+    0.219
    ],
    [
     "flag:certonly",
@@ -306,113 +298,112 @@
    ],
    [
     "must:copilot",
-    0.0926
+    0.0893
    ],
    [
     "flag:coreonly",
     0.0866
-   ],
-   [
-    "must:ibcscert",
-    0.0517
    ]
   ],
   "deneb": [
    [
-    "must:paginated",
-    0.1521
+    "must:sla",
+    0.219
    ],
    [
     "must:writeback",
-    0.1273
+    0.1259
    ],
    [
     "must:copilot",
-    0.0926
+    0.0893
    ],
    [
     "flag:coreonly",
     0.0866
    ],
    [
-    "must:ibcscert",
-    0.0517
+    "flag:ibcsmust",
+    0.0529
    ],
    [
-    "flag:ibcsmust",
-    0.0389
+    "must:ibcscert",
+    0.0529
    ]
   ],
   "core": [
    [
     "must:writeback",
-    0.1273
-   ],
-   [
-    "must:ibcscert",
-    0.0517
+    0.1259
    ],
    [
     "flag:ibcsmust",
-    0.0389
+    0.0529
+   ],
+   [
+    "must:ibcscert",
+    0.0529
    ]
   ]
  },
- "none_feasible": 0.109,
- "constraint_flip": 0.4659,
+ "none_feasible": 0.0557,
+ "constraint_flip": 0.4336,
+ "constraint_flip_feasible": 0.3779,
  "constraint_price": {
-  "p50": 0.5976985198233855,
-  "p75": 1.2199300003998743,
-  "p90": 2.034929145085259
+  "p50": 0.5915563277614682,
+  "p75": 1.1398490615855135,
+  "p90": 1.9249549566297508
  },
  "gap12": {
-  "n": 59735,
-  "lt5": 0.0666,
-  "lt10": 0.127,
-  "lt25": 0.3579,
-  "p50": 0.3411469181151463
+  "n": 67792,
+  "lt5": 0.0579,
+  "lt10": 0.1109,
+  "lt25": 0.2793,
+  "p50": 0.4407545725970491
  },
  "hindsight": {
-  "same": 0.8043,
-  "regret_p50": 0.26286730673078906,
-  "regret_p90": 0.8783623266580188
+  "same": 0.8253,
+  "same_choice": 0.7567,
+  "n_choice": 67792,
+  "regret_p50": 0.246823128838086,
+  "regret_p90": 0.8222914163453313
  },
  "dogma": {
   "paid": {
-   "feasible": 0.3521,
-   "best": 0.2841,
-   "within10": 0.2979,
+   "feasible": 0.6256,
+   "best": 0.504,
+   "within10": 0.5282,
    "excess_p50": 0.0,
-   "excess_p90": 0.3023122894106247,
+   "excess_p90": 0.32052412098746486,
    "excess_eur_viewer_p50": 0.0,
-   "excess_total_pct": 0.15482172737745087
+   "excess_total_pct": 0.139688997902301
   },
   "oss": {
-   "feasible": 0.474,
-   "best": 0.1509,
-   "within10": 0.1707,
-   "excess_p50": 0.32703499391788626,
-   "excess_p90": 2.2494286050629695,
-   "excess_eur_viewer_p50": 113.69339619387625,
-   "excess_total_pct": 0.5964336802166775
+   "feasible": 0.2225,
+   "best": 0.0494,
+   "within10": 0.0576,
+   "excess_p50": 0.41437066459014094,
+   "excess_p90": 2.486135306144506,
+   "excess_eur_viewer_p50": 184.96477819323735,
+   "excess_total_pct": 0.8224486916077786
   },
   "deneb": {
-   "feasible": 0.5704,
-   "best": 0.1519,
-   "within10": 0.1774,
-   "excess_p50": 0.2827065976131502,
-   "excess_p90": 1.0284542417666227,
-   "excess_eur_viewer_p50": 103.54795333422335,
-   "excess_total_pct": 0.3420848618492843
+   "feasible": 0.5564,
+   "best": 0.1343,
+   "within10": 0.1556,
+   "excess_p50": 0.43448305102711404,
+   "excess_p90": 1.116484416641335,
+   "excess_eur_viewer_p50": 135.8042236645329,
+   "excess_total_pct": 0.44792810699131624
   },
   "core": {
-   "feasible": 0.7986,
-   "best": 0.3042,
-   "within10": 0.3253,
-   "excess_p50": 0.3793665381752538,
-   "excess_p90": 1.768158707319615,
-   "excess_eur_viewer_p50": 86.87959356701236,
-   "excess_total_pct": 0.35728718876505516
+   "feasible": 0.8296,
+   "best": 0.2566,
+   "within10": 0.2811,
+   "excess_p50": 0.5001489780108457,
+   "excess_p90": 2.0523176678857378,
+   "excess_eur_viewer_p50": 135.94092122364984,
+   "excess_total_pct": 0.5009026386816251
   }
  },
  "cost_mix": {
@@ -537,74 +528,82 @@
  },
  "winner_profile": {
   "paid": {
-   "n": 28409,
-   "viewers_p50": 30.0,
+   "n": 50401,
+   "viewers_p50": 47.0,
    "creators_p50": 3.0,
-   "h10": 0.116,
+   "h10": 0.131,
    "seg": {
-    "klein": 0.6122,
-    "konzern": 0.0186,
-    "mittelstand": 0.2896,
-    "gehoben": 0.0473,
-    "finanz": 0.0233,
-    "oeffentlich": 0.0091
+    "klein": 0.4957,
+    "konzern": 0.0288,
+    "mittelstand": 0.3024,
+    "finanz": 0.0619,
+    "gehoben": 0.071,
+    "oeffentlich": 0.0402
    }
   },
   "oss": {
-   "n": 15090,
-   "viewers_p50": 35.0,
-   "creators_p50": 3.0,
-   "h10": 0.15,
+   "n": 4936,
+   "viewers_p50": 28.0,
+   "creators_p50": 2.0,
+   "h10": 0.149,
    "seg": {
-    "oeffentlich": 0.0325,
-    "klein": 0.5616,
-    "gehoben": 0.0594,
-    "mittelstand": 0.3099,
-    "finanz": 0.0256,
-    "konzern": 0.0109
+    "mittelstand": 0.2618,
+    "klein": 0.655,
+    "gehoben": 0.031,
+    "oeffentlich": 0.0373,
+    "finanz": 0.012,
+    "konzern": 0.003
    }
   },
   "deneb": {
-   "n": 15186,
-   "viewers_p50": 91.0,
+   "n": 13431,
+   "viewers_p50": 59.0,
    "creators_p50": 3.0,
-   "h10": 0.198,
+   "h10": 0.202,
    "seg": {
-    "gehoben": 0.0742,
-    "konzern": 0.0213,
-    "mittelstand": 0.305,
-    "finanz": 0.0977,
-    "oeffentlich": 0.1109,
-    "klein": 0.391
+    "konzern": 0.0081,
+    "mittelstand": 0.284,
+    "oeffentlich": 0.1192,
+    "klein": 0.4744,
+    "finanz": 0.0521,
+    "gehoben": 0.0622
    }
   },
   "core": {
-   "n": 30419,
-   "viewers_p50": 111.0,
+   "n": 25659,
+   "viewers_p50": 121.0,
    "creators_p50": 4.0,
-   "h10": 0.15,
+   "h10": 0.157,
    "seg": {
-    "mittelstand": 0.2711,
-    "klein": 0.3421,
-    "konzern": 0.0285,
-    "gehoben": 0.0792,
-    "finanz": 0.1125,
-    "oeffentlich": 0.1666
+    "mittelstand": 0.2686,
+    "gehoben": 0.0823,
+    "oeffentlich": 0.1591,
+    "klein": 0.3266,
+    "finanz": 0.1335,
+    "konzern": 0.03
    }
   }
  },
  "win_flags": {
-  "core": 0.1915,
-  "paid": 0.4493,
-  "deneb": 0.1705,
-  "oss": 0.1747,
-  "none": 0.0139
+  "core": 0.1839,
+  "paid": 0.4908,
+  "deneb": 0.1532,
+  "oss": 0.157,
+  "none": 0.0149
  },
+ "win_neg": {
+  "core": 0.2724,
+  "paid": 0.5128,
+  "deneb": 0.1427,
+  "oss": 0.0571,
+  "none": 0.0149
+ },
+ "negotiated": 0.0408,
  "ko_flags": {
-  "paid": 0.3764,
-  "oss": 0.2363,
-  "deneb": 0.1217,
-  "core": 0.0389
+  "paid": 0.3115,
+  "oss": 0.2474,
+  "deneb": 0.1347,
+  "core": 0.0529
  },
  "win_by_baseline": {
   "none": {
@@ -680,156 +679,156 @@
  },
  "mi": [
   [
-   "Must: paginated",
-   0.2247
-  ],
-  [
-   "Must: writeback",
-   0.1718
-  ],
-  [
    "Flag: nobudget",
-   0.1558
-  ],
-  [
-   "Must: exit",
-   0.1485
+   0.3383
   ],
   [
    "Must: copilot",
-   0.1288
-  ],
-  [
-   "Segment",
-   0.1204
+   0.1646
   ],
   [
    "Flag: coreonly",
-   0.1198
+   0.159
   ],
   [
-   "Must: ibcscert",
-   0.1027
+   "Must: writeback",
+   0.1517
   ],
   [
    "Heutiger Ansatz",
-   0.0965
-  ],
-  [
-   "OSS fertig/selbst gebaut",
-   0.077
+   0.0895
   ],
   [
    "Must: sla",
-   0.0769
+   0.0867
   ],
   [
    "Flag: ibcsmust",
-   0.0764
+   0.0677
+  ],
+  [
+   "Must: ibcscert",
+   0.0677
+  ],
+  [
+   "Segment",
+   0.0597
+  ],
+  [
+   "Must: export",
+   0.0587
   ],
   [
    "Größe (Viewer)",
-   0.0755
+   0.0343
   ],
   [
    "Ersteller",
-   0.0576
-  ],
-  [
-   "Semantikmodelle",
-   0.0543
-  ],
-  [
-   "Flag: rs",
-   0.0526
-  ],
-  [
-   "Flag: novat",
-   0.0518
-  ],
-  [
-   "Must: rs",
-   0.0428
-  ],
-  [
-   "Flag: certonly",
-   0.0373
-  ],
-  [
-   "Flag: revision",
-   0.0248
-  ],
-  [
-   "Verteilweg",
-   0.0235
-  ],
-  [
-   "Flag: noext",
-   0.0195
-  ],
-  [
-   "Flag: euonly",
-   0.0162
-  ],
-  [
-   "Must: datares",
-   0.0157
-  ],
-  [
-   "Site-Lizenz",
-   0.0148
-  ],
-  [
-   "Must: a11y",
-   0.0106
+   0.0284
   ],
   [
    "Must: mscert",
-   0.0105
+   0.0273
   ],
   [
-   "Must: bus",
-   0.0095
+   "Flag: novat",
+   0.0263
+  ],
+  [
+   "OSS fertig/selbst gebaut",
+   0.0256
+  ],
+  [
+   "Semantikmodelle",
+   0.0214
+  ],
+  [
+   "Flag: certonly",
+   0.0146
+  ],
+  [
+   "Flag: revision",
+   0.012
+  ],
+  [
+   "Verteilweg",
+   0.0115
+  ],
+  [
+   "Flag: noext",
+   0.0107
+  ],
+  [
+   "Site-Lizenz",
+   0.0104
+  ],
+  [
+   "Flag: euonly",
+   0.0089
+  ],
+  [
+   "Must: datares",
+   0.008
   ],
   [
    "Lizenz-Preisniveau",
-   0.0075
-  ],
-  [
-   "Flag: orgstore",
-   0.0069
-  ],
-  [
-   "Horizont",
-   0.006
-  ],
-  [
-   "Vorlagenbibliothek",
-   0.0033
-  ],
-  [
-   "Flag: sovereign",
-   0.003
+   0.0079
   ],
   [
    "Report-Klassen",
+   0.0054
+  ],
+  [
+   "Must: a11y",
+   0.0051
+  ],
+  [
+   "Must: bus",
+   0.0048
+  ],
+  [
+   "Must: paginated",
+   0.0044
+  ],
+  [
+   "Horizont",
+   0.0036
+  ],
+  [
+   "Flag: rs",
+   0.0034
+  ],
+  [
+   "Flag: orgstore",
+   0.0034
+  ],
+  [
+   "Must: exit",
+   0.003
+  ],
+  [
+   "Must: rs",
    0.0028
   ],
   [
    "Flag: budgetnext",
-   0.0019
+   0.0021
   ],
   [
-   "Must: export",
-   0.0019
+   "Vorlagenbibliothek",
+   0.0016
+  ],
+  [
+   "Flag: sovereign",
+   0.0015
   ],
   [
    "Must: drill",
-   0.001
+   0.0004
   ],
   [
    "IBCS für alle Reports",
-   0.0006
+   0.0002
   ],
   [
    "Flag: embed",
@@ -844,7 +843,7 @@
    0.0
   ]
  ],
- "mi_H": 2.2111783861543315,
+ "mi_H": 1.8371459875276637,
  "mi_free": [
   [
    "Heutiger Ansatz",
@@ -908,11 +907,11 @@
     "deneb": 0.0682
    },
    "ok": {
-    "core": 0.1978,
-    "paid": 0.3119,
-    "deneb": 0.1678,
-    "oss": 0.2447,
-    "none": 0.0777
+    "core": 0.1856,
+    "paid": 0.544,
+    "deneb": 0.1362,
+    "oss": 0.0915,
+    "none": 0.0427
    }
   },
   "sonnet-1": {
@@ -923,11 +922,11 @@
     "oss": 0.0977
    },
    "ok": {
-    "core": 0.3443,
-    "paid": 0.274,
-    "deneb": 0.1427,
-    "oss": 0.1301,
-    "none": 0.1088
+    "core": 0.2774,
+    "paid": 0.5065,
+    "deneb": 0.1262,
+    "oss": 0.0403,
+    "none": 0.0495
    }
   },
   "sonnet-2": {
@@ -938,11 +937,11 @@
     "oss": 0.1084
    },
    "ok": {
-    "core": 0.323,
-    "paid": 0.2739,
-    "deneb": 0.1627,
-    "oss": 0.1197,
-    "none": 0.1207
+    "core": 0.2846,
+    "paid": 0.4811,
+    "deneb": 0.1353,
+    "none": 0.0624,
+    "oss": 0.0365
    }
   }
  }
