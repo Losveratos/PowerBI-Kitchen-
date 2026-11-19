@@ -153,7 +153,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 
 ### 1 · Import the visual
 
-1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.53.0.0.
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.54.0.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 

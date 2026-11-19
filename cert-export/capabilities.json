@@ -192,7 +192,13 @@
                             { "value": "C09", "displayName": "C09 · Scatter" },
                             { "value": "C10", "displayName": "C10 · Bubble (Scatter + Größe)" },
                             { "value": "C12", "displayName": "C12 · Waterfall / Brücke" },
-                            { "value": "C13", "displayName": "C13 · Small Multiples" }
+                            { "value": "C13", "displayName": "C13 · Small Multiples" },
+                            { "value": "C14", "displayName": "C14 · Balkentabelle nach ΔPL (04A)" },
+                            { "value": "C15", "displayName": "C15 · Balkentabelle nach ΔPL % (04B)" },
+                            { "value": "C16", "displayName": "C16 · Balkentabelle nach AC (04C)" },
+                            { "value": "C17", "displayName": "C17 · Kategorie-Brücke waagerecht (06E)" },
+                            { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
+                            { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" }
                         ]
                     }
                 },
@@ -254,6 +260,15 @@
                         "enumeration": [
                             { "value": "bottom", "displayName": "Bottom (below rows)" },
                             { "value": "top", "displayName": "Top (below header)" }
+                        ]
+                    }
+                },
+                "tableTotalLegend": { "type": { "bool": true } },
+                "highlightStyle": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "band", "displayName": "Band behind the category" },
+                            { "value": "ellipse", "displayName": "Ellipse around the values" }
                         ]
                     }
                 },
@@ -414,6 +429,8 @@
                 "showAbsoluteVariance": { "type": { "bool": true } },
                 "showRelativeVariance": { "type": { "bool": true } },
                 "showTotal": { "type": { "bool": true } },
+                "yearColumn": { "type": { "bool": true } },
+                "yearColumnLabel": { "type": { "text": true } },
                 "topN": { "type": { "numeric": true } },
                 "movingAverage": { "type": { "numeric": true } },
                 "dualVariance": { "type": { "bool": true } },
@@ -441,8 +458,20 @@
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
+                "sortMode": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (data order)" },
+                            { "value": "abs", "displayName": "By impact |Δ|" },
+                            { "value": "signed", "displayName": "By Δ (largest plus first)" },
+                            { "value": "pct", "displayName": "By Δ %" },
+                            { "value": "ac", "displayName": "By AC" }
+                        ]
+                    }
+                },
                 "bridgeBreak": { "type": { "bool": true } },
                 "stackLegendDirect": { "type": { "bool": true } },
+                "scenarioLabels": { "type": { "bool": true } },
                 "bridgeOrientation": {
                     "type": {
                         "enumeration": [
