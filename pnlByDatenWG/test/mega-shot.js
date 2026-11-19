@@ -283,7 +283,8 @@ function readMega(id) {
     // ---- 1.8 (B14) notation details of the sheets ------------------------------------------
     if (S.m58) {
         check("m58 T03A with the sheet's Δ% decimals: whole numbers (+7% instead of +6.6%)", has("m58", "+7%") && !has("m58", "+6.6%"));
-        check("m58 margin Δ in %p (+9%p)", has("m58", "+9%p"), S.m58.body.filter(x => /p$/.test(x.t)).map(x => x.t).join(" "));
+        check("m58 margin and its Δ keep one decimal as in the sheet (45.3%, +8.6%p)", has("m58", "+8.6%p") && has("m58", "45.3%"),
+            S.m58.body.filter(x => /p$|%$/.test(x.t)).map(x => x.t).join(" "));
     }
     if (S.m47 && S.m59) {
         check("m47 default: the World ΔPY% that rounds to zero keeps its sign (+0.0%)", has("m47", "+0.0%"));

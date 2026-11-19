@@ -199,7 +199,7 @@
   "Numbers_SheetPctDecimals": "Δ%-Dezimalen wie im Referenzblatt",
   "Desc_Numbers_SheetPctDecimals": "Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus",
   "Numbers_PpUnit": "Einheit der Margen-Δ",
-  "Desc_Numbers_PpUnit": "Margen und ihre Δ: Prozentpunkte als „pp“ oder „%p“ (wie in den IBCS-Blättern T03). Standard: pp",
+  "Desc_Numbers_PpUnit": "Δ von Margen: Prozentpunkte als „pp“ oder „%p“ (wie in den IBCS-Blättern T03). Die Margen selbst bleiben in %. Standard: pp",
   "Numbers_RoundedZero": "Gerundete Null",
   "Desc_Numbers_RoundedZero": "Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten (+0,0, die Richtung bleibt neben einem Balken lesbar) oder 0,0 wie in den Referenzblättern drucken. Werte tragen bei null nie ein Vorzeichen. Standard: Vorzeichen behalten",
   "Style_Appearance": "Erscheinungsbild",

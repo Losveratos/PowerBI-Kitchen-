@@ -2152,10 +2152,12 @@ export class Visual implements IVisual {
             // finance convention (ChartKitchen financeFormat): negatives in
             // parentheses with the unit inside, exact zero "–", a rounded zero
             // without parentheses, positive Δ keep their "+"
+            // 1.8 (B14) a rounded-zero Δ follows numbers.roundedZero like the mega table
+            const zpf = this.zeroPlain();
             const fin = (nfr: Intl.NumberFormat, x: number, raw: number, plus: boolean, unit: string): string => {
-                if (raw === 0) { return "–"; }
+                if (Math.abs(raw) < 1e-9) { return "–"; }
                 const t = grp(nfr, Math.abs(x));
-                if (!/[1-9]/.test(t)) { return t + unit; }
+                if (!/[1-9]/.test(t) && (!plus || zpf)) { return t + unit; }
                 return raw < 0 ? "(" + t + unit + ")" : (plus ? "+" : "") + t + unit;
             };
             return {
@@ -2172,7 +2174,7 @@ export class Visual implements IVisual {
         const zp = this.zeroPlain();
         const sg = (nfr: Intl.NumberFormat, x: number, raw: number, plus: boolean, unit: string): string => {
             const t = grp(nfr, Math.abs(x));
-            if (raw === 0 || (!/[1-9]/.test(t) && (!plus || zp))) { return t + unit; }
+            if (Math.abs(raw) < 1e-9 || (!/[1-9]/.test(t) && (!plus || zp))) { return t + unit; }
             return (raw < 0 ? MINUS : plus ? "+" : "") + t + unit;
         };
         return {
@@ -6425,7 +6427,7 @@ export class Visual implements IVisual {
                         cell.style.color = quiet ? C.soft : v.good ? this.goodColor() : this.badColor();
                         cell.style.fontStyle = "italic";
                         cell.textContent = node.row.kfmt ? this.kpiDelta(node, v.delta, fmt)
-                            : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", this.ppUnit());
+                            : fmt.pct(v.delta, true).replace("%", this.ppUnit());
                     }
                 } else if (c.kind === "bar") {
                     cell = this.deltaBarCell(v, c, geo, fmt, soft,
@@ -6493,7 +6495,7 @@ export class Visual implements IVisual {
                 cell.style.color = mat(null, null) ? C.soft : v.good ? this.goodColor() : this.badColor();
                 cell.style.fontStyle = "italic";
                 cell.textContent = n.row.kfmt ? this.kpiDelta(n, v.delta, fmt)
-                    : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", this.ppUnit());
+                    : fmt.pct(v.delta, true).replace("%", this.ppUnit());
             }
             return cell;
         }
@@ -7251,7 +7253,7 @@ export class Visual implements IVisual {
     private kpiText(node: PnlNode, v: number | null, fmt: Fmt, plus = false, amt?: (x: number) => string): string {
         const k = node.row.kfmt;
         if (k === "factor") { return fmt.fac(v, plus); }
-        if (k === "amount") { return v == null ? "–" : amt ? (plus && v > 0 ? "+" : "") + amt(v) : fmt.val(v, plus); }
+        if (k === "amount") { return v == null ? "–" : amt ? (plus && v > 0 ? "+" : "") + amt(v).replace(/^\+/, "") : fmt.val(v, plus); }
         return fmt.pct(v, plus);
     }
     /** 1.8 (B07) a KPI row's Δ (raw ratio units): pp for percent, a signed factor, an amount */
@@ -7272,14 +7274,16 @@ export class Visual implements IVisual {
         return k === "factor" ? "x" : k === "amount" ? "kamt" : "pct";
     }
 
-    private treeNum(v: number, fmt: Fmt): string {
+    private treeNum(v: number, fmt: Fmt, plus = false): string {
         const scaled = v / fmt.div;
         const a = Math.abs(scaled);
         const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
-        const t = nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
-        // 1.8 (B14) a value that rounds to zero carries no sign ("0.00", not "−0.00")
-        return /[1-9]/.test(t) ? t : t.replace(MINUS, "");
+        const t = nf.formatToParts(a).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
+        // 1.8 (B14) the rule of every view: a value that rounds to zero carries no
+        // sign, a Δ (plus) keeps it unless numbers.roundedZero = plain
+        if (Math.abs(v) < 1e-9 || (!/[1-9]/.test(t) && (!plus || this.zeroPlain()))) { return t; }
+        return (v < 0 ? MINUS : plus ? "+" : "") + t;
     }
 
     /** 1.8 (B14) unit of a percentage-point difference: "pp" or "%p" (numbers.ppUnit) */
@@ -7753,7 +7757,7 @@ export class Visual implements IVisual {
             if (!marked.has(i)) { return; }
             const txt = isRatio
                 ? this.kpiDelta(node, d, fmt, x => this.treeNum(x, fmt))
-                : (d > 0 ? "+" : "") + this.treeNum(d, fmt);
+                : this.treeNum(d, fmt, true);
             this.treeLabel(g, box, cx, d >= 0 ? yOf(d) - 2.5 : yOf(d) + lfs, txt, lfs, color);
         });
 
@@ -7777,7 +7781,7 @@ export class Visual implements IVisual {
         if (acv == null && refv == null) { this.treeHint(g, box, s, "–"); return; }
         const lfs = 7.5 * s;
         const num = (v: number, plus: boolean): string =>
-            isRatio ? this.kpiText(node, v, fmt, plus, x => this.treeNum(x, fmt)) : (plus && v > 0 ? "+" : "") + this.treeNum(v, fmt);
+            isRatio ? this.kpiText(node, v, fmt, plus, x => this.treeNum(x, fmt)) : this.treeNum(v, fmt, plus);
 
         const va = this.treeVariance(node);
         const dRaw = va != null && acv != null && refv != null ? va.delta : null;
@@ -9093,7 +9097,7 @@ export class Visual implements IVisual {
         const inv = node.row.displayInvert ? -1 : 1;
         const lfs = 8.5 * s; const cfs = 8 * s; const hfs = 9 * s;
         const num = (v: number): string => this.treeNum(v, fmt);
-        const signed = (v: number): string => (v > 0 ? "+" : "") + this.treeNum(v, fmt);
+        const signed = (v: number): string => this.treeNum(v, fmt, true);
 
         const { pts, triScen } = this.treeComboPts(node);
         const n = pts.length;
@@ -11191,6 +11195,8 @@ export class Visual implements IVisual {
             hc: this.hc != null,
             fin: this.finance(),
             ppUnit: this.ppUnit() === "pp" ? MEGA_PP : "%p",
+            // 1.8 (B14) T03 prints Δ% whole but margins and their pp with one decimal
+            mdec: this.settings.numbersCard.sheetPctDecimals.value ? Math.max(1, this.settings.numbersCard.pctDecimals.value) : undefined,
             zeroPlain: this.zeroPlain(),
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
             // 1.7 a table of stocks only has no year-to-date share in its FY outlook

@@ -199,7 +199,7 @@
   "Numbers_SheetPctDecimals": "Δ% の小数桁を参照シートどおりに",
   "Desc_Numbers_SheetPctDecimals": "テンプレート適用時に、すべてのテンプレートで小数1桁にする代わりに参照シートの Δ% 小数桁（T03 と 12 シリーズは整数、T04B〜T04E は2桁）を書き込みます。既定：オフ",
   "Numbers_PpUnit": "マージン Δ の単位",
-  "Desc_Numbers_PpUnit": "マージンとその Δ：パーセントポイントを「pp」または「%p」で表示（IBCS シート T03 と同じ）。既定：pp",
+  "Desc_Numbers_PpUnit": "マージンの Δ：パーセントポイントを「pp」または「%p」で表示（IBCS シート T03 と同じ）。マージン自体は % のまま。既定：pp",
   "Numbers_RoundedZero": "丸めたゼロ",
   "Desc_Numbers_RoundedZero": "ゼロではないがゼロに丸められる Δ：符号を残す（+0.0、バーの横で方向が読める）か、参照シートと同じく 0.0 と表示するか。値はゼロで符号を持ちません。既定：符号を残す",
   "Style_Appearance": "外観",

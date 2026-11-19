@@ -296,6 +296,8 @@ export interface MegaInput {
     ppUnit?: string;
     /** 1.8 (B14) a Δ that rounds to zero prints without its sign (numbers.roundedZero = plain) */
     zeroPlain?: boolean;
+    /** 1.8 (B14) decimals of margin rows and their pp (default pdec) */
+    mdec?: number;
     /** house terms (labels.labelAc …): rewrites the scenario codes of every column head */
     relabel?: (s: string) => string;
     /** head text over the YTD part of a stacked (12G) value cascade. Default "YTD" */
@@ -584,10 +586,12 @@ export const MEGA_PP = " pp";
  * ("<-20"), not a figure.
  */
 export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false,
-    opts: { pp?: string; zeroPlain?: boolean } = {}): MegaFmt {
+    opts: { pp?: string; zeroPlain?: boolean; mdec?: number } = {}): MegaFmt {
     // 1.8 (B14) numbers.ppUnit ("pp" or "%p") and numbers.roundedZero
     const ppU = opts.pp ?? MEGA_PP;
     const zp = !!opts.zeroPlain;
+    // 1.8 (B14) decimals of margins and their pp (default: the Δ% decimals)
+    const md = opts.mdec ?? pdec;
     // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
     // "−0,0") — beside a pin or bar that visibly points one way an unsigned
     // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
@@ -615,14 +619,15 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         // (pctDecimals), not the decimals of the amounts (52.24 % next to 1-decimal
         // Δ% read like two different kinds of number); the point difference reads
         // "pp" (percentage points), not "%p"
-        margin: m => fs(m * 100, pdec, false, "%"),
-        pp: x => fs(x, pdec, true, ppU),
+        margin: m => fs(m * 100, md, false, "%"),
+        pp: x => fs(x, md, true, ppU),
         // relative change of a ratio — no longer printed in the table (a Δ% of a
         // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
         share: p => fs(p * 100, pdec, false, "%"),
         signed,
-        fac: (v, plus) => fs(v, pdec, plus),
+        // a factor keeps at least one decimal (capital turnover 1.3, not 1)
+        fac: (v, plus) => fs(v, Math.max(1, pdec), plus),
     };
 }
 
@@ -994,7 +999,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const ord = orderRows(input);
     const rows = ord.rows;
     const sortInfo = ord.info;
-    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin, { pp: input.ppUnit, zeroPlain: input.zeroPlain });
+    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin, { pp: input.ppUnit, zeroPlain: input.zeroPlain, mdec: input.mdec });
     const kpiVal = (r: MegaRow, v: number): string => megaKpiVal(fmt, r, v);
     const kpiPp = (r: MegaRow, d: number): string => megaKpiPp(fmt, r, d);
     const N = notation(t.min, activeRefs(t)[0] ?? null, !!input.hc);

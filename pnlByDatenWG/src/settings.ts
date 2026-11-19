@@ -549,7 +549,7 @@ export class NumbersCardSettings extends FormattingSettingsCard {
     sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "\u0394% decimals as in the reference sheet",
         "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Default: off", false);
     ppUnit = dropdown("ppUnit", "Numbers_PpUnit", "Unit of margin Δ",
-        "Margins and their Δ: percentage points as “pp” or “%p” (as in the IBCS sheets T03). Default: pp", ppUnitItems);
+        "Δ of margins: percentage points as “pp” or “%p” (as in the IBCS sheets T03). The margins themselves stay in %. Default: pp", ppUnitItems);
     roundedZero = dropdown("roundedZero", "Numbers_RoundedZero", "Rounded zero",
         "A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero. Default: keep the sign", roundedZeroItems);
     /** ChartKitchen labels.financeFormat: (1 234) instead of -1 234, exact zero as "–" */

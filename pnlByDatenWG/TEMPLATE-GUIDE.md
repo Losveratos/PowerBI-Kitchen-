@@ -141,7 +141,8 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
   Faktor, im Kopf („ΔPY ×5") und im Skalenhinweis über der Tabelle genannt.
   Gekappte Ausreißer laufen in eine Ausreißerzone mit Bruchzeichen und Dreieck.
   Jedes Template schreibt Δ%-Dezimalen = 1; mit **Zahlen → Δ%-Dezimalen wie im
-  Referenzblatt** (1.8) stattdessen die des Blatts (T03 und 12er ganzzahlig, T04B bis T04E zwei Stellen)
+  Referenzblatt** (1.8) stattdessen die des Blatts (T03 und 12er ganzzahlig, T04B bis T04E zwei Stellen;
+  Margen behalten eine Stelle). Wirkt beim nächsten Anwenden: Template in der Galerie erneut anklicken
 - **Margen-Zeilen (1.5.1):** Δ in pp („+8,6 pp"), kein relatives Δ%, Margen
   mit den Δ%-Dezimalen; T04 zeigt die pp-Zahl an der Achse. 1.8: **Zahlen →
   Einheit der Margen-Δ** schaltet auf „%p" wie in den T03-Blättern

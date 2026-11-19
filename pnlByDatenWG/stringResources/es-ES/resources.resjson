@@ -199,7 +199,7 @@
   "Numbers_SheetPctDecimals": "Decimales de Δ% como en la hoja de referencia",
   "Desc_Numbers_SheetPctDecimals": "Al aplicar una plantilla se escriben los decimales de Δ% de su hoja de referencia (T03 y la serie 12 sin decimales, T04B a T04E dos decimales) en lugar de un decimal para todas. Predeterminado: desactivado",
   "Numbers_PpUnit": "Unidad de la Δ de márgenes",
-  "Desc_Numbers_PpUnit": "Márgenes y su Δ: puntos porcentuales como «pp» o «%p» (como en las hojas IBCS T03). Predeterminado: pp",
+  "Desc_Numbers_PpUnit": "Δ de márgenes: puntos porcentuales como «pp» o «%p» (como en las hojas IBCS T03). Los márgenes siguen en %. Predeterminado: pp",
   "Numbers_RoundedZero": "Cero redondeado",
   "Desc_Numbers_RoundedZero": "Una Δ que no es cero pero se redondea a cero: mantener el signo (+0,0, la dirección sigue legible junto a una barra) o imprimir 0,0 como las hojas de referencia. Los valores nunca llevan signo en cero. Predeterminado: mantener el signo",
   "Style_Appearance": "Apariencia",

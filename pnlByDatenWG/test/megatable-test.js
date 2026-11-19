@@ -329,6 +329,12 @@ test("1.8 (B14) pp or %p, rounded zeros with or without sign, Δ% decimals of th
     const f3 = M.megaFmt(num, 2, 1, true, { zeroPlain: true });
     assert.equal(f3.delta(-0.001), "0.00");
     assert.equal(f3.delta(-2), "(2.00)");
+    // margins keep their own decimals (T03 with the sheet's whole Δ%), a factor at least one
+    const f4 = M.megaFmt(num, 1, 0, false, { mdec: 1 });
+    assert.equal(f4.pct(0.066), "+7%");
+    assert.equal(f4.margin(0.453), "45.3%");
+    assert.equal(f4.pp(8.6), "+8.6\u202Fpp");
+    assert.equal(f4.fac(1.3, false), "1.3");
     // the sheets' Δ% decimals: T03 and the 12 series whole numbers, T04B to T04E two, the rest one
     const S = Object.fromEntries(M.MEGA_PRESET_KEYS.map(k => [k, M.MEGA_PRESETS[k].sheetPdec]));
     for (const k of ["T03A", "T03B", "12A", "12G", "12H"]) { assert.equal(S[k], 0, k); }

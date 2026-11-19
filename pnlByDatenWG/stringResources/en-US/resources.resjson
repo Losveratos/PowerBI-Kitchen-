@@ -199,7 +199,7 @@
   "Numbers_SheetPctDecimals": "Δ% decimals as in the reference sheet",
   "Desc_Numbers_SheetPctDecimals": "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Default: off",
   "Numbers_PpUnit": "Unit of margin Δ",
-  "Desc_Numbers_PpUnit": "Margins and their Δ: percentage points as “pp” or “%p” (as in the IBCS sheets T03). Default: pp",
+  "Desc_Numbers_PpUnit": "Δ of margins: percentage points as “pp” or “%p” (as in the IBCS sheets T03). The margins themselves stay in %. Default: pp",
   "Numbers_RoundedZero": "Rounded zero",
   "Desc_Numbers_RoundedZero": "A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero. Default: keep the sign",
   "Style_Appearance": "Appearance",
