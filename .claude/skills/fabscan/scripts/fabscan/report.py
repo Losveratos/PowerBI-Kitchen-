@@ -45,10 +45,11 @@ def to_json(apps: list[AppResult], root: str) -> str:
             "connectors": [{"name": b.connector.name, "type": b.connector.type, "auth": b.connector.auth,
                             "model": b.model.name if b.model else None, "match": b.method,
                             "coverage": list(b.coverage), "queries": len(b.queries)} for b in a.bindings],
-            "findings": [{"category": f.category, "severity": f.severity, "rule": f.rule, "title": f.title,
-                          "detail": f.detail, "advice": f.advice,
+            "findings": [{"id": f.id, "status": f.status, "category": f.category, "severity": f.severity,
+                          "rule": f.rule, "title": f.title, "detail": f.detail, "advice": f.advice,
+                          "exception": f.exception,
                           "occurrences": [{"file": o[0], "line": o[1], "evidence": o[2]} for o in f.occurrences]}
-                         for f in a.findings],
+                         for f in a.findings + a.accepted],
         })
     return json.dumps(out, ensure_ascii=False, indent=2)
 
@@ -87,6 +88,7 @@ h3{font-size:16px;color:var(--ink);margin:18px 0 8px;font-weight:650}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:22px 0}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .kpi b{display:block;font-size:26px;color:var(--ink);line-height:1.1}.kpi span{font-size:12.5px;color:var(--mute)}
+.cov{margin:0 0 8px 18px;color:var(--soft)}.cov li{margin:3px 0}
 .tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 .tbl th{font-size:12px;letter-spacing:.04em;color:var(--soft);background:var(--sand);font-weight:650}
@@ -160,6 +162,16 @@ def _names(f) -> str:
 
 
 def plain(f, origin: str = "repo") -> dict:
+    if origin == "log" and f.rule == "SEC-AUTH":      # Tenant: nach Kontext, nicht pauschal
+        if f.severity == "warn":
+            return {"head": "Der Client fragt ein Modell mit Zeilensicherheit unter einem Service Principal ab.",
+                    "why": "Ein Service Principal lässt sich keiner RLS-Rolle zuordnen und liest das Modell ungefiltert. "
+                           "Zeigt der Client die Daten Endnutzern, sehen alle alles.",
+                    "todo": "Prüfen, wer die Daten des Clients sieht. Für Endnutzer delegiert abfragen oder die Ausnahme "
+                            "mit Begründung festhalten."}
+        return {"head": "Der Client fragt unter einem Service Principal ab.",
+                "why": "Für Automatisierung üblich und oft Vorgabe. Kritisch erst, wenn das Modell Zeilensicherheit hat "
+                       "oder der Client Daten an Endnutzer weitergibt.", "todo": ""}
     d = _plain(f)
     if origin == "log":
         d = {k: (v.replace("Die App ", "Der Client ").replace("die App ", "der Client ").replace("der App", "des Clients")
@@ -330,7 +342,8 @@ def _dev_details(a: AppResult, meta: dict) -> str:
         for f in fs:
             n = len(f.occurrences)
             parts.append(f"<details><summary><span class='pill {f.severity}'>{SEV_LABEL[f.severity]}</span>"
-                         f"<span class='t'>{e(f.title)}</span><span class='n mono'>{e(f.rule)} · {n}×</span></summary><div class='body'>")
+                         f"<span class='t'>{e(f.title)}</span><span class='n mono'>{e(f.rule)} · {n}× · ID {e(f.id)}</span></summary>"
+                         "<div class='body'>")
             if f.detail:
                 parts.append(f"<p>{e(f.detail)}</p>")
             parts.append("<ul class='occ'>")
@@ -367,7 +380,69 @@ def _tenant_section(t: dict) -> str:
     return "".join(P)
 
 
-def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | None = None) -> str:
+def coverage_lines(cov: dict | None) -> list[str]:
+    """Abdeckung in Klartext: was gesehen wurde und was nicht. Steht im Bericht vor den Befunden."""
+    if not cov:
+        return []
+    out = []
+    ws, mon = cov.get("workspaces"), cov.get("workspaces_monitoring")
+    if ws is not None:
+        out.append(f"Workspaces: {ws} geprüft" + (f", davon {mon} mit Workspace Monitoring (nur dort sind Abfragen "
+                                                 "sichtbar)" if mon is not None else "") + ".")
+    parts = [f"{cov.get('models', 0)} im Scan"]
+    if cov.get("models_names_only"):
+        parts.append(f"{cov['models_names_only']} nur mit Namen (ohne DAX und Rollen)")
+    if cov.get("models_unreadable"):
+        parts.append(f"{cov['models_unreadable']} nicht lesbar")
+    parts.append(f"{cov.get('models_queried', 0)} von Clients abgefragt")
+    out.append("Modelle: " + ", ".join(parts) + ".")
+    days = cov.get("days")
+    out.append(f"Abfragen: {cov.get('runs', 0)} Ausführungen, {cov.get('distinct', 0)} verschiedene, von "
+               f"{cov.get('clients', 0)} Clients" + (f" in {days} Tagen" if days else "") + ".")
+    miss = []
+    if cov.get("mdx_skipped"):
+        miss.append(f"{cov['mdx_skipped']} MDX-Ausführung{'' if cov['mdx_skipped'] == 1 else 'en'} (z. B. Excel)")
+    if cov.get("dropped"):
+        miss.append(f"{cov['dropped']} Ausführungen jenseits von {cov.get('max_texts', 400)} verschiedenen Abfragen je "
+                    "Client")
+    if cov.get("reports_excluded"):
+        miss.append("Abfragen aus Power-BI-Berichten (bewusst ausgenommen)")
+    if ws is not None and mon == 0:
+        miss.append("alle Abfragen, weil in keinem Workspace Monitoring gefunden wurde")
+    if miss:
+        out.append("Nicht geprüft: " + ", ".join(miss) + ".")
+    return out
+
+
+def _accepted_section(apps: list[AppResult], aus: dict | None) -> str:
+    e = html.escape
+    rows = [(a, f) for a in apps for f in a.accepted]
+    unused = (aus or {}).get("unbenutzt") or []
+    warns = (aus or {}).get("warnungen") or []
+    if not rows and not unused and not warns:
+        return ""
+    P = ["<h2>Bewusst akzeptiert</h2>",
+         "<p class='meta'>Befunde mit begründeter Ausnahme aus der Ausnahmen-Datei. Sie zählen nicht für Ampel und "
+         "Exit-Code, bleiben aber in den Daten (status akzeptiert).</p>"]
+    if rows:
+        P.append("<div class='scroll'><table class='tbl'><thead><tr><th>Client</th><th>Befund</th><th>Begründung</th>"
+                 "<th>Verantwortlich</th><th>bis</th><th>ID</th></tr></thead><tbody>")
+        for a, f in rows:
+            ex = f.exception or {}
+            P.append(f"<tr><td>{e(a.name)}</td><td>{e(plain(f, a.origin)['head'])}</td><td>{e(str(ex.get('begruendung', '')))}</td>"
+                     f"<td>{e(str(ex.get('verantwortlich', '')))}</td><td class='mono'>{e(str(ex.get('bis', '')))}</td>"
+                     f"<td class='mono'>{e(f.id)}</td></tr>")
+        P.append("</tbody></table></div>")
+    if unused:
+        P.append("<p class='meta'>Ausnahmen ohne Treffer in diesem Lauf (behoben oder veraltet): "
+                 + e("; ".join(str(x.get("id") or x.get("regel")) for x in unused)) + "</p>")
+    for w in warns:
+        P.append(f"<p class='meta'>Ausnahmen-Datei: {e(w)}</p>")
+    return "".join(P)
+
+
+def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | None = None,
+            extra: dict | None = None) -> str:
     meta = repo_meta(root) if root else {}
     e = html.escape
     now = _dt.datetime.now().strftime("%d.%m.%Y %H:%M")
@@ -399,8 +474,11 @@ def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | No
          f"<div class='kpi'><b class='s fail'>{cnt['fail']}</b><span>kritisch</span></div>",
          f"<div class='kpi'><b class='s warn'>{cnt['warn']}</b><span>zu prüfen</span></div>",
          f"<div class='kpi'><b class='s info'>{cnt['info']}</b><span>Hinweise</span></div>",
-         "</div>",
-         "<h2>Gesamtbild</h2><ul class='big'>"]
+         "</div>"]
+    cov = coverage_lines((extra or {}).get("coverage"))
+    if cov:
+        P.append("<h2>Abdeckung</h2><ul class='cov'>" + "".join(f"<li>{e(x)}</li>" for x in cov) + "</ul>")
+    P.append("<h2>Gesamtbild</h2><ul class='big'>")
     ov = overall(apps, "Clients" if tenant else "Apps")
     for sev, sent in ov:
         P.append(f"<li><span class='s {sev}'>{SYM[sev]}</span>{sent}</li>")
@@ -441,8 +519,11 @@ def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | No
             P.append("<ul class='big'>")
             for f in main:
                 t = plain(f, a.origin)
+                old = (f" <b>Ausnahme abgelaufen am {e(str((f.exception or {}).get('bis', '')))}.</b>"
+                       if f.status == "abgelaufen" else "")
                 P.append(f"<li><span class='s {f.severity}'>{SYM[f.severity]}</span>{e(t['head'])}"
-                         f"<small>{e(t['why'])}" + (f" <b>Was tun:</b> {e(t['todo'])}" if t['todo'] else "") + "</small></li>")
+                         f"<small>{e(t['why'])}" + (f" <b>Was tun:</b> {e(t['todo'])}" if t['todo'] else "") + old
+                         + "</small></li>")
             P.append("</ul>")
         if rest:
             P.append("<details><summary><span class='t'>Weitere Hinweise</span><span class='n'>" + str(len(rest)) + "</span></summary><ul class='big'>")
@@ -454,6 +535,7 @@ def to_html(apps: list[AppResult], root: str, title: str = "", tenant: dict | No
         P.append(f"<details class='dev'><summary><span class='t'>{dev_lbl}</span></summary>"
                  + _dev_details(a, meta) + "</details></section>")
 
+    P.append(_accepted_section(apps, (extra or {}).get("ausnahmen")))
     P.append("<h2>Grenzen dieser Prüfung</h2><div class='note'><p>Geprüft wurden Code und Modell-Definition, nicht die laufende App und nicht "
              "die Daten. Der Scanner erkennt Muster; Befunde sind Hinweise zum Prüfen, kein Urteil. Abfragen, die erst zur Laufzeit "
              "entstehen, sind nur teilweise sichtbar. Noch nicht enthalten: der Live-Abgleich jeder Zahl der App gegen das Modell "

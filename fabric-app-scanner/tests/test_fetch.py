@@ -75,7 +75,7 @@ def info_rows(ds: dict, body: dict) -> list[dict]:
             rows.append({"[Name]": "RowNumber-1", "[Table]": t["name"], "[Type]": "RowNumber", "[IsHidden]": True})
             rows += [{"[Name]": c["name"], "[Table]": t["name"], "[Type]": "Data", "[IsHidden]": bool(c.get("isHidden")),
                       "[Expression]": None} for c in t.get("columns", [])]
-        else:
+        elif "MEASURES" in fn:
             rows += [{"[Name]": ms["name"], "[Table]": t["name"], "[IsHidden]": bool(ms.get("isHidden")),
                       "[Expression]": None, "[FormatString]": ms.get("formatString")} for ms in t.get("measures", [])]
     return rows
@@ -194,6 +194,19 @@ class Fetch(unittest.TestCase):
         rc, _, err, _ = self.run_fetch(FakeFabric(admin=False), [], admin=True)
         self.assertEqual(rc, 2)
         self.assertIn("Fabric-Administrator", err)
+
+    def test_coverage_in_result(self):
+        rc, out, err, _ = self.run_fetch(FakeFabric(admin=False), ["--days", "7"])
+        self.assertEqual(rc, 0, err)
+        with open(os.path.join(self.tmp, "out", "befunde.json"), encoding="utf-8") as fh:
+            data = json.load(fh)
+        cov = data["coverage"]
+        self.assertEqual((cov["workspaces"], cov["workspaces_monitoring"], cov["models"], cov["days"]), (1, 1, 2, 7))
+        self.assertTrue(all(r["finding_id"] and r["status"] == "offen" for r in data["findings"]))
+        rc, out, err, _ = self.run_fetch(FakeFabric(admin=False), ["--monitoring", f"{CLUSTER}=Monitoring KQL database"])
+        self.assertEqual(rc, 0, err)
+        with open(os.path.join(self.tmp, "out", "befunde.json"), encoding="utf-8") as fh:
+            self.assertIsNone(json.load(fh)["coverage"]["workspaces_monitoring"])   # von Hand angegeben: unbekannt
 
     def _scan_json(self):
         with open(os.path.join(self.tmp, "out", "rohdaten", "scan.json"), encoding="utf-8") as fh:

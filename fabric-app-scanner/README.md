@@ -129,10 +129,37 @@ Jeder Lauf schreibt einen Ordner:
 | `zusammenfassung.md` | Chat, Pull Request, Ticket |
 | `befunde.json`, `befunde.csv` | Weiterverarbeitung: Power BI, Fabric App, Verlauf über die Zeit |
 
-**Datenvertrag** (`schema_version` 1): eine Zeile je Befund mit den Spalten `run_id, run_date, source, scope,
+**Datenvertrag** (`schema_version` 2): eine Zeile je Befund mit den Spalten `run_id, run_date, source, scope,
 client, client_path, workspace, model, category, category_label, severity, rule, title, headline, why, todo,
-occurrences, runs, users, scanner_version`. Das Notebook schreibt dieselben Spalten in die Tabelle
-`fabscan_findings`. So kann ein Bericht oder eine Fabric App alle Läufe zeigen, egal woher sie kommen.
+occurrences, runs, users, scanner_version, finding_id, status, exception_reason, exception_owner, exception_until`.
+`finding_id` bleibt über Läufe gleich, `status` ist `offen`, `akzeptiert` oder `abgelaufen`. Das Notebook schreibt
+dieselben Spalten in die Tabelle `fabscan_findings` (neue Spalten per `mergeSchema`). So kann ein Bericht oder eine
+Fabric App alle Läufe zeigen und „behoben“ von „akzeptiert“ unterscheiden.
+
+**Abdeckung:** Im Tenant-Modus steht vor den Befunden, was der Lauf gesehen hat und was nicht: Workspaces mit und
+ohne Workspace Monitoring, Modelle (lesbar, nur mit Namen, nicht lesbar), Abfragen und Clients im Zeitraum, dazu
+ungeprüfte MDX-Abfragen, abgeschnittene Abfragen (mehr als 400 verschiedene je Client) und die ausgenommenen
+Berichtsabfragen.
+
+## Ausnahmen: Befunde bewusst akzeptieren
+
+Ein Befund, der geprüft und gewollt ist, kommt mit Begründung in `fabscan-ausnahmen.json` (im Repo bzw. im
+aktuellen Ordner, oder `--ausnahmen DATEI`, im Notebook Parameter `AUSNAHMEN`):
+
+```json
+{"ausnahmen": [
+  {"id": "3f2a9c1b7d4e", "begruendung": "Demo-Daten, alle dürfen alles sehen",
+   "verantwortlich": "Team Finance", "bis": "2027-03-31"},
+  {"regel": "SEC-AUTH", "client": "Pipeline*", "modell": "Finanzmodell",
+   "begruendung": "Nächtlicher Export, nur für das Data-Team", "verantwortlich": "Data Platform"}
+]}
+```
+
+Die ID steht im Bericht bei jedem Befund (Abschnitt für Entwickler) und in `befunde.csv`. Statt einer ID geht auch
+eine Regel, eingeschränkt auf `client`, `modell` und `workspace` (Platzhalter `*`). Ohne Begründung gilt eine
+Ausnahme nicht. Akzeptierte Befunde zählen nicht für Ampel, Gesamtbild und `--fail-on`, stehen aber im Abschnitt
+„Bewusst akzeptiert“ und in den Daten. Nach dem Datum `bis` zählen sie wieder, mit Vermerk. Ausnahmen ohne Treffer
+nennt der Bericht, damit veraltete auffallen.
 
 ## In CI
 
@@ -153,9 +180,9 @@ occurrences, runs, users, scanner_version`. Das Notebook schreibt dieselben Spal
 | `CALC-TS` | ⚠/ℹ | TypeScript rechnet mit Abfragefeldern |
 | `LIN-MISSING-TABLE`, `LIN-MISSING-FIELD` | ✗ | Verweis existiert im Modell nicht |
 | `LIN-NO-MODEL`, `LIN-OTHER-SOURCE` | ⚠ | Modell nicht im Repo, Datenweg am Modell vorbei |
-| `SEC-AUTH` | ✗/⚠ | App-Identität oder Service Principal statt angemeldeter Nutzer |
+| `SEC-AUTH` | ✗/⚠/ℹ | Repo: App-Identität statt angemeldeter Nutzer. Tenant: Service Principal, ⚠ nur auf einem Modell mit RLS (RLS filtert Service Principals nicht), sonst ℹ |
 | `SEC-SECRET`, `SEC-TRACKED` | ✗ | Geheimnis im Code, `.env` o. Ä. im Repo |
-| `SEC-HIDDEN` | ⚠/ℹ | ausgeblendetes Feld abgefragt (⚠ bei vertraulich klingendem Namen) |
+| `SEC-HIDDEN` | ⚠/ℹ | ausgeblendetes Feld abgefragt (⚠ bei vertraulich klingendem Namen); Sortier- und Schlüsselspalten zählen nicht |
 | `SEC-NO-RLS` | ℹ | Modell ohne Rollen |
 | `SEC-CDN`, `SEC-EXTERNAL`, `SEC-STORAGE`, `SEC-HTML`, `SEC-CLIENT-RLS` | ⚠ | fremde Server, Browser-Speicher, HTML-Injektion, Nutzerfilter im Browser |
 | `QRY-SHADOW` | ✗ | `DEFINE MEASURE` überschreibt ein Modell-Measure |

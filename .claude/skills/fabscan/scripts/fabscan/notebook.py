@@ -89,6 +89,7 @@ LOG_TABLE = "SemanticModelLogs"    # Tabelle in der Monitoring-Datenbank
 OUTPUT_DIR = "/lakehouse/default/Files/fabscan"
 REPORT_TITLE = "Tenant-Prüfbericht Fabric Apps"
 WRITE_DELTA = True                 # Befunde zusätzlich als Tabelle fabscan_findings (für Power BI)
+AUSNAHMEN = "/lakehouse/default/Files/fabscan/fabscan-ausnahmen.json"   # begründet akzeptierte Befunde (optional)
 """
 
 INSTALL = """
@@ -241,12 +242,22 @@ if not MONITORING and not QUERY_LOG_FILES:
 
 RUN = """
 # 3 · Prüfen und Bericht schreiben: bericht.html, zusammenfassung.md, befunde.json, befunde.csv
-from fabscan import export, report, tenant
+from fabscan import ausnahmen, export, report, tenant
 
 clients = querylog.clients(entries, include_reports=INCLUDE_REPORT_QUERIES)
 apps = tenant.scan_tenant(models, clients)
 info = {"models": tenant.model_rows(models, apps), "scope": SCOPE}
-paths = export.write_run(apps, f"{OUTPUT_DIR}/{stamp}", "", REPORT_TITLE, info, scope=SCOPE)
+_rules, _warns = ausnahmen.load(AUSNAHMEN)
+for w in _warns:
+    print("Hinweis Ausnahmen:", w)
+aus_info = ausnahmen.apply(apps, _rules)
+aus_info.update({"datei": AUSNAHMEN if _rules or _warns else "", "warnungen": _warns})
+_mon = globals().get("_f")
+coverage = tenant.coverage(models, apps, workspaces=len(ids),
+                           workspaces_monitoring=len(_mon.monitored_ws & {w.lower() for w in ids}) if _mon else None,
+                           days=DAYS, include_reports=INCLUDE_REPORT_QUERIES)
+paths = export.write_run(apps, f"{OUTPUT_DIR}/{stamp}", "", REPORT_TITLE, info, scope=SCOPE,
+                         extra={"coverage": coverage, "ausnahmen": aus_info})
 with open(paths["html"], encoding="utf-8") as fh:
     html = fh.read()
 print(report.to_text(apps) if apps else "Keine Clients im Zeitraum.")
@@ -264,7 +275,8 @@ if WRITE_DELTA and apps:
     import pandas as pd
     rows = export.rows(apps, SCOPE, run_date=stamp)      # Datenvertrag wie befunde.csv
     if rows:
-        spark.createDataFrame(pd.DataFrame(rows)).write.mode("append").saveAsTable("fabscan_findings")
+        (spark.createDataFrame(pd.DataFrame(rows)).write.mode("append")
+         .option("mergeSchema", "true").saveAsTable("fabscan_findings"))      # Datenvertrag 2: neue Spalten
         print(f"{len(rows)} Befunde in fabscan_findings geschrieben")
 """
 

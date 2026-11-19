@@ -30,6 +30,14 @@ def _models_from_result(data: dict) -> list[Model]:
                     tb.measures[ms["name"].lower()] = Member(ms["name"], "measure", tb.name, bool(ms.get("isHidden")),
                                                              ms.get("expression", "") or "", ms.get("formatString", "") or "", file=m.path)
                 m.tables[tb.name.lower()] = tb
+            for t in ds.get("tables", []) or []:          # Sortierspalten, falls die Quelle sie liefert
+                for c in t.get("columns", []) or []:
+                    m.add_helper(t.get("name", ""), c.get("sortByColumn") or "")
+            for rel in ds.get("relationships", []) or []:
+                m.add_helper(rel.get("fromTable", ""), rel.get("fromColumn", ""))
+                m.add_helper(rel.get("toTable", ""), rel.get("toColumn", ""))
+            for tb_name, col in ds.get("helperColumns", []) or []:     # aus getDefinition bzw. INFO.VIEW
+                m.add_helper(tb_name, col)
             for r in ds.get("roles", []) or []:
                 m.roles[r.get("name", "?")] = [(tp.get("name", ""), tp.get("filterExpression", "")) for tp in r.get("tablePermissions", []) or []]
             out.append(m)

@@ -153,6 +153,7 @@ class Fetcher:
         self.mode = "workspace" if admin is False else "admin"
         self.ws_names: dict[str, str] = {}
         self.db_ids: dict[str, str] = {}          # KQL-Datenbank: Anzeigename → Item-ID
+        self.monitored_ws: set[str] = set()       # Workspaces, deren Monitoring-Datenbank gefunden wurde
         self._kql_cache: dict[str, list[dict]] = {}
         self._all_ws_loaded = False
 
@@ -319,9 +320,12 @@ class Fetcher:
         tables = {str(t.get("Name")): {"name": t.get("Name"), "isHidden": truth(t.get("IsHidden")),
                                         "columns": [], "measures": []}
                   for t in self._info_view(wid, mid, "INFO.VIEW.TABLES")}
+        helpers = []
         for c in self._info_view(wid, mid, "INFO.VIEW.COLUMNS"):
             if c.get("Type") == "RowNumber" or str(c.get("Table")) not in tables:
                 continue
+            if c.get("SortByColumn"):
+                helpers.append([str(c["Table"]), str(c["SortByColumn"])])
             tables[str(c["Table"])]["columns"].append({"name": c.get("Name"), "isHidden": truth(c.get("IsHidden")),
                                                        "expression": c.get("Expression") or "",
                                                        "formatString": c.get("FormatString") or ""})
@@ -332,7 +336,14 @@ class Fetcher:
                                                             "formatString": m.get("FormatString") or ""})
         if not tables:
             raise FetchError("INFO.VIEW.TABLES lieferte keine Tabellen")
-        return {"name": name, "tables": list(tables.values()), "roles": [], "schemaSource": "executeQueries",
+        try:            # Schlüsselspalten; ohne sie gibt es nur mehr Hinweise SEC-HIDDEN, kein Abbruch
+            for r in self._info_view(wid, mid, "INFO.VIEW.RELATIONSHIPS"):
+                helpers += [[str(r.get("FromTable", "")), str(r.get("FromColumn", ""))],
+                            [str(r.get("ToTable", "")), str(r.get("ToColumn", ""))]]
+        except FetchError:
+            pass
+        return {"name": name, "tables": list(tables.values()), "roles": [], "helperColumns": helpers,
+                "schemaSource": "executeQueries",
                 "rolesUnknown": True}
 
     def _definition(self, wid: str, mid: str, timeout_s: int) -> list[dict]:
@@ -434,7 +445,9 @@ class Fetcher:
         anderen Monitoring-Items. Alt: Monitoring-Eventhouse mit einer KQL-Datenbank, die „Monitoring“ im Namen hat."""
         found: list[tuple[str, str]] = []
 
-        def add(db):
+        def add(db, wid=""):
+            if wid:
+                self.monitored_ws.add(wid.lower())
             entry = (db["properties"]["queryServiceUri"], db.get("displayName", ""))
             if entry not in found:
                 found.append(entry)
@@ -455,7 +468,7 @@ class Fetcher:
                                       "die Datensammlung einschalten.")
                 db = self._monitoring_db(wid, ws_name, name)
                 if db:
-                    add(db)
+                    add(db, wid)
                 else:
                     self.notes.append(f"Monitoring-Item „{name}“ in „{ws_name}“ gefunden, aber keine KQL-Datenbank "
                                       f"„{ws_name}_{name}_Database“ mit Zugriff. Liegt das Eventhouse in einem Workspace "
@@ -465,7 +478,7 @@ class Fetcher:
                 for db in self._kql_databases(wid):
                     props = db.get("properties") or {}
                     if "monitoring" in (db.get("displayName") or "").lower() and props.get("queryServiceUri"):
-                        add(db)
+                        add(db, wid)
         if not found:
             self.notes.append("Kein Workspace Monitoring gefunden (weder Monitoring-Item noch Monitoring-Eventhouse, "
                               "oder kein Zugriff auf den Workspace). Mit --monitoring URI=DATENBANK angeben.")
@@ -500,7 +513,7 @@ class Fetcher:
         denied: dict[str, int] = {}
         props_cache: dict[str, dict | None] = {}
 
-        def resolve(db: dict) -> bool:
+        def resolve(db: dict, src: str) -> bool:
             if db["id"] not in props_cache:
                 status, data = self.request("GET", f"{FABRIC}/workspaces/{db['workspaceId']}/kqlDatabases/{db['id']}",
                                             self.auth.token(RES_FABRIC))
@@ -512,7 +525,7 @@ class Fetcher:
                 denied[host] = denied.get(host, 0) + 1
                 return False
             add({"id": db["id"], "displayName": data.get("displayName") or db.get("name", ""),
-                 "properties": data["properties"]})
+                 "properties": data["properties"]}, src)
             return True
 
         for wid, items in by_ws.items():
@@ -527,13 +540,13 @@ class Fetcher:
                     self.notes.append(f"Monitoring-Item „{mon.get('name', '')}“ in „{ws_name}“: keine KQL-Datenbank "
                                       f"„{ws_name}_{mon.get('name', '')}_Database“ im Tenant gefunden.")
                     continue
-                resolve(cand[0])
+                resolve(cand[0], wid)
         off = []
         for wid in missing:                      # altes Workspace Monitoring ohne Item
             legacy = [d for d in dbs if (d.get("workspaceId") or "").lower() == wid.lower()
                       and "monitoring" in (d.get("name") or "").lower()]
             for d in legacy:
-                resolve(d)
+                resolve(d, wid)
             if not legacy:
                 off.append(wid)
         if off:
@@ -651,6 +664,7 @@ def _dataset_from_parts(name: str, parts: list[dict]) -> dict:
                     "measures": [member(m) for m in t.measures.values()]} for t in model.tables.values()],
         "roles": [{"name": r, "tablePermissions": [{"name": tb, "filterExpression": f} for tb, f in perms]}
                   for r, perms in model.roles.items()],
+        "helperColumns": sorted([t, c] for t, c in model.helper_columns),
     }
 
 

@@ -43,7 +43,7 @@ class Cli(unittest.TestCase):
         self.assertIn("QRY-SHADOW", {r["rule"] for r in rows})
         with open(os.path.join(out, "befunde.json"), encoding="utf-8") as fh:
             data = json.load(fh)
-        self.assertEqual(data["schema_version"], 1)
+        self.assertEqual(data["schema_version"], 2)
         md = open(os.path.join(out, "zusammenfassung.md"), encoding="utf-8").read()
         self.assertIn("bad-app", md)
         self.assertNotIn("demo-geheimnis", md + open(os.path.join(out, "bericht.html"), encoding="utf-8").read())

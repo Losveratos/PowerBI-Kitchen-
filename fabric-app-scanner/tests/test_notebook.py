@@ -77,6 +77,10 @@ class _Writer:
     def mode(self, m):
         return self
 
+    def option(self, k, v):
+        self.log.append(("option", k))
+        return self
+
     def saveAsTable(self, name):
         self.log.append(("table", name))
 
@@ -181,6 +185,8 @@ class Notebook(unittest.TestCase):
         self.assertEqual(sum(a.meta["runs"] for a in ns["apps"] if a.name == "Finance Cockpit"), 30)
         self.assertTrue(shown and "Modelle im Tenant" in shown[0])
         self.assertIn(("table", "fabscan_findings"), log)
+        self.assertIn(("option", "mergeSchema"), log)                 # neue Spalten im Datenvertrag 2
+        self.assertIn("Abdeckung", shown[0])
         run_dir = [d for d in os.listdir(self.tmp) if os.path.isdir(os.path.join(self.tmp, d))][0]
         self.assertEqual(sorted(os.listdir(os.path.join(self.tmp, run_dir))),
                          ["befunde.csv", "befunde.json", "bericht.html", "zusammenfassung.md"])

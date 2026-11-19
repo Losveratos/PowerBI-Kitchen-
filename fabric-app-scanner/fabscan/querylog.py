@@ -47,6 +47,7 @@ class Client:
     last: str = ""
     duration_ms: float = 0.0
     skipped_mdx: int = 0
+    dropped: int = 0              # Ausführungen jenseits von max_texts verschiedenen Abfragen
 
     @property
     def runs(self) -> int:
@@ -107,8 +108,11 @@ def is_mdx(text: str) -> bool:
 
 
 def is_service_principal(user: str) -> bool:
+    """App-ID (GUID, auch mit @Tenant), „app@…“ oder ausdrücklich „serviceprincipal“. Andere Kennungen ohne „@“
+    (Systemkonten des Dienstes, leere Platzhalter) zählen nicht als Service Principal."""
     u = user.strip().lower()
-    return bool(u) and ("@" not in u or u.startswith("app@") or re.fullmatch(r"[0-9a-f-]{36}(@.*)?", u) is not None)
+    return bool(u) and (u.startswith("app@") or "serviceprincipal" in u.replace(" ", "").replace("_", "")
+                        or re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(@.*)?", u) is not None)
 
 
 REQUIRED_COLUMNS = ("Timestamp", "OperationName", "EventText", "ItemId")
@@ -162,6 +166,8 @@ def clients(entries: list[LogQuery], include_reports: bool = False, max_texts: i
         norm = normalize(q.text)
         if norm in c.texts or len(c.texts) < max_texts:
             c.texts[norm] += q.count
+        else:
+            c.dropped += q.count
         if q.user:
             c.users.add(q.user)
         c.first = min(c.first, q.ts) if c.first else q.ts

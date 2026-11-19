@@ -1,7 +1,49 @@
 # Übergabe fabscan 0.4.0 und 0.5.0 · fetch und Notebook ohne Admin-Rechte, neues Workspace Monitoring
 
 Für den Agenten, der fabscan weiterbaut. Stand 19.11.2026, Branch `feat/fabscan-nonadmin-fallback`, PR #56.
-Der Abschnitt zu 0.5.0 steht zuerst, darunter unverändert die Übergabe zu 0.4.0.
+Neueste Version zuerst: 0.6.0, dann 0.5.x, darunter unverändert die Übergabe zu 0.4.0.
+
+## 0.6.0 · Roadmap-Punkte 1 bis 3 aus der Recherche
+
+Grundlage: `recherche/04-bewertung.md` (Roadmap Punkt 1 bis 3). Ziel: Vertrauen der Governance-Teams, bevor neue
+Themen dazukommen.
+
+**1 · Weniger Fehlalarme**
+- `SEC-AUTH` im Tenant-Modus: Service Principal allein ist ℹ. ⚠ nur, wenn das abgefragte Modell RLS-Rollen hat
+  (ein SP lässt sich keiner Rolle zuordnen und liest ungefiltert). Eigene Texte in `report.plain` für `origin="log"`.
+  Der Repo-Modus bleibt unverändert (App-Identität am Modell-Connector bleibt ✗).
+- `SEC-HIDDEN` meldet keine Sortier- und Schlüsselspalten mehr, außer ihr Name klingt vertraulich.
+  `Model.helper_columns` kommt aus TMDL (`sortByColumn`, `relationships.tmdl`), model.bim, dem Scanner-Ergebnis
+  (falls `sortByColumn`/`relationships` enthalten), getDefinition (`helperColumns` im umgebauten Dataset) und dem
+  Leser-Weg (`INFO.VIEW.COLUMNS[SortByColumn]`, `INFO.VIEW.RELATIONSHIPS`). Ob die Scanner-API Sortierspalten und
+  Beziehungen liefert, ist ungeprüft; ohne sie bleiben es Hinweise.
+- `is_service_principal`: nur App-ID (GUID, auch mit @Tenant), `app@…` oder „serviceprincipal“. Andere Kennungen ohne
+  „@“ zählen nicht mehr.
+
+**2 · Ausnahmen und stabile Befund-ID** (`fabscan/ausnahmen.py`)
+- `finding_id`: SHA-1 über Herkunft, Client, Pfad, Modell, Regel und Titel ohne Ziffern, 12 Zeichen. Gleich über
+  Läufe, solange sich diese Teile nicht ändern.
+- `fabscan-ausnahmen.json` (Standard im Repo bzw. aktuellen Ordner, `--ausnahmen`, Notebook `AUSNAHMEN`): Treffer
+  per `id` oder `regel` + `client`/`modell`/`workspace` (fnmatch, ohne Groß/Klein). Pflicht: `begruendung`. `bis`
+  abgelaufen: Befund zählt wieder, Status `abgelaufen`, Vermerk im Bericht. Akzeptierte Befunde liegen in
+  `AppResult.accepted`, zählen nicht für Ampel, Gesamtbild und Exit-Code.
+- Datenvertrag 2: neue Spalten `finding_id, status, exception_reason, exception_owner, exception_until`, akzeptierte
+  Befunde stehen mit drin. Notebook schreibt mit `mergeSchema`. Bericht: Abschnitt „Bewusst akzeptiert“, ID je
+  Befund im Entwicklerteil, ungenutzte Ausnahmen werden genannt.
+
+**3 · Abdeckung** (`tenant.coverage`, `report.coverage_lines`)
+- Workspaces geprüft und davon mit Monitoring (`Fetcher.monitored_ws`; bei `--monitoring` von Hand unbekannt),
+  Modelle (im Scan, nur Namen, nicht lesbar, abgefragt), Ausführungen, verschiedene Abfragen, Clients, Zeitraum.
+  „Nicht geprüft“: MDX, abgeschnittene Abfragen (`Client.dropped`, mehr als 400 verschiedene je Client),
+  Berichtsabfragen. Steht im HTML-Bericht und in der Zusammenfassung vor dem Gesamtbild, in `befunde.json` als
+  `coverage`.
+- Nur im Tenant-Modus. Für den Repo-Modus gibt es keine Abdeckung.
+
+Tests: 84 (neu `tests/test_governance.py`).
+
+**Nächste Roadmap-Punkte** (siehe Bewertung): 4 Log-Fingerabdrücke je Client messen und Clients mit Vertrauensstufe
+einordnen, 5 KQL um `User`, `Identity`, `Status` und Ergebniszeilen erweitern, 6 RLS-Wirksamkeit für beobachtete
+Modelle (Scanner mit `getArtifactUsers=true`), 7 Bericht mit Ampel je Thema, Maßnahmenliste und Trend.
 
 ## 0.5.0 · Was sich geändert hat
 

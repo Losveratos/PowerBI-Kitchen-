@@ -31,6 +31,9 @@ class Finding:
     evidence: str = ""
     advice: str = ""
     occurrences: list = field(default_factory=list)   # [(file, line, evidence)]
+    id: str = ""                  # stabile Befund-ID (ausnahmen.finding_id)
+    status: str = "offen"         # offen | akzeptiert | abgelaufen
+    exception: dict | None = None
 
 
 @dataclass
@@ -56,6 +59,7 @@ class AppResult:
     sql_tables: list[dict] = field(default_factory=list)
     origin: str = "repo"          # repo | log (aus Abfrage-Logs des Tenants)
     meta: dict = field(default_factory=dict)
+    accepted: list[Finding] = field(default_factory=list)   # bewusst akzeptiert (Ausnahme mit Begründung)
 
     def add(self, *a, **kw):
         self.findings.append(Finding(*a, **kw))
@@ -276,6 +280,8 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                                 "Ergebnisse hängen vom gewählten Berechnungselement ab.", f, ln, q.snippet(r.line))
                     if mem.hidden or t.hidden:
                         sens = bool(SENSITIVE.search(f"{t.name} {mem.name}"))
+                        if not sens and (t.name.lower(), mem.name.lower()) in m.helper_columns:
+                            continue    # Sortier- oder Schlüsselspalte: Power BI fragt sie ohnehin mit ab
                         app.add("security", "warn" if sens else "info", "SEC-HIDDEN",
                                 "Ausgeblendete Felder mit vertraulich klingendem Namen werden abgefragt" if sens else "Ausgeblendete Felder werden abgefragt",
                                 "Ausgeblendet heißt nicht geschützt: Per DAX ist jedes ausgeblendete Feld für jeden Leser abrufbar. Meist harmlos (Sortierspalten).",

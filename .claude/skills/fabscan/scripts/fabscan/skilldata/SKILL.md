@@ -95,6 +95,14 @@ Für Admins: Welche Anwendungen fragen die Modelle außerhalb von Power-BI-Beric
 - **Exportierte Dateien auswerten:** Hat der Nutzer eine Scanner-API-Antwort und einen Log-Export:
   `python3 <SKILL_DIR>/run.py --scan-result scan.json --query-log logs.csv -o tenant-bericht`.
 
+## Ausnahmen
+
+Ist ein Befund geprüft und gewollt, nicht den Code ändern, sondern mit dem Nutzer eine Ausnahme anlegen:
+`fabscan-ausnahmen.json` im Repo (bzw. `--ausnahmen DATEI`) mit `id` (aus dem Bericht oder `befunde.csv`) oder
+`regel` plus `client`/`modell`, immer mit `begruendung`, möglichst mit `verantwortlich` und `bis`. Die Begründung
+kommt vom Nutzer, nie selbst ausdenken. Akzeptierte Befunde stehen im Bericht unter „Bewusst akzeptiert“ und zählen
+nicht für `--fail-on`.
+
 ## 4 · Ausgaben für später
 
 `befunde.json` und `befunde.csv` folgen einem festen Datenvertrag (`schema_version` 1, eine Zeile je Befund:
