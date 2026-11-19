@@ -412,7 +412,7 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                 continue
             for s in f.strings:
                 v = s.value.strip().lower()
-                if v in names and v not in seen:
+                if v in names and v not in seen and not _is_label(f.text, s.start):
                     seen.add(v)
                     mm = names[v]
                     ln0 = f.line(s.start)
@@ -511,10 +511,28 @@ def group(findings: list[Finding]) -> list[Finding]:
     return list(out.values())
 
 
+_LABEL_KEYS = {"id", "key", "title", "subtitle", "label", "name", "displayname", "caption", "tooltip", "header",
+               "text", "alt", "placeholder", "group", "page", "description",
+               "kpi"}   # ChartKitchen: objects.ibcsTitle.kpi ist die Titelzeile
+_KEY_BEFORE = re.compile(r"""["']?([\w$\[\] .-]+?)["']?\s*:\s*$""")
+
+
+def _is_label(text: str, start: int) -> bool:
+    """Steht die Zeichenkette als Beschriftung da (Wert von id, title, label …, oder Anzeigename eines Felds
+    wie "[actual]": "EBIT AC")? Dann ist es ein Name, keine Rechnung."""
+    before = text[text.rfind("\n", 0, start) + 1:start]
+    m = _KEY_BEFORE.search(before)
+    if not m:
+        return False
+    key = m.group(1).strip()
+    return key.startswith("[") or key.lower() in _LABEL_KEYS
+
+
 def find_apps(root: str) -> list[str]:
     out = []
     for dirpath, dirnames, _ in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in ("node_modules", ".git", "dist", "build", "fixtures")]
+        # versteckte Ordner (.git, .claude/worktrees mit Kopien des Repos, .venv) und Build-Ausgaben überspringen
+        dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in ("node_modules", "dist", "build", "fixtures")]
         if os.path.exists(os.path.join(dirpath, "rayfin", "rayfin.yml")):
             out.append(dirpath)
             dirnames[:] = []

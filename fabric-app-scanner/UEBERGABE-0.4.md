@@ -1,7 +1,18 @@
 # Übergabe fabscan 0.4.0 und 0.5.0 · fetch und Notebook ohne Admin-Rechte, neues Workspace Monitoring
 
 Für den Agenten, der fabscan weiterbaut. Stand 19.11.2026, Branch `feat/fabscan-nonadmin-fallback`, PR #56.
-Neueste Version zuerst: 0.6.0, dann 0.5.x, darunter unverändert die Übergabe zu 0.4.0.
+Neueste Version zuerst: 0.6.x, dann 0.5.x, darunter unverändert die Übergabe zu 0.4.0.
+
+## 0.6.1 · Fehlalarme aus dem Lauf über die dwg-Apps
+
+Lauf über die vier von dwg erzeugten Apps in `Desktop\PnL Demo\Fabric-Apps-Demo\apps` (19.11.2026):
+- `find_apps` und `tmdl.find_models` überspringen versteckte Ordner. Vorher kamen Apps aus
+  `.claude/worktrees/<kopie>/` doppelt in den Bericht.
+- `DEV-NAME` wertet Zeichenketten nicht mehr, die als Beschriftung stehen: Werte von `id`, `title`, `label`,
+  `name`, `kpi` (ChartKitchen-Titel) u. a., sowie Anzeigenamen von Feldern (`"[actual]": "EBIT AC"`). Ein
+  Feldzugriff wie `r["Umsatz"]` bleibt verdächtig (`checks._is_label`).
+- Die eigentlichen dwg-Befunde (Google Fonts aus der Rayfin-Vorlage, feste Spec-Filter als TREATAS in den
+  `.dax`-Dateien, Modell für fabscan nicht auffindbar) bearbeitet eine eigene Session in dwg-cli.
 
 ## 0.6.0 · Roadmap-Punkte 1 bis 3 aus der Recherche
 

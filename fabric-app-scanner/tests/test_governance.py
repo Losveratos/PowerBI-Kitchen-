@@ -101,6 +101,33 @@ class FalseAlarms(unittest.TestCase):
         self.assertEqual(tmdl.split_column_ref("'It''s'.Wert"), ("It's", "Wert"))
 
 
+class RepoFalseAlarms(unittest.TestCase):
+    def test_hidden_folders_are_skipped(self):
+        """Kopien des Repos unter .claude/worktrees dürfen Apps und Modelle nicht verdoppeln."""
+        from fabscan import checks
+        tmp = tempfile.mkdtemp(prefix="fabscan-hidden-")
+        try:
+            for base in ("", os.path.join(".claude", "worktrees", "kopie")):
+                os.makedirs(os.path.join(tmp, base, "apps", "a", "rayfin"))
+                open(os.path.join(tmp, base, "apps", "a", "rayfin", "rayfin.yml"), "w").close()
+                os.makedirs(os.path.join(tmp, base, "M.SemanticModel", "definition", "tables"))
+            self.assertEqual(checks.find_apps(tmp), [os.path.join(tmp, "apps", "a")])
+            self.assertEqual(len(tmdl.find_models(tmp)), 1)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_labels_are_not_recomputed_measures(self):
+        from fabscan.checks import _is_label
+        t = ('"displayNames": {\n  "[actual]": "EBIT AC",\n"id": "umsatz",\nconst x = "Umsatz";\n'
+             'rows.map(r => r["Umsatz"] * 2)\ntitle: "Umsatz"\n')
+        at = lambda w: t.index('"', t.index(w))  # noqa: E731
+        self.assertTrue(_is_label(t, at('"EBIT AC"')))       # Anzeigename eines Felds
+        self.assertTrue(_is_label(t, at('"umsatz"')))        # Kachel-ID
+        self.assertTrue(_is_label(t, at('title: "Umsatz"')))
+        self.assertFalse(_is_label(t, at('= "Umsatz"')))
+        self.assertFalse(_is_label(t, at('["Umsatz"]')))     # Feldzugriff bleibt verdächtig
+
+
 class Exceptions(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp(prefix="fabscan-aus-")

@@ -257,7 +257,8 @@ def load_model(folder: str, root: str) -> Model:
 def find_models(root: str) -> list[Model]:
     out = []
     for dirpath, dirnames, _ in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in ("node_modules", ".git", "dist", "build", "fixtures")]
+        # versteckte Ordner (.git, .claude/worktrees mit Kopien des Repos, .venv) und Build-Ausgaben überspringen
+        dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in ("node_modules", "dist", "build", "fixtures")]
         for d in list(dirnames):
             if d.endswith(".SemanticModel"):
                 out.append(load_model(os.path.join(dirpath, d), root))
