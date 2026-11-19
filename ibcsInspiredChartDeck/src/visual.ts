@@ -6260,6 +6260,11 @@ export class Visual implements IVisual {
                 hi = Math.max(hi, ...st.pos);
             }
             if (fixedMax > 0) { hi = cfg.capMax != null ? fixedMax : Math.max(hi, fixedMax); }
+            // 1.54 (B06): the reference line is drawn in stacks too — keep it on the scale
+            if (cfg.refLine != null) {
+                lo = Math.min(lo, cfg.refLine);
+                hi = Math.max(hi, cfg.capMax != null ? Math.min(cfg.refLine, cfg.capMax) : cfg.refLine);
+            }
             cfg.stackDomain = [lo, Math.max(hi, lo < 0 ? 0 : 1)];
         }
 
@@ -13839,6 +13844,7 @@ export class Visual implements IVisual {
      */
     private stackLayout(points: DataPoint[]): {
         cats: string[]; series: string[]; cell: Map<string, DataPoint>; pos: number[]; neg: number[];
+        scen: ("ac" | "fc" | "pl")[]; sv: (ci: number, s: string) => number;
     } {
         const cats: string[] = [];
         const series: string[] = [];
@@ -13850,15 +13856,35 @@ export class Visual implements IVisual {
             const key = `${p.cat}¦${s}`;
             if (!cell.has(key)) { cell.set(key, p); }
         }
-        const pos = cats.map(c => series.reduce((a, s) => a + Math.max(cell.get(`${c}¦${s}`)?.value ?? 0, 0), 0));
-        const neg = cats.map(c => series.reduce((a, s) => a + Math.min(cell.get(`${c}¦${s}`)?.value ?? 0, 0), 0));
-        return { cats, series, cell, pos, neg };
+        // 1.54 (B06): one scenario per CATEGORY (a series missing in one month must not
+        // flip it): AC when any cell carries an actual, else FC, else PL (a plan-only
+        // month stacks its PL values as an outlined column, IBCS sheets 01A to 01C)
+        const scen = cats.map(c => {
+            const cs = series.map(s => cell.get(`${c}¦${s}`)).filter((x): x is DataPoint => x != null);
+            if (cs.some(x => x.value != null && !x.isFc)) { return "ac" as const; }
+            if (cs.some(x => x.value != null && x.isFc)) { return "fc" as const; }
+            if (cs.some(x => x.pl != null)) { return "pl" as const; }
+            return "ac" as const;
+        });
+        const sv = (ci: number, s: string): number => {
+            const x = cell.get(`${cats[ci]}¦${s}`);
+            if (!x) { return 0; }
+            return x.value ?? (scen[ci] === "pl" ? x.pl ?? 0 : 0);
+        };
+        const pos = cats.map((_, ci) => series.reduce((a, s) => a + Math.max(sv(ci, s), 0), 0));
+        const neg = cats.map((_, ci) => series.reduce((a, s) => a + Math.min(sv(ci, s), 0), 0));
+        return { cats, series, cell, pos, neg, scen, sv };
     }
 
     private renderStacked(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
-        const { cats, series, cell, pos: posTot, neg: negTot } = this.stackLayout(points);
+        const { cats, series, cell, pos: posTot, neg: negTot, scen, sv } = this.stackLayout(points);
         const n = cats.length;
         if (n === 0) { return; }
+        this.fcCuts = [];
+        // 1.54 (B06): scenario notation in the stack (FC hatched, PL outlined, separators)
+        const scenSet = new Set(scen);
+        const anyScen = scenSet.has("fc") || scenSet.has("pl") || points.some(p => p.isFc);
+        const scenOn = cfg.scenarioLabels && cfg.orientation === "columns" && anyScen;
         const k = this.fontK;
         const lf = cfg.labelFont, cf = cfg.catFont;
         const pad = 4;
@@ -13895,7 +13921,7 @@ export class Visual implements IVisual {
         const layout = (direct: boolean) => {
             let bandStart: number, bandEnd: number, rect: Rect;
             if (orientation === "columns") {
-                const catArea = cf + 10;
+                const catArea = cf + 10 + (scenOn ? cf + 2 : 0);
                 const legH = direct ? 0 : legendH;
                 const rightW = direct ? nameW : 0;
                 bandStart = region.x + pad + 2;
@@ -13920,7 +13946,7 @@ export class Visual implements IVisual {
             let cum = 0;
             const out: { s: number; at: number; w: number }[] = [];
             for (let si = 0; si < series.length; si++) {
-                const v = cell.get(cats[ci] + "¦" + series[si])?.value ?? 0;
+                const v = sv(ci, series[si]);
                 if (!(v > 0)) { return null; }
                 const a = L.scale(capV(cum)), b = L.scale(capV(cum + v));
                 cum += v;
@@ -13956,7 +13982,7 @@ export class Visual implements IVisual {
                 for (let ci = 0; ci < n; ci++) {
                     let cum = 0, a = 0, b = 0, found = false;
                     for (let sj = 0; sj <= si; sj++) {
-                        const v = cell.get(cats[ci] + "¦" + series[sj])?.value ?? 0;
+                        const v = sv(ci, series[sj]);
                         if (sj === si && v > 0) { a = L.scale(capV(cum)); b = L.scale(capV(cum + v)); found = true; }
                         if (v > 0) { cum += v; }
                     }
@@ -13991,7 +14017,11 @@ export class Visual implements IVisual {
 
         const bg = this.el("g", {}, this.svg);
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
-        this.drawPanelTitle(bg, rect, this.locStr("Title_StackedPanel", "AC · stacked"), orientation, titleH, region,
+        // the title names the scenarios that occur (AC only = unchanged text)
+        const stackTitle = !anyScen ? this.locStr("Title_StackedPanel", "AC · stacked")
+            : [cfg.scenL.ac, scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "", scenSet.has("pl") ? cfg.scenL.pl : ""]
+                .filter(x => x).join(" · ") + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
+        this.drawPanelTitle(bg, rect, stackTitle, orientation, titleH, region,
             orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
 
         const ly = region.y + (orientation === "columns" ? pad + legendH - 4 : legendH - 2);
@@ -14041,6 +14071,53 @@ export class Visual implements IVisual {
             }
         }
 
+        // 1.54 (B06): group separators, reference line and scenario boundaries
+        const groupEvery = Math.round(this.formattingSettings.chartCard.groupEvery.value ?? 0);
+        if (groupEvery > 0 && groupEvery < n) {
+            for (let i = groupEvery; i < n; i += groupEvery) {
+                const p1 = bandStart + i * step;
+                this.el("line", orientation === "columns"
+                    ? { x1: p1, y1: rect.y + 2, x2: p1, y2: rect.y + rect.h }
+                    : { x1: rect.x, y1: p1, x2: rect.x + rect.w, y2: p1 }, bg);
+                const l = bg.lastElementChild as SVGElement;
+                l.setAttribute("stroke", cfg.subtle);
+                l.setAttribute("stroke-width", "1");
+                l.setAttribute("stroke-opacity", "0.5");
+                l.setAttribute("data-icd", "group-sep");
+            }
+        }
+        if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
+            const rg = this.el("g", { "data-icd": "stack-refline" }, bg);
+            this.drawRefLine(rg, rect, scale, orientation, bandStart, bandEnd, cfg);
+        }
+        // AC | FC | PL boundaries: only for monotone blocks (AC* FC* PL*), columns only
+        // (like the time series' AC → FC line); cut around texts after drawing
+        const rank = { ac: 0, fc: 1, pl: 2 };
+        const monotone = scen.every((sc, i) => i === 0 || rank[sc] >= rank[scen[i - 1]]);
+        if (orientation === "columns" && anyScen && monotone) {
+            for (let i = 1; i < n; i++) {
+                if (scen[i] === scen[i - 1]) { continue; }
+                const x = bandStart + i * step;
+                const icd = scen[i] === "pl" ? "pl-boundary" : "fc-boundary";
+                const ln = this.el("line", {
+                    x1: x, y1: rect.y + 2, x2: x, y2: rect.y + rect.h,
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-dasharray": "3,3", "data-icd": icd
+                }, bg);
+                this.fcCuts.push({ line: ln, x, y1: rect.y + 2, y2: rect.y + rect.h });
+            }
+        }
+        if (scenOn) {
+            const yS = region.y + region.h - 3;
+            for (let i = 0; i < n; i++) {
+                if (i > 0 && scen[i] === scen[i - 1]) { continue; }
+                const t = this.el("text", {
+                    x: pos(i) + slotW / 2, y: yS, "text-anchor": "middle", "font-size": cf,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label"
+                }, bg);
+                t.textContent = scen[i] === "ac" ? cfg.scenL.ac : scen[i] === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+            }
+        }
+
         const marks = this.el("g", {}, this.svg);
         const totalTexts = totals.map(t => cfg.fmt.format(t));
         const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
@@ -14055,15 +14132,37 @@ export class Visual implements IVisual {
             let segN = 0, segLabelled = 0;
             series.forEach((s, si) => {
                 const p = cell.get(`${c}¦${s}`);
-                const v = p?.value ?? 0;
+                const v = sv(i, s);
                 if (v === 0 || !p) { return; }
                 segN++;
                 const from = v > 0 ? cumPos : cumNeg;
                 const to = from + v;
                 if (v > 0) { cumPos = to; } else { cumNeg = to; }
-                const g = this.el("g", { "class": "icd-cat" }, gCat) as SVGGElement;
-                this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation,
-                    { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
+                // 1.54 (B06): FC hatched in the series tint, PL as tinted outline; an
+                // AC cell keeps exactly its previous drawing (byte-identical stacks)
+                const kind: "ac" | "fc" | "pl" = scen[i] === "pl" ? "pl" : p.isFc ? "fc" : "ac";
+                const g = this.el("g", kind === "ac" ? { "class": "icd-cat" }
+                    : { "class": "icd-cat", "data-icd": `stack-seg-${kind}` }, gCat) as SVGGElement;
+                if (kind === "ac") {
+                    const fcP = p.fcPart != null && p.fcPart > 0 && v > 0 && v - p.fcPart >= 0 ? p.fcPart : 0;
+                    if (fcP > 0) {
+                        // acFcSplit: solid AC socket + hatched FC part inside the segment
+                        this.drawBar(g, pos(i), slotW, capV(from), capV(to - fcP), scale, orientation,
+                            { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
+                        this.drawBar(g, pos(i), slotW, capV(to - fcP), capV(to), scale, orientation,
+                            { fill: `url(#${this.stackHatch(cfg, si, shade(si))})`, stroke: cfg.colors.ac, "stroke-width": 1 });
+                    } else {
+                        this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation,
+                            { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
+                    }
+                } else if (kind === "fc") {
+                    this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation,
+                        { fill: `url(#${this.stackHatch(cfg, si, shade(si))})`, stroke: cfg.colors.ac, "stroke-width": 1 });
+                } else {
+                    this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation, cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
+                        : { fill: shade(si), "fill-opacity": 0.28, stroke: cfg.colors.pl, "stroke-width": 1.2 });
+                }
                 // segment label when the slice is tall/wide enough
                 const a = scale(capV(from)), b = scale(capV(to));
                 if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
@@ -14073,10 +14172,18 @@ export class Visual implements IVisual {
                         x: orientation === "columns" ? pos(i) + slotW / 2 : mid,
                         y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + slotW / 2 + lf * 0.35,
                         "text-anchor": "middle", "font-size": Math.round(lf * 0.92),
-                        fill: cfg.hc ? cfg.ink : (light ? cfg.ink : cfg.paper), "font-family": FONT
+                        fill: cfg.hc ? cfg.ink : (kind !== "ac" || light ? cfg.ink : cfg.paper), "font-family": FONT,
+                        ...(kind !== "ac" && !cfg.hc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
                     }, g);
                     st.textContent = cfg.fmt.format(v);
                     segLabelled++;
+                }
+                // comment badge at the outer slot edge, middle of the segment (01A)
+                if (p.commentNo != null) {
+                    const mid = (a + b) / 2;
+                    const cg = this.el("g", { "data-icd": "stack-comment" }, g);
+                    this.drawCommentMarker(cg, 0, p, scale, orientation, cfg,
+                        orientation === "columns" ? { cx: pos(i) + slotW, cy: mid } : { cx: mid, cy: pos(i) });
                 }
                 this.attachInteraction(g, p, cfg);
                 this.catGroups.push({ g, sel: p.sel, dim: p.dim });
@@ -14095,10 +14202,27 @@ export class Visual implements IVisual {
             }
             const isHl = this.isEmph(cfg, c);
             if (showCatAt(i) || isHl) {
-                this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf, region, step, rect, cfg.ink, isHl);
+                this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf,
+                    scenOn ? { ...region, h: region.h - (cf + 2) } : region, step, rect, cfg.ink, isHl);
             }
             this.animGroups.push([gCat]);
         });
+        this.cutFcLines();
+    }
+
+    /** 1.54 (B06): hatch pattern for a forecast stack segment — dark hatch lines over
+     *  the series tint (IBCS 01C), created once per series and visual instance */
+    private stackHatch(cfg: ChartConfig, si: number, tint: string): string {
+        const id = `${cfg.patId}-s${si}`;
+        if (this.svg.querySelector(`#${id}`)) { return id; }
+        const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
+        const pat = this.el("pattern", {
+            id, patternUnits: "userSpaceOnUse", width: 5, height: 5, patternTransform: "rotate(45)"
+        }, defs);
+        this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
+        if (!cfg.hc) { this.el("rect", { width: 5, height: 5, fill: tint, "fill-opacity": 0.45 }, pat); }
+        this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.hc ? cfg.ink : cfg.colors.ac, "stroke-width": 1.6 }, pat);
+        return id;
     }
 
     /** hex "#rrggbb" → [r,g,b] (defaults to dark grey on malformed input) */
@@ -15873,17 +15997,18 @@ export class Visual implements IVisual {
     }
 
     private drawCommentMarker(parent: SVGElement, bandCenter: number, p: DataPoint,
-        scale: Scale, orientation: Orientation, cfg: ChartConfig): void {
+        scale: Scale, orientation: Orientation, cfg: ChartConfig, at?: { cx: number; cy: number }): void {
         // the in-chart badge follows the font preset/scale like every other label
         const r = Math.round(7 * this.fontK);
-        const end = scale(p.value as number);
+        const end = scale((p.value ?? 0) as number);
         const zero = scale(0);
         const len = Math.abs(end - zero);
         // sit just inside the bar end; center in very short bars
         const inset = len >= 2 * r + 8 ? r + 5 : len / 2;
         const towardZero = end < zero ? inset : -inset;
-        const cx = orientation === "columns" ? bandCenter : end + towardZero;
-        const cy = orientation === "columns" ? end + towardZero : bandCenter;
+        // 1.54 (B06): stacks place the badge themselves (segment middle, slot edge)
+        const cx = at ? at.cx : orientation === "columns" ? bandCenter : end + towardZero;
+        const cy = at ? at.cy : orientation === "columns" ? end + towardZero : bandCenter;
         this.el("circle", {
             cx, cy, r, fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2
         }, parent);

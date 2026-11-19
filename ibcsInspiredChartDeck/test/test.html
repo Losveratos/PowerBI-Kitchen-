@@ -2415,6 +2415,88 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
   check(window.__persist.c265.length === 0 && names[0] === "California" && names[1] === "Ohio",
     "c265: Export rendert die Vorlage lokal (sortiert), ohne Persist");
 }
+// ---- 1.54 (B06): Szenario-Notation im Stapel (IBCS-Blatt 01C)
+{
+  const mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan 26","Feb 26","Mar 26"];
+  const ser = ["Software", "Service", "Training", "Consulting", "Other"];
+  const V = [[21.5,16.0,5.3,22.4,6.5],[31.9,18.8,6.6,22.4,8.5],[40.8,24.2,7.3,25.3,5.2],[50.5,26.7,7.7,22.4,6.7],
+    [54.4,18.8,8.1,22.4,7.5],[56.9,24.2,6.9,25.3,6.9],[48.9,26.7,7.7,22.4,7.4],[56.8,24.2,7.3,25.3,7.7],[59.2,26.7,7.7,22.4,6.9],
+    [54.2,24.2,7.9,25.3,5.2],[60.3,26.7,7.7,22.4,6.3],[88.6,18.8,7.2,22.4,7.7],
+    [47.5,25.5,7.2,17.9,6.9],[56.7,24.9,7.0,16.8,7.2],[45.3,24.2,7.5,16.2,6.8]];
+  const rows = { cat: [], ser: [], ac: [], fc: [], pl: [], flag: [], cm: [] };
+  mo.forEach((m, i) => ser.forEach((s, j) => {
+    rows.cat.push(m); rows.ser.push(s);
+    rows.ac.push(i < 9 ? V[i][j] : null); rows.fc.push(i >= 9 && i < 12 ? V[i][j] : null); rows.pl.push(i >= 12 ? V[i][j] : null);
+    rows.flag.push(i >= 9 && i < 12 ? 1 : 0);
+    rows.cm.push(i === 11 && j === 0 ? "Großauftrag Beta" : i === 4 && j === 1 ? "Preisrunde" : null);
+  }));
+  const stackDv = (objs, opts) => {
+    opts = opts || {};
+    const cats = [{ source: { displayName: "Monat", roles: { category: true } }, values: rows.cat },
+      { source: { displayName: "Bereich", roles: { series: true } }, values: rows.ser }];
+    if (opts.flag) { cats.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: rows.flag }); }
+    const vals = opts.flag
+      ? [col("actual", rows.ac.map((v, k) => v != null ? v : rows.fc[k]), "#,0.0"), col("plan", rows.pl, "#,0.0")]
+      : [col("actual", rows.ac, "#,0.0"), col("forecast", rows.fc, "#,0.0"), col("plan", rows.pl, "#,0.0")];
+    if (opts.comments) { vals.push(col("comments", rows.cm)); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: vals } };
+  };
+  const nsvg = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  const q = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+
+  addStage("c275", "Stapel · AC Jan bis Sep, FC Okt bis Dez schraffiert, PL Jan bis Mär 26 als Umriss · Trennlinien · Kürzel (01C)", 1280, 640);
+  runCap("c275", stackDv({ chart: { orientation: "columns", scenarioLabels: true } }), 1280, 640);
+  {
+    const fcSeg = q("c275", '[data-icd="stack-seg-fc"]'), plSeg = q("c275", '[data-icd="stack-seg-pl"]');
+    const hatchIds = new Set(fcSeg.map(g => (g.querySelector("rect").getAttribute("fill") || "").replace(/^url\(#|\)$/g, "")));
+    const plR = plSeg.map(g => g.querySelector("rect"));
+    check(fcSeg.length === 15 && plSeg.length === 15 && hatchIds.size === 5 && [...hatchIds].every(h => /-s\d$/.test(h) && document.getElementById(h)),
+      `c275: 15 FC-Segmente in 5 Serien-Schraffuren, 15 PL-Segmente (${fcSeg.length}/${hatchIds.size}/${plSeg.length})`);
+    check(plR.every(r => r.getAttribute("stroke") && r.getAttribute("fill-opacity") === "0.28"), "c275: PL-Segmente als getönter Umriss");
+    const fcB = q("c275", '[data-icd="fc-boundary"]'), plB = q("c275", '[data-icd="pl-boundary"]');
+    check(fcB.length >= 1 && plB.length >= 1, `c275: Trennlinien AC|FC und FC|PL (${fcB.length}, ${plB.length})`);
+    const texts = q("c275", "text").map(t => t.textContent);
+    // Blatt 116,8 · 123,4 · 144,7 · 105,0 · 112,6 · 100,0; ChartKitchen zeigt höchstens 3 Ziffern (1.52.1)
+    check(["117", "123", "145", "105", "113", "100"].every(t => texts.includes(t)),
+      "c275: Summen der FC- und PL-Stapel (117 · 123 · 145 · 105 · 113 · 100)");
+    const sc = q("c275", '[data-icd="scen-label"]').map(t => t.textContent);
+    check(JSON.stringify(sc) === '["AC","FC","PL"]' && /AC · FC · PL/.test(document.getElementById("c275").textContent),
+      `c275: Szenario-Kürzel AC · FC · PL unter der Achse und im Titel (${sc.join(",")})`);
+    check(!!document.querySelector('#c275 [data-icd="stack-legend-direct"]'), "c275: Seriennamen direkt neben dem PL-Stapel");
+  }
+  addStage("c276", "Stapel als Balken · gleiche Daten · Schraffur und Umriss, ohne Trennlinien", 960, 640);
+  runCap("c276", stackDv({ chart: { orientation: "bars" } }), 960, 640);
+  check(q("c276", '[data-icd="stack-seg-fc"]').length === 15 && q("c276", '[data-icd="stack-seg-pl"]').length === 15
+    && !q("c276", '[data-icd="fc-boundary"]').length, "c276: Balken mit FC-Schraffur und PL-Umriss, keine Trennlinie");
+  // fcFlag statt FC-Measure: dasselbe Bild
+  addStage("c277", "Stapel · FC über das Forecast-Flag statt FC-Measure (Referenz c275)", 1280, 640);
+  runCap("c277", stackDv({ chart: { orientation: "columns", scenarioLabels: true } }, { flag: true }), 1280, 640);
+  check(nsvg("c277") === nsvg("c275"), "c277: Forecast-Flag zeichnet SVG-gleich wie die FC-Measure");
+  // refLine, groupEvery, Kommentare
+  addStage("c278", "Stapel · Referenzlinie 100 · Trennlinie alle 3 · Kommentare ① ②", 1280, 640);
+  runCap("c278", stackDv({ chart: { orientation: "columns", groupEvery: 3 }, scale: { refLine: "100", refLineLabel: "Ziel" } }, { comments: true }), 1280, 640);
+  check(q("c278", '[data-icd="group-sep"]').length === 4 && q("c278", '[data-icd="stack-refline"] line').length >= 1
+    && q("c278", '[data-icd="stack-comment"] circle').length === 2,
+    `c278: 4 Gruppen-Trennlinien, Referenzlinie, 2 Kommentar-Marker (${q("c278", '[data-icd="group-sep"]').length}, ${q("c278", '[data-icd="stack-comment"] circle').length})`);
+  // Hochkontrast + Small Multiples: keine doppelten Pattern-Ids
+  addStage("c279", "Stapel · Hochkontrast · FC und PL", 1280, 640);
+  runCap("c279", stackDv({ chart: { orientation: "columns" } }), 1280, 640, { palette: hcPal });
+  check(q("c279", '[data-icd="stack-seg-pl"] rect').every(r => r.getAttribute("fill-opacity") == null && r.getAttribute("stroke")),
+    "c279: Hochkontrast · PL als Papier mit Tinten-Umriss");
+  addStage("c280", "Stapel · Small Multiples (2 Regionen) mit FC · eindeutige Pattern-Ids", 1280, 560);
+  {
+    const dv = stackDv({ chart: { orientation: "columns" } });
+    const n0 = rows.cat.length;
+    dv.categorical.categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: rows.cat.map(() => "Nord") });
+    for (const c of dv.categorical.categories) { c.values = c.values.concat(c.roles?.multiples || c.source.roles.multiples ? rows.cat.map(() => "Süd") : c.values); }
+    for (const v of dv.categorical.values) { v.values = v.values.concat(v.values.map(x => x != null && typeof x === "number" ? +(x * 0.6).toFixed(1) : x)); }
+    runCap("c280", dv, 1280, 560);
+    const ids = q("c280", "[id]").map(e => e.id);
+    check(ids.length === new Set(ids).size && q("c280", '[data-icd="stack-seg-fc"]').length === 30 && n0 === 75,
+      `c280: zwei Kacheln, 30 FC-Segmente, keine doppelten Ids (${ids.length})`);
+  }
+}
 // ---- 1.54 (B04): Sortier-Enum off · abs · signed · pct · ac, Rest-Zeilen fest unten und kursiv
 {
   const states = wfStates.filter(x => x !== "Others");

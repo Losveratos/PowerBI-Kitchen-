@@ -399,6 +399,16 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 1. Unter Chart → Tabelle → „Werte-Spalten“ schaltest du zwischen „Nur AC“, „AC + Varianzbasis“ und „AC · PY · PL“.
 2. Die bezifferten Referenzwerte stehen dann neben der ΔBasis-Balkenspalte und dem Σ-Block — für druck- und boardtaugliche Tabellen ohne Balken-Interpretation.
 
+### Szenarien im Stapel
+
+![Gestapelte Säulen über 15 Monate: Ist voll, Forecast schraffiert in der Tönung der Serie, Plan als getönter Umriss mit eigener Stapelsumme, gestrichelte Trennlinien zwischen den Szenarien und die Kürzel AC, FC und PL unter der Achse (IBCS-Blatt 01C).](../doku-assets/feature-stack-scenarios.png)
+
+1. Seit 1.54 folgen gestapelte Säulen und Balken der Szenario-Notation, ohne neue Einstellung: Jede Kategorie bekommt ein Szenario. Hat eine Serie dort ein Ist, ist es AC; sonst FC, wenn ein Forecast vorliegt (Measure „Forecast“ oder Forecast-Flag); sonst PL, wenn nur der Plan gebunden ist.
+2. Forecast-Segmente sind schraffiert, in der Tönung ihrer Serie, damit die Serien unterscheidbar bleiben. Plan-Monate stapeln die Planwerte als Umriss mit leichter Tönung; Summe und Seriennamen beziehen sich dann auf den Plan.
+3. Zwischen AC, FC und PL steht eine gestrichelte Trennlinie (nur Säulen und nur, wenn die Szenarien in Blöcken aufeinander folgen). „Szenario-Kürzel an den Säulen“ schreibt AC, FC und PL unter den ersten Monat jedes Blocks.
+4. Im Stapel wirken jetzt auch die Referenzlinie (Skala-Karte), „Trennlinie alle N Kategorien“ und die Kommentar-Marker (am Segment, außen an der Säule). Stapel ohne Forecast und Plan zeichnen genau wie bisher.
+5. Neben einem Ist-Monat wird kein Plan-Umriss gezeichnet, wie in den IBCS-Blättern 01A bis 01C.
+
 ### Jahressäule mit eigener Skala
 
 ![Monate gegen Plan, rechts die Jahressäule AC + FC auf eigener Skala (×0,1). Das blaue Band steht in beiden Skalen beim selben Wert, die schräge Linie verbindet die beiden Bänder; ΔPL und ΔPL % der Jahressumme stehen in den Abweichungs-Panels (IBCS-Blätter 03A und 03B).](../doku-assets/feature-year-column.png)

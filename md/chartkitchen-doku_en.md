@@ -399,6 +399,16 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 1. Under Chart → Table → “Value columns” switch between “AC only”, “AC + variance basis” and “AC · PY · PL”.
 2. The numeric reference values then sit next to the Δbasis bar column and the Σ block — for print- and board-ready tables without bar interpretation.
 
+### Scenarios in stacks
+
+![Stacked columns over 15 months: actual solid, forecast hatched in the series tint, plan as a tinted outline with its own stack total, dashed separators between the scenarios and the labels AC, FC and PL under the axis (IBCS sheet 01C).](../doku-assets/feature-stack-scenarios.png)
+
+1. Since 1.54 stacked columns and bars follow the scenario notation, without a new setting: every category gets one scenario. If a series has an actual there, it is AC; otherwise FC if a forecast exists (“Forecast” measure or forecast flag); otherwise PL if only the plan is bound.
+2. Forecast segments are hatched in the tint of their series, so the series stay distinguishable. Plan months stack the plan values as an outline with a light tint; total and series names then refer to the plan.
+3. A dashed separator stands between AC, FC and PL (columns only, and only when the scenarios follow each other in blocks). “Scenario labels at the columns” writes AC, FC and PL under the first month of each block.
+4. Stacks now also show the reference line (Scale card), “Group separator every N categories” and the comment markers (at the segment, outside the column). Stacks without forecast and plan draw exactly as before.
+5. No plan outline is drawn next to an actual month, as in the IBCS sheets 01A to 01C.
+
 ### Year column with its own scale
 
 ![Months against plan, on the right the year column AC + FC on its own scale (×0.1). The blue band sits at the same value on both scales, the slanted line joins the two bands; ΔPL and ΔPL % of the year sum sit in the variance panels (IBCS sheets 03A and 03B).](../doku-assets/feature-year-column.png)

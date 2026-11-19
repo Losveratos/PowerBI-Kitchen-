@@ -75,6 +75,18 @@ gilt für die Spaltensortierung der Tabelle/Matrix (`tableSort`), daher C14 bis 
 schreibt `"abs"` bzw. `"off"`. Zuordnung: 06F = C17 + `sortByImpact=signed`, 06G = C17 + `pct`, 06H = C17 + `ac`.
 Tests c268 bis c274.
 
+*B06 · Szenario-Notation im Stapel (Blatt 01C; Basis für 01A, 01B, 01D, 01E).* Keine neue Property. `renderStacked`
+bestimmt je Kategorie ein Szenario: `ac` (eine Zelle hat ein Ist), sonst `fc` (Forecast-Measure oder `fcFlag`), sonst
+`pl` (nur Plan gebunden); Stapelwert `value ?? (pl in Plan-Kategorien)`, daraus Summen, `stackDomain` und die
+Direktlegende. FC-Segmente: Schraffur je Serie (`<patId>-s<n>`, Tönung der Serie, dunkle Linien), `data-icd="stack-seg-fc"`;
+PL-Segmente: Serienfarbe mit 28 % Deckkraft + PL-Umriss, `stack-seg-pl`; AC-Zellen unverändert (SVG-gleich, alle 345
+Bestands-Stages per Hash geprüft). `acFcSplit` teilt eine AC-Zelle in Sockel + schraffierten Teil. Trennlinien
+`fc-boundary`/`pl-boundary` nur Säulen, nur bei Blockfolge AC* FC* PL*. Neu im Stapel: `scale.refLine`
+(`stack-refline`, Domain eingeschlossen), `chart.groupEvery` (`group-sep`), Kommentar-Marker (`stack-comment`, am Segment
+außen), `chart.scenarioLabels` (Kürzel je Block unter der Achse), Titel nennt die vorkommenden Szenarien. Kein PL-Umriss
+hinter Ist-Monaten. Bekannt: ein Kommentar je Kategorie erscheint bei Kommentar-Measures auf Kategorie-Ebene je Serie.
+Tests c275 bis c280.
+
 **Neu in 1.53 (rowType-Token, keine neue Property, keine neue Rolle):** Die Rolle `rowType`
 („Waterfall-Typ“) ist der Datenvertrag für die Zeilenstruktur — Token je Zeile statt Zeilennamen in
 sieben Komma-Listen. Tabelle, Semantik und Vereinigungsregel: Abschnitt „rowType-Token“ unten;
@@ -861,7 +873,7 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — 345 Render-Stages (Nummern c1 bis c274, inkl. Varianten wie `c248L`) als
+- `test/test.html` — 351 Render-Stages (Nummern c1 bis c280, inkl. Varianten wie `c248L`) als
   lebende Beispiele jeder Funktion; `npm run test:render` (Checks + Fehler). Weitere Suiten:
   `test:scale` (Skalierungs-Geometrie), `test:notation` (Notation), `test:export` (PDF/PPT-Layouts).
   c45, c90 und c92 waren bis 1.52.4 Hinweis-Fälle („rein negativ“) und zeichnen seit den negativen

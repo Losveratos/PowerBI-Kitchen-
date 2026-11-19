@@ -31,6 +31,12 @@ Schalter stehen standardmäßig aus.**
   Monats-Δ läuft mit dem Faktor der Jahressäule („×0,1“ am Balken).
   Tests: Skalen-Suite YC03A/YC03B (Pixelmessung), Nulllinie, Teilsumme, Dual-Varianz, großes Δ, Small Multiples und
   sechs Rückfälle (SVG gleich wie ohne Option), Render c267. Fable-Review: zwei Blocker und alle Major-Befunde behoben.
+- **B06 · Szenario-Notation im Stapel (Blatt 01C).** Vorher: Gestapelte Säulen und Balken füllten jedes Segment voll,
+  ein Forecast sah aus wie ein Ist, Plan-Monate blieben leer, Referenzlinie, Trennlinie alle N Kategorien und
+  Kommentar-Marker fehlten im Stapel. Nachher: Forecast-Segmente schraffiert in der Tönung ihrer Serie, Plan-Monate als
+  getönter Umriss mit eigener Stapelsumme, gestrichelte Trennlinien zwischen AC, FC und PL, Szenario-Kürzel optional,
+  Referenzlinie, Gruppen-Trennlinien und Kommentar-Marker auch im Stapel. Stapel ohne Forecast und Plan zeichnen
+  unverändert (SVG-Vergleich aller 345 Bestands-Stages). Tests c275 bis c280.
 - **B04 · Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile (Blätter 06F, 06G, 06H, 04A bis 04C).**
   Vorher: „Nach Wirkung sortieren“ war ein Schalter, nur nach |Δ| und nur in Brücken; eine Datenkategorie „Others“
   oder „Rest of USA“ wurde mitsortiert. Nachher: „Sortierung“ (`chart.sortByImpact`) wählt Aus, |Δ|, Δ
