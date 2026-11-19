@@ -816,13 +816,25 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // 1.55 (B13, IBCS sheet 13C): variance basis = average of all tiles
+    multiplesBasis = new formattingSettings.ItemDropdown({
+        name: "multiplesBasis",
+        displayName: "Variance basis of the tiles",
+        displayNameKey: "Chart_MultiplesBasis",
+        description: "Szenario (Standard): jede Kachel vergleicht mit PY bzw. PL. „Durchschnitt aller Kacheln (Ø)“: jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panel „ΔØ“). Reine Planjahre vergleichen den Plan mit dem Durchschnitt der Pläne und erscheinen in Plan-Notation (umrandet). Die Bezugskachel zeigt keine Abweichung, die doppelte Abweichung ist aus. Nur Säulen, Balken und Linie ohne Stapel und ohne Brücke.",
+        descriptionKey: "Desc_Chart_MultiplesBasis",
+        items: multiplesBasisItems,
+        value: multiplesBasisItems[0]
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
         slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
             this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
-            this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel]
+            this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
+            this.multiplesBasis]
     });
 
     bridgeOrientation = new formattingSettings.ItemDropdown({

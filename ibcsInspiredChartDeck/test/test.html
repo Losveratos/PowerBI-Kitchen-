@@ -4095,6 +4095,7 @@ const avgDv = (regions, chart, o) => {
   }));
   const cols = [col("actual", acv, "#,0")];
   if (o.fc) { cols.push(col("forecast", fcv, "#,0")); }
+  if (o.py) { cols.push(col("previousYear", acv.map(v => v == null ? null : Math.round(v * 0.9)), "#,0")); }
   cols.push(col("plan", plv, "#,0"));
   return dataView(cats, cols, Object.assign({ ibcsTitle: { kpi: "Nettogewinn" } }, o.objs || {},
     { chart: Object.assign({ multiplesTotal: true }, chart) }), mult);
@@ -4245,6 +4246,90 @@ addStage("c504", "Ø mit Forecast · 2025 überall FC (schraffiert), 2026 nur te
   // 2025 (30+60+90)/3 = 60 · 2026 (40+60+80)/3 = 60
   check(vals === "20 40 60 60", `c504: Ø mit FC-Werten (${vals})`);
   check(/hatch/.test(fill(g[2])) && fill(g[3]).toUpperCase() === NB.AC, `c504: 2025 schraffiert (alle FC), 2026 solide (A ist Ist)`);
+}
+
+// ---- Teil 2 · multiplesBasis = avg: jede Kachel gegen den Ø aller Gruppen (ΔØ), Blatt 13C
+// ΔØ of a category group from its aria label ("2027, ΔØ −20" → −20), null without Δ
+const avgDelta = g => {
+  const m = (g.getAttribute("aria-label") || "").match(/ΔØ ([+−-]?[\d.,]+)/);
+  return m ? Number(m[1].replace("−", "-").replace(/\./g, "").replace(",", ".")) : null;
+};
+
+// ---- c510: Blatt 13C · 18 Standorte gegen den Ø, Ø-Kachel zuletzt und hinterlegt, Planjahre umrandet
+addStage("c510", "13C · ΔØ je Standort (ohne Hilfs-Measure), Ø-Kachel zuletzt, Planjahre in Plan-Notation", 1280, 1000);
+{
+  const { regions, years } = avg18;
+  runCap("c510", avgDv(regions, { multiplesAgg: "mean", multiplesTotalPos: "last", multiplesTotalShade: true,
+    multiplesTopN: 14, multiplesTotalLabel: "Durchschnitt {n} Standorte", multiplesRestLabel: "{n} weitere kleine Standorte",
+    multiplesBasis: "avg", scenarioLabels: true, showAbsoluteVariance: true, showRelativeVariance: false, showTotal: false },
+    { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" }, labels: { labelDensity: "all" } } }), 1280, 1000);
+  nbSane("c510");
+  check(nbQ("c510", '[data-icd="mult-basis"][data-basis="avg"]').length === 1 && nbTexts("c510").includes("ΔØ"), "c510: Basis Ø, Panel „ΔØ“");
+  const plan = nbQ("c510", '[data-icd="var-plan"]');
+  // 15 tiles with Δ (14 + rest) × 2 plan years
+  check(plan.length === 30 && plan.every(r => /^(2027|2028),/.test(r.closest("g.icd-cat").getAttribute("aria-label"))),
+    `c510: Δ in Plan-Notation genau in den Planjahren (${plan.length})`);
+  check(avgCats("c510", "total").every(g => avgDelta(g) == null), "c510: die Ø-Kachel zeigt keine Abweichung");
+}
+
+// ---- c511: ΔØ von Hand · Summe der Δ je Kategorie über alle echten Kacheln = 0
+addStage("c511", "ΔØ und ΔØ % · drei Regionen, Ø-Kachel vorn, Planjahre mit eigener Basis (Ø der Pläne)", 960, 520);
+{
+  runCap("c511", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: true, showTotal: false }), 960, 520);
+  nbSane("c511");
+  const d = k => avgCats("c511", k).map(avgDelta);
+  // by hand: Ø 20 40 60 60 | PL 70 60 → A −10 −20 −30 −20 −20 0 · B 0 0 0 – +20 −30 · C +10 +20 +30 +20 0 +30
+  const want = { A: [-10, -20, -30, -20, -20, 0], B: [0, 0, 0, null, 20, -30], C: [10, 20, 30, 20, 0, 30] };
+  const got = { A: d("A"), B: d("B"), C: d("C") };
+  check(["A", "B", "C"].every(k => JSON.stringify(got[k]) === JSON.stringify(want[k])),
+    `c511: ΔØ je Region von Hand (A ${got.A.join(" ")} · B ${got.B.join(" ")} · C ${got.C.join(" ")})`);
+  const sums = [0, 1, 2, 3, 4, 5].map(i => ["A", "B", "C"].reduce((a, k) => a + (got[k][i] ?? 0), 0));
+  check(sums.every(v => v === 0), `c511: Summe der ΔØ je Jahr über alle Kacheln = 0 (${sums.join(" ")})`);
+  const plan = nbQ("c511", '[data-icd="var-plan"]');
+  // 3 tiles × 2 plan years × (bar + pin head); a zero Δ still draws its sliver and pin
+  check(plan.length === 12 && plan.every(r => /^(2027|2028),/.test(r.closest("g.icd-cat").getAttribute("aria-label"))),
+    `c511: Plan-Notation (Balken und hohler Pin) nur 2027/2028 (${plan.length})`);
+  const bar = plan.find(r => r.tagName === "rect");
+  check(bar && bar.getAttribute("fill-opacity") === "0.12" && nbStroke(bar) === nbFill(bar), "c511: Plan-Δ umrandet mit blasser Füllung");
+  check(avgCats("c511", "total").every(g => avgDelta(g) == null) && nbTexts("c511").includes("ΔØ %"), "c511: Ø-Kachel ohne Δ, Panel „ΔØ %“");
+}
+
+// ---- c512: doppelte Abweichung bleibt aus, auch mit PY und PL gebunden
+addStage("c512", "Basis Ø mit PY und PL gebunden, dualVariance an → nur ΔØ", 960, 520);
+{
+  runCap("c512", avgDv(avgABC, { multiplesBasis: "avg", dualVariance: true, showAbsoluteVariance: true, showRelativeVariance: true, showTotal: false },
+    { py: true, plAll: true }), 960, 520);
+  nbSane("c512");
+  const t = nbTexts("c512");
+  check(t.includes("ΔØ") && !t.some(x => /^Δ(PY|PL)/.test(x)), "c512: nur ΔØ-Panels, keine ΔPY/ΔPL-Panels");
+  // Σ tile (sum, default) has no Δ; regions still against Ø: A 2023 = 10 − 20 = −10
+  const a23 = avgCats("c512", "A").find(g => g.getAttribute("aria-label").startsWith("2023,"));
+  check(avgDelta(a23) === -10 && avgCats("c512", "total").every(g => avgDelta(g) == null), "c512: A 2023 ΔØ −10, Σ-Kachel ohne Δ");
+}
+
+// ---- c513: summierte Rest-Kachel vergleicht mit n × Ø (linear wie die Summe)
+addStage("c513", "Basis Ø · Top 2 + summierte Rest-Kachel (Δ = Summe − 3 × Ø)", 960, 420);
+{
+  const five = [["R1", [100, 120], []], ["R2", [80, 90], []], ["R3", [30, 60], []], ["R4", [20, 30], []], ["R5", [10, 30], []]];
+  runCap("c513", avgDv(five, { multiplesTotal: false, multiplesTopN: 2, multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false, showTotal: false },
+    { years: ["2025", "2026"] }), 960, 420);
+  nbSane("c513");
+  // Ø 48 / 66 → R1 +52 +54 · R2 +32 +24 · Rest 60 − 144 = −84, 120 − 198 = −78
+  const r = k => avgCats("c513", k).map(avgDelta).join(" ");
+  check(r("R1") === "52 54" && r("R2") === "32 24" && r("rest") === "-84 -78", `c513: R1 ${r("R1")} · R2 ${r("R2")} · Rest ${r("rest")}`);
+}
+
+// ---- c514: Balken · Basis Ø
+addStage("c514", "Balken · drei Regionen gegen den Ø (Struktur)", 960, 420);
+{
+  const cats = [], mult = [], acv = [];
+  [["Nord", [40, 30, 20]], ["Süd", [20, 30, 50]], ["West", [30, 30, 50]]].forEach(([r, a]) =>
+    ["Produkt X", "Produkt Y", "Produkt Z"].forEach((c, i) => { cats.push(c); mult.push(r); acv.push(a[i]); }));
+  runCap("c514", dataView(cats, [col("actual", acv, "#,0")], { chart: { orientation: "bars", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false } }, mult), 960, 420);
+  nbSane("c514");
+  // Ø X 30, Y 30, Z 40 → Nord +10 0 −20
+  const nord = avgCats("c514", "Nord").map(avgDelta).join(" ");
+  check(nord === "10 0 -20" && nbTexts("c514").includes("ΔØ"), `c514: Nord gegen Ø (${nord})`);
 }
 </script>
 </body>

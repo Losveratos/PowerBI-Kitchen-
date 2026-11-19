@@ -498,6 +498,14 @@
                 "multiplesTotalShade": { "type": { "bool": true } },
                 "multiplesTotalLabel": { "type": { "text": true } },
                 "multiplesRestLabel": { "type": { "text": true } },
+                "multiplesBasis": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "scenario", "displayName": "Scenario (PY / PL)" },
+                            { "value": "avg", "displayName": "Average of all tiles (Ø)" }
+                        ]
+                    }
+                },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "sortMode": {
