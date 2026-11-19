@@ -48,7 +48,7 @@ test("only 12G and 12H switch the headline on", () => {
 test("the gallery lists the pane's templates in pane order (off first, then T01A … 12H, 1.7 T05A · T05B)", () => {
     const items = new M.VisualFormattingSettingsModel().columnsCard.template.items.map(i => i.value);
     assert.deepStrictEqual(M.HUB_TEMPLATES, items);
-    assert.strictEqual(M.HUB_TEMPLATES.length, 20);
+    assert.strictEqual(M.HUB_TEMPLATES.length, 21);
     assert.deepStrictEqual(M.HUB_TEMPLATES.slice(-2), ["T05A", "T05B"]);
     // capabilities.json carries the same enumeration (the pane reads it, PBIR writes it)
     const capsT = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"))
@@ -133,7 +133,7 @@ const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFil
 test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet & cash flow), every template exactly once", () => {
     assert.deepStrictEqual(M.HUB_GALLERY.map(g => g.id), ["structure", "forecast", "statement", "balance", "report"]);
     const by = Object.fromEntries(M.HUB_GALLERY.map(g => [g.id, g.tiles.map(t => t.tpl)]));
-    assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T02A", "T02B", "T02C"]);
+    assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T01C", "T02A", "T02B", "T02C"]);
     assert.deepStrictEqual(by.forecast, ["T02E", "T02F", "T03B", "T04D", "T04E"]);
     assert.deepStrictEqual(by.statement, ["T03A", "T04A", "T04B", "T04C"]);
     assert.deepStrictEqual(by.balance, ["T05A", "T05B"]);

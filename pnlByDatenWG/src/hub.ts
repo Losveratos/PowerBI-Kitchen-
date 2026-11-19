@@ -97,6 +97,7 @@ export const HUB_GALLERY: GalleryGroup[] = [
     { id: "structure", title: "UI_TgStructure", sub: "UI_TgStructureX", tiles: [
         tile("T01A", "UI_TtT01A", "UI_TuT01A"),
         tile("T01B", "UI_TtT01B", "UI_TuT01B"),
+        tile("T01C", "UI_TtT01C", "UI_TuT01C"),
         tile("T02A", "UI_TtT02A", "UI_TuT02A"),
         tile("T02B", "UI_TtT02B", "UI_TuT02B"),
         tile("T02C", "UI_TtT02C", "UI_TuT02C"),

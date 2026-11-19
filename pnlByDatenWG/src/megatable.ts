@@ -355,6 +355,7 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     off: P_OFF,
     T01A,
     T01B: preset(T01A, { structureSubtotals: true }),
+    T01C: preset(T01A, { structureSubtotals: true, sort: "delta", sortBlock: "ytd" }),
     T02A,
     T02B: preset(T02A, { sort: "min", sortBlock: "ytd" }),
     T02C: preset(T02A, { sort: "delta", sortBlock: "period" }),

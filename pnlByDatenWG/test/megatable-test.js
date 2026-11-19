@@ -47,6 +47,10 @@ test("presets: T01–T04 only set toggles, 'off' switches the mega table off", (
     assert.equal(M.MEGA_PRESETS.T02E.dPyBar && M.MEGA_PRESETS.T02E.dPyPin && !M.MEGA_PRESETS.T02E.dPlBar, true);
     assert.deepEqual([M.MEGA_PRESETS.T02B.sort, M.MEGA_PRESETS.T02B.sortBlock], ["min", "ytd"]);
     assert.deepEqual([M.MEGA_PRESETS.T02C.sort, M.MEGA_PRESETS.T02C.sortBlock], ["delta", "period"]);
+    // T01C (1.8, B01): T01B sorted by Δ of the first active reference in the YTD block
+    assert.deepEqual([M.MEGA_PRESETS.T01C.sort, M.MEGA_PRESETS.T01C.sortBlock, M.MEGA_PRESETS.T01C.structureSubtotals],
+        ["delta", "ytd", true]);
+    assert.deepEqual(Object.assign({}, M.MEGA_PRESETS.T01C, { sort: "cat" }), M.MEGA_PRESETS.T01B, "T01C = T01B + sort");
     // Δ% decimals (1.5): ONE decimal in every template, values per template
     assert.deepEqual([M.MEGA_PRESETS.T01A.decimals, M.MEGA_PRESETS.T01A.pctDecimals], [0, 1]);
     assert.deepEqual([M.MEGA_PRESETS.T03A.decimals, M.MEGA_PRESETS.T03A.pctDecimals], [1, 1]);
@@ -283,7 +287,7 @@ test("presets T04B–E / 12A: waterfall + pins, value cascades, decimals like th
         P["12A"].dPyPin, P["12A"].showPctRows, P["12A"].decimals, P["12A"].pctDecimals],
     [true, true, false, true, true, true, false, 0, 1]);
     // nothing of phase 3 leaks into the phase-1/2 presets
-    for (const k of ["off", "T01A", "T01B", "T02A", "T02B", "T02C", "T02E", "T02F", "T03A", "T03B", "T04A"]) {
+    for (const k of ["off", "T01A", "T01B", "T01C", "T02A", "T02B", "T02C", "T02E", "T02F", "T03A", "T03B", "T04A"]) {
         assert.deepEqual([P[k].valueCascade, P[k].dPyWf, P[k].dPlWf], [false, false, false], k);
     }
 });

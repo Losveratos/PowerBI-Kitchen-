@@ -336,6 +336,8 @@ export const UI_EN: Record<string, string> = {
     UI_TuT01A: "Values and Δ as figures, month | YTD; thresholds flag outliers in red.",
     UI_TtT01B: "Regions with subtotals",
     UI_TuT01B: "Like T01A, grouped into subtotal blocks per area — for group and segment views.",
+    UI_TtT01C: "Subtotal ranking by variance (YTD)",
+    UI_TuT01C: "Like T01B, each block sorted by the year-to-date Δ: the drivers of every region first.",
     UI_TtT02A: "Plan variance as bars",
     UI_TuT02A: "ΔPL bars and pins: which area is above, which below plan — at a glance.",
     UI_TtT02B: "Ranking by actual (YTD)",

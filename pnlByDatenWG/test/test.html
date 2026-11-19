@@ -84,6 +84,7 @@
 <div class="case"><h4>m43 · 1.7 · ⚡ Nur Ausnahmen · T01A Regionen · |Δ%| ≥ 10 % gegen PY · PL in Monat oder _YTD · Rest grau, rote Schwellen bleiben · Fußzeilen-Hinweis</h4><div class="stage" id="m43" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m44 · 1.7 · ⚡ ausblenden · T04A GuV · Detailzeilen unter 5 % verschwinden, Summen und Ergebniszeilen bleiben (grau, wenn selbst keine Ausnahme) · Hinweis zählt</h4><div class="stage" id="m44" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m45 · 1.7 · ⚡ ausblenden im T04B (integrierter Δ-Wasserfall) · ruhige Schritte je Abschnitt zu „other (n)“ zusammengefasst, Summen ohne Ausnahme darunter ohne Kinder — die Kaskade bleibt geschlossen</h4><div class="stage" id="m45" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m47 · 1.8 · T01C · T01B je Block nach ΔPY _November sortiert, „Other“ unten, Blöcke wie im Blatt</h4><div class="stage" id="m47" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -520,6 +521,9 @@ runRows("m43", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 })();
 runRows("m46", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02A" },
   exceptions: { enabled: true, thresholdPct: 10 } }, null, { palette: HC });
+
+// m47 — 1.8 T01C: T01B sorted by ΔPY in the _November block (the numbers of the sheet)
+runRows("m47", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

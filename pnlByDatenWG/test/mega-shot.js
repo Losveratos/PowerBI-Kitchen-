@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -189,6 +189,19 @@ function readMega(id) {
         void eu;
         const euRows = S.m6.rowIds.filter(x => x.startsWith("Europe:"));
         check("m6 Europe sorted by YTD ΔFC-PY desc, Other last", euRows[euRows.length - 1] === "Europe:Other" && euRows[0] === "Europe:Austria", euRows.join(","));
+    }
+    // ---- 1.8 T01C: T01B sorted by ΔPY _November, "Other" last, blocks as in the sheet ----
+    if (S.m47) {
+        const ids47 = S.m47.rowIds;
+        const leaves = (g) => ids47.filter(x => x.startsWith(g + ":")).map(x => x.slice(g.length + 1));
+        check("m47 T01C Europe by ΔPY _November desc, Other last (sheet order)",
+            leaves("Europe").join() === "Austria,Switzerland,France,Poland,Sweden,Belgium,Germany,Other", leaves("Europe").join());
+        check("m47 T01C Americas Brazil, Canada, USA, Other", leaves("Americas").join() === "Brazil,Canada,USA,Other", leaves("Americas").join());
+        check("m47 T01C Rest of World China, Japan, Australia, Other", leaves("Rest of World").join() === "China,Japan,Australia,Other", leaves("Rest of World").join());
+        const blocks = ["L:World¦Europe", "L:World¦Americas", "L:World¦Rest of World", "L:World"].map(x => ids47.indexOf(x));
+        check("m47 T01C blocks Europe, Americas, Rest of World, then World", blocks.every((v, i) => v >= 0 && (i === 0 || v > blocks[i - 1])), blocks.join());
+        check("m47 T01C sort indicator ΔPY(↓) once (the _November block)", heads("m47").filter(t => t === "ΔPY(↓)").length === 1, heads("m47").join("|"));
+        check("m47 T01C integers like the 18.11. sheets (+431, not +431.0)", has("m47", "+431") && !has("m47", "+431.0"));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
     if (S.m7) {

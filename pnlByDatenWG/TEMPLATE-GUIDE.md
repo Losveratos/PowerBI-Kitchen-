@@ -60,7 +60,7 @@ Drei Wege, dasselbe Ergebnis:
 
   | Galerie-Gruppe (1.4) | Templates | Finance-Titel der Kacheln |
   |---|---|---|
-  | Struktur-Vergleich | T01A, T01B, T02A, T02B, T02C | Regionen mit Plan-Abweichung · Regionen mit Zwischensummen · Plan-Abweichung als Balken · Ranking nach Ist (YTD) · Ranking nach Abweichung (Monat) |
+  | Struktur-Vergleich | T01A, T01B, T01C, T02A, T02B, T02C | Regionen mit Plan-Abweichung · Regionen mit Zwischensummen · Zwischensummen-Ranking nach Abweichung (YTD) · Plan-Abweichung als Balken · Ranking nach Ist (YTD) · Ranking nach Abweichung (Monat) |
   | Forecast | T02E, T02F, T03B, T04D, T04E | Forecast gegen Vorjahr · Forecast gegen Plan · Forecast-GuV mit Δ zu Vorjahr und Plan · Forecast-GuV mit Plan-Wasserfall · Forecast-GuV mit Vorjahres-Wasserfall |
   | GuV-Statement | T03A, T04A, T04B, T04C | GuV mit Abweichung zu Vorjahr und Plan · GuV mit Plan-Abweichungsbalken · GuV mit Δ-Wasserfall · GuV mit Vorjahres-Wasserfall |
   | Bilanz & Cashflow (1.7) | T05A, T05B | Bilanz zum Stichtag · Cashflow-Brücke |
@@ -89,6 +89,7 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 |---|---|---|
 | **T01A** | Struktur flach, PY·PL·AC + ΔPY/ΔPY%/ΔPL/ΔPL% als Zahlen, Monat \| _YTD, Schwellen-Rot + Fußzeile | Struktur + Periode + AC/PY/PL |
 | **T01B** | wie T01A mit Zwischensummen-Blöcken (Europe/Americas/RoW) | Hierarchie-Ebenen |
+| **T01C** (1.8) | wie T01B, je Block nach ΔPY des _YTD-Blocks absteigend sortiert („ΔPY(↓)"), „Other" bleibt unten | wie T01B |
 | **T02A** | PL·AC + ΔPL-Balken + ΔPL%-Pins, zwei Blöcke | AC/PL |
 | **T02B/C** | wie T02A, sortiert nach AC↓ bzw. ΔPL↓ („(↓)" im Kopf) | — |
 | **T02E/F** | FC statt AC (schraffierte Balken), Referenz PY bzw. PL (graue bzw. Doppellinien-Achse) | FC + PY bzw. PL |

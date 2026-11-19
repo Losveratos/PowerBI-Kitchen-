@@ -96,6 +96,7 @@ const templateItems: LocEnumMember[] = [
     { value: "off", displayName: "Off (classic table)", key: "Enum_Template_Off" },
     { value: "T01A", displayName: "T01A · structure, values + Δ, month | YTD", key: "Enum_Template_T01A" },
     { value: "T01B", displayName: "T01B · T01A with subtotal blocks", key: "Enum_Template_T01B" },
+    { value: "T01C", displayName: "T01C · T01B sorted by Δ (YTD)", key: "Enum_Template_T01C" },
     { value: "T02A", displayName: "T02A · ΔPL bars + pins, month | YTD", key: "Enum_Template_T02A" },
     { value: "T02B", displayName: "T02B · T02A sorted by AC (YTD)", key: "Enum_Template_T02B" },
     { value: "T02C", displayName: "T02C · T02A sorted by Δ (month)", key: "Enum_Template_T02C" },
