@@ -1898,13 +1898,17 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
 // 1.54 (B01): Reihenfolge, Σ-Legende, objektübergreifender Merge
 {
   const rowNames = (id) => [...document.querySelectorAll(`#${id} g.icd-cat`)].map(g => g.querySelector("text")?.textContent || "");
-  const byKey = (f) => usSt.map((s, i) => ({ s, k: f(i) })).sort((a, b) => b.k - a.k).map(o => o.s);
+  // 1.54 (B04): „Rest of USA“ bleibt unten, wird nicht mitsortiert
+  const byKey = (f) => usSt.map((s, i) => ({ s, k: f(i) })).filter(o => o.s !== "Rest of USA")
+    .sort((a, b) => b.k - a.k).map(o => o.s).concat(["Rest of USA"]);
   window.__b01Order = { rowNames, byKey };
   const want = { c258: byKey(i => usAc[i] - usPl[i]), c259: byKey(i => (usAc[i] - usPl[i]) / usPl[i]), c260: byKey(i => usAc[i]) };
   for (const [id, exp] of Object.entries(want)) {
     const got = rowNames(id);
     check(got.length === 20 && /Σ/.test(got[19]) && JSON.stringify(got.slice(0, 19)) === JSON.stringify(exp),
-      `${id}: Reihenfolge wie tableSort der Vorlage, Σ unten (${got.slice(0, 4).join(", ")} …)`);
+      `${id}: Reihenfolge wie tableSort der Vorlage, Rest unten, Σ unten (${got.slice(0, 4).join(", ")} …)`);
+    const restEl = [...document.querySelectorAll(`#${id} g.icd-cat`)].find(g => g.querySelector("text")?.textContent === "Rest of USA");
+    check(restEl && restEl.querySelector("text").getAttribute("font-style") === "italic", `${id}: Rest-Zeile kursiv`);
     const leg = document.querySelector(`#${id} [data-icd="table-total-legend"]`);
     const lt = leg ? [...leg.querySelectorAll("text")].map(t => t.textContent) : [];
     // Summen der übertragenen Blattwerte (Blatt: AC 1 845, Rundung im Original)
@@ -2410,6 +2414,55 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
   const names = window.__b01Order.rowNames("c265");
   check(window.__persist.c265.length === 0 && names[0] === "California" && names[1] === "Ohio",
     "c265: Export rendert die Vorlage lokal (sortiert), ohne Persist");
+}
+// ---- 1.54 (B04): Sortier-Enum off · abs · signed · pct · ac, Rest-Zeilen fest unten und kursiv
+{
+  const states = wfStates.filter(x => x !== "Others");
+  const iOf = x => wfStates.indexOf(x);
+  const want = (f) => states.slice().sort((a, b) => (f(iOf(b)) - f(iOf(a))) || (iOf(a) - iOf(b))).concat(["Others"]);
+  const dAbs = i => wfStAc[i] - wfStPy[i];
+  const names = (id) => [...document.querySelectorAll(`#${id} text`)].map(t => t.textContent).filter(t => wfStates.includes(t));
+  const italic = (id) => [...document.querySelectorAll(`#${id} text`)].filter(t => t.textContent === "Others")
+    .every(t => t.getAttribute("font-style") === "italic");
+  const cases = [
+    ["c268", "signed", "Kategorie-Brücke nach ΔPY vorzeichenbehaftet (06F)", want(dAbs)],
+    ["c269", "pct", "Kategorie-Brücke nach ΔPY % (06G)", want(i => dAbs(i) / wfStPy[i])],
+    ["c270", "ac", "Kategorie-Brücke nach AC (06H)", want(i => wfStAc[i])],
+    ["c271", "abs", "Kategorie-Brücke nach |ΔPY|, „Others“ bleibt unten", want(i => Math.abs(dAbs(i)))]
+  ];
+  for (const [id, mode, title, exp] of cases) {
+    addStage(id, `Sortierung ${mode} · ${title}`, 1280, 640);
+    runCap(id, dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
+      { chart: { template: "C17", templateApplied: "C17", orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py",
+        pyTriangle: false, groupEvery: 4, driverNote: false, sortByImpact: mode } }), 1280, 640);
+    const got = names(id);
+    check(JSON.stringify(got) === JSON.stringify(exp) && italic(id), `${id}: Reihenfolge ${mode}, „Others“ unten und kursiv (${got.slice(0, 4).join(", ")} …)`);
+  }
+  // Balken (ohne Wasserfall-Brücke) nach AC, Datenkategorie „Sonstige“ bleibt unten
+  addStage("c272", "Balken · Sortierung nach AC · „Sonstige“ unten, kursiv", 960, 420);
+  const bc = ["Nord", "Sonstige", "Süd", "West", "Ost"], bAc = [420, 900, 610, 300, 510], bPl = [400, 880, 650, 280, 520];
+  runCap("c272", dataView(bc, [col("actual", bAc), col("plan", bPl)], { chart: { orientation: "bars", sortByImpact: "ac" } }), 960, 420);
+  const bn = [...document.querySelectorAll("#c272 text")].map(t => t.textContent).filter(t => bc.includes(t));
+  check(JSON.stringify(bn) === '["Süd","Ost","Nord","West","Sonstige"]'
+    && [...document.querySelectorAll("#c272 text")].find(t => t.textContent === "Sonstige").getAttribute("font-style") === "italic",
+    `c272: Balken nach AC, „Sonstige“ (900) unten und kursiv (${bn.join(", ")})`);
+  // Kompatibilität: gespeichertes true (≤ 1.53) zeichnet wie „abs“
+  addStage("c273", "Kompatibilität · sortByImpact: true (bis 1.53) = abs", 1280, 640);
+  addStage("c273L", "Referenz · sortByImpact: abs", 1280, 640);
+  const dv273 = v => dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
+    { chart: { orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py", sortByImpact: v } });
+  runCap("c273", dv273(true), 1280, 640);
+  runCap("c273L", dv273("abs"), 1280, 640);
+  const nsvg = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  check(nsvg("c273") === nsvg("c273L"), "c273: true zeichnet SVG-gleich wie „abs“");
+  // ⇅ im Chart schreibt das Enum (aus → abs, an → off)
+  addStage("c274", "⇅-Knopf · schreibt sortByImpact als Enum", 1280, 640);
+  runCap("c274", dv273("signed"), 1280, 640, { viewMode: 1 });
+  const btn = [...document.querySelectorAll("#c274 [data-ck-ctl] text")].find(t => t.textContent === "⇅");
+  btn && btn.closest("[data-ck-ctl]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const p274 = window.__persist.c274;
+  check(p274.length === 1 && p274[0].merge[0].properties.sortByImpact === "off", `c274: ⇅ bei aktiver Sortierung schreibt „off“ (${JSON.stringify(p274.map(x => x.merge[0].properties))})`);
 }
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {

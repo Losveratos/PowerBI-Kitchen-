@@ -76,6 +76,16 @@ const matrixCompareItems: LocEnumMember[] = [
     { value: "prevcol", displayName: "Δ vs. previous column", key: "Enum_MxCompare_Prev" }
 ];
 
+// 1.54 (backlog B04): sort key of bridges and bars; rest rows (Rest, Other, Sonstige …)
+// always stay at the end. Reports up to 1.53 stored a boolean (true = "abs")
+const sortImpactItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (data order)", key: "Enum_SortImpact_Off" },
+    { value: "abs", displayName: "By impact |Δ|", key: "Enum_SortImpact_Abs" },
+    { value: "signed", displayName: "By Δ (largest plus first)", key: "Enum_SortImpact_Signed" },
+    { value: "pct", displayName: "By Δ %", key: "Enum_SortImpact_Pct" },
+    { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" }
+];
+
 const totalRowPositionItems: LocEnumMember[] = [
     { value: "bottom", displayName: "Bottom (below rows)", key: "Enum_TotalPos_Bottom" },
     { value: "top", displayName: "Top (below header)", key: "Enum_TotalPos_Top" }
@@ -227,7 +237,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
-        bridgeOrientationItems, emptyModeItems];
+        bridgeOrientationItems, emptyModeItems, sortImpactItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -531,13 +541,14 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
-    sortByImpact = new formattingSettings.ToggleSwitch({
+    sortByImpact = new formattingSettings.ItemDropdown({
         name: "sortByImpact",
-        displayName: "Sort by impact",
+        displayName: "Sort",
         displayNameKey: "Chart_SortByImpact",
-        description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
+        description: "Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach |Δ| (größter Treiber zuerst), nach Δ vorzeichenbehaftet (größtes Plus zuerst), nach Δ % oder nach AC, jeweils absteigend. Rest-Zeilen (Rest, Other, Others, Sonstige, Übrige, „Rest of …“ und die Top-N-Rest-Zeile) bleiben kursiv am Ende. Das ⇅-Symbol im Chart schaltet zwischen Aus und |Δ|.",
         descriptionKey: "Desc_Chart_SortByImpact",
-        value: false
+        items: sortImpactItems,
+        value: sortImpactItems[0]
     });
 
     chartButtons = new formattingSettings.ToggleSwitch({

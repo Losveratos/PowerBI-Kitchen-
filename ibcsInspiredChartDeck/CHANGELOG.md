@@ -31,7 +31,14 @@ Schalter stehen standardmäßig aus.**
   Monats-Δ läuft mit dem Faktor der Jahressäule („×0,1“ am Balken).
   Tests: Skalen-Suite YC03A/YC03B (Pixelmessung), Nulllinie, Teilsumme, Dual-Varianz, großes Δ, Small Multiples und
   sechs Rückfälle (SVG gleich wie ohne Option), Render c267. Fable-Review: zwei Blocker und alle Major-Befunde behoben.
-- Offen nach B01: Die Rest-Zeile („Rest of USA“) wird in C14 bis C16 noch mitsortiert (B04).
+- **B04 · Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile (Blätter 06F, 06G, 06H, 04A bis 04C).**
+  Vorher: „Nach Wirkung sortieren“ war ein Schalter, nur nach |Δ| und nur in Brücken; eine Datenkategorie „Others“
+  oder „Rest of USA“ wurde mitsortiert. Nachher: „Sortierung“ (`chart.sortByImpact`) wählt Aus, |Δ|, Δ
+  vorzeichenbehaftet, Δ % oder AC, in Kategorie-Brücke, Wasserfall-Brücke und jetzt auch in Balken. Rest-Zeilen (Rest,
+  Other, Others, Sonstige, Übrige, „Rest of …“, Top-N-Rest; Regel des P&L Statement) bleiben kursiv am Ende, auch bei
+  der Spaltensortierung der Tabelle. Gespeichertes „An“ älterer Berichte gilt als |Δ| und zeichnet unverändert.
+  Tests c268 bis c274.
+
 
 ## 1.53.0.0 (2026-10-24)
 

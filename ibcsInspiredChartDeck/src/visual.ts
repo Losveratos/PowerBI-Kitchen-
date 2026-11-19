@@ -146,7 +146,7 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // triangle), separators every 4 rows, no driver note
     C17: { orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py",
         showAbsoluteVariance: true, showRelativeVariance: true, dualVariance: false,
-        pyTriangle: false, groupEvery: 4, driverNote: false, sortByImpact: false },
+        pyTriangle: false, groupEvery: 4, driverNote: false, sortByImpact: "off" },
     // C18 = 10F: variance scatter (X = ΔPY %, Y = ΔPL % as measures), colour per
     // group, axis cross at 0 instead of mean quadrants — "object.property" keys
     // address another card (here the scale card's reference lines)
@@ -267,6 +267,15 @@ interface HubColors {
 }
 
 type Orientation = "columns" | "bars";
+
+/** 1.54 (B04): sort keys of bridges, bars and the table header sort */
+type SortMode = "off" | "abs" | "signed" | "pct" | "ac";
+/** 1.54 (B04): rest rows stay at the end of every sort, italic. Same rule as the
+ *  P&L Statement byDatenWG ("Rest of USA", "Others", "Sonstige", "Übrige" …) */
+const REST_ROW_RX = /^(other|others|sonstige|übrige|rest|otros|otras|resto)\b|^その他/i;
+function isRestRow(p: DataPoint): boolean {
+    return p.isRest || REST_ROW_RX.test((p.cat ?? "").trim());
+}
 type Basis = "py" | "plan" | "fcrev";
 
 /** persisted comma lists editable via the one-click structure menu */
@@ -632,6 +641,8 @@ interface ChartConfig {
     /** waterfall-bridge rendering layered on top of columns/bars orientation */
     waterfallStyle: boolean;
     sortByImpact: boolean;
+    /** 1.54 (B04): active sort key (off when sortByImpact is false) */
+    sortMode: SortMode;
     /** waterfall axis break (IBCS UN 5.3), computed ONCE over all drawn tiles: `at` =
      *  cut value, `possible` = every anchor + delta lies above it, `suggested` = delta
      *  span < 25 % of the largest anchor, `active` = actually drawn broken. null = off */
@@ -1079,6 +1090,8 @@ export class Visual implements IVisual {
     /** 1.54: last applied template (persisted or pending) — its keys are reset when
      *  another template is applied */
     private lastTplApplied = "off";
+    /** 1.54 (B04): raw boolean of chart.sortByImpact from reports up to 1.53 */
+    private rawSortImpact: boolean | undefined = undefined;
     /** 1.54: pane defaults for template resets (one fresh model, built lazily) */
     private static tplDefaults: VisualFormattingSettingsModel | null = null;
     /** template applied in this session — a lost echo must not re-apply it in a loop */
@@ -1278,6 +1291,17 @@ export class Visual implements IVisual {
             const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService
                 .populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
+            // 1.54 (B04): chart.sortByImpact was a boolean up to 1.53 — keep the raw
+            // value, map it (true → abs) and show the matching dropdown entry
+            {
+                const rawS = dataView?.metadata?.objects?.["chart"]?.["sortByImpact"];
+                this.rawSortImpact = typeof rawS === "boolean" ? rawS : undefined;
+                if (this.rawSortImpact !== undefined) {
+                    const sl = this.formattingSettings.chartCard.sortByImpact;
+                    const it = sl.items.find(x => String(x.value) === (this.rawSortImpact ? "abs" : "off"));
+                    if (it) { sl.value = it; }
+                }
+            }
             // Smart-Start gates on the edit context — save the raw ViewMode every update
             this.viewMode = options.viewMode ?? null;
             // resolve dark mode before any branch renders (landing gallery included)
@@ -1851,8 +1875,8 @@ export class Visual implements IVisual {
                 || orient === "catbridge" || orient === "intwaterfall"))
             || (orient === "intwaterfall" && this.paneHasPy && this.paneHasFc);
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
-        fs.chartCard.sortByImpact.visible = orient === "catbridge"
-            || ((orient === "columns" || orient === "bars") && fs.chartCard.waterfallStyle.value);
+        fs.chartCard.sortByImpact.visible = orient === "catbridge" || orient === "bars"
+            || (orient === "columns" && fs.chartCard.waterfallStyle.value);
         fs.chartCard.stackLegendDirect.visible = orient === "columns" || orient === "bars";
         // 1.54 (B05): year column and scenario labels exist only in the column chart
         fs.chartCard.yearColumn.visible = orient === "columns";
@@ -5687,7 +5711,11 @@ export class Visual implements IVisual {
         // waterfall-bridge is an optional add-on to columns/bars, not a separate orientation
         const wfStyleGlobal = s.chartCard.waterfallStyle.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "bars");
-        const sortByImpactOn = (wfStyleGlobal || isCatBridge) && s.chartCard.sortByImpact.value;
+        // 1.54 (B04): sort key enum (≤ 1.53 a boolean) — bridges, waterfall bridge
+        // and plain bars; rest rows stay last
+        const sortModeSet = this.sortMode();
+        const sortByImpactOn = (wfStyleGlobal || isCatBridge || (orientationRaw === "bars" && !isStacked))
+            && sortModeSet !== "off";
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
         // for structured P&L rows (sum/delta/pct): those are accounts, not periods
@@ -5822,13 +5850,13 @@ export class Visual implements IVisual {
         // every tile — the click would change nothing either way
         if (wfStyleGlobal || isCatBridge) {
             this.sortNoop = groups.every(g => {
-                const sorted = this.sortByImpact(g.pts);
+                const sorted = this.sortByImpact(g.pts, sortModeSet === "off" ? "abs" : sortModeSet);
                 return sorted.every((p, i) => p === g.pts[i]);
             });
         }
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
         if (sortByImpactOn) {
-            for (const g of groups) { g.pts = this.sortByImpact(g.pts); }
+            for (const g of groups) { g.pts = this.sortByImpact(g.pts, sortModeSet); }
         }
         points = groups.reduce<DataPoint[]>((acc, g) => acc.concat(g.pts), []);
 
@@ -5928,6 +5956,7 @@ export class Visual implements IVisual {
                 this.lineFormat),
             waterfallStyle: wfStyleGlobal,
             sortByImpact: sortByImpactOn,
+            sortMode: sortByImpactOn ? sortModeSet : "off",
             wfBreak: null,
             basisMode,
             // Hausbegriffe: die Umbenennungs-Felder der Labels-Karte speisen alle
@@ -8105,6 +8134,7 @@ export class Visual implements IVisual {
             const rg = rowGeo(i);
             if (tiered[i]) { g.setAttribute("data-icd", "bridge-row-tiered"); }
             rowLabel(yy, p.cat, this.isEmph(cfg, p.cat), g);
+            if (cfg.sortByImpact && isRestRow(p)) { g.lastElementChild?.setAttribute("font-style", "italic"); }
 
             // mini bars: reference (PY grey / PL outline) behind, AC in front;
             // with three scenarios the PY reference collapses to the triangle marker
@@ -8576,6 +8606,7 @@ export class Visual implements IVisual {
                 prevSlot = i;
             }
             nameLabel(i, p.cat, this.isEmph(cfg, p.cat), g);
+            if (cfg.sortByImpact && isRestRow(p)) { g.lastElementChild?.setAttribute("font-style", "italic"); }
             if (showPins && dRelOf(p) != null) {
                 drawPin(i, dRelOf(p) as number, false, g, p);
             } else if (showPins && dRelNa(p)) {
@@ -9117,6 +9148,10 @@ export class Visual implements IVisual {
         const getter = sortGet[sortKey];
         const cmp = getter
             ? (a: DataPoint, b: DataPoint) => {
+                // 1.54 (B04): rest rows stay at the end of a header sort
+                const ra = isRestRow(a), rb = isRestRow(b);
+                if (ra !== rb) { return ra ? 1 : -1; }
+                if (ra) { return 0; }
                 const av = getter(a), bv = getter(b);
                 if (av == null && bv == null) { return 0; }
                 if (av == null) { return 1; }
@@ -9807,7 +9842,7 @@ export class Visual implements IVisual {
                 colX["name"].x + (sum && row.depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
                 yMid, nameText, colX["name"].w - 8 - indentX, rowFont, rowH,
                 sum && !davon, skip || davon ? cfg.subtle : cfg.ink);
-            if (skip) { nameEl.setAttribute("font-style", "italic"); }
+            if (skip || (sortSpec && isRestRow(p))) { nameEl.setAttribute("font-style", "italic"); }
             const rowPct = isPct(p);
             const pctNf = new Intl.NumberFormat(this.host.locale, {
                 minimumFractionDigits: 1, maximumFractionDigits: 1
@@ -10213,6 +10248,10 @@ export class Visual implements IVisual {
         const getter = sortGet[sortKey];
         const cmp = getter
             ? (a: DataPoint, b: DataPoint) => {
+                // 1.54 (B04): rest rows stay at the end of a header sort
+                const ra = isRestRow(a), rb = isRestRow(b);
+                if (ra !== rb) { return ra ? 1 : -1; }
+                if (ra) { return 0; }
                 const av = getter(a), bv = getter(b);
                 if (av == null && bv == null) { return 0; }
                 if (av == null) { return 1; }
@@ -10879,7 +10918,7 @@ export class Visual implements IVisual {
                 region.x + pad + (sum && depth === 0 && !davon ? 0 : Math.round(6 * k)) + indentX,
                 yMid, nameText, nameW - 8 - indentX, rowFont, rowH,
                 sum && !davon, skip || davon ? cfg.subtle : cfg.ink);
-            if (skip) { nameEl.setAttribute("font-style", "italic"); }
+            if (skip || (sortSpec && isRestRow(agg))) { nameEl.setAttribute("font-style", "italic"); }
             // block cells go into a per-row scroll subgroup in hScroll mode (kept in
             // sync with the fixed row group for selection dimming + build animation),
             // else straight into g (fit case stays byte-for-byte the same)
@@ -14790,6 +14829,7 @@ export class Visual implements IVisual {
             if (showCatAt(i) || isHl) {
                 this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, cfg.catFont,
                     catRegion, step, panels.main, cfg.ink, isHl);
+                if (cfg.sortByImpact && isRestRow(p)) { g.lastElementChild?.setAttribute("font-style", "italic"); }
             }
 
             // comment marker (numbered circle at the inner end of the bar)
@@ -15023,7 +15063,7 @@ export class Visual implements IVisual {
                 merge: [{
                     objectName: "chart",
                     selector: null,
-                    properties: { sortByImpact: !cfg.sortByImpact }
+                    properties: { sortByImpact: cfg.sortByImpact ? "off" : "abs" }
                 }]
             });
         };
@@ -15081,7 +15121,7 @@ export class Visual implements IVisual {
         if (opts.showSort) {
             roundBtn("⇅", cfg.sortByImpact, cfg.sortByImpact
                 ? this.locStr("Btn_SortOff", "Remove impact sorting") : this.locStr("Btn_SortOn", "Sort by impact (largest driver first)"),
-                () => persist({ sortByImpact: !cfg.sortByImpact }),
+                () => persist({ sortByImpact: cfg.sortByImpact ? "off" : "abs" }),
                 this.sortNoop ? this.locStr("Lock_SortSame", "No effect: the order already matches the impact order") : null);
         }
         if (opts.showRef) {
@@ -15374,12 +15414,34 @@ export class Visual implements IVisual {
     }
 
     /** running YTD totals for value/PY/PL with variances recomputed on the cumulated numbers */
-    /** waterfall-bridge: orders by |variance| descending; a top-N "Rest" row stays pinned last */
-    private sortByImpact(pts: DataPoint[]): DataPoint[] {
-        const rest = pts.filter(p => p.isRest);
-        const main = pts.filter(p => !p.isRest)
-            .map((p, i) => ({ p, i }))
-            .sort((a, b) => (Math.abs(b.p.varAbs ?? 0) - Math.abs(a.p.varAbs ?? 0)) || (a.i - b.i))
+    /** 1.54 (B04): the sort key from chart.sortByImpact; reports up to 1.53 stored a
+     *  boolean there (true = by |Δ|) */
+    private sortMode(): SortMode {
+        const v = (this.formattingSettings.chartCard.sortByImpact.value as unknown as { value?: unknown })?.value;
+        const raw = this.rawSortImpact !== undefined ? this.rawSortImpact : v;
+        if (raw === true || raw === "true") { return "abs"; }
+        if (raw === false || raw === "false" || raw == null) { return "off"; }
+        const sv = String(raw);
+        return (["off", "abs", "signed", "pct", "ac"] as SortMode[]).includes(sv as SortMode) ? sv as SortMode : "off";
+    }
+
+    /** orders categories by the sort key, descending (abs: |Δ| · signed: Δ ·
+     *  pct: Δ % · ac: value); missing keys go last, ties keep the data order. Rest
+     *  rows (top-N "Rest" and named rest rows, see isRestRow) stay pinned last */
+    private sortByImpact(pts: DataPoint[], mode: SortMode = "abs"): DataPoint[] {
+        const key = (p: DataPoint): number | null => mode === "signed" ? p.varAbs
+            : mode === "pct" ? p.varRel
+            : mode === "ac" ? p.value
+            : p.varAbs != null ? Math.abs(p.varAbs) : (mode === "abs" ? 0 : null);
+        const rest = pts.filter(p => isRestRow(p));
+        const main = pts.filter(p => !isRestRow(p))
+            .map((p, i) => ({ p, i, k: key(p) }))
+            .sort((a, b) => {
+                if (a.k == null && b.k == null) { return a.i - b.i; }
+                if (a.k == null) { return 1; }
+                if (b.k == null) { return -1; }
+                return (b.k - a.k) || (a.i - b.i);
+            })
             .map(x => x.p);
         return [...main, ...rest];
     }
