@@ -292,6 +292,10 @@ export interface MegaInput {
     hc?: boolean;
     /** finance format (numbers.financeFormat): (1 234) instead of -1 234, exact zero "–" */
     fin?: boolean;
+    /** 1.8 (B14) suffix of a percentage-point difference (default MEGA_PP, " pp"; "%p") */
+    ppUnit?: string;
+    /** 1.8 (B14) a Δ that rounds to zero prints without its sign (numbers.roundedZero = plain) */
+    zeroPlain?: boolean;
     /** house terms (labels.labelAc …): rewrites the scenario codes of every column head */
     relabel?: (s: string) => string;
     /** head text over the YTD part of a stacked (12G) value cascade. Default "YTD" */
@@ -334,6 +338,8 @@ export interface MegaPreset {
     blockKind: "month" | "ytd" | "fy";
     /** the template switches the headline slot on (titleBlock.headline, 12G / 12H); off = left alone */
     headline: boolean;
+    /** 1.8 (B14) Δ% decimals of the reference sheet (numbers.sheetPctDecimals); pctDecimals is the 1.5 rule */
+    sheetPdec: number;
 }
 
 const P_OFF: MegaPreset = {
@@ -342,7 +348,7 @@ const P_OFF: MegaPreset = {
     dPlAbs: false, dPlBar: false, dPlWf: false, dPlPct: false, dPlPin: false,
     secondBlock: false, structureSubtotals: true, structureTotal: false, keepBlockOrder: false, showPctRows: true,
     thresholds: false, scenarioMarks: true, chartLabels: true, capBars: false,
-    sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false,
+    sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false, sheetPdec: 1,
 };
 const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...base, ...o });
 
@@ -363,10 +369,10 @@ const T02A = preset(P_OFF, {
 });
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
-    decimals: 1, pctDecimals: 1,
+    decimals: 1, pctDecimals: 1, sheetPdec: 0,
 });
 const T04A = preset(P_OFF, { showPL: true, showMin: true, dPlBar: true, dPlPin: true, decimals: 1, pctDecimals: 1 });
-const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1 });
+const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1, sheetPdec: 2 });
 const T04C = preset(T04B, {
     showPY: true, showPL: false, dPlWf: false, dPlPin: false, dPyWf: true, dPyPin: true,
 });
@@ -397,17 +403,17 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     T04E: preset(T04C, { min: "FC" }),
     "12A": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 1,
+        showPctRows: false, decimals: 0, pctDecimals: 1, sheetPdec: 0,
     }),
     // 12G: FY outlook — PY year vs AC&FC stacked (YTD solid + rest of year hatched), ΔPY on the year
     "12G": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true,
+        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true, sheetPdec: 0,
     }),
     // 12H: plan statement — PL (outlined) vs PY, Δ bars tinted pale
     "12H": preset(P_OFF, {
         min: "PL", showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 1, headline: true,
+        showPctRows: false, decimals: 0, pctDecimals: 1, headline: true, sheetPdec: 0,
     }),
     // 1.7 balance sheet (stocks): the stand at the reporting date — PY (the stand a
     // year earlier) · AC · ΔPY · ΔPY%; assets and equity-and-liabilities as two
@@ -577,7 +583,11 @@ export const MEGA_PP = " pp";
  * `signed` itself never uses parentheses: the threshold footer is a rule
  * ("<-20"), not a figure.
  */
-export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false): MegaFmt {
+export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false,
+    opts: { pp?: string; zeroPlain?: boolean } = {}): MegaFmt {
+    // 1.8 (B14) numbers.ppUnit ("pp" or "%p") and numbers.roundedZero
+    const ppU = opts.pp ?? MEGA_PP;
+    const zp = !!opts.zeroPlain;
     // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
     // "−0,0") — beside a pin or bar that visibly points one way an unsigned
     // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
@@ -585,7 +595,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
     const signed = (v: number, d: number, plus: boolean): string => {
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        const zero = r === 0 && !(plus && tiny(v));
+        const zero = r === 0 && !(plus && tiny(v) && !zp);
         return (v < 0 && !zero ? MEGA_MINUS : plus && !zero ? "+" : "") + num(r, d);
     };
     const fs = (v: number, d: number, plus: boolean, unit = ""): string => {
@@ -593,7 +603,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         if (v === 0) { return "–"; }
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        if (r === 0 && !(plus && tiny(v))) { return num(r, d) + unit; }
+        if (r === 0 && !(plus && tiny(v) && !zp)) { return num(r, d) + unit; }
         return v < 0 ? "(" + num(r, d) + unit + ")" : (plus ? "+" : "") + num(r, d) + unit;
     };
     return {
@@ -606,7 +616,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         // Δ% read like two different kinds of number); the point difference reads
         // "pp" (percentage points), not "%p"
         margin: m => fs(m * 100, pdec, false, "%"),
-        pp: x => fs(x, pdec, true, MEGA_PP),
+        pp: x => fs(x, pdec, true, ppU),
         // relative change of a ratio — no longer printed in the table (a Δ% of a
         // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
@@ -984,7 +994,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const ord = orderRows(input);
     const rows = ord.rows;
     const sortInfo = ord.info;
-    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin);
+    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin, { pp: input.ppUnit, zeroPlain: input.zeroPlain });
     const kpiVal = (r: MegaRow, v: number): string => megaKpiVal(fmt, r, v);
     const kpiPp = (r: MegaRow, d: number): string => megaKpiPp(fmt, r, d);
     const N = notation(t.min, activeRefs(t)[0] ?? null, !!input.hc);

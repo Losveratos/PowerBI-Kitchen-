@@ -49,7 +49,7 @@ export function templateStockMode(tpl: string, tokens = false, cur = "auto"): st
  * a template is applied (columns + numbers [+ titleBlock.headline]). "off"
  * returns to the classic table and leaves the number format alone.
  */
-export function templateSwitches(tpl: string, tokens = false, curStockMode = "auto"): TemplateSwitches {
+export function templateSwitches(tpl: string, tokens = false, curStockMode = "auto", sheetDec = false): TemplateSwitches {
     const p = MEGA_PRESETS[tpl];
     const cols: Record<string, boolean | string> = {
         minuend: p.min.toLowerCase(),
@@ -64,7 +64,8 @@ export function templateSwitches(tpl: string, tokens = false, curStockMode = "au
         // or month | that block with the second block
         blockKind: p.blockKind, leftBlockKind: "month",
     };
-    const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
+    // 1.8 (B14) numbers.sheetPctDecimals: the Δ% decimals of the reference sheet instead of the one-decimal rule
+    const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: sheetDec ? p.sheetPdec : p.pctDecimals };
     // 12G / 12H switch the headline slot on; the other templates leave it alone
     const title: Record<string, boolean> = p.headline ? { headline: true } : {};
     const sm = templateStockMode(tpl, tokens, curStockMode);

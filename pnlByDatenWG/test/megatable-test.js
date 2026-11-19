@@ -313,6 +313,29 @@ test("1.8 (B07) KPI rows by number format: percent (pp), factor, amount", () => 
     assert.equal(M.megaKpiPp(fmt, r("amount"), 12), "+12.0");
 });
 
+test("1.8 (B14) pp or %p, rounded zeros with or without sign, Δ% decimals of the sheets", () => {
+    const f1 = M.megaFmt(num, 2, 1);
+    assert.equal(f1.pp(8.6), "+8.6\u202Fpp");
+    assert.equal(f1.delta(-0.001), "\u22120.00", "1.5.2 default: a rounded Δ keeps its sign");
+    assert.equal(f1.delta(0.001), "+0.00");
+    assert.equal(f1.val(-0.001), "0.00", "a value never carries a sign at zero");
+    assert.equal(f1.pct(0.0002), "+0.0%");
+    const f2 = M.megaFmt(num, 2, 1, false, { pp: "%p", zeroPlain: true });
+    assert.equal(f2.pp(8.6), "+8.6%p");
+    assert.equal(f2.delta(-0.001), "0.00");
+    assert.equal(f2.pct(0.0002), "0.0%");
+    assert.equal(f2.delta(-1.234), "\u22121.23", "only zeros lose their sign");
+    assert.equal(f2.delta(0), "0.00");
+    const f3 = M.megaFmt(num, 2, 1, true, { zeroPlain: true });
+    assert.equal(f3.delta(-0.001), "0.00");
+    assert.equal(f3.delta(-2), "(2.00)");
+    // the sheets' Δ% decimals: T03 and the 12 series whole numbers, T04B to T04E two, the rest one
+    const S = Object.fromEntries(M.MEGA_PRESET_KEYS.map(k => [k, M.MEGA_PRESETS[k].sheetPdec]));
+    for (const k of ["T03A", "T03B", "12A", "12G", "12H"]) { assert.equal(S[k], 0, k); }
+    for (const k of ["T04B", "T04C", "T04D", "T04E"]) { assert.equal(S[k], 2, k); }
+    for (const k of ["off", "T01A", "T01B", "T01C", "T01D", "T02A", "T02B", "T02C", "T02D", "T02E", "T02F", "T04A", "T05A", "T05B"]) { assert.equal(S[k], 1, k); }
+});
+
 test("1.8 structureTotal: the structure templates switch it on, statement templates leave it off", () => {
     for (const k of ["T01A", "T01B", "T01C", "T01D", "T02A", "T02B", "T02C", "T02D", "T02E", "T02F"]) { assert.equal(M.MEGA_PRESETS[k].structureTotal, true, k); }
     for (const k of ["off", "T03A", "T03B", "T04A", "T04B", "T04C", "T04D", "T04E", "12A", "12G", "12H", "T05A", "T05B"]) {

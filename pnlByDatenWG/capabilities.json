@@ -1033,6 +1033,39 @@
                         "bool": true
                     }
                 },
+                "sheetPctDecimals": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "ppUnit": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "pp",
+                                "displayName": "pp (percentage points)"
+                            },
+                            {
+                                "value": "pctp",
+                                "displayName": "%p"
+                            }
+                        ]
+                    }
+                },
+                "roundedZero": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "signed",
+                                "displayName": "Keep the sign (+0.0 / −0.0)"
+                            },
+                            {
+                                "value": "plain",
+                                "displayName": "Without sign (0.0)"
+                            }
+                        ]
+                    }
+                },
                 "fixedMax": {
                     "type": {
                         "text": true

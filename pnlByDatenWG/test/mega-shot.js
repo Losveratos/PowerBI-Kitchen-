@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -277,6 +277,15 @@ function readMega(id) {
     if (S.m55) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
             blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
+    }
+    // ---- 1.8 (B14) notation details of the sheets ------------------------------------------
+    if (S.m58) {
+        check("m58 T03A with the sheet's Δ% decimals: whole numbers (+7% instead of +6.6%)", has("m58", "+7%") && !has("m58", "+6.6%"));
+        check("m58 margin Δ in %p (+9%p)", has("m58", "+9%p"), S.m58.body.filter(x => /p$/.test(x.t)).map(x => x.t).join(" "));
+    }
+    if (S.m47 && S.m59) {
+        check("m47 default: the World ΔPY% that rounds to zero keeps its sign (+0.0%)", has("m47", "+0.0%"));
+        check("m59 roundedZero plain: World ΔPY% 0.0% as in the sheet", has("m59", "0.0%") && !has("m59", "+0.0%"));
     }
     // ---- 1.8 (B07) ROI tree over years (sheet 11A) -------------------------------------
     {

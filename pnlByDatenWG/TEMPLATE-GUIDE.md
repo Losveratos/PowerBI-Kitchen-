@@ -140,9 +140,11 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
   gegenüber den Wert-Kaskaden (12A/12G/12H) bekommt bei Bedarf einen runden
   Faktor, im Kopf („ΔPY ×5") und im Skalenhinweis über der Tabelle genannt.
   Gekappte Ausreißer laufen in eine Ausreißerzone mit Bruchzeichen und Dreieck.
-  Jedes Template schreibt Δ%-Dezimalen = 1
+  Jedes Template schreibt Δ%-Dezimalen = 1; mit **Zahlen → Δ%-Dezimalen wie im
+  Referenzblatt** (1.8) stattdessen die des Blatts (T03 und 12er ganzzahlig, T04B bis T04E zwei Stellen)
 - **Margen-Zeilen (1.5.1):** Δ in pp („+8,6 pp"), kein relatives Δ%, Margen
-  mit den Δ%-Dezimalen; T04 zeigt die pp-Zahl an der Achse
+  mit den Δ%-Dezimalen; T04 zeigt die pp-Zahl an der Achse. 1.8: **Zahlen →
+  Einheit der Margen-Δ** schaltet auf „%p" wie in den T03-Blättern
 - **Bedienleisten einklappbar (1.5):** Darstellung & Toolbar → „Bedienleisten
   einklappbar (☰)" und „Startzustand eingeklappt": Toolbar, Legende und
   Hinweiszeilen klappen hinter ☰, gut für kleine Kacheln (Standard aus)
@@ -180,8 +182,12 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
   beibehalten** (`keepBlockOrder`); alle sortierenden Templates setzen ihn an.
   Ein Bericht, der ein Template schon mit 1.7 angewendet hat, behält die alte
   Blocksortierung, bis das Template neu angewendet oder der Schalter gesetzt wird.
-- **Gerundete Nullen** behalten das Vorzeichen, wenn der Wert nicht genau null
-  ist (World ΔPY% `+0.0%` bei +0,02 %, Blatt `0.0%`); seit 1.5.2 so gewollt.
+- **Gerundete Nullen:** Eine Δ, die nicht genau null ist, behält ihr Vorzeichen
+  (World ΔPY% `+0.0%` bei +0,02 %, Blatt `0.0%`); seit 1.5.2 so gewollt, weil die
+  Richtung neben Balken und Pins lesbar bleibt. 1.8: **Zahlen → Gerundete Null →
+  Ohne Vorzeichen** druckt `0.0%` wie das Blatt. Werte tragen bei null nie ein
+  Vorzeichen, jetzt in jeder Ansicht gleich (die klassische Tabelle und der Baum
+  druckten bis 1.7 `−0,00`).
 
 ### 5.2 · Fehler in den Referenzblättern (Stand Abgleich 19.11.2026)
 

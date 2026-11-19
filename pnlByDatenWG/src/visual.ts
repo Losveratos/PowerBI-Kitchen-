@@ -2159,11 +2159,21 @@ export class Visual implements IVisual {
                 fac: (v, plus = false) => v == null ? "–" : fin(pf, v, v, plus, ""),
             };
         }
+        // 1.8 (B14) one rule for rounded zeros in every view (the mega table's
+        // since 1.5.2): a value that rounds to zero never carries a sign (until
+        // 1.7 the classic table printed "−0.00"), a Δ keeps it unless
+        // numbers.roundedZero = plain; an exact zero is always plain
+        const zp = this.zeroPlain();
+        const sg = (nfr: Intl.NumberFormat, x: number, raw: number, plus: boolean, unit: string): string => {
+            const t = grp(nfr, Math.abs(x));
+            if (raw === 0 || (!/[1-9]/.test(t) && (!plus || zp))) { return t + unit; }
+            return (raw < 0 ? MINUS : plus ? "+" : "") + t + unit;
+        };
         return {
             div, suffix,
-            val: (v, plus = false) => v == null ? "·" : (plus && v > 0 ? "+" : "") + grp(nf, v / div),
-            pct: (v, plus = false) => v == null ? "–" : (plus && v > 0 ? "+" : "") + grp(pf, v * 100) + "%",
-            fac: (v, plus = false) => v == null ? "–" : (plus && v > 0 ? "+" : "") + grp(pf, v),
+            val: (v, plus = false) => v == null ? "·" : sg(nf, v / div, v, plus, ""),
+            pct: (v, plus = false) => v == null ? "–" : sg(pf, v * 100, v, plus, "%"),
+            fac: (v, plus = false) => v == null ? "–" : sg(pf, v, v, plus, ""),
         };
     }
 
@@ -6401,7 +6411,7 @@ export class Visual implements IVisual {
                         cell.style.color = quiet ? C.soft : v.good ? this.goodColor() : this.badColor();
                         cell.style.fontStyle = "italic";
                         cell.textContent = node.row.kfmt ? this.kpiDelta(node, v.delta, fmt)
-                            : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
+                            : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", this.ppUnit());
                     }
                 } else if (c.kind === "bar") {
                     cell = this.deltaBarCell(v, c, geo, fmt, soft,
@@ -6469,7 +6479,7 @@ export class Visual implements IVisual {
                 cell.style.color = mat(null, null) ? C.soft : v.good ? this.goodColor() : this.badColor();
                 cell.style.fontStyle = "italic";
                 cell.textContent = n.row.kfmt ? this.kpiDelta(n, v.delta, fmt)
-                    : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
+                    : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", this.ppUnit());
             }
             return cell;
         }
@@ -7235,7 +7245,7 @@ export class Visual implements IVisual {
         const k = node.row.kfmt;
         if (k === "factor") { return fmt.fac(d, true); }
         if (k === "amount") { return amt ? (d > 0 ? "+" : "") + amt(d) : fmt.val(d, true); }
-        return fmt.pct(d, true).replace("%", "pp");
+        return fmt.pct(d, true).replace("%", this.ppUnit());
     }
     /** 1.8 (B07) unit of a KPI row: "%", none for a factor, the amount unit */
     private kpiUnit(node: PnlNode, fmt: Fmt): string {
@@ -7253,7 +7263,18 @@ export class Visual implements IVisual {
         const a = Math.abs(scaled);
         const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
-        return nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
+        const t = nf.formatToParts(scaled).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
+        // 1.8 (B14) a value that rounds to zero carries no sign ("0.00", not "−0.00")
+        return /[1-9]/.test(t) ? t : t.replace(MINUS, "");
+    }
+
+    /** 1.8 (B14) unit of a percentage-point difference: "pp" or "%p" (numbers.ppUnit) */
+    private ppUnit(): string {
+        return String(this.settings.numbersCard.ppUnit?.value?.value ?? "pp") === "pctp" ? "%p" : "pp";
+    }
+    /** 1.8 (B14) a Δ that rounds to zero prints without its sign (numbers.roundedZero = plain) */
+    private zeroPlain(): boolean {
+        return String(this.settings.numbersCard.roundedZero?.value?.value ?? "signed") === "plain";
     }
 
     private fitLabel(s: string, maxW: number, fs: number): string {
@@ -8028,7 +8049,7 @@ export class Visual implements IVisual {
         const inv = node.row.displayInvert ? -1 : 1;
         // references read over the same window as AC — "YTD _Aug" says so
         const ytdLbl = this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`;
-        row(["", ytdLbl, isRatio && !node.row.kfmt ? "Δ pp" : "Δ AC", "Δ%"], { bold: false });
+        row(["", ytdLbl, isRatio && !node.row.kfmt ? "Δ " + this.ppUnit() : "Δ AC", "Δ%"], { bold: false });
         row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
         for (const sc of ["py", "pl", "fc"] as Scenario[]) {
             if (!this.has[sc]) { continue; }
@@ -10612,7 +10633,7 @@ export class Visual implements IVisual {
     }
 
     private applyMegaTemplate(tpl: string, picked = false): void {
-        const sw = templateSwitches(tpl, this.stockTokens(), this.stockMode());
+        const sw = templateSwitches(tpl, this.stockTokens(), this.stockMode(), this.settings.numbersCard.sheetPctDecimals.value);
         const cols: Record<string, boolean | string> = {
             // toolbar pick (1.2): the dropdown itself travels in the same write
             // and under the same pending guard as the switches
@@ -11127,6 +11148,8 @@ export class Visual implements IVisual {
             headFs,
             hc: this.hc != null,
             fin: this.finance(),
+            ppUnit: this.ppUnit() === "pp" ? MEGA_PP : "%p",
+            zeroPlain: this.zeroPlain(),
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
             // 1.7 a table of stocks only has no year-to-date share in its FY outlook
             ytdHead: stockOnlyHead ? "" : "YTD",
@@ -11890,7 +11913,7 @@ export class Visual implements IVisual {
                 const D = displayVariance(node.row, a, r);
                 if (!D) { continue; }
                 if (D.pp) {
-                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", MEGA_PP) });
+                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", this.ppUnit() === "pp" ? MEGA_PP : "%p") });
                     continue;
                 }
                 const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);

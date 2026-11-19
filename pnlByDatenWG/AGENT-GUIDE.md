@@ -287,6 +287,9 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `unitText` | text | `EUR` | Einheit (z. B. EUR): Folgt auf k / m in Titel, Skalen-Hinweis und Karten. Standard: EUR |
 | `decimals` | numeric | `1` | Dezimalstellen (Werte): Nachkommastellen von Werten und Δ. Standard: 1 |
 | `pctDecimals` | numeric | `1` | Dezimalstellen (Δ%): Nachkommastellen von Δ% und Margen. Standard: 1 |
+| `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus |
+| `ppUnit` | enum `pp` · `pctp` | `pp` | Einheit der Margen-Δ (1.8): Prozentpunkte als „pp" oder „%p" (wie in den IBCS-Blättern T03). Standard: pp |
+| `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten |
 | `financeFormat` | bool | `false` | Finance-Format (Klammern): Finanzkonvention: negative Werte in Klammern statt Minuszeichen — (1 234) — und Null als „–“. Gilt für Werte, Δ und Δ %; positive Δ behalten ihr „+“. Standard: aus |
 | `sumSafeRounding` | bool | `false` | Σ-treue Rundung: Rundet die Wertspalten nach dem Restwertverfahren, sodass die gedruckten Kinder exakt ihre gedruckte Zwischensumme ergeben (Formel- und Margenzeilen behalten die exakte Rundung). Standard: aus |
 | `fixedMax` | text | `—` | Skalen-Mindestmaximum (Werte): Wertbalken und Wert-Kaskaden reichen mindestens bis zu diesem Betrag — gleiche Skalen über mehrere Visuals (IBCS). Dateneinheiten, k / m / b erlaubt (z. B. 1.5m). Größere Werte erweitern die Skala weiterhin. Leer = automatisch |

@@ -37,6 +37,17 @@ const referenceItems: LocEnumMember[] = [
     { value: "fc", displayName: "Forecast (FC)", key: "Enum_Ref_Fc" }
 ];
 
+/** 1.8 (B14) unit of a percentage-point difference */
+const ppUnitItems: LocEnumMember[] = [
+    { value: "pp", displayName: "pp (percentage points)", key: "Enum_PpUnit_Pp" },
+    { value: "pctp", displayName: "%p", key: "Enum_PpUnit_Pctp" },
+];
+/** 1.8 (B14) a Δ that rounds to zero: keep its sign or not */
+const roundedZeroItems: LocEnumMember[] = [
+    { value: "signed", displayName: "Keep the sign (+0.0 / −0.0)", key: "Enum_RoundedZero_Signed" },
+    { value: "plain", displayName: "Without sign (0.0)", key: "Enum_RoundedZero_Plain" },
+];
+
 const scalingItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto", key: "Enum_Scaling_Auto" },
     { value: "none", displayName: "None", key: "Enum_Scaling_None" },
@@ -531,6 +542,13 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Decimal places of values and Δ. Default: 1", 1, 0, 3);
     pctDecimals = numUpDown("pctDecimals", "Numbers_PctDecimals", "Decimals (Δ%)",
         "Decimal places of Δ% and margins. Default: 1", 1, 0, 2);
+    // 1.8 (B14) notation details of the reference sheets
+    sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "\u0394% decimals as in the reference sheet",
+        "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Default: off", false);
+    ppUnit = dropdown("ppUnit", "Numbers_PpUnit", "Unit of margin Δ",
+        "Margins and their Δ: percentage points as “pp” or “%p” (as in the IBCS sheets T03). Default: pp", ppUnitItems);
+    roundedZero = dropdown("roundedZero", "Numbers_RoundedZero", "Rounded zero",
+        "A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero. Default: keep the sign", roundedZeroItems);
     /** ChartKitchen labels.financeFormat: (1 234) instead of -1 234, exact zero as "–" */
     financeFormat = toggle("financeFormat", "Numbers_FinanceFormat", "Finance format (parentheses)",
         "Finance convention: negative values in parentheses instead of a minus sign — (1 234) — and zero as “–”. Applies to values, Δ and Δ%; positive Δ keep their “+”. Default: off", false);
@@ -561,7 +579,8 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Same for the Δ bars and integrated Δ waterfalls (symmetric ±). Data units, k / m / b allowed. Empty = automatic",
         "e.g. 250k");
 
-    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.financeFormat, this.sumSafeRounding,
+    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.sheetPctDecimals, this.ppUnit, this.roundedZero,
+        this.financeFormat, this.sumSafeRounding,
         this.fixedMax, this.fixedVarMax];
 }
 

@@ -131,6 +131,14 @@ test("the enum of emptyState.mode: hub first (the default), then demo · fields 
 const caps = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"));
 const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFileSync(path.join(ROOT, "stringResources", l, "resources.resjson"), "utf8")));
 
+test("1.8 (B14) numbers.sheetPctDecimals: a template writes its sheet's Δ% decimals", () => {
+    assert.deepStrictEqual(M.templateSwitches("T03A").nums, { decimals: 1, pctDecimals: 1 });
+    assert.deepStrictEqual(M.templateSwitches("T03A", false, "auto", true).nums, { decimals: 1, pctDecimals: 0 });
+    assert.deepStrictEqual(M.templateSwitches("T04C", false, "auto", true).nums, { decimals: 2, pctDecimals: 2 });
+    assert.deepStrictEqual(M.templateSwitches("T02A", false, "auto", true).nums, { decimals: 0, pctDecimals: 1 });
+    assert.deepStrictEqual(M.templateSwitches("off", false, "auto", true).nums, {});
+});
+
 test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet & cash flow), every template exactly once", () => {
     assert.deepStrictEqual(M.HUB_GALLERY.map(g => g.id), ["structure", "forecast", "statement", "balance", "report"]);
     const by = Object.fromEntries(M.HUB_GALLERY.map(g => [g.id, g.tiles.map(t => t.tpl)]));

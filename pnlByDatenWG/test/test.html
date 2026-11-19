@@ -97,6 +97,8 @@
 <div class="case"><h4>t11a · 1.8 · ROI-Baum (Blatt 11A) · Jahre 2021 bis 2027, AC bis 2025, PL 2026/2027 · Kapitalumschlag als Faktor („KPI factor“)</h4><div class="stage" id="t11a" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>t11b · 1.8 · derselbe Baum, Kapitalumschlag ohne Token (wie bis 1.7: Prozent)</h4><div class="stage" id="t11b" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>m57 · 1.8 · T02C neu angewendet · Blöcke in Kategoriereihenfolge wie im Blatt (Europe vor Americas)</h4><div class="stage" id="m57" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m58 · 1.8 · T03A mit „Δ%-Dezimalen wie im Blatt“ (ganzzahlig) und Margen-Δ in %p</h4><div class="stage" id="m58" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m59 · 1.8 · T01C mit gerundeter Null ohne Vorzeichen (World ΔPY% 0.0% wie im Blatt)</h4><div class="stage" id="m59" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -571,6 +573,12 @@ runRows("t11b", MEGA_DEMO.roi({ ctPct: true }), ROI_OBJ);
 
 // m57 — 1.8 T02C applied fresh: keepBlockOrder from the template, the sheet's block order
 runRows("m57", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02C" } });
+
+// m58 / m59 — 1.8 (B14) notation details of the sheets
+runRows("m58", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A" }, numbers: { sheetPctDecimals: true, ppUnit: "pctp" } });
+runRows("m59", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" },
+  numbers: { roundedZero: "plain" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);
