@@ -19,7 +19,7 @@ REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
 IMG_DIR = os.path.join(HERE, 'img')
 TODAY = '2026-11-19'
 LIVE_KINDS = {'Power-BI-Visual', 'Skill', 'Plattform', 'Werkzeug'}
-PREFER_HINT = {'chartkitchen-visual', 'pnl-visual', 'kpi-card'}   # echte Renderings statt Doku-Screenshot
+PREFER_HINT = {'chartkitchen-visual', 'pnl-visual'}   # echte Renderings statt Doku-Screenshot
 W, H = 744, 500                                                    # 2× Kartenbild (372 × 250)
 
 

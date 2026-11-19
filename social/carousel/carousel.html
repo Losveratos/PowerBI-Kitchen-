@@ -213,7 +213,8 @@ slides.push(`<section class="slide cover"><div class="pad">
     const chunk=items.slice(p*per,p*per+per);
     const m0=chunk[0].first_commit.slice(0,7), m1=chunk[chunk.length-1].first_commit.slice(0,7);
     const mon=k=>MONTHS[+k.slice(5)-1];
-    const head=m0===m1?`${mon(m0)} <em>${m0.slice(0,4)}</em>`:`${mon(m0)} – ${mon(m1)} <em>${m1.slice(0,4)}</em>`;
+    const ms=k=>MS[+k.slice(5)-1];
+    const head=m0===m1?`${mon(m0)} <em>${m0.slice(0,4)}</em>`:`${(mon(m0)+mon(m1)).length>12?ms(m0):mon(m0)} – ${(mon(m0)+mon(m1)).length>12?ms(m1):mon(m1)} <em>${m1.slice(0,4)}</em>`;
     const cards=chunk.map(it=>{
       const c=KIND[it.kind_label]||'#ccc';
       const when=it.ongoing

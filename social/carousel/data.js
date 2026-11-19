@@ -677,7 +677,7 @@ window.DATA={
    "commits": 4,
    "loc": 716,
    "ongoing": false,
-   "img": null
+   "img": "img/visuals-sicherheit.jpg"
   },
   {
    "id": "sankey-wasserfall",
