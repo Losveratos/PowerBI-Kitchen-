@@ -1,20 +1,23 @@
 ---
 name: kitchen-update
-description: Daten-WG YouTube-Kanal auf neue Folgen checken, in daten_wg_learn_buckets.html einpflegen und index.html (Live-Startseite) synchronisieren. Nutzen, wenn User sinngemaess sagt "neue Videos einpflegen", "Kitchen updaten", "Daten-WG checken", "neue Folgen rein", oder einen Channel-Refresh anfordert.
+description: Daten-WG YouTube-Kanal auf neue Folgen checken, in daten_wg_learn_buckets.html einpflegen, folgen.html (Live-Folgen-Bibliothek) synchronisieren und den Feed der Startseite neu bauen. Nutzen, wenn User sinngemaess sagt "neue Videos einpflegen", "Kitchen updaten", "Daten-WG checken", "neue Folgen rein", oder einen Channel-Refresh anfordert.
 ---
 
 # Daten-WG Knowledge Kitchen · Update-Workflow
 
-Hol neue Folgen vom @Daten-WG YouTube-Kanal, klassifiziere sie, und schreib sie in `daten_wg_learn_buckets.html` — **und synchronisiere anschliessend `index.html`** (das ist die Live-Startseite auf datenwgknowledgekitchen.com).
+Hol neue Folgen vom @Daten-WG YouTube-Kanal, klassifiziere sie, und schreib sie in `daten_wg_learn_buckets.html` — **und synchronisiere anschliessend `folgen.html`** (die Live-Folgen-Bibliothek) **und baue den Feed der Startseite `index.html` neu** (Schritt 11b).
 
-> ⚠️ **Zwei Dateien.** `daten_wg_learn_buckets.html` ist die Arbeitsdatei, aber ausgeliefert wird `index.html` (GitHub Pages, Source main / Root). Beide tragen dieselbe `EPISODES`-Konstante und dieselben Counts. Wer nur die Buckets-Datei anfasst, sieht sein Update **nicht live** — die Startseite driftet zurueck. Darum am Ende immer Schritt 11 (Sync) ausfuehren und beide Dateien committen.
+> ⚠️ **Seit Nov 2026 drei Stellen.** `daten_wg_learn_buckets.html` ist die Arbeitsdatei, ausgeliefert wird die Folgen-Bibliothek `folgen.html` (die fruehere Startseite mit allen Folgenkarten, Embeds und Kapiteln). Beide tragen dieselbe `EPISODES`-Konstante und dieselben Counts. Die Startseite `index.html` ist eine News-Seite im Zeitungsstil; sie liest ihre Eintraege aus `assets/start/feed-data.js`, das aus `folgen.html` und `beitraege.html` erzeugt wird. Wer nur die Buckets-Datei anfasst, sieht sein Update **nicht live**. Darum am Ende immer Schritt 11 (Sync) und 11b (Startseiten-Feed) ausfuehren und alles committen.
+>
+> **`index.html` nie mit der Buckets-Datei ueberschreiben** — das ist seit Nov 2026 eine andere Seite.
 
 ## Voraussetzungen
 
 - `yt-dlp` installiert (mind. 2026.x; aktuelle Version checken mit `yt-dlp --version`)
 - `node` verfuegbar (fuer Parser-Helper)
-- Arbeitsverzeichnis: Repo-Root (`daten_wg_learn_buckets.html` und `index.html` direkt sichtbar)
-- Vor Beginn `git status` checken — Working Tree sollte sauber sein oder klar abgrenzbar. Achte besonders auf **uncommittete Aenderungen an `index.html`** (`git diff index.html`): die muessen vor dem Sync zuerst in die Buckets-Datei uebernommen werden, sonst gehen sie beim Sync verloren.
+- Arbeitsverzeichnis: Repo-Root (`daten_wg_learn_buckets.html` und `folgen.html` direkt sichtbar)
+- Fuer Schritt 11b: Python mit Pillow (`pip install pillow`)
+- Vor Beginn `git status` checken — Working Tree sollte sauber sein oder klar abgrenzbar. Achte besonders auf **uncommittete Aenderungen an `folgen.html`** (`git diff folgen.html`): die muessen vor dem Sync zuerst in die Buckets-Datei uebernommen werden, sonst gehen sie beim Sync verloren.
 
 ## Workflow
 
@@ -141,37 +144,50 @@ node scripts/_dump_eps.js
 
 Pruefen: Summe der Buckets = Neuer Gesamtcount. Wenn das Skript einen Parse-Error wirft (Syntax kaputt), zurueck zur Insertion und Anfuehrungszeichen pruefen.
 
-### 11. `index.html` synchronisieren (PFLICHT)
+### 11. `folgen.html` synchronisieren (PFLICHT)
 
-`index.html` ist die Live-Startseite und muss denselben Stand wie `daten_wg_learn_buckets.html` bekommen — sonst ist das Update **nicht live**.
+`folgen.html` ist die Live-Folgen-Bibliothek und muss denselben Stand wie `daten_wg_learn_buckets.html` bekommen — sonst ist das Update **nicht live**.
 
 Erst pruefen, ob sich die beiden **nur** in Folgen + Counts unterscheiden (Normalfall):
 
 ```bash
 # Zeigt alle Unterschiede AUSSER EPISODES-Eintraegen und Count-Strings.
 # Leere Ausgabe = sauberer cp moeglich.
-diff index.html daten_wg_learn_buckets.html | grep -E "^[<>]" \
+diff folgen.html daten_wg_learn_buckets.html | grep -E "^[<>]" \
   | grep -vE "Folgen|bucket-tile-count|result-count|ytId:|bucket: '|title: '|guest: '|solo: |date: '|duration: '|lang: '|desc: '|tags: |podcastUrl:|chapters:|\['[0-9]|^[<>] *\]|^[<>] *\},?|^[<>] *\{" \
   | grep -E "^<"
 ```
 
-- **Nur `>`-Zeilen bzw. leer** (index.html hat nichts Eigenes) → einfach spiegeln:
+- **Nur `>`-Zeilen bzw. leer** (folgen.html hat nichts Eigenes) → einfach spiegeln:
   ```bash
-  cp daten_wg_learn_buckets.html index.html
-  diff -q index.html daten_wg_learn_buckets.html && echo "IDENTICAL"
+  cp daten_wg_learn_buckets.html folgen.html
+  diff -q folgen.html daten_wg_learn_buckets.html && echo "IDENTICAL"
   ```
-- **`<`-Zeilen mit echtem Eigen-Content in index.html** (z. B. jemand hat nur die Startseite umgebaut) → **nicht** blind `cp`. Diese Aenderungen zuerst in `daten_wg_learn_buckets.html` uebernehmen, dann spiegeln. Im Zweifel den User fragen.
+- **`<`-Zeilen mit echtem Eigen-Content in folgen.html** (z. B. jemand hat nur die Bibliothek umgebaut) → **nicht** blind `cp`. Diese Aenderungen zuerst in `daten_wg_learn_buckets.html` uebernehmen, dann spiegeln. Im Zweifel den User fragen.
 
-Danach Counts in `index.html` gegenchecken:
+Danach Counts in `folgen.html` gegenchecken:
 
 ```bash
-grep -oE "header-stat\"><strong>[0-9]+</strong>Folgen|result-count\">[0-9]+</strong>" index.html
-grep -c "bucket: 'bucket-" index.html   # muss == Neuer Gesamtcount sein
+grep -oE "header-stat\"><strong>[0-9]+</strong>Folgen|result-count\">[0-9]+</strong>" folgen.html
+grep -c "bucket: 'bucket-" folgen.html   # muss == Neuer Gesamtcount sein
 ```
+
+### 11b. Startseiten-Feed neu bauen (PFLICHT)
+
+Die Startseite `index.html` zeigt die neuen Folgen erst, wenn der Feed neu gebaut ist. Vorschaubilder liegen lokal (Datenschutz: beim Laden keine Anfrage an YouTube), also zuerst die fehlenden holen:
+
+```bash
+python scripts/fetch_start_thumbs.py     # laedt nur fehlende Bilder nach assets/start/yt/
+node scripts/build_start_feed.js         # schreibt assets/start/feed-data.js
+```
+
+`build_start_feed.js` gibt Eintraege ohne Bild als Warnung aus; bei neuen Folgen darf da nichts stehen. Die Kopfzahlen der Startseite (Folgen, Talks, Stories) rechnet die Seite selbst aus dem Feed, dort gibt es keine Count-Marker zu pflegen.
+
+Neue Beitraege, Tools oder Stories (nicht Teil dieses Skills, aber gleicher Feed): Eintrag in `beitraege.html`, Vorschaubild mit `python scripts/render_start_shots.py <seite.html>`, bei textlastigen Seiten Titelbild mit `python scripts/build_start_covers.py` (URL dort in `TEXTY` eintragen), danach `node scripts/build_start_feed.js`.
 
 ### 12. Commit
 
-Nur wenn der User explizit committen will. **Beide** Dateien committen. Commit-Message-Konvention:
+Nur wenn der User explizit committen will. Bibliothek, Arbeitsdatei und Startseiten-Feed committen. Commit-Message-Konvention:
 
 ```
 Kitchen: N neue Folgen - <Kurzfassung>
@@ -182,12 +198,13 @@ Kitchen: N neue Folgen - <Kurzfassung>
 Counts: AlterTotal -> NeuerTotal Folgen, bucket-N M -> M+1.
 ```
 
-`git add daten_wg_learn_buckets.html index.html` (NICHT `git add -A` — internal Helper-Files mit `_`-Praefix sollen lokal bleiben). Push erst auf explizite Bitte.
+`git add daten_wg_learn_buckets.html folgen.html assets/start/feed-data.js assets/start/yt/` (NICHT `git add -A` — internal Helper-Files mit `_`-Praefix sollen lokal bleiben). Push erst auf explizite Bitte.
 
 Nach dem Push braucht GitHub Pages (legacy build) oft 1–3 Min; der `pages/builds/latest`-API-Status hinkt dem CDN teils noch weiter hinterher. „Noch nicht live" ist fast immer Build-Lag oder Browser-Cache (Strg+F5), kein fehlgeschlagener Push. Live gegenchecken:
 
 ```bash
-curl -s "https://datenwgknowledgekitchen.com/?cb=$(date +%s)" | grep -o 'header-stat"><strong>[0-9]*</strong>Folgen' | head -1
+curl -s "https://datenwgknowledgekitchen.com/folgen.html?cb=$(date +%s)" | grep -o 'header-stat"><strong>[0-9]*</strong>Folgen' | head -1
+curl -s "https://datenwgknowledgekitchen.com/assets/start/feed-data.js?cb=$(date +%s)" | grep -o 'NEUE_YTID' | head -1   # neue Folge im Startseiten-Feed
 ```
 
 ## Edge Cases
@@ -202,5 +219,6 @@ curl -s "https://datenwgknowledgekitchen.com/?cb=$(date +%s)" | grep -o 'header-
 - Keine Eintraege ohne ytId mit Daten-WG-Inhalten anlegen
 - Keine `analysis.html` oder `_*.json` Dateien committen — sind via `.gitignore` lokal
 - Keinen automatischen Push — immer auf User-Greenlight warten
-- **Nicht `index.html` vergessen** — nur die Buckets-Datei zu aendern heisst: Update ist nicht live (Schritt 11 ist Pflicht)
+- **Nicht `folgen.html` und den Feed vergessen** — nur die Buckets-Datei zu aendern heisst: Update ist nicht live (Schritte 11 und 11b sind Pflicht)
+- **`index.html` nicht mit der Buckets-Datei ueberschreiben** — die Startseite ist seit Nov 2026 eine eigene Seite
 - Keine Aenderungen an `power_bi_einsteiger_guide_v4.html` oder `morally_aligned_ai*.html` — andere Subseiten

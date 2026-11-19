@@ -181,7 +181,7 @@ Wie inneres Kämpfen dich wandelt – Auf der Matte und im Alltag
 ## Weiter in der Kitchen
 
 - [Übersicht: Alle Beiträge der Kitchen](../beitraege.html)
-- [Daten-WG-Folgen: Karriere & Community](../index.html#bucket-7)
+- [Daten-WG-Folgen: Karriere & Community](../folgen.html#bucket-7)
 
 ---
 

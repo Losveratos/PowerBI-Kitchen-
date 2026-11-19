@@ -12,6 +12,16 @@
 > YouTube-Channel-Guide — er gilt weiter für `daten_wg_learn_buckets.html`
 > und die `scripts/`-Pipeline (heute per Skill `kitchen-update`).
 > Das Kapitel „Design-System" unten gilt für **alle** Seiten des Repos.
+>
+> **Startseite seit Nov 2026:** `index.html` ist eine News-Startseite im Zeitungsstil
+> (Ressorts, Blog-Seitenleiste mit Suche/Formaten/Schlagworten/Archiv). Sie liest
+> `assets/start/feed-data.js`, erzeugt von `scripts/build_start_feed.js` aus
+> `folgen.html` und `beitraege.html`; alle Vorschaubilder liegen lokal unter
+> `assets/start/`. Die frühere Startseite mit allen Folgenkarten heißt jetzt
+> `folgen.html` (Folgen-Bibliothek) und ist der Spiegel von
+> `daten_wg_learn_buckets.html`. Wo dieser Leitfaden unten „Startseite“ oder
+> `index.html` im Zusammenhang mit `EPISODES` und Count-Markern sagt, ist
+> `folgen.html` gemeint. Ablauf: Skill `kitchen-update`.
 
 > **Ziel:** Alle ~100+ Videos vom YouTube-Kanal [@Daten-WG](https://www.youtube.com/@Daten-WG)
 > automatisch holen, thematisch in 9 Buckets clustern, und in eine bestehende

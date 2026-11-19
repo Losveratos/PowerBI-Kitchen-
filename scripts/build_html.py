@@ -495,11 +495,11 @@ def main():
         f.write(new_html)
     print(f"[done] HTML aktualisiert: {HTML.name}")
 
-    # Mirror auf index.html, damit GitHub Pages das als Root-URL ausliefert
-    index_html = ROOT / "index.html"
+    # Mirror auf folgen.html (Folgen-Bibliothek; index.html ist seit Nov 2026 die News-Startseite)
+    index_html = ROOT / "folgen.html"
     with open(index_html, "w", encoding="utf-8", newline="") as f:
         f.write(new_html)
-    print(f"[done] HTML gespiegelt: {index_html.name} (fuer GitHub Pages)")
+    print(f"[done] HTML gespiegelt: {index_html.name} (Folgen-Bibliothek)")
     print(f"        total={total}  mit_chapters={chapter_count}")
 
 

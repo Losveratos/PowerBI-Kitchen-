@@ -86,8 +86,8 @@ Wenn du Tabular Editor 2 und DAX Studio installierst, erscheinen sie im "Externa
 
 **Daten-WG dazu:**
 
-- **[Fabric & Power BI Quarterly 2026-1 — PBIR/PBIP & „Code First“](https://youtu.be/TYp5xCAU2AU)** · Talk · 58 min · [Knowledge Kitchen](../index.html#ep-TYp5xCAU2AU)
-- **[Power BI Update August 2026 — PBIP direkt in VS Code öffnen](https://youtu.be/GWCHNmLs72M)** · Update · 9 min · [Knowledge Kitchen](../index.html#ep-GWCHNmLs72M)
+- **[Fabric & Power BI Quarterly 2026-1 — PBIR/PBIP & „Code First“](https://youtu.be/TYp5xCAU2AU)** · Talk · 58 min · [Knowledge Kitchen](../folgen.html#ep-TYp5xCAU2AU)
+- **[Power BI Update August 2026 — PBIP direkt in VS Code öffnen](https://youtu.be/GWCHNmLs72M)** · Update · 9 min · [Knowledge Kitchen](../folgen.html#ep-GWCHNmLs72M)
 
 ### Power BI Service
 
@@ -210,8 +210,8 @@ Microsoft veröffentlicht jeden Monat ein Gateway-Update und supportet nur die *
 
 **Daten-WG dazu:**
 
-- **[Fabric Architekturen — Navision, Data Gateway & Medaillon](https://youtu.be/J-lN5JN-F5I)** · Talk · 51 min · [Knowledge Kitchen](../index.html#ep-J-lN5JN-F5I)
-- **[Push statt Pull: On-Prem-Daten mit SSIS nach Fabric (ohne Gateway)](https://youtu.be/5HhNQZlB-1E)** · Tutorial · 12 min · [Knowledge Kitchen](../index.html#ep-5HhNQZlB-1E)
+- **[Fabric Architekturen — Navision, Data Gateway & Medaillon](https://youtu.be/J-lN5JN-F5I)** · Talk · 51 min · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- **[Push statt Pull: On-Prem-Daten mit SSIS nach Fabric (ohne Gateway)](https://youtu.be/5HhNQZlB-1E)** · Tutorial · 12 min · [Knowledge Kitchen](../folgen.html#ep-5HhNQZlB-1E)
 
 ### Free · Pro · PPU · Fabric-Kapazität
 
@@ -243,8 +243,8 @@ Die Lizenzierung ist eines der häufigsten Stolper-Themen. Wer welche Lizenz bra
 
 **Daten-WG dazu:**
 
-- **[More than PBIX — warum kleine F-SKUs Teams helfen](https://youtu.be/c90oD4zR1Aw)** · Talk · 40 min · [Knowledge Kitchen](../index.html#ep-c90oD4zR1Aw)
-- **[Fabric Architekturen — F64 wegen der Lizenzen, 2 % Auslastung](https://youtu.be/J-lN5JN-F5I)** · Talk · 51 min · [Knowledge Kitchen](../index.html#ep-J-lN5JN-F5I)
+- **[More than PBIX — warum kleine F-SKUs Teams helfen](https://youtu.be/c90oD4zR1Aw)** · Talk · 40 min · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
+- **[Fabric Architekturen — F64 wegen der Lizenzen, 2 % Auslastung](https://youtu.be/J-lN5JN-F5I)** · Talk · 51 min · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
 
 ### Microsoft Fabric & OneLake
 
@@ -276,8 +276,8 @@ Power BI im klassischen Service läuft weiter — es wird nicht abgekündigt. Ab
 
 **Daten-WG dazu:**
 
-- **[Wo liegen meine Daten wirklich im OneLake?](https://youtu.be/ZVVSPQj9dlc)** · Tutorial · 5 min · [Knowledge Kitchen](../index.html#ep-ZVVSPQj9dlc)
-- **[Microsoft Fabric — braucht das wirklich jemand?](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../index.html#ep-mTVeZzshLzE)
+- **[Wo liegen meine Daten wirklich im OneLake?](https://youtu.be/ZVVSPQj9dlc)** · Tutorial · 5 min · [Knowledge Kitchen](../folgen.html#ep-ZVVSPQj9dlc)
+- **[Microsoft Fabric — braucht das wirklich jemand?](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../folgen.html#ep-mTVeZzshLzE)
 
 ### Import · DirectQuery · Dual · Direct Lake
 
@@ -329,18 +329,18 @@ Framing, Guardrails pro F-SKU und die zwei Direct-Lake-Varianten im Detail: [Fab
 
 **Daten-WG dazu:**
 
-- **[Power BI Update Mai 2025 — Import + Direct Lake kombinieren](https://youtu.be/zkfdfc5fo-E)** · Update · 15 min · [Knowledge Kitchen](../index.html#ep-zkfdfc5fo-E)
-- **[Fabric & Power BI Quarterly 2025 Q3 — Composite Models mit Direct Lake](https://youtu.be/lZvpCBMKASM)** · Talk · 57 min · [Knowledge Kitchen](../index.html#ep-lZvpCBMKASM)
+- **[Power BI Update Mai 2025 — Import + Direct Lake kombinieren](https://youtu.be/zkfdfc5fo-E)** · Update · 15 min · [Knowledge Kitchen](../folgen.html#ep-zkfdfc5fo-E)
+- **[Fabric & Power BI Quarterly 2025 Q3 — Composite Models mit Direct Lake](https://youtu.be/lZvpCBMKASM)** · Talk · 57 min · [Knowledge Kitchen](../folgen.html#ep-lZvpCBMKASM)
 
 ### Weiter vertiefen · Lizenzen, Kapazität und Storage Modes in der Praxis
 
 Wann eine F64 wegen der Lizenzen gekauft wird, warum kleine F-SKUs Teams helfen und wie Import und Direct Lake zusammenspielen. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **Warum Fabric F2 für kleine Teams zählt** · Ab 12:22 · More than PBIX · [Knowledge Kitchen](../index.html#ep-c90oD4zR1Aw)
-- **F64 wegen der Lizenzen – bei 2 % Auslastung** · Ab 4:16 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../index.html#ep-J-lN5JN-F5I)
-- **Navision, Data Gateway und Medaillon-Architektur** · Ab 6:11 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../index.html#ep-J-lN5JN-F5I)
-- **Import + Direct Lake in einem Modell kombinieren** · Ab 11:20 · Power BI Update Mai 2025 · [Knowledge Kitchen](../index.html#ep-zkfdfc5fo-E)
-- **Composite Models mit Direct Lake** · Ab 38:58 · Fabric & Power BI Quarterly · 2025 Q3 · [Knowledge Kitchen](../index.html#ep-lZvpCBMKASM)
+- **Warum Fabric F2 für kleine Teams zählt** · Ab 12:22 · More than PBIX · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
+- **F64 wegen der Lizenzen – bei 2 % Auslastung** · Ab 4:16 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- **Navision, Data Gateway und Medaillon-Architektur** · Ab 6:11 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- **Import + Direct Lake in einem Modell kombinieren** · Ab 11:20 · Power BI Update Mai 2025 · [Knowledge Kitchen](../folgen.html#ep-zkfdfc5fo-E)
+- **Composite Models mit Direct Lake** · Ab 38:58 · Fabric & Power BI Quarterly · 2025 Q3 · [Knowledge Kitchen](../folgen.html#ep-lZvpCBMKASM)
 
 Microsoft Learn · Doku
 
@@ -1008,7 +1008,7 @@ CALCULATE(
 
 **Daten-WG dazu:**
 
-- **[BI Thinkers Talk: Data Modeling — Fakten, Dimensionen, Role-Playing](https://youtu.be/uxYFqwe_Wiw)** · Talk · 85 min · [Knowledge Kitchen](../index.html#ep-uxYFqwe_Wiw)
+- **[BI Thinkers Talk: Data Modeling — Fakten, Dimensionen, Role-Playing](https://youtu.be/uxYFqwe_Wiw)** · Talk · 85 min · [Knowledge Kitchen](../folgen.html#ep-uxYFqwe_Wiw)
 
 #### Modell schlank halten
 
@@ -1070,10 +1070,10 @@ Rechtsklick im Query-Pane → "New Group". Empfohlene Ordner: **1. Quellen**, **
 
 Power Query im Web, Dataflows für Citizen Developer und der Weg vom M-Code zum SQL-Statement. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **Power Query im Web – das Gamechanger-Feature?** · Ab 0:00 · Power BI Update Juni 2025 · [Knowledge Kitchen](../index.html#ep-LnNoXBIG7Lc)
-- **Power Query im Web für Import-Modelle** · Ab 0:34 · Power BI Update August 2025 · [Knowledge Kitchen](../index.html#ep-jTXo4aEr07o)
-- **Dataflows für Citizen Developer – und wo die Aufteilung wehtut** · Ab 13:57 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../index.html#ep-J-lN5JN-F5I)
-- **Pivot, Unpivot & Co.: wofür Dataflows stark bleiben** · Ab 18:22 · 600 SQL-Tabellen in Fabric · [Knowledge Kitchen](../index.html#ep-RtUiF1J5XEg)
+- **Power Query im Web – das Gamechanger-Feature?** · Ab 0:00 · Power BI Update Juni 2025 · [Knowledge Kitchen](../folgen.html#ep-LnNoXBIG7Lc)
+- **Power Query im Web für Import-Modelle** · Ab 0:34 · Power BI Update August 2025 · [Knowledge Kitchen](../folgen.html#ep-jTXo4aEr07o)
+- **Dataflows für Citizen Developer – und wo die Aufteilung wehtut** · Ab 13:57 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- **Pivot, Unpivot & Co.: wofür Dataflows stark bleiben** · Ab 18:22 · 600 SQL-Tabellen in Fabric · [Knowledge Kitchen](../folgen.html#ep-RtUiF1J5XEg)
 
 Microsoft Learn · Doku
 
@@ -1395,8 +1395,8 @@ Wenn zwei Quellen verschiedene Privacy Levels haben, verhindert Power Query Fold
 
 Folding ist die technische Seite einer alten Regel: so weit vorne wie möglich transformieren, so spät wie nötig. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **Roche’s Maxim: Transformationen zur Quelle schieben** · Ab 30:00 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../index.html#ep-uxYFqwe_Wiw)
-- **Von der Excel-Kreuztabelle über M-Code zum SQL-Statement** · Ab 35:07 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../index.html#ep-J-lN5JN-F5I)
+- **Roche’s Maxim: Transformationen zur Quelle schieben** · Ab 30:00 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../folgen.html#ep-uxYFqwe_Wiw)
+- **Von der Excel-Kreuztabelle über M-Code zum SQL-Statement** · Ab 35:07 · Daten-WG Life-Update · Fabric Architekturen · [Knowledge Kitchen](../folgen.html#ep-J-lN5JN-F5I)
 
 Microsoft Learn · Doku
 
@@ -1874,23 +1874,23 @@ fact_verkauf ←→ dim_produkt ←→ dim_kategorie ←→ dim_kategorie_gruppe
 
 **Daten-WG dazu:**
 
-- **[Mythos Data Vault und richtig große Modelle](https://youtu.be/rrCi0lnGrCg)** · Talk · 33 min · [Knowledge Kitchen](../index.html#ep-rrCi0lnGrCg)
+- **[Mythos Data Vault und richtig große Modelle](https://youtu.be/rrCi0lnGrCg)** · Talk · 33 min · [Knowledge Kitchen](../folgen.html#ep-rrCi0lnGrCg)
 
 ### Aus dem Kanal · Modellierung praktisch durchgespielt
 
 Warum Modellierung das ist, woran Self-Service später scheitert — und wie Stern-Schemata für Nicht-Modellierer plausibel werden.
 
-- **[Denken in Tabellen — Stern-Schema-Grundlagen](https://youtu.be/hbUYMyqb6r8)** · Talk · 39 min · [Knowledge Kitchen](../index.html#ep-hbUYMyqb6r8)
-- **[Datenmodellierung ist Governance](https://youtu.be/lH_-A8NAQ-k)** · Talk · 43 min · [Knowledge Kitchen](../index.html#ep-lH_-A8NAQ-k)
+- **[Denken in Tabellen — Stern-Schema-Grundlagen](https://youtu.be/hbUYMyqb6r8)** · Talk · 39 min · [Knowledge Kitchen](../folgen.html#ep-hbUYMyqb6r8)
+- **[Datenmodellierung ist Governance](https://youtu.be/lH_-A8NAQ-k)** · Talk · 43 min · [Knowledge Kitchen](../folgen.html#ep-lH_-A8NAQ-k)
 
 ### Weiter vertiefen · Stern-Schema, Rollen-Dimensionen, Granularität
 
 Gezielt an die Stellen, an denen Fakt/Dimension, Role-Playing-Datum und Flat Table vs. Stern erklärt werden. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **Star-Schema-Basics: Fakten, Dimensionen, Datumstabelle, Role-Playing** · Ab 36:00 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../index.html#ep-uxYFqwe_Wiw)
-- **Sternschema-Aha: bessere Filterlogik, Granularitäten** · Ab 8:37 · Denken in Tabellen · [Knowledge Kitchen](../index.html#ep-hbUYMyqb6r8)
-- **One Big Table vs. Stern: Performance, Speicher, Use Cases** · Ab 42:05 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../index.html#ep-uxYFqwe_Wiw)
-- **Warum zu viele Joins Probleme verursachen** · Ab 9:13 · Datenmodellierung ist Governance · [Knowledge Kitchen](../index.html#ep-lH_-A8NAQ-k)
+- **Star-Schema-Basics: Fakten, Dimensionen, Datumstabelle, Role-Playing** · Ab 36:00 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../folgen.html#ep-uxYFqwe_Wiw)
+- **Sternschema-Aha: bessere Filterlogik, Granularitäten** · Ab 8:37 · Denken in Tabellen · [Knowledge Kitchen](../folgen.html#ep-hbUYMyqb6r8)
+- **One Big Table vs. Stern: Performance, Speicher, Use Cases** · Ab 42:05 · BI Thinkers Talk · Data Modeling [EN] · [Knowledge Kitchen](../folgen.html#ep-uxYFqwe_Wiw)
+- **Warum zu viele Joins Probleme verursachen** · Ab 9:13 · Datenmodellierung ist Governance · [Knowledge Kitchen](../folgen.html#ep-lH_-A8NAQ-k)
 
 Microsoft Learn · Doku
 
@@ -2088,7 +2088,7 @@ Microsoft Learn [DAX-Übersicht · Kontext](https://learn.microsoft.com/de-de/da
 
 **Daten-WG dazu:**
 
-- **[Expanded Tables in DAX verstehen](https://youtu.be/LQQEn7IOb7w)** · Tutorial · 12 min · [Knowledge Kitchen](../index.html#ep-LQQEn7IOb7w)
+- **[Expanded Tables in DAX verstehen](https://youtu.be/LQQEn7IOb7w)** · Tutorial · 12 min · [Knowledge Kitchen](../folgen.html#ep-LQQEn7IOb7w)
 
 ### Variables (VAR / RETURN)
 
@@ -2219,7 +2219,7 @@ Microsoft Learn [Zeitbasierte Berechnungen in Power BI](https://learn.microsoft.
 
 **Daten-WG dazu:**
 
-- **[Visual Calculations erklärt — Prozent vom übergeordneten Wert](https://youtu.be/GsLfiuPlsQE)** · Tutorial · 7 min · [Knowledge Kitchen](../index.html#ep-GsLfiuPlsQE)
+- **[Visual Calculations erklärt — Prozent vom übergeordneten Wert](https://youtu.be/GsLfiuPlsQE)** · Tutorial · 7 min · [Knowledge Kitchen](../folgen.html#ep-GsLfiuPlsQE)
 
 ### Anti-Patterns
 
@@ -2762,13 +2762,13 @@ Microsoft Learn [DAX-Abfrageansicht](https://learn.microsoft.com/de-de/power-bi/
 
 Expanded Tables sind das Modell hinter Filter- und Row-Context. UDFs + TMDL zeigen, wohin DAX 2026 läuft. Die Sprungmarken (▶ Zeit) starten das Video direkt an der passenden Stelle.
 
-- **[Expanded Tables in DAX verstehen — Beziehungen & Filter erklärt](https://youtu.be/LQQEn7IOb7w)** · Tutorial · 12 min · [Knowledge Kitchen](../index.html#ep-LQQEn7IOb7w)
-- **[DAX User Defined Functions + TMDL](https://youtu.be/0FPA1k5YiTs)** · Deep Dive · 49 min · [Knowledge Kitchen](../index.html#ep-0FPA1k5YiTs)
-- **CALCULATE, Filtervergleich & Ergebnis am Beispiel** · Sprungmarke · Expanded Tables in DAX · [Knowledge Kitchen](../index.html#ep-LQQEn7IOb7w)
-- **Warum eine Faktentabelle als CALCULATE-Filter teuer ist** · Sprungmarke · Alberto Ferrari · Data Binning in DAX · [Knowledge Kitchen](../index.html#ep-183uLZ3GYDo)
-- **Year-to-Date per Visual Calculation (laufende Summe)** · Sprungmarke · Power BI vs. Qlik · Teil 3 · [Knowledge Kitchen](../index.html#ep-iTK3xUd8V5I)
-- **Einführung in DAX User-Defined Functions** · Sprungmarke · Deep Dive · DAX UDF + TMDL · [Knowledge Kitchen](../index.html#ep-0FPA1k5YiTs)
-- **Neue Kalenderlogik für die DAX-Zeitintelligenz** · Sprungmarke · Power BI Update September 2025 · [Knowledge Kitchen](../index.html#ep-6gQiIbyhWEc)
+- **[Expanded Tables in DAX verstehen — Beziehungen & Filter erklärt](https://youtu.be/LQQEn7IOb7w)** · Tutorial · 12 min · [Knowledge Kitchen](../folgen.html#ep-LQQEn7IOb7w)
+- **[DAX User Defined Functions + TMDL](https://youtu.be/0FPA1k5YiTs)** · Deep Dive · 49 min · [Knowledge Kitchen](../folgen.html#ep-0FPA1k5YiTs)
+- **CALCULATE, Filtervergleich & Ergebnis am Beispiel** · Sprungmarke · Expanded Tables in DAX · [Knowledge Kitchen](../folgen.html#ep-LQQEn7IOb7w)
+- **Warum eine Faktentabelle als CALCULATE-Filter teuer ist** · Sprungmarke · Alberto Ferrari · Data Binning in DAX · [Knowledge Kitchen](../folgen.html#ep-183uLZ3GYDo)
+- **Year-to-Date per Visual Calculation (laufende Summe)** · Sprungmarke · Power BI vs. Qlik · Teil 3 · [Knowledge Kitchen](../folgen.html#ep-iTK3xUd8V5I)
+- **Einführung in DAX User-Defined Functions** · Sprungmarke · Deep Dive · DAX UDF + TMDL · [Knowledge Kitchen](../folgen.html#ep-0FPA1k5YiTs)
+- **Neue Kalenderlogik für die DAX-Zeitintelligenz** · Sprungmarke · Power BI Update September 2025 · [Knowledge Kitchen](../folgen.html#ep-6gQiIbyhWEc)
 
 Weiter vertiefen DAX bei Microsoft Learn & in der Library
 
@@ -3267,8 +3267,8 @@ Microsoft Learn [X- und Y-Achse anpassen](https://learn.microsoft.com/de-de/powe
 
 **Daten-WG dazu:**
 
-- **[Die 3 Zustände der sekundären Y-Achse](https://youtu.be/8DsgIfWJkoI)** · Tutorial · 3 min · [Knowledge Kitchen](../index.html#ep-8DsgIfWJkoI)
-- **[Sekundäre Y-Achse umkehren](https://youtu.be/9BpzcWErzwQ)** · Tutorial · 6 min · [Knowledge Kitchen](../index.html#ep-9BpzcWErzwQ)
+- **[Die 3 Zustände der sekundären Y-Achse](https://youtu.be/8DsgIfWJkoI)** · Tutorial · 3 min · [Knowledge Kitchen](../folgen.html#ep-8DsgIfWJkoI)
+- **[Sekundäre Y-Achse umkehren](https://youtu.be/9BpzcWErzwQ)** · Tutorial · 6 min · [Knowledge Kitchen](../folgen.html#ep-9BpzcWErzwQ)
 
 #### Botschaften statt beschreibender Titel
 
@@ -3385,13 +3385,13 @@ Microsoft Learn [Sparklines](https://learn.microsoft.com/de-de/power-bi/create-r
 
 Von IBCS-First-Principles bis zu deklarativer Custom-Visualisierung mit Deneb/Vega — beide Wege zeigen, warum Default-Charts selten reichen. Die Sprungmarken (▶ Zeit) springen direkt zur passenden Stelle.
 
-- **[Boring Charts, Better Insights](https://youtu.be/inko8wG9jlY)** · IBCS-Talk · 40 min · [Knowledge Kitchen](../index.html#ep-inko8wG9jlY)
-- **[Declarative Visualization with DENEB](https://youtu.be/AxLQtBVAI9o)** · Deep Dive · 47 min · EN · [Knowledge Kitchen](../index.html#ep-AxLQtBVAI9o)
-- **Warum Tortendiagramme scheitern — die Wahrnehmungsforschung dahinter** · Sprungmarke · Boring Charts, Better Insights · [Knowledge Kitchen](../index.html#ep-inko8wG9jlY)
-- **„Langweilige“ Dashboards sind besser — und warum** · Sprungmarke · Boring Charts, Better Insights · [Knowledge Kitchen](../index.html#ep-inko8wG9jlY)
-- **Chart-Wahl: Tortendiagramm oder bessere Alternativen?** · Sprungmarke · More than PBIX · [Knowledge Kitchen](../index.html#ep-c90oD4zR1Aw)
-- **Sparklines sind GA — was steckt dahinter?** · Sprungmarke · Fabric &amp; Power BI Quarterly · 2025 Q3 · [Knowledge Kitchen](../index.html#ep-lZvpCBMKASM)
-- **GA: Berichtsdesign anpassen (Theme-Bereich) und Datumsauswahl im Slicer** · Sprungmarke · Power BI Update August 2026 · [Knowledge Kitchen](../index.html#ep-GWCHNmLs72M)
+- **[Boring Charts, Better Insights](https://youtu.be/inko8wG9jlY)** · IBCS-Talk · 40 min · [Knowledge Kitchen](../folgen.html#ep-inko8wG9jlY)
+- **[Declarative Visualization with DENEB](https://youtu.be/AxLQtBVAI9o)** · Deep Dive · 47 min · EN · [Knowledge Kitchen](../folgen.html#ep-AxLQtBVAI9o)
+- **Warum Tortendiagramme scheitern — die Wahrnehmungsforschung dahinter** · Sprungmarke · Boring Charts, Better Insights · [Knowledge Kitchen](../folgen.html#ep-inko8wG9jlY)
+- **„Langweilige“ Dashboards sind besser — und warum** · Sprungmarke · Boring Charts, Better Insights · [Knowledge Kitchen](../folgen.html#ep-inko8wG9jlY)
+- **Chart-Wahl: Tortendiagramm oder bessere Alternativen?** · Sprungmarke · More than PBIX · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
+- **Sparklines sind GA — was steckt dahinter?** · Sprungmarke · Fabric &amp; Power BI Quarterly · 2025 Q3 · [Knowledge Kitchen](../folgen.html#ep-lZvpCBMKASM)
+- **GA: Berichtsdesign anpassen (Theme-Bereich) und Datumsauswahl im Slicer** · Sprungmarke · Power BI Update August 2026 · [Knowledge Kitchen](../folgen.html#ep-GWCHNmLs72M)
 
 Weiter vertiefen Visualisierung bei Microsoft Learn & in der Library
 
@@ -3466,7 +3466,7 @@ Microsoft Learn [Drillthrough in Power BI](https://learn.microsoft.com/de-de/pow
 
 **Daten-WG dazu:**
 
-- **[Drillthrough-Auswahl sortieren — Reihenfolge kontrollieren](https://youtu.be/0n8hZ6v_0Lc)** · Tutorial · 7 min · [Knowledge Kitchen](../index.html#ep-0n8hZ6v_0Lc)
+- **[Drillthrough-Auswahl sortieren — Reihenfolge kontrollieren](https://youtu.be/0n8hZ6v_0Lc)** · Tutorial · 7 min · [Knowledge Kitchen](../folgen.html#ep-0n8hZ6v_0Lc)
 
 ### Bookmarks
 
@@ -3617,8 +3617,8 @@ Microsoft Learn [Feldparameter](https://learn.microsoft.com/de-de/power-bi/creat
 
 **Daten-WG dazu:**
 
-- **[Field Parameter (Feldparameter) richtig nutzen](https://youtu.be/v8dvnqqa7f8)** · Tutorial · 5 min · [Knowledge Kitchen](../index.html#ep-v8dvnqqa7f8)
-- **[TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level](https://youtu.be/sShNdgnHjr4)** · Tutorial · 9 min · [Knowledge Kitchen](../index.html#ep-sShNdgnHjr4)
+- **[Field Parameter (Feldparameter) richtig nutzen](https://youtu.be/v8dvnqqa7f8)** · Tutorial · 5 min · [Knowledge Kitchen](../folgen.html#ep-v8dvnqqa7f8)
+- **[TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level](https://youtu.be/sShNdgnHjr4)** · Tutorial · 9 min · [Knowledge Kitchen](../folgen.html#ep-sShNdgnHjr4)
 
 ### Report-Page Tooltips
 
@@ -3713,7 +3713,7 @@ Microsoft Learn [Bedingte Formatierung in Visuals](https://learn.microsoft.com/d
 
 **Daten-WG dazu:**
 
-- **[Jedes Power BI Visual dynamisch — auch ohne fx-Button](https://youtu.be/c5zxZLRuV_s)** · Tutorial · 6 min · [Knowledge Kitchen](../index.html#ep-c5zxZLRuV_s)
+- **[Jedes Power BI Visual dynamisch — auch ohne fx-Button](https://youtu.be/c5zxZLRuV_s)** · Tutorial · 6 min · [Knowledge Kitchen](../folgen.html#ep-c5zxZLRuV_s)
 
 ### Copilot im Bericht
 
@@ -3748,13 +3748,13 @@ Microsoft Learn [Copilot in Berichten & Modellen](https://learn.microsoft.com/de
 
 Ein 54-Min-Solo-Deep-Dive verbindet Buttons, Drilling, Navigation und dynamisches Filtern in einem Report. TMDL-Magie zeigt, was Field Parameters jenseits der GUI können. Die Sprungmarken (▶ Zeit) starten direkt an der passenden Stelle.
 
-- **[Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report](https://youtu.be/K27nB68nR1M)** · Solo Deep Dive · 54 min · [Knowledge Kitchen](../index.html#ep-K27nB68nR1M)
-- **[TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level](https://youtu.be/sShNdgnHjr4)** · Tutorial · 9 min · [Knowledge Kitchen](../index.html#ep-sShNdgnHjr4)
-- **Field Parameters sind GA** · Sprungmarke · Power BI Update Juli 2025 · [Knowledge Kitchen](../index.html#ep-TkxwcAyBGUM)
-- **Drillthrough: Detailseite für Regionen bauen** · Sprungmarke · Vertriebsregionen in Azure Maps · [Knowledge Kitchen](../index.html#ep-CvaOkO37HMU)
-- **Moderne Quickinfos mit Drillthrough-Aktionen** · Sprungmarke · Power BI Update Januar 2026 · [Knowledge Kitchen](../index.html#ep-TAM5AAZqh7k)
-- **Quickinfos mit erklärendem Text** · Sprungmarke · Power BI Update Juni 2026 · [Knowledge Kitchen](../index.html#ep-5xB_oKdvAwQ)
-- **Q&A ist offiziell abgekündigt** · Sprungmarke · Power BI Update Januar 2026 · [Knowledge Kitchen](../index.html#ep-TAM5AAZqh7k)
+- **[Buttons, Drilling, Navigation und Dynamisches Filtern in einem Power BI Report](https://youtu.be/K27nB68nR1M)** · Solo Deep Dive · 54 min · [Knowledge Kitchen](../folgen.html#ep-K27nB68nR1M)
+- **[TMDL Magie: Multi-Parameter-Tabelle — Feldparameter Next Level](https://youtu.be/sShNdgnHjr4)** · Tutorial · 9 min · [Knowledge Kitchen](../folgen.html#ep-sShNdgnHjr4)
+- **Field Parameters sind GA** · Sprungmarke · Power BI Update Juli 2025 · [Knowledge Kitchen](../folgen.html#ep-TkxwcAyBGUM)
+- **Drillthrough: Detailseite für Regionen bauen** · Sprungmarke · Vertriebsregionen in Azure Maps · [Knowledge Kitchen](../folgen.html#ep-CvaOkO37HMU)
+- **Moderne Quickinfos mit Drillthrough-Aktionen** · Sprungmarke · Power BI Update Januar 2026 · [Knowledge Kitchen](../folgen.html#ep-TAM5AAZqh7k)
+- **Quickinfos mit erklärendem Text** · Sprungmarke · Power BI Update Juni 2026 · [Knowledge Kitchen](../folgen.html#ep-5xB_oKdvAwQ)
+- **Q&A ist offiziell abgekündigt** · Sprungmarke · Power BI Update Januar 2026 · [Knowledge Kitchen](../folgen.html#ep-TAM5AAZqh7k)
 
 Weiter vertiefen Interaktivität bei Microsoft Learn & in der Library
 
@@ -3889,8 +3889,8 @@ Klick auf "Publish app" — alle Audience-Mitglieder bekommen Zugriff. Eine URL 
 
 **Daten-WG dazu:**
 
-- **[Power BI Update Juli 2026 — Org-Apps mit Zielgruppen GA](https://youtu.be/7xYgX6lWhuQ)** · Update · 4 min · [Knowledge Kitchen](../index.html#ep-7xYgX6lWhuQ)
-- **[Power BI Update August 2025 — Org-Apps auch in Pro-Workspaces](https://youtu.be/jTXo4aEr07o)** · Update · 5 min · [Knowledge Kitchen](../index.html#ep-jTXo4aEr07o)
+- **[Power BI Update Juli 2026 — Org-Apps mit Zielgruppen GA](https://youtu.be/7xYgX6lWhuQ)** · Update · 4 min · [Knowledge Kitchen](../folgen.html#ep-7xYgX6lWhuQ)
+- **[Power BI Update August 2025 — Org-Apps auch in Pro-Workspaces](https://youtu.be/jTXo4aEr07o)** · Update · 5 min · [Knowledge Kitchen](../folgen.html#ep-jTXo4aEr07o)
 
 ### Workspace-Rollen
 
@@ -3997,8 +3997,8 @@ Wenn ein Bericht von einem semantischen Modell in DEV abhängt, wird beim Deploy
 
 **Daten-WG dazu:**
 
-- **[Microsoft Fabric — Deployment Pipelines & fehlende Konsistenz](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../index.html#ep-mTVeZzshLzE)
-- **[More than PBIX — Zusammenarbeit mit Git & Fabric](https://youtu.be/c90oD4zR1Aw)** · Talk · 40 min · [Knowledge Kitchen](../index.html#ep-c90oD4zR1Aw)
+- **[Microsoft Fabric — Deployment Pipelines & fehlende Konsistenz](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- **[More than PBIX — Zusammenarbeit mit Git & Fabric](https://youtu.be/c90oD4zR1Aw)** · Talk · 40 min · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
 
 ### Scheduled Refresh
 
@@ -4110,10 +4110,10 @@ Vier Wege, Inhalte zu teilen. Jeder mit eigenen Stärken und Use Cases.
 
 Org-Apps, Deployment Pipelines und Git-Integration – inklusive der Stolpersteine aus echten Projekten. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **Org-Apps mit Zielgruppen sind generally available** · Ab 2:14 · Power BI Update Juli 2026 · [Knowledge Kitchen](../index.html#ep-7xYgX6lWhuQ)
-- **Deployment Pipelines & fehlende Konsistenz** · Ab 6:05 · Microsoft Fabric — braucht das wirklich jemand? · [Knowledge Kitchen](../index.html#ep-mTVeZzshLzE)
-- **Zusammenarbeit mit Git & Microsoft Fabric** · Ab 8:36 · More than PBIX · [Knowledge Kitchen](../index.html#ep-c90oD4zR1Aw)
-- **Citizen Data Engineer und Deployment Pipelines** · Ab 43:05 · Was ist Self-Service und warum ist das so schwer? · [Knowledge Kitchen](../index.html#ep-EVsJ6zyGUWc)
+- **Org-Apps mit Zielgruppen sind generally available** · Ab 2:14 · Power BI Update Juli 2026 · [Knowledge Kitchen](../folgen.html#ep-7xYgX6lWhuQ)
+- **Deployment Pipelines & fehlende Konsistenz** · Ab 6:05 · Microsoft Fabric — braucht das wirklich jemand? · [Knowledge Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- **Zusammenarbeit mit Git & Microsoft Fabric** · Ab 8:36 · More than PBIX · [Knowledge Kitchen](../folgen.html#ep-c90oD4zR1Aw)
+- **Citizen Data Engineer und Deployment Pipelines** · Ab 43:05 · Was ist Self-Service und warum ist das so schwer? · [Knowledge Kitchen](../folgen.html#ep-EVsJ6zyGUWc)
 
 Microsoft Learn · Doku
 
@@ -4423,7 +4423,7 @@ In Tabular Editor speichern (Strg+S) — die Änderung wird direkt in das geöff
 
 **Daten-WG dazu:**
 
-- **[So hackst du einen Power BI Bericht — warum Ausblenden keine Sicherheit ist](https://youtu.be/GKLxM3317Xk)** · Tutorial · 8 min · [Knowledge Kitchen](../index.html#ep-GKLxM3317Xk)
+- **[So hackst du einen Power BI Bericht — warum Ausblenden keine Sicherheit ist](https://youtu.be/GKLxM3317Xk)** · Tutorial · 8 min · [Knowledge Kitchen](../folgen.html#ep-GKLxM3317Xk)
 
 ### Sicherheitsgruppen statt Einzelpersonen
 
@@ -4575,10 +4575,10 @@ RLS funktioniert für die Hauptfälle, aber:
 
 Warum Berichtsgestaltung keine Sicherheit ist, was RLS wirklich schützt und wo OLS nötig wird. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **Dataset & Berechtigungen: nur Lesezugriff, keine Build-Rechte** · Ab 1:05 · So hackst du einen Power BI Bericht · [Knowledge Kitchen](../index.html#ep-GKLxM3317Xk)
-- **Erkunden des Datasets: RLS greift – aber der Bericht schützt keine Spalten** · Ab 2:17 · So hackst du einen Power BI Bericht · [Knowledge Kitchen](../index.html#ep-GKLxM3317Xk)
-- **Explore, Copilot & Co.: an der RLS vorbei geht es nicht** · Ab 25:56 · BI Thinkers Talk n.74 · [Knowledge Kitchen](../index.html#ep-rWE0gMx7v7I)
-- **Security kommt „leise“: RLS/CLS auch für gespiegelte Objekte** · Ab 20:50 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../index.html#ep-TYp5xCAU2AU)
+- **Dataset & Berechtigungen: nur Lesezugriff, keine Build-Rechte** · Ab 1:05 · So hackst du einen Power BI Bericht · [Knowledge Kitchen](../folgen.html#ep-GKLxM3317Xk)
+- **Erkunden des Datasets: RLS greift – aber der Bericht schützt keine Spalten** · Ab 2:17 · So hackst du einen Power BI Bericht · [Knowledge Kitchen](../folgen.html#ep-GKLxM3317Xk)
+- **Explore, Copilot & Co.: an der RLS vorbei geht es nicht** · Ab 25:56 · BI Thinkers Talk n.74 · [Knowledge Kitchen](../folgen.html#ep-rWE0gMx7v7I)
+- **Security kommt „leise“: RLS/CLS auch für gespiegelte Objekte** · Ab 20:50 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../folgen.html#ep-TYp5xCAU2AU)
 
 Microsoft Learn · Doku
 
@@ -4697,8 +4697,8 @@ Die Folding-Indikatoren und den Query Plan aus Sektion 3 bekommst du übrigens g
 
 **Daten-WG dazu:**
 
-- **[Fabric & Power BI Quarterly 2026-2 — Dataflows Gen1 wird Legacy](https://youtu.be/pTTYySb0Cyg)** · Talk · 58 min · [Knowledge Kitchen](../index.html#ep-pTTYySb0Cyg)
-- **[Microsoft Fabric — Dataflows Gen1 vs. Gen2](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../index.html#ep-mTVeZzshLzE)
+- **[Fabric & Power BI Quarterly 2026-2 — Dataflows Gen1 wird Legacy](https://youtu.be/pTTYySb0Cyg)** · Talk · 58 min · [Knowledge Kitchen](../folgen.html#ep-pTTYySb0Cyg)
+- **[Microsoft Fabric — Dataflows Gen1 vs. Gen2](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../folgen.html#ep-mTVeZzshLzE)
 
 ### Composite Models & Aggregations
 
@@ -4808,7 +4808,7 @@ Measures markieren → Properties → "Display Folder" auf "Umsatz\KPIs" setzen 
 
 **Daten-WG dazu:**
 
-- **[Unboxing MCP Server for Power BI Modelling](https://youtu.be/iinfiHxznOU)** · Deep Dive · 67 min · [Knowledge Kitchen](../index.html#ep-iinfiHxznOU)
+- **[Unboxing MCP Server for Power BI Modelling](https://youtu.be/iinfiHxznOU)** · Deep Dive · 67 min · [Knowledge Kitchen](../folgen.html#ep-iinfiHxznOU)
 
 ### DAX Studio — Performance-Diagnose
 
@@ -4920,7 +4920,7 @@ BPA als Schritt im Release-Prozess. Wenn BPA fehlerfrei ist, ist das Modell auf 
 
 **Daten-WG dazu:**
 
-- **[Fabric Workload Demo — Power BI Fixer mit BPA & Memory Analyzer](https://youtu.be/e50qKdVn-24)** · Demo · 27 min · [Knowledge Kitchen](../index.html#ep-e50qKdVn-24)
+- **[Fabric Workload Demo — Power BI Fixer mit BPA & Memory Analyzer](https://youtu.be/e50qKdVn-24)** · Demo · 27 min · [Knowledge Kitchen](../folgen.html#ep-e50qKdVn-24)
 
 ### Copilot in Power BI
 
@@ -4971,8 +4971,8 @@ Copilot ist **Hilfsmittel, nicht Ersatz** — und ersetzt kein sauberes semantis
 
 **Daten-WG dazu:**
 
-- **[State of Power BI, Fabric & AI-Tools — Copilot ersetzt keine Modelle](https://youtu.be/d3HdhRe_nK8)** · Talk · 47 min · [Knowledge Kitchen](../index.html#ep-d3HdhRe_nK8)
-- **[Power BI Update Mai 2025 — Copilot & semantisches Modell vorbereiten](https://youtu.be/zkfdfc5fo-E)** · Update · 15 min · [Knowledge Kitchen](../index.html#ep-zkfdfc5fo-E)
+- **[State of Power BI, Fabric & AI-Tools — Copilot ersetzt keine Modelle](https://youtu.be/d3HdhRe_nK8)** · Talk · 47 min · [Knowledge Kitchen](../folgen.html#ep-d3HdhRe_nK8)
+- **[Power BI Update Mai 2025 — Copilot & semantisches Modell vorbereiten](https://youtu.be/zkfdfc5fo-E)** · Update · 15 min · [Knowledge Kitchen](../folgen.html#ep-zkfdfc5fo-E)
 
 ### Microsoft Fabric
 
@@ -5016,8 +5016,8 @@ Ja — die Frage ist nur noch wann. Microsoft verkauft keine neuen P-SKUs mehr; 
 
 **Daten-WG dazu:**
 
-- **[Microsoft Fabric — braucht das wirklich jemand?](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../index.html#ep-mTVeZzshLzE)
-- **[Open Mirroring in Microsoft Fabric — replizieren ohne ETL](https://youtu.be/7j34Ndng0Os)** · Tutorial · 10 min · [Knowledge Kitchen](../index.html#ep-7j34Ndng0Os)
+- **[Microsoft Fabric — braucht das wirklich jemand?](https://youtu.be/mTVeZzshLzE)** · Talk · 48 min · [Knowledge Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- **[Open Mirroring in Microsoft Fabric — replizieren ohne ETL](https://youtu.be/7j34Ndng0Os)** · Tutorial · 10 min · [Knowledge Kitchen](../folgen.html#ep-7j34Ndng0Os)
 
 ### Performance-Optimierung
 
@@ -5077,19 +5077,19 @@ In DAX Studio: Advanced → View Metrics. Zeigt Speicher-Verbrauch pro Spalte. I
 
 OneLake-Speicherorte, Mirroring ohne ETL und MCP Server für Power-BI-Modelling — drei Folgen für das Drumherum jenseits von Desktop.
 
-- **[Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?](https://youtu.be/ZVVSPQj9dlc)** · Tutorial · 5 min · [Knowledge Kitchen](../index.html#ep-ZVVSPQj9dlc)
-- **[Open Mirroring in Microsoft Fabric — Daten replizieren ohne ETL](https://youtu.be/7j34Ndng0Os)** · Tutorial · 10 min · [Knowledge Kitchen](../index.html#ep-7j34Ndng0Os)
-- **[Unboxing MCP Server for Power BI Modelling](https://youtu.be/iinfiHxznOU)** · Deep Dive · 67 min · [Knowledge Kitchen](../index.html#ep-iinfiHxznOU)
+- **[Microsoft Fabric: Wo liegen meine Daten wirklich im OneLake?](https://youtu.be/ZVVSPQj9dlc)** · Tutorial · 5 min · [Knowledge Kitchen](../folgen.html#ep-ZVVSPQj9dlc)
+- **[Open Mirroring in Microsoft Fabric — Daten replizieren ohne ETL](https://youtu.be/7j34Ndng0Os)** · Tutorial · 10 min · [Knowledge Kitchen](../folgen.html#ep-7j34Ndng0Os)
+- **[Unboxing MCP Server for Power BI Modelling](https://youtu.be/iinfiHxznOU)** · Deep Dive · 67 min · [Knowledge Kitchen](../folgen.html#ep-iinfiHxznOU)
 
 ### Weiter vertiefen · Code first: PBIP, TMDL, MCP und Modell-Checks
 
 Wie PBIR/PBIP, TMDL und MCP-Server den Werkzeugkasten verändern – und warum Copilot kein Modell ersetzt. Klick auf die Zeile öffnet die Folgen-Karte mit Kapiteln, der Zeitstempel springt direkt an die Stelle auf YouTube.
 
-- **PBIR/PBIP & „Code First“ – die GA-Story** · Ab 5:29 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../index.html#ep-TYp5xCAU2AU)
-- **Externe Änderungen (VS Code) live im Desktop übernehmen** · Ab 3:51 · Power BI Update August 2026 · [Knowledge Kitchen](../index.html#ep-GWCHNmLs72M)
-- **VS Code + TMDL + MCP: Measures schnell optimieren** · Ab 9:01 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../index.html#ep-TYp5xCAU2AU)
-- **Power BI Fixer: Model Explorer, BPA und Memory Analyzer** · Ab 5:30 · Fabric Workload Demo mit Alexander Korn und Lukasz Obst · [Knowledge Kitchen](../index.html#ep-e50qKdVn-24)
-- **Copilot ersetzt keine semantischen Modelle** · Ab 21:35 · Daten-WG Life-Update · State of Power BI, Fabric & AI-Tools · [Knowledge Kitchen](../index.html#ep-d3HdhRe_nK8)
+- **PBIR/PBIP & „Code First“ – die GA-Story** · Ab 5:29 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../folgen.html#ep-TYp5xCAU2AU)
+- **Externe Änderungen (VS Code) live im Desktop übernehmen** · Ab 3:51 · Power BI Update August 2026 · [Knowledge Kitchen](../folgen.html#ep-GWCHNmLs72M)
+- **VS Code + TMDL + MCP: Measures schnell optimieren** · Ab 9:01 · Fabric & Power BI Quarterly · 2026-1 · [Knowledge Kitchen](../folgen.html#ep-TYp5xCAU2AU)
+- **Power BI Fixer: Model Explorer, BPA und Memory Analyzer** · Ab 5:30 · Fabric Workload Demo mit Alexander Korn und Lukasz Obst · [Knowledge Kitchen](../folgen.html#ep-e50qKdVn-24)
+- **Copilot ersetzt keine semantischen Modelle** · Ab 21:35 · Daten-WG Life-Update · State of Power BI, Fabric & AI-Tools · [Knowledge Kitchen](../folgen.html#ep-d3HdhRe_nK8)
 
 Microsoft Learn · Doku
 
@@ -5153,7 +5153,7 @@ Power BI Service · Public Embed · [In neuem Tab öffnen →](https://app.power
 
 Ein knapp einstündiger Solo-Walkthrough vom leeren Power-BI-Canvas zum fertigen Report-Einreichung — Entscheidungen werden laut erklärt.
 
-- **[Walkthrough for my first Submission to the Maven Analytics Challenge](https://youtu.be/z3eVRymUp30)** · Solo Deep Dive · 57 min · EN · [Knowledge Kitchen](../index.html#ep-z3eVRymUp30)
+- **[Walkthrough for my first Submission to the Maven Analytics Challenge](https://youtu.be/z3eVRymUp30)** · Solo Deep Dive · 57 min · EN · [Knowledge Kitchen](../folgen.html#ep-z3eVRymUp30)
 
 Weiter vertiefen Selbst nachbauen
 
