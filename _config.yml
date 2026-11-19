@@ -88,6 +88,10 @@ exclude:
   - eauto/scripts/
   - eauto/README.md
 
+  # Testdaten des Governance-Scanners. Die Fixtures enthalten absichtlich
+  # schlechte Beispiele (u. a. Google Fonts) und sollen nicht ausgeliefert werden.
+  - fabric-app-scanner/tests/
+
   # Die Jekyll-/Pages-Standardausschluesse. `exclude` ersetzt die Vorgabeliste,
   # statt sie zu ergaenzen -- deshalb stehen sie hier noch einmal.
   - CNAME
