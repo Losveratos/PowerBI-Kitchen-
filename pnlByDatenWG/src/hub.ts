@@ -16,6 +16,13 @@ export interface TemplateSwitches {
     stmt: Record<string, string>;
 }
 
+/**
+ * 1.8 switches a template writes that templates before 1.8 did not: in a report
+ * that does not store them they never count as a deviation from the template
+ * (see Visual.templateDeviation), so a template applied with 1.7 stays as it was
+ */
+export const TEMPLATE_SWITCHES_1_8 = ["structureTotal", "keepBlockOrder"];
+
 /** 1.7 the templates of the stock group: the balance sheet and the cash flow */
 export const STOCK_TEMPLATES = ["T05A", "T05B"];
 
@@ -42,21 +49,23 @@ export function templateStockMode(tpl: string, tokens = false, cur = "auto"): st
  * a template is applied (columns + numbers [+ titleBlock.headline]). "off"
  * returns to the classic table and leaves the number format alone.
  */
-export function templateSwitches(tpl: string, tokens = false, curStockMode = "auto"): TemplateSwitches {
+export function templateSwitches(tpl: string, tokens = false, curStockMode = "auto", sheetDec = false): TemplateSwitches {
     const p = MEGA_PRESETS[tpl];
     const cols: Record<string, boolean | string> = {
         minuend: p.min.toLowerCase(),
         showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
         dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
         dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlWaterfall: p.dPlWf, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
-        secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
+        secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, structureTotal: p.structureTotal,
+        showPctRows: p.showPctRows,
         thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
-        capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
+        capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, keepBlockOrder: p.keepBlockOrder,
         // every template is laid out in its period block (YTD; 12G: FY outlook),
         // or month | that block with the second block
         blockKind: p.blockKind, leftBlockKind: "month",
     };
-    const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals };
+    // 1.8 (B14) numbers.sheetPctDecimals: the Δ% decimals of the reference sheet instead of the one-decimal rule
+    const nums: Record<string, number> = tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: sheetDec ? p.sheetPdec : p.pctDecimals };
     // 12G / 12H switch the headline slot on; the other templates leave it alone
     const title: Record<string, boolean> = p.headline ? { headline: true } : {};
     const sm = templateStockMode(tpl, tokens, curStockMode);
@@ -66,6 +75,19 @@ export function templateSwitches(tpl: string, tokens = false, curStockMode = "au
 
 /** the templates of the gallery, in pane order: "off" (classic table) first, then T01A … 12H, 1.7 T05A · T05B */
 export const HUB_TEMPLATES: string[] = MEGA_PRESET_KEYS.slice();
+
+/**
+ * 1.8 (B07) presets of a view other than the mega table: a gallery tile that
+ * opens the view with its card settings (columns.*). "11A" is the ROI tree
+ * (DuPont): driver tree, monthly / yearly columns on every card, no status
+ * colour (the sheet has none), the whole tree open. The root stays the
+ * default (the last KPI / formula row with operands, the ROI in a DuPont
+ * statement); KPI rows carry their number format in the row type
+ * ("KPI factor" for the capital turnover).
+ */
+export const VIEW_PRESETS: Record<string, { view: "tree"; cols: Record<string, string | number | boolean> }> = {
+    "11A": { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true } },
+};
 
 /** a tile of the 1.4 gallery: the template plus its finance title and its use line (resjson keys) */
 export interface GalleryTile {
@@ -97,11 +119,14 @@ export const HUB_GALLERY: GalleryGroup[] = [
     { id: "structure", title: "UI_TgStructure", sub: "UI_TgStructureX", tiles: [
         tile("T01A", "UI_TtT01A", "UI_TuT01A"),
         tile("T01B", "UI_TtT01B", "UI_TuT01B"),
+        tile("T01C", "UI_TtT01C", "UI_TuT01C"),
         tile("T02A", "UI_TtT02A", "UI_TuT02A"),
         tile("T02B", "UI_TtT02B", "UI_TuT02B"),
         tile("T02C", "UI_TtT02C", "UI_TuT02C"),
+        tile("T02D", "UI_TtT02D", "UI_TuT02D"),
     ] },
     { id: "forecast", title: "UI_TgForecast", sub: "UI_TgForecastX", tiles: [
+        tile("T01D", "UI_TtT01D", "UI_TuT01D"),
         tile("T02E", "UI_TtT02E", "UI_TuT02E"),
         tile("T02F", "UI_TtT02F", "UI_TuT02F"),
         tile("T03B", "UI_TtT03B", "UI_TuT03B"),
@@ -123,6 +148,7 @@ export const HUB_GALLERY: GalleryGroup[] = [
         tile("12A", "UI_Tt12A", "UI_Tu12A"),
         tile("12G", "UI_Tt12G", "UI_Tu12G"),
         tile("12H", "UI_Tt12H", "UI_Tu12H"),
+        tile("11A", "UI_Tt11A", "UI_Tu11A"),
         tile("off", "UI_TtOff", "UI_TuOff"),
     ] },
 ];

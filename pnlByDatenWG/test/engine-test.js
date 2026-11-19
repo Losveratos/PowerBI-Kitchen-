@@ -1192,4 +1192,36 @@ test("1.7.1 unposted actuals: trailing AC zeros with a forecast become 'not post
     assert.deepStrictEqual(m.byId.get("a").series.ac, [10, 12, null, null]);
 });
 
+test("1.8 (B07) KPI number format tokens and years as the period", () => {
+    const I = E.parseRowTypeInfo;
+    assert.deepStrictEqual(I("KPI factor"), { rowType: "kpi", stock: null, flow: false, kfmt: "factor" });
+    assert.deepStrictEqual(I("Kennzahl Faktor"), { rowType: "kpi", stock: null, flow: false, kfmt: "factor" });
+    assert.deepStrictEqual(I("KPI amount"), { rowType: "kpi", stock: null, flow: false, kfmt: "amount" });
+    // "pct" / "%" is the default: read, not stored (an explicit "KPI %" behaves like "KPI")
+    assert.deepStrictEqual(I("ratio %"), { rowType: "kpi", stock: null, flow: false });
+    assert.deepStrictEqual(I("KPI constructor"), { rowType: "account", stock: null, flow: false }, "no prototype key is a token");
+    // a format token means something on KPI rows only; cells without a token read as in 1.0
+    assert.deepStrictEqual(I("Account factor"), { rowType: "account", stock: null, flow: false });
+    assert.deepStrictEqual(I("KPI"), { rowType: "kpi", stock: null, flow: false });
+    assert.deepStrictEqual(I("net margin"), { rowType: "account", stock: null, flow: false });
+    assert.strictEqual(I("Account stock").rowType, "account");
+    // years: chronological, numbers 1..12 stay months, other 4-digit numbers are no period
+    assert.deepStrictEqual(E.parsePeriod("2021"), { y: 2021, m: 1, d: 0 });
+    assert.deepStrictEqual(E.parsePeriod("7"), { y: null, m: 7, d: 0 });
+    assert.strictEqual(E.parsePeriod("1234"), null);
+    assert.deepStrictEqual(E.sortMonths(["2023", "2021", "2027", "2022"]), ["2021", "2022", "2023", "2027"]);
+    // a column category keeps 4-digit codes in data order (years off)
+    assert.strictEqual(E.parsePeriod("2021", false), null);
+    assert.deepStrictEqual(E.sortMonths(["2300", "2100", "1950"], "auto", false), ["2300", "2100", "1950"]);
+    // ⚡ exceptions: an amount KPI like an amount, a factor KPI by its relative Δ
+    const rule = { pct: 10, abs: 500, dir: "both" };
+    const row = (kfmt) => ({ rowType: "kpi", displayInvert: false, varianceInvert: false, ...(kfmt ? { kfmt } : {}) });
+    // Δ 0.05 on a margin = 5 pp < 10 pp; on a factor 1.30 → 1.35 = +3.8 % < 10 %; an amount Δ 600 ≥ 500
+    assert.strictEqual(E.isExceptionVariance(row(), { delta: 0.05, deltaPct: 0.1, good: true }, rule), false);
+    assert.strictEqual(E.isExceptionVariance(row("factor"), { delta: 0.05, deltaPct: 0.038, good: true }, rule), false);
+    assert.strictEqual(E.isExceptionVariance(row("factor"), { delta: 0.2, deltaPct: 0.15, good: true }, rule), true);
+    assert.strictEqual(E.isExceptionVariance(row("amount"), { delta: 600, deltaPct: 0.02, good: true }, rule), true);
+    assert.strictEqual(E.isExceptionVariance(row("amount"), { delta: 100, deltaPct: 0.02, good: true }, rule), false);
+});
+
 console.log(`\n${n} engine test blocks passed`);

@@ -37,6 +37,17 @@ const referenceItems: LocEnumMember[] = [
     { value: "fc", displayName: "Forecast (FC)", key: "Enum_Ref_Fc" }
 ];
 
+/** 1.8 (B14) unit of a percentage-point difference */
+const ppUnitItems: LocEnumMember[] = [
+    { value: "pp", displayName: "pp (percentage points)", key: "Enum_PpUnit_Pp" },
+    { value: "pctp", displayName: "%p", key: "Enum_PpUnit_Pctp" },
+];
+/** 1.8 (B14) a Δ that rounds to zero: keep its sign or not */
+const roundedZeroItems: LocEnumMember[] = [
+    { value: "signed", displayName: "Keep the sign (+0.0 / −0.0)", key: "Enum_RoundedZero_Signed" },
+    { value: "plain", displayName: "Without sign (0.0)", key: "Enum_RoundedZero_Plain" },
+];
+
 const scalingItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto", key: "Enum_Scaling_Auto" },
     { value: "none", displayName: "None", key: "Enum_Scaling_None" },
@@ -96,9 +107,12 @@ const templateItems: LocEnumMember[] = [
     { value: "off", displayName: "Off (classic table)", key: "Enum_Template_Off" },
     { value: "T01A", displayName: "T01A · structure, values + Δ, month | YTD", key: "Enum_Template_T01A" },
     { value: "T01B", displayName: "T01B · T01A with subtotal blocks", key: "Enum_Template_T01B" },
+    { value: "T01C", displayName: "T01C · T01B sorted by ΔPY (YTD)", key: "Enum_Template_T01C" },
+    { value: "T01D", displayName: "T01D · T01B with FC, sorted by ΔPY% (month)", key: "Enum_Template_T01D" },
     { value: "T02A", displayName: "T02A · ΔPL bars + pins, month | YTD", key: "Enum_Template_T02A" },
     { value: "T02B", displayName: "T02B · T02A sorted by AC (YTD)", key: "Enum_Template_T02B" },
     { value: "T02C", displayName: "T02C · T02A sorted by Δ (month)", key: "Enum_Template_T02C" },
+    { value: "T02D", displayName: "T02D · T02A sorted by Δ% (YTD)", key: "Enum_Template_T02D" },
     { value: "T02E", displayName: "T02E · FC vs PY bars + pins", key: "Enum_Template_T02E" },
     { value: "T02F", displayName: "T02F · FC vs PL bars + pins", key: "Enum_Template_T02F" },
     { value: "T03A", displayName: "T03A · statement PY·PL·AC + ΔPY·ΔPL", key: "Enum_Template_T03A" },
@@ -133,7 +147,8 @@ const minuendItems: LocEnumMember[] = [
 const megaSortItems: LocEnumMember[] = [
     { value: "cat", displayName: "Category order", key: "Enum_MegaSort_Cat" },
     { value: "min", displayName: "AC/FC descending", key: "Enum_MegaSort_Min" },
-    { value: "delta", displayName: "Δ descending", key: "Enum_MegaSort_Delta" }
+    { value: "delta", displayName: "Δ descending", key: "Enum_MegaSort_Delta" },
+    { value: "pct", displayName: "Δ% descending", key: "Enum_MegaSort_Pct" }
 ];
 
 const sortBlockItems: LocEnumMember[] = [
@@ -399,6 +414,9 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         treeCardItems);
     treeStatus = toggle("treeStatus", "Columns_TreeStatus", "Driver tree status indicator (Δ colour)",
         "Card edge and Δ% in the card head in the variance colour. Default: on", true);
+    // 1.8 (B07) short series (years): every column carries its value and its period
+    treeAllLabels = toggle("treeAllLabels", "Columns_TreeAllLabels", "Label every period on the cards",
+        "Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree). Off: first, last and extreme value only. Default: off", false);
 
     // ---- mega table (IBCS templates T01–T04, 12A–12H, 1.7 T05A / T05B) ----
     template = dropdown("template", "Mega_Template", "Template (IBCS table)",
@@ -438,6 +456,11 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Share of every row in the revenue base row (group Table), right of the value columns. Default: off");
     structureSubtotals = megaToggle("structureSubtotals", "Subtotal blocks (structure data)", true,
         "Regions / structure hierarchies: subtotal blocks with a spacer row; off = leaves + total only. Default: on");
+    // 1.8 (B03): a synthetic total row when the structure hierarchy has several roots
+    structureTotal = megaToggle("structureTotal", "Total row over several roots", false,
+        "Structure data whose top level has several rows (regions without a common parent): a bold total row at the end with every value, Δ column, bar and pin. One root is the total already. Default: off");
+    structureTotalLabel = textInput("structureTotalLabel", "Mega_StructureTotalLabel", "Name of the total row",
+        "Empty = Total in the report language", "e.g. World");
     showPctRows = megaToggle("showPctRows", "Margin / % rows", true,
         "KPI rows (margins) in italics, their Δ in percentage points. Default: on");
     thresholds = megaToggle("thresholds", "Δ in red if below threshold (+ footer)", false,
@@ -460,6 +483,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Per subtotal block; rows named Other … stay at the bottom. Default: category order", megaSortItems);
     sortBlock = dropdown("sortBlock", "Mega_SortBlock", "Sorting block",
         "Which period block decides the order. Default: YTD block", sortBlockItems, 1);
+    keepBlockOrder = megaToggle("keepBlockOrder", "Keep the block order", false,
+        "Subtotal blocks (regions) stay in category order, only the rows inside them are sorted, as in the IBCS sheets; single rows between the blocks are ranked among themselves. Off: the blocks are sorted by their total too. Rows and blocks named Other … and the total row stay at the bottom either way. Default: off");
 
     general = new formattingSettings.Group({
         name: "columnsGeneral",
@@ -482,9 +507,10 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend, this.valueCascade,
             this.dPyAbs, this.dPyBar, this.dPyWaterfall, this.dPyPct, this.dPyPin,
             this.dPlAbs, this.dPlBar, this.dPlWaterfall, this.dPlPct, this.dPlPin,
-            this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals, this.showPctRows,
+            this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals,
+            this.structureTotal, this.structureTotalLabel, this.showPctRows,
             this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
-            this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock]
+            this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock, this.keepBlockOrder]
     });
 
     tree = new formattingSettings.Group({
@@ -494,7 +520,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         description: "Start of the tree and Sankey views — visible in those views",
         descriptionKey: "Desc_Columns_GroupTree",
         collapsible: true,
-        slices: [this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus]
+        slices: [this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus, this.treeAllLabels]
     });
 
     name: string = "columns";
@@ -519,6 +545,13 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Decimal places of values and Δ. Default: 1", 1, 0, 3);
     pctDecimals = numUpDown("pctDecimals", "Numbers_PctDecimals", "Decimals (Δ%)",
         "Decimal places of Δ% and margins. Default: 1", 1, 0, 2);
+    // 1.8 (B14) notation details of the reference sheets
+    sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "\u0394% decimals as in the reference sheet",
+        "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Default: off", false);
+    ppUnit = dropdown("ppUnit", "Numbers_PpUnit", "Unit of margin Δ",
+        "Δ of margins: percentage points as “pp” or “%p” (as in the IBCS sheets T03). The margins themselves stay in %. Default: pp", ppUnitItems);
+    roundedZero = dropdown("roundedZero", "Numbers_RoundedZero", "Rounded zero",
+        "A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero. Default: keep the sign", roundedZeroItems);
     /** ChartKitchen labels.financeFormat: (1 234) instead of -1 234, exact zero as "–" */
     financeFormat = toggle("financeFormat", "Numbers_FinanceFormat", "Finance format (parentheses)",
         "Finance convention: negative values in parentheses instead of a minus sign — (1 234) — and zero as “–”. Applies to values, Δ and Δ%; positive Δ keep their “+”. Default: off", false);
@@ -549,7 +582,8 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Same for the Δ bars and integrated Δ waterfalls (symmetric ±). Data units, k / m / b allowed. Empty = automatic",
         "e.g. 250k");
 
-    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.financeFormat, this.sumSafeRounding,
+    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.sheetPctDecimals, this.ppUnit, this.roundedZero,
+        this.financeFormat, this.sumSafeRounding,
         this.fixedMax, this.fixedVarMax];
 }
 
@@ -931,6 +965,8 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     const structure = ctx.statement !== true;
     const statement = ctx.statement !== false;
     c.structureSubtotals.visible = structure;
+    c.structureTotal.visible = structure;
+    c.structureTotalLabel.visible = structure && c.structureTotal.value;
     c.sort.visible = structure;
     c.showPctRows.visible = statement;
     // thresholds colour Δ numbers only — without a Δ number column there is nothing to colour
@@ -942,6 +978,7 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     c.thresholdYtdAbs.visible = th && c.secondBlock.value && period;
     c.thresholdYtdPct.visible = th && c.secondBlock.value && period;
     c.sortBlock.visible = structure && c.secondBlock.value && period && String(c.sort.value.value) !== "cat";
+    c.keepBlockOrder.visible = structure && String(c.sort.value.value) !== "cat" && c.structureSubtotals.value;
     const anyChart = (py && (c.dPyBar.value || c.dPyPin.value || c.dPyWaterfall.value))
         || (pl && (c.dPlBar.value || c.dPlPin.value || c.dPlWaterfall.value)) || c.valueCascade.value;
     c.chartLabels.visible = anyChart;

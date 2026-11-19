@@ -31,9 +31,10 @@ test("every template writes exactly the switch set of the pre-1.3 inline code (n
             showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
             dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
             dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlWaterfall: p.dPlWf, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
-            secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
+            secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, structureTotal: p.structureTotal,
+            showPctRows: p.showPctRows,
             thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
-            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, blockKind: p.blockKind, leftBlockKind: "month",
+            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, keepBlockOrder: p.keepBlockOrder, blockKind: p.blockKind, leftBlockKind: "month",
         }, tpl);
         assert.deepStrictEqual(sw.nums, tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals }, tpl + " numbers");
         assert.deepStrictEqual(sw.title, p.headline ? { headline: true } : {}, tpl + " headline");
@@ -48,7 +49,7 @@ test("only 12G and 12H switch the headline on", () => {
 test("the gallery lists the pane's templates in pane order (off first, then T01A … 12H, 1.7 T05A · T05B)", () => {
     const items = new M.VisualFormattingSettingsModel().columnsCard.template.items.map(i => i.value);
     assert.deepStrictEqual(M.HUB_TEMPLATES, items);
-    assert.strictEqual(M.HUB_TEMPLATES.length, 20);
+    assert.strictEqual(M.HUB_TEMPLATES.length, 23);
     assert.deepStrictEqual(M.HUB_TEMPLATES.slice(-2), ["T05A", "T05B"]);
     // capabilities.json carries the same enumeration (the pane reads it, PBIR writes it)
     const capsT = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"))
@@ -115,7 +116,7 @@ test("mini objects: body only (no toolbar / title), template switches + template
 
 test("templates that analyse FC are flagged (their preview carries a simulated forecast)", () => {
     const fc = M.HUB_TEMPLATES.filter(M.templateNeedsFc);
-    assert.deepStrictEqual(fc, ["T02E", "T02F", "T03B", "T04D", "T04E"]);
+    assert.deepStrictEqual(fc, ["T01D", "T02E", "T02F", "T03B", "T04D", "T04E"]);
 });
 
 test("the enum of emptyState.mode: hub first (the default), then demo · fields · message", () => {
@@ -130,17 +131,28 @@ test("the enum of emptyState.mode: hub first (the default), then demo · fields 
 const caps = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"));
 const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFileSync(path.join(ROOT, "stringResources", l, "resources.resjson"), "utf8")));
 
+test("1.8 (B14) numbers.sheetPctDecimals: a template writes its sheet's Δ% decimals", () => {
+    assert.deepStrictEqual(M.templateSwitches("T03A").nums, { decimals: 1, pctDecimals: 1 });
+    assert.deepStrictEqual(M.templateSwitches("T03A", false, "auto", true).nums, { decimals: 1, pctDecimals: 0 });
+    assert.deepStrictEqual(M.templateSwitches("T04C", false, "auto", true).nums, { decimals: 2, pctDecimals: 2 });
+    assert.deepStrictEqual(M.templateSwitches("T02A", false, "auto", true).nums, { decimals: 0, pctDecimals: 1 });
+    assert.deepStrictEqual(M.templateSwitches("off", false, "auto", true).nums, {});
+});
+
 test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet & cash flow), every template exactly once", () => {
     assert.deepStrictEqual(M.HUB_GALLERY.map(g => g.id), ["structure", "forecast", "statement", "balance", "report"]);
     const by = Object.fromEntries(M.HUB_GALLERY.map(g => [g.id, g.tiles.map(t => t.tpl)]));
-    assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T02A", "T02B", "T02C"]);
-    assert.deepStrictEqual(by.forecast, ["T02E", "T02F", "T03B", "T04D", "T04E"]);
+    assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T01C", "T02A", "T02B", "T02C", "T02D"]);
+    assert.deepStrictEqual(by.forecast, ["T01D", "T02E", "T02F", "T03B", "T04D", "T04E"]);
     assert.deepStrictEqual(by.statement, ["T03A", "T04A", "T04B", "T04C"]);
     assert.deepStrictEqual(by.balance, ["T05A", "T05B"]);
-    assert.deepStrictEqual(by.report, ["12A", "12G", "12H", "off"]);
+    assert.deepStrictEqual(by.report, ["12A", "12G", "12H", "11A", "off"]);
     const all = M.HUB_GALLERY.flatMap(g => g.tiles.map(t => t.tpl));
     assert.strictEqual(new Set(all).size, all.length, "no template twice");
-    assert.deepStrictEqual(all.slice().sort(), M.HUB_TEMPLATES.slice().sort(), "the pane's templates, no more, no less");
+    // 1.8 (B07) plus the view presets (ROI tree 11A), which are no pane template
+    assert.deepStrictEqual(all.filter(t => !M.VIEW_PRESETS[t]).sort(), M.HUB_TEMPLATES.slice().sort(), "the pane's templates, no more, no less");
+    assert.deepStrictEqual(all.filter(t => M.VIEW_PRESETS[t]), ["11A"]);
+    assert.deepStrictEqual(M.VIEW_PRESETS["11A"], { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true } });
 });
 
 test("1.4 gallery: every group head and every tile title + use line exists in all four languages (no T number in the title)", () => {

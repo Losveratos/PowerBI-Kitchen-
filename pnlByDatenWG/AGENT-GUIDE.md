@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.7.1.0** (01.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.8.0.0** (19.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.7.1.0** (01.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: true` (1.7: nur der Sankey zeigt eine Markierung anderer Visuals im Gesamt, alle anderen Ansichten verhalten sich wie gefiltert — Falle 22) |
@@ -37,9 +37,9 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 | `parent` | Grouping | Parent-ID → Parent-Child-Modus (gewinnt, wenn zusätzlich `levels` gebunden ist) |
 | `ac` | Measure | AC (Pflicht) |
 | `py` / `pl` / `fc` | Measure | PY / PL / FC je Periode |
-| `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`; Fiskaljahr → `columns.periodSort = data` |
+| `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`, **1.8:** Jahre `2021` (vierstellig 1900 bis 2200, chronologisch sortiert; ROI-Baum 11A); Fiskaljahr → `columns.periodSort = data` |
 | `colCategory` | Grouping | **1.2** Spalten-Kategorie (max. 1), nur klassische Tabelle: der Spaltensatz des YTD-Blocks (sonst des ersten) wiederholt sich je Kategoriewert (Segment, Quartal …) mit Gruppen-Kopf, danach der Block als „Gesamt". Jede Kategorie rechnet ein eigenes Modell (Formeln, Margen), Monate auf den Kalender des Gesamtmodells gelegt; einheitlicher Δ-Maßstab; max. 24 Werte (Rest → Fußnote). Mega-Table/Balken/Waterfall ignorieren die Rolle (Hinweis im Bearbeitungsmodus). Measures müssen additiv sein (Gesamt = Σ Kategorien, wie bei der Periode) |
-| `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige mit `pctDecimals`, Δ in pp, kein Δ%). **1.7:** dazu in derselben Zelle das Token `stock` (Aliasse `bestand`, `balance`, `stichtag`, `point`; Stand am Periodenende), `opening` (`anfangsbestand`, `eröffnung`, `open`, `begin`; Stand am Periodenanfang) oder `flow` (`fluss`, `bewegung`, `movement`), getrennt durch Leerzeichen, Komma, Semikolon oder `\|` — z. B. `Account stock`, `Formula; stock`, `Account opening`. Zellen ohne Token liest das Visual wie vor 1.7 (Falle 20) |
+| `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige mit `pctDecimals`, Δ in pp, kein Δ%). **1.7:** dazu in derselben Zelle das Token `stock` (Aliasse `bestand`, `balance`, `stichtag`, `point`; Stand am Periodenende), `opening` (`anfangsbestand`, `eröffnung`, `open`, `begin`; Stand am Periodenanfang) oder `flow` (`fluss`, `bewegung`, `movement`), getrennt durch Leerzeichen, Komma, Semikolon oder `\|` — z. B. `Account stock`, `Formula; stock`, `Account opening`. Zellen ohne Token liest das Visual wie vor 1.7 (Falle 20). **1.8:** Zahlformat einer KPI-Zeile per Token `factor` (`faktor`, `times`, `multiple`, `×`; z. B. Kapitalumschlag 1,3, Δ als Zahl mit Vorzeichen), `amount` (`betrag`, `absolute`, `currency`; skaliert wie ein Betrag, mit Einheit) oder `pct` (Standard), z. B. `KPI factor`. Auf anderen Zeilen wird das Token ignoriert (Falle 28) |
 | `formulaDef` | Grouping | für Formula/KPI: `[EBITDA]/[Umsatz]`, `+ - * /`, Klammern; Verweis per eindeutigem Zeilennamen, Formel-auf-Formel erlaubt, Zirkel → Fehler an der Zeile |
 | `signConvention` | Grouping | Rechenvorzeichen: Erlös `1`, Kosten `-1` (Subtotal = Vorzeichen × Σ Kinder) |
 | `displayInvert` | Grouping | Kosten positiv anzeigen (Anzeige ≠ Rechnung) |
@@ -102,7 +102,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.7.1.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.0.0)
 
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
 `stockMode` (`auto` · `allStock` · `allFlow`, Standard `auto`, eigene Karte
@@ -213,7 +213,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `highlight` | text | `—` | Zeilen hervorheben: Kommagetrennte Zeilennamen (oder IDs), ohne Groß-/Kleinschreibung: ein dezentes Band läuft über alle Spalten dieser Zeilen (IBCS EMPHASIZE). Leer = aus |
 | `materialityAbs` | numeric | `0` | Wesentlichkeit ab (absolut): Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus |
 | `materialityPct` | numeric | `0` | Wesentlichkeit ab (%): Abweichungen unter diesem Δ % werden in sanftem Grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus |
-| `template` | enum `off` · `T01A` · `T01B` · `T02A` · `T02B` · `T02C` · `T02E` · `T02F` · `T03A` · `T03B` · `T04A` · `T04B` · `T04C` · `T04D` · `T04E` · `12A` · `12G` · `12H` · `T05A` · `T05B` | `off` | Template (IBCS-Tabelle): Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Bilanz (T05A) und Cashflow (T05B) setzen zusätzlich Bestand & Fluss. Standard: aus (klassische Tabelle) |
+| `template` | enum `off` · `T01A` · `T01B` · `T01C` · `T01D` · `T02A` · `T02B` · `T02C` · `T02D` · `T02E` · `T02F` · `T03A` · `T03B` · `T04A` · `T04B` · `T04C` · `T04D` · `T04E` · `12A` · `12G` · `12H` · `T05A` · `T05B` | `off` | Template (IBCS-Tabelle): Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Bilanz (T05A) und Cashflow (T05B) setzen zusätzlich Bestand & Fluss. Standard: aus (klassische Tabelle) |
 | `minuend` | enum `ac` · `fc` · `pl` | `ac` | Analysiertes Szenario (Minuend): AC gefüllt, FC schraffiert, PL umrandet; die Δ-Balken folgen dem Minuenden (bei PL rot/grün umrandet, Planrechnung 12H). Die Δ-Spalten vergleichen es mit PY / PL. FC / PL brauchen ihr Feld. Standard: AC |
 | `showPY` | bool | `false` | Wertspalte PY: Vorjahreswerte als Zahlenspalte. Standard: aus |
 | `showPL` | bool | `false` | Wertspalte PL: Planwerte als Zahlenspalte. Standard: aus |
@@ -234,6 +234,8 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `blockKind` | enum `month` · `ytd` · `fy` | `ytd` | Perioden-Block: Monat der letzten Ist-Daten, Jahr bis dato oder FY-Ausblick (AC&FC vs PL, braucht die FY-Felder — Bestände nehmen ohne FY-Felder den FC-Endstand); mit zweitem Block der rechte. Bestände zeigen in jedem Block den Stand zum Stichtag. Standard: YTD |
 | `leftBlockKind` | enum `month` · `ytd` · `fy` | `month` | Zweiter Block (links): Periode des Blocks links vom Perioden-Block, wenn der zweite Block an ist. Standard: Monat |
 | `structureSubtotals` | bool | `true` | Zwischensummen-Blöcke (Strukturdaten): Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme. Standard: an |
+| `structureTotal` | bool | `false` | Gesamtzeile über mehrere Wurzeln (1.8): Strukturdaten, deren oberste Ebene mehrere Zeilen hat (Regionen ohne gemeinsame Oberebene): eine fette Gesamtzeile am Ende mit allen Werten, Δ-Spalten, Balken und Pins. Eine einzige Wurzel ist schon die Gesamtzeile. Standard: aus |
+| `structureTotalLabel` | text | `""` | Name der Gesamtzeile (1.8): Leer = Gesamt in der Berichtssprache |
 | `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich |
 | `thresholds` | bool | `false` | Δ rot unter Schwelle (+ Fußzeile): Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel. Standard: aus |
 | `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,02); ein gesetzter Wert gilt wie eingetippt |
@@ -243,12 +245,14 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `scenarioMarks` | bool | `true` | Szenario-Unterstreichungen (Kopf + Schluss): AC voll, PY grau, PL doppelt, FC schraffiert unter den Spaltenköpfen. Standard: an |
 | `chartLabels` | bool | `true` | Zahlen an Balken / Pins / Kaskaden: Wertbeschriftung an jedem Diagramm-Element. Standard: an |
 | `capBars` | bool | `false` | Ausreißer-Pfeile auch für Δ-Balken: Pins kappen Ausreißer immer (Q3 + 4 × IQR); dies erweitert es auf die Δ-Balken. Standard: aus |
-| `sort` | enum `cat` · `min` · `delta` | `cat` | Sortierung (Strukturdaten): Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten. Standard: Kategoriereihenfolge |
+| `sort` | enum `cat` · `min` · `delta` · `pct` | `cat` | Sortierung (Strukturdaten): Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten. `pct` (1.8) = Δ% der Sortier-Referenz. Standard: Kategoriereihenfolge |
 | `sortBlock` | enum `period` · `ytd` | `ytd` | Sortierender Block: Welcher Perioden-Block die Reihenfolge bestimmt. Standard: YTD-Block |
+| `keepBlockOrder` | bool | `false` | Blockreihenfolge beibehalten (1.8): Zwischensummen-Blöcke (Regionen) bleiben in Kategoriereihenfolge, sortiert werden nur die Zeilen darin, wie in den IBCS-Blättern. Aus: die Blöcke werden zusätzlich nach ihrer Summe sortiert (1.5.2). Zeilen namens Other … und die Gesamtzeile bleiben in beiden Fällen unten. Standard: aus |
 | `treeRoot` | text | `—` | Wurzelzeile Treiberbaum (ID, Name oder Kategorie): Leer = letzte Formel-/KPI-Zeile mit Operanden, sonst die Modell-Wurzel |
 | `treeLevel` | numeric | `0` | Start-Tiefe Treiberbaum (0 = ganzer Baum): Wie viele Ebenen des Baums beim Start offen sind. 0 = ganzer Baum. Standard: 0 |
 | `treeCard` | enum `months` · `delta` · `bridge` | `months` | Karten-Diagramm im Treiberbaum: Mini-Diagramm auf jeder Karte: Monatssäulen, Abweichungssäulen oder Mini-Brücke. Standard: Monatssäulen |
 | `treeStatus` | bool | `true` | Status-Indikator der Karten (Δ-Farbe): Kartenrand und Δ% im Kartenkopf in der Abweichungsfarbe. Standard: an |
+| `treeAllLabels` | bool | `false` | Alle Perioden der Karten beschriften (1.8): Jede Säule des Kartendiagramms trägt ihren Wert und ihre Periode, die erste Planperiode wird benannt (Szenario-Kürzel in zweiter Zeile, Prozent ohne %-Zeichen, die Einheit steht im Kartenkopf). Für kurze Reihen wie Jahre (ROI-Baum). Aus: nur erster, letzter und Extremwert. Standard: aus |
 
 ### Objekt `toolbar` — Darstellung & Toolbar
 
@@ -284,6 +288,9 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `unitText` | text | `EUR` | Einheit (z. B. EUR): Folgt auf k / m in Titel, Skalen-Hinweis und Karten. Standard: EUR |
 | `decimals` | numeric | `1` | Dezimalstellen (Werte): Nachkommastellen von Werten und Δ. Standard: 1 |
 | `pctDecimals` | numeric | `1` | Dezimalstellen (Δ%): Nachkommastellen von Δ% und Margen. Standard: 1 |
+| `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus Margen und ihre pp behalten dabei mindestens eine Stelle (T03: `45.3%`, `+8.6%p`). Wirkt erst beim nächsten Anwenden: Template in der Galerie erneut anklicken. Galerie-Vorschauen zeigen die Standard-Notation. |
+| `ppUnit` | enum `pp` · `pctp` | `pp` | Einheit der Margen-Δ (1.8): Prozentpunkte als „pp" oder „%p" (wie in den IBCS-Blättern T03). Standard: pp |
+| `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten |
 | `financeFormat` | bool | `false` | Finance-Format (Klammern): Finanzkonvention: negative Werte in Klammern statt Minuszeichen — (1 234) — und Null als „–“. Gilt für Werte, Δ und Δ %; positive Δ behalten ihr „+“. Standard: aus |
 | `sumSafeRounding` | bool | `false` | Σ-treue Rundung: Rundet die Wertspalten nach dem Restwertverfahren, sodass die gedruckten Kinder exakt ihre gedruckte Zwischensumme ergeben (Formel- und Margenzeilen behalten die exakte Rundung). Standard: aus |
 | `fixedMax` | text | `—` | Skalen-Mindestmaximum (Werte): Wertbalken und Wert-Kaskaden reichen mindestens bis zu diesem Betrag — gleiche Skalen über mehrere Visuals (IBCS). Dateneinheiten, k / m / b erlaubt (z. B. 1.5m). Größere Werte erweitern die Skala weiterhin. Leer = automatisch |
@@ -571,7 +578,7 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
 14. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
     kein gemeldeter View-Mode, Bühne ≥ 300 × 220 px, `allowInteractions` nicht
     false) den Hub: Tour (1.6: 8 Karten mit Mini-Renderings, Karte 8 = Sankey), Template-Galerie
-    (18 Kacheln, 1.7: 20 — T05A/T05B zeichnen ihr eigenes Beispiel aus `src/demo-stock.ts`), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
+    (18 Kacheln, 1.7: 20, 1.8: 23 — T05A/T05B zeichnen ihr eigenes Beispiel aus `src/demo-stock.ts`), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
     bisher den Landing-Text. Mit gebundenen Daten öffnet der Toolbar-Knopf
     „☰ Start" (nur `viewMode` ≥ 1) den Hub als Overlay; Schließen stellt die
     Ansicht unverändert her. Ein Galerie-Klick schreibt in **einem** Merge
@@ -589,7 +596,7 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     sichtbar, wenn Template-Schalter abweichen). Beide schreiben unbedingt
     (`applyMegaTemplate(tpl, true)`, Echo-Guard wie beim Dropdown); ein
     PBIR-Agent muss dafür nichts tun, `template` + `templateApplied` reichen.
-16. **Hub-Polish (1.4):** Die Galerie ordnet die Kacheln (1.7: 20) in
+16. **Hub-Polish (1.4):** Die Galerie ordnet die Kacheln (1.7: 20, 1.8: 23) in
     Zweck-Gruppen (`HUB_GALLERY` in `src/hub.ts`: Struktur-Vergleich · Forecast ·
     GuV-Statement · 1.7 Bilanz & Cashflow · Report-Ansichten; die klassische Tabelle steht zuletzt) —
     die Enum-Reihenfolge von `columns.template` bleibt Pane-Reihenfolge. Die
@@ -875,12 +882,94 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       Kategorien verschiedene Kalender. Ohne Forecast im Monat bleibt eine 0 eine
       echte 0. Autorenhinweis `UI_AcUnposted` nur im Bearbeitungsmodus.
 
+25. **Referenzblätter und ihre Fehler (Stand 19.11.2026):** Wer ein Template
+    gegen ein IBCS-Blatt prüft und eine Zahl anders findet, schaut zuerst in
+    `TEMPLATE-GUIDE.md` §5.2. Dort stehen die bestätigten Blattfehler mit
+    Blattfassung (Datum in der Fußzeile des Blatts), z. B. T03B ΔPY Group result
+    (+169.7 gedruckt, +193.5 richtig), T01A Japan `+770` und Schwelle `<-2`,
+    „Gross margin" als operative Marge in T03A/T03B/T04C/T04E/12G, T04E voller
+    Pin-Kopf. Behoben in den Fassungen vom 17./18.11.2026: T03A, 12H, T04C/T04E
+    Financial income, T01A/T01B Dezimalen. `prototype/refs/` zeigt noch die
+    Juli-Fassungen. Druckfehler nie nachbauen; das Visual rechnet selbst.
+26. **Gesamtzeile über mehrere Wurzeln (1.8, `structureTotal`):** Nur Strukturdaten
+    (nie GuV), nur bei mindestens zwei Wurzeln mit Wert (hideZero zählt, ⚡ nicht,
+    der Orphan-Bucket wird summiert, zählt aber nicht als Wurzel). Ohne
+    Zwischensummen (T01A) klappen die Wurzeln weg: Blätter plus Gesamtzeile. Mit
+    „% vom Umsatz" und leerer Basiszeile ist die Gesamtzeile die Basis. Der Knoten
+    ist `engine.syntheticTotal` (id `__TOTAL__`, nicht in `model.byId`), je
+    Modellobjekt gemerkt (`megaTotalNode`), Name aus `structureTotalLabel` oder
+    `UI_Total`. Er ist Anker (`megaAnchor`), bleibt bei jeder Sortierung unten und
+    ist nie „Other". Summe wie eine Zwischensumme: nur Account/Subtotal-Wurzeln mit
+    ihrer SignConvention; VarianceInvert nur, wenn alle Wurzeln es tragen (bei
+    gemischten Wurzeln färbt Δ der Gesamtzeile wie ein Erlös). Klick
+    wählt nichts aus und klappt nichts zu (nur Tooltip). Σ-treue Rundung: die
+    Zeile druckt die Summe der gedruckten Wurzeln. Die Struktur-Templates (T01x,
+    T02x) setzen den Schalter an; Schalter, die erst 1.8 in Templates schreibt
+    (`TEMPLATE_SWITCHES_1_8` in `hub.ts`), zählen in `templateDeviation()` nur, wenn
+    der Bericht sie speichert, damit ein mit 1.7 angewendetes Template sich nicht
+    ändert und kein „↺ Zum Template zurück" zeigt. Schaltet der Autor eines
+    Altberichts den Schalter an und wieder aus, ist `false` gespeichert und „↺"
+    erscheint; der Klick schreibt das 1.8-Template (Gesamtzeile an).
+
+27. **Sortierung nach Δ% und Blockreihenfolge (1.8, B04):** `sort = pct`
+    sortiert nach `blk.delta(r, min, ref).p`, also nach der Zahl, die Δ%-Spalte
+    und Pin drucken (Referenz wie bei `delta`: `activeRefs(t)[0]`, bei PY und PL
+    also PY). Zeilen ohne Basis (Δ% n. a.) stehen hinter allen Zahlen, vor
+    „Other". Der Pfeil sitzt an der Δ%-Zahl der Referenz, sonst am Pin, sonst am
+    Kategorie-Kopf („(↓) ΔPL% _November"). Seit 1.8 vergleicht `orderRows` über
+    `cmp` (zwei Zeilen ohne Schlüssel gaben vorher NaN). `keepBlockOrder` hält
+    die Segmente der obersten Ebene in Datenreihenfolge, wirkt aber nur, wenn
+    mindestens ein Segment mehr als eine Zeile hat (sonst wäre die Sortierung
+    einer Tabelle aus Einzelzeilen aus). Standard aus (= 1.5.2); alle
+    sortierenden Templates (T01C, T01D, T02B bis T02F) setzen es an. Wie
+    `structureTotal` steht es in `TEMPLATE_SWITCHES_1_8`: ein mit 1.7
+    angewendetes T02C sortiert seine Blöcke weiter, bis das Template neu
+    angewendet oder der Schalter gesetzt wird. Einzelzeilen-Segmente (Region
+    ohne Länder, Einkindgruppe, zugeklappte Region) zwischen den Blöcken werden
+    auch mit dem Schalter untereinander gereiht, ein „Other …"-Block geht ans
+    Ende. Achtung: ein PBIR-Bericht mit `template`, aber ohne `templateApplied`
+    wendet das Template bei jedem Laden neu an und bekommt damit die 1.8-Schalter.
+    Kleine Basen ergeben große Δ% und stehen oben.
+
+28. **KPI-Zahlformat und ROI-Baum (1.8, B07):** `InputRow.kfmt` kommt aus dem
+    RowType-Token (`engine.parseRowTypeInfo`, `KPI_FORMAT_TOKENS`) und reist im
+    Level-Modus mit. Im Visual formatieren `kpiText`/`kpiDelta`/`kpiUnit`/`kpiScale`
+    jede KPI-Stelle (klassische Tabelle, Baumkarten, Kachel, Szenario-Raster,
+    Tooltip); der Mega-Table liest `MegaRow.kfmt` über `megaKpiVal`/`megaKpiPp`
+    (`amount`: Wert und Δ kommen in Anzeige-Einheiten aus `buildMega`). Ohne Token
+    bleibt alles wie vor 1.8 (Prozent, Δ in pp). Faktor-KPIs haben im Baum eine
+    eigene Skalengruppe (`x`), nie gemeinsam mit Prozent. Vorlage **11A
+    ROI-Baum** (`VIEW_PRESETS` in `hub.ts`, Galerie „Report-Ansichten"): schreibt
+    `treeCard = months`, `treeStatus = false`, `treeLevel = 0` und die Ansicht
+    Baum; kein Mega-Template, kein Eintrag im Template-Dropdown. Ohne gebundene
+    Felder reist die Ansicht im gespeicherten `uiState` und greift beim Binden.
+    Die Wurzel bleibt der Standard (letzte KPI-/Formelzeile mit Operanden).
+    Datenvertrag für 11A: `Return`, `Net sales`, `Invested capital` (Token
+    `stock`), `Return on sales = [Return]/[Net sales]` (KPI),
+    `Capital turnover = [Net sales]/[Invested capital]` (`KPI factor`),
+    `ROI = [Return on sales]*[Capital turnover]` (KPI), Periode = Jahr, PL nur
+    für die Planjahre. Test `mega-shot` t11a/t11b/t11c, Daten `MEGA_DEMO.roi()`.
+    Nach dem Fable-Review: `pct`/`%` wird gelesen, aber nicht gespeichert (wie
+    ohne Token); Zellen mit einem Format-Wort werden gesplittet, „Ratio %" ist
+    damit KPI, „Summe Betrag" Subtotal. ⚡ prüft `amount` wie einen Betrag und
+    `factor` über Δ%. Faktoren haben mindestens eine Dezimale, Beträge im Baum
+    eine eigene Skalengruppe (`kamt`). Reine Jahresachsen bekommen kein
+    Jahres-Präfix in Kopf- und Periodenzeilen; die Spalten-Kategorie liest
+    vierstellige Codes nicht als Jahre (`sortMonths(…, false)`). Die Vorlage setzt
+    zusätzlich `treeAllLabels` und startet den Baum frisch (`treeCollapsed`,
+    `treeZoom`, `treeRoot` zurück); ohne Felder eine Schreibaktion und die Notiz
+    „gespeichert". Mit Jahren als Periode summieren YTD-Spalten, Raster und
+    Tooltip über alle Jahre (Kennzahlen als Quotient der Summen); fachlich
+    richtig sind dort die Säulenkarten. Die Galerie-Vorschau zeigt den
+    Demo-Baum, nicht den DuPont-Baum.
+
 ## Verwandte Dateien
 
 - `capabilities.json` — Rollen/Objekte (Quelle der Tabellen oben)
 - `src/settings.ts` — Pane-Modell, Gates (`applyPaneGates`), Enum-Listen
 - `src/megatable.ts` — Layout/Painter/Notation/Presets des Mega-Tables (ohne Power-BI-Import, unit-testbar)
 - `SPEC-MEGATABLE.md` — Maße, Notation, Abweichungen von den Referenzblättern
+- `TEMPLATE-GUIDE.md` §5: bewusste Abweichungen und Blattfehler mit Blattfassung
 - `CHANGELOG.md` · `README.md` · `QUICKSTART.md`
 - `../.claude/skills/pnl-report/` — Claude-Skill: GuV-Seite in ein PBIP bauen
 - `src/hub.ts` — Start-Hub, reiner Teil (Template-Schalter, Tour-Karten, Mini-Objekte; 1.4: Galerie-Gruppen, Feld-Rollen, Loslegen-Schritte, Schrift-Presets, Doku-URL)

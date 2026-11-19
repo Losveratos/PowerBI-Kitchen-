@@ -30,7 +30,7 @@ const toggles = (p) => ({
         PL: { num: p.dPlAbs, bar: p.dPlBar, wf: p.dPlWf, pct: p.dPlPct, pin: p.dPlPin },
     },
     thresholds: p.thresholds, marks: p.scenarioMarks, labels: p.chartLabels, capBars: p.capBars,
-    sort: p.sort, sortBlock: p.sortBlock === "period" ? 0 : 1,
+    sort: p.sort, sortBlock: p.sortBlock === "period" ? 0 : 1, keepBlockOrder: p.keepBlockOrder,
 });
 const num = (a, d) => a.toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 const measure = (t, fs, bold) => t.length * fs * (bold ? 0.6 : 0.55);
@@ -47,6 +47,19 @@ test("presets: T01–T04 only set toggles, 'off' switches the mega table off", (
     assert.equal(M.MEGA_PRESETS.T02E.dPyBar && M.MEGA_PRESETS.T02E.dPyPin && !M.MEGA_PRESETS.T02E.dPlBar, true);
     assert.deepEqual([M.MEGA_PRESETS.T02B.sort, M.MEGA_PRESETS.T02B.sortBlock], ["min", "ytd"]);
     assert.deepEqual([M.MEGA_PRESETS.T02C.sort, M.MEGA_PRESETS.T02C.sortBlock], ["delta", "period"]);
+    // T01C (1.8, B01): T01B sorted by Δ of the first active reference in the YTD block
+    assert.deepEqual([M.MEGA_PRESETS.T01C.sort, M.MEGA_PRESETS.T01C.sortBlock, M.MEGA_PRESETS.T01C.structureSubtotals],
+        ["delta", "ytd", true]);
+    assert.deepEqual(Object.assign({}, M.MEGA_PRESETS.T01C, { sort: "cat", keepBlockOrder: false }), M.MEGA_PRESETS.T01B, "T01C = T01B + sort");
+    // T01D / T02D (1.8, B04): sorted by Δ% of the first active reference
+    assert.deepEqual(Object.assign({}, M.MEGA_PRESETS.T01D, { sort: "cat", keepBlockOrder: false, min: "AC", sortBlock: "ytd" }), M.MEGA_PRESETS.T01B, "T01D = T01B + FC + pct");
+    assert.deepEqual([M.MEGA_PRESETS.T01D.min, M.MEGA_PRESETS.T01D.sort, M.MEGA_PRESETS.T01D.sortBlock], ["FC", "pct", "period"]);
+    assert.deepEqual(Object.assign({}, M.MEGA_PRESETS.T02D, { sort: "cat", keepBlockOrder: false, sortBlock: "ytd" }), M.MEGA_PRESETS.T02A, "T02D = T02A + pct");
+    assert.deepEqual([M.MEGA_PRESETS.T02D.sort, M.MEGA_PRESETS.T02D.sortBlock], ["pct", "ytd"]);
+    // every sorting template keeps the blocks in category order (the sheets), the rest leaves it off
+    for (const k of M.MEGA_PRESET_KEYS) {
+        assert.equal(M.MEGA_PRESETS[k].keepBlockOrder, M.MEGA_PRESETS[k].sort !== "cat", k + " keepBlockOrder");
+    }
     // Δ% decimals (1.5): ONE decimal in every template, values per template
     assert.deepEqual([M.MEGA_PRESETS.T01A.decimals, M.MEGA_PRESETS.T01A.pctDecimals], [0, 1]);
     assert.deepEqual([M.MEGA_PRESETS.T03A.decimals, M.MEGA_PRESETS.T03A.pctDecimals], [1, 1]);
@@ -216,6 +229,126 @@ test("sort T02E/T02F (1.5.2): blocks and single rows in the rows' direction, gra
     assert.deepEqual(ids, ["prg", "mb", "mh", "cz", "|", "pl", "|", "sx", "|", "sk", "|", "r1", "rest", "|", "w"]);
 });
 
+test("1.8 structureTotal: the synthetic total (anchor) stays last in every sort, with and without subtotal blocks", () => {
+    const acc = (id, group) => ({ id, label: id, kind: "acc", op: "", level: 0, group, other: /^other/i.test(id) });
+    const sum = (id, extra) => ({ id, label: id, kind: "sum", op: "", level: 0, group: null, other: false, ...extra });
+    const gap = () => ({ id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false });
+    const V = { a: 5, b: -3, c: 9, otherX: 20, eu: 2, am: 7, row: 1, __TOTAL__: 99 };
+    const blk = { name: "", th: { abs: 0, pct: 0 }, value: (r, s) => s === "AC" ? 100 + V[r.id] : 100, delta: () => null };
+    for (const sort of ["delta", "min"]) {
+        const t = Object.assign(toggles(M.MEGA_PRESETS.T01A), { sort, sortBlock: 0 });
+        // T01A: roots without children are one run, the total row closes it
+        const flat = [acc("a", null), acc("b", null), acc("c", null), sum("__TOTAL__", { anchor: true })];
+        const o1 = M.orderRows({ rows: flat, blocks: [blk], t, statement: false }).rows.map(r => r.id);
+        assert.deepEqual(o1, ["c", "a", "b", "__TOTAL__"], sort);
+        // T01B: region blocks are sorted, the total keeps the last place after its spacer
+        const blocks = [acc("a", "eu"), acc("b", "eu"), sum("eu"), gap(), acc("c", "am"), acc("otherX", "am"), sum("am"), gap(),
+            sum("__TOTAL__", { anchor: true })];
+        const o2 = M.orderRows({ rows: blocks, blocks: [blk], t, statement: false }).rows.map(r => r.kind === "gap" ? "|" : r.id);
+        assert.deepEqual(o2, ["c", "otherX", "am", "|", "a", "b", "eu", "|", "__TOTAL__"], sort);
+    }
+});
+
+test("1.8 sort pct + keepBlockOrder: Δ% of the reference, n.a. last, Other and the total stay, blocks keep their order", () => {
+    const acc = (id, group) => ({ id, label: id, kind: "acc", op: "", level: 0, group, other: /^other/i.test(id) });
+    const sum = (id, extra) => ({ id, label: id, kind: "sum", op: "", level: 0, group: null, other: /^rest/i.test(id), ...extra });
+    const gap = () => ({ id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false });
+    // [AC, PL]: Δ% = (AC − PL) / |PL|; "z" has no base (PL 0 → p null)
+    const V = { a: [110, 100], b: [190, 200], c: [55, 50], z: [5, 0], otherE: [300, 100], eu: [665, 450],
+        d: [99, 100], e: [130, 100], am: [229, 200], r: [10, 20], rest: [10, 20], __TOTAL__: [904, 670] };
+    const blk = { name: "", th: { abs: 0, pct: 0 },
+        value: (r, s) => V[r.id][s === "AC" ? 0 : 1],
+        delta: (r) => { const [a, b] = V[r.id]; return { d: a - b, p: b === 0 ? null : (a - b) / Math.abs(b), good: a >= b, impact: a - b, impactPct: null, pp: false }; } };
+    const rows = [acc("a", "eu"), acc("b", "eu"), acc("z", "eu"), acc("c", "eu"), acc("otherE", "eu"), sum("eu"), gap(),
+        acc("d", "am"), acc("e", "am"), sum("am"), gap(), acc("r", "rest"), sum("rest"), gap(), sum("__TOTAL__", { anchor: true })];
+    const t = Object.assign(toggles(M.MEGA_PRESETS.T02D), { sortBlock: 0 });
+    const ids = (o) => o.rows.map(r => r.kind === "gap" ? "|" : r.id).join(",");
+    // pct: c +10 %, a +10 %? no — a +10.0 %, c +10.0 %: equal keys keep their input order; b −5 %; z (n.a.) last before Other
+    const onOff = M.orderRows({ rows, blocks: [blk], t: Object.assign({}, t, { keepBlockOrder: false }), statement: false });
+    // blocks sorted by their own Δ%: Europe +47.8 % before Americas +14.5 %; Rest and the total stay
+    assert.equal(ids(onOff), "a,c,b,z,otherE,eu,|,e,d,am,|,r,rest,|,__TOTAL__");
+    assert.deepEqual(onOff.info, { ref: "PL", block: 0 });
+    // keepBlockOrder: same rows, blocks in category order (here already the same) — flip the data so the switch shows
+    const V2 = Object.assign({}, V, { eu: [450, 450], am: [400, 200] });
+    const blk2 = Object.assign({}, blk, { value: (r, s) => V2[r.id][s === "AC" ? 0 : 1],
+        delta: (r) => { const [a, b] = V2[r.id]; return { d: a - b, p: b === 0 ? null : (a - b) / Math.abs(b), good: a >= b, impact: a - b, impactPct: null, pp: false }; } });
+    const sorted = M.orderRows({ rows, blocks: [blk2], t: Object.assign({}, t, { keepBlockOrder: false }), statement: false });
+    assert.equal(ids(sorted), "e,d,am,|,a,c,b,z,otherE,eu,|,r,rest,|,__TOTAL__", "1.5.2: Americas +100 % before Europe 0 %");
+    const kept = M.orderRows({ rows, blocks: [blk2], t: Object.assign({}, t, { keepBlockOrder: true }), statement: false });
+    assert.equal(ids(kept), "a,c,b,z,otherE,eu,|,e,d,am,|,r,rest,|,__TOTAL__", "keepBlockOrder: Europe stays first");
+    // single rows only (no block with more than one row): the switch does not stop the sorting
+    const singles = [acc("a", null), gap(), acc("b", null), gap(), acc("c", null)];
+    const s1 = M.orderRows({ rows: singles, blocks: [blk], t: Object.assign({}, t, { keepBlockOrder: true }), statement: false });
+    assert.equal(ids(s1), "a,|,c,|,b");
+    // a block, single rows (regions without countries) and an "Other" block: the blocks stay,
+    // the single rows between them are ranked among themselves, "Rest …" goes last
+    const mixed = [sum("rest"), gap(), acc("b", null), gap(), acc("a", null), gap(), acc("d", "am"), acc("e", "am"), sum("am"), gap(),
+        acc("z", null), gap(), acc("c", null)];
+    const V3 = Object.assign({}, V, { rest: [5, 20] });
+    const blk3 = Object.assign({}, blk, { delta: (r) => { const [a, b] = V3[r.id]; return { d: a - b, p: b === 0 ? null : (a - b) / Math.abs(b), good: a >= b, impact: a - b, impactPct: null, pp: false }; } });
+    const m1 = M.orderRows({ rows: mixed, blocks: [blk3], t: Object.assign({}, t, { keepBlockOrder: true }), statement: false });
+    assert.equal(ids(m1), "a,|,b,|,e,d,am,|,c,|,z,|,rest");
+    // the arrow: pct sits on the Δ% number of the reference, else on its pin, else on the category head with the key
+    const L = M.layoutMega(regionInput({ t: Object.assign(toggles(M.MEGA_PRESETS.T01A), { sort: "pct", sortBlock: 0 }) }));
+    const heads = L.cols.map(c => c.head);
+    assert.deepEqual(heads.filter(h => /↓/.test(h)), ["ΔPY%(↓)"], heads.join("|"));
+    assert.equal(L.cols.find(c => /↓/.test(c.head)).block, 0);
+    const L2 = M.layoutMega(regionInput({ t: Object.assign(toggles(M.MEGA_PRESETS.T02D), { sortBlock: 1 }) }));
+    const p2 = L2.cols.find(c => /↓/.test(c.head));
+    assert.deepEqual([p2.head, p2.type, p2.block], ["ΔPL%(↓)", "pin", 1]);
+    const t3 = Object.assign(toggles(M.MEGA_PRESETS.T02D), { sortBlock: 1 });
+    t3.d.PL = Object.assign({}, t3.d.PL, { pin: false });
+    const L3 = M.layoutMega(regionInput({ t: t3 }));
+    assert.ok(L3.cols.some(c => c.type === "label" && /^\(↓\) ΔPL% _November/.test(c.head)), L3.cols.map(c => c.head).join("|"));
+});
+
+test("1.8 (B07) KPI rows by number format: percent (pp), factor, amount", () => {
+    const fmt = M.megaFmt(num, 1, 1);
+    const r = (kfmt) => ({ id: "k", label: "k", kind: "pct", op: "", level: 0, group: null, other: false, ...(kfmt ? { kfmt } : {}) });
+    assert.equal(M.megaKpiVal(fmt, r(), 0.453), "45.3%");
+    assert.equal(M.megaKpiPp(fmt, r(), 8.6), "+8.6\u202Fpp");
+    assert.equal(M.megaKpiVal(fmt, r("factor"), 1.3), "1.3");
+    assert.equal(M.megaKpiPp(fmt, r("factor"), -10), "\u22120.1");
+    assert.equal(M.megaKpiVal(fmt, r("amount"), 1234.5), num(1234.5, 1));
+    assert.equal(M.megaKpiPp(fmt, r("amount"), 12), "+12.0");
+});
+
+test("1.8 (B14) pp or %p, rounded zeros with or without sign, Δ% decimals of the sheets", () => {
+    const f1 = M.megaFmt(num, 2, 1);
+    assert.equal(f1.pp(8.6), "+8.6\u202Fpp");
+    assert.equal(f1.delta(-0.001), "\u22120.00", "1.5.2 default: a rounded Δ keeps its sign");
+    assert.equal(f1.delta(0.001), "+0.00");
+    assert.equal(f1.val(-0.001), "0.00", "a value never carries a sign at zero");
+    assert.equal(f1.pct(0.0002), "+0.0%");
+    const f2 = M.megaFmt(num, 2, 1, false, { pp: "%p", zeroPlain: true });
+    assert.equal(f2.pp(8.6), "+8.6%p");
+    assert.equal(f2.delta(-0.001), "0.00");
+    assert.equal(f2.pct(0.0002), "0.0%");
+    assert.equal(f2.delta(-1.234), "\u22121.23", "only zeros lose their sign");
+    assert.equal(f2.delta(0), "0.00");
+    const f3 = M.megaFmt(num, 2, 1, true, { zeroPlain: true });
+    assert.equal(f3.delta(-0.001), "0.00");
+    assert.equal(f3.delta(-2), "(2.00)");
+    // margins keep their own decimals (T03 with the sheet's whole Δ%), a factor at least one
+    const f4 = M.megaFmt(num, 1, 0, false, { mdec: 1 });
+    assert.equal(f4.pct(0.066), "+7%");
+    assert.equal(f4.margin(0.453), "45.3%");
+    assert.equal(f4.pp(8.6), "+8.6\u202Fpp");
+    assert.equal(f4.fac(1.3, false), "1.3");
+    // the sheets' Δ% decimals: T03 and the 12 series whole numbers, T04B to T04E two, the rest one
+    const S = Object.fromEntries(M.MEGA_PRESET_KEYS.map(k => [k, M.MEGA_PRESETS[k].sheetPdec]));
+    for (const k of ["T03A", "T03B", "12A", "12G", "12H"]) { assert.equal(S[k], 0, k); }
+    for (const k of ["T04B", "T04C", "T04D", "T04E"]) { assert.equal(S[k], 2, k); }
+    for (const k of ["off", "T01A", "T01B", "T01C", "T01D", "T02A", "T02B", "T02C", "T02D", "T02E", "T02F", "T04A", "T05A", "T05B"]) { assert.equal(S[k], 1, k); }
+});
+
+test("1.8 structureTotal: the structure templates switch it on, statement templates leave it off", () => {
+    for (const k of ["T01A", "T01B", "T01C", "T01D", "T02A", "T02B", "T02C", "T02D", "T02E", "T02F"]) { assert.equal(M.MEGA_PRESETS[k].structureTotal, true, k); }
+    for (const k of ["off", "T03A", "T03B", "T04A", "T04B", "T04C", "T04D", "T04E", "12A", "12G", "12H", "T05A", "T05B"]) {
+        assert.equal(M.MEGA_PRESETS[k].structureTotal, false, k);
+    }
+});
+
 test("layout T02: one Δ scale and one pin scale over both blocks, no factor between blocks (1.5.1)", () => {
     const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { d: { PY: { num: false, bar: true, pct: false, pin: true },
         PL: { num: false, bar: true, pct: false, pin: true } }, showPY: true });
@@ -283,7 +416,7 @@ test("presets T04B–E / 12A: waterfall + pins, value cascades, decimals like th
         P["12A"].dPyPin, P["12A"].showPctRows, P["12A"].decimals, P["12A"].pctDecimals],
     [true, true, false, true, true, true, false, 0, 1]);
     // nothing of phase 3 leaks into the phase-1/2 presets
-    for (const k of ["off", "T01A", "T01B", "T02A", "T02B", "T02C", "T02E", "T02F", "T03A", "T03B", "T04A"]) {
+    for (const k of ["off", "T01A", "T01B", "T01C", "T02A", "T02B", "T02C", "T02E", "T02F", "T03A", "T03B", "T04A"]) {
         assert.deepEqual([P[k].valueCascade, P[k].dPyWf, P[k].dPlWf], [false, false, false], k);
     }
 });
