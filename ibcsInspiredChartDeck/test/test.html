@@ -2673,7 +2673,7 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
     check(JSON.stringify(got) === JSON.stringify(want), `c283: Reihenfolge nach Summe, Rest-Zeilen am Ende (${got.slice(0, 4).join(", ")} … ${got.slice(-2).join(", ")})`);
     const restIt = qq("c283", "text").filter(t => /^Rest of/.test(t.textContent)).every(t => t.getAttribute("font-style") === "italic");
     const tr = qq("c283", '[data-icd="stack-total-row"] text').map(t => t.textContent);
-    check(restIt && ["World", "1.351", "1.308", "1.074", "3.733"].every(x => tr.includes(x)),
+    check(restIt && ["World", "1.351", "1.308", "1.074", "= 3.733"].every(x => tr.includes(x)),
       `c283: Rest kursiv, Σ-Zeile World 1.351 · 1.308 · 1.074 · 3.733 (${tr.join(" | ")})`);
     check(qq("c283", '[data-icd="stack-total-row"] rect').every(r => +r.getAttribute("width") < 20), "c283: Σ-Zeile ohne Summenbalken (nur Farbfelder)");
   }
@@ -2833,6 +2833,74 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
   runCap("c294", dv01({ chart: { orientation: "columns", diffMarkers: "", bridgeSecondNet: false } }), 900, 520);
   runCap("c294L", dv01({ chart: { orientation: "columns" } }), 900, 520);
   check(nsvg9("c294") === nsvg9("c294L"), "c294: leere Marker zeichnen SVG-gleich wie ungesetzt");
+}
+// ---- 1.55 (B10, Review): Kappung, acFcSplit, Serienreihenfolge, Seitenpanel, Σ-Zeile bei Szenarien, Marke im Bild
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const long = (cats, ser, vals, objs, extra) => {
+    const C = [], S = [], V = [];
+    cats.forEach((c, i) => ser.forEach((s, j) => { if (vals[i][j] != null) { C.push(c); S.push(s); V.push(vals[i][j]); } }));
+    return { metadata: { columns: [], objects: objs }, categorical: {
+      categories: [{ source: { displayName: "Land", roles: { category: true } }, values: C },
+        { source: { displayName: "Kanal", roles: { series: true } }, values: S }],
+      values: [col("actual", V, "#,0")].concat(extra ? extra(C, S) : []) } };
+  };
+  const ch = ["Direct", "Retail", "Wholesale"];
+  // 100 % ignoriert fixedMax/capOverflow (absolut)
+  addStage("c295", "Stapel-Balken 100 % · fixedMax 50 + capOverflow wirken nicht auf Anteile", 900, 320);
+  runCap("c295", long(["A", "B", "C"], ch, [[30, 20, 50], [10, 60, 30], [40, 40, 20]],
+    { chart: { orientation: "bars", stackNormalize: "pct100" }, scale: { fixedMax: 50, capOverflow: true } }), 900, 320);
+  {
+    const ends = qq("c295", "svg > g > g").filter(g => g.querySelector("g.icd-cat"))
+      .map(g => Math.max(...[...g.querySelectorAll("g.icd-cat > rect")].map(r => r.getBoundingClientRect().right)));
+    check(ends.length === 3 && Math.max(...ends) - Math.min(...ends) < 1.5 && qq("c295", "g.icd-cat > text").length >= 9,
+      "c295: alle Balken bis 100 %, keine Kappung, alle Anteile beschriftet");
+  }
+  // Serienreihenfolge bleibt bei Sortierung, auch wenn eine Serie in der ersten Kategorie fehlt
+  addStage("c296", "Stapel-Balken · sortiert nach Summe · Kategorie B ohne Direct → Legende bleibt Direct, Retail, Wholesale", 900, 320);
+  runCap("c296", long(["A", "B", "C"], ch, [[10, 10, 10], [null, 80, 40], [20, 20, 20]], { chart: { orientation: "bars", sortMode: "ac" } }), 900, 320);
+  {
+    const leg = qq("c296", "text").map(t => t.textContent).filter(t => ch.includes(t));
+    check(JSON.stringify(leg.slice(0, 3)) === JSON.stringify(ch), `c296: Serienreihenfolge eingefroren (${leg.slice(0, 3).join(", ")})`);
+  }
+  // Seitenpanel: Verhältnis zweier Balken = Verhältnis der Summen; Kacheln teilen den Maßstab
+  addStage("c297", "Stapel-Balken 100 % · Small Multiples · Seitenpanel mit gemeinsamem Maßstab", 1200, 420);
+  {
+    const dv = long(["A", "B", "C", "A", "B", "C"].map((c, i) => c), ch, [[30, 20, 50], [10, 60, 30], [40, 40, 20], [3, 2, 5], [1, 6, 3], [4, 4, 2]],
+      { chart: { orientation: "bars", stackNormalize: "pct100" } });
+    const n = dv.categorical.categories[0].values.length;
+    dv.categorical.categories.push({ source: { displayName: "Region", roles: { multiples: true } },
+      values: dv.categorical.categories[0].values.map((_, i) => i < n / 2 ? "Nord" : "Süd") });
+    runCap("c297", dv, 1200, 420);
+    const ks = qq("c297", '[data-icd="stack-total-panel"]').map(g => +g.getAttribute("data-px-per-unit"));
+    check(ks.length === 2 && Math.abs(ks[0] - ks[1]) < 1e-9, `c297: gleicher Maßstab des Seitenpanels in beiden Kacheln (${ks.map(k => k.toFixed(4)).join(", ")})`);
+  }
+  addStage("c298", "Stapel-Balken 100 % · Seitenpanel Switzerland : Germany = 496 : 437", 1200, 360);
+  runCap("c298", long(["Switzerland", "Germany"], ch, [[172, 136, 188], [160, 135, 142]], { chart: { orientation: "bars", stackNormalize: "pct100" } }), 1200, 360);
+  {
+    const pr = qq("c298", '[data-icd="stack-total-panel"] rect');
+    const r = pr.length === 2 ? +pr[0].getAttribute("width") / +pr[1].getAttribute("width") : 0;
+    check(Math.abs(r - 496 / 437) < 0.01, `c298: Seitenpanel proportional (${r.toFixed(3)} vs ${(496 / 437).toFixed(3)})`);
+  }
+  // Σ-Zeile summiert nur ein Szenario: bei AC/FC/PL gemischt entfällt sie
+  addStage("c299", "Stapel-Balken · AC, FC und PL gemischt · keine Σ-Zeile", 900, 320);
+  {
+    const C = [], S = [], A = [], F = [], P = [];
+    ["A", "B", "C"].forEach((c, i) => ch.forEach(sn => { C.push(c); S.push(sn); A.push(i === 0 ? 10 : null); F.push(i === 1 ? 20 : null); P.push(i === 2 ? 30 : null); }));
+    runCap("c299", { metadata: { columns: [], objects: { chart: { orientation: "bars", stackTotalRow: true } } }, categorical: {
+      categories: [{ source: { displayName: "Land", roles: { category: true } }, values: C }, { source: { displayName: "Kanal", roles: { series: true } }, values: S }],
+      values: [col("actual", A), col("forecast", F), col("plan", P)] } }, 900, 320);
+  }
+  check(!document.querySelector('#c299 [data-icd="stack-total-row"]'), "c299: gemischte Szenarien → keine Σ-Zeile");
+  // 100 %-Marke liegt bei Säulen immer im Bild (auch ohne Direktnamen)
+  addStage("c299b", "Stapel-Säulen 100 % · Legende oben (stackLegendDirect aus) · Marke im Bild", 700, 360);
+  runCap("c299b", long(["A", "B", "C", "D"], ch, [[1, 2, 97], [10, 20, 70], [40, 40, 20], [5, 5, 90]],
+    { chart: { orientation: "columns", stackNormalize: "pct100", stackLegendDirect: false } }), 700, 360);
+  {
+    const m = document.querySelector('#c299b [data-icd="stack-100"] text');
+    const b = m ? m.getBoundingClientRect() : null, st = document.getElementById("c299b").getBoundingClientRect();
+    check(!!b && b.left >= st.left && b.right <= st.right, "c299b: Marke „100 %“ vollständig im Visual");
+  }
 }
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {

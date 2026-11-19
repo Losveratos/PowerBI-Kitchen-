@@ -1140,6 +1140,9 @@ export class Visual implements IVisual {
     /** 1.54: last applied template (persisted or pending) — its keys are reset when
      *  another template is applied */
     private lastTplApplied = "off";
+    /** 1.55 (B10 review): series order of the stacks as delivered, frozen before sort
+     *  and top N so shades, legend and "first series" never change with the order */
+    private stackSeriesOrder: string[] | null = null;
     /** 1.54 (B04): chart.sortMode is stored in the report (else the legacy boolean rules) */
     private sortModeStored = false;
     /** 1.54: pane defaults for template resets (one fresh model, built lazily) */
@@ -5696,6 +5699,7 @@ export class Visual implements IVisual {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
         this.ellipseTargets = [];
+        this.stackSeriesOrder = null;
         this.bridgeChips = [];
         this.sortNoop = false;
         this.exceptionNoop = false;
@@ -5897,6 +5901,11 @@ export class Visual implements IVisual {
         const topNBlocked = isTable && points.some(p => p.colLevels && p.colLevels.length > 0);
         // scatter: no "Rest" point — it would sum X across the tail (pane slice hidden)
         if (orientation === "bars" && topN > 0 && !cumulativeOn && !topNBlocked && !isScatter) {
+            if (isStacked) {
+                const order: string[] = [];
+                for (const p of points) { const sn = p.stackSeries ?? "(leer)"; if (!order.includes(sn)) { order.push(sn); } }
+                this.stackSeriesOrder = order;
+            }
             for (const g of groups) {
                 if (g.pts.length > topN + 1) {
                     // 1.55 (B10): stacks rank whole categories (all series cells stay)
@@ -5925,11 +5934,17 @@ export class Visual implements IVisual {
         }
         // 1.55 (B10): stacked bars sort by stack total ("ac") or by the first series
         // (value, in 100 % stacks its share); rest categories stay last
+        // (the series order was frozen before top N, see stackSeriesOrder)
         const stackSortMode: "off" | "ac" | "series" = isStacked && orientationRaw === "bars" && this.sortModeStored
             && (sortModeSet === "ac" || sortModeSet === "series") ? sortModeSet : "off";
+        if (isStacked && !this.stackSeriesOrder) {
+            const order: string[] = [];
+            for (const g of groups) { for (const p of g.pts) { const sn = p.stackSeries ?? "(leer)"; if (!order.includes(sn)) { order.push(sn); } } }
+            this.stackSeriesOrder = order;
+        }
         const stackNormWanted = isStacked
             && String((s.chartCard.stackNormalize.value as powerbi.IEnumMember)?.value) === "pct100";
-        const stackNormOk = stackNormWanted && points.every(p => (p.value ?? 0) >= 0 && (p.pl ?? 0) >= 0);
+        const stackNormOk = stackNormWanted && groups.every(g => this.stackLayout(g.pts).neg.every(v => v === 0));
         if (stackSortMode !== "off") {
             for (const g of groups) { g.pts = this.sortStackCats(g.pts, stackSortMode, stackNormOk); }
         }
@@ -13977,6 +13992,8 @@ export class Visual implements IVisual {
             const key = `${p.cat}¦${s}`;
             if (!cell.has(key)) { cell.set(key, p); }
         }
+        const ord = this.stackSeriesOrder;
+        if (ord) { series.sort((a, b) => (ord.indexOf(a) + 1 || 1e9) - (ord.indexOf(b) + 1 || 1e9)); }
         // 1.54 (B06): one scenario per CATEGORY (a series missing in one month must not
         // flip it): AC when any cell carries an actual, else FC, else PL (a plan-only
         // month stacks its PL values as an outlined column, IBCS sheets 01A to 01C)
@@ -14038,7 +14055,8 @@ export class Visual implements IVisual {
         const domain: [number, number] = cfg.stackDomain
             ? [...cfg.stackDomain] as [number, number]
             : [Math.min(0, ...negTot), Math.max(...posTot, 1)];
-        const cap = cfg.capMax;
+        // 1.55 review: shares are never capped (fixedMax/capOverflow are absolute)
+        const cap = norm ? null : cfg.capMax;
         const capV = (v: number) => cap != null ? Math.min(v, cap) : v;
 
         // 100 % stacks carry no stack-total label (it would read 100 everywhere)
@@ -14047,8 +14065,8 @@ export class Visual implements IVisual {
         // series names left of the first column, room for the "100 %" marker
         const totalRow = orientation === "bars" && cfg.stackTotalRow;
         const legendStart = orientation === "columns" && cfg.stackLegendStart;
-        const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 360
-            ? Math.max(70, region.w * 0.18) : 0;
+        const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
+            ? Math.max(60, region.w * 0.18) : 0;
         const marker100H = norm && orientation === "bars" ? lf + 8 : 0;
         const slotsN = n + (totalRow ? 1 : 0);
         // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
@@ -14079,7 +14097,8 @@ export class Visual implements IVisual {
         // 1.52.1 chart.stackLegendDirect: series names right at the stack (columns:
         // beside the last column, bars: above the first bar's segments) instead of a
         // key; single chart, positive stacks, every series present there, names fit
-        const nameW = Math.min(140 * k, this.maxTextWidth(series, legFont)) + 10;
+        const nameW = Math.min(140 * k, this.maxTextWidth(series, legFont))
+            + (cfg.stackSort === "series" ? this.textWidth(" (↓)", legFont) : 0) + 10;
         const layout = (direct: boolean) => {
             let bandStart: number, bandEnd: number, rect: Rect;
             if (orientation === "columns") {
@@ -14260,7 +14279,8 @@ export class Visual implements IVisual {
                 l.setAttribute("data-icd", "group-sep");
             }
         }
-        if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
+        // 100 % stacks read the reference line as a share; above 100 it is not drawn
+        if (cfg.refLine != null && !(cap != null && cfg.refLine > cap) && !(norm && (cfg.refLine > 100 || cfg.refLine < 0))) {
             const rg = this.el("g", { "data-icd": "stack-refline" }, bg);
             this.drawRefLine(rg, rect, scale, orientation, bandStart, bandEnd, cfg);
         }
@@ -14298,18 +14318,20 @@ export class Visual implements IVisual {
             const m100 = this.el("g", { "data-icd": "stack-100" }, bg);
             const y100 = scale(100);
             if (orientation === "columns") {
-                const t = this.el("text", legendStart
-                    ? { x: pos(0) - 2, y: y100 + lf * 0.35, "text-anchor": "end" }
-                    : { x: pos(n - 1) + slotW + 2, y: y100 + lf * 0.35, "text-anchor": "start" }, m100);
+                // above the outer column (names' side), inside the plot: never clipped,
+                // never on top of a series name
+                const ci = legendStart ? 0 : n - 1;
+                const t = this.el("text", { x: pos(ci) + slotW / 2, y: y100 - 4, "text-anchor": "middle" }, m100);
                 t.setAttribute("font-size", String(lf));
                 t.setAttribute("font-weight", "700");
                 t.setAttribute("fill", cfg.ink);
                 t.setAttribute("font-family", FONT);
-                t.textContent = legendStart ? "100 % ▶" : "◀ 100 %";
+                t.textContent = "100 % ▼";
             } else {
-                this.el("line", { x1: y100, y1: bandStart, x2: y100, y2: bandStart + n * step,
+                this.el("line", { x1: y100, y1: bandStart, x2: y100, y2: bandStart + slotsN * step,
                     stroke: cfg.ink, "stroke-width": 1 }, m100);
-                const t = this.el("text", { x: y100, y: bandEnd + lf + 4, "text-anchor": "middle",
+                const tw = this.textWidth("▲", lf, true);
+                const t = this.el("text", { x: y100 - tw / 2, y: bandEnd + lf + 4, "text-anchor": "start",
                     "font-size": lf, "font-weight": 700, fill: cfg.ink, "font-family": FONT }, m100);
                 t.textContent = "▲ 100 %";
             }
@@ -14343,7 +14365,9 @@ export class Visual implements IVisual {
                 const kind: "ac" | "fc" | "pl" = scen[i] === "pl" ? "pl" : p.isFc ? "fc" : "ac";
                 const g = this.el("g", kind === "ac" ? { "class": "icd-cat" }
                     : { "class": "icd-cat", "data-icd": `stack-seg-${kind}` }, gCat) as SVGGElement;
-                const fcP = kind === "ac" && p.fcPart != null && p.fcPart > 0 && v > 0 && v - p.fcPart >= 0 ? p.fcPart : 0;
+                const fcRaw = p.fcPart ?? 0;
+                const fcScaled = norm ? (rawPos[i] > 0 ? fcRaw * 100 / rawPos[i] : 0) : fcRaw;
+                const fcP = kind === "ac" && fcScaled > 0 && v > 0 && v - fcScaled >= 0 ? fcScaled : 0;
                 const splitFc = fcP > 0;
                 if (kind === "ac") {
                     if (fcP > 0) {
@@ -14395,8 +14419,10 @@ export class Visual implements IVisual {
                         orientation === "columns" ? { cx: cxCol, cy: mid } : { cx: mid, cy: pos(i) + slotW });
                 }
                 this.attachInteraction(g, p, cfg);
-                if (kind !== "ac") {
-                    g.setAttribute("aria-label", `${p.cat}, ${s}, ${kind === "pl" ? cfg.scenL.pl : cfg.scenL.fc} ${cfg.fmt.format(v)}`);
+                if (kind !== "ac" || norm) {
+                    const sc = kind === "pl" ? cfg.scenL.pl : kind === "fc" ? cfg.scenL.fc : cfg.scenL.ac;
+                    g.setAttribute("aria-label", `${p.cat}, ${s}, ${sc} ${cfg.fmt.format(rawSv(i, s))}`
+                        + (norm ? ` (${shareNf.format(v)} %)` : ""));
                 }
                 this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             });
@@ -14439,7 +14465,8 @@ export class Visual implements IVisual {
         // ------- 1.55 (B10): Σ row (bars) and absolute-total side panel (bars + 100 %)
         const seriesSums = series.map(sn => cats.reduce((a, _, ci) => a + rawSv(ci, sn), 0));
         const grand = seriesSums.reduce((a, v) => a + v, 0);
-        if (totalRow) {
+        // the Σ row sums one scenario only: mixed AC/FC/PL categories get no Σ row
+        if (totalRow && scenSet.size <= 1) {
             const tg = this.el("g", { "data-icd": "stack-total-row" }, marks);
             const yRow = bandStart + n * step;
             this.el("line", { x1: region.x + pad, y1: yRow, x2: rect.x + rect.w, y2: yRow,
@@ -14472,10 +14499,14 @@ export class Visual implements IVisual {
                 let lx = rect.x + 2;
                 const yMid = pos(n) + slotW / 2;
                 const xEnd = rect.x + rect.w;
+                const grandTxt = `= ${cfg.fmt.format(grand)}`;
+                const needs = series.map((_, si) => sq + 4 + this.textWidth(cfg.fmt.format(seriesSums[si]), lf, true) + 12);
+                // all series sums or none: a partial row would not add up to the total
+                const allFit = needs.reduce((a, v) => a + v, 0) + this.textWidth(grandTxt, lf, true) + 8 <= xEnd - lx;
                 series.forEach((sn, si) => {
+                    if (!allFit) { return; }
                     const label = cfg.fmt.format(seriesSums[si]);
-                    const need = sq + 4 + this.textWidth(label, lf, true) + 12;
-                    if (lx + need > xEnd) { return; }
+                    const need = needs[si];
                     const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
                     this.el("rect", { x: lx, y: yMid - sq / 2, width: sq, height: sq, fill: shade(si),
                         ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) }, sg);
@@ -14486,23 +14517,28 @@ export class Visual implements IVisual {
                 });
                 const gt = this.el("text", { x: lx + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
                     fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, tg);
-                gt.textContent = cfg.fmt.format(grand);
+                gt.textContent = allFit ? grandTxt : cfg.fmt.format(grand);
             }
         }
         if (sideW > 0 && cfg.stackTotalMax > 0) {
             const pg = this.el("g", { "data-icd": "stack-total-panel" }, marks);
             const x0 = rect.x + rect.w + 8;
-            const labelRoom = this.textWidth(cfg.fmt.format(Math.max(cfg.stackTotalMax, grand)), lf, true) + 6;
+            // one px-per-unit over all tiles: only the shared maximum sizes the panel
+            const labelRoom = this.textWidth(cfg.fmt.format(cfg.stackTotalMax), lf, true) + 6;
             const kSide = Math.max(0, (sideW - labelRoom - 4) / cfg.stackTotalMax);
             pg.setAttribute("data-px-per-unit", String(kSide));
             this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: bandStart + n * step, stroke: cfg.subtle, "stroke-width": 1 }, pg);
             const head = this.el("text", { x: x0, y: region.y + legendH + Math.round(10 * k), "font-size": Math.round(10 * k),
                 fill: cfg.subtle, "font-family": FONT }, pg);
-            head.textContent = `Σ ${cfg.scenL.ac}` + (cfg.stackSort === "ac" ? " (↓)" : "");
+            head.textContent = `Σ ${[scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "",
+                scenSet.has("pl") ? cfg.scenL.pl : ""].filter(x => x).join(" · ")}` + (cfg.stackSort === "ac" ? " (↓)" : "");
             if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
             for (let i = 0; i < n; i++) {
                 const w = rawPos[i] * kSide;
-                this.el("rect", { x: x0, y: pos(i), width: Math.max(w, 0.5), height: slotW, fill: cfg.colors.ac }, pg);
+                this.el("rect", { x: x0, y: pos(i), width: Math.max(w, 0.5), height: slotW,
+                    ...(scen[i] === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : scen[i] === "pl" ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
+                            : { fill: cfg.colors.ac }) }, pg);
                 if (cfg.showLabels) {
                     const t = this.el("text", { x: x0 + w + 3, y: pos(i) + slotW / 2 + lf * 0.35, "font-size": lf,
                         fill: cfg.ink, "font-family": FONT }, pg);
@@ -16300,7 +16336,6 @@ export class Visual implements IVisual {
         };
     }
 
-    /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
     /** 1.55 (B09): label of a difference marker: "+12,2 (+12,0%)", without % on "!" */
     private diffText(m: { d: number; base: number; spec: DiffMarkerSpec }, cfg: ChartConfig): string {
         // same unit and precision as the values the marker compares
@@ -16407,6 +16442,7 @@ export class Visual implements IVisual {
         return order.flatMap(c => points.filter(p => p.cat === c));
     }
 
+    /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
     private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
         // 1.54 (B04): a named rest row ("Sonstige", "Rest of USA") is no ranking
         // candidate — it joins the aggregated tail
