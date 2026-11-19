@@ -134,6 +134,13 @@ def kql(days: int = 14, include_reports: bool = False, table: str = "SemanticMod
             "| extend OperationName = \"QueryEnd\"")
 
 
+def union_source(databases: list[str], table: str = "SemanticModelLogs") -> str:
+    """Quelle für kql() über mehrere Datenbanken desselben Eventhouse. isfuzzy überspringt fehlende Tabellen und
+    Datenbanken und scheitert nur, wenn keine einzige da ist (gegen echtes Kusto geprüft)."""
+    esc = lambda s: s.replace("\\", "\\\\").replace('"', '\\"')
+    return "union isfuzzy=true " + ", ".join(f'database("{esc(d)}").{table}' for d in databases)
+
+
 def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 

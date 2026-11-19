@@ -164,6 +164,15 @@ class Notebook(unittest.TestCase):
         self.assertIn("eigenem Zugriff", ns["REPORT_TITLE"])
         self._assert_report(ns, log, shown)
 
+    def test_admin_finds_monitoring_itself(self):
+        """Admin-Modus ohne MONITORING: das Notebook sucht die Monitoring-Datenbanken selbst (hier über den
+        Rückweg je Workspace, weil die Attrappe keine Admin-Item-Liste kennt)."""
+        ns, log, shown, fake = self._run(admin_ok=True, monitoring=False)
+        self.assertEqual(ns["SCOPE"], "Tenant")
+        self.assertEqual([m["database"] for m in ns["MONITORING"]], ["Monitoring KQL database"])
+        self.assertTrue(any(u.endswith("/admin/items") for _, u, _ in fake.calls))
+        self._assert_report(ns, log, shown)
+
     def _assert_report(self, ns, log, shown):
         self.assertEqual(len(ns["models"]), 2)
         self.assertIn("SemanticModelLogs", dict(log)["query"])

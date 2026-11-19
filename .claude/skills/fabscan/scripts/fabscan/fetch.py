@@ -258,6 +258,8 @@ class Fetcher:
                 waited += delay
                 delay = min(delay * 2, 30)
             results.append(self._call("GET", f"{POWERBI}/admin/workspaces/scanResult/{scan_id}", RES_PBI))
+            for w in results[-1].get("workspaces", []) or []:     # Namen für die Monitoring-Suche
+                self.ws_names.setdefault(w.get("id", ""), w.get("name", ""))
             self.log(f"  Scan {i // 100 + 1}: {len(chunk)} Workspaces gelesen")
         return results
 
@@ -439,6 +441,8 @@ class Fetcher:
                 if db.get("id"):
                     self.db_ids[entry[1]] = db["id"]
 
+        if self.mode == "admin" and self._find_monitoring_admin(ids, add):
+            return found
         for wid in ids:
             items = self._monitoring_items(wid)
             ws_name = self._ws_name(wid) if items else ""
@@ -466,6 +470,116 @@ class Fetcher:
             self.notes.append("Kein Workspace Monitoring gefunden (weder Monitoring-Item noch Monitoring-Eventhouse, "
                               "oder kein Zugriff auf den Workspace). Mit --monitoring URI=DATENBANK angeben.")
         return found
+
+    def _admin_items(self, item_type: str) -> list[dict] | None:
+        """Fabric-Admin-API: alle Items eines Typs im Tenant (10 Aufrufe je Minute, 429 wiederholt http())."""
+        out: list[dict] = []
+        url = f"{FABRIC}/admin/items?type={item_type}"
+        while url:
+            status, data = self.request("GET", url, self.auth.token(RES_FABRIC))
+            if status != 200 or not isinstance(data, dict):
+                return None
+            out += data.get("itemEntities", [])
+            token = data.get("continuationToken")
+            url = f"{FABRIC}/admin/items?type={item_type}&continuationToken={urllib.parse.quote(token)}" if token else ""
+        return out
+
+    def _find_monitoring_admin(self, ids: list[str], add) -> bool:
+        """Ganzer Tenant: Monitoring-Items und KQL-Datenbanken aus der Admin-API (zwei Listen statt je Workspace
+        mehrere Aufrufe). Lesen lässt sich eine Datenbank trotzdem nur mit Zugriff auf ihren Workspace; bei
+        zentralem Eventhouse reicht der eine Workspace. False, wenn die Admin-API nicht antwortet."""
+        mons, dbs = self._admin_items("Monitoring"), self._admin_items("KQLDatabase")
+        if mons is None or dbs is None:
+            return False
+        wanted = {w.lower() for w in ids}
+        by_ws: dict[str, list[dict]] = {}
+        for m in mons:
+            if (m.get("workspaceId") or "").lower() in wanted:
+                by_ws.setdefault(m["workspaceId"].lower(), []).append(m)
+        missing = [w for w in ids if w.lower() not in by_ws]
+        denied: dict[str, int] = {}
+        props_cache: dict[str, dict | None] = {}
+
+        def resolve(db: dict) -> bool:
+            if db["id"] not in props_cache:
+                status, data = self.request("GET", f"{FABRIC}/workspaces/{db['workspaceId']}/kqlDatabases/{db['id']}",
+                                            self.auth.token(RES_FABRIC))
+                ok = status == 200 and isinstance(data, dict) and (data.get("properties") or {}).get("queryServiceUri")
+                props_cache[db["id"]] = data if ok else None
+            data = props_cache[db["id"]]
+            if data is None:
+                host = self.ws_names.get(db["workspaceId"]) or db["workspaceId"]
+                denied[host] = denied.get(host, 0) + 1
+                return False
+            add({"id": db["id"], "displayName": data.get("displayName") or db.get("name", ""),
+                 "properties": data["properties"]})
+            return True
+
+        for wid, items in by_ws.items():
+            ws_name = self._ws_name(wid)
+            for mon in items:
+                want, ws_key = monitoring_db_key(ws_name, mon.get("name", "")), _kql_key(ws_name)
+                cand = sorted((d for d in dbs if _kql_key(d.get("name")) == want or
+                               (ws_key and _kql_key(d.get("name")).startswith(ws_key)
+                                and _kql_key(d.get("name")).endswith("database"))),
+                              key=lambda d: (_kql_key(d.get("name")) != want, (d.get("workspaceId") or "").lower() != wid))
+                if not cand:
+                    self.notes.append(f"Monitoring-Item „{mon.get('name', '')}“ in „{ws_name}“: keine KQL-Datenbank "
+                                      f"„{ws_name}_{mon.get('name', '')}_Database“ im Tenant gefunden.")
+                    continue
+                resolve(cand[0])
+        off = []
+        for wid in missing:                      # altes Workspace Monitoring ohne Item
+            legacy = [d for d in dbs if (d.get("workspaceId") or "").lower() == wid.lower()
+                      and "monitoring" in (d.get("name") or "").lower()]
+            for d in legacy:
+                resolve(d)
+            if not legacy:
+                off.append(wid)
+        if off:
+            names = [self.ws_names.get(w) or w for w in off][:8]
+            self.notes.append(f"{len(off)} von {len(ids)} geprüften Workspaces ohne Workspace Monitoring, dort fehlen die "
+                              f"Abfragen (z. B. {', '.join(names)}). Empfehlung: in jedem Workspace ein Monitoring-Item, "
+                              "das an ein zentrales Eventhouse weiterleitet.")
+        for host, n in sorted(denied.items()):
+            self.notes.append(f"{n} Monitoring-Datenbank(en) in „{host}“ ohne Lesezugriff. Das prüfende Konto braucht "
+                              "dort mindestens die Rolle Mitwirkender (Fabric-Admin allein gibt keinen Datenzugriff).")
+        return True
+
+    def logs_all(self, mons: list[tuple[str, str]], days: int, include_reports: bool,
+                 table: str = "SemanticModelLogs", chunk: int = 25):
+        """Abfrage-Logs aller Monitoring-Datenbanken. Mehrere Datenbanken auf demselben Eventhouse (zentrales
+        Monitoring: eine Datenbank je Workspace) gehen per union in einer Abfrage je 25 Datenbanken.
+        Liefert Zeilen und je Abfrage (Beschriftung, Anzahl verschiedener Abfragen)."""
+        rows, report = [], []
+        by_cluster: dict[str, list[str]] = {}
+        for cluster, db in mons:
+            by_cluster.setdefault(cluster, []).append(db)
+        for cluster, dbs in by_cluster.items():
+            for i in range(0, len(dbs), chunk):
+                part_dbs = dbs[i:i + chunk]
+                part = None
+                if len(part_dbs) > 1:
+                    status, data = self._kusto(cluster, "/v1/rest/query", part_dbs[0],
+                                               querylog.kql(days, include_reports, querylog.union_source(part_dbs, table)))
+                    if status == 200:
+                        part = kusto_rows(data)
+                        report.append((f"{urllib.parse.urlparse(cluster).netloc or cluster}: {len(part_dbs)} Datenbanken",
+                                       len(part)))
+                if part is None:        # eine Datenbank, oder union gescheitert: einzeln
+                    part = []
+                    for d in part_dbs:
+                        try:
+                            got = self.logs(cluster, d, days, include_reports, table)
+                        except FetchError as e:
+                            if len(mons) == 1:
+                                raise          # nur eine Datenbank: Abbruch mit Klartext wie bisher
+                            self.notes.append(str(e))
+                            continue           # im Tenant-Lauf hält eine Datenbank den Rest nicht auf
+                        report.append((d, len(got)))
+                        part += got
+                rows += part
+        return rows, report
 
     def _kusto(self, cluster: str, path: str, database: str, csl: str):
         """Kusto-REST (v1) mit Token für den Cluster, sonst für kusto.windows.net. Gibt (status, data) zurück."""

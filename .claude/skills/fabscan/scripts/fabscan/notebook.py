@@ -168,6 +168,14 @@ if not use_admin:
         print("Hinweis:", n)
     if REPORT_TITLE == "Tenant-Prüfbericht Fabric Apps":
         REPORT_TITLE = "Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)"
+elif not MONITORING:
+    # Ganzer Tenant: Monitoring-Items und Datenbanken aus der Fabric-Admin-API suchen
+    _f = fsfetch.Fetcher(_NotebookAuth(), request=globals().get("FABSCAN_HTTP") or fsfetch.http, admin=True)
+    _f.ws_names.update({w.get("id", ""): w.get("name", "") for r in scan_results for w in r.get("workspaces", []) or []})
+    MONITORING = [{"cluster": c, "database": d} for c, d in _f.find_monitoring(ids)]
+    print(f"{len(MONITORING)} Monitoring-Datenbank(en) gefunden")
+    for n in _f.notes:
+        print("Hinweis:", n)
 
 with open(f"{OUTPUT_DIR}/scan-{stamp}.json", "w", encoding="utf-8") as fh:
     json.dump(scan_results, fh, ensure_ascii=False, default=str)
@@ -184,15 +192,42 @@ from fabscan import querylog
 
 kql = querylog.kql(DAYS, INCLUDE_REPORT_QUERIES, LOG_TABLE)
 
-log_rows = []
-for mon in MONITORING:
-    token = notebookutils.credentials.getToken(mon["cluster"])
+
+def _read_kusto(cluster, database, query):
+    token = notebookutils.credentials.getToken(cluster)
     df = (spark.read.format("com.microsoft.kusto.spark.synapse.datasource")
-          .option("accessToken", token).option("kustoCluster", mon["cluster"])
-          .option("kustoDatabase", mon["database"]).option("kustoQuery", kql).load())
-    part = [r.asDict() for r in df.collect()]
-    print(f"{mon['database']}: {len(part)} verschiedene Abfragen")
-    log_rows += part
+          .option("accessToken", token).option("kustoCluster", cluster)
+          .option("kustoDatabase", database).option("kustoQuery", query).load())
+    return [r.asDict() for r in df.collect()]
+
+
+# Mehrere Datenbanken auf einem Eventhouse (zentrales Monitoring) per union, je 25 in einer Abfrage
+log_rows = []
+_by_cluster = {}
+for mon in MONITORING:
+    _by_cluster.setdefault(mon["cluster"], []).append(mon["database"])
+for _cluster, _dbs in _by_cluster.items():
+    for i in range(0, len(_dbs), 25):
+        _part_dbs = _dbs[i:i + 25]
+        if len(_part_dbs) > 1:
+            try:
+                part = _read_kusto(_cluster, _part_dbs[0], querylog.kql(DAYS, INCLUDE_REPORT_QUERIES,
+                                                                        querylog.union_source(_part_dbs, LOG_TABLE)))
+                print(f"{len(_part_dbs)} Datenbanken: {len(part)} verschiedene Abfragen")
+                log_rows += part
+                continue
+            except Exception as e:  # noqa: BLE001 – einzeln versuchen
+                print("union nicht möglich, einzeln:", str(e)[:200])
+        for _db in _part_dbs:
+            try:
+                part = _read_kusto(_cluster, _db, kql)
+            except Exception as e:  # noqa: BLE001
+                if len(MONITORING) == 1:
+                    raise
+                print(f"{_db}: nicht lesbar ({str(e)[:200]})")
+                continue
+            print(f"{_db}: {len(part)} verschiedene Abfragen")
+            log_rows += part
 
 entries = querylog.load_log(log_rows)
 for path in QUERY_LOG_FILES:

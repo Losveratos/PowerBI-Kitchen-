@@ -45,6 +45,23 @@ Der Abschnitt zu 0.5.0 steht zuerst, darunter unverändert die Übergabe zu 0.4.
   einer Admin-URL fiel vorher fälschlich in den Workspace-Modus). `ImportError` (sempy ohne Admin-Modul) wechselt
   in den Workspace-Modus.
 
+**Ganzer Tenant (Admin-Modus, ab 0.5.1)**
+- `_find_monitoring_admin`: `GET /v1/admin/items?type=Monitoring` und `?type=KQLDatabase` (Preview-API, 10
+  Aufrufe je Minute, 200 je Stunde, Seiten per continuationToken) statt Aufrufen je Workspace. Datenbank je
+  Monitoring-Item über denselben Namensschlüssel, bevorzugt exakter Name, dann im eigenen Workspace.
+  `queryServiceUri` kommt aus `GET /workspaces/{ws}/kqlDatabases/{id}` und braucht Zugriff auf den Workspace der
+  Datenbank; ohne Zugriff ein Hinweis je Workspace („Mitwirkender im zentralen Monitoring-Workspace“).
+  Antwortet die Admin-Liste nicht, läuft die Suche je Workspace wie im Workspace-Modus.
+- Workspaces ohne Monitoring zählt der Bericht (mit bis zu 8 Namen). Den Sammelstatus (`dataCollectionState`)
+  kennt die Admin-Liste nicht, er wird im Admin-Modus nicht geprüft.
+- `scan()` merkt sich die Workspace-Namen aus dem Scan-Ergebnis (`ws_names`), damit der Namensschlüssel ohne
+  Mitgliedschaft funktioniert.
+- `logs_all`: Datenbanken auf demselben Eventhouse per `querylog.union_source` (`union isfuzzy=true
+  database("…").SemanticModelLogs, …`), 25 je Abfrage. `isfuzzy` überspringt fehlende Tabellen und Datenbanken,
+  scheitert nur, wenn keine da ist (gegen echtes Kusto geprüft). Scheitert die union, einzeln; eine unlesbare
+  Datenbank wird zum Hinweis, nur bei genau einer Datenbank bricht der Lauf ab wie bisher.
+- Notebook: im Admin-Modus mit leerem `MONITORING` dieselbe Suche, Abfragen ebenso gebündelt je Eventhouse.
+
 **Sonstiges**: `fabric-app-scanner/.gitignore` schließt `fabscan-tenant/` aus. Tests: 62 statt 46
 (neu `tests/test_monitoring.py`, Leser-Weg in `test_fetch.py`, Notebook-Helfer in `test_notebook.py`).
 
@@ -71,9 +88,12 @@ Der Abschnitt zu 0.5.0 steht zuerst, darunter unverändert die Übergabe zu 0.4.
 2. **Notebook in Fabric ausführen.** Braucht ein neues Notebook-Item (Import von `downloads/fabscan_tenant.ipynb`)
    und ein Lakehouse; nicht gemacht, weil die Regel nur Lesezugriffe erlaubt. Zu prüfen: `getToken("pbi")` gegen
    die Fabric-API, Gestalt der sempy-Ausnahme bei 401/403, Kusto-Spark-Connector mit `column_ifexists`-KQL.
-3. **Monitoring im Admin-Modus des Notebooks**: Die automatische Suche läuft nur im Workspace-Modus. Im Admin-Modus
-   müsste `MONITORING` gefüllt werden.
-4. Drosselung bei vielen Modellen (siehe 0.4.0, Punkt 3) gilt jetzt auch für die drei executeQueries je
+3. **Admin-Modus ist nur mit Attrappen getestet.** Das Konto hier ist kein Fabric-Admin. Beim ersten Tenant-Lauf
+   prüfen: Feldnamen der Admin-Item-Liste (`itemEntities`, `name`, `workspaceId`), ob Monitoring-Datenbanken darin
+   auftauchen, und die Laufzeit der Scanner-API bei vielen Workspaces.
+4. **Ergebnisgröße:** Kusto kürzt Ergebnisse über 500.000 Zeilen bzw. 64 MB. Die Abfrage fasst gleiche Abfragen
+   zusammen, bei sehr vielen verschiedenen Abfragen im Zeitraum kann das trotzdem greifen; dann `--days` kürzen.
+5. Drosselung bei vielen Modellen (siehe 0.4.0, Punkt 3) gilt jetzt auch für die drei executeQueries je
    Leser-Modell.
 
 ---

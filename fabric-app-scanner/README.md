@@ -102,6 +102,21 @@ das alte Muster (KQL-Datenbank mit „Monitoring“ im Namen). Die Log-Abfrage b
 `OperationName`, `EventText` und `ItemId`; heißt die Tabelle nicht `SemanticModelLogs`, sucht fabscan sie per
 `.show tables`.
 
+**Für den ganzen Tenant einrichten**
+
+| Was | Wozu |
+| --- | --- |
+| Rolle Fabric-Administrator oder ein Service Principal, der für Admin-APIs freigegeben ist | Workspaces, Scanner-API und die Item-Listen `GET /v1/admin/items?type=Monitoring` bzw. `?type=KQLDatabase` |
+| Tenant-Einstellungen *Enhance admin APIs responses with detailed metadata* und *… with DAX and mashup expressions* | Tabellen und Measures im Scan |
+| Workspace Monitoring in jedem Workspace mit Modellen, am besten als Monitoring-Item mit Weiterleitung an **ein zentrales Eventhouse** (Microsoft empfiehlt dafür einen eigenen Workspace auf eigener Kapazität) | Abfrage-Logs |
+| Das prüfende Konto mindestens **Mitwirkender im zentralen Monitoring-Workspace** | Fabric-Admin gibt keinen Datenzugriff; ohne die Rolle bleiben die Datenbanken unlesbar |
+
+Im Admin-Modus holt fabscan die Monitoring-Items und KQL-Datenbanken des ganzen Tenants mit zwei Aufrufen der
+Admin-API (statt mehrerer Aufrufe je Workspace) und fragt Datenbanken auf demselben Eventhouse per
+`union isfuzzy=true` ab, 25 je Abfrage. Der Bericht nennt Workspaces ohne Monitoring und Datenbanken ohne
+Lesezugriff. Eine unlesbare Datenbank bricht den Lauf nicht ab. Ohne Admin-Liste (kein Admin) sucht fabscan je
+Workspace wie im Workspace-Modus.
+
 Mit exportierten Dateien geht es auch lokal: `fabscan --scan-result scan.json --query-log logs.csv`.
 
 ## Was herauskommt

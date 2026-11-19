@@ -143,11 +143,9 @@ def cmd_fetch(argv, fetcher=None) -> int:
                   "DAX-Ausdrücke prüfen.")
         print("3 · Abfragen (Workspace Monitoring)")
         mons = [tuple(m.split("=", 1)) for m in a.monitoring if "=" in m] or f.find_monitoring(ids)
-        rows = []
-        for cluster, db in mons:
-            part = f.logs(cluster, db, a.days, a.include_reports, a.log_table)
-            print(f"  {db}: {len(part)} verschiedene Abfragen")
-            rows += part
+        rows, counts = f.logs_all(mons, a.days, a.include_reports, a.log_table)
+        for label, n in counts:
+            print(f"  {label}: {n} verschiedene Abfragen")
         with open(os.path.join(raw, "abfragen.json"), "w", encoding="utf-8") as fh:
             json.dump(rows, fh, ensure_ascii=False, default=str)
     except fetch.FetchError as e:

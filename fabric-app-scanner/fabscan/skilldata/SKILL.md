@@ -82,6 +82,9 @@ Für Admins: Welche Anwendungen fragen die Modelle außerhalb von Power-BI-Beric
     ein Teilscan ist und welche Modelle ohne Zugriff oder nur mit Leserecht gelesen wurden.
   - Workspace Monitoring sucht `fetch` selbst (Monitoring-Item, auch mit zentralem Eventhouse). Meldet es
     ausgeschaltete Datensammlung oder keine Datenbank, das dem Nutzer so weitergeben.
+  - Für den ganzen Tenant: Fabric-Admin (oder freigegebener Service Principal), Monitoring in allen Workspaces mit
+    Weiterleitung an ein zentrales Eventhouse, und das Konto mindestens Mitwirkender im zentralen
+    Monitoring-Workspace. Fabric-Admin allein gibt keinen Zugriff auf die Log-Datenbanken.
   - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel Tenant-Einstellungen, Monitoring aus, kein Zugriff
     auf den Workspace oder keine Verbindung.
 
