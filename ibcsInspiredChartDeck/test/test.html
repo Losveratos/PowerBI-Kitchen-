@@ -2516,35 +2516,70 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
     addStage(id, `Sortierung ${mode} · ${title}`, 1280, 640);
     runCap(id, dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
       { chart: { template: "C17", templateApplied: "C17", orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py",
-        pyTriangle: false, groupEvery: 4, driverNote: false, sortByImpact: mode } }), 1280, 640);
+        pyTriangle: false, groupEvery: 4, driverNote: false, sortMode: mode } }), 1280, 640);
     const got = names(id);
     check(JSON.stringify(got) === JSON.stringify(exp) && italic(id), `${id}: Reihenfolge ${mode}, „Others“ unten und kursiv (${got.slice(0, 4).join(", ")} …)`);
   }
   // Balken (ohne Wasserfall-Brücke) nach AC, Datenkategorie „Sonstige“ bleibt unten
   addStage("c272", "Balken · Sortierung nach AC · „Sonstige“ unten, kursiv", 960, 420);
   const bc = ["Nord", "Sonstige", "Süd", "West", "Ost"], bAc = [420, 900, 610, 300, 510], bPl = [400, 880, 650, 280, 520];
-  runCap("c272", dataView(bc, [col("actual", bAc), col("plan", bPl)], { chart: { orientation: "bars", sortByImpact: "ac" } }), 960, 420);
+  runCap("c272", dataView(bc, [col("actual", bAc), col("plan", bPl)], { chart: { orientation: "bars", sortMode: "ac" } }), 960, 420);
   const bn = [...document.querySelectorAll("#c272 text")].map(t => t.textContent).filter(t => bc.includes(t));
   check(JSON.stringify(bn) === '["Süd","Ost","Nord","West","Sonstige"]'
     && [...document.querySelectorAll("#c272 text")].find(t => t.textContent === "Sonstige").getAttribute("font-style") === "italic",
     `c272: Balken nach AC, „Sonstige“ (900) unten und kursiv (${bn.join(", ")})`);
-  // Kompatibilität: gespeichertes true (≤ 1.53) zeichnet wie „abs“
-  addStage("c273", "Kompatibilität · sortByImpact: true (bis 1.53) = abs", 1280, 640);
-  addStage("c273L", "Referenz · sortByImpact: abs", 1280, 640);
-  const dv273 = v => dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
-    { chart: { orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py", sortByImpact: v } });
-  runCap("c273", dv273(true), 1280, 640);
-  runCap("c273L", dv273("abs"), 1280, 640);
+  // Kompatibilität: ohne chart.sortMode gilt das alte boolesche sortByImpact (true = |Δ|)
   const nsvg = id => document.querySelector(`#${id} svg`).outerHTML
     .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
-  check(nsvg("c273") === nsvg("c273L"), "c273: true zeichnet SVG-gleich wie „abs“");
-  // ⇅ im Chart schreibt das Enum (aus → abs, an → off)
-  addStage("c274", "⇅-Knopf · schreibt sortByImpact als Enum", 1280, 640);
-  runCap("c274", dv273("signed"), 1280, 640, { viewMode: 1 });
-  const btn = [...document.querySelectorAll("#c274 [data-ck-ctl] text")].find(t => t.textContent === "⇅");
-  btn && btn.closest("[data-ck-ctl]").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const dv273 = chart => dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)],
+    { chart: Object.assign({ orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py" }, chart) });
+  addStage("c273", "Kompatibilität · sortByImpact: true (bis 1.53) = sortMode abs", 1280, 640);
+  addStage("c273L", "Referenz · sortMode: abs", 1280, 640);
+  runCap("c273", dv273({ sortByImpact: true }), 1280, 640);
+  runCap("c273L", dv273({ sortMode: "abs" }), 1280, 640);
+  check(nsvg("c273") === nsvg("c273L"), "c273: altes true zeichnet SVG-gleich wie sortMode „abs“");
+  addStage("c273b", "Kompatibilität · sortByImpact: true + sortMode off → off gewinnt", 1280, 640);
+  addStage("c273c", "Referenz · ohne Sortierung", 1280, 640);
+  runCap("c273b", dv273({ sortByImpact: true, sortMode: "off" }), 1280, 640);
+  runCap("c273c", dv273({}), 1280, 640);
+  check(nsvg("c273b") === nsvg("c273c"), "c273b: gespeichertes sortMode „off“ schlägt das alte true");
+  // altes true auf Balken ohne Wasserfall-Brücke: wirkte bis 1.53 nicht, bleibt wirkungslos
+  addStage("c273d", "Kompatibilität · Balken mit altem sortByImpact: true", 960, 420);
+  addStage("c273e", "Referenz · Balken ohne Sortierung", 960, 420);
+  runCap("c273d", dataView(bc, [col("actual", bAc), col("plan", bPl)], { chart: { orientation: "bars", sortByImpact: true } }), 960, 420);
+  runCap("c273e", dataView(bc, [col("actual", bAc), col("plan", bPl)], { chart: { orientation: "bars" } }), 960, 420);
+  check(nsvg("c273d") === nsvg("c273e"), "c273d: altes true sortiert Balken nicht (wie bis 1.53)");
+  // ⇅ im Chart schreibt chart.sortMode (an → off, aus → abs) und sperrt nie bei aktiver Sortierung
+  addStage("c274", "⇅-Knopf · schreibt sortMode", 1280, 640);
+  runCap("c274", dv273({ sortMode: "signed" }), 1280, 640, { viewMode: 1 });
+  const clickSort = id => {
+    const b = [...document.querySelectorAll(`#${id} [data-ck-ctl] text`)].find(t => t.textContent === "⇅");
+    const g = b && b.closest("[data-ck-ctl]");
+    const locked = g && g.getAttribute("data-icd-locked") === "1";
+    g && g.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    return locked;
+  };
+  const lk = clickSort("c274");
   const p274 = window.__persist.c274;
-  check(p274.length === 1 && p274[0].merge[0].properties.sortByImpact === "off", `c274: ⇅ bei aktiver Sortierung schreibt „off“ (${JSON.stringify(p274.map(x => x.merge[0].properties))})`);
+  check(!lk && p274.length === 1 && p274[0].merge[0].properties.sortMode === "off",
+    `c274: ⇅ bei aktiver Sortierung (nicht gesperrt) schreibt sortMode „off“ (${JSON.stringify(p274.map(x => x.merge[0].properties))})`);
+  addStage("c274b", "⇅-Knopf · aus → schreibt sortMode abs", 1280, 640);
+  runCap("c274b", dv273({}), 1280, 640, { viewMode: 1 });
+  clickSort("c274b");
+  const p274b = window.__persist.c274b;
+  check(p274b.length === 1 && p274b[0].merge[0].properties.sortMode === "abs", "c274b: ⇅ ohne Sortierung schreibt sortMode „abs“");
+  // Rest-Regel: echte Konten bleiben, Rest-Bezeichnungen wandern ans Ende; Top N nimmt sie in die Rest-Zeile
+  addStage("c274c", "Balken nach AC · „Sonstige betriebliche Erträge“ bleibt Konto, „Übrige Länder“ unten", 960, 420);
+  const rc = ["Sonstige betriebliche Erträge", "Übrige Länder", "Nord", "Süd"], rAc = [800, 900, 300, 500];
+  runCap("c274c", dataView(rc, [col("actual", rAc), col("plan", rAc.map(v => v * 0.9))], { chart: { orientation: "bars", sortMode: "ac" } }), 960, 420);
+  const rn = [...document.querySelectorAll("#c274c text")].map(t => t.textContent).filter(t => rc.includes(t));
+  check(JSON.stringify(rn) === JSON.stringify(["Sonstige betriebliche Erträge", "Süd", "Nord", "Übrige Länder"]),
+    `c274c: echte Konten sortiert, Rest-Bezeichnung unten (${rn.join(", ")})`);
+  addStage("c274d", "Balken Top 2 · „Sonstige“ (größter Wert) geht in die Rest-Zeile ein", 960, 360);
+  runCap("c274d", dataView(bc, [col("actual", bAc), col("plan", bPl)], { chart: { orientation: "bars", topN: 2 } }), 960, 360);
+  const tn = [...document.querySelectorAll("#c274d text")].map(t => t.textContent).filter(t => bc.includes(t) || /\(\d\)$/.test(t));
+  check(!tn.includes("Sonstige") && tn.some(t => /\(3\)$/.test(t)) && tn.includes("Süd") && tn.includes("Ost"),
+    `c274d: Top 2 = Süd, Ost; „Sonstige“ steckt im Rest (3) (${tn.join(", ")})`);
 }
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {

@@ -449,14 +449,15 @@
                 "multiplesHero": { "type": { "bool": true } },
                 "multiplesSameScale": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
-                "sortByImpact": {
+                "sortByImpact": { "type": { "bool": true } },
+                "sortMode": {
                     "type": {
                         "enumeration": [
-                            { "value": "off", "displayName": "Aus (Datenreihenfolge)" },
-                            { "value": "abs", "displayName": "Nach Wirkung |Δ|" },
-                            { "value": "signed", "displayName": "Nach Δ (größtes Plus zuerst)" },
-                            { "value": "pct", "displayName": "Nach Δ %" },
-                            { "value": "ac", "displayName": "Nach AC" }
+                            { "value": "off", "displayName": "Off (data order)" },
+                            { "value": "abs", "displayName": "By impact |Δ|" },
+                            { "value": "signed", "displayName": "By Δ (largest plus first)" },
+                            { "value": "pct", "displayName": "By Δ %" },
+                            { "value": "ac", "displayName": "By AC" }
                         ]
                     }
                 },

@@ -146,7 +146,7 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // triangle), separators every 4 rows, no driver note
     C17: { orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py",
         showAbsoluteVariance: true, showRelativeVariance: true, dualVariance: false,
-        pyTriangle: false, groupEvery: 4, driverNote: false, sortByImpact: "off" },
+        pyTriangle: false, groupEvery: 4, driverNote: false },
     // C18 = 10F: variance scatter (X = ΔPY %, Y = ΔPL % as measures), colour per
     // group, axis cross at 0 instead of mean quadrants — "object.property" keys
     // address another card (here the scale card's reference lines)
@@ -272,7 +272,13 @@ type Orientation = "columns" | "bars";
 type SortMode = "off" | "abs" | "signed" | "pct" | "ac";
 /** 1.54 (B04): rest rows stay at the end of every sort, italic. Same rule as the
  *  P&L Statement byDatenWG ("Rest of USA", "Others", "Sonstige", "Übrige" …) */
-const REST_ROW_RX = /^(other|others|sonstige|übrige|rest|otros|otras|resto)\b|^その他/i;
+// 1.54 review: the name must BE a rest label ("Sonstige", "Others (4)", "Rest of USA",
+// "Übrige Länder"), not merely start with one — "Sonstige betriebliche Erträge" or
+// "Other income" are real accounts and keep their place
+const REST_ROW_RX = new RegExp("^(others?|sonstiges?|übrige[sr]?|rest|otros|otras|resto|その他)(\\s*\\(\\d+\\))?$"
+    + "|^rest\\s*(of|der|des|del|de|von)\\b|^rest[-\\s]"
+    + "|^(others?|übrige[sn]?|sonstige[n]?|otros|otras)\\s+(countries|regions|markets|länder|regionen|märkte|países|regiones)\\b"
+    + "|^その他の", "i");
 function isRestRow(p: DataPoint): boolean {
     return p.isRest || REST_ROW_RX.test((p.cat ?? "").trim());
 }
@@ -1090,8 +1096,8 @@ export class Visual implements IVisual {
     /** 1.54: last applied template (persisted or pending) — its keys are reset when
      *  another template is applied */
     private lastTplApplied = "off";
-    /** 1.54 (B04): raw boolean of chart.sortByImpact from reports up to 1.53 */
-    private rawSortImpact: boolean | undefined = undefined;
+    /** 1.54 (B04): chart.sortMode is stored in the report (else the legacy boolean rules) */
+    private sortModeStored = false;
     /** 1.54: pane defaults for template resets (one fresh model, built lazily) */
     private static tplDefaults: VisualFormattingSettingsModel | null = null;
     /** template applied in this session — a lost echo must not re-apply it in a loop */
@@ -1291,16 +1297,13 @@ export class Visual implements IVisual {
             const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
             this.formattingSettings = this.formattingSettingsService
                 .populateFormattingSettingsModel(VisualFormattingSettingsModel, dataView);
-            // 1.54 (B04): chart.sortByImpact was a boolean up to 1.53 — keep the raw
-            // value, map it (true → abs) and show the matching dropdown entry
+            // 1.54 (B04): chart.sortMode wins once it is stored; without it the old
+            // boolean chart.sortByImpact keeps its old meaning (and its old scope)
             {
-                const rawS = dataView?.metadata?.objects?.["chart"]?.["sortByImpact"];
-                this.rawSortImpact = typeof rawS === "boolean" ? rawS : undefined;
-                if (this.rawSortImpact !== undefined) {
-                    const sl = this.formattingSettings.chartCard.sortByImpact;
-                    const it = sl.items.find(x => String(x.value) === (this.rawSortImpact ? "abs" : "off"));
-                    if (it) { sl.value = it; }
-                }
+                const rawM = dataView?.metadata?.objects?.["chart"]?.["sortMode"];
+                this.sortModeStored = rawM != null && String(rawM) !== "";
+                const sl = this.formattingSettings.chartCard.sortMode;
+                if (sl.value == null || (sl.value as powerbi.IEnumMember).value == null) { sl.value = sl.items[0]; }
             }
             // Smart-Start gates on the edit context — save the raw ViewMode every update
             this.viewMode = options.viewMode ?? null;
@@ -1875,8 +1878,9 @@ export class Visual implements IVisual {
                 || orient === "catbridge" || orient === "intwaterfall"))
             || (orient === "intwaterfall" && this.paneHasPy && this.paneHasFc);
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
-        fs.chartCard.sortByImpact.visible = orient === "catbridge" || orient === "bars"
+        fs.chartCard.sortMode.visible = orient === "catbridge" || orient === "bars"
             || (orient === "columns" && fs.chartCard.waterfallStyle.value);
+        fs.chartCard.sortByImpact.visible = false;
         fs.chartCard.stackLegendDirect.visible = orient === "columns" || orient === "bars";
         // 1.54 (B05): year column and scenario labels exist only in the column chart
         fs.chartCard.yearColumn.visible = orient === "columns";
@@ -1892,7 +1896,7 @@ export class Visual implements IVisual {
         fs.chartCard.bridgeBreak.visible = orient === "intwaterfall" || orient === "catbridge"
             || orient === "waterfall";
         fs.chartCard.bridgeGroup.visible = fs.chartCard.waterfallStyle.visible
-            || fs.chartCard.sortByImpact.visible || fs.chartCard.bridgeBreak.visible;
+            || fs.chartCard.sortMode.visible || fs.chartCard.bridgeBreak.visible;
         fs.chartCard.cardsGroup.visible = orient === "cards";
         // Trend role: its two options only exist with a bound period field; the trend
         // chart then replaces the mini bridge, so the bridge toggle only matters "off"
@@ -5714,7 +5718,10 @@ export class Visual implements IVisual {
         // 1.54 (B04): sort key enum (≤ 1.53 a boolean) — bridges, waterfall bridge
         // and plain bars; rest rows stay last
         const sortModeSet = this.sortMode();
-        const sortByImpactOn = (wfStyleGlobal || isCatBridge || (orientationRaw === "bars" && !isStacked))
+        // plain bars sort only by the new property — a leftover legacy true (saved in a
+        // bridge, then switched to bars) must not reorder existing bar charts
+        const sortByImpactOn = (wfStyleGlobal || isCatBridge
+            || (orientationRaw === "bars" && !isStacked && this.sortModeStored))
             && sortModeSet !== "off";
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
@@ -5849,8 +5856,8 @@ export class Visual implements IVisual {
         // 1.49: the ⇅ chip is locked when impact order and data order coincide in
         // every tile — the click would change nothing either way
         if (wfStyleGlobal || isCatBridge) {
-            this.sortNoop = groups.every(g => {
-                const sorted = this.sortByImpact(g.pts, sortModeSet === "off" ? "abs" : sortModeSet);
+            this.sortNoop = !sortByImpactOn && groups.every(g => {
+                const sorted = this.sortByImpact(g.pts, "abs");
                 return sorted.every((p, i) => p === g.pts[i]);
             });
         }
@@ -15187,7 +15194,7 @@ export class Visual implements IVisual {
                 merge: [{
                     objectName: "chart",
                     selector: null,
-                    properties: { sortByImpact: cfg.sortByImpact ? "off" : "abs" }
+                    properties: { sortMode: cfg.sortByImpact ? "off" : "abs" }
                 }]
             });
         };
@@ -15245,7 +15252,7 @@ export class Visual implements IVisual {
         if (opts.showSort) {
             roundBtn("⇅", cfg.sortByImpact, cfg.sortByImpact
                 ? this.locStr("Btn_SortOff", "Remove impact sorting") : this.locStr("Btn_SortOn", "Sort by impact (largest driver first)"),
-                () => persist({ sortByImpact: cfg.sortByImpact ? "off" : "abs" }),
+                () => persist({ sortMode: cfg.sortByImpact ? "off" : "abs" }),
                 this.sortNoop ? this.locStr("Lock_SortSame", "No effect: the order already matches the impact order") : null);
         }
         if (opts.showRef) {
@@ -15538,14 +15545,12 @@ export class Visual implements IVisual {
     }
 
     /** running YTD totals for value/PY/PL with variances recomputed on the cumulated numbers */
-    /** 1.54 (B04): the sort key from chart.sortByImpact; reports up to 1.53 stored a
-     *  boolean there (true = by |Δ|) */
+    /** 1.54 (B04): the sort key — chart.sortMode when stored, else the legacy boolean
+     *  chart.sortByImpact (true = by |Δ|) */
     private sortMode(): SortMode {
-        const v = (this.formattingSettings.chartCard.sortByImpact.value as unknown as { value?: unknown })?.value;
-        const raw = this.rawSortImpact !== undefined ? this.rawSortImpact : v;
-        if (raw === true || raw === "true") { return "abs"; }
-        if (raw === false || raw === "false" || raw == null) { return "off"; }
-        const sv = String(raw);
+        const cc = this.formattingSettings.chartCard;
+        if (!this.sortModeStored) { return cc.sortByImpact.value === true ? "abs" : "off"; }
+        const sv = String((cc.sortMode.value as powerbi.IEnumMember)?.value ?? "off");
         return (["off", "abs", "signed", "pct", "ac"] as SortMode[]).includes(sv as SortMode) ? sv as SortMode : "off";
     }
 
@@ -15970,9 +15975,11 @@ export class Visual implements IVisual {
 
     /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
     private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
-        const sorted = [...points].sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
+        // 1.54 (B04): a named rest row ("Sonstige", "Rest of USA") is no ranking
+        // candidate — it joins the aggregated tail
+        const sorted = points.filter(p => !isRestRow(p)).sort((a, b) => (b.value ?? -Infinity) - (a.value ?? -Infinity));
         const head = sorted.slice(0, topN);
-        const tail = sorted.slice(topN);
+        const tail = sorted.slice(topN).concat(points.filter(p => isRestRow(p)));
         return [...head, this.aggregateTail(tail,
             `${this.locStr("Label_Rest", "Other")} (${tail.length})`,
             head.length > 0 ? head[0].group : null)];

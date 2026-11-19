@@ -76,8 +76,9 @@ const matrixCompareItems: LocEnumMember[] = [
     { value: "prevcol", displayName: "Δ vs. previous column", key: "Enum_MxCompare_Prev" }
 ];
 
-// 1.54 (backlog B04): sort key of bridges and bars; rest rows (Rest, Other, Sonstige …)
-// always stay at the end. Reports up to 1.53 stored a boolean (true = "abs")
+// 1.54 (backlog B04): sort key of bridges and bars (chart.sortMode); rest rows (Rest,
+// Other, Sonstige, Rest of …) always stay at the end. The old boolean chart.sortByImpact
+// stays as a hidden legacy property: a report without sortMode keeps its old behaviour
 const sortImpactItems: LocEnumMember[] = [
     { value: "off", displayName: "Off (data order)", key: "Enum_SortImpact_Off" },
     { value: "abs", displayName: "By impact |Δ|", key: "Enum_SortImpact_Abs" },
@@ -541,12 +542,22 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
-    sortByImpact = new formattingSettings.ItemDropdown({
+    // ≤ 1.53 pane switch, since 1.54 hidden: read only when chart.sortMode is not set
+    sortByImpact = new formattingSettings.ToggleSwitch({
         name: "sortByImpact",
-        displayName: "Sort",
+        displayName: "Sort by impact",
         displayNameKey: "Chart_SortByImpact",
-        description: "Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach |Δ| (größter Treiber zuerst), nach Δ vorzeichenbehaftet (größtes Plus zuerst), nach Δ % oder nach AC, jeweils absteigend. Rest-Zeilen (Rest, Other, Others, Sonstige, Übrige, „Rest of …“ und die Top-N-Rest-Zeile) bleiben kursiv am Ende. Das ⇅-Symbol im Chart schaltet zwischen Aus und |Δ|.",
+        description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
         descriptionKey: "Desc_Chart_SortByImpact",
+        value: false
+    });
+
+    sortMode = new formattingSettings.ItemDropdown({
+        name: "sortMode",
+        displayName: "Sort",
+        displayNameKey: "Chart_SortMode",
+        description: "Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach |Δ| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC, jeweils absteigend. Rest-Zeilen (Rest, Other, Others, Sonstige, Übrige, „Rest of …“ und die Top-N-Rest-Zeile) bleiben kursiv am Ende. Das ⇅-Symbol im Chart schaltet zwischen Aus und |Δ|.",
+        descriptionKey: "Desc_Chart_SortMode",
         items: sortImpactItems,
         value: sortImpactItems[0]
     });
@@ -723,7 +734,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
+        slices: [this.waterfallStyle, this.sortMode, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({

@@ -23,7 +23,7 @@ reserviert (Fläche, Boxplot). Zuordnung Vorlage → IBCS-Blatt:
 | C14 Balkentabelle nach ΔPL | 04A | orientation=table · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · showTotal=true · totalRowPosition=bottom · tableTotalLegend=true · tableSort=`dabs_desc` · gridLines=none · cumulative=false · topN=0 |
 | C15 Balkentabelle nach ΔPL % | 04B | wie C14 mit tableSort=`drel_desc` |
 | C16 Balkentabelle nach AC | 04C | wie C14 mit tableSort=`ac_desc` |
-| C17 Kategorie-Brücke waagerecht | 06E (06F/06G/06H mit `sortByImpact` signed/pct/ac) | orientation=catbridge · bridgeOrientation=bars · comparisonMode=py · showAbs/showRel=true · dualVariance=false · pyTriangle=false · groupEvery=4 · driverNote=false · sortByImpact=false |
+| C17 Kategorie-Brücke waagerecht | 06E (06F/06G/06H mit `sortMode` signed/pct/ac) | orientation=catbridge · bridgeOrientation=bars · comparisonMode=py · showAbs/showRel=true · dualVariance=false · pyTriangle=false · groupEvery=4 · driverNote=false |
 | C18 Abweichungs-Scatter | 10F | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=true · scatterTrend=off · scatterArrows/scatterShapes=false · `scale.refLine`=0 · `scale.xRefLine`=0 |
 | C19 Säulen gegen Plan + Jahressäule | 03B (03A mit comparisonMode=py) | siehe B05 unten |
 
@@ -64,15 +64,15 @@ mit comparisonMode=py). Tests: `test:scale` YC03A/YC03B (Pixelmessung), YCneg/YC
 Rückfälle YCcum/YCwf/YCbars/YCcompact/YCnarrow/YCcumPy,
 `test:render` c267.
 
-*B04 · Sortierung als Enum mit fester Rest-Zeile (Blätter 06F, 06G, 06H; 04A bis 04C).* `chart.sortByImpact` ist
-ab 1.54 ein Enum `off` · `abs` (|Δ|, bisheriges Verhalten) · `signed` (Δ vorzeichenbehaftet absteigend, 06F) · `pct`
+*B04 · Sortierung als Enum mit fester Rest-Zeile (Blätter 06F, 06G, 06H; 04A bis 04C).* neue Property `chart.sortMode` (Enum; `chart.sortByImpact` bleibt
+als versteckter Bool für Berichte bis 1.53: ohne gespeichertes `sortMode` gilt `true` = `abs`, nur in Brücken) `off` · `abs` (|Δ|, bisheriges Verhalten) · `signed` (Δ vorzeichenbehaftet absteigend, 06F) · `pct`
 (Δ % absteigend, 06G; n.a. ans Ende) · `ac` (AC absteigend, 06H). **Kompatibilität:** gespeichertes `true` gilt als
 `abs`, `false` als `off` (SVG-gleich, Test c273); PBIR-Autoren schreiben ab 1.54 den String. Wirkt in Kategorie-Brücke,
 Wasserfall-Brücke (`waterfallStyle`) und neu auch in Balken ohne Stapel. Rest-Zeilen bleiben am Ende, in Datenfolge
 und kursiv: die Top-N-Rest-Zeile und jede Kategorie, deren Name auf
 `/^(other|others|sonstige|übrige|rest|otros|otras|resto)|^その他/i` passt (Regel des P&L Statement). Dieselbe Regel
 gilt für die Spaltensortierung der Tabelle/Matrix (`tableSort`), daher C14 bis C16 nun ohne Restpunkt. Der ⇅-Knopf
-schreibt `"abs"` bzw. `"off"`. Zuordnung: 06F = C17 + `sortByImpact=signed`, 06G = C17 + `pct`, 06H = C17 + `ac`.
+schreibt `sortMode` `"abs"` bzw. `"off"`. Rest-Regel ab Review enger: Name muss eine Rest-Bezeichnung sein („Sonstige betriebliche Erträge“ bleibt Konto); Top N nimmt benannte Rest-Zeilen in die Rest-Zeile. Zuordnung: 06F = C17 + `sortMode=signed`, 06G = C17 + `pct`, 06H = C17 + `ac`.
 Tests c268 bis c274.
 
 *B06 · Szenario-Notation im Stapel (Blatt 01C; Basis für 01A, 01B, 01D, 01E).* Keine neue Property. `renderStacked`
@@ -468,7 +468,8 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
 | `waterfallStyle` | bool | `false` | Nur Säulen/Balken: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken … |
-| `sortByImpact` | enum | `off` | `off` · `abs` · `signed` · `pct` · `ac` — Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ vorzeichenbehaftet (größtes Plus zuerst), nach Δ % oder nach AC, jeweils absteigend … |
+| `sortMode` | enum | `off` | `off` · `abs` · `signed` · `pct` · `ac` — Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC, jeweils … |
+| `sortByImpact` | bool | `false` | Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar. |
 | `bridgeOrientation` | enum | `auto` | `auto` · `bars` · `columns` — Nur Kategorie-Brücke: „Balken (horizontal)" zeigt die Kaskade zeilenweise wie bisher (Kategorien untereinander, Δ%-Pins rechts) … |
 | `bridgeBreak` | bool | `false` | Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden … |
 
@@ -555,7 +556,7 @@ Enum-Labels:
 - `acFcSplit`: `off` = Aus (FC nur, wo AC fehlt); `full` = FC = Vollmonatsprognose (Aufstockung);
   `rest` = FC = Restmonat (additiv)
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
-- `sortByImpact`: `off` = Aus (Datenreihenfolge); `abs` = Nach Wirkung |Δ|;
+- `sortMode`: `off` = Aus (Datenreihenfolge); `abs` = Nach Wirkung |Δ|;
   `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC
 - `bridgeOrientation`: `auto` = Automatisch; `bars` = Balken (horizontal); `columns` = Säulen (vertikal)
 - `valueColumns`: `ac` = Nur AC; `basis` = AC + Varianzbasis; `all` = AC · PY · PL
