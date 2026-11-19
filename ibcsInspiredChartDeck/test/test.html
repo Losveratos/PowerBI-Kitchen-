@@ -3030,6 +3030,50 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
     check(bars.length === 2 && gds.length === 2 && Math.abs(w[0] - w[1]) < 0.5, `c310: gleiche Bandbreite in beiden Kacheln (${w.map(v => v.toFixed(1)).join(", ")})`);
   }
 }
+// ---- 1.55 (B09, zweite Review): mehrere Marker auf dieselbe Kategorie, winziges Δ, negative Balken
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const box = el => el.getBoundingClientRect();
+  const ov = (p, q) => p.left < q.right - 1 && p.right > q.left + 1 && p.top < q.bottom - 1 && p.bottom > q.top + 1;
+  const inSvg = (id, el) => { const r = box(el), s = box(document.querySelector(`#${id} svg`));
+    return r.left >= s.left - 0.5 && r.right <= s.right + 0.5 && r.top >= s.top - 0.5 && r.bottom <= s.bottom + 0.5; };
+  const clean = id => {
+    const labs = qq(id, '[data-icd="diff-label"]'), bars = qq(id, '[data-icd="diff-bar"]');
+    const pairs = labs.some((l, i) => labs.some((m, j) => j > i && ov(box(l), box(m))));
+    const onBars = labs.some(l => bars.some(b => ov(box(l), box(b))));
+    return { n: labs.length, ok: !pairs && !onBars && labs.every(l => inSvg(id, l)) };
+  };
+  const mm = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  const ac = [80, 95, 70, 88, 92, 85, 90, 99, 84, 91, 87, 96], pl = [85, 90, 80, 85, 90, 90, 88, 95, 90, 90, 90, 90];
+  const four = t => ["Jan", "Feb", "Mär", "Apr"].map(f => `${f} > ${t}`).join("; ");
+  addStage("c311", "Säulen · vier Marker auf Dez (Rand) · Texte nebeneinander lesbar, nicht unter den Balken", 900, 420);
+  runCap("c311", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "columns", diffMarkers: four("Dez") } }), 900, 420);
+  { const r = clean("c311"); check(r.n === 4 && r.ok, `c311: vier Randmarker ohne Überlappung (${r.n})`); }
+  addStage("c312", "Balken · vier Marker auf Dez (letzte Zeile) · Texte in einer Zeile im Visual", 900, 400);
+  runCap("c312", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "bars", diffMarkers: four("Dez") } }), 900, 400);
+  { const r = clean("c312"); check(r.n === 4 && r.ok, `c312: vier Balken-Randmarker im Visual, ohne Überlappung (${r.n})`); }
+  addStage("c313", "Säulen · vier Marker auf Jun (Mitte) · nur so viele, wie Textzeilen darüber passen", 900, 420);
+  runCap("c313", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "columns", diffMarkers: four("Jun").replace("Jan > Jun", "Dez > Jun") } }), 900, 420);
+  { const r = clean("c313"); check(r.n >= 1 && r.ok, `c313: Marker in der Mitte ohne Überlappung, überzählige entfallen (${r.n})`); }
+  addStage("c314", "Balken · vier Marker auf Jun (enge Lücke) · nur so viele, wie in die Lücke passen", 900, 360);
+  runCap("c314", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "bars", diffMarkers: four("Jun").replace("Jan > Jun", "Dez > Jun") } }), 900, 360);
+  {
+    const r = clean("c314");
+    const jul = qq("c314", "text").filter(x => x.textContent === "Jul").map(box)[0];
+    const bars = qq("c314", '[data-icd="diff-bar"]').map(box);
+    check(r.n >= 1 && r.ok && !!jul && bars.every(b => b.bottom <= jul.top + jul.height / 2), `c314: Marker bleiben in der Lücke vor Jul (${r.n} gezeichnet)`);
+  }
+  addStage("c315", "Säulen in Mio. · Marker Jan > Feb mit Δ 400 · Text zeigt eine Ziffer ungleich null", 900, 360);
+  runCap("c315", dataView(["Jan", "Feb", "Mär"], [col("actual", [7100000, 7100400, 8200000])], { chart: { orientation: "columns", diffMarkers: "Jan > Feb!" } }), 900, 360);
+  { const t = (qq("c315", '[data-icd="diff-label"]')[0] || {}).textContent || ""; check(/[1-9]/.test(t), `c315: winziges Δ sichtbar (${t})`); }
+  addStage("c316", "Balken mit negativen Werten · Marker Feb > Mär · Text links vom Balkenende, nicht auf der Nachbarzeile", 900, 360);
+  runCap("c316", dataView(mm.slice(0, 6), [col("actual", [-80, -95, -70, -88, -92, -85])], { chart: { orientation: "bars", diffMarkers: "Feb > Mär" } }), 900, 360);
+  {
+    const l = qq("c316", '[data-icd="diff-label"]')[0];
+    const hits = l ? qq("c316", "g.icd-cat rect").filter(o => { const r = box(o); return r.width > 0 && r.height > 0 && ov(box(l), r); }) : [null];
+    check(!!l && hits.length === 0 && inSvg("c316", l), `c316: negativer Balken-Marker frei (${l ? l.textContent : "–"}, ${hits.length} Treffer)`);
+  }
+}
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {
   const dv = dataView(t2Cats, [col("actual", t2Ac, "#,0"), col("previousYear", t2Py, "#,0"), col("plan", t2Pl, "#,0")],

@@ -322,23 +322,27 @@ interface DiffMarkerDraw {
     level: boolean; fc: boolean;
     /** beside the bar in room reserved at the band end (else above it / after it) */
     edge: boolean;
-    /** k-th marker on the same target and side: offset by one bar width each */
-    k: number;
+    /** k-th of kN markers in the same gap (both directions share it): offset by one bar width each */
+    k: number; kN: number;
     /** bars: width of the To row's value label, kept clear of the marker label */
     clearW: number;
     /** 100 % stacks: Δ in percentage points */
     pp: boolean;
 }
-/** side, edge and offset slot of each marker (side +1 = towards the higher index) */
-function diffPlan(list: { fi: number; ti: number }[], n: number, allowLo: boolean, allowHi: boolean): { side: number; edge: boolean; k: number }[] {
-    const seen = new Map<string, number>();
-    return list.map(m => {
+/** side, edge and offset slot of each marker (side +1 = towards the higher index).
+ *  Markers share a slot counter per gap (gap g lies between category g and g+1), so
+ *  "A > B" below one row and "D > C" above the next never draw on top of each other */
+type DiffPlanItem = { side: number; edge: boolean; k: number; kN: number };
+function diffPlan(list: { fi: number; ti: number }[], n: number, allowLo: boolean, allowHi: boolean): DiffPlanItem[] {
+    const seen = new Map<number, number>();
+    const out = list.map(m => {
         const side = m.ti > m.fi ? 1 : -1;
-        const key = `${m.ti}|${side}`;
-        const k = seen.get(key) ?? 0;
-        seen.set(key, k + 1);
-        return { side, edge: side > 0 ? m.ti === n - 1 && allowHi : m.ti === 0 && allowLo, k };
+        const gap = side > 0 ? m.ti : m.ti - 1;
+        const k = seen.get(gap) ?? 0;
+        seen.set(gap, k + 1);
+        return { side, gap, edge: side > 0 ? m.ti === n - 1 && allowHi : m.ti === 0 && allowLo, k, kN: 0 };
     });
+    return out.map(o => ({ side: o.side, edge: o.edge, k: o.k, kN: seen.get(o.gap) ?? 1 }));
 }
 
 function isRestRow(p: DataPoint): boolean {
@@ -14601,7 +14605,7 @@ export class Visual implements IVisual {
         }).filter((x): x is StackDiff => x != null).slice(0, DIFF_MARKER_MAX);
         const stackPlan = diffPlan(stackDiff, n, true, true);
         const stackRooms = this.diffRooms(stackDiff.map(x => this.diffText({ spec: x.m, d: x.vt - x.vf, base: x.vf, pp: norm }, cfg)),
-            stackPlan, orientation, cfg, cfg.sharedScale ? domain[1] - domain[0] : 0, norm);
+            stackPlan, orientation, cfg, cfg.sharedScale ? domain[1] - domain[0] : 0, norm, region.w * 0.2);
         // 01A: with room on the right the series names go left of the first column
         const legendStart = orientation === "columns" && (legendStartCfg || (stackRooms.hi > 0 && stackRooms.lo === 0));
         // 1.52.1 chart.stackLegendDirect: series names right at the stack (columns:
@@ -14971,7 +14975,7 @@ export class Visual implements IVisual {
                 // the level line only where levels are comparable: the total or the bottom series
                 level: x.si <= 0,
                 fc: scen[x.fi] === "fc" || scen[x.ti] === "fc",
-                edge: stackPlan[i].edge, k: stackPlan[i].k, pp: norm,
+                edge: stackPlan[i].edge, k: stackPlan[i].k, kN: stackPlan[i].kN, pp: norm,
                 clearW: orientation === "bars" && x.si < 0 ? this.textWidth(cfg.fmt.format(x.vt), cfg.labelFont) : 0
             })), scale, orientation, cfg, region, bg,
             cats.map((_, i) => ({ lo: pos(i), hi: pos(i) + slotW, top: scale(capV(posTot[i])) - 4 - cfg.labelFont })));
@@ -15290,7 +15294,7 @@ export class Visual implements IVisual {
         const plainPlan = diffPlan(plainDiff, n, !(yr && orientation === "columns"), !(yr && orientation === "columns"));
         const diffRooms = this.diffRooms(plainDiff.map(m => this.diffText({ spec: m.spec,
             d: (mv(m.ti) as number) - (mv(m.fi) as number), base: mv(m.fi) as number }, cfg)),
-            plainPlan, orientation, cfg, cfg.sharedScale ? cfg.mainDomain[1] - cfg.mainDomain[0] : 0, false);
+            plainPlan, orientation, cfg, cfg.sharedScale ? cfg.mainDomain[1] - cfg.mainDomain[0] : 0, false, region.w * 0.2);
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10 + (scenOn ? cfg.catFont + 2 : 0);
             bandStart = region.x + pad + 2 + diffRooms.lo;
@@ -15990,7 +15994,7 @@ export class Visual implements IVisual {
                     toLo: slotPos(m.ti), toHi: slotPos(m.ti) + slotW, gap: step - slotW,
                     fromTop: vf, toTop: vt, d: vt - vf, base: vf, level: true,
                     fc: points[m.fi].isFc || points[m.ti].isFc,
-                    edge: plainPlan[i].edge, k: plainPlan[i].k, pp: false,
+                    edge: plainPlan[i].edge, k: plainPlan[i].k, kN: plainPlan[i].kN, pp: false,
                     clearW: orientation === "bars" ? this.textWidth(cfg.fmt.format(vt), cfg.labelFont) : 0 };
             }), mainScale, orientation, cfg, panels.main, bg,
             // the columns' tops with their value labels (AC, PL outline, PY column)
@@ -16910,7 +16914,10 @@ export class Visual implements IVisual {
             return `${r > 0 ? "+" : r < 0 ? "−" : ""}${nf.format(Math.abs(r))} ${this.locStr("Label_PctPoints", "pp")}`;
         }
         // the values' unit and precision, more digits only when Δ would round to zero
-        const abs = this.fmtSigned(cfg.fmtDiff, m.d);
+        let abs = this.fmtSigned(cfg.fmtDiff, m.d);
+        for (let p = cfg.fmtPrec + 1; m.d !== 0 && !/[1-9]/.test(abs) && p <= 6; p++) {
+            abs = this.fmtSigned(this.buildFormatter(cfg.fmtUnit, p, undefined, false), m.d);
+        }
         if (m.spec.noPct) { return abs; }
         const rel = relVar(m.d, m.base);
         return rel == null ? abs : `${abs} (${this.fmtPercent(rel)})`;
@@ -16927,8 +16934,8 @@ export class Visual implements IVisual {
      * row). Small multiples size the label from the deck-wide value span, so
      * every tile keeps the same plot width.
      */
-    private diffRooms(texts: string[], plan: { side: number; edge: boolean; k: number }[],
-        orientation: Orientation, cfg: ChartConfig, deckSpan: number, pp: boolean): { lo: number; hi: number } {
+    private diffRooms(texts: string[], plan: DiffPlanItem[],
+        orientation: Orientation, cfg: ChartConfig, deckSpan: number, pp: boolean, maxRoom: number): { lo: number; hi: number } {
         const bw = this.diffBarW();
         const worst = deckSpan > 0
             ? (pp ? this.diffText({ d: -100, base: 0, spec: { noPct: true } as DiffMarkerSpec, pp: true }, cfg)
@@ -16937,10 +16944,14 @@ export class Visual implements IVisual {
         const one = (side: number): number => {
             const idx = plan.map((_, i) => i).filter(i => plan[i].edge && plan[i].side === side);
             if (idx.length === 0) { return 0; }
-            const bars = 2 + (Math.max(...idx.map(i => plan[i].k)) + 1) * (bw + 2);
-            if (orientation !== "columns") { return bars + 2; }
+            const bars = 2 + Math.max(...idx.map(i => plan[i].kN)) * (bw + 2);
+            // bars: several labels may need their own line beyond the bars
+            if (orientation !== "columns") { return bars + 2 + (Math.max(...idx.map(i => plan[i].kN)) > 1 ? cfg.labelFont + 4 : 0); }
             const tw = Math.max(...(worst != null ? [worst] : idx.map(i => texts[i])).map(t => this.textWidth(t, cfg.labelFont)));
-            return Math.round(bars + 3 + tw + 8);
+            const room = Math.round(bars + 3 + tw + 8);
+            // small visuals: no band room beyond maxRoom, the label then goes above the bar
+            if (room > maxRoom) { idx.forEach(i => { plan[i].edge = false; }); return 0; }
+            return room;
         };
         return { lo: one(-1), hi: one(1) };
     }
@@ -16960,14 +16971,27 @@ export class Visual implements IVisual {
         const lf = cfg.labelFont;
         const bw = this.diffBarW();
         const placed = new Map<string, number[]>();
+        const peek = (key: string, v: number, dir: number): number => {
+            const list2 = placed.get(key) ?? [];
+            for (let guard = 0; guard < 8 && list2.some(p => Math.abs(v - p) < lf + 4); guard++) { v += dir * (lf + 4); }
+            return v;
+        };
         const push = (key: string, v: number, dir: number): number => {
             const list2 = placed.get(key) ?? [];
-            for (let guard = 0; guard < 8 && list2.some(p => Math.abs(v - p) < lf + 2); guard++) { v += dir * (lf + 2); }
+            for (let guard = 0; guard < 8 && list2.some(p => Math.abs(v - p) < lf + 4); guard++) { v += dir * (lf + 4); }
             list2.push(v);
             placed.set(key, list2);
             return v;
         };
+        // bars: the labels of one gap share a line, laid out after all markers are drawn
+        const rows = new Map<string, { t: SVGElement; tw: number; x: number; y: number; neg: boolean; barEnd: number; side: number; c: number }[]>();
         for (const m of list) {
+            const side = m.toBand >= m.fromBand ? 1 : -1;
+            const off = m.k * (bw + 2);
+            // in the gap beside the To slot; too narrow a gap: only the first marker, on
+            // the slot's own edge (further markers there would sit on the neighbour)
+            const free = m.edge || m.gap >= bw + 4 + off;
+            if (!free && m.k > 0) { continue; }
             const color = m.d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(m.d) ? cfg.colors.good : cfg.colors.bad;
             const g = this.el("g", {
                 "data-icd": "diff-marker", "data-from": m.spec.from, "data-to": m.spec.to,
@@ -16978,17 +17002,42 @@ export class Visual implements IVisual {
             const fill = m.fc && !cfg.hc ? `url(#${cfg.isGood(m.d) ? cfg.patGood : cfg.patBad})` : color;
             const text = this.diffText(m, cfg);
             const tw = this.textWidth(text, lf);
-            const side = m.toBand >= m.fromBand ? 1 : -1;
-            const off = m.k * (bw + 2);
-            // in the gap beside the To slot; too narrow a gap: on the slot's own edge
-            const free = m.edge || m.gap >= bw + 4 + off;
             const c = free ? (side > 0 ? m.toHi + 2 + off : m.toLo - 2 - off - bw) : (side > 0 ? m.toHi - bw : m.toLo);
+            // outer end of all marker bars in this gap: labels beside them start there
+            const outer = side > 0 ? m.toHi + 2 + m.kN * (bw + 2) + 1 : m.toLo - 2 - m.kN * (bw + 2) - 1;
             const e = side > 0 ? m.toHi : m.toLo;
+            // both levels at or below zero: the marker hangs below the axis
+            const below = Math.max(m.fromTop, m.toTop) <= 0;
             const guide = { stroke: cfg.subtle, "stroke-width": 1, "data-from": m.spec.from, "data-to": m.spec.to };
             const lbl = { "font-size": lf, fill: cfg.ink, "font-family": FONT, stroke: cfg.paper, "stroke-width": 3,
                 "paint-order": "stroke", "data-icd": "diff-label" };
             let t: SVGElement;
             if (orientation === "columns") {
+                // the label first: beside the bars (reserved room, or one marker in a wide
+                // enough gap), else above the bar and above every column (with its value
+                // label, `sky`) the text spans, below it for markers under zero. A marker
+                // whose label line no longer fits into the plot is left out entirely.
+                const beside = m.edge || (m.kN === 1 && Math.abs(outer - e) + tw + 6 <= m.gap);
+                const cx = Math.max(clip.x + tw / 2 + 2, Math.min(clip.x + clip.w - tw / 2 - 2, c + bw / 2));
+                let lx: number, ly: number, anchor: string;
+                if (beside) {
+                    ly = push(`e${side}|${Math.round(e)}`, (a + b) / 2 + lf * 0.35, 1);
+                    ly = Math.max(clip.y + lf, Math.min(ly, clip.y + clip.h - 2));
+                    lx = side > 0 ? outer + 2 : outer - 2;
+                    anchor = side > 0 ? "start" : "end";
+                } else if (below) {
+                    const key = `d${Math.round(m.toBand)}`;
+                    const v = peek(key, Math.max(a, b) + lf + 4, 1);
+                    if (v > clip.y + clip.h - 2) { g.remove(); continue; }
+                    ly = push(key, v, 1); lx = cx; anchor = "middle";
+                } else {
+                    let y0 = Math.min(a, b) - 7;
+                    for (const sk of sky) { if (sk.hi > cx - tw / 2 - 2 && sk.lo < cx + tw / 2 + 2) { y0 = Math.min(y0, sk.top - 5); } }
+                    const key = `t${Math.round(m.toBand)}`;
+                    const v = peek(key, y0, -1);
+                    if (v < clip.y + lf) { g.remove(); continue; }
+                    ly = push(key, v, -1); lx = cx; anchor = "middle";
+                }
                 if (m.level) {
                     const yF = scale(m.fromTop), yT = scale(m.toTop);
                     this.el("line", { x1: Math.min(m.fromBand - m.halfW, c), y1: yF, x2: Math.max(m.fromBand + m.halfW, c + bw), y2: yF,
@@ -17000,19 +17049,7 @@ export class Visual implements IVisual {
                 }
                 this.el("rect", { x: c, y: Math.min(a, b), width: bw, height: Math.max(Math.abs(b - a), 2), fill,
                     stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "diff-bar" }, g);
-                if (m.edge) {
-                    const ty = push(`e${side}`, (a + b) / 2 + lf * 0.35, 1);
-                    t = this.el("text", { x: side > 0 ? c + bw + 3 : c - 3, y: Math.min(ty, clip.y + clip.h - 2),
-                        "text-anchor": side > 0 ? "start" : "end", ...lbl }, g);
-                } else {
-                    // between columns: above the bar and above every column (with its value
-                    // label, `sky`) the text spans
-                    const cx = Math.max(clip.x + tw / 2 + 2, Math.min(clip.x + clip.w - tw / 2 - 2, c + bw / 2));
-                    let y0 = Math.min(a, b) - 4;
-                    for (const sk of sky) { if (sk.hi > cx - tw / 2 - 2 && sk.lo < cx + tw / 2 + 2) { y0 = Math.min(y0, sk.top - 5); } }
-                    const ty = push(`t${Math.round(m.toBand)}`, y0, -1);
-                    t = this.el("text", { x: cx, y: Math.max(clip.y + lf, ty), "text-anchor": "middle", ...lbl }, g);
-                }
+                t = this.el("text", { x: lx, y: ly, "text-anchor": anchor, ...lbl }, g);
             } else {
                 if (m.level) {
                     const xF = scale(m.fromTop), xT = scale(m.toTop);
@@ -17024,15 +17061,39 @@ export class Visual implements IVisual {
                 }
                 this.el("rect", { x: Math.min(a, b), y: c, width: Math.max(Math.abs(b - a), 2), height: bw, fill,
                     stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "diff-bar" }, g);
-                // after the bar end and past the To row's value label; inside the visual
-                let tx = Math.max(Math.max(a, b) + 4, b + 4 + (m.clearW > 0 ? m.clearW + 6 : 0));
-                let anchor = "start";
-                if (tx + tw > clip.x + clip.w - 2) { tx = clip.x + clip.w - 2; anchor = "end"; }
-                const ty = push(`b${Math.round(m.toBand)}`, c + bw / 2 + lf * 0.35, side);
-                t = this.el("text", { x: tx, y: ty, "text-anchor": anchor, ...lbl }, g);
+                // after the bar end and past the To row's value label (left of it when the
+                // bars point left); positioned per gap below
+                const x = below ? Math.min(Math.min(a, b) - 4, b - 4 - (m.clearW > 0 ? m.clearW + 6 : 0))
+                    : Math.max(Math.max(a, b) + 4, b + 4 + (m.clearW > 0 ? m.clearW + 6 : 0));
+                t = this.el("text", { x, y: c + bw / 2 + lf * 0.35, ...lbl }, g);
+                const key = `${side > 0 ? "s" : "n"}${Math.round(e)}`;
+                rows.set(key, [...(rows.get(key) ?? []), { t, tw, x, y: c + bw / 2 + lf * 0.35, neg: below,
+                    barEnd: below ? Math.min(a, b) : Math.max(a, b), side, c }]);
             }
             t.textContent = text;
             g.setAttribute("aria-label", `${m.spec.from} → ${m.spec.to}${m.spec.series ? ` (${m.spec.series})` : ""}: ${text}`);
+        }
+        // bars: one line per gap, left to right (right to left below zero), inside the visual;
+        // pushed back so far that it would cover its bars → one line beyond the outermost bar
+        const L0 = clip.x + 2, R0 = clip.x + clip.w - 2;
+        for (const row of rows.values()) {
+            const y = row[0].y;
+            const xs: number[] = [];
+            let cur = row[0].x;
+            for (const r of row) {
+                const x = r.neg ? Math.min(r.x, cur) : Math.max(r.x, cur);
+                xs.push(x);
+                cur = r.neg ? x - r.tw - 8 : x + r.tw + 8;
+            }
+            const end = row[row.length - 1].neg ? cur + 8 : cur - 8;
+            const shift = row[0].neg ? Math.max(0, L0 - end) : Math.min(0, R0 - end);
+            const hitsBar = shift !== 0 && row.some((r, i) => r.neg ? xs[i] + shift > r.barEnd - 2 : xs[i] + shift < r.barEnd + 2);
+            const yOut = row[0].side > 0 ? Math.max(...row.map(r => r.c)) + bw + lf + 2 : Math.min(...row.map(r => r.c)) - 4;
+            row.forEach((r, i) => {
+                r.t.setAttribute("x", String(xs[i] + shift));
+                r.t.setAttribute("y", String(hitsBar ? Math.min(yOut, clip.y + clip.h - 2) : y));
+                r.t.setAttribute("text-anchor", r.neg ? "end" : "start");
+            });
         }
     }
 
