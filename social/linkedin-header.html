@@ -24,24 +24,25 @@ html,body{background:#333}
   background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
   background-size:24px 24px;
   -webkit-mask-image:linear-gradient(90deg,#000 0,#000 35%,transparent 58%);mask-image:linear-gradient(90deg,#000 0,#000 35%,transparent 58%)}
-#flow{position:absolute;left:0;top:0;width:450px;height:396px}
+#flow{position:absolute;left:0;top:0;width:480px;height:396px}
 .logo{position:absolute;left:46px;top:40px;width:250px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.45))}
 
-.copy{position:absolute;left:428px;top:40px;width:340px}
+.copy{position:absolute;left:490px;top:38px;width:300px}
 .eyebrow{font-family:var(--sans);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-light);font-weight:600}
 .eyebrow .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warm);margin:0 8px 2px;vertical-align:middle}
-h1{font-family:var(--display);font-weight:300;font-size:56px;line-height:1;letter-spacing:-.025em;margin-top:14px}
+h1{font-family:var(--display);font-weight:300;font-size:50px;line-height:1;letter-spacing:-.025em;margin-top:14px}
 h1 em{font-style:italic;font-weight:300;color:var(--brand-light);position:relative}
 h1 em::after{content:"";position:absolute;left:-2px;right:-4px;bottom:2px;height:9px;background:var(--yellow);opacity:.85;z-index:-1;border-radius:2px}
 h1 em{z-index:0;isolation:isolate}
-.sub{font-size:15.5px;line-height:1.45;color:var(--soft);margin-top:18px}
+.sub{font-size:15px;line-height:1.45;color:var(--soft);margin-top:16px}
 .sub strong{color:var(--ink);font-weight:600}
-.meta{position:absolute;left:428px;bottom:26px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-family:var(--sans);font-size:13.5px}
-.pill{border-radius:999px;padding:5px 11px;font-weight:700;background:var(--ink);color:#0C0F0E}
-.url{color:var(--brand-light);font-weight:700}
+/* Adresse rechts vom Profilbild, bündig mit der Unterkante der Kacheln */
+.url{position:absolute;left:490px;bottom:24px;display:flex;align-items:center;gap:8px;
+  font-family:var(--sans);font-size:14.5px;font-weight:700;color:var(--ink);letter-spacing:.005em}
+.url::before{content:"";width:22px;height:2px;background:var(--brand-light);border-radius:2px}
 
 /* Kachel-Mosaik mit echten Beispielen */
-.mosaic{position:absolute;right:24px;top:22px;width:770px;height:352px;display:flex;flex-direction:column;gap:10px}
+.mosaic{position:absolute;right:24px;top:22px;width:744px;height:352px;display:flex;flex-direction:column;gap:10px}
 .row{display:flex;gap:10px;height:171px}
 .tile{position:relative;flex:none;border-radius:12px;overflow:hidden;border:1px solid var(--tile-line);background:var(--tile);
   box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
@@ -60,7 +61,7 @@ h1 em{z-index:0;isolation:isolate}
 </head>
 <body>
 <div id="banner">
-  <svg id="flow" viewBox="0 0 450 396" aria-hidden="true"></svg>
+  <svg id="flow" viewBox="0 0 480 396" aria-hidden="true"></svg>
   <img class="logo" src="img/daten-wg-logo-petrol.png" alt="Daten-WG">
 
   <div class="copy">
@@ -68,36 +69,33 @@ h1 em{z-index:0;isolation:isolate}
     <h1>Daten zum<br><em>Nachkochen.</em></h1>
     <p class="sub"><strong>Visual Stories</strong> und <strong>Power-BI-Visuals</strong> nach IBCS-Vorbild für Controlling&nbsp;&amp;&nbsp;Finance. Kostenlos und Open&nbsp;Source.</p>
   </div>
-  <div class="meta">
-    <span class="pill">167 Podcast-Folgen</span>
-    <span class="url">datenwgknowledgekitchen.com</span>
-  </div>
+  <div class="url">datenwgknowledgekitchen.com</div>
 
   <div class="mosaic">
     <div class="row">
-      <div class="tile light" style="width:272px;--c:var(--brand-light)">
+      <div class="tile light" style="width:262px;--c:var(--brand-light)">
         <div class="pic"><img src="img/ck-integrierte-varianz.png" alt="ChartKitchen: integrierte Varianz-Brücke"></div>
         <div class="cap"><b>ChartKitchen</b><span>Integrierte Varianz</span></div>
       </div>
-      <div class="tile dark" style="width:184px;--c:var(--blue)">
+      <div class="tile dark" style="width:176px;--c:var(--blue)">
         <div class="pic"><img src="img/story-rhein.jpg" alt="Visual Story: 209 Jahre Rhein bei Köln"></div>
         <div class="cap"><b>Story</b><span>Rhein · 209 Jahre</span></div>
       </div>
-      <div class="tile dark" style="width:158px;--c:#E5675A">
+      <div class="tile dark" style="width:152px;--c:#E5675A">
         <div class="pic"><img src="img/story-waermestreifen.jpg" alt="Wärmestreifen in 3D: 175 Jahre Klimageschichte"></div>
         <div class="cap"><b>Klima</b><span>175 Jahre</span></div>
       </div>
-      <div class="tile dark fit" style="width:126px;--c:var(--warm)">
+      <div class="tile dark fit" style="width:124px;--c:var(--warm)">
         <div class="pic"><img src="img/story-koeln-karte.jpg" alt="Visual Story Köln blitzt: Karte der Stadtteile"></div>
         <div class="cap"><b>Story</b><span>Köln</span></div>
       </div>
     </div>
     <div class="row">
-      <div class="tile light" style="width:340px;--c:var(--brand-light)">
+      <div class="tile light" style="width:330px;--c:var(--brand-light)">
         <div class="pic"><img src="img/pnl-statement.png" alt="P&amp;L Statement byDatenWG: GuV mit ΔPL-Wasserfall"></div>
         <div class="cap"><b>P&amp;L Statement</b><span>GuV mit Plan-Abweichung</span></div>
       </div>
-      <div class="tile light" style="width:420px;--c:var(--brand-light)">
+      <div class="tile light" style="width:404px;--c:var(--brand-light)">
         <div class="pic"><img src="img/pnl-sankey.png" alt="P&amp;L Statement byDatenWG: Sankey der GuV"></div>
         <div class="cap"><b>P&amp;L Statement</b><span>Sankey · wohin das Geld fließt</span></div>
       </div>
@@ -114,13 +112,13 @@ h1 em{z-index:0;isolation:isolate}
   el(g,'stop',{offset:'0','stop-color':'#fff','stop-opacity':'1'});
   el(g,'stop',{offset:'.7','stop-color':'#fff','stop-opacity':'1'});
   el(g,'stop',{offset:'1','stop-color':'#fff','stop-opacity':'0'});
-  const m=el(d,'mask',{id:'m'});el(m,'rect',{x:0,y:0,width:450,height:396,fill:'url(#fade)'});
+  const m=el(d,'mask',{id:'m'});el(m,'rect',{x:0,y:0,width:480,height:396,fill:'url(#fade)'});
   const grp=el(s,'g',{mask:'url(#m)'});
   const bands=[[150,26,'#2A9582',.55],[200,20,'#5B9BD5',.45],[252,18,'#E07A4A',.5],
                [300,14,'#9A7BC0',.45],[342,12,'#F0D437',.6],[380,8,'#D8362B',.5]];
   let stack=150;
   bands.forEach(([y0,w,c,o])=>{
-    const y1=stack+w/2;stack+=w+1.5;const x0=-10,x1=450,cx=(x0+x1)/2;
+    const y1=stack+w/2;stack+=w+1.5;const x0=-10,x1=480,cx=(x0+x1)/2;
     el(grp,'path',{d:`M${x0},${y0-w/2} C${cx},${y0-w/2} ${cx},${y1-w/2} ${x1},${y1-w/2} L${x1},${y1+w/2} C${cx},${y1+w/2} ${cx},${y0+w/2} ${x0},${y0+w/2} Z`,fill:c,'fill-opacity':o});
   });
 })();
