@@ -4,51 +4,55 @@
 <meta charset="utf-8">
 <title>LinkedIn-Header · Knowledge Kitchen</title>
 <meta name="robots" content="noindex">
+<!-- LinkedIn-Profilbanner 1584 × 396. Rendern: Element #banner bei deviceScaleFactor 2 screenshotten. -->
 <link rel="stylesheet" href="../assets/fonts/fraunces/fraunces.css">
 <link rel="stylesheet" href="../assets/fonts/geist/geist.css">
 <link rel="stylesheet" href="../assets/fonts/jetbrains-mono/jetbrains-mono.css">
 <style>
 :root{
-  --bg:#FAFAF5; --card:#FFFFFF; --ink:#1A1A1A; --soft:#4A4A4A; --mute:#6B6B6B;
-  --line:#E5E2D8; --brand:#117865; --brand-soft:#2A9582; --warm:#C25A2D;
-  --yellow:#F0D437; --ac:#3A3A3A; --py:#B5B5B0; --good:#117865; --bad:#D8362B;
+  --bg:#0C0F0E; --ink:#F4F1E8; --soft:#B9B5A8; --mute:#8A877D;
+  --brand:#117865; --brand-light:#3DB39B; --warm:#E07A4A; --yellow:#F0D437;
+  --blue:#5B9BD5; --plum:#9A7BC0; --tile:#151917; --tile-line:rgba(255,255,255,.09);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{background:#ddd}
-#banner{
-  position:relative; width:1584px; height:396px; overflow:hidden;
-  background:var(--bg); font-family:'Geist',system-ui,sans-serif; color:var(--ink);
-}
-/* Karopapier wie im Kitchen-Notizbuch */
+html,body{background:#333}
+#banner{position:relative;width:1584px;height:396px;overflow:hidden;
+  background:radial-gradient(900px 420px at 30% 110%,rgba(17,120,101,.28),transparent 70%),var(--bg);
+  font-family:'Geist',system-ui,sans-serif;color:var(--ink)}
 #banner::before{content:"";position:absolute;inset:0;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:24px 24px; opacity:.55;
-  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 30%,transparent 62%);
-          mask-image:linear-gradient(90deg,#000 0,#000 30%,transparent 62%);}
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:24px 24px;
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 35%,transparent 58%);mask-image:linear-gradient(90deg,#000 0,#000 35%,transparent 58%)}
 #flow{position:absolute;left:0;top:0;width:450px;height:396px}
-.logo{position:absolute;left:44px;top:26px;width:236px;mix-blend-mode:multiply}
+.logo{position:absolute;left:42px;top:24px;width:236px;filter:invert(1);mix-blend-mode:screen}
 
-.copy{position:absolute;left:452px;top:46px;width:500px}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);font-weight:600}
-.eyebrow .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warm);margin:0 8px 1px;vertical-align:middle}
-h1{font-family:'Fraunces',serif;font-weight:600;font-size:66px;line-height:.98;letter-spacing:-.025em;margin-top:14px;font-variation-settings:"SOFT" 50,"opsz" 144}
-h1 em{font-style:italic;font-weight:500;color:var(--brand);
-  background:linear-gradient(transparent 62%,rgba(240,212,55,.75) 62%,rgba(240,212,55,.75) 90%,transparent 90%);padding:0 4px;margin-left:-4px}
-.sub{font-size:18px;line-height:1.42;color:var(--soft);margin-top:18px;max-width:470px}
+.copy{position:absolute;left:450px;top:40px;width:390px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-light);font-weight:600}
+.eyebrow .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warm);margin:0 8px 2px;vertical-align:middle}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:60px;line-height:.98;letter-spacing:-.025em;margin-top:14px;font-variation-settings:"SOFT" 50,"opsz" 144}
+h1 em{font-style:italic;font-weight:500;color:var(--brand-light);position:relative}
+h1 em::after{content:"";position:absolute;left:-2px;right:-4px;bottom:2px;height:9px;background:var(--yellow);opacity:.85;z-index:-1;border-radius:2px}
+h1 em{z-index:0;isolation:isolate}
+.sub{font-size:16.5px;line-height:1.45;color:var(--soft);margin-top:18px}
 .sub strong{color:var(--ink);font-weight:600}
-.meta{position:absolute;left:452px;bottom:30px;display:flex;gap:8px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:13px}
-.pill{border:1.5px solid var(--ink);border-radius:999px;padding:5px 12px;font-weight:600;background:var(--card)}
-.pill.dark{background:var(--ink);color:#fff}
-.url{color:var(--brand);font-weight:700;margin-left:6px}
+.meta{position:absolute;left:450px;bottom:28px;display:flex;gap:12px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12.5px}
+.pill{border-radius:999px;padding:5px 11px;font-weight:700;background:var(--ink);color:#0C0F0E}
+.url{color:var(--brand-light);font-weight:700}
 
-.tiles{position:absolute;right:28px;top:26px;display:grid;grid-template-columns:292px 292px;grid-template-rows:166px 166px;gap:12px}
-.tile{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px 0;
-  box-shadow:0 1px 0 rgba(0,0,0,.03),0 10px 24px -18px rgba(15,30,46,.35);overflow:hidden}
-.tile::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
-.t-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);font-weight:700}
-.t-title{font-family:'Fraunces',serif;font-weight:600;font-size:21px;letter-spacing:-.01em;margin-top:3px;line-height:1.05}
-.t-title small{font-family:'Geist',sans-serif;font-size:11px;font-weight:500;color:var(--mute);letter-spacing:0;margin-left:4px}
-.tile svg{position:absolute;left:16px;right:16px;bottom:12px}
+/* Kachel-Mosaik mit echten Beispielen */
+.mosaic{position:absolute;right:26px;top:22px;width:700px;height:352px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:10px;height:171px}
+.tile{position:relative;flex:none;border-radius:12px;overflow:hidden;border:1px solid var(--tile-line);background:var(--tile);
+  box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
+.tile .pic{position:absolute;left:0;right:0;top:0;bottom:30px;display:flex;align-items:center;justify-content:center}
+.tile.light .pic{background:#fff;padding:6px 8px}
+.tile .pic img{display:block;max-width:100%;max-height:100%}
+.tile.dark .pic img{width:100%;height:100%;object-fit:cover;max-width:none;max-height:none}
+.cap{position:absolute;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;gap:8px;padding:0 11px;
+  background:var(--tile);border-top:1px solid var(--tile-line);white-space:nowrap}
+.cap b{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);font-weight:700}
+.cap span{font-size:12px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+.credit{position:absolute;right:6px;bottom:34px;font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(255,255,255,.55)}
 </style>
 </head>
 <body>
@@ -59,130 +63,59 @@ h1 em{font-style:italic;font-weight:500;color:var(--brand);
   <div class="copy">
     <div class="eyebrow">Daten-WG<span class="dot"></span>Knowledge Kitchen</div>
     <h1>Daten zum<br><em>Nachkochen.</em></h1>
-    <p class="sub"><strong>Visual Stories</strong>, Power-BI-Visuals nach IBCS-Vorbild und Werkzeuge für Controlling&nbsp;&amp;&nbsp;Finance. Kostenlos und Open&nbsp;Source.</p>
+    <p class="sub"><strong>Visual Stories</strong> und <strong>Power-BI-Visuals</strong> nach IBCS-Vorbild für Controlling&nbsp;&amp;&nbsp;Finance. Kostenlos und Open&nbsp;Source.</p>
   </div>
   <div class="meta">
-    <span class="pill dark">167 Podcast-Folgen</span>
+    <span class="pill">167 Podcast-Folgen</span>
     <span class="url">datenwgknowledgekitchen.com</span>
   </div>
 
-  <div class="tiles">
-    <div class="tile" style="--c:var(--brand)">
-      <div class="t-eye">Power-BI-Visual · GuV</div>
-      <div class="t-title">P&amp;L Statement <small>byDatenWG</small></div>
-      <svg id="pnl" viewBox="0 0 260 92" width="260" height="92"></svg>
+  <div class="mosaic">
+    <div class="row">
+      <div class="tile light" style="width:330px;--c:var(--brand-light)">
+        <div class="pic"><img src="img/ck-integrierte-varianz.png" alt="ChartKitchen: integrierte Varianz-Brücke"></div>
+        <div class="cap"><b>ChartKitchen</b><span>Integrierte Varianz PY → AC+FC</span></div>
+      </div>
+      <div class="tile dark" style="width:180px;--c:var(--blue)">
+        <div class="pic"><img src="img/story-rhein.jpg" alt="Visual Story: 209 Jahre Rhein bei Köln"></div>
+        <div class="cap"><b>Story</b><span>Rhein · 209 Jahre</span></div>
+      </div>
+      <div class="tile dark" style="width:170px;--c:var(--warm)">
+        <div class="pic"><img src="img/story-koeln-nacht.jpg" alt="Visual Story: Köln blitzt, Karte Köln bei Nacht"></div>
+        <div class="cap"><b>Story</b><span>Köln blitzt</span></div>
+      </div>
     </div>
-    <div class="tile" style="--c:#166088">
-      <div class="t-eye">Power-BI-Visual · 13 Chart-Modi</div>
-      <div class="t-title">ChartKitchen <small>byDatenWG</small></div>
-      <svg id="ck" viewBox="0 0 260 92" width="260" height="92"></svg>
-    </div>
-    <div class="tile" style="--c:var(--warm)">
-      <div class="t-eye">Scrollytelling · Karten</div>
-      <div class="t-title">Visual Stories</div>
-      <svg id="stories" viewBox="0 0 260 92" width="260" height="92"></svg>
-    </div>
-    <div class="tile" style="--c:#5B3B7A">
-      <div class="t-eye">Gantt · Mockup · Rechner</div>
-      <div class="t-title">Werkzeuge</div>
-      <svg id="tools" viewBox="0 0 260 92" width="260" height="92"></svg>
+    <div class="row">
+      <div class="tile light" style="width:330px;--c:var(--brand-light)">
+        <div class="pic"><img src="img/pnl-statement.png" alt="P&amp;L Statement byDatenWG: GuV mit ΔPL-Wasserfall"></div>
+        <div class="cap"><b>P&amp;L Statement</b><span>GuV mit Plan-Abweichung</span></div>
+      </div>
+      <div class="tile light" style="width:360px;--c:var(--brand-light)">
+        <div class="pic"><img src="img/pnl-sankey.png" alt="P&amp;L Statement byDatenWG: Sankey der GuV"></div>
+        <div class="cap"><b>P&amp;L Statement</b><span>Sankey · wohin das Geld fließt</span></div>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-const NS='http://www.w3.org/2000/svg';
-function el(p,tag,a){const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
-const C={ac:'#3A3A3A',py:'#C9C8C2',good:'#117865',bad:'#D8362B',warm:'#C25A2D',brand:'#117865',line:'#E5E2D8',plum:'#5B3B7A',blue:'#166088',yellow:'#F0D437'};
-
-/* Hintergrund: Sankey-Fluss von links in die Kitchen */
+/* Hintergrund: Datenströme fächern links auf und laufen gestapelt in die Kitchen (Sankey) */
 (function(){
-  const s=document.getElementById('flow');
-  const d=el(s,'defs',{});
-  const g=el(d,'linearGradient',{id:'fade',x1:0,x2:1});
+  const NS='http://www.w3.org/2000/svg',s=document.getElementById('flow');
+  const el=(p,t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e};
+  const d=el(s,'defs',{}),g=el(d,'linearGradient',{id:'fade',x1:0,x2:1});
   el(g,'stop',{offset:'0','stop-color':'#fff','stop-opacity':'1'});
-  el(g,'stop',{offset:'.72','stop-color':'#fff','stop-opacity':'1'});
+  el(g,'stop',{offset:'.7','stop-color':'#fff','stop-opacity':'1'});
   el(g,'stop',{offset:'1','stop-color':'#fff','stop-opacity':'0'});
   const m=el(d,'mask',{id:'m'});el(m,'rect',{x:0,y:0,width:450,height:396,fill:'url(#fade)'});
   const grp=el(s,'g',{mask:'url(#m)'});
-  // Datenströme fächern links auf und laufen gestapelt in die Kitchen (Sankey)
-  const bands=[[150,26,C.brand,.30],[200,20,C.blue,.26],[252,18,C.warm,.28],
-               [300,14,C.plum,.24],[342,12,C.yellow,.55],[380,8,C.bad,.26]];
+  const bands=[[150,26,'#2A9582',.55],[200,20,'#5B9BD5',.45],[252,18,'#E07A4A',.5],
+               [300,14,'#9A7BC0',.45],[342,12,'#F0D437',.6],[380,8,'#D8362B',.5]];
   let stack=150;
   bands.forEach(([y0,w,c,o])=>{
-    const y1=stack+w/2; stack+=w+1.5;
-    const x0=-10,x1=450,cx=(x0+x1)/2;
+    const y1=stack+w/2;stack+=w+1.5;const x0=-10,x1=450,cx=(x0+x1)/2;
     el(grp,'path',{d:`M${x0},${y0-w/2} C${cx},${y0-w/2} ${cx},${y1-w/2} ${x1},${y1-w/2} L${x1},${y1+w/2} C${cx},${y1+w/2} ${cx},${y0+w/2} ${x0},${y0+w/2} Z`,fill:c,'fill-opacity':o});
   });
-})();
-
-/* P&L: IBCS-Wasserfall Umsatz → Jahresüberschuss */
-(function(){
-  const s=document.getElementById('pnl');
-  const steps=[['U',100,'t'],['M',-33,'d'],['R',null,'t'],['B',-38,'d'],['E',null,'t'],['A',-7,'d'],['Z',-4,'d'],['J',null,'r']];
-  const H=80,top=4,sc=H/100,bw=22,gap=10;let run=0,x=0;const pts=[];
-  steps.forEach(([k,v,t],i)=>{
-    let y,h,f;
-    if(t==='t'){ if(v!==null) run=v; y=top+(100-run)*sc; h=run*sc; f=C.ac; }
-    else if(t==='r'){ y=top+(100-run)*sc; h=run*sc; f=C.good; }
-    else { const nr=run+v; y=top+(100-run)*sc; h=-v*sc; f=C.bad; run=nr; }
-    el(s,'rect',{x,y,width:bw,height:Math.max(h,1.5),fill:f,rx:1.5});
-    pts.push([x,x+bw,top+(100-run)*sc]);
-    x+=bw+gap;
-  });
-  for(let i=0;i<pts.length-1;i++) el(s,'line',{x1:pts[i][1],x2:pts[i+1][0],y1:pts[i][2],y2:pts[i][2],stroke:'#8a8a8a','stroke-width':.8});
-  el(s,'line',{x1:0,x2:x-gap,y1:top+H+.5,y2:top+H+.5,stroke:C.ac,'stroke-width':1.2});
-  // Mini-Sankey-Andeutung rechts
-  const sx=x-gap+8;
-})();
-
-/* ChartKitchen: AC vs PY mit Δ-Balken (IBCS) */
-(function(){
-  const s=document.getElementById('ck');
-  const py=[42,45,48,46,52,55,60,58,54,50,57,62], ac=[44,43,53,50,51,61,68,63,56,55,64,70];
-  const bw=12,step=21.3,base=90,sc=.78,dTop=4,dMid=20;
-  el(s,'line',{x1:0,x2:256,y1:dMid,y2:dMid,stroke:C.ac,'stroke-width':1});
-  ac.forEach((a,i)=>{
-    const x=2+i*step, d=a-py[i];
-    el(s,'rect',{x:x+3,y:base-py[i]*sc,width:bw,height:py[i]*sc,fill:C.py});
-    el(s,'rect',{x,y:base-a*sc,width:bw,height:a*sc,fill:C.ac});
-    const h=Math.abs(d)*2.2;
-    el(s,'rect',{x:x+2,y:d>0?dMid-h:dMid,width:bw-1,height:h,fill:d>0?C.good:C.bad});
-  });
-  el(s,'line',{x1:0,x2:256,y1:base+.5,y2:base+.5,stroke:C.ac,'stroke-width':1.2});
-})();
-
-/* Visual Stories: Menschheit in Quadraten, Heimat hervorgehoben + Blitz-Punkte */
-(function(){
-  const s=document.getElementById('stories');
-  const cols=33,rows=9,c=7.8,g=.9;let n=0;
-  for(let r=0;r<rows;r++)for(let k=0;k<cols;k++){
-    n++;const v=(k*rows+r);const t=v/(cols*rows);
-    let f=t<.86?'#E4DDD0':'#C25A2D';let o=t<.86?1:.35+(t-.86)*4.6;
-    if(k===31&&r===2){f='#117865';o=1}
-    if(k===32&&r===5){f='#117865';o=1}
-    el(s,'rect',{x:k*c,y:r*c+20,width:c-g,height:c-g,fill:f,'fill-opacity':o,rx:1.2});
-  }
-  // Story-Linie oben: Blitzer pro Stunde
-  const ys=[9,11,13,14,12,8,4,3,5,6,7,6,5,6,7,8,7,5,4,6,8,10,11,10];
-  el(s,'path',{d:ys.map((y,i)=>(i?'L':'M')+(i*11)+','+(y)).join(' '),fill:'none',stroke:C.warm,'stroke-width':1.8,'stroke-linecap':'round','stroke-linejoin':'round'});
-  el(s,'circle',{cx:3*11,cy:14,r:3,fill:C.warm});
-})();
-
-/* Werkzeuge: Gantt mit Heute-Linie */
-(function(){
-  const s=document.getElementById('tools');
-  const rows=[[0,70,C.plum],[40,95,C.plum],[88,150,C.blue],[120,205,C.brand],[175,250,C.warm]];
-  rows.forEach(([a,b,c],i)=>{
-    const y=6+i*16.5;
-    el(s,'rect',{x:0,y:y+4,width:256,height:1,fill:C.line});
-    el(s,'rect',{x:a,y,width:b-a,height:10,rx:5,fill:c,'fill-opacity':.9});
-    el(s,'rect',{x:a,y,width:(b-a)*Math.min(1,Math.max(0,(140-a)/(b-a))),height:10,rx:5,fill:'#000','fill-opacity':.18});
-  });
-  el(s,'line',{x1:140,x2:140,y1:0,y2:90,stroke:C.bad,'stroke-width':1.4,'stroke-dasharray':'3 3'});
-  el(s,'path',{d:'M135,0 L145,0 L140,6 Z',fill:C.bad});
-  // Meilenstein
-  el(s,'path',{d:'M250,79 l6,6 l-6,6 l-6,-6 Z',fill:C.ac,transform:'translate(-6,-4)'});
 })();
 </script>
 </body>
