@@ -155,6 +155,7 @@
   "Hint_PnlSpace": "Espacio insuficiente para la cuenta de resultados",
   "Hint_DumbbellBasis": "Dumbbell requiere PY o PL como base de comparación",
   "Hint_SlopeBasis": "La pendiente requiere AC y PY/PL por categoría",
+  "Label_PctPoints": "pp",
   "Label_Rest": "Resto",
   "Label_Unremarkable": "Sin relevancia",
   "Label_Total": "Σ Total",

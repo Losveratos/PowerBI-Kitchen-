@@ -2799,7 +2799,7 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
     const mk = qq("c291", '[data-icd="diff-marker"]');
     const t = mk.length ? mk[0].querySelector('[data-icd="diff-label"]').textContent : "";
     const bar = mk.length ? mk[0].querySelector('[data-icd="diff-bar"]') : null;
-    const guide = mk.length ? mk[0].querySelector('[data-icd="diff-guide"]') : null;
+    const guide = document.querySelector('#c291 [data-icd="diff-guide"]');
     check(mk.length === 1 && t === "−7,0" && bar && bar.getAttribute("fill") === "#D64541" && guide
       && +guide.getAttribute("x2") - +guide.getAttribute("x1") > 500, `c291: „−7,0“ ohne %, rot, Niveaulinie über die Säulen (${t})`);
   }
@@ -2920,6 +2920,115 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
   const names = [...document.querySelectorAll("#c300 text")].map(t => t.textContent).filter(t => rows.some(r => r[0] === t)).slice(0, 3);
   check(!!br && br.getAttribute("data-share") === "37.7" && /38 %/.test(br.textContent) && JSON.stringify(names) === '["France","Switzerland","Germany"]',
     `c300: Klammer France, Switzerland, Germany = 38 % von Direct (${br ? br.getAttribute("data-share") : "–"})`);
+}
+// ---- 1.55 (B09, Review): Marker in der Mitte, rückwärts, Balken, Jahressäule, Format, Parser, PP, zweite Überleitung, Small Multiples
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const nsvgR = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  const inStage = (id, el) => { const r = el.getBoundingClientRect(), s = document.getElementById(id).querySelector("svg").getBoundingClientRect();
+    return r.left >= s.left - 0.5 && r.right <= s.right + 0.5 && r.top >= s.top - 0.5 && r.bottom <= s.bottom + 0.5; };
+  const hitsOf = (id, el) => { const b = el.getBoundingClientRect();
+    return qq(id, "g.icd-cat rect, g.icd-cat text").filter(o => { const r = o.getBoundingClientRect();
+      return r.width > 0 && r.height > 0 && r.left < b.right - 1 && r.right > b.left + 1 && r.top < b.bottom - 1 && r.bottom > b.top + 1; }); };
+  const mm = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  const ac = [80, 95, 70, 88, 92, 85, 90, 99, 84, 91, 87, 96], pl = [85, 90, 80, 85, 90, 90, 88, 95, 90, 90, 90, 90];
+  // M1: Ziel in der Mitte → Text über dem Balken, keine Überlappung mit Säulen oder Werten
+  addStage("c301", "Säulen · Marker Feb > Mär und Jun > Jul (Ziele in der Mitte) · Text über dem Balken", 900, 400);
+  runCap("c301", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "columns", diffMarkers: "Feb > Mär; Jun > Jul" } }), 900, 400);
+  {
+    const labs = qq("c301", '[data-icd="diff-label"]');
+    const hits = labs.flatMap(l => hitsOf("c301", l));
+    check(labs.length === 2 && hits.length === 0 && labs.every(l => l.getAttribute("text-anchor") === "middle"),
+      `c301: Marker in der Mitte ohne Überlappung (${labs.map(l => l.textContent).join(" | ")}; ${hits.length} Treffer)`);
+  }
+  // M2: rückwärts (Von rechts von Nach) → Balken links von Nach, Niveaulinie reicht bis Von
+  addStage("c302", "Säulen · Marker Jun > Feb (rückwärts) · Balken links von Feb, Linie bis Jun", 900, 400);
+  runCap("c302", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "columns", diffMarkers: "Jun > Feb" } }), 900, 400);
+  {
+    const bar = qq("c302", '[data-icd="diff-bar"]')[0], gd = qq("c302", '[data-icd="diff-guide"]')[0];
+    const bx = bar ? +bar.getAttribute("x") : NaN;
+    // Achsenbeschriftungen als Lage der Spalten
+    const ax = t => qq("c302", "text").filter(x => x.textContent === t).map(x => x.getBoundingClientRect()).sort((p, q) => q.top - p.top)[0];
+    const feb = ax("Feb"), jun = ax("Jun");
+    const svgL = document.querySelector("#c302 svg").getBoundingClientRect().left;
+    check(!!bar && !!gd && bar.getBoundingClientRect().right <= feb.left + feb.width / 2 - 8 && +gd.getAttribute("x1") <= bx + 0.5
+      && +gd.getAttribute("x2") >= jun.right - svgL && hitsOf("c302", qq("c302", '[data-icd="diff-label"]')[0]).length === 0,
+      `c302: rückwärts links von Feb, Linie bis Jun (Balken ${bx.toFixed(1)}, Linie ${gd ? gd.getAttribute("x1") + "–" + gd.getAttribute("x2") : "–"})`);
+  }
+  // M3: Balken, letzte Zeile → Platz unten, Text im Visual; gestapelte Balken → Text nicht abgeschnitten
+  addStage("c303", "Balken · 12 Zeilen · Marker Mär > Dez (letzte Zeile) · alles im Visual", 900, 360);
+  runCap("c303", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "bars", diffMarkers: "Mär > Dez" } }), 900, 360);
+  {
+    const mk = qq("c303", '[data-icd="diff-marker"]')[0];
+    check(!!mk && inStage("c303", mk.querySelector('[data-icd="diff-bar"]')) && inStage("c303", mk.querySelector('[data-icd="diff-label"]')),
+      "c303: Balken-Marker auf der letzten Zeile vollständig im Visual");
+  }
+  addStage("c304", "Stapel-Balken · Blatt 01A als Balken · Marker 2025 > 2026 · Text nicht abgeschnitten", 900, 520);
+  {
+    const yrs = ["2022", "2023", "2024", "2025", "2026"], sr = ["Software", "Service", "Training", "Consulting", "Other"];
+    const V = [[29.1, 16.0, 0.9, 22.4, 6.5], [31.9, 18.8, 2.9, 22.4, 3.9], [40.8, 24.2, 5.1, 25.3, 5.2], [40.2, 26.7, 7.7, 22.4, 4.9], [49.3, 28.7, 8.6, 20.2, 7.3]];
+    const C = [], S = [], A = [];
+    yrs.forEach((y, i) => sr.forEach((s, j) => { C.push(y); S.push(s); A.push(V[i][j]); }));
+    runCap("c304", { metadata: { columns: [], objects: { chart: { orientation: "bars", diffMarkers: "2025 > 2026" } } }, categorical: {
+      categories: [{ source: { displayName: "Jahr", roles: { category: true } }, values: C }, { source: { displayName: "Bereich", roles: { series: true } }, values: S }],
+      values: [col("actual", A, "#,0.0")] } }, 900, 520);
+    const l = qq("c304", '[data-icd="diff-label"]')[0];
+    check(!!l && inStage("c304", l) && /^\+12,2 \(\+12,0%\)$/.test(l.textContent), `c304: Stapel-Balken-Marker im Visual (${l ? l.textContent : "–"})`);
+  }
+  // M4: Jahressäule → Text über dem Balken, nicht in der Jahressäule
+  addStage("c305", "Säulen + Jahressäule (B05) · Marker Jan > Dez · Text frei von der Jahressäule", 1000, 420);
+  runCap("c305", dataView(mm, [col("actual", ac), col("plan", pl)], { chart: { orientation: "columns", yearColumn: true, diffMarkers: "Jan > Dez" } }), 1000, 420);
+  {
+    const l = qq("c305", '[data-icd="diff-label"]')[0], yc = qq("c305", '[data-icd="year-column"]')[0];
+    const lb = l ? l.getBoundingClientRect() : null, yb = yc ? yc.getBoundingClientRect() : null;
+    check(!!lb && !!yb && lb.right <= yb.left + 0.5, `c305: Marker-Text endet vor der Jahressäule (${lb ? lb.right.toFixed(0) : "–"} ≤ ${yb ? yb.left.toFixed(0) : "–"})`);
+  }
+  // M5: kleines Δ in Mio. → mehr Stellen statt „−0,0M“
+  addStage("c306", "Säulen in Mio. · Marker Jan > Feb mit Δ −40.000 · Text zeigt −0,04M", 900, 360);
+  runCap("c306", dataView(["Jan", "Feb", "Mär"], [col("actual", [7100000, 7060000, 8200000])], { chart: { orientation: "columns", diffMarkers: "Jan > Feb!" } }), 900, 360);
+  {
+    const t = (qq("c306", '[data-icd="diff-label"]')[0] || {}).textContent || "";
+    check(/^−0,04/.test(t), `c306: kleines Δ mit genug Stellen (${t})`);
+  }
+  // m2: Pfeil-Varianten, Dubletten, „@“ im Kategorienamen
+  addStage("c307", "Säulen · Marker „a@b -> X; a@b > X; X → c@d; Y => X“ · drei Marker (Dublette entfällt)", 900, 360);
+  runCap("c307", dataView(["a@b", "c@d", "X", "Y"], [col("actual", [10, 20, 30, 40])], { chart: { orientation: "columns", diffMarkers: "a@b -> X; a@b > X; X → c@d; Y => X" } }), 900, 360);
+  {
+    const mk = qq("c307", '[data-icd="diff-marker"]').map(g => `${g.getAttribute("data-from")}>${g.getAttribute("data-to")}`);
+    check(JSON.stringify(mk) === JSON.stringify(["a@b>X", "X>c@d", "Y>X"]), `c307: ->, →, =>, @ im Namen, Dublette (${mk.join(", ")})`);
+  }
+  // m5: 100 %-Stapel → Prozentpunkte, kein Δ %
+  addStage("c308", "Stapel-Säulen 100 % · Marker A > C@Retail · Prozentpunkte", 900, 400);
+  {
+    const ch = ["Direct", "Retail", "Wholesale"], cats = ["A", "B", "C"], vals = [[30, 20, 50], [10, 60, 30], [40, 40, 20]];
+    const C = [], S = [], V = [];
+    cats.forEach((c, i) => ch.forEach((s, j) => { C.push(c); S.push(s); V.push(vals[i][j]); }));
+    runCap("c308", { metadata: { columns: [], objects: { chart: { orientation: "columns", stackNormalize: "pct100", diffMarkers: "A > C@Retail" } } }, categorical: {
+      categories: [{ source: { displayName: "Land", roles: { category: true } }, values: C }, { source: { displayName: "Kanal", roles: { series: true } }, values: S }],
+      values: [col("actual", V, "#,0")] } }, 900, 400);
+    const t = (qq("c308", '[data-icd="diff-label"]')[0] || {}).textContent || "";
+    check(/^\+20,0 (PP|pp)$/.test(t), `c308: Anteilsdifferenz in Prozentpunkten (${t})`);
+  }
+  // m1: zweite Überleitung ohne zweite Basis → SVG-gleich wie ohne Schalter
+  addStage("c309", "Integrierte Brücke · nur PL · bridgeSecondNet an (Referenz c309L)", 1100, 480);
+  addStage("c309L", "Integrierte Brücke · nur PL · ohne bridgeSecondNet", 1100, 480);
+  {
+    const a = [15, 13, 17, 7, 5, 6, 11, 9, 12, 14, 10, 16], p = [11, 10, 10, 10, 10, 10, 15, 14, 15, 15, 15, 19];
+    runCap("c309", dataView(mm, [col("actual", a), col("plan", p)], { chart: { orientation: "intwaterfall", comparisonMode: "plan", bridgeSecondNet: true } }), 1100, 480);
+    runCap("c309L", dataView(mm, [col("actual", a), col("plan", p)], { chart: { orientation: "intwaterfall", comparisonMode: "plan" } }), 1100, 480);
+    check(nsvgR("c309") === nsvgR("c309L"), "c309: ohne zweite Basis kein Platzverlust (SVG-gleich)");
+  }
+  // m4: Small Multiples → gleicher Platz für den Marker in jeder Kachel
+  addStage("c310", "Säulen · Small Multiples · Marker Jan > Dez · gleiche Plotbreite trotz unterschiedlicher Texte", 1200, 420);
+  {
+    const big = ac.map(v => v * 137), cats = [...mm, ...mm];
+    runCap("c310", dataView(cats, [col("actual", [...ac, ...big])], { chart: { orientation: "columns", diffMarkers: "Jan > Dez" } },
+      cats.map((_, i) => i < 12 ? "Nord" : "Süd")), 1200, 420);
+    const bars = qq("c310", '[data-icd="diff-bar"]'), gds = qq("c310", '[data-icd="diff-guide"]');
+    const w = bars.map((b, i) => +b.getAttribute("x") - +gds[i].getAttribute("x1"));
+    check(bars.length === 2 && gds.length === 2 && Math.abs(w[0] - w[1]) < 0.5, `c310: gleiche Bandbreite in beiden Kacheln (${w.map(v => v.toFixed(1)).join(", ")})`);
+  }
 }
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {

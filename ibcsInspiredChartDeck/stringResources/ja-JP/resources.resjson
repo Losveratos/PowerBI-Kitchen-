@@ -155,6 +155,7 @@
   "Hint_PnlSpace": "損益計算書を表示するスペースが不足しています",
   "Hint_DumbbellBasis": "ダンベルには比較基準としてPYまたはPLが必要です",
   "Hint_SlopeBasis": "スロープにはカテゴリごとにACとPY/PLが必要です",
+  "Label_PctPoints": "pt",
   "Label_Rest": "その他",
   "Label_Unremarkable": "重要性なし",
   "Label_Total": "Σ 合計",

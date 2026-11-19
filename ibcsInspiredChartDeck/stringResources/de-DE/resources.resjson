@@ -155,6 +155,7 @@
   "Hint_PnlSpace": "Zu wenig Platz für das GuV-Statement",
   "Hint_DumbbellBasis": "Dumbbell benötigt PY oder PL als Vergleichsbasis",
   "Hint_SlopeBasis": "Slope benötigt AC und PY/PL je Kategorie",
+  "Label_PctPoints": "PP",
   "Label_Rest": "Rest",
   "Label_Unremarkable": "Unauffällig",
   "Label_Total": "Σ Gesamt",

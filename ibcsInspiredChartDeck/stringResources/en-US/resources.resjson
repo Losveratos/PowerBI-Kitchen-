@@ -155,6 +155,7 @@
   "Hint_PnlSpace": "Not enough space for the P&L statement",
   "Hint_DumbbellBasis": "Dumbbell requires PY or PL as comparison basis",
   "Hint_SlopeBasis": "Slope requires AC and PY/PL per category",
+  "Label_PctPoints": "pp",
   "Label_Rest": "Other",
   "Label_Unremarkable": "Immaterial",
   "Label_Total": "Σ Total",

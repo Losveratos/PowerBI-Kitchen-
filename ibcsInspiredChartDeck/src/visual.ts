@@ -281,24 +281,33 @@ const REST_ROW_RX = new RegExp("^(others?|sonstiges?|übrige[sr]?|rest|otros|otr
     + "|^rest\\s*(of|der|des|del|de|von)\\b|^rest[-\\s]"
     + "|^(others?|übrige[sn]?|sonstige[n]?|otros|otras)\\s+(countries|regions|markets|länder|regionen|märkte|países|regiones)\\b"
     + "|^その他の", "i");
-/** 1.55 (B09): one stored difference marker "From > To[@Series][!]" */
-interface DiffMarkerSpec { from: string; to: string; series: string | null; noPct: boolean }
-/** 1.55 (B09): parses chart.diffMarkers — ";"-separated, ">" or "→" between the two
- *  categories, "@Series" for a stack segment, "!" at the end drops Δ %; max. 4 */
+/** 1.55 (B09): one stored difference marker "From > To[@Series][!]";
+ *  toFull keeps the text after the arrow unsplit (a category named "a@b") */
+interface DiffMarkerSpec { from: string; to: string; series: string | null; noPct: boolean; toFull: string }
+/** markers drawn at most; the cap applies after resolving the names */
+const DIFF_MARKER_MAX = 4;
+/** 1.55 (B09): parses chart.diffMarkers — ";"-separated, ">", "->", "=>" or "→"
+ *  between the two categories, "@Series" after the arrow for a stack segment, "!"
+ *  at the end drops Δ %; duplicates are dropped */
 function parseDiffMarkers(raw: string): DiffMarkerSpec[] {
     const out: DiffMarkerSpec[] = [];
+    const seen = new Set<string>();
     for (let part of raw.split(";")) {
         part = part.trim();
         if (!part) { continue; }
         const noPct = part.endsWith("!");
         if (noPct) { part = part.slice(0, -1).trim(); }
-        let series: string | null = null;
-        const at = part.lastIndexOf("@");
-        if (at > 0) { series = part.slice(at + 1).trim() || null; part = part.slice(0, at).trim(); }
-        const m = /^(.+?)\s*(?:>|→)\s*(.+)$/.exec(part);
+        const m = /^(.+?)\s*(?:->|=>|→|>)\s*(.+)$/.exec(part);
         if (!m) { continue; }
-        out.push({ from: m[1].trim(), to: m[2].trim(), series, noPct });
-        if (out.length >= 4) { break; }
+        const from = m[1].trim(), toFull = m[2].trim();
+        let to = toFull, series: string | null = null;
+        const at = toFull.lastIndexOf("@");
+        if (at > 0) { series = toFull.slice(at + 1).trim() || null; to = toFull.slice(0, at).trim(); }
+        const key = `${from}|${to}|${series ?? ""}`.toLowerCase();
+        if (!from || !to || seen.has(key)) { continue; }
+        seen.add(key);
+        out.push({ from, to, series, noPct, toFull });
+        if (out.length >= 16) { break; }
     }
     return out;
 }
@@ -306,9 +315,30 @@ function parseDiffMarkers(raw: string): DiffMarkerSpec[] {
 interface DiffMarkerDraw {
     spec: DiffMarkerSpec;
     fromBand: number; toBand: number; halfW: number;
+    /** edges of the To slot along the category axis, and the free room to its neighbour */
+    toLo: number; toHi: number; gap: number;
     /** value levels on the chart scale: the bar runs from toTop − d to toTop */
     fromTop: number; toTop: number; d: number; base: number;
     level: boolean; fc: boolean;
+    /** beside the bar in room reserved at the band end (else above it / after it) */
+    edge: boolean;
+    /** k-th marker on the same target and side: offset by one bar width each */
+    k: number;
+    /** bars: width of the To row's value label, kept clear of the marker label */
+    clearW: number;
+    /** 100 % stacks: Δ in percentage points */
+    pp: boolean;
+}
+/** side, edge and offset slot of each marker (side +1 = towards the higher index) */
+function diffPlan(list: { fi: number; ti: number }[], n: number, allowLo: boolean, allowHi: boolean): { side: number; edge: boolean; k: number }[] {
+    const seen = new Map<string, number>();
+    return list.map(m => {
+        const side = m.ti > m.fi ? 1 : -1;
+        const key = `${m.ti}|${side}`;
+        const k = seen.get(key) ?? 0;
+        seen.set(key, k + 1);
+        return { side, edge: side > 0 ? m.ti === n - 1 && allowHi : m.ti === 0 && allowLo, k };
+    });
 }
 
 function isRestRow(p: DataPoint): boolean {
@@ -603,6 +633,9 @@ interface ChartConfig {
     fmt: IValueFormatter;
     /** formatter scaled to the variance magnitudes (auto units) */
     fmtVar: IValueFormatter;
+    /** 1.55 (B09 review): difference markers — the values' precision, more digits
+     *  only when the Δ would round to zero ("−0,04M", not "−0,0M") */
+    fmtDiff: IValueFormatter;
     hasPy: boolean;
     hasPl: boolean;
     hasFc: boolean;
@@ -6161,6 +6194,8 @@ export class Visual implements IVisual {
             ...(() => { const fp = this.formatterParams(Math.max(maxAbs, maxVarAbs), allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(Math.max(maxAbs, maxVarAbs), allInt),
             fmtVar: this.makeVarFormatter(maxAbs, maxVarAbs, allVarInt),
+            fmtDiff: this.makeVarFormatter(maxAbs, maxVarAbs, allInt, undefined,
+                this.formatterParams(Math.max(maxAbs, maxVarAbs), allInt).prec),
             hasPy: points.some(p => p.py != null),
             hasPl: points.some(p => p.pl != null),
             hasFc: points.some(p => p.isFc),
@@ -7391,14 +7426,20 @@ export class Visual implements IVisual {
 
         const left = region.x + pad;
         const right = region.x + region.w - pad;
-        const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6
-            + (cfg.bridgeSecondNet ? lf * 3.6 + 14 : 0);
-        const sideLblW = lf * 2.4;
         // with both PY and PL bound, the left side shows two total columns
         // (like the category bridge's PY/PL total rows) — reserve the space
         const pySum = pts.reduce((a, p) => a + (p.py ?? 0), 0);
         const plSum = pts.reduce((a, p) => a + (p.pl ?? 0), 0);
         const twoTotals = pts.some(p => p.py != null) && pts.some(p => p.pl != null);
+        // 1.55 (B09, IBCS 05X): second net element — total vs. the OTHER basis, only
+        // when that basis covers every month with a value (like with like); room only then
+        const otherOf2 = (p: DataPoint) => cfg.basisMode === "plan" ? p.py : p.pl;
+        const second = cfg.bridgeSecondNet && twoTotals && pts.every(p => p.value == null || otherOf2(p) != null);
+        const d2 = vTot - (cfg.basisMode === "plan" ? pySum : plSum);
+        const lbl2 = cfg.basisMode === "plan" ? cfg.scenL.py : cfg.scenL.pl;
+        const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6
+            + (second ? 6 + 4 + 8 + this.textWidth(`${this.fmtSigned(cfg.fmt, d2)} ${lbl2}`, lf) + 6 : 0);
+        const sideLblW = lf * 2.4;
         // 1.52 (ISO 24896): ONE width for everything absolute in this chart — anchor
         // totals, cascade bricks and the monthly column pairs are all 2/3 of the
         // category step (before: anchors ~5.5 % of the width, bricks 0.8, months 0.5)
@@ -7855,25 +7896,19 @@ export class Visual implements IVisual {
         }, bg);
         pt.textContent = text;
 
-        // ------- 1.55 (B09, IBCS 05X): second net element — total vs. the OTHER basis,
-        // only when that basis covers every month with a value (like with like)
-        if (cfg.bridgeSecondNet && twoTotals) {
-            const otherOf = (p: DataPoint) => cfg.basisMode === "plan" ? p.py : p.pl;
-            const complete = pts.every(p => p.value == null || otherOf(p) != null);
-            const otherSum = cfg.basisMode === "plan" ? pySum : plSum;
-            if (complete) {
-                const d2 = vTot - otherSum;
-                const g2 = this.el("g", { "data-icd": "bridge-net2", "data-delta": d2 }, bg);
-                const yO = S(otherSum);
-                const x2 = pcx + pw / 2 + 8;
-                this.el("line", { x1: left + totW, y1: yO, x2: x2 + 4, y2: yO,
-                    stroke: cfg.basisMode === "plan" ? cfg.colors.py : cfg.colors.pl, "stroke-width": 1,
-                    "stroke-dasharray": "2,2", "data-icd": "bridge-ref2-line" }, g2);
-                this.el("rect", { x: x2, y: Math.min(yO, yV), width: 4, height: Math.max(Math.abs(yV - yO), 2), fill: colOf(d2) }, g2);
-                const t2 = this.el("text", { x: x2 + 8, y: (yO + yV) / 2 + lf * 0.36, "font-size": lf, fill: colOf(d2),
-                    "font-family": FONT }, g2);
-                t2.textContent = `${fmtD(d2)} ${cfg.basisMode === "plan" ? cfg.scenL.py : cfg.scenL.pl}`;
-            }
+        // ------- 1.55 (B09, IBCS 05X): second net element (see `second` above): a thin
+        // level line of the other basis, the Δ bar as wide as the first net bar, the label
+        if (second) {
+            const g2 = this.el("g", { "data-icd": "bridge-net2", "data-delta": d2 }, bg);
+            const yO = S(vTot - d2);
+            const x2 = pcx + pw / 2 + 8;
+            this.el("line", { x1: left + totW, y1: yO, x2: x2 + 6, y2: yO,
+                stroke: cfg.basisMode === "plan" ? cfg.colors.py : cfg.colors.pl, "stroke-width": 1,
+                "data-icd": "bridge-ref2-line" }, g2);
+            this.el("rect", { x: x2, y: Math.min(yO, yV), width: 6, height: Math.max(Math.abs(yV - yO), 2), fill: colOf(d2) }, g2);
+            const t2 = this.el("text", { x: x2 + 10, y: (yO + yV) / 2 + lf * 0.36, "font-size": lf, fill: colOf(d2),
+                "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" }, g2);
+            t2.textContent = `${fmtD(d2)} ${lbl2}`;
         }
 
         // ------- scenario caption top-left
@@ -14297,7 +14332,7 @@ export class Visual implements IVisual {
         // 1.55 (B10): Σ row under the bars, absolute-total side panel (bars + 100 %),
         // series names left of the first column, room for the "100 %" marker
         const totalRow = orientation === "bars" && cfg.stackTotalRow;
-        const legendStart = orientation === "columns" && cfg.stackLegendStart;
+        const legendStartCfg = orientation === "columns" && cfg.stackLegendStart;
         const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
             ? Math.max(60, region.w * 0.18) : 0;
         const marker100H = norm && orientation === "bars" ? lf + 8 : 0;
@@ -14309,29 +14344,43 @@ export class Visual implements IVisual {
         const slotsN = n + (totalRow ? 1 : 0);
         // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
         // series; 100 % stacks compare shares (percentage points), totals only on values
-        const catIdx = new Map(cats.map((c, i) => [c.trim().toLowerCase(), i] as [string, number]));
+        // the first category of a name wins (hierarchy leaves can repeat)
+        const catIdx = new Map<string, number>();
+        cats.forEach((c, i) => { const key = c.trim().toLowerCase(); if (!catIdx.has(key)) { catIdx.set(key, i); } });
         const segTop = (ci: number, si: number) => {
             let cum = 0;
             for (let j = 0; j <= si; j++) { cum += Math.max(sv(ci, series[j]), 0); }
             return cum;
         };
-        const stackDiff = cfg.diffMarkers.map(m => {
-            const fi = catIdx.get(m.from.trim().toLowerCase()), ti = catIdx.get(m.to.trim().toLowerCase());
+        type StackDiff = { m: DiffMarkerSpec; fi: number; ti: number; si: number; vf: number; vt: number; topF: number; topT: number };
+        const stackDiff = cfg.diffMarkers.map((m0): StackDiff | null => {
+            let m = m0;
+            const fi = catIdx.get(m.from.trim().toLowerCase());
+            let ti = catIdx.get(m.to.trim().toLowerCase());
+            let si = m.series == null ? -1
+                : series.findIndex(x => x.trim().toLowerCase() === (m.series as string).trim().toLowerCase());
+            // "a@b" that names no series: the whole text is the category
+            if (m.series != null && si < 0) {
+                ti = catIdx.get(m.toFull.toLowerCase());
+                m = { ...m, to: m.toFull, series: null };
+            }
             if (fi == null || ti == null || fi === ti) { return null; }
             if (m.series == null) {
                 if (norm || negTot[fi] !== 0 || negTot[ti] !== 0) { return null; }
                 if (cap != null && Math.max(posTot[fi], posTot[ti]) > cap) { return null; }
                 return { m, fi, ti, si: -1, vf: posTot[fi], vt: posTot[ti], topF: posTot[fi], topT: posTot[ti] };
             }
-            const si = series.findIndex(x => x.trim().toLowerCase() === (m.series as string).trim().toLowerCase());
-            if (si < 0) { return null; }
             const vf = sv(fi, series[si]), vt = sv(ti, series[si]);
             if (vf < 0 || vt < 0) { return null; }
-            return { m, fi, ti, si, vf, vt, topF: segTop(fi, si), topT: segTop(ti, si) };
-        }).filter((x): x is { m: DiffMarkerSpec; fi: number; ti: number; si: number; vf: number; vt: number; topF: number; topT: number } => x != null);
-        const stackDiffRoom = orientation === "columns"
-            ? this.diffSpace(stackDiff.filter(x => x.ti === n - 1).map(x => this.diffText({ spec: x.m, d: x.vt - x.vf, base: x.vf }, cfg)), cfg)
-            : 0;
+            const topF = segTop(fi, si), topT = segTop(ti, si);
+            if (cap != null && Math.max(topF, topT) > cap) { return null; }
+            return { m, fi, ti, si, vf, vt, topF, topT };
+        }).filter((x): x is StackDiff => x != null).slice(0, DIFF_MARKER_MAX);
+        const stackPlan = diffPlan(stackDiff, n, true, true);
+        const stackRooms = this.diffRooms(stackDiff.map(x => this.diffText({ spec: x.m, d: x.vt - x.vf, base: x.vf, pp: norm }, cfg)),
+            stackPlan, orientation, cfg, cfg.sharedScale ? domain[1] - domain[0] : 0, norm);
+        // 01A: with room on the right the series names go left of the first column
+        const legendStart = orientation === "columns" && (legendStartCfg || (stackRooms.hi > 0 && stackRooms.lo === 0));
         // 1.52.1 chart.stackLegendDirect: series names right at the stack (columns:
         // beside the last column, bars: above the first bar's segments) instead of a
         // key; single chart, positive stacks, every series present there, names fit
@@ -14342,16 +14391,16 @@ export class Visual implements IVisual {
             if (orientation === "columns") {
                 const catArea = cf + 10 + (scenOn ? cf + 2 : 0);
                 const legH = direct ? 0 : legendH;
-                const rightW = (direct && !legendStart ? nameW : 0) + stackDiffRoom;
-                const leftW = direct && legendStart ? nameW : 0;
+                const rightW = (direct && !legendStart ? nameW : 0) + stackRooms.hi;
+                const leftW = (direct && legendStart ? nameW : 0) + stackRooms.lo;
                 bandStart = region.x + pad + 2 + leftW;
                 bandEnd = region.x + region.w - pad - rightW;
                 rect = { x: region.x + leftW, y: region.y + pad + legH, w: region.w - rightW - leftW, h: region.h - pad - catArea - legH };
             } else {
                 const catArea = Math.min(region.w * 0.24,
                     this.maxTextWidth(totalRow ? [...cats, cfg.stackTotalLabel || "Σ"] : cats, cf) + 12) + bracketW;
-                bandStart = region.y + pad + titleH + legendH + 2;
-                bandEnd = region.y + region.h - pad - marker100H;
+                bandStart = region.y + pad + titleH + legendH + 2 + stackRooms.lo;
+                bandEnd = region.y + region.h - pad - marker100H - stackRooms.hi;
                 rect = { x: region.x + pad + catArea, y: region.y + legendH,
                     w: region.w - pad * 2 - catArea - (sideW > 0 ? sideW + 8 : 0), h: region.h - legendH };
             }
@@ -14432,7 +14481,7 @@ export class Visual implements IVisual {
         };
         const directWanted = this.formattingSettings.chartCard.stackLegendDirect.value !== false
             && !cfg.sharedScale && series.length > 1 && n > 0 && negTot.every(v => v === 0)
-            && !(stackDiffRoom > 0 && !legendStart);
+            && !(stackRooms.hi > 0 && !legendStart) && !(stackRooms.lo > 0 && legendStart);
         let L = layout(directWanted);
         const names = directWanted ? directNames(L) : null;
         if (directWanted && !names) { L = layout(false); }
@@ -14692,13 +14741,17 @@ export class Visual implements IVisual {
         });
         // ------- 1.55 (B09): stored difference markers (01A total and segment, 01B)
         if (stackDiff.length > 0) {
-            this.drawDiffMarkers(this.el("g", {}, this.svg), stackDiff.map(x => ({
+            this.drawDiffMarkers(this.el("g", {}, this.svg), stackDiff.map((x, i) => ({
                 spec: x.m, fromBand: pos(x.fi) + slotW / 2, toBand: pos(x.ti) + slotW / 2, halfW: slotW / 2,
+                toLo: pos(x.ti), toHi: pos(x.ti) + slotW, gap: step - slotW,
                 fromTop: x.topF, toTop: x.topT, d: x.vt - x.vf, base: x.vf,
                 // the level line only where levels are comparable: the total or the bottom series
                 level: x.si <= 0,
-                fc: scen[x.fi] === "fc" || scen[x.ti] === "fc"
-            })), scale, orientation, cfg);
+                fc: scen[x.fi] === "fc" || scen[x.ti] === "fc",
+                edge: stackPlan[i].edge, k: stackPlan[i].k, pp: norm,
+                clearW: orientation === "bars" && x.si < 0 ? this.textWidth(cfg.fmt.format(x.vt), cfg.labelFont) : 0
+            })), scale, orientation, cfg, region, bg,
+            cats.map((_, i) => ({ lo: pos(i), hi: pos(i) + slotW, top: scale(capV(posTot[i])) - 4 - cfg.labelFont })));
         }
         // ------- 1.55 (B09, 02C): share bracket — under row N to the end of the
         // reference (first series when sorted by it, else the stack), slanted up to
@@ -14996,30 +15049,37 @@ export class Visual implements IVisual {
 
         // 1.55 (B09): markers on plain columns/bars, resolved on the point values
         const keyOf = (c: string) => c.trim().toLowerCase();
-        const idxOf = new Map(points.map((p, i) => [keyOf(p.cat), i] as [string, number]));
+        // the first category of a name wins (hierarchy leaves can repeat)
+        const idxOf = new Map<string, number>();
+        points.forEach((p, i) => { if (!idxOf.has(keyOf(p.cat))) { idxOf.set(keyOf(p.cat), i); } });
         // a plan-only month (no AC/FC) is compared on its plan value, like its outline
         const mv = (i: number): number | null => points[i].value ?? points[i].pl;
-        const plainDiff = cfg.diffMarkers.filter(m => m.series == null)
-            .map(m => ({ spec: m, fi: idxOf.get(keyOf(m.from)), ti: idxOf.get(keyOf(m.to)) }))
+        // "@" has no meaning without a stack: the whole text after the arrow is the category;
+        // not with line mode or the waterfall bridge
+        const plainDiff = cfg.lineMode || wfStyle ? [] : cfg.diffMarkers
+            .map(m => ({ spec: m.series == null ? m : { ...m, to: m.toFull, series: null },
+                fi: idxOf.get(keyOf(m.from)), ti: idxOf.get(keyOf(m.series == null ? m.to : m.toFull)) }))
             .filter((m): m is { spec: DiffMarkerSpec; fi: number; ti: number } => m.fi != null && m.ti != null && m.fi !== m.ti
-                && mv(m.fi) != null && mv(m.ti) != null && !cfg.lineMode
-                && !(cfg.capMax != null && Math.max(mv(m.fi) as number, mv(m.ti) as number) > cfg.capMax));
-        const diffRoom = orientation === "columns" && !yr
-            ? this.diffSpace(plainDiff.filter(m => m.ti === n - 1).map(m => this.diffText({ spec: m.spec,
-                d: (mv(m.ti) as number) - (mv(m.fi) as number), base: mv(m.fi) as number }, cfg)), cfg)
-            : 0;
+                && mv(m.fi) != null && mv(m.ti) != null
+                && !(cfg.capMax != null && Math.max(mv(m.fi) as number, mv(m.ti) as number) > cfg.capMax))
+            .slice(0, DIFF_MARKER_MAX);
+        // with the year column the last month has no free side: its label goes above the bar
+        const plainPlan = diffPlan(plainDiff, n, !(yr && orientation === "columns"), !(yr && orientation === "columns"));
+        const diffRooms = this.diffRooms(plainDiff.map(m => this.diffText({ spec: m.spec,
+            d: (mv(m.ti) as number) - (mv(m.fi) as number), base: mv(m.fi) as number }, cfg)),
+            plainPlan, orientation, cfg, cfg.sharedScale ? cfg.mainDomain[1] - cfg.mainDomain[0] : 0, false);
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10 + (scenOn ? cfg.catFont + 2 : 0);
-            bandStart = region.x + pad + 2;
+            bandStart = region.x + pad + 2 + diffRooms.lo;
             bandEnd = yr ? bandStart + n * yr.w
-                : region.x + region.w - pad - diffRoom;
+                : region.x + region.w - pad - diffRooms.hi;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
             panels = split(plotTop, plotBottom - plotTop, true);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
             // room for the header and the panel titles above the first bar
-            bandStart = region.y + pad + headerH + titleH + 2;
-            bandEnd = region.y + region.h - pad;
+            bandStart = region.y + pad + headerH + titleH + 2 + diffRooms.lo;
+            bandEnd = region.y + region.h - pad - diffRooms.hi;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
             panels = split(plotLeft, plotRight - plotLeft, false);
         }
@@ -15693,14 +15753,22 @@ export class Visual implements IVisual {
 
         // ------- 1.55 (B09): stored difference markers
         if (plainDiff.length > 0) {
-            const half = (lineMode ? slotW : barW) / 2;
-            const bandOf = (i: number) => lineMode ? slotPos(i) + slotW / 2 : slotPos(i) + acShift + barW / 2;
-            this.drawDiffMarkers(this.el("g", {}, this.svg), plainDiff.map(m => {
+            const bandOf = (i: number) => slotPos(i) + acShift + barW / 2;
+            this.drawDiffMarkers(this.el("g", {}, this.svg), plainDiff.map((m, i) => {
                 const vf = mv(m.fi) as number, vt = mv(m.ti) as number;
-                return { spec: m.spec, fromBand: bandOf(m.fi), toBand: bandOf(m.ti), halfW: half,
+                return { spec: m.spec, fromBand: bandOf(m.fi), toBand: bandOf(m.ti), halfW: barW / 2,
+                    toLo: slotPos(m.ti), toHi: slotPos(m.ti) + slotW, gap: step - slotW,
                     fromTop: vf, toTop: vt, d: vt - vf, base: vf, level: true,
-                    fc: points[m.fi].isFc || points[m.ti].isFc };
-            }), mainScale, orientation, cfg);
+                    fc: points[m.fi].isFc || points[m.ti].isFc,
+                    edge: plainPlan[i].edge, k: plainPlan[i].k, pp: false,
+                    clearW: orientation === "bars" ? this.textWidth(cfg.fmt.format(vt), cfg.labelFont) : 0 };
+            }), mainScale, orientation, cfg, panels.main, bg,
+            // the columns' tops with their value labels (AC, PL outline, PY column)
+            points.map((p, i) => {
+                const hi = Math.max(p.value ?? 0, p.pl ?? 0, pyAsCol ? p.py ?? 0 : 0, 0);
+                return { lo: slotPos(i), hi: slotPos(i) + slotW,
+                    top: mainScale(cfg.capMax != null ? Math.min(hi, cfg.capMax) : hi) - 4 - cfg.labelFont };
+            }));
         }
 
         // ------- compare-on-click overlay: Δ between two picked categories
@@ -16603,68 +16671,138 @@ export class Visual implements IVisual {
         };
     }
 
-    /** 1.55 (B09): label of a difference marker: "+12,2 (+12,0%)", without % on "!" */
-    private diffText(m: { d: number; base: number; spec: DiffMarkerSpec }, cfg: ChartConfig): string {
-        // same unit and precision as the values the marker compares
-        const abs = this.fmtSigned(cfg.fmt, m.d);
+    /** 1.55 (B09): label of a difference marker: "+12,2 (+12,0%)", without % on "!";
+     *  100 % stacks: percentage points ("+3,8 pp"), never a % of a share */
+    private diffText(m: { d: number; base: number; spec: DiffMarkerSpec; pp?: boolean }, cfg: ChartConfig): string {
+        if (m.pp) {
+            const nf = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            const r = Math.round(m.d * 10) / 10;
+            return `${r > 0 ? "+" : r < 0 ? "−" : ""}${nf.format(Math.abs(r))} ${this.locStr("Label_PctPoints", "pp")}`;
+        }
+        // the values' unit and precision, more digits only when Δ would round to zero
+        const abs = this.fmtSigned(cfg.fmtDiff, m.d);
         if (m.spec.noPct) { return abs; }
         const rel = relVar(m.d, m.base);
-        return rel == null ? `${abs} (${REL_NA})` : `${abs} (${this.fmtPercent(rel)})`;
+        return rel == null ? abs : `${abs} (${this.fmtPercent(rel)})`;
     }
 
-    /** 1.55 (B09): room right of the last column a marker needs (0 = none targets it) */
-    private diffSpace(texts: string[], cfg: ChartConfig): number {
-        if (texts.length === 0) { return 0; }
-        return Math.round(4 * this.fontK) + 6 + Math.max(...texts.map(t => this.textWidth(t, cfg.labelFont))) + 8;
+    /** width of a difference marker's bar */
+    private diffBarW(): number {
+        return Math.max(3, Math.round(4 * this.fontK));
+    }
+
+    /**
+     * 1.55 (B09 review): room at both band ends for markers on the first/last
+     * category (columns: bar and label beside it, bars: the bar below/above the
+     * row). Small multiples size the label from the deck-wide value span, so
+     * every tile keeps the same plot width.
+     */
+    private diffRooms(texts: string[], plan: { side: number; edge: boolean; k: number }[],
+        orientation: Orientation, cfg: ChartConfig, deckSpan: number, pp: boolean): { lo: number; hi: number } {
+        const bw = this.diffBarW();
+        const worst = deckSpan > 0
+            ? (pp ? this.diffText({ d: -100, base: 0, spec: { noPct: true } as DiffMarkerSpec, pp: true }, cfg)
+                : `${this.fmtSigned(cfg.fmtDiff, -deckSpan)} (${this.fmtPercent(-99.9)})`)
+            : null;
+        const one = (side: number): number => {
+            const idx = plan.map((_, i) => i).filter(i => plan[i].edge && plan[i].side === side);
+            if (idx.length === 0) { return 0; }
+            const bars = 2 + (Math.max(...idx.map(i => plan[i].k)) + 1) * (bw + 2);
+            if (orientation !== "columns") { return bars + 2; }
+            const tw = Math.max(...(worst != null ? [worst] : idx.map(i => texts[i])).map(t => this.textWidth(t, cfg.labelFont)));
+            return Math.round(bars + 3 + tw + 8);
+        };
+        return { lo: one(-1), hi: one(1) };
     }
 
     /**
      * 1.55 (B09, IBCS 01A/01B): stored difference marker — a thin level line from
      * the first category's end, a thick bar of the difference beside the second
-     * category (columns: right of it, bars: below it), Δ and Δ % next to the bar.
-     * Good/bad colour, hatched when a forecast is involved; texts sorted apart.
+     * category on the side away from the first (columns: right/left, bars:
+     * below/above), Δ and Δ % next to it. Good/bad colour, hatched when a forecast
+     * is involved. On the outer category the label sits beside the bar in reserved
+     * room; elsewhere above the bar (columns) or past the row's value label (bars).
+     * The level lines run behind the marks (guideParent).
      */
     private drawDiffMarkers(parent: SVGElement, list: DiffMarkerDraw[], scale: Scale,
-        orientation: Orientation, cfg: ChartConfig): void {
+        orientation: Orientation, cfg: ChartConfig, clip: Rect, guideParent?: SVGElement,
+        sky: { lo: number; hi: number; top: number }[] = []): void {
         const lf = cfg.labelFont;
-        const bw = Math.max(3, Math.round(4 * this.fontK));
-        const placed: number[] = [];
+        const bw = this.diffBarW();
+        const placed = new Map<string, number[]>();
+        const push = (key: string, v: number, dir: number): number => {
+            const list2 = placed.get(key) ?? [];
+            for (let guard = 0; guard < 8 && list2.some(p => Math.abs(v - p) < lf + 2); guard++) { v += dir * (lf + 2); }
+            list2.push(v);
+            placed.set(key, list2);
+            return v;
+        };
         for (const m of list) {
             const color = m.d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(m.d) ? cfg.colors.good : cfg.colors.bad;
             const g = this.el("g", {
                 "data-icd": "diff-marker", "data-from": m.spec.from, "data-to": m.spec.to,
                 "data-series": m.spec.series ?? "", "data-delta": m.d
             }, parent);
+            const gg = guideParent ?? g;
             const a = scale(m.toTop - m.d), b = scale(m.toTop);
             const fill = m.fc && !cfg.hc ? `url(#${cfg.isGood(m.d) ? cfg.patGood : cfg.patBad})` : color;
             const text = this.diffText(m, cfg);
+            const tw = this.textWidth(text, lf);
+            const side = m.toBand >= m.fromBand ? 1 : -1;
+            const off = m.k * (bw + 2);
+            // in the gap beside the To slot; too narrow a gap: on the slot's own edge
+            const free = m.edge || m.gap >= bw + 4 + off;
+            const c = free ? (side > 0 ? m.toHi + 2 + off : m.toLo - 2 - off - bw) : (side > 0 ? m.toHi - bw : m.toLo);
+            const e = side > 0 ? m.toHi : m.toLo;
+            const guide = { stroke: cfg.subtle, "stroke-width": 1, "data-from": m.spec.from, "data-to": m.spec.to };
+            const lbl = { "font-size": lf, fill: cfg.ink, "font-family": FONT, stroke: cfg.paper, "stroke-width": 3,
+                "paint-order": "stroke", "data-icd": "diff-label" };
+            let t: SVGElement;
             if (orientation === "columns") {
-                const x = m.toBand + m.halfW + 3;
                 if (m.level) {
-                    this.el("line", { x1: Math.min(m.fromBand, m.toBand) - m.halfW, y1: scale(m.fromTop), x2: x + bw, y2: scale(m.fromTop),
-                        stroke: cfg.subtle, "stroke-width": 1, "data-icd": "diff-guide" }, g);
+                    const yF = scale(m.fromTop), yT = scale(m.toTop);
+                    this.el("line", { x1: Math.min(m.fromBand - m.halfW, c), y1: yF, x2: Math.max(m.fromBand + m.halfW, c + bw), y2: yF,
+                        ...guide, "data-icd": "diff-guide" }, gg);
+                    // 01A: the second level at the To column closes the bracket
+                    if (Math.abs(c - e) > 1) {
+                        this.el("line", { x1: Math.min(e, c), y1: yT, x2: Math.max(e, c + bw), y2: yT, ...guide, "data-icd": "diff-guide-to" }, gg);
+                    }
                 }
-                this.el("rect", { x, y: Math.min(a, b), width: bw, height: Math.max(Math.abs(b - a), 2), fill,
+                this.el("rect", { x: c, y: Math.min(a, b), width: bw, height: Math.max(Math.abs(b - a), 2), fill,
                     stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "diff-bar" }, g);
-                let ty = (a + b) / 2 + lf * 0.35;
-                for (const py of placed) { if (Math.abs(ty - py) < lf + 2) { ty = py + lf + 2; } }
-                placed.push(ty);
-                const t = this.el("text", { x: x + bw + 3, y: ty, "font-size": lf, fill: cfg.ink, "font-family": FONT,
-                    stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "data-icd": "diff-label" }, g);
-                t.textContent = text;
+                if (m.edge) {
+                    const ty = push(`e${side}`, (a + b) / 2 + lf * 0.35, 1);
+                    t = this.el("text", { x: side > 0 ? c + bw + 3 : c - 3, y: Math.min(ty, clip.y + clip.h - 2),
+                        "text-anchor": side > 0 ? "start" : "end", ...lbl }, g);
+                } else {
+                    // between columns: above the bar and above every column (with its value
+                    // label, `sky`) the text spans
+                    const cx = Math.max(clip.x + tw / 2 + 2, Math.min(clip.x + clip.w - tw / 2 - 2, c + bw / 2));
+                    let y0 = Math.min(a, b) - 4;
+                    for (const sk of sky) { if (sk.hi > cx - tw / 2 - 2 && sk.lo < cx + tw / 2 + 2) { y0 = Math.min(y0, sk.top - 5); } }
+                    const ty = push(`t${Math.round(m.toBand)}`, y0, -1);
+                    t = this.el("text", { x: cx, y: Math.max(clip.y + lf, ty), "text-anchor": "middle", ...lbl }, g);
+                }
             } else {
-                const y = m.toBand + m.halfW + 2;
                 if (m.level) {
-                    this.el("line", { x1: scale(m.fromTop), y1: Math.min(m.fromBand, m.toBand) - m.halfW, x2: scale(m.fromTop), y2: y + bw,
-                        stroke: cfg.subtle, "stroke-width": 1, "data-icd": "diff-guide" }, g);
+                    const xF = scale(m.fromTop), xT = scale(m.toTop);
+                    this.el("line", { x1: xF, y1: Math.min(m.fromBand - m.halfW, c), x2: xF, y2: Math.max(m.fromBand + m.halfW, c + bw),
+                        ...guide, "data-icd": "diff-guide" }, gg);
+                    if (Math.abs(c - e) > 1) {
+                        this.el("line", { x1: xT, y1: Math.min(e, c), x2: xT, y2: Math.max(e, c + bw), ...guide, "data-icd": "diff-guide-to" }, gg);
+                    }
                 }
-                this.el("rect", { x: Math.min(a, b), y, width: Math.max(Math.abs(b - a), 2), height: bw, fill,
+                this.el("rect", { x: Math.min(a, b), y: c, width: Math.max(Math.abs(b - a), 2), height: bw, fill,
                     stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "diff-bar" }, g);
-                const t = this.el("text", { x: Math.max(a, b) + 4, y: y + bw / 2 + lf * 0.35, "font-size": lf, fill: cfg.ink,
-                    "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "data-icd": "diff-label" }, g);
-                t.textContent = text;
+                // after the bar end and past the To row's value label; inside the visual
+                let tx = Math.max(Math.max(a, b) + 4, b + 4 + (m.clearW > 0 ? m.clearW + 6 : 0));
+                let anchor = "start";
+                if (tx + tw > clip.x + clip.w - 2) { tx = clip.x + clip.w - 2; anchor = "end"; }
+                const ty = push(`b${Math.round(m.toBand)}`, c + bw / 2 + lf * 0.35, side);
+                t = this.el("text", { x: tx, y: ty, "text-anchor": anchor, ...lbl }, g);
             }
-            g.setAttribute("aria-label", `${m.spec.to} vs. ${m.spec.from}${m.spec.series ? ` (${m.spec.series})` : ""}: ${text}`);
+            t.textContent = text;
+            g.setAttribute("aria-label", `${m.spec.from} → ${m.spec.to}${m.spec.series ? ` (${m.spec.series})` : ""}: ${text}`);
         }
     }
 
