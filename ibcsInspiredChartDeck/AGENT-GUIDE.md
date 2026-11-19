@@ -92,6 +92,11 @@ außen), `chart.scenarioLabels` (Kürzel je Block unter der Achse), Titel nennt 
 hinter Ist-Monaten. Bekannt: ein Kommentar je Kategorie erscheint bei Kommentar-Measures auf Kategorie-Ebene je Serie.
 Tests c275 bis c280.
 
+*B14 · Kleinteile.* Neue Property `chart.highlightStyle` (`band` Standard · `ellipse`): bei `ellipse` kein Band, sondern
+nach dem Zeichnen je hervorgehobener Kategorie eine Ellipse um jede Zahl ihrer Gruppe (`data-icd="emph-ellipse"`,
+Kategoriename ausgenommen; Tests c281/c281b). Gerundete Null: Werte zeigen „0“ (seit 1.52.1), Margen-Werte der Tabelle
+jetzt „0,0 %“ statt „−0,0 %“ (c282); Δ, Δ % und Δ in Pp behalten bewusst ihr Vorzeichen (Richtung, Konvention 1.52.2).
+
 **Neu in 1.53 (rowType-Token, keine neue Property, keine neue Rolle):** Die Rolle `rowType`
 („Waterfall-Typ“) ist der Datenvertrag für die Zeilenstruktur — Token je Zeile statt Zeilennamen in
 sieben Komma-Listen. Tabelle, Semantik und Vereinigungsregel: Abschnitt „rowType-Token“ unten;
@@ -437,6 +442,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `hideBlankCat` | bool | `false` | Blendet Zeilen ohne Kategoriewert aus — sie erscheinen sonst als „(blank)"-Balken, -Zeile oder -KPI-Karte. Standard aus, damit keine Daten unbemerkt verschwinden (Beta-Feedback). |
 | `movingAverage` | numeric | `0` | Bereich 0–24 — Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus. |
 | `highlight` | text | leer | Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „emphasize“ — Feld und Liste ergänzen sich. |
+| `highlightStyle` | enum | `band` | `band` · `ellipse` — Wie hervorgehobene Kategorien markiert werden: als dezentes Band hinter der Kategorie (Standard) oder als Ellipse um ihre Zahlen, wie die Kreise in den IBCS-Blättern. |
 | `groupEvery` | numeric | `0` | Bereich 0–50 — Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus. |
 
 **Interaktion im Bericht**
@@ -560,6 +566,7 @@ Enum-Labels:
   `r12` = R12 (rollierende 12 Perioden)
 - `acFcSplit`: `off` = Aus (FC nur, wo AC fehlt); `full` = FC = Vollmonatsprognose (Aufstockung);
   `rest` = FC = Restmonat (additiv)
+- `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
 - `sortMode`: `off` = Aus (Datenreihenfolge); `abs` = Nach Wirkung |Δ|;
   `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC
@@ -879,7 +886,7 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — 351 Render-Stages (Nummern c1 bis c280, inkl. Varianten wie `c248L`) als
+- `test/test.html` — 361 Render-Stages (Nummern c1 bis c282, inkl. Varianten wie `c248L`) als
   lebende Beispiele jeder Funktion; `npm run test:render` (Checks + Fehler). Weitere Suiten:
   `test:scale` (Skalierungs-Geometrie), `test:notation` (Notation), `test:export` (PDF/PPT-Layouts).
   c45, c90 und c92 waren bis 1.52.4 Hinweis-Fälle („rein negativ“) und zeichnen seit den negativen

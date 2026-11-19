@@ -264,6 +264,14 @@
                     }
                 },
                 "tableTotalLegend": { "type": { "bool": true } },
+                "highlightStyle": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "band", "displayName": "Band behind the category" },
+                            { "value": "ellipse", "displayName": "Ellipse around the values" }
+                        ]
+                    }
+                },
                 "zebraStripes": { "type": { "bool": true } },
                 "acFcSplit": {
                     "type": {

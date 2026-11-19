@@ -629,6 +629,8 @@ interface ChartConfig {
     band: string;
     /** lower-cased category labels to emphasize (IBCS EMPHASIZE) */
     highlight: Set<string>;
+    /** 1.54 (B14): EMPHASIZE as shaded band (default) or ellipses around the numbers */
+    highlightEllipse: boolean;
     /** hard scale maximum: larger base values are capped with a break marker */
     capMax: number | null;
     /** cumulative (YTD) view: totals header shows the last running value */
@@ -1541,6 +1543,7 @@ export class Visual implements IVisual {
             this.svg.style.display = "block";
             this.lastRender = { points, width, height };
             this.render(points, width, height);
+            this.drawEmphEllipses();
             this.finishChips();
             this.applyChipMenu();
             this.drawLoadState(width, height);
@@ -1564,6 +1567,7 @@ export class Visual implements IVisual {
         this.hideDarkTip();
         // render() mutates order in place via groups — pass a copy of the point list
         this.render([...this.lastRender.points], this.lastRender.width, this.lastRender.height);
+        this.drawEmphEllipses();
         this.finishChips();
         this.applyChipMenu();
         this.drawLoadState(this.lastRender.width, this.lastRender.height);
@@ -5641,6 +5645,7 @@ export class Visual implements IVisual {
     private render(points: DataPoint[], width: number, height: number): void {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
+        this.ellipseTargets = [];
         this.bridgeChips = [];
         this.sortNoop = false;
         this.exceptionNoop = false;
@@ -5948,6 +5953,7 @@ export class Visual implements IVisual {
             wash: hc ? bgc : dark ? DARK_WASH : WASH,
             band: hc ? bgc : dark ? DARK_BAND : BAND,
             highlight: this.listWithFlag(String(s.chartCard.highlight.value), "emphasize"),
+            highlightEllipse: String((s.chartCard.highlightStyle.value as powerbi.IEnumMember)?.value) === "ellipse",
             capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
                 ? s.scaleCard.fixedMax.value : null,
             cumulative: cumulativeOn,
@@ -9860,7 +9866,10 @@ export class Visual implements IVisual {
                 minimumFractionDigits: 1, maximumFractionDigits: 1
             });
             // finance convention applies here too: one negative notation per table
-            const pctText = (v: number) => this.financeFmt && v < 0
+            // 1.54 (B14): a margin VALUE that rounds to zero shows no sign ("0,0 %", not "−0,0 %"),
+            // like the value labels ("0"); Δ in Pp keeps its direction like every Δ (1.52.2)
+            const zeroPct = (v: number) => !/[1-9]/.test(pctNf.format(Math.abs(v)));
+            const pctText = (v: number) => zeroPct(v) ? pctNf.format(0) + " %" : this.financeFmt && v < 0
                 ? `(${pctNf.format(Math.abs(v))} %)` : pctNf.format(v) + " %";
             const ppText = (v: number) => this.financeFmt && v < 0
                 ? `(${pctNf.format(Math.abs(v))}Pp)`
@@ -10868,7 +10877,10 @@ export class Visual implements IVisual {
             minimumFractionDigits: 1, maximumFractionDigits: 1
         });
         // finance convention applies here too (same texts as the flat table)
-        const pctText = (v: number) => this.financeFmt && v < 0
+        // 1.54 (B14): a margin VALUE that rounds to zero shows no sign ("0,0 %", not "−0,0 %"),
+        // like the value labels ("0"); Δ in Pp keeps its direction like every Δ (1.52.2)
+        const zeroPct = (v: number) => !/[1-9]/.test(pctNf.format(Math.abs(v)));
+        const pctText = (v: number) => zeroPct(v) ? pctNf.format(0) + " %" : this.financeFmt && v < 0
             ? `(${pctNf.format(Math.abs(v))} %)` : pctNf.format(v) + " %";
         const ppText = (v: number) => this.financeFmt && v < 0
             ? `(${pctNf.format(Math.abs(v))}Pp)`
@@ -16158,6 +16170,8 @@ export class Visual implements IVisual {
      *  high-contrast the 7 % ink tint would not survive the forced palette — thin
      *  outline instead, same as the hover band and the KPI cards */
     private emphBand(parent: SVGElement, x: number, y: number, w: number, h: number, cfg: ChartConfig): void {
+        // 1.54 (B14): ellipse style marks the numbers instead (drawEmphEllipses)
+        if (cfg.highlightEllipse) { return; }
         this.el("rect", {
             x, y, width: Math.max(1, w), height: Math.max(1, h),
             fill: cfg.hc ? "none" : cfg.ink,
@@ -17106,7 +17120,39 @@ export class Visual implements IVisual {
 
     // ---------------------------------------------------------- interaction
 
+    /** 1.54 (B14): category groups whose numbers get an emphasis ellipse after drawing */
+    private ellipseTargets: { g: SVGGElement; cat: string; ink: string }[] = [];
+
+    /**
+     * 1.54 (B14): ellipse emphasis (IBCS sheets 04A, 06E): after the chart is drawn,
+     * every numeric label of a highlighted category gets a thin ellipse around its
+     * bounding box. The category name itself is not circled.
+     */
+    private drawEmphEllipses(): void {
+        const list = this.ellipseTargets;
+        this.ellipseTargets = [];
+        for (const t of list) {
+            const texts = Array.from(t.g.querySelectorAll("text")) as SVGTextElement[];
+            for (const tx of texts) {
+                const s = (tx.textContent || "").trim();
+                if (!/\d/.test(s) || s === t.cat) { continue; }
+                let b: DOMRect;
+                try { b = tx.getBBox(); } catch { continue; }
+                if (b.width <= 0 || b.height <= 0) { continue; }
+                const e = this.el("ellipse", {
+                    cx: b.x + b.width / 2, cy: b.y + b.height / 2,
+                    rx: b.width / 2 + 5, ry: b.height / 2 + 3,
+                    fill: "none", stroke: t.ink, "stroke-width": 1.3, "data-icd": "emph-ellipse"
+                }, t.g);
+                e.setAttribute("pointer-events", "none");
+            }
+        }
+    }
+
     private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
+        if (cfg.highlightEllipse && this.isEmph(cfg, p.cat)) {
+            this.ellipseTargets.push({ g, cat: p.cat, ink: cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF" });
+        }
         // dashboards disable interactions — keep tooltips, skip selection affordances
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
         g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";

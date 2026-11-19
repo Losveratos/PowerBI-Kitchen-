@@ -2581,6 +2581,27 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
   check(!tn.includes("Sonstige") && tn.some(t => /\(3\)$/.test(t)) && tn.includes("Süd") && tn.includes("Ost"),
     `c274d: Top 2 = Süd, Ost; „Sonstige“ steckt im Rest (3) (${tn.join(", ")})`);
 }
+// ---- 1.54 (B14): Hervorhebung als Ellipse; gerundete Null in Margen-Zeilen ohne Vorzeichen
+addStage("c281", "Hervorhebung als Ellipse · Balken gegen PL, Süd und Ost hervorgehoben", 960, 420);
+{
+  const hc = ["Nord", "Süd", "West", "Ost"], ha = [420, 610, 300, 510], hp = [400, 650, 280, 470];
+  runCap("c281", dataView(hc, [col("actual", ha), col("plan", hp)],
+    { chart: { orientation: "bars", comparisonMode: "plan", highlight: "Süd, Ost", highlightStyle: "ellipse" } }), 960, 420);
+  const el = [...document.querySelectorAll('#c281 [data-icd="emph-ellipse"]')];
+  const inHl = el.every(e => { const g = e.closest("g.icd-cat"); return g && /Süd|Ost/.test(g.textContent); });
+  check(el.length >= 4 && inHl, `c281: Ellipsen um die Zahlen von Süd und Ost (${el.length}), keine an anderen Kategorien`);
+  addStage("c281b", "Referenz · Hervorhebung als Band", 960, 420);
+  runCap("c281b", dataView(hc, [col("actual", ha), col("plan", hp)],
+    { chart: { orientation: "bars", comparisonMode: "plan", highlight: "Süd, Ost" } }), 960, 420);
+  check(!document.querySelector('#c281b [data-icd="emph-ellipse"]'), "c281b: Standard bleibt das Band, keine Ellipse");
+}
+addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt „−0,0 %“", 1000, 260);
+{
+  runCap("c282", dataView(["Umsatz", "Marge"], [col("actual", [9800, -0.02], "#,0"), col("previousYear", [9100, 0.4], "#,0")],
+    { chart: { orientation: "table" } }, null, ["sum", "pct"]), 1000, 260);
+  const tx = [...document.querySelectorAll("#c282 text")].map(t => t.textContent);
+  check(tx.includes("0,0 %") && !tx.some(t => /^[-−]0,0 %$/.test(t)), `c282: Margenwert gerundet null ohne Vorzeichen (${tx.filter(t => /%/.test(t)).join(" | ")})`);
+}
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {
   const dv = dataView(t2Cats, [col("actual", t2Ac, "#,0"), col("previousYear", t2Py, "#,0"), col("plan", t2Pl, "#,0")],

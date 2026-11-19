@@ -31,6 +31,9 @@ Schalter stehen standardmäßig aus.**
   Monats-Δ läuft mit dem Faktor der Jahressäule („×0,1“ am Balken).
   Tests: Skalen-Suite YC03A/YC03B (Pixelmessung), Nulllinie, Teilsumme, Dual-Varianz, großes Δ, Small Multiples und
   sechs Rückfälle (SVG gleich wie ohne Option), Render c267. Fable-Review: zwei Blocker und alle Major-Befunde behoben.
+- **B14 · Kleinteile.** Neu „Art der Hervorhebung“ (`chart.highlightStyle`): Ellipse um die Zahlen hervorgehobener
+  Kategorien statt Band (IBCS-Blätter 04A, 06E). Margen-Werte der Tabelle, die auf null runden, zeigen „0,0 %“ statt
+  „−0,0 %“, wie die übrigen Werte; Abweichungen behalten ihr Vorzeichen. Tests c281, c282.
 - **B06 · Szenario-Notation im Stapel (Blatt 01C).** Vorher: Gestapelte Säulen und Balken füllten jedes Segment voll,
   ein Forecast sah aus wie ein Ist, Plan-Monate blieben leer, Referenzlinie, Trennlinie alle N Kategorien und
   Kommentar-Marker fehlten im Stapel. Nachher: Forecast-Segmente schraffiert in der Tönung ihrer Serie, Plan-Monate als

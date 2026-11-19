@@ -87,6 +87,13 @@ const sortImpactItems: LocEnumMember[] = [
     { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" }
 ];
 
+// 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
+// ellipse around its numbers (IBCS sheets 04A, 06E: circled values)
+const highlightStyleItems: LocEnumMember[] = [
+    { value: "band", displayName: "Band behind the category", key: "Enum_HlStyle_Band" },
+    { value: "ellipse", displayName: "Ellipse around the values", key: "Enum_HlStyle_Ellipse" }
+];
+
 const totalRowPositionItems: LocEnumMember[] = [
     { value: "bottom", displayName: "Bottom (below rows)", key: "Enum_TotalPos_Bottom" },
     { value: "top", displayName: "Top (below header)", key: "Enum_TotalPos_Top" }
@@ -238,7 +245,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
-        bridgeOrientationItems, emptyModeItems, sortImpactItems];
+        bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -509,6 +516,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         descriptionKey: "Desc_Chart_Highlight",
         placeholder: "z. B. Jul, Aug",
         value: ""
+    });
+
+    highlightStyle = new formattingSettings.ItemDropdown({
+        name: "highlightStyle",
+        displayName: "Highlight style",
+        displayNameKey: "Chart_HighlightStyle",
+        description: "Wie hervorgehobene Kategorien markiert werden: als dezentes Band hinter der Kategorie (Standard) oder als Ellipse um ihre Zahlen, wie die Kreise in den IBCS-Blättern.",
+        descriptionKey: "Desc_Chart_HighlightStyle",
+        items: highlightStyleItems,
+        value: highlightStyleItems[0]
     });
 
     compareClick = new formattingSettings.ToggleSwitch({
@@ -1212,7 +1229,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_DataTime",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
             this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
-            this.highlight, this.groupEvery]
+            this.highlight, this.highlightStyle, this.groupEvery]
     });
 
     // End-User-Bedienung im Bericht als EINE Familie (In-Chart-Buttons, YTD-Chip,
