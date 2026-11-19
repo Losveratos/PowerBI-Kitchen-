@@ -100,6 +100,7 @@
 <div class="case"><h4>m58 · 1.8 · T03A mit „Δ%-Dezimalen wie im Blatt“ (ganzzahlig) und Margen-Δ in %p</h4><div class="stage" id="m58" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m59 · 1.8 · T01C mit gerundeter Null ohne Vorzeichen (World ΔPY% 0.0% wie im Blatt)</h4><div class="stage" id="m59" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>t11c · 1.8 · ROI-Baum wie nach der Vorlage 11A (alle Perioden beschriftet, Wurzel automatisch, Periodenzeile automatisch)</h4><div class="stage" id="t11c" style="width:1300px;height:720px"></div></div>
+<div class="case"><h4>m60 · 1.8.1 · T02D mit den _November-Werten des Blatts · Rest of World China, Japan, Australia, Other</h4><div class="stage" id="m60" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -585,6 +586,9 @@ runRows("m58", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2
   columns: { template: "T03A" }, numbers: { sheetPctDecimals: true, ppUnit: "pctp" } });
 runRows("m59", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" },
   numbers: { roundedZero: "plain" } });
+
+// m60 — 1.8.1 T02D on the sheet's own _November numbers
+runRows("m60", MEGA_DEMO.regions({ sheet: "T02D" }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02D" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

@@ -1,5 +1,28 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.1.0 (2026-11-19): ROI-Baum wie im Blatt 11A
+
+Feinschliff des ROI-Baums nach dem Bildvergleich mit dem IBCS-Blatt 11A. IBCS dient nur als Bezug.
+
+- **Operator „:" für Quotienten.** Der Werttreiberbaum zeichnet eine Division als „:" wie das Blatt
+  (vorher „÷"). Die Formel selbst und alle Berechnungen bleiben unverändert.
+- **Geteilte Operanden einmal.** Steht dieselbe Zeile als letzte Karte eines Astes und als erste Karte des
+  nächsten (DuPont: Nettoumsatz im Nenner der Umsatzrendite und im Zähler des Kapitalumschlags), zeichnet
+  der Baum sie einmal zwischen beiden Verbindungen, wie das Blatt. Gilt für Blattkarten derselben Ebene.
+- **Galerie-Vorschau ROI-Baum.** Die Kachel 11A zeigt jetzt einen echten DuPont-Baum mit den Zahlen des
+  Blatts (2021 bis 2027, Plan ab 2026, Kapitalumschlag als Faktor) statt des Demo-Baums.
+
+**Vorher / Nachher.**
+
+| Thema | 1.8.0 | 1.8.1 |
+|---|---|---|
+| Operator einer Division im Baum | ÷ | : |
+| Gemeinsamer Operand zweier benachbarter Äste | zwei Karten | eine Karte mit zwei Verbindungen |
+| Vorschau der Kachel 11A | Demo-Baum der GuV | DuPont-Baum mit den Blattzahlen |
+
+**Tests:** mega-shot t11c (eine Karte Nettoumsatz, Operator „:"), m60 (T02D mit den _November-Zahlen des
+Blatts: Rest of World China, Japan, Australia, Other wie im Blatt); tree-interact liest „:" als „÷".
+
 ## 1.8.0.0 (2026-11-19): IBCS-Blätter T01C, T01D, T02D und 11A, Gesamtzeile, Sortierung nach Δ%, Blattnotation
 
 Abgleich aller IBCS-Template-Blätter (Fassungen Juli und November 2026) gegen das Visual; umgesetzt sind

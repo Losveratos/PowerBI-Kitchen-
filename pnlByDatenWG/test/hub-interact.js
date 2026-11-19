@@ -256,6 +256,9 @@ function check(label, cond, detail) {
         out.minis = T.qa("g1", '[data-pnl="hub-mini"]').map(m => m.querySelectorAll("svg").length + m.querySelectorAll("[data-pnl-row]").length
             + (m.querySelectorAll("svg").length === 1 ? m.querySelectorAll("svg rect").length : 0));
         out.mega = T.qa("g1", '[data-pnl="hub-mini"]').filter(m => m.querySelector('svg[data-pnl="mega-head"]')).length;
+        // 1.8.1 the ROI tree tile previews a DuPont tree on the sheet's numbers
+        const roiTile = T.q("g1", '[data-pnl="tpl-11A"]');
+        out.roiMini = roiTile ? [...roiTile.querySelectorAll('[data-pnl="hub-mini"] svg text')].map(t => t.textContent) : [];
         out.noteNoFields = (T.q("g1", '[data-pnl="hub-tpl-note"]') || {}).textContent;
         out.activeDefault = T.qa("g1", '[data-pnl^="tpl-"][data-active="1"]').map(b => b.getAttribute("data-pnl"));
         out.persists0 = st.persists.length;
@@ -311,6 +314,14 @@ function check(label, cond, detail) {
         && G.tiles.join() === "T01A,T01B,T01C,T02A,T02B,T02C,T02D,T01D,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,T05A,T05B,12A,12G,12H,11A,off", G.tiles.join(","));
     check("G every tile carries a mini rendering", G.minis.length === 24 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
     check("G 22 of the minis are mega tables (the classic table is the 23rd)", G.mega === 22, String(G.mega));
+    check("G 1.8.1 the ROI tree tile previews the DuPont tree (return on investment, one card net sales, capital turnover 1.3)",
+        G.roiMini.some(t => t.startsWith("Return on investment")) && G.roiMini.filter(t => /^Net sales(Net sales)?$/.test(t)).length === 1
+        && G.roiMini.includes("1.3"),
+        G.roiMini.filter(t => /[A-Za-z]/.test(t)).slice(0, 12).join(" | "));
+    {
+        const el = await page.$('#g1 [data-pnl="tpl-11A"]');
+        if (el) { await el.screenshot({ path: `${__dirname}/hub-tpl-11A.png` }); }
+    }
     check("G 1.8 the ROI tree tile writes the card settings and the tree view, no template",
         G.roi && JSON.stringify(G.roi.cols) === JSON.stringify({ treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true }) && G.roi.view === "tree" && !G.roi.tpl,
         JSON.stringify(G.roi));

@@ -144,7 +144,8 @@ function readGeom(stageId) {
     const ops = top.filter(e => e.tagName === "circle").map(c => {
         const cx = num(c, "cx"); const cy = num(c, "cy");
         const gl = glyphs.find(t => Math.abs(t.x - cx) < eps && Math.abs(t.y - cy) < 8);
-        return { cx, cy, r: num(c, "r"), op: gl ? gl.v : "" };
+        // 1.8.1 a ratio is drawn as ":"; the tests speak the formula operator "÷"
+        return { cx, cy, r: num(c, "r"), op: gl ? (gl.v === ":" ? "÷" : gl.v) : "" };
     });
 
     // a bus may be degenerate (one child on the parent's own centre line), so the

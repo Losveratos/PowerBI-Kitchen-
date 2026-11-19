@@ -20,7 +20,7 @@ Vorbereitung (hängt organisatorisch, technisch ready). Die Visuals sind
 | Produkt | Version | Ordner | Hinweise |
 | --- | --- | --- | --- |
 | ChartKitchen byDatenWG | 1.54.0.0 | `ibcsInspiredChartDeck/` | 13 Chart-Modi, Start-Hub, IBCS-Vorlagen C01–C19 (ohne C07/C11), Jahressäule, Szenarien im Stapel, 4 Sprachen. GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D` |
-| P&L Statement byDatenWG | 1.8.0.0 | `pnlByDatenWG/` | Mega-Table (Templates T01A–12H inkl. T01C, T01D, T02D), Gesamtzeile über mehrere Wurzeln, Sortierung nach Δ%, Treiberbaum mit ROI-Baum 11A, Sankey, Bilanz/Cashflow (Bestandsgrößen), ⚡ Nur Ausnahmen, Start-Hub, IBCS-2.0-Skalierung. GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
+| P&L Statement byDatenWG | 1.8.1.0 | `pnlByDatenWG/` | Mega-Table (Templates T01A–12H inkl. T01C, T01D, T02D), Gesamtzeile über mehrere Wurzeln, Sortierung nach Δ%, Treiberbaum mit ROI-Baum 11A, Sankey, Bilanz/Cashflow (Bestandsgrößen), ⚡ Nur Ausnahmen, Start-Hub, IBCS-2.0-Skalierung. GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | dataKitchenGantt | 2.3.1.0 | `dataKitchenGantt/` | Gruppenzeilen-Klick überall, skalierungs-fest (Version laut pbiviz.json, Stand 11/2026) |
 | MockupKitchen | — | `mockup-kitchen.html` | Browser-Tool, Export für den Skill `mockup-to-powerbi` |
 

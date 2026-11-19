@@ -47,6 +47,7 @@ import {
 import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
 import { buildStockDemoRows } from "./demo-stock";
+import { buildRoiDemoRows } from "./demo-roi";
 import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc, templateDemo, templateStockMode,
     HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl, TEMPLATE_SWITCHES_1_8,
     VIEW_PRESETS } from "./hub";
@@ -435,6 +436,13 @@ interface TreeCard {
     drill: boolean;
     /** 1.7 ⚡ hide: a rest card — the quiet branches folded into it ("+n" in the tree, one band in the Sankey) */
     rest?: PnlNode[];
+    /**
+     * 1.8.1 a shared operand drawn once: the second of two neighbouring leaf
+     * cards of the same row (DuPont: Net sales under return on sales AND under
+     * capital turnover). Its parent still draws the edge to it, the card itself
+     * is not drawn — the first card sits between both edges
+     */
+    twin?: boolean;
 }
 
 /** Everything the toolbar and the tree renderer need about the current graph. */
@@ -2705,9 +2713,11 @@ export class Visual implements IVisual {
      * statement.stockMode of the mini's format objects, the FY outlook from the
      * monthly series.
      */
-    private installStockDemoModel(set: "bilanz" | "cashflow"): void {
-        const lr = rowsFromLevels(buildStockDemoRows(set, k => this.tr(k)), "auto");
-        const has: Record<Scenario, boolean> = { ac: true, py: true, pl: true, fc: true, fcfy: false, plfy: false };
+    private installStockDemoModel(set: "bilanz" | "cashflow" | "roi"): void {
+        // 1.8.1 the ROI tree preview (11A): the sheet's years, AC and PL only
+        const roi = set === "roi";
+        const lr = rowsFromLevels(roi ? buildRoiDemoRows(k => this.tr(k)) : buildStockDemoRows(set, k => this.tr(k)), "auto");
+        const has: Record<Scenario, boolean> = { ac: true, py: !roi, pl: true, fc: !roi, fcfy: false, plfy: false };
         const opts = this.buildOptions(lr.rows, has);
         this.model = buildModel(lr.rows, this.tr("UI_NotAssigned"), lr.months, opts);
         this.hlFull = null;
@@ -3628,7 +3638,7 @@ export class Visual implements IVisual {
             `box-shadow:${active ? C.shadowHover : C.shadow};transition:${TRANSITION};`;
         const demoSet = templateDemo(tpl);
         // 1.8 (B07) a view preset (ROI tree) previews its view on the demo
-        const spec: MiniSpec = VIEW_PRESETS[tpl] ? { view: VIEW_PRESETS[tpl].view, level: 2, w: 1100, h: 620 }
+        const spec: MiniSpec = VIEW_PRESETS[tpl] ? { view: VIEW_PRESETS[tpl].view, level: 2, w: 1100, h: 620, demo: "roi" }
             : { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl), ...(demoSet ? { demo: demoSet } : {}) };
         b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
         // the T number: a small badge on the preview's top right corner
@@ -7241,6 +7251,28 @@ export class Visual implements IVisual {
             return Math.max(y, c.y + c.h);
         };
         const h = place(root, 0);
+        // 1.8.1 a shared operand once: two vertically neighbouring leaf cards of
+        // the same depth and the same row under different parents (DuPont: Net
+        // sales as numerator of capital turnover and denominator of return on
+        // sales) become one card centred between both edges, as the sheet 11A
+        // draws it; the second is a twin (edge only, no card)
+        const leaves: TreeCard[] = [];
+        const walk = (c: TreeCard): void => {
+            if (c.children.length === 0) { if (!c.rest) { leaves.push(c); } return; }
+            c.children.forEach(walk);
+        };
+        walk(root);
+        const parentOf = new Map<TreeCard, TreeCard>();
+        const mapParents = (c: TreeCard): void => { for (const k of c.children) { parentOf.set(k, c); mapParents(k); } };
+        mapParents(root);
+        for (const c of leaves) { c.twin = false; }
+        for (let i = 0; i + 1 < leaves.length; i++) {
+            const a = leaves[i]; const b = leaves[i + 1];
+            if (a.twin || a.depth !== b.depth || a.node !== b.node || a.h !== b.h) { continue; }
+            if (parentOf.get(a) === parentOf.get(b)) { continue; }
+            const mid = (a.y + b.y) / 2;
+            a.y = mid; b.y = mid; b.twin = true;
+        }
         return { w: (maxDepth + 1) * cw + maxDepth * gx, h: Math.max(h, root.h) };
     }
 
@@ -9654,7 +9686,10 @@ export class Visual implements IVisual {
             t.setAttribute("font-family", FONT);
             t.setAttribute("font-weight", "700");
             t.setAttribute("fill", C.ac);
-            t.textContent = op;
+            // 1.8.1 a ratio reads ":" as in the IBCS sheets (ROI tree 11A); the
+            // formula operator itself stays "÷" (engine, tooltips, tests)
+            t.textContent = op === "÷" ? ":" : op;
+            t.setAttribute("data-op", op);
             inner.appendChild(t);
         };
 
@@ -9688,12 +9723,14 @@ export class Visual implements IVisual {
         this.treeScl = { collect: true, fit: new Map(), mags: 0 };
         const scratch = document.createElementNS(ns, "svg") as SVGSVGElement;
         for (const c of all) {
-            if (!c.compact && !c.rest) { this.treeCardG(c, { cw, s, fmt, svg: scratch }, false); }
+            if (!c.compact && !c.rest && !c.twin) { this.treeCardG(c, { cw, s, fmt, svg: scratch }, false); }
         }
         this.treeScl.collect = false;
         for (const c of all) {
             // 1.7 ⚡ hide: the folded quiet branches of a card — one grey "+n" card
             if (c.rest) { inner.appendChild(this.treeRestG(c, cw, s)); continue; }
+            // 1.8.1 a shared operand is drawn once (its twin keeps only the edge)
+            if (c.twin) { continue; }
             // any branching card can become the root — formula rows as well as
             // subtotals that open into their account hierarchy
             inner.appendChild(this.treeCardG(c, { cw, s, fmt, svg }, c !== rootCard && c.hasKids));
