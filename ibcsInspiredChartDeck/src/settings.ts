@@ -76,6 +76,24 @@ const matrixCompareItems: LocEnumMember[] = [
     { value: "prevcol", displayName: "Δ vs. previous column", key: "Enum_MxCompare_Prev" }
 ];
 
+// 1.54 (backlog B04): sort key of bridges and bars (chart.sortMode); rest rows (Rest,
+// Other, Sonstige, Rest of …) always stay at the end. The old boolean chart.sortByImpact
+// stays as a hidden legacy property: a report without sortMode keeps its old behaviour
+const sortImpactItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (data order)", key: "Enum_SortImpact_Off" },
+    { value: "abs", displayName: "By impact |Δ|", key: "Enum_SortImpact_Abs" },
+    { value: "signed", displayName: "By Δ (largest plus first)", key: "Enum_SortImpact_Signed" },
+    { value: "pct", displayName: "By Δ %", key: "Enum_SortImpact_Pct" },
+    { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" }
+];
+
+// 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
+// ellipse around its numbers (IBCS sheets 04A, 06E: circled values)
+const highlightStyleItems: LocEnumMember[] = [
+    { value: "band", displayName: "Band behind the category", key: "Enum_HlStyle_Band" },
+    { value: "ellipse", displayName: "Ellipse around the values", key: "Enum_HlStyle_Ellipse" }
+];
+
 const totalRowPositionItems: LocEnumMember[] = [
     { value: "bottom", displayName: "Bottom (below rows)", key: "Enum_TotalPos_Bottom" },
     { value: "top", displayName: "Top (below header)", key: "Enum_TotalPos_Top" }
@@ -199,7 +217,13 @@ const templateItems: LocEnumMember[] = [
     { value: "C09", displayName: "C09 · Scatter", key: "Enum_Template_C09" },
     { value: "C10", displayName: "C10 · Bubble (scatter + size)", key: "Enum_Template_C10" },
     { value: "C12", displayName: "C12 · Waterfall / bridge", key: "Enum_Template_C12" },
-    { value: "C13", displayName: "C13 · Small multiples", key: "Enum_Template_C13" }
+    { value: "C13", displayName: "C13 · Small multiples", key: "Enum_Template_C13" },
+    { value: "C14", displayName: "C14 · Bar table by ΔPL (04A)", key: "Enum_Template_C14" },
+    { value: "C15", displayName: "C15 · Bar table by ΔPL % (04B)", key: "Enum_Template_C15" },
+    { value: "C16", displayName: "C16 · Bar table by AC (04C)", key: "Enum_Template_C16" },
+    { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
+    { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
+    { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -221,7 +245,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
-        bridgeOrientationItems, emptyModeItems];
+        bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -303,7 +327,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule. Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -397,6 +421,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    // 1.54 (backlog B05, IBCS sheets 03A/03B): year column with its own scale
+    yearColumn = new formattingSettings.ToggleSwitch({
+        name: "yearColumn",
+        displayName: "Year column (own scale)",
+        displayNameKey: "Chart_YearColumn",
+        description: "Nur Säulen: rechts neben den Monaten eine Σ-Säule (AC + FC gegen PY bzw. PL) mit eigener Skala auf derselben Nulllinie. Ein blaues Skalenband beim selben Wert in Monaten und Jahressäule zeigt den Unterschied der Skalen; ΔBasis und ΔBasis % der Jahressumme stehen in den Abweichungs-Panels. Fehlt die Basis für einzelne Monate, summiert die Säule nur die Monate mit Basis und nennt das in der Beschriftung, z. B. „2025 (9/12)“. Ersetzt die Σ-Kopfzeile. Nicht bei kumulierter Sicht, Wasserfall-Brücke oder Stapel. Standard aus.",
+        descriptionKey: "Desc_Chart_YearColumn",
+        value: false
+    });
+
+    yearColumnLabel = new formattingSettings.TextInput({
+        name: "yearColumnLabel",
+        displayName: "Year column label",
+        displayNameKey: "Chart_YearColumnLabel",
+        description: "Beschriftung der Jahressäule unter der Achse, z. B. „2025“. Leer = „Σ“.",
+        descriptionKey: "Desc_Chart_YearColumnLabel",
+        placeholder: "Σ",
+        value: ""
+    });
+
     topN = new formattingSettings.NumUpDown({
         name: "topN",
         displayName: "Top N (structure modes)",
@@ -474,6 +518,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    highlightStyle = new formattingSettings.ItemDropdown({
+        name: "highlightStyle",
+        displayName: "Highlight style",
+        displayNameKey: "Chart_HighlightStyle",
+        description: "Wie hervorgehobene Kategorien markiert werden: als dezentes Band hinter der Kategorie (Standard) oder als Ellipse um ihre Zahlen, wie die Kreise in den IBCS-Blättern.",
+        descriptionKey: "Desc_Chart_HighlightStyle",
+        items: highlightStyleItems,
+        value: highlightStyleItems[0]
+    });
+
     compareClick = new formattingSettings.ToggleSwitch({
         name: "compareClick",
         displayName: "Compare on click",
@@ -505,6 +559,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // ≤ 1.53 pane switch, since 1.54 hidden: read only when chart.sortMode is not set
     sortByImpact = new formattingSettings.ToggleSwitch({
         name: "sortByImpact",
         displayName: "Sort by impact",
@@ -512,6 +567,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
         descriptionKey: "Desc_Chart_SortByImpact",
         value: false
+    });
+
+    sortMode = new formattingSettings.ItemDropdown({
+        name: "sortMode",
+        displayName: "Sort",
+        displayNameKey: "Chart_SortMode",
+        description: "Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach |Δ| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC, jeweils absteigend. Rest-Zeilen (Rest, Other, Others, Sonstige, Übrige, „Rest of …“ und die Top-N-Rest-Zeile) bleiben kursiv am Ende. Das ⇅-Symbol im Chart schaltet zwischen Aus und |Δ|.",
+        descriptionKey: "Desc_Chart_SortMode",
+        items: sortImpactItems,
+        value: sortImpactItems[0]
     });
 
     chartButtons = new formattingSettings.ToggleSwitch({
@@ -686,7 +751,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
+        slices: [this.waterfallStyle, this.sortMode, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -798,6 +863,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: totalRowPositionItems[0]
     });
 
+    // 1.54 (backlog B01, IBCS sheets 04A–04C): the computed Σ row shows the scenario
+    // legend with its sums instead of an AC·PY·PL bar and stays out of the bar scale
+    tableTotalLegend = new formattingSettings.ToggleSwitch({
+        name: "tableTotalLegend",
+        displayName: "Σ row as scenario legend",
+        displayNameKey: "Table_TotalLegend",
+        description: "Die berechnete Σ-Zeile zeigt in der Balkenspalte die Szenario-Legende mit den Summen (■ AC, □ PL, grau PY) statt eines Balkens und zählt nicht zur Balkenskala: Die Zeilenbalken nutzen die volle Spaltenbreite. Δ-Balken und Δ%-Pin der Σ-Zeile bleiben. Wirkt nicht in der Matrix und nicht bei Summenzeilen aus den Daten. Standard aus.",
+        descriptionKey: "Desc_Table_TotalLegend",
+        value: false
+    });
+
     zebraStripes = new formattingSettings.ToggleSwitch({
         name: "zebraStripes",
         displayName: "Zebra stripes",
@@ -861,7 +937,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Table",
         slices: [this.valueColumns, this.autoExpandHierarchy, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
-            this.matrixCompare, this.formulaRows, this.totalRowPosition,
+            this.matrixCompare, this.formulaRows, this.totalRowPosition, this.tableTotalLegend,
             this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
     });
 
@@ -1152,8 +1228,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Data & time",
         displayNameKey: "Group_DataTime",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
-            this.topN, this.showTotal, this.hideBlankCat, this.movingAverage,
-            this.highlight, this.groupEvery]
+            this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
+            this.highlight, this.highlightStyle, this.groupEvery]
     });
 
     // End-User-Bedienung im Bericht als EINE Familie (In-Chart-Buttons, YTD-Chip,
@@ -1176,11 +1252,23 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    // 1.54 (B05): scenario labels at the columns (AC under the first actual month,
+    // FC under the first forecast month, AC/FC at the year column segments)
+    scenarioLabels = new formattingSettings.ToggleSwitch({
+        name: "scenarioLabels",
+        displayName: "Scenario labels at the columns",
+        displayNameKey: "Chart_ScenarioLabels",
+        description: "Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus.",
+        descriptionKey: "Desc_Chart_ScenarioLabels",
+        value: false
+    });
+
     displayGroup = new formattingSettings.Group({
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.exportExpandAll]
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.scenarioLabels,
+            this.exportExpandAll]
     });
 
     name: string = "chart";
