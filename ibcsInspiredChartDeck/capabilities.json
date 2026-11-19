@@ -264,6 +264,8 @@
                     }
                 },
                 "tableTotalLegend": { "type": { "bool": true } },
+                "diffMarkers": { "type": { "text": true } },
+                "bridgeSecondNet": { "type": { "bool": true } },
                 "highlightStyle": {
                     "type": {
                         "enumeration": [

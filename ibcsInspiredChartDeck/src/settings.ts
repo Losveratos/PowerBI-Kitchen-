@@ -530,6 +530,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // 1.55 (backlog B09, IBCS sheets 01A, 01B): stored difference markers
+    diffMarkers = new formattingSettings.TextInput({
+        name: "diffMarkers",
+        displayName: "Difference markers",
+        displayNameKey: "Chart_DiffMarkers",
+        description: "Differenzmarker zwischen zwei Kategorien, mit Semikolon getrennt: „2025 > 2026“ zeigt neben der zweiten Säule einen Strich mit Δ und Δ %, „2025 > 2026@Software“ dasselbe für eine Serie im Stapel, ein „!“ am Ende lässt Δ % weg. Höchstens vier Marker; unbekannte Namen entfallen.",
+        descriptionKey: "Desc_Chart_DiffMarkers",
+        placeholder: "z. B. 2025 > 2026",
+        value: ""
+    });
+
     highlightStyle = new formattingSettings.ItemDropdown({
         name: "highlightStyle",
         displayName: "Highlight style",
@@ -578,6 +589,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Chart_SortByImpact",
         description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
         descriptionKey: "Desc_Chart_SortByImpact",
+        value: false
+    });
+
+    // 1.55 (B09, IBCS sheet 05X): second net element to the other basis
+    bridgeSecondNet = new formattingSettings.ToggleSwitch({
+        name: "bridgeSecondNet",
+        displayName: "Second reconciliation",
+        displayNameKey: "Chart_BridgeSecondNet",
+        description: "Integrierte Brücke mit Vorjahr und Plan: neben der Abweichung zur Basis ein zweiter Strich mit der Abweichung der Summe zur anderen Basis (z. B. PL-Brücke mit „+4“ zum Vorjahr). Nur wenn die andere Basis alle Monate abdeckt. Standard aus.",
+        descriptionKey: "Desc_Chart_BridgeSecondNet",
         value: false
     });
 
@@ -763,7 +784,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortMode, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
+        slices: [this.waterfallStyle, this.sortMode, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak,
+            this.bridgeSecondNet]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -1241,7 +1263,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_DataTime",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
             this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
-            this.highlight, this.highlightStyle, this.groupEvery]
+            this.highlight, this.highlightStyle, this.diffMarkers, this.groupEvery]
     });
 
     // End-User-Bedienung im Bericht als EINE Familie (In-Chart-Buttons, YTD-Chip,

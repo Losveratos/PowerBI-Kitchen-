@@ -12,6 +12,12 @@
   - **Verhaltensänderung (Fix):** Top N (`chart.topN`) bei Stapelbalken rankte bisher einzelne Zellen und erzeugte dabei eine Serie „(leer)“. Jetzt werden ganze Kategorien nach Stapelsumme gereiht, alle Serien-Zellen der Top N bleiben erhalten, und der Rest wird je Serie zu einer Kategorie „Rest (n)“ zusammengefasst. Berichte mit Top N und Stapelbalken sehen dadurch anders aus.
   - Stapel mit den neuen Optionen aus zeichnen unverändert (SVG-Hash aller 364 Harness-Stufen verglichen). Noch nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein einzelnes Segment.
   - Tests c283 bis c289 (Render-Harness, 352 Prüfungen grün).
+- **B09 · Differenzmarker und zweite Überleitung (Blätter 01A, 01B, 05X).** Vorher: Differenzen zwischen zwei Kategorien (z. B. 2025 zu 2026) ließen sich nur über Brücken oder Δ-Spalten zeigen, und die Überleitung nannte nur die Abweichung zur gewählten Basis. Nachher:
+  - **„Differenzmarker“** (`chart.diffMarkers`, Freitext, Format Chart → „Daten & Zeit“, unter „Kategorien hervorheben“): „2025 > 2026“ (oder „→“) zeichnet neben der zweiten Kategorie (Säulen: rechts davon, Balken: darunter) eine dünne Niveaulinie vom Ende der ersten, einen dicken Balken der Differenz (gut/schlecht-Farbe, schraffiert bei Forecast) und Δ samt Δ % („+12,2 (+12,0%)“). Mehrere Marker mit „;“ getrennt, höchstens 4, unbekannte Namen werden still übersprungen.
+  - „2025 > 2026@Software“ gilt für eine Serie im Stapel (Niveaulinie nur bei der untersten Serie); ein „!“ am Ende lässt Δ % weg („2025 > 2031!“ gibt „−7,0“). Bei 100 %-Stapeln nur Serienmarker (Prozentpunkte), Summen nur ohne negative Segmente, ein reiner Plan-Monat vergleicht auf seinem Planwert. Zielt ein Marker auf die letzte Spalte, wird rechts Platz reserviert (Stapel zeigen dann die Serienlegende oben statt der Namen am Stapel).
+  - **„Zweite Überleitung“** (`chart.bridgeSecondNet`, Standard aus, Gruppe Brücke, bei integrierter Brücke): Mit gebundenem Vorjahr und Plan zeigt ein zweiter Balken neben dem Netto-Callout die Abweichung der Summe zur anderen Basis (z. B. „+4 PY“) mit gestrichelter Niveaulinie, nur wenn die andere Basis jeden Monat mit einem Wert abdeckt.
+  - Bestehende Stufen zeichnen SVG-identisch. Noch nicht abgebildet: Klammer mit kumuliertem Anteil (02C), Marker per Vergleichsklick im Bericht festhalten.
+  - Tests c290 bis c294 (Render-Harness, 360 Prüfungen grün).
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 

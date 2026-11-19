@@ -2757,6 +2757,83 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
   runCap("c289L", longDv(bCats.slice(0, 8), ch, bVals.slice(0, 8), { chart: { orientation: "bars" } }), 1100, 420);
   check(nsvg10("c289") === nsvg10("c289L"), "c289: Standardwerte zeichnen SVG-gleich wie ungesetzt");
 }
+// ---- 1.55 (B09): Differenzmarker (01A, 01B) und zweite Überleitung (05X)
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const nsvg9 = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  const yrs = ["2022", "2023", "2024", "2025", "2026"];
+  const sr = ["Software", "Service", "Training", "Consulting", "Other"];
+  const V = [[29.1, 16.0, 0.9, 22.4, 6.5], [31.9, 18.8, 2.9, 22.4, 3.9], [40.8, 24.2, 5.1, 25.3, 5.2], [40.2, 26.7, 7.7, 22.4, 4.9], [49.3, 28.7, 8.6, 20.2, 7.3]];
+  const dv01 = (objs) => {
+    const C = [], S = [], A = [], P = [];
+    yrs.forEach((y, i) => sr.forEach((s, j) => { C.push(y); S.push(s); A.push(i < 4 ? V[i][j] : null); P.push(i === 4 ? V[i][j] : null); }));
+    return { metadata: { columns: [], objects: objs }, categorical: {
+      categories: [{ source: { displayName: "Jahr", roles: { category: true } }, values: C },
+        { source: { displayName: "Bereich", roles: { series: true } }, values: S }],
+      values: [col("actual", A, "#,0.0"), col("plan", P, "#,0.0")] } };
+  };
+  addStage("c290", "Stapel · Blatt 01A · Marker 2025 > 2026 (gesamt +12,2) und @Software (+9,1)", 900, 520);
+  runCap("c290", dv01({ chart: { orientation: "columns", diffMarkers: "2025 > 2026; 2025 > 2026@Software", scenarioLabels: true } }), 900, 520);
+  {
+    const mk = qq("c290", '[data-icd="diff-marker"]');
+    const lbl = mk.map(g => g.querySelector('[data-icd="diff-label"]').textContent);
+    check(mk.length === 2 && /^\+12,2 \(\+12,0%\)$/.test(lbl[0]) && /^\+9,1 \(\+22,6%\)$/.test(lbl[1]),
+      `c290: zwei Marker mit Δ und Δ % (${lbl.join(" | ")})`);
+    // Strichhöhe = Δ in px der Stapelskala: Software-Segment 2026 (49,3) als Maßstab
+    const seg = qq("c290", '[data-icd="stack-seg-pl"] rect')[0];
+    const kpx = seg.getBoundingClientRect().height / 49.3;
+    const bh = mk.map(g => g.querySelector('[data-icd="diff-bar"]').getBoundingClientRect().height);
+    check(Math.abs(bh[0] - 12.2 * kpx) < 1 && Math.abs(bh[1] - 9.1 * kpx) < 1, `c290: Strichhöhe = Δ auf der Stapelskala (${bh.map(v => v.toFixed(1)).join(", ")} px)`);
+    const lastCol = Math.max(...qq("c290", '[data-icd="stack-seg-pl"] rect').map(r => r.getBoundingClientRect().right));
+    const right = document.getElementById("c290").getBoundingClientRect().right;
+    check(mk.every(g => g.querySelector('[data-icd="diff-label"]').getBoundingClientRect().right <= right + 0.5)
+      && mk.every(g => g.querySelector('[data-icd="diff-bar"]').getBoundingClientRect().left >= lastCol),
+      "c290: Marker rechts neben der Plan-Säule, Text im Visual");
+  }
+  addStage("c291", "Säulen · Blatt 01B-Art · 2025 > 2031! (ohne Δ %, schlecht = rot) · Linie über mehrere Säulen", 900, 420);
+  {
+    const yy = ["2025", "2026", "2027", "2028", "2029", "2030", "2031"];
+    runCap("c291", dataView(yy, [col("actual", [101.9, null, null, null, null, null, null], "#,0.0"), col("plan", [null, 99, 98, 97, 96, 95.5, 94.9], "#,0.0")],
+      { chart: { orientation: "columns", diffMarkers: "2025 > 2031!" } }), 900, 420);
+    const mk = qq("c291", '[data-icd="diff-marker"]');
+    const t = mk.length ? mk[0].querySelector('[data-icd="diff-label"]').textContent : "";
+    const bar = mk.length ? mk[0].querySelector('[data-icd="diff-bar"]') : null;
+    const guide = mk.length ? mk[0].querySelector('[data-icd="diff-guide"]') : null;
+    check(mk.length === 1 && t === "−7,0" && bar && bar.getAttribute("fill") === "#D64541" && guide
+      && +guide.getAttribute("x2") - +guide.getAttribute("x1") > 500, `c291: „−7,0“ ohne %, rot, Niveaulinie über die Säulen (${t})`);
+  }
+  addStage("c292", "Balken · Marker Süd > Ost (unter dem Balken)", 900, 360);
+  runCap("c292", dataView(["Nord", "Süd", "West", "Ost"], [col("actual", [420, 610, 300, 510]), col("plan", [400, 650, 280, 470])],
+    { chart: { orientation: "bars", comparisonMode: "plan", diffMarkers: "Süd > Ost; Nord > Unbekannt" } }), 900, 360);
+  {
+    const mk = qq("c292", '[data-icd="diff-marker"]');
+    check(mk.length === 1 && mk[0].querySelector('[data-icd="diff-label"]').textContent === "−100 (−16,4%)",
+      `c292: Balken-Marker −100 (−16,4%), unbekannter Name entfällt (${mk.length})`);
+  }
+  // 05X: PL-Brücke mit zweiter Überleitung zum Vorjahr
+  addStage("c293", "Integrierte Brücke · Blatt 05X · Basis PL, zweite Überleitung +4 zum Vorjahr", 1200, 560);
+  {
+    const mm = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const a = [15, 13, 17, 7, 5, 6, 11, 9, null, null, null, null], f = [null, null, null, null, null, null, null, null, 26, 22, 18, 29];
+    const p = [11, 10, 10, 10, 10, 10, 15, 14, 15, 15, 15, 19], y = [14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15];
+    runCap("c293", dataView(mm, [col("actual", a), col("forecast", f), col("plan", p), col("previousYear", y)],
+      { chart: { orientation: "intwaterfall", comparisonMode: "plan", bridgeSecondNet: true } }), 1200, 560);
+    const n2 = document.querySelector('#c293 [data-icd="bridge-net2"]');
+    check(!!n2 && n2.getAttribute("data-delta") === "4" && /\+4 PY/.test(n2.textContent) && !!n2.querySelector('[data-icd="bridge-ref2-line"]'),
+      `c293: zweite Überleitung +4 PY mit Niveaulinie (${n2 ? n2.textContent : "–"})`);
+    addStage("c293b", "Integrierte Brücke · Vorjahr nur für einen Teil der Monate → keine zweite Überleitung", 1200, 560);
+    runCap("c293b", dataView(mm, [col("actual", a), col("forecast", f), col("plan", p), col("previousYear", y.map((v, i) => i < 6 ? v : null))],
+      { chart: { orientation: "intwaterfall", comparisonMode: "plan", bridgeSecondNet: true } }), 1200, 560);
+    check(!document.querySelector('#c293b [data-icd="bridge-net2"]'), "c293b: unvollständige Zweitbasis, kein Element");
+  }
+  // Identität: Optionen leer bzw. aus = wie ungesetzt
+  addStage("c294", "Stapel · diffMarkers leer, bridgeSecondNet aus (Referenz c294L)", 900, 520);
+  addStage("c294L", "Stapel · ohne die Properties", 900, 520);
+  runCap("c294", dv01({ chart: { orientation: "columns", diffMarkers: "", bridgeSecondNet: false } }), 900, 520);
+  runCap("c294L", dv01({ chart: { orientation: "columns" } }), 900, 520);
+  check(nsvg9("c294") === nsvg9("c294L"), "c294: leere Marker zeichnen SVG-gleich wie ungesetzt");
+}
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {
   const dv = dataView(t2Cats, [col("actual", t2Ac, "#,0"), col("previousYear", t2Py, "#,0"), col("plan", t2Pl, "#,0")],
