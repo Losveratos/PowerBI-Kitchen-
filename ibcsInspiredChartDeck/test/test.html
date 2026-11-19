@@ -4149,9 +4149,11 @@ addStage("c402", "Portfolio 10D · PY als eigene Blase (Rolle bubbleSizePrevious
   const ef = nbQ("c402", '[data-icd="scatter-emph-fill"]');
   check(ef.length === 2 && ef.every(e => nbFill(e) === "#0064FF"), "c402: VAA und RFA in Hervorhebungsfarbe #0064FF");
   check(!pfGroups("c402").some(g => [...g.querySelectorAll("circle")].some(c => c.getAttribute("fill") === "none")), "c402: kein Hervorhebungsring");
+  // Review m5: a PY value under an AC bubble moves to the PY name ("VAB 32,0")
   const pv = pfVals("c402", "py"), av = pfVals("c402", "ac");
-  check(pv.length === 9 && av.length === 11 && pv.some(t => t.textContent === "32,0") && av.some(t => t.textContent === "29,0"),
-    `c402: Werte in PY- und AC-Blasen (${pv.length} + ${av.length})`);
+  const pyNamed = pfGroups("c402", true).filter(g => [...g.querySelectorAll("text")].some(t => !t.hasAttribute("data-icd") && /^\S+ \d+,\d$/.test(t.textContent)));
+  check(pv.length + pyNamed.length === 9 && av.length === 11 && nbTexts("c402").includes("VAB 32,0") && av.some(t => t.textContent === "29,0"),
+    `c402: alle Werte sichtbar, PY in der Blase oder am PY-Namen (${pv.length} + ${pyNamed.length} PY, ${av.length} AC)`);
   check(["py", "ac", "emph"].every(id => nbQ("c402", `[data-icd="scatter-legend-${id}"]`).length === 1)
     && nbTexts("c402").includes("Zukäufe 12/25"), "c402: Legende ● PY ● AC ● Zukäufe 12/25");
   check(/Nettoumsatz in Mio\. EUR/.test(nbTexts("c402").join(" ")) && /max 32/.test(nbTexts("c402").join(" ")),
@@ -4483,6 +4485,202 @@ addStage("c514", "Balken · drei Regionen gegen den Ø (Struktur)", 960, 420);
   // Ø X 30, Y 30, Z 40 → Nord +10 0 −20
   const nord = avgCats("c514", "Nord").map(avgDelta).join(" ");
   check(nord === "10 0 -20" && nbTexts("c514").includes("ΔØ"), `c514: Nord gegen Ø (${nord})`);
+}
+
+// ======================================================================
+// 1.55 · B12 Review-Fixes (c410+): Blasen bleiben im Visual (M1), ein Flag
+// „PY-Blasen gezeichnet“ (M2), Werte verschwinden nicht (M3), m1 bis m7.
+// ======================================================================
+// visible circles (no hit targets) and whether each stays inside the SVG viewport
+// and below the grey panel title line
+const pfCircles = id => nbQ(id, "svg circle").filter(c => c.getAttribute("fill-opacity") !== "0.01");
+const pfOutside = (id, w, h) => pfCircles(id).filter(c => {
+  const cx = nbAttr(c, "cx"), cy = nbAttr(c, "cy"), r = nbAttr(c, "r");
+  return cx - r < -0.5 || cx + r > w + 0.5 || cy - r < -0.5 || cy + r > h + 0.5;
+});
+const pfBelowTitle = id => {
+  const t = nbQ(id, "svg text").find(x => /^Scatter ·/.test(x.textContent));
+  const ty = t ? nbAttr(t, "y") : 0;
+  return nbQ(id, "g.icd-cat").every(g => { const m = pfMark(g); return !m || nbAttr(m, "cy") - nbAttr(m, "r") >= ty; });
+};
+const pf10A = () => pfDv(pfObj({ scatterColorBy: "group", scatterValueLabels: true, scatterMaxRadius: 85,
+  scatterBubbleOpacity: 100, scatterGroupColor2: pfSolid("#FF6600") }), { series: pfKind });
+
+// ---- c410: M1 · Rezept 10A bei 1280×640: jede Blase im Visual, unter der Titelzeile
+addStage("c410", "Review M1 · 10A bei 1280×640: alle Kreise im Visual, VAB bleibt 85 px", 1280, 640);
+{
+  runCap("c410", pf10A(), 1280, 640);
+  nbSane("c410");
+  const out = pfOutside("c410", 1280, 640);
+  check(pfCircles("c410").length >= 9 && out.length === 0, `c410: alle Kreise im Viewport 1280×640 (${out.length} außerhalb)`);
+  check(pfBelowTitle("c410"), "c410: keine Blase über der Titelzeile");
+  check(Math.abs(pfR("c410", "VAB") - 85) < 0.5, `c410: VAB weiter 85 px (${pfR("c410", "VAB").toFixed(1)})`);
+  check(nbQ("c410", '[data-icd="scatter-marks"][clip-path]').length === 1, "c410: Marken-Gruppe mit clipPath unter den Titelzeilen");
+}
+
+// ---- c411: M1 · Rezept 10A bei 640×360: Deckel ein Fünftel, alle Kreise im Visual
+addStage("c411", "Review M1 · 10A bei 640×360: Deckel ein Fünftel, alle Kreise im Visual", 640, 360);
+{
+  runCap("c411", pf10A(), 640, 360);
+  nbSane("c411");
+  const out = pfOutside("c411", 640, 360);
+  check(out.length === 0, `c411: alle Kreise im Viewport 640×360 (${out.length} außerhalb)`);
+  check(pfBelowTitle("c411"), "c411: keine Blase über der Titelzeile");
+  check(pfR("c411", "VAB") <= 60, `c411: Radius auf ein Fünftel der Plotfläche gedeckelt (${pfR("c411", "VAB").toFixed(1)} px statt 85)`);
+}
+
+// ---- c412: M1 · scatterMaxRadius 200, Blasen an allen vier Rändern
+addStage("c412", "Review M1 · max. Radius 200 mit Blasen an allen Rändern (960×460)", 960, 460);
+{
+  runCap("c412", pfDv(pfObj({ scatterValueLabels: true, scatterMaxRadius: 200 }, { scale: { xMin: "0", xMax: "1", yMin: "0", yMax: "1" } }),
+    { cats: ["A", "B", "C", "D"], x: [0, 1, 0.5, 1], y: [0, 1, 0.5, 0], s: [30, 30, 5, 30] }), 960, 460);
+  nbSane("c412");
+  const out = pfOutside("c412", 960, 460);
+  check(out.length === 0 && pfBelowTitle("c412"), `c412: alle Kreise im Visual und unter dem Titel (${out.length} außerhalb)`);
+  check(pfR("c412", "A") <= 460 / 5, `c412: Radius gedeckelt (${pfR("c412", "A").toFixed(1)} px)`);
+}
+
+// ---- c413: M2 · Play-Modus mit Rolle bubbleSizePrevious = wie ohne Rolle (Achsen, Legende)
+addStage("c413", "Review M2 · Play-Modus mit PY-Blasengröße (keine PY-Blasen, Achsen wie ohne)", 760, 440);
+addStage("c413b", "Review M2 · Play-Modus ohne PY-Blasengröße (Referenz)", 760, 440);
+{
+  const M = ["Jan", "Feb", "Mär"], Sr = ["A", "B", "C"], c = [], s = [], y = [], x = [], z = [], yp = [], zp = [];
+  M.forEach((m, mi) => Sr.forEach((q, si) => { c.push(m); s.push(q); y.push(10 + si * 5 + mi); x.push(1 + si + mi * 0.2); z.push(10 + si * 10); yp.push(60 + si); zp.push(200); }));
+  const mk = withPy => ({ metadata: { columns: [], objects: { chart: { orientation: "scatter", scatterPlay: true, scatterQuadrant: "off", scatterSizeLegend: false } } },
+    categorical: { categories: [{ source: { displayName: "Monat", roles: { category: true } }, values: c }, { source: { displayName: "Produkt", roles: { series: true } }, values: s }],
+      values: [col("actual", y, "0"), col("xValue", x, "0.0", null, "X"), col("bubbleSize", z, "0", null, "Size"), col("previousYear", yp, "0")]
+        .concat(withPy ? [col("bubbleSizePrevious", zp, "0", null, "Size PY")] : []) } });
+  runCap("c413", mk(true), 760, 440);
+  runCap("c413b", mk(false), 760, 440);
+  nbSane("c413");
+  check(!pfGroups("c413", true).length && !nbQ("c413", '[data-icd="scatter-legend-py"]').length, "c413: im Play-Modus keine PY-Blasen und kein PY in der Legende");
+  check(nbTexts("c413").join("|") === nbTexts("c413b").join("|"), "c413: Achsen, Titel und Beschriftungen wie ohne die Rolle (PY-Lagen nicht in der Achse)");
+}
+
+// ---- c414: M3 · Forecast-Punkte behalten ihren Wert (auf der Schraffur mit Papier-Rand)
+addStage("c414", "Review M3 · FC-Punkte (schraffiert) mit Wert in der Blase", 960, 460);
+{
+  const dv = pfDv(pfObj({ scatterValueLabels: true, scatterMaxRadius: 60 }));
+  dv.categorical.categories.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: [1, 1, 1, 0, 0, 0, 0, 0, 0] });
+  runCap("c414", dv, 960, 460);
+  nbSane("c414");
+  const fcG = pfGroups("c414").filter(g => /url\(#icd-hatch/.test(pfMark(g).getAttribute("fill") || ""));
+  const fcV = fcG.map(g => g.querySelector('[data-icd="scatter-value"]')).filter(Boolean);
+  check(fcG.length === 3 && fcV.length === 3 && fcV.every(t => t.getAttribute("stroke") && t.getAttribute("paint-order") === "stroke"),
+    `c414: drei FC-Blasen mit Wert und Papier-Rand (${fcV.map(t => t.textContent).join(" ")})`);
+  check(pfVals("c414").length === 9, `c414: alle neun Werte sichtbar (${pfVals("c414").length})`);
+}
+
+// ---- c415: M3 · lange Namen: nur der Name wird gekürzt, der Wert bleibt
+addStage("c415", "Review M3 · lange Namen mit Wert hinter dem Namen (nur der Name wird gekürzt)", 760, 400);
+{
+  const cats = ["Strategische Geschäftseinheit Nordwest Alpha", "Strategische Geschäftseinheit Südost Beta", "C"];
+  runCap("c415", pfDv(pfObj({ scatterValueLabels: true }), { cats, x: [0.2, 0.6, 0.8], y: [0.4, 0.8, 0.3], s: [1.1, 2.2, 300] }), 760, 400);
+  nbSane("c415");
+  const lab = nbTexts("c415").filter(t => /^Strat/.test(t));
+  check(lab.length === 2 && lab.some(t => /…\s?1,1$/.test(t) || /\s1,1$/.test(t)) && lab.some(t => /\s2,2$/.test(t)) && lab.every(t => /…/.test(t)),
+    `c415: gekürzter Name, Wert vollständig am Ende (${lab.join(" ¦ ")})`);
+}
+
+// ---- c416: M3 · Beschriftungen aus: Werte, die nicht in die Blase passen, stehen allein daneben
+addStage("c416", "Review M3 · Beschriftungen aus + Werte: jeder Wert sichtbar (in der Blase oder daneben)", 760, 400);
+{
+  runCap("c416", pfDv(pfObj({ scatterValueLabels: true }, { labels: { show: false } })), 760, 400);
+  nbSane("c416");
+  const inside = pfVals("c416"), beside = nbQ("c416", '[data-icd="scatter-value-beside"]');
+  check(inside.length + beside.length === 9 && beside.length >= 1, `c416: neun Werte (${inside.length} innen, ${beside.length} daneben)`);
+  check(!nbTexts("c416").some(t => /^[A-Z0-9]{3}$/.test(t)), "c416: keine Namen (Beschriftungen aus)");
+}
+
+// ---- c417: m1 · unsichtbare PY-Blase (außerhalb der Achsen) bestimmt die Größenskala nicht
+addStage("c417", "Review m1 · PY-Blase außerhalb der festen Achsen zählt nicht für die Größe", 760, 400);
+{
+  const o = pfObj({ scatterMaxRadius: 60, scatterValueLabels: true });
+  o.scale = { xMin: "0", xMax: "1", yMin: "0", yMax: "1.25" };
+  runCap("c417", pfDv(o, { cats: ["A", "B"], x: [0.3, 0.7], y: [0.5, 0.6], s: [10, 5],
+    extra: [col("previousYear", [3, 0.4], "0.00"), col("bubbleSizePrevious", [1000, 4], "#,0.0", null, "VJ")] }), 760, 400);
+  nbSane("c417");
+  check(pfGroups("c417", true).length === 1, "c417: nur die sichtbare PY-Blase (B) wird gezeichnet");
+  // the cap (a fifth of the plot height) may bite before 60 px; without the fix A would get ~6 px
+  const rA = pfR("c417", "A"), rB = pfR("c417", "B");
+  check(rA > 45 && Math.abs(rB / rA - Math.SQRT1_2) < 0.01, `c417: größte sichtbare Blase A bestimmt die Skala (A ${rA.toFixed(1)}, B ${rB.toFixed(1)})`);
+  check(/\(max 10(,0)?\)/.test(nbTexts("c417").join(" ")) && !/1\.000/.test(nbTexts("c417").join(" ")), "c417: Titel nennt max 10, nicht 1.000");
+}
+
+// ---- c418: m2 · Hochkontrast + Statusfarbe + Werte: Wert kontrastiert mit der Füllung
+addStage("c418", "Review m2 · Hochkontrast · Status · Werte lesbar auf gefüllten Blasen", 960, 460, "#000");
+{
+  runCap("c418", pfDv(pfObj({ scatterColorBy: "status", scatterValueLabels: true, scatterMaxRadius: 60 }), { extra: [col("previousYear", pfY24, "0.00")] }), 960, 460, { hc: true });
+  nbSane("c418");
+  const pairs = pfGroups("c418").map(g => [pfMark(g), g.querySelector('[data-icd="scatter-value"]')]).filter(([m, v]) => m && v);
+  const clash = pairs.filter(([m, v]) => nbFill(m) === nbFill(v));
+  check(pairs.length >= 5 && clash.length === 0, `c418: kein Wert in der Farbe seiner Füllung (${clash.length} von ${pairs.length})`);
+  check(pairs.some(([m]) => nbFill(m) === (m.getAttribute("stroke") || "").toUpperCase()),
+    "c418: mindestens eine voll gefüllte (gute) Blase geprüft");
+}
+
+// ---- c419: m3 · Ellipse + PY-Blasen: eine Ellipse an der AC-Marke, PY ohne Fokus-Stopp
+addStage("c419", "Review m3 · Hervorhebung Ellipse mit PY-Blasen (eine Ellipse an der Marke, PY ohne Tab-Stopp)", 960, 520);
+{
+  runCap("c419", pf10D({ scatterMaxRadius: 40, highlightStyle: "ellipse", scatterEmphFill: false, highlight: "RFB" }), 960, 520);
+  nbSane("c419");
+  const ell = nbQ("c419", '[data-icd="emph-ellipse"]'), m = pfMark(pfByName("c419", "RFB"));
+  check(ell.length === 1 && Math.abs(nbAttr(ell[0], "cx") - nbAttr(m, "cx")) < 0.5 && Math.abs(nbAttr(ell[0], "cy") - nbAttr(m, "cy")) < 0.5
+    && nbAttr(ell[0], "rx") > nbAttr(m, "r"), `c419: genau eine Ellipse, um die AC-Marke von RFB (${ell.length})`);
+  check(nbQ("c419", "g.icd-cat[tabindex]").length === pfGroups("c419").length, `c419: Tab-Stopps nur für AC (${nbQ("c419", "g.icd-cat[tabindex]").length})`);
+  const aria = (pfByName("c419", "RFB", true) || { getAttribute: () => "" }).getAttribute("aria-label") || "";
+  check(/^RFB, PY, /.test(aria) && /Nettoumsatz VJ 7,0/.test(aria), `c419: PY-Blase mit eigenem Screenreader-Text (${aria})`);
+}
+
+// ---- c420: m4 · Statusfarbe + PY-Blasen: kein AC in der Legende, unwesentliche AC-Blasen mit Umriss
+addStage("c420", "Review m4 · Statusfarbe mit PY-Blasen (Legende ohne AC, neutrale AC-Blase mit Tinten-Umriss)", 960, 520);
+{
+  const dv = pf10D({ scatterColorBy: "status", scatterMaxRadius: 40, highlight: "", scatterEmphFill: false });
+  const pyCol = dv.categorical.values.find(v => v.source.roles.previousYear), acCol = dv.categorical.values.find(v => v.source.roles.actual);
+  pyCol.values[0] = acCol.values[0]; // VBX/RS1: ΔPY = 0 → neutral
+  runCap("c420", dv, 960, 520);
+  nbSane("c420");
+  check(nbQ("c420", '[data-icd="scatter-legend-py"]').length === 1 && !nbQ("c420", '[data-icd="scatter-legend-ac"]').length, "c420: Legende ● PY ohne AC-Eintrag");
+  const neutral = pfGroups("c420").map(pfMark).filter(mk => nbFill(mk) === NB.PY);
+  check(neutral.length >= 1 && neutral.every(mk => (mk.getAttribute("stroke") || "").toUpperCase() === NB.AC),
+    `c420: neutrale AC-Blasen mit Tinten-Umriss (${neutral.length})`);
+}
+
+// ---- c421: m5 · kein PY-Wert unter einer AC-Blase (10D bei 960×520)
+addStage("c421", "Review m5 · 10D bei 960×520: PY-Werte nie unter AC-Blasen, sonst am PY-Namen", 960, 520);
+{
+  runCap("c421", pf10D({ scatterMaxRadius: 60 }), 960, 520);
+  nbSane("c421");
+  const ac = pfGroups("c421").map(pfMark);
+  const under = pfVals("c421", "py").filter(t => {
+    const b = t.getBBox();
+    return ac.some(mk => {
+      const cx = nbAttr(mk, "cx"), cy = nbAttr(mk, "cy"), r = nbAttr(mk, "r");
+      const dx = cx - Math.min(Math.max(cx, b.x), b.x + b.width), dy = cy - Math.min(Math.max(cy, b.y), b.y + b.height);
+      return dx * dx + dy * dy < r * r;
+    });
+  });
+  check(under.length === 0, `c421: kein PY-Wert unter einer AC-Blase (${under.map(t => t.textContent).join(" ") || "–"})`);
+  check(nbTexts("c421").includes("VAB 32,0"), "c421: PY-Wert von VAB steht am PY-Namen");
+}
+
+// ---- c422: m7 · Rolle bubbleSizePrevious ohne Vorjahr bzw. ohne Blasengröße: Hinweis im Bearbeitungsmodus
+addStage("c422", "Review m7 · Blasengröße VJ ohne Vorjahr: Hinweis", 760, 400);
+addStage("c422b", "Review m7 · Blasengröße VJ ohne Blasengröße: Hinweis", 760, 400);
+addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht: kein Hinweis", 760, 400);
+{
+  runCap("c422", pfDv(pfObj({ scatterValueLabels: true }), { extra: [col("bubbleSizePrevious", pfS24, "#,0.0", null, "Umsatz VJ")] }), 760, 400);
+  const dv = pfDv(pfObj({ scatterValueLabels: true }), { extra: [col("previousYear", pfY24, "0.00"), col("bubbleSizePrevious", pfS24, "#,0.0", null, "Umsatz VJ")] });
+  dv.categorical.values.splice(2, 1);
+  runCap("c422b", dv, 760, 400);
+  runCap("c422c", pfDv(pfObj({ scatterValueLabels: true }), { extra: [col("bubbleSizePrevious", pfS24, "#,0.0", null, "Umsatz VJ")] }), 760, 400, { viewMode: 0 });
+  ["c422", "c422b"].forEach(id => {
+    nbSane(id);
+    const h = nbQ(id, '[data-icd="scatter-hint-py"]');
+    check(h.length === 1 && /Vorjahr|Previous Year/.test(h[0].textContent) && !pfGroups(id, true).length, `${id}: Hinweis „${h[0] ? h[0].textContent : "–"}“, keine PY-Blasen`);
+  });
+  check(!nbQ("c422c", '[data-icd="scatter-hint-py"]').length, "c422c: Leseansicht ohne Hinweis");
+  check(!nbQ("c402", '[data-icd="scatter-hint-py"]').length, "c402: mit allen Rollen kein Hinweis");
 }
 </script>
 </body>

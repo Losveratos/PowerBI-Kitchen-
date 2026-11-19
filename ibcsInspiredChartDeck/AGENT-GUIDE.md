@@ -24,8 +24,9 @@ standardmäßig ohne Wirkung): `scatterValueLabels` (bool, false) schreibt den W
 (`[data-icd="scatter-value"]`, `data-scen="ac"|"py"`, Text #FFFFFF oder #000000 nach Kontrast gegen die mit dem Papier
 gemischte Füllung); passt er nicht (Textbreite > 92 % des Durchmessers), hängt er am Namenslabel („V12 1,1“); die
 Namen probieren dann zuerst „über der Blase“. `scatterMaxRadius` (Zahl, 0 = automatisch 22 px · Schriftfaktor; sonst
-Wert · Schriftfaktor, gedeckelt auf ein Drittel der Plotbox); der Achsen-Einzug bleibt dann beim automatischen Radius,
-große Blasen ragen über den Plotrand. `scatterBubbleOpacity` (Zahl 10 bis 100, Standard 55; hervorgehoben mindestens
+Wert · Schriftfaktor; der Radius ist gedeckelt auf ein Fünftel von min(0,8 · Breite, Plothöhe), bei Small Multiples
+der Rasterzelle); der Achsen-Einzug bleibt dann beim automatischen Radius, große Blasen ragen über den Plotrand, aber
+nie aus dem Visual. `scatterBubbleOpacity` (Zahl 10 bis 100, Standard 55; hervorgehoben mindestens
 90). `scatterGroupColor1` bis `scatterGroupColor6` (Farbe, Standard = `SCATTER_GROUP_LIGHT`): Position = Reihenfolge des
 ersten Auftretens; ein Wert ungleich dem hellen Standard gilt in hellem und dunklem Modus, ein Standardwert folgt
 dem Modus (wer im Dark Mode ausdrücklich #404040 will, bekommt #D9D9D9). `scatterEmphFill` (bool) füllt
@@ -35,15 +36,30 @@ Neue Rolle `bubbleSizePrevious` („Blasengröße VJ (optional)“, Measure, max
 optional `xPrevious` (X-Lage, sonst X von AC) je Kategorie eine PY-Blase (`g.icd-cat[data-icd="scatter-py"]`, Füllung
 `colors.previousYearColor` mit derselben Deckkraft, Hochkontrast gestrichelter Umriss), immer hinter allen AC-Blasen,
 eigene Größe auf derselben Skala (`sMax` über AC und PY, bei Small Multiples deckweit), Achsen schließen die PY-Lagen
-ein, Rechteck-Auswahl zählt nur AC; ein PY-Wert, der einen AC-Wert überdecken würde, entfällt (Tooltip nennt ihn). Nicht im Play-Modus. Legende `scatter-legend-py|ac|emph` (● PY ● AC nur ohne
-Gruppenfarben). Mit `scatterArrows` startet der Pfeil am Rand der PY-Blase, ohne Startpunkt. Pane: Wert, Radius,
+ein, Rechteck-Auswahl zählt nur AC; ein PY-Wert, der unter einer AC-Blase läge, steht am PY-Namen („VAB 32,0“). Nicht im Play-Modus. Legende `scatter-legend-py|ac|emph` (● PY ● AC nur ohne
+Gruppenfarben und ohne Statusfarbe). Mit `scatterArrows` startet der Pfeil am Rand der PY-Blase, ohne Startpunkt. Pane: Wert, Radius,
 Deckkraft nur mit gebundener Blasengröße; Gruppenfarben nur bei `scatterColorBy=group`; Farbe und Legendentext nur
 bei `scatterEmphFill`. Kein Template geändert (C10 unverändert). Blatt-Rezepte: 10A = C10 + `series` + `scatterColorBy=group` +
-`scatterQuadrant=off` + `scale.xMin/xMax/yMin/yMax` 0/1/0/1,25 + `scatterValueLabels` + `scatterMaxRadius=85` +
+`scatterQuadrant=off` + `scatterSizeLegend=false` (C10 setzt die Größenlegende an, die Werte stehen in den Blasen) +
+`scale.xMin/xMax/yMin/yMax` 0/1/0/1,25 + `scale.xRefLine=0.5` (Mittellinie) + `scatterValueLabels` + `scatterMaxRadius=85` +
 `scatterBubbleOpacity=100` + Gruppenfarbe 2 #FF6600; 10B wie 10A mit Deckkraft 60; 10D = Rollen `previousYear`,
-`xPrevious`, `bubbleSizePrevious` + `scatterColorBy=single` + `highlight` „VAA, RFA“ + `scatterEmphFill` + Deckkraft 85.
-Feld-Intro: 20 Rollen. 778 resjson-Keys je Sprache (mit B10 und B09). Tests c400 bis c406 (c400n: ausdrücklich gesetzte Standardwerte
-zeichnen SVG-gleich wie keine Angabe).
+`xPrevious`, `bubbleSizePrevious` + `scatterColorBy=single` + `scatterSizeLegend=false` + `scale.xRefLine=0.5` +
+`highlight` „VAA, RFA“ + `scatterEmphFill` + Deckkraft 85.
+Feld-Intro: 20 Rollen. 779 resjson-Keys je Sprache (mit B10 und B09). Tests c400 bis c406 (c400n: ausdrücklich gesetzte Standardwerte
+zeichnen SVG-gleich wie keine Angabe). Review-Stand: Ein Flag `sc.pyBubbles` (Rolle gebunden, Daten da, nicht im
+Play-Modus) steuert Achsen, Legende, Größenformat und Zeichnen; in die Größenskala zählen nur PY-Blasen innerhalb der
+Achsen (`scatterPyPos`). Jede Blase bleibt im Visual: Würde eine Blase (AC oder PY, im Play-Modus alle Perioden) das
+Panel verlassen (Visualbreite, unter der Achsentitel-Zeile bis zum unteren Rand), schrumpft die Plotbox auf dieser Seite,
+der Achsenursprung bleibt; mit eigenem Radius liegt die Marken-Gruppe zusätzlich in einem clipPath
+(`[data-icd="scatter-marks"]`). Ohne Überlauf bleibt das Layout unverändert. Werte verschwinden nicht: FC-Blasen tragen
+den Wert auf der Schraffur (Tinte mit Papier-Rand), bei langen Namen wird nur der Name gekürzt, ohne Namenslabel
+(Beschriftung aus, Dichte, kein Platz) steht der Wert allein neben der Blase (`[data-icd="scatter-value-beside"]`,
+`data-scen`). Hochkontrast mit Statusfarbe: Wert in Papierfarbe auf gefüllten Blasen. PY-Gruppen haben keinen
+Tab-Stopp und kein Ellipsenziel, `aria-label` „Name, PY, X VJ …, Wert, Größe VJ …“; `highlightStyle=ellipse` zeichnet
+im Scatter eine Ellipse um die AC-Marke statt des Rings. Statusfarbe mit PY-Blasen: unwesentliche AC-Blasen mit
+Tinten-Umriss, Legende ohne AC. Bearbeitungsmodus-Hinweis `Hint_ScatterPyBubbleRoles`
+(`[data-icd="scatter-hint-py"]`), wenn `bubbleSizePrevious` ohne `previousYear` oder ohne `bubbleSize` gebunden ist.
+Tests c410 bis c422 (Viewport-Prüfung für 10A bei 1280×640 und 640×360).
 
 *B13 · Small Multiples gegen Durchschnitt (Blatt 13A, Teil von 13C).* Neue Properties im Objekt `chart`, Gruppe
 „Small Multiples“, alle standardmäßig ohne Wirkung: `multiplesAgg` (`sum` Standard | `mean`) gilt für die Bezugskachel
