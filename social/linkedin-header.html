@@ -27,21 +27,21 @@ html,body{background:#333}
 #flow{position:absolute;left:0;top:0;width:450px;height:396px}
 .logo{position:absolute;left:42px;top:24px;width:236px;filter:invert(1);mix-blend-mode:screen}
 
-.copy{position:absolute;left:450px;top:40px;width:390px}
+.copy{position:absolute;left:428px;top:40px;width:340px}
 .eyebrow{font-family:var(--sans);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-light);font-weight:600}
 .eyebrow .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warm);margin:0 8px 2px;vertical-align:middle}
-h1{font-family:var(--display);font-weight:300;font-size:62px;line-height:1;letter-spacing:-.025em;margin-top:14px}
+h1{font-family:var(--display);font-weight:300;font-size:56px;line-height:1;letter-spacing:-.025em;margin-top:14px}
 h1 em{font-style:italic;font-weight:300;color:var(--brand-light);position:relative}
 h1 em::after{content:"";position:absolute;left:-2px;right:-4px;bottom:2px;height:9px;background:var(--yellow);opacity:.85;z-index:-1;border-radius:2px}
 h1 em{z-index:0;isolation:isolate}
-.sub{font-size:16.5px;line-height:1.45;color:var(--soft);margin-top:18px}
+.sub{font-size:15.5px;line-height:1.45;color:var(--soft);margin-top:18px}
 .sub strong{color:var(--ink);font-weight:600}
-.meta{position:absolute;left:450px;bottom:28px;display:flex;gap:12px;align-items:center;font-family:var(--sans);font-size:13.5px}
+.meta{position:absolute;left:428px;bottom:26px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-family:var(--sans);font-size:13.5px}
 .pill{border-radius:999px;padding:5px 11px;font-weight:700;background:var(--ink);color:#0C0F0E}
 .url{color:var(--brand-light);font-weight:700}
 
 /* Kachel-Mosaik mit echten Beispielen */
-.mosaic{position:absolute;right:26px;top:22px;width:700px;height:352px;display:flex;flex-direction:column;gap:10px}
+.mosaic{position:absolute;right:24px;top:22px;width:770px;height:352px;display:flex;flex-direction:column;gap:10px}
 .row{display:flex;gap:10px;height:171px}
 .tile{position:relative;flex:none;border-radius:12px;overflow:hidden;border:1px solid var(--tile-line);background:var(--tile);
   box-shadow:0 14px 30px -18px rgba(0,0,0,.8)}
@@ -49,6 +49,8 @@ h1 em{z-index:0;isolation:isolate}
 .tile.light .pic{background:#fff;padding:6px 8px}
 .tile .pic img{display:block;max-width:100%;max-height:100%}
 .tile.dark .pic img{width:100%;height:100%;object-fit:cover;max-width:none;max-height:none}
+.tile.dark.fit .pic{background:#0A0B0D}
+.tile.dark.fit .pic img{object-fit:contain;padding:6px}
 .cap{position:absolute;left:0;right:0;bottom:0;height:30px;display:flex;align-items:center;gap:8px;padding:0 11px;
   background:var(--tile);border-top:1px solid var(--tile-line);white-space:nowrap}
 .cap b{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--c);font-weight:700}
@@ -73,25 +75,29 @@ h1 em{z-index:0;isolation:isolate}
 
   <div class="mosaic">
     <div class="row">
-      <div class="tile light" style="width:330px;--c:var(--brand-light)">
+      <div class="tile light" style="width:272px;--c:var(--brand-light)">
         <div class="pic"><img src="img/ck-integrierte-varianz.png" alt="ChartKitchen: integrierte Varianz-Brücke"></div>
-        <div class="cap"><b>ChartKitchen</b><span>Integrierte Varianz PY → AC+FC</span></div>
+        <div class="cap"><b>ChartKitchen</b><span>Integrierte Varianz</span></div>
       </div>
-      <div class="tile dark" style="width:180px;--c:var(--blue)">
+      <div class="tile dark" style="width:184px;--c:var(--blue)">
         <div class="pic"><img src="img/story-rhein.jpg" alt="Visual Story: 209 Jahre Rhein bei Köln"></div>
         <div class="cap"><b>Story</b><span>Rhein · 209 Jahre</span></div>
       </div>
-      <div class="tile dark" style="width:170px;--c:var(--warm)">
-        <div class="pic"><img src="img/story-koeln-nacht.jpg" alt="Visual Story: Köln blitzt, Karte Köln bei Nacht"></div>
-        <div class="cap"><b>Story</b><span>Köln blitzt</span></div>
+      <div class="tile dark" style="width:158px;--c:#E5675A">
+        <div class="pic"><img src="img/story-waermestreifen.jpg" alt="Wärmestreifen in 3D: 175 Jahre Klimageschichte"></div>
+        <div class="cap"><b>Klima</b><span>175 Jahre</span></div>
+      </div>
+      <div class="tile dark fit" style="width:126px;--c:var(--warm)">
+        <div class="pic"><img src="img/story-koeln-karte.jpg" alt="Visual Story Köln blitzt: Karte der Stadtteile"></div>
+        <div class="cap"><b>Story</b><span>Köln</span></div>
       </div>
     </div>
     <div class="row">
-      <div class="tile light" style="width:330px;--c:var(--brand-light)">
+      <div class="tile light" style="width:340px;--c:var(--brand-light)">
         <div class="pic"><img src="img/pnl-statement.png" alt="P&amp;L Statement byDatenWG: GuV mit ΔPL-Wasserfall"></div>
         <div class="cap"><b>P&amp;L Statement</b><span>GuV mit Plan-Abweichung</span></div>
       </div>
-      <div class="tile light" style="width:360px;--c:var(--brand-light)">
+      <div class="tile light" style="width:420px;--c:var(--brand-light)">
         <div class="pic"><img src="img/pnl-sankey.png" alt="P&amp;L Statement byDatenWG: Sankey der GuV"></div>
         <div class="cap"><b>P&amp;L Statement</b><span>Sankey · wohin das Geld fließt</span></div>
       </div>
