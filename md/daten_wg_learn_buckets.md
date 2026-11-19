@@ -2,26 +2,45 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **167 Folgen** insgesamt · Sprachverteilung: 145 DE / 22 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **172 Folgen** insgesamt · Sprachverteilung: 150 DE / 22 EN.
 
 ## Übersicht
 
 | Bucket | Folgen |
 | --- | --- |
-| 01 · Quarterly · Updates & News | 24 |
+| 01 · Quarterly · Updates & News | 25 |
 | 02 · Microsoft Fabric | 29 |
 | 03 · Datenmodellierung & Architektur | 29 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
 | 06 · Power BI · Deep Dive & Vergleiche | 31 |
 | 07 · Karriere & Community | 7 |
-| 08 · Digitalisierung & Strategie | 6 |
-| 09 · Daten-WG Konferenz | 9 |
-| 10 · 1 Minute Power BI | 15 |
+| 08 · Digitalisierung & Strategie | 8 |
+| 09 · Daten-WG Konferenz | 10 |
+| 10 · 1 Minute Power BI | 16 |
 
 ## 01 · Quarterly · Updates & News
 
 _Vier Mal im Jahr räumt das Quarterly-Format auf, was sich in der Microsoft Data Platform getan hat: neue Power BI Features, Fabric-Ankündigungen, was GA geht, was Preview bleibt. Wenn du nur ein Format hörst, dann das hier — komprimiertes Branchen-Briefing._
+
+### Power BI Update Oktober 2026
+
+Oktober 2026 · 7 min · DE · Tags: Update, Power BI, Gantt, DE
+
+YouTube: https://www.youtube.com/watch?v=n2j_NJVb-GE
+
+Das Oktober-Update 2026 fällt zwischen den großen Events kompakt aus, bringt aber im Frontend einiges: ein natives Gantt-Diagramm mit Start und Ende als Measure, den Listenslicer als Dropdown, eigene Hintergrundfarben für Diagramme und Auto-Expand mit Field Parameters. Dazu genauere Lastdaten für das Monitoring semantischer Modelle und Power BI Skills, mit denen KI Berichte erstellt.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=0s) Intro: Update zwischen den großen Events
+- [00:16](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=16s) Natives Gantt-Diagramm (Preview): Start und Ende als Measure
+- [02:49](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=169s) Listenslicer jetzt auch als Dropdown
+- [04:10](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=250s) Eigene Hintergrundfarbe für Diagramme
+- [04:17](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=257s) Auto-Expand mit Field Parameters
+- [05:56](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=356s) Persönliche Lesezeichen behalten Spaltenbreiten
+- [06:05](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=365s) Semantische Modelle: genauere Lastdaten für das Monitoring
+- [06:20](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=380s) Power BI Skills: Reports mit KI erstellen
+- [07:10](https://www.youtube.com/watch?v=n2j_NJVb-GE&t=430s) Fazit: kleines Update, coole Features
 
 ### Fabric & Power BI Quarterly · 2026-4
 
@@ -2164,6 +2183,56 @@ Kapitel:
 
 _Der Blick aufs Big Picture: Was haben 20 Jahre Digitalisierung wirklich gebracht? Was funktioniert in deutschen Mittelstand-Realitäten, was bleibt PowerPoint-Folie?_
 
+### AI Analytics: Einfach Tokens draufwerfen? | Daten-WG Podcast mit Tim Ebner
+
+Gast: Tim Ebner · November 2026 · 46 min · DE · Tags: KI, AI Analytics, MCP, Podcast, DE
+
+YouTube: https://www.youtube.com/watch?v=KeK1Mv0mXfM
+
+Tim Ebner vom Datendurst-Podcast und Artur fragen, was passiert, wenn man ein MCP auf alle Datenquellen legt und der KI ohne Pipeline, Warehouse und semantisches Modell Fragen stellt. Es geht um Marketing mit seinen vielen Silos, MCP als neuen Standard, ein Praxisbeispiel mit Zeiterfassung und Umsatz direkt in Claude und die Frage, warum die Datenschicht trotzdem bleibt.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=0s) Intro: Tim Ebner und der Weg vom Performance Marketing in die Daten
+- [01:54](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=114s) Marketing Analytics: Viele Plattformen, viele Silos
+- [08:58](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=538s) Ein MCP auf alle Quellen und einfach fragen?
+- [10:53](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=653s) MCP als Standard und die Fragmentierung der KI-Welt
+- [14:44](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=884s) Semantik als Kontext: Ohne Modellierung geht es nicht
+- [15:31](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=931s) Praxisbeispiel: Zeiterfassung und Umsatz direkt mit Claude
+- [20:34](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=1234s) Tokens oder Skript: Wann lohnt sich Automatisierung?
+- [22:54](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=1374s) KI als Turbo für Proof of Concepts
+- [24:17](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=1457s) Analytics direkt auf dem operativen System
+- [26:26](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=1586s) Wenn alle aufs SAP losgehen: Warum die Datenschicht bleibt
+- [29:45](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=1785s) Anthropic ersetzt Git, SAP die Tastatur
+- [34:55](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=2095s) Das beste Modell ist das für die eine Frage
+- [36:03](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=2163s) Single Source of Truth: Pro und Contra
+- [39:27](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=2367s) Bottom-up statt Fünf-Jahres-Plan
+- [43:42](https://www.youtube.com/watch?v=KeK1Mv0mXfM&t=2622s) Ausblick: KI lernt, wie wir KI nutzen
+
+### Warum E-Commerce-Daten lügen | Daten-WG Podcast mit Corinna Zennig
+
+Gast: Corinna Zennig · Oktober 2026 · 44 min · DE · Tags: E-Commerce, Attribution, AI Analytics, Podcast, DE
+
+YouTube: https://www.youtube.com/watch?v=gHkna-LZm0Q
+
+Corinna Zennig, CEO von Lazy Analyst, räumt mit dem Irrtum auf, dass im E-Commerce jeder Verkauf sauber einer Anzeige zugeordnet werden kann. Es geht darum, warum Google und Meta zusammen gern 200 von 100 Sales für sich beanspruchen, was Amazon und der Cookie-Consent mit der Customer Journey machen, und warum AI Analytics ohne Kontext scheitert. Ihr Rat: erst die Strategie, dann das Tool.
+
+Kapitel:
+- [00:00](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=0s) Intro: Corinna Zennig und der Lazy Analyst
+- [01:45](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=105s) Wie technologieagnostisch kann E-Commerce sein?
+- [04:51](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=291s) Echtzeit oder täglich? Was E-Commerce wirklich braucht
+- [10:30](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=630s) Die Customer Journey nachvollziehen
+- [12:03](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=723s) Amazon, Cookie-Consent und fehlende Kundendaten
+- [13:50](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=830s) 100 Sales, 200 Zuschreibungen: Attribution zwischen Google und Meta
+- [17:35](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1055s) First-Party-Data und Server-Side-Tracking
+- [20:06](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1206s) Der einfachste Hebel: Frag deine Kunden
+- [22:01](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1321s) Wie AI das E-Commerce-Game verändert
+- [23:40](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1420s) Revenue ist nicht gleich Revenue: Warum AI Kontext braucht
+- [25:13](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1513s) 95 Prozent Accuracy und blindes Vertrauen in den AI-Chat
+- [29:41](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1781s) Data Warehouse, Databricks Genie oder fertiges Tool?
+- [32:18](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=1938s) Dashboard und AI-Chat: Wofür was?
+- [35:26](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=2126s) AI Analytics selbst bauen? Lieber nicht
+- [38:11](https://www.youtube.com/watch?v=gHkna-LZm0Q&t=2291s) Abschlusstipp: Erst Strategie, dann Tool
+
 ### Daten-WG Life-Update | State of Power BI, Fabric & AI-Tools
 
 Gast: Ulrik Harnisch · Marcus Wegener · Artur König · Juni 2026 · 47 min · DE · Tags: State of Data, Strategie, AI, Fabric, DE
@@ -2275,6 +2344,14 @@ Kapitel:
 ## 09 · Daten-WG Konferenz
 
 _Rückblicke und Eindrücke von der Daten-WG-Konferenz. Was wurde diskutiert, welche Sessions sind nachhörbar, was nehmen die Teilnehmer mit nach Hause?_
+
+### Daten-WG 2026 Recap Trailer
+
+Oktober 2026 · 1 min · DE · Tags: Event, Konferenz, Köln, Rückblick, DE
+
+YouTube: https://www.youtube.com/watch?v=idbmOOqQo2k
+
+Anderthalb Minuten Daten-WG 2026 in Köln: ein Dankeschön an alle, die das Event besonders gemacht haben, und das Versprechen, dass die Daten-WG wiederkommt. Das Video hat Matthias Nohl gedreht.
 
 ### Daten-WG 2026 Lineup
 
@@ -2416,6 +2493,14 @@ Kurze Kanal-Vorstellung: Die Daten-WG-Community bleibt auch nach dem Event zusam
 ## 10 · 1 Minute Power BI
 
 _Marcus nimmt sich jede Woche eine Sache vor und erklärt sie in unter einer Minute: ein Handgriff, eine Fallstrick-Warnung, eine klare Antwort auf eine Frage, die immer wieder kommt. Kein Drumherum — wer wenig Zeit hat, fängt hier an._
+
+### #016 · Power BI: Schluss mit dem vollständigen Daten-Refresh!
+
+Oktober 2026 · 114 s · DE · Tags: Incremental Refresh, Shorts, Power Query, DE
+
+YouTube: https://www.youtube.com/watch?v=G6hl4ivg3Mk
+
+Standardmäßig lädt Power BI bei jeder Aktualisierung alle Daten neu. Mit inkrementeller Aktualisierung über RangeStart und RangeEnd hält das Modell etwa drei Jahre vor und aktualisiert nur den jüngsten Zeitraum.
 
 ### #015 · Daten in Power BI eingeben und speichern? So geht Writeback!
 
