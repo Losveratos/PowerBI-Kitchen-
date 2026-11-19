@@ -64,16 +64,21 @@ mit comparisonMode=py). Tests: `test:scale` YC03A/YC03B (Pixelmessung), YCneg/YC
 Rückfälle YCcum/YCwf/YCbars/YCcompact/YCnarrow/YCcumPy,
 `test:render` c267.
 
-*B04 · Sortierung als Enum mit fester Rest-Zeile (Blätter 06F, 06G, 06H; 04A bis 04C).* neue Property `chart.sortMode` (Enum; `chart.sortByImpact` bleibt
-als versteckter Bool für Berichte bis 1.53: ohne gespeichertes `sortMode` gilt `true` = `abs`, nur in Brücken) `off` · `abs` (|Δ|, bisheriges Verhalten) · `signed` (Δ vorzeichenbehaftet absteigend, 06F) · `pct`
-(Δ % absteigend, 06G; n.a. ans Ende) · `ac` (AC absteigend, 06H). **Kompatibilität:** gespeichertes `true` gilt als
-`abs`, `false` als `off` (SVG-gleich, Test c273); PBIR-Autoren schreiben ab 1.54 den String. Wirkt in Kategorie-Brücke,
-Wasserfall-Brücke (`waterfallStyle`) und neu auch in Balken ohne Stapel. Rest-Zeilen bleiben am Ende, in Datenfolge
-und kursiv: die Top-N-Rest-Zeile und jede Kategorie, deren Name auf
-`/^(other|others|sonstige|übrige|rest|otros|otras|resto)|^その他/i` passt (Regel des P&L Statement). Dieselbe Regel
-gilt für die Spaltensortierung der Tabelle/Matrix (`tableSort`), daher C14 bis C16 nun ohne Restpunkt. Der ⇅-Knopf
-schreibt `sortMode` `"abs"` bzw. `"off"`. Rest-Regel ab Review enger: Name muss eine Rest-Bezeichnung sein („Sonstige betriebliche Erträge“ bleibt Konto); Top N nimmt benannte Rest-Zeilen in die Rest-Zeile. Zuordnung: 06F = C17 + `sortMode=signed`, 06G = C17 + `pct`, 06H = C17 + `ac`.
-Tests c268 bis c274.
+*B04 · Sortierung mit fester Rest-Zeile (Blätter 06F, 06G, 06H; 04A bis 04C).* Neue Property `chart.sortMode`
+(Enum `off` · `abs` |Δ| absteigend · `signed` Δ mit Vorzeichen absteigend, ohne Wertung gut/schlecht (06F) · `pct` Δ %
+absteigend, n.a. ans Ende (06G) · `ac` AC absteigend (06H)). Wirkt in Kategorie-Brücke, Wasserfall-Brücke
+(`waterfallStyle`) und neu in Balken ohne Stapel; Small Multiples sortieren je Kachel. **Kompatibilität:**
+`chart.sortByImpact` bleibt ein (im Pane ausgeblendeter) Bool. Solange `sortMode` nicht gespeichert ist, gilt
+`sortByImpact=true` als `abs`, und zwar nur in den Brücken wie bis 1.53 (Tests c273 bis c273d, SVG-gleich); ein
+gespeichertes `sortMode` hat Vorrang. Der ⇅-Knopf schreibt `sortMode` (`"abs"` bzw. `"off"`) und ist bei aktiver
+Sortierung nie gesperrt. Rest-Zeilen bleiben am Ende, in Datenfolge, kursiv (nur solange sortiert wird): die
+Top-N-Rest-Zeile, „Unauffällig (n)“ und Namen, die eine Rest-Bezeichnung SIND (`REST_ROW_RX` in `src/visual.ts`:
+Other(s), Sonstige(s), Übrige(s/r), Rest, Resto, Otros/Otras, その他, je optional mit „(n)“; „Rest of/der/des …“,
+„Rest-…“; „Other/Übrige/Sonstige countries/regions/Länder/Regionen …“). „Sonstige betriebliche Erträge“ oder
+„Other income“ bleiben Konten (enger als die P&L-Regel `^(other|…|resto)`). Dieselbe Regel gilt für die
+Spaltensortierung der Tabelle/Matrix (`tableSort`), daher C14 bis C16 ohne Restpunkt; Top N nimmt benannte
+Rest-Zeilen in die Rest-Zeile auf. Zuordnung: 06F = C17 + `sortMode=signed`, 06G = C17 + `pct`, 06H = C17 + `ac`.
+Tests c268 bis c274d.
 
 *B06 · Szenario-Notation im Stapel (Blatt 01C; Basis für 01A, 01B, 01D, 01E).* Keine neue Property. `renderStacked`
 bestimmt je Kategorie ein Szenario: `ac` (eine Zelle hat ein Ist), sonst `fc` (Forecast-Measure oder `fcFlag`), sonst

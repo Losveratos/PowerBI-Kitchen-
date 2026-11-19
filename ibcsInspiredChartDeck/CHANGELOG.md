@@ -39,10 +39,12 @@ Schalter stehen standardmäßig aus.**
   unverändert (SVG-Vergleich aller 345 Bestands-Stages). Tests c275 bis c280.
 - **B04 · Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile (Blätter 06F, 06G, 06H, 04A bis 04C).**
   Vorher: „Nach Wirkung sortieren“ war ein Schalter, nur nach |Δ| und nur in Brücken; eine Datenkategorie „Others“
-  oder „Rest of USA“ wurde mitsortiert. Nachher: „Sortierung“ (`chart.sortByImpact`) wählt Aus, |Δ|, Δ
+  oder „Rest of USA“ wurde mitsortiert. Nachher: „Sortierung“ (neue Property `chart.sortMode`) wählt Aus, |Δ|, Δ
   vorzeichenbehaftet, Δ % oder AC, in Kategorie-Brücke, Wasserfall-Brücke und jetzt auch in Balken. Rest-Zeilen (Rest,
   Other, Others, Sonstige, Übrige, „Rest of …“, Top-N-Rest; Regel des P&L Statement) bleiben kursiv am Ende, auch bei
-  der Spaltensortierung der Tabelle. Gespeichertes „An“ älterer Berichte gilt als |Δ| und zeichnet unverändert.
+  der Spaltensortierung der Tabelle. Das alte `chart.sortByImpact` bleibt als ausgeblendeter Schalter: Berichte bis 1.53 zeichnen
+  unverändert (Hash-Vergleich), bis „Sortierung“ gesetzt wird. Rest-Bezeichnungen müssen der ganze Name sein
+  („Sonstige betriebliche Erträge“ bleibt ein Konto); Top N nimmt benannte Rest-Zeilen in die Rest-Zeile auf.
   Tests c268 bis c274.
 
 
