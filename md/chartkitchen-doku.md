@@ -698,6 +698,12 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Top N Kacheln | Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest"-Kachel aggregiert. 0 = alle. | 0–24 · Standard 0 |
 | Erste Kachel groß | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). | An / Aus · Standard Aus |
 | Brücken: gleiche Skala für alle Kacheln | Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer. | An / Aus · Standard Aus |
+| Bezugs- und Rest-Kachel | Was die Bezugskachel (Σ) und die Rest-Kachel von „Top N Kacheln“ zeigen (seit 1.55): die Summe der Gruppen oder ihren Durchschnitt. Der Durchschnitt teilt je Kategorie durch die Zahl der Kacheln mit Wert (leer zählt nicht als 0) und rechnet immer über alle Gruppen, nie aus der Rest-Kachel. So bleibt die Bezugskachel im Wertebereich der Kacheln und staucht die gemeinsame Skala nicht (nach IBCS-Blatt 13A). Bei Quoten ist es ein ungewichteter Mittelwert. | Summe / Durchschnitt · Standard Summe |
+| Position der Bezugskachel | Erste Kachel oder letzte Kachel, unten rechts wie auf Blatt 13A (seit 1.55). Zuletzt bleibt die Kachel auch bei mehr als 24 Kacheln sichtbar. | Erste / Letzte Kachel · Standard Erste |
+| Bezugskachel hinterlegen | Hinterlegt die Bezugskachel grau (seit 1.55), im Hochkontrast ein Rahmen statt der Fläche. | An / Aus · Standard Aus |
+| Titel der Bezugskachel | Eigener Titel, {n} = Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“ (seit 1.55). | Text · leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“ |
+| Titel der Rest-Kachel | Eigener Titel der Rest-Kachel, {n} = Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“ (seit 1.55). | Text · leer = „Rest (n)“ |
+| Abweichungsbasis der Kacheln | Seit 1.55: „Durchschnitt aller Kacheln (Ø)“ vergleicht jede Kachel je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panels „ΔØ“, „ΔØ %“). Reine Planjahre vergleichen den Plan mit dem Durchschnitt der Pläne und stehen in Plan-Notation (umrandet, Pin hohl). Die Bezugskachel zeigt keine Abweichung, die doppelte Abweichung ist aus. Nur Säulen, Balken und Linie ohne Stapel und Brücke (nach IBCS-Blatt 13C; die Ansicht nur mit dem Abweichungs-Panel folgt). | Szenario (PY / PL) / Durchschnitt aller Kacheln (Ø) · Standard Szenario |
 
 #### Brücke
 
