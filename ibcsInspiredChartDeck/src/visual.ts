@@ -234,6 +234,7 @@ const FIELD_INTRO_SECTIONS: { key: string; en: string; roles: [string, string, s
         ["xValue", "FI_XValue", "X axis of the scatter"],
         ["xPrevious", "FI_XPrev", "X prior year → motion arrows"],
         ["bubbleSize", "FI_Bubble", "Bubble size, e.g. volume"],
+        ["bubbleSizePrevious", "FI_BubblePrev", "Bubble size PY → PY bubble"],
         ["comments", "FI_Comments", "Text → numbered comments"],
         ["filterInfo", "FI_FilterInfo", "Text → filter note in footer"]] }
 ];
@@ -247,7 +248,8 @@ const ROLE_NAMES: Record<string, [string, string]> = {
     colgroup: ["Role_ColGroup", "Columns (matrix)"], trend: ["Role_Trend", "Trend (time)"],
     rowType: ["Role_RowType", "Waterfall Type (sum/delta)"], lineMeasure: ["Role_LineMeasure", "Line (combo)"],
     xValue: ["Role_XValue", "X axis (Scatter)"], xPrevious: ["Role_XPrevious", "X axis PY (Scatter, optional)"],
-    bubbleSize: ["Role_BubbleSize", "Bubble size (optional)"], comments: ["Role_Comments", "Comments"],
+    bubbleSize: ["Role_BubbleSize", "Bubble size (optional)"],
+    bubbleSizePrevious: ["Role_BubbleSizePrevious", "Bubble size PY (optional)"], comments: ["Role_Comments", "Comments"],
     filterInfo: ["Role_FilterInfo", "Filter info (footer)"]
 };
 /** 1.51 hub footer: font presets in the order HD · Full HD · UHD (labels.fontPreset) */
@@ -410,6 +412,9 @@ interface DataPoint {
     /** scatter v3: previous-year value of the X measure (role xPrevious) — start of
      *  the PY → AC movement arrow on the X axis (without it, arrows move only in Y) */
     xPrev?: number | null;
+    /** 1.55 (B12): previous-year value of the bubble size (role bubbleSizePrevious) —
+     *  with PY (Y) it draws the PY bubble of the category in its own size */
+    sizePrev?: number | null;
     /** Trend role (KPI cards): period label of this row and its sort key (Date →
      *  timestamp, number → value, text → first appearance); absent when unbound */
     trend?: string | null;
@@ -689,6 +694,19 @@ interface ChartConfig {
         arrows: boolean;
         hasXPrev: boolean;
         xPrevName: string;
+        /** 1.55 (B12) portfolio bubbles: value label of the bubble size, custom maximum
+         *  radius (0 = auto), bubble opacity (0..1), PY bubbles (role bubbleSizePrevious
+         *  bound and data present), highlight as fill color (+ legend text) and the
+         *  resolved group palette (custom pickers, else the light/dark default) */
+        valueLabels: boolean;
+        maxRadius: number;
+        opacity: number;
+        pyBubbles: boolean;
+        sizePrevName: string;
+        emphFill: boolean;
+        emphColor: string;
+        emphLabel: string;
+        groupPalette: string[];
         shapes: boolean;
         sizeLegend: boolean;
         trend: string;
@@ -989,6 +1007,8 @@ export class Visual implements IVisual {
     private sizeFormat: string | undefined;
     /** scatter v3: display name of the bound xPrevious measure (arrow start, tooltips) */
     private xPrevName: string | undefined;
+    /** 1.55 (B12): display name of the bound bubbleSizePrevious measure (PY bubbles) */
+    private sizePrevName: string | undefined;
     /** scatter v3 play mode (Rosling): transient — NEVER persisted. frame = currently
      *  shown period index; anim = live DOM references while the rAF loop runs */
     private scatterFrame: number | null = null;
@@ -1929,6 +1949,22 @@ export class Visual implements IVisual {
         fs.chartCard.scatterTrendR2.visible = isScatter
             && String(fs.chartCard.scatterTrend.value.value) !== "off";
         fs.chartCard.scatterSizeLegend.visible = isScatter && this.sizeName != null;
+        // 1.55 (B12): Blasen-Optionen nur mit Blasengröße, Gruppenfarben nur bei
+        // Gruppen-Färbung, Farbe und Legendentext nur bei „Hervorhebung als Farbe"
+        const hasBubbles = isScatter && this.sizeName != null;
+        fs.chartCard.scatterValueLabels.visible = hasBubbles;
+        fs.chartCard.scatterMaxRadius.visible = hasBubbles;
+        fs.chartCard.scatterBubbleOpacity.visible = hasBubbles;
+        fs.chartCard.scatterEmphFill.visible = isScatter;
+        const emphFillOn = isScatter && fs.chartCard.scatterEmphFill.value === true;
+        fs.chartCard.scatterEmphColor.visible = emphFillOn;
+        fs.chartCard.scatterEmphLabel.visible = emphFillOn;
+        const groupOn = isScatter && String(fs.chartCard.scatterColorBy.value.value) === "group";
+        for (const gc of [fs.chartCard.scatterGroupColor1, fs.chartCard.scatterGroupColor2,
+            fs.chartCard.scatterGroupColor3, fs.chartCard.scatterGroupColor4,
+            fs.chartCard.scatterGroupColor5, fs.chartCard.scatterGroupColor6]) {
+            gc.visible = groupOn;
+        }
         const quadOn = String(fs.chartCard.scatterQuadrant.value.value) !== "off"
             || String(fs.scaleCard.refLine.value || "").trim() !== ""
             || String(fs.scaleCard.xRefLine.value || "").trim() !== "";
@@ -2102,10 +2138,11 @@ export class Visual implements IVisual {
         this.filterInfo = null;
         this.xName = this.xFormat = this.sizeName = this.sizeFormat = undefined;
         this.xPrevName = undefined;
+        this.sizePrevName = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast",
-                "xValue", "xPrevious", "bubbleSize"]) {
+                "xValue", "xPrevious", "bubbleSize", "bubbleSizePrevious"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -2128,6 +2165,9 @@ export class Visual implements IVisual {
                     if (role === "bubbleSize") {
                         this.sizeFormat = unsignedFormat(col.source.format);
                         this.sizeName = col.source.displayName;
+                    }
+                    if (role === "bubbleSizePrevious") {
+                        this.sizePrevName = col.source.displayName;
                     }
                     if (col.highlights) {
                         anyHighlights = true;
@@ -2266,6 +2306,7 @@ export class Visual implements IVisual {
                 xVal: byRole["xValue"] ? byRole["xValue"][i] : null,
                 xPrev: byRole["xPrevious"] ? byRole["xPrevious"][i] : null,
                 sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
+                sizePrev: byRole["bubbleSizePrevious"] ? byRole["bubbleSizePrevious"][i] : null,
                 ...(trendCol && trendOrdOf ? {
                     trend: this.categoryLabel(trendCol.values[i]),
                     trendOrd: trendOrdOf(i)
@@ -11385,6 +11426,7 @@ export class Visual implements IVisual {
             agg.xVal = sumOf(c => c.xVal);
             agg.xPrev = sumOf(c => c.xPrev);
             agg.sizeVal = sumOf(c => c.sizeVal);
+            agg.sizePrev = sumOf(c => c.sizePrev);
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
             agg.sel = kids[0].sel;
@@ -12588,7 +12630,21 @@ export class Visual implements IVisual {
             points.reduce((a, p) => Math.max(a, Math.abs(get(p) ?? 0)), 0);
         const allInt = (get: (p: DataPoint) => number | null | undefined) =>
             points.every(p => { const v = get(p); return v == null || Number.isInteger(v); });
-        const xGet = (p: DataPoint) => p.xVal, sGet = (p: DataPoint) => p.sizeVal;
+        const xGet = (p: DataPoint) => p.xVal;
+        // 1.55 (B12): with a bound PY bubble size the size formatter spans both years
+        // (unbound → sizePrev null → identical to the AC-only formatter)
+        const sGet = (p: DataPoint) => p.sizePrev != null
+            ? Math.max(Math.abs(p.sizeVal ?? 0), Math.abs(p.sizePrev)) : p.sizeVal;
+        const sAllInt = (p: DataPoint) => p.sizePrev == null || Number.isInteger(p.sizePrev);
+        const cc = s.chartCard;
+        // custom group colors: a picker that differs from its light default wins in
+        // light AND dark mode; untouched pickers follow the mode palette as before
+        const pickers = [cc.scatterGroupColor1, cc.scatterGroupColor2, cc.scatterGroupColor3,
+            cc.scatterGroupColor4, cc.scatterGroupColor5, cc.scatterGroupColor6];
+        const groupPalette = SCATTER_GROUP_LIGHT.map((def, i) => {
+            const v = String(pickers[i].value?.value || "").trim();
+            return v && v.toUpperCase() !== def.toUpperCase() ? v : "";
+        });
         return {
             // role bound at all — a bound-but-empty X gets the "no points" hint instead
             hasX: this.xName != null,
@@ -12596,7 +12652,7 @@ export class Visual implements IVisual {
             yName: this.measureName ?? "",
             sizeName: this.sizeName ?? "",
             fmtX: this.makeFormatter(absMax(xGet), allInt(xGet), this.xFormat ?? ""),
-            fmtSize: this.makeFormatter(absMax(sGet), allInt(sGet), this.sizeFormat ?? ""),
+            fmtSize: this.makeFormatter(absMax(sGet), allInt(p => p.sizeVal) && points.every(sAllInt), this.sizeFormat ?? ""),
             quadrant: String(s.chartCard.scatterQuadrant.value.value),
             colorBy: String(s.chartCard.scatterColorBy.value.value),
             xRefLine: this.parseRefValue(String(s.scaleCard.xRefLine.value || "")),
@@ -12606,6 +12662,17 @@ export class Visual implements IVisual {
             arrows: s.chartCard.scatterArrows.value === true && points.some(p => p.py != null),
             hasXPrev: this.xPrevName != null,
             xPrevName: this.xPrevName ?? "X PY",
+            valueLabels: cc.scatterValueLabels.value === true && this.sizeName != null,
+            maxRadius: this.sizeName != null ? Math.max(0, Math.min(200, Number(cc.scatterMaxRadius.value) || 0)) : 0,
+            opacity: Math.max(10, Math.min(100, Number(cc.scatterBubbleOpacity.value ?? 55))) / 100,
+            // PY bubbles need the bound role plus a PY position and size somewhere
+            pyBubbles: this.sizePrevName != null && this.sizeName != null
+                && points.some(p => p.py != null && isFinite(p.py) && p.sizePrev != null && p.sizePrev > 0),
+            sizePrevName: this.sizePrevName ?? "",
+            emphFill: cc.scatterEmphFill.value === true,
+            emphColor: String(cc.scatterEmphColor.value?.value || "#0064FF"),
+            emphLabel: String(cc.scatterEmphLabel.value || "").trim(),
+            groupPalette,
             shapes: s.chartCard.scatterShapes.value === true
                 && String(s.chartCard.scatterColorBy.value.value) === "group",
             sizeLegend: s.chartCard.scatterSizeLegend.value === true,
@@ -12671,6 +12738,8 @@ export class Visual implements IVisual {
                     if (sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)) { xsDom.push(p.xPrev); }
                 }
             }
+            // 1.55 (B12): PY bubbles sit at (X PY or X, PY) — the axes include them
+            if (sc.pyBubbles) { this.scatterPyDomain(all, sc, xsDom, ysDom); }
             const ax = this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
             const ay = this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted);
             // quadrant statistic over the points that stay inside the fixed bounds
@@ -12683,7 +12752,8 @@ export class Visual implements IVisual {
             const qy = yRef != null ? yRef : qOn ? stat(sPts.map(p => p.value as number)) : null;
             sc.shared = {
                 xLo: ax.lo, xHi: ax.hi, yLo: ay.lo, yHi: ay.hi, qx, qy,
-                sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0)),
+                sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0),
+                    ...(sc.pyBubbles ? sPts.map(p => p.py != null ? p.sizePrev ?? 0 : 0) : [])),
                 refCell: null,
                 xLog: ax.log, yLog: ay.log,
                 sizeLegendDrawn: false
@@ -12703,7 +12773,7 @@ export class Visual implements IVisual {
         sc.groupKey = key;
         sc.groupOrder = order;
         if (cfg.hc) { return; }
-        const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+        const pal = this.scatterPalette(sc, cfg);
         const rest = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;
         const map = new Map<string, string>();
         order.forEach((v, i) => map.set(v, i < pal.length ? pal[i] : rest));
@@ -12749,6 +12819,24 @@ export class Visual implements IVisual {
             this.el("rect", { x: x - h, y: y - gap / 2, width: 2 * h, height: gap, fill: cfg.paper }, g);
             this.el("line", { x1: x - h, y1: y - gap / 2 + 2, x2: x + h, y2: y - gap / 2 - 2, ...stroke }, g);
             this.el("line", { x1: x - h, y1: y + gap / 2 + 2, x2: x + h, y2: y + gap / 2 - 2, ...stroke }, g);
+        }
+    }
+
+    /** 1.55 (B12): group palette — custom pickers where set, else the mode default */
+    private scatterPalette(sc: NonNullable<ChartConfig["scatter"]>, cfg: ChartConfig): string[] {
+        const def = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+        return def.map((c, i) => sc.groupPalette[i] || c);
+    }
+
+    /** 1.55 (B12): adds the PY bubble positions (X PY or X, Y = PY) to the axis domains */
+    private scatterPyDomain(pts: DataPoint[], sc: NonNullable<ChartConfig["scatter"]>,
+        xsDom: number[], ysDom: number[]): void {
+        for (const p of pts) {
+            if (p.py == null || !isFinite(p.py) || p.sizePrev == null || !(p.sizePrev > 0)) { continue; }
+            const x = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev) ? p.xPrev : p.xVal;
+            if (x == null || !isFinite(x)) { continue; }
+            xsDom.push(x);
+            ysDom.push(p.py);
         }
     }
 
@@ -13050,7 +13138,14 @@ export class Visual implements IVisual {
             : (cfg.hc && sc.shapes && sc.groupKey && sc.groupOrder)
                 ? sc.groupOrder.map(n => [n, cfg.ink] as [string, string])
                 : [];
-        if (entriesAll.length === 0) { return 0; }
+        // 1.55 (B12): scenario entries ● PY ● AC (PY bubbles; AC only without group
+        // colors) in front, the highlight color with its legend text at the end
+        const scenEntries: [string, string, string][] = sc.pyBubbles
+            ? [[cfg.scenL.py, cfg.colors.py, "py"],
+                ...(entriesAll.length === 0 ? [[cfg.scenL.ac, cfg.colors.ac, "ac"] as [string, string, string]] : [])]
+            : [];
+        const emphEntry = sc.emphFill && sc.emphLabel && !cfg.hc ? sc.emphLabel : "";
+        if (entriesAll.length === 0 && scenEntries.length === 0 && !emphEntry) { return 0; }
         const k = this.fontK;
         const f = Math.round(10 * k);
         const h = f + 8;
@@ -13061,6 +13156,24 @@ export class Visual implements IVisual {
             : (this.multName ?? this.locStr("Role_Multiples", "Small Multiples"));
         const base = y + h / 2 + f * 0.35;
         let x = 6;
+        const extra = (name: string, col: string, id: string) => {
+            const ge = this.el("g", { "data-icd": "scatter-legend-" + id }, g);
+            this.el("circle", {
+                cx: x + r, cy: y + h / 2, r,
+                ...(cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2,
+                    ...(id === "py" ? { "stroke-dasharray": "3,2" } : {}) } : { fill: col })
+            }, ge);
+            const t = this.el("text", {
+                x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT
+            }, ge);
+            t.textContent = name;
+            x += 2 * r + 4 + this.textWidth(name, f) + 12;
+        };
+        for (const [name, col, id] of scenEntries) { extra(name, col, id); }
+        if (entriesAll.length === 0) {
+            if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
+            return h;
+        }
         const lead = this.el("text", {
             x, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
         }, g);
@@ -13110,7 +13223,9 @@ export class Visual implements IVisual {
                 x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
             }, g);
             t.textContent = restTxt(restN);
+            x += 2 * r + 4 + this.textWidth(restTxt(restN), f) + 12;
         }
+        if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
         return h;
     }
 
@@ -13165,6 +13280,7 @@ export class Visual implements IVisual {
                 if (sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)) { xsDom.push(p.xPrev); }
             }
         }
+        if (sc.pyBubbles) { this.scatterPyDomain(allPts, sc, xsDom, ysDom); }
         const ax = sh ? { lo: sh.xLo, hi: sh.xHi, log: sh.xLog }
             : this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
         const ay = sh ? { lo: sh.yLo, hi: sh.yHi, log: sh.yLog }
@@ -13194,9 +13310,14 @@ export class Visual implements IVisual {
         const xs = pts.map(p => p.xVal as number);
         const ys = pts.map(p => p.value as number);
 
-        const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0);
+        // 1.55 (B12): PY bubbles (role bubbleSizePrevious) — one per category with a PY
+        // position and a positive PY size; not in play mode (one period per frame)
+        const pyBub = sc.pyBubbles && !playActive;
+        const pySize = (p: DataPoint): number =>
+            pyBub && p.py != null && isFinite(p.py) ? Math.max(p.sizePrev ?? 0, 0) : 0;
+        const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0 || pySize(p) > 0);
         const sMax = sh ? sh.sMax
-            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
+            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0, pySize(p)))) : 0;
         // status color needs a comparison basis — without PY/PL it stays single-colored
         const statusOn = sc.colorBy === "status" && pts.some(p => p.varAbs != null);
 
@@ -13252,8 +13373,15 @@ export class Visual implements IVisual {
         const rBoxH = sh?.refCell
             ? Math.max(20, (sh.refCell.h - pad - 2 * axF - 10) - (pad + titleH + axF + Math.round(6 * k)))
             : plotH;
-        const rMax = hasSize ? Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7)) : rPlain;
-        const inset = rMax + 6;
+        // 1.55 (B12): a custom maximum radius (chart.scatterMaxRadius, px · font factor)
+        // replaces the 22 px cap, limited to a third of the plot box; the axis inset
+        // then stays at the automatic size, so big portfolio bubbles may reach past
+        // the axis edge (as in the IBCS sheets) instead of shrinking the value range
+        const rAuto = Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7));
+        const rMax = !hasSize ? rPlain : sc.maxRadius > 0
+            ? Math.max(rMin + 2, Math.min(sc.maxRadius * k, Math.min(rBoxW * 0.8, rBoxH) / 3))
+            : rAuto;
+        const inset = (hasSize && sc.maxRadius > 0 ? Math.min(rMax, rAuto) : rMax) + 6;
 
         // Y ticks first (their label width sets the plot's left edge); a log axis
         // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
@@ -13369,9 +13497,10 @@ export class Visual implements IVisual {
         if (cutY) { this.drawScatterAxisBreak(bg, plotLeft, plotBottom - Math.round(10 * k), false, cfg); }
 
         // marks: area-proportional radius r = rMax·√(size / max), never below rMin
-        const rOf = (p: DataPoint): number => !hasSize ? rPlain
-            : Math.max(rMin, rMax * Math.sqrt(Math.max(p.sizeVal ?? 0, 0) / sMax));
-        const items = pts.map(p => {
+        const rOfV = (v: number): number => Math.max(rMin, rMax * Math.sqrt(Math.max(v, 0) / sMax));
+        const rOf = (p: DataPoint): number => !hasSize ? rPlain : rOfV(p.sizeVal ?? 0);
+        const items: { p: DataPoint; label: string; cx: number; cy: number; r: number;
+            emph: boolean; isPy: boolean; size: number | null }[] = pts.map(p => {
             // in a tile the title carries the group — the point label is the category
             // alone. Play mode: the category is the PERIOD (watermark), so the dots
             // are labelled by what they represent — the series value
@@ -13379,9 +13508,36 @@ export class Visual implements IVisual {
                 : p.group != null && !sh ? `${p.cat} · ${p.group}` : p.cat;
             return {
                 p, label, cx: X(p.xVal as number), cy: Y(p.value as number), r: rOf(p),
-                emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group)
+                emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group),
+                isPy: false, size: p.sizeVal ?? null
             };
         });
+        // 1.55 (B12): PY bubbles as extra items after the AC items (indices of the AC
+        // items stay those of pts) — own size, at (X PY or X, PY), inside the axes
+        const pyR = new Map<DataPoint, { cx: number; cy: number; r: number }>();
+        if (pyBub && hasSize) {
+            for (const it of items.slice()) {
+                const p = it.p;
+                const sz = pySize(p);
+                if (!(sz > 0)) { continue; }
+                const xv = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev) ? p.xPrev : (p.xVal as number);
+                const yv = p.py as number;
+                if (xv < xLo || xv > xHi || yv < yLo || yv > yHi
+                    || (ax.log && xv <= 0) || (ay.log && yv <= 0)) { continue; }
+                const py = { p, label: it.label, cx: X(xv), cy: Y(yv), r: rOfV(sz), emph: false, isPy: true, size: sz };
+                items.push(py);
+                pyR.set(p, { cx: py.cx, cy: py.cy, r: py.r });
+            }
+        }
+        // 1.55 (B12): value label of the bubble size — inside when it fits, else
+        // behind the name; light text on dark fills (fill blended with the paper)
+        const valF = cf;
+        const valText = (it: typeof items[number]): string | null =>
+            sc.valueLabels && hasSize && it.size != null ? stripUnitText(sc.fmtSize.format(it.size)) : null;
+        const valInside = (it: typeof items[number]): boolean => {
+            const t = valText(it);
+            return t != null && this.textWidth(t, valF) + 4 <= 2 * it.r * 0.92 && valF <= 2 * it.r * 0.9;
+        };
         type Box = { x0: number; y0: number; x1: number; y1: number };
         const checkMarks = items.length <= 400;
         const hitsMark = (b: Box, self: number) => checkMarks && items.some((it, j) => {
@@ -13597,6 +13753,7 @@ export class Visual implements IVisual {
         const order = items.map((_, i) => i).sort((a, b) => {
             const A = items[a], B = items[b];
             if (A.emph !== B.emph) { return A.emph ? -1 : 1; }
+            if (A.isPy !== B.isPy) { return A.isPy ? 1 : -1; }
             if (hasSize && A.r !== B.r) { return B.r - A.r; }
             return Math.hypot(B.cx - ccx, B.cy - ccy) - Math.hypot(A.cx - ccx, A.cy - ccy);
         });
@@ -13609,7 +13766,9 @@ export class Visual implements IVisual {
             const it = items[i];
             const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
             if (!wanted) { continue; }
-            const text = this.truncate(it.label, maxLabW, cf);
+            // 1.55 (B12): a value that does not fit into its bubble follows the name
+            const vt = valText(it);
+            const text = this.truncate(vt != null && !valInside(it) ? `${it.label} ${vt}` : it.label, maxLabW, cf);
             // bold (emphasized) text runs ~8 % wider than the regular metrics
             const w = this.textWidth(text, cf) * (it.emph ? 1.08 : 1) + 2;
             const h = cf, gap = 3;
@@ -13633,6 +13792,9 @@ export class Visual implements IVisual {
                 cands.push({ b: { x0, y0, x1: x0 + w, y1: y0 + h },
                     x: sx > 0 ? it.cx + dx : it.cx - dx, y: y0 + h * 0.8, anchor: sx > 0 ? "start" : "end" });
             }
+            // 1.55 (B12): with values inside the bubbles the name prefers the spot
+            // above the bubble (portfolio sheets 10A/10B/10D)
+            if (sc.valueLabels) { cands.unshift(cands.splice(2, 1)[0]); }
             let pick = cands.find(c => inPlot(c.b) && !hitsLabel(c.b) && !hitsMark(c.b, i));
             if (!pick) {
                 // a point at the plot edge: shift its label inward instead of dropping it
@@ -13678,12 +13840,70 @@ export class Visual implements IVisual {
                 circle: SVGElement | null; hasSize: boolean }>()
             : null;
 
-        // draw order: largest bubbles first (small ones stay visible on top), emphasized last
+        // 1.55 (B12): value text color by contrast against the fill blended with the
+        // paper (the bubbles are translucent): white or black, whichever reads better
+        const valColor = (fill: string, alpha: number): string => {
+            if (!/^#?[0-9a-f]{6}$/i.test(fill.trim()) || !/^#?[0-9a-f]{6}$/i.test(cfg.paper.trim())) { return cfg.ink; }
+            const a = this.hexRgb(fill), b = this.hexRgb(cfg.paper);
+            const mix = a.map((v, j) => Math.round(v * alpha + b[j] * (1 - alpha)));
+            const L = relLuminance("#" + mix.map(v => v.toString(16).padStart(2, "0")).join(""));
+            return 1.05 / (L + 0.05) >= (L + 0.05) / 0.05 ? "#FFFFFF" : "#000000";
+        };
+        // a PY value whose text would collide with an AC value (bubbles nearly on top
+        // of each other) is left out — the AC value wins, the PY value stays in the tooltip
+        const valBox = (it: typeof items[number]) => {
+            const w = this.textWidth(valText(it) ?? "", valF) / 2 + 1;
+            return { x0: it.cx - w, x1: it.cx + w, y0: it.cy - valF / 2, y1: it.cy + valF / 2 };
+        };
+        const acValBoxes = sc.valueLabels ? items.filter(it => !it.isPy && valInside(it)).map(valBox) : [];
+        const drawValue = (g: SVGElement, it: typeof items[number], fill: string, alpha: number) => {
+            const t = valText(it);
+            if (t == null || !valInside(it)) { return; }
+            if (it.isPy) {
+                const b = valBox(it);
+                if (acValBoxes.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0)) { return; }
+            }
+            const el = this.el("text", {
+                x: it.cx, y: it.cy + valF * 0.35, "text-anchor": "middle", "font-size": valF,
+                fill: cfg.hc ? fill : valColor(fill, alpha), "font-family": FONT,
+                "data-icd": "scatter-value", "data-scen": it.isPy ? "py" : "ac"
+            }, g);
+            el.textContent = t;
+        };
+
+        // draw order: largest bubbles first (small ones stay visible on top), emphasized last;
+        // 1.55 (B12): PY bubbles before every AC bubble (behind them)
         const drawOrder = items.map((_, i) => i).sort((a, b) =>
-            (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
+            (Number(items[b].isPy) - Number(items[a].isPy))
+            || (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
         const marks = this.el("g", {}, this.svg);
         for (const i of drawOrder) {
             const { p, cx, cy, r, emph } = items[i];
+            if (items[i].isPy) {
+                // PY bubble: PY color (scenario notation, not the group color), own size,
+                // same opacity as the AC bubbles; high contrast: dashed outline
+                const g = this.el("g", { "class": "icd-cat", "data-icd": "scatter-py" }, marks) as SVGGElement;
+                this.el("circle", { cx, cy, r: Math.max(r + 2, 7), fill: cfg.paper, "fill-opacity": 0.01 }, g);
+                this.el("circle", {
+                    cx, cy, r,
+                    ...(cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py, "fill-opacity": sc.opacity, stroke: cfg.colors.py, "stroke-width": 1.2 })
+                }, g);
+                const lp = labelAt[i];
+                if (lp) {
+                    const t = this.el("text", {
+                        x: lp.x, y: lp.y, "text-anchor": lp.anchor, "font-size": cf, fill: cfg.subtle,
+                        "font-family": FONT, ...halo
+                    }, g);
+                    t.textContent = lp.text;
+                }
+                drawValue(g, items[i], cfg.hc ? cfg.ink : cfg.colors.py, sc.opacity);
+                this.attachInteraction(g, p, cfg);
+                this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+                this.animGroups.push([g]);
+                continue;
+            }
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             // v3 movement arrow PY → AC: small grey start dot at the PY position (x from
             // the xPrevious role when bound, else unchanged), thin line, head at AC —
@@ -13697,20 +13917,25 @@ export class Visual implements IVisual {
                     const x0 = X(sx), y0 = Y(p.py);
                     const dx = cx - x0, dy = cy - y0;
                     const len = Math.hypot(dx, dy);
-                    if (len > r + 4) {
+                    // 1.55 (B12): with a PY bubble the tail starts at its rim (no start dot)
+                    const pyB = pyR.get(p);
+                    const rStart = pyB ? pyB.r : 0;
+                    if (len > r + rStart + 4) {
                         const ux = dx / len, uy = dy / len;
                         const exx = cx - ux * (r + 1.5), eyy = cy - uy * (r + 1.5);
                         const aCol = cfg.hc ? cfg.ink : cfg.colors.py;
                         this.el("line", {
-                            x1: x0, y1: y0, x2: exx - ux * 2, y2: eyy - uy * 2,
+                            x1: x0 + ux * rStart, y1: y0 + uy * rStart, x2: exx - ux * 2, y2: eyy - uy * 2,
                             stroke: aCol, "stroke-width": 1
                         }, g);
                         // IBCS: small grey PY start, thin tail, head touching the AC marker
-                        this.el("circle", {
-                            cx: x0, cy: y0, r: Math.max(2, r * 0.35),
-                            fill: cfg.hc ? cfg.paper : aCol,
-                            ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {})
-                        }, g);
+                        if (!pyB) {
+                            this.el("circle", {
+                                cx: x0, cy: y0, r: Math.max(2, r * 0.35),
+                                fill: cfg.hc ? cfg.paper : aCol,
+                                ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {})
+                            }, g);
+                        }
                         const ah = Math.max(3.5, 4 * Math.min(k, 1.6));
                         const bx = exx - ux * ah, by = eyy - uy * ah;
                         this.el("polygon", {
@@ -13723,8 +13948,11 @@ export class Visual implements IVisual {
             }
             // generous invisible hit target — 3px dots are hard to hover and click
             this.el("circle", { cx, cy, r: Math.max(r + 2, 7), fill: cfg.paper, "fill-opacity": 0.01 }, g);
-            const col = colOf(p);
+            // 1.55 (B12): highlight as fill color instead of the ring (not in high contrast)
+            const emphFill = emph && sc.emphFill && !cfg.hc;
+            const col = emphFill ? sc.emphColor : colOf(p);
             const shapeIdx = shapeIdxOf(p);
+            const bubbleAlpha = emph ? Math.max(0.9, sc.opacity) : sc.opacity;
             const markEl = this.drawScatterShape(g, cx, cy, r, shapeIdx, {
                 // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
@@ -13736,10 +13964,11 @@ export class Visual implements IVisual {
                     : p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
                         : hasSize
-                            ? { fill: col, "fill-opacity": emph ? 0.9 : 0.55, stroke: col, "stroke-width": 1.2 }
-                            : { fill: col, stroke: cfg.paper, "stroke-width": 1 })
+                            ? { fill: col, "fill-opacity": bubbleAlpha, stroke: col, "stroke-width": 1.2 }
+                            : { fill: col, stroke: cfg.paper, "stroke-width": 1 }),
+                ...(emphFill ? { "data-icd": "scatter-emph-fill" } : {})
             });
-            if (emph) {
+            if (emph && !emphFill) {
                 // IBCS EMPHASIZE: ring around the marker + bold label (wider shapes
                 // like the diamond need a correspondingly wider ring)
                 const ringR = (shapeIdx === 3 ? r * 1.35 : shapeIdx === 2 ? r * 1.35 : r) + 2.5;
@@ -13754,6 +13983,9 @@ export class Visual implements IVisual {
                     "font-family": FONT, "font-weight": emph ? 700 : 400, ...halo
                 }, g);
                 t.textContent = la.text;
+            }
+            if (!p.isFc) {
+                drawValue(g, items[i], cfg.hc ? (emph ? cfg.paper : cfg.ink) : col, hasSize ? bubbleAlpha : 1);
             }
             if (p.commentNo != null) {
                 // numbered comment badge at the marker's upper right (list in the panel)
@@ -13792,7 +14024,7 @@ export class Visual implements IVisual {
             }, bg) as SVGRectElement;
             (cap.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
             cap.style.cursor = "crosshair";
-            const hits = items.map(it => ({ x: it.cx, y: it.cy, sel: it.p.sel }));
+            const hits = items.filter(it => !it.isPy).map(it => ({ x: it.cx, y: it.cy, sel: it.p.sel }));
             cap.addEventListener("mousedown", (e: MouseEvent) => {
                 if (e.button !== 0) { return; }
                 this.beginScatterDrag(e, hits, cfg);
@@ -17280,6 +17512,10 @@ export class Visual implements IVisual {
             add(this.locStr("Role_Actual", "Actual (AC)"), p.ac);
             if (sc && p.sizeVal != null) {
                 out.push({ displayName: sc.sizeName, value: sc.fmtSize.format(p.sizeVal) });
+            }
+            // 1.55 (B12): PY bubble size next to the AC size
+            if (sc && p.sizePrev != null && this.sizePrevName != null) {
+                out.push({ displayName: sc.sizePrevName, value: sc.fmtSize.format(p.sizePrev) });
             }
             if (p.isPrelim) {
                 out.push({ displayName: "Status", value: this.locStr("Tooltip_Prelim", "preliminary") });

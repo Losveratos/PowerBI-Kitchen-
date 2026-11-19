@@ -2021,7 +2021,7 @@ addStage("c203", "Feld-Intro (emptyState.mode = fields) · Bearbeitungsmodus · 
 runCap("c203", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1 });
 {
   const m = fiMarks("c203");
-  check(Object.keys(m).length === 19 && Object.values(m).every(v => v === "0"), "c203: alle 19 Datenrollen (1.51), keine gebunden " + JSON.stringify(m));
+  check(Object.keys(m).length === 20 && Object.values(m).every(v => v === "0"), "c203: alle 20 Datenrollen (1.51, 1.55: + bubbleSizePrevious), keine gebunden " + JSON.stringify(m));
   check(!!document.querySelector('#c203 [data-icd="fi-notation"]') && !!document.querySelector('#c203 [data-icd="fi-axis"]'),
     "c203: Prämissen-Boxen IBCS-Notation + Zeit vs. Struktur");
   check(!!document.querySelector('#c203 [data-icd="es-demo"]') && !!document.querySelector('#c203 [data-icd="es-message"]')
@@ -3590,6 +3590,206 @@ addStage("c257L", "Tabelle · c25-Daten mit den kanonischen Werten delta/sum (Re
   const tip = nbQ("c203", 'g[data-fi-row="rowType"] title')[0]?.textContent || "";
   check(/sum\/pct \+ tokens/.test(tip) && /exclude · hide · davon · invert · emphasize · graphic/.test(tip),
     "c203: Feld-Intro erklärt die rowType-Token (Zeile + Tooltip)");
+}
+
+// ======================================================================
+// 1.55 · B12 Portfolio-Blasen (c400+) — IBCS-Blätter 10A, 10B, 10D:
+// Wert der Blasengröße in der Blase, freie Gruppenfarben, großer Radius,
+// Deckkraft, Vorjahr als eigene Blase (Rolle bubbleSizePrevious) und
+// Hervorhebung als Farbe statt Ring. Alle Optionen stehen im Standard aus.
+// ======================================================================
+// sheet order: Core Business first (legend order = first appearance)
+const pfP = a => [2, 5, 8, 0, 1, 3, 4, 6, 7].map(i => a[i]);
+const pfUnits = pfP(["VBX", "V12", "RFB", "VBN", "V11", "VBZ", "RS6", "VBR", "VAB"]);
+const pfKind = pfP(["New SBUs", "New SBUs", "Core Business", "New SBUs", "New SBUs", "Core Business", "New SBUs", "New SBUs", "Core Business"]);
+const pfX25 = pfP([0.111, 0.781, 0.341, 0.132, 0.770, 0.450, 0.720, 0.151, 0.252]);
+const pfY25 = pfP([1.10, 1.10, 0.77, 0.68, 0.75, 0.55, 0.43, 0.20, 0.10]);
+const pfS25 = pfP([4.0, 1.1, 7.0, 2.0, 4.0, 6.0, 3.0, 8.0, 32.0]);
+// 10B (2024) and the AC of 10D; VBX is RS1 there
+const pfX24 = pfP([0.161, 0.740, 0.380, 0.101, 0.710, 0.482, 0.751, 0.220, 0.270]);
+const pfY24 = pfP([1.00, 1.15, 0.71, 0.72, 0.73, 0.53, 0.41, 0.18, 0.10]);
+const pfS24 = pfP([9.0, 1.1, 14.0, 5.0, 4.0, 12.0, 6.0, 8.0, 29.0]);
+const pfAxes = { xMin: "0", xMax: "1", yMin: "0", yMax: "1.25" };
+// sheet portfolio: categories + optional series (business kind), X = market attractiveness
+const pfDv = (objs, o) => {
+  o = o || {};
+  const cats = o.cats || pfUnits;
+  const categories = [{ source: { displayName: "SBU", roles: { category: true } }, values: cats }];
+  if (o.series) { categories.push({ source: { displayName: "Geschäftsart", roles: { series: true } }, values: o.series }); }
+  const vals = [col("actual", o.y || pfY25, "0.00", null, "Relativer Marktanteil"),
+    col("xValue", o.x || pfX25, "0.00", null, "Marktattraktivität"),
+    col("bubbleSize", o.s || pfS25, "#,0.0", null, "Nettoumsatz in Mio. EUR")].concat(o.extra || []);
+  return { metadata: { columns: [], objects: objs }, categorical: { categories, values: vals } };
+};
+const pfObj = (chart, extra) => Object.assign({
+  ibcsTitle: { kpi: "Produkt-Markt-Portfolio" },
+  chart: Object.assign({ orientation: "scatter", scatterQuadrant: "off", scatterSizeLegend: false }, chart || {}),
+  scale: Object.assign({ xRefLine: "0.5" }, pfAxes)
+}, extra || {});
+const pfSolid = c => ({ solid: { color: c } });
+// AC marks of a stage: the visible circle of each category group (not hit target, not ring)
+const pfMark = g => [...g.querySelectorAll("circle")].find(c => c.getAttribute("fill-opacity") !== "0.01" && c.getAttribute("fill") !== "none");
+const pfGroups = (id, py) => nbQ(id, "g.icd-cat").filter(g => (g.getAttribute("data-icd") === "scatter-py") === !!py);
+const pfByName = (id, name, py) => pfGroups(id, py).find(g => (g.getAttribute("aria-label") || "").split(",")[0] === name);
+const pfR = (id, name, py) => nbAttr(pfMark(pfByName(id, name, py)), "r");
+const pfVals = (id, scen) => nbQ(id, `[data-icd="scatter-value"]${scen ? `[data-scen="${scen}"]` : ""}`);
+
+// ---- c400: Blatt 10A · Portfolio AC mit Werten in den Blasen, Gruppenfarbe 2 orange, großer Radius, deckend
+addStage("c400", "Portfolio 10A · Werte in den Blasen · Gruppenfarbe 2 = Orange · max. Radius 85 px · Deckkraft 100 %", 1280, 640);
+{
+  runCap("c400", pfDv(pfObj({ scatterColorBy: "group", scatterValueLabels: true, scatterMaxRadius: 85,
+    scatterBubbleOpacity: 100, scatterGroupColor2: pfSolid("#FF6600") }), { series: pfKind }), 1280, 640);
+  nbSane("c400");
+  const vals = pfVals("c400");
+  check(vals.length === 9 && ["32,0", "1,1", "7,0"].every(v => vals.some(t => t.textContent === v)),
+    `c400: neun Werte in den Blasen (${vals.map(t => t.textContent).join(" ")})`);
+  const rVab = pfR("c400", "VAB"), rV12 = pfR("c400", "V12"), rVbx = pfR("c400", "VBX");
+  check(Math.abs(rVab - 85) < 0.5, `c400: größte Blase mit Radius 85 px (${rVab.toFixed(1)})`);
+  check(Math.abs(rV12 / rVab - Math.sqrt(1.1 / 32)) < 0.01 && Math.abs(rVbx / rVab - Math.sqrt(4 / 32)) < 0.01,
+    `c400: Radius ∝ √Wert (V12 ${rV12.toFixed(1)}, VBX ${rVbx.toFixed(1)})`);
+  const fillOf = n => nbFill(pfMark(pfByName("c400", n)));
+  check(fillOf("VAB") === "#404040" && fillOf("VBX") === "#FF6600" && pfMark(pfByName("c400", "VAB")).getAttribute("fill-opacity") === "1",
+    `c400: Core Business #404040, New SBUs #FF6600 (Gruppenfarbe 2), deckend`);
+  const valOf = n => pfByName("c400", n).querySelector('[data-icd="scatter-value"]');
+  check(nbFill(valOf("VAB")) === "#FFFFFF" && nbFill(valOf("VBX")) === "#000000", "c400: Wert hell auf Grau, dunkel auf Orange");
+  // names above the bubbles where room allows (sheet layout)
+  const above = pfGroups("c400").filter(g => {
+    const m = pfMark(g), t = [...g.querySelectorAll("text")].find(x => !x.hasAttribute("data-icd"));
+    return t && nbAttr(t, "y") < nbAttr(m, "cy") - nbAttr(m, "r");
+  });
+  check(above.length >= 7, `c400: Namen über den Blasen (${above.length} von 9)`);
+  const leg = nbTexts("c400");
+  check(leg.includes("Core Business") && leg.includes("New SBUs") && nbQ("c400", ".icd-scatter-legend circle").map(nbFill).includes("#FF6600"),
+    "c400: Legende mit eigener Gruppenfarbe");
+}
+
+// ---- c400n: dieselben Daten, alle neuen Optionen ausdrücklich auf Standard = SVG wie ohne Angabe
+addStage("c400n", "Portfolio · B12-Optionen ausdrücklich auf Standard (Referenz: c400o ohne Angabe)", 960, 460);
+addStage("c400o", "Portfolio · ohne B12-Optionen (C10-Stand)", 960, 460);
+{
+  const def = { scatterValueLabels: false, scatterMaxRadius: 0, scatterBubbleOpacity: 55, scatterEmphFill: false,
+    scatterEmphColor: pfSolid("#0064FF"), scatterEmphLabel: "", scatterGroupColor1: pfSolid("#404040"),
+    scatterGroupColor2: pfSolid("#3D78B2"), scatterGroupColor3: pfSolid("#B0702A") };
+  runCap("c400n", pfDv(pfObj(Object.assign({ scatterColorBy: "group", highlight: "VAB" }, def)), { series: pfKind }), 960, 460);
+  runCap("c400o", pfDv(pfObj({ scatterColorBy: "group", highlight: "VAB" }), { series: pfKind }), 960, 460);
+  check(rtSvg("c400n") === rtSvg("c400o"), "c400n: Standardwerte der neuen Optionen zeichnen exakt wie ohne Angabe (SVG gleich)");
+  check(!nbQ("c400o", '[data-icd^="scatter-value"], [data-icd="scatter-py"], [data-icd="scatter-emph-fill"]').length,
+    "c400o: ohne Optionen keine Werte, keine PY-Blasen, Ring statt Füllung");
+  check(Math.max(...pfGroups("c400o").map(g => nbAttr(pfMark(g), "r"))) <= 22.01, "c400o: Radius weiter höchstens 22 px");
+}
+
+// ---- c401: Blatt 10B · Vorjahr allein, halbtransparent (Deckkraft 60 %)
+addStage("c401", "Portfolio 10B · 2024 · Deckkraft 60 % (Überlappung VBR/VAB sichtbar)", 1280, 640);
+{
+  runCap("c401", pfDv(pfObj({ scatterColorBy: "group", scatterValueLabels: true, scatterMaxRadius: 85,
+    scatterBubbleOpacity: 60, scatterGroupColor2: pfSolid("#FF6600") }, { ibcsTitle: { kpi: "Produkt-Markt-Portfolio", period: "2024" } }),
+    { series: pfKind, cats: pfUnits.map(u => u === "VBX" ? "RS1" : u), x: pfX24, y: pfY24, s: pfS24 }), 1280, 640);
+  nbSane("c401");
+  const ops = pfGroups("c401").map(g => pfMark(g).getAttribute("fill-opacity"));
+  check(ops.length === 9 && ops.every(o => o === "0.6"), `c401: alle Blasen mit Deckkraft 0,6 (${[...new Set(ops)].join(",")})`);
+  check(Math.abs(pfR("c401", "VAB") - 85) < 0.5 && Math.abs(pfR("c401", "RFB") / pfR("c401", "VAB") - Math.sqrt(14 / 29)) < 0.01,
+    "c401: Radius 85 px für 29,0, RFB ∝ √(14/29)");
+}
+
+// ---- c402: Blatt 10D · AC und PY als eigene Blasen + Zukäufe in Hervorhebungsfarbe
+const pfCats10D = pfUnits.map(u => u === "VBX" ? "RS1" : u).concat(["VAA", "RFA"]);
+const pf10D = (chart, extraObj, w) => pfDv(pfObj(Object.assign({ scatterColorBy: "single", scatterValueLabels: true,
+  scatterMaxRadius: 85, scatterBubbleOpacity: 85, highlight: "VAA, RFA", scatterEmphFill: true,
+  scatterEmphLabel: "Zukäufe 12/25" }, chart), Object.assign({ ibcsTitle: { kpi: "Produkt-Markt-Portfolio", period: "2025" } }, extraObj || {})),
+  { cats: pfCats10D, x: pfX24.concat([0.101, 0.060]), y: pfY24.concat([0.62, 0.30]), s: pfS24.concat([1.0, 3.0]),
+    extra: [col("previousYear", pfY25.concat([null, null]), "0.00", null, "Relativer Marktanteil VJ"),
+      col("xPrevious", pfX25.concat([null, null]), "0.00", null, "Marktattraktivität VJ"),
+      col("bubbleSizePrevious", pfS25.concat([null, null]), "#,0.0", null, "Nettoumsatz VJ")] });
+addStage("c402", "Portfolio 10D · PY als eigene Blase (Rolle bubbleSizePrevious) hinter AC · Zukäufe VAA/RFA blau statt Ring", 1280, 640);
+{
+  runCap("c402", pf10D({}), 1280, 640);
+  nbSane("c402");
+  const py = pfGroups("c402", true), acG = pfGroups("c402");
+  check(py.length === 9 && acG.length === 11, `c402: 9 PY-Blasen (Zukäufe ohne PY) + 11 AC-Blasen (${py.length}/${acG.length})`);
+  const all = nbQ("c402", "g.icd-cat");
+  check(all.indexOf(py[py.length - 1]) < all.indexOf(acG[0]), "c402: alle PY-Blasen liegen hinter den AC-Blasen");
+  check(py.every(g => nbFill(pfMark(g)) === NB.PY && pfMark(g).getAttribute("fill-opacity") === "0.85"), "c402: PY-Blasen in PY-Grau, Deckkraft 0,85");
+  // one size scale for both years: PY VAB 32,0 is the largest bubble
+  const rPyVab = pfR("c402", "VAB", true), rAcVab = pfR("c402", "VAB");
+  check(Math.abs(rPyVab - 85) < 0.5 && Math.abs(rAcVab / rPyVab - Math.sqrt(29 / 32)) < 0.01,
+    `c402: gemeinsame Größenskala (PY VAB ${rPyVab.toFixed(1)}, AC VAB ${rAcVab.toFixed(1)})`);
+  // PY position = (X PY, Y PY)
+  const mPy = pfMark(pfByName("c402", "V12", true)), mAc = pfMark(pfByName("c402", "V12"));
+  check(nbAttr(mPy, "cx") > nbAttr(mAc, "cx") && nbAttr(mPy, "cy") > nbAttr(mAc, "cy"), "c402: V12 PY rechts unter AC (0,78/1,10 gegen 0,74/1,15)");
+  const ef = nbQ("c402", '[data-icd="scatter-emph-fill"]');
+  check(ef.length === 2 && ef.every(e => nbFill(e) === "#0064FF"), "c402: VAA und RFA in Hervorhebungsfarbe #0064FF");
+  check(!pfGroups("c402").some(g => [...g.querySelectorAll("circle")].some(c => c.getAttribute("fill") === "none")), "c402: kein Hervorhebungsring");
+  const pv = pfVals("c402", "py"), av = pfVals("c402", "ac");
+  check(pv.length === 9 && av.length === 11 && pv.some(t => t.textContent === "32,0") && av.some(t => t.textContent === "29,0"),
+    `c402: Werte in PY- und AC-Blasen (${pv.length} + ${av.length})`);
+  check(["py", "ac", "emph"].every(id => nbQ("c402", `[data-icd="scatter-legend-${id}"]`).length === 1)
+    && nbTexts("c402").includes("Zukäufe 12/25"), "c402: Legende ● PY ● AC ● Zukäufe 12/25");
+  check(/Nettoumsatz in Mio\. EUR/.test(nbTexts("c402").join(" ")) && /max 32/.test(nbTexts("c402").join(" ")),
+    "c402: Titel nennt die Größe mit dem Maximum über beide Jahre");
+}
+
+// ---- c403: Pfeile + PY-Blasen: Pfeil beginnt am Rand der PY-Blase, kein Startpunkt; rechts Hochkontrast
+addStage("c403", "Portfolio · PY-Blasen + Bewegungspfeile (Start am Blasenrand, kein PY-Punkt)", 960, 520);
+addStage("c403b", "Portfolio · PY-Blasen im Hochkontrast (PY gestrichelter Umriss, Zukäufe gefüllt in Vordergrundfarbe)", 960, 520, "#000");
+{
+  runCap("c403", pf10D({ scatterArrows: true, scatterMaxRadius: 40 }), 960, 520);
+  nbSane("c403");
+  const g = pfByName("c403", "V11"), line = g.querySelector("line"), m = pfMark(pfByName("c403", "V11", true));
+  const d = Math.hypot(nbAttr(line, "x1") - nbAttr(m, "cx"), nbAttr(line, "y1") - nbAttr(m, "cy"));
+  check(!!line && Math.abs(d - nbAttr(m, "r")) < 0.5, `c403: Pfeil startet am Rand der PY-Blase (Abstand ${d.toFixed(1)} = r ${nbAttr(m, "r").toFixed(1)})`);
+  check(pfGroups("c403").every(x => x.querySelectorAll("circle").length <= 2), "c403: kein kleiner PY-Startpunkt neben der PY-Blase");
+  runCap("c403b", pf10D({ scatterMaxRadius: 40 }), 960, 520, { hc: true });
+  nbSane("c403b");
+  check(pfGroups("c403b", true).every(x => pfMark(x).getAttribute("stroke-dasharray") === "3,2"), "c403b: PY-Blasen als gestrichelter Umriss");
+  check(!nbQ("c403b", '[data-icd="scatter-emph-fill"]').length, "c403b: Hochkontrast behält die eigene Hervorhebung");
+}
+
+// ---- c404: Dark Mode · eigene Gruppenfarbe bleibt, unveränderte Farbe folgt der dunklen Palette
+addStage("c404", "Portfolio · Dark Mode · Gruppenfarbe 2 = Orange bleibt, Gruppe 1 folgt der dunklen Palette", 960, 460, "#1E1E1E");
+{
+  runCap("c404", pfDv(pfObj({ scatterColorBy: "group", scatterValueLabels: true, scatterGroupColor2: pfSolid("#FF6600") },
+    { colors: { appearance: "dark" } }), { series: pfKind }), 960, 460);
+  nbSane("c404");
+  const fillOf = n => nbFill(pfMark(pfByName("c404", n)));
+  check(fillOf("VBX") === "#FF6600" && fillOf("VAB") === "#D9D9D9", `c404: Orange bleibt, Core Business dunkle Palette (${fillOf("VAB")})`);
+  // #D9D9D9 at 55 % over the dark paper is a mid grey: black reads better than white
+  const v = pfByName("c404", "VAB").querySelector('[data-icd="scatter-value"]');
+  check(!!v && v.textContent === "32,0" && nbFill(v) === "#000000", `c404: Wert in der Blase mit Kontrastfarbe (${v ? nbFill(v) : "–"})`);
+}
+
+// ---- c405: Werte passen nicht in kleine Blasen → hinter dem Namen
+addStage("c405", "Portfolio · automatischer Radius (22 px) mit Werten: zu kleine Blasen tragen den Wert hinter dem Namen", 960, 460);
+{
+  runCap("c405", pfDv(pfObj({ scatterValueLabels: true })), 960, 460);
+  nbSane("c405");
+  const inside = pfVals("c405").map(t => t.textContent);
+  const behind = nbTexts("c405").filter(t => /^[A-Z0-9]{3} \d+,\d$/.test(t));
+  check(inside.includes("32,0") && behind.length >= 3, `c405: große Blase mit Wert innen, kleine mit Wert hinter dem Namen (${behind.join(" · ")})`);
+  check(!inside.includes("1,1"), "c405: 1,1 passt nicht in die kleinste Blase");
+}
+
+// ---- c406: Small Multiples · PY-Blasen teilen die Größenskala über alle Kacheln
+addStage("c406", "Portfolio · Small Multiples (2 Regionen) mit PY-Blasen · eine Größenskala", 1280, 460);
+{
+  const cats = [], mult = [], x = [], y = [], s = [], xp = [], yp = [], sp = [];
+  [["Nord", 1], ["Süd", 0.5]].forEach(([r, f]) => pfUnits.slice(0, 5).forEach((u, i) => {
+    cats.push(u); mult.push(r); x.push(pfX24[i]); y.push(pfY24[i]); s.push(pfS24[i] * f);
+    xp.push(pfX25[i]); yp.push(pfY25[i]); sp.push(pfS25[i] * f * 2);
+  }));
+  const dv = pfDv(pfObj({ scatterValueLabels: true, scatterMaxRadius: 50 }), { cats, x, y, s,
+    extra: [col("previousYear", yp, "0.00"), col("xPrevious", xp, "0.00"), col("bubbleSizePrevious", sp, "#,0.0", null, "Nettoumsatz VJ")] });
+  dv.categorical.categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: mult });
+  runCap("c406", dv, 1280, 460);
+  nbSane("c406");
+  const py = pfGroups("c406", true).map(g => nbAttr(pfMark(g), "r"));
+  // largest value deck-wide: VAB PY Nord 32,0·2 = 64 → the cap; Süd VAB PY = 32 → r/√2
+  const rMaxSeen = Math.max(...py);
+  check(py.length === 10 && py.some(r => Math.abs(r / rMaxSeen - Math.SQRT1_2) < 0.01),
+    `c406: PY-Blasen in beiden Kacheln auf einer Skala (${py.map(r => r.toFixed(0)).join(" ")})`);
+  // PY and AC of VAB nearly coincide: the PY value gives way, no two values overlap
+  const boxes = pfVals("c406").map(t => t.getBBox());
+  const hit = boxes.some((a, i) => boxes.some((b, j) => j > i && a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height));
+  check(!hit && !pfVals("c406", "py").some(t => t.textContent === "64,0"), "c406: keine überlappenden Werte (PY-Wert von VAB weicht dem AC-Wert)");
 }
 </script>
 </body>

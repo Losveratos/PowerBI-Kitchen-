@@ -13,6 +13,34 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.54.0.0** (19.11.2026): Backlog IBCS-Templates B01, B04, B05, B06, B14 (siehe „Neu in 1.54“).
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.55 (in Arbeit, Backlog IBCS-Templates):**
+
+*B12 · Portfolio-Blasen (Blätter 10A, 10B, 10D).* Neue Properties im Objekt `chart` (Gruppe „Scatter / Bubble“, alle
+standardmäßig ohne Wirkung): `scatterValueLabels` (bool, false) schreibt den Wert der Blasengröße in die Blase
+(`[data-icd="scatter-value"]`, `data-scen="ac"|"py"`, Text #FFFFFF oder #000000 nach Kontrast gegen die mit dem Papier
+gemischte Füllung); passt er nicht (Textbreite > 92 % des Durchmessers), hängt er am Namenslabel („V12 1,1“); die
+Namen probieren dann zuerst „über der Blase“. `scatterMaxRadius` (Zahl, 0 = automatisch 22 px · Schriftfaktor; sonst
+Wert · Schriftfaktor, gedeckelt auf ein Drittel der Plotbox); der Achsen-Einzug bleibt dann beim automatischen Radius,
+große Blasen ragen über den Plotrand. `scatterBubbleOpacity` (Zahl 10 bis 100, Standard 55; hervorgehoben mindestens
+90). `scatterGroupColor1` bis `scatterGroupColor6` (Farbe, Standard = `SCATTER_GROUP_LIGHT`): Position = Reihenfolge des
+ersten Auftretens; ein Wert ungleich dem hellen Standard gilt in hellem und dunklem Modus, ein Standardwert folgt
+dem Modus (wer im Dark Mode ausdrücklich #404040 will, bekommt #D9D9D9). `scatterEmphFill` (bool) füllt
+hervorgehobene Punkte (`chart.highlight` bzw. Token `emphasize`) mit `scatterEmphColor` (Standard #0064FF) statt des
+Rings (`[data-icd="scatter-emph-fill"]`, nicht im Hochkontrast); `scatterEmphLabel` (Text) ergänzt die Legende.
+Neue Rolle `bubbleSizePrevious` („Blasengröße VJ (optional)“, Measure, max 1): mit `previousYear` (Y-Lage) und
+optional `xPrevious` (X-Lage, sonst X von AC) je Kategorie eine PY-Blase (`g.icd-cat[data-icd="scatter-py"]`, Füllung
+`colors.previousYearColor` mit derselben Deckkraft, Hochkontrast gestrichelter Umriss), immer hinter allen AC-Blasen,
+eigene Größe auf derselben Skala (`sMax` über AC und PY, bei Small Multiples deckweit), Achsen schließen die PY-Lagen
+ein, Rechteck-Auswahl zählt nur AC; ein PY-Wert, der einen AC-Wert überdecken würde, entfällt (Tooltip nennt ihn). Nicht im Play-Modus. Legende `scatter-legend-py|ac|emph` (● PY ● AC nur ohne
+Gruppenfarben). Mit `scatterArrows` startet der Pfeil am Rand der PY-Blase, ohne Startpunkt. Pane: Wert, Radius,
+Deckkraft nur mit gebundener Blasengröße; Gruppenfarben nur bei `scatterColorBy=group`; Farbe und Legendentext nur
+bei `scatterEmphFill`. Kein Template geändert (C10 unverändert). Blatt-Rezepte: 10A = C10 + `series` + `scatterColorBy=group` +
+`scatterQuadrant=off` + `scale.xMin/xMax/yMin/yMax` 0/1/0/1,25 + `scatterValueLabels` + `scatterMaxRadius=85` +
+`scatterBubbleOpacity=100` + Gruppenfarbe 2 #FF6600; 10B wie 10A mit Deckkraft 60; 10D = Rollen `previousYear`,
+`xPrevious`, `bubbleSizePrevious` + `scatterColorBy=single` + `highlight` „VAA, RFA“ + `scatterEmphFill` + Deckkraft 85.
+Feld-Intro: 20 Rollen. 758 resjson-Keys je Sprache. Tests c400 bis c406 (c400n: ausdrücklich gesetzte Standardwerte
+zeichnen SVG-gleich wie keine Angabe).
+
 **Neu in 1.54 (Backlog IBCS-Templates, Abgleich 19.11.2026):**
 
 *B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.* C07 und C11 bleiben
@@ -162,6 +190,7 @@ Interne Rollennamen für PBIR (`projections`) — Reihenfolge egal, Semantik nic
 | `xValue` | Measure | X-Achse im Scatter/Bubble (Y = `actual`); Pflicht für `orientation = scatter` |
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional): macht die PY-Pfeile zu 2D-Bewegungen (`scatterArrows`) |
 | `bubbleSize` | Measure | Blasengröße im Scatter (optional) — macht daraus ein Bubble-Chart (Vorlage C10) |
+| `bubbleSizePrevious` | Measure | Blasengröße VJ (Scatter, optional, ab 1.55): mit `previousYear` (Y) und optional `xPrevious` (X) eine PY-Blase je Kategorie mit eigener Größe hinter der AC-Blase (Blatt 10D) |
 | `trend` | Grouping | Zeitachse je Karte: macht KPI-Karten zu Zeitreihen (`cardTrendChart`), wirkt NUR im `cards`-Modus |
 | `comments` | Measure (Text) | nummerierte Marker ①② + Fußnoten-Panel |
 | `filterInfo` | Measure (Text) | Filterkontext-Text für die Fußzeile |
@@ -396,6 +425,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `xValue` | Measure | X-Achse (Scatter) | 1 | numeric / integer |
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional) | 1 | numeric / integer |
 | `bubbleSize` | Measure | Blasengröße (optional) | 1 | numeric / integer |
+| `bubbleSizePrevious` | Measure | Blasengröße VJ (optional) | 1 | numeric / integer |
 | `series` | Grouping | Stack-Serie (Gestapelt) | 1 | beliebig |
 | `colgroup` | Grouping | Spalten (Matrix) | 2 | beliebig |
 | `filterInfo` | Measure | Filter-Info (Fußzeile) | 1 | text |
@@ -537,6 +567,18 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterTrend` | enum | `off` | `off` · `linear` — Lineare Regression über die sichtbaren Punkte (bei Small Multiples je Kachel) als dünne gepunktete Linie über die Plotbreite. Bei Log-Achsen im logarithmischen Raum gerechnet (Gerade bleibt gerade). Mindestens 3 Punkte. |
 | `scatterTrendR2` | bool | `false` | Beschriftet das Ende der Trendlinie mit dem Bestimmtheitsmaß („R² = 0,87"). |
 | `scatterSizeLegend` | bool | `true` | Nur mit gebundener Blasengröße: drei Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in einer freien Ecke des Plots. Bei Small Multiples einmal in der ersten Kachel. |
+| `scatterValueLabels` | bool | `false` | Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen … |
+| `scatterMaxRadius` | numeric | `0` | Bereich 0–200 — Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px) … |
+| `scatterBubbleOpacity` | numeric | `55` | Bereich 10–100 — Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A. |
+| `scatterEmphFill` | bool | `false` | Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe. |
+| `scatterEmphColor` | color | `#0064FF` | Füllfarbe der hervorgehobenen Punkte, wenn „Hervorhebung als Farbe“ an ist. |
+| `scatterEmphLabel` | text | leer | Legendeneintrag für die Hervorhebungsfarbe (z. B. „Zukäufe 12/25“). Leer = kein Eintrag. |
+| `scatterGroupColor1` | color | `#404040` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor2` | color | `#3D78B2` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor3` | color | `#B0702A` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor4` | color | `#93B5D8` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor5` | color | `#C2B04E` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor6` | color | `#9F5989` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
 | `scatterQuadLabelTR` | text | leer | Dezente Beschriftung der Quadranten-Ecke (z. B. „Stars" oben rechts). Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
 | `scatterQuadLabelTL` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
 | `scatterQuadLabelBL` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |

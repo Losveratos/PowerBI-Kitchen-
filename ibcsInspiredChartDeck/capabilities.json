@@ -99,6 +99,15 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "Bubble size PY (optional)",
+            "description": "Scatter / bubble mode only: previous-year value of the bubble-size measure. Together with Previous Year (PY, Y position) each category gets a second bubble in PY color with its own size behind the AC bubble; X from \"X axis PY\" if bound, else the AC X.",
+            "descriptionKey": "RoleDesc_BubbleSizePrevious",
+            "displayNameKey": "Role_BubbleSizePrevious",
+            "name": "bubbleSizePrevious",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Stack Series (Gestapelt)",
             "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
             "descriptionKey": "RoleDesc_Series",
@@ -406,6 +415,18 @@
                 },
                 "scatterTrendR2": { "type": { "bool": true } },
                 "scatterSizeLegend": { "type": { "bool": true } },
+                "scatterValueLabels": { "type": { "bool": true } },
+                "scatterMaxRadius": { "type": { "numeric": true } },
+                "scatterBubbleOpacity": { "type": { "numeric": true } },
+                "scatterEmphFill": { "type": { "bool": true } },
+                "scatterEmphColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterEmphLabel": { "type": { "text": true } },
+                "scatterGroupColor1": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor2": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor3": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor4": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor5": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor6": { "type": { "fill": { "solid": { "color": true } } } },
                 "scatterQuadLabelTR": { "type": { "text": true } },
                 "scatterQuadLabelTL": { "type": { "text": true } },
                 "scatterQuadLabelBL": { "type": { "text": true } },
@@ -627,6 +648,7 @@
                     "xValue": { "max": 1 },
                     "xPrevious": { "max": 1 },
                     "bubbleSize": { "max": 1 },
+                    "bubbleSizePrevious": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
                     "trend": { "max": 1 },
@@ -666,6 +688,7 @@
                         { "bind": { "to": "xValue" } },
                         { "bind": { "to": "xPrevious" } },
                         { "bind": { "to": "bubbleSize" } },
+                        { "bind": { "to": "bubbleSizePrevious" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]

@@ -1,5 +1,27 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.55.0.0 (in Arbeit)
+
+**Ziel: weitere IBCS-Template-Blätter direkt abbildbar. Neue Schalter stehen standardmäßig aus.**
+
+- **B12 · Portfolio-Blasen (Blätter 10A, 10B, 10D).** Vorher: Die Blasen zeigten nur den Namen, der Wert der
+  Blasengröße stand im Tooltip; die Gruppenfarben kamen fest aus der gedeckten Palette (Orange nicht wählbar); der
+  Radius war bei 22 px gedeckelt und die Deckkraft fest 55 %; ein Vorjahr ging nur als kleiner grauer Startpunkt eines
+  Pfeils ohne eigene Größe; Hervorhebungen bekamen einen Ring. Nachher, im Scatter unter „Scatter / Bubble“:
+  - „Wert der Blasengröße“ (`chart.scatterValueLabels`): Zahl in der Blase, Schrift hell oder dunkel nach Kontrast;
+    passt sie nicht, steht sie hinter dem Namen. Namen stehen dann bevorzugt über der Blase.
+  - „Max. Blasenradius (px)“ (`chart.scatterMaxRadius`, 0 = automatisch) und „Deckkraft der Blasen %“
+    (`chart.scatterBubbleOpacity`, Standard 55). Große Blasen dürfen über den Achsenrand hinausragen.
+  - „Gruppenfarbe 1“ bis „Gruppenfarbe 6“ (`chart.scatterGroupColor1` bis `6`) bei Punktfarbe „Nach Gruppe/Serie“.
+  - Neue Rolle **„Blasengröße VJ (optional)“** (`bubbleSizePrevious`): zusammen mit Vorjahr (Y) und optional
+    „X-Achse VJ“ zeichnet jede Kategorie eine PY-Blase in PY-Grau mit eigener Größe hinter der AC-Blase, auf
+    derselben Größenskala; Legende ● PY ● AC. Liegen PY- und AC-Wert übereinander, entfällt der PY-Wert (Tooltip).
+    Mit Bewegungspfeilen beginnt der Pfeil am Rand der PY-Blase.
+  - „Hervorhebung als Farbe“ (`chart.scatterEmphFill`) mit „Hervorhebungsfarbe“ (`chart.scatterEmphColor`, Standard
+    #0064FF) und optionalem Legendentext (`chart.scatterEmphLabel`, z. B. „Zukäufe 12/25“) statt des Rings.
+  - Bestandsberichte zeichnen SVG-gleich (alle 364 Bestands-Stages per Hash geprüft); einzige sichtbare Änderung
+    ohne neue Optionen: das Feld-Intro nennt die neue Rolle (20 statt 19 Rollen). Tests c400 bis c406.
+
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 
 **Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Neue Schalter stehen standardmäßig aus;
