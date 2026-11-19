@@ -516,6 +516,19 @@ function check(label, cond, detail) {
         // a toolbar switch of the picker group: "Template" off → no picker, no button
         mk("r9", { ...dev, toolbar: { showTemplate: false } });
         out.pickerOff = !T.q("r9", '[data-pnl="tb-template-reset"]') && !T.q("r9", '[data-pnl="tb-template"]');
+        // 1.8: a switch that only 1.8 templates write counts only when the report stores it
+        const t01b = { hierarchy: { defaultLevel: 0 }, columns: { template: "T01B", templateApplied: "T01B", showPY: true, showPL: true,
+            showMinuend: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true, secondBlock: true, thresholds: true } };
+        const mkR = (id, objs) => T.mk(id, (o) => dvRows(MEGA_DEMO.regions({ multiRoot: true }), o), objs, { viewMode: 1 });
+        mkR("r10", t01b);
+        out.old17 = !T.q("r10", '[data-pnl="tb-template-reset"]') && !T.qa("r10", 'rect[data-pnl-row="__TOTAL__"]').length;
+        const sR11 = mkR("r11", { ...t01b, columns: { ...t01b.columns, structureTotal: false } });
+        out.storedOff = !!T.q("r11", '[data-pnl="tb-template-reset"]');
+        sR11.persists.length = 0;
+        T.click("r11", "tb-template-reset");
+        const m11 = sR11.persists[0] && sR11.persists[0].merge[0].properties;
+        out.resetWrites = !!m11 && m11.structureTotal === true && m11.keepBlockOrder === false;
+        out.resetTotal = T.qa("r11", 'rect[data-pnl-row="__TOTAL__"]').length > 0;
         // 12G: the headline switch is part of the template state
         const g = { hierarchy: { defaultLevel: 0 }, columns: { template: "12G", templateApplied: "12G" } };
         mk("r10", g);
@@ -540,6 +553,9 @@ function check(label, cond, detail) {
     check("R the toolbar switch \"template picker\" off removes the picker and the button", R.pickerOff);
     check("R 12G: the title headline is part of the template state (off by default → deviation)", R.headlineDev);
     check("R the gallery click on the ACTIVE template restores its state (re-apply) and closes the overlay", R.galleryReapply);
+    check("R 1.8 a T01B applied with 1.7 (structureTotal not stored): no ↺, no total row", R.old17);
+    check("R 1.8 structureTotal stored as false: ↺ is offered", R.storedOff);
+    check("R 1.8 ↺ writes the 1.8 template (structureTotal on, keepBlockOrder off for T01B) and the total row appears", R.resetWrites && R.resetTotal, JSON.stringify([R.resetWrites, R.resetTotal]));
 
     // ================================================================== L · languages, dark, palette
     const L = await ev(async () => {

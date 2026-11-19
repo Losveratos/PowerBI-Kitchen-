@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -227,6 +227,13 @@ function readMega(id) {
             S.m49.charts.map(inRow).join(","));
     }
     if (S.m51) { check("m51 statement data: structureTotal draws no total row", !S.m51.rowIds.includes("__TOTAL__")); }
+    if (S.m56) {
+        const ids56 = S.m56.rowIds;
+        check("m56 T01A over several roots: no region rows, leaves + the total (as the sheet)",
+            !ids56.some(x => /^L:/.test(x)) && ids56[ids56.length - 1] === "__TOTAL__" && ids56.length === 17, ids56.join(","));
+        check("m56 T01A repeated leaf names take the region (Other Europe)", has("m56", "Other Europe") && has("m56", "Other Americas"));
+        check("m56 % of revenue: the total row is the base (100%)", has("m56", "100.0%"));
+    }
     if (S.m52) {
         const ids52 = S.m52.rowIds;
         check("m52 T01C without a common root: Europe first (+80), Americas (−127), Rest of World stays, total last",

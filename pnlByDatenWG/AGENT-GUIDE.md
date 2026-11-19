@@ -888,18 +888,24 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     Financial income, T01A/T01B Dezimalen. `prototype/refs/` zeigt noch die
     Juli-Fassungen. Druckfehler nie nachbauen; das Visual rechnet selbst.
 26. **Gesamtzeile über mehrere Wurzeln (1.8, `structureTotal`):** Nur Strukturdaten
-    (nie GuV), nur bei mindestens zwei Wurzeln mit sichtbaren Zeilen. Der Knoten
+    (nie GuV), nur bei mindestens zwei Wurzeln mit Wert (hideZero zählt, ⚡ nicht,
+    der Orphan-Bucket wird summiert, zählt aber nicht als Wurzel). Ohne
+    Zwischensummen (T01A) klappen die Wurzeln weg: Blätter plus Gesamtzeile. Mit
+    „% vom Umsatz" und leerer Basiszeile ist die Gesamtzeile die Basis. Der Knoten
     ist `engine.syntheticTotal` (id `__TOTAL__`, nicht in `model.byId`), je
     Modellobjekt gemerkt (`megaTotalNode`), Name aus `structureTotalLabel` oder
     `UI_Total`. Er ist Anker (`megaAnchor`), bleibt bei jeder Sortierung unten und
     ist nie „Other". Summe wie eine Zwischensumme: nur Account/Subtotal-Wurzeln mit
-    ihrer SignConvention; VarianceInvert nur, wenn alle Wurzeln es tragen. Klick
+    ihrer SignConvention; VarianceInvert nur, wenn alle Wurzeln es tragen (bei
+    gemischten Wurzeln färbt Δ der Gesamtzeile wie ein Erlös). Klick
     wählt nichts aus und klappt nichts zu (nur Tooltip). Σ-treue Rundung: die
     Zeile druckt die Summe der gedruckten Wurzeln. Die Struktur-Templates (T01x,
     T02x) setzen den Schalter an; Schalter, die erst 1.8 in Templates schreibt
     (`TEMPLATE_SWITCHES_1_8` in `hub.ts`), zählen in `templateDeviation()` nur, wenn
     der Bericht sie speichert, damit ein mit 1.7 angewendetes Template sich nicht
-    ändert und kein „↺ Zum Template zurück" zeigt.
+    ändert und kein „↺ Zum Template zurück" zeigt. Schaltet der Autor eines
+    Altberichts den Schalter an und wieder aus, ist `false` gespeichert und „↺"
+    erscheint; der Klick schreibt das 1.8-Template (Gesamtzeile an).
 
 27. **Sortierung nach Δ% und Blockreihenfolge (1.8, B04):** `sort = pct`
     sortiert nach `blk.delta(r, min, ref).p`, also nach der Zahl, die Δ%-Spalte

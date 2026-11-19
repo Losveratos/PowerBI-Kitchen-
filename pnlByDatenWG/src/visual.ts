@@ -10719,6 +10719,16 @@ export class Visual implements IVisual {
         let excHidden = 0;
         const keep = (n: PnlNode): boolean => keepZero(n) && !(hideExc && this.excQuiet(n, collapsed));
         const struct = subtotals && !statement;
+        // 1.8 (B03) columns.structureTotal: several structure roots get a bold
+        // total row at the end (T01/T02 "World"). Decided before the rows: the
+        // roots that carry a value (hideZero) count, not the ones ⚡ leaves on
+        // screen (a total over hidden quiet rows is still the total), and not the
+        // orphan bucket (it is summed, but does not make a second root). One
+        // root already is the total; a statement never gets one. Without subtotal
+        // blocks (T01A) the roots fold away like every other total: leaves + total.
+        const totalRoots = !statement && cc.structureTotal.value
+            ? model.roots.filter(r => r.row.rowType !== "separator" && !r.isOrphanBucket && keepZero(r)) : [];
+        const megaTotal = totalRoots.length > 1 ? this.megaTotalNode(model) : null;
         // 1.5.1: a structure group with exactly one shown child carries no
         // subtotal that only repeats that child (Germany / Saxony): the child
         // stands alone, named after both ("Germany · Saxony"), like a region
@@ -10742,7 +10752,7 @@ export class Visual implements IVisual {
             }
             if (open) { for (const c of kidsOf(n)) { emit(c, n); } }
             // structure data without subtotal blocks: only leaves and the top totals
-            if (open && !subtotals && n.level > 0) { return; }
+            if (open && !subtotals && (n.level > 0 || megaTotal != null)) { return; }
             if (!keep(n)) { if (hideExc && keepZero(n)) { excHidden++; } return; }
             const kind: MegaRow["kind"] = t === "formula" ? "formula" : t === "kpi" ? "pct"
                 : t === "subtotal" || n.hasChildren || n.isOrphanBucket ? "sum" : "acc";
@@ -10764,12 +10774,7 @@ export class Visual implements IVisual {
         // (not the ⚡-folded list, which would let the row flicker); it needs at
         // least two root elements with rows on screen, else it would repeat the
         // one root. One root already is the total; a statement never gets one.
-        if (!statement && cc.structureTotal.value
-            && model.roots.filter(r => r.row.rowType !== "separator").length > 1) {
-            const shownRoots = new Set(items.filter(it => it.node).map(it => rootOf(it.node!).row.id));
-            const tot = this.megaTotalNode(model);
-            if (shownRoots.size > 1 && keepZero(tot)) { items.push({ node: tot, kind: "sum", level: 0, op: "" }); }
-        }
+        if (megaTotal && keepZero(megaTotal)) { items.push({ node: megaTotal, kind: "sum", level: 0, op: "" }); }
 
         // leaf names that repeat ("Other" per region) get their parent's name
         // when the subtotal blocks are folded away (T01A "Other Europe")
@@ -10938,7 +10943,9 @@ export class Visual implements IVisual {
         const monthName = months.length > 0 ? this.megaMonthName(months[li >= 0 ? li : months.length - 1]) : "";
         const year = months.length > 0 ? this.periodYear(months[0]) : "";
         const scenOf = (key: BlockKey, s: MegaScen): Scenario | null => this.megaScenOf(key, s);
-        const revBase = t.share ? revenueBase(model, cc.revenueBase.value) : null;
+        // 1.8 (B03) with a total row and no base row set, the total is the base (100 %)
+        const totBase = String(cc.revenueBase.value ?? "").trim() === "" ? nodes.get(TOTAL_ID) ?? null : null;
+        const revBase = t.share ? totBase ?? revenueBase(model, cc.revenueBase.value) : null;
         const num = (v: unknown, d: number): number => { const x = Number(v); return isFinite(x) ? x : d; };
         const div = fmt.div;
         // 1.5.1: the built-in thresholds (−20 / −220) are thousands — at a
@@ -11063,7 +11070,8 @@ export class Visual implements IVisual {
             headInk: this.hc ? this.hc.fg : this.settings.styleCard.headerColor.value?.value || C.text,
             hatchPattern: (svg, id, color) => this.hatchPattern(svg, ns, id, color),
             uid: this.uid,
-            selectedId: this.interactive() ? this.selKey : null,
+            // the virtual total of the tree view is no row of the table
+            selectedId: this.interactive() && this.selKey !== TOTAL_ID ? this.selKey : null,
             // high contrast: no wash, the 2 px selection line in foregroundSelected
             selWash: this.hc ? "none" : this.accentSoft(0.94),
             selAccent: this.accent(),
@@ -11840,7 +11848,7 @@ export class Visual implements IVisual {
                 value: node.row.comment,
             });
         }
-        if (this.selectable(node) && this.selCapNote(node) !== "") {
+        if (node.row.id !== TOTAL_ID && this.selectable(node) && this.selCapNote(node) !== "") {
             out.push({ displayName: this.tr("UI_Selection"), value: this.tr("UI_SelCap", SEL_MAX_ROWS) });
         }
         return out;
@@ -11855,7 +11863,8 @@ export class Visual implements IVisual {
     private bindTip(el: HTMLElement | SVGElement, node: PnlNode, items: () => VisualTooltipDataItem[]): void {
         const svc = this.tooltipService;
         if (!svc && !this.dark) { return; }
-        const ids = (): ISelectionId[] => (this.selectable(node) ? this.selIdsFor(node) : []);
+        // 1.8 the mega total row selects nothing, so its tooltip carries no identities
+        const ids = (): ISelectionId[] => (node.row.id !== TOTAL_ID && this.selectable(node) ? this.selIdsFor(node) : []);
         el.addEventListener("mouseover", (e: Event) => {
             const me = e as MouseEvent;
             if (this.dark) { this.showDarkTip(items(), me); return; }
