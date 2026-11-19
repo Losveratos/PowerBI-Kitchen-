@@ -1,5 +1,60 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.0.0 (2026-11-19): IBCS-Blätter T01C, T01D, T02D und 11A, Gesamtzeile, Sortierung nach Δ%, Blattnotation
+
+Abgleich aller IBCS-Template-Blätter (Fassungen Juli und November 2026) gegen das Visual; umgesetzt sind
+die P&L-Punkte des Backlogs nach Nutzen je Aufwand. Ohne die neuen Schalter rendert ein bestehender Bericht
+wie 1.7.1; Ausnahmen sind unten unter „Vorher / Nachher" genannt. IBCS dient nur als Bezug.
+
+**Neue Templates.**
+- **T01C** · T01B je Block nach ΔPY des _YTD-Blocks sortiert („ΔPY(↓)").
+- **T01D** · T01B mit FC als analysiertem Szenario, je Block nach ΔPY% des Monats sortiert („ΔPY%(↓)").
+- **T02D** · T02A nach ΔPL% des _YTD-Blocks sortiert, Pfeil am Pin-Kopf („ΔPL%(↓)").
+- **11A ROI-Baum** (Galerie, Report-Ansichten): Werttreiberbaum über Jahre, alle Perioden beschriftet,
+  ohne Statusfarbe; schreibt die Karten-Schalter und die Ansicht Baum, kein Mega-Template.
+- Galerie jetzt 24 Kacheln (22 Templates, ROI-Baum, klassische Tabelle).
+
+**Gesamtzeile über mehrere Wurzeln** (`columns.structureTotal`, Name `structureTotalLabel`). Strukturdaten
+ohne gemeinsame oberste Ebene bekommen die fette Zeile „World" der Blätter T01 und T02: alle Werte,
+Δ-Zahlen, Balken und Pins, Anker in Kaskaden, bleibt bei jeder Sortierung unten, nur Tooltip (keine
+Auswahl). Nie bei GuV-Daten. T01A ohne Zwischensummen zeigt Blätter plus Gesamtzeile; „% vom Umsatz"
+nimmt die Gesamtzeile als Basis.
+
+**Sortierung nach Δ%** (`columns.sort = pct`) und **Blockreihenfolge** (`columns.keepBlockOrder`). Δ% der
+Sortier-Referenz, Zeilen ohne Basis hinter allen Zahlen und vor „Sonstige". Mit `keepBlockOrder` bleiben
+die Regionsblöcke in Kategoriereihenfolge wie in den Blättern; Einzelzeilen dazwischen werden weiter
+gereiht. Alle sortierenden Templates setzen den Schalter.
+
+**KPI-Zahlformat und Jahre.** RowType-Token `factor` (Kapitalumschlag 1,3) und `amount` (skaliert, mit
+Einheit) für KPI-Zeilen, in jeder Ansicht und im Tooltip; ⚡ prüft Faktoren über Δ%, Beträge wie Beträge.
+Vierstellige Jahre (1900 bis 2200) als Periode, chronologisch sortiert, ohne Jahres-Präfix im Kopf.
+Neuer Schalter „Alle Perioden der Karten beschriften" (`columns.treeAllLabels`).
+
+**Blattnotation** (Karte Zahlen): „Einheit der Margen-Δ" pp oder %p (`numbers.ppUnit`), „Δ%-Dezimalen wie
+im Referenzblatt" beim Anwenden eines Templates (`numbers.sheetPctDecimals`: T03 und 12er ganzzahlig,
+T04B bis T04E zwei Stellen), „Gerundete Null" mit oder ohne Vorzeichen (`numbers.roundedZero`).
+
+**Doku.** Blattfehler-Liste auf die Fassungen vom 17./18.11.2026 (TEMPLATE-GUIDE §5.2): behoben T03A, 12H,
+T04C/T04E Financial income, T01A/T01B Dezimalen; offen T03B ΔPY Group result, T01A „+770" und Schwelle,
+„Gross margin" als operative Marge, T04E Pin-Kopf, T01C/T01D Mischdezimalen, 11A.
+
+**Vorher / Nachher.**
+
+| Thema | bis 1.7.1 | ab 1.8 |
+|---|---|---|
+| Regionen ohne gemeinsame Wurzel | keine Gesamtzeile | mit `structureTotal` (Template T01x/T02x) fette Gesamtzeile |
+| Sortierung | AC, Δ | zusätzlich Δ% |
+| Blöcke bei Sortierung | immer mitsortiert (1.5.2) | neu angewendete Templates halten die Kategoriereihenfolge; gespeicherte Berichte unverändert |
+| T01C-Blockfolge | Europe, Americas, RoW nur dank der Rest-Regel | durch `keepBlockOrder` gesichert |
+| Kapitalumschlag als KPI | 130 % | mit `KPI factor` 1,3 |
+| Jahre „2021" als Periode | Datenreihenfolge | chronologisch |
+| Wert, der auf null rundet, in klassischer Tabelle und Baum | „−0,00" | „0,00" wie im Mega-Table |
+| Spalten-Kategorie mit vierstelligen Codes | Datenreihenfolge | unverändert Datenreihenfolge |
+| RowType „Ratio %", „Summe Betrag" | Account | KPI bzw. Subtotal (Format-Token wird gelesen) |
+
+**Tests:** megatable 52, engine 50, hub 15 Einheitstests; mega-shot neue Fälle m47 bis m59, t11a bis t11c
+(Blattzahlen T01C, T01D, T02D, 11A); hub-interact, toolbar-interact, finance-test nachgezogen.
+
 ## 1.7.1.0 (2026-11-01): Kachel-Zoom maßstabsgetreu, Ist = 0 in ungebuchten Monaten, Bestände in der Kachel
 
 Drei Korrekturen aus dem Praxistest der Kachel-Ansicht (Drill auf ein Konto mit Monatsverlauf).

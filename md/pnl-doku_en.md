@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H as well as balance sheet and cash flow (T05A/T05B), plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.7.1.0** · As of · **2026-11-01** · IBCS-inspired
+Version · **1.8.0.0** · As of · **2026-11-01** · IBCS-inspired
 
 ## Contents
 
@@ -47,7 +47,7 @@ The notation follows the **IBCS® principles**: AC filled in dark gray (#404040)
 
 > **Thank you, IBCS.** This visual is heavily inspired by the ideas of IBCS® – International Business Communication Standards. Without their great resources, exceptional content and, above all, groundbreaking conceptual work, something like this visual would not have been possible. Therefore: thank you. Not sponsored by, licensed by or associated with the IBCS Association.
 
-This guide describes version **1.7.1.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
+This guide describes version **1.8.0.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
 ## 02 · The product family
 
@@ -119,16 +119,19 @@ Every sub-page and level carries the **“← Back”** pill at the top left; Es
 
 ### The template gallery by purpose
 
-20 tiles — the classic table and the 19 IBCS templates (chapter 07) — sit in five groups, each with one sentence of purpose. Every tile carries a finance title, a benefit line and the T number as a small badge on the preview; templates that analyse the forecast show a preview with simulated FC.
+24 tiles (1.8) sit in five groups: the classic table, the 22 IBCS templates (chapter 07) and the ROI tree 11A, each group with one sentence of purpose. Every tile carries a finance title, a benefit line and the T number as a small badge on the preview; templates that analyse the forecast show a preview with simulated FC.
 
 | Group | Template | Tile title | Benefit line |
 | --- | --- | --- | --- |
 | **Structure comparison** Regions, products, cost centres side by side — who is above, who below plan? | T01A | Regions with plan variance | Values and Δ as figures, month \| YTD; thresholds flag outliers in red. |
 |  | T01B | Regions with subtotals | Like T01A, grouped into subtotal blocks per area — for group and segment views. |
+|  | T01C | Subtotal ranking by variance to PY (YTD) | Like T01B, each block sorted by the year-to-date ΔPY: the biggest gains of every region first. |
 |  | T02A | Plan variance as bars | ΔPL bars and pins: which area is above, which below plan — at a glance. |
 |  | T02B | Ranking by actual (YTD) | T02A sorted by AC: the largest areas on top — for top / flop lists. |
 |  | T02C | Ranking by variance (month) | T02A sorted by the month's Δ: the biggest issues first — for the monthly review. |
-| **Forecast** The expected outcome (FC) against plan and previous year — hatched as in IBCS. | T02E | Forecast vs previous year | FC hatched, ΔPY bars and pins, sorted by variance — is the area growing? |
+|  | T02D | Ranking by variance in % (YTD) | T02A sorted by the year-to-date ΔPL%: the fair comparison between large and small units. |
+| **Forecast** The expected outcome (FC) against plan and previous year — hatched as in IBCS. | T01D | Forecast ranking by variance to PY in % (month) | Forecast by country with subtotals, each block sorted by the month's ΔPY%: who grows fastest. |
+|  | T02E | Forecast vs previous year | FC hatched, ΔPY bars and pins, sorted by variance — is the area growing? |
 |  | T02F | Forecast vs plan | Will the area land on budget? ΔPL bars and pins for the forecast, largest gaps first. |
 |  | T03B | Forecast P&L with Δ to PY and plan | The outlook as a statement: PY · PL · FC and both variances as figures. |
 |  | T04D | Forecast P&L with plan waterfall | How the forecast gets from plan to result: ΔPL waterfall row by row. |
@@ -142,6 +145,7 @@ Every sub-page and level carries the **“← Back”** pill at the top left; Es
 | **Report views** Cascades, full-year outlook, plan statement — and the classic table. | 12A | Value cascades PY and actual | PY and AC cascades side by side, ΔPY bars and pins — the P&L as a picture. |
 |  | 12G | Full-year outlook (FY) | Actual + forecast as the full year against PY: YTD solid, rest of year hatched, with a headline. |
 |  | 12H | Plan statement vs previous year | For the budget round: PL outlined against PY, variances outlined, headline slot. |
+|  | 11A | ROI tree (DuPont) | Driver tree return on sales times capital turnover, columns over the years on every card, plan outlined. KPIs with “KPI factor” show as a factor. |
 |  | Off | Classic P&L table | Column presets, sparklines and period blocks — readers switch for themselves in the toolbar. |
 
 - **Click = apply.** The tile writes the same as the toolbar dropdown: template, every switch, decimals and, where relevant, the headline slot in one save. The active tile carries “✓ active”, an accent border and a tinted background; clicking it again applies the template once more.
@@ -179,7 +183,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.7.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.7.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
@@ -224,7 +228,7 @@ At most one field per role, at most eight level columns. The visual reads every 
 | FC (Forecast) | Measure | Forecast value, drawn hatched; can be the analysed scenario of the mega table (T02E/F, T03B, T04D/E). |
 | Period (month) | Grouping | Month column for sparklines, the month and YTD block, the second period block and the monthly cards. Read formats: YYYY-MM, YYYY-MM-DD, ISO timestamps, YYYY/MM, date columns, German and English month names (long/short, with year) and numbers 1–12. “Month” is the last month *with AC data*; YTD is the period-matched window up to it. |
 | Column category | Grouping · 1.2 | Optional, classic table only: the column set of the YTD block repeats once per value of this field (e.g. segment or quarter) under a group header, followed by the total block. Mega table, bars and waterfall ignore the field. |
-| Row type | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (case-insensitive). KPI is a margin row: % display, Δ in percentage points. Since 1.7 a token may follow in the same cell: `stock` (stock) or `opening` (opening balance), e.g. `Account stock` — see “Stocks & flows” below. |
+| Row type | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (case-insensitive). KPI is a margin row: % display, Δ in percentage points. Since 1.7 a token may follow in the same cell: `stock` (stock) or `opening` (opening balance), e.g. `Account stock` (since 1.8 a token on KPI rows sets the number format: `factor` for a capital turnover of 1.3 or `amount` for an amount with its unit, e.g. `KPI factor`) — see “Stocks & flows” below. |
 | Formula definition | Grouping | For formula and KPI rows, e.g. `[EBITDA]/[Revenue]`: `+ − * /` and parentheses, reference by unique row name, formula on formula allowed. A circular reference shows as an error on the row. |
 | Sign convention (±1) | Grouping | The sign the row calculates with: revenue `1`, costs `-1`. A subtotal is sign × sum of its children. |
 | Display invert | Grouping | Show positive although the calculated value is negative (cost rows). Changes the display only, not the calculation. |
@@ -374,9 +378,12 @@ The mega table rebuilds the official IBCS templates T01A–T04E as well as the r
 | --- | --- | --- | --- | --- |
 | T01A | Flat structure: PY · PL · AC, ΔPY / ΔPY % / ΔPL / ΔPL % as numbers, month \| _YTD, threshold red with footer | Structure + period + AC / PY / PL | Minuend AC · value columns PY, PL, AC · ΔPY + ΔPY % as number · ΔPL + ΔPL % as number · second block · subtotals off · thresholds on | 0 / 1 |
 | T01B | like T01A with subtotal blocks (e.g. Europe / Americas / RoW) | Hierarchy levels | like T01A · subtotal blocks on | 0 / 1 |
+| T01C | like T01B, each block sorted by ΔPY of the _YTD block (1.8) | Hierarchy levels | like T01B · sort Δ descending · sorting block YTD · keep the block order | 0 / 1 |
+| T01D | like T01B with FC, each block sorted by ΔPY % of the month (1.8) | Hierarchy levels + FC | like T01B · minuend FC · sort Δ% descending · sorting block month · keep the block order | 0 / 1 |
 | T02A | PL · AC with ΔPL bars and ΔPL % pins, two blocks | AC / PL (+ period) | Minuend AC · value columns PL, AC · ΔPL bars + ΔPL % pins · second block · subtotals on | 0 / 1 |
 | T02B | like T02A, sorted by AC descending (“(↓)” in the header) | like T02A | like T02A · sort AC/FC descending · sorting block YTD | 0 / 1 |
 | T02C | like T02A, sorted by ΔPL descending | like T02A | like T02A · sort Δ descending · sorting block month | 0 / 1 |
+| T02D | like T02A, sorted by ΔPL % descending, arrow on the pin head (1.8) | like T02A | like T02A · sort Δ% descending · sorting block YTD · keep the block order | 0 / 1 |
 | T02E | FC instead of AC (hatched bars), reference PY with gray axis | FC + PY | Minuend FC · value columns PY, FC · ΔPY bars + ΔPY % pins · second block · sort Δ descending (YTD) | 0 / 1 |
 | T02F | FC instead of AC, reference PL with double-line axis | FC + PL | Minuend FC · value columns PL, FC · ΔPL bars + ΔPL % pins · second block · sort Δ descending (YTD) | 0 / 1 |
 | T03A | P&L statement: + / − / = rows, PY · PL · AC and Δ number columns, margin row in pp | Account dimension with row type | Minuend AC · value columns PY, PL, AC · ΔPY + ΔPY % · ΔPL + ΔPL % as number · one block | 1 / 1 |
@@ -435,7 +442,7 @@ The first group of the card since 1.2. Visible in the table view. Every switch a
 
 | Setting | Description | Options / Default |
 | --- | --- | --- |
-| Template (IBCS table) | Sets the switches below to the template defaults — afterwards every switch is free. | Options: Off (classic table) \| T01A \| T01B \| T02A \| T02B \| T02C \| T02E \| T02F \| T03A \| T03B \| T04A \| T04B \| T04C \| T04D \| T04E \| 12A \| 12G \| 12H \| T05A \| T05B · Default “Off (classic table)” |
+| Template (IBCS table) | Sets the switches below to the template defaults — afterwards every switch is free. | Options: Off (classic table) \| T01A \| T01B \| T01C \| T01D \| T02A \| T02B \| T02C \| T02D \| T02E \| T02F \| T03A \| T03B \| T04A \| T04B \| T04C \| T04D \| T04E \| 12A \| 12G \| 12H \| T05A \| T05B · Default “Off (classic table)” |
 | Analysed scenario (minuend) | AC filled, FC hatched, PL outlined; the Δ bars follow the minuend (PL: outlined in red / green, plan statement 12H). The Δ columns compare it with PY / PL. FC and PL need their field. With PL there is no ΔPL; value column PL and value column AC/FC then give one PL column. Visible with FC or PL bound. | Options: AC (actual) \| FC (forecast) \| PL (plan statement) · Default “AC (actual)” |
 | Value column PY | Previous-year values as a number column. Visible with PY bound. | On / Off · Default Off |
 | Value column PL | Plan values as a number column. Visible with PL bound. | On / Off · Default Off |
@@ -456,6 +463,8 @@ The first group of the card since 1.2. Visible in the table view. Every switch a
 | Period block | Month of the last actuals, year to date or FY outlook (AC&FC vs PL, needs the FY fields); with a second block the right one. Visible with the period or the FY fields. | Options: Month \| YTD \| FY outlook (AC&FC vs PL) · Default “YTD” |
 | Second block (left) | Period of the block left of the period block when the second block is on. Visible with the period and the second block on. | Options: Month \| YTD \| FY outlook (AC&FC vs PL) · Default “Month” |
 | Subtotal blocks (structure data) | Regions / structure hierarchies: subtotal blocks with a spacer row; off = leaves + total only. Visible with structure data (no P&L row types). | On / Off · Default On |
+| Total row over several roots (1.8) | Structure data whose top level has several rows (regions without a common parent): a bold total row at the end with every value, Δ column, bar and pin. One root is the total already. The templates T01 and T02 switch it on. Visible with structure data. | On / Off · Default Off |
+| Name of the total row (1.8) | Empty = “Total” in the report language, e.g. “World”. Visible when the total row is on. | Text · Default empty |
 | Margin / % rows | KPI rows (margins) in italics, their Δ in percentage points (“+8.6 pp”), without a relative Δ %; margins use the Δ% decimals. Applies to T03 and T04 alike; in T04 the pp number stands at the axis of the Δ bars or the Δ waterfall. Visible with P&L data. | On / Off · Default On |
 | Δ in red if below threshold (+ footer) | Δ numbers below the thresholds turn red; a footer names the rule. Visible as soon as a Δ number column (ΔPY/ΔPL or Δ% as number) is on. | On / Off · Default Off |
 | Threshold Δ (month / single block) | In display units (after k/m scaling). The default −20 means thousands and is converted at m and b scaling (m: −0.02); a value you set applies as typed. Visible while thresholds are on. | Number · Default −20 (k) |
@@ -465,8 +474,9 @@ The first group of the card since 1.2. Visible in the table view. Every switch a
 | Scenario underlines (head + closing) | AC solid, PY gray, PL double, FC hatched under the column heads. | On / Off · Default On |
 | Numbers at bars / pins / cascades | Value labels next to every chart element. Visible as soon as a chart column (Δ bars, pins, waterfall or value cascade) is on. | On / Off · Default On |
 | Outlier arrows for Δ bars too | Pins always cap outliers (Q3 + 4 × IQR); this extends it to the Δ bars. Capped elements run past the regular maximum into an outlier zone, a break mark separates them, a triangle points in the direction of growth, the number stands outside (since 1.5). Visible with ΔPY or ΔPL bars. | On / Off · Default Off |
-| Sort (structure data) | Per subtotal block; rows named Other … stay at the bottom. Visible with structure data. | Options: Category order \| AC/FC descending \| Δ descending · Default “Category order” |
+| Sort (structure data) | Per subtotal block; rows named Other … stay at the bottom. Visible with structure data. | Options: Category order \| AC/FC descending \| Δ descending \| Δ% descending (1.8) · Default “Category order” |
 | Sorting block | Which period block decides the order. Visible with structure data, second block, period and a sort other than category order. | Options: Month block \| YTD block · Default “YTD block” |
+| Keep the block order (1.8) | Subtotal blocks (regions) stay in category order, only the rows inside them are sorted, as in the IBCS sheets; single rows between the blocks are ranked among themselves. Off: the blocks are sorted by their total too. Every sorting template switches it on. Visible with structure data with subtotal blocks and a sort other than category order. | On / Off · Default Off |
 
 #### Table
 
@@ -503,6 +513,7 @@ Start of the tree and Sankey views. Visible in the tree and Sankey views. The Sa
 | Driver tree start depth | How many levels of the tree are open when it starts. 0 = the whole tree. | 0–8 · Default 0 |
 | Driver tree card chart | Mini chart on every card: monthly columns, variance columns or a mini bridge. | Options: Monthly columns (AC vs PL) \| Variance columns (Δ vs reference) \| Mini bridge (REF → Δ → AC) · Default “Monthly columns (AC vs PL)” |
 | Driver tree status indicator (Δ colour) | Card edge and Δ% in the card head in the variance colour. | On / Off · Default On |
+| Label every period on the cards (1.8) | Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree 11A). Off: first, last and extreme value only. | On / Off · Default Off |
 
 ### Display & toolbar
 
@@ -575,6 +586,9 @@ The buttons of the report toolbar in your colors. All colors empty = **automatic
 | Unit (e.g. EUR) | Follows k / m in the title, the scale note and the cards. | Text · Default “EUR” |
 | Decimals (values) | Decimal places of values and Δ. A template sets them too. | 0–3 · Default 1 |
 | Decimals (Δ%) | Decimal places of Δ% and margins. A template sets them too (since 1.5 every template to 1). | 0–2 · Default 1 |
+| Δ% decimals as in the reference sheet (1.8) | Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. | On / Off · Default Off |
+| Unit of margin Δ (1.8) | Margins and their Δ: percentage points as “pp” or “%p” (as in the IBCS sheets T03). | Options: pp (percentage points) \| %p · Default “pp” |
+| Rounded zero (1.8) | A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero, in every view. | Options: Keep the sign \| Without sign · Default “Keep the sign” |
 | Finance format (parentheses) | Finance convention: negative values in parentheses instead of a minus sign — (1 234) — and zero as “–”. Applies to values, Δ and Δ%; positive Δ keep their “+”. | On / Off · Default Off |
 | Sum-safe rounding | Rounds the value columns with the largest-remainder method so printed children add up exactly to their printed subtotal (formula and margin rows keep exact rounding). The Δ number is then the difference of the printed values. | On / Off · Default Off |
 | Scale minimum-maximum (values) | Value bars and value cascades are scaled at least up to this amount — identical scales across several visuals (IBCS), also next to ChartKitchen. Data units, k / m / b allowed (e.g. 1.5m). The text is in data units before k/m/b scaling (comma or point). It is a minimum maximum: larger values still widen the scale. Holds the value cascades (12A, 12G, 12H) at [0, max]; Δ% pins always stay automatic. In edit mode “Scale fixed” appears below the table; for readers and in the export the scale note of the mega table names the fixed scale. | Text · Default empty (automatic) |
@@ -915,10 +929,11 @@ Edit mode only: a formula or total mixes stocks and flows without a token fixing
 
 Intended (cross-highlight, since 1.7): the Sankey shows the mark within the total — the whole gray, the marked part colored, “… 923 of 1 685 …” in the footer. All other views behave as if filtered. If the Sankey should filter too, switch the interaction in Power BI Desktop under Format → *Edit interactions* on the triggering visual to the filter icon (chapter 09).
 
-## 12 · Version note 1.7.1.0
+## 12 · Version note 1.8.0.0
 
-This documentation describes **version 1.7.1.0** of 1 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
+This documentation describes **version 1.8.0.0** of 19 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
 
+- **1.8.0.0 · IBCS sheets T01C, T01D, T02D and 11A:** new templates T01C, T01D, T02D and the gallery preset ROI tree 11A (value driver tree over years, every period labelled); total row over several roots; sort by Δ% and the block order of the sheets; number format factor or amount for KPI rows; years as the period; margin Δ in pp or %p, Δ% decimals as in the sheet, rounded zero with or without sign; list of sheet errors on the versions of 17/18 November 2026. Without the new switches a report renders as in 1.7.1; a value that rounds to zero now prints without a sign in every view.
 - **1.7.1.0 · Tile zoom to scale:** variances in their own zone with one scale for every Δ and no minimum height, scaling indicator “ΔPL ×n” on the zone label; stock rows in the tile as stands (total column = stand at the end, Δ per month not cumulated); an actuals measure that returns 0 instead of blank for unposted months no longer hides the forecast (trailing months with AC 0 in every row and a forecast count as not posted, hint in edit mode).
 - **1.7.0.0 · Stock & flow, exceptions only, fill the tile, toolbar colours, cross-highlight in the Sankey:** row-type tokens `stock`/`opening` and the format card “Stock & flow” — balances are not summed in YTD and FY but shown as the balance at the reporting date (FY = forecast closing balance), Δ compares balances of the same date; new templates **T05A Balance sheet** and **T05B Cash flow** in the gallery group “Balance sheet & cash flow”, sample data `demoData/bilanz-*.csv`, `cashflow-*.csv`. Toolbar group **⚡ Exceptions only**: only rows with |Δ%| ≥ threshold (or |Δ| ≥ absolute) against PY/PL/FC keep their colour, direction ▲/▼/▲▼, the rest grey or hidden — hiding works in every view (cascades merge quiet steps into “others (n)”, the tree folds quiet branches into “+n”, the Sankey bundles quiet streams), bookmarkable, format card “Exceptions”. Format card **Toolbar colours** (empty = automatic). Switch **Area → Use the whole tile**: narrow margins, compact toolbar, tables scale to the tile height, tree and Sankey fill the tile. **Cross-highlight**: selections made in other visuals are shown only by the Sankey as the coloured part inside the grey whole; all other views behave as filtered.
 - **1.6.0.0 · Sankey view and “offer views”:** fifth view “Sankey” — the P&L as a flow from left to right on the driver-tree graph (profit strand in the favourable colour, costs branching off unfavourably, band height proportional to AC YTD), with tile zoom, hover panel, context menu and branch collapsing as in the tree; deliberately outside IBCS notation (the footer says so). New under Display & Toolbar: five switches deciding which views readers are offered (table, tree, bars, waterfall, Sankey); if a saved state points at a disabled view, the first offered view appears silently. Hub tour card 8 “Sankey”, four languages, dark mode and high contrast (patterns instead of colour).
@@ -938,13 +953,13 @@ This documentation describes **version 1.7.1.0** of 1 November 2026 (GUID `pnlBy
 
 The complete version history is in the [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md) (German).
 
-**P&L Statement byDatenWG** · Version 1.7.1.0
+**P&L Statement byDatenWG** · Version 1.8.0.0
 
 Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.7.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.7.1.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.
 
