@@ -54,6 +54,9 @@ def main(items_path, shots):
         hint = os.path.join(REPO, hint) if hint and not hint.endswith('.svg') else None
         shot = shot_ok.get(it['id']) or (os.path.join(shots, it['id'] + '.png') if os.path.exists(os.path.join(shots, it['id'] + '.png')) else None)
         src = (hint or shot) if it['id'] in PREFER_HINT else (shot or hint)
+        own = os.path.join(HERE, 'src', it['id'] + '.png')       # eigenes Vorschaubild hat Vorrang
+        if os.path.exists(own):
+            src = own
         img = None
         if src and os.path.exists(src):
             fit(src, os.path.join(IMG_DIR, it['id'] + '.jpg'), crop_top=1400 if it['id'] == 'kpi-card' else None)
@@ -90,6 +93,14 @@ def main(items_path, shots):
                        dict(big=f'{nf(biggest["loc"])} Zeilen', text=f'im größten Projekt: {biggest["title"]}'),
                        dict(big=f'{T["commit_days"]} Tage', text=f'mit mindestens einem Commit, also an {round(100 * T["commit_days"] / T["calendar_days"])} % aller Tage'),
                    ]),
+        big=[
+            dict(id='chartkitchen-visual', fact='Version 1.53: 13 IBCS-inspirierte Chart-Modi, Vorlagen C01–C13, vier Sprachen.'),
+            dict(id='pnl-visual', fact='Version 1.7: Mega-Table, Treiberbaum, Sankey, Bilanz und Cashflow in einem Visual.'),
+            dict(id='gantt-visual', fact='Version 2.3: Projektplan mit PSP-Gliederung, kritischem Pfad und Basisplan.'),
+            dict(id='mockup-kitchen', fact='Im Workshop skizzieren, als Spec exportieren, Claude Code baut die PBIP-Seite.'),
+            dict(id='library', fact='Wissensgraph aus 159 Folgen: 1.124 Kernaussagen, 18.865 Verbindungen.'),
+            dict(id='skills', fact='Acht Skills für Claude Code: Reports, Finance-Modell, Mockup-Umsetzung, Design.'),
+        ],
         outro=dict(title1='Alles frei.', title2='Alles offen.',
                    lead='Die Power-BI-Visuals sind Open Source (ChartKitchen Apache 2.0, P&amp;L und Gantt MIT), '
                         'Stories, Werkzeuge und Spiele laufen direkt im Browser.',

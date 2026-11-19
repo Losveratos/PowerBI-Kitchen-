@@ -80,6 +80,18 @@ h1 em,h2 em{font-style:italic;color:var(--brand-light)}
 .when .arrow::after{content:"";position:absolute;right:-2px;top:-6px;border:7.5px solid transparent;border-left:12px solid currentColor;border-right:0}
 .rail{position:absolute;left:30px;top:250px;bottom:110px;width:2px;background:linear-gradient(var(--brand-light),rgba(61,179,155,.15))}
 
+
+/* Die großen Brocken */
+.big h2,.rank h2{font-size:82px;margin-top:14px}
+.bgrid{position:absolute;left:64px;right:64px;top:228px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.btile{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;height:318px;display:flex;flex-direction:column}
+.btile img{width:100%;height:150px;object-fit:cover;object-position:top;display:block;border-bottom:1px solid var(--line)}
+.btile .bt{padding:14px 20px 16px;display:flex;flex-direction:column;flex:1;min-height:0}
+.btile h3{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:-.015em;line-height:1.1;margin-top:4px}
+.btile p{font-size:19px;line-height:1.32;color:var(--soft);margin-top:5px}
+.btile .meta{font-size:17px}
+/* Rangliste */
+.rsvg{position:absolute;left:64px;top:250px}
 /* Outro */
 .outro h2{font-size:104px;margin-top:80px}
 .outro .lead{font-size:34px;line-height:1.4;color:var(--soft);margin-top:36px;max-width:900px}
@@ -221,6 +233,40 @@ slides.push(`<section class="slide cover"><div class="pad">
       <h2>${head}</h2></div>
       <div class="cards">${cards}</div>${foot()}</section>`);
   }
+})();
+
+/* 4b · Die großen Brocken */
+(function(){
+  const tiles=D.big.map(b=>{const it=D.items.find(i=>i.id===b.id);if(!it)return '';const c=KIND[it.kind_label]||'#ccc';
+    const when=it.ongoing?`<span class="when live">${dShort(it.first_commit)} <span class="arrow"></span> läuft</span>`:`<span class="when">${dShort(it.first_commit)} – ${dShort(it.last_commit)}</span>`;
+    return `<div class="btile" style="--c:${c}">${it.img?`<img src="${it.img}" alt="">`:''}<div class="bt">
+      <div class="kind">${esc(it.kind_label)}</div><h3>${esc(it.title)}</h3><p>${b.fact}</p>
+      <div class="meta">${when}<span class="chip">${ICON_COMMIT}${nf(it.commits)}</span><span class="chip">${ICON_CODE}${nf(it.loc)} Zeilen</span></div></div></div>`}).join('');
+  slides.push(`<section class="slide big"><div class="pad"><div class="eyebrow">Die großen Brocken</div>
+    <h2>Was am meisten <em>wiegt</em></h2></div><div class="bgrid">${tiles}</div>${foot()}</section>`);
+})();
+
+/* 4c · Rangliste nach Zeilen Code */
+(function(){
+  const top=[...D.items].sort((a,b)=>b.loc-a.loc).slice(0,10);
+  const W=952, LW=380, VW=150, BW=W-LW-VW-30, RH=94, max=top[0].loc;
+  let g=`<text x="${LW+12}" y="18" font-size="18" fill="#7E7B72">Zeilen Code</text>
+         <text x="${W}" y="18" text-anchor="end" font-size="18" fill="#7E7B72">Commits</text>`;
+  top.forEach((it,i)=>{
+    const y=40+i*RH, w=BW*it.loc/max, c=KIND[it.kind_label]||'#ccc';
+    const t=it.title.length>24?it.title.slice(0,23).trim()+'…':it.title;
+    g+=`<text x="0" y="${y+30}" font-size="24" font-weight="700" fill="#7E7B72">${i+1}</text>
+      <text x="40" y="${y+26}" font-size="24" font-weight="600" fill="#F4F1E8">${esc(t)}</text>
+      <text x="40" y="${y+54}" font-size="17" font-weight="700" letter-spacing="1.5" fill="${c}">${esc(it.kind_label.toUpperCase())}</text>
+      <rect x="${LW}" y="${y+8}" width="${w}" height="40" rx="4" fill="${i===0?'#3DB39B':'#D8D5CB'}"/>
+      <text x="${LW+w+12}" y="${y+36}" font-size="24" font-weight="700" fill="#F4F1E8">${nf(it.loc)}</text>
+      <text x="${W}" y="${y+36}" text-anchor="end" font-size="24" fill="#B9B5A8">${nf(it.commits)}</text>
+      <line x1="0" x2="${W}" y1="${y+RH-12}" y2="${y+RH-12}" stroke="rgba(255,255,255,.08)"/>`;
+  });
+  g+=`<line x1="${LW}" x2="${LW}" y1="28" y2="${40+top.length*RH-12}" stroke="#F4F1E8" stroke-width="2"/>`;
+  slides.push(`<section class="slide rank"><div class="pad"><div class="eyebrow">Rangliste</div>
+    <h2>Top 10 nach <em>Zeilen Code</em></h2></div>
+    <svg class="rsvg" width="${W}" height="${40+top.length*RH}" viewBox="0 0 ${W} ${40+top.length*RH}" style="font-family:var(--sans)">${g}</svg>${foot()}</section>`);
 })();
 
 /* 5 · Outro */

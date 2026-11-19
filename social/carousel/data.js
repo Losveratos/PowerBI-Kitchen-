@@ -149,7 +149,7 @@ window.DATA={
    "commits": 134,
    "loc": 21742,
    "ongoing": true,
-   "img": null
+   "img": "img/skills.jpg"
   },
   {
    "id": "bcb-anleitung",
@@ -760,6 +760,12 @@ window.DATA={
  "cover": {
   "title1": "Ein halbes Jahr",
   "title2": "Kitchen.",
+  "strip": [
+   "chartkitchen-visual",
+   "rhein-story",
+   "pnl-visual",
+   "koelner-raser-story"
+  ],
   "lead": "Seit dem 12. Mai 2026 kochen wir in der Daten-WG Knowledge Kitchen: Power-BI-Visuals, Visual Stories, Werkzeuge und Lernspiele. Alles auf einem Zeitstrahl, mit Commits und Zeilen Code."
  },
  "stats": {
@@ -784,6 +790,32 @@ window.DATA={
    }
   ]
  },
+ "big": [
+  {
+   "id": "chartkitchen-visual",
+   "fact": "Version 1.53: 13 IBCS-inspirierte Chart-Modi, Vorlagen C01–C13, vier Sprachen."
+  },
+  {
+   "id": "pnl-visual",
+   "fact": "Version 1.7: Mega-Table, Treiberbaum, Sankey, Bilanz und Cashflow in einem Visual."
+  },
+  {
+   "id": "gantt-visual",
+   "fact": "Version 2.3: Projektplan mit PSP-Gliederung, kritischem Pfad und Basisplan."
+  },
+  {
+   "id": "mockup-kitchen",
+   "fact": "Im Workshop skizzieren, als Spec exportieren, Claude Code baut die PBIP-Seite."
+  },
+  {
+   "id": "library",
+   "fact": "Wissensgraph aus 159 Folgen: 1.124 Kernaussagen, 18.865 Verbindungen."
+  },
+  {
+   "id": "skills",
+   "fact": "Acht Skills für Claude Code: Reports, Finance-Modell, Mockup-Umsetzung, Design."
+  }
+ ],
  "outro": {
   "title1": "Alles frei.",
   "title2": "Alles offen.",
