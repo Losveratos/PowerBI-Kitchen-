@@ -2039,6 +2039,14 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesTotal.visible = !isScatter;
         fs.chartCard.multiplesTopN.visible = !isScatter;
         fs.chartCard.multiplesSameScale.visible = !isScatter;
+        // 1.55 (B13): reference tile options only with the Σ tile, rest label only with Top N
+        const multTotalOn = !isScatter && fs.chartCard.multiplesTotal.value === true;
+        const multTopOn = !isScatter && (fs.chartCard.multiplesTopN.value ?? 0) > 0;
+        fs.chartCard.multiplesAgg.visible = multTotalOn || multTopOn;
+        fs.chartCard.multiplesTotalPos.visible = multTotalOn;
+        fs.chartCard.multiplesTotalShade.visible = multTotalOn;
+        fs.chartCard.multiplesTotalLabel.visible = multTotalOn;
+        fs.chartCard.multiplesRestLabel.visible = multTopOn;
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
@@ -5866,7 +5874,8 @@ export class Visual implements IVisual {
         if (!this.structureEdit) { this.closeStructureMenu(); }
 
         // small multiples: group by the multiples role, in order of appearance
-        const groups: { name: string | null; pts: DataPoint[] }[] = [];
+        // kind (1.55, B13): synthetic reference tile ("total", Σ or Ø) or Top-N rest tile
+        const groups: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" }[] = [];
         for (const p of points) {
             const last = groups.length > 0 ? groups[groups.length - 1] : null;
             const found = last && last.name === p.group ? last : groups.find(g => g.name === p.group);
@@ -5882,20 +5891,40 @@ export class Visual implements IVisual {
         // multiples options: Top-N tiles (remainder merged into one "Rest" tile) and a
         // leading "Σ Gesamt" tile — applied before the per-group transforms and domain
         // computation so all tiles, including the larger total, share one IBCS scale
+        // 1.55 (B13, IBCS sheet 13A): the reference and rest tiles may show the average
+        // instead of the sum, the reference tile may stand last; own labels with {n}
+        const mAgg: "sum" | "mean" = String((s.chartCard.multiplesAgg.value as powerbi.IEnumMember)?.value) === "mean"
+            ? "mean" : "sum";
+        const mTotalLast = String((s.chartCard.multiplesTotalPos.value as powerbi.IEnumMember)?.value) === "last";
         if (groups.length > 1 && groups[0].name != null && !isScatter) {
             const mTopN = Math.round(s.chartCard.multiplesTopN.value ?? 0);
             const allGroups = groups.slice();
+            const fillN = (tpl: string, n: number) => tpl.replace(/\{n\}/g, String(n));
             if (mTopN > 0 && groups.length > mTopN + 1) {
                 const size = (g: { pts: DataPoint[] }) =>
                     g.pts.reduce((a, p) => a + Math.abs(p.value ?? 0), 0);
                 const ranked = groups.slice().sort((a, b) => size(b) - size(a));
                 const rest = ranked.slice(mTopN);
                 groups.length = 0;
-                groups.push(...ranked.slice(0, mTopN),
-                    this.aggregateGroups(rest.map(g => g.pts), `${this.locStr("Label_Rest", "Other")} (${rest.length})`));
+                const restTpl = (s.chartCard.multiplesRestLabel.value || "").trim();
+                const restName = restTpl !== "" ? fillN(restTpl, rest.length)
+                    : `${this.locStr("Label_Rest", "Other")} (${rest.length})`;
+                const restTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" } =
+                    this.aggregateGroups(rest.map(g => g.pts), restName, mAgg);
+                restTile.kind = "rest";
+                groups.push(...ranked.slice(0, mTopN), restTile);
             }
             if (s.chartCard.multiplesTotal.value) {
-                groups.unshift(this.aggregateGroups(allGroups.map(g => g.pts), this.locStr("Label_Total", "Σ Total")));
+                const totTpl = (s.chartCard.multiplesTotalLabel.value || "").trim();
+                const totName = totTpl !== "" ? fillN(totTpl, allGroups.length)
+                    : mAgg === "mean"
+                        ? `${this.locStr("Label_Average", "Ø Average")} (${allGroups.length})`
+                        : this.locStr("Label_Total", "Σ Total");
+                // always from the ORIGINAL groups, never from the rest tile (Top N)
+                const totTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" } =
+                    this.aggregateGroups(allGroups.map(g => g.pts), totName, mAgg);
+                totTile.kind = "total";
+                if (mTotalLast) { groups.push(totTile); } else { groups.unshift(totTile); }
             }
         }
 
@@ -6009,9 +6038,13 @@ export class Visual implements IVisual {
         // Δ2 (dual variance) is labelled with the same fmtVar — it bounds the unit too
         const maxVarAbs = Math.max(...fmtPts.map(p =>
             Math.max(Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0))), 0);
-        const allInt = fmtPts.every(p =>
+        // 1.55 (B13): an average tile keeps the precision of the data (Ø 57,1 of integer
+        // data is labelled 57 like its neighbours, not every tile with one decimal)
+        const meanTilePts = mAgg === "mean" ? new Set(groups.filter(g => g.kind != null).flatMap(g => g.pts)) : null;
+        const intPts = meanTilePts ? fmtPts.filter(p => !meanTilePts.has(p)) : fmtPts;
+        const allInt = intPts.every(p =>
             [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
-        const allVarInt = fmtPts.every(p => (p.varAbs == null || Number.isInteger(p.varAbs))
+        const allVarInt = intPts.every(p => (p.varAbs == null || Number.isInteger(p.varAbs))
             && (p.var2Abs == null || Number.isInteger(p.var2Abs)));
 
         const basisMode: Basis = this.resolveBasisLabel();
@@ -6716,8 +6749,33 @@ export class Visual implements IVisual {
 
         // grid layout for small multiples: keep cells at a usable width
         const MAX_CELLS = MULT_MAX_CELLS;
-        const shown = groups.slice(0, MAX_CELLS);
+        // 1.55 (B13): a reference tile placed last survives the cell cap
+        const lastIsTotal = groups.length > MAX_CELLS && groups[groups.length - 1].kind === "total";
+        const shown = lastIsTotal
+            ? groups.slice(0, MAX_CELLS - 1).concat(groups[groups.length - 1])
+            : groups.slice(0, MAX_CELLS);
         const n = shown.length;
+        // 1.55 (B13): tile markers + reference-tile shading only once a B13 option is
+        // set, so decks without them keep their SVG byte for byte
+        const mShade = s.chartCard.multiplesTotalShade.value === true;
+        const multMarks = mAgg !== "sum" || mTotalLast || mShade
+            || (s.chartCard.multiplesTotalLabel.value || "").trim() !== ""
+            || (s.chartCard.multiplesRestLabel.value || "").trim() !== "";
+        const tileFrame = (grp: { name: string | null; kind?: "total" | "rest" }, x: number, y: number, w: number, h: number) => {
+            if (!multMarks) { return; }
+            const kind = grp.kind ?? "group";
+            const frame = this.el("g", {
+                "data-icd": "mult-tile", "data-group": grp.name ?? "", "data-kind": kind,
+                "data-x": Math.round(x), "data-y": Math.round(y), "data-w": Math.round(w), "data-h": Math.round(h)
+            }, this.svg);
+            if (kind !== "group") { frame.setAttribute("data-agg", mAgg); }
+            if (kind === "total" && mShade) {
+                this.el("rect", cfg.hc
+                    ? { "data-icd": "mult-ref-bg", x: x + 1, y: y + 1, width: Math.max(w - 2, 1), height: Math.max(h - 2, 1),
+                        fill: "none", stroke: cfg.ink, "stroke-width": 1 }
+                    : { "data-icd": "mult-ref-bg", x, y, width: w, height: h, fill: cfg.band }, frame);
+            }
+        };
         const groupTitleH = Math.round(16 * this.fontK);
 
         // hero layout (IBCS CT 13): the first tile — Σ Gesamt or the largest group —
@@ -6765,18 +6823,22 @@ export class Visual implements IVisual {
             this.zoomGroup = null;
         }
         if (heroOn) {
+            tileFrame(shown[0], 0, topOffset, heroW - 2, availH);
             renderCell(shown[0],
                 { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 });
             this.drawTileHeader(0, topOffset, heroW, groupTitleH,
                 shown[0].name ?? "", shown[0].name ?? "", cfg);
         }
+        // the "+n more" note sits on the last group tile, not on a reference tile placed last
+        const moreAt = lastIsTotal ? rn - 2 : rn - 1;
         for (let gi = 0; gi < rn; gi++) {
             const cx = gridX + (gi % cols) * cellW;
             const cy = topOffset + Math.floor(gi / cols) * cellH;
             let title = rest[gi].name ?? "";
-            if (gi === rn - 1 && groups.length > n) {
+            if (gi === moreAt && groups.length > n) {
                 title += `  (+${groups.length - n} weitere)`;
             }
+            tileFrame(rest[gi], cx, cy, cellW, cellH);
             // cell content first, header strip after — the click target must sit ON TOP
             // of any chart marks (labels can reach into the strip), or clicks get eaten
             renderCell(rest[gi],
@@ -11643,7 +11705,7 @@ export class Visual implements IVisual {
 
     /** period-wise sum of several cards' trend series (Σ tile, Rest / immaterial
      *  collector card) — null when a card has no series or the axes differ */
-    private sumTrendSeries(kids: DataPoint[]): { series: (TrendPt | null)[]; ref: number } | null {
+    private sumTrendSeries(kids: DataPoint[], mean = false): { series: (TrendPt | null)[]; ref: number } | null {
         if (kids.length === 0 || kids.some(c => !c.trendSeries)) { return null; }
         const len = (kids[0].trendSeries as (TrendPt | null)[]).length;
         if (kids.some(c => (c.trendSeries as (TrendPt | null)[]).length !== len)) { return null; }
@@ -11653,6 +11715,8 @@ export class Visual implements IVisual {
         for (let i = 0; i < len; i++) {
             let acc: TrendPt | null = null;
             let allFc = true;
+            // 1.55 (B13): mean = divisor per field is the number of cards with a value
+            const cnt = { ac: 0, py: 0, pl: 0, fc: 0, value: 0 };
             for (const c of kids) {
                 const t = (c.trendSeries as (TrendPt | null)[])[i];
                 if (!t) { continue; }
@@ -11662,7 +11726,21 @@ export class Visual implements IVisual {
                 acc.pl = add(acc.pl, t.pl);
                 acc.fc = add(acc.fc, t.fc);
                 acc.value = add(acc.value, t.value);
+                if (mean) {
+                    if (t.ac != null) { cnt.ac++; }
+                    if (t.py != null) { cnt.py++; }
+                    if (t.pl != null) { cnt.pl++; }
+                    if (t.fc != null) { cnt.fc++; }
+                    if (t.value != null) { cnt.value++; }
+                }
                 if (t.value != null && !t.isFc) { allFc = false; }
+            }
+            if (acc && mean) {
+                const m = acc;
+                (["ac", "py", "pl", "fc", "value"] as const).forEach(f => {
+                    const v = m[f];
+                    if (v != null && cnt[f] > 0) { m[f] = v / cnt[f]; }
+                });
             }
             if (acc) { acc.isFc = acc.value != null && allFc; }
             series.push(acc);
@@ -11703,7 +11781,8 @@ export class Visual implements IVisual {
      * ("Σ Gesamt" / "Rest (n)"): categories aligned by label (+ stack series), values
      * summed, variances recomputed on the sums
      */
-    private aggregateGroups(subsets: DataPoint[][], name: string): { name: string; pts: DataPoint[] } {
+    private aggregateGroups(subsets: DataPoint[][], name: string, agg: "sum" | "mean" = "sum"): { name: string; pts: DataPoint[] } {
+        if (agg === "mean") { return this.meanGroups(subsets, name); }
         const order: string[] = [];
         const byKey = new Map<string, DataPoint[]>();
         for (const pts of subsets) {
@@ -11726,6 +11805,80 @@ export class Visual implements IVisual {
             agg.bm = bm;
             // KPI cards + Trend role: the Σ / Rest tile keeps a summed time series
             const ts = this.sumTrendSeries(kids);
+            if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
+            return agg;
+        });
+        return { name, pts };
+    }
+
+    /**
+     * 1.55 (B13, IBCS sheet 13A): the average tile ("Ø"). Per category (+ stack
+     * series) and per field the divisor is the number of TILES with a value in that
+     * field (null is not 0). Variances are taken over pairs: ΔØ = mean(value − basis)
+     * over the tiles that have both, Δ% = that mean over the mean basis of the same
+     * tiles, so "mean of Δ = Δ of means" holds with uneven coverage too. A period
+     * stays forecast only if every tile flags it (as in the sum).
+     */
+    private meanGroups(subsets: DataPoint[][], name: string): { name: string; pts: DataPoint[] } {
+        const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
+        const order: string[] = [];
+        const byKey = new Map<string, DataPoint[]>();
+        for (const pts of subsets) {
+            // one point per tile and key (a tile with duplicate rows is summed first)
+            const local = new Map<string, DataPoint[]>();
+            for (const p of pts) {
+                const key = keyOf(p);
+                const b = local.get(key);
+                if (b) { b.push(p); } else { local.set(key, [p]); }
+                if (!byKey.has(key)) { byKey.set(key, []); order.push(key); }
+            }
+            local.forEach((kids, key) => {
+                let tp = kids[0];
+                if (kids.length > 1) {
+                    tp = this.aggregateHierarchy(kids[0].cat, kids);
+                    tp.stackSeries = kids[0].stackSeries;
+                    tp.isFc = kids.every(c => c.isFc);
+                    let bm: number | null = null;
+                    for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
+                    tp.bm = bm;
+                    const ts = this.sumTrendSeries(kids);
+                    if (ts) { tp.trendSeries = ts.series; tp.trendRef = ts.ref; }
+                }
+                (byKey.get(key) as DataPoint[]).push(tp);
+            });
+        }
+        const b2 = (p: DataPoint) => this.basis2Mode === "plan" ? p.pl : p.py;
+        const pts = order.map(key => {
+            const tiles = byKey.get(key) as DataPoint[];
+            const mean = (get: (p: DataPoint) => number | null): number | null => {
+                let acc = 0, n = 0;
+                for (const t of tiles) { const v = get(t); if (v != null) { acc += v; n++; } }
+                return n > 0 ? acc / n : null;
+            };
+            const pairs = (get: (p: DataPoint) => number | null): { d: number; b: number } | null => {
+                let d = 0, b = 0, n = 0;
+                for (const t of tiles) {
+                    const bv = get(t);
+                    if (t.value != null && bv != null) { d += t.value - bv; b += bv; n++; }
+                }
+                return n > 0 ? { d: d / n, b: b / n } : null;
+            };
+            const agg = this.aggregateHierarchy(tiles[0].cat, tiles);
+            agg.ac = mean(p => p.ac); agg.py = mean(p => p.py); agg.pl = mean(p => p.pl);
+            agg.fc = mean(p => p.fc); agg.value = mean(p => p.value); agg.basis = mean(p => p.basis);
+            agg.fcPrev = mean(p => p.fcPrev); agg.bm = mean(p => p.bm);
+            const v1 = pairs(p => p.basis);
+            agg.varAbs = v1 ? v1.d : null;
+            agg.varRel = v1 ? relVar(v1.d, v1.b) : null;
+            const v2 = pairs(b2);
+            agg.var2Abs = v2 ? v2.d : null;
+            agg.var2Rel = v2 ? relVar(v2.d, v2.b) : null;
+            agg.group = name;
+            agg.stackSeries = tiles[0].stackSeries;
+            agg.isFc = tiles.every(c => c.isFc);
+            agg.rowType = tiles[0].rowType;
+            // KPI cards + Trend role: the Ø tile keeps an averaged time series
+            const ts = this.sumTrendSeries(tiles, true);
             if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
             return agg;
         });
