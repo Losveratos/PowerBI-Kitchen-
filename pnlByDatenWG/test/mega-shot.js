@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -243,7 +243,7 @@ function readMega(id) {
     }
     if (S.m52) {
         const ids52 = S.m52.rowIds;
-        check("m52 T01C without a common root: Europe first (+80), Americas (−127), Rest of World stays, total last",
+        check("m52 T01C without a common root: blocks in category order (Europe, Americas, Rest of World), total last",
             ids52[ids52.length - 1] === "__TOTAL__" && ids52.indexOf("L:Europe") < ids52.indexOf("L:Americas")
             && ids52.indexOf("L:Americas") < ids52.indexOf("L:Rest of World"), ids52.filter(x => x.startsWith("L:") || x === "__TOTAL__").join(","));
     }
@@ -268,6 +268,11 @@ function readMega(id) {
         check("m54 T02D arrow ΔPL%(↓) on the pin head of the _November block, once", heads("m54").filter(t => t === "ΔPL%(↓)").length === 1, heads("m54").join("|"));
         check("m54 T02D blocks in category order (Europe −3.5 % before Americas +0.3 %, as the sheet)",
             blockOrder("m54") === "Europe,Americas,Rest of World", blockOrder("m54"));
+    }
+    if (S.m57) {
+        check("m57 T02C applied fresh: blocks in category order (sheet), Europe rows by ΔPL of the month",
+            blockOrder("m57") === "Europe,Americas,Rest of World" && leavesOf("m57", "Europe").split(",")[0] === "Other" === false
+            && leavesOf("m57", "Europe").endsWith("Other"), blockOrder("m57") + " | " + leavesOf("m57", "Europe"));
     }
     if (S.m55) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",

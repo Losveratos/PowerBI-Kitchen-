@@ -342,7 +342,7 @@ export const UI_EN: Record<string, string> = {
     UI_TuT02A: "ΔPL bars and pins: which area is above, which below plan — at a glance.",
     UI_TtT02B: "Ranking by actual (YTD)",
     UI_TuT02B: "T02A sorted by AC: the largest areas on top — for top / flop lists.",
-    UI_TtT01D: "Forecast ranking by variance in % (month)",
+    UI_TtT01D: "Forecast ranking by variance to PY in % (month)",
     UI_TuT01D: "Forecast by country with subtotals, each block sorted by the month's \u0394PY%: who grows fastest.",
     UI_TtT02D: "Ranking by variance in % (YTD)",
     UI_TuT02D: "T02A sorted by the year-to-date \u0394PL%: the fair comparison between large and small units.",

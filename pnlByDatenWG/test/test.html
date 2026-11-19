@@ -89,13 +89,14 @@
 <div class="case"><h4>m49 · 1.8 · T02A ohne gemeinsame Wurzel · Gesamtzeile „World" mit Balken und Pins auf der gemeinsamen Skala</h4><div class="stage" id="m49" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m50 · 1.8 · T01B ohne gemeinsame Wurzel, structureTotal aus (Bericht vor 1.8) · keine Gesamtzeile</h4><div class="stage" id="m50" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m51 · 1.8 · GuV-Daten mit structureTotal an · keine Gesamtzeile (Statement)</h4><div class="stage" id="m51" style="width:1320px;height:500px"></div></div>
-<div class="case"><h4>m52 · 1.8 · T01C ohne gemeinsame Wurzel · Blöcke sortiert, Gesamtzeile bleibt unten</h4><div class="stage" id="m52" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m52 · 1.8 · T01C ohne gemeinsame Wurzel · Zeilen je Block sortiert, Blöcke in Kategoriereihenfolge, Gesamtzeile bleibt unten</h4><div class="stage" id="m52" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m53 · 1.8 · T01D · FC je Land (FC-Zahlen des Blatts), je Block nach ΔPY% des Monats sortiert</h4><div class="stage" id="m53" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m54 · 1.8 · T02D · nach ΔPL% _November sortiert, Pfeil am Pin-Kopf, Blöcke in Kategoriereihenfolge</h4><div class="stage" id="m54" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m55 · 1.8 · T02C mit keepBlockOrder aus (Bericht vor 1.8) · Blöcke nach ihrer Summe sortiert</h4><div class="stage" id="m55" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m56 · 1.8 · T01A ohne gemeinsame Wurzel · flache Länderliste plus Gesamtzeile, „% vom Umsatz" auf die Gesamtzeile</h4><div class="stage" id="m56" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>t11a · 1.8 · ROI-Baum (Blatt 11A) · Jahre 2021 bis 2027, AC bis 2025, PL 2026/2027 · Kapitalumschlag als Faktor („KPI factor“)</h4><div class="stage" id="t11a" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>t11b · 1.8 · derselbe Baum, Kapitalumschlag ohne Token (wie bis 1.7: Prozent)</h4><div class="stage" id="t11b" style="width:1300px;height:720px"></div></div>
+<div class="case"><h4>m57 · 1.8 · T02C neu angewendet · Blöcke in Kategoriereihenfolge wie im Blatt (Europe vor Americas)</h4><div class="stage" id="m57" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -567,6 +568,9 @@ const ROI_OBJ = { titleBlock: { unitLine: "Alpha Software Corporation, Germany",
   state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } };
 runRows("t11a", MEGA_DEMO.roi(), ROI_OBJ);
 runRows("t11b", MEGA_DEMO.roi({ ctPct: true }), ROI_OBJ);
+
+// m57 — 1.8 T02C applied fresh: keepBlockOrder from the template, the sheet's block order
+runRows("m57", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02C" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

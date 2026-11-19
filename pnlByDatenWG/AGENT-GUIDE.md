@@ -920,7 +920,12 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     sortierenden Templates (T01C, T01D, T02B bis T02F) setzen es an. Wie
     `structureTotal` steht es in `TEMPLATE_SWITCHES_1_8`: ein mit 1.7
     angewendetes T02C sortiert seine Blöcke weiter, bis das Template neu
-    angewendet oder der Schalter gesetzt wird.
+    angewendet oder der Schalter gesetzt wird. Einzelzeilen-Segmente (Region
+    ohne Länder, Einkindgruppe, zugeklappte Region) zwischen den Blöcken werden
+    auch mit dem Schalter untereinander gereiht, ein „Other …"-Block geht ans
+    Ende. Achtung: ein PBIR-Bericht mit `template`, aber ohne `templateApplied`
+    wendet das Template bei jedem Laden neu an und bekommt damit die 1.8-Schalter.
+    Kleine Basen ergeben große Δ% und stehen oben.
 
 28. **KPI-Zahlformat und ROI-Baum (1.8, B07):** `InputRow.kfmt` kommt aus dem
     RowType-Token (`engine.parseRowTypeInfo`, `KPI_FORMAT_TOKENS`) und reist im

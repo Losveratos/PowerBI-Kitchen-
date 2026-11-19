@@ -280,6 +280,14 @@ test("1.8 sort pct + keepBlockOrder: Δ% of the reference, n.a. last, Other and 
     const singles = [acc("a", null), gap(), acc("b", null), gap(), acc("c", null)];
     const s1 = M.orderRows({ rows: singles, blocks: [blk], t: Object.assign({}, t, { keepBlockOrder: true }), statement: false });
     assert.equal(ids(s1), "a,|,c,|,b");
+    // a block, single rows (regions without countries) and an "Other" block: the blocks stay,
+    // the single rows between them are ranked among themselves, "Rest …" goes last
+    const mixed = [sum("rest"), gap(), acc("b", null), gap(), acc("a", null), gap(), acc("d", "am"), acc("e", "am"), sum("am"), gap(),
+        acc("z", null), gap(), acc("c", null)];
+    const V3 = Object.assign({}, V, { rest: [5, 20] });
+    const blk3 = Object.assign({}, blk, { delta: (r) => { const [a, b] = V3[r.id]; return { d: a - b, p: b === 0 ? null : (a - b) / Math.abs(b), good: a >= b, impact: a - b, impactPct: null, pp: false }; } });
+    const m1 = M.orderRows({ rows: mixed, blocks: [blk3], t: Object.assign({}, t, { keepBlockOrder: true }), statement: false });
+    assert.equal(ids(m1), "a,|,b,|,e,d,am,|,c,|,z,|,rest");
     // the arrow: pct sits on the Δ% number of the reference, else on its pin, else on the category head with the key
     const L = M.layoutMega(regionInput({ t: Object.assign(toggles(M.MEGA_PRESETS.T01A), { sort: "pct", sortBlock: 0 }) }));
     const heads = L.cols.map(c => c.head);

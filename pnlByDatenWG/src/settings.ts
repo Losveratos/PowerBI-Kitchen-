@@ -97,7 +97,7 @@ const templateItems: LocEnumMember[] = [
     { value: "T01A", displayName: "T01A · structure, values + Δ, month | YTD", key: "Enum_Template_T01A" },
     { value: "T01B", displayName: "T01B · T01A with subtotal blocks", key: "Enum_Template_T01B" },
     { value: "T01C", displayName: "T01C · T01B sorted by ΔPY (YTD)", key: "Enum_Template_T01C" },
-    { value: "T01D", displayName: "T01D · FC by country, sorted by Δ% (month)", key: "Enum_Template_T01D" },
+    { value: "T01D", displayName: "T01D · T01B with FC, sorted by ΔPY% (month)", key: "Enum_Template_T01D" },
     { value: "T02A", displayName: "T02A · ΔPL bars + pins, month | YTD", key: "Enum_Template_T02A" },
     { value: "T02B", displayName: "T02B · T02A sorted by AC (YTD)", key: "Enum_Template_T02B" },
     { value: "T02C", displayName: "T02C · T02A sorted by Δ (month)", key: "Enum_Template_T02C" },
@@ -470,7 +470,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     sortBlock = dropdown("sortBlock", "Mega_SortBlock", "Sorting block",
         "Which period block decides the order. Default: YTD block", sortBlockItems, 1);
     keepBlockOrder = megaToggle("keepBlockOrder", "Keep the block order", false,
-        "Subtotal blocks (regions) stay in category order, only the rows inside them are sorted, as in the IBCS sheets. Off: the blocks are sorted by their total too. Rows named Other … and the total row stay at the bottom either way. Default: off");
+        "Subtotal blocks (regions) stay in category order, only the rows inside them are sorted, as in the IBCS sheets; single rows between the blocks are ranked among themselves. Off: the blocks are sorted by their total too. Rows and blocks named Other … and the total row stay at the bottom either way. Default: off");
 
     general = new formattingSettings.Group({
         name: "columnsGeneral",

@@ -911,13 +911,24 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
     const fixed = (s: MegaRow[]): boolean => s.some(r => megaAnchor(r));
     const segKey = (s: MegaRow[]): number => key(s[s.length - 1]);
     const free = real.filter(s => !fixed(s));
-    // 1.8 (B04) keepBlockOrder: the blocks stay in category order, only the rows
-    // inside them are sorted (the IBCS sheets T01C/D, T02B to T02F). It needs at
-    // least one real block — a table of single rows only is sorted as before,
-    // else the switch would switch the sorting off
-    const keep = !!t.keepBlockOrder && real.some(s => s.length > 1);
-    const order = keep ? free : [...free.filter(s => !s[s.length - 1].other).sort((x, y) => cmp(segKey(x), segKey(y))),
-        ...free.filter(s => s[s.length - 1].other)];
+    // 1.8 (B04) keepBlockOrder: the blocks (segments of more than one row) stay
+    // in category order, only the rows inside them are sorted (the IBCS sheets
+    // T01C/D, T02B to T02F). Single rows between them (a region without
+    // countries, a one-child group, a folded region) are still ranked among
+    // their direct neighbours, as since 1.5.2, and an "Other …" block still
+    // goes last — the switch keeps the blocks, it does not switch sorting off
+    const bySeg = (list: MegaRow[][]): MegaRow[][] => list.sort((x, y) => cmp(segKey(x), segKey(y)));
+    const plain = free.filter(s => !s[s.length - 1].other);
+    const others = free.filter(s => s[s.length - 1].other);
+    let order: MegaRow[][];
+    if (t.keepBlockOrder) {
+        order = []; let singles: MegaRow[][] = [];
+        for (const s of plain) {
+            if (s.length === 1) { singles.push(s); continue; }
+            order.push(...bySeg(singles), s); singles = [];
+        }
+        order.push(...bySeg(singles), ...others);
+    } else { order = [...bySeg(plain), ...others]; }
     let fi = 0;
     const gaps = rows.filter(r => r.kind === "gap");
     const out: MegaRow[] = [];

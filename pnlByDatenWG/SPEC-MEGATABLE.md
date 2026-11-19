@@ -53,6 +53,9 @@ PL doppelt, FC schraffiert (siehe T01/T03-Köpfe und Summen-Unterstreichungen).
 - Sortierung je Block: Kategorie-Reihenfolge, AC↓ oder Δ↓; Indikator `(↓)` im
   Spaltenkopf (T02B/C). 1.5.2: die Blöcke der obersten Ebene (Region, Einkindgruppe,
   Region ohne Länder) folgen derselben Richtung, Gesamtsumme und „Rest …" bleiben unten.
+  1.8: zusätzlich Δ%↓ (`sort = pct`, Pfeil an der Δ%-Zahl, sonst am Pin) und der
+  Schalter `keepBlockOrder` (Blöcke in Kategoriereihenfolge wie in den Blättern,
+  Einzelzeilen dazwischen untereinander gereiht); alle sortierenden Templates setzen ihn.
 - EIN gemeinsamer Δ-Maßstab je Block (alle Zeilen), getrennte Maßstäbe je Block.
 
 ### Phase 3 — Integrierter Wasserfall (T04A–E)
@@ -298,7 +301,8 @@ wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
 | `marks` | `columns.scenarioMarks` | Szenario-Unterstreichungen in Kopf/Schluss |
 | `barLabels` | `columns.chartLabels` | Zahlen an Balken/Pins/Kaskaden |
 | `barCap` | `columns.capBars` | Ausreißer-Kappung auch für Δ-Balken (Pins immer) |
-| `sort` | `columns.sort` (category / minuend↓ / Δ↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
+| `sort` | `columns.sort` (category / minuend↓ / Δ↓ / 1.8 Δ%↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
+| – (1.8) | `columns.keepBlockOrder` | Blöcke der obersten Ebene in Kategoriereihenfolge (Standard aus = 1.5.2) |
 | `sortBlock` | `columns.sortBlock` (period / ytd) | welcher Block die Reihenfolge bestimmt (Kategorie-Spalte ist geteilt) |
 | – (1.1) | `columns.blockKind` / `columns.leftBlockKind` (month / ytd / fy) | Art des Perioden-Blocks bzw. des zweiten Blocks links |
 | – (1.1) | `columns.pctOfRevenue` | „% vom Umsatz"-Spalte im Mega-Modus |
@@ -393,7 +397,14 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
   und der Indikator wandert an den Kopf der Kategorie-Spalte mit Schlüssel und
   Block: `(↓) ΔPL November` (1.1; bis 1.0.1 fehlte er dann ganz). Bewusst kein
   stilles Umschalten auf eine sichtbare Spalte: Δ% ordnet anders als Δ, die
-  Reihenfolge wäre eine, die niemand eingestellt hat.
+  Reihenfolge wäre eine, die niemand eingestellt hat. 1.8 `sort = pct`: Pfeil an
+  der Δ%-Zahl der Referenz, sonst am Pin-Kopf (T02D), sonst am Kategorie-Kopf
+  (`(↓) ΔPL% _November`). Kleine Basen ergeben große Δ% und stehen oben (Japan
+  +161 %); der Pin kappt optisch, die Reihenfolge nicht.
+- **Blockreihenfolge (1.8):** 1.5.2 sortierte die Blöcke mit, die Blätter halten
+  sie in Kategoriereihenfolge. `keepBlockOrder` (Standard aus) stellt das
+  Blattverhalten her; die sortierenden Templates setzen es. Ein mit 1.7
+  angewendetes Template behält die Blocksortierung, bis es neu angewendet wird.
 
 ### Empfehlungen für die Visual-Ableitung
 
@@ -435,7 +446,7 @@ Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
   umgewidmet (sie bleiben die Presets der klassischen Tabelle); die
   Template-Wahl ist das neue Dropdown `columns.template` (off · T01A · T01B ·
   T02A · T02B · T02C · T02E · T02F · T03A · T03B · T04A · T04B · T04C · T04D ·
-  T04E · 12A). Phase 3 ergänzt die Schalter `dPyWaterfall`/`dPlWaterfall`
+  T04E · 12A; später 12G, 12H, T05A, T05B, 1.8 T01C, T01D, T02D). Phase 3 ergänzt die Schalter `dPyWaterfall`/`dPlWaterfall`
   (integrierter Δ-Wasserfall) und `valueCascade` (Wert-Kaskaden, 12A).
 - **Template-Persistenz:** Wählt der Autor ein Template, schreibt das Visual
   alle Schalter des Presets plus `numbers.decimals/pctDecimals` und das
