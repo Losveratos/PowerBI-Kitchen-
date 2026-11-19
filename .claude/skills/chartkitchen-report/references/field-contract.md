@@ -133,7 +133,7 @@ Aus dem Objekt `chart` in `capabilities.json`, Defaults/Beschreibung aus
 skalieren). Säulen/Balken/Waterfall teilen die Skala immer.
 
 ### Bridge (Waterfall/Brücken)
-`waterfallStyle` (bool, Columns/Bars als Brücke), `sortByImpact` (bool),
+`waterfallStyle` (bool, Columns/Bars als Brücke), `sortMode` (Enum off|abs|signed|pct|ac, ab 1.54; `sortByImpact` bool nur noch Altbestand),
 `chartButtons` (bool, In-Chart-Umschalter ΔPY/ΔPL/⇅/▶, default true),
 `driverNote` (bool, Treiber-Notiz).
 

@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
 
-Version · **1.53.0.0** · As of · **2026-10-24** · IBCS-inspired
+Version · **1.54.0.0** · As of · **2026-11-19** · IBCS-inspired
 
 ## Contents
 
@@ -26,7 +26,7 @@ Version · **1.53.0.0** · As of · **2026-10-24** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.53.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07).
+This guide describes the state of version **1.54.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07).
 
 ## 02 · The product family
 
@@ -71,7 +71,7 @@ If you can operate one of the two visuals, you can operate the other: getting st
 | Shared | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
-| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 11 IBCS chart templates C01–C13 (without C07/C11) in four groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
+| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 17 IBCS chart templates C01–C19 (without C07/C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
 | **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane HD · Full HD · UHD; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
 | **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
 | **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
@@ -96,19 +96,25 @@ Every sub-page carries the **“← Back”** pill at the top left; Esc goes bac
 
 ### The template gallery by purpose
 
-The eleven IBCS templates (chapter 07) appear as tiles with a preview in four groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
+The 17 IBCS templates (chapter 07) appear as tiles with a preview in five groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
 
 | Group | Template | Tile title | Benefit line |
 | --- | --- | --- | --- |
 | **Time series** | C01 | Stacked columns by segment | Revenue mix per month |
 |  | C03 | Columns with prior-year variance | Monthly report AC vs. PY |
+|  | C19 | Columns vs. plan + year | Months AC/FC vs. PL, year on own scale |
 |  | C05 | Integrated year bridge | PY → AC/FC across the months |
 |  | C08 | Line for long series | Weekly or daily trend vs. PY |
 | **Structure** | C02 | Stacked bars by segment | Cost structure per unit |
 |  | C04 | Bars with plan variance | Regions or products AC vs. PL |
 |  | C06 | Driver bridge by category | Which units explain ΔPY? |
+|  | C17 | Horizontal driver bridge | Many units: PY → AC per row |
+| **Rankings vs. plan** | C14 | Bar table sorted by ΔPL | Who is furthest above plan? |
+|  | C15 | Bar table sorted by ΔPL % | Relative ranking vs. plan |
+|  | C16 | Bar table sorted by AC | Top units, plan alongside |
 | **Correlation** | C09 | Scatter with quadrants | Revenue vs. margin per customer |
 |  | C10 | Bubble chart | Plus volume as bubble size |
+|  | C18 | Variance scatter | ΔPY % against ΔPL % per product |
 | **Bridges & multiples** | C12 | Waterfall / P&L bridge | Revenue → EBIT step by step |
 |  | C13 | Small multiples | One chart per region, same scale |
 
@@ -147,7 +153,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 
 ### 1 · Import the visual
 
-1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.53.0.0.
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.54.0.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 
@@ -312,7 +318,7 @@ The following captures come straight from Power BI Desktop, with sample data fro
 
 ## 07 · Features in detail
 
-### IBCS templates C01–C13
+### IBCS templates C01–C19
 
 Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the same pattern as the table templates in the sister visual P&L Statement. A template is only a starting point: it sets chart type, variance basis, variance panels and the matching switches in one save; afterwards every setting is free to change.
 
@@ -334,6 +340,14 @@ Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the sa
 | C10 · Bubble | like C09, plus the size legend | X axis + bubble size |
 | C12 · Waterfall / bridge | Waterfall, basis Auto, variance absolute and in % | Waterfall type recommended |
 | C13 · Small multiples | Σ total tile and same scale; the chart type stays | Small Multiples |
+| C14 · Bar table by ΔPL (sheet 04A) | Table vs. plan, variance absolute and in %, sorted by ΔPL descending, Σ row at the bottom as scenario legend (■ AC □ PL) with ΔPL bar and pin, no row lines | Plan (PL) |
+| C15 · Bar table by ΔPL % (sheet 04B) | like C14, sorted by ΔPL % descending | Plan (PL) |
+| C16 · Bar table by AC (sheet 04C) | like C14, sorted by AC descending (ranking) | Plan (PL) |
+| C17 · Category bridge horizontal (sheet 06E) | Category bridge as a bar cascade, basis previous year, PY as a grey bar behind AC instead of a triangle, separator every 4 rows, no driver note | Previous Year (PY), plan optional |
+| C19 · Columns vs. plan with year column (sheet 03B) | Columns, basis plan, variance absolute and in %, year column AC + FC on its own scale with scale band, scenario labels at the columns | Plan (PL), forecast recommended |
+| C18 · Variance scatter (sheet 10F) | Scatter without mean quadrants, axis cross at 0 (reference lines X and Y), colour per group, size legend | Actual (AC) = ΔPL % measure, X axis = ΔPY % measure, series, bubble size optional |
+
+Since 1.54 switching templates cleans up: whatever the previous template set and the new one does not mention returns to its default (for example the reference lines of C18 when C09 is picked next). “Off” still changes nothing. Clicking a column header in C14 to C16 counts as a deviation; “↺ Back to template” restores the template’s sort.
 
 For PBIR authors: set `chart.template` and the hidden property `chart.templateApplied` to the same value — otherwise the visual applies the template on its first render (details in the [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/ibcsInspiredChartDeck/AGENT-GUIDE.md)).
 
@@ -385,12 +399,34 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 1. Under Chart → Table → “Value columns” switch between “AC only”, “AC + variance basis” and “AC · PY · PL”.
 2. The numeric reference values then sit next to the Δbasis bar column and the Σ block — for print- and board-ready tables without bar interpretation.
 
+### Scenarios in stacks
+
+![Stacked columns over 15 months: actual solid, forecast hatched in the series tint, plan as a tinted outline with its own stack total, dashed separators between the scenarios and the labels AC, FC and PL under the axis (IBCS sheet 01C).](../doku-assets/feature-stack-scenarios.png)
+
+1. Since 1.54 stacked columns and bars follow the scenario notation, without a new setting: every category gets one scenario. If a series has an actual there, it is AC; otherwise FC if a forecast exists (“Forecast” measure or forecast flag); otherwise PL if only the plan is bound.
+2. Forecast segments are hatched in the tint of their series, so the series stay distinguishable. Plan months stack the plan values as an outline with a light tint; total and series names then refer to the plan.
+3. A dashed separator stands between AC, FC and PL (columns only, and only when the scenarios follow each other in blocks). “Scenario labels at the columns” writes AC, FC and PL under the first month of each block.
+4. Stacks now also show the reference line (Scale card), “Group separator every N categories” and the comment markers (at the segment, outside the column). Stacks without forecast, without a plan for months that have no actual, without reference line, without “Group separator every N categories” and without a comments measure draw exactly as before. For existing reports this changes: a plan bound for future months now shows as a plan outline, and a reference line, group separator or bound comments measure that had no effect in stacks before is now drawn.
+5. No plan outline is drawn next to an actual month, as in the IBCS sheets 01A to 01C.
+
+### Year column with its own scale
+
+![Months against plan, on the right the year column AC + FC on its own scale (×0.1). The blue band sits at the same value on both scales, the slanted line joins the two bands; ΔPL and ΔPL % of the year sum sit in the variance panels (IBCS sheets 03A and 03B).](../doku-assets/feature-year-column.png)
+
+1. Since 1.54: switch on Chart → Data & time → “Year column (own scale)” (columns only). The template C19 “Columns vs. plan + year” sets it together with basis plan and the scenario labels.
+2. The year column sums every month with a value: AC as the solid socket, FC hatched on top, PY or PL behind. If the comparison basis is missing for some months, the column sums only the months with a basis, so the variance compares like with like, and says so in its label, e.g. “2025 (9/12)”. Preliminary months count as actual.
+3. The own scale is always a round fraction of the month scale (e.g. ×0.1) on the same zero line and is declared: the factor in the gap at the zero line, the same value as a blue band in the months and the year column. The variances of the year sum run on the scale of the monthly variances, as in the sheet. If the year variance is more than four times the largest monthly variance, it gets the year column's factor, declared next to the bar.
+4. “Year column label” sets the text under the axis (e.g. 2025, empty = Σ). The Σ header is dropped; the year column replaces it.
+5. No effect with the cumulative view (YTD already is the last column there), waterfall bridge, stacks, P&L rows and very small tiles. Small multiples share one year scale.
+6. “Scenario labels at the columns” (Display group) writes AC under the first actual month, FC under the first forecast month and AC/FC next to the parts of the year column.
+
 ### Σ row position
 
 ![Σ row on top (totalRowPosition top): the total sits directly under the header, the detail rows follow below.](../doku-assets/feature-total-top.png)
 
 1. Under Chart → Table → “Total (Σ) row position” choose “Top” (right under the header, IBCS) or “Bottom” (default, German P&L reading).
 2. In both cases the Σ row stays frozen while scrolling vertically.
+3. Since 1.54 “Σ row as scenario legend” shows only the sums with their scenario marks (■ AC, □ PL) in the bar column instead of a long total bar. The row bars keep the full column width, as in the IBCS sheets 04A to 04C.
 
 ### Table comfort: zebra, grid, density, search, sorting
 
@@ -580,7 +616,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples · default „Off (no template)“ |
+| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter, C19 columns vs. plan with a year column. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) \| C19 · Columns vs. plan + year column (03B) · default „Off (no template)“ |
 | Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) · default „Columns (Time)“ |
 | Smart-Start suggestions | Shows a subtle suggestion chip top-left of the chart when the bound fields clearly point to a better-fitting mode (e.g. date + AC + PL → columns with ΔPL). Only visible in edit mode, never in the read view or in exports. | On / Off · default On |
 | Variance basis | Basis for the variance panels. Auto: PL if available, otherwise PY. | Options: Auto \| Previous Year (PY) \| Plan (PL) \| Prior-month FC (revision) · default „Auto“ |
@@ -589,6 +625,8 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Dual variance (PL + PY) | Additionally shows the variance panels for the second basis — ΔPL and ΔPY at the same time (requires PY and PL). | On / Off · default Off |
 | PY as triangle (AC + PY + PL) | IBCS notation with three scenarios: when AC, PY and PL are bound, the previous year is shown as a grey triangle (▶) at the column/bar edge at PY height instead of as a third column — less cluttered. Off = PY shown as a grey column again. In the integrated bridge (C05) the triangle only appears with the third scenario since 1.52; with AC&FC + PY, PY is a grey, offset column. | On / Off · default On |
 | Total (Σ) header | Shows the total and the total variance as a header row. | On / Off · default On |
+| Year column (own scale) | Since 1.54 (property `chart.yearColumn`), columns only: a Σ column (AC + FC against PY or PL) to the right of the months, on its own scale. A blue scale band at the same value in the months and the year column shows the difference between the scales; Δbasis and Δbasis % of the year sum sit in the variance panels. Replaces the Σ header. Not with cumulative view, waterfall bridge or stacks. | On / Off · default Off |
+| Year column label | Since 1.54 (`chart.yearColumnLabel`): text under the year column, e.g. “2025”. Empty = “Σ”. | Free text · default empty |
 | Group separator every N categories | Draws a thin separator line after every N categories, across all panels — for structural comparisons with natural subgroups (e.g. regions). 0 = off. | 0–50 · default 0 |
 
 #### Analysis
@@ -604,6 +642,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Moving average (periods) | Thin overlay line with a moving average over N periods (Columns/Line). 0 = off. | 0–24 · default 0 |
 | Top N (bars) | Structure modes (Bars, Category bridge, Table, Dumbbell, KPI cards): shows the N largest categories, the rest is aggregated. 0 = all. | 0–50 · default 0 |
 | Highlight categories | Comma-separated category names to emphasize (IBCS EMPHASIZE), e.g. the current month. Since 1.53 alternatively as token `emphasize` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Jul, Aug |
+| Highlight style | Since 1.54 (`chart.highlightStyle`): highlighted categories as a subtle band behind the category (default) or as an ellipse around their numbers (value, Δ, Δ %), like the circles in the IBCS sheets 04A and 06E. The category name is not circled. | Options: Band behind the category \| Ellipse around the values · default Band |
 | Invert (higher is bad) | For cost KPIs: a higher value is bad (red), a lower value is good (green). | On / Off · default Off |
 | Invert per category | Comma-separated categories whose rating is reversed (e.g. cost rows next to revenue rows in KPI cards or the P&L table). Applies in addition to the global invert switch. Since 1.53 alternatively as token `invert` in the “Waterfall type” role (rowType, [token table](#rowtype)) — what applies is the union of role and list. | Free text · z. B. Opex, Materialaufwand |
 | Compare on click | Columns/Bars only: clicking two columns/bars shows the difference (absolute + %) as an overlay — clicks then no longer cross-filter. Clicking empty space resets. Off by default. | On / Off · default Off |
@@ -612,6 +651,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Δ%-pin shape | Shape of the lollipop head of the Δ% pins. "Automatic" keeps the previous style per mode (Columns/Bars/Waterfall round, bridges and table square); "Round" or "Square" unify all modes. | Options: Automatic (per mode) \| Round \| Square · default „Automatic (per mode)“ |
 | Trend icons ▲▼● | Prefixes the Δ values in the table and KPI cards with direction arrows: ▲ increase, ▼ decrease, ● immaterial (below the materiality threshold). Also readable in black-and-white print and for color-blind users — color still rates good/bad. | On / Off · default Off |
 | Stack legend at the stack | Display group, since 1.52.1 (property `chart.stackLegendDirect`): stacked columns and bars show the series names right at the stack (columns: next to the last column, bars: above the widest segment of each series) instead of a key at the top. When they do not fit, the key stays. Off = always the key at the top. | On / Off · default On |
+| Scenario labels at the columns | Since 1.54 (`chart.scenarioLabels`), columns only: AC under the first actual month, FC under the first forecast month, AC and FC next to the parts of the year column. | On / Off · default Off |
 
 #### Small Multiples
 
@@ -631,7 +671,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Setting | Description | Options / default |
 | --- | --- | --- |
 | Waterfall bridge | Columns/Bars only: shows the categories as a waterfall bridge from the basis (PY/PL) to AC with connecting lines instead of individual bars. Optional — off by default. | On / Off · default Off |
-| Sort by impact | Waterfall bridge only: sorts the categories by variance size (biggest driver first). A Top-N remainder row stays at the end. Also toggleable by clicking the ⇅ symbol in the chart. | On / Off · default Off |
+| Sort | Since 1.54 a choice instead of a switch (new property `chart.sortMode`). Reports up to 1.53 keep their stored “Sort by impact” (`chart.sortByImpact`, hidden in the format pane): it counts as “By impact \|Δ\|” and, as before, only works in the bridges until “Sort” is set once. Category bridge, waterfall bridge and bars: orders the categories by \|Δ\| (largest driver first), by signed Δ (largest plus first, regardless of good or bad, IBCS sheet 06F), by Δ % (06G) or by AC (06H), each descending. Rest rows (Rest, Other, Others, Sonstige, Übrige, “Rest of …” and the top-N rest row; the same rule as in the P&L Statement) stay italic at the end; a name has to be a rest label for this (“Other income” stays an account), and top N adds named rest rows to its rest row. The ⇅ symbol in the chart switches between off and \|Δ\|. The table's column sort keeps rest rows at the end as well. Small multiples sort each tile on its own. | Options: Off (data order) \| By impact \|Δ\| \| By Δ (largest plus first) \| By Δ % \| By AC · default Off |
 | In-chart buttons | Integrated/Category bridge: shows clickable buttons at the top right of the chart — ΔPY/ΔPL reference toggle, ⇅ sorting and ▶ build-up animation. The end user can switch the variance basis directly in the report; the choice is persisted. | On / Off · default On |
 | Fold chart controls (☰) | Interaction in the report group, since 1.52 (property `chart.chipMenu`): folds the in-chart controls (sort ⇅, YTD, ⫽ axis, ΔPY\|ΔPL, ▶, exception chip, mode chips, card sorting, scatter play, P&L view) behind a small ☰ at the top right. One click unfolds them, ✕ folds them again; nothing is saved. Off: always visible as before. | On / Off · default Off |
 | Driver note in chart | Category bridge: italic note at the biggest driver ("biggest driver · n % of the total variance") — overlays the row area, can be turned off here. | On / Off · default On |
@@ -655,6 +695,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Matrix: column comparison | Comparison within the matrix columns: "Δ vs. previous column" replaces the Δbasis per block with the change to the previous column (period comparison Q2 vs. Q1, Mar vs. Feb …). | Options: Off (Δ vs. basis) \| Δ vs. previous column · default „Off (Δ vs. basis)“ |
 | Formula rows | Calculated rows, semicolon-separated: "EBIT = Revenue - Costs" adds a subtotal row, "Margin = EBIT / Revenue" a % row. Operands are row names; please surround operators with spaces. Formula rows do not flow into the Σ row. | Free text · z. B. Marge = EBIT / Umsatz |
 | Total (Σ) row position | Where the Σ total row sits: “Bottom” (default, German P&L reading) below all rows, “Top” right under the header (IBCS). Stays frozen while scrolling. | Options: Bottom (below rows) \| Top (below header) · default „Bottom (below rows)“ |
+| Σ row as scenario legend | Since 1.54: the computed Σ row shows the scenario legend with its sums (■ AC, □ PL, grey PY) in the bar column instead of a bar and does not count towards the bar scale: the row bars use the full column width. The Σ row keeps its Δ bar and Δ% pin. No effect in the matrix or on sum rows from the data. Set by the templates C14 to C16. | On/Off · default Off |
 | Zebra stripes | Shades every second data row with a very subtle background — easier row tracking in wide tables. Off in high-contrast mode. Off by default. | On / Off · default Off |
 | Row density | Row height: “Compact” for dense tables, “Normal” (default) as before, “Airy” for more whitespace. Scales only the cap; very tall visuals stay bounded. | Options: Compact \| Normal \| Airy · default „Compact“ |
 | Grid lines | Separator style: “Horizontal” (default) row lines only, “None” for a calm look, “Horizontal + vertical” adds subtle column/block dividers. | Options: Horizontal \| None \| Horizontal + vertical · default „Horizontal“ |
@@ -878,7 +919,7 @@ It is locked because it would have no effect in the current state; the tooltip n
 
 An IBCS template is set and at least one of its settings has been changed. A click restores the template state; to keep your changes, set Chart → IBCS chart template to “Off”. Readers and exports never see the chip.
 
-**ChartKitchen byDatenWG** · Version 1.53.0.0
+**ChartKitchen byDatenWG** · Version 1.54.0.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 

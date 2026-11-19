@@ -446,6 +446,179 @@ run("BRIDGE", "Säulen + Brücke PL → AC", dataView(mon8, [col("actual", ac8, 
   measure(`CARDS Δ-Werte: ${ds.join(" ")}`);
   check(ds.length >= 3 && dec.every(d => d === dec[0]), "CARDS: gleiche Nachkommastellen auf allen Karten");
 }
+
+// ---- 1.54 (B05): Jahressäule mit eigener Skala (Blätter 03A gegen PY, 03B gegen PL)
+{
+  const m12 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const acY = [128, 147, 136, 139, 170, 193, 178, 189, 178, null, null, null];
+  const fcY = [null, null, null, null, null, null, null, null, null, 179, 189, 211];
+  // 03A: ΔPY je Monat aus dem Blatt (PY = AC − Δ), 03B: PL so, dass ΔPL dem Blatt folgt
+  const dPyY = [13, 13, -5, -13, -5, 10, 26, 25, 5, -5, -12, 28];
+  const dPlY = [-2, 2, -5, 3, 8, 3, 7, 1, -2, -5, -5, 21];
+  const valY = acY.map((v, i) => v != null ? v : fcY[i]);
+  const pyY = valY.map((v, i) => v - dPyY[i]), plY = valY.map((v, i) => v - dPlY[i]);
+  const sum = a => a.reduce((s, v) => s + (v || 0), 0);
+  const acSum = sum(acY), fcSum = sum(fcY);
+  const yc = { orientation: "columns", yearColumn: true, yearColumnLabel: "2025", scenarioLabels: true };
+  const caseY = (id, basis, bVals, dVals) => {
+    run(id, `Jahressäule · AC&FC gegen ${basis} (Blatt ${basis === "PY" ? "03A" : "03B"})`,
+      dataView(m12, [col("actual", acY, FMT), col("forecast", fcY, FMT),
+        col(basis === "PY" ? "previousYear" : "plan", bVals, FMT)],
+        { chart: Object.assign({ comparisonMode: basis === "PY" ? "py" : "plan" }, yc) }), 1100, 600);
+    const yg = document.querySelector(`#${id} [data-icd="year-column"]`);
+    const part = k => yg.querySelector(`rect[data-part="${k}"]`);
+    // (1) Monate auf EINER Skala: AC-Höhe / Wert über die neun Ist-Monate
+    const mg = [...document.querySelectorAll(`#${id} g.icd-cat:not([data-icd])`)].slice(0, 12);
+    const kM = mg.slice(0, 9).map((g, i) => {
+      const r = [...g.querySelectorAll(":scope > rect")].find(x => fill(x) === AC_C);
+      return num(r, "height") / acY[i];
+    });
+    const kMain = med(kM), spread = (Math.max(...kM) - Math.min(...kM)) / kMain;
+    // (2) Jahressäule auf eigener Skala: AC-Sockel, FC-Aufsatz und Basis teilen kY
+    const bSum = sum(bVals);
+    const kAc = num(part("ac"), "height") / acSum, kFc = num(part("fc"), "height") / fcSum;
+    const kB = num(part(basis === "PY" ? "py" : "pl"), "height") / bSum;
+    const f = parseFloat(yg.getAttribute("data-factor"));
+    const kY = med([kAc, kFc, kB]);
+    // (3) Skalenband: derselbe Wert in Monaten und Jahressäule, Verhältnis = Faktor
+    const band = document.querySelector(`#${id} [data-icd="scale-zoom-year"]`);
+    const bv = band ? parseFloat(band.getAttribute("data-band")) : NaN;
+    const hMon = band ? num(band.querySelector('rect[data-tier="months"]'), "height") : NaN;
+    const hYr = band ? num(band.querySelector('rect[data-tier="year"]'), "height") : NaN;
+    // (4) Δ der Jahressumme auf der Monats-Δ-Skala (wie im Blatt), Beschriftung = ΣΔ
+    const dRects = mg.map((g, i) => {
+      const r = [...g.querySelectorAll(":scope > rect")].find(x => [GOOD, BAD].includes(fill(x)) || /hatch-(good|bad)/.test(x.getAttribute("fill") || ""));
+      return r && Math.abs(dVals[i]) >= 10 ? num(r, "height") / Math.abs(dVals[i]) : null;
+    }).filter(v => v != null);
+    const kDm = med(dRects);
+    const dSum = sum(dVals);
+    const kDy = num(part("dabs"), "height") / Math.abs(dSum);
+    const yTexts = [...yg.querySelectorAll("text")].map(t => t.textContent);
+    // (5) Geometrie: gleiche Säulenbreite, rechts neben dem letzten Monat
+    const acWm = med(mg.slice(0, 9).map(g => num([...g.querySelectorAll(":scope > rect")].find(x => fill(x) === AC_C), "width")));
+    const lastX = Math.max(...mg.map(g => Math.max(...[...g.querySelectorAll(":scope > rect")].map(r => num(r, "x") + num(r, "width")))));
+    measure(`${id}: Monate ${r2(kMain)} px/Einheit (Streuung ${r2(spread * 100)} %) · Jahr ${r2(kY)} px/Einheit (AC ${r2(kAc)}, FC ${r2(kFc)}, ${basis} ${r2(kB)}) = Faktor ${r2(kY / kMain)} (data-factor ${f}) · Band ${bv}: ${r2(hMon)} px / ${r2(hYr)} px · ΔJahr ${r2(kDy)} vs. Monats-Δ ${r2(kDm)} px/Einheit · Texte ${yTexts.join(" ")}`);
+    check(spread < 0.01, `${id}: Monate auf einer Skala (Streuung ${r2(spread * 100)} %)`);
+    check(Math.abs(kAc - kY) / kY < 0.01 && Math.abs(kFc - kY) / kY < 0.02 && Math.abs(kB - kY) / kY < 0.01,
+      `${id}: Jahressäule AC, FC und ${basis} auf derselben eigenen Skala`);
+    check(f < 1 && Math.abs(kY / kMain - f) / f < 0.02, `${id}: eigene Skala = Monatsskala × ${f} (gemessen ×${r2(kY / kMain)})`);
+    check(!!band && Math.abs(hMon - kMain * bv) / (kMain * bv) < 0.02 && Math.abs(hYr / hMon - f) / f < 0.03,
+      `${id}: Skalenband ${bv} in beiden Skalen sichtbar, Höhenverhältnis = Faktor`);
+    check(!!document.querySelector(`#${id} [data-icd="year-zoom"]`), `${id}: Faktor „×${f}“ ausgewiesen`);
+    check(Math.abs(kDy - kDm) / kDm < 0.03, `${id}: ΔJahr auf der Monats-Δ-Skala`);
+    const dTxt = (dSum > 0 ? "+" : "−") + Math.abs(dSum);
+    check(yTexts.includes(dTxt) && yTexts.includes(String(acSum + fcSum).replace(/\B(?=(\d{3})+(?!\d))/g, ".")),
+      `${id}: Beschriftung Summe ${acSum + fcSum} und Δ ${dTxt}`);
+    check(Math.abs(num(part("ac"), "width") - acWm) < 0.01 && num(part("ac"), "x") > lastX,
+      `${id}: gleiche Säulenbreite, rechts neben den Monaten`);
+    check(document.querySelectorAll(`#${id} [data-icd="scen-label"]`).length === 4, `${id}: Szenario-Kürzel AC/FC an Achse und Jahressäule`);
+  };
+  caseY("YC03A", "PY", pyY, dPyY);
+  caseY("YC03B", "PL", plY, dPlY);
+  // Rückfall: kumuliert / Stapel / Wasserfall-Brücke / zu schmal → wie ohne Option (SVG gleich)
+  const norm = id => document.querySelector(`#${id} svg`).outerHTML.replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  const pair = (id, chart, w, h) => {
+    const dv = o => dataView(m12, [col("actual", acY, FMT), col("forecast", fcY, FMT), col("plan", plY, FMT)], { chart: o });
+    run(id + "a", "Rückfall mit Option", dv(Object.assign({ yearColumn: true }, chart)), w, h);
+    run(id + "b", "Rückfall ohne Option", dv(chart), w, h);
+    check(norm(id + "a") === norm(id + "b"), `${id}: Option wirkungslos, SVG gleich wie ohne`);
+  };
+  // Rückfall-Paare mit PY-Daten: das Jahres-Δ (80) liegt über dem Monatsmaximum (28) und
+  // würde eine Δ-Domain-Verschmutzung sichtbar machen
+  const pairPy = (id, chart, w, h) => {
+    const dv = o => dataView(m12, [col("actual", acY, FMT), col("forecast", fcY, FMT), col("previousYear", pyY, FMT)], { chart: o });
+    run(id + "a", "Rückfall mit Option (PY)", dv(Object.assign({ yearColumn: true }, chart)), w, h);
+    run(id + "b", "Rückfall ohne Option (PY)", dv(chart), w, h);
+    check(norm(id + "a") === norm(id + "b"), `${id}: Option wirkungslos, SVG gleich wie ohne`);
+  };
+  pairPy("YCnarrow", { orientation: "columns", comparisonMode: "py" }, 260, 420);
+  pairPy("YCcumPy", { orientation: "columns", comparisonMode: "py", cumulative: true }, 900, 420);
+  // Review B1/M1: Verlustmonate, Jahr negativ → eine Nulllinie, Säule bleibt im Panel
+  {
+    const mm = ["Q1", "Q2", "Q3", "Q4"];
+    run("YCneg", "Jahressäule · gemischte Vorzeichen, Jahr negativ", dataView(mm,
+      [col("actual", [100, -90, -90, -40], FMT), col("plan", [80, -60, -70, -30], FMT)],
+      { chart: { orientation: "columns", comparisonMode: "plan", yearColumn: true } }), 700, 420);
+    const yg = document.querySelector('#YCneg [data-icd="year-column"]');
+    const ar = yg && yg.querySelector('rect[data-part="ac"]');
+    const mon = [...document.querySelectorAll('#YCneg g.icd-cat:not([data-icd])')][0];
+    const mr = [...mon.querySelectorAll(":scope > rect")].find(x => fill(x) === AC_C);
+    const zeroM = num(mr, "y") + num(mr, "height");       // Q1 positiv: Unterkante = Null
+    const zeroY = ar ? num(ar, "y") : NaN;                // Jahr negativ: Oberkante = Null
+    const svgH = 420;
+    measure(`YCneg: Nulllinie Monate ${r2(zeroM)} · Jahr ${r2(zeroY)} · Jahressäule bis ${ar ? r2(num(ar, "y") + num(ar, "height")) : "–"} px`);
+    check(!!ar && Math.abs(zeroM - zeroY) < 0.6, "YCneg: Monate und Jahressäule auf derselben Nulllinie");
+    check(!!ar && num(ar, "y") + num(ar, "height") < svgH - 20, "YCneg: negative Jahressäule bleibt im Panel (über der Achsenbeschriftung)");
+  }
+  // Review M1: Monate mit Verlusten, Jahr positiv → dieselbe Nulllinie
+  {
+    run("YCnegPos", "Jahressäule · Verlustmonat, Jahr positiv", dataView(m12,
+      [col("actual", [120, 140, -60, 130, 150, 160, 170, 150, 140, 160, 150, 180], FMT), col("previousYear", [110, 130, -20, 120, 140, 150, 160, 140, 150, 150, 140, 170], FMT)],
+      { chart: { orientation: "columns", comparisonMode: "py", yearColumn: true } }), 1000, 460);
+    const ar = document.querySelector('#YCnegPos [data-icd="year-column"] rect[data-part="ac"]');
+    const mon = [...document.querySelectorAll('#YCnegPos g.icd-cat:not([data-icd])')][0];
+    const mr = [...mon.querySelectorAll(":scope > rect")].find(x => fill(x) === AC_C);
+    check(!!ar && Math.abs((num(mr, "y") + num(mr, "height")) - (num(ar, "y") + num(ar, "height"))) < 0.6,
+      "YCnegPos: Jahressäule steht auf der Nulllinie der Monate");
+  }
+  // Review M2/B2: Plan nur Jan bis Jun → Jahressäule über 6 Monate, sichtbar „(6/12)“;
+  // Dual-Varianz mit PY vollständig, PL halb: ΔPL des Jahres nur über die PL-Monate
+  {
+    const plHalf = plY.map((v, i) => i < 6 ? v : null);
+    run("YCpart", "Jahressäule · Plan nur Jan bis Jun", dataView(m12, [col("actual", acY, FMT), col("forecast", fcY, FMT), col("plan", plHalf, FMT)],
+      { chart: { orientation: "columns", comparisonMode: "plan", yearColumn: true, yearColumnLabel: "2025" } }), 1000, 460);
+    const yg = document.querySelector('#YCpart [data-icd="year-column"]');
+    const txt = yg ? [...yg.querySelectorAll("text")].map(t => t.textContent) : [];
+    const tip = yg ? yg.getAttribute("aria-label") : "";
+    check(!!yg && yg.getAttribute("data-partial") === "1" && txt.includes("2025 (6/12)") && /6 (von|of) 12/.test(tip),
+      `YCpart: Teilsumme sichtbar „2025 (6/12)“ + Tooltip (${txt.filter(t => /2025/.test(t)).join("|")})`);
+    run("YCdual", "Jahressäule · Dual ΔPY + ΔPL, PL nur Jan bis Jun", dataView(m12, [col("actual", acY, FMT), col("forecast", fcY, FMT),
+      col("previousYear", pyY, FMT), col("plan", plHalf, FMT)],
+      { chart: { orientation: "columns", comparisonMode: "py", dualVariance: true, yearColumn: true } }), 1000, 700);
+    const yd = document.querySelector('#YCdual [data-icd="year-column"]');
+    const dTexts = yd ? [...yd.querySelectorAll("text")].map(t => t.textContent) : [];
+    const d2 = sum(valY.slice(0, 6)) - sum(plHalf.slice(0, 6));
+    const plOutline = yd && yd.querySelector('rect[data-part="pl"]');
+    check(!!yd && dTexts.includes((d2 >= 0 ? "+" : "−") + Math.abs(d2)) && !plOutline,
+      `YCdual: ΔPL des Jahres nur über die PL-Monate (${d2}), kein halber PL-Umriss hinter der Jahressäule`);
+  }
+  // Review M4: Jahres-Δ weit über den Monats-Δ → eigene Reduktion mit „×f“ an der Säule
+  {
+    const pyLow = valY.map(v => Math.round(v / 1.25));
+    run("YCbigD", "Jahressäule · +25 % gegen PY (Jahres-Δ > 4× Monats-Δ)", dataView(m12,
+      [col("actual", acY, FMT), col("forecast", fcY, FMT), col("previousYear", pyLow, FMT)],
+      { chart: { orientation: "columns", comparisonMode: "py", yearColumn: true } }), 1000, 520);
+    const tag = document.querySelector('#YCbigD [data-icd="year-delta-zoom"]');
+    const yb = document.querySelector('#YCbigD [data-icd="year-column"] rect[data-part="dabs"]');
+    const f = parseFloat(document.querySelector('#YCbigD [data-icd="year-column"]').getAttribute("data-factor"));
+    const dSumBig = sum(valY) - sum(pyLow);
+    const mg = [...document.querySelectorAll('#YCbigD g.icd-cat:not([data-icd])')];
+    const kDm = med(mg.map((g, i) => {
+      const r = [...g.querySelectorAll(":scope > rect")].find(x => [GOOD, BAD].includes(fill(x)));
+      const d = valY[i] - pyLow[i];
+      return r && Math.abs(d) >= 20 ? num(r, "height") / Math.abs(d) : null;
+    }).filter(v => v != null));
+    const kDy = yb ? num(yb, "height") / Math.abs(dSumBig) : NaN;
+    measure(`YCbigD: Monats-Δ ${r2(kDm)} px/Einheit · Jahres-Δ ${r2(kDy)} px/Einheit · Faktor ${f}`);
+    check(!!tag && Math.abs(kDy / kDm - f) / f < 0.03, "YCbigD: Jahres-Δ auf der reduzierten Skala, „×f“ ausgewiesen");
+  }
+  // Review m7: Small Multiples · gleicher Faktor in allen Kacheln, keine Σ-Kopfzeile
+  {
+    const cats = [], mult = [], a = [], b = [];
+    ["Nord", "Süd", "West"].forEach((r, k) => m12.forEach((mm, i) => {
+      cats.push(mm); mult.push(r); a.push(valY[i] * [1, 0.7, 0.4][k]); b.push(plY[i] * [1, 0.72, 0.38][k]);
+    }));
+    run("YCsm", "Jahressäule · Small Multiples", dataView(cats, [col("actual", a, FMT), col("plan", b, FMT)],
+      { chart: { orientation: "columns", comparisonMode: "plan", yearColumn: true } }, mult), 1100, 520);
+    const fs = [...document.querySelectorAll('#YCsm [data-icd="year-column"]')].map(g => g.getAttribute("data-factor"));
+    check(fs.length === 3 && fs.every(f => f === fs[0]) && !/Σ \d/.test(document.getElementById("YCsm").textContent),
+      `YCsm: gleicher Faktor in allen Kacheln (${fs.join(", ")}), keine Σ-Kopfzeile`);
+  }
+  pair("YCcum", { orientation: "columns", cumulative: true }, 900, 420);
+  pair("YCwf", { orientation: "columns", waterfallStyle: true }, 900, 520);
+  pair("YCbars", { orientation: "bars" }, 900, 520);
+  pair("YCcompact", { orientation: "columns" }, 600, 170);
+}
 </script>
 </body>
 </html>

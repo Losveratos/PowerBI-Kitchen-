@@ -1,5 +1,64 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
+
+**Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Neue Schalter stehen standardmäßig aus;
+Verhaltensänderungen sind je Punkt genannt.**
+
+- **B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.** Vorher: 04A bis 04C, 06E und 10F
+  ließen sich nur mit dem richtigen Satz an Einzel-Properties bauen; die Galerie zeigte sie nicht. Nachher: je
+  Blatt eine Vorlage in Formatbereich und Hub-Galerie (neue Gruppe „Rangfolgen gegen Plan“):
+  C14 Balkentabelle nach ΔPL (04A), C15 nach ΔPL % (04B), C16 nach AC (04C), C17 Kategorie-Brücke waagerecht
+  (06E), C18 Abweichungs-Scatter ΔPY % gegen ΔPL % (10F); C19 siehe B05. C07 und C11 bleiben reserviert.
+  - Neue Option **Chart → Tabelle → „Σ-Zeile als Szenario-Legende“** (`tableTotalLegend`). Vorher stand die Σ-Zeile
+    als langer Summenbalken auf derselben Skala, die Zeilenbalken schrumpften auf ein Fünftel der Spalte. Nachher
+    zeigt die Σ-Zeile ■ AC □ PL (grau PY) mit den Summen, die Zeilenbalken nutzen die volle Breite; Δ-Balken und
+    Δ%-Pin der Σ-Zeile bleiben.
+  - Vorlagen dürfen Properties anderer Objekte setzen (C18: Referenzlinien bei 0 in `scale`) und die
+    Spaltensortierung `tableSort` (C14 bis C16); beides in demselben Speichervorgang.
+  - Vorlagenwechsel räumt auf: Einstellungen der vorherigen Vorlage, die die neue nicht nennt, gehen auf ihren
+    Standard zurück (vorher blieben z. B. die Referenzlinien von C18 in C09 stehen und verschoben die Quadranten).
+  - Tests c258 bis c266.
+- **B05 · Jahressäule mit eigener Skala (Blätter 03A, 03B).** Vorher: Das Monatsbild mit Jahressumme ging nur als
+  zweite Kachel, ein Skalenband über zwei Visuals gab es nicht, und die Σ-Kopfzeile nannte die Jahreszahl nur als Text.
+  Nachher: „Jahressäule (eigene Skala)“ (`chart.yearColumn`) setzt rechts neben die Monate eine Σ-Säule AC + FC (FC
+  schraffiert) gegen PY bzw. PL auf einem runden Bruchteil der Monatsskala (z. B. ×0,1); ein blaues Band beim selben
+  Wert in Monaten und Jahressäule, verbunden über die Lücke, macht den Skalenwechsel sichtbar. ΔBasis und ΔBasis % der
+  Jahressumme stehen in den Abweichungs-Panels auf der Monats-Δ-Skala. Dazu `chart.yearColumnLabel` (z. B. „2025“) und
+  `chart.scenarioLabels` (AC/FC an Achse und Jahressäule). Neue Vorlage C19 „Säulen gegen Plan mit Jahressäule“ (03B).
+  Monate und Jahr stehen auf derselben Nulllinie (auch bei Verlustmonaten); fehlt die Basis für einzelne Monate,
+  rechnet die Säule über die Monate mit Basis und zeigt „2025 (9/12)“. Ein Jahres-Δ über dem Vierfachen der
+  Monats-Δ läuft mit dem Faktor der Jahressäule („×0,1“ am Balken).
+  Tests: Skalen-Suite YC03A/YC03B (Pixelmessung), Nulllinie, Teilsumme, Dual-Varianz, großes Δ, Small Multiples und
+  sechs Rückfälle (SVG gleich wie ohne Option), Render c267. Fable-Review: zwei Blocker und alle Major-Befunde behoben.
+- **B14 · Kleinteile.** Neu „Art der Hervorhebung“ (`chart.highlightStyle`): Ellipse um die Zahlen hervorgehobener
+  Kategorien statt Band (IBCS-Blätter 04A, 06E). Margen-Werte der Tabelle, die auf null runden, zeigen „0,0 %“ statt
+  „−0,0 %“, wie die übrigen Werte; Abweichungen behalten ihr Vorzeichen. Tests c281, c282.
+- **B06 · Szenario-Notation im Stapel (Blatt 01C).** Vorher: Gestapelte Säulen und Balken füllten jedes Segment voll,
+  ein Forecast sah aus wie ein Ist, Plan-Monate blieben leer, Referenzlinie, Trennlinie alle N Kategorien und
+  Kommentar-Marker fehlten im Stapel. Nachher: Forecast-Segmente schraffiert in der Tönung ihrer Serie, Plan-Monate als
+  getönter Umriss mit eigener Stapelsumme, gestrichelte Trennlinien zwischen AC, FC und PL, Szenario-Kürzel optional,
+  Referenzlinie, Gruppen-Trennlinien und Kommentar-Marker auch im Stapel. Stapel ohne Forecast, ohne Plan für Monate
+  ohne Ist, ohne Referenzlinie, ohne „Trennlinie alle N“ und ohne Kommentar-Measure zeichnen unverändert (SVG-Vergleich aller
+  345 Bestands-Stages). Verhaltensänderung: (1) Ein Plan, der für zukünftige Monate ohne Ist gebunden ist, erscheint jetzt als
+  Plan-Umriss im Stapel (die Skala kann auf die Plan-Summen wachsen, die Direktbeschriftung rückt an die letzte Plan-Säule);
+  (2) eine gesetzte Referenzlinie oder „Trennlinie alle N“, die im Stapel bisher wirkungslos war, wird jetzt gezeichnet (die Skala
+  schließt die Referenzlinie ein); (3) ein gebundenes Kommentar-Measure zeigt nummerierte Marker an den Segmenten (auf
+  Kategorie-Ebene wiederholt sich ein Kommentar je Serie). Gruppen-Trennlinien entfallen dort, wo schon eine
+  Szenario-Trennlinie steht; der Titel nennt nur vorkommende Szenarien. Fable-Review: Kommentar-Marker neben statt über
+  Beschriftungen, Titel ohne AC bei reinem Plan/Forecast, Schraffur-Ids je Tönung, aria-Text für FC/PL, Hochkontrast-Halo.
+  Tests c275 bis c280, c278b bis c278d.
+- **B04 · Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile (Blätter 06F, 06G, 06H, 04A bis 04C).**
+  Vorher: „Nach Wirkung sortieren“ war ein Schalter, nur nach |Δ| und nur in Brücken; eine Datenkategorie „Others“
+  oder „Rest of USA“ wurde mitsortiert. Nachher: „Sortierung“ (neue Property `chart.sortMode`) wählt Aus, |Δ|, Δ
+  vorzeichenbehaftet, Δ % oder AC, in Kategorie-Brücke, Wasserfall-Brücke und jetzt auch in Balken. Rest-Zeilen (Rest,
+  Other, Others, Sonstige, Übrige, „Rest of …“, Top-N-Rest; Regel des P&L Statement) bleiben kursiv am Ende, auch bei
+  der Spaltensortierung der Tabelle. Das alte `chart.sortByImpact` bleibt als ausgeblendeter Schalter: Berichte bis 1.53 zeichnen
+  unverändert (Hash-Vergleich), bis „Sortierung“ gesetzt wird. Rest-Bezeichnungen müssen der ganze Name sein
+  („Sonstige betriebliche Erträge“ bleibt ein Konto); Top N nimmt benannte Rest-Zeilen in die Rest-Zeile auf.
+  Tests c268 bis c274.
+
+
 ## 1.53.0.0 (2026-10-24)
 
 **Review-Paket: Zeilenstruktur als Datenvertrag, negative Brücken, Export-Layout, generierte Property-Referenz.
