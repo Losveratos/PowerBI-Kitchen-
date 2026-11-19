@@ -71,7 +71,7 @@ Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorl
 | Gemeinsam | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
-| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 11 IBCS-Chart-Vorlagen C01–C13 (ohne C07/C11) in vier Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 16 IBCS-Chart-Vorlagen C01 bis C18 (ohne C07/C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
 | **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich HD · Full HD · UHD; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
 | **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
 | **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
@@ -96,7 +96,7 @@ Jede Unterseite trägt oben links die Pille **„← Zurück“**; Esc führt eb
 
 ### Die Vorlagen-Galerie nach Zweck
 
-Die elf IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in vier Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
+Die 16 IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in fünf Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
 
 | Gruppe | Vorlage | Kachel-Titel | Nutzen-Zeile |
 | --- | --- | --- | --- |
@@ -107,8 +107,13 @@ Die elf IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in vier Grupp
 | **Struktur** | C02 | Balken gestapelt nach Segment | Kostenstruktur je Bereich |
 |  | C04 | Balken mit Plan-Abweichung | Regionen oder Produkte AC vs. PL |
 |  | C06 | Treiber-Brücke je Kategorie | Welche Bereiche erklären ΔPY? |
+|  | C17 | Treiber-Brücke waagerecht | Viele Einheiten: PY → AC je Zeile |
+| **Rangfolgen gegen Plan** | C14 | Balkentabelle nach ΔPL | Wer liegt am weitesten über Plan? |
+|  | C15 | Balkentabelle nach ΔPL % | Relative Rangfolge gegen Plan |
+|  | C16 | Balkentabelle nach AC | Größte Einheiten, Plan daneben |
 | **Korrelation** | C09 | Streudiagramm mit Quadranten | Umsatz vs. Marge je Kunde |
 |  | C10 | Blasendiagramm | Plus Volumen als Blasengröße |
+|  | C18 | Abweichungs-Scatter | ΔPY % gegen ΔPL % je Produkt |
 | **Brücken & Mehrfach** | C12 | Wasserfall / GuV-Brücke | Umsatz → EBIT in Stufen |
 |  | C13 | Small Multiples | Ein Chart je Region, gleiche Skala |
 
@@ -312,7 +317,7 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 
 ## 07 · Funktionen im Detail
 
-### IBCS-Vorlagen C01–C13
+### IBCS-Vorlagen C01 bis C18
 
 Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — dasselbe Muster wie die Tabellen-Templates im Schwester-Visual P&L Statement. Eine Vorlage ist nur ein Startpunkt: Sie setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Speichervorgang, danach ist jede Einstellung frei änderbar.
 
@@ -334,6 +339,13 @@ Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — d
 | C10 · Bubble | wie C09, dazu die Größen-Legende | X-Achse + Blasengröße |
 | C12 · Waterfall / Brücke | Wasserfall, Basis Auto, Abweichung absolut und in % | Waterfall-Typ empfohlen |
 | C13 · Small Multiples | Σ-Gesamt-Kachel und gleiche Skala; der Chart-Typ bleibt | Small Multiples |
+| C14 · Balkentabelle nach ΔPL (Blatt 04A) | Tabelle gegen Plan, Abweichung absolut und in %, sortiert nach ΔPL absteigend, Σ-Zeile unten als Szenario-Legende (■ AC □ PL) mit ΔPL-Balken und Pin, ohne Zeilenlinien | Plan (PL) |
+| C15 · Balkentabelle nach ΔPL % (Blatt 04B) | wie C14, sortiert nach ΔPL % absteigend | Plan (PL) |
+| C16 · Balkentabelle nach AC (Blatt 04C) | wie C14, sortiert nach AC absteigend (Rangfolge) | Plan (PL) |
+| C17 · Kategorie-Brücke waagerecht (Blatt 06E) | Kategorie-Brücke als Balken-Kaskade, Basis Vorjahr, PY als grauer Balken hinter AC statt Dreieck, Trennlinie alle 4 Zeilen, ohne Treiber-Notiz | Vorjahr (PY), Plan optional |
+| C18 · Abweichungs-Scatter (Blatt 10F) | Scatter ohne Mittelwert-Quadranten, Achsenkreuz bei 0 (Referenzlinien X und Y), Farbe je Gruppe, Größen-Legende | Ist (AC) = ΔPL %-Measure, X-Achse = ΔPY %-Measure, Serie, Blasengröße optional |
+
+Seit 1.54 räumt ein Vorlagenwechsel auf: Was die vorherige Vorlage gesetzt hat und die neue nicht nennt, geht auf den Standard zurück (etwa die Referenzlinien von C18, wenn danach C09 gewählt wird). „Aus“ ändert weiterhin nichts. Ein Klick auf einen Spaltenkopf in C14 bis C16 gilt als Abweichung, „↺ Zum Template zurück“ stellt die Sortierung der Vorlage wieder her.
 
 Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateApplied` auf denselben Wert setzen — sonst wendet das Visual die Vorlage beim ersten Rendern an (Details im [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/ibcsInspiredChartDeck/AGENT-GUIDE.md)).
 
@@ -391,6 +403,7 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 
 1. Unter Chart → Tabelle → „Position der Σ-Zeile“ wählst du „Oben“ (direkt unter dem Kopf, IBCS) oder „Unten“ (Standard, deutsche GuV-Lesart).
 2. In beiden Fällen bleibt die Σ-Zeile beim vertikalen Scrollen fixiert.
+3. Seit 1.54 zeigt „Σ-Zeile als Szenario-Legende“ in der Balkenspalte nur die Summen mit ihren Szenario-Zeichen (■ AC, □ PL) statt eines langen Summenbalkens. Die Zeilenbalken behalten so die volle Spaltenbreite, wie in den IBCS-Blättern 04A bis 04C.
 
 ### Tabellen-Komfort: Zebra, Gitter, Dichte, Suche, Sortierung
 
@@ -580,7 +593,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples · Standard „Aus (keine Vorlage)“ |
+| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) · Standard „Aus (keine Vorlage)“ |
 | Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) · Standard „Columns (Zeit)“ |
 | Smart-Start-Vorschläge | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus sichtbar, nie in der Leseansicht oder in Exporten. | An / Aus · Standard An |
 | Abweichungsbasis | Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY. | Optionen: Auto \| Vorjahr (PY) \| Plan (PL) \| FC Vormonat (Revision) · Standard „Auto“ |
@@ -655,6 +668,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Matrix: Spaltenvergleich | Vergleich innerhalb der Matrix-Spalten: „Δ vs. Vorspalte“ ersetzt das ΔBasis je Block durch die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1, Mär vs. Feb …). | Optionen: Aus (Δ zur Basis) \| Δ zur Vorspalte · Standard „Aus (Δ zur Basis)“ |
 | Formelzeilen | Berechnete Zeilen, mit Semikolon getrennt: „EBIT = Umsatz - Kosten“ ergänzt eine Summenzeile, „Marge = EBIT / Umsatz“ eine %-Zeile. Operanden sind Zeilennamen; Operatoren bitte mit Leerzeichen umgeben. Formelzeilen fließen nicht in die Σ-Zeile ein. | Freitext · z. B. Marge = EBIT / Umsatz |
 | Position der Σ-Zeile | Wo die Σ-Gesamtzeile steht: „Unten“ (Standard, deutsche GuV-Lesart) unter allen Zeilen, „Oben“ direkt unter dem Kopf (IBCS). Bleibt beim Scrollen fixiert. | Optionen: Unten (unter den Zeilen) \| Oben (unter dem Kopf) · Standard „Unten (unter den Zeilen)“ |
+| Σ-Zeile als Szenario-Legende | Seit 1.54: Die berechnete Σ-Zeile zeigt in der Balkenspalte die Szenario-Legende mit den Summen (■ AC, □ PL, grau PY) statt eines Balkens und zählt nicht zur Balkenskala: Die Zeilenbalken nutzen die volle Spaltenbreite. Δ-Balken und Δ%-Pin der Σ-Zeile bleiben. Wirkt nicht in der Matrix und nicht bei Summenzeilen aus den Daten. Setzen die Vorlagen C14 bis C16. | Ein/Aus · Standard Aus |
 | Zebra-Streifen | Legt jede zweite Datenzeile mit einem sehr dezenten Hintergrund an — leichtere Zeilenverfolgung in breiten Tabellen. Im Hochkontrast-Modus aus. Standard aus. | An / Aus · Standard Aus |
 | Zeilenhöhe | Zeilenhöhe: „Kompakt“ für dichte Tabellen, „Normal“ (Standard) wie bisher, „Luftig“ für mehr Weißraum. Skaliert nur die Obergrenze; sehr hohe Visuals bleiben gedeckelt. | Optionen: Kompakt \| Normal \| Luftig · Standard „Kompakt“ |
 | Gitterlinien | Trennlinien-Stil: „Horizontal“ (Standard) nur Zeilenlinien, „Keine“ für ein ruhiges Bild, „Horizontal + vertikal“ ergänzt dezente Spalten-/Blocktrenner. | Optionen: Horizontal \| Keine \| Horizontal + vertikal · Standard „Horizontal“ |

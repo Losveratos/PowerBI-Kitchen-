@@ -199,7 +199,12 @@ const templateItems: LocEnumMember[] = [
     { value: "C09", displayName: "C09 · Scatter", key: "Enum_Template_C09" },
     { value: "C10", displayName: "C10 · Bubble (scatter + size)", key: "Enum_Template_C10" },
     { value: "C12", displayName: "C12 · Waterfall / bridge", key: "Enum_Template_C12" },
-    { value: "C13", displayName: "C13 · Small multiples", key: "Enum_Template_C13" }
+    { value: "C13", displayName: "C13 · Small multiples", key: "Enum_Template_C13" },
+    { value: "C14", displayName: "C14 · Bar table by ΔPL (04A)", key: "Enum_Template_C14" },
+    { value: "C15", displayName: "C15 · Bar table by ΔPL % (04B)", key: "Enum_Template_C15" },
+    { value: "C16", displayName: "C16 · Bar table by AC (04C)", key: "Enum_Template_C16" },
+    { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
+    { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -303,7 +308,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures). Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -798,6 +803,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: totalRowPositionItems[0]
     });
 
+    // 1.54 (backlog B01, IBCS sheets 04A–04C): the computed Σ row shows the scenario
+    // legend with its sums instead of an AC·PY·PL bar and stays out of the bar scale
+    tableTotalLegend = new formattingSettings.ToggleSwitch({
+        name: "tableTotalLegend",
+        displayName: "Σ row as scenario legend",
+        displayNameKey: "Table_TotalLegend",
+        description: "Die berechnete Σ-Zeile zeigt in der Balkenspalte die Szenario-Legende mit den Summen (■ AC, □ PL, grau PY) statt eines Balkens und zählt nicht zur Balkenskala: Die Zeilenbalken nutzen die volle Spaltenbreite. Δ-Balken und Δ%-Pin der Σ-Zeile bleiben. Wirkt nicht in der Matrix und nicht bei Summenzeilen aus den Daten. Standard aus.",
+        descriptionKey: "Desc_Table_TotalLegend",
+        value: false
+    });
+
     zebraStripes = new formattingSettings.ToggleSwitch({
         name: "zebraStripes",
         displayName: "Zebra stripes",
@@ -861,7 +877,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Table",
         slices: [this.valueColumns, this.autoExpandHierarchy, this.structureEdit, this.resultList, this.skipList,
             this.hideList, this.chartList, this.indentList, this.rowFormats,
-            this.matrixCompare, this.formulaRows, this.totalRowPosition,
+            this.matrixCompare, this.formulaRows, this.totalRowPosition, this.tableTotalLegend,
             this.zebraStripes, this.rowDensity, this.gridLines, this.cellLayout]
     });
 

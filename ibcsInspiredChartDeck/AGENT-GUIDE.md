@@ -13,6 +13,34 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.53.0.0** (24.10.2026) + Branch-Arbeit für 1.53 (rowType-Token, negative Brücken, Export-Layout).
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.54 (Backlog IBCS-Templates, Abgleich 19.11.2026):**
+
+*B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.* C07 und C11 bleiben
+reserviert (Fläche, Boxplot). Zuordnung Vorlage → IBCS-Blatt:
+
+| Vorlage | IBCS-Blatt | Properties (Objekt `chart`, sonst mit Objektpräfix) |
+| --- | --- | --- |
+| C14 Balkentabelle nach ΔPL | 04A | orientation=table · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · showTotal=true · totalRowPosition=bottom · tableTotalLegend=true · tableSort=`dabs_desc` · gridLines=none · cumulative=false · topN=0 |
+| C15 Balkentabelle nach ΔPL % | 04B | wie C14 mit tableSort=`drel_desc` |
+| C16 Balkentabelle nach AC | 04C | wie C14 mit tableSort=`ac_desc` |
+| C17 Kategorie-Brücke waagerecht | 06E | orientation=catbridge · bridgeOrientation=bars · comparisonMode=py · showAbs/showRel=true · dualVariance=false · pyTriangle=false · groupEvery=4 · driverNote=false · sortByImpact=false |
+| C18 Abweichungs-Scatter | 10F | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=true · scatterTrend=off · scatterArrows/scatterShapes=false · `scale.refLine`=0 · `scale.xRefLine`=0 |
+
+Datenvertrag C18: `actual` = ΔPL %-Measure, `xValue` = ΔPY %-Measure, `series` = Produktlinie,
+`bubbleSize` optional (Umsatz), `multiples` optional (Region). Neu im Vorlagen-Mechanismus:
+Schlüssel `objekt.property` (C18) landen im selben `persistProperties`-Aufruf als eigener
+Merge-Eintrag je Objekt (`merge[0]` bleibt `chart` mit `templateApplied`); `tableSort` ist Teil der
+Vorlage, obwohl keine Pane-Property (zählt für „↺ Zum Template zurück“ mit, ein Klick auf einen
+Spaltenkopf weicht also ab). **Vorlagenwechsel räumt auf:** Schlüssel der zuletzt angewandten Vorlage, die die neue
+nicht setzt, gehen im selben Merge auf ihren Pane-Standard zurück (`tableSort` auf leer); „Aus“ schreibt weiterhin nur
+`templateApplied`. Neue Property `chart.tableTotalLegend` (bool, Standard false): Die
+berechnete Σ-Zeile der Tabelle zeigt in der Balkenspalte ■ AC □ PL (grau PY) mit den Summen statt
+eines Balkens (`data-icd="table-total-legend"`) und zählt nicht zur Balkenskala; Δ-Balken und
+Δ%-Pin bleiben, die Σ-Abweichung bleibt in den Δ-Skalen. Gilt nur für die synthetische Σ-Zeile
+(nicht für `sum`-Zeilen aus den Daten, nicht in der Matrix). Reihenfolge der Legende AC · PL · PY; was nicht passt,
+entfällt (Tooltip nennt alle); der AC-Wert steht dann nur in der Legende, nicht zusätzlich in der AC-Spalte. Galerie: neue Gruppe `ranking` (C14 bis C16), C17 unter
+`structure`, C18 unter `correlation`. Tests c258 bis c266. Test-Marker: `group-sep` (Trennlinien der Brücken), `py-triangle`, `sort-<spalte>` (Tabellenkopf).
+
 **Neu in 1.53 (rowType-Token, keine neue Property, keine neue Rolle):** Die Rolle `rowType`
 („Waterfall-Typ“) ist der Datenvertrag für die Zeilenstruktur — Token je Zeile statt Zeilennamen in
 sieben Komma-Listen. Tabelle, Semantik und Vereinigungsregel: Abschnitt „rowType-Token“ unten;
@@ -213,6 +241,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C10 Bubble | wie C09 + scatterSizeLegend=true (Rolle `bubbleSize` binden) |
 | C12 Waterfall | orientation=waterfall · comparisonMode=auto · showAbs/showRel=true · dualVariance=false |
 | C13 Small Multiples | multiplesTotal=true · multiplesSameScale=true (orientation bleibt; Rolle `multiples` binden) |
+| C14 bis C18 | ab 1.54, siehe „Neu in 1.54“ (Zuordnung zu den IBCS-Blättern 04A, 04B, 04C, 06E, 10F) |
 
 **Nicht enthalten:** C07 (Fläche/Area) und C11 (Verteilung/Boxplot) — die
 Darstellungsformen gibt es im Visual nicht (siehe BACKLOG).
@@ -323,7 +352,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede … |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in … |
 | `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
@@ -410,6 +439,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `matrixCompare` | enum | `none` | `none` · `prevcol` — Vergleich innerhalb der Matrix-Spalten: „Δ vs. Vorspalte“ ersetzt das ΔBasis je Block durch die Veränderung zur vorherigen Spalte (Periodenvergleich Q2 vs. Q1, Mär vs. Feb …). |
 | `formulaRows` | text | leer | Berechnete Zeilen, mit Semikolon getrennt: „EBIT = Umsatz - Kosten“ ergänzt eine Summenzeile, „Marge = EBIT / Umsatz“ eine %-Zeile. Operanden sind Zeilennamen; Operatoren bitte mit Leerzeichen umgeben … |
 | `totalRowPosition` | enum | `bottom` | `bottom` · `top` — Wo die Σ-Gesamtzeile steht: „Unten“ (Standard, deutsche GuV-Lesart) unter allen Zeilen, „Oben“ direkt unter dem Kopf (IBCS). Bleibt beim Scrollen fixiert. |
+| `tableTotalLegend` | bool | `false` | Die berechnete Σ-Zeile zeigt in der Balkenspalte die Szenario-Legende mit den Summen (■ AC, □ PL, grau PY) statt eines Balkens und zählt nicht zur Balkenskala: Die Zeilenbalken nutzen die volle Spaltenbreite. Δ-Balken und Δ%-Pin der Σ-Zeile bleiben … |
 | `zebraStripes` | bool | `false` | Legt jede zweite Datenzeile mit einem sehr dezenten Hintergrund an — leichtere Zeilenverfolgung in breiten Tabellen. Im Hochkontrast-Modus aus. Standard aus. |
 | `rowDensity` | enum | `normal` | `compact` · `normal` · `airy` — Zeilenhöhe: „Kompakt“ für dichte Tabellen, „Normal“ (Standard) wie bisher, „Luftig“ für mehr Weißraum (Präsentation). Skaliert nur die Obergrenze; sehr hohe Visuals bleiben gedeckelt. |
 | `gridLines` | enum | `horizontal` | `horizontal` · `none` · `both` — Trennlinien-Stil: „Horizontal“ (Standard) nur Zeilenlinien wie bisher, „Keine“ für ein ruhiges Bild, „Horizontal + vertikal“ ergänzt dezente Spalten-/Blocktrenner. |
@@ -461,7 +491,10 @@ Enum-Labels:
   `C02` = C02 · Gestapelte Balken (Serie); `C03` = C03 · Säulen + Varianzen (PY);
   `C04` = C04 · Balken + Varianzen (PL); `C05` = C05 · Integrierte Brücke (Zeit);
   `C06` = C06 · Kategorie-Brücke vertikal; `C08` = C08 · Linie (lange Zeitreihe); `C09` = C09 · Scatter;
-  `C10` = C10 · Bubble (Scatter + Größe); `C12` = C12 · Waterfall / Brücke; `C13` = C13 · Small Multiples
+  `C10` = C10 · Bubble (Scatter + Größe); `C12` = C12 · Waterfall / Brücke; `C13` = C13 · Small Multiples;
+  `C14` = C14 · Balkentabelle nach ΔPL (04A); `C15` = C15 · Balkentabelle nach ΔPL % (04B);
+  `C16` = C16 · Balkentabelle nach AC (04C); `C17` = C17 · Kategorie-Brücke waagerecht (06E);
+  `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
@@ -789,7 +822,7 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — 327 Render-Stages (Nummern c1 bis c257, inkl. Varianten wie `c248L`) als
+- `test/test.html` — 336 Render-Stages (Nummern c1 bis c266, inkl. Varianten wie `c248L`) als
   lebende Beispiele jeder Funktion; `npm run test:render` (Checks + Fehler). Weitere Suiten:
   `test:scale` (Skalierungs-Geometrie), `test:notation` (Notation), `test:export` (PDF/PPT-Layouts).
   c45, c90 und c92 waren bis 1.52.4 Hinweis-Fälle („rein negativ“) und zeichnen seit den negativen

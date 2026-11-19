@@ -1822,6 +1822,20 @@ function runCap(id, dv, w, h, opts) {
 }
 function check(cond, msg) { if (cond) { console.log("ok ·", msg); } else { console.error("FAIL · " + msg); } }
 
+// 1.54 (B01): Blatt-Daten 04A (alphabetisch geliefert, Rest am Ende) und ein Abweichungs-Scatter (10F)
+const usSt = ["Alaska","California","Connecticut","Hawaii","Kansas","Maine","Maryland","Missouri","Nevada","New Hampshire",
+  "New Jersey","New Mexico","New York","Ohio","South Carolina","Texas","Virginia","Wisconsin","Rest of USA"];
+const usAc = [15,188,50,49,45,111,125,59,23,79,78,73,211,131,46,197,69,76,219];
+const usPl = [21,154,53,43,43,109,123,88,18,70,109,69,201,100,40,201,166,82,199];
+const vsProd = [], vsLine = [], vsPy = [], vsPl = [], vsSize = [];
+{
+  let sd = 11; const rn = () => (sd = (sd * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 48; i++) {
+    const ln = ["Cars", "Trucks", "Buses", "Parts"][i % 4];
+    vsProd.push(ln[0] + "-" + String(i + 1).padStart(2, "0")); vsLine.push(ln);
+    vsPy.push(+((rn() - 0.45) * 0.6).toFixed(3)); vsPl.push(+((rn() - 0.5) * 0.5).toFixed(3)); vsSize.push(Math.round(20 + rn() * 400));
+  }
+}
 // ---------------- Punkt 1 · IBCS-Chart-Templates (C01–C13) ----------------
 const tplStack = (tpl, extraObj) => ({
   metadata: { columns: [], objects: Object.assign({ chart: { template: tpl } }, extraObj || {}) },
@@ -1853,7 +1867,22 @@ const tplCases = [
   ["c193", "C12", "Wasserfall · GuV sum/delta + ΔPY-Stufen", 960, 520,
     () => dataView(pnlCats, [col("actual", pnlVals, "#,0 T€"), col("previousYear", pnlPy, "#,0 T€")], { chart: { template: "C12" }, ibcsTitle: { kpi: "GuV", period: "2026" } }, null, pnlTypes)],
   ["c194", "C13", "Small Multiples · Modus bleibt (Säulen) + Σ-Kachel", 960, 560,
-    () => dataView(smCats, [col("actual", smAc), col("plan", smPl)], { chart: { template: "C13" } }, smMult)]
+    () => dataView(smCats, [col("actual", smAc), col("plan", smPl)], { chart: { template: "C13" } }, smMult)],
+  // 1.54 (B01): Presets für die IBCS-Blätter 04A, 04B, 04C, 06E, 10F
+  ["c258", "C14", "Balkentabelle gegen PL nach ΔPL ▼ · Σ-Zeile als Legende (04A)", 1280, 620,
+    () => dataView(usSt, [col("actual", usAc, "#,0"), col("plan", usPl, "#,0")], { chart: { template: "C14" } })],
+  ["c259", "C15", "Balkentabelle gegen PL nach ΔPL % ▼ (04B)", 1280, 620,
+    () => dataView(usSt, [col("actual", usAc, "#,0"), col("plan", usPl, "#,0")], { chart: { template: "C15" } })],
+  ["c260", "C16", "Balkentabelle gegen PL nach AC ▼ (04C)", 1280, 620,
+    () => dataView(usSt, [col("actual", usAc, "#,0"), col("plan", usPl, "#,0")], { chart: { template: "C16" } })],
+  ["c261", "C17", "Kategorie-Brücke waagerecht · PY als grauer Balken · Trennlinie alle 4 (06E)", 1280, 640,
+    () => dataView(wfStates, [col("actual", wfStAc), col("previousYear", wfStPy)], { chart: { template: "C17" } })],
+  ["c262", "C18", "Abweichungs-Scatter ΔPY % × ΔPL % · Achsenkreuz bei 0 · Farbe je Gruppe (10F)", 1280, 520,
+    () => ({ metadata: { columns: [], objects: { chart: { template: "C18" } } }, categorical: {
+      categories: [{ source: { displayName: "Produkt", roles: { category: true } }, values: vsProd },
+        { source: { displayName: "Produktlinie", roles: { series: true } }, values: vsLine }],
+      values: [col("actual", vsPl, "0 %", null, "ΔPL %"), col("xValue", vsPy, "0 %", null, "ΔPY %"),
+        col("bubbleSize", vsSize, "#,0", null, "Nettoumsatz")] } })]
 ];
 for (const [id, tpl, title, w, h, mk] of tplCases) {
   addStage(id, "Template " + tpl + " · " + title, w, h);
@@ -1862,6 +1891,39 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
   const props = p.length === 1 ? p[0].merge[0].properties : null;
   check(p.length === 1 && props && props.templateApplied === tpl,
     `template ${tpl}: genau EIN persistProperties-Merge mit templateApplied (${JSON.stringify(props)})`);
+}
+// 1.54 (B01): Reihenfolge, Σ-Legende, objektübergreifender Merge
+{
+  const rowNames = (id) => [...document.querySelectorAll(`#${id} g.icd-cat`)].map(g => g.querySelector("text")?.textContent || "");
+  const byKey = (f) => usSt.map((s, i) => ({ s, k: f(i) })).sort((a, b) => b.k - a.k).map(o => o.s);
+  window.__b01Order = { rowNames, byKey };
+  const want = { c258: byKey(i => usAc[i] - usPl[i]), c259: byKey(i => (usAc[i] - usPl[i]) / usPl[i]), c260: byKey(i => usAc[i]) };
+  for (const [id, exp] of Object.entries(want)) {
+    const got = rowNames(id);
+    check(got.length === 20 && /Σ/.test(got[19]) && JSON.stringify(got.slice(0, 19)) === JSON.stringify(exp),
+      `${id}: Reihenfolge wie tableSort der Vorlage, Σ unten (${got.slice(0, 4).join(", ")} …)`);
+    const leg = document.querySelector(`#${id} [data-icd="table-total-legend"]`);
+    const lt = leg ? [...leg.querySelectorAll("text")].map(t => t.textContent) : [];
+    // Summen der übertragenen Blattwerte (Blatt: AC 1 845, Rundung im Original)
+  check(lt.join("|") === "1.844|1.889" && leg.querySelectorAll("rect").length === 2, `${id}: Σ-Zeile als Legende ■ 1.844 □ 1.889 (${lt.join("|")})`);
+  }
+  // Σ verlässt die Balkenskala: der größte Zeilenbalken (Rest of USA 219) füllt fast die ganze Spalte
+  const acW = Math.max(...[...document.querySelectorAll('#c258 g.icd-cat rect')].filter(r => r.getAttribute("fill") === "#404040")
+    .map(r => +r.getAttribute("width")));
+  check(acW > 300, `c258: AC-Balken ohne Σ-Stauchung (breitester ${acW.toFixed(0)} px)`);
+  const m18 = window.__persist.c262[0].merge;
+  check(m18.length === 2 && m18[1].objectName === "scale" && m18[1].properties.refLine === "0" && m18[1].properties.xRefLine === "0"
+    && !("scale.refLine" in m18[0].properties), "c262: C18 schreibt die Referenzlinien in denselben Aufruf (Objekt scale)");
+  // Achsenkreuz: genau eine senkrechte und eine waagerechte gestrichelte Linie über (fast) die ganze Plotfläche
+  const dl = [...document.querySelectorAll("#c262 line[stroke-dasharray]")].map(l => ({ x1: +l.getAttribute("x1"), x2: +l.getAttribute("x2"),
+    y1: +l.getAttribute("y1"), y2: +l.getAttribute("y2") }));
+  const vert = dl.filter(l => Math.abs(l.x1 - l.x2) < 0.5 && Math.abs(l.y2 - l.y1) > 300);
+  const hor = dl.filter(l => Math.abs(l.y1 - l.y2) < 0.5 && Math.abs(l.x2 - l.x1) > 800);
+  check(vert.length === 1 && hor.length === 1, `c262: Achsenkreuz bei 0 (senkrecht ${vert.length}, waagerecht ${hor.length})`);
+  // C17 gezeichnet: Balken-Kaskade, keine PY-Dreiecke, Trennlinie nach 4, 8, 12 von 15 Zeilen, keine Treiber-Notiz
+  const sep = document.querySelectorAll('#c261 [data-icd="group-sep"]').length;
+  check(sep === 3 && !document.querySelector('#c261 [data-icd="py-triangle"]') && !/Gesamtabweichung|of the total variance/i.test(document.getElementById("c261").textContent),
+    `c261: C17 gezeichnet ohne PY-Dreieck, ${sep} Trennlinien, ohne Treiber-Notiz`);
 }
 {
   // Echo-Guard: (1) Pick C03 auf einem Balken-Visual → lokal sofort Säulen + EIN Merge.
@@ -2217,8 +2279,13 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
   const r = runCap("c222", emptyDv({}), 960, 420, { viewMode: 1 });
   hubClick("c222", "hub-templates");
   const tiles = [...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8));
-  // 1.51: nach Zweck gruppiert — Zeitverlauf · Korrelation (Reihe 1), Struktur · Brücken & Mehrfach (Reihe 2)
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13"]', "c222: 11 Vorlagen-Kacheln " + JSON.stringify(tiles));
+  // 1.54: 16 Vorlagen in fünf Gruppen — bei 960 × 420 auf zwei Seiten (‹ › blättern, nichts persistiert)
+  if (hubQ("c222", "hub-tpl-next")) {
+    hubClick("c222", "hub-tpl-next");
+    tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
+    hubClick("c222", "hub-tpl-prev");
+  }
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18"]', "c222: 16 Vorlagen-Kacheln " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -2283,6 +2350,72 @@ addStage("c223b", "↺-Chip-Gegenproben · keine Abweichung (links) · Leser mit
   runCap("c223b2", bound({ chart: Object.assign({}, c03, { orientation: "bars" }) }), 480, 300, { viewMode: 0 });
   check(!hubQ("c223b1", "tpl-reset") && !!hubQ("c223b1", "hub-chip") && !hubQ("c223b2", "chip-bar"),
     "c223b: ohne Abweichung kein ↺ · Leser ohne Chips");
+}
+
+// ---- 1.54 (B01, Review): Vorlagenwechsel setzt Reste zurück, Sortier-Klick, Export, Σ-Legende
+const usDv = (objs) => dataView(usSt, [col("actual", usAc, "#,0"), col("plan", usPl, "#,0")], objs);
+const vsDv = (objs) => ({ metadata: { columns: [], objects: objs }, categorical: {
+  categories: [{ source: { displayName: "Produkt", roles: { category: true } }, values: vsProd },
+    { source: { displayName: "Produktlinie", roles: { series: true } }, values: vsLine }],
+  values: [col("actual", vsPl, "0 %", null, "ΔPL %"), col("xValue", vsPy, "0 %", null, "ΔPY %")] } });
+addStage("c263", "Vorlagenwechsel C18 → C09: Referenzlinien zurück auf leer, Quadranten wieder am Mittelwert", 960, 440);
+{
+  const r = runCap("c263", vsDv({ chart: { template: "C18" } }), 960, 440, { viewMode: 1 });
+  const echo = { chart: { template: "C18", templateApplied: "C18", orientation: "scatter", scatterQuadrant: "off", scatterColorBy: "group",
+    scatterSizeLegend: true, scatterTrend: "off", scatterArrows: false, scatterShapes: false, comparisonMode: "auto" },
+    scale: { refLine: "0", xRefLine: "0" } };
+  r.upd(vsDv(echo));
+  r.upd(vsDv(Object.assign({}, echo, { chart: Object.assign({}, echo.chart, { template: "C09" }) })));
+  const pp = window.__persist.c263;
+  const last = pp[pp.length - 1].merge;
+  const sc = last.find(m => m.objectName === "scale");
+  check(pp.length === 2 && last[0].properties.templateApplied === "C09" && last[0].properties.scatterQuadrant === "mean"
+    && last[0].properties.scatterColorBy === "single" && sc && sc.properties.refLine === "" && sc.properties.xRefLine === "",
+    "c263: C09 nach C18 schreibt scale.refLine/xRefLine = \"\" im selben Aufruf " + JSON.stringify(last));
+  check(r.v.formattingSettings.scaleCard.refLine.value === "" && r.v.formattingSettings.scaleCard.xRefLine.value === "",
+    "c263: lokal sofort ohne Referenzlinien");
+  // Gegenprobe: Auswahl „Aus“ schreibt weiterhin nur templateApplied
+  r.upd(vsDv({ chart: { template: "off", templateApplied: "C09", orientation: "scatter" } }));
+  const off = pp[pp.length - 1].merge;
+  check(off.length === 1 && JSON.stringify(off[0].properties) === '{"templateApplied":"off"}', "c263: „Aus“ schreibt nur templateApplied");
+}
+addStage("c264", "C14 · Klick auf Spaltenkopf AC weicht ab → ↺ stellt tableSort dabs_desc in EINEM Merge wieder her", 1100, 560);
+{
+  const r = runCap("c264", usDv({ chart: { template: "C14" } }), 1100, 560, { viewMode: 1 });
+  const pp = window.__persist.c264;
+  const echoChart = Object.assign({ template: "C14" }, pp[0].merge[0].properties);
+  r.upd(usDv({ chart: echoChart }));
+  check(!hubQ("c264", "tpl-reset"), "c264: Vorlagen-Stand ohne ↺");
+  hubClick("c264", "sort-ac");
+  const clickSort = pp[pp.length - 1].merge[0].properties.tableSort;
+  r.upd(usDv({ chart: Object.assign({}, echoChart, { tableSort: clickSort }) }));
+  check(clickSort === "ac_desc" && !!hubQ("c264", "tpl-reset"), `c264: Kopfklick (${clickSort}) → ↺ erscheint`);
+  hubClick("c264", "tpl-reset");
+  const m = pp[pp.length - 1].merge[0].properties;
+  const names = window.__b01Order.rowNames("c264");
+  check(m.tableSort === "dabs_desc" && m.templateApplied === "C14" && names[0] === "California",
+    "c264: ↺ schreibt tableSort dabs_desc, Tabelle sofort nach ΔPL");
+}
+addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt): sortiert, nichts persistiert", 1100, 560);
+{
+  runCap("c265", usDv({ chart: { template: "C14" } }), 1100, 560, { noInteract: true });
+  const names = window.__b01Order.rowNames("c265");
+  check(window.__persist.c265.length === 0 && names[0] === "California" && names[1] === "Ohio",
+    "c265: Export rendert die Vorlage lokal (sortiert), ohne Persist");
+}
+addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
+{
+  const dv = dataView(t2Cats, [col("actual", t2Ac, "#,0"), col("previousYear", t2Py, "#,0"), col("plan", t2Pl, "#,0")],
+    { chart: { orientation: "table", comparisonMode: "plan", tableTotalLegend: true, totalRowPosition: "top" } });
+  runCap("c266", dv, 520, 360, { palette: hcPal });
+  const leg = document.querySelector('#c266 [data-icd="table-total-legend"]');
+  const tip = leg ? leg.getAttribute("aria-label") : "";
+  const first = leg ? leg.querySelector("text")?.textContent : "";
+  check(!!leg && /^AC 13\.200 · PL 13\.200 · PY 12\.850$/.test(tip) && first === "13.200",
+    `c266: Legende in Reihenfolge AC · PL · PY, was nicht passt entfällt (${tip}, sichtbar ${leg ? leg.querySelectorAll("text").length : 0})`);
+  const rs = leg ? [...leg.querySelectorAll("rect")] : [];
+  check(rs.length >= 2 && rs[1].getAttribute("stroke") != null && rs[0].getAttribute("fill") !== rs[1].getAttribute("fill"),
+    "c266: Hochkontrast · AC voll, PL als Umriss");
 }
 
 // c224: Re-Apply — dasselbe Template in der Galerie erneut klicken wendet es wieder an
@@ -2419,16 +2552,16 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   runCap("c230", emptyDv({ chart: { template: "C03", templateApplied: "C03" } }), 1280, 600, { viewMode: 1 });
   hubClick("c230", "hub-templates");
   const groups = groupsOf("c230"), tiles = tilesOf("c230");
-  check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","structure","time"]', "c230: vier Zweck-Gruppen " + JSON.stringify(groups));
+  check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C03", "C05", "C08"], structure: ["C02", "C04", "C06"], correlation: ["C09", "C10"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C03", "C05", "C08"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const ok = Object.entries(want).every(([gid, codes]) => {
     const h = box("hub-tpl-group-" + gid);
     const bs = codes.map(cd => box("hub-tpl-" + cd));
     return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
   });
-  check(ok && tiles.length === 11, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 16, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),

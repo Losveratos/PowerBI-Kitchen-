@@ -88,7 +88,7 @@ const OP_APPEND = 1;
 const FETCH_MAX_ROWS = 30000;
 
 /**
- * 1.49 IBCS chart templates (C01–C13 of the IBCS template library) as presets of
+ * 1.49 IBCS chart templates (C01–C13 of the IBCS template library; 1.54: + C14–C18) as presets of
  * the chart card — the PnL mega-template pattern: the dropdown chart.template only
  * writes DEFAULTS. A template that differs from the last applied one (hidden
  * chart.templateApplied) sets all listed chart properties at once, locally for the
@@ -127,7 +127,32 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     C12: { orientation: "waterfall", comparisonMode: "auto", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false },
     // C13: small multiples — chart type stays, Σ tile + same scale for bridges too
-    C13: { multiplesTotal: true, multiplesSameScale: true }
+    C13: { multiplesTotal: true, multiplesSameScale: true },
+    // 1.54 (backlog B01) — presets for IBCS sheets that were already configurable.
+    // C07/C11 stay reserved (area, box plot); the new codes map to the sheets:
+    // C14–C16 = 04A/04B/04C bar table vs. PL sorted by ΔPL · ΔPL% · AC with the Σ
+    // row as scenario legend (+ its ΔPL bar and pin); tableSort is the persisted
+    // header sort, written in the same merge
+    C14: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
+        tableTotalLegend: true, tableSort: "dabs_desc", gridLines: "none", cumulative: false, topN: 0 },
+    C15: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
+        tableTotalLegend: true, tableSort: "drel_desc", gridLines: "none", cumulative: false, topN: 0 },
+    C16: { orientation: "table", comparisonMode: "plan", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, showTotal: true, totalRowPosition: "bottom",
+        tableTotalLegend: true, tableSort: "ac_desc", gridLines: "none", cumulative: false, topN: 0 },
+    // C17 = 06E: horizontal category bridge PY → AC, PY as grey bar behind AC (no
+    // triangle), separators every 4 rows, no driver note
+    C17: { orientation: "catbridge", bridgeOrientation: "bars", comparisonMode: "py",
+        showAbsoluteVariance: true, showRelativeVariance: true, dualVariance: false,
+        pyTriangle: false, groupEvery: 4, driverNote: false, sortByImpact: false },
+    // C18 = 10F: variance scatter (X = ΔPY %, Y = ΔPL % as measures), colour per
+    // group, axis cross at 0 instead of mean quadrants — "object.property" keys
+    // address another card (here the scale card's reference lines)
+    C18: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off",
+        scatterColorBy: "group", scatterSizeLegend: true, scatterTrend: "off",
+        scatterArrows: false, scatterShapes: false, "scale.refLine": "0", "scale.xRefLine": "0" }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -135,20 +160,26 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
 const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
-    C13: "multiples"
+    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
     C01: { role: "series", key: "Role_Series", en: "Stack series" },
     C02: { role: "series", key: "Role_Series", en: "Stack series" },
     C10: { role: "bubbleSize", key: "Role_BubbleSize", en: "Bubble size (optional)" },
-    C13: { role: "multiples", key: "Role_Multiples", en: "Small Multiples" }
+    C13: { role: "multiples", key: "Role_Multiples", en: "Small Multiples" },
+    C14: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
+    C15: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
+    C16: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
+    C17: { role: "previousYear", key: "Hub_NeedPy", en: "Prior year (PY)" },
+    C18: { role: "xValue", key: "Hub_NeedX", en: "X axis" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
     { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C05", "C08"] },
-    { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06"] },
-    { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10"] },
+    { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
+    { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
+    { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
     { id: "bridges", key: "Hub_TplGrpBridges", en: "Bridges & multiples", codes: ["C12", "C13"] }
 ];
 /** 1.51 gallery tile texts per template: [title, use line] (keys Hub_TplT_/Hub_TplU_ + code) */
@@ -163,7 +194,12 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C09: ["Scatter with quadrants", "Revenue vs. margin per customer"],
     C10: ["Bubble chart", "Plus volume as bubble size"],
     C12: ["Waterfall / P&L bridge", "Revenue → EBIT step by step"],
-    C13: ["Small multiples", "One chart per region, same scale"]
+    C13: ["Small multiples", "One chart per region, same scale"],
+    C14: ["Bar table sorted by ΔPL", "Who is furthest above plan?"],
+    C15: ["Bar table sorted by ΔPL %", "Relative ranking vs. plan"],
+    C16: ["Bar table sorted by AC", "Top units, plan alongside"],
+    C17: ["Horizontal driver bridge", "Many units: PY → AC per row"],
+    C18: ["Variance scatter", "ΔPY % against ΔPL % per product"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -1020,6 +1056,11 @@ export class Visual implements IVisual {
     /** 1.49 chart template just persisted (echo guard + TTL 5, PnL pattern): while it
      *  lives, a stale metadata update cannot flip the freshly written switches back */
     private templatePending: { applied: string; props: Record<string, TplValue>; ttl: number } | null = null;
+    /** 1.54: last applied template (persisted or pending) — its keys are reset when
+     *  another template is applied */
+    private lastTplApplied = "off";
+    /** 1.54: pane defaults for template resets (one fresh model, built lazily) */
+    private static tplDefaults: VisualFormattingSettingsModel | null = null;
     /** template applied in this session — a lost echo must not re-apply it in a loop */
     private templateSessionTpl: string | null = null;
     /** 1.49 locked chips: bridge toolbar buttons of this render (locked afterwards when
@@ -1508,9 +1549,14 @@ export class Visual implements IVisual {
                 if (!this.chartSliceIs(k, v)) { synced = false; this.chartSliceSet(k, v); }
             }
             pend.ttl--;
-            if (synced || pend.ttl <= 0) { this.templatePending = null; }
+            if (synced || pend.ttl <= 0) {
+                this.templatePending = null;
+                // a lost echo must not pin the preset's header sort for the session
+                if (!synced) { this.pendingTableSort = null; }
+            }
             if (!synced && this.templatePending) { applied = pend.applied; }
         }
+        this.lastTplApplied = applied;
         const tpl = String(cc.template.value.value);
         // only the host's own confirmation re-arms the session guard
         if (tpl === persisted) { this.templateSessionTpl = null; }
@@ -1528,7 +1574,20 @@ export class Visual implements IVisual {
      * runs regardless of templateApplied, the echo guard covers the round trip.
      */
     private applyChartTemplate(tpl: string, withTemplate = false): void {
-        const props: Record<string, TplValue> = { ...(CHART_TEMPLATES[tpl] ?? {}) };
+        const props: Record<string, TplValue> = {};
+        // 1.54: switching templates resets what the previous one set and the new one
+        // does not mention (C18's reference lines must not move C09's quadrants to 0,
+        // C17's groupEvery must not split C03's months). "off" still writes nothing
+        const prev = this.lastTplApplied;
+        if (tpl !== "off" && prev !== tpl && CHART_TEMPLATES[prev]) {
+            for (const k of Object.keys(CHART_TEMPLATES[prev])) {
+                if (CHART_TEMPLATES[tpl] && k in CHART_TEMPLATES[tpl]) { continue; }
+                const d = this.templateDefault(k);
+                if (d !== undefined) { props[k] = d; }
+            }
+        }
+        Object.assign(props, CHART_TEMPLATES[tpl] ?? {});
+        this.lastTplApplied = tpl;
         if (withTemplate) { props["template"] = tpl; }
         for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
         // export/print contexts render the template locally but never write back
@@ -1536,8 +1595,19 @@ export class Visual implements IVisual {
         if (!this.allowInteractions) { return; }
         this.templatePending = { applied: tpl, props, ttl: 5 };
         this.templateSessionTpl = tpl;
+        // 1.54: "object.property" keys (C18 reference lines) go to their own object —
+        // still ONE persistProperties call, one merge instance per object
+        const byObj: Record<string, Record<string, TplValue>> = { chart: { templateApplied: tpl } };
+        for (const [k, v] of Object.entries(props)) {
+            const dot = k.indexOf(".");
+            const obj = dot > 0 ? k.slice(0, dot) : "chart";
+            (byObj[obj] = byObj[obj] ?? {})[dot > 0 ? k.slice(dot + 1) : k] = v;
+        }
+        const chartProps = byObj["chart"];
+        delete byObj["chart"];
         this.host.persistProperties({
-            merge: [{ objectName: "chart", selector: null, properties: { ...props, templateApplied: tpl } }]
+            merge: [{ objectName: "chart", selector: null, properties: { ...chartProps } },
+                ...Object.entries(byObj).map(([objectName, properties]) => ({ objectName, selector: null, properties }))]
         });
     }
 
@@ -1560,14 +1630,25 @@ export class Visual implements IVisual {
         this.applyChartTemplate(tpl, true);
     }
 
-    /** a chart-card slice by property name (toggle, number or dropdown) */
+    /** a chart-card slice by property name (toggle, number or dropdown); 1.54: an
+     *  "object.property" key addresses the slice of another card (e.g. scale.refLine) */
     private chartSlice(k: string): { value: unknown; items?: powerbi.IEnumMember[] } | null {
-        const cc = this.formattingSettings.chartCard as unknown as
-            Record<string, { value: unknown; items?: powerbi.IEnumMember[]; name?: string }>;
+        const dot = k.indexOf(".");
+        let card: unknown = this.formattingSettings.chartCard;
+        if (dot > 0) {
+            const obj = k.slice(0, dot);
+            card = (this.formattingSettings.cards as unknown as { name: string }[]).find(c => c.name === obj);
+            k = k.slice(dot + 1);
+            if (!card) { return null; }
+        }
+        const cc = card as Record<string, { value: unknown; items?: powerbi.IEnumMember[]; name?: string }>;
         const sl = cc[k];
         return sl && sl.name === k ? sl : null;
     }
     private chartSliceIs(k: string, v: TplValue): boolean {
+        // 1.54 (C14–C16): the persisted header sort is part of the preset, though no
+        // pane slice — compare the live state
+        if (k === "tableSort") { return this.tableSort === String(v); }
         const sl = this.chartSlice(k);
         if (!sl) { return true; }
         if (sl.items) { return String((sl.value as powerbi.IEnumMember)?.value) === String(v); }
@@ -1700,7 +1781,31 @@ export class Visual implements IVisual {
         }
     }
 
+    /** 1.54: the pane default of a template key (fresh settings model), used to reset
+     *  keys of the previously applied template; undefined = unknown key */
+    private templateDefault(k: string): TplValue | undefined {
+        if (k === "tableSort") { return ""; }
+        if (!Visual.tplDefaults) { Visual.tplDefaults = new VisualFormattingSettingsModel(); }
+        const fresh = this.formattingSettings;
+        this.formattingSettings = Visual.tplDefaults;
+        try {
+            const sl = this.chartSlice(k);
+            if (!sl) { return undefined; }
+            const v = sl.items ? (sl.value as powerbi.IEnumMember)?.value : sl.value;
+            return typeof v === "string" || typeof v === "number" || typeof v === "boolean" ? v : undefined;
+        } finally {
+            this.formattingSettings = fresh;
+        }
+    }
+
     private chartSliceSet(k: string, v: TplValue): void {
+        if (k === "tableSort") {
+            // local state for this very render; the echo guard only where the
+            // template is persisted (export renders apply it locally every time)
+            this.tableSort = String(v);
+            this.pendingTableSort = String(v);
+            return;
+        }
         const sl = this.chartSlice(k);
         if (!sl) { return; }
         if (sl.items) {
@@ -4608,7 +4713,7 @@ export class Visual implements IVisual {
             { t: L("Tour_10_T", "YTD, materiality & exceptions"), minis: ["tour-ytd"],
                 b: L("Tour_10_B", "YTD, QTD or R12 at the click of a chip, small variances greyed out, exception reporting folds the unremarkable rows into one.") },
             { t: L("Tour_11_T", "Templates & Smart-Start"), minis: ["stackcols", "catbridgecols", "bubble"], action: "templates",
-                b: L("Tour_11_B", "Eleven IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.") }
+                b: L("Tour_11_B", "16 IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.") }
         ];
     }
 
@@ -7852,7 +7957,7 @@ export class Visual implements IVisual {
             for (let i = groupEvery; i < n; i += groupEvery) {
                 this.el("line", {
                     x1: region.x + pad, y1: yS0 + i * rowH - 1, x2: rightEdge, y2: yS0 + i * rowH - 1,
-                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.35
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.35, "data-icd": "group-sep"
                 }, bg);
             }
         }
@@ -8275,7 +8380,7 @@ export class Visual implements IVisual {
                 const xs = bandStart + (firstDrv + i) * step;
                 this.el("line", {
                     x1: xs, y1: cTop, x2: xs, y2: region.y + region.h - pad,
-                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.35
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.35, "data-icd": "group-sep"
                 }, bg);
             }
         }
@@ -9353,7 +9458,11 @@ export class Visual implements IVisual {
         // %, ‰) — keep them out of the shared € scales as well
         const hasRowFmt = (p: DataPoint) => cfg.rowFmt.has(p.cat.trim().toLowerCase());
         const numPts = scalePts.filter(p => !isPct(p) && !isSkip(p) && !hasRowFmt(p));
-        const barDomain = extent(numPts.flatMap(p => [p.value, p.py, p.pl]));
+        // 1.54 (B01, sheets 04A–04C): the computed Σ row as scenario legend leaves the
+        // bar scale, the rows' bars get the full column; its Δ stays in the Δ scales
+        const totalLegend = totalRow != null && this.formattingSettings.chartCard.tableTotalLegend.value === true;
+        const barDomain = extent(numPts.filter(p => !(totalLegend && totalRow && p === totalRow.p))
+            .flatMap(p => [p.value, p.py, p.pl]));
         // IBCS scale sync: share the deck-wide domains so multiple tables (and
         // small-multiples tiles) on a page use identical scales incl. fixedMax
         barDomain[0] = Math.min(barDomain[0], cfg.mainDomain[0]);
@@ -9433,7 +9542,7 @@ export class Visual implements IVisual {
             if (!this.allowInteractions || cfg.cumulative) { return; }
             const r = this.el("rect", {
                 x: col.x - 2, y: region.y + pad, width: col.w + 4, height: headerH - 2,
-                fill: cfg.paper, "fill-opacity": 0.01, role: "button", tabindex: "0"
+                fill: cfg.paper, "fill-opacity": 0.01, role: "button", tabindex: "0", "data-icd": `sort-${key}`
             }, bg) as SVGElement;
             const tip = this.el("title", {}, r);
             tip.textContent = this.locStr("Btn_SortHeader", "Sort by this column (click again: ascending / off)");
@@ -9444,6 +9553,8 @@ export class Visual implements IVisual {
                     : this.tableSort === `${key}_asc` ? "" : `${key}_desc`;
                 this.tableSort = next;
                 this.pendingTableSort = next;
+                // a header click wins over a still unconfirmed template sort (1.54)
+                if (this.templatePending) { delete this.templatePending.props["tableSort"]; }
                 this.host.persistProperties({
                     merge: [{ objectName: "chart", selector: null, properties: { tableSort: next } }]
                 });
@@ -9652,7 +9763,8 @@ export class Visual implements IVisual {
             const ppText = (v: number) => this.financeFmt && v < 0
                 ? `(${pctNf.format(Math.abs(v))}Pp)`
                 : (v > 0 ? "+" : v < 0 ? "−" : "") + pctNf.format(Math.abs(v)) + "Pp";
-            if (p.value != null && cfg.showLabels) {
+            // 1.54: with the Σ legend the AC sum stands once, in the legend
+            if (p.value != null && cfg.showLabels && !(totalLegend && row.isTotal && barScale)) {
                 const shownVal = sumSafeVals?.has(p) ? sumSafeVals.get(p) as number : p.value;
                 txt(colX["val"].x + colX["val"].w, yMid + rowFont * 0.35,
                     rowPct ? pctText(p.value) : rf ? rf(shownVal) : cfg.fmt.format(shownVal),
@@ -9669,9 +9781,41 @@ export class Visual implements IVisual {
                 }
             }
 
+            // 1.54: Σ row as scenario legend — ■ AC, □ PL, grey PY with the sums
+            // (IBCS sheets 04A–04C) instead of a bar on a compressed scale
+            if (barScale && totalLegend && row.isTotal) {
+                const lg = this.el("g", { "data-icd": "table-total-legend" }, g);
+                const sq = Math.max(6, Math.round(rowFont * 0.75));
+                let lx = colX["bars"].x + 2;
+                const xEnd = colX["bars"].x + colX["bars"].w;
+                // order AC · PL · PY (the plan is the sheets' basis); what does not fit is
+                // skipped, a shorter later item may still fit
+                const items: [number | null, Record<string, string | number>, string][] = [
+                    [p.value, p.isFc ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac }, cfg.scenL.ac],
+                    [cfg.hasPl ? p.pl : null, { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }, cfg.scenL.pl],
+                    [cfg.hasPy ? p.py : null, cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py }, cfg.scenL.py]
+                ];
+                const tipParts: string[] = [];
+                for (const [v, style, scen] of items) {
+                    if (v == null) { continue; }
+                    const label = cfg.fmt.format(v);
+                    tipParts.push(`${scen} ${label}`);
+                    const need = sq + 4 + this.textWidth(label, rowFont, true) + 14;
+                    if (lx + need > xEnd + 1) { continue; }
+                    this.el("rect", { x: lx, y: yMid - sq / 2, width: sq, height: sq, ...style }, lg);
+                    txt(lx + sq + 4, yMid + rowFont * 0.35, label, "start", rowFont, true, cfg.ink, lg);
+                    lx += need;
+                }
+                const lt = this.el("title", {}, lg);
+                lt.textContent = tipParts.join(" · ");
+                lg.setAttribute("aria-label", tipParts.join(" · "));
+            }
             // AC·PY·PL bar cell (shared scale across all rows — IBCS);
             // margin rows are percentages and get no € graphics
-            if (barScale && !rowPct && rowChart) {
+            if (barScale && !rowPct && rowChart && !(totalLegend && row.isTotal)) {
                 const zero = barScale(0);
                 const barCell = (v: number, h: number, off: number, style: Record<string, string | number>) => {
                     const e = barScale(v);
@@ -10511,7 +10655,7 @@ export class Visual implements IVisual {
             if (!this.allowInteractions || cfg.cumulative) { return; }
             const r = this.el("rect", {
                 x: hx, y: top - 6 - hFont, width: hw, height: hFont + 8,
-                fill: cfg.paper, "fill-opacity": 0.01, role: "button", tabindex: "0"
+                fill: cfg.paper, "fill-opacity": 0.01, role: "button", tabindex: "0", "data-icd": `sort-${key}`
             }, bg) as SVGElement;
             const tip = this.el("title", {}, r);
             tip.textContent = this.locStr("Btn_SortHeader", "Sort by this column (click again: ascending / off)");
@@ -10522,6 +10666,8 @@ export class Visual implements IVisual {
                     : this.tableSort === `${key}_asc` ? "" : `${key}_desc`;
                 this.tableSort = next;
                 this.pendingTableSort = next;
+                // a header click wins over a still unconfirmed template sort (1.54)
+                if (this.templatePending) { delete this.templatePending.props["tableSort"]; }
                 this.host.persistProperties({
                     merge: [{ objectName: "chart", selector: null, properties: { tableSort: next } }]
                 });
@@ -16222,7 +16368,7 @@ export class Visual implements IVisual {
         const points = orientation === "columns"
             ? `${slotStart - s},${v - s * 0.8} ${slotStart - s},${v + s * 0.8} ${slotStart},${v}`
             : `${v - s * 0.8},${slotStart - s} ${v + s * 0.8},${slotStart - s} ${v},${slotStart}`;
-        this.el("polygon", {
+        this.el("polygon", { "data-icd": "py-triangle",
             points,
             fill: cfg.hc ? cfg.paper : cfg.colors.py,
             stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": cfg.hc ? 1.2 : 0.8,

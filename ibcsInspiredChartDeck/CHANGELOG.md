@@ -1,5 +1,26 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.54.0.0 (in Arbeit, Backlog IBCS-Templates vom 19.11.2026)
+
+**Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Bestehende Berichte zeichnen unverändert, alle neuen
+Schalter stehen standardmäßig aus.**
+
+- **B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.** Vorher: 04A bis 04C, 06E und 10F
+  ließen sich nur mit dem richtigen Satz an Einzel-Properties bauen; die Galerie zeigte sie nicht. Nachher: je
+  Blatt eine Vorlage in Formatbereich und Hub-Galerie (neue Gruppe „Rangfolgen gegen Plan“):
+  C14 Balkentabelle nach ΔPL (04A), C15 nach ΔPL % (04B), C16 nach AC (04C), C17 Kategorie-Brücke waagerecht
+  (06E), C18 Abweichungs-Scatter ΔPY % gegen ΔPL % (10F). C07 und C11 bleiben reserviert.
+  - Neue Option **Chart → Tabelle → „Σ-Zeile als Szenario-Legende“** (`tableTotalLegend`). Vorher stand die Σ-Zeile
+    als langer Summenbalken auf derselben Skala, die Zeilenbalken schrumpften auf ein Fünftel der Spalte. Nachher
+    zeigt die Σ-Zeile ■ AC □ PL (grau PY) mit den Summen, die Zeilenbalken nutzen die volle Breite; Δ-Balken und
+    Δ%-Pin der Σ-Zeile bleiben.
+  - Vorlagen dürfen Properties anderer Objekte setzen (C18: Referenzlinien bei 0 in `scale`) und die
+    Spaltensortierung `tableSort` (C14 bis C16); beides in demselben Speichervorgang.
+  - Vorlagenwechsel räumt auf: Einstellungen der vorherigen Vorlage, die die neue nicht nennt, gehen auf ihren
+    Standard zurück (vorher blieben z. B. die Referenzlinien von C18 in C09 stehen und verschoben die Quadranten).
+  - Tests c258 bis c266.
+- Offen nach B01: Die Rest-Zeile („Rest of USA“) wird in C14 bis C16 noch mitsortiert (B04).
+
 ## 1.53.0.0 (2026-10-24)
 
 **Review-Paket: Zeilenstruktur als Datenvertrag, negative Brücken, Export-Layout, generierte Property-Referenz.
