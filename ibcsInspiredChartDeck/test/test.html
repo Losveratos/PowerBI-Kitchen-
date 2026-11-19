@@ -2902,6 +2902,25 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
     check(!!b && b.left >= st.left && b.right <= st.right, "c299b: Marke „100 %“ vollständig im Visual");
   }
 }
+// ---- 1.55 (B09 Stufe 3): Anteils-Klammer (Blatt 02C)
+{
+  const ch = ["Direct", "Retail", "Wholesale"];
+  const rows = [["Austria", 102, 188, 125], ["Rest of Europe", 41, 88, 47], ["Brazil", 52, 36, 27], ["Switzerland", 172, 136, 188],
+    ["Canada", 15, 5, 12], ["Denmark", 7, 24, 21], ["Finland", 48, 35, 13], ["France", 178, 88, 78], ["Germany", 160, 135, 142],
+    ["Ireland", 56, 34, 7], ["Japan", 22, 16, 26], ["Norway", 4, 5, 13], ["Poland", 87, 100, 66], ["Portugal", 61, 44, 12],
+    ["Spain", 83, 83, 58], ["Sweden", 42, 42, 17], ["UK", 79, 105, 84], ["USA", 82, 96, 109], ["Rest of world", 60, 48, 29]];
+  const C = [], S = [], V = [];
+  rows.forEach(r => ch.forEach((sn, j) => { C.push(r[0]); S.push(sn); V.push(r[j + 1]); }));
+  addStage("c300", "Stapel-Balken · Blatt 02C · nach Direct sortiert · Klammer um die ersten 3 Zeilen (38 %)", 1200, 720);
+  runCap("c300", { metadata: { columns: [], objects: { chart: { orientation: "bars", sortMode: "series", stackTotalRow: true,
+    stackTotalLabel: "World", stackShareBracket: 3 } } }, categorical: {
+    categories: [{ source: { displayName: "Land", roles: { category: true } }, values: C }, { source: { displayName: "Kanal", roles: { series: true } }, values: S }],
+    values: [col("actual", V, "#,0")] } }, 1200, 720);
+  const br = document.querySelector('#c300 [data-icd="stack-share-bracket"]');
+  const names = [...document.querySelectorAll("#c300 text")].map(t => t.textContent).filter(t => rows.some(r => r[0] === t)).slice(0, 3);
+  check(!!br && br.getAttribute("data-share") === "37.7" && /38 %/.test(br.textContent) && JSON.stringify(names) === '["France","Switzerland","Germany"]',
+    `c300: Klammer France, Switzerland, Germany = 38 % von Direct (${br ? br.getAttribute("data-share") : "–"})`);
+}
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {
   const dv = dataView(t2Cats, [col("actual", t2Ac, "#,0"), col("previousYear", t2Py, "#,0"), col("plan", t2Pl, "#,0")],

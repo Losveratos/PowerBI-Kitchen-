@@ -485,6 +485,7 @@
                 },
                 "stackTotalRow": { "type": { "bool": true } },
                 "stackTotalLabel": { "type": { "text": true } },
+                "stackShareBracket": { "type": { "numeric": true } },
                 "stackLegendPos": {
                     "type": {
                         "enumeration": [

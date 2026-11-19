@@ -1318,6 +1318,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // 1.55 (B09, IBCS sheet 02C): bracket with the cumulated share of the top rows
+    stackShareBracket = new formattingSettings.NumUpDown({
+        name: "stackShareBracket",
+        displayName: "Share bracket (top rows)",
+        displayNameKey: "Chart_StackShareBracket",
+        description: "Gestapelte Balken: eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme, z. B. „38 %“. Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme. Rest- und Σ-Zeile zählen nie zur Klammer. 0 = aus.",
+        descriptionKey: "Desc_Chart_StackShareBracket",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 20 }
+        }
+    });
+
     stackLegendPos = new formattingSettings.ItemDropdown({
         name: "stackLegendPos",
         displayName: "Series names (columns)",
@@ -1342,7 +1356,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Display",
         displayNameKey: "Group_Display",
         slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.stackLegendPos,
-            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.scenarioLabels,
+            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket, this.scenarioLabels,
             this.exportExpandAll]
     });
 

@@ -1934,6 +1934,7 @@ export class Visual implements IVisual {
         fs.chartCard.stackTotalRow.visible = orient === "bars";
         fs.chartCard.stackTotalLabel.visible = orient === "bars" && fs.chartCard.stackTotalRow.value === true;
         fs.chartCard.stackLegendPos.visible = orient === "columns";
+        fs.chartCard.stackShareBracket.visible = orient === "bars";
         // 1.55 (B09)
         fs.chartCard.diffMarkers.visible = orient === "columns" || orient === "bars";
         fs.chartCard.bridgeSecondNet.visible = orient === "intwaterfall";
@@ -14068,6 +14069,11 @@ export class Visual implements IVisual {
         const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
             ? Math.max(60, region.w * 0.18) : 0;
         const marker100H = norm && orientation === "bars" ? lf + 8 : 0;
+        // 1.55 (B09, 02C): bracket around the first N rows with their cumulated share
+        const bracketN = Math.round(this.formattingSettings.chartCard.stackShareBracket.value ?? 0);
+        const bracketOn = orientation === "bars" && !norm && bracketN > 0 && bracketN < n
+            && !cats.slice(0, bracketN).some(c => REST_ROW_RX.test(c.trim()) || series.some(sn => cell.get(`${c}¦${sn}`)?.isRest));
+        const bracketW = bracketOn ? this.textWidth("100 %", lf, true) + 18 : 0;
         const slotsN = n + (totalRow ? 1 : 0);
         // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
         // series; 100 % stacks compare shares (percentage points), totals only on values
@@ -14111,7 +14117,7 @@ export class Visual implements IVisual {
                 rect = { x: region.x + leftW, y: region.y + pad + legH, w: region.w - rightW - leftW, h: region.h - pad - catArea - legH };
             } else {
                 const catArea = Math.min(region.w * 0.24,
-                    this.maxTextWidth(totalRow ? [...cats, cfg.stackTotalLabel || "Σ"] : cats, cf) + 12);
+                    this.maxTextWidth(totalRow ? [...cats, cfg.stackTotalLabel || "Σ"] : cats, cf) + 12) + bracketW;
                 bandStart = region.y + pad + titleH + legendH + 2;
                 bandEnd = region.y + region.h - pad - marker100H;
                 rect = { x: region.x + pad + catArea, y: region.y + legendH,
@@ -14461,6 +14467,35 @@ export class Visual implements IVisual {
                 level: x.si <= 0,
                 fc: scen[x.fi] === "fc" || scen[x.ti] === "fc"
             })), scale, orientation, cfg);
+        }
+        // ------- 1.55 (B09, 02C): share bracket — under row N to the end of the
+        // reference (first series when sorted by it, else the stack), slanted up to
+        // row 1; the cumulated share in an ellipse left of the names
+        if (bracketOn) {
+            const bySeries = cfg.stackSort === "series";
+            const refEnd = (ci: number) => bySeries ? Math.max(sv(ci, series[0]), 0) : posTot[ci];
+            const refVal = (ci: number) => bySeries ? rawSv(ci, series[0]) : posTot[ci] + negTot[ci];
+            const all = cats.reduce((a, _, ci) => a + refVal(ci), 0);
+            const top = cats.slice(0, bracketN).reduce((a, _, ci) => a + refVal(ci), 0);
+            if (all > 0) {
+                const share = top / all * 100;
+                const ink = cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF";
+                const bg2 = this.el("g", { "data-icd": "stack-share-bracket", "data-n": bracketN,
+                    "data-share": Math.round(share * 10) / 10 }, marks);
+                const yBelow = bandStart + bracketN * step;
+                const xLeft = region.x + pad;
+                const xN = scale(capV(refEnd(bracketN - 1)));
+                const x0 = scale(capV(refEnd(0)));
+                this.el("polyline", { points: `${xLeft},${yBelow} ${xN},${yBelow} ${x0},${pos(0) - 1}`,
+                    fill: "none", stroke: ink, "stroke-width": 1.4 }, bg2);
+                const txt = `${new Intl.NumberFormat(this.host.locale, { maximumFractionDigits: 0 }).format(share)} %`;
+                const tw = this.textWidth(txt, lf, true);
+                const cx = xLeft + bracketW / 2, cy = (bandStart + yBelow) / 2;
+                this.el("ellipse", { cx, cy, rx: tw / 2 + 6, ry: lf * 0.75, fill: cfg.paper, stroke: ink, "stroke-width": 1.2 }, bg2);
+                const t = this.el("text", { x: cx, y: cy + lf * 0.35, "text-anchor": "middle", "font-size": lf,
+                    "font-weight": 700, fill: cfg.ink, "font-family": FONT }, bg2);
+                t.textContent = txt;
+            }
         }
         // ------- 1.55 (B10): Σ row (bars) and absolute-total side panel (bars + 100 %)
         const seriesSums = series.map(sn => cats.reduce((a, _, ci) => a + rawSv(ci, sn), 0));
