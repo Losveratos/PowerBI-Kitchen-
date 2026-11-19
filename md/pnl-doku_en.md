@@ -21,7 +21,7 @@ Version · **1.8.0.0** · As of · **2026-11-01** · IBCS-inspired
 9. [Interaction](#interaction)
 10. [Deviations from the IBCS sheets](#deviations)
 11. [Troubleshooting](#faq)
-12. [Version note 1.7.1.0](#version)
+12. [Version note 1.8.0.0](#version)
 
 ## 01 · What is the visual?
 
@@ -183,7 +183,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.7.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.8.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 

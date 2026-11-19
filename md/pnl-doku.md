@@ -21,7 +21,7 @@ Version · **1.8.0.0** · Stand · **2026-11-01** · IBCS-inspired
 9. [Interaktion](#interaction)
 10. [Abweichungen von den IBCS-Blättern](#deviations)
 11. [Troubleshooting](#faq)
-12. [Versionshinweis 1.7.1.0](#version)
+12. [Versionshinweis 1.8.0.0](#version)
 
 ## 01 · Was ist das Visual?
 
@@ -183,7 +183,7 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.7.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.8.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
 3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
