@@ -166,7 +166,7 @@ footer.page-footer a:hover { border-color: var(--accent); }
   <div class="eyebrow">DSGVO · Art. 13</div>
   <h1>Datenschutzerklärung</h1>
 
-  <p><em>Stand: Oktober 2026.</em> Ich setze keine Analyse- oder Tracking-Werkzeuge, keine Werbe-Cookies und keinen Newsletter ein. Schriftarten und Programmbibliotheken liegen auf dieser Website selbst, es gibt also keine Abrufe bei Google Fonts oder fremden CDNs. Beim Aufruf der Seiten werden aber Daten an den Hoster (GitHub) übermittelt. Einige wenige Seiten binden außerdem Inhalte weiterer Anbieter ein, teils erst nach deinem Klick. Welche das sind, auf welchen Seiten und auf welcher Rechtsgrundlage, steht im Folgenden.</p>
+  <p><em>Stand: November 2026.</em> Ich setze keine Analyse- oder Tracking-Werkzeuge, keine Werbe-Cookies und keinen Newsletter ein. Schriftarten und Programmbibliotheken liegen auf dieser Website selbst, es gibt also keine Abrufe bei Google Fonts oder fremden CDNs. Beim Aufruf der Seiten werden aber Daten an den Hoster (GitHub) übermittelt. Einige wenige Seiten binden außerdem Inhalte weiterer Anbieter ein, teils erst nach deinem Klick. Welche das sind, auf welchen Seiten und auf welcher Rechtsgrundlage, steht im Folgenden.</p>
 
   <h2>1 · Verantwortlicher</h2>
   <p>
@@ -189,9 +189,8 @@ footer.page-footer a:hover { border-color: var(--accent); }
   <h2 id="local-storage">2a · Speicherung im Browser (Local Storage)</h2>
   <p>Damit Funktionen, die du aktiv nutzt, beim nächsten Besuch erhalten bleiben, legen einige Seiten Einträge im Local Storage bzw. Session Storage deines Browsers ab. Sie werden nicht an mich oder Dritte übertragen und lassen sich jederzeit über die Browser-Einstellungen („Websitedaten löschen“) entfernen.</p>
   <dl class="dataflow">
-    <dt>Episoden-Hub</dt><dd>Startseite: gelesene Wegweiser-Karten und Ein-/Ausblende-Zustand der Tags (<code>datenwg.guideRead</code>, <code>datenwg.tagsHidden</code>)</dd>
     <dt>Guides</dt><dd>Lesefortschritt im Power-BI- und im Fabric-Einsteiger-Guide (<code>pbiGuideV4ReadCards</code>, <code>fabricGuideV1ReadCards</code>)</dd>
-    <dt>Werkzeuge</dt><dd>MockupKitchen: Entwürfe, Panel- und Spracheinstellungen sowie der Hinweis zur Mobilansicht (<code>mockupkitchen.state.v1</code>, <code>mockupkitchen.panels.v1</code>, <code>mockupkitchen.lang</code>, Session Storage <code>mockupkitchen.mobileOk</code>) · Chart-Builder: auf- und zugeklappte Bereiche, Coach-Hinweis, Typ-Gruppen (<code>bcb-collapsed</code>, <code>bcb-subcollapsed</code>, <code>cb_guideCoach_v1</code>, <code>cb_typeGroups</code>) · IBCS-Trainer: Bestwerte je Modus · Power BI on Claude: Farbschema (<code>pboc-theme</code>)</dd>
+    <dt>Werkzeuge</dt><dd>MockupKitchen: Entwürfe, Panel- und Spracheinstellungen sowie der Hinweis zur Mobilansicht (<code>mockupkitchen.state.v1</code>, <code>mockupkitchen.panels.v1</code>, <code>mockupkitchen.lang</code>, Session Storage <code>mockupkitchen.mobileOk</code>) · Chart-Builder: auf- und zugeklappte Bereiche, Coach-Hinweis, Typ-Gruppen (<code>bcb-collapsed</code>, <code>bcb-subcollapsed</code>, <code>cb_guideCoach_v1</code>, <code>cb_typeGroups</code>) · IBCS-Trainer: Bestwerte je Modus (<code>ibcsTrainerBest_…</code>) · Visual-Standards-Rechner: Sprache und aktueller Schritt im Assistenten (<code>vsr-lang</code>, Session Storage <code>vsr-wiz</code>) · Power BI on Claude: Farbschema (<code>pboc-theme</code>)</dd>
     <dt>Event-Rückblick</dt><dd>Merkliste der Daten-WG-Agenda (<code>dwg2026-pins</code>) · Daten-WG-Spiel: Spielstand und Ton-Einstellungen (<code>dwg-game-plan</code>, <code>dwg-game-collected</code>, <code>dwg-game-seen</code>, <code>dwg-muted</code>, <code>dwg-music</code>)</dd>
     <dt>Lernspiele</dt><dd>Daten-Imperium: Spielstand, Sprache und Ton-Einstellung (<code>datenImperium.save.v1</code>, <code>datenImperium.lang</code>, <code>datenImperium.sound</code>)</dd>
     <dt>Library</dt><dd>Wissensgraph: Tour-Hinweis bereits gesehen (<code>dwglib_tour</code>)</dd>
@@ -245,13 +244,7 @@ footer.page-footer a:hover { border-color: var(--accent); }
   </dl>
 
   <p id="sessionize"><strong>4.4 · Sessionize (Agenda &amp; Daten-WG-Spiel)</strong></p>
-  <p>Die Seiten „Agenda“ und „Daten-WG-Spiel“ (Event-Rückblick) zeigen das Programm der Daten-WG-Konferenz. Beim Öffnen lädt dein Browser den aktuellen Programmstand von der Sessionize-API (<code>sessionize.com</code>) sowie Profilfotos der Speaker vom Sessionize-CDN (<code>cdn.sessionize.com</code>). Auf anderen Seiten findet kein Abruf bei Sessionize statt.</p>
-  <dl class="dataflow">
-    <dt>Anbieter</dt><dd>Sessionize (Anbieter und Sitz laut <a href="https://sessionize.com/privacy-policy" target="_blank" rel="noopener">Datenschutzerklärung von Sessionize</a>)</dd>
-    <dt>Daten</dt><dd>IP-Adresse, User-Agent, Referrer, Zeitstempel</dd>
-    <dt>Zweck</dt><dd>aktuelles Programm und Speaker-Fotos anzeigen</dd>
-    <dt>Rechtsgrundlage</dt><dd>Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer aktuellen, vollständigen Programmansicht)</dd>
-  </dl>
+  <p>Die Seiten „Agenda“ und „Daten-WG-Spiel“ (Event-Rückblick) zeigen das Programm der Daten-WG-Konferenz 2026. Programm und Speaker-Angaben stammen aus Sessionize, sind aber fest in die Seiten eingebunden. Beim Öffnen findet kein Abruf bei Sessionize statt; statt Profilfotos werden Initialen angezeigt. Ein Link auf <code>sessionize.com</code> ist ein einfacher Link (siehe 4.6).</p>
 
   <p id="weitere"><strong>4.5 · Fabric-Alchemie-Spiel (nur nach Klick)</strong></p>
   <p>Im Beitrag „Fabric Alchemie“ wird das Spiel von Ulrik Harnisch erst nach Klick auf „Spiel hier starten“ von <code>huhar.github.io</code> (GitHub Pages) eingebettet. Gleichzeitig fragt die Seite bei <code>api.github.com</code> das Datum der letzten Änderung des Spiels ab. Vor dem Klick wird nichts übertragen. Es gelten die Angaben zu GitHub in Abschnitt 3; Rechtsgrundlage ist deine Einwilligung durch den Klick (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG).</p>
