@@ -1882,7 +1882,10 @@ const tplCases = [
       categories: [{ source: { displayName: "Produkt", roles: { category: true } }, values: vsProd },
         { source: { displayName: "Produktlinie", roles: { series: true } }, values: vsLine }],
       values: [col("actual", vsPl, "0 %", null, "ΔPL %"), col("xValue", vsPy, "0 %", null, "ΔPY %"),
-        col("bubbleSize", vsSize, "#,0", null, "Nettoumsatz")] } })]
+        col("bubbleSize", vsSize, "#,0", null, "Nettoumsatz")] } })],
+  // 1.54 (B05): Säulen gegen Plan mit Jahressäule (03B)
+  ["c267", "C19", "Säulen gegen PL + Jahressäule AC/FC mit eigener Skala und Skalenband (03B)", 1100, 560,
+    () => dataView(months, [col("actual", ac, "#,0 €"), col("forecast", fc, "#,0 €"), col("plan", pl, "#,0 €")], { chart: { template: "C19" } })]
 ];
 for (const [id, tpl, title, w, h, mk] of tplCases) {
   addStage(id, "Template " + tpl + " · " + title, w, h);
@@ -1920,6 +1923,11 @@ for (const [id, tpl, title, w, h, mk] of tplCases) {
   const vert = dl.filter(l => Math.abs(l.x1 - l.x2) < 0.5 && Math.abs(l.y2 - l.y1) > 300);
   const hor = dl.filter(l => Math.abs(l.y1 - l.y2) < 0.5 && Math.abs(l.x2 - l.x1) > 800);
   check(vert.length === 1 && hor.length === 1, `c262: Achsenkreuz bei 0 (senkrecht ${vert.length}, waagerecht ${hor.length})`);
+  // C19 gezeichnet: Jahressäule mit eigener Skala statt Σ-Kopfzeile, Band, Kürzel AC/FC
+  const y19 = document.querySelector('#c267 [data-icd="year-column"]');
+  check(!!y19 && +y19.getAttribute("data-factor") < 1 && !!document.querySelector('#c267 [data-icd="scale-zoom-year"]')
+    && !/Σ \d/.test(document.getElementById("c267").textContent) && document.querySelectorAll('#c267 [data-icd="scen-label"]').length === 4,
+    "c267: C19 = Jahressäule (eigene Skala, Band), keine Σ-Kopfzeile, Szenario-Kürzel");
   // C17 gezeichnet: Balken-Kaskade, keine PY-Dreiecke, Trennlinie nach 4, 8, 12 von 15 Zeilen, keine Treiber-Notiz
   const sep = document.querySelectorAll('#c261 [data-icd="group-sep"]').length;
   check(sep === 3 && !document.querySelector('#c261 [data-icd="py-triangle"]') && !/Gesamtabweichung|of the total variance/i.test(document.getElementById("c261").textContent),
@@ -2285,7 +2293,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18"]', "c222: 16 Vorlagen-Kacheln " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19"]', "c222: 17 Vorlagen-Kacheln " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -2527,7 +2535,10 @@ addStage("c228", "mode = message · Umschalter „☰ Start-Hub“ → persist m
 addStage("c229", "Galerie-Wahl C05 · stale Update (template = off) → kein Rückfall, kein zweiter Merge · Echo", 480, 260);
 {
   const r = runCap("c229", emptyDv({ chart: { template: "off", templateApplied: "off" } }), 480, 260, { viewMode: 1 });
-  hubClick("c229", "hub-templates"); hubClick("c229", "hub-tpl-C05");
+  hubClick("c229", "hub-templates");
+  // 1.54: mehr Vorlagen je Gruppe, C05 kann auf einer späteren Seite liegen
+  for (let k = 0; k < 8 && !hubQ("c229", "hub-tpl-C05") && hubQ("c229", "hub-tpl-next"); k++) { hubClick("c229", "hub-tpl-next"); }
+  hubClick("c229", "hub-tpl-C05");
   r.upd(emptyDv({ chart: { template: "off", templateApplied: "off" } }));
   const pp = window.__persist.c229;
   check(pp.length === 1 && String(r.v.formattingSettings.chartCard.template.value.value) === "C05"
@@ -2554,14 +2565,14 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   const groups = groupsOf("c230"), tiles = tilesOf("c230");
   check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C03", "C05", "C08"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C03", "C19", "C05", "C08"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const ok = Object.entries(want).every(([gid, codes]) => {
     const h = box("hub-tpl-group-" + gid);
     const bs = codes.map(cd => box("hub-tpl-" + cd));
     return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
   });
-  check(ok && tiles.length === 16, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 17, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),

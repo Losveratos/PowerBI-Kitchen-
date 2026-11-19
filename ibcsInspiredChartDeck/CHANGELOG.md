@@ -9,7 +9,7 @@ Schalter stehen standardmäßig aus.**
   ließen sich nur mit dem richtigen Satz an Einzel-Properties bauen; die Galerie zeigte sie nicht. Nachher: je
   Blatt eine Vorlage in Formatbereich und Hub-Galerie (neue Gruppe „Rangfolgen gegen Plan“):
   C14 Balkentabelle nach ΔPL (04A), C15 nach ΔPL % (04B), C16 nach AC (04C), C17 Kategorie-Brücke waagerecht
-  (06E), C18 Abweichungs-Scatter ΔPY % gegen ΔPL % (10F). C07 und C11 bleiben reserviert.
+  (06E), C18 Abweichungs-Scatter ΔPY % gegen ΔPL % (10F); C19 siehe B05. C07 und C11 bleiben reserviert.
   - Neue Option **Chart → Tabelle → „Σ-Zeile als Szenario-Legende“** (`tableTotalLegend`). Vorher stand die Σ-Zeile
     als langer Summenbalken auf derselben Skala, die Zeilenbalken schrumpften auf ein Fünftel der Spalte. Nachher
     zeigt die Σ-Zeile ■ AC □ PL (grau PY) mit den Summen, die Zeilenbalken nutzen die volle Breite; Δ-Balken und
@@ -19,6 +19,18 @@ Schalter stehen standardmäßig aus.**
   - Vorlagenwechsel räumt auf: Einstellungen der vorherigen Vorlage, die die neue nicht nennt, gehen auf ihren
     Standard zurück (vorher blieben z. B. die Referenzlinien von C18 in C09 stehen und verschoben die Quadranten).
   - Tests c258 bis c266.
+- **B05 · Jahressäule mit eigener Skala (Blätter 03A, 03B).** Vorher: Das Monatsbild mit Jahressumme ging nur als
+  zweite Kachel, ein Skalenband über zwei Visuals gab es nicht, und die Σ-Kopfzeile nannte die Jahreszahl nur als Text.
+  Nachher: „Jahressäule (eigene Skala)“ (`chart.yearColumn`) setzt rechts neben die Monate eine Σ-Säule AC + FC (FC
+  schraffiert) gegen PY bzw. PL auf einem runden Bruchteil der Monatsskala (z. B. ×0,1); ein blaues Band beim selben
+  Wert in Monaten und Jahressäule, verbunden über die Lücke, macht den Skalenwechsel sichtbar. ΔBasis und ΔBasis % der
+  Jahressumme stehen in den Abweichungs-Panels auf der Monats-Δ-Skala. Dazu `chart.yearColumnLabel` (z. B. „2025“) und
+  `chart.scenarioLabels` (AC/FC an Achse und Jahressäule). Neue Vorlage C19 „Säulen gegen Plan mit Jahressäule“ (03B).
+  Monate und Jahr stehen auf derselben Nulllinie (auch bei Verlustmonaten); fehlt die Basis für einzelne Monate,
+  rechnet die Säule über die Monate mit Basis und zeigt „2025 (9/12)“. Ein Jahres-Δ über dem Vierfachen der
+  Monats-Δ läuft mit dem Faktor der Jahressäule („×0,1“ am Balken).
+  Tests: Skalen-Suite YC03A/YC03B (Pixelmessung), Nulllinie, Teilsumme, Dual-Varianz, großes Δ, Small Multiples und
+  sechs Rückfälle (SVG gleich wie ohne Option), Render c267. Fable-Review: zwei Blocker und alle Major-Befunde behoben.
 - Offen nach B01: Die Rest-Zeile („Rest of USA“) wird in C14 bis C16 noch mitsortiert (B04).
 
 ## 1.53.0.0 (2026-10-24)

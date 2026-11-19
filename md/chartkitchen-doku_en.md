@@ -71,7 +71,7 @@ If you can operate one of the two visuals, you can operate the other: getting st
 | Shared | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
-| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 16 IBCS chart templates C01–C18 (without C07/C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
+| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 17 IBCS chart templates C01–C19 (without C07/C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
 | **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane HD · Full HD · UHD; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
 | **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
 | **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
@@ -96,12 +96,13 @@ Every sub-page carries the **“← Back”** pill at the top left; Esc goes bac
 
 ### The template gallery by purpose
 
-The 16 IBCS templates (chapter 07) appear as tiles with a preview in five groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
+The 17 IBCS templates (chapter 07) appear as tiles with a preview in five groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
 
 | Group | Template | Tile title | Benefit line |
 | --- | --- | --- | --- |
 | **Time series** | C01 | Stacked columns by segment | Revenue mix per month |
 |  | C03 | Columns with prior-year variance | Monthly report AC vs. PY |
+|  | C19 | Columns vs. plan + year | Months AC/FC vs. PL, year on own scale |
 |  | C05 | Integrated year bridge | PY → AC/FC across the months |
 |  | C08 | Line for long series | Weekly or daily trend vs. PY |
 | **Structure** | C02 | Stacked bars by segment | Cost structure per unit |
@@ -317,7 +318,7 @@ The following captures come straight from Power BI Desktop, with sample data fro
 
 ## 07 · Features in detail
 
-### IBCS templates C01–C18
+### IBCS templates C01–C19
 
 Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the same pattern as the table templates in the sister visual P&L Statement. A template is only a starting point: it sets chart type, variance basis, variance panels and the matching switches in one save; afterwards every setting is free to change.
 
@@ -343,6 +344,7 @@ Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the sa
 | C15 · Bar table by ΔPL % (sheet 04B) | like C14, sorted by ΔPL % descending | Plan (PL) |
 | C16 · Bar table by AC (sheet 04C) | like C14, sorted by AC descending (ranking) | Plan (PL) |
 | C17 · Category bridge horizontal (sheet 06E) | Category bridge as a bar cascade, basis previous year, PY as a grey bar behind AC instead of a triangle, separator every 4 rows, no driver note | Previous Year (PY), plan optional |
+| C19 · Columns vs. plan with year column (sheet 03B) | Columns, basis plan, variance absolute and in %, year column AC + FC on its own scale with scale band, scenario labels at the columns | Plan (PL), forecast recommended |
 | C18 · Variance scatter (sheet 10F) | Scatter without mean quadrants, axis cross at 0 (reference lines X and Y), colour per group, size legend | Actual (AC) = ΔPL % measure, X axis = ΔPY % measure, series, bubble size optional |
 
 Since 1.54 switching templates cleans up: whatever the previous template set and the new one does not mention returns to its default (for example the reference lines of C18 when C09 is picked next). “Off” still changes nothing. Clicking a column header in C14 to C16 counts as a deviation; “↺ Back to template” restores the template’s sort.
@@ -396,6 +398,17 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 
 1. Under Chart → Table → “Value columns” switch between “AC only”, “AC + variance basis” and “AC · PY · PL”.
 2. The numeric reference values then sit next to the Δbasis bar column and the Σ block — for print- and board-ready tables without bar interpretation.
+
+### Year column with its own scale
+
+![Months against plan, on the right the year column AC + FC on its own scale (×0.1). The blue band sits at the same value on both scales, the slanted line joins the two bands; ΔPL and ΔPL % of the year sum sit in the variance panels (IBCS sheets 03A and 03B).](../doku-assets/feature-year-column.png)
+
+1. Since 1.54: switch on Chart → Data & time → “Year column (own scale)” (columns only). The template C19 “Columns vs. plan + year” sets it together with basis plan and the scenario labels.
+2. The year column sums every month with a value: AC as the solid socket, FC hatched on top, PY or PL behind. If the comparison basis is missing for some months, the column sums only the months with a basis, so the variance compares like with like, and says so in its label, e.g. “2025 (9/12)”. Preliminary months count as actual.
+3. The own scale is always a round fraction of the month scale (e.g. ×0.1) on the same zero line and is declared: the factor in the gap at the zero line, the same value as a blue band in the months and the year column. The variances of the year sum run on the scale of the monthly variances, as in the sheet. If the year variance is more than four times the largest monthly variance, it gets the year column's factor, declared next to the bar.
+4. “Year column label” sets the text under the axis (e.g. 2025, empty = Σ). The Σ header is dropped; the year column replaces it.
+5. No effect with the cumulative view (YTD already is the last column there), waterfall bridge, stacks, P&L rows and very small tiles. Small multiples share one year scale.
+6. “Scenario labels at the columns” (Display group) writes AC under the first actual month, FC under the first forecast month and AC/FC next to the parts of the year column.
 
 ### Σ row position
 
@@ -593,7 +606,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) · default „Off (no template)“ |
+| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter, C19 columns vs. plan with a year column. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) \| C19 · Columns vs. plan + year column (03B) · default „Off (no template)“ |
 | Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) · default „Columns (Time)“ |
 | Smart-Start suggestions | Shows a subtle suggestion chip top-left of the chart when the bound fields clearly point to a better-fitting mode (e.g. date + AC + PL → columns with ΔPL). Only visible in edit mode, never in the read view or in exports. | On / Off · default On |
 | Variance basis | Basis for the variance panels. Auto: PL if available, otherwise PY. | Options: Auto \| Previous Year (PY) \| Plan (PL) \| Prior-month FC (revision) · default „Auto“ |
@@ -602,6 +615,8 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Dual variance (PL + PY) | Additionally shows the variance panels for the second basis — ΔPL and ΔPY at the same time (requires PY and PL). | On / Off · default Off |
 | PY as triangle (AC + PY + PL) | IBCS notation with three scenarios: when AC, PY and PL are bound, the previous year is shown as a grey triangle (▶) at the column/bar edge at PY height instead of as a third column — less cluttered. Off = PY shown as a grey column again. In the integrated bridge (C05) the triangle only appears with the third scenario since 1.52; with AC&FC + PY, PY is a grey, offset column. | On / Off · default On |
 | Total (Σ) header | Shows the total and the total variance as a header row. | On / Off · default On |
+| Year column (own scale) | Since 1.54 (property `chart.yearColumn`), columns only: a Σ column (AC + FC against PY or PL) to the right of the months, on its own scale. A blue scale band at the same value in the months and the year column shows the difference between the scales; Δbasis and Δbasis % of the year sum sit in the variance panels. Replaces the Σ header. Not with cumulative view, waterfall bridge or stacks. | On / Off · default Off |
+| Year column label | Since 1.54 (`chart.yearColumnLabel`): text under the year column, e.g. “2025”. Empty = “Σ”. | Free text · default empty |
 | Group separator every N categories | Draws a thin separator line after every N categories, across all panels — for structural comparisons with natural subgroups (e.g. regions). 0 = off. | 0–50 · default 0 |
 
 #### Analysis
@@ -625,6 +640,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Δ%-pin shape | Shape of the lollipop head of the Δ% pins. "Automatic" keeps the previous style per mode (Columns/Bars/Waterfall round, bridges and table square); "Round" or "Square" unify all modes. | Options: Automatic (per mode) \| Round \| Square · default „Automatic (per mode)“ |
 | Trend icons ▲▼● | Prefixes the Δ values in the table and KPI cards with direction arrows: ▲ increase, ▼ decrease, ● immaterial (below the materiality threshold). Also readable in black-and-white print and for color-blind users — color still rates good/bad. | On / Off · default Off |
 | Stack legend at the stack | Display group, since 1.52.1 (property `chart.stackLegendDirect`): stacked columns and bars show the series names right at the stack (columns: next to the last column, bars: above the widest segment of each series) instead of a key at the top. When they do not fit, the key stays. Off = always the key at the top. | On / Off · default On |
+| Scenario labels at the columns | Since 1.54 (`chart.scenarioLabels`), columns only: AC under the first actual month, FC under the first forecast month, AC and FC next to the parts of the year column. | On / Off · default Off |
 
 #### Small Multiples
 

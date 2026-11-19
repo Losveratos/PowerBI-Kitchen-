@@ -71,7 +71,7 @@ Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorl
 | Gemeinsam | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
-| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 16 IBCS-Chart-Vorlagen C01 bis C18 (ohne C07/C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 17 IBCS-Chart-Vorlagen C01 bis C19 (ohne C07/C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
 | **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich HD · Full HD · UHD; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
 | **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
 | **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
@@ -96,12 +96,13 @@ Jede Unterseite trägt oben links die Pille **„← Zurück“**; Esc führt eb
 
 ### Die Vorlagen-Galerie nach Zweck
 
-Die 16 IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in fünf Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
+Die 17 IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in fünf Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
 
 | Gruppe | Vorlage | Kachel-Titel | Nutzen-Zeile |
 | --- | --- | --- | --- |
 | **Zeitverlauf** | C01 | Säulen gestapelt nach Segment | Umsatzmix je Monat |
 |  | C03 | Säulen mit Vorjahres-Abweichung | Monatsbericht AC vs. PY |
+|  | C19 | Säulen gegen Plan mit Jahr | Monate AC/FC gegen PL, Jahr eigene Skala |
 |  | C05 | Integrierte Jahresbrücke | PY → AC/FC über die Monate |
 |  | C08 | Linie für lange Reihen | Wochen- oder Tagestrend vs. PY |
 | **Struktur** | C02 | Balken gestapelt nach Segment | Kostenstruktur je Bereich |
@@ -317,7 +318,7 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 
 ## 07 · Funktionen im Detail
 
-### IBCS-Vorlagen C01 bis C18
+### IBCS-Vorlagen C01 bis C19
 
 Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — dasselbe Muster wie die Tabellen-Templates im Schwester-Visual P&L Statement. Eine Vorlage ist nur ein Startpunkt: Sie setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Speichervorgang, danach ist jede Einstellung frei änderbar.
 
@@ -343,6 +344,7 @@ Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — d
 | C15 · Balkentabelle nach ΔPL % (Blatt 04B) | wie C14, sortiert nach ΔPL % absteigend | Plan (PL) |
 | C16 · Balkentabelle nach AC (Blatt 04C) | wie C14, sortiert nach AC absteigend (Rangfolge) | Plan (PL) |
 | C17 · Kategorie-Brücke waagerecht (Blatt 06E) | Kategorie-Brücke als Balken-Kaskade, Basis Vorjahr, PY als grauer Balken hinter AC statt Dreieck, Trennlinie alle 4 Zeilen, ohne Treiber-Notiz | Vorjahr (PY), Plan optional |
+| C19 · Säulen gegen Plan mit Jahressäule (Blatt 03B) | Säulen, Basis Plan, Abweichung absolut und in %, Jahressäule AC + FC mit eigener Skala und Skalenband, Szenario-Kürzel an den Säulen | Plan (PL), Forecast empfohlen |
 | C18 · Abweichungs-Scatter (Blatt 10F) | Scatter ohne Mittelwert-Quadranten, Achsenkreuz bei 0 (Referenzlinien X und Y), Farbe je Gruppe, Größen-Legende | Ist (AC) = ΔPL %-Measure, X-Achse = ΔPY %-Measure, Serie, Blasengröße optional |
 
 Seit 1.54 räumt ein Vorlagenwechsel auf: Was die vorherige Vorlage gesetzt hat und die neue nicht nennt, geht auf den Standard zurück (etwa die Referenzlinien von C18, wenn danach C09 gewählt wird). „Aus“ ändert weiterhin nichts. Ein Klick auf einen Spaltenkopf in C14 bis C16 gilt als Abweichung, „↺ Zum Template zurück“ stellt die Sortierung der Vorlage wieder her.
@@ -396,6 +398,17 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 
 1. Unter Chart → Tabelle → „Werte-Spalten“ schaltest du zwischen „Nur AC“, „AC + Varianzbasis“ und „AC · PY · PL“.
 2. Die bezifferten Referenzwerte stehen dann neben der ΔBasis-Balkenspalte und dem Σ-Block — für druck- und boardtaugliche Tabellen ohne Balken-Interpretation.
+
+### Jahressäule mit eigener Skala
+
+![Monate gegen Plan, rechts die Jahressäule AC + FC auf eigener Skala (×0,1). Das blaue Band steht in beiden Skalen beim selben Wert, die schräge Linie verbindet die beiden Bänder; ΔPL und ΔPL % der Jahressumme stehen in den Abweichungs-Panels (IBCS-Blätter 03A und 03B).](../doku-assets/feature-year-column.png)
+
+1. Seit 1.54: Chart → Daten & Zeit → „Jahressäule (eigene Skala)“ einschalten (nur Säulen). Die Vorlage C19 „Säulen gegen Plan mit Jahr“ setzt das zusammen mit Basis Plan und den Szenario-Kürzeln.
+2. Die Jahressäule summiert alle Monate mit Wert: AC als voller Sockel, FC schraffiert darauf, dahinter PY bzw. PL. Fehlt die Vergleichsbasis für einzelne Monate, rechnet die Säule nur über die Monate mit Basis, damit die Abweichung Gleiches mit Gleichem vergleicht, und sagt das in der Beschriftung, z. B. „2025 (9/12)“. Vorläufige Monate zählen wie Ist.
+3. Die eigene Skala ist immer ein runder Bruchteil der Monatsskala (z. B. ×0,1) auf derselben Nulllinie und wird ausgewiesen: der Faktor in der Lücke an der Nulllinie, derselbe Wert als blaues Band in Monaten und Jahressäule. Die Abweichungen der Jahressumme laufen auf der Skala der Monats-Abweichungen, wie im Blatt. Ist die Jahresabweichung mehr als viermal so groß wie die größte Monatsabweichung, bekommt sie denselben Faktor wie die Jahressäule, ausgewiesen neben dem Balken.
+4. „Beschriftung der Jahressäule“ setzt den Text unter der Achse (z. B. 2025, leer = Σ). Die Σ-Kopfzeile entfällt, die Jahressäule ersetzt sie.
+5. Wirkt nicht bei kumulierter Sicht (YTD ist dort schon die letzte Säule), Wasserfall-Brücke, Stapeln, GuV-Zeilen und in sehr kleinen Kacheln. Small Multiples teilen eine Jahresskala.
+6. „Szenario-Kürzel an den Säulen“ (Gruppe Darstellung) schreibt AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat und AC/FC neben die Teile der Jahressäule.
 
 ### Position der Σ-Zeile
 
@@ -593,7 +606,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) · Standard „Aus (keine Vorlage)“ |
+| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter, C19 Säulen gegen Plan mit Jahressäule. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) \| C19 · Säulen gegen Plan + Jahressäule (03B) · Standard „Aus (keine Vorlage)“ |
 | Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) · Standard „Columns (Zeit)“ |
 | Smart-Start-Vorschläge | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus sichtbar, nie in der Leseansicht oder in Exporten. | An / Aus · Standard An |
 | Abweichungsbasis | Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY. | Optionen: Auto \| Vorjahr (PY) \| Plan (PL) \| FC Vormonat (Revision) · Standard „Auto“ |
@@ -602,6 +615,8 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Doppelte Abweichung (PL + PY) | Zeigt zusätzlich die Abweichungs-Panels zur zweiten Basis — ΔPL und ΔPY gleichzeitig (benötigt PY und PL). | An / Aus · Standard Aus |
 | PY als Dreieck (bei AC + PY + PL) | IBCS-Notation bei drei Szenarien: Sind AC, PY und PL gebunden, wird das Vorjahr als graues Dreieck (▶) am Säulen-/Balkenrand auf PY-Höhe gezeigt statt als dritte Säule — weniger überladen. Aus = PY wieder als graue Säule. In der Integrierten Brücke (C05) erscheint das Dreieck seit 1.52 nur beim dritten Szenario; bei AC&FC + PY ist PY eine graue, versetzte Säule. | An / Aus · Standard An |
 | Summen-Kopfzeile (Σ) | Zeigt Summe und Gesamtabweichung als Kopfzeile. | An / Aus · Standard An |
+| Jahressäule (eigene Skala) | Seit 1.54 (Property `chart.yearColumn`), nur Säulen: rechts neben den Monaten eine Σ-Säule (AC + FC gegen PY bzw. PL) mit eigener Skala. Ein blaues Skalenband beim selben Wert in Monaten und Jahressäule zeigt den Unterschied der Skalen; ΔBasis und ΔBasis % der Jahressumme stehen in den Abweichungs-Panels. Ersetzt die Σ-Kopfzeile. Nicht bei kumulierter Sicht, Wasserfall-Brücke oder Stapel. | An / Aus · Standard Aus |
+| Beschriftung der Jahressäule | Seit 1.54 (`chart.yearColumnLabel`): Text unter der Jahressäule, z. B. „2025“. Leer = „Σ“. | Freitext · Standard leer |
 | Trennlinie alle N Kategorien | Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus. | 0–50 · Standard 0 |
 
 #### Analyse
@@ -625,6 +640,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Δ%-Pin-Form | Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. | Optionen: Automatisch (je Modus) \| Rund \| Quadratisch · Standard „Automatisch (je Modus)“ |
 | Trend-Icons ▲▼● | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht. | An / Aus · Standard Aus |
 | Stapellegende am Stapel | Gruppe Darstellung, seit 1.52.1 (Property `chart.stackLegendDirect`): Gestapelte Säulen und Balken zeigen die Seriennamen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem breitesten Segment jeder Serie) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben. | An / Aus · Standard An |
+| Szenario-Kürzel an den Säulen | Seit 1.54 (`chart.scenarioLabels`), nur Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. | An / Aus · Standard Aus |
 
 #### Small Multiples
 

@@ -204,7 +204,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C15", displayName: "C15 · Bar table by ΔPL % (04B)", key: "Enum_Template_C15" },
     { value: "C16", displayName: "C16 · Bar table by AC (04C)", key: "Enum_Template_C16" },
     { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
-    { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" }
+    { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
+    { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -308,7 +309,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures). Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule. Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -400,6 +401,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         description: "Zeigt Summe und Gesamtabweichung als Kopfzeile.",
         descriptionKey: "Desc_Chart_ShowTotal",
         value: true
+    });
+
+    // 1.54 (backlog B05, IBCS sheets 03A/03B): year column with its own scale
+    yearColumn = new formattingSettings.ToggleSwitch({
+        name: "yearColumn",
+        displayName: "Year column (own scale)",
+        displayNameKey: "Chart_YearColumn",
+        description: "Nur Säulen: rechts neben den Monaten eine Σ-Säule (AC + FC gegen PY bzw. PL) mit eigener Skala auf derselben Nulllinie. Ein blaues Skalenband beim selben Wert in Monaten und Jahressäule zeigt den Unterschied der Skalen; ΔBasis und ΔBasis % der Jahressumme stehen in den Abweichungs-Panels. Fehlt die Basis für einzelne Monate, summiert die Säule nur die Monate mit Basis und nennt das in der Beschriftung, z. B. „2025 (9/12)“. Ersetzt die Σ-Kopfzeile. Nicht bei kumulierter Sicht, Wasserfall-Brücke oder Stapel. Standard aus.",
+        descriptionKey: "Desc_Chart_YearColumn",
+        value: false
+    });
+
+    yearColumnLabel = new formattingSettings.TextInput({
+        name: "yearColumnLabel",
+        displayName: "Year column label",
+        displayNameKey: "Chart_YearColumnLabel",
+        description: "Beschriftung der Jahressäule unter der Achse, z. B. „2025“. Leer = „Σ“.",
+        descriptionKey: "Desc_Chart_YearColumnLabel",
+        placeholder: "Σ",
+        value: ""
     });
 
     topN = new formattingSettings.NumUpDown({
@@ -1168,7 +1189,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Data & time",
         displayNameKey: "Group_DataTime",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
-            this.topN, this.showTotal, this.hideBlankCat, this.movingAverage,
+            this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
             this.highlight, this.groupEvery]
     });
 
@@ -1192,11 +1213,23 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    // 1.54 (B05): scenario labels at the columns (AC under the first actual month,
+    // FC under the first forecast month, AC/FC at the year column segments)
+    scenarioLabels = new formattingSettings.ToggleSwitch({
+        name: "scenarioLabels",
+        displayName: "Scenario labels at the columns",
+        displayNameKey: "Chart_ScenarioLabels",
+        description: "Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus.",
+        descriptionKey: "Desc_Chart_ScenarioLabels",
+        value: false
+    });
+
     displayGroup = new formattingSettings.Group({
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.exportExpandAll]
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.scenarioLabels,
+            this.exportExpandAll]
     });
 
     name: string = "chart";

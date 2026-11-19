@@ -197,7 +197,8 @@
                             { "value": "C15", "displayName": "C15 · Balkentabelle nach ΔPL % (04B)" },
                             { "value": "C16", "displayName": "C16 · Balkentabelle nach AC (04C)" },
                             { "value": "C17", "displayName": "C17 · Kategorie-Brücke waagerecht (06E)" },
-                            { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" }
+                            { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
+                            { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" }
                         ]
                     }
                 },
@@ -420,6 +421,8 @@
                 "showAbsoluteVariance": { "type": { "bool": true } },
                 "showRelativeVariance": { "type": { "bool": true } },
                 "showTotal": { "type": { "bool": true } },
+                "yearColumn": { "type": { "bool": true } },
+                "yearColumnLabel": { "type": { "text": true } },
                 "topN": { "type": { "numeric": true } },
                 "movingAverage": { "type": { "numeric": true } },
                 "dualVariance": { "type": { "bool": true } },
@@ -449,6 +452,7 @@
                 "sortByImpact": { "type": { "bool": true } },
                 "bridgeBreak": { "type": { "bool": true } },
                 "stackLegendDirect": { "type": { "bool": true } },
+                "scenarioLabels": { "type": { "bool": true } },
                 "bridgeOrientation": {
                     "type": {
                         "enumeration": [

@@ -88,7 +88,7 @@ const OP_APPEND = 1;
 const FETCH_MAX_ROWS = 30000;
 
 /**
- * 1.49 IBCS chart templates (C01–C13 of the IBCS template library; 1.54: + C14–C18) as presets of
+ * 1.49 IBCS chart templates (C01–C13 of the IBCS template library; 1.54: + C14–C19) as presets of
  * the chart card — the PnL mega-template pattern: the dropdown chart.template only
  * writes DEFAULTS. A template that differs from the last applied one (hidden
  * chart.templateApplied) sets all listed chart properties at once, locally for the
@@ -152,7 +152,12 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // address another card (here the scale card's reference lines)
     C18: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off",
         scatterColorBy: "group", scatterSizeLegend: true, scatterTrend: "off",
-        scatterArrows: false, scatterShapes: false, "scale.refLine": "0", "scale.xRefLine": "0" }
+        scatterArrows: false, scatterShapes: false, "scale.refLine": "0", "scale.xRefLine": "0" },
+    // 1.54 (B05) C19 = 03B: monthly columns vs. plan with the year column on its own
+    // scale (AC + FC), scenario labels at the axis; 03A is the same with basis PY
+    C19: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true,
+        showRelativeVariance: true, dualVariance: false, waterfallStyle: false, cumulative: false,
+        yearColumn: true, scenarioLabels: true, pinStyle: "square" }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -160,7 +165,7 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
 const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
-    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble"
+    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -172,11 +177,12 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C15: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C16: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C17: { role: "previousYear", key: "Hub_NeedPy", en: "Prior year (PY)" },
-    C18: { role: "xValue", key: "Hub_NeedX", en: "X axis" }
+    C18: { role: "xValue", key: "Hub_NeedX", en: "X axis" },
+    C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
-    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C05", "C08"] },
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C19", "C05", "C08"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
@@ -199,7 +205,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C15: ["Bar table sorted by ΔPL %", "Relative ranking vs. plan"],
     C16: ["Bar table sorted by AC", "Top units, plan alongside"],
     C17: ["Horizontal driver bridge", "Many units: PY → AC per row"],
-    C18: ["Variance scatter", "ΔPY % against ΔPL % per product"]
+    C18: ["Variance scatter", "ΔPY % against ΔPL % per product"],
+    C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -573,6 +580,19 @@ interface ChartConfig {
     sharedCatBridge: { maxV: number; minV: number; maxPct: number } | null;
     /** stacked mode: stack-total domain over all tiles incl. fixedMax/cap (null = not stacked) */
     stackDomain: [number, number] | null;
+    /** 1.54 (B05): year column per tile (null = option off or not applicable); partial =
+     *  the basis is missing for some months, the year sums run over paired months only */
+    yearPts: Map<string | null, { p: DataPoint; partial: boolean; partialOf: [number, number] | null }> | null;
+    /** 1.54 (B05): value domain of the year columns over all tiles (own scale) */
+    yearDomain: [number, number];
+    /** 1.54 (B05): Δ extents of the year points, unioned into a tile's Δ domains only
+     *  where the year column is really drawn (narrow tiles stay identical to "off") */
+    yearDelta: { abs: [number, number]; rel: [number, number]; abs2: [number, number]; rel2: [number, number] } | null;
+    /** 1.54 (B05): the year Δ is more than 4× the largest monthly Δ: it runs on the
+     *  year column's reduced scale ("×f" at the bar) instead of the monthly Δ scale */
+    yearDeltaOwn: boolean;
+    /** 1.54 (B05): scenario abbreviations at the columns (AC · FC under the axis) */
+    scenarioLabels: boolean;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
      *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
@@ -1834,6 +1854,10 @@ export class Visual implements IVisual {
         fs.chartCard.sortByImpact.visible = orient === "catbridge"
             || ((orient === "columns" || orient === "bars") && fs.chartCard.waterfallStyle.value);
         fs.chartCard.stackLegendDirect.visible = orient === "columns" || orient === "bars";
+        // 1.54 (B05): year column and scenario labels exist only in the column chart
+        fs.chartCard.yearColumn.visible = orient === "columns";
+        fs.chartCard.yearColumnLabel.visible = orient === "columns" && fs.chartCard.yearColumn.value === true;
+        fs.chartCard.scenarioLabels.visible = orient === "columns";
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "catbridge";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
@@ -4713,7 +4737,7 @@ export class Visual implements IVisual {
             { t: L("Tour_10_T", "YTD, materiality & exceptions"), minis: ["tour-ytd"],
                 b: L("Tour_10_B", "YTD, QTD or R12 at the click of a chip, small variances greyed out, exception reporting folds the unremarkable rows into one.") },
             { t: L("Tour_11_T", "Templates & Smart-Start"), minis: ["stackcols", "catbridgecols", "bubble"], action: "templates",
-                b: L("Tour_11_B", "16 IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.") }
+                b: L("Tour_11_B", "17 IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.") }
         ];
     }
 
@@ -5995,6 +6019,11 @@ export class Visual implements IVisual {
             sharedIntWf: null,
             sharedCatBridge: null,
             stackDomain: null,
+            yearPts: null,
+            yearDomain: [0, 0],
+            yearDelta: null,
+            yearDeltaOwn: false,
+            scenarioLabels: s.chartCard.scenarioLabels.value === true,
             isMaterial: this.materialityFn(),
             scatter: isScatter ? this.scatterConfig(points) : null
         };
@@ -6047,6 +6076,32 @@ export class Visual implements IVisual {
             rel2: extent(domPts.map(p => p.var2Rel)),
             bridge: [0, 0]
         };
+
+        // 1.54 (B05): year column — one Σ point per tile (AC + FC against the basis),
+        // its own value scale over all tiles; its Δ / Δ% join the monthly Δ scales
+        // (the sheets 03A/03B draw the year variance on the months' variance scale)
+        if (s.chartCard.yearColumn.value === true && orientationRaw === "columns" && !isStacked
+            && !wfStyleGlobal && !cumulativeOn && !points.some(p => p.rowType != null)) {
+            const yearPts = new Map<string | null, { p: DataPoint; partial: boolean; partialOf: [number, number] | null }>();
+            for (const g of groups) {
+                const yp = this.buildYearPoint(g.pts, g.name);
+                if (yp) { yearPts.set(g.name, yp); }
+            }
+            if (yearPts.size > 0) {
+                cfg.yearPts = yearPts;
+                const ys = [...yearPts.values()].map(y => y.p);
+                cfg.yearDomain = extent(ys.flatMap(p => [p.value, p.py, p.pl, 0]));
+                cfg.yearDelta = {
+                    abs: extent(ys.map(p => p.varAbs)), rel: extent(ys.map(p => p.varRel)),
+                    abs2: extent(ys.map(p => p.var2Abs)), rel2: extent(ys.map(p => p.var2Rel))
+                };
+                // the sheets keep the year Δ on the monthly Δ scale (81 next to 28);
+                // far beyond that it would squeeze the months — then its own scale
+                const mMax = Math.max(0, ...points.flatMap(p => [Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0)]));
+                const yMax = Math.max(0, ...ys.flatMap(p => [Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0)]));
+                cfg.yearDeltaOwn = mMax > 0 && yMax > 4 * mMax;
+            }
+        }
 
         // dual variance: ΔPY and ΔPL are the same unit (€ resp. %) in one visual —
         // IBCS CH 4.1 demands one scale, or +2 next to +20 draws equally tall (S1).
@@ -14084,8 +14139,42 @@ export class Visual implements IVisual {
             && (orientation === "columns" ? region.h >= 320 : region.w >= 640);
         const showBridge = wfStyle && !compact
             && (orientation === "columns" ? region.h >= 260 : region.w >= 520);
-        // total (Σ) header row on top of the region
-        const showTotal = cfg.showTotal && region.w > 240;
+        // 1.54 (B05): year column slot right of the months (own scale). The months
+        // keep the same slot width; a gap separates the two scales
+        const scenOn = cfg.scenarioLabels && orientation === "columns" && !cfg.lineMode;
+        let yr: { x0: number; w: number } | null = null;
+        // the slot is reserved in every tile of a deck with year columns (aligned small
+        // multiples, a tile without a year point keeps the slot empty)
+        const yearDeck = orientation === "columns" && !compact && !cfg.lineMode && cfg.yearPts != null;
+        const yearEntry = yearDeck && cfg.yearPts ? cfg.yearPts.get(points[0]?.group ?? null) ?? null : null;
+        if (yearDeck) {
+            const scenRoom = scenOn ? Math.max(this.textWidth(cfg.scenL.ac, cfg.labelFont),
+                this.textWidth(cfg.scenL.fc, cfg.labelFont)) + 6 : 0;
+            const total = (region.w - pad - (pad + 2)) - scenRoom;
+            // the gap carries the band value and the "×f" tag — never narrower than they are
+            const bandFs = Math.max(8, Math.round(cfg.labelFont * 0.9));
+            const textGap = Math.max(this.textWidth(cfg.fmt.format(this.yearBandValue(domains.main)), bandFs),
+                this.textWidth(this.zoomText(0.025), bandFs)) + 10;
+            const gap = Math.max(14 * this.fontK, textGap, 0.6 * total / (n + 1.6));
+            const st = (total - gap) / (n + 1);
+            if (st >= 18) { yr = { x0: region.x + pad + 2 + n * st + gap, w: st }; }
+        }
+        const year = yr ? yearEntry : null;
+        // 1.54 (B05): the year Δ joins the Δ domains only where the column is drawn
+        if (year && cfg.yearDelta) {
+            const yd = cfg.yearDelta;
+            const uni = (a: [number, number], b: [number, number]): [number, number] =>
+                [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
+            domains = { ...domains, rel: uni(domains.rel, yd.rel), rel2: uni(domains.rel2, yd.rel2) };
+            if (!cfg.yearDeltaOwn) { domains.abs = uni(domains.abs, yd.abs); domains.abs2 = uni(domains.abs2, yd.abs2); }
+            if (cfg.showDual) {
+                domains.abs = domains.abs2 = uni(domains.abs, domains.abs2);
+                domains.rel = domains.rel2 = uni(domains.rel, domains.rel2);
+            }
+        }
+        // total (Σ) header row on top of the region — the year column replaces it (in
+        // every tile of a deck with year columns, so small multiples stay aligned)
+        const showTotal = cfg.showTotal && region.w > 240 && !yr;
         const headerH = showTotal ? Math.round(17 * this.fontK) : 0;
 
         let bandStart: number, bandEnd: number;
@@ -14132,9 +14221,10 @@ export class Visual implements IVisual {
         };
 
         if (orientation === "columns") {
-            const catArea = cfg.catFont + 10;
+            const catArea = cfg.catFont + 10 + (scenOn ? cfg.catFont + 2 : 0);
             bandStart = region.x + pad + 2;
-            bandEnd = region.x + region.w - pad;
+            bandEnd = yr ? bandStart + n * yr.w
+                : region.x + region.w - pad;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
             panels = split(plotTop, plotBottom - plotTop, true);
         } else {
@@ -14217,6 +14307,27 @@ export class Visual implements IVisual {
             bridgeScale = (v: number) => z0 + dir * v * kB;
         }
 
+        // 1.54 (B05): the year column's own scale — the base unit at a round reduction
+        // of the months' px per unit (like the bridge panel), never a silent own scale
+        let yearScale: Scale | null = null;
+        let yearF = 1;
+        if (year && yr) {
+            // one zero line for months and year (as in the sheets): the year scale
+            // shares the months' zero and must fit above AND below it
+            const pp = this.sidePads(mainPadB, orientation);
+            const z0 = mainScale(0);
+            const top = panels.main.y + pp.hi + 12;
+            const bottom = panels.main.y + panels.main.h - (cfg.yearDomain[0] < 0 || domains.main[0] < 0 ? pp.lo : 2);
+            const [yMin, yMax] = cfg.yearDomain;
+            const kFit = Math.min(yMax > 0 ? (z0 - top) / yMax : Infinity, yMin < 0 ? (bottom - z0) / -yMin : Infinity);
+            const kMain = Math.abs(mainScale(1) - mainScale(0));
+            if (kFit > 0 && Number.isFinite(kFit)) {
+                yearF = this.sameScaleFactor(kMain, kFit, Math.max(Math.abs(yMin), Math.abs(yMax)), 0);
+                const dir = Math.sign(mainScale(1) - z0) || -1, kY = kMain * yearF;
+                yearScale = yearF === 1 ? mainScale : (v: number) => z0 + dir * v * kY;
+            }
+        }
+
         // ------- background layer: baselines + panel titles
         const bg = this.el("g", {}, this.svg);
         const cumLabel = { ytd: "YTD", qtd: "QTD", r12: "R12" }[
@@ -14274,6 +14385,19 @@ export class Visual implements IVisual {
         if (panels.rel2 && rel2Scale) {
             baseline(panels.rel2, rel2Scale, basis2Mode);
             this.drawPanelTitle(bg, panels.rel2, `Δ${cfg.basis2Label} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
+        }
+        // 1.54 (B05): baseline pieces under the year column in every panel + the scale
+        // band at the same value on both scales (the reader sees the two scales)
+        if (year && yr && yearScale) {
+            const x0 = yr.x0, x1 = yr.x0 + yr.w;
+            this.drawBaseline(bg, panels.main, yearScale, orientation, x0, x1, "ac", cfg.colors);
+            if (panels.abs && absScale) { this.drawBaseline(bg, panels.abs, absScale, orientation, x0, x1, cfg.basisMode, cfg.colors); }
+            if (panels.rel && relScale) { this.drawBaseline(bg, panels.rel, relScale, orientation, x0, x1, cfg.basisMode, cfg.colors); }
+            if (panels.abs2 && abs2Scale) { this.drawBaseline(bg, panels.abs2, abs2Scale, orientation, x0, x1, basis2Mode, cfg.colors); }
+            if (panels.rel2 && rel2Scale) { this.drawBaseline(bg, panels.rel2, rel2Scale, orientation, x0, x1, basis2Mode, cfg.colors); }
+            if (yearF !== 1) {
+                this.drawYearScaleBand(bg, cfg, bandStart, bandEnd, yr, yearF, domains.main, mainScale, yearScale);
+            }
         }
         if (panels.bridge && bridgeScale && cascade) {
             // the anchors stand on zero now — give them the AC baseline to stand on
@@ -14368,6 +14492,8 @@ export class Visual implements IVisual {
 
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
+        // 1.54 (B05): scenario labels take a second line under the category axis
+        const catRegion: Rect = scenOn ? { ...region, h: region.h - (cfg.catFont + 2) } : region;
 
         // bridge anchor bars: real PL/PY-total and AC(+FC)-total bars flanking the
         // cascade, drawn from ZERO up to each total (S2: they used to start at the
@@ -14663,7 +14789,7 @@ export class Visual implements IVisual {
             const isHl = this.isEmph(cfg, p.cat);
             if (showCatAt(i) || isHl) {
                 this.drawCategoryLabel(g, p.cat, pos + slotW / 2, orientation, cfg.catFont,
-                    region, step, panels.main, cfg.ink, isHl);
+                    catRegion, step, panels.main, cfg.ink, isHl);
             }
 
             // comment marker (numbered circle at the inner end of the bar)
@@ -14673,6 +14799,27 @@ export class Visual implements IVisual {
 
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+        }
+
+        // ------- 1.54 (B05): year column + scenario labels under the axis
+        if (year && yr && yearScale) {
+            this.drawYearColumn(marks, year.p, year.partial, yr, yearScale, yearF, panels, catRegion,
+                { abs: absScale, rel: relScale, abs2: abs2Scale, rel2: rel2Scale }, cfg, scenOn,
+                { slotW, barW, acShift, plShift, step, gap: yr.x0 - bandEnd }, year.partialOf);
+        }
+        if (scenOn) {
+            const firstAc = points.findIndex(p => p.value != null && !p.isFc);
+            const firstFc = points.findIndex(p => p.value != null && p.isFc);
+            const yS = region.y + region.h - 3;
+            const scenAt: [number, string][] = [[firstAc, cfg.scenL.ac], [firstFc, cfg.scenL.fc]];
+            for (const [i, label] of scenAt) {
+                if (i < 0) { continue; }
+                const t = this.el("text", {
+                    x: slotPos(i) + slotW / 2, y: yS, "text-anchor": "middle", "font-size": cfg.catFont,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label"
+                }, bg);
+                t.textContent = label;
+            }
         }
 
         // ------- waterfall-bridge connectors: link the basis anchor to the first brick,
@@ -15335,6 +15482,266 @@ export class Visual implements IVisual {
      * and the variances are recomputed from those sums, so the Σ header over the
      * shortened list still matches the Σ over all data.
      */
+    /**
+     * 1.54 (B05): scale band of the year column: the same round value (a power of ten
+     * below the months' maximum) shaded on the months' scale and on the year scale,
+     * joined by a slanted line across the gap (IBCS CH 4.3, sheets 03A/03B). The value
+     * stands in the gap above the connector, the factor "×f" in the gap at the months'
+     * zero line.
+     */
+    /** 1.54 (B05): band value of the year column: the largest 1·2·5×10ⁿ not above half
+     *  the months' maximum (signed toward the larger side), so the band stays a band
+     *  (211 → 100, 99 → 20) and never collapses on the year scale; 0 = nothing to show */
+    private yearBandValue(mainDomain: [number, number]): number {
+        const mag = Math.max(Math.abs(mainDomain[0]), Math.abs(mainDomain[1]));
+        if (!(mag > 0)) { return 0; }
+        const side = Math.abs(mainDomain[1]) >= Math.abs(mainDomain[0]) ? 1 : -1;
+        const half = mag / 2;
+        const e = Math.pow(10, Math.floor(Math.log10(half)));
+        const m = [5, 2, 1].find(k => k * e <= half * (1 + 1e-9)) ?? 1;
+        return side * m * e;
+    }
+
+    private drawYearScaleBand(parent: SVGElement, cfg: ChartConfig, bandStart: number, bandEnd: number,
+        yr: { x0: number; w: number }, f: number, mainDomain: [number, number],
+        mainScale: Scale, yearScale: Scale): void {
+        const v = this.yearBandValue(mainDomain);
+        if (v === 0) { return; }
+        const g = this.el("g", { "data-icd": "scale-zoom-year", "data-factor": f, "data-band": v }, parent);
+        const stroke = cfg.hc ? cfg.ink : "#0064FF";
+        const textC = cfg.hc ? cfg.ink : cfg.dark ? cfg.subtle : "#0064FF";
+        const band = (scale: Scale, x0: number, x1: number, tier: string) => {
+            const a = scale(0), b = scale(v);
+            this.el("rect", {
+                x: x0, y: Math.min(a, b), width: x1 - x0, height: Math.max(Math.abs(b - a), 1),
+                fill: cfg.hc ? cfg.paper : "#0064FF", "fill-opacity": cfg.hc ? 0 : 0.09, "data-tier": tier
+            }, g);
+            this.el("line", {
+                x1: x0, y1: b, x2: x1, y2: b, stroke,
+                "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2"
+            }, g);
+        };
+        band(mainScale, bandStart, bandEnd, "months");
+        band(yearScale, yr.x0, yr.x0 + yr.w, "year");
+        this.el("line", {
+            x1: bandEnd, y1: mainScale(v), x2: yr.x0, y2: yearScale(v), stroke,
+            "stroke-width": 1, "stroke-opacity": cfg.hc ? 1 : 0.45, "stroke-dasharray": "3,2"
+        }, g);
+        const fs = Math.max(8, Math.round(cfg.labelFont * 0.9));
+        const t = this.el("text", {
+            x: (bandEnd + yr.x0) / 2, y: Math.min(mainScale(v), yearScale(v)) - 3,
+            "text-anchor": "middle", "font-size": fs, fill: textC, "font-family": FONT
+        }, g);
+        t.textContent = cfg.fmt.format(v);
+        const z = this.el("text", {
+            x: bandEnd + 3, y: Math.max(mainScale(0), mainScale(v)) - 3,
+            "text-anchor": "start", "font-size": fs, fill: textC, "font-family": FONT, "data-icd": "year-zoom"
+        }, g);
+        z.textContent = this.zoomText(f);
+    }
+
+    /**
+     * 1.54 (B05): draws the year column: PY/PL behind like the months, AC socket +
+     * hatched FC top, the total above, AC/FC part values inside when they fit, and
+     * its Δ bar / Δ% pin on the months' variance scales (sheets 03A/03B).
+     */
+    private drawYearColumn(parent: SVGElement, p: DataPoint, partial: boolean, yr: { x0: number; w: number },
+        yScale: Scale, f: number, panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect },
+        catRegion: Rect,
+        sc: { abs: Scale | null; rel: Scale | null; abs2: Scale | null; rel2: Scale | null },
+        cfg: ChartConfig, scenOn: boolean,
+        geo: { slotW: number; barW: number; acShift: number; plShift: number; step: number; gap: number },
+        partialOf: [number, number] | null): void {
+        const g = this.el("g", {
+            "class": "icd-cat", "data-icd": "year-column", "data-factor": f,
+            "data-partial": partial ? 1 : 0
+        }, parent) as SVGGElement;
+        const { barW, acShift, plShift, slotW } = geo;
+        const pos = yr.x0 + (yr.w - slotW) / 2;
+        const cx = pos + acShift + barW / 2;
+        if (p.py != null) {
+            if (cfg.pyTriangle) {
+                this.drawPyTriangle(g, pos, slotW, p.py, yScale, "columns", cfg);
+            } else {
+                this.drawBar(g, pos, barW, 0, p.py, yScale, "columns", cfg.hc
+                    ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2", "data-part": "py" }
+                    : { fill: cfg.colors.py, "data-part": "py" });
+            }
+        }
+        if (p.pl != null) {
+            this.drawBar(g, pos + plShift, barW, 0, p.pl, yScale, "columns",
+                { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4, "data-part": "pl" });
+        }
+        const hatch = { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 };
+        const v = p.value ?? 0;
+        // AC and FC of opposite sign (loss months in the forecast): one column, hatched
+        const mixedSign = (p.fcPart ?? 0) !== 0 && Math.sign(p.fcPart as number) !== Math.sign(v - (p.fcPart as number));
+        const fcP = mixedSign ? 0 : p.fcPart ?? 0;
+        const anyFcPart = (p.fcPart ?? 0) !== 0 || p.isFc;
+        if (p.value != null) {
+            if (mixedSign) {
+                this.drawBar(g, pos + acShift, barW, 0, v, yScale, "columns", { ...hatch, "data-part": "fc" });
+            } else if (fcP !== 0) {
+                this.drawBar(g, pos + acShift, barW, 0, v - fcP, yScale, "columns", { fill: cfg.colors.ac, "data-part": "ac" });
+                this.drawBar(g, pos + acShift, barW, v - fcP, v, yScale, "columns", { ...hatch, "data-part": "fc" });
+            } else {
+                this.drawBar(g, pos + acShift, barW, 0, v, yScale, "columns",
+                    p.isFc ? { ...hatch, "data-part": "fc" } : { fill: cfg.colors.ac, "data-part": "ac" });
+            }
+            if (cfg.showLabels) {
+                const cand = [v, ...(p.pl != null ? [p.pl] : [])];
+                const anchor = v >= 0 ? Math.max(...cand) : Math.min(...cand);
+                this.drawEndLabelAt(g, cx, anchor, v >= 0, yScale, "columns", cfg.fmt.format(v),
+                    cfg.labelFont, cfg.ink, 0, cfg.paper);
+                // part values inside the segments when both parts exist and fit; with
+                // sum-safe labels the two parts add up to the total shown above
+                if (fcP !== 0) {
+                    const safe = cfg.sumSafe
+                        ? this.sumSafeAdjust([v - fcP, fcP], cfg.fmtUnit, cfg.fmtPrec) : [v - fcP, fcP];
+                    const part = (from: number, to: number, val: number, onDark: boolean) => {
+                        const a = yScale(from), b = yScale(to);
+                        const tx = cfg.fmt.format(val);
+                        if (Math.abs(b - a) < cfg.labelFont + 4 || this.textWidth(tx, cfg.labelFont) > barW - 2) { return; }
+                        const t = this.el("text", {
+                            x: cx, y: (a + b) / 2 + cfg.labelFont * 0.35, "text-anchor": "middle",
+                            "font-size": cfg.labelFont, fill: onDark ? cfg.paper : cfg.ink, "font-family": FONT,
+                            "data-part-label": onDark ? "ac" : "fc",
+                            ...(onDark ? {} : { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" })
+                        }, g);
+                        t.textContent = tx;
+                    };
+                    part(0, v - fcP, safe[0] ?? v - fcP, true);
+                    part(v - fcP, v, safe[1] ?? fcP, false);
+                }
+            }
+            if (scenOn) {
+                const sx = pos + acShift + barW + 4;
+                const lab = (from: number, to: number, label: string) => {
+                    const t = this.el("text", {
+                        x: sx, y: (yScale(from) + yScale(to)) / 2 + cfg.labelFont * 0.35,
+                        "font-size": cfg.labelFont, fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label"
+                    }, g);
+                    t.textContent = label;
+                };
+                if (fcP !== 0) { lab(0, v - fcP, cfg.scenL.ac); lab(v - fcP, v, cfg.scenL.fc); }
+                else if (!mixedSign) { lab(0, v, p.isFc ? cfg.scenL.fc : cfg.scenL.ac); }
+            }
+        }
+        const anyFc = anyFcPart;
+        const varBar = (rect: Rect | undefined, scale: Scale | null, dv: number | null, mat: boolean) => {
+            if (!rect || !scale || dv == null) { return; }
+            const good = cfg.isGood(dv, p);
+            const color = (dv === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+            const hollowBad = cfg.hc && !good && dv !== 0;
+            this.drawBar(g, cx - barW / 2, barW, 0, dv, scale, "columns", hollowBad
+                ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4, "data-part": "dabs" }
+                : anyFc && mat
+                    ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1, "data-part": "dabs" }
+                    : { fill: color, "data-part": "dabs" });
+            if (cfg.showLabels) {
+                this.drawEndLabel(g, cx, dv, scale, "columns", this.fmtSigned(cfg.fmtVar, dv),
+                    cfg.labelFont, cfg.ink, 0, cfg.paper);
+            }
+        };
+        const pin = (rect: Rect | undefined, scale: Scale | null, dr: number | null, mat: boolean, second: boolean) => {
+            if (!rect || !scale) { return; }
+            if (dr == null) {
+                if (cfg.showLabels && this.relNa(p, second)) { this.drawRelNa(g, cx, scale(0), "columns", cfg); }
+                return;
+            }
+            const good = cfg.isGood(dr, p);
+            const color = (dr === 0 || !mat) ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+            const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+            const zero = scale(0), end = scale(dr);
+            this.el("line", { x1: cx, y1: zero, x2: cx, y2: end, stroke: color, "stroke-width": 1.6, "data-part": "pin" }, g);
+            this.pinHead(g, cx, end, r, "round", cfg.pinStyle,
+                { fill: anyFc || (cfg.hc && !good && dr !== 0) ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
+            if (cfg.showLabels) {
+                this.drawEndLabelAt(g, cx, dr, dr >= 0, scale, "columns", this.relText(p, second),
+                    cfg.labelFont, cfg.ink, r + 3, cfg.paper);
+            }
+        };
+        // Δ far beyond the monthly Δ (cfg.yearDeltaOwn): the year Δ runs on the year
+        // column's own reduction of the Δ scale, tagged "×f" at the bar
+        const ownD = (scale: Scale | null): Scale | null => {
+            if (!scale || !cfg.yearDeltaOwn) { return scale; }
+            const z = scale(0), k = scale(1) - z;
+            return (x: number) => z + k * x * f;
+        };
+        const absS = ownD(sc.abs), abs2S = ownD(sc.abs2);
+        varBar(panels.abs, absS, p.varAbs, cfg.isMaterial(p));
+        pin(panels.rel, sc.rel, p.varRel, cfg.isMaterial(p), false);
+        varBar(panels.abs2, abs2S, p.var2Abs, cfg.isMaterial(p, p.var2Abs, p.var2Rel));
+        pin(panels.rel2, sc.rel2, p.var2Rel, cfg.isMaterial(p, p.var2Abs, p.var2Rel), true);
+        if (cfg.yearDeltaOwn && f !== 1) {
+            for (const [rect, scale] of [[panels.abs, absS], [panels.abs2, abs2S]] as [Rect | undefined, Scale | null][]) {
+                if (!rect || !scale) { continue; }
+                const fs = Math.max(8, Math.round(cfg.labelFont * 0.9));
+                const t = this.el("text", {
+                    x: pos + acShift - 3, y: scale(0) + (rect.y + rect.h - scale(0) > fs + 2 ? fs + 1 : -3),
+                    "text-anchor": "end", "font-size": fs, fill: cfg.hc ? cfg.ink : cfg.dark ? cfg.subtle : "#0064FF", "font-family": FONT,
+                    "data-icd": "year-delta-zoom"
+                }, g);
+                t.textContent = this.zoomText(f);
+            }
+        }
+        // partial basis: the label says over how many periods the year runs
+        const label = partialOf ? `${p.cat} (${partialOf[0]}/${partialOf[1]})` : p.cat;
+        this.drawCategoryLabel(g, label, yr.x0 + yr.w / 2, "columns", cfg.catFont, catRegion, geo.step + geo.gap,
+            panels.main, cfg.ink, true);
+        // tooltip text + aria only: the year column filters nothing, takes no comment,
+        // no compare click and no structure menu, and is not dimmed by a selection
+        const tipParts = [label, `${cfg.scenL.ac}${anyFc ? "&" + cfg.scenL.fc : ""} ${cfg.fmt.format(v)}`];
+        if (p.basis != null) { tipParts.push(`${cfg.basisLabel} ${cfg.fmt.format(p.basis)}`); }
+        if (p.varAbs != null) { tipParts.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)} ${this.relText(p)}`.trim()); }
+        if (partialOf) {
+            tipParts.push(this.locStr("Year_Partial", "Σ over {0} of {1} periods (basis missing for the rest)")
+                .replace("{0}", String(partialOf[0])).replace("{1}", String(partialOf[1])));
+        }
+        const tt = this.el("title", {}, g);
+        tt.textContent = tipParts.join(" · ");
+        g.setAttribute("role", "img");
+        g.setAttribute("aria-label", tipParts.join(" · "));
+    }
+
+    /**
+     * 1.54 (B05): the year column of one tile — Σ over the months that carry a value;
+     * when the basis is missing for some of them, over the paired months only (the Δ
+     * must compare like with like) and flagged partial. AC and FC parts are kept apart
+     * (fcPart) so the column draws as solid AC socket + hatched FC top.
+     */
+    private buildYearPoint(pts: DataPoint[], group: string | null):
+        { p: DataPoint; partial: boolean; partialOf: [number, number] | null } | null {
+        const withVal = pts.filter(p => p.value != null);
+        if (withVal.length < 2) { return null; }
+        const paired = withVal.filter(p => p.basis != null);
+        const partial = paired.length > 0 && paired.length < withVal.length;
+        const use = partial ? paired : withVal;
+        const label = (this.formattingSettings.chartCard.yearColumnLabel.value || "").trim() || "Σ";
+        const yp = this.aggregateTail(use, label, group);
+        yp.isRest = false;
+        const fcSum = use.reduce((a, p) => a + (p.isFc ? (p.value as number) : (p.fcPart ?? 0)), 0);
+        const val = yp.value ?? 0;
+        yp.isFc = fcSum !== 0 && Math.abs(fcSum - val) < 1e-9 * Math.max(1, Math.abs(val));
+        yp.fcPart = fcSum !== 0 && !yp.isFc ? fcSum : null;
+        // a scenario drawn behind the year column must cover the same months, or a
+        // 6-month PL outline stands behind a 12-month AC column
+        if (use.some(p => p.py == null)) { yp.py = null; }
+        if (use.some(p => p.pl == null)) { yp.pl = null; }
+        // second basis (dual variance): its own pairs, like with like
+        const b2 = (p: DataPoint) => this.basis2Mode === "plan" ? p.pl : p.py;
+        const pairs2 = use.filter(p => b2(p) != null);
+        if (pairs2.length === 0) {
+            yp.var2Abs = null; yp.var2Rel = null;
+        } else {
+            const v2 = pairs2.reduce((a, p) => a + (p.value as number), 0);
+            const bs2 = pairs2.reduce((a, p) => a + (b2(p) as number), 0);
+            yp.var2Abs = v2 - bs2;
+            yp.var2Rel = relVar(yp.var2Abs, bs2);
+        }
+        return { p: yp, partial, partialOf: partial ? [use.length, withVal.length] : null };
+    }
+
     private aggregateTail(tail: DataPoint[], cat: string, group: string | null): DataPoint {
         // KPI cards + Trend role: the collector card keeps a summed time series
         const ts = this.sumTrendSeries(tail);

@@ -25,6 +25,7 @@ reserviert (Fläche, Boxplot). Zuordnung Vorlage → IBCS-Blatt:
 | C16 Balkentabelle nach AC | 04C | wie C14 mit tableSort=`ac_desc` |
 | C17 Kategorie-Brücke waagerecht | 06E | orientation=catbridge · bridgeOrientation=bars · comparisonMode=py · showAbs/showRel=true · dualVariance=false · pyTriangle=false · groupEvery=4 · driverNote=false · sortByImpact=false |
 | C18 Abweichungs-Scatter | 10F | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=true · scatterTrend=off · scatterArrows/scatterShapes=false · `scale.refLine`=0 · `scale.xRefLine`=0 |
+| C19 Säulen gegen Plan + Jahressäule | 03B (03A mit comparisonMode=py) | siehe B05 unten |
 
 Datenvertrag C18: `actual` = ΔPL %-Measure, `xValue` = ΔPY %-Measure, `series` = Produktlinie,
 `bubbleSize` optional (Umsatz), `multiples` optional (Region). Neu im Vorlagen-Mechanismus:
@@ -40,6 +41,28 @@ eines Balkens (`data-icd="table-total-legend"`) und zählt nicht zur Balkenskala
 (nicht für `sum`-Zeilen aus den Daten, nicht in der Matrix). Reihenfolge der Legende AC · PL · PY; was nicht passt,
 entfällt (Tooltip nennt alle); der AC-Wert steht dann nur in der Legende, nicht zusätzlich in der AC-Spalte. Galerie: neue Gruppe `ranking` (C14 bis C16), C17 unter
 `structure`, C18 unter `correlation`. Tests c258 bis c266. Test-Marker: `group-sep` (Trennlinien der Brücken), `py-triangle`, `sort-<spalte>` (Tabellenkopf).
+
+*B05 · Jahressäule mit eigener Skala (Blätter 03A, 03B).* Neue Properties `chart.yearColumn` (bool, Standard
+false), `chart.yearColumnLabel` (Text, leer = „Σ“), `chart.scenarioLabels` (bool, Standard false). Wirkt nur in
+`orientation=columns` ohne Stapel (`series`), ohne `waterfallStyle`, ohne kumulierte Sicht, ohne `rowType` und nicht
+in kompakten Kacheln (Höhe < 190 px) oder bei zu schmalen Slots; dann ist das SVG identisch zu „aus“. Daten: Σ über
+alle Monate mit Wert; fehlt die Basis für einzelne Monate, nur über die gepaarten Monate (`data-partial="1"`). AC als
+Sockel, FC schraffiert darauf (`fcPart`), dahinter PY (Säule oder Dreieck wie die Monate) bzw. PL-Umriss. Skala:
+Monats-px-je-Einheit × runder Faktor aus `REDUCE_FACTORS` (`data-factor` an `[data-icd="year-column"]`), über alle
+Small-Multiples-Kacheln gleich. Band: `[data-icd="scale-zoom-year"]` (`data-band` = Zehnerpotenz unter dem
+Monatsmaximum, `rect[data-tier="months"|"year"]`), Faktortext `[data-icd="year-zoom"]`. Δ und Δ% der Jahressumme
+laufen auf den Monats-Δ-Skalen (Domains vereinigt, nur in Kacheln, die die Säule zeichnen; wie im Blatt); ist das
+Jahres-Δ größer als 4× das größte Monats-Δ, läuft es mit dem Faktor der Jahressäule (`[data-icd="year-delta-zoom"]`).
+Gemeinsame Nulllinie von Monaten und Jahr (Skala an `mainScale(0)` verankert, passt in beide Richtungen); passt die
+Säule gar nicht, bleibt der Slot leer. Teilsumme: Beschriftung „Label (n/m)“ + Tooltip; PY/PL hinter der Säule nur,
+wenn sie alle verwendeten Monate abdecken; ΔBasis2 über die eigenen Paare. Bandwert: größtes 1·2·5×10ⁿ ≤ halbes
+Monatsmaximum. Die Jahressäule filtert nicht (kein Klick, kein Kommentar, kein Vergleich), nur Tooltip/aria. In
+Small Multiples ist der Slot in jeder Kachel reserviert; die Σ-Kopfzeile entfällt, sobald der Slot gezeichnet wird. Szenario-Kürzel:
+`[data-icd="scen-label"]`. Vorlage C19 (03B): orientation=columns · comparisonMode=plan · showAbs/showRel=true ·
+dualVariance=false · waterfallStyle=false · cumulative=false · yearColumn=true · scenarioLabels=true · pinStyle=square (03A: dieselbe
+mit comparisonMode=py). Tests: `test:scale` YC03A/YC03B (Pixelmessung), YCneg/YCnegPos (Nulllinie), YCpart, YCdual, YCbigD, YCsm +
+Rückfälle YCcum/YCwf/YCbars/YCcompact/YCnarrow/YCcumPy,
+`test:render` c267.
 
 **Neu in 1.53 (rowType-Token, keine neue Property, keine neue Rolle):** Die Rolle `rowType`
 („Waterfall-Typ“) ist der Datenvertrag für die Zeilenstruktur — Token je Zeile statt Zeilennamen in
@@ -241,7 +264,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C10 Bubble | wie C09 + scatterSizeLegend=true (Rolle `bubbleSize` binden) |
 | C12 Waterfall | orientation=waterfall · comparisonMode=auto · showAbs/showRel=true · dualVariance=false |
 | C13 Small Multiples | multiplesTotal=true · multiplesSameScale=true (orientation bleibt; Rolle `multiples` binden) |
-| C14 bis C18 | ab 1.54, siehe „Neu in 1.54“ (Zuordnung zu den IBCS-Blättern 04A, 04B, 04C, 06E, 10F) |
+| C14 bis C19 | ab 1.54, siehe „Neu in 1.54“ (Zuordnung zu den IBCS-Blättern 04A, 04B, 04C, 06E, 10F, 03B) |
 
 **Nicht enthalten:** C07 (Fläche/Area) und C11 (Verteilung/Boxplot) — die
 Darstellungsformen gibt es im Visual nicht (siehe BACKLOG).
@@ -352,7 +375,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in … |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden … |
 | `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
@@ -381,6 +404,8 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `acFcSplit` | enum | `off` | `off` · `full` · `rest` — Ein teilweise abgeschlossener Monat liefert AC UND FC: „Vollmonatsprognose" zeigt den AC-Sockel solide und stockt schraffiert bis zum FC-Wert auf (Säule = max(AC, FC)); „Restmonat" addiert den FC-Wert oben auf AC (Säule = AC + FC) … |
 | `topN` | numeric | `0` | Bereich 0–50 — Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle. |
 | `showTotal` | bool | `true` | Zeigt Summe und Gesamtabweichung als Kopfzeile. |
+| `yearColumn` | bool | `false` | Nur Säulen: rechts neben den Monaten eine Σ-Säule (AC + FC gegen PY bzw. PL) mit eigener Skala auf derselben Nulllinie … |
+| `yearColumnLabel` | text | leer | Beschriftung der Jahressäule unter der Achse, z. B. „2025“. Leer = „Σ“. |
 | `hideBlankCat` | bool | `false` | Blendet Zeilen ohne Kategoriewert aus — sie erscheinen sonst als „(blank)"-Balken, -Zeile oder -KPI-Karte. Standard aus, damit keine Daten unbemerkt verschwinden (Beta-Feedback). |
 | `movingAverage` | numeric | `0` | Bereich 0–24 — Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus. |
 | `highlight` | text | leer | Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „emphasize“ — Feld und Liste ergänzen sich. |
@@ -403,6 +428,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `deltaIcons` | bool | `false` | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle) … |
 | `driverNote` | bool | `true` | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. |
 | `stackLegendDirect` | bool | `true` | Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel … |
+| `scenarioLabels` | bool | `false` | Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus. |
 | `exportExpandAll` | bool | `true` | PDF-/PowerPoint-Export und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm … |
 
 **Small Multiples**
@@ -494,7 +520,7 @@ Enum-Labels:
   `C10` = C10 · Bubble (Scatter + Größe); `C12` = C12 · Waterfall / Brücke; `C13` = C13 · Small Multiples;
   `C14` = C14 · Balkentabelle nach ΔPL (04A); `C15` = C15 · Balkentabelle nach ΔPL % (04B);
   `C16` = C16 · Balkentabelle nach AC (04C); `C17` = C17 · Kategorie-Brücke waagerecht (06E);
-  `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)
+  `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F); `C19` = C19 · Säulen gegen Plan + Jahressäule (03B)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
@@ -822,7 +848,7 @@ statt sie den Nutzer zusammenklicken zu lassen. Formate siehe Tabelle oben.
 - `CHANGELOG.md` / `BACKLOG.md` — was sich geändert hat / was fehlt
 - `.claude/skills/chartkitchen-report/` — Claude-Skill mit Report-Blaupausen
   (Monitoring · Monatsreport · Sales-Analyse) und Referenz-Instanz-Workflow
-- `test/test.html` — 336 Render-Stages (Nummern c1 bis c266, inkl. Varianten wie `c248L`) als
+- `test/test.html` — 337 Render-Stages (Nummern c1 bis c267, inkl. Varianten wie `c248L`) als
   lebende Beispiele jeder Funktion; `npm run test:render` (Checks + Fehler). Weitere Suiten:
   `test:scale` (Skalierungs-Geometrie), `test:notation` (Notation), `test:export` (PDF/PPT-Layouts).
   c45, c90 und c92 waren bis 1.52.4 Hinweis-Fälle („rein negativ“) und zeichnen seit den negativen
