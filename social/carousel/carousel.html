@@ -39,11 +39,13 @@ h1 em,h2 em{font-style:italic;color:var(--brand-light)}
 .cover .lead{font-size:34px;line-height:1.35;color:var(--soft);margin-top:34px;max-width:880px}
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:64px}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 26px}
+.strip{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:44px}
+.strip img{width:100%;aspect-ratio:3/2;object-fit:cover;object-position:top;border-radius:14px;border:1px solid var(--line);display:block}
 .kpi b{display:block;font-family:var(--display);font-weight:300;font-size:64px;letter-spacing:-.03em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 .kpi span{display:block;font-size:22px;color:var(--soft);margin-top:10px}
 
 /* Zahlen */
-.stats h2{font-size:84px;margin-top:22px}
+.stats h2{font-size:74px;margin-top:22px}
 .chart{margin-top:44px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 30px 20px}
 .chart .t{font-size:24px;font-weight:700}
 .chart .t small{font-weight:400;color:var(--soft);margin-left:8px}
@@ -69,12 +71,12 @@ h1 em,h2 em{font-style:italic;color:var(--brand-light)}
 .kind{font-size:17px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--c)}
 .card h3{font-family:var(--display);font-weight:600;font-size:31px;line-height:1.1;letter-spacing:-.015em;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .card p{font-size:21px;line-height:1.35;color:var(--soft);margin-top:9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.meta{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:19px;color:var(--soft);white-space:nowrap}
-.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.meta{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:18px;color:var(--soft);white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
 .chip svg{width:17px;height:17px}
-.when{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--ink)}
+.when{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--ink)}
 .when.live{color:var(--brand-light)}
-.when .arrow{display:inline-block;width:64px;height:3px;background:currentColor;position:relative;border-radius:2px}
+.when .arrow{display:inline-block;width:40px;height:3px;background:currentColor;position:relative;border-radius:2px}
 .when .arrow::after{content:"";position:absolute;right:-2px;top:-6px;border:7.5px solid transparent;border-left:12px solid currentColor;border-right:0}
 .rail{position:absolute;left:30px;top:250px;bottom:110px;width:2px;background:linear-gradient(var(--brand-light),rgba(61,179,155,.15))}
 
@@ -119,7 +121,8 @@ slides.push(`<section class="slide cover"><div class="pad">
     <div class="kpi"><b>${nf(T.commits)}</b><span>Commits</span></div>
     <div class="kpi"><b>${nf(T.loc)}</b><span>Zeilen Code</span></div>
   </div>
-  <div style="margin-top:70px;font-size:30px" class="swipe">Wischen für den Zeitstrahl <i></i></div>
+  <div class="strip">${D.cover.strip.map(id=>{const it=D.items.find(i=>i.id===id);return it&&it.img?`<img src="${it.img}" alt="">`:''}).join('')}</div>
+  <div style="margin-top:44px;font-size:30px" class="swipe">Wischen für den Zeitstrahl <i></i></div>
 </div>${foot()}</section>`);
 
 /* 2 · Zahlen */
