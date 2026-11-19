@@ -1172,6 +1172,104 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    // 1.55 (B12, Blätter 10A/10B/10D): Portfolio-Blasen. Alle Schalter stehen im
+    // Standard auf dem bisherigen Verhalten (aus, 0 = automatisch, 55 %, Palette).
+    scatterValueLabels = new formattingSettings.ToggleSwitch({
+        name: "scatterValueLabels",
+        displayName: "Bubble size value",
+        displayNameKey: "Chart_ScatterValueLabels",
+        description: "Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen. Die Namen stehen dann bevorzugt über der Blase. Die Einheit steht im Titel.",
+        descriptionKey: "Desc_Chart_ScatterValueLabels",
+        value: false
+    });
+
+    scatterMaxRadius = new formattingSettings.NumUpDown({
+        name: "scatterMaxRadius",
+        displayName: "Max. bubble radius (px)",
+        displayNameKey: "Chart_ScatterMaxRadius",
+        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; gedeckelt auf ein Drittel der Plotfläche. Große Blasen dürfen über den Achsenrand hinausragen.",
+        descriptionKey: "Desc_Chart_ScatterMaxRadius",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 200 }
+        }
+    });
+
+    scatterBubbleOpacity = new formattingSettings.NumUpDown({
+        name: "scatterBubbleOpacity",
+        displayName: "Bubble opacity %",
+        displayNameKey: "Chart_ScatterBubbleOpacity",
+        description: "Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A.",
+        descriptionKey: "Desc_Chart_ScatterBubbleOpacity",
+        value: 55,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 10 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 100 }
+        }
+    });
+
+    scatterEmphFill = new formattingSettings.ToggleSwitch({
+        name: "scatterEmphFill",
+        displayName: "Highlight as color",
+        displayNameKey: "Chart_ScatterEmphFill",
+        description: "Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe.",
+        descriptionKey: "Desc_Chart_ScatterEmphFill",
+        value: false
+    });
+
+    scatterEmphColor = new formattingSettings.ColorPicker({
+        name: "scatterEmphColor",
+        displayName: "Highlight color",
+        displayNameKey: "Chart_ScatterEmphColor",
+        description: "Füllfarbe der hervorgehobenen Punkte, wenn „Hervorhebung als Farbe“ an ist.",
+        descriptionKey: "Desc_Chart_ScatterEmphColor",
+        value: { value: "#0064FF" }
+    });
+
+    scatterEmphLabel = new formattingSettings.TextInput({
+        name: "scatterEmphLabel",
+        displayName: "Highlight legend text",
+        displayNameKey: "Chart_ScatterEmphLabel",
+        description: "Legendeneintrag für die Hervorhebungsfarbe (z. B. „Zukäufe 12/25“). Leer = kein Eintrag.",
+        descriptionKey: "Desc_Chart_ScatterEmphLabel",
+        placeholder: "",
+        value: ""
+    });
+
+    // Gruppenfarben: Standard = bisherige Palette. Ein Wert, der vom hellen Standard
+    // abweicht, gilt in hellem und dunklem Modus; Standardwerte folgen dem Modus.
+    scatterGroupColor1 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor1", displayName: "Group color 1", displayNameKey: "Chart_ScatterGroupColor1",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#404040" }
+    });
+    scatterGroupColor2 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor2", displayName: "Group color 2", displayNameKey: "Chart_ScatterGroupColor2",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#3D78B2" }
+    });
+    scatterGroupColor3 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor3", displayName: "Group color 3", displayNameKey: "Chart_ScatterGroupColor3",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#B0702A" }
+    });
+    scatterGroupColor4 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor4", displayName: "Group color 4", displayNameKey: "Chart_ScatterGroupColor4",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#93B5D8" }
+    });
+    scatterGroupColor5 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor5", displayName: "Group color 5", displayNameKey: "Chart_ScatterGroupColor5",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#C2B04E" }
+    });
+    scatterGroupColor6 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor6", displayName: "Group color 6", displayNameKey: "Chart_ScatterGroupColor6",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#9F5989" }
+    });
+
     // Scatter v3: Quadranten-Beschriftung (leer = aus) — nur bei aktiven Quadranten
     scatterQuadLabelTR = new formattingSettings.TextInput({
         name: "scatterQuadLabelTR",
@@ -1232,7 +1330,11 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Scatter",
         slices: [this.scatterQuadrant, this.scatterColorBy, this.scatterShapes,
             this.scatterArrows, this.scatterTrend, this.scatterTrendR2,
-            this.scatterSizeLegend, this.scatterQuadLabelTR, this.scatterQuadLabelTL,
+            this.scatterSizeLegend, this.scatterValueLabels, this.scatterMaxRadius,
+            this.scatterBubbleOpacity, this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
+            this.scatterGroupColor1, this.scatterGroupColor2, this.scatterGroupColor3,
+            this.scatterGroupColor4, this.scatterGroupColor5, this.scatterGroupColor6,
+            this.scatterQuadLabelTR, this.scatterQuadLabelTL,
             this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPlay]
     });
 

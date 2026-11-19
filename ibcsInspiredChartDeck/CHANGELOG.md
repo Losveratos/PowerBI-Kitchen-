@@ -2,7 +2,7 @@
 
 ## 1.55.0.0 (in Arbeit)
 
-**Ziel: Stapel-Blätter (01D, 01E, 02B bis 02E) direkt abbildbar. Neue Schalter stehen standardmäßig aus; die eine Verhaltensänderung (Top N bei Stapelbalken) ist genannt.**
+**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken) sind genannt.**
 
 - **B10 · Stapel-Struktur (Blätter 01D, 01E, 02B, 02C, 02D, 02E).** Vorher: Stapel gab es nur mit Werten, die Seriennamen standen immer rechts, Balken ließen sich nicht nach Stapelsumme oder erster Serie ordnen, und es fehlte eine Σ-Zeile. Nachher:
   - **„Stapel-Skala“** (`chart.stackNormalize`, Auswahl „Werte“ | „100 % (Anteile)“, Standard Werte): gestapelte Säulen und Balken zeigen je Kategorie 100 %, die Beschriftungen sind Anteile mit einer Nachkommastelle, der Panel-Titel erhält den Zusatz „Anteile in %“. Die „100 %“-Marke steht bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken läuft eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile, mit „▲ 100 %“ darunter. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N). Eine Referenzlinie wird als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax` und `capOverflow` gelten für Anteile nicht.
@@ -20,6 +20,23 @@
   - **„Zweite Überleitung“** (`chart.bridgeSecondNet`, Standard aus, Gruppe Brücke, bei integrierter Brücke): Mit gebundenem Vorjahr und Plan zeigt ein zweiter Balken neben dem Netto-Callout die Abweichung der Summe zur anderen Basis (z. B. „+4 PY“) mit gestrichelter Niveaulinie, nur wenn die andere Basis jeden Monat mit einem Wert abdeckt.
   - Bestehende Stufen zeichnen SVG-identisch. Neu dazu „Anteils-Klammer (erste Zeilen)“ (`chart.stackShareBracket`, Zahl, 0 = aus): bei gestapelten Balken eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme links der Namen (Blatt 02C: France, Switzerland, Germany = 38 % von Direct); Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme; Test c300. Noch nicht abgebildet: Marker per Vergleichsklick im Bericht festhalten.
   - Tests c290 bis c294 (Render-Harness, 360 Prüfungen grün).
+- **B12 · Portfolio-Blasen (Blätter 10A, 10B, 10D).** Vorher: Die Blasen zeigten nur den Namen, der Wert der
+  Blasengröße stand im Tooltip; die Gruppenfarben kamen fest aus der gedeckten Palette (Orange nicht wählbar); der
+  Radius war bei 22 px gedeckelt und die Deckkraft fest 55 %; ein Vorjahr ging nur als kleiner grauer Startpunkt eines
+  Pfeils ohne eigene Größe; Hervorhebungen bekamen einen Ring. Nachher, im Scatter unter „Scatter / Bubble“:
+  - „Wert der Blasengröße“ (`chart.scatterValueLabels`): Zahl in der Blase, Schrift hell oder dunkel nach Kontrast;
+    passt sie nicht, steht sie hinter dem Namen. Namen stehen dann bevorzugt über der Blase.
+  - „Max. Blasenradius (px)“ (`chart.scatterMaxRadius`, 0 = automatisch) und „Deckkraft der Blasen %“
+    (`chart.scatterBubbleOpacity`, Standard 55). Große Blasen dürfen über den Achsenrand hinausragen.
+  - „Gruppenfarbe 1“ bis „Gruppenfarbe 6“ (`chart.scatterGroupColor1` bis `6`) bei Punktfarbe „Nach Gruppe/Serie“.
+  - Neue Rolle **„Blasengröße VJ (optional)“** (`bubbleSizePrevious`): zusammen mit Vorjahr (Y) und optional
+    „X-Achse VJ“ zeichnet jede Kategorie eine PY-Blase in PY-Grau mit eigener Größe hinter der AC-Blase, auf
+    derselben Größenskala; Legende ● PY ● AC. Liegen PY- und AC-Wert übereinander, entfällt der PY-Wert (Tooltip).
+    Mit Bewegungspfeilen beginnt der Pfeil am Rand der PY-Blase.
+  - „Hervorhebung als Farbe“ (`chart.scatterEmphFill`) mit „Hervorhebungsfarbe“ (`chart.scatterEmphColor`, Standard
+    #0064FF) und optionalem Legendentext (`chart.scatterEmphLabel`, z. B. „Zukäufe 12/25“) statt des Rings.
+  - Bestandsberichte zeichnen SVG-gleich (alle 364 Bestands-Stages per Hash geprüft); einzige sichtbare Änderung
+    ohne neue Optionen: das Feld-Intro nennt die neue Rolle (20 statt 19 Rollen). Tests c400 bis c406.
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 
