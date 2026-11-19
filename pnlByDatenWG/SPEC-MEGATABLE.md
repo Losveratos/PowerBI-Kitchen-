@@ -348,24 +348,34 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
   nimmt die eigene Botschaft oder den autoMessage-Generator aus Paket B.
 - GuV hat keinen _YTD-Block (Demo-Daten nur Jahr); der Block-Schalter wirkt nur
   bei Strukturdaten.
-- Referenz-Inkonsistenzen werden nicht nachgebaut: Summen rechnet der Kern
-  (T03A AC-Ergebnis 422.2 statt 422.3; ΔPY Group result +186.2 statt der im Bild
-  doppelt gedruckten +162.5; 12H-PL-Operating-result 346 statt 329).
-- **T01A/T01B _YTD-ΔPY-Dezimale:** Die Referenzen drucken die ΔPY-Zahlen des
-  _November-Blocks mit einer Dezimale (`+431.0`, `-274.0`, `+7.0`; T01B `+80.0`,
-  `-127.0`), die ΔPL-Spalte desselben Blocks und der Monatsblock ganzzahlig.
-  Das Visual hat EINE Dezimalregel je Tabelle (`numbers.decimals`, T01-Preset 0)
-  und druckt `+431` — in sich inkonsistente Mischdezimalen werden nicht
-  nachgebaut (keine Dezimalen je Block/Spalte).
+- Referenz-Inkonsistenzen werden nicht nachgebaut: Summen, Δ und Δ% rechnet der
+  Kern. Die Soll-Bilder in `prototype/refs/` sind die Blattfassungen vom Juli 2026
+  (T03A ΔPY Group result +162.5 statt +186.2; 12H-PL-Operating-result 329 statt
+  346; T01A/T01B _November-ΔPY mit einer Dezimale). In den Fassungen vom
+  17./18.11.2026 sind diese Fehler behoben. Rundungsdifferenzen bleiben in allen
+  Fassungen: T03A AC-Ergebnis druckt 422.3, der Kern rechnet aus den
+  ungerundeten Kindern 422.2.
+- **Blattfehler, Stand Abgleich 19.11.2026** (nur bestätigte Befunde, mit
+  Blattfassung; vollständige Tabelle in `TEMPLATE-GUIDE.md` §5.2):
+  - T03B (24.07.2026): ΔPY Group result druckt den ΔPL-Wert +169.7 / +72 %,
+    richtig +193.5 / +82 %. Gleicher Fehlertyp wie früher T03A.
+  - T01A (18.11.2026): _November ΔPY Japan `+770` statt `+77`; Schwellen-Fußzeile
+    `<-2` statt `<-220` (gefärbt sind nur −274 und −386).
+  - T01C, T01D (beide 24.07.2026): Mischdezimalen im _November-Block (`+431.0`,
+    `+348.0` neben ganzzahligem ΔPL). Das Visual hat EINE Dezimalregel je Tabelle
+    (`numbers.decimals`, T01-Preset 0) und druckt `+431`.
+  - „Gross margin" in T03A, T03B, T04C, T04E und 12G (02.09.2025) ist Operating result /
+    Sales revenue, also eine operative Marge.
+  - T04E (18.11.2026): Pin-Kopf „Financial income, net" voll statt schraffiert.
 - **T02F-Früh-Kappung:** Das Referenzbild kappt zwei Δ%-Pins (Japan −27.3 im
   Monat, Other +26.1 im _November) schon beim Sprung 1.35×. Der Tukey-Zaun
   (Q3 + 4·IQR, ab 8 Werten; siehe „Balken-/Pin-Maßstab") schlägt dort nicht an,
   beide Pins werden voll gezeichnet — jede Regel, die T02F kappt, kappte T02A
   `+16.5` fälschlich. Ein manueller Kappungswert je Block ist nicht vorgesehen.
-- **T04C/T04E Financial-income-Pin:** Die Referenzblätter drucken für
-  „Financial income, net" (Δ −7.00 = −9.59 %) einen grünen Pin nach rechts mit
-  `+9.59` — im Widerspruch zum roten Δ-Balken derselben Zeile. Das Visual
-  zeichnet vorzeichenrichtig `-9.59` als roten Pin nach links.
+- **T04C/T04E Financial-income-Pin:** Die Fassungen bis Juli 2026 druckten für
+  „Financial income, net" (Δ −7.00 = −9.59 %) einen grünen Pin `+9.59` nach
+  rechts; seit der Fassung vom 18.11.2026 steht er wie im Visual als roter Pin
+  `-9.59` nach links.
 - **12A-Mehrfach-Pfeilspitzen:** Die Referenz staffelt die Pfeilspitzen gekappter
   Werte nach Überlauf (`+983` mit drei Spitzen, `+391` mit einer; 12G `+1 633`
   mit zwei). Prototyp und Visual zeichnen immer genau eine Spitze (9 px) — der

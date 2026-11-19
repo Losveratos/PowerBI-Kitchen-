@@ -875,12 +875,23 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
       Kategorien verschiedene Kalender. Ohne Forecast im Monat bleibt eine 0 eine
       echte 0. Autorenhinweis `UI_AcUnposted` nur im Bearbeitungsmodus.
 
+25. **Referenzblätter und ihre Fehler (Stand 19.11.2026):** Wer ein Template
+    gegen ein IBCS-Blatt prüft und eine Zahl anders findet, schaut zuerst in
+    `TEMPLATE-GUIDE.md` §5.2. Dort stehen die bestätigten Blattfehler mit
+    Blattfassung (Datum in der Fußzeile des Blatts), z. B. T03B ΔPY Group result
+    (+169.7 gedruckt, +193.5 richtig), T01A Japan `+770` und Schwelle `<-2`,
+    „Gross margin" als operative Marge in T03A/T03B/T04C/T04E/12G, T04E voller
+    Pin-Kopf. Behoben in den Fassungen vom 17./18.11.2026: T03A, 12H, T04C/T04E
+    Financial income, T01A/T01B Dezimalen. `prototype/refs/` zeigt noch die
+    Juli-Fassungen. Druckfehler nie nachbauen; das Visual rechnet selbst.
+
 ## Verwandte Dateien
 
 - `capabilities.json` — Rollen/Objekte (Quelle der Tabellen oben)
 - `src/settings.ts` — Pane-Modell, Gates (`applyPaneGates`), Enum-Listen
 - `src/megatable.ts` — Layout/Painter/Notation/Presets des Mega-Tables (ohne Power-BI-Import, unit-testbar)
 - `SPEC-MEGATABLE.md` — Maße, Notation, Abweichungen von den Referenzblättern
+- `TEMPLATE-GUIDE.md` §5: bewusste Abweichungen und Blattfehler mit Blattfassung
 - `CHANGELOG.md` · `README.md` · `QUICKSTART.md`
 - `../.claude/skills/pnl-report/` — Claude-Skill: GuV-Seite in ein PBIP bauen
 - `src/hub.ts` — Start-Hub, reiner Teil (Template-Schalter, Tour-Karten, Mini-Objekte; 1.4: Galerie-Gruppen, Feld-Rollen, Loslegen-Schritte, Schrift-Presets, Doku-URL)

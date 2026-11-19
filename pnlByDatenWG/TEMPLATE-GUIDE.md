@@ -146,19 +146,51 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
 - **Leerzustand (1.2):** Leer-Zustand → Modus *Demo* · *Feld-Intro* · *Eigene
   Nachricht*; im Bearbeitungsmodus per Knopf „Felder erklären" / „Demo ansehen"
 
-## 5 · Bekannte, bewusste Abweichungen von den Referenzblättern
+## 5 · Abweichungen von den Referenzblättern und Fehler der Blätter
 
 (Vollständig in `SPEC-MEGATABLE.md` → „Bewusst offen / Abweichungen")
 
-1. **T01A/B:** Die YTD-ΔPY-Spalte des Originals druckt eine Dezimale (+431.0)
-   bei sonst ganzzahligen Spalten — Referenz-Inkonsistenz, wir drucken einheitlich.
-2. **T02F:** Das Original kappt Pins schon bei 1,35× Sprung; unsere
-   Tukey-Automatik (Q3+4×IQR) kappt dort nicht — jede Regel, die das träfe,
+### 5.1 · Notation und Regeln, die wir bewusst anders machen
+
+1. **T02F:** Das Original kappt Pins schon bei 1,35× Sprung; unsere
+   Tukey-Automatik (Q3+4×IQR) kappt dort nicht. Jede Regel, die das träfe,
    würde in T02A fälschlich kappen.
-3. **T03A:** Das Original druckt in ΔPY des Group result versehentlich den
-   ΔPL-Wert (+162.5) — wir rechnen korrekt (+186.2). Ebenso T04C/E-Pin und
-   12H-Operating-result: Druckfehler der Blätter.
-4. **12A:** Mehrfach-Pfeilspitzen (+983 →→→) sind bei uns eine einfache Spitze.
+2. **12A, 12G:** Die Blätter staffeln die Pfeilspitzen gekappter Werte nach
+   Überlauf (12A +983 drei, 12G +1 633 zwei, +685 eine Spitze); die Regel ist
+   nicht dokumentiert, 12A im Abgleich nicht am Bild geprüft. Bei uns immer eine
+   Spitze, der Wert steht als Zahl daneben.
+3. **11A (ROI-Baum):** Das Blatt beschriftet jede Säule mit dem Jahr (bis auf
+   2022 und 2023, siehe 5.2). Die Karten des Werttreiberbaums beschriften
+   bewusst nur die erste und letzte Periode.
+
+### 5.2 · Fehler in den Referenzblättern (Stand Abgleich 19.11.2026)
+
+Das Visual rechnet alle Summen, Δ und Δ% selbst und baut Druckfehler der
+Blätter nicht nach. Die Liste nennt je Eintrag die Blattfassung (Datum in der
+Fußzeile des Blatts). Nachgerechnet im Abgleich vom 19.11.2026 und gegengelesen;
+aufgenommen sind nur bestätigte Befunde. Belege mit Bildausschnitten: interne
+Präsentation „IBCS-Templates Befunde in den Originalblättern 2026-11".
+
+**Weiter offen bzw. neu**
+
+| Blatt (Fassung) | Befund im Blatt | Visual |
+|---|---|---|
+| T03B (24.07.2026) | ΔPY Group result druckt den ΔPL-Wert: +169.7 / +72 % (429.6 − 259.9). Richtig 429.6 − 236.1 = **+193.5 / +82 %** | rechnet +193.5 / +82 % |
+| T01A (18.11.2026) | _November ΔPY Japan druckt **+770**, richtig 144 − 67 = **+77** (ΔPY% +114,9 % passt zu 77, T01B druckt +77) | druckt +77 |
+| T01A (18.11.2026) | Schwellen-Fußzeile _November ΔPY nennt **<-2**, gefärbt sind nur −274 und −386 (−47, −45, −161, −158, −167 schwarz). Gemeint ist <-220 wie in T01B | Fußzeile und Färbung aus derselben Schwelle |
+| T01C, T01D (beide 24.07.2026) | Mischdezimalen: _November ΔPY mit einer Dezimale (T01C +431.0, −274.0; T01D +348.0, −243.0) neben ganzzahligem ΔPL im selben Block | eine Dezimalregel je Tabelle, druckt +431 |
+| T03A (17.11.2026), T03B (24.07.2026), T04C, T04E (18.11.2026), 12G (02.09.2025) | Zeile **„Gross margin"** ist Operating result / Sales revenue (T03A 302.1 / 822.3 = 36,7 %, T04C 100.94 / 918.60 = 10,99 %, T04E 101.10 / 923.78 = 10,94 %, 12G 293 / 813 = 36 %), also eine operative Marge, keine Bruttomarge | Name kommt aus den Daten; in eigenen Berichten passend benennen |
+| T04E (18.11.2026) | Pin-Kopf von „Financial income, net" voll gefüllt (AC-Notation), alle anderen Köpfe schraffiert (FC) | alle Köpfe schraffiert bei Minuend FC |
+| 11A (02.09.2025) | Botschaft nennt 2024, die umkringelte 19,2 ist PL 2026 (4,7 / 24,5); 2024 AC ist 14,7. Achsenbeschriftung 2022 und 2023 fehlt in allen sechs Diagrammen, die übrigen Jahre stehen da | Botschaft ist eigener Text (Titelblock); Periodentags siehe 5.1 |
+
+**In den aktuellen Fassungen behoben** (die Doku bis 1.7.1 nannte sie noch)
+
+| Blatt (Fassung) | früher | jetzt |
+|---|---|---|
+| T03A (17.11.2026) | ΔPY Group result = ΔPL-Wert (+162.5) | +186.2 / +79 % richtig |
+| 12H (18.11.2026) | Operating result ohne Other op. income (248 / 329, Group result +139 / +97 %) | Operating result 293 / 346, Group result +111 / +59 % richtig |
+| T04C, T04E (18.11.2026) | Financial income Δ% +9.59 grün nach rechts | −9.59 rot nach links |
+| T01A, T01B (18.11.2026) | Mischdezimalen im _November-Block (+431.0) | ganzzahlig |
 
 ## 6 · Troubleshooting lokal
 
