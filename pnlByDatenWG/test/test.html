@@ -99,6 +99,7 @@
 <div class="case"><h4>m57 · 1.8 · T02C neu angewendet · Blöcke in Kategoriereihenfolge wie im Blatt (Europe vor Americas)</h4><div class="stage" id="m57" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m58 · 1.8 · T03A mit „Δ%-Dezimalen wie im Blatt“ (ganzzahlig) und Margen-Δ in %p</h4><div class="stage" id="m58" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m59 · 1.8 · T01C mit gerundeter Null ohne Vorzeichen (World ΔPY% 0.0% wie im Blatt)</h4><div class="stage" id="m59" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>t11c · 1.8 · ROI-Baum wie nach der Vorlage 11A (alle Perioden beschriftet, Wurzel automatisch, Periodenzeile automatisch)</h4><div class="stage" id="t11c" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -570,6 +571,11 @@ const ROI_OBJ = { titleBlock: { unitLine: "Alpha Software Corporation, Germany",
   state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } };
 runRows("t11a", MEGA_DEMO.roi(), ROI_OBJ);
 runRows("t11b", MEGA_DEMO.roi({ ctPct: true }), ROI_OBJ);
+// t11c — what the gallery tile 11A writes: default root, automatic period line, every period labelled
+runRows("t11c", MEGA_DEMO.roi(), { titleBlock: { unitLine: "Alpha Software Corporation, Germany", measureLine: "ROI tree" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, numbers: { pctDecimals: 1 },
+  columns: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true },
+  state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } });
 
 // m57 — 1.8 T02C applied fresh: keepBlockOrder from the template, the sheet's block order
 runRows("m57", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02C" } });

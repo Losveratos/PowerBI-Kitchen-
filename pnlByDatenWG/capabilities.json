@@ -597,6 +597,11 @@
                         "text": true
                     }
                 },
+                "treeAllLabels": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "treeLevel": {
                     "type": {
                         "numeric": true

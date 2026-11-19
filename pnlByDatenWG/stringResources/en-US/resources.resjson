@@ -114,6 +114,8 @@
   "Desc_Columns_TreeCard": "Mini chart on every card: monthly columns, variance columns or a mini bridge. Default: monthly columns",
   "Columns_TreeStatus": "Driver tree status indicator (Δ colour)",
   "Desc_Columns_TreeStatus": "Card edge and Δ% in the card head in the variance colour. Default: on",
+  "Columns_TreeAllLabels": "Label every period on the cards",
+  "Desc_Columns_TreeAllLabels": "Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree). Off: first, last and extreme value only. Default: off",
   "Mega_Template": "Template (IBCS table)",
   "Desc_Mega_Template": "Sets the switches below to the template defaults — afterwards every switch is free. Balance sheet (T05A) and cash flow (T05B) also set Stocks & flows. Default: off (classic table)",
   "Mega_Minuend": "Analysed scenario (minuend)",

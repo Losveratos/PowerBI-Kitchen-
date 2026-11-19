@@ -114,6 +114,8 @@
   "Desc_Columns_TreeCard": "Mini-Diagramm auf jeder Karte: Monatssäulen, Abweichungssäulen oder Mini-Brücke. Standard: Monatssäulen",
   "Columns_TreeStatus": "Status-Indikator der Karten (Δ-Farbe)",
   "Desc_Columns_TreeStatus": "Kartenrand und Δ% im Kartenkopf in der Abweichungsfarbe. Standard: an",
+  "Columns_TreeAllLabels": "Alle Perioden der Karten beschriften",
+  "Desc_Columns_TreeAllLabels": "Jede Säule des Kartendiagramms trägt ihren Wert und ihre Periode, die erste Planperiode wird benannt. Für kurze Reihen wie Jahre (ROI-Baum). Aus: nur erster, letzter und Extremwert. Standard: aus",
   "Mega_Template": "Template (IBCS-Tabelle)",
   "Desc_Mega_Template": "Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Bilanz (T05A) und Cashflow (T05B) setzen zusätzlich Bestand & Fluss. Standard: aus (klassische Tabelle)",
   "Mega_Minuend": "Analysiertes Szenario (Minuend)",

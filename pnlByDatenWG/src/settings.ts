@@ -414,6 +414,9 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         treeCardItems);
     treeStatus = toggle("treeStatus", "Columns_TreeStatus", "Driver tree status indicator (Δ colour)",
         "Card edge and Δ% in the card head in the variance colour. Default: on", true);
+    // 1.8 (B07) short series (years): every column carries its value and its period
+    treeAllLabels = toggle("treeAllLabels", "Columns_TreeAllLabels", "Label every period on the cards",
+        "Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree). Off: first, last and extreme value only. Default: off", false);
 
     // ---- mega table (IBCS templates T01–T04, 12A–12H, 1.7 T05A / T05B) ----
     template = dropdown("template", "Mega_Template", "Template (IBCS table)",
@@ -517,7 +520,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         description: "Start of the tree and Sankey views — visible in those views",
         descriptionKey: "Desc_Columns_GroupTree",
         collapsible: true,
-        slices: [this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus]
+        slices: [this.treeRoot, this.treeLevel, this.treeCard, this.treeStatus, this.treeAllLabels]
     });
 
     name: string = "columns";

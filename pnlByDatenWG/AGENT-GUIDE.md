@@ -252,6 +252,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `treeLevel` | numeric | `0` | Start-Tiefe Treiberbaum (0 = ganzer Baum): Wie viele Ebenen des Baums beim Start offen sind. 0 = ganzer Baum. Standard: 0 |
 | `treeCard` | enum `months` · `delta` · `bridge` | `months` | Karten-Diagramm im Treiberbaum: Mini-Diagramm auf jeder Karte: Monatssäulen, Abweichungssäulen oder Mini-Brücke. Standard: Monatssäulen |
 | `treeStatus` | bool | `true` | Status-Indikator der Karten (Δ-Farbe): Kartenrand und Δ% im Kartenkopf in der Abweichungsfarbe. Standard: an |
+| `treeAllLabels` | bool | `false` | Alle Perioden der Karten beschriften (1.8): Jede Säule des Kartendiagramms trägt ihren Wert und ihre Periode, die erste Planperiode wird benannt (Szenario-Kürzel in zweiter Zeile, Prozent ohne %-Zeichen, die Einheit steht im Kartenkopf). Für kurze Reihen wie Jahre (ROI-Baum). Aus: nur erster, letzter und Extremwert. Standard: aus |
 
 ### Objekt `toolbar` — Darstellung & Toolbar
 
@@ -947,7 +948,20 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     `stock`), `Return on sales = [Return]/[Net sales]` (KPI),
     `Capital turnover = [Net sales]/[Invested capital]` (`KPI factor`),
     `ROI = [Return on sales]*[Capital turnover]` (KPI), Periode = Jahr, PL nur
-    für die Planjahre. Test `mega-shot` t11a/t11b, Daten `MEGA_DEMO.roi()`.
+    für die Planjahre. Test `mega-shot` t11a/t11b/t11c, Daten `MEGA_DEMO.roi()`.
+    Nach dem Fable-Review: `pct`/`%` wird gelesen, aber nicht gespeichert (wie
+    ohne Token); Zellen mit einem Format-Wort werden gesplittet, „Ratio %" ist
+    damit KPI, „Summe Betrag" Subtotal. ⚡ prüft `amount` wie einen Betrag und
+    `factor` über Δ%. Faktoren haben mindestens eine Dezimale, Beträge im Baum
+    eine eigene Skalengruppe (`kamt`). Reine Jahresachsen bekommen kein
+    Jahres-Präfix in Kopf- und Periodenzeilen; die Spalten-Kategorie liest
+    vierstellige Codes nicht als Jahre (`sortMonths(…, false)`). Die Vorlage setzt
+    zusätzlich `treeAllLabels` und startet den Baum frisch (`treeCollapsed`,
+    `treeZoom`, `treeRoot` zurück); ohne Felder eine Schreibaktion und die Notiz
+    „gespeichert". Mit Jahren als Periode summieren YTD-Spalten, Raster und
+    Tooltip über alle Jahre (Kennzahlen als Quotient der Summen); fachlich
+    richtig sind dort die Säulenkarten. Die Galerie-Vorschau zeigt den
+    Demo-Baum, nicht den DuPont-Baum.
 
 ## Verwandte Dateien
 

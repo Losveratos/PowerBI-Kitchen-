@@ -152,7 +152,7 @@ test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet 
     // 1.8 (B07) plus the view presets (ROI tree 11A), which are no pane template
     assert.deepStrictEqual(all.filter(t => !M.VIEW_PRESETS[t]).sort(), M.HUB_TEMPLATES.slice().sort(), "the pane's templates, no more, no less");
     assert.deepStrictEqual(all.filter(t => M.VIEW_PRESETS[t]), ["11A"]);
-    assert.deepStrictEqual(M.VIEW_PRESETS["11A"], { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0 } });
+    assert.deepStrictEqual(M.VIEW_PRESETS["11A"], { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true } });
 });
 
 test("1.4 gallery: every group head and every tile title + use line exists in all four languages (no T number in the title)", () => {

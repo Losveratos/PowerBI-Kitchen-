@@ -119,8 +119,10 @@ function readMega(id) {
     const heads = id => S[id] ? S[id].head.map(t => t.t) : [];
     // 1.8 (B07) the ROI tree (driver tree, no mega table): texts of every card
     const T11 = {};
-    for (const id of ["t11a", "t11b"]) {
-        T11[id] = await page.evaluate(i => [...document.querySelectorAll(`#${i} svg text`)].map(t => t.textContent), id);
+    for (const id of ["t11a", "t11b", "t11c"]) {
+        // svg texts plus the lines of the HTML title block
+        T11[id] = await page.evaluate(i => [...document.querySelectorAll(`#${i} svg text`)].map(t => t.textContent)
+            .concat(document.getElementById(i).innerText.split("\n")), id);
         const el = await page.$("#" + id);
         await el.screenshot({ path: `${__dirname}/mega-${id}.png` });
     }
@@ -294,6 +296,11 @@ function readMega(id) {
             a.filter(t => /^\d/.test(t)).join(" "));
         check("t11a ROI and return on sales stay percent (24.9%, 19.2%)", a.includes("24.9%") && a.includes("19.2%"));
         check("t11a years as the period: first card tag 2021, last 2027", a.some(t => /^2021/.test(t)) && a.some(t => /^2027/.test(t)));
+        const c = T11.t11c || [];
+        check("t11c default root is the ROI (the last KPI row), every period labelled: 2026 / PL tag, plan values 19.8 / 19.2 (unit in the head)",
+            c.includes("Return on investment") && c.includes("2026") && c.includes("PL") && c.includes("19.8") && c.includes("19.2") && c.includes("2023"),
+            c.filter(t => /^20\d\d/.test(t)).join(" "));
+        check("t11c a year axis gets no year prefix in the period line (no \"2021 2021\")", !c.some(t => /2021 2021/.test(t)), c.slice(0, 6).join(" | "));
         check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------

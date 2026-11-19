@@ -312,7 +312,7 @@ function check(label, cond, detail) {
     check("G every tile carries a mini rendering", G.minis.length === 24 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
     check("G 22 of the minis are mega tables (the classic table is the 23rd)", G.mega === 22, String(G.mega));
     check("G 1.8 the ROI tree tile writes the card settings and the tree view, no template",
-        G.roi && JSON.stringify(G.roi.cols) === JSON.stringify({ treeCard: "months", treeStatus: false, treeLevel: 0 }) && G.roi.view === "tree" && !G.roi.tpl,
+        G.roi && JSON.stringify(G.roi.cols) === JSON.stringify({ treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true }) && G.roi.view === "tree" && !G.roi.tpl,
         JSON.stringify(G.roi));
     check("G without fields: the note says the choice is saved and applies on binding", /^No fields bound yet/.test(G.noteNoFields || ""), G.noteNoFields);
     check("G the classic table is the active tile before any pick, nothing persisted by browsing",

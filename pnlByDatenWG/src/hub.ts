@@ -86,7 +86,7 @@ export const HUB_TEMPLATES: string[] = MEGA_PRESET_KEYS.slice();
  * ("KPI factor" for the capital turnover).
  */
 export const VIEW_PRESETS: Record<string, { view: "tree"; cols: Record<string, string | number | boolean> }> = {
-    "11A": { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0 } },
+    "11A": { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true } },
 };
 
 /** a tile of the 1.4 gallery: the template plus its finance title and its use line (resjson keys) */

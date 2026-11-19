@@ -555,6 +555,8 @@ interface TreeSeries {
     refScen: Scenario | "";
     /** scenario of the triangle marks ("" = none) */
     ref2Scen: Scenario | "";
+    /** 1.8 every period labelled (columns.treeAllLabels) */
+    all?: boolean;
 }
 
 interface ColSpec {
@@ -1473,7 +1475,8 @@ export class Visual implements IVisual {
             const arr = groups.get(k);
             if (arr) { arr.push(i); } else { groups.set(k, [i]); }
         }
-        let keys = sortMonths([...groups.keys()].filter(k => k !== ""), "auto");
+        // a 4-digit category code (cost centre 2100) is no year: data order as before 1.8
+        let keys = sortMonths([...groups.keys()].filter(k => k !== ""), "auto", false);
         if (groups.has("")) { keys.push(""); }
         if (keys.length > CAT_MAX) { this.catCapped = keys.length - CAT_MAX; keys = keys.slice(0, CAT_MAX); }
         const out: { label: string; model: PnlModel }[] = [];
@@ -2140,6 +2143,9 @@ export class Visual implements IVisual {
         const pdec = this.settings.numbersCard.pctDecimals.value;
         const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
         const pf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: pdec, maximumFractionDigits: pdec });
+        // 1.8 (B07) a factor KPI keeps at least one decimal (capital turnover 1.3, not 1)
+        const xdec = Math.max(1, pdec);
+        const xf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: xdec, maximumFractionDigits: xdec });
         const grp = (nfr: Intl.NumberFormat, v: number): string =>
             nfr.formatToParts(v).map(p => (p.type === "group" ? NBSP_GROUP : p.type === "minusSign" ? MINUS : p.value)).join("");
         if (this.finance()) {
@@ -2156,7 +2162,7 @@ export class Visual implements IVisual {
                 div, suffix,
                 val: (v, plus = false) => v == null ? "·" : fin(nf, v / div, v, plus, ""),
                 pct: (v, plus = false) => v == null ? "–" : fin(pf, v * 100, v, plus, "%"),
-                fac: (v, plus = false) => v == null ? "–" : fin(pf, v, v, plus, ""),
+                fac: (v, plus = false) => v == null ? "–" : fin(xf, v, v, plus, ""),
             };
         }
         // 1.8 (B14) one rule for rounded zeros in every view (the mega table's
@@ -2173,7 +2179,7 @@ export class Visual implements IVisual {
             div, suffix,
             val: (v, plus = false) => v == null ? "·" : sg(nf, v / div, v, plus, ""),
             pct: (v, plus = false) => v == null ? "–" : sg(pf, v * 100, v, plus, "%"),
-            fac: (v, plus = false) => v == null ? "–" : sg(pf, v, v, plus, ""),
+            fac: (v, plus = false) => v == null ? "–" : sg(xf, v, v, plus, ""),
         };
     }
 
@@ -2476,6 +2482,8 @@ export class Visual implements IVisual {
 
     /** four-digit year of a period key — "" when the label carries none */
     private periodYear(m: string): string {
+        // 1.8 a year as the period (ROI tree) is the label itself: no "2021 2021..2027"
+        if (/^\s*\d{4}\s*$/.test(m)) { return ""; }
         const p = parsePeriod(m);
         return p && p.y != null ? String(p.y) : "";
     }
@@ -3988,15 +3996,21 @@ export class Visual implements IVisual {
             if (typeof v === "boolean" || typeof v === "number") { if (cc[k]) { cc[k].value = v; } }
             else { this.megaSliceSet(k, v); }
         }
-        this.host.persistProperties({ merge: [{ objectName: "columns", selector: null, properties: { ...vp.cols } }] });
+        const colsW: powerbi.VisualObjectInstance = { objectName: "columns", selector: null, properties: { ...vp.cols } };
+        // the reader's tree state of an earlier visit (folds, re-root, tile zoom)
+        // would hide "the whole tree open": the preset starts the tree fresh
+        const fresh = (u: UiState): UiState => ({ ...u, view: vp.view, treeCollapsed: null, treeZoom: null, treeRoot: "" });
         if (this.hubHasStatement()) {
-            if (this.ui && this.ui.view !== vp.view) { this.ui.view = vp.view; this.persistUi(); }
+            this.host.persistProperties({ merge: [colsW] });
+            if (this.ui) { this.ui = fresh(this.ui); this.persistUi(); }
             this.closeHub(true); this.rerender(); return;
         }
-        // no statement bound yet: the view travels in the stored ui state and is
-        // read when the fields arrive (the demo itself is never persisted)
-        const ui: UiState = { ...(this.ui && !this.demo ? this.ui : this.defaultUi()), view: vp.view };
-        this.host.persistProperties({ merge: [{ objectName: "state", selector: null, properties: { uiState: JSON.stringify(ui) } }] });
+        // no statement bound yet: the view travels in the stored ui state (one
+        // write with the card settings) and is read when the fields arrive; the
+        // note says it is saved, like a template pick
+        const ui = fresh(this.ui && !this.demo ? this.ui : this.defaultUi());
+        this.host.persistProperties({ merge: [colsW, { objectName: "state", selector: null, properties: { uiState: JSON.stringify(ui) } }] });
+        this.hubSaved = tpl;
         this.hubFocusKey = "tpl-" + tpl;
         this.hubRefresh();
     }
@@ -7255,7 +7269,7 @@ export class Visual implements IVisual {
     /** 1.8 (B07) scale group of a KPI row in the tree: percent, factor and amounts never share a scale */
     private kpiScale(node: PnlNode): string {
         const k = node.row.kfmt;
-        return k === "factor" ? "x" : k === "amount" ? "amt" : "pct";
+        return k === "factor" ? "x" : k === "amount" ? "kamt" : "pct";
     }
 
     private treeNum(v: number, fmt: Fmt): string {
@@ -7340,6 +7354,17 @@ export class Visual implements IVisual {
             const front = anyFc ? "AC&FC" : "AC";
             const scen = [front, refScen.toUpperCase(), ref2Scen.toUpperCase()]
                 .filter(t => t !== "").join("·");
+            if (this.settings.columnsCard.treeAllLabels.value) {
+                // 1.8 (B07) short series (years, ROI tree 11A): every column its
+                // period and value, the first plan-only period named as the sheet does
+                const firstPlan = slots.findIndex(sl => sl.v == null && sl.ref != null);
+                slots.forEach((sl, i) => {
+                    sl.tag = this.monthLabel(months[i]) + (i === 0 ? " " + front
+                        : i === firstPlan && refScen !== "" ? " " + refScen.toUpperCase() : "");
+                    sl.label = sl.v != null || sl.ref != null;
+                });
+                return { slots, refScen, ref2Scen, all: true };
+            }
             slots[0].tag = `${this.monthLabel(months[0])} ${front}`;
             slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${scen}`;
             // value labels only at first, last and the absolute extremum (max 3)
@@ -7432,7 +7457,7 @@ export class Visual implements IVisual {
 
     /** period/scenario tags under a card chart: first one left, last one right */
     private treeTags(g: SVGGElement, tags: (string | null)[], box: { x: number; y: number; w: number; h: number },
-        slotW: number, s: number, rightInset: number): void {
+        slotW: number, s: number, rightInset: number, every = false): void {
         const ns = "http://www.w3.org/2000/svg";
         const n = tags.length;
         const tfs = 7 * s;
@@ -7441,7 +7466,8 @@ export class Visual implements IVisual {
             if (!tag) { return; }
             const first = i === 0;
             const t = document.createElementNS(ns, "text");
-            const wide = n <= 4;
+            // 1.8 every period labelled (treeAllLabels): each tag centred under its column
+            const wide = n <= 4 || every;
             const maxW = wide ? slotW : box.w * 0.5 - (first ? 0 : rightInset);
             if (wide) {
                 t.setAttribute("x", (box.x + (i + 0.5) * slotW).toFixed(2));
@@ -7454,8 +7480,17 @@ export class Visual implements IVisual {
             t.setAttribute("font-size", tfs.toFixed(1));
             t.setAttribute("font-family", FONT);
             t.setAttribute("fill", C.soft);
-            t.textContent = this.fitLabel(tag, maxW, tfs);
+            // 1.8 every period labelled: "2021 AC" as the sheet prints it, the
+            // scenario code on a second line under the year (no truncation)
+            const sp = every ? tag.indexOf(" ") : -1;
+            t.textContent = this.fitLabel(sp > 0 ? tag.slice(0, sp) : tag, maxW, tfs);
             g.appendChild(t);
+            if (sp > 0) {
+                const t2 = t.cloneNode(false) as SVGTextElement;
+                t2.setAttribute("y", (y + tfs * 1.05).toFixed(2));
+                t2.textContent = this.fitLabel(tag.slice(sp + 1), maxW, tfs);
+                g.appendChild(t2);
+            }
         });
     }
 
@@ -7610,9 +7645,16 @@ export class Visual implements IVisual {
                 p.appendChild(tt);
                 g.appendChild(p);
             }
+            // 1.8 every period labelled: a percent KPI drops its "%" (the card head
+            // names the unit, as the sheet 11A does), so seven labels fit side by side
+            const lbl = (x: number): string => isRatio
+                ? (series.all && !node.row.kfmt ? fmt.pct(x).replace("%", "") : this.kpiText(node, x, fmt, false, y => this.treeNum(y, fmt)))
+                : this.treeNum(x, fmt);
             if (sl.v != null && sl.label) {
-                this.treeLabel(g, box, acCx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs,
-                    isRatio ? this.kpiText(node, sl.v, fmt, false, x => this.treeNum(x, fmt)) : this.treeNum(sl.v, fmt), lfs, C.text);
+                this.treeLabel(g, box, acCx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs, lbl(sl.v), lfs, C.text);
+            } else if (sl.v == null && sl.ref != null && sl.label) {
+                // 1.8 a plan-only period (ROI tree 2026 / 2027 PL): the plan value over its outline
+                this.treeLabel(g, box, refCx, sl.ref >= 0 ? yOf(sl.ref) - 2.5 : yOf(sl.ref) + lfs, lbl(sl.ref), lfs, C.text);
             }
         });
 
@@ -7623,7 +7665,7 @@ export class Visual implements IVisual {
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         g.appendChild(axis);
 
-        this.treeTags(g, slots.map(sl => sl.tag), box, slotW, s, rightInset);
+        this.treeTags(g, slots.map(sl => sl.tag), box, slotW, s, rightInset, !!series.all);
     }
 
     /**
@@ -8697,7 +8739,7 @@ export class Visual implements IVisual {
         if (isRatio) {
             // percentages do not add up: no bridge, no stacked total — the
             // monthly comparison plus the grid is the honest picture here
-            note(this.tr("UI_RatioNote", refUp));
+            if (!node.row.kfmt) { note(this.tr("UI_RatioNote", refUp)); }
             const h = Math.max(Math.round(this.zoomChartH * 0.55), Math.round(150 * k));
             chart(h, (g, svg) => this.treeMini(g, node,
                 { x: 1, y: 4, w: inner - 2, h: h - 30 }, 1.5 * k * sc, fmt, svg, 0));
@@ -11898,7 +11940,8 @@ export class Visual implements IVisual {
             const raw = ss ?? this.megaRaw(node, block, sc);
             if (raw == null) { continue; }
             const disp = node.row.displayInvert ? -raw : raw;
-            out.push({ displayName: this.relabel(code(sc)), value: ratio ? this.kpiText(node, disp, fmt) : u(fmt.val(disp)) });
+            out.push({ displayName: this.relabel(code(sc)), value: ratio
+                ? (node.row.kfmt === "amount" ? u(this.kpiText(node, disp, fmt)) : this.kpiText(node, disp, fmt)) : u(fmt.val(disp)) });
         }
         const min: Scenario = mega ? mega.min : block === "fy" ? "fcfy" : "ac";
         const refs: Scenario[] = mega ? mega.refs
@@ -11913,7 +11956,8 @@ export class Visual implements IVisual {
                 const D = displayVariance(node.row, a, r);
                 if (!D) { continue; }
                 if (D.pp) {
-                    out.push({ displayName: name, value: fmt.pct(D.d / 100, true).replace("%", this.ppUnit() === "pp" ? MEGA_PP : "%p") });
+                    out.push({ displayName: name, value: node.row.kfmt ? (node.row.kfmt === "amount" ? u(this.kpiDelta(node, D.d / 100, fmt)) : this.kpiDelta(node, D.d / 100, fmt))
+                        : fmt.pct(D.d / 100, true).replace("%", this.ppUnit() === "pp" ? MEGA_PP : "%p") });
                     continue;
                 }
                 const sa = this.ssRaw(node, block, min, fmt); const sb = this.ssRaw(node, block, ref, fmt);
