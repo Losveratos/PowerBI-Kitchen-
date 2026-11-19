@@ -67,10 +67,24 @@ h1 em::after{content:"";position:absolute;left:-2px;right:-6px;bottom:6px;height
   background:var(--tile);border-top:1px solid var(--tile-line);white-space:nowrap}
 .cap b{font-size:13px;letter-spacing:.11em;text-transform:uppercase;color:var(--c);font-weight:800}
 .cap span{font-size:16px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+
+/* 16:10-Variante (z. B. ThinkPad X1 Carbon, MacBook): desktop-wallpaper.html?r=1610 → 1920 × 1200 CSS-px */
+#wall.r1610{height:1200px}
+.r1610 .logo{top:84px}
+.r1610 .copy{top:250px}
+.r1610 .mosaic{top:84px}
+.r1610 .row{height:326px}
+.r1610 .rhein .pic{background:#0B0E12}
+.r1610 .rhein .pic img{object-fit:contain}
+.r1610 .ad{top:768px;height:326px}
+.r1610 .ad .in{top:52px}
+.r1610 .ad h2{font-size:72px;margin-top:20px}
+.r1610 .ad .soon{margin-top:22px}
 </style>
 </head>
 <body>
 <div id="wall">
+<script>if(new URLSearchParams(location.search).get("r")==="1610")document.getElementById("wall").className="r1610";</script>
   <img class="logo" src="img/daten-wg-logo-petrol.png" alt="Daten-WG">
 
   <div class="copy">
@@ -95,7 +109,7 @@ h1 em::after{content:"";position:absolute;left:-2px;right:-6px;bottom:6px;height
       <div class="tile light" style="width:360px;--c:var(--brand-light)">
         <div class="pic"><img src="img/ck-integrierte-varianz.png" alt=""></div>
         <div class="cap"><b>ChartKitchen</b><span>Integrierte Varianz</span></div></div>
-      <div class="tile cover" style="width:272px;--c:var(--blue)">
+      <div class="tile cover rhein" style="width:272px;--c:var(--blue)">
         <div class="pic"><img src="img/story-rhein.jpg" alt=""></div>
         <div class="cap"><b>Story</b><span>Rhein · 209 Jahre</span></div></div>
       <div class="tile cover" style="width:188px;--c:#E5675A">
