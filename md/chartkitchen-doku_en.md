@@ -406,7 +406,7 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 1. Since 1.54 stacked columns and bars follow the scenario notation, without a new setting: every category gets one scenario. If a series has an actual there, it is AC; otherwise FC if a forecast exists (“Forecast” measure or forecast flag); otherwise PL if only the plan is bound.
 2. Forecast segments are hatched in the tint of their series, so the series stay distinguishable. Plan months stack the plan values as an outline with a light tint; total and series names then refer to the plan.
 3. A dashed separator stands between AC, FC and PL (columns only, and only when the scenarios follow each other in blocks). “Scenario labels at the columns” writes AC, FC and PL under the first month of each block.
-4. Stacks now also show the reference line (Scale card), “Group separator every N categories” and the comment markers (at the segment, outside the column). Stacks without forecast and plan draw exactly as before.
+4. Stacks now also show the reference line (Scale card), “Group separator every N categories” and the comment markers (at the segment, outside the column). Stacks without forecast, without a plan for months that have no actual, without reference line, without “Group separator every N categories” and without a comments measure draw exactly as before. For existing reports this changes: a plan bound for future months now shows as a plan outline, and a reference line, group separator or bound comments measure that had no effect in stacks before is now drawn.
 5. No plan outline is drawn next to an actual month, as in the IBCS sheets 01A to 01C.
 
 ### Year column with its own scale

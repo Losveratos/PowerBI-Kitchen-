@@ -406,7 +406,7 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 1. Seit 1.54 folgen gestapelte Säulen und Balken der Szenario-Notation, ohne neue Einstellung: Jede Kategorie bekommt ein Szenario. Hat eine Serie dort ein Ist, ist es AC; sonst FC, wenn ein Forecast vorliegt (Measure „Forecast“ oder Forecast-Flag); sonst PL, wenn nur der Plan gebunden ist.
 2. Forecast-Segmente sind schraffiert, in der Tönung ihrer Serie, damit die Serien unterscheidbar bleiben. Plan-Monate stapeln die Planwerte als Umriss mit leichter Tönung; Summe und Seriennamen beziehen sich dann auf den Plan.
 3. Zwischen AC, FC und PL steht eine gestrichelte Trennlinie (nur Säulen und nur, wenn die Szenarien in Blöcken aufeinander folgen). „Szenario-Kürzel an den Säulen“ schreibt AC, FC und PL unter den ersten Monat jedes Blocks.
-4. Im Stapel wirken jetzt auch die Referenzlinie (Skala-Karte), „Trennlinie alle N Kategorien“ und die Kommentar-Marker (am Segment, außen an der Säule). Stapel ohne Forecast und Plan zeichnen genau wie bisher.
+4. Im Stapel wirken jetzt auch die Referenzlinie (Skala-Karte), „Trennlinie alle N Kategorien“ und die Kommentar-Marker (am Segment, außen an der Säule). Stapel ohne Forecast, ohne Plan für Monate ohne Ist, ohne Referenzlinie, ohne „Trennlinie alle N Kategorien“ und ohne Kommentar-Measure zeichnen genau wie bisher. Bei bestehenden Berichten ändert sich: Ein Plan für zukünftige Monate erscheint jetzt als Plan-Umriss, und eine bisher wirkungslose Referenzlinie, Trennlinie oder ein gebundenes Kommentar-Measure wird jetzt gezeichnet.
 5. Neben einem Ist-Monat wird kein Plan-Umriss gezeichnet, wie in den IBCS-Blättern 01A bis 01C.
 
 ### Jahressäule mit eigener Skala

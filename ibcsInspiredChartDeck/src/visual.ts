@@ -14038,7 +14038,8 @@ export class Visual implements IVisual {
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
         // the title names the scenarios that occur (AC only = unchanged text)
         const stackTitle = !anyScen ? this.locStr("Title_StackedPanel", "AC · stacked")
-            : [cfg.scenL.ac, scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "", scenSet.has("pl") ? cfg.scenL.pl : ""]
+            : [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "",
+                scenSet.has("pl") ? cfg.scenL.pl : ""]
                 .filter(x => x).join(" · ") + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
         this.drawPanelTitle(bg, rect, stackTitle, orientation, titleH, region,
             orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
@@ -14094,6 +14095,7 @@ export class Visual implements IVisual {
         const groupEvery = Math.round(this.formattingSettings.chartCard.groupEvery.value ?? 0);
         if (groupEvery > 0 && groupEvery < n) {
             for (let i = groupEvery; i < n; i += groupEvery) {
+                if (orientation === "columns" && scen[i] !== scen[i - 1]) { continue; }
                 const p1 = bandStart + i * step;
                 this.el("line", orientation === "columns"
                     ? { x1: p1, y1: rect.y + 2, x2: p1, y2: rect.y + rect.h }
@@ -14162,8 +14164,9 @@ export class Visual implements IVisual {
                 const kind: "ac" | "fc" | "pl" = scen[i] === "pl" ? "pl" : p.isFc ? "fc" : "ac";
                 const g = this.el("g", kind === "ac" ? { "class": "icd-cat" }
                     : { "class": "icd-cat", "data-icd": `stack-seg-${kind}` }, gCat) as SVGGElement;
+                const fcP = kind === "ac" && p.fcPart != null && p.fcPart > 0 && v > 0 && v - p.fcPart >= 0 ? p.fcPart : 0;
+                const splitFc = fcP > 0;
                 if (kind === "ac") {
-                    const fcP = p.fcPart != null && p.fcPart > 0 && v > 0 && v - p.fcPart >= 0 ? p.fcPart : 0;
                     if (fcP > 0) {
                         // acFcSplit: solid AC socket + hatched FC part inside the segment
                         this.drawBar(g, pos(i), slotW, capV(from), capV(to - fcP), scale, orientation,
@@ -14191,8 +14194,8 @@ export class Visual implements IVisual {
                         x: orientation === "columns" ? pos(i) + slotW / 2 : mid,
                         y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + slotW / 2 + lf * 0.35,
                         "text-anchor": "middle", "font-size": Math.round(lf * 0.92),
-                        fill: cfg.hc ? cfg.ink : (kind !== "ac" || light ? cfg.ink : cfg.paper), "font-family": FONT,
-                        ...(kind !== "ac" && !cfg.hc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
+                        fill: cfg.hc ? cfg.ink : (kind !== "ac" || light || splitFc ? cfg.ink : cfg.paper), "font-family": FONT,
+                        ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
                     }, g);
                     st.textContent = cfg.fmt.format(v);
                     segLabelled++;
@@ -14200,11 +14203,22 @@ export class Visual implements IVisual {
                 // comment badge at the outer slot edge, middle of the segment (01A)
                 if (p.commentNo != null) {
                     const mid = (a + b) / 2;
+                    const r = Math.round(7 * this.fontK);
                     const cg = this.el("g", { "data-icd": "stack-comment" }, g);
+                    // columns: in the gap beside the column (left of the last one when the
+                    // series names stand on its right), never over the segment label;
+                    // bars: on the lower edge, the names sit above the bars
+                    const roomSide = step - slotW >= 2 * r + 2;
+                    const leftSide = names != null && i === n - 1;
+                    const cxCol = leftSide ? pos(i) - (roomSide ? r + 1 : -r)
+                        : pos(i) + slotW + (roomSide ? r + 1 : -r);
                     this.drawCommentMarker(cg, 0, p, scale, orientation, cfg,
-                        orientation === "columns" ? { cx: pos(i) + slotW, cy: mid } : { cx: mid, cy: pos(i) });
+                        orientation === "columns" ? { cx: cxCol, cy: mid } : { cx: mid, cy: pos(i) + slotW });
                 }
                 this.attachInteraction(g, p, cfg);
+                if (kind !== "ac") {
+                    g.setAttribute("aria-label", `${p.cat}, ${s}, ${kind === "pl" ? cfg.scenL.pl : cfg.scenL.fc} ${cfg.fmt.format(v)}`);
+                }
                 this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             });
             // stack beyond a hard scale cap: IBCS break marker at the cut end
@@ -14232,7 +14246,7 @@ export class Visual implements IVisual {
     /** 1.54 (B06): hatch pattern for a forecast stack segment — dark hatch lines over
      *  the series tint (IBCS 01C), created once per series and visual instance */
     private stackHatch(cfg: ChartConfig, si: number, tint: string): string {
-        const id = `${cfg.patId}-s${si}`;
+        const id = `${cfg.patId}-s${si}-${tint.replace(/\D+/g, "")}`;
         if (this.svg.querySelector(`#${id}`)) { return id; }
         const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
         const pat = this.el("pattern", {

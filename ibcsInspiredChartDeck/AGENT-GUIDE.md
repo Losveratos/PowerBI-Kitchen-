@@ -84,13 +84,16 @@ Tests c268 bis c274d.
 bestimmt je Kategorie ein Szenario: `ac` (eine Zelle hat ein Ist), sonst `fc` (Forecast-Measure oder `fcFlag`), sonst
 `pl` (nur Plan gebunden); Stapelwert `value ?? (pl in Plan-Kategorien)`, daraus Summen, `stackDomain` und die
 Direktlegende. FC-Segmente: Schraffur je Serie (`<patId>-s<n>`, Tönung der Serie, dunkle Linien), `data-icd="stack-seg-fc"`;
-PL-Segmente: Serienfarbe mit 28 % Deckkraft + PL-Umriss, `stack-seg-pl`; AC-Zellen unverändert (SVG-gleich, alle 345
-Bestands-Stages per Hash geprüft). `acFcSplit` teilt eine AC-Zelle in Sockel + schraffierten Teil. Trennlinien
+PL-Segmente: Serienfarbe mit 28 % Deckkraft + PL-Umriss, `stack-seg-pl`; Stapel ohne FC, ohne Plan für Monate ohne Ist, ohne `scale.refLine`, ohne `chart.groupEvery`
+und ohne Kommentar-Measure bleiben SVG-gleich (alle 345 Bestands-Stages per Hash geprüft). Verhaltensänderung für Bestandsberichte:
+gebundener Plan für Monate ohne Ist erscheint jetzt als Plan-Umriss (Skala wächst ggf., Direktlegende an der letzten Plan-Säule);
+bisher wirkungslose `refLine`/`groupEvery` und gebundene Kommentar-Measures werden jetzt gezeichnet. Gruppen-Trennlinien entfallen
+an Szenario-Grenzen; Titel ohne „AC“ bei reinem Plan/Forecast. `acFcSplit` teilt eine AC-Zelle in Sockel + schraffierten Teil. Trennlinien
 `fc-boundary`/`pl-boundary` nur Säulen, nur bei Blockfolge AC* FC* PL*. Neu im Stapel: `scale.refLine`
 (`stack-refline`, Domain eingeschlossen), `chart.groupEvery` (`group-sep`), Kommentar-Marker (`stack-comment`, am Segment
 außen), `chart.scenarioLabels` (Kürzel je Block unter der Achse), Titel nennt die vorkommenden Szenarien. Kein PL-Umriss
 hinter Ist-Monaten. Bekannt: ein Kommentar je Kategorie erscheint bei Kommentar-Measures auf Kategorie-Ebene je Serie.
-Tests c275 bis c280.
+Tests c275 bis c280, c278b bis c278d.
 
 *B14 · Kleinteile.* Neue Property `chart.highlightStyle` (`band` Standard · `ellipse`): bei `ellipse` kein Band, sondern
 nach dem Zeichnen je hervorgehobener Kategorie eine Ellipse um jede Zahl ihrer Gruppe (`data-icd="emph-ellipse"`,

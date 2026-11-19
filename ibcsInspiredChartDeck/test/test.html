@@ -2451,15 +2451,19 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
     const fcSeg = q("c275", '[data-icd="stack-seg-fc"]'), plSeg = q("c275", '[data-icd="stack-seg-pl"]');
     const hatchIds = new Set(fcSeg.map(g => (g.querySelector("rect").getAttribute("fill") || "").replace(/^url\(#|\)$/g, "")));
     const plR = plSeg.map(g => g.querySelector("rect"));
-    check(fcSeg.length === 15 && plSeg.length === 15 && hatchIds.size === 5 && [...hatchIds].every(h => /-s\d$/.test(h) && document.getElementById(h)),
+    check(fcSeg.length === 15 && plSeg.length === 15 && hatchIds.size === 5 && [...hatchIds].every(h => /-s\d-\d+$/.test(h) && document.getElementById(h)),
       `c275: 15 FC-Segmente in 5 Serien-Schraffuren, 15 PL-Segmente (${fcSeg.length}/${hatchIds.size}/${plSeg.length})`);
     check(plR.every(r => r.getAttribute("stroke") && r.getAttribute("fill-opacity") === "0.28"), "c275: PL-Segmente als getönter Umriss");
-    const fcB = q("c275", '[data-icd="fc-boundary"]'), plB = q("c275", '[data-icd="pl-boundary"]');
-    check(fcB.length >= 1 && plB.length >= 1, `c275: Trennlinien AC|FC und FC|PL (${fcB.length}, ${plB.length})`);
+    // Trennlinien werden um Texte herum geschnitten: eindeutige x-Positionen zählen
+    const xs = sel => [...new Set(q("c275", sel).map(l => l.getAttribute("x1")))];
+    const fcX = xs('[data-icd="fc-boundary"]'), plX = xs('[data-icd="pl-boundary"]');
+    const firstFc = q("c275", '[data-icd="stack-seg-fc"] rect')[0], firstPl = q("c275", '[data-icd="stack-seg-pl"] rect')[0];
+    check(fcX.length === 1 && plX.length === 1 && +fcX[0] < +firstFc.getAttribute("x") && +plX[0] < +firstPl.getAttribute("x")
+      && +fcX[0] > +firstFc.getAttribute("x") - 40, `c275: je eine Trennlinie AC|FC und FC|PL vor dem ersten FC- bzw. PL-Monat (${fcX}, ${plX})`);
     const texts = q("c275", "text").map(t => t.textContent);
     // Blatt 116,8 · 123,4 · 144,7 · 105,0 · 112,6 · 100,0; ChartKitchen zeigt höchstens 3 Ziffern (1.52.1)
-    check(["117", "123", "145", "105", "113", "100"].every(t => texts.includes(t)),
-      "c275: Summen der FC- und PL-Stapel (117 · 123 · 145 · 105 · 113 · 100)");
+    check(["117", "145", "105", "100"].every(t => texts.includes(t)),
+      "c275: Summen der FC- und PL-Stapel (117 · 145 · 105 · 100; 123/113 kommen auch im Ist vor)");
     const sc = q("c275", '[data-icd="scen-label"]').map(t => t.textContent);
     check(JSON.stringify(sc) === '["AC","FC","PL"]' && /AC · FC · PL/.test(document.getElementById("c275").textContent),
       `c275: Szenario-Kürzel AC · FC · PL unter der Achse und im Titel (${sc.join(",")})`);
@@ -2476,10 +2480,48 @@ addStage("c265", "C14 im Export (allowInteractions=false, templateApplied fehlt)
   // refLine, groupEvery, Kommentare
   addStage("c278", "Stapel · Referenzlinie 100 · Trennlinie alle 3 · Kommentare ① ②", 1280, 640);
   runCap("c278", stackDv({ chart: { orientation: "columns", groupEvery: 3 }, scale: { refLine: "100", refLineLabel: "Ziel" } }, { comments: true }), 1280, 640);
-  check(q("c278", '[data-icd="group-sep"]').length === 4 && q("c278", '[data-icd="stack-refline"] line').length >= 1
+  // Trennlinie alle 3: nach Mar und Jun; nach Sep und Dec stehen schon die Szenario-Trennlinien
+  check(q("c278", '[data-icd="group-sep"]').length === 2 && q("c278", '[data-icd="stack-refline"] line').length >= 1
     && q("c278", '[data-icd="stack-comment"] circle').length === 2,
-    `c278: 4 Gruppen-Trennlinien, Referenzlinie, 2 Kommentar-Marker (${q("c278", '[data-icd="group-sep"]').length}, ${q("c278", '[data-icd="stack-comment"] circle').length})`);
+    `c278: 2 Gruppen-Trennlinien, Referenzlinie, 2 Kommentar-Marker (${q("c278", '[data-icd="group-sep"]').length}, ${q("c278", '[data-icd="stack-comment"] circle').length})`);
   // Hochkontrast + Small Multiples: keine doppelten Pattern-Ids
+  // Review B06: Plan in allen Monaten → kein PL-Umriss neben Ist-Monaten; nur Plan → Titel ohne AC;
+  // nicht monotone Folge → keine Trennlinie; Kommentar-Marker neben (nicht über) dem Segment-Label
+  addStage("c278b", "Stapel · Ist Jan bis Sep, Plan alle Monate (kein FC)", 1280, 600);
+  {
+    const dv = stackDv({ chart: { orientation: "columns" } });
+    dv.categorical.values = [col("actual", rows.ac, "#,0.0"), col("plan", rows.ac.map((v, k) => v != null ? v * 0.95 : (rows.fc[k] ?? rows.pl[k])), "#,0.0")];
+    runCap("c278b", dv, 1280, 600);
+    check(q("c278b", '[data-icd="stack-seg-pl"]').length === 30 && !q("c278b", '[data-icd="stack-seg-fc"]').length
+      && q("c278b", '[data-icd="pl-boundary"]').length >= 1, "c278b: 9 Ist-Monate ohne PL-Umriss, 6 Plan-Monate als Umriss, eine Trennlinie");
+  }
+  addStage("c278c", "Stapel · nur Plan (Titel ohne AC)", 960, 480);
+  {
+    const dv = stackDv({ chart: { orientation: "columns" } });
+    dv.categorical.values = [col("actual", rows.ac.map(() => null), "#,0.0"), col("plan", rows.ac.map((v, k) => v ?? rows.fc[k] ?? rows.pl[k]), "#,0.0")];
+    runCap("c278c", dv, 960, 480);
+    const title = q("c278c", "text").map(t => t.textContent).find(t => /stacked|gestapelt/.test(t)) || "";
+    check(/^PL · /.test(title) && !q("c278c", '[data-icd="pl-boundary"]').length, `c278c: Titel „${title}“ ohne AC, keine Trennlinie`);
+  }
+  addStage("c278d", "Stapel · Ist, Plan, Ist (nicht monoton) → keine Trennlinie", 960, 480);
+  {
+    const cats3 = [], ser3 = [], a3 = [], p3 = [];
+    ["A", "B", "C"].forEach((c, i) => ["x", "y"].forEach(sr => { cats3.push(c); ser3.push(sr); a3.push(i === 1 ? null : 10); p3.push(12); }));
+    runCap("c278d", { metadata: { columns: [], objects: { chart: { orientation: "columns" } } }, categorical: {
+      categories: [{ source: { displayName: "K", roles: { category: true } }, values: cats3 }, { source: { displayName: "S", roles: { series: true } }, values: ser3 }],
+      values: [col("actual", a3), col("plan", p3)] } }, 960, 480);
+    check(q("c278d", '[data-icd="stack-seg-pl"]').length === 2 && !q("c278d", '[data-icd$="-boundary"]').length,
+      "c278d: Plan-Monat in der Mitte als Umriss, keine Trennlinie bei nicht monotoner Folge");
+  }
+  {
+    // Kommentar-Marker überdeckt kein Segment-Label (c278)
+    const over = q("c278", '[data-icd="stack-comment"] circle').some(c => {
+      const cb = c.getBoundingClientRect();
+      return q("c278", "g.icd-cat > text").some(t => { const tb = t.getBoundingClientRect();
+        return tb.left < cb.right - 1 && tb.right > cb.left + 1 && tb.top < cb.bottom - 1 && tb.bottom > cb.top + 1; });
+    });
+    check(!over, "c278: Kommentar-Marker überdecken keine Segment-Beschriftung");
+  }
   addStage("c279", "Stapel · Hochkontrast · FC und PL", 1280, 640);
   runCap("c279", stackDv({ chart: { orientation: "columns" } }), 1280, 640, { palette: hcPal });
   check(q("c279", '[data-icd="stack-seg-pl"] rect').every(r => r.getAttribute("fill-opacity") == null && r.getAttribute("stroke")),

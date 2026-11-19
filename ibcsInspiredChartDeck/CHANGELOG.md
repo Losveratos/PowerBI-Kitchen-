@@ -2,8 +2,8 @@
 
 ## 1.54.0.0 (in Arbeit, Backlog IBCS-Templates vom 19.11.2026)
 
-**Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Bestehende Berichte zeichnen unverändert, alle neuen
-Schalter stehen standardmäßig aus.**
+**Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Neue Schalter stehen standardmäßig aus;
+Verhaltensänderungen sind je Punkt genannt.**
 
 - **B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.** Vorher: 04A bis 04C, 06E und 10F
   ließen sich nur mit dem richtigen Satz an Einzel-Properties bauen; die Galerie zeigte sie nicht. Nachher: je
@@ -38,8 +38,16 @@ Schalter stehen standardmäßig aus.**
   ein Forecast sah aus wie ein Ist, Plan-Monate blieben leer, Referenzlinie, Trennlinie alle N Kategorien und
   Kommentar-Marker fehlten im Stapel. Nachher: Forecast-Segmente schraffiert in der Tönung ihrer Serie, Plan-Monate als
   getönter Umriss mit eigener Stapelsumme, gestrichelte Trennlinien zwischen AC, FC und PL, Szenario-Kürzel optional,
-  Referenzlinie, Gruppen-Trennlinien und Kommentar-Marker auch im Stapel. Stapel ohne Forecast und Plan zeichnen
-  unverändert (SVG-Vergleich aller 345 Bestands-Stages). Tests c275 bis c280.
+  Referenzlinie, Gruppen-Trennlinien und Kommentar-Marker auch im Stapel. Stapel ohne Forecast, ohne Plan für Monate
+  ohne Ist, ohne Referenzlinie, ohne „Trennlinie alle N“ und ohne Kommentar-Measure zeichnen unverändert (SVG-Vergleich aller
+  345 Bestands-Stages). Verhaltensänderung: (1) Ein Plan, der für zukünftige Monate ohne Ist gebunden ist, erscheint jetzt als
+  Plan-Umriss im Stapel (die Skala kann auf die Plan-Summen wachsen, die Direktbeschriftung rückt an die letzte Plan-Säule);
+  (2) eine gesetzte Referenzlinie oder „Trennlinie alle N“, die im Stapel bisher wirkungslos war, wird jetzt gezeichnet (die Skala
+  schließt die Referenzlinie ein); (3) ein gebundenes Kommentar-Measure zeigt nummerierte Marker an den Segmenten (auf
+  Kategorie-Ebene wiederholt sich ein Kommentar je Serie). Gruppen-Trennlinien entfallen dort, wo schon eine
+  Szenario-Trennlinie steht; der Titel nennt nur vorkommende Szenarien. Fable-Review: Kommentar-Marker neben statt über
+  Beschriftungen, Titel ohne AC bei reinem Plan/Forecast, Schraffur-Ids je Tönung, aria-Text für FC/PL, Hochkontrast-Halo.
+  Tests c275 bis c280, c278b bis c278d.
 - **B04 · Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile (Blätter 06F, 06G, 06H, 04A bis 04C).**
   Vorher: „Nach Wirkung sortieren“ war ein Schalter, nur nach |Δ| und nur in Brücken; eine Datenkategorie „Others“
   oder „Rest of USA“ wurde mitsortiert. Nachher: „Sortierung“ (neue Property `chart.sortMode`) wählt Aus, |Δ|, Δ
