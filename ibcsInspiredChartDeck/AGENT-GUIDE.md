@@ -13,6 +13,10 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.54.0.0** (19.11.2026): Backlog IBCS-Templates B01, B04, B05, B06, B14 (siehe „Neu in 1.54“).
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.55 (in Arbeit):**
+
+*B10 · Stapel-Struktur (Blätter 01D, 01E, 02B bis 02E).* Alle Properties im Objekt `chart`, Formatbereich-Gruppe „Darstellung“. `stackNormalize` (`off` | `pct100`, Standard `off`): gestapelte Säulen und Balken als 100 % je Kategorie, Beschriftungen sind Anteile mit einer Nachkommastelle, Panel-Titel „Anteile in %“, „100 %“-Marke (Säulen neben dem Stapel, Balken als dünne Linie plus „▲ 100 %“ unter dem letzten Balken); bei einer negativen Zelle bleibt der Stapel bei Werten. Bei 100 %-Balken zeigt `showTotal` (Standard an) ein Summen-Panel rechts mit eigener Skala (Kopf „Σ AC“, „(↓)“ bei Sortierung nach Summe). `stackTotalRow` (bool, Standard aus, nur Balken): Σ-Zeile unten; bei Werten Legendenzeile mit Summe je Serie und Gesamtsumme (kein Summenbalken, die Summe passt nicht auf die Zeilenskala), bei 100 % ein 100 %-Balken mit dem Gesamtmix. `stackTotalLabel` (Text, leer = „Σ“, z. B. „World“). `stackLegendPos` (`end` Standard | `start`): Seriennamen rechts der letzten oder links der ersten Säule (Blatt 01E). `sortMode` kennt neu `series` („Nach erster Serie (Stapel)“); in Stapelbalken sortiert `ac` nach Stapelsumme, `series` nach der ersten Serie (bei 100 % nach deren Anteil, Blatt 02E); „(↓)“ markiert die sortierte Serie in der Legende; Rest-Kategorien (Rest, Others, Sonstige, „Rest of …“, Top-N-Rest) bleiben am Ende und kursiv. Fix mit Verhaltensänderung: `chart.topN` bei Stapelbalken reiht jetzt ganze Kategorien nach Stapelsumme, behält alle Serien-Zellen der Top N und fasst den Rest je Serie zu „Rest (n)“ zusammen (vorher einzelne Zellen und eine Serie „(leer)“). Testmarker (`data-icd`): `stack-100` (100 %-Marke), `stack-total-row` (Σ-Zeile), `stack-total-seg` (Segment der Σ-Zeile, mit `data-series`), `stack-total-grand` (Gesamtsumme), `stack-total-panel` (Summen-Panel, mit `data-px-per-unit`), `sort-mark` (Sortiermarke „(↓)“), `stack-rest` (Rest-Kategorie); die Wurzelgruppe trägt `data-norm="pct100"`, wenn 100 % aktiv ist. Mit den neuen Optionen aus zeichnen Stapel unverändert (SVG-Hash der 364 Harness-Stufen). Nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein Segment. Tests c283 bis c289.
+
 **Neu in 1.54 (Backlog IBCS-Templates, Abgleich 19.11.2026):**
 
 *B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.* C07 und C11 bleiben
@@ -465,6 +469,10 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `deltaIcons` | bool | `false` | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle) … |
 | `driverNote` | bool | `true` | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. |
 | `stackLegendDirect` | bool | `true` | Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel … |
+| `stackLegendPos` | enum | `end` | `end` · `start` — Gestapelte Säulen mit Seriennamen am Stapel: rechts neben der letzten Säule (Standard) oder links neben der ersten. |
+| `stackNormalize` | enum | `off` | `off` · `pct100` — Gestapelte Säulen und Balken: Werte oder 100 % je Kategorie (Anteile der Serien, Marke „100 %“). Bei 100 % zeigt ein Balkendiagramm rechts die absoluten Summen auf eigener Skala, solange „Summen-Kopfzeile (Σ)“ an ist … |
+| `stackTotalRow` | bool | `false` | Gestapelte Balken: eine Σ-Zeile unten mit der Summe je Serie und der Gesamtsumme; bei 100 % als Balken mit dem Gesamtmix. Standard aus. |
+| `stackTotalLabel` | text | leer | Beschriftung der Σ-Zeile, z. B. „Welt“. Leer = „Σ“. |
 | `scenarioLabels` | bool | `false` | Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus. |
 | `exportExpandAll` | bool | `true` | PDF-/PowerPoint-Export und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm … |
 
@@ -482,7 +490,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
 | `waterfallStyle` | bool | `false` | Nur Säulen/Balken: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken … |
-| `sortMode` | enum | `off` | `off` · `abs` · `signed` · `pct` · `ac` — Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC, jeweils … |
+| `sortMode` | enum | `off` | `off` · `abs` · `signed` · `pct` · `ac` · `series` — Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC … |
 | `sortByImpact` | bool | `false` | Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar. |
 | `bridgeOrientation` | enum | `auto` | `auto` · `bars` · `columns` — Nur Kategorie-Brücke: „Balken (horizontal)" zeigt die Kaskade zeilenweise wie bisher (Kategorien untereinander, Δ%-Pins rechts) … |
 | `bridgeBreak` | bool | `false` | Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden … |
@@ -571,8 +579,11 @@ Enum-Labels:
   `rest` = FC = Restmonat (additiv)
 - `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
+- `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule
+- `stackNormalize`: `off` = Werte; `pct100` = 100 % (Anteile)
 - `sortMode`: `off` = Aus (Datenreihenfolge); `abs` = Nach Wirkung |Δ|;
-  `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC
+  `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC;
+  `series` = Nach erster Serie (Stapel)
 - `bridgeOrientation`: `auto` = Automatisch; `bars` = Balken (horizontal); `columns` = Säulen (vertikal)
 - `valueColumns`: `ac` = Nur AC; `basis` = AC + Varianzbasis; `all` = AC · PY · PL
 - `matrixCompare`: `none` = Aus (Δ zur Basis); `prevcol` = Δ zur Vorspalte

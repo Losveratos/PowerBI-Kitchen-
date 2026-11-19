@@ -84,7 +84,18 @@ const sortImpactItems: LocEnumMember[] = [
     { value: "abs", displayName: "By impact |Δ|", key: "Enum_SortImpact_Abs" },
     { value: "signed", displayName: "By Δ (largest plus first)", key: "Enum_SortImpact_Signed" },
     { value: "pct", displayName: "By Δ %", key: "Enum_SortImpact_Pct" },
-    { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" }
+    { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" },
+    { value: "series", displayName: "By first series (stacks)", key: "Enum_SortImpact_Series" }
+];
+
+// 1.55 (backlog B10): stack structure
+const stackNormalizeItems: LocEnumMember[] = [
+    { value: "off", displayName: "Values", key: "Enum_StackNorm_Off" },
+    { value: "pct100", displayName: "100 % (shares)", key: "Enum_StackNorm_Pct" }
+];
+const stackLegendPosItems: LocEnumMember[] = [
+    { value: "end", displayName: "Right of the last column", key: "Enum_StackLegPos_End" },
+    { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
 ];
 
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
@@ -245,7 +256,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
-        bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems];
+        bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
+        stackNormalizeItems, stackLegendPosItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -1254,6 +1266,46 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
 
     // 1.54 (B05): scenario labels at the columns (AC under the first actual month,
     // FC under the first forecast month, AC/FC at the year column segments)
+    // 1.55 (B10, IBCS sheets 01D, 01E, 02B to 02E): stack structure
+    stackNormalize = new formattingSettings.ItemDropdown({
+        name: "stackNormalize",
+        displayName: "Stack scale",
+        displayNameKey: "Chart_StackNormalize",
+        description: "Gestapelte Säulen und Balken: Werte oder 100 % je Kategorie (Anteile der Serien, Marke „100 %“). Bei 100 % zeigt ein Balkendiagramm rechts die absoluten Summen auf eigener Skala, solange „Summen-Kopfzeile (Σ)“ an ist. Enthält eine Zelle einen negativen Wert, bleibt es bei Werten.",
+        descriptionKey: "Desc_Chart_StackNormalize",
+        items: stackNormalizeItems,
+        value: stackNormalizeItems[0]
+    });
+
+    stackTotalRow = new formattingSettings.ToggleSwitch({
+        name: "stackTotalRow",
+        displayName: "Stack total row (Σ)",
+        displayNameKey: "Chart_StackTotalRow",
+        description: "Gestapelte Balken: eine Σ-Zeile unten mit der Summe je Serie und der Gesamtsumme; bei 100 % als Balken mit dem Gesamtmix. Standard aus.",
+        descriptionKey: "Desc_Chart_StackTotalRow",
+        value: false
+    });
+
+    stackTotalLabel = new formattingSettings.TextInput({
+        name: "stackTotalLabel",
+        displayName: "Total row label",
+        displayNameKey: "Chart_StackTotalLabel",
+        description: "Beschriftung der Σ-Zeile, z. B. „Welt“. Leer = „Σ“.",
+        descriptionKey: "Desc_Chart_StackTotalLabel",
+        placeholder: "Σ",
+        value: ""
+    });
+
+    stackLegendPos = new formattingSettings.ItemDropdown({
+        name: "stackLegendPos",
+        displayName: "Series names (columns)",
+        displayNameKey: "Chart_StackLegendPos",
+        description: "Gestapelte Säulen mit Seriennamen am Stapel: rechts neben der letzten Säule (Standard) oder links neben der ersten.",
+        descriptionKey: "Desc_Chart_StackLegendPos",
+        items: stackLegendPosItems,
+        value: stackLegendPosItems[0]
+    });
+
     scenarioLabels = new formattingSettings.ToggleSwitch({
         name: "scenarioLabels",
         displayName: "Scenario labels at the columns",
@@ -1267,7 +1319,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.scenarioLabels,
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.stackLegendPos,
+            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.scenarioLabels,
             this.exportExpandAll]
     });
 

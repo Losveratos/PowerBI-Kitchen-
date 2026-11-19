@@ -269,7 +269,7 @@ interface HubColors {
 type Orientation = "columns" | "bars";
 
 /** 1.54 (B04): sort keys of bridges, bars and the table header sort */
-type SortMode = "off" | "abs" | "signed" | "pct" | "ac";
+type SortMode = "off" | "abs" | "signed" | "pct" | "ac" | "series";
 /** 1.54 (B04): rest rows stay at the end of every sort, italic. Same rule as the
  *  P&L Statement byDatenWG ("Rest of USA", "Others", "Sonstige", "Übrige" …) */
 // 1.54 review: the name must BE a rest label ("Sonstige", "Others (4)", "Rest of USA",
@@ -608,6 +608,14 @@ interface ChartConfig {
     yearDeltaOwn: boolean;
     /** 1.54 (B05): scenario abbreviations at the columns (AC · FC under the axis) */
     scenarioLabels: boolean;
+    /** 1.55 (B10): stack structure — 100 % stacks, Σ row (bars), names left, sort,
+     *  absolute-total side panel (bars + 100 %), shared max of the stack totals */
+    stackNorm: boolean;
+    stackTotalRow: boolean;
+    stackTotalLabel: string;
+    stackLegendStart: boolean;
+    stackSort: "off" | "ac" | "series";
+    stackTotalMax: number;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
      *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
@@ -1884,6 +1892,11 @@ export class Visual implements IVisual {
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
         fs.chartCard.sortMode.visible = orient === "catbridge" || orient === "bars"
             || (orient === "columns" && fs.chartCard.waterfallStyle.value);
+        // 1.55 (B10): stack structure only for columns/bars
+        fs.chartCard.stackNormalize.visible = orient === "columns" || orient === "bars";
+        fs.chartCard.stackTotalRow.visible = orient === "bars";
+        fs.chartCard.stackTotalLabel.visible = orient === "bars" && fs.chartCard.stackTotalRow.value === true;
+        fs.chartCard.stackLegendPos.visible = orient === "columns";
         fs.chartCard.sortByImpact.visible = false;
         fs.chartCard.stackLegendDirect.visible = orient === "columns" || orient === "bars";
         // 1.54 (B05): year column and scenario labels exist only in the column chart
@@ -5727,7 +5740,7 @@ export class Visual implements IVisual {
         // bridge, then switched to bars) must not reorder existing bar charts
         const sortByImpactOn = (wfStyleGlobal || isCatBridge
             || (orientationRaw === "bars" && !isStacked && this.sortModeStored))
-            && sortModeSet !== "off";
+            && sortModeSet !== "off" && sortModeSet !== "series";
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
         // for structured P&L rows (sum/delta/pct): those are accounts, not periods
@@ -5848,7 +5861,10 @@ export class Visual implements IVisual {
         // scatter: no "Rest" point — it would sum X across the tail (pane slice hidden)
         if (orientation === "bars" && topN > 0 && !cumulativeOn && !topNBlocked && !isScatter) {
             for (const g of groups) {
-                if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
+                if (g.pts.length > topN + 1) {
+                    // 1.55 (B10): stacks rank whole categories (all series cells stay)
+                    g.pts = isStacked ? this.applyTopNStacked(g.pts, topN) : this.applyTopN(g.pts, topN);
+                }
             }
         }
         // cumulative (YTD) view: running totals per group, variances recomputed
@@ -5869,6 +5885,16 @@ export class Visual implements IVisual {
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
         if (sortByImpactOn) {
             for (const g of groups) { g.pts = this.sortByImpact(g.pts, sortModeSet); }
+        }
+        // 1.55 (B10): stacked bars sort by stack total ("ac") or by the first series
+        // (value, in 100 % stacks its share); rest categories stay last
+        const stackSortMode: "off" | "ac" | "series" = isStacked && orientationRaw === "bars" && this.sortModeStored
+            && (sortModeSet === "ac" || sortModeSet === "series") ? sortModeSet : "off";
+        const stackNormWanted = isStacked
+            && String((s.chartCard.stackNormalize.value as powerbi.IEnumMember)?.value) === "pct100";
+        const stackNormOk = stackNormWanted && points.every(p => (p.value ?? 0) >= 0 && (p.pl ?? 0) >= 0);
+        if (stackSortMode !== "off") {
+            for (const g of groups) { g.pts = this.sortStackCats(g.pts, stackSortMode, stackNormOk); }
         }
         points = groups.reduce<DataPoint[]>((acc, g) => acc.concat(g.pts), []);
 
@@ -6066,6 +6092,12 @@ export class Visual implements IVisual {
             yearDelta: null,
             yearDeltaOwn: false,
             scenarioLabels: s.chartCard.scenarioLabels.value === true,
+            stackNorm: false,
+            stackTotalRow: s.chartCard.stackTotalRow.value === true,
+            stackTotalLabel: (s.chartCard.stackTotalLabel.value || "").trim(),
+            stackLegendStart: String((s.chartCard.stackLegendPos.value as powerbi.IEnumMember)?.value) === "start",
+            stackSort: "off",
+            stackTotalMax: 0,
             isMaterial: this.materialityFn(),
             scatter: isScatter ? this.scatterConfig(points) : null
         };
@@ -6265,7 +6297,15 @@ export class Visual implements IVisual {
         // small multiples were scaled per tile (Nord 3 900 ≙ Süd 390, S5). Negative
         // segments stack below the zero line, so the domain spans both stack sides.
         cfg.stackDomain = null;
+        cfg.stackNorm = stackNormOk;
+        cfg.stackSort = stackSortMode;
         if (isStacked) {
+            cfg.stackTotalMax = Math.max(0, ...groups.slice(0, MULT_MAX_CELLS).flatMap(g => this.stackLayout(g.pts).pos));
+        }
+        if (isStacked && stackNormOk) {
+            // 100 % stacks: one fixed domain; fixedMax/cap do not apply to shares
+            cfg.stackDomain = [0, 100];
+        } else if (isStacked) {
             let lo = 0, hi = 0;
             for (const g of groups.slice(0, MULT_MAX_CELLS)) {
                 const st = this.stackLayout(g.pts);
@@ -13861,9 +13901,10 @@ export class Visual implements IVisual {
      * per category the positive and negative stack totals. Shared by the renderer
      * and render()'s deck-wide stack domain, so both measure the same stacks.
      */
-    private stackLayout(points: DataPoint[]): {
+    private stackLayout(points: DataPoint[], norm = false): {
         cats: string[]; series: string[]; cell: Map<string, DataPoint>; pos: number[]; neg: number[];
         scen: ("ac" | "fc" | "pl")[]; sv: (ci: number, s: string) => number;
+        rawSv: (ci: number, s: string) => number; rawPos: number[];
     } {
         const cats: string[] = [];
         const series: string[] = [];
@@ -13885,18 +13926,25 @@ export class Visual implements IVisual {
             if (cs.some(x => x.pl != null)) { return "pl" as const; }
             return "ac" as const;
         });
-        const sv = (ci: number, s: string): number => {
+        const rawSv = (ci: number, s: string): number => {
             const x = cell.get(`${cats[ci]}¦${s}`);
             if (!x) { return 0; }
             return x.value ?? (scen[ci] === "pl" ? x.pl ?? 0 : 0);
         };
-        const pos = cats.map((_, ci) => series.reduce((a, s) => a + Math.max(sv(ci, s), 0), 0));
-        const neg = cats.map((_, ci) => series.reduce((a, s) => a + Math.min(sv(ci, s), 0), 0));
-        return { cats, series, cell, pos, neg, scen, sv };
+        const rawPos = cats.map((_, ci) => series.reduce((a, s) => a + Math.max(rawSv(ci, s), 0), 0));
+        // 1.55 (B10): 100 % stacks — the share of the category's positive total
+        const sv = !norm ? rawSv
+            : (ci: number, s: string): number => rawPos[ci] > 0 ? Math.max(rawSv(ci, s), 0) * 100 / rawPos[ci] : 0;
+        const pos = norm ? rawPos.map(t => t > 0 ? 100 : 0)
+            : cats.map((_, ci) => series.reduce((a, s) => a + Math.max(sv(ci, s), 0), 0));
+        const neg = norm ? cats.map(() => 0)
+            : cats.map((_, ci) => series.reduce((a, s) => a + Math.min(sv(ci, s), 0), 0));
+        return { cats, series, cell, pos, neg, scen, sv, rawSv, rawPos };
     }
 
     private renderStacked(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
-        const { cats, series, cell, pos: posTot, neg: negTot, scen, sv } = this.stackLayout(points);
+        const norm = cfg.stackNorm;
+        const { cats, series, cell, pos: posTot, neg: negTot, scen, sv, rawSv, rawPos } = this.stackLayout(points, norm);
         const n = cats.length;
         if (n === 0) { return; }
         this.fcCuts = [];
@@ -13932,7 +13980,16 @@ export class Visual implements IVisual {
         const cap = cfg.capMax;
         const capV = (v: number) => cap != null ? Math.min(v, cap) : v;
 
-        const labelPad = cfg.showLabels ? lf + 6 : 6;
+        // 100 % stacks carry no stack-total label (it would read 100 everywhere)
+        const labelPad = cfg.showLabels && !norm ? lf + 6 : 6;
+        // 1.55 (B10): Σ row under the bars, absolute-total side panel (bars + 100 %),
+        // series names left of the first column, room for the "100 %" marker
+        const totalRow = orientation === "bars" && cfg.stackTotalRow;
+        const legendStart = orientation === "columns" && cfg.stackLegendStart;
+        const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 360
+            ? Math.max(70, region.w * 0.18) : 0;
+        const marker100H = norm && orientation === "bars" ? lf + 8 : 0;
+        const slotsN = n + (totalRow ? 1 : 0);
         // 1.52.1 chart.stackLegendDirect: series names right at the stack (columns:
         // beside the last column, bars: above the first bar's segments) instead of a
         // key; single chart, positive stacks, every series present there, names fit
@@ -13942,18 +13999,21 @@ export class Visual implements IVisual {
             if (orientation === "columns") {
                 const catArea = cf + 10 + (scenOn ? cf + 2 : 0);
                 const legH = direct ? 0 : legendH;
-                const rightW = direct ? nameW : 0;
-                bandStart = region.x + pad + 2;
+                const rightW = direct && !legendStart ? nameW : 0;
+                const leftW = direct && legendStart ? nameW : 0;
+                bandStart = region.x + pad + 2 + leftW;
                 bandEnd = region.x + region.w - pad - rightW;
-                rect = { x: region.x, y: region.y + pad + legH, w: region.w - rightW, h: region.h - pad - catArea - legH };
+                rect = { x: region.x + leftW, y: region.y + pad + legH, w: region.w - rightW - leftW, h: region.h - pad - catArea - legH };
             } else {
-                const catArea = Math.min(region.w * 0.24, this.maxTextWidth(cats, cf) + 12);
+                const catArea = Math.min(region.w * 0.24,
+                    this.maxTextWidth(totalRow ? [...cats, cfg.stackTotalLabel || "Σ"] : cats, cf) + 12);
                 bandStart = region.y + pad + titleH + legendH + 2;
-                bandEnd = region.y + region.h - pad;
-                rect = { x: region.x + pad + catArea, y: region.y + legendH, w: region.w - pad * 2 - catArea, h: region.h - legendH };
+                bandEnd = region.y + region.h - pad - marker100H;
+                rect = { x: region.x + pad + catArea, y: region.y + legendH,
+                    w: region.w - pad * 2 - catArea - (sideW > 0 ? sideW + 8 : 0), h: region.h - legendH };
             }
             const scale = this.makePanelScale(domain, rect, orientation, labelPad);
-            const step = (bandEnd - bandStart) / n;
+            const step = (bandEnd - bandStart) / slotsN;
             const slotW = Math.max(2, step * SLOT_ABS);
             const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
             return { bandStart, bandEnd, rect, scale, step, slotW, pos };
@@ -13961,7 +14021,7 @@ export class Visual implements IVisual {
         // the name positions along the value axis, or null when they do not fit
         const directNames = (L: ReturnType<typeof layout>): { s: number; at: number; y?: number }[] | null => {
             if (orientation !== "columns") { return directNamesBars(L); }
-            const ci = orientation === "columns" ? n - 1 : 0;
+            const ci = legendStart ? 0 : n - 1;
             let cum = 0;
             const out: { s: number; at: number; w: number }[] = [];
             for (let si = 0; si < series.length; si++) {
@@ -14034,14 +14094,15 @@ export class Visual implements IVisual {
         if (directWanted && !names) { L = layout(false); }
         const { bandStart, bandEnd, rect, scale, step, slotW, pos } = L;
 
-        const bg = this.el("g", {}, this.svg);
+        const bg = this.el("g", norm ? { "data-norm": "pct100" } : {}, this.svg);
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
         // the title names the scenarios that occur (AC only = unchanged text)
         const stackTitle = !anyScen ? this.locStr("Title_StackedPanel", "AC · stacked")
             : [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "",
                 scenSet.has("pl") ? cfg.scenL.pl : ""]
                 .filter(x => x).join(" · ") + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
-        this.drawPanelTitle(bg, rect, stackTitle, orientation, titleH, region,
+        this.drawPanelTitle(bg, rect, stackTitle + (norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
+            orientation, titleH, region,
             orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
 
         const ly = region.y + (orientation === "columns" ? pad + legendH - 4 : legendH - 2);
@@ -14050,12 +14111,15 @@ export class Visual implements IVisual {
             for (const nm of names) {
                 const label = this.truncate(series[nm.s], 140 * k, legFont);
                 const t = this.el("text", orientation === "columns"
-                    ? { x: pos(n - 1) + slotW + 6, y: nm.at + legFont * 0.35, "text-anchor": "start" }
+                    ? legendStart
+                        ? { x: pos(0) - 6, y: nm.at + legFont * 0.35, "text-anchor": "end" }
+                        : { x: pos(n - 1) + slotW + 6, y: nm.at + legFont * 0.35, "text-anchor": "start" }
                     : { x: nm.at, y: nm.y ?? ly, "text-anchor": "middle" }, lg);
                 t.setAttribute("font-size", String(legFont));
                 t.setAttribute("fill", cfg.ink);
                 t.setAttribute("font-family", FONT);
-                t.textContent = label;
+                t.textContent = label + (cfg.stackSort === "series" && nm.s === 0 ? " (↓)" : "");
+                if (cfg.stackSort === "series" && nm.s === 0) { t.setAttribute("data-icd", "sort-mark"); }
             }
         } else {
             // legend (top-left, truncating to the region width)
@@ -14069,8 +14133,10 @@ export class Visual implements IVisual {
                 const st = this.el("text", {
                     x: lx + legFont + 4, y: ly, "font-size": legFont, fill: cfg.ink, "font-family": FONT
                 }, bg);
-                const label = this.truncate(series[si], 120 * k, legFont);
+                const label = this.truncate(series[si], 120 * k, legFont)
+                    + (cfg.stackSort === "series" && si === 0 ? " (↓)" : "");
                 st.textContent = label;
+                if (cfg.stackSort === "series" && si === 0) { st.setAttribute("data-icd", "sort-mark"); }
                 lx += legFont + 8 + label.length * legFont * 0.56;
             }
         }
@@ -14139,6 +14205,32 @@ export class Visual implements IVisual {
             }
         }
 
+        // 1.55 (B10): "100 %" marker (columns: beside the stack on the names' side;
+        // bars: thin line at 100 % and the mark under the last bar)
+        if (norm) {
+            const m100 = this.el("g", { "data-icd": "stack-100" }, bg);
+            const y100 = scale(100);
+            if (orientation === "columns") {
+                const t = this.el("text", legendStart
+                    ? { x: pos(0) - 2, y: y100 + lf * 0.35, "text-anchor": "end" }
+                    : { x: pos(n - 1) + slotW + 2, y: y100 + lf * 0.35, "text-anchor": "start" }, m100);
+                t.setAttribute("font-size", String(lf));
+                t.setAttribute("font-weight", "700");
+                t.setAttribute("fill", cfg.ink);
+                t.setAttribute("font-family", FONT);
+                t.textContent = legendStart ? "100 % ▶" : "◀ 100 %";
+            } else {
+                this.el("line", { x1: y100, y1: bandStart, x2: y100, y2: bandStart + n * step,
+                    stroke: cfg.ink, "stroke-width": 1 }, m100);
+                const t = this.el("text", { x: y100, y: bandEnd + lf + 4, "text-anchor": "middle",
+                    "font-size": lf, "font-weight": 700, fill: cfg.ink, "font-family": FONT }, m100);
+                t.textContent = "▲ 100 %";
+            }
+        }
+        const shareNf = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const segText = (v: number) => norm ? shareNf.format(v) : cfg.fmt.format(v);
+        const sortedOrRest = cfg.stackSort !== "off";
+
         const marks = this.el("g", {}, this.svg);
         const totalTexts = totals.map(t => cfg.fmt.format(t));
         const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
@@ -14197,7 +14289,7 @@ export class Visual implements IVisual {
                         fill: cfg.hc ? cfg.ink : (kind !== "ac" || light || splitFc ? cfg.ink : cfg.paper), "font-family": FONT,
                         ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
                     }, g);
-                    st.textContent = cfg.fmt.format(v);
+                    st.textContent = segText(v);
                     segLabelled++;
                 }
                 // comment badge at the outer slot edge, middle of the segment (01A)
@@ -14228,7 +14320,7 @@ export class Visual implements IVisual {
             // net total label at the outer end of the positive stack (or of the
             // negative one when there is nothing above zero). 1.52.1: a stack of ONE
             // labelled segment shows its value once, not "2,5M | 2,5M"
-            if (cfg.showLabels && showTotalAt(i) && !(segN === 1 && segLabelled === 1)) {
+            if (cfg.showLabels && !norm && showTotalAt(i) && !(segN === 1 && segLabelled === 1)) {
                 const up = posTot[i] > 0 || negTot[i] === 0;
                 this.drawEndLabelAt(gCat, pos(i) + slotW / 2, up ? capV(posTot[i]) : negTot[i], up, scale,
                     orientation, totalTexts[i], lf, cfg.ink, 0, cfg.paper);
@@ -14237,9 +14329,95 @@ export class Visual implements IVisual {
             if (showCatAt(i) || isHl) {
                 this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf,
                     scenOn ? { ...region, h: region.h - (cf + 2) } : region, step, rect, cfg.ink, isHl);
+                // rest categories (top-N rest, "Sonstige") italic while the stack is
+                // sorted or the rest is the top-N aggregate (B04 rule)
+                const restCat = series.some(sn => cell.get(`${c}¦${sn}`)?.isRest);
+                if (restCat || (sortedOrRest && REST_ROW_RX.test(c.trim()))) {
+                    gCat.lastElementChild?.setAttribute("font-style", "italic");
+                    gCat.setAttribute("data-icd", "stack-rest");
+                }
             }
             this.animGroups.push([gCat]);
         });
+        // ------- 1.55 (B10): Σ row (bars) and absolute-total side panel (bars + 100 %)
+        const seriesSums = series.map(sn => cats.reduce((a, _, ci) => a + rawSv(ci, sn), 0));
+        const grand = seriesSums.reduce((a, v) => a + v, 0);
+        if (totalRow) {
+            const tg = this.el("g", { "data-icd": "stack-total-row" }, marks);
+            const yRow = bandStart + n * step;
+            this.el("line", { x1: region.x + pad, y1: yRow, x2: rect.x + rect.w, y2: yRow,
+                stroke: cfg.ink, "stroke-width": 1 }, tg);
+            this.drawCategoryLabel(tg, cfg.stackTotalLabel || "Σ", pos(n) + slotW / 2, orientation, cf,
+                region, step, rect, cfg.ink, true);
+            if (norm && grand > 0) {
+                // the overall mix as one 100 % bar, same scale as the rows
+                let cum = 0;
+                series.forEach((sn, si) => {
+                    const share = Math.max(seriesSums[si], 0) * 100 / grand;
+                    if (share <= 0) { return; }
+                    const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
+                    this.drawBar(sg, pos(n), slotW, cum, cum + share, scale, orientation,
+                        { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
+                    const a = scale(cum), b = scale(cum + share);
+                    if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
+                        const light = si > (series.length - 1) / 2;
+                        const t = this.el("text", { x: (a + b) / 2, y: pos(n) + slotW / 2 + lf * 0.35, "text-anchor": "middle",
+                            "font-size": Math.round(lf * 0.92), "font-weight": 700,
+                            fill: cfg.hc || light ? cfg.ink : cfg.paper, "font-family": FONT }, sg);
+                        t.textContent = shareNf.format(share);
+                    }
+                    cum += share;
+                });
+            } else {
+                // values: same unit, the sum would not fit the row scale (IBCS) — a
+                // legend row with the sum per series and the grand total instead
+                const sq = Math.max(6, Math.round(lf * 0.85));
+                let lx = rect.x + 2;
+                const yMid = pos(n) + slotW / 2;
+                const xEnd = rect.x + rect.w;
+                series.forEach((sn, si) => {
+                    const label = cfg.fmt.format(seriesSums[si]);
+                    const need = sq + 4 + this.textWidth(label, lf, true) + 12;
+                    if (lx + need > xEnd) { return; }
+                    const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
+                    this.el("rect", { x: lx, y: yMid - sq / 2, width: sq, height: sq, fill: shade(si),
+                        ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) }, sg);
+                    const t = this.el("text", { x: lx + sq + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
+                        fill: cfg.ink, "font-family": FONT }, sg);
+                    t.textContent = label;
+                    lx += need;
+                });
+                const gt = this.el("text", { x: lx + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, tg);
+                gt.textContent = cfg.fmt.format(grand);
+            }
+        }
+        if (sideW > 0 && cfg.stackTotalMax > 0) {
+            const pg = this.el("g", { "data-icd": "stack-total-panel" }, marks);
+            const x0 = rect.x + rect.w + 8;
+            const labelRoom = this.textWidth(cfg.fmt.format(Math.max(cfg.stackTotalMax, grand)), lf, true) + 6;
+            const kSide = Math.max(0, (sideW - labelRoom - 4) / cfg.stackTotalMax);
+            pg.setAttribute("data-px-per-unit", String(kSide));
+            this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: bandStart + n * step, stroke: cfg.subtle, "stroke-width": 1 }, pg);
+            const head = this.el("text", { x: x0, y: region.y + legendH + Math.round(10 * k), "font-size": Math.round(10 * k),
+                fill: cfg.subtle, "font-family": FONT }, pg);
+            head.textContent = `Σ ${cfg.scenL.ac}` + (cfg.stackSort === "ac" ? " (↓)" : "");
+            if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
+            for (let i = 0; i < n; i++) {
+                const w = rawPos[i] * kSide;
+                this.el("rect", { x: x0, y: pos(i), width: Math.max(w, 0.5), height: slotW, fill: cfg.colors.ac }, pg);
+                if (cfg.showLabels) {
+                    const t = this.el("text", { x: x0 + w + 3, y: pos(i) + slotW / 2 + lf * 0.35, "font-size": lf,
+                        fill: cfg.ink, "font-family": FONT }, pg);
+                    t.textContent = cfg.fmt.format(rawPos[i]);
+                }
+            }
+            if (totalRow) {
+                const t = this.el("text", { x: x0 + 3, y: pos(n) + slotW / 2 + lf * 0.35, "font-size": lf, "font-weight": 700,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, pg);
+                t.textContent = cfg.fmt.format(grand);
+            }
+        }
         this.cutFcLines();
     }
 
@@ -15577,7 +15755,7 @@ export class Visual implements IVisual {
         const cc = this.formattingSettings.chartCard;
         if (!this.sortModeStored) { return cc.sortByImpact.value === true ? "abs" : "off"; }
         const sv = String((cc.sortMode.value as powerbi.IEnumMember)?.value ?? "off");
-        return (["off", "abs", "signed", "pct", "ac"] as SortMode[]).includes(sv as SortMode) ? sv as SortMode : "off";
+        return (["off", "abs", "signed", "pct", "ac", "series"] as SortMode[]).includes(sv as SortMode) ? sv as SortMode : "off";
     }
 
     /** orders categories by the sort key, descending (abs: |Δ| · signed: Δ ·
@@ -16000,6 +16178,47 @@ export class Visual implements IVisual {
     }
 
     /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
+    /** 1.55 (B10): top N for stacks — ranks whole categories by their stack total
+     *  (named rest categories never rank), keeps every series cell of the top N and
+     *  aggregates the tail per series into one "Rest (n)" category */
+    private applyTopNStacked(points: DataPoint[], topN: number): DataPoint[] {
+        const L = this.stackLayout(points);
+        if (L.cats.length <= topN + 1) { return points; }
+        const isRestCat = (c: string) => REST_ROW_RX.test(c.trim()) || points.some(p => p.cat === c && p.isRest);
+        const ranked = L.cats.map((c, i) => ({ c, t: L.pos[i] + L.neg[i], i }))
+            .filter(x => !isRestCat(x.c))
+            .sort((a, b) => (b.t - a.t) || (a.i - b.i));
+        const keep = ranked.slice(0, topN).map(x => x.c);
+        const keepSet = new Set(keep);
+        const tailN = L.cats.filter(c => !keepSet.has(c)).length;
+        const label = `${this.locStr("Label_Rest", "Other")} (${tailN})`;
+        const head = keep.flatMap(c => points.filter(p => p.cat === c));
+        const group = points[0]?.group ?? null;
+        const rest: DataPoint[] = [];
+        for (const sName of L.series) {
+            const cells = points.filter(p => !keepSet.has(p.cat) && (p.stackSeries ?? "(leer)") === sName);
+            if (cells.length === 0) { continue; }
+            const a = this.aggregateTail(cells, label, group);
+            a.stackSeries = sName === "(leer)" ? null : sName;
+            rest.push(a);
+        }
+        return [...head, ...rest];
+    }
+
+    /** 1.55 (B10): orders the categories of a stack (points stay grouped per
+     *  category): "ac" by stack total, "series" by the first series (its share in
+     *  100 % stacks), descending; rest categories keep the data order at the end */
+    private sortStackCats(points: DataPoint[], mode: "ac" | "series", norm: boolean): DataPoint[] {
+        const L = this.stackLayout(points);
+        const isRestCat = (c: string) => REST_ROW_RX.test(c.trim()) || points.some(p => p.cat === c && p.isRest);
+        const key = (i: number) => mode === "ac" ? L.pos[i] + L.neg[i]
+            : norm ? (L.rawPos[i] > 0 ? L.rawSv(i, L.series[0]) / L.rawPos[i] : 0) : L.rawSv(i, L.series[0]);
+        const order = L.cats.map((c, i) => ({ c, i, k: key(i), r: isRestCat(c) }))
+            .sort((a, b) => (Number(a.r) - Number(b.r)) || (a.r ? a.i - b.i : (b.k - a.k) || (a.i - b.i)))
+            .map(x => x.c);
+        return order.flatMap(c => points.filter(p => p.cat === c));
+    }
+
     private applyTopN(points: DataPoint[], topN: number): DataPoint[] {
         // 1.54 (B04): a named rest row ("Sonstige", "Rest of USA") is no ranking
         // candidate — it joins the aggregated tail

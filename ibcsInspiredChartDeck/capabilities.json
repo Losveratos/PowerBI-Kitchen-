@@ -465,13 +465,32 @@
                             { "value": "abs", "displayName": "By impact |Δ|" },
                             { "value": "signed", "displayName": "By Δ (largest plus first)" },
                             { "value": "pct", "displayName": "By Δ %" },
-                            { "value": "ac", "displayName": "By AC" }
+                            { "value": "ac", "displayName": "By AC" },
+                            { "value": "series", "displayName": "By first series (stacks)" }
                         ]
                     }
                 },
                 "bridgeBreak": { "type": { "bool": true } },
                 "stackLegendDirect": { "type": { "bool": true } },
                 "scenarioLabels": { "type": { "bool": true } },
+                "stackNormalize": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Values" },
+                            { "value": "pct100", "displayName": "100 % (shares)" }
+                        ]
+                    }
+                },
+                "stackTotalRow": { "type": { "bool": true } },
+                "stackTotalLabel": { "type": { "text": true } },
+                "stackLegendPos": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "end", "displayName": "Right of the last column" },
+                            { "value": "start", "displayName": "Left of the first column" }
+                        ]
+                    }
+                },
                 "bridgeOrientation": {
                     "type": {
                         "enumeration": [

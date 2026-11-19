@@ -2644,6 +2644,119 @@ addStage("c282", "Tabelle · Margen-Zeile mit gerundeter Null: „0,0 %“ statt
   const tx = [...document.querySelectorAll("#c282 text")].map(t => t.textContent);
   check(tx.includes("0,0 %") && !tx.some(t => /^[-−]0,0 %$/.test(t)), `c282: Margenwert gerundet null ohne Vorzeichen (${tx.filter(t => /%/.test(t)).join(" | ")})`);
 }
+// ---- 1.55 (B10): Stapel-Struktur — 100 %, Σ-Zeile, Sortierung, Namen links, Seitenpanel, Top N
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const nsvg10 = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  const longDv = (cats, ser, vals, objs, extra) => {
+    const C = [], S = [], V = [];
+    cats.forEach((c, i) => ser.forEach((s, j) => { C.push(c); S.push(s); V.push(vals[i][j]); }));
+    return { metadata: { columns: [], objects: objs }, categorical: {
+      categories: [{ source: { displayName: "Land", roles: { category: true } }, values: C },
+        { source: { displayName: "Kanal", roles: { series: true } }, values: S }],
+      values: [col("actual", V, "#,0")].concat(extra ? extra(C, S) : []) } };
+  };
+  // Blatt 02B (Daten in Blattreihenfolge, hier gemischt geliefert)
+  const ch = ["Direct", "Retail", "Wholesale"];
+  const b02 = [["Austria", 102, 188, 125], ["Rest of Europe", 41, 88, 47], ["Brazil", 52, 36, 27], ["Switzerland", 172, 136, 188],
+    ["Canada", 15, 5, 12], ["Denmark", 7, 24, 21], ["Finland", 48, 35, 13], ["France", 178, 88, 78], ["Germany", 160, 135, 142],
+    ["Ireland", 56, 34, 7], ["Japan", 22, 16, 26], ["Norway", 4, 5, 13], ["Poland", 87, 100, 66], ["Portugal", 61, 44, 12],
+    ["Spain", 83, 83, 58], ["Sweden", 42, 42, 17], ["UK", 79, 105, 84], ["USA", 82, 96, 109], ["Rest of world", 60, 48, 29]];
+  const bCats = b02.map(r => r[0]), bVals = b02.map(r => r.slice(1));
+  const tot = r => r[1] + r[2] + r[3];
+  addStage("c283", "Stapel-Balken · Blatt 02B · sortiert nach Summe · Rest-Zeilen unten kursiv · Σ-Zeile „World“", 1200, 720);
+  runCap("c283", longDv(bCats, ch, bVals, { chart: { orientation: "bars", sortMode: "ac", stackTotalRow: true, stackTotalLabel: "World" } }), 1200, 720);
+  {
+    const want = b02.filter(r => !/^Rest/.test(r[0])).sort((a, b) => tot(b) - tot(a)).map(r => r[0]).concat(["Rest of Europe", "Rest of world"]);
+    const got = qq("c283", "text").map(t => t.textContent).filter(t => bCats.includes(t));
+    check(JSON.stringify(got) === JSON.stringify(want), `c283: Reihenfolge nach Summe, Rest-Zeilen am Ende (${got.slice(0, 4).join(", ")} … ${got.slice(-2).join(", ")})`);
+    const restIt = qq("c283", "text").filter(t => /^Rest of/.test(t.textContent)).every(t => t.getAttribute("font-style") === "italic");
+    const tr = qq("c283", '[data-icd="stack-total-row"] text').map(t => t.textContent);
+    check(restIt && ["World", "1.351", "1.308", "1.074", "3.733"].every(x => tr.includes(x)),
+      `c283: Rest kursiv, Σ-Zeile World 1.351 · 1.308 · 1.074 · 3.733 (${tr.join(" | ")})`);
+    check(qq("c283", '[data-icd="stack-total-row"] rect').every(r => +r.getAttribute("width") < 20), "c283: Σ-Zeile ohne Summenbalken (nur Farbfelder)");
+  }
+  // Blatt 01D: 100 % je Monat, Szenarien aus B06 bleiben
+  const mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan 26", "Feb 26", "Mar 26"];
+  const ser5 = ["Software", "Service", "Training", "Consulting", "Other"];
+  const V15 = [[21.5,16.0,5.3,22.4,6.5],[31.9,18.8,6.6,22.4,8.5],[40.8,24.2,7.3,25.3,5.2],[50.5,26.7,7.7,22.4,6.7],
+    [54.4,18.8,8.1,22.4,7.5],[56.9,24.2,6.9,25.3,6.9],[48.9,26.7,7.7,22.4,7.4],[56.8,24.2,7.3,25.3,7.7],[59.2,26.7,7.7,22.4,6.9],
+    [54.2,24.2,7.9,25.3,5.2],[60.3,26.7,7.7,22.4,6.3],[88.6,18.8,7.2,22.4,7.7],
+    [47.5,25.5,7.2,17.9,6.9],[56.7,24.9,7.0,16.8,7.2],[45.3,24.2,7.5,16.2,6.8]];
+  const scenDv = (objs) => {
+    const C = [], S = [], A = [], F = [], P = [];
+    mo.forEach((m, i) => ser5.forEach((s, j) => { C.push(m); S.push(s);
+      A.push(i < 9 ? V15[i][j] : null); F.push(i >= 9 && i < 12 ? V15[i][j] : null); P.push(i >= 12 ? V15[i][j] : null); }));
+    return { metadata: { columns: [], objects: objs }, categorical: {
+      categories: [{ source: { displayName: "Monat", roles: { category: true } }, values: C },
+        { source: { displayName: "Bereich", roles: { series: true } }, values: S }],
+      values: [col("actual", A, "#,0.0"), col("forecast", F, "#,0.0"), col("plan", P, "#,0.0")] } };
+  };
+  addStage("c284", "Stapel-Säulen 100 % · Blatt 01D · AC, FC schraffiert, PL Umriss · Marke „100 %“", 1280, 620);
+  runCap("c284", scenDv({ chart: { orientation: "columns", stackNormalize: "pct100", scenarioLabels: true } }), 1280, 620);
+  {
+    const cols = qq("c284", "svg > g > g").filter(g => g.querySelector("g.icd-cat"));
+    const h = cols.map(g => [...g.querySelectorAll("g.icd-cat > rect")].reduce((a, r) => a + r.getBoundingClientRect().height, 0));
+    const spread = Math.max(...h) - Math.min(...h);
+    check(cols.length === 15 && spread <= 1.5 && !!document.querySelector('#c284 [data-icd="stack-100"]')
+      && qq("c284", '[data-icd="stack-seg-fc"]').length === 15 && qq("c284", '[data-icd="stack-seg-pl"]').length === 15,
+      `c284: 15 Säulen gleich hoch (Spanne ${spread.toFixed(2)} px), Marke 100 %, FC/PL-Notation bleibt`);
+    const texts = qq("c284", "text").map(t => t.textContent);
+    check(texts.includes("61,2") && !texts.includes("145") && !texts.includes("117"), "c284: Anteile mit einer Nachkommastelle (Dec Software 61,2), keine Stapelsummen");
+  }
+  addStage("c285", "Stapel-Säulen · Seriennamen links (Blatt 01E)", 1280, 560);
+  runCap("c285", scenDv({ chart: { orientation: "columns", stackNormalize: "pct100", stackLegendPos: "start" } }), 1280, 560);
+  {
+    const names = qq("c285", '[data-icd="stack-legend-direct"] text');
+    const firstBar = qq("c285", "g.icd-cat > rect")[0];
+    check(names.length === 5 && names.every(t => t.getBBox().x + t.getBBox().width <= +firstBar.getAttribute("x") + 0.5),
+      `c285: Seriennamen links der ersten Säule (${names.length})`);
+  }
+  // Blatt 02D/02E: 100 %-Balken, Seitenpanel absolut, Σ-Zeile mit Gesamtmix; 02E: nach Anteil Direct + Linie bei 50 %
+  addStage("c286", "Stapel-Balken 100 % · Blatt 02D · Seitenpanel absolut · Σ-Zeile Gesamtmix · nach Summe", 1200, 720);
+  runCap("c286", longDv(bCats, ch, bVals, { chart: { orientation: "bars", stackNormalize: "pct100", stackTotalRow: true,
+    stackTotalLabel: "World", sortMode: "ac" } }), 1200, 720);
+  {
+    const ends = qq("c286", "svg > g > g").filter(g => g.querySelector("g.icd-cat")).map(g => Math.max(...[...g.querySelectorAll("g.icd-cat > rect")]
+      .map(r => r.getBoundingClientRect().right)));
+    const panel = document.querySelector('#c286 [data-icd="stack-total-panel"]');
+    const k = panel ? +panel.getAttribute("data-px-per-unit") : 0;
+    const pr = panel ? [...panel.querySelectorAll("rect")] : [];
+    const swiss = pr.length ? +pr[0].getAttribute("width") : 0;
+    const shares = qq("c286", '[data-icd="stack-total-seg"] text').map(t => t.textContent);
+    check(ends.length === 19 && Math.max(...ends) - Math.min(...ends) <= 1.5, `c286: alle 100 %-Balken enden gleich (Spanne ${(Math.max(...ends) - Math.min(...ends)).toFixed(2)} px)`);
+    check(!!panel && Math.abs(swiss - 496 * k) < 0.6 && /Σ/.test(panel.textContent), `c286: Seitenpanel absolut (Switzerland 496 → ${swiss.toFixed(1)} px bei ${k.toFixed(3)} px/Einheit)`);
+    check(JSON.stringify(shares) === '["36,2","35,0","28,8"]', `c286: Σ-Zeile mit Gesamtmix 36,2 · 35,0 · 28,8 (${shares.join(" · ")})`);
+  }
+  addStage("c287", "Stapel-Balken 100 % · Blatt 02E · nach Anteil der ersten Serie (↓) · Linie bei 50 %", 1200, 720);
+  runCap("c287", longDv(bCats, ch, bVals, { chart: { orientation: "bars", stackNormalize: "pct100", stackTotalRow: true, sortMode: "series" },
+    scale: { refLine: "50", refLineLabel: "50 %" } }), 1200, 720);
+  {
+    const share = r => r[1] / tot(r);
+    const want = b02.filter(r => !/^Rest/.test(r[0])).sort((a, b) => share(b) - share(a)).map(r => r[0]).slice(0, 3);
+    const got = qq("c287", "text").map(t => t.textContent).filter(t => bCats.includes(t)).slice(0, 3);
+    check(JSON.stringify(got) === JSON.stringify(want) && !!document.querySelector('#c287 [data-icd="sort-mark"]')
+      && !!document.querySelector('#c287 [data-icd="stack-refline"]'), `c287: nach Anteil Direct (${got.join(", ")}), (↓)-Marke, Linie 50 %`);
+  }
+  // Top N im Stapel: ganze Kategorien, alle Serien bleiben, Rest je Serie
+  addStage("c288", "Stapel-Balken · Top 5 + Rest je Serie (vorher: einzelne Zellen, Serie „(leer)“)", 1100, 420);
+  runCap("c288", longDv(bCats, ch, bVals, { chart: { orientation: "bars", topN: 5 } }), 1100, 420);
+  {
+    const names = qq("c288", "text").map(t => t.textContent);
+    const shownCats = names.filter(t => bCats.includes(t) || /\(\d+\)$/.test(t));
+    const segs = qq("c288", "g.icd-cat").length;
+    check(shownCats.length === 6 && !names.some(t => /leer/.test(t)) && segs === 18,
+      `c288: 5 Länder + Rest (n), je 3 Serien (${shownCats.join(", ")}; ${segs} Segmente)`);
+  }
+  // Identität: neue Optionen ausdrücklich auf Standard = wie ungesetzt
+  addStage("c289", "Stapel · neue Optionen auf Standard (Referenz c289L)", 1100, 420);
+  addStage("c289L", "Stapel · ohne neue Optionen", 1100, 420);
+  runCap("c289", longDv(bCats.slice(0, 8), ch, bVals.slice(0, 8), { chart: { orientation: "bars", stackNormalize: "off", stackTotalRow: false,
+    stackLegendPos: "end", sortMode: "off" } }), 1100, 420);
+  runCap("c289L", longDv(bCats.slice(0, 8), ch, bVals.slice(0, 8), { chart: { orientation: "bars" } }), 1100, 420);
+  check(nsvg10("c289") === nsvg10("c289L"), "c289: Standardwerte zeichnen SVG-gleich wie ungesetzt");
+}
 addStage("c266", "Σ-Legende · PY + PL · Hochkontrast · Σ oben · 520 px breit", 520, 360);
 {
   const dv = dataView(t2Cats, [col("actual", t2Ac, "#,0"), col("previousYear", t2Py, "#,0"), col("plan", t2Pl, "#,0")],

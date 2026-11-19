@@ -1,5 +1,18 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.55.0.0 (in Arbeit)
+
+**Ziel: Stapel-Blätter (01D, 01E, 02B bis 02E) direkt abbildbar. Neue Schalter stehen standardmäßig aus; die eine Verhaltensänderung (Top N bei Stapelbalken) ist genannt.**
+
+- **B10 · Stapel-Struktur (Blätter 01D, 01E, 02B, 02C, 02D, 02E).** Vorher: Stapel gab es nur mit Werten, die Seriennamen standen immer rechts, Balken ließen sich nicht nach Stapelsumme oder erster Serie ordnen, und es fehlte eine Σ-Zeile. Nachher:
+  - **„Stapel 100 %“** (`chart.stackNormalize`, Auswahl Werte | 100 % Anteile, Standard Werte): gestapelte Säulen und Balken zeigen je Kategorie 100 %, die Beschriftungen sind Anteile mit einer Nachkommastelle, der Panel-Titel lautet „Anteile in %“, eine „100 %“-Marke steht bei Säulen neben dem Stapel, bei Balken als dünne Linie bei 100 % und „▲ 100 %“ unter dem letzten Balken. Enthält eine Zelle einen negativen Wert, bleibt der Stapel bei Werten. Bei 100 %-Balken zeigt der bestehende Schalter „Summen-Kopfzeile (Σ)“ (`showTotal`, Standard an) ein Summen-Panel rechts auf eigener Skala (Kopf „Σ AC“, bei Sortierung nach Summe „(↓)“).
+  - **„Σ-Zeile am Stapel“** (`chart.stackTotalRow`, nur Balken, Standard aus) und **„Σ-Bezeichnung“** (`chart.stackTotalLabel`, leer = „Σ“, z. B. „World“): Bei Werten eine Legendenzeile mit Summe je Serie (Farbfeld) und Gesamtsumme, ohne Summenbalken, weil die Summe nicht auf die Zeilenskala passt; bei 100 % ein 100 %-Balken mit dem Gesamtmix.
+  - **„Stapellegende“** (`chart.stackLegendPos`, Ende | Anfang, Standard Ende): „Anfang“ setzt die Seriennamen links neben die erste Säule (IBCS-Blatt 01E).
+  - **Sortierung** (`chart.sortMode`, seit 1.54) bekommt „Nach erster Serie (Stapel)“ (`series`). In Stapelbalken sortiert „Nach AC“ nach der Stapelsumme und „Nach erster Serie“ nach der ersten Serie (bei 100 % nach deren Anteil, Blatt 02E); „(↓)“ in der Legende markiert die sortierte Serie. Rest-Kategorien (Rest, Others, Sonstige, „Rest of …“, Top-N-Rest) bleiben am Ende und kursiv.
+  - **Verhaltensänderung (Fix):** Top N (`chart.topN`) bei Stapelbalken rankte bisher einzelne Zellen und erzeugte dabei eine Serie „(leer)“. Jetzt werden ganze Kategorien nach Stapelsumme gereiht, alle Serien-Zellen der Top N bleiben erhalten, und der Rest wird je Serie zu einer Kategorie „Rest (n)“ zusammengefasst. Berichte mit Top N und Stapelbalken sehen dadurch anders aus.
+  - Stapel mit den neuen Optionen aus zeichnen unverändert (SVG-Hash aller 364 Harness-Stufen verglichen). Noch nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein einzelnes Segment.
+  - Tests c283 bis c289 (Render-Harness, 352 Prüfungen grün).
+
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 
 **Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Neue Schalter stehen standardmäßig aus;
