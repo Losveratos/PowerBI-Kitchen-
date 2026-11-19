@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Desktop-Hintergrund · Knowledge Kitchen</title>
+<meta name="robots" content="noindex">
+<!-- Desktop-Hintergrund 1920 × 1080 (CSS-px). Rendern: #wall bei deviceScaleFactor 2 → 3840 × 2160 (4K). -->
+<link rel="stylesheet" href="../assets/fonts/inter/inter.css">
+<style>
+:root{
+  --bg:#0C0F0E; --ink:#F4F1E8; --soft:#B9B5A8; --mute:#8A877D;
+  --brand:#117865; --brand-light:#3DB39B; --warm:#E07A4A; --yellow:#F0D437; --pink:#D9357A;
+  --blue:#5B9BD5; --tile:#151917; --tile-line:rgba(255,255,255,.09);
+  --display:"Segoe UI Variable Display","Segoe UI",Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#333}
+#wall{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:var(--sans);color:var(--ink);
+  background:radial-gradient(1200px 700px at 18% 105%,rgba(17,120,101,.30),transparent 70%),
+             radial-gradient(900px 600px at 100% 0%,rgba(217,53,122,.07),transparent 70%),var(--bg)}
+#wall::before{content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:32px 32px;
+  -webkit-mask-image:linear-gradient(90deg,#000 0,#000 34%,transparent 52%);mask-image:linear-gradient(90deg,#000 0,#000 34%,transparent 52%)}
+
+.logo{position:absolute;left:76px;top:70px;width:330px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+.copy{position:absolute;left:76px;top:206px;width:680px}
+.eyebrow{font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand-light);font-weight:700}
+.eyebrow .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--warm);margin:0 12px 3px;vertical-align:middle}
+h1{font-family:var(--display);font-weight:300;font-size:104px;line-height:.98;letter-spacing:-.03em;margin-top:20px}
+h1 em{font-style:italic;font-weight:300;color:var(--brand-light);position:relative;z-index:0}
+h1 em::after{content:"";position:absolute;left:-2px;right:-6px;bottom:6px;height:14px;background:var(--yellow);opacity:.85;z-index:-1;border-radius:3px}
+.sub{font-size:24px;line-height:1.45;color:var(--soft);margin-top:24px;max-width:600px}
+.sub strong{color:var(--ink);font-weight:600}
+.url{display:flex;align-items:center;gap:14px;margin-top:24px;font-size:24px;font-weight:700}
+.url::before{content:"";width:34px;height:3px;background:var(--brand-light);border-radius:2px}
+
+/* Werbung Daten-WG 2027 (links unten) */
+.ad{position:absolute;left:76px;top:674px;width:640px;height:284px;border-radius:24px;overflow:hidden;
+  background:linear-gradient(120deg,rgba(217,53,122,.20),rgba(240,212,55,.10) 70%),#141015;
+  border:1px solid rgba(217,53,122,.45);box-shadow:0 24px 50px -28px rgba(217,53,122,.55)}
+.ad .year{position:absolute;right:-22px;top:-30px;font-family:var(--display);font-weight:800;font-size:200px;letter-spacing:-.05em;
+  color:transparent;-webkit-text-stroke:2px rgba(240,212,55,.16);line-height:1}
+.ad .in{position:absolute;left:34px;top:36px;right:30px}
+.ad .tag{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--pink)}
+.ad .tag i{width:10px;height:10px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 5px rgba(217,53,122,.22)}
+.ad h2{font-family:var(--display);font-weight:700;font-size:66px;letter-spacing:-.025em;line-height:1;margin-top:16px}
+.ad .soon{display:flex;align-items:center;gap:14px;margin-top:16px;font-family:var(--display);font-style:italic;font-weight:400;font-size:38px;color:var(--yellow)}
+.ad .soon b{display:inline-block;width:58px;height:3px;background:var(--yellow);position:relative;border-radius:2px}
+.ad .soon b::after{content:"";position:absolute;right:-2px;top:-7px;border:8.5px solid transparent;border-left:14px solid var(--yellow);border-right:0}
+.ad .note{position:absolute;left:34px;right:34px;bottom:0;height:56px;line-height:56px;border-top:1px solid rgba(217,53,122,.28);font-size:17px;color:var(--soft)}
+.ad .note strong{color:var(--ink)}
+
+/* Mosaik */
+.mosaic{position:absolute;right:72px;top:70px;width:1036px;display:flex;flex-direction:column;gap:16px}
+.row{display:flex;gap:16px;height:286px}
+.tile{position:relative;flex:none;border-radius:18px;overflow:hidden;border:1px solid var(--tile-line);background:var(--tile);
+  box-shadow:0 20px 40px -24px rgba(0,0,0,.85)}
+.tile .pic{position:absolute;left:0;right:0;top:0;bottom:42px;display:flex;align-items:center;justify-content:center}
+.tile.light .pic{background:#fff;padding:10px 12px}
+.tile .pic img{display:block;max-width:100%;max-height:100%}
+.tile.cover .pic img{width:100%;height:100%;object-fit:cover;max-width:none;max-height:none}
+.tile.fit .pic{background:#0A0B0D}
+.tile.fit .pic img{object-fit:contain;padding:10px}
+.cap{position:absolute;left:0;right:0;bottom:0;height:42px;display:flex;align-items:center;gap:10px;padding:0 16px;
+  background:var(--tile);border-top:1px solid var(--tile-line);white-space:nowrap}
+.cap b{font-size:13px;letter-spacing:.11em;text-transform:uppercase;color:var(--c);font-weight:800}
+.cap span{font-size:16px;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis}
+</style>
+</head>
+<body>
+<div id="wall">
+  <img class="logo" src="img/daten-wg-logo-petrol.png" alt="Daten-WG">
+
+  <div class="copy">
+    <div class="eyebrow">Daten-WG<span class="dot"></span>Knowledge Kitchen</div>
+    <h1>Daten zum<br><em>Nachkochen.</em></h1>
+    <p class="sub"><strong>Visual Stories</strong> und <strong>Power-BI-Visuals</strong> nach IBCS-Vorbild für Controlling&nbsp;&amp;&nbsp;Finance. Kostenlos und Open&nbsp;Source.</p>
+    <div class="url">datenwgknowledgekitchen.com</div>
+  </div>
+
+  <div class="ad">
+    <div class="year">2027</div>
+    <div class="in">
+      <div class="tag"><i></i>Die Daten-WG-Konferenz</div>
+      <h2>Daten-WG 2027</h2>
+      <div class="soon">Coming soon <b></b></div>
+    </div>
+    <div class="note">Save the date folgt auf <strong>daten-wg.com</strong></div>
+  </div>
+
+  <div class="mosaic">
+    <div class="row">
+      <div class="tile light" style="width:360px;--c:var(--brand-light)">
+        <div class="pic"><img src="img/ck-integrierte-varianz.png" alt=""></div>
+        <div class="cap"><b>ChartKitchen</b><span>Integrierte Varianz</span></div></div>
+      <div class="tile cover" style="width:272px;--c:var(--blue)">
+        <div class="pic"><img src="img/story-rhein.jpg" alt=""></div>
+        <div class="cap"><b>Story</b><span>Rhein · 209 Jahre</span></div></div>
+      <div class="tile cover" style="width:188px;--c:#E5675A">
+        <div class="pic"><img src="img/story-waermestreifen.jpg" alt=""></div>
+        <div class="cap"><b>Klima</b><span>175 Jahre</span></div></div>
+      <div class="tile cover fit" style="width:168px;--c:var(--warm)">
+        <div class="pic"><img src="img/story-koeln-karte.jpg" alt=""></div>
+        <div class="cap"><b>Story</b><span>Köln</span></div></div>
+    </div>
+    <div class="row">
+      <div class="tile light" style="width:500px;--c:var(--brand-light)">
+        <div class="pic"><img src="img/pnl-statement.png" alt=""></div>
+        <div class="cap"><b>P&amp;L Statement</b><span>GuV mit Plan-Abweichung</span></div></div>
+      <div class="tile light" style="width:520px;--c:var(--brand-light)">
+        <div class="pic"><img src="img/pnl-sankey.png" alt=""></div>
+        <div class="cap"><b>P&amp;L Statement</b><span>Sankey · wohin das Geld fließt</span></div></div>
+    </div>
+    <div class="row">
+      <div class="tile cover" style="width:340px;--c:#9A7BC0">
+        <div class="pic"><img src="img/gantt-visual.jpg" alt="" style="object-position:22% 0"></div>
+        <div class="cap"><b>Gantt</b><span>dataKitchenGantt</span></div></div>
+      <div class="tile cover" style="width:340px;--c:var(--blue)">
+        <div class="pic"><img src="img/mockup-kitchen.jpg" alt="" style="object-position:50% 0"></div>
+        <div class="cap"><b>Werkzeug</b><span>MockupKitchen</span></div></div>
+      <div class="tile cover" style="width:324px;--c:var(--blue)">
+        <div class="pic"><img src="img/wohlstandsatlas.jpg" alt="" style="object-position:30% 55%"></div>
+        <div class="cap"><b>Werkzeug</b><span>Wohlstandsatlas</span></div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
