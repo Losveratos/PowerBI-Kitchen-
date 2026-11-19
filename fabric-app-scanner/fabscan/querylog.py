@@ -111,11 +111,23 @@ def is_service_principal(user: str) -> bool:
     return bool(u) and ("@" not in u or u.startswith("app@") or re.fullmatch(r"[0-9a-f-]{36}(@.*)?", u) is not None)
 
 
+REQUIRED_COLUMNS = ("Timestamp", "OperationName", "EventText", "ItemId")
+
+
 def kql(days: int = 14, include_reports: bool = False, table: str = "SemanticModelLogs") -> str:
-    """KQL für das Monitoring-Eventhouse: QueryEnd der letzten Tage, gleiche Abfragen zusammengefasst."""
+    """KQL für das Monitoring-Eventhouse: QueryEnd der letzten Tage, gleiche Abfragen zusammengefasst.
+
+    Pflicht sind nur REQUIRED_COLUMNS. Die übrigen Spalten holt column_ifexists, damit eine abweichende
+    Tabelle (altes Workspace Monitoring, neues Monitoring-Item) nicht an einer fehlenden Spalte scheitert."""
     return (f"{table}\n"
             f"| where Timestamp > ago({int(days)}d) and OperationName == \"QueryEnd\"\n"
-            "| extend IsReport = tostring(ApplicationContext) has \"ReportId\"\n"
+            "| extend WorkspaceId = tostring(column_ifexists(\"WorkspaceId\", \"\")),"
+            " WorkspaceName = tostring(column_ifexists(\"WorkspaceName\", \"\")),"
+            " ItemName = tostring(column_ifexists(\"ItemName\", \"\")),"
+            " ApplicationName = tostring(column_ifexists(\"ApplicationName\", \"\")),"
+            " ExecutingUser = tostring(column_ifexists(\"ExecutingUser\", \"\")),"
+            " DurationMs = tolong(column_ifexists(\"DurationMs\", long(0)))\n"
+            "| extend IsReport = tostring(column_ifexists(\"ApplicationContext\", dynamic(null))) has \"ReportId\"\n"
             f"| where {'true' if include_reports else 'false'} or not(IsReport)\n"
             "| summarize Count = count(), FirstSeen = min(Timestamp), LastSeen = max(Timestamp), DurationMs = sum(DurationMs)\n"
             "    by WorkspaceId, WorkspaceName, ItemId, ItemName, ApplicationName, ExecutingUser, EventText, IsReport\n"

@@ -152,6 +152,9 @@ class Fetcher:
         self.admin = admin
         self.mode = "workspace" if admin is False else "admin"
         self.ws_names: dict[str, str] = {}
+        self.db_ids: dict[str, str] = {}          # KQL-Datenbank: Anzeigename → Item-ID
+        self._kql_cache: dict[str, list[dict]] = {}
+        self._all_ws_loaded = False
 
     @property
     def source(self) -> str:
@@ -261,13 +264,9 @@ class Fetcher:
     def _scan_member(self, ids: list[str], timeout_s: int) -> dict:
         """Baut ein Ergebnis im Format der Scanner-API aus getDefinition (TMDL) je Semantikmodell."""
         out = {"workspaces": [], "source": "getDefinition"}
-        n_ok = n_err = 0
+        n_ok = n_info = n_err = 0
         for wid in ids:
-            name = self.ws_names.get(wid)
-            if name is None:
-                status, data = self.request("GET", f"{FABRIC}/workspaces/{wid}", self.auth.token(RES_FABRIC))
-                name = data.get("displayName", wid) if status == 200 else wid
-            ws = {"id": wid, "name": name, "datasets": []}
+            ws = {"id": wid, "name": self._ws_name(wid) or wid, "datasets": []}
             data = self._call("GET", f"{FABRIC}/workspaces/{wid}/semanticModels", RES_FABRIC)
             for sm in data.get("value", []):
                 ds = {"id": sm.get("id", ""), "name": sm.get("displayName", "?")}
@@ -275,15 +274,64 @@ class Fetcher:
                     ds.update(_dataset_from_parts(ds["name"], self._definition(wid, ds["id"], timeout_s)))
                     n_ok += 1
                 except FetchError as e:
-                    ds["schemaRetrievalError"] = str(e)
-                    n_err += 1
+                    try:        # nur Leserecht: Namen über INFO.VIEW per executeQueries (braucht Build-Recht)
+                        ds.update(self._dataset_from_info(wid, ds["id"], ds["name"]))
+                        n_info += 1
+                    except FetchError as e2:
+                        ds["schemaRetrievalError"] = f"{e} · executeQueries: {e2}"
+                        n_err += 1
                 ws["datasets"].append(ds)
             out["workspaces"].append(ws)
-        self.log(f"  {n_ok} Modelle per getDefinition gelesen" + (f", {n_err} ohne Zugriff" if n_err else ""))
+        self.log(f"  {n_ok} Modelle per getDefinition gelesen" + (f", {n_info} nur per INFO.VIEW" if n_info else "")
+                 + (f", {n_err} ohne Zugriff" if n_err else ""))
+        if n_info:
+            self.notes.append(f"{n_info} Modell(e) nur mit Leserecht gelesen (executeQueries mit INFO.VIEW): Tabellen, "
+                              "Spalten und Measures mit Namen, aber ohne DAX-Ausdrücke und ohne Rollen. Ob dort RLS "
+                              "greift, bleibt offen; dafür mindestens die Rolle Mitwirkender.")
         if n_err:
             self.notes.append(f"{n_err} Modell(e) ließen sich nicht lesen (getDefinition braucht mindestens die Rolle "
-                              "Mitwirkender). Sie stehen mit Fehler in der Modell-Übersicht.")
+                              "Mitwirkender, executeQueries das Build-Recht). Sie stehen mit Fehler in der "
+                              "Modell-Übersicht.")
+        if any("capacity does not support" in d.get("schemaRetrievalError", "")
+               for w in out["workspaces"] for d in w["datasets"]):
+            self.notes.append("Direct-Lake-Modelle brauchen eine Fabric-Kapazität. Mindestens ein Workspace hängt an "
+                              "keiner passenden Kapazität (abgelaufene Testversion?), dort ist auch kein Workspace "
+                              "Monitoring möglich.")
         return out
+
+    def _info_view(self, wid: str, mid: str, fn: str) -> list[dict]:
+        body = {"queries": [{"query": f"EVALUATE {fn}()"}], "serializerSettings": {"includeNulls": True}}
+        status, data = self.request("POST", f"{POWERBI}/groups/{wid}/datasets/{mid}/executeQueries",
+                                    self.auth.token(RES_PBI), body)
+        res = ((data or {}).get("results") or [{}])[0] if status == 200 and isinstance(data, dict) else {}
+        if status != 200 or "error" in res:
+            err = data.get("error", "") if isinstance(data, dict) else ""
+            raise FetchError(f"{fn} → {status} {err or res.get('error', '')}".strip()[:300])
+        rows = ((res.get("tables") or [{}])[0]).get("rows", [])
+        return [{k.strip("[]"): v for k, v in r.items()} for r in rows]
+
+    def _dataset_from_info(self, wid: str, mid: str, name: str) -> dict:
+        """Dataset im Format der Scanner-API aus INFO.VIEW.TABLES/COLUMNS/MEASURES. Über executeQueries bleibt
+        Expression leer (auch als Workspace-Admin), Rollen gibt es gar nicht (INFO.ROLES lehnt executeQueries ab)."""
+        truth = lambda v: v is True or str(v).lower() == "true"
+        tables = {str(t.get("Name")): {"name": t.get("Name"), "isHidden": truth(t.get("IsHidden")),
+                                        "columns": [], "measures": []}
+                  for t in self._info_view(wid, mid, "INFO.VIEW.TABLES")}
+        for c in self._info_view(wid, mid, "INFO.VIEW.COLUMNS"):
+            if c.get("Type") == "RowNumber" or str(c.get("Table")) not in tables:
+                continue
+            tables[str(c["Table"])]["columns"].append({"name": c.get("Name"), "isHidden": truth(c.get("IsHidden")),
+                                                       "expression": c.get("Expression") or "",
+                                                       "formatString": c.get("FormatString") or ""})
+        for m in self._info_view(wid, mid, "INFO.VIEW.MEASURES"):
+            if str(m.get("Table")) in tables:
+                tables[str(m["Table"])]["measures"].append({"name": m.get("Name"), "isHidden": truth(m.get("IsHidden")),
+                                                            "expression": m.get("Expression") or "",
+                                                            "formatString": m.get("FormatString") or ""})
+        if not tables:
+            raise FetchError("INFO.VIEW.TABLES lieferte keine Tabellen")
+        return {"name": name, "tables": list(tables.values()), "roles": [], "schemaSource": "executeQueries",
+                "rolesUnknown": True}
 
     def _definition(self, wid: str, mid: str, timeout_s: int) -> list[dict]:
         """getDefinition als TMDL; wartet bei 202 auf die lang laufende Operation."""
@@ -313,36 +361,157 @@ class Fetcher:
         res = self._call("GET", f"{FABRIC}/operations/{op}/result", RES_FABRIC)
         return (res.get("definition") or {}).get("parts", [])
 
+    # ------------------------------------------------------------ Workspace Monitoring
+
+    def _list(self, url: str) -> list[dict] | None:
+        """GET mit continuationToken; None bei Fehler (kein Zugriff, Endpunkt fehlt)."""
+        out: list[dict] = []
+        nxt = url
+        while nxt:
+            status, data = self.request("GET", nxt, self.auth.token(RES_FABRIC))
+            if status != 200 or not isinstance(data, dict):
+                return None
+            out += data.get("value", [])
+            token = data.get("continuationToken")
+            nxt = f"{url}{'&' if '?' in url else '?'}continuationToken={urllib.parse.quote(token)}" if token else ""
+        return out
+
+    def _kql_databases(self, wid: str) -> list[dict]:
+        if wid not in self._kql_cache:
+            self._kql_cache[wid] = self._list(f"{FABRIC}/workspaces/{wid}/kqlDatabases") or []
+        return self._kql_cache[wid]
+
+    def _monitoring_items(self, wid: str) -> list[dict]:
+        """Monitoring-Items (Typ „Monitoring“). monitoringItems liefert den Sammelstatus mit, /items ist der Rückweg."""
+        items = self._list(f"{FABRIC}/workspaces/{wid}/monitoringItems")
+        if items is None:
+            items = self._list(f"{FABRIC}/workspaces/{wid}/items?type=Monitoring")
+        return [i for i in items or [] if (i.get("type") or "Monitoring") == "Monitoring"]
+
+    def _member_workspaces(self) -> dict[str, str]:
+        if not self._all_ws_loaded:
+            for w in self._list(f"{FABRIC}/workspaces") or []:
+                if (w.get("type") or "Workspace") == "Workspace":
+                    self.ws_names.setdefault(w["id"], w.get("displayName", ""))
+            self._all_ws_loaded = True
+        return self.ws_names
+
+    def _ws_name(self, wid: str) -> str:
+        if wid not in self.ws_names:
+            status, data = self.request("GET", f"{FABRIC}/workspaces/{wid}", self.auth.token(RES_FABRIC))
+            self.ws_names[wid] = data.get("displayName", "") if status == 200 and isinstance(data, dict) else ""
+        return self.ws_names[wid]
+
+    def _monitoring_db(self, wid: str, ws_name: str, item_name: str) -> dict | None:
+        """KQL-Datenbank eines Monitoring-Items: Name „<Workspace>_<Item>_Database“ (Sonderzeichen werden zu „_“).
+        Erst im eigenen Workspace, dann (zentrales Eventhouse eines anderen Monitoring-Items) in den übrigen."""
+        want, ws_key = monitoring_db_key(ws_name, item_name), _kql_key(ws_name)
+
+        def pick(dbs):
+            usable = [d for d in dbs if (d.get("properties") or {}).get("queryServiceUri")]
+            return (next((d for d in usable if _kql_key(d.get("displayName")) == want), None)
+                    or next((d for d in usable if ws_key and _kql_key(d.get("displayName")).startswith(ws_key)
+                             and _kql_key(d.get("displayName")).endswith("database")), None))
+
+        hit = pick(self._kql_databases(wid))
+        if hit:
+            return hit
+        others = [w for w in self._member_workspaces() if w != wid]
+        if others:
+            self.log(f"  Monitoring-Datenbank von „{ws_name}“ nicht im Workspace selbst, suche in {len(others)} weiteren")
+        for other in others:
+            hit = pick(self._kql_databases(other))
+            if hit:
+                return hit
+        return None
+
     def find_monitoring(self, ids: list[str]) -> list[tuple[str, str]]:
-        """Monitoring-KQL-Datenbanken in den Workspaces (Name enthält „Monitoring“)."""
-        found = []
+        """KQL-Datenbanken des Workspace Monitoring in den Workspaces.
+
+        Neu: Monitoring-Item (Typ „Monitoring“) mit eigener KQL-Datenbank oder Weiterleitung an das Eventhouse eines
+        anderen Monitoring-Items. Alt: Monitoring-Eventhouse mit einer KQL-Datenbank, die „Monitoring“ im Namen hat."""
+        found: list[tuple[str, str]] = []
+
+        def add(db):
+            entry = (db["properties"]["queryServiceUri"], db.get("displayName", ""))
+            if entry not in found:
+                found.append(entry)
+                if db.get("id"):
+                    self.db_ids[entry[1]] = db["id"]
+
         for wid in ids:
-            status, data = self.request("GET", f"{FABRIC}/workspaces/{wid}/kqlDatabases", self.auth.token(RES_FABRIC))
-            if status != 200:
-                continue
-            for db in data.get("value", []):
-                props = db.get("properties") or {}
-                if "monitoring" in (db.get("displayName") or "").lower() and props.get("queryServiceUri"):
-                    found.append((props["queryServiceUri"], db.get("displayName")))
+            items = self._monitoring_items(wid)
+            ws_name = self._ws_name(wid) if items else ""
+            for mon in items:
+                name = mon.get("displayName", "")
+                state = (mon.get("properties") or {}).get("dataCollectionState", "")
+                if state and state != "Enabled":
+                    self.notes.append(f"Monitoring-Item „{name}“ in „{ws_name}“ sammelt keine Daten "
+                                      f"(dataCollectionState {state}). In den Workspace-Einstellungen unter Monitoring "
+                                      "die Datensammlung einschalten.")
+                db = self._monitoring_db(wid, ws_name, name)
+                if db:
+                    add(db)
+                else:
+                    self.notes.append(f"Monitoring-Item „{name}“ in „{ws_name}“ gefunden, aber keine KQL-Datenbank "
+                                      f"„{ws_name}_{name}_Database“ mit Zugriff. Liegt das Eventhouse in einem Workspace "
+                                      "ohne Mitgliedschaft, dort Mitwirkender werden oder --monitoring URI=DATENBANK "
+                                      "angeben.")
+            if not items:
+                for db in self._kql_databases(wid):
+                    props = db.get("properties") or {}
+                    if "monitoring" in (db.get("displayName") or "").lower() and props.get("queryServiceUri"):
+                        add(db)
         if not found:
-            self.notes.append("Kein Monitoring-Eventhouse gefunden (Workspace Monitoring aus oder kein Zugriff auf den "
-                              "Workspace). Mit --monitoring URI=DATENBANK angeben.")
+            self.notes.append("Kein Workspace Monitoring gefunden (weder Monitoring-Item noch Monitoring-Eventhouse, "
+                              "oder kein Zugriff auf den Workspace). Mit --monitoring URI=DATENBANK angeben.")
         return found
 
-    def logs(self, cluster: str, database: str, days: int, include_reports: bool, table: str = "SemanticModelLogs"):
-        csl = querylog.kql(days, include_reports, table)
-        url = cluster.rstrip("/") + "/v1/rest/query"
-        last = None
+    def _kusto(self, cluster: str, path: str, database: str, csl: str):
+        """Kusto-REST (v1) mit Token für den Cluster, sonst für kusto.windows.net. Gibt (status, data) zurück."""
+        url = cluster.rstrip("/") + path
+        last = (0, {"error": ""})
         for resource in (cluster.rstrip("/"), RES_KUSTO):
             try:
                 status, data = self.request("POST", url, self.auth.token(resource), {"db": database, "csl": csl})
             except FetchError as e:
-                last = str(e)
+                last = (0, {"error": str(e)})
                 continue
             if status == 200:
+                return status, data
+            last = (status, data if isinstance(data, dict) else {"error": str(data)})
+            if status not in (401, 403):
+                break
+        return last
+
+    def logs(self, cluster: str, database: str, days: int, include_reports: bool, table: str = "SemanticModelLogs"):
+        dbs = [database] + [x for x in (self.db_ids.get(database),) if x]   # Anzeigename, dann Item-ID
+        status, data = 0, {"error": ""}
+        for db in dbs:
+            status, data = self._kusto(cluster, "/v1/rest/query", db, querylog.kql(days, include_reports, table))
+            if status == 200:
                 return kusto_rows(data)
-            last = f"{status} {data.get('error', '')}"
-        raise FetchError(f"Abfrage-Logs aus {database} nicht lesbar: {last}")
+            err = data.get("error", "")
+            if re.search(r"resolve|not found|SEM0100", err, re.I):
+                other = self._log_table(cluster, db, table)
+                if other:
+                    self.notes.append(f"Log-Tabelle in {database} heißt „{other}“ statt „{table}“.")
+                    status, data = self._kusto(cluster, "/v1/rest/query", db, querylog.kql(days, include_reports, other))
+                    if status == 200:
+                        return kusto_rows(data)
+            if status in (401, 403):
+                break
+        raise FetchError(f"Abfrage-Logs aus {database} nicht lesbar: {status} {data.get('error', '')}".strip())
+
+    def _log_table(self, cluster: str, database: str, table: str) -> str:
+        """Fehlt die Log-Tabelle, unter .show tables nach der Tabelle der Semantikmodell-Logs suchen."""
+        status, data = self._kusto(cluster, "/v1/rest/mgmt", database, ".show tables | project TableName")
+        if status != 200:
+            return ""
+        names = [str(r.get("TableName", "")) for r in kusto_rows(data)]
+        return next((n for n in names if n.lower() == table.lower()), "") or \
+            next((n for n in names if re.fullmatch(r"semantic_?models?_?logs?", n, re.I)), "") or \
+            next((n for n in names if "semanticmodel" in n.lower().replace("_", "") and "log" in n.lower()), "")
 
 
 def _dataset_from_parts(name: str, parts: list[dict]) -> dict:
@@ -369,6 +538,16 @@ def _dataset_from_parts(name: str, parts: list[dict]) -> dict:
         "roles": [{"name": r, "tablePermissions": [{"name": tb, "filterExpression": f} for tb, f in perms]}
                   for r, perms in model.roles.items()],
     }
+
+
+def _kql_key(name) -> str:
+    """Vergleichsschlüssel für KQL-Datenbanknamen: nur Buchstaben und Ziffern, klein. Fabric ersetzt Sonderzeichen
+    durch „_“ und verbindet Workspace, Item und „Database“; so passen „A B_C_Database“ und „A_B_C_Database“."""
+    return "".join(ch for ch in str(name or "").lower() if ch.isalnum())
+
+
+def monitoring_db_key(ws_name: str, item_name: str) -> str:
+    return _kql_key(ws_name) + _kql_key(item_name) + "database"
 
 
 def kusto_rows(data: dict) -> list[dict]:

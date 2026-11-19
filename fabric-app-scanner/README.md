@@ -74,8 +74,11 @@ Ohne `-w` prüft es alle aktiven Workspaces. Ergebnis wie immer in `fabscan-tena
 Workspace-Modus (oder gleich mit `--ohne-admin`):
 
 - Workspaces aus der normalen Fabric-API, also nur die, in denen das eigene Konto Mitglied ist.
-- Modelle per `getDefinition` als TMDL. Dafür braucht es mindestens die Rolle *Mitwirkender*. Modelle ohne Zugriff
-  stehen mit Fehler in der Modell-Übersicht.
+- Modelle per `getDefinition` als TMDL. Dafür braucht es mindestens die Rolle *Mitwirkender*.
+- Mit nur Leserecht (getDefinition 403) liest `fetch` Tabellen, Spalten und Measures über `executeQueries` mit
+  `INFO.VIEW.TABLES/COLUMNS/MEASURES` (braucht das Build-Recht). Dann fehlen die DAX-Ausdrücke und die Rollen: Die
+  Spalte RLS zeigt „?“, „Modell hat keine RLS“ wird nicht gemeldet. Modelle ganz ohne Zugriff stehen mit Fehler in
+  der Modell-Übersicht.
 - Abfragen wie gehabt aus dem Workspace Monitoring. Keine Tenant-Einstellungen für Admin-APIs nötig.
 - Der Bericht heißt dann „Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)“ und zeigt den Hinweis, dass es
   ein Teilscan ist.
@@ -90,6 +93,14 @@ eingebettet.
 - **Voraussetzungen für den ganzen Tenant (für beide Wege):** Fabric-Admin oder ein für Admin-APIs freigegebener Service Principal, die zwei
   Tenant-Einstellungen *Enhance admin APIs responses with detailed metadata* und *… with DAX and mashup expressions*,
   Workspace Monitoring in den Workspaces mit den Modellen.
+
+**Wo fabscan das Workspace Monitoring findet:** Neues Monitoring legt ein Item vom Typ `Monitoring` an. fabscan
+fragt `GET /v1/workspaces/{id}/monitoringItems` (Rückweg `items?type=Monitoring`), meldet ausgeschaltete
+Datensammlung und nimmt die KQL-Datenbank `<Workspace>_<Item>_Database`. Liegt sie im zentralen Eventhouse eines
+anderen Monitoring-Items, sucht fabscan in den übrigen Workspaces mit eigenem Zugriff. Ohne Monitoring-Item greift
+das alte Muster (KQL-Datenbank mit „Monitoring“ im Namen). Die Log-Abfrage braucht nur `Timestamp`,
+`OperationName`, `EventText` und `ItemId`; heißt die Tabelle nicht `SemanticModelLogs`, sucht fabscan sie per
+`.show tables`.
 
 Mit exportierten Dateien geht es auch lokal: `fabscan --scan-result scan.json --query-log logs.csv`.
 

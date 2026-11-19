@@ -55,8 +55,10 @@ und die Modell-Metadaten aus der Admin-Scanner-API. Am Ende steht ein Bericht in
   Tenant-Einstellungen *Enhance admin APIs responses with detailed metadata* und
   *Enhance admin APIs responses with DAX and mashup expressions* (sonst fehlen Tabellen und Measures).
 - **Ohne Admin-Rechte** prüft das Notebook die Workspaces, in denen du Mitglied bist: Modelle per getDefinition
-  (mindestens Rolle Mitwirkender), Monitoring-Eventhouses werden dort selbst gesucht.
-- Für die Abfragen: **Workspace Monitoring** in den Workspaces mit den Modellen (legt ein Monitoring-Eventhouse an).
+  (mindestens Rolle Mitwirkender, mit nur Leserecht die Namen über INFO.VIEW), das Workspace Monitoring wird dort
+  selbst gesucht.
+- Für die Abfragen: **Workspace Monitoring** in den Workspaces mit den Modellen (Workspace-Einstellungen →
+  Monitoring, legt ein Monitoring-Item mit Eventhouse und KQL-Datenbank an, Datensammlung einschalten).
   Ohne Monitoring zeigt der Bericht nur die Modell-Übersicht.
 - Ein Lakehouse als Standard an das Notebook hängen (dort landen Bericht und Rohdaten).
 
@@ -71,11 +73,11 @@ WORKSPACES = []
 # Admin-API: None = versuchen, bei fehlenden Rechten nur die eigenen Workspaces prüfen; False = gleich ohne.
 ADMIN_API = None
 
-# Workspace Monitoring: je Monitoring-Eventhouse die Abfrage-URI und die KQL-Datenbank.
-# Zu finden im Workspace unter „Monitoring Eventhouse“ → KQL-Datenbank → Abfrage-URI kopieren.
+# Workspace Monitoring: je KQL-Datenbank des Monitorings die Abfrage-URI und der Name.
+# Zu finden im Monitoring-Item → KQL-Datenbank „<Workspace>_<Item>_Database“ → Abfrage-URI kopieren.
 # Ohne Admin-Rechte und leer: wird in den geprüften Workspaces selbst gesucht.
 MONITORING = [
-    # {"cluster": "https://<id>.<region>.kusto.fabric.microsoft.com", "database": "Monitoring KQL database"},
+    # {"cluster": "https://<id>.<region>.kusto.fabric.microsoft.com", "database": "Finance_Monitoring_Database"},
 ]
 
 # Alternativ oder zusätzlich: exportierte Logs im Lakehouse (CSV, JSON oder JSON Lines).
@@ -83,7 +85,7 @@ QUERY_LOG_FILES = []
 
 DAYS = 14                          # Zeitraum der Abfragen
 INCLUDE_REPORT_QUERIES = False     # True = auch Abfragen aus Power-BI-Berichten prüfen
-LOG_TABLE = "SemanticModelLogs"    # Tabelle im Monitoring-Eventhouse
+LOG_TABLE = "SemanticModelLogs"    # Tabelle in der Monitoring-Datenbank
 OUTPUT_DIR = "/lakehouse/default/Files/fabscan"
 REPORT_TITLE = "Tenant-Prüfbericht Fabric Apps"
 WRITE_DELTA = True                 # Befunde zusätzlich als Tabelle fabscan_findings (für Power BI)
@@ -116,12 +118,22 @@ class _NotebookAuth:
     method = "Notebook"
 
     def token(self, resource):
-        return notebookutils.credentials.getToken("pbi")   # gilt für die Power-BI- und die Fabric-API
+        # Das Power-BI-Token nimmt auch api.fabric.microsoft.com an; Kusto braucht ein Token für den Cluster.
+        if resource in (fsfetch.RES_PBI, fsfetch.RES_FABRIC):
+            return notebookutils.credentials.getToken("pbi")
+        return notebookutils.credentials.getToken(resource)
 
 
 def _admin_denied(e):
+    # sempy wirft FabricHTTPException(response): der Status steht an der Ausnahme oder an e.response.
+    if isinstance(e, ImportError):
+        return True                                        # sempy ohne Admin-Modul
+    for x in (e, e.__cause__, e.__context__):
+        code = getattr(x, "status_code", None) or getattr(getattr(x, "response", None), "status_code", None)
+        if code is not None:
+            return int(code) in (401, 403)
     t = f"{type(e).__name__} {e}".lower()
-    return any(s in t for s in ("401", "403", "unauthorized", "forbidden", "admin"))
+    return any(s in t for s in (" 401", " 403", "unauthorized", "forbidden"))
 
 
 use_admin = ADMIN_API is not False
@@ -151,7 +163,7 @@ if not use_admin:
     scan_results = _f.scan(ids)
     if not MONITORING:
         MONITORING = [{"cluster": c, "database": d} for c, d in _f.find_monitoring(ids)]
-        print(f"{len(MONITORING)} Monitoring-Eventhouse(s) gefunden")
+        print(f"{len(MONITORING)} Monitoring-Datenbank(en) gefunden")
     for n in _f.notes:
         print("Hinweis:", n)
     if REPORT_TITLE == "Tenant-Prüfbericht Fabric Apps":

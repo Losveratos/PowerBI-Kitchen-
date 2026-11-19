@@ -63,7 +63,8 @@ def model_rows(models: list[Model], apps: list[AppResult]) -> list[dict]:
                 if b.model is m:
                     used |= {x.lower() for x in b.measures_used}
         rows.append({"model": m.name, "workspace": getattr(m, "workspace", ""), "tables": len(m.tables),
-                     "measures": m.measure_count, "rls": len(m.roles), "clients": [a.name for a in users],
+                     "measures": m.measure_count, "rls": None if getattr(m, "roles_unknown", False) else len(m.roles),
+                     "clients": [a.name for a in users],
                      "used": len(used), "error": getattr(m, "schema_error", "")})
     rows.sort(key=lambda r: (-len(r["clients"]), r["workspace"], r["model"]))
     return rows

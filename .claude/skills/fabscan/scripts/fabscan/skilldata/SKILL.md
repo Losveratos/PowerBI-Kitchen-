@@ -78,13 +78,16 @@ Für Admins: Welche Anwendungen fragen die Modelle außerhalb von Power-BI-Beric
     Admin-APIs freigegeben ist.
   - **Ohne Admin-Rechte** wechselt `fetch` bei 401/403 von selbst in den Workspace-Modus (oder gleich mit
     `--ohne-admin`): nur Workspaces, in denen das Konto Mitglied ist, Modelle per getDefinition (mindestens Rolle
-    Mitwirkender). Dem Nutzer dann sagen, dass es ein Teilscan ist und welche Modelle ohne Zugriff blieben.
+    Mitwirkender; mit nur Leserecht Namen über INFO.VIEW, ohne Ausdrücke und Rollen). Dem Nutzer dann sagen, dass es
+    ein Teilscan ist und welche Modelle ohne Zugriff oder nur mit Leserecht gelesen wurden.
+  - Workspace Monitoring sucht `fetch` selbst (Monitoring-Item, auch mit zentralem Eventhouse). Meldet es
+    ausgeschaltete Datensammlung oder keine Datenbank, das dem Nutzer so weitergeben.
   - Bei Abbruch die Meldung in Klartext erklären, zum Beispiel Tenant-Einstellungen, Monitoring aus, kein Zugriff
     auf den Workspace oder keine Verbindung.
 
 - **Notebook erzeugen:** `python3 <SKILL_DIR>/run.py notebook -o fabscan_tenant.ipynb`.
   Dem Nutzer erklären: In einen Fabric-Workspace importieren, ein Lakehouse anhängen, in der Parameter-Zelle die
-  Monitoring-Eventhouses eintragen, alle ausführen. Voraussetzungen stehen in der ersten Zelle (Fabric-Admin,
+  Workspaces eintragen (Monitoring sucht das Notebook ohne Admin-Rechte selbst), alle ausführen. Voraussetzungen stehen in der ersten Zelle (Fabric-Admin,
   zwei Tenant-Einstellungen für detaillierte Metadaten, Workspace Monitoring).
 - **Exportierte Dateien auswerten:** Hat der Nutzer eine Scanner-API-Antwort und einen Log-Export:
   `python3 <SKILL_DIR>/run.py --scan-result scan.json --query-log logs.csv -o tenant-bericht`.

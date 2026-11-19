@@ -15,7 +15,7 @@ from unittest import mock
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 
-from fabscan import cli, fetch  # noqa: E402
+from fabscan import cli, fetch, scanapi, tenant  # noqa: E402
 
 FIX = os.path.join(HERE, "fixtures", "tenant")
 WS = "9eb531b4-f97a-4dad-99ff-fac0e31fbeb3"
@@ -64,9 +64,27 @@ def tmdl_parts(ds: dict) -> list[dict]:
     return parts
 
 
+def info_rows(ds: dict, body: dict) -> list[dict]:
+    """INFO.VIEW-Ergebnis wie executeQueries es für einen Leser liefert: Namen ja, Ausdrücke leer."""
+    fn = body["queries"][0]["query"]
+    rows = []
+    for t in ds.get("tables", []):
+        if "TABLES" in fn:
+            rows.append({"[Name]": t["name"], "[IsHidden]": bool(t.get("isHidden"))})
+        elif "COLUMNS" in fn:
+            rows.append({"[Name]": "RowNumber-1", "[Table]": t["name"], "[Type]": "RowNumber", "[IsHidden]": True})
+            rows += [{"[Name]": c["name"], "[Table]": t["name"], "[Type]": "Data", "[IsHidden]": bool(c.get("isHidden")),
+                      "[Expression]": None} for c in t.get("columns", [])]
+        else:
+            rows += [{"[Name]": ms["name"], "[Table]": t["name"], "[IsHidden]": bool(ms.get("isHidden")),
+                      "[Expression]": None, "[FormatString]": ms.get("formatString")} for ms in t.get("measures", [])]
+    return rows
+
+
 class FakeFabric:
-    def __init__(self, admin=True, lro=False, denied_models=()):
+    def __init__(self, admin=True, lro=False, denied_models=(), info_models=()):
         self.calls, self.admin, self.polls = [], admin, 0
+        self.info_models = set(info_models)        # nur Leserecht: executeQueries mit INFO.VIEW beantworten
         self.lro, self.denied_models, self.op_polls = lro, set(denied_models), 0
         with open(os.path.join(FIX, "scan_result.json"), encoding="utf-8") as fh:
             self.scan = json.load(fh)
@@ -92,6 +110,9 @@ class FakeFabric:
                 self.pending = parts
                 return 202, {"_operation": "op-1", "_location": f"{fetch.FABRIC}/operations/op-1", "_retry": "1"}
             return 200, {"definition": {"parts": parts}}
+        m = re.match(rf"{re.escape(fetch.POWERBI)}/groups/{WS}/datasets/([^/]+)/executeQueries", url)
+        if m and m.group(1) in self.info_models:
+            return 200, {"results": [{"tables": [{"rows": info_rows(self.datasets[m.group(1)], body)}]}]}
         if url == f"{fetch.FABRIC}/operations/op-1":
             self.op_polls += 1
             return 200, {"status": "Running" if self.op_polls < 2 else "Succeeded"}
@@ -233,6 +254,33 @@ class Fetch(unittest.TestCase):
         self.assertTrue(ds["Finanzmodell"]["tables"])
         self.assertIn("1 Modell(e) ließen sich nicht lesen", out)
 
+    def test_reader_model_via_info_view(self):
+        """getDefinition 403 (nur Leserecht): Namen über INFO.VIEW, Rollen unbekannt statt „keine RLS“."""
+        vid = "66666666-7777-8888-9999-000000000000"
+        fake = FakeFabric(admin=False, denied_models=[vid], info_models=[vid])
+        rc, out, err, _ = self.run_fetch(fake, [])
+        self.assertEqual(rc, 0, err)
+        ds = {d["name"]: d for d in self._scan_json()[0]["workspaces"][0]["datasets"]}
+        v = ds["Vertrieb"]
+        self.assertNotIn("schemaRetrievalError", v)
+        self.assertTrue(v["rolesUnknown"])
+        self.assertEqual([ms["name"] for t in v["tables"] for ms in t["measures"]], ["Pipeline"])
+        self.assertNotIn("RowNumber-1", [c["name"] for t in v["tables"] for c in t["columns"]])
+        self.assertIn("nur mit Leserecht", out)
+        models = {m.name: m for m in scanapi.load_scan(self._scan_json())}
+        self.assertTrue(models["Vertrieb"].roles_unknown and not models["Finanzmodell"].roles_unknown)
+        rows = {r["model"]: r for r in tenant.model_rows(list(models.values()), [])}
+        self.assertIsNone(rows["Vertrieb"]["rls"])
+        from fabscan.querylog import Client
+        c = Client(label="App", app="App", item_id=vid, item_name="Vertrieb", workspace="Finance")
+        c.texts["EVALUATE SUMMARIZECOLUMNS(\"P\", [Pipeline])"] = 1
+        c.users.add("a@b.de")
+        ids = {f.rule for f in tenant.scan_client(c, list(models.values())).findings}
+        models["Vertrieb"].roles = {}
+        models["Vertrieb"].roles_unknown = False
+        self.assertNotIn("SEC-NO-RLS", ids)
+        self.assertIn("SEC-NO-RLS", {f.rule for f in tenant.scan_client(c, list(models.values())).findings})
+
     def test_unknown_workspace_without_admin(self):
         rc, _, err, _ = self.run_fetch(FakeFabric(admin=False), ["-w", "Gibtsnicht"])
         self.assertEqual(rc, 2)
@@ -248,7 +296,7 @@ class Fetch(unittest.TestCase):
             return orig(method, url, token, body)
         rc, out, err, _ = self.run_fetch(no_kql, [])
         self.assertEqual(rc, 0, err)
-        self.assertIn("Kein Monitoring-Eventhouse gefunden", out)
+        self.assertIn("Kein Workspace Monitoring gefunden", out)
         self.assertIn("nur Modell-Übersicht", out)
 
     def test_network_error_is_readable(self):

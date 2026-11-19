@@ -177,5 +177,53 @@ class Notebook(unittest.TestCase):
                          ["befunde.csv", "befunde.json", "bericht.html", "zusammenfassung.md"])
 
 
+def _scan_defs(**ns):
+    """Nur die Hilfsfunktionen aus der Scan-Zelle, ohne den Rest der Zelle auszuführen."""
+    import ast
+    tree = ast.parse(build_notebook.SCAN)
+    body = [n for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))]
+    exec(compile(ast.Module(body=body, type_ignores=[]), "scan", "exec"), ns)
+    return ns
+
+
+class _HTTPError(Exception):
+    """Wie sempy.fabric.exceptions.FabricHTTPException: trägt die requests-Antwort."""
+    def __init__(self, status, msg="Request failed"):
+        super().__init__(msg)
+        self.response = types.SimpleNamespace(status_code=status)
+
+
+class NotebookHelpers(unittest.TestCase):
+    def test_admin_denied_reads_status_code(self):
+        denied = _scan_defs()["_admin_denied"]
+        self.assertTrue(denied(_HTTPError(401, "GET https://api.powerbi.com/v1.0/myorg/admin/groups")))
+        self.assertTrue(denied(_HTTPError(403)))
+        self.assertFalse(denied(_HTTPError(429, "admin API throttled")))     # „admin“ im Text reicht nicht
+        self.assertFalse(denied(_HTTPError(500, "403 in der Meldung")))      # Status gewinnt vor Text
+        self.assertTrue(denied(ImportError("No module named 'sempy.fabric.admin'")))
+        self.assertTrue(denied(RuntimeError("FabricHTTPException: 403 Forbidden")))
+        self.assertFalse(denied(ValueError("keine Spalte Id")))
+
+    def test_admin_denied_follows_cause(self):
+        denied = _scan_defs()["_admin_denied"]
+        try:
+            try:
+                raise _HTTPError(403)
+            except _HTTPError as inner:
+                raise RuntimeError("Scan fehlgeschlagen") from inner
+        except RuntimeError as e:
+            self.assertTrue(denied(e))
+
+    def test_notebook_auth_token_per_resource(self):
+        from fabscan import fetch
+        asked = []
+        nu = types.SimpleNamespace(credentials=types.SimpleNamespace(getToken=lambda r: (asked.append(r), "t")[1]))
+        auth = _scan_defs(fsfetch=fetch, notebookutils=nu)["_NotebookAuth"]()
+        auth.token(fetch.RES_FABRIC)
+        auth.token(fetch.RES_PBI)
+        auth.token("https://trd-abc.z3.kusto.fabric.microsoft.com")
+        self.assertEqual(asked, ["pbi", "pbi", "https://trd-abc.z3.kusto.fabric.microsoft.com"])
+
+
 if __name__ == "__main__":
     unittest.main()

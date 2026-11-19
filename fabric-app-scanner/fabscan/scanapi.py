@@ -20,6 +20,7 @@ def _models_from_result(data: dict) -> list[Model]:
             m.workspace_id = ws.get("id", "")           # type: ignore[attr-defined]
             m.schema_error = ds.get("schemaRetrievalError", "")  # type: ignore[attr-defined]
             m.endorsement = (ds.get("endorsementDetails") or {}).get("endorsement", "")  # type: ignore[attr-defined]
+            m.roles_unknown = bool(ds.get("rolesUnknown"))  # type: ignore[attr-defined]  # nur Leserecht (INFO.VIEW)
             for t in ds.get("tables", []) or []:
                 tb = Table(t.get("name", "?"), hidden=bool(t.get("isHidden")), file=m.path)
                 for c in t.get("columns", []) or []:

@@ -355,7 +355,8 @@ def _tenant_section(t: dict) -> str:
          "von Power-BI-Berichten abgefragt.</p><div class='scroll'><table class='tbl'><thead><tr><th>Modell</th><th>Workspace</th>"
          "<th>Measures</th><th>von Clients genutzt</th><th>RLS-Rollen</th><th>Clients</th></tr></thead><tbody>"]
     for r in rows[:60]:
-        rls = f"<span class='s ok'>{r['rls']}</span>" if r["rls"] else "<span class='s info'>keine</span>"
+        rls = ("<span class='s info' title='Nur Leserecht: Rollen nicht lesbar'>?</span>" if r["rls"] is None
+               else f"<span class='s ok'>{r['rls']}</span>" if r["rls"] else "<span class='s info'>keine</span>")
         cl = ", ".join(e(x) for x in r["clients"][:4]) + (f" +{len(r['clients']) - 4}" if len(r["clients"]) > 4 else "")
         err = f" <span class='meta'>(Schema nicht lesbar)</span>" if r.get("error") else ""
         P.append(f"<tr><td>{e(r['model'])}{err}</td><td class='meta'>{e(r['workspace'])}</td><td class='c'>{r['measures']}</td>"

@@ -177,7 +177,7 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                     ", ".join(local), os.path.relpath(rf.path, repo_root),
                     advice="Für Produktion getrennte Konfiguration ohne localhost, sonst unkritisch.")
     for b in sm_bind:
-        if b.model is not None and not b.model.roles:
+        if b.model is not None and not b.model.roles and not getattr(b.model, "roles_unknown", False):
             app.add("security", "info", "SEC-NO-RLS", f"Modell „{b.model.name}“ hat keine Rollen (RLS)",
                     "Delegierter Zugriff schützt nur, wenn das Modell Zeilen nach Nutzer einschränkt. Ohne Rollen sieht jeder mit Lesezugriff alles.",
                     b.model.path, advice="Gewollt bei Demo- oder Gesamtdaten; sonst Rollen im Modell anlegen, nicht in der App.")
@@ -302,10 +302,11 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                 if d.kind == "MEASURE":
                     shadow = m.measure(d.name) if m else None
                     if shadow:
-                        same = _norm(shadow.expr) == _norm(d.expr)
+                        same = bool(shadow.expr.strip()) and _norm(shadow.expr) == _norm(d.expr)
+                        model_expr = shadow.expr.strip()[:240] or "Ausdruck nicht lesbar (nur Leserecht auf das Modell)"
                         app.add("query" if not same else "deviation", "fail" if not same else "warn", "QRY-SHADOW",
                                 f"Measure [{d.name}] wird in der Abfrage überschrieben" + (" (gleicher Ausdruck)" if same else ""),
-                                f"Im Modell ({shadow.table}): {shadow.expr.strip()[:240]}", f, ln, f"{d.kind} {d.table}[{d.name}] = {d.expr[:400]}",
+                                f"Im Modell ({shadow.table}): {model_expr}", f, ln, f"{d.kind} {d.table}[{d.name}] = {d.expr[:400]}",
                                 "Modell-Measure verwenden; Änderungen im Modell machen, nicht in der App.")
                     else:
                         app.add("calc", "warn", "CALC-DEFINE", f"Kennzahl nur in der App definiert: [{d.name}]",
