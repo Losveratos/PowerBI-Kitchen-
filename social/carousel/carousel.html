@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Kitchen-Karussell</title>
+<meta name="robots" content="noindex">
+<!-- LinkedIn-Karussell (Dokument-Post) · 1080 × 1350 je Folie · Daten aus data.js (erzeugt von build.py) -->
+<link rel="stylesheet" href="../../assets/fonts/inter/inter.css">
+<style>
+:root{
+  --bg:#0C0F0E; --ink:#F4F1E8; --soft:#B9B5A8; --mute:#7E7B72; --line:rgba(255,255,255,.10);
+  --brand:#117865; --brand-light:#3DB39B; --warm:#E07A4A; --yellow:#F0D437; --card:#141917;
+  --display:"Segoe UI Variable Display","Segoe UI",Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",Inter,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+@page{size:1080px 1350px;margin:0}
+html,body{background:#2a2a2a;font-family:var(--sans);color:var(--ink)}
+.slide{position:relative;width:1080px;height:1350px;overflow:hidden;page-break-after:always;break-after:page;
+  background:radial-gradient(1100px 700px at 0% 100%,rgba(17,120,101,.22),transparent 70%),var(--bg)}
+.slide::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:30px 30px}
+.pad{position:absolute;inset:64px 64px 0 64px}
+.eyebrow{font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand-light);font-weight:700}
+.eyebrow .dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--warm);margin:0 12px 3px;vertical-align:middle}
+h1,h2{font-family:var(--display);font-weight:300;letter-spacing:-.025em;line-height:1}
+h1 em,h2 em{font-style:italic;color:var(--brand-light)}
+.foot{position:absolute;left:64px;right:64px;bottom:26px;display:flex;justify-content:space-between;align-items:center;font-size:20px;color:var(--mute)}
+.foot .logo{height:30px}
+.foot .pg{font-variant-numeric:tabular-nums}
+.swipe{display:inline-flex;align-items:center;gap:12px;color:var(--ink);font-weight:600}
+.swipe i{display:inline-block;width:46px;height:3px;background:var(--brand-light);position:relative;border-radius:2px}
+.swipe i::after{content:"";position:absolute;right:-2px;top:-6px;border:7.5px solid transparent;border-left:12px solid var(--brand-light);border-right:0}
+
+/* Cover */
+.cover .logo-big{width:420px;margin-top:10px}
+.cover h1{font-size:132px;margin-top:70px}
+.cover .lead{font-size:34px;line-height:1.35;color:var(--soft);margin-top:34px;max-width:880px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:64px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 26px}
+.kpi b{display:block;font-family:var(--display);font-weight:300;font-size:64px;letter-spacing:-.03em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:22px;color:var(--soft);margin-top:10px}
+
+/* Zahlen */
+.stats h2{font-size:84px;margin-top:22px}
+.chart{margin-top:44px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 30px 20px}
+.chart .t{font-size:24px;font-weight:700}
+.chart .t small{font-weight:400;color:var(--soft);margin-left:8px}
+.fun{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:22px}
+.fun div{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 26px;font-size:23px;line-height:1.35;color:var(--soft)}
+.fun b{display:block;font-family:var(--display);font-weight:300;font-size:50px;color:var(--ink);letter-spacing:-.02em;line-height:1.05;margin-bottom:6px;font-variant-numeric:tabular-nums}
+
+/* Gantt */
+.gantt h2{font-size:64px;margin-top:18px}
+.gantt .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:20px;font-size:18px;color:var(--soft)}
+.gantt .legend span{display:inline-flex;align-items:center;gap:7px}
+.gantt .legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.gsvg{position:absolute;left:64px;top:270px}
+
+/* Monats-Folien */
+.month h2{font-size:82px;margin-top:14px}
+.month h2 small{font-size:30px;color:var(--mute);font-weight:400;letter-spacing:0;margin-left:16px;font-family:var(--sans)}
+.cards{position:absolute;left:64px;right:64px;top:226px;display:flex;flex-direction:column;gap:16px}
+.card{position:relative;display:grid;grid-template-columns:372px 1fr;gap:28px;height:250px;background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden;padding-right:26px}
+.card .im{position:relative;background:#0a0c0b;border-right:1px solid var(--line)}
+.card .im img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.card .tx{padding:20px 0 18px;display:flex;flex-direction:column;min-width:0}
+.kind{font-size:17px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--c)}
+.card h3{font-family:var(--display);font-weight:600;font-size:31px;line-height:1.1;letter-spacing:-.015em;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card p{font-size:21px;line-height:1.35;color:var(--soft);margin-top:9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta{margin-top:auto;display:flex;align-items:center;gap:10px;font-size:19px;color:var(--soft);white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.chip svg{width:17px;height:17px}
+.when{display:inline-flex;align-items:center;gap:10px;font-weight:700;color:var(--ink)}
+.when.live{color:var(--brand-light)}
+.when .arrow{display:inline-block;width:64px;height:3px;background:currentColor;position:relative;border-radius:2px}
+.when .arrow::after{content:"";position:absolute;right:-2px;top:-6px;border:7.5px solid transparent;border-left:12px solid currentColor;border-right:0}
+.rail{position:absolute;left:30px;top:250px;bottom:110px;width:2px;background:linear-gradient(var(--brand-light),rgba(61,179,155,.15))}
+
+/* Outro */
+.outro h2{font-size:104px;margin-top:80px}
+.outro .lead{font-size:34px;line-height:1.4;color:var(--soft);margin-top:36px;max-width:900px}
+.url{display:inline-flex;align-items:center;gap:16px;margin-top:60px;font-size:44px;font-weight:700;color:var(--ink)}
+.url::before{content:"";width:60px;height:4px;background:var(--brand-light);border-radius:2px}
+.cta{margin-top:56px;display:flex;flex-direction:column;gap:18px;font-size:30px;color:var(--soft)}
+.cta b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<script src="data.js"></script>
+<script>
+const D = window.DATA;
+const KIND = {
+  'Power-BI-Visual':'#3DB39B','Visual Story':'#E07A4A','Werkzeug':'#5B9BD5','Lernspiel':'#F0D437',
+  'Doku':'#B9B5A8','Post':'#B48ED8','Whitepaper':'#E3B53C','Talk':'#E5677F','Event':'#D9A43A',
+  'Skill':'#58C7B0','Plattform':'#F4F1E8'};
+const MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const MS=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const nf=n=>n.toLocaleString('de-DE');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const dShort=iso=>{const [y,m,d]=iso.split('-').map(Number);return `${d}. ${MS[m-1]}`};
+const LOGO='../img/daten-wg-logo-petrol.png';
+const ICON_COMMIT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="4"/><path d="M2 12h6M16 12h6"/></svg>';
+const ICON_CODE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg>';
+
+const slides=[];
+const foot=(n)=>`<div class="foot"><img class="logo" src="${LOGO}" alt=""><span>datenwgknowledgekitchen.com</span><span class="pg">__PG__</span></div>`;
+
+/* 1 · Cover */
+const T=D.totals;
+slides.push(`<section class="slide cover"><div class="pad">
+  <img class="logo-big" src="${LOGO}" alt="Daten-WG">
+  <h1>${esc(D.cover.title1)}<br><em>${esc(D.cover.title2)}</em></h1>
+  <p class="lead">${D.cover.lead}</p>
+  <div class="kpis">
+    <div class="kpi"><b>${D.items.length}</b><span>Projekte gebaut</span></div>
+    <div class="kpi"><b>${nf(T.commits)}</b><span>Commits</span></div>
+    <div class="kpi"><b>${nf(T.loc)}</b><span>Zeilen Code</span></div>
+  </div>
+  <div style="margin-top:70px;font-size:30px" class="swipe">Wischen für den Zeitstrahl <i></i></div>
+</div>${foot()}</section>`);
+
+/* 2 · Zahlen */
+(function(){
+  const M=D.months, W=892, H=350, top=40, bot=70, max=Math.max(...M.map(m=>m.commits));
+  const bw=Math.min(92,(W-40)/M.length-26), step=(W-40)/M.length;
+  let bars='';
+  M.forEach((m,i)=>{
+    const h=(H-top-bot)*m.commits/max, x=20+i*step+(step-bw)/2, y=H-bot-h;
+    const best=m.commits===max;
+    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${h}" rx="4" fill="${best?'#3DB39B':'#D8D5CB'}"/>
+      <text x="${x+bw/2}" y="${y-12}" text-anchor="middle" font-size="24" font-weight="700" fill="#F4F1E8">${nf(m.commits)}</text>
+      <text x="${x+bw/2}" y="${H-bot+30}" text-anchor="middle" font-size="21" fill="#B9B5A8">${MS[+m.month.slice(5)-1]}</text>
+      ${m.started?`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle" font-size="17" fill="#7E7B72">+${m.started} neu</text>`:''}`;
+  });
+  bars+=`<line x1="10" x2="${W-10}" y1="${H-bot+.5}" y2="${H-bot+.5}" stroke="#F4F1E8" stroke-width="2"/>`;
+  slides.push(`<section class="slide stats"><div class="pad">
+    <div class="eyebrow">Die Kitchen in Zahlen</div>
+    <h2>${D.stats.headline}</h2>
+    <div class="chart"><div class="t">Commits pro Monat<small>${D.stats.chartNote}</small></div>
+      <svg width="${W}" height="${H+8}" viewBox="0 0 ${W} ${H+8}" style="margin-top:16px;font-family:var(--sans)">${bars}</svg></div>
+    <div class="fun">${D.stats.facts.map(f=>`<div><b>${f.big}</b>${f.text}</div>`).join('')}</div>
+  </div>${foot()}</section>`);
+})();
+
+/* 3 · Gantt-Zeitstrahl (auf mehrere Folien verteilt) */
+(function(){
+  const items=[...D.items].sort((a,b)=>a.first_commit.localeCompare(b.first_commit)||a.title.localeCompare(b.title));
+  const pages=Math.ceil(items.length/30), per=Math.ceil(items.length/pages);
+  const t0=new Date(D.range.start), t1=new Date(D.range.end), days=(t1-t0)/864e5;
+  const W=952, LW=372, PW=W-LW-30, RH=Math.min(36,Math.floor(930/per));
+  const X=iso=>LW+PW*((new Date(iso)-t0)/864e5)/days;
+  const kinds=[...new Set(items.map(i=>i.kind_label))];
+  for(let p=0;p*per<items.length;p++){
+    const chunk=items.slice(p*per,(p+1)*per), H=chunk.length*RH+60;
+    let g='';
+    // Monatslinien
+    for(let d=new Date(t0.getFullYear(),t0.getMonth()+1,1); d<=t1; d.setMonth(d.getMonth()+1)){
+      const iso=d.toISOString().slice(0,10), x=X(iso);
+      g+=`<line x1="${x}" x2="${x}" y1="30" y2="${H-20}" stroke="rgba(255,255,255,.10)"/>
+          <text x="${x+6}" y="20" font-size="19" fill="#9A978D">${MS[d.getMonth()]}</text>`;
+    }
+    const xt=X(D.range.today);
+    g+=`<line x1="${xt}" x2="${xt}" y1="30" y2="${H-20}" stroke="#E07A4A" stroke-width="2" stroke-dasharray="5 5"/>
+        <text x="${xt}" y="${H-2}" text-anchor="middle" font-size="16" font-weight="700" fill="#E07A4A">heute</text>`;
+    chunk.forEach((it,i)=>{
+      const y=34+i*RH, c=KIND[it.kind_label]||'#ccc';
+      const x0=X(it.first_commit);
+      let x1=it.ongoing?xt:Math.max(X(it.last_commit),x0+6);
+      const title=it.title.length>31?it.title.slice(0,30)+'…':it.title;
+      g+=`<text x="${LW-14}" y="${y+15}" text-anchor="end" font-size="19" fill="#E9E6DC">${esc(title)}</text>`;
+      if(it.ongoing){
+        g+=`<rect x="${x0}" y="${y+5}" width="${Math.max(x1-x0-8,4)}" height="13" rx="3" fill="${c}"/>
+            <path d="M${x1-10},${y+2} L${x1+4},${y+11.5} L${x1-10},${y+21} Z" fill="${c}"/>`;
+      } else {
+        g+=`<rect x="${x0}" y="${y+5}" width="${x1-x0}" height="13" rx="3" fill="${c}" fill-opacity=".85"/>`;
+      }
+      g+=`<circle cx="${x0}" cy="${y+11.5}" r="5" fill="#0C0F0E" stroke="${c}" stroke-width="2.5"/>`;
+    });
+    slides.push(`<section class="slide gantt"><div class="pad">
+      <div class="eyebrow">Zeitstrahl ${p+1}/${Math.ceil(items.length/per)}</div>
+      <h2>Vom ersten Commit <em>bis heute</em></h2>
+      <div class="legend">${kinds.map(k=>`<span><i style="background:${KIND[k]}"></i>${k}</span>`).join('')}
+        <span style="color:#F4F1E8"><b>▶</b>&nbsp;läuft weiter</span></div>
+    </div>
+    <svg class="gsvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="font-family:var(--sans)">${g}</svg>
+    ${foot()}</section>`);
+  }
+})();
+
+/* 4 · Karten-Folien: chronologisch je 4 Projekte */
+(function(){
+  const items=[...D.items].sort((a,b)=>a.first_commit.localeCompare(b.first_commit)||a.title.localeCompare(b.title));
+  const N=items.length, per=4, pages=Math.ceil(N/per);
+  for(let p=0;p<pages;p++){
+    const chunk=items.slice(p*per,p*per+per);
+    const m0=chunk[0].first_commit.slice(0,7), m1=chunk[chunk.length-1].first_commit.slice(0,7);
+    const mon=k=>MONTHS[+k.slice(5)-1];
+    const head=m0===m1?`${mon(m0)} <em>${m0.slice(0,4)}</em>`:`${mon(m0)} – ${mon(m1)} <em>${m1.slice(0,4)}</em>`;
+    const cards=chunk.map(it=>{
+      const c=KIND[it.kind_label]||'#ccc';
+      const when=it.ongoing
+        ?`<span class="when live">${dShort(it.first_commit)} <span class="arrow"></span> läuft</span>`
+        :(it.first_commit===it.last_commit?`<span class="when">${dShort(it.first_commit)}</span>`
+          :`<span class="when">${dShort(it.first_commit)} – ${dShort(it.last_commit)}</span>`);
+      return `<div class="card" style="--c:${c}">
+        <div class="im">${it.img?`<img src="${it.img}" alt="">`:''}</div>
+        <div class="tx"><div class="kind">${esc(it.kind_label)}</div>
+          <h3>${esc(it.title)}</h3><p>${esc(it.short_desc)}</p>
+          <div class="meta">${when}
+            <span class="chip">${ICON_COMMIT}${nf(it.commits)} Commits</span>
+            <span class="chip">${ICON_CODE}${nf(it.loc)} Zeilen</span></div></div></div>`;
+    }).join('');
+    slides.push(`<section class="slide month"><div class="pad">
+      <div class="eyebrow">Zeitstrahl<span class="dot"></span>Projekt ${p*per+1}–${p*per+chunk.length} von ${N}</div>
+      <h2>${head}</h2></div>
+      <div class="cards">${cards}</div>${foot()}</section>`);
+  }
+})();
+
+/* 5 · Outro */
+slides.push(`<section class="slide outro"><div class="pad">
+  <img class="logo-big" src="${LOGO}" alt="Daten-WG" style="width:360px">
+  <h2>${D.outro.title1}<br><em>${D.outro.title2}</em></h2>
+  <p class="lead">${D.outro.lead}</p>
+  <div class="url">datenwgknowledgekitchen.com</div>
+  <div class="cta">${D.outro.cta.map(c=>`<div>${c}</div>`).join('')}</div>
+</div>${foot()}</section>`);
+
+const N=slides.length;
+document.getElementById('deck').innerHTML=slides.map((s,i)=>s.replace('__PG__',`${i+1} / ${N}`)).join('');
+</script>
+</body>
+</html>
