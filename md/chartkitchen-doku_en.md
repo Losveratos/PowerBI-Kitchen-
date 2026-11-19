@@ -26,7 +26,7 @@ Version · **1.54.0.0** · As of · **2026-11-19** · IBCS-inspired
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.54.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07).
+This guide describes the state of version **1.54.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07). New in 1.55 (in progress): the chart type [“Stock & flow (time)”](#stockflow) with template C20 for cash, headcount and inventory (chapter 07).
 
 ## 02 · The product family
 
@@ -71,7 +71,7 @@ If you can operate one of the two visuals, you can operate the other: getting st
 | Shared | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
-| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 17 IBCS chart templates C01–C19 (without C07/C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
+| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 18 IBCS chart templates C01–C20 (without C07/C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
 | **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane HD · Full HD · UHD; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
 | **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
 | **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
@@ -105,6 +105,7 @@ The 17 IBCS templates (chapter 07) appear as tiles with a preview in five groups
 |  | C19 | Columns vs. plan + year | Months AC/FC vs. PL, year on own scale |
 |  | C05 | Integrated year bridge | PY → AC/FC across the months |
 |  | C08 | Line for long series | Weekly or daily trend vs. PY |
+|  | C20 | Stock and flow | Cash, headcount or inventory over time |
 | **Structure** | C02 | Stacked bars by segment | Cost structure per unit |
 |  | C04 | Bars with plan variance | Regions or products AC vs. PL |
 |  | C06 | Driver bridge by category | Which units explain ΔPY? |
@@ -180,7 +181,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 | Filter info (footer) | Measure | Text measure with the current filter context (e.g. via CONCATENATEX/SELECTEDVALUE) — shown as a second footer when the filter footer is on. |
 | Comments | Measure | Text measure: categories with a comment get a numbered marker, the text appears in the tooltip and the comment list. |
 | Small Multiples | Grouping | Splits the chart into small tiles per group — with identical scaling (IBCS small multiples). |
-| Waterfall type (rowType) | Grouping | Row structure as tokens per row (waterfall, P&L statement, table): result row (`total`, formerly “sum”), movement (“delta”), margin row (`pct`) and flags such as `exclude`, `hide`, `davon`, `invert`, `emphasize`, `graphic` — combinable, e.g. `davon \| exclude`. The same column feeds the [P&L Statement](../pnl-doku_en.html). Token table: [chapter 07](#rowtype). |
+| Waterfall type (rowType) | Grouping | Row structure as tokens per row (waterfall, P&L statement, table): result row (`total`, formerly “sum”), movement (“delta”), margin row (`pct`) and flags such as `exclude`, `hide`, `davon`, `invert`, `emphasize`, `graphic` — combinable, e.g. `davon \| exclude`. Since 1.55 also `stock`, `inflow`, `outflow` for the [stock and flow mode](#stockflow). The same column feeds the [P&L Statement](../pnl-doku_en.html). Token table: [chapter 07](#rowtype). |
 | Forecast flag (0=actual · 1=FC · 2=preliminary) | Grouping | Alternative to the FC measure: a 1/0 column — rows flagged 1 are drawn as forecast (hatched), the AC measure runs through. |
 | X axis (scatter) | Measure | Scatter/bubble only (since 1.47): measure for the X axis — the Y axis stays AC. |
 | X axis PY (scatter) | Measure | Scatter/bubble only, optional (since 1.48, max. 1 field): prior-year value for the X axis. With PY bound and movement arrows enabled the arrows show true 2D movement from (X PY, PY) to the AC position — without this field only the Y axis moves. |
@@ -321,7 +322,7 @@ The following captures come straight from Power BI Desktop, with sample data fro
 
 ## 07 · Features in detail
 
-### IBCS templates C01–C19
+### IBCS templates C01–C20
 
 Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the same pattern as the table templates in the sister visual P&L Statement. A template is only a starting point: it sets chart type, variance basis, variance panels and the matching switches in one save; afterwards every setting is free to change.
 
@@ -348,6 +349,7 @@ Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the sa
 | C16 · Bar table by AC (sheet 04C) | like C14, sorted by AC descending (ranking) | Plan (PL) |
 | C17 · Category bridge horizontal (sheet 06E) | Category bridge as a bar cascade, basis previous year, PY as a grey bar behind AC instead of a triangle, separator every 4 rows, no driver note | Previous Year (PY), plan optional |
 | C19 · Columns vs. plan with year column (sheet 03B) | Columns, basis plan, variance absolute and in %, year column AC + FC on its own scale with scale band, scenario labels at the columns | Plan (PL), forecast recommended |
+| C20 · Stock and flow (sheets 08E to 08H, since 1.55) | Chart type “Stock & flow (time)” with net panel and area under the stock, scenario labels, no total header, highlight as ellipse | Stack series + waterfall type with stock / inflow / outflow |
 | C18 · Variance scatter (sheet 10F) | Scatter without mean quadrants, axis cross at 0 (reference lines X and Y), colour per group, size legend | Actual (AC) = ΔPL % measure, X axis = ΔPY % measure, series, bubble size optional |
 
 Since 1.54 switching templates cleans up: whatever the previous template set and the new one does not mention returns to its default (for example the reference lines of C18 when C09 is picked next). “Off” still changes nothing. Clicking a column header in C14 to C16 counts as a deviation; “↺ Back to template” restores the template’s sort.
@@ -438,6 +440,18 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 4. If a marker targets the last (or, backwards, the first) column, room is kept at that edge for bar and label; stacked columns then put the series names left of the first column as on sheet 01A. For targets in the middle and next to the year column the label sits above the bar and above the columns below it, for bars after the row's value. Several markers on one category sit side by side. In small multiples every tile reserves the same room. Lines and the waterfall style draw no markers.
 5. Second reconciliation: with the integrated bridge and both prior year and plan bound, “Second reconciliation” (`chart.bridgeSecondNet`, default Off) adds a second bar beside the net callout, e.g. “+4 PY”, with a thin level line of the other basis. It appears only when the other basis covers every month with a value; only then is room reserved for it.
 
+### Stock and flow over time (since 1.55)
+
+Cash, headcount or inventory: a stock that changes through inflows and outflows. The chart type **“Stock & flow (time)”** (`chart.orientation = stockflow`, template C20) shows everything in one graphic and on one scale, following the IBCS sheets 08E to 08H: the net flow per period on top, below it the inflows above and the outflows below the zero line, and the stock as a line with an area down to zero.
+
+1. **Data in long format:** category = time (ideally a hierarchy such as year › week › day, all levels expanded), “Actual (AC)” = the value, “Stack series” = the kind of row (“Cash in”, “Cash out”, “Cash at hand”), “Waterfall type” = one token per row: `stock` (also `bestand`, `balance`) for the stock, `inflow` (`zufluss`) and `outflow` (`abfluss`) for the flows. Outflows may arrive as positive values, `outflow` draws them below zero; without a token the sign decides. Several kinds per side are stacked. Forecast and plan as usual via the “Forecast” and “Plan” measures or the forecast flag.
+2. **Stock without a token:** without a `stock` row the visual takes the line measure (“Line (combo)”) as the stock. The net flow is computed by the visual (inflows minus outflows); the opening stock is derived: stock of the first period minus its net flow.
+3. **DAX note:** a stock is not additive over time. The stock measure must therefore return the cut-off value itself (e.g. with `LASTNONBLANKVALUE` or `CLOSINGBALANCEMONTH`), otherwise even the weekly or monthly value is wrong. Periods without movement still need a stock row, or the line breaks. Summing across units or regions is fine; the Σ tile of small multiples does that.
+4. **Notation:** actual solid, forecast hatched, plan hollow or light, for columns, stock markers and area. The markers sit at the end of the period (cut-off date), the opening stock at the start of the first period; negative stock is shaded pink. Net and flows use the same scale as the stock, even when the flows stay small (sheet 08G).
+5. **Time axis:** a hierarchy yields up to two group rows (e.g. week and year) with separators through all panels; the label sits under the first member. At the AC | FC | PL border the dashed scenario line is drawn, with “Scenario labels at the columns” AC, FC and PL below it.
+6. **Options** (Chart → “Stock & flow”, only visible in this mode): net panel and its label (e.g. “Net cash flow”), area, negative tint, opening stock, marker position (end or middle of the period) and axis groups. With template C20, “Highlight categories” circles the stock value of a period (“2026 · Dec”) or an axis group (“W01”, “2026”). The total header shows Σ inflow, Σ outflow, net and the closing stock, never a sum of stocks; YTD is locked in this mode.
+7. **Not yet included:** last value instead of sum in YTD, year column and table, magnified flows next to a large stock, axis groups in columns and line, stock variance against plan or prior year, the mode in the demo gallery and in the dwg app.
+
 ### Year column with its own scale
 
 ![Months against plan, on the right the year column AC + FC on its own scale (×0.1). The blue band sits at the same value on both scales, the slanted line joins the two bands; ΔPL and ΔPL % of the year sum sit in the variance panels (IBCS sheets 03A and 03B).](../doku-assets/feature-year-column.png)
@@ -486,6 +500,7 @@ Row names are not a stable data contract: rename or translate a row and the name
 | invert | invertieren, kosten, cost | — | rating reversed (higher cost is bad) · “Invert per category” |
 | emphasize | hervorheben, highlight | — | IBCS emphasis (EMPHASIZE) · “Highlight categories” |
 | graphic | grafik, chart | — | only rows with this token show bar/pin graphics · “Chart only these rows” |
+| stock · inflow · outflow | bestand, balance · zufluss · abfluss | — | since 1.55, only in the chart type “Stock & flow”: stock row, inflow, outflow · no list |
 | detail | normal, delta, konto, leer | Account, Separator | plain movement row · nothing |
 
 1. **Separators:** separate several tokens per cell with a comma, semicolon, space or `|`; case does not matter — e.g. `total; graphic` or `davon | exclude`.
@@ -645,8 +660,8 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter, C19 columns vs. plan with a year column. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) \| C19 · Columns vs. plan + year column (03B) · default „Off (no template)“ |
-| Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) · default „Columns (Time)“ |
+| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter, C19 columns vs. plan with a year column, C20 stock and flow over time. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) \| C19 · Columns vs. plan + year column (03B) \| C20 · Stock & flow (08E to 08H) · default „Off (no template)“ |
+| Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) \| Stock & flow (time), since 1.55 · default „Columns (Time)“ |
 | Smart-Start suggestions | Shows a subtle suggestion chip top-left of the chart when the bound fields clearly point to a better-fitting mode (e.g. date + AC + PL → columns with ΔPL). Only visible in edit mode, never in the read view or in exports. | On / Off · default On |
 | Variance basis | Basis for the variance panels. Auto: PL if available, otherwise PY. | Options: Auto \| Previous Year (PY) \| Plan (PL) \| Prior-month FC (revision) · default „Auto“ |
 | Absolute variance (ΔAC) | — | On / Off · default On |
@@ -686,7 +701,19 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Total row label | Since 1.55 (`chart.stackTotalLabel`): name of the Σ row, e.g. “World”. Empty = “Σ”. | Text · default empty |
 | Share bracket (top rows) | Since 1.55 (`chart.stackShareBracket`), stacked bars only: a bracket around the first N rows with their share of the grand total, e.g. “38 %” left of the names (IBCS sheet 02C). The reference is the first series when sorted by it, otherwise the stack total. Rest and Σ rows never count; not in 100 % mode. | 0 to 20 · default 0 (off) |
 | Series names (columns) | Since 1.55 (`chart.stackLegendPos`): where the series names sit at the stack. right of the last column (default) or left of the first column (IBCS sheet 01E). | Options: Right of the last column \| Left of the first column · default Right |
-| Scenario labels at the columns | Since 1.54 (`chart.scenarioLabels`), columns only: AC under the first actual month, FC under the first forecast month, AC and FC next to the parts of the year column. | On / Off · default Off |
+| Scenario labels at the columns | Since 1.54 (`chart.scenarioLabels`), columns only: AC under the first actual month, FC under the first forecast month, AC and FC next to the parts of the year column. Since 1.55 also in the chart type “Stock & flow” (row below the axis groups). | On / Off · default Off |
+
+#### Stock & flow
+
+| Setting | Description | Options / default |
+| --- | --- | --- |
+| Net panel | Since 1.55 (`chart.sfNet`): top panel with the net flow per period, on the same scale as the flows. | On / Off · default On |
+| Net panel label | `chart.sfNetLabel`: name right of the net zero line, e.g. “Net cash flow” or “Fluctuation”. | Free text · empty = “Net” |
+| Area under the stock | `chart.sfArea`: area between the stock line and zero, per period in the scenario notation. | On / Off · default On |
+| Tint negative stock | `chart.sfNegTint`: area pieces below zero lightly tinted in the bad colour. | On / Off · default On |
+| Opening stock | `chart.sfOpening`: extra point at the start of the first period (stock of the first period minus its net flow). | On / Off · default On |
+| Stock marker | `chart.sfStockAt`: position of the stock markers. | End of the period \| Middle of the period · default End |
+| Axis groups | `chart.axisGroups`: up to two group rows from the category hierarchy, with separators. | From the hierarchy \| Off · default From the hierarchy |
 
 #### Small Multiples
 

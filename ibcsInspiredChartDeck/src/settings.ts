@@ -29,7 +29,9 @@ const orientationItems: LocEnumMember[] = [
     { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
     { value: "scatter", displayName: "Scatter / bubble (correlation)", key: "Enum_Orientation_Scatter" },
     { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
-    { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
+    { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" },
+    // 1.55 (backlog B11, IBCS sheets 08E to 08H): flows as columns, stock as line with area
+    { value: "stockflow", displayName: "Stock & flow (time)", key: "Enum_Orientation_StockFlow" }
 ];
 
 const comparisonItems: LocEnumMember[] = [
@@ -96,6 +98,17 @@ const stackNormalizeItems: LocEnumMember[] = [
 const stackLegendPosItems: LocEnumMember[] = [
     { value: "end", displayName: "Right of the last column", key: "Enum_StackLegPos_End" },
     { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
+];
+
+// 1.55 (backlog B11): stock markers at the period end (IBCS sheets) or in the middle,
+// group rows of the time axis from the category hierarchy
+const sfStockAtItems: LocEnumMember[] = [
+    { value: "end", displayName: "End of the period", key: "Enum_SfStockAt_End" },
+    { value: "center", displayName: "Middle of the period", key: "Enum_SfStockAt_Center" }
+];
+const axisGroupsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "From the hierarchy", key: "Enum_AxisGroups_Auto" },
+    { value: "off", displayName: "Off", key: "Enum_AxisGroups_Off" }
 ];
 
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
@@ -234,7 +247,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C16", displayName: "C16 · Bar table by AC (04C)", key: "Enum_Template_C16" },
     { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
     { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
-    { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" }
+    { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
+    { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -257,7 +271,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
-        stackNormalizeItems, stackLegendPosItems];
+        stackNormalizeItems, stackLegendPosItems, sfStockAtItems, axisGroupsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -339,7 +353,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule. Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow). Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -1462,11 +1476,86 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.exportExpandAll]
     });
 
+    // 1.55 (backlog B11, IBCS sheets 08E to 08H): stock & flow mode (orientation=stockflow)
+    sfNet = new formattingSettings.ToggleSwitch({
+        name: "sfNet",
+        displayName: "Net panel",
+        displayNameKey: "Chart_SfNet",
+        description: "Bestand & Fluss: oberes Panel mit dem Netto-Fluss je Periode (Zufluss minus Abfluss), im selben Maßstab wie die Flüsse. Standard an.",
+        descriptionKey: "Desc_Chart_SfNet",
+        value: true
+    });
+
+    sfNetLabel = new formattingSettings.TextInput({
+        name: "sfNetLabel",
+        displayName: "Net panel label",
+        displayNameKey: "Chart_SfNetLabel",
+        description: "Bestand & Fluss: Name des Netto-Panels rechts neben der Nulllinie, z. B. „Netto-Cashflow“ oder „Fluktuation“. Leer = „Netto“.",
+        descriptionKey: "Desc_Chart_SfNetLabel",
+        placeholder: "Netto",
+        value: ""
+    });
+
+    sfArea = new formattingSettings.ToggleSwitch({
+        name: "sfArea",
+        displayName: "Area under the stock",
+        displayNameKey: "Chart_SfArea",
+        description: "Bestand & Fluss: Fläche zwischen Bestandslinie und Nulllinie, je Periode in der Szenario-Notation (Ist getönt, Forecast schraffiert, Plan heller). Standard an.",
+        descriptionKey: "Desc_Chart_SfArea",
+        value: true
+    });
+
+    sfNegTint = new formattingSettings.ToggleSwitch({
+        name: "sfNegTint",
+        displayName: "Tint negative stock",
+        displayNameKey: "Chart_SfNegTint",
+        description: "Bestand & Fluss: Flächenstücke unter null in der Farbe für Schlecht, leicht getönt. Standard an.",
+        descriptionKey: "Desc_Chart_SfNegTint",
+        value: true
+    });
+
+    sfOpening = new formattingSettings.ToggleSwitch({
+        name: "sfOpening",
+        displayName: "Opening stock",
+        displayNameKey: "Chart_SfOpening",
+        description: "Bestand & Fluss: zusätzlicher Punkt am Anfang der ersten Periode mit dem abgeleiteten Anfangsbestand (Bestand der ersten Periode minus ihr Netto-Fluss). Standard an.",
+        descriptionKey: "Desc_Chart_SfOpening",
+        value: true
+    });
+
+    sfStockAt = new formattingSettings.ItemDropdown({
+        name: "sfStockAt",
+        displayName: "Stock marker",
+        displayNameKey: "Chart_SfStockAt",
+        description: "Bestand & Fluss: Lage der Bestandspunkte, am Ende der Periode (Stichtag, wie auf den IBCS-Blättern) oder in ihrer Mitte.",
+        descriptionKey: "Desc_Chart_SfStockAt",
+        items: sfStockAtItems,
+        value: sfStockAtItems[0]
+    });
+
+    axisGroups = new formattingSettings.ItemDropdown({
+        name: "axisGroups",
+        displayName: "Axis groups",
+        displayNameKey: "Chart_AxisGroups",
+        description: "Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen.",
+        descriptionKey: "Desc_Chart_AxisGroups",
+        items: axisGroupsItems,
+        value: axisGroupsItems[0]
+    });
+
+    stockFlowGroup = new formattingSettings.Group({
+        name: "chartStockFlow",
+        displayName: "Stock & flow",
+        displayNameKey: "Group_StockFlow",
+        slices: [this.sfNet, this.sfNetLabel, this.sfArea, this.sfNegTint, this.sfOpening, this.sfStockAt,
+            this.axisGroups]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
     groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
-        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
+        this.displayGroup, this.stockFlowGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
         this.scatterGroup];
 }
 
