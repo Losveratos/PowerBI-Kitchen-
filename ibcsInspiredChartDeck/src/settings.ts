@@ -1187,7 +1187,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterMaxRadius",
         displayName: "Max. bubble radius (px)",
         displayNameKey: "Chart_ScatterMaxRadius",
-        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; gedeckelt auf ein Drittel der Plotfläche. Große Blasen dürfen über den Achsenrand hinausragen.",
+        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual.",
         descriptionKey: "Desc_Chart_ScatterMaxRadius",
         value: 0,
         options: {

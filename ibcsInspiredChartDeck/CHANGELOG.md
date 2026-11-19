@@ -38,6 +38,17 @@
     #0064FF) und optionalem Legendentext (`chart.scatterEmphLabel`, z. B. „Zukäufe 12/25“) statt des Rings.
   - Bestandsberichte zeichnen SVG-gleich (alle 364 Bestands-Stages per Hash geprüft); einzige sichtbare Änderung
     ohne neue Optionen: das Feld-Intro nennt die neue Rolle (20 statt 19 Rollen). Tests c400 bis c406.
+  - **Nach dem Review:** Große Blasen bleiben im Visual: Sie dürfen über die Achse ragen, aber nicht über den Rand
+    oder die Titelzeilen; würde eine Blase hinausragen, rückt die Plotfläche auf dieser Seite ein (Achsenursprung
+    bleibt). Der eigene Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (vorher ein Drittel). Im
+    Play-Modus gibt es keine PY-Blasen mehr in Achsen, Legende und Größenformat; eine PY-Blase außerhalb fester Achsen
+    bestimmt die Größenskala nicht mehr. Werte verschwinden nicht: FC-Blasen zeigen ihren Wert auf der Schraffur, bei
+    langen Namen wird nur der Name gekürzt, ohne Namenslabel steht der Wert allein neben der Blase, ein PY-Wert unter
+    einer AC-Blase steht am PY-Namen („VAB 32,0“). Hochkontrast mit Statusfarbe: Werte lesbar auf gefüllten Blasen.
+    PY-Blasen sind kein eigener Tab-Stopp mehr und werden als „PY“ vorgelesen; „Ellipse“ als Hervorhebung umkreist im
+    Scatter die Blase. Statusfarbe mit PY-Blasen: unwesentliche AC-Blasen mit dunklem Umriss, Legende ohne AC. Neuer
+    Hinweis im Bearbeitungsmodus, wenn „Blasengröße VJ“ ohne Vorjahr oder ohne Blasengröße gebunden ist. Rezepte 10A
+    und 10D mit Größenlegende aus und Mittellinie bei 0,5. Andere Stufen SVG-identisch; Tests c410 bis c422.
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 

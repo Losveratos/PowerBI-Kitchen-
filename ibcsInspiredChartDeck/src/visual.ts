@@ -776,7 +776,11 @@ interface ChartConfig {
         valueLabels: boolean;
         maxRadius: number;
         opacity: number;
+        /** PY bubbles are drawn: role bound, data present, not in play mode (one flag
+         *  for axes, legend, size formatter and drawing) */
         pyBubbles: boolean;
+        /** bubbleSizePrevious bound without Previous Year or bubble size (edit hint) */
+        pyRoleIdle: boolean;
         sizePrevName: string;
         emphFill: boolean;
         emphColor: string;
@@ -12783,12 +12787,19 @@ export class Visual implements IVisual {
         const allInt = (get: (p: DataPoint) => number | null | undefined) =>
             points.every(p => { const v = get(p); return v == null || Number.isInteger(v); });
         const xGet = (p: DataPoint) => p.xVal;
-        // 1.55 (B12): with a bound PY bubble size the size formatter spans both years
-        // (unbound → sizePrev null → identical to the AC-only formatter)
-        const sGet = (p: DataPoint) => p.sizePrev != null
-            ? Math.max(Math.abs(p.sizeVal ?? 0), Math.abs(p.sizePrev)) : p.sizeVal;
-        const sAllInt = (p: DataPoint) => p.sizePrev == null || Number.isInteger(p.sizePrev);
         const cc = s.chartCard;
+        // 1.55 (B12): ONE flag "PY bubbles drawn" for axes, legend, size formatter and
+        // drawing: the bound role plus a PY position and size somewhere, and not in
+        // play mode (one period per frame: a single cloud, interactive, ≥ 2 periods)
+        const valid = this.scatterValid(points);
+        const playBlocks = cc.scatterPlay.value === true && this.allowInteractions
+            && new Set(valid.map(p => p.group ?? "")).size <= 1 && new Set(valid.map(p => p.cat)).size >= 2;
+        const pyBubbles = this.sizePrevName != null && this.sizeName != null && !playBlocks
+            && points.some(p => p.py != null && isFinite(p.py) && p.sizePrev != null && p.sizePrev > 0);
+        // with drawn PY bubbles the size formatter spans both years (else AC only)
+        const sGet = (p: DataPoint) => pyBubbles && p.sizePrev != null
+            ? Math.max(Math.abs(p.sizeVal ?? 0), Math.abs(p.sizePrev)) : p.sizeVal;
+        const sAllInt = (p: DataPoint) => !pyBubbles || p.sizePrev == null || Number.isInteger(p.sizePrev);
         // custom group colors: a picker that differs from its light default wins in
         // light AND dark mode; untouched pickers follow the mode palette as before
         const pickers = [cc.scatterGroupColor1, cc.scatterGroupColor2, cc.scatterGroupColor3,
@@ -12817,9 +12828,9 @@ export class Visual implements IVisual {
             valueLabels: cc.scatterValueLabels.value === true && this.sizeName != null,
             maxRadius: this.sizeName != null ? Math.max(0, Math.min(200, Number(cc.scatterMaxRadius.value) || 0)) : 0,
             opacity: Math.max(10, Math.min(100, Number(cc.scatterBubbleOpacity.value ?? 55))) / 100,
-            // PY bubbles need the bound role plus a PY position and size somewhere
-            pyBubbles: this.sizePrevName != null && this.sizeName != null
-                && points.some(p => p.py != null && isFinite(p.py) && p.sizePrev != null && p.sizePrev > 0),
+            pyBubbles,
+            // m7: the role is bound but cannot draw (Previous Year or bubble size missing)
+            pyRoleIdle: this.sizePrevName != null && (this.sizeName == null || !this.paneHasPy),
             sizePrevName: this.sizePrevName ?? "",
             emphFill: cc.scatterEmphFill.value === true,
             emphColor: String(cc.scatterEmphColor.value?.value || "#0064FF"),
@@ -12905,7 +12916,7 @@ export class Visual implements IVisual {
             sc.shared = {
                 xLo: ax.lo, xHi: ax.hi, yLo: ay.lo, yHi: ay.hi, qx, qy,
                 sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0),
-                    ...(sc.pyBubbles ? sPts.map(p => p.py != null ? p.sizePrev ?? 0 : 0) : [])),
+                    ...(sc.pyBubbles ? sPts.map(p => this.scatterPyPos(p, sc, ax, ay) ? p.sizePrev ?? 0 : 0) : [])),
                 refCell: null,
                 xLog: ax.log, yLog: ay.log,
                 sizeLegendDrawn: false
@@ -12990,6 +13001,21 @@ export class Visual implements IVisual {
             xsDom.push(x);
             ysDom.push(p.py);
         }
+    }
+
+    /** 1.55 (B12): PY bubble position (X PY or X, PY) when it is drawn: positive PY
+     *  size, inside the resolved axes, positive on a log axis; else null. The size
+     *  scale only counts PY bubbles that pass this check (m1: an invisible PY bubble
+     *  must not shrink every visible one) */
+    private scatterPyPos(p: DataPoint, sc: NonNullable<ChartConfig["scatter"]>,
+        ax: { lo: number; hi: number; log: boolean },
+        ay: { lo: number; hi: number; log: boolean }): { x: number; y: number } | null {
+        if (!sc.pyBubbles || p.py == null || !isFinite(p.py) || p.sizePrev == null || !(p.sizePrev > 0)) { return null; }
+        const x = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev) ? p.xPrev : p.xVal;
+        const y = p.py;
+        if (x == null || !isFinite(x) || x < ax.lo || x > ax.hi || y < ay.lo || y > ay.hi
+            || (ax.log && x <= 0) || (ay.log && y <= 0)) { return null; }
+        return { x, y };
     }
 
     /** the coloring value of a scatter point (series or multiples label) */
@@ -13291,10 +13317,12 @@ export class Visual implements IVisual {
                 ? sc.groupOrder.map(n => [n, cfg.ink] as [string, string])
                 : [];
         // 1.55 (B12): scenario entries ● PY ● AC (PY bubbles; AC only without group
-        // colors) in front, the highlight color with its legend text at the end
+        // colors) in front, the highlight color with its legend text at the end.
+        // Status colors (good/bad/neutral) leave the AC entry out: no AC bubble has it
         const scenEntries: [string, string, string][] = sc.pyBubbles
             ? [[cfg.scenL.py, cfg.colors.py, "py"],
-                ...(entriesAll.length === 0 ? [[cfg.scenL.ac, cfg.colors.ac, "ac"] as [string, string, string]] : [])]
+                ...(entriesAll.length === 0 && sc.colorBy !== "status"
+                    ? [[cfg.scenL.ac, cfg.colors.ac, "ac"] as [string, string, string]] : [])]
             : [];
         const emphEntry = sc.emphFill && sc.emphLabel && !cfg.hc ? sc.emphLabel : "";
         if (entriesAll.length === 0 && scenEntries.length === 0 && !emphEntry) { return 0; }
@@ -13463,10 +13491,11 @@ export class Visual implements IVisual {
         const ys = pts.map(p => p.value as number);
 
         // 1.55 (B12): PY bubbles (role bubbleSizePrevious) — one per category with a PY
-        // position and a positive PY size; not in play mode (one period per frame)
+        // position inside the axes and a positive PY size; not in play mode (one period
+        // per frame). Only drawn PY bubbles count for the size scale (m1)
         const pyBub = sc.pyBubbles && !playActive;
         const pySize = (p: DataPoint): number =>
-            pyBub && p.py != null && isFinite(p.py) ? Math.max(p.sizePrev ?? 0, 0) : 0;
+            pyBub && this.scatterPyPos(p, sc, ax, ay) ? Math.max(p.sizePrev ?? 0, 0) : 0;
         const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0 || pySize(p) > 0);
         const sMax = sh ? sh.sMax
             : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0, pySize(p)))) : 0;
@@ -13510,10 +13539,10 @@ export class Visual implements IVisual {
         // vertical layout: grey panel title · Y-axis title · plot · X ticks · X-axis title
         const top = region.y + pad;
         const yTitleBase = top + titleH + axF;
-        const plotTop = yTitleBase + Math.round(6 * k);
+        const plotTop0 = yTitleBase + Math.round(6 * k);
         const xTitleBase = region.y + region.h - pad;
-        const plotBottom = Math.max(plotTop + 20, xTitleBase - 2 * axF - 10);
-        const plotH = plotBottom - plotTop;
+        const plotBottom0 = Math.max(plotTop0 + 20, xTitleBase - 2 * axF - 10);
+        const plotH0 = plotBottom0 - plotTop0;
         // marker sizes: plain dots, or bubbles between min 3px·k and max 22px·k (capped
         // by the plot size). The plot range is inset by the largest radius, so no
         // marker is clipped by an axis
@@ -13524,20 +13553,18 @@ export class Visual implements IVisual {
         const rBoxW = sh?.refCell ? sh.refCell.w : region.w;
         const rBoxH = sh?.refCell
             ? Math.max(20, (sh.refCell.h - pad - 2 * axF - 10) - (pad + titleH + axF + Math.round(6 * k)))
-            : plotH;
+            : plotH0;
         // 1.55 (B12): a custom maximum radius (chart.scatterMaxRadius, px · font factor)
-        // replaces the 22 px cap, limited to a third of the plot box; the axis inset
-        // then stays at the automatic size, so big portfolio bubbles may reach past
-        // the axis edge (as in the IBCS sheets) instead of shrinking the value range
+        // replaces the 22 px cap, limited to a fifth of min(0.8 · width, plot height)
+        // (Review M1: a third let a bubble span two thirds of the plot); the axis inset
+        // stays at the automatic size, so big portfolio bubbles may reach past the
+        // axis edge (as in the IBCS sheets), but never past the panel (see below)
         const rAuto = Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7));
         const rMax = !hasSize ? rPlain : sc.maxRadius > 0
-            ? Math.max(rMin + 2, Math.min(sc.maxRadius * k, Math.min(rBoxW * 0.8, rBoxH) / 3))
+            ? Math.max(rMin + 2, Math.min(sc.maxRadius * k, Math.min(rBoxW * 0.8, rBoxH) / 5))
             : rAuto;
         const inset = (hasSize && sc.maxRadius > 0 ? Math.min(rMax, rAuto) : rMax) + 6;
 
-        // Y ticks first (their label width sets the plot's left edge); a log axis
-        // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
-        const yMaxTicks = Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4))));
         // 1.52.1: an axis whose data reach down to zero (within the marker inset)
         // starts AT zero — the inset on that side would otherwise move the origin
         // into negative values ("−2,4K" on a volume axis). The bubbles near zero
@@ -13546,39 +13573,86 @@ export class Visual implements IVisual {
             !log && lo >= 0 && lo - inset * per <= 0 && hi > 0;
         const zeroHi = (log: boolean, lo: number, hi: number, per: number) =>
             !log && hi <= 0 && hi + inset * per >= 0 && lo < 0;
-        const yPer0 = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
-        const insB = zeroLo(ay.log, yLo, yHi, yPer0) ? 0 : inset;
-        const insT = zeroHi(ay.log, yLo, yHi, yPer0) ? 0 : inset;
-        const yLoS = insB === 0 ? 0 : yLo, yHiS = insT === 0 ? 0 : yHi;
-        const yPer = (yHiS - yLoS) / Math.max(plotH - insB - insT, 10);
         // 1.52: an axis whose values are all ≥ 0 (≤ 0) never gets ticks across zero
         // — the marker inset must not invent a "−10" on a margin axis
         const signClamp = (lo: number, hi: number, vLo: number, vHi: number): [number, number] =>
             [vLo >= 0 ? Math.max(lo, 0) : lo, vHi <= 0 ? Math.min(hi, 0) : hi];
         const keepSign = (ticks: number[], vLo: number, vHi: number) =>
             ticks.filter(t => !(vLo >= 0 && t < 0) && !(vHi <= 0 && t > 0));
-        const yTicks = ay.log ? logTicks(yLo, yHi, yMaxTicks)
-            : keepSign(niceTicks(...signClamp(yLoS - insB * yPer, yHiS + insT * yPer, yLo, yHi), yMaxTicks), yLo, yHi);
-        const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined, ay.log);
-        const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8;
-        const plotRight = region.x + region.w - pad - 2;
-        const plotW = Math.max(20, plotRight - plotLeft);
-        // X ticks: 5 at most, fewer while their labels would collide
-        const xPer0 = (xHi - xLo) / Math.max(plotW - 2 * inset, 10);
-        const insL = zeroLo(ax.log, xLo, xHi, xPer0) ? 0 : inset;
-        const insR = zeroHi(ax.log, xLo, xHi, xPer0) ? 0 : inset;
-        const xLoS = insL === 0 ? 0 : xLo, xHiS = insR === 0 ? 0 : xHi;
-        const xPer = (xHiS - xLoS) / Math.max(plotW - insL - insR, 10);
-        let xTicks: number[] = [];
-        let xTickTxt: string[] = [];
-        for (let m = 5; m >= 2; m--) {
-            xTicks = ax.log ? logTicks(xLo, xHi, m)
-                : keepSign(niceTicks(...signClamp(xLoS - insL * xPer, xHiS + insR * xPer, xLo, xHi), m), xLo, xHi);
-            xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat, ax.log);
-            if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
+        // plot box, ticks and scales; mg shrinks the box per side (Review M1, below)
+        const layout = (mg: { l: number; r: number; t: number; b: number }) => {
+            const plotTop = plotTop0 + mg.t;
+            const plotBottom = Math.max(plotTop + 20, plotBottom0 - mg.b);
+            const plotH = plotBottom - plotTop;
+            // Y ticks first (their label width sets the plot's left edge); a log axis
+            // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
+            const yMaxTicks = Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4))));
+            const yPer0 = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
+            const insB = zeroLo(ay.log, yLo, yHi, yPer0) ? 0 : inset;
+            const insT = zeroHi(ay.log, yLo, yHi, yPer0) ? 0 : inset;
+            const yLoS = insB === 0 ? 0 : yLo, yHiS = insT === 0 ? 0 : yHi;
+            const yPer = (yHiS - yLoS) / Math.max(plotH - insB - insT, 10);
+            const yTicks = ay.log ? logTicks(yLo, yHi, yMaxTicks)
+                : keepSign(niceTicks(...signClamp(yLoS - insB * yPer, yHiS + insT * yPer, yLo, yHi), yMaxTicks), yLo, yHi);
+            const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined, ay.log);
+            const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8 + mg.l;
+            const plotRight = region.x + region.w - pad - 2 - mg.r;
+            const plotW = Math.max(20, plotRight - plotLeft);
+            // X ticks: 5 at most, fewer while their labels would collide
+            const xPer0 = (xHi - xLo) / Math.max(plotW - 2 * inset, 10);
+            const insL = zeroLo(ax.log, xLo, xHi, xPer0) ? 0 : inset;
+            const insR = zeroHi(ax.log, xLo, xHi, xPer0) ? 0 : inset;
+            const xLoS = insL === 0 ? 0 : xLo, xHiS = insR === 0 ? 0 : xHi;
+            const xPer = (xHiS - xLoS) / Math.max(plotW - insL - insR, 10);
+            let xTicks: number[] = [];
+            let xTickTxt: string[] = [];
+            for (let m = 5; m >= 2; m--) {
+                xTicks = ax.log ? logTicks(xLo, xHi, m)
+                    : keepSign(niceTicks(...signClamp(xLoS - insL * xPer, xHiS + insR * xPer, xLo, xHi), m), xLo, xHi);
+                xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat, ax.log);
+                if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
+            }
+            const X = logLinScale(xLoS, xHiS, plotLeft + insL, plotRight - insR, ax.log);
+            const Y = logLinScale(yLoS, yHiS, plotBottom - insB, plotTop + insT, ay.log);
+            return { plotTop, plotBottom, plotH, plotLeft, plotRight, plotW, insB, insT, insL, insR,
+                yLoS, yHiS, yPer, xLoS, xHiS, xPer, yTicks, yTickTxt, xTicks, xTickTxt, X, Y };
+        };
+        // marks: area-proportional radius r = rMax·√(size / max), never below rMin
+        const rOfV = (v: number): number => Math.max(rMin, rMax * Math.sqrt(Math.max(v, 0) / sMax));
+        const rOf = (p: DataPoint): number => !hasSize ? rPlain : rOfV(p.sizeVal ?? 0);
+        // Review M1: every bubble stays inside the panel (visual width, between the
+        // title lines and the bottom edge). It may still reach past an axis; where a
+        // bubble would leave the panel, the plot box shrinks on that side (the axis
+        // origin stays put) until it fits. All periods count in play mode, PY bubbles
+        // too. A layout without overflow is untouched (mg stays 0)
+        const panel = { x0: region.x, x1: region.x + region.w, y0: yTitleBase + 2, y1: region.y + region.h };
+        const fitMarks: { x: number; y: number; r: number }[] = [];
+        for (const p of vis) {
+            fitMarks.push({ x: p.xVal as number, y: p.value as number, r: rOf(p) });
+            const pp = pySize(p) > 0 ? this.scatterPyPos(p, sc, ax, ay) : null;
+            if (pp) { fitMarks.push({ x: pp.x, y: pp.y, r: rOfV(pySize(p)) }); }
         }
-        const X = logLinScale(xLoS, xHiS, plotLeft + insL, plotRight - insR, ax.log);
-        const Y = logLinScale(yLoS, yHiS, plotBottom - insB, plotTop + insT, ay.log);
+        const mg = { l: 0, r: 0, t: 0, b: 0 };
+        let lay = layout(mg);
+        for (let pass = 0; pass < 6; pass++) {
+            const o = { l: 0, r: 0, t: 0, b: 0 };
+            for (const fm of fitMarks) {
+                const cx = lay.X(fm.x), cy = lay.Y(fm.y);
+                o.l = Math.max(o.l, panel.x0 - (cx - fm.r));
+                o.r = Math.max(o.r, cx + fm.r - panel.x1);
+                o.t = Math.max(o.t, panel.y0 - (cy - fm.r));
+                o.b = Math.max(o.b, cy + fm.r - panel.y1);
+            }
+            if (Math.max(o.l, o.r, o.t, o.b) <= 0.25) { break; }
+            mg.l += Math.max(0, o.l) + (o.l > 0 ? 0.5 : 0);
+            mg.r += Math.max(0, o.r) + (o.r > 0 ? 0.5 : 0);
+            mg.t += Math.max(0, o.t) + (o.t > 0 ? 0.5 : 0);
+            mg.b += Math.max(0, o.b) + (o.b > 0 ? 0.5 : 0);
+            lay = layout(mg);
+        }
+        const shrunk = mg.l + mg.r + mg.t + mg.b > 0;
+        const { plotTop, plotBottom, plotH, plotLeft, plotRight, plotW, insB, insT, insL, insR,
+            yLoS, yHiS, yPer, xLoS, xHiS, xPer, yTicks, yTickTxt, xTicks, xTickTxt, X, Y } = lay;
 
         const bg = this.el("g", {}, this.svg);
         // grey panel title — marks the non-IBCS-core chart type (as Pareto/Dumbbell/Slope)
@@ -13648,9 +13722,6 @@ export class Visual implements IVisual {
         if (cutX) { this.drawScatterAxisBreak(bg, plotLeft + Math.round(10 * k), plotBottom, true, cfg); }
         if (cutY) { this.drawScatterAxisBreak(bg, plotLeft, plotBottom - Math.round(10 * k), false, cfg); }
 
-        // marks: area-proportional radius r = rMax·√(size / max), never below rMin
-        const rOfV = (v: number): number => Math.max(rMin, rMax * Math.sqrt(Math.max(v, 0) / sMax));
-        const rOf = (p: DataPoint): number => !hasSize ? rPlain : rOfV(p.sizeVal ?? 0);
         const items: { p: DataPoint; label: string; cx: number; cy: number; r: number;
             emph: boolean; isPy: boolean; size: number | null }[] = pts.map(p => {
             // in a tile the title carries the group — the point label is the category
@@ -13671,12 +13742,9 @@ export class Visual implements IVisual {
             for (const it of items.slice()) {
                 const p = it.p;
                 const sz = pySize(p);
-                if (!(sz > 0)) { continue; }
-                const xv = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev) ? p.xPrev : (p.xVal as number);
-                const yv = p.py as number;
-                if (xv < xLo || xv > xHi || yv < yLo || yv > yHi
-                    || (ax.log && xv <= 0) || (ay.log && yv <= 0)) { continue; }
-                const py = { p, label: it.label, cx: X(xv), cy: Y(yv), r: rOfV(sz), emph: false, isPy: true, size: sz };
+                const pos = sz > 0 ? this.scatterPyPos(p, sc, ax, ay) : null;
+                if (!pos) { continue; }
+                const py = { p, label: it.label, cx: X(pos.x), cy: Y(pos.y), r: rOfV(sz), emph: false, isPy: true, size: sz };
                 items.push(py);
                 pyR.set(p, { cx: py.cx, cy: py.cy, r: py.r });
             }
@@ -13686,11 +13754,25 @@ export class Visual implements IVisual {
         const valF = cf;
         const valText = (it: typeof items[number]): string | null =>
             sc.valueLabels && hasSize && it.size != null ? stripUnitText(sc.fmtSize.format(it.size)) : null;
+        type Box = { x0: number; y0: number; x1: number; y1: number };
+        const valBox = (it: typeof items[number]): Box => {
+            const w = this.textWidth(valText(it) ?? "", valF) / 2 + 1;
+            return { x0: it.cx - w, x1: it.cx + w, y0: it.cy - valF / 2, y1: it.cy + valF / 2 };
+        };
+        const circleHits = (c: { cx: number; cy: number; r: number }, b: Box) => {
+            const dx = c.cx - Math.min(Math.max(c.cx, b.x0), b.x1);
+            const dy = c.cy - Math.min(Math.max(c.cy, b.y0), b.y1);
+            return dx * dx + dy * dy < c.r * c.r;
+        };
+        const acMarks = items.filter(it => !it.isPy);
+        // Review m5: a PY value under any AC bubble (drawn on top of it) would be half
+        // hidden — it moves to the PY name instead ("VAB 32,0"), like a value that
+        // does not fit
         const valInside = (it: typeof items[number]): boolean => {
             const t = valText(it);
-            return t != null && this.textWidth(t, valF) + 4 <= 2 * it.r * 0.92 && valF <= 2 * it.r * 0.9;
+            if (t == null || this.textWidth(t, valF) + 4 > 2 * it.r * 0.92 || valF > 2 * it.r * 0.9) { return false; }
+            return !it.isPy || !acMarks.some(a => circleHits(a, valBox(it)));
         };
-        type Box = { x0: number; y0: number; x1: number; y1: number };
         const checkMarks = items.length <= 400;
         const hitsMark = (b: Box, self: number) => checkMarks && items.some((it, j) => {
             if (j === self) { return false; }
@@ -13857,19 +13939,31 @@ export class Visual implements IVisual {
             if (sh && drew) { sh.sizeLegendDrawn = true; }
         }
 
-        // v3 log scale requested but not applicable (values ≤ 0): subtle edit-mode hint
-        if (((sc.xLogWanted && !ax.log) || (sc.yLogWanted && !ay.log))
-            && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
+        // v3 log scale requested but not applicable (values ≤ 0): subtle edit-mode hint;
+        // 1.55 (Review B12 m7): the same for a bound PY bubble size that cannot draw
+        // (Previous Year or bubble size missing); a second hint stands above the first
+        const editHints: { txt: string; id: string | null }[] = [];
+        if ((sc.xLogWanted && !ax.log) || (sc.yLogWanted && !ay.log)) {
+            editHints.push({ txt: this.locStr("Hint_ScatterLogOff", "Log scale ignored: values ≤ 0"), id: null });
+        }
+        if (sc.pyRoleIdle) {
+            editHints.push({ txt: this.locStr("Hint_ScatterPyBubbleRoles",
+                "PY bubbles need the fields Previous Year and Bubble size"), id: "scatter-hint-py" });
+        }
+        if (editHints.length > 0 && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
             const hf = Math.round(9 * k);
-            const txt = this.locStr("Hint_ScatterLogOff", "Log scale ignored: values ≤ 0");
-            const b: Box = { x0: plotLeft + 4, y0: plotBottom - 5 - hf,
-                x1: plotLeft + 4 + this.textWidth(txt, hf), y1: plotBottom - 3 };
-            const t = this.el("text", {
-                x: b.x0, y: plotBottom - 5, "font-size": hf, fill: cfg.subtle,
-                "font-family": FONT, "font-style": "italic", ...halo
-            }, bg);
-            t.textContent = txt;
-            placed.push(b);
+            editHints.forEach((hint, j) => {
+                const yb = plotBottom - 5 - j * (hf + 3);
+                const b: Box = { x0: plotLeft + 4, y0: yb - hf,
+                    x1: plotLeft + 4 + this.textWidth(hint.txt, hf), y1: yb + 2 };
+                const t = this.el("text", {
+                    x: b.x0, y: yb, "font-size": hf, fill: cfg.subtle,
+                    "font-family": FONT, "font-style": "italic", ...halo,
+                    ...(hint.id ? { "data-icd": hint.id } : {})
+                }, bg);
+                t.textContent = hint.txt;
+                placed.push(b);
+            });
         }
 
         const colOf = (p: DataPoint): string => {
@@ -13913,16 +14007,11 @@ export class Visual implements IVisual {
         const inPlot = (b: Box) => b.x0 >= plotLeft + 2 && b.x1 <= region.x + region.w - 2
             && b.y0 >= plotTop && b.y1 <= plotBottom - 2;
         const maxLabW = Math.max(60, Math.min(160 * k, plotW * 0.35));
-        const labelAt: ({ x: number; y: number; anchor: string; text: string } | null)[] = items.map(() => null);
-        for (const i of order) {
-            const it = items[i];
-            const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
-            if (!wanted) { continue; }
-            // 1.55 (B12): a value that does not fit into its bubble follows the name
-            const vt = valText(it);
-            const text = this.truncate(vt != null && !valInside(it) ? `${it.label} ${vt}` : it.label, maxLabW, cf);
-            // bold (emphasized) text runs ~8 % wider than the regular metrics
-            const w = this.textWidth(text, cf) * (it.emph ? 1.08 : 1) + 2;
+        const labelAt: ({ x: number; y: number; anchor: string; text: string; alone?: boolean } | null)[] = items.map(() => null);
+        // one label spot for item i with text width w: free spots first, then shifted
+        // inward at the plot edge; force = overlap accepted (emphasized, density
+        // "all", a value that would otherwise vanish)
+        const spotFor = (it: typeof items[number], i: number, w: number, force: boolean) => {
             const h = cf, gap = 3;
             const cands = [
                 { b: { x0: it.cx + it.r + gap, y0: it.cy - h / 2, x1: it.cx + it.r + gap + w, y1: it.cy + h / 2 },
@@ -13972,11 +14061,43 @@ export class Visual implements IVisual {
                         ?? shifted.find(c => !hitsLabel(c.b));
                 }
             }
+            if (!pick && force) { pick = cands.find(c => inPlot(c.b)) ?? cands[0]; }
+            return pick ?? null;
+        };
+        // Review M3: a wanted value never vanishes. It follows the name when it does
+        // not fit into its bubble (only the name is shortened), and stands alone next
+        // to the bubble when the name is not drawn (labels off, density, no room)
+        const valueAlone: number[] = [];
+        for (const i of order) {
+            const it = items[i];
+            const vt = valText(it);
+            const valOut = vt != null && !valInside(it);
+            const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
+            if (!wanted) {
+                if (valOut) { valueAlone.push(i); }
+                continue;
+            }
+            // 1.55 (B12): a value that does not fit into its bubble follows the name
+            const text = valOut
+                ? `${this.truncate(it.label, Math.max(24, maxLabW - this.textWidth(` ${vt}`, cf)), cf)} ${vt}`
+                : this.truncate(it.label, maxLabW, cf);
+            // bold (emphasized) text runs ~8 % wider than the regular metrics
+            const w = this.textWidth(text, cf) * (it.emph ? 1.08 : 1) + 2;
             // emphasized points and density "all" are always labelled (overlap accepted)
-            if (!pick && (it.emph || density === "all")) { pick = cands.find(c => inPlot(c.b)) ?? cands[0]; }
-            if (!pick) { continue; }
+            const pick = spotFor(it, i, w, it.emph || density === "all");
+            if (!pick) {
+                if (valOut) { valueAlone.push(i); }
+                continue;
+            }
             placed.push(pick.b);
             labelAt[i] = { x: pick.x, y: pick.y, anchor: pick.anchor, text };
+        }
+        for (const i of valueAlone) {
+            const it = items[i];
+            const vt = valText(it) as string;
+            const pick = spotFor(it, i, this.textWidth(vt, cf) + 2, true) as NonNullable<ReturnType<typeof spotFor>>;
+            placed.push(pick.b);
+            labelAt[i] = { x: pick.x, y: pick.y, anchor: pick.anchor, text: vt, alone: true };
         }
 
         // v3 shapes: index in the deck-wide group order → circle · square · triangle ·
@@ -14001,26 +14122,29 @@ export class Visual implements IVisual {
             const L = relLuminance("#" + mix.map(v => v.toString(16).padStart(2, "0")).join(""));
             return 1.05 / (L + 0.05) >= (L + 0.05) / 0.05 ? "#FFFFFF" : "#000000";
         };
-        // a PY value whose text would collide with an AC value (bubbles nearly on top
-        // of each other) is left out — the AC value wins, the PY value stays in the tooltip
-        const valBox = (it: typeof items[number]) => {
-            const w = this.textWidth(valText(it) ?? "", valF) / 2 + 1;
-            return { x0: it.cx - w, x1: it.cx + w, y0: it.cy - valF / 2, y1: it.cy + valF / 2 };
-        };
-        const acValBoxes = sc.valueLabels ? items.filter(it => !it.isPy && valInside(it)).map(valBox) : [];
-        const drawValue = (g: SVGElement, it: typeof items[number], fill: string, alpha: number) => {
+        // hcText: the high-contrast text color as given (no blending); fc: the value
+        // sits on the forecast hatch — ink with a paper halo (Review M3)
+        const drawValue = (g: SVGElement, it: typeof items[number], fill: string, alpha: number, fc = false) => {
             const t = valText(it);
             if (t == null || !valInside(it)) { return; }
-            if (it.isPy) {
-                const b = valBox(it);
-                if (acValBoxes.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0)) { return; }
-            }
             const el = this.el("text", {
                 x: it.cx, y: it.cy + valF * 0.35, "text-anchor": "middle", "font-size": valF,
-                fill: cfg.hc ? fill : valColor(fill, alpha), "font-family": FONT,
-                "data-icd": "scatter-value", "data-scen": it.isPy ? "py" : "ac"
+                fill: cfg.hc ? fill : fc ? cfg.ink : valColor(fill, alpha), "font-family": FONT,
+                "data-icd": "scatter-value", "data-scen": it.isPy ? "py" : "ac",
+                ...(fc && !cfg.hc ? halo : {})
             }, g);
             el.textContent = t;
+        };
+        // name label (with a trailing value) resp. a value standing alone next to its bubble
+        const drawLabel = (g: SVGElement, i: number, fill: string, weight: number | null) => {
+            const la = labelAt[i];
+            if (!la) { return; }
+            const t = this.el("text", {
+                x: la.x, y: la.y, "text-anchor": la.anchor, "font-size": cf, fill,
+                "font-family": FONT, ...(weight != null && !la.alone ? { "font-weight": weight } : {}), ...halo,
+                ...(la.alone ? { "data-icd": "scatter-value-beside", "data-scen": items[i].isPy ? "py" : "ac" } : {})
+            }, g);
+            t.textContent = la.text;
         };
 
         // draw order: largest bubbles first (small ones stay visible on top), emphasized last;
@@ -14029,6 +14153,17 @@ export class Visual implements IVisual {
             (Number(items[b].isPy) - Number(items[a].isPy))
             || (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
         const marks = this.el("g", {}, this.svg);
+        // Review M1: with a custom maximum radius (or a shrunk plot box) the marks are
+        // clipped to the panel below the title lines as a safety net
+        if (hasSize && (sc.maxRadius > 0 || shrunk)) {
+            const clipId = `icd-scclip-${this.instanceId}-${this.mxClipSeq++}`;
+            const clip = this.el("clipPath", { id: clipId }, bg);
+            this.el("rect", {
+                x: panel.x0, y: panel.y0, width: Math.max(0, panel.x1 - panel.x0), height: Math.max(0, panel.y1 - panel.y0)
+            }, clip);
+            marks.setAttribute("clip-path", `url(#${clipId})`);
+            marks.setAttribute("data-icd", "scatter-marks");
+        }
         for (const i of drawOrder) {
             const { p, cx, cy, r, emph } = items[i];
             if (items[i].isPy) {
@@ -14042,16 +14177,11 @@ export class Visual implements IVisual {
                         ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
                         : { fill: cfg.colors.py, "fill-opacity": sc.opacity, stroke: cfg.colors.py, "stroke-width": 1.2 })
                 }, g);
-                const lp = labelAt[i];
-                if (lp) {
-                    const t = this.el("text", {
-                        x: lp.x, y: lp.y, "text-anchor": lp.anchor, "font-size": cf, fill: cfg.subtle,
-                        "font-family": FONT, ...halo
-                    }, g);
-                    t.textContent = lp.text;
-                }
+                drawLabel(g, i, cfg.subtle, null);
                 drawValue(g, items[i], cfg.hc ? cfg.ink : cfg.colors.py, sc.opacity);
-                this.attachInteraction(g, p, cfg);
+                // Review m3: no own focus stop and no ellipse target (the AC group of
+                // the category is the control); its own screen-reader label says PY
+                this.attachInteraction(g, p, cfg, { py: true });
                 this.catGroups.push({ g, sel: p.sel, dim: p.dim });
                 this.animGroups.push([g]);
                 continue;
@@ -14105,6 +14235,10 @@ export class Visual implements IVisual {
             const col = emphFill ? sc.emphColor : colOf(p);
             const shapeIdx = shapeIdxOf(p);
             const bubbleAlpha = emph ? Math.max(0.9, sc.opacity) : sc.opacity;
+            // Review m4: next to PY bubbles an immaterial status bubble would carry the
+            // PY grey — an ink outline keeps it apart
+            const neutralNextToPy = pyBub && statusOn && !sc.groupColors && !emphFill
+                && this.scatterStatusKind(p, cfg) === "neutral";
             const markEl = this.drawScatterShape(g, cx, cy, r, shapeIdx, {
                 // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
@@ -14116,29 +14250,25 @@ export class Visual implements IVisual {
                     : p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
                         : hasSize
-                            ? { fill: col, "fill-opacity": bubbleAlpha, stroke: col, "stroke-width": 1.2 }
+                            ? { fill: col, "fill-opacity": bubbleAlpha, stroke: neutralNextToPy ? cfg.ink : col, "stroke-width": 1.2 }
                             : { fill: col, stroke: cfg.paper, "stroke-width": 1 }),
                 ...(emphFill ? { "data-icd": "scatter-emph-fill" } : {})
             });
-            if (emph && !emphFill) {
-                // IBCS EMPHASIZE: ring around the marker + bold label (wider shapes
-                // like the diamond need a correspondingly wider ring)
-                const ringR = (shapeIdx === 3 ? r * 1.35 : shapeIdx === 2 ? r * 1.35 : r) + 2.5;
+            // IBCS EMPHASIZE: ring around the marker + bold label (wider shapes like
+            // the diamond need a correspondingly wider ring). Review m3: the ellipse
+            // style circles the marker itself instead of the ring
+            const ringR = (shapeIdx === 3 ? r * 1.35 : shapeIdx === 2 ? r * 1.35 : r) + 2.5;
+            if (emph && !emphFill && !cfg.highlightEllipse) {
                 this.el("circle", {
                     cx, cy, r: ringR, fill: "none", stroke: cfg.ink, "stroke-width": 1.4
                 }, g);
             }
-            const la = labelAt[i];
-            if (la) {
-                const t = this.el("text", {
-                    x: la.x, y: la.y, "text-anchor": la.anchor, "font-size": cf, fill: cfg.ink,
-                    "font-family": FONT, "font-weight": emph ? 700 : 400, ...halo
-                }, g);
-                t.textContent = la.text;
-            }
-            if (!p.isFc) {
-                drawValue(g, items[i], cfg.hc ? (emph ? cfg.paper : cfg.ink) : col, hasSize ? bubbleAlpha : 1);
-            }
+            drawLabel(g, i, cfg.ink, emph ? 700 : 400);
+            // Review m2: in high contrast the value text contrasts with the resolved
+            // fill (status "good" and emphasized marks are filled with the ink color);
+            // Review M3: on the forecast hatch the value stays, with a paper halo
+            const hcFull = statusOn ? this.scatterStatusKind(p, cfg) === "good" : emph;
+            drawValue(g, items[i], cfg.hc ? (hcFull ? cfg.paper : cfg.ink) : col, hasSize ? bubbleAlpha : 1, p.isFc);
             if (p.commentNo != null) {
                 // numbered comment badge at the marker's upper right (list in the panel)
                 const br = Math.round(6 * k);
@@ -14150,7 +14280,7 @@ export class Visual implements IVisual {
                 }, g);
                 ct.textContent = String(p.commentNo);
             }
-            this.attachInteraction(g, p, cfg);
+            this.attachInteraction(g, p, cfg, { mark: { cx, cy, r: ringR + 2 } });
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
             if (dots) {
@@ -17983,7 +18113,8 @@ export class Visual implements IVisual {
     // ---------------------------------------------------------- interaction
 
     /** 1.54 (B14): category groups whose numbers get an emphasis ellipse after drawing */
-    private ellipseTargets: { g: SVGGElement; cat: string; ink: string }[] = [];
+    private ellipseTargets: { g: SVGGElement; cat: string; ink: string;
+        mark?: { cx: number; cy: number; r: number } }[] = [];
 
     /**
      * 1.54 (B14): ellipse emphasis (IBCS sheets 04A, 06E): after the chart is drawn,
@@ -17994,6 +18125,15 @@ export class Visual implements IVisual {
         const list = this.ellipseTargets;
         this.ellipseTargets = [];
         for (const t of list) {
+            // 1.55 (Review B12 m3): a scatter marker carries its ellipse itself
+            if (t.mark) {
+                const e = this.el("ellipse", {
+                    cx: t.mark.cx, cy: t.mark.cy, rx: t.mark.r, ry: t.mark.r,
+                    fill: "none", stroke: t.ink, "stroke-width": 1.3, "data-icd": "emph-ellipse"
+                }, t.g);
+                e.setAttribute("pointer-events", "none");
+                continue;
+            }
             const texts = Array.from(t.g.querySelectorAll("text")) as SVGTextElement[];
             for (const tx of texts) {
                 const s = (tx.textContent || "").trim();
@@ -18011,9 +18151,15 @@ export class Visual implements IVisual {
         }
     }
 
-    private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
-        if (cfg.highlightEllipse && this.isEmph(cfg, p.cat)) {
-            this.ellipseTargets.push({ g, cat: p.cat, ink: cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF" });
+    private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig,
+        opts?: { py?: boolean; mark?: { cx: number; cy: number; r: number } }): void {
+        // 1.55 (B12, Review m3): a scatter PY bubble is a second mark of the same
+        // category — no ellipse target and no own focus stop, a PY screen-reader
+        // label; scatter AC marks anchor the ellipse at the marker
+        const isPy = opts?.py === true;
+        if (cfg.highlightEllipse && this.isEmph(cfg, p.cat) && !isPy) {
+            this.ellipseTargets.push({ g, cat: p.cat, ink: cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF",
+                ...(opts?.mark ? { mark: opts.mark } : {}) });
         }
         // dashboards disable interactions — keep tooltips, skip selection affordances
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
@@ -18022,18 +18168,26 @@ export class Visual implements IVisual {
         // keyboard navigation: tab through categories, Enter/Space selects — not in
         // export/print or dashboard contexts: a focus stop that cannot select anything
         // is a dead control (role + aria-label stay for screen readers)
-        if (allow) { g.setAttribute("tabindex", "0"); }
+        if (allow && !isPy) { g.setAttribute("tabindex", "0"); }
         g.setAttribute("role", "option");
         const aria = [`${p.cat}`];
-        if (cfg.scatter && p.xVal != null) {
+        const scp = cfg.scatter;
+        if (isPy && scp) {
+            aria.push(cfg.scenL.py);
+            const xp = scp.hasXPrev && p.xPrev != null ? p.xPrev : p.xVal;
+            if (xp != null) { aria.push(`${scp.hasXPrev && p.xPrev != null ? scp.xPrevName : scp.xName} ${scp.fmtX.format(xp)}`); }
+            if (p.py != null) { aria.push(cfg.fmt.format(p.py)); }
+            if (p.sizePrev != null) { aria.push(`${scp.sizePrevName} ${scp.fmtSize.format(p.sizePrev)}`); }
+        }
+        if (cfg.scatter && p.xVal != null && !isPy) {
             aria.push(`${cfg.scatter.xName} ${cfg.scatter.fmtX.format(p.xVal)}`);
         }
-        if (p.value != null) { aria.push(cfg.fmt.format(p.value)); }
+        if (p.value != null && !isPy) { aria.push(cfg.fmt.format(p.value)); }
         if (p.trendSeries && p.trendRef != null && p.trendRef >= 0 && cfg.trendLabels[p.trendRef]) {
             aria.push(`${this.locStr("Tooltip_LastPeriod", "Last period")} ${cfg.trendLabels[p.trendRef]}`);
         }
-        if (p.varAbs != null) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
-        if (p.comment) { aria.push(p.comment); }
+        if (p.varAbs != null && !isPy) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
+        if (p.comment && !isPy) { aria.push(p.comment); }
         g.setAttribute("aria-label", aria.join(", "));
         g.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key !== "Enter" && e.key !== " ") { return; }
