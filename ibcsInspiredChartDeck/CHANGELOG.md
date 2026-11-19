@@ -1,6 +1,6 @@
 # Changelog · ChartKitchen byDatenWG
 
-## 1.54.0.0 (in Arbeit, Backlog IBCS-Templates vom 19.11.2026)
+## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 
 **Ziel: mehr IBCS-Template-Blätter direkt abbildbar. Neue Schalter stehen standardmäßig aus;
 Verhaltensänderungen sind je Punkt genannt.**
