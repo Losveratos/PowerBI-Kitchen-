@@ -818,6 +818,16 @@
                         "bool": true
                     }
                 },
+                "structureTotal": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "structureTotalLabel": {
+                    "type": {
+                        "text": true
+                    }
+                },
                 "showPctRows": {
                     "type": {
                         "bool": true

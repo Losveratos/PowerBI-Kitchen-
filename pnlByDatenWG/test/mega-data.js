@@ -108,6 +108,7 @@
   /** month value: November = the sheet's month, the 10 months before share the rest of the YTD */
   const split = (nov, ytd, mi) => mi === 10 ? nov : Math.round((ytd - nov) / 10 * 1000) / 1000;
 
+  // opt.multiRoot (1.8): no common "World" level, the regions are the roots
   // opt.single (1.5): Czechia and Slovakia are regions without countries
   // (Level 2 = Level 1, folded into one row) between Europe and Americas;
   // 1.5.1: Hungary is a region with exactly one child (Budapest)
@@ -124,7 +125,7 @@
         const k = g + ":" + leaf;
         const b = BASE[k] || SINGLE[k]; const f = FC[k] || [b[2], b[5]];
         MONTHS.forEach((m, mi) => rows.push({
-          levels: ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
+          levels: opt && opt.multiRoot ? [g, leaf] : ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
           sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,
           values: {
             py: split(b[0], b[3], mi), pl: split(b[1], b[4], mi),

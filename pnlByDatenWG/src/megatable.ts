@@ -310,6 +310,8 @@ export interface MegaPreset {
     dPyAbs: boolean; dPyBar: boolean; dPyWf: boolean; dPyPct: boolean; dPyPin: boolean;
     dPlAbs: boolean; dPlBar: boolean; dPlWf: boolean; dPlPct: boolean; dPlPin: boolean;
     secondBlock: boolean; structureSubtotals: boolean; showPctRows: boolean;
+    /** 1.8 (B03) total row over several structure roots (columns.structureTotal) */
+    structureTotal: boolean;
     thresholds: boolean; scenarioMarks: boolean; chartLabels: boolean; capBars: boolean;
     sort: MegaSort; sortBlock: "period" | "ytd";
     decimals: number; pctDecimals: number;
@@ -323,7 +325,7 @@ const P_OFF: MegaPreset = {
     min: "AC", showPY: false, showPL: false, showMin: false, valueCascade: false,
     dPyAbs: false, dPyBar: false, dPyWf: false, dPyPct: false, dPyPin: false,
     dPlAbs: false, dPlBar: false, dPlWf: false, dPlPct: false, dPlPin: false,
-    secondBlock: false, structureSubtotals: true, showPctRows: true,
+    secondBlock: false, structureSubtotals: true, structureTotal: false, showPctRows: true,
     thresholds: false, scenarioMarks: true, chartLabels: true, capBars: false,
     sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false,
 };
@@ -338,9 +340,11 @@ const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...b
 const T01A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
     secondBlock: true, structureSubtotals: false, thresholds: true, decimals: 0, pctDecimals: 1,
+    structureTotal: true,
 });
 const T02A = preset(P_OFF, {
     showPL: true, showMin: true, dPlBar: true, dPlPin: true, secondBlock: true, decimals: 0, pctDecimals: 1,
+    structureTotal: true,
 });
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,

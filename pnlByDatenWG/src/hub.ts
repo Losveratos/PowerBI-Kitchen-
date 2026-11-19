@@ -16,6 +16,13 @@ export interface TemplateSwitches {
     stmt: Record<string, string>;
 }
 
+/**
+ * 1.8 switches a template writes that templates before 1.8 did not: in a report
+ * that does not store them they never count as a deviation from the template
+ * (see Visual.templateDeviation), so a template applied with 1.7 stays as it was
+ */
+export const TEMPLATE_SWITCHES_1_8 = ["structureTotal"];
+
 /** 1.7 the templates of the stock group: the balance sheet and the cash flow */
 export const STOCK_TEMPLATES = ["T05A", "T05B"];
 
@@ -49,7 +56,8 @@ export function templateSwitches(tpl: string, tokens = false, curStockMode = "au
         showPY: p.showPY, showPL: p.showPL, showMinuend: p.showMin, valueCascade: p.valueCascade,
         dPyAbs: p.dPyAbs, dPyBar: p.dPyBar, dPyWaterfall: p.dPyWf, dPyPct: p.dPyPct, dPyPin: p.dPyPin,
         dPlAbs: p.dPlAbs, dPlBar: p.dPlBar, dPlWaterfall: p.dPlWf, dPlPct: p.dPlPct, dPlPin: p.dPlPin,
-        secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, showPctRows: p.showPctRows,
+        secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, structureTotal: p.structureTotal,
+        showPctRows: p.showPctRows,
         thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
         capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
         // every template is laid out in its period block (YTD; 12G: FY outlook),

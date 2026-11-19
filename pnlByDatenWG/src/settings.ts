@@ -439,6 +439,11 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Share of every row in the revenue base row (group Table), right of the value columns. Default: off");
     structureSubtotals = megaToggle("structureSubtotals", "Subtotal blocks (structure data)", true,
         "Regions / structure hierarchies: subtotal blocks with a spacer row; off = leaves + total only. Default: on");
+    // 1.8 (B03): a synthetic total row when the structure hierarchy has several roots
+    structureTotal = megaToggle("structureTotal", "Total row over several roots", false,
+        "Structure data whose top level has several rows (regions without a common parent): a bold total row at the end with every value, Δ column, bar and pin. One root is the total already. Default: off");
+    structureTotalLabel = textInput("structureTotalLabel", "Mega_StructureTotalLabel", "Name of the total row",
+        "Empty = Total in the report language", "e.g. World");
     showPctRows = megaToggle("showPctRows", "Margin / % rows", true,
         "KPI rows (margins) in italics, their Δ in percentage points. Default: on");
     thresholds = megaToggle("thresholds", "Δ in red if below threshold (+ footer)", false,
@@ -483,7 +488,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         slices: [this.template, this.minuend, this.showPY, this.showPL, this.showMinuend, this.valueCascade,
             this.dPyAbs, this.dPyBar, this.dPyWaterfall, this.dPyPct, this.dPyPin,
             this.dPlAbs, this.dPlBar, this.dPlWaterfall, this.dPlPct, this.dPlPin,
-            this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals, this.showPctRows,
+            this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals,
+            this.structureTotal, this.structureTotalLabel, this.showPctRows,
             this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
             this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock]
     });
@@ -932,6 +938,8 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     const structure = ctx.statement !== true;
     const statement = ctx.statement !== false;
     c.structureSubtotals.visible = structure;
+    c.structureTotal.visible = structure;
+    c.structureTotalLabel.visible = structure && c.structureTotal.value;
     c.sort.visible = structure;
     c.showPctRows.visible = statement;
     // thresholds colour Δ numbers only — without a Δ number column there is nothing to colour

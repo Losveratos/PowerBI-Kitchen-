@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -202,6 +202,36 @@ function readMega(id) {
         check("m47 T01C blocks Europe, Americas, Rest of World, then World", blocks.every((v, i) => v >= 0 && (i === 0 || v > blocks[i - 1])), blocks.join());
         check("m47 T01C sort indicator ΔPY(↓) once (the _November block)", heads("m47").filter(t => t === "ΔPY(↓)").length === 1, heads("m47").join("|"));
         check("m47 T01C integers like the 18.11. sheets (+431, not +431.0)", has("m47", "+431") && !has("m47", "+431.0"));
+    }
+    // ---- 1.8 (B03) synthetic total row over several structure roots (m48..m52) ----
+    if (S.m48 && S.m50) {
+        const ids48 = S.m48.rowIds; const y48 = S.m48.rowY;
+        const last = ids48.length - 1;
+        check("m48 the last row is the synthetic total", ids48[last] === "__TOTAL__", ids48.slice(-3).join(","));
+        check("m48 the total is labelled in the report language (Gesamt) and bold", cell("m48", "Gesamt") && cell("m48", "Gesamt").bold);
+        check("m48 spacer row before the total", y48[last] - y48[last - 1] > 22 + 5, `${y48[last - 1]} → ${y48[last]}`);
+        check("m48 total values = the sheet's World row (AC 3 254 | 32 489, ΔPL −88 bold red, −71)",
+            has("m48", "3 254") && has("m48", "32 489") && red("m48", "-88") && cell("m48", "-88").bold && has("m48", "-71"));
+        check("m48 regions without World: Europe, Americas, Rest of World are blocks of their own",
+            ["Europe", "Americas", "Rest of World"].every(t => has("m48", t)) && !has("m48", "World"));
+        check("m50 structureTotal off (a report from before 1.8): no total row, otherwise the same rows",
+            !S.m50.rowIds.includes("__TOTAL__") && JSON.stringify(S.m50.rowIds) === JSON.stringify(ids48.slice(0, last)),
+            S.m50.rowIds.length + " vs " + last);
+    }
+    if (S.m49) {
+        const i49 = S.m49.rowIds.indexOf("__TOTAL__"); const y = S.m49.rowY[i49];
+        check("m49 the total row carries the author's name (World)", has("m49", "World") && cell("m49", "World").bold);
+        check("m49 ΔPL of the total on the shared scale: −88 | −71 as bar labels", has("m49", "-88") && has("m49", "-71"));
+        const inRow = c => c.bars.some(b => b.y >= y - 1 && b.y < y + 22);
+        check("m49 every chart column draws an element in the total row (bars and pin heads)", i49 >= 0 && S.m49.charts.every(inRow),
+            S.m49.charts.map(inRow).join(","));
+    }
+    if (S.m51) { check("m51 statement data: structureTotal draws no total row", !S.m51.rowIds.includes("__TOTAL__")); }
+    if (S.m52) {
+        const ids52 = S.m52.rowIds;
+        check("m52 T01C without a common root: Europe first (+80), Americas (−127), Rest of World stays, total last",
+            ids52[ids52.length - 1] === "__TOTAL__" && ids52.indexOf("L:Europe") < ids52.indexOf("L:Americas")
+            && ids52.indexOf("L:Americas") < ids52.indexOf("L:Rest of World"), ids52.filter(x => x.startsWith("L:") || x === "__TOTAL__").join(","));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
     if (S.m7) {

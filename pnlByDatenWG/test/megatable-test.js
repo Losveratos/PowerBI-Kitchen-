@@ -220,6 +220,33 @@ test("sort T02E/T02F (1.5.2): blocks and single rows in the rows' direction, gra
     assert.deepEqual(ids, ["prg", "mb", "mh", "cz", "|", "pl", "|", "sx", "|", "sk", "|", "r1", "rest", "|", "w"]);
 });
 
+test("1.8 structureTotal: the synthetic total (anchor) stays last in every sort, with and without subtotal blocks", () => {
+    const acc = (id, group) => ({ id, label: id, kind: "acc", op: "", level: 0, group, other: /^other/i.test(id) });
+    const sum = (id, extra) => ({ id, label: id, kind: "sum", op: "", level: 0, group: null, other: false, ...extra });
+    const gap = () => ({ id: "", label: "", kind: "gap", op: "", level: 0, group: null, other: false });
+    const V = { a: 5, b: -3, c: 9, otherX: 20, eu: 2, am: 7, row: 1, __TOTAL__: 99 };
+    const blk = { name: "", th: { abs: 0, pct: 0 }, value: (r, s) => s === "AC" ? 100 + V[r.id] : 100, delta: () => null };
+    for (const sort of ["delta", "min"]) {
+        const t = Object.assign(toggles(M.MEGA_PRESETS.T01A), { sort, sortBlock: 0 });
+        // T01A: roots without children are one run, the total row closes it
+        const flat = [acc("a", null), acc("b", null), acc("c", null), sum("__TOTAL__", { anchor: true })];
+        const o1 = M.orderRows({ rows: flat, blocks: [blk], t, statement: false }).rows.map(r => r.id);
+        assert.deepEqual(o1, ["c", "a", "b", "__TOTAL__"], sort);
+        // T01B: region blocks are sorted, the total keeps the last place after its spacer
+        const blocks = [acc("a", "eu"), acc("b", "eu"), sum("eu"), gap(), acc("c", "am"), acc("otherX", "am"), sum("am"), gap(),
+            sum("__TOTAL__", { anchor: true })];
+        const o2 = M.orderRows({ rows: blocks, blocks: [blk], t, statement: false }).rows.map(r => r.kind === "gap" ? "|" : r.id);
+        assert.deepEqual(o2, ["c", "otherX", "am", "|", "a", "b", "eu", "|", "__TOTAL__"], sort);
+    }
+});
+
+test("1.8 structureTotal: the structure templates switch it on, statement templates leave it off", () => {
+    for (const k of ["T01A", "T01B", "T01C", "T02A", "T02B", "T02C", "T02E", "T02F"]) { assert.equal(M.MEGA_PRESETS[k].structureTotal, true, k); }
+    for (const k of ["off", "T03A", "T03B", "T04A", "T04B", "T04C", "T04D", "T04E", "12A", "12G", "12H", "T05A", "T05B"]) {
+        assert.equal(M.MEGA_PRESETS[k].structureTotal, false, k);
+    }
+});
+
 test("layout T02: one Δ scale and one pin scale over both blocks, no factor between blocks (1.5.1)", () => {
     const t = Object.assign(toggles(M.MEGA_PRESETS.T02A), { d: { PY: { num: false, bar: true, pct: false, pin: true },
         PL: { num: false, bar: true, pct: false, pin: true } }, showPY: true });

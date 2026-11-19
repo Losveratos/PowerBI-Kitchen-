@@ -234,6 +234,8 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `blockKind` | enum `month` · `ytd` · `fy` | `ytd` | Perioden-Block: Monat der letzten Ist-Daten, Jahr bis dato oder FY-Ausblick (AC&FC vs PL, braucht die FY-Felder — Bestände nehmen ohne FY-Felder den FC-Endstand); mit zweitem Block der rechte. Bestände zeigen in jedem Block den Stand zum Stichtag. Standard: YTD |
 | `leftBlockKind` | enum `month` · `ytd` · `fy` | `month` | Zweiter Block (links): Periode des Blocks links vom Perioden-Block, wenn der zweite Block an ist. Standard: Monat |
 | `structureSubtotals` | bool | `true` | Zwischensummen-Blöcke (Strukturdaten): Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme. Standard: an |
+| `structureTotal` | bool | `false` | Gesamtzeile über mehrere Wurzeln (1.8): Strukturdaten, deren oberste Ebene mehrere Zeilen hat (Regionen ohne gemeinsame Oberebene): eine fette Gesamtzeile am Ende mit allen Werten, Δ-Spalten, Balken und Pins. Eine einzige Wurzel ist schon die Gesamtzeile. Standard: aus |
+| `structureTotalLabel` | text | `""` | Name der Gesamtzeile (1.8): Leer = Gesamt in der Berichtssprache |
 | `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich |
 | `thresholds` | bool | `false` | Δ rot unter Schwelle (+ Fußzeile): Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel. Standard: aus |
 | `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,02); ein gesetzter Wert gilt wie eingetippt |
@@ -884,6 +886,19 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     Pin-Kopf. Behoben in den Fassungen vom 17./18.11.2026: T03A, 12H, T04C/T04E
     Financial income, T01A/T01B Dezimalen. `prototype/refs/` zeigt noch die
     Juli-Fassungen. Druckfehler nie nachbauen; das Visual rechnet selbst.
+26. **Gesamtzeile über mehrere Wurzeln (1.8, `structureTotal`):** Nur Strukturdaten
+    (nie GuV), nur bei mindestens zwei Wurzeln mit sichtbaren Zeilen. Der Knoten
+    ist `engine.syntheticTotal` (id `__TOTAL__`, nicht in `model.byId`), je
+    Modellobjekt gemerkt (`megaTotalNode`), Name aus `structureTotalLabel` oder
+    `UI_Total`. Er ist Anker (`megaAnchor`), bleibt bei jeder Sortierung unten und
+    ist nie „Other". Summe wie eine Zwischensumme: nur Account/Subtotal-Wurzeln mit
+    ihrer SignConvention; VarianceInvert nur, wenn alle Wurzeln es tragen. Klick
+    wählt nichts aus und klappt nichts zu (nur Tooltip). Σ-treue Rundung: die
+    Zeile druckt die Summe der gedruckten Wurzeln. Die Struktur-Templates (T01x,
+    T02x) setzen den Schalter an; Schalter, die erst 1.8 in Templates schreibt
+    (`TEMPLATE_SWITCHES_1_8` in `hub.ts`), zählen in `templateDeviation()` nur, wenn
+    der Bericht sie speichert, damit ein mit 1.7 angewendetes Template sich nicht
+    ändert und kein „↺ Zum Template zurück" zeigt.
 
 ## Verwandte Dateien
 

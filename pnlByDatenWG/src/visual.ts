@@ -48,7 +48,7 @@ import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
 import { buildStockDemoRows } from "./demo-stock";
 import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc, templateDemo, templateStockMode,
-    HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl } from "./hub";
+    HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl, TEMPLATE_SWITCHES_1_8 } from "./hub";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -740,6 +740,8 @@ export class Visual implements IVisual {
     /** memoized virtual total root (see treeTotalNode) and the model it belongs to */
     private totalNode: PnlNode | null = null;
     private totalVer = -1;
+    /** 1.8 (B03) synthetic total row of the mega table over several structure roots, per model object */
+    private megaTot: { model: PnlModel; node: PnlNode } | null = null;
     /** stage height of the last host update — drives the compact-card fallback */
     private vpH = 0;
     /** stage width of the last host update (Smart Start needs room) */
@@ -5108,7 +5110,12 @@ export class Visual implements IVisual {
         const tpl = String(this.settings.columnsCard.template.value.value);
         if (tpl === "off" || !MEGA_PRESETS[tpl]) { return null; }
         const sw = templateSwitches(tpl);
+        // 1.8 switches that older templates did not write count only when the
+        // report stores them: a T01A applied with 1.7 does not suddenly offer
+        // "back to template" (and does not change) because 1.8's T01A adds a switch
+        const stored = this.lastDv?.metadata?.objects?.["columns"];
         for (const [k, v] of Object.entries(sw.cols)) {
+            if (TEMPLATE_SWITCHES_1_8.includes(k) && (stored == null || stored[k] == null)) { continue; }
             if (!this.megaSliceIs(k, v)) { return tpl; }
         }
         if (sw.title.headline != null && this.settings.titleCard.headline.value !== sw.title.headline) { return tpl; }
@@ -6873,6 +6880,27 @@ export class Visual implements IVisual {
             this.totalVer = this.modelVer;
         }
         return this.totalNode;
+    }
+
+    /**
+     * 1.8 (B03) the total row of a structure mega table whose hierarchy has
+     * several roots (columns.structureTotal): the engine's virtual total, memoized
+     * per model object (a cross-highlight model gets its own). It sums exactly
+     * like a subtotal (accounts and subtotals, their SignConvention applied; KPI,
+     * formula and separator roots never count). VarianceInvert only when every
+     * contributing root carries it (as mergeNodes does); DisplayInvert never
+     * (a root with it makes the data a statement, which has no total row).
+     */
+    private megaTotalNode(model: PnlModel): PnlNode {
+        if (!this.megaTot || this.megaTot.model !== model) {
+            const n = syntheticTotal(model);
+            const contrib = model.roots.filter(r => r.row.rowType === "account" || r.row.rowType === "subtotal");
+            n.row.varianceInvert = contrib.length > 0 && contrib.every(r => r.row.varianceInvert);
+            this.megaTot = { model, node: n };
+        }
+        const label = String(this.settings.columnsCard.structureTotalLabel.value ?? "").trim();
+        this.megaTot.node.row.name = label || this.tr("UI_Total");
+        return this.megaTot.node;
     }
 
     /**
@@ -10730,6 +10758,17 @@ export class Visual implements IVisual {
             items.push({ node: n, kind, level, op });
         };
         for (const r of roots) { emit(r, null); }
+        // 1.8 (B03) columns.structureTotal: several structure roots get a bold
+        // total row at the end (T01/T02 "World"). Counted over the model's roots
+        // (not the ⚡-folded list, which would let the row flicker); it needs at
+        // least two root elements with rows on screen, else it would repeat the
+        // one root. One root already is the total; a statement never gets one.
+        if (!statement && cc.structureTotal.value
+            && model.roots.filter(r => r.row.rowType !== "separator").length > 1) {
+            const shownRoots = new Set(items.filter(it => it.node).map(it => rootOf(it.node!).row.id));
+            const tot = this.megaTotalNode(model);
+            if (shownRoots.size > 1 && keepZero(tot)) { items.push({ node: tot, kind: "sum", level: 0, op: "" }); }
+        }
 
         // leaf names that repeat ("Other" per region) get their parent's name
         // when the subtotal blocks are folded away (T01A "Other Europe")
@@ -10795,15 +10834,16 @@ export class Visual implements IVisual {
             // formula rows, the statement's chain start, the single grand total
             // of a structure hierarchy; every other row steps with the effect
             // of its shown value on the result
+            const isTotal = n.row.id === TOTAL_ID;
             const anchor = it.kind === "formula" || it.op === "="
-                || (!statement && soleRoot === n && it.kind === "sum");
+                || (!statement && (soleRoot === n || isTotal) && it.kind === "sum");
             const disp = n.row.displayInvert ? -1 : 1;
             const row: MegaRow = {
                 id: n.row.id,
                 label: (n.isOrphanBucket ? "⚠ " : "") + name,
                 kind: it.kind, op: it.op, level: it.level,
                 group: n.row.parent,
-                other: /^(other|others|sonstige|übrige|rest|otros|otras|resto)\b|^その他/i.test(n.row.name.trim()),
+                other: !isTotal && /^(other|others|sonstige|übrige|rest|otros|otras|resto)\b|^その他/i.test(n.row.name.trim()),
                 suffix: suffix.length ? suffix : undefined,
                 eff: anchor ? disp : disp * this.megaParentSign(n),
                 anchor,
@@ -11067,7 +11107,10 @@ export class Visual implements IVisual {
         for (const h of hits) {
             const node = nodes.get(h.r.id);
             if (!node) { continue; }
-            const canSelect = this.selectable(node);
+            // 1.8 (B03) the synthetic total row: tooltip only. Selecting it would
+            // select every row (no filter), folding it would hide the whole table
+            const isTotal = node.row.id === TOTAL_ID;
+            const canSelect = !isTotal && this.selectable(node);
             if (canSelect) {
                 h.cells.style.cursor = "pointer";
                 this.bindSelect(h.cells, node, true);
@@ -11079,6 +11122,7 @@ export class Visual implements IVisual {
                 .map(r => scenOf(tipKey, r)).filter((x): x is Scenario => x != null && this.has[x]);
             this.bindTip(h.cells, node, () => this.tipItems(node, fmt, tipKey, { min: tipMin, refs: tipRefs }));
             this.bindTip(h.label, node, () => this.tipItems(node, fmt, tipKey, { min: tipMin, refs: tipRefs }));
+            if (isTotal) { continue; }
             if (node.hasChildren) {
                 h.label.style.cursor = "pointer";
                 const open = !ui.collapsed.includes(node.row.id);
@@ -11188,6 +11232,16 @@ export class Visual implements IVisual {
         if (members) {
             let acc: number | null = null;
             for (const m of members) { const v = this.ssRaw(m, block, scen, fmt); if (v != null) { acc = (acc ?? 0) + v; } }
+            return acc;
+        }
+        // 1.8 (B03) the mega total row prints the sum of its roots' printed values
+        if (node.row.id === TOTAL_ID) {
+            let acc: number | null = null;
+            for (const r of this.model.roots) {
+                if (r.row.rowType !== "account" && r.row.rowType !== "subtotal") { continue; }
+                const v = this.ssRaw(r, block, scen, fmt);
+                if (v != null) { acc = (acc ?? 0) + v; }
+            }
             return acc;
         }
         const dec = this.settings.numbersCard.decimals.value;

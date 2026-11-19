@@ -292,6 +292,7 @@ wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
 | `dPYpin` / `dPLpin` | `columns.dPyPin` / `columns.dPlPin` | Δ% als Pins |
 | `ytd` | `columns.secondBlock` | zweiter Perioden-Block (_YTD) |
 | `subtotals` | `columns.structureSubtotals` | Zwischensummen-Blöcke im Strukturmodus (T01B) |
+| – (1.8) | `columns.structureTotal` (+ `structureTotalLabel`) | Gesamtzeile „World" bei mehreren Wurzeln; Struktur-Templates setzen sie an |
 | `margins` | `columns.showPctRows` | Margen-/%-Zeilen |
 | `thresholds` | `columns.thresholds` (+ 4 NumUpDown: abs/pct je Block) | rote Δ-Zahlen + Fußzeile „Δ in red if" |
 | `marks` | `columns.scenarioMarks` | Szenario-Unterstreichungen in Kopf/Schluss |

@@ -85,6 +85,11 @@
 <div class="case"><h4>m44 · 1.7 · ⚡ ausblenden · T04A GuV · Detailzeilen unter 5 % verschwinden, Summen und Ergebniszeilen bleiben (grau, wenn selbst keine Ausnahme) · Hinweis zählt</h4><div class="stage" id="m44" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m45 · 1.7 · ⚡ ausblenden im T04B (integrierter Δ-Wasserfall) · ruhige Schritte je Abschnitt zu „other (n)“ zusammengefasst, Summen ohne Ausnahme darunter ohne Kinder — die Kaskade bleibt geschlossen</h4><div class="stage" id="m45" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m47 · 1.8 · T01C · T01B je Block nach ΔPY _November sortiert, „Other“ unten, Blöcke wie im Blatt</h4><div class="stage" id="m47" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m48 · 1.8 · T01B ohne gemeinsame Wurzel (Regionen sind Wurzeln) · synthetische Gesamtzeile „Gesamt" fett am Ende</h4><div class="stage" id="m48" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m49 · 1.8 · T02A ohne gemeinsame Wurzel · Gesamtzeile „World" mit Balken und Pins auf der gemeinsamen Skala</h4><div class="stage" id="m49" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m50 · 1.8 · T01B ohne gemeinsame Wurzel, structureTotal aus (Bericht vor 1.8) · keine Gesamtzeile</h4><div class="stage" id="m50" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m51 · 1.8 · GuV-Daten mit structureTotal an · keine Gesamtzeile (Statement)</h4><div class="stage" id="m51" style="width:1320px;height:500px"></div></div>
+<div class="case"><h4>m52 · 1.8 · T01C ohne gemeinsame Wurzel · Blöcke sortiert, Gesamtzeile bleibt unten</h4><div class="stage" id="m52" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -524,6 +529,18 @@ runRows("m46", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 
 // m47 — 1.8 T01C: T01B sorted by ΔPY in the _November block (the numbers of the sheet)
 runRows("m47", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" } });
+
+// m48..m52 — 1.8 (B03) the synthetic total row over several structure roots
+runRows("m48", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01B" } }, "de-DE");
+runRows("m49", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T02A", structureTotalLabel: "World" } });
+runRows("m50", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T01B", templateApplied: "T01B", showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+    dPlAbs: true, dPlPct: true, secondBlock: true, thresholds: true, structureSubtotals: true },
+  numbers: { decimals: 0, pctDecimals: 1 } });
+runRows("m51", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { showPY: true, showMinuend: true, dPyAbs: true, dPyPct: true, structureTotal: true } });
+runRows("m52", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

@@ -37,6 +37,12 @@ Saldenliste (Haben-Salden negativ) mit `SignConvention -1`, `DisplayInvert
 false`; `VarianceInvert` nach Fachlogik (Verbindlichkeiten, Rückstellungen:
 true). Beispiel: `demoData/bilanz-*.csv`, `demoData/cashflow-*.csv`.
 
+**Gesamtzeile (1.8):** Hat die Struktur keine gemeinsame oberste Ebene (Regionen
+sind die Wurzeln), bildet der Schalter **Gesamtzeile über mehrere Wurzeln**
+(`structureTotal`, die T01/T02-Templates setzen ihn an) die fette Zeile „World"
+am Ende; ihr Name steht in **Name der Gesamtzeile**. Mit einer echten obersten
+Ebene „World" in den Daten ist das nicht nötig.
+
 **Wichtig:** Kostenzeilen bekommen das Trio `SignConvention = -1` ·
 `DisplayInvert = true` · `VarianceInvert = false` (mehr Kosten = rot). **Nicht**
 `-1` zusammen mit `VarianceInvert = true` setzen: das dreht die Bewertung doppelt
