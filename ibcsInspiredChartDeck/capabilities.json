@@ -479,6 +479,33 @@
                 "multiplesTopN": { "type": { "numeric": true } },
                 "multiplesHero": { "type": { "bool": true } },
                 "multiplesSameScale": { "type": { "bool": true } },
+                "multiplesAgg": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "sum", "displayName": "Sum" },
+                            { "value": "mean", "displayName": "Average" }
+                        ]
+                    }
+                },
+                "multiplesTotalPos": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "first", "displayName": "First tile" },
+                            { "value": "last", "displayName": "Last tile" }
+                        ]
+                    }
+                },
+                "multiplesTotalShade": { "type": { "bool": true } },
+                "multiplesTotalLabel": { "type": { "text": true } },
+                "multiplesRestLabel": { "type": { "text": true } },
+                "multiplesBasis": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "scenario", "displayName": "Scenario (PY / PL)" },
+                            { "value": "avg", "displayName": "Average of all tiles (Ø)" }
+                        ]
+                    }
+                },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "sortMode": {

@@ -698,6 +698,12 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Top N tiles | Shows only the N largest groups (by total AC) as tiles — the rest are aggregated into a "Remainder" tile. 0 = all. | 0–24 · default 0 |
 | First tile large | Gives the first tile (e.g. "Σ Total" or the largest group) more room — all tiles keep the same scale (IBCS CT 13). | On / Off · default Off |
 | Bridges: same scale for all tiles | Also scales the bridge modes (Integrated bridge, Category bridge) identically across all tiles (IBCS). Default: off — each bridge tile scales on its own. Columns, bars and waterfall always share the scale. | On / Off · default Off |
+| Reference and rest tile | What the reference tile (Σ) and the rest tile of “Top N tiles” show (since 1.55): the sum of the groups or their average. The average divides per category by the number of tiles with a value (blank does not count as 0) and always runs over all groups, never over the rest tile. The reference tile thus stays within the range of the tiles and does not squeeze the shared scale (after IBCS sheet 13A). For ratios it is an unweighted mean. | Sum / Average · default Sum |
+| Reference tile position | First tile or last tile, bottom right as on sheet 13A (since 1.55). Placed last, the tile stays visible beyond 24 tiles. | First / Last tile · default First |
+| Shade reference tile | Shades the reference tile grey (since 1.55), a frame instead of the fill in high contrast. | On / Off · default Off |
+| Reference tile label | Own title, {n} = number of groups, e.g. “average {n} locations” (since 1.55). | Text · empty = “Σ Total” or “Ø Average (n)” |
+| Rest tile label | Own title of the rest tile, {n} = number of merged groups, e.g. “{n} more small locations” (since 1.55). | Text · empty = “Other (n)” |
+| Variance basis of the tiles | Since 1.55: “Average of all tiles (Ø)” compares every tile per category with the average of all groups, without a helper measure (panels “ΔØ”, “ΔØ %”). Plan-only years compare the plan with the average of the plans and appear in plan notation (outlined, hollow pin). The reference tile shows no variance, dual variance is off. Columns, bars and line only, without stacks and bridges (after IBCS sheet 13C; the view with the variance panel only follows). | Scenario (PY / PL) / Average of all tiles (Ø) · default Scenario |
 
 #### Bridge
 

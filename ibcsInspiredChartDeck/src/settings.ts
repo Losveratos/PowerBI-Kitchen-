@@ -98,6 +98,20 @@ const stackLegendPosItems: LocEnumMember[] = [
     { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
 ];
 
+// 1.55 (backlog B13): small multiples against the average (IBCS sheets 13A, 13C)
+const multiplesAggItems: LocEnumMember[] = [
+    { value: "sum", displayName: "Sum", key: "Enum_MultAgg_Sum" },
+    { value: "mean", displayName: "Average", key: "Enum_MultAgg_Mean" }
+];
+const multiplesTotalPosItems: LocEnumMember[] = [
+    { value: "first", displayName: "First tile", key: "Enum_MultPos_First" },
+    { value: "last", displayName: "Last tile", key: "Enum_MultPos_Last" }
+];
+const multiplesBasisItems: LocEnumMember[] = [
+    { value: "scenario", displayName: "Scenario (PY / PL)", key: "Enum_MultBasis_Scenario" },
+    { value: "avg", displayName: "Average of all tiles (Ø)", key: "Enum_MultBasis_Avg" }
+];
+
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
 // ellipse around its numbers (IBCS sheets 04A, 06E: circled values)
 const highlightStyleItems: LocEnumMember[] = [
@@ -257,7 +271,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
-        stackNormalizeItems, stackLegendPosItems];
+        stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
+        multiplesBasisItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -750,12 +765,76 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.55 (B13, IBCS sheet 13A): aggregate, position, shading and labels of the
+    // reference tile (Σ / Ø) and the Top-N rest tile
+    multiplesAgg = new formattingSettings.ItemDropdown({
+        name: "multiplesAgg",
+        displayName: "Reference and rest tile",
+        displayNameKey: "Chart_MultiplesAgg",
+        description: "Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt. Der Durchschnitt teilt je Kategorie durch die Zahl der Kacheln mit Wert (leer zählt nicht als 0) und bleibt im Wertebereich der Kacheln, die gemeinsame Skala wird also nicht gestaucht. Bei Quoten (Marge in %) ist es ein ungewichteter Mittelwert.",
+        descriptionKey: "Desc_Chart_MultiplesAgg",
+        items: multiplesAggItems,
+        value: multiplesAggItems[0]
+    });
+
+    multiplesTotalPos = new formattingSettings.ItemDropdown({
+        name: "multiplesTotalPos",
+        displayName: "Reference tile position",
+        displayNameKey: "Chart_MultiplesTotalPos",
+        description: "Wo die Bezugskachel (Σ bzw. Ø) steht: als erste Kachel (Standard) oder als letzte, unten rechts wie auf dem IBCS-Blatt 13A.",
+        descriptionKey: "Desc_Chart_MultiplesTotalPos",
+        items: multiplesTotalPosItems,
+        value: multiplesTotalPosItems[0]
+    });
+
+    multiplesTotalShade = new formattingSettings.ToggleSwitch({
+        name: "multiplesTotalShade",
+        displayName: "Shade reference tile",
+        displayNameKey: "Chart_MultiplesTotalShade",
+        description: "Hinterlegt die Bezugskachel grau, damit sie sich von den Gruppen abhebt. Im Hochkontrast ein Rahmen statt der Fläche.",
+        descriptionKey: "Desc_Chart_MultiplesTotalShade",
+        value: false
+    });
+
+    multiplesTotalLabel = new formattingSettings.TextInput({
+        name: "multiplesTotalLabel",
+        displayName: "Reference tile label",
+        displayNameKey: "Chart_MultiplesTotalLabel",
+        description: "Eigener Titel der Bezugskachel, {n} steht für die Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“. Leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“.",
+        descriptionKey: "Desc_Chart_MultiplesTotalLabel",
+        placeholder: "Σ / Ø",
+        value: ""
+    });
+
+    multiplesRestLabel = new formattingSettings.TextInput({
+        name: "multiplesRestLabel",
+        displayName: "Rest tile label",
+        displayNameKey: "Chart_MultiplesRestLabel",
+        description: "Eigener Titel der Rest-Kachel bei „Top N Kacheln“, {n} steht für die Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“. Leer = „Rest (n)“.",
+        descriptionKey: "Desc_Chart_MultiplesRestLabel",
+        placeholder: "Rest (n)",
+        value: ""
+    });
+
+    // 1.55 (B13, IBCS sheet 13C): variance basis = average of all tiles
+    multiplesBasis = new formattingSettings.ItemDropdown({
+        name: "multiplesBasis",
+        displayName: "Variance basis of the tiles",
+        displayNameKey: "Chart_MultiplesBasis",
+        description: "Szenario (Standard): jede Kachel vergleicht mit PY bzw. PL. „Durchschnitt aller Kacheln (Ø)“: jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panel „ΔØ“). Reine Planjahre vergleichen den Plan mit dem Durchschnitt der Pläne und erscheinen in Plan-Notation (umrandet). Die Bezugskachel zeigt keine Abweichung, die doppelte Abweichung ist aus. Nur Säulen, Balken und Linie ohne Stapel und ohne Brücke.",
+        descriptionKey: "Desc_Chart_MultiplesBasis",
+        items: multiplesBasisItems,
+        value: multiplesBasisItems[0]
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
         slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
-            this.multiplesSameScale]
+            this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
+            this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
+            this.multiplesBasis]
     });
 
     bridgeOrientation = new formattingSettings.ItemDropdown({

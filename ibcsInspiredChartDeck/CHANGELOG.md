@@ -2,7 +2,7 @@
 
 ## 1.55.0.0 (in Arbeit)
 
-**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken) sind genannt.**
+**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken) sind genannt.**
 
 - **B10 · Stapel-Struktur (Blätter 01D, 01E, 02B, 02C, 02D, 02E).** Vorher: Stapel gab es nur mit Werten, die Seriennamen standen immer rechts, Balken ließen sich nicht nach Stapelsumme oder erster Serie ordnen, und es fehlte eine Σ-Zeile. Nachher:
   - **„Stapel-Skala“** (`chart.stackNormalize`, Auswahl „Werte“ | „100 % (Anteile)“, Standard Werte): gestapelte Säulen und Balken zeigen je Kategorie 100 %, die Beschriftungen sind Anteile mit einer Nachkommastelle, der Panel-Titel erhält den Zusatz „Anteile in %“. Die „100 %“-Marke steht bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken läuft eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile, mit „▲ 100 %“ darunter. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N). Eine Referenzlinie wird als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax` und `capOverflow` gelten für Anteile nicht.
@@ -38,6 +38,30 @@
     #0064FF) und optionalem Legendentext (`chart.scatterEmphLabel`, z. B. „Zukäufe 12/25“) statt des Rings.
   - Bestandsberichte zeichnen SVG-gleich (alle 364 Bestands-Stages per Hash geprüft); einzige sichtbare Änderung
     ohne neue Optionen: das Feld-Intro nennt die neue Rolle (20 statt 19 Rollen). Tests c400 bis c406.
+- **B13 · Small Multiples gegen Durchschnitt (Blatt 13A, Teil von 13C).** Vorher: Die Bezugskachel war immer
+  „Σ Gesamt“, stand vorn und streckte als Summe die gemeinsame Skala, bis alle anderen Kacheln flach wurden; die
+  Rest-Kachel hieß fest „Rest (n)“; ein Vergleich mit dem Durchschnitt aller Gruppen brauchte ein Hilfs-Measure.
+  Nachher, im Formatbereich Chart → „Small Multiples“:
+  - „Bezugs- und Rest-Kachel“ (`chart.multiplesAgg`, „Summe“ | „Durchschnitt“, Standard Summe): Der Durchschnitt
+    teilt je Kategorie und Feld durch die Zahl der Kacheln mit Wert (leer zählt nicht als 0), Abweichungen werden
+    über die Paare gemittelt, die Bezugskachel rechnet immer über alle Originalgruppen (nie aus der Rest-Kachel).
+    Sie bleibt im Wertebereich der Kacheln, die Skala wird nicht gestaucht. Eine Periode ist nur dann Forecast,
+    wenn alle Kacheln sie so führen; reine Planjahre bleiben umrandet. Die Nachkommastellen folgen den Daten.
+  - „Position der Bezugskachel“ (`chart.multiplesTotalPos`, erste | letzte Kachel), „Bezugskachel hinterlegen“
+    (`chart.multiplesTotalShade`, grau, im Hochkontrast Rahmen), „Titel der Bezugskachel“ und „Titel der
+    Rest-Kachel“ (`chart.multiplesTotalLabel`, `chart.multiplesRestLabel`, Platzhalter `{n}`, z. B.
+    „Durchschnitt {n} Standorte“, „{n} weitere kleine Standorte“). Leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“
+    und „Rest (n)“. Eine zuletzt stehende Bezugskachel bleibt auch bei mehr als 24 Kacheln sichtbar.
+  - „Abweichungsbasis der Kacheln“ (`chart.multiplesBasis`, „Szenario (PY / PL)“ | „Durchschnitt aller Kacheln (Ø)“,
+    nur Säulen, Balken, Linie ohne Stapel und Brücke): Jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller
+    Gruppen (Panels „ΔØ“ und „ΔØ %“, Achse als einfache Linie). Reine Planjahre vergleichen den Plan mit dem
+    Durchschnitt der Pläne und stehen in Plan-Notation (Δ-Balken umrandet mit blasser Füllung, Pin hohl). Die
+    Bezugskachel zeigt keine Abweichung, die doppelte Abweichung ist aus, eine summierte Rest-Kachel vergleicht
+    mit n × Ø.
+  - Bestehende Stufen zeichnen SVG-identisch (alle 396 Harness-Stufen per Hash verglichen); die Marker
+    `mult-tile`, `mult-ref-bg`, `mult-basis` und `var-plan` erscheinen nur mit gesetzter B13-Option. Noch nicht:
+    nur das Abweichungs-Panel (`varianceOnly`, 13C und 13D vollständig), frei wählbare große Kachel (13B). Tests
+    c500 bis c504 und c510 bis c514.
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 

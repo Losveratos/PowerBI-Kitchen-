@@ -45,6 +45,31 @@ bei `scatterEmphFill`. Kein Template geändert (C10 unverändert). Blatt-Rezepte
 Feld-Intro: 20 Rollen. 778 resjson-Keys je Sprache (mit B10 und B09). Tests c400 bis c406 (c400n: ausdrücklich gesetzte Standardwerte
 zeichnen SVG-gleich wie keine Angabe).
 
+*B13 · Small Multiples gegen Durchschnitt (Blatt 13A, Teil von 13C).* Neue Properties im Objekt `chart`, Gruppe
+„Small Multiples“, alle standardmäßig ohne Wirkung: `multiplesAgg` (`sum` Standard | `mean`) gilt für die Bezugskachel
+(`multiplesTotal`) und die Top-N-Rest-Kachel. `mean`: je Kategorie (+ Stapelserie) und Feld (ac, py, pl, fc, value,
+basis, fcPrev, bm, Trendreihe) geteilt durch die Zahl der Kacheln mit Wert in diesem Feld (null ist nicht 0); varAbs =
+Mittel von (value − basis) über die Kacheln mit beidem, varRel = varAbs / Mittel der Basis derselben Kacheln (Δ2
+genauso); `isFc` nur, wenn alle Kacheln FC sind; die Bezugskachel rechnet immer aus allen Originalgruppen, nie aus
+der Rest-Kachel. Ein Ø ändert die Nachkommastellen nicht (Formatter-Präzision ohne die Ø-Kacheln). `multiplesTotalPos`
+(`first` | `last`; zuletzt bleibt die Kachel auch über 24 Kacheln hinaus sichtbar, „+n weitere“ hängt dann an der
+letzten Gruppe), `multiplesTotalShade` (bool, `cfg.band` über die ganze Zelle samt Kopf, Hochkontrast Rahmen),
+`multiplesTotalLabel` und `multiplesRestLabel` (Text, `{n}` = Zahl aller Gruppen bzw. der zusammengefassten; leer =
+„Σ Total“/„Ø Average (n)“ bzw. „Other (n)“, lokalisiert über `Label_Total`, `Label_Average`, `Label_Rest`).
+`multiplesBasis` (`scenario` Standard | `avg`; nur `columns`, `bars`, `line` ohne Stapel und ohne `waterfallStyle`):
+nach Top N, Kumulierung und vor dem Sortieren wird je Kategorie m = Mittel über alle Originalgruppen von `value ?? pl`
+gebildet; jede Kachel außer der Bezugskachel bekommt basis = m (summierte Rest-Kachel: m × Zahl ihrer Gruppen mit
+Wert), varAbs = (value ?? pl) − m, varRel = varAbs / m, var2 = null (doppelte Abweichung aus), `varPlan` = true, wo
+value null ist (Δ-Balken umrandet mit Füllung 12 %, Pin-Kopf hohl). Die Bezugskachel hat keine Δ (Panels bleiben leer,
+gleiche Skala). Basis-Label „Ø“, Panels „ΔØ“ und „ΔØ %“, Δ-Achse als einfache Linie (`cfg.basisAvg`), Δ-Präzision
+wie die Werte. Gruppen tragen `kind` (`total` | `rest`). Testmarker (`data-icd`, nur wenn eine B13-Option gesetzt
+ist, sonst SVG byte-gleich): `mult-tile` je Kachel (`data-group`, `data-kind` = `group`|`total`|`rest`, `data-agg`
+an Bezugs- und Rest-Kachel, `data-x/y/w/h` = Zelle), `mult-ref-bg` (Hinterlegung), `mult-basis` (`data-basis="avg"`),
+`var-plan` (Plan-Δ-Balken und Pin-Kopf). Rezept 13A: `multiplesTotal` + `multiplesAgg=mean` + `multiplesTotalPos=last`
++ `multiplesTotalShade` + `multiplesTopN` + beide Titel + `scenarioLabels`, Δ-Panels aus. 13C zusätzlich
+`multiplesBasis=avg` und `showAbsoluteVariance` (zeigt heute noch die Säulen unter dem Δ-Panel; `varianceOnly` und
+die freie Hero-Kachel 13B folgen). Tests c500 bis c504, c510 bis c514. 797 resjson-Keys je Sprache.
+
 **Neu in 1.54 (Backlog IBCS-Templates, Abgleich 19.11.2026):**
 
 *B01 · Vorlagen C14 bis C18 für Blätter, die schon konfigurierbar waren.* C07 und C11 bleiben
@@ -516,6 +541,12 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `multiplesTopN` | numeric | `0` | Bereich 0–24 — Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest"-Kachel aggregiert. 0 = alle. |
 | `multiplesHero` | bool | `false` | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). |
 | `multiplesSameScale` | bool | `false` | Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer. |
+| `multiplesAgg` | enum | `sum` | `sum` · `mean` — Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt … |
+| `multiplesTotalPos` | enum | `first` | `first` · `last` — Wo die Bezugskachel (Σ bzw. Ø) steht: als erste Kachel (Standard) oder als letzte, unten rechts wie auf dem IBCS-Blatt 13A. |
+| `multiplesTotalShade` | bool | `false` | Hinterlegt die Bezugskachel grau, damit sie sich von den Gruppen abhebt. Im Hochkontrast ein Rahmen statt der Fläche. |
+| `multiplesTotalLabel` | text | leer | Eigener Titel der Bezugskachel, {n} steht für die Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“. Leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“. |
+| `multiplesRestLabel` | text | leer | Eigener Titel der Rest-Kachel bei „Top N Kacheln“, {n} steht für die Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“. Leer = „Rest (n)“. |
+| `multiplesBasis` | enum | `scenario` | `scenario` · `avg` — Szenario (Standard): jede Kachel vergleicht mit PY bzw. PL. „Durchschnitt aller Kacheln (Ø)“: jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panel „ΔØ“) … |
 
 **Brücke**
 
@@ -626,6 +657,9 @@ Enum-Labels:
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
 - `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule
 - `stackNormalize`: `off` = Werte; `pct100` = 100 % (Anteile)
+- `multiplesAgg`: `sum` = Summe; `mean` = Durchschnitt
+- `multiplesTotalPos`: `first` = Erste Kachel; `last` = Letzte Kachel
+- `multiplesBasis`: `scenario` = Szenario (PY / PL); `avg` = Durchschnitt aller Kacheln (Ø)
 - `sortMode`: `off` = Aus (Datenreihenfolge); `abs` = Nach Wirkung |Δ|;
   `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC;
   `series` = Nach erster Serie (Stapel)
