@@ -34,7 +34,7 @@ test("every template writes exactly the switch set of the pre-1.3 inline code (n
             secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, structureTotal: p.structureTotal,
             showPctRows: p.showPctRows,
             thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
-            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, blockKind: p.blockKind, leftBlockKind: "month",
+            capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, keepBlockOrder: p.keepBlockOrder, blockKind: p.blockKind, leftBlockKind: "month",
         }, tpl);
         assert.deepStrictEqual(sw.nums, tpl === "off" ? {} : { decimals: p.decimals, pctDecimals: p.pctDecimals }, tpl + " numbers");
         assert.deepStrictEqual(sw.title, p.headline ? { headline: true } : {}, tpl + " headline");
@@ -49,7 +49,7 @@ test("only 12G and 12H switch the headline on", () => {
 test("the gallery lists the pane's templates in pane order (off first, then T01A … 12H, 1.7 T05A · T05B)", () => {
     const items = new M.VisualFormattingSettingsModel().columnsCard.template.items.map(i => i.value);
     assert.deepStrictEqual(M.HUB_TEMPLATES, items);
-    assert.strictEqual(M.HUB_TEMPLATES.length, 21);
+    assert.strictEqual(M.HUB_TEMPLATES.length, 23);
     assert.deepStrictEqual(M.HUB_TEMPLATES.slice(-2), ["T05A", "T05B"]);
     // capabilities.json carries the same enumeration (the pane reads it, PBIR writes it)
     const capsT = JSON.parse(fs.readFileSync(path.join(ROOT, "capabilities.json"), "utf8"))
@@ -116,7 +116,7 @@ test("mini objects: body only (no toolbar / title), template switches + template
 
 test("templates that analyse FC are flagged (their preview carries a simulated forecast)", () => {
     const fc = M.HUB_TEMPLATES.filter(M.templateNeedsFc);
-    assert.deepStrictEqual(fc, ["T02E", "T02F", "T03B", "T04D", "T04E"]);
+    assert.deepStrictEqual(fc, ["T01D", "T02E", "T02F", "T03B", "T04D", "T04E"]);
 });
 
 test("the enum of emptyState.mode: hub first (the default), then demo · fields · message", () => {
@@ -134,8 +134,8 @@ const locs = ["de-DE", "en-US", "es-ES", "ja-JP"].map(l => JSON.parse(fs.readFil
 test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet & cash flow), every template exactly once", () => {
     assert.deepStrictEqual(M.HUB_GALLERY.map(g => g.id), ["structure", "forecast", "statement", "balance", "report"]);
     const by = Object.fromEntries(M.HUB_GALLERY.map(g => [g.id, g.tiles.map(t => t.tpl)]));
-    assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T01C", "T02A", "T02B", "T02C"]);
-    assert.deepStrictEqual(by.forecast, ["T02E", "T02F", "T03B", "T04D", "T04E"]);
+    assert.deepStrictEqual(by.structure, ["T01A", "T01B", "T01C", "T02A", "T02B", "T02C", "T02D"]);
+    assert.deepStrictEqual(by.forecast, ["T01D", "T02E", "T02F", "T03B", "T04D", "T04E"]);
     assert.deepStrictEqual(by.statement, ["T03A", "T04A", "T04B", "T04C"]);
     assert.deepStrictEqual(by.balance, ["T05A", "T05B"]);
     assert.deepStrictEqual(by.report, ["12A", "12G", "12H", "off"]);

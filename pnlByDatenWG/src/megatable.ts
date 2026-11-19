@@ -220,7 +220,8 @@ export interface MegaRefToggles {
     wf: boolean;
 }
 
-export type MegaSort = "cat" | "min" | "delta";
+/** 1.8 (B04) "pct": Δ% of the sorting reference (the number of its Δ% column / pin) */
+export type MegaSort = "cat" | "min" | "delta" | "pct";
 
 export interface MegaToggles {
     min: MegaMin;
@@ -241,6 +242,12 @@ export interface MegaToggles {
     sort: MegaSort;
     /** which block decides the order (0 = period, 1 = YTD) */
     sortBlock: number;
+    /**
+     * 1.8 (B04) the blocks of the top visible level (regions) keep the category
+     * order; only the rows inside them are sorted (the IBCS sheets). Off = 1.5.2:
+     * the blocks are sorted too. Default off
+     */
+    keepBlockOrder?: boolean;
     /** "% of revenue" column next to the value columns. Default off */
     share?: boolean;
 }
@@ -312,6 +319,8 @@ export interface MegaPreset {
     secondBlock: boolean; structureSubtotals: boolean; showPctRows: boolean;
     /** 1.8 (B03) total row over several structure roots (columns.structureTotal) */
     structureTotal: boolean;
+    /** 1.8 (B04) blocks stay in category order when sorting (columns.keepBlockOrder) */
+    keepBlockOrder: boolean;
     thresholds: boolean; scenarioMarks: boolean; chartLabels: boolean; capBars: boolean;
     sort: MegaSort; sortBlock: "period" | "ytd";
     decimals: number; pctDecimals: number;
@@ -325,7 +334,7 @@ const P_OFF: MegaPreset = {
     min: "AC", showPY: false, showPL: false, showMin: false, valueCascade: false,
     dPyAbs: false, dPyBar: false, dPyWf: false, dPyPct: false, dPyPin: false,
     dPlAbs: false, dPlBar: false, dPlWf: false, dPlPct: false, dPlPin: false,
-    secondBlock: false, structureSubtotals: true, structureTotal: false, showPctRows: true,
+    secondBlock: false, structureSubtotals: true, structureTotal: false, keepBlockOrder: false, showPctRows: true,
     thresholds: false, scenarioMarks: true, chartLabels: true, capBars: false,
     sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false,
 };
@@ -359,15 +368,20 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     off: P_OFF,
     T01A,
     T01B: preset(T01A, { structureSubtotals: true }),
-    T01C: preset(T01A, { structureSubtotals: true, sort: "delta", sortBlock: "ytd" }),
+    // 1.8: every sorting template keeps the blocks in category order like its sheet (keepBlockOrder)
+    T01C: preset(T01A, { structureSubtotals: true, sort: "delta", sortBlock: "ytd", keepBlockOrder: true }),
+    // 1.8 (B04) T01D: forecast by country with subtotals, sorted by ΔPY% of the month
+    T01D: preset(T01A, { structureSubtotals: true, min: "FC", sort: "pct", sortBlock: "period", keepBlockOrder: true }),
     T02A,
-    T02B: preset(T02A, { sort: "min", sortBlock: "ytd" }),
-    T02C: preset(T02A, { sort: "delta", sortBlock: "period" }),
+    T02B: preset(T02A, { sort: "min", sortBlock: "ytd", keepBlockOrder: true }),
+    T02C: preset(T02A, { sort: "delta", sortBlock: "period", keepBlockOrder: true }),
+    // 1.8 (B04) T02D: T02A sorted by ΔPL% of the YTD block (the arrow on the pin head)
+    T02D: preset(T02A, { sort: "pct", sortBlock: "ytd", keepBlockOrder: true }),
     T02E: preset(T02A, {
         min: "FC", showPY: true, showPL: false, dPlBar: false, dPlPin: false, dPyBar: true, dPyPin: true,
-        sort: "delta", sortBlock: "ytd",
+        sort: "delta", sortBlock: "ytd", keepBlockOrder: true,
     }),
-    T02F: preset(T02A, { min: "FC", sort: "delta", sortBlock: "ytd" }),
+    T02F: preset(T02A, { min: "FC", sort: "delta", sortBlock: "ytd", keepBlockOrder: true }),
     T03A,
     T03B: preset(T03A, { min: "FC" }),
     T04A,
@@ -831,15 +845,26 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
     const b = blocks[bi];
     const ref: MegaRef = activeRefs(t)[0] || (t.showPY ? "PY" : "PL");
     const key = (r: MegaRow): number => {
+        // 1.8 (B04) a margin row never sorts (structure data has none; safety net)
+        if (r.kind === "pct") { return -Infinity; }
+        if (t.sort === "pct") {
+            // the Δ% the row prints (display orientation, like "delta" below);
+            // no base (Δ% n.a.) sorts after every number, before "Other"
+            const p = b.delta(r, t.min, ref)?.p;
+            return p == null || !isFinite(p) ? -Infinity : p;
+        }
         const a = b.value(r, t.min);
         if (t.sort === "min") { return a ?? -Infinity; }
         const v = b.value(r, ref);
         return a == null || v == null ? -Infinity : a - v;
     };
+    // descending; rows without a key last in their input order (two −∞ gave NaN until 1.8)
+    const cmp = (kx: number, ky: number): number =>
+        kx === ky ? 0 : kx === -Infinity ? 1 : ky === -Infinity ? -1 : ky - kx;
     const sortRuns = (list: MegaRow[]): MegaRow[] => {
         const out: MegaRow[] = []; let run: MegaRow[] = [];
         const flush = (): void => {
-            const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
+            const rest = run.filter(r => !r.other).sort((x, y) => cmp(key(x), key(y)));
             out.push(...rest, ...run.filter(r => r.other)); run = [];
         };
         for (const r of list) {
@@ -868,7 +893,12 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
     const fixed = (s: MegaRow[]): boolean => s.some(r => megaAnchor(r));
     const segKey = (s: MegaRow[]): number => key(s[s.length - 1]);
     const free = real.filter(s => !fixed(s));
-    const order = [...free.filter(s => !s[s.length - 1].other).sort((x, y) => segKey(y) - segKey(x)),
+    // 1.8 (B04) keepBlockOrder: the blocks stay in category order, only the rows
+    // inside them are sorted (the IBCS sheets T01C/D, T02B to T02F). It needs at
+    // least one real block — a table of single rows only is sorted as before,
+    // else the switch would switch the sorting off
+    const keep = !!t.keepBlockOrder && real.some(s => s.length > 1);
+    const order = keep ? free : [...free.filter(s => !s[s.length - 1].other).sort((x, y) => cmp(segKey(x), segKey(y))),
         ...free.filter(s => s[s.length - 1].other)];
     let fi = 0;
     const gaps = rows.filter(r => r.kind === "gap");
@@ -989,9 +1019,13 @@ export function layoutMega(input: MegaInput): MegaLayout {
     // stays as the author set it — silently sorting by another column would show
     // an order nobody asked for — and the indicator moves to the head of the
     // category column, naming the key: "(↓) ΔPL _November".
-    const sortCol = !sortInfo ? null : cols.find(x => x.block === sortInfo.block && (t.sort === "min"
-        ? (x.type === "value" || x.type === "vwf") && x.scen === t.min
-        : x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin")) ?? null;
+    // 1.8 (B04) sort = pct: the Δ% number column of the reference, else its pin column
+    const sortCol = !sortInfo ? null : t.sort === "pct"
+        ? cols.find(x => x.block === sortInfo.block && x.ref === sortInfo.ref && x.type === "dpct")
+            ?? cols.find(x => x.block === sortInfo.block && x.ref === sortInfo.ref && x.type === "pin") ?? null
+        : cols.find(x => x.block === sortInfo.block && (t.sort === "min"
+            ? (x.type === "value" || x.type === "vwf") && x.scen === t.min
+            : x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin")) ?? null;
     const headerText = (c: MegaCol): string => {
         const blk = blocks[c.block];
         let s = c.type === "value" || c.type === "vwf" ? (blk?.alias?.[c.scen!] ?? c.scen!)
@@ -999,7 +1033,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
         if (sortInfo && c === sortCol) { s += "(↓)"; }
         if (sortInfo && !sortCol && c.type === "label") {
-            const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min) : "Δ" + sortInfo.ref;
+            const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min)
+                : "Δ" + sortInfo.ref + (t.sort === "pct" ? "%" : "");
             s = "(↓) " + key + (nb === 2 && blocks[sortInfo.block].name ? " " + blocks[sortInfo.block].name : "");
         }
         return input.relabel ? input.relabel(s) : s;

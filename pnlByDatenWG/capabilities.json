@@ -645,6 +645,10 @@
                                 "displayName": "T01C"
                             },
                             {
+                                "value": "T01D",
+                                "displayName": "T01D"
+                            },
+                            {
                                 "value": "T02A",
                                 "displayName": "T02A"
                             },
@@ -655,6 +659,10 @@
                             {
                                 "value": "T02C",
                                 "displayName": "T02C"
+                            },
+                            {
+                                "value": "T02D",
+                                "displayName": "T02D"
                             },
                             {
                                 "value": "T02E",
@@ -887,8 +895,17 @@
                             {
                                 "value": "delta",
                                 "displayName": "Δ descending"
+                            },
+                            {
+                                "value": "pct",
+                                "displayName": "Δ% descending"
                             }
                         ]
+                    }
+                },
+                "keepBlockOrder": {
+                    "type": {
+                        "bool": true
                     }
                 },
                 "sortBlock": {

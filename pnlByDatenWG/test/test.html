@@ -90,6 +90,9 @@
 <div class="case"><h4>m50 · 1.8 · T01B ohne gemeinsame Wurzel, structureTotal aus (Bericht vor 1.8) · keine Gesamtzeile</h4><div class="stage" id="m50" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m51 · 1.8 · GuV-Daten mit structureTotal an · keine Gesamtzeile (Statement)</h4><div class="stage" id="m51" style="width:1320px;height:500px"></div></div>
 <div class="case"><h4>m52 · 1.8 · T01C ohne gemeinsame Wurzel · Blöcke sortiert, Gesamtzeile bleibt unten</h4><div class="stage" id="m52" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m53 · 1.8 · T01D · FC je Land (FC-Zahlen des Blatts), je Block nach ΔPY% des Monats sortiert</h4><div class="stage" id="m53" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m54 · 1.8 · T02D · nach ΔPL% _November sortiert, Pfeil am Pin-Kopf, Blöcke in Kategoriereihenfolge</h4><div class="stage" id="m54" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m55 · 1.8 · T02C mit keepBlockOrder aus (Bericht vor 1.8) · Blöcke nach ihrer Summe sortiert</h4><div class="stage" id="m55" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -541,6 +544,14 @@ runRows("m50", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, pe
 runRows("m51", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
   columns: { showPY: true, showMinuend: true, dPyAbs: true, dPyPct: true, structureTotal: true } });
 runRows("m52", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" } });
+
+// m53..m55 — 1.8 (B04) sort by Δ%, the block order of the sheets
+runRows("m53", MEGA_DEMO.regions({ fc: "T01D" }), { titleBlock: { ...MT, periodLine: "November 2026 FC" }, ...REG, columns: { template: "T01D" } });
+runRows("m54", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02D" } });
+runRows("m55", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T02C", templateApplied: "T02C", showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, secondBlock: true,
+    sort: "delta", sortBlock: "period" },
+  numbers: { decimals: 0, pctDecimals: 1 } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

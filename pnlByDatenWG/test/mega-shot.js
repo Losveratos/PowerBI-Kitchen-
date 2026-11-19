@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -232,6 +232,32 @@ function readMega(id) {
         check("m52 T01C without a common root: Europe first (+80), Americas (−127), Rest of World stays, total last",
             ids52[ids52.length - 1] === "__TOTAL__" && ids52.indexOf("L:Europe") < ids52.indexOf("L:Americas")
             && ids52.indexOf("L:Americas") < ids52.indexOf("L:Rest of World"), ids52.filter(x => x.startsWith("L:") || x === "__TOTAL__").join(","));
+    }
+    // ---- 1.8 (B04) sort by Δ%, block order of the sheets (m53..m55) ----------------
+    const leavesOf = (id, g) => S[id].rowIds.filter(x => x.startsWith(g + ":")).map(x => x.slice(g.length + 1)).join();
+    const blockOrder = (id) => S[id].rowIds.filter(x => /^L:World¦/.test(x)).map(x => x.slice(8)).join();
+    if (S.m53) {
+        check("m53 T01D Europe by ΔPY% of the month (sheet: Austria, Sweden, Poland, Switzerland, Belgium, France, Germany, Other)",
+            leavesOf("m53", "Europe") === "Austria,Sweden,Poland,Switzerland,Belgium,France,Germany,Other", leavesOf("m53", "Europe"));
+        check("m53 T01D Americas Brazil, Canada, USA, Other · Rest of World Japan, Australia, China, Other",
+            leavesOf("m53", "Americas") === "Brazil,Canada,USA,Other" && leavesOf("m53", "Rest of World") === "Japan,Australia,China,Other",
+            leavesOf("m53", "Americas") + " | " + leavesOf("m53", "Rest of World"));
+        check("m53 T01D arrow on ΔPY% of the month, once", heads("m53").filter(t => t === "ΔPY%(↓)").length === 1 && !heads("m53").some(t => /ΔPY\(↓\)/.test(t)), heads("m53").join("|"));
+        check("m53 T01D FC values of the sheet (Austria 690, Europe 2 195, World 3 921; ΔPY% +38.0%)",
+            has("m53", "690") && has("m53", "2 195") && has("m53", "3 921") && has("m53", "+38.0%"));
+        check("m53 T01D blocks in category order", blockOrder("m53") === "Europe,Americas,Rest of World", blockOrder("m53"));
+    }
+    if (S.m54) {
+        check("m54 T02D Europe by ΔPL% _November (sheet: Switzerland, Sweden, Poland, Germany, Austria, Belgium, France, Other)",
+            leavesOf("m54", "Europe") === "Switzerland,Sweden,Poland,Germany,Austria,Belgium,France,Other", leavesOf("m54", "Europe"));
+        check("m54 T02D Americas Canada, Brazil, USA, Other (sheet)", leavesOf("m54", "Americas") === "Canada,Brazil,USA,Other", leavesOf("m54", "Americas"));
+        check("m54 T02D arrow ΔPL%(↓) on the pin head of the _November block, once", heads("m54").filter(t => t === "ΔPL%(↓)").length === 1, heads("m54").join("|"));
+        check("m54 T02D blocks in category order (Europe −3.5 % before Americas +0.3 %, as the sheet)",
+            blockOrder("m54") === "Europe,Americas,Rest of World", blockOrder("m54"));
+    }
+    if (S.m55) {
+        check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
+            blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
     if (S.m7) {

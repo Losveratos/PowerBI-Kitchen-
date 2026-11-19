@@ -21,7 +21,7 @@ export interface TemplateSwitches {
  * that does not store them they never count as a deviation from the template
  * (see Visual.templateDeviation), so a template applied with 1.7 stays as it was
  */
-export const TEMPLATE_SWITCHES_1_8 = ["structureTotal"];
+export const TEMPLATE_SWITCHES_1_8 = ["structureTotal", "keepBlockOrder"];
 
 /** 1.7 the templates of the stock group: the balance sheet and the cash flow */
 export const STOCK_TEMPLATES = ["T05A", "T05B"];
@@ -59,7 +59,7 @@ export function templateSwitches(tpl: string, tokens = false, curStockMode = "au
         secondBlock: p.secondBlock, structureSubtotals: p.structureSubtotals, structureTotal: p.structureTotal,
         showPctRows: p.showPctRows,
         thresholds: p.thresholds, scenarioMarks: p.scenarioMarks, chartLabels: p.chartLabels,
-        capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock,
+        capBars: p.capBars, sort: p.sort, sortBlock: p.sortBlock, keepBlockOrder: p.keepBlockOrder,
         // every template is laid out in its period block (YTD; 12G: FY outlook),
         // or month | that block with the second block
         blockKind: p.blockKind, leftBlockKind: "month",
@@ -109,8 +109,10 @@ export const HUB_GALLERY: GalleryGroup[] = [
         tile("T02A", "UI_TtT02A", "UI_TuT02A"),
         tile("T02B", "UI_TtT02B", "UI_TuT02B"),
         tile("T02C", "UI_TtT02C", "UI_TuT02C"),
+        tile("T02D", "UI_TtT02D", "UI_TuT02D"),
     ] },
     { id: "forecast", title: "UI_TgForecast", sub: "UI_TgForecastX", tiles: [
+        tile("T01D", "UI_TtT01D", "UI_TuT01D"),
         tile("T02E", "UI_TtT02E", "UI_TuT02E"),
         tile("T02F", "UI_TtT02F", "UI_TuT02F"),
         tile("T03B", "UI_TtT03B", "UI_TuT03B"),

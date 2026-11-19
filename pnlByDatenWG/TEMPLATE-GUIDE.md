@@ -54,7 +54,7 @@ und färbt eine Kostenüberschreitung fälschlich günstig. Die Vorzeichenlogik 
 Drei Wege, dasselbe Ergebnis:
 
 - **Start-Hub (1.3, am anschaulichsten):** Ohne gebundene Felder zeigt das Visual
-  im Bearbeitungsmodus den Hub, Knopf **Templates** öffnet die Galerie: 18 Kacheln (1.7: 20)
+  im Bearbeitungsmodus den Hub, Knopf **Templates** öffnet die Galerie: 18 Kacheln (1.7: 20, 1.8: 23)
   mit Mini-Vorschau auf Demo-Daten, seit 1.4 **nach Zweck gruppiert** — siehe
   Tabelle unten — mit Finance-Titel, T-Nummer als Badge und einer Nutzen-Zeile.
   Ein Klick wendet das Template an. Ohne Felder wird die Wahl gespeichert und
@@ -66,8 +66,8 @@ Drei Wege, dasselbe Ergebnis:
 
   | Galerie-Gruppe (1.4) | Templates | Finance-Titel der Kacheln |
   |---|---|---|
-  | Struktur-Vergleich | T01A, T01B, T01C, T02A, T02B, T02C | Regionen mit Plan-Abweichung · Regionen mit Zwischensummen · Zwischensummen-Ranking nach Abweichung (YTD) · Plan-Abweichung als Balken · Ranking nach Ist (YTD) · Ranking nach Abweichung (Monat) |
-  | Forecast | T02E, T02F, T03B, T04D, T04E | Forecast gegen Vorjahr · Forecast gegen Plan · Forecast-GuV mit Δ zu Vorjahr und Plan · Forecast-GuV mit Plan-Wasserfall · Forecast-GuV mit Vorjahres-Wasserfall |
+  | Struktur-Vergleich | T01A, T01B, T01C, T02A, T02B, T02C, T02D | Regionen mit Plan-Abweichung · Regionen mit Zwischensummen · Zwischensummen-Ranking nach Vorjahres-Abweichung (YTD) · Plan-Abweichung als Balken · Ranking nach Ist (YTD) · Ranking nach Abweichung (Monat) · Ranking nach Abweichung in % (YTD) |
+  | Forecast | T01D, T02E, T02F, T03B, T04D, T04E | Forecast-Ranking nach Abweichung in % (Monat) · Forecast gegen Vorjahr · Forecast gegen Plan · Forecast-GuV mit Δ zu Vorjahr und Plan · Forecast-GuV mit Plan-Wasserfall · Forecast-GuV mit Vorjahres-Wasserfall |
   | GuV-Statement | T03A, T04A, T04B, T04C | GuV mit Abweichung zu Vorjahr und Plan · GuV mit Plan-Abweichungsbalken · GuV mit Δ-Wasserfall · GuV mit Vorjahres-Wasserfall |
   | Bilanz & Cashflow (1.7) | T05A, T05B | Bilanz zum Stichtag · Cashflow-Brücke |
   | Report-Ansichten | 12A, 12G, 12H, klassisch | Wert-Kaskaden Vorjahr und Ist · Jahresausblick (FY) · Planrechnung gegen Vorjahr · Klassische GuV-Tabelle |
@@ -95,9 +95,10 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 |---|---|---|
 | **T01A** | Struktur flach, PY·PL·AC + ΔPY/ΔPY%/ΔPL/ΔPL% als Zahlen, Monat \| _YTD, Schwellen-Rot + Fußzeile | Struktur + Periode + AC/PY/PL |
 | **T01B** | wie T01A mit Zwischensummen-Blöcken (Europe/Americas/RoW) | Hierarchie-Ebenen |
-| **T01C** (1.8) | wie T01B, je Block nach ΔPY des _YTD-Blocks absteigend sortiert („ΔPY(↓)"), „Other" bleibt unten | wie T01B |
+| **T01C** (1.8) | wie T01B, je Block nach ΔPY des _YTD-Blocks absteigend sortiert („ΔPY(↓)"; ohne PY-Rolle nach ΔPL), „Other" bleibt unten, Blöcke in Kategoriereihenfolge | wie T01B |
+| **T01D** (1.8) | wie T01B mit FC als analysiertem Szenario, je Block nach ΔPY% des Monats sortiert („ΔPY%(↓)") | wie T01B + FC |
 | **T02A** | PL·AC + ΔPL-Balken + ΔPL%-Pins, zwei Blöcke | AC/PL |
-| **T02B/C** | wie T02A, sortiert nach AC↓ bzw. ΔPL↓ („(↓)" im Kopf) | — |
+| **T02B/C/D** | wie T02A, sortiert nach AC↓, ΔPL↓ bzw. (1.8) ΔPL%↓ („(↓)" im Kopf, bei D am Pin-Kopf); Blöcke seit 1.8 in Kategoriereihenfolge | — |
 | **T02E/F** | FC statt AC (schraffierte Balken), Referenz PY bzw. PL (graue bzw. Doppellinien-Achse) | FC + PY bzw. PL |
 | **T03A/B** | GuV-Statement: +/−/=-Zeilen, PY·PL·AC(bzw. FC) + Δ-Zahlenspalten, Margen-Zeile in pp | Kontendimension mit RowType |
 | **T04A–E** | Statement mit **integriertem Δ-Wasserfall** (kaskadierende Balken, =-Anker) + Δ%-Pins; A/B = vs. PL, C = vs. PY, D/E = FC | wie T03 |
@@ -169,6 +170,17 @@ FC schraffiert · PL umrandet), Referenz bestimmt die Achse
 3. **11A (ROI-Baum):** Das Blatt beschriftet jede Säule mit dem Jahr (bis auf
    2022 und 2023, siehe 5.2). Die Karten des Werttreiberbaums beschriften
    bewusst nur die erste und letzte Periode.
+
+### 5.1a · Sortierung (1.8)
+
+- **Blockreihenfolge:** Die Blätter sortieren nur die Zeilen innerhalb einer
+  Region, die Regionen bleiben in Kategoriereihenfolge. Seit 1.5.2 sortierte das
+  Visual die Blöcke mit. 1.8 bringt den Schalter **Blockreihenfolge
+  beibehalten** (`keepBlockOrder`); alle sortierenden Templates setzen ihn an.
+  Ein Bericht, der ein Template schon mit 1.7 angewendet hat, behält die alte
+  Blocksortierung, bis das Template neu angewendet oder der Schalter gesetzt wird.
+- **Gerundete Nullen** behalten das Vorzeichen, wenn der Wert nicht genau null
+  ist (World ΔPY% `+0.0%` bei +0,02 %, Blatt `0.0%`); seit 1.5.2 so gewollt.
 
 ### 5.2 · Fehler in den Referenzblättern (Stand Abgleich 19.11.2026)
 

@@ -483,7 +483,7 @@ function check(label, cond, detail) {
         out.afterEcho = { mega: T.state("ti").mega, sel: sel() ? sel().value : "", persists: st.persists.length };
         return out;
     });
-    check("I edit mode: the template picker is there, with every template (1.7: 20 with T05A / T05B)", pick.there && pick.n === 20 && pick.cur === "off", JSON.stringify(pick));
+    check("I edit mode: the template picker is there, with every template (1.7: 20 with T05A / T05B; 1.8: 23 with T01C, T01D, T02D)", pick.there && pick.n === 23 && pick.cur === "off", JSON.stringify(pick));
     check("I 1.7 a P&L template leaves statement.stockMode alone while it is not allStock (no statement object in the merge)",
         pick.merges === 1 && pick.statement === false, JSON.stringify(pick.statement));
     check("I a pick renders the template at once", pick.immediate);

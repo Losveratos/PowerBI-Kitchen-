@@ -296,11 +296,11 @@ function check(label, cond, detail) {
         out.off = { tpl: off[0].properties.template, applied: off[0].properties.templateApplied, nums: off.length };
         return out;
     });
-    check("G the template tile opens the gallery: 21 tiles (20 templates + the classic table), grouped by purpose, all minis drawn",
-        G.ready && G.page === "templates" && G.tiles.length === 21
-        && G.tiles.join() === "T01A,T01B,T01C,T02A,T02B,T02C,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,T05A,T05B,12A,12G,12H,off", G.tiles.join(","));
-    check("G every tile carries a mini rendering", G.minis.length === 21 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
-    check("G 20 of the minis are mega tables (the classic table is the 21st)", G.mega === 20, String(G.mega));
+    check("G the template tile opens the gallery: 23 tiles (22 templates + the classic table), grouped by purpose, all minis drawn",
+        G.ready && G.page === "templates" && G.tiles.length === 23
+        && G.tiles.join() === "T01A,T01B,T01C,T02A,T02B,T02C,T02D,T01D,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,T05A,T05B,12A,12G,12H,off", G.tiles.join(","));
+    check("G every tile carries a mini rendering", G.minis.length === 23 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
+    check("G 22 of the minis are mega tables (the classic table is the 23rd)", G.mega === 22, String(G.mega));
     check("G without fields: the note says the choice is saved and applies on binding", /^No fields bound yet/.test(G.noteNoFields || ""), G.noteNoFields);
     check("G the classic table is the active tile before any pick, nothing persisted by browsing",
         G.activeDefault.join() === "tpl-off" && G.persists0 === 0);
@@ -585,8 +585,8 @@ function check(label, cond, detail) {
         out.narrowTourScroll = nr.scrollWidth > nr.clientWidth;
         return out;
     });
-    check("L four languages: home, tour card and gallery are localized, no raw key, 21 tiles",
-        ["en-US", "de-DE", "es-ES", "ja-JP"].every(l => !L[l].raw && L[l].tiles === 21 && L[l].home.length > 80 && L[l].tour.length > 40));
+    check("L four languages: home, tour card and gallery are localized, no raw key, 23 tiles",
+        ["en-US", "de-DE", "es-ES", "ja-JP"].every(l => !L[l].raw && L[l].tiles === 23 && L[l].home.length > 80 && L[l].tour.length > 40));
     check("L German and Japanese differ from English", L["de-DE"].tour !== L["en-US"].tour && L["ja-JP"].tour !== L["en-US"].tour
         && L["es-ES"].tour !== L["en-US"].tour && L["de-DE"].home !== L["en-US"].home);
     check("L Japanese texts are Japanese, Spanish ones Spanish", /[぀-ヿ一-鿿]/.test(L["ja-JP"].tour) && /[ñáéíóú]/i.test(L["es-ES"].tour + L["es-ES"].home));
@@ -624,8 +624,8 @@ function check(label, cond, detail) {
         out.back = !!T.q("q1", '[data-pnl="hub-back"]');
         return out;
     });
-    check("Q five purpose groups with German heads: structure 6 · forecast 5 · P&L 4 · balance sheet & cash flow 2 (1.7) · report views 4",
-        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 6], ["forecast", "Forecast", 5], ["statement", "GuV-Statement", 4],
+    check("Q five purpose groups with German heads: structure 7 · forecast 6 · P&L 4 · balance sheet & cash flow 2 (1.7) · report views 4",
+        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 7], ["forecast", "Forecast", 6], ["statement", "GuV-Statement", 4],
             ["balance", "Bilanz & Cashflow", 2], ["report", "Report-Ansichten", 4]]),
         JSON.stringify(Q.groups));
     check("Q finance title on the tile, the T number as a small badge, a use line",

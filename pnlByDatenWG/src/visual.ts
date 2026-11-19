@@ -10479,9 +10479,10 @@ export class Visual implements IVisual {
             marks: cc.scenarioMarks.value,
             labels: cc.chartLabels.value,
             capBars: cc.capBars.value,
-            sort: (["cat", "min", "delta"].includes(String(cc.sort.value.value))
+            sort: (["cat", "min", "delta", "pct"].includes(String(cc.sort.value.value))
                 ? String(cc.sort.value.value) : "cat") as MegaToggles["sort"],
             sortBlock: String(cc.sortBlock.value.value) === "period" ? 0 : 1,
+            keepBlockOrder: cc.keepBlockOrder.value,
             share: cc.pctOfRevenue.value,
         };
     }

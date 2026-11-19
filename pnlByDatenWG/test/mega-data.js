@@ -102,6 +102,13 @@
     "Americas:Brazil": [123, 1324], "Americas:Canada": [73, 699], "Americas:USA": [378, 3190], "Americas:Other": [492, 4008],
     "Rest of World:Australia": [56, 579], "Rest of World:China": [281, 2001], "Rest of World:Japan": [8, 166], "Rest of World:Other": [262, 2647],
   };
+  // FC of the sheet T01D (month, _November) — another forecast than T02E / T02F
+  const FC_T01D = {
+    "Europe:Austria": [690, 5426], "Europe:Belgium": [72, 597], "Europe:France": [163, 1646], "Europe:Germany": [316, 3517],
+    "Europe:Poland": [105, 1054], "Europe:Sweden": [106, 929], "Europe:Switzerland": [81, 678], "Europe:Other": [662, 5359],
+    "Americas:Brazil": [149, 1597], "Americas:Canada": [73, 886], "Americas:USA": [378, 3190], "Americas:Other": [492, 4008],
+    "Rest of World:Australia": [77, 579], "Rest of World:China": [281, 2916], "Rest of World:Japan": [14, 175], "Rest of World:Other": [262, 2647],
+  };
   const MONTHS = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06",
     "2026-07", "2026-08", "2026-09", "2026-10", "2026-11"];
 
@@ -123,7 +130,7 @@
       for (const leaf of leaves) {
         sort++;
         const k = g + ":" + leaf;
-        const b = BASE[k] || SINGLE[k]; const f = FC[k] || [b[2], b[5]];
+        const b = BASE[k] || SINGLE[k]; const f = (opt && opt.fc === "T01D" ? FC_T01D[k] : FC[k]) || [b[2], b[5]];
         MONTHS.forEach((m, mi) => rows.push({
           levels: opt && opt.multiRoot ? [g, leaf] : ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
           sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,

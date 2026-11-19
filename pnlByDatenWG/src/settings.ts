@@ -96,10 +96,12 @@ const templateItems: LocEnumMember[] = [
     { value: "off", displayName: "Off (classic table)", key: "Enum_Template_Off" },
     { value: "T01A", displayName: "T01A · structure, values + Δ, month | YTD", key: "Enum_Template_T01A" },
     { value: "T01B", displayName: "T01B · T01A with subtotal blocks", key: "Enum_Template_T01B" },
-    { value: "T01C", displayName: "T01C · T01B sorted by Δ (YTD)", key: "Enum_Template_T01C" },
+    { value: "T01C", displayName: "T01C · T01B sorted by ΔPY (YTD)", key: "Enum_Template_T01C" },
+    { value: "T01D", displayName: "T01D · FC by country, sorted by Δ% (month)", key: "Enum_Template_T01D" },
     { value: "T02A", displayName: "T02A · ΔPL bars + pins, month | YTD", key: "Enum_Template_T02A" },
     { value: "T02B", displayName: "T02B · T02A sorted by AC (YTD)", key: "Enum_Template_T02B" },
     { value: "T02C", displayName: "T02C · T02A sorted by Δ (month)", key: "Enum_Template_T02C" },
+    { value: "T02D", displayName: "T02D · T02A sorted by Δ% (YTD)", key: "Enum_Template_T02D" },
     { value: "T02E", displayName: "T02E · FC vs PY bars + pins", key: "Enum_Template_T02E" },
     { value: "T02F", displayName: "T02F · FC vs PL bars + pins", key: "Enum_Template_T02F" },
     { value: "T03A", displayName: "T03A · statement PY·PL·AC + ΔPY·ΔPL", key: "Enum_Template_T03A" },
@@ -134,7 +136,8 @@ const minuendItems: LocEnumMember[] = [
 const megaSortItems: LocEnumMember[] = [
     { value: "cat", displayName: "Category order", key: "Enum_MegaSort_Cat" },
     { value: "min", displayName: "AC/FC descending", key: "Enum_MegaSort_Min" },
-    { value: "delta", displayName: "Δ descending", key: "Enum_MegaSort_Delta" }
+    { value: "delta", displayName: "Δ descending", key: "Enum_MegaSort_Delta" },
+    { value: "pct", displayName: "Δ% descending", key: "Enum_MegaSort_Pct" }
 ];
 
 const sortBlockItems: LocEnumMember[] = [
@@ -466,6 +469,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Per subtotal block; rows named Other … stay at the bottom. Default: category order", megaSortItems);
     sortBlock = dropdown("sortBlock", "Mega_SortBlock", "Sorting block",
         "Which period block decides the order. Default: YTD block", sortBlockItems, 1);
+    keepBlockOrder = megaToggle("keepBlockOrder", "Keep the block order", false,
+        "Subtotal blocks (regions) stay in category order, only the rows inside them are sorted, as in the IBCS sheets. Off: the blocks are sorted by their total too. Rows named Other … and the total row stay at the bottom either way. Default: off");
 
     general = new formattingSettings.Group({
         name: "columnsGeneral",
@@ -491,7 +496,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
             this.pctOfRevenue, this.secondBlock, this.blockKind, this.leftBlockKind, this.structureSubtotals,
             this.structureTotal, this.structureTotalLabel, this.showPctRows,
             this.thresholds, this.thresholdAbs, this.thresholdPct, this.thresholdYtdAbs, this.thresholdYtdPct,
-            this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock]
+            this.scenarioMarks, this.chartLabels, this.capBars, this.sort, this.sortBlock, this.keepBlockOrder]
     });
 
     tree = new formattingSettings.Group({
@@ -951,6 +956,7 @@ export function applyPaneGates(m: VisualFormattingSettingsModel, ctx: PaneContex
     c.thresholdYtdAbs.visible = th && c.secondBlock.value && period;
     c.thresholdYtdPct.visible = th && c.secondBlock.value && period;
     c.sortBlock.visible = structure && c.secondBlock.value && period && String(c.sort.value.value) !== "cat";
+    c.keepBlockOrder.visible = structure && String(c.sort.value.value) !== "cat" && c.structureSubtotals.value;
     const anyChart = (py && (c.dPyBar.value || c.dPyPin.value || c.dPyWaterfall.value))
         || (pl && (c.dPlBar.value || c.dPlPin.value || c.dPlWaterfall.value)) || c.valueCascade.value;
     c.chartLabels.visible = anyChart;

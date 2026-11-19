@@ -213,7 +213,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `highlight` | text | `—` | Zeilen hervorheben: Kommagetrennte Zeilennamen (oder IDs), ohne Groß-/Kleinschreibung: ein dezentes Band läuft über alle Spalten dieser Zeilen (IBCS EMPHASIZE). Leer = aus |
 | `materialityAbs` | numeric | `0` | Wesentlichkeit ab (absolut): Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus |
 | `materialityPct` | numeric | `0` | Wesentlichkeit ab (%): Abweichungen unter diesem Δ % werden in sanftem Grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus |
-| `template` | enum `off` · `T01A` · `T01B` · `T01C` · `T02A` · `T02B` · `T02C` · `T02E` · `T02F` · `T03A` · `T03B` · `T04A` · `T04B` · `T04C` · `T04D` · `T04E` · `12A` · `12G` · `12H` · `T05A` · `T05B` | `off` | Template (IBCS-Tabelle): Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Bilanz (T05A) und Cashflow (T05B) setzen zusätzlich Bestand & Fluss. Standard: aus (klassische Tabelle) |
+| `template` | enum `off` · `T01A` · `T01B` · `T01C` · `T01D` · `T02A` · `T02B` · `T02C` · `T02D` · `T02E` · `T02F` · `T03A` · `T03B` · `T04A` · `T04B` · `T04C` · `T04D` · `T04E` · `12A` · `12G` · `12H` · `T05A` · `T05B` | `off` | Template (IBCS-Tabelle): Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Bilanz (T05A) und Cashflow (T05B) setzen zusätzlich Bestand & Fluss. Standard: aus (klassische Tabelle) |
 | `minuend` | enum `ac` · `fc` · `pl` | `ac` | Analysiertes Szenario (Minuend): AC gefüllt, FC schraffiert, PL umrandet; die Δ-Balken folgen dem Minuenden (bei PL rot/grün umrandet, Planrechnung 12H). Die Δ-Spalten vergleichen es mit PY / PL. FC / PL brauchen ihr Feld. Standard: AC |
 | `showPY` | bool | `false` | Wertspalte PY: Vorjahreswerte als Zahlenspalte. Standard: aus |
 | `showPL` | bool | `false` | Wertspalte PL: Planwerte als Zahlenspalte. Standard: aus |
@@ -245,8 +245,9 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `scenarioMarks` | bool | `true` | Szenario-Unterstreichungen (Kopf + Schluss): AC voll, PY grau, PL doppelt, FC schraffiert unter den Spaltenköpfen. Standard: an |
 | `chartLabels` | bool | `true` | Zahlen an Balken / Pins / Kaskaden: Wertbeschriftung an jedem Diagramm-Element. Standard: an |
 | `capBars` | bool | `false` | Ausreißer-Pfeile auch für Δ-Balken: Pins kappen Ausreißer immer (Q3 + 4 × IQR); dies erweitert es auf die Δ-Balken. Standard: aus |
-| `sort` | enum `cat` · `min` · `delta` | `cat` | Sortierung (Strukturdaten): Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten. Standard: Kategoriereihenfolge |
+| `sort` | enum `cat` · `min` · `delta` · `pct` | `cat` | Sortierung (Strukturdaten): Je Zwischensummen-Block; Zeilen namens Sonstige … bleiben unten. `pct` (1.8) = Δ% der Sortier-Referenz. Standard: Kategoriereihenfolge |
 | `sortBlock` | enum `period` · `ytd` | `ytd` | Sortierender Block: Welcher Perioden-Block die Reihenfolge bestimmt. Standard: YTD-Block |
+| `keepBlockOrder` | bool | `false` | Blockreihenfolge beibehalten (1.8): Zwischensummen-Blöcke (Regionen) bleiben in Kategoriereihenfolge, sortiert werden nur die Zeilen darin, wie in den IBCS-Blättern. Aus: die Blöcke werden zusätzlich nach ihrer Summe sortiert (1.5.2). Zeilen namens Other … und die Gesamtzeile bleiben in beiden Fällen unten. Standard: aus |
 | `treeRoot` | text | `—` | Wurzelzeile Treiberbaum (ID, Name oder Kategorie): Leer = letzte Formel-/KPI-Zeile mit Operanden, sonst die Modell-Wurzel |
 | `treeLevel` | numeric | `0` | Start-Tiefe Treiberbaum (0 = ganzer Baum): Wie viele Ebenen des Baums beim Start offen sind. 0 = ganzer Baum. Standard: 0 |
 | `treeCard` | enum `months` · `delta` · `bridge` | `months` | Karten-Diagramm im Treiberbaum: Mini-Diagramm auf jeder Karte: Monatssäulen, Abweichungssäulen oder Mini-Brücke. Standard: Monatssäulen |
@@ -573,7 +574,7 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
 14. **Start-Hub (1.3):** Ohne Felder zeigt der Bearbeitungsmodus (`viewMode` ≥ 1 oder
     kein gemeldeter View-Mode, Bühne ≥ 300 × 220 px, `allowInteractions` nicht
     false) den Hub: Tour (1.6: 8 Karten mit Mini-Renderings, Karte 8 = Sankey), Template-Galerie
-    (18 Kacheln, 1.7: 20 — T05A/T05B zeichnen ihr eigenes Beispiel aus `src/demo-stock.ts`), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
+    (18 Kacheln, 1.7: 20, 1.8: 23 — T05A/T05B zeichnen ihr eigenes Beispiel aus `src/demo-stock.ts`), Demo, Feld-Intro (1.4: dazu „🚀 Loslegen" und die untere Leiste). Leser, Export und kleine Visuals bekommen wie
     bisher den Landing-Text. Mit gebundenen Daten öffnet der Toolbar-Knopf
     „☰ Start" (nur `viewMode` ≥ 1) den Hub als Overlay; Schließen stellt die
     Ansicht unverändert her. Ein Galerie-Klick schreibt in **einem** Merge
@@ -591,7 +592,7 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     sichtbar, wenn Template-Schalter abweichen). Beide schreiben unbedingt
     (`applyMegaTemplate(tpl, true)`, Echo-Guard wie beim Dropdown); ein
     PBIR-Agent muss dafür nichts tun, `template` + `templateApplied` reichen.
-16. **Hub-Polish (1.4):** Die Galerie ordnet die Kacheln (1.7: 20) in
+16. **Hub-Polish (1.4):** Die Galerie ordnet die Kacheln (1.7: 20, 1.8: 23) in
     Zweck-Gruppen (`HUB_GALLERY` in `src/hub.ts`: Struktur-Vergleich · Forecast ·
     GuV-Statement · 1.7 Bilanz & Cashflow · Report-Ansichten; die klassische Tabelle steht zuletzt) —
     die Enum-Reihenfolge von `columns.template` bleibt Pane-Reihenfolge. Die
@@ -899,6 +900,21 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     (`TEMPLATE_SWITCHES_1_8` in `hub.ts`), zählen in `templateDeviation()` nur, wenn
     der Bericht sie speichert, damit ein mit 1.7 angewendetes Template sich nicht
     ändert und kein „↺ Zum Template zurück" zeigt.
+
+27. **Sortierung nach Δ% und Blockreihenfolge (1.8, B04):** `sort = pct`
+    sortiert nach `blk.delta(r, min, ref).p`, also nach der Zahl, die Δ%-Spalte
+    und Pin drucken (Referenz wie bei `delta`: `activeRefs(t)[0]`, bei PY und PL
+    also PY). Zeilen ohne Basis (Δ% n. a.) stehen hinter allen Zahlen, vor
+    „Other". Der Pfeil sitzt an der Δ%-Zahl der Referenz, sonst am Pin, sonst am
+    Kategorie-Kopf („(↓) ΔPL% _November"). Seit 1.8 vergleicht `orderRows` über
+    `cmp` (zwei Zeilen ohne Schlüssel gaben vorher NaN). `keepBlockOrder` hält
+    die Segmente der obersten Ebene in Datenreihenfolge, wirkt aber nur, wenn
+    mindestens ein Segment mehr als eine Zeile hat (sonst wäre die Sortierung
+    einer Tabelle aus Einzelzeilen aus). Standard aus (= 1.5.2); alle
+    sortierenden Templates (T01C, T01D, T02B bis T02F) setzen es an. Wie
+    `structureTotal` steht es in `TEMPLATE_SWITCHES_1_8`: ein mit 1.7
+    angewendetes T02C sortiert seine Blöcke weiter, bis das Template neu
+    angewendet oder der Schalter gesetzt wird.
 
 ## Verwandte Dateien
 

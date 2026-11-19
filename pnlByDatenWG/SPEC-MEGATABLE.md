@@ -314,9 +314,12 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | T01A | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | – | ✓ | ✓ | cat | 0 |
 | T01B | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | cat | 0 |
+| T01C (1.8) | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | ΔPY↓ (_YTD) | 0 |
+| T01D (1.8) | FC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | ΔPY%↓ (Monat) | 0 |
 | T02A | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | cat | 0 |
 | T02B | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | AC↓ (_YTD) | 0 |
 | T02C | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ↓ (Monat) | 0 |
+| T02D (1.8) | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ%↓ (_YTD) | 0 |
 | T02E | FC | ✓ | – | ✓ | – | bar+pin | – | ✓ | ✓ | ✓ | – | Δ↓ (_YTD) | 0 |
 | T02F | FC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ↓ (_YTD) | 0 |
 | T03A | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | – | – | ✓ | – | – | 1 |
@@ -332,6 +335,8 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 | T05A (1.7, Bilanz) | AC | ✓ | – | ✓ | – | num+pct | – | – | – | ✓ | – | – | 0 |
 | T05B (1.7, Cashflow) | AC | ✓ | – | ✓ | ✓ | num+pct | – | ✓ | – | ✓ | – | – | 0 |
 
+1.8: alle sortierenden Presets setzen `keepBlockOrder = an` (Blöcke in Kategoriereihenfolge wie
+die Blätter), die T01/T02-Presets `structureTotal = an` (Gesamtzeile bei mehreren Wurzeln).
 12G setzt zusätzlich `blockKind = fy`, 12G/12H setzen `titleBlock.headline = an`
 (alle anderen Templates: `blockKind = ytd`, Headline unangetastet). 1.7: T05A
 setzt `statement.stockMode = allStock` (Daten ohne Token) bzw. `auto`, T05B
