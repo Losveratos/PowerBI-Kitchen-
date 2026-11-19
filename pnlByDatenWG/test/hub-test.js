@@ -138,10 +138,13 @@ test("1.4 gallery: five purpose groups in the owner's order (1.7: balance sheet 
     assert.deepStrictEqual(by.forecast, ["T01D", "T02E", "T02F", "T03B", "T04D", "T04E"]);
     assert.deepStrictEqual(by.statement, ["T03A", "T04A", "T04B", "T04C"]);
     assert.deepStrictEqual(by.balance, ["T05A", "T05B"]);
-    assert.deepStrictEqual(by.report, ["12A", "12G", "12H", "off"]);
+    assert.deepStrictEqual(by.report, ["12A", "12G", "12H", "11A", "off"]);
     const all = M.HUB_GALLERY.flatMap(g => g.tiles.map(t => t.tpl));
     assert.strictEqual(new Set(all).size, all.length, "no template twice");
-    assert.deepStrictEqual(all.slice().sort(), M.HUB_TEMPLATES.slice().sort(), "the pane's templates, no more, no less");
+    // 1.8 (B07) plus the view presets (ROI tree 11A), which are no pane template
+    assert.deepStrictEqual(all.filter(t => !M.VIEW_PRESETS[t]).sort(), M.HUB_TEMPLATES.slice().sort(), "the pane's templates, no more, no less");
+    assert.deepStrictEqual(all.filter(t => M.VIEW_PRESETS[t]), ["11A"]);
+    assert.deepStrictEqual(M.VIEW_PRESETS["11A"], { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0 } });
 });
 
 test("1.4 gallery: every group head and every tile title + use line exists in all four languages (no T number in the title)", () => {

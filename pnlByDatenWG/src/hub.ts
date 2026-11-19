@@ -75,6 +75,19 @@ export function templateSwitches(tpl: string, tokens = false, curStockMode = "au
 /** the templates of the gallery, in pane order: "off" (classic table) first, then T01A … 12H, 1.7 T05A · T05B */
 export const HUB_TEMPLATES: string[] = MEGA_PRESET_KEYS.slice();
 
+/**
+ * 1.8 (B07) presets of a view other than the mega table: a gallery tile that
+ * opens the view with its card settings (columns.*). "11A" is the ROI tree
+ * (DuPont): driver tree, monthly / yearly columns on every card, no status
+ * colour (the sheet has none), the whole tree open. The root stays the
+ * default (the last KPI / formula row with operands, the ROI in a DuPont
+ * statement); KPI rows carry their number format in the row type
+ * ("KPI factor" for the capital turnover).
+ */
+export const VIEW_PRESETS: Record<string, { view: "tree"; cols: Record<string, string | number | boolean> }> = {
+    "11A": { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0 } },
+};
+
 /** a tile of the 1.4 gallery: the template plus its finance title and its use line (resjson keys) */
 export interface GalleryTile {
     tpl: string;
@@ -134,6 +147,7 @@ export const HUB_GALLERY: GalleryGroup[] = [
         tile("12A", "UI_Tt12A", "UI_Tu12A"),
         tile("12G", "UI_Tt12G", "UI_Tu12G"),
         tile("12H", "UI_Tt12H", "UI_Tu12H"),
+        tile("11A", "UI_Tt11A", "UI_Tu11A"),
         tile("off", "UI_TtOff", "UI_TuOff"),
     ] },
 ];

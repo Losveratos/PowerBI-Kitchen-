@@ -94,6 +94,8 @@
 <div class="case"><h4>m54 · 1.8 · T02D · nach ΔPL% _November sortiert, Pfeil am Pin-Kopf, Blöcke in Kategoriereihenfolge</h4><div class="stage" id="m54" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m55 · 1.8 · T02C mit keepBlockOrder aus (Bericht vor 1.8) · Blöcke nach ihrer Summe sortiert</h4><div class="stage" id="m55" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>m56 · 1.8 · T01A ohne gemeinsame Wurzel · flache Länderliste plus Gesamtzeile, „% vom Umsatz" auf die Gesamtzeile</h4><div class="stage" id="m56" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>t11a · 1.8 · ROI-Baum (Blatt 11A) · Jahre 2021 bis 2027, AC bis 2025, PL 2026/2027 · Kapitalumschlag als Faktor („KPI factor“)</h4><div class="stage" id="t11a" style="width:1300px;height:720px"></div></div>
+<div class="case"><h4>t11b · 1.8 · derselbe Baum, Kapitalumschlag ohne Token (wie bis 1.7: Prozent)</h4><div class="stage" id="t11b" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -557,6 +559,14 @@ runRows("m55", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 // m56 — 1.8 T01A over several roots: leaves + total (the sheet), % of revenue on the total
 runRows("m56", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
   columns: { template: "T01A", pctOfRevenue: true } });
+
+// t11a / t11b — 1.8 (B07) the ROI tree of the sheet 11A over years
+const ROI_OBJ = { titleBlock: { unitLine: "Alpha Software Corporation, Germany", measureLine: "ROI tree", periodLine: "2021..2027" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, numbers: { pctDecimals: 1 },
+  columns: { treeRoot: "Return on investment", treeCard: "months", treeStatus: false },
+  state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } };
+runRows("t11a", MEGA_DEMO.roi(), ROI_OBJ);
+runRows("t11b", MEGA_DEMO.roi({ ctPct: true }), ROI_OBJ);
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

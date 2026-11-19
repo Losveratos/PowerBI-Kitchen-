@@ -163,6 +163,12 @@ export interface MegaRow {
      * double rule under its figures (the accounting double underline)
      */
     dbl?: boolean;
+    /**
+     * 1.8 (B07) number format of a KPI row (kind "pct"): factor (1.3, its Δ
+     * +0.1) or amount (the visual delivers value and Δ in display units);
+     * absent = percent (45.3 %, Δ in pp)
+     */
+    kfmt?: "factor" | "amount";
 }
 
 /** Display-oriented variance of one row (engine.displayVariance, scaled). */
@@ -545,6 +551,8 @@ export interface MegaFmt {
     rel: (p: number) => string;
     share: (p: number) => string;
     signed: (v: number, dec: number, plus: boolean) => string;
+    /** 1.8 (B07) a factor KPI (capital turnover 1.3) with the Δ% decimals */
+    fac: (v: number, plus: boolean) => string;
 }
 
 /** decimals a number really carries (−20.5 → 1, −10 → 0), at most `max` — threshold footer */
@@ -604,7 +612,17 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         rel: p => fs(p * 100, 0, true, "%"),
         share: p => fs(p * 100, pdec, false, "%"),
         signed,
+        fac: (v, plus) => fs(v, pdec, plus),
     };
+}
+
+/** 1.8 (B07) the value of a KPI row (kind "pct") by its number format */
+export function megaKpiVal(fmt: MegaFmt, r: MegaRow, v: number): string {
+    return r.kfmt === "factor" ? fmt.fac(v, false) : r.kfmt === "amount" ? fmt.val(v) : fmt.margin(v);
+}
+/** 1.8 (B07) the Δ of a KPI row: pp (d in points), factor (d / 100) or amount (d in display units) */
+export function megaKpiPp(fmt: MegaFmt, r: MegaRow, d: number): string {
+    return r.kfmt === "factor" ? fmt.fac(d / 100, true) : r.kfmt === "amount" ? fmt.delta(d) : fmt.pp(d);
 }
 
 // ============================================================================
@@ -956,6 +974,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const rows = ord.rows;
     const sortInfo = ord.info;
     const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin);
+    const kpiVal = (r: MegaRow, v: number): string => megaKpiVal(fmt, r, v);
+    const kpiPp = (r: MegaRow, d: number): string => megaKpiPp(fmt, r, d);
     const N = notation(t.min, activeRefs(t)[0] ?? null, !!input.hc);
     const NB = blocks.map(b => b.minFill && b.minFill !== t.min ? notation(b.minFill, activeRefs(t)[0] ?? null, !!input.hc) : N);
     const cols = buildColumns(t, nb);
@@ -987,7 +1007,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const base = { bold, italic: pct, fs: pct ? G.fsSmall : G.fs, color: MEGA_C.text };
         if (c.type === "value") {
             const v = blk.value(r, c.scen!);
-            return v == null ? null : { ...base, t: pct ? fmt.margin(v) : fmt.val(v) };
+            return v == null ? null : { ...base, t: pct ? kpiVal(r, v) : fmt.val(v) };
         }
         if (c.type === "share") {
             // "% of revenue": small italic soft numbers (classic table), none on margin rows
@@ -1001,7 +1021,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
             ({ color: red ? input.pal.bad : D.immaterial ? MEGA_C.soft : MEGA_C.text, underline: red && input.hc ? true : undefined });
         if (c.type === "delta") {
             const red = t.thresholds && !pct && D.impact < blk.th.abs - 1e-9;
-            return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), ...redText(red) };
+            return { ...base, t: pct ? kpiPp(r, D.d) : fmt.delta(D.d), ...redText(red) };
         }
         if (c.type === "dpct") {
             // 1.5.1: a margin row has no relative Δ% (a percentage of a
@@ -1124,7 +1144,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 if (r.kind !== "pct") { continue; }
                 const D = blk.delta(r, t.min, c.ref!);
                 if (!D || !D.pp || !isFinite(D.d)) { continue; }
-                const w = tw(fmt.pp(D.d), G.fsSmall, false, true) + G.lblGap;
+                const w = tw(kpiPp(r, D.d), G.fsSmall, false, true) + G.lblGap;
                 (c.ppRows = c.ppRows ?? []).push({ r, D });
                 c.els.push(D.d >= 0 ? { p: 0, q: 0, a: 0, c: w + 3 } : { p: 0, q: 0, a: w + 3, c: 0 });
             }
@@ -1717,9 +1737,9 @@ function paintChartColumn(
         const up = D.d >= 0;
         const px = up ? c.x0! + axisHalf + G.lblGap : c.x0! - axisHalf - G.lblGap;
         const py = base(y, rh, G.fsSmall);
-        const pw = input.measure(fmt.pp(D.d), G.fsSmall, false, true);
+        const pw = input.measure(megaKpiPp(fmt, r, D.d), G.fsSmall, false, true);
         avoid.push({ x0: up ? px : px - pw, x1: up ? px + pw : px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
-        text(B, px, py, fmt.pp(D.d), {
+        text(B, px, py, megaKpiPp(fmt, r, D.d), {
             anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
             color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
         }).setAttribute("data-pnl", "mega-pp");

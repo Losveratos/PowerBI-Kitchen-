@@ -189,5 +189,35 @@
     return rows;
   }
 
-  window.MEGA_DEMO = { statement, statement12G, long, regions, months: MONTHS };
+  // 1.8 (B07) ROI tree of the sheet 11A: years 2021..2027, AC up to 2025, PL 2026 / 2027 (kEUR);
+  // capital turnover is a factor KPI ("KPI factor"), invested capital a stock
+  const ROI_YEARS = ["2021", "2022", "2023", "2024", "2025", "2026", "2027"];
+  const ROI = {
+    ret: [5.0, -1.8, -3.5, 3.1, 4.1, 4.7, 5.5],
+    ns: [26.1, 25.7, 26.4, 22.1, 23.8, 23.7, 27.7],
+    ic: [20.1, 18.5, 19.4, 21.1, 22.9, 24.5, 24.5],
+  };
+  function roi(opt) {
+    const rows = [];
+    const acc = [[["Return"], "ret", 1, "Account"], [["Net sales"], "ns", 2, "Account"], [["Invested capital"], "ic", 3, "Account stock"]];
+    for (const [levels, account, sort, rowType] of acc) {
+      ROI_YEARS.forEach((y, i) => rows.push({
+        levels, account, sort, rowType, formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false,
+        month: y, comment: null,
+        values: i < 5 ? { ac: ROI[account][i] * 1000 } : { pl: ROI[account][i] * 1000 },
+      }));
+    }
+    const ct = opt && opt.ctPct ? "KPI" : "KPI factor";
+    for (const [levels, account, sort, rowType, formulaDef] of [
+      [["Return on sales"], "ros", 10, "KPI", "[Return]/[Net sales]"],
+      [["Capital turnover"], "ct", 11, ct, "[Net sales]/[Invested capital]"],
+      [["Return on investment"], "roi", 12, "KPI", "[Return on sales]*[Capital turnover]"],
+    ]) {
+      rows.push({ levels, account, sort, rowType, formulaDef, sign: 1, displayInvert: false, varianceInvert: false,
+        month: null, comment: null, values: {} });
+    }
+    return rows;
+  }
+
+  window.MEGA_DEMO = { statement, statement12G, long, regions, roi, months: MONTHS };
 })();

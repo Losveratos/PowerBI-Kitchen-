@@ -117,6 +117,13 @@ function readMega(id) {
         if (S[id]) { check(`${id}: no clipped labels`, S[id].clipped.length === 0, S[id].clipped.slice(0, 5).join(", ")); }
     }
     const heads = id => S[id] ? S[id].head.map(t => t.t) : [];
+    // 1.8 (B07) the ROI tree (driver tree, no mega table): texts of every card
+    const T11 = {};
+    for (const id of ["t11a", "t11b"]) {
+        T11[id] = await page.evaluate(i => [...document.querySelectorAll(`#${i} svg text`)].map(t => t.textContent), id);
+        const el = await page.$("#" + id);
+        await el.screenshot({ path: `${__dirname}/mega-${id}.png` });
+    }
     // numbers group with a narrow no-break space (U+202F) — tests write a blank
     // 1.5.1: numbers carry the typographic minus (U+2212) — tests write "-85"
     const nb = t => t.replace(/(\d) (\d)/g, "$1\u202F$2").replace(/(^|[<(\s])-(?=\d)/g, "$1\u2212");
@@ -265,6 +272,15 @@ function readMega(id) {
     if (S.m55) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
             blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
+    }
+    // ---- 1.8 (B07) ROI tree over years (sheet 11A) -------------------------------------
+    {
+        const a = T11.t11a || []; const b = T11.t11b || [];
+        check("t11a capital turnover as a factor (1.3 in 2021, 1.0 in 2025), no 130 %", a.includes("1.3") && a.includes("1.0") && !a.some(t => /^13\d(\.\d)?%$/.test(t)),
+            a.filter(t => /^\d/.test(t)).join(" "));
+        check("t11a ROI and return on sales stay percent (24.9%, 19.2%)", a.includes("24.9%") && a.includes("19.2%"));
+        check("t11a years as the period: first card tag 2021, last 2027", a.some(t => /^2021/.test(t)) && a.some(t => /^2027/.test(t)));
+        check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
     if (S.m7) {

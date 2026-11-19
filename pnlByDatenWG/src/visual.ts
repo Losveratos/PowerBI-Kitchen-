@@ -48,7 +48,8 @@ import { cascade, CascadeNode } from "./waterfall";
 import { buildDemoRows } from "./demo";
 import { buildStockDemoRows } from "./demo-stock";
 import { templateSwitches, HUB_TEMPLATES, TOUR_CARDS, MiniSpec, miniObjects, templateNeedsFc, templateDemo, templateStockMode,
-    HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl, TEMPLATE_SWITCHES_1_8 } from "./hub";
+    HUB_GALLERY, GalleryTile, FIELD_GROUPS, START_FIELD_STEPS, startFieldTicks, FONT_PRESETS, docsUrl, TEMPLATE_SWITCHES_1_8,
+    VIEW_PRESETS } from "./hub";
 
 const FONT = "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif";
 const NBSP_GROUP = " "; // narrow space, IBCS number grouping
@@ -645,6 +646,8 @@ interface Fmt {
     suffix: string;
     val: (v: number | null, plus?: boolean) => string;
     pct: (v: number | null, plus?: boolean) => string;
+    /** 1.8 (B07) a factor KPI (capital turnover 1.3): the Δ% decimals, no unit */
+    fac: (v: number | null, plus?: boolean) => string;
 }
 
 export class Visual implements IVisual {
@@ -1375,7 +1378,7 @@ export class Visual implements IVisual {
             if (!info) { info = parseRowTypeInfo(raw); rtCache.set(raw, info); }
             return info;
         };
-        const attrs = (i: number): Pick<LevelInputRow, "rowType" | "formulaDef" | "sign" | "displayInvert" | "varianceInvert" | "comment" | "stock" | "flow"> => {
+        const attrs = (i: number): Pick<LevelInputRow, "rowType" | "formulaDef" | "sign" | "displayInvert" | "varianceInvert" | "comment" | "stock" | "flow" | "kfmt"> => {
             const info = rowTypeOf(i);
             return {
                 rowType: info.rowType,
@@ -1385,6 +1388,7 @@ export class Visual implements IVisual {
                 varianceInvert: varCol ? parseBool(txt(varCol, i)) : false,
                 comment: key(commentCol, i),
                 ...(info.stock ? { stock: info.stock } : {}), ...(info.flow ? { flow: true } : {}),
+                ...(info.kfmt ? { kfmt: info.kfmt } : {}),
             };
         };
 
@@ -2152,12 +2156,14 @@ export class Visual implements IVisual {
                 div, suffix,
                 val: (v, plus = false) => v == null ? "·" : fin(nf, v / div, v, plus, ""),
                 pct: (v, plus = false) => v == null ? "–" : fin(pf, v * 100, v, plus, "%"),
+                fac: (v, plus = false) => v == null ? "–" : fin(pf, v, v, plus, ""),
             };
         }
         return {
             div, suffix,
             val: (v, plus = false) => v == null ? "·" : (plus && v > 0 ? "+" : "") + grp(nf, v / div),
             pct: (v, plus = false) => v == null ? "–" : (plus && v > 0 ? "+" : "") + grp(pf, v * 100) + "%",
+            fac: (v, plus = false) => v == null ? "–" : (plus && v > 0 ? "+" : "") + grp(pf, v),
         };
     }
 
@@ -3601,8 +3607,9 @@ export class Visual implements IVisual {
             `padding:${active ? pad - 1 : pad}px;width:${tileW}px;box-sizing:border-box;cursor:pointer;` +
             `box-shadow:${active ? C.shadowHover : C.shadow};transition:${TRANSITION};`;
         const demoSet = templateDemo(tpl);
-        const spec: MiniSpec = { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl),
-            ...(demoSet ? { demo: demoSet } : {}) };
+        // 1.8 (B07) a view preset (ROI tree) previews its view on the demo
+        const spec: MiniSpec = VIEW_PRESETS[tpl] ? { view: VIEW_PRESETS[tpl].view, level: 2, w: 1100, h: 620 }
+            : { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl), ...(demoSet ? { demo: demoSet } : {}) };
         b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
         // the T number: a small badge on the preview's top right corner
         const badge = document.createElement("span");
@@ -3942,6 +3949,7 @@ export class Visual implements IVisual {
      * closes on the result; without fields the pick is stored and shown as saved.
      */
     private hubPickTemplate(tpl: string): void {
+        if (VIEW_PRESETS[tpl]) { this.applyViewPreset(tpl); return; }
         if (!MEGA_PRESETS[tpl]) { return; }
         this.megaSliceSet("template", tpl);
         this.applyMegaTemplate(tpl, true);
@@ -3953,6 +3961,32 @@ export class Visual implements IVisual {
             return;
         }
         this.hubSaved = tpl;
+        this.hubFocusKey = "tpl-" + tpl;
+        this.hubRefresh();
+    }
+
+    /**
+     * 1.8 (B07) a view preset from the gallery (ROI tree 11A): writes its card
+     * settings (columns), switches the view and closes the overlay. The mega
+     * template stays as it is: the table view keeps whatever the author chose.
+     */
+    private applyViewPreset(tpl: string): void {
+        const vp = VIEW_PRESETS[tpl];
+        if (!vp) { return; }
+        const cc = this.settings.columnsCard as unknown as Record<string, { value: unknown }>;
+        for (const [k, v] of Object.entries(vp.cols)) {
+            if (typeof v === "boolean" || typeof v === "number") { if (cc[k]) { cc[k].value = v; } }
+            else { this.megaSliceSet(k, v); }
+        }
+        this.host.persistProperties({ merge: [{ objectName: "columns", selector: null, properties: { ...vp.cols } }] });
+        if (this.hubHasStatement()) {
+            if (this.ui && this.ui.view !== vp.view) { this.ui.view = vp.view; this.persistUi(); }
+            this.closeHub(true); this.rerender(); return;
+        }
+        // no statement bound yet: the view travels in the stored ui state and is
+        // read when the fields arrive (the demo itself is never persisted)
+        const ui: UiState = { ...(this.ui && !this.demo ? this.ui : this.defaultUi()), view: vp.view };
+        this.host.persistProperties({ merge: [{ objectName: "state", selector: null, properties: { uiState: JSON.stringify(ui) } }] });
         this.hubFocusKey = "tpl-" + tpl;
         this.hubRefresh();
     }
@@ -6342,7 +6376,7 @@ export class Visual implements IVisual {
                 if (isSum && node.level === 0 && node.stock != null) { cell.style.borderBottom = `3px double ${C.line}`; }
                 const bv = isRatio ? this.blockDisplay(node, c.block ?? "ytd", c.scen!)
                     : this.valDisplay(node, c.block ?? "ytd", c.scen!, fmt);
-                cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
+                cell.textContent = isRatio ? this.kpiText(node, bv, fmt) : fmt.val(bv);
             } else if (c.kind === "vbar") {
                 cell = this.valueBarCell(node, c, geo, fmt, isSum, isRatio);
                 if (lineTop) { cell.style.borderTop = `1px solid ${C.line}`; }
@@ -6366,7 +6400,8 @@ export class Visual implements IVisual {
                     if (c.kind === "bar" && v.delta != null) {
                         cell.style.color = quiet ? C.soft : v.good ? this.goodColor() : this.badColor();
                         cell.style.fontStyle = "italic";
-                        cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
+                        cell.textContent = node.row.kfmt ? this.kpiDelta(node, v.delta, fmt)
+                            : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
                     }
                 } else if (c.kind === "bar") {
                     cell = this.deltaBarCell(v, c, geo, fmt, soft,
@@ -6423,7 +6458,7 @@ export class Visual implements IVisual {
             cell.style.cssText += "font-variant-numeric:tabular-nums;";
             if (isSum) { cell.style.fontWeight = "600"; }
             const bv = this.blockDisplay(n, c.block ?? "ytd", c.scen!);
-            cell.textContent = isRatio ? fmt.pct(bv) : fmt.val(bv);
+            cell.textContent = isRatio ? this.kpiText(n, bv, fmt) : fmt.val(bv);
             return cell;
         }
         const v = this.blockVariance(n, c.block ?? "ytd", c.ref!, c.minuend!);
@@ -6433,7 +6468,8 @@ export class Visual implements IVisual {
                 // 1.7 ⚡: the row of the whole statement decides (mat answers true for every Δ then)
                 cell.style.color = mat(null, null) ? C.soft : v.good ? this.goodColor() : this.badColor();
                 cell.style.fontStyle = "italic";
-                cell.textContent = (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
+                cell.textContent = n.row.kfmt ? this.kpiDelta(n, v.delta, fmt)
+                    : (v.delta > 0 && !this.finance() ? "+" : "") + fmt.pct(v.delta, this.finance()).replace("%", "pp");
             }
             return cell;
         }
@@ -6609,7 +6645,7 @@ export class Visual implements IVisual {
         const scen = c.scen!;
         if (isRatio) {
             cell.style.cssText += `font-style:italic;color:${C.soft};text-align:center;`;
-            cell.textContent = fmt.pct(displayValue(node, scen));
+            cell.textContent = this.kpiText(node, displayValue(node, scen), fmt);
             return cell;
         }
         const block = c.block ?? "ytd";
@@ -6705,7 +6741,7 @@ export class Visual implements IVisual {
         const h = geo.rowH - 3;
         if (isRatio) {
             cell.style.cssText += `font-style:italic;color:${C.soft};text-align:center;`;
-            cell.textContent = fmt.pct(displayValue(node, c.scen!));
+            cell.textContent = this.kpiText(node, displayValue(node, c.scen!), fmt);
             return cell;
         }
         // 1.7 a model with stocks reads the block's period window (viewDisplay)
@@ -7183,6 +7219,35 @@ export class Visual implements IVisual {
     }
 
     /** chart number per IBCS UN 1: at most three digits, unit carried by the card label */
+    /**
+     * 1.8 (B07) a KPI row's value by its number format (row-type token): percent
+     * (default), factor (capital turnover 1.3) or amount (scaled like any
+     * amount); `amt` formats the amount (tree cards use treeNum, tables fmt.val)
+     */
+    private kpiText(node: PnlNode, v: number | null, fmt: Fmt, plus = false, amt?: (x: number) => string): string {
+        const k = node.row.kfmt;
+        if (k === "factor") { return fmt.fac(v, plus); }
+        if (k === "amount") { return v == null ? "–" : amt ? (plus && v > 0 ? "+" : "") + amt(v) : fmt.val(v, plus); }
+        return fmt.pct(v, plus);
+    }
+    /** 1.8 (B07) a KPI row's Δ (raw ratio units): pp for percent, a signed factor, an amount */
+    private kpiDelta(node: PnlNode, d: number, fmt: Fmt, amt?: (x: number) => string): string {
+        const k = node.row.kfmt;
+        if (k === "factor") { return fmt.fac(d, true); }
+        if (k === "amount") { return amt ? (d > 0 ? "+" : "") + amt(d) : fmt.val(d, true); }
+        return fmt.pct(d, true).replace("%", "pp");
+    }
+    /** 1.8 (B07) unit of a KPI row: "%", none for a factor, the amount unit */
+    private kpiUnit(node: PnlNode, fmt: Fmt): string {
+        const k = node.row.kfmt;
+        return k === "factor" ? "" : k === "amount" ? (fmt.suffix + this.settings.numbersCard.unitText.value).trim() : "%";
+    }
+    /** 1.8 (B07) scale group of a KPI row in the tree: percent, factor and amounts never share a scale */
+    private kpiScale(node: PnlNode): string {
+        const k = node.row.kfmt;
+        return k === "factor" ? "x" : k === "amount" ? "amt" : "pct";
+    }
+
     private treeNum(v: number, fmt: Fmt): string {
         const scaled = v / fmt.div;
         const a = Math.abs(scaled);
@@ -7457,7 +7522,7 @@ export class Visual implements IVisual {
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
         // 1.5: one scale per unit across the cards (or a marked magnification)
-        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":months", (bot - top) / (max - min), max - min, bot - top);
+        const sc = this.treeScaleOf((isRatio ? this.kpiScale(node) : "amt") + ":months", (bot - top) / (max - min), max - min, bot - top);
         const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
         this.treeMagMark(g, box, sc.mag, s);
@@ -7520,13 +7585,13 @@ export class Visual implements IVisual {
                 p.setAttribute("stroke-width", "0.8");
                 const tt = document.createElementNS(ns, "title");
                 tt.textContent = `${series.ref2Scen.toUpperCase()} `
-                    + (isRatio ? fmt.pct(sl.ref2) : this.treeNum(sl.ref2, fmt));
+                    + (isRatio ? this.kpiText(node, sl.ref2, fmt, false, x => this.treeNum(x, fmt)) : this.treeNum(sl.ref2, fmt));
                 p.appendChild(tt);
                 g.appendChild(p);
             }
             if (sl.v != null && sl.label) {
                 this.treeLabel(g, box, acCx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs,
-                    isRatio ? fmt.pct(sl.v) : this.treeNum(sl.v, fmt), lfs, C.text);
+                    isRatio ? this.kpiText(node, sl.v, fmt, false, x => this.treeNum(x, fmt)) : this.treeNum(sl.v, fmt), lfs, C.text);
             }
         });
 
@@ -7591,7 +7656,7 @@ export class Visual implements IVisual {
         const top = box.y + lfs + 2;
         const bot = box.y + box.h - (min < 0 ? lfs + 2 : 0);
         // 1.5: one scale per unit across the cards (or a marked magnification)
-        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":delta", (bot - top) / (max - min), max - min, bot - top);
+        const sc = this.treeScaleOf((isRatio ? this.kpiScale(node) : "amt") + ":delta", (bot - top) / (max - min), max - min, bot - top);
         const yOf = (v: number): number => bot - (v - min) * sc.ppu;
         const zeroY = yOf(0);
         this.treeMagMark(g, box, sc.mag, s);
@@ -7624,7 +7689,7 @@ export class Visual implements IVisual {
             g.appendChild(r);
             if (!marked.has(i)) { return; }
             const txt = isRatio
-                ? fmt.pct(d, true).replace("%", "pp")
+                ? this.kpiDelta(node, d, fmt, x => this.treeNum(x, fmt))
                 : (d > 0 ? "+" : "") + this.treeNum(d, fmt);
             this.treeLabel(g, box, cx, d >= 0 ? yOf(d) - 2.5 : yOf(d) + lfs, txt, lfs, color);
         });
@@ -7649,7 +7714,7 @@ export class Visual implements IVisual {
         if (acv == null && refv == null) { this.treeHint(g, box, s, "–"); return; }
         const lfs = 7.5 * s;
         const num = (v: number, plus: boolean): string =>
-            isRatio ? fmt.pct(v, plus) : (plus && v > 0 ? "+" : "") + this.treeNum(v, fmt);
+            isRatio ? this.kpiText(node, v, fmt, plus, x => this.treeNum(x, fmt)) : (plus && v > 0 ? "+" : "") + this.treeNum(v, fmt);
 
         const va = this.treeVariance(node);
         const dRaw = va != null && acv != null && refv != null ? va.delta : null;
@@ -7657,7 +7722,7 @@ export class Visual implements IVisual {
 
         // ratios vary in percentage points (IBCS UN 4.1)
         const dText = dRaw == null ? ""
-            : isRatio ? fmt.pct(dRaw, true).replace("%", "pp") : num(dRaw, true);
+            : isRatio ? this.kpiDelta(node, dRaw, fmt, x => this.treeNum(x, fmt)) : num(dRaw, true);
         const texts = [refv != null ? num(refv, false) : "", dText, acv != null ? num(acv, false) : ""];
         const valW = Math.max(...texts.map(t => t.length)) * lfs * 0.58 + 3 * s;
         const labW = 14 * s;
@@ -7666,7 +7731,7 @@ export class Visual implements IVisual {
         const lo = Math.min(0, acv ?? 0, refv ?? 0);
         const hi = Math.max(0, acv ?? 0, refv ?? 0);
         // 1.5: one scale per unit across the cards (or a marked magnification)
-        const sc = this.treeScaleOf((isRatio ? "pct" : "amt") + ":bridge", availW / ((hi - lo) || 1), (hi - lo) || 1, availW);
+        const sc = this.treeScaleOf((isRatio ? this.kpiScale(node) : "amt") + ":bridge", availW / ((hi - lo) || 1), (hi - lo) || 1, availW);
         const S = sc.ppu;
         const xz = x0 + (0 - lo) * S;
         this.treeMagMark(g, { x: box.x, y: box.y - 1.5 * s, w: box.w, h: box.h }, sc.mag, s);
@@ -7785,7 +7850,7 @@ export class Visual implements IVisual {
         const months = this.model!.months;
         const isRatio = node.row.rowType === "kpi";
         const inv = node.row.displayInvert ? -1 : 1;
-        const num = (v: number): string => isRatio ? fmt.pct(v) : this.treeNum(v, fmt);
+        const num = (v: number): string => isRatio ? this.kpiText(node, v, fmt, false, x => this.treeNum(x, fmt)) : this.treeNum(v, fmt);
         const parts: string[] = [];
         const ac = node.series.ac; const fc = node.series.fc;
         for (let i = 0; i < months.length; i++) {
@@ -7821,7 +7886,7 @@ export class Visual implements IVisual {
         this.applyPalette();
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
-        const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+        const unit = isRatio ? this.kpiUnit(node, fmt) : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
         const zk = this.fontScale();
         const W = this.k(396); const inner = W - this.k(26);
         const box = document.createElement("div");
@@ -7929,12 +7994,13 @@ export class Visual implements IVisual {
     private treeScenGrid(node: PnlNode, fmt: Fmt, compact = false): HTMLElement {
         const isRatio = node.row.rowType === "kpi";
         const num = (v: number | null, plus = false): string =>
-            v == null ? "·" : isRatio ? fmt.pct(v, plus) : fmt.val(v, plus);
+            v == null ? "·" : isRatio ? this.kpiText(node, v, fmt, plus) : fmt.val(v, plus);
         // a ratio does not vary in mEUR: its absolute Δ is a percentage-point
         // figure, so the column is labelled "Δ pp" and drops the unit sign
         const dNum = (v: number | null): string => {
             if (v == null) { return "·"; }
             if (!isRatio) { return fmt.val(v, true); }
+            if (node.row.kfmt) { return this.kpiDelta(node, v, fmt); }
             return fmt.pct(v, true).replace("%", "");
         };
         const grid = document.createElement("div");
@@ -7962,7 +8028,7 @@ export class Visual implements IVisual {
         const inv = node.row.displayInvert ? -1 : 1;
         // references read over the same window as AC — "YTD _Aug" says so
         const ytdLbl = this.ytdFull() ? "YTD" : `YTD _${this.ytdMarker()}`;
-        row(["", ytdLbl, isRatio ? "Δ pp" : "Δ AC", "Δ%"], { bold: false });
+        row(["", ytdLbl, isRatio && !node.row.kfmt ? "Δ pp" : "Δ AC", "Δ%"], { bold: false });
         row(["AC", num(displayValue(node, "ac")), "", ""], { bold: true });
         for (const sc of ["py", "pl", "fc"] as Scenario[]) {
             if (!this.has[sc]) { continue; }
@@ -8045,7 +8111,7 @@ export class Visual implements IVisual {
 
         const pad = (card.compact ? 6 : 8) * s;
         const isRatio = card.node.row.rowType === "kpi";
-        const unit = isRatio ? "%" : geo.fmt.suffix + this.settings.numbersCard.unitText.value;
+        const unit = isRatio ? this.kpiUnit(card.node, geo.fmt) : geo.fmt.suffix + this.settings.numbersCard.unitText.value;
         const tfs = 9.5 * s; const ufs = 7.5 * s;
         const headY = card.y + pad + tfs * 0.85;
 
@@ -8148,7 +8214,7 @@ export class Visual implements IVisual {
         // compact card adds the whole in grey after its value
         const hp = this.hlFull ? this.hlPair(card.node) : null;
         const hlOfTxt = hp ? this.tr("UI_HlOfShort",
-            hp.f == null ? "–" : isRatio ? geo.fmt.pct(hp.f) : this.treeNum(hp.f, geo.fmt)) : "";
+            hp.f == null ? "–" : isRatio ? this.kpiText(card.node, hp.f, geo.fmt, false, x => this.treeNum(x, geo.fmt)) : this.treeNum(hp.f, geo.fmt)) : "";
         if (hp) {
             if (!isRatio) {
                 const sx = card.x + pad + (vColor ? 3 * s : 0);
@@ -8211,7 +8277,7 @@ export class Visual implements IVisual {
             v.setAttribute("font-family", FONT);
             v.setAttribute("font-weight", "600");
             v.setAttribute("fill", C.text);
-            const vTxt = acv == null ? "–" : isRatio ? geo.fmt.pct(acv) : this.treeNum(acv, geo.fmt);
+            const vTxt = acv == null ? "–" : isRatio ? this.kpiText(card.node, acv, geo.fmt, false, x => this.treeNum(x, geo.fmt)) : this.treeNum(acv, geo.fmt);
             const vRoom = geo.cw - 2 * pad - (vColor ? 3 * s : 0) - (card.hasKids ? 20 * s : 0);
             v.textContent = this.fitLabel(vTxt, vRoom, vfs);
             // 1.7 cross-highlight: "923  of 1 685" — the whole in grey, where it fits
@@ -8524,7 +8590,7 @@ export class Visual implements IVisual {
     private treeZoomCenter(node: PnlNode, fmt: Fmt, w: number): HTMLElement {
         const ns = "http://www.w3.org/2000/svg";
         const isRatio = node.row.rowType === "kpi";
-        const unit = isRatio ? "%" : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
+        const unit = isRatio ? this.kpiUnit(node, fmt) : (fmt.suffix + this.settings.numbersCard.unitText.value).trim();
         // ---- head: name > formula > period, Δ headline in the status colour
         const va = this.treeVariance(node);
         const vColor = va == null ? null : (va.good ? this.goodColor() : this.badColor());
@@ -10853,6 +10919,7 @@ export class Visual implements IVisual {
                 suffix: suffix.length ? suffix : undefined,
                 eff: anchor ? disp : disp * this.megaParentSign(n),
                 anchor,
+                ...(it.kind === "pct" && (n.row.kfmt === "factor" || n.row.kfmt === "amount") ? { kfmt: n.row.kfmt } : {}),
             };
             // 1.7 stocks: the FY outlook is their FC end stand (no YTD share to stack);
             // a top-level stock total carries the double rule of a balance-sheet total
@@ -11001,7 +11068,8 @@ export class Visual implements IVisual {
                 const rv = ssOn && n.row.rowType !== "kpi" ? (ssRaw(n, key, s) ?? raw(n, key, s)) : raw(n, key, s);
                 if (rv == null) { return null; }
                 const v = n.row.displayInvert ? -rv : rv;
-                return n.row.rowType === "kpi" ? v : v / div;
+                // 1.8 (B07) an amount KPI is scaled like every amount
+                return n.row.rowType === "kpi" && n.row.kfmt !== "amount" ? v : v / div;
             },
             delta: (r: MegaRow, min: MegaScen, ref: MegaRef): MegaDelta | null => {
                 const n = nodes.get(r.id);
@@ -11011,7 +11079,11 @@ export class Visual implements IVisual {
                 // 1.7 ⚡: a row that is no exception takes the materiality grey; `quiet`
                 // tells the high-contrast painter to draw it dashed instead of patterned
                 const quiet = this.excOf(n) === false;
-                if (D.pp) { return quiet ? { ...D, immaterial: true, quiet: true } : D; }
+                if (D.pp) {
+                    // 1.8 (B07) an amount KPI's Δ in display units (D.d is the raw Δ × 100)
+                    const Dk = n.row.kfmt === "amount" ? { ...D, d: D.d / 100 / div } : D;
+                    return quiet ? { ...Dk, immaterial: true, quiet: true } : Dk;
+                }
                 const out: MegaDelta = { ...D, d: D.d / div, impact: D.impact / div };
                 if (quiet) { out.immaterial = true; out.quiet = true; }
                 if (ssOn) {
@@ -11803,7 +11875,7 @@ export class Visual implements IVisual {
             const raw = ss ?? this.megaRaw(node, block, sc);
             if (raw == null) { continue; }
             const disp = node.row.displayInvert ? -raw : raw;
-            out.push({ displayName: this.relabel(code(sc)), value: ratio ? fmt.pct(disp) : u(fmt.val(disp)) });
+            out.push({ displayName: this.relabel(code(sc)), value: ratio ? this.kpiText(node, disp, fmt) : u(fmt.val(disp)) });
         }
         const min: Scenario = mega ? mega.min : block === "fy" ? "fcfy" : "ac";
         const refs: Scenario[] = mega ? mega.refs
@@ -11830,7 +11902,7 @@ export class Visual implements IVisual {
                 const v = varianceOf(a, r, node.row.varianceInvert);
                 if (v.delta == null) { continue; }
                 if (ratio) {
-                    out.push({ displayName: name, value: fmt.pct(v.delta, true).replace("%", "pp") });
+                    out.push({ displayName: name, value: this.kpiDelta(node, v.delta, fmt) });
                     continue;
                 }
                 out.push({ displayName: name, value: u(fmt.val(this.ssDelta(node, block, ref, min, fmt) ?? v.delta, true)) });

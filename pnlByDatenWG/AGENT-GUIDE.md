@@ -37,9 +37,9 @@ Interne Rollennamen für PBIR (`projections`) — je Rolle max. 1 Feld, `levels`
 | `parent` | Grouping | Parent-ID → Parent-Child-Modus (gewinnt, wenn zusätzlich `levels` gebunden ist) |
 | `ac` | Measure | AC (Pflicht) |
 | `py` / `pl` / `fc` | Measure | PY / PL / FC je Periode |
-| `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`; Fiskaljahr → `columns.periodSort = data` |
+| `period` | Grouping | Monat/Periode — schaltet Sparklines, MTD/YTD-Blöcke, `secondBlock` frei. Formate: `2026-03`, Datum, Monatsnamen deutsch/englisch (lang/kurz), `1..12`, **1.8:** Jahre `2021` (vierstellig 1900 bis 2200, chronologisch sortiert; ROI-Baum 11A); Fiskaljahr → `columns.periodSort = data` |
 | `colCategory` | Grouping | **1.2** Spalten-Kategorie (max. 1), nur klassische Tabelle: der Spaltensatz des YTD-Blocks (sonst des ersten) wiederholt sich je Kategoriewert (Segment, Quartal …) mit Gruppen-Kopf, danach der Block als „Gesamt". Jede Kategorie rechnet ein eigenes Modell (Formeln, Margen), Monate auf den Kalender des Gesamtmodells gelegt; einheitlicher Δ-Maßstab; max. 24 Werte (Rest → Fußnote). Mega-Table/Balken/Waterfall ignorieren die Rolle (Hinweis im Bearbeitungsmodus). Measures müssen additiv sein (Gesamt = Σ Kategorien, wie bei der Periode) |
-| `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige mit `pctDecimals`, Δ in pp, kein Δ%). **1.7:** dazu in derselben Zelle das Token `stock` (Aliasse `bestand`, `balance`, `stichtag`, `point`; Stand am Periodenende), `opening` (`anfangsbestand`, `eröffnung`, `open`, `begin`; Stand am Periodenanfang) oder `flow` (`fluss`, `bewegung`, `movement`), getrennt durch Leerzeichen, Komma, Semikolon oder `\|` — z. B. `Account stock`, `Formula; stock`, `Account opening`. Zellen ohne Token liest das Visual wie vor 1.7 (Falle 20) |
+| `rowType` | Grouping | `Account` · `Subtotal` · `Formula` · `KPI` · `Separator` (Groß/klein egal). KPI = Margenzeile (%-Anzeige mit `pctDecimals`, Δ in pp, kein Δ%). **1.7:** dazu in derselben Zelle das Token `stock` (Aliasse `bestand`, `balance`, `stichtag`, `point`; Stand am Periodenende), `opening` (`anfangsbestand`, `eröffnung`, `open`, `begin`; Stand am Periodenanfang) oder `flow` (`fluss`, `bewegung`, `movement`), getrennt durch Leerzeichen, Komma, Semikolon oder `\|` — z. B. `Account stock`, `Formula; stock`, `Account opening`. Zellen ohne Token liest das Visual wie vor 1.7 (Falle 20). **1.8:** Zahlformat einer KPI-Zeile per Token `factor` (`faktor`, `times`, `multiple`, `×`; z. B. Kapitalumschlag 1,3, Δ als Zahl mit Vorzeichen), `amount` (`betrag`, `absolute`, `currency`; skaliert wie ein Betrag, mit Einheit) oder `pct` (Standard), z. B. `KPI factor`. Auf anderen Zeilen wird das Token ignoriert (Falle 28) |
 | `formulaDef` | Grouping | für Formula/KPI: `[EBITDA]/[Umsatz]`, `+ - * /`, Klammern; Verweis per eindeutigem Zeilennamen, Formel-auf-Formel erlaubt, Zirkel → Fehler an der Zeile |
 | `signConvention` | Grouping | Rechenvorzeichen: Erlös `1`, Kosten `-1` (Subtotal = Vorzeichen × Σ Kinder) |
 | `displayInvert` | Grouping | Kosten positiv anzeigen (Anzeige ≠ Rechnung) |
@@ -921,6 +921,25 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     `structureTotal` steht es in `TEMPLATE_SWITCHES_1_8`: ein mit 1.7
     angewendetes T02C sortiert seine Blöcke weiter, bis das Template neu
     angewendet oder der Schalter gesetzt wird.
+
+28. **KPI-Zahlformat und ROI-Baum (1.8, B07):** `InputRow.kfmt` kommt aus dem
+    RowType-Token (`engine.parseRowTypeInfo`, `KPI_FORMAT_TOKENS`) und reist im
+    Level-Modus mit. Im Visual formatieren `kpiText`/`kpiDelta`/`kpiUnit`/`kpiScale`
+    jede KPI-Stelle (klassische Tabelle, Baumkarten, Kachel, Szenario-Raster,
+    Tooltip); der Mega-Table liest `MegaRow.kfmt` über `megaKpiVal`/`megaKpiPp`
+    (`amount`: Wert und Δ kommen in Anzeige-Einheiten aus `buildMega`). Ohne Token
+    bleibt alles wie vor 1.8 (Prozent, Δ in pp). Faktor-KPIs haben im Baum eine
+    eigene Skalengruppe (`x`), nie gemeinsam mit Prozent. Vorlage **11A
+    ROI-Baum** (`VIEW_PRESETS` in `hub.ts`, Galerie „Report-Ansichten"): schreibt
+    `treeCard = months`, `treeStatus = false`, `treeLevel = 0` und die Ansicht
+    Baum; kein Mega-Template, kein Eintrag im Template-Dropdown. Ohne gebundene
+    Felder reist die Ansicht im gespeicherten `uiState` und greift beim Binden.
+    Die Wurzel bleibt der Standard (letzte KPI-/Formelzeile mit Operanden).
+    Datenvertrag für 11A: `Return`, `Net sales`, `Invested capital` (Token
+    `stock`), `Return on sales = [Return]/[Net sales]` (KPI),
+    `Capital turnover = [Net sales]/[Invested capital]` (`KPI factor`),
+    `ROI = [Return on sales]*[Capital turnover]` (KPI), Periode = Jahr, PL nur
+    für die Planjahre. Test `mega-shot` t11a/t11b, Daten `MEGA_DEMO.roi()`.
 
 ## Verwandte Dateien
 

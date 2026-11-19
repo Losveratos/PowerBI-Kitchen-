@@ -294,6 +294,17 @@ test("1.8 sort pct + keepBlockOrder: Δ% of the reference, n.a. last, Other and 
     assert.ok(L3.cols.some(c => c.type === "label" && /^\(↓\) ΔPL% _November/.test(c.head)), L3.cols.map(c => c.head).join("|"));
 });
 
+test("1.8 (B07) KPI rows by number format: percent (pp), factor, amount", () => {
+    const fmt = M.megaFmt(num, 1, 1);
+    const r = (kfmt) => ({ id: "k", label: "k", kind: "pct", op: "", level: 0, group: null, other: false, ...(kfmt ? { kfmt } : {}) });
+    assert.equal(M.megaKpiVal(fmt, r(), 0.453), "45.3%");
+    assert.equal(M.megaKpiPp(fmt, r(), 8.6), "+8.6\u202Fpp");
+    assert.equal(M.megaKpiVal(fmt, r("factor"), 1.3), "1.3");
+    assert.equal(M.megaKpiPp(fmt, r("factor"), -10), "\u22120.1");
+    assert.equal(M.megaKpiVal(fmt, r("amount"), 1234.5), num(1234.5, 1));
+    assert.equal(M.megaKpiPp(fmt, r("amount"), 12), "+12.0");
+});
+
 test("1.8 structureTotal: the structure templates switch it on, statement templates leave it off", () => {
     for (const k of ["T01A", "T01B", "T01C", "T01D", "T02A", "T02B", "T02C", "T02D", "T02E", "T02F"]) { assert.equal(M.MEGA_PRESETS[k].structureTotal, true, k); }
     for (const k of ["off", "T03A", "T03B", "T04A", "T04B", "T04C", "T04D", "T04E", "12A", "12G", "12H", "T05A", "T05B"]) {

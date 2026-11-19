@@ -105,6 +105,7 @@ Jedes Template ist nur ein Preset: Es setzt alle Schalter
 | **12A** | PY- und AC-**Wert-Kaskaden** als eigene Spalten + ΔPY-Balken/Pins (Headline bleibt aus; nur 12G und 12H schalten sie ein) | wie T03 |
 | **12G** | FY-Block: YTD voll + Restjahr **schraffiert im selben Balken**, Δ aufs Jahr | FC (+ FY-Werte) |
 | **12H** | Plan-Kaskade umrandet, Varianzbalken **rot/grün umrandet** | PL als Minuend |
+| **11A** (1.8, Baum) | **ROI-Baum (DuPont):** Werttreiberbaum ROI = Umsatzrendite × Kapitalumschlag, je Karte Säulen über die Jahre (AC voll, PL umrandet), ohne Statusfarbe. Galerie-Kachel unter Report-Ansichten, setzt die Ansicht Baum. Kapitalumschlag als Faktor (1,3) über RowType `KPI factor` | Return, Net sales, Invested capital (`Account stock`), KPI-Formeln; Periode = Jahr (`2021`), PL nur für Planjahre |
 | **T05A** (1.7) | **Bilanz zum Stichtag:** PY (Vorjahresstichtag) · AC · ΔPY · ΔPY%, ein Block mit dem Stichtag-Monat als Titel; Aktiva- und Passiva-Block als „="-Summen mit **Doppelstrich**. PL bei Bedarf per `showPL` / `dPlAbs` dazu. Setzt `statement.stockMode = allStock`, wenn die Daten keine Token tragen (sonst `auto`) | Monatsstände, Periode, AC/PY (PL optional) |
 | **T05B** (1.7) | **Cashflow-Brücke:** Anfangsbestand → operativ · investiv · finanziell → Endbestand als **PY- und AC-Wert-Kaskaden** (Bestände ankern auf der Nulllinie, Flüsse floaten), ΔPY · ΔPY%, Monat \| _YTD; FY-Ausblick über `blockKind = fy` (ohne FY-Measures: FC-Endstand). Setzt `statement.stockMode = auto` | Token `opening` / `stock`, Periode, AC/PY (FC für FY) |
 

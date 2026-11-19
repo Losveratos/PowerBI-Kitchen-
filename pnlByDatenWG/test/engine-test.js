@@ -1192,4 +1192,22 @@ test("1.7.1 unposted actuals: trailing AC zeros with a forecast become 'not post
     assert.deepStrictEqual(m.byId.get("a").series.ac, [10, 12, null, null]);
 });
 
+test("1.8 (B07) KPI number format tokens and years as the period", () => {
+    const I = E.parseRowTypeInfo;
+    assert.deepStrictEqual(I("KPI factor"), { rowType: "kpi", stock: null, flow: false, kfmt: "factor" });
+    assert.deepStrictEqual(I("Kennzahl Faktor"), { rowType: "kpi", stock: null, flow: false, kfmt: "factor" });
+    assert.deepStrictEqual(I("KPI amount"), { rowType: "kpi", stock: null, flow: false, kfmt: "amount" });
+    assert.deepStrictEqual(I("ratio %"), { rowType: "kpi", stock: null, flow: false, kfmt: "pct" });
+    // a format token means something on KPI rows only; cells without a token read as in 1.0
+    assert.deepStrictEqual(I("Account factor"), { rowType: "account", stock: null, flow: false });
+    assert.deepStrictEqual(I("KPI"), { rowType: "kpi", stock: null, flow: false });
+    assert.deepStrictEqual(I("net margin"), { rowType: "account", stock: null, flow: false });
+    assert.strictEqual(I("Account stock").rowType, "account");
+    // years: chronological, numbers 1..12 stay months, other 4-digit numbers are no period
+    assert.deepStrictEqual(E.parsePeriod("2021"), { y: 2021, m: 1, d: 0 });
+    assert.deepStrictEqual(E.parsePeriod("7"), { y: null, m: 7, d: 0 });
+    assert.strictEqual(E.parsePeriod("1234"), null);
+    assert.deepStrictEqual(E.sortMonths(["2023", "2021", "2027", "2022"]), ["2021", "2022", "2023", "2027"]);
+});
+
 console.log(`\n${n} engine test blocks passed`);
