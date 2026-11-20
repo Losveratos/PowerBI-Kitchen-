@@ -44,8 +44,8 @@ ohne Flüsse brauchen trotzdem eine Bestandszeile, sonst reißt die Linie; Wäch
 Properties im Objekt `chart`, Gruppe „Bestand & Fluss“ (nur im Modus sichtbar): `sfNet` (bool, true), `sfNetLabel` (Text,
 leer = „Netto“), `sfArea` (bool, true), `sfNegTint` (bool, true), `sfOpening` (bool, true), `sfStockAt` (`end` | `center`,
 Standard `end`), `axisGroups` (`auto` | `off`, Standard `auto`: höchstens zwei Gruppenzeilen aus den Ebenen über der
-untersten, Beschriftung unter dem ersten Mitglied, Trennlinien durch alle Panels, die äußere Zeile kräftig, keine Linie an
-einer Szenariogrenze). Ohne Hierarchie wirkt `groupEvery` wie gewohnt. Wirkt außerdem: `scenarioLabels` (Kürzel-Zeile unter
+untersten, Beschriftung unter dem ersten Mitglied, Trennlinien durch alle Panels, die äußere Zeile kräftig, an einer
+Szenariogrenze nur die äußere Zeile). Ohne Hierarchie wirkt `groupEvery` wie gewohnt. Wirkt außerdem: `scenarioLabels` (Kürzel-Zeile unter
 den Gruppen), `highlight` + `highlightStyle` (Ellipse um die Bestandszahl der Periode bzw. um eine Achsengruppe wie „W01“
 oder „2026“; Stil `band` = Band über Periode oder Gruppe), `showTotal` (Kopf „Σ Zufluss · Σ Abfluss · Netto · Endbestand“,
 Endbestand = letzter Bestand in Achsenfolge), `labelDensity`, `refLine`, `fixedMax`. Ausgeblendet bzw. ohne Wirkung:
@@ -65,6 +65,24 @@ Linien-Measure, Aliasse, ohne Bestand, Small Multiples, Summenkopf, Optionen, YT
 Noch offen (Teil 2 und 3): `timeAggregation` (letzter Wert in YTD, Jahressäule, Tabellenbaum, Karten-Trend), `sfFlowZoom`
 (Flüsse bei großem Bestand vergrößert, 08G), Jahreszeile aus einer einzelnen Datumsspalte, `axisGroups` in Säulen und
 Linie, ΔBestand gegen PL/PY, Parität in der dwg-App und in `dwg pbip`, Demo-Galerie-Eintrag.
+Review-Stand: `aggregateHierarchy` führt `sfKind` mit, wenn alle Kinder dieselbe Rolle tragen (damit erben Σ-, Ø- und
+Rest-Kachel, `mergeColPoints` und Dubletten die Rolle); im Modus (`sfModeOn()`) setzen `aggregateGroups` und
+`meanGroups` `catLevels` der ersten Kachel und `lineVal` aus `sfLineStock` (je Kachel und Kategorie der erste
+Nicht-Null-Wert; Σ/Rest = Summe, Ø = Mittel über die Kacheln mit Bestand), `mergeColPoints` behält den ersten
+`lineVal`. Ø im Modus: `meanZero = "series"` für die Flüsse (fehlendes Segment einer Periode = 0), Bestandszeilen
+ohne Nullregel (Niveau). `multiplesTopN` reiht ohne `stock`-Zeilen, `sfDeck` über `shownGroups`. `acFcSplit` gilt in
+`parseData` im Modus als `off`. PL-Säulen deckend (Zufluss `cfg.paper`, Abfluss Ton zu 16 % auf Papier), Hochkontrast:
+AC-Abfluss `cfg.ink`, Zufluss Mittelton. Die äußere Gruppenzeile zeichnet ihre Trennlinie auch auf einer
+Szenariogrenze, die Grenze liegt dann in Tinte darüber; Grenzen ohne Strichelung (`stroke-opacity` 0,6). Labels:
+Flussbreite nur aus Zu- und Abfluss, alle ab `step >= 6 · Breite`, sonst jede k-te Periode (k = ⌈6 · Breite / step⌉,
+mindestens 2, Priorität 30); Bestand alle ab 3,5 ·, lokale Extreme ab 3 · Breite; Labels unter Priorität 82 entfallen
+auf Markern und auf der Bestandslinie; Ellipsen-Label 4 px weiter vom Marker. Nur die Periodengruppe hat `tabindex`,
+`role="option"` und `aria-label` (Markergruppe nur Maus). Titel im Modus: die Szenarien der gezeichneten Perioden
+(`titleScenarios`, „AC, FC, PL“). `SfPeriod.flowsDropped` (Plan-Fluss in einer AC/FC-Periode) gibt im
+Bearbeitungsmodus `Hint_StockFlowMixed` (`[data-icd="sf-hint"][data-kind="mixed"]`, Platzhalter `{list}`).
+Platzhinweis, sobald weniger als 40 px für die Werte bleiben; ein Szenario-Kürzel, das nicht in seinen Block passt,
+entfällt. Tooltip „Szenario“ über `Tooltip_Scenario`. Die Flag-Token `hide`, `exclude` und Ausnahme-Listen wirken im
+Modus nicht (jede Zeile zählt in Netto und Bestand). 836 resjson-Keys je Sprache. Tests c620 bis c632.
 
 *B12 · Portfolio-Blasen (Blätter 10A, 10B, 10D).* Neue Properties im Objekt `chart` (Gruppe „Scatter / Bubble“, alle
 standardmäßig ohne Wirkung): `scatterValueLabels` (bool, false) schreibt den Wert der Blasengröße in die Blase

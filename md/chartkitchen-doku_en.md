@@ -4,7 +4,7 @@
 
 Power BI visual · End-user documentation
 
-An IBCS-inspired chart deck for Power BI: 13 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 13 modes and the key features to the complete settings reference.
+An IBCS-inspired chart deck for Power BI: 14 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 14 modes and the key features to the complete settings reference.
 
 Version · **1.54.0.0** · As of · **2026-11-19** · IBCS-inspired
 
@@ -14,7 +14,7 @@ Version · **1.54.0.0** · As of · **2026-11-19** · IBCS-inspired
 2. [The product family](#family)
 3. [The start hub](#hub)
 4. [Quick start](#quickstart)
-5. [The 13 modes](#modes)
+5. [The 14 modes](#modes)
 6. [ChartKitchen in action](#inaction)
 7. [Features in detail](#features)
 8. [Settings reference](#settings)
@@ -22,11 +22,11 @@ Version · **1.54.0.0** · As of · **2026-11-19** · IBCS-inspired
 
 ## 01 · What is ChartKitchen?
 
-**ChartKitchen byDatenWG** is a single Power BI custom visual that unifies 13 chart modes — from columns, bars and lines through waterfall and bridge layouts to an IBCS table (with a matrix variant), KPI cards, a full P&L statement and a scatter/bubble plot for correlations. Instead of picking a different visual for every question, you switch the orientation and keep the same notation, colours and scaling logic. For the income statement in depth there is the sister visual [P&L Statement byDatenWG](../pnl-doku_en.html) — same notation, same start hub; chapter 02 “The product family” shows how the two work together.
+**ChartKitchen byDatenWG** is a single Power BI custom visual that unifies 14 chart modes — from columns, bars and lines through waterfall and bridge layouts to an IBCS table (with a matrix variant), KPI cards, a full P&L statement and a scatter/bubble plot for correlations. Instead of picking a different visual for every question, you switch the orientation and keep the same notation, colours and scaling logic. For the income statement in depth there is the sister visual [P&L Statement byDatenWG](../pnl-doku_en.html) — same notation, same start hub; chapter 02 “The product family” shows how the two work together.
 
 The design is inspired by the **IBCS® principles** (International Business Communication Standards): one consistent scenario notation — **AC** (actual) filled, **PY** (prior year) grey, **PL** (plan) outlined, **FC** (forecast) hatched — and variances that are always present: absolute and relative variance panels appear automatically next to or above the base chart. Every chart reads by the same rules, whichever mode you choose.
 
-This guide describes the state of version **1.54.0.0**. The count matches the visual itself: 13 chart types — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07). New in 1.55 (in progress): the chart type [“Stock & flow (time)”](#stockflow) with template C20 for cash, headcount and inventory (chapter 07).
+This guide describes the state of version **1.54.0.0**. The count matches the visual itself: 14 chart types (since 1.55 with “Stock & flow”) — the matrix is not a separate type but the table with the column role filled; it still gets its own card in chapter 05. New since 1.48: the start hub for getting started (chapter 03), the IBCS templates C01–C13, loading up to 30,000 rows, bookmarks that restore the selection, locked instead of silent chips, selectable empty states and real high contrast (chapter 07). Since 1.52 the visual scales according to IBCS 2.0 / ISO 24896 (chapter 07, “Scaling according to IBCS 2.0 / ISO 24896”). New in 1.53: row structure as a data contract via [rowType tokens](#rowtype), negative values in both bridges (chapter 05) and a tested [export layout](#export) with honest limits in the Power BI service (chapter 07). New in 1.54: six more IBCS templates C14 to C19 (bar tables vs. plan, horizontal category bridge, variance scatter, columns with year column), the year column on its own scale, sorting by |Δ|, Δ, Δ % or AC with a fixed rest row, the scenario notation in stacks and the ellipse highlight (chapter 07). New in 1.55 (in progress): the chart type [“Stock & flow (time)”](#stockflow) with template C20 for cash, headcount and inventory (chapter 07).
 
 ## 02 · The product family
 
@@ -34,7 +34,7 @@ ChartKitchen and P&L Statement are two visuals from one kitchen: the same IBCS n
 
 ### Which visual for what?
 
-Breadth · 13 chart modes
+Breadth · 14 chart modes
 
 #### ChartKitchen byDatenWG
 
@@ -198,9 +198,9 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 3. From here you change the mode under *Chart → Chart type* — since 1.45 the Chart card is the first card in the format pane. Everything that follows builds on that.
 4. Shortcut: an IBCS template sets mode, basis and panels in one step — for example *C03 · Columns + variances (PY)* under Chart → IBCS chart template, or with one click in the template gallery of the start hub.
 
-## 05 · The 13 modes
+## 05 · The 14 modes
 
-ChartKitchen counts 13 chart types — exactly as the demo gallery in the start hub shows them. The matrix is not a separate type but the table variant with the column role filled; it is described here as card 07b.
+ChartKitchen counts 14 chart types. The demo gallery in the start hub shows the following 13; the fourteenth, “Stock & flow (time)” (since 1.55), is described in the section [Stock and flow over time](#stockflow). The matrix is not a separate type but the table variant with the column role filled; it is described here as card 07b.
 
 ### 01 · Columns
 
@@ -446,7 +446,7 @@ Cash, headcount or inventory: a stock that changes through inflows and outflows.
 
 1. **Data in long format:** category = time (ideally a hierarchy such as year › week › day, all levels expanded), “Actual (AC)” = the value, “Stack series” = the kind of row (“Cash in”, “Cash out”, “Cash at hand”), “Waterfall type” = one token per row: `stock` (also `bestand`, `balance`) for the stock, `inflow` (`zufluss`) and `outflow` (`abfluss`) for the flows. Outflows may arrive as positive values, `outflow` draws them below zero; without a token the sign decides. Several kinds per side are stacked. Forecast and plan as usual via the “Forecast” and “Plan” measures or the forecast flag.
 2. **Stock without a token:** without a `stock` row the visual takes the line measure (“Line (combo)”) as the stock. The net flow is computed by the visual (inflows minus outflows); the opening stock is derived: stock of the first period minus its net flow.
-3. **DAX note:** a stock is not additive over time. The stock measure must therefore return the cut-off value itself (e.g. with `LASTNONBLANKVALUE` or `CLOSINGBALANCEMONTH`), otherwise even the weekly or monthly value is wrong. Periods without movement still need a stock row, or the line breaks. Summing across units or regions is fine; the Σ tile of small multiples does that.
+3. **DAX note:** a stock is not additive over time. The stock measure must therefore return the cut-off value itself (e.g. with `LASTNONBLANKVALUE` or `CLOSINGBALANCEMONTH`), otherwise even the weekly or monthly value is wrong. Periods without movement still need a stock row, or the line breaks. Summing across units or regions is fine; the Σ tile of small multiples does that (stock as a sum, flows and the grouped time axis stay). The Ø tile averages the stock over the tiles that have one; a missing flow counts as 0 there.
 4. **Notation:** actual solid, forecast hatched, plan hollow or light, for columns, stock markers and area. The markers sit at the end of the period (cut-off date), the opening stock at the start of the first period; negative stock is shaded pink. Net and flows use the same scale as the stock, even when the flows stay small (sheet 08G).
 5. **Time axis:** a hierarchy yields up to two group rows (e.g. week and year) with separators through all panels; the label sits under the first member. At the AC | FC | PL border the dashed scenario line is drawn, with “Scenario labels at the columns” AC, FC and PL below it.
 6. **Options** (Chart → “Stock & flow”, only visible in this mode): net panel and its label (e.g. “Net cash flow”), area, negative tint, opening stock, marker position (end or middle of the period) and axis groups. With template C20, “Highlight categories” circles the stock value of a period (“2026 · Dec”) or an axis group (“W01”, “2026”). The total header shows Σ inflow, Σ outflow, net and the closing stock, never a sum of stocks; YTD is locked in this mode.

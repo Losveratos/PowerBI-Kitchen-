@@ -4,7 +4,7 @@
 
 Power-BI-Visual · Enddokumentation
 
-Ein IBCS-inspiriertes Chart-Deck für Power BI: 13 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 13 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
+Ein IBCS-inspiriertes Chart-Deck für Power BI: 14 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 14 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
 Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
 
@@ -14,7 +14,7 @@ Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
 2. [Die Produktfamilie](#family)
 3. [Der Start-Hub](#hub)
 4. [Schnellstart](#quickstart)
-5. [Die 13 Modi](#modes)
+5. [Die 14 Modi](#modes)
 6. [ChartKitchen im Einsatz](#inaction)
 7. [Funktionen im Detail](#features)
 8. [Einstellungs-Referenz](#settings)
@@ -22,11 +22,11 @@ Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
 
 ## 01 · Was ist ChartKitchen?
 
-**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 13 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei. Für die GuV in der Tiefe gibt es das Schwester-Visual [P&L Statement byDatenWG](../pnl-doku.html) — gleiche Notation, gleicher Start-Hub; wie beide zusammenspielen, zeigt Kapitel 02 „Die Produktfamilie“.
+**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 14 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei. Für die GuV in der Tiefe gibt es das Schwester-Visual [P&L Statement byDatenWG](../pnl-doku.html) — gleiche Notation, gleicher Start-Hub; wie beide zusammenspielen, zeigt Kapitel 02 „Die Produktfamilie“.
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.54.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07). Neu in 1.54: sechs weitere IBCS-Vorlagen C14 bis C19 (Balkentabellen gegen Plan, waagerechte Kategorie-Brücke, Abweichungs-Scatter, Säulen mit Jahressäule), die Jahressäule mit eigener Skala, Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile, die Szenario-Notation im Stapel und die Hervorhebung als Ellipse (Kapitel 07). Neu in 1.55 (in Arbeit): der Chart-Typ [„Bestand & Fluss (Zeit)“](#stockflow) mit der Vorlage C20 für Kasse, Personal und Lager (Kapitel 07).
+Diese Anleitung beschreibt den Stand der Version **1.54.0.0**. Gezählt wird wie im Visual selbst: 14 Chart-Typen (seit 1.55 mit „Bestand & Fluss“) — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07). Neu in 1.54: sechs weitere IBCS-Vorlagen C14 bis C19 (Balkentabellen gegen Plan, waagerechte Kategorie-Brücke, Abweichungs-Scatter, Säulen mit Jahressäule), die Jahressäule mit eigener Skala, Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile, die Szenario-Notation im Stapel und die Hervorhebung als Ellipse (Kapitel 07). Neu in 1.55 (in Arbeit): der Chart-Typ [„Bestand & Fluss (Zeit)“](#stockflow) mit der Vorlage C20 für Kasse, Personal und Lager (Kapitel 07).
 
 ## 02 · Die Produktfamilie
 
@@ -34,7 +34,7 @@ ChartKitchen und P&L Statement sind zwei Visuals aus einer Küche: dieselbe IBCS
 
 ### Wofür welches Visual?
 
-Breite · 13 Chart-Modi
+Breite · 14 Chart-Modi
 
 #### ChartKitchen byDatenWG
 
@@ -198,9 +198,9 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 3. Von hier aus änderst du über *Chart → Chart-Typ* den Modus — seit 1.45 ist die Chart-Karte die erste Karte im Formatbereich. Alle folgenden Kapitel bauen darauf auf.
 4. Abkürzung: Eine IBCS-Vorlage setzt Modus, Basis und Panels in einem Schritt — etwa *C03 · Säulen + Varianzen (PY)* unter Chart → IBCS-Chart-Vorlage oder per Klick in der Vorlagen-Galerie des Start-Hubs.
 
-## 05 · Die 13 Modi
+## 05 · Die 14 Modi
 
-ChartKitchen zählt 13 Chart-Typen — so, wie sie auch die Demo-Galerie im Start-Hub zeigt. Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
+ChartKitchen zählt 14 Chart-Typen. Die Demo-Galerie im Start-Hub zeigt die folgenden 13; der vierzehnte, „Bestand & Fluss (Zeit)“ (seit 1.55), steht im Abschnitt [Bestand und Fluss über die Zeit](#stockflow). Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
 
 ### 01 · Säulen
 
@@ -446,7 +446,7 @@ Kasse, Personal oder Lager: ein Bestand, der sich durch Zu- und Abflüsse verän
 
 1. **Daten im Langformat:** Kategorie = Zeit (am besten eine Hierarchie wie Jahr › Woche › Tag, alle Ebenen aufgeklappt), „Ist (AC)“ = der Wert, „Stack-Serie“ = die Art der Zeile („Cash in“, „Cash out“, „Cash at hand“), „Waterfall-Typ“ = ein Token je Zeile: `stock` (auch `bestand`, `balance`) für den Bestand, `inflow` (`zufluss`) und `outflow` (`abfluss`) für die Flüsse. Abflüsse dürfen positiv geliefert werden, `outflow` zeichnet sie unter null; ohne Token entscheidet das Vorzeichen. Mehrere Arten je Seite werden gestapelt. Forecast und Plan wie gewohnt über die Measures „Forecast“ und „Plan“ oder das Forecast-Flag.
 2. **Bestand ohne Token:** Liefert keine Zeile `stock`, nimmt das Visual die Linien-Measure („Linie (Kombi)“) als Bestand. Das Netto rechnet das Visual selbst (Zuflüsse minus Abflüsse), den Anfangsbestand leitet es ab: Bestand der ersten Periode minus ihr Netto.
-3. **DAX-Hinweis:** Ein Bestand ist über die Zeit nicht additiv. Die Bestands-Measure muss deshalb selbst den Stichtagswert liefern (z. B. mit `LASTNONBLANKVALUE` oder `CLOSINGBALANCEMONTH`), sonst stimmt schon der Wochen- oder Monatswert nicht. Perioden ohne Bewegung brauchen trotzdem eine Bestandszeile, sonst reißt die Linie. Über Einheiten oder Regionen darf summiert werden; die Σ-Kachel der Small Multiples tut das.
+3. **DAX-Hinweis:** Ein Bestand ist über die Zeit nicht additiv. Die Bestands-Measure muss deshalb selbst den Stichtagswert liefern (z. B. mit `LASTNONBLANKVALUE` oder `CLOSINGBALANCEMONTH`), sonst stimmt schon der Wochen- oder Monatswert nicht. Perioden ohne Bewegung brauchen trotzdem eine Bestandszeile, sonst reißt die Linie. Über Einheiten oder Regionen darf summiert werden; die Σ-Kachel der Small Multiples tut das (Bestand als Summe, Flüsse und gruppierte Zeitachse bleiben). Die Ø-Kachel mittelt den Bestand über die Kacheln mit einem Bestand; ein fehlender Fluss zählt dort als 0.
 4. **Notation:** Ist solide, Forecast schraffiert, Plan hohl bzw. hell, für Säulen, Bestandspunkte und Fläche. Die Punkte sitzen am Periodenende (Stichtag), der Anfangsbestand am Beginn der ersten Periode; negative Bestände sind rosa hinterlegt. Netto und Flüsse stehen im selben Maßstab wie der Bestand, auch wenn die Flüsse dann klein bleiben (Blatt 08G).
 5. **Zeitachse:** Aus einer Hierarchie entstehen bis zu zwei Gruppenzeilen (z. B. Woche und Jahr) mit Trennlinien durch alle Panels; die Beschriftung steht unter dem ersten Mitglied. An der Grenze AC | FC | PL steht die gestrichelte Szenario-Linie, mit „Szenario-Kürzel an den Säulen“ darunter AC, FC und PL.
 6. **Optionen** (Chart → „Bestand & Fluss“, nur in diesem Modus sichtbar): Netto-Panel und seine Beschriftung (z. B. „Netto-Cashflow“), Fläche, Negativtönung, Anfangsbestand, Lage der Punkte (Ende oder Mitte der Periode) und Achsengruppen. „Kategorien hervorheben“ kreist mit der Vorlage C20 die Bestandszahl einer Periode („2026 · Dec“) oder eine Achsengruppe („W01“, „2026“) ein. Der Summenkopf nennt Σ Zufluss, Σ Abfluss, Netto und den Endbestand, nie eine Summe der Bestände; YTD ist in diesem Modus gesperrt.

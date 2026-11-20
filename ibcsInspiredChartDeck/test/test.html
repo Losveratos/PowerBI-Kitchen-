@@ -5278,6 +5278,87 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     check(JSON.stringify(ptVals("c627")) === JSON.stringify(want03) && sfQ("c627", '[data-icd="sf-seg-in"]').length === 19,
       "c627: Linien-Bestand bleibt mit Spaltengruppe (erster Wert je Periode)");
   }
+  // ---- B11 Review, Minors
+  // m1: übrig gebliebenes acFcSplit ändert im Modus nichts (AC und FC geliefert)
+  addStage("c628", "B11 Review m1 · acFcSplit = full übrig, AC und FC geliefert · Werte wie c603", 1280, 600);
+  {
+    const dv = sfDv(hObj({ acFcSplit: "full" }), ["Jahr", "Quartal"], sfH, { name: "Raw material" });
+    const ac = dv.categorical.values[0].values, fc = dv.categorical.values[1].values;
+    for (let i = 0; i < ac.length; i++) { if (ac[i] != null) { fc[i] = Math.round(ac[i] * 1.5); } }
+    runCap("c628", dv, 1280, 600);
+    const segs = id => sfQ(id, '[data-icd^="sf-seg"]').map(g => g.getAttribute("data-v") + g.getAttribute("data-scen")).join(",");
+    check(JSON.stringify(ptVals("c628")) === JSON.stringify(want03) && segs("c628") === segs("c603"),
+      `c628: Bestand und Flüsse wie c603, AC-Perioden bleiben AC (${ptVals("c628").slice(0, 3).join(", ")})`);
+  }
+  // m2: Plan-Säulen deckend (Zufluss Papier, Abfluss sehr hellgrau)
+  {
+    const plIn = sfQ("c601", '[data-icd="sf-seg-in"][data-scen="pl"] rect'), plOut = sfQ("c601", '[data-icd="sf-seg-out"][data-scen="pl"] rect');
+    const light = r => { const m = /^rgb\((\d+),(\d+),(\d+)\)$/.exec(r.getAttribute("fill") || ""); return !!m && [m[1], m[2], m[3]].every(v => +v >= 200 && +v < 255); };
+    check(plIn.length === 18 && plOut.length === 18 && [...plIn, ...plOut].every(r => !r.hasAttribute("fill-opacity"))
+      && plIn.every(r => r.getAttribute("fill") === "#FFFFFF") && plOut.every(light),
+      `c601: Plan-Säulen deckend, Zufluss weiß, Abfluss hellgrau (${plOut[0] ? plOut[0].getAttribute("fill") : "–"})`);
+  }
+  // m3: kräftige Jahreslinie auch an der Szenariogrenze, Grenzen durchgezogen
+  {
+    const seps = sfQ("c603", '[data-icd="axis-group-sep"]'), pl = sfQ("c603", '[data-icd="pl-boundary"]')[0];
+    check(seps.length === 4 && !!pl && seps.some(l => l.getAttribute("x1") === pl.getAttribute("x1")) && !pl.hasAttribute("stroke-dasharray")
+      && !sfQ("c603", '[data-icd$="-boundary"]').some(l => l.hasAttribute("stroke-dasharray")),
+      `c603: vier Jahreslinien, auch 2026 auf der Grenze FC|PL, Grenzen durchgezogen (${seps.length})`);
+  }
+  // m4: Beschriftungsdichte wie 08F (mehr Flüsse, wenige Bestände, nichts auf Markern)
+  {
+    const cnt = icd => document.querySelectorAll(`#c601 [data-icd="stockflow"] [data-icd="${icd}"]`).length;
+    const root601 = document.querySelector('#c601 [data-icd="stockflow"]');
+    const ms = [...root601.querySelectorAll('[data-icd="sf-stock-pt"],[data-icd="sf-opening"]')].map(r => ({ x0: num(r, "x"), y0: num(r, "y"), x1: num(r, "x") + num(r, "width"), y1: num(r, "y") + num(r, "height") }));
+    const onMk = [...root601.querySelectorAll('[data-icd="sf-stock-label"],[data-icd="sf-label-in"],[data-icd="sf-label-out"]')].filter(t => {
+      const b = t.getBBox(), sh = b.height * 0.18;
+      return ms.some(m => m.x1 > b.x + 0.5 && m.x0 < b.x + b.width - 0.5 && m.y1 > b.y + sh && m.y0 < b.y + b.height - sh);
+    });
+    check(cnt("sf-label-in") >= 10 && cnt("sf-label-out") >= 10 && cnt("sf-stock-label") <= 12 && onMk.length === 0,
+      `c601: ${cnt("sf-label-in")} Zufluss-, ${cnt("sf-label-out")} Abfluss- und ${cnt("sf-stock-label")} Bestandslabels, keines auf einem Marker (${onMk.map(t => t.textContent).join(" ") || "–"})`);
+    check(cnt("sf-label-net") === 36, "c601: Netto in jeder Woche beschriftet");
+  }
+  // m5: ein Tab-Stopp je Periode
+  {
+    const tabs = sfQ("c603", '[tabindex="0"]'), opts = sfQ("c603", '[role="option"]');
+    check(tabs.length === 20 && opts.length === 20 && tabs.every(g => g.hasAttribute("data-cat")),
+      `c603: 20 Tab-Stopps und 20 Optionen für 20 Quartale (${tabs.length}/${opts.length})`);
+  }
+  // m6: Titel nennt nur gezeichnete Szenarien, auch mit gebundenem Vorjahr
+  addStage("c629", "B11 Review m6 · Vorjahr gebunden · Titel nennt AC, FC, PL ohne PY", 1280, 600);
+  {
+    const dv = sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material" });
+    dv.metadata.objects.ibcsTitle = { kpi: "Raw material" };
+    dv.categorical.values.push(col("previousYear", dv.categorical.values[0].values.map((v, i) => i + 1), "#,0"));
+    runCap("c629", dv, 1280, 600);
+    const texts = id => sfQ(id, "svg text").map(t => t.textContent).join(" | ");
+    check(/AC, FC, PL/.test(texts("c629")) && !/PY|vs\./.test(texts("c629")), `c629: Titel „${(texts("c629").match(/[^|]*AC, FC, PL[^|]*/) || ["–"])[0].trim()}“`);
+  }
+  // m8: Periode mit Ist-Bestand, aber nur Plan-Flüssen: Hinweis im Bearbeitungsmodus
+  addStage("c630", "B11 Review m8 · Bestand AC, Flüsse nur PL in Q4 2025 · Hinweis", 960, 420);
+  {
+    const d = sfH.map((p, i) => i !== 11 ? p : Object.assign({}, p, { sc: "pl", rows: p.rows.filter(r => r[1] !== "stock") }));
+    const dv = sfDv(hObj(), ["Jahr", "Quartal"], d);
+    // der Bestand von Q4 2025 als Ist-Zeile dazu
+    const c = dv.categorical;
+    c.categories[0].values.push("2025"); c.categories[1].values.push("Q4"); c.categories[2].values.push("Inventory"); c.categories[3].values.push("stock");
+    c.values[0].values.push(13); c.values[1].values.push(null); c.values[2].values.push(null);
+    runCap("c630", dv, 960, 420);
+    const h = sfQ("c630", '[data-icd="sf-hint"][data-kind="mixed"]');
+    check(h.length === 1 && /Q4/.test(h[0].textContent) && !sfQ("c630", 'g.icd-cat[data-cat="2025 · Q4"] [data-icd^="sf-seg"]').length,
+      `c630: Hinweis „${h[0] ? h[0].textContent : "–"}“`);
+  }
+  // m9: sehr kleine Kachel → Platzhinweis; schmale Kachel ohne überlappende Szenario-Kürzel
+  addStage("c631", "B11 Review m9 · 260×170: Platzhinweis", 260, 170);
+  addStage("c632", "B11 Review m9 · 420×300: Szenario-Kürzel überlappen nicht", 420, 300);
+  {
+    runCap("c631", sfDv({ chart: { template: "C20" } }, ["Jahr", "Quartal"], sfH), 260, 170);
+    check(sfQ("c631", '[data-icd="sf-hint"]').length === 1 && !sfQ("c631", '[data-icd="stockflow"]').length, "c631: Platzhinweis statt gedrängter Zeichnung");
+    runCap("c632", sfDv({ chart: { template: "C20" } }, ["Jahr", "Quartal"], sfH), 420, 300);
+    const bx = sfQ("c632", '[data-icd="scen-label"]').map(t => t.getBBox());
+    check(sfQ("c632", '[data-icd="stockflow"]').length === 1 && bx.every((b, i) => i === 0 || b.x >= bx[i - 1].x + bx[i - 1].width),
+      `c632: Kürzel ohne Überlappung (${sfQ("c632", '[data-icd="scen-label"]').map(t => t.textContent).join(" ")})`);
+  }
   // B11 Review: kein NaN in allen Bestand-Fluss-Stufen (vorher ohne c604 bis c606, c610, c612, c613)
   {
     const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c6(0\d|1[0-3]|[2-4]\d)[a-z]?$/.test(id));
