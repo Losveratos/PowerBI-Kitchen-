@@ -1185,6 +1185,12 @@ export class Visual implements IVisual {
     private animTimers: number[] = [];
     /** small multiples: currently zoomed-in group (transient, ⤢/← in the chart) */
     private zoomGroup: string | null = null;
+    /** 1.55 (B13 review): points carry the Ø basis (multiplesBasis=avg) — collector
+     *  rows (Top N, exception filter, year column) keep Δ against the Ø, no Δ2 */
+    private avgRows = false;
+    /** 1.55 (B13 review, m4): the cell being drawn is the reference tile under the Ø
+     *  basis — its Δ panels keep their space (same scale) but get no title or axis */
+    private refTileNoDelta = false;
     /** 1.52: px per value unit of the last drawn base panel (zoom scale note) */
     private lastScaleK: number | null = null;
     /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
@@ -2149,8 +2155,12 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesTotalShade.visible = multTotalOn;
         fs.chartCard.multiplesTotalLabel.visible = multTotalOn;
         fs.chartCard.multiplesRestLabel.visible = multTopOn;
+        // B13 review (m7): stacks (Stack-Series role) and the waterfall style keep the
+        // scenario basis, so the option is hidden there instead of failing silently
         fs.chartCard.multiplesBasis.visible = !isScatter
-            && (orient === "columns" || orient === "bars" || orient === "line");
+            && (orient === "columns" || orient === "bars" || orient === "line")
+            && !((orient === "columns" || orient === "bars")
+                && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true));
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
@@ -5877,6 +5887,8 @@ export class Visual implements IVisual {
         this.bridgeChips = [];
         this.sortNoop = false;
         this.exceptionNoop = false;
+        this.avgRows = false;
+        this.refTileNoDelta = false;
         // scatter v3: a running play animation or drag-select must not outlive the
         // DOM it manipulates (the svg was just cleared above)
         if (this.scatterAnim?.raf != null) { cancelAnimationFrame(this.scatterAnim.raf); }
@@ -6001,7 +6013,8 @@ export class Visual implements IVisual {
 
         // small multiples: group by the multiples role, in order of appearance
         // kind (1.55, B13): synthetic reference tile ("total", Σ or Ø) or Top-N rest tile
-        const groups: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" }[] = [];
+        // preCum (B13 review): an average tile built from cumulated groups is not cumulated again
+        const groups: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest"; preCum?: boolean }[] = [];
         for (const p of points) {
             const last = groups.length > 0 ? groups[groups.length - 1] : null;
             const found = last && last.name === p.group ? last : groups.find(g => g.name === p.group);
@@ -6022,6 +6035,21 @@ export class Visual implements IVisual {
         const mAgg: "sum" | "mean" = String((s.chartCard.multiplesAgg.value as powerbi.IEnumMember)?.value) === "mean"
             ? "mean" : "sum";
         const mTotalLast = String((s.chartCard.multiplesTotalPos.value as powerbi.IEnumMember)?.value) === "last";
+        // running totals (YTD/QTD/R12) of one point list, identity without cumulation
+        const cumArgs = cumulativeOn ? {
+            basisMode: this.resolveBasisLabel(),
+            kind: String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12",
+            fiscal: Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)))
+        } : null;
+        const cumOf = (pts: DataPoint[]): DataPoint[] => cumArgs
+            ? this.cumulate(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal) : pts;
+        // B13 review (M3): a missing stack segment or a missing category on a structure
+        // axis (bars) counts as 0 in the average; a missing period stays "no data"
+        const meanZero: "none" | "series" | "all" = orientationRaw === "bars" ? "all" : isStacked ? "series" : "none";
+        // B13 review (m1): with YTD the average is the mean of the cumulated groups
+        // (average YTD per location), so these tiles are built from cumulated copies
+        const meanPreCum = cumulativeOn && mAgg === "mean";
+        const srcPts = (g: { pts: DataPoint[] }) => meanPreCum ? cumOf(g.pts) : g.pts;
         // the original groups before Top N (the reference tile and the Ø basis use all of them)
         let multOrig: { name: string | null; pts: DataPoint[] }[] | null = null;
         if (groups.length > 1 && groups[0].name != null && !isScatter) {
@@ -6038,9 +6066,10 @@ export class Visual implements IVisual {
                 const restTpl = (s.chartCard.multiplesRestLabel.value || "").trim();
                 const restName = restTpl !== "" ? fillN(restTpl, rest.length)
                     : `${this.locStr("Label_Rest", "Other")} (${rest.length})`;
-                const restTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" } =
-                    this.aggregateGroups(rest.map(g => g.pts), restName, mAgg);
+                const restTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest"; preCum?: boolean } =
+                    this.aggregateGroups(rest.map(srcPts), restName, mAgg, meanZero);
                 restTile.kind = "rest";
+                if (meanPreCum) { restTile.preCum = true; }
                 groups.push(...ranked.slice(0, mTopN), restTile);
             }
             if (s.chartCard.multiplesTotal.value) {
@@ -6050,9 +6079,10 @@ export class Visual implements IVisual {
                         ? `${this.locStr("Label_Average", "Ø Average")} (${allGroups.length})`
                         : this.locStr("Label_Total", "Σ Total");
                 // always from the ORIGINAL groups, never from the rest tile (Top N)
-                const totTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" } =
-                    this.aggregateGroups(allGroups.map(g => g.pts), totName, mAgg);
+                const totTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest"; preCum?: boolean } =
+                    this.aggregateGroups(allGroups.map(srcPts), totName, mAgg, meanZero);
                 totTile.kind = "total";
+                if (meanPreCum) { totTile.preCum = true; }
                 if (mTotalLast) { groups.push(totTile); } else { groups.unshift(totTile); }
             }
         }
@@ -6063,6 +6093,79 @@ export class Visual implements IVisual {
             this.compareActive = false;
             this.compareCats = [];
         }
+
+        // 1.55 (B13, IBCS sheets 13C/13D): every tile against the average of ALL groups
+        // ("Ø", per category, without a helper measure). m = mean over the original
+        // groups of value ?? PL, so plan-only years get their own basis (the mean of
+        // PL) and their Δ is plan notation (varPlan). The reference tile has no Δ; a
+        // summed rest tile compares with m × its member count (linear like the sum).
+        // B13 review (M1): the pass runs BEFORE the exception filter and Top N per tile
+        // (they judge and fold ΔØ; collector rows sum the basis, linear); only with
+        // cumulation it runs after the running totals (filter and Top N are off there)
+        const multBasisAvg = multOrig != null
+            && String((s.chartCard.multiplesBasis.value as powerbi.IEnumMember)?.value) === "avg"
+            && (orientationRaw === "columns" || orientationRaw === "bars" || orientationRaw === "line")
+            && !isStacked && !wfStyleGlobal;
+        this.avgRows = multBasisAvg;
+        const applyAvgBasis = () => {
+            if (!multBasisAvg || !multOrig) { return; }
+            const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
+            const level = (p: DataPoint): number | null => p.value ?? p.pl;
+            const visible = new Set<{ name: string | null; pts: DataPoint[] }>(groups);
+            // M3: on a structure axis (bars) a group without the category counts as 0
+            const structZero = meanZero === "all";
+            const acc = new Map<string, { s: number; n: number }>();
+            // m2: hidden members per key and level kind (AC/FC value or plan only), so a
+            // summed rest tile compares its value with the Ø of the members it sums
+            const restV = new Map<string, number>(), restP = new Map<string, number>();
+            let tilesWithData = 0, hiddenWithData = 0;
+            for (const og of multOrig) {
+                const hidden = !visible.has(og);
+                // groups merged into the rest tile were not cumulated with the tiles
+                const pts = hidden ? cumOf(og.pts) : og.pts;
+                const local = new Map<string, number>();
+                const withValue = new Set<string>();
+                for (const p of pts) {
+                    const v = level(p);
+                    if (v == null) { continue; }
+                    local.set(keyOf(p), (local.get(keyOf(p)) ?? 0) + v);
+                    if (p.value != null) { withValue.add(keyOf(p)); }
+                }
+                if (local.size > 0) { tilesWithData++; if (hidden) { hiddenWithData++; } }
+                local.forEach((v, k) => {
+                    const a = acc.get(k) ?? { s: 0, n: 0 };
+                    a.s += v; a.n++;
+                    acc.set(k, a);
+                    if (hidden) {
+                        const m = withValue.has(k) ? restV : restP;
+                        m.set(k, (m.get(k) ?? 0) + 1);
+                    }
+                });
+            }
+            if (structZero) { acc.forEach(a => { a.n = tilesWithData; }); }
+            for (const g of groups) {
+                g.pts = g.pts.map(p0 => {
+                    const p: DataPoint = { ...p0, var2Abs: null, var2Rel: null, varPlan: false };
+                    const a = acc.get(keyOf(p));
+                    const lv = level(p);
+                    if (g.kind === "total" || !a || lv == null) {
+                        p.basis = null; p.varAbs = null; p.varRel = null;
+                        return p;
+                    }
+                    const f = g.kind === "rest" && mAgg === "sum"
+                        ? (structZero ? hiddenWithData
+                            : ((p.value != null ? restV : restP).get(keyOf(p)) ?? 1))
+                        : 1;
+                    const b = (a.s / a.n) * f;
+                    p.basis = b;
+                    p.varAbs = lv - b;
+                    p.varRel = relVar(p.varAbs, b);
+                    p.varPlan = p.value == null;
+                    return p;
+                });
+            }
+        };
+        if (!cumulativeOn) { applyAvgBasis(); }
 
         // exception reporting: only categories above the materiality threshold stay
         // as own rows, everything else is folded into ONE collector row. Limited to
@@ -6114,66 +6217,10 @@ export class Visual implements IVisual {
             }
         }
         // cumulative (YTD) view: running totals per group, variances recomputed
+        // (average tiles built from cumulated groups already are running totals)
         if (cumulativeOn) {
-            const basisMode = this.resolveBasisLabel();
-            const kind = String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12";
-            const fiscal = Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)));
-            for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode, kind, fiscal); }
-        }
-        // 1.55 (B13, IBCS sheets 13C/13D): every tile against the average of ALL groups
-        // ("Ø", per category, without a helper measure). m = mean over the original
-        // groups of value ?? PL, so plan-only years get their own basis (the mean of
-        // PL) and their Δ is plan notation (varPlan). The reference tile has no Δ; a
-        // summed rest tile compares with m × its member count (linear like the sum)
-        const multBasisAvg = multOrig != null
-            && String((s.chartCard.multiplesBasis.value as powerbi.IEnumMember)?.value) === "avg"
-            && (orientationRaw === "columns" || orientationRaw === "bars" || orientationRaw === "line")
-            && !isStacked && !wfStyleGlobal;
-        if (multBasisAvg && multOrig) {
-            const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
-            const level = (p: DataPoint): number | null => p.value ?? p.pl;
-            const visible = new Set<{ name: string | null; pts: DataPoint[] }>(groups);
-            const cumArgs = cumulativeOn ? {
-                basisMode: this.resolveBasisLabel(),
-                kind: String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12",
-                fiscal: Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)))
-            } : null;
-            const acc = new Map<string, { s: number; n: number }>();
-            const restCount = new Map<string, number>();
-            for (const og of multOrig) {
-                const hidden = !visible.has(og);
-                // groups merged into the rest tile were not cumulated with the tiles
-                const pts = hidden && cumArgs ? this.cumulate(og.pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal) : og.pts;
-                const local = new Map<string, number>();
-                for (const p of pts) {
-                    const v = level(p);
-                    if (v != null) { local.set(keyOf(p), (local.get(keyOf(p)) ?? 0) + v); }
-                }
-                local.forEach((v, k) => {
-                    const a = acc.get(k) ?? { s: 0, n: 0 };
-                    a.s += v; a.n++;
-                    acc.set(k, a);
-                    if (hidden) { restCount.set(k, (restCount.get(k) ?? 0) + 1); }
-                });
-            }
-            for (const g of groups) {
-                g.pts = g.pts.map(p0 => {
-                    const p: DataPoint = { ...p0, var2Abs: null, var2Rel: null, varPlan: false };
-                    const a = acc.get(keyOf(p));
-                    const lv = level(p);
-                    if (g.kind === "total" || !a || lv == null) {
-                        p.basis = null; p.varAbs = null; p.varRel = null;
-                        return p;
-                    }
-                    const f = g.kind === "rest" && mAgg === "sum" ? (restCount.get(keyOf(p)) ?? 1) : 1;
-                    const b = (a.s / a.n) * f;
-                    p.basis = b;
-                    p.varAbs = lv - b;
-                    p.varRel = relVar(p.varAbs, b);
-                    p.varPlan = p.value == null;
-                    return p;
-                });
-            }
+            for (const g of groups) { if (!g.preCum) { g.pts = cumOf(g.pts); } }
+            applyAvgBasis();
         }
         // 1.49: the ⇅ chip is locked when impact order and data order coincide in
         // every tile — the click would change nothing either way
@@ -6230,8 +6277,11 @@ export class Visual implements IVisual {
             [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
         // 1.55 (B13): Δ against the Ø keeps the precision of the values (Δ of integers
         // against a mean of integers is labelled as an integer, like on sheet 13C)
-        const allVarInt = multBasisAvg ? allInt : intPts.every(p => (p.varAbs == null || Number.isInteger(p.varAbs))
+        // B13 review (m3): only from |Δ| ≥ 10 on — small integers against a fractional Ø
+        // would round every Δ to "+0" / "−0", those keep the normal precision
+        const varsInt = intPts.every(p => (p.varAbs == null || Number.isInteger(p.varAbs))
             && (p.var2Abs == null || Number.isInteger(p.var2Abs)));
+        const allVarInt = multBasisAvg ? (allInt && maxVarAbs >= 10) || varsInt : varsInt;
 
         const basisMode: Basis = this.resolveBasisLabel();
         const hasVar = points.some(p => p.varAbs != null);
@@ -6562,6 +6612,13 @@ export class Visual implements IVisual {
             if (this.sharedWfDomain) { this.sharedWfDomain = domains.main; }
         }
 
+        // the tiles the grid will draw (cell cap; B13: a reference tile placed last
+        // survives it) — every deck-wide scale below is bounded by exactly these
+        const multLastIsTotal = groups.length > MULT_MAX_CELLS && groups[groups.length - 1].kind === "total";
+        const shownGroups = multLastIsTotal
+            ? groups.slice(0, MULT_MAX_CELLS - 1).concat(groups[groups.length - 1])
+            : groups.slice(0, MULT_MAX_CELLS);
+
         // waterfall axis break (IBCS UN 5.3): cut value, admissibility and suggestion
         // over ALL drawn tiles — one shared cut or none at all (same-scale rule, the
         // zoom view keeps it). The default stays zero-based: "auto" only highlights
@@ -6575,7 +6632,7 @@ export class Visual implements IVisual {
         if (wfBreakMode !== "off") {
             let minLevel = Infinity, maxLevel = -Infinity, maxAnchor = 0;
             const tileMin: { name: string | null; min: number }[] = [];
-            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+            for (const g of shownGroups) {
                 const segs = wfByGroup.get(g.name) ?? [];
                 if (segs.length === 0) { continue; }
                 let gMin = Infinity;
@@ -6620,14 +6677,14 @@ export class Visual implements IVisual {
         cfg.stackNorm = stackNormOk;
         cfg.stackSort = stackSortMode;
         if (isStacked) {
-            cfg.stackTotalMax = Math.max(0, ...groups.slice(0, MULT_MAX_CELLS).flatMap(g => this.stackLayout(g.pts).pos));
+            cfg.stackTotalMax = Math.max(0, ...shownGroups.flatMap(g => this.stackLayout(g.pts).pos));
         }
         if (isStacked && stackNormOk) {
             // 100 % stacks: one fixed domain; fixedMax/cap do not apply to shares
             cfg.stackDomain = [0, 100];
         } else if (isStacked) {
             let lo = 0, hi = 0;
-            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+            for (const g of shownGroups) {
                 const st = this.stackLayout(g.pts);
                 lo = Math.min(lo, ...st.neg);
                 hi = Math.max(hi, ...st.pos);
@@ -6672,7 +6729,7 @@ export class Visual implements IVisual {
                 // drawn — they extend the range below zero, and one negative value
                 // anywhere puts EVERY tile into the split layout (cascade with its
                 // own zero line, monthly strip below), so all keep one px per unit
-                for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                for (const g of shownGroups) {
                     if (!g.pts.some(p => p.varAbs != null)) { continue; }
                     const basisSum = g.pts.reduce((a, p) => a + (p.basis ?? 0), 0);
                     const vTot = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
@@ -6698,7 +6755,7 @@ export class Visual implements IVisual {
                 // hint tiles must not bound the scale. 1.52.5: purely negative tiles
                 // are drawn and bound it like all others (one negative region next
                 // to positive ones moves every tile's zero line by the same amount)
-                for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                for (const g of shownGroups) {
                     const hasPy = g.pts.some(p => p.py != null);
                     const hasPl = g.pts.some(p => p.pl != null);
                     if (!hasPy && !hasPl) { continue; }
@@ -6733,7 +6790,7 @@ export class Visual implements IVisual {
         cfg.varDomain = domains.abs;
         // scatter: deck-wide scales/quadrants over the DRAWN tiles + group colors
         if (isScatter && cfg.scatter) {
-            this.prepareScatterDeck(cfg.scatter, groups.slice(0, MULT_MAX_CELLS), groups.length > 1, cfg);
+            this.prepareScatterDeck(cfg.scatter, shownGroups, groups.length > 1, cfg);
         }
 
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
@@ -6782,11 +6839,14 @@ export class Visual implements IVisual {
                 this.renderStacked(grp.pts, region, cfg);
                 return;
             }
+            // B13 review (m4): the reference tile under the Ø basis draws no Δ chrome
+            this.refTileNoDelta = multBasisAvg && (grp as { kind?: string }).kind === "total";
             if (isStockFlow) {
                 this.renderStockFlow(grp.pts, region, cfg);
                 return;
             }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
+            this.refTileNoDelta = false;
         };
         // in-chart chrome only where the host allows interactions — exports to
         // PDF/PowerPoint and subscription mails get a clean chart without buttons
@@ -6967,12 +7027,9 @@ export class Visual implements IVisual {
         }
 
         // grid layout for small multiples: keep cells at a usable width
-        const MAX_CELLS = MULT_MAX_CELLS;
         // 1.55 (B13): a reference tile placed last survives the cell cap
-        const lastIsTotal = groups.length > MAX_CELLS && groups[groups.length - 1].kind === "total";
-        const shown = lastIsTotal
-            ? groups.slice(0, MAX_CELLS - 1).concat(groups[groups.length - 1])
-            : groups.slice(0, MAX_CELLS);
+        const lastIsTotal = multLastIsTotal;
+        const shown = shownGroups;
         const n = shown.length;
         // 1.55 (B13): tile markers + reference-tile shading only once a B13 option is
         // set, so decks without them keep their SVG byte for byte
@@ -7023,8 +7080,12 @@ export class Visual implements IVisual {
         // 1.52: the bigger area means more px per unit than in the overview — the
         // chip line says by how much ("scale ×2,4 of the overview"), measured on the
         // tile at its grid size; the Δ panels follow the zoomed base scale exactly
+        // B13 review: synthetic tiles are found by their kind, not by a name a real
+        // group may share (own rest title "R1" next to the group "R1")
+        const zoomKey = (g: { name: string | null; kind?: "total" | "rest" }) =>
+            g.kind ? `\u0001${g.kind}` : (g.name ?? "");
         if (this.zoomGroup != null) {
-            const grp = groups.find(g => (g.name ?? "") === this.zoomGroup);
+            const grp = groups.find(g => zoomKey(g) === this.zoomGroup);
             if (grp) {
                 const gi = shown.indexOf(grp);
                 const cell: Rect = heroOn && gi === 0
@@ -7047,7 +7108,7 @@ export class Visual implements IVisual {
             renderCell(shown[0],
                 { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 });
             this.drawTileHeader(0, topOffset, heroW, groupTitleH,
-                shown[0].name ?? "", shown[0].name ?? "", cfg);
+                shown[0].name ?? "", shown[0].name ?? "", cfg, zoomKey(shown[0]));
         }
         // the "+n more" note sits on the last group tile, not on a reference tile placed last
         const moreAt = lastIsTotal ? rn - 2 : rn - 1;
@@ -7056,14 +7117,14 @@ export class Visual implements IVisual {
             const cy = topOffset + Math.floor(gi / cols) * cellH;
             let title = rest[gi].name ?? "";
             if (gi === moreAt && groups.length > n) {
-                title += `  (+${groups.length - n} weitere)`;
+                title += `  ${this.locStr("Label_MoreTiles", "(+{n} more)").replace(/\{n\}/g, String(groups.length - n))}`;
             }
             tileFrame(rest[gi], cx, cy, cellW, cellH);
             // cell content first, header strip after — the click target must sit ON TOP
             // of any chart marks (labels can reach into the strip), or clicks get eaten
             renderCell(rest[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
-            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg);
+            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg, zoomKey(rest[gi]));
         }
     }
 
@@ -7072,7 +7133,7 @@ export class Visual implements IVisual {
      * (a 12px glyph alone is too easy to miss), with the ⤢ affordance at the right.
      */
     private drawTileHeader(x: number, y: number, w: number, h: number,
-        title: string, groupName: string, cfg: ChartConfig): void {
+        title: string, groupName: string, cfg: ChartConfig, zoomKey: string = groupName): void {
         const k = this.fontK;
         const gtFont = Math.round(11 * k);
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
@@ -7098,7 +7159,7 @@ export class Visual implements IVisual {
         btn.style.cursor = "pointer";
         btn.addEventListener("mouseenter", () => { icon.setAttribute("fill", cfg.ink); });
         btn.addEventListener("mouseleave", () => { icon.setAttribute("fill", cfg.subtle); });
-        const zoom = () => { this.zoomGroup = groupName; this.rerender(); };
+        const zoom = () => { this.zoomGroup = zoomKey; this.rerender(); };
         btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); zoom(); });
         btn.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key !== "Enter" && e.key !== " ") { return; }
@@ -12001,8 +12062,9 @@ export class Visual implements IVisual {
      * ("Σ Gesamt" / "Rest (n)"): categories aligned by label (+ stack series), values
      * summed, variances recomputed on the sums
      */
-    private aggregateGroups(subsets: DataPoint[][], name: string, agg: "sum" | "mean" = "sum"): { name: string; pts: DataPoint[] } {
-        if (agg === "mean") { return this.meanGroups(subsets, name); }
+    private aggregateGroups(subsets: DataPoint[][], name: string, agg: "sum" | "mean" = "sum",
+        zero: "none" | "series" | "all" = "none"): { name: string; pts: DataPoint[] } {
+        if (agg === "mean") { return this.meanGroups(subsets, name, zero); }
         const order: string[] = [];
         const byKey = new Map<string, DataPoint[]>();
         for (const pts of subsets) {
@@ -12039,12 +12101,22 @@ export class Visual implements IVisual {
      * over the tiles that have both, Δ% = that mean over the mean basis of the same
      * tiles, so "mean of Δ = Δ of means" holds with uneven coverage too. A period
      * stays forecast only if every tile flags it (as in the sum).
+     * B13 review (M3), `zero`: "series" (stacks) divides by the tiles that have the
+     * CATEGORY in that field, a missing stack segment counts as 0 (Ø stack = mean of
+     * the stack totals); "all" (structure axis, bars) divides by the tiles that have
+     * the field at all, a missing category counts as 0. Pairs follow the same rule.
      */
-    private meanGroups(subsets: DataPoint[][], name: string): { name: string; pts: DataPoint[] } {
+    private meanGroups(subsets: DataPoint[][], name: string,
+        zero: "none" | "series" | "all" = "none"): { name: string; pts: DataPoint[] } {
         const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
+        type F = "ac" | "py" | "pl" | "fc" | "value" | "basis" | "fcPrev" | "bm";
+        const FIELDS: F[] = ["ac", "py", "pl", "fc", "value", "basis", "fcPrev", "bm"];
         const order: string[] = [];
-        const byKey = new Map<string, DataPoint[]>();
-        for (const pts of subsets) {
+        const byKey = new Map<string, { t: number; p: DataPoint }[]>();
+        // zero modes: which tiles carry a field per category ("series") or at all ("all")
+        const catHas = new Map<string, Map<F, Set<number>>>();
+        const tileHas = new Map<F, Set<number>>();
+        subsets.forEach((pts, ti) => {
             // one point per tile and key (a tile with duplicate rows is summed first)
             const local = new Map<string, DataPoint[]>();
             for (const p of pts) {
@@ -12052,6 +12124,19 @@ export class Visual implements IVisual {
                 const b = local.get(key);
                 if (b) { b.push(p); } else { local.set(key, [p]); }
                 if (!byKey.has(key)) { byKey.set(key, []); order.push(key); }
+                if (zero !== "none") {
+                    for (const f of FIELDS) {
+                        if (p[f] == null) { continue; }
+                        if (zero === "all") {
+                            const st = tileHas.get(f) ?? new Set<number>();
+                            st.add(ti); tileHas.set(f, st);
+                        } else {
+                            const cm = catHas.get(p.cat) ?? new Map<F, Set<number>>();
+                            const st = cm.get(f) ?? new Set<number>();
+                            st.add(ti); cm.set(f, st); catHas.set(p.cat, cm);
+                        }
+                    }
+                }
             }
             local.forEach((kids, key) => {
                 let tp = kids[0];
@@ -12065,33 +12150,47 @@ export class Visual implements IVisual {
                     const ts = this.sumTrendSeries(kids);
                     if (ts) { tp.trendSeries = ts.series; tp.trendRef = ts.ref; }
                 }
-                (byKey.get(key) as DataPoint[]).push(tp);
+                (byKey.get(key) as { t: number; p: DataPoint }[]).push({ t: ti, p: tp });
             });
-        }
-        const b2 = (p: DataPoint) => this.basis2Mode === "plan" ? p.pl : p.py;
+        });
+        const eligible = (cat: string, f: F): Set<number> | null => zero === "all" ? (tileHas.get(f) ?? new Set<number>())
+            : zero === "series" ? (catHas.get(cat)?.get(f) ?? new Set<number>()) : null;
+        const b2f: F = this.basis2Mode === "plan" ? "pl" : "py";
         const pts = order.map(key => {
-            const tiles = byKey.get(key) as DataPoint[];
-            const mean = (get: (p: DataPoint) => number | null): number | null => {
+            const entries = byKey.get(key) as { t: number; p: DataPoint }[];
+            const tiles = entries.map(e => e.p);
+            const cat = tiles[0].cat;
+            const mean = (f: F): number | null => {
                 let acc = 0, n = 0;
-                for (const t of tiles) { const v = get(t); if (v != null) { acc += v; n++; } }
-                return n > 0 ? acc / n : null;
+                for (const t of tiles) { const v = t[f]; if (v != null) { acc += v; n++; } }
+                if (n === 0) { return null; }
+                const el = eligible(cat, f);
+                return acc / (el ? Math.max(n, el.size) : n);
             };
-            const pairs = (get: (p: DataPoint) => number | null): { d: number; b: number } | null => {
+            const pairs = (f: F): { d: number; b: number } | null => {
                 let d = 0, b = 0, n = 0;
                 for (const t of tiles) {
-                    const bv = get(t);
+                    const bv = t[f];
                     if (t.value != null && bv != null) { d += t.value - bv; b += bv; n++; }
                 }
-                return n > 0 ? { d: d / n, b: b / n } : null;
+                if (n === 0) { return null; }
+                const ev = eligible(cat, "value"), eb = eligible(cat, f);
+                if (ev && eb) {
+                    // tiles eligible for both fields count, without the key as 0 / 0
+                    let both = 0;
+                    ev.forEach(ti => { if (eb.has(ti)) { both++; } });
+                    n = Math.max(n, both);
+                }
+                return { d: d / n, b: b / n };
             };
-            const agg = this.aggregateHierarchy(tiles[0].cat, tiles);
-            agg.ac = mean(p => p.ac); agg.py = mean(p => p.py); agg.pl = mean(p => p.pl);
-            agg.fc = mean(p => p.fc); agg.value = mean(p => p.value); agg.basis = mean(p => p.basis);
-            agg.fcPrev = mean(p => p.fcPrev); agg.bm = mean(p => p.bm);
-            const v1 = pairs(p => p.basis);
+            const agg = this.aggregateHierarchy(cat, tiles);
+            agg.ac = mean("ac"); agg.py = mean("py"); agg.pl = mean("pl");
+            agg.fc = mean("fc"); agg.value = mean("value"); agg.basis = mean("basis");
+            agg.fcPrev = mean("fcPrev"); agg.bm = mean("bm");
+            const v1 = pairs("basis");
             agg.varAbs = v1 ? v1.d : null;
             agg.varRel = v1 ? relVar(v1.d, v1.b) : null;
-            const v2 = pairs(b2);
+            const v2 = pairs(b2f);
             agg.var2Abs = v2 ? v2.d : null;
             agg.var2Rel = v2 ? relVar(v2.d, v2.b) : null;
             agg.group = name;
@@ -16039,6 +16138,10 @@ export class Visual implements IVisual {
         // waterfall-bridge: an extra panel alongside the normal AC/PY/PL comparison bars,
         // showing the same categories cascading from the basis total to AC with connectors
         const wfStyle = cascade != null;
+        // 1.55 (B13 review, M4): plan-only periods (no AC/FC, PL outline) carry their
+        // plan value as label, like the AC columns (sheet 13A: "79" in 2028)
+        const plOnly = (p: DataPoint): boolean => !cfg.lineMode && p.value == null && p.pl != null;
+        const labelLevel = (p: DataPoint): number | null => p.value ?? (plOnly(p) ? p.pl : null);
 
         // compact mode: too little room for variance panels → deltas become labels
         const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
@@ -16100,7 +16203,8 @@ export class Visual implements IVisual {
         // visual's edge with the old font-based pad) — never less than before
         const valueTexts0 = (cfg.sumSafe && !cfg.cumulative
             ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
-            : points.map(p => p.value)).map(v => v != null ? cfg.fmt.format(v) : "");
+            : points.map(p => p.value)).map((v, i) => v != null ? cfg.fmt.format(v)
+                : plOnly(points[i]) ? cfg.fmt.format(points[i].pl as number) : "");
         const barPad = (base: number, texts: string[], vals: (number | null)[], extra: number): number | PanelPad => {
             if (orientation === "columns" || !cfg.showLabels) { return base; }
             let lo = 0, hi = 0;
@@ -16113,7 +16217,7 @@ export class Visual implements IVisual {
             return { lo: Math.max(base + 4, lo), hi: Math.max(base + 24, hi) };
         };
         const rPin = 4.5; // upper bound of the Δ% pin head radius
-        const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(p => p.value), 0);
+        const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(labelLevel), 0);
         const absPadB = barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
             points.map(p => p.varAbs), 0);
         const relPadB = barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
@@ -16194,13 +16298,14 @@ export class Visual implements IVisual {
         const labelVals = cfg.sumSafe && !cfg.cumulative
             ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
             : points.map(p => p.value);
-        const valueTexts = labelVals.map(v => v != null ? cfg.fmt.format(v) : "");
+        const valueTexts = labelVals.map((v, i) => v != null ? cfg.fmt.format(v)
+            : plOnly(points[i]) ? cfg.fmt.format(points[i].pl as number) : "");
         const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
         // "n.a." texts for a basis ≤ 0 (UN 4.1) take part in the label thinning too
         const relTexts = points.map(p => this.relText(p));
         const abs2Texts = points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : "");
         const rel2Texts = points.map(p => this.relText(p, true));
-        const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation);
+        const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation, labelLevel);
         const showAbsAt = this.labelPredicate(points, absTexts, cfg.labelFont, step, orientation, p => p.varAbs);
         const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation, p => p.varRel);
         const showAbs2At = this.labelPredicate(points, abs2Texts, cfg.labelFont, step, orientation, p => p.var2Abs);
@@ -16284,19 +16389,22 @@ export class Visual implements IVisual {
             }
         };
         baseline(panels.main, mainScale, "ac");
-        const compactVarHint = compact && (cfg.showAbs || cfg.showRel)
+        // B13 review (m4): the reference tile under the Ø basis has no Δ — its panels
+        // keep their room (same scale in every tile) but get no title, axis or hint
+        const noDelta = this.refTileNoDelta;
+        const compactVarHint = compact && (cfg.showAbs || cfg.showRel) && !noDelta
             ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
         const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
         this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
             orientation, titleH, region, barsTitleY, cfg.subtle);
         // magnified Δ panels say so: "×f" in the title (IBCS CH 4.5) …
         const zoomTag = zoom > 1 ? ` ×${zoom}` : "";
-        if (panels.abs && absScale) {
+        if (panels.abs && absScale && !noDelta) {
             // 1.55 (B13): the Ø is no scenario, its Δ axis is a plain line
             baseline(panels.abs, absScale, cfg.basisAvg ? "ac" : cfg.basisMode);
             this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}${zoomTag}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
-        if (panels.rel && relScale) {
+        if (panels.rel && relScale && !noDelta) {
             baseline(panels.rel, relScale, cfg.basisAvg ? "ac" : cfg.basisMode);
             this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
@@ -16308,7 +16416,7 @@ export class Visual implements IVisual {
             this.drawPanelTitle(bg, panels.abs2, `Δ${cfg.basis2Label}${zoomTag}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         // … and a scale band at the same value in the base and the Δ panel(s) (CH 4.3)
-        if (zoom > 1 && panels.abs && absScale) {
+        if (zoom > 1 && panels.abs && absScale && !noDelta) {
             const tiers = [{ rect: panels.abs, scale: absScale }];
             if (panels.abs2 && abs2Scale) { tiers.push({ rect: panels.abs2, scale: abs2Scale }); }
             this.drawScaleBands(bg, cfg, orientation, bandStart, bandEnd, zoom, domains.abs, mainScale, tiers);
@@ -16322,8 +16430,8 @@ export class Visual implements IVisual {
         if (year && yr && yearScale) {
             const x0 = yr.x0, x1 = yr.x0 + yr.w;
             this.drawBaseline(bg, panels.main, yearScale, orientation, x0, x1, "ac", cfg.colors);
-            if (panels.abs && absScale) { this.drawBaseline(bg, panels.abs, absScale, orientation, x0, x1, cfg.basisMode, cfg.colors); }
-            if (panels.rel && relScale) { this.drawBaseline(bg, panels.rel, relScale, orientation, x0, x1, cfg.basisMode, cfg.colors); }
+            if (panels.abs && absScale && !noDelta) { this.drawBaseline(bg, panels.abs, absScale, orientation, x0, x1, cfg.basisAvg ? "ac" : cfg.basisMode, cfg.colors); }
+            if (panels.rel && relScale && !noDelta) { this.drawBaseline(bg, panels.rel, relScale, orientation, x0, x1, cfg.basisAvg ? "ac" : cfg.basisMode, cfg.colors); }
             if (panels.abs2 && abs2Scale) { this.drawBaseline(bg, panels.abs2, abs2Scale, orientation, x0, x1, basis2Mode, cfg.colors); }
             if (panels.rel2 && rel2Scale) { this.drawBaseline(bg, panels.rel2, rel2Scale, orientation, x0, x1, basis2Mode, cfg.colors); }
             if (yearF !== 1) {
@@ -16590,6 +16698,27 @@ export class Visual implements IVisual {
                             orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
                     }
                 }
+            } else if (plOnly(p) && cfg.showLabels && showValueAt(i)) {
+                // 1.55 (B13 review, M4): plan-only period, label over the PL outline
+                const plv = p.pl as number;
+                const cand = [plv];
+                if (p.py != null) { cand.push(p.py); }
+                if (p.bm != null) { cand.push(p.bm); }
+                const anchor = capV(plv >= 0 ? Math.max(...cand) : Math.min(...cand));
+                const pcx = pos + plShift + barW / 2;
+                this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
+                    orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
+                if (compact && p.varAbs != null) {
+                    const good = cfg.isGood(p.varAbs, p);
+                    const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
+                        ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                    const vText = p.varRel != null ? relTexts[i] : absTexts[i];
+                    const gap = orientation === "columns"
+                        ? cfg.labelFont + 2
+                        : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
+                    this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
+                        orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
+                }
             }
 
             // waterfall-bridge brick: cascades from the running basis level to this
@@ -16749,7 +16878,9 @@ export class Visual implements IVisual {
             const firstAc = points.findIndex(p => p.value != null && !p.isFc);
             const firstFc = points.findIndex(p => p.value != null && p.isFc);
             const yS = region.y + region.h - 3;
-            const scenAt: [number, string][] = [[firstAc, cfg.scenL.ac], [firstFc, cfg.scenL.fc]];
+            // 1.55 (B13 review, M4): "PL" at the first plan-only period (sheet 13A)
+            const firstPl = points.findIndex(p => plOnly(p));
+            const scenAt: [number, string][] = [[firstAc, cfg.scenL.ac], [firstFc, cfg.scenL.fc], [firstPl, cfg.scenL.pl]];
             for (const [i, label] of scenAt) {
                 if (i < 0) { continue; }
                 const t = this.el("text", {
@@ -16757,6 +16888,16 @@ export class Visual implements IVisual {
                     fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label"
                 }, bg);
                 t.textContent = label;
+            }
+            // AC | PL separator under the axis when the plan-only periods form the tail
+            // (thin solid line through the category and scenario rows, sheet 13A)
+            if (firstPl > 0 && points.slice(firstPl).every(p => p.value == null)
+                && points.slice(0, firstPl).some(p => p.value != null)) {
+                const x = bandStart + firstPl * step;
+                this.el("line", {
+                    x1: x, y1: panels.main.y + panels.main.h, x2: x, y2: region.y + region.h,
+                    stroke: cfg.ink, "stroke-width": 1, "data-icd": "pl-boundary"
+                }, bg);
             }
         }
 
@@ -17296,7 +17437,8 @@ export class Visual implements IVisual {
      * driver — e.g. "ΔPL +171K€ (+1,4%) · stärkster Treiber: Jul (+55K€) · schwächster: Feb (−39K€)"
      */
     private buildAutoMessage(points: DataPoint[], cfg: ChartConfig): string {
-        const withVar = points.filter(p => p.varAbs != null);
+        // 1.55 (B13 review, M2): plan-against-plan Δ (Ø basis) is no AC variance
+        const withVar = points.filter(p => p.varAbs != null && !p.varPlan);
         if (withVar.length === 0) { return ""; }
         let sumVar = 0, sumBasis = 0;
         if (cfg.cumulative) {
@@ -17709,7 +17851,8 @@ export class Visual implements IVisual {
         // second basis (dual variance): its own pairs, like with like
         const b2 = (p: DataPoint) => this.basis2Mode === "plan" ? p.pl : p.py;
         const pairs2 = use.filter(p => b2(p) != null);
-        if (pairs2.length === 0) {
+        // 1.55 (B13 review): against the Ø there is no second basis
+        if (pairs2.length === 0 || this.avgRows) {
             yp.var2Abs = null; yp.var2Rel = null;
         } else {
             const v2 = pairs2.reduce((a, p) => a + (p.value as number), 0);
@@ -17736,18 +17879,32 @@ export class Visual implements IVisual {
         const pl = sum(tail.map(p => p.pl));
         const fc = sum(tail.map(p => p.fc));
         const value = sum(tail.map(p => p.value));
-        const basis = sum(tail.map(p => p.basis));
-        const varAbs = (value != null && basis != null) ? value - basis : null;
-        const varRel = relVar(varAbs, basis);
+        let basis = sum(tail.map(p => p.basis));
+        let varAbs = (value != null && basis != null) ? value - basis : null;
+        let varRel = relVar(varAbs, basis);
         const basis2Sum = this.basis2Mode === "plan" ? pl : py;
-        const var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
-        const var2Rel = relVar(var2Abs, basis2Sum);
+        let var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
+        let var2Rel = relVar(var2Abs, basis2Sum);
+        let varPlan = false;
+        if (this.avgRows) {
+            // 1.55 (B13 review, M1): against the Ø the basis is the sum of the members'
+            // Ø of the same level (members with a value, else plan-only members), so
+            // ΔØ of the collector row = Σ of the members' ΔØ; no second basis
+            const useV = value != null;
+            const lv = useV ? value : pl;
+            basis = sum(tail.filter(p => (useV ? p.value != null : p.pl != null)).map(p => p.basis));
+            varAbs = lv != null && basis != null ? lv - basis : null;
+            varRel = relVar(varAbs, basis);
+            var2Abs = null; var2Rel = null;
+            varPlan = !useV && varAbs != null;
+        }
         return {
             cat,
             catLevels: null,
             dim: tail.length > 0 && tail.every(p => p.dim),
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
+            ...(varPlan ? { varPlan } : {}),
             bm: sum(tail.map(p => p.bm)),
             fcPrev: sum(tail.map(p => p.fcPrev)),
             lineVal: null, stackSeries: null,
@@ -18220,18 +18377,21 @@ export class Visual implements IVisual {
         let sum = 0, sumVar = 0, sumBasis = 0, any = false, anyVar = false;
         for (const p of points) {
             if (p.value != null) { any = true; }
-            if (p.varAbs != null && p.basis != null) { anyVar = true; }
+            // 1.55 (B13 review, M2): the Σ sums AC/FC — plan-against-plan Δ (Ø basis in
+            // plan-only periods) stays out of ΔΣ and of its basis
+            const hasVar = p.varAbs != null && p.basis != null && !p.varPlan;
+            if (hasVar) { anyVar = true; }
             if (cfg.cumulative) {
                 // cumulated points already carry running totals — take the last ones
                 if (p.value != null) { sum = p.value; }
-                if (p.varAbs != null && p.basis != null) { sumVar = p.varAbs; sumBasis = p.basis; }
+                if (hasVar) { sumVar = p.varAbs as number; sumBasis = p.basis as number; }
             } else {
                 if (p.value != null) { sum += p.value; }
-                if (p.varAbs != null && p.basis != null) {
-                    sumVar += p.varAbs;
+                if (hasVar) {
+                    sumVar += p.varAbs as number;
                     // signed: the Σ% is Δ over the NET basis — summing |basis| gave a
                     // percentage of nothing for result series crossing zero
-                    sumBasis += p.basis;
+                    sumBasis += p.basis as number;
                 }
             }
         }

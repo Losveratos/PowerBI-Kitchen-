@@ -4488,6 +4488,219 @@ addStage("c514", "Balken · drei Regionen gegen den Ø (Struktur)", 960, 420);
 }
 
 // ======================================================================
+// 1.55 · B13 Review-Fixes (c520+): Ø vor Ausnahmefilter und Top N (M1), Σ-Kopf ohne
+// Plan-Δ (M2), fehlendes Stapelsegment / fehlende Kategorie zählt 0 (M3), reine
+// Planperioden mit Wert und „PL“ (M4), m1 bis m7, Zoom-Schlüssel, „(+n more)“.
+// Kontrollwerte von Hand gerechnet.
+// ======================================================================
+const rvBars = (regs, cats, chart) => {
+  const c = [], m = [], a = [];
+  regs.forEach(([r, v]) => cats.forEach((k, i) => { if (v[i] !== undefined) { c.push(k); m.push(r); a.push(v[i]); } }));
+  return dataView(c, [col("actual", a, "#,0")], { chart: Object.assign({ orientation: "bars" }, chart) }, m);
+};
+const rvProds = ["P1", "P2", "P3", "P4", "P5"];
+const rvReg3 = [["Nord", [50, 40, 30, 20, 10]], ["Süd", [10, 20, 30, 40, 50]], ["West", [30, 30, 30, 30, 30]]];
+// "P1, 50, ΔØ +20" → ["P1", "50", 20]
+const rvRows = (id, key) => avgCats(id, key).map(g => {
+  const parts = (g.getAttribute("aria-label") || "").split(", ");
+  return [parts[0], parts[1], avgDelta(g)];
+});
+const rvFmt = rows => rows.map(r => `${r[0]} ${r[2]}`).join(" · ");
+// stacked small multiples: [region, { series: [values per year] }]
+const rvStackDv = (regs, years, chart) => {
+  const c = [], m = [], sr = [], a = [];
+  regs.forEach(([r, o]) => Object.keys(o).forEach(k => years.forEach((y, i) => { c.push(y); m.push(r); sr.push(k); a.push(o[k][i]); })));
+  return { metadata: { columns: [], objects: { chart } }, categorical: { categories: [
+    { source: { displayName: "Jahr", roles: { category: true } }, values: c }, { source: { displayName: "Produkt", roles: { series: true } }, values: sr },
+    { source: { displayName: "Region", roles: { multiples: true } }, values: m }], values: [col("actual", a, "#,0")] } };
+};
+
+// ---- c520: M1 · Top N je Kachel mit Basis Ø: Ø aus allen Produkten, Sammelzeile gegen die Summe ihrer Ø
+addStage("c520", "Review M1 · Balken, Top 2 je Kachel, Basis Ø: ΔØ gegen den wahren Ø, „Other (3)“ gegen Σ der Ø", 960, 420);
+{
+  runCap("c520", rvBars(rvReg3, rvProds, { multiplesBasis: "avg", topN: 2, showAbsoluteVariance: true, showRelativeVariance: false }), 960, 420);
+  nbSane("c520");
+  // Ø je Produkt 30 · Nord P1 50 − 30 = +20, P2 +10, Other (P3 bis P5 = 60) − 90 = −30
+  const n = rvRows("c520", "Nord"), s = rvRows("c520", "Süd"), w = rvRows("c520", "West");
+  check(rvFmt(n) === "P1 20 · P2 10 · Other (3) -30", `c520: Nord ${rvFmt(n)}`);
+  check(rvFmt(s) === "P5 20 · P4 10 · Other (3) -30", `c520: Süd gegen den Ø aller Kacheln, nicht gegen sich selbst (${rvFmt(s)})`);
+  check(rvFmt(w) === "P1 0 · P2 0 · Other (3) 0", `c520: West ${rvFmt(w)}`);
+  check([n, s, w].every(t => t.reduce((a, r) => a + r[2], 0) === t.reduce((a, r) => a + Number(r[1]), 0) - 150),
+    "c520: je Kachel Σ ΔØ = Σ Werte − Σ Ø (linear)");
+}
+
+// ---- c521: M1 · Ausnahmefilter bewertet ΔØ, nicht den Szenario-Δ
+addStage("c521", "Review M1 · Balken, nur Auffälliges (|ΔØ| ≥ 15), Basis Ø", 960, 420);
+{
+  runCap("c521", rvBars(rvReg3, rvProds, { multiplesBasis: "avg", materialityAbs: 15, exceptionOnly: true, showAbsoluteVariance: true, showRelativeVariance: false }), 960, 420);
+  nbSane("c521");
+  const n = rvFmt(rvRows("c521", "Nord")), w = rvFmt(rvRows("c521", "West"));
+  check(n === "P1 20 · P5 -20 · Immaterial (3) 0", `c521: Nord behält P1 und P5 (|ΔØ| 20), Rest ΔØ 0 (${n})`);
+  check(w === "Immaterial (5) 0", `c521: West ganz unauffällig (${w})`);
+}
+
+// ---- c522: M2 · Σ-Kopf summiert nur AC-Δ, Plan gegen Plan bleibt draußen
+addStage("c522", "Review M2 · Basis Ø mit Σ-Kopf: ΔØ und % nur über die Ist-Jahre", 1100, 520);
+{
+  runCap("c522", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: true, showTotal: true }), 1100, 520);
+  nbSane("c522");
+  const head = k => avgTexts("c522", k).find(t => t.startsWith("Σ")) || "";
+  // A: Σ AC 100 gegen Σ Ø 180 → −80 (−44,4 %) · C: 260 gegen 180 → +80 · B: 120 gegen 120 (2023 bis 2025)
+  check(/^Σ 100\s+ΔØ −80 · −44,4%$/.test(head("A")), `c522: A „${head("A")}“`);
+  check(/^Σ 260\s+ΔØ \+80 · \+44,4%$/.test(head("C")), `c522: C „${head("C")}“`);
+  check(/^Σ 120\s+ΔØ 0 /.test(head("B")), `c522: B ohne fehlendes Jahr „${head("B")}“`);
+}
+
+// ---- c523: M3 · Stapel: fehlende Serie zählt 0 (Ø-Stapel = Ø der Stapelsummen)
+addStage("c523", "Review M3 · Stapel mit Ø-Kachel, Serie Y nur in Nord", 960, 420);
+{
+  runCap("c523", rvStackDv([["Nord", { X: [10, 20], Y: [30, 40] }], ["Süd", { X: [20, 40] }], ["West", { X: [30, 60] }]], ["2025", "2026"],
+    { multiplesTotal: true, multiplesAgg: "mean" }), 960, 420);
+  nbSane("c523");
+  // X 20 / 40 · Y 30/3 = 10, 40/3 = 13,3 → Stapel 30 / 53,3 (Kacheln 40/60, 20/40, 30/60)
+  const v = avgVals("c523", "total").map(x => x.join(" ")).join(" · ");
+  check(v === "2025 20 · 2025 10 · 2026 40 · 2026 13", `c523: Ø-Stapel X 20/40, Y 10/13 (${v})`);
+}
+
+// ---- c524: M3 · Strukturachse (Balken): fehlendes Produkt zählt 0
+addStage("c524", "Review M3 · Balken mit Ø-Kachel und Basis Ø, P5 fehlt in West", 960, 420);
+{
+  runCap("c524", rvBars([["Nord", [50, 40, 30, 20, 10]], ["Süd", [10, 20, 30, 40, 50]], ["West", [30, 30, 30, 30]]], rvProds,
+    { multiplesBasis: "avg", multiplesTotal: true, multiplesAgg: "mean", showAbsoluteVariance: true, showRelativeVariance: false }), 960, 420);
+  nbSane("c524");
+  // Ø P5 = (10 + 50 + 0) / 3 = 20 → Nord −10, Süd +30 (West implizit −20, Summe 0)
+  const t = avgVals("c524", "total").find(x => x[0] === "P5");
+  const p5 = k => (rvRows("c524", k).find(r => r[0] === "P5") || [])[2];
+  check(t && t[1] === "20" && p5("Nord") === -10 && p5("Süd") === 30, `c524: Ø P5 = 20, Nord ${p5("Nord")}, Süd ${p5("Süd")}`);
+}
+
+// ---- c525: M4 · reine Planjahre mit Wert und „PL“ in der Szenariozeile (auch ohne Small Multiples)
+addStage("c525", "Review M4 · Ist bis 2025, Plan 2026 bis 2028 mit Wertlabel, Szenarien AC | PL", 960, 380);
+addStage("c525b", "Dasselbe ohne Szenariozeile: Planwerte beschriftet, kein Trennstrich", 960, 380);
+{
+  const yrs = ["2023", "2024", "2025", "2026", "2027", "2028"];
+  const dv = sc => dataView(yrs, [col("actual", [50, 60, 70, null, null, null], "#,0"), col("plan", [55, 58, 72, 80, 85, 91], "#,0")],
+    { chart: { scenarioLabels: sc, showAbsoluteVariance: false, showRelativeVariance: false } });
+  runCap("c525", dv(true), 960, 380);
+  runCap("c525b", dv(false), 960, 380);
+  nbSane("c525");
+  const lab = (id, y) => { const g = nbQ(id, "g.icd-cat").find(x => { const a = x.getAttribute("aria-label") || ""; return a === y || a.startsWith(y + ","); });
+    return g ? [...g.querySelectorAll("text")].map(t => t.textContent.trim()) : []; };
+  check(["2026", "2027", "2028"].every((y, i) => lab("c525", y).includes(["80", "85", "91"][i])), "c525: Planwerte 80, 85, 91 über den Umrissen");
+  const sc = nbQ("c525", '[data-icd="scen-label"]').map(t => t.textContent);
+  check(sc.join(" ") === "AC PL", `c525: Szenariozeile „AC“ und „PL“ (${sc.join(" ")})`);
+  const sep = nbQ("c525", '[data-icd="pl-boundary"]');
+  const plT = nbQ("c525", '[data-icd="scen-label"]').find(t => t.textContent === "PL");
+  check(sep.length === 1 && !!plT && nbAttr(sep[0], "x1") < nbAttr(plT, "x") && nbAttr(sep[0], "y2") > nbAttr(sep[0], "y1"),
+    "c525: ein Trennstrich AC | PL vor dem ersten Planjahr, unter der Achse");
+  check(["2026", "2027", "2028"].every((y, i) => lab("c525b", y).includes(["80", "85", "91"][i]))
+    && nbQ("c525b", '[data-icd="pl-boundary"]').length === 0 && nbQ("c525b", '[data-icd="scen-label"]').length === 0,
+    "c525b: Werte ja, Trennstrich und Szenariozeile nur mit „Szenario-Beschriftung“");
+}
+
+// ---- c526: m1 · YTD + Ø-Kachel + ungleiche Abdeckung: Ø-Kachel = Ø der kumulierten Gruppen
+addStage("c526", "Review m1 · YTD, Ø-Kachel und Basis Ø, B ohne 2026: Kachel und ΔØ nutzen denselben Ø", 960, 520);
+{
+  runCap("c526", avgDv([["A", [10, 20, 30, 40], [50, 60]], ["B", [50, 40, 60, null], [90, 30]], ["C", [30, 60, 90, 80], [70, 90]]],
+    { multiplesAgg: "mean", multiplesBasis: "avg", cumulative: true, showAbsoluteVariance: true, showRelativeVariance: false, showTotal: false }), 960, 520);
+  nbSane("c526");
+  // kumuliert A 10 30 60 100 · B 50 90 150 (fehlt) · C 30 90 180 260 → Ø 30 70 130 180 (2026 über A und C)
+  const t = avgVals("c526", "total").slice(0, 4).map(v => v[1]).join(" ");
+  check(t === "30 70 130 180", `c526: Ø-Kachel = Ø der YTD-Werte (${t})`);
+  const ok = ["A", "C"].every(k => rvRows("c526", k).slice(0, 4).every((r, i) => Number(r[1]) - r[2] === [30, 70, 130, 180][i]));
+  check(ok, "c526: Wert − ΔØ = Wert der Ø-Kachel in jedem Ist-Jahr");
+}
+
+// ---- c527: m2 · summierte Rest-Kachel mit gemischten AC/PL-Mitgliedern
+addStage("c527", "Review m2 · Top 2 + summierte Rest-Kachel, R4 2026 nur Plan: Rest vergleicht mit dem Ø seiner Ist-Mitglieder", 960, 420);
+{
+  const five = [["R1", [100, 120], [130]], ["R2", [80, 90], [95]], ["R3", [30, 60], [70]], ["R4", [20, null], [30]], ["R5", [10, 30], [40]]];
+  const yrs = ["2025", "2026", "2027"]; const c = [], m = [], a = [], p = [];
+  five.forEach(([r, av, pv]) => yrs.forEach((y, i) => { c.push(y); m.push(r); a.push(i < 2 ? av[i] : null); p.push(i === 2 ? pv[0] : (r === "R4" && i === 1 ? 25 : null)); }));
+  runCap("c527", dataView(c, [col("actual", a, "#,0"), col("plan", p, "#,0")], { chart: { multiplesTopN: 2, multiplesBasis: "avg",
+    showAbsoluteVariance: true, showRelativeVariance: false, showTotal: false } }, m), 960, 420);
+  nbSane("c527");
+  // Ø 2025 48 → 60 − 3 × 48 = −84 · 2026 Ø (120+90+60+25+30)/5 = 65, Rest-Ist 60+30 = 90 − 2 × 65 = −40
+  // · 2027 Ø PL 73 → 140 − 3 × 73 = −79
+  const r = avgCats("c527", "rest").map(avgDelta).join(" ");
+  check(r === "-84 -40 -79", `c527: Rest-Kachel ΔØ (${r})`);
+}
+
+// ---- c528: m3 · kleine ganze Zahlen gegen gebrochenen Ø: keine „+0“/„−0“
+addStage("c528", "Review m3 · ganzzahlige Daten, Ø gebrochen, |ΔØ| < 10: ΔØ mit Nachkommastelle", 960, 520);
+{
+  runCap("c528", avgDv([["A", [1, 2], []], ["B", [2, 2], []], ["C", [2, 3], []]], { multiplesAgg: "mean", multiplesBasis: "avg",
+    showAbsoluteVariance: true, showRelativeVariance: false, showTotal: false }, { years: ["2025", "2026"] }), 960, 520);
+  nbSane("c528");
+  const t = nbTexts("c528");
+  check(!t.some(x => /^[+−-]0$/.test(x)) && t.includes("−0,7") && t.includes("+0,7"), "c528: ΔØ −0,7 bis +0,7 statt „−0“/„+0“");
+}
+
+// ---- c529: m6 · Stapel + Ø zuletzt + 30 Gruppen: Skala nur aus den gezeichneten Kacheln
+addStage("c529", "Review m6 · gestapelte Säulen, 30 Gruppen, Ø-Kachel zuletzt; G24 (nicht gezeichnet) ist groß", 1280, 900);
+{
+  const regs = Array.from({ length: 30 }, (_, gi) => ["G" + (gi + 1),
+    { X: gi === 23 ? [3000, 3000] : [10 + gi, 15 + gi], Y: gi === 23 ? [3000, 3000] : [10 + gi, 15 + gi] }]);
+  runCap("c529", rvStackDv(regs, ["2025", "2026"], { multiplesTotal: true, multiplesAgg: "mean", multiplesTotalPos: "last" }), 1280, 900);
+  nbSane("c529");
+  const tiles = avgTiles("c529");
+  check(tiles.length === 24 && tiles[23].getAttribute("data-kind") === "total" && !tiles.some(t => t.getAttribute("data-group") === "G24"),
+    `c529: 23 Gruppen + Ø-Kachel gezeichnet, G24 nicht (${tiles.length})`);
+  // Ø-Stapel ≈ 2 × (3000 + Σ der übrigen) / 30 ≈ 250 → größter gezeichneter Stapel; er füllt einen guten Teil der Kachel
+  const tot = tiles[23];
+  const rects = avgCats("c529", "total").flatMap(g => [...g.querySelectorAll("rect")])
+    .filter(r => r.getAttribute("fill-opacity") !== "0" && nbAttr(r, "height") > 0);
+  const hMax = rects.length ? Math.max(...rects.map(nbBottom)) - Math.min(...rects.map(r => nbAttr(r, "y"))) : 0;
+  check(hMax > 0.25 * +tot.getAttribute("data-h"), `c529: Skala aus den gezeichneten Kacheln, Ø-Stapel nicht gestaucht (${hMax.toFixed(0)} px von ${tot.getAttribute("data-h")})`);
+}
+
+// ---- c530: m4 · Bezugskachel unter Basis Ø ohne leere ΔØ-Titel, kompakt ohne „· ΔØ %“
+addStage("c530", "Review m4 · Ø-Kachel ohne ΔØ-Panel-Titel (Platz bleibt, gleiche Skala)", 960, 520);
+addStage("c530c", "Review m4 · kompakte Kacheln: Hinweis „· ΔØ %“ nur bei den Regionen", 960, 300);
+{
+  runCap("c530", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: true, showTotal: false }), 960, 520);
+  runCap("c530c", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: true, showTotal: false }), 960, 300);
+  nbSane("c530");
+  const t = nbTexts("c530");
+  check(t.filter(x => x === "ΔØ").length === 3 && t.filter(x => x === "ΔØ %").length === 3 && !avgTexts("c530", "total").some(x => /ΔØ/.test(x)),
+    "c530: ΔØ- und ΔØ-%-Titel nur in A, B, C");
+  const head = k => avgTexts("c530c", k).find(x => /^AC · PL/.test(x)) || "";
+  check(/ΔØ %/.test(head("A")) && head("total") !== "" && !/ΔØ/.test(head("total")), `c530c: kompakt „${head("A")}“, Ø-Kachel „${head("total")}“`);
+}
+
+// ---- c531: Zoom findet die Rest-Kachel über ihre Art, nicht über den Namen; „(+n more)“ lokalisiert
+addStage("c531", "Review Nit · Rest-Kachel heißt wie eine Gruppe („R1“): Zoom öffnet die Rest-Kachel", 960, 420);
+addStage("c531m", "Review Nit · 30 Gruppen + Σ zuletzt: Hinweis „(+n more)“ über die Lokalisierung", 1280, 900);
+{
+  runCap("c531", avgDv([["R1", [100, 120], []], ["R2", [80, 90], []], ["R3", [30, 60], []], ["R4", [20, 30], []]],
+    { multiplesTopN: 2, multiplesRestLabel: "R1", showAbsoluteVariance: false, showRelativeVariance: false, showTotal: false }, { years: ["2025", "2026"] }), 960, 420);
+  const hdr = nbQ("c531", 'g[role="button"]').filter(b => /^R1 /.test(b.getAttribute("aria-label") || ""));
+  check(hdr.length === 2, `c531: zwei Kacheln „R1“ (${hdr.length})`);
+  if (hdr.length === 2) { hdr[1].dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+  const vals = nbQ("c531", "g.icd-cat").map(g => g.getAttribute("aria-label").split(", ")[1]).join(" ");
+  check(nbTexts("c531").includes("← Alle Gruppen") && vals === "50 90", `c531: Zoom zeigt die Rest-Kachel 50 / 90 (${vals})`);
+  const many = Array.from({ length: 30 }, (_, i) => ["G" + (i + 1), [10 + i, 20 + i], []]);
+  runCap("c531m", avgDv(many, { multiplesTotalPos: "last", showAbsoluteVariance: false, showRelativeVariance: false, showTotal: false }, { years: ["2025", "2026"] }), 1280, 900);
+  const more = nbTexts("c531m").find(x => /\(\+\d+ more\)/.test(x)) || "";
+  check(/^G23\s+\(\+7 more\)$/.test(more) && !nbTexts("c531m").some(x => /weitere/.test(x)), `c531m: „${more}“ an der letzten Gruppe`);
+}
+
+// ---- c532: m7 · Formatbereich: Abweichungsbasis nur, wo sie wirkt (nicht bei Stapeln und Brücke)
+addStage("c532", "Review m7 · Säulen mit Stapel-Serie: Option „Abweichungsbasis der Kacheln“ ausgeblendet", 480, 240);
+{
+  // the pane hides a slice by its visible flag (getFormattingModel sets it per update)
+  const has = r => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard.multiplesBasis.visible !== false; };
+  const rs = runCap("c532", rvStackDv([["A", { X: [10, 11], Y: [10, 11] }], ["B", { X: [10, 11], Y: [10, 11] }]], ["2025", "2026"],
+    { multiplesBasis: "avg" }), 480, 240);
+  const stacked = has(rs);
+  rs.upd(avgDv(avgABC, { multiplesBasis: "avg", waterfallStyle: true }));
+  const wf = has(rs);
+  rs.upd(avgDv(avgABC, { multiplesBasis: "avg" }));
+  const plain = has(rs);
+  check(!stacked && !wf && plain, `c532: Option sichtbar nur ohne Stapel und Brücke (Stapel ${stacked}, Brücke ${wf}, Säulen ${plain})`);
+}
+
+// ======================================================================
 // 1.55 · B12 Review-Fixes (c410+): Blasen bleiben im Visual (M1), ein Flag
 // „PY-Blasen gezeichnet“ (M2), Werte verschwinden nicht (M3), m1 bis m7.
 // ======================================================================

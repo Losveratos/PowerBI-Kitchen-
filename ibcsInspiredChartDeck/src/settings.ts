@@ -785,7 +785,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "multiplesAgg",
         displayName: "Reference and rest tile",
         displayNameKey: "Chart_MultiplesAgg",
-        description: "Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt. Der Durchschnitt teilt je Kategorie durch die Zahl der Kacheln mit Wert (leer zählt nicht als 0) und bleibt im Wertebereich der Kacheln, die gemeinsame Skala wird also nicht gestaucht. Bei Quoten (Marge in %) ist es ein ungewichteter Mittelwert.",
+        description: "Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt. Der Durchschnitt teilt je Kategorie durch die Zahl der Kacheln mit Wert (ein fehlender Zeitraum zählt nicht als 0; bei Balken zählt eine fehlende Kategorie, bei Stapeln ein fehlendes Segment als 0) und bleibt im Wertebereich der Kacheln, die gemeinsame Skala wird also nicht gestaucht. Bei Quoten (Marge in %) ist es ein ungewichteter Mittelwert.",
         descriptionKey: "Desc_Chart_MultiplesAgg",
         items: multiplesAggItems,
         value: multiplesAggItems[0]
