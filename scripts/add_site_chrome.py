@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Seiten, die NICHT angefasst werden (eigene Navigation, Verifizierung, Fragmente, Weiterleitungen)
 EXCLUDE_FILES = {
     "index.html",                      # Startseite: eigene Navigation
+    "folgen.html",                     # Folgen-Bibliothek (alte Startseite): eigene Navigation
     "daten_wg_learn_buckets.html",     # Arbeitskopie der Startseite
     "library/index.html",              # reine Weiterleitung auf wissensgraph/
     "koeln-raser/story_template.html", # Vorlage, keine Seite
