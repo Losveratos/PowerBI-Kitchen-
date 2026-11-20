@@ -84,7 +84,25 @@ an Bezugs- und Rest-Kachel, `data-x/y/w/h` = Zelle), `mult-ref-bg` (Hinterlegung
 `var-plan` (Plan-Δ-Balken und Pin-Kopf). Rezept 13A: `multiplesTotal` + `multiplesAgg=mean` + `multiplesTotalPos=last`
 + `multiplesTotalShade` + `multiplesTopN` + beide Titel + `scenarioLabels`, Δ-Panels aus. 13C zusätzlich
 `multiplesBasis=avg` und `showAbsoluteVariance` (zeigt heute noch die Säulen unter dem Δ-Panel; `varianceOnly` und
-die freie Hero-Kachel 13B folgen). Tests c500 bis c504, c510 bis c514. 797 resjson-Keys je Sprache.
+die freie Hero-Kachel 13B folgen). Tests c500 bis c504, c510 bis c514. 797 resjson-Keys je Sprache. Review-Stand: Ohne Kumulierung läuft der
+Ø-Durchlauf vor Ausnahmefilter und Top N je Kachel (Kumulierung: nach `cumulate`, dort sind beide aus);
+Sammelzeilen aus `aggregateTail` summieren unter `avgRows` die Basis der Mitglieder gleicher Ebene (mit Wert, sonst
+nur Plan) und rechnen Δ neu, ohne Δ2, `varPlan` bei reinen Planzeilen. Σ-Kopf (`drawTotalHeader`) und Kernaussage
+(`buildAutoMessage`) überspringen `varPlan`. `meanGroups(…, zero)`: `series` (Stapel) teilt durch die Kacheln mit
+der Kategorie, fehlendes Segment = 0; `all` (Balken) teilt durch die Kacheln mit dem Feld, fehlende Kategorie = 0;
+`none` (Säulen, Linie, Tabelle) wie bisher. Die Basis Ø nutzt bei Balken dieselbe Regel. Mit `cumulative` und
+`mean` entstehen Bezugs- und Rest-Kachel aus kumulierten Kopien (`preCum`, nicht noch einmal kumuliert).
+Summierte Rest-Kachel: Faktor = Zahl der versteckten Mitglieder derselben Ebene (Balken: alle mit Daten).
+Ganzzahlige ΔØ-Labels nur ab max |Δ| ≥ 10. Bezugskachel unter Basis Ø (`refTileNoDelta`): Δ-Panels ohne Titel,
+Achse, Skalenband, kompakt ohne Δ-Hinweis. Deckweite Skalen (Stapel, Brücken, Scatter, Achsenbruch) nutzen
+`shownGroups` (Zellgrenze samt zuletzt stehender Bezugskachel). `multiplesBasis` im Pane nur ohne Stack-Series
+und ohne `waterfallStyle` (Säulen/Balken). Zoom-Schlüssel: synthetische Kacheln über `kind` (Präfix U+0001 plus `total`
+bzw. `rest`), sonst Name; „(+n weitere)“ = `Label_MoreTiles` mit `{n}`. **Verhaltensänderung:** In
+`renderChartBody` tragen reine Planperioden (`value == null`, `pl != null`, nicht Linie) ihren Planwert als Label
+(Thinning mit `labelLevel`), mit `scenarioLabels` steht `scenL.pl` unter der ersten Planperiode und bei einem
+Plan-Ende ein Trennstrich `[data-icd="pl-boundary"]` (Achse bis Unterkante). Ø-ΔPY in der Ø-Kachel mittelt nur
+Paare (Kachel mit Wert und Vorjahr); Ø mischt AC, FC und Plan je Periode (`value ?? pl`). Tests c520 bis c532.
+800 resjson-Keys je Sprache.
 
 **Neu in 1.54 (Backlog IBCS-Templates, Abgleich 19.11.2026):**
 

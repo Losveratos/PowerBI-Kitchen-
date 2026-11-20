@@ -2,7 +2,7 @@
 
 ## 1.55.0.0 (in Arbeit)
 
-**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken) sind genannt.**
+**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken, Planwert an reinen Planperioden) sind genannt.**
 
 - **B10 · Stapel-Struktur (Blätter 01D, 01E, 02B, 02C, 02D, 02E).** Vorher: Stapel gab es nur mit Werten, die Seriennamen standen immer rechts, Balken ließen sich nicht nach Stapelsumme oder erster Serie ordnen, und es fehlte eine Σ-Zeile. Nachher:
   - **„Stapel-Skala“** (`chart.stackNormalize`, Auswahl „Werte“ | „100 % (Anteile)“, Standard Werte): gestapelte Säulen und Balken zeigen je Kategorie 100 %, die Beschriftungen sind Anteile mit einer Nachkommastelle, der Panel-Titel erhält den Zusatz „Anteile in %“. Die „100 %“-Marke steht bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken läuft eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile, mit „▲ 100 %“ darunter. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N). Eine Referenzlinie wird als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax` und `capOverflow` gelten für Anteile nicht.
@@ -69,10 +69,34 @@
     Durchschnitt der Pläne und stehen in Plan-Notation (Δ-Balken umrandet mit blasser Füllung, Pin hohl). Die
     Bezugskachel zeigt keine Abweichung, die doppelte Abweichung ist aus, eine summierte Rest-Kachel vergleicht
     mit n × Ø.
-  - Bestehende Stufen zeichnen SVG-identisch (alle 396 Harness-Stufen per Hash verglichen); die Marker
+  - Bestehende Stufen zeichneten SVG-identisch (alle 407 Harness-Stufen per Hash verglichen); die Marker
     `mult-tile`, `mult-ref-bg`, `mult-basis` und `var-plan` erscheinen nur mit gesetzter B13-Option. Noch nicht:
     nur das Abweichungs-Panel (`varianceOnly`, 13C und 13D vollständig), frei wählbare große Kachel (13B). Tests
     c500 bis c504 und c510 bis c514.
+  - **Nach dem Review:** Mit Basis Ø entsteht der Durchschnitt vor „Nur Auffälliges“ und vor Top N je Kachel:
+    Beide arbeiten mit ΔØ, der Ø kommt aus allen Kategorien, und eine Sammelzeile („Other (3)“, „Immaterial“)
+    vergleicht mit der Summe der Ø ihrer Mitglieder (vorher bekam z. B. die größte Kategorie einer Kachel den Ø
+    nur der Kacheln, in denen sie Top N war). Mit YTD bleibt die Reihenfolge, dort sind beide aus. Die
+    Summen-Kopfzeile nennt ΔØ und % nur über Ist und Forecast, Planjahre gegen den Plan-Ø zählen nicht mehr mit
+    (ebenso in der automatischen Kernaussage). Durchschnitt bei Stapeln: Ein fehlendes Segment zählt als 0,
+    geteilt wird durch die Kacheln mit dieser Kategorie (der Ø-Stapel ist der Durchschnitt der Stapelsummen und
+    nicht mehr höher als jede Kachel); bei Balken (Strukturachse) zählt eine Kachel ohne die Kategorie als 0,
+    auch für die Basis Ø; ein fehlender Zeitraum (Säulen, Linie) zählt weiter nicht. Mit YTD/QTD/R12 ist die
+    Ø-Kachel der Durchschnitt der kumulierten Gruppen, so passt sie zu ΔØ. Eine summierte Rest-Kachel mit
+    gemischten Ist- und Plan-Mitgliedern vergleicht nur mit dem Ø der Mitglieder, die sie summiert. ΔØ hat nur ab
+    einem Betrag von 10 ganzzahlige Labels, darunter Nachkommastellen statt „+0“/„−0“. Die Bezugskachel unter
+    Basis Ø zeichnet ihre leeren Δ-Panels ohne Titel und Achse, kompakt ohne „· ΔØ %“. Mit Stapeln, zuletzt
+    stehender Bezugskachel und mehr als 24 Gruppen zählen für die Skala genau die gezeichneten Kacheln. Die
+    Option „Abweichungsbasis der Kacheln“ ist bei Stapeln und Brücke ausgeblendet (sie wirkte dort nicht). Zoom
+    findet Bezugs- und Rest-Kachel über ihre Art, auch wenn ein Titel einem Gruppennamen gleicht; „(+n weitere)“
+    ist lokalisiert (`Label_MoreTiles`).
+  - **Verhaltensänderung (Review):** Reine Planperioden (kein Ist, kein Forecast, nur PL-Umriss) tragen jetzt
+    ihren Planwert als Beschriftung über dem Umriss, bei Säulen und Balken, auch ohne Small Multiples (Blatt 13A:
+    „79“ in 2028). Mit „Szenario-Kürzel“ steht zusätzlich „PL“ unter der ersten Planperiode und, wenn die
+    Planperioden am Ende stehen, ein dünner Trennstrich AC | PL unter der Achse. Betroffen sind Berichte mit
+    Planmonaten ohne Ist und ohne Forecast, z. B. Vorlage C03 mit Plan bis Dezember (Harness c124, c222 bis
+    c234) und Blatt-01B-Säulen mit Planjahren (c291). Die übrigen Bestandsstufen zeichnen SVG-identisch (441
+    Stufen per Hash verglichen). Tests c520 bis c532.
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 
