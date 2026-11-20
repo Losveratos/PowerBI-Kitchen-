@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Ein IBCS-inspiriertes Chart-Deck für Power BI: 14 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 14 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
+Version · **1.55.0.0** · Stand · **2026-11-20** · IBCS-inspired
 
 ## Inhalt
 

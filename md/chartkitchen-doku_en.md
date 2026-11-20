@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 An IBCS-inspired chart deck for Power BI: 14 chart modes in a single visual, with a consistent scenario notation (AC filled, PY grey, PL outlined, FC hatched) and variances built in throughout. This documentation takes you from import through the 14 modes and the key features to the complete settings reference.
 
-Version · **1.54.0.0** · As of · **2026-11-19** · IBCS-inspired
+Version · **1.55.0.0** · As of · **2026-11-20** · IBCS-inspired
 
 ## Contents
 
