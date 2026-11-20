@@ -443,6 +443,8 @@ interface TreeCard {
      * is not drawn — the first card sits between both edges
      */
     twin?: boolean;
+    /** 1.8.1 a shared operand: the edge of the upper parent enters above the card centre (−1), the lower one below (+1) */
+    twinOff?: number;
 }
 
 /** Everything the toolbar and the tree renderer need about the current graph. */
@@ -659,6 +661,9 @@ interface Fmt {
     /** 1.8 (B07) a factor KPI (capital turnover 1.3): the Δ% decimals, no unit */
     fac: (v: number | null, plus?: boolean) => string;
 }
+
+/** 1.8.1 the operator as the reader sees it: a ratio is ":" (IBCS sheets, ROI tree 11A), the formula keeps "÷" */
+const opGlyph = (op: string): string => (op === "÷" ? ":" : op);
 
 export class Visual implements IVisual {
     private host: IVisualHost;
@@ -3638,7 +3643,7 @@ export class Visual implements IVisual {
             `box-shadow:${active ? C.shadowHover : C.shadow};transition:${TRANSITION};`;
         const demoSet = templateDemo(tpl);
         // 1.8 (B07) a view preset (ROI tree) previews its view on the demo
-        const spec: MiniSpec = VIEW_PRESETS[tpl] ? { view: VIEW_PRESETS[tpl].view, level: 2, w: 1100, h: 620, demo: "roi" }
+        const spec: MiniSpec = VIEW_PRESETS[tpl] ? { view: VIEW_PRESETS[tpl].view, level: 2, w: 1100, h: 620, demo: VIEW_PRESETS[tpl].demo }
             : { view: "table", tpl, level: 2, w: 1100, h: 620, fc: templateNeedsFc(tpl), ...(demoSet ? { demo: demoSet } : {}) };
         b.appendChild(this.hubMini(spec, tileW - 2 * pad - 2));
         // the T number: a small badge on the preview's top right corner
@@ -7258,20 +7263,30 @@ export class Visual implements IVisual {
         // draws it; the second is a twin (edge only, no card)
         const leaves: TreeCard[] = [];
         const walk = (c: TreeCard): void => {
-            if (c.children.length === 0) { if (!c.rest) { leaves.push(c); } return; }
+            if (c.children.length === 0) { leaves.push(c); return; }
             c.children.forEach(walk);
         };
         walk(root);
         const parentOf = new Map<TreeCard, TreeCard>();
         const mapParents = (c: TreeCard): void => { for (const k of c.children) { parentOf.set(k, c); mapParents(k); } };
         mapParents(root);
-        for (const c of leaves) { c.twin = false; }
+        // one operator per parent (the circle on its stub): a per-edge circle would
+        // sit on the shared card and hide the other parent's operator
+        const uniform = (p: TreeCard | undefined): boolean => !!p && p.children.every(k => k.op === p.children[0].op);
+        for (const c of leaves) { c.twin = false; c.twinOff = 0; }
         for (let i = 0; i + 1 < leaves.length; i++) {
             const a = leaves[i]; const b = leaves[i + 1];
-            if (a.twin || a.depth !== b.depth || a.node !== b.node || a.h !== b.h) { continue; }
-            if (parentOf.get(a) === parentOf.get(b)) { continue; }
+            // a ⚡ rest card between them, a card with branches of its own (folded or
+            // not) or a different row breaks the pair
+            if (a.twin || a.rest || b.rest || a.hasKids || b.hasKids) { continue; }
+            if (a.depth !== b.depth || a.node !== b.node || a.h !== b.h) { continue; }
+            const pa = parentOf.get(a); const pb = parentOf.get(b);
+            if (pa === pb || !uniform(pa) || !uniform(pb)) { continue; }
             const mid = (a.y + b.y) / 2;
             a.y = mid; b.y = mid; b.twin = true;
+            // two separate edges into the card (the sheet 11A): the buses of both
+            // parents share one x, so they must not meet on the card's centre line
+            a.twinOff = -1; b.twinOff = 1;
         }
         return { w: (maxDepth + 1) * cw + maxDepth * gx, h: Math.max(h, root.h) };
     }
@@ -8995,7 +9010,7 @@ export class Visual implements IVisual {
         if (op) {
             const o = document.createElement("span");
             o.style.cssText = `font-size:${this.kpx(12)};font-weight:700;color:${C.ac};`;
-            o.textContent = op;
+            o.textContent = opGlyph(op);
             head.appendChild(o);
         }
         const nm = document.createElement("span");
@@ -9688,7 +9703,7 @@ export class Visual implements IVisual {
             t.setAttribute("fill", C.ac);
             // 1.8.1 a ratio reads ":" as in the IBCS sheets (ROI tree 11A); the
             // formula operator itself stays "÷" (engine, tooltips, tests)
-            t.textContent = op === "÷" ? ":" : op;
+            t.textContent = opGlyph(op);
             t.setAttribute("data-op", op);
             inner.appendChild(t);
         };
@@ -9700,7 +9715,8 @@ export class Visual implements IVisual {
             const busX = half(c.x + cw + gx * TREE_BUS_FRAC);
             const stubX = (c.x + cw + busX) / 2;
             const pcy = half(c.y + c.h / 2);
-            const ys = c.children.map(k => half(k.y + k.h / 2));
+            // 1.8.1 a shared operand: each parent enters the card on its own height
+            const ys = c.children.map(k => half(k.y + k.h / 2 + (k.twinOff ?? 0) * 6 * s));
             line(c.x + cw, pcy, busX, pcy);
             line(busX, Math.min(pcy, ...ys), busX, Math.max(pcy, ...ys));
             for (let i = 0; i < c.children.length; i++) { line(busX, ys[i], c.children[i].x, ys[i]); }

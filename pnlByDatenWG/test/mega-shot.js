@@ -282,7 +282,7 @@ function readMega(id) {
         check("m60 T02D Europe and Americas as in the sheet", leavesOf("m60", "Europe") === "Switzerland,Sweden,Poland,Germany,Austria,Belgium,France,Other"
             && leavesOf("m60", "Americas") === "Canada,Brazil,USA,Other", leavesOf("m60", "Europe") + " | " + leavesOf("m60", "Americas"));
         check("m60 T02D totals of the sheet: Europe ΔPL −195, Rest of World +118, World −51 and −0.2%",
-            has("m60", "-195") && has("m60", "+118") && has("m60", "-51"), "");
+            has("m60", "-195") && has("m60", "+118") && has("m60", "-51") && has("m60", "-0.2"), "");
     }
     if (S.m55) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",

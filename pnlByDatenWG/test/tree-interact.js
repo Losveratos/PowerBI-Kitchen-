@@ -76,7 +76,8 @@ function readState(stageId) {
         const t = [...stage.querySelectorAll("svg > g > text")].find(e =>
             Math.abs(parseFloat(e.getAttribute("x")) - cx) < 0.5
             && Math.abs(parseFloat(e.getAttribute("y")) - cy) < 8);
-        return { cx, cy, op: t ? txt(t) : "" };
+        // 1.8.1 the formula operator travels in data-op ("÷"); the glyph reads ":"
+        return { cx, cy, op: t ? (t.getAttribute("data-op") || txt(t)) : "", glyph: t ? txt(t) : "" };
     });
     // month columns of the first card: AC rects are solid, reference rects white
     const first = cardBoxes[0] ? cardBoxes[0].parentElement : null;
@@ -358,6 +359,8 @@ function tidyChecks(geom, tag) {
     check("root card present", card(st, "Net margin") != null, names(st).join(","));
     check("formula operands branch with ÷", st.ops.some(o => o.op === "÷"),
         st.ops.map(o => o.op).join(""));
+    check("1.8.1 a ratio is drawn as \":\" (data-op keeps \"÷\")", st.ops.some(o => o.op === "÷" && o.glyph === ":"),
+        st.ops.map(o => o.glyph).join(""));
     check("hierarchy children of Net revenue are cards",
         card(st, "Pharmaceuticals") != null && card(st, "Consumer Health") != null,
         names(st).join(","));

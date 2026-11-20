@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.8.1.0** (19.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.8.1.0** (20.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -964,7 +964,10 @@ Anfangsbestand und `stock` am Endbestand (Formel `[Anfangsbestand]+[Operativ]+�
     DuPont-Baum (seit 1.8.1, `src/demo-roi.ts`, Blattzahlen, Schlüssel `UI_DN_Roi*`).
     1.8.1: Division im Baum als „:" gezeichnet (Formel-Operator bleibt `÷`,
     `data-op` am Text); geteilte Blattkarten derselben Ebene unter verschiedenen
-    Eltern werden einmal gezeichnet (`TreeCard.twin`, `treeLayout`).
+    Eltern werden einmal gezeichnet (`TreeCard.twin`, `treeLayout`), nur ohne eigene
+    Äste, nie über eine ⚡ Rest-Karte hinweg und nur, wenn beide Eltern einen
+    einheitlichen Operator haben; die Kanten treten getrennt ein (`twinOff`).
+    `opGlyph` zeichnet `÷` als „:" in Baum und Mikrokarten.
 
 ## Verwandte Dateien
 

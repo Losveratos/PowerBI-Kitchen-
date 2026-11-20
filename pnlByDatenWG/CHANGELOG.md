@@ -1,14 +1,15 @@
 # Changelog — P&L Statement byDatenWG
 
-## 1.8.1.0 (2026-11-19): ROI-Baum wie im Blatt 11A
+## 1.8.1.0 (2026-11-20): ROI-Baum wie im Blatt 11A
 
 Feinschliff des ROI-Baums nach dem Bildvergleich mit dem IBCS-Blatt 11A. IBCS dient nur als Bezug.
 
-- **Operator „:" für Quotienten.** Der Werttreiberbaum zeichnet eine Division als „:" wie das Blatt
-  (vorher „÷"). Die Formel selbst und alle Berechnungen bleiben unverändert.
+- **Operator „:" für Quotienten.** Werttreiberbaum und Mikrokarten im Karten-Zoom zeichnen eine Division als
+  „:" wie das Blatt (vorher „÷"). Die Formel selbst und alle Berechnungen bleiben unverändert.
 - **Geteilte Operanden einmal.** Steht dieselbe Zeile als letzte Karte eines Astes und als erste Karte des
   nächsten (DuPont: Nettoumsatz im Nenner der Umsatzrendite und im Zähler des Kapitalumschlags), zeichnet
-  der Baum sie einmal zwischen beiden Verbindungen, wie das Blatt. Gilt für Blattkarten derselben Ebene.
+  der Baum sie einmal, mit zwei getrennten Verbindungen hinein, wie das Blatt. Gilt für Karten ohne eigene
+  Äste derselben Ebene, wenn beide Eltern einen einheitlichen Operator haben (DuPont).
 - **Galerie-Vorschau ROI-Baum.** Die Kachel 11A zeigt jetzt einen echten DuPont-Baum mit den Zahlen des
   Blatts (2021 bis 2027, Plan ab 2026, Kapitalumschlag als Faktor) statt des Demo-Baums.
 
