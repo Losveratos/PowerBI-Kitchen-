@@ -832,5 +832,7 @@
   "Hint_StockFlowNoStock": "Stock y flujo: ninguna fila de tipo stock ni medida de línea, falta la línea de stock",
   "Hint_StockFlowNoFlow": "Stock y flujo: no hay filas de flujo, solo se dibuja el stock",
   "Hint_StockFlowSpace": "No hay espacio suficiente para stock y flujo",
+  "Hint_StockFlowMixed": "Stock y flujo: los flujos solo de plan en un período con real o previsión no se dibujan ({list})",
+  "Tooltip_Scenario": "Escenario",
   "Lock_YtdStockFlow": "Sin efecto: stock y flujo no se acumulan (un stock no es aditivo en el tiempo)"
 }

@@ -832,5 +832,7 @@
   "Hint_StockFlowNoStock": "Stock & flow: no row of type stock and no line measure, the stock line is missing",
   "Hint_StockFlowNoFlow": "Stock & flow: no flow rows, only the stock is drawn",
   "Hint_StockFlowSpace": "Not enough space for stock and flow",
+  "Hint_StockFlowMixed": "Stock & flow: plan-only flows in a period with an actual or forecast are not drawn ({list})",
+  "Tooltip_Scenario": "Scenario",
   "Lock_YtdStockFlow": "No effect: stock and flow are not cumulated (a stock is not additive over time)"
 }

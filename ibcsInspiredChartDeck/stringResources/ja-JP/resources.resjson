@@ -832,5 +832,7 @@
   "Hint_StockFlowNoStock": "ストックとフロー: 種類 stock の行も線メジャーもないため、ストック線がありません",
   "Hint_StockFlowNoFlow": "ストックとフロー: フローの行がないため、ストックだけを描画します",
   "Hint_StockFlowSpace": "ストックとフローを表示する領域が足りません",
+  "Hint_StockFlowMixed": "ストックとフロー: 実績または予測のある期間で計画だけのフローは描画されません ({list})",
+  "Tooltip_Scenario": "シナリオ",
   "Lock_YtdStockFlow": "効果なし: ストックとフローは累計しません (ストックは時間について加算できません)"
 }

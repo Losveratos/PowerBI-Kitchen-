@@ -124,6 +124,27 @@
     und die Tour-Karte, die sie öffnet (Kachel C20). Tests c600 bis c613. Noch offen (Teil 2 und 3): letzter Wert statt
     Summe in YTD, Jahressäule und Tabellenbaum (`timeAggregation`), Zoom der Flüsse bei großem Bestand (`sfFlowZoom`,
     08G), Achsengruppen auch in Säulen und Linie, ΔBestand gegen PL oder PY, Parität in der dwg-App.
+  - **Nach dem Review:** Σ-, Ø- und Rest-Kachel der Small Multiples behalten Bestand, Abflüsse und die gruppierte
+    Zeitachse (vorher wurden in der Ø-Kachel Bestand und Abflüsse zu Zuflüssen, die Kacheln schrumpften, und alle
+    Gesamtkacheln verloren Jahresgruppen und Trennlinien). Der Bestand der Σ- und Rest-Kachel ist die Summe, in
+    der Ø-Kachel das Mittel über die Kacheln mit einem Bestand; ein fehlender Fluss zählt im Ø als 0 (Stapelregel
+    aus B13). Das gilt auch für den Bestand aus der Linien-Measure. Mit gebundener Spaltengruppe oder Trend bleiben
+    Bestand und Abflüsse erhalten (vorher alles Zuflüsse ohne Bestand). Top N der Kacheln reiht nach den Flüssen,
+    nicht nach den Beständen. Ein übrig gebliebenes „AC + FC im selben Monat“ wirkt im Modus nicht mehr (vorher
+    blähte es Bestand und Flüsse auf, wenn AC und FC geliefert wurden). Plan-Säulen sind deckend: Zufluss weiß mit
+    Umriss, Abfluss sehr hellgrau, die Fläche scheint nicht mehr durch. Die kräftige Jahreslinie steht auch dort,
+    wo sie mit einer Szenariogrenze zusammenfällt (08E, 08H), Szenariogrenzen sind durchgezogen. Beschriftung wie auf
+    den Blättern: Flüsse bei schmalen Perioden etwa jede dritte (08F), bei breiten alle, Bestände nur die
+    Kernpunkte; optionale Beschriftungen weichen Markern und Bestandslinie, eine Ellipse berührt den Marker nicht.
+    Ein Tab-Stopp je Periode (vorher zwei). Der Titel nennt nur die gezeichneten Szenarien („AC, FC, PL“), auch
+    mit gebundenem Vorjahr. Hochkontrast: Abflüsse in Tinte gefüllt, Zuflüsse im Mittelton. Im Bearbeitungsmodus
+    ein Hinweis, wenn eine Periode mit Ist oder Forecast nur Plan-Flüsse hat (`Hint_StockFlowMixed`, diese Flüsse
+    werden nicht gezeichnet). Sehr kleine Kacheln zeigen den Platzhinweis, Szenario-Kürzel ohne Platz entfallen.
+    Tooltip „Szenario“ lokalisiert (`Tooltip_Scenario`). Hinweis zu den Token: `stock`, `bestand`, `balance`,
+    `inflow`, `zufluss`, `outflow`, `abfluss` sind reine Flag-Token; ein Bericht, der sie in anderen Modi als Freitext
+    in der Rolle „Waterfall-Typ“ führt, zeichnet unverändert, aber besteht die Rolle nur aus solchen Zellen, schlägt
+    Smart-Start keinen GuV-Wasserfall mehr vor. Tests c620 bis c632; geändert sind nur die Bestand-Fluss-Stufen
+    c600 bis c613 (alle übrigen 457 Stufen SVG-gleich).
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 

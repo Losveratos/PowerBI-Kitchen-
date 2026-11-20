@@ -848,6 +848,8 @@ interface SfPeriod {
     hasFlow: boolean;
     stock: number | null;
     pts: DataPoint[];
+    /** B11 review (m8): flow rows with a plan only in an AC/FC period (not drawn) */
+    flowsDropped?: boolean;
 }
 /** 1.55 (B11): stock & flow layout of one tile (stockFlowLayout) */
 interface SfLayout {
@@ -2387,7 +2389,9 @@ export class Visual implements IVisual {
         // dropped before anything renders — off by default so no data vanishes
         // silently (beta feedback A. Korn)
         const hideBlank = this.formattingSettings.chartCard.hideBlankCat.value === true;
-        const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
+        // B11 review (m1): the switch is hidden in stock & flow, a leftover value must
+        // not inflate flows and stocks there (one scenario per period)
+        const acFcSplit = this.sfModeOn() ? "off" : String(this.formattingSettings.chartCard.acFcSplit.value.value);
         // without a category the measures deliver a single scalar row each
         const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
         let rtCells = 0, rtFlagOnly = 0;
@@ -6045,7 +6049,10 @@ export class Visual implements IVisual {
             ? this.cumulate(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal) : pts;
         // B13 review (M3): a missing stack segment or a missing category on a structure
         // axis (bars) counts as 0 in the average; a missing period stays "no data"
-        const meanZero: "none" | "series" | "all" = orientationRaw === "bars" ? "all" : isStacked ? "series" : "none";
+        // B11 review (M1): stock & flow stacks its flows (a missing flow segment = 0 in a
+        // period the tile has); meanGroups keeps the stock rows as a level (no zero)
+        const meanZero: "none" | "series" | "all" = orientationRaw === "bars" ? "all"
+            : isStacked || isStockFlow ? "series" : "none";
         // B13 review (m1): with YTD the average is the mean of the cumulated groups
         // (average YTD per location), so these tiles are built from cumulated copies
         const meanPreCum = cumulativeOn && mAgg === "mean";
@@ -6058,8 +6065,9 @@ export class Visual implements IVisual {
             multOrig = allGroups;
             const fillN = (tpl: string, n: number) => tpl.replace(/\{n\}/g, String(n));
             if (mTopN > 0 && groups.length > mTopN + 1) {
+                // B11 review: in stock & flow the ranking counts the flows, not the stock levels
                 const size = (g: { pts: DataPoint[] }) =>
-                    g.pts.reduce((a, p) => a + Math.abs(p.value ?? 0), 0);
+                    g.pts.reduce((a, p) => a + (isStockFlow && p.sfKind === "stock" ? 0 : Math.abs(p.value ?? 0)), 0);
                 const ranked = groups.slice().sort((a, b) => size(b) - size(a));
                 const rest = ranked.slice(mTopN);
                 groups.length = 0;
@@ -6703,7 +6711,7 @@ export class Visual implements IVisual {
         if (isStockFlow) {
             let lo = 0, hi = 0, nLo = 0, nHi = 0;
             const openingOn = s.chartCard.sfOpening.value !== false;
-            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+            for (const g of shownGroups) {
                 const L = this.stockFlowLayout(g.pts, openingOn);
                 for (const per of L.periods) {
                     lo = Math.min(lo, per.outTot, per.stock ?? 0);
@@ -11865,6 +11873,7 @@ export class Visual implements IVisual {
             if (b) { b.push(p); } else { byKey.set(key, [p]); order.push(key); }
         }
         if (order.length === points.length) { return points; }
+        const sf = this.sfModeOn();
         return order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             if (kids.length === 1) { return kids[0]; }
@@ -11874,6 +11883,9 @@ export class Visual implements IVisual {
             agg.stackSeries = kids[0].stackSeries;
             agg.rowType = kids[0].rowType;
             agg.isFc = kids.every(c => c.isFc);
+            // B11 review (M2): stock & flow keeps the line-measure stock (first non-null
+            // child, like stockFlowLayout per period); sfKind comes from aggregateHierarchy
+            if (sf) { agg.lineVal = kids.find(c => c.lineVal != null)?.lineVal ?? null; }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
@@ -12048,13 +12060,46 @@ export class Visual implements IVisual {
         const basis2 = this.basis2Mode === "plan" ? pl : py;
         const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
         const var2Rel = relVar(var2Abs, basis2);
+        // B11 review (M1): the stock & flow role travels with the aggregate when all
+        // children share it (Σ / Ø / Rest tiles, merged column groups, duplicates)
+        const sfKind = kids.length > 0 && kids[0].sfKind != null && kids.every(c => c.sfKind === kids[0].sfKind)
+            ? kids[0].sfKind : null;
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             dim: kids.length > 0 && kids.every(c => c.dim),
             bm: null, fcPrev: sum(p => p.fcPrev), lineVal: null, stackSeries: null, comment: null, commentNo: null,
-            group: kids[0].group, rowType: null, isRest: false, sel: null
+            group: kids[0].group, rowType: null, isRest: false, sel: null,
+            ...(sfKind != null ? { sfKind } : {})
         };
+    }
+
+    /** 1.55 (B11): true in the stock & flow mode (orientation=stockflow) */
+    private sfModeOn(): boolean {
+        return String(this.formattingSettings?.chartCard?.orientation?.value?.value) === "stockflow";
+    }
+
+    /**
+     * B11 review (M3): the stock of a synthetic tile when it comes from the line
+     * measure. Per tile and category the first non-null lineVal is the tile's stock
+     * (as in stockFlowLayout); the tile stock is the sum over the tiles, or for the
+     * average the mean over the tiles WITH a stock (a level, no zero rule).
+     */
+    private sfLineStock(subsets: DataPoint[][], mean: boolean): Map<string, number> {
+        const acc = new Map<string, { s: number; n: number }>();
+        for (const pts of subsets) {
+            const seen = new Set<string>();
+            for (const p of pts) {
+                if (p.lineVal == null || seen.has(p.cat)) { continue; }
+                seen.add(p.cat);
+                const a = acc.get(p.cat) ?? { s: 0, n: 0 };
+                a.s += p.lineVal; a.n++;
+                acc.set(p.cat, a);
+            }
+        }
+        const out = new Map<string, number>();
+        acc.forEach((a, c) => out.set(c, mean ? a.s / a.n : a.s));
+        return out;
     }
 
     /**
@@ -12074,6 +12119,9 @@ export class Visual implements IVisual {
                 if (bucket) { bucket.push(p); } else { byKey.set(key, [p]); order.push(key); }
             }
         }
+        // B11 review (M3): stock & flow keeps the grouped time axis and the line-measure stock
+        const sf = this.sfModeOn();
+        const lineStock = sf ? this.sfLineStock(subsets, false) : null;
         const pts = order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             const agg = this.aggregateHierarchy(kids[0].cat, kids);
@@ -12082,7 +12130,10 @@ export class Visual implements IVisual {
             // a period is still forecast in the total only if every tile flags it
             agg.isFc = kids.every(c => c.isFc);
             agg.rowType = kids[0].rowType;
-            if (kids[0].sfKind != null) { agg.sfKind = kids[0].sfKind; }
+            if (sf) {
+                agg.catLevels = kids[0].catLevels;
+                agg.lineVal = lineStock?.get(agg.cat) ?? null;
+            }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
@@ -12156,15 +12207,20 @@ export class Visual implements IVisual {
         const eligible = (cat: string, f: F): Set<number> | null => zero === "all" ? (tileHas.get(f) ?? new Set<number>())
             : zero === "series" ? (catHas.get(cat)?.get(f) ?? new Set<number>()) : null;
         const b2f: F = this.basis2Mode === "plan" ? "pl" : "py";
+        // B11 review (M1/M3): stock & flow keeps the grouped time axis; the stock is a
+        // level (mean over the tiles with a stock), the flows follow the stack rule
+        const sf = this.sfModeOn();
+        const lineStock = sf ? this.sfLineStock(subsets, true) : null;
         const pts = order.map(key => {
             const entries = byKey.get(key) as { t: number; p: DataPoint }[];
             const tiles = entries.map(e => e.p);
             const cat = tiles[0].cat;
+            const isStock = sf && tiles[0].sfKind === "stock";
             const mean = (f: F): number | null => {
                 let acc = 0, n = 0;
                 for (const t of tiles) { const v = t[f]; if (v != null) { acc += v; n++; } }
                 if (n === 0) { return null; }
-                const el = eligible(cat, f);
+                const el = isStock ? null : eligible(cat, f);
                 return acc / (el ? Math.max(n, el.size) : n);
             };
             const pairs = (f: F): { d: number; b: number } | null => {
@@ -12174,7 +12230,7 @@ export class Visual implements IVisual {
                     if (t.value != null && bv != null) { d += t.value - bv; b += bv; n++; }
                 }
                 if (n === 0) { return null; }
-                const ev = eligible(cat, "value"), eb = eligible(cat, f);
+                const ev = isStock ? null : eligible(cat, "value"), eb = isStock ? null : eligible(cat, f);
                 if (ev && eb) {
                     // tiles eligible for both fields count, without the key as 0 / 0
                     let both = 0;
@@ -12197,6 +12253,10 @@ export class Visual implements IVisual {
             agg.stackSeries = tiles[0].stackSeries;
             agg.isFc = tiles.every(c => c.isFc);
             agg.rowType = tiles[0].rowType;
+            if (sf) {
+                agg.catLevels = tiles[0].catLevels;
+                agg.lineVal = lineStock?.get(cat) ?? null;
+            }
             // KPI cards + Trend role: the Ø tile keeps an averaged time series
             const ts = this.sumTrendSeries(tiles, true);
             if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
@@ -15482,7 +15542,7 @@ export class Visual implements IVisual {
                     : pts.some(x => x.pl != null) ? "pl" : "ac";
             const cell = (x: DataPoint): number | null => x.value ?? (scen === "pl" ? x.pl : null);
             const flows: SfPeriod["flows"] = [];
-            let stock: number | null = null, hasFlow = false;
+            let stock: number | null = null, hasFlow = false, flowsDropped = false;
             for (const x of pts) {
                 const raw = cell(x);
                 if (x.sfKind === "stock") {
@@ -15490,7 +15550,7 @@ export class Visual implements IVisual {
                     if (raw != null) { stock = (stock ?? 0) + raw; }
                     continue;
                 }
-                if (raw == null) { continue; }
+                if (raw == null) { if (x.pl != null && scen !== "pl") { flowsDropped = true; } continue; }
                 hasFlow = true;
                 const v = x.sfKind === "outflow" ? -Math.abs(raw) : x.sfKind === "inflow" ? Math.abs(raw) : raw;
                 if (v === 0) { continue; }
@@ -15510,7 +15570,7 @@ export class Visual implements IVisual {
             const outTot = flows.reduce((a, f) => a + (f.v < 0 ? f.v : 0), 0);
             const levels = pts[0].catLevels ?? [c];
             return { cat: c, label: levels[levels.length - 1], levels, scen, flows, inTot, outTot,
-                net: inTot + outTot, hasFlow, stock, pts };
+                net: inTot + outTot, hasFlow, stock, pts, ...(flowsDropped ? { flowsDropped } : {}) };
         });
         // stacking order = series order of first appearance on each side
         for (const per of periods) {
@@ -15600,7 +15660,8 @@ export class Visual implements IVisual {
         const netSpan = netOn ? deck.nHi - deck.nLo : 0;
         const fixedPx = padT + padB + (netOn ? padT + (deck.nLo < 0 ? padB : 4) + gap : 0);
         const kpx = (bottom0 - top0 - fixedPx) / Math.max(deck.hi - deck.lo + netSpan, 1e-9);
-        if (!(step >= 2.5) || !(kpx > 0) || bottom0 - top0 < 40) {
+        // B11 review (m9): the hint as soon as less than 40 px remain for the values
+        if (!(step >= 2.5) || !(kpx > 0) || bottom0 - top0 - fixedPx < 40) {
             this.drawModeHint(region, cfg, this.locStr("Hint_StockFlowSpace", "Not enough space for stock and flow"));
             this.svg.lastElementChild?.setAttribute("data-icd", "sf-hint");
             return;
@@ -15634,12 +15695,22 @@ export class Visual implements IVisual {
             const ramp = list.length > 1 ? sideIdx(side, sn) / (list.length - 1) * 0.3 : 0;
             return mixC((side === "in" ? 0.55 : 0) + ramp);
         };
-        // PL as outline (B06): inflows nearly hollow, outflows lightly tinted (08E)
+        // PL as outline (B06), OPAQUE so the stock area does not shine through (B11
+        // review m2, sheets 08E to 08H): inflows hollow (paper), outflows very light grey
+        const paperRgb = this.hexRgb(cfg.paper);
+        const onPaper = (fill: string, f: number) => {
+            const m = /^rgb\((\d+),(\d+),(\d+)\)$/.exec(fill);
+            const c = m ? [+m[1], +m[2], +m[3]] : this.hexRgb(fill);
+            const r = paperRgb.map((p, i) => Math.round(p + (c[i] - p) * f));
+            return `rgb(${r[0]},${r[1]},${r[2]})`;
+        };
+        // high contrast (m7): AC outflows filled with ink, inflows a mid tone without hatch
+        const hcFill = (side: "in" | "out") => side === "out" ? cfg.ink : onPaper(cfg.ink, 0.45);
         const segStyle = (kind: "ac" | "fc" | "pl", fill: string, hatchKey: number, side: "in" | "out"): Record<string, string | number> =>
             kind === "fc" ? { fill: `url(#${this.stackHatch(cfg, hatchKey, fill)})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                 : kind === "pl" ? (cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
-                    : { fill, "fill-opacity": side === "in" ? 0.1 : 0.28, stroke: cfg.colors.pl, "stroke-width": 1.2 })
-                    : { fill, ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) };
+                    : { fill: side === "in" ? cfg.paper : onPaper(fill, 0.16), stroke: cfg.colors.pl, "stroke-width": 1.2 })
+                    : cfg.hc ? { fill: hcFill(side), stroke: cfg.ink, "stroke-width": 1 } : { fill };
 
         // ---- axis groups (label under the first member, separators through the panels)
         type AxGroup = { level: number; row: number; start: number; end: number; label: string };
@@ -15667,14 +15738,15 @@ export class Visual implements IVisual {
                 this.emphBand(bg, bandStart + g.start * step + 1, hTop, (g.end - g.start) * step - 2, hH, cfg);
             }
         }
-        // group separators: the outermost row strong, inner rows faint; none at a
-        // scenario boundary (B06 rule, the boundary line stands there)
+        // group separators: the outermost row strong, inner rows faint; an inner row
+        // gives way to a scenario boundary (B06 rule), the outermost row stays strong
+        // there too (B11 review m3: 08E, 08H draw the year line on the boundary)
         const scenLineAt = (i: number) => anyScen && monotone && scenStart.has(i);
         const sepDone = new Set<number>();
         for (let r = gLevels.length - 1; r >= 0; r--) {
             const strong = r === gLevels.length - 1;
             for (const g of axGroups) {
-                if (g.row !== r || g.start === 0 || sepDone.has(g.start) || scenLineAt(g.start)) { continue; }
+                if (g.row !== r || g.start === 0 || sepDone.has(g.start) || (!strong && scenLineAt(g.start))) { continue; }
                 sepDone.add(g.start);
                 const x = bandStart + g.start * step;
                 this.el("line", { x1: x, y1: top0, x2: x, y2: axisTop + cf + 4 + (r + 1) * rowH,
@@ -15692,12 +15764,16 @@ export class Visual implements IVisual {
                     "stroke-opacity": 0.5, "data-icd": "group-sep" }, bg);
             }
         }
-        // AC | FC | PL boundaries through all panels and the axis (monotone blocks only)
+        // AC | FC | PL boundaries through all panels and the axis (monotone blocks only);
+        // solid as on the sheets (B11 review), in ink where a strong group line stands
         if (anyScen && monotone) {
             for (const i of scenStart) {
                 const x = bandStart + i * step;
-                const ln = this.el("line", { x1: x, y1: top0, x2: x, y2: axisBottom - 2, stroke: cfg.subtle,
-                    "stroke-width": 1, "stroke-dasharray": "3,3", "data-icd": scen[i] === "pl" ? "pl-boundary" : "fc-boundary" }, bg);
+                const onSep = sepDone.has(i) && gLevels.length > 0
+                    && axGroups.some(g => g.start === i && g.row === gLevels.length - 1);
+                const ln = this.el("line", { x1: x, y1: top0, x2: x, y2: axisBottom - 2, stroke: onSep ? cfg.ink : cfg.subtle,
+                    "stroke-width": 1, ...(onSep ? {} : { "stroke-opacity": 0.6 }),
+                    "data-icd": scen[i] === "pl" ? "pl-boundary" : "fc-boundary" }, bg);
                 this.fcCuts.push({ line: ln, x, y1: top0, y2: axisBottom - 2 });
             }
         }
@@ -15828,24 +15904,29 @@ export class Visual implements IVisual {
             return best;
         };
         if (cfg.showLabels && L.hasFlow) {
+            // B11 review (m4): the flow width comes from the flow labels only (the net
+            // label carries a sign); narrow periods label every k-th period (08F: about
+            // every third week), wide ones all (08H)
             const flowTw = Math.max(...P.map(p => Math.max(this.textWidth(fmt.format(p.inTot), lf),
-                this.textWidth(fmt.format(-p.outTot), lf), this.textWidth(this.fmtSigned(fmt, p.net), lf))));
-            // the net is the message of the upper panel: labelled as soon as it fits, the
-            // flows (two labels per period) only with more room, else first/last/extremes
-            const flowAll = density === "all" || (density !== "ends" && step >= flowTw * 2);
-            const netAll = density === "all" || (density !== "ends" && step >= flowTw * 1.3);
-            const prio = (i: number, ext: number[], all = flowAll): number => i === n - 1 ? 90 : emphAt(i) ? 89 : i === 0 ? 80
-                : scenStart.has(i) ? 75 : ext.includes(i) ? 70 : density !== "ends" && innerStart.has(i) ? 50 : all ? 20 : -1;
+                this.textWidth(fmt.format(-p.outTot), lf))));
+            const netTw = Math.max(...P.map(p => this.textWidth(this.fmtSigned(fmt, p.net), lf)));
+            // the net is the message of the upper panel: labelled as soon as it fits
+            const flowAll = density === "all" || (density !== "ends" && step >= flowTw * 6);
+            const flowEvery = density === "ends" ? 0 : Math.max(2, Math.ceil(flowTw * 6 / step));
+            const netAll = density === "all" || (density !== "ends" && step >= netTw * 1.3);
+            const prio = (i: number, ext: number[], all = flowAll, every = 0): number => i === n - 1 ? 90 : emphAt(i) ? 89 : i === 0 ? 80
+                : scenStart.has(i) ? 75 : ext.includes(i) ? 70 : density !== "ends" && innerStart.has(i) ? 50 : all ? 20
+                    : every > 0 && i % every === 0 ? 30 : -1;
             const extIn = [argBy(p => p.inTot, 1)], extOut = [argBy(p => p.outTot, -1)];
             const extNet = [argBy(p => p.net, 1), argBy(p => p.net, -1)];
             P.forEach((per, i) => {
                 const cx = center(i);
                 if (per.inTot > 0) {
-                    const pr = prio(i, extIn);
+                    const pr = prio(i, extIn, flowAll, flowEvery);
                     if (pr >= 0) { items.push({ el: textAt(cx, Y(per.inTot) - 4, fmt.format(per.inTot), { "data-icd": "sf-label-in" }), prio: pr }); }
                 }
                 if (per.outTot < 0) {
-                    const pr = prio(i, extOut);
+                    const pr = prio(i, extOut, flowAll, flowEvery);
                     if (pr >= 0) { items.push({ el: textAt(cx, Y(per.outTot) + lf + 2, fmt.format(-per.outTot), { "data-icd": "sf-label-out" }), prio: pr }); }
                 }
                 if (netOn && per.hasFlow) {
@@ -15860,8 +15941,10 @@ export class Visual implements IVisual {
         if (cfg.showLabels && L.hasStock) {
             const vals = sp.filter(q => q.v != null) as (SP & { v: number })[];
             const stockTw = Math.max(...vals.map(q => this.textWidth(fmt.format(q.v), lf)));
-            const stockAll = density === "all" || (density !== "ends" && step >= stockTw * 2.2);
-            const stockLocal = density !== "ends" && step >= stockTw * 1.6;
+            // B11 review (m4): fewer stock labels in narrow periods (08F names five key
+            // points), all of them only with room (08H)
+            const stockAll = density === "all" || (density !== "ends" && step >= stockTw * 3.5);
+            const stockLocal = density !== "ends" && step >= stockTw * 3;
             let iMax = vals[0], iMin = vals[0];
             for (const q of vals) { if (q.v > iMax.v) { iMax = q; } if (q.v < iMin.v) { iMin = q; } }
             vals.forEach((q, j) => {
@@ -15874,7 +15957,9 @@ export class Visual implements IVisual {
                 const pr = isLast ? 100 : emphAt(q.i) ? 99 : q.i < 0 ? 95 : scenStart.has(q.i + 1) ? 88
                     : q === iMax || q === iMin ? 82 : (peak !== trough) && stockLocal ? 55 : stockAll ? 25 : -1;
                 if (pr < 0) { return; }
-                const y = above ? Y(q.v) - ms / 2 - 4 : Y(q.v) + ms / 2 + lf;
+                // a label in an emphasis ellipse keeps the ring clear of the marker (review nit)
+                const ringGap = cfg.highlightEllipse && emphAt(q.i) ? 4 : 0;
+                const y = above ? Y(q.v) - ms / 2 - 4 - ringGap : Y(q.v) + ms / 2 + lf + ringGap;
                 items.push({ el: textAt(q.x, y, fmt.format(q.v), { "data-icd": "sf-stock-label", "data-i": q.i }), prio: pr });
             });
         }
@@ -15959,12 +16044,46 @@ export class Visual implements IVisual {
             const yS = yTick + (gLevels.length + 1) * rowH;
             for (let i = 0; i < n; i++) {
                 if (i > 0 && scen[i] === scen[i - 1]) { continue; }
+                const txt = scen[i] === "ac" ? cfg.scenL.ac : scen[i] === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+                // B11 review (m9): a label wider than its block is left out („FCPL“)
+                let e = i + 1;
+                while (e < n && scen[e] === scen[i]) { e++; }
+                const room = e === n ? region.x + region.w - (bandStart + i * step) - 5 : (e - i) * step - 4;
+                if (this.textWidth(txt, cf) > room) { continue; }
                 const t = this.el("text", { x: bandStart + i * step + 3, y: yS, "text-anchor": "start", "font-size": cf,
                     fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label" }, ax);
-                t.textContent = scen[i] === "ac" ? cfg.scenL.ac : scen[i] === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+                t.textContent = txt;
             }
         }
 
+        // B11 review (m4): markers and the stock line are obstacles for the optional
+        // labels (priority below the extremes); key labels keep their place
+        if (L.hasStock && items.length > 0) {
+            const pts = sp.filter(q => q.v != null).map(q => ({ x: q.x, y: Y(q.v as number) }));
+            const segs: { x1: number; y1: number; x2: number; y2: number }[] = [];
+            for (let j = 1; j < sp.length; j++) {
+                const a = sp[j - 1], b = sp[j];
+                if (a.v != null && b.v != null) { segs.push({ x1: a.x, y1: Y(a.v), x2: b.x, y2: Y(b.v) }); }
+            }
+            const hitsLine = (bx: { x0: number; x1: number; y0: number; y1: number }) => segs.some(s => {
+                const xa = Math.max(bx.x0, Math.min(s.x1, s.x2)), xb = Math.min(bx.x1, Math.max(s.x1, s.x2));
+                if (xb <= xa) { return false; }
+                const yAt = (x: number) => s.x2 === s.x1 ? s.y1 : s.y1 + (s.y2 - s.y1) * (x - s.x1) / (s.x2 - s.x1);
+                const ya = yAt(xa), yb = yAt(xb);
+                return Math.max(ya, yb) > bx.y0 && Math.min(ya, yb) < bx.y1;
+            });
+            for (let j = items.length - 1; j >= 0; j--) {
+                const it = items[j];
+                if (it.prio >= 82) { continue; }
+                let b: DOMRect;
+                try { b = it.el.getBBox(); } catch { continue; }
+                if (!(b.width > 0)) { continue; }
+                const sh = b.height * 0.18;
+                const bx = { x0: b.x + 0.5, x1: b.x + b.width - 0.5, y0: b.y + sh, y1: b.y + b.height - sh };
+                const onMarker = pts.some(p => p.x + ms / 2 > bx.x0 && p.x - ms / 2 < bx.x1 && p.y + ms / 2 > bx.y0 && p.y - ms / 2 < bx.y1);
+                if (onMarker || hitsLine(bx)) { it.el.remove(); items.splice(j, 1); }
+            }
+        }
         this.declutterLabels(items, fixed);
 
         // ---- emphasis as ellipse (C20): the stock label of the period (else its net
@@ -15995,30 +16114,44 @@ export class Visual implements IVisual {
             t.textContent = this.truncate(!L.hasStock
                 ? this.locStr("Hint_StockFlowNoStock", "Stock & flow: no stock row (type stock) and no line measure, the stock line is missing")
                 : this.locStr("Hint_StockFlowNoFlow", "Stock & flow: no flow rows, only the stock is drawn"), region.w - 8, Math.round(9 * k));
+        } else if (this.allowInteractions && this.viewMode !== 0) {
+            // B11 review (m8): one scenario per period — plan-only flows in an AC/FC period are not drawn
+            const dropped = P.filter(p => p.flowsDropped).map(p => p.label);
+            if (dropped.length > 0) {
+                const t = this.el("text", { x: region.x + 4, y: mainTop + legFont, "font-size": Math.round(9 * k),
+                    fill: cfg.subtle, "font-family": FONT, "font-style": "italic", "data-icd": "sf-hint", "data-kind": "mixed" }, root);
+                t.textContent = this.truncate(this.locStr("Hint_StockFlowMixed",
+                    "Stock & flow: plan-only flows in a period with an actual or forecast are not drawn ({list})")
+                    .replace("{list}", dropped.slice(0, 4).join(", ") + (dropped.length > 4 ? " …" : "")), region.w - 8, Math.round(9 * k));
+            }
         }
 
         // ---- interaction per period: tooltip (inflow, outflow, net, stock), selection
         P.forEach((per, i) => {
-            for (const g of [periodGs[i], markerGs[i]]) {
-                if (g) { this.wireStockFlowPeriod(g, per, i === 0 ? L.opening : null, cfg, inName, outName, netName, stockName); }
-            }
+            // one tab stop per period (B11 review m5): the marker group only takes the mouse
+            [periodGs[i], markerGs[i]].forEach((g, gi) => {
+                if (g) { this.wireStockFlowPeriod(g, per, i === 0 ? L.opening : null, cfg, inName, outName, netName, stockName, gi === 0); }
+            });
         });
         this.cutFcLines();
     }
 
     /** 1.55 (B11): selection, keyboard and tooltip of one stock & flow period */
     private wireStockFlowPeriod(g: SVGGElement, per: SfPeriod, opening: number | null, cfg: ChartConfig,
-        inName: (s: string) => string, outName: (s: string) => string, netName: string, stockName: string): void {
+        inName: (s: string) => string, outName: (s: string) => string, netName: string, stockName: string,
+        focus = true): void {
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
         const sels = per.pts.map(p => p.sel).filter((x): x is ISelectionId => x != null);
         const scenTxt = per.scen === "ac" ? cfg.scenL.ac : per.scen === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
         g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";
-        if (allow) { g.setAttribute("tabindex", "0"); }
-        g.setAttribute("role", "option");
+        if (focus) {
+            if (allow) { g.setAttribute("tabindex", "0"); }
+            g.setAttribute("role", "option");
+        }
         const items = (): VisualTooltipDataItem[] => {
             const out: VisualTooltipDataItem[] = [
                 { displayName: this.locStr("Role_Category", "Category"), value: per.cat },
-                { displayName: "Status", value: scenTxt }
+                { displayName: this.locStr("Tooltip_Scenario", "Scenario"), value: scenTxt }
             ];
             for (const f of per.flows) {
                 out.push({ displayName: f.side === "in" ? inName(f.series) : outName(f.series), value: cfg.fmt.format(Math.abs(f.v)) });
@@ -16033,7 +16166,9 @@ export class Visual implements IVisual {
             }
             return out;
         };
-        g.setAttribute("aria-label", [per.cat, scenTxt, ...items().slice(2).map(it => `${it.displayName} ${it.value}`)].join(", "));
+        if (focus) {
+            g.setAttribute("aria-label", [per.cat, scenTxt, ...items().slice(2).map(it => `${it.displayName} ${it.value}`)].join(", "));
+        }
         const select = (multi: boolean) => {
             if (!allow || sels.length === 0) { return; }
             this.selectionManager.select(sels, multi).then((ids: ISelectionId[]) => { this.applySelectionOpacity(ids); });
@@ -17245,7 +17380,7 @@ export class Visual implements IVisual {
             period = `${points[0].cat} – ${points[points.length - 1].cat}`;
         }
         const { unitPart, before, after } = this.titleUnit(kpi, cfg, maxAbs);
-        const scenPart = this.titleScenarios(periodSet, cfg);
+        const scenPart = this.titleScenarios(periodSet, cfg, points);
 
         const k = this.fontK;
         const f1 = Math.round(12 * k), f2 = Math.round(11 * k);
@@ -17408,13 +17543,19 @@ export class Visual implements IVisual {
      * actual (bound forecast role or a measure named „… AC&FC“), never a scenario
      * the chart does not show.
      */
-    private titleScenarios(periodSet: string, cfg: ChartConfig): string {
+    private titleScenarios(periodSet: string, cfg: ChartConfig, points: DataPoint[] = []): string {
         const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const tokens = ["AC", "PY", "PL", "BU", "FC",
             cfg.scenL.ac, cfg.scenL.py, cfg.scenL.pl, cfg.scenL.fc].filter(x => x);
         const named = new RegExp(`(^|[^A-Za-zÄÖÜäöüß])(${tokens.map(esc).join("|")})(?=$|[^A-Za-zÄÖÜäöüß])`);
         if (periodSet && named.test(periodSet)) { return ""; }
         const orient = String(this.formattingSettings.chartCard.orientation.value.value);
+        // B11 review (m6): stock & flow draws one scenario per period and no PY/BM —
+        // the title names exactly the scenarios of the drawn periods („AC, FC, PL“)
+        if (orient === "stockflow" && points.length > 0) {
+            const seen = new Set(this.stockFlowLayout(points, false).periods.map(p => p.scen));
+            return (["ac", "fc", "pl"] as const).filter(sc => seen.has(sc)).map(sc => cfg.scenL[sc]).join(", ");
+        }
         const fcInAc = cfg.hasFc
             || /\bAC\s*(&|\+|\/|und)\s*FC\b/i.test(this.measureName || "");
         const valueScen = fcInAc ? `${cfg.scenL.ac}&${cfg.scenL.fc}` : cfg.scenL.ac;

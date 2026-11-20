@@ -832,5 +832,7 @@
   "Hint_StockFlowNoStock": "Bestand & Fluss: keine Zeile vom Typ stock und keine Linien-Measure, die Bestandslinie fehlt",
   "Hint_StockFlowNoFlow": "Bestand & Fluss: keine Fluss-Zeilen, nur der Bestand wird gezeichnet",
   "Hint_StockFlowSpace": "Zu wenig Platz für Bestand und Fluss",
+  "Hint_StockFlowMixed": "Bestand & Fluss: reine Plan-Flüsse in einer Periode mit Ist oder Forecast werden nicht gezeichnet ({list})",
+  "Tooltip_Scenario": "Szenario",
   "Lock_YtdStockFlow": "Wirkungslos: Bestand und Fluss werden nicht kumuliert (ein Bestand ist über die Zeit nicht additiv)"
 }
