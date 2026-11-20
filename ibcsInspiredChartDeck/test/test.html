@@ -5176,14 +5176,113 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       "c611: Formatbereich zeigt „Bestand & Fluss“ nur im Modus, ohne Δ-Schalter");
     check(sfQ("c611", '[data-icd="sf-stock-pt"]').length === 36, "c611: Dark Mode zeichnet alle 36 Wochen");
   }
-  check(["c600", "c601", "c602", "c603", "c607", "c608", "c609", "c611"].every(id => !/NaN|undefined/.test(document.querySelector(`#${id} svg`).outerHTML)),
-    "c600 bis c611: kein NaN und kein undefined im SVG");
   // c613: Hochkontrast (keine Fläche, PL als Umriss)
   addStage("c613", "Bestand & Fluss · Hochkontrast · 08H", 960, 420, "#000");
   {
     runCap("c613", sfDv(hObj(), ["Jahr", "Quartal"], sfH), 960, 420, { palette: hcPal });
     check(!sfQ("c613", '[data-icd^="sf-area"]').length && sfQ("c613", '[data-icd="sf-seg-in"][data-scen="pl"] rect').every(r => r.getAttribute("stroke")),
       "c613: Hochkontrast ohne Fläche, Plan als Umriss");
+  }
+
+  // ======================================================================
+  // B11 Review: Σ-, Ø- und Rest-Kachel, Spaltengruppe und Trend behalten Bestand,
+  // Flüsse und die gruppierte Achse (M1 bis M3)
+  // ======================================================================
+  const want03 = [14,13,15,16,18,19,21,22,20,17,11,13,14,16,18,17,19,16,18,19];
+  const tileQ = (t, sel) => [...t.querySelectorAll(sel)];
+  const tilePts = t => tileQ(t, '[data-icd="sf-stock-pt"]').map(e => num(e, "data-v"));
+  const tileOk = (t, nPer) => tileQ(t, '[data-icd="sf-seg-in"]').length === nPer && tileQ(t, '[data-icd="sf-seg-out"]').length === nPer
+    && tileQ(t, '[data-icd="axis-group"]').length === 5 && tileQ(t, '[data-icd="axis-group-sep"]').length >= 3;
+  const sfNord = (line) => sfH.map(p => Object.assign({}, p, { mult: "Nord" }));
+  const sfSud = (f) => sfH.map(p => Object.assign({}, p, { mult: "Süd", stock: p.stock * f, rows: p.rows.map(r => [r[0], r[1], r[2] * f]) }));
+  const near = (a, b) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) < 1e-9);
+  // c620: Σ-Kachel mit stock-Zeilen
+  addStage("c620", "B11 Review M1 · Small Multiples mit Σ-Kachel, Bestand aus stock-Zeilen · Σ-Bestand = Nord + Süd", 1280, 560);
+  {
+    runCap("c620", sfDv({ chart: { template: "C20", multiplesTotal: true } }, ["Jahr", "Quartal"], [...sfNord(), ...sfSud(2)]), 1280, 560);
+    const tiles = sfQ("c620", '[data-icd="stockflow"]');
+    const sum = tiles[0] ? tilePts(tiles[0]) : [];
+    check(tiles.length === 3 && near(sum, want03.map(v => v * 3)) && tiles.every(t => tileOk(t, 19)),
+      `c620: Σ-Kachel mit Bestand ${sum[19]} = 19 + 38, je 19 Zu- und Abflüsse (zwei Nullwerte), 5 Achsengruppen wie Nord und Süd`);
+    check(!tileQ(tiles[0], '[data-icd="sf-seg-in"]').some(g => /Decrease|Inventory/.test(g.getAttribute("data-series")))
+      && tileQ(tiles[0], '[data-icd="sf-name-stock"]')[0]?.textContent === "Inventory", "c620: Bestand und Abflüsse bleiben in der Σ-Kachel keine Zuflüsse");
+  }
+  // c621: Ø-Kachel mit stock-Zeilen, Lücken: fehlender Zufluss zählt 0, fehlender Bestand zählt nicht
+  addStage("c621", "B11 Review M1 · Ø-Kachel (multiplesAgg = mean) · Süd ohne Zufluss in Q1 2023 und ohne Bestand in Q2 2023", 1280, 560);
+  {
+    const sud = sfSud(2).map((p, i) => Object.assign({}, p, { rows: p.rows.filter(r => !(i === 0 && r[1] === "inflow") && !(i === 1 && r[1] === "stock")) }));
+    runCap("c621", sfDv({ chart: { template: "C20", multiplesTotal: true, multiplesAgg: "mean" } }, ["Jahr", "Quartal"], [...sfNord(), ...sud]), 1280, 560);
+    const tiles = sfQ("c621", '[data-icd="stockflow"]');
+    const avg = tiles[0] ? tilePts(tiles[0]) : [];
+    const in0 = tiles[0] ? tileQ(tiles[0], '[data-icd="sf-seg-in"]').map(g => num(g, "data-v")) : [];
+    const exp = want03.map((v, i) => i === 1 ? v : v * 1.5);
+    check(tiles.length === 3 && near(avg, exp) && in0[0] === 1.5 && in0[1] === 3 && tileOk(tiles[0], 19),
+      `c621: Ø-Bestand je Periode über Kacheln mit Bestand (${avg.slice(0, 3).join(", ")}), fehlender Zufluss = 0 (${in0[0]}), Achsengruppen`);
+    const all = tiles.map(t => tileQ(t, '[data-icd="sf-seg-in"]').map(g => num(g.querySelector("rect"), "height") / num(g, "data-v")).filter(k => isFinite(k)));
+    check(all.every(a => a.every(k => Math.abs(k / all[0][0] - 1) < 0.03)), "c621: Ø-Kachel im selben Maßstab, keine gestauchten Kacheln");
+  }
+  // c622 / c623: Bestand über die Linien-Measure in Σ- und Ø-Kachel
+  addStage("c622", "B11 Review M3 · Linien-Measure als Bestand · Σ-Kachel", 1280, 560);
+  addStage("c623", "B11 Review M3 · Linien-Measure als Bestand · Ø-Kachel", 1280, 560);
+  {
+    const rows = [...sfNord(), ...sfSud(2)];
+    runCap("c622", sfDv({ chart: { template: "C20", multiplesTotal: true } }, ["Jahr", "Quartal"], rows, { lineStock: true, lineName: "Inventory" }), 1280, 560);
+    runCap("c623", sfDv({ chart: { template: "C20", multiplesTotal: true, multiplesAgg: "mean" } }, ["Jahr", "Quartal"], rows, { lineStock: true, lineName: "Inventory" }), 1280, 560);
+    const t2 = sfQ("c622", '[data-icd="stockflow"]'), t3 = sfQ("c623", '[data-icd="stockflow"]');
+    check(t2.length === 3 && near(tilePts(t2[0]), want03.map(v => v * 3)) && t2.every(t => tileOk(t, 19)),
+      `c622: Σ-Kachel mit Linien-Bestand ${t2[0] ? tilePts(t2[0])[19] : "–"} und Achsengruppen`);
+    check(t3.length === 3 && near(tilePts(t3[0]), want03.map(v => v * 1.5)) && t3.every(t => tileOk(t, 19)),
+      `c623: Ø-Kachel mit Linien-Bestand ${t3[0] ? tilePts(t3[0])[19] : "–"} und Achsengruppen`);
+  }
+  // c624: Rest-Kachel (multiplesTopN 1 bei drei Gruppen), Rang nach Flüssen
+  addStage("c624", "B11 Review M1 · Rest-Kachel (Top 1 von 3) behält Bestand und Achse", 1280, 560);
+  {
+    const west = sfNord().map(p => Object.assign({}, p, { mult: "West" }));
+    runCap("c624", sfDv({ chart: { template: "C20", multiplesTopN: 1 } }, ["Jahr", "Quartal"], [...sfNord(), ...sfSud(2), ...west]), 1280, 560);
+    const tiles = sfQ("c624", '[data-icd="stockflow"]');
+    check(tiles.length === 2 && near(tilePts(tiles[0]), want03.map(v => v * 2)) && near(tilePts(tiles[1]), want03.map(v => v * 2))
+      && tiles.every(t => tileOk(t, 19)), "c624: Süd und „Rest (2)“ mit Bestand 2 × Nord, Flüsse und Achsengruppen");
+  }
+  // c625 / c626: Spaltengruppe bzw. Trend gebunden → wie ohne
+  addStage("c625", "B11 Review M2 · Spaltengruppe gebunden (zwei Werke je Zeile) · zeichnet wie c603", 1280, 600);
+  addStage("c626", "B11 Review M2 · Trend gebunden (zwei Perioden je Zeile) · zeichnet wie c603", 1280, 600);
+  {
+    const split = (role, a, b) => {
+      const dv = sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material" });
+      const c = dv.categorical, n = c.values[0].values.length;
+      c.categories.forEach(cat => { cat.values = cat.values.concat(cat.values); });
+      c.values.forEach(v => { v.values = v.values.concat(v.values).map(x => x == null ? x : x / 2); });
+      c.categories.push({ source: { displayName: "Teil", roles: { [role]: true } }, values: Array.from({ length: 2 * n }, (_, i) => i < n ? a : b) });
+      return dv;
+    };
+    runCap("c625", split("colgroup", "Werk A", "Werk B"), 1280, 600);
+    runCap("c626", split("trend", "T1", "T2"), 1280, 600);
+    ["c625", "c626"].forEach(id => {
+      check(JSON.stringify(ptVals(id)) === JSON.stringify(want03) && sfQ(id, '[data-icd="sf-seg-in"]').length === 19
+        && sfQ(id, '[data-icd="sf-seg-out"]').length === 19 && sfQ(id, '[data-icd="axis-group"]').length === 5,
+        `${id}: Bestand, 19 Zu- und 19 Abflüsse und Achsengruppen bleiben (${sfQ(id, '[data-icd="sf-stock-pt"]').length} Punkte)`);
+    });
+    const sfRoot = id => document.querySelector(`#${id} [data-icd="stockflow"]`).outerHTML.replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+    // c625 trägt zusätzlich den Hinweis-Chip „Spaltengruppen erkannt“, daher nur c626 SVG-gleich
+    check(sfRoot("c626") === sfRoot("c603"), "c626: Trend gebunden zeichnet das Diagramm SVG-gleich wie c603");
+  }
+  // c627: Linien-Measure bei Spaltengruppe bleibt Bestand
+  addStage("c627", "B11 Review M2 · Linien-Measure als Bestand mit Spaltengruppe", 1280, 600);
+  {
+    const dv = sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material", lineStock: true, lineName: "Inventory" });
+    const c = dv.categorical, n = c.values[0].values.length;
+    c.categories.forEach(cat => { cat.values = cat.values.concat(cat.values); });
+    c.values.forEach(v => { const line = v.source.roles.lineMeasure; v.values = v.values.concat(v.values).map(x => x == null || line ? x : x / 2); });
+    c.categories.push({ source: { displayName: "Werk", roles: { colgroup: true } }, values: Array.from({ length: 2 * n }, (_, i) => i < n ? "A" : "B") });
+    runCap("c627", dv, 1280, 600);
+    check(JSON.stringify(ptVals("c627")) === JSON.stringify(want03) && sfQ("c627", '[data-icd="sf-seg-in"]').length === 19,
+      "c627: Linien-Bestand bleibt mit Spaltengruppe (erster Wert je Periode)");
+  }
+  // B11 Review: kein NaN in allen Bestand-Fluss-Stufen (vorher ohne c604 bis c606, c610, c612, c613)
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c6(0\d|1[0-3]|[2-4]\d)[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(document.querySelector(`#${id} svg`)?.outerHTML ?? ""));
+    check(ids.length >= 23 && bad.length === 0, `c600 bis c613 und c620 ff.: kein NaN, undefined oder Infinity im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
   }
 }
 // ---- B11-END

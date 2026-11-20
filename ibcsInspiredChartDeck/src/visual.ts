@@ -2387,7 +2387,9 @@ export class Visual implements IVisual {
         // dropped before anything renders — off by default so no data vanishes
         // silently (beta feedback A. Korn)
         const hideBlank = this.formattingSettings.chartCard.hideBlankCat.value === true;
-        const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
+        // B11 review (m1): the switch is hidden in stock & flow, a leftover value must
+        // not inflate flows and stocks there (one scenario per period)
+        const acFcSplit = this.sfModeOn() ? "off" : String(this.formattingSettings.chartCard.acFcSplit.value.value);
         // without a category the measures deliver a single scalar row each
         const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
         let rtCells = 0, rtFlagOnly = 0;
@@ -6045,7 +6047,10 @@ export class Visual implements IVisual {
             ? this.cumulate(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal) : pts;
         // B13 review (M3): a missing stack segment or a missing category on a structure
         // axis (bars) counts as 0 in the average; a missing period stays "no data"
-        const meanZero: "none" | "series" | "all" = orientationRaw === "bars" ? "all" : isStacked ? "series" : "none";
+        // B11 review (M1): stock & flow stacks its flows (a missing flow segment = 0 in a
+        // period the tile has); meanGroups keeps the stock rows as a level (no zero)
+        const meanZero: "none" | "series" | "all" = orientationRaw === "bars" ? "all"
+            : isStacked || isStockFlow ? "series" : "none";
         // B13 review (m1): with YTD the average is the mean of the cumulated groups
         // (average YTD per location), so these tiles are built from cumulated copies
         const meanPreCum = cumulativeOn && mAgg === "mean";
@@ -6058,8 +6063,9 @@ export class Visual implements IVisual {
             multOrig = allGroups;
             const fillN = (tpl: string, n: number) => tpl.replace(/\{n\}/g, String(n));
             if (mTopN > 0 && groups.length > mTopN + 1) {
+                // B11 review: in stock & flow the ranking counts the flows, not the stock levels
                 const size = (g: { pts: DataPoint[] }) =>
-                    g.pts.reduce((a, p) => a + Math.abs(p.value ?? 0), 0);
+                    g.pts.reduce((a, p) => a + (isStockFlow && p.sfKind === "stock" ? 0 : Math.abs(p.value ?? 0)), 0);
                 const ranked = groups.slice().sort((a, b) => size(b) - size(a));
                 const rest = ranked.slice(mTopN);
                 groups.length = 0;
@@ -6703,7 +6709,7 @@ export class Visual implements IVisual {
         if (isStockFlow) {
             let lo = 0, hi = 0, nLo = 0, nHi = 0;
             const openingOn = s.chartCard.sfOpening.value !== false;
-            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+            for (const g of shownGroups) {
                 const L = this.stockFlowLayout(g.pts, openingOn);
                 for (const per of L.periods) {
                     lo = Math.min(lo, per.outTot, per.stock ?? 0);
@@ -11865,6 +11871,7 @@ export class Visual implements IVisual {
             if (b) { b.push(p); } else { byKey.set(key, [p]); order.push(key); }
         }
         if (order.length === points.length) { return points; }
+        const sf = this.sfModeOn();
         return order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             if (kids.length === 1) { return kids[0]; }
@@ -11874,6 +11881,9 @@ export class Visual implements IVisual {
             agg.stackSeries = kids[0].stackSeries;
             agg.rowType = kids[0].rowType;
             agg.isFc = kids.every(c => c.isFc);
+            // B11 review (M2): stock & flow keeps the line-measure stock (first non-null
+            // child, like stockFlowLayout per period); sfKind comes from aggregateHierarchy
+            if (sf) { agg.lineVal = kids.find(c => c.lineVal != null)?.lineVal ?? null; }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
@@ -12048,13 +12058,46 @@ export class Visual implements IVisual {
         const basis2 = this.basis2Mode === "plan" ? pl : py;
         const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
         const var2Rel = relVar(var2Abs, basis2);
+        // B11 review (M1): the stock & flow role travels with the aggregate when all
+        // children share it (Σ / Ø / Rest tiles, merged column groups, duplicates)
+        const sfKind = kids.length > 0 && kids[0].sfKind != null && kids.every(c => c.sfKind === kids[0].sfKind)
+            ? kids[0].sfKind : null;
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             dim: kids.length > 0 && kids.every(c => c.dim),
             bm: null, fcPrev: sum(p => p.fcPrev), lineVal: null, stackSeries: null, comment: null, commentNo: null,
-            group: kids[0].group, rowType: null, isRest: false, sel: null
+            group: kids[0].group, rowType: null, isRest: false, sel: null,
+            ...(sfKind != null ? { sfKind } : {})
         };
+    }
+
+    /** 1.55 (B11): true in the stock & flow mode (orientation=stockflow) */
+    private sfModeOn(): boolean {
+        return String(this.formattingSettings?.chartCard?.orientation?.value?.value) === "stockflow";
+    }
+
+    /**
+     * B11 review (M3): the stock of a synthetic tile when it comes from the line
+     * measure. Per tile and category the first non-null lineVal is the tile's stock
+     * (as in stockFlowLayout); the tile stock is the sum over the tiles, or for the
+     * average the mean over the tiles WITH a stock (a level, no zero rule).
+     */
+    private sfLineStock(subsets: DataPoint[][], mean: boolean): Map<string, number> {
+        const acc = new Map<string, { s: number; n: number }>();
+        for (const pts of subsets) {
+            const seen = new Set<string>();
+            for (const p of pts) {
+                if (p.lineVal == null || seen.has(p.cat)) { continue; }
+                seen.add(p.cat);
+                const a = acc.get(p.cat) ?? { s: 0, n: 0 };
+                a.s += p.lineVal; a.n++;
+                acc.set(p.cat, a);
+            }
+        }
+        const out = new Map<string, number>();
+        acc.forEach((a, c) => out.set(c, mean ? a.s / a.n : a.s));
+        return out;
     }
 
     /**
@@ -12074,6 +12117,9 @@ export class Visual implements IVisual {
                 if (bucket) { bucket.push(p); } else { byKey.set(key, [p]); order.push(key); }
             }
         }
+        // B11 review (M3): stock & flow keeps the grouped time axis and the line-measure stock
+        const sf = this.sfModeOn();
+        const lineStock = sf ? this.sfLineStock(subsets, false) : null;
         const pts = order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             const agg = this.aggregateHierarchy(kids[0].cat, kids);
@@ -12082,7 +12128,10 @@ export class Visual implements IVisual {
             // a period is still forecast in the total only if every tile flags it
             agg.isFc = kids.every(c => c.isFc);
             agg.rowType = kids[0].rowType;
-            if (kids[0].sfKind != null) { agg.sfKind = kids[0].sfKind; }
+            if (sf) {
+                agg.catLevels = kids[0].catLevels;
+                agg.lineVal = lineStock?.get(agg.cat) ?? null;
+            }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
@@ -12156,15 +12205,20 @@ export class Visual implements IVisual {
         const eligible = (cat: string, f: F): Set<number> | null => zero === "all" ? (tileHas.get(f) ?? new Set<number>())
             : zero === "series" ? (catHas.get(cat)?.get(f) ?? new Set<number>()) : null;
         const b2f: F = this.basis2Mode === "plan" ? "pl" : "py";
+        // B11 review (M1/M3): stock & flow keeps the grouped time axis; the stock is a
+        // level (mean over the tiles with a stock), the flows follow the stack rule
+        const sf = this.sfModeOn();
+        const lineStock = sf ? this.sfLineStock(subsets, true) : null;
         const pts = order.map(key => {
             const entries = byKey.get(key) as { t: number; p: DataPoint }[];
             const tiles = entries.map(e => e.p);
             const cat = tiles[0].cat;
+            const isStock = sf && tiles[0].sfKind === "stock";
             const mean = (f: F): number | null => {
                 let acc = 0, n = 0;
                 for (const t of tiles) { const v = t[f]; if (v != null) { acc += v; n++; } }
                 if (n === 0) { return null; }
-                const el = eligible(cat, f);
+                const el = isStock ? null : eligible(cat, f);
                 return acc / (el ? Math.max(n, el.size) : n);
             };
             const pairs = (f: F): { d: number; b: number } | null => {
@@ -12174,7 +12228,7 @@ export class Visual implements IVisual {
                     if (t.value != null && bv != null) { d += t.value - bv; b += bv; n++; }
                 }
                 if (n === 0) { return null; }
-                const ev = eligible(cat, "value"), eb = eligible(cat, f);
+                const ev = isStock ? null : eligible(cat, "value"), eb = isStock ? null : eligible(cat, f);
                 if (ev && eb) {
                     // tiles eligible for both fields count, without the key as 0 / 0
                     let both = 0;
@@ -12197,6 +12251,10 @@ export class Visual implements IVisual {
             agg.stackSeries = tiles[0].stackSeries;
             agg.isFc = tiles.every(c => c.isFc);
             agg.rowType = tiles[0].rowType;
+            if (sf) {
+                agg.catLevels = tiles[0].catLevels;
+                agg.lineVal = lineStock?.get(cat) ?? null;
+            }
             // KPI cards + Trend role: the Ø tile keeps an averaged time series
             const ts = this.sumTrendSeries(tiles, true);
             if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
