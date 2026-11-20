@@ -157,7 +157,11 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // scale (AC + FC), scenario labels at the axis; 03A is the same with basis PY
     C19: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, waterfallStyle: false, cumulative: false,
-        yearColumn: true, scenarioLabels: true, pinStyle: "square" }
+        yearColumn: true, scenarioLabels: true, pinStyle: "square" },
+    // 1.55 (B11) C20 = 08E to 08H: stock & flow over time (net panel, flows ±, stock line
+    // with area), scenario labels at the axis, emphasis as ellipse around the stock label
+    C20: { orientation: "stockflow", sfNet: true, sfArea: true, scenarioLabels: true, showTotal: false,
+        highlightStyle: "ellipse" }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -165,7 +169,8 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
 const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
-    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns"
+    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
+    C20: "stockflow"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -178,11 +183,12 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C16: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C17: { role: "previousYear", key: "Hub_NeedPy", en: "Prior year (PY)" },
     C18: { role: "xValue", key: "Hub_NeedX", en: "X axis" },
-    C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" }
+    C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
+    C20: { role: "rowType", key: "Hub_NeedSf", en: "Type: stock / inflow / outflow" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
-    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C19", "C05", "C08"] },
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C19", "C05", "C08", "C20"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
@@ -206,7 +212,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C16: ["Bar table sorted by AC", "Top units, plan alongside"],
     C17: ["Horizontal driver bridge", "Many units: PY → AC per row"],
     C18: ["Variance scatter", "ΔPY % against ΔPL % per product"],
-    C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"]
+    C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"],
+    C20: ["Stock and flow", "Cash, headcount or inventory over time"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -362,7 +369,11 @@ type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartLi
  * mark an ordinary movement row. Aliases follow the P&L visual's parseRowType, so
  * one DimKonto[RowType] column can feed both visuals.
  */
-type RowFlag = "invert" | "emphasize" | "exclude" | "hide" | "davon" | "graphic";
+type RowFlag = "invert" | "emphasize" | "exclude" | "hide" | "davon" | "graphic"
+    // 1.55 (B11): stock & flow roles of a row (orientation=stockflow); per row, not per name
+    | "stock" | "inflow" | "outflow";
+/** 1.55 (B11): the stock & flow flags travel with the DataPoint (sfKind), not as name sets */
+const SF_FLAGS: RowFlag[] = ["stock", "inflow", "outflow"];
 const ROW_FLAGS: RowFlag[] = ["invert", "emphasize", "exclude", "hide", "davon", "graphic"];
 const ROW_TOKENS: Record<string, RowFlag | "total" | "pct" | "none"> = {
     total: "total", sum: "total", subtotal: "total", summe: "total", ergebnis: "total",
@@ -375,6 +386,10 @@ const ROW_TOKENS: Record<string, RowFlag | "total" | "pct" | "none"> = {
     invert: "invert", invertieren: "invert", kosten: "invert", cost: "invert", costs: "invert",
     emphasize: "emphasize", highlight: "emphasize", hervorheben: "emphasize",
     graphic: "graphic", chart: "graphic", grafik: "graphic",
+    // 1.55 (B11): no short aliases in/out/level, a report may carry them as free text today
+    stock: "stock", bestand: "stock", balance: "stock",
+    inflow: "inflow", zufluss: "inflow",
+    outflow: "outflow", abfluss: "outflow",
     detail: "none", normal: "none", delta: "none", account: "none", konto: "none",
     separator: "none", "+": "none", "-": "none", "−": "none"
 };
@@ -498,6 +513,8 @@ interface DataPoint {
     group: string | null;
     /** waterfall row type: 'sum' | 'delta' | null */
     rowType: string | null;
+    /** 1.55 (B11): stock & flow role from the rowType tokens stock / inflow / outflow */
+    sfKind?: "stock" | "inflow" | "outflow" | null;
     /** true for the synthetic "Rest (n)" row produced by top-N aggregation */
     isRest: boolean;
     /** cross-highlight from another visual is active and this row is NOT part of
@@ -697,6 +714,9 @@ interface ChartConfig {
     diffMarkers: DiffMarkerSpec[];
     /** 1.55 (B09): integrated bridge — second net element to the other basis */
     bridgeSecondNet: boolean;
+    /** 1.55 (B11): stock & flow deck: one main domain (flows ± and stock) and one net
+     *  domain over all drawn tiles, both at the same px per unit; null outside the mode */
+    sfDeck: { lo: number; hi: number; nLo: number; nHi: number } | null;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
      *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
@@ -810,6 +830,37 @@ interface ChartConfig {
         xLogWanted: boolean;
         yLogWanted: boolean;
     } | null;
+}
+
+/** 1.55 (B11): one period of the stock & flow mode (orientation=stockflow) */
+interface SfPeriod {
+    cat: string;
+    /** tick label (lowest hierarchy level) and the level path (one entry without hierarchy) */
+    label: string;
+    levels: string[];
+    scen: "ac" | "fc" | "pl";
+    /** flow cells in stacking order, value signed: + inflow, − outflow */
+    flows: { series: string; side: "in" | "out"; v: number; p: DataPoint }[];
+    inTot: number;
+    outTot: number;
+    net: number;
+    /** a flow value was delivered (also 0): the net label "0" is shown */
+    hasFlow: boolean;
+    stock: number | null;
+    pts: DataPoint[];
+}
+/** 1.55 (B11): stock & flow layout of one tile (stockFlowLayout) */
+interface SfLayout {
+    periods: SfPeriod[];
+    inSeries: string[];
+    outSeries: string[];
+    stockName: string | null;
+    /** derived opening stock: stock of the first period minus its net flow */
+    opening: number | null;
+    hasStock: boolean;
+    hasFlow: boolean;
+    /** the stock comes from the line measure (no row carries the token stock) */
+    viaLine: boolean;
 }
 
 /** deck-wide scatter scales for small multiples (see ChartConfig.scatter.shared) */
@@ -2009,9 +2060,9 @@ export class Visual implements IVisual {
         // 1.54 (B05): year column and scenario labels exist only in the column chart
         fs.chartCard.yearColumn.visible = orient === "columns";
         fs.chartCard.yearColumnLabel.visible = orient === "columns" && fs.chartCard.yearColumn.value === true;
-        fs.chartCard.scenarioLabels.visible = orient === "columns";
+        fs.chartCard.scenarioLabels.visible = orient === "columns" || orient === "stockflow";
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "catbridge";
+            || orient === "line" || orient === "catbridge" || orient === "stockflow";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
             || orient === "pnl";
         fs.chartCard.driverNote.visible = orient === "catbridge";
@@ -2036,9 +2087,14 @@ export class Visual implements IVisual {
         // Färbung nutzt die Basis trotzdem); Small Multiples = echte Kacheln (1.48, s. u.)
         const isScatter = orient === "scatter";
         fs.chartCard.scatterGroup.visible = isScatter;
-        fs.chartCard.showAbsoluteVariance.visible = !isScatter;
-        fs.chartCard.showRelativeVariance.visible = !isScatter;
-        if (isScatter) { fs.chartCard.dualVariance.visible = false; }
+        // 1.55 (B11): the stock & flow mode has no Δ panels (the net panel takes the room)
+        const isSf = orient === "stockflow";
+        fs.chartCard.stockFlowGroup.visible = isSf;
+        fs.chartCard.sfNetLabel.visible = isSf && fs.chartCard.sfNet.value !== false;
+        fs.chartCard.sfNegTint.visible = isSf && fs.chartCard.sfArea.value !== false;
+        fs.chartCard.showAbsoluteVariance.visible = !isScatter && !isSf;
+        fs.chartCard.showRelativeVariance.visible = !isScatter && !isSf;
+        if (isScatter || isSf) { fs.chartCard.dualVariance.visible = false; }
         // Scatter v3 gates: Formen nur bei Gruppen-Färbung; Pfeile nur mit PY;
         // R² nur bei aktiver Trendlinie; Größen-Legende nur mit gebundener Blasengröße;
         // Quadranten-Labels nur, wenn überhaupt Quadranten-Linien entstehen können
@@ -2073,8 +2129,8 @@ export class Visual implements IVisual {
         fs.chartCard.scatterQuadLabelBL.visible = isScatter && quadOn;
         fs.chartCard.scatterQuadLabelBR.visible = isScatter && quadOn;
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
-        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
-        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
+        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0 && orient !== "stockflow";
+        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value && orient !== "stockflow";
         // comments card stays visible without a comment measure — the in-chart
         // capture mode works on any category
         fs.commentsCard.visible = true;
@@ -2095,7 +2151,7 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesRestLabel.visible = multTopOn;
         fs.chartCard.multiplesBasis.visible = !isScatter
             && (orient === "columns" || orient === "bars" || orient === "line");
-        fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
+        fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
         fs.chartCard.fiscalStart.visible = fs.chartCard.cumulativeKind.visible
@@ -2117,16 +2173,16 @@ export class Visual implements IVisual {
         fs.chartCard.exceptionOnly.descriptionKey = excThreshold
             ? "Desc_Chart_ExceptionOnly" : "Exc_NeedsThreshold";
         // AC+FC-Splitsäule nur anbieten, wenn überhaupt ein FC-Measure da ist (UX-7)
-        fs.chartCard.acFcSplit.visible = this.paneHasFc;
+        fs.chartCard.acFcSplit.visible = this.paneHasFc && orient !== "stockflow";
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
         fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "table";
+            || orient === "line" || orient === "table" || orient === "stockflow";
         // scale card only where the shared main scale exists; the waterfall now
         // honors fixedMax/cap after its own domain pass (S7), so the sync group
         // stays visible there too — two waterfalls on a page can share one scale;
         // the table consumes the sync domains but has no ref line / cap marker
         fs.scaleCard.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "waterfall" || orient === "table" || isScatter;
+            || orient === "line" || orient === "waterfall" || orient === "table" || isScatter || isSf;
         // Scatter skaliert beide Achsen selbst (keine Sync-Maxima), nutzt aber die
         // Referenzlinien: Y = refLine, X = xRefLine (nur hier sichtbar). Die v3-Gruppe
         // „Scatter-Achsen" (Min/Max-Fixierung + Log) existiert nur im Scatter
@@ -2390,6 +2446,7 @@ export class Visual implements IVisual {
                 const joined = levelLabels.join(" · ");
                 const leaf = levelLabels[levelLabels.length - 1];
                 for (const f of rtParse.flags) {
+                    if (SF_FLAGS.includes(f)) { continue; }
                     let names = this.rowFlagNames.get(f);
                     if (!names) { names = new Set(); this.rowFlagNames.set(f, names); }
                     let rows = this.rowFlagRows.get(f);
@@ -2425,6 +2482,9 @@ export class Visual implements IVisual {
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
                 rowType: rtParse ? rtParse.rowType : null,
+                ...(rtParse && rtParse.flags.some(f => SF_FLAGS.includes(f)) ? {
+                    sfKind: rtParse.flags.find(f => SF_FLAGS.includes(f)) as "stock" | "inflow" | "outflow"
+                } : {}),
                 isRest: false,
                 dim: anyHighlights && !hlRows[i],
                 sel: catLevels.length > 0 || mult ? selBuilder.createSelectionId() : null
@@ -5441,6 +5501,22 @@ export class Visual implements IVisual {
                 line(0, 0, 0, 1, c.ink, 1.6);
                 break;
             }
+            case "stockflow": {
+                // 1.55 (B11): net strip on top, flows ±, stock line with area
+                line(0, 0.16, 1, 0.16, c.ink, 1);
+                r(0.06, 0.08, 0.10, 0.08, c.grey); r(0.30, 0.16, 0.10, 0.06, c.ink); r(0.54, 0.10, 0.10, 0.06, c.grey);
+                this.el("polygon", { points: `${x},${y + 0.62 * h} ${x + 0.35 * w},${y + 0.45 * h} ${x + 0.6 * w},${y + 0.5 * h} ${x + 0.85 * w},${y + 0.38 * h} ${x + 0.85 * w},${y + 0.72 * h} ${x},${y + 0.72 * h}`,
+                    fill: c.ink, "fill-opacity": 0.12 }, g);
+                for (const [cx, up, dn] of [[0.06, 0.18, 0.12], [0.30, 0.10, 0.16], [0.54, 0.16, 0.10]]) {
+                    r(cx, 0.72 - up, 0.10, up, c.grey); r(cx, 0.72, 0.10, dn, c.ink);
+                }
+                r(0.70, 0.60, 0.10, 0.12, c.paper, { stroke: c.ink, "stroke-width": 1 });
+                r(0.70, 0.72, 0.10, 0.14, c.paper, { stroke: c.ink, "stroke-width": 1 });
+                this.el("polyline", { points: `${x},${y + 0.62 * h} ${x + 0.35 * w},${y + 0.45 * h} ${x + 0.6 * w},${y + 0.5 * h} ${x + 0.85 * w},${y + 0.38 * h}`,
+                    fill: "none", stroke: c.ink, "stroke-width": 1.6 }, g);
+                line(0, 0.72, 1, 0.72, c.ink, 1.2);
+                break;
+            }
             case "line": {
                 const pts = [[0, 0.75], [0.2, 0.55], [0.4, 0.62], [0.6, 0.35], [0.8, 0.42], [1, 0.2]];
                 const py2 = [[0, 0.85], [0.2, 0.72], [0.4, 0.78], [0.6, 0.55], [0.8, 0.6], [1, 0.45]];
@@ -5832,6 +5908,8 @@ export class Visual implements IVisual {
         const isCards = orientationRaw === "cards";
         // GuV-Statement: row-based P&L with PY + scenario waterfall columns
         const isPnl = orientationRaw === "pnl";
+        // 1.55 (B11): stock & flow over time, own renderer (flows ±, net panel, stock line)
+        const isStockFlow = orientationRaw === "stockflow";
         // 1.52.1: number rules for every formatter built below — 3-digit cap in
         // graphics (tables and the P&L statement keep their decimals), unit suffix
         this.digitCap = !isTable && !isPnl;
@@ -6339,6 +6417,7 @@ export class Visual implements IVisual {
             stackTotalMax: 0,
             diffMarkers: parseDiffMarkers(String(s.chartCard.diffMarkers.value || "")),
             bridgeSecondNet: s.chartCard.bridgeSecondNet.value === true,
+            sfDeck: null,
             isMaterial: this.materialityFn(),
             scatter: isScatter ? this.scatterConfig(points) : null
         };
@@ -6347,7 +6426,7 @@ export class Visual implements IVisual {
         // and Σ, set by the largest of them (Σ 408K over "162K · 196K · 50K"), so the
         // labels a reader adds up really give the Σ shown. Without sum-safe rounding
         // every number keeps its own 3-digit precision
-        if (cfg.sumSafe && this.digitCap && cfg.fmtUnit > 0 && !cfg.cumulative) {
+        if (cfg.sumSafe && this.digitCap && cfg.fmtUnit > 0 && !cfg.cumulative && !isStockFlow) {
             const sums = groups.map(g => Math.abs(g.pts.reduce((a, p) => a + (p.value ?? 0), 0)));
             const pS = capDecimals(Math.max(maxAbs, ...sums) / cfg.fmtUnit, cfg.fmtPrec);
             if (pS < cfg.fmtPrec) {
@@ -6562,6 +6641,25 @@ export class Visual implements IVisual {
             cfg.stackDomain = [lo, Math.max(hi, lo < 0 ? 0 : 1)];
         }
 
+        // 1.55 (B11): stock & flow, one main domain (inflow stacks, outflow stacks, stock
+        // incl. the derived opening) and one net domain over all drawn tiles
+        if (isStockFlow) {
+            let lo = 0, hi = 0, nLo = 0, nHi = 0;
+            const openingOn = s.chartCard.sfOpening.value !== false;
+            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                const L = this.stockFlowLayout(g.pts, openingOn);
+                for (const per of L.periods) {
+                    lo = Math.min(lo, per.outTot, per.stock ?? 0);
+                    hi = Math.max(hi, per.inTot, per.stock ?? 0);
+                    if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
+                }
+                if (L.opening != null) { lo = Math.min(lo, L.opening); hi = Math.max(hi, L.opening); }
+            }
+            if (fixedMax > 0) { hi = Math.max(hi, fixedMax); }
+            if (cfg.refLine != null) { lo = Math.min(lo, cfg.refLine); hi = Math.max(hi, cfg.refLine); }
+            cfg.sfDeck = { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi };
+        }
+
         // bridge modes scale each tile for itself by default — the pane toggle
         // switches them to one shared maximum over all tiles (IBCS same scale).
         // The maxima mirror exactly what the renderers compute per tile.
@@ -6684,6 +6782,10 @@ export class Visual implements IVisual {
                 this.renderStacked(grp.pts, region, cfg);
                 return;
             }
+            if (isStockFlow) {
+                this.renderStockFlow(grp.pts, region, cfg);
+                return;
+            }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
         };
         // in-chart chrome only where the host allows interactions — exports to
@@ -6759,6 +6861,11 @@ export class Visual implements IVisual {
                         ? this.locStr("Lock_YtdSingle", "No effect: a single period looks the same cumulated")
                         : null;
                 this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg, ytdLock);
+            }
+            // 1.55 (B11): stocks are not additive over time, YTD stays locked in the mode
+            if (s.chartCard.cumulativeButton.value && isStockFlow) {
+                this.drawCumButton(width - 6, cfg, this.locStr("Lock_YtdStockFlow",
+                    "No effect: stock and flow are not cumulated (a stock is not additive over time)"));
             }
             width += this.ctlInset;
         }
@@ -11913,6 +12020,7 @@ export class Visual implements IVisual {
             // a period is still forecast in the total only if every tile flags it
             agg.isFc = kids.every(c => c.isFc);
             agg.rowType = kids[0].rowType;
+            if (kids[0].sfKind != null) { agg.sfKind = kids[0].sfKind; }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
@@ -15244,6 +15352,623 @@ export class Visual implements IVisual {
         if (!cfg.hc) { this.el("rect", { width: 5, height: 5, fill: tint, "fill-opacity": 0.45 }, pat); }
         this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.hc ? cfg.ink : cfg.colors.ac, "stroke-width": 1.6 }, pat);
         return id;
+    }
+
+    // ------------------------------------------------- 1.55 (B11) stock & flow
+
+    /**
+     * 1.55 (B11): stock & flow layout of one tile. Rows with the rowType token
+     * `stock` (or, without such rows, the line measure) carry the stock; every other
+     * row is a flow: the token `inflow`/`outflow` forces the side (+|v| / −|v|), else
+     * the sign decides. One scenario per period like the stacks (B06): AC when any row
+     * carries an actual, else FC, else PL (cell = value, in plan periods the plan).
+     * The net flow is computed here, the opening stock derived (stock[0] − net[0]).
+     */
+    private stockFlowLayout(points: DataPoint[], openingOn: boolean): SfLayout {
+        const cats: string[] = [];
+        const byCat = new Map<string, DataPoint[]>();
+        for (const p of points) {
+            const list = byCat.get(p.cat);
+            if (list) { list.push(p); } else { byCat.set(p.cat, [p]); cats.push(p.cat); }
+        }
+        const tokStock = points.some(p => p.sfKind === "stock");
+        const viaLine = !tokStock && points.some(p => p.lineVal != null);
+        const inSeries: string[] = [], outSeries: string[] = [];
+        let stockName: string | null = viaLine ? (this.lineName ?? null) : null;
+        let anyFlow = false, anyStock = false;
+        const periods = cats.map((c): SfPeriod => {
+            const pts = byCat.get(c) as DataPoint[];
+            const scen: "ac" | "fc" | "pl" = pts.some(x => x.value != null && !x.isFc) ? "ac"
+                : pts.some(x => x.value != null && x.isFc) ? "fc"
+                    : pts.some(x => x.pl != null) ? "pl" : "ac";
+            const cell = (x: DataPoint): number | null => x.value ?? (scen === "pl" ? x.pl : null);
+            const flows: SfPeriod["flows"] = [];
+            let stock: number | null = null, hasFlow = false;
+            for (const x of pts) {
+                const raw = cell(x);
+                if (x.sfKind === "stock") {
+                    if (stockName == null && x.stackSeries != null) { stockName = x.stackSeries; }
+                    if (raw != null) { stock = (stock ?? 0) + raw; }
+                    continue;
+                }
+                if (raw == null) { continue; }
+                hasFlow = true;
+                const v = x.sfKind === "outflow" ? -Math.abs(raw) : x.sfKind === "inflow" ? Math.abs(raw) : raw;
+                if (v === 0) { continue; }
+                const side: "in" | "out" = v < 0 ? "out" : "in";
+                const sn = x.stackSeries ?? "";
+                const list = side === "in" ? inSeries : outSeries;
+                if (!list.includes(sn)) { list.push(sn); }
+                flows.push({ series: sn, side, v, p: x });
+            }
+            if (viaLine) {
+                const lv = pts.find(x => x.lineVal != null);
+                stock = lv ? lv.lineVal as number : null;
+            }
+            if (hasFlow) { anyFlow = true; }
+            if (stock != null) { anyStock = true; }
+            const inTot = flows.reduce((a, f) => a + (f.v > 0 ? f.v : 0), 0);
+            const outTot = flows.reduce((a, f) => a + (f.v < 0 ? f.v : 0), 0);
+            const levels = pts[0].catLevels ?? [c];
+            return { cat: c, label: levels[levels.length - 1], levels, scen, flows, inTot, outTot,
+                net: inTot + outTot, hasFlow, stock, pts };
+        });
+        // stacking order = series order of first appearance on each side
+        for (const per of periods) {
+            per.flows.sort((a, b) => a.side === b.side
+                ? (a.side === "in" ? inSeries : outSeries).indexOf(a.series) - (b.side === "in" ? inSeries : outSeries).indexOf(b.series)
+                : a.side === "in" ? -1 : 1);
+        }
+        const opening = openingOn && periods.length > 0 && periods[0].stock != null
+            ? (periods[0].stock as number) - periods[0].net : null;
+        return { periods, inSeries, outSeries, stockName, opening, hasStock: anyStock, hasFlow: anyFlow, viaLine };
+    }
+
+    /**
+     * 1.55 (B11, IBCS sheets 08E to 08H): stock & flow over time. Top: net flow per
+     * period (neutral grey, signed labels); below on the SAME px per unit: inflows
+     * stacked above zero, outflows below, the stock as a line with markers at the
+     * period end (plus the opening stock at the start of the first period) and an
+     * area down to zero (negative pieces tinted). AC solid, FC hatched, PL outlined
+     * (B06 notation) for columns, markers and area. The time axis takes up to two
+     * group rows from the category hierarchy (e.g. year › week › day).
+     */
+    private renderStockFlow(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const cs = this.formattingSettings.chartCard;
+        const L = this.stockFlowLayout(points, cs.sfOpening.value !== false);
+        const P = L.periods;
+        const n = P.length;
+        if (n === 0) { return; }
+        this.fcCuts = [];
+        const k = this.fontK, lf = cfg.labelFont, cf = cfg.catFont;
+        const legFont = Math.round(10 * k);
+        const fmt = cfg.fmt;
+        const netOn = cs.sfNet.value !== false && L.hasFlow;
+        const areaOn = cs.sfArea.value !== false && !cfg.hc;
+        const negTint = cs.sfNegTint.value !== false;
+        const atCenter = String((cs.sfStockAt.value as powerbi.IEnumMember)?.value) === "center";
+        const groupsOn = String((cs.axisGroups.value as powerbi.IEnumMember)?.value) !== "off";
+        const deck = cfg.sfDeck ?? (() => {
+            let lo = 0, hi = 0, nLo = 0, nHi = 0;
+            for (const per of P) {
+                lo = Math.min(lo, per.outTot, per.stock ?? 0);
+                hi = Math.max(hi, per.inTot, per.stock ?? 0);
+                if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
+            }
+            if (L.opening != null) { lo = Math.min(lo, L.opening); hi = Math.max(hi, L.opening); }
+            return { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi };
+        })();
+        const scen = P.map(p => p.scen);
+        const scenSet = new Set(scen);
+        const anyScen = scenSet.has("fc") || scenSet.has("pl");
+        const scenOn = cfg.scenarioLabels && anyScen;
+        const rank = { ac: 0, fc: 1, pl: 2 };
+        const monotone = scen.every((sc, i) => i === 0 || rank[sc] >= rank[scen[i - 1]]);
+        const scenStart = new Set<number>();
+        for (let i = 1; i < n; i++) { if (scen[i] !== scen[i - 1]) { scenStart.add(i); } }
+        // group rows from the hierarchy: up to two levels above the leaf, nearest first
+        const depth = Math.min(...P.map(p => p.levels.length));
+        const gLevels: number[] = [];
+        if (groupsOn) { for (let j = depth - 2; j >= 0 && gLevels.length < 2; j--) { gLevels.push(j); } }
+        const rowH = cf + 5;
+        const axisH = cf + 8 + gLevels.length * rowH + (scenOn ? rowH : 0);
+
+        // ---- horizontal layout: opening label room left, direct labels right
+        const netName = (cs.sfNetLabel.value || "").trim() || this.locStr("Sf_Net", "Net");
+        const stockName = L.stockName ?? this.locStr("Sf_Stock", "Stock");
+        const inName = (sn: string) => sn || this.locStr("Sf_Inflow", "Inflow");
+        const outName = (sn: string) => sn || this.locStr("Sf_Outflow", "Outflow");
+        const nameMax = Math.round(130 * k);
+        const direct = [...(netOn ? [netName] : []), ...(L.hasStock ? [stockName] : []),
+            ...L.inSeries.map(inName), ...L.outSeries.map(outName)];
+        const nameW = Math.min(nameMax, this.maxTextWidth(direct, legFont)) + 6;
+        let lastIdx = -1;
+        for (let i = n - 1; i >= 0; i--) { if (P[i].stock != null) { lastIdx = i; break; } }
+        const lastStock = lastIdx >= 0 ? P[lastIdx].stock as number : null;
+        const lastHalf = lastStock != null && !atCenter ? this.textWidth(fmt.format(lastStock), lf) / 2 + 3 : 0;
+        const firstHalf = L.opening != null ? this.textWidth(fmt.format(L.opening), lf) / 2 + 2 : 2;
+        const rightW = Math.min(region.w * 0.3, nameW + lastHalf + 6);
+        const bandStart = region.x + Math.max(4, firstHalf);
+        const bandEnd = region.x + region.w - rightW;
+        const step = (bandEnd - bandStart) / n;
+
+        // ---- vertical layout: net panel and main panel at ONE px per unit
+        const hFont = Math.round(11 * k);
+        const headerH = cfg.showTotal ? hFont + 6 : 0;
+        const top0 = region.y + headerH + 2;
+        const bottom0 = region.y + region.h - axisH;
+        const padT = lf + 6, padB = lf + 6, gap = 12;
+        const netSpan = netOn ? deck.nHi - deck.nLo : 0;
+        const fixedPx = padT + padB + (netOn ? padT + (deck.nLo < 0 ? padB : 4) + gap : 0);
+        const kpx = (bottom0 - top0 - fixedPx) / Math.max(deck.hi - deck.lo + netSpan, 1e-9);
+        if (!(step >= 2.5) || !(kpx > 0) || bottom0 - top0 < 40) {
+            this.drawModeHint(region, cfg, this.locStr("Hint_StockFlowSpace", "Not enough space for stock and flow"));
+            this.svg.lastElementChild?.setAttribute("data-icd", "sf-hint");
+            return;
+        }
+        this.lastScaleK = kpx;
+        const netZero = top0 + padT + kpx * deck.nHi;
+        const netBottom = netZero - kpx * deck.nLo + (deck.nLo < 0 ? padB : 4);
+        const mainTop = netOn ? netBottom + gap : top0;
+        const mainZero = mainTop + padT + kpx * deck.hi;
+        const mainBottom = mainZero - kpx * deck.lo + padB;
+        const Y: Scale = (v: number) => mainZero - kpx * v;
+        const YN: Scale = (v: number) => netZero - kpx * v;
+        const axisTop = mainBottom;
+        const axisBottom = axisTop + axisH;
+        const slotW = Math.max(1, step * SLOT_ABS);
+        const colX = (i: number) => bandStart + i * step + (step - slotW) / 2;
+        const center = (i: number) => bandStart + (i + 0.5) * step;
+        const ptX = (i: number) => atCenter ? center(i) : bandStart + (i + 1) * step;
+        const mainRect: Rect = { x: region.x, y: mainTop, w: region.w, h: mainBottom - mainTop };
+
+        // ---- tones: outflow in the AC colour, inflow lighter; more series per side ramp
+        const baseRgb = cfg.hc ? [26, 26, 26] : this.hexRgb(cfg.colors.ac);
+        const toRgb = cfg.dark ? this.hexRgb(cfg.paper) : [200, 200, 200];
+        const mixC = (f: number) => {
+            const c = baseRgb.map((b, ci) => Math.round(b + (toRgb[ci] - b) * f));
+            return `rgb(${c[0]},${c[1]},${c[2]})`;
+        };
+        const sideIdx = (side: "in" | "out", sn: string) => Math.max(0, (side === "in" ? L.inSeries : L.outSeries).indexOf(sn));
+        const tone = (side: "in" | "out", sn: string) => {
+            const list = side === "in" ? L.inSeries : L.outSeries;
+            const ramp = list.length > 1 ? sideIdx(side, sn) / (list.length - 1) * 0.3 : 0;
+            return mixC((side === "in" ? 0.55 : 0) + ramp);
+        };
+        // PL as outline (B06): inflows nearly hollow, outflows lightly tinted (08E)
+        const segStyle = (kind: "ac" | "fc" | "pl", fill: string, hatchKey: number, side: "in" | "out"): Record<string, string | number> =>
+            kind === "fc" ? { fill: `url(#${this.stackHatch(cfg, hatchKey, fill)})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                : kind === "pl" ? (cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
+                    : { fill, "fill-opacity": side === "in" ? 0.1 : 0.28, stroke: cfg.colors.pl, "stroke-width": 1.2 })
+                    : { fill, ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) };
+
+        // ---- axis groups (label under the first member, separators through the panels)
+        type AxGroup = { level: number; row: number; start: number; end: number; label: string };
+        const axGroups: AxGroup[] = [];
+        gLevels.forEach((lev, row) => {
+            const key = (i: number) => P[i].levels.slice(0, lev + 1).join("\u0001");
+            let start = 0;
+            for (let i = 1; i <= n; i++) {
+                if (i === n || key(i) !== key(i - 1)) {
+                    axGroups.push({ level: lev, row, start, end: i, label: P[start].levels[lev] });
+                    start = i;
+                }
+            }
+        });
+        const emphGroups = axGroups.filter(g => this.isEmph(cfg, g.label));
+
+        const root = this.el("g", { "data-icd": "stockflow", "data-n": n }, this.svg);
+        const areaG = this.el("g", {}, root);
+        const bg = this.el("g", {}, root);
+        // highlight bands (band style): the period, or the whole range of a group
+        if (cfg.highlight.size > 0 && !cfg.highlightEllipse) {
+            const hTop = top0, hH = axisTop + cf + 4 - top0;
+            P.forEach((per, i) => { if (this.isEmph(cfg, per.cat)) { this.emphBand(bg, bandStart + i * step + 1, hTop, step - 2, hH, cfg); } });
+            for (const g of emphGroups) {
+                this.emphBand(bg, bandStart + g.start * step + 1, hTop, (g.end - g.start) * step - 2, hH, cfg);
+            }
+        }
+        // group separators: the outermost row strong, inner rows faint; none at a
+        // scenario boundary (B06 rule, the boundary line stands there)
+        const scenLineAt = (i: number) => anyScen && monotone && scenStart.has(i);
+        const sepDone = new Set<number>();
+        for (let r = gLevels.length - 1; r >= 0; r--) {
+            const strong = r === gLevels.length - 1;
+            for (const g of axGroups) {
+                if (g.row !== r || g.start === 0 || sepDone.has(g.start) || scenLineAt(g.start)) { continue; }
+                sepDone.add(g.start);
+                const x = bandStart + g.start * step;
+                this.el("line", { x1: x, y1: top0, x2: x, y2: axisTop + cf + 4 + (r + 1) * rowH,
+                    stroke: strong ? cfg.ink : cfg.subtle, "stroke-width": strong ? 1 : 1,
+                    ...(strong ? {} : { "stroke-opacity": 0.5 }), "data-icd": "axis-group-sep", "data-level": r + 1 }, bg);
+            }
+        }
+        // without a hierarchy: chart.groupEvery as before (group-sep)
+        const groupEvery = Math.round(cs.groupEvery.value ?? 0);
+        if (gLevels.length === 0 && groupEvery > 0 && groupEvery < n) {
+            for (let i = groupEvery; i < n; i += groupEvery) {
+                if (scenLineAt(i)) { continue; }
+                const x = bandStart + i * step;
+                this.el("line", { x1: x, y1: top0, x2: x, y2: axisTop, stroke: cfg.subtle, "stroke-width": 1,
+                    "stroke-opacity": 0.5, "data-icd": "group-sep" }, bg);
+            }
+        }
+        // AC | FC | PL boundaries through all panels and the axis (monotone blocks only)
+        if (anyScen && monotone) {
+            for (const i of scenStart) {
+                const x = bandStart + i * step;
+                const ln = this.el("line", { x1: x, y1: top0, x2: x, y2: axisBottom - 2, stroke: cfg.subtle,
+                    "stroke-width": 1, "stroke-dasharray": "3,3", "data-icd": scen[i] === "pl" ? "pl-boundary" : "fc-boundary" }, bg);
+                this.fcCuts.push({ line: ln, x, y1: top0, y2: axisBottom - 2 });
+            }
+        }
+        // zero lines of both panels (same scale, two baselines)
+        if (netOn) {
+            this.el("line", { x1: bandStart, y1: netZero, x2: bandEnd, y2: netZero, stroke: cfg.ink, "stroke-width": 1.2,
+                "data-icd": "sf-zero", "data-panel": "net" }, bg);
+        }
+        this.el("line", { x1: bandStart, y1: mainZero, x2: bandEnd, y2: mainZero, stroke: cfg.ink, "stroke-width": 1.2,
+            "data-icd": "sf-zero", "data-panel": "main" }, bg);
+        if (cfg.refLine != null) {
+            const rg = this.el("g", { "data-icd": "sf-refline" }, bg);
+            this.drawRefLine(rg, mainRect, Y, "columns", bandStart, bandEnd, cfg);
+        }
+
+        // ---- stock points: opening at the start of the first period, then one per period
+        type SP = { x: number; v: number | null; scen: "ac" | "fc" | "pl"; i: number };
+        const sp: SP[] = [];
+        if (L.opening != null) { sp.push({ x: bandStart, v: L.opening, scen: scen[0], i: -1 }); }
+        P.forEach((per, i) => sp.push({ x: ptX(i), v: per.stock, scen: per.scen, i }));
+
+        // ---- area between stock line and zero, per segment in the scenario of its period;
+        // a zero crossing splits the segment, pieces below zero are tinted
+        if (areaOn && L.hasStock) {
+            const areaHatch = `${cfg.patId}-sfa`;
+            if (!this.svg.querySelector(`#${areaHatch}`)) {
+                const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
+                const pat = this.el("pattern", { id: areaHatch, patternUnits: "userSpaceOnUse", width: 5, height: 5,
+                    patternTransform: "rotate(45)" }, defs);
+                this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
+                this.el("rect", { width: 5, height: 5, fill: cfg.colors.ac, "fill-opacity": 0.12 }, pat);
+                this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.colors.ac, "stroke-width": 1.4 }, pat);
+            }
+            const piece = (x1: number, v1: number, x2: number, v2: number, sc: "ac" | "fc" | "pl") => {
+                const neg = v1 + v2 < 0;
+                const style: Record<string, string | number> = neg && negTint
+                    ? { fill: cfg.colors.bad, "fill-opacity": 0.14, "data-icd": "sf-area-neg" }
+                    : sc === "fc" ? { fill: `url(#${areaHatch})`, "data-icd": "sf-area" }
+                        : { fill: cfg.colors.ac, "fill-opacity": sc === "pl" ? 0.05 : 0.12, "data-icd": "sf-area" };
+                this.el("polygon", { points: `${x1},${Y(v1)} ${x2},${Y(v2)} ${x2},${mainZero} ${x1},${mainZero}`,
+                    ...style, "data-scen": sc }, areaG);
+            };
+            for (let j = 1; j < sp.length; j++) {
+                const a = sp[j - 1], b = sp[j];
+                if (a.v == null || b.v == null) { continue; }
+                if ((a.v > 0 && b.v < 0) || (a.v < 0 && b.v > 0)) {
+                    const xz = a.x + (b.x - a.x) * a.v / (a.v - b.v);
+                    piece(a.x, a.v, xz, 0, b.scen);
+                    piece(xz, 0, b.x, b.v, b.scen);
+                } else {
+                    piece(a.x, a.v, b.x, b.v, b.scen);
+                }
+            }
+        }
+
+        // ---- flows and net per period
+        const marks = this.el("g", {}, root);
+        const periodGs: SVGGElement[] = [];
+        P.forEach((per, i) => {
+            const g = this.el("g", { "class": "icd-cat", "data-cat": per.cat }, marks) as SVGGElement;
+            periodGs.push(g);
+            let cumIn = 0, cumOut = 0;
+            for (const f of per.flows) {
+                const from = f.v > 0 ? cumIn : cumOut;
+                const to = from + f.v;
+                if (f.v > 0) { cumIn = to; } else { cumOut = to; }
+                const kind: "ac" | "fc" | "pl" = per.scen === "pl" ? "pl" : f.p.isFc ? "fc" : "ac";
+                const sg = this.el("g", { "data-icd": f.side === "in" ? "sf-seg-in" : "sf-seg-out", "data-scen": kind,
+                    "data-v": f.v, "data-series": f.series }, g);
+                this.drawBar(sg, colX(i), slotW, from, to, Y, "columns",
+                    segStyle(kind, tone(f.side, f.series), (f.side === "in" ? 10 : 20) + sideIdx(f.side, f.series), f.side));
+            }
+            if (netOn && per.hasFlow && per.net !== 0) {
+                const up = per.net > 0;
+                const ng = this.el("g", { "data-icd": "sf-net", "data-v": per.net, "data-scen": per.scen }, g);
+                this.drawBar(ng, colX(i), slotW, 0, per.net, YN, "columns",
+                    segStyle(per.scen, up ? tone("in", L.inSeries[0] ?? "") : tone("out", L.outSeries[0] ?? ""), up ? 30 : 31, up ? "in" : "out"));
+            }
+            const cp = per.pts.find(p => p.commentNo != null);
+            if (cp) {
+                const r = Math.round(7 * k);
+                const cg = this.el("g", { "data-icd": "stack-comment" }, g);
+                this.drawCommentMarker(cg, 0, cp, Y, "columns", cfg, { cx: center(i), cy: mainTop + r + 1 });
+            }
+        });
+
+        // ---- stock line, then the markers on top
+        const ms = Math.max(3, Math.min(Math.round(5.5 * k), step * 0.7));
+        const markerGs: (SVGGElement | null)[] = P.map(() => null);
+        if (L.hasStock) {
+            let d = "";
+            let open = false;
+            for (const q of sp) {
+                if (q.v == null) { open = false; continue; }
+                d += `${open ? "L" : "M"}${q.x},${Y(q.v)}`;
+                open = true;
+            }
+            this.el("path", { d, fill: "none", stroke: cfg.colors.ac, "stroke-width": Math.max(1.5, 1.5 * k),
+                "stroke-linejoin": "round", "data-icd": "sf-stock-line" }, root);
+            const mk = this.el("g", {}, root);
+            for (const q of sp) {
+                if (q.v == null) { continue; }
+                const style: Record<string, string | number> = q.scen === "pl"
+                    ? { fill: cfg.paper, stroke: cfg.colors.ac, "stroke-width": 1.2 }
+                    : q.scen === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac, stroke: cfg.colors.ac, "stroke-width": 1 };
+                const parent = q.i < 0 ? mk : (markerGs[q.i] = this.el("g", { "class": "icd-cat" }, mk) as SVGGElement);
+                this.el("rect", { x: q.x - ms / 2, y: Y(q.v) - ms / 2, width: ms, height: ms, ...style,
+                    "data-icd": q.i < 0 ? "sf-opening" : "sf-stock-pt", "data-scen": q.scen, "data-v": q.v }, parent);
+            }
+        }
+
+        // ---- labels (one declutter pass, higher priority wins)
+        const lbl = this.el("g", {}, root);
+        const items: { el: SVGTextElement; prio: number }[] = [];
+        const textAt = (x: number, y: number, txt: string, attrs: Record<string, string | number> = {}): SVGTextElement => {
+            const t = this.el("text", { x, y, "text-anchor": "middle", "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round", ...attrs }, lbl);
+            t.textContent = txt;
+            return t;
+        };
+        const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
+        const emphAt = (i: number) => i >= 0 && this.isEmph(cfg, P[i].cat);
+        const innerStart = new Set(axGroups.filter(g => g.row === 0).map(g => g.start));
+        const argBy = (f: (p: SfPeriod) => number, dir: 1 | -1) => {
+            let best = -1, bv = -Infinity;
+            P.forEach((p, i) => { const v = f(p) * dir; if (p.hasFlow && v > bv) { bv = v; best = i; } });
+            return best;
+        };
+        if (cfg.showLabels && L.hasFlow) {
+            const flowTw = Math.max(...P.map(p => Math.max(this.textWidth(fmt.format(p.inTot), lf),
+                this.textWidth(fmt.format(-p.outTot), lf), this.textWidth(this.fmtSigned(fmt, p.net), lf))));
+            // the net is the message of the upper panel: labelled as soon as it fits, the
+            // flows (two labels per period) only with more room, else first/last/extremes
+            const flowAll = density === "all" || (density !== "ends" && step >= flowTw * 2);
+            const netAll = density === "all" || (density !== "ends" && step >= flowTw * 1.3);
+            const prio = (i: number, ext: number[], all = flowAll): number => i === n - 1 ? 90 : emphAt(i) ? 89 : i === 0 ? 80
+                : scenStart.has(i) ? 75 : ext.includes(i) ? 70 : density !== "ends" && innerStart.has(i) ? 50 : all ? 20 : -1;
+            const extIn = [argBy(p => p.inTot, 1)], extOut = [argBy(p => p.outTot, -1)];
+            const extNet = [argBy(p => p.net, 1), argBy(p => p.net, -1)];
+            P.forEach((per, i) => {
+                const cx = center(i);
+                if (per.inTot > 0) {
+                    const pr = prio(i, extIn);
+                    if (pr >= 0) { items.push({ el: textAt(cx, Y(per.inTot) - 4, fmt.format(per.inTot), { "data-icd": "sf-label-in" }), prio: pr }); }
+                }
+                if (per.outTot < 0) {
+                    const pr = prio(i, extOut);
+                    if (pr >= 0) { items.push({ el: textAt(cx, Y(per.outTot) + lf + 2, fmt.format(-per.outTot), { "data-icd": "sf-label-out" }), prio: pr }); }
+                }
+                if (netOn && per.hasFlow) {
+                    const pr = prio(i, extNet, netAll);
+                    if (pr >= 0) {
+                        const y = per.net >= 0 ? YN(per.net) - 4 : YN(per.net) + lf + 2;
+                        items.push({ el: textAt(cx, y, this.fmtSigned(fmt, per.net), { "data-icd": "sf-label-net", "data-i": i }), prio: pr });
+                    }
+                }
+            });
+        }
+        if (cfg.showLabels && L.hasStock) {
+            const vals = sp.filter(q => q.v != null) as (SP & { v: number })[];
+            const stockTw = Math.max(...vals.map(q => this.textWidth(fmt.format(q.v), lf)));
+            const stockAll = density === "all" || (density !== "ends" && step >= stockTw * 2.2);
+            const stockLocal = density !== "ends" && step >= stockTw * 1.6;
+            let iMax = vals[0], iMin = vals[0];
+            for (const q of vals) { if (q.v > iMax.v) { iMax = q; } if (q.v < iMin.v) { iMin = q; } }
+            vals.forEach((q, j) => {
+                const pv = j > 0 ? vals[j - 1].v : null, nv = j < vals.length - 1 ? vals[j + 1].v : null;
+                const peak = (pv == null || q.v >= pv) && (nv == null || q.v >= nv);
+                const trough = (pv == null || q.v <= pv) && (nv == null || q.v <= nv);
+                const above = peak && !trough ? true : trough && !peak ? false
+                    : nv != null && nv !== q.v ? nv < q.v : pv != null && pv !== q.v ? pv < q.v : q.v >= 0;
+                const isLast = q.i === lastIdx;
+                const pr = isLast ? 100 : emphAt(q.i) ? 99 : q.i < 0 ? 95 : scenStart.has(q.i + 1) ? 88
+                    : q === iMax || q === iMin ? 82 : (peak !== trough) && stockLocal ? 55 : stockAll ? 25 : -1;
+                if (pr < 0) { return; }
+                const y = above ? Y(q.v) - ms / 2 - 4 : Y(q.v) + ms / 2 + lf;
+                items.push({ el: textAt(q.x, y, fmt.format(q.v), { "data-icd": "sf-stock-label", "data-i": q.i }), prio: pr });
+            });
+        }
+
+        // ---- direct labels right of the last period
+        const dl = this.el("g", { "data-icd": "sf-direct-label" }, root);
+        const fixed: SVGTextElement[] = [];
+        const nameX = bandEnd + lastHalf + 6;
+        const nameAt = (y: number, txt: string, icd: string) => {
+            const t = this.el("text", { x: nameX, y: y + legFont * 0.35, "font-size": legFont, fill: cfg.ink,
+                "font-family": FONT, "data-icd": icd }, dl);
+            t.textContent = this.truncate(txt, nameMax, legFont);
+            fixed.push(t);
+            return t;
+        };
+        const lineGap = legFont + 2;
+        if (netOn) { nameAt(netZero, netName, "sf-net-title"); }
+        const inYs = L.inSeries.map((_, j) => mainZero - legFont * 0.6 - 3 - j * lineGap);
+        const outYs = L.outSeries.map((_, j) => mainZero + legFont * 0.6 + 3 + j * lineGap);
+        L.inSeries.forEach((sn, j) => nameAt(inYs[j], inName(sn), "sf-name-in"));
+        L.outSeries.forEach((sn, j) => nameAt(outYs[j], outName(sn), "sf-name-out"));
+        if (lastStock != null) {
+            let ys = Y(lastStock);
+            const taken = [...inYs, ...outYs];
+            if (taken.some(y => Math.abs(y - ys) < lineGap)) {
+                ys = lastStock >= 0 ? Math.min(...inYs, mainZero) - lineGap : Math.max(...outYs, mainZero) + lineGap;
+            }
+            nameAt(ys, stockName, "sf-name-stock");
+        }
+
+        // ---- total header: Σ inflow · Σ outflow · net · closing stock
+        if (cfg.showTotal) {
+            const sumIn = P.reduce((a, p) => a + p.inTot, 0), sumOut = P.reduce((a, p) => a + p.outTot, 0);
+            const t = this.el("text", { x: region.x + region.w - 6, y: region.y + hFont + 1, "text-anchor": "end",
+                "font-size": hFont, "font-family": FONT, fill: cfg.subtle, "data-icd": "sf-total",
+                ...(lastStock != null ? { "data-closing": lastStock } : {}) }, root);
+            const span = (text: string, bold: boolean) => {
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                if (bold) { ts.setAttribute("font-weight", "600"); ts.setAttribute("fill", cfg.ink); }
+                ts.textContent = text;
+                t.appendChild(ts);
+            };
+            const inLbl = L.inSeries.length === 1 ? inName(L.inSeries[0]) : this.locStr("Sf_Inflow", "Inflow");
+            const outLbl = L.outSeries.length === 1 ? outName(L.outSeries[0]) : this.locStr("Sf_Outflow", "Outflow");
+            if (L.hasFlow) {
+                span(`Σ ${inLbl} `, false); span(fmt.format(sumIn), true);
+                span(` · Σ ${outLbl} `, false); span(fmt.format(-sumOut), true);
+                span(` · ${netName} `, false); span(this.fmtSigned(fmt, sumIn + sumOut), true);
+            }
+            if (lastStock != null) {
+                span(`${L.hasFlow ? " · " : ""}${this.locStr("Sf_TotalClosing", "Closing stock")} `, false);
+                span(fmt.format(lastStock), true);
+            }
+            fixed.push(t);
+        }
+
+        // ---- axis: period labels, group rows, scenario labels
+        const ax = this.el("g", { "data-icd": "sf-axis" }, root);
+        const yTick = axisTop + cf + 2;
+        const showCatAt = this.labelPredicate(P.map(p => ({ cat: p.label, value: 0 } as DataPoint)),
+            P.map(p => p.label), cf, step, "columns", undefined, true);
+        P.forEach((per, i) => {
+            const hl = emphAt(i);
+            if (!showCatAt(i) && !hl) { return; }
+            const t = this.el("text", { x: center(i), y: yTick, "text-anchor": "middle", "font-size": cf, fill: cfg.ink,
+                "font-family": FONT, "font-weight": hl ? 600 : 400 }, ax);
+            t.textContent = this.truncate(per.label, Math.max(step + 4, cf), cf);
+        });
+        const groupTexts: { g: AxGroup; t: SVGTextElement }[] = [];
+        for (const g of axGroups) {
+            const x = bandStart + g.start * step + 3;
+            const maxW = g.end === n ? region.x + region.w - x - 2 : (g.end - g.start) * step - 5;
+            if (maxW < cf) { continue; }
+            const hl = this.isEmph(cfg, g.label);
+            const t = this.el("text", { x, y: yTick + (g.row + 1) * rowH, "text-anchor": "start", "font-size": cf,
+                fill: cfg.ink, "font-family": FONT, "font-weight": hl ? 600 : 400, "data-icd": "axis-group",
+                "data-level": g.row + 1, "data-label": g.label }, ax);
+            t.textContent = this.truncate(g.label, maxW, cf);
+            groupTexts.push({ g, t });
+        }
+        if (scenOn) {
+            const yS = yTick + (gLevels.length + 1) * rowH;
+            for (let i = 0; i < n; i++) {
+                if (i > 0 && scen[i] === scen[i - 1]) { continue; }
+                const t = this.el("text", { x: bandStart + i * step + 3, y: yS, "text-anchor": "start", "font-size": cf,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label" }, ax);
+                t.textContent = scen[i] === "ac" ? cfg.scenL.ac : scen[i] === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+            }
+        }
+
+        this.declutterLabels(items, fixed);
+
+        // ---- emphasis as ellipse (C20): the stock label of the period (else its net
+        // label), a highlighted group label on the axis
+        if (cfg.highlightEllipse && cfg.highlight.size > 0) {
+            const ink = cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF";
+            const ring = (t: Element | null) => {
+                if (!t) { return; }
+                let b: DOMRect;
+                try { b = (t as SVGTextElement).getBBox(); } catch { return; }
+                if (!(b.width > 0)) { return; }
+                const e = this.el("ellipse", { cx: b.x + b.width / 2, cy: b.y + b.height / 2, rx: b.width / 2 + 5,
+                    ry: b.height / 2 + 3, fill: "none", stroke: ink, "stroke-width": 1.3, "data-icd": "emph-ellipse" }, lbl);
+                e.setAttribute("pointer-events", "none");
+            };
+            P.forEach((_, i) => {
+                if (!emphAt(i)) { return; }
+                ring(lbl.querySelector(`[data-icd="sf-stock-label"][data-i="${i}"]`)
+                    ?? lbl.querySelector(`[data-icd="sf-label-net"][data-i="${i}"]`));
+            });
+            for (const gt of groupTexts) { if (this.isEmph(cfg, gt.g.label)) { ring(gt.t); } }
+        }
+
+        // ---- edit-mode hints: no stock / no flow (readers and exports see nothing)
+        if (this.allowInteractions && this.viewMode !== 0 && (!L.hasStock || !L.hasFlow)) {
+            const t = this.el("text", { x: region.x + 4, y: mainTop + legFont, "font-size": Math.round(9 * k),
+                fill: cfg.subtle, "font-family": FONT, "font-style": "italic", "data-icd": "sf-hint" }, root);
+            t.textContent = this.truncate(!L.hasStock
+                ? this.locStr("Hint_StockFlowNoStock", "Stock & flow: no stock row (type stock) and no line measure, the stock line is missing")
+                : this.locStr("Hint_StockFlowNoFlow", "Stock & flow: no flow rows, only the stock is drawn"), region.w - 8, Math.round(9 * k));
+        }
+
+        // ---- interaction per period: tooltip (inflow, outflow, net, stock), selection
+        P.forEach((per, i) => {
+            for (const g of [periodGs[i], markerGs[i]]) {
+                if (g) { this.wireStockFlowPeriod(g, per, i === 0 ? L.opening : null, cfg, inName, outName, netName, stockName); }
+            }
+        });
+        this.cutFcLines();
+    }
+
+    /** 1.55 (B11): selection, keyboard and tooltip of one stock & flow period */
+    private wireStockFlowPeriod(g: SVGGElement, per: SfPeriod, opening: number | null, cfg: ChartConfig,
+        inName: (s: string) => string, outName: (s: string) => string, netName: string, stockName: string): void {
+        const allow = this.host.hostCapabilities?.allowInteractions !== false;
+        const sels = per.pts.map(p => p.sel).filter((x): x is ISelectionId => x != null);
+        const scenTxt = per.scen === "ac" ? cfg.scenL.ac : per.scen === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+        g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";
+        if (allow) { g.setAttribute("tabindex", "0"); }
+        g.setAttribute("role", "option");
+        const items = (): VisualTooltipDataItem[] => {
+            const out: VisualTooltipDataItem[] = [
+                { displayName: this.locStr("Role_Category", "Category"), value: per.cat },
+                { displayName: "Status", value: scenTxt }
+            ];
+            for (const f of per.flows) {
+                out.push({ displayName: f.side === "in" ? inName(f.series) : outName(f.series), value: cfg.fmt.format(Math.abs(f.v)) });
+            }
+            if (per.hasFlow) { out.push({ displayName: netName, value: this.fmtSigned(cfg.fmt, per.net) }); }
+            if (opening != null) { out.push({ displayName: this.locStr("Sf_Opening", "Opening stock"), value: cfg.fmt.format(opening) }); }
+            if (per.stock != null) { out.push({ displayName: stockName, value: cfg.fmt.format(per.stock) }); }
+            for (const p of per.pts) {
+                if (p.comment != null && p.commentNo != null) {
+                    out.push({ displayName: `${this.circledNo(p.commentNo)} ${this.locStr("Tooltip_Comment", "Comment")}`, value: p.comment });
+                }
+            }
+            return out;
+        };
+        g.setAttribute("aria-label", [per.cat, scenTxt, ...items().slice(2).map(it => `${it.displayName} ${it.value}`)].join(", "));
+        const select = (multi: boolean) => {
+            if (!allow || sels.length === 0) { return; }
+            this.selectionManager.select(sels, multi).then((ids: ISelectionId[]) => { this.applySelectionOpacity(ids); });
+        };
+        g.addEventListener("click", (e: MouseEvent) => {
+            e.stopPropagation();
+            if (!allow) { return; }
+            if (this.commentEdit) { this.openCommentEditor(per.pts[0], e); return; }
+            select(e.ctrlKey || e.metaKey);
+        });
+        g.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault();
+            e.stopPropagation();
+            select(e.ctrlKey || e.metaKey);
+        });
+        g.addEventListener("contextmenu", (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.selectionManager.showContextMenu(sels[0] ?? null, { x: e.clientX, y: e.clientY });
+        });
+        g.addEventListener("mouseover", (e: MouseEvent) => {
+            if (this.uiDark) { this.showDarkTip(items(), e); return; }
+            this.tooltipService.show({ dataItems: items(), identities: sels, coordinates: [e.clientX, e.clientY], isTouchEvent: false });
+        });
+        g.addEventListener("mousemove", (e: MouseEvent) => {
+            if (this.uiDark) { this.moveDarkTip(e); return; }
+            this.tooltipService.move({ dataItems: items(), identities: sels, coordinates: [e.clientX, e.clientY], isTouchEvent: false });
+        });
+        g.addEventListener("mouseout", () => {
+            if (this.uiDark) { this.hideDarkTip(); return; }
+            this.tooltipService.hide({ immediately: false, isTouchEvent: false });
+        });
+        this.catGroups.push({ g, sel: sels[0] ?? null, dim: per.pts.every(p => p.dim) });
     }
 
     /** hex "#rrggbb" → [r,g,b] (defaults to dark grey on malformed input) */

@@ -2297,7 +2297,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19"]', "c222: 17 Vorlagen-Kacheln " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20"]', "c222: 18 Vorlagen-Kacheln (1.55: + C20) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3228,14 +3228,14 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   const groups = groupsOf("c230"), tiles = tilesOf("c230");
   check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C03", "C19", "C05", "C08"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C03", "C19", "C05", "C08", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const ok = Object.entries(want).every(([gid, codes]) => {
     const h = box("hub-tpl-group-" + gid);
     const bs = codes.map(cd => box("hub-tpl-" + cd));
     return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
   });
-  check(ok && tiles.length === 17, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 18, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -4682,6 +4682,298 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   check(!nbQ("c422c", '[data-icd="scatter-hint-py"]').length, "c422c: Leseansicht ohne Hinweis");
   check(!nbQ("c402", '[data-icd="scatter-hint-py"]').length, "c402: mit allen Rollen kein Hinweis");
 }
+// ---- B11-BEGIN
+// ======================================================================
+// 1.55 (B11): Bestand-Fluss-Modus (orientation=stockflow), Blätter 08E bis 08H
+// Datenvertrag: Langformat, Rolle series = Flussart bzw. Bestandsgröße, rowType-Token
+// stock / inflow / outflow, Szenario über actual / forecast / plan
+// ======================================================================
+{
+  const sfQ = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const sfSvg = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+  // periods: [{ lv: [Jahr, Woche, Tag], sc: "ac"|"fc"|"pl", rows: [[Serie, Token, Wert], …] }]
+  const sfDv = (objs, levelNames, periods, opts) => {
+    opts = opts || {};
+    const lv = levelNames.map(() => []), ser = [], typ = [], ac = [], fc = [], pl = [], line = [], mult = [];
+    for (const p of periods) {
+      for (const r of p.rows) {
+        if (opts.lineStock && r[1] === "stock") { continue; }
+        p.lv.forEach((v, j) => lv[j].push(v));
+        ser.push(r[0]); typ.push(r[1]);
+        ac.push(p.sc === "ac" ? r[2] : null); fc.push(p.sc === "fc" ? r[2] : null); pl.push(p.sc === "pl" ? r[2] : null);
+        line.push(p.stock != null ? p.stock : null);
+        mult.push(p.mult ?? null);
+      }
+    }
+    const cats = levelNames.map((nm, j) => ({ source: { displayName: nm, roles: { category: true } }, values: lv[j] }));
+    cats.push({ source: { displayName: "Art", roles: { series: true } }, values: ser });
+    if (!opts.noTokens) { cats.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: typ.map(t => opts.tokenMap && t in opts.tokenMap ? opts.tokenMap[t] : t) }); }
+    if (periods.some(p => p.mult != null)) { cats.push({ source: { displayName: "Region", roles: { multiples: true } }, values: mult }); }
+    const vals = [col("actual", ac, "#,0", null, opts.name), col("forecast", fc, "#,0"), col("plan", pl, "#,0")];
+    if (opts.lineStock) { vals.push(col("lineMeasure", line, "#,0", null, opts.lineName || "Bestand (Measure)")); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: vals } };
+  };
+  // flows → periods with the running stock (opening + Σ net)
+  const sfBuild = (names, opening, list) => {
+    let st = opening;
+    return list.map(x => {
+      const rows = [];
+      if (x.i != null) { rows.push([names[0], "inflow", x.i]); }
+      if (x.o != null) { rows.push([names[1], "outflow", x.o]); }
+      st += (x.i ?? 0) - (x.o ?? 0);
+      rows.push([names[2], "stock", st]);
+      return { lv: x.lv, sc: x.sc, rows, stock: st };
+    });
+  };
+  window.__sf = { sfQ, sfSvg, sfDv, sfBuild };
+
+  // ---- 08E: 47 Tage 24.11.2025 bis 09.01.2026, Ist bis 18.12., danach Plan; ISO-Kalender
+  const isoWk = d => { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return [t.getUTCFullYear(), Math.ceil(((t - y0) / 864e5 + 1) / 7)]; };
+  const eIn = [21,25,null,null,26,22,22,23,25,null,null,21,29,23,26,15,null,null,22,22,18,23,20,null,null,
+    23,19,20,16,14,null,null,null,19,22,23,24,null,null,22,22,21,24,23,null,null,24];
+  const eOut = [20,17,null,null,10,22,28,28,22,null,null,29,24,23,12,14,null,null,22,25,24,29,29,null,null,
+    20,25,25,17,15,null,null,null,25,30,25,18,null,null,18,18,18,18,18,null,null,22];
+  const eDays = eIn.map((_, i) => new Date(2025, 10, 24 + i));
+  const sfE = sfBuild(["Cash in", "Cash out", "Cash at hand"], 10, eDays.map((d, i) => {
+    const [y, w] = isoWk(d);
+    return { lv: [String(y), "W" + String(w).padStart(2, "0"), String(d.getDate())], sc: i <= 24 ? "ac" : "pl", i: eIn[i], o: eOut[i] };
+  }));
+  addStage("c600", "Bestand & Fluss · Blatt 08E · 47 Tage AC/PL · Jahr › Woche › Tag · Cash in/out/at hand · C20 · W01 hervorgehoben", 1280, 600);
+  runCap("c600", sfDv({ chart: { template: "C20", highlight: "W01", sfNetLabel: "Net cash flow" },
+    ibcsTitle: { kpi: "Cash flow", period: "2025-11-24..2026-01-09", message: "We expect to be back to positive cash at hand in the first week of 2026" } },
+    ["Jahr", "Woche", "Tag"], sfE, { name: "Cash flow" }), 1280, 600);
+
+  // ---- 08F: 36 Wochen W32/2025 bis W15/2026, AC W32 bis W45, FC W46 bis W49, PL ab W50
+  const fIn = [21,26,28,12,11,10,23,28,25,22,28,26,29,22, 28,22,23,17, 22,22,21,23,22,17,34,17,36,37,43,11,17,12,33,22,39,45];
+  const fOut = [20,18,12,23,12,23,28,28,22,19,11,29,23,20, 12,33,26,15, 29,34,35,26,29,23,29,29,23,29,25,29,23,23,29,23,29,27];
+  const sfF = sfBuild(["Cash in", "Cash out", "Cash at hand"], 11, fIn.map((v, i) => {
+    const y = i < 21 ? "2025" : "2026", w = i < 21 ? 32 + i : i - 20;
+    return { lv: [y, String(w).padStart(2, "0")], sc: i < 14 ? "ac" : i < 18 ? "fc" : "pl", i: v, o: fOut[i] };
+  }));
+  addStage("c601", "Bestand & Fluss · Blatt 08F · 36 Wochen AC/FC/PL · Jahr › Woche · 2026 hervorgehoben", 1280, 600);
+  runCap("c601", sfDv({ chart: { template: "C20", highlight: "2026", sfNetLabel: "Net cash flow" },
+    ibcsTitle: { kpi: "Cash flow", period: "2025-W32..2026-W15", message: "We expect negative cash at hand in the second week of 2026" } },
+    ["Jahr", "Woche"], sfF, { name: "Cash flow" }), 1280, 600);
+
+  // ---- 08G: 24 Monate, AC bis Apr 2026, danach PL; Anfangsbestand 255, Ende 266
+  const mo = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const gH = [3,2,3,1,5,13,1,2,2,1,2,1, 5,1,3,4, 2,1,3,3,2,3,2,1];
+  const gL = [0,1,2,2,2,2,2,1,2,3,5,8, 1,2,1,1, 0,2,2,2,0,1,3,10];
+  const sfG = sfBuild(["Hires", "Layoffs", "Headcount"], 255, gH.map((v, i) => (
+    { lv: [i < 12 ? "2025" : "2026", mo[i % 12]], sc: i < 16 ? "ac" : "pl", i: v, o: gL[i] })));
+  addStage("c602", "Bestand & Fluss · Blatt 08G · 24 Monate AC/PL · Headcount 255 → 266 · Endwert in der Ellipse", 1280, 600);
+  runCap("c602", sfDv({ chart: { template: "C20", highlight: "2026 · Dec", sfNetLabel: "Fluctuation" },
+    ibcsTitle: { kpi: "Headcount", period: "2025 and 2026", message: "We plan our headcount to be at 266 at the end of 2026" } },
+    ["Jahr", "Monat"], sfG, { name: "Headcount" }), 1280, 600);
+
+  // ---- 08H: 20 Quartale, AC bis Q3 2025, FC Q4 2025, PL 2026/2027; Bestand 11 → 19
+  const hInc = [3,2,5,3, 6,3,5,4, 2,1,0,5, 3,4,4,5, 4,4,4,6];
+  const hDec = [0,3,3,2, 4,2,3,3, 4,4,6,3, 2,2,2,6, 2,7,2,5];
+  const hPer = (names, opening) => sfBuild(names, opening, hInc.map((v, i) => (
+    { lv: [String(2023 + Math.floor(i / 4)), "Q" + (i % 4 + 1)], sc: i < 11 ? "ac" : i === 11 ? "fc" : "pl", i: v, o: hDec[i] })));
+  const sfH = hPer(["Increase", "Decrease", "Inventory"], 11);
+  // with extra options: the C20 properties set directly (a template would override them)
+  const hObj = extra => Object.assign({ chart: Object.assign(extra
+      ? { orientation: "stockflow", scenarioLabels: true, showTotal: false, highlightStyle: "ellipse" } : { template: "C20" },
+    { highlight: "2025 · Q4", sfNetLabel: "Inventory change" }, extra || {}),
+    ibcsTitle: { kpi: "Raw material", period: "2023..2027", message: "Until end of 2025 we plan a slight increase of our raw material stock to 13 tons" } });
+  addStage("c603", "Bestand & Fluss · Blatt 08H · 20 Quartale AC/FC/PL · FC-Flächenstück schraffiert · 13 hervorgehoben", 1280, 600);
+  runCap("c603", sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material" }), 1280, 600);
+  window.__sf.data = { sfE, sfF, sfG, sfH, hPer, hObj };
+  const num = (e, a) => +e.getAttribute(a);
+  const vOf = (id, icd) => sfQ(id, `[data-icd="${icd}"]`).map(e => num(e, "data-v"));
+  const ptVals = id => sfQ(id, '[data-icd="sf-stock-pt"]').map(e => num(e, "data-v"));
+  const xsUniq = (id, icd) => [...new Set(sfQ(id, `[data-icd="${icd}"]`).map(l => l.getAttribute("x1")))];
+
+  // c600 (08E)
+  {
+    const segIn = sfQ("c600", '[data-icd="sf-seg-in"]'), segOut = sfQ("c600", '[data-icd="sf-seg-out"]');
+    check(segIn.length === 32 && segOut.length === 32 && segIn.filter(g => g.getAttribute("data-scen") === "pl").length === 15,
+      `c600: 32 Zufluss- und 32 Abfluss-Säulen (Tage ohne Fluss leer), 15 Plan-Tage als PL (${segIn.length}/${segOut.length})`);
+    const g1 = sfQ("c600", '[data-icd="axis-group"][data-level="1"]').map(t => t.getAttribute("data-label"));
+    const g2 = sfQ("c600", '[data-icd="axis-group"][data-level="2"]').map(t => t.getAttribute("data-label"));
+    check(JSON.stringify(g1) === '["W48","W49","W50","W51","W52","W01","W02"]' && JSON.stringify(g2) === '["2025","2026"]',
+      `c600: Achsengruppen 7 Wochen + 2 Jahre aus der Hierarchie (${g1.join(",")} | ${g2.join(",")})`);
+    check(xsUniq("c600", "pl-boundary").length === 1 && !sfQ("c600", '[data-icd="fc-boundary"]').length, "c600: genau eine Trennlinie AC|PL");
+    check(sfQ("c600", '[data-icd="sf-area-neg"]').length >= 3, "c600: negative Bestandsstücke getönt (sf-area-neg)");
+    const st = ptVals("c600");
+    check(vOf("c600", "sf-opening")[0] === 10 && st[35] === -11 && st[46] === 19 && st.length === 47,
+      `c600: Kette 10 → … → −11 am 29.12. → 19 am 09.01. (${vOf("c600", "sf-opening")[0]}, ${st[35]}, ${st[46]})`);
+    const net = vOf("c600", "sf-net");
+    check(net[0] === 1 && net.includes(16) && net.includes(-9) && net.length === 29,
+      `c600: Netto im Visual gerechnet (+1 am 24.11., +16, −9; ${net.length} Säulen ohne Null-Tage)`);
+    const w01 = sfQ("c600", '[data-icd="axis-group"][data-label="W01"]')[0];
+    const ell = sfQ("c600", '[data-icd="emph-ellipse"]');
+    const wb = w01 && w01.getBBox(), eb = ell[0] && ell[0].getBBox();
+    check(ell.length === 1 && !!wb && eb.x < wb.x && eb.x + eb.width > wb.x + wb.width, "c600: Ellipse um die Achsengruppe W01");
+    check(/Net cash flow/.test(sfQ("c600", '[data-icd="sf-net-title"]')[0]?.textContent || "")
+      && sfQ("c600", '[data-icd="sf-name-in"]')[0]?.textContent === "Cash in" && sfQ("c600", '[data-icd="sf-name-stock"]')[0]?.textContent === "Cash at hand",
+      "c600: Direktbeschriftung Net cash flow · Cash at hand · Cash in · Cash out");
+    const pm = (window.__persist.c600[0] || { merge: [{ properties: {} }] }).merge[0].properties;
+    check(window.__persist.c600.length === 1 && pm.orientation === "stockflow" && pm.templateApplied === "C20",
+      "c600: Vorlage C20 schreibt orientation=stockflow in einem Merge");
+    // Geometrie: Fläche endet an der Nulllinie, negative Stücke liegen darunter
+    const zero = num(sfQ("c600", '[data-icd="sf-zero"][data-panel="main"]')[0], "y1");
+    const ys = sel => sfQ("c600", sel).flatMap(pg => pg.getAttribute("points").split(" ").map(pt => +pt.split(",")[1]));
+    check(ys('[data-icd="sf-area"]').every(y => y <= zero + 0.01) && ys('[data-icd="sf-area-neg"]').every(y => y >= zero - 0.01)
+      && ys('[data-icd="sf-area-neg"]').some(y => Math.abs(y - zero) < 0.01),
+      "c600: Flächen enden auf sf-zero, Nulldurchgang teilt sf-area und sf-area-neg auf der Nulllinie");
+  }
+  // c601 (08F)
+  {
+    const fcIn = sfQ("c601", '[data-icd="sf-seg-in"][data-scen="fc"]').length, fcOut = sfQ("c601", '[data-icd="sf-seg-out"][data-scen="fc"]').length;
+    const fcPt = sfQ("c601", '[data-icd="sf-stock-pt"][data-scen="fc"]').length, fcArea = sfQ("c601", '[data-icd="sf-area"][data-scen="fc"]').length;
+    const hatched = sfQ("c601", '[data-icd="sf-seg-in"][data-scen="fc"] rect').every(r => /^url\(#/.test(r.getAttribute("fill")));
+    check(fcIn === 4 && fcOut === 4 && fcPt === 4 && fcArea === 4 && hatched,
+      `c601: 4 FC-Wochen schraffiert an Säulen, Markern und Fläche (${fcIn}/${fcOut}/${fcPt}/${fcArea})`);
+    const st = ptVals("c601");
+    check(vOf("c601", "sf-opening")[0] === 11 && st[13] === 34 && st[17] === 38 && st[20] === 5 && st[22] === -5 && st[35] === 17,
+      `c601: Kette 11 → 34 (W45) → 38 (W49) → 5 (W52) → −5 (W02) → 17 (W15) (${[st[13], st[17], st[20], st[22], st[35]]})`);
+    check(xsUniq("c601", "fc-boundary").length === 1 && xsUniq("c601", "pl-boundary").length === 1
+      && JSON.stringify(sfQ("c601", '[data-icd="scen-label"]').map(t => t.textContent)) === '["AC","FC","PL"]',
+      "c601: Trennlinien AC|FC und FC|PL, Kürzel AC · FC · PL unter der Achse");
+    const y26 = sfQ("c601", '[data-icd="axis-group"][data-label="2026"]')[0];
+    check(!!y26 && sfQ("c601", '[data-icd="emph-ellipse"]').length === 1, "c601: Jahr 2026 in der Ellipse");
+  }
+  // c602 (08G)
+  {
+    check(sfQ("c602", '[data-icd="sf-stock-pt"]').length === 24 && vOf("c602", "sf-opening")[0] === 255,
+      "c602: 25 Bestandspunkte bei 24 Monaten, Anfangsbestand 255 abgeleitet");
+    const lab = sfQ("c602", '[data-icd="sf-stock-label"][data-i="23"]')[0], ell = sfQ("c602", '[data-icd="emph-ellipse"]');
+    const lb = lab && lab.getBBox(), eb = ell[0] && ell[0].getBBox();
+    check(!!lab && lab.textContent === "266" && ell.length === 1 && eb.x < lb.x && eb.x + eb.width > lb.x + lb.width,
+      "c602: Endwert 266 in der Ellipse (highlight „2026 · Dec“, C20 = Ellipse)");
+    const plPts = sfQ("c602", '[data-icd="sf-stock-pt"][data-scen="pl"]');
+    check(plPts.length === 8 && plPts.every(r => r.getAttribute("fill") === "#FFFFFF"), "c602: 8 Plan-Monate mit hohlen Markern");
+  }
+  // c603 (08H) + Geometrie: ein Maßstab für Netto, Flüsse und Bestand; Marker am Periodenende
+  {
+    const cats = sfQ("c603", "g.icd-cat[data-cat]").map(g => g.getAttribute("data-cat"));
+    check(cats.length === 20 && new Set(cats).size === 20 && cats[0] === "2023 · Q1" && cats[4] === "2024 · Q1",
+      "c603: 20 Quartale mit eindeutigen Kategorien trotz „Q1“ je Jahr");
+    const want = [14,13,15,16,18,19,21,22,20,17,11,13,14,16,18,17,19,16,18,19];
+    check(JSON.stringify(ptVals("c603")) === JSON.stringify(want) && vOf("c603", "sf-opening")[0] === 11, "c603: Bestandskette 11 → 14 → … → 13 (Q4 2025) → … → 19");
+    check(sfQ("c603", '[data-icd="sf-area"][data-scen="fc"]').length === 1, "c603: Flächenstück der FC-Periode schraffiert");
+    const kOf = sel => sfQ("c603", sel).filter(g => Math.abs(num(g, "data-v")) >= 2).map(g => num(g.querySelector("rect"), "height") / Math.abs(num(g, "data-v")));
+    const ks = [...kOf('[data-icd="sf-seg-in"]'), ...kOf('[data-icd="sf-seg-out"]'), ...kOf('[data-icd="sf-net"]')];
+    const pts = sfQ("c603", '[data-icd="sf-stock-pt"]').map(r => ({ y: num(r, "y") + num(r, "height") / 2, v: num(r, "data-v"), x: num(r, "x") + num(r, "width") / 2 }));
+    const kStock = Math.abs(pts[7].y - pts[10].y) / Math.abs(pts[7].v - pts[10].v);
+    check(ks.length > 20 && ks.every(x => Math.abs(x / ks[0] - 1) < 0.03) && Math.abs(kStock / ks[0] - 1) < 0.03,
+      `c603: px je Einheit gleich für Netto, Fluss-Säulen und Bestand (${ks[0].toFixed(2)} / ${kStock.toFixed(2)})`);
+    const segs = sfQ("c603", "g.icd-cat[data-cat]").map(g => g.querySelector('[data-icd^="sf-seg"] rect'));
+    const step = num(segs[1], "x") - num(segs[0], "x");
+    const rightEdge = i => num(segs[i], "x") + num(segs[i], "width") + (step - num(segs[i], "width")) / 2;
+    check(segs.length === 20 && pts.every((p, i) => Math.abs(p.x - rightEdge(i)) <= 0.6) && Math.abs(num(segs[0], "width") / step - 2 / 3) < 0.01,
+      "c603: Marker an der rechten Bandkante (±0,6 px), Säulenbreite 2/3 der Kategorie");
+  }
+  // c604: Abflüsse negativ ohne Token = positive Abflüsse mit outflow-Token
+  addStage("c604", "Bestand & Fluss · Vertrag: Abfluss als negative Werte ohne Token (Referenz c603)", 1280, 600);
+  {
+    const neg = sfH.map(p => Object.assign({}, p, { rows: p.rows.map(r => r[1] === "outflow" ? [r[0], "__none", -r[2]] : r) }));
+    runCap("c604", sfDv(hObj(), ["Jahr", "Quartal"], neg, { name: "Raw material", tokenMap: { __none: null } }), 1280, 600);
+    check(sfSvg("c604") === sfSvg("c603"), "c604: negative Abflüsse ohne Token zeichnen SVG-gleich wie positive mit outflow");
+  }
+  // c605: Bestand über die Linien-Measure statt Zeilen mit stock
+  addStage("c605", "Bestand & Fluss · Vertrag: Bestand aus der Linien-Measure (Zweitweg)", 1280, 600);
+  {
+    runCap("c605", sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material", lineStock: true, lineName: "Inventory" }), 1280, 600);
+    const d = id => (sfQ(id, '[data-icd="sf-stock-line"]')[0] || { getAttribute: () => null }).getAttribute("d");
+    check(!!d("c605") && d("c605") === d("c603") && JSON.stringify(ptVals("c605")) === JSON.stringify(ptVals("c603")),
+      "c605: Linien-Measure zeichnet dieselbe Bestandslinie wie die stock-Zeilen");
+  }
+  // c606: ohne Bestand → Hinweis im Bearbeitungsmodus, Flüsse bleiben
+  addStage("c606", "Bestand & Fluss · ohne Bestand: Hinweis, nur Flüsse und Netto", 960, 420);
+  addStage("c606b", "Bestand & Fluss · ohne Bestand in der Leseansicht: kein Hinweis", 960, 420);
+  {
+    const noStock = sfH.map(p => Object.assign({}, p, { rows: p.rows.filter(r => r[1] !== "stock") }));
+    runCap("c606", sfDv(hObj(), ["Jahr", "Quartal"], noStock), 960, 420);
+    check(sfQ("c606", '[data-icd="sf-hint"]').length === 1 && !sfQ("c606", '[data-icd="sf-stock-line"]').length
+      && sfQ("c606", '[data-icd="sf-net"]').length === 20, "c606: Hinweis ohne Bestand, Flüsse und Netto gezeichnet");
+    runCap("c606b", sfDv(hObj(), ["Jahr", "Quartal"], noStock), 960, 420, { viewMode: 0 });
+    check(!sfQ("c606b", '[data-icd="sf-hint"]').length, "c606b: Leser sehen keinen Hinweis");
+  }
+  // c607: Small Multiples, eine Domain über alle Kacheln (Süd = 2 × Nord)
+  addStage("c607", "Bestand & Fluss · Small Multiples Nord/Süd (Süd doppelt so groß) · eine Skala · eindeutige Pattern-Ids", 1280, 560);
+  {
+    const twice = sfH.map(p => Object.assign({}, p, { mult: "Süd", rows: p.rows.map(r => [r[0], r[1], r[2] * 2]) }));
+    const nord = sfH.map(p => Object.assign({}, p, { mult: "Nord" }));
+    runCap("c607", sfDv({ chart: { template: "C20" } }, ["Jahr", "Quartal"], [...nord, ...twice]), 1280, 560);
+    const tiles = sfQ("c607", '[data-icd="stockflow"]');
+    const kTile = t => { const g = [...t.querySelectorAll('[data-icd="sf-seg-in"]')].find(x => +x.getAttribute("data-v") >= 4);
+      return +g.querySelector("rect").getAttribute("height") / +g.getAttribute("data-v"); };
+    const ids = sfQ("c607", "[id]").map(e => e.id);
+    check(tiles.length === 2 && Math.abs(kTile(tiles[0]) / kTile(tiles[1]) - 1) < 0.01 && ids.length === new Set(ids).size,
+      `c607: zwei Kacheln mit gleichem px je Einheit (${tiles.length ? kTile(tiles[0]).toFixed(2) : "–"}), keine doppelten Ids`);
+  }
+  // c608: Summenkopf mit Endbestand (nicht Σ der Bestände)
+  addStage("c608", "Bestand & Fluss · 08G mit Summenkopf: Σ Zu- und Abgänge, Netto, Endbestand 266", 1280, 520);
+  {
+    runCap("c608", sfDv({ chart: { orientation: "stockflow", showTotal: true, sfNetLabel: "Fluctuation" } }, ["Jahr", "Monat"], sfG, { name: "Headcount" }), 1280, 520);
+    const t = sfQ("c608", '[data-icd="sf-total"]')[0];
+    const tx = t ? t.textContent : "";
+    check(!!t && t.getAttribute("data-closing") === "266" && /(Endbestand|Closing stock) 266/.test(tx) && /Σ Hires 66/.test(tx)
+      && /Σ Layoffs 55/.test(tx) && /Fluctuation \+11/.test(tx) && !/6\.\d{3}/.test(tx),
+      `c608: Summenkopf „${tx}“ zeigt den Endbestand, keine Bestandssumme`);
+  }
+  // c609: Varianten: Marker in der Mitte, ohne Anfangsbestand, Achsengruppen, Netto und Fläche
+  addStage("c609", "Bestand & Fluss · Marker in der Mitte · ohne Anfangsbestand, Achsengruppen, Netto-Panel und Fläche", 960, 420);
+  {
+    runCap("c609", sfDv(hObj({ sfStockAt: "center", sfOpening: false, axisGroups: "off", sfNet: false, sfArea: false }), ["Jahr", "Quartal"], sfH), 960, 420);
+    const segs = sfQ("c609", "g.icd-cat[data-cat]").map(g => g.querySelector('[data-icd^="sf-seg"] rect'));
+    const pts = sfQ("c609", '[data-icd="sf-stock-pt"]');
+    const ctr = i => num(segs[i], "x") + num(segs[i], "width") / 2;
+    check(!sfQ("c609", '[data-icd="sf-opening"]').length && !sfQ("c609", '[data-icd="axis-group"]').length
+      && !sfQ("c609", '[data-icd="sf-net"]').length && !sfQ("c609", '[data-icd^="sf-area"]').length && pts.length === 20
+      && pts.every((r, i) => Math.abs(num(r, "x") + num(r, "width") / 2 - ctr(i)) <= 0.6), "c609: Optionen aus, Marker in der Bandmitte");
+  }
+  // c610: YTD im Modus gesperrt; Klick wählt alle Zeilen der Periode
+  addStage("c610", "Bestand & Fluss · YTD-Knopf gesperrt · Klick auf eine Periode filtert ihre Zeilen", 960, 420);
+  {
+    runCap("c610", sfDv(hObj({ cumulativeButton: true }), ["Jahr", "Quartal"], sfH), 960, 420, { viewMode: 1 });
+    const chip = sfQ("c610", '[data-ck-ctl="1"][data-icd-locked="1"]');
+    if (chip[0]) { chip[0].dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+    check(chip.length === 1 && window.__persist.c610.filter(c => c.merge.some(m => m.properties.cumulative != null)).length === 0,
+      "c610: YTD gesperrt, Klick schreibt nichts");
+    window.__lastSelect = null;
+    const pg = sfQ("c610", 'g.icd-cat[data-cat="2025 · Q3"]')[0];
+    if (pg) { pg.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+    check(!!window.__lastSelect && window.__lastSelect.n === 3, `c610: Klick auf Q3 2025 wählt Zufluss, Abfluss und Bestand (${window.__lastSelect && window.__lastSelect.n})`);
+  }
+  // c612: deutsche Aliasse bestand / zufluss / abfluss
+  addStage("c612", "Bestand & Fluss · Aliasse Bestand, zufluss, ABFLUSS (Referenz c603)", 1280, 600);
+  {
+    runCap("c612", sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material", tokenMap: { stock: "Bestand", inflow: "zufluss", outflow: "ABFLUSS" } }), 1280, 600);
+    check(sfSvg("c612") === sfSvg("c603"), "c612: deutsche Token zeichnen SVG-gleich");
+  }
+  // c611: Dark Mode (08F) und Formatbereich: Gruppe „Bestand & Fluss“ nur im Modus, keine Δ-Schalter
+  addStage("c611", "Bestand & Fluss · Dark Mode · 08F", 1280, 600, "#1E1E1E");
+  {
+    const r = runCap("c611", sfDv({ chart: { template: "C20", highlight: "2026", sfNetLabel: "Net cash flow" }, colors: { appearance: "dark" } },
+      ["Jahr", "Woche"], sfF, { name: "Cash flow" }), 1280, 600);
+    r.v.getFormattingModel();
+    const cc = r.v.formattingSettings.chartCard;
+    const v2 = new Visual({ element: document.createElement("div"), host: makeHost() });
+    v2.update({ viewport: { width: 600, height: 300 }, dataViews: [dataView(["A", "B"], [col("actual", [1, 2])])] });
+    v2.getFormattingModel();
+    check(cc.stockFlowGroup.visible === true && cc.showAbsoluteVariance.visible === false && cc.acFcSplit.visible === false
+      && v2.formattingSettings.chartCard.stockFlowGroup.visible === false,
+      "c611: Formatbereich zeigt „Bestand & Fluss“ nur im Modus, ohne Δ-Schalter");
+    check(sfQ("c611", '[data-icd="sf-stock-pt"]').length === 36, "c611: Dark Mode zeichnet alle 36 Wochen");
+  }
+  check(["c600", "c601", "c602", "c603", "c607", "c608", "c609", "c611"].every(id => !/NaN|undefined/.test(document.querySelector(`#${id} svg`).outerHTML)),
+    "c600 bis c611: kein NaN und kein undefined im SVG");
+  // c613: Hochkontrast (keine Fläche, PL als Umriss)
+  addStage("c613", "Bestand & Fluss · Hochkontrast · 08H", 960, 420, "#000");
+  {
+    runCap("c613", sfDv(hObj(), ["Jahr", "Quartal"], sfH), 960, 420, { palette: hcPal });
+    check(!sfQ("c613", '[data-icd^="sf-area"]').length && sfQ("c613", '[data-icd="sf-seg-in"][data-scen="pl"] rect').every(r => r.getAttribute("stroke")),
+      "c613: Hochkontrast ohne Fläche, Plan als Umriss");
+  }
+}
+// ---- B11-END
 </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 ## 1.55.0.0 (in Arbeit)
 
-**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken) sind genannt.**
+**Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A; Bestand und Fluss 08E bis 08H). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken) sind genannt.**
 
 - **B10 · Stapel-Struktur (Blätter 01D, 01E, 02B, 02C, 02D, 02E).** Vorher: Stapel gab es nur mit Werten, die Seriennamen standen immer rechts, Balken ließen sich nicht nach Stapelsumme oder erster Serie ordnen, und es fehlte eine Σ-Zeile. Nachher:
   - **„Stapel-Skala“** (`chart.stackNormalize`, Auswahl „Werte“ | „100 % (Anteile)“, Standard Werte): gestapelte Säulen und Balken zeigen je Kategorie 100 %, die Beschriftungen sind Anteile mit einer Nachkommastelle, der Panel-Titel erhält den Zusatz „Anteile in %“. Die „100 %“-Marke steht bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken läuft eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile, mit „▲ 100 %“ darunter. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N). Eine Referenzlinie wird als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax` und `capOverflow` gelten für Anteile nicht.
@@ -73,6 +73,33 @@
     `mult-tile`, `mult-ref-bg`, `mult-basis` und `var-plan` erscheinen nur mit gesetzter B13-Option. Noch nicht:
     nur das Abweichungs-Panel (`varianceOnly`, 13C und 13D vollständig), frei wählbare große Kachel (13B). Tests
     c500 bis c504 und c510 bis c514.
+- **B11 · Bestand-Fluss-Modus, Teil 1 (Blätter 08E, 08F, 08G, 08H).** Vorher: Bestände mit Zu- und Abflüssen (Kasse,
+  Personal, Lager) gingen nur als Behelf aus drei Kacheln mit getrennten Skalen; der Stapel zeigte Plan-Tage solide, es gab
+  keine Fläche unter dem Bestand, kein Netto-Panel und keine gruppierte Zeitachse. Nachher:
+  - Neuer Chart-Typ **„Bestand & Fluss (Zeit)“** (`chart.orientation = stockflow`) mit eigenem Renderer: oben der Netto-Fluss
+    je Periode (neutral grau, mit Vorzeichen), darunter im selben Pixelmaßstab die Zuflüsse über und die Abflüsse unter der
+    Nulllinie (Abfluss in der AC-Farbe, Zufluss heller, mehrere Arten je Seite gestapelt) und der Bestand als Linie mit
+    Fläche bis null, Punkte am Periodenende plus Anfangsbestand am Beginn der ersten Periode. AC solide, FC schraffiert,
+    PL hohl bzw. getönt, wie im Stapel (B06), für Säulen, Punkte und Fläche; negative Flächenstücke rosa.
+  - **Datenvertrag:** Langformat über die vorhandenen Rollen. Die Rolle „Stack-Serie“ trägt Flussarten und Bestandsgröße
+    („Cash in“, „Cash out“, „Cash at hand“), die Rolle „Waterfall-Typ“ neue Token je Zeile: `stock` (Aliasse `bestand`,
+    `balance`), `inflow` (`zufluss`), `outflow` (`abfluss`); ohne Token entscheidet das Vorzeichen. Die kurzen Aliasse
+    `in`, `out`, `level` gibt es bewusst nicht. Zweitweg für den Bestand: die Linien-Measure. Netto und Anfangsbestand
+    rechnet das Visual. Die Token gelten nur in diesem Modus; als reine Flag-Token bleibt der Zeilentyp leer, andere Modi
+    zeichnen unverändert.
+  - **Zeitachse:** bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) bis zu zwei Gruppenzeilen unter dem ersten
+    Mitglied, Trennlinien durch alle Panels, die oberste Ebene kräftiger; an Szenariogrenzen die AC|FC|PL-Trennlinie.
+  - **Neue Optionen** (Gruppe „Bestand & Fluss“, nur in diesem Modus sichtbar): `sfNet` (Netto-Panel), `sfNetLabel`
+    (Beschriftung, leer = „Netto“), `sfArea` (Fläche), `sfNegTint` (Negativtönung), `sfOpening` (Anfangsbestand),
+    `sfStockAt` (Ende | Mitte der Periode), `axisGroups` (aus der Hierarchie | aus). Summenkopf: Σ Zufluss · Σ Abfluss ·
+    Netto · Endbestand (nicht die Summe der Bestände). YTD ist im Modus gesperrt. Tooltip je Periode mit Zufluss, Abfluss,
+    Netto und Bestand; ein Klick wählt alle Zeilen der Periode. Small Multiples teilen eine Skala.
+  - **Vorlage C20 „Bestand und Fluss“** (Galerie „Zeitverlauf“): orientation=stockflow · sfNet · sfArea · scenarioLabels ·
+    showTotal aus · highlightStyle Ellipse.
+  - Bestandsberichte zeichnen SVG-gleich (alle 407 bisherigen Harness-Stufen per Hash geprüft); geändert sind nur die Vorlagen-Galerie
+    und die Tour-Karte, die sie öffnet (Kachel C20). Tests c600 bis c613. Noch offen (Teil 2 und 3): letzter Wert statt
+    Summe in YTD, Jahressäule und Tabellenbaum (`timeAggregation`), Zoom der Flüsse bei großem Bestand (`sfFlowZoom`,
+    08G), Achsengruppen auch in Säulen und Linie, ΔBestand gegen PL oder PY, Parität in der dwg-App.
 
 ## 1.54.0.0 (2026-11-19, Backlog IBCS-Templates)
 

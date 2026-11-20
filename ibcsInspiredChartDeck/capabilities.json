@@ -207,7 +207,8 @@
                             { "value": "C16", "displayName": "C16 · Balkentabelle nach AC (04C)" },
                             { "value": "C17", "displayName": "C17 · Kategorie-Brücke waagerecht (06E)" },
                             { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
-                            { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" }
+                            { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" },
+                            { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" }
                         ]
                     }
                 },
@@ -227,7 +228,8 @@
                             { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
                             { "value": "scatter", "displayName": "Scatter / Bubble (Korrelation)" },
                             { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
-                            { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
+                            { "value": "pnl", "displayName": "GuV-Statement (IBCS)" },
+                            { "value": "stockflow", "displayName": "Bestand & Fluss (Zeit)" }
                         ]
                     }
                 },
@@ -523,6 +525,27 @@
                 "bridgeBreak": { "type": { "bool": true } },
                 "stackLegendDirect": { "type": { "bool": true } },
                 "scenarioLabels": { "type": { "bool": true } },
+                "sfNet": { "type": { "bool": true } },
+                "sfNetLabel": { "type": { "text": true } },
+                "sfArea": { "type": { "bool": true } },
+                "sfNegTint": { "type": { "bool": true } },
+                "sfOpening": { "type": { "bool": true } },
+                "sfStockAt": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "end", "displayName": "End of the period" },
+                            { "value": "center", "displayName": "Middle of the period" }
+                        ]
+                    }
+                },
+                "axisGroups": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "From the hierarchy" },
+                            { "value": "off", "displayName": "Off" }
+                        ]
+                    }
+                },
                 "stackNormalize": {
                     "type": {
                         "enumeration": [
