@@ -27,7 +27,7 @@ Eine Anleitung zum Nachbauen: Aus Buchungsbestätigungen und Belegen im Postfach
 | Hintergrund | Anthrazit | `#121110` |
 | Land / besuchte Länder | Walnuss-dunkel | `#2a2622` / `#3b3229` |
 
-Schrift: **Barlow Condensed** für Zahlen und Datum (wirkt wie eine Bahnhofs-Anzeigetafel), **Barlow** für Text. Beide gibt es kostenlos bei Google Fonts.
+Schrift: **Barlow Condensed** für Zahlen und Datum (wirkt wie eine Bahnhofs-Anzeigetafel), **Barlow** für Text. Beide sind frei (SIL Open Font License). Für eine Website am besten selbst hosten, statt sie bei jedem Aufruf vom Google-Server zu laden.
 
 ---
 
@@ -206,7 +206,22 @@ ffmpeg -framerate 30 -i frames/%05d.jpg \
 
 ---
 
-## 8. Datenschutz
+## 8. Auswerten in Power BI
+
+`mobility.json` ist im Kern ein kleines Sternschema:
+
+| Tabelle | Rolle | Felder |
+|---|---|---|
+| `legs` | Fakten: Strecken | Datum, Verkehrsmittel, von, nach, km |
+| `visits` | Fakten: Aufenthalte | Datum, bis, Ort, Land, Nächte |
+| `rides` | Fakten: Taxi und Scooter | Datum, Uhrzeit, Verkehrsmittel, Ort, km, Euro |
+| Kalender, Ort, Land, Verkehrsmittel | Dimensionen | aus den Faktentabellen abgeleitet |
+
+Per Power Query laden, eine Kalendertabelle ergänzen, und Measures wie Kilometer je Verkehrsmittel, Hotelnächte je Land oder CO₂ je Monat sind schnell gebaut. Das Reel ist der Hingucker, der Bericht der Blick ins Detail.
+
+---
+
+## 9. Datenschutz
 
 Eine solche Karte ist ein ziemlich genaues Bewegungsprofil. Vor dem Posten prüfen:
 - **Wohnort:** Die Basis-Stadt ist sichtbar. Wenn du das nicht willst, setz die Basis auf eine größere Stadt in der Nähe oder lass die Heimfahrten weg.

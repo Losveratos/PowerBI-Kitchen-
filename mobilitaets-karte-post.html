@@ -180,7 +180,7 @@ figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); mar
     </div>
     <ol>
       <li><strong>Die Zeit wird verzerrt.</strong> An den meisten Tagen passiert nichts. Ein Tag ohne Reise dauert im Video 0,03 Sekunden, eine Bahnfahrt knapp eine halbe, ein Langstreckenflug bis zu zwei. So passen elf Monate in 50 Sekunden, ohne dass es hetzt.</li>
-      <li><strong>Globus statt flacher Karte.</strong> Bei einer Fahrt von Köln nach Osnabrück ist die Kamera so nah, dass der Globus wie eine Landkarte wirkt. Beim Flug nach Singapur zoomt sie heraus, und die Linie wird zum Bogen über die Erdkrümmung.</li>
+      <li><strong>Globus statt flacher Karte.</strong> Bei einer Fahrt von Köln nach Frankfurt ist die Kamera so nah, dass der Globus wie eine Landkarte wirkt. Beim Flug nach Singapur zoomt sie heraus, und die Linie wird zum Bogen über die Erdkrümmung.</li>
       <li><strong>Das Ende zuerst.</strong> Das Video zeigt 1,3 Sekunden lang das fertige Bild mit allen Strecken und spult dann auf den 1. Januar zurück. Wer in den ersten zwei Sekunden die große Zahl sieht, bleibt eher dran.</li>
     </ol>
     <p>Der Look heißt bei uns „Dark Kitchen“: Anthrazit statt Schwarz, matte Körnung, dazu vier Akzentfarben aus Küchen-Materialien, also Messing für Flug, Kupfer für Bahn, Marmor für Taxi und Salbei für Scooter.</p>
@@ -201,6 +201,10 @@ figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); mar
     <div class="cta"><a href="md/mobilitaets-karte-post.md" download="mobilitaets-karte-anleitung.md">Anleitung als Markdown laden</a><a class="ghost" href="assets/posts/mobilitaets-karte/mobilitaet-2026-reel.mp4">Reel als MP4</a></div>
     <p class="note">Die Markdown-Datei kannst du direkt einem KI-Agenten geben. Sie enthält keine persönlichen Daten, nur das Rezept.</p>
 
+    <h2>Und in Power BI?</h2>
+    <p>Die animierte Karte ist der Hingucker, das eigentliche Ergebnis ist aber der Datensatz dahinter. <code>mobility.json</code> ist im Kern schon ein kleines Sternschema: <strong>legs</strong> (Strecken), <strong>visits</strong> (Aufenthalte) und <strong>rides</strong> (Taxi- und Scooter-Fahrten) sind drei Faktentabellen, Datum, Ort, Land und Verkehrsmittel die Dimensionen.</p>
+    <p>Wer lieber auswertet als animiert, lädt die Datei per Power Query, ergänzt eine Kalendertabelle und hat schnell Measures wie Kilometer je Verkehrsmittel, Hotelnächte je Land oder CO₂ je Monat. Dieselbe Frage, zwei Antworten: das Reel für den Feed, der Bericht für den Blick ins Detail.</p>
+
     <h2>Bevor du es postest</h2>
     <p>So eine Karte ist ein ziemlich genaues Bewegungsprofil. Drei Dinge lohnen einen zweiten Blick:</p>
     <ul>
@@ -209,7 +213,7 @@ figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); mar
       <li><strong>Arbeit.</strong> Dienstreisen können Kunden verraten. Im Zweifel Orte zu Regionen zusammenfassen.</li>
     </ul>
     <p>Kartendaten: Natural Earth über das Paket world-atlas (gemeinfrei). Emissionswerte: Umweltbundesamt. Alle Kilometer außer den Flügen sind Schätzungen aus Belegen.</p>
-    <div class="cta"><a href="beitraege.html#posts">Weitere Beiträge</a><a class="ghost" href="koelner-raser-post.html">Auch selbst gebaut: Köln blitzt</a></div>
+    <div class="cta"><a href="beitraege.html#posts">Weitere Beiträge</a><a class="ghost" href="zugfahrten-infografik.html">Noch eine Karten-Geschichte: Die Schweiz fährt Europa davon</a></div>
   </div>
 </div>
 </body>
