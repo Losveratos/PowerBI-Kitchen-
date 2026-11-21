@@ -52,7 +52,7 @@ const SHOT_FOR = {
   'pnl-schnellstart.html': 'vis-pnl-tabelle', 'pnl-beta-post.html': 'vis-pnl-baum',
   'pnl-treiberbaum-demo.html': 'vis-pnl-baum', 'prototyping-pnl-treiberbaum.html': 'vis-pnl-baum',
   'chartkitchen-doku.html': 'vis-chartkitchen', 'chartkitchen-schnellstart.html': 'vis-chartkitchen',
-  'wissensgraph/': 'tool-library',
+  'wissensgraph/': 'tool-library', 'mobilitaets-karte-post.html': 'post-mobilitaet',
 };
 
 // Was willst du? -> Art
