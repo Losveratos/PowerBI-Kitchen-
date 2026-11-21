@@ -29,7 +29,9 @@ const orientationItems: LocEnumMember[] = [
     { value: "slope", displayName: "Slope · Before/After", key: "Enum_Orientation_Slope" },
     { value: "scatter", displayName: "Scatter / bubble (correlation)", key: "Enum_Orientation_Scatter" },
     { value: "cards", displayName: "KPI Cards (Tiles)", key: "Enum_Orientation_Cards" },
-    { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" }
+    { value: "pnl", displayName: "P&L Statement (IBCS)", key: "Enum_Orientation_Pnl" },
+    // 1.55 (backlog B11, IBCS sheets 08E to 08H): flows as columns, stock as line with area
+    { value: "stockflow", displayName: "Stock & flow (time)", key: "Enum_Orientation_StockFlow" }
 ];
 
 const comparisonItems: LocEnumMember[] = [
@@ -84,7 +86,43 @@ const sortImpactItems: LocEnumMember[] = [
     { value: "abs", displayName: "By impact |Δ|", key: "Enum_SortImpact_Abs" },
     { value: "signed", displayName: "By Δ (largest plus first)", key: "Enum_SortImpact_Signed" },
     { value: "pct", displayName: "By Δ %", key: "Enum_SortImpact_Pct" },
-    { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" }
+    { value: "ac", displayName: "By AC", key: "Enum_SortImpact_Ac" },
+    { value: "series", displayName: "By first series (stacks)", key: "Enum_SortImpact_Series" }
+];
+
+// 1.55 (backlog B10): stack structure
+const stackNormalizeItems: LocEnumMember[] = [
+    { value: "off", displayName: "Values", key: "Enum_StackNorm_Off" },
+    { value: "pct100", displayName: "100 % (shares)", key: "Enum_StackNorm_Pct" }
+];
+const stackLegendPosItems: LocEnumMember[] = [
+    { value: "end", displayName: "Right of the last column", key: "Enum_StackLegPos_End" },
+    { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
+];
+
+// 1.55 (backlog B13): small multiples against the average (IBCS sheets 13A, 13C)
+const multiplesAggItems: LocEnumMember[] = [
+    { value: "sum", displayName: "Sum", key: "Enum_MultAgg_Sum" },
+    { value: "mean", displayName: "Average", key: "Enum_MultAgg_Mean" }
+];
+const multiplesTotalPosItems: LocEnumMember[] = [
+    { value: "first", displayName: "First tile", key: "Enum_MultPos_First" },
+    { value: "last", displayName: "Last tile", key: "Enum_MultPos_Last" }
+];
+const multiplesBasisItems: LocEnumMember[] = [
+    { value: "scenario", displayName: "Scenario (PY / PL)", key: "Enum_MultBasis_Scenario" },
+    { value: "avg", displayName: "Average of all tiles (Ø)", key: "Enum_MultBasis_Avg" }
+];
+
+// 1.55 (backlog B11): stock markers at the period end (IBCS sheets) or in the middle,
+// group rows of the time axis from the category hierarchy
+const sfStockAtItems: LocEnumMember[] = [
+    { value: "end", displayName: "End of the period", key: "Enum_SfStockAt_End" },
+    { value: "center", displayName: "Middle of the period", key: "Enum_SfStockAt_Center" }
+];
+const axisGroupsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "From the hierarchy", key: "Enum_AxisGroups_Auto" },
+    { value: "off", displayName: "Off", key: "Enum_AxisGroups_Off" }
 ];
 
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
@@ -223,7 +261,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C16", displayName: "C16 · Bar table by AC (04C)", key: "Enum_Template_C16" },
     { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
     { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
-    { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" }
+    { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
+    { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -245,7 +284,9 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         pinStyleItems, labelDensityItems, totalRowPositionItems, rowDensityItems,
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
-        bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems];
+        bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
+        stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
+        multiplesBasisItems, sfStockAtItems, axisGroupsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -327,7 +368,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule. Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow). Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -518,6 +559,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: ""
     });
 
+    // 1.55 (backlog B09, IBCS sheets 01A, 01B): stored difference markers
+    diffMarkers = new formattingSettings.TextInput({
+        name: "diffMarkers",
+        displayName: "Difference markers",
+        displayNameKey: "Chart_DiffMarkers",
+        description: "Differenzmarker zwischen zwei Kategorien, mit Semikolon getrennt: „2025 > 2026“ zeigt neben der zweiten Säule einen Strich mit Δ und Δ %, „2025 > 2026@Software“ dasselbe für eine Serie im Stapel, ein „!“ am Ende lässt Δ % weg. Höchstens vier Marker; unbekannte Namen entfallen.",
+        descriptionKey: "Desc_Chart_DiffMarkers",
+        placeholder: "z. B. 2025 > 2026",
+        value: ""
+    });
+
     highlightStyle = new formattingSettings.ItemDropdown({
         name: "highlightStyle",
         displayName: "Highlight style",
@@ -566,6 +618,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Chart_SortByImpact",
         description: "Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar.",
         descriptionKey: "Desc_Chart_SortByImpact",
+        value: false
+    });
+
+    // 1.55 (B09, IBCS sheet 05X): second net element to the other basis
+    bridgeSecondNet = new formattingSettings.ToggleSwitch({
+        name: "bridgeSecondNet",
+        displayName: "Second reconciliation",
+        displayNameKey: "Chart_BridgeSecondNet",
+        description: "Integrierte Brücke mit Vorjahr und Plan: neben der Abweichung zur Basis ein zweiter Strich mit der Abweichung der Summe zur anderen Basis (z. B. PL-Brücke mit „+4“ zum Vorjahr). Nur wenn die andere Basis alle Monate abdeckt. Standard aus.",
+        descriptionKey: "Desc_Chart_BridgeSecondNet",
         value: false
     });
 
@@ -717,12 +779,76 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.55 (B13, IBCS sheet 13A): aggregate, position, shading and labels of the
+    // reference tile (Σ / Ø) and the Top-N rest tile
+    multiplesAgg = new formattingSettings.ItemDropdown({
+        name: "multiplesAgg",
+        displayName: "Reference and rest tile",
+        displayNameKey: "Chart_MultiplesAgg",
+        description: "Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt. Der Durchschnitt teilt je Kategorie durch die Zahl der Kacheln mit Wert (ein fehlender Zeitraum zählt nicht als 0; bei Balken zählt eine fehlende Kategorie, bei Stapeln ein fehlendes Segment als 0) und bleibt im Wertebereich der Kacheln, die gemeinsame Skala wird also nicht gestaucht. Bei Quoten (Marge in %) ist es ein ungewichteter Mittelwert.",
+        descriptionKey: "Desc_Chart_MultiplesAgg",
+        items: multiplesAggItems,
+        value: multiplesAggItems[0]
+    });
+
+    multiplesTotalPos = new formattingSettings.ItemDropdown({
+        name: "multiplesTotalPos",
+        displayName: "Reference tile position",
+        displayNameKey: "Chart_MultiplesTotalPos",
+        description: "Wo die Bezugskachel (Σ bzw. Ø) steht: als erste Kachel (Standard) oder als letzte, unten rechts wie auf dem IBCS-Blatt 13A.",
+        descriptionKey: "Desc_Chart_MultiplesTotalPos",
+        items: multiplesTotalPosItems,
+        value: multiplesTotalPosItems[0]
+    });
+
+    multiplesTotalShade = new formattingSettings.ToggleSwitch({
+        name: "multiplesTotalShade",
+        displayName: "Shade reference tile",
+        displayNameKey: "Chart_MultiplesTotalShade",
+        description: "Hinterlegt die Bezugskachel grau, damit sie sich von den Gruppen abhebt. Im Hochkontrast ein Rahmen statt der Fläche.",
+        descriptionKey: "Desc_Chart_MultiplesTotalShade",
+        value: false
+    });
+
+    multiplesTotalLabel = new formattingSettings.TextInput({
+        name: "multiplesTotalLabel",
+        displayName: "Reference tile label",
+        displayNameKey: "Chart_MultiplesTotalLabel",
+        description: "Eigener Titel der Bezugskachel, {n} steht für die Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“. Leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“.",
+        descriptionKey: "Desc_Chart_MultiplesTotalLabel",
+        placeholder: "Σ / Ø",
+        value: ""
+    });
+
+    multiplesRestLabel = new formattingSettings.TextInput({
+        name: "multiplesRestLabel",
+        displayName: "Rest tile label",
+        displayNameKey: "Chart_MultiplesRestLabel",
+        description: "Eigener Titel der Rest-Kachel bei „Top N Kacheln“, {n} steht für die Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“. Leer = „Rest (n)“.",
+        descriptionKey: "Desc_Chart_MultiplesRestLabel",
+        placeholder: "Rest (n)",
+        value: ""
+    });
+
+    // 1.55 (B13, IBCS sheet 13C): variance basis = average of all tiles
+    multiplesBasis = new formattingSettings.ItemDropdown({
+        name: "multiplesBasis",
+        displayName: "Variance basis of the tiles",
+        displayNameKey: "Chart_MultiplesBasis",
+        description: "Szenario (Standard): jede Kachel vergleicht mit PY bzw. PL. „Durchschnitt aller Kacheln (Ø)“: jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panel „ΔØ“). Reine Planjahre vergleichen den Plan mit dem Durchschnitt der Pläne und erscheinen in Plan-Notation (umrandet). Die Bezugskachel zeigt keine Abweichung, die doppelte Abweichung ist aus. Nur Säulen, Balken und Linie ohne Stapel und ohne Brücke.",
+        descriptionKey: "Desc_Chart_MultiplesBasis",
+        items: multiplesBasisItems,
+        value: multiplesBasisItems[0]
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
         slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
-            this.multiplesSameScale]
+            this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
+            this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
+            this.multiplesBasis]
     });
 
     bridgeOrientation = new formattingSettings.ItemDropdown({
@@ -751,7 +877,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartBridge",
         displayName: "Bridge",
         displayNameKey: "Group_Bridge",
-        slices: [this.waterfallStyle, this.sortMode, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak]
+        slices: [this.waterfallStyle, this.sortMode, this.sortByImpact, this.bridgeOrientation, this.bridgeBreak,
+            this.bridgeSecondNet]
     });
 
     valueColumns = new formattingSettings.ItemDropdown({
@@ -1138,6 +1265,104 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: true
     });
 
+    // 1.55 (B12, Blätter 10A/10B/10D): Portfolio-Blasen. Alle Schalter stehen im
+    // Standard auf dem bisherigen Verhalten (aus, 0 = automatisch, 55 %, Palette).
+    scatterValueLabels = new formattingSettings.ToggleSwitch({
+        name: "scatterValueLabels",
+        displayName: "Bubble size value",
+        displayNameKey: "Chart_ScatterValueLabels",
+        description: "Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen. Die Namen stehen dann bevorzugt über der Blase. Die Einheit steht im Titel.",
+        descriptionKey: "Desc_Chart_ScatterValueLabels",
+        value: false
+    });
+
+    scatterMaxRadius = new formattingSettings.NumUpDown({
+        name: "scatterMaxRadius",
+        displayName: "Max. bubble radius (px)",
+        displayNameKey: "Chart_ScatterMaxRadius",
+        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual.",
+        descriptionKey: "Desc_Chart_ScatterMaxRadius",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 200 }
+        }
+    });
+
+    scatterBubbleOpacity = new formattingSettings.NumUpDown({
+        name: "scatterBubbleOpacity",
+        displayName: "Bubble opacity %",
+        displayNameKey: "Chart_ScatterBubbleOpacity",
+        description: "Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A.",
+        descriptionKey: "Desc_Chart_ScatterBubbleOpacity",
+        value: 55,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 10 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 100 }
+        }
+    });
+
+    scatterEmphFill = new formattingSettings.ToggleSwitch({
+        name: "scatterEmphFill",
+        displayName: "Highlight as color",
+        displayNameKey: "Chart_ScatterEmphFill",
+        description: "Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe.",
+        descriptionKey: "Desc_Chart_ScatterEmphFill",
+        value: false
+    });
+
+    scatterEmphColor = new formattingSettings.ColorPicker({
+        name: "scatterEmphColor",
+        displayName: "Highlight color",
+        displayNameKey: "Chart_ScatterEmphColor",
+        description: "Füllfarbe der hervorgehobenen Punkte, wenn „Hervorhebung als Farbe“ an ist.",
+        descriptionKey: "Desc_Chart_ScatterEmphColor",
+        value: { value: "#0064FF" }
+    });
+
+    scatterEmphLabel = new formattingSettings.TextInput({
+        name: "scatterEmphLabel",
+        displayName: "Highlight legend text",
+        displayNameKey: "Chart_ScatterEmphLabel",
+        description: "Legendeneintrag für die Hervorhebungsfarbe (z. B. „Zukäufe 12/25“). Leer = kein Eintrag.",
+        descriptionKey: "Desc_Chart_ScatterEmphLabel",
+        placeholder: "",
+        value: ""
+    });
+
+    // Gruppenfarben: Standard = bisherige Palette. Ein Wert, der vom hellen Standard
+    // abweicht, gilt in hellem und dunklem Modus; Standardwerte folgen dem Modus.
+    scatterGroupColor1 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor1", displayName: "Group color 1", displayNameKey: "Chart_ScatterGroupColor1",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#404040" }
+    });
+    scatterGroupColor2 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor2", displayName: "Group color 2", displayNameKey: "Chart_ScatterGroupColor2",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#3D78B2" }
+    });
+    scatterGroupColor3 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor3", displayName: "Group color 3", displayNameKey: "Chart_ScatterGroupColor3",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#B0702A" }
+    });
+    scatterGroupColor4 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor4", displayName: "Group color 4", displayNameKey: "Chart_ScatterGroupColor4",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#93B5D8" }
+    });
+    scatterGroupColor5 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor5", displayName: "Group color 5", displayNameKey: "Chart_ScatterGroupColor5",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#C2B04E" }
+    });
+    scatterGroupColor6 = new formattingSettings.ColorPicker({
+        name: "scatterGroupColor6", displayName: "Group color 6", displayNameKey: "Chart_ScatterGroupColor6",
+        description: "Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau. Ein geänderter Wert gilt auch im dunklen Modus.",
+        descriptionKey: "Desc_Chart_ScatterGroupColor", value: { value: "#9F5989" }
+    });
+
     // Scatter v3: Quadranten-Beschriftung (leer = aus) — nur bei aktiven Quadranten
     scatterQuadLabelTR = new formattingSettings.TextInput({
         name: "scatterQuadLabelTR",
@@ -1198,7 +1423,11 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Scatter",
         slices: [this.scatterQuadrant, this.scatterColorBy, this.scatterShapes,
             this.scatterArrows, this.scatterTrend, this.scatterTrendR2,
-            this.scatterSizeLegend, this.scatterQuadLabelTR, this.scatterQuadLabelTL,
+            this.scatterSizeLegend, this.scatterValueLabels, this.scatterMaxRadius,
+            this.scatterBubbleOpacity, this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
+            this.scatterGroupColor1, this.scatterGroupColor2, this.scatterGroupColor3,
+            this.scatterGroupColor4, this.scatterGroupColor5, this.scatterGroupColor6,
+            this.scatterQuadLabelTR, this.scatterQuadLabelTL,
             this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPlay]
     });
 
@@ -1229,7 +1458,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_DataTime",
         slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
             this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
-            this.highlight, this.highlightStyle, this.groupEvery]
+            this.highlight, this.highlightStyle, this.diffMarkers, this.groupEvery]
     });
 
     // End-User-Bedienung im Bericht als EINE Familie (In-Chart-Buttons, YTD-Chip,
@@ -1254,6 +1483,60 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
 
     // 1.54 (B05): scenario labels at the columns (AC under the first actual month,
     // FC under the first forecast month, AC/FC at the year column segments)
+    // 1.55 (B10, IBCS sheets 01D, 01E, 02B to 02E): stack structure
+    stackNormalize = new formattingSettings.ItemDropdown({
+        name: "stackNormalize",
+        displayName: "Stack scale",
+        displayNameKey: "Chart_StackNormalize",
+        description: "Gestapelte Säulen und Balken: Werte oder 100 % je Kategorie (Anteile der Serien, Marke „100 %“). Bei 100 % zeigt ein Balkendiagramm rechts die absoluten Summen auf eigener Skala, solange „Summen-Kopfzeile (Σ)“ an ist. Enthält eine Zelle einen negativen Wert, bleibt es bei Werten.",
+        descriptionKey: "Desc_Chart_StackNormalize",
+        items: stackNormalizeItems,
+        value: stackNormalizeItems[0]
+    });
+
+    stackTotalRow = new formattingSettings.ToggleSwitch({
+        name: "stackTotalRow",
+        displayName: "Stack total row (Σ)",
+        displayNameKey: "Chart_StackTotalRow",
+        description: "Gestapelte Balken: eine Σ-Zeile unten mit der Summe je Serie und der Gesamtsumme; bei 100 % als Balken mit dem Gesamtmix. Standard aus.",
+        descriptionKey: "Desc_Chart_StackTotalRow",
+        value: false
+    });
+
+    stackTotalLabel = new formattingSettings.TextInput({
+        name: "stackTotalLabel",
+        displayName: "Total row label",
+        displayNameKey: "Chart_StackTotalLabel",
+        description: "Beschriftung der Σ-Zeile, z. B. „Welt“. Leer = „Σ“.",
+        descriptionKey: "Desc_Chart_StackTotalLabel",
+        placeholder: "Σ",
+        value: ""
+    });
+
+    // 1.55 (B09, IBCS sheet 02C): bracket with the cumulated share of the top rows
+    stackShareBracket = new formattingSettings.NumUpDown({
+        name: "stackShareBracket",
+        displayName: "Share bracket (top rows)",
+        displayNameKey: "Chart_StackShareBracket",
+        description: "Gestapelte Balken: eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme, z. B. „38 %“. Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme. Rest- und Σ-Zeile zählen nie zur Klammer. 0 = aus.",
+        descriptionKey: "Desc_Chart_StackShareBracket",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 20 }
+        }
+    });
+
+    stackLegendPos = new formattingSettings.ItemDropdown({
+        name: "stackLegendPos",
+        displayName: "Series names (columns)",
+        displayNameKey: "Chart_StackLegendPos",
+        description: "Gestapelte Säulen mit Seriennamen am Stapel: rechts neben der letzten Säule (Standard) oder links neben der ersten.",
+        descriptionKey: "Desc_Chart_StackLegendPos",
+        items: stackLegendPosItems,
+        value: stackLegendPosItems[0]
+    });
+
     scenarioLabels = new formattingSettings.ToggleSwitch({
         name: "scenarioLabels",
         displayName: "Scenario labels at the columns",
@@ -1267,15 +1550,91 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.scenarioLabels,
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.stackLegendPos,
+            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket, this.scenarioLabels,
             this.exportExpandAll]
+    });
+
+    // 1.55 (backlog B11, IBCS sheets 08E to 08H): stock & flow mode (orientation=stockflow)
+    sfNet = new formattingSettings.ToggleSwitch({
+        name: "sfNet",
+        displayName: "Net panel",
+        displayNameKey: "Chart_SfNet",
+        description: "Bestand & Fluss: oberes Panel mit dem Netto-Fluss je Periode (Zufluss minus Abfluss), im selben Maßstab wie die Flüsse. Standard an.",
+        descriptionKey: "Desc_Chart_SfNet",
+        value: true
+    });
+
+    sfNetLabel = new formattingSettings.TextInput({
+        name: "sfNetLabel",
+        displayName: "Net panel label",
+        displayNameKey: "Chart_SfNetLabel",
+        description: "Bestand & Fluss: Name des Netto-Panels rechts neben der Nulllinie, z. B. „Netto-Cashflow“ oder „Fluktuation“. Leer = „Netto“.",
+        descriptionKey: "Desc_Chart_SfNetLabel",
+        placeholder: "Netto",
+        value: ""
+    });
+
+    sfArea = new formattingSettings.ToggleSwitch({
+        name: "sfArea",
+        displayName: "Area under the stock",
+        displayNameKey: "Chart_SfArea",
+        description: "Bestand & Fluss: Fläche zwischen Bestandslinie und Nulllinie, je Periode in der Szenario-Notation (Ist getönt, Forecast schraffiert, Plan heller). Standard an.",
+        descriptionKey: "Desc_Chart_SfArea",
+        value: true
+    });
+
+    sfNegTint = new formattingSettings.ToggleSwitch({
+        name: "sfNegTint",
+        displayName: "Tint negative stock",
+        displayNameKey: "Chart_SfNegTint",
+        description: "Bestand & Fluss: Flächenstücke unter null in der Farbe für Schlecht, leicht getönt. Standard an.",
+        descriptionKey: "Desc_Chart_SfNegTint",
+        value: true
+    });
+
+    sfOpening = new formattingSettings.ToggleSwitch({
+        name: "sfOpening",
+        displayName: "Opening stock",
+        displayNameKey: "Chart_SfOpening",
+        description: "Bestand & Fluss: zusätzlicher Punkt am Anfang der ersten Periode mit dem abgeleiteten Anfangsbestand (Bestand der ersten Periode minus ihr Netto-Fluss). Standard an.",
+        descriptionKey: "Desc_Chart_SfOpening",
+        value: true
+    });
+
+    sfStockAt = new formattingSettings.ItemDropdown({
+        name: "sfStockAt",
+        displayName: "Stock marker",
+        displayNameKey: "Chart_SfStockAt",
+        description: "Bestand & Fluss: Lage der Bestandspunkte, am Ende der Periode (Stichtag, wie auf den IBCS-Blättern) oder in ihrer Mitte.",
+        descriptionKey: "Desc_Chart_SfStockAt",
+        items: sfStockAtItems,
+        value: sfStockAtItems[0]
+    });
+
+    axisGroups = new formattingSettings.ItemDropdown({
+        name: "axisGroups",
+        displayName: "Axis groups",
+        displayNameKey: "Chart_AxisGroups",
+        description: "Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen.",
+        descriptionKey: "Desc_Chart_AxisGroups",
+        items: axisGroupsItems,
+        value: axisGroupsItems[0]
+    });
+
+    stockFlowGroup = new formattingSettings.Group({
+        name: "chartStockFlow",
+        displayName: "Stock & flow",
+        displayNameKey: "Group_StockFlow",
+        slices: [this.sfNet, this.sfNetLabel, this.sfArea, this.sfNegTint, this.sfOpening, this.sfStockAt,
+            this.axisGroups]
     });
 
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
     groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
-        this.displayGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
+        this.displayGroup, this.stockFlowGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
         this.scatterGroup];
 }
 

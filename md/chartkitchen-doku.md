@@ -4,9 +4,9 @@
 
 Power-BI-Visual · Enddokumentation
 
-Ein IBCS-inspiriertes Chart-Deck für Power BI: 13 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 13 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
+Ein IBCS-inspiriertes Chart-Deck für Power BI: 14 Diagramm-Modi in einem einzigen Visual, mit einheitlicher Szenario-Notation (AC ausgefüllt, PY grau, PL umrandet, FC schraffiert) und mitgedachten Varianzen. Diese Dokumentation führt vom Import über die 14 Modi und die wichtigsten Funktionen bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
+Version · **1.55.0.0** · Stand · **2026-11-21** · IBCS-inspired
 
 ## Inhalt
 
@@ -14,7 +14,7 @@ Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
 2. [Die Produktfamilie](#family)
 3. [Der Start-Hub](#hub)
 4. [Schnellstart](#quickstart)
-5. [Die 13 Modi](#modes)
+5. [Die 14 Modi](#modes)
 6. [ChartKitchen im Einsatz](#inaction)
 7. [Funktionen im Detail](#features)
 8. [Einstellungs-Referenz](#settings)
@@ -22,11 +22,11 @@ Version · **1.54.0.0** · Stand · **2026-11-19** · IBCS-inspired
 
 ## 01 · Was ist ChartKitchen?
 
-**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 13 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei. Für die GuV in der Tiefe gibt es das Schwester-Visual [P&L Statement byDatenWG](../pnl-doku.html) — gleiche Notation, gleicher Start-Hub; wie beide zusammenspielen, zeigt Kapitel 02 „Die Produktfamilie“.
+**ChartKitchen byDatenWG** ist ein einzelnes Power-BI-Custom-Visual, das 14 Diagramm-Modi vereint — von Säulen, Balken und Linien über Wasserfall- und Brücken-Darstellungen bis zu IBCS-Tabelle (mit Matrix-Variante), KPI-Karten, einem vollständigen GuV-Statement und einem Scatter/Bubble-Plot für Korrelationen. Statt für jede Fragestellung ein eigenes Visual zu wählen, stellst du die Ausrichtung um und behältst dieselbe Notation, Farbwelt und Skalenlogik bei. Für die GuV in der Tiefe gibt es das Schwester-Visual [P&L Statement byDatenWG](../pnl-doku.html) — gleiche Notation, gleicher Start-Hub; wie beide zusammenspielen, zeigt Kapitel 02 „Die Produktfamilie“.
 
 Die Gestaltung ist von den **IBCS®-Prinzipien** (International Business Communication Standards) inspiriert: eine einheitliche Szenario-Notation — **AC** (Ist) ausgefüllt, **PY** (Vorjahr) grau, **PL** (Plan) umrandet, **FC** (Forecast) schraffiert — und Abweichungen, die immer mitgedacht sind: absolute und relative Varianz-Panels stehen automatisch neben oder über dem Basis-Chart. So liest sich jede Grafik nach denselben Regeln, egal welcher Modus.
 
-Diese Anleitung beschreibt den Stand der Version **1.54.0.0**. Gezählt wird wie im Visual selbst: 13 Chart-Typen — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07). Neu in 1.54: sechs weitere IBCS-Vorlagen C14 bis C19 (Balkentabellen gegen Plan, waagerechte Kategorie-Brücke, Abweichungs-Scatter, Säulen mit Jahressäule), die Jahressäule mit eigener Skala, Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile, die Szenario-Notation im Stapel und die Hervorhebung als Ellipse (Kapitel 07).
+Diese Anleitung beschreibt den Stand der Version **1.55.0.0**. Gezählt wird wie im Visual selbst: 14 Chart-Typen (seit 1.55 mit „Bestand & Fluss“) — die Matrix ist dabei kein eigener Typ, sondern die Tabelle mit gefüllter Spalten-Rolle; sie bekommt in Kapitel 05 trotzdem eine eigene Karte. Neu seit 1.48: der Start-Hub für den Einstieg (Kapitel 03), die IBCS-Vorlagen C01–C13, das Nachladen bis 30.000 Zeilen, Lesezeichen, die die Auswahl wiederherstellen, gesperrte statt stummer Chips, wählbare Leer-Zustände und echter Hochkontrast (Kapitel 07). Seit 1.52 skaliert das Visual nach IBCS 2.0 / ISO 24896 (Kapitel 07, „Skalierung nach IBCS 2.0 / ISO 24896“). Neu in 1.53: die Zeilenstruktur als Datenvertrag über [rowType-Token](#rowtype), negative Werte in beiden Brücken (Kapitel 05) und ein geprüftes [Export-Layout](#export) mit ehrlichen Grenzen im Power-BI-Service (Kapitel 07). Neu in 1.54: sechs weitere IBCS-Vorlagen C14 bis C19 (Balkentabellen gegen Plan, waagerechte Kategorie-Brücke, Abweichungs-Scatter, Säulen mit Jahressäule), die Jahressäule mit eigener Skala, Sortierung nach |Δ|, Δ, Δ % oder AC mit fester Rest-Zeile, die Szenario-Notation im Stapel und die Hervorhebung als Ellipse (Kapitel 07). Neu in 1.55 (in Arbeit): der Chart-Typ [„Bestand & Fluss (Zeit)“](#stockflow) mit der Vorlage C20 für Kasse, Personal und Lager (Kapitel 07).
 
 ## 02 · Die Produktfamilie
 
@@ -34,7 +34,7 @@ ChartKitchen und P&L Statement sind zwei Visuals aus einer Küche: dieselbe IBCS
 
 ### Wofür welches Visual?
 
-Breite · 13 Chart-Modi
+Breite · 14 Chart-Modi
 
 #### ChartKitchen byDatenWG
 
@@ -71,7 +71,7 @@ Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorl
 | Gemeinsam | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
-| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 17 IBCS-Chart-Vorlagen C01 bis C19 (ohne C07/C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 18 IBCS-Chart-Vorlagen C01 bis C20 (ohne C07/C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
 | **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich HD · Full HD · UHD; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
 | **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
 | **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
@@ -105,6 +105,7 @@ Die 17 IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in fünf Grupp
 |  | C19 | Säulen gegen Plan mit Jahr | Monate AC/FC gegen PL, Jahr eigene Skala |
 |  | C05 | Integrierte Jahresbrücke | PY → AC/FC über die Monate |
 |  | C08 | Linie für lange Reihen | Wochen- oder Tagestrend vs. PY |
+|  | C20 | Bestand und Fluss | Kasse, Personal oder Lager im Verlauf |
 | **Struktur** | C02 | Balken gestapelt nach Segment | Kostenstruktur je Bereich |
 |  | C04 | Balken mit Plan-Abweichung | Regionen oder Produkte AC vs. PL |
 |  | C06 | Treiber-Brücke je Kategorie | Welche Bereiche erklären ΔPY? |
@@ -153,7 +154,7 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.54.0.0.
+1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.55.0.0.
 2. In Power BI Desktop: im Bereich *Visualisierungen* auf *… (Weitere Optionen)* → *Visual aus Datei importieren* klicken und die `.pbiviz` auswählen.
 3. Das ChartKitchen-Icon erscheint im Visualisierungsbereich. Ziehe es auf die Berichtsseite.
 
@@ -180,11 +181,12 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 | Filter-Info (Fußzeile) | Kennzahl | Text-Measure mit dem aktuellen Filterkontext (z. B. via CONCATENATEX/SELECTEDVALUE) — erscheint als zweite Fußzeile, wenn die Filter-Fußzeile aktiv ist. |
 | Kommentare | Kennzahl | Text-Measure: Kategorien mit Kommentar bekommen einen nummerierten Marker, der Text steht im Tooltip und in der Kommentarliste. |
 | Small Multiples | Gruppierung | Teilt das Chart in kleine Kacheln pro Gruppe — mit identischer Skalierung (IBCS Small Multiples). |
-| Waterfall-Typ (rowType) | Gruppierung | Zeilenstruktur als Token je Zeile (Wasserfall, GuV-Statement, Tabelle): Ergebniszeile (`total`, früher „sum“), Bewegung („delta“), Margenzeile (`pct`) und Flags wie `exclude`, `hide`, `davon`, `invert`, `emphasize`, `graphic` — kombinierbar, z. B. `davon \| exclude`. Dieselbe Spalte speist das [P&L Statement](../pnl-doku.html). Token-Tabelle: [Kapitel 07](#rowtype). |
+| Waterfall-Typ (rowType) | Gruppierung | Zeilenstruktur als Token je Zeile (Wasserfall, GuV-Statement, Tabelle): Ergebniszeile (`total`, früher „sum“), Bewegung („delta“), Margenzeile (`pct`) und Flags wie `exclude`, `hide`, `davon`, `invert`, `emphasize`, `graphic` — kombinierbar, z. B. `davon \| exclude`. Seit 1.55 dazu `stock`, `inflow`, `outflow` für den [Bestand-Fluss-Modus](#stockflow). Dieselbe Spalte speist das [P&L Statement](../pnl-doku.html). Token-Tabelle: [Kapitel 07](#rowtype). |
 | Forecast-Flag (0=Ist · 1=FC · 2=vorläufig) | Gruppierung | Alternative zur FC-Measure: eine 1/0-Spalte — Zeilen mit 1 werden als Forecast (schraffiert) dargestellt, die AC-Measure läuft durch. |
 | X-Achse (Scatter) | Kennzahl | Nur Scatter/Bubble (seit 1.47): Kennzahl für die X-Achse — die Y-Achse bleibt AC. |
 | X-Achse VJ (Scatter) | Kennzahl | Nur Scatter/Bubble, optional (seit 1.48, max. 1 Feld): Vorjahreswert zur X-Achse. Mit Vorjahr (PY) und aktivierten Bewegungspfeilen zeigen die Pfeile echte 2D-Bewegungen von (X-VJ, PY) zur AC-Position — ohne dieses Feld bewegt sich nur die Y-Achse. |
 | Blasengröße | Kennzahl | Nur Scatter/Bubble, optional: skaliert die Punktfläche proportional zum Wert (3–22 px) — aus dem Scatter wird ein Bubble-Chart. |
+| Blasengröße VJ | Kennzahl | Nur Scatter/Bubble, optional (seit 1.55, max. 1 Feld): Vorjahreswert der Blasengröße. Mit Vorjahr (PY, Y-Lage) und optional „X-Achse VJ“ bekommt jede Kategorie eine eigene PY-Blase in PY-Grau mit eigener Größe hinter der AC-Blase (Portfolio-Blatt 10D); beide Jahre teilen eine Größenskala. |
 | Trend (Zeit) | Gruppierung | Nur KPI-Karten (seit 1.47): ein Zeitfeld macht jede Karte zur Zeitreihe mit Mini-Chart (Sparkline oder Säulen). Andere Modi ignorieren die Rolle und aggregieren die Zeilen. |
 
 ![Demo-Galerie (im Start-Hub unter „Demo ansehen“, bis 1.49 die Startseite): Kachel-Übersicht aller Modi mit den je Modus benötigten Feldern — ein Klick wählt den Modus.](../doku-assets/feature-landing.png)
@@ -196,9 +198,9 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 3. Von hier aus änderst du über *Chart → Chart-Typ* den Modus — seit 1.45 ist die Chart-Karte die erste Karte im Formatbereich. Alle folgenden Kapitel bauen darauf auf.
 4. Abkürzung: Eine IBCS-Vorlage setzt Modus, Basis und Panels in einem Schritt — etwa *C03 · Säulen + Varianzen (PY)* unter Chart → IBCS-Chart-Vorlage oder per Klick in der Vorlagen-Galerie des Start-Hubs.
 
-## 05 · Die 13 Modi
+## 05 · Die 14 Modi
 
-ChartKitchen zählt 13 Chart-Typen — so, wie sie auch die Demo-Galerie im Start-Hub zeigt. Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
+ChartKitchen zählt 14 Chart-Typen. Die Demo-Galerie im Start-Hub zeigt die folgenden 13; der vierzehnte, „Bestand & Fluss (Zeit)“ (seit 1.55), steht im Abschnitt [Bestand und Fluss über die Zeit](#stockflow). Die Matrix ist dabei kein eigener Typ, sondern die Tabellen-Variante mit gefüllter Spalten-Rolle; sie wird hier als Karte 07b beschrieben.
 
 ### 01 · Säulen
 
@@ -300,6 +302,8 @@ Der Korrelations-Modus (neu in 1.47): jede Kategorie als Punkt, Y-Achse = AC, X-
 
 Seit 1.48 ist der Modus deutlich ausgebaut: Ein Feld in der Small-Multiples-Rolle erzeugt jetzt echte Scatter-Kacheln mit gemeinsamer X/Y-Skala — Quadranten-Linien, Referenzlinien und Blasenskala gelten für alle Kacheln gleich; die Σ- und die Top-N-Rest-Kachel sind im Scatter bewusst aus (keine Summen über Quoten). Die Punkt-Färbung „Nach Gruppe/Serie“ nutzt sechs gedeckte Farben ohne Rot und Grün (die bleiben für gut/schlecht reserviert) und zeigt eine Legende oben — ab der 7. Gruppe mit „+n weitere“. Die neue Rolle „X-Achse VJ (Scatter)“ macht aus den PY→AC-Bewegungspfeilen echte 2D-Bewegungen. Und der Play-Modus (Rosling-Animation) macht die Kategorie zur Zeitachse: je Frame ein Punkt pro Serie, die laufende Periode steht als großes Wasserzeichen im Hintergrund, ohne Abspielen zeigt der Chart die letzte Periode — nur für die einzelne Punktwolke, nicht bei Kacheln. Dazu kommen Trendlinie mit R²-Label, Größen-Legende, Punktformen je Gruppe, Quadranten-Ecklabels, fixierbare Achsen und Log-Skalen (Einstellungs-Referenz, Kapitel 08).
 
+Seit 1.55 trägt der Modus die Portfolio-Blätter 10A, 10B und 10D: Der Wert der Blasengröße steht auf Wunsch in der Blase (Schrift hell oder dunkel nach Kontrast; passt er nicht, steht er hinter dem Namen, die Namen rücken über die Blase; ohne Namen steht er allein neben der Blase). Der größte Radius ist frei wählbar (statt fest 22 px, gedeckelt auf ein Fünftel der kleineren Plotkante), die Deckkraft der Blasen ebenso (100 % = deckend wie in 10A). Große Blasen dürfen über die Achse ragen, bleiben aber im Visual: Wo eine Blase hinausragen würde, rückt die Plotfläche ein. Die sechs Gruppenfarben lassen sich einzeln setzen, etwa Orange für neue Geschäftseinheiten. Die neue Rolle „Blasengröße VJ“ zeichnet zum Vorjahr eine eigene graue Blase mit eigener Größe hinter die AC-Blase, Legende ● PY ● AC. „Hervorhebung als Farbe“ füllt hervorgehobene Einheiten (z. B. Zukäufe) in einer wählbaren Farbe statt eines Rings, mit eigenem Legendeneintrag. Rezept für 10A: Vorlage C10, Serie = Geschäftsart, Punktfarbe „Nach Gruppe/Serie“, Quadranten aus, Größenlegende aus, Achsen X 0 bis 1 und Y 0 bis 1,25, X-Referenzlinie 0,5 (Mittellinie), Wert der Blasengröße an, max. Radius 85, Deckkraft 100, Gruppenfarbe 2 Orange; 10B ebenso mit Deckkraft 60; 10D mit Vorjahr, X-Achse VJ und Blasengröße VJ, Punktfarbe einfarbig, Größenlegende aus, X-Referenzlinie 0,5, Hervorhebung als Farbe und Deckkraft 85.
+
 ## 06 · ChartKitchen im Einsatz
 
 Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten aus einem echten Bericht. Die übrigen Abbildungen dieser Dokumentation sind mit demselben Renderer erzeugt — hier siehst du das Visual so, wie es im Berichtsalltag zusammenspielt.
@@ -318,7 +322,7 @@ Die folgenden Aufnahmen stammen direkt aus Power BI Desktop, mit Beispieldaten a
 
 ## 07 · Funktionen im Detail
 
-### IBCS-Vorlagen C01 bis C19
+### IBCS-Vorlagen C01 bis C20
 
 Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — dasselbe Muster wie die Tabellen-Templates im Schwester-Visual P&L Statement. Eine Vorlage ist nur ein Startpunkt: Sie setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Speichervorgang, danach ist jede Einstellung frei änderbar.
 
@@ -345,6 +349,7 @@ Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — d
 | C16 · Balkentabelle nach AC (Blatt 04C) | wie C14, sortiert nach AC absteigend (Rangfolge) | Plan (PL) |
 | C17 · Kategorie-Brücke waagerecht (Blatt 06E) | Kategorie-Brücke als Balken-Kaskade, Basis Vorjahr, PY als grauer Balken hinter AC statt Dreieck, Trennlinie alle 4 Zeilen, ohne Treiber-Notiz | Vorjahr (PY), Plan optional |
 | C19 · Säulen gegen Plan mit Jahressäule (Blatt 03B) | Säulen, Basis Plan, Abweichung absolut und in %, Jahressäule AC + FC mit eigener Skala und Skalenband, Szenario-Kürzel an den Säulen | Plan (PL), Forecast empfohlen |
+| C20 · Bestand und Fluss (Blätter 08E bis 08H, seit 1.55) | Chart-Typ „Bestand & Fluss (Zeit)“ mit Netto-Panel und Fläche unter dem Bestand, Szenario-Kürzel, ohne Summenkopf, Hervorhebung als Ellipse | Stack-Serie + Waterfall-Typ mit stock / inflow / outflow |
 | C18 · Abweichungs-Scatter (Blatt 10F) | Scatter ohne Mittelwert-Quadranten, Achsenkreuz bei 0 (Referenzlinien X und Y), Farbe je Gruppe, Größen-Legende | Ist (AC) = ΔPL %-Measure, X-Achse = ΔPY %-Measure, Serie, Blasengröße optional |
 
 Seit 1.54 räumt ein Vorlagenwechsel auf: Was die vorherige Vorlage gesetzt hat und die neue nicht nennt, geht auf den Standard zurück (etwa die Referenzlinien von C18, wenn danach C09 gewählt wird). „Aus“ ändert weiterhin nichts. Ein Klick auf einen Spaltenkopf in C14 bis C16 gilt als Abweichung, „↺ Zum Template zurück“ stellt die Sortierung der Vorlage wieder her.
@@ -409,6 +414,44 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 4. Im Stapel wirken jetzt auch die Referenzlinie (Skala-Karte), „Trennlinie alle N Kategorien“ und die Kommentar-Marker (am Segment, außen an der Säule). Stapel ohne Forecast, ohne Plan für Monate ohne Ist, ohne Referenzlinie, ohne „Trennlinie alle N Kategorien“ und ohne Kommentar-Measure zeichnen genau wie bisher. Bei bestehenden Berichten ändert sich: Ein Plan für zukünftige Monate erscheint jetzt als Plan-Umriss, und eine bisher wirkungslose Referenzlinie, Trennlinie oder ein gebundenes Kommentar-Measure wird jetzt gezeichnet.
 5. Neben einem Ist-Monat wird kein Plan-Umriss gezeichnet, wie in den IBCS-Blättern 01A bis 01C.
 
+### Stapel: 100 %, Σ-Zeile und Sortierung
+
+![Gestapelte Balken nach Stapelsumme sortiert, Rest-Zeilen kursiv am Ende und eine Σ-Zeile „World“ unten (Vorlage: IBCS-Blatt 02B).](../doku-assets/feature-stack-sorted-total.png)
+
+![Dieselben Balken als 100 %-Stapel, mit Summen-Panel rechts auf eigener Skala (Vorlage: IBCS-Blatt 02D).](../doku-assets/feature-stack-100.png)
+
+1. Seit 1.55: Chart → Darstellung → „Stapel-Skala“ → „100 % (Anteile)“ (`chart.stackNormalize`, Standard „Werte“). Säulen und Balken zeigen dann je Kategorie 100 %, die Beschriftungen sind Anteile mit einer Nachkommastelle, der Panel-Titel erhält den Zusatz „Anteile in %“. Die „100 %“-Marke steht bei Säulen über der äußeren Säule (auf der Seite der Seriennamen); bei Balken läuft eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile, mit „▲ 100 %“ darunter. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N), sonst bleibt der Stapel bei Werten. Eine Referenzlinie wird bei 100 % als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax` und `capOverflow` gelten für Anteile nicht.
+2. Bei 100 %-Balken zeigt „Summen-Kopfzeile (Σ)“ ein Summen-Panel rechts: die absolute Stapelsumme je Balken, auf eigener Skala. Es erscheint nur, wenn die Kachel mindestens 280 px breit und der Schalter an ist, und teilt sich bei Small Multiples einen Pixelwert je Einheit über alle Kacheln. Forecast-Kategorien sind dort schraffiert, Plan-Kategorien umrandet, der Kopf nennt die Szenarien (z. B. „Σ AC · PL“), bei Sortierung nach Summe zusätzlich „(↓)“.
+3. „Σ-Zeile im Stapel“ (`chart.stackTotalRow`, nur Balken) hängt unten eine Summenzeile an. Bei Werten ist es eine Legendenzeile mit der Summe je Serie (mit Farbfeld) und der Gesamtsumme als „= 3.733“, ohne Summenbalken, weil die Summe nicht auf die Zeilenskala passt. Die Serien-Summen erscheinen ganz oder gar nicht; passen sie nicht, bleibt nur die Gesamtsumme. Bei 100 % ist es ein 100 %-Balken mit dem Gesamtmix. „Beschriftung der Σ-Zeile“ ersetzt das Σ durch einen eigenen Namen, z. B. „World“. Die Σ-Zeile summiert nur ein Szenario: Sind AC-, FC- und PL-Kategorien gemischt, entfällt sie.
+4. „Sortierung“ kennt neu „Nach erster Serie (Stapel)“. In Stapelbalken ordnet „Nach AC“ nach der Stapelsumme, „Nach erster Serie (Stapel)“ nach der ersten Serie (bei 100 % nach deren Anteil). Ein „(↓)“ in der Legende markiert die sortierte Serie; Rest-Zeilen bleiben kursiv am Ende. Die Serienreihenfolge eines Stapels bleibt wie geliefert: Sortierung und Top N ändern weder Farbtöne noch Legendenreihenfolge noch, welche Serie die „erste“ ist.
+5. „Seriennamen (Säulen)“ → „Links neben der ersten Säule“ (`chart.stackLegendPos`, Standard „Rechts neben der letzten Säule“) setzt die Seriennamen links neben die erste Säule (IBCS-Blatt 01E).
+6. Verhaltensänderung bei Top N: Bei Stapelbalken wählt `chart.topN` jetzt ganze Kategorien nach Stapelsumme, behält alle Serien-Zellen und fasst den Rest je Serie zu „Rest (n)“ zusammen. Vorher wurden einzelne Zellen gereiht, und es entstand eine Serie „(leer)“.
+7. Zweite Verhaltensänderung: Ein Bericht aus 1.54 mit Stapelbalken und gespeicherter „Sortierung“ = „Nach AC“ wird jetzt nach der Stapelsumme sortiert (vorher ohne Wirkung auf Stapel). Stapel mit den neuen Optionen aus zeichnen wie bisher.
+
+### Differenzmarker und zweite Überleitung
+
+![Differenzmarker neben den Säulen: Niveaulinie, Differenzbalken und Δ samt Δ % (Vorlage: IBCS-Blatt 01A).](../doku-assets/feature-diff-markers.png)
+
+![Zweite Überleitung: neben dem Netto-Callout die Abweichung zur anderen Basis mit dünner Niveaulinie (Vorlage: IBCS-Blatt 05X).](../doku-assets/feature-bridge-second-net.png)
+
+1. Seit 1.55: Chart → „Daten & Zeit“ → „Differenzmarker“ (`chart.diffMarkers`). „2025 > 2026“ (auch „->“, „=>“ oder „→“) zeichnet neben der zweiten Kategorie, auf der Seite weg von der ersten (Säulen rechts oder links, Balken darunter oder darüber), eine dünne Niveaulinie, einen dicken Differenzbalken in Gut/Schlecht-Farbe (bei Forecast schraffiert) und Δ mit Δ % („+12,2 (+12,0%)“).
+2. Die Namen müssen so geschrieben sein, wie die Achse sie zeigt (Datumswerte im angezeigten Format); bei doppelten Namen gilt der erste. Mehrere Marker mit „;“ trennen, höchstens 4 werden gezeichnet; unbekannte Namen und doppelte Marker werden still übersprungen. Δ hat die Einheit und Nachkommastellen der Werte, bei sehr kleinem Δ mehr Stellen („−0,04M“). Ein „!“ am Ende lässt Δ % weg: „2025 > 2031!“ zeigt nur „−7,0“ (Blatt 01B).
+3. Im Stapel: „2025 > 2026@Software“ misst eine Serie (Niveaulinie nur bei der untersten Serie). „@Serie“ steht immer hinter dem Pfeil; ohne Stapel oder ohne passende Serie gehört der ganze Text zur Kategorie (eine Kategorie „a@b“ funktioniert). Bei 100 %-Stapeln gibt es nur Serienmarker, beschriftet in Prozentpunkten („+3,8 PP“, ohne Δ %), Summenmarker nur ohne negative Segmente; ein reiner Plan-Monat vergleicht auf seinem Planwert.
+4. Zielt ein Marker auf die letzte (oder, rückwärts, die erste) Spalte, bleibt am Rand Platz für Balken und Text; Stapel-Säulen setzen die Seriennamen dann links neben die erste Säule wie auf Blatt 01A. Bei Zielen in der Mitte und neben der Jahressäule steht der Text über dem Balken und über den Säulen darunter, bei Balken hinter dem Wert der Zeile. Mehrere Marker auf dieselbe Kategorie stehen nebeneinander; über einer Säule in der Mitte nur so viele, wie Textzeilen darüber passen. Bei negativen Werten steht der Text unter bzw. links vom Balken. In Small Multiples reservieren alle Kacheln denselben Platz. Bei Linien und beim Wasserfall-Stil gibt es keine Marker.
+5. Zweite Überleitung: Bei integrierter Brücke mit gebundenem Vorjahr und Plan schaltet „Zweite Überleitung“ (`chart.bridgeSecondNet`, Standard Aus) neben dem Netto-Callout einen zweiten Balken ein, z. B. „+4 PY“, mit dünner Niveaulinie der anderen Basis. Er erscheint nur, wenn die andere Basis jeden Monat mit einem Wert abdeckt; nur dann wird auch Platz dafür reserviert.
+
+### Bestand und Fluss über die Zeit (seit 1.55)
+
+Kasse, Personal oder Lager: ein Bestand, der sich durch Zu- und Abflüsse verändert. Der Chart-Typ **„Bestand & Fluss (Zeit)“** (`chart.orientation = stockflow`, Vorlage C20) zeigt alles in einer Grafik und auf einer Skala, nach den IBCS-Blättern 08E bis 08H: oben der Netto-Fluss je Periode, darunter die Zuflüsse über und die Abflüsse unter der Nulllinie und der Bestand als Linie mit Fläche bis null.
+
+1. **Daten im Langformat:** Kategorie = Zeit (am besten eine Hierarchie wie Jahr › Woche › Tag, alle Ebenen aufgeklappt), „Ist (AC)“ = der Wert, „Stack-Serie“ = die Art der Zeile („Cash in“, „Cash out“, „Cash at hand“), „Waterfall-Typ“ = ein Token je Zeile: `stock` (auch `bestand`, `balance`) für den Bestand, `inflow` (`zufluss`) und `outflow` (`abfluss`) für die Flüsse. Abflüsse dürfen positiv geliefert werden, `outflow` zeichnet sie unter null; ohne Token entscheidet das Vorzeichen. Mehrere Arten je Seite werden gestapelt. Forecast und Plan wie gewohnt über die Measures „Forecast“ und „Plan“ oder das Forecast-Flag.
+2. **Bestand ohne Token:** Liefert keine Zeile `stock`, nimmt das Visual die Linien-Measure („Linie (Kombi)“) als Bestand. Das Netto rechnet das Visual selbst (Zuflüsse minus Abflüsse), den Anfangsbestand leitet es ab: Bestand der ersten Periode minus ihr Netto.
+3. **DAX-Hinweis:** Ein Bestand ist über die Zeit nicht additiv. Die Bestands-Measure muss deshalb selbst den Stichtagswert liefern (z. B. mit `LASTNONBLANKVALUE` oder `CLOSINGBALANCEMONTH`), sonst stimmt schon der Wochen- oder Monatswert nicht. Perioden ohne Bewegung brauchen trotzdem eine Bestandszeile, sonst reißt die Linie. Über Einheiten oder Regionen darf summiert werden; die Σ-Kachel der Small Multiples tut das (Bestand als Summe, Flüsse und gruppierte Zeitachse bleiben). Die Ø-Kachel mittelt den Bestand über die Kacheln mit einem Bestand; ein fehlender Fluss zählt dort als 0.
+4. **Notation:** Ist solide, Forecast schraffiert, Plan hohl bzw. hell, für Säulen, Bestandspunkte und Fläche. Die Punkte sitzen am Periodenende (Stichtag), der Anfangsbestand am Beginn der ersten Periode; negative Bestände sind rosa hinterlegt. Netto und Flüsse stehen im selben Maßstab wie der Bestand, auch wenn die Flüsse dann klein bleiben (Blatt 08G).
+5. **Zeitachse:** Aus einer Hierarchie entstehen bis zu zwei Gruppenzeilen (z. B. Woche und Jahr) mit Trennlinien durch alle Panels; die Beschriftung steht unter dem ersten Mitglied. An der Grenze AC | FC | PL steht die gestrichelte Szenario-Linie, mit „Szenario-Kürzel an den Säulen“ darunter AC, FC und PL.
+6. **Optionen** (Chart → „Bestand & Fluss“, nur in diesem Modus sichtbar): Netto-Panel und seine Beschriftung (z. B. „Netto-Cashflow“), Fläche, Negativtönung, Anfangsbestand, Lage der Punkte (Ende oder Mitte der Periode) und Achsengruppen. „Kategorien hervorheben“ kreist mit der Vorlage C20 die Bestandszahl einer Periode („2026 · Dec“) oder eine Achsengruppe („W01“, „2026“) ein. Der Summenkopf nennt Σ Zufluss, Σ Abfluss, Netto und den Endbestand, nie eine Summe der Bestände; YTD ist in diesem Modus gesperrt.
+7. **Noch nicht enthalten:** letzter Wert statt Summe in YTD, Jahressäule und Tabelle, vergrößerte Flüsse bei großem Bestand, Achsengruppen in Säulen und Linie, Abweichung des Bestands gegen Plan oder Vorjahr, der Modus in der Demo-Galerie und in der dwg-App.
+
 ### Jahressäule mit eigener Skala
 
 ![Monate gegen Plan, rechts die Jahressäule AC + FC auf eigener Skala (×0,1). Das blaue Band steht in beiden Skalen beim selben Wert, die schräge Linie verbindet die beiden Bänder; ΔPL und ΔPL % der Jahressumme stehen in den Abweichungs-Panels (IBCS-Blätter 03A und 03B).](../doku-assets/feature-year-column.png)
@@ -457,6 +500,7 @@ Zeilennamen sind kein stabiler Datenvertrag: Wer eine Zeile umbenennt oder über
 | invert | invertieren, kosten, cost | — | Wertung umgekehrt (Mehrkosten sind schlecht) · „Invertieren je Kategorie“ |
 | emphasize | hervorheben, highlight | — | IBCS-Hervorhebung (EMPHASIZE) · „Kategorien hervorheben“ |
 | graphic | grafik, chart | — | nur Zeilen mit diesem Token zeigen Balken-/Pin-Grafiken · „Grafik nur für diese Zeilen“ |
+| stock · inflow · outflow | bestand, balance · zufluss · abfluss | — | seit 1.55, nur im Chart-Typ „Bestand & Fluss“: Bestandszeile, Zufluss, Abfluss · keine Liste |
 | detail | normal, delta, konto, leer | Account, Separator | normale Bewegungszeile · nichts |
 
 1. **Trenner:** Mehrere Token pro Zelle trennst du mit Komma, Semikolon, Leerzeichen oder `|`; Groß-/Kleinschreibung ist egal — z. B. `total; graphic` oder `davon | exclude`.
@@ -616,8 +660,8 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter, C19 Säulen gegen Plan mit Jahressäule. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) \| C19 · Säulen gegen Plan + Jahressäule (03B) · Standard „Aus (keine Vorlage)“ |
-| Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) · Standard „Columns (Zeit)“ |
+| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter, C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) \| C19 · Säulen gegen Plan + Jahressäule (03B) \| C20 · Bestand und Fluss (08E bis 08H) · Standard „Aus (keine Vorlage)“ |
+| Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) \| Bestand & Fluss (Zeit), seit 1.55 · Standard „Columns (Zeit)“ |
 | Smart-Start-Vorschläge | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus sichtbar, nie in der Leseansicht oder in Exporten. | An / Aus · Standard An |
 | Abweichungsbasis | Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY. | Optionen: Auto \| Vorjahr (PY) \| Plan (PL) \| FC Vormonat (Revision) · Standard „Auto“ |
 | Absolute Abweichung (ΔAC) | — | An / Aus · Standard An |
@@ -643,6 +687,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Top N (Balken) | Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle. | 0–50 · Standard 0 |
 | Kategorien hervorheben | Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Seit 1.53 alternativ als Token `emphasize` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Jul, Aug |
 | Art der Hervorhebung | Seit 1.54 (`chart.highlightStyle`): hervorgehobene Kategorien als dezentes Band hinter der Kategorie (Standard) oder als Ellipse um ihre Zahlen (Wert, Δ, Δ %), wie die Kreise in den IBCS-Blättern 04A und 06E. Der Kategoriename wird nicht umkreist. | Optionen: Band hinter der Kategorie \| Ellipse um die Werte · Standard Band |
+| Differenzmarker | Seit 1.55 (`chart.diffMarkers`): gespeicherte Differenzen zwischen zwei Kategorien, mit „;“ getrennt, höchstens 4. „2025 > 2026“ zeichnet Niveaulinie, Differenzbalken und Δ mit Δ % neben der zweiten Kategorie; „@Serie“ misst eine Serie im Stapel, ein „!“ am Ende lässt Δ % weg. Unbekannte Namen werden übersprungen. | Freitext · z. B. 2025 > 2026 |
 | Invertieren (mehr ist schlecht) | Für Kosten-KPIs: Mehrwert ist schlecht (rot), Minderwert ist gut (grün). | An / Aus · Standard Aus |
 | Invertieren je Kategorie | Kommagetrennte Kategorien, deren Wertung umgekehrt wird (z. B. Kosten-Zeilen neben Umsatz-Zeilen in KPI-Karten oder der GuV-Tabelle). Wirkt zusätzlich zum globalen Invert-Schalter. Seit 1.53 alternativ als Token `invert` in der Rolle „Waterfall-Typ“ (rowType, [Token-Tabelle](#rowtype)) — wirksam ist die Vereinigung aus Rolle und Liste. | Freitext · z. B. Opex, Materialaufwand |
 | Vergleich per Klick | Nur Columns/Bars: zwei Säulen/Balken anklicken zeigt die Differenz (absolut + %) als Overlay — Klicks filtern dann nicht mehr quer. Klick ins Leere setzt zurück. Standard aus. | An / Aus · Standard Aus |
@@ -651,7 +696,24 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Δ%-Pin-Form | Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. | Optionen: Automatisch (je Modus) \| Rund \| Quadratisch · Standard „Automatisch (je Modus)“ |
 | Trend-Icons ▲▼● | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle). Lesbar auch in Schwarzweiß-Druck und für Farbenblinde — die Farbe bewertet weiterhin gut/schlecht. | An / Aus · Standard Aus |
 | Stapellegende am Stapel | Gruppe Darstellung, seit 1.52.1 (Property `chart.stackLegendDirect`): Gestapelte Säulen und Balken zeigen die Seriennamen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem breitesten Segment jeder Serie) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel. Aus = immer Schlüssel oben. | An / Aus · Standard An |
-| Szenario-Kürzel an den Säulen | Seit 1.54 (`chart.scenarioLabels`), nur Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. | An / Aus · Standard Aus |
+| Stapel-Skala | Gruppe Darstellung, seit 1.55 (`chart.stackNormalize`): Gestapelte Säulen und Balken als Werte oder als 100 % je Kategorie. Bei 100 % sind die Beschriftungen Anteile mit einer Nachkommastelle, der Panel-Titel lautet „Anteile in %“, eine „100 %“-Marke steht am Stapel. Bei einer negativen Zelle bleibt der Stapel bei Werten. Bei 100 %-Balken zeigt „Summen-Kopfzeile (Σ)“ ein Summen-Panel rechts auf eigener Skala. | Optionen: Werte \| 100 % (Anteile) · Standard Werte |
+| Σ-Zeile im Stapel | Seit 1.55 (`chart.stackTotalRow`), nur Balken: Summenzeile unten. Bei Werten eine Legendenzeile mit Summe je Serie und Gesamtsumme (ohne Summenbalken), bei 100 % ein 100 %-Balken mit dem Gesamtmix. | An / Aus · Standard Aus |
+| Beschriftung der Σ-Zeile | Seit 1.55 (`chart.stackTotalLabel`): Name der Σ-Zeile, z. B. „World“. Leer = „Σ“. | Text · Standard leer |
+| Anteils-Klammer (erste Zeilen) | Seit 1.55 (`chart.stackShareBracket`), nur gestapelte Balken: eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme, z. B. „38 %“ links der Namen (IBCS-Blatt 02C). Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme. Rest- und Σ-Zeile zählen nie dazu; nicht bei 100 %. | 0 bis 20 · Standard 0 (aus) |
+| Seriennamen (Säulen) | Seit 1.55 (`chart.stackLegendPos`): Position der Seriennamen am Stapel. Rechts neben der letzten Säule (Standard) oder links neben der ersten Säule (IBCS-Blatt 01E). | Optionen: Rechts neben der letzten Säule \| Links neben der ersten Säule · Standard Rechts |
+| Szenario-Kürzel an den Säulen | Seit 1.54 (`chart.scenarioLabels`), nur Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Seit 1.55 auch im Chart-Typ „Bestand & Fluss“ (Zeile unter den Achsengruppen). Seit 1.55 auch PL unter die erste reine Planperiode, mit einem dünnen Trennstrich AC \| PL unter der Achse, wenn die Planperioden am Ende stehen (IBCS-Blatt 13A). Reine Planperioden tragen seit 1.55 immer ihren Planwert als Beschriftung über dem Umriss, auch ohne Szenario-Kürzel (Verhaltensänderung). | An / Aus · Standard Aus |
+
+#### Bestand & Fluss
+
+| Einstellung | Beschreibung | Optionen / Standard |
+| --- | --- | --- |
+| Netto-Panel | Seit 1.55 (`chart.sfNet`): oberes Panel mit dem Netto-Fluss je Periode, im selben Maßstab wie die Flüsse. | An / Aus · Standard An |
+| Beschriftung Netto-Panel | `chart.sfNetLabel`: Name rechts neben der Netto-Nulllinie, z. B. „Netto-Cashflow“ oder „Fluktuation“. | Freitext · leer = „Netto“ |
+| Fläche unter dem Bestand | `chart.sfArea`: Fläche zwischen Bestandslinie und Nulllinie, je Periode in der Szenario-Notation. | An / Aus · Standard An |
+| Negativen Bestand tönen | `chart.sfNegTint`: Flächenstücke unter null leicht in der Farbe für Schlecht. | An / Aus · Standard An |
+| Anfangsbestand | `chart.sfOpening`: zusätzlicher Punkt am Anfang der ersten Periode (Bestand der ersten Periode minus ihr Netto). | An / Aus · Standard An |
+| Bestandspunkt | `chart.sfStockAt`: Lage der Bestandspunkte. | Ende der Periode \| Mitte der Periode · Standard Ende |
+| Achsengruppen | `chart.axisGroups`: bis zu zwei Gruppenzeilen aus der Kategorie-Hierarchie mit Trennlinien. | Aus der Hierarchie \| Aus · Standard Aus der Hierarchie |
 
 #### Small Multiples
 
@@ -663,6 +725,12 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Top N Kacheln | Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest"-Kachel aggregiert. 0 = alle. | 0–24 · Standard 0 |
 | Erste Kachel groß | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). | An / Aus · Standard Aus |
 | Brücken: gleiche Skala für alle Kacheln | Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer. | An / Aus · Standard Aus |
+| Bezugs- und Rest-Kachel | Was die Bezugskachel (Σ) und die Rest-Kachel von „Top N Kacheln“ zeigen (seit 1.55): die Summe der Gruppen oder ihren Durchschnitt. Der Durchschnitt teilt je Kategorie durch die Zahl der Kacheln mit Wert (ein fehlender Zeitraum zählt nicht als 0) und rechnet immer über alle Gruppen, nie aus der Rest-Kachel. Bei Balken (Strukturachse) zählt eine Kachel ohne die Kategorie als 0, bei Stapeln ein fehlendes Segment, solange die Kachel die Kategorie hat; der Ø-Stapel ist so der Durchschnitt der Stapelsummen. Mit YTD/QTD/R12 ist die Kachel der Durchschnitt der kumulierten Gruppen. Ein „Σ“ im Kopf der Ø-Kachel (Summen-Kopfzeile, Jahressäule) summiert die gezeigten Durchschnittswerte. AC, FC und reine Planwerte werden je Periode gemeinsam gemittelt; Ø-ΔPY nutzt nur Kacheln mit Wert und Vorjahr. So bleibt die Bezugskachel im Wertebereich der Kacheln und staucht die gemeinsame Skala nicht (nach IBCS-Blatt 13A). Bei Quoten ist es ein ungewichteter Mittelwert. | Summe / Durchschnitt · Standard Summe |
+| Position der Bezugskachel | Erste Kachel oder letzte Kachel, unten rechts wie auf Blatt 13A (seit 1.55). Zuletzt bleibt die Kachel auch bei mehr als 24 Kacheln sichtbar. | Erste / Letzte Kachel · Standard Erste |
+| Bezugskachel hinterlegen | Hinterlegt die Bezugskachel grau (seit 1.55), im Hochkontrast ein Rahmen statt der Fläche. | An / Aus · Standard Aus |
+| Titel der Bezugskachel | Eigener Titel, {n} = Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“ (seit 1.55). | Text · leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“ |
+| Titel der Rest-Kachel | Eigener Titel der Rest-Kachel, {n} = Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“ (seit 1.55). | Text · leer = „Rest (n)“ |
+| Abweichungsbasis der Kacheln | Seit 1.55: „Durchschnitt aller Kacheln (Ø)“ vergleicht jede Kachel je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panels „ΔØ“, „ΔØ %“). Reine Planjahre vergleichen den Plan mit dem Durchschnitt der Pläne und stehen in Plan-Notation (umrandet, Pin hohl). Die Bezugskachel zeigt keine Abweichung (ihre Δ-Panels bleiben als Platz ohne Titel und Achse), die doppelte Abweichung ist aus. Top N je Kachel und „Nur Auffälliges“ arbeiten mit ΔØ: Der Ø kommt aus allen Kategorien, eine Sammelzeile vergleicht mit der Summe der Ø ihrer Mitglieder. Die Summen-Kopfzeile nennt ΔØ nur über Ist und Forecast. Bei Balken zählt eine Kachel ohne die Kategorie als 0. Nur Säulen, Balken und Linie ohne Stapel und Brücke, bei Stapeln und Brücke ist die Option ausgeblendet (nach IBCS-Blatt 13C; die Ansicht nur mit dem Abweichungs-Panel folgt). | Szenario (PY / PL) / Durchschnitt aller Kacheln (Ø) · Standard Szenario |
 
 #### Brücke
 
@@ -671,7 +739,8 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
 | Wasserfall-Brücke | Nur Columns/Bars: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken. Optional — Standard ist aus. | An / Aus · Standard Aus |
-| Sortierung | Seit 1.54 eine Auswahl statt eines Schalters (neue Property `chart.sortMode`). Berichte bis 1.53 behalten ihr gespeichertes „Nach Wirkung sortieren“ (`chart.sortByImpact`, im Formatbereich ausgeblendet): Es gilt als „Nach Wirkung \|Δ\|“ und wirkt wie bisher nur in den Brücken, bis „Sortierung“ einmal gesetzt wird. Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht, IBCS-Blatt 06F), nach Δ % (06G) oder nach AC (06H), jeweils absteigend. Rest-Zeilen (Rest, Other, Others, Sonstige, Übrige, „Rest of …“ und die Top-N-Rest-Zeile; dieselbe Regel wie im P&L Statement) bleiben kursiv am Ende; ein Name muss dafür eine Rest-Bezeichnung sein („Sonstige betriebliche Erträge“ bleibt ein Konto), und Top N nimmt benannte Rest-Zeilen in die Rest-Zeile auf. Das ⇅-Symbol im Chart schaltet zwischen Aus und \|Δ\|. Auch die Spaltensortierung der Tabelle hält Rest-Zeilen am Ende. Small Multiples sortieren jede Kachel für sich. | Optionen: Aus (Datenreihenfolge) \| Nach Wirkung \|Δ\| \| Nach Δ (größtes Plus zuerst) \| Nach Δ % \| Nach AC · Standard Aus |
+| Sortierung | Seit 1.54 eine Auswahl statt eines Schalters (neue Property `chart.sortMode`). Berichte bis 1.53 behalten ihr gespeichertes „Nach Wirkung sortieren“ (`chart.sortByImpact`, im Formatbereich ausgeblendet): Es gilt als „Nach Wirkung \|Δ\|“ und wirkt wie bisher nur in den Brücken, bis „Sortierung“ einmal gesetzt wird. Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht, IBCS-Blatt 06F), nach Δ % (06G) oder nach AC (06H), jeweils absteigend. Rest-Zeilen (Rest, Other, Others, Sonstige, Übrige, „Rest of …“ und die Top-N-Rest-Zeile; dieselbe Regel wie im P&L Statement) bleiben kursiv am Ende; ein Name muss dafür eine Rest-Bezeichnung sein („Sonstige betriebliche Erträge“ bleibt ein Konto), und Top N nimmt benannte Rest-Zeilen in die Rest-Zeile auf. Das ⇅-Symbol im Chart schaltet zwischen Aus und \|Δ\|. Auch die Spaltensortierung der Tabelle hält Rest-Zeilen am Ende. Small Multiples sortieren jede Kachel für sich. In Stapelbalken ordnet „Nach AC“ nach der Stapelsumme, „Nach erster Serie (Stapel)“ nach der ersten Serie (bei 100 % nach deren Anteil), „(↓)“ markiert sie in der Legende. | Optionen: Aus (Datenreihenfolge) \| Nach Wirkung \|Δ\| \| Nach Δ (größtes Plus zuerst) \| Nach Δ % \| Nach AC \| Nach erster Serie (Stapel) · Standard Aus |
+| Zweite Überleitung | Seit 1.55 (`chart.bridgeSecondNet`, Gruppe Brücke, bei integrierter Brücke): Mit gebundenem Vorjahr und Plan ein zweiter Balken neben dem Netto-Callout mit der Abweichung der Summe zur anderen Basis (z. B. „+4 PY“) und gestrichelter Niveaulinie. Nur, wenn die andere Basis jeden Monat mit einem Wert abdeckt. | An / Aus · Standard Aus |
 | In-Chart-Buttons | Integrierte/Kategorie-Brücke: zeigt klickbare Buttons oben rechts im Chart — ΔPY/ΔPL-Referenz-Umschalter, ⇅ Sortierung und ▶ Aufbau-Animation. Der Enduser kann die Varianz-Basis direkt im Bericht wechseln; die Wahl wird persistiert. | An / Aus · Standard An |
 | Bedienleisten einklappen (☰) | Gruppe Interaktion im Bericht, seit 1.52 (Property `chart.chipMenu`): Klappt die Bedienelemente im Chart (Sortieren ⇅, YTD, ⫽ Achse, ΔPY\|ΔPL, ▶, Ausnahme-Chip, Modus-Chips, Karten-Sortierung, Scatter-Play, GuV-Ansicht) hinter ein kleines ☰ oben rechts. Ein Klick klappt sie auf, ✕ wieder zu; gespeichert wird nichts. Aus: wie bisher immer sichtbar. | An / Aus · Standard Aus |
 | Treiber-Notiz im Chart | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. | An / Aus · Standard An |
@@ -733,6 +802,13 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Trendlinie | Lineare Regression über die sichtbaren Punkte (seit 1.48) als dünne gepunktete Linie über die Plotbreite, bei Small Multiples je Kachel; bei Log-Achsen im logarithmischen Raum gerechnet — die Gerade bleibt gerade. Mindestens 3 Punkte. | Optionen: Aus \| Linear · Standard „Aus“ |
 | R² anzeigen | Nur bei aktiver Trendlinie: beschriftet das Linienende mit dem Bestimmtheitsmaß („R² = 0,87“). | An / Aus · Standard Aus |
 | Größen-Legende | Nur bei gebundener Blasengröße: drei genestete Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in der ersten freien Plot-Ecke; bei Small Multiples genau einmal. | An / Aus · Standard An |
+| Wert der Blasengröße | Nur bei gebundener Blasengröße (seit 1.55): Wert der Blasengröße in der Blase, Schrift hell oder dunkel nach Kontrast. Passt die Zahl nicht hinein, steht sie hinter dem Namen; die Namen stehen dann bevorzugt über der Blase. | An / Aus · Standard Aus |
+| Max. Blasenradius (px) | Nur bei gebundener Blasengröße (seit 1.55): Radius der größten Blase, mit dem Schrift-Preset skaliert und auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand ragen, bleiben aber im Visual. | Zahl 0 bis 200 · Standard 0 = automatisch (höchstens 22 px) |
+| Deckkraft der Blasen % | Nur bei gebundener Blasengröße (seit 1.55): Deckkraft von AC- und PY-Blasen; hervorgehobene Blasen mindestens 90 %. | Zahl 10 bis 100 · Standard 55 |
+| Hervorhebung als Farbe | Seit 1.55: hervorgehobene Punkte (Liste „Hervorheben“ oder Token emphasize) werden mit der Hervorhebungsfarbe gefüllt statt mit einem Ring markiert. Hochkontrast bleibt beim Ring. | An / Aus · Standard Aus |
+| Hervorhebungsfarbe | Nur bei „Hervorhebung als Farbe“: Füllfarbe der hervorgehobenen Punkte. | Farbe · Standard #0064FF |
+| Legendentext Hervorhebung | Nur bei „Hervorhebung als Farbe“: Eintrag in der Legende, z. B. „Zukäufe 12/25“. | Freitext · leer = kein Eintrag |
+| Gruppenfarbe 1 bis 6 | Nur bei Punktfarbe „Nach Gruppe/Serie“ (seit 1.55): Farbe je Gruppe in der Reihenfolge des ersten Auftretens. Ein geänderter Wert gilt auch im dunklen Modus. | Farbe · Standard gedeckte Palette |
 | Quadranten-Text oben rechts | Nur bei aktiven Quadranten-Linien (seit 1.48): dezente Ecklabel-Beschriftung (z. B. „Stars“ oben rechts), weicht Punkten nach Möglichkeit aus. Leer = aus. | Freitext · leer = aus |
 | Quadranten-Text oben links | — | Freitext · leer = aus |
 | Quadranten-Text unten links | — | Freitext · leer = aus |
@@ -919,7 +995,7 @@ Er ist gesperrt, weil er im aktuellen Zustand nichts bewirken würde; der Toolti
 
 Eine IBCS-Vorlage ist gesetzt, und mindestens eine ihrer Einstellungen wurde geändert. Ein Klick stellt den Vorlagen-Stand wieder her; wer die Änderungen behalten will, stellt Chart → IBCS-Chart-Vorlage auf „Aus“. Leser und Exporte sehen den Chip nie.
 
-**ChartKitchen byDatenWG** · Version 1.54.0.0
+**ChartKitchen byDatenWG** · Version 1.55.0.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (immer die aktuelle Version) · Schwester-Visual: [P&L Statement byDatenWG – Dokumentation](../pnl-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 

@@ -99,6 +99,15 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "Bubble size PY (optional)",
+            "description": "Scatter / bubble mode only: previous-year value of the bubble-size measure. Together with Previous Year (PY, Y position) each category gets a second bubble in PY color with its own size behind the AC bubble; X from \"X axis PY\" if bound, else the AC X.",
+            "descriptionKey": "RoleDesc_BubbleSizePrevious",
+            "displayNameKey": "Role_BubbleSizePrevious",
+            "name": "bubbleSizePrevious",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Stack Series (Gestapelt)",
             "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
             "descriptionKey": "RoleDesc_Series",
@@ -198,7 +207,8 @@
                             { "value": "C16", "displayName": "C16 · Balkentabelle nach AC (04C)" },
                             { "value": "C17", "displayName": "C17 · Kategorie-Brücke waagerecht (06E)" },
                             { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
-                            { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" }
+                            { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" },
+                            { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" }
                         ]
                     }
                 },
@@ -218,7 +228,8 @@
                             { "value": "slope", "displayName": "Slope · Vorher/Nachher" },
                             { "value": "scatter", "displayName": "Scatter / Bubble (Korrelation)" },
                             { "value": "cards", "displayName": "KPI-Karten (Kacheln)" },
-                            { "value": "pnl", "displayName": "GuV-Statement (IBCS)" }
+                            { "value": "pnl", "displayName": "GuV-Statement (IBCS)" },
+                            { "value": "stockflow", "displayName": "Bestand & Fluss (Zeit)" }
                         ]
                     }
                 },
@@ -264,6 +275,8 @@
                     }
                 },
                 "tableTotalLegend": { "type": { "bool": true } },
+                "diffMarkers": { "type": { "text": true } },
+                "bridgeSecondNet": { "type": { "bool": true } },
                 "highlightStyle": {
                     "type": {
                         "enumeration": [
@@ -406,6 +419,18 @@
                 },
                 "scatterTrendR2": { "type": { "bool": true } },
                 "scatterSizeLegend": { "type": { "bool": true } },
+                "scatterValueLabels": { "type": { "bool": true } },
+                "scatterMaxRadius": { "type": { "numeric": true } },
+                "scatterBubbleOpacity": { "type": { "numeric": true } },
+                "scatterEmphFill": { "type": { "bool": true } },
+                "scatterEmphColor": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterEmphLabel": { "type": { "text": true } },
+                "scatterGroupColor1": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor2": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor3": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor4": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor5": { "type": { "fill": { "solid": { "color": true } } } },
+                "scatterGroupColor6": { "type": { "fill": { "solid": { "color": true } } } },
                 "scatterQuadLabelTR": { "type": { "text": true } },
                 "scatterQuadLabelTL": { "type": { "text": true } },
                 "scatterQuadLabelBL": { "type": { "text": true } },
@@ -456,6 +481,33 @@
                 "multiplesTopN": { "type": { "numeric": true } },
                 "multiplesHero": { "type": { "bool": true } },
                 "multiplesSameScale": { "type": { "bool": true } },
+                "multiplesAgg": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "sum", "displayName": "Sum" },
+                            { "value": "mean", "displayName": "Average" }
+                        ]
+                    }
+                },
+                "multiplesTotalPos": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "first", "displayName": "First tile" },
+                            { "value": "last", "displayName": "Last tile" }
+                        ]
+                    }
+                },
+                "multiplesTotalShade": { "type": { "bool": true } },
+                "multiplesTotalLabel": { "type": { "text": true } },
+                "multiplesRestLabel": { "type": { "text": true } },
+                "multiplesBasis": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "scenario", "displayName": "Scenario (PY / PL)" },
+                            { "value": "avg", "displayName": "Average of all tiles (Ø)" }
+                        ]
+                    }
+                },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "sortMode": {
@@ -465,13 +517,54 @@
                             { "value": "abs", "displayName": "By impact |Δ|" },
                             { "value": "signed", "displayName": "By Δ (largest plus first)" },
                             { "value": "pct", "displayName": "By Δ %" },
-                            { "value": "ac", "displayName": "By AC" }
+                            { "value": "ac", "displayName": "By AC" },
+                            { "value": "series", "displayName": "By first series (stacks)" }
                         ]
                     }
                 },
                 "bridgeBreak": { "type": { "bool": true } },
                 "stackLegendDirect": { "type": { "bool": true } },
                 "scenarioLabels": { "type": { "bool": true } },
+                "sfNet": { "type": { "bool": true } },
+                "sfNetLabel": { "type": { "text": true } },
+                "sfArea": { "type": { "bool": true } },
+                "sfNegTint": { "type": { "bool": true } },
+                "sfOpening": { "type": { "bool": true } },
+                "sfStockAt": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "end", "displayName": "End of the period" },
+                            { "value": "center", "displayName": "Middle of the period" }
+                        ]
+                    }
+                },
+                "axisGroups": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "From the hierarchy" },
+                            { "value": "off", "displayName": "Off" }
+                        ]
+                    }
+                },
+                "stackNormalize": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Values" },
+                            { "value": "pct100", "displayName": "100 % (shares)" }
+                        ]
+                    }
+                },
+                "stackTotalRow": { "type": { "bool": true } },
+                "stackTotalLabel": { "type": { "text": true } },
+                "stackShareBracket": { "type": { "numeric": true } },
+                "stackLegendPos": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "end", "displayName": "Right of the last column" },
+                            { "value": "start", "displayName": "Left of the first column" }
+                        ]
+                    }
+                },
                 "bridgeOrientation": {
                     "type": {
                         "enumeration": [
@@ -627,6 +720,7 @@
                     "xValue": { "max": 1 },
                     "xPrevious": { "max": 1 },
                     "bubbleSize": { "max": 1 },
+                    "bubbleSizePrevious": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
                     "trend": { "max": 1 },
@@ -666,6 +760,7 @@
                         { "bind": { "to": "xValue" } },
                         { "bind": { "to": "xPrevious" } },
                         { "bind": { "to": "bubbleSize" } },
+                        { "bind": { "to": "bubbleSizePrevious" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]

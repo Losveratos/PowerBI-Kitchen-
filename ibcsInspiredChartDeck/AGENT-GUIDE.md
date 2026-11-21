@@ -10,8 +10,164 @@ Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 **Property-Referenz wird generiert: `npm run guide`** (Prüfung: `npm run guide:check`) — die Tabellen
 im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`/`capabilities.json` anpassen.
 
-Stand: **1.54.0.0** (19.11.2026): Backlog IBCS-Templates B01, B04, B05, B06, B14 (siehe „Neu in 1.54“).
+Stand: **1.55.0.0** (21.11.2026): Backlog IBCS-Templates B09, B10, B11 (Teil 1), B12, B13 (siehe „Neu in 1.55“); davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+
+**Neu in 1.55 (Backlog IBCS-Templates Teil 2, 21.11.2026):**
+
+*B10 · Stapel-Struktur (Blätter 01D, 01E, 02B bis 02E).* Alle Properties im Objekt `chart`, Formatbereich-Gruppe „Darstellung“. `stackNormalize` („Stapel-Skala“: `off` = „Werte“ | `pct100` = „100 % (Anteile)“, Standard `off`): gestapelte Säulen und Balken als 100 % je Kategorie, Beschriftungen sind Anteile mit einer Nachkommastelle, Panel-Titel mit Zusatz „Anteile in %“. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N), sonst bleibt der Stapel bei Werten. „100 %“-Marke: bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile mit „▲ 100 %“ darunter. Eine Referenzlinie wird bei 100 % als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax`/`capOverflow` gelten nicht für Anteile. Bei 100 %-Balken zeigt `showTotal` („Summen-Kopfzeile (Σ)“, Standard an) ein Summen-Panel rechts mit eigener Skala, nur ab 280 px Kachelbreite; bei Small Multiples teilen sich alle Kacheln einen Pixelwert je Einheit, Forecast-Kategorien sind dort schraffiert, Plan-Kategorien umrandet, der Kopf nennt die Szenarien („Σ AC · PL“, „(↓)“ bei Sortierung nach Summe). `stackTotalRow` („Σ-Zeile im Stapel“, bool, Standard aus, nur Balken): Σ-Zeile unten; bei Werten Legendenzeile mit Summe je Serie und Gesamtsumme („= 3.733“; die Serien-Summen ganz oder gar nicht, passen sie nicht, nur die Gesamtsumme; kein Summenbalken, die Summe passt nicht auf die Zeilenskala), bei 100 % ein 100 %-Balken mit dem Gesamtmix. Die Σ-Zeile summiert nur ein Szenario: Bei gemischten AC-, FC- und PL-Kategorien entfällt sie. `stackTotalLabel` („Beschriftung der Σ-Zeile“, Text, leer = „Σ“, z. B. „World“). `stackLegendPos` („Seriennamen (Säulen)“: `end` = „Rechts neben der letzten Säule“, Standard | `start` = „Links neben der ersten Säule“, Blatt 01E). `sortMode` kennt neu `series` („Nach erster Serie (Stapel)“); in Stapelbalken sortiert `ac` nach Stapelsumme, `series` nach der ersten Serie (bei 100 % nach deren Anteil, Blatt 02E); „(↓)“ markiert die sortierte Serie in der Legende; Rest-Kategorien (Rest, Others, Sonstige, „Rest of …“, Top-N-Rest) bleiben am Ende und kursiv. Die Serienreihenfolge eines Stapels bleibt wie geliefert: Sortierung und Top N ändern weder Farbtöne noch Legendenreihenfolge noch, welche Serie die „erste“ ist. Zwei Verhaltensänderungen: (1) `chart.topN` bei Stapelbalken reiht jetzt ganze Kategorien nach Stapelsumme, behält alle Serien-Zellen der Top N und fasst den Rest je Serie zu „Rest (n)“ zusammen (vorher einzelne Zellen und eine Serie „(leer)“). (2) Ein 1.54-Bericht mit Stapelbalken und gespeichertem `sortMode` `ac` („Nach AC“) wird jetzt nach Stapelsumme sortiert (vorher ohne Wirkung auf Stapel). Testmarker (`data-icd`): `stack-100` (100 %-Marke), `stack-total-row` (Σ-Zeile), `stack-total-seg` (Segment der Σ-Zeile, mit `data-series`), `stack-total-grand` (Gesamtsumme), `stack-total-panel` (Summen-Panel, mit `data-px-per-unit`), `sort-mark` (Sortiermarke „(↓)“), `stack-rest` (Rest-Kategorie); die Wurzelgruppe trägt `data-norm="pct100"`, wenn 100 % aktiv ist. Mit den neuen Optionen aus zeichnen Stapel unverändert (SVG-Hash der 364 Harness-Stufen). Nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein Segment; Rest-Zeilen behalten in 02B/02D/02E ihren Rang (nur „Rest of world“ zuletzt), ChartKitchen setzt alle Rest-Zeilen ans Ende (B04-Regel), und auf den Blättern sind bei Rest-Zeilen auch die Zahlen kursiv, hier nur der Name. Tests c283 bis c289 und c295 bis c299b.
+
+*B09 · Differenzmarker und zweite Überleitung (Blätter 01A, 01B, 05X).* `chart.diffMarkers` (Text, Formatbereich Chart → „Daten & Zeit“, „Differenzmarker“, unter „Kategorien hervorheben“): gespeicherte Differenzmarker zwischen zwei Kategorien, mit „;“ getrennt. Grammatik: `A > B` (oder `A → B`) zeichnet neben B, auf der Seite weg von A (Säulen rechts oder links, Balken darunter oder darüber), eine dünne Niveaulinie vom Ende von A, einen dicken Differenzbalken (gut/schlecht-Farbe, bei Forecast schraffiert) und Δ plus Δ % (`+12,2 (+12,0%)`). `A > B@Serie` gilt für eine Serie im Stapel (Niveaulinie nur bei der untersten Serie). Ein `!` am Ende lässt Δ % weg (`2025 > 2031!` gibt `−7,0`). Regeln: höchstens 4 Marker, unbekannte Namen werden still übersprungen; bei 100 %-Stapeln nur Serienmarker (Prozentpunkte); Summenmarker nur ohne negative Segmente; ein reiner Plan-Monat vergleicht auf seinem Planwert; zielt ein Marker auf die letzte Spalte, wird rechts Platz reserviert (Stapel-Säulen setzen die Seriennamen dann links neben die erste Säule). `bridgeSecondNet` (bool, Standard aus, „Zweite Überleitung“, Gruppe Brücke, nur bei integrierter Brücke): mit gebundenem Vorjahr und Plan ein zweiter Balken neben dem Netto-Callout mit der Abweichung der Summe zur anderen Basis (Beschriftung z. B. `+4 PY`) und dünner Niveaulinie der anderen Basis; nur wenn die andere Basis jeden Monat mit einem Wert abdeckt. Marker im DOM (`data-icd`): `diff-marker` (`data-from`, `data-to`, `data-series`, `data-delta`) mit Kindern `diff-bar`, `diff-label` (Niveaulinien `diff-guide` und `diff-guide-to` liegen im Hintergrund-Layer, siehe Review-Stand); `bridge-net2` (`data-delta`) mit `bridge-ref2-line`. Tests c290 bis c294; bestehende Stufen SVG-identisch. Dazu `chart.stackShareBracket` (Zahl 0 bis 20, Standard 0; nur gestapelte Balken, nicht bei 100 %, nicht wenn eine Rest-Zeile unter den ersten N steht): Klammer unter Zeile N bis zum Ende der Bezugsgröße (erste Serie bei `sortMode=series`, sonst Stapelsumme), schräg hoch zu Zeile 1, Anteil in einer Ellipse links der Namen (`data-icd="stack-share-bracket"`, `data-n`, `data-share`; Blatt 02C; Test c300). Noch nicht: Vergleichsklick-Paar als Marker im Bericht festschreiben. Review-Stand: Pfeile `>`, `->`, `=>`, `→`; `@Serie` nur hinter dem Pfeil, ohne Stapel oder ohne passende Serie zählt der ganze Text als Kategorie (`DiffMarkerSpec.toFull`); Dubletten entfallen, `DIFF_MARKER_MAX` (4) gilt nach dem Auflösen, bei doppelten Kategorienamen der erste. `diffPlan` legt je Marker Seite (weg von From), Randlage und Versatz fest (Zähler je Lücke zwischen zwei Kategorien, beide Richtungen teilen ihn; `kN` = Marker in der Lücke; Texte am Rand starten hinter dem äußersten Balken, bei Balken eine Textzeile je Lücke, über einer Säule in der Mitte nur so viele Marker, wie Textzeilen bis zur Panel-Oberkante passen, der Rest entfällt; Randplatz höchstens 20 % der Breite, sonst Text über dem Balken; negative Werte: Text unter bzw. links vom Balken; Format wächst bis zu einer Ziffer ungleich null); `diffRooms` reserviert Platz an beiden Bandenden (Säulen: Balken und Text, Balken: nur der Balken; Small Multiples aus der deckweiten Spanne, damit alle Kacheln gleich breit bleiben); mit Jahressäule kein Randplatz, der Text steht dann über dem Balken. Text in der Mitte: über dem Balken und über der „Skyline“ (Säulen samt Wertlabel) unter ihm; Balken: hinter dem Wertlabel der Zielzeile (`clearW`), rechts am Visual geklemmt. Niveaulinien (`diff-guide`, zweite kurze Linie `diff-guide-to`, beide mit `data-from`/`data-to`) liegen im Hintergrund-Layer, nicht mehr im `diff-marker`-Element. Format `cfg.fmtDiff` (Nachkommastellen der Werte, mehr nur bei Rundung auf null); 100 %-Stapel: Prozentpunkte (`Label_PctPoints`), kein Δ %; Δ % entfällt bei n.a. Kein Marker bei `lineMode` und Wasserfall-Stil. `bridgeSecondNet`: Platz nur, wenn gezeichnet (`second`), Breite aus dem Text, Balken 6 px, durchgezogene Linie. Tests c301 bis c310.
+
+*B11 · Bestand-Fluss-Modus, Teil 1 (Blätter 08E, 08F, 08G, 08H).* Neuer Wert `chart.orientation = stockflow`
+(„Bestand & Fluss (Zeit)“), eigener Renderer `renderStockFlow` (Layout `stockFlowLayout`). Oben das Netto-Panel (Netto =
+Σ Zuflüsse − Σ Abflüsse je Periode, im Visual gerechnet, neutral grau, Beschriftung mit Vorzeichen), darunter im selben
+px je Einheit die Zuflüsse über und die Abflüsse unter der Nulllinie (Abfluss AC-Farbe, Zufluss heller, weitere Arten je
+Seite als Tönungsrampe, Seitensumme ohne Vorzeichen außen) und der Bestand als Linie mit Fläche bis null; Punkte am
+Periodenende, der abgeleitete Anfangsbestand (`stock[0] − net[0]`) am Beginn der ersten Periode. Ein Szenario je Periode
+wie B06 (`ac` wenn eine Zeile ein Ist trägt, sonst `fc`, sonst `pl`; Zellwert `value ?? pl` nur in Plan-Perioden): AC
+solide, FC schraffiert (Säulen über `stackHatch`, Punkte, Flächenstück), PL als Umriss (Zufluss fast hohl, Abfluss
+getönt), Plan-Punkte hohl, Plan-Fläche heller; Flächenstücke unter null in der Schlecht-Farbe mit 14 % Deckkraft
+(Nulldurchgang linear geteilt). Domain: `[min(0, Abflüsse, Bestand, Anfang), max(Zuflüsse, Bestand, Anfang, fixedMax,
+refLine)]` und Netto-Domain einmal über alle gezeichneten Kacheln (`cfg.sfDeck`); `capOverflow` gilt im Modus nicht.
+**Datenvertrag** (keine neue Rolle, Langformat): `category` = Zeit (Hierarchie Jahr › Woche › Tag liefert die Achsengruppen,
+`p.cat` ist der Pfad „2025 · W48 · 24“ und bleibt Schlüssel, angezeigt wird die unterste Ebene); `series` = Flussarten und
+Bestandsgröße als Mitglieder einer Spalte; `rowType` = neue Flag-Token `stock` (Aliasse `bestand`, `balance`), `inflow`
+(`zufluss`), `outflow` (`abfluss`), keine Kurzformen `in`/`out`/`level` (ein Bericht könnte sie heute als Freitext tragen);
+`inflow`/`outflow` erzwingen die Seite (`+|v|` / `−|v|`), ohne Token entscheidet das Vorzeichen; `actual`/`forecast`/`plan`
+und `fcFlag` gelten für Fluss- und Bestandszeilen. Ohne `stock`-Zeile ist die Linien-Measure der Bestand (erster Wert je
+Periode). Die Token wandern als `DataPoint.sfKind` mit der Zeile (nicht als Namensmenge wie die übrigen Flags); als reine
+Flags lassen sie `rowType` `null`, andere Modi zeichnen unverändert. Mehrere `stock`-Zeilen einer Periode werden summiert
+(Einheiten, Regionen), die Σ-Kachel der Small Multiples ebenso. **DAX:** Die Bestands-Measure muss selbst semi-additiv
+sein (`LASTNONBLANKVALUE`, `CLOSINGBALANCEMONTH` o. ä.), sonst stimmt schon der Wochen- oder Monatswert nicht; Perioden
+ohne Flüsse brauchen trotzdem eine Bestandszeile, sonst reißt die Linie; Wächter-Muster gegen Geisterzeilen gilt auch hier.
+Properties im Objekt `chart`, Gruppe „Bestand & Fluss“ (nur im Modus sichtbar): `sfNet` (bool, true), `sfNetLabel` (Text,
+leer = „Netto“), `sfArea` (bool, true), `sfNegTint` (bool, true), `sfOpening` (bool, true), `sfStockAt` (`end` | `center`,
+Standard `end`), `axisGroups` (`auto` | `off`, Standard `auto`: höchstens zwei Gruppenzeilen aus den Ebenen über der
+untersten, Beschriftung unter dem ersten Mitglied, Trennlinien durch alle Panels, die äußere Zeile kräftig, an einer
+Szenariogrenze nur die äußere Zeile). Ohne Hierarchie wirkt `groupEvery` wie gewohnt. Wirkt außerdem: `scenarioLabels` (Kürzel-Zeile unter
+den Gruppen), `highlight` + `highlightStyle` (Ellipse um die Bestandszahl der Periode bzw. um eine Achsengruppe wie „W01“
+oder „2026“; Stil `band` = Band über Periode oder Gruppe), `showTotal` (Kopf „Σ Zufluss · Σ Abfluss · Netto · Endbestand“,
+Endbestand = letzter Bestand in Achsenfolge), `labelDensity`, `refLine`, `fixedMax`. Ausgeblendet bzw. ohne Wirkung:
+Δ-Panels, `previousYear`, `benchmark`, `prevForecast`, `acFcSplit`, kumulierte Sicht (YTD-Chip gesperrt,
+`Lock_YtdStockFlow`). Direktbeschriftung rechts: Netto-Name an der Netto-Nulllinie, Zufluss-Namen über und Abfluss-Namen unter
+der Nulllinie, Bestandsname auf Höhe des letzten Bestands. Tooltip je Periode (Zufluss, Abfluss, Netto, Anfangsbestand,
+Bestand, Kommentare); Klick wählt alle Zeilen der Periode. Hinweise im Bearbeitungsmodus: `Hint_StockFlowNoStock`,
+`Hint_StockFlowNoFlow`; zu wenig Platz: `Hint_StockFlowSpace` (alle `data-icd="sf-hint"`). Testmarker (`data-icd`):
+`stockflow` (Wurzel je Kachel, `data-n`), `sf-seg-in`/`sf-seg-out` (`data-scen`, `data-v` mit Vorzeichen, `data-series`),
+`sf-net` (`data-v`, `data-scen`), `sf-net-title`, `sf-stock-line`, `sf-stock-pt` und `sf-opening` (`data-scen`, `data-v`),
+`sf-area` (`data-scen`), `sf-area-neg`, `sf-zero` (`data-panel` = `net` | `main`), `sf-label-in|out|net`, `sf-stock-label`
+(`data-i`, −1 = Anfang), `sf-direct-label` mit `sf-name-in|out|stock`, `sf-total` (`data-closing`), `axis-group`
+(`data-level` 1 = innere Zeile, `data-label`), `axis-group-sep`, `sf-axis`; wiederverwendet `fc-boundary`, `pl-boundary`,
+`scen-label`, `group-sep`, `stack-comment`, `emph-ellipse`. Vorlage C20 siehe Tabelle unter „Neu in 1.49“. Tests c600 bis
+c613 (Blätter 08E bis 08H mit den Kontrollketten aus dem Abgleich, Vertrag `outflow` positiv = negativ ohne Token,
+Linien-Measure, Aliasse, ohne Bestand, Small Multiples, Summenkopf, Optionen, YTD-Sperre, Auswahl, Hochkontrast).
+Noch offen (Teil 2 und 3): `timeAggregation` (letzter Wert in YTD, Jahressäule, Tabellenbaum, Karten-Trend), `sfFlowZoom`
+(Flüsse bei großem Bestand vergrößert, 08G), Jahreszeile aus einer einzelnen Datumsspalte, `axisGroups` in Säulen und
+Linie, ΔBestand gegen PL/PY, Parität in der dwg-App und in `dwg pbip`, Demo-Galerie-Eintrag.
+Review-Stand: `aggregateHierarchy` führt `sfKind` mit, wenn alle Kinder dieselbe Rolle tragen (damit erben Σ-, Ø- und
+Rest-Kachel, `mergeColPoints` und Dubletten die Rolle); im Modus (`sfModeOn()`) setzen `aggregateGroups` und
+`meanGroups` `catLevels` der ersten Kachel und `lineVal` aus `sfLineStock` (je Kachel und Kategorie der erste
+Nicht-Null-Wert; Σ/Rest = Summe, Ø = Mittel über die Kacheln mit Bestand), `mergeColPoints` behält den ersten
+`lineVal`. Ø im Modus: `meanZero = "series"` für die Flüsse (fehlendes Segment einer Periode = 0), Bestandszeilen
+ohne Nullregel (Niveau). `multiplesTopN` reiht ohne `stock`-Zeilen, `sfDeck` über `shownGroups`. `acFcSplit` gilt in
+`parseData` im Modus als `off`. PL-Säulen deckend (Zufluss `cfg.paper`, Abfluss Ton zu 16 % auf Papier), Hochkontrast:
+AC-Abfluss `cfg.ink`, Zufluss Mittelton. Die äußere Gruppenzeile zeichnet ihre Trennlinie auch auf einer
+Szenariogrenze, die Grenze liegt dann in Tinte darüber; Grenzen ohne Strichelung (`stroke-opacity` 0,6). Labels:
+Flussbreite nur aus Zu- und Abfluss, alle ab `step >= 6 · Breite`, sonst jede k-te Periode (k = ⌈6 · Breite / step⌉,
+mindestens 2, Priorität 30); Bestand alle ab 3,5 ·, lokale Extreme ab 3 · Breite; Labels unter Priorität 82 entfallen
+auf Markern und auf der Bestandslinie; Ellipsen-Label 4 px weiter vom Marker. Nur die Periodengruppe hat `tabindex`,
+`role="option"` und `aria-label` (Markergruppe nur Maus). Titel im Modus: die Szenarien der gezeichneten Perioden
+(`titleScenarios`, „AC, FC, PL“). `SfPeriod.flowsDropped` (Plan-Fluss in einer AC/FC-Periode) gibt im
+Bearbeitungsmodus `Hint_StockFlowMixed` (`[data-icd="sf-hint"][data-kind="mixed"]`, Platzhalter `{list}`).
+Platzhinweis, sobald weniger als 40 px für die Werte bleiben; ein Szenario-Kürzel, das nicht in seinen Block passt,
+entfällt. Tooltip „Szenario“ über `Tooltip_Scenario`. Die Flag-Token `hide`, `exclude` und Ausnahme-Listen wirken im
+Modus nicht (jede Zeile zählt in Netto und Bestand). 836 resjson-Keys je Sprache. Tests c620 bis c632.
+
+*B12 · Portfolio-Blasen (Blätter 10A, 10B, 10D).* Neue Properties im Objekt `chart` (Gruppe „Scatter / Bubble“, alle
+standardmäßig ohne Wirkung): `scatterValueLabels` (bool, false) schreibt den Wert der Blasengröße in die Blase
+(`[data-icd="scatter-value"]`, `data-scen="ac"|"py"`, Text #FFFFFF oder #000000 nach Kontrast gegen die mit dem Papier
+gemischte Füllung); passt er nicht (Textbreite > 92 % des Durchmessers), hängt er am Namenslabel („V12 1,1“); die
+Namen probieren dann zuerst „über der Blase“. `scatterMaxRadius` (Zahl, 0 = automatisch 22 px · Schriftfaktor; sonst
+Wert · Schriftfaktor; der Radius ist gedeckelt auf ein Fünftel von min(0,8 · Breite, Plothöhe), bei Small Multiples
+der Rasterzelle); der Achsen-Einzug bleibt dann beim automatischen Radius, große Blasen ragen über den Plotrand, aber
+nie aus dem Visual. `scatterBubbleOpacity` (Zahl 10 bis 100, Standard 55; hervorgehoben mindestens
+90). `scatterGroupColor1` bis `scatterGroupColor6` (Farbe, Standard = `SCATTER_GROUP_LIGHT`): Position = Reihenfolge des
+ersten Auftretens; ein Wert ungleich dem hellen Standard gilt in hellem und dunklem Modus, ein Standardwert folgt
+dem Modus (wer im Dark Mode ausdrücklich #404040 will, bekommt #D9D9D9). `scatterEmphFill` (bool) füllt
+hervorgehobene Punkte (`chart.highlight` bzw. Token `emphasize`) mit `scatterEmphColor` (Standard #0064FF) statt des
+Rings (`[data-icd="scatter-emph-fill"]`, nicht im Hochkontrast); `scatterEmphLabel` (Text) ergänzt die Legende.
+Neue Rolle `bubbleSizePrevious` („Blasengröße VJ (optional)“, Measure, max 1): mit `previousYear` (Y-Lage) und
+optional `xPrevious` (X-Lage, sonst X von AC) je Kategorie eine PY-Blase (`g.icd-cat[data-icd="scatter-py"]`, Füllung
+`colors.previousYearColor` mit derselben Deckkraft, Hochkontrast gestrichelter Umriss), immer hinter allen AC-Blasen,
+eigene Größe auf derselben Skala (`sMax` über AC und PY, bei Small Multiples deckweit), Achsen schließen die PY-Lagen
+ein, Rechteck-Auswahl zählt nur AC; ein PY-Wert, der unter einer AC-Blase läge, steht am PY-Namen („VAB 32,0“). Nicht im Play-Modus. Legende `scatter-legend-py|ac|emph` (● PY ● AC nur ohne
+Gruppenfarben und ohne Statusfarbe). Mit `scatterArrows` startet der Pfeil am Rand der PY-Blase, ohne Startpunkt. Pane: Wert, Radius,
+Deckkraft nur mit gebundener Blasengröße; Gruppenfarben nur bei `scatterColorBy=group`; Farbe und Legendentext nur
+bei `scatterEmphFill`. Kein Template geändert (C10 unverändert). Blatt-Rezepte: 10A = C10 + `series` + `scatterColorBy=group` +
+`scatterQuadrant=off` + `scatterSizeLegend=false` (C10 setzt die Größenlegende an, die Werte stehen in den Blasen) +
+`scale.xMin/xMax/yMin/yMax` 0/1/0/1,25 + `scale.xRefLine=0.5` (Mittellinie) + `scatterValueLabels` + `scatterMaxRadius=85` +
+`scatterBubbleOpacity=100` + Gruppenfarbe 2 #FF6600; 10B wie 10A mit Deckkraft 60; 10D = Rollen `previousYear`,
+`xPrevious`, `bubbleSizePrevious` + `scatterColorBy=single` + `scatterSizeLegend=false` + `scale.xRefLine=0.5` +
+`highlight` „VAA, RFA“ + `scatterEmphFill` + Deckkraft 85.
+Feld-Intro: 20 Rollen. 779 resjson-Keys je Sprache (mit B10 und B09). Tests c400 bis c406 (c400n: ausdrücklich gesetzte Standardwerte
+zeichnen SVG-gleich wie keine Angabe). Review-Stand: Ein Flag `sc.pyBubbles` (Rolle gebunden, Daten da, nicht im
+Play-Modus) steuert Achsen, Legende, Größenformat und Zeichnen; in die Größenskala zählen nur PY-Blasen innerhalb der
+Achsen (`scatterPyPos`). Jede Blase bleibt im Visual: Würde eine Blase (AC oder PY, im Play-Modus alle Perioden) das
+Panel verlassen (Visualbreite, unter der Achsentitel-Zeile bis zum unteren Rand), schrumpft die Plotbox auf dieser Seite,
+der Achsenursprung bleibt; mit eigenem Radius liegt die Marken-Gruppe zusätzlich in einem clipPath
+(`[data-icd="scatter-marks"]`). Ohne Überlauf bleibt das Layout unverändert. Werte verschwinden nicht: FC-Blasen tragen
+den Wert auf der Schraffur (Tinte mit Papier-Rand), bei langen Namen wird nur der Name gekürzt, ohne Namenslabel
+(Beschriftung aus, Dichte, kein Platz) steht der Wert allein neben der Blase (`[data-icd="scatter-value-beside"]`,
+`data-scen`). Hochkontrast mit Statusfarbe: Wert in Papierfarbe auf gefüllten Blasen. PY-Gruppen haben keinen
+Tab-Stopp und kein Ellipsenziel, `aria-label` „Name, PY, X VJ …, Wert, Größe VJ …“; `highlightStyle=ellipse` zeichnet
+im Scatter eine Ellipse um die AC-Marke statt des Rings. Statusfarbe mit PY-Blasen: unwesentliche AC-Blasen mit
+Tinten-Umriss, Legende ohne AC. Bearbeitungsmodus-Hinweis `Hint_ScatterPyBubbleRoles`
+(`[data-icd="scatter-hint-py"]`), wenn `bubbleSizePrevious` ohne `previousYear` oder ohne `bubbleSize` gebunden ist.
+Tests c410 bis c422 (Viewport-Prüfung für 10A bei 1280×640 und 640×360).
+
+*B13 · Small Multiples gegen Durchschnitt (Blatt 13A, Teil von 13C).* Neue Properties im Objekt `chart`, Gruppe
+„Small Multiples“, alle standardmäßig ohne Wirkung: `multiplesAgg` (`sum` Standard | `mean`) gilt für die Bezugskachel
+(`multiplesTotal`) und die Top-N-Rest-Kachel. `mean`: je Kategorie (+ Stapelserie) und Feld (ac, py, pl, fc, value,
+basis, fcPrev, bm, Trendreihe) geteilt durch die Zahl der Kacheln mit Wert in diesem Feld (null ist nicht 0); varAbs =
+Mittel von (value − basis) über die Kacheln mit beidem, varRel = varAbs / Mittel der Basis derselben Kacheln (Δ2
+genauso); `isFc` nur, wenn alle Kacheln FC sind; die Bezugskachel rechnet immer aus allen Originalgruppen, nie aus
+der Rest-Kachel. Ein Ø ändert die Nachkommastellen nicht (Formatter-Präzision ohne die Ø-Kacheln). `multiplesTotalPos`
+(`first` | `last`; zuletzt bleibt die Kachel auch über 24 Kacheln hinaus sichtbar, „+n weitere“ hängt dann an der
+letzten Gruppe), `multiplesTotalShade` (bool, `cfg.band` über die ganze Zelle samt Kopf, Hochkontrast Rahmen),
+`multiplesTotalLabel` und `multiplesRestLabel` (Text, `{n}` = Zahl aller Gruppen bzw. der zusammengefassten; leer =
+„Σ Total“/„Ø Average (n)“ bzw. „Other (n)“, lokalisiert über `Label_Total`, `Label_Average`, `Label_Rest`).
+`multiplesBasis` (`scenario` Standard | `avg`; nur `columns`, `bars`, `line` ohne Stapel und ohne `waterfallStyle`):
+nach Top N, Kumulierung und vor dem Sortieren wird je Kategorie m = Mittel über alle Originalgruppen von `value ?? pl`
+gebildet; jede Kachel außer der Bezugskachel bekommt basis = m (summierte Rest-Kachel: m × Zahl ihrer Gruppen mit
+Wert), varAbs = (value ?? pl) − m, varRel = varAbs / m, var2 = null (doppelte Abweichung aus), `varPlan` = true, wo
+value null ist (Δ-Balken umrandet mit Füllung 12 %, Pin-Kopf hohl). Die Bezugskachel hat keine Δ (Panels bleiben leer,
+gleiche Skala). Basis-Label „Ø“, Panels „ΔØ“ und „ΔØ %“, Δ-Achse als einfache Linie (`cfg.basisAvg`), Δ-Präzision
+wie die Werte. Gruppen tragen `kind` (`total` | `rest`). Testmarker (`data-icd`, nur wenn eine B13-Option gesetzt
+ist, sonst SVG byte-gleich): `mult-tile` je Kachel (`data-group`, `data-kind` = `group`|`total`|`rest`, `data-agg`
+an Bezugs- und Rest-Kachel, `data-x/y/w/h` = Zelle), `mult-ref-bg` (Hinterlegung), `mult-basis` (`data-basis="avg"`),
+`var-plan` (Plan-Δ-Balken und Pin-Kopf). Rezept 13A: `multiplesTotal` + `multiplesAgg=mean` + `multiplesTotalPos=last`
++ `multiplesTotalShade` + `multiplesTopN` + beide Titel + `scenarioLabels`, Δ-Panels aus. 13C zusätzlich
+`multiplesBasis=avg` und `showAbsoluteVariance` (zeigt heute noch die Säulen unter dem Δ-Panel; `varianceOnly` und
+die freie Hero-Kachel 13B folgen). Tests c500 bis c504, c510 bis c514. 797 resjson-Keys je Sprache. Review-Stand: Ohne Kumulierung läuft der
+Ø-Durchlauf vor Ausnahmefilter und Top N je Kachel (Kumulierung: nach `cumulate`, dort sind beide aus);
+Sammelzeilen aus `aggregateTail` summieren unter `avgRows` die Basis der Mitglieder gleicher Ebene (mit Wert, sonst
+nur Plan) und rechnen Δ neu, ohne Δ2, `varPlan` bei reinen Planzeilen. Σ-Kopf (`drawTotalHeader`) und Kernaussage
+(`buildAutoMessage`) überspringen `varPlan`. `meanGroups(…, zero)`: `series` (Stapel) teilt durch die Kacheln mit
+der Kategorie, fehlendes Segment = 0; `all` (Balken) teilt durch die Kacheln mit dem Feld, fehlende Kategorie = 0;
+`none` (Säulen, Linie, Tabelle) wie bisher. Die Basis Ø nutzt bei Balken dieselbe Regel. Mit `cumulative` und
+`mean` entstehen Bezugs- und Rest-Kachel aus kumulierten Kopien (`preCum`, nicht noch einmal kumuliert).
+Summierte Rest-Kachel: Faktor = Zahl der versteckten Mitglieder derselben Ebene (Balken: alle mit Daten).
+Ganzzahlige ΔØ-Labels nur ab max |Δ| ≥ 10. Bezugskachel unter Basis Ø (`refTileNoDelta`): Δ-Panels ohne Titel,
+Achse, Skalenband, kompakt ohne Δ-Hinweis. Deckweite Skalen (Stapel, Brücken, Scatter, Achsenbruch) nutzen
+`shownGroups` (Zellgrenze samt zuletzt stehender Bezugskachel). `multiplesBasis` im Pane nur ohne Stack-Series
+und ohne `waterfallStyle` (Säulen/Balken). Zoom-Schlüssel: synthetische Kacheln über `kind` (Präfix U+0001 plus `total`
+bzw. `rest`), sonst Name; „(+n weitere)“ = `Label_MoreTiles` mit `{n}`. **Verhaltensänderung:** In
+`renderChartBody` tragen reine Planperioden (`value == null`, `pl != null`, nicht Linie) ihren Planwert als Label
+(Thinning mit `labelLevel`), mit `scenarioLabels` steht `scenL.pl` unter der ersten Planperiode und bei einem
+Plan-Ende ein Trennstrich `[data-icd="pl-boundary"]` (Achse bis Unterkante). Ø-ΔPY in der Ø-Kachel mittelt nur
+Paare (Kachel mit Wert und Vorjahr); Ø mischt AC, FC und Plan je Periode (`value ?? pl`). Tests c520 bis c532.
+800 resjson-Keys je Sprache.
 
 **Neu in 1.54 (Backlog IBCS-Templates, Abgleich 19.11.2026):**
 
@@ -162,6 +318,7 @@ Interne Rollennamen für PBIR (`projections`) — Reihenfolge egal, Semantik nic
 | `xValue` | Measure | X-Achse im Scatter/Bubble (Y = `actual`); Pflicht für `orientation = scatter` |
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional): macht die PY-Pfeile zu 2D-Bewegungen (`scatterArrows`) |
 | `bubbleSize` | Measure | Blasengröße im Scatter (optional) — macht daraus ein Bubble-Chart (Vorlage C10) |
+| `bubbleSizePrevious` | Measure | Blasengröße VJ (Scatter, optional, ab 1.55): mit `previousYear` (Y) und optional `xPrevious` (X) eine PY-Blase je Kategorie mit eigener Größe hinter der AC-Blase (Blatt 10D) |
 | `trend` | Grouping | Zeitachse je Karte: macht KPI-Karten zu Zeitreihen (`cardTrendChart`), wirkt NUR im `cards`-Modus |
 | `comments` | Measure (Text) | nummerierte Marker ①② + Fußnoten-Panel |
 | `filterInfo` | Measure (Text) | Filterkontext-Text für die Fußzeile |
@@ -190,6 +347,9 @@ Leerzeichen oder `|`; Groß-/Kleinschreibung egal (Beispiel: `total; graphic`, `
 | `invert` | `invertieren`, `kosten`, `cost`, `costs` | `invertList` (Wertung umgekehrt) | Flag |
 | `emphasize` | `highlight`, `hervorheben` | `highlight` (IBCS EMPHASIZE) | Flag |
 | `graphic` | `chart`, `grafik` | `chartList` (wenn mind. eine Zeile/Liste es trägt: nur diese Zeilen zeigen Grafiken) | Flag |
+| `stock` | `bestand`, `balance` | keine Liste: Bestandszeile im Modus `stockflow` (ab 1.55, B11) | Flag (je Zeile) |
+| `inflow` | `zufluss` | keine Liste: Zufluss, Wert als `+abs(v)` (Modus `stockflow`) | Flag (je Zeile) |
+| `outflow` | `abfluss` | keine Liste: Abfluss, Wert als `−abs(v)` (Modus `stockflow`) | Flag (je Zeile) |
 
 Die Aliasse decken die RowType-Werte des P&L-Visuals ab (`Subtotal`, `Formula`, `KPI`, `Account`,
 `Separator`), damit dieselbe Spalte `DimKonto[RowType]` beide Visuals speisen kann.
@@ -228,6 +388,7 @@ Regeln (Code: `parseRowTypeCell` und `listWithFlag` in `src/visual.ts`):
 | P&L-Statement mit Kaskade | `pnl` | + rowType empfohlen |
 | KPI-Kacheln | `cards` | category + actual |
 | Pareto / Dumbbell / Slope | `pareto` / `dumbbell` / `slope` | category + actual (+ Basis) |
+| Bestand und Fluss über die Zeit | `stockflow` | category (Zeit, gern Hierarchie) + actual + series + rowType `stock`/`inflow`/`outflow` |
 
 ## Neuerungen je Version (handgeschrieben, neueste zuerst)
 
@@ -301,6 +462,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C12 Waterfall | orientation=waterfall · comparisonMode=auto · showAbs/showRel=true · dualVariance=false |
 | C13 Small Multiples | multiplesTotal=true · multiplesSameScale=true (orientation bleibt; Rolle `multiples` binden) |
 | C14 bis C19 | ab 1.54, siehe „Neu in 1.54“ (Zuordnung zu den IBCS-Blättern 04A, 04B, 04C, 06E, 10F, 03B) |
+| C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 
 **Nicht enthalten:** C07 (Fläche/Area) und C11 (Verteilung/Boxplot) — die
 Darstellungsformen gibt es im Visual nicht (siehe BACKLOG).
@@ -373,7 +535,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 <!-- gen:properties:start -->
 Generiert von `test/gen-agent-guide.js` (`npm run guide`) aus `capabilities.json` und
-`src/settings.ts`, Paketstand **1.54.0.0**. Nicht von Hand ändern — Korrekturen gehören in
+`src/settings.ts`, Paketstand **1.55.0.0**. Nicht von Hand ändern — Korrekturen gehören in
 `settings.ts`/`capabilities.json` (bzw. in die handgeschriebenen Abschnitte außerhalb dieses Blocks).
 Beschreibungen sind die deutschen Pane-Tooltips, in Tabellen auf ganze Sätze bis ca. 220 Zeichen
 gekürzt (`…` = gekürzt, Volltext in `src/settings.ts`). Enum-Labels stammen aus der
@@ -396,6 +558,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `xValue` | Measure | X-Achse (Scatter) | 1 | numeric / integer |
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional) | 1 | numeric / integer |
 | `bubbleSize` | Measure | Blasengröße (optional) | 1 | numeric / integer |
+| `bubbleSizePrevious` | Measure | Blasengröße VJ (optional) | 1 | numeric / integer |
 | `series` | Grouping | Stack-Serie (Gestapelt) | 1 | beliebig |
 | `colgroup` | Grouping | Spalten (Matrix) | 2 | beliebig |
 | `filterInfo` | Measure | Filter-Info (Fußzeile) | 1 | text |
@@ -411,8 +574,8 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden … |
-| `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die … |
+| `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` · `stockflow` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
 **Vergleich & Abweichung**
@@ -446,6 +609,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `movingAverage` | numeric | `0` | Bereich 0–24 — Dünne Overlay-Linie mit gleitendem Durchschnitt über N Perioden (Columns/Line). 0 = aus. |
 | `highlight` | text | leer | Kommagetrennte Kategorie-Namen, die hervorgehoben werden (IBCS EMPHASIZE), z. B. der aktuelle Monat. Oder datengetrieben per Feld „Waterfall-Typ“ (Zeilentyp): Token „emphasize“ — Feld und Liste ergänzen sich. |
 | `highlightStyle` | enum | `band` | `band` · `ellipse` — Wie hervorgehobene Kategorien markiert werden: als dezentes Band hinter der Kategorie (Standard) oder als Ellipse um ihre Zahlen, wie die Kreise in den IBCS-Blättern. |
+| `diffMarkers` | text | leer | Differenzmarker zwischen zwei Kategorien, mit Semikolon getrennt: „2025 > 2026“ zeigt neben der zweiten Säule einen Strich mit Δ und Δ %, „2025 > 2026@Software“ dasselbe für eine Serie im Stapel, ein „!“ am Ende lässt Δ % weg … |
 | `groupEvery` | numeric | `0` | Bereich 0–50 — Zeichnet eine dünne Trennlinie nach jeweils N Kategorien, quer durch alle Panels — für Struktur-Vergleiche mit natürlichen Untergruppen (z. B. Regionen). 0 = aus. |
 
 **Interaktion im Bericht**
@@ -465,8 +629,25 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `deltaIcons` | bool | `false` | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle) … |
 | `driverNote` | bool | `true` | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. |
 | `stackLegendDirect` | bool | `true` | Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel … |
+| `stackLegendPos` | enum | `end` | `end` · `start` — Gestapelte Säulen mit Seriennamen am Stapel: rechts neben der letzten Säule (Standard) oder links neben der ersten. |
+| `stackNormalize` | enum | `off` | `off` · `pct100` — Gestapelte Säulen und Balken: Werte oder 100 % je Kategorie (Anteile der Serien, Marke „100 %“). Bei 100 % zeigt ein Balkendiagramm rechts die absoluten Summen auf eigener Skala, solange „Summen-Kopfzeile (Σ)“ an ist … |
+| `stackTotalRow` | bool | `false` | Gestapelte Balken: eine Σ-Zeile unten mit der Summe je Serie und der Gesamtsumme; bei 100 % als Balken mit dem Gesamtmix. Standard aus. |
+| `stackTotalLabel` | text | leer | Beschriftung der Σ-Zeile, z. B. „Welt“. Leer = „Σ“. |
+| `stackShareBracket` | numeric | `0` | Bereich 0–20 — Gestapelte Balken: eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme, z. B. „38 %“. Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme … |
 | `scenarioLabels` | bool | `false` | Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus. |
 | `exportExpandAll` | bool | `true` | PDF-/PowerPoint-Export und Abo-Mails rendern Tabelle, Matrix und GuV-Statement mit allen Zeilen- und Spalten-Ebenen aufgeklappt — der Ausdruck zeigt alles, unabhängig vom Klapp-Zustand am Bildschirm … |
+
+**Bestand & Fluss**
+
+| Property | Typ | Standard | Werte / Beschreibung |
+| --- | --- | --- | --- |
+| `sfNet` | bool | `true` | Bestand & Fluss: oberes Panel mit dem Netto-Fluss je Periode (Zufluss minus Abfluss), im selben Maßstab wie die Flüsse. Standard an. |
+| `sfNetLabel` | text | leer | Bestand & Fluss: Name des Netto-Panels rechts neben der Nulllinie, z. B. „Netto-Cashflow“ oder „Fluktuation“. Leer = „Netto“. |
+| `sfArea` | bool | `true` | Bestand & Fluss: Fläche zwischen Bestandslinie und Nulllinie, je Periode in der Szenario-Notation (Ist getönt, Forecast schraffiert, Plan heller). Standard an. |
+| `sfNegTint` | bool | `true` | Bestand & Fluss: Flächenstücke unter null in der Farbe für Schlecht, leicht getönt. Standard an. |
+| `sfOpening` | bool | `true` | Bestand & Fluss: zusätzlicher Punkt am Anfang der ersten Periode mit dem abgeleiteten Anfangsbestand (Bestand der ersten Periode minus ihr Netto-Fluss). Standard an. |
+| `sfStockAt` | enum | `end` | `end` · `center` — Bestand & Fluss: Lage der Bestandspunkte, am Ende der Periode (Stichtag, wie auf den IBCS-Blättern) oder in ihrer Mitte. |
+| `axisGroups` | enum | `auto` | `auto` · `off` — Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen. |
 
 **Small Multiples**
 
@@ -476,16 +657,23 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `multiplesTopN` | numeric | `0` | Bereich 0–24 — Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest"-Kachel aggregiert. 0 = alle. |
 | `multiplesHero` | bool | `false` | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). |
 | `multiplesSameScale` | bool | `false` | Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer. |
+| `multiplesAgg` | enum | `sum` | `sum` · `mean` — Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt … |
+| `multiplesTotalPos` | enum | `first` | `first` · `last` — Wo die Bezugskachel (Σ bzw. Ø) steht: als erste Kachel (Standard) oder als letzte, unten rechts wie auf dem IBCS-Blatt 13A. |
+| `multiplesTotalShade` | bool | `false` | Hinterlegt die Bezugskachel grau, damit sie sich von den Gruppen abhebt. Im Hochkontrast ein Rahmen statt der Fläche. |
+| `multiplesTotalLabel` | text | leer | Eigener Titel der Bezugskachel, {n} steht für die Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“. Leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“. |
+| `multiplesRestLabel` | text | leer | Eigener Titel der Rest-Kachel bei „Top N Kacheln“, {n} steht für die Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“. Leer = „Rest (n)“. |
+| `multiplesBasis` | enum | `scenario` | `scenario` · `avg` — Szenario (Standard): jede Kachel vergleicht mit PY bzw. PL. „Durchschnitt aller Kacheln (Ø)“: jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panel „ΔØ“) … |
 
 **Brücke**
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
 | `waterfallStyle` | bool | `false` | Nur Säulen/Balken: zeigt die Kategorien als Wasserfall-Brücke von der Basis (PY/PL) zu AC mit Verbindungslinien, statt als einzelne Balken … |
-| `sortMode` | enum | `off` | `off` · `abs` · `signed` · `pct` · `ac` — Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC, jeweils … |
+| `sortMode` | enum | `off` | `off` · `abs` · `signed` · `pct` · `ac` · `series` — Kategorie-Brücke, Wasserfall-Brücke und Balken: ordnet die Kategorien nach \|Δ\| (größter Treiber zuerst), nach Δ mit Vorzeichen (größtes Plus zuerst, unabhängig von gut oder schlecht), nach Δ % oder nach AC … |
 | `sortByImpact` | bool | `false` | Nur bei Waterfall bridge: sortiert die Kategorien nach Abweichungsgröße (größter Treiber zuerst). Eine Top-N-Rest-Zeile bleibt am Ende. Auch per Klick auf das ⇅-Symbol im Chart umschaltbar. |
 | `bridgeOrientation` | enum | `auto` | `auto` · `bars` · `columns` — Nur Kategorie-Brücke: „Balken (horizontal)" zeigt die Kaskade zeilenweise wie bisher (Kategorien untereinander, Δ%-Pins rechts) … |
 | `bridgeBreak` | bool | `false` | Integrierte Brücke, Kategorie-Brücke (Säulen) und Wasserfall: Die Summen-Anker (z. B. PY und AC+FC) werden mit sichtbarem Achsenbruch ⫽ gekürzt, damit die Brückenstufen in echter Höhe lesbar werden … |
+| `bridgeSecondNet` | bool | `false` | Integrierte Brücke mit Vorjahr und Plan: neben der Abweichung zur Basis ein zweiter Strich mit der Abweichung der Summe zur anderen Basis (z. B. PL-Brücke mit „+4“ zum Vorjahr) … |
 
 **Tabelle**
 
@@ -537,6 +725,18 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterTrend` | enum | `off` | `off` · `linear` — Lineare Regression über die sichtbaren Punkte (bei Small Multiples je Kachel) als dünne gepunktete Linie über die Plotbreite. Bei Log-Achsen im logarithmischen Raum gerechnet (Gerade bleibt gerade). Mindestens 3 Punkte. |
 | `scatterTrendR2` | bool | `false` | Beschriftet das Ende der Trendlinie mit dem Bestimmtheitsmaß („R² = 0,87"). |
 | `scatterSizeLegend` | bool | `true` | Nur mit gebundener Blasengröße: drei Referenzkreise (klein · mittel · groß, auf runde Werte gerundet) kompakt in einer freien Ecke des Plots. Bei Small Multiples einmal in der ersten Kachel. |
+| `scatterValueLabels` | bool | `false` | Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen … |
+| `scatterMaxRadius` | numeric | `0` | Bereich 0–200 — Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px) … |
+| `scatterBubbleOpacity` | numeric | `55` | Bereich 10–100 — Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A. |
+| `scatterEmphFill` | bool | `false` | Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe. |
+| `scatterEmphColor` | color | `#0064FF` | Füllfarbe der hervorgehobenen Punkte, wenn „Hervorhebung als Farbe“ an ist. |
+| `scatterEmphLabel` | text | leer | Legendeneintrag für die Hervorhebungsfarbe (z. B. „Zukäufe 12/25“). Leer = kein Eintrag. |
+| `scatterGroupColor1` | color | `#404040` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor2` | color | `#3D78B2` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor3` | color | `#B0702A` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor4` | color | `#93B5D8` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor5` | color | `#C2B04E` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
+| `scatterGroupColor6` | color | `#9F5989` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
 | `scatterQuadLabelTR` | text | leer | Dezente Beschriftung der Quadranten-Ecke (z. B. „Stars" oben rechts). Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
 | `scatterQuadLabelTL` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
 | `scatterQuadLabelBL` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
@@ -558,12 +758,14 @@ Enum-Labels:
   `C10` = C10 · Bubble (Scatter + Größe); `C12` = C12 · Waterfall / Brücke; `C13` = C13 · Small Multiples;
   `C14` = C14 · Balkentabelle nach ΔPL (04A); `C15` = C15 · Balkentabelle nach ΔPL % (04B);
   `C16` = C16 · Balkentabelle nach AC (04C); `C17` = C17 · Kategorie-Brücke waagerecht (06E);
-  `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F); `C19` = C19 · Säulen gegen Plan + Jahressäule (03B)
+  `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F); `C19` = C19 · Säulen gegen Plan + Jahressäule (03B);
+  `C20` = C20 · Bestand und Fluss (08E bis 08H)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
   `dumbbell` = Dumbbell · Vorher/Nachher (Struktur); `slope` = Slope · Vorher/Nachher;
-  `scatter` = Scatter / Bubble (Korrelation); `cards` = KPI-Karten (Kacheln); `pnl` = GuV-Statement (IBCS)
+  `scatter` = Scatter / Bubble (Korrelation); `cards` = KPI-Karten (Kacheln); `pnl` = GuV-Statement (IBCS);
+  `stockflow` = Bestand & Fluss (Zeit)
 - `comparisonMode`: `auto` = Auto; `py` = Vorjahr (PY); `plan` = Plan (PL); `fcrev` = FC Vormonat (Revision)
 - `cumulativeKind`: `ytd` = YTD (Jahr kumuliert); `qtd` = QTD (Quartal kumuliert);
   `r12` = R12 (rollierende 12 Perioden)
@@ -571,8 +773,16 @@ Enum-Labels:
   `rest` = FC = Restmonat (additiv)
 - `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
+- `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule
+- `stackNormalize`: `off` = Werte; `pct100` = 100 % (Anteile)
+- `sfStockAt`: `end` = Ende der Periode; `center` = Mitte der Periode
+- `axisGroups`: `auto` = Aus der Hierarchie; `off` = Aus
+- `multiplesAgg`: `sum` = Summe; `mean` = Durchschnitt
+- `multiplesTotalPos`: `first` = Erste Kachel; `last` = Letzte Kachel
+- `multiplesBasis`: `scenario` = Szenario (PY / PL); `avg` = Durchschnitt aller Kacheln (Ø)
 - `sortMode`: `off` = Aus (Datenreihenfolge); `abs` = Nach Wirkung |Δ|;
-  `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC
+  `signed` = Nach Δ (größtes Plus zuerst); `pct` = Nach Δ %; `ac` = Nach AC;
+  `series` = Nach erster Serie (Stapel)
 - `bridgeOrientation`: `auto` = Automatisch; `bars` = Balken (horizontal); `columns` = Säulen (vertikal)
 - `valueColumns`: `ac` = Nur AC; `basis` = AC + Varianzbasis; `all` = AC · PY · PL
 - `matrixCompare`: `none` = Aus (Δ zur Basis); `prevcol` = Δ zur Vorspalte
