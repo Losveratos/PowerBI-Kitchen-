@@ -1,6 +1,6 @@
 # Changelog · ChartKitchen byDatenWG
 
-## 1.55.0.0 (2026-11-20, Backlog IBCS-Templates Teil 2)
+## 1.55.0.0 (2026-11-21, Backlog IBCS-Templates Teil 2)
 
 **Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A; Bestand und Fluss 08E bis 08H). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken, Planwert an reinen Planperioden) sind genannt.**
 
