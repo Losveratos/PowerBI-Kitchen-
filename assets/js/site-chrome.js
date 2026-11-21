@@ -19,6 +19,12 @@
  *   - Der Footer entfällt, wenn die Seite schon auf impressum.html UND datenschutz.html verlinkt.
  *   - Lässt sich die Seite nicht scrollen (overflow:hidden auf html/body), gibt es die Rechtliches-Ecke.
  *   - Die Pille entfällt, wenn oben schon ein sichtbarer Link zur Startseite steht.
+ *   - Abschlussblock „Mit der Daten-WG umsetzen“ (nur data-chrome="full", nur scrollbare
+ *     Seiten): vor dem Footer (bzw. vor dem eigenen Seiten-Footer, wenn site-chrome keinen
+ *     baut) ein Hinweis auf das passende Angebot auf daten-wg.com. Welche Seite welches
+ *     Angebot bekommt oder keinen Block, steht in den Tabellen OFFERS und PAGES weiter unten.
+ *   - Links auf daten-wg.com tragen UTM-Parameter (utm_source=knowledgekitchen,
+ *     utm_medium=referral, utm_campaign=<Dateiname> im Block, =footer im Footer).
  * Alles lebt im Shadow DOM: Seiten-CSS wirkt nicht hinein, Chrome-CSS nicht hinaus.
  */
 (function () {
@@ -72,13 +78,119 @@
     ['Werkzeuge', [['MockupKitchen', 'mockup-kitchen.html'], ['Chart-Builder', 'business-chart-builder.html'], ['ChartKitchen Visual', 'chartkitchen-schnellstart.html'], ['P&L-Visual', 'pnl-schnellstart.html'], ['Visual-Standards-Rechner', 'visual-standards-rechner.html'], ['Alle Werkzeuge', 'beitraege.html#werkzeuge']]],
     ['Beiträge', [['Alle Beiträge', 'beitraege.html'], ['Posts', 'beitraege.html#posts'], ['Visual Stories', 'beitraege.html#stories'], ['Whitepaper', 'beitraege.html#whitepaper'], ['Talks', 'beitraege.html#talks'], ['Doku', 'beitraege.html#doku'], ['Blog', 'blog/']]],
     ['Event-Rückblick', [['Agenda 2026', 'daten-wg-agenda.html'], ['Sponsoren', 'daten-wg-sponsoren.html'], ['Spiel', 'daten-wg-game.html']]],
-    ['Abonnieren', [['YouTube', 'https://www.youtube.com/@Daten-WG?sub_confirmation=1'], ['Spotify', 'https://podcasters.spotify.com/pod/show/daten-wg'], ['daten-wg.com', 'https://daten-wg.com']]],
+    ['Abonnieren', [['YouTube', 'https://www.youtube.com/@Daten-WG?sub_confirmation=1'], ['Spotify', 'https://podcasters.spotify.com/pod/show/daten-wg'], ['daten-wg.com', 'https://www.daten-wg.com/']]],
     ['Rechtliches', [['Impressum', 'impressum.html'], ['Datenschutz', 'datenschutz.html'], ['llms.txt', 'llms.txt']]]
   ];
 
+  /* ------------------------------------------------- Abschlussblock „Mit der Daten-WG umsetzen“
+   * Ein dezenter Hinweis am Seitenende (vor dem Footer) auf das passende Angebot der
+   * Daten-WG. Nur bei data-chrome="full" und nur auf Seiten, die scrollen.
+   * Die Werkzeuge der Kitchen bleiben kostenlos; der Block ist ein Angebot, kein Zwang.
+   *
+   * OFFERS: Angebot → Ziel-URL auf daten-wg.com + Text (de/en). Englische Seiten
+   *         (<html lang="en"> oder *_en.html) bekommen den en-Text; die Zielseiten sind deutsch.
+   * PAGES:  Seite → Angebot. Erste passende Zeile gewinnt. Muster ist der Pfad relativ zur
+   *         Website-Wurzel; „_en“ wird vorher entfernt (pnl-doku_en.html → pnl-doku.html);
+   *         ein „*“ am Ende macht es zum Präfix. null = bewusst kein Block.
+   *         Was nirgends passt, bekommt den Standardblock (Erstgespräch).
+   */
+  var OFFERS = {
+    visual: { url: 'https://www.daten-wg.com/power-bi-visual-standards-ibcs/',
+      de: ['Das Visual ist und bleibt kostenlos. Wenn ihr Visual Standards im Controlling einführen wollt, begleitet euch die Daten-WG mit einem Training.', 'Zum Visual-Standards-Training'],
+      en: ['The visual is and stays free. If you want to introduce visual standards in controlling, Daten-WG supports you with a training.', 'Visual standards training (German)'] },
+    vs: { url: 'https://www.daten-wg.com/power-bi-visual-standards-ibcs/',
+      de: ['Wenn ihr Visual Standards im Controlling und Finance einführen wollt, begleitet euch die Daten-WG mit einem Training.', 'Zum Visual-Standards-Training'],
+      en: ['If you want to introduce visual standards in controlling and finance, Daten-WG supports you with a training.', 'Visual standards training (German)'] },
+    claude: { url: 'https://www.daten-wg.com/power-bi-on-claude/',
+      de: ['Wenn ihr Power BI im Team mit Claude entwickeln wollt, zeigt euch die Daten-WG das in einem Inhouse-Training.', 'Zum Training Power BI on Claude'],
+      en: ['If your team wants to build Power BI with Claude, Daten-WG shows you how in an in-house training.', 'Power BI on Claude training (German)'] },
+    training: { url: 'https://www.daten-wg.com/power-bi-training/',
+      de: ['Wenn euer Team Power BI gemeinsam und strukturiert lernen will, bietet die Daten-WG dafür ein Training an.', 'Zum Power-BI-Training'],
+      en: ['If your team wants to learn Power BI together and step by step, Daten-WG offers a training for it.', 'Power BI training (German)'] },
+    fabric: { url: 'https://www.daten-wg.com/microsoft-fabric-kick-start/',
+      de: ['Wenn ihr Microsoft Fabric an einem echten Use Case ausprobieren wollt, baut die Daten-WG mit euch in fünf Tagen ein erstes MVP.', 'Zum Fabric Kick Start'],
+      en: ['If you want to try Microsoft Fabric on a real use case, Daten-WG builds a first MVP with you in five days.', 'Fabric Kick Start (German)'] },
+    gov: { url: 'https://www.daten-wg.com/power-bi-governance/',
+      de: ['Wenn ihr Self-Service in Power BI mit klaren Rollen und Leitplanken absichern wollt, unterstützt euch die Daten-WG beim Aufbau einer Governance.', 'Zur Power-BI-Governance'],
+      en: ['If you want to secure Power BI self-service with clear roles and guardrails, Daten-WG helps you set up governance.', 'Power BI governance (German)'] },
+    standard: { url: 'https://www.daten-wg.com/#kontaktformular',
+      de: ['Die Kitchen bleibt kostenlos. Wenn ihr ein eigenes Projekt mit Power BI oder Fabric angehen wollt, unterstützen euch Michael Tenner und das Team der Daten-WG.', 'Erstgespräch anfragen'],
+      en: ['The Kitchen stays free. If you want to start your own Power BI or Fabric project, Michael Tenner and the Daten-WG team can support you.', 'Request an intro call (German)'] }
+  };
+  var PAGES = [
+    // Kein Block: Startseiten, Übersichten, Rechtliches, Seiten mit eigenen Daten-WG-Buttons, Event
+    ['index.html', null], ['folgen.html', null], ['daten_wg_learn_buckets.html', null],
+    ['beitraege.html', null], ['blog/index.html', null], ['sessions/index.html', null],
+    ['impressum.html', null], ['datenschutz.html', null],
+    ['power-bi-on-claude*', null], ['daten-wg-*', null],
+    ['mockup-kitchen.html', null], ['daten-imperium.html', null],
+    // Kein Block: Spielwiese, Storys und fachfremde Beiträge
+    ['morally_aligned_ai.html', null], ['fermi_paradox.html', null], ['pdoom-*', null],
+    ['zugfahrten-*', null], ['zwei-heimaten.html', null], ['wohlstand*', null], ['rhein-story.html', null],
+    ['eauto-*', null], ['strommix-*', null], ['whitepaper-strommix.html', null], ['koelner-raser-*', null],
+    ['waermestreifen-*', null], ['mobilitaets-karte-post.html', null], ['der-unsichtbare-kampf-post.html', null],
+    ['laender-indikatoren-explorer.html', null], ['ki-co2-simulator.html', null],
+    // Visual Standards (IBCS) · Training für Controlling und Finance
+    ['chartkitchen-*', 'visual'], ['pnl-*', 'visual'],
+    ['ibcs-trainer.html', 'vs'], ['visual-standards-rechner.html', 'vs'], ['business-chart-builder*', 'vs'],
+    ['sessions/visual-standards-rechner-reviews/*', 'vs'],
+    ['sankey-wasserfall-post.html', 'vs'], ['finance-reporting-*', 'vs'],
+    // Power BI on Claude · Inhouse-Training
+    ['mockupkitchen-post.html', 'claude'], ['powerbi-design-skill.html', 'claude'],
+    ['ki-entwicklung-*', 'claude'], ['whitepaper-ki-entwicklung-*', 'claude'],
+    ['kitchen-fuer-ki-agenten.html', 'claude'], ['prototyping-pnl-treiberbaum.html', 'claude'],
+    // Power-BI-Training
+    ['power_bi_einsteiger_guide_v4.html', 'training'], ['powerbi_praxis_pfad.html', 'training'],
+    // Microsoft Fabric Kick Start
+    ['fabric_einsteiger_guide_v1.html', 'fabric'], ['fabric-*', 'fabric'],
+    // Power-BI-Governance (Zielgruppe IT und Admins)
+    ['visuals-sicherheit.html', 'gov'],
+    // Library-Themenseiten: nur dort, wo ein Angebot klar passt
+    ['wissensgraph/thema/ibcs.html', 'vs'], ['wissensgraph/thema/visualisierung.html', 'vs'],
+    ['wissensgraph/thema/dashboard-design.html', 'vs'], ['wissensgraph/thema/custom-visuals.html', 'vs'],
+    ['wissensgraph/thema/deneb.html', 'vs'], ['wissensgraph/thema/zebra-bi.html', 'vs'],
+    ['wissensgraph/thema/reporting.html', 'vs'],
+    ['wissensgraph/thema/microsoft-fabric.html', 'fabric'], ['wissensgraph/thema/lakehouse.html', 'fabric'],
+    ['wissensgraph/thema/onelake.html', 'fabric'], ['wissensgraph/thema/direct-lake.html', 'fabric'],
+    ['wissensgraph/thema/warehouse.html', 'fabric'], ['wissensgraph/thema/eventhouse.html', 'fabric'],
+    ['wissensgraph/thema/notebook.html', 'fabric'], ['wissensgraph/thema/spark.html', 'fabric'],
+    ['wissensgraph/thema/data-pipeline.html', 'fabric'], ['wissensgraph/thema/mirroring.html', 'fabric'],
+    ['wissensgraph/thema/fabric-capacity.html', 'fabric'], ['wissensgraph/thema/delta-lake.html', 'fabric'],
+    ['wissensgraph/thema/sql-endpoint.html', 'fabric'],
+    ['wissensgraph/thema/governance.html', 'gov'], ['wissensgraph/thema/sicherheit.html', 'gov'],
+    ['wissensgraph/thema/row-level-security.html', 'gov'], ['wissensgraph/thema/self-service-bi.html', 'gov'],
+    ['wissensgraph/thema/deployment-pipelines.html', 'gov'], ['wissensgraph/thema/workspace.html', 'gov'],
+    ['wissensgraph/thema/power-bi.html', 'training'], ['wissensgraph/thema/power-bi-desktop.html', 'training'],
+    ['wissensgraph/thema/schulung.html', 'training'], ['wissensgraph/thema/dax.html', 'training'],
+    ['wissensgraph/thema/power-query.html', 'training'], ['wissensgraph/thema/datenmodellierung.html', 'training'],
+    ['wissensgraph/thema/sternschema.html', 'training'],
+    ['wissensgraph/thema/strategie.html', 'standard'], ['wissensgraph/thema/digitalisierung.html', 'standard'],
+    ['wissensgraph/thema/mittelstand.html', 'standard'],
+    ['wissensgraph/*', null]
+    // alles Übrige: 'standard'
+  ];
+  function offerFor(path) {
+    var key = path.replace(/_en\.html$/, '.html');
+    for (var i = 0; i < PAGES.length; i++) {
+      var m = PAGES[i][0];
+      if (m.slice(-1) === '*' ? key.indexOf(m.slice(0, -1)) === 0 : key === m) return PAGES[i][1];
+    }
+    return 'standard';
+  }
+
+  /* UTM-Kennung für Links auf daten-wg.com: Parameter vor einen #anker setzen. */
+  function isDwg(h) { return /^https?:\/\/(www\.)?daten-wg\.com(\/|$|[?#])/.test(h); }
+  function utm(h, campaign) {
+    if (!isDwg(h) || /[?&]utm_source=/.test(h)) return h;
+    var i = h.indexOf('#'), base = i < 0 ? h : h.slice(0, i), hash = i < 0 ? '' : h.slice(i);
+    return base + (base.indexOf('?') < 0 ? '?' : '&') + 'utm_source=knowledgekitchen&utm_medium=referral&utm_campaign=' +
+      encodeURIComponent(campaign) + hash;
+  }
+  var linkCampaign = 'menu';   // buildFooter setzt 'footer'
+
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function isExt(h) { return /^https?:/.test(h); }
-  function href(h) { return isExt(h) ? h : U(h); }
+  function href(h) { return isExt(h) ? utm(h, linkCampaign) : U(h); }
   function cur(h) { return !isExt(h) && h.split('#')[0] === rel ? ' aria-current="page"' : ''; }
   function a(label, h, cls, extra) {
     return '<a' + (cls ? ' class="' + cls + '"' : '') + ' href="' + esc(href(h)) + '"' + cur(h) +
@@ -189,6 +301,24 @@
     '.corner a{display:inline-flex;align-items:center;min-height:36px;padding:0 10px;}' +
     '.corner a:hover{color:var(--accent);}' +
     '.corner span{color:var(--line);}';
+
+  var CTA_CSS =
+    '.cta{font-family:var(--sans);font-size:15px;line-height:1.5;color:var(--ink);-webkit-font-smoothing:antialiased;text-align:left;font-weight:400;letter-spacing:normal;text-transform:none;font-style:normal;' +
+      'max-width:1240px;margin:0 auto;padding:56px 24px 48px;}' +
+    '.cta.inset{max-width:none;padding:48px 0 8px;}' +
+    '.cta-card{display:flex;align-items:center;justify-content:space-between;gap:20px 32px;padding:22px 24px 22px 26px;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;}' +
+    '.cta-txt{min-width:0;max-width:68ch;}' +
+    '.cta h2{font-family:var(--serif);font-size:18px;font-weight:600;letter-spacing:-.01em;line-height:1.3;color:var(--ink);margin-bottom:4px;}' +
+    '.cta p{font-size:14.5px;color:var(--ink2);overflow-wrap:break-word;}' +
+    '.cta-btn{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-size:14px;font-weight:600;white-space:nowrap;}' +
+    '.cta-btn:hover{background:var(--accent);color:#fff;}' +
+    '.cta-btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:999px;}' +
+    '.cta-btn svg{flex:none;}' +
+    '.cta.dk{--card:rgba(255,255,255,.05);--line:rgba(255,255,255,.16);--ink:#F2F1EC;--ink2:#C9C8C0;--accent:#5BC2A8;}' +
+    '.cta.dk .cta-btn:hover{color:#0B1512;}' +
+    '@media (max-width:700px){.cta{padding:40px 16px 36px;}.cta.inset{padding:40px 0 8px;}.cta-card{flex-direction:column;align-items:flex-start;padding:18px 18px 18px 20px;}.cta-btn{white-space:normal;}}';
+
+  var ICON_OUT = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>';
 
   /* ---------------------------------------------------------------- Helfer */
   function host(id, style) {
@@ -392,6 +522,7 @@
 
   /* ---------------------------------------------------------------- Footer */
   function buildFooter() {
+    linkCampaign = 'footer';
     var cols = FOOTER.map(function (g) {
       return '<div><h2>' + esc(g[0]) + '</h2><ul>' + g[1].map(function (l) {
         return '<li>' + a(l[0], l[1], g[0] === 'Rechtliches' && /\.html$/.test(l[1]) ? 'ft-legal' : '') + '</li>';
@@ -408,6 +539,48 @@
     var h = host('kc-footer', 'position:relative;z-index:1;clear:both;');
     h.root.innerHTML = html;
     insertBottom(h.el);
+    linkCampaign = 'menu';
+  }
+
+  /* ---------------------------------------------------------------- Abschlussblock */
+  function pageIsDark() {
+    var els = [document.body, document.documentElement];
+    for (var i = 0; i < els.length; i++) {
+      var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/.exec(getComputedStyle(els[i]).backgroundColor || '');
+      if (!m || (m[4] !== undefined && +m[4] < 0.5)) continue;
+      return (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255 < 0.45;
+    }
+    return false;
+  }
+  // Eigener Seiten-Footer mit Rechtliches-Links (dann baut site-chrome keinen eigenen Footer).
+  function pageFooter() {
+    var fs = document.querySelectorAll('footer');
+    for (var i = fs.length - 1; i >= 0; i--) {
+      if (fs[i].closest && fs[i].closest('article,aside,[data-kc-chrome]')) continue;
+      if (fs[i].querySelector('a[href*="impressum.html"],a[href*="datenschutz.html"]')) return fs[i];
+    }
+    return null;
+  }
+  function buildCta() {
+    var key = offerFor(rel), o = key && OFFERS[key];
+    if (!o) return;
+    var en = /^en/i.test(document.documentElement.lang || '') || /_en\.html$/.test(rel);
+    var t = en ? o.en : o.de;
+    var title = en ? 'Put it into practice with Daten-WG' : 'Mit der Daten-WG umsetzen';
+    var campaign = (rel.split('/').pop() || 'index.html').replace(/\.html?$/, '') || 'index';
+    var ft = document.getElementById('kc-footer'), pf = ft ? null : pageFooter();
+    var inset = !!pf && pf.parentNode !== document.body && pf.parentNode !== document.documentElement;
+    var html = '<style>' + BASE_CSS + CTA_CSS + '</style>' +
+      '<aside class="cta' + (inset ? ' inset' : '') + (pageIsDark() ? ' dk' : '') + '" aria-label="' + esc(title) + '"' + (en ? ' lang="en"' : '') + '>' +
+        '<div class="cta-card"><div class="cta-txt"><h2>' + esc(title) + '</h2><p>' + esc(t[0]) + '</p></div>' +
+        '<a class="cta-btn" href="' + esc(utm(o.url, campaign)) + '" target="_blank" rel="noopener"' + (en ? ' hreflang="de"' : '') + '>' +
+          esc(t[1]) + ICON_OUT + '</a></div>' +
+      '</aside>';
+    var h = host('kc-cta', 'position:relative;z-index:1;clear:both;');
+    h.root.innerHTML = html;
+    if (ft) ft.parentNode.insertBefore(h.el, ft);
+    else if (pf) pf.parentNode.insertBefore(h.el, pf);
+    else insertBottom(h.el);
   }
 
   function buildCorner(pos) {
@@ -437,6 +610,10 @@
     else if (cannotScroll()) buildCorner('corner-bl');
     else buildFooter();
   }
+  function cta() {
+    if (mode !== 'full' || /^corner/.test(ds.chromeLegal || '') || cannotScroll()) return;
+    try { buildCta(); } catch (e) { /* der Block ist entbehrlich, die Seite nicht */ }
+  }
   function onReady(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
     else fn();
@@ -446,6 +623,7 @@
     onReady(function () {
       if (mode === 'mini') buildPill();
       legal();
+      cta();
     });
   }
   if (document.body) start();
