@@ -6,7 +6,7 @@ Power BI visual · Quick start
 
 One Power BI visual with 13 IBCS-inspired modes — from columns, lines and waterfall through table, matrix and KPI cards to the P&L statement and scatter/bubble. With a dark mode for dark report pages and trend mini charts on the KPI cards. Understand in two minutes what the visual does, how to get going and where to find the full documentation.
 
-13 modes · DE · EN · ES · JA · Version 1.54.0.0
+14 modes · DE · EN · ES · JA · Version 1.55.0.0
 
 ![A complete Power BI report page with KPI cards and bridges, built from ChartKitchen visuals](../doku-assets/pbi/pbi-demo-report.png)
 
@@ -14,7 +14,7 @@ One Power BI visual with 13 IBCS-inspired modes — from columns, lines and wate
 
 ### Download the visual
 
-Version **1.54.0.0** · **.pbiviz** · 19.11.2026
+Version **1.55.0.0** · **.pbiviz** · 21.11.2026
 
 Direct download, no registration — this link always serves the latest release. Import in Power BI Desktop: *Visualizations → “…” → Import a visual from a file*. All builds are also available on [GitHub](https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG).
 
@@ -49,14 +49,14 @@ Every step in detail — import, minimal setup and field roles — is in the [Qu
 Each tile jumps straight to the matching section of the full documentation.
 
 - **[Quick start](../chartkitchen-doku_en.html#quickstart)** · Chapter 02 — Import, minimal setup and the field roles Category, AC, PY, PL — step by step.
-- **[The 13 modes](../chartkitchen-doku_en.html#modes)** · Chapter 03 — Columns, bars, line, waterfall, bridge, table, matrix, KPI cards, P&L, scatter/bubble and more — every mode explained.
+- **[The 14 modes](../chartkitchen-doku_en.html#modes)** · Chapter 03 — Columns, bars, line, waterfall, bridge, table, matrix, KPI cards, P&L, scatter/bubble, stock & flow and more — every mode explained.
 - **[In action](../chartkitchen-doku_en.html#inaction)** · Chapter 04 — Real Power BI examples: complete report pages, monitoring, comparisons and more.
 - **[Features in detail](../chartkitchen-doku_en.html#features)** · Chapter 05 — Scenario notation, small multiples, dark mode, trend cards, comments, cumulation, Top N and the remaining features.
 - **[Settings reference](../chartkitchen-doku_en.html#settings)** · Chapter 06 — All settings across eight format cards — with schematic sketches of the format pane.
 - **[FAQ & troubleshooting](../chartkitchen-doku_en.html#faq)** · Chapter 07 — Common questions, typical pitfalls and quick answers around the visual.
 - **[Docs as PDF (EN)](../chartkitchen-doku_en.pdf)** · Download — The complete English documentation as a PDF for offline reading and sharing.
 
-**ChartKitchen byDatenWG** · Version 1.54.0.0
+**ChartKitchen byDatenWG** · Version 1.55.0.0
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

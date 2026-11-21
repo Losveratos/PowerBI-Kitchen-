@@ -18,7 +18,8 @@ catch { ({ chromium } = require("/opt/node22/lib/node_modules/playwright")); }
         else if (process.env.VERBOSE) console.log("[log]", t);
     });
     page.on("pageerror", e => { errors++; console.log("[pageerror]", e.message); });
-    await page.goto("file://" + __dirname + "/test.html");
+    // the harness renders 600+ stages; on a busy machine the load event takes > 30 s
+    await page.goto("file://" + __dirname + "/test.html", { timeout: 180000 });
     await page.waitForTimeout(600);
     // 1.53 rowType tokens: the unknown-token note may only appear where a case
     // feeds deliberate typos/free texts — every other stage (sum/delta/pct and

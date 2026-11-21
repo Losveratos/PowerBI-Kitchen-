@@ -230,6 +230,9 @@ a:hover .pic img{transform:scale(1.03)}
 .yr{font-size:12px;font-weight:700;color:var(--mute);margin:8px 0 2px 8px}
 .about{background:var(--paper-2);padding:14px;display:flex;gap:12px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);border-radius:8px;margin-top:18px}
 .about img{width:42px;flex:0 0 auto}
+.about-cta{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--rule);font-size:13px;color:var(--mute)}
+.about-cta a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+.about-cta a:hover{color:var(--accent)}
 .msearch{display:none}
 footer{border-top:1px solid var(--rule);margin-top:10px;padding:18px 0 40px;font-size:12.5px;color:var(--mute);display:flex;gap:10px;align-items:center}
 footer img{width:26px}
@@ -374,7 +377,7 @@ footer a:hover{color:var(--accent)}
     widget('ressort', 'Ressorts', `<ul class="facet">${RESSORTS.map(r => `<li><button data-ressort="${r.id}"><span><span class="dot" style="background:${r.color}"></span>${esc(r.name)}</span><span class="n">${ALL.filter(i => inR(i, r)).length}</span></button></li>`).join('')}</ul>`, wide) +
     widget('tag', 'Schlagworte', `<div class="tags">${TOPTAGS.map(t => `<button data-tag="${esc(t)}">${esc(t)}</button>`).join('')}</div>`, false) +
     widget('month', 'Archiv', years.map(y => `<div class="yr">${y}</div><ul class="facet">${Object.keys(months).filter(m => m.startsWith(y)).sort().reverse().map(m => `<li><button data-month="${m}"><span>${MONTHS[+m.slice(5) - 1]}</span><span class="n">${months[m]}</span></button></li>`).join('')}</ul>`).join(''), false) +
-    `<div class="about"><img src="assets/start/hat.svg" alt=""><div><b>Die Kitchen</b><br>Podcast-Folgen, Talks, Datenstorys und Werkzeuge rund um Power BI und Fabric. Alles frei, ohne Tracking.</div></div>`;
+    `<div class="about"><img src="assets/start/hat.svg" alt=""><div><b>Die Kitchen</b><br>Podcast-Folgen, Talks, Datenstorys und Werkzeuge rund um Power BI und Fabric. Alles frei, ohne Tracking.<span class="about-cta">Lust, mit uns zu arbeiten? <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a></span></div></div>`;
   function syncAside() {
     for (const k of ['kind', 'ressort', 'tag', 'month']) {
       document.querySelectorAll(`#aside [data-${k}]`).forEach(b => {

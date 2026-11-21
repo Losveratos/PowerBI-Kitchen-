@@ -6,7 +6,7 @@ Power-BI-Visual · Schnellstart
 
 Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle, Matrix und KPI-Karten bis zu GuV-Statement und Scatter/Bubble. Mit Dark Mode für dunkle Berichtsseiten und Trend-Mini-Charts auf den KPI-Karten. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.
 
-13 Modi · DE · EN · ES · JA · Version 1.54.0.0
+14 Modi · DE · EN · ES · JA · Version 1.55.0.0
 
 ![Komplette Power-BI-Berichtsseite mit KPI-Karten und Brücken, aus ChartKitchen-Visuals gebaut](../doku-assets/pbi/pbi-demo-report.png)
 
@@ -14,7 +14,7 @@ Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Lin
 
 ### Visual herunterladen
 
-Version **1.54.0.0** · **.pbiviz** · 19.11.2026
+Version **1.55.0.0** · **.pbiviz** · 21.11.2026
 
 Direkt-Download, keine Registrierung — der Link liefert immer die aktuelle Version. Import in Power BI Desktop: *Visualisierungen → „…" → Visual aus einer Datei importieren*. Alternativ gibt es alle Builds auch auf [GitHub](https://github.com/Losveratos/Power-BI-Custom-Visuals-byDatenWG).
 
@@ -49,14 +49,14 @@ Alle Schritte im Detail — Import, Minimal-Setup und Feldrollen — stehen im [
 Jede Kachel springt direkt in die passende Sektion der ausführlichen Doku.
 
 - **[Schnellstart](../chartkitchen-doku.html#quickstart)** · Kapitel 02 — Import, Minimal-Setup und die Feldrollen Kategorie, AC, PY, PL — Schritt für Schritt.
-- **[Die 13 Modi](../chartkitchen-doku.html#modes)** · Kapitel 03 — Säulen, Balken, Linie, Wasserfall, Brücke, Tabelle, Matrix, KPI-Karten, GuV, Scatter/Bubble und mehr — jeder Modus erklärt.
+- **[Die 14 Modi](../chartkitchen-doku.html#modes)** · Kapitel 03 — Säulen, Balken, Linie, Wasserfall, Brücke, Tabelle, Matrix, KPI-Karten, GuV, Scatter/Bubble, Bestand & Fluss und mehr — jeder Modus erklärt.
 - **[Im Einsatz](../chartkitchen-doku.html#inaction)** · Kapitel 04 — Echte Power-BI-Beispiele: komplette Berichtsseiten, Monitoring, Vergleiche und mehr.
 - **[Funktionen im Detail](../chartkitchen-doku.html#features)** · Kapitel 05 — Szenario-Notation, Small Multiples, Dark Mode, Trend-Karten, Kommentare, Kumulierung, Top N und die weiteren Funktionen.
 - **[Einstellungs-Referenz](../chartkitchen-doku.html#settings)** · Kapitel 06 — Alle Einstellungen in acht Format-Karten — mit Schema-Skizzen des Formatbereichs.
 - **[FAQ & Troubleshooting](../chartkitchen-doku.html#faq)** · Kapitel 07 — Häufige Fragen, typische Stolpersteine und schnelle Antworten rund um das Visual.
 - **[Doku als PDF (DE)](../chartkitchen-doku.pdf)** · Download — Die komplette deutsche Dokumentation als PDF zum Offline-Lesen und Weitergeben.
 
-**ChartKitchen byDatenWG** · Version 1.54.0.0
+**ChartKitchen byDatenWG** · Version 1.55.0.0
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 

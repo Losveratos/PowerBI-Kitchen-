@@ -157,7 +157,11 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // scale (AC + FC), scenario labels at the axis; 03A is the same with basis PY
     C19: { orientation: "columns", comparisonMode: "plan", showAbsoluteVariance: true,
         showRelativeVariance: true, dualVariance: false, waterfallStyle: false, cumulative: false,
-        yearColumn: true, scenarioLabels: true, pinStyle: "square" }
+        yearColumn: true, scenarioLabels: true, pinStyle: "square" },
+    // 1.55 (B11) C20 = 08E to 08H: stock & flow over time (net panel, flows ±, stock line
+    // with area), scenario labels at the axis, emphasis as ellipse around the stock label
+    C20: { orientation: "stockflow", sfNet: true, sfArea: true, scenarioLabels: true, showTotal: false,
+        highlightStyle: "ellipse" }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -165,7 +169,8 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
 const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
-    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns"
+    C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
+    C20: "stockflow"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -178,11 +183,12 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C16: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C17: { role: "previousYear", key: "Hub_NeedPy", en: "Prior year (PY)" },
     C18: { role: "xValue", key: "Hub_NeedX", en: "X axis" },
-    C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" }
+    C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
+    C20: { role: "rowType", key: "Hub_NeedSf", en: "Type: stock / inflow / outflow" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
-    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C19", "C05", "C08"] },
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C03", "C19", "C05", "C08", "C20"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
@@ -206,7 +212,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C16: ["Bar table sorted by AC", "Top units, plan alongside"],
     C17: ["Horizontal driver bridge", "Many units: PY → AC per row"],
     C18: ["Variance scatter", "ΔPY % against ΔPL % per product"],
-    C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"]
+    C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"],
+    C20: ["Stock and flow", "Cash, headcount or inventory over time"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -234,6 +241,7 @@ const FIELD_INTRO_SECTIONS: { key: string; en: string; roles: [string, string, s
         ["xValue", "FI_XValue", "X axis of the scatter"],
         ["xPrevious", "FI_XPrev", "X prior year → motion arrows"],
         ["bubbleSize", "FI_Bubble", "Bubble size, e.g. volume"],
+        ["bubbleSizePrevious", "FI_BubblePrev", "Bubble size PY → PY bubble"],
         ["comments", "FI_Comments", "Text → numbered comments"],
         ["filterInfo", "FI_FilterInfo", "Text → filter note in footer"]] }
 ];
@@ -247,7 +255,8 @@ const ROLE_NAMES: Record<string, [string, string]> = {
     colgroup: ["Role_ColGroup", "Columns (matrix)"], trend: ["Role_Trend", "Trend (time)"],
     rowType: ["Role_RowType", "Waterfall Type (sum/delta)"], lineMeasure: ["Role_LineMeasure", "Line (combo)"],
     xValue: ["Role_XValue", "X axis (Scatter)"], xPrevious: ["Role_XPrevious", "X axis PY (Scatter, optional)"],
-    bubbleSize: ["Role_BubbleSize", "Bubble size (optional)"], comments: ["Role_Comments", "Comments"],
+    bubbleSize: ["Role_BubbleSize", "Bubble size (optional)"],
+    bubbleSizePrevious: ["Role_BubbleSizePrevious", "Bubble size PY (optional)"], comments: ["Role_Comments", "Comments"],
     filterInfo: ["Role_FilterInfo", "Filter info (footer)"]
 };
 /** 1.51 hub footer: font presets in the order HD · Full HD · UHD (labels.fontPreset) */
@@ -269,7 +278,7 @@ interface HubColors {
 type Orientation = "columns" | "bars";
 
 /** 1.54 (B04): sort keys of bridges, bars and the table header sort */
-type SortMode = "off" | "abs" | "signed" | "pct" | "ac";
+type SortMode = "off" | "abs" | "signed" | "pct" | "ac" | "series";
 /** 1.54 (B04): rest rows stay at the end of every sort, italic. Same rule as the
  *  P&L Statement byDatenWG ("Rest of USA", "Others", "Sonstige", "Übrige" …) */
 // 1.54 review: the name must BE a rest label ("Sonstige", "Others (4)", "Rest of USA",
@@ -279,6 +288,70 @@ const REST_ROW_RX = new RegExp("^(others?|sonstiges?|übrige[sr]?|rest|otros|otr
     + "|^rest\\s*(of|der|des|del|de|von)\\b|^rest[-\\s]"
     + "|^(others?|übrige[sn]?|sonstige[n]?|otros|otras)\\s+(countries|regions|markets|länder|regionen|märkte|países|regiones)\\b"
     + "|^その他の", "i");
+/** 1.55 (B09): one stored difference marker "From > To[@Series][!]";
+ *  toFull keeps the text after the arrow unsplit (a category named "a@b") */
+interface DiffMarkerSpec { from: string; to: string; series: string | null; noPct: boolean; toFull: string }
+/** markers drawn at most; the cap applies after resolving the names */
+const DIFF_MARKER_MAX = 4;
+/** 1.55 (B09): parses chart.diffMarkers — ";"-separated, ">", "->", "=>" or "→"
+ *  between the two categories, "@Series" after the arrow for a stack segment, "!"
+ *  at the end drops Δ %; duplicates are dropped */
+function parseDiffMarkers(raw: string): DiffMarkerSpec[] {
+    const out: DiffMarkerSpec[] = [];
+    const seen = new Set<string>();
+    for (let part of raw.split(";")) {
+        part = part.trim();
+        if (!part) { continue; }
+        const noPct = part.endsWith("!");
+        if (noPct) { part = part.slice(0, -1).trim(); }
+        const m = /^(.+?)\s*(?:->|=>|→|>)\s*(.+)$/.exec(part);
+        if (!m) { continue; }
+        const from = m[1].trim(), toFull = m[2].trim();
+        let to = toFull, series: string | null = null;
+        const at = toFull.lastIndexOf("@");
+        if (at > 0) { series = toFull.slice(at + 1).trim() || null; to = toFull.slice(0, at).trim(); }
+        const key = `${from}|${to}|${series ?? ""}`.toLowerCase();
+        if (!from || !to || seen.has(key)) { continue; }
+        seen.add(key);
+        out.push({ from, to, series, noPct, toFull });
+        if (out.length >= 16) { break; }
+    }
+    return out;
+}
+/** 1.55 (B09): a resolved marker, ready to draw on one scale */
+interface DiffMarkerDraw {
+    spec: DiffMarkerSpec;
+    fromBand: number; toBand: number; halfW: number;
+    /** edges of the To slot along the category axis, and the free room to its neighbour */
+    toLo: number; toHi: number; gap: number;
+    /** value levels on the chart scale: the bar runs from toTop − d to toTop */
+    fromTop: number; toTop: number; d: number; base: number;
+    level: boolean; fc: boolean;
+    /** beside the bar in room reserved at the band end (else above it / after it) */
+    edge: boolean;
+    /** k-th of kN markers in the same gap (both directions share it): offset by one bar width each */
+    k: number; kN: number;
+    /** bars: width of the To row's value label, kept clear of the marker label */
+    clearW: number;
+    /** 100 % stacks: Δ in percentage points */
+    pp: boolean;
+}
+/** side, edge and offset slot of each marker (side +1 = towards the higher index).
+ *  Markers share a slot counter per gap (gap g lies between category g and g+1), so
+ *  "A > B" below one row and "D > C" above the next never draw on top of each other */
+type DiffPlanItem = { side: number; edge: boolean; k: number; kN: number };
+function diffPlan(list: { fi: number; ti: number }[], n: number, allowLo: boolean, allowHi: boolean): DiffPlanItem[] {
+    const seen = new Map<number, number>();
+    const out = list.map(m => {
+        const side = m.ti > m.fi ? 1 : -1;
+        const gap = side > 0 ? m.ti : m.ti - 1;
+        const k = seen.get(gap) ?? 0;
+        seen.set(gap, k + 1);
+        return { side, gap, edge: side > 0 ? m.ti === n - 1 && allowHi : m.ti === 0 && allowLo, k, kN: 0 };
+    });
+    return out.map(o => ({ side: o.side, edge: o.edge, k: o.k, kN: seen.get(o.gap) ?? 1 }));
+}
+
 function isRestRow(p: DataPoint): boolean {
     return p.isRest || REST_ROW_RX.test((p.cat ?? "").trim());
 }
@@ -296,7 +369,11 @@ type ListProp = "invertList" | "resultList" | "skipList" | "hideList" | "chartLi
  * mark an ordinary movement row. Aliases follow the P&L visual's parseRowType, so
  * one DimKonto[RowType] column can feed both visuals.
  */
-type RowFlag = "invert" | "emphasize" | "exclude" | "hide" | "davon" | "graphic";
+type RowFlag = "invert" | "emphasize" | "exclude" | "hide" | "davon" | "graphic"
+    // 1.55 (B11): stock & flow roles of a row (orientation=stockflow); per row, not per name
+    | "stock" | "inflow" | "outflow";
+/** 1.55 (B11): the stock & flow flags travel with the DataPoint (sfKind), not as name sets */
+const SF_FLAGS: RowFlag[] = ["stock", "inflow", "outflow"];
 const ROW_FLAGS: RowFlag[] = ["invert", "emphasize", "exclude", "hide", "davon", "graphic"];
 const ROW_TOKENS: Record<string, RowFlag | "total" | "pct" | "none"> = {
     total: "total", sum: "total", subtotal: "total", summe: "total", ergebnis: "total",
@@ -309,6 +386,10 @@ const ROW_TOKENS: Record<string, RowFlag | "total" | "pct" | "none"> = {
     invert: "invert", invertieren: "invert", kosten: "invert", cost: "invert", costs: "invert",
     emphasize: "emphasize", highlight: "emphasize", hervorheben: "emphasize",
     graphic: "graphic", chart: "graphic", grafik: "graphic",
+    // 1.55 (B11): no short aliases in/out/level, a report may carry them as free text today
+    stock: "stock", bestand: "stock", balance: "stock",
+    inflow: "inflow", zufluss: "inflow",
+    outflow: "outflow", abfluss: "outflow",
     detail: "none", normal: "none", delta: "none", account: "none", konto: "none",
     separator: "none", "+": "none", "-": "none", "−": "none"
 };
@@ -392,6 +473,9 @@ interface DataPoint {
     basis: number | null;
     varAbs: number | null;
     varRel: number | null;
+    /** 1.55 (B13): the variance compares two plan values (plan-only period against the
+     *  Ø of the plans): drawn in plan notation (outlined Δ bar, hollow pin head) */
+    varPlan?: boolean;
     /** variance vs. the second basis (the scenario not used as primary) */
     var2Abs: number | null;
     var2Rel: number | null;
@@ -410,6 +494,9 @@ interface DataPoint {
     /** scatter v3: previous-year value of the X measure (role xPrevious) — start of
      *  the PY → AC movement arrow on the X axis (without it, arrows move only in Y) */
     xPrev?: number | null;
+    /** 1.55 (B12): previous-year value of the bubble size (role bubbleSizePrevious) —
+     *  with PY (Y) it draws the PY bubble of the category in its own size */
+    sizePrev?: number | null;
     /** Trend role (KPI cards): period label of this row and its sort key (Date →
      *  timestamp, number → value, text → first appearance); absent when unbound */
     trend?: string | null;
@@ -426,6 +513,8 @@ interface DataPoint {
     group: string | null;
     /** waterfall row type: 'sum' | 'delta' | null */
     rowType: string | null;
+    /** 1.55 (B11): stock & flow role from the rowType tokens stock / inflow / outflow */
+    sfKind?: "stock" | "inflow" | "outflow" | null;
     /** true for the synthetic "Rest (n)" row produced by top-N aggregation */
     isRest: boolean;
     /** cross-highlight from another visual is active and this row is NOT part of
@@ -568,6 +657,9 @@ interface ChartConfig {
     fmt: IValueFormatter;
     /** formatter scaled to the variance magnitudes (auto units) */
     fmtVar: IValueFormatter;
+    /** 1.55 (B09 review): difference markers — the values' precision, more digits
+     *  only when the Δ would round to zero ("−0,04M", not "−0,0M") */
+    fmtDiff: IValueFormatter;
     hasPy: boolean;
     hasPl: boolean;
     hasFc: boolean;
@@ -608,6 +700,23 @@ interface ChartConfig {
     yearDeltaOwn: boolean;
     /** 1.54 (B05): scenario abbreviations at the columns (AC · FC under the axis) */
     scenarioLabels: boolean;
+    /** 1.55 (B13): small multiples compare against the average of all tiles (ΔØ) */
+    basisAvg: boolean;
+    /** 1.55 (B10): stack structure — 100 % stacks, Σ row (bars), names left, sort,
+     *  absolute-total side panel (bars + 100 %), shared max of the stack totals */
+    stackNorm: boolean;
+    stackTotalRow: boolean;
+    stackTotalLabel: string;
+    stackLegendStart: boolean;
+    stackSort: "off" | "ac" | "series";
+    stackTotalMax: number;
+    /** 1.55 (B09): stored difference markers "From > To[@Series][!]" (max. 4) */
+    diffMarkers: DiffMarkerSpec[];
+    /** 1.55 (B09): integrated bridge — second net element to the other basis */
+    bridgeSecondNet: boolean;
+    /** 1.55 (B11): stock & flow deck: one main domain (flows ± and stock) and one net
+     *  domain over all drawn tiles, both at the same px per unit; null outside the mode */
+    sfDeck: { lo: number; hi: number; nLo: number; nHi: number } | null;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
      *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
@@ -689,6 +798,23 @@ interface ChartConfig {
         arrows: boolean;
         hasXPrev: boolean;
         xPrevName: string;
+        /** 1.55 (B12) portfolio bubbles: value label of the bubble size, custom maximum
+         *  radius (0 = auto), bubble opacity (0..1), PY bubbles (role bubbleSizePrevious
+         *  bound and data present), highlight as fill color (+ legend text) and the
+         *  resolved group palette (custom pickers, else the light/dark default) */
+        valueLabels: boolean;
+        maxRadius: number;
+        opacity: number;
+        /** PY bubbles are drawn: role bound, data present, not in play mode (one flag
+         *  for axes, legend, size formatter and drawing) */
+        pyBubbles: boolean;
+        /** bubbleSizePrevious bound without Previous Year or bubble size (edit hint) */
+        pyRoleIdle: boolean;
+        sizePrevName: string;
+        emphFill: boolean;
+        emphColor: string;
+        emphLabel: string;
+        groupPalette: string[];
         shapes: boolean;
         sizeLegend: boolean;
         trend: string;
@@ -704,6 +830,39 @@ interface ChartConfig {
         xLogWanted: boolean;
         yLogWanted: boolean;
     } | null;
+}
+
+/** 1.55 (B11): one period of the stock & flow mode (orientation=stockflow) */
+interface SfPeriod {
+    cat: string;
+    /** tick label (lowest hierarchy level) and the level path (one entry without hierarchy) */
+    label: string;
+    levels: string[];
+    scen: "ac" | "fc" | "pl";
+    /** flow cells in stacking order, value signed: + inflow, − outflow */
+    flows: { series: string; side: "in" | "out"; v: number; p: DataPoint }[];
+    inTot: number;
+    outTot: number;
+    net: number;
+    /** a flow value was delivered (also 0): the net label "0" is shown */
+    hasFlow: boolean;
+    stock: number | null;
+    pts: DataPoint[];
+    /** B11 review (m8): flow rows with a plan only in an AC/FC period (not drawn) */
+    flowsDropped?: boolean;
+}
+/** 1.55 (B11): stock & flow layout of one tile (stockFlowLayout) */
+interface SfLayout {
+    periods: SfPeriod[];
+    inSeries: string[];
+    outSeries: string[];
+    stockName: string | null;
+    /** derived opening stock: stock of the first period minus its net flow */
+    opening: number | null;
+    hasStock: boolean;
+    hasFlow: boolean;
+    /** the stock comes from the line measure (no row carries the token stock) */
+    viaLine: boolean;
 }
 
 /** deck-wide scatter scales for small multiples (see ChartConfig.scatter.shared) */
@@ -989,6 +1148,8 @@ export class Visual implements IVisual {
     private sizeFormat: string | undefined;
     /** scatter v3: display name of the bound xPrevious measure (arrow start, tooltips) */
     private xPrevName: string | undefined;
+    /** 1.55 (B12): display name of the bound bubbleSizePrevious measure (PY bubbles) */
+    private sizePrevName: string | undefined;
     /** scatter v3 play mode (Rosling): transient — NEVER persisted. frame = currently
      *  shown period index; anim = live DOM references while the rAF loop runs */
     private scatterFrame: number | null = null;
@@ -1026,6 +1187,12 @@ export class Visual implements IVisual {
     private animTimers: number[] = [];
     /** small multiples: currently zoomed-in group (transient, ⤢/← in the chart) */
     private zoomGroup: string | null = null;
+    /** 1.55 (B13 review): points carry the Ø basis (multiplesBasis=avg) — collector
+     *  rows (Top N, exception filter, year column) keep Δ against the Ø, no Δ2 */
+    private avgRows = false;
+    /** 1.55 (B13 review, m4): the cell being drawn is the reference tile under the Ø
+     *  basis — its Δ panels keep their space (same scale) but get no title or axis */
+    private refTileNoDelta = false;
     /** 1.52: px per value unit of the last drawn base panel (zoom scale note) */
     private lastScaleK: number | null = null;
     /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
@@ -1098,6 +1265,9 @@ export class Visual implements IVisual {
     /** 1.54: last applied template (persisted or pending) — its keys are reset when
      *  another template is applied */
     private lastTplApplied = "off";
+    /** 1.55 (B10 review): series order of the stacks as delivered, frozen before sort
+     *  and top N so shades, legend and "first series" never change with the order */
+    private stackSeriesOrder: string[] | null = null;
     /** 1.54 (B04): chart.sortMode is stored in the report (else the legacy boolean rules) */
     private sortModeStored = false;
     /** 1.54: pane defaults for template resets (one fresh model, built lazily) */
@@ -1884,14 +2054,23 @@ export class Visual implements IVisual {
         fs.chartCard.waterfallStyle.visible = orient === "columns" || orient === "bars";
         fs.chartCard.sortMode.visible = orient === "catbridge" || orient === "bars"
             || (orient === "columns" && fs.chartCard.waterfallStyle.value);
+        // 1.55 (B10): stack structure only for columns/bars
+        fs.chartCard.stackNormalize.visible = orient === "columns" || orient === "bars";
+        fs.chartCard.stackTotalRow.visible = orient === "bars";
+        fs.chartCard.stackTotalLabel.visible = orient === "bars" && fs.chartCard.stackTotalRow.value === true;
+        fs.chartCard.stackLegendPos.visible = orient === "columns";
+        fs.chartCard.stackShareBracket.visible = orient === "bars";
+        // 1.55 (B09)
+        fs.chartCard.diffMarkers.visible = orient === "columns" || orient === "bars";
+        fs.chartCard.bridgeSecondNet.visible = orient === "intwaterfall";
         fs.chartCard.sortByImpact.visible = false;
         fs.chartCard.stackLegendDirect.visible = orient === "columns" || orient === "bars";
         // 1.54 (B05): year column and scenario labels exist only in the column chart
         fs.chartCard.yearColumn.visible = orient === "columns";
         fs.chartCard.yearColumnLabel.visible = orient === "columns" && fs.chartCard.yearColumn.value === true;
-        fs.chartCard.scenarioLabels.visible = orient === "columns";
+        fs.chartCard.scenarioLabels.visible = orient === "columns" || orient === "stockflow";
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "catbridge";
+            || orient === "line" || orient === "catbridge" || orient === "stockflow";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
             || orient === "pnl";
         fs.chartCard.driverNote.visible = orient === "catbridge";
@@ -1916,9 +2095,14 @@ export class Visual implements IVisual {
         // Färbung nutzt die Basis trotzdem); Small Multiples = echte Kacheln (1.48, s. u.)
         const isScatter = orient === "scatter";
         fs.chartCard.scatterGroup.visible = isScatter;
-        fs.chartCard.showAbsoluteVariance.visible = !isScatter;
-        fs.chartCard.showRelativeVariance.visible = !isScatter;
-        if (isScatter) { fs.chartCard.dualVariance.visible = false; }
+        // 1.55 (B11): the stock & flow mode has no Δ panels (the net panel takes the room)
+        const isSf = orient === "stockflow";
+        fs.chartCard.stockFlowGroup.visible = isSf;
+        fs.chartCard.sfNetLabel.visible = isSf && fs.chartCard.sfNet.value !== false;
+        fs.chartCard.sfNegTint.visible = isSf && fs.chartCard.sfArea.value !== false;
+        fs.chartCard.showAbsoluteVariance.visible = !isScatter && !isSf;
+        fs.chartCard.showRelativeVariance.visible = !isScatter && !isSf;
+        if (isScatter || isSf) { fs.chartCard.dualVariance.visible = false; }
         // Scatter v3 gates: Formen nur bei Gruppen-Färbung; Pfeile nur mit PY;
         // R² nur bei aktiver Trendlinie; Größen-Legende nur mit gebundener Blasengröße;
         // Quadranten-Labels nur, wenn überhaupt Quadranten-Linien entstehen können
@@ -1929,6 +2113,22 @@ export class Visual implements IVisual {
         fs.chartCard.scatterTrendR2.visible = isScatter
             && String(fs.chartCard.scatterTrend.value.value) !== "off";
         fs.chartCard.scatterSizeLegend.visible = isScatter && this.sizeName != null;
+        // 1.55 (B12): Blasen-Optionen nur mit Blasengröße, Gruppenfarben nur bei
+        // Gruppen-Färbung, Farbe und Legendentext nur bei „Hervorhebung als Farbe"
+        const hasBubbles = isScatter && this.sizeName != null;
+        fs.chartCard.scatterValueLabels.visible = hasBubbles;
+        fs.chartCard.scatterMaxRadius.visible = hasBubbles;
+        fs.chartCard.scatterBubbleOpacity.visible = hasBubbles;
+        fs.chartCard.scatterEmphFill.visible = isScatter;
+        const emphFillOn = isScatter && fs.chartCard.scatterEmphFill.value === true;
+        fs.chartCard.scatterEmphColor.visible = emphFillOn;
+        fs.chartCard.scatterEmphLabel.visible = emphFillOn;
+        const groupOn = isScatter && String(fs.chartCard.scatterColorBy.value.value) === "group";
+        for (const gc of [fs.chartCard.scatterGroupColor1, fs.chartCard.scatterGroupColor2,
+            fs.chartCard.scatterGroupColor3, fs.chartCard.scatterGroupColor4,
+            fs.chartCard.scatterGroupColor5, fs.chartCard.scatterGroupColor6]) {
+            gc.visible = groupOn;
+        }
         const quadOn = String(fs.chartCard.scatterQuadrant.value.value) !== "off"
             || String(fs.scaleCard.refLine.value || "").trim() !== ""
             || String(fs.scaleCard.xRefLine.value || "").trim() !== "";
@@ -1937,8 +2137,8 @@ export class Visual implements IVisual {
         fs.chartCard.scatterQuadLabelBL.visible = isScatter && quadOn;
         fs.chartCard.scatterQuadLabelBR.visible = isScatter && quadOn;
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
-        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0;
-        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value;
+        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0 && orient !== "stockflow";
+        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value && orient !== "stockflow";
         // comments card stays visible without a comment measure — the in-chart
         // capture mode works on any category
         fs.commentsCard.visible = true;
@@ -1949,7 +2149,21 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesTotal.visible = !isScatter;
         fs.chartCard.multiplesTopN.visible = !isScatter;
         fs.chartCard.multiplesSameScale.visible = !isScatter;
-        fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line";
+        // 1.55 (B13): reference tile options only with the Σ tile, rest label only with Top N
+        const multTotalOn = !isScatter && fs.chartCard.multiplesTotal.value === true;
+        const multTopOn = !isScatter && (fs.chartCard.multiplesTopN.value ?? 0) > 0;
+        fs.chartCard.multiplesAgg.visible = multTotalOn || multTopOn;
+        fs.chartCard.multiplesTotalPos.visible = multTotalOn;
+        fs.chartCard.multiplesTotalShade.visible = multTotalOn;
+        fs.chartCard.multiplesTotalLabel.visible = multTotalOn;
+        fs.chartCard.multiplesRestLabel.visible = multTopOn;
+        // B13 review (m7): stacks (Stack-Series role) and the waterfall style keep the
+        // scenario basis, so the option is hidden there instead of failing silently
+        fs.chartCard.multiplesBasis.visible = !isScatter
+            && (orient === "columns" || orient === "bars" || orient === "line")
+            && !((orient === "columns" || orient === "bars")
+                && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true));
+        fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
         fs.chartCard.fiscalStart.visible = fs.chartCard.cumulativeKind.visible
@@ -1971,16 +2185,16 @@ export class Visual implements IVisual {
         fs.chartCard.exceptionOnly.descriptionKey = excThreshold
             ? "Desc_Chart_ExceptionOnly" : "Exc_NeedsThreshold";
         // AC+FC-Splitsäule nur anbieten, wenn überhaupt ein FC-Measure da ist (UX-7)
-        fs.chartCard.acFcSplit.visible = this.paneHasFc;
+        fs.chartCard.acFcSplit.visible = this.paneHasFc && orient !== "stockflow";
         fs.chartCard.compareClick.visible = orient === "columns" || orient === "bars";
         fs.chartCard.showTotal.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "table";
+            || orient === "line" || orient === "table" || orient === "stockflow";
         // scale card only where the shared main scale exists; the waterfall now
         // honors fixedMax/cap after its own domain pass (S7), so the sync group
         // stays visible there too — two waterfalls on a page can share one scale;
         // the table consumes the sync domains but has no ref line / cap marker
         fs.scaleCard.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "waterfall" || orient === "table" || isScatter;
+            || orient === "line" || orient === "waterfall" || orient === "table" || isScatter || isSf;
         // Scatter skaliert beide Achsen selbst (keine Sync-Maxima), nutzt aber die
         // Referenzlinien: Y = refLine, X = xRefLine (nur hier sichtbar). Die v3-Gruppe
         // „Scatter-Achsen" (Min/Max-Fixierung + Log) existiert nur im Scatter
@@ -2102,10 +2316,11 @@ export class Visual implements IVisual {
         this.filterInfo = null;
         this.xName = this.xFormat = this.sizeName = this.sizeFormat = undefined;
         this.xPrevName = undefined;
+        this.sizePrevName = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast",
-                "xValue", "xPrevious", "bubbleSize"]) {
+                "xValue", "xPrevious", "bubbleSize", "bubbleSizePrevious"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -2128,6 +2343,9 @@ export class Visual implements IVisual {
                     if (role === "bubbleSize") {
                         this.sizeFormat = unsignedFormat(col.source.format);
                         this.sizeName = col.source.displayName;
+                    }
+                    if (role === "bubbleSizePrevious") {
+                        this.sizePrevName = col.source.displayName;
                     }
                     if (col.highlights) {
                         anyHighlights = true;
@@ -2171,7 +2389,9 @@ export class Visual implements IVisual {
         // dropped before anything renders — off by default so no data vanishes
         // silently (beta feedback A. Korn)
         const hideBlank = this.formattingSettings.chartCard.hideBlankCat.value === true;
-        const acFcSplit = String(this.formattingSettings.chartCard.acFcSplit.value.value);
+        // B11 review (m1): the switch is hidden in stock & flow, a leftover value must
+        // not inflate flows and stocks there (one scenario per period)
+        const acFcSplit = this.sfModeOn() ? "off" : String(this.formattingSettings.chartCard.acFcSplit.value.value);
         // without a category the measures deliver a single scalar row each
         const rowCount = cat ? cat.values.length : (valueCols[0]?.values?.length ?? 1);
         let rtCells = 0, rtFlagOnly = 0;
@@ -2240,6 +2460,7 @@ export class Visual implements IVisual {
                 const joined = levelLabels.join(" · ");
                 const leaf = levelLabels[levelLabels.length - 1];
                 for (const f of rtParse.flags) {
+                    if (SF_FLAGS.includes(f)) { continue; }
                     let names = this.rowFlagNames.get(f);
                     if (!names) { names = new Set(); this.rowFlagNames.set(f, names); }
                     let rows = this.rowFlagRows.get(f);
@@ -2266,6 +2487,7 @@ export class Visual implements IVisual {
                 xVal: byRole["xValue"] ? byRole["xValue"][i] : null,
                 xPrev: byRole["xPrevious"] ? byRole["xPrevious"][i] : null,
                 sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
+                sizePrev: byRole["bubbleSizePrevious"] ? byRole["bubbleSizePrevious"][i] : null,
                 ...(trendCol && trendOrdOf ? {
                     trend: this.categoryLabel(trendCol.values[i]),
                     trendOrd: trendOrdOf(i)
@@ -2274,6 +2496,9 @@ export class Visual implements IVisual {
                 commentNo: comment != null ? ++commentCounter : null,
                 group: mult ? this.categoryLabel(mult.values[i]) : null,
                 rowType: rtParse ? rtParse.rowType : null,
+                ...(rtParse && rtParse.flags.some(f => SF_FLAGS.includes(f)) ? {
+                    sfKind: rtParse.flags.find(f => SF_FLAGS.includes(f)) as "stock" | "inflow" | "outflow"
+                } : {}),
                 isRest: false,
                 dim: anyHighlights && !hlRows[i],
                 sel: catLevels.length > 0 || mult ? selBuilder.createSelectionId() : null
@@ -5290,6 +5515,22 @@ export class Visual implements IVisual {
                 line(0, 0, 0, 1, c.ink, 1.6);
                 break;
             }
+            case "stockflow": {
+                // 1.55 (B11): net strip on top, flows ±, stock line with area
+                line(0, 0.16, 1, 0.16, c.ink, 1);
+                r(0.06, 0.08, 0.10, 0.08, c.grey); r(0.30, 0.16, 0.10, 0.06, c.ink); r(0.54, 0.10, 0.10, 0.06, c.grey);
+                this.el("polygon", { points: `${x},${y + 0.62 * h} ${x + 0.35 * w},${y + 0.45 * h} ${x + 0.6 * w},${y + 0.5 * h} ${x + 0.85 * w},${y + 0.38 * h} ${x + 0.85 * w},${y + 0.72 * h} ${x},${y + 0.72 * h}`,
+                    fill: c.ink, "fill-opacity": 0.12 }, g);
+                for (const [cx, up, dn] of [[0.06, 0.18, 0.12], [0.30, 0.10, 0.16], [0.54, 0.16, 0.10]]) {
+                    r(cx, 0.72 - up, 0.10, up, c.grey); r(cx, 0.72, 0.10, dn, c.ink);
+                }
+                r(0.70, 0.60, 0.10, 0.12, c.paper, { stroke: c.ink, "stroke-width": 1 });
+                r(0.70, 0.72, 0.10, 0.14, c.paper, { stroke: c.ink, "stroke-width": 1 });
+                this.el("polyline", { points: `${x},${y + 0.62 * h} ${x + 0.35 * w},${y + 0.45 * h} ${x + 0.6 * w},${y + 0.5 * h} ${x + 0.85 * w},${y + 0.38 * h}`,
+                    fill: "none", stroke: c.ink, "stroke-width": 1.6 }, g);
+                line(0, 0.72, 1, 0.72, c.ink, 1.2);
+                break;
+            }
             case "line": {
                 const pts = [[0, 0.75], [0.2, 0.55], [0.4, 0.62], [0.6, 0.35], [0.8, 0.42], [1, 0.2]];
                 const py2 = [[0, 0.85], [0.2, 0.72], [0.4, 0.78], [0.6, 0.55], [0.8, 0.6], [1, 0.45]];
@@ -5646,9 +5887,12 @@ export class Visual implements IVisual {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
         this.ellipseTargets = [];
+        this.stackSeriesOrder = null;
         this.bridgeChips = [];
         this.sortNoop = false;
         this.exceptionNoop = false;
+        this.avgRows = false;
+        this.refTileNoDelta = false;
         // scatter v3: a running play animation or drag-select must not outlive the
         // DOM it manipulates (the svg was just cleared above)
         if (this.scatterAnim?.raf != null) { cancelAnimationFrame(this.scatterAnim.raf); }
@@ -5680,6 +5924,8 @@ export class Visual implements IVisual {
         const isCards = orientationRaw === "cards";
         // GuV-Statement: row-based P&L with PY + scenario waterfall columns
         const isPnl = orientationRaw === "pnl";
+        // 1.55 (B11): stock & flow over time, own renderer (flows ±, net panel, stock line)
+        const isStockFlow = orientationRaw === "stockflow";
         // 1.52.1: number rules for every formatter built below — 3-digit cap in
         // graphics (tables and the P&L statement keep their decimals), unit suffix
         this.digitCap = !isTable && !isPnl;
@@ -5727,7 +5973,7 @@ export class Visual implements IVisual {
         // bridge, then switched to bars) must not reorder existing bar charts
         const sortByImpactOn = (wfStyleGlobal || isCatBridge
             || (orientationRaw === "bars" && !isStacked && this.sortModeStored))
-            && sortModeSet !== "off";
+            && sortModeSet !== "off" && sortModeSet !== "series";
         // YTD only where a running total over the category axis makes sense — bridge,
         // structure and stacked modes would silently cumulate nonsense; the same goes
         // for structured P&L rows (sum/delta/pct): those are accounts, not periods
@@ -5770,7 +6016,9 @@ export class Visual implements IVisual {
         if (!this.structureEdit) { this.closeStructureMenu(); }
 
         // small multiples: group by the multiples role, in order of appearance
-        const groups: { name: string | null; pts: DataPoint[] }[] = [];
+        // kind (1.55, B13): synthetic reference tile ("total", Σ or Ø) or Top-N rest tile
+        // preCum (B13 review): an average tile built from cumulated groups is not cumulated again
+        const groups: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest"; preCum?: boolean }[] = [];
         for (const p of points) {
             const last = groups.length > 0 ? groups[groups.length - 1] : null;
             const found = last && last.name === p.group ? last : groups.find(g => g.name === p.group);
@@ -5786,20 +6034,64 @@ export class Visual implements IVisual {
         // multiples options: Top-N tiles (remainder merged into one "Rest" tile) and a
         // leading "Σ Gesamt" tile — applied before the per-group transforms and domain
         // computation so all tiles, including the larger total, share one IBCS scale
+        // 1.55 (B13, IBCS sheet 13A): the reference and rest tiles may show the average
+        // instead of the sum, the reference tile may stand last; own labels with {n}
+        const mAgg: "sum" | "mean" = String((s.chartCard.multiplesAgg.value as powerbi.IEnumMember)?.value) === "mean"
+            ? "mean" : "sum";
+        const mTotalLast = String((s.chartCard.multiplesTotalPos.value as powerbi.IEnumMember)?.value) === "last";
+        // running totals (YTD/QTD/R12) of one point list, identity without cumulation
+        const cumArgs = cumulativeOn ? {
+            basisMode: this.resolveBasisLabel(),
+            kind: String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12",
+            fiscal: Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)))
+        } : null;
+        const cumOf = (pts: DataPoint[]): DataPoint[] => cumArgs
+            ? this.cumulate(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal) : pts;
+        // B13 review (M3): a missing stack segment or a missing category on a structure
+        // axis (bars) counts as 0 in the average; a missing period stays "no data"
+        // B11 review (M1): stock & flow stacks its flows (a missing flow segment = 0 in a
+        // period the tile has); meanGroups keeps the stock rows as a level (no zero)
+        const meanZero: "none" | "series" | "all" = orientationRaw === "bars" ? "all"
+            : isStacked || isStockFlow ? "series" : "none";
+        // B13 review (m1): with YTD the average is the mean of the cumulated groups
+        // (average YTD per location), so these tiles are built from cumulated copies
+        const meanPreCum = cumulativeOn && mAgg === "mean";
+        const srcPts = (g: { pts: DataPoint[] }) => meanPreCum ? cumOf(g.pts) : g.pts;
+        // the original groups before Top N (the reference tile and the Ø basis use all of them)
+        let multOrig: { name: string | null; pts: DataPoint[] }[] | null = null;
         if (groups.length > 1 && groups[0].name != null && !isScatter) {
             const mTopN = Math.round(s.chartCard.multiplesTopN.value ?? 0);
             const allGroups = groups.slice();
+            multOrig = allGroups;
+            const fillN = (tpl: string, n: number) => tpl.replace(/\{n\}/g, String(n));
             if (mTopN > 0 && groups.length > mTopN + 1) {
+                // B11 review: in stock & flow the ranking counts the flows, not the stock levels
                 const size = (g: { pts: DataPoint[] }) =>
-                    g.pts.reduce((a, p) => a + Math.abs(p.value ?? 0), 0);
+                    g.pts.reduce((a, p) => a + (isStockFlow && p.sfKind === "stock" ? 0 : Math.abs(p.value ?? 0)), 0);
                 const ranked = groups.slice().sort((a, b) => size(b) - size(a));
                 const rest = ranked.slice(mTopN);
                 groups.length = 0;
-                groups.push(...ranked.slice(0, mTopN),
-                    this.aggregateGroups(rest.map(g => g.pts), `${this.locStr("Label_Rest", "Other")} (${rest.length})`));
+                const restTpl = (s.chartCard.multiplesRestLabel.value || "").trim();
+                const restName = restTpl !== "" ? fillN(restTpl, rest.length)
+                    : `${this.locStr("Label_Rest", "Other")} (${rest.length})`;
+                const restTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest"; preCum?: boolean } =
+                    this.aggregateGroups(rest.map(srcPts), restName, mAgg, meanZero);
+                restTile.kind = "rest";
+                if (meanPreCum) { restTile.preCum = true; }
+                groups.push(...ranked.slice(0, mTopN), restTile);
             }
             if (s.chartCard.multiplesTotal.value) {
-                groups.unshift(this.aggregateGroups(allGroups.map(g => g.pts), this.locStr("Label_Total", "Σ Total")));
+                const totTpl = (s.chartCard.multiplesTotalLabel.value || "").trim();
+                const totName = totTpl !== "" ? fillN(totTpl, allGroups.length)
+                    : mAgg === "mean"
+                        ? `${this.locStr("Label_Average", "Ø Average")} (${allGroups.length})`
+                        : this.locStr("Label_Total", "Σ Total");
+                // always from the ORIGINAL groups, never from the rest tile (Top N)
+                const totTile: { name: string | null; pts: DataPoint[]; kind?: "total" | "rest"; preCum?: boolean } =
+                    this.aggregateGroups(allGroups.map(srcPts), totName, mAgg, meanZero);
+                totTile.kind = "total";
+                if (meanPreCum) { totTile.preCum = true; }
+                if (mTotalLast) { groups.push(totTile); } else { groups.unshift(totTile); }
             }
         }
 
@@ -5809,6 +6101,79 @@ export class Visual implements IVisual {
             this.compareActive = false;
             this.compareCats = [];
         }
+
+        // 1.55 (B13, IBCS sheets 13C/13D): every tile against the average of ALL groups
+        // ("Ø", per category, without a helper measure). m = mean over the original
+        // groups of value ?? PL, so plan-only years get their own basis (the mean of
+        // PL) and their Δ is plan notation (varPlan). The reference tile has no Δ; a
+        // summed rest tile compares with m × its member count (linear like the sum).
+        // B13 review (M1): the pass runs BEFORE the exception filter and Top N per tile
+        // (they judge and fold ΔØ; collector rows sum the basis, linear); only with
+        // cumulation it runs after the running totals (filter and Top N are off there)
+        const multBasisAvg = multOrig != null
+            && String((s.chartCard.multiplesBasis.value as powerbi.IEnumMember)?.value) === "avg"
+            && (orientationRaw === "columns" || orientationRaw === "bars" || orientationRaw === "line")
+            && !isStacked && !wfStyleGlobal;
+        this.avgRows = multBasisAvg;
+        const applyAvgBasis = () => {
+            if (!multBasisAvg || !multOrig) { return; }
+            const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
+            const level = (p: DataPoint): number | null => p.value ?? p.pl;
+            const visible = new Set<{ name: string | null; pts: DataPoint[] }>(groups);
+            // M3: on a structure axis (bars) a group without the category counts as 0
+            const structZero = meanZero === "all";
+            const acc = new Map<string, { s: number; n: number }>();
+            // m2: hidden members per key and level kind (AC/FC value or plan only), so a
+            // summed rest tile compares its value with the Ø of the members it sums
+            const restV = new Map<string, number>(), restP = new Map<string, number>();
+            let tilesWithData = 0, hiddenWithData = 0;
+            for (const og of multOrig) {
+                const hidden = !visible.has(og);
+                // groups merged into the rest tile were not cumulated with the tiles
+                const pts = hidden ? cumOf(og.pts) : og.pts;
+                const local = new Map<string, number>();
+                const withValue = new Set<string>();
+                for (const p of pts) {
+                    const v = level(p);
+                    if (v == null) { continue; }
+                    local.set(keyOf(p), (local.get(keyOf(p)) ?? 0) + v);
+                    if (p.value != null) { withValue.add(keyOf(p)); }
+                }
+                if (local.size > 0) { tilesWithData++; if (hidden) { hiddenWithData++; } }
+                local.forEach((v, k) => {
+                    const a = acc.get(k) ?? { s: 0, n: 0 };
+                    a.s += v; a.n++;
+                    acc.set(k, a);
+                    if (hidden) {
+                        const m = withValue.has(k) ? restV : restP;
+                        m.set(k, (m.get(k) ?? 0) + 1);
+                    }
+                });
+            }
+            if (structZero) { acc.forEach(a => { a.n = tilesWithData; }); }
+            for (const g of groups) {
+                g.pts = g.pts.map(p0 => {
+                    const p: DataPoint = { ...p0, var2Abs: null, var2Rel: null, varPlan: false };
+                    const a = acc.get(keyOf(p));
+                    const lv = level(p);
+                    if (g.kind === "total" || !a || lv == null) {
+                        p.basis = null; p.varAbs = null; p.varRel = null;
+                        return p;
+                    }
+                    const f = g.kind === "rest" && mAgg === "sum"
+                        ? (structZero ? hiddenWithData
+                            : ((p.value != null ? restV : restP).get(keyOf(p)) ?? 1))
+                        : 1;
+                    const b = (a.s / a.n) * f;
+                    p.basis = b;
+                    p.varAbs = lv - b;
+                    p.varRel = relVar(p.varAbs, b);
+                    p.varPlan = p.value == null;
+                    return p;
+                });
+            }
+        };
+        if (!cumulativeOn) { applyAvgBasis(); }
 
         // exception reporting: only categories above the materiality threshold stay
         // as own rows, everything else is folded into ONE collector row. Limited to
@@ -5847,16 +6212,23 @@ export class Visual implements IVisual {
         const topNBlocked = isTable && points.some(p => p.colLevels && p.colLevels.length > 0);
         // scatter: no "Rest" point — it would sum X across the tail (pane slice hidden)
         if (orientation === "bars" && topN > 0 && !cumulativeOn && !topNBlocked && !isScatter) {
+            if (isStacked) {
+                const order: string[] = [];
+                for (const p of points) { const sn = p.stackSeries ?? "(leer)"; if (!order.includes(sn)) { order.push(sn); } }
+                this.stackSeriesOrder = order;
+            }
             for (const g of groups) {
-                if (g.pts.length > topN + 1) { g.pts = this.applyTopN(g.pts, topN); }
+                if (g.pts.length > topN + 1) {
+                    // 1.55 (B10): stacks rank whole categories (all series cells stay)
+                    g.pts = isStacked ? this.applyTopNStacked(g.pts, topN) : this.applyTopN(g.pts, topN);
+                }
             }
         }
         // cumulative (YTD) view: running totals per group, variances recomputed
+        // (average tiles built from cumulated groups already are running totals)
         if (cumulativeOn) {
-            const basisMode = this.resolveBasisLabel();
-            const kind = String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12";
-            const fiscal = Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)));
-            for (const g of groups) { g.pts = this.cumulate(g.pts, basisMode, kind, fiscal); }
+            for (const g of groups) { if (!g.preCum) { g.pts = cumOf(g.pts); } }
+            applyAvgBasis();
         }
         // 1.49: the ⇅ chip is locked when impact order and data order coincide in
         // every tile — the click would change nothing either way
@@ -5869,6 +6241,22 @@ export class Visual implements IVisual {
         // waterfall-bridge: order categories by impact, largest driver first (Rest row stays last)
         if (sortByImpactOn) {
             for (const g of groups) { g.pts = this.sortByImpact(g.pts, sortModeSet); }
+        }
+        // 1.55 (B10): stacked bars sort by stack total ("ac") or by the first series
+        // (value, in 100 % stacks its share); rest categories stay last
+        // (the series order was frozen before top N, see stackSeriesOrder)
+        const stackSortMode: "off" | "ac" | "series" = isStacked && orientationRaw === "bars" && this.sortModeStored
+            && (sortModeSet === "ac" || sortModeSet === "series") ? sortModeSet : "off";
+        if (isStacked && !this.stackSeriesOrder) {
+            const order: string[] = [];
+            for (const g of groups) { for (const p of g.pts) { const sn = p.stackSeries ?? "(leer)"; if (!order.includes(sn)) { order.push(sn); } } }
+            this.stackSeriesOrder = order;
+        }
+        const stackNormWanted = isStacked
+            && String((s.chartCard.stackNormalize.value as powerbi.IEnumMember)?.value) === "pct100";
+        const stackNormOk = stackNormWanted && groups.every(g => this.stackLayout(g.pts).neg.every(v => v === 0));
+        if (stackSortMode !== "off") {
+            for (const g of groups) { g.pts = this.sortStackCats(g.pts, stackSortMode, stackNormOk); }
         }
         points = groups.reduce<DataPoint[]>((acc, g) => acc.concat(g.pts), []);
 
@@ -5889,10 +6277,19 @@ export class Visual implements IVisual {
         // Δ2 (dual variance) is labelled with the same fmtVar — it bounds the unit too
         const maxVarAbs = Math.max(...fmtPts.map(p =>
             Math.max(Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0))), 0);
-        const allInt = fmtPts.every(p =>
+        // 1.55 (B13): an average tile keeps the precision of the data (Ø 57,1 of integer
+        // data is labelled 57 like its neighbours, not every tile with one decimal)
+        const meanTilePts = mAgg === "mean" ? new Set(groups.filter(g => g.kind != null).flatMap(g => g.pts)) : null;
+        const intPts = meanTilePts ? fmtPts.filter(p => !meanTilePts.has(p)) : fmtPts;
+        const allInt = intPts.every(p =>
             [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
-        const allVarInt = fmtPts.every(p => (p.varAbs == null || Number.isInteger(p.varAbs))
+        // 1.55 (B13): Δ against the Ø keeps the precision of the values (Δ of integers
+        // against a mean of integers is labelled as an integer, like on sheet 13C)
+        // B13 review (m3): only from |Δ| ≥ 10 on — small integers against a fractional Ø
+        // would round every Δ to "+0" / "−0", those keep the normal precision
+        const varsInt = intPts.every(p => (p.varAbs == null || Number.isInteger(p.varAbs))
             && (p.var2Abs == null || Number.isInteger(p.var2Abs)));
+        const allVarInt = multBasisAvg ? (allInt && maxVarAbs >= 10) || varsInt : varsInt;
 
         const basisMode: Basis = this.resolveBasisLabel();
         const hasVar = points.some(p => p.varAbs != null);
@@ -5986,7 +6383,8 @@ export class Visual implements IVisual {
                     fc: lbl(s.labelsCard.labelFc.value, "FC")
                 };
             })(),
-            basisLabel: basisMode === "plan"
+            // 1.55 (B13): Δ against the average of all tiles → "ΔØ"
+            basisLabel: multBasisAvg ? "Ø" : basisMode === "plan"
                 ? (s.labelsCard.labelPl.value || "").trim() || "PL"
                 : basisMode === "fcrev"
                     ? ((s.labelsCard.labelFc.value || "").trim() || "FC") + " Vm"
@@ -6041,6 +6439,8 @@ export class Visual implements IVisual {
             ...(() => { const fp = this.formatterParams(Math.max(maxAbs, maxVarAbs), allInt); return { fmtUnit: fp.unit, fmtPrec: fp.prec }; })(),
             fmt: this.makeFormatter(Math.max(maxAbs, maxVarAbs), allInt),
             fmtVar: this.makeVarFormatter(maxAbs, maxVarAbs, allVarInt),
+            fmtDiff: this.makeVarFormatter(maxAbs, maxVarAbs, allInt, undefined,
+                this.formatterParams(Math.max(maxAbs, maxVarAbs), allInt).prec),
             hasPy: points.some(p => p.py != null),
             hasPl: points.some(p => p.pl != null),
             hasFc: points.some(p => p.isFc),
@@ -6066,6 +6466,16 @@ export class Visual implements IVisual {
             yearDelta: null,
             yearDeltaOwn: false,
             scenarioLabels: s.chartCard.scenarioLabels.value === true,
+            basisAvg: multBasisAvg,
+            stackNorm: false,
+            stackTotalRow: s.chartCard.stackTotalRow.value === true,
+            stackTotalLabel: (s.chartCard.stackTotalLabel.value || "").trim(),
+            stackLegendStart: String((s.chartCard.stackLegendPos.value as powerbi.IEnumMember)?.value) === "start",
+            stackSort: "off",
+            stackTotalMax: 0,
+            diffMarkers: parseDiffMarkers(String(s.chartCard.diffMarkers.value || "")),
+            bridgeSecondNet: s.chartCard.bridgeSecondNet.value === true,
+            sfDeck: null,
             isMaterial: this.materialityFn(),
             scatter: isScatter ? this.scatterConfig(points) : null
         };
@@ -6074,7 +6484,7 @@ export class Visual implements IVisual {
         // and Σ, set by the largest of them (Σ 408K over "162K · 196K · 50K"), so the
         // labels a reader adds up really give the Σ shown. Without sum-safe rounding
         // every number keeps its own 3-digit precision
-        if (cfg.sumSafe && this.digitCap && cfg.fmtUnit > 0 && !cfg.cumulative) {
+        if (cfg.sumSafe && this.digitCap && cfg.fmtUnit > 0 && !cfg.cumulative && !isStockFlow) {
             const sums = groups.map(g => Math.abs(g.pts.reduce((a, p) => a + (p.value ?? 0), 0)));
             const pS = capDecimals(Math.max(maxAbs, ...sums) / cfg.fmtUnit, cfg.fmtPrec);
             if (pS < cfg.fmtPrec) {
@@ -6210,6 +6620,13 @@ export class Visual implements IVisual {
             if (this.sharedWfDomain) { this.sharedWfDomain = domains.main; }
         }
 
+        // the tiles the grid will draw (cell cap; B13: a reference tile placed last
+        // survives it) — every deck-wide scale below is bounded by exactly these
+        const multLastIsTotal = groups.length > MULT_MAX_CELLS && groups[groups.length - 1].kind === "total";
+        const shownGroups = multLastIsTotal
+            ? groups.slice(0, MULT_MAX_CELLS - 1).concat(groups[groups.length - 1])
+            : groups.slice(0, MULT_MAX_CELLS);
+
         // waterfall axis break (IBCS UN 5.3): cut value, admissibility and suggestion
         // over ALL drawn tiles — one shared cut or none at all (same-scale rule, the
         // zoom view keeps it). The default stays zero-based: "auto" only highlights
@@ -6223,7 +6640,7 @@ export class Visual implements IVisual {
         if (wfBreakMode !== "off") {
             let minLevel = Infinity, maxLevel = -Infinity, maxAnchor = 0;
             const tileMin: { name: string | null; min: number }[] = [];
-            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+            for (const g of shownGroups) {
                 const segs = wfByGroup.get(g.name) ?? [];
                 if (segs.length === 0) { continue; }
                 let gMin = Infinity;
@@ -6265,9 +6682,17 @@ export class Visual implements IVisual {
         // small multiples were scaled per tile (Nord 3 900 ≙ Süd 390, S5). Negative
         // segments stack below the zero line, so the domain spans both stack sides.
         cfg.stackDomain = null;
+        cfg.stackNorm = stackNormOk;
+        cfg.stackSort = stackSortMode;
         if (isStacked) {
+            cfg.stackTotalMax = Math.max(0, ...shownGroups.flatMap(g => this.stackLayout(g.pts).pos));
+        }
+        if (isStacked && stackNormOk) {
+            // 100 % stacks: one fixed domain; fixedMax/cap do not apply to shares
+            cfg.stackDomain = [0, 100];
+        } else if (isStacked) {
             let lo = 0, hi = 0;
-            for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+            for (const g of shownGroups) {
                 const st = this.stackLayout(g.pts);
                 lo = Math.min(lo, ...st.neg);
                 hi = Math.max(hi, ...st.pos);
@@ -6279,6 +6704,25 @@ export class Visual implements IVisual {
                 hi = Math.max(hi, cfg.capMax != null ? Math.min(cfg.refLine, cfg.capMax) : cfg.refLine);
             }
             cfg.stackDomain = [lo, Math.max(hi, lo < 0 ? 0 : 1)];
+        }
+
+        // 1.55 (B11): stock & flow, one main domain (inflow stacks, outflow stacks, stock
+        // incl. the derived opening) and one net domain over all drawn tiles
+        if (isStockFlow) {
+            let lo = 0, hi = 0, nLo = 0, nHi = 0;
+            const openingOn = s.chartCard.sfOpening.value !== false;
+            for (const g of shownGroups) {
+                const L = this.stockFlowLayout(g.pts, openingOn);
+                for (const per of L.periods) {
+                    lo = Math.min(lo, per.outTot, per.stock ?? 0);
+                    hi = Math.max(hi, per.inTot, per.stock ?? 0);
+                    if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
+                }
+                if (L.opening != null) { lo = Math.min(lo, L.opening); hi = Math.max(hi, L.opening); }
+            }
+            if (fixedMax > 0) { hi = Math.max(hi, fixedMax); }
+            if (cfg.refLine != null) { lo = Math.min(lo, cfg.refLine); hi = Math.max(hi, cfg.refLine); }
+            cfg.sfDeck = { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi };
         }
 
         // bridge modes scale each tile for itself by default — the pane toggle
@@ -6293,7 +6737,7 @@ export class Visual implements IVisual {
                 // drawn — they extend the range below zero, and one negative value
                 // anywhere puts EVERY tile into the split layout (cascade with its
                 // own zero line, monthly strip below), so all keep one px per unit
-                for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                for (const g of shownGroups) {
                     if (!g.pts.some(p => p.varAbs != null)) { continue; }
                     const basisSum = g.pts.reduce((a, p) => a + (p.basis ?? 0), 0);
                     const vTot = g.pts.reduce((a, p) => a + (p.value ?? 0), 0);
@@ -6319,7 +6763,7 @@ export class Visual implements IVisual {
                 // hint tiles must not bound the scale. 1.52.5: purely negative tiles
                 // are drawn and bound it like all others (one negative region next
                 // to positive ones moves every tile's zero line by the same amount)
-                for (const g of groups.slice(0, MULT_MAX_CELLS)) {
+                for (const g of shownGroups) {
                     const hasPy = g.pts.some(p => p.py != null);
                     const hasPl = g.pts.some(p => p.pl != null);
                     if (!hasPy && !hasPl) { continue; }
@@ -6354,7 +6798,7 @@ export class Visual implements IVisual {
         cfg.varDomain = domains.abs;
         // scatter: deck-wide scales/quadrants over the DRAWN tiles + group colors
         if (isScatter && cfg.scatter) {
-            this.prepareScatterDeck(cfg.scatter, groups.slice(0, MULT_MAX_CELLS), groups.length > 1, cfg);
+            this.prepareScatterDeck(cfg.scatter, shownGroups, groups.length > 1, cfg);
         }
 
         const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
@@ -6403,7 +6847,14 @@ export class Visual implements IVisual {
                 this.renderStacked(grp.pts, region, cfg);
                 return;
             }
+            // B13 review (m4): the reference tile under the Ø basis draws no Δ chrome
+            this.refTileNoDelta = multBasisAvg && (grp as { kind?: string }).kind === "total";
+            if (isStockFlow) {
+                this.renderStockFlow(grp.pts, region, cfg);
+                return;
+            }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
+            this.refTileNoDelta = false;
         };
         // in-chart chrome only where the host allows interactions — exports to
         // PDF/PowerPoint and subscription mails get a clean chart without buttons
@@ -6478,6 +6929,11 @@ export class Visual implements IVisual {
                         ? this.locStr("Lock_YtdSingle", "No effect: a single period looks the same cumulated")
                         : null;
                 this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg, ytdLock);
+            }
+            // 1.55 (B11): stocks are not additive over time, YTD stays locked in the mode
+            if (s.chartCard.cumulativeButton.value && isStockFlow) {
+                this.drawCumButton(width - 6, cfg, this.locStr("Lock_YtdStockFlow",
+                    "No effect: stock and flow are not cumulated (a stock is not additive over time)"));
             }
             width += this.ctlInset;
         }
@@ -6579,9 +7035,32 @@ export class Visual implements IVisual {
         }
 
         // grid layout for small multiples: keep cells at a usable width
-        const MAX_CELLS = MULT_MAX_CELLS;
-        const shown = groups.slice(0, MAX_CELLS);
+        // 1.55 (B13): a reference tile placed last survives the cell cap
+        const lastIsTotal = multLastIsTotal;
+        const shown = shownGroups;
         const n = shown.length;
+        // 1.55 (B13): tile markers + reference-tile shading only once a B13 option is
+        // set, so decks without them keep their SVG byte for byte
+        const mShade = s.chartCard.multiplesTotalShade.value === true;
+        if (multBasisAvg) { this.el("g", { "data-icd": "mult-basis", "data-basis": "avg" }, this.svg); }
+        const multMarks = multBasisAvg || mAgg !== "sum" || mTotalLast || mShade
+            || (s.chartCard.multiplesTotalLabel.value || "").trim() !== ""
+            || (s.chartCard.multiplesRestLabel.value || "").trim() !== "";
+        const tileFrame = (grp: { name: string | null; kind?: "total" | "rest" }, x: number, y: number, w: number, h: number) => {
+            if (!multMarks) { return; }
+            const kind = grp.kind ?? "group";
+            const frame = this.el("g", {
+                "data-icd": "mult-tile", "data-group": grp.name ?? "", "data-kind": kind,
+                "data-x": Math.round(x), "data-y": Math.round(y), "data-w": Math.round(w), "data-h": Math.round(h)
+            }, this.svg);
+            if (kind !== "group") { frame.setAttribute("data-agg", mAgg); }
+            if (kind === "total" && mShade) {
+                this.el("rect", cfg.hc
+                    ? { "data-icd": "mult-ref-bg", x: x + 1, y: y + 1, width: Math.max(w - 2, 1), height: Math.max(h - 2, 1),
+                        fill: "none", stroke: cfg.ink, "stroke-width": 1 }
+                    : { "data-icd": "mult-ref-bg", x, y, width: w, height: h, fill: cfg.band }, frame);
+            }
+        };
         const groupTitleH = Math.round(16 * this.fontK);
 
         // hero layout (IBCS CT 13): the first tile — Σ Gesamt or the largest group —
@@ -6609,8 +7088,12 @@ export class Visual implements IVisual {
         // 1.52: the bigger area means more px per unit than in the overview — the
         // chip line says by how much ("scale ×2,4 of the overview"), measured on the
         // tile at its grid size; the Δ panels follow the zoomed base scale exactly
+        // B13 review: synthetic tiles are found by their kind, not by a name a real
+        // group may share (own rest title "R1" next to the group "R1")
+        const zoomKey = (g: { name: string | null; kind?: "total" | "rest" }) =>
+            g.kind ? `\u0001${g.kind}` : (g.name ?? "");
         if (this.zoomGroup != null) {
-            const grp = groups.find(g => (g.name ?? "") === this.zoomGroup);
+            const grp = groups.find(g => zoomKey(g) === this.zoomGroup);
             if (grp) {
                 const gi = shown.indexOf(grp);
                 const cell: Rect = heroOn && gi === 0
@@ -6629,23 +7112,27 @@ export class Visual implements IVisual {
             this.zoomGroup = null;
         }
         if (heroOn) {
+            tileFrame(shown[0], 0, topOffset, heroW - 2, availH);
             renderCell(shown[0],
                 { x: 2, y: topOffset + groupTitleH, w: heroW - 6, h: availH - groupTitleH - 2 });
             this.drawTileHeader(0, topOffset, heroW, groupTitleH,
-                shown[0].name ?? "", shown[0].name ?? "", cfg);
+                shown[0].name ?? "", shown[0].name ?? "", cfg, zoomKey(shown[0]));
         }
+        // the "+n more" note sits on the last group tile, not on a reference tile placed last
+        const moreAt = lastIsTotal ? rn - 2 : rn - 1;
         for (let gi = 0; gi < rn; gi++) {
             const cx = gridX + (gi % cols) * cellW;
             const cy = topOffset + Math.floor(gi / cols) * cellH;
             let title = rest[gi].name ?? "";
-            if (gi === rn - 1 && groups.length > n) {
-                title += `  (+${groups.length - n} weitere)`;
+            if (gi === moreAt && groups.length > n) {
+                title += `  ${this.locStr("Label_MoreTiles", "(+{n} more)").replace(/\{n\}/g, String(groups.length - n))}`;
             }
+            tileFrame(rest[gi], cx, cy, cellW, cellH);
             // cell content first, header strip after — the click target must sit ON TOP
             // of any chart marks (labels can reach into the strip), or clicks get eaten
             renderCell(rest[gi],
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
-            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg);
+            this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg, zoomKey(rest[gi]));
         }
     }
 
@@ -6654,7 +7141,7 @@ export class Visual implements IVisual {
      * (a 12px glyph alone is too easy to miss), with the ⤢ affordance at the right.
      */
     private drawTileHeader(x: number, y: number, w: number, h: number,
-        title: string, groupName: string, cfg: ChartConfig): void {
+        title: string, groupName: string, cfg: ChartConfig, zoomKey: string = groupName): void {
         const k = this.fontK;
         const gtFont = Math.round(11 * k);
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
@@ -6680,7 +7167,7 @@ export class Visual implements IVisual {
         btn.style.cursor = "pointer";
         btn.addEventListener("mouseenter", () => { icon.setAttribute("fill", cfg.ink); });
         btn.addEventListener("mouseleave", () => { icon.setAttribute("fill", cfg.subtle); });
-        const zoom = () => { this.zoomGroup = groupName; this.rerender(); };
+        const zoom = () => { this.zoomGroup = zoomKey; this.rerender(); };
         btn.addEventListener("click", (e: MouseEvent) => { e.stopPropagation(); zoom(); });
         btn.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key !== "Enter" && e.key !== " ") { return; }
@@ -7255,13 +7742,20 @@ export class Visual implements IVisual {
 
         const left = region.x + pad;
         const right = region.x + region.w - pad;
-        const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6;
-        const sideLblW = lf * 2.4;
         // with both PY and PL bound, the left side shows two total columns
         // (like the category bridge's PY/PL total rows) — reserve the space
         const pySum = pts.reduce((a, p) => a + (p.py ?? 0), 0);
         const plSum = pts.reduce((a, p) => a + (p.pl ?? 0), 0);
         const twoTotals = pts.some(p => p.py != null) && pts.some(p => p.pl != null);
+        // 1.55 (B09, IBCS 05X): second net element — total vs. the OTHER basis, only
+        // when that basis covers every month with a value (like with like); room only then
+        const otherOf2 = (p: DataPoint) => cfg.basisMode === "plan" ? p.py : p.pl;
+        const second = cfg.bridgeSecondNet && twoTotals && pts.every(p => p.value == null || otherOf2(p) != null);
+        const d2 = vTot - (cfg.basisMode === "plan" ? pySum : plSum);
+        const lbl2 = cfg.basisMode === "plan" ? cfg.scenL.py : cfg.scenL.pl;
+        const calloutW = Math.max(54, Math.min(96, region.w * 0.085)) + lf * 1.6
+            + (second ? 6 + 4 + 8 + this.textWidth(`${this.fmtSigned(cfg.fmt, d2)} ${lbl2}`, lf) + 6 : 0);
+        const sideLblW = lf * 2.4;
         // 1.52 (ISO 24896): ONE width for everything absolute in this chart — anchor
         // totals, cascade bricks and the monthly column pairs are all 2/3 of the
         // category step (before: anchors ~5.5 % of the width, bricks 0.8, months 0.5)
@@ -7717,6 +8211,21 @@ export class Visual implements IVisual {
             "font-weight": 600, fill: colOf(dTot), "font-family": FONT
         }, bg);
         pt.textContent = text;
+
+        // ------- 1.55 (B09, IBCS 05X): second net element (see `second` above): a thin
+        // level line of the other basis, the Δ bar as wide as the first net bar, the label
+        if (second) {
+            const g2 = this.el("g", { "data-icd": "bridge-net2", "data-delta": d2 }, bg);
+            const yO = S(vTot - d2);
+            const x2 = pcx + pw / 2 + 8;
+            this.el("line", { x1: left + totW, y1: yO, x2: x2 + 6, y2: yO,
+                stroke: cfg.basisMode === "plan" ? cfg.colors.py : cfg.colors.pl, "stroke-width": 1,
+                "data-icd": "bridge-ref2-line" }, g2);
+            this.el("rect", { x: x2, y: Math.min(yO, yV), width: 6, height: Math.max(Math.abs(yV - yO), 2), fill: colOf(d2) }, g2);
+            const t2 = this.el("text", { x: x2 + 10, y: (yO + yV) / 2 + lf * 0.36, "font-size": lf, fill: colOf(d2),
+                "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" }, g2);
+            t2.textContent = `${fmtD(d2)} ${lbl2}`;
+        }
 
         // ------- scenario caption top-left
         const zoomTxt = monZoom !== 1
@@ -11364,6 +11873,7 @@ export class Visual implements IVisual {
             if (b) { b.push(p); } else { byKey.set(key, [p]); order.push(key); }
         }
         if (order.length === points.length) { return points; }
+        const sf = this.sfModeOn();
         return order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             if (kids.length === 1) { return kids[0]; }
@@ -11373,6 +11883,9 @@ export class Visual implements IVisual {
             agg.stackSeries = kids[0].stackSeries;
             agg.rowType = kids[0].rowType;
             agg.isFc = kids.every(c => c.isFc);
+            // B11 review (M2): stock & flow keeps the line-measure stock (first non-null
+            // child, like stockFlowLayout per period); sfKind comes from aggregateHierarchy
+            if (sf) { agg.lineVal = kids.find(c => c.lineVal != null)?.lineVal ?? null; }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
@@ -11385,6 +11898,7 @@ export class Visual implements IVisual {
             agg.xVal = sumOf(c => c.xVal);
             agg.xPrev = sumOf(c => c.xPrev);
             agg.sizeVal = sumOf(c => c.sizeVal);
+            agg.sizePrev = sumOf(c => c.sizePrev);
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
             agg.sel = kids[0].sel;
@@ -11484,7 +11998,7 @@ export class Visual implements IVisual {
 
     /** period-wise sum of several cards' trend series (Σ tile, Rest / immaterial
      *  collector card) — null when a card has no series or the axes differ */
-    private sumTrendSeries(kids: DataPoint[]): { series: (TrendPt | null)[]; ref: number } | null {
+    private sumTrendSeries(kids: DataPoint[], mean = false): { series: (TrendPt | null)[]; ref: number } | null {
         if (kids.length === 0 || kids.some(c => !c.trendSeries)) { return null; }
         const len = (kids[0].trendSeries as (TrendPt | null)[]).length;
         if (kids.some(c => (c.trendSeries as (TrendPt | null)[]).length !== len)) { return null; }
@@ -11494,6 +12008,8 @@ export class Visual implements IVisual {
         for (let i = 0; i < len; i++) {
             let acc: TrendPt | null = null;
             let allFc = true;
+            // 1.55 (B13): mean = divisor per field is the number of cards with a value
+            const cnt = { ac: 0, py: 0, pl: 0, fc: 0, value: 0 };
             for (const c of kids) {
                 const t = (c.trendSeries as (TrendPt | null)[])[i];
                 if (!t) { continue; }
@@ -11503,7 +12019,21 @@ export class Visual implements IVisual {
                 acc.pl = add(acc.pl, t.pl);
                 acc.fc = add(acc.fc, t.fc);
                 acc.value = add(acc.value, t.value);
+                if (mean) {
+                    if (t.ac != null) { cnt.ac++; }
+                    if (t.py != null) { cnt.py++; }
+                    if (t.pl != null) { cnt.pl++; }
+                    if (t.fc != null) { cnt.fc++; }
+                    if (t.value != null) { cnt.value++; }
+                }
                 if (t.value != null && !t.isFc) { allFc = false; }
+            }
+            if (acc && mean) {
+                const m = acc;
+                (["ac", "py", "pl", "fc", "value"] as const).forEach(f => {
+                    const v = m[f];
+                    if (v != null && cnt[f] > 0) { m[f] = v / cnt[f]; }
+                });
             }
             if (acc) { acc.isFc = acc.value != null && allFc; }
             series.push(acc);
@@ -11530,13 +12060,46 @@ export class Visual implements IVisual {
         const basis2 = this.basis2Mode === "plan" ? pl : py;
         const var2Abs = (value != null && basis2 != null) ? value - basis2 : null;
         const var2Rel = relVar(var2Abs, basis2);
+        // B11 review (M1): the stock & flow role travels with the aggregate when all
+        // children share it (Σ / Ø / Rest tiles, merged column groups, duplicates)
+        const sfKind = kids.length > 0 && kids[0].sfKind != null && kids.every(c => c.sfKind === kids[0].sfKind)
+            ? kids[0].sfKind : null;
         return {
             cat: key, catLevels: null,
             ac, py, pl, fc, value, isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
             dim: kids.length > 0 && kids.every(c => c.dim),
             bm: null, fcPrev: sum(p => p.fcPrev), lineVal: null, stackSeries: null, comment: null, commentNo: null,
-            group: kids[0].group, rowType: null, isRest: false, sel: null
+            group: kids[0].group, rowType: null, isRest: false, sel: null,
+            ...(sfKind != null ? { sfKind } : {})
         };
+    }
+
+    /** 1.55 (B11): true in the stock & flow mode (orientation=stockflow) */
+    private sfModeOn(): boolean {
+        return String(this.formattingSettings?.chartCard?.orientation?.value?.value) === "stockflow";
+    }
+
+    /**
+     * B11 review (M3): the stock of a synthetic tile when it comes from the line
+     * measure. Per tile and category the first non-null lineVal is the tile's stock
+     * (as in stockFlowLayout); the tile stock is the sum over the tiles, or for the
+     * average the mean over the tiles WITH a stock (a level, no zero rule).
+     */
+    private sfLineStock(subsets: DataPoint[][], mean: boolean): Map<string, number> {
+        const acc = new Map<string, { s: number; n: number }>();
+        for (const pts of subsets) {
+            const seen = new Set<string>();
+            for (const p of pts) {
+                if (p.lineVal == null || seen.has(p.cat)) { continue; }
+                seen.add(p.cat);
+                const a = acc.get(p.cat) ?? { s: 0, n: 0 };
+                a.s += p.lineVal; a.n++;
+                acc.set(p.cat, a);
+            }
+        }
+        const out = new Map<string, number>();
+        acc.forEach((a, c) => out.set(c, mean ? a.s / a.n : a.s));
+        return out;
     }
 
     /**
@@ -11544,7 +12107,9 @@ export class Visual implements IVisual {
      * ("Σ Gesamt" / "Rest (n)"): categories aligned by label (+ stack series), values
      * summed, variances recomputed on the sums
      */
-    private aggregateGroups(subsets: DataPoint[][], name: string): { name: string; pts: DataPoint[] } {
+    private aggregateGroups(subsets: DataPoint[][], name: string, agg: "sum" | "mean" = "sum",
+        zero: "none" | "series" | "all" = "none"): { name: string; pts: DataPoint[] } {
+        if (agg === "mean") { return this.meanGroups(subsets, name, zero); }
         const order: string[] = [];
         const byKey = new Map<string, DataPoint[]>();
         for (const pts of subsets) {
@@ -11554,6 +12119,9 @@ export class Visual implements IVisual {
                 if (bucket) { bucket.push(p); } else { byKey.set(key, [p]); order.push(key); }
             }
         }
+        // B11 review (M3): stock & flow keeps the grouped time axis and the line-measure stock
+        const sf = this.sfModeOn();
+        const lineStock = sf ? this.sfLineStock(subsets, false) : null;
         const pts = order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             const agg = this.aggregateHierarchy(kids[0].cat, kids);
@@ -11562,11 +12130,135 @@ export class Visual implements IVisual {
             // a period is still forecast in the total only if every tile flags it
             agg.isFc = kids.every(c => c.isFc);
             agg.rowType = kids[0].rowType;
+            if (sf) {
+                agg.catLevels = kids[0].catLevels;
+                agg.lineVal = lineStock?.get(agg.cat) ?? null;
+            }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
             agg.bm = bm;
             // KPI cards + Trend role: the Σ / Rest tile keeps a summed time series
             const ts = this.sumTrendSeries(kids);
+            if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
+            return agg;
+        });
+        return { name, pts };
+    }
+
+    /**
+     * 1.55 (B13, IBCS sheet 13A): the average tile ("Ø"). Per category (+ stack
+     * series) and per field the divisor is the number of TILES with a value in that
+     * field (null is not 0). Variances are taken over pairs: ΔØ = mean(value − basis)
+     * over the tiles that have both, Δ% = that mean over the mean basis of the same
+     * tiles, so "mean of Δ = Δ of means" holds with uneven coverage too. A period
+     * stays forecast only if every tile flags it (as in the sum).
+     * B13 review (M3), `zero`: "series" (stacks) divides by the tiles that have the
+     * CATEGORY in that field, a missing stack segment counts as 0 (Ø stack = mean of
+     * the stack totals); "all" (structure axis, bars) divides by the tiles that have
+     * the field at all, a missing category counts as 0. Pairs follow the same rule.
+     */
+    private meanGroups(subsets: DataPoint[][], name: string,
+        zero: "none" | "series" | "all" = "none"): { name: string; pts: DataPoint[] } {
+        const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
+        type F = "ac" | "py" | "pl" | "fc" | "value" | "basis" | "fcPrev" | "bm";
+        const FIELDS: F[] = ["ac", "py", "pl", "fc", "value", "basis", "fcPrev", "bm"];
+        const order: string[] = [];
+        const byKey = new Map<string, { t: number; p: DataPoint }[]>();
+        // zero modes: which tiles carry a field per category ("series") or at all ("all")
+        const catHas = new Map<string, Map<F, Set<number>>>();
+        const tileHas = new Map<F, Set<number>>();
+        subsets.forEach((pts, ti) => {
+            // one point per tile and key (a tile with duplicate rows is summed first)
+            const local = new Map<string, DataPoint[]>();
+            for (const p of pts) {
+                const key = keyOf(p);
+                const b = local.get(key);
+                if (b) { b.push(p); } else { local.set(key, [p]); }
+                if (!byKey.has(key)) { byKey.set(key, []); order.push(key); }
+                if (zero !== "none") {
+                    for (const f of FIELDS) {
+                        if (p[f] == null) { continue; }
+                        if (zero === "all") {
+                            const st = tileHas.get(f) ?? new Set<number>();
+                            st.add(ti); tileHas.set(f, st);
+                        } else {
+                            const cm = catHas.get(p.cat) ?? new Map<F, Set<number>>();
+                            const st = cm.get(f) ?? new Set<number>();
+                            st.add(ti); cm.set(f, st); catHas.set(p.cat, cm);
+                        }
+                    }
+                }
+            }
+            local.forEach((kids, key) => {
+                let tp = kids[0];
+                if (kids.length > 1) {
+                    tp = this.aggregateHierarchy(kids[0].cat, kids);
+                    tp.stackSeries = kids[0].stackSeries;
+                    tp.isFc = kids.every(c => c.isFc);
+                    let bm: number | null = null;
+                    for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
+                    tp.bm = bm;
+                    const ts = this.sumTrendSeries(kids);
+                    if (ts) { tp.trendSeries = ts.series; tp.trendRef = ts.ref; }
+                }
+                (byKey.get(key) as { t: number; p: DataPoint }[]).push({ t: ti, p: tp });
+            });
+        });
+        const eligible = (cat: string, f: F): Set<number> | null => zero === "all" ? (tileHas.get(f) ?? new Set<number>())
+            : zero === "series" ? (catHas.get(cat)?.get(f) ?? new Set<number>()) : null;
+        const b2f: F = this.basis2Mode === "plan" ? "pl" : "py";
+        // B11 review (M1/M3): stock & flow keeps the grouped time axis; the stock is a
+        // level (mean over the tiles with a stock), the flows follow the stack rule
+        const sf = this.sfModeOn();
+        const lineStock = sf ? this.sfLineStock(subsets, true) : null;
+        const pts = order.map(key => {
+            const entries = byKey.get(key) as { t: number; p: DataPoint }[];
+            const tiles = entries.map(e => e.p);
+            const cat = tiles[0].cat;
+            const isStock = sf && tiles[0].sfKind === "stock";
+            const mean = (f: F): number | null => {
+                let acc = 0, n = 0;
+                for (const t of tiles) { const v = t[f]; if (v != null) { acc += v; n++; } }
+                if (n === 0) { return null; }
+                const el = isStock ? null : eligible(cat, f);
+                return acc / (el ? Math.max(n, el.size) : n);
+            };
+            const pairs = (f: F): { d: number; b: number } | null => {
+                let d = 0, b = 0, n = 0;
+                for (const t of tiles) {
+                    const bv = t[f];
+                    if (t.value != null && bv != null) { d += t.value - bv; b += bv; n++; }
+                }
+                if (n === 0) { return null; }
+                const ev = isStock ? null : eligible(cat, "value"), eb = isStock ? null : eligible(cat, f);
+                if (ev && eb) {
+                    // tiles eligible for both fields count, without the key as 0 / 0
+                    let both = 0;
+                    ev.forEach(ti => { if (eb.has(ti)) { both++; } });
+                    n = Math.max(n, both);
+                }
+                return { d: d / n, b: b / n };
+            };
+            const agg = this.aggregateHierarchy(cat, tiles);
+            agg.ac = mean("ac"); agg.py = mean("py"); agg.pl = mean("pl");
+            agg.fc = mean("fc"); agg.value = mean("value"); agg.basis = mean("basis");
+            agg.fcPrev = mean("fcPrev"); agg.bm = mean("bm");
+            const v1 = pairs("basis");
+            agg.varAbs = v1 ? v1.d : null;
+            agg.varRel = v1 ? relVar(v1.d, v1.b) : null;
+            const v2 = pairs(b2f);
+            agg.var2Abs = v2 ? v2.d : null;
+            agg.var2Rel = v2 ? relVar(v2.d, v2.b) : null;
+            agg.group = name;
+            agg.stackSeries = tiles[0].stackSeries;
+            agg.isFc = tiles.every(c => c.isFc);
+            agg.rowType = tiles[0].rowType;
+            if (sf) {
+                agg.catLevels = tiles[0].catLevels;
+                agg.lineVal = lineStock?.get(cat) ?? null;
+            }
+            // KPI cards + Trend role: the Ø tile keeps an averaged time series
+            const ts = this.sumTrendSeries(tiles, true);
             if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
             return agg;
         });
@@ -12588,7 +13280,28 @@ export class Visual implements IVisual {
             points.reduce((a, p) => Math.max(a, Math.abs(get(p) ?? 0)), 0);
         const allInt = (get: (p: DataPoint) => number | null | undefined) =>
             points.every(p => { const v = get(p); return v == null || Number.isInteger(v); });
-        const xGet = (p: DataPoint) => p.xVal, sGet = (p: DataPoint) => p.sizeVal;
+        const xGet = (p: DataPoint) => p.xVal;
+        const cc = s.chartCard;
+        // 1.55 (B12): ONE flag "PY bubbles drawn" for axes, legend, size formatter and
+        // drawing: the bound role plus a PY position and size somewhere, and not in
+        // play mode (one period per frame: a single cloud, interactive, ≥ 2 periods)
+        const valid = this.scatterValid(points);
+        const playBlocks = cc.scatterPlay.value === true && this.allowInteractions
+            && new Set(valid.map(p => p.group ?? "")).size <= 1 && new Set(valid.map(p => p.cat)).size >= 2;
+        const pyBubbles = this.sizePrevName != null && this.sizeName != null && !playBlocks
+            && points.some(p => p.py != null && isFinite(p.py) && p.sizePrev != null && p.sizePrev > 0);
+        // with drawn PY bubbles the size formatter spans both years (else AC only)
+        const sGet = (p: DataPoint) => pyBubbles && p.sizePrev != null
+            ? Math.max(Math.abs(p.sizeVal ?? 0), Math.abs(p.sizePrev)) : p.sizeVal;
+        const sAllInt = (p: DataPoint) => !pyBubbles || p.sizePrev == null || Number.isInteger(p.sizePrev);
+        // custom group colors: a picker that differs from its light default wins in
+        // light AND dark mode; untouched pickers follow the mode palette as before
+        const pickers = [cc.scatterGroupColor1, cc.scatterGroupColor2, cc.scatterGroupColor3,
+            cc.scatterGroupColor4, cc.scatterGroupColor5, cc.scatterGroupColor6];
+        const groupPalette = SCATTER_GROUP_LIGHT.map((def, i) => {
+            const v = String(pickers[i].value?.value || "").trim();
+            return v && v.toUpperCase() !== def.toUpperCase() ? v : "";
+        });
         return {
             // role bound at all — a bound-but-empty X gets the "no points" hint instead
             hasX: this.xName != null,
@@ -12596,7 +13309,7 @@ export class Visual implements IVisual {
             yName: this.measureName ?? "",
             sizeName: this.sizeName ?? "",
             fmtX: this.makeFormatter(absMax(xGet), allInt(xGet), this.xFormat ?? ""),
-            fmtSize: this.makeFormatter(absMax(sGet), allInt(sGet), this.sizeFormat ?? ""),
+            fmtSize: this.makeFormatter(absMax(sGet), allInt(p => p.sizeVal) && points.every(sAllInt), this.sizeFormat ?? ""),
             quadrant: String(s.chartCard.scatterQuadrant.value.value),
             colorBy: String(s.chartCard.scatterColorBy.value.value),
             xRefLine: this.parseRefValue(String(s.scaleCard.xRefLine.value || "")),
@@ -12606,6 +13319,17 @@ export class Visual implements IVisual {
             arrows: s.chartCard.scatterArrows.value === true && points.some(p => p.py != null),
             hasXPrev: this.xPrevName != null,
             xPrevName: this.xPrevName ?? "X PY",
+            valueLabels: cc.scatterValueLabels.value === true && this.sizeName != null,
+            maxRadius: this.sizeName != null ? Math.max(0, Math.min(200, Number(cc.scatterMaxRadius.value) || 0)) : 0,
+            opacity: Math.max(10, Math.min(100, Number(cc.scatterBubbleOpacity.value ?? 55))) / 100,
+            pyBubbles,
+            // m7: the role is bound but cannot draw (Previous Year or bubble size missing)
+            pyRoleIdle: this.sizePrevName != null && (this.sizeName == null || !this.paneHasPy),
+            sizePrevName: this.sizePrevName ?? "",
+            emphFill: cc.scatterEmphFill.value === true,
+            emphColor: String(cc.scatterEmphColor.value?.value || "#0064FF"),
+            emphLabel: String(cc.scatterEmphLabel.value || "").trim(),
+            groupPalette,
             shapes: s.chartCard.scatterShapes.value === true
                 && String(s.chartCard.scatterColorBy.value.value) === "group",
             sizeLegend: s.chartCard.scatterSizeLegend.value === true,
@@ -12671,6 +13395,8 @@ export class Visual implements IVisual {
                     if (sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)) { xsDom.push(p.xPrev); }
                 }
             }
+            // 1.55 (B12): PY bubbles sit at (X PY or X, PY) — the axes include them
+            if (sc.pyBubbles) { this.scatterPyDomain(all, sc, xsDom, ysDom); }
             const ax = this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
             const ay = this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted);
             // quadrant statistic over the points that stay inside the fixed bounds
@@ -12683,7 +13409,8 @@ export class Visual implements IVisual {
             const qy = yRef != null ? yRef : qOn ? stat(sPts.map(p => p.value as number)) : null;
             sc.shared = {
                 xLo: ax.lo, xHi: ax.hi, yLo: ay.lo, yHi: ay.hi, qx, qy,
-                sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0)),
+                sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0),
+                    ...(sc.pyBubbles ? sPts.map(p => this.scatterPyPos(p, sc, ax, ay) ? p.sizePrev ?? 0 : 0) : [])),
                 refCell: null,
                 xLog: ax.log, yLog: ay.log,
                 sizeLegendDrawn: false
@@ -12703,7 +13430,7 @@ export class Visual implements IVisual {
         sc.groupKey = key;
         sc.groupOrder = order;
         if (cfg.hc) { return; }
-        const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+        const pal = this.scatterPalette(sc, cfg);
         const rest = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;
         const map = new Map<string, string>();
         order.forEach((v, i) => map.set(v, i < pal.length ? pal[i] : rest));
@@ -12750,6 +13477,39 @@ export class Visual implements IVisual {
             this.el("line", { x1: x - h, y1: y - gap / 2 + 2, x2: x + h, y2: y - gap / 2 - 2, ...stroke }, g);
             this.el("line", { x1: x - h, y1: y + gap / 2 + 2, x2: x + h, y2: y + gap / 2 - 2, ...stroke }, g);
         }
+    }
+
+    /** 1.55 (B12): group palette — custom pickers where set, else the mode default */
+    private scatterPalette(sc: NonNullable<ChartConfig["scatter"]>, cfg: ChartConfig): string[] {
+        const def = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+        return def.map((c, i) => sc.groupPalette[i] || c);
+    }
+
+    /** 1.55 (B12): adds the PY bubble positions (X PY or X, Y = PY) to the axis domains */
+    private scatterPyDomain(pts: DataPoint[], sc: NonNullable<ChartConfig["scatter"]>,
+        xsDom: number[], ysDom: number[]): void {
+        for (const p of pts) {
+            if (p.py == null || !isFinite(p.py) || p.sizePrev == null || !(p.sizePrev > 0)) { continue; }
+            const x = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev) ? p.xPrev : p.xVal;
+            if (x == null || !isFinite(x)) { continue; }
+            xsDom.push(x);
+            ysDom.push(p.py);
+        }
+    }
+
+    /** 1.55 (B12): PY bubble position (X PY or X, PY) when it is drawn: positive PY
+     *  size, inside the resolved axes, positive on a log axis; else null. The size
+     *  scale only counts PY bubbles that pass this check (m1: an invisible PY bubble
+     *  must not shrink every visible one) */
+    private scatterPyPos(p: DataPoint, sc: NonNullable<ChartConfig["scatter"]>,
+        ax: { lo: number; hi: number; log: boolean },
+        ay: { lo: number; hi: number; log: boolean }): { x: number; y: number } | null {
+        if (!sc.pyBubbles || p.py == null || !isFinite(p.py) || p.sizePrev == null || !(p.sizePrev > 0)) { return null; }
+        const x = sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev) ? p.xPrev : p.xVal;
+        const y = p.py;
+        if (x == null || !isFinite(x) || x < ax.lo || x > ax.hi || y < ay.lo || y > ay.hi
+            || (ax.log && x <= 0) || (ay.log && y <= 0)) { return null; }
+        return { x, y };
     }
 
     /** the coloring value of a scatter point (series or multiples label) */
@@ -13050,7 +13810,16 @@ export class Visual implements IVisual {
             : (cfg.hc && sc.shapes && sc.groupKey && sc.groupOrder)
                 ? sc.groupOrder.map(n => [n, cfg.ink] as [string, string])
                 : [];
-        if (entriesAll.length === 0) { return 0; }
+        // 1.55 (B12): scenario entries ● PY ● AC (PY bubbles; AC only without group
+        // colors) in front, the highlight color with its legend text at the end.
+        // Status colors (good/bad/neutral) leave the AC entry out: no AC bubble has it
+        const scenEntries: [string, string, string][] = sc.pyBubbles
+            ? [[cfg.scenL.py, cfg.colors.py, "py"],
+                ...(entriesAll.length === 0 && sc.colorBy !== "status"
+                    ? [[cfg.scenL.ac, cfg.colors.ac, "ac"] as [string, string, string]] : [])]
+            : [];
+        const emphEntry = sc.emphFill && sc.emphLabel && !cfg.hc ? sc.emphLabel : "";
+        if (entriesAll.length === 0 && scenEntries.length === 0 && !emphEntry) { return 0; }
         const k = this.fontK;
         const f = Math.round(10 * k);
         const h = f + 8;
@@ -13061,6 +13830,24 @@ export class Visual implements IVisual {
             : (this.multName ?? this.locStr("Role_Multiples", "Small Multiples"));
         const base = y + h / 2 + f * 0.35;
         let x = 6;
+        const extra = (name: string, col: string, id: string) => {
+            const ge = this.el("g", { "data-icd": "scatter-legend-" + id }, g);
+            this.el("circle", {
+                cx: x + r, cy: y + h / 2, r,
+                ...(cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2,
+                    ...(id === "py" ? { "stroke-dasharray": "3,2" } : {}) } : { fill: col })
+            }, ge);
+            const t = this.el("text", {
+                x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT
+            }, ge);
+            t.textContent = name;
+            x += 2 * r + 4 + this.textWidth(name, f) + 12;
+        };
+        for (const [name, col, id] of scenEntries) { extra(name, col, id); }
+        if (entriesAll.length === 0) {
+            if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
+            return h;
+        }
         const lead = this.el("text", {
             x, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
         }, g);
@@ -13110,7 +13897,9 @@ export class Visual implements IVisual {
                 x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT
             }, g);
             t.textContent = restTxt(restN);
+            x += 2 * r + 4 + this.textWidth(restTxt(restN), f) + 12;
         }
+        if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
         return h;
     }
 
@@ -13165,6 +13954,7 @@ export class Visual implements IVisual {
                 if (sc.hasXPrev && p.xPrev != null && isFinite(p.xPrev)) { xsDom.push(p.xPrev); }
             }
         }
+        if (sc.pyBubbles) { this.scatterPyDomain(allPts, sc, xsDom, ysDom); }
         const ax = sh ? { lo: sh.xLo, hi: sh.xHi, log: sh.xLog }
             : this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
         const ay = sh ? { lo: sh.yLo, hi: sh.yHi, log: sh.yLog }
@@ -13194,9 +13984,15 @@ export class Visual implements IVisual {
         const xs = pts.map(p => p.xVal as number);
         const ys = pts.map(p => p.value as number);
 
-        const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0);
+        // 1.55 (B12): PY bubbles (role bubbleSizePrevious) — one per category with a PY
+        // position inside the axes and a positive PY size; not in play mode (one period
+        // per frame). Only drawn PY bubbles count for the size scale (m1)
+        const pyBub = sc.pyBubbles && !playActive;
+        const pySize = (p: DataPoint): number =>
+            pyBub && this.scatterPyPos(p, sc, ax, ay) ? Math.max(p.sizePrev ?? 0, 0) : 0;
+        const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0 || pySize(p) > 0);
         const sMax = sh ? sh.sMax
-            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0))) : 0;
+            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0, pySize(p)))) : 0;
         // status color needs a comparison basis — without PY/PL it stays single-colored
         const statusOn = sc.colorBy === "status" && pts.some(p => p.varAbs != null);
 
@@ -13237,10 +14033,10 @@ export class Visual implements IVisual {
         // vertical layout: grey panel title · Y-axis title · plot · X ticks · X-axis title
         const top = region.y + pad;
         const yTitleBase = top + titleH + axF;
-        const plotTop = yTitleBase + Math.round(6 * k);
+        const plotTop0 = yTitleBase + Math.round(6 * k);
         const xTitleBase = region.y + region.h - pad;
-        const plotBottom = Math.max(plotTop + 20, xTitleBase - 2 * axF - 10);
-        const plotH = plotBottom - plotTop;
+        const plotBottom0 = Math.max(plotTop0 + 20, xTitleBase - 2 * axF - 10);
+        const plotH0 = plotBottom0 - plotTop0;
         // marker sizes: plain dots, or bubbles between min 3px·k and max 22px·k (capped
         // by the plot size). The plot range is inset by the largest radius, so no
         // marker is clipped by an axis
@@ -13251,13 +14047,18 @@ export class Visual implements IVisual {
         const rBoxW = sh?.refCell ? sh.refCell.w : region.w;
         const rBoxH = sh?.refCell
             ? Math.max(20, (sh.refCell.h - pad - 2 * axF - 10) - (pad + titleH + axF + Math.round(6 * k)))
-            : plotH;
-        const rMax = hasSize ? Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7)) : rPlain;
-        const inset = rMax + 6;
+            : plotH0;
+        // 1.55 (B12): a custom maximum radius (chart.scatterMaxRadius, px · font factor)
+        // replaces the 22 px cap, limited to a fifth of min(0.8 · width, plot height)
+        // (Review M1: a third let a bubble span two thirds of the plot); the axis inset
+        // stays at the automatic size, so big portfolio bubbles may reach past the
+        // axis edge (as in the IBCS sheets), but never past the panel (see below)
+        const rAuto = Math.max(rMin + 2, Math.min(22 * k, Math.min(rBoxW * 0.8, rBoxH) / 7));
+        const rMax = !hasSize ? rPlain : sc.maxRadius > 0
+            ? Math.max(rMin + 2, Math.min(sc.maxRadius * k, Math.min(rBoxW * 0.8, rBoxH) / 5))
+            : rAuto;
+        const inset = (hasSize && sc.maxRadius > 0 ? Math.min(rMax, rAuto) : rMax) + 6;
 
-        // Y ticks first (their label width sets the plot's left edge); a log axis
-        // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
-        const yMaxTicks = Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4))));
         // 1.52.1: an axis whose data reach down to zero (within the marker inset)
         // starts AT zero — the inset on that side would otherwise move the origin
         // into negative values ("−2,4K" on a volume axis). The bubbles near zero
@@ -13266,39 +14067,86 @@ export class Visual implements IVisual {
             !log && lo >= 0 && lo - inset * per <= 0 && hi > 0;
         const zeroHi = (log: boolean, lo: number, hi: number, per: number) =>
             !log && hi <= 0 && hi + inset * per >= 0 && lo < 0;
-        const yPer0 = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
-        const insB = zeroLo(ay.log, yLo, yHi, yPer0) ? 0 : inset;
-        const insT = zeroHi(ay.log, yLo, yHi, yPer0) ? 0 : inset;
-        const yLoS = insB === 0 ? 0 : yLo, yHiS = insT === 0 ? 0 : yHi;
-        const yPer = (yHiS - yLoS) / Math.max(plotH - insB - insT, 10);
         // 1.52: an axis whose values are all ≥ 0 (≤ 0) never gets ticks across zero
         // — the marker inset must not invent a "−10" on a margin axis
         const signClamp = (lo: number, hi: number, vLo: number, vHi: number): [number, number] =>
             [vLo >= 0 ? Math.max(lo, 0) : lo, vHi <= 0 ? Math.min(hi, 0) : hi];
         const keepSign = (ticks: number[], vLo: number, vHi: number) =>
             ticks.filter(t => !(vLo >= 0 && t < 0) && !(vHi <= 0 && t > 0));
-        const yTicks = ay.log ? logTicks(yLo, yHi, yMaxTicks)
-            : keepSign(niceTicks(...signClamp(yLoS - insB * yPer, yHiS + insT * yPer, yLo, yHi), yMaxTicks), yLo, yHi);
-        const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined, ay.log);
-        const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8;
-        const plotRight = region.x + region.w - pad - 2;
-        const plotW = Math.max(20, plotRight - plotLeft);
-        // X ticks: 5 at most, fewer while their labels would collide
-        const xPer0 = (xHi - xLo) / Math.max(plotW - 2 * inset, 10);
-        const insL = zeroLo(ax.log, xLo, xHi, xPer0) ? 0 : inset;
-        const insR = zeroHi(ax.log, xLo, xHi, xPer0) ? 0 : inset;
-        const xLoS = insL === 0 ? 0 : xLo, xHiS = insR === 0 ? 0 : xHi;
-        const xPer = (xHiS - xLoS) / Math.max(plotW - insL - insR, 10);
-        let xTicks: number[] = [];
-        let xTickTxt: string[] = [];
-        for (let m = 5; m >= 2; m--) {
-            xTicks = ax.log ? logTicks(xLo, xHi, m)
-                : keepSign(niceTicks(...signClamp(xLoS - insL * xPer, xHiS + insR * xPer, xLo, xHi), m), xLo, xHi);
-            xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat, ax.log);
-            if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
+        // plot box, ticks and scales; mg shrinks the box per side (Review M1, below)
+        const layout = (mg: { l: number; r: number; t: number; b: number }) => {
+            const plotTop = plotTop0 + mg.t;
+            const plotBottom = Math.max(plotTop + 20, plotBottom0 - mg.b);
+            const plotH = plotBottom - plotTop;
+            // Y ticks first (their label width sets the plot's left edge); a log axis
+            // keeps its ticks inside [lo, hi] (decades resp. 1-2-5 steps, no inset stretch)
+            const yMaxTicks = Math.max(2, Math.min(5, Math.floor(plotH / (axF * 2.4))));
+            const yPer0 = (yHi - yLo) / Math.max(plotH - 2 * inset, 10);
+            const insB = zeroLo(ay.log, yLo, yHi, yPer0) ? 0 : inset;
+            const insT = zeroHi(ay.log, yLo, yHi, yPer0) ? 0 : inset;
+            const yLoS = insB === 0 ? 0 : yLo, yHiS = insT === 0 ? 0 : yHi;
+            const yPer = (yHiS - yLoS) / Math.max(plotH - insB - insT, 10);
+            const yTicks = ay.log ? logTicks(yLo, yHi, yMaxTicks)
+                : keepSign(niceTicks(...signClamp(yLoS - insB * yPer, yHiS + insT * yPer, yLo, yHi), yMaxTicks), yLo, yHi);
+            const yTickTxt = tickTexts(yTicks, cfg.fmtUnit, undefined, ay.log);
+            const plotLeft = region.x + pad + this.maxTextWidth(yTickTxt, axF) + 8 + mg.l;
+            const plotRight = region.x + region.w - pad - 2 - mg.r;
+            const plotW = Math.max(20, plotRight - plotLeft);
+            // X ticks: 5 at most, fewer while their labels would collide
+            const xPer0 = (xHi - xLo) / Math.max(plotW - 2 * inset, 10);
+            const insL = zeroLo(ax.log, xLo, xHi, xPer0) ? 0 : inset;
+            const insR = zeroHi(ax.log, xLo, xHi, xPer0) ? 0 : inset;
+            const xLoS = insL === 0 ? 0 : xLo, xHiS = insR === 0 ? 0 : xHi;
+            const xPer = (xHiS - xLoS) / Math.max(plotW - insL - insR, 10);
+            let xTicks: number[] = [];
+            let xTickTxt: string[] = [];
+            for (let m = 5; m >= 2; m--) {
+                xTicks = ax.log ? logTicks(xLo, xHi, m)
+                    : keepSign(niceTicks(...signClamp(xLoS - insL * xPer, xHiS + insR * xPer, xLo, xHi), m), xLo, xHi);
+                xTickTxt = tickTexts(xTicks, sc.xDiv, sc.xFormat, ax.log);
+                if (xTicks.length * (this.maxTextWidth(xTickTxt, axF) + 12) <= plotW) { break; }
+            }
+            const X = logLinScale(xLoS, xHiS, plotLeft + insL, plotRight - insR, ax.log);
+            const Y = logLinScale(yLoS, yHiS, plotBottom - insB, plotTop + insT, ay.log);
+            return { plotTop, plotBottom, plotH, plotLeft, plotRight, plotW, insB, insT, insL, insR,
+                yLoS, yHiS, yPer, xLoS, xHiS, xPer, yTicks, yTickTxt, xTicks, xTickTxt, X, Y };
+        };
+        // marks: area-proportional radius r = rMax·√(size / max), never below rMin
+        const rOfV = (v: number): number => Math.max(rMin, rMax * Math.sqrt(Math.max(v, 0) / sMax));
+        const rOf = (p: DataPoint): number => !hasSize ? rPlain : rOfV(p.sizeVal ?? 0);
+        // Review M1: every bubble stays inside the panel (visual width, between the
+        // title lines and the bottom edge). It may still reach past an axis; where a
+        // bubble would leave the panel, the plot box shrinks on that side (the axis
+        // origin stays put) until it fits. All periods count in play mode, PY bubbles
+        // too. A layout without overflow is untouched (mg stays 0)
+        const panel = { x0: region.x, x1: region.x + region.w, y0: yTitleBase + 2, y1: region.y + region.h };
+        const fitMarks: { x: number; y: number; r: number }[] = [];
+        for (const p of vis) {
+            fitMarks.push({ x: p.xVal as number, y: p.value as number, r: rOf(p) });
+            const pp = pySize(p) > 0 ? this.scatterPyPos(p, sc, ax, ay) : null;
+            if (pp) { fitMarks.push({ x: pp.x, y: pp.y, r: rOfV(pySize(p)) }); }
         }
-        const X = logLinScale(xLoS, xHiS, plotLeft + insL, plotRight - insR, ax.log);
-        const Y = logLinScale(yLoS, yHiS, plotBottom - insB, plotTop + insT, ay.log);
+        const mg = { l: 0, r: 0, t: 0, b: 0 };
+        let lay = layout(mg);
+        for (let pass = 0; pass < 6; pass++) {
+            const o = { l: 0, r: 0, t: 0, b: 0 };
+            for (const fm of fitMarks) {
+                const cx = lay.X(fm.x), cy = lay.Y(fm.y);
+                o.l = Math.max(o.l, panel.x0 - (cx - fm.r));
+                o.r = Math.max(o.r, cx + fm.r - panel.x1);
+                o.t = Math.max(o.t, panel.y0 - (cy - fm.r));
+                o.b = Math.max(o.b, cy + fm.r - panel.y1);
+            }
+            if (Math.max(o.l, o.r, o.t, o.b) <= 0.25) { break; }
+            mg.l += Math.max(0, o.l) + (o.l > 0 ? 0.5 : 0);
+            mg.r += Math.max(0, o.r) + (o.r > 0 ? 0.5 : 0);
+            mg.t += Math.max(0, o.t) + (o.t > 0 ? 0.5 : 0);
+            mg.b += Math.max(0, o.b) + (o.b > 0 ? 0.5 : 0);
+            lay = layout(mg);
+        }
+        const shrunk = mg.l + mg.r + mg.t + mg.b > 0;
+        const { plotTop, plotBottom, plotH, plotLeft, plotRight, plotW, insB, insT, insL, insR,
+            yLoS, yHiS, yPer, xLoS, xHiS, xPer, yTicks, yTickTxt, xTicks, xTickTxt, X, Y } = lay;
 
         const bg = this.el("g", {}, this.svg);
         // grey panel title — marks the non-IBCS-core chart type (as Pareto/Dumbbell/Slope)
@@ -13368,10 +14216,8 @@ export class Visual implements IVisual {
         if (cutX) { this.drawScatterAxisBreak(bg, plotLeft + Math.round(10 * k), plotBottom, true, cfg); }
         if (cutY) { this.drawScatterAxisBreak(bg, plotLeft, plotBottom - Math.round(10 * k), false, cfg); }
 
-        // marks: area-proportional radius r = rMax·√(size / max), never below rMin
-        const rOf = (p: DataPoint): number => !hasSize ? rPlain
-            : Math.max(rMin, rMax * Math.sqrt(Math.max(p.sizeVal ?? 0, 0) / sMax));
-        const items = pts.map(p => {
+        const items: { p: DataPoint; label: string; cx: number; cy: number; r: number;
+            emph: boolean; isPy: boolean; size: number | null }[] = pts.map(p => {
             // in a tile the title carries the group — the point label is the category
             // alone. Play mode: the category is the PERIOD (watermark), so the dots
             // are labelled by what they represent — the series value
@@ -13379,10 +14225,48 @@ export class Visual implements IVisual {
                 : p.group != null && !sh ? `${p.cat} · ${p.group}` : p.cat;
             return {
                 p, label, cx: X(p.xVal as number), cy: Y(p.value as number), r: rOf(p),
-                emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group)
+                emph: this.isEmph(cfg, p.cat) || this.isEmph(cfg, label) || this.isEmph(cfg, p.group),
+                isPy: false, size: p.sizeVal ?? null
             };
         });
+        // 1.55 (B12): PY bubbles as extra items after the AC items (indices of the AC
+        // items stay those of pts) — own size, at (X PY or X, PY), inside the axes
+        const pyR = new Map<DataPoint, { cx: number; cy: number; r: number }>();
+        if (pyBub && hasSize) {
+            for (const it of items.slice()) {
+                const p = it.p;
+                const sz = pySize(p);
+                const pos = sz > 0 ? this.scatterPyPos(p, sc, ax, ay) : null;
+                if (!pos) { continue; }
+                const py = { p, label: it.label, cx: X(pos.x), cy: Y(pos.y), r: rOfV(sz), emph: false, isPy: true, size: sz };
+                items.push(py);
+                pyR.set(p, { cx: py.cx, cy: py.cy, r: py.r });
+            }
+        }
+        // 1.55 (B12): value label of the bubble size — inside when it fits, else
+        // behind the name; light text on dark fills (fill blended with the paper)
+        const valF = cf;
+        const valText = (it: typeof items[number]): string | null =>
+            sc.valueLabels && hasSize && it.size != null ? stripUnitText(sc.fmtSize.format(it.size)) : null;
         type Box = { x0: number; y0: number; x1: number; y1: number };
+        const valBox = (it: typeof items[number]): Box => {
+            const w = this.textWidth(valText(it) ?? "", valF) / 2 + 1;
+            return { x0: it.cx - w, x1: it.cx + w, y0: it.cy - valF / 2, y1: it.cy + valF / 2 };
+        };
+        const circleHits = (c: { cx: number; cy: number; r: number }, b: Box) => {
+            const dx = c.cx - Math.min(Math.max(c.cx, b.x0), b.x1);
+            const dy = c.cy - Math.min(Math.max(c.cy, b.y0), b.y1);
+            return dx * dx + dy * dy < c.r * c.r;
+        };
+        const acMarks = items.filter(it => !it.isPy);
+        // Review m5: a PY value under any AC bubble (drawn on top of it) would be half
+        // hidden — it moves to the PY name instead ("VAB 32,0"), like a value that
+        // does not fit
+        const valInside = (it: typeof items[number]): boolean => {
+            const t = valText(it);
+            if (t == null || this.textWidth(t, valF) + 4 > 2 * it.r * 0.92 || valF > 2 * it.r * 0.9) { return false; }
+            return !it.isPy || !acMarks.some(a => circleHits(a, valBox(it)));
+        };
         const checkMarks = items.length <= 400;
         const hitsMark = (b: Box, self: number) => checkMarks && items.some((it, j) => {
             if (j === self) { return false; }
@@ -13549,19 +14433,31 @@ export class Visual implements IVisual {
             if (sh && drew) { sh.sizeLegendDrawn = true; }
         }
 
-        // v3 log scale requested but not applicable (values ≤ 0): subtle edit-mode hint
-        if (((sc.xLogWanted && !ax.log) || (sc.yLogWanted && !ay.log))
-            && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
+        // v3 log scale requested but not applicable (values ≤ 0): subtle edit-mode hint;
+        // 1.55 (Review B12 m7): the same for a bound PY bubble size that cannot draw
+        // (Previous Year or bubble size missing); a second hint stands above the first
+        const editHints: { txt: string; id: string | null }[] = [];
+        if ((sc.xLogWanted && !ax.log) || (sc.yLogWanted && !ay.log)) {
+            editHints.push({ txt: this.locStr("Hint_ScatterLogOff", "Log scale ignored: values ≤ 0"), id: null });
+        }
+        if (sc.pyRoleIdle) {
+            editHints.push({ txt: this.locStr("Hint_ScatterPyBubbleRoles",
+                "PY bubbles need the fields Previous Year and Bubble size"), id: "scatter-hint-py" });
+        }
+        if (editHints.length > 0 && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
             const hf = Math.round(9 * k);
-            const txt = this.locStr("Hint_ScatterLogOff", "Log scale ignored: values ≤ 0");
-            const b: Box = { x0: plotLeft + 4, y0: plotBottom - 5 - hf,
-                x1: plotLeft + 4 + this.textWidth(txt, hf), y1: plotBottom - 3 };
-            const t = this.el("text", {
-                x: b.x0, y: plotBottom - 5, "font-size": hf, fill: cfg.subtle,
-                "font-family": FONT, "font-style": "italic", ...halo
-            }, bg);
-            t.textContent = txt;
-            placed.push(b);
+            editHints.forEach((hint, j) => {
+                const yb = plotBottom - 5 - j * (hf + 3);
+                const b: Box = { x0: plotLeft + 4, y0: yb - hf,
+                    x1: plotLeft + 4 + this.textWidth(hint.txt, hf), y1: yb + 2 };
+                const t = this.el("text", {
+                    x: b.x0, y: yb, "font-size": hf, fill: cfg.subtle,
+                    "font-family": FONT, "font-style": "italic", ...halo,
+                    ...(hint.id ? { "data-icd": hint.id } : {})
+                }, bg);
+                t.textContent = hint.txt;
+                placed.push(b);
+            });
         }
 
         const colOf = (p: DataPoint): string => {
@@ -13597,6 +14493,7 @@ export class Visual implements IVisual {
         const order = items.map((_, i) => i).sort((a, b) => {
             const A = items[a], B = items[b];
             if (A.emph !== B.emph) { return A.emph ? -1 : 1; }
+            if (A.isPy !== B.isPy) { return A.isPy ? 1 : -1; }
             if (hasSize && A.r !== B.r) { return B.r - A.r; }
             return Math.hypot(B.cx - ccx, B.cy - ccy) - Math.hypot(A.cx - ccx, A.cy - ccy);
         });
@@ -13604,14 +14501,11 @@ export class Visual implements IVisual {
         const inPlot = (b: Box) => b.x0 >= plotLeft + 2 && b.x1 <= region.x + region.w - 2
             && b.y0 >= plotTop && b.y1 <= plotBottom - 2;
         const maxLabW = Math.max(60, Math.min(160 * k, plotW * 0.35));
-        const labelAt: ({ x: number; y: number; anchor: string; text: string } | null)[] = items.map(() => null);
-        for (const i of order) {
-            const it = items[i];
-            const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
-            if (!wanted) { continue; }
-            const text = this.truncate(it.label, maxLabW, cf);
-            // bold (emphasized) text runs ~8 % wider than the regular metrics
-            const w = this.textWidth(text, cf) * (it.emph ? 1.08 : 1) + 2;
+        const labelAt: ({ x: number; y: number; anchor: string; text: string; alone?: boolean } | null)[] = items.map(() => null);
+        // one label spot for item i with text width w: free spots first, then shifted
+        // inward at the plot edge; force = overlap accepted (emphasized, density
+        // "all", a value that would otherwise vanish)
+        const spotFor = (it: typeof items[number], i: number, w: number, force: boolean) => {
             const h = cf, gap = 3;
             const cands = [
                 { b: { x0: it.cx + it.r + gap, y0: it.cy - h / 2, x1: it.cx + it.r + gap + w, y1: it.cy + h / 2 },
@@ -13633,6 +14527,9 @@ export class Visual implements IVisual {
                 cands.push({ b: { x0, y0, x1: x0 + w, y1: y0 + h },
                     x: sx > 0 ? it.cx + dx : it.cx - dx, y: y0 + h * 0.8, anchor: sx > 0 ? "start" : "end" });
             }
+            // 1.55 (B12): with values inside the bubbles the name prefers the spot
+            // above the bubble (portfolio sheets 10A/10B/10D)
+            if (sc.valueLabels) { cands.unshift(cands.splice(2, 1)[0]); }
             let pick = cands.find(c => inPlot(c.b) && !hitsLabel(c.b) && !hitsMark(c.b, i));
             if (!pick) {
                 // a point at the plot edge: shift its label inward instead of dropping it
@@ -13658,11 +14555,43 @@ export class Visual implements IVisual {
                         ?? shifted.find(c => !hitsLabel(c.b));
                 }
             }
+            if (!pick && force) { pick = cands.find(c => inPlot(c.b)) ?? cands[0]; }
+            return pick ?? null;
+        };
+        // Review M3: a wanted value never vanishes. It follows the name when it does
+        // not fit into its bubble (only the name is shortened), and stands alone next
+        // to the bubble when the name is not drawn (labels off, density, no room)
+        const valueAlone: number[] = [];
+        for (const i of order) {
+            const it = items[i];
+            const vt = valText(it);
+            const valOut = vt != null && !valInside(it);
+            const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
+            if (!wanted) {
+                if (valOut) { valueAlone.push(i); }
+                continue;
+            }
+            // 1.55 (B12): a value that does not fit into its bubble follows the name
+            const text = valOut
+                ? `${this.truncate(it.label, Math.max(24, maxLabW - this.textWidth(` ${vt}`, cf)), cf)} ${vt}`
+                : this.truncate(it.label, maxLabW, cf);
+            // bold (emphasized) text runs ~8 % wider than the regular metrics
+            const w = this.textWidth(text, cf) * (it.emph ? 1.08 : 1) + 2;
             // emphasized points and density "all" are always labelled (overlap accepted)
-            if (!pick && (it.emph || density === "all")) { pick = cands.find(c => inPlot(c.b)) ?? cands[0]; }
-            if (!pick) { continue; }
+            const pick = spotFor(it, i, w, it.emph || density === "all");
+            if (!pick) {
+                if (valOut) { valueAlone.push(i); }
+                continue;
+            }
             placed.push(pick.b);
             labelAt[i] = { x: pick.x, y: pick.y, anchor: pick.anchor, text };
+        }
+        for (const i of valueAlone) {
+            const it = items[i];
+            const vt = valText(it) as string;
+            const pick = spotFor(it, i, this.textWidth(vt, cf) + 2, true) as NonNullable<ReturnType<typeof spotFor>>;
+            placed.push(pick.b);
+            labelAt[i] = { x: pick.x, y: pick.y, anchor: pick.anchor, text: vt, alone: true };
         }
 
         // v3 shapes: index in the deck-wide group order → circle · square · triangle ·
@@ -13678,12 +14607,79 @@ export class Visual implements IVisual {
                 circle: SVGElement | null; hasSize: boolean }>()
             : null;
 
-        // draw order: largest bubbles first (small ones stay visible on top), emphasized last
+        // 1.55 (B12): value text color by contrast against the fill blended with the
+        // paper (the bubbles are translucent): white or black, whichever reads better
+        const valColor = (fill: string, alpha: number): string => {
+            if (!/^#?[0-9a-f]{6}$/i.test(fill.trim()) || !/^#?[0-9a-f]{6}$/i.test(cfg.paper.trim())) { return cfg.ink; }
+            const a = this.hexRgb(fill), b = this.hexRgb(cfg.paper);
+            const mix = a.map((v, j) => Math.round(v * alpha + b[j] * (1 - alpha)));
+            const L = relLuminance("#" + mix.map(v => v.toString(16).padStart(2, "0")).join(""));
+            return 1.05 / (L + 0.05) >= (L + 0.05) / 0.05 ? "#FFFFFF" : "#000000";
+        };
+        // hcText: the high-contrast text color as given (no blending); fc: the value
+        // sits on the forecast hatch — ink with a paper halo (Review M3)
+        const drawValue = (g: SVGElement, it: typeof items[number], fill: string, alpha: number, fc = false) => {
+            const t = valText(it);
+            if (t == null || !valInside(it)) { return; }
+            const el = this.el("text", {
+                x: it.cx, y: it.cy + valF * 0.35, "text-anchor": "middle", "font-size": valF,
+                fill: cfg.hc ? fill : fc ? cfg.ink : valColor(fill, alpha), "font-family": FONT,
+                "data-icd": "scatter-value", "data-scen": it.isPy ? "py" : "ac",
+                ...(fc && !cfg.hc ? halo : {})
+            }, g);
+            el.textContent = t;
+        };
+        // name label (with a trailing value) resp. a value standing alone next to its bubble
+        const drawLabel = (g: SVGElement, i: number, fill: string, weight: number | null) => {
+            const la = labelAt[i];
+            if (!la) { return; }
+            const t = this.el("text", {
+                x: la.x, y: la.y, "text-anchor": la.anchor, "font-size": cf, fill,
+                "font-family": FONT, ...(weight != null && !la.alone ? { "font-weight": weight } : {}), ...halo,
+                ...(la.alone ? { "data-icd": "scatter-value-beside", "data-scen": items[i].isPy ? "py" : "ac" } : {})
+            }, g);
+            t.textContent = la.text;
+        };
+
+        // draw order: largest bubbles first (small ones stay visible on top), emphasized last;
+        // 1.55 (B12): PY bubbles before every AC bubble (behind them)
         const drawOrder = items.map((_, i) => i).sort((a, b) =>
-            (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
+            (Number(items[b].isPy) - Number(items[a].isPy))
+            || (Number(items[a].emph) - Number(items[b].emph)) || (items[b].r - items[a].r));
         const marks = this.el("g", {}, this.svg);
+        // Review M1: with a custom maximum radius (or a shrunk plot box) the marks are
+        // clipped to the panel below the title lines as a safety net
+        if (hasSize && (sc.maxRadius > 0 || shrunk)) {
+            const clipId = `icd-scclip-${this.instanceId}-${this.mxClipSeq++}`;
+            const clip = this.el("clipPath", { id: clipId }, bg);
+            this.el("rect", {
+                x: panel.x0, y: panel.y0, width: Math.max(0, panel.x1 - panel.x0), height: Math.max(0, panel.y1 - panel.y0)
+            }, clip);
+            marks.setAttribute("clip-path", `url(#${clipId})`);
+            marks.setAttribute("data-icd", "scatter-marks");
+        }
         for (const i of drawOrder) {
             const { p, cx, cy, r, emph } = items[i];
+            if (items[i].isPy) {
+                // PY bubble: PY color (scenario notation, not the group color), own size,
+                // same opacity as the AC bubbles; high contrast: dashed outline
+                const g = this.el("g", { "class": "icd-cat", "data-icd": "scatter-py" }, marks) as SVGGElement;
+                this.el("circle", { cx, cy, r: Math.max(r + 2, 7), fill: cfg.paper, "fill-opacity": 0.01 }, g);
+                this.el("circle", {
+                    cx, cy, r,
+                    ...(cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                        : { fill: cfg.colors.py, "fill-opacity": sc.opacity, stroke: cfg.colors.py, "stroke-width": 1.2 })
+                }, g);
+                drawLabel(g, i, cfg.subtle, null);
+                drawValue(g, items[i], cfg.hc ? cfg.ink : cfg.colors.py, sc.opacity);
+                // Review m3: no own focus stop and no ellipse target (the AC group of
+                // the category is the control); its own screen-reader label says PY
+                this.attachInteraction(g, p, cfg, { py: true });
+                this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+                this.animGroups.push([g]);
+                continue;
+            }
             const g = this.el("g", { "class": "icd-cat" }, marks) as SVGGElement;
             // v3 movement arrow PY → AC: small grey start dot at the PY position (x from
             // the xPrevious role when bound, else unchanged), thin line, head at AC —
@@ -13697,20 +14693,25 @@ export class Visual implements IVisual {
                     const x0 = X(sx), y0 = Y(p.py);
                     const dx = cx - x0, dy = cy - y0;
                     const len = Math.hypot(dx, dy);
-                    if (len > r + 4) {
+                    // 1.55 (B12): with a PY bubble the tail starts at its rim (no start dot)
+                    const pyB = pyR.get(p);
+                    const rStart = pyB ? pyB.r : 0;
+                    if (len > r + rStart + 4) {
                         const ux = dx / len, uy = dy / len;
                         const exx = cx - ux * (r + 1.5), eyy = cy - uy * (r + 1.5);
                         const aCol = cfg.hc ? cfg.ink : cfg.colors.py;
                         this.el("line", {
-                            x1: x0, y1: y0, x2: exx - ux * 2, y2: eyy - uy * 2,
+                            x1: x0 + ux * rStart, y1: y0 + uy * rStart, x2: exx - ux * 2, y2: eyy - uy * 2,
                             stroke: aCol, "stroke-width": 1
                         }, g);
                         // IBCS: small grey PY start, thin tail, head touching the AC marker
-                        this.el("circle", {
-                            cx: x0, cy: y0, r: Math.max(2, r * 0.35),
-                            fill: cfg.hc ? cfg.paper : aCol,
-                            ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {})
-                        }, g);
+                        if (!pyB) {
+                            this.el("circle", {
+                                cx: x0, cy: y0, r: Math.max(2, r * 0.35),
+                                fill: cfg.hc ? cfg.paper : aCol,
+                                ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {})
+                            }, g);
+                        }
                         const ah = Math.max(3.5, 4 * Math.min(k, 1.6));
                         const bx = exx - ux * ah, by = eyy - uy * ah;
                         this.el("polygon", {
@@ -13723,8 +14724,15 @@ export class Visual implements IVisual {
             }
             // generous invisible hit target — 3px dots are hard to hover and click
             this.el("circle", { cx, cy, r: Math.max(r + 2, 7), fill: cfg.paper, "fill-opacity": 0.01 }, g);
-            const col = colOf(p);
+            // 1.55 (B12): highlight as fill color instead of the ring (not in high contrast)
+            const emphFill = emph && sc.emphFill && !cfg.hc;
+            const col = emphFill ? sc.emphColor : colOf(p);
             const shapeIdx = shapeIdxOf(p);
+            const bubbleAlpha = emph ? Math.max(0.9, sc.opacity) : sc.opacity;
+            // Review m4: next to PY bubbles an immaterial status bubble would carry the
+            // PY grey — an ink outline keeps it apart
+            const neutralNextToPy = pyBub && statusOn && !sc.groupColors && !emphFill
+                && this.scatterStatusKind(p, cfg) === "neutral";
             const markEl = this.drawScatterShape(g, cx, cy, r, shapeIdx, {
                 // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
@@ -13736,25 +14744,25 @@ export class Visual implements IVisual {
                     : p.isFc
                         ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
                         : hasSize
-                            ? { fill: col, "fill-opacity": emph ? 0.9 : 0.55, stroke: col, "stroke-width": 1.2 }
-                            : { fill: col, stroke: cfg.paper, "stroke-width": 1 })
+                            ? { fill: col, "fill-opacity": bubbleAlpha, stroke: neutralNextToPy ? cfg.ink : col, "stroke-width": 1.2 }
+                            : { fill: col, stroke: cfg.paper, "stroke-width": 1 }),
+                ...(emphFill ? { "data-icd": "scatter-emph-fill" } : {})
             });
-            if (emph) {
-                // IBCS EMPHASIZE: ring around the marker + bold label (wider shapes
-                // like the diamond need a correspondingly wider ring)
-                const ringR = (shapeIdx === 3 ? r * 1.35 : shapeIdx === 2 ? r * 1.35 : r) + 2.5;
+            // IBCS EMPHASIZE: ring around the marker + bold label (wider shapes like
+            // the diamond need a correspondingly wider ring). Review m3: the ellipse
+            // style circles the marker itself instead of the ring
+            const ringR = (shapeIdx === 3 ? r * 1.35 : shapeIdx === 2 ? r * 1.35 : r) + 2.5;
+            if (emph && !emphFill && !cfg.highlightEllipse) {
                 this.el("circle", {
                     cx, cy, r: ringR, fill: "none", stroke: cfg.ink, "stroke-width": 1.4
                 }, g);
             }
-            const la = labelAt[i];
-            if (la) {
-                const t = this.el("text", {
-                    x: la.x, y: la.y, "text-anchor": la.anchor, "font-size": cf, fill: cfg.ink,
-                    "font-family": FONT, "font-weight": emph ? 700 : 400, ...halo
-                }, g);
-                t.textContent = la.text;
-            }
+            drawLabel(g, i, cfg.ink, emph ? 700 : 400);
+            // Review m2: in high contrast the value text contrasts with the resolved
+            // fill (status "good" and emphasized marks are filled with the ink color);
+            // Review M3: on the forecast hatch the value stays, with a paper halo
+            const hcFull = statusOn ? this.scatterStatusKind(p, cfg) === "good" : emph;
+            drawValue(g, items[i], cfg.hc ? (hcFull ? cfg.paper : cfg.ink) : col, hasSize ? bubbleAlpha : 1, p.isFc);
             if (p.commentNo != null) {
                 // numbered comment badge at the marker's upper right (list in the panel)
                 const br = Math.round(6 * k);
@@ -13766,7 +14774,7 @@ export class Visual implements IVisual {
                 }, g);
                 ct.textContent = String(p.commentNo);
             }
-            this.attachInteraction(g, p, cfg);
+            this.attachInteraction(g, p, cfg, { mark: { cx, cy, r: ringR + 2 } });
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
             if (dots) {
@@ -13792,7 +14800,7 @@ export class Visual implements IVisual {
             }, bg) as SVGRectElement;
             (cap.style as CSSStyleDeclaration & { pointerEvents: string }).pointerEvents = "all";
             cap.style.cursor = "crosshair";
-            const hits = items.map(it => ({ x: it.cx, y: it.cy, sel: it.p.sel }));
+            const hits = items.filter(it => !it.isPy).map(it => ({ x: it.cx, y: it.cy, sel: it.p.sel }));
             cap.addEventListener("mousedown", (e: MouseEvent) => {
                 if (e.button !== 0) { return; }
                 this.beginScatterDrag(e, hits, cfg);
@@ -13861,9 +14869,10 @@ export class Visual implements IVisual {
      * per category the positive and negative stack totals. Shared by the renderer
      * and render()'s deck-wide stack domain, so both measure the same stacks.
      */
-    private stackLayout(points: DataPoint[]): {
+    private stackLayout(points: DataPoint[], norm = false): {
         cats: string[]; series: string[]; cell: Map<string, DataPoint>; pos: number[]; neg: number[];
         scen: ("ac" | "fc" | "pl")[]; sv: (ci: number, s: string) => number;
+        rawSv: (ci: number, s: string) => number; rawPos: number[];
     } {
         const cats: string[] = [];
         const series: string[] = [];
@@ -13875,6 +14884,8 @@ export class Visual implements IVisual {
             const key = `${p.cat}¦${s}`;
             if (!cell.has(key)) { cell.set(key, p); }
         }
+        const ord = this.stackSeriesOrder;
+        if (ord) { series.sort((a, b) => (ord.indexOf(a) + 1 || 1e9) - (ord.indexOf(b) + 1 || 1e9)); }
         // 1.54 (B06): one scenario per CATEGORY (a series missing in one month must not
         // flip it): AC when any cell carries an actual, else FC, else PL (a plan-only
         // month stacks its PL values as an outlined column, IBCS sheets 01A to 01C)
@@ -13885,18 +14896,25 @@ export class Visual implements IVisual {
             if (cs.some(x => x.pl != null)) { return "pl" as const; }
             return "ac" as const;
         });
-        const sv = (ci: number, s: string): number => {
+        const rawSv = (ci: number, s: string): number => {
             const x = cell.get(`${cats[ci]}¦${s}`);
             if (!x) { return 0; }
             return x.value ?? (scen[ci] === "pl" ? x.pl ?? 0 : 0);
         };
-        const pos = cats.map((_, ci) => series.reduce((a, s) => a + Math.max(sv(ci, s), 0), 0));
-        const neg = cats.map((_, ci) => series.reduce((a, s) => a + Math.min(sv(ci, s), 0), 0));
-        return { cats, series, cell, pos, neg, scen, sv };
+        const rawPos = cats.map((_, ci) => series.reduce((a, s) => a + Math.max(rawSv(ci, s), 0), 0));
+        // 1.55 (B10): 100 % stacks — the share of the category's positive total
+        const sv = !norm ? rawSv
+            : (ci: number, s: string): number => rawPos[ci] > 0 ? Math.max(rawSv(ci, s), 0) * 100 / rawPos[ci] : 0;
+        const pos = norm ? rawPos.map(t => t > 0 ? 100 : 0)
+            : cats.map((_, ci) => series.reduce((a, s) => a + Math.max(sv(ci, s), 0), 0));
+        const neg = norm ? cats.map(() => 0)
+            : cats.map((_, ci) => series.reduce((a, s) => a + Math.min(sv(ci, s), 0), 0));
+        return { cats, series, cell, pos, neg, scen, sv, rawSv, rawPos };
     }
 
     private renderStacked(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
-        const { cats, series, cell, pos: posTot, neg: negTot, scen, sv } = this.stackLayout(points);
+        const norm = cfg.stackNorm;
+        const { cats, series, cell, pos: posTot, neg: negTot, scen, sv, rawSv, rawPos } = this.stackLayout(points, norm);
         const n = cats.length;
         if (n === 0) { return; }
         this.fcCuts = [];
@@ -13929,31 +14947,89 @@ export class Visual implements IVisual {
         const domain: [number, number] = cfg.stackDomain
             ? [...cfg.stackDomain] as [number, number]
             : [Math.min(0, ...negTot), Math.max(...posTot, 1)];
-        const cap = cfg.capMax;
+        // 1.55 review: shares are never capped (fixedMax/capOverflow are absolute)
+        const cap = norm ? null : cfg.capMax;
         const capV = (v: number) => cap != null ? Math.min(v, cap) : v;
 
-        const labelPad = cfg.showLabels ? lf + 6 : 6;
+        // 100 % stacks carry no stack-total label (it would read 100 everywhere)
+        const labelPad = cfg.showLabels && !norm ? lf + 6 : 6;
+        // 1.55 (B10): Σ row under the bars, absolute-total side panel (bars + 100 %),
+        // series names left of the first column, room for the "100 %" marker
+        const totalRow = orientation === "bars" && cfg.stackTotalRow;
+        const legendStartCfg = orientation === "columns" && cfg.stackLegendStart;
+        const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
+            ? Math.max(60, region.w * 0.18) : 0;
+        const marker100H = norm && orientation === "bars" ? lf + 8 : 0;
+        // 1.55 (B09, 02C): bracket around the first N rows with their cumulated share
+        const bracketN = Math.round(this.formattingSettings.chartCard.stackShareBracket.value ?? 0);
+        const bracketOn = orientation === "bars" && !norm && bracketN > 0 && bracketN < n
+            && !cats.slice(0, bracketN).some(c => REST_ROW_RX.test(c.trim()) || series.some(sn => cell.get(`${c}¦${sn}`)?.isRest));
+        const bracketW = bracketOn ? this.textWidth("100 %", lf, true) + 18 : 0;
+        const slotsN = n + (totalRow ? 1 : 0);
+        // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
+        // series; 100 % stacks compare shares (percentage points), totals only on values
+        // the first category of a name wins (hierarchy leaves can repeat)
+        const catIdx = new Map<string, number>();
+        cats.forEach((c, i) => { const key = c.trim().toLowerCase(); if (!catIdx.has(key)) { catIdx.set(key, i); } });
+        const segTop = (ci: number, si: number) => {
+            let cum = 0;
+            for (let j = 0; j <= si; j++) { cum += Math.max(sv(ci, series[j]), 0); }
+            return cum;
+        };
+        type StackDiff = { m: DiffMarkerSpec; fi: number; ti: number; si: number; vf: number; vt: number; topF: number; topT: number };
+        const stackDiff = cfg.diffMarkers.map((m0): StackDiff | null => {
+            let m = m0;
+            const fi = catIdx.get(m.from.trim().toLowerCase());
+            let ti = catIdx.get(m.to.trim().toLowerCase());
+            let si = m.series == null ? -1
+                : series.findIndex(x => x.trim().toLowerCase() === (m.series as string).trim().toLowerCase());
+            // "a@b" that names no series: the whole text is the category
+            if (m.series != null && si < 0) {
+                ti = catIdx.get(m.toFull.toLowerCase());
+                m = { ...m, to: m.toFull, series: null };
+            }
+            if (fi == null || ti == null || fi === ti) { return null; }
+            if (m.series == null) {
+                if (norm || negTot[fi] !== 0 || negTot[ti] !== 0) { return null; }
+                if (cap != null && Math.max(posTot[fi], posTot[ti]) > cap) { return null; }
+                return { m, fi, ti, si: -1, vf: posTot[fi], vt: posTot[ti], topF: posTot[fi], topT: posTot[ti] };
+            }
+            const vf = sv(fi, series[si]), vt = sv(ti, series[si]);
+            if (vf < 0 || vt < 0) { return null; }
+            const topF = segTop(fi, si), topT = segTop(ti, si);
+            if (cap != null && Math.max(topF, topT) > cap) { return null; }
+            return { m, fi, ti, si, vf, vt, topF, topT };
+        }).filter((x): x is StackDiff => x != null).slice(0, DIFF_MARKER_MAX);
+        const stackPlan = diffPlan(stackDiff, n, true, true);
+        const stackRooms = this.diffRooms(stackDiff.map(x => this.diffText({ spec: x.m, d: x.vt - x.vf, base: x.vf, pp: norm }, cfg)),
+            stackPlan, orientation, cfg, cfg.sharedScale ? domain[1] - domain[0] : 0, norm, region.w * 0.2);
+        // 01A: with room on the right the series names go left of the first column
+        const legendStart = orientation === "columns" && (legendStartCfg || (stackRooms.hi > 0 && stackRooms.lo === 0));
         // 1.52.1 chart.stackLegendDirect: series names right at the stack (columns:
         // beside the last column, bars: above the first bar's segments) instead of a
         // key; single chart, positive stacks, every series present there, names fit
-        const nameW = Math.min(140 * k, this.maxTextWidth(series, legFont)) + 10;
+        const nameW = Math.min(140 * k, this.maxTextWidth(series, legFont))
+            + (cfg.stackSort === "series" ? this.textWidth(" (↓)", legFont) : 0) + 10;
         const layout = (direct: boolean) => {
             let bandStart: number, bandEnd: number, rect: Rect;
             if (orientation === "columns") {
                 const catArea = cf + 10 + (scenOn ? cf + 2 : 0);
                 const legH = direct ? 0 : legendH;
-                const rightW = direct ? nameW : 0;
-                bandStart = region.x + pad + 2;
+                const rightW = (direct && !legendStart ? nameW : 0) + stackRooms.hi;
+                const leftW = (direct && legendStart ? nameW : 0) + stackRooms.lo;
+                bandStart = region.x + pad + 2 + leftW;
                 bandEnd = region.x + region.w - pad - rightW;
-                rect = { x: region.x, y: region.y + pad + legH, w: region.w - rightW, h: region.h - pad - catArea - legH };
+                rect = { x: region.x + leftW, y: region.y + pad + legH, w: region.w - rightW - leftW, h: region.h - pad - catArea - legH };
             } else {
-                const catArea = Math.min(region.w * 0.24, this.maxTextWidth(cats, cf) + 12);
-                bandStart = region.y + pad + titleH + legendH + 2;
-                bandEnd = region.y + region.h - pad;
-                rect = { x: region.x + pad + catArea, y: region.y + legendH, w: region.w - pad * 2 - catArea, h: region.h - legendH };
+                const catArea = Math.min(region.w * 0.24,
+                    this.maxTextWidth(totalRow ? [...cats, cfg.stackTotalLabel || "Σ"] : cats, cf) + 12) + bracketW;
+                bandStart = region.y + pad + titleH + legendH + 2 + stackRooms.lo;
+                bandEnd = region.y + region.h - pad - marker100H - stackRooms.hi;
+                rect = { x: region.x + pad + catArea, y: region.y + legendH,
+                    w: region.w - pad * 2 - catArea - (sideW > 0 ? sideW + 8 : 0), h: region.h - legendH };
             }
             const scale = this.makePanelScale(domain, rect, orientation, labelPad);
-            const step = (bandEnd - bandStart) / n;
+            const step = (bandEnd - bandStart) / slotsN;
             const slotW = Math.max(2, step * SLOT_ABS);
             const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
             return { bandStart, bandEnd, rect, scale, step, slotW, pos };
@@ -13961,7 +15037,7 @@ export class Visual implements IVisual {
         // the name positions along the value axis, or null when they do not fit
         const directNames = (L: ReturnType<typeof layout>): { s: number; at: number; y?: number }[] | null => {
             if (orientation !== "columns") { return directNamesBars(L); }
-            const ci = orientation === "columns" ? n - 1 : 0;
+            const ci = legendStart ? 0 : n - 1;
             let cum = 0;
             const out: { s: number; at: number; w: number }[] = [];
             for (let si = 0; si < series.length; si++) {
@@ -14028,20 +15104,22 @@ export class Visual implements IVisual {
             return out;
         };
         const directWanted = this.formattingSettings.chartCard.stackLegendDirect.value !== false
-            && !cfg.sharedScale && series.length > 1 && n > 0 && negTot.every(v => v === 0);
+            && !cfg.sharedScale && series.length > 1 && n > 0 && negTot.every(v => v === 0)
+            && !(stackRooms.hi > 0 && !legendStart) && !(stackRooms.lo > 0 && legendStart);
         let L = layout(directWanted);
         const names = directWanted ? directNames(L) : null;
         if (directWanted && !names) { L = layout(false); }
         const { bandStart, bandEnd, rect, scale, step, slotW, pos } = L;
 
-        const bg = this.el("g", {}, this.svg);
+        const bg = this.el("g", norm ? { "data-norm": "pct100" } : {}, this.svg);
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
         // the title names the scenarios that occur (AC only = unchanged text)
         const stackTitle = !anyScen ? this.locStr("Title_StackedPanel", "AC · stacked")
             : [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "",
                 scenSet.has("pl") ? cfg.scenL.pl : ""]
                 .filter(x => x).join(" · ") + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
-        this.drawPanelTitle(bg, rect, stackTitle, orientation, titleH, region,
+        this.drawPanelTitle(bg, rect, stackTitle + (norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
+            orientation, titleH, region,
             orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
 
         const ly = region.y + (orientation === "columns" ? pad + legendH - 4 : legendH - 2);
@@ -14050,12 +15128,15 @@ export class Visual implements IVisual {
             for (const nm of names) {
                 const label = this.truncate(series[nm.s], 140 * k, legFont);
                 const t = this.el("text", orientation === "columns"
-                    ? { x: pos(n - 1) + slotW + 6, y: nm.at + legFont * 0.35, "text-anchor": "start" }
+                    ? legendStart
+                        ? { x: pos(0) - 6, y: nm.at + legFont * 0.35, "text-anchor": "end" }
+                        : { x: pos(n - 1) + slotW + 6, y: nm.at + legFont * 0.35, "text-anchor": "start" }
                     : { x: nm.at, y: nm.y ?? ly, "text-anchor": "middle" }, lg);
                 t.setAttribute("font-size", String(legFont));
                 t.setAttribute("fill", cfg.ink);
                 t.setAttribute("font-family", FONT);
-                t.textContent = label;
+                t.textContent = label + (cfg.stackSort === "series" && nm.s === 0 ? " (↓)" : "");
+                if (cfg.stackSort === "series" && nm.s === 0) { t.setAttribute("data-icd", "sort-mark"); }
             }
         } else {
             // legend (top-left, truncating to the region width)
@@ -14069,8 +15150,10 @@ export class Visual implements IVisual {
                 const st = this.el("text", {
                     x: lx + legFont + 4, y: ly, "font-size": legFont, fill: cfg.ink, "font-family": FONT
                 }, bg);
-                const label = this.truncate(series[si], 120 * k, legFont);
+                const label = this.truncate(series[si], 120 * k, legFont)
+                    + (cfg.stackSort === "series" && si === 0 ? " (↓)" : "");
                 st.textContent = label;
+                if (cfg.stackSort === "series" && si === 0) { st.setAttribute("data-icd", "sort-mark"); }
                 lx += legFont + 8 + label.length * legFont * 0.56;
             }
         }
@@ -14107,7 +15190,8 @@ export class Visual implements IVisual {
                 l.setAttribute("data-icd", "group-sep");
             }
         }
-        if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
+        // 100 % stacks read the reference line as a share; above 100 it is not drawn
+        if (cfg.refLine != null && !(cap != null && cfg.refLine > cap) && !(norm && (cfg.refLine > 100 || cfg.refLine < 0))) {
             const rg = this.el("g", { "data-icd": "stack-refline" }, bg);
             this.drawRefLine(rg, rect, scale, orientation, bandStart, bandEnd, cfg);
         }
@@ -14139,6 +15223,34 @@ export class Visual implements IVisual {
             }
         }
 
+        // 1.55 (B10): "100 %" marker (columns: beside the stack on the names' side;
+        // bars: thin line at 100 % and the mark under the last bar)
+        if (norm) {
+            const m100 = this.el("g", { "data-icd": "stack-100" }, bg);
+            const y100 = scale(100);
+            if (orientation === "columns") {
+                // above the outer column (names' side), inside the plot: never clipped,
+                // never on top of a series name
+                const ci = legendStart ? 0 : n - 1;
+                const t = this.el("text", { x: pos(ci) + slotW / 2, y: y100 - 4, "text-anchor": "middle" }, m100);
+                t.setAttribute("font-size", String(lf));
+                t.setAttribute("font-weight", "700");
+                t.setAttribute("fill", cfg.ink);
+                t.setAttribute("font-family", FONT);
+                t.textContent = "100 % ▼";
+            } else {
+                this.el("line", { x1: y100, y1: bandStart, x2: y100, y2: bandStart + slotsN * step,
+                    stroke: cfg.ink, "stroke-width": 1 }, m100);
+                const tw = this.textWidth("▲", lf, true);
+                const t = this.el("text", { x: y100 - tw / 2, y: bandEnd + lf + 4, "text-anchor": "start",
+                    "font-size": lf, "font-weight": 700, fill: cfg.ink, "font-family": FONT }, m100);
+                t.textContent = "▲ 100 %";
+            }
+        }
+        const shareNf = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const segText = (v: number) => norm ? shareNf.format(v) : cfg.fmt.format(v);
+        const sortedOrRest = cfg.stackSort !== "off";
+
         const marks = this.el("g", {}, this.svg);
         const totalTexts = totals.map(t => cfg.fmt.format(t));
         const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
@@ -14164,7 +15276,9 @@ export class Visual implements IVisual {
                 const kind: "ac" | "fc" | "pl" = scen[i] === "pl" ? "pl" : p.isFc ? "fc" : "ac";
                 const g = this.el("g", kind === "ac" ? { "class": "icd-cat" }
                     : { "class": "icd-cat", "data-icd": `stack-seg-${kind}` }, gCat) as SVGGElement;
-                const fcP = kind === "ac" && p.fcPart != null && p.fcPart > 0 && v > 0 && v - p.fcPart >= 0 ? p.fcPart : 0;
+                const fcRaw = p.fcPart ?? 0;
+                const fcScaled = norm ? (rawPos[i] > 0 ? fcRaw * 100 / rawPos[i] : 0) : fcRaw;
+                const fcP = kind === "ac" && fcScaled > 0 && v > 0 && v - fcScaled >= 0 ? fcScaled : 0;
                 const splitFc = fcP > 0;
                 if (kind === "ac") {
                     if (fcP > 0) {
@@ -14197,7 +15311,7 @@ export class Visual implements IVisual {
                         fill: cfg.hc ? cfg.ink : (kind !== "ac" || light || splitFc ? cfg.ink : cfg.paper), "font-family": FONT,
                         ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
                     }, g);
-                    st.textContent = cfg.fmt.format(v);
+                    st.textContent = segText(v);
                     segLabelled++;
                 }
                 // comment badge at the outer slot edge, middle of the segment (01A)
@@ -14216,8 +15330,10 @@ export class Visual implements IVisual {
                         orientation === "columns" ? { cx: cxCol, cy: mid } : { cx: mid, cy: pos(i) + slotW });
                 }
                 this.attachInteraction(g, p, cfg);
-                if (kind !== "ac") {
-                    g.setAttribute("aria-label", `${p.cat}, ${s}, ${kind === "pl" ? cfg.scenL.pl : cfg.scenL.fc} ${cfg.fmt.format(v)}`);
+                if (kind !== "ac" || norm) {
+                    const sc = kind === "pl" ? cfg.scenL.pl : kind === "fc" ? cfg.scenL.fc : cfg.scenL.ac;
+                    g.setAttribute("aria-label", `${p.cat}, ${s}, ${sc} ${cfg.fmt.format(rawSv(i, s))}`
+                        + (norm ? ` (${shareNf.format(v)} %)` : ""));
                 }
                 this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             });
@@ -14228,7 +15344,7 @@ export class Visual implements IVisual {
             // net total label at the outer end of the positive stack (or of the
             // negative one when there is nothing above zero). 1.52.1: a stack of ONE
             // labelled segment shows its value once, not "2,5M | 2,5M"
-            if (cfg.showLabels && showTotalAt(i) && !(segN === 1 && segLabelled === 1)) {
+            if (cfg.showLabels && !norm && showTotalAt(i) && !(segN === 1 && segLabelled === 1)) {
                 const up = posTot[i] > 0 || negTot[i] === 0;
                 this.drawEndLabelAt(gCat, pos(i) + slotW / 2, up ? capV(posTot[i]) : negTot[i], up, scale,
                     orientation, totalTexts[i], lf, cfg.ink, 0, cfg.paper);
@@ -14237,9 +15353,148 @@ export class Visual implements IVisual {
             if (showCatAt(i) || isHl) {
                 this.drawCategoryLabel(gCat, c, pos(i) + slotW / 2, orientation, cf,
                     scenOn ? { ...region, h: region.h - (cf + 2) } : region, step, rect, cfg.ink, isHl);
+                // rest categories (top-N rest, "Sonstige") italic while the stack is
+                // sorted or the rest is the top-N aggregate (B04 rule)
+                const restCat = series.some(sn => cell.get(`${c}¦${sn}`)?.isRest);
+                if (restCat || (sortedOrRest && REST_ROW_RX.test(c.trim()))) {
+                    gCat.lastElementChild?.setAttribute("font-style", "italic");
+                    gCat.setAttribute("data-icd", "stack-rest");
+                }
             }
             this.animGroups.push([gCat]);
         });
+        // ------- 1.55 (B09): stored difference markers (01A total and segment, 01B)
+        if (stackDiff.length > 0) {
+            this.drawDiffMarkers(this.el("g", {}, this.svg), stackDiff.map((x, i) => ({
+                spec: x.m, fromBand: pos(x.fi) + slotW / 2, toBand: pos(x.ti) + slotW / 2, halfW: slotW / 2,
+                toLo: pos(x.ti), toHi: pos(x.ti) + slotW, gap: step - slotW,
+                fromTop: x.topF, toTop: x.topT, d: x.vt - x.vf, base: x.vf,
+                // the level line only where levels are comparable: the total or the bottom series
+                level: x.si <= 0,
+                fc: scen[x.fi] === "fc" || scen[x.ti] === "fc",
+                edge: stackPlan[i].edge, k: stackPlan[i].k, kN: stackPlan[i].kN, pp: norm,
+                clearW: orientation === "bars" && x.si < 0 ? this.textWidth(cfg.fmt.format(x.vt), cfg.labelFont) : 0
+            })), scale, orientation, cfg, region, bg,
+            cats.map((_, i) => ({ lo: pos(i), hi: pos(i) + slotW, top: scale(capV(posTot[i])) - 4 - cfg.labelFont })));
+        }
+        // ------- 1.55 (B09, 02C): share bracket — under row N to the end of the
+        // reference (first series when sorted by it, else the stack), slanted up to
+        // row 1; the cumulated share in an ellipse left of the names
+        if (bracketOn) {
+            const bySeries = cfg.stackSort === "series";
+            const refEnd = (ci: number) => bySeries ? Math.max(sv(ci, series[0]), 0) : posTot[ci];
+            const refVal = (ci: number) => bySeries ? rawSv(ci, series[0]) : posTot[ci] + negTot[ci];
+            const all = cats.reduce((a, _, ci) => a + refVal(ci), 0);
+            const top = cats.slice(0, bracketN).reduce((a, _, ci) => a + refVal(ci), 0);
+            if (all > 0) {
+                const share = top / all * 100;
+                const ink = cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF";
+                const bg2 = this.el("g", { "data-icd": "stack-share-bracket", "data-n": bracketN,
+                    "data-share": Math.round(share * 10) / 10 }, marks);
+                const yBelow = bandStart + bracketN * step;
+                const xLeft = region.x + pad;
+                const xN = scale(capV(refEnd(bracketN - 1)));
+                const x0 = scale(capV(refEnd(0)));
+                this.el("polyline", { points: `${xLeft},${yBelow} ${xN},${yBelow} ${x0},${pos(0) - 1}`,
+                    fill: "none", stroke: ink, "stroke-width": 1.4 }, bg2);
+                const txt = `${new Intl.NumberFormat(this.host.locale, { maximumFractionDigits: 0 }).format(share)} %`;
+                const tw = this.textWidth(txt, lf, true);
+                const cx = xLeft + bracketW / 2, cy = (bandStart + yBelow) / 2;
+                this.el("ellipse", { cx, cy, rx: tw / 2 + 6, ry: lf * 0.75, fill: cfg.paper, stroke: ink, "stroke-width": 1.2 }, bg2);
+                const t = this.el("text", { x: cx, y: cy + lf * 0.35, "text-anchor": "middle", "font-size": lf,
+                    "font-weight": 700, fill: cfg.ink, "font-family": FONT }, bg2);
+                t.textContent = txt;
+            }
+        }
+        // ------- 1.55 (B10): Σ row (bars) and absolute-total side panel (bars + 100 %)
+        const seriesSums = series.map(sn => cats.reduce((a, _, ci) => a + rawSv(ci, sn), 0));
+        const grand = seriesSums.reduce((a, v) => a + v, 0);
+        // the Σ row sums one scenario only: mixed AC/FC/PL categories get no Σ row
+        if (totalRow && scenSet.size <= 1) {
+            const tg = this.el("g", { "data-icd": "stack-total-row" }, marks);
+            const yRow = bandStart + n * step;
+            this.el("line", { x1: region.x + pad, y1: yRow, x2: rect.x + rect.w, y2: yRow,
+                stroke: cfg.ink, "stroke-width": 1 }, tg);
+            this.drawCategoryLabel(tg, cfg.stackTotalLabel || "Σ", pos(n) + slotW / 2, orientation, cf,
+                region, step, rect, cfg.ink, true);
+            if (norm && grand > 0) {
+                // the overall mix as one 100 % bar, same scale as the rows
+                let cum = 0;
+                series.forEach((sn, si) => {
+                    const share = Math.max(seriesSums[si], 0) * 100 / grand;
+                    if (share <= 0) { return; }
+                    const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
+                    this.drawBar(sg, pos(n), slotW, cum, cum + share, scale, orientation,
+                        { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
+                    const a = scale(cum), b = scale(cum + share);
+                    if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
+                        const light = si > (series.length - 1) / 2;
+                        const t = this.el("text", { x: (a + b) / 2, y: pos(n) + slotW / 2 + lf * 0.35, "text-anchor": "middle",
+                            "font-size": Math.round(lf * 0.92), "font-weight": 700,
+                            fill: cfg.hc || light ? cfg.ink : cfg.paper, "font-family": FONT }, sg);
+                        t.textContent = shareNf.format(share);
+                    }
+                    cum += share;
+                });
+            } else {
+                // values: same unit, the sum would not fit the row scale (IBCS) — a
+                // legend row with the sum per series and the grand total instead
+                const sq = Math.max(6, Math.round(lf * 0.85));
+                let lx = rect.x + 2;
+                const yMid = pos(n) + slotW / 2;
+                const xEnd = rect.x + rect.w;
+                const grandTxt = `= ${cfg.fmt.format(grand)}`;
+                const needs = series.map((_, si) => sq + 4 + this.textWidth(cfg.fmt.format(seriesSums[si]), lf, true) + 12);
+                // all series sums or none: a partial row would not add up to the total
+                const allFit = needs.reduce((a, v) => a + v, 0) + this.textWidth(grandTxt, lf, true) + 8 <= xEnd - lx;
+                series.forEach((sn, si) => {
+                    if (!allFit) { return; }
+                    const label = cfg.fmt.format(seriesSums[si]);
+                    const need = needs[si];
+                    const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
+                    this.el("rect", { x: lx, y: yMid - sq / 2, width: sq, height: sq, fill: shade(si),
+                        ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) }, sg);
+                    const t = this.el("text", { x: lx + sq + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
+                        fill: cfg.ink, "font-family": FONT }, sg);
+                    t.textContent = label;
+                    lx += need;
+                });
+                const gt = this.el("text", { x: lx + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, tg);
+                gt.textContent = allFit ? grandTxt : cfg.fmt.format(grand);
+            }
+        }
+        if (sideW > 0 && cfg.stackTotalMax > 0) {
+            const pg = this.el("g", { "data-icd": "stack-total-panel" }, marks);
+            const x0 = rect.x + rect.w + 8;
+            // one px-per-unit over all tiles: only the shared maximum sizes the panel
+            const labelRoom = this.textWidth(cfg.fmt.format(cfg.stackTotalMax), lf, true) + 6;
+            const kSide = Math.max(0, (sideW - labelRoom - 4) / cfg.stackTotalMax);
+            pg.setAttribute("data-px-per-unit", String(kSide));
+            this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: bandStart + n * step, stroke: cfg.subtle, "stroke-width": 1 }, pg);
+            const head = this.el("text", { x: x0, y: region.y + legendH + Math.round(10 * k), "font-size": Math.round(10 * k),
+                fill: cfg.subtle, "font-family": FONT }, pg);
+            head.textContent = `Σ ${[scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "",
+                scenSet.has("pl") ? cfg.scenL.pl : ""].filter(x => x).join(" · ")}` + (cfg.stackSort === "ac" ? " (↓)" : "");
+            if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
+            for (let i = 0; i < n; i++) {
+                const w = rawPos[i] * kSide;
+                this.el("rect", { x: x0, y: pos(i), width: Math.max(w, 0.5), height: slotW,
+                    ...(scen[i] === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : scen[i] === "pl" ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
+                            : { fill: cfg.colors.ac }) }, pg);
+                if (cfg.showLabels) {
+                    const t = this.el("text", { x: x0 + w + 3, y: pos(i) + slotW / 2 + lf * 0.35, "font-size": lf,
+                        fill: cfg.ink, "font-family": FONT }, pg);
+                    t.textContent = cfg.fmt.format(rawPos[i]);
+                }
+            }
+            if (totalRow) {
+                const t = this.el("text", { x: x0 + 3, y: pos(n) + slotW / 2 + lf * 0.35, "font-size": lf, "font-weight": 700,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, pg);
+                t.textContent = cfg.fmt.format(grand);
+            }
+        }
         this.cutFcLines();
     }
 
@@ -14256,6 +15511,698 @@ export class Visual implements IVisual {
         if (!cfg.hc) { this.el("rect", { width: 5, height: 5, fill: tint, "fill-opacity": 0.45 }, pat); }
         this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.hc ? cfg.ink : cfg.colors.ac, "stroke-width": 1.6 }, pat);
         return id;
+    }
+
+    // ------------------------------------------------- 1.55 (B11) stock & flow
+
+    /**
+     * 1.55 (B11): stock & flow layout of one tile. Rows with the rowType token
+     * `stock` (or, without such rows, the line measure) carry the stock; every other
+     * row is a flow: the token `inflow`/`outflow` forces the side (+|v| / −|v|), else
+     * the sign decides. One scenario per period like the stacks (B06): AC when any row
+     * carries an actual, else FC, else PL (cell = value, in plan periods the plan).
+     * The net flow is computed here, the opening stock derived (stock[0] − net[0]).
+     */
+    private stockFlowLayout(points: DataPoint[], openingOn: boolean): SfLayout {
+        const cats: string[] = [];
+        const byCat = new Map<string, DataPoint[]>();
+        for (const p of points) {
+            const list = byCat.get(p.cat);
+            if (list) { list.push(p); } else { byCat.set(p.cat, [p]); cats.push(p.cat); }
+        }
+        const tokStock = points.some(p => p.sfKind === "stock");
+        const viaLine = !tokStock && points.some(p => p.lineVal != null);
+        const inSeries: string[] = [], outSeries: string[] = [];
+        let stockName: string | null = viaLine ? (this.lineName ?? null) : null;
+        let anyFlow = false, anyStock = false;
+        const periods = cats.map((c): SfPeriod => {
+            const pts = byCat.get(c) as DataPoint[];
+            const scen: "ac" | "fc" | "pl" = pts.some(x => x.value != null && !x.isFc) ? "ac"
+                : pts.some(x => x.value != null && x.isFc) ? "fc"
+                    : pts.some(x => x.pl != null) ? "pl" : "ac";
+            const cell = (x: DataPoint): number | null => x.value ?? (scen === "pl" ? x.pl : null);
+            const flows: SfPeriod["flows"] = [];
+            let stock: number | null = null, hasFlow = false, flowsDropped = false;
+            for (const x of pts) {
+                const raw = cell(x);
+                if (x.sfKind === "stock") {
+                    if (stockName == null && x.stackSeries != null) { stockName = x.stackSeries; }
+                    if (raw != null) { stock = (stock ?? 0) + raw; }
+                    continue;
+                }
+                if (raw == null) { if (x.pl != null && scen !== "pl") { flowsDropped = true; } continue; }
+                hasFlow = true;
+                const v = x.sfKind === "outflow" ? -Math.abs(raw) : x.sfKind === "inflow" ? Math.abs(raw) : raw;
+                if (v === 0) { continue; }
+                const side: "in" | "out" = v < 0 ? "out" : "in";
+                const sn = x.stackSeries ?? "";
+                const list = side === "in" ? inSeries : outSeries;
+                if (!list.includes(sn)) { list.push(sn); }
+                flows.push({ series: sn, side, v, p: x });
+            }
+            if (viaLine) {
+                const lv = pts.find(x => x.lineVal != null);
+                stock = lv ? lv.lineVal as number : null;
+            }
+            if (hasFlow) { anyFlow = true; }
+            if (stock != null) { anyStock = true; }
+            const inTot = flows.reduce((a, f) => a + (f.v > 0 ? f.v : 0), 0);
+            const outTot = flows.reduce((a, f) => a + (f.v < 0 ? f.v : 0), 0);
+            const levels = pts[0].catLevels ?? [c];
+            return { cat: c, label: levels[levels.length - 1], levels, scen, flows, inTot, outTot,
+                net: inTot + outTot, hasFlow, stock, pts, ...(flowsDropped ? { flowsDropped } : {}) };
+        });
+        // stacking order = series order of first appearance on each side
+        for (const per of periods) {
+            per.flows.sort((a, b) => a.side === b.side
+                ? (a.side === "in" ? inSeries : outSeries).indexOf(a.series) - (b.side === "in" ? inSeries : outSeries).indexOf(b.series)
+                : a.side === "in" ? -1 : 1);
+        }
+        const opening = openingOn && periods.length > 0 && periods[0].stock != null
+            ? (periods[0].stock as number) - periods[0].net : null;
+        return { periods, inSeries, outSeries, stockName, opening, hasStock: anyStock, hasFlow: anyFlow, viaLine };
+    }
+
+    /**
+     * 1.55 (B11, IBCS sheets 08E to 08H): stock & flow over time. Top: net flow per
+     * period (neutral grey, signed labels); below on the SAME px per unit: inflows
+     * stacked above zero, outflows below, the stock as a line with markers at the
+     * period end (plus the opening stock at the start of the first period) and an
+     * area down to zero (negative pieces tinted). AC solid, FC hatched, PL outlined
+     * (B06 notation) for columns, markers and area. The time axis takes up to two
+     * group rows from the category hierarchy (e.g. year › week › day).
+     */
+    private renderStockFlow(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const cs = this.formattingSettings.chartCard;
+        const L = this.stockFlowLayout(points, cs.sfOpening.value !== false);
+        const P = L.periods;
+        const n = P.length;
+        if (n === 0) { return; }
+        this.fcCuts = [];
+        const k = this.fontK, lf = cfg.labelFont, cf = cfg.catFont;
+        const legFont = Math.round(10 * k);
+        const fmt = cfg.fmt;
+        const netOn = cs.sfNet.value !== false && L.hasFlow;
+        const areaOn = cs.sfArea.value !== false && !cfg.hc;
+        const negTint = cs.sfNegTint.value !== false;
+        const atCenter = String((cs.sfStockAt.value as powerbi.IEnumMember)?.value) === "center";
+        const groupsOn = String((cs.axisGroups.value as powerbi.IEnumMember)?.value) !== "off";
+        const deck = cfg.sfDeck ?? (() => {
+            let lo = 0, hi = 0, nLo = 0, nHi = 0;
+            for (const per of P) {
+                lo = Math.min(lo, per.outTot, per.stock ?? 0);
+                hi = Math.max(hi, per.inTot, per.stock ?? 0);
+                if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
+            }
+            if (L.opening != null) { lo = Math.min(lo, L.opening); hi = Math.max(hi, L.opening); }
+            return { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi };
+        })();
+        const scen = P.map(p => p.scen);
+        const scenSet = new Set(scen);
+        const anyScen = scenSet.has("fc") || scenSet.has("pl");
+        const scenOn = cfg.scenarioLabels && anyScen;
+        const rank = { ac: 0, fc: 1, pl: 2 };
+        const monotone = scen.every((sc, i) => i === 0 || rank[sc] >= rank[scen[i - 1]]);
+        const scenStart = new Set<number>();
+        for (let i = 1; i < n; i++) { if (scen[i] !== scen[i - 1]) { scenStart.add(i); } }
+        // group rows from the hierarchy: up to two levels above the leaf, nearest first
+        const depth = Math.min(...P.map(p => p.levels.length));
+        const gLevels: number[] = [];
+        if (groupsOn) { for (let j = depth - 2; j >= 0 && gLevels.length < 2; j--) { gLevels.push(j); } }
+        const rowH = cf + 5;
+        const axisH = cf + 8 + gLevels.length * rowH + (scenOn ? rowH : 0);
+
+        // ---- horizontal layout: opening label room left, direct labels right
+        const netName = (cs.sfNetLabel.value || "").trim() || this.locStr("Sf_Net", "Net");
+        const stockName = L.stockName ?? this.locStr("Sf_Stock", "Stock");
+        const inName = (sn: string) => sn || this.locStr("Sf_Inflow", "Inflow");
+        const outName = (sn: string) => sn || this.locStr("Sf_Outflow", "Outflow");
+        const nameMax = Math.round(130 * k);
+        const direct = [...(netOn ? [netName] : []), ...(L.hasStock ? [stockName] : []),
+            ...L.inSeries.map(inName), ...L.outSeries.map(outName)];
+        const nameW = Math.min(nameMax, this.maxTextWidth(direct, legFont)) + 6;
+        let lastIdx = -1;
+        for (let i = n - 1; i >= 0; i--) { if (P[i].stock != null) { lastIdx = i; break; } }
+        const lastStock = lastIdx >= 0 ? P[lastIdx].stock as number : null;
+        const lastHalf = lastStock != null && !atCenter ? this.textWidth(fmt.format(lastStock), lf) / 2 + 3 : 0;
+        const firstHalf = L.opening != null ? this.textWidth(fmt.format(L.opening), lf) / 2 + 2 : 2;
+        const rightW = Math.min(region.w * 0.3, nameW + lastHalf + 6);
+        const bandStart = region.x + Math.max(4, firstHalf);
+        const bandEnd = region.x + region.w - rightW;
+        const step = (bandEnd - bandStart) / n;
+
+        // ---- vertical layout: net panel and main panel at ONE px per unit
+        const hFont = Math.round(11 * k);
+        const headerH = cfg.showTotal ? hFont + 6 : 0;
+        const top0 = region.y + headerH + 2;
+        const bottom0 = region.y + region.h - axisH;
+        const padT = lf + 6, padB = lf + 6, gap = 12;
+        const netSpan = netOn ? deck.nHi - deck.nLo : 0;
+        const fixedPx = padT + padB + (netOn ? padT + (deck.nLo < 0 ? padB : 4) + gap : 0);
+        const kpx = (bottom0 - top0 - fixedPx) / Math.max(deck.hi - deck.lo + netSpan, 1e-9);
+        // B11 review (m9): the hint as soon as less than 40 px remain for the values
+        if (!(step >= 2.5) || !(kpx > 0) || bottom0 - top0 - fixedPx < 40) {
+            this.drawModeHint(region, cfg, this.locStr("Hint_StockFlowSpace", "Not enough space for stock and flow"));
+            this.svg.lastElementChild?.setAttribute("data-icd", "sf-hint");
+            return;
+        }
+        this.lastScaleK = kpx;
+        const netZero = top0 + padT + kpx * deck.nHi;
+        const netBottom = netZero - kpx * deck.nLo + (deck.nLo < 0 ? padB : 4);
+        const mainTop = netOn ? netBottom + gap : top0;
+        const mainZero = mainTop + padT + kpx * deck.hi;
+        const mainBottom = mainZero - kpx * deck.lo + padB;
+        const Y: Scale = (v: number) => mainZero - kpx * v;
+        const YN: Scale = (v: number) => netZero - kpx * v;
+        const axisTop = mainBottom;
+        const axisBottom = axisTop + axisH;
+        const slotW = Math.max(1, step * SLOT_ABS);
+        const colX = (i: number) => bandStart + i * step + (step - slotW) / 2;
+        const center = (i: number) => bandStart + (i + 0.5) * step;
+        const ptX = (i: number) => atCenter ? center(i) : bandStart + (i + 1) * step;
+        const mainRect: Rect = { x: region.x, y: mainTop, w: region.w, h: mainBottom - mainTop };
+
+        // ---- tones: outflow in the AC colour, inflow lighter; more series per side ramp
+        const baseRgb = cfg.hc ? [26, 26, 26] : this.hexRgb(cfg.colors.ac);
+        const toRgb = cfg.dark ? this.hexRgb(cfg.paper) : [200, 200, 200];
+        const mixC = (f: number) => {
+            const c = baseRgb.map((b, ci) => Math.round(b + (toRgb[ci] - b) * f));
+            return `rgb(${c[0]},${c[1]},${c[2]})`;
+        };
+        const sideIdx = (side: "in" | "out", sn: string) => Math.max(0, (side === "in" ? L.inSeries : L.outSeries).indexOf(sn));
+        const tone = (side: "in" | "out", sn: string) => {
+            const list = side === "in" ? L.inSeries : L.outSeries;
+            const ramp = list.length > 1 ? sideIdx(side, sn) / (list.length - 1) * 0.3 : 0;
+            return mixC((side === "in" ? 0.55 : 0) + ramp);
+        };
+        // PL as outline (B06), OPAQUE so the stock area does not shine through (B11
+        // review m2, sheets 08E to 08H): inflows hollow (paper), outflows very light grey
+        const paperRgb = this.hexRgb(cfg.paper);
+        const onPaper = (fill: string, f: number) => {
+            const m = /^rgb\((\d+),(\d+),(\d+)\)$/.exec(fill);
+            const c = m ? [+m[1], +m[2], +m[3]] : this.hexRgb(fill);
+            const r = paperRgb.map((p, i) => Math.round(p + (c[i] - p) * f));
+            return `rgb(${r[0]},${r[1]},${r[2]})`;
+        };
+        // high contrast (m7): AC outflows filled with ink, inflows a mid tone without hatch
+        const hcFill = (side: "in" | "out") => side === "out" ? cfg.ink : onPaper(cfg.ink, 0.45);
+        const segStyle = (kind: "ac" | "fc" | "pl", fill: string, hatchKey: number, side: "in" | "out"): Record<string, string | number> =>
+            kind === "fc" ? { fill: `url(#${this.stackHatch(cfg, hatchKey, fill)})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                : kind === "pl" ? (cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
+                    : { fill: side === "in" ? cfg.paper : onPaper(fill, 0.16), stroke: cfg.colors.pl, "stroke-width": 1.2 })
+                    : cfg.hc ? { fill: hcFill(side), stroke: cfg.ink, "stroke-width": 1 } : { fill };
+
+        // ---- axis groups (label under the first member, separators through the panels)
+        type AxGroup = { level: number; row: number; start: number; end: number; label: string };
+        const axGroups: AxGroup[] = [];
+        gLevels.forEach((lev, row) => {
+            const key = (i: number) => P[i].levels.slice(0, lev + 1).join("\u0001");
+            let start = 0;
+            for (let i = 1; i <= n; i++) {
+                if (i === n || key(i) !== key(i - 1)) {
+                    axGroups.push({ level: lev, row, start, end: i, label: P[start].levels[lev] });
+                    start = i;
+                }
+            }
+        });
+        const emphGroups = axGroups.filter(g => this.isEmph(cfg, g.label));
+
+        const root = this.el("g", { "data-icd": "stockflow", "data-n": n }, this.svg);
+        const areaG = this.el("g", {}, root);
+        const bg = this.el("g", {}, root);
+        // highlight bands (band style): the period, or the whole range of a group
+        if (cfg.highlight.size > 0 && !cfg.highlightEllipse) {
+            const hTop = top0, hH = axisTop + cf + 4 - top0;
+            P.forEach((per, i) => { if (this.isEmph(cfg, per.cat)) { this.emphBand(bg, bandStart + i * step + 1, hTop, step - 2, hH, cfg); } });
+            for (const g of emphGroups) {
+                this.emphBand(bg, bandStart + g.start * step + 1, hTop, (g.end - g.start) * step - 2, hH, cfg);
+            }
+        }
+        // group separators: the outermost row strong, inner rows faint; an inner row
+        // gives way to a scenario boundary (B06 rule), the outermost row stays strong
+        // there too (B11 review m3: 08E, 08H draw the year line on the boundary)
+        const scenLineAt = (i: number) => anyScen && monotone && scenStart.has(i);
+        const sepDone = new Set<number>();
+        for (let r = gLevels.length - 1; r >= 0; r--) {
+            const strong = r === gLevels.length - 1;
+            for (const g of axGroups) {
+                if (g.row !== r || g.start === 0 || sepDone.has(g.start) || (!strong && scenLineAt(g.start))) { continue; }
+                sepDone.add(g.start);
+                const x = bandStart + g.start * step;
+                this.el("line", { x1: x, y1: top0, x2: x, y2: axisTop + cf + 4 + (r + 1) * rowH,
+                    stroke: strong ? cfg.ink : cfg.subtle, "stroke-width": strong ? 1 : 1,
+                    ...(strong ? {} : { "stroke-opacity": 0.5 }), "data-icd": "axis-group-sep", "data-level": r + 1 }, bg);
+            }
+        }
+        // without a hierarchy: chart.groupEvery as before (group-sep)
+        const groupEvery = Math.round(cs.groupEvery.value ?? 0);
+        if (gLevels.length === 0 && groupEvery > 0 && groupEvery < n) {
+            for (let i = groupEvery; i < n; i += groupEvery) {
+                if (scenLineAt(i)) { continue; }
+                const x = bandStart + i * step;
+                this.el("line", { x1: x, y1: top0, x2: x, y2: axisTop, stroke: cfg.subtle, "stroke-width": 1,
+                    "stroke-opacity": 0.5, "data-icd": "group-sep" }, bg);
+            }
+        }
+        // AC | FC | PL boundaries through all panels and the axis (monotone blocks only);
+        // solid as on the sheets (B11 review), in ink where a strong group line stands
+        if (anyScen && monotone) {
+            for (const i of scenStart) {
+                const x = bandStart + i * step;
+                const onSep = sepDone.has(i) && gLevels.length > 0
+                    && axGroups.some(g => g.start === i && g.row === gLevels.length - 1);
+                const ln = this.el("line", { x1: x, y1: top0, x2: x, y2: axisBottom - 2, stroke: onSep ? cfg.ink : cfg.subtle,
+                    "stroke-width": 1, ...(onSep ? {} : { "stroke-opacity": 0.6 }),
+                    "data-icd": scen[i] === "pl" ? "pl-boundary" : "fc-boundary" }, bg);
+                this.fcCuts.push({ line: ln, x, y1: top0, y2: axisBottom - 2 });
+            }
+        }
+        // zero lines of both panels (same scale, two baselines)
+        if (netOn) {
+            this.el("line", { x1: bandStart, y1: netZero, x2: bandEnd, y2: netZero, stroke: cfg.ink, "stroke-width": 1.2,
+                "data-icd": "sf-zero", "data-panel": "net" }, bg);
+        }
+        this.el("line", { x1: bandStart, y1: mainZero, x2: bandEnd, y2: mainZero, stroke: cfg.ink, "stroke-width": 1.2,
+            "data-icd": "sf-zero", "data-panel": "main" }, bg);
+        if (cfg.refLine != null) {
+            const rg = this.el("g", { "data-icd": "sf-refline" }, bg);
+            this.drawRefLine(rg, mainRect, Y, "columns", bandStart, bandEnd, cfg);
+        }
+
+        // ---- stock points: opening at the start of the first period, then one per period
+        type SP = { x: number; v: number | null; scen: "ac" | "fc" | "pl"; i: number };
+        const sp: SP[] = [];
+        if (L.opening != null) { sp.push({ x: bandStart, v: L.opening, scen: scen[0], i: -1 }); }
+        P.forEach((per, i) => sp.push({ x: ptX(i), v: per.stock, scen: per.scen, i }));
+
+        // ---- area between stock line and zero, per segment in the scenario of its period;
+        // a zero crossing splits the segment, pieces below zero are tinted
+        if (areaOn && L.hasStock) {
+            const areaHatch = `${cfg.patId}-sfa`;
+            if (!this.svg.querySelector(`#${areaHatch}`)) {
+                const defs = this.svg.querySelector("defs") ?? this.el("defs", {}, this.svg);
+                const pat = this.el("pattern", { id: areaHatch, patternUnits: "userSpaceOnUse", width: 5, height: 5,
+                    patternTransform: "rotate(45)" }, defs);
+                this.el("rect", { width: 5, height: 5, fill: cfg.paper }, pat);
+                this.el("rect", { width: 5, height: 5, fill: cfg.colors.ac, "fill-opacity": 0.12 }, pat);
+                this.el("line", { x1: 0, y1: 0, x2: 0, y2: 5, stroke: cfg.colors.ac, "stroke-width": 1.4 }, pat);
+            }
+            const piece = (x1: number, v1: number, x2: number, v2: number, sc: "ac" | "fc" | "pl") => {
+                const neg = v1 + v2 < 0;
+                const style: Record<string, string | number> = neg && negTint
+                    ? { fill: cfg.colors.bad, "fill-opacity": 0.14, "data-icd": "sf-area-neg" }
+                    : sc === "fc" ? { fill: `url(#${areaHatch})`, "data-icd": "sf-area" }
+                        : { fill: cfg.colors.ac, "fill-opacity": sc === "pl" ? 0.05 : 0.12, "data-icd": "sf-area" };
+                this.el("polygon", { points: `${x1},${Y(v1)} ${x2},${Y(v2)} ${x2},${mainZero} ${x1},${mainZero}`,
+                    ...style, "data-scen": sc }, areaG);
+            };
+            for (let j = 1; j < sp.length; j++) {
+                const a = sp[j - 1], b = sp[j];
+                if (a.v == null || b.v == null) { continue; }
+                if ((a.v > 0 && b.v < 0) || (a.v < 0 && b.v > 0)) {
+                    const xz = a.x + (b.x - a.x) * a.v / (a.v - b.v);
+                    piece(a.x, a.v, xz, 0, b.scen);
+                    piece(xz, 0, b.x, b.v, b.scen);
+                } else {
+                    piece(a.x, a.v, b.x, b.v, b.scen);
+                }
+            }
+        }
+
+        // ---- flows and net per period
+        const marks = this.el("g", {}, root);
+        const periodGs: SVGGElement[] = [];
+        P.forEach((per, i) => {
+            const g = this.el("g", { "class": "icd-cat", "data-cat": per.cat }, marks) as SVGGElement;
+            periodGs.push(g);
+            let cumIn = 0, cumOut = 0;
+            for (const f of per.flows) {
+                const from = f.v > 0 ? cumIn : cumOut;
+                const to = from + f.v;
+                if (f.v > 0) { cumIn = to; } else { cumOut = to; }
+                const kind: "ac" | "fc" | "pl" = per.scen === "pl" ? "pl" : f.p.isFc ? "fc" : "ac";
+                const sg = this.el("g", { "data-icd": f.side === "in" ? "sf-seg-in" : "sf-seg-out", "data-scen": kind,
+                    "data-v": f.v, "data-series": f.series }, g);
+                this.drawBar(sg, colX(i), slotW, from, to, Y, "columns",
+                    segStyle(kind, tone(f.side, f.series), (f.side === "in" ? 10 : 20) + sideIdx(f.side, f.series), f.side));
+            }
+            if (netOn && per.hasFlow && per.net !== 0) {
+                const up = per.net > 0;
+                const ng = this.el("g", { "data-icd": "sf-net", "data-v": per.net, "data-scen": per.scen }, g);
+                this.drawBar(ng, colX(i), slotW, 0, per.net, YN, "columns",
+                    segStyle(per.scen, up ? tone("in", L.inSeries[0] ?? "") : tone("out", L.outSeries[0] ?? ""), up ? 30 : 31, up ? "in" : "out"));
+            }
+            const cp = per.pts.find(p => p.commentNo != null);
+            if (cp) {
+                const r = Math.round(7 * k);
+                const cg = this.el("g", { "data-icd": "stack-comment" }, g);
+                this.drawCommentMarker(cg, 0, cp, Y, "columns", cfg, { cx: center(i), cy: mainTop + r + 1 });
+            }
+        });
+
+        // ---- stock line, then the markers on top
+        const ms = Math.max(3, Math.min(Math.round(5.5 * k), step * 0.7));
+        const markerGs: (SVGGElement | null)[] = P.map(() => null);
+        if (L.hasStock) {
+            let d = "";
+            let open = false;
+            for (const q of sp) {
+                if (q.v == null) { open = false; continue; }
+                d += `${open ? "L" : "M"}${q.x},${Y(q.v)}`;
+                open = true;
+            }
+            this.el("path", { d, fill: "none", stroke: cfg.colors.ac, "stroke-width": Math.max(1.5, 1.5 * k),
+                "stroke-linejoin": "round", "data-icd": "sf-stock-line" }, root);
+            const mk = this.el("g", {}, root);
+            for (const q of sp) {
+                if (q.v == null) { continue; }
+                const style: Record<string, string | number> = q.scen === "pl"
+                    ? { fill: cfg.paper, stroke: cfg.colors.ac, "stroke-width": 1.2 }
+                    : q.scen === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                        : { fill: cfg.colors.ac, stroke: cfg.colors.ac, "stroke-width": 1 };
+                const parent = q.i < 0 ? mk : (markerGs[q.i] = this.el("g", { "class": "icd-cat" }, mk) as SVGGElement);
+                this.el("rect", { x: q.x - ms / 2, y: Y(q.v) - ms / 2, width: ms, height: ms, ...style,
+                    "data-icd": q.i < 0 ? "sf-opening" : "sf-stock-pt", "data-scen": q.scen, "data-v": q.v }, parent);
+            }
+        }
+
+        // ---- labels (one declutter pass, higher priority wins)
+        const lbl = this.el("g", {}, root);
+        const items: { el: SVGTextElement; prio: number }[] = [];
+        const textAt = (x: number, y: number, txt: string, attrs: Record<string, string | number> = {}): SVGTextElement => {
+            const t = this.el("text", { x, y, "text-anchor": "middle", "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round", ...attrs }, lbl);
+            t.textContent = txt;
+            return t;
+        };
+        const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
+        const emphAt = (i: number) => i >= 0 && this.isEmph(cfg, P[i].cat);
+        const innerStart = new Set(axGroups.filter(g => g.row === 0).map(g => g.start));
+        const argBy = (f: (p: SfPeriod) => number, dir: 1 | -1) => {
+            let best = -1, bv = -Infinity;
+            P.forEach((p, i) => { const v = f(p) * dir; if (p.hasFlow && v > bv) { bv = v; best = i; } });
+            return best;
+        };
+        if (cfg.showLabels && L.hasFlow) {
+            // B11 review (m4): the flow width comes from the flow labels only (the net
+            // label carries a sign); narrow periods label every k-th period (08F: about
+            // every third week), wide ones all (08H)
+            const flowTw = Math.max(...P.map(p => Math.max(this.textWidth(fmt.format(p.inTot), lf),
+                this.textWidth(fmt.format(-p.outTot), lf))));
+            const netTw = Math.max(...P.map(p => this.textWidth(this.fmtSigned(fmt, p.net), lf)));
+            // the net is the message of the upper panel: labelled as soon as it fits
+            const flowAll = density === "all" || (density !== "ends" && step >= flowTw * 6);
+            const flowEvery = density === "ends" ? 0 : Math.max(2, Math.ceil(flowTw * 6 / step));
+            const netAll = density === "all" || (density !== "ends" && step >= netTw * 1.3);
+            const prio = (i: number, ext: number[], all = flowAll, every = 0): number => i === n - 1 ? 90 : emphAt(i) ? 89 : i === 0 ? 80
+                : scenStart.has(i) ? 75 : ext.includes(i) ? 70 : density !== "ends" && innerStart.has(i) ? 50 : all ? 20
+                    : every > 0 && i % every === 0 ? 30 : -1;
+            const extIn = [argBy(p => p.inTot, 1)], extOut = [argBy(p => p.outTot, -1)];
+            const extNet = [argBy(p => p.net, 1), argBy(p => p.net, -1)];
+            P.forEach((per, i) => {
+                const cx = center(i);
+                if (per.inTot > 0) {
+                    const pr = prio(i, extIn, flowAll, flowEvery);
+                    if (pr >= 0) { items.push({ el: textAt(cx, Y(per.inTot) - 4, fmt.format(per.inTot), { "data-icd": "sf-label-in" }), prio: pr }); }
+                }
+                if (per.outTot < 0) {
+                    const pr = prio(i, extOut, flowAll, flowEvery);
+                    if (pr >= 0) { items.push({ el: textAt(cx, Y(per.outTot) + lf + 2, fmt.format(-per.outTot), { "data-icd": "sf-label-out" }), prio: pr }); }
+                }
+                if (netOn && per.hasFlow) {
+                    const pr = prio(i, extNet, netAll);
+                    if (pr >= 0) {
+                        const y = per.net >= 0 ? YN(per.net) - 4 : YN(per.net) + lf + 2;
+                        items.push({ el: textAt(cx, y, this.fmtSigned(fmt, per.net), { "data-icd": "sf-label-net", "data-i": i }), prio: pr });
+                    }
+                }
+            });
+        }
+        if (cfg.showLabels && L.hasStock) {
+            const vals = sp.filter(q => q.v != null) as (SP & { v: number })[];
+            const stockTw = Math.max(...vals.map(q => this.textWidth(fmt.format(q.v), lf)));
+            // B11 review (m4): fewer stock labels in narrow periods (08F names five key
+            // points), all of them only with room (08H)
+            const stockAll = density === "all" || (density !== "ends" && step >= stockTw * 3.5);
+            const stockLocal = density !== "ends" && step >= stockTw * 3;
+            let iMax = vals[0], iMin = vals[0];
+            for (const q of vals) { if (q.v > iMax.v) { iMax = q; } if (q.v < iMin.v) { iMin = q; } }
+            vals.forEach((q, j) => {
+                const pv = j > 0 ? vals[j - 1].v : null, nv = j < vals.length - 1 ? vals[j + 1].v : null;
+                const peak = (pv == null || q.v >= pv) && (nv == null || q.v >= nv);
+                const trough = (pv == null || q.v <= pv) && (nv == null || q.v <= nv);
+                const above = peak && !trough ? true : trough && !peak ? false
+                    : nv != null && nv !== q.v ? nv < q.v : pv != null && pv !== q.v ? pv < q.v : q.v >= 0;
+                const isLast = q.i === lastIdx;
+                const pr = isLast ? 100 : emphAt(q.i) ? 99 : q.i < 0 ? 95 : scenStart.has(q.i + 1) ? 88
+                    : q === iMax || q === iMin ? 82 : (peak !== trough) && stockLocal ? 55 : stockAll ? 25 : -1;
+                if (pr < 0) { return; }
+                // a label in an emphasis ellipse keeps the ring clear of the marker (review nit)
+                const ringGap = cfg.highlightEllipse && emphAt(q.i) ? 4 : 0;
+                const y = above ? Y(q.v) - ms / 2 - 4 - ringGap : Y(q.v) + ms / 2 + lf + ringGap;
+                items.push({ el: textAt(q.x, y, fmt.format(q.v), { "data-icd": "sf-stock-label", "data-i": q.i }), prio: pr });
+            });
+        }
+
+        // ---- direct labels right of the last period
+        const dl = this.el("g", { "data-icd": "sf-direct-label" }, root);
+        const fixed: SVGTextElement[] = [];
+        const nameX = bandEnd + lastHalf + 6;
+        const nameAt = (y: number, txt: string, icd: string) => {
+            const t = this.el("text", { x: nameX, y: y + legFont * 0.35, "font-size": legFont, fill: cfg.ink,
+                "font-family": FONT, "data-icd": icd }, dl);
+            t.textContent = this.truncate(txt, nameMax, legFont);
+            fixed.push(t);
+            return t;
+        };
+        const lineGap = legFont + 2;
+        if (netOn) { nameAt(netZero, netName, "sf-net-title"); }
+        const inYs = L.inSeries.map((_, j) => mainZero - legFont * 0.6 - 3 - j * lineGap);
+        const outYs = L.outSeries.map((_, j) => mainZero + legFont * 0.6 + 3 + j * lineGap);
+        L.inSeries.forEach((sn, j) => nameAt(inYs[j], inName(sn), "sf-name-in"));
+        L.outSeries.forEach((sn, j) => nameAt(outYs[j], outName(sn), "sf-name-out"));
+        if (lastStock != null) {
+            let ys = Y(lastStock);
+            const taken = [...inYs, ...outYs];
+            if (taken.some(y => Math.abs(y - ys) < lineGap)) {
+                ys = lastStock >= 0 ? Math.min(...inYs, mainZero) - lineGap : Math.max(...outYs, mainZero) + lineGap;
+            }
+            nameAt(ys, stockName, "sf-name-stock");
+        }
+
+        // ---- total header: Σ inflow · Σ outflow · net · closing stock
+        if (cfg.showTotal) {
+            const sumIn = P.reduce((a, p) => a + p.inTot, 0), sumOut = P.reduce((a, p) => a + p.outTot, 0);
+            const t = this.el("text", { x: region.x + region.w - 6, y: region.y + hFont + 1, "text-anchor": "end",
+                "font-size": hFont, "font-family": FONT, fill: cfg.subtle, "data-icd": "sf-total",
+                ...(lastStock != null ? { "data-closing": lastStock } : {}) }, root);
+            const span = (text: string, bold: boolean) => {
+                const ts = document.createElementNS(SVG_NS, "tspan");
+                if (bold) { ts.setAttribute("font-weight", "600"); ts.setAttribute("fill", cfg.ink); }
+                ts.textContent = text;
+                t.appendChild(ts);
+            };
+            const inLbl = L.inSeries.length === 1 ? inName(L.inSeries[0]) : this.locStr("Sf_Inflow", "Inflow");
+            const outLbl = L.outSeries.length === 1 ? outName(L.outSeries[0]) : this.locStr("Sf_Outflow", "Outflow");
+            if (L.hasFlow) {
+                span(`Σ ${inLbl} `, false); span(fmt.format(sumIn), true);
+                span(` · Σ ${outLbl} `, false); span(fmt.format(-sumOut), true);
+                span(` · ${netName} `, false); span(this.fmtSigned(fmt, sumIn + sumOut), true);
+            }
+            if (lastStock != null) {
+                span(`${L.hasFlow ? " · " : ""}${this.locStr("Sf_TotalClosing", "Closing stock")} `, false);
+                span(fmt.format(lastStock), true);
+            }
+            fixed.push(t);
+        }
+
+        // ---- axis: period labels, group rows, scenario labels
+        const ax = this.el("g", { "data-icd": "sf-axis" }, root);
+        const yTick = axisTop + cf + 2;
+        const showCatAt = this.labelPredicate(P.map(p => ({ cat: p.label, value: 0 } as DataPoint)),
+            P.map(p => p.label), cf, step, "columns", undefined, true);
+        P.forEach((per, i) => {
+            const hl = emphAt(i);
+            if (!showCatAt(i) && !hl) { return; }
+            const t = this.el("text", { x: center(i), y: yTick, "text-anchor": "middle", "font-size": cf, fill: cfg.ink,
+                "font-family": FONT, "font-weight": hl ? 600 : 400 }, ax);
+            t.textContent = this.truncate(per.label, Math.max(step + 4, cf), cf);
+        });
+        const groupTexts: { g: AxGroup; t: SVGTextElement }[] = [];
+        for (const g of axGroups) {
+            const x = bandStart + g.start * step + 3;
+            const maxW = g.end === n ? region.x + region.w - x - 2 : (g.end - g.start) * step - 5;
+            if (maxW < cf) { continue; }
+            const hl = this.isEmph(cfg, g.label);
+            const t = this.el("text", { x, y: yTick + (g.row + 1) * rowH, "text-anchor": "start", "font-size": cf,
+                fill: cfg.ink, "font-family": FONT, "font-weight": hl ? 600 : 400, "data-icd": "axis-group",
+                "data-level": g.row + 1, "data-label": g.label }, ax);
+            t.textContent = this.truncate(g.label, maxW, cf);
+            groupTexts.push({ g, t });
+        }
+        if (scenOn) {
+            const yS = yTick + (gLevels.length + 1) * rowH;
+            for (let i = 0; i < n; i++) {
+                if (i > 0 && scen[i] === scen[i - 1]) { continue; }
+                const txt = scen[i] === "ac" ? cfg.scenL.ac : scen[i] === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+                // B11 review (m9): a label wider than its block is left out („FCPL“)
+                let e = i + 1;
+                while (e < n && scen[e] === scen[i]) { e++; }
+                const room = e === n ? region.x + region.w - (bandStart + i * step) - 5 : (e - i) * step - 4;
+                if (this.textWidth(txt, cf) > room) { continue; }
+                const t = this.el("text", { x: bandStart + i * step + 3, y: yS, "text-anchor": "start", "font-size": cf,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label" }, ax);
+                t.textContent = txt;
+            }
+        }
+
+        // B11 review (m4): markers and the stock line are obstacles for the optional
+        // labels (priority below the extremes); key labels keep their place
+        if (L.hasStock && items.length > 0) {
+            const pts = sp.filter(q => q.v != null).map(q => ({ x: q.x, y: Y(q.v as number) }));
+            const segs: { x1: number; y1: number; x2: number; y2: number }[] = [];
+            for (let j = 1; j < sp.length; j++) {
+                const a = sp[j - 1], b = sp[j];
+                if (a.v != null && b.v != null) { segs.push({ x1: a.x, y1: Y(a.v), x2: b.x, y2: Y(b.v) }); }
+            }
+            const hitsLine = (bx: { x0: number; x1: number; y0: number; y1: number }) => segs.some(s => {
+                const xa = Math.max(bx.x0, Math.min(s.x1, s.x2)), xb = Math.min(bx.x1, Math.max(s.x1, s.x2));
+                if (xb <= xa) { return false; }
+                const yAt = (x: number) => s.x2 === s.x1 ? s.y1 : s.y1 + (s.y2 - s.y1) * (x - s.x1) / (s.x2 - s.x1);
+                const ya = yAt(xa), yb = yAt(xb);
+                return Math.max(ya, yb) > bx.y0 && Math.min(ya, yb) < bx.y1;
+            });
+            for (let j = items.length - 1; j >= 0; j--) {
+                const it = items[j];
+                if (it.prio >= 82) { continue; }
+                let b: DOMRect;
+                try { b = it.el.getBBox(); } catch { continue; }
+                if (!(b.width > 0)) { continue; }
+                const sh = b.height * 0.18;
+                const bx = { x0: b.x + 0.5, x1: b.x + b.width - 0.5, y0: b.y + sh, y1: b.y + b.height - sh };
+                const onMarker = pts.some(p => p.x + ms / 2 > bx.x0 && p.x - ms / 2 < bx.x1 && p.y + ms / 2 > bx.y0 && p.y - ms / 2 < bx.y1);
+                if (onMarker || hitsLine(bx)) { it.el.remove(); items.splice(j, 1); }
+            }
+        }
+        this.declutterLabels(items, fixed);
+
+        // ---- emphasis as ellipse (C20): the stock label of the period (else its net
+        // label), a highlighted group label on the axis
+        if (cfg.highlightEllipse && cfg.highlight.size > 0) {
+            const ink = cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF";
+            const ring = (t: Element | null) => {
+                if (!t) { return; }
+                let b: DOMRect;
+                try { b = (t as SVGTextElement).getBBox(); } catch { return; }
+                if (!(b.width > 0)) { return; }
+                const e = this.el("ellipse", { cx: b.x + b.width / 2, cy: b.y + b.height / 2, rx: b.width / 2 + 5,
+                    ry: b.height / 2 + 3, fill: "none", stroke: ink, "stroke-width": 1.3, "data-icd": "emph-ellipse" }, lbl);
+                e.setAttribute("pointer-events", "none");
+            };
+            P.forEach((_, i) => {
+                if (!emphAt(i)) { return; }
+                ring(lbl.querySelector(`[data-icd="sf-stock-label"][data-i="${i}"]`)
+                    ?? lbl.querySelector(`[data-icd="sf-label-net"][data-i="${i}"]`));
+            });
+            for (const gt of groupTexts) { if (this.isEmph(cfg, gt.g.label)) { ring(gt.t); } }
+        }
+
+        // ---- edit-mode hints: no stock / no flow (readers and exports see nothing)
+        if (this.allowInteractions && this.viewMode !== 0 && (!L.hasStock || !L.hasFlow)) {
+            const t = this.el("text", { x: region.x + 4, y: mainTop + legFont, "font-size": Math.round(9 * k),
+                fill: cfg.subtle, "font-family": FONT, "font-style": "italic", "data-icd": "sf-hint" }, root);
+            t.textContent = this.truncate(!L.hasStock
+                ? this.locStr("Hint_StockFlowNoStock", "Stock & flow: no stock row (type stock) and no line measure, the stock line is missing")
+                : this.locStr("Hint_StockFlowNoFlow", "Stock & flow: no flow rows, only the stock is drawn"), region.w - 8, Math.round(9 * k));
+        } else if (this.allowInteractions && this.viewMode !== 0) {
+            // B11 review (m8): one scenario per period — plan-only flows in an AC/FC period are not drawn
+            const dropped = P.filter(p => p.flowsDropped).map(p => p.label);
+            if (dropped.length > 0) {
+                const t = this.el("text", { x: region.x + 4, y: mainTop + legFont, "font-size": Math.round(9 * k),
+                    fill: cfg.subtle, "font-family": FONT, "font-style": "italic", "data-icd": "sf-hint", "data-kind": "mixed" }, root);
+                t.textContent = this.truncate(this.locStr("Hint_StockFlowMixed",
+                    "Stock & flow: plan-only flows in a period with an actual or forecast are not drawn ({list})")
+                    .replace("{list}", dropped.slice(0, 4).join(", ") + (dropped.length > 4 ? " …" : "")), region.w - 8, Math.round(9 * k));
+            }
+        }
+
+        // ---- interaction per period: tooltip (inflow, outflow, net, stock), selection
+        P.forEach((per, i) => {
+            // one tab stop per period (B11 review m5): the marker group only takes the mouse
+            [periodGs[i], markerGs[i]].forEach((g, gi) => {
+                if (g) { this.wireStockFlowPeriod(g, per, i === 0 ? L.opening : null, cfg, inName, outName, netName, stockName, gi === 0); }
+            });
+        });
+        this.cutFcLines();
+    }
+
+    /** 1.55 (B11): selection, keyboard and tooltip of one stock & flow period */
+    private wireStockFlowPeriod(g: SVGGElement, per: SfPeriod, opening: number | null, cfg: ChartConfig,
+        inName: (s: string) => string, outName: (s: string) => string, netName: string, stockName: string,
+        focus = true): void {
+        const allow = this.host.hostCapabilities?.allowInteractions !== false;
+        const sels = per.pts.map(p => p.sel).filter((x): x is ISelectionId => x != null);
+        const scenTxt = per.scen === "ac" ? cfg.scenL.ac : per.scen === "fc" ? cfg.scenL.fc : cfg.scenL.pl;
+        g.style.cursor = !allow ? "default" : this.commentEdit ? "text" : "pointer";
+        if (focus) {
+            if (allow) { g.setAttribute("tabindex", "0"); }
+            g.setAttribute("role", "option");
+        }
+        const items = (): VisualTooltipDataItem[] => {
+            const out: VisualTooltipDataItem[] = [
+                { displayName: this.locStr("Role_Category", "Category"), value: per.cat },
+                { displayName: this.locStr("Tooltip_Scenario", "Scenario"), value: scenTxt }
+            ];
+            for (const f of per.flows) {
+                out.push({ displayName: f.side === "in" ? inName(f.series) : outName(f.series), value: cfg.fmt.format(Math.abs(f.v)) });
+            }
+            if (per.hasFlow) { out.push({ displayName: netName, value: this.fmtSigned(cfg.fmt, per.net) }); }
+            if (opening != null) { out.push({ displayName: this.locStr("Sf_Opening", "Opening stock"), value: cfg.fmt.format(opening) }); }
+            if (per.stock != null) { out.push({ displayName: stockName, value: cfg.fmt.format(per.stock) }); }
+            for (const p of per.pts) {
+                if (p.comment != null && p.commentNo != null) {
+                    out.push({ displayName: `${this.circledNo(p.commentNo)} ${this.locStr("Tooltip_Comment", "Comment")}`, value: p.comment });
+                }
+            }
+            return out;
+        };
+        if (focus) {
+            g.setAttribute("aria-label", [per.cat, scenTxt, ...items().slice(2).map(it => `${it.displayName} ${it.value}`)].join(", "));
+        }
+        const select = (multi: boolean) => {
+            if (!allow || sels.length === 0) { return; }
+            this.selectionManager.select(sels, multi).then((ids: ISelectionId[]) => { this.applySelectionOpacity(ids); });
+        };
+        g.addEventListener("click", (e: MouseEvent) => {
+            e.stopPropagation();
+            if (!allow) { return; }
+            if (this.commentEdit) { this.openCommentEditor(per.pts[0], e); return; }
+            select(e.ctrlKey || e.metaKey);
+        });
+        g.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key !== "Enter" && e.key !== " ") { return; }
+            e.preventDefault();
+            e.stopPropagation();
+            select(e.ctrlKey || e.metaKey);
+        });
+        g.addEventListener("contextmenu", (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.selectionManager.showContextMenu(sels[0] ?? null, { x: e.clientX, y: e.clientY });
+        });
+        g.addEventListener("mouseover", (e: MouseEvent) => {
+            if (this.uiDark) { this.showDarkTip(items(), e); return; }
+            this.tooltipService.show({ dataItems: items(), identities: sels, coordinates: [e.clientX, e.clientY], isTouchEvent: false });
+        });
+        g.addEventListener("mousemove", (e: MouseEvent) => {
+            if (this.uiDark) { this.moveDarkTip(e); return; }
+            this.tooltipService.move({ dataItems: items(), identities: sels, coordinates: [e.clientX, e.clientY], isTouchEvent: false });
+        });
+        g.addEventListener("mouseout", () => {
+            if (this.uiDark) { this.hideDarkTip(); return; }
+            this.tooltipService.hide({ immediately: false, isTouchEvent: false });
+        });
+        this.catGroups.push({ g, sel: sels[0] ?? null, dim: per.pts.every(p => p.dim) });
     }
 
     /** hex "#rrggbb" → [r,g,b] (defaults to dark grey on malformed input) */
@@ -14326,6 +16273,10 @@ export class Visual implements IVisual {
         // waterfall-bridge: an extra panel alongside the normal AC/PY/PL comparison bars,
         // showing the same categories cascading from the basis total to AC with connectors
         const wfStyle = cascade != null;
+        // 1.55 (B13 review, M4): plan-only periods (no AC/FC, PL outline) carry their
+        // plan value as label, like the AC columns (sheet 13A: "79" in 2028)
+        const plOnly = (p: DataPoint): boolean => !cfg.lineMode && p.value == null && p.pl != null;
+        const labelLevel = (p: DataPoint): number | null => p.value ?? (plOnly(p) ? p.pl : null);
 
         // compact mode: too little room for variance panels → deltas become labels
         const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
@@ -14387,7 +16338,8 @@ export class Visual implements IVisual {
         // visual's edge with the old font-based pad) — never less than before
         const valueTexts0 = (cfg.sumSafe && !cfg.cumulative
             ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
-            : points.map(p => p.value)).map(v => v != null ? cfg.fmt.format(v) : "");
+            : points.map(p => p.value)).map((v, i) => v != null ? cfg.fmt.format(v)
+                : plOnly(points[i]) ? cfg.fmt.format(points[i].pl as number) : "");
         const barPad = (base: number, texts: string[], vals: (number | null)[], extra: number): number | PanelPad => {
             if (orientation === "columns" || !cfg.showLabels) { return base; }
             let lo = 0, hi = 0;
@@ -14400,7 +16352,7 @@ export class Visual implements IVisual {
             return { lo: Math.max(base + 4, lo), hi: Math.max(base + 24, hi) };
         };
         const rPin = 4.5; // upper bound of the Δ% pin head radius
-        const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(p => p.value), 0);
+        const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(labelLevel), 0);
         const absPadB = barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
             points.map(p => p.varAbs), 0);
         const relPadB = barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
@@ -14416,18 +16368,39 @@ export class Visual implements IVisual {
             return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         };
 
+        // 1.55 (B09): markers on plain columns/bars, resolved on the point values
+        const keyOf = (c: string) => c.trim().toLowerCase();
+        // the first category of a name wins (hierarchy leaves can repeat)
+        const idxOf = new Map<string, number>();
+        points.forEach((p, i) => { if (!idxOf.has(keyOf(p.cat))) { idxOf.set(keyOf(p.cat), i); } });
+        // a plan-only month (no AC/FC) is compared on its plan value, like its outline
+        const mv = (i: number): number | null => points[i].value ?? points[i].pl;
+        // "@" has no meaning without a stack: the whole text after the arrow is the category;
+        // not with line mode or the waterfall bridge
+        const plainDiff = cfg.lineMode || wfStyle ? [] : cfg.diffMarkers
+            .map(m => ({ spec: m.series == null ? m : { ...m, to: m.toFull, series: null },
+                fi: idxOf.get(keyOf(m.from)), ti: idxOf.get(keyOf(m.series == null ? m.to : m.toFull)) }))
+            .filter((m): m is { spec: DiffMarkerSpec; fi: number; ti: number } => m.fi != null && m.ti != null && m.fi !== m.ti
+                && mv(m.fi) != null && mv(m.ti) != null
+                && !(cfg.capMax != null && Math.max(mv(m.fi) as number, mv(m.ti) as number) > cfg.capMax))
+            .slice(0, DIFF_MARKER_MAX);
+        // with the year column the last month has no free side: its label goes above the bar
+        const plainPlan = diffPlan(plainDiff, n, !(yr && orientation === "columns"), !(yr && orientation === "columns"));
+        const diffRooms = this.diffRooms(plainDiff.map(m => this.diffText({ spec: m.spec,
+            d: (mv(m.ti) as number) - (mv(m.fi) as number), base: mv(m.fi) as number }, cfg)),
+            plainPlan, orientation, cfg, cfg.sharedScale ? cfg.mainDomain[1] - cfg.mainDomain[0] : 0, false, region.w * 0.2);
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10 + (scenOn ? cfg.catFont + 2 : 0);
-            bandStart = region.x + pad + 2;
+            bandStart = region.x + pad + 2 + diffRooms.lo;
             bandEnd = yr ? bandStart + n * yr.w
-                : region.x + region.w - pad;
+                : region.x + region.w - pad - diffRooms.hi;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
             panels = split(plotTop, plotBottom - plotTop, true);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
             // room for the header and the panel titles above the first bar
-            bandStart = region.y + pad + headerH + titleH + 2;
-            bandEnd = region.y + region.h - pad;
+            bandStart = region.y + pad + headerH + titleH + 2 + diffRooms.lo;
+            bandEnd = region.y + region.h - pad - diffRooms.hi;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
             panels = split(plotLeft, plotRight - plotLeft, false);
         }
@@ -14460,13 +16433,14 @@ export class Visual implements IVisual {
         const labelVals = cfg.sumSafe && !cfg.cumulative
             ? this.sumSafeAdjust(points.map(p => p.value), cfg.fmtUnit, cfg.fmtPrec)
             : points.map(p => p.value);
-        const valueTexts = labelVals.map(v => v != null ? cfg.fmt.format(v) : "");
+        const valueTexts = labelVals.map((v, i) => v != null ? cfg.fmt.format(v)
+            : plOnly(points[i]) ? cfg.fmt.format(points[i].pl as number) : "");
         const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
         // "n.a." texts for a basis ≤ 0 (UN 4.1) take part in the label thinning too
         const relTexts = points.map(p => this.relText(p));
         const abs2Texts = points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : "");
         const rel2Texts = points.map(p => this.relText(p, true));
-        const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation);
+        const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation, labelLevel);
         const showAbsAt = this.labelPredicate(points, absTexts, cfg.labelFont, step, orientation, p => p.varAbs);
         const showRelAt = this.labelPredicate(points, relTexts, cfg.labelFont, step, orientation, p => p.varRel);
         const showAbs2At = this.labelPredicate(points, abs2Texts, cfg.labelFont, step, orientation, p => p.var2Abs);
@@ -14550,19 +16524,23 @@ export class Visual implements IVisual {
             }
         };
         baseline(panels.main, mainScale, "ac");
-        const compactVarHint = compact && (cfg.showAbs || cfg.showRel)
+        // B13 review (m4): the reference tile under the Ø basis has no Δ — its panels
+        // keep their room (same scale in every tile) but get no title, axis or hint
+        const noDelta = this.refTileNoDelta;
+        const compactVarHint = compact && (cfg.showAbs || cfg.showRel) && !noDelta
             ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
         const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
         this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
             orientation, titleH, region, barsTitleY, cfg.subtle);
         // magnified Δ panels say so: "×f" in the title (IBCS CH 4.5) …
         const zoomTag = zoom > 1 ? ` ×${zoom}` : "";
-        if (panels.abs && absScale) {
-            baseline(panels.abs, absScale, cfg.basisMode);
+        if (panels.abs && absScale && !noDelta) {
+            // 1.55 (B13): the Ø is no scenario, its Δ axis is a plain line
+            baseline(panels.abs, absScale, cfg.basisAvg ? "ac" : cfg.basisMode);
             this.drawPanelTitle(bg, panels.abs, `Δ${cfg.basisLabel}${zoomTag}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
-        if (panels.rel && relScale) {
-            baseline(panels.rel, relScale, cfg.basisMode);
+        if (panels.rel && relScale && !noDelta) {
+            baseline(panels.rel, relScale, cfg.basisAvg ? "ac" : cfg.basisMode);
             this.drawPanelTitle(bg, panels.rel, `Δ${cfg.basisLabel} %`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         // the REAL second basis from parseData — a local re-derivation would miss
@@ -14573,7 +16551,7 @@ export class Visual implements IVisual {
             this.drawPanelTitle(bg, panels.abs2, `Δ${cfg.basis2Label}${zoomTag}`, orientation, titleH, region, barsTitleY, cfg.subtle);
         }
         // … and a scale band at the same value in the base and the Δ panel(s) (CH 4.3)
-        if (zoom > 1 && panels.abs && absScale) {
+        if (zoom > 1 && panels.abs && absScale && !noDelta) {
             const tiers = [{ rect: panels.abs, scale: absScale }];
             if (panels.abs2 && abs2Scale) { tiers.push({ rect: panels.abs2, scale: abs2Scale }); }
             this.drawScaleBands(bg, cfg, orientation, bandStart, bandEnd, zoom, domains.abs, mainScale, tiers);
@@ -14587,8 +16565,8 @@ export class Visual implements IVisual {
         if (year && yr && yearScale) {
             const x0 = yr.x0, x1 = yr.x0 + yr.w;
             this.drawBaseline(bg, panels.main, yearScale, orientation, x0, x1, "ac", cfg.colors);
-            if (panels.abs && absScale) { this.drawBaseline(bg, panels.abs, absScale, orientation, x0, x1, cfg.basisMode, cfg.colors); }
-            if (panels.rel && relScale) { this.drawBaseline(bg, panels.rel, relScale, orientation, x0, x1, cfg.basisMode, cfg.colors); }
+            if (panels.abs && absScale && !noDelta) { this.drawBaseline(bg, panels.abs, absScale, orientation, x0, x1, cfg.basisAvg ? "ac" : cfg.basisMode, cfg.colors); }
+            if (panels.rel && relScale && !noDelta) { this.drawBaseline(bg, panels.rel, relScale, orientation, x0, x1, cfg.basisAvg ? "ac" : cfg.basisMode, cfg.colors); }
             if (panels.abs2 && abs2Scale) { this.drawBaseline(bg, panels.abs2, abs2Scale, orientation, x0, x1, basis2Mode, cfg.colors); }
             if (panels.rel2 && rel2Scale) { this.drawBaseline(bg, panels.rel2, rel2Scale, orientation, x0, x1, basis2Mode, cfg.colors); }
             if (yearF !== 1) {
@@ -14855,6 +16833,27 @@ export class Visual implements IVisual {
                             orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
                     }
                 }
+            } else if (plOnly(p) && cfg.showLabels && showValueAt(i)) {
+                // 1.55 (B13 review, M4): plan-only period, label over the PL outline
+                const plv = p.pl as number;
+                const cand = [plv];
+                if (p.py != null) { cand.push(p.py); }
+                if (p.bm != null) { cand.push(p.bm); }
+                const anchor = capV(plv >= 0 ? Math.max(...cand) : Math.min(...cand));
+                const pcx = pos + plShift + barW / 2;
+                this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
+                    orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
+                if (compact && p.varAbs != null) {
+                    const good = cfg.isGood(p.varAbs, p);
+                    const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
+                        ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                    const vText = p.varRel != null ? relTexts[i] : absTexts[i];
+                    const gap = orientation === "columns"
+                        ? cfg.labelFont + 2
+                        : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
+                    this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
+                        orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
+                }
             }
 
             // waterfall-bridge brick: cascades from the running basis level to this
@@ -14891,7 +16890,11 @@ export class Visual implements IVisual {
                 const vx = cx - vw / 2;
                 const hollowBad = cfg.hc && !good && p.varAbs !== 0;
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
-                    hollowBad
+                    p.varPlan
+                        // 1.55 (B13): plan against plan, outlined with a pale fill (sheet 13C)
+                        ? (cfg.hc ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4, "data-icd": "var-plan" }
+                            : { fill: color, "fill-opacity": 0.12, stroke: color, "stroke-width": 1.2, "data-icd": "var-plan" })
+                        : hollowBad
                         ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
                         : p.isFc && mat
                             ? { fill: `url(#${good ? cfg.patGood : cfg.patBad})`, stroke: color, "stroke-width": 1 }
@@ -14911,15 +16914,17 @@ export class Visual implements IVisual {
                 const zero = relScale(0);
                 const end = relScale(p.varRel);
                 const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
-                const hollowPin = p.isFc || (cfg.hc && !good && p.varRel !== 0);
+                const hollowPin = p.isFc || p.varPlan === true || (cfg.hc && !good && p.varRel !== 0);
+                // 1.55 (B13): plan-against-plan pins carry the var-plan marker (hollow head)
+                const headAttrs: Record<string, string | number> = p.varPlan
+                    ? { fill: cfg.paper, stroke: color, "stroke-width": 1.6, "data-icd": "var-plan" }
+                    : { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 };
                 if (orientation === "columns") {
                     this.el("line", { x1: c, y1: zero, x2: c, y2: end, stroke: color, "stroke-width": 1.6 }, g);
-                    this.pinHead(g, c, end, r, "round", cfg.pinStyle,
-                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
+                    this.pinHead(g, c, end, r, "round", cfg.pinStyle, headAttrs);
                 } else {
                     this.el("line", { x1: zero, y1: c, x2: end, y2: c, stroke: color, "stroke-width": 1.6 }, g);
-                    this.pinHead(g, end, c, r, "round", cfg.pinStyle,
-                        { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 });
+                    this.pinHead(g, end, c, r, "round", cfg.pinStyle, headAttrs);
                 }
                 if (cfg.showLabels && showRelAt(i)) {
                     const flip = orientation === "columns" && p.varRel > 0 && panels.rel != null
@@ -15008,7 +17013,9 @@ export class Visual implements IVisual {
             const firstAc = points.findIndex(p => p.value != null && !p.isFc);
             const firstFc = points.findIndex(p => p.value != null && p.isFc);
             const yS = region.y + region.h - 3;
-            const scenAt: [number, string][] = [[firstAc, cfg.scenL.ac], [firstFc, cfg.scenL.fc]];
+            // 1.55 (B13 review, M4): "PL" at the first plan-only period (sheet 13A)
+            const firstPl = points.findIndex(p => plOnly(p));
+            const scenAt: [number, string][] = [[firstAc, cfg.scenL.ac], [firstFc, cfg.scenL.fc], [firstPl, cfg.scenL.pl]];
             for (const [i, label] of scenAt) {
                 if (i < 0) { continue; }
                 const t = this.el("text", {
@@ -15016,6 +17023,16 @@ export class Visual implements IVisual {
                     fill: cfg.ink, "font-family": FONT, "data-icd": "scen-label"
                 }, bg);
                 t.textContent = label;
+            }
+            // AC | PL separator under the axis when the plan-only periods form the tail
+            // (thin solid line through the category and scenario rows, sheet 13A)
+            if (firstPl > 0 && points.slice(firstPl).every(p => p.value == null)
+                && points.slice(0, firstPl).some(p => p.value != null)) {
+                const x = bandStart + firstPl * step;
+                this.el("line", {
+                    x1: x, y1: panels.main.y + panels.main.h, x2: x, y2: region.y + region.h,
+                    stroke: cfg.ink, "stroke-width": 1, "data-icd": "pl-boundary"
+                }, bg);
             }
         }
 
@@ -15097,6 +17114,26 @@ export class Visual implements IVisual {
         // past the cap for it) — no line rather than one at a false height
         if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
             this.drawRefLine(bg, panels.main, mainScale, orientation, bandStart, bandEnd, cfg);
+        }
+
+        // ------- 1.55 (B09): stored difference markers
+        if (plainDiff.length > 0) {
+            const bandOf = (i: number) => slotPos(i) + acShift + barW / 2;
+            this.drawDiffMarkers(this.el("g", {}, this.svg), plainDiff.map((m, i) => {
+                const vf = mv(m.fi) as number, vt = mv(m.ti) as number;
+                return { spec: m.spec, fromBand: bandOf(m.fi), toBand: bandOf(m.ti), halfW: barW / 2,
+                    toLo: slotPos(m.ti), toHi: slotPos(m.ti) + slotW, gap: step - slotW,
+                    fromTop: vf, toTop: vt, d: vt - vf, base: vf, level: true,
+                    fc: points[m.fi].isFc || points[m.ti].isFc,
+                    edge: plainPlan[i].edge, k: plainPlan[i].k, kN: plainPlan[i].kN, pp: false,
+                    clearW: orientation === "bars" ? this.textWidth(cfg.fmt.format(vt), cfg.labelFont) : 0 };
+            }), mainScale, orientation, cfg, panels.main, bg,
+            // the columns' tops with their value labels (AC, PL outline, PY column)
+            points.map((p, i) => {
+                const hi = Math.max(p.value ?? 0, p.pl ?? 0, pyAsCol ? p.py ?? 0 : 0, 0);
+                return { lo: slotPos(i), hi: slotPos(i) + slotW,
+                    top: mainScale(cfg.capMax != null ? Math.min(hi, cfg.capMax) : hi) - 4 - cfg.labelFont };
+            }));
         }
 
         // ------- compare-on-click overlay: Δ between two picked categories
@@ -15343,7 +17380,7 @@ export class Visual implements IVisual {
             period = `${points[0].cat} – ${points[points.length - 1].cat}`;
         }
         const { unitPart, before, after } = this.titleUnit(kpi, cfg, maxAbs);
-        const scenPart = this.titleScenarios(periodSet, cfg);
+        const scenPart = this.titleScenarios(periodSet, cfg, points);
 
         const k = this.fontK;
         const f1 = Math.round(12 * k), f2 = Math.round(11 * k);
@@ -15506,13 +17543,19 @@ export class Visual implements IVisual {
      * actual (bound forecast role or a measure named „… AC&FC“), never a scenario
      * the chart does not show.
      */
-    private titleScenarios(periodSet: string, cfg: ChartConfig): string {
+    private titleScenarios(periodSet: string, cfg: ChartConfig, points: DataPoint[] = []): string {
         const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const tokens = ["AC", "PY", "PL", "BU", "FC",
             cfg.scenL.ac, cfg.scenL.py, cfg.scenL.pl, cfg.scenL.fc].filter(x => x);
         const named = new RegExp(`(^|[^A-Za-zÄÖÜäöüß])(${tokens.map(esc).join("|")})(?=$|[^A-Za-zÄÖÜäöüß])`);
         if (periodSet && named.test(periodSet)) { return ""; }
         const orient = String(this.formattingSettings.chartCard.orientation.value.value);
+        // B11 review (m6): stock & flow draws one scenario per period and no PY/BM —
+        // the title names exactly the scenarios of the drawn periods („AC, FC, PL“)
+        if (orient === "stockflow" && points.length > 0) {
+            const seen = new Set(this.stockFlowLayout(points, false).periods.map(p => p.scen));
+            return (["ac", "fc", "pl"] as const).filter(sc => seen.has(sc)).map(sc => cfg.scenL[sc]).join(", ");
+        }
         const fcInAc = cfg.hasFc
             || /\bAC\s*(&|\+|\/|und)\s*FC\b/i.test(this.measureName || "");
         const valueScen = fcInAc ? `${cfg.scenL.ac}&${cfg.scenL.fc}` : cfg.scenL.ac;
@@ -15535,7 +17578,8 @@ export class Visual implements IVisual {
      * driver — e.g. "ΔPL +171K€ (+1,4%) · stärkster Treiber: Jul (+55K€) · schwächster: Feb (−39K€)"
      */
     private buildAutoMessage(points: DataPoint[], cfg: ChartConfig): string {
-        const withVar = points.filter(p => p.varAbs != null);
+        // 1.55 (B13 review, M2): plan-against-plan Δ (Ø basis) is no AC variance
+        const withVar = points.filter(p => p.varAbs != null && !p.varPlan);
         if (withVar.length === 0) { return ""; }
         let sumVar = 0, sumBasis = 0;
         if (cfg.cumulative) {
@@ -15577,7 +17621,7 @@ export class Visual implements IVisual {
         const cc = this.formattingSettings.chartCard;
         if (!this.sortModeStored) { return cc.sortByImpact.value === true ? "abs" : "off"; }
         const sv = String((cc.sortMode.value as powerbi.IEnumMember)?.value ?? "off");
-        return (["off", "abs", "signed", "pct", "ac"] as SortMode[]).includes(sv as SortMode) ? sv as SortMode : "off";
+        return (["off", "abs", "signed", "pct", "ac", "series"] as SortMode[]).includes(sv as SortMode) ? sv as SortMode : "off";
     }
 
     /** orders categories by the sort key, descending (abs: |Δ| · signed: Δ ·
@@ -15948,7 +17992,8 @@ export class Visual implements IVisual {
         // second basis (dual variance): its own pairs, like with like
         const b2 = (p: DataPoint) => this.basis2Mode === "plan" ? p.pl : p.py;
         const pairs2 = use.filter(p => b2(p) != null);
-        if (pairs2.length === 0) {
+        // 1.55 (B13 review): against the Ø there is no second basis
+        if (pairs2.length === 0 || this.avgRows) {
             yp.var2Abs = null; yp.var2Rel = null;
         } else {
             const v2 = pairs2.reduce((a, p) => a + (p.value as number), 0);
@@ -15975,18 +18020,32 @@ export class Visual implements IVisual {
         const pl = sum(tail.map(p => p.pl));
         const fc = sum(tail.map(p => p.fc));
         const value = sum(tail.map(p => p.value));
-        const basis = sum(tail.map(p => p.basis));
-        const varAbs = (value != null && basis != null) ? value - basis : null;
-        const varRel = relVar(varAbs, basis);
+        let basis = sum(tail.map(p => p.basis));
+        let varAbs = (value != null && basis != null) ? value - basis : null;
+        let varRel = relVar(varAbs, basis);
         const basis2Sum = this.basis2Mode === "plan" ? pl : py;
-        const var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
-        const var2Rel = relVar(var2Abs, basis2Sum);
+        let var2Abs = (value != null && basis2Sum != null) ? value - basis2Sum : null;
+        let var2Rel = relVar(var2Abs, basis2Sum);
+        let varPlan = false;
+        if (this.avgRows) {
+            // 1.55 (B13 review, M1): against the Ø the basis is the sum of the members'
+            // Ø of the same level (members with a value, else plan-only members), so
+            // ΔØ of the collector row = Σ of the members' ΔØ; no second basis
+            const useV = value != null;
+            const lv = useV ? value : pl;
+            basis = sum(tail.filter(p => (useV ? p.value != null : p.pl != null)).map(p => p.basis));
+            varAbs = lv != null && basis != null ? lv - basis : null;
+            varRel = relVar(varAbs, basis);
+            var2Abs = null; var2Rel = null;
+            varPlan = !useV && varAbs != null;
+        }
         return {
             cat,
             catLevels: null,
             dim: tail.length > 0 && tail.every(p => p.dim),
             ac, py, pl, fc, value,
             isFc: false, basis, varAbs, varRel, var2Abs, var2Rel,
+            ...(varPlan ? { varPlan } : {}),
             bm: sum(tail.map(p => p.bm)),
             fcPrev: sum(tail.map(p => p.fcPrev)),
             lineVal: null, stackSeries: null,
@@ -15997,6 +18056,239 @@ export class Visual implements IVisual {
             sel: null,
             ...(ts ? { trendSeries: ts.series, trendRef: ts.ref } : {})
         };
+    }
+
+    /** 1.55 (B09): label of a difference marker: "+12,2 (+12,0%)", without % on "!";
+     *  100 % stacks: percentage points ("+3,8 pp"), never a % of a share */
+    private diffText(m: { d: number; base: number; spec: DiffMarkerSpec; pp?: boolean }, cfg: ChartConfig): string {
+        if (m.pp) {
+            const nf = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+            const r = Math.round(m.d * 10) / 10;
+            return `${r > 0 ? "+" : r < 0 ? "−" : ""}${nf.format(Math.abs(r))} ${this.locStr("Label_PctPoints", "pp")}`;
+        }
+        // the values' unit and precision, more digits only when Δ would round to zero
+        let abs = this.fmtSigned(cfg.fmtDiff, m.d);
+        for (let p = cfg.fmtPrec + 1; m.d !== 0 && !/[1-9]/.test(abs) && p <= 6; p++) {
+            abs = this.fmtSigned(this.buildFormatter(cfg.fmtUnit, p, undefined, false), m.d);
+        }
+        if (m.spec.noPct) { return abs; }
+        const rel = relVar(m.d, m.base);
+        return rel == null ? abs : `${abs} (${this.fmtPercent(rel)})`;
+    }
+
+    /** width of a difference marker's bar */
+    private diffBarW(): number {
+        return Math.max(3, Math.round(4 * this.fontK));
+    }
+
+    /**
+     * 1.55 (B09 review): room at both band ends for markers on the first/last
+     * category (columns: bar and label beside it, bars: the bar below/above the
+     * row). Small multiples size the label from the deck-wide value span, so
+     * every tile keeps the same plot width.
+     */
+    private diffRooms(texts: string[], plan: DiffPlanItem[],
+        orientation: Orientation, cfg: ChartConfig, deckSpan: number, pp: boolean, maxRoom: number): { lo: number; hi: number } {
+        const bw = this.diffBarW();
+        const worst = deckSpan > 0
+            ? (pp ? this.diffText({ d: -100, base: 0, spec: { noPct: true } as DiffMarkerSpec, pp: true }, cfg)
+                : `${this.fmtSigned(cfg.fmtDiff, -deckSpan)} (${this.fmtPercent(-99.9)})`)
+            : null;
+        const one = (side: number): number => {
+            const idx = plan.map((_, i) => i).filter(i => plan[i].edge && plan[i].side === side);
+            if (idx.length === 0) { return 0; }
+            const bars = 2 + Math.max(...idx.map(i => plan[i].kN)) * (bw + 2);
+            // bars: several labels may need their own line beyond the bars
+            if (orientation !== "columns") { return bars + 2 + (Math.max(...idx.map(i => plan[i].kN)) > 1 ? cfg.labelFont + 4 : 0); }
+            const tw = Math.max(...(worst != null ? [worst] : idx.map(i => texts[i])).map(t => this.textWidth(t, cfg.labelFont)));
+            const room = Math.round(bars + 3 + tw + 8);
+            // small visuals: no band room beyond maxRoom, the label then goes above the bar
+            if (room > maxRoom) { idx.forEach(i => { plan[i].edge = false; }); return 0; }
+            return room;
+        };
+        return { lo: one(-1), hi: one(1) };
+    }
+
+    /**
+     * 1.55 (B09, IBCS 01A/01B): stored difference marker — a thin level line from
+     * the first category's end, a thick bar of the difference beside the second
+     * category on the side away from the first (columns: right/left, bars:
+     * below/above), Δ and Δ % next to it. Good/bad colour, hatched when a forecast
+     * is involved. On the outer category the label sits beside the bar in reserved
+     * room; elsewhere above the bar (columns) or past the row's value label (bars).
+     * The level lines run behind the marks (guideParent).
+     */
+    private drawDiffMarkers(parent: SVGElement, list: DiffMarkerDraw[], scale: Scale,
+        orientation: Orientation, cfg: ChartConfig, clip: Rect, guideParent?: SVGElement,
+        sky: { lo: number; hi: number; top: number }[] = []): void {
+        const lf = cfg.labelFont;
+        const bw = this.diffBarW();
+        const placed = new Map<string, number[]>();
+        const peek = (key: string, v: number, dir: number): number => {
+            const list2 = placed.get(key) ?? [];
+            for (let guard = 0; guard < 8 && list2.some(p => Math.abs(v - p) < lf + 4); guard++) { v += dir * (lf + 4); }
+            return v;
+        };
+        const push = (key: string, v: number, dir: number): number => {
+            const list2 = placed.get(key) ?? [];
+            for (let guard = 0; guard < 8 && list2.some(p => Math.abs(v - p) < lf + 4); guard++) { v += dir * (lf + 4); }
+            list2.push(v);
+            placed.set(key, list2);
+            return v;
+        };
+        // bars: the labels of one gap share a line, laid out after all markers are drawn
+        const rows = new Map<string, { t: SVGElement; tw: number; x: number; y: number; neg: boolean; barEnd: number; side: number; c: number }[]>();
+        for (const m of list) {
+            const side = m.toBand >= m.fromBand ? 1 : -1;
+            const off = m.k * (bw + 2);
+            // in the gap beside the To slot; too narrow a gap: only the first marker, on
+            // the slot's own edge (further markers there would sit on the neighbour)
+            const free = m.edge || m.gap >= bw + 4 + off;
+            if (!free && m.k > 0) { continue; }
+            const color = m.d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(m.d) ? cfg.colors.good : cfg.colors.bad;
+            const g = this.el("g", {
+                "data-icd": "diff-marker", "data-from": m.spec.from, "data-to": m.spec.to,
+                "data-series": m.spec.series ?? "", "data-delta": m.d
+            }, parent);
+            const gg = guideParent ?? g;
+            const a = scale(m.toTop - m.d), b = scale(m.toTop);
+            const fill = m.fc && !cfg.hc ? `url(#${cfg.isGood(m.d) ? cfg.patGood : cfg.patBad})` : color;
+            const text = this.diffText(m, cfg);
+            const tw = this.textWidth(text, lf);
+            const c = free ? (side > 0 ? m.toHi + 2 + off : m.toLo - 2 - off - bw) : (side > 0 ? m.toHi - bw : m.toLo);
+            // outer end of all marker bars in this gap: labels beside them start there
+            const outer = side > 0 ? m.toHi + 2 + m.kN * (bw + 2) + 1 : m.toLo - 2 - m.kN * (bw + 2) - 1;
+            const e = side > 0 ? m.toHi : m.toLo;
+            // both levels at or below zero: the marker hangs below the axis
+            const below = Math.max(m.fromTop, m.toTop) <= 0;
+            const guide = { stroke: cfg.subtle, "stroke-width": 1, "data-from": m.spec.from, "data-to": m.spec.to };
+            const lbl = { "font-size": lf, fill: cfg.ink, "font-family": FONT, stroke: cfg.paper, "stroke-width": 3,
+                "paint-order": "stroke", "data-icd": "diff-label" };
+            let t: SVGElement;
+            if (orientation === "columns") {
+                // the label first: beside the bars (reserved room, or one marker in a wide
+                // enough gap), else above the bar and above every column (with its value
+                // label, `sky`) the text spans, below it for markers under zero. A marker
+                // whose label line no longer fits into the plot is left out entirely.
+                const beside = m.edge || (m.kN === 1 && Math.abs(outer - e) + tw + 6 <= m.gap);
+                const cx = Math.max(clip.x + tw / 2 + 2, Math.min(clip.x + clip.w - tw / 2 - 2, c + bw / 2));
+                let lx: number, ly: number, anchor: string;
+                if (beside) {
+                    ly = push(`e${side}|${Math.round(e)}`, (a + b) / 2 + lf * 0.35, 1);
+                    ly = Math.max(clip.y + lf, Math.min(ly, clip.y + clip.h - 2));
+                    lx = side > 0 ? outer + 2 : outer - 2;
+                    anchor = side > 0 ? "start" : "end";
+                } else if (below) {
+                    const key = `d${Math.round(m.toBand)}`;
+                    const v = peek(key, Math.max(a, b) + lf + 4, 1);
+                    if (v > clip.y + clip.h - 2) { g.remove(); continue; }
+                    ly = push(key, v, 1); lx = cx; anchor = "middle";
+                } else {
+                    let y0 = Math.min(a, b) - 7;
+                    for (const sk of sky) { if (sk.hi > cx - tw / 2 - 2 && sk.lo < cx + tw / 2 + 2) { y0 = Math.min(y0, sk.top - 5); } }
+                    const key = `t${Math.round(m.toBand)}`;
+                    const v = peek(key, y0, -1);
+                    if (v < clip.y + lf) { g.remove(); continue; }
+                    ly = push(key, v, -1); lx = cx; anchor = "middle";
+                }
+                if (m.level) {
+                    const yF = scale(m.fromTop), yT = scale(m.toTop);
+                    this.el("line", { x1: Math.min(m.fromBand - m.halfW, c), y1: yF, x2: Math.max(m.fromBand + m.halfW, c + bw), y2: yF,
+                        ...guide, "data-icd": "diff-guide" }, gg);
+                    // 01A: the second level at the To column closes the bracket
+                    if (Math.abs(c - e) > 1) {
+                        this.el("line", { x1: Math.min(e, c), y1: yT, x2: Math.max(e, c + bw), y2: yT, ...guide, "data-icd": "diff-guide-to" }, gg);
+                    }
+                }
+                this.el("rect", { x: c, y: Math.min(a, b), width: bw, height: Math.max(Math.abs(b - a), 2), fill,
+                    stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "diff-bar" }, g);
+                t = this.el("text", { x: lx, y: ly, "text-anchor": anchor, ...lbl }, g);
+            } else {
+                if (m.level) {
+                    const xF = scale(m.fromTop), xT = scale(m.toTop);
+                    this.el("line", { x1: xF, y1: Math.min(m.fromBand - m.halfW, c), x2: xF, y2: Math.max(m.fromBand + m.halfW, c + bw),
+                        ...guide, "data-icd": "diff-guide" }, gg);
+                    if (Math.abs(c - e) > 1) {
+                        this.el("line", { x1: xT, y1: Math.min(e, c), x2: xT, y2: Math.max(e, c + bw), ...guide, "data-icd": "diff-guide-to" }, gg);
+                    }
+                }
+                this.el("rect", { x: Math.min(a, b), y: c, width: Math.max(Math.abs(b - a), 2), height: bw, fill,
+                    stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "diff-bar" }, g);
+                // after the bar end and past the To row's value label (left of it when the
+                // bars point left); positioned per gap below
+                const x = below ? Math.min(Math.min(a, b) - 4, b - 4 - (m.clearW > 0 ? m.clearW + 6 : 0))
+                    : Math.max(Math.max(a, b) + 4, b + 4 + (m.clearW > 0 ? m.clearW + 6 : 0));
+                t = this.el("text", { x, y: c + bw / 2 + lf * 0.35, ...lbl }, g);
+                const key = `${side > 0 ? "s" : "n"}${Math.round(e)}`;
+                rows.set(key, [...(rows.get(key) ?? []), { t, tw, x, y: c + bw / 2 + lf * 0.35, neg: below,
+                    barEnd: below ? Math.min(a, b) : Math.max(a, b), side, c }]);
+            }
+            t.textContent = text;
+            g.setAttribute("aria-label", `${m.spec.from} → ${m.spec.to}${m.spec.series ? ` (${m.spec.series})` : ""}: ${text}`);
+        }
+        // bars: one line per gap, left to right (right to left below zero), inside the visual;
+        // pushed back so far that it would cover its bars → one line beyond the outermost bar
+        const L0 = clip.x + 2, R0 = clip.x + clip.w - 2;
+        for (const row of rows.values()) {
+            const y = row[0].y;
+            const xs: number[] = [];
+            let cur = row[0].x;
+            for (const r of row) {
+                const x = r.neg ? Math.min(r.x, cur) : Math.max(r.x, cur);
+                xs.push(x);
+                cur = r.neg ? x - r.tw - 8 : x + r.tw + 8;
+            }
+            const end = row[row.length - 1].neg ? cur + 8 : cur - 8;
+            const shift = row[0].neg ? Math.max(0, L0 - end) : Math.min(0, R0 - end);
+            const hitsBar = shift !== 0 && row.some((r, i) => r.neg ? xs[i] + shift > r.barEnd - 2 : xs[i] + shift < r.barEnd + 2);
+            const yOut = row[0].side > 0 ? Math.max(...row.map(r => r.c)) + bw + lf + 2 : Math.min(...row.map(r => r.c)) - 4;
+            row.forEach((r, i) => {
+                r.t.setAttribute("x", String(xs[i] + shift));
+                r.t.setAttribute("y", String(hitsBar ? Math.min(yOut, clip.y + clip.h - 2) : y));
+                r.t.setAttribute("text-anchor", r.neg ? "end" : "start");
+            });
+        }
+    }
+
+    /** 1.55 (B10): top N for stacks — ranks whole categories by their stack total
+     *  (named rest categories never rank), keeps every series cell of the top N and
+     *  aggregates the tail per series into one "Rest (n)" category */
+    private applyTopNStacked(points: DataPoint[], topN: number): DataPoint[] {
+        const L = this.stackLayout(points);
+        if (L.cats.length <= topN + 1) { return points; }
+        const isRestCat = (c: string) => REST_ROW_RX.test(c.trim()) || points.some(p => p.cat === c && p.isRest);
+        const ranked = L.cats.map((c, i) => ({ c, t: L.pos[i] + L.neg[i], i }))
+            .filter(x => !isRestCat(x.c))
+            .sort((a, b) => (b.t - a.t) || (a.i - b.i));
+        const keep = ranked.slice(0, topN).map(x => x.c);
+        const keepSet = new Set(keep);
+        const tailN = L.cats.filter(c => !keepSet.has(c)).length;
+        const label = `${this.locStr("Label_Rest", "Other")} (${tailN})`;
+        const head = keep.flatMap(c => points.filter(p => p.cat === c));
+        const group = points[0]?.group ?? null;
+        const rest: DataPoint[] = [];
+        for (const sName of L.series) {
+            const cells = points.filter(p => !keepSet.has(p.cat) && (p.stackSeries ?? "(leer)") === sName);
+            if (cells.length === 0) { continue; }
+            const a = this.aggregateTail(cells, label, group);
+            a.stackSeries = sName === "(leer)" ? null : sName;
+            rest.push(a);
+        }
+        return [...head, ...rest];
+    }
+
+    /** 1.55 (B10): orders the categories of a stack (points stay grouped per
+     *  category): "ac" by stack total, "series" by the first series (its share in
+     *  100 % stacks), descending; rest categories keep the data order at the end */
+    private sortStackCats(points: DataPoint[], mode: "ac" | "series", norm: boolean): DataPoint[] {
+        const L = this.stackLayout(points);
+        const isRestCat = (c: string) => REST_ROW_RX.test(c.trim()) || points.some(p => p.cat === c && p.isRest);
+        const key = (i: number) => mode === "ac" ? L.pos[i] + L.neg[i]
+            : norm ? (L.rawPos[i] > 0 ? L.rawSv(i, L.series[0]) / L.rawPos[i] : 0) : L.rawSv(i, L.series[0]);
+        const order = L.cats.map((c, i) => ({ c, i, k: key(i), r: isRestCat(c) }))
+            .sort((a, b) => (Number(a.r) - Number(b.r)) || (a.r ? a.i - b.i : (b.k - a.k) || (a.i - b.i)))
+            .map(x => x.c);
+        return order.flatMap(c => points.filter(p => p.cat === c));
     }
 
     /** keeps the N largest categories (by base value) and aggregates the tail into one "Rest" row */
@@ -16226,18 +18518,21 @@ export class Visual implements IVisual {
         let sum = 0, sumVar = 0, sumBasis = 0, any = false, anyVar = false;
         for (const p of points) {
             if (p.value != null) { any = true; }
-            if (p.varAbs != null && p.basis != null) { anyVar = true; }
+            // 1.55 (B13 review, M2): the Σ sums AC/FC — plan-against-plan Δ (Ø basis in
+            // plan-only periods) stays out of ΔΣ and of its basis
+            const hasVar = p.varAbs != null && p.basis != null && !p.varPlan;
+            if (hasVar) { anyVar = true; }
             if (cfg.cumulative) {
                 // cumulated points already carry running totals — take the last ones
                 if (p.value != null) { sum = p.value; }
-                if (p.varAbs != null && p.basis != null) { sumVar = p.varAbs; sumBasis = p.basis; }
+                if (hasVar) { sumVar = p.varAbs as number; sumBasis = p.basis as number; }
             } else {
                 if (p.value != null) { sum += p.value; }
-                if (p.varAbs != null && p.basis != null) {
-                    sumVar += p.varAbs;
+                if (hasVar) {
+                    sumVar += p.varAbs as number;
                     // signed: the Σ% is Δ over the NET basis — summing |basis| gave a
                     // percentage of nothing for result series crossing zero
-                    sumBasis += p.basis;
+                    sumBasis += p.basis as number;
                 }
             }
         }
@@ -17135,7 +19430,8 @@ export class Visual implements IVisual {
     // ---------------------------------------------------------- interaction
 
     /** 1.54 (B14): category groups whose numbers get an emphasis ellipse after drawing */
-    private ellipseTargets: { g: SVGGElement; cat: string; ink: string }[] = [];
+    private ellipseTargets: { g: SVGGElement; cat: string; ink: string;
+        mark?: { cx: number; cy: number; r: number } }[] = [];
 
     /**
      * 1.54 (B14): ellipse emphasis (IBCS sheets 04A, 06E): after the chart is drawn,
@@ -17146,6 +19442,15 @@ export class Visual implements IVisual {
         const list = this.ellipseTargets;
         this.ellipseTargets = [];
         for (const t of list) {
+            // 1.55 (Review B12 m3): a scatter marker carries its ellipse itself
+            if (t.mark) {
+                const e = this.el("ellipse", {
+                    cx: t.mark.cx, cy: t.mark.cy, rx: t.mark.r, ry: t.mark.r,
+                    fill: "none", stroke: t.ink, "stroke-width": 1.3, "data-icd": "emph-ellipse"
+                }, t.g);
+                e.setAttribute("pointer-events", "none");
+                continue;
+            }
             const texts = Array.from(t.g.querySelectorAll("text")) as SVGTextElement[];
             for (const tx of texts) {
                 const s = (tx.textContent || "").trim();
@@ -17163,9 +19468,15 @@ export class Visual implements IVisual {
         }
     }
 
-    private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig): void {
-        if (cfg.highlightEllipse && this.isEmph(cfg, p.cat)) {
-            this.ellipseTargets.push({ g, cat: p.cat, ink: cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF" });
+    private attachInteraction(g: SVGGElement, p: DataPoint, cfg: ChartConfig,
+        opts?: { py?: boolean; mark?: { cx: number; cy: number; r: number } }): void {
+        // 1.55 (B12, Review m3): a scatter PY bubble is a second mark of the same
+        // category — no ellipse target and no own focus stop, a PY screen-reader
+        // label; scatter AC marks anchor the ellipse at the marker
+        const isPy = opts?.py === true;
+        if (cfg.highlightEllipse && this.isEmph(cfg, p.cat) && !isPy) {
+            this.ellipseTargets.push({ g, cat: p.cat, ink: cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF",
+                ...(opts?.mark ? { mark: opts.mark } : {}) });
         }
         // dashboards disable interactions — keep tooltips, skip selection affordances
         const allow = this.host.hostCapabilities?.allowInteractions !== false;
@@ -17174,18 +19485,26 @@ export class Visual implements IVisual {
         // keyboard navigation: tab through categories, Enter/Space selects — not in
         // export/print or dashboard contexts: a focus stop that cannot select anything
         // is a dead control (role + aria-label stay for screen readers)
-        if (allow) { g.setAttribute("tabindex", "0"); }
+        if (allow && !isPy) { g.setAttribute("tabindex", "0"); }
         g.setAttribute("role", "option");
         const aria = [`${p.cat}`];
-        if (cfg.scatter && p.xVal != null) {
+        const scp = cfg.scatter;
+        if (isPy && scp) {
+            aria.push(cfg.scenL.py);
+            const xp = scp.hasXPrev && p.xPrev != null ? p.xPrev : p.xVal;
+            if (xp != null) { aria.push(`${scp.hasXPrev && p.xPrev != null ? scp.xPrevName : scp.xName} ${scp.fmtX.format(xp)}`); }
+            if (p.py != null) { aria.push(cfg.fmt.format(p.py)); }
+            if (p.sizePrev != null) { aria.push(`${scp.sizePrevName} ${scp.fmtSize.format(p.sizePrev)}`); }
+        }
+        if (cfg.scatter && p.xVal != null && !isPy) {
             aria.push(`${cfg.scatter.xName} ${cfg.scatter.fmtX.format(p.xVal)}`);
         }
-        if (p.value != null) { aria.push(cfg.fmt.format(p.value)); }
+        if (p.value != null && !isPy) { aria.push(cfg.fmt.format(p.value)); }
         if (p.trendSeries && p.trendRef != null && p.trendRef >= 0 && cfg.trendLabels[p.trendRef]) {
             aria.push(`${this.locStr("Tooltip_LastPeriod", "Last period")} ${cfg.trendLabels[p.trendRef]}`);
         }
-        if (p.varAbs != null) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
-        if (p.comment) { aria.push(p.comment); }
+        if (p.varAbs != null && !isPy) { aria.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)}`); }
+        if (p.comment && !isPy) { aria.push(p.comment); }
         g.setAttribute("aria-label", aria.join(", "));
         g.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key !== "Enter" && e.key !== " ") { return; }
@@ -17280,6 +19599,10 @@ export class Visual implements IVisual {
             add(this.locStr("Role_Actual", "Actual (AC)"), p.ac);
             if (sc && p.sizeVal != null) {
                 out.push({ displayName: sc.sizeName, value: sc.fmtSize.format(p.sizeVal) });
+            }
+            // 1.55 (B12): PY bubble size next to the AC size
+            if (sc && p.sizePrev != null && this.sizePrevName != null) {
+                out.push({ displayName: sc.sizePrevName, value: sc.fmtSize.format(p.sizePrev) });
             }
             if (p.isPrelim) {
                 out.push({ displayName: "Status", value: this.locStr("Tooltip_Prelim", "preliminary") });
