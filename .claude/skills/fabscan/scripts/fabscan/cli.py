@@ -17,7 +17,7 @@ import json
 import os
 import sys
 
-from . import __version__, checks, export, fetch, querylog, report, scanapi, tenant, tmdl
+from . import __version__, ausnahmen, checks, export, fetch, querylog, report, scanapi, tenant, tmdl
 
 
 def _scan_parser(prog: str) -> argparse.ArgumentParser:
@@ -35,6 +35,9 @@ def _scan_parser(prog: str) -> argparse.ArgumentParser:
     ap.add_argument("--include-reports", action="store_true", help="auch Abfragen aus Power-BI-Berichten prüfen")
     ap.add_argument("--fail-on", choices=["fail", "warn", "never"], default="never",
                     help="ab welcher Stufe der Exit-Code 1 ist (für CI: fail)")
+    ap.add_argument("--ausnahmen", "--exceptions", dest="ausnahmen", default="",
+                    help=f"Ausnahmen-Datei (JSON) mit begründet akzeptierten Befunden; Standard: {ausnahmen.FILE_NAME} "
+                         "im Repo bzw. im aktuellen Ordner")
     ap.add_argument("--html", help=argparse.SUPPRESS)   # Altaufrufe: einzelne Dateien
     ap.add_argument("--json", help=argparse.SUPPRESS)
     ap.add_argument("-q", "--quiet", action="store_true", help="nur Pfade ausgeben")
@@ -81,11 +84,18 @@ def cmd_scan(argv) -> int:
         apps += log_apps
         tenant_info = {"models": tenant.model_rows(models, log_apps), "scope": "Tenant"}
 
+    try:
+        extra = {"ausnahmen": _apply_ausnahmen(apps, a.ausnahmen, root, os.getcwd())}
+    except ValueError as err:
+        print(err, file=sys.stderr)
+        return 2
+    if tenant_info:
+        extra["coverage"] = tenant.coverage(models, apps, include_reports=a.include_reports)
     scope = os.path.basename(root) if root else "Tenant"
-    paths = export.write_run(apps, a.out, root, a.title, tenant_info, scope)
+    paths = export.write_run(apps, a.out, root, a.title, tenant_info, scope, extra)
     if a.html:
         with open(a.html, "w", encoding="utf-8") as fh:
-            fh.write(report.to_html(apps, root, a.title, tenant_info))
+            fh.write(report.to_html(apps, root, a.title, tenant_info, extra))
     if a.json:
         with open(a.json, "w", encoding="utf-8") as fh:
             fh.write(report.to_json(apps, root))
@@ -96,6 +106,22 @@ def cmd_scan(argv) -> int:
     else:
         print(paths["html"])
     return _fail_code(apps, a.fail_on)
+
+
+def _apply_ausnahmen(apps, path: str, *folders: str) -> dict:
+    """Setzt Befund-IDs, nimmt akzeptierte Befunde aus der Wertung. Wirft ValueError bei kaputter Datei."""
+    if path and not os.path.exists(path):
+        raise ValueError(f"Ausnahmen-Datei nicht gefunden: {path}")
+    path = path or ausnahmen.default_path(*folders)
+    try:
+        rules, warns = ausnahmen.load(path)
+    except (OSError, ValueError) as err:
+        raise ValueError(f"Ausnahmen-Datei {path} nicht lesbar: {err}") from None
+    info = ausnahmen.apply(apps, rules)
+    info.update({"datei": path, "warnungen": warns})
+    for w in warns:
+        print(f"Hinweis Ausnahmen: {w}", file=sys.stderr)
+    return info
 
 
 def _fail_code(apps, fail_on: str) -> int:
@@ -120,29 +146,34 @@ def cmd_fetch(argv, fetcher=None) -> int:
     ap.add_argument("-o", "--out", default="fabscan-tenant", help="Ausgabeordner (Standard: fabscan-tenant)")
     ap.add_argument("--title", default="")
     ap.add_argument("--fail-on", choices=["fail", "warn", "never"], default="never")
+    ap.add_argument("--ausnahmen", "--exceptions", dest="ausnahmen", default="",
+                    help=f"Ausnahmen-Datei (JSON); Standard: {ausnahmen.FILE_NAME} im aktuellen Ordner")
+    ap.add_argument("--ohne-admin", "--no-admin", dest="no_admin", action="store_true",
+                    help="Admin-API überspringen: nur Workspaces mit eigenem Zugriff, Modelle per getDefinition. "
+                         "Ohne den Schalter wechselt fetch bei 401/403 der Admin-API von selbst in diesen Modus.")
     a = ap.parse_args(argv)
-    f = fetcher or fetch.Fetcher(fetch.Auth(a.tenant))
+    f = fetcher or fetch.Fetcher(fetch.Auth(a.tenant), admin=False if a.no_admin else None)
+    if fetcher is not None and a.no_admin:
+        f.admin, f.mode = False, "workspace"
     raw = os.path.join(a.out, "rohdaten")
     try:
         print("1 · Workspaces")
         ids = f.workspaces(a.workspace)
-        print("2 · Modelle (Admin-Scanner-API)")
+        print(f"2 · Modelle ({f.source})")
         results = f.scan(ids)
         os.makedirs(raw, exist_ok=True)
         with open(os.path.join(raw, "scan.json"), "w", encoding="utf-8") as fh:
             json.dump(results, fh, ensure_ascii=False, default=str)
         models = scanapi.load_scan(results)
         print(f"  {len(models)} Semantikmodelle, {sum(m.measure_count for m in models)} Measures")
-        if models and not any(m.tables for m in models):
+        if models and not any(m.tables for m in models) and f.mode == "admin":
             print("  Achtung: keine Tabellen im Scan. Tenant-Einstellungen für detaillierte Metadaten und "
                   "DAX-Ausdrücke prüfen.")
         print("3 · Abfragen (Workspace Monitoring)")
         mons = [tuple(m.split("=", 1)) for m in a.monitoring if "=" in m] or f.find_monitoring(ids)
-        rows = []
-        for cluster, db in mons:
-            part = f.logs(cluster, db, a.days, a.include_reports, a.log_table)
-            print(f"  {db}: {len(part)} verschiedene Abfragen")
-            rows += part
+        rows, counts = f.logs_all(mons, a.days, a.include_reports, a.log_table)
+        for label, n in counts:
+            print(f"  {label}: {n} verschiedene Abfragen")
         with open(os.path.join(raw, "abfragen.json"), "w", encoding="utf-8") as fh:
             json.dump(rows, fh, ensure_ascii=False, default=str)
     except fetch.FetchError as e:
@@ -150,8 +181,21 @@ def cmd_fetch(argv, fetcher=None) -> int:
         return 2
     entries = querylog.load_log(rows)
     log_apps = tenant.scan_tenant(models, querylog.clients(entries, include_reports=a.include_reports))
-    info = {"models": tenant.model_rows(models, log_apps), "scope": "Tenant"}
-    paths = export.write_run(log_apps, a.out, "", a.title or "Tenant-Prüfbericht Fabric Apps", info, scope="Tenant")
+    scope = "Tenant" if f.mode == "admin" else "Workspaces"
+    title = a.title or ("Tenant-Prüfbericht Fabric Apps" if f.mode == "admin"
+                        else "Prüfbericht Fabric Apps (Workspaces mit eigenem Zugriff)")
+    info = {"models": tenant.model_rows(models, log_apps), "scope": scope}
+    try:
+        extra = {"ausnahmen": _apply_ausnahmen(log_apps, a.ausnahmen, os.getcwd())}
+    except ValueError as err:
+        print(err, file=sys.stderr)
+        return 2
+    wanted = {w.lower() for w in ids}
+    extra["coverage"] = tenant.coverage(
+        models, log_apps, workspaces=len(ids),
+        workspaces_monitoring=None if a.monitoring else len(f.monitored_ws & wanted),
+        days=a.days, include_reports=a.include_reports)
+    paths = export.write_run(log_apps, a.out, "", title, info, scope=scope, extra=extra)
     print("4 · Bericht\n")
     print(report.to_text(log_apps) if log_apps else "Keine Clients mit Abfragen im Zeitraum (nur Modell-Übersicht).")
     for n in f.notes:

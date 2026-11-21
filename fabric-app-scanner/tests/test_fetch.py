@@ -1,7 +1,9 @@
 """fabscan fetch gegen eine nachgebaute Fabric-/Power-BI-API (keine echten Aufrufe)."""
+import base64
 import io
 import json
 import os
+import re
 import shutil
 import sys
 import tempfile
@@ -13,7 +15,7 @@ from unittest import mock
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, ".."))
 
-from fabscan import cli, fetch  # noqa: E402
+from fabscan import cli, fetch, scanapi, tenant  # noqa: E402
 
 FIX = os.path.join(HERE, "fixtures", "tenant")
 WS = "9eb531b4-f97a-4dad-99ff-fac0e31fbeb3"
@@ -37,16 +39,86 @@ def kusto_response():
     return {"Tables": [{"TableName": "Table_0", "Columns": [{"ColumnName": c} for c in cols], "Rows": rows}]}
 
 
+def tmdl_parts(ds: dict) -> list[dict]:
+    """Ein Dataset aus der Scanner-Fixture als TMDL-Teile, wie getDefinition sie liefert."""
+    q = lambda n: f"'{n}'" if (" " in n or "-" in n) else n
+    b64 = lambda s: base64.b64encode(s.encode("utf-8")).decode()
+    parts = [{"path": "definition.pbism", "payload": b64("{}"), "payloadType": "InlineBase64"}]
+    for t in ds.get("tables", []):
+        lines = [f"table {q(t['name'])}"] + (["\tisHidden"] if t.get("isHidden") else []) + [""]
+        for ms in t.get("measures", []):
+            lines += [f"\tmeasure {q(ms['name'])} = {ms.get('expression', '')}"]
+            if ms.get("formatString"):
+                lines += [f"\t\tformatString: {ms['formatString']}"]
+            lines += ["\t\tisHidden"] if ms.get("isHidden") else []
+            lines += [""]
+        for c in t.get("columns", []):
+            lines += [f"\tcolumn {q(c['name'])}"] + (["\t\tisHidden"] if c.get("isHidden") else []) + [""]
+        parts.append({"path": f"definition/tables/{t['name']}.tmdl", "payload": b64("\n".join(lines)),
+                      "payloadType": "InlineBase64"})
+    for r in ds.get("roles", []):
+        lines = [f"role {q(r['name'])}"] + [f"\ttablePermission {q(p['name'])} = {p.get('filterExpression', '')}"
+                                            for p in r.get("tablePermissions", [])]
+        parts.append({"path": f"definition/roles/{r['name']}.tmdl", "payload": b64("\n".join(lines)),
+                      "payloadType": "InlineBase64"})
+    return parts
+
+
+def info_rows(ds: dict, body: dict) -> list[dict]:
+    """INFO.VIEW-Ergebnis wie executeQueries es für einen Leser liefert: Namen ja, Ausdrücke leer."""
+    fn = body["queries"][0]["query"]
+    rows = []
+    for t in ds.get("tables", []):
+        if "TABLES" in fn:
+            rows.append({"[Name]": t["name"], "[IsHidden]": bool(t.get("isHidden"))})
+        elif "COLUMNS" in fn:
+            rows.append({"[Name]": "RowNumber-1", "[Table]": t["name"], "[Type]": "RowNumber", "[IsHidden]": True})
+            rows += [{"[Name]": c["name"], "[Table]": t["name"], "[Type]": "Data", "[IsHidden]": bool(c.get("isHidden")),
+                      "[Expression]": None} for c in t.get("columns", [])]
+        elif "MEASURES" in fn:
+            rows += [{"[Name]": ms["name"], "[Table]": t["name"], "[IsHidden]": bool(ms.get("isHidden")),
+                      "[Expression]": None, "[FormatString]": ms.get("formatString")} for ms in t.get("measures", [])]
+    return rows
+
+
 class FakeFabric:
-    def __init__(self, admin=True):
+    def __init__(self, admin=True, lro=False, denied_models=(), info_models=()):
         self.calls, self.admin, self.polls = [], admin, 0
+        self.info_models = set(info_models)        # nur Leserecht: executeQueries mit INFO.VIEW beantworten
+        self.lro, self.denied_models, self.op_polls = lro, set(denied_models), 0
         with open(os.path.join(FIX, "scan_result.json"), encoding="utf-8") as fh:
             self.scan = json.load(fh)
+        self.datasets = {d["id"]: d for w in self.scan["workspaces"] for d in w["datasets"]}
 
     def __call__(self, method, url, token, body=None):
         self.calls.append((method, url.split("?")[0], body))
         if "/admin/" in url and not self.admin:
             return 403, {"error": "Forbidden"}
+        # --- normale Fabric-API (Workspace-Modus)
+        if url.split("?")[0] == f"{fetch.FABRIC}/workspaces":
+            return 200, {"value": [{"id": WS, "displayName": "Finance", "type": "Workspace"},
+                                   {"id": "p-1", "displayName": "Mein Arbeitsbereich", "type": "Personal"}]}
+        if url == f"{fetch.FABRIC}/workspaces/{WS}/semanticModels":
+            return 200, {"value": [{"id": i, "displayName": d["name"]} for i, d in self.datasets.items()]}
+        m = re.match(rf"{re.escape(fetch.FABRIC)}/workspaces/{WS}/semanticModels/([^/]+)/getDefinition", url)
+        if m:
+            assert "format=TMDL" in url
+            if m.group(1) in self.denied_models:
+                return 403, {"error": "InsufficientPrivileges"}
+            parts = tmdl_parts(self.datasets[m.group(1)])
+            if self.lro:
+                self.pending = parts
+                return 202, {"_operation": "op-1", "_location": f"{fetch.FABRIC}/operations/op-1", "_retry": "1"}
+            return 200, {"definition": {"parts": parts}}
+        m = re.match(rf"{re.escape(fetch.POWERBI)}/groups/{WS}/datasets/([^/]+)/executeQueries", url)
+        if m and m.group(1) in self.info_models:
+            return 200, {"results": [{"tables": [{"rows": info_rows(self.datasets[m.group(1)], body)}]}]}
+        if url == f"{fetch.FABRIC}/operations/op-1":
+            self.op_polls += 1
+            return 200, {"status": "Running" if self.op_polls < 2 else "Succeeded"}
+        if url == f"{fetch.FABRIC}/operations/op-1/result":
+            self.op_polls = 0
+            return 200, {"definition": {"parts": self.pending}}
         if url.startswith(f"{fetch.POWERBI}/admin/workspaces/modified"):
             return 200, [{"id": WS}]
         if url.startswith(f"{fetch.POWERBI}/admin/groups"):
@@ -83,8 +155,8 @@ class Fetch(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
-    def run_fetch(self, fake, args):
-        f = fetch.Fetcher(TokenStub(), request=fake, log=lambda *a: None, sleep=lambda s: None)
+    def run_fetch(self, fake, args, admin=None):
+        f = fetch.Fetcher(TokenStub(), request=fake, log=lambda *a: None, sleep=lambda s: None, admin=admin)
         out = io.StringIO()
         with redirect_stdout(out), mock.patch("sys.stderr", new=io.StringIO()) as err:
             rc = cli.cmd_fetch(args + ["-o", os.path.join(self.tmp, "out")], fetcher=f)
@@ -118,10 +190,114 @@ class Fetch(unittest.TestCase):
         self.assertEqual(rc, 2)
         self.assertIn("nicht gefunden", err)
 
-    def test_no_admin_rights(self):
-        rc, _, err, _ = self.run_fetch(FakeFabric(admin=False), [])
+    def test_admin_only_still_fails_without_rights(self):
+        rc, _, err, _ = self.run_fetch(FakeFabric(admin=False), [], admin=True)
         self.assertEqual(rc, 2)
         self.assertIn("Fabric-Administrator", err)
+
+    def test_coverage_in_result(self):
+        rc, out, err, _ = self.run_fetch(FakeFabric(admin=False), ["--days", "7"])
+        self.assertEqual(rc, 0, err)
+        with open(os.path.join(self.tmp, "out", "befunde.json"), encoding="utf-8") as fh:
+            data = json.load(fh)
+        cov = data["coverage"]
+        self.assertEqual((cov["workspaces"], cov["workspaces_monitoring"], cov["models"], cov["days"]), (1, 1, 2, 7))
+        self.assertTrue(all(r["finding_id"] and r["status"] == "offen" for r in data["findings"]))
+        rc, out, err, _ = self.run_fetch(FakeFabric(admin=False), ["--monitoring", f"{CLUSTER}=Monitoring KQL database"])
+        self.assertEqual(rc, 0, err)
+        with open(os.path.join(self.tmp, "out", "befunde.json"), encoding="utf-8") as fh:
+            self.assertIsNone(json.load(fh)["coverage"]["workspaces_monitoring"])   # von Hand angegeben: unbekannt
+
+    def _scan_json(self):
+        with open(os.path.join(self.tmp, "out", "rohdaten", "scan.json"), encoding="utf-8") as fh:
+            return json.load(fh)
+
+    def test_no_admin_falls_back_to_workspace_mode(self):
+        fake = FakeFabric(admin=False)
+        rc, out, err, f = self.run_fetch(fake, [])
+        self.assertEqual(rc, 0, err)
+        self.assertEqual(f.mode, "workspace")
+        self.assertIn("2 · Modelle (Workspace-Modus, getDefinition)", out)
+        self.assertIn("Ohne Fabric-Admin-Rechte geprüft", out)
+        self.assertIn("Monitoring KQL database: 8 verschiedene Abfragen", out)
+        scan = self._scan_json()[0]
+        self.assertEqual(scan["source"], "getDefinition")
+        self.assertEqual([w["name"] for w in scan["workspaces"]], ["Finance"])        # kein persönlicher Workspace
+        orig = {d["id"]: d for w in fake.scan["workspaces"] for d in w["datasets"]}
+        for ds in scan["workspaces"][0]["datasets"]:
+            want = orig[ds["id"]]
+            self.assertEqual({t["name"] for t in ds["tables"]}, {t["name"] for t in want["tables"]})
+            self.assertEqual(sum(len(t["measures"]) for t in ds["tables"]),
+                             sum(len(t.get("measures", [])) for t in want["tables"]))
+            self.assertEqual(len(ds.get("roles", [])), len(want.get("roles", [])))
+        with open(os.path.join(self.tmp, "out", "befunde.json"), encoding="utf-8") as fh:
+            self.assertEqual(json.load(fh)["scope"], "Workspaces")
+
+    def test_no_admin_findings_match_admin_run(self):
+        """Gleiche Modelle über getDefinition müssen dieselben Befunde ergeben wie über die Scanner-API."""
+        def findings():
+            with open(os.path.join(self.tmp, "out", "befunde.json"), encoding="utf-8") as fh:
+                return sorted((r["client"], r["rule"], r["severity"]) for r in json.load(fh)["findings"])
+        self.run_fetch(FakeFabric(), [])
+        admin = findings()
+        self.run_fetch(FakeFabric(admin=False), [])
+        self.assertEqual(findings(), admin)
+
+    def test_get_definition_long_running(self):
+        fake = FakeFabric(admin=False, lro=True)
+        rc, _, err, _ = self.run_fetch(fake, ["-w", "Finance"])
+        self.assertEqual(rc, 0, err)
+        urls = [u for _, u, _ in fake.calls]
+        self.assertIn(f"{fetch.FABRIC}/operations/op-1/result", urls)
+        self.assertTrue(all(d.get("tables") for d in self._scan_json()[0]["workspaces"][0]["datasets"]))
+
+    def test_force_without_admin(self):
+        fake = FakeFabric()
+        rc, out, err, _ = self.run_fetch(fake, ["--ohne-admin"])
+        self.assertEqual(rc, 0, err)
+        self.assertFalse(any("/admin/" in u for _, u, _ in fake.calls))
+        self.assertIn("Workspace-Modus", out)
+
+    def test_model_without_access_is_reported(self):
+        fake = FakeFabric(admin=False, denied_models=["66666666-7777-8888-9999-000000000000"])
+        rc, out, err, _ = self.run_fetch(fake, [])
+        self.assertEqual(rc, 0, err)
+        ds = {d["name"]: d for d in self._scan_json()[0]["workspaces"][0]["datasets"]}
+        self.assertIn("403", ds["Vertrieb"]["schemaRetrievalError"])
+        self.assertTrue(ds["Finanzmodell"]["tables"])
+        self.assertIn("1 Modell(e) ließen sich nicht lesen", out)
+
+    def test_reader_model_via_info_view(self):
+        """getDefinition 403 (nur Leserecht): Namen über INFO.VIEW, Rollen unbekannt statt „keine RLS“."""
+        vid = "66666666-7777-8888-9999-000000000000"
+        fake = FakeFabric(admin=False, denied_models=[vid], info_models=[vid])
+        rc, out, err, _ = self.run_fetch(fake, [])
+        self.assertEqual(rc, 0, err)
+        ds = {d["name"]: d for d in self._scan_json()[0]["workspaces"][0]["datasets"]}
+        v = ds["Vertrieb"]
+        self.assertNotIn("schemaRetrievalError", v)
+        self.assertTrue(v["rolesUnknown"])
+        self.assertEqual([ms["name"] for t in v["tables"] for ms in t["measures"]], ["Pipeline"])
+        self.assertNotIn("RowNumber-1", [c["name"] for t in v["tables"] for c in t["columns"]])
+        self.assertIn("nur mit Leserecht", out)
+        models = {m.name: m for m in scanapi.load_scan(self._scan_json())}
+        self.assertTrue(models["Vertrieb"].roles_unknown and not models["Finanzmodell"].roles_unknown)
+        rows = {r["model"]: r for r in tenant.model_rows(list(models.values()), [])}
+        self.assertIsNone(rows["Vertrieb"]["rls"])
+        from fabscan.querylog import Client
+        c = Client(label="App", app="App", item_id=vid, item_name="Vertrieb", workspace="Finance")
+        c.texts["EVALUATE SUMMARIZECOLUMNS(\"P\", [Pipeline])"] = 1
+        c.users.add("a@b.de")
+        ids = {f.rule for f in tenant.scan_client(c, list(models.values())).findings}
+        models["Vertrieb"].roles = {}
+        models["Vertrieb"].roles_unknown = False
+        self.assertNotIn("SEC-NO-RLS", ids)
+        self.assertIn("SEC-NO-RLS", {f.rule for f in tenant.scan_client(c, list(models.values())).findings})
+
+    def test_unknown_workspace_without_admin(self):
+        rc, _, err, _ = self.run_fetch(FakeFabric(admin=False), ["-w", "Gibtsnicht"])
+        self.assertEqual(rc, 2)
+        self.assertIn("kein Zugriff", err)
 
     def test_no_monitoring_found(self):
         fake = FakeFabric()
@@ -133,7 +309,7 @@ class Fetch(unittest.TestCase):
             return orig(method, url, token, body)
         rc, out, err, _ = self.run_fetch(no_kql, [])
         self.assertEqual(rc, 0, err)
-        self.assertIn("Kein Monitoring-Eventhouse gefunden", out)
+        self.assertIn("Kein Workspace Monitoring gefunden", out)
         self.assertIn("nur Modell-Übersicht", out)
 
     def test_network_error_is_readable(self):
@@ -142,6 +318,18 @@ class Fetch(unittest.TestCase):
             with self.assertRaises(fetch.FetchError) as cm:
                 fetch.http("GET", fetch.FABRIC + "/workspaces", "t")
         self.assertIn("Keine Verbindung zu api.fabric.microsoft.com", str(cm.exception))
+
+    def test_http_202_null_body_keeps_operation_headers(self):
+        """Echter Fabric-Fall: getDefinition antwortet 202 mit Body „null“, die Operation steht nur im Header."""
+        resp = mock.MagicMock()
+        resp.__enter__.return_value.status = 202
+        resp.__enter__.return_value.read.return_value = b"null"
+        resp.__enter__.return_value.headers = {"x-ms-operation-id": "op-9", "Location": f"{fetch.FABRIC}/operations/op-9",
+                                               "Retry-After": "3"}
+        with mock.patch("urllib.request.urlopen", return_value=resp):
+            status, data = fetch.http("POST", fetch.FABRIC + "/x/getDefinition", "t")
+        self.assertEqual(status, 202)
+        self.assertEqual((data["_operation"], data["_retry"]), ("op-9", "3"))
 
     def test_kusto_rows(self):
         rows = fetch.kusto_rows({"Tables": [{"Columns": [{"ColumnName": "a"}, {"ColumnName": "b"}], "Rows": [[1, 2]]}]})

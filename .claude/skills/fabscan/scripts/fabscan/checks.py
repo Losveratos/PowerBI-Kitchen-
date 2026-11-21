@@ -31,6 +31,9 @@ class Finding:
     evidence: str = ""
     advice: str = ""
     occurrences: list = field(default_factory=list)   # [(file, line, evidence)]
+    id: str = ""                  # stabile Befund-ID (ausnahmen.finding_id)
+    status: str = "offen"         # offen | akzeptiert | abgelaufen
+    exception: dict | None = None
 
 
 @dataclass
@@ -56,6 +59,7 @@ class AppResult:
     sql_tables: list[dict] = field(default_factory=list)
     origin: str = "repo"          # repo | log (aus Abfrage-Logs des Tenants)
     meta: dict = field(default_factory=dict)
+    accepted: list[Finding] = field(default_factory=list)   # bewusst akzeptiert (Ausnahme mit Begründung)
 
     def add(self, *a, **kw):
         self.findings.append(Finding(*a, **kw))
@@ -177,7 +181,7 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                     ", ".join(local), os.path.relpath(rf.path, repo_root),
                     advice="Für Produktion getrennte Konfiguration ohne localhost, sonst unkritisch.")
     for b in sm_bind:
-        if b.model is not None and not b.model.roles:
+        if b.model is not None and not b.model.roles and not getattr(b.model, "roles_unknown", False):
             app.add("security", "info", "SEC-NO-RLS", f"Modell „{b.model.name}“ hat keine Rollen (RLS)",
                     "Delegierter Zugriff schützt nur, wenn das Modell Zeilen nach Nutzer einschränkt. Ohne Rollen sieht jeder mit Lesezugriff alles.",
                     b.model.path, advice="Gewollt bei Demo- oder Gesamtdaten; sonst Rollen im Modell anlegen, nicht in der App.")
@@ -276,6 +280,8 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                                 "Ergebnisse hängen vom gewählten Berechnungselement ab.", f, ln, q.snippet(r.line))
                     if mem.hidden or t.hidden:
                         sens = bool(SENSITIVE.search(f"{t.name} {mem.name}"))
+                        if not sens and (t.name.lower(), mem.name.lower()) in m.helper_columns:
+                            continue    # Sortier- oder Schlüsselspalte: Power BI fragt sie ohnehin mit ab
                         app.add("security", "warn" if sens else "info", "SEC-HIDDEN",
                                 "Ausgeblendete Felder mit vertraulich klingendem Namen werden abgefragt" if sens else "Ausgeblendete Felder werden abgefragt",
                                 "Ausgeblendet heißt nicht geschützt: Per DAX ist jedes ausgeblendete Feld für jeden Leser abrufbar. Meist harmlos (Sortierspalten).",
@@ -302,10 +308,11 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                 if d.kind == "MEASURE":
                     shadow = m.measure(d.name) if m else None
                     if shadow:
-                        same = _norm(shadow.expr) == _norm(d.expr)
+                        same = bool(shadow.expr.strip()) and _norm(shadow.expr) == _norm(d.expr)
+                        model_expr = shadow.expr.strip()[:240] or "Ausdruck nicht lesbar (nur Leserecht auf das Modell)"
                         app.add("query" if not same else "deviation", "fail" if not same else "warn", "QRY-SHADOW",
                                 f"Measure [{d.name}] wird in der Abfrage überschrieben" + (" (gleicher Ausdruck)" if same else ""),
-                                f"Im Modell ({shadow.table}): {shadow.expr.strip()[:240]}", f, ln, f"{d.kind} {d.table}[{d.name}] = {d.expr[:400]}",
+                                f"Im Modell ({shadow.table}): {model_expr}", f, ln, f"{d.kind} {d.table}[{d.name}] = {d.expr[:400]}",
                                 "Modell-Measure verwenden; Änderungen im Modell machen, nicht in der App.")
                     else:
                         app.add("calc", "warn", "CALC-DEFINE", f"Kennzahl nur in der App definiert: [{d.name}]",
@@ -405,7 +412,7 @@ def check_app(app: AppResult, files: list[tsscan.SourceFile], repo_root: str, ap
                 continue
             for s in f.strings:
                 v = s.value.strip().lower()
-                if v in names and v not in seen:
+                if v in names and v not in seen and not _is_label(f.text, s.start):
                     seen.add(v)
                     mm = names[v]
                     ln0 = f.line(s.start)
@@ -504,10 +511,28 @@ def group(findings: list[Finding]) -> list[Finding]:
     return list(out.values())
 
 
+_LABEL_KEYS = {"id", "key", "title", "subtitle", "label", "name", "displayname", "caption", "tooltip", "header",
+               "text", "alt", "placeholder", "group", "page", "description",
+               "kpi"}   # ChartKitchen: objects.ibcsTitle.kpi ist die Titelzeile
+_KEY_BEFORE = re.compile(r"""["']?([\w$\[\] .-]+?)["']?\s*:\s*$""")
+
+
+def _is_label(text: str, start: int) -> bool:
+    """Steht die Zeichenkette als Beschriftung da (Wert von id, title, label …, oder Anzeigename eines Felds
+    wie "[actual]": "EBIT AC")? Dann ist es ein Name, keine Rechnung."""
+    before = text[text.rfind("\n", 0, start) + 1:start]
+    m = _KEY_BEFORE.search(before)
+    if not m:
+        return False
+    key = m.group(1).strip()
+    return key.startswith("[") or key.lower() in _LABEL_KEYS
+
+
 def find_apps(root: str) -> list[str]:
     out = []
     for dirpath, dirnames, _ in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in ("node_modules", ".git", "dist", "build", "fixtures")]
+        # versteckte Ordner (.git, .claude/worktrees mit Kopien des Repos, .venv) und Build-Ausgaben überspringen
+        dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in ("node_modules", "dist", "build", "fixtures")]
         if os.path.exists(os.path.join(dirpath, "rayfin", "rayfin.yml")):
             out.append(dirpath)
             dirnames[:] = []

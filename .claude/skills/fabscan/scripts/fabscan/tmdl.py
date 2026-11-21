@@ -43,6 +43,13 @@ class Model:
     logical_id: str = ""
     tables: dict[str, Table] = field(default_factory=dict)     # key: lower
     roles: dict[str, list[tuple[str, str]]] = field(default_factory=dict)
+    # Hilfsspalten (Sortierspalte einer anderen Spalte, Schlüssel einer Beziehung) als (tabelle, spalte), klein.
+    # Power BI fragt sie mit ab, ausgeblendet sind sie fast immer: kein Befund SEC-HIDDEN.
+    helper_columns: set = field(default_factory=set)
+
+    def add_helper(self, table: str, column: str) -> None:
+        if table and column:
+            self.helper_columns.add((table.lower(), column.lower()))
 
     def table(self, name: str) -> Table | None:
         return self.tables.get(name.lower())
@@ -144,6 +151,29 @@ def _parse_tmdl_table(path: str, rel: str, model: Model) -> None:
                 cur.format = s.split(":", 1)[1].strip()
             elif s.startswith("displayFolder:"):
                 cur.folder = s.split(":", 1)[1].strip()
+            elif s.startswith("sortByColumn:"):
+                model.add_helper(table.name, unquote_table(s.split(":", 1)[1].strip()))
+
+
+_COLREF = re.compile(r"^(?:'((?:[^']|'')+)'|([^.']+))\.(?:'((?:[^']|'')+)'|(.+))$")
+
+
+def split_column_ref(ref: str) -> tuple[str, str]:
+    """„'Dim Datum'.Datum“ oder „Sales.'Order Date'“ → (Tabelle, Spalte)."""
+    m = _COLREF.match(ref.strip())
+    if not m:
+        return "", ""
+    table = (m.group(1) or "").replace("''", "'") or (m.group(2) or "").strip()
+    col = (m.group(3) or "").replace("''", "'") or (m.group(4) or "").strip()
+    return table, col
+
+
+def _parse_relationships(path: str, model: Model) -> None:
+    with open(path, encoding="utf-8-sig") as fh:
+        for raw in fh:
+            m = re.match(r"^\s*(fromColumn|toColumn):\s*(.+)$", raw.rstrip("\r\n"))
+            if m:
+                model.add_helper(*split_column_ref(m.group(2)))
 
 
 def _parse_roles(folder: str, rel_base: str, model: Model) -> None:
@@ -173,6 +203,7 @@ def _parse_bim(path: str, model: Model) -> None:
         for c in t.get("columns", []):
             tb.columns[c["name"].lower()] = Member(c["name"], "column", tb.name, bool(c.get("isHidden")),
                                                     _join(c.get("expression", "")), c.get("formatString", ""), file="model.bim")
+            model.add_helper(tb.name, c.get("sortByColumn", ""))
         for ms in t.get("measures", []):
             tb.measures[ms["name"].lower()] = Member(ms["name"], "measure", tb.name, bool(ms.get("isHidden")),
                                                      _join(ms.get("expression", "")), ms.get("formatString", ""),
@@ -180,6 +211,9 @@ def _parse_bim(path: str, model: Model) -> None:
         model.tables[tb.name.lower()] = tb
     for r in mdl.get("roles", []):
         model.roles[r["name"]] = [(tp["name"], _join(tp.get("filterExpression", ""))) for tp in r.get("tablePermissions", [])]
+    for rel in mdl.get("relationships", []):
+        model.add_helper(rel.get("fromTable", ""), rel.get("fromColumn", ""))
+        model.add_helper(rel.get("toTable", ""), rel.get("toColumn", ""))
 
 
 def _join(v) -> str:
@@ -212,6 +246,9 @@ def load_model(folder: str, root: str) -> Model:
         rdir = os.path.join(definition, "roles")
         if os.path.isdir(rdir):
             _parse_roles(rdir, root, model)
+        rel = os.path.join(definition, "relationships.tmdl")
+        if os.path.exists(rel):
+            _parse_relationships(rel, model)
     elif os.path.exists(os.path.join(folder, "model.bim")):
         _parse_bim(os.path.join(folder, "model.bim"), model)
     return model
@@ -220,7 +257,8 @@ def load_model(folder: str, root: str) -> Model:
 def find_models(root: str) -> list[Model]:
     out = []
     for dirpath, dirnames, _ in os.walk(root):
-        dirnames[:] = [d for d in dirnames if d not in ("node_modules", ".git", "dist", "build", "fixtures")]
+        # versteckte Ordner (.git, .claude/worktrees mit Kopien des Repos, .venv) und Build-Ausgaben überspringen
+        dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in ("node_modules", "dist", "build", "fixtures")]
         for d in list(dirnames):
             if d.endswith(".SemanticModel"):
                 out.append(load_model(os.path.join(dirpath, d), root))

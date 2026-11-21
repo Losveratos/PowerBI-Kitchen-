@@ -24,7 +24,8 @@ def scan_client(c: Client, models: list[Model]) -> AppResult:
     con = rayfin.Connector(name=c.item_name or c.item_id, type="fabric-semanticmodel", auth=auth, item_id=c.item_id)
     app = AppResult(name=c.label, path=f"{c.workspace} / {c.item_name}", rayfin=None, origin="log")
     app.meta = {"runs": c.runs, "distinct": len(c.texts), "users": len(c.users), "first": c.first, "last": c.last,
-                "workspace": c.workspace, "model": c.item_name, "mdx": c.skipped_mdx, "sp_users": sp_users}
+                "workspace": c.workspace, "model": c.item_name, "mdx": c.skipped_mdx, "sp_users": sp_users,
+                "dropped": c.dropped}
     b = Binding(con)
     for i, (text, n) in enumerate(c.texts.most_common(), 1):
         q = dax.parse(text, f"Abfrage {i} · {n}× ausgeführt")
@@ -35,11 +36,19 @@ def scan_client(c: Client, models: list[Model]) -> AppResult:
     app.bindings = [b]
     check_app(app, [], "", "")
     if sp_users:
-        sev = "fail" if auth == "application" else "warn"
-        app.add("security", sev, "SEC-AUTH",
-                "Abfragen laufen unter einem Service Principal" + ("" if auth == "application" else " (teilweise)"),
-                f"{len(sp_users)} technische Identität(en) statt angemeldeter Nutzer.", app.path, 0, ", ".join(sp_users[:5]),
-                "Prüfen, ob Zeilensicherheit pro Person nötig ist; dann mit delegiertem Zugriff abfragen.")
+        # Ein Service Principal ist für Automatisierung oft Vorgabe. Zum Befund wird er erst auf einem Modell mit
+        # Zeilensicherheit: Er lässt sich keiner Rolle zuordnen und liest, wenn überhaupt, ungefiltert.
+        rls = b.model is not None and bool(b.model.roles)
+        part = "" if auth == "application" else " (teilweise)"
+        if rls:
+            app.add("security", "warn", "SEC-AUTH", "Service Principal fragt ein Modell mit Zeilensicherheit ab" + part,
+                    f"{len(sp_users)} technische Identität(en). RLS filtert Service Principals nicht.", app.path, 0,
+                    ", ".join(sp_users[:5]),
+                    "Prüfen, wer die Daten des Clients sieht. Für Endnutzer delegiert abfragen oder die Ausnahme begründen.")
+        else:
+            app.add("security", "info", "SEC-AUTH", "Abfragen laufen unter einem Service Principal" + part,
+                    f"{len(sp_users)} technische Identität(en) statt angemeldeter Nutzer.", app.path, 0,
+                    ", ".join(sp_users[:5]), "")
     if c.skipped_mdx:
         app.add("lineage", "info", "LIN-MDX", f"{c.skipped_mdx} MDX-Abfragen nicht geprüft (z. B. Excel)", "", app.path)
     usage(b)
@@ -63,7 +72,29 @@ def model_rows(models: list[Model], apps: list[AppResult]) -> list[dict]:
                 if b.model is m:
                     used |= {x.lower() for x in b.measures_used}
         rows.append({"model": m.name, "workspace": getattr(m, "workspace", ""), "tables": len(m.tables),
-                     "measures": m.measure_count, "rls": len(m.roles), "clients": [a.name for a in users],
+                     "measures": m.measure_count, "rls": None if getattr(m, "roles_unknown", False) else len(m.roles),
+                     "clients": [a.name for a in users],
                      "used": len(used), "error": getattr(m, "schema_error", "")})
     rows.sort(key=lambda r: (-len(r["clients"]), r["workspace"], r["model"]))
     return rows
+
+
+def coverage(models: list[Model], apps: list[AppResult], workspaces: int | None = None,
+             workspaces_monitoring: int | None = None, days: int | None = None, include_reports: bool = False,
+             max_texts: int = 400) -> dict:
+    """Was der Lauf gesehen hat und was nicht (Bericht: Abschnitt Abdeckung)."""
+    log_apps = [a for a in apps if a.origin == "log"]
+    queried = {id(b.model) for a in log_apps for b in a.bindings if b.model is not None}
+    return {
+        "workspaces": workspaces, "workspaces_monitoring": workspaces_monitoring,
+        "models": len(models),
+        "models_unreadable": sum(1 for m in models if getattr(m, "schema_error", "")),
+        "models_names_only": sum(1 for m in models if getattr(m, "roles_unknown", False)),
+        "models_queried": len(queried),
+        "clients": len(log_apps),
+        "runs": sum(a.meta.get("runs", 0) for a in log_apps),
+        "distinct": sum(a.meta.get("distinct", 0) for a in log_apps),
+        "mdx_skipped": sum(a.meta.get("mdx", 0) for a in log_apps),
+        "dropped": sum(a.meta.get("dropped", 0) for a in log_apps),
+        "max_texts": max_texts, "days": days, "reports_excluded": not include_reports,
+    }

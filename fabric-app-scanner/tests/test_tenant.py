@@ -42,7 +42,7 @@ class Tenant(unittest.TestCase):
         self.assertNotIn("warn", {s for _, s in rules("Finance Cockpit")})
         self.assertIn(("CALC-RAW", "warn"), rules("Sales App"))
         self.assertIn(("DEV-TRANSFORM", "warn"), rules("Sales App"))
-        self.assertIn(("SEC-AUTH", "fail"), rules("Notebook Export"))
+        self.assertIn(("SEC-AUTH", "info"), rules("Notebook Export"))   # Modell ohne RLS: SP nur Hinweis
         self.assertIn(("QRY-SHADOW", "fail"), rules("Notebook Export"))
         self.assertIn(("SEC-HIDDEN", "warn"), rules("Notebook Export"))  # Gehalt
         self.assertEqual(apps["Pipeline App"].status(), "ok")             # Modell mit RLS, Measure genutzt
