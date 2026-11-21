@@ -4,7 +4,7 @@
 
 Power-BI-Visual · Schnellstart
 
-Ein einzelnes Power-BI-Visual mit 13 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle, Matrix und KPI-Karten bis zu GuV-Statement und Scatter/Bubble. Mit Dark Mode für dunkle Berichtsseiten und Trend-Mini-Charts auf den KPI-Karten. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.
+Ein einzelnes Power-BI-Visual mit 14 IBCS-inspirierten Modi — von Säulen, Linien und Wasserfall über Tabelle, Matrix und KPI-Karten bis zu GuV-Statement und Scatter/Bubble. Mit Dark Mode für dunkle Berichtsseiten und Trend-Mini-Charts auf den KPI-Karten. In zwei Minuten verstehen, was das Visual kann, wie du loslegst und wo die ausführliche Dokumentation steht.
 
 14 Modi · DE · EN · ES · JA · Version 1.55.0.0
 

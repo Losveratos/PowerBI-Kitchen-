@@ -4,7 +4,7 @@
 
 Power BI visual · Quick start
 
-One Power BI visual with 13 IBCS-inspired modes — from columns, lines and waterfall through table, matrix and KPI cards to the P&L statement and scatter/bubble. With a dark mode for dark report pages and trend mini charts on the KPI cards. Understand in two minutes what the visual does, how to get going and where to find the full documentation.
+One Power BI visual with 14 IBCS-inspired modes — from columns, lines and waterfall through table, matrix and KPI cards to the P&L statement and scatter/bubble. With a dark mode for dark report pages and trend mini charts on the KPI cards. Understand in two minutes what the visual does, how to get going and where to find the full documentation.
 
 14 modes · DE · EN · ES · JA · Version 1.55.0.0
 

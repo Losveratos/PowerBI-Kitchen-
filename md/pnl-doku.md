@@ -55,7 +55,7 @@ ChartKitchen und P&L Statement sind zwei Visuals aus einer Küche: dieselbe IBCS
 
 ### Wofür welches Visual?
 
-Breite · 13 Chart-Modi
+Breite · 14 Chart-Modi
 
 #### ChartKitchen byDatenWG
 
