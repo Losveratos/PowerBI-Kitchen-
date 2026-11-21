@@ -6,7 +6,7 @@ Power-BI-Visual · Enddokumentation
 
 Das IBCS-inspirierte GuV-Visual für Power BI: ein Statement direkt aus deiner Kontendimension — als klassische Tabelle oder als Mega-Table mit den IBCS-Templates T01–T04, 12A, 12G und 12H sowie Bilanz und Cashflow (T05A/T05B), dazu Struktur-Bars, Zeilen-Waterfall, Werttreiberbaum, Sankey und Kachel-Zoom. Diese Dokumentation führt vom Import über Datenmodell, Ansichten und Templates bis zur vollständigen Einstellungs-Referenz.
 
-Version · **1.8.0.0** · Stand · **2026-11-01** · IBCS-inspired
+Version · **1.8.1.0** · Stand · **2026-11-01** · IBCS-inspired
 
 ## Inhalt
 
@@ -21,7 +21,7 @@ Version · **1.8.0.0** · Stand · **2026-11-01** · IBCS-inspired
 9. [Interaktion](#interaction)
 10. [Abweichungen von den IBCS-Blättern](#deviations)
 11. [Troubleshooting](#faq)
-12. [Versionshinweis 1.8.0.0](#version)
+12. [Versionshinweis 1.8.1.0](#version)
 
 ## 01 · Was ist das Visual?
 
@@ -47,7 +47,7 @@ Die Notation folgt den **IBCS®-Prinzipien**: AC ausgefüllt in Dunkelgrau (#404
 
 > **Danke an IBCS.** Das Visual ist stark von den Ideen der IBCS® – International Business Communication Standards inspiriert. Ohne ihre großartigen Ressourcen, die außergewöhnlichen Inhalte und vor allem die bahnbrechende konzeptionelle Arbeit wäre so etwas wie dieses Visual nicht möglich gewesen. Dafür: Danke. Nicht gesponsert, nicht lizenziert und nicht mit der IBCS Association verbunden.
 
-Diese Anleitung beschreibt den Stand der Version **1.8.0.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.7.1: Kachel-Zoom mit eigener Abweichungszone und Skalierungshinweis, Bestände in der Kachel als Stände, Ist = 0 in ungebuchten Monaten als nicht gebucht (Kapitel 06 und 11). Neu in 1.7: **Bestand & Fluss** mit den Templates T05A Bilanz und T05B Cashflow (Kapitel 05 und 07), **⚡ Nur Ausnahmen** (Kapitel 09), die Karten **Fläche** und **Toolbar-Farben** (Kapitel 08) sowie **Cross-Highlight** im Sankey (Kapitel 06 und 09). Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
+Diese Anleitung beschreibt den Stand der Version **1.8.1.0**. Alle Standardwerte der Einstellungs-Referenz sind gegen das Settings-Modell des Visuals geprüft. Neu in 1.7.1: Kachel-Zoom mit eigener Abweichungszone und Skalierungshinweis, Bestände in der Kachel als Stände, Ist = 0 in ungebuchten Monaten als nicht gebucht (Kapitel 06 und 11). Neu in 1.7: **Bestand & Fluss** mit den Templates T05A Bilanz und T05B Cashflow (Kapitel 05 und 07), **⚡ Nur Ausnahmen** (Kapitel 09), die Karten **Fläche** und **Toolbar-Farben** (Kapitel 08) sowie **Cross-Highlight** im Sankey (Kapitel 06 und 09). Neu in 1.6: die fünfte Ansicht Sankey (Kapitel 06) und die Schalter „Ansichten anbieten“ (Kapitel 08). Neu seit 1.5: die Skalierung nach IBCS 2.0 / ISO 24896 als Standard in allen Ansichten (eine Skala je Einheit, Ausreißerzone, Skalenhinweis; Kapitel 06), einklappbare Bedienleisten (☰, Kapitel 08) und die Auto-Headline als ganzer Satz. Seit 1.3 und 1.4: der Start-Hub (Kapitel 03) mit Template-Galerie nach Zweck, „🚀 Loslegen“, Schriftgrößen-Leiste HD · Full HD · UHD und Doku-Knopf, ☰ Start als erster Toolbar-Knopf, „↺ Zum Template zurück“ samt Wiederanwenden und die ruhige Landing-Karte für Leser.
 
 ## 02 · Die Produktfamilie
 
@@ -183,7 +183,7 @@ Leser, PDF-Export und Abos sehen nie Hub, Overlay oder Leiste. Ohne Daten zeigt 
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`pnlByDatenWG…1.8.0.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
+1. Lade die Datei [`pnlByDatenWG…1.8.1.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.1.0.pbiviz) herunter (Endung `.pbiviz`, auch über den Button oben rechts).
 2. In Power BI Desktop: *Visualisierungen* → *⋯* → *Visual aus einer Datei importieren* und die `.pbiviz` wählen. Eine ältere Version wird dabei ersetzt.
 3. Das Visual großzügig aufziehen (mindestens etwa 1200 × 800 px) — Toolbar und zwei Spaltenblöcke brauchen Breite. Frisch auf der Seite zeigt es im Bearbeitungsmodus den **Start-Hub** (Kapitel 03): „🚀 Loslegen“ führt mit Häkchen durch Felder, Template und Feinschliff, „Demo ansehen“ öffnet die Beispiel-GuV, auf der Ansichten, Toolbar und Templates schon funktionieren.
 
@@ -328,7 +328,7 @@ Die GuV als Kaskade auf der Wurzelebene der Hierarchie: Beiträge kaskadieren, S
 
 ### 05 · Werttreiberbaum
 
-Der Ergebnisbaum als DuPont-Graph: Wurzel ist die letzte Formel-/KPI-Zeile mit Operanden (oder die im Formatbereich genannte Wurzelzeile), die Kanten tragen die Operatoren ÷ × + − als Kreise. Ohne Formelzeilen wächst der Baum direkt aus der Hierarchie — bei genau einer Wurzel ist sie die Baum-Wurzel, bei mehreren trägt eine virtuelle **Gesamt-Wurzel** sie als Kinder; die Kanten tragen dann das Rechenvorzeichen. Tidy-Layout mit einer Spalte je Ebene, Kompakt-Karten in der Tiefe. Jede Karte zeigt ein Mini-Chart nach Wahl — *Monatssäulen* (AC solide, Referenz dahinter), *Abweichungssäulen* (AC − Referenz je Monat) oder *Mini-Brücke* (Referenz → Δ → AC, YTD) — und optional einen Status-Rand in der Abweichungsfarbe. ▾ klappt einen Knoten auf und zu (Shift: der ganze Ast), ⌖ macht eine Karte zur Wurzel, die Breadcrumb und ⌂ führen zurück; der Hover über einer Karte öffnet die IBCS-Detailansicht. Wird das Kartenbudget erreicht, nennt ein Hinweis die nicht gezeichneten Zweige. Seit 1.5 zeichnen alle Karten derselben Einheit (Beträge; Prozent-Kennzahlen getrennt) in einem Maßstab; bedeckte eine Karte damit weniger als ein Viertel ihrer Fläche, zeichnet sie mit rundem Faktor vergrößert und trägt „×5“ oben rechts, der Tooltip erklärt es. Die Hover-Detailansicht hat bewusst eine eigene Skala und sagt das („Lupe“). Mega-Table- und Finance-Schalter wirken im Baum nicht; er hat seinen eigenen Klapp-Zustand.
+Der Ergebnisbaum als DuPont-Graph: Wurzel ist die letzte Formel-/KPI-Zeile mit Operanden (oder die im Formatbereich genannte Wurzelzeile), die Kanten tragen die Operatoren : × + − als Kreise. Ohne Formelzeilen wächst der Baum direkt aus der Hierarchie — bei genau einer Wurzel ist sie die Baum-Wurzel, bei mehreren trägt eine virtuelle **Gesamt-Wurzel** sie als Kinder; die Kanten tragen dann das Rechenvorzeichen. Tidy-Layout mit einer Spalte je Ebene, Kompakt-Karten in der Tiefe. Jede Karte zeigt ein Mini-Chart nach Wahl — *Monatssäulen* (AC solide, Referenz dahinter), *Abweichungssäulen* (AC − Referenz je Monat) oder *Mini-Brücke* (Referenz → Δ → AC, YTD) — und optional einen Status-Rand in der Abweichungsfarbe. ▾ klappt einen Knoten auf und zu (Shift: der ganze Ast), ⌖ macht eine Karte zur Wurzel, die Breadcrumb und ⌂ führen zurück; der Hover über einer Karte öffnet die IBCS-Detailansicht. Wird das Kartenbudget erreicht, nennt ein Hinweis die nicht gezeichneten Zweige. Seit 1.5 zeichnen alle Karten derselben Einheit (Beträge; Prozent-Kennzahlen getrennt) in einem Maßstab; bedeckte eine Karte damit weniger als ein Viertel ihrer Fläche, zeichnet sie mit rundem Faktor vergrößert und trägt „×5“ oben rechts, der Tooltip erklärt es. Die Hover-Detailansicht hat bewusst eine eigene Skala und sagt das („Lupe“). Mega-Table- und Finance-Schalter wirken im Baum nicht; er hat seinen eigenen Klapp-Zustand.
 
 ![Werttreiberbaum](../assets/docs/pnl/p06-baum.webp)
 
@@ -929,10 +929,11 @@ Nur im Bearbeitungsmodus: Eine Formel oder Summe mischt Bestände und Flüsse, o
 
 Gewollt (Cross-Highlight, seit 1.7): Der Sankey zeigt die Markierung im Gesamt — das Ganze grau, der markierte Teil farbig, in der Fußzeile „… 923 von 1 685 …“. Alle anderen Ansichten verhalten sich wie gefiltert. Soll auch der Sankey filtern, stelle die Interaktion in Power BI Desktop unter Format → *Interaktionen bearbeiten* am auslösenden Visual auf das Filter-Symbol um (Kapitel 09).
 
-## 12 · Versionshinweis 1.8.0.0
+## 12 · Versionshinweis 1.8.1.0
 
-Diese Dokumentation beschreibt **Version 1.8.0.0** vom 19.11.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
+Diese Dokumentation beschreibt **Version 1.8.1.0** vom 20.11.2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). Das Visual ist nicht im Microsoft AppSource gelistet und damit nicht von Microsoft zertifiziert. Feldrollen, Property-Namen und der gespeicherte Toolbar-Zustand sind seit 1.0 stabil; jede neue Einstellung steht per Standard aus oder verhält sich wie bisher. Standard-Änderungen seit 1.2: Im Bearbeitungsmodus ohne Felder erscheint der Start-Hub statt der Demo-GuV (1.3); seit 1.5 gilt die Skalierung nach IBCS 2.0 / ISO 24896 als Standard, bestehende Berichte ändern dadurch ihr Bild.
 
+- **1.8.1.0 · ROI-Baum wie im Blatt 11A:** Division als „:“, geteilter Operand (Nettoumsatz) als eine Karte mit zwei Verbindungen, Galerie-Vorschau als DuPont-Baum mit den Blattzahlen.
 - **1.8.0.0 · IBCS-Blätter T01C, T01D, T02D und 11A:** neue Templates T01C, T01D, T02D und die Galerie-Vorlage ROI-Baum 11A (Werttreiberbaum über Jahre, alle Perioden beschriftet); Gesamtzeile über mehrere Wurzeln; Sortierung nach Δ% und Blockreihenfolge wie in den Blättern; Zahlformat Faktor oder Betrag für KPI-Zeilen; Jahre als Periode; Margen-Δ in pp oder %p, Δ%-Dezimalen wie im Blatt, gerundete Null mit oder ohne Vorzeichen; Blattfehler-Liste auf den Fassungen vom 17./18.11.2026. Ohne die neuen Schalter rendert ein Bericht wie 1.7.1; ein Wert, der auf null rundet, steht jetzt in jeder Ansicht ohne Vorzeichen.
 - **1.7.1.0 · Kachel-Zoom maßstabsgetreu:** Abweichungen in eigener Zone mit einer Skala für jedes Δ und ohne Mindesthöhe, Skalierungshinweis „ΔPL ×n“ am Zonenlabel; Bestandszeilen in der Kachel als Stände (Gesamtsäule = Stand am Ende, Δ je Monat nicht kumuliert); ein Ist-Measure, das für ungebuchte Monate 0 statt leer liefert, verdeckt den Forecast nicht mehr (nachlaufende Monate mit Ist 0 in jeder Zeile und Forecast gelten als nicht gebucht, Hinweis im Bearbeitungsmodus).
 - **1.7.0.0 · Bestand & Fluss, Nur Ausnahmen, Fläche, Toolbar-Farben, Cross-Highlight im Sankey:** Zeilentyp-Token `stock`/`opening` und Formatkarte „Bestand & Fluss“ — Bestände werden in YTD und FY nicht summiert, sondern als Stand zum Stichtag gezeigt (FY = Forecast-Endstand), Δ vergleicht Stände desselben Stichtags; neue Templates **T05A Bilanz** und **T05B Cashflow** in der Galerie-Gruppe „Bilanz & Cashflow“, Beispieldaten `demoData/bilanz-*.csv`, `cashflow-*.csv`. Toolbar-Gruppe **⚡ Nur Ausnahmen**: nur Zeilen mit |Δ%| ≥ Schwelle (oder |Δ| ≥ absolut) gegen PY/PL/FC behalten ihre Farbe, Richtung ▲/▼/▲▼, Rest grau oder ausgeblendet — Ausblenden wirkt in jeder Ansicht (Kaskaden fassen ruhige Schritte zu „übrige (n)“ zusammen, Baum klappt ruhige Äste zu „+n“, Sankey bündelt ruhige Ströme), lesezeichenfähig, Formatkarte „Ausnahmen“. Formatkarte **Toolbar-Farben** (leer = automatisch). Schalter **Fläche → Ganze Kachel nutzen**: schmale Ränder, kompakte Toolbar, Tabellen skalieren auf die Kachelhöhe, Baum und Sankey füllen die Kachel. **Cross-Highlight**: Markierungen aus anderen Visuals zeigt nur der Sankey als farbigen Teil im grauen Ganzen; alle anderen Ansichten verhalten sich wie gefiltert.
@@ -953,13 +954,13 @@ Diese Dokumentation beschreibt **Version 1.8.0.0** vom 19.11.2026 (GUID `pnlByDa
 
 Die vollständige Versionshistorie steht im [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md).
 
-**P&L Statement byDatenWG** · Version 1.8.0.0
+**P&L Statement byDatenWG** · Version 1.8.1.0
 
 Schwester-Visual: [ChartKitchen byDatenWG – Dokumentation](../chartkitchen-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
 Kontakt: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.8.0.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.0.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Schnellstart: [pnl-schnellstart.html](../pnl-schnellstart.html) · Download: [.pbiviz 1.8.1.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.1.0.pbiviz) · Quellcode und Änderungsprotokoll: [pnlByDatenWG im Repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · Für KI-Agenten: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation nach den IBCS®-Standards 2.0 (ISO 24896) der IBCS Association (CC BY-SA 4.0, ibcs.com). Dokumentierte Abweichung: Teal ersetzt das IBCS-Varianz-Grün, um bei Rot-Grün-Sehschwäche lesbar zu bleiben. IBCS® ist eine eingetragene Marke des IBCS Institute. Dieses Visual ist nicht von der IBCS Association zertifiziert und steht in keiner Verbindung zu ihr.
 

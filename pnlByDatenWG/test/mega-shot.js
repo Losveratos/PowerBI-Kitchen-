@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -276,6 +276,14 @@ function readMega(id) {
             blockOrder("m57") === "Europe,Americas,Rest of World" && leavesOf("m57", "Europe").split(",")[0] === "Other" === false
             && leavesOf("m57", "Europe").endsWith("Other"), blockOrder("m57") + " | " + leavesOf("m57", "Europe"));
     }
+    if (S.m60) {
+        check("m60 T02D with the sheet's _November numbers: Rest of World China, Japan, Australia, Other (sheet)",
+            leavesOf("m60", "Rest of World") === "China,Japan,Australia,Other", leavesOf("m60", "Rest of World"));
+        check("m60 T02D Europe and Americas as in the sheet", leavesOf("m60", "Europe") === "Switzerland,Sweden,Poland,Germany,Austria,Belgium,France,Other"
+            && leavesOf("m60", "Americas") === "Canada,Brazil,USA,Other", leavesOf("m60", "Europe") + " | " + leavesOf("m60", "Americas"));
+        check("m60 T02D totals of the sheet: Europe ΔPL −195, Rest of World +118, World −51 and −0.2%",
+            has("m60", "-195") && has("m60", "+118") && has("m60", "-51") && has("m60", "-0.2"), "");
+    }
     if (S.m55) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
             blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
@@ -301,6 +309,9 @@ function readMega(id) {
         check("t11c default root is the ROI (the last KPI row), every period labelled: 2026 / PL tag, plan values 19.8 / 19.2 (unit in the head)",
             c.includes("Return on investment") && c.includes("2026") && c.includes("PL") && c.includes("19.8") && c.includes("19.2") && c.includes("2023"),
             c.filter(t => /^20\d\d/.test(t)).join(" "));
+        const net = (T11.t11c || []).filter(t => t === "Net sales").length;
+        check("t11c 1.8.1 Net sales once (shared operand of return on sales and capital turnover, as the sheet)", net === 1, String(net));
+        check("t11c 1.8.1 ratios drawn as \":\" (no \"÷\" on the cards)", c.includes(":") && !c.includes("÷"));
         check("t11c a year axis gets no year prefix in the period line (no \"2021 2021\")", !c.some(t => /2021 2021/.test(t)), c.slice(0, 6).join(" | "));
         check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
     }

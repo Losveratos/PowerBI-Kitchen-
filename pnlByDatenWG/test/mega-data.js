@@ -109,6 +109,11 @@
     "Americas:Brazil": [149, 1597], "Americas:Canada": [73, 886], "Americas:USA": [378, 3190], "Americas:Other": [492, 4008],
     "Rest of World:Australia": [77, 579], "Rest of World:China": [281, 2916], "Rest of World:Japan": [14, 175], "Rest of World:Other": [262, 2647],
   };
+  const T02D_YTD = {
+    "Europe:Other": [null, null, null, null, null, 5899],
+    "Rest of World:China": [null, null, null, null, 2311, null],
+    "Rest of World:Japan": [null, null, null, null, 139, null],
+  };
   const MONTHS = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06",
     "2026-07", "2026-08", "2026-09", "2026-10", "2026-11"];
 
@@ -130,7 +135,10 @@
       for (const leaf of leaves) {
         sort++;
         const k = g + ":" + leaf;
-        const b = BASE[k] || SINGLE[k]; const f = (opt && opt.fc === "T01D" ? FC_T01D[k] : FC[k]) || [b[2], b[5]];
+        const b0 = BASE[k] || SINGLE[k]; const f = (opt && opt.fc === "T01D" ? FC_T01D[k] : FC[k]) || [b0[2], b0[5]];
+        // 1.8.1 opt.sheet "T02D": the _November values of the sheet T02D (version 24.07.2026),
+        // where it differs from T01: Other Europe AC 5 899, China PL 2 311, Japan PL 139
+        const b = opt && opt.sheet === "T02D" && T02D_YTD[k] ? b0.map((x, i) => T02D_YTD[k][i] ?? x) : b0;
         MONTHS.forEach((m, mi) => rows.push({
           levels: opt && opt.multiRoot ? [g, leaf] : ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
           sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,

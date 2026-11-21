@@ -85,8 +85,8 @@ export const HUB_TEMPLATES: string[] = MEGA_PRESET_KEYS.slice();
  * statement); KPI rows carry their number format in the row type
  * ("KPI factor" for the capital turnover).
  */
-export const VIEW_PRESETS: Record<string, { view: "tree"; cols: Record<string, string | number | boolean> }> = {
-    "11A": { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true } },
+export const VIEW_PRESETS: Record<string, { view: "tree"; cols: Record<string, string | number | boolean>; demo?: "roi" }> = {
+    "11A": { view: "tree", cols: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true }, demo: "roi" },
 };
 
 /** a tile of the 1.4 gallery: the template plus its finance title and its use line (resjson keys) */
@@ -272,7 +272,7 @@ export interface MiniSpec {
     /** carry a synthetic FC scenario (templates that analyse FC) */
     fc?: boolean;
     /** 1.7 draw the balance-sheet or the cash-flow example instead of the P&L demo */
-    demo?: "bilanz" | "cashflow";
+    demo?: "bilanz" | "cashflow" | "roi";
 }
 
 /** a card of the feature tour: texts live in the resjson (UI_Tour<n>T / UI_Tour<n>X) */
@@ -330,5 +330,7 @@ export function miniObjects(spec: MiniSpec, dark: boolean): Record<string, Recor
     if (spec.bars) { o.columns = { ...o.columns, barOverlap: true, barTriangles: true }; }
     // the driver tree starts two levels deep: a whole tree does not fit a thumbnail
     if (spec.view === "tree" && !spec.zoom) { o.columns = { ...o.columns, treeLevel: 4 }; }
+    // 1.8.1 the ROI tree preview (11A): the whole DuPont tree with the preset's card settings
+    if (spec.demo === "roi") { o.columns = { ...o.columns, ...VIEW_PRESETS["11A"].cols }; }
     return o;
 }
