@@ -54,6 +54,8 @@ export interface InputRow {
     stock?: StockAgg | null;
     /** 1.7 explicit flow token (flow / fluss …) — overrides the inheritance of a total or formula */
     flow?: boolean;
+    /** 1.8 (B07) number format of a KPI row (row-type token factor / amount / pct); absent = percent */
+    kfmt?: KpiFormat;
     values: Partial<Record<Scenario, number | null>>;
     /** Monthly series (aligned to PnlModel.months) for sparklines; signed like values. */
     series?: Partial<Record<Scenario, (number | null)[]>>;
@@ -147,6 +149,8 @@ export interface LevelInputRow {
     stock?: StockAgg | null;
     /** 1.7 explicit flow token (see InputRow.flow) */
     flow?: boolean;
+    /** 1.8 KPI number format (see InputRow.kfmt) */
+    kfmt?: KpiFormat;
     values: Partial<Record<Scenario, number | null>>;
     month: string | null;
     comment: string | null;
@@ -211,7 +215,7 @@ const MS_EPOCH_MIN = 1e11;
  * Anything else returns null — the caller then falls back to data order rather
  * than guessing (fiscal calendars, week labels, "P01".."P13" …).
  */
-export function parsePeriod(raw: string | null | undefined): PeriodKey | null {
+export function parsePeriod(raw: string | null | undefined, years = true): PeriodKey | null {
     const s = String(raw ?? "").trim();
     if (s === "") { return null; }
 
@@ -226,6 +230,8 @@ export function parsePeriod(raw: string | null | undefined): PeriodKey | null {
         const n = Number(s.replace(",", "."));
         if (!isFinite(n)) { return null; }
         if (Number.isInteger(n) && n >= 1 && n <= 12) { return { y: null, m: n, d: 0 }; }
+        // 1.8 (B07) a year as the period (ROI tree 2021 … 2027): its January
+        if (years && Number.isInteger(n) && n >= 1900 && n <= 2200 && /^\d{4}$/.test(s)) { return { y: n, m: 1, d: 0 }; }
         if (Math.abs(n) >= MS_EPOCH_MIN) {
             const dt = new Date(n);
             if (!isNaN(dt.getTime())) {
@@ -267,14 +273,14 @@ export function parsePeriod(raw: string | null | undefined): PeriodKey | null {
  * ones — a column that mixes the two is a modelling accident, and guessing
  * would only hide it.
  */
-export function sortMonths(keys: string[], mode: PeriodSort = "auto"): string[] {
+export function sortMonths(keys: string[], mode: PeriodSort = "auto", years = true): string[] {
     if (mode === "data") { return [...keys]; }
     const idx = new Map<string, number>();
     const parsed = new Map<string, PeriodKey | null>();
     keys.forEach((k, i) => {
         if (idx.has(k)) { return; }
         idx.set(k, i);
-        parsed.set(k, parsePeriod(k));
+        parsed.set(k, parsePeriod(k, years));
     });
     if (mode === "auto") {
         for (const p of parsed.values()) { if (p == null) { return [...keys]; } }
@@ -433,6 +439,7 @@ export function rowsFromLevels(
             // 1.7 the stock / flow tokens travel only when the cell carried one —
             // a row without a token stays shaped exactly as before
             ...(r.stock ? { stock: r.stock } : {}), ...(r.flow ? { flow: true } : {}),
+            ...(r.kfmt ? { kfmt: r.kfmt } : {}),
         });
     }
 
@@ -516,6 +523,19 @@ export const OPENING_TOKENS = ["opening", "anfangsbestand", "eröffnung", "eroef
 /** … and an explicit flow (overrides the stock inheritance of a total or formula) */
 export const FLOW_TOKENS = ["flow", "fluss", "bewegung", "movement"];
 
+/**
+ * 1.8 (B07) number format of a KPI row: percent (the default: margins, return
+ * on sales), factor (capital turnover 1.3, leverage) or amount (revenue per
+ * head, scaled and unit-suffixed like every amount)
+ */
+export type KpiFormat = "pct" | "factor" | "amount";
+/** 1.8 row-type tokens of the KPI number format */
+export const KPI_FORMAT_TOKENS: Record<string, KpiFormat> = {
+    factor: "factor", faktor: "factor", times: "factor", multiple: "factor", "×": "factor",
+    amount: "amount", betrag: "amount", absolute: "amount", absolut: "amount", currency: "amount", "währung": "amount",
+    pct: "pct", percent: "pct", prozent: "pct", "%": "pct",
+};
+
 /** what the row-type cell says: the row type plus the 1.7 stock / flow token */
 export interface RowTypeInfo {
     rowType: RowType;
@@ -523,12 +543,15 @@ export interface RowTypeInfo {
     stock: StockAgg | null;
     /** explicit flow token */
     flow: boolean;
+    /** 1.8 KPI number format token (only on KPI rows); null = none (percent) */
+    kfmt?: KpiFormat | null;
 }
 
 /**
  * Read the row-type cell (1.7). Several tokens may share one cell, separated
  * by comma, semicolon, blank or "|" — "Subtotal stock", "Account; opening",
- * "Formula | flow". Only a cell that carries a stock / opening / flow token is
+ * "Formula | flow", 1.8 "KPI factor". Only a cell that carries a stock /
+ * opening / flow token or (1.8) a KPI format token (factor, amount, pct, %) is
  * split: every other value is read whole by the rule of 1.0 (so no existing
  * value changes its meaning — "net margin" stays an account, exactly as
  * before). In a split cell the remaining words decide the row type, the first
@@ -540,11 +563,14 @@ export function parseRowTypeInfo(raw: unknown): RowTypeInfo {
     const toks = s.split(/[\s,;|]+/).filter(t => t !== "");
     let stock: StockAgg | null = null;
     let flow = false;
+    let kfmt: KpiFormat | null = null;
     const rest: string[] = [];
     for (const t of toks) {
         if (STOCK_TOKENS.includes(t)) { stock = "last"; flow = false; }
         else if (OPENING_TOKENS.includes(t)) { stock = "first"; flow = false; }
         else if (FLOW_TOKENS.includes(t)) { stock = null; flow = true; }
+        // 1.8 "KPI factor", "Kennzahl Betrag": the number format of a KPI row
+        else if (Object.prototype.hasOwnProperty.call(KPI_FORMAT_TOKENS, t)) { kfmt = KPI_FORMAT_TOKENS[t]; }
         else { rest.push(t); }
     }
     if (rest.length === toks.length) { return { rowType: classifyRowType(s), stock: null, flow: false }; }
@@ -555,7 +581,10 @@ export function parseRowTypeInfo(raw: unknown): RowTypeInfo {
             if (r !== "account") { rowType = r; break; }
         }
     }
-    return { rowType, stock, flow };
+    // a format token means something on a KPI row only; elsewhere it is ignored
+    // "pct" is the default: it is read (the cell splits) but not stored, so an
+    // explicit "KPI %" behaves exactly like "KPI"
+    return { rowType, stock, flow, ...(kfmt && kfmt !== "pct" && rowType === "kpi" ? { kfmt } : {}) };
 }
 
 export function parseRowType(raw: unknown): RowType {
@@ -1328,7 +1357,8 @@ export interface ExceptionRule {
  */
 export function isExceptionVariance(row: InputRow, v: Variance, rule: ExceptionRule): boolean {
     if (v.delta == null || v.delta === 0 || !isFinite(v.delta)) { return false; }
-    const kpi = row.rowType === "kpi";
+    // 1.8 (B07) an amount KPI is tested like an amount, a factor KPI by its relative Δ
+    const kpi = row.rowType === "kpi" && row.kfmt !== "amount";
     const d = kpi ? v.delta : (row.displayInvert ? -v.delta : v.delta);
     if (rule.dir === "up" && d <= 0) { return false; }
     if (rule.dir === "down" && d >= 0) { return false; }
@@ -1336,6 +1366,7 @@ export function isExceptionVariance(row: InputRow, v: Variance, rule: ExceptionR
     const abs = Math.max(0, Number(rule.abs) || 0);
     const eps = 1e-9;
     if (pct <= 0 && abs <= 0) { return true; }
+    if (kpi && row.kfmt === "factor") { return pct > 0 && (v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps); }
     if (kpi) { return pct > 0 && Math.abs(v.delta * 100) >= pct - eps; }
     if (abs > 0 && Math.abs(v.delta) >= abs * (1 - eps)) { return true; }
     if (pct > 0) { return v.deltaPct == null || Math.abs(v.deltaPct * 100) >= pct - eps; }

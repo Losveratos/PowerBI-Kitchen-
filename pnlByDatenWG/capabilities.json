@@ -597,6 +597,11 @@
                         "text": true
                     }
                 },
+                "treeAllLabels": {
+                    "type": {
+                        "bool": true
+                    }
+                },
                 "treeLevel": {
                     "type": {
                         "numeric": true
@@ -641,6 +646,14 @@
                                 "displayName": "T01B"
                             },
                             {
+                                "value": "T01C",
+                                "displayName": "T01C"
+                            },
+                            {
+                                "value": "T01D",
+                                "displayName": "T01D"
+                            },
+                            {
                                 "value": "T02A",
                                 "displayName": "T02A"
                             },
@@ -651,6 +664,10 @@
                             {
                                 "value": "T02C",
                                 "displayName": "T02C"
+                            },
+                            {
+                                "value": "T02D",
+                                "displayName": "T02D"
                             },
                             {
                                 "value": "T02E",
@@ -814,6 +831,16 @@
                         "bool": true
                     }
                 },
+                "structureTotal": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "structureTotalLabel": {
+                    "type": {
+                        "text": true
+                    }
+                },
                 "showPctRows": {
                     "type": {
                         "bool": true
@@ -873,8 +900,17 @@
                             {
                                 "value": "delta",
                                 "displayName": "Δ descending"
+                            },
+                            {
+                                "value": "pct",
+                                "displayName": "Δ% descending"
                             }
                         ]
+                    }
+                },
+                "keepBlockOrder": {
+                    "type": {
+                        "bool": true
                     }
                 },
                 "sortBlock": {
@@ -1000,6 +1036,39 @@
                 "sumSafeRounding": {
                     "type": {
                         "bool": true
+                    }
+                },
+                "sheetPctDecimals": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "ppUnit": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "pp",
+                                "displayName": "pp (percentage points)"
+                            },
+                            {
+                                "value": "pctp",
+                                "displayName": "%p"
+                            }
+                        ]
+                    }
+                },
+                "roundedZero": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "signed",
+                                "displayName": "Keep the sign (+0.0 / −0.0)"
+                            },
+                            {
+                                "value": "plain",
+                                "displayName": "Without sign (0.0)"
+                            }
+                        ]
                     }
                 },
                 "fixedMax": {

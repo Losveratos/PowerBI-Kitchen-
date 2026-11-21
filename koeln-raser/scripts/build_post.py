@@ -145,7 +145,7 @@ def main():
 <body>
 <div class="container">
 
-  <a class="back-link" href="index.html#posts-talks">← Zurück zur Knowledge Kitchen</a>
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
 
   <header>
     <div class="post-eyebrow">Post · Köln blitzt, Raser-Atlas 2025</div>

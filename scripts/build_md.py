@@ -900,7 +900,7 @@ def render_episodes(conv: Converter, key: str) -> list[str]:
         if row["eyebrow"]:
             parts.append(row["eyebrow"])
         if not row["external"]:
-            parts.append(f"[Knowledge Kitchen]({conv.link_prefix}index.html#ep-{row['id']})")
+            parts.append(f"[Knowledge Kitchen]({conv.link_prefix}folgen.html#ep-{row['id']})")
         lines.append("- " + " · ".join(parts))
     return [head, "\n".join(lines)]
 

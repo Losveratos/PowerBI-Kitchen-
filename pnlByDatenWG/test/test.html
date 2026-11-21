@@ -84,6 +84,22 @@
 <div class="case"><h4>m43 · 1.7 · ⚡ Nur Ausnahmen · T01A Regionen · |Δ%| ≥ 10 % gegen PY · PL in Monat oder _YTD · Rest grau, rote Schwellen bleiben · Fußzeilen-Hinweis</h4><div class="stage" id="m43" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m44 · 1.7 · ⚡ ausblenden · T04A GuV · Detailzeilen unter 5 % verschwinden, Summen und Ergebniszeilen bleiben (grau, wenn selbst keine Ausnahme) · Hinweis zählt</h4><div class="stage" id="m44" style="width:1320px;height:700px"></div></div>
 <div class="case"><h4>m45 · 1.7 · ⚡ ausblenden im T04B (integrierter Δ-Wasserfall) · ruhige Schritte je Abschnitt zu „other (n)“ zusammengefasst, Summen ohne Ausnahme darunter ohne Kinder — die Kaskade bleibt geschlossen</h4><div class="stage" id="m45" style="width:1320px;height:700px"></div></div>
+<div class="case"><h4>m47 · 1.8 · T01C · T01B je Block nach ΔPY _November sortiert, „Other“ unten, Blöcke wie im Blatt</h4><div class="stage" id="m47" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m48 · 1.8 · T01B ohne gemeinsame Wurzel (Regionen sind Wurzeln) · synthetische Gesamtzeile „Gesamt" fett am Ende</h4><div class="stage" id="m48" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m49 · 1.8 · T02A ohne gemeinsame Wurzel · Gesamtzeile „World" mit Balken und Pins auf der gemeinsamen Skala</h4><div class="stage" id="m49" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m50 · 1.8 · T01B ohne gemeinsame Wurzel, structureTotal aus (Bericht vor 1.8) · keine Gesamtzeile</h4><div class="stage" id="m50" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m51 · 1.8 · GuV-Daten mit structureTotal an · keine Gesamtzeile (Statement)</h4><div class="stage" id="m51" style="width:1320px;height:500px"></div></div>
+<div class="case"><h4>m52 · 1.8 · T01C ohne gemeinsame Wurzel · Zeilen je Block sortiert, Blöcke in Kategoriereihenfolge, Gesamtzeile bleibt unten</h4><div class="stage" id="m52" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m53 · 1.8 · T01D · FC je Land (FC-Zahlen des Blatts), je Block nach ΔPY% des Monats sortiert</h4><div class="stage" id="m53" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m54 · 1.8 · T02D · nach ΔPL% _November sortiert, Pfeil am Pin-Kopf, Blöcke in Kategoriereihenfolge</h4><div class="stage" id="m54" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m55 · 1.8 · T02C mit keepBlockOrder aus (Bericht vor 1.8) · Blöcke nach ihrer Summe sortiert</h4><div class="stage" id="m55" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m56 · 1.8 · T01A ohne gemeinsame Wurzel · flache Länderliste plus Gesamtzeile, „% vom Umsatz" auf die Gesamtzeile</h4><div class="stage" id="m56" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>t11a · 1.8 · ROI-Baum (Blatt 11A) · Jahre 2021 bis 2027, AC bis 2025, PL 2026/2027 · Kapitalumschlag als Faktor („KPI factor“)</h4><div class="stage" id="t11a" style="width:1300px;height:720px"></div></div>
+<div class="case"><h4>t11b · 1.8 · derselbe Baum, Kapitalumschlag ohne Token (wie bis 1.7: Prozent)</h4><div class="stage" id="t11b" style="width:1300px;height:720px"></div></div>
+<div class="case"><h4>m57 · 1.8 · T02C neu angewendet · Blöcke in Kategoriereihenfolge wie im Blatt (Europe vor Americas)</h4><div class="stage" id="m57" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m58 · 1.8 · T03A mit „Δ%-Dezimalen wie im Blatt“ (ganzzahlig) und Margen-Δ in %p</h4><div class="stage" id="m58" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m59 · 1.8 · T01C mit gerundeter Null ohne Vorzeichen (World ΔPY% 0.0% wie im Blatt)</h4><div class="stage" id="m59" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>t11c · 1.8 · ROI-Baum wie nach der Vorlage 11A (alle Perioden beschriftet, Wurzel automatisch, Periodenzeile automatisch)</h4><div class="stage" id="t11c" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -520,6 +536,55 @@ runRows("m43", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 })();
 runRows("m46", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02A" },
   exceptions: { enabled: true, thresholdPct: 10 } }, null, { palette: HC });
+
+// m47 — 1.8 T01C: T01B sorted by ΔPY in the _November block (the numbers of the sheet)
+runRows("m47", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" } });
+
+// m48..m52 — 1.8 (B03) the synthetic total row over several structure roots
+runRows("m48", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01B" } }, "de-DE");
+runRows("m49", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T02A", structureTotalLabel: "World" } });
+runRows("m50", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T01B", templateApplied: "T01B", showPY: true, showPL: true, showMinuend: true, dPyAbs: true, dPyPct: true,
+    dPlAbs: true, dPlPct: true, secondBlock: true, thresholds: true, structureSubtotals: true },
+  numbers: { decimals: 0, pctDecimals: 1 } });
+runRows("m51", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { showPY: true, showMinuend: true, dPyAbs: true, dPyPct: true, structureTotal: true } });
+runRows("m52", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" } });
+
+// m53..m55 — 1.8 (B04) sort by Δ%, the block order of the sheets
+runRows("m53", MEGA_DEMO.regions({ fc: "T01D" }), { titleBlock: { ...MT, periodLine: "November 2026 FC" }, ...REG, columns: { template: "T01D" } });
+runRows("m54", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02D" } });
+runRows("m55", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T02C", templateApplied: "T02C", showPL: true, showMinuend: true, dPlBar: true, dPlPin: true, secondBlock: true,
+    sort: "delta", sortBlock: "period" },
+  numbers: { decimals: 0, pctDecimals: 1 } });
+
+// m56 — 1.8 T01A over several roots: leaves + total (the sheet), % of revenue on the total
+runRows("m56", MEGA_DEMO.regions({ multiRoot: true }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG,
+  columns: { template: "T01A", pctOfRevenue: true } });
+
+// t11a / t11b — 1.8 (B07) the ROI tree of the sheet 11A over years
+const ROI_OBJ = { titleBlock: { unitLine: "Alpha Software Corporation, Germany", measureLine: "ROI tree", periodLine: "2021..2027" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, numbers: { pctDecimals: 1 },
+  columns: { treeRoot: "Return on investment", treeCard: "months", treeStatus: false },
+  state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } };
+runRows("t11a", MEGA_DEMO.roi(), ROI_OBJ);
+runRows("t11b", MEGA_DEMO.roi({ ctPct: true }), ROI_OBJ);
+// t11c — what the gallery tile 11A writes: default root, automatic period line, every period labelled
+runRows("t11c", MEGA_DEMO.roi(), { titleBlock: { unitLine: "Alpha Software Corporation, Germany", measureLine: "ROI tree" },
+  toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, numbers: { pctDecimals: 1 },
+  columns: { treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true },
+  state: { uiState: JSON.stringify({ view: "tree", treeV: 2 }) } });
+
+// m57 — 1.8 T02C applied fresh: keepBlockOrder from the template, the sheet's block order
+runRows("m57", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02C" } });
+
+// m58 / m59 — 1.8 (B14) notation details of the sheets
+runRows("m58", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A" }, numbers: { sheetPctDecimals: true, ppUnit: "pctp" } });
+runRows("m59", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T01C" },
+  numbers: { roundedZero: "plain" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

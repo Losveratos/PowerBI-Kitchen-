@@ -53,6 +53,9 @@ PL doppelt, FC schraffiert (siehe T01/T03-Köpfe und Summen-Unterstreichungen).
 - Sortierung je Block: Kategorie-Reihenfolge, AC↓ oder Δ↓; Indikator `(↓)` im
   Spaltenkopf (T02B/C). 1.5.2: die Blöcke der obersten Ebene (Region, Einkindgruppe,
   Region ohne Länder) folgen derselben Richtung, Gesamtsumme und „Rest …" bleiben unten.
+  1.8: zusätzlich Δ%↓ (`sort = pct`, Pfeil an der Δ%-Zahl, sonst am Pin) und der
+  Schalter `keepBlockOrder` (Blöcke in Kategoriereihenfolge wie in den Blättern,
+  Einzelzeilen dazwischen untereinander gereiht); alle sortierenden Templates setzen ihn.
 - EIN gemeinsamer Δ-Maßstab je Block (alle Zeilen), getrennte Maßstäbe je Block.
 
 ### Phase 3 — Integrierter Wasserfall (T04A–E)
@@ -292,12 +295,14 @@ wiederverwendet: `numbers.decimals`, `numbers.pctDecimals`, `style.colorMode`.
 | `dPYpin` / `dPLpin` | `columns.dPyPin` / `columns.dPlPin` | Δ% als Pins |
 | `ytd` | `columns.secondBlock` | zweiter Perioden-Block (_YTD) |
 | `subtotals` | `columns.structureSubtotals` | Zwischensummen-Blöcke im Strukturmodus (T01B) |
+| – (1.8) | `columns.structureTotal` (+ `structureTotalLabel`) | Gesamtzeile „World" bei mehreren Wurzeln; Struktur-Templates setzen sie an |
 | `margins` | `columns.showPctRows` | Margen-/%-Zeilen |
 | `thresholds` | `columns.thresholds` (+ 4 NumUpDown: abs/pct je Block) | rote Δ-Zahlen + Fußzeile „Δ in red if" |
 | `marks` | `columns.scenarioMarks` | Szenario-Unterstreichungen in Kopf/Schluss |
 | `barLabels` | `columns.chartLabels` | Zahlen an Balken/Pins/Kaskaden |
 | `barCap` | `columns.capBars` | Ausreißer-Kappung auch für Δ-Balken (Pins immer) |
-| `sort` | `columns.sort` (category / minuend↓ / Δ↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
+| `sort` | `columns.sort` (category / minuend↓ / Δ↓ / 1.8 Δ%↓) | Sortierung je Struktur-Gruppe, „Other" bleibt unten |
+| – (1.8) | `columns.keepBlockOrder` | Blöcke der obersten Ebene in Kategoriereihenfolge (Standard aus = 1.5.2) |
 | `sortBlock` | `columns.sortBlock` (period / ytd) | welcher Block die Reihenfolge bestimmt (Kategorie-Spalte ist geteilt) |
 | – (1.1) | `columns.blockKind` / `columns.leftBlockKind` (month / ytd / fy) | Art des Perioden-Blocks bzw. des zweiten Blocks links |
 | – (1.1) | `columns.pctOfRevenue` | „% vom Umsatz"-Spalte im Mega-Modus |
@@ -313,9 +318,12 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | T01A | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | – | ✓ | ✓ | cat | 0 |
 | T01B | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | cat | 0 |
+| T01C (1.8) | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | ΔPY↓ (_YTD) | 0 |
+| T01D (1.8) | FC | ✓ | ✓ | ✓ | – | num+pct | num+pct | ✓ | ✓ | ✓ | ✓ | ΔPY%↓ (Monat) | 0 |
 | T02A | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | cat | 0 |
 | T02B | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | AC↓ (_YTD) | 0 |
 | T02C | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ↓ (Monat) | 0 |
+| T02D (1.8) | AC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ%↓ (_YTD) | 0 |
 | T02E | FC | ✓ | – | ✓ | – | bar+pin | – | ✓ | ✓ | ✓ | – | Δ↓ (_YTD) | 0 |
 | T02F | FC | – | ✓ | ✓ | – | – | bar+pin | ✓ | ✓ | ✓ | – | Δ↓ (_YTD) | 0 |
 | T03A | AC | ✓ | ✓ | ✓ | – | num+pct | num+pct | – | – | ✓ | – | – | 1 |
@@ -331,6 +339,8 @@ Defaults je Preset (✓ = an; nicht genannte Toggles aus; `marks`, `barLabels`
 | T05A (1.7, Bilanz) | AC | ✓ | – | ✓ | – | num+pct | – | – | – | ✓ | – | – | 0 |
 | T05B (1.7, Cashflow) | AC | ✓ | – | ✓ | ✓ | num+pct | – | ✓ | – | ✓ | – | – | 0 |
 
+1.8: alle sortierenden Presets setzen `keepBlockOrder = an` (Blöcke in Kategoriereihenfolge wie
+die Blätter), die T01/T02-Presets `structureTotal = an` (Gesamtzeile bei mehreren Wurzeln).
 12G setzt zusätzlich `blockKind = fy`, 12G/12H setzen `titleBlock.headline = an`
 (alle anderen Templates: `blockKind = ytd`, Headline unangetastet). 1.7: T05A
 setzt `statement.stockMode = allStock` (Daten ohne Token) bzw. `auto`, T05B
@@ -348,24 +358,34 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
   nimmt die eigene Botschaft oder den autoMessage-Generator aus Paket B.
 - GuV hat keinen _YTD-Block (Demo-Daten nur Jahr); der Block-Schalter wirkt nur
   bei Strukturdaten.
-- Referenz-Inkonsistenzen werden nicht nachgebaut: Summen rechnet der Kern
-  (T03A AC-Ergebnis 422.2 statt 422.3; ΔPY Group result +186.2 statt der im Bild
-  doppelt gedruckten +162.5; 12H-PL-Operating-result 346 statt 329).
-- **T01A/T01B _YTD-ΔPY-Dezimale:** Die Referenzen drucken die ΔPY-Zahlen des
-  _November-Blocks mit einer Dezimale (`+431.0`, `-274.0`, `+7.0`; T01B `+80.0`,
-  `-127.0`), die ΔPL-Spalte desselben Blocks und der Monatsblock ganzzahlig.
-  Das Visual hat EINE Dezimalregel je Tabelle (`numbers.decimals`, T01-Preset 0)
-  und druckt `+431` — in sich inkonsistente Mischdezimalen werden nicht
-  nachgebaut (keine Dezimalen je Block/Spalte).
+- Referenz-Inkonsistenzen werden nicht nachgebaut: Summen, Δ und Δ% rechnet der
+  Kern. Die Soll-Bilder in `prototype/refs/` sind die Blattfassungen vom Juli 2026
+  (T03A ΔPY Group result +162.5 statt +186.2; 12H-PL-Operating-result 329 statt
+  346; T01A/T01B _November-ΔPY mit einer Dezimale). In den Fassungen vom
+  17./18.11.2026 sind diese Fehler behoben. Rundungsdifferenzen bleiben in allen
+  Fassungen: T03A AC-Ergebnis druckt 422.3, der Kern rechnet aus den
+  ungerundeten Kindern 422.2.
+- **Blattfehler, Stand Abgleich 19.11.2026** (nur bestätigte Befunde, mit
+  Blattfassung; vollständige Tabelle in `TEMPLATE-GUIDE.md` §5.2):
+  - T03B (24.07.2026): ΔPY Group result druckt den ΔPL-Wert +169.7 / +72 %,
+    richtig +193.5 / +82 %. Gleicher Fehlertyp wie früher T03A.
+  - T01A (18.11.2026): _November ΔPY Japan `+770` statt `+77`; Schwellen-Fußzeile
+    `<-2` statt `<-220` (gefärbt sind nur −274 und −386).
+  - T01C, T01D (beide 24.07.2026): Mischdezimalen im _November-Block (`+431.0`,
+    `+348.0` neben ganzzahligem ΔPL). Das Visual hat EINE Dezimalregel je Tabelle
+    (`numbers.decimals`, T01-Preset 0) und druckt `+431`.
+  - „Gross margin" in T03A, T03B, T04C, T04E und 12G (02.09.2025) ist Operating result /
+    Sales revenue, also eine operative Marge.
+  - T04E (18.11.2026): Pin-Kopf „Financial income, net" voll statt schraffiert.
 - **T02F-Früh-Kappung:** Das Referenzbild kappt zwei Δ%-Pins (Japan −27.3 im
   Monat, Other +26.1 im _November) schon beim Sprung 1.35×. Der Tukey-Zaun
   (Q3 + 4·IQR, ab 8 Werten; siehe „Balken-/Pin-Maßstab") schlägt dort nicht an,
   beide Pins werden voll gezeichnet — jede Regel, die T02F kappt, kappte T02A
   `+16.5` fälschlich. Ein manueller Kappungswert je Block ist nicht vorgesehen.
-- **T04C/T04E Financial-income-Pin:** Die Referenzblätter drucken für
-  „Financial income, net" (Δ −7.00 = −9.59 %) einen grünen Pin nach rechts mit
-  `+9.59` — im Widerspruch zum roten Δ-Balken derselben Zeile. Das Visual
-  zeichnet vorzeichenrichtig `-9.59` als roten Pin nach links.
+- **T04C/T04E Financial-income-Pin:** Die Fassungen bis Juli 2026 druckten für
+  „Financial income, net" (Δ −7.00 = −9.59 %) einen grünen Pin `+9.59` nach
+  rechts; seit der Fassung vom 18.11.2026 steht er wie im Visual als roter Pin
+  `-9.59` nach links.
 - **12A-Mehrfach-Pfeilspitzen:** Die Referenz staffelt die Pfeilspitzen gekappter
   Werte nach Überlauf (`+983` mit drei Spitzen, `+391` mit einer; 12G `+1 633`
   mit zwei). Prototyp und Visual zeichnen immer genau eine Spitze (9 px) — der
@@ -377,7 +397,14 @@ grauen Zeilenlinien, durchgehende Summenlinien, keine Kopf-Linien (12A).
   und der Indikator wandert an den Kopf der Kategorie-Spalte mit Schlüssel und
   Block: `(↓) ΔPL November` (1.1; bis 1.0.1 fehlte er dann ganz). Bewusst kein
   stilles Umschalten auf eine sichtbare Spalte: Δ% ordnet anders als Δ, die
-  Reihenfolge wäre eine, die niemand eingestellt hat.
+  Reihenfolge wäre eine, die niemand eingestellt hat. 1.8 `sort = pct`: Pfeil an
+  der Δ%-Zahl der Referenz, sonst am Pin-Kopf (T02D), sonst am Kategorie-Kopf
+  (`(↓) ΔPL% _November`). Kleine Basen ergeben große Δ% und stehen oben (Japan
+  +161 %); der Pin kappt optisch, die Reihenfolge nicht.
+- **Blockreihenfolge (1.8):** 1.5.2 sortierte die Blöcke mit, die Blätter halten
+  sie in Kategoriereihenfolge. `keepBlockOrder` (Standard aus) stellt das
+  Blattverhalten her; die sortierenden Templates setzen es. Ein mit 1.7
+  angewendetes Template behält die Blocksortierung, bis es neu angewendet wird.
 
 ### Empfehlungen für die Visual-Ableitung
 
@@ -419,7 +446,7 @@ Rechenkern-Ergänzung in `src/engine.ts` (`varianceOf`, `displayVariance`).
   umgewidmet (sie bleiben die Presets der klassischen Tabelle); die
   Template-Wahl ist das neue Dropdown `columns.template` (off · T01A · T01B ·
   T02A · T02B · T02C · T02E · T02F · T03A · T03B · T04A · T04B · T04C · T04D ·
-  T04E · 12A). Phase 3 ergänzt die Schalter `dPyWaterfall`/`dPlWaterfall`
+  T04E · 12A; später 12G, 12H, T05A, T05B, 1.8 T01C, T01D, T02D). Phase 3 ergänzt die Schalter `dPyWaterfall`/`dPlWaterfall`
   (integrierter Δ-Wasserfall) und `valueCascade` (Wert-Kaskaden, 12A).
 - **Template-Persistenz:** Wählt der Autor ein Template, schreibt das Visual
   alle Schalter des Presets plus `numbers.decimals/pctDecimals` und das

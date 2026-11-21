@@ -67,7 +67,7 @@
     ]]
   ];
   var FOOTER = [
-    ['Folgen', [['Alle Folgen', 'index.html#folgen'], ['Start hier', 'index.html#start'], ['Suche', 'index.html#suche'], ['Library', 'wissensgraph/']]],
+    ['Folgen', [['Alle Folgen', 'folgen.html#folgen'], ['Start hier', 'folgen.html#start'], ['Suche', 'folgen.html#suche'], ['Library', 'wissensgraph/']]],
     ['Lernen', LERNEN.map(function (l) { return [l[0], l[1]]; })],
     ['Werkzeuge', [['MockupKitchen', 'mockup-kitchen.html'], ['Chart-Builder', 'business-chart-builder.html'], ['ChartKitchen Visual', 'chartkitchen-schnellstart.html'], ['P&L-Visual', 'pnl-schnellstart.html'], ['Visual-Standards-Rechner', 'visual-standards-rechner.html'], ['Alle Werkzeuge', 'beitraege.html#werkzeuge']]],
     ['Beiträge', [['Alle Beiträge', 'beitraege.html'], ['Posts', 'beitraege.html#posts'], ['Visual Stories', 'beitraege.html#stories'], ['Whitepaper', 'beitraege.html#whitepaper'], ['Talks', 'beitraege.html#talks'], ['Doku', 'beitraege.html#doku'], ['Blog', 'blog/']]],
@@ -168,6 +168,7 @@
     '.ft-brand{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);display:inline-flex;align-items:center;min-height:44px;}' +
     '.ft-brand em{font-style:italic;color:var(--accent);margin-left:.3em;}' +
     '.ft-lead{max-width:56ch;margin:2px 0 26px;color:var(--mute);font-size:13.5px;line-height:1.5;}' +
+    '.ft-lead a{color:var(--ink2);text-decoration:underline;text-underline-offset:2px;}.ft-lead a:hover{color:var(--accent);}' +
     '.ft-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:24px 20px;}' +
     '.ft h2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px;}' +
     '.ft li a{display:inline-flex;align-items:center;min-height:32px;color:var(--ink2);line-height:1.3;}' +
@@ -258,7 +259,7 @@
       '<div class="bar" role="navigation" aria-label="Kitchen-Navigation"><div class="in">' +
         '<a class="brand" href="' + esc(U('index.html')) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
         '<ul class="main">' +
-          '<li><a class="top" href="' + esc(U('index.html#folgen')) + '">Folgen</a></li>' +
+          '<li><a class="top" href="' + esc(U('folgen.html#folgen')) + '">Folgen</a></li>' +
           '<li class="dd"><button class="top' + (lernenOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-p-lernen">Lernen' + CARET + '</button>' +
             '<div class="panel" id="kc-p-lernen" hidden>' + lernenPanel + '</div></li>' +
           '<li class="dd"><button class="top' + (werkOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-p-werk">Werkzeuge' + CARET + '</button>' +
@@ -267,8 +268,8 @@
           '<li><a class="top' + (section === 'library' ? ' on' : '') + '" href="' + esc(U('wissensgraph/')) + '">Library</a></li>' +
         '</ul>' +
         '<div class="act">' +
-          '<a class="ib" href="' + esc(U('index.html#suche')) + '" aria-label="Folgen durchsuchen" title="Suche">' + ICON_SEARCH + '</a>' +
-          '<a class="start" href="' + esc(U('index.html#start')) + '">Start hier</a>' +
+          '<a class="ib" href="' + esc(U('folgen.html#suche')) + '" aria-label="Folgen durchsuchen" title="Suche">' + ICON_SEARCH + '</a>' +
+          '<a class="start" href="' + esc(U('folgen.html#start')) + '">Start hier</a>' +
           '<button class="ib burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="kc-sheet">' + ICON_MENU + '</button>' +
         '</div>' +
       '</div></div>' +
@@ -276,7 +277,7 @@
         '<div class="sh-head"><a class="brand" href="' + esc(U('index.html')) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
           '<button class="ib sh-close" type="button" aria-label="Menü schließen">' + ICON_X + '</button></div>' +
         '<div class="sh-body"><ul>' +
-          '<li class="sh-item"><a class="sh-link" href="' + esc(U('index.html#folgen')) + '">Folgen</a></li>' +
+          '<li class="sh-item"><a class="sh-link" href="' + esc(U('folgen.html#folgen')) + '">Folgen</a></li>' +
           '<li class="sh-item"><button class="sh-acc' + (lernenOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-s-lernen">Lernen' + CARET + '</button>' +
             '<div class="sh-sub" id="kc-s-lernen" hidden>' + LERNEN.map(function (l) { return a(l[0], l[1]); }).join('') + '</div></li>' +
           '<li class="sh-item"><button class="sh-acc' + (werkOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-s-werk">Werkzeuge' + CARET + '</button>' +
@@ -286,8 +287,8 @@
           '<li class="sh-item">' + a('Beiträge', 'beitraege.html', 'sh-link' + (section === 'beitraege' ? ' on' : '')) + '</li>' +
           '<li class="sh-item">' + a('Library', 'wissensgraph/', 'sh-link' + (section === 'library' ? ' on' : '')) + '</li>' +
         '</ul>' +
-        '<div class="sh-cta"><a class="start" href="' + esc(U('index.html#start')) + '">Start hier</a>' +
-          '<a href="' + esc(U('index.html#suche')) + '">' + ICON_SEARCH + 'Suche</a></div>' +
+        '<div class="sh-cta"><a class="start" href="' + esc(U('folgen.html#start')) + '">Start hier</a>' +
+          '<a href="' + esc(U('folgen.html#suche')) + '">' + ICON_SEARCH + 'Suche</a></div>' +
         '<div class="sh-legal">' + a('Impressum', 'impressum.html') + a('Datenschutz', 'datenschutz.html') + a('YouTube', 'https://www.youtube.com/@Daten-WG') + '</div>' +
         '</div></div>';
 
@@ -399,7 +400,7 @@
     var html = '<style>' + BASE_CSS + FOOT_CSS + '</style>' +
       '<div class="ft" role="contentinfo"><div class="ft-in">' +
         '<a class="ft-brand" href="' + esc(U('index.html')) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
-        '<p class="ft-lead">Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting.</p>' +
+        '<p class="ft-lead">Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting. Lust, mit uns zu arbeiten? Die Daten-WG findest du auf ' + a('daten-wg.com', 'https://www.daten-wg.com') + '.</p>' +
         '<div class="ft-grid">' + cols + '</div>' +
         '<div class="ft-base"><span>Daten-WG Knowledge Kitchen · Michael Tenner</span>' +
           '<span>' + a('Impressum', 'impressum.html') + ' · ' + a('Datenschutz', 'datenschutz.html') + '</span></div>' +

@@ -102,12 +102,20 @@
     "Americas:Brazil": [123, 1324], "Americas:Canada": [73, 699], "Americas:USA": [378, 3190], "Americas:Other": [492, 4008],
     "Rest of World:Australia": [56, 579], "Rest of World:China": [281, 2001], "Rest of World:Japan": [8, 166], "Rest of World:Other": [262, 2647],
   };
+  // FC of the sheet T01D (month, _November) — another forecast than T02E / T02F
+  const FC_T01D = {
+    "Europe:Austria": [690, 5426], "Europe:Belgium": [72, 597], "Europe:France": [163, 1646], "Europe:Germany": [316, 3517],
+    "Europe:Poland": [105, 1054], "Europe:Sweden": [106, 929], "Europe:Switzerland": [81, 678], "Europe:Other": [662, 5359],
+    "Americas:Brazil": [149, 1597], "Americas:Canada": [73, 886], "Americas:USA": [378, 3190], "Americas:Other": [492, 4008],
+    "Rest of World:Australia": [77, 579], "Rest of World:China": [281, 2916], "Rest of World:Japan": [14, 175], "Rest of World:Other": [262, 2647],
+  };
   const MONTHS = ["2026-01", "2026-02", "2026-03", "2026-04", "2026-05", "2026-06",
     "2026-07", "2026-08", "2026-09", "2026-10", "2026-11"];
 
   /** month value: November = the sheet's month, the 10 months before share the rest of the YTD */
   const split = (nov, ytd, mi) => mi === 10 ? nov : Math.round((ytd - nov) / 10 * 1000) / 1000;
 
+  // opt.multiRoot (1.8): no common "World" level, the regions are the roots
   // opt.single (1.5): Czechia and Slovakia are regions without countries
   // (Level 2 = Level 1, folded into one row) between Europe and Americas;
   // 1.5.1: Hungary is a region with exactly one child (Budapest)
@@ -122,9 +130,9 @@
       for (const leaf of leaves) {
         sort++;
         const k = g + ":" + leaf;
-        const b = BASE[k] || SINGLE[k]; const f = FC[k] || [b[2], b[5]];
+        const b = BASE[k] || SINGLE[k]; const f = (opt && opt.fc === "T01D" ? FC_T01D[k] : FC[k]) || [b[2], b[5]];
         MONTHS.forEach((m, mi) => rows.push({
-          levels: ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
+          levels: opt && opt.multiRoot ? [g, leaf] : ["World", g, leaf], account: k, sort, rowType: "account", formulaDef: null,
           sign: 1, displayInvert: false, varianceInvert: false, month: m, comment: null,
           values: {
             py: split(b[0], b[3], mi), pl: split(b[1], b[4], mi),
@@ -181,5 +189,35 @@
     return rows;
   }
 
-  window.MEGA_DEMO = { statement, statement12G, long, regions, months: MONTHS };
+  // 1.8 (B07) ROI tree of the sheet 11A: years 2021..2027, AC up to 2025, PL 2026 / 2027 (kEUR);
+  // capital turnover is a factor KPI ("KPI factor"), invested capital a stock
+  const ROI_YEARS = ["2021", "2022", "2023", "2024", "2025", "2026", "2027"];
+  const ROI = {
+    ret: [5.0, -1.8, -3.5, 3.1, 4.1, 4.7, 5.5],
+    ns: [26.1, 25.7, 26.4, 22.1, 23.8, 23.7, 27.7],
+    ic: [20.1, 18.5, 19.4, 21.1, 22.9, 24.5, 24.5],
+  };
+  function roi(opt) {
+    const rows = [];
+    const acc = [[["Return"], "ret", 1, "Account"], [["Net sales"], "ns", 2, "Account"], [["Invested capital"], "ic", 3, "Account stock"]];
+    for (const [levels, account, sort, rowType] of acc) {
+      ROI_YEARS.forEach((y, i) => rows.push({
+        levels, account, sort, rowType, formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false,
+        month: y, comment: null,
+        values: i < 5 ? { ac: ROI[account][i] * 1000 } : { pl: ROI[account][i] * 1000 },
+      }));
+    }
+    const ct = opt && opt.ctPct ? "KPI" : "KPI factor";
+    for (const [levels, account, sort, rowType, formulaDef] of [
+      [["Return on sales"], "ros", 10, "KPI", "[Return]/[Net sales]"],
+      [["Capital turnover"], "ct", 11, ct, "[Net sales]/[Invested capital]"],
+      [["Return on investment"], "roi", 12, "KPI", "[Return on sales]*[Capital turnover]"],
+    ]) {
+      rows.push({ levels, account, sort, rowType, formulaDef, sign: 1, displayInvert: false, varianceInvert: false,
+        month: null, comment: null, values: {} });
+    }
+    return rows;
+  }
+
+  window.MEGA_DEMO = { statement, statement12G, long, regions, roi, months: MONTHS };
 })();

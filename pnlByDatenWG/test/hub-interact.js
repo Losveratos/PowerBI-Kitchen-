@@ -252,7 +252,9 @@ function check(label, cond, detail) {
         out.ready = await T.ready("g1");
         out.page = T.page("g1");
         out.tiles = T.qa("g1", '[data-pnl^="tpl-"][data-active]').map(b => b.getAttribute("data-pnl").slice(4));
-        out.minis = T.qa("g1", '[data-pnl="hub-mini"]').map(m => m.querySelectorAll("svg").length + m.querySelectorAll("[data-pnl-row]").length);
+        // 1.8 a tree mini (ROI tree 11A) draws its cards as rects in one svg
+        out.minis = T.qa("g1", '[data-pnl="hub-mini"]').map(m => m.querySelectorAll("svg").length + m.querySelectorAll("[data-pnl-row]").length
+            + (m.querySelectorAll("svg").length === 1 ? m.querySelectorAll("svg rect").length : 0));
         out.mega = T.qa("g1", '[data-pnl="hub-mini"]').filter(m => m.querySelector('svg[data-pnl="mega-head"]')).length;
         out.noteNoFields = (T.q("g1", '[data-pnl="hub-tpl-note"]') || {}).textContent;
         out.activeDefault = T.qa("g1", '[data-pnl^="tpl-"][data-active="1"]').map(b => b.getAttribute("data-pnl"));
@@ -294,13 +296,24 @@ function check(label, cond, detail) {
         T.click("g1", "tpl-off");
         const off = st.persists[st.persists.length - 1].merge;
         out.off = { tpl: off[0].properties.template, applied: off[0].properties.templateApplied, nums: off.length };
+        // 1.8 (B07) the ROI tree tile: card settings in columns, the view in the ui state, no template written
+        const n0 = st.persists.length;
+        T.click("g1", "tpl-11A");
+        const roiW = st.persists.slice(n0).map(x => x.merge.map(o => [o.objectName, o.properties]));
+        const colsW = roiW.flat().find(([o, p]) => o === "columns" && p.treeCard != null);
+        const uiW = roiW.flat().find(([o, p]) => o === "state" && p.uiState != null);
+        out.roi = { cols: colsW ? colsW[1] : null, view: uiW ? JSON.parse(uiW[1].uiState).view : null,
+            tpl: roiW.flat().some(([o, p]) => o === "columns" && p.template != null) };
         return out;
     });
-    check("G the template tile opens the gallery: 20 tiles (19 templates + the classic table), grouped by purpose, all minis drawn",
-        G.ready && G.page === "templates" && G.tiles.length === 20
-        && G.tiles.join() === "T01A,T01B,T02A,T02B,T02C,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,T05A,T05B,12A,12G,12H,off", G.tiles.join(","));
-    check("G every tile carries a mini rendering", G.minis.length === 20 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
-    check("G 19 of the minis are mega tables (the classic table is the 20th)", G.mega === 19, String(G.mega));
+    check("G the template tile opens the gallery: 24 tiles (22 templates, the ROI tree 11A and the classic table), grouped by purpose, all minis drawn",
+        G.ready && G.page === "templates" && G.tiles.length === 24
+        && G.tiles.join() === "T01A,T01B,T01C,T02A,T02B,T02C,T02D,T01D,T02E,T02F,T03B,T04D,T04E,T03A,T04A,T04B,T04C,T05A,T05B,12A,12G,12H,11A,off", G.tiles.join(","));
+    check("G every tile carries a mini rendering", G.minis.length === 24 && G.minis.every(n => n > 3), JSON.stringify(G.minis));
+    check("G 22 of the minis are mega tables (the classic table is the 23rd)", G.mega === 22, String(G.mega));
+    check("G 1.8 the ROI tree tile writes the card settings and the tree view, no template",
+        G.roi && JSON.stringify(G.roi.cols) === JSON.stringify({ treeCard: "months", treeStatus: false, treeLevel: 0, treeAllLabels: true }) && G.roi.view === "tree" && !G.roi.tpl,
+        JSON.stringify(G.roi));
     check("G without fields: the note says the choice is saved and applies on binding", /^No fields bound yet/.test(G.noteNoFields || ""), G.noteNoFields);
     check("G the classic table is the active tile before any pick, nothing persisted by browsing",
         G.activeDefault.join() === "tpl-off" && G.persists0 === 0);
@@ -516,6 +529,19 @@ function check(label, cond, detail) {
         // a toolbar switch of the picker group: "Template" off → no picker, no button
         mk("r9", { ...dev, toolbar: { showTemplate: false } });
         out.pickerOff = !T.q("r9", '[data-pnl="tb-template-reset"]') && !T.q("r9", '[data-pnl="tb-template"]');
+        // 1.8: a switch that only 1.8 templates write counts only when the report stores it
+        const t01b = { hierarchy: { defaultLevel: 0 }, columns: { template: "T01B", templateApplied: "T01B", showPY: true, showPL: true,
+            showMinuend: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true, secondBlock: true, thresholds: true } };
+        const mkR = (id, objs) => T.mk(id, (o) => dvRows(MEGA_DEMO.regions({ multiRoot: true }), o), objs, { viewMode: 1 });
+        mkR("r10", t01b);
+        out.old17 = !T.q("r10", '[data-pnl="tb-template-reset"]') && !T.qa("r10", 'rect[data-pnl-row="__TOTAL__"]').length;
+        const sR11 = mkR("r11", { ...t01b, columns: { ...t01b.columns, structureTotal: false } });
+        out.storedOff = !!T.q("r11", '[data-pnl="tb-template-reset"]');
+        sR11.persists.length = 0;
+        T.click("r11", "tb-template-reset");
+        const m11 = sR11.persists[0] && sR11.persists[0].merge[0].properties;
+        out.resetWrites = !!m11 && m11.structureTotal === true && m11.keepBlockOrder === false;
+        out.resetTotal = T.qa("r11", 'rect[data-pnl-row="__TOTAL__"]').length > 0;
         // 12G: the headline switch is part of the template state
         const g = { hierarchy: { defaultLevel: 0 }, columns: { template: "12G", templateApplied: "12G" } };
         mk("r10", g);
@@ -540,6 +566,9 @@ function check(label, cond, detail) {
     check("R the toolbar switch \"template picker\" off removes the picker and the button", R.pickerOff);
     check("R 12G: the title headline is part of the template state (off by default → deviation)", R.headlineDev);
     check("R the gallery click on the ACTIVE template restores its state (re-apply) and closes the overlay", R.galleryReapply);
+    check("R 1.8 a T01B applied with 1.7 (structureTotal not stored): no ↺, no total row", R.old17);
+    check("R 1.8 structureTotal stored as false: ↺ is offered", R.storedOff);
+    check("R 1.8 ↺ writes the 1.8 template (structureTotal on, keepBlockOrder off for T01B) and the total row appears", R.resetWrites && R.resetTotal, JSON.stringify([R.resetWrites, R.resetTotal]));
 
     // ================================================================== L · languages, dark, palette
     const L = await ev(async () => {
@@ -585,8 +614,8 @@ function check(label, cond, detail) {
         out.narrowTourScroll = nr.scrollWidth > nr.clientWidth;
         return out;
     });
-    check("L four languages: home, tour card and gallery are localized, no raw key, 20 tiles",
-        ["en-US", "de-DE", "es-ES", "ja-JP"].every(l => !L[l].raw && L[l].tiles === 20 && L[l].home.length > 80 && L[l].tour.length > 40));
+    check("L four languages: home, tour card and gallery are localized, no raw key, 24 tiles",
+        ["en-US", "de-DE", "es-ES", "ja-JP"].every(l => !L[l].raw && L[l].tiles === 24 && L[l].home.length > 80 && L[l].tour.length > 40));
     check("L German and Japanese differ from English", L["de-DE"].tour !== L["en-US"].tour && L["ja-JP"].tour !== L["en-US"].tour
         && L["es-ES"].tour !== L["en-US"].tour && L["de-DE"].home !== L["en-US"].home);
     check("L Japanese texts are Japanese, Spanish ones Spanish", /[぀-ヿ一-鿿]/.test(L["ja-JP"].tour) && /[ñáéíóú]/i.test(L["es-ES"].tour + L["es-ES"].home));
@@ -624,9 +653,9 @@ function check(label, cond, detail) {
         out.back = !!T.q("q1", '[data-pnl="hub-back"]');
         return out;
     });
-    check("Q five purpose groups with German heads: structure 5 · forecast 5 · P&L 4 · balance sheet & cash flow 2 (1.7) · report views 4",
-        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 5], ["forecast", "Forecast", 5], ["statement", "GuV-Statement", 4],
-            ["balance", "Bilanz & Cashflow", 2], ["report", "Report-Ansichten", 4]]),
+    check("Q five purpose groups with German heads: structure 7 · forecast 6 · P&L 4 · balance sheet & cash flow 2 (1.7) · report views 5 (1.8: ROI tree)",
+        JSON.stringify(Q.groups) === JSON.stringify([["structure", "Struktur-Vergleich", 7], ["forecast", "Forecast", 6], ["statement", "GuV-Statement", 4],
+            ["balance", "Bilanz & Cashflow", 2], ["report", "Report-Ansichten", 5]]),
         JSON.stringify(Q.groups));
     check("Q finance title on the tile, the T number as a small badge, a use line",
         Q.t01a.title === "Regionen mit Plan-Abweichung" && Q.t01a.badge === "T01A" && Q.t01a.use.length > 30

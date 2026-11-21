@@ -105,7 +105,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -117,6 +117,15 @@ function readMega(id) {
         if (S[id]) { check(`${id}: no clipped labels`, S[id].clipped.length === 0, S[id].clipped.slice(0, 5).join(", ")); }
     }
     const heads = id => S[id] ? S[id].head.map(t => t.t) : [];
+    // 1.8 (B07) the ROI tree (driver tree, no mega table): texts of every card
+    const T11 = {};
+    for (const id of ["t11a", "t11b", "t11c"]) {
+        // svg texts plus the lines of the HTML title block
+        T11[id] = await page.evaluate(i => [...document.querySelectorAll(`#${i} svg text`)].map(t => t.textContent)
+            .concat(document.getElementById(i).innerText.split("\n")), id);
+        const el = await page.$("#" + id);
+        await el.screenshot({ path: `${__dirname}/mega-${id}.png` });
+    }
     // numbers group with a narrow no-break space (U+202F) — tests write a blank
     // 1.5.1: numbers carry the typographic minus (U+2212) — tests write "-85"
     const nb = t => t.replace(/(\d) (\d)/g, "$1\u202F$2").replace(/(^|[<(\s])-(?=\d)/g, "$1\u2212");
@@ -189,6 +198,111 @@ function readMega(id) {
         void eu;
         const euRows = S.m6.rowIds.filter(x => x.startsWith("Europe:"));
         check("m6 Europe sorted by YTD ΔFC-PY desc, Other last", euRows[euRows.length - 1] === "Europe:Other" && euRows[0] === "Europe:Austria", euRows.join(","));
+    }
+    // ---- 1.8 T01C: T01B sorted by ΔPY _November, "Other" last, blocks as in the sheet ----
+    if (S.m47) {
+        const ids47 = S.m47.rowIds;
+        const leaves = (g) => ids47.filter(x => x.startsWith(g + ":")).map(x => x.slice(g.length + 1));
+        check("m47 T01C Europe by ΔPY _November desc, Other last (sheet order)",
+            leaves("Europe").join() === "Austria,Switzerland,France,Poland,Sweden,Belgium,Germany,Other", leaves("Europe").join());
+        check("m47 T01C Americas Brazil, Canada, USA, Other", leaves("Americas").join() === "Brazil,Canada,USA,Other", leaves("Americas").join());
+        check("m47 T01C Rest of World China, Japan, Australia, Other", leaves("Rest of World").join() === "China,Japan,Australia,Other", leaves("Rest of World").join());
+        const blocks = ["L:World¦Europe", "L:World¦Americas", "L:World¦Rest of World", "L:World"].map(x => ids47.indexOf(x));
+        check("m47 T01C blocks Europe, Americas, Rest of World, then World", blocks.every((v, i) => v >= 0 && (i === 0 || v > blocks[i - 1])), blocks.join());
+        check("m47 T01C sort indicator ΔPY(↓) once (the _November block)", heads("m47").filter(t => t === "ΔPY(↓)").length === 1, heads("m47").join("|"));
+        check("m47 T01C integers like the 18.11. sheets (+431, not +431.0)", has("m47", "+431") && !has("m47", "+431.0"));
+    }
+    // ---- 1.8 (B03) synthetic total row over several structure roots (m48..m52) ----
+    if (S.m48 && S.m50) {
+        const ids48 = S.m48.rowIds; const y48 = S.m48.rowY;
+        const last = ids48.length - 1;
+        check("m48 the last row is the synthetic total", ids48[last] === "__TOTAL__", ids48.slice(-3).join(","));
+        check("m48 the total is labelled in the report language (Gesamt) and bold", cell("m48", "Gesamt") && cell("m48", "Gesamt").bold);
+        check("m48 spacer row before the total", y48[last] - y48[last - 1] > 22 + 5, `${y48[last - 1]} → ${y48[last]}`);
+        check("m48 total values = the sheet's World row (AC 3 254 | 32 489, ΔPL −88 bold red, −71)",
+            has("m48", "3 254") && has("m48", "32 489") && red("m48", "-88") && cell("m48", "-88").bold && has("m48", "-71"));
+        check("m48 regions without World: Europe, Americas, Rest of World are blocks of their own",
+            ["Europe", "Americas", "Rest of World"].every(t => has("m48", t)) && !has("m48", "World"));
+        check("m50 structureTotal off (a report from before 1.8): no total row, otherwise the same rows",
+            !S.m50.rowIds.includes("__TOTAL__") && JSON.stringify(S.m50.rowIds) === JSON.stringify(ids48.slice(0, last)),
+            S.m50.rowIds.length + " vs " + last);
+    }
+    if (S.m49) {
+        const i49 = S.m49.rowIds.indexOf("__TOTAL__"); const y = S.m49.rowY[i49];
+        check("m49 the total row carries the author's name (World)", has("m49", "World") && cell("m49", "World").bold);
+        check("m49 ΔPL of the total on the shared scale: −88 | −71 as bar labels", has("m49", "-88") && has("m49", "-71"));
+        const inRow = c => c.bars.some(b => b.y >= y - 1 && b.y < y + 22);
+        check("m49 every chart column draws an element in the total row (bars and pin heads)", i49 >= 0 && S.m49.charts.every(inRow),
+            S.m49.charts.map(inRow).join(","));
+    }
+    if (S.m51) { check("m51 statement data: structureTotal draws no total row", !S.m51.rowIds.includes("__TOTAL__")); }
+    if (S.m56) {
+        const ids56 = S.m56.rowIds;
+        check("m56 T01A over several roots: no region rows, leaves + the total (as the sheet)",
+            !ids56.some(x => /^L:/.test(x)) && ids56[ids56.length - 1] === "__TOTAL__" && ids56.length === 17, ids56.join(","));
+        check("m56 T01A repeated leaf names take the region (Other Europe)", has("m56", "Other Europe") && has("m56", "Other Americas"));
+        check("m56 % of revenue: the total row is the base (100%)", has("m56", "100.0%"));
+    }
+    if (S.m52) {
+        const ids52 = S.m52.rowIds;
+        check("m52 T01C without a common root: blocks in category order (Europe, Americas, Rest of World), total last",
+            ids52[ids52.length - 1] === "__TOTAL__" && ids52.indexOf("L:Europe") < ids52.indexOf("L:Americas")
+            && ids52.indexOf("L:Americas") < ids52.indexOf("L:Rest of World"), ids52.filter(x => x.startsWith("L:") || x === "__TOTAL__").join(","));
+    }
+    // ---- 1.8 (B04) sort by Δ%, block order of the sheets (m53..m55) ----------------
+    const leavesOf = (id, g) => S[id].rowIds.filter(x => x.startsWith(g + ":")).map(x => x.slice(g.length + 1)).join();
+    const blockOrder = (id) => S[id].rowIds.filter(x => /^L:World¦/.test(x)).map(x => x.slice(8)).join();
+    if (S.m53) {
+        check("m53 T01D Europe by ΔPY% of the month (sheet: Austria, Sweden, Poland, Switzerland, Belgium, France, Germany, Other)",
+            leavesOf("m53", "Europe") === "Austria,Sweden,Poland,Switzerland,Belgium,France,Germany,Other", leavesOf("m53", "Europe"));
+        check("m53 T01D Americas Brazil, Canada, USA, Other · Rest of World Japan, Australia, China, Other",
+            leavesOf("m53", "Americas") === "Brazil,Canada,USA,Other" && leavesOf("m53", "Rest of World") === "Japan,Australia,China,Other",
+            leavesOf("m53", "Americas") + " | " + leavesOf("m53", "Rest of World"));
+        check("m53 T01D arrow on ΔPY% of the month, once", heads("m53").filter(t => t === "ΔPY%(↓)").length === 1 && !heads("m53").some(t => /ΔPY\(↓\)/.test(t)), heads("m53").join("|"));
+        check("m53 T01D FC values of the sheet (Austria 690, Europe 2 195, World 3 921; ΔPY% +38.0%)",
+            has("m53", "690") && has("m53", "2 195") && has("m53", "3 921") && has("m53", "+38.0%"));
+        check("m53 T01D blocks in category order", blockOrder("m53") === "Europe,Americas,Rest of World", blockOrder("m53"));
+    }
+    if (S.m54) {
+        check("m54 T02D Europe by ΔPL% _November (sheet: Switzerland, Sweden, Poland, Germany, Austria, Belgium, France, Other)",
+            leavesOf("m54", "Europe") === "Switzerland,Sweden,Poland,Germany,Austria,Belgium,France,Other", leavesOf("m54", "Europe"));
+        check("m54 T02D Americas Canada, Brazil, USA, Other (sheet)", leavesOf("m54", "Americas") === "Canada,Brazil,USA,Other", leavesOf("m54", "Americas"));
+        check("m54 T02D arrow ΔPL%(↓) on the pin head of the _November block, once", heads("m54").filter(t => t === "ΔPL%(↓)").length === 1, heads("m54").join("|"));
+        check("m54 T02D blocks in category order (Europe −3.5 % before Americas +0.3 %, as the sheet)",
+            blockOrder("m54") === "Europe,Americas,Rest of World", blockOrder("m54"));
+    }
+    if (S.m57) {
+        check("m57 T02C applied fresh: blocks in category order (sheet), Europe rows by ΔPL of the month",
+            blockOrder("m57") === "Europe,Americas,Rest of World" && leavesOf("m57", "Europe").split(",")[0] === "Other" === false
+            && leavesOf("m57", "Europe").endsWith("Other"), blockOrder("m57") + " | " + leavesOf("m57", "Europe"));
+    }
+    if (S.m55) {
+        check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
+            blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
+    }
+    // ---- 1.8 (B14) notation details of the sheets ------------------------------------------
+    if (S.m58) {
+        check("m58 T03A with the sheet's Δ% decimals: whole numbers (+7% instead of +6.6%)", has("m58", "+7%") && !has("m58", "+6.6%"));
+        check("m58 margin and its Δ keep one decimal as in the sheet (45.3%, +8.6%p)", has("m58", "+8.6%p") && has("m58", "45.3%"),
+            S.m58.body.filter(x => /p$|%$/.test(x.t)).map(x => x.t).join(" "));
+    }
+    if (S.m47 && S.m59) {
+        check("m47 default: the World ΔPY% that rounds to zero keeps its sign (+0.0%)", has("m47", "+0.0%"));
+        check("m59 roundedZero plain: World ΔPY% 0.0% as in the sheet", has("m59", "0.0%") && !has("m59", "+0.0%"));
+    }
+    // ---- 1.8 (B07) ROI tree over years (sheet 11A) -------------------------------------
+    {
+        const a = T11.t11a || []; const b = T11.t11b || [];
+        check("t11a capital turnover as a factor (1.3 in 2021, 1.0 in 2025), no 130 %", a.includes("1.3") && a.includes("1.0") && !a.some(t => /^13\d(\.\d)?%$/.test(t)),
+            a.filter(t => /^\d/.test(t)).join(" "));
+        check("t11a ROI and return on sales stay percent (24.9%, 19.2%)", a.includes("24.9%") && a.includes("19.2%"));
+        check("t11a years as the period: first card tag 2021, last 2027", a.some(t => /^2021/.test(t)) && a.some(t => /^2027/.test(t)));
+        const c = T11.t11c || [];
+        check("t11c default root is the ROI (the last KPI row), every period labelled: 2026 / PL tag, plan values 19.8 / 19.2 (unit in the head)",
+            c.includes("Return on investment") && c.includes("2026") && c.includes("PL") && c.includes("19.8") && c.includes("19.2") && c.includes("2023"),
+            c.filter(t => /^20\d\d/.test(t)).join(" "));
+        check("t11c a year axis gets no year prefix in the period line (no \"2021 2021\")", !c.some(t => /2021 2021/.test(t)), c.slice(0, 6).join(" | "));
+        check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
     if (S.m7) {

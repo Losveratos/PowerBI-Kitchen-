@@ -163,6 +163,12 @@ export interface MegaRow {
      * double rule under its figures (the accounting double underline)
      */
     dbl?: boolean;
+    /**
+     * 1.8 (B07) number format of a KPI row (kind "pct"): factor (1.3, its Δ
+     * +0.1) or amount (the visual delivers value and Δ in display units);
+     * absent = percent (45.3 %, Δ in pp)
+     */
+    kfmt?: "factor" | "amount";
 }
 
 /** Display-oriented variance of one row (engine.displayVariance, scaled). */
@@ -220,7 +226,8 @@ export interface MegaRefToggles {
     wf: boolean;
 }
 
-export type MegaSort = "cat" | "min" | "delta";
+/** 1.8 (B04) "pct": Δ% of the sorting reference (the number of its Δ% column / pin) */
+export type MegaSort = "cat" | "min" | "delta" | "pct";
 
 export interface MegaToggles {
     min: MegaMin;
@@ -241,6 +248,12 @@ export interface MegaToggles {
     sort: MegaSort;
     /** which block decides the order (0 = period, 1 = YTD) */
     sortBlock: number;
+    /**
+     * 1.8 (B04) the blocks of the top visible level (regions) keep the category
+     * order; only the rows inside them are sorted (the IBCS sheets). Off = 1.5.2:
+     * the blocks are sorted too. Default off
+     */
+    keepBlockOrder?: boolean;
     /** "% of revenue" column next to the value columns. Default off */
     share?: boolean;
 }
@@ -279,6 +292,12 @@ export interface MegaInput {
     hc?: boolean;
     /** finance format (numbers.financeFormat): (1 234) instead of -1 234, exact zero "–" */
     fin?: boolean;
+    /** 1.8 (B14) suffix of a percentage-point difference (default MEGA_PP, " pp"; "%p") */
+    ppUnit?: string;
+    /** 1.8 (B14) a Δ that rounds to zero prints without its sign (numbers.roundedZero = plain) */
+    zeroPlain?: boolean;
+    /** 1.8 (B14) decimals of margin rows and their pp (default pdec) */
+    mdec?: number;
     /** house terms (labels.labelAc …): rewrites the scenario codes of every column head */
     relabel?: (s: string) => string;
     /** head text over the YTD part of a stacked (12G) value cascade. Default "YTD" */
@@ -310,6 +329,10 @@ export interface MegaPreset {
     dPyAbs: boolean; dPyBar: boolean; dPyWf: boolean; dPyPct: boolean; dPyPin: boolean;
     dPlAbs: boolean; dPlBar: boolean; dPlWf: boolean; dPlPct: boolean; dPlPin: boolean;
     secondBlock: boolean; structureSubtotals: boolean; showPctRows: boolean;
+    /** 1.8 (B03) total row over several structure roots (columns.structureTotal) */
+    structureTotal: boolean;
+    /** 1.8 (B04) blocks stay in category order when sorting (columns.keepBlockOrder) */
+    keepBlockOrder: boolean;
     thresholds: boolean; scenarioMarks: boolean; chartLabels: boolean; capBars: boolean;
     sort: MegaSort; sortBlock: "period" | "ytd";
     decimals: number; pctDecimals: number;
@@ -317,15 +340,17 @@ export interface MegaPreset {
     blockKind: "month" | "ytd" | "fy";
     /** the template switches the headline slot on (titleBlock.headline, 12G / 12H); off = left alone */
     headline: boolean;
+    /** 1.8 (B14) Δ% decimals of the reference sheet (numbers.sheetPctDecimals); pctDecimals is the 1.5 rule */
+    sheetPdec: number;
 }
 
 const P_OFF: MegaPreset = {
     min: "AC", showPY: false, showPL: false, showMin: false, valueCascade: false,
     dPyAbs: false, dPyBar: false, dPyWf: false, dPyPct: false, dPyPin: false,
     dPlAbs: false, dPlBar: false, dPlWf: false, dPlPct: false, dPlPin: false,
-    secondBlock: false, structureSubtotals: true, showPctRows: true,
+    secondBlock: false, structureSubtotals: true, structureTotal: false, keepBlockOrder: false, showPctRows: true,
     thresholds: false, scenarioMarks: true, chartLabels: true, capBars: false,
-    sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false,
+    sort: "cat", sortBlock: "ytd", decimals: 1, pctDecimals: 1, blockKind: "ytd", headline: false, sheetPdec: 1,
 };
 const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...base, ...o });
 
@@ -338,16 +363,18 @@ const preset = (base: MegaPreset, o: Partial<MegaPreset>): MegaPreset => ({ ...b
 const T01A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
     secondBlock: true, structureSubtotals: false, thresholds: true, decimals: 0, pctDecimals: 1,
+    structureTotal: true,
 });
 const T02A = preset(P_OFF, {
     showPL: true, showMin: true, dPlBar: true, dPlPin: true, secondBlock: true, decimals: 0, pctDecimals: 1,
+    structureTotal: true,
 });
 const T03A = preset(P_OFF, {
     showPY: true, showPL: true, showMin: true, dPyAbs: true, dPyPct: true, dPlAbs: true, dPlPct: true,
-    decimals: 1, pctDecimals: 1,
+    decimals: 1, pctDecimals: 1, sheetPdec: 0,
 });
 const T04A = preset(P_OFF, { showPL: true, showMin: true, dPlBar: true, dPlPin: true, decimals: 1, pctDecimals: 1 });
-const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1 });
+const T04B = preset(T04A, { dPlBar: false, dPlWf: true, decimals: 2, pctDecimals: 1, sheetPdec: 2 });
 const T04C = preset(T04B, {
     showPY: true, showPL: false, dPlWf: false, dPlPin: false, dPyWf: true, dPyPin: true,
 });
@@ -355,14 +382,20 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     off: P_OFF,
     T01A,
     T01B: preset(T01A, { structureSubtotals: true }),
+    // 1.8: every sorting template keeps the blocks in category order like its sheet (keepBlockOrder)
+    T01C: preset(T01A, { structureSubtotals: true, sort: "delta", sortBlock: "ytd", keepBlockOrder: true }),
+    // 1.8 (B04) T01D: forecast by country with subtotals, sorted by ΔPY% of the month
+    T01D: preset(T01A, { structureSubtotals: true, min: "FC", sort: "pct", sortBlock: "period", keepBlockOrder: true }),
     T02A,
-    T02B: preset(T02A, { sort: "min", sortBlock: "ytd" }),
-    T02C: preset(T02A, { sort: "delta", sortBlock: "period" }),
+    T02B: preset(T02A, { sort: "min", sortBlock: "ytd", keepBlockOrder: true }),
+    T02C: preset(T02A, { sort: "delta", sortBlock: "period", keepBlockOrder: true }),
+    // 1.8 (B04) T02D: T02A sorted by ΔPL% of the YTD block (the arrow on the pin head)
+    T02D: preset(T02A, { sort: "pct", sortBlock: "ytd", keepBlockOrder: true }),
     T02E: preset(T02A, {
         min: "FC", showPY: true, showPL: false, dPlBar: false, dPlPin: false, dPyBar: true, dPyPin: true,
-        sort: "delta", sortBlock: "ytd",
+        sort: "delta", sortBlock: "ytd", keepBlockOrder: true,
     }),
-    T02F: preset(T02A, { min: "FC", sort: "delta", sortBlock: "ytd" }),
+    T02F: preset(T02A, { min: "FC", sort: "delta", sortBlock: "ytd", keepBlockOrder: true }),
     T03A,
     T03B: preset(T03A, { min: "FC" }),
     T04A,
@@ -372,17 +405,17 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     T04E: preset(T04C, { min: "FC" }),
     "12A": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 1,
+        showPctRows: false, decimals: 0, pctDecimals: 1, sheetPdec: 0,
     }),
     // 12G: FY outlook — PY year vs AC&FC stacked (YTD solid + rest of year hatched), ΔPY on the year
     "12G": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true,
+        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true, sheetPdec: 0,
     }),
     // 12H: plan statement — PL (outlined) vs PY, Δ bars tinted pale
     "12H": preset(P_OFF, {
         min: "PL", showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        showPctRows: false, decimals: 0, pctDecimals: 1, headline: true,
+        showPctRows: false, decimals: 0, pctDecimals: 1, headline: true, sheetPdec: 0,
     }),
     // 1.7 balance sheet (stocks): the stand at the reporting date — PY (the stand a
     // year earlier) · AC · ΔPY · ΔPY%; assets and equity-and-liabilities as two
@@ -526,6 +559,8 @@ export interface MegaFmt {
     rel: (p: number) => string;
     share: (p: number) => string;
     signed: (v: number, dec: number, plus: boolean) => string;
+    /** 1.8 (B07) a factor KPI (capital turnover 1.3) with the Δ% decimals */
+    fac: (v: number, plus: boolean) => string;
 }
 
 /** decimals a number really carries (−20.5 → 1, −10 → 0), at most `max` — threshold footer */
@@ -550,7 +585,13 @@ export const MEGA_PP = " pp";
  * `signed` itself never uses parentheses: the threshold footer is a rule
  * ("<-20"), not a figure.
  */
-export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false): MegaFmt {
+export function megaFmt(num: (abs: number, dec: number) => string, dec: number, pdec: number, fin = false,
+    opts: { pp?: string; zeroPlain?: boolean; mdec?: number } = {}): MegaFmt {
+    // 1.8 (B14) numbers.ppUnit ("pp" or "%p") and numbers.roundedZero
+    const ppU = opts.pp ?? MEGA_PP;
+    const zp = !!opts.zeroPlain;
+    // 1.8 (B14) decimals of margins and their pp (default: the Δ% decimals)
+    const md = opts.mdec ?? pdec;
     // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
     // "−0,0") — beside a pin or bar that visibly points one way an unsigned
     // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
@@ -558,7 +599,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
     const signed = (v: number, d: number, plus: boolean): string => {
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        const zero = r === 0 && !(plus && tiny(v));
+        const zero = r === 0 && !(plus && tiny(v) && !zp);
         return (v < 0 && !zero ? MEGA_MINUS : plus && !zero ? "+" : "") + num(r, d);
     };
     const fs = (v: number, d: number, plus: boolean, unit = ""): string => {
@@ -566,7 +607,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         if (v === 0) { return "–"; }
         const f = Math.pow(10, d);
         const r = Math.round(Math.abs(v) * f) / f;
-        if (r === 0 && !(plus && tiny(v))) { return num(r, d) + unit; }
+        if (r === 0 && !(plus && tiny(v) && !zp)) { return num(r, d) + unit; }
         return v < 0 ? "(" + num(r, d) + unit + ")" : (plus ? "+" : "") + num(r, d) + unit;
     };
     return {
@@ -578,14 +619,25 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         // (pctDecimals), not the decimals of the amounts (52.24 % next to 1-decimal
         // Δ% read like two different kinds of number); the point difference reads
         // "pp" (percentage points), not "%p"
-        margin: m => fs(m * 100, pdec, false, "%"),
-        pp: x => fs(x, pdec, true, MEGA_PP),
+        margin: m => fs(m * 100, md, false, "%"),
+        pp: x => fs(x, md, true, ppU),
         // relative change of a ratio — no longer printed in the table (a Δ% of a
         // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
         share: p => fs(p * 100, pdec, false, "%"),
         signed,
+        // a factor keeps at least one decimal (capital turnover 1.3, not 1)
+        fac: (v, plus) => fs(v, Math.max(1, pdec), plus),
     };
+}
+
+/** 1.8 (B07) the value of a KPI row (kind "pct") by its number format */
+export function megaKpiVal(fmt: MegaFmt, r: MegaRow, v: number): string {
+    return r.kfmt === "factor" ? fmt.fac(v, false) : r.kfmt === "amount" ? fmt.val(v) : fmt.margin(v);
+}
+/** 1.8 (B07) the Δ of a KPI row: pp (d in points), factor (d / 100) or amount (d in display units) */
+export function megaKpiPp(fmt: MegaFmt, r: MegaRow, d: number): string {
+    return r.kfmt === "factor" ? fmt.fac(d / 100, true) : r.kfmt === "amount" ? fmt.delta(d) : fmt.pp(d);
 }
 
 // ============================================================================
@@ -826,15 +878,26 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
     const b = blocks[bi];
     const ref: MegaRef = activeRefs(t)[0] || (t.showPY ? "PY" : "PL");
     const key = (r: MegaRow): number => {
+        // 1.8 (B04) a margin row never sorts (structure data has none; safety net)
+        if (r.kind === "pct") { return -Infinity; }
+        if (t.sort === "pct") {
+            // the Δ% the row prints (display orientation, like "delta" below);
+            // no base (Δ% n.a.) sorts after every number, before "Other"
+            const p = b.delta(r, t.min, ref)?.p;
+            return p == null || !isFinite(p) ? -Infinity : p;
+        }
         const a = b.value(r, t.min);
         if (t.sort === "min") { return a ?? -Infinity; }
         const v = b.value(r, ref);
         return a == null || v == null ? -Infinity : a - v;
     };
+    // descending; rows without a key last in their input order (two −∞ gave NaN until 1.8)
+    const cmp = (kx: number, ky: number): number =>
+        kx === ky ? 0 : kx === -Infinity ? 1 : ky === -Infinity ? -1 : ky - kx;
     const sortRuns = (list: MegaRow[]): MegaRow[] => {
         const out: MegaRow[] = []; let run: MegaRow[] = [];
         const flush = (): void => {
-            const rest = run.filter(r => !r.other).sort((x, y) => key(y) - key(x));
+            const rest = run.filter(r => !r.other).sort((x, y) => cmp(key(x), key(y)));
             out.push(...rest, ...run.filter(r => r.other)); run = [];
         };
         for (const r of list) {
@@ -863,8 +926,24 @@ export function orderRows(input: MegaInput): { rows: MegaRow[]; info: { ref: Meg
     const fixed = (s: MegaRow[]): boolean => s.some(r => megaAnchor(r));
     const segKey = (s: MegaRow[]): number => key(s[s.length - 1]);
     const free = real.filter(s => !fixed(s));
-    const order = [...free.filter(s => !s[s.length - 1].other).sort((x, y) => segKey(y) - segKey(x)),
-        ...free.filter(s => s[s.length - 1].other)];
+    // 1.8 (B04) keepBlockOrder: the blocks (segments of more than one row) stay
+    // in category order, only the rows inside them are sorted (the IBCS sheets
+    // T01C/D, T02B to T02F). Single rows between them (a region without
+    // countries, a one-child group, a folded region) are still ranked among
+    // their direct neighbours, as since 1.5.2, and an "Other …" block still
+    // goes last — the switch keeps the blocks, it does not switch sorting off
+    const bySeg = (list: MegaRow[][]): MegaRow[][] => list.sort((x, y) => cmp(segKey(x), segKey(y)));
+    const plain = free.filter(s => !s[s.length - 1].other);
+    const others = free.filter(s => s[s.length - 1].other);
+    let order: MegaRow[][];
+    if (t.keepBlockOrder) {
+        order = []; let singles: MegaRow[][] = [];
+        for (const s of plain) {
+            if (s.length === 1) { singles.push(s); continue; }
+            order.push(...bySeg(singles), s); singles = [];
+        }
+        order.push(...bySeg(singles), ...others);
+    } else { order = [...bySeg(plain), ...others]; }
     let fi = 0;
     const gaps = rows.filter(r => r.kind === "gap");
     const out: MegaRow[] = [];
@@ -920,7 +999,9 @@ export function layoutMega(input: MegaInput): MegaLayout {
     const ord = orderRows(input);
     const rows = ord.rows;
     const sortInfo = ord.info;
-    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin);
+    const fmt = megaFmt(input.num, input.dec, input.pdec, !!input.fin, { pp: input.ppUnit, zeroPlain: input.zeroPlain, mdec: input.mdec });
+    const kpiVal = (r: MegaRow, v: number): string => megaKpiVal(fmt, r, v);
+    const kpiPp = (r: MegaRow, d: number): string => megaKpiPp(fmt, r, d);
     const N = notation(t.min, activeRefs(t)[0] ?? null, !!input.hc);
     const NB = blocks.map(b => b.minFill && b.minFill !== t.min ? notation(b.minFill, activeRefs(t)[0] ?? null, !!input.hc) : N);
     const cols = buildColumns(t, nb);
@@ -952,7 +1033,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
         const base = { bold, italic: pct, fs: pct ? G.fsSmall : G.fs, color: MEGA_C.text };
         if (c.type === "value") {
             const v = blk.value(r, c.scen!);
-            return v == null ? null : { ...base, t: pct ? fmt.margin(v) : fmt.val(v) };
+            return v == null ? null : { ...base, t: pct ? kpiVal(r, v) : fmt.val(v) };
         }
         if (c.type === "share") {
             // "% of revenue": small italic soft numbers (classic table), none on margin rows
@@ -966,7 +1047,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
             ({ color: red ? input.pal.bad : D.immaterial ? MEGA_C.soft : MEGA_C.text, underline: red && input.hc ? true : undefined });
         if (c.type === "delta") {
             const red = t.thresholds && !pct && D.impact < blk.th.abs - 1e-9;
-            return { ...base, t: pct ? fmt.pp(D.d) : fmt.delta(D.d), ...redText(red) };
+            return { ...base, t: pct ? kpiPp(r, D.d) : fmt.delta(D.d), ...redText(red) };
         }
         if (c.type === "dpct") {
             // 1.5.1: a margin row has no relative Δ% (a percentage of a
@@ -984,9 +1065,13 @@ export function layoutMega(input: MegaInput): MegaLayout {
     // stays as the author set it — silently sorting by another column would show
     // an order nobody asked for — and the indicator moves to the head of the
     // category column, naming the key: "(↓) ΔPL _November".
-    const sortCol = !sortInfo ? null : cols.find(x => x.block === sortInfo.block && (t.sort === "min"
-        ? (x.type === "value" || x.type === "vwf") && x.scen === t.min
-        : x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin")) ?? null;
+    // 1.8 (B04) sort = pct: the Δ% number column of the reference, else its pin column
+    const sortCol = !sortInfo ? null : t.sort === "pct"
+        ? cols.find(x => x.block === sortInfo.block && x.ref === sortInfo.ref && x.type === "dpct")
+            ?? cols.find(x => x.block === sortInfo.block && x.ref === sortInfo.ref && x.type === "pin") ?? null
+        : cols.find(x => x.block === sortInfo.block && (t.sort === "min"
+            ? (x.type === "value" || x.type === "vwf") && x.scen === t.min
+            : x.ref === sortInfo.ref && x.type !== "dpct" && x.type !== "pin")) ?? null;
     const headerText = (c: MegaCol): string => {
         const blk = blocks[c.block];
         let s = c.type === "value" || c.type === "vwf" ? (blk?.alias?.[c.scen!] ?? c.scen!)
@@ -994,7 +1079,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
         if (sortInfo && c === sortCol) { s += "(↓)"; }
         if (sortInfo && !sortCol && c.type === "label") {
-            const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min) : "Δ" + sortInfo.ref;
+            const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min)
+                : "Δ" + sortInfo.ref + (t.sort === "pct" ? "%" : "");
             s = "(↓) " + key + (nb === 2 && blocks[sortInfo.block].name ? " " + blocks[sortInfo.block].name : "");
         }
         return input.relabel ? input.relabel(s) : s;
@@ -1084,7 +1170,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 if (r.kind !== "pct") { continue; }
                 const D = blk.delta(r, t.min, c.ref!);
                 if (!D || !D.pp || !isFinite(D.d)) { continue; }
-                const w = tw(fmt.pp(D.d), G.fsSmall, false, true) + G.lblGap;
+                const w = tw(kpiPp(r, D.d), G.fsSmall, false, true) + G.lblGap;
                 (c.ppRows = c.ppRows ?? []).push({ r, D });
                 c.els.push(D.d >= 0 ? { p: 0, q: 0, a: 0, c: w + 3 } : { p: 0, q: 0, a: w + 3, c: 0 });
             }
@@ -1677,9 +1763,9 @@ function paintChartColumn(
         const up = D.d >= 0;
         const px = up ? c.x0! + axisHalf + G.lblGap : c.x0! - axisHalf - G.lblGap;
         const py = base(y, rh, G.fsSmall);
-        const pw = input.measure(fmt.pp(D.d), G.fsSmall, false, true);
+        const pw = input.measure(megaKpiPp(fmt, r, D.d), G.fsSmall, false, true);
         avoid.push({ x0: up ? px : px - pw, x1: up ? px + pw : px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
-        text(B, px, py, fmt.pp(D.d), {
+        text(B, px, py, megaKpiPp(fmt, r, D.d), {
             anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
             color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
         }).setAttribute("data-pnl", "mega-pp");

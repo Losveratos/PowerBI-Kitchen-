@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ein Jahr in Bewegung: animierte Mobilitäts-Karte aus E-Mail-Belegen · Daten-WG</title>
+<link rel="alternate" type="text/markdown" title="Markdown" href="md/mobilitaets-karte-post.md">
+<meta name="description" content="Aus Hotel-, Flug-, Taxi- und Scooter-Belegen im Postfach wird ein 50-Sekunden-Reel: ein dunkler Globus, der jede Strecke nachfährt und die Kilometer je Verkehrsmittel hochzählt. Mit Rezept, Rechenregeln und Prompts zum Nachbauen.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/mobilitaets-karte-post.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ein Jahr in Bewegung: animierte Mobilitäts-Karte aus E-Mail-Belegen">
+<meta property="og:description" content="Aus Hotel-, Flug-, Taxi- und Scooter-Belegen im Postfach wird ein 50-Sekunden-Reel: ein dunkler Globus, der jede Strecke nachfährt und die Kilometer je Verkehrsmittel hochzählt. Mit Rezept, Rechenregeln und Prompts zum Nachbauen.">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/mobilitaets-karte-post.html">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/posts/mobilitaets-karte/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root {
+  --bg:#FAFAF5; --bg-card:#FFFFFF; --bg-soft:#F4F1E8;
+  --ink:#1A1A1A; --ink-soft:#4A4A4A; --ink-mute:#6B6B6B; --black:#0A0A0A;
+  --line:#E5E2D8; --line-strong:#1A1A1A;
+  --accent:#117865; --accent-deep:#0A5A4D;
+  --topic:#C25A2D; --low:#2A857A; --mid:#C9962E; --high:#8B2E2E;
+  --shadow-sm:0 1px 2px rgba(10,10,10,.04),0 1px 3px rgba(10,10,10,.06);
+  --shadow-md:0 4px 12px rgba(10,10,10,.08),0 2px 4px rgba(10,10,10,.06);
+  --radius-sm:6px; --radius:10px; --radius-lg:16px;
+  --serif:"Segoe UI Variable Display","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --sans:"Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Segoe UI Variable Small","Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:var(--sans); font-size:16px; line-height:1.62; color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(circle at 12% -5%,rgba(42,133,122,.06),transparent 35%),radial-gradient(circle at 95% 12%,rgba(17,120,101,.05),transparent 40%);
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; min-height:100vh;
+}
+a { color:inherit; }
+.container { max-width:820px; margin:0 auto; padding:36px 28px 110px; }
+.back-link { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-mute); text-decoration:none; padding:8px 14px; border:1px solid var(--line); border-radius:100px; transition:all .15s ease; margin-bottom:40px; }
+.back-link:hover { color:var(--accent); border-color:var(--accent); background:var(--bg-card); }
+.post-eyebrow { display:inline-flex; align-items:center; gap:10px; font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--topic); font-weight:700; margin-bottom:18px; }
+.post-eyebrow::before { content:''; width:28px; height:1px; background:var(--topic); }
+.post-title { font-family:var(--serif); font-weight:300; font-size:clamp(2.1rem,5.5vw,3.6rem); line-height:1.05; letter-spacing:-0.025em; color:var(--black); margin-bottom:18px; }
+.post-title em { font-style:italic; font-weight:300; color:var(--topic); }
+.post-dek { font-size:18px; color:var(--ink-soft); line-height:1.5; max-width:64ch; margin-bottom:24px; }
+.post-meta { display:flex; flex-wrap:wrap; gap:18px; align-items:center; font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-mute); padding-bottom:28px; border-bottom:1px solid var(--line); margin-bottom:8px; }
+.post-meta strong { color:var(--ink); font-weight:600; }
+.prose h2 { font-family:var(--serif); font-weight:500; font-size:clamp(1.5rem,3.2vw,2rem); letter-spacing:-0.015em; color:var(--black); margin:52px 0 16px; line-height:1.15; }
+.prose h2 em { font-style:italic; color:var(--topic); font-weight:500; }
+.prose p { margin-bottom:18px; color:var(--ink-soft); max-width:70ch; }
+.prose p strong { color:var(--ink); font-weight:600; }
+.prose p a { color:var(--accent); }
+.prose p code, .prose li code { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:.86em; background:var(--bg-soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+.prose ul { margin:0 0 20px; padding-left:0; list-style:none; max-width:70ch; }
+.prose ul li { position:relative; padding:8px 0 8px 26px; color:var(--ink-soft); border-bottom:1px solid var(--line); }
+.prose ul li:last-child { border-bottom:none; }
+.prose ul li::before { content:''; position:absolute; left:6px; top:16px; width:7px; height:7px; border-radius:50%; background:var(--topic); }
+.prose ul li strong { color:var(--ink); font-weight:600; }
+.bigstat { display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:linear-gradient(135deg,var(--bg-card) 0%,rgba(42,133,122,.06) 100%); border:1px solid var(--line); border-left:4px solid var(--topic); border-radius:var(--radius-lg); padding:24px 28px; margin:28px 0; box-shadow:var(--shadow-sm); }
+.bigstat-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:clamp(2rem,6vw,3.4rem); line-height:1; letter-spacing:-0.03em; color:var(--topic); white-space:nowrap; }
+.bigstat-text { font-size:15px; color:var(--ink-soft); line-height:1.55; }
+.bigstat-text strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .bigstat { grid-template-columns:1fr; gap:12px; } }
+.quote { border-left:3px solid var(--topic); background:var(--bg-soft); border-radius:0 var(--radius) var(--radius) 0; padding:14px 18px; margin:18px 0 24px; font-size:14.5px; color:var(--ink-soft); line-height:1.55; }
+.quote .ts { font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:12px; color:var(--accent); text-decoration:none; margin-right:8px; white-space:nowrap; }
+.quote .k { display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); margin-bottom:4px; }
+.step { display:grid; grid-template-columns:56px 1fr; gap:20px; align-items:start; background:var(--bg-card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:22px 26px; margin:16px 0; box-shadow:var(--shadow-sm); }
+.step-num { font-family:var(--serif); font-weight:300; font-style:italic; font-size:2.2rem; line-height:1; color:var(--topic); }
+.step h3 { font-family:var(--serif); font-weight:600; font-size:1.1rem; color:var(--black); margin-bottom:6px; }
+.step h3 span { font-family:var(--mono); font-size:10.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--accent); margin-left:8px; }
+.step p { font-size:14.5px; color:var(--ink-soft); margin:0; line-height:1.6; }
+.step p strong { color:var(--ink); font-weight:600; }
+@media (max-width:560px){ .step { grid-template-columns:1fr; gap:8px; } }
+.tbl { width:100%; border-collapse:collapse; font-size:14px; margin:12px 0 28px; }
+.tbl th, .tbl td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink-soft); }
+.tbl th { font-family:var(--mono); font-size:10.5px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-mute); }
+.tbl td:first-child { color:var(--ink); font-weight:600; }
+.src-box { background:var(--bg-soft); border:1px solid var(--line); border-left:4px solid var(--ink-mute); border-radius:var(--radius); padding:20px 24px; margin:28px 0; font-size:13.5px; color:var(--ink-soft); line-height:1.6; }
+.src-box h3 { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--black); margin-bottom:8px; }
+.src-box a { color:var(--accent); }
+.cta-card { display:flex; flex-wrap:wrap; gap:18px; align-items:center; justify-content:space-between; background:var(--black); color:#fff; border-radius:var(--radius-lg); padding:28px 32px; margin:52px 0 0; }
+.cta-card-text { max-width:46ch; }
+.cta-card-text .k { font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); display:block; margin-bottom:8px; }
+.cta-card-text h3 { font-family:var(--serif); font-weight:500; font-size:1.35rem; color:#fff; margin:0 0 6px; }
+.cta-card-text p { color:rgba(255,255,255,.7); font-size:14px; margin:0; }
+.cta-actions { display:flex; flex-wrap:wrap; gap:12px; }
+.cta-btn { display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--black); background:var(--mid); padding:13px 18px; border-radius:100px; text-decoration:none; }
+.cta-btn:hover { filter:brightness(1.08); }
+.cta-btn.ghost { background:transparent; color:#fff; border:1px solid rgba(255,255,255,.4); }
+.cta-btn.ghost:hover { border-color:#fff; filter:none; }
+.post-foot { margin-top:56px; padding-top:24px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11.5px; color:var(--ink-mute); line-height:1.6; }
+.post-foot a { color:var(--accent); }
+
+.post-hero { margin:0 0 30px; }
+.post-hero img { width:100%; max-width:none; height:auto; display:block; border-radius:var(--radius); box-shadow:none; }
+figure { margin:26px 0 30px; }
+figure img { width:100%; max-width:560px; height:auto; display:block; border-radius:var(--radius); box-shadow:var(--shadow-md); }
+figure.wide img { max-width:100%; }
+.prose ol { margin:0 0 20px; padding-left:0; list-style:none; counter-reset:step; max-width:70ch; }
+.prose ol li { position:relative; padding:10px 0 10px 40px; color:var(--ink-soft); border-bottom:1px solid var(--line); counter-increment:step; }
+.prose ol li:last-child { border-bottom:none; }
+.prose ol li::before { content:counter(step); position:absolute; left:0; top:10px; width:26px; height:26px; border-radius:50%; background:var(--black); color:#fff; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; }
+.prose ol li strong { color:var(--ink); font-weight:600; }
+.prose pre { max-width:70ch; margin:0 0 20px; padding:14px 16px; background:var(--black); color:#f1efe8; border-radius:var(--radius); font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:13px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+figure > a { display:block; }
+figcaption, .post-hero figcaption { font-size:12.5px; color:var(--ink-mute); margin-top:8px; }
+.prose table { width:100%; max-width:70ch; border-collapse:collapse; font-size:14px; margin:8px 0 10px; }
+.prose th { text-align:left; font-weight:600; color:var(--ink); border-bottom:2px solid var(--line-strong); padding:7px 8px; }
+.prose td { border-bottom:1px solid var(--line); padding:6px 8px; color:var(--ink-soft); font-variant-numeric:tabular-nums; }
+.prose th.r, .prose td.r { text-align:right; white-space:nowrap; }
+.table-wrap { overflow-x:auto; margin-bottom:6px; }
+.prose p.note { font-size:13px; color:var(--ink-mute); }
+.cta { display:flex; flex-wrap:wrap; gap:12px; margin:26px 0 8px; }
+.cta a { display:inline-block; padding:11px 18px; border-radius:999px; background:var(--black); color:#fff; text-decoration:none; font-weight:600; font-size:14px; }
+.cta a.ghost { background:transparent; color:var(--ink); border:1px solid var(--line-strong); }
+.reel { display:grid; grid-template-columns:minmax(0,300px) 1fr; gap:28px; align-items:center; margin:8px 0 34px; }
+.reel video { width:100%; aspect-ratio:9/16; display:block; border-radius:var(--radius-lg); background:#121110; box-shadow:var(--shadow-md); }
+.reel-facts { list-style:none; display:grid; gap:14px; }
+.reel-facts li { border-bottom:1px solid var(--line); padding-bottom:12px; color:var(--ink-soft); font-size:14.5px; }
+.reel-facts b { display:block; font-family:var(--serif); font-weight:600; font-size:1.6rem; line-height:1.15; color:var(--black); font-variant-numeric:tabular-nums; }
+.stills { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:22px 0 8px; max-width:70ch; }
+.stills figure { margin:0; }
+.stills img { max-width:100%; }
+.sw { display:inline-block; width:12px; height:12px; border-radius:3px; margin-right:8px; vertical-align:-1px; border:1px solid rgba(0,0,0,.15); }
+@media (max-width:640px){ .reel { grid-template-columns:1fr; } .reel video { max-width:320px; margin:0 auto; } }
+</style>
+</head>
+<body>
+<script src="assets/js/site-chrome.js" data-chrome="full"></script>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Zurück zur Knowledge Kitchen</a>
+
+  <header>
+    <div class="post-eyebrow">Post · Datenvisualisierung mit KI-Agent</div>
+    <h1 class="post-title">Ein Jahr in Bewegung: 70.045 km aus dem Postfach</h1>
+    <p class="post-dek">Buchungsbestätigungen, Taxi-Belege und Scooter-Zahlungen liegen ohnehin im Postfach. Daraus wird ein 50-Sekunden-Reel: ein dunkler Globus, der jede Strecke des Jahres nachfährt und die Kilometer je Verkehrsmittel hochzählt. Hier steht, wie es gebaut ist und wie du dein eigenes machst.</p>
+    <div class="post-meta">
+      <span>Von <strong>Michael Tenner</strong></span>
+      <span>Stand · <strong>November 2026</strong></span>
+      <span>Zeitraum · <strong>1.1. bis 21.11.2026</strong></span>
+      <span>Anleitung · <strong><a href="md/mobilitaets-karte-post.md">als Markdown</a></strong></span>
+    </div>
+  </header>
+
+  <div class="reel">
+    <video controls playsinline preload="none" poster="assets/posts/mobilitaets-karte/reel-poster.jpg" aria-label="Reel: animierte Karte aller Reisen 2026">
+      <source src="assets/posts/mobilitaets-karte/mobilitaet-2026-reel.mp4" type="video/mp4">
+    </video>
+    <ul class="reel-facts">
+      <li><b>70.045 km</b>1,75-mal um die Erde, davon 53.257 km geflogen</li>
+      <li><b>32 Orte · 11 Länder</b>und 103 Hotelnächte</li>
+      <li><b>269 Scooter-Fahrten</b>plus 91 Taxifahrten, jede leuchtet im Video kurz auf</li>
+      <li><b>≈ 16 t CO₂</b>grob gerechnet, fast alles davon Flug</li>
+    </ul>
+  </div>
+
+  <div class="prose">
+    <h2>Die Idee</h2>
+    <p>Die Live-Karten der Bahn, auf denen Züge als Punkte durchs Land wandern, haben einen eigenen Sog. Die Frage war: Geht das auch für ein einzelnes Jahr eines einzelnen Menschen, ohne dass der Mensch dafür ein Jahr lang etwas aufschreiben muss?</p>
+    <p>Es geht, weil fast jede Bewegung einen Beleg hinterlässt. Das Hotel schickt eine Bestätigung, die Airline einen Reiseplan, Uber eine Quittung, der Scooter-Verleih bucht über PayPal ab. Ein KI-Agent mit Zugriff aufs Postfach liest das aus, räumt Stornos und Doppelte weg und leitet daraus eine Reiseroute ab. Den Rest erledigt eine einzige HTML-Seite mit einem Canvas.</p>
+    <p>Gebaut ist das Ganze an einem Vormittag im Gespräch mit Claude: erst ein Kosten-Dashboard, dann die Frage „Kannst du daraus auch eine Karte machen?“, dann drei Runden Feinschliff.</p>
+
+    <h2>Was genau ist, und was geschätzt</h2>
+    <p>Die Karte sieht präziser aus, als die Daten sind. Deshalb steht im Video an drei von vier Zählern „geschätzt“.</p>
+    <div class="table-wrap"><table><thead><tr><th>Verkehrsmittel</th><th class="r">km</th><th>So gerechnet</th></tr></thead><tbody>
+      <tr><td><span class="sw" style="background:#d4ad6a"></span>Flug</td><td class="r">53.257</td><td>Großkreis-Entfernung je Strecke, Umsteigen über Paris und Zürich mitgerechnet. Nicht genutzte Tickets zählen nicht.</td></tr>
+      <tr><td><span class="sw" style="background:#cf6a3f"></span>Bahn</td><td class="r">≈ 15.292</td><td>Aus der Reihenfolge der Hotels abgeleitet, Luftlinie × 1,25. Mit BahnCard 100 gibt es keine Fahrtbelege.</td></tr>
+      <tr><td><span class="sw" style="background:#e8e2d6"></span>Taxi</td><td class="r">≈ 984</td><td>Fahrpreis ÷ Preis je km im jeweiligen Land, von 0,50 € in Vietnam bis 2,80 € in Deutschland.</td></tr>
+      <tr><td><span class="sw" style="background:#97ad8d"></span>E-Scooter</td><td class="r">≈ 513</td><td>Rund 0,8 km je Euro Fahrpreis, höchstens 12 km je Fahrt. Abos zählen keine km.</td></tr>
+    </tbody></table></div>
+    <p>Die Bahn-Regel in einem Satz: Basis ist der Wohnort; beginnt ein Hotelaufenthalt woanders, gibt es eine Fahrt dorthin, und nach dem Check-out in Europa geht es nach Hause, außer der nächste Aufenthalt schließt direkt an. Das trifft nicht jede einzelne Fahrt, aber die Größenordnung.</p>
+    <p>Der CO₂-Zähler rechnet mit Durchschnittswerten des Umweltbundesamts je Personenkilometer: 290 g fürs Flugzeug (Inlandsflug 2024, inklusive Nicht-CO₂-Effekte), 26 g für den Bahn-Fernverkehr, 164 g fürs Taxi (Pkw-Wert). Langstreckenflüge liegen je Kilometer eher darunter, die 16 Tonnen sind also eine Obergrenze. <a href="https://www.umweltbundesamt.de/themen/verkehr-laerm/emissionsdaten">Quelle: Umweltbundesamt, Emissionsdaten</a>.</p>
+
+    <h2>Drei Kniffe, die das Reel tragen</h2>
+    <div class="stills">
+      <figure><img src="assets/posts/mobilitaets-karte/still-hook.jpg" alt="Erstes Bild des Reels: Globus mit allen Strecken und 70.045 km" loading="lazy"><figcaption>Der Hook: das Endbild zuerst</figcaption></figure>
+      <figure><img src="assets/posts/mobilitaets-karte/still-stempel.jpg" alt="Stempel „Land Nr. 4 Taiwan“ über der Karte" loading="lazy"><figcaption>Ein Stempel je neuem Land</figcaption></figure>
+      <figure><img src="assets/posts/mobilitaets-karte/still-ende.jpg" alt="Schlussbild mit allen Zählern" loading="lazy"><figcaption>Schlussbild mit allen Zählern</figcaption></figure>
+    </div>
+    <ol>
+      <li><strong>Die Zeit wird verzerrt.</strong> An den meisten Tagen passiert nichts. Ein Tag ohne Reise dauert im Video 0,03 Sekunden, eine Bahnfahrt knapp eine halbe, ein Langstreckenflug bis zu zwei. So passen elf Monate in 50 Sekunden, ohne dass es hetzt.</li>
+      <li><strong>Globus statt flacher Karte.</strong> Bei einer Fahrt von Köln nach Frankfurt ist die Kamera so nah, dass der Globus wie eine Landkarte wirkt. Beim Flug nach Singapur zoomt sie heraus, und die Linie wird zum Bogen über die Erdkrümmung.</li>
+      <li><strong>Das Ende zuerst.</strong> Das Video zeigt 1,3 Sekunden lang das fertige Bild mit allen Strecken und spult dann auf den 1. Januar zurück. Wer in den ersten zwei Sekunden die große Zahl sieht, bleibt eher dran.</li>
+    </ol>
+    <p>Der Look heißt bei uns „Dark Kitchen“: Anthrazit statt Schwarz, matte Körnung, dazu vier Akzentfarben aus Küchen-Materialien, also Messing für Flug, Kupfer für Bahn, Marmor für Taxi und Salbei für Scooter.</p>
+
+    <h2>Selbst bauen</h2>
+    <p>Du brauchst ein Postfach mit Belegen, einen KI-Agenten mit Zugriff darauf (bei uns Claude mit Gmail-Anbindung) und etwas Geduld beim Gegenlesen. Die Technik dahinter ist klein: d3 für die Projektion, eine Weltkarte als TopoJSON, ein Canvas.</p>
+    <ol>
+      <li><strong>Belege sammeln.</strong> Hotels (Booking, Airbnb), Flüge, Taxi (Uber, Freenow) und Scooter (Bolt, Voi, Lime, oft über PayPal) für den Zeitraum auslesen lassen. Stornos raus, geänderte Buchungen nur mit letztem Stand, nichts doppelt zählen.</li>
+      <li><strong>Route ableiten.</strong> Aus Hotels und Flügen entsteht eine Liste von Strecken mit Datum, Start, Ziel und Koordinaten. Die Rechenregeln stehen oben in der Tabelle und ausführlich in der Anleitung.</li>
+      <li><strong>Karte bauen.</strong> Orthografische Projektion, Kamera folgt jeder Strecke, Zähler laufen mit. Jedes Bild wird aus einer einzigen Funktion <code>render(t)</code> gezeichnet.</li>
+      <li><strong>Video rendern.</strong> Nicht den Bildschirm abfilmen, sondern Bild für Bild aus dem Canvas speichern und mit ffmpeg zusammensetzen. Das ruckelt nie.</li>
+    </ol>
+    <p>Mit diesen drei Prompts kommst du in einem Agenten wie Claude ans Ziel:</p>
+    <pre><code>Werte mein Postfach für 2026 aus: alle Hotelbuchungen (Booking, Airbnb), Flüge, Uber- und Freenow-Fahrten und E-Scooter-Zahlungen (Bolt, Voi, Lime, auch über PayPal). Stornos raus, nichts doppelt zählen, Fremdwährungen in Euro. Bau mir daraus ein Dashboard.</code></pre>
+    <pre><code>Leite daraus eine Reiseroute ab: Basis ist [Stadt]. Flüge exakt mit Großkreis-km, Bahnfahrten zwischen den Hotels geschätzt (Luftlinie × 1,25), Taxi- und Scooter-km aus dem Fahrpreis geschätzt. Speichere alles als mobility.json mit legs, visits und rides.</code></pre>
+    <pre><code>Bau daraus eine animierte Globus-Karte im Dark-Kitchen-Look (Anthrazit, Messing, Kupfer, Marmor, Salbei). Die Kamera folgt jeder Strecke, Zähler zeigen km je Verkehrsmittel, Orte und Länder. Start mit dem Endbild als Hook, ein Stempel je neuem Land, CO₂ grob mitzählen. Render ein 9:16-MP4 fürs Reel.</code></pre>
+    <p>Die vollständige Anleitung mit Datenmodell, Haversine-Formel, Kilometerpreisen je Land, Zeitplan der Animation, Ebenen je Bild und dem ffmpeg-Befehl gibt es als eine Datei:</p>
+    <div class="cta"><a href="md/mobilitaets-karte-post.md" download="mobilitaets-karte-anleitung.md">Anleitung als Markdown laden</a><a class="ghost" href="assets/posts/mobilitaets-karte/mobilitaet-2026-reel.mp4">Reel als MP4</a></div>
+    <p class="note">Die Markdown-Datei kannst du direkt einem KI-Agenten geben. Sie enthält keine persönlichen Daten, nur das Rezept.</p>
+
+    <h2>Und in Power BI?</h2>
+    <p>Die animierte Karte ist der Hingucker, das eigentliche Ergebnis ist aber der Datensatz dahinter. <code>mobility.json</code> ist im Kern schon ein kleines Sternschema: <strong>legs</strong> (Strecken), <strong>visits</strong> (Aufenthalte) und <strong>rides</strong> (Taxi- und Scooter-Fahrten) sind drei Faktentabellen, Datum, Ort, Land und Verkehrsmittel die Dimensionen.</p>
+    <p>Wer lieber auswertet als animiert, lädt die Datei per Power Query, ergänzt eine Kalendertabelle und hat schnell Measures wie Kilometer je Verkehrsmittel, Hotelnächte je Land oder CO₂ je Monat. Dieselbe Frage, zwei Antworten: das Reel für den Feed, der Bericht für den Blick ins Detail.</p>
+
+    <h2>Bevor du es postest</h2>
+    <p>So eine Karte ist ein ziemlich genaues Bewegungsprofil. Drei Dinge lohnen einen zweiten Blick:</p>
+    <ul>
+      <li><strong>Wohnort.</strong> Der Ausgangspunkt fast aller Linien ist gut zu erkennen. Wer das nicht will, setzt die Basis auf eine größere Stadt in der Nähe oder lässt die Heimfahrten weg.</li>
+      <li><strong>Zeitverzug.</strong> Erst posten, wenn die Reise vorbei ist, und keine laufenden Aufenthalte zeigen.</li>
+      <li><strong>Arbeit.</strong> Dienstreisen können Kunden verraten. Im Reel oben stehen kleine Orte deshalb nur als Region (etwa Oberpfalz oder Emsland), und das Datum zeigt nur den Monat. Die Kilometer bleiben dabei gleich.</li>
+    </ul>
+    <p>Kartendaten: Natural Earth über das Paket world-atlas (gemeinfrei). Emissionswerte: Umweltbundesamt. Alle Kilometer außer den Flügen sind Schätzungen aus Belegen.</p>
+    <div class="cta"><a href="beitraege.html#posts">Weitere Beiträge</a><a class="ghost" href="zugfahrten-infografik.html">Noch eine Karten-Geschichte: Die Schweiz fährt Europa davon</a></div>
+  </div>
+</div>
+</body>
+</html>

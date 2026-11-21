@@ -71,7 +71,7 @@ Microsoft Fabric bündelt den kompletten Analytics-Lebenszyklus — vom Laden de
 
 **Daten-WG dazu:**
 
-- **[Starting with Microsoft Fabric — the skills you need](https://youtu.be/m3xNYfVih0Q)** · Talk · 50 min · EN · [Knowledge Kitchen](../index.html#ep-m3xNYfVih0Q)
+- **[Starting with Microsoft Fabric — the skills you need](https://youtu.be/m3xNYfVih0Q)** · Talk · 50 min · EN · [Knowledge Kitchen](../folgen.html#ep-m3xNYfVih0Q)
 
 ### Warum wurde Fabric entwickelt?
 
@@ -143,7 +143,7 @@ Kurzfristig: wenig — Berichte, Apps, RLS und Deployment funktionieren wie bish
 
 **Daten-WG dazu:**
 
-- **[#011 · Power BI ohne Fabric? Absolut!](https://youtu.be/gMYj9UTWeWk)** · Short · 33 s · DE · [Knowledge Kitchen](../index.html#ep-gMYj9UTWeWk)
+- **[#011 · Power BI ohne Fabric? Absolut!](https://youtu.be/gMYj9UTWeWk)** · Short · 33 s · DE · [Knowledge Kitchen](../folgen.html#ep-gMYj9UTWeWk)
 
 ### Workloads & Experiences
 
@@ -200,11 +200,11 @@ Weiter vertiefen Sektion 01: Einordnung, Lizenzen & Kapazität
 
 Daten-WG · Sprung ins Video
 
-- [01:33 These: Für wen ist Microsoft Fabric?](https://www.youtube.com/watch?v=mTVeZzshLzE&t=93s)Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../index.html#ep-mTVeZzshLzE)
-- [36:01 Wann braucht man Fabric wirklich — zwischen Excel und Warehouse?](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2161s)Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../index.html#ep-mTVeZzshLzE)
-- [05:02 Vom Dashboard-Bauer zum Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc&t=302s) Power BI-Teams werden Fabric-Datendienstleister · [Karte in der Kitchen](../index.html#ep-YzfcMurbWNc)
-- [01:18 Capacities und Regionen: wo Fabric-Daten physisch liegen](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=78s) Wo liegen meine Daten wirklich im OneLake? · [Karte in der Kitchen](../index.html#ep-ZVVSPQj9dlc)
-- [11:13 Bursting & Smoothing: warum eine F4 kurz „zu viel“ CU verbraucht](https://www.youtube.com/watch?v=z51gWRc0zVc&t=673s) Dataflow Gen2 Kosten verstehen · [Karte in der Kitchen](../index.html#ep-z51gWRc0zVc)
+- [01:33 These: Für wen ist Microsoft Fabric?](https://www.youtube.com/watch?v=mTVeZzshLzE&t=93s)Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- [36:01 Wann braucht man Fabric wirklich — zwischen Excel und Warehouse?](https://www.youtube.com/watch?v=mTVeZzshLzE&t=2161s)Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- [05:02 Vom Dashboard-Bauer zum Datendienstleister](https://www.youtube.com/watch?v=YzfcMurbWNc&t=302s) Power BI-Teams werden Fabric-Datendienstleister · [Karte in der Kitchen](../folgen.html#ep-YzfcMurbWNc)
+- [01:18 Capacities und Regionen: wo Fabric-Daten physisch liegen](https://www.youtube.com/watch?v=ZVVSPQj9dlc&t=78s) Wo liegen meine Daten wirklich im OneLake? · [Karte in der Kitchen](../folgen.html#ep-ZVVSPQj9dlc)
+- [11:13 Bursting & Smoothing: warum eine F4 kurz „zu viel“ CU verbraucht](https://www.youtube.com/watch?v=z51gWRc0zVc&t=673s) Dataflow Gen2 Kosten verstehen · [Karte in der Kitchen](../folgen.html#ep-z51gWRc0zVc)
 
 DatenWG Library · Themen
 
@@ -507,7 +507,7 @@ Ein Dataflow Gen2 verbindet sich mit Hunderten Quellen, transformiert mit über 
 
 **Daten-WG dazu:**
 
-- **[Microsoft Fabric Dataflow Gen2 Kosten verstehen — CU-Verbrauch einfach erklärt](https://youtu.be/z51gWRc0zVc)** · Tutorial · 14 min · DE · [Knowledge Kitchen](../index.html#ep-z51gWRc0zVc)
+- **[Microsoft Fabric Dataflow Gen2 Kosten verstehen — CU-Verbrauch einfach erklärt](https://youtu.be/z51gWRc0zVc)** · Tutorial · 14 min · DE · [Knowledge Kitchen](../folgen.html#ep-z51gWRc0zVc)
 
 ### Notebooks & Spark
 
@@ -563,7 +563,7 @@ Schmale Gold-Tabellen sparen Speicher im Direct-Lake-Modell (es lädt nur benöt
 
 **Daten-WG dazu:**
 
-- **[SSIS: Fabric Notebook per REST API starten](https://youtu.be/NvtZ-ehiTrg)** · Tutorial · 7 min · DE · [Knowledge Kitchen](../index.html#ep-NvtZ-ehiTrg)
+- **[SSIS: Fabric Notebook per REST API starten](https://youtu.be/NvtZ-ehiTrg)** · Tutorial · 7 min · DE · [Knowledge Kitchen](../folgen.html#ep-NvtZ-ehiTrg)
 
 ### Eventhouse & Real-Time Intelligence
 
@@ -598,11 +598,11 @@ Weiter vertiefen Sektion 02: OneLake, Lakehouse, Warehouse & Data Factory
 
 Daten-WG · Sprung ins Video
 
-- [25:06 Shortcuts als Killer-Feature des Lakehouse](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s) Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../index.html#ep-mTVeZzshLzE)
-- [05:04 Shortcut Transformation: warum die ganze Partition ersetzt wird](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=304s) Shortcut Transformation erklärt · [Karte in der Kitchen](../index.html#ep-Z6RZjkn_6lY)
-- [02:10 Blick ins Delta Log — Grundlage für Time Travel](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s) Microsoft Fabric Time Travel erklärt · [Karte in der Kitchen](../index.html#ep-_AxvdCW0ST4)
-- [17:21 Immer drei Layer — und die sind nicht diskutabel](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../index.html#ep-J-lN5JN-F5I)
-- [21:26 SCD Typ 2 im Copy Job (Preview)](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1286s)Fabric & Power BI Quarterly · 2026-2 · [Karte in der Kitchen](../index.html#ep-pTTYySb0Cyg)
+- [25:06 Shortcuts als Killer-Feature des Lakehouse](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1506s) Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- [05:04 Shortcut Transformation: warum die ganze Partition ersetzt wird](https://www.youtube.com/watch?v=Z6RZjkn_6lY&t=304s) Shortcut Transformation erklärt · [Karte in der Kitchen](../folgen.html#ep-Z6RZjkn_6lY)
+- [02:10 Blick ins Delta Log — Grundlage für Time Travel](https://www.youtube.com/watch?v=_AxvdCW0ST4&t=130s) Microsoft Fabric Time Travel erklärt · [Karte in der Kitchen](../folgen.html#ep-_AxvdCW0ST4)
+- [17:21 Immer drei Layer — und die sind nicht diskutabel](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=1041s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- [21:26 SCD Typ 2 im Copy Job (Preview)](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1286s)Fabric & Power BI Quarterly · 2026-2 · [Karte in der Kitchen](../folgen.html#ep-pTTYySb0Cyg)
 
 DatenWG Library · Themen
 
@@ -695,7 +695,7 @@ Quellen für beide Varianten: Lakehouse, Warehouse, SQL database in Fabric, Mirr
 
 **Daten-WG dazu:**
 
-- **[#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://youtu.be/9u9YbdMUU-s)** · Short · 28 s · DE · [Knowledge Kitchen](../index.html#ep-9u9YbdMUU-s)
+- **[#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://youtu.be/9u9YbdMUU-s)** · Short · 28 s · DE · [Knowledge Kitchen](../folgen.html#ep-9u9YbdMUU-s)
 
 ### Guardrails & DirectQuery-Fallback
 
@@ -774,7 +774,7 @@ Drei Modi, drei Trade-offs. Die offizielle Kurzformel: Import = schnellste Abfra
 
 **Daten-WG dazu:**
 
-- **[#013 · Import, DirectQuery, Direct Lake oder Dual Mode — was ist eigentlich was?](https://youtu.be/u5JMKAM8GB0)** · Short · 85 s · DE · [Knowledge Kitchen](../index.html#ep-u5JMKAM8GB0)
+- **[#013 · Import, DirectQuery, Direct Lake oder Dual Mode — was ist eigentlich was?](https://youtu.be/u5JMKAM8GB0)** · Short · 85 s · DE · [Knowledge Kitchen](../folgen.html#ep-u5JMKAM8GB0)
 
 ### Nutzung in Power BI & XMLA
 
@@ -849,11 +849,11 @@ Weiter vertiefen Sektion 03: Semantische Modelle, Direct Lake & KI
 
 Daten-WG · Sprung ins Video
 
-- [13:40 Semantisches Modell (Direct Lake) erstellen](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=820s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../index.html#ep-c-LWoo-O5PQ)
-- [38:58 Composite Models mit Direct Lake](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s) Fabric & Power BI Quarterly · 2025 Q3 · [Karte in der Kitchen](../index.html#ep-lZvpCBMKASM)
-- [28:04 Fabric-Komplexität: Direct Lake, SQL Endpoint & Co.](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s)Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../index.html#ep-mTVeZzshLzE)
-- [13:04 Fabric Copilot im Item versus Agent Hub über Items hinweg](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) Fabric Workload Demo (Korn & Obst) · [Karte in der Kitchen](../index.html#ep-e50qKdVn-24)
-- [23:36 Kennzahlen on the fly: Agent oder semantisches Modell?](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1416s)Life-Update · State of Power BI, Fabric & AI-Tools · [Karte in der Kitchen](../index.html#ep-d3HdhRe_nK8)
+- [13:40 Semantisches Modell (Direct Lake) erstellen](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=820s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../folgen.html#ep-c-LWoo-O5PQ)
+- [38:58 Composite Models mit Direct Lake](https://www.youtube.com/watch?v=lZvpCBMKASM&t=2338s) Fabric & Power BI Quarterly · 2025 Q3 · [Karte in der Kitchen](../folgen.html#ep-lZvpCBMKASM)
+- [28:04 Fabric-Komplexität: Direct Lake, SQL Endpoint & Co.](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1684s)Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- [13:04 Fabric Copilot im Item versus Agent Hub über Items hinweg](https://www.youtube.com/watch?v=e50qKdVn-24&t=784s) Fabric Workload Demo (Korn & Obst) · [Karte in der Kitchen](../folgen.html#ep-e50qKdVn-24)
+- [23:36 Kennzahlen on the fly: Agent oder semantisches Modell?](https://www.youtube.com/watch?v=d3HdhRe_nK8&t=1416s)Life-Update · State of Power BI, Fabric & AI-Tools · [Karte in der Kitchen](../folgen.html#ep-d3HdhRe_nK8)
 
 DatenWG Library · Themen
 
@@ -904,8 +904,8 @@ Im Workspace: **New item → Lakehouse**, Namen vergeben (z. B. „wwilakehouse"
 
 **Daten-WG dazu:**
 
-- **[Fabric Planning unboxing](https://youtu.be/xCzKEIB4W5I)** · WG Special · 90 min · DE · [Knowledge Kitchen](../index.html#ep-xCzKEIB4W5I)
-- **[Fabric Planning Hands-On](https://youtu.be/YRoJ_6t3VrE)** · Hands-On · 66 min · DE · [Knowledge Kitchen](../index.html#ep-YRoJ_6t3VrE)
+- **[Fabric Planning unboxing](https://youtu.be/xCzKEIB4W5I)** · WG Special · 90 min · DE · [Knowledge Kitchen](../folgen.html#ep-xCzKEIB4W5I)
+- **[Fabric Planning Hands-On](https://youtu.be/YRoJ_6t3VrE)** · Hands-On · 66 min · DE · [Knowledge Kitchen](../folgen.html#ep-YRoJ_6t3VrE)
 
 ### Daten nach OneLake bringen
 
@@ -1084,11 +1084,11 @@ Weiter vertiefen Sektion 04: das End-to-End-Beispiel
 
 Daten-WG · Sprung ins Video
 
-- [05:35 Lakehouse anlegen](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=335s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../index.html#ep-c-LWoo-O5PQ)
-- [11:20 Daten im Lakehouse und per SQL analysieren](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=680s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../index.html#ep-c-LWoo-O5PQ)
-- [20:50 Automatische Aktualisierung — neue Daten ohne Refresh-Job](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=1250s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../index.html#ep-c-LWoo-O5PQ)
-- [08:45 On-Prem-Daten per Lakehouse-Shortcut einbinden](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=525s) Push statt Pull: On-Prem-Daten mit SSIS nach Fabric · [Karte in der Kitchen](../index.html#ep-5HhNQZlB-1E)
-- [05:39 Notebook per REST API starten](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=339s) SSIS: Fabric Notebook per REST API starten · [Karte in der Kitchen](../index.html#ep-NvtZ-ehiTrg)
+- [05:35 Lakehouse anlegen](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=335s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../folgen.html#ep-c-LWoo-O5PQ)
+- [11:20 Daten im Lakehouse und per SQL analysieren](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=680s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../folgen.html#ep-c-LWoo-O5PQ)
+- [20:50 Automatische Aktualisierung — neue Daten ohne Refresh-Job](https://www.youtube.com/watch?v=c-LWoo-O5PQ&t=1250s) SharePoint direkt in Microsoft Fabric nutzen · [Karte in der Kitchen](../folgen.html#ep-c-LWoo-O5PQ)
+- [08:45 On-Prem-Daten per Lakehouse-Shortcut einbinden](https://www.youtube.com/watch?v=5HhNQZlB-1E&t=525s) Push statt Pull: On-Prem-Daten mit SSIS nach Fabric · [Karte in der Kitchen](../folgen.html#ep-5HhNQZlB-1E)
+- [05:39 Notebook per REST API starten](https://www.youtube.com/watch?v=NvtZ-ehiTrg&t=339s) SSIS: Fabric Notebook per REST API starten · [Karte in der Kitchen](../folgen.html#ep-NvtZ-ehiTrg)
 
 DatenWG Library · Themen
 
@@ -1272,11 +1272,11 @@ Weiter vertiefen Sektion 05: Snowflake & Mirroring
 
 Daten-WG · Sprung ins Video
 
-- [24:00 Mirroring für Oracle, Snowflake, SAP](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1440s) Fabric & Power BI Quarterly · 2025 Q4 · [Karte in der Kitchen](../index.html#ep-9TsHkV8sIRo)
-- [24:38 Snowflake und Databricks bidirektional](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1478s) Fabric & Power BI Quarterly · 2026-2 · [Karte in der Kitchen](../index.html#ep-pTTYySb0Cyg)
-- [35:25 Mirroring mit Security-Rollen aus Snowflake](https://www.youtube.com/watch?v=0QZD26KPBcU&t=2125s) Fabric & Power BI Quarterly · 2026-4 · [Karte in der Kitchen](../index.html#ep-0QZD26KPBcU)
-- [02:39 Mirroring-Kostenmodell: Storage & Compute](https://www.youtube.com/watch?v=7j34Ndng0Os&t=159s) Open Mirroring in Microsoft Fabric · [Karte in der Kitchen](../index.html#ep-7j34Ndng0Os)
-- [15:49 Data-Mesh-Ansatz bei Snowflake als Alternative](https://www.youtube.com/watch?v=mTVeZzshLzE&t=949s) Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../index.html#ep-mTVeZzshLzE)
+- [24:00 Mirroring für Oracle, Snowflake, SAP](https://www.youtube.com/watch?v=9TsHkV8sIRo&t=1440s) Fabric & Power BI Quarterly · 2025 Q4 · [Karte in der Kitchen](../folgen.html#ep-9TsHkV8sIRo)
+- [24:38 Snowflake und Databricks bidirektional](https://www.youtube.com/watch?v=pTTYySb0Cyg&t=1478s) Fabric & Power BI Quarterly · 2026-2 · [Karte in der Kitchen](../folgen.html#ep-pTTYySb0Cyg)
+- [35:25 Mirroring mit Security-Rollen aus Snowflake](https://www.youtube.com/watch?v=0QZD26KPBcU&t=2125s) Fabric & Power BI Quarterly · 2026-4 · [Karte in der Kitchen](../folgen.html#ep-0QZD26KPBcU)
+- [02:39 Mirroring-Kostenmodell: Storage & Compute](https://www.youtube.com/watch?v=7j34Ndng0Os&t=159s) Open Mirroring in Microsoft Fabric · [Karte in der Kitchen](../folgen.html#ep-7j34Ndng0Os)
+- [15:49 Data-Mesh-Ansatz bei Snowflake als Alternative](https://www.youtube.com/watch?v=mTVeZzshLzE&t=949s) Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../folgen.html#ep-mTVeZzshLzE)
 
 DatenWG Library · Themen
 
@@ -1326,7 +1326,7 @@ Beruhigend: Beide speichern Delta in OneLake und teilen sich dieselbe SQL-Engine
 
 **Daten-WG dazu:**
 
-- **[600 SQL-Tabellen in Fabric](https://youtu.be/RtUiF1J5XEg)** · Talk · 35 min · DE · [Knowledge Kitchen](../index.html#ep-RtUiF1J5XEg)
+- **[600 SQL-Tabellen in Fabric](https://youtu.be/RtUiF1J5XEg)** · Talk · 35 min · DE · [Knowledge Kitchen](../folgen.html#ep-RtUiF1J5XEg)
 
 ### Copy · Dataflow · Spark · Eventstream
 
@@ -1382,7 +1382,7 @@ Die Modell-Frage stellt sich in jedem Fabric-BI-Projekt neu. Offizielle Leitlini
 
 **Daten-WG dazu:**
 
-- **[#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://youtu.be/9u9YbdMUU-s)** · Short · 28 s · DE · [Knowledge Kitchen](../index.html#ep-9u9YbdMUU-s)
+- **[#010 · Import vs. DirectQuery vs. Direct Lake — was ist schneller?](https://youtu.be/9u9YbdMUU-s)** · Short · 28 s · DE · [Knowledge Kitchen](../folgen.html#ep-9u9YbdMUU-s)
 
 ### Typische Referenzarchitekturen
 
@@ -1486,11 +1486,11 @@ Weiter vertiefen Sektion 06: Entscheidungen, Betrieb & Governance
 
 Daten-WG · Sprung ins Video
 
-- [19:45 Lakehouse vs. Warehouse — versteckte Fallstricke](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1185s) Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../index.html#ep-mTVeZzshLzE)
-- [10:45 Architekturen entstehen aus Menschen, nicht aus Vorsystemen](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=645s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../index.html#ep-J-lN5JN-F5I)
-- [39:00 Eine F2 am Limit und der Umstieg auf Stored Procedures](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../index.html#ep-J-lN5JN-F5I)
-- [21:17 Drei DevOps-Strategien für Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s) 600 SQL-Tabellen in Fabric · [Karte in der Kitchen](../index.html#ep-RtUiF1J5XEg)
-- [12:04 Kapazitätsmanagement: Praxislösungen](https://www.youtube.com/watch?v=YzfcMurbWNc&t=724s) Power BI-Teams werden Fabric-Datendienstleister · [Karte in der Kitchen](../index.html#ep-YzfcMurbWNc)
+- [19:45 Lakehouse vs. Warehouse — versteckte Fallstricke](https://www.youtube.com/watch?v=mTVeZzshLzE&t=1185s) Microsoft Fabric — braucht das wirklich jemand? · [Karte in der Kitchen](../folgen.html#ep-mTVeZzshLzE)
+- [10:45 Architekturen entstehen aus Menschen, nicht aus Vorsystemen](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=645s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- [39:00 Eine F2 am Limit und der Umstieg auf Stored Procedures](https://www.youtube.com/watch?v=J-lN5JN-F5I&t=2340s) Daten-WG Life-Update · Fabric Architekturen · [Karte in der Kitchen](../folgen.html#ep-J-lN5JN-F5I)
+- [21:17 Drei DevOps-Strategien für Fabric](https://www.youtube.com/watch?v=RtUiF1J5XEg&t=1277s) 600 SQL-Tabellen in Fabric · [Karte in der Kitchen](../folgen.html#ep-RtUiF1J5XEg)
+- [12:04 Kapazitätsmanagement: Praxislösungen](https://www.youtube.com/watch?v=YzfcMurbWNc&t=724s) Power BI-Teams werden Fabric-Datendienstleister · [Karte in der Kitchen](../folgen.html#ep-YzfcMurbWNc)
 
 DatenWG Library · Themen
 
