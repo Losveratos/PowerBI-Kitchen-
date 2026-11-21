@@ -226,4 +226,4 @@ Per Power Query laden, eine Kalendertabelle ergänzen, und Measures wie Kilomete
 Eine solche Karte ist ein ziemlich genaues Bewegungsprofil. Vor dem Posten prüfen:
 - **Wohnort:** Die Basis-Stadt ist sichtbar. Wenn du das nicht willst, setz die Basis auf eine größere Stadt in der Nähe oder lass die Heimfahrten weg.
 - **Zeitverzug:** Erst posten, wenn du schon zurück bist, und keine laufenden Reisen zeigen.
-- **Arbeit:** Dienstreisen können Kunden oder Projekte verraten. Gegebenenfalls Orte zusammenfassen („Süddeutschland“).
+- **Arbeit:** Dienstreisen können Kunden oder Projekte verraten. Kleine Orte zu Regionen zusammenfassen („Oberpfalz“, „Emsland“) und mit den Koordinaten der Region weiterrechnen; die Kilometer bleiben gleich. Im HUD das Datum nur als Monat zeigen, dann lässt sich kein einzelner Besuch mehr zuordnen.
