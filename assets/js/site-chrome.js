@@ -168,6 +168,7 @@
     '.ft-brand{font-family:var(--serif);font-size:18px;font-weight:500;color:var(--ink);display:inline-flex;align-items:center;min-height:44px;}' +
     '.ft-brand em{font-style:italic;color:var(--accent);margin-left:.3em;}' +
     '.ft-lead{max-width:56ch;margin:2px 0 26px;color:var(--mute);font-size:13.5px;line-height:1.5;}' +
+    '.ft-lead a{color:var(--ink2);text-decoration:underline;text-underline-offset:2px;}.ft-lead a:hover{color:var(--accent);}' +
     '.ft-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:24px 20px;}' +
     '.ft h2{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);margin-bottom:6px;}' +
     '.ft li a{display:inline-flex;align-items:center;min-height:32px;color:var(--ink2);line-height:1.3;}' +
@@ -399,7 +400,7 @@
     var html = '<style>' + BASE_CSS + FOOT_CSS + '</style>' +
       '<div class="ft" role="contentinfo"><div class="ft-in">' +
         '<a class="ft-brand" href="' + esc(U('index.html')) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
-        '<p class="ft-lead">Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting.</p>' +
+        '<p class="ft-lead">Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting. Lust, mit uns zu arbeiten? Die Daten-WG findest du auf ' + a('daten-wg.com', 'https://www.daten-wg.com') + '.</p>' +
         '<div class="ft-grid">' + cols + '</div>' +
         '<div class="ft-base"><span>Daten-WG Knowledge Kitchen · Michael Tenner</span>' +
           '<span>' + a('Impressum', 'impressum.html') + ' · ' + a('Datenschutz', 'datenschutz.html') + '</span></div>' +
