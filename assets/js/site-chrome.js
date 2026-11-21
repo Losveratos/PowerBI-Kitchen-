@@ -72,7 +72,7 @@
     ['Werkzeuge', [['MockupKitchen', 'mockup-kitchen.html'], ['Chart-Builder', 'business-chart-builder.html'], ['ChartKitchen Visual', 'chartkitchen-schnellstart.html'], ['P&L-Visual', 'pnl-schnellstart.html'], ['Visual-Standards-Rechner', 'visual-standards-rechner.html'], ['Alle Werkzeuge', 'beitraege.html#werkzeuge']]],
     ['Beiträge', [['Alle Beiträge', 'beitraege.html'], ['Posts', 'beitraege.html#posts'], ['Visual Stories', 'beitraege.html#stories'], ['Whitepaper', 'beitraege.html#whitepaper'], ['Talks', 'beitraege.html#talks'], ['Doku', 'beitraege.html#doku'], ['Blog', 'blog/']]],
     ['Event-Rückblick', [['Agenda 2026', 'daten-wg-agenda.html'], ['Sponsoren', 'daten-wg-sponsoren.html'], ['Spiel', 'daten-wg-game.html']]],
-    ['Abonnieren', [['YouTube', 'https://www.youtube.com/@Daten-WG'], ['Spotify', 'https://podcasters.spotify.com/pod/show/daten-wg'], ['daten-wg.com', 'https://daten-wg.com']]],
+    ['Abonnieren', [['YouTube', 'https://www.youtube.com/@Daten-WG?sub_confirmation=1'], ['Spotify', 'https://podcasters.spotify.com/pod/show/daten-wg'], ['daten-wg.com', 'https://daten-wg.com']]],
     ['Rechtliches', [['Impressum', 'impressum.html'], ['Datenschutz', 'datenschutz.html'], ['llms.txt', 'llms.txt']]]
   ];
 

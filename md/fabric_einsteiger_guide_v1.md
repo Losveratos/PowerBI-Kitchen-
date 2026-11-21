@@ -1643,7 +1643,7 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation zu Mi
 - [DatenPioniere: OneLake Shortcuts — Nutzen, Security & Anleitung (DE)](https://www.datenpioniere.de/blog/microsoft-fabric-onelake-shortcut)
 - [Mainzer Datenfabrik: OneLake vs. Lakehouse vs. Warehouse (DE)](https://www.madafa.de/blog/microsoft-fabric-onelake-vs-lakehouse-vs-warehouse)
 - [BI or DIE — deutschsprachige Community zu Power BI, Fabric & AI](https://www.biordie.com/)
-- [Will Needham: Learn Microsoft Fabric (YouTube, EN)](https://www.youtube.com/@LearnMicrosoftFabric)
+- [Will Needham: Learn Microsoft Fabric (YouTube, EN)](https://www.youtube.com/@FabricFrontiers)
 - [Daten-WG — der Kanal hinter dieser Knowledge Kitchen (DE)](https://www.youtube.com/@Daten-WG)
 
 **Microsoft Fabric End-to-End · Einsteiger-Guide · v 1** VON MICHAEL TENNER · DEUTSCH · 6 SEKTIONEN · 41 DETAIL-KARTEN

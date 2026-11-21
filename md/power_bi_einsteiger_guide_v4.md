@@ -5243,7 +5243,7 @@ Dieser Guide stützt sich auf die offizielle Microsoft-Learn-Dokumentation, die 
 - [Field Parameters](https://learn.microsoft.com/de-de/power-bi/create-reports/power-bi-field-parameters)
 - [Report-Page Tooltips](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-tooltips)
 - [Dynamische Titel · Conditional Formatting](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-conditional-format-visual-titles)
-- [Small Multiples](https://learn.microsoft.com/de-de/power-bi/create-reports/desktop-small-multiples)
+- [Small Multiples](https://learn.microsoft.com/de-de/power-bi/visuals/power-bi-visualization-small-multiples)
 
 ### Microsoft Learn · Service · Sharing · RLS
 

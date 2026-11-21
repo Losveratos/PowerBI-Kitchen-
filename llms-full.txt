@@ -3170,9 +3170,9 @@ Alle dokumentierten Werte, sortiert von hoch nach niedrig. Die Näherung in Proz
 | [Kevin Roose↗](https://venturebeat.com/ai/ai-doom-ai-boom-and-the-possible-destruction-of-humanity) | Journalismus | 2023 | 5% | 5 % |
 | [Benjamin Mann↗](https://en.wikipedia.org/wiki/P(doom)) | CEO/Industrie | 2025 | 0-10% | 5 % |
 | [Casey Newton↗](https://en.wikipedia.org/wiki/P(doom)) | Journalismus | 2023 | 5% | 5 % |
-| [KI-Domaenenexperten (XPT-Studie)↗](https://static1.squarespace.com/static/635693acf15a3e2a14a56a4a/t/64f0a7838ccbf43b6b5ee40c/1693493128111/XPT.pdf) | Prognose | 2023 | 3% (Ausloeschung) / 12% (Katastrophe) | 3 % |
+| [KI-Domaenenexperten (XPT-Studie)↗](https://forecastingresearch.org/research/existential-risk-persuasion-tournament) | Prognose | 2023 | 3% (Ausloeschung) / 12% (Katastrophe) | 3 % |
 | [Scott Aaronson↗](https://scottaaronson.blog/) | Forschung | 2023 | ~2% (klassisches AGI-Doom-Szenario) | 2 % |
-| [Superforecaster (XPT-Studie)↗](https://static1.squarespace.com/static/635693acf15a3e2a14a56a4a/t/64f0a7838ccbf43b6b5ee40c/1693493128111/XPT.pdf) | Prognose | 2023 | 0,38% | 0,38 % |
+| [Superforecaster (XPT-Studie)↗](https://forecastingresearch.org/research/existential-risk-persuasion-tournament) | Prognose | 2023 | 0,38% | 0,38 % |
 | [Yann LeCun↗](https://twitter.com/liron/status/1736555643384025428) | Forschung/Industrie | 2023 | <0,01% | 0,01 % |
 | [Marc Andreessen↗](https://a16z.com/ai-will-save-the-world/) | CEO/Industrie | 2023 | ~0% | 0 % |
 | [Grady Booch↗](https://en.wikipedia.org/wiki/P(doom)) | Forschung/Industrie | 2023 | ~0% | 0 % |
