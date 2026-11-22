@@ -10054,6 +10054,76 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B24-END
+
+// ======================================================================
+// 1.57 (B25): kein Zoom-Knopf in nicht interaktiver Ausgabe (Export, Druck, Snapshots)
+// ======================================================================
+{
+  const { b19Dv, c24, d10G, axes10E } = window.__b19;
+  const zoomBtns = id => nbQ(id, "svg text").filter(t => t.textContent === "⤢").length;
+  const chrome = id => nbQ(id, '[role="button"]').length + nbQ(id, "[tabindex]").length;
+  const titles = id => nbQ(id, '[data-icd="mult-title"]');
+  // Kachelköpfe der interaktiven Fassung: Titeltext im Zoom-Knopf
+  const btnTitles = id => nbQ(id, 'g[role="button"]').filter(g => [...g.querySelectorAll("text")].some(t => t.textContent === "⤢"))
+    .map(g => g.querySelector("text"));
+  const pos = t => [t.getAttribute("x"), t.getAttribute("y"), t.getAttribute("font-size"), t.textContent].join("/");
+
+  // ---- c562: 10G-Blasenkacheln im Export: nur Titel, gleiche Position wie im Bericht
+  addStage("c562", "B25 · 10G-Blasenkacheln im Export (allowInteractions = false): Titel ohne ⤢", 1920, 1080);
+  {
+    runCap("c562", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 50, multiplesColumns: 6 }), { data: d10G, objs: axes10E }), 1920, 1080, { noInteract: true });
+    const ts = titles("c562"), ref = btnTitles("c555");
+    check(zoomBtns("c562") === 0 && chrome("c562") === 0 && ts.length === 24 && ref.length === 24
+      && ts.every((t, i) => pos(t) === pos(ref[i])),
+      `c562: 24 Kacheltitel ohne Zoom-Knopf, an derselben Stelle wie im Bericht (${ts.length}, ${zoomBtns("c562")} ⤢, ${chrome("c562")} Knöpfe)`);
+    const cur = nbQ("c562", "svg *").filter(e => e.style && e.style.cursor === "pointer").length;
+    check(cur === 0, `c562: kein Zeiger-Cursor im Export (${cur})`);
+  }
+
+  // ---- c563: alle Kachel-Modi im Export: große Kachel, Erste Kachel groß + Top N/Rest, Zoom-Zustand
+  addStage("c563", "B25 · 13B mit großer Kachel Berlin im Export: 15 Titel, kein ⤢", 1280, 720);
+  addStage("c563b", "B25 · Erste Kachel groß, Top 2 + Rest, Bezugskachel zuerst im Export", 960, 520);
+  addStage("c563c", "B25 · Zoom-Zustand im Export: Raster statt Zoom, kein ← Chip", 1280, 720);
+  addStage("c563d", "B25 · Referenz: dieselbe 13B-Ansicht interaktiv", 1280, 720);
+  {
+    const dv13 = () => avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin" }), hbObjs);
+    runCap("c563", dv13(), 1280, 720, { noInteract: true });
+    nbSane("c563");
+    check(zoomBtns("c563") === 0 && chrome("c563") === 0 && titles("c563").length === 15 && hbMarks("c563").length === 15 && hbSpread(hbPx("c563")) < 0.002,
+      `c563: 15 Kacheln, 15 Titel, kein Zoom-Knopf, gleiche px je Einheit`);
+    // außer den Kachelköpfen zeichnet der Export dieselben Marken wie der Bericht
+    runCap("c563d", dv13(), 1280, 720);
+    const strip = (id, sel) => { const svg = document.querySelector(`#${id} svg`).cloneNode(true); svg.querySelectorAll(sel).forEach(e => e.remove());
+      return svg.innerHTML.replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N")
+        .replace(/ tabindex="0"/g, "").replace(/ style="cursor: [a-z]+;"/g, ""); };
+    const btnSel = 'g[role="button"]', ttlSel = '[data-icd="mult-title"]';
+    check(btnTitles("c563d").length === 15 && strip("c563", ttlSel) === strip("c563d", btnSel)
+      && titles("c563").every((t, i) => pos(t).split("/").slice(0, 3).join("/") === pos(btnTitles("c563d")[i]).split("/").slice(0, 3).join("/")),
+      "c563d: Export und Bericht gleich bis auf Kachelköpfe, Fokus und Cursor; Titel an derselben Stelle");
+    runCap("c563b", avgDv(hb13.slice(0, 5), { multiplesHero: true, multiplesTopN: 2, showAbsoluteVariance: false, showRelativeVariance: false }), 960, 520, { noInteract: true });
+    nbSane("c563b");
+    const tb = titles("c563b").map(t => t.textContent);
+    check(zoomBtns("c563b") === 0 && chrome("c563b") === 0 && tb.length === 4 && /^Σ/.test(tb[0]) && /^(Rest|Other)/.test(tb[3]),
+      `c563b: Σ, zwei Gruppen und Rest ohne Zoom-Knopf (${tb.join(" | ")})`);
+    const rs = runCap("c563c", dv13(), 1280, 720, { noInteract: true });
+    rs.v.zoomGroup = "Köln"; rs.upd(dv13());
+    check(zoomBtns("c563c") === 0 && chrome("c563c") === 0 && titles("c563c").length === 15 && !nbTexts("c563c").includes("← Alle Gruppen"),
+      "c563c: Export zeigt das Raster auch bei gesetztem Zoom, ohne Zurück-Chip");
+  }
+
+  // ---- c564: Legende mit Anteil und Σ in schmaler Kachel (Befund des Exportfalls bubblesMult)
+  addStage("c564", "B25 · Blasenlegende auf 400 px: Gruppen werden zu „+n“, Anteil und Σ bleiben im Visual", 400, 460);
+  {
+    const d2 = { Germany: d10G.Germany, France: d10G.France, Italy: d10G.Italy };
+    runCap("c564", b19Dv(c24(), { data: d2, objs: axes10E }), 400, 460, { noInteract: true });
+    const lg = nbQ("c564", ".icd-scatter-legend")[0], r = lg && lg.getBBox();
+    const more = nbQ("c564", ".icd-scatter-legend text").map(t => t.textContent).filter(t => /^\+\d/.test(t));
+    check(!!lg && r.x + r.width <= 400 && nbQ("c564", '[data-icd="scatter-legend-share"]').length === 1
+      && nbQ("c564", '[data-icd="scatter-legend-total"]').length === 1 && more.length === 1,
+      `c564: Legende endet bei ${r && (r.x + r.width).toFixed(0)} px, „${more.join()}“, Anteil und Σ vorhanden`);
+  }
+}
+// ---- B25-END
 </script>
 </body>
 </html>

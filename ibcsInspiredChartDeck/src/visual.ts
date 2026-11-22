@@ -7900,6 +7900,8 @@ export class Visual implements IVisual {
         // group may share (own rest title "R1" next to the group "R1")
         const zoomKey = (g: { name: string | null; kind?: "total" | "rest" }) =>
             g.kind ? `\u0001${g.kind}` : (g.name ?? "");
+        // 1.57 (B25): non-interactive output always shows the grid (no ← chip)
+        if (this.zoomGroup != null && !this.allowInteractions) { this.zoomGroup = null; }
         if (this.zoomGroup != null) {
             const grp = groups.find(g => zoomKey(g) === this.zoomGroup);
             if (grp && span) {
@@ -8255,6 +8257,17 @@ export class Visual implements IVisual {
         title: string, groupName: string, cfg: ChartConfig, zoomKey: string = groupName): void {
         const k = this.fontK;
         const gtFont = Math.round(11 * k);
+        // 1.57 (B25): non-interactive output (PDF/PowerPoint export, print, report
+        // server snapshots: hostCapabilities.allowInteractions === false) gets the
+        // title alone; no zoom button, no ⤢, no focus stop, no pointer cursor
+        if (!this.allowInteractions) {
+            const tt = this.el("text", {
+                x: x + 6, y: y + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
+                "font-family": FONT, "font-weight": 600, "data-icd": "mult-title"
+            }, this.svg);
+            tt.textContent = this.truncate(title, w - 12, gtFont);
+            return;
+        }
         const btn = this.el("g", { tabindex: "0", role: "button" }, this.svg) as SVGGElement;
         btn.setAttribute("aria-label", `${groupName} ${this.locStr("Btn_Zoom", "enlarge (click the title row)")}`);
         const zoomTip = this.el("title", {}, btn);
@@ -15281,6 +15294,11 @@ export class Visual implements IVisual {
         const named = entries.slice(0, pal.length);
         const restN = entries.length - named.length;
         const restTxt = (n: number) => `+${n} ${this.locStr("Scatter_LegendMore", "further")}`;
+        // 1.57 (B25, found by the bubble-tile export case): the share and Σ entries at
+        // the end take their room from the group entries (before, they ran past the
+        // right edge, and a "+n" summary dropped them)
+        const tailW = [emphEntry, shareEntry, totalEntry].filter(s => s)
+            .reduce((a, s) => a + 2 * r + 4 + this.textWidth(s, f) + 12, 0);
         // v3 shapes: the legend glyph repeats the group's shape (HC: outline style)
         const glyph = (i: number, col: string, gx: number) => {
             const attrs = cfg.hc
@@ -15297,10 +15315,19 @@ export class Visual implements IVisual {
             const left = named.length - i - 1 + restN;
             const tw = this.textWidth(name, f);
             const need = 2 * r + 4 + tw + 12;
-            const reserve = left > 0 ? this.textWidth(restTxt(left), f) + 2 * r + 8 : 0;
+            // the tail is reserved only when the rest of the line (groups, "+n" dot, tail)
+            // would not fit anyway, so a legend that fits keeps its entries
+            const restAll = named.slice(i).reduce((a, [nm]) => a + 2 * r + 4 + this.textWidth(nm, f) + 12, 0)
+                + (restN > 0 ? 2 * r + 4 + this.textWidth(restTxt(restN), f) + 12 : 0) + tailW;
+            const tailRes = tailW > 0 && x + restAll - 12 > width - 6 ? tailW : 0;
+            const reserve = (left > 0 ? this.textWidth(restTxt(left), f) + 2 * r + 8 : 0) + tailRes;
             if (x + need + reserve > width - 6 && i > 0) {
                 const t = this.el("text", { x, y: base, "font-size": f, fill: cfg.subtle, "font-family": FONT }, g);
                 t.textContent = restTxt(entries.length - i);
+                if (tailW > 0) {
+                    x += this.textWidth(restTxt(entries.length - i), f) + 12;
+                    tail();
+                }
                 return h;
             }
             glyph(i, col, x);
