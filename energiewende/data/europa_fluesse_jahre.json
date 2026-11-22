@@ -1,0 +1,1952 @@
+{
+ "cbpf": {
+  "2015": {
+   "Austria": {
+    "import_TWh": 0.17,
+    "export_TWh": 8.97,
+    "netto_import_TWh": -8.8,
+    "max_import_GW_h": 1.17,
+    "max_export_GW_h": 2.88,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "Czech Republic": {
+    "import_TWh": 2.27,
+    "export_TWh": 2.48,
+    "netto_import_TWh": -0.21,
+    "max_import_GW_h": 2.06,
+    "max_export_GW_h": 1.87,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "Denmark": {
+    "import_TWh": 4.3,
+    "export_TWh": 2.02,
+    "netto_import_TWh": 2.28,
+    "max_import_GW_h": 2.19,
+    "max_export_GW_h": 2.22,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "France": {
+    "import_TWh": 11.49,
+    "export_TWh": 0.79,
+    "netto_import_TWh": 10.7,
+    "max_import_GW_h": 4.93,
+    "max_export_GW_h": 1.99,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "Netherlands": {
+    "import_TWh": 0.03,
+    "export_TWh": 19.7,
+    "netto_import_TWh": -19.67,
+    "max_import_GW_h": 1.32,
+    "max_export_GW_h": 4.67,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "Poland": {
+    "import_TWh": 0.0,
+    "export_TWh": 10.73,
+    "netto_import_TWh": -10.73,
+    "max_import_GW_h": 0.21,
+    "max_export_GW_h": 2.19,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "Sweden": {
+    "import_TWh": 1.91,
+    "export_TWh": 0.15,
+    "netto_import_TWh": 1.76,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "Switzerland": {
+    "import_TWh": 1.05,
+    "export_TWh": 14.08,
+    "netto_import_TWh": -13.03,
+    "max_import_GW_h": 2.57,
+    "max_export_GW_h": 4.52,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   },
+   "sum": {
+    "import_TWh": 1.76,
+    "export_TWh": 39.46,
+    "netto_import_TWh": -37.69,
+    "max_import_GW_h": 7.28,
+    "max_export_GW_h": 13.53,
+    "fehlende_werte": 0,
+    "punkte": 35036
+   }
+  },
+  "2016": {
+   "Austria": {
+    "import_TWh": 0.33,
+    "export_TWh": 7.63,
+    "netto_import_TWh": -7.3,
+    "max_import_GW_h": 1.39,
+    "max_export_GW_h": 2.82,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Czech Republic": {
+    "import_TWh": 2.11,
+    "export_TWh": 3.48,
+    "netto_import_TWh": -1.36,
+    "max_import_GW_h": 2.79,
+    "max_export_GW_h": 2.65,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Denmark": {
+    "import_TWh": 2.15,
+    "export_TWh": 4.62,
+    "netto_import_TWh": -2.48,
+    "max_import_GW_h": 1.72,
+    "max_export_GW_h": 2.37,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "France": {
+    "import_TWh": 7.61,
+    "export_TWh": 2.0,
+    "netto_import_TWh": 5.61,
+    "max_import_GW_h": 4.25,
+    "max_export_GW_h": 2.97,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Netherlands": {
+    "import_TWh": 0.2,
+    "export_TWh": 13.71,
+    "netto_import_TWh": -13.51,
+    "max_import_GW_h": 2.75,
+    "max_export_GW_h": 3.82,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Poland": {
+    "import_TWh": 0.0,
+    "export_TWh": 8.83,
+    "netto_import_TWh": -8.82,
+    "max_import_GW_h": 0.23,
+    "max_export_GW_h": 2.23,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Sweden": {
+    "import_TWh": 1.46,
+    "export_TWh": 0.8,
+    "netto_import_TWh": 0.66,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Switzerland": {
+    "import_TWh": 1.03,
+    "export_TWh": 15.61,
+    "netto_import_TWh": -14.58,
+    "max_import_GW_h": 3.0,
+    "max_export_GW_h": 5.52,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "sum": {
+    "import_TWh": 1.22,
+    "export_TWh": 43.0,
+    "netto_import_TWh": -41.79,
+    "max_import_GW_h": 6.55,
+    "max_export_GW_h": 14.13,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   }
+  },
+  "2017": {
+   "Austria": {
+    "import_TWh": 0.16,
+    "export_TWh": 8.74,
+    "netto_import_TWh": -8.59,
+    "max_import_GW_h": 1.14,
+    "max_export_GW_h": 2.66,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 1.82,
+    "export_TWh": 5.33,
+    "netto_import_TWh": -3.51,
+    "max_import_GW_h": 2.83,
+    "max_export_GW_h": 2.79,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 4.59,
+    "export_TWh": 3.44,
+    "netto_import_TWh": 1.15,
+    "max_import_GW_h": 2.12,
+    "max_export_GW_h": 2.31,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 6.24,
+    "export_TWh": 2.16,
+    "netto_import_TWh": 4.08,
+    "max_import_GW_h": 4.11,
+    "max_export_GW_h": 3.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 2.18,
+    "netto_import_TWh": -2.18,
+    "max_import_GW_h": 0.0,
+    "max_export_GW_h": 0.85,
+    "fehlende_werte": 14492,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 0.43,
+    "export_TWh": 14.19,
+    "netto_import_TWh": -13.77,
+    "max_import_GW_h": 3.27,
+    "max_export_GW_h": 4.69,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.0,
+    "export_TWh": 7.35,
+    "netto_import_TWh": -7.35,
+    "max_import_GW_h": 0.23,
+    "max_export_GW_h": 1.52,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 2.14,
+    "export_TWh": 0.25,
+    "netto_import_TWh": 1.88,
+    "max_import_GW_h": 0.62,
+    "max_export_GW_h": 0.59,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 0.38,
+    "export_TWh": 18.15,
+    "netto_import_TWh": -17.76,
+    "max_import_GW_h": 2.56,
+    "max_export_GW_h": 5.32,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 0.75,
+    "export_TWh": 46.79,
+    "netto_import_TWh": -46.05,
+    "max_import_GW_h": 5.49,
+    "max_export_GW_h": 14.67,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2018": {
+   "Austria": {
+    "import_TWh": 0.36,
+    "export_TWh": 9.77,
+    "netto_import_TWh": -9.41,
+    "max_import_GW_h": 1.66,
+    "max_export_GW_h": 3.9,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 2.38,
+    "export_TWh": 5.09,
+    "netto_import_TWh": -2.71,
+    "max_import_GW_h": 3.03,
+    "max_export_GW_h": 2.67,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 3.97,
+    "export_TWh": 5.41,
+    "netto_import_TWh": -1.44,
+    "max_import_GW_h": 2.13,
+    "max_export_GW_h": 2.21,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 10.25,
+    "export_TWh": 1.8,
+    "netto_import_TWh": 8.45,
+    "max_import_GW_h": 4.56,
+    "max_export_GW_h": 3.51,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 4.14,
+    "netto_import_TWh": -4.14,
+    "max_import_GW_h": -0.04,
+    "max_export_GW_h": 0.82,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 0.03,
+    "export_TWh": 19.49,
+    "netto_import_TWh": -19.46,
+    "max_import_GW_h": 1.47,
+    "max_export_GW_h": 5.17,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.02,
+    "export_TWh": 7.06,
+    "netto_import_TWh": -7.04,
+    "max_import_GW_h": 0.62,
+    "max_export_GW_h": 2.14,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 1.28,
+    "export_TWh": 0.45,
+    "netto_import_TWh": 0.83,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.59,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 2.08,
+    "export_TWh": 15.2,
+    "netto_import_TWh": -13.11,
+    "max_import_GW_h": 2.88,
+    "max_export_GW_h": 5.35,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 1.18,
+    "export_TWh": 49.22,
+    "netto_import_TWh": -48.05,
+    "max_import_GW_h": 6.88,
+    "max_export_GW_h": 16.42,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2019": {
+   "Austria": {
+    "import_TWh": 0.25,
+    "export_TWh": 12.19,
+    "netto_import_TWh": -11.94,
+    "max_import_GW_h": 1.55,
+    "max_export_GW_h": 3.72,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 1.65,
+    "export_TWh": 5.6,
+    "netto_import_TWh": -3.95,
+    "max_import_GW_h": 2.37,
+    "max_export_GW_h": 2.86,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 2.66,
+    "export_TWh": 6.11,
+    "netto_import_TWh": -3.45,
+    "max_import_GW_h": 2.03,
+    "max_export_GW_h": 2.24,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 14.83,
+    "export_TWh": 1.72,
+    "netto_import_TWh": 13.11,
+    "max_import_GW_h": 5.22,
+    "max_export_GW_h": 3.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 4.03,
+    "netto_import_TWh": -4.03,
+    "max_import_GW_h": -0.04,
+    "max_export_GW_h": 0.79,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 2.95,
+    "export_TWh": 9.14,
+    "netto_import_TWh": -6.19,
+    "max_import_GW_h": 4.42,
+    "max_export_GW_h": 5.07,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.01,
+    "export_TWh": 10.07,
+    "netto_import_TWh": -10.06,
+    "max_import_GW_h": 0.51,
+    "max_export_GW_h": 2.03,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 1.31,
+    "export_TWh": 0.56,
+    "netto_import_TWh": 0.74,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 3.43,
+    "export_TWh": 11.81,
+    "netto_import_TWh": -8.37,
+    "max_import_GW_h": 3.76,
+    "max_export_GW_h": 5.23,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 7.06,
+    "export_TWh": 41.22,
+    "netto_import_TWh": -34.15,
+    "max_import_GW_h": 11.82,
+    "max_export_GW_h": 16.05,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2020": {
+   "Austria": {
+    "import_TWh": 1.15,
+    "export_TWh": 10.85,
+    "netto_import_TWh": -9.7,
+    "max_import_GW_h": 2.37,
+    "max_export_GW_h": 3.73,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Belgium": {
+    "import_TWh": 0.12,
+    "export_TWh": 0.33,
+    "netto_import_TWh": -0.21,
+    "max_import_GW_h": 1.02,
+    "max_export_GW_h": 1.01,
+    "fehlende_werte": 23420,
+    "punkte": 35136
+   },
+   "Czech Republic": {
+    "import_TWh": 1.52,
+    "export_TWh": 7.5,
+    "netto_import_TWh": -5.98,
+    "max_import_GW_h": 2.65,
+    "max_export_GW_h": 2.83,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Denmark": {
+    "import_TWh": 5.68,
+    "export_TWh": 2.6,
+    "netto_import_TWh": 3.08,
+    "max_import_GW_h": 3.16,
+    "max_export_GW_h": 3.1,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "France": {
+    "import_TWh": 12.1,
+    "export_TWh": 1.9,
+    "netto_import_TWh": 10.21,
+    "max_import_GW_h": 4.76,
+    "max_export_GW_h": 3.54,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.59,
+    "netto_import_TWh": -3.59,
+    "max_import_GW_h": 0.01,
+    "max_export_GW_h": 0.77,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Netherlands": {
+    "import_TWh": 5.79,
+    "export_TWh": 5.85,
+    "netto_import_TWh": -0.06,
+    "max_import_GW_h": 4.79,
+    "max_export_GW_h": 4.21,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Norway": {
+    "import_TWh": 0.19,
+    "export_TWh": 0.05,
+    "netto_import_TWh": 0.14,
+    "max_import_GW_h": 1.4,
+    "max_export_GW_h": 1.45,
+    "fehlende_werte": 23420,
+    "punkte": 35136
+   },
+   "Poland": {
+    "import_TWh": 0.0,
+    "export_TWh": 11.23,
+    "netto_import_TWh": -11.22,
+    "max_import_GW_h": 0.64,
+    "max_export_GW_h": 2.17,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Sweden": {
+    "import_TWh": 2.5,
+    "export_TWh": 0.39,
+    "netto_import_TWh": 2.11,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Switzerland": {
+    "import_TWh": 5.17,
+    "export_TWh": 9.76,
+    "netto_import_TWh": -4.59,
+    "max_import_GW_h": 5.25,
+    "max_export_GW_h": 4.69,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "sum": {
+    "import_TWh": 11.22,
+    "export_TWh": 31.02,
+    "netto_import_TWh": -19.8,
+    "max_import_GW_h": 13.33,
+    "max_export_GW_h": 16.25,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   }
+  },
+  "2021": {
+   "Austria": {
+    "import_TWh": 1.3,
+    "export_TWh": 9.53,
+    "netto_import_TWh": -8.23,
+    "max_import_GW_h": 2.33,
+    "max_export_GW_h": 4.16,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 1.79,
+    "export_TWh": 2.58,
+    "netto_import_TWh": -0.79,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 3.42,
+    "export_TWh": 3.68,
+    "netto_import_TWh": -0.26,
+    "max_import_GW_h": 3.54,
+    "max_export_GW_h": 2.9,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 7.29,
+    "export_TWh": 3.14,
+    "netto_import_TWh": 4.15,
+    "max_import_GW_h": 3.29,
+    "max_export_GW_h": 3.69,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 9.26,
+    "export_TWh": 3.71,
+    "netto_import_TWh": 5.54,
+    "max_import_GW_h": 4.78,
+    "max_export_GW_h": 4.46,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.11,
+    "netto_import_TWh": -3.11,
+    "max_import_GW_h": -0.01,
+    "max_export_GW_h": 0.78,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 4.47,
+    "export_TWh": 5.92,
+    "netto_import_TWh": -1.44,
+    "max_import_GW_h": 4.58,
+    "max_export_GW_h": 4.55,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 4.29,
+    "export_TWh": 1.12,
+    "netto_import_TWh": 3.17,
+    "max_import_GW_h": 1.41,
+    "max_export_GW_h": 1.45,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.13,
+    "export_TWh": 8.54,
+    "netto_import_TWh": -8.41,
+    "max_import_GW_h": 0.94,
+    "max_export_GW_h": 2.35,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 2.22,
+    "export_TWh": 0.28,
+    "netto_import_TWh": 1.94,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 1.32,
+    "export_TWh": 13.87,
+    "netto_import_TWh": -12.55,
+    "max_import_GW_h": 2.96,
+    "max_export_GW_h": 4.98,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 10.55,
+    "export_TWh": 30.51,
+    "netto_import_TWh": -19.97,
+    "max_import_GW_h": 12.59,
+    "max_export_GW_h": 15.61,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2022": {
+   "Austria": {
+    "import_TWh": 0.79,
+    "export_TWh": 10.32,
+    "netto_import_TWh": -9.53,
+    "max_import_GW_h": 2.22,
+    "max_export_GW_h": 4.24,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 1.84,
+    "export_TWh": 3.23,
+    "netto_import_TWh": -1.39,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 3.62,
+    "export_TWh": 3.69,
+    "netto_import_TWh": -0.07,
+    "max_import_GW_h": 3.76,
+    "max_export_GW_h": 2.48,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 8.8,
+    "export_TWh": 2.27,
+    "netto_import_TWh": 6.53,
+    "max_import_GW_h": 3.43,
+    "max_export_GW_h": 3.53,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 2.95,
+    "export_TWh": 8.42,
+    "netto_import_TWh": -5.47,
+    "max_import_GW_h": 4.37,
+    "max_export_GW_h": 4.92,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.19,
+    "netto_import_TWh": -3.19,
+    "max_import_GW_h": 0.03,
+    "max_export_GW_h": 0.82,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 5.78,
+    "export_TWh": 3.88,
+    "netto_import_TWh": 1.9,
+    "max_import_GW_h": 5.4,
+    "max_export_GW_h": 5.12,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 5.42,
+    "export_TWh": 1.64,
+    "netto_import_TWh": 3.78,
+    "max_import_GW_h": 1.41,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.14,
+    "export_TWh": 8.23,
+    "netto_import_TWh": -8.09,
+    "max_import_GW_h": 1.73,
+    "max_export_GW_h": 2.15,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 3.17,
+    "export_TWh": 0.09,
+    "netto_import_TWh": 3.07,
+    "max_import_GW_h": 0.72,
+    "max_export_GW_h": 0.59,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 0.75,
+    "export_TWh": 16.14,
+    "netto_import_TWh": -15.39,
+    "max_import_GW_h": 3.44,
+    "max_export_GW_h": 5.07,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 8.35,
+    "export_TWh": 36.2,
+    "netto_import_TWh": -27.84,
+    "max_import_GW_h": 11.38,
+    "max_export_GW_h": 15.42,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2023": {
+   "Austria": {
+    "import_TWh": 3.43,
+    "export_TWh": 6.42,
+    "netto_import_TWh": -2.99,
+    "max_import_GW_h": 3.21,
+    "max_export_GW_h": 3.51,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 2.52,
+    "export_TWh": 2.47,
+    "netto_import_TWh": 0.04,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 4.67,
+    "export_TWh": 3.59,
+    "netto_import_TWh": 1.08,
+    "max_import_GW_h": 3.95,
+    "max_export_GW_h": 2.81,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 8.59,
+    "export_TWh": 2.62,
+    "netto_import_TWh": 5.97,
+    "max_import_GW_h": 3.45,
+    "max_export_GW_h": 3.52,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 12.7,
+    "export_TWh": 3.43,
+    "netto_import_TWh": 9.26,
+    "max_import_GW_h": 4.52,
+    "max_export_GW_h": 4.77,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 2.55,
+    "netto_import_TWh": -2.55,
+    "max_import_GW_h": 0.1,
+    "max_export_GW_h": 0.77,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 6.7,
+    "export_TWh": 4.79,
+    "netto_import_TWh": 1.91,
+    "max_import_GW_h": 5.94,
+    "max_export_GW_h": 4.74,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 6.17,
+    "export_TWh": 1.64,
+    "netto_import_TWh": 4.53,
+    "max_import_GW_h": 1.41,
+    "max_export_GW_h": 1.44,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.45,
+    "export_TWh": 7.93,
+    "netto_import_TWh": -7.47,
+    "max_import_GW_h": 1.9,
+    "max_export_GW_h": 2.12,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 3.22,
+    "export_TWh": 0.35,
+    "netto_import_TWh": 2.87,
+    "max_import_GW_h": 0.62,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 4.04,
+    "export_TWh": 7.78,
+    "netto_import_TWh": -3.75,
+    "max_import_GW_h": 4.55,
+    "max_export_GW_h": 4.58,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 29.84,
+    "export_TWh": 20.92,
+    "netto_import_TWh": 8.92,
+    "max_import_GW_h": 16.9,
+    "max_export_GW_h": 18.92,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2024": {
+   "Austria": {
+    "import_TWh": 3.56,
+    "export_TWh": 5.64,
+    "netto_import_TWh": -2.09,
+    "max_import_GW_h": 2.96,
+    "max_export_GW_h": 3.54,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Belgium": {
+    "import_TWh": 4.39,
+    "export_TWh": 1.69,
+    "netto_import_TWh": 2.7,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Czech Republic": {
+    "import_TWh": 2.37,
+    "export_TWh": 6.25,
+    "netto_import_TWh": -3.87,
+    "max_import_GW_h": 3.43,
+    "max_export_GW_h": 3.14,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Denmark": {
+    "import_TWh": 10.34,
+    "export_TWh": 2.94,
+    "netto_import_TWh": 7.4,
+    "max_import_GW_h": 3.74,
+    "max_export_GW_h": 3.56,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "France": {
+    "import_TWh": 20.29,
+    "export_TWh": 0.51,
+    "netto_import_TWh": 19.77,
+    "max_import_GW_h": 4.63,
+    "max_export_GW_h": 3.41,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 2.82,
+    "netto_import_TWh": -2.81,
+    "max_import_GW_h": 0.09,
+    "max_export_GW_h": 0.83,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Netherlands": {
+    "import_TWh": 5.84,
+    "export_TWh": 5.89,
+    "netto_import_TWh": -0.05,
+    "max_import_GW_h": 5.17,
+    "max_export_GW_h": 4.77,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Norway": {
+    "import_TWh": 7.0,
+    "export_TWh": 1.22,
+    "netto_import_TWh": 5.78,
+    "max_import_GW_h": 1.41,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Poland": {
+    "import_TWh": 0.54,
+    "export_TWh": 9.35,
+    "netto_import_TWh": -8.81,
+    "max_import_GW_h": 2.17,
+    "max_export_GW_h": 2.27,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Sweden": {
+    "import_TWh": 2.99,
+    "export_TWh": 0.37,
+    "netto_import_TWh": 2.62,
+    "max_import_GW_h": 0.62,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Switzerland": {
+    "import_TWh": 8.34,
+    "export_TWh": 3.85,
+    "netto_import_TWh": 4.49,
+    "max_import_GW_h": 4.25,
+    "max_export_GW_h": 5.14,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "sum": {
+    "import_TWh": 38.47,
+    "export_TWh": 13.33,
+    "netto_import_TWh": 25.14,
+    "max_import_GW_h": 17.34,
+    "max_export_GW_h": 16.22,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   }
+  },
+  "2025": {
+   "Austria": {
+    "import_TWh": 1.62,
+    "export_TWh": 9.23,
+    "netto_import_TWh": -7.62,
+    "max_import_GW_h": 2.88,
+    "max_export_GW_h": 4.02,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 4.5,
+    "export_TWh": 1.61,
+    "netto_import_TWh": 2.89,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 1.94,
+    "export_TWh": 7.26,
+    "netto_import_TWh": -5.32,
+    "max_import_GW_h": 3.51,
+    "max_export_GW_h": 2.79,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 10.61,
+    "export_TWh": 2.95,
+    "netto_import_TWh": 7.67,
+    "max_import_GW_h": 3.44,
+    "max_export_GW_h": 3.5,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 20.74,
+    "export_TWh": 0.71,
+    "netto_import_TWh": 20.03,
+    "max_import_GW_h": 4.6,
+    "max_export_GW_h": 4.21,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.01,
+    "export_TWh": 2.63,
+    "netto_import_TWh": -2.62,
+    "max_import_GW_h": 0.16,
+    "max_export_GW_h": 0.83,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 9.64,
+    "export_TWh": 3.76,
+    "netto_import_TWh": 5.87,
+    "max_import_GW_h": 6.23,
+    "max_export_GW_h": 5.42,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 7.79,
+    "export_TWh": 0.77,
+    "netto_import_TWh": 7.02,
+    "max_import_GW_h": 1.41,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.67,
+    "export_TWh": 9.87,
+    "netto_import_TWh": -9.2,
+    "max_import_GW_h": 2.23,
+    "max_export_GW_h": 2.71,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 2.86,
+    "export_TWh": 0.44,
+    "netto_import_TWh": 2.42,
+    "max_import_GW_h": 0.62,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 3.63,
+    "export_TWh": 6.56,
+    "netto_import_TWh": -2.93,
+    "max_import_GW_h": 3.88,
+    "max_export_GW_h": 4.01,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 32.02,
+    "export_TWh": 13.82,
+    "netto_import_TWh": 18.21,
+    "max_import_GW_h": 16.69,
+    "max_export_GW_h": 17.26,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  }
+ },
+ "cbet": {
+  "2018": {
+   "Austria": {
+    "import_TWh": 0.58,
+    "export_TWh": 25.77,
+    "netto_import_TWh": -25.19,
+    "max_import_GW_h": 4.79,
+    "max_export_GW_h": 9.32,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 4.42,
+    "export_TWh": 2.24,
+    "netto_import_TWh": 2.18,
+    "max_import_GW_h": 3.15,
+    "max_export_GW_h": 2.45,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 5.11,
+    "export_TWh": 4.99,
+    "netto_import_TWh": 0.12,
+    "max_import_GW_h": 2.13,
+    "max_export_GW_h": 2.38,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 3.72,
+    "export_TWh": 12.05,
+    "netto_import_TWh": -8.34,
+    "max_import_GW_h": 5.48,
+    "max_export_GW_h": 9.16,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 4.21,
+    "netto_import_TWh": -4.21,
+    "max_import_GW_h": -0.22,
+    "max_export_GW_h": 0.68,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 0.08,
+    "export_TWh": 14.62,
+    "netto_import_TWh": -14.53,
+    "max_import_GW_h": 2.76,
+    "max_export_GW_h": 5.93,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.78,
+    "export_TWh": 1.67,
+    "netto_import_TWh": -0.88,
+    "max_import_GW_h": 1.42,
+    "max_export_GW_h": 0.78,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 1.32,
+    "export_TWh": 0.47,
+    "netto_import_TWh": 0.85,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 0.61,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 3.1,
+    "export_TWh": 7.28,
+    "netto_import_TWh": -4.19,
+    "max_import_GW_h": 4.0,
+    "max_export_GW_h": 2.28,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 1.13,
+    "export_TWh": 55.32,
+    "netto_import_TWh": -54.19,
+    "max_import_GW_h": 7.11,
+    "max_export_GW_h": 20.22,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2019": {
+   "Austria": {
+    "import_TWh": 0.7,
+    "export_TWh": 20.32,
+    "netto_import_TWh": -19.62,
+    "max_import_GW_h": 4.07,
+    "max_export_GW_h": 6.19,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 1.79,
+    "export_TWh": 3.73,
+    "netto_import_TWh": -1.94,
+    "max_import_GW_h": 2.7,
+    "max_export_GW_h": 2.52,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 4.16,
+    "export_TWh": 6.08,
+    "netto_import_TWh": -1.92,
+    "max_import_GW_h": 2.02,
+    "max_export_GW_h": 2.1,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 7.81,
+    "export_TWh": 10.26,
+    "netto_import_TWh": -2.45,
+    "max_import_GW_h": 6.33,
+    "max_export_GW_h": 9.3,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 4.19,
+    "netto_import_TWh": -4.19,
+    "max_import_GW_h": -0.26,
+    "max_export_GW_h": 0.68,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 2.66,
+    "export_TWh": 6.68,
+    "netto_import_TWh": -4.02,
+    "max_import_GW_h": 5.93,
+    "max_export_GW_h": 5.37,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 0.14,
+    "export_TWh": 2.48,
+    "netto_import_TWh": -2.33,
+    "max_import_GW_h": 1.4,
+    "max_export_GW_h": 1.47,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 1.33,
+    "export_TWh": 0.58,
+    "netto_import_TWh": 0.75,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.61,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 5.4,
+    "export_TWh": 4.83,
+    "netto_import_TWh": 0.56,
+    "max_import_GW_h": 4.0,
+    "max_export_GW_h": 2.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 7.48,
+    "export_TWh": 42.65,
+    "netto_import_TWh": -35.17,
+    "max_import_GW_h": 12.61,
+    "max_export_GW_h": 16.59,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2020": {
+   "Austria": {
+    "import_TWh": 1.73,
+    "export_TWh": 20.2,
+    "netto_import_TWh": -18.47,
+    "max_import_GW_h": 4.33,
+    "max_export_GW_h": 6.72,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Belgium": {
+    "import_TWh": 0.11,
+    "export_TWh": 0.26,
+    "netto_import_TWh": -0.14,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 29280,
+    "punkte": 35136
+   },
+   "Czech Republic": {
+    "import_TWh": 1.57,
+    "export_TWh": 5.34,
+    "netto_import_TWh": -3.77,
+    "max_import_GW_h": 2.4,
+    "max_export_GW_h": 2.6,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Denmark": {
+    "import_TWh": 9.01,
+    "export_TWh": 2.07,
+    "netto_import_TWh": 6.94,
+    "max_import_GW_h": 3.17,
+    "max_export_GW_h": 3.5,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "France": {
+    "import_TWh": 6.67,
+    "export_TWh": 8.26,
+    "netto_import_TWh": -1.6,
+    "max_import_GW_h": 6.99,
+    "max_export_GW_h": 6.72,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.79,
+    "netto_import_TWh": -3.79,
+    "max_import_GW_h": -0.22,
+    "max_export_GW_h": 0.67,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Netherlands": {
+    "import_TWh": 5.61,
+    "export_TWh": 4.01,
+    "netto_import_TWh": 1.6,
+    "max_import_GW_h": 5.71,
+    "max_export_GW_h": 4.35,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Norway": {
+    "import_TWh": 0.19,
+    "export_TWh": 0.03,
+    "netto_import_TWh": 0.16,
+    "max_import_GW_h": 0.7,
+    "max_export_GW_h": 0.7,
+    "fehlende_werte": 23420,
+    "punkte": 35136
+   },
+   "Poland": {
+    "import_TWh": 0.37,
+    "export_TWh": 3.28,
+    "netto_import_TWh": -2.92,
+    "max_import_GW_h": 1.11,
+    "max_export_GW_h": 1.33,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Sweden": {
+    "import_TWh": 2.54,
+    "export_TWh": 0.4,
+    "netto_import_TWh": 2.14,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.63,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Switzerland": {
+    "import_TWh": 5.88,
+    "export_TWh": 4.54,
+    "netto_import_TWh": 1.34,
+    "max_import_GW_h": 4.0,
+    "max_export_GW_h": 2.0,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "sum": {
+    "import_TWh": 11.26,
+    "export_TWh": 29.76,
+    "netto_import_TWh": -18.5,
+    "max_import_GW_h": 13.59,
+    "max_export_GW_h": 16.5,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   }
+  },
+  "2021": {
+   "Austria": {
+    "import_TWh": 1.14,
+    "export_TWh": 19.6,
+    "netto_import_TWh": -18.45,
+    "max_import_GW_h": 3.2,
+    "max_export_GW_h": 6.69,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 1.82,
+    "export_TWh": 2.6,
+    "netto_import_TWh": -0.78,
+    "max_import_GW_h": 1.0,
+    "max_export_GW_h": 1.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 2.83,
+    "export_TWh": 3.05,
+    "netto_import_TWh": -0.22,
+    "max_import_GW_h": 3.2,
+    "max_export_GW_h": 2.95,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 11.36,
+    "export_TWh": 2.35,
+    "netto_import_TWh": 9.0,
+    "max_import_GW_h": 3.46,
+    "max_export_GW_h": 3.5,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 4.68,
+    "export_TWh": 11.16,
+    "netto_import_TWh": -6.48,
+    "max_import_GW_h": 5.73,
+    "max_export_GW_h": 8.33,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.94,
+    "netto_import_TWh": -3.94,
+    "max_import_GW_h": -0.24,
+    "max_export_GW_h": 0.66,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 3.77,
+    "export_TWh": 5.39,
+    "netto_import_TWh": -1.63,
+    "max_import_GW_h": 4.12,
+    "max_export_GW_h": 4.06,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 4.32,
+    "export_TWh": 1.16,
+    "netto_import_TWh": 3.16,
+    "max_import_GW_h": 1.4,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 3.16,
+    "export_TWh": 1.41,
+    "netto_import_TWh": 1.76,
+    "max_import_GW_h": 1.75,
+    "max_export_GW_h": 1.5,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 2.26,
+    "export_TWh": 0.28,
+    "netto_import_TWh": 1.98,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.61,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 3.72,
+    "export_TWh": 5.92,
+    "netto_import_TWh": -2.2,
+    "max_import_GW_h": 4.0,
+    "max_export_GW_h": 2.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 10.72,
+    "export_TWh": 28.52,
+    "netto_import_TWh": -17.8,
+    "max_import_GW_h": 12.78,
+    "max_export_GW_h": 15.7,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2022": {
+   "Austria": {
+    "import_TWh": 0.46,
+    "export_TWh": 16.5,
+    "netto_import_TWh": -16.04,
+    "max_import_GW_h": 2.58,
+    "max_export_GW_h": 7.52,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 2.07,
+    "export_TWh": 3.56,
+    "netto_import_TWh": -1.49,
+    "max_import_GW_h": 2.0,
+    "max_export_GW_h": 2.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 1.94,
+    "export_TWh": 3.59,
+    "netto_import_TWh": -1.65,
+    "max_import_GW_h": 2.47,
+    "max_export_GW_h": 2.67,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 12.12,
+    "export_TWh": 1.83,
+    "netto_import_TWh": 10.29,
+    "max_import_GW_h": 3.47,
+    "max_export_GW_h": 3.48,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 2.06,
+    "export_TWh": 17.38,
+    "netto_import_TWh": -15.32,
+    "max_import_GW_h": 4.97,
+    "max_export_GW_h": 7.81,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.89,
+    "netto_import_TWh": -3.89,
+    "max_import_GW_h": -0.2,
+    "max_export_GW_h": 0.69,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 4.23,
+    "export_TWh": 3.86,
+    "netto_import_TWh": 0.37,
+    "max_import_GW_h": 4.35,
+    "max_export_GW_h": 4.57,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 5.46,
+    "export_TWh": 1.72,
+    "netto_import_TWh": 3.73,
+    "max_import_GW_h": 2.1,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 2.71,
+    "export_TWh": 1.75,
+    "netto_import_TWh": 0.96,
+    "max_import_GW_h": 2.54,
+    "max_export_GW_h": 1.86,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 3.24,
+    "export_TWh": 0.1,
+    "netto_import_TWh": 3.14,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.61,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 1.11,
+    "export_TWh": 8.06,
+    "netto_import_TWh": -6.95,
+    "max_import_GW_h": 4.0,
+    "max_export_GW_h": 2.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 8.38,
+    "export_TWh": 35.23,
+    "netto_import_TWh": -26.84,
+    "max_import_GW_h": 12.37,
+    "max_export_GW_h": 15.67,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2023": {
+   "Austria": {
+    "import_TWh": 2.67,
+    "export_TWh": 8.5,
+    "netto_import_TWh": -5.83,
+    "max_import_GW_h": 3.42,
+    "max_export_GW_h": 4.55,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 2.72,
+    "export_TWh": 2.93,
+    "netto_import_TWh": -0.22,
+    "max_import_GW_h": 2.0,
+    "max_export_GW_h": 2.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 3.25,
+    "export_TWh": 3.14,
+    "netto_import_TWh": 0.11,
+    "max_import_GW_h": 3.22,
+    "max_export_GW_h": 2.39,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 13.08,
+    "export_TWh": 2.36,
+    "netto_import_TWh": 10.72,
+    "max_import_GW_h": 3.48,
+    "max_export_GW_h": 3.5,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 8.84,
+    "export_TWh": 8.41,
+    "netto_import_TWh": 0.42,
+    "max_import_GW_h": 5.95,
+    "max_export_GW_h": 8.59,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.56,
+    "netto_import_TWh": -3.56,
+    "max_import_GW_h": -0.14,
+    "max_export_GW_h": 0.7,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 5.65,
+    "export_TWh": 3.51,
+    "netto_import_TWh": 2.14,
+    "max_import_GW_h": 5.04,
+    "max_export_GW_h": 4.05,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 6.22,
+    "export_TWh": 1.66,
+    "netto_import_TWh": 4.55,
+    "max_import_GW_h": 1.4,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 2.45,
+    "export_TWh": 2.97,
+    "netto_import_TWh": -0.52,
+    "max_import_GW_h": 2.71,
+    "max_export_GW_h": 1.92,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 3.26,
+    "export_TWh": 0.37,
+    "netto_import_TWh": 2.89,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.61,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 5.94,
+    "export_TWh": 4.92,
+    "netto_import_TWh": 1.02,
+    "max_import_GW_h": 4.0,
+    "max_export_GW_h": 2.17,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 31.53,
+    "export_TWh": 19.79,
+    "netto_import_TWh": 11.73,
+    "max_import_GW_h": 17.08,
+    "max_export_GW_h": 19.23,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  },
+  "2024": {
+   "Austria": {
+    "import_TWh": 1.77,
+    "export_TWh": 9.17,
+    "netto_import_TWh": -7.4,
+    "max_import_GW_h": 2.76,
+    "max_export_GW_h": 4.23,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Belgium": {
+    "import_TWh": 4.52,
+    "export_TWh": 1.79,
+    "netto_import_TWh": 2.74,
+    "max_import_GW_h": 1.72,
+    "max_export_GW_h": 1.3,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Czech Republic": {
+    "import_TWh": 1.94,
+    "export_TWh": 4.74,
+    "netto_import_TWh": -2.8,
+    "max_import_GW_h": 2.65,
+    "max_export_GW_h": 2.58,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Denmark": {
+    "import_TWh": 14.76,
+    "export_TWh": 2.81,
+    "netto_import_TWh": 11.95,
+    "max_import_GW_h": 3.48,
+    "max_export_GW_h": 3.5,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "France": {
+    "import_TWh": 15.76,
+    "export_TWh": 2.86,
+    "netto_import_TWh": 12.9,
+    "max_import_GW_h": 5.97,
+    "max_export_GW_h": 5.93,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.54,
+    "netto_import_TWh": -3.54,
+    "max_import_GW_h": -0.16,
+    "max_export_GW_h": 0.7,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Netherlands": {
+    "import_TWh": 6.34,
+    "export_TWh": 3.87,
+    "netto_import_TWh": 2.47,
+    "max_import_GW_h": 4.82,
+    "max_export_GW_h": 3.77,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Norway": {
+    "import_TWh": 7.04,
+    "export_TWh": 1.24,
+    "netto_import_TWh": 5.8,
+    "max_import_GW_h": 1.4,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Poland": {
+    "import_TWh": 1.6,
+    "export_TWh": 5.11,
+    "netto_import_TWh": -3.51,
+    "max_import_GW_h": 2.87,
+    "max_export_GW_h": 2.4,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Sweden": {
+    "import_TWh": 2.99,
+    "export_TWh": 0.39,
+    "netto_import_TWh": 2.61,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.61,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "Switzerland": {
+    "import_TWh": 9.92,
+    "export_TWh": 2.82,
+    "netto_import_TWh": 7.1,
+    "max_import_GW_h": 4.06,
+    "max_export_GW_h": 2.2,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   },
+   "sum": {
+    "import_TWh": 40.7,
+    "export_TWh": 12.38,
+    "netto_import_TWh": 28.32,
+    "max_import_GW_h": 17.03,
+    "max_export_GW_h": 17.6,
+    "fehlende_werte": 0,
+    "punkte": 35136
+   }
+  },
+  "2025": {
+   "Austria": {
+    "import_TWh": 0.89,
+    "export_TWh": 13.12,
+    "netto_import_TWh": -12.22,
+    "max_import_GW_h": 2.35,
+    "max_export_GW_h": 4.57,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Belgium": {
+    "import_TWh": 4.65,
+    "export_TWh": 1.7,
+    "netto_import_TWh": 2.95,
+    "max_import_GW_h": 1.18,
+    "max_export_GW_h": 1.05,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Czech Republic": {
+    "import_TWh": 1.68,
+    "export_TWh": 5.88,
+    "netto_import_TWh": -4.2,
+    "max_import_GW_h": 2.31,
+    "max_export_GW_h": 3.2,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Denmark": {
+    "import_TWh": 15.17,
+    "export_TWh": 2.8,
+    "netto_import_TWh": 12.37,
+    "max_import_GW_h": 3.46,
+    "max_export_GW_h": 3.5,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "France": {
+    "import_TWh": 13.5,
+    "export_TWh": 2.28,
+    "netto_import_TWh": 11.22,
+    "max_import_GW_h": 5.27,
+    "max_export_GW_h": 7.5,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Luxembourg": {
+    "import_TWh": 0.0,
+    "export_TWh": 3.49,
+    "netto_import_TWh": -3.49,
+    "max_import_GW_h": -0.08,
+    "max_export_GW_h": 0.71,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Netherlands": {
+    "import_TWh": 10.68,
+    "export_TWh": 2.28,
+    "netto_import_TWh": 8.4,
+    "max_import_GW_h": 6.05,
+    "max_export_GW_h": 6.0,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Norway": {
+    "import_TWh": 7.8,
+    "export_TWh": 0.78,
+    "netto_import_TWh": 7.02,
+    "max_import_GW_h": 1.4,
+    "max_export_GW_h": 1.4,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Poland": {
+    "import_TWh": 1.81,
+    "export_TWh": 5.24,
+    "netto_import_TWh": -3.43,
+    "max_import_GW_h": 2.88,
+    "max_export_GW_h": 3.47,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Sweden": {
+    "import_TWh": 2.86,
+    "export_TWh": 0.45,
+    "netto_import_TWh": 2.41,
+    "max_import_GW_h": 0.61,
+    "max_export_GW_h": 0.6,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "Switzerland": {
+    "import_TWh": 6.21,
+    "export_TWh": 5.31,
+    "netto_import_TWh": 0.9,
+    "max_import_GW_h": 4.43,
+    "max_export_GW_h": 2.3,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   },
+   "sum": {
+    "import_TWh": 34.12,
+    "export_TWh": 12.19,
+    "netto_import_TWh": 21.92,
+    "max_import_GW_h": 16.17,
+    "max_export_GW_h": 18.03,
+    "fehlende_werte": 0,
+    "punkte": 35040
+   }
+  }
+ }
+}
