@@ -1,6 +1,6 @@
 # Changelog — P&L Statement byDatenWG
 
-## 1.8.3.0 (in Arbeit): Blatt-Abgleich 12G und 11A
+## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
 
 - **12G: Margenwerte in der Wertkaskade.** Eine Margenzeile zeigt ihren Wert kursiv in jeder
   Wertkaskaden-Spalte, rechtsbündig vor der Kaskadenhöhe darüber (36 % unter PY, 31 % unter AC&FC wie

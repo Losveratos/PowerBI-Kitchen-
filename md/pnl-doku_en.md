@@ -6,7 +6,7 @@ Power BI visual · End-user documentation
 
 The IBCS-inspired P&L visual for Power BI: a statement straight from your account dimension — as a classic table or as a mega table with the IBCS templates T01–T04, 12A, 12G and 12H as well as balance sheet and cash flow (T05A/T05B), plus structure bars, row waterfall, value driver tree, Sankey and tile zoom. This documentation leads from the import through data model, views and templates to the complete settings reference.
 
-Version · **1.8.2.0** · As of · **2026-11-01** · IBCS-inspired
+Version · **1.8.3.0** · As of · **2026-11-01** · IBCS-inspired
 
 ## Contents
 
@@ -21,7 +21,7 @@ Version · **1.8.2.0** · As of · **2026-11-01** · IBCS-inspired
 9. [Interaction](#interaction)
 10. [Deviations from the IBCS sheets](#deviations)
 11. [Troubleshooting](#faq)
-12. [Version note 1.8.2.0](#version)
+12. [Version note 1.8.3.0](#version)
 
 ## 01 · What is the visual?
 
@@ -47,7 +47,7 @@ The notation follows the **IBCS® principles**: AC filled in dark gray (#404040)
 
 > **Thank you, IBCS.** This visual is heavily inspired by the ideas of IBCS® – International Business Communication Standards. Without their great resources, exceptional content and, above all, groundbreaking conceptual work, something like this visual would not have been possible. Therefore: thank you. Not sponsored by, licensed by or associated with the IBCS Association.
 
-This guide describes version **1.8.2.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.8.2: an ellipse around the Δ number of highlighted rows, the relative change of margins in the Δ% field, and the margin Δ at the axis can be switched off (chapter 08). New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
+This guide describes version **1.8.3.0**. Every default in the settings reference has been checked against the visual's settings model. New in 1.8.3: margin values in the value cascade (12G), the notation as in the reference sheet for 11A, 12G and 12H (chapter 08). New in 1.8.2: an ellipse around the Δ number of highlighted rows, the relative change of margins in the Δ% field, and the margin Δ at the axis can be switched off (chapter 08). New in 1.7.1: tile zoom with its own variance zone and scaling indicator, stocks in the tile as stands, AC 0 in unposted months treated as not posted (chapters 06 and 11). New in 1.7: **stocks & flows** with the templates T05A balance sheet and T05B cash flow (chapters 05 and 07), **⚡ Only exceptions** (chapter 09), the cards **Layout** and **Toolbar colours** (chapter 08) and **cross-highlight** in the Sankey (chapters 06 and 09). New in 1.6: the fifth view, Sankey (chapter 06), and the “offer views” switches (chapter 08). New since 1.5: scaling following IBCS 2.0 / ISO 24896 as the default in every view (one scale per unit, outlier zone, scale note; chapter 06), collapsible control bars (☰, chapter 08) and the auto headline as a full sentence. Since 1.3 and 1.4: the start hub (chapter 03) with the template gallery by purpose, “🚀 Get started”, the HD · Full HD · UHD font-size bar and docs button, ☰ Start as the first toolbar button, “↺ Back to template” including re-apply, and the calm landing card for readers.
 
 ## 02 · The product family
 
@@ -183,7 +183,7 @@ Readers, PDF export and subscriptions never see the hub, the overlay or the bar.
 
 ### 1 · Import the visual
 
-1. Download the file [`pnlByDatenWG…1.8.2.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
+1. Download the file [`pnlByDatenWG…1.8.3.0.pbiviz`](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) (extension `.pbiviz`, also via the button at the top right).
 2. In Power BI Desktop: *Visualizations* → *⋯* → *Import a visual from a file* and pick the `.pbiviz`. An older version is replaced.
 3. Draw the visual generously (at least about 1200 × 800 px) — the toolbar and two column blocks need width. Freshly placed, it shows the **start hub** in edit mode (chapter 03): “🚀 Get started” walks you through fields, template and fine-tuning with ticks, “Show demo” opens the example statement on which views, toolbar and templates already work.
 
@@ -514,7 +514,7 @@ Start of the tree and Sankey views. Visible in the tree and Sankey views. The Sa
 | Driver tree start depth | How many levels of the tree are open when it starts. 0 = the whole tree. | 0–8 · Default 0 |
 | Driver tree card chart | Mini chart on every card: monthly columns, variance columns or a mini bridge. | Options: Monthly columns (AC vs PL) \| Variance columns (Δ vs reference) \| Mini bridge (REF → Δ → AC) · Default “Monthly columns (AC vs PL)” |
 | Driver tree status indicator (Δ colour) | Card edge and Δ% in the card head in the variance colour. | On / Off · Default On |
-| Label every period on the cards (1.8) | Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree 11A). Off: first, last and extreme value only. | On / Off · Default Off |
+| Label every period on the cards (1.8) | Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree 11A). Since 1.8.3 as in the sheet 11A: the same decimals on the whole card, a line between actual and plan, negative actuals middle gray and plan periods lightly filled (not in high contrast, not against PY columns, not with a card colour of your own). Off: first, last and extreme value only. | On / Off · Default Off |
 
 ### Display & toolbar
 
@@ -587,7 +587,7 @@ The buttons of the report toolbar in your colors. All colors empty = **automatic
 | Unit (e.g. EUR) | Follows k / m in the title, the scale note and the cards. | Text · Default “EUR” |
 | Decimals (values) | Decimal places of values and Δ. A template sets them too. | 0–3 · Default 1 |
 | Decimals (Δ%) | Decimal places of Δ% and margins. A template sets them too (since 1.5 every template to 1). | 0–2 · Default 1 |
-| Δ% decimals as in the reference sheet (1.8) | Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. | On / Off · Default Off |
+| Notation as in the reference sheet (1.8, up to 1.8.2 “Δ% decimals as in the reference sheet”) | Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Since 1.8.3 also the heads: a stacked FY cascade reads “YTD” and “Year” (12G), a single FY block carries its year in the minuend's head instead of a title (“PL 2026” as 12H), the 12G margins are whole while the template's Δ% decimals stand. | On / Off · Default Off |
 | Unit of margin Δ (1.8) | Margins and their Δ: percentage points as “pp” or “%p” (as in the IBCS sheets T03). | Options: pp (percentage points) \| %p · Default “pp” |
 | Rounded zero (1.8) | A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero, in every view. | Options: Keep the sign \| Without sign · Default “Keep the sign” |
 | Relative change of margins (Δ%) (1.8.2) | Margin rows also print their relative change in the Δ% column, as the sheet T03 does (45.3 % against 36.7 %: Δ +8.6 %p, Δ% +23 %). Computed like value rows, over the absolute reference. | Toggle · default off |
@@ -932,10 +932,11 @@ Edit mode only: a formula or total mixes stocks and flows without a token fixing
 
 Intended (cross-highlight, since 1.7): the Sankey shows the mark within the total — the whole gray, the marked part colored, “… 923 of 1 685 …” in the footer. All other views behave as if filtered. If the Sankey should filter too, switch the interaction in Power BI Desktop under Format → *Edit interactions* on the triggering visual to the filter icon (chapter 09).
 
-## 12 · Version note 1.8.2.0
+## 12 · Version note 1.8.3.0
 
-This documentation describes **version 1.8.2.0** of 22 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
+This documentation describes **version 1.8.3.0** of 22 November 2026 (GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`). The visual is not listed in Microsoft AppSource and therefore not certified by Microsoft. Field roles, property names and the saved toolbar state are stable since 1.0; every new setting is off by default or behaves as before. Changed defaults since 1.2: in edit mode without fields the start hub appears instead of the demo statement (1.3); since 1.5 scaling following IBCS 2.0 / ISO 24896 is the default, so existing reports change their picture.
 
+- **1.8.3.0 · Sheet notation 11A, 12G, 12H:** margin values in italics in the value cascade (12G); in the ROI tree with every period labelled the same decimals on each card, a line between actual and plan, negative actuals middle gray, plan periods light; “Notation as in the reference sheet” with the heads “YTD / Year” and “PL 2026” and whole 12G margins.
 - **1.8.2.0 · Sheet options and faster highlighting:** an ellipse around the Δ number of highlighted rows (12G, 12H, also on the Δ waterfall), the relative change of margins in the Δ% field (T03), the margin Δ at the axis can be switched off (T04); Δ% of a margin with a negative reference now carries the right sign; highlighting from other visuals about twice as fast.
 - **1.8.1.0 · ROI tree as in the sheet 11A:** division drawn as “:”, a shared operand (net sales) as one card with two edges, gallery preview as a DuPont tree with the sheet's numbers.
 - **1.8.0.0 · IBCS sheets T01C, T01D, T02D and 11A:** new templates T01C, T01D, T02D and the gallery preset ROI tree 11A (value driver tree over years, every period labelled); total row over several roots; sort by Δ% and the block order of the sheets; number format factor or amount for KPI rows; years as the period; margin Δ in pp or %p, Δ% decimals as in the sheet, rounded zero with or without sign; list of sheet errors on the versions of 17/18 November 2026. Without the new switches a report renders as in 1.7.1; a value that rounds to zero now prints without a sign in every view.
@@ -958,13 +959,13 @@ This documentation describes **version 1.8.2.0** of 22 November 2026 (GUID `pnlB
 
 The complete version history is in the [CHANGELOG](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/CHANGELOG.md) (German).
 
-**P&L Statement byDatenWG** · Version 1.8.2.0
+**P&L Statement byDatenWG** · Version 1.8.3.0
 
 Sister visual: [ChartKitchen byDatenWG – documentation](../chartkitchen-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 
 Contact: Michael Tenner · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com)
 
-Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.2.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
+Quick start: [pnl-schnellstart_en.html](../pnl-schnellstart_en.html) · Download: [.pbiviz 1.8.3.0](https://raw.githubusercontent.com/Losveratos/PowerBI-Kitchen-/main/pnlByDatenWG/dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz) · Source code and changelog: [pnlByDatenWG in the repository](https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/pnlByDatenWG) · For AI agents: [AGENT-GUIDE](https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/pnlByDatenWG/AGENT-GUIDE.md)
 
 > Notation follows the IBCS® Standards 2.0 (ISO 24896) of the IBCS Association (CC BY-SA 4.0, ibcs.com). Documented deviation: teal replaces the IBCS variance green to stay readable with red–green color-vision deficiency. IBCS® is a registered trademark of the IBCS Institute. This visual is not certified by the IBCS Association and is not affiliated with it.
 
