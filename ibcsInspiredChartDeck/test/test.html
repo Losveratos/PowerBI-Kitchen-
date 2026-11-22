@@ -9583,8 +9583,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 
   // c937: Blatt 10G: 24 Kacheln, gemeinsame Skala, nichts ragt aus dem Visual, Segment entfällt unter 6 px
-  // B19 Review (m6): Rezept 10G auf Full HD (Radius 40); 24 Kacheln legt das Visual als 5 × 5 an (keine Spalten-Einstellung)
-  addStage("c937", "B19 · 10G-Rezept: 24 Länder (Raster 5 × 5) auf 1920 × 1080, Radius 40, gemeinsame Skala, Segmente gezeichnet", 1920, 1080);
+  // B19 Review (m6): 24 Kacheln automatisch (5 × 5) auf Full HD, Radius 40; das 10G-Rezept mit „Spalten“ 6 (4 × 6, Radius 50) prüft c555 (B24)
+  addStage("c937", "B19 · 24 Länder automatisch (Raster 5 × 5) auf 1920 × 1080, Radius 40, gemeinsame Skala, Segmente gezeichnet; 10G-Rezept mit „Spalten“ 6 in c555", 1920, 1080);
   {
     runCap("c937", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 40 }), { data: d10G, objs: axes10E }), 1920, 1080);
     const W = 1920, H = 1080;
