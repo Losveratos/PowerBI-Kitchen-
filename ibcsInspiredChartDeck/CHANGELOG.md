@@ -43,6 +43,47 @@
     497 statt 497.2), Seriennamen in der Schlüsselzeile über dem Panel-Titel statt direkt über der ersten Zeile,
     „Rest of world“ proportional dick (auf dem Blatt dünner als France), keine Säulen-Variante.
 
+- **B18 · Scatter-Zeitpfad mit Quotenstrahlen (Blätter 07D und 07E, Vorlage C23).** Vorher: Der Scatter zeigte je
+  Kategorie einen Punkt; eine Entwicklung über die Jahre ließ sich nur mit dem Play-Button nacheinander zeigen, eine
+  Quote wie „Umsatz je Mitarbeiter“ nur über eine eigene Measure. Nachher:
+  - **„Zeitpfad“** (`chart.scatterPath`, `off` | `line`, Standard `off`, Gruppe „Scatter / Bubble“): Datenvertrag des
+    Play-Modus ohne neue Rolle, Kategorie = Periode (Reihenfolge wie geliefert), Stack-Serie = Einheit, AC = Y,
+    X-Achse = X; ohne Serie ein einziger Pfad. Je Einheit eine dünne Linie (1 px, Gruppenfarbe bzw. AC-Farbe,
+    Hochkontrast Vordergrund) unter den Punkten. Fehlt X oder Y oder liegt ein Punkt außerhalb fixierter Achsen, bricht
+    der Pfad dort; eine Periode ohne Zeile wird durchverbunden. Segmente in eine Prognose-Periode sind gestrichelt,
+    FC-Punkte hohl. Der Name der Einheit steht am Endpunkt (bei Hervorhebung fett, Pfad 2 px), die Gruppen-Legende
+    entfällt. Der Pfad schaltet Bewegungspfeile und PY-Blasen ab; Quadranten und Trend bleiben wählbar.
+  - **„Periodenlabels“** (`chart.scatterPathLabels`, `auto` | `ends` | `all` | `off`, Standard `auto`): Versuchsfolge
+    oben, rechts, unten, links über die gemeinsame Kollisionsliste. Erste und letzte Periode jeder Einheit stehen
+    immer, Zwischenperioden bei `auto` nach Platz, bei `all` immer. Vierstellige Jahre lesen sich als „'17“.
+  - **„Pfeil am Pfadende“** (`chart.scatterPathArrow`, Standard aus) und **„Start-Ende-Abweichungen“**
+    (`chart.scatterPathDelta`, Standard aus): für hervorgehobene Einheiten (ein einzelner Pfad ohne Serie zählt als
+    hervorgehoben) Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse (neutral),
+    Δ Y als Pfeil rechts neben dem Plot in Gut- bzw. Schlecht-Farbe.
+  - **„Quotenstrahlen (Scatter)“** (`scale.ratioRays`, Text, Liste mit `;`, Gruppe „Scatter-Achsen“) und **„Einheit
+    der Quotenstrahlen“** (`scale.ratioRayUnit`): Strahlen Y = k · X vom Ursprung bis zum Achsenende, hohler Kreis an
+    Austritt und Ursprung, Label „1,00 mEUR/Rep“ über dem Austritt. Die Strahlen ziehen die 0 in beide linearen Achsen,
+    eine automatische Obergrenze endet dann auf einem runden Wert. Quoten ≤ 0 werden ignoriert, auf Log-Achsen ohne
+    Ursprung gerechnet. Kacheln: Strahlen in jeder Kachel, Labels oben nur in der ersten Zeile, rechts nur in der
+    letzten Spalte. Der Tooltip nennt die Quote Y ÷ X jedes Punkts.
+  - **Play:** Mit Play-Button wächst der Pfad bis zum gezeigten Frame (beim Abspielen fließend, ohne Strichelung), die
+    Periodenlabels ruhen während des Abspielens; Exporte zeigen den ganzen Pfad.
+  - **Vorlage C23** (Galerie-Gruppe Zeitverlauf, braucht „X-Achse (Scatter)“): `orientation=scatter`,
+    `scatterPath=line`, `scatterPathLabels=auto`, `scatterColorBy=group`, `scatterQuadrant=off`, `scatterTrend=off`,
+    `scatterArrows=false`, `scatterPlay=false`. Rezept 07E zusätzlich `scale.ratioRays=1; 0,7; 0,35`,
+    `scale.ratioRayUnit=mEUR/Rep`, Achsen 0 bis 20 und 0 bis 14; Rezept 07D zusätzlich `highlight=Trucks`,
+    `scatterPathDelta=true`.
+  - Testmarker (`data-icd`): `scatter-paths`, `scatter-path` (`data-series`, `data-n`), `scatter-path-head`,
+    `scatter-path-labels`, `scatter-path-label` (`data-cat`, `data-series`), `scatter-path-name`,
+    `scatter-path-guides`, `scatter-path-delta` (`data-axis`, `data-v`) mit `scatter-path-delta-head`, `scatter-rays`,
+    `scatter-ray` (`data-k`), `scatter-ray-end` (`data-x`, `data-y`), `scatter-ray-origin`, `scatter-ray-label`,
+    `scatter-hint-path`. Ohne die neuen Optionen sind alle Bestands-Stufen SVG-gleich (Hash aller 701 Stufen; geändert
+    nur die Galerie-Stufen c222b, c222d, c229, c230 und c230b um die Kachel C23). Tests c900 bis c917. 953 resjson-Keys
+    je Sprache.
+  - Abweichungen von den Blättern: Y-Ticks in Fünfer- statt Zweierschritten (bestehende Tick-Regel), die Achsen reichen
+    um den Markerrand über 20 bzw. 14 hinaus (die Strahlen enden trotzdem genau dort), Δ X neutral statt blau, keine
+    Ellipse um „−4“ (Botschaftsmarke des Titels), Ländernamen in 07E rechts statt über dem Endpunkt, wo Platz ist.
+
 ## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
 
 - **B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C und 13D).** Vorher: Kacheln gegen den Durchschnitt zeigten

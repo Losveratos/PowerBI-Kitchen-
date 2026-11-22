@@ -212,6 +212,7 @@
                             { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" },
                             { "value": "C21", "displayName": "C21 · Kumulierte Linie mit R12 und Monatssäulen (07C)" },
                             { "value": "C22", "displayName": "C22 · Serienlinien mit Index (07A)" },
+                            { "value": "C23", "displayName": "C23 · Scatter-Zeitpfad (07D, 07E)" },
                             { "value": "C25", "displayName": "C25 · Marimekko (02F)" }
                         ]
                     }
@@ -440,6 +441,26 @@
                 "scatterQuadLabelBL": { "type": { "text": true } },
                 "scatterQuadLabelBR": { "type": { "text": true } },
                 "scatterPlay": { "type": { "bool": true } },
+                "scatterPath": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "line", "displayName": "Line through the periods" }
+                        ]
+                    }
+                },
+                "scatterPathLabels": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Auto (where there is room)" },
+                            { "value": "ends", "displayName": "Start and end" },
+                            { "value": "all", "displayName": "All periods" },
+                            { "value": "off", "displayName": "Off" }
+                        ]
+                    }
+                },
+                "scatterPathArrow": { "type": { "bool": true } },
+                "scatterPathDelta": { "type": { "bool": true } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -797,6 +818,8 @@
                 "xRefLine": { "type": { "text": true } },
                 "xLogScale": { "type": { "bool": true } },
                 "yLogScale": { "type": { "bool": true } },
+                "ratioRays": { "type": { "text": true } },
+                "ratioRayUnit": { "type": { "text": true } },
                 "xMin": { "type": { "text": true } },
                 "xMax": { "type": { "text": true } },
                 "yMin": { "type": { "text": true } },

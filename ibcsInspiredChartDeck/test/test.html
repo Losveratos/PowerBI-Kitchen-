@@ -2297,7 +2297,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C25"]', "c222: 22 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22, 1.57: + C25) " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C23","C25"]', "c222: 23 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22, 1.57: + C23, C25) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3229,7 +3229,8 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   // 1.56 (B17): mit C22 hat „Zeitverlauf“ neun Kacheln und läuft bei 1280 px in einer zweiten Zeile weiter („ZEITVERLAUF …“)
   check(JSON.stringify([...new Set(groups)].sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"], structure: ["C02", "C25", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  // 1.57 (B18): + C23 am Ende von „Zeitverlauf“; (B20): + C25 nach C02 in „Struktur“
+  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20", "C23"], structure: ["C02", "C25", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const heads = (gid) => [...document.querySelectorAll(`#c230 [data-icd="hub-tpl-group-${gid}"]`)].map(e => e.getBoundingClientRect());
   const ok = Object.entries(want).every(([gid, codes]) => {
@@ -3242,7 +3243,7 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
         && (i === 0 || sameRow || b.top > bs[i - 1].top);
     });
   });
-  check(ok && tiles.length === 22, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 23, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -8164,6 +8165,265 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B20-END
+// ---- B18-BEGIN
+// ======================================================================
+// 1.57 (B18): Scatter-Zeitpfad und Quotenstrahlen, IBCS-Blätter 07D und 07E (Vorlage C23).
+// Kategorie = Jahr (Periode), Stack-Serie = Sparte bzw. Land, AC = Y, X-Achse = Vertrieb.
+// Werte aus den Blättern abgelesen: Trucks 2017 (2; 12,5) bis 2025 (18; 8,2), also Δ X +16
+// und Δ Y −4,3; Germany 2017 (2; 1) Quote 0,50, 2025 (17; 12,2) Quote 0,72
+// ======================================================================
+{
+  const sQ = (id, sel) => [...document.querySelectorAll(sel.split(",").map(x => `#${id} ${x.trim()}`).join(","))];
+  const sSvg = id => [...document.querySelectorAll(`#${id} svg`)].map(x => x.outerHTML).join("\n")
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N");
+  const yrs = ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
+  const d07D = {
+    Trucks: [[2, 12.5], [3, 12], [5, 11.7], [7, 11.5], [9, 12], [11, 11], [12, 11], [15, 11], [18, 8.2]],
+    Cars: [[2, 1], [4, 4], [5, 6], [7, 9], [9, 9.8], [13, 10], [13, 9], [15, 9.5], [18.5, 10]],
+    Parts: [[1, 0.5], [2, 2], [4, 3], [6, 5], [6, 6], [10, 8.4], [12, 7.5], [14, 7], [17, 11]]
+  };
+  const d07E = {
+    Germany: [[2, 1], [3, 2], [3, 5], [7, 9], [9, 10], [13, 8], [14, 8.3], [15, 12], [17, 12.2]],
+    France: [[3, 0.5], [4, 2], [5, 3], [6, 3], [8, 4], [11, 4], [11, 4.3], [11, 5], [15, 6]]
+  };
+  // opts: data (Einheit → [[x, y]] je Jahr), cats, noSeries, fc (i → true), mult [[Name, Faktor]], objs, size
+  const b18Dv = (chart, opts) => {
+    opts = opts || {};
+    const data = opts.data || d07D, cats = opts.cats || yrs;
+    const C = [], S = [], X = [], Y = [], F = [], MU = [], Z = [];
+    for (const [mn, f] of (opts.mult || [[null, 1]])) {
+      cats.forEach((c, i) => Object.keys(data).forEach(u => {
+        const v = data[u][i];
+        if (!v) { return; }
+        C.push(c); S.push(u); MU.push(mn);
+        X.push(v[0]); Y.push(v[1] == null ? null : Math.round(v[1] * f * 1000) / 1000);
+        F.push(opts.fc && opts.fc(i) ? 1 : 0); Z.push(10 + 3 * i);
+      }));
+    }
+    const categories = [{ source: { displayName: "Jahr", roles: { category: true } }, values: C }];
+    if (!opts.noSeries) { categories.push({ source: { displayName: "Sparte", roles: { series: true } }, values: S }); }
+    if (opts.mult) { categories.push({ source: { displayName: "Land", roles: { multiples: true } }, values: MU }); }
+    if (opts.fc) { categories.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: F }); }
+    const values = [col("actual", Y, "#,0.0", null, "Net sales"), col("xValue", X, "#,0", null, "Sales reps")];
+    if (opts.size) { values.push(col("bubbleSize", Z, "#,0", null, "Size")); }
+    return { metadata: { columns: [], objects: Object.assign({ chart }, opts.objs || {}) }, categorical: { categories, values } };
+  };
+  // die C23-Eigenschaften direkt gesetzt (eine Vorlage überschriebe Varianten derselben Schlüssel)
+  const c23 = extra => Object.assign({ orientation: "scatter", scatterPath: "line", scatterPathLabels: "auto",
+    scatterColorBy: "group", scatterQuadrant: "off", scatterTrend: "off" }, extra || {});
+  const t07D = { ibcsTitle: { kpi: "Net sales in mEUR compared to sales reps in FTE", period: "2017 to 2025",
+    message: "In France, sales in truck business decreased by more than 4 mEUR despite increasing the number of sales reps from 2 to 18" } };
+  const t07E = { ibcsTitle: { kpi: "Net sales in mEUR and sales reps in FTE", period: "2017..2025",
+    message: "Net sales per sales rep in Germany in 2025 came back to around 700 kEUR which was like our start in 2017" } };
+  const rays07E = { ratioRays: "1; 0,7; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" };
+  const marks = id => sQ(id, "g.icd-cat");
+  const labels = id => sQ(id, '[data-icd="scatter-path-label"]');
+
+  // c900: Blatt 07D mit Vorlage C23
+  addStage("c900", "B18 · C23 (07D): drei Sparten je 9 Jahre, dünne Pfade, Jahreslabels, Spartenname am Endpunkt, keine Legende", 1280, 720);
+  {
+    runCap("c900", b18Dv({ template: "C23" }, { objs: t07D }), 1280, 720);
+    const ps = sQ("c900", '[data-icd="scatter-path"]');
+    check(ps.length === 3 && ps.every(g => g.getAttribute("data-n") === "9"), `c900: 3 Pfade mit je 9 Punkten (${ps.map(g => g.getAttribute("data-n")).join("/")})`);
+    check(marks("c900").length === 27, `c900: 27 Punkte (${marks("c900").length})`);
+    const nm = sQ("c900", '[data-icd="scatter-path-name"]').map(t => t.textContent).sort().join(",");
+    check(nm === "Cars,Parts,Trucks", `c900: Namen am Endpunkt ${nm}`);
+    check(sQ("c900", ".icd-scatter-legend").length === 0 || sQ("c900", ".icd-scatter-legend circle").length === 0, "c900: keine Gruppenlegende");
+    const cols = new Set(ps.map(g => g.querySelector("path").getAttribute("stroke")));
+    check(cols.size === 3, `c900: drei Pfadfarben (${[...cols].join(" ")})`);
+    // der Pfad liegt unter den Punkten
+    const all = [...document.querySelectorAll("#c900 svg *")];
+    check(all.indexOf(sQ("c900", '[data-icd="scatter-paths"]')[0]) < all.indexOf(marks("c900")[0]), "c900: Pfade unter den Punkten");
+    check(labels("c900").some(t => t.textContent === "'17") && labels("c900").some(t => t.textContent === "'25"), "c900: Jahre als '17 bis '25");
+  }
+
+  // c901: scatterPath=off ausdrücklich gesetzt zeichnet wie ohne die Eigenschaft
+  addStage("c901", "B18 · scatterPath=off ausdrücklich: SVG gleich dem Bestand (c901b ohne Eigenschaft)", 760, 440);
+  addStage("c901b", "B18 · Zwilling ohne scatterPath", 760, 440);
+  {
+    runCap("c901", b18Dv({ orientation: "scatter", scatterPath: "off", scatterPathLabels: "all", scatterPathArrow: true }), 760, 440);
+    runCap("c901b", b18Dv({ orientation: "scatter" }), 760, 440);
+    check(sSvg("c901") === sSvg("c901b") && sQ("c901", '[data-icd="scatter-path"]').length === 0, "c901: SVG identisch, kein Pfad");
+  }
+
+  // c902: Periodenlabels all, ends, off, auto
+  addStage("c902", "B18 · Periodenlabels „all“: 27", 960, 520);
+  addStage("c902b", "B18 · Periodenlabels „ends“: 6", 960, 520);
+  addStage("c902c", "B18 · Periodenlabels „off“: 0", 960, 520);
+  addStage("c902d", "B18 · Periodenlabels „auto“ auf kleiner Fläche mit dichter vierter Sparte: Start und Ende je Sparte immer, Zwischenjahre nach Platz", 460, 300);
+  {
+    runCap("c902", b18Dv(c23({ scatterPathLabels: "all" })), 960, 520);
+    runCap("c902b", b18Dv(c23({ scatterPathLabels: "ends" })), 960, 520);
+    runCap("c902c", b18Dv(c23({ scatterPathLabels: "off" })), 960, 520);
+    const dense = Object.assign({ Service: yrs.map((_, i) => [10 + 0.1 * i, 5 + 0.05 * (i % 3)]) }, d07D);
+    runCap("c902d", b18Dv(c23(), { data: dense }), 460, 300);
+    check(labels("c902").length === 27 && labels("c902b").length === 6 && labels("c902c").length === 0,
+      `c902: Labels all ${labels("c902").length}, ends ${labels("c902b").length}, off ${labels("c902c").length}`);
+    const auto = labels("c902d");
+    const ok = Object.keys(dense).every(u => auto.some(t => t.getAttribute("data-series") === u && t.textContent === "'17")
+      && auto.some(t => t.getAttribute("data-series") === u && t.textContent === "'25"));
+    const svc = auto.filter(t => t.getAttribute("data-series") === "Service").length;
+    check(ok && svc >= 2 && svc < 9, `c902d: auto mit '17 und '25 je Sparte, dichte Sparte Service mit ${svc} von 9 Labels (${auto.length} gesamt)`);
+    // auto: kein Label überdeckt ein anderes
+    const bb = auto.map(t => t.getBBox());
+    const ov = bb.some((a, i) => bb.some((b, j) => j > i && Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) > 1
+      && Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) > 1));
+    check(!ov, "c902d: auto ohne Überlappung der Periodenlabels");
+  }
+
+  // c903: Start-Ende-Abweichung für Trucks (Hervorheben)
+  addStage("c903", "B18 · Δ für Trucks (07D): Hilfslinien, Δ X +16 unter der Achse, Δ Y −4,3 rechts in Schlecht-Farbe", 1280, 720);
+  {
+    runCap("c903", b18Dv(c23({ scatterPathDelta: true, highlight: "Trucks" }), { objs: t07D }), 1280, 720);
+    const dx = sQ("c903", '[data-icd="scatter-path-delta"][data-axis="x"]'), dy = sQ("c903", '[data-icd="scatter-path-delta"][data-axis="y"]');
+    check(dx.length === 1 && dx[0].getAttribute("data-v") === "16" && dy.length === 1 && dy[0].getAttribute("data-v") === "-4.3",
+      `c903: Δ X ${dx.map(g => g.getAttribute("data-v"))} Δ Y ${dy.map(g => g.getAttribute("data-v"))}`);
+    const ty = dy[0]?.querySelector("text")?.textContent, tx = dx[0]?.querySelector("text")?.textContent;
+    check(tx === "+16" && /^[−-]4,3$/.test(ty || ""), `c903: Texte ${tx} / ${ty}`);
+    check(dy[0]?.querySelector("line")?.getAttribute("stroke") === "#B3282D" || dy[0]?.querySelector("line")?.getAttribute("stroke") !== "#1B7F4D",
+      `c903: Δ Y nicht in Gut-Farbe (${dy[0]?.querySelector("line")?.getAttribute("stroke")})`);
+    const tr = sQ("c903", '[data-icd="scatter-path"][data-series="Trucks"] path')[0];
+    check(tr && tr.getAttribute("stroke-width") === "2", "c903: hervorgehobener Pfad 2 px");
+    const svgR = document.querySelector("#c903 svg").getBoundingClientRect();
+    const far = [...dx, ...dy].map(g => g.getBoundingClientRect()).every(b => b.right <= svgR.right + 0.5 && b.bottom <= svgR.bottom + 0.5);
+    check(far, "c903: Δ-Marker im Visual");
+  }
+
+  // c904: Blatt 07E mit Quotenstrahlen 1 / 0,7 / 0,35
+  addStage("c904", "B18 · 07E: zwei Länder, drei Quotenstrahlen, hohler Kreis und Label am Austritt (14; 14), (20; 14), (20; 7)", 1280, 720);
+  {
+    runCap("c904", b18Dv(c23(), { data: d07E, objs: Object.assign({ scale: rays07E }, t07E) }), 1280, 720);
+    const rays = sQ("c904", '[data-icd="scatter-ray"]');
+    check(rays.length === 3, `c904: 3 Strahlen (${rays.length})`);
+    const end = k => sQ("c904", `[data-icd="scatter-ray"][data-k="${k}"] [data-icd="scatter-ray-end"]`)[0];
+    const e1 = end(1), e7 = end(0.7), e35 = end(0.35), o = sQ("c904", '[data-icd="scatter-ray-origin"]')[0];
+    const P = e => e ? [Number(e.getAttribute("cx")), Number(e.getAttribute("cy"))] : [NaN, NaN];
+    const [x1, y1] = P(e1), [x7, y7] = P(e7), [x35, y35] = P(e35), [x0, y0] = P(o);
+    check(Math.abs(x7 - x35) <= 0.6 && Math.abs(y1 - y7) <= 0.6, `c904: (20; 14) und (20; 7) auf gleichem X, (14; 14) und (20; 14) auf gleichem Y`);
+    check(Math.abs(x1 - (x0 + (x7 - x0) * 14 / 20)) <= 0.6 && Math.abs(y35 - (y0 + (y7 - y0) / 2)) <= 0.6,
+      `c904: Austritt (14; 14) bei ${(x1 - x0) / (x7 - x0) * 20} und (20; 7) bei ${(y35 - y0) / (y7 - y0) * 14}`);
+    check([e1, e7, e35].every(e => e && e.getAttribute("fill") !== "none"), "c904: Kreise am Austritt");
+    const lt = sQ("c904", '[data-icd="scatter-ray-label"]').map(t => t.textContent);
+    check(lt.join("|") === "1,00 mEUR/Rep|0,70 mEUR/Rep|0,35 mEUR/Rep", `c904: Labels ${lt.join(" | ")}`);
+    const xt = sQ("c904", '[data-icd="scatter-xtick"]').map(t => t.textContent).join(",");
+    check(xt === "0,5,10,15,20", `c904: X-Achse 0 bis 20 (${xt})`);
+  }
+
+  // c905: Tooltip mit der Quote
+  addStage("c905", "B18 · Tooltip mit Quote Y ÷ X: Germany 2025 = 0,72, 2017 = 0,50", 760, 440);
+  {
+    const tips = [];
+    runCap("c905", b18Dv(c23(), { data: d07E, objs: { scale: rays07E } }), 760, 440,
+      { hostPatch: h => { h.tooltipService = { show(o) { tips.push(o.dataItems); }, move() {}, hide() {} }; } });
+    const tipOf = aria => {
+      const g = marks("c905").find(m => (m.getAttribute("aria-label") || "").startsWith(aria));
+      if (!g) { return null; }
+      g.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      const it = tips[tips.length - 1] || [];
+      return (it.find(x => /Ratio|Quote/.test(x.displayName)) || {}).value;
+    };
+    const q25 = tipOf("2025, Sales reps 17,"), q17 = tipOf("2017, Sales reps 2,");
+    check(q25 === "0,72 mEUR/Rep" && q17 === "0,50 mEUR/Rep", `c905: Quote 2025 ${q25}, 2017 ${q17}`);
+  }
+
+  // c906: ohne Serie ein Pfad; c907: eine Periode → Hinweis
+  addStage("c906", "B18 · ohne Stack-Serie: ein Pfad durch alle Perioden, ohne Namen", 760, 440);
+  addStage("c907", "B18 · nur eine Periode: Hinweis im Bearbeiten-Modus, kein Pfad", 760, 440);
+  {
+    runCap("c906", b18Dv(c23(), { data: { Trucks: d07D.Trucks }, noSeries: true }), 760, 440);
+    const ps = sQ("c906", '[data-icd="scatter-path"]');
+    check(ps.length === 1 && ps[0].getAttribute("data-n") === "9" && sQ("c906", '[data-icd="scatter-path-name"]').length === 0,
+      `c906: ein Pfad (${ps.map(g => g.getAttribute("data-n"))}), kein Name`);
+    runCap("c907", b18Dv(c23(), { cats: ["2025"], data: { Trucks: [[18, 8.2]], Cars: [[18.5, 10]] } }), 760, 440);
+    check(sQ("c907", '[data-icd="scatter-hint-path"]').length === 1 && sQ("c907", '[data-icd="scatter-path"] path')
+      .every(p => !p.getAttribute("d")), "c907: Hinweis, kein Segment");
+  }
+
+  // c908: Prognose 2024/2025 gestrichelt und hohl; c909: Lücke in X bricht den Pfad
+  addStage("c908", "B18 · Prognose-Perioden 2024 und 2025: Segmente gestrichelt, Punkte hohl", 960, 520);
+  addStage("c909", "B18 · Cars ohne X im Jahr 2021: Pfad bricht (zwei Teilstücke), data-n 8", 960, 520);
+  {
+    runCap("c908", b18Dv(c23(), { fc: i => i >= 7 }), 960, 520);
+    const dash = sQ("c908", '[data-icd="scatter-path"] path[stroke-dasharray]');
+    check(dash.length === 3 && dash.every(p => (p.getAttribute("d").match(/L/g) || []).length === 2), `c908: 3 gestrichelte Teilstücke mit je 2 Segmenten (${dash.length})`);
+    const hollow = marks("c908").filter(g => [...g.children].some(c => c.getAttribute("fill") === "#FFFFFF" && c.getAttribute("stroke") && c.getAttribute("fill-opacity") == null));
+    check(hollow.length === 6, `c908: 6 hohle FC-Punkte (${hollow.length})`);
+    const gap = JSON.parse(JSON.stringify(d07D));
+    gap.Cars[4] = [null, 9.8];
+    runCap("c909", b18Dv(c23(), { data: gap }), 960, 520);
+    const cars = sQ("c909", '[data-icd="scatter-path"][data-series="Cars"]')[0];
+    const d = cars?.querySelector("path")?.getAttribute("d") || "";
+    check(cars?.getAttribute("data-n") === "8" && (d.match(/M/g) || []).length === 2, `c909: Cars data-n ${cars?.getAttribute("data-n")}, ${(d.match(/M/g) || []).length} Teilstücke`);
+  }
+
+  // c910: Kacheln mit gleicher Skala, Strahlen je Kachel; c911: Log-Achsen
+  addStage("c910", "B18 · Small Multiples (2 Länder): gleiche Skala, Strahlen in jeder Kachel, Labels oben in Zeile 1 und rechts in der letzten Spalte", 1100, 460);
+  addStage("c911", "B18 · Log-Achsen: Strahlen als Geraden ohne Ursprung, Pfade bleiben", 760, 440);
+  {
+    runCap("c910", b18Dv(c23(), { data: d07E, mult: [["Nord", 1], ["Süd", 0.6]], objs: { scale: { ratioRays: "1; 0,35", ratioRayUnit: "mEUR/Rep" } } }), 1100, 460);
+    check(sQ("c910", '[data-icd="scatter-ray"]').length === 4 && sQ("c910", '[data-icd="scatter-path"]').length === 4,
+      `c910: 4 Strahlen, 4 Pfade (${sQ("c910", '[data-icd="scatter-ray"]').length}/${sQ("c910", '[data-icd="scatter-path"]').length})`);
+    const lab = sQ("c910", '[data-icd="scatter-ray-label"]').map(t => t.getAttribute("data-k")).sort().join(",");
+    check(lab === "0.35,1,1", `c910: Strahl-Labels 1 in beiden Kacheln (oben), 0,35 nur rechts (${lab})`);
+    const ticks = sQ("c910", '[data-icd="scatter-xtick"]').map(t => t.textContent);
+    check(ticks.length % 2 === 0 && ticks.slice(0, ticks.length / 2).join() === ticks.slice(ticks.length / 2).join(), `c910: gleiche X-Ticks (${ticks.join(",")})`);
+    runCap("c911", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1; 0,35", xLogScale: true, yLogScale: true } } }), 760, 440);
+    check(sQ("c911", '[data-icd="scatter-ray"]').length === 2 && sQ("c911", '[data-icd="scatter-ray-origin"]').length === 0
+      && sQ("c911", '[data-icd="scatter-path"]').length === 2, "c911: 2 Strahlen ohne Ursprung, 2 Pfade");
+  }
+
+  // c912: Play-Modus, Frame 3 (2020) zeigt den Pfad bis 2020
+  addStage("c912", "B18 · Play: Frame 3 (2020), Pfad je Sparte mit 4 Punkten, nur der aktuelle Punkt als Marke", 960, 520);
+  {
+    const dv = () => b18Dv(c23({ scatterPlay: true }));
+    const r = runCap("c912", dv(), 960, 520);
+    r.v.scatterFrame = 3;
+    r.upd(dv());
+    const ps = sQ("c912", '[data-icd="scatter-path"]');
+    check(ps.length === 3 && ps.every(g => g.getAttribute("data-n") === "4") && marks("c912").length === 3,
+      `c912: data-n ${ps.map(g => g.getAttribute("data-n")).join("/")}, ${marks("c912").length} Marken`);
+  }
+
+  // c913: Pfeilspitze; c914: Hochkontrast; c915: dunkel; c916: Bubbles mit Werten
+  addStage("c913", "B18 · Pfeilspitze am letzten Segment", 960, 520);
+  addStage("c914", "B18 · Hochkontrast: Pfade in Vordergrundfarbe", 960, 520, "#000");
+  addStage("c915", "B18 · Dunkel: drei unterscheidbare Pfadfarben, keine in Papierfarbe", 960, 520, "#1E1E1E");
+  addStage("c916", "B18 · Pfad mit Blasengröße und Werten in den Blasen", 960, 520);
+  {
+    runCap("c913", b18Dv(c23({ scatterPathArrow: true })), 960, 520);
+    check(sQ("c913", '[data-icd="scatter-path-head"]').length === 3, `c913: 3 Pfeilspitzen (${sQ("c913", '[data-icd="scatter-path-head"]').length})`);
+    runCap("c914", b18Dv(c23()), 960, 520, { hc: true });
+    const st = sQ("c914", '[data-icd="scatter-path"] path').map(p => p.getAttribute("stroke"));
+    check(st.length === 3 && st.every(s => s === "#FFFF00"), `c914: Pfade ${st.join(" ")}`);
+    runCap("c915", b18Dv(c23(), { objs: { colors: { appearance: "dark" } } }), 960, 520);
+    const sd = sQ("c915", '[data-icd="scatter-path"] path').map(p => p.getAttribute("stroke"));
+    check(new Set(sd).size === 3 && !sd.some(s => /^#(1E1E1E|FFFFFF)$/i.test(s)), `c915: Töne ${sd.join(" | ")}`);
+    runCap("c916", b18Dv(c23({ scatterValueLabels: true }), { size: true }), 960, 520);
+    check(sQ("c916", '[data-icd="scatter-path"]').length === 3 && sQ("c916", '[data-icd="scatter-value"], [data-icd="scatter-value-beside"]').length > 0,
+      "c916: Pfade und Werte");
+  }
+
+  // c917: Formatbereich
+  addStage("c917", "B18 · Formatbereich: Pfad-Optionen nur mit Pfad, Bewegungspfeile ohne Pfad, Strahl-Einheit nur mit Strahlen", 400, 260);
+  addStage("c917b", "B18 · Formatbereich ohne Pfad, mit Strahlen", 400, 260);
+  {
+    const vis = (r, card, k) => { r.v.getFormattingModel(); return r.v.formattingSettings[card][k].visible !== false; };
+    const withPy = (chart, scale) => { const dv = b18Dv(chart, { objs: scale ? { scale } : {} }); dv.categorical.values.push(col("previousYear", dv.categorical.values[0].values.map(v => v), "#,0.0")); return dv; };
+    const r1 = runCap("c917", withPy(c23()), 400, 260);
+    const a = [vis(r1, "chartCard", "scatterPathLabels"), vis(r1, "chartCard", "scatterPathDelta"), vis(r1, "chartCard", "scatterArrows"), vis(r1, "scaleCard", "ratioRayUnit")];
+    const r2 = runCap("c917b", withPy({ orientation: "scatter" }, { ratioRays: "1" }), 400, 260);
+    const b = [vis(r2, "chartCard", "scatterPathLabels"), vis(r2, "chartCard", "scatterArrows"), vis(r2, "scaleCard", "ratioRayUnit"), vis(r2, "chartCard", "scatterPath")];
+    check(a.join() === "true,true,false,false" && b.join() === "false,true,true,true", `c917: mit Pfad ${a.join()}, ohne ${b.join()}`);
+  }
+
+  // kein NaN, undefined oder Infinity in den B18-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c9[0-2]\d[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(sSvg(id)));
+    check(ids.length >= 20 && bad.length === 0, `c900 bis c917: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B18-END
 </script>
 </body>
 </html>
