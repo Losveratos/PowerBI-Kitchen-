@@ -903,7 +903,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "varianceOnly",
         displayName: "Variance panel only",
         displayNameKey: "Chart_VarianceOnly",
-        description: "Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten. Die Bezugskachel (Σ bzw. Ø) behält ihre Säulen auf eigener Skala; weicht deren Maßstab von der Δ-Skala ab, steht der Faktor im Titel (z. B. ×0,5). Planjahre erscheinen in Plan-Notation (umrandet, blasse Füllung bzw. hohler Pin-Kopf). Kommentare, Hervorhebungsband, Differenzmarker und Jahressäule entfallen in dieser Ansicht. Kleine Kacheln fallen auf die normale Ansicht zurück. Rezept 13C: Basis Ø mit absoluter Abweichung, 13D: Basis Ø mit relativer Abweichung.",
+        description: "Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten. Die Bezugskachel (Σ bzw. Ø) behält ihre Säulen bzw. Balken, mit absolutem Δ im Maßstab der Δ-Skala; passen ihre Werte dort nicht hinein, steht der Verkleinerungsfaktor im Titel (z. B. ×0,5), nur mit Δ % skaliert sie für sich. Planjahre erscheinen in Plan-Notation (umrandet, blasse Füllung bzw. hohler Pin-Kopf). Kommentare, Hervorhebungsband, Differenzmarker, Jahressäule, Heldenkachel und doppelte Abweichung entfallen in dieser Ansicht. Kleine Kacheln fallen auf die normale Ansicht zurück. Rezept 13C: Basis Ø mit absoluter Abweichung, 13D: Basis Ø mit relativer Abweichung.",
         descriptionKey: "Desc_Chart_VarianceOnly",
         value: false
     });
