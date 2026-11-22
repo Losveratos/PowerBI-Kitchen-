@@ -402,7 +402,6 @@ export function rowsFromLevels(
 ): { rows: InputRow[]; months: string[] } {
     const synth = new Map<string, InputRow>();
     const leaves: (InputRow & { month: string | null })[] = [];
-    const pathId = (path: string[]): string => LEVEL_PREFIX + path.join(LEVEL_SEP);
 
     for (const r of rows) {
         const path: string[] = [];
@@ -413,12 +412,16 @@ export function rowsFromLevels(
             path.push(v);
         }
         if (path.length === 0) { continue; }
+        // 1.8.2 the path ids of every level once per row (pref[d] = id of path[0..d]),
+        // LEVEL_PREFIX + path.join(LEVEL_SEP) as before; month-grain data repeats a path 12 times
+        const pref: string[] = [];
+        for (let d = 0; d < path.length; d++) { pref.push(d === 0 ? LEVEL_PREFIX + path[0] : pref[d - 1] + LEVEL_SEP + path[d]); }
 
         for (let d = 1; d < path.length; d++) {
-            const id = pathId(path.slice(0, d));
+            const id = pref[d - 1];
             if (!synth.has(id)) {
                 synth.set(id, {
-                    id, parent: d > 1 ? pathId(path.slice(0, d - 1)) : null,
+                    id, parent: d > 1 ? pref[d - 2] : null,
                     name: path[d - 1], sort: r.index, rowType: "subtotal",
                     formulaDef: null, sign: 1, displayInvert: false,
                     varianceInvert: false, values: {}, comment: null, index: -1,
@@ -426,10 +429,10 @@ export function rowsFromLevels(
             }
         }
 
-        const leafId = (r.account ?? "").trim() || pathId(path);
+        const leafId = (r.account ?? "").trim() || pref[path.length - 1];
         leaves.push({
             id: leafId,
-            parent: path.length > 1 ? pathId(path.slice(0, -1)) : null,
+            parent: path.length > 1 ? pref[path.length - 2] : null,
             name: r.name ?? path[path.length - 1],
             sort: r.sort ?? r.index,
             rowType: r.rowType, formulaDef: r.formulaDef, sign: r.sign,
@@ -761,6 +764,14 @@ function classifyStock(byId: Map<string, PnlNode>, resolve: (id: string) => PnlN
         }
         return;
     }
+    // 1.8.2 auto without a single stock token: nothing can become a stock (a
+    // total or formula inherits only from stock rows), every node keeps the
+    // reset above. The common P&L case skips the walk over all nodes and
+    // formulas (it cost ~100 ms per model at 5,000 accounts; the cross-highlight
+    // builds three models)
+    let anyToken = false;
+    for (const n of byId.values()) { if (n.row.stock) { anyToken = true; break; } }
+    if (!anyToken) { return; }
     const done = new Set<PnlNode>();
     const busy = new Set<PnlNode>();
     const visit = (n: PnlNode): void => {
@@ -1402,7 +1413,9 @@ export function displayVariance(row: InputRow, a: number | null, rv: number | nu
     if (v.delta == null || a == null || rv == null) { return null; }
     if (row.rowType === "kpi") {
         const d = v.delta * 100;
-        const p = rv !== 0 ? a / rv - 1 : null;
+        // 1.8.2 like every value row: Δ over |reference| (a / rv − 1 flipped the sign
+        // for a negative reference margin: −2 % → +3 % read −250 % next to +5.0 pp)
+        const p = rv !== 0 ? (a - rv) / Math.abs(rv) : null;
         const flip = row.varianceInvert ? -1 : 1;
         return { d, p, good: v.good, impact: d * flip, impactPct: p == null ? null : p * flip, pp: true };
     }

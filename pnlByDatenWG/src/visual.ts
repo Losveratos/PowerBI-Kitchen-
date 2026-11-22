@@ -687,6 +687,13 @@ export class Visual implements IVisual {
     private hlWhole: PnlModel | null = null;
     private hlPart: PnlModel | null = null;
     /**
+     * 1.8.2 the Sankey's pair is built on first use: only the Sankey reads the
+     * marked part in the shape of the whole; the table, bars, waterfall and tree
+     * read the filter model. Until 1.8.1 every highlight parsed and built it
+     * up front (one of three parses, ~1/3 of the highlight render)
+     */
+    private hlPartLazy: (() => void) | null = null;
+    /**
      * 1.7 cross-highlight: the marked part as a FILTER delivers it — rows with
      * data in the whole but none in the selection are gone, months and models
      * from what is left (null = no highlight; "empty" = the selection has no data)
@@ -760,6 +767,8 @@ export class Visual implements IVisual {
     private totalVer = -1;
     /** 1.8 (B03) synthetic total row of the mega table over several structure roots, per model object */
     private megaTot: { model: PnlModel; node: PnlNode } | null = null;
+    /** 1.8.2 cached number formats of treeNum (key: locale | decimals) */
+    private treeNf = new Map<string, Intl.NumberFormat>();
     /** stage height of the last host update — drives the compact-card fallback */
     private vpH = 0;
     /** stage width of the last host update (Smart Start needs room) */
@@ -1205,17 +1214,33 @@ export class Visual implements IVisual {
         const full = buildModel(parsed.rows, this.tr("UI_NotAssigned"), parsed.months, opts);
         this.model = full;
         this.hlFull = null; this.hlWhole = null; this.hlPart = null; this.hlFilter = null; this.hlShown = null;
+        this.hlPartLazy = null;
         this.buildCatModels(dataView, parsed.months, opts);
         if (this.highlighted(dataView)) {
-            // the Sankey's pair: the marked part in the shape of the whole
-            const marked = this.parseRows(dataView, undefined, true);
-            if (marked && marked.rows.length > 0) {
-                const rows = marked.rows.map(r => this.alignSeries(r, marked.months, parsed.months));
-                const part = buildModel(rows, this.tr("UI_NotAssigned"), parsed.months, opts);
-                // a twin that does not match row for row (cannot happen with one data
-                // view, defensive) leaves the Sankey without its context
-                if (sameShape(part, full)) { this.hlPart = part; this.hlWhole = full; }
-            }
+            // the Sankey's pair: the marked part in the shape of the whole — built
+            // when the Sankey asks for it (hlSelect), not for every view
+            // 1.8.2 the closure keeps only what the parse needs (not the parsed rows)
+            // and the "not assigned" text of this build, so the pair names its rest
+            // like the whole even after a language switch
+            const months = parsed.months;
+            const na = this.tr("UI_NotAssigned");
+            this.hlPartLazy = (): void => {
+                this.hlPartLazy = null;
+                try {
+                    const marked = this.parseRows(dataView, undefined, true);
+                    if (marked && marked.rows.length > 0) {
+                        const rows = marked.rows.map(r => this.alignSeries(r, marked.months, months));
+                        const part = buildModel(rows, na, months, opts);
+                        // a twin that does not match row for row (cannot happen with one data
+                        // view, defensive) leaves the Sankey without its context
+                        if (sameShape(part, full)) { this.hlPart = part; this.hlWhole = full; }
+                    }
+                } catch {
+                    // the render must not fail over the pair: the Sankey falls back to
+                    // the filter model like a pair that does not match
+                    this.hlPart = null; this.hlWhole = null;
+                }
+            };
             // every other view: the selection exactly as a filter delivers it — a data
             // row with values in the whole but none in the selection is not in the
             // query; structure rows without any value (formulas, separators) stay
@@ -1267,6 +1292,7 @@ export class Visual implements IVisual {
     private hlSelect(): boolean {
         if (this.hlFilter == null || !this.ui) { return true; }
         const vw = this.view();
+        if (vw === "sankey" && this.ui.treeZoom == null && this.hlPartLazy) { this.hlPartLazy(); }
         const flow = vw === "sankey" && this.ui.treeZoom == null && this.hlPart != null;
         let next: PnlModel | null;
         if (flow) { next = this.hlPart; this.hlFull = this.hlWhole; }
@@ -1393,36 +1419,59 @@ export class Visual implements IVisual {
             if (!info) { info = parseRowTypeInfo(raw); rtCache.set(raw, info); }
             return info;
         };
-        const attrs = (i: number): Pick<LevelInputRow, "rowType" | "formulaDef" | "sign" | "displayInvert" | "varianceInvert" | "comment" | "stock" | "flow" | "kfmt"> => {
+        // 1.8.2 sign / flag cells repeat a handful of texts: read each distinct text once
+        const signCache = new Map<string | null, number>();
+        const boolCache = new Map<string | null, boolean>();
+        const signOf = (i: number): number => {
+            if (!signCol) { return 1; }
+            const t = txt(signCol, i);
+            let v = signCache.get(t);
+            if (v === undefined) { v = parseSign(t); signCache.set(t, v); }
+            return v;
+        };
+        const boolOf = (col: DataViewCategoryColumn | undefined, i: number): boolean => {
+            if (!col) { return false; }
+            const t = txt(col, i);
+            let v = boolCache.get(t);
+            if (v === undefined) { v = parseBool(t); boolCache.set(t, v); }
+            return v;
+        };
+        /** the row attributes written straight into the row (1.8.2: no temporary object per row) */
+        const setAttrs = <T extends Pick<LevelInputRow, "rowType" | "formulaDef" | "sign" | "displayInvert" | "varianceInvert" | "comment" | "stock" | "flow" | "kfmt">>(o: T, i: number): T => {
             const info = rowTypeOf(i);
-            return {
-                rowType: info.rowType,
-                formulaDef: txt(formulaCol, i),
-                sign: signCol ? parseSign(txt(signCol, i)) : 1,
-                displayInvert: dispCol ? parseBool(txt(dispCol, i)) : false,
-                varianceInvert: varCol ? parseBool(txt(varCol, i)) : false,
-                comment: key(commentCol, i),
-                ...(info.stock ? { stock: info.stock } : {}), ...(info.flow ? { flow: true } : {}),
-                ...(info.kfmt ? { kfmt: info.kfmt } : {}),
-            };
+            o.rowType = info.rowType;
+            o.formulaDef = txt(formulaCol, i);
+            o.sign = signOf(i);
+            o.displayInvert = boolOf(dispCol, i);
+            o.varianceInvert = boolOf(varCol, i);
+            o.comment = key(commentCol, i);
+            // 1.7 / 1.8 the tokens travel only when the cell carried one
+            if (info.stock) { o.stock = info.stock; }
+            if (info.flow) { o.flow = true; }
+            if (info.kfmt) { o.kfmt = info.kfmt; }
+            return o;
         };
 
         if (levelCols.length > 0 && !parentCol) {
             const lrows: LevelInputRow[] = [];
+            const lvVals = levelCols.map(c => c.values);
+            const nl = lvVals.length;
             for (let i = 0; i < n; i++) {
                 // 1.2 column category: the rows of one category value only
                 if (only && !only.has(i)) { continue; }
-                const sortRaw = Number(txt(sortCol, i) ?? NaN);
-                lrows.push({
-                    levels: levelCols.map(c => txt(c, i)),
+                const sortRaw = sortCol ? Number(txt(sortCol, i) ?? NaN) : NaN;
+                const levels: (string | null)[] = new Array(nl);
+                for (let k = 0; k < nl; k++) { const v = lvVals[k][i]; levels[k] = v == null ? null : String(v); }
+                lrows.push(setAttrs({
+                    levels,
                     account: idCol ? key(idCol, i) : null,
                     name: nameCol ? txt(nameCol, i) : null,
                     sort: isFinite(sortRaw) ? sortRaw : null,
-                    ...attrs(i),
+                    rowType: "account", formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false, comment: null,
                     values: values(i),
                     month: periodKey(i),
                     index: i,
-                });
+                } as LevelInputRow, i));
             }
             const lr = rowsFromLevels(lrows, sortMode);
             return { rows: this.trimUnposted(lr.rows, lr.months, only, marked), months: lr.months, rowCount: n, has };
@@ -1435,15 +1484,15 @@ export class Visual implements IVisual {
             const id = key(idCol, i);
             if (id == null) { continue; }
             const sortRaw = Number(txt(sortCol, i) ?? i);
-            raw.push({
+            raw.push(setAttrs({
                 id, parent: key(parentCol, i),
                 name: txt(nameCol, i) ?? id,
                 sort: isFinite(sortRaw) ? sortRaw : Number.MAX_SAFE_INTEGER,
-                ...attrs(i),
+                rowType: "account", formulaDef: null, sign: 1, displayInvert: false, varianceInvert: false, comment: null,
                 values: values(i),
                 month: periodKey(i),
                 index: i,
-            });
+            } as InputRow & { month: string | null }, i));
         }
         const agg = aggregateMonthly(raw, sortMode);
         return { rows: this.trimUnposted(agg.rows, agg.months, only, marked), months: agg.months, rowCount: n, has };
@@ -2187,7 +2236,8 @@ export class Visual implements IVisual {
         const zp = this.zeroPlain();
         const sg = (nfr: Intl.NumberFormat, x: number, raw: number, plus: boolean, unit: string): string => {
             const t = grp(nfr, Math.abs(x));
-            if (Math.abs(raw) < 1e-9 || (!/[1-9]/.test(t) && (!plus || zp))) { return t + unit; }
+            // 1.8.2 a number of at least 1 never rounds to zero: skip the digit test
+            if (Math.abs(raw) < 1e-9 || (Math.abs(x) < 1 && !/[1-9]/.test(t) && (!plus || zp))) { return t + unit; }
             return (raw < 0 ? MINUS : plus ? "+" : "") + t + unit;
         };
         return {
@@ -7325,7 +7375,11 @@ export class Visual implements IVisual {
         const scaled = v / fmt.div;
         const a = Math.abs(scaled);
         const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
-        const nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        // 1.8.2 one formatter per locale and decimals (a Sankey over 5,000 accounts
+        // formats tens of thousands of numbers; a new Intl.NumberFormat each cost ~200 ms)
+        const fk = this.locale + "|" + dec;
+        let nf = this.treeNf.get(fk);
+        if (!nf) { nf = new Intl.NumberFormat(this.locale, { minimumFractionDigits: dec, maximumFractionDigits: dec }); this.treeNf.set(fk, nf); }
         const t = nf.formatToParts(a).map(p => (p.type === "group" ? NBSP_GROUP : p.value)).join("");
         // 1.8 (B14) the rule of every view: a value that rounds to zero carries no
         // sign, a Δ (plus) keeps it unless numbers.roundedZero = plain
@@ -11251,6 +11305,10 @@ export class Visual implements IVisual {
             // 1.8 (B14) T03 prints Δ% whole but margins and their pp with one decimal
             mdec: this.settings.numbersCard.sheetPctDecimals.value ? Math.max(1, this.settings.numbersCard.pctDecimals.value) : undefined,
             zeroPlain: this.zeroPlain(),
+            // 1.8.2 sheet options T03 (relative Δ% of margins) and T04 (no pp at the axis)
+            marginRel: this.settings.numbersCard.marginRel.value === true,
+            marginAxisPp: this.settings.numbersCard.marginAxisPp.value !== false,
+            ellipseRoom: this.highlightSet().size > 0 && this.highlightStyle() !== "band",
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
             // 1.7 a table of stocks only has no year-to-date share in its FY outlook
             ytdHead: stockOnlyHead ? "" : "YTD",
@@ -11273,7 +11331,7 @@ export class Visual implements IVisual {
             selAccent: this.accent(),
             highlight: this.highlightSet().size > 0
                 ? { ids: new Set(rows.filter(r => r.id !== "" && nodes.has(r.id) && this.isHighlighted(nodes.get(r.id)!)).map(r => r.id)),
-                    ink: this.hc ? this.hc.fg : C.ac, hc: this.hc != null }
+                    ink: this.hc ? this.hc.fg : C.ac, hc: this.hc != null, style: this.highlightStyle() }
                 : undefined,
         };
         // virtualization (1.1): a long statement paints only the rows around the
@@ -11917,6 +11975,12 @@ export class Visual implements IVisual {
         const a = Math.abs(v);
         const [div, suf] = a >= 1e9 ? [1e9, "b"] : a >= 1e6 ? [1e6, "m"] : a >= 1e3 ? [1e3, "k"] : [1, ""];
         return new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 }).format(v / div) + suf;
+    }
+
+    /** 1.8.2 columns.highlightStyle: band (default) | ellipse | both */
+    private highlightStyle(): "band" | "ellipse" | "both" {
+        const v = String(this.settings?.columnsCard?.highlightStyle?.value?.value ?? "band");
+        return v === "ellipse" || v === "both" ? v : "band";
     }
 
     /** columns.highlight as a lower-case set of row names / ids */

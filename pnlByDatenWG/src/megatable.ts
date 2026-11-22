@@ -298,6 +298,12 @@ export interface MegaInput {
     zeroPlain?: boolean;
     /** 1.8 (B14) decimals of margin rows and their pp (default pdec) */
     mdec?: number;
+    /** 1.8.2 the margin row also prints its relative change in the Δ% column (IBCS sheets T03A/B: "+8.6%p" and "+23%") */
+    marginRel?: boolean;
+    /** 1.8.2 the margin row's pp at the axis of a Δ bar / waterfall column (default on; the sheets T04 print none) */
+    marginAxisPp?: boolean;
+    /** 1.8.2 columns.highlightStyle ellipse / both with rows to highlight: the Δ labels keep room for the ring */
+    ellipseRoom?: boolean;
     /** house terms (labels.labelAc …): rewrites the scenario codes of every column head */
     relabel?: (s: string) => string;
     /** head text over the YTD part of a stacked (12G) value cascade. Default "YTD" */
@@ -1052,6 +1058,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
         if (c.type === "dpct") {
             // 1.5.1: a margin row has no relative Δ% (a percentage of a
             // percentage) — its Δ is the point difference in the Δ column
+            // 1.8.2 numbers.marginRel: the relative change of the margin (45.3 % on 36.7 % = +23 %)
+            if (pct && input.marginRel && D.p != null && isFinite(D.p) && !r.kfmt) { return { ...base, t: fmt.pct(D.p), ...redText(false) }; }
             if (D.p == null || pct) { return null; }
             const imp = D.impactPct;
             const red = t.thresholds && !pct && imp != null && imp < blk.th.pct - 1e-9;
@@ -1155,7 +1163,8 @@ export function layoutMega(input: MegaInput): MegaLayout {
     // A block or column that would become unreadable at that scale is drawn
     // magnified by a round factor and says so in its head ("ΔPY ×5") and in
     // the scale note — never rescaled silently (UN 5.2, CH 4.3 / 4.5).
-    const lblW = (s: string, bold: boolean): number => t.labels ? tw(s, G.fs, bold) + G.lblGap : 0;
+    const lblW = (s: string, bold: boolean): number => t.labels
+        ? tw(s, G.fs, bold) + G.lblGap + (input.ellipseRoom ? MEGA_ELL_SHIFT + MEGA_ELL_PAD : 0) : 0;
     for (const c of charts) {
         const blk = blocks[c.block];
         c.els = [{ p: 0, q: 0, a: 3, c: 3 }]; // the axis itself
@@ -1164,7 +1173,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
         // point difference as a number at the axis — the same "+8.6 pp" the Δ
         // column of T03 shows (columns.showPctRows decides both); a percentage
         // point is no amount, so it never becomes a bar
-        if ((c.type === "bar" || c.type === "wf") && t.labels
+        if ((c.type === "bar" || c.type === "wf") && t.labels && input.marginAxisPp !== false
             && !cols.some(x => x.type === "delta" && x.block === c.block && x.ref === c.ref)) {
             for (const { r } of R) {
                 if (r.kind !== "pct") { continue; }
@@ -1419,7 +1428,15 @@ export interface MegaPaintOpts {
      * rows to emphasize (columns.highlight, ChartKitchen emphBand): a quiet ink
      * band at 7 % over the whole row; high contrast draws a 1 px outline instead
      */
-    highlight?: { ids: Set<string>; ink: string; hc: boolean };
+    highlight?: { ids: Set<string>; ink: string; hc: boolean;
+        /**
+         * 1.8.2 columns.highlightStyle: "band" (default, the band above), "ellipse"
+         * (an ellipse around the row's Δ number in the first Δ bar or waterfall
+         * column of the last block, IBCS sheets 12G / 12H "+885"), "both". A
+         * highlighted row that gets no ellipse (no such column, labels off, a
+         * margin row, no Δ) keeps the band under "ellipse" as well
+         */
+        style?: "band" | "ellipse" | "both" };
     /**
      * virtualization (1.1, long statements): paint only the rows L.R[from, to)
      * of the body — the layout stays complete, so the body keeps its full
@@ -1565,14 +1582,17 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
     }
 
     // ---- highlight bands (IBCS EMPHASIZE, behind everything of the body) -------
-    if (o.highlight && o.highlight.ids.size > 0) {
+    const hlBand = (i: number, hl: NonNullable<MegaPaintOpts["highlight"]>): SVGRectElement => {
+        const { y, h } = R[i];
+        return svgEl("rect", hl.hc
+            ? { x: 0.5, y: y + 0.5, width: Math.max(1, L.tableW - 1), height: h - 1, fill: "none", stroke: hl.ink, "stroke-width": 1, "data-pnl": "mega-hl" }
+            : { x: 0, y, width: L.tableW, height: h, fill: hl.ink, "fill-opacity": 0.07, "data-pnl": "mega-hl" }, B.rules);
+    };
+    if (o.highlight && o.highlight.ids.size > 0 && o.highlight.style !== "ellipse") {
         const hl = o.highlight;
         for (let i = 0; i < R.length; i++) {
-            const { r, y, h } = R[i];
-            if (!inW(i) || !hl.ids.has(r.id)) { continue; }
-            svgEl("rect", hl.hc
-                ? { x: 0.5, y: y + 0.5, width: Math.max(1, L.tableW - 1), height: h - 1, fill: "none", stroke: hl.ink, "stroke-width": 1, "data-pnl": "mega-hl" }
-                : { x: 0, y, width: L.tableW, height: h, fill: hl.ink, "fill-opacity": 0.07, "data-pnl": "mega-hl" }, B.rules);
+            if (!inW(i) || !hl.ids.has(R[i].r.id)) { continue; }
+            hlBand(i, hl);
         }
     }
 
@@ -1642,7 +1662,25 @@ export function paintMega(L: MegaLayout, o: MegaPaintOpts): MegaPainted {
     }
 
     // ---- body: chart columns ---------------------------------------------------
-    for (const c of L.charts) { paintChartColumn(L, c, B, text, base, vline, rect, pal, win); }
+    // 1.8.2 the ellipse goes around the Δ number of the first Δ bar / waterfall column of the last block
+    const ell: (MegaEll & { col: MegaCol | null }) | null = o.highlight && o.highlight.ids.size > 0
+        && (o.highlight.style === "ellipse" || o.highlight.style === "both")
+        ? { ids: o.highlight.ids, ink: o.highlight.ink, drawn: new Set<string>(),
+            col: (() => {
+                if (L.charts.length === 0) { return null; }
+                const lastB = Math.max(...L.charts.map(x => x.block));
+                return L.charts.find(x => x.block === lastB && (x.type === "bar" || x.type === "wf")) ?? null;
+            })() }
+        : null;
+    for (const c of L.charts) { paintChartColumn(L, c, B, text, base, vline, rect, pal, win, ell && ell.col === c ? ell : undefined); }
+    // style "ellipse": a highlighted row without its ring keeps the band (behind all of the body)
+    if (ell && o.highlight!.style === "ellipse") {
+        const hl = o.highlight!;
+        for (let i = R.length - 1; i >= 0; i--) {
+            if (!inW(i) || !hl.ids.has(R[i].r.id) || ell.drawn.has(R[i].r.id)) { continue; }
+            B.rules.insertBefore(hlBand(i, hl), B.rules.firstChild);
+        }
+    }
 
     // ---- footer "Δ in red if" --------------------------------------------------
     if (style.thresholds) {
@@ -1700,6 +1738,7 @@ function paintChartColumn(
     rect: (x: number, y: number, w: number, h: number, st: MegaPaint, parent: Element) => SVGRectElement,
     pal: { good: string; bad: string },
     win?: { from: number; to: number },
+    ell?: MegaEll,
 ): void {
     const { G, R, input } = L;
     const N = L.NB[c.block] ?? L.N;
@@ -1773,7 +1812,7 @@ function paintChartColumn(
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)
         paintCascade(L, c, B, g, X, label, vline, rect, paintAxis, pal,
-            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf }, win, avoid);
+            { x: axisKind === "value" ? ax + 0.5 : ax, half: axisHalf }, win, avoid, c.type === "wf" ? ell : undefined);
         return;
     }
     const byRow = new Map(c.vals!.map(v => [v.r, v]));
@@ -1802,13 +1841,17 @@ function paintChartColumn(
             const xr = X(vv); const x2 = xr + dir * zone;
             const bx = Math.min(c.x0!, x2); const bw = Math.abs(x2 - c.x0!);
             if (v !== 0) { rect(Math.round(bx * 2) / 2, cy - G.barH / 2, Math.max(bw, 1), G.barH, quiet ? dashed : bad ? hollow : N.area(color, hatch), gBars); }
+            // 1.8.2 a ringed number moves out a little, so the ring stays off the bar
+            const sh = megaEllShift(L, ell, r) * dir;
             if (capped) {
                 breakMark(xr + dir * Math.min(5, zone / 3), cy, dir, G.barH);
                 arrow(x2 + dir * G.arrowW, cy, dir, G.barH + 4, color, bad || quiet);
-                label(x2 + dir * (G.arrowW + G.lblGap), ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
+                label(x2 + dir * (G.arrowW + G.lblGap) + sh, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
+                megaEllipse(L, ell, r, x2 + dir * (G.arrowW + G.lblGap) + sh, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold, g);
             } else {
-                const lx = dir > 0 ? Math.max(x2, c.x0! + axisHalf) + G.lblGap : Math.min(x2, c.x0! - axisHalf) - G.lblGap;
+                const lx = (dir > 0 ? Math.max(x2, c.x0! + axisHalf) + G.lblGap : Math.min(x2, c.x0! - axisHalf) - G.lblGap) + sh;
                 label(lx, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold);
+                megaEllipse(L, ell, r, lx, ty, fmt.delta(v), dir > 0 ? "start" : "end", bold, g);
             }
         } else {
             const xr = X(vv); const xh = xr + dir * zone;
@@ -1836,6 +1879,29 @@ function paintChartColumn(
  * spans its children also gets the line from its start (the long line through
  * the child rows, T04B). Margin rows / spacers are skipped, the line runs on.
  */
+/** 1.8.2 a ringed Δ number moves this far out, the ring reaches this far past the digits */
+const MEGA_ELL_SHIFT = 4;
+const MEGA_ELL_PAD = 5;
+
+/** 1.8.2 rows that get an ellipse in one chart column; `drawn` collects the rows that got one */
+interface MegaEll { ids: Set<string>; ink: string; drawn: Set<string> }
+
+function megaEllShift(L: MegaLayout, ell: MegaEll | undefined, r: MegaRow): number {
+    return ell && ell.ids.has(r.id) && L.input.t.labels ? MEGA_ELL_SHIFT : 0;
+}
+
+/** 1.8.2 an ellipse around the Δ number of a highlighted row (IBCS sheets 12G / 12H) */
+function megaEllipse(L: MegaLayout, ell: MegaEll | undefined, r: MegaRow, x: number, y: number, s: string,
+    anchor: string, bold: boolean, parent: Element): void {
+    if (!ell || !ell.ids.has(r.id) || !L.input.t.labels || !s) { return; }
+    const { G } = L;
+    const w = L.input.measure(s, G.fs, bold, false);
+    const cx = anchor === "end" ? x - w / 2 : anchor === "middle" ? x : x + w / 2;
+    svgEl("ellipse", { cx, cy: y - G.fs * 0.32, rx: w / 2 + MEGA_ELL_PAD, ry: G.fs * 0.78, fill: "none",
+        stroke: ell.ink, "stroke-width": 1.4, "data-pnl": "mega-ellipse" }, parent);
+    ell.drawn.add(r.id);
+}
+
 function paintCascade(
     L: MegaLayout, c: MegaCol,
     B: { svg: SVGSVGElement; rules: SVGGElement; charts: SVGGElement; text: SVGGElement; hatch: (c: string) => string },
@@ -1849,6 +1915,7 @@ function paintCascade(
     axis: { x: number; half: number },
     win?: { from: number; to: number },
     avoid: { x0: number; x1: number; y0: number; y1: number }[] = [],
+    ell?: MegaEll,
 ): void {
     const { G, R, input } = L;
     const N = L.NB[c.block] ?? L.N;
@@ -1972,7 +2039,8 @@ function paintCascade(
         }
         last = { v: seg.e, yb: bot };
         const up = seg.e >= seg.s;
-        const lx = up ? xb + G.lblGap : xa - G.lblGap;
+        // 1.8.2 a ringed Δ (12G / 12H style on a Δ waterfall) moves out a little
+        const lx = (up ? xb + G.lblGap : xa - G.lblGap) + megaEllShift(L, ell, r) * (up ? 1 : -1);
         // A floating segment just beside the zero line puts its number ON the
         // axis (T04B "+5.79", T04D "+8.52" — the reference sheets do the same,
         // and the double PL line then cuts through the digits). Only such a
@@ -1986,6 +2054,7 @@ function paintCascade(
         }
         labelBox(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r));
         label(lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r), crosses);
+        megaEllipse(L, ell, r, lx, base(y, rh), txt, up ? "start" : "end", megaIsBold(r), g);
     }
     const pad = 1.5;
     for (const k of conns) {

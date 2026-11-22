@@ -30,7 +30,7 @@ Drei Power-BI-Custom-Visuals von Michael Tenner (Daten-WG), gemeinsam in einem �
 
 ### P&L Statement byDatenWG
 
-- **Version:** `1.7.1.0`
+- **Version:** `1.8.2.0`
 - **API:** `5.11.0`
 - **GUID:** `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 - **Lizenz:** MIT (`LICENSE` im Repo-Wurzelverzeichnis)
@@ -76,9 +76,11 @@ Ein leeres `privileges`-Array bedeutet: kein `WebAccess` (keine erlaubten URLs),
 | sessionStorage | 0 | 0 | 0 |
 | document.cookie | 0 | 0 | 0 |
 | indexedDB | 0 | 0 | 0 |
-| Quelldateien in `src/` | 2 | 8 | 3 |
+| Quelldateien in `src/` | 2 | 10 | 3 |
 
-* Der eine Treffer in dataKitchenGantt ist ein Kommentar (`gantt.ts`, Zeile 20: „Rendering per DOM-Knoten (textContent, kein innerHTML)“), kein Aufruf. Weitere Muster ohne Treffer in allen drei Quellbäumen: `importScripts`, `window.open`, `postMessage`, `createObjectURL`, `new Worker`, `iframe`, `DOMParser`, `document.write`, `insertAdjacentHTML`, `outerHTML`, `navigator.`, `FontFace`. Dieselben zwölf Muster (bei `<script` ohne das Attribut „src“) ergeben auch im **gebauten Paket** (`.pbiviz`, Stand der drei Dateien im Repository vom 23.10.2026) 0 Treffer; die einzigen URLs im Bundle sind der SVG-Namensraum `http://www.w3.org/2000/svg`, die Dokumentations-Adressen unserer Website (ChartKitchen, P&L) und die Support-Links in den Metadaten.
+* Der eine Treffer in dataKitchenGantt ist ein Kommentar (`gantt.ts`, Zeile 20: „Rendering per DOM-Knoten (textContent, kein innerHTML)“), kein Aufruf. Weitere Muster ohne Treffer in allen drei Quellbäumen: `importScripts`, `window.open`, `postMessage`, `createObjectURL`, `new Worker`, `iframe`, `DOMParser`, `document.write`, `insertAdjacentHTML`, `outerHTML`, `navigator.`, `FontFace`. Dieselben zwölf Muster (bei `<script` ohne das Attribut „src“) ergeben auch im **gebauten Paket** (`.pbiviz`, Stand der drei Dateien im Repository vom 23.10.2026; P&L: siehe nächster Absatz) 0 Treffer; die einzigen URLs im Bundle sind der SVG-Namensraum `http://www.w3.org/2000/svg`, die Dokumentations-Adressen unserer Website (ChartKitchen, P&L) und die Support-Links in den Metadaten.
+
+**P&L Statement 1.8.2.0, Prüfung vom 22.11.2026:** Paket `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz`, SHA-256 `df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7`. Die Trefferzahlen oben gelten für den Quellstand dieser Version (zehn Dateien in `src/`). Im entpackten Bundle: keine Netzwerk-API, kein `eval`/`new Function`, kein `innerHTML`, `privileges` und `externalJS` leer; einzige URLs im Code sind der SVG-Namensraum und die zwei Doku-Adressen, dazu stehen zwei Support-Links (GitHub) in den Metadaten. Das gepackte Bundle lief in einem Browser ohne Netzwerk durch 98 Testfälle (Tabelle, Mega-Tabelle, Treiberbaum, Sankey, Kacheln, Kreuz-Hervorhebung, Start-Hub, Hochkontrast, leere Daten) mit 518 Bedienklicks: 0 Netzwerkversuche, 0 Konsolenfehler; „Doku öffnen“ rief nur die zwei festen Adressen auf. Die Laufzeit-Abhängigkeiten haben laut `npm audit` keine bekannte Schwachstelle. Ergebnis: keine Auffälligkeiten mit diesen Methoden. Das ist eine Prüfhilfe, keine Zertifizierung.
 
 ### Die eine Ausnahme: „Doku öffnen“
 
@@ -99,7 +101,7 @@ Alles, was die Visuals festhalten, geht über die Host-Schnittstelle `persistPro
 | Visual | Persistierte Objekte (`capabilities.json`) | Inhalt |
 | --- | --- | --- |
 | ChartKitchen | `ibcsTitle`, `chart`, `colors`, `labels`, `emptyState`, `commentsPanel`, `scale`, `categoryAxis` | Formatierung und Ansichtszustand (Sortierung, aufgeklappte Zeilen, Spaltenbreiten, zuletzt angewandte Vorlage); vom Autor eingetragene Texte: Titelzeilen, Szenario-Beschriftungen, Leer-Zustand-Text und **Kommentare** (`commentsPanel.userComments`, JSON). |
-| P&L Statement | `toolbar`, `columns`, `numbers`, `style`, `titleBlock`, `labels`, `emptyState`, `hierarchy`, `state` | Formatierung; Ansichtszustand als JSON (`state.uiState`, z. B. zugeklappte Zeilen, Treiberbaum-Wurzel); Titelblock und Leer-Zustand-Text vom Autor. |
+| P&L Statement | `toolbar`, `toolbarColors`, `columns`, `numbers`, `style`, `layout`, `titleBlock`, `labels`, `emptyState`, `hierarchy`, `statement`, `exceptions`, `state` | Formatierung (auch Ausnahme-Regeln, Toolbar-Farben, Layout, Bestandslogik); Ansichtszustand als JSON (`state.uiState`, z. B. zugeklappte Zeilen, Treiberbaum-Wurzel); vom Autor eingetragene Texte: Titelblock, Leer-Zustand-Text, Szenario-Beschriftungen, Einheitentext und Zeilennamen (Hervorhebung, Bezugs- und Gesamtzeile). |
 | dataKitchenGantt | `darstellung`, `spalten`, `meilensteine`, `basisplan`, `schrift`, `dataPoint` | Formatierung, Farben, Tabellenbreite (per Trenner gezogen). |
 
 > **Hinweis für den Datenschutz:** Es werden keine Messwerte oder Datenzeilen persistiert. Der Ansichtszustand kann aber *Bezeichnungen* aus Ihren Daten enthalten — etwa die Schlüssel aufgeklappter oder ausgeblendeter Zeilen, oder die Kategorie, an der ein Kommentar hängt. Kommentare und Titel sind Freitext des Berichtsautors; geben Sie dort keine Daten ein, die nicht in die Berichtsdatei gehören. Die Aussage zur Art der Properties folgt aus den deklarierten Typen in `capabilities.json` (Text, Zahl, Bool); wir haben nicht jede einzelne Schreibstelle im Code ausgewertet.
@@ -147,7 +149,7 @@ Microsoft-Quellen: [Manage Power BI visuals admin settings](https://learn.micros
 | Hochkontrast (`colorPalette.isHighContrast` im Code) | ja | ja | nein |
 | Tastatur-Handler im Code (`keydown`/`tabindex`) | ja | ja | nein |
 
-ChartKitchen und P&L Statement werten die Hochkontrast-Palette des Hosts aus; dort tragen Muster statt Farben die Aussage (Szenario-Notation AC/PY/PL/FC). Bedienelemente im Start-Hub sind per Tab erreichbar. `supportsHighlight: false` heißt: Hervorhebung durch andere Visuals läuft nicht über die Highlight-Schnittstelle (Kreuzfilterung per Auswahl ist unabhängig davon). dataKitchenGantt hat **keine** Hochkontrast-Auswertung und keine Tastatursteuerung — für Berichte mit Barrierefreiheits-Anforderung ist es derzeit nicht geeignet. Eine formale Barrierefreiheits-Prüfung (z. B. mit Screenreader) liegt für keines der Visuals vor.
+ChartKitchen und P&L Statement werten die Hochkontrast-Palette des Hosts aus; dort tragen Muster statt Farben die Aussage (Szenario-Notation AC/PY/PL/FC). Bedienelemente im Start-Hub sind per Tab erreichbar. Bei ChartKitchen heißt `supportsHighlight: false`: Hervorhebung durch andere Visuals läuft nicht über die Highlight-Schnittstelle (Kreuzfilterung per Auswahl ist unabhängig davon). dataKitchenGantt hat **keine** Hochkontrast-Auswertung und keine Tastatursteuerung — für Berichte mit Barrierefreiheits-Anforderung ist es derzeit nicht geeignet. Eine formale Barrierefreiheits-Prüfung (z. B. mit Screenreader) liegt für keines der Visuals vor.
 
 ## 07 · Prüf-Checkliste für Admins
 
@@ -201,7 +203,7 @@ Danach: in einer Testumgebung als Organisationsvisual hochladen, mit den Tenant-
 
 - **Kontakt:** Michael Tenner, Daten-WG · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com?subject=Sicherheitsfrage%20byDatenWG-Visuals). Auch für Sicherheitsfunde und für Fragen des Datenschutzbeauftragten.
 - **Fehler und Wünsche:** Issues im [Repository](https://github.com/Losveratos/PowerBI-Kitchen-/issues).
-- **Stand dieser Seite:** 23.10.2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.7.1.0 · dataKitchenGantt 1.15.0.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.
+- **Stand dieser Seite:** 23.10.2026, Angaben zum P&L Statement vom 22.11.2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.8.2.0 · dataKitchenGantt 1.15.0.0. Neuere Releases tragen höhere Versionsnummern; prüfen Sie jede Datei nach Abschnitt 07.
 - **Gewährleistung:** Die Visuals werden ohne Gewähr bereitgestellt (Lizenztexte im Repository). Diese Seite ist keine Zusicherung im Rechtssinn, sondern eine Prüfhilfe.
 
 **Sicherheit & Betrieb · byDatenWG-Visuals** · Stand 23.10.2026

@@ -48,6 +48,13 @@ const roundedZeroItems: LocEnumMember[] = [
     { value: "plain", displayName: "Without sign (0.0)", key: "Enum_RoundedZero_Plain" },
 ];
 
+/** 1.8.2 how a highlighted row is emphasized */
+const highlightStyleItems: LocEnumMember[] = [
+    { value: "band", displayName: "Band over the row", key: "Enum_HighlightStyle_Band" },
+    { value: "ellipse", displayName: "Ellipse around the Δ number", key: "Enum_HighlightStyle_Ellipse" },
+    { value: "both", displayName: "Band and ellipse", key: "Enum_HighlightStyle_Both" },
+];
+
 const scalingItems: LocEnumMember[] = [
     { value: "auto", displayName: "Auto", key: "Enum_Scaling_Auto" },
     { value: "none", displayName: "None", key: "Enum_Scaling_None" },
@@ -394,6 +401,8 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
     highlight = textInput("highlight", "Columns_Highlight", "Highlight rows",
         "Comma-separated row names (or ids), case-insensitive: a quiet band runs over all columns of these rows (IBCS EMPHASIZE). Empty = off",
         "e.g. EBIT, Net income");
+    highlightStyle = dropdown("highlightStyle", "Columns_HighlightStyle", "Highlight style",
+        "Band over the whole row, or (mega table) an ellipse around the row's Δ number in the first Δ bar or waterfall column of the last block, as the IBCS sheets 12G and 12H mark the numbers of the message. Default: band", highlightStyleItems);
     /**
      * Materiality (ChartKitchen chart.materialityAbs / materialityPct): Δ
      * numbers, bars and pins below the threshold are dampened to the soft ink.
@@ -494,7 +503,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         descriptionKey: "Desc_Columns_GroupGeneral",
         slices: [this.preset, this.colAc, this.colPy, this.colPl, this.colFc, this.colDelta,
             this.reference, this.barOverlap, this.barTriangles, this.periodSort, this.pctRevenue, this.revenueBase,
-            this.hideZeroRows, this.fitWidth, this.exportExpandAll, this.highlight, this.materialityAbs, this.materialityPct]
+            this.hideZeroRows, this.fitWidth, this.exportExpandAll, this.highlight, this.highlightStyle, this.materialityAbs, this.materialityPct]
     });
 
     mega = new formattingSettings.Group({
@@ -550,6 +559,10 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Default: off", false);
     ppUnit = dropdown("ppUnit", "Numbers_PpUnit", "Unit of margin Δ",
         "Δ of margins: percentage points as “pp” or “%p” (as in the IBCS sheets T03). The margins themselves stay in %. Default: pp", ppUnitItems);
+    marginRel = toggle("marginRel", "Numbers_MarginRel", "Relative change of margins (Δ%)",
+        "Margin rows also print their relative change in the Δ% column (45.3 % against 36.7 % = +23 %), as in the IBCS sheets T03. Default: off", false);
+    marginAxisPp = toggle("marginAxisPp", "Numbers_MarginAxisPp", "Margin Δ at the axis",
+        "Margin rows print their point difference at the axis of a Δ bar or waterfall column (T04). Off: only the margin values, as in the sheets. Default: on", true);
     roundedZero = dropdown("roundedZero", "Numbers_RoundedZero", "Rounded zero",
         "A Δ that is not zero but rounds to zero: keep its sign (+0.0, the direction stays readable next to a bar) or print 0.0 like the reference sheets. Values never carry a sign at zero. Default: keep the sign", roundedZeroItems);
     /** ChartKitchen labels.financeFormat: (1 234) instead of -1 234, exact zero as "–" */
@@ -582,7 +595,7 @@ export class NumbersCardSettings extends FormattingSettingsCard {
         "Same for the Δ bars and integrated Δ waterfalls (symmetric ±). Data units, k / m / b allowed. Empty = automatic",
         "e.g. 250k");
 
-    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.sheetPctDecimals, this.ppUnit, this.roundedZero,
+    slices = [this.scaling, this.unitText, this.decimals, this.pctDecimals, this.sheetPctDecimals, this.ppUnit, this.roundedZero, this.marginRel, this.marginAxisPp,
         this.financeFormat, this.sumSafeRounding,
         this.fixedMax, this.fixedVarMax];
 }

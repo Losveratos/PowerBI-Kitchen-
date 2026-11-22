@@ -2980,8 +2980,17 @@ function tidyChecks(geom, tag) {
             cm: [...document.querySelectorAll("#hl-sw [data-pnl-row]")].some(r => /2010$/.test(r.getAttribute("data-pnl-row"))) };
         swBtn("Sankey").click();
         out.swBack = norm(document.getElementById("hl-sw").innerHTML) === sk1;
+        // 1.8.2 the Sankey pair is built on demand: marked data arriving in the table,
+        // then a toolbar switch to the Sankey (a render without update) still draws the
+        // inner ribbons, exactly like a Sankey that received the marked data itself
+        stage("hl-ts", uiOf("table"), "hl");
+        const tsBtn = (t) => [...document.querySelectorAll('#hl-ts [data-pnl="head"] button')].find(b => b.textContent === t);
+        tsBtn("Sankey").click();
+        out.lazy = { parts: sk("hl-ts").parts.length };
         return out;
     });
+    check("highlight: table first, then the Sankey by toolbar click: the pair is built on demand (inner ribbons as in a direct Sankey)",
+        hl.lazy.parts > 10 && hl.lazy.parts === hl.s1.parts.length, JSON.stringify(hl.lazy) + " vs " + hl.s1.parts.length);
     {
         const s0 = hl.s0; const s1 = hl.s1;
         check("highlight: without highlights the Sankey carries no highlight mark at all",

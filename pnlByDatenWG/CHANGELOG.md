@@ -1,5 +1,41 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.2.0 (2026-11-22): Blatt-Optionen 12G/T03/T04, Hervorhebung schneller
+
+Abgleich der Blätter, die die P&L-Familie noch nicht genau traf (Backlog vom 19.11.2026, Bildvergleich
+gegen 12G, T03A und T04C). Alle neuen Schalter stehen per Standard so, dass ein bestehender Bericht wie
+1.8.1 rendert. IBCS dient nur als Bezug.
+
+- **Art der Hervorhebung** (`columns.highlightStyle`: Band | Ellipse | beides). Die Ellipse umschließt die
+  Δ-Zahl der hervorgehobenen Zeilen in der ersten Δ-Balken- oder Wasserfallspalte des letzten Blocks, wie
+  12G „+885“ und „+142“ markiert. Die Zahl rückt 4 px nach außen, damit der Ring den Balken nicht schneidet.
+  Zeilen ohne Ring (keine solche Spalte, Beschriftung aus, Margenzeile, kein Δ) behalten das Band.
+- **Relative Änderung der Margen** (`numbers.marginRel`). Margenzeilen zeigen im Δ%-Feld die relative
+  Änderung (T03A: Rohertragsmarge +8,6 %p und +23 %).
+- **Margen-Δ an der Achse abschaltbar** (`numbers.marginAxisPp`, Standard an). Aus: wie die Blätter T04 nur
+  die Margenwerte, ohne Punktdifferenz an der Achse.
+- **Korrektur:** Δ% einer Margenzeile mit negativer Referenz trägt jetzt das richtige Vorzeichen
+  (−2 % → +3 % ergibt +250 %, vorher −250 %; gerechnet über den Betrag der Referenz wie bei Wertzeilen).
+- **Schneller bei Hervorhebung aus anderen Visuals.** Das Sankey-Paar aus Ganzem und markiertem Teil
+  entsteht erst, wenn der Sankey es braucht; die Bestandsklassifikation entfällt ohne Bestands-Token; der
+  Parse legt keine Zwischenobjekte je Zeile mehr an; Zahlformate werden zwischengespeichert. Tabelle mit
+  Hervorhebung unter Windows 884 bis 1 072 ms statt 1 711 bis 2 367 ms (Budget 1 500 ms unverändert).
+
+**Vorher / Nachher.**
+
+| Thema | 1.8.1 | 1.8.2 |
+|---|---|---|
+| Hervorhebung einer Zeile | Band | Band, Ellipse um die Δ-Zahl oder beides |
+| Margenzeile im Δ%-Feld | leer | leer, auf Wunsch relative Änderung |
+| Margen-Δ an der Achse (T04) | immer | abschaltbar |
+| Δ% einer Marge mit negativer Referenz | falsches Vorzeichen | richtiges Vorzeichen |
+
+**Tests:** mega-shot m61 bis m66 (12G Ellipse um +885 und +144 frei vom Balken, T03A +23 %, T04C ohne
+Achsen-pp, T04C Ellipse im Wasserfall, T03A ohne Diagrammspalte mit Band) und m27 prüft die YTD-Regel in
+beide Richtungen unabhängig von der Schrift; tree-interact: Markierung in der Tabelle, danach Sankey per
+Toolbar; Engine: Marge mit negativer Referenz. Sicherheits-Audit des Pakets 1.8.2.0 vom 22.11.2026 ohne
+Auffälligkeiten (Sicherheitsseite aktualisiert).
+
 ## 1.8.1.0 (2026-11-20): ROI-Baum wie im Blatt 11A
 
 Feinschliff des ROI-Baums nach dem Bildvergleich mit dem IBCS-Blatt 11A. IBCS dient nur als Bezug.
