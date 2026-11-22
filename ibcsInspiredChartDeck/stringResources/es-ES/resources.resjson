@@ -942,7 +942,7 @@
   "Chart_ScatterPathArrow": "Flecha al final",
   "Desc_Chart_ScatterPathArrow": "Trayectoria temporal: punta de flecha en el último tramo de cada unidad, muestra la dirección del movimiento más reciente. Las hojas IBCS se dibujan sin ella. Desactivado por defecto.",
   "Chart_ScatterPathDelta": "Diferencias inicio-final",
-  "Desc_Chart_ScatterPathDelta": "Trayectoria temporal: para las unidades resaltadas (lista «Resaltar») líneas guía finas del primer y del último punto a los ejes, Δ X como flecha bajo el eje X y Δ Y como flecha a la derecha del gráfico, Δ Y en el color favorable o desfavorable (se aplica la inversión), Δ X neutro. Desactivado por defecto.",
+  "Desc_Chart_ScatterPathDelta": "Trayectoria temporal: para las unidades resaltadas (lista «Resaltar categorías») líneas guía finas del primer y del último punto a los ejes, Δ X como flecha bajo el eje X y Δ Y como flecha a la derecha del gráfico, Δ Y en el color favorable o desfavorable (se aplica la inversión), Δ X neutro. Desactivado por defecto.",
   "Scale_RatioRays": "Rayos de ratio (dispersión)",
   "Desc_Scale_RatioRays": "Solo dispersión: rayos por el origen para ratios fijos Y ÷ X (p. ej. ventas por empleado), lista separada por punto y coma, p. ej. «1; 0,7; 0,35» (sufijos k/M/B como en la línea de referencia). Línea gris fina hasta el borde del gráfico, círculo hueco y etiqueta en la salida. Los rayos incluyen el 0 en ambos ejes; se ignoran los ratios ≤ 0. La información sobre herramientas muestra entonces el ratio de cada punto. Vacío = desactivado.",
   "Scale_RatioRayUnit": "Unidad de los rayos de ratio",
