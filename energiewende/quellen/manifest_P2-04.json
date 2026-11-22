@@ -1,0 +1,69 @@
+{
+  "hinweis": "Manifest Auftrag P2-04 (Gegenprüfung Dossier 04). Fremde Dokumente werden nicht gespiegelt (raw/ nicht im Repo). *.txt-Auszüge (pdftotext) liegen neben den Originalen und sind abgeleitet. Gelesen wurden außerdem die Phase-1-Rohdateien unter raw/P1-04/ (Prüfsummen siehe manifest_P1-04.json; uba_emissionsdaten2025_projektion2026.pdf sha256 5d24439110c70606a614acdf64e0faa35c250e85e891755424c2545d48bf7adc).",
+  "eintraege": [
+    {
+      "id": "eurostat_nrg_bal_c_pruef",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&geo=DE&unit=GWH&time=2008&time=2017&time=2023&time=2024&nrg_bal=GAE&nrg_bal=GIC&nrg_bal=FC_E&nrg_bal=INTAVI&nrg_bal=INTMARB&nrg_bal=FC_IND_E&nrg_bal=FC_TRA_E&nrg_bal=FC_TRA_ROAD_E&nrg_bal=FC_OTH_HH_E&nrg_bal=FC_OTH_CP_E&nrg_bal=FC_OTH_AF_E&siec=TOTAL&siec=C0000X0350-0370&siec=O4000XBIO&siec=G3000&siec=E7000&siec=H8000&siec=RA000&siec=N900H&siec=W6100_6220&siec=P1000&siec=S2000&siec=C0350-0370",
+      "datei": "raw/P2-04/eurostat_nrg_bal_c_DE_pruef.json",
+      "sha256": "f15177118f21db29f28e89e276cbbb96d4ffd0b8fba2aaa32aff075bca4f4625",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_fce_1990_2024",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&geo=DE&unit=GWH&nrg_bal=FC_E&nrg_bal=GAE&siec=TOTAL&siec=E7000&sinceTimePeriod=1990",
+      "datei": "raw/P2-04/eurostat_fce_1990_2024.json",
+      "sha256": "3c2dffd5e93bb1564beaf1379d407677f5e0dc0a9fe97c53fecf458ce0e75fc6",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ageb_start",
+      "url": "https://ag-energiebilanzen.de/",
+      "datei": "raw/P2-04/ageb_start.html",
+      "sha256": "4bf112840ba3c40e02510b44536caa85a68656cc671174ac65a14d0d71433647",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ageb_auswertungstabellen_2026_09",
+      "url": "https://ag-energiebilanzen.de/wp-content/uploads/EBD25p2_Auswertungstabellen_deutsch.pdf",
+      "datei": "raw/P2-04/ageb_auswertungstabellen_EBD25p2.pdf",
+      "sha256": "8213fadb7079af8e0c9a0bde656e1cd324a66ef9f6568a0157d504c031a6a854",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ageb_jahresbericht_2025",
+      "url": "https://ag-energiebilanzen.de/wp-content/uploads/AGEB_Jahresbericht2025_20260828_dt.pdf",
+      "datei": "raw/P2-04/ageb_jahresbericht2025.pdf",
+      "sha256": "8d267f6bd5362729d26d3f4eb5ef804a38903e1b61e6ea813218a9b7ad1e41a8",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ageb_strerz_2026_09",
+      "url": "https://ag-energiebilanzen.de/wp-content/uploads/Strerz-Abgabe-September-2026.pdf",
+      "datei": "raw/P2-04/ageb_strerz_sept2026.pdf",
+      "sha256": "e697bdfa80109cfccbecaa83ba5a158c5c3a5ab3c22a7dce6d20fa57a5c8b33b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "btd_21_6175_expertenrat",
+      "url": "https://dserver.bundestag.de/btd/21/061/2106175.pdf",
+      "datei": "raw/P2-04/btd_21_6175.pdf",
+      "sha256": "2069130c71edf34aaf10f4c0cb56de501e925a43c50fcc3a23271926fd21296e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ewi_dena_ls2_zusammenfassung",
+      "url": "https://www.ewi.uni-koeln.de/de/publikationen/dena-ls2/211005_ewi-zusammenfassung_dena-leitstudie-aufbruch-klimaneutralitaet",
+      "datei": "raw/P2-04/ewi_dena_ls2_zusammenfassung.pdf",
+      "sha256": "b45389ab9ed3e5148cf3aa835f7fabc5d8c2537b6d96e6e36506c1a2964f229e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bmwk_lfs3_schlaglicht_versuch",
+      "url": "https://www.bundeswirtschaftsministerium.de/Redaktion/DE/Schlaglichter-der-Wirtschaftspolitik/2024/04/05-neue-langfristszenarien-fuer-die-energiewende.html",
+      "datei": "raw/P2-04/bmwk_lfs3_schlaglicht_2024_04.html",
+      "sha256": "60f7baec05b3e9d0a525dc96b8ff98495bc0f8b0085b385ecd6db3c54373d140",
+      "abruf": "2026-11-22",
+      "bemerkung": "Kein Inhalt: Browser-Prüfung (Radware). Nicht umgangen."
+    }
+  ]
+}
