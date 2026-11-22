@@ -14965,7 +14965,12 @@ export class Visual implements IVisual {
         const bracketOn = orientation === "bars" && !norm && bracketN > 0 && bracketN < n
             && !cats.slice(0, bracketN).some(c => REST_ROW_RX.test(c.trim()) || series.some(sn => cell.get(`${c}¦${sn}`)?.isRest));
         const bracketW = bracketOn ? this.textWidth("100 %", lf, true) + 18 : 0;
-        const slotsN = n + (totalRow ? 1 : 0);
+        // 1.56 (B10 part 2): slot table — row i sits in slot rowSlot[i]; without
+        // blocks rowSlot[i] === i and every position is computed exactly as before
+        const rowSlot = cats.map((_, i) => i);
+        const sumSlot = n;
+        const rowsEnd = n;
+        const slotsN = sumSlot + (totalRow ? 1 : 0);
         // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
         // series; 100 % stacks compare shares (percentage points), totals only on values
         // the first category of a name wins (hierarchy leaves can repeat)
@@ -15031,8 +15036,9 @@ export class Visual implements IVisual {
             const scale = this.makePanelScale(domain, rect, orientation, labelPad);
             const step = (bandEnd - bandStart) / slotsN;
             const slotW = Math.max(2, step * SLOT_ABS);
-            const pos = (i: number) => bandStart + i * step + (step - slotW) / 2;
-            return { bandStart, bandEnd, rect, scale, step, slotW, pos };
+            const posS = (slot: number) => bandStart + slot * step + (step - slotW) / 2;
+            const pos = (i: number) => posS(rowSlot[i]);
+            return { bandStart, bandEnd, rect, scale, step, slotW, pos, posS };
         };
         // the name positions along the value axis, or null when they do not fit
         const directNames = (L: ReturnType<typeof layout>): { s: number; at: number; y?: number }[] | null => {
@@ -15109,7 +15115,7 @@ export class Visual implements IVisual {
         let L = layout(directWanted);
         const names = directWanted ? directNames(L) : null;
         if (directWanted && !names) { L = layout(false); }
-        const { bandStart, bandEnd, rect, scale, step, slotW, pos } = L;
+        const { bandStart, bandEnd, rect, scale, step, slotW, pos, posS } = L;
 
         const bg = this.el("g", norm ? { "data-norm": "pct100" } : {}, this.svg);
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
@@ -15165,10 +15171,10 @@ export class Visual implements IVisual {
             for (let i = 0; i < n; i++) {
                 if (!this.isEmph(cfg, cats[i])) { continue; }
                 if (orientation === "columns") {
-                    this.emphBand(bg, bandStart + i * step + 1, hlTop, step - 2,
+                    this.emphBand(bg, bandStart + rowSlot[i] * step + 1, hlTop, step - 2,
                         region.y + region.h - hlTop, cfg);
                 } else {
-                    this.emphBand(bg, region.x + 1, bandStart + i * step + 1,
+                    this.emphBand(bg, region.x + 1, bandStart + rowSlot[i] * step + 1,
                         region.w - 2, step - 2, cfg);
                 }
             }
@@ -15179,7 +15185,7 @@ export class Visual implements IVisual {
         if (groupEvery > 0 && groupEvery < n) {
             for (let i = groupEvery; i < n; i += groupEvery) {
                 if (orientation === "columns" && scen[i] !== scen[i - 1]) { continue; }
-                const p1 = bandStart + i * step;
+                const p1 = bandStart + rowSlot[i] * step;
                 this.el("line", orientation === "columns"
                     ? { x1: p1, y1: rect.y + 2, x2: p1, y2: rect.y + rect.h }
                     : { x1: rect.x, y1: p1, x2: rect.x + rect.w, y2: p1 }, bg);
@@ -15202,7 +15208,7 @@ export class Visual implements IVisual {
         if (orientation === "columns" && anyScen && monotone) {
             for (let i = 1; i < n; i++) {
                 if (scen[i] === scen[i - 1]) { continue; }
-                const x = bandStart + i * step;
+                const x = bandStart + rowSlot[i] * step;
                 const icd = scen[i] === "pl" ? "pl-boundary" : "fc-boundary";
                 const ln = this.el("line", {
                     x1: x, y1: rect.y + 2, x2: x, y2: rect.y + rect.h,
@@ -15391,6 +15397,7 @@ export class Visual implements IVisual {
                 const ink = cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF";
                 const bg2 = this.el("g", { "data-icd": "stack-share-bracket", "data-n": bracketN,
                     "data-share": Math.round(share * 10) / 10 }, marks);
+                // the bracket is off with blocks: rows and slots coincide here
                 const yBelow = bandStart + bracketN * step;
                 const xLeft = region.x + pad;
                 const xN = scale(capV(refEnd(bracketN - 1)));
@@ -15409,27 +15416,30 @@ export class Visual implements IVisual {
         // ------- 1.55 (B10): Σ row (bars) and absolute-total side panel (bars + 100 %)
         const seriesSums = series.map(sn => cats.reduce((a, _, ci) => a + rawSv(ci, sn), 0));
         const grand = seriesSums.reduce((a, v) => a + v, 0);
-        // the Σ row sums one scenario only: mixed AC/FC/PL categories get no Σ row
-        if (totalRow && scenSet.size <= 1) {
-            const tg = this.el("g", { "data-icd": "stack-total-row" }, marks);
-            const yRow = bandStart + n * step;
+        // 1.56 (B10 part 2): one sum row for the Σ row and the block subtotals — a line
+        // over the slot, the bold label, then the mix as a 100 % bar or (values) a
+        // legend row with the sum per series and the total
+        const drawStackSumRow = (tg: SVGElement, label: string, sums: number[], total: number, slot: number,
+            grandIcd: string): void => {
+            const yRow = bandStart + slot * step;
+            const ySlot = posS(slot);
             this.el("line", { x1: region.x + pad, y1: yRow, x2: rect.x + rect.w, y2: yRow,
                 stroke: cfg.ink, "stroke-width": 1 }, tg);
-            this.drawCategoryLabel(tg, cfg.stackTotalLabel || "Σ", pos(n) + slotW / 2, orientation, cf,
+            this.drawCategoryLabel(tg, label, ySlot + slotW / 2, orientation, cf,
                 region, step, rect, cfg.ink, true);
-            if (norm && grand > 0) {
-                // the overall mix as one 100 % bar, same scale as the rows
+            if (norm && total > 0) {
+                // the mix as one 100 % bar, same scale as the rows
                 let cum = 0;
                 series.forEach((sn, si) => {
-                    const share = Math.max(seriesSums[si], 0) * 100 / grand;
+                    const share = Math.max(sums[si], 0) * 100 / total;
                     if (share <= 0) { return; }
                     const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
-                    this.drawBar(sg, pos(n), slotW, cum, cum + share, scale, orientation,
+                    this.drawBar(sg, ySlot, slotW, cum, cum + share, scale, orientation,
                         { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
                     const a = scale(cum), b = scale(cum + share);
                     if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
                         const light = si > (series.length - 1) / 2;
-                        const t = this.el("text", { x: (a + b) / 2, y: pos(n) + slotW / 2 + lf * 0.35, "text-anchor": "middle",
+                        const t = this.el("text", { x: (a + b) / 2, y: ySlot + slotW / 2 + lf * 0.35, "text-anchor": "middle",
                             "font-size": Math.round(lf * 0.92), "font-weight": 700,
                             fill: cfg.hc || light ? cfg.ink : cfg.paper, "font-family": FONT }, sg);
                         t.textContent = shareNf.format(share);
@@ -15438,31 +15448,36 @@ export class Visual implements IVisual {
                 });
             } else {
                 // values: same unit, the sum would not fit the row scale (IBCS) — a
-                // legend row with the sum per series and the grand total instead
+                // legend row with the sum per series and the total instead
                 const sq = Math.max(6, Math.round(lf * 0.85));
                 let lx = rect.x + 2;
-                const yMid = pos(n) + slotW / 2;
+                const yMid = ySlot + slotW / 2;
                 const xEnd = rect.x + rect.w;
-                const grandTxt = `= ${cfg.fmt.format(grand)}`;
-                const needs = series.map((_, si) => sq + 4 + this.textWidth(cfg.fmt.format(seriesSums[si]), lf, true) + 12);
+                const grandTxt = `= ${cfg.fmt.format(total)}`;
+                const needs = series.map((_, si) => sq + 4 + this.textWidth(cfg.fmt.format(sums[si]), lf, true) + 12);
                 // all series sums or none: a partial row would not add up to the total
                 const allFit = needs.reduce((a, v) => a + v, 0) + this.textWidth(grandTxt, lf, true) + 8 <= xEnd - lx;
                 series.forEach((sn, si) => {
                     if (!allFit) { return; }
-                    const label = cfg.fmt.format(seriesSums[si]);
+                    const sLabel = cfg.fmt.format(sums[si]);
                     const need = needs[si];
                     const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
                     this.el("rect", { x: lx, y: yMid - sq / 2, width: sq, height: sq, fill: shade(si),
                         ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) }, sg);
                     const t = this.el("text", { x: lx + sq + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
                         fill: cfg.ink, "font-family": FONT }, sg);
-                    t.textContent = label;
+                    t.textContent = sLabel;
                     lx += need;
                 });
                 const gt = this.el("text", { x: lx + 4, y: yMid + lf * 0.35, "font-size": lf, "font-weight": 700,
-                    fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, tg);
-                gt.textContent = allFit ? grandTxt : cfg.fmt.format(grand);
+                    fill: cfg.ink, "font-family": FONT, "data-icd": grandIcd }, tg);
+                gt.textContent = allFit ? grandTxt : cfg.fmt.format(total);
             }
+        };
+        // the Σ row sums one scenario only: mixed AC/FC/PL categories get no Σ row
+        if (totalRow && scenSet.size <= 1) {
+            const tg = this.el("g", { "data-icd": "stack-total-row" }, marks);
+            drawStackSumRow(tg, cfg.stackTotalLabel || "Σ", seriesSums, grand, sumSlot, "stack-total-grand");
         }
         if (sideW > 0 && cfg.stackTotalMax > 0) {
             const pg = this.el("g", { "data-icd": "stack-total-panel" }, marks);
@@ -15471,7 +15486,7 @@ export class Visual implements IVisual {
             const labelRoom = this.textWidth(cfg.fmt.format(cfg.stackTotalMax), lf, true) + 6;
             const kSide = Math.max(0, (sideW - labelRoom - 4) / cfg.stackTotalMax);
             pg.setAttribute("data-px-per-unit", String(kSide));
-            this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: bandStart + n * step, stroke: cfg.subtle, "stroke-width": 1 }, pg);
+            this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: bandStart + rowsEnd * step, stroke: cfg.subtle, "stroke-width": 1 }, pg);
             const head = this.el("text", { x: x0, y: region.y + legendH + Math.round(10 * k), "font-size": Math.round(10 * k),
                 fill: cfg.subtle, "font-family": FONT }, pg);
             head.textContent = `Σ ${[scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "",
@@ -15490,7 +15505,7 @@ export class Visual implements IVisual {
                 }
             }
             if (totalRow) {
-                const t = this.el("text", { x: x0 + 3, y: pos(n) + slotW / 2 + lf * 0.35, "font-size": lf, "font-weight": 700,
+                const t = this.el("text", { x: x0 + 3, y: posS(sumSlot) + slotW / 2 + lf * 0.35, "font-size": lf, "font-weight": 700,
                     fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, pg);
                 t.textContent = cfg.fmt.format(grand);
             }
