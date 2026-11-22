@@ -3180,7 +3180,7 @@ addStage("c227b", "Hub → Demo ansehen (bisherige Galerie + ← Zurück) · Kli
   runCap("c227b", emptyDv({}), 960, 420, { viewMode: 1 });
   hubClick("c227b", "hub-demo");
   const tiles = [...document.querySelectorAll('#c227b svg g[role=button][aria-pressed]')].filter(g => !/:/.test(g.getAttribute("aria-label")));
-  check(tiles.length === 13 && !!hubQ("c227b", "hub-back"), "c227b: 13 Modus-Kacheln + ← Zurück");
+  check(tiles.length === 14 && !!hubQ("c227b", "hub-back"), "c227b: 14 Modus-Kacheln (1.57: + Bestand & Fluss) + ← Zurück");
   tiles[1].querySelector("rect").dispatchEvent(new MouseEvent("click", { bubbles: true }));
   const pp = window.__persist.c227b;
   check(pp.length === 1 && pp[0].merge[0].properties.orientation === "bars" && !!hubQ("c227b", "hub-back"),
@@ -8424,6 +8424,109 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B18-END
+// ---- DEMO157-BEGIN
+// ======================================================================
+// 1.57 Demo-Galerie: der 14. Modus Bestand & Fluss (B11, seit 1.55) als letzte Kachel, die
+// 13 bisherigen Kacheln bleiben an ihrem Platz. Zählungen in Hub und Tour folgen dem Code
+// (Modi des Dropdowns, Vorlagen der Galerie). Die Vorlagen C07, C21, C22, C23, C25 zeigt die
+// Vorlagen-Galerie (c222); die Demo-Galerie zeigt nur Modi, keine Varianten.
+// ======================================================================
+{
+  const dQ = id => [...document.querySelectorAll(`#${id} svg g[role=button][aria-pressed]`)].filter(g => !/:/.test(g.getAttribute("aria-label")));
+  const dTxt = id => [...document.querySelectorAll(`#${id} svg text`)].map(t => t.textContent);
+  const dSvg = id => [...document.querySelectorAll(`#${id} svg`)].map(x => x.outerHTML).join("\n");
+  const demo = (chart, extra) => emptyDv(Object.assign({ emptyState: { mode: "demo" } }, chart ? { chart } : {}, extra || {}));
+
+  addStage("c990", "Demo-Galerie (emptyState.mode = demo) · 14 Kacheln, Bestand & Fluss als letzte · Klick → orientation = stockflow", 960, 420);
+  {
+    runCap("c990", demo(), 960, 420, { viewMode: 1 });
+    const t = dQ("c990");
+    check(t.length === 14 && t[13].getAttribute("aria-label") === "Stock & flow" && t[0].getAttribute("aria-label") === "Columns (Time)",
+      `c990: 14 Kacheln, letzte „Stock & flow“ (${t.length}, ${t[13] && t[13].getAttribute("aria-label")})`);
+    t[13].querySelector("rect").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const pp = window.__persist.c990;
+    const t2 = dQ("c990");
+    check(pp.length === 1 && pp[0].merge[0].properties.orientation === "stockflow" && t2[13].getAttribute("aria-pressed") === "true",
+      "c990: Klick persistiert orientation = stockflow, Kachel sofort ✓");
+  }
+
+  addStage("c991", "Demo-Galerie · Bestand & Fluss aktiv · Subline nennt die Felder des Modus (vorher leer)", 960, 420);
+  {
+    runCap("c991", demo({ orientation: "stockflow" }), 960, 420, { viewMode: 1 });
+    const tx = dTxt("c991");
+    check(tx.some(s => /^Next: add Category \(time\), AC, stack series, waterfall type to the field wells/.test(s))
+      && dQ("c991")[13].getAttribute("aria-pressed") === "true",
+      "c991: Subline „Next: add Category (time), AC, stack series, waterfall type …“ und Kachel ✓");
+  }
+
+  addStage("c992", "Demo-Galerie · Hero-Stufe (340 × 260) · Bestand & Fluss aktiv · ‹ Scatter, › Säulen", 340, 260);
+  {
+    runCap("c992", demo({ orientation: "stockflow" }), 340, 260, { viewMode: 1 });
+    const arrows = [...document.querySelectorAll("#c992 svg g[role=button]:not([aria-pressed])")].map(g => g.getAttribute("aria-label"));
+    check(dTxt("c992").includes("Stock & flow") && arrows.join("|") === "Scatter / bubble|Columns (Time)",
+      `c992: Hero zeigt Bestand & Fluss, Pfeile ${arrows.join(" | ")}`);
+  }
+
+  addStage("c993", "Demo-Galerie · Raster-Stufe (960 × 300) · 6 × 3 · Bestand & Fluss ✓", 960, 300);
+  {
+    runCap("c993", demo({ orientation: "stockflow" }), 960, 300, { viewMode: 1 });
+    check(dQ("c993").length === 14 && dTxt("c993").includes("✓ Stock & flow"), "c993: 14 Rasterkacheln, Beschriftung „✓ Stock & flow“");
+  }
+
+  addStage("c994", "Demo-Galerie · Liste einspaltig (560 × 1200) · alle 14 Einträge mit Nutzen und Feldern", 560, 1200);
+  {
+    runCap("c994", demo(), 560, 1200, { viewMode: 1 });
+    const tx = dTxt("c994");
+    check(dQ("c994").length === 14 && tx.includes("Cash, staff, inventory: stock and flows")
+      && tx.some(s => /^Fields: Category \(time\), AC, stack/.test(s)),
+      "c994: 14 Listeneinträge, Bestand & Fluss mit Nutzen- und Feldzeile");
+  }
+
+  addStage("c995", "Demo-Galerie · Dark Mode (1100 × 460) · Bestand & Fluss aktiv", 1100, 460, "#1E1E1E");
+  {
+    runCap("c995", demo({ orientation: "stockflow" }, { colors: { appearance: "dark" } }), 1100, 460, { viewMode: 1 });
+    const sv = dSvg("c995");
+    check(dQ("c995").length === 14 && !/#404040/i.test(sv), "c995: 14 Kacheln, keine helle Tinte im Dunkelmodus");
+  }
+
+  addStage("c996", "Start-Hub · Knopf „Demo ansehen“ nennt 14 Chart-Typen (aus dem Dropdown gezählt)", 960, 380);
+  {
+    const r = runCap("c996", emptyDv({}), 960, 380, { viewMode: 1 });
+    const n = r.v.formattingSettings.chartCard.orientation.items.length;
+    check(n === 14 && dTxt("c996").some(s => s.startsWith(`All ${n} chart types as a gallery`)), `c996: „All ${n} chart types as a gallery …“`);
+  }
+
+  tourAt("c997", "Tour · Karte 1 Zeitreihen · drei Miniaturen (Säulen, Linie, Bestand & Fluss) · „14 chart modes“", 960, 340, 0);
+  {
+    const tx = dTxt("c997");
+    check(tx.includes("14 chart modes · time series") && tx.includes("Stock & flow") && tx.join(" ").includes("stock & flow for cash or inventory"),
+      "c997: Titel mit 14 Modi, Miniatur „Stock & flow“, Text nennt Bestand & Fluss");
+  }
+
+  addStage("c998", "Tour · Karte 11 Vorlagen & Smart-Start · Zahl der Vorlagen aus dem Dropdown", 960, 340);
+  {
+    const r = runCap("c998", emptyDv({}), 960, 340, { viewMode: 1 });
+    hubClick("c998", "hub-tour");
+    hubKey("c998", "hub-tour-card", "End");
+    const n = r.v.formattingSettings.chartCard.template.items.filter(i => String(i.value) !== "off").length;
+    const all = dTxt("c998").join(" ");
+    check(n >= 23 && all.includes(`${n} IBCS templates set mode`) && !all.includes("17 IBCS templates"), `c998: Tour nennt ${n} Vorlagen`);
+  }
+
+  addStage("c999", "Demo-Galerie · Preset Präsentation (1300 × 560) · Liste 3 Spalten, Pills, Bestand & Fluss", 1300, 560);
+  {
+    runCap("c999", demo(null, { labels: { fontPreset: "presentation" } }), 1300, 560, { viewMode: 1 });
+    check(dQ("c999").length === 14 && dTxt("c999").includes("Stock & flow"), "c999: 14 Einträge im Präsentations-Preset");
+  }
+
+  // kein NaN, undefined oder Infinity in den Galerie-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c99\d$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(dSvg(id)));
+    check(ids.length === 10 && bad.length === 0, `c990 bis c999: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- DEMO157-END
 </script>
 </body>
 </html>
