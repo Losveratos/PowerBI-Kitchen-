@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.8.1.0** (20.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.8.2.0** (22.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.8.1.0** (20.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.1.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: true` (1.7: nur der Sankey zeigt eine Markierung anderer Visuals im Gesamt, alle anderen Ansichten verhalten sich wie gefiltert — Falle 22) |
@@ -102,7 +102,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.1.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.2.0)
 
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
 `stockMode` (`auto` · `allStock` · `allFlow`, Standard `auto`, eigene Karte
@@ -211,6 +211,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `fitWidth` | bool | `false` | Tabelle auf Breite einpassen (Standard): Staucht die Diagramm-Spalten, bis die Tabelle in den Viewport passt — kein Querscrollen. Standard: aus |
 | `exportExpandAll` | bool | `true` | Export: alle Zeilen aufklappen: PDF-/PowerPoint-Export und Abonnements drucken jede Zeile aufgeklappt, egal was am Bildschirm zugeklappt ist. Standard: an |
 | `highlight` | text | `—` | Zeilen hervorheben: Kommagetrennte Zeilennamen (oder IDs), ohne Groß-/Kleinschreibung: ein dezentes Band läuft über alle Spalten dieser Zeilen (IBCS EMPHASIZE). Leer = aus |
+| `highlightStyle` | enum `band` · `ellipse` · `both` | `band` | Art der Hervorhebung (1.8.2): Band über die Zeile, oder (Mega-Tabelle) Ellipse um die Δ-Zahl in der ersten Δ-Balken- oder Wasserfallspalte des letzten Blocks (12G/12H). Zeilen ohne Ring behalten bei `ellipse` das Band; die klassische Tabelle zeigt immer das Band |
 | `materialityAbs` | numeric | `0` | Wesentlichkeit ab (absolut): Abweichungen unter diesem absoluten Betrag (Dateneinheiten, vor k/m-Skalierung) werden in sanftem Grau statt in den Abweichungsfarben dargestellt — Zahlen, Balken, Pins und Wasserfall-Stufen. 0 = aus |
 | `materialityPct` | numeric | `0` | Wesentlichkeit ab (%): Abweichungen unter diesem Δ % werden in sanftem Grau dargestellt. Sind beide Schwellen gesetzt, muss eine Abweichung beide überschreiten, um farbig zu sein. 0 = aus |
 | `template` | enum `off` · `T01A` · `T01B` · `T01C` · `T01D` · `T02A` · `T02B` · `T02C` · `T02D` · `T02E` · `T02F` · `T03A` · `T03B` · `T04A` · `T04B` · `T04C` · `T04D` · `T04E` · `12A` · `12G` · `12H` · `T05A` · `T05B` | `off` | Template (IBCS-Tabelle): Setzt die Schalter darunter auf die Template-Vorgaben — danach ist jeder Schalter frei. Bilanz (T05A) und Cashflow (T05B) setzen zusätzlich Bestand & Fluss. Standard: aus (klassische Tabelle) |
@@ -291,6 +292,8 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus Margen und ihre pp behalten dabei mindestens eine Stelle (T03: `45.3%`, `+8.6%p`). Wirkt erst beim nächsten Anwenden: Template in der Galerie erneut anklicken. Galerie-Vorschauen zeigen die Standard-Notation. |
 | `ppUnit` | enum `pp` · `pctp` | `pp` | Einheit der Margen-Δ (1.8): Prozentpunkte als „pp" oder „%p" (wie in den IBCS-Blättern T03). Standard: pp |
 | `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten |
+| `marginRel` | bool | `false` | Relative Änderung der Margen (1.8.2): Margenzeilen zeigen im Δ%-Feld ihre relative Änderung (T03: +8,6 %p und +23 %), gerechnet über den Betrag der Referenz |
+| `marginAxisPp` | bool | `true` | Margen-Δ an der Achse (1.8.2): Punktdifferenz der Margen an der Achse von Δ-Balken und Δ-Wasserfall (T04); aus wie in den Blättern |
 | `financeFormat` | bool | `false` | Finance-Format (Klammern): Finanzkonvention: negative Werte in Klammern statt Minuszeichen — (1 234) — und Null als „–“. Gilt für Werte, Δ und Δ %; positive Δ behalten ihr „+“. Standard: aus |
 | `sumSafeRounding` | bool | `false` | Σ-treue Rundung: Rundet die Wertspalten nach dem Restwertverfahren, sodass die gedruckten Kinder exakt ihre gedruckte Zwischensumme ergeben (Formel- und Margenzeilen behalten die exakte Rundung). Standard: aus |
 | `fixedMax` | text | `—` | Skalen-Mindestmaximum (Werte): Wertbalken und Wert-Kaskaden reichen mindestens bis zu diesem Betrag — gleiche Skalen über mehrere Visuals (IBCS). Dateneinheiten, k / m / b erlaubt (z. B. 1.5m). Größere Werte erweitern die Skala weiterhin. Leer = automatisch |
