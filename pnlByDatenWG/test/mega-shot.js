@@ -510,7 +510,17 @@ function readMega(id) {
             const sn = st.querySelector('[data-pnl="scale-note"]');
             o[id] = { headline: hl ? hl.textContent : null, headlineFs: hl ? parseFloat(hl.style.fontSize) : 0,
                 note: note ? note.textContent : null, scaleNote: sn ? sn.textContent : null, text: st.innerText,
-                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => ({ t: t.textContent, fill: t.getAttribute("fill"), out: t.getAttribute("data-pos") === "out" })) };
+                ytd: [...st.querySelectorAll('text[data-pnl="mega-ytd"]')].map(t => {
+                    // 1.8.2 geometry of the label and the bar segments of its row: the
+                    // in / out decision depends on the font's widths (Windows vs Linux),
+                    // so the test checks the rule, not fixed numbers
+                    const b = t.getBBox(); const cy = b.y + b.height / 2;
+                    const rects = [...t.parentNode.querySelectorAll("rect")].map(r => ({ x: +r.getAttribute("x"), w: +r.getAttribute("width"),
+                        y: +r.getAttribute("y"), h: +r.getAttribute("height"), fill: r.getAttribute("fill") }))
+                        .filter(r => r.h > 2 && cy >= r.y - 1 && cy <= r.y + r.h + 1 && r.w > 0);
+                    return { t: t.textContent, fill: t.getAttribute("fill"), out: t.getAttribute("data-pos") === "out",
+                        x0: b.x, x1: b.x + b.width, w: b.width, rects };
+                }) };
         }
         return o;
     });
@@ -524,8 +534,18 @@ function readMega(id) {
         const posOf = t => (pageInfo.m27.ytd.find(x => x.t === t) || {}).out;
         check("m27 YTD numbers inside the solid part (538, 637, 267) on the paper tone",
             ["538", "637", "267"].every(x => ytd.includes(x) && fillOf(x) === "#FFFFFF" && !posOf(x)), ytd.join(","));
-        check("m27 short YTD numbers (196, 200) before the bar start in dark ink (1.5.2)",
-            ["196", "200"].every(x => ytd.includes(x) && posOf(x) && fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
+        // 1.5.2 rule, font-independent since 1.8.2: a YTD number stands inside the
+        // solid part only where it fits (width + 6 px); every other one stands
+        // outside beside the bar start in dark ink (on Linux 196 and 200, on
+        // Windows the narrower font lets them fit)
+        const Y = pageInfo.m27.ytd;
+        const inFits = Y.filter(x => !x.out).every(x => x.rects.some(r => x.x0 >= r.x - 1 && x.x1 <= r.x + r.w + 1 && r.w >= x.w + 6 - 2));
+        // outside: dark ink, beside the bar (before its start; right of it on a negative bar), never on it
+        const outBefore = Y.filter(x => x.out).every(x => x.fill === "#1A1A1A" && x.rects.length > 0
+            && x.rects.every(r => x.x1 <= r.x + 1 || x.x0 >= r.x + r.w - 1));
+        check("m27 YTD numbers: inside only where they fit, the others before the bar start in dark ink (1.5.2)",
+            Y.length >= 15 && Y.some(x => x.out) && inFits && outBefore,
+            JSON.stringify(Y.map(x => ({ t: x.t, out: x.out, w: Math.round(x.w), r: x.rects.map(r => Math.round(r.w)) }))));
         // 1.5.1: on the light cost tone (#8A8886) the number is dark ink (≥ 4.5:1), not white (~3.5:1)
         check("m27 YTD numbers of cost rows (227, 451) in dark ink on the light tone (1.5.1)",
             ["227", "451"].every(x => fillOf(x) === "#1A1A1A"), JSON.stringify(pageInfo.m27.ytd));
