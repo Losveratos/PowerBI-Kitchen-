@@ -548,6 +548,9 @@ interface DataPoint {
     perPy?: number | null;
     perPl?: number | null;
     r12?: number | null;
+    /** 1.56 (B15 final round): the running total restarts here (YTD at the fiscal-year
+     *  start, QTD at a quarter start); the cumulated lines break before this point */
+    ytdReset?: boolean;
     /** true for the synthetic "Rest (n)" row produced by top-N aggregation */
     isRest: boolean;
     /** cross-highlight from another visual is active and this row is NOT part of
@@ -629,6 +632,9 @@ interface LineSeriesOpts {
     endDelta: Set<string> | "all" | null;
     /** deck-wide value domain (zero-based) */
     domain: [number, number];
+    /** B17 review (m5): the automatic index base over all drawn tiles (first category
+     *  with a value > 0 in every series of every tile), null = none, per tile */
+    autoBase: string | null;
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -1245,6 +1251,12 @@ export class Visual implements IVisual {
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
     private catGroups: { g: SVGGElement; sel: ISelectionId | null; dim?: boolean; veil?: SVGElement }[] = [];
+    /** 1.56 B17 review (m10): run after every selection pass (series lines: fade a series
+     *  whose cells are all faded, veil a category whose cells are all faded) */
+    private selHooks: (() => void)[] = [];
+    /** 1.56 B17 review (m6): series lines are drawn in this render (Σ/Ø/Rest tiles keep
+     *  the category hierarchy for the axis groups) */
+    private lineSeriesRun = false;
     private measureFormat: string | undefined;
     private measureName: string | undefined;
     private lineFormat: string | undefined;
@@ -2210,6 +2222,8 @@ export class Visual implements IVisual {
             && String(fs.chartCard.cumulativeKind.value.value) === "ytd";
         // 1.56 (B17): series lines exclude the YTD options (and the comparison labels)
         const seriesLine = isLineO && fs.chartCard.lineSeries.value === true;
+        // B17 review (m11): with a bound series the lines ignore the Δ and YTD options
+        const seriesLineOn = seriesLine && this.seriesName != null;
         fs.chartCard.lineGroup.visible = isLineO;
         fs.chartCard.lineR12.visible = ytdLine && !seriesLine;
         fs.chartCard.lineR12Label.visible = ytdLine && !seriesLine && fs.chartCard.lineR12.value === true;
@@ -2223,7 +2237,7 @@ export class Visual implements IVisual {
         fs.chartCard.lineSeriesLabels.visible = seriesLine;
         fs.chartCard.lineEndDelta.visible = seriesLine;
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
-            || orient === "line" || orient === "catbridge" || orient === "stockflow";
+            || (orient === "line" && !seriesLineOn) || orient === "catbridge" || orient === "stockflow";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
             || orient === "pnl";
         fs.chartCard.driverNote.visible = orient === "catbridge";
@@ -2264,9 +2278,35 @@ export class Visual implements IVisual {
         fs.chartCard.sfStockAt.visible = isSf;
         fs.chartCard.sfNetLabel.visible = isSf && fs.chartCard.sfNet.value !== false;
         fs.chartCard.sfNegTint.visible = isSf && fs.chartCard.sfArea.value !== false;
-        fs.chartCard.showAbsoluteVariance.visible = !isScatter && !isSf;
-        fs.chartCard.showRelativeVariance.visible = !isScatter && !isSf;
-        if (isScatter || isSf) { fs.chartCard.dualVariance.visible = false; }
+        fs.chartCard.showAbsoluteVariance.visible = !isScatter && !isSf && !seriesLineOn;
+        fs.chartCard.showRelativeVariance.visible = !isScatter && !isSf && !seriesLineOn;
+        if (isScatter || isSf || seriesLineOn) { fs.chartCard.dualVariance.visible = false; }
+        // B17 review (m11): series lines ignore Δ display, moving average, comparison codes
+        if (seriesLineOn) {
+            fs.chartCard.movingAverage.visible = false;
+            fs.chartCard.pinStyle.visible = false;
+            fs.chartCard.deltaIcons.visible = false;
+            fs.chartCard.scenarioLabels.visible = false;
+        }
+        // 1.56 B10 part 2 / B16 leftover: the auto-expand switch sits where the expansion
+        // applies: bars with stack blocks (Display), the area with axis groups (Stock &
+        // flow), else the table group (one slice lives in exactly one group)
+        {
+            const cc = fs.chartCard;
+            const ae = cc.autoExpandHierarchy;
+            const blocksOn = orient === "bars" && cc.stackBlocks.visible
+                && String((cc.stackBlocks.value as powerbi.IEnumMember)?.value ?? "off") !== "off";
+            const areaGroups = isArea && String((cc.axisGroups.value as powerbi.IEnumMember)?.value ?? "auto") !== "off";
+            const home = blocksOn ? cc.displayGroup : areaGroups ? cc.stockFlowGroup : cc.tableGroup;
+            const after = blocksOn ? cc.stackBlocks : areaGroups ? cc.axisGroups : cc.valueColumns;
+            for (const g of [cc.displayGroup, cc.stockFlowGroup, cc.tableGroup]) {
+                const sl = g.slices ?? [];
+                const at = sl.indexOf(ae);
+                if (at >= 0 && g !== home) { sl.splice(at, 1); }
+            }
+            const hs = home.slices ?? [];
+            if (hs.indexOf(ae) < 0) { hs.splice(hs.indexOf(after) + 1, 0, ae); }
+        }
         // Scatter v3 gates: Formen nur bei Gruppen-Färbung; Pfeile nur mit PY;
         // R² nur bei aktiver Trendlinie; Größen-Legende nur mit gebundener Blasengröße;
         // Quadranten-Labels nur, wenn überhaupt Quadranten-Linien entstehen können
@@ -2303,7 +2343,7 @@ export class Visual implements IVisual {
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
         // 1.56 review (M4): the stacked area ignores the cap, so the switch is hidden there
         fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0 && orient !== "stockflow" && !isArea;
-        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value && orient !== "stockflow";
+        fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value && orient !== "stockflow" && !seriesLineOn;
         // comments card stays visible without a comment measure — the in-chart
         // capture mode works on any category
         fs.commentsCard.visible = true;
@@ -2339,7 +2379,7 @@ export class Visual implements IVisual {
             fs.chartCard.dualVariance.visible = false;
         }
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
-        fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table"
+        fs.chartCard.cumulative.visible = orient === "columns" || (orient === "line" && !seriesLineOn) || orient === "table"
             || orient === "stockflow";
         // 1.56 (B11 part 2): aggregation over time where something aggregates over time
         // (YTD, year column, table tree, Trend role, Σ header, stock & flow)
@@ -6114,6 +6154,7 @@ export class Visual implements IVisual {
     private render(points: DataPoint[], width: number, height: number): void {
         while (this.svg.firstChild) { this.svg.removeChild(this.svg.firstChild); }
         this.catGroups = [];
+        this.selHooks = [];
         this.ellipseTargets = [];
         this.stackSeriesOrder = null;
         this.bridgeChips = [];
@@ -6204,6 +6245,7 @@ export class Visual implements IVisual {
         // (a bound series alone changes nothing); excludes the cumulated view and B15
         const lineSeriesWanted = lineMode && s.chartCard.lineSeries.value === true;
         const lineSeriesOn = lineSeriesWanted && points.some(p => p.stackSeries != null);
+        this.lineSeriesRun = lineSeriesOn;
         // waterfall-bridge is an optional add-on to columns/bars, not a separate orientation
         const wfStyleGlobal = s.chartCard.waterfallStyle.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "bars");
@@ -6636,7 +6678,8 @@ export class Visual implements IVisual {
                 String((s.chartCard.lineSeriesLabels.value as powerbi.IEnumMember)?.value)),
             endDelta: lnEndDeltaRaw === "" ? null : lnEndDeltaRaw === "*" ? "all"
                 : new Set(lnEndDeltaRaw.split(/[;,]/).map(x => x.trim().toLowerCase()).filter(x => x)),
-            domain: [0, 1]
+            domain: [0, 1],
+            autoBase: null
         } : null;
         const lineOpts: LineOpts | null = lineMode
             && (lnShapeSq || lnBasisLbl || lnCodes || lnR12On || lnColsOn || lnGap === "actual" || lnGap === "end" || lnGap === "both"
@@ -7157,9 +7200,18 @@ export class Visual implements IVisual {
         // 1.56 (B17): the series lines share one zero-based domain over the drawn tiles
         // (with the index at least up to 100; a Σ tile indexes its sums)
         if (lnSeries) {
+            // B17 review (m5): one automatic base for all drawn tiles, so that a Σ tile
+            // and its member tiles index against the same day
+            if (lnSeries.index && shownGroups.length > 1) {
+                const lys = shownGroups.map(g => this.lineSeriesLayout(g.pts, false, "", null));
+                lnSeries.autoBase = lys[0].cats.find(c => lys.every(ly => {
+                    const i = ly.cats.indexOf(c);
+                    return i >= 0 && ly.raw.every(r => (r[i] ?? 0) > 0);
+                })) ?? null;
+            }
             let lo = 0, hi = 0;
             for (const g of shownGroups) {
-                const ly = this.lineSeriesLayout(g.pts, lnSeries.index, lnSeries.indexBase);
+                const ly = this.lineSeriesLayout(g.pts, lnSeries.index, lnSeries.indexBase, lnSeries.autoBase);
                 for (const row of ly.vals) { for (const v of row) { if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } } }
             }
             if (lnSeries.index) { hi = Math.max(hi, 100); } else {
@@ -12723,6 +12775,8 @@ export class Visual implements IVisual {
             if (sf) {
                 agg.catLevels = kids[0].catLevels;
                 agg.lineVal = lineStock?.get(agg.cat) ?? null;
+            } else if (this.lineSeriesRun) {
+                agg.catLevels = kids[0].catLevels;
             }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
@@ -12743,6 +12797,8 @@ export class Visual implements IVisual {
      * no member carries them (every other chart stays as it was).
      */
     private carryLineYtd(agg: DataPoint, kids: DataPoint[], mean: boolean): void {
+        // final round: a Ø tile built from cumulated members keeps the year breaks
+        if (kids.some(c => c.ytdReset)) { agg.ytdReset = true; }
         if (!kids.some(c => c.perVal !== undefined || c.r12 !== undefined)) { return; }
         const f = (get: (c: DataPoint) => number | null | undefined): number | null => {
             let acc = 0, n = 0;
@@ -12867,6 +12923,8 @@ export class Visual implements IVisual {
             if (sf) {
                 agg.catLevels = tiles[0].catLevels;
                 agg.lineVal = lineStock?.get(cat) ?? null;
+            } else if (this.lineSeriesRun) {
+                agg.catLevels = tiles[0].catLevels;
             }
             // KPI cards + Trend role: the Ø tile keeps an averaged time series
             const ts = this.sumTrendSeries(tiles, true);
@@ -16690,10 +16748,12 @@ export class Visual implements IVisual {
                 const half = this.textWidth(txt, lf) / 2 + 1;
                 const tx = Math.max(region.x + half, Math.min(region.x + region.w - half, X(i)));
                 items.push({ el: textAt(tx, y, txt, { "data-icd": "area-total-label", "data-i": i }), prio: pr });
-                // label and point together, 2 px air (the labels carry a paper halo)
+                // label and point together, 2 px air sideways; above and below 4 px, so that
+                // the paper halos of both labels do not touch (final round: c807 May 2024,
+                // „549“ sat on „1.350“)
                 const yp = Yc(totals[i]);
                 totBox.set(i, { x0: Math.min(tx - half, X(i) - ms / 2) - 2, x1: Math.max(tx + half, X(i) + ms / 2) + 2,
-                    y0: Math.min(y - lf * 0.85, yp - ms / 2) - 2, y1: Math.max(y + lf * 0.25, yp + ms / 2) + 2 });
+                    y0: Math.min(y - lf * 0.85, yp - ms / 2) - 4, y1: Math.max(y + lf * 0.25, yp + ms / 2) + 4 });
             });
         }
         if (showLabels && valMode !== "off") {
@@ -16887,22 +16947,26 @@ export class Visual implements IVisual {
      * the series role over the unique categories (order of first appearance); the cell
      * value is AC or FC (p.value, FC flag kept), PY/PL/benchmark are not used. With the
      * index the values are divided by the series' value at the base category × 100: the
-     * named base (category or its leaf, case-insensitive), else the first category with
-     * values of all series, else the first with any value. A series without a base value
-     * (empty or 0) has no row values (noBase) and is not drawn. Called once per tile
-     * after aggregation, so a Σ tile indexes its sums (not the sum of the indices).
+     * named base (category or its leaf, case-insensitive; review m4: else a group name,
+     * meaning the first point of the group), else the deck-wide automatic base (review
+     * m5), else the first category with a value > 0 in all series (review m1), else the
+     * first with values of all series, else the first with any value. A series without a
+     * usable base value (empty, 0 or negative, review M1: a negative base turns the
+     * index upside down) has no row values (noBase) and is not drawn. Called once per
+     * tile after aggregation, so a Σ tile indexes its sums (not the sum of the indices).
      */
-    private lineSeriesLayout(points: DataPoint[], index: boolean, baseName: string): {
+    private lineSeriesLayout(points: DataPoint[], index: boolean, baseName: string, autoBase: string | null = null): {
         cats: string[]; levels: string[][]; series: string[]; cell: Map<string, DataPoint>;
         raw: (number | null)[][]; vals: (number | null)[][]; fc: boolean[][]; bi: number; baseLabel: string;
-        noBase: string[];
+        noBase: string[]; baseMissing: boolean;
     } {
         const cats: string[] = [], series: string[] = [];
         const catSeen = new Set<string>(), serSeen = new Set<string>();
         const cell = new Map<string, DataPoint>();
         const levelOf = new Map<string, string[]>();
         for (const p of points) {
-            const sn = p.stackSeries ?? "";
+            // review nit: an empty member (null) is its own series "(leer)", as in the stack
+            const sn = p.stackSeries ?? "(leer)";
             if (!catSeen.has(p.cat)) { catSeen.add(p.cat); cats.push(p.cat); levelOf.set(p.cat, p.catLevels ?? [p.cat]); }
             if (!serSeen.has(sn)) { serSeen.add(sn); series.push(sn); }
             cell.set(`${p.cat}¦${sn}`, p);
@@ -16911,21 +16975,25 @@ export class Visual implements IVisual {
         const raw = series.map(sn => cats.map(c => cell.get(`${c}¦${sn}`)?.value ?? null));
         const fc = series.map(sn => cats.map(c => cell.get(`${c}¦${sn}`)?.isFc === true));
         let bi = -1;
-        const want = baseName.trim().toLowerCase();
+        const norm = (x: string) => x.trim().toLowerCase();
+        const want = norm(baseName);
         if (want) {
-            bi = cats.findIndex((c, i) => c.trim().toLowerCase() === want
-                || levels[i][levels[i].length - 1].trim().toLowerCase() === want);
+            bi = cats.findIndex((c, i) => norm(c) === want || norm(levels[i][levels[i].length - 1]) === want);
+            if (bi < 0) { bi = levels.findIndex(l => l.some(x => norm(x) === want)); }
         }
+        const baseMissing = want !== "" && bi < 0;
+        if (bi < 0 && autoBase != null) { bi = cats.indexOf(autoBase); }
+        if (bi < 0) { bi = cats.findIndex((_, i) => raw.every(r => (r[i] ?? 0) > 0)); }
         if (bi < 0) { bi = cats.findIndex((_, i) => raw.every(r => r[i] != null)); }
         if (bi < 0) { bi = cats.findIndex((_, i) => raw.some(r => r[i] != null)); }
         const noBase: string[] = [];
         const vals = !index ? raw : raw.map((r, si) => {
             const b = bi >= 0 ? r[bi] : null;
-            if (b == null || b === 0) { noBase.push(series[si]); return r.map(() => null); }
+            if (b == null || !(b > 0)) { noBase.push(series[si]); return r.map(() => null); }
             return r.map(v => v == null ? null : v / b * 100);
         });
         const baseLabel = bi >= 0 ? levels[bi][levels[bi].length - 1] : "";
-        return { cats, levels, series, cell, raw, vals, fc, bi, baseLabel, noBase };
+        return { cats, levels, series, cell, raw, vals, fc, bi, baseLabel, noBase, baseMissing };
     }
 
     /** 1.56 (B17): small italic note at the bottom right of a series-line tile (edit mode
@@ -16960,7 +17028,7 @@ export class Visual implements IVisual {
      */
     private renderLineSeries(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const so = (cfg.lineOpts as LineOpts).series as LineSeriesOpts;
-        const L = this.lineSeriesLayout(points, so.index, so.indexBase);
+        const L = this.lineSeriesLayout(points, so.index, so.indexBase, so.autoBase);
         const { cats, levels, series, vals, fc, bi } = L;
         const n = cats.length, m = series.length;
         if (n === 0 || m === 0) { return; }
@@ -16997,8 +17065,11 @@ export class Visual implements IVisual {
             const c = from.map((f, ci) => Math.round(f + (to[ci] - f) * mix));
             return `rgb(${c[0]},${c[1]},${c[2]})`;
         };
-        const HC_DASH = ["", "6,3", "2,2", "8,2,2,2"];
-        const dashOf = (si: number) => cfg.hc && si !== lead ? HC_DASH[(si < lead ? si + 1 : si) % HC_DASH.length] : "";
+        // review (m8): the lead series solid, the others cycle through six patterns
+        // (before: four incl. the solid one, the fifth series looked like the lead)
+        const HC_DASH = ["", "6,3", "2,2", "8,2,2,2", "12,4", "3,5", "8,2,2,2,2,2"];
+        const dashOf = (si: number) => cfg.hc && si !== lead
+            ? HC_DASH[1 + (si < lead ? si : si - 1) % (HC_DASH.length - 1)] : "";
 
         // ---- axis groups from the category hierarchy (month › day: the month row)
         const { gLevels, groups: axGroups } = this.areaAxisGroups(levels, groupsOn);
@@ -17010,7 +17081,8 @@ export class Visual implements IVisual {
             if (!drawn[si] || !so.endDelta) { return null; }
             if (so.endDelta !== "all" && !so.endDelta.has(series[si].trim().toLowerCase())) { return null; }
             const end = vals[si][lastOf[si]];
-            const base = so.index ? 100 : (bi >= 0 ? vals[si][bi] : vals[si][firstOf[si]]);
+            // review nit: without the index the marker runs from the series' own first value
+            const base = so.index ? 100 : vals[si][firstOf[si]];
             if (end == null || base == null) { return null; }
             return { base, end, d: end - base };
         };
@@ -17208,10 +17280,18 @@ export class Visual implements IVisual {
         }
         // the end points always carry a mark (their value stands in the end label)
         for (let si = 0; si < m; si++) { if (drawn[si]) { mark(si, lastOf[si]); } }
+        // review nit: a point between two gaps has no line piece, so it gets a mark
+        for (let si = 0; si < m; si++) {
+            if (!drawn[si]) { continue; }
+            for (let i = 0; i < n; i++) {
+                if (vals[si][i] == null || i === lastOf[si] || labelAt.has(i)) { continue; }
+                if ((i === 0 || vals[si][i - 1] == null) && (i === n - 1 || vals[si][i + 1] == null)) { mark(si, i); }
+            }
+        }
 
         // ---- start-to-end markers: bar from the base level to the end value (right edge)
         const colX = X(n - 1) + 6 + trackW;
-        const colItems: { y: number; t: SVGTextElement }[] = [];
+        const colItems: { y: number; t: SVGTextElement; si: number; delta: boolean }[] = [];
         dList.forEach((x, k2) => {
             const si = x.si;
             const xb = X(n - 1) + 6 + k2 * (bw + 2);
@@ -17219,7 +17299,7 @@ export class Visual implements IVisual {
             const color = x.d.d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(x.d.d) ? cfg.colors.good : cfg.colors.bad;
             const g = this.el("g", { "data-icd": "end-delta", "data-series": series[si], "data-v": Math.round(x.d.d * 100) / 100 }, root);
             if (!so.index) {
-                this.el("line", { x1: X(bi >= 0 ? bi : firstOf[si]), y1: ya, x2: xb + bw, y2: ya, stroke: cfg.subtle, "stroke-width": 0.8,
+                this.el("line", { x1: X(firstOf[si]), y1: ya, x2: xb + bw, y2: ya, stroke: cfg.subtle, "stroke-width": 0.8,
                     "stroke-dasharray": "2,2", "data-icd": "end-delta-guide" }, bg);
             }
             this.el("line", { x1: X(lastOf[si]) + ms / 2, y1: yb, x2: xb, y2: yb, stroke: cfg.subtle, "stroke-width": 0.8,
@@ -17231,7 +17311,11 @@ export class Visual implements IVisual {
                 "data-icd": "end-delta-label" }, g) as SVGTextElement;
             t.textContent = deltaText(x.d);
             g.setAttribute("aria-label", `${series[si]}: ${t.textContent}`);
-            colItems.push({ y: (ya + yb) / 2, t });
+            // review nit: highlight as ellipse on a series circles its Δ (sheet 07A: −93%)
+            if (cfg.highlightEllipse && this.isEmph(cfg, series[si])) {
+                this.ellipseTargets.push({ g: g as SVGGElement, cat: series[si], ink: cfg.hc ? cfg.hcSel : cfg.dark ? cfg.subtle : "#0064FF" });
+            }
+            colItems.push({ y: (ya + yb) / 2, t, si, delta: true });
         });
         // ---- end labels: last value and series name right of the line ends
         for (let si = 0; si < m; si++) {
@@ -17241,17 +17325,39 @@ export class Visual implements IVisual {
                 "font-weight": si === emphIdx ? 600 : 400, "data-icd": "series-end-label", "data-series": series[si],
                 "data-v": Math.round(v * 100) / 100 }, lbl) as SVGTextElement;
             t.textContent = this.truncate(endText(si), colW + 2, lf);
-            colItems.push({ y: Y(v), t });
+            colItems.push({ y: Y(v), t, si, delta: false });
+            // review (m9): a series that ends before the last category gets a thin guide
+            // from its end point towards the column (a start-to-end marker draws its own)
+            if (lastOf[si] < n - 1 && deltas[si] == null) {
+                this.el("line", { x1: X(lastOf[si]) + ms / 2, y1: Y(v), x2: X(n - 1) + 4, y2: Y(v), stroke: cfg.subtle,
+                    "stroke-width": 0.8, "stroke-dasharray": "1,2", "data-icd": "series-end-guide", "data-series": series[si] }, bg);
+            }
         }
         // spread the right column vertically (end labels and Δ labels together)
-        colItems.sort((a, b) => a.y - b.y);
-        const gap = Math.ceil(lf * 1.25) + 1;
-        const ys = colItems.map(c => c.y + lf * 0.35);
-        for (let j = 1; j < ys.length; j++) { ys[j] = Math.max(ys[j], ys[j - 1] + gap); }
+        let col = colItems.sort((a, b) => a.y - b.y);
+        let gap = Math.ceil(lf * 1.25) + 1;
         const bottom = axisTop - 2;
+        const room = bottom - (rect.y + lf);
+        const fits = () => (col.length - 1) * gap <= room;
+        if (col.length > 1 && !fits()) {
+            // review (m7): more rows than the column holds: first the Δ labels go (their
+            // bars stay), then the rows move closer (down to one font height), at last the
+            // names of the later series (the lead series always stays)
+            for (const c of col) { if (c.delta) { c.t.remove(); } }
+            col = col.filter(c => !c.delta);
+            if (col.length > 1 && !fits()) { gap = Math.max(lf + 1, room / (col.length - 1)); }
+            while (col.length > 1 && !fits()) {
+                const drop = col.reduce((a: typeof col[number] | null, c) => c.si !== lead && (a == null || c.si > a.si) ? c : a, null);
+                if (!drop) { break; }
+                drop.t.remove();
+                col = col.filter(c => c !== drop);
+            }
+        }
+        const ys = col.map(c => c.y + lf * 0.35);
+        for (let j = 1; j < ys.length; j++) { ys[j] = Math.max(ys[j], ys[j - 1] + gap); }
         if (ys.length > 0) { ys[ys.length - 1] = Math.min(ys[ys.length - 1], bottom); }
         for (let j = ys.length - 2; j >= 0; j--) { ys[j] = Math.min(ys[j], ys[j + 1] - gap); }
-        colItems.forEach((c, j) => { c.t.setAttribute("y", String(Math.max(ys[j], rect.y + lf))); fixed.push(c.t); });
+        col.forEach((c, j) => { c.t.setAttribute("y", String(Math.max(ys[j], rect.y + lf))); fixed.push(c.t); });
 
         // ---- axis: leaf labels, group rows (month names right of their start)
         const ax = this.el("g", { "data-icd": "series-axis" }, root);
@@ -17284,10 +17390,17 @@ export class Visual implements IVisual {
         // ---- interaction: per category one invisible cell per series (the nearest line
         // owns the vertical slice); tooltip with all series of the category
         const half = n > 1 ? step / 2 : 12;
+        // review (m10): selection and cross-highlight become visible: a paper veil per
+        // category (all its cells faded) and a faded series (all its cells faded)
+        // (drawn lazily on the first fade, an unselected chart keeps its SVG)
+        const cellsOf: SVGGElement[][] = series.map(() => []);
+        const veils: { i: number; el: SVGElement | null; cells: SVGGElement[] }[] = [];
         for (let i = 0; i < n; i++) {
             const at = series.map((_, si) => si).filter(si => drawn[si] && vals[si][i] != null)
                 .sort((a, b) => Y(vals[a][i] as number) - Y(vals[b][i] as number));
             if (at.length === 0) { continue; }
+            const vcells: SVGGElement[] = [];
+            veils.push({ i, el: null, cells: vcells });
             const extra = () => at.map(si => {
                 const rv = L.raw[si][i];
                 return { displayName: series[si] || "–", value: so.index
@@ -17304,11 +17417,61 @@ export class Visual implements IVisual {
                 this.attachInteraction(g, p, cfg, { extra });
                 g.setAttribute("aria-label", `${p.cat}, ${series[si]}: ${valText(vals[si][i] as number)}`);
                 this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+                cellsOf[si].push(g);
+                vcells.push(g);
             });
         }
-        if (so.index && L.noBase.length > 0) {
-            this.lineSeriesHint(region, cfg, "index", this.locStr("Hint_IndexNoBase", "Index: no base value (empty or 0) for {0}, not drawn")
-                .replace("{0}", L.noBase.join(", ")));
+        const faded = (g: SVGGElement) => g.getAttribute("opacity") === "0.35";
+        let veilG: SVGElement | null = null;
+        this.selHooks.push(() => {
+            const anyOn = veils.some(v => v.cells.some(c => !faded(c)));
+            for (const v of veils) {
+                const on = anyOn && v.cells.every(faded);
+                if (!v.el && !on) { continue; }
+                if (!veilG) {
+                    veilG = this.el("g", { "data-icd": "series-veils" }, root);
+                    root.insertBefore(veilG, hitG);
+                }
+                if (!v.el) {
+                    v.el = this.el("rect", { x: X(v.i) - half, y: rect.y + titleH, width: Math.max(half * 2, 1),
+                        height: Math.max(axisTop - rect.y - titleH, 1), fill: cfg.paper, "pointer-events": "none",
+                        "data-icd": "series-veil", "data-i": v.i }, veilG);
+                }
+                v.el.setAttribute("fill-opacity", on ? "0.65" : "0");
+            }
+            const marks = Array.from(root.querySelectorAll('[data-icd="line-series"], [data-icd="series-pt"], [data-icd="series-end-label"], [data-icd="end-delta"]'));
+            series.forEach((sn, si) => {
+                if (!drawn[si]) { return; }
+                const off = anyOn && cellsOf[si].length > 0 && cellsOf[si].every(faded);
+                for (const e of marks) {
+                    if (e.getAttribute("data-series") !== sn) { continue; }
+                    if (off) { e.setAttribute("opacity", "0.35"); } else { e.removeAttribute("opacity"); }
+                }
+            });
+        });
+        // ---- notes (review m2, m3, m4): a series without a base value is named in every
+        // view (the reader would miss it silently), a named base that was not found only
+        // while editing; both in the title row, right-aligned over the plot (before: at the
+        // bottom right on the axis labels)
+        if (so.index) {
+            const notes: { kind: string; text: string }[] = [];
+            if (L.noBase.length > 0) {
+                notes.push({ kind: "index", text: this.locStr("Hint_IndexNoBase", "Index: no base value (empty, 0 or negative) for {0}, not drawn")
+                    .replace("{0}", L.noBase.join(", ")) });
+            }
+            if (L.baseMissing && this.allowInteractions && this.viewMode !== 0) {
+                notes.push({ kind: "base", text: this.locStr("Hint_IndexBaseMissing", "Index: base category “{0}” not found, automatic base {1}")
+                    .replace("{0}", so.indexBase).replace("{1}", L.baseLabel) });
+            }
+            if (notes.length > 0) {
+                const fs = Math.round(9 * this.fontK);
+                const titleW = this.textWidth(title, Math.round(10 * k)) + 12;
+                const xr = X(n - 1);
+                const t = this.el("text", { x: xr, y: rect.y + titleH - 4, "text-anchor": "end", "font-size": fs, fill: cfg.subtle,
+                    "font-family": FONT, "font-style": "italic", stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke",
+                    "stroke-linejoin": "round", "data-icd": "line-hint", "data-kind": notes[0].kind }, root);
+                t.textContent = this.truncate(notes.map(x => x.text).join(" · "), Math.max(xr - (region.x + 6 + titleW), fs * 4), fs);
+            }
         }
     }
 
@@ -19711,7 +19874,8 @@ export class Visual implements IVisual {
         const fcInAc = cfg.hasFc
             || /\bAC\s*(&|\+|\/|und)\s*FC\b/i.test(this.measureName || "");
         const valueScen = fcInAc ? `${cfg.scenL.ac}&${cfg.scenL.fc}` : cfg.scenL.ac;
-        if (cfg.scatter) { return valueScen; }
+        // B17 review (m11): series lines draw no PY, PL or BM, the title names no "vs."
+        if (cfg.scatter || cfg.lineOpts?.series) { return valueScen; }
         const basis = cfg.basisMode === "plan" ? (cfg.hasPl ? cfg.scenL.pl : "")
             : cfg.basisMode === "fcrev" ? `${cfg.scenL.fc} Vm`
             : (cfg.hasPy ? cfg.scenL.py : "");
@@ -19992,7 +20156,8 @@ export class Visual implements IVisual {
         };
         let cv = 0, cpy = 0, cpl = 0, cbm = 0, cfp = 0;
         return pts.map((p, i) => {
-            if (resetAt(i)) { cv = 0; cpy = 0; cpl = 0; cbm = 0; cfp = 0; }
+            const reset = resetAt(i);
+            if (reset) { cv = 0; cpy = 0; cpl = 0; cbm = 0; cfp = 0; }
             if (p.sfKind === "stock") { return p; }
             if (p.value != null) { cv += p.value; }
             if (p.py != null) { cpy += p.py; }
@@ -20014,7 +20179,8 @@ export class Visual implements IVisual {
                 ac: p.isFc ? null : value,
                 fc: p.isFc ? value : null,
                 value, py, pl, fcPrev, basis, varAbs, varRel, var2Abs, var2Rel,
-                bm: p.bm != null ? (kind === "r12" ? winSum(i, x => x.bm) : cbm) : null
+                bm: p.bm != null ? (kind === "r12" ? winSum(i, x => x.bm) : cbm) : null,
+                ...(reset ? { ytdReset: true } : {})
             };
         });
     }
@@ -20992,7 +21158,9 @@ export class Visual implements IVisual {
             let prev: { x: number; y: number; fc: boolean } | null = null;
             for (let i = 0; i < points.length; i++) {
                 const v = acc(points[i]);
-                if (v == null) { prev = null; continue; }
+                // final round: a running total that restarts (YTD in January) breaks the line
+                if (v == null || points[i].ytdReset) { prev = null; }
+                if (v == null) { continue; }
                 const pt = { x: cxOf(i), y: scale(cap(v)), fc: points[i].isFc };
                 if (prev) {
                     const seg = `M${prev.x},${prev.y}L${pt.x},${pt.y}`;
@@ -21035,7 +21203,9 @@ export class Visual implements IVisual {
             let prev: { x: number; y: number; fc: boolean } | null = null;
             for (let i = 0; i < points.length; i++) {
                 const v = acc(points[i]);
-                if (v == null) { prev = null; continue; }
+                // final round: a running total that restarts (YTD in January) breaks the line
+                if (v == null || points[i].ytdReset) { prev = null; }
+                if (v == null) { continue; }
                 const pt = { x: cxOf(i), y: scale(cap(v)), fc: points[i].isFc };
                 if (prev) {
                     const seg = `M${prev.x},${prev.y}L${pt.x},${pt.y}`;
@@ -22444,6 +22614,8 @@ export class Visual implements IVisual {
             if (cg.veil) { cg.veil.setAttribute("fill-opacity", faded ? "0.65" : "0"); continue; }
             cg.g.setAttribute("opacity", faded ? "0.35" : "1");
         }
+        // 1.56 B17 review (m10): renderers whose marks are not the hit cells themselves
+        for (const h of this.selHooks) { h(); }
     }
 
     // ------------------------------------------------- user comments (in-chart)
