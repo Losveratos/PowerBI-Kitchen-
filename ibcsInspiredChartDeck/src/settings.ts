@@ -95,6 +95,14 @@ const stackNormalizeItems: LocEnumMember[] = [
     { value: "off", displayName: "Values", key: "Enum_StackNorm_Off" },
     { value: "pct100", displayName: "100 % (shares)", key: "Enum_StackNorm_Pct" }
 ];
+// 1.56 (backlog B10 part 2, IBCS sheet 02A): blocks of stacked bars from the
+// first category level, optionally with a subtotal row per block
+const stackBlocksItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_StackBlocks_Off" },
+    { value: "gap", displayName: "Gap between blocks", key: "Enum_StackBlocks_Gap" },
+    { value: "subtotals", displayName: "Subtotal per block", key: "Enum_StackBlocks_Subtotals" },
+    { value: "subtotalsButLast", displayName: "Subtotals except the last block", key: "Enum_StackBlocks_SubtotalsButLast" }
+];
 const stackLegendPosItems: LocEnumMember[] = [
     { value: "end", displayName: "Right of the last column", key: "Enum_StackLegPos_End" },
     { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
@@ -285,7 +293,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         gridLinesItems, cellLayoutItems, wfAxisBreakItems, scatterQuadrantItems,
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
-        stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
+        stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
         multiplesBasisItems, sfStockAtItems, axisGroupsItems];
     for (const items of lists) {
         for (const it of items) {
@@ -1527,6 +1535,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    // 1.56 (B10 part 2, IBCS sheet 02A): blocks from the first category level
+    stackBlocks = new formattingSettings.ItemDropdown({
+        name: "stackBlocks",
+        displayName: "Stack blocks",
+        displayNameKey: "Chart_StackBlocks",
+        description: "Gestapelte Balken mit Kategorie-Hierarchie: die erste Ebene bildet Blöcke (z. B. Region), die Zeilen zeigen nur die unteren Ebenen. Abstand: halbe Zeile zwischen den Blöcken. Zwischensumme: je Block eine fette Summenzeile mit der Summe je Serie (bei 100 % der Blockmix). Sortierung und Top N wirken je Block, die Blöcke folgen der Blocksumme. Standard aus.",
+        descriptionKey: "Desc_Chart_StackBlocks",
+        items: stackBlocksItems,
+        value: stackBlocksItems[0]
+    });
+
+    stackBlockShare = new formattingSettings.ToggleSwitch({
+        name: "stackBlockShare",
+        displayName: "Block share",
+        displayNameKey: "Chart_StackBlockShare",
+        description: "Mit Zwischensummen: der Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile und der Anteil hervorgehobener Zeilen über ihrer Summe. Standard aus.",
+        descriptionKey: "Desc_Chart_StackBlockShare",
+        value: false
+    });
+
     stackLegendPos = new formattingSettings.ItemDropdown({
         name: "stackLegendPos",
         displayName: "Series names (columns)",
@@ -1551,7 +1579,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayName: "Display",
         displayNameKey: "Group_Display",
         slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.stackLegendPos,
-            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket, this.scenarioLabels,
+            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket,
+            this.stackBlocks, this.stackBlockShare, this.scenarioLabels,
             this.exportExpandAll]
     });
 

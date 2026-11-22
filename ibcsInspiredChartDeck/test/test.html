@@ -5367,6 +5367,284 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B11-END
+// ---- 1.56 (B10 Teil 2, Blatt 02A): Stapel-Blöcke mit Zwischensummen (c830 bis c859)
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const nsvgB = id => [...document.querySelectorAll(`#${id} svg`)].map(s => s.outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N")).join("\n");
+  const ch = ["Direct", "Retail", "Wholesale"];
+  const eu = new Set(["Switzerland", "Germany", "Austria", "France", "UK", "Poland", "Spain", "Portugal", "Sweden", "Ireland",
+    "Finland", "Denmark", "Norway", "Rest of Europe"]);
+  // Blatt 02A, gemischt geliefert wie c283 (Region › Land, Kanal als Serie)
+  const r02 = [["Austria", 102, 188, 125], ["Rest of Europe", 41, 88, 47], ["Brazil", 52, 36, 27], ["Switzerland", 172, 136, 188],
+    ["Canada", 15, 5, 12], ["Denmark", 7, 24, 21], ["Finland", 48, 35, 13], ["France", 178, 88, 78], ["Germany", 160, 135, 142],
+    ["Ireland", 56, 34, 7], ["Japan", 22, 16, 26], ["Norway", 4, 5, 13], ["Poland", 87, 100, 66], ["Portugal", 61, 44, 12],
+    ["Spain", 83, 83, 58], ["Sweden", 42, 42, 17], ["UK", 79, 105, 84], ["USA", 82, 96, 109], ["Rest of world", 60, 48, 29]];
+  const regionOf = c => eu.has(c) ? "Europe" : "Rest der Welt";
+  // opts.fc: Länder mit FC statt AC; opts.mult: Kachel je Zeile + Faktor; opts.lv3: drei Ebenen
+  const dv02 = (objs, opts) => {
+    opts = opts || {};
+    const R = [], C = [], S = [], A = [], F = [], M = [], L3 = [];
+    const tiles = opts.mult || [[null, 1]];
+    for (const [tile, f] of tiles) {
+      for (const r of r02) {
+        ch.forEach((sn, j) => {
+          R.push(regionOf(r[0])); C.push(r[0]); S.push(sn); M.push(tile);
+          L3.push(regionOf(r[0]) === "Europe" ? (["Switzerland", "Germany", "Austria"].includes(r[0]) ? "DACH" : "Übriges Europa") : "Welt");
+          const v = r[j + 1] * f;
+          const isFc = opts.fc && opts.fc.includes(r[0]);
+          A.push(isFc ? null : v); F.push(isFc ? v : null);
+        });
+      }
+    }
+    const cats = [{ source: { displayName: "Region", roles: { category: true } }, values: R }];
+    if (opts.lv3) { cats.push({ source: { displayName: "Teilregion", roles: { category: true } }, values: L3 }); }
+    if (!opts.flat) { cats.push({ source: { displayName: "Land", roles: { category: true } }, values: C }); }
+    else { cats[0] = { source: { displayName: "Land", roles: { category: true } }, values: C }; }
+    cats.push({ source: { displayName: "Kanal", roles: { series: true } }, values: S });
+    if (opts.mult) { cats.push({ source: { displayName: "Markt", roles: { multiples: true } }, values: M }); }
+    const vals = [col("actual", A, "#,0")];
+    if (opts.fc) { vals.push(col("forecast", F, "#,0")); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: vals } };
+  };
+  const bars = o => ({ chart: Object.assign({ orientation: "bars" }, o) });
+  // Zeilennamen: rechtsbündige Texte direkt in der Zeilengruppe (die Summe steht linksbündig dahinter)
+  const rowNames = id => qq(id, '[data-icd="stack-block"] > g > text[text-anchor="end"]').map(t => t.textContent);
+  const blockTot = (id, b) => qq(id, `[data-icd="stack-block-total"][data-block="${b}"] text`).map(t => t.textContent);
+  const rowY = (id, name) => { const t = qq(id, '[data-icd="stack-block"] > g > text[text-anchor="end"]').find(x => x.textContent === name);
+    return t ? +t.getAttribute("y") : NaN; };
+
+  // c830: Hierarchie, Blöcke aus → wie 1.55 (Namen „Region · Land“), Optionen auf Standard = ungesetzt
+  addStage("c830", "Stapel-Blöcke · Hierarchie Region › Land, stackBlocks aus (Referenz c830L)", 1200, 720);
+  addStage("c830L", "Stapel-Blöcke · Hierarchie ohne die neuen Properties", 1200, 720);
+  runCap("c830", dv02(bars({ stackBlocks: "off", stackBlockShare: false, stackTotalRow: true })), 1200, 720);
+  runCap("c830L", dv02(bars({ stackTotalRow: true })), 1200, 720);
+  check(nsvgB("c830") === nsvgB("c830L") && qq("c830", "text").some(t => t.textContent === "Europe · Switzerland")
+    && !qq("c830", '[data-icd="stack-block"]').length, "c830: stackBlocks aus zeichnet SVG-gleich wie ungesetzt, Namen „Europe · Switzerland“");
+
+  // c831: Abstand, Blattnamen
+  addStage("c831", "Stapel-Blöcke · gap · 2 Blöcke, Blattnamen, halbe Zeile Abstand", 1200, 720);
+  runCap("c831", dv02(bars({ stackBlocks: "gap" })), 1200, 720);
+  {
+    const root = qq("c831", "[data-blocks]")[0];
+    const names = rowNames("c831");
+    // Datenreihenfolge je Block: Zeile 13 ist die letzte von Europe, Zeile 14 die erste von Block 2
+    const step = rowY("c831", names[13]) - rowY("c831", names[12]);
+    const gap = rowY("c831", names[14]) - rowY("c831", names[13]);
+    check(!!root && root.getAttribute("data-blocks") === "2" && names.length === 19 && names.includes("Switzerland")
+      && !names.some(n => / · /.test(n)) && Math.abs(gap / step - 1.5) < 0.01 && !qq("c831", '[data-icd="stack-block-total"]').length,
+      `c831: 2 Blöcke, 19 Blattnamen, Abstand ${(gap / step).toFixed(2)} Zeilen zwischen den Blöcken`);
+  }
+
+  // c832: Zwischensumme je Block
+  addStage("c832", "Stapel-Blöcke · subtotals · Europe 1.120 / 1.107 / 871 = 3.098, Rest der Welt 231 / 201 / 203 = 635", 1200, 760);
+  runCap("c832", dv02(bars({ stackBlocks: "subtotals" })), 1200, 760);
+  {
+    const e = blockTot("c832", "Europe"), w = blockTot("c832", "Rest der Welt");
+    const g = qq("c832", '[data-icd="stack-block-total"]');
+    check(JSON.stringify(e) === JSON.stringify(["Europe", "1.120", "1.107", "871", "= 3.098"])
+      && JSON.stringify(w) === JSON.stringify(["Rest der Welt", "231", "201", "203", "= 635"])
+      && g.map(x => x.getAttribute("data-total")).join(",") === "3098,635" && g.every(x => !x.querySelector("rect[width]") || [...x.querySelectorAll("rect")].every(r => +r.getAttribute("width") < 20)),
+      `c832: Zwischensummen ${e.join(" ")} | ${w.join(" ")}, ohne Summenbalken`);
+  }
+
+  // c833: wie 02A ohne letzte Zwischensumme, Σ „World“
+  addStage("c833", "Stapel-Blöcke · subtotalsButLast + Σ-Zeile World 1.351 / 1.308 / 1.074 = 3.733", 1200, 760);
+  runCap("c833", dv02(bars({ stackBlocks: "subtotalsButLast", stackTotalRow: true, stackTotalLabel: "World" })), 1200, 760);
+  {
+    const tr = qq("c833", '[data-icd="stack-total-row"] text').map(t => t.textContent);
+    const nm = rowNames("c833");
+    const gap = rowY("c833", nm[14]) - rowY("c833", nm[13]);
+    const step = rowY("c833", nm[13]) - rowY("c833", nm[12]);
+    check(qq("c833", '[data-icd="stack-block-total"]').map(g => g.getAttribute("data-block")).join() === "Europe"
+      && JSON.stringify(tr) === JSON.stringify(["World", "1.351", "1.308", "1.074", "= 3.733"]) && Math.abs(gap / step - 2.5) < 0.01,
+      `c833: nur Europe mit Zwischensumme, Σ ${tr.join(" ")}, Europe-Zeile plus halbe Zeile vor Block 2 (${(gap / step).toFixed(2)})`);
+  }
+
+  // c834: Blockanteil in der Ellipse
+  addStage("c834", "Stapel-Blöcke · stackBlockShare · Europe 83 %, Rest der Welt 17 %, Σ 100 %", 1200, 780);
+  runCap("c834", dv02(bars({ stackBlocks: "subtotals", stackBlockShare: true, stackTotalRow: true, stackTotalLabel: "World" })), 1200, 780);
+  {
+    const sh = qq("c834", '[data-icd="stack-block-share"]');
+    const vals = sh.map(g => g.getAttribute("data-share")), txt = sh.map(g => g.textContent);
+    const inTotal = sh.slice(0, 2).every(g => g.closest('[data-icd="stack-block-total"]')) && !!sh[2]?.closest('[data-icd="stack-total-row"]');
+    const ell = sh.map(g => g.querySelector("ellipse").getBoundingClientRect()), st = document.getElementById("c834").getBoundingClientRect();
+    check(JSON.stringify(vals) === '["83","17","100"]' && JSON.stringify(txt) === '["83 %","17 %","100 %"]' && inTotal
+      && ell.every(b => b.right <= st.right + 0.5), `c834: Anteile ${txt.join(" · ")} (${vals.join(", ")}) in Ellipsen hinter den Summen`);
+  }
+
+  // c835: nach Summe je Block, Rest am Blockende kursiv, Blöcke nach Blocksumme
+  addStage("c835", "Stapel-Blöcke · sortMode ac · Switzerland 496 zuerst, Rest of Europe kursiv am Blockende, USA führt Block 2", 1200, 760);
+  runCap("c835", dv02(bars({ stackBlocks: "subtotalsButLast", sortMode: "ac", stackTotalRow: true, stackTotalLabel: "World" })), 1200, 760);
+  {
+    const names = rowNames("c835");
+    const tot = r => r[1] + r[2] + r[3];
+    const want = r02.filter(r => eu.has(r[0]) && !/^Rest/.test(r[0])).sort((a, b) => tot(b) - tot(a)).map(r => r[0]).concat(["Rest of Europe"])
+      .concat(r02.filter(r => !eu.has(r[0]) && !/^Rest/.test(r[0])).sort((a, b) => tot(b) - tot(a)).map(r => r[0]), ["Rest of world"]);
+    const it = qq("c835", '[data-icd="stack-rest"] > text').filter(t => /^Rest of/.test(t.textContent));
+    check(JSON.stringify(names) === JSON.stringify(want) && it.length === 2 && it.every(t => t.getAttribute("font-style") === "italic"),
+      `c835: ${names[0]} … ${names[13]} | ${names[14]} … ${names[18]}, Rest-Zeilen kursiv`);
+  }
+
+  // c836: nach erster Serie je Block
+  addStage("c836", "Stapel-Blöcke · sortMode series · je Block nach Direct (France 178 vor Switzerland 172)", 1200, 760);
+  runCap("c836", dv02(bars({ stackBlocks: "subtotals", sortMode: "series" })), 1200, 760);
+  {
+    const names = rowNames("c836");
+    check(names[0] === "France" && names[1] === "Switzerland" && names[13] === "Rest of Europe" && names[14] === "USA",
+      `c836: ${names.slice(0, 3).join(", ")} … Block 2 beginnt mit ${names[14]}`);
+  }
+
+  // c837: Top 3 je Block
+  addStage("c837", "Stapel-Blöcke · Top N 3 je Block · Rest (11) und Rest (2), Blocksummen unverändert", 1100, 560);
+  runCap("c837", dv02(bars({ stackBlocks: "subtotals", topN: 3, sortMode: "ac" })), 1100, 560);
+  {
+    const names = rowNames("c837");
+    const e = blockTot("c837", "Europe"), w = blockTot("c837", "Rest der Welt");
+    // Rest-Beschriftung aus Label_Rest (im Harness ohne Übersetzung „Other“)
+    check(JSON.stringify(names.map(n => n.replace(/^Other /, "Rest "))) === JSON.stringify(["Switzerland", "Germany", "Austria", "Rest (11)", "USA", "Brazil", "Japan", "Rest (2)"])
+      && qq("c837", '[data-icd="stack-rest"] > text[text-anchor="end"]').every(t => t.getAttribute("font-style") === "italic")
+      && e.includes("= 3.098") && w.includes("= 635"), `c837: ${names.join(", ")}; Blocksummen ${e[e.length - 1]} / ${w[w.length - 1]}`);
+  }
+
+  // c838: 100 % mit Zwischensumme als Mix-Balken, Linie durch alle Slots
+  addStage("c838", "Stapel-Blöcke · 100 % · Mix Europe 36,2 / 35,7 / 28,1, Linie 100 % durch alle Slots (ohne Seitenpanel)", 1200, 780);
+  runCap("c838", dv02(bars({ stackBlocks: "subtotals", stackNormalize: "pct100", stackTotalRow: true, showTotal: false })), 1200, 780);
+  {
+    const mix = qq("c838", '[data-icd="stack-block-total"][data-block="Europe"] [data-icd="stack-total-seg"] text').map(t => t.textContent);
+    const ln = qq("c838", '[data-icd="stack-100"] line')[0];
+    const sumBar = qq("c838", '[data-icd="stack-total-row"] rect')[0];
+    check(JSON.stringify(mix) === '["36,2","35,7","28,1"]' && !!ln && !!sumBar
+      && +ln.getAttribute("y2") >= +sumBar.getAttribute("y") + +sumBar.getAttribute("height") && !qq("c838", '[data-icd="stack-total-panel"]').length,
+      `c838: Mix Europe ${mix.join(" · ")}, 100-%-Linie bis unter die Σ-Zeile`);
+  }
+
+  // c839: 100 % mit Seitenpanel: Blocksumme als fette Zahl ohne Balken
+  addStage("c839", "Stapel-Blöcke · 100 % + Seitenpanel · Europe 3.098 als Zahl ohne Balken, Anteile im Panel", 1200, 780);
+  runCap("c839", dv02(bars({ stackBlocks: "subtotals", stackNormalize: "pct100", stackTotalRow: true, stackBlockShare: true })), 1200, 780);
+  {
+    const p = qq("c839", '[data-icd="stack-total-panel"]')[0];
+    const g = p ? [...p.querySelectorAll('[data-icd="stack-block-grand"]')].map(t => t.textContent) : [];
+    const rects = p ? p.querySelectorAll(":scope > rect").length : 0;
+    const sh = p ? [...p.querySelectorAll('[data-icd="stack-block-share"]')].map(e => e.textContent) : [];
+    check(JSON.stringify(g) === '["3.098","635"]' && rects === 19 && JSON.stringify(sh) === '["83 %","17 %","100 %"]',
+      `c839: Panel ${g.join(" / ")} ohne Balken (${rects} Zeilenbalken), Anteile ${sh.join(" · ")}`);
+  }
+
+  // c840: Klammer + Blöcke → keine Klammer
+  addStage("c840", "Stapel-Blöcke · stackShareBracket 3 + Blöcke · keine Klammer", 1100, 700);
+  runCap("c840", dv02(bars({ stackBlocks: "gap", stackShareBracket: 3, sortMode: "ac" })), 1100, 700);
+  check(!qq("c840", '[data-icd="stack-share-bracket"]').length && qq("c840", '[data-icd="stack-block"]').length === 2, "c840: Blöcke schalten die Anteils-Klammer ab");
+
+  // c841: AC/FC gemischt im Block 2 → dort keine Zwischensumme
+  addStage("c841", "Stapel-Blöcke · USA und Japan als FC · Block 2 ohne Zwischensumme, Europe mit", 1200, 760);
+  runCap("c841", dv02(bars({ stackBlocks: "subtotals" }), { fc: ["USA", "Japan"] }), 1200, 760);
+  check(qq("c841", '[data-icd="stack-block-total"]').map(g => g.getAttribute("data-block")).join() === "Europe"
+    && qq("c841", '[data-icd="stack-seg-fc"]').length === 6, "c841: gemischte Szenarien im Block → keine Zwischensumme, FC schraffiert");
+
+  // c842: Small Multiples
+  addStage("c842", "Stapel-Blöcke · Small Multiples Nord / Süd (×2) · Blöcke je Kachel, gleiche Namensspalte", 1280, 620);
+  runCap("c842", dv02(bars({ stackBlocks: "subtotals" }), { mult: [["Nord", 1], ["Süd", 2]] }), 1280, 620);
+  {
+    const roots = qq("c842", "[data-blocks]");
+    const tots = qq("c842", '[data-icd="stack-block-total"][data-block="Europe"]').map(g => g.getAttribute("data-total"));
+    // Namensspalte = Abstand vom Beginn der Summenlinie (Kachelrand) bis zum Namensende, je Kachel
+    const labs = qq("c842", '[data-icd="stack-block"] > g > text[text-anchor="end"]').filter(t => t.textContent === "Switzerland");
+    const lines = qq("c842", '[data-icd="stack-block-total"][data-block="Europe"] > line');
+    const off = labs.map((t, i) => lines[i] ? +t.getAttribute("x") - +lines[i].getAttribute("x1") : NaN);
+    check(roots.length === 2 && roots.every(r => r.getAttribute("data-blocks") === "2") && JSON.stringify(tots) === '["3098","6196"]'
+      && off.length === 2 && Math.abs(off[0] - off[1]) < 0.5, `c842: 2 Kacheln je 2 Blöcke, Europe ${tots.join(" / ")}, Namensspalte ${off.map(v => v.toFixed(1)).join(" / ")} px`);
+  }
+
+  // c843: Differenzmarker über die Blockgrenze per Blattname
+  addStage("c843", "Stapel-Blöcke · Marker Switzerland > USA über die Blockgrenze · −209", 1200, 760);
+  runCap("c843", dv02(bars({ stackBlocks: "subtotalsButLast", sortMode: "ac", diffMarkers: "Switzerland > USA" })), 1200, 760);
+  {
+    const l = qq("c843", '[data-icd="diff-label"]').map(t => t.textContent);
+    check(l.length === 1 && /^−209 /.test(l[0]), `c843: Marker per Blattname (${l.join(" | ")})`);
+  }
+
+  // c844: Blatt 02A komplett (Rezept), Pfeile und Zeilenanteil
+  addStage("c844", "Stapel-Blöcke · Blatt 02A · Pfeile an Switzerland und USA, Zeilenanteil USA 7,7 → 8 %", 1280, 720);
+  runCap("c844", dv02(bars({ sortMode: "ac", stackBlocks: "subtotalsButLast", stackBlockShare: true, stackTotalRow: true,
+    stackTotalLabel: "World", highlight: "Switzerland, USA", highlightStyle: "ellipse" })), 1280, 720);
+  {
+    const nameOf = g => g.querySelector(':scope > text[text-anchor="end"]')?.textContent;
+    const ar = qq("c844", '[data-icd="stack-hl-arrow"]').map(a => nameOf(a.parentNode));
+    const rs = qq("c844", '[data-icd="stack-row-share"]');
+    const usa = rs.find(g => nameOf(g.parentNode) === "USA");
+    const bs = qq("c844", '[data-icd="stack-block-share"]').map(g => g.textContent);
+    const st = document.getElementById("c844").getBoundingClientRect();
+    check(ar.length === 2 && ar.includes("Switzerland") && ar.includes("USA") && !!usa && usa.getAttribute("data-share") === "7.7"
+      && usa.textContent === "8 %" && JSON.stringify(bs) === '["83 %","100 %"]'
+      && rs.every(g => { const b = g.getBoundingClientRect(); return b.right <= st.right + 0.5 && b.top >= st.top - 0.5; }),
+      `c844: Pfeile an ${ar.join(", ")}, USA ${usa ? usa.textContent : "–"}, Blockanteile ${bs.join(" · ")}`);
+  }
+
+  // c845: schmale Kachel → nur Blocksumme
+  addStage("c845", "Stapel-Blöcke · schmale Kachel 240 px · Zwischensumme nur als Blocksumme", 240, 640);
+  runCap("c845", dv02(bars({ stackBlocks: "subtotals" })), 240, 640);
+  {
+    const e = qq("c845", '[data-icd="stack-block-total"][data-block="Europe"]')[0];
+    check(!!e && !e.querySelector('[data-icd="stack-total-seg"]') && e.querySelector('[data-icd="stack-block-grand"]')?.textContent === "3.098",
+      "c845: schmale Kachel zeigt nur die Blocksumme 3.098, keine Teil-Legende");
+  }
+
+  // c846: drei Ebenen → Block = erste Ebene, Name „Teilregion · Land“
+  addStage("c846", "Stapel-Blöcke · drei Ebenen · Block Region, Zeilen „DACH · Switzerland“", 1280, 760);
+  runCap("c846", dv02(bars({ stackBlocks: "subtotals", sortMode: "ac" }), { lv3: true }), 1280, 760);
+  {
+    const names = rowNames("c846");
+    check(qq("c846", '[data-icd="stack-block"]').map(g => g.getAttribute("data-block")).join() === "Europe,Rest der Welt"
+      && names[0] === "DACH · Switzerland" && names.includes("Welt · USA"), `c846: ${names[0]}, ${names[14]}`);
+  }
+
+  // c847: Säulen mit Hierarchie → Option wirkungslos
+  addStage("c847", "Stapel-Blöcke · Säulen · stackBlocks wirkungslos (Referenz c847L)", 1280, 520);
+  addStage("c847L", "Stapel-Säulen · Hierarchie ohne stackBlocks", 1280, 520);
+  runCap("c847", dv02({ chart: { orientation: "columns", stackBlocks: "subtotals", stackBlockShare: true } }), 1280, 520);
+  runCap("c847L", dv02({ chart: { orientation: "columns" } }), 1280, 520);
+  check(nsvgB("c847") === nsvgB("c847L"), "c847: Säulen zeichnen mit stackBlocks SVG-gleich wie ohne");
+
+  // c848: Hochkontrast
+  addStage("c848", "Stapel-Blöcke · Hochkontrast · Blatt 02A", 1280, 720, "#000");
+  runCap("c848", dv02(bars({ sortMode: "ac", stackBlocks: "subtotalsButLast", stackBlockShare: true, stackTotalRow: true,
+    highlight: "Switzerland, USA", highlightStyle: "ellipse" })), 1280, 720, { palette: hcPal });
+  {
+    const ar = qq("c848", '[data-icd="stack-hl-arrow"]'), el = qq("c848", '[data-icd$="-share"] ellipse');
+    check(ar.length === 2 && ar.every(a => a.getAttribute("fill") === "#00FFFF") && el.length >= 3 && el.every(e => e.getAttribute("stroke") === "#00FFFF"),
+      `c848: Pfeile und Ellipsen in der Auswahlfarbe des Hochkontrasts (${ar[0] ? ar[0].getAttribute("fill") : "–"})`);
+  }
+
+  // c849: ein Block, letzter ohne Zwischensumme; Formatbereich
+  addStage("c849", "Stapel-Blöcke · nur Europe · subtotalsButLast → keine Zwischensumme", 1100, 560);
+  addStage("c849b", "Stapel-Blöcke · nur Europe · subtotals → eine Zwischensumme", 1100, 600);
+  addStage("c849c", "Stapel-Blöcke · ohne Hierarchie · stackBlocks ohne Wirkung", 1100, 560);
+  {
+    const onlyEu = dv => { const c = dv.categorical, keep = c.categories[0].values.map(v => v === "Europe");
+      c.categories.forEach(x => { x.values = x.values.filter((_, i) => keep[i]); }); c.values.forEach(x => { x.values = x.values.filter((_, i) => keep[i]); }); return dv; };
+    runCap("c849", onlyEu(dv02(bars({ stackBlocks: "subtotalsButLast" }))), 1100, 560);
+    const none = qq("c849", '[data-icd="stack-block-total"]').length;
+    const r = runCap("c849b", onlyEu(dv02(bars({ stackBlocks: "subtotals", stackBlockShare: true, stackTotalRow: true }))), 1100, 600);
+    const one = qq("c849b", '[data-icd="stack-block-total"]').map(g => g.getAttribute("data-total"));
+    r.v.getFormattingModel();
+    const cc = r.v.formattingSettings.chartCard;
+    const flat = runCap("c849c", dv02(bars({ stackBlocks: "subtotals" }), { flat: true }), 1100, 560);
+    flat.v.getFormattingModel();
+    const fc = flat.v.formattingSettings.chartCard;
+    check(none === 0 && JSON.stringify(one) === '["3098"]' && cc.stackBlocks.visible === true && cc.stackBlockShare.visible === true
+      && fc.stackBlocks.visible === false && fc.stackBlockShare.visible === false && !qq("c849c", "[data-blocks]").length,
+      "c849: ein Block ohne/mit Zwischensumme; Formatbereich zeigt die Blöcke nur mit Hierarchie, ohne Hierarchie keine Wirkung");
+  }
+
+  // c850: kein NaN in den Block-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c8[3-5]\d[a-zA-Z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(nsvgB(id)));
+    check(ids.length >= 20 && bad.length === 0, `c830 bis c849: kein NaN, undefined oder Infinity im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B10T2-END
 </script>
 </body>
 </html>
