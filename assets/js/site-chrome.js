@@ -125,6 +125,19 @@
     rel === 'beitraege.html' || /^(blog|sessions)\//.test(rel) ? 'beitraege' :
     inList(LERNEN) ? 'lernen' : inList(werkzeugFlat) ? 'werkzeuge' : '';
   if (EN) section = inList(VISUALS_EN) ? 'visuals' : inList(TOOLS_EN) ? 'tools' : '';
+  var FLAG_DE = '<svg viewBox="0 0 5 3" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice"><rect width="5" height="1" fill="#000"/><rect y="1" width="5" height="1" fill="#DD0000"/><rect y="2" width="5" height="1" fill="#FFCE00"/></svg>';
+  var FLAG_EN = '<svg viewBox="0 0 60 30" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 30,15M60,30 30,15" stroke="#C8102E" stroke-width="2.4" transform="translate(-1.3 1.3)"/><path d="M60,0 30,15M0,30 30,15" stroke="#C8102E" stroke-width="2.4" transform="translate(1.3 1.3)"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></svg>';
+  // Sprachumschalter mit zwei Flaggen: aktuelle Sprache markiert, die andere als Link
+  function langSwitch(cls) {
+    function item(code, label, flag, isCur, h) {
+      var inner = flag + '<b>' + code + '</b>';
+      return isCur ? '<span aria-current="true" title="' + label + '">' + inner + '<span class="vh"> (' + label + ')</span></span>'
+        : '<a href="' + esc(h) + '" hreflang="' + code.toLowerCase() + '" lang="' + code.toLowerCase() + '" aria-label="' + label + '">' + inner + '</a>';
+    }
+    var here = U(rel === 'index.html' ? '' : rel);
+    return '<div class="lsw ' + (cls || '') + '" role="group" aria-label="' + T('Sprache', 'Language') + '">' +
+      item('DE', 'Deutsch', FLAG_DE, !EN, EN ? U(ALT) : here) + item('EN', 'English', FLAG_EN, EN, EN ? here : U(ALT)) + '</div>';
+  }
   function langLink(cls) {
     return '<a class="' + cls + '" href="' + esc(U(ALT)) + '" hreflang="' + T('en', 'de') + '" lang="' + T('en', 'de') + '"' +
       ' aria-label="' + T('English version', 'Deutsche Version') + '">' + T('English', 'Deutsch') + '</a>';
@@ -177,11 +190,21 @@
     '.ib:hover{background:var(--soft);color:var(--ink);}' +
     '.start{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;white-space:nowrap;}' +
     '.start:hover{background:var(--accent-d);}' +
+    '.lsw{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--card);}' +
+    '.lsw a,.lsw>span{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px 0 8px;border-radius:999px;font-size:12.5px;color:var(--ink2);}' +
+    '.lsw b{font-weight:650;letter-spacing:.05em;}' +
+    '.lsw>span{background:var(--soft);color:var(--ink);}' +
+    '.lsw a:hover{background:var(--soft);color:var(--ink);}' +
+    '.lsw svg{width:18px;height:12px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.14);flex:0 0 auto;}' +
+    '.lsw.big{display:flex;margin-top:16px;padding:4px;}' +
+    '.lsw.big a,.lsw.big>span{flex:1;justify-content:center;min-height:48px;font-size:15px;gap:9px;}' +
+    '.lsw.big svg{width:24px;height:16px;}' +
+    '.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}' +
     '.lang{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;border-radius:8px;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;}' +
     '.lang:hover{background:var(--soft);color:var(--ink);}' +
     '.burger{display:none;}' +
     '@media (max-width:1060px){.main .top{padding:0 9px;font-size:14px;}.in{gap:10px;}}' +
-    '@media (max-width:900px){.in{height:56px;padding:0 8px 0 16px;gap:4px;}.main,.start,.act .lang{display:none;}.burger{display:inline-flex;}.brand{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;}}' +
+    '@media (max-width:900px){.in{height:56px;padding:0 8px 0 16px;gap:4px;}.main,.start,.act .lang,.act .lsw{display:none;}.burger{display:inline-flex;}.brand{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;}}' +
     '@media (max-width:360px){.brand{font-size:14px;}}' +
     /* Sheet */
     '.sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}' +
@@ -301,7 +324,7 @@
           '<li><a class="top" href="' + esc(U('index_en.html#articles')) + '">Articles</a></li>' +
           '<li><a class="top" href="' + esc(U('index_en.html#episodes')) + '">Episodes</a></li>' +
         '</ul>' +
-        '<div class="act">' + langLink('lang') +
+        '<div class="act">' + langSwitch('') +
           '<a class="start" href="' + esc(U('index_en.html#visuals')) + '">Get the visuals</a>' +
           '<button class="ib burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="kc-sheet">' + ICON_MENU + '</button>' +
         '</div>' +
@@ -316,10 +339,10 @@
             '<div class="sh-sub" id="kc-s-tools" hidden>' + TOOLS_EN.map(function (l) { return a(l[0], l[1]); }).join('') + '</div></li>' +
           '<li class="sh-item">' + a('Articles', 'index_en.html#articles', 'sh-link') + '</li>' +
           '<li class="sh-item">' + a('Episodes', 'index_en.html#episodes', 'sh-link') + '</li>' +
-          '<li class="sh-item">' + langLink('sh-link') + '</li>' +
         '</ul>' +
         '<div class="sh-cta"><a class="start" href="' + esc(U('index_en.html#visuals')) + '">Get the visuals</a>' +
           '<a href="' + esc(U('index_en.html')) + '">English home</a></div>' +
+        langSwitch('big') +
         '<div class="sh-legal">' + a('Legal notice', 'impressum.html') + a('Privacy', 'datenschutz.html') + a('YouTube', 'https://www.youtube.com/@Daten-WG') + '</div>' +
         '</div></div>';
     var h = host('kc-nav', 'position:relative;z-index:1000;');
@@ -351,7 +374,7 @@
           '<li><a class="top' + (section === 'beitraege' ? ' on' : '') + '" href="' + esc(U('beitraege.html')) + '"' + cur('beitraege.html') + '>Beiträge</a></li>' +
           '<li><a class="top' + (section === 'library' ? ' on' : '') + '" href="' + esc(U('wissensgraph/')) + '">Library</a></li>' +
         '</ul>' +
-        '<div class="act">' + langLink('lang') +
+        '<div class="act">' + langSwitch('') +
           '<a class="ib" href="' + esc(U('folgen.html#suche')) + '" aria-label="Folgen durchsuchen" title="Suche">' + ICON_SEARCH + '</a>' +
           '<a class="start" href="' + esc(U('folgen.html#start')) + '">Start hier</a>' +
           '<button class="ib burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="kc-sheet">' + ICON_MENU + '</button>' +
@@ -370,10 +393,10 @@
             }).join('') + '<div class="more">' + a('Alle Werkzeuge →', 'beitraege.html#werkzeuge') + '</div></div></li>' +
           '<li class="sh-item">' + a('Beiträge', 'beitraege.html', 'sh-link' + (section === 'beitraege' ? ' on' : '')) + '</li>' +
           '<li class="sh-item">' + a('Library', 'wissensgraph/', 'sh-link' + (section === 'library' ? ' on' : '')) + '</li>' +
-          '<li class="sh-item">' + langLink('sh-link') + '</li>' +
         '</ul>' +
         '<div class="sh-cta"><a class="start" href="' + esc(U('folgen.html#start')) + '">Start hier</a>' +
           '<a href="' + esc(U('folgen.html#suche')) + '">' + ICON_SEARCH + 'Suche</a></div>' +
+        langSwitch('big') +
         '<div class="sh-legal">' + a('Impressum', 'impressum.html') + a('Datenschutz', 'datenschutz.html') + a('YouTube', 'https://www.youtube.com/@Daten-WG') + '</div>' +
         '</div></div>';
 
