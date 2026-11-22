@@ -865,6 +865,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (B13 part 1b, IBCS sheet 13B): a freely chosen large tile over two rows
+    multiplesHeroTile = new formattingSettings.TextInput({
+        name: "multiplesHeroTile",
+        displayName: "Large tile (group name)",
+        displayNameKey: "Chart_MultiplesHeroTile",
+        description: "Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“. Die Kachel bleibt in ihrer Spalte und reicht über zwei Zeilen, die übrigen Kacheln füllen die freien Plätze. Große und kleine Kacheln zeigen dieselben Pixel je Einheit: die große Kachel nimmt den Ausreißer auf, die kleinen skalieren auf ihre eigenen Werte. Auch mit „Nur Abweichungs-Panel“ (eine Δ-Skala). Nur Säulen, Balken und Linie (ohne Stapel und Brücke). Leer oder unbekannter Name = bisheriges Verhalten.",
+        descriptionKey: "Desc_Chart_MultiplesHeroTile",
+        placeholder: "Berlin",
+        value: ""
+    });
+
     multiplesSameScale = new formattingSettings.ToggleSwitch({
         name: "multiplesSameScale",
         displayName: "Bridges: same scale for all tiles",
@@ -950,7 +961,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
-        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero, this.multiplesHeroTile,
             this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
             this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
             this.multiplesBasis, this.varianceOnly]

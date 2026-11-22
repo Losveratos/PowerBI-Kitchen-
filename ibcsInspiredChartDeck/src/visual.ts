@@ -1395,6 +1395,9 @@ export class Visual implements IVisual {
     private varOnlyNormal: { abs: [number, number]; rel: [number, number] } | null = null;
     /** 1.52: px per value unit of the last drawn base panel (zoom scale note) */
     private lastScaleK: number | null = null;
+    /** 1.57 (B13 part 1b): px per unit of the base, Δ and Δ % panel of the last drawn
+     *  chart (renderChartBody); the named large tile is fitted to the grid tiles on it */
+    private lastPanelK: { main: number | null; abs: number | null; rel: number | null } | null = null;
     /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
     private ctlOpen = false;
     private ctlInset = 0;
@@ -2434,6 +2437,12 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesTotal.visible = !isScatter;
         fs.chartCard.multiplesTopN.visible = !isScatter;
         fs.chartCard.multiplesSameScale.visible = !isScatter;
+        // 1.57 (B13 part 1b): the named large tile only where it works (columns, bars
+        // and line without stack, bridge and series lines)
+        fs.chartCard.multiplesHeroTile.visible = (orient === "columns" || orient === "bars" || orient === "line")
+            && !((orient === "columns" || orient === "bars")
+                && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true))
+            && !seriesLineOn;
         // 1.55 (B13): reference tile options only with the Σ tile, rest label only with Top N
         const multTotalOn = !isScatter && fs.chartCard.multiplesTotal.value === true;
         const multTopOn = !isScatter && (fs.chartCard.multiplesTopN.value ?? 0) > 0;
@@ -2450,7 +2459,8 @@ export class Visual implements IVisual {
                 && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true));
         // 1.56 (B13 part 2): Δ-only tiles for columns/bars without stack and bridge
         // review n3: without a Δ panel (absolute and relative off) it has nothing to show;
-        // while it is on, the hero tile and the dual variance are off and hidden (m1)
+        // while it is on, the hero tile and the dual variance are off and hidden (m1);
+        // 1.57 (B13 part 1b): the named large tile stays (it fits its Δ scale)
         fs.chartCard.varianceOnly.visible = !isScatter && (orient === "columns" || orient === "bars")
             && this.seriesName == null && fs.chartCard.waterfallStyle.value !== true
             && (fs.chartCard.showAbsoluteVariance.value === true || fs.chartCard.showRelativeVariance.value === true);
@@ -7349,7 +7359,12 @@ export class Visual implements IVisual {
             this.prepareScatterDeck(cfg.scatter, shownGroups, groups.length > 1, cfg);
         }
 
-        const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect) => {
+        // 1.57 (B13 part 1b): with a named large tile the reference tile of a Δ-only deck
+        // measures its peer in a regular grid cell on the regular tiles' domains (never in
+        // the large cell, review M1 of part 2); null = in the tile's own region
+        let heroPeer: { region: Rect; dom: Partial<Domains>; hero: object } | null = null;
+        const renderCell = (grp: { name: string | null; pts: DataPoint[] }, region: Rect,
+            dom: Partial<Domains> | null = null) => {
             if (isWaterfall) {
                 this.renderWaterfall(wfByGroup.get(grp.name) || [], region, cfg,
                     { abs: domains.abs, rel: domains.rel });
@@ -7420,12 +7435,14 @@ export class Visual implements IVisual {
             // Review M2: only when the peer really drew just its Δ; a peer that fell back
             // to the normal view leaves the reference tile in the normal view as well
             if (cfg.varianceOnly && (grp as { kind?: string }).kind === "total") {
-                const peer = shownGroups.find(g => g.kind !== "total");
+                const peer = shownGroups.find(g => g.kind !== "total" && g !== heroPeer?.hero);
                 let kDelta: number | null = null;
                 let peerVo = false;
                 if (peer) {
                     this.refTileNoDelta = false;
-                    kDelta = this.measureScaleK(() => this.renderChart(peer.pts, region, cfg, domains, null));
+                    const pRegion = heroPeer ? heroPeer.region : region;
+                    const pDom = heroPeer ? { ...domains, ...heroPeer.dom } : domains;
+                    kDelta = this.measureScaleK(() => this.renderChart(peer.pts, pRegion, cfg, pDom, null));
                     peerVo = this.varOnlyDrawn;
                     if (!this.varOnlyAbsK) { kDelta = null; }
                     this.refTileNoDelta = multBasisAvg;
@@ -7435,13 +7452,13 @@ export class Visual implements IVisual {
                     this.varOnlyRef = { kDelta };
                     // review n5: a Σ header over averages says nothing (Ø tile, mean)
                     this.renderChart(grp.pts, region, { ...cfg, varianceOnly: false, showAbs: false, showRel: false,
-                        showDual: false, showTotal: cfg.showTotal && mAgg !== "mean" }, domains, null);
+                        showDual: false, showTotal: cfg.showTotal && mAgg !== "mean" }, dom ? { ...domains, ...dom } : domains, null);
                     this.varOnlyRef = null;
                     this.refTileNoDelta = false;
                     return;
                 }
             }
-            this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
+            this.renderChart(grp.pts, region, cfg, dom ? { ...domains, ...dom } : domains, cascadeByGroup.get(grp.name) ?? null);
             this.refTileNoDelta = false;
             // 1.56 (B16): stacked area wanted, but no Stack-Series field bound
             if (stackAreaNoSeries) { this.areaHint(region, cfg, "series"); }
@@ -7662,12 +7679,52 @@ export class Visual implements IVisual {
         };
         const groupTitleH = Math.round(16 * this.fontK);
 
+        // 1.57 (B13 part 1b, IBCS sheet 13B): a named large tile (chart.multiplesHeroTile)
+        // keeps its column and spans two rows of a regular grid over n + 1 slots; the
+        // other tiles fill the free slots in order (a reference tile placed last takes
+        // the last one). Large and regular tiles draw the same px per unit: the large
+        // tile scales to its own values, the regular ones to theirs, and the side with
+        // more px per unit gets its domain widened until both match (measured on dry
+        // runs). Columns, bars and line only; a Δ-only deck fits its Δ panels instead
+        const span = this.heroSpanLayout(s, shown, width, availH, topOffset, groupTitleH,
+            (orientationRaw === "columns" || orientationRaw === "bars" || orientationRaw === "line")
+            && !isStacked && !wfStyleGlobal && !lineSeriesOn,
+            mTotalLast, cfg, groups,
+            (gs: { pts: DataPoint[] }[]): Domains => {
+                const pts = gs.flatMap(g => g.pts);
+                let main = extent(pts.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm]));
+                if (lnOpt && (lnOpt.r12 || lnOpt.periodCols)) {
+                    const ext = extent(pts.flatMap(p => lnOpt.periodCols
+                        ? [p.r12 ?? null, p.perVal ?? null, p.perPl ?? null, p.perPy ?? null] : [p.r12 ?? null]));
+                    main = [Math.min(main[0], ext[0]), Math.max(main[1], ext[1])];
+                }
+                if (fixedMax > 0) {
+                    main = cfg.capMax != null ? [main[0], fixedMax] : [main[0], Math.max(main[1], fixedMax)];
+                }
+                if (cfg.refLine != null) {
+                    const refHi = cfg.capMax != null ? Math.min(cfg.refLine, cfg.capMax) : cfg.refLine;
+                    main = [Math.min(main[0], cfg.refLine), Math.max(main[1], refHi)];
+                }
+                let abs = extent(pts.map(p => p.varAbs)), rel = extent(pts.map(p => p.varRel));
+                let abs2 = extent(pts.map(p => p.var2Abs)), rel2 = extent(pts.map(p => p.var2Rel));
+                if (cfg.showDual) {
+                    abs = abs2 = [Math.min(abs[0], abs2[0]), Math.max(abs[1], abs2[1])];
+                    rel = rel2 = [Math.min(rel[0], rel2[0]), Math.max(rel[1], rel2[1])];
+                }
+                if (fixedVarMax > 0) {
+                    abs = [Math.min(abs[0], -fixedVarMax), Math.max(abs[1], fixedVarMax)];
+                    if (cfg.showDual) { abs2 = abs; }
+                }
+                return { main, abs, rel, abs2, rel2, bridge: [0, 0] };
+            },
+            renderCell, (h) => { heroPeer = h; });
+
         // hero layout (IBCS CT 13): the first tile — Σ Gesamt or the largest group —
         // gets a full-height cell on the left, the rest form a grid beside it; the
         // shared scale is untouched, only the allotted space differs
         // 1.56 (B13 part 2 review, m1): not in a Δ-only deck — a bigger hero tile would
         // draw its Δ on a different px per unit than the rest (one Δ scale)
-        const heroOn = s.chartCard.multiplesHero.value && n >= 2 && width >= 460 && !cfg.varianceOnly;
+        const heroOn = !span && s.chartCard.multiplesHero.value && n >= 2 && width >= 460 && !cfg.varianceOnly;
         const heroW = heroOn ? Math.round(Math.min(Math.max(width * 0.42, 250), width * 0.55)) : 0;
         const gridX = heroW;
         const gridW = width - heroW;
@@ -7698,6 +7755,22 @@ export class Visual implements IVisual {
             g.kind ? `\u0001${g.kind}` : (g.name ?? "");
         if (this.zoomGroup != null) {
             const grp = groups.find(g => zoomKey(g) === this.zoomGroup);
+            if (grp && span) {
+                // 1.57 (B13 part 1b): measured in its own slot on its own domains, the
+                // zoom draws the same domains on the whole area (the reference tile of a
+                // Δ-only deck then measures its peer on the zoom area, like before)
+                const sp = span.tiles.find(t => t.grp === grp);
+                const dom = sp ? sp.dom : span.regDom;
+                const kGrid = this.measureScaleK(() => renderCell(grp, sp ? sp.region : span.peerRegion, dom));
+                heroPeer = null;
+                const chipH = Math.round(11 * this.fontK) + 17;
+                this.lastScaleK = null;
+                renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH }, dom);
+                const kZoom = this.lastScaleK as number | null;
+                this.drawZoomBackChip(topOffset, grp.name ?? "", cfg,
+                    kGrid != null && kZoom != null && kGrid > 0 ? kZoom / kGrid : null);
+                return;
+            }
             if (grp) {
                 const gi = shown.indexOf(grp);
                 const cell: Rect = heroOn && gi === 0
@@ -7714,6 +7787,37 @@ export class Visual implements IVisual {
                 return;
             }
             this.zoomGroup = null;
+        }
+        if (span) {
+            // the "+n more" note sits on the last group tile, not on a reference tile placed last
+            const moreGrp = shown[lastIsTotal ? n - 2 : n - 1];
+            for (const t of span.tiles) {
+                const g = t.grp;
+                const gKind = (g as { kind?: "total" | "rest" }).kind;
+                let title = g.name ?? "";
+                if (g === moreGrp && groups.length > n) {
+                    title += `  ${this.locStr("Label_MoreTiles", "(+{n} more)").replace(/\{n\}/g, String(groups.length - n))}`;
+                }
+                tileFrame(g, t.cell.x, t.cell.y, t.cell.w, t.cell.h);
+                this.lastPanelK = null;
+                renderCell(g, t.region, t.dom);
+                // test marker: px per unit of every tile (base panel; Δ panel of a Δ-only tile)
+                const pk = this.lastPanelK as { main: number | null; abs: number | null; rel: number | null } | null;
+                const vo = cfg.varianceOnly === true && gKind !== "total";
+                const kMain = vo ? (pk?.abs ?? pk?.rel ?? null) : (pk?.main ?? null);
+                this.el("g", {
+                    "data-icd": "mult-hero", "data-role": t.hero ? "hero" : t.peer ? "peer" : "tile",
+                    "data-group": g.name ?? "", "data-kind": gKind ?? "group",
+                    "data-px-per-unit": kMain != null ? kMain.toFixed(4) : "",
+                    "data-px-per-unit-rel": pk?.rel != null ? pk.rel.toFixed(4) : "",
+                    "data-col": t.col, "data-row": t.row, "data-rows": t.hero ? 2 : 1,
+                    "data-x": Math.round(t.cell.x), "data-y": Math.round(t.cell.y),
+                    "data-w": Math.round(t.cell.w), "data-h": Math.round(t.cell.h)
+                }, this.svg);
+                this.drawTileHeader(t.cell.x, t.cell.y, t.cell.w, groupTitleH, title, g.name ?? "", cfg, zoomKey(g));
+            }
+            heroPeer = null;
+            return;
         }
         if (heroOn) {
             tileFrame(shown[0], 0, topOffset, heroW - 2, availH);
@@ -7738,6 +7842,147 @@ export class Visual implements IVisual {
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
             this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg, zoomKey(rest[gi]));
         }
+    }
+
+    /**
+     * 1.57 (B13 part 1b, IBCS sheet 13B): layout of a named large tile. Returns null
+     * (legacy layout) when the option is off, the name is unknown, the mode is not
+     * columns/bars/line or a Δ-only deck cannot draw its Δ panels in a regular tile.
+     * Grid: the legacy column rule over n + 1 slots; the large tile keeps its natural
+     * column, spans two rows (row clamped to rows − 2), the others fill the free slots
+     * in order, a reference tile placed last takes the last free slot.
+     * Scale: the large tile gets the domains of its own values, the regular tiles those
+     * of all other groups. Dry runs measure the px per unit of both (base panel and
+     * Δ % panel; in a Δ-only deck the Δ and Δ % panels); the side with more px per unit
+     * gets that domain widened by a factor f (secant on 1/k, which is affine in f)
+     * until both draw the same px per unit. Returned domains are per-tile overrides.
+     */
+    private heroSpanLayout<G extends { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" }>(
+        s: VisualFormattingSettingsModel, shown: G[], width: number, availH: number, top: number, titleH: number,
+        modeOk: boolean, totalLast: boolean, cfg: ChartConfig, groups: G[],
+        domOf: (gs: { pts: DataPoint[] }[]) => Domains,
+        renderCell: (g: G, region: Rect, dom: Partial<Domains> | null) => void,
+        setPeer: (h: { region: Rect; dom: Partial<Domains>; hero: object } | null) => void
+    ): {
+        tiles: { grp: G; cell: Rect; region: Rect; dom: Partial<Domains>; hero: boolean; peer: boolean; col: number; row: number }[];
+        regDom: Partial<Domains>; peerRegion: Rect;
+    } | null {
+        setPeer(null);
+        const name = String(s.chartCard.multiplesHeroTile.value || "").trim().toLowerCase();
+        const n = shown.length;
+        if (!name || !modeOk || n < 2) { return null; }
+        const hi = shown.findIndex(g => (g.name ?? "").trim().toLowerCase() === name);
+        if (hi < 0) { return null; }
+        const hero = shown[hi];
+        const vo = cfg.varianceOnly === true;
+        const others = shown.filter(g => g !== hero);
+        // the regular tile the large one is fitted to (a group tile; in a Δ-only deck
+        // never the reference tile, which draws columns)
+        const peer = others.find(g => g.kind == null) ?? others.find(g => !vo || g.kind !== "total");
+        if (!peer) { return null; }
+
+        // grid over n + 1 slots (legacy column rule: ≈ square, cells ≥ 220 px wide)
+        const slots = n + 1;
+        let cols = Math.ceil(Math.sqrt(slots));
+        cols = Math.max(1, Math.min(cols, Math.floor(width / 220) || 1));
+        const rows = Math.ceil(slots / cols);
+        if (rows < 2) { return null; }
+        const cellW = width / cols, cellH = availH / rows;
+        const hc = hi % cols, hr = Math.min(Math.floor(hi / cols), rows - 2);
+        const taken = new Set([hr * cols + hc, (hr + 1) * cols + hc]);
+        const free: number[] = [];
+        for (let i = 0; i < rows * cols; i++) { if (!taken.has(i)) { free.push(i); } }
+        const slotOf = others.map((_, i) => free[i]);
+        if (totalLast && others[others.length - 1].kind === "total") {
+            slotOf[others.length - 1] = free[free.length - 1];
+        }
+        const cellAt = (slot: number, spanRows: number): Rect => ({
+            x: (slot % cols) * cellW, y: top + Math.floor(slot / cols) * cellH, w: cellW, h: cellH * spanRows
+        });
+        const regionOf = (c: Rect): Rect => ({ x: c.x + 2, y: c.y + titleH, w: c.w - 4, h: c.h - titleH - 2 });
+        const heroCell = cellAt(hr * cols + hc, 2);
+        const heroRegion = regionOf(heroCell);
+        const peerRegion = regionOf(cellAt(slotOf[others.indexOf(peer)], 1));
+
+        // domains: the large tile on its own values, the regular tiles on the rest
+        // (a Δ-only deck: one Δ scale over the drawn tiles with Δ, without the large one)
+        const dH = domOf([hero]);
+        let hDom: Partial<Domains>, rDom: Partial<Domains>;
+        if (vo) {
+            const dR = domOf(shown.filter(g => g !== hero && g.kind !== "total"));
+            rDom = { abs: dR.abs, rel: dR.rel };
+            hDom = hero.kind === "total" ? {} : { abs: dH.abs, rel: dH.rel };
+        } else {
+            const dR = domOf(groups.filter(g => g !== hero));
+            hDom = { main: dH.main, abs: dH.abs, rel: dH.rel, abs2: dH.abs2, rel2: dH.rel2 };
+            rDom = { main: dR.main, abs: dR.abs, rel: dR.rel, abs2: dR.abs2, rel2: dR.rel2 };
+        }
+        setPeer({ region: peerRegion, dom: rDom, hero });
+
+        type PanelKey = "main" | "abs" | "rel";
+        const measure = (g: G, region: Rect, dom: Partial<Domains>) => {
+            let snap: { main: number | null; abs: number | null; rel: number | null } | null = null;
+            let drawnVo = false;
+            this.measureScaleK(() => {
+                this.lastPanelK = null;
+                renderCell(g, region, dom);
+                snap = this.lastPanelK;
+                drawnVo = this.varOnlyDrawn;
+            });
+            const m = snap as { main: number | null; abs: number | null; rel: number | null } | null;
+            return m ? { main: m.main, abs: m.abs, rel: m.rel, vo: drawnVo } : null;
+        };
+        if (vo) {
+            // review M1/m1 of part 2: one Δ scale only where the regular tile really draws
+            // just its Δ (a too small tile falls back to the normal view: no large tile)
+            const mR = measure(peer, peerRegion, rDom);
+            if (!mR || !mR.vo) { setPeer(null); return null; }
+        }
+        const fits: { key: PanelKey; doms: (keyof Domains)[] }[] = vo
+            ? (hero.kind === "total" ? [] : [{ key: "abs", doms: ["abs"] }, { key: "rel", doms: ["rel"] }])
+            : [{ key: "main", doms: ["main"] }, { key: "rel", doms: ["rel", "rel2"] }];
+        for (const fit of fits) {
+            const mH = measure(hero, heroRegion, hDom);
+            const mR = measure(peer, peerRegion, rDom);
+            if (!mH || !mR || (vo && !mH.vo)) { continue; }
+            const kH = mH[fit.key], kR = mR[fit.key];
+            if (kH == null || kR == null || !(kH > 0) || !(kR > 0) || Math.abs(kH - kR) <= kR * 1e-4) { continue; }
+            const widenHero = kH > kR;
+            const target = Math.min(kH, kR);
+            const dom = widenHero ? hDom : rDom;
+            const g = widenHero ? hero : peer;
+            const region = widenHero ? heroRegion : peerRegion;
+            const base = fit.doms.map(dk => dom[dk] as [number, number] | undefined);
+            if (base.some(b => !b) || base.every(b => (b as [number, number])[0] === 0 && (b as [number, number])[1] === 0)) { continue; }
+            const setF = (f: number) => fit.doms.forEach((dk, i) => {
+                const b = base[i] as [number, number];
+                (dom as Record<string, [number, number]>)[dk] = [b[0] * f, b[1] * f];
+            });
+            let f0 = 1, k0 = widenHero ? kH : kR;
+            let f1 = k0 / target;
+            for (let it = 0; it < 6; it++) {
+                setF(f1);
+                const m = measure(g, region, dom);
+                const k1 = m ? m[fit.key] : null;
+                if (k1 == null || !(k1 > 0) || Math.abs(k1 - target) <= target * 2e-4) { break; }
+                const slope = (1 / k1 - 1 / k0) / (f1 - f0);
+                if (!(Math.abs(slope) > 1e-12)) { break; }
+                const f2 = Math.max(1, f1 + (1 / target - 1 / k1) / slope);
+                f0 = f1; k0 = k1; f1 = f2;
+            }
+            setF(f1);
+        }
+
+        const tiles = shown.map(g => {
+            if (g === hero) {
+                return { grp: g, cell: heroCell, region: heroRegion, dom: hDom, hero: true, peer: false, col: hc, row: hr };
+            }
+            const slot = slotOf[others.indexOf(g)];
+            const cell = cellAt(slot, 1);
+            return { grp: g, cell, region: regionOf(cell), dom: rDom, hero: false, peer: g === peer,
+                col: slot % cols, row: Math.floor(slot / cols) };
+        });
+        return { tiles, regDom: rDom, peerRegion };
     }
 
     /**
@@ -19360,6 +19605,12 @@ export class Visual implements IVisual {
                 "data-k-delta": refOwn.kDelta != null ? refOwn.kDelta.toFixed(4) : ""
             }, this.svg);
         }
+        // 1.57 (B13 part 1b): px per unit of every panel, read by the large-tile fit
+        this.lastPanelK = {
+            main: Math.abs(mainScale(1) - mainScale(0)),
+            abs: absScale ? Math.abs(absScale(1) - absScale(0)) : null,
+            rel: relScale ? Math.abs(relScale(1) - relScale(0)) : null
+        };
         const abs2Scale = panels.abs2
             ? this.makePanelScale(domains.abs2, panels.abs2, orientation, abs2PadB) : null;
         const rel2Scale = panels.rel2
