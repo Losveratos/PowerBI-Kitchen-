@@ -1,0 +1,11 @@
+{
+  "hinweis": "Manifest der Gegenprüfung P2-01 (Dossier 01, R21-Behauptungen). Dateien liegen unter quellen/raw/P2-01/ und sind nicht im Repo. Gelesen wurden zusätzlich die Rohdateien aus P0 und P1-01 (siehe deren Manifeste), nicht neu geladen.",
+  "eintraege": [
+    {"id": "zew_pm10378", "url": "https://www.zew.de/PM10378-1", "datei": "raw/P2-01/zew_pm10378.html", "sha256": "e4c94e60bbaff89b366618708a081820de67885fb05be0d06c58235180b68b49", "abruf": "2026-11-22"},
+    {"id": "zew_rausch_2026", "url": "https://www.zew.de/fileadmin/FTP/gutachten/ZEW_shortstudy_Carbon-Pricingin-the-EU-and-ETS2.pdf", "datei": "raw/P2-01/zew_rausch_2026_carbon_pricing_ets2.pdf", "sha256": "e5ae72e320ca83f42df390ead12612e2e9f102f838a16caa39a324b6f5da6d9f", "abruf": "2026-11-22", "seiten": 30},
+    {"id": "diw_ohlendorf_schill_2020", "url": "https://www.diw.de/de/diw_01.c.798965.de/publikationen/externe_referierte_aufsaetze/2020_0008/frequency_and_duration_of_low-wind-power_events_in_germany.html", "datei": "raw/P2-01/diw_ohlendorf_schill_2020_seite.html", "sha256": "f57ec314cf9f8b2090318aa082e65789b9736b7f4b90e288473fb46d49de41a7", "abruf": "2026-11-22"},
+    {"id": "ewi_efruhr_2024_seite", "url": "https://www.ewi.uni-koeln.de/en/publikationen/abschaetzung-der-netzausbaukosten-und-die-resultierenden-netzentgelte-fuer-baden-wuerttemberg-und-deutschland-zum-jahr-2045/", "datei": "raw/P2-01/ewi_netzausbaukosten_2045.html", "sha256": "a94122e6387417d6d339a052623ef6b2d5a13c362be6b8d2d05073337f1c17d6", "abruf": "2026-11-22"},
+    {"id": "ewi_efruhr_2024", "url": "https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2024/04/2024_04_Abschlussbericht_Netzentgelte_BW_DE.pdf", "datei": "raw/P2-01/ewi_2024_netzentgelte_bw_de.pdf", "sha256": "c8ed8cf0d84d6c0f0de7decf9ec5852c6e5a9568f46cc69521faf01221a6fcad", "abruf": "2026-11-22", "seiten": 21},
+    {"id": "ec_ets_2025_04_04", "url": "https://climate.ec.europa.eu/news-other-reads/news/eu-emissions-trading-system-has-reduced-emissions-sectors-covered-50-2005-2025-04-04_en", "datei": "raw/P2-01/ec_ets_50pct_2025-04-04.html", "sha256": "1645321bcfc547edb427d2616f9a8b0e7b6d2d16721e06bc823d7de571f10b59", "abruf": "2026-11-22"}
+  ]
+}
