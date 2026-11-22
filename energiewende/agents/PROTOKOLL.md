@@ -68,3 +68,4 @@ Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
 
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
+| P3-B Freigabeliste Teil 1 | Opus | 2026-11-22 | 12,6 min | 376.633 | 57 | `docs/03_teil1_freigabe.md`: 87 Aussagen (57 bestätigt, 17 korrigiert, 4 verworfen, 3 Setzung, 6 nicht prüfbar), Erzählbogen in fünf Akten, Pflicht-Gegenpositionen, Datenblock `teil1_data`; acht Entscheidungen offen |
