@@ -576,12 +576,19 @@ function readMega(id) {
         // outside beside the bar start in dark ink (on Linux 196 and 200, on
         // Windows the narrower font lets them fit)
         const Y = pageInfo.m27.ytd;
-        const inFits = Y.filter(x => !x.out).every(x => x.rects.some(r => x.x0 >= r.x - 1 && x.x1 <= r.x + r.w + 1 && r.w >= x.w + 6 - 2));
+        // inside: on a solid segment (never on the hatched rest) that is wide enough
+        const solid = r => !/^url\(/.test(r.fill || "");
+        const inFits = Y.filter(x => !x.out).every(x => x.rects.some(r => solid(r) && x.x0 >= r.x - 1 && x.x1 <= r.x + r.w + 1 && r.w >= x.w + 6 - 2));
+        // and the reverse: a number outside would not have fitted on its row's solid
+        // segment of a fill that carries inside labels elsewhere (a light cost fill
+        // below 4.5:1 sends the number outside whatever its width)
+        const inkFills = new Set(Y.filter(x => !x.out).flatMap(x => x.rects.filter(r => solid(r) && x.x0 >= r.x - 1 && x.x1 <= r.x + r.w + 1).map(r => r.fill)));
+        const outNeeded = Y.filter(x => x.out).every(x => !x.rects.some(r => solid(r) && inkFills.has(r.fill) && r.w >= x.w + 6 + 2));
         // outside: dark ink, beside the bar (before its start; right of it on a negative bar), never on it
         const outBefore = Y.filter(x => x.out).every(x => x.fill === "#1A1A1A" && x.rects.length > 0
             && x.rects.every(r => x.x1 <= r.x + 1 || x.x0 >= r.x + r.w - 1));
         check("m27 YTD numbers: inside only where they fit, the others before the bar start in dark ink (1.5.2)",
-            Y.length >= 15 && Y.some(x => x.out) && inFits && outBefore,
+            Y.length >= 15 && Y.some(x => !x.out) && inFits && outBefore && outNeeded,
             JSON.stringify(Y.map(x => ({ t: x.t, out: x.out, w: Math.round(x.w), r: x.rects.map(r => Math.round(r.w)) }))));
         // 1.5.1: on the light cost tone (#8A8886) the number is dark ink (≥ 4.5:1), not white (~3.5:1)
         check("m27 YTD numbers of cost rows (227, 451) in dark ink on the light tone (1.5.1)",

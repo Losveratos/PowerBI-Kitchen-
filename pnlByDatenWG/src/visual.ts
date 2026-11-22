@@ -1219,15 +1219,26 @@ export class Visual implements IVisual {
         if (this.highlighted(dataView)) {
             // the Sankey's pair: the marked part in the shape of the whole — built
             // when the Sankey asks for it (hlSelect), not for every view
+            // 1.8.2 the closure keeps only what the parse needs (not the parsed rows)
+            // and the "not assigned" text of this build, so the pair names its rest
+            // like the whole even after a language switch
+            const months = parsed.months;
+            const na = this.tr("UI_NotAssigned");
             this.hlPartLazy = (): void => {
                 this.hlPartLazy = null;
-                const marked = this.parseRows(dataView, undefined, true);
-                if (marked && marked.rows.length > 0) {
-                    const rows = marked.rows.map(r => this.alignSeries(r, marked.months, parsed.months));
-                    const part = buildModel(rows, this.tr("UI_NotAssigned"), parsed.months, opts);
-                    // a twin that does not match row for row (cannot happen with one data
-                    // view, defensive) leaves the Sankey without its context
-                    if (sameShape(part, full)) { this.hlPart = part; this.hlWhole = full; }
+                try {
+                    const marked = this.parseRows(dataView, undefined, true);
+                    if (marked && marked.rows.length > 0) {
+                        const rows = marked.rows.map(r => this.alignSeries(r, marked.months, months));
+                        const part = buildModel(rows, na, months, opts);
+                        // a twin that does not match row for row (cannot happen with one data
+                        // view, defensive) leaves the Sankey without its context
+                        if (sameShape(part, full)) { this.hlPart = part; this.hlWhole = full; }
+                    }
+                } catch {
+                    // the render must not fail over the pair: the Sankey falls back to
+                    // the filter model like a pair that does not match
+                    this.hlPart = null; this.hlWhole = null;
                 }
             };
             // every other view: the selection exactly as a filter delivers it — a data
