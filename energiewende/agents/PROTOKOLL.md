@@ -49,3 +49,4 @@ Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
 | P2 Dossier 07 Lieferketten | Opus | 2026-11-22 | 5,9 min | 204.895 | 41 | `research/pruefung/07_pruefung.md`: 46 geprüft, 39 bestätigt, 4 abweichend, 3 nicht prüfbar; gewichtigste Abweichung: Stresstest-Aufschlag +3/+10/+22 % statt +7,5/+27/+57 % |
+| P2 Dossier 03 Stromdaten | Opus | 2026-11-22 | 6,6 min | 198.182 | 36 | `research/pruefung/03_pruefung.md`: 33 geprüft, 24 bestätigt (davon 4 mit schiefer Deutung), 6 abweichend; alle Kennzahlen unabhängig nachgerechnet (Abweichung höchstens 0,01 %); gewichtigste Befunde: Offshore-Tief 2023 ist überwiegend Abregelung, Dunkelflauten-Dauer hängt stark an der Definition |
