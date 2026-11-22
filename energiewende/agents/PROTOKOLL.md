@@ -71,3 +71,12 @@ Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
 |---|---|---|---|---|---|---|
 | P3-B Freigabeliste Teil 1 | Opus | 2026-11-22 | 12,6 min | 376.633 | 57 | `docs/03_teil1_freigabe.md`: 87 Aussagen (57 bestätigt, 17 korrigiert, 4 verworfen, 3 Setzung, 6 nicht prüfbar), Erzählbogen in fünf Akten, Pflicht-Gegenpositionen, Datenblock `teil1_data`; acht Entscheidungen offen |
 | P3-A Konsolidierung | Sonnet | 2026-11-22 | nicht gemeldet | nicht gemeldet | nicht gemeldet | `data/model_params.json` (456 Parameter), `research/konsolidierung.md`. Die Abschlussmeldung ging bei einem Neustart der Sitzung verloren; das Ergebnis wurde von der Orchestrierung geprüft: Skript zweimal gelaufen, identische Prüfsumme, Summen gehen auf (151 = 89 + 58 + 4) |
+
+## Phase 4 · Seitenbau Teil 1
+
+Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
+`energiewende/agents/briefs/P4_teil1_seiten.md`. Du bist <P4-A oder P4-B>.
+Führe deinen Teil aus.“
+
+| Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
+|---|---|---|---|---|---|---|

@@ -50,7 +50,7 @@ def main():
         sys.exit(f"in Erzaehlschritten verwendet, aber nicht freigegeben: {fehlend}")
 
     DST.write_text(json.dumps(data, ensure_ascii=False, indent=1, sort_keys=False) + "\n", encoding="utf-8")
-    print(f"{DST.relative_to(ROOT)}: {len(ids)} freigegebene Zahlen, {len(benutzt)} davon in Erzaehlschritten verwendet")
+    print(f"{DST.relative_to(ROOT)}: {len(ids)} freigegebene Zahlen plus BIP-Bezugswert; {len(benutzt)} IDs in Erzaehlschritten verwendet")
 
 
 if __name__ == "__main__":
