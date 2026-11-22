@@ -834,5 +834,14 @@
   "Hint_StockFlowSpace": "No hay espacio suficiente para stock y flujo",
   "Hint_StockFlowMixed": "Stock y flujo: los flujos solo de plan en un período con real o previsión no se dibujan ({list})",
   "Tooltip_Scenario": "Escenario",
-  "Lock_YtdStockFlow": "Sin efecto: stock y flujo no se acumulan (un stock no es aditivo en el tiempo)"
+  "Lock_YtdStockFlow": "Sin efecto: solo filas de stock, un stock no es aditivo en el tiempo",
+  "Enum_TimeAgg_Sum": "Suma",
+  "Enum_TimeAgg_Last": "Último valor",
+  "Chart_TimeAgg": "Agregación en el tiempo",
+  "Desc_Chart_TimeAgg": "Cómo se agregan los valores en el tiempo (YTD, columna anual, árbol de la tabla, períodos de tendencia combinados, tendencia de tarjetas, cabecera Σ): suma o último valor (fecha de corte, p. ej. stock, plantilla). Las filas con el token stock siempre toman el último valor.",
+  "Chart_SfFlowZoom": "Ampliar flujos",
+  "Desc_Chart_SfFlowZoom": "Stock y flujo: flujos y neto ampliados con un factor redondo cuando, junto a un stock grande, solo tendrían unos pocos píxeles de alto (hoja 08G). El factor aparece como «×f» junto a los nombres, una banda de escala muestra el mismo valor en ambas escalas. Desactivado por defecto.",
+  "Lock_YtdLast": "Sin efecto: los valores se agregan en el tiempo como último valor (agregación en el tiempo)",
+  "Label_LastValue": "Final",
+  "Hint_StockFlowConsistency": "Stock y flujo: la variación del stock difiere del flujo neto en {list}"
 }

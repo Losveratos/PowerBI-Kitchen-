@@ -716,7 +716,7 @@ interface ChartConfig {
     bridgeSecondNet: boolean;
     /** 1.55 (B11): stock & flow deck: one main domain (flows ± and stock) and one net
      *  domain over all drawn tiles, both at the same px per unit; null outside the mode */
-    sfDeck: { lo: number; hi: number; nLo: number; nHi: number } | null;
+    sfDeck: SfDeck | null;
     /** materiality: false → variance is drawn grey instead of good/bad (thresholds in the
      *  pane). Callers pass the variance pair of the basis they draw; defaults to Δ1. */
     isMaterial: (p: DataPoint | null | undefined, vAbs?: number | null, vRel?: number | null) => boolean;
@@ -863,6 +863,20 @@ interface SfLayout {
     hasFlow: boolean;
     /** the stock comes from the line measure (no row carries the token stock) */
     viaLine: boolean;
+}
+
+/** 1.55 (B11): value domains of the stock & flow mode over all drawn tiles. lo/hi in
+ *  units of the stock scale (zoomed flows included), nLo/nHi the raw net range;
+ *  1.56 (B11 part 2): f = zoom of flows and net (chart.sfFlowZoom), fLo/fHi the raw
+ *  flow range (scale band) */
+interface SfDeck {
+    lo: number;
+    hi: number;
+    nLo: number;
+    nHi: number;
+    f?: number;
+    fLo?: number;
+    fHi?: number;
 }
 
 /** deck-wide scatter scales for small multiples (see ChartConfig.scatter.shared) */
@@ -1190,6 +1204,9 @@ export class Visual implements IVisual {
     /** 1.55 (B13 review): points carry the Ø basis (multiplesBasis=avg) — collector
      *  rows (Top N, exception filter, year column) keep Δ against the Ø, no Δ2 */
     private avgRows = false;
+    /** 1.56 (B11 part 2): chart.timeAggregation = last — values aggregate over time as
+     *  the last value (YTD, year column, table tree, merged periods, card trend, Σ) */
+    private timeAggLast = false;
     /** 1.55 (B13 review, m4): the cell being drawn is the reference tile under the Ø
      *  basis — its Δ panels keep their space (same scale) but get no title or axis */
     private refTileNoDelta = false;
@@ -2164,8 +2181,14 @@ export class Visual implements IVisual {
             && !((orient === "columns" || orient === "bars")
                 && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true));
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
-        fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
+        fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table"
+            || orient === "stockflow";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
+        // 1.56 (B11 part 2): aggregation over time where something aggregates over time
+        // (YTD, year column, table tree, Trend role, Σ header, stock & flow)
+        fs.chartCard.timeAggregation.visible = orient === "columns" || orient === "line" || orient === "table"
+            || orient === "cards" || orient === "stockflow";
+        fs.chartCard.sfFlowZoom.visible = orient === "stockflow";
         fs.chartCard.fiscalStart.visible = fs.chartCard.cumulativeKind.visible
             && String(fs.chartCard.cumulativeKind.value.value) !== "r12";
         // benchmark counts: cards in monitoring mode (AC + BM only) judge against
@@ -5926,6 +5949,8 @@ export class Visual implements IVisual {
         const isPnl = orientationRaw === "pnl";
         // 1.55 (B11): stock & flow over time, own renderer (flows ±, net panel, stock line)
         const isStockFlow = orientationRaw === "stockflow";
+        // 1.56 (B11 part 2): aggregation over time (sum | last value)
+        this.timeAggLast = String((s.chartCard.timeAggregation?.value as powerbi.IEnumMember)?.value) === "last";
         // 1.52.1: number rules for every formatter built below — 3-digit cap in
         // graphics (tables and the P&L statement keep their decimals), unit suffix
         this.digitCap = !isTable && !isPnl;
@@ -5984,8 +6009,9 @@ export class Visual implements IVisual {
         const listPnl = orientationRaw === "table" && (listResult.size > 0 || listSkip.size > 0)
             && points.some(p => listResult.has(p.cat.trim().toLowerCase())
                 || listSkip.has(p.cat.trim().toLowerCase()));
+        // 1.56 (B11 part 2): stock & flow cumulates its flows (stock passes through)
         const cumulativeOn = s.chartCard.cumulative.value && !isStacked
-            && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table")
+            && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table" || isStockFlow)
             && !points.some(p => p.rowType != null) && !listPnl
             // matrix tables keep one point per category × column group — cumulating
             // across that flat list would chain unrelated columns into one running sum
@@ -6045,8 +6071,9 @@ export class Visual implements IVisual {
             kind: String(s.chartCard.cumulativeKind.value.value) as "ytd" | "qtd" | "r12",
             fiscal: Math.min(12, Math.max(1, Math.round(s.chartCard.fiscalStart.value ?? 1)))
         } : null;
-        const cumOf = (pts: DataPoint[]): DataPoint[] => cumArgs
-            ? this.cumulate(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal) : pts;
+        const cumOf = (pts: DataPoint[]): DataPoint[] => !cumArgs ? pts
+            : isStockFlow ? this.cumulateSeries(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal)
+                : this.cumulate(pts, cumArgs.basisMode, cumArgs.kind, cumArgs.fiscal);
         // B13 review (M3): a missing stack segment or a missing category on a structure
         // axis (bars) counts as 0 in the average; a missing period stays "no data"
         // B11 review (M1): stock & flow stacks its flows (a missing flow segment = 0 in a
@@ -6709,20 +6736,9 @@ export class Visual implements IVisual {
         // 1.55 (B11): stock & flow, one main domain (inflow stacks, outflow stacks, stock
         // incl. the derived opening) and one net domain over all drawn tiles
         if (isStockFlow) {
-            let lo = 0, hi = 0, nLo = 0, nHi = 0;
             const openingOn = s.chartCard.sfOpening.value !== false;
-            for (const g of shownGroups) {
-                const L = this.stockFlowLayout(g.pts, openingOn);
-                for (const per of L.periods) {
-                    lo = Math.min(lo, per.outTot, per.stock ?? 0);
-                    hi = Math.max(hi, per.inTot, per.stock ?? 0);
-                    if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
-                }
-                if (L.opening != null) { lo = Math.min(lo, L.opening); hi = Math.max(hi, L.opening); }
-            }
-            if (fixedMax > 0) { hi = Math.max(hi, fixedMax); }
-            if (cfg.refLine != null) { lo = Math.min(lo, cfg.refLine); hi = Math.max(hi, cfg.refLine); }
-            cfg.sfDeck = { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi };
+            cfg.sfDeck = this.sfDeckOf(shownGroups.map(g => this.stockFlowLayout(g.pts, openingOn)),
+                s.chartCard.sfFlowZoom.value === true, fixedMax, cfg.refLine);
         }
 
         // bridge modes scale each tile for itself by default — the pane toggle
@@ -6850,7 +6866,7 @@ export class Visual implements IVisual {
             // B13 review (m4): the reference tile under the Ø basis draws no Δ chrome
             this.refTileNoDelta = multBasisAvg && (grp as { kind?: string }).kind === "total";
             if (isStockFlow) {
-                this.renderStockFlow(grp.pts, region, cfg);
+                this.renderStockFlow(grp.pts, region, cfg, (grp as { kind?: string }).kind != null);
                 return;
             }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
@@ -6905,7 +6921,7 @@ export class Visual implements IVisual {
                     ? Math.round(170 * this.fontK) : 0;
                 const sortReserve = wfStyleGlobal ? 26 : 0;
                 const ytdReserve = (s.chartCard.cumulativeButton.value && !isStacked
-                    && (orientationRaw === "columns" || orientationRaw === "line"))
+                    && (orientationRaw === "columns" || orientationRaw === "line" || isStockFlow))
                     ? Math.round(44 * this.fontK) : 0;
                 const text = this.commentEdit
                     ? this.locStr("Chip_CommentMode", "✎ Comment mode")
@@ -6919,21 +6935,23 @@ export class Visual implements IVisual {
 
             // YTD chip (opt-in): the end user flips the cumulative view on the report
             // canvas; persisted like the other in-chart buttons
+            // 1.56 (B11 part 2): in stock & flow the chip cumulates the flows (the stock
+            // passes through); before it was locked there
             if (s.chartCard.cumulativeButton.value && !isStacked
-                && (orientationRaw === "columns" || orientationRaw === "line")) {
+                && (orientationRaw === "columns" || orientationRaw === "line" || isStockFlow)) {
                 // 1.49: locked where cumulating cannot change the picture — P&L rows
                 // (rowType) are never cumulated, a single period stays identical
+                const periods = (g: { pts: DataPoint[] }) => isStockFlow ? new Set(g.pts.map(p => p.cat)).size : g.pts.length;
                 const ytdLock = points.some(p => p.rowType != null)
                     ? this.locStr("Lock_YtdRowType", "No effect: P&L rows (row type field) are not cumulated")
-                    : groups.every(g => g.pts.length <= 1)
+                    : groups.every(g => periods(g) <= 1)
                         ? this.locStr("Lock_YtdSingle", "No effect: a single period looks the same cumulated")
-                        : null;
+                        : this.timeAggLast
+                            ? this.locStr("Lock_YtdLast", "No effect: values aggregate over time as the last value (time aggregation)")
+                            : isStockFlow && points.every(p => p.sfKind === "stock" || (p.value == null && p.pl == null))
+                                ? this.locStr("Lock_YtdStockFlow", "No effect: only stock rows, a stock is not additive over time")
+                                : null;
                 this.drawCumButton(width - (wfStyleGlobal ? 30 : 6), cfg, ytdLock);
-            }
-            // 1.55 (B11): stocks are not additive over time, YTD stays locked in the mode
-            if (s.chartCard.cumulativeButton.value && isStockFlow) {
-                this.drawCumButton(width - 6, cfg, this.locStr("Lock_YtdStockFlow",
-                    "No effect: stock and flow are not cumulated (a stock is not additive over time)"));
             }
             width += this.ctlInset;
         }
@@ -9738,7 +9756,7 @@ export class Visual implements IVisual {
                         // skip rows are excluded from totals by definition
                         const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
                             && !isSkip(p) && !isPct(p));
-                        a = this.aggregateHierarchy(nd.label, base.length > 0 ? base : nd.pts);
+                        a = this.aggregateTime(nd.label, base.length > 0 ? base : nd.pts);
                     }
                     aggOf.set(nd, a);
                 }
@@ -9915,7 +9933,7 @@ export class Visual implements IVisual {
             const base = rows.filter(r => r.depth === 0 && !r.formula
                 && !isPct(r.p) && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
             if (base.length > 1) {
-                const tp = this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), base);
+                const tp = this.aggregateTime(this.locStr("Label_Total", "Σ Total"), base);
                 tp.rowType = "sum";
                 totalRow = { p: tp, depth: 0, isTotal: true };
             }
@@ -10760,7 +10778,7 @@ export class Visual implements IVisual {
                 } else {
                     const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
                         && !isSkip(p) && !isPct(p));
-                    a = this.aggregateHierarchy(nd.label, base.length > 0 ? base : nd.pts);
+                    a = this.aggregateTime(nd.label, base.length > 0 ? base : nd.pts);
                     // per-branch cells of a single-column node keep the rowType
                     if (nd.kids.size === 0) { a.rowType = nd.pts[0].rowType; }
                 }
@@ -10874,7 +10892,7 @@ export class Visual implements IVisual {
             if (kids.length === 0) { return null; }
             if (kids.length === 1) { return kids[0]; }
             const base = kids.filter(p => !isSum(p) && !isResult(p) && !isSkip(p) && !isPct(p));
-            return this.aggregateHierarchy(label, base.length > 0 ? base : kids);
+            return this.aggregateTime(label, base.length > 0 ? base : kids);
         };
 
         // ------- formula rows: evaluate per Σ (row aggregates) and per block cell
@@ -11103,7 +11121,7 @@ export class Visual implements IVisual {
                         return !isPct(a2) && !isSkip(a2) && !isResult(a2) && !isSum(a2);
                     })[ti2]) as RNode)?.pts ?? null, "Σ", shownBlocks[bi]))
                 .filter(Boolean) as DataPoint[];
-            return base.length > 0 ? this.aggregateHierarchy("Σ", base) : null;
+            return base.length > 0 ? this.aggregateTime("Σ", base) : null;
         };
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
         // capped like the flat table: font-bound row height, no stretching. In
@@ -11411,7 +11429,7 @@ export class Visual implements IVisual {
             const valBaseY = stacked ? yMid - stStep * 0.5 + rowFont * 0.35 : yMid + rowFont * 0.35;
             const dBelowY = yMid + stStep * 0.5 + stDFont * 0.32;
             const agg = isTotal
-                ? this.aggregateHierarchy(this.locStr("Label_Total", "Σ Total"), totalBase)
+                ? this.aggregateTime(this.locStr("Label_Total", "Σ Total"), totalBase)
                 : (row as MRow).agg;
             const label = isTotal ? agg.cat : (row as MRow).label;
             const isParent = !isTotal && (row as MRow).parentKey != null;
@@ -11670,7 +11688,7 @@ export class Visual implements IVisual {
                     if (r.agg?.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(r.agg.value), cf)); }
                 }
                 if (showTotalRow) {
-                    const tot = this.aggregateHierarchy("Σ", totalBase);
+                    const tot = this.aggregateTime("Σ", totalBase);
                     if (tot.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(tot.value), cf)); }
                 }
                 return Math.round(w) + 14;
@@ -11877,18 +11895,31 @@ export class Visual implements IVisual {
         return order.map(key => {
             const kids = byKey.get(key) as DataPoint[];
             if (kids.length === 1) { return kids[0]; }
-            const agg = this.aggregateHierarchy(kids[0].cat, kids);
+            // 1.56 (B11 part 2): kids that differ only in the Trend period follow each
+            // other in time — stock rows (or timeAggregation = last) take the last
+            // period; column groups (plants, regions) stay a sum
+            const colKey = (c: DataPoint) => (c.colLevels ?? []).join("¦");
+            const overTime = kids.some(c => (c.trend ?? "") !== (kids[0].trend ?? ""))
+                && kids.every(c => colKey(c) === colKey(kids[0]));
+            const last = overTime && this.timeLast(kids);
+            const tKids = last ? kids.slice().sort((a, b) => (a.trendOrd ?? 0) - (b.trendOrd ?? 0)) : kids;
+            const agg = last ? this.aggregateTime(kids[0].cat, tKids) : this.aggregateHierarchy(kids[0].cat, kids);
             agg.catLevels = kids[0].catLevels;
             agg.group = kids[0].group;
             agg.stackSeries = kids[0].stackSeries;
             agg.rowType = kids[0].rowType;
-            agg.isFc = kids.every(c => c.isFc);
+            if (!last) { agg.isFc = kids.every(c => c.isFc); }
             // B11 review (M2): stock & flow keeps the line-measure stock (first non-null
             // child, like stockFlowLayout per period); sfKind comes from aggregateHierarchy
-            if (sf) { agg.lineVal = kids.find(c => c.lineVal != null)?.lineVal ?? null; }
+            // (over time: the last non-null child)
+            if (sf) {
+                agg.lineVal = overTime
+                    ? [...tKids].reverse().find(c => c.lineVal != null)?.lineVal ?? null
+                    : kids.find(c => c.lineVal != null)?.lineVal ?? null;
+            }
             let bm: number | null = null;
             for (const c of kids) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
-            agg.bm = bm;
+            agg.bm = last ? this.lastKid(tKids).bm : bm;
             // scatter measures are summed like AC, so a merged point keeps its X/size
             const sumOf = (get: (c: DataPoint) => number | null | undefined): number | null => {
                 let acc: number | null = null;
@@ -11954,7 +11985,9 @@ export class Visual implements IVisual {
             const ref = this.trendRefIdx(series);
             const first = kids[0];
             let card: DataPoint;
-            if (useSum) {
+            // 1.56 (B11 part 2): a stock card (or timeAggregation = last) never sums its
+            // periods — the card value is the reference period, as with "last value"
+            if (useSum && !this.timeLast(kids)) {
                 card = this.aggregateHierarchy(first.cat, kids);
                 card.isFc = kids.every(c => c.isFc);
                 let bm: number | null = null;
@@ -12072,6 +12105,38 @@ export class Visual implements IVisual {
             group: kids[0].group, rowType: null, isRest: false, sel: null,
             ...(sfKind != null ? { sfKind } : {})
         };
+    }
+
+    /**
+     * 1.56 (B11 part 2): true when kids that follow each other in TIME aggregate as the
+     * last value: chart.timeAggregation = last, or every kid is a stock row (a stock is
+     * not additive over time). Over units, regions or tiles a stock stays a sum.
+     */
+    private timeLast(kids: DataPoint[]): boolean {
+        return this.timeAggLast || (kids.length > 0 && kids.every(c => c.sfKind === "stock"));
+    }
+
+    /**
+     * 1.56 (B11 part 2): the reference kid of a last-value aggregation: the last kid
+     * with an actual or forecast, else the last with a plan or previous year, else the
+     * last kid (like the card trend's reference period). Δ compares like with like.
+     */
+    private lastKid(kids: DataPoint[]): DataPoint {
+        for (let i = kids.length - 1; i >= 0; i--) { if (kids[i].value != null) { return kids[i]; } }
+        for (let i = kids.length - 1; i >= 0; i--) { if (kids[i].pl != null || kids[i].py != null) { return kids[i]; } }
+        return kids[kids.length - 1];
+    }
+
+    /** 1.56 (B11 part 2): aggregation of kids in time order: the sum (aggregateHierarchy)
+     *  or, with timeLast, the last value (all fields of the reference kid) */
+    private aggregateTime(key: string, kids: DataPoint[]): DataPoint {
+        if (kids.length === 0 || !this.timeLast(kids)) { return this.aggregateHierarchy(key, kids); }
+        const ref = this.lastKid(kids);
+        const a = this.aggregateHierarchy(key, [ref]);
+        a.dim = kids.every(c => c.dim);
+        a.isFc = ref.isFc;
+        a.bm = ref.bm;
+        return a;
     }
 
     /** 1.55 (B11): true in the stock & flow mode (orientation=stockflow) */
@@ -15523,6 +15588,37 @@ export class Visual implements IVisual {
      * carries an actual, else FC, else PL (cell = value, in plan periods the plan).
      * The net flow is computed here, the opening stock derived (stock[0] − net[0]).
      */
+    /**
+     * 1.55 (B11): main and net domain over the drawn tiles. 1.56 (B11 part 2), zoomOn
+     * (chart.sfFlowZoom, sheet 08G: headcount 255..275 against hires 1..13): flows and
+     * net get the largest round factor from ZOOM_FACTORS that keeps the zoomed flows
+     * within a third of the stock level; no factor when they are that tall already.
+     */
+    private sfDeckOf(layouts: SfLayout[], zoomOn: boolean, fixedMax: number, refLine: number | null): SfDeck {
+        let sLo = 0, sHi = 0, fLo = 0, fHi = 0, nLo = 0, nHi = 0;
+        for (const L of layouts) {
+            for (const per of L.periods) {
+                fLo = Math.min(fLo, per.outTot);
+                fHi = Math.max(fHi, per.inTot);
+                if (per.stock != null) { sLo = Math.min(sLo, per.stock); sHi = Math.max(sHi, per.stock); }
+                if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
+            }
+            if (L.opening != null) { sLo = Math.min(sLo, L.opening); sHi = Math.max(sHi, L.opening); }
+        }
+        let f = 1;
+        if (zoomOn) {
+            const flowMag = Math.max(fHi, -fLo, nHi, -nLo);
+            const stockMag = Math.max(sHi, -sLo);
+            if (flowMag > 0 && stockMag > 0) {
+                for (const z of ZOOM_FACTORS) { if (z * flowMag <= stockMag / 3) { f = z; } else { break; } }
+            }
+        }
+        let lo = Math.min(sLo, f * fLo), hi = Math.max(sHi, f * fHi);
+        if (fixedMax > 0) { hi = Math.max(hi, fixedMax); }
+        if (refLine != null) { lo = Math.min(lo, refLine); hi = Math.max(hi, refLine); }
+        return { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi, ...(f !== 1 ? { f, fLo, fHi } : {}) };
+    }
+
     private stockFlowLayout(points: DataPoint[], openingOn: boolean): SfLayout {
         const cats: string[] = [];
         const byCat = new Map<string, DataPoint[]>();
@@ -15592,7 +15688,7 @@ export class Visual implements IVisual {
      * (B06 notation) for columns, markers and area. The time axis takes up to two
      * group rows from the category hierarchy (e.g. year › week › day).
      */
-    private renderStockFlow(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+    private renderStockFlow(points: DataPoint[], region: Rect, cfg: ChartConfig, synthetic = false): void {
         const cs = this.formattingSettings.chartCard;
         const L = this.stockFlowLayout(points, cs.sfOpening.value !== false);
         const P = L.periods;
@@ -15607,16 +15703,9 @@ export class Visual implements IVisual {
         const negTint = cs.sfNegTint.value !== false;
         const atCenter = String((cs.sfStockAt.value as powerbi.IEnumMember)?.value) === "center";
         const groupsOn = String((cs.axisGroups.value as powerbi.IEnumMember)?.value) !== "off";
-        const deck = cfg.sfDeck ?? (() => {
-            let lo = 0, hi = 0, nLo = 0, nHi = 0;
-            for (const per of P) {
-                lo = Math.min(lo, per.outTot, per.stock ?? 0);
-                hi = Math.max(hi, per.inTot, per.stock ?? 0);
-                if (per.hasFlow) { nLo = Math.min(nLo, per.net); nHi = Math.max(nHi, per.net); }
-            }
-            if (L.opening != null) { lo = Math.min(lo, L.opening); hi = Math.max(hi, L.opening); }
-            return { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi };
-        })();
+        const deck = cfg.sfDeck ?? this.sfDeckOf([L], cs.sfFlowZoom.value === true, 0, null);
+        // 1.56 (B11 part 2): zoom of flows and net (1 = same px per unit as the stock)
+        const F = deck.f ?? 1;
         const scen = P.map(p => p.scen);
         const scenSet = new Set(scen);
         const anyScen = scenSet.has("fc") || scenSet.has("pl");
@@ -15638,8 +15727,10 @@ export class Visual implements IVisual {
         const inName = (sn: string) => sn || this.locStr("Sf_Inflow", "Inflow");
         const outName = (sn: string) => sn || this.locStr("Sf_Outflow", "Outflow");
         const nameMax = Math.round(130 * k);
-        const direct = [...(netOn ? [netName] : []), ...(L.hasStock ? [stockName] : []),
-            ...L.inSeries.map(inName), ...L.outSeries.map(outName)];
+        // 1.56 (B11 part 2): zoomed flows and net carry "×f" at their direct label
+        const zoomSuf = F !== 1 ? ` ${this.zoomText(F)}` : "";
+        const direct = [...(netOn ? [netName + zoomSuf] : []), ...(L.hasStock ? [stockName] : []),
+            ...L.inSeries.map(sn => inName(sn) + zoomSuf), ...L.outSeries.map(sn => outName(sn) + zoomSuf)];
         const nameW = Math.min(nameMax, this.maxTextWidth(direct, legFont)) + 6;
         let lastIdx = -1;
         for (let i = n - 1; i >= 0; i--) { if (P[i].stock != null) { lastIdx = i; break; } }
@@ -15657,7 +15748,7 @@ export class Visual implements IVisual {
         const top0 = region.y + headerH + 2;
         const bottom0 = region.y + region.h - axisH;
         const padT = lf + 6, padB = lf + 6, gap = 12;
-        const netSpan = netOn ? deck.nHi - deck.nLo : 0;
+        const netSpan = netOn ? (deck.nHi - deck.nLo) * F : 0;
         const fixedPx = padT + padB + (netOn ? padT + (deck.nLo < 0 ? padB : 4) + gap : 0);
         const kpx = (bottom0 - top0 - fixedPx) / Math.max(deck.hi - deck.lo + netSpan, 1e-9);
         // B11 review (m9): the hint as soon as less than 40 px remain for the values
@@ -15667,13 +15758,15 @@ export class Visual implements IVisual {
             return;
         }
         this.lastScaleK = kpx;
-        const netZero = top0 + padT + kpx * deck.nHi;
-        const netBottom = netZero - kpx * deck.nLo + (deck.nLo < 0 ? padB : 4);
+        const netZero = top0 + padT + kpx * F * deck.nHi;
+        const netBottom = netZero - kpx * F * deck.nLo + (deck.nLo < 0 ? padB : 4);
         const mainTop = netOn ? netBottom + gap : top0;
         const mainZero = mainTop + padT + kpx * deck.hi;
         const mainBottom = mainZero - kpx * deck.lo + padB;
         const Y: Scale = (v: number) => mainZero - kpx * v;
-        const YN: Scale = (v: number) => netZero - kpx * v;
+        const YN: Scale = (v: number) => netZero - kpx * F * v;
+        // flows on the main panel: the stock scale, zoomed by F (sfFlowZoom)
+        const YF: Scale = F !== 1 ? (v: number) => mainZero - kpx * F * v : Y;
         const axisTop = mainBottom;
         const axisBottom = axisTop + axisH;
         const slotW = Math.max(1, step * SLOT_ABS);
@@ -15727,7 +15820,7 @@ export class Visual implements IVisual {
         });
         const emphGroups = axGroups.filter(g => this.isEmph(cfg, g.label));
 
-        const root = this.el("g", { "data-icd": "stockflow", "data-n": n }, this.svg);
+        const root = this.el("g", { "data-icd": "stockflow", "data-n": n, ...(F !== 1 ? { "data-zoom": F } : {}) }, this.svg);
         const areaG = this.el("g", {}, root);
         const bg = this.el("g", {}, root);
         // highlight bands (band style): the period, or the whole range of a group
@@ -15784,6 +15877,13 @@ export class Visual implements IVisual {
         }
         this.el("line", { x1: bandStart, y1: mainZero, x2: bandEnd, y2: mainZero, stroke: cfg.ink, "stroke-width": 1.2,
             "data-icd": "sf-zero", "data-panel": "main" }, bg);
+        // 1.56 (B11 part 2): scale band of the flow zoom (IBCS CH 4.3) — the same value
+        // from zero on the stock scale and on the zoomed flow scale, both in the main
+        // panel (the net panel is lower than the band value); "×f" at the direct labels
+        if (F !== 1) {
+            this.drawScaleBands(bg, cfg, "columns", bandStart, bandEnd, F, [deck.fLo ?? 0, deck.fHi ?? 0], Y,
+                [{ rect: mainRect, scale: YF }]);
+        }
         if (cfg.refLine != null) {
             const rg = this.el("g", { "data-icd": "sf-refline" }, bg);
             this.drawRefLine(rg, mainRect, Y, "columns", bandStart, bandEnd, cfg);
@@ -15843,7 +15943,7 @@ export class Visual implements IVisual {
                 const kind: "ac" | "fc" | "pl" = per.scen === "pl" ? "pl" : f.p.isFc ? "fc" : "ac";
                 const sg = this.el("g", { "data-icd": f.side === "in" ? "sf-seg-in" : "sf-seg-out", "data-scen": kind,
                     "data-v": f.v, "data-series": f.series }, g);
-                this.drawBar(sg, colX(i), slotW, from, to, Y, "columns",
+                this.drawBar(sg, colX(i), slotW, from, to, YF, "columns",
                     segStyle(kind, tone(f.side, f.series), (f.side === "in" ? 10 : 20) + sideIdx(f.side, f.series), f.side));
             }
             if (netOn && per.hasFlow && per.net !== 0) {
@@ -15923,11 +16023,11 @@ export class Visual implements IVisual {
                 const cx = center(i);
                 if (per.inTot > 0) {
                     const pr = prio(i, extIn, flowAll, flowEvery);
-                    if (pr >= 0) { items.push({ el: textAt(cx, Y(per.inTot) - 4, fmt.format(per.inTot), { "data-icd": "sf-label-in" }), prio: pr }); }
+                    if (pr >= 0) { items.push({ el: textAt(cx, YF(per.inTot) - 4, fmt.format(per.inTot), { "data-icd": "sf-label-in" }), prio: pr }); }
                 }
                 if (per.outTot < 0) {
                     const pr = prio(i, extOut, flowAll, flowEvery);
-                    if (pr >= 0) { items.push({ el: textAt(cx, Y(per.outTot) + lf + 2, fmt.format(-per.outTot), { "data-icd": "sf-label-out" }), prio: pr }); }
+                    if (pr >= 0) { items.push({ el: textAt(cx, YF(per.outTot) + lf + 2, fmt.format(-per.outTot), { "data-icd": "sf-label-out" }), prio: pr }); }
                 }
                 if (netOn && per.hasFlow) {
                     const pr = prio(i, extNet, netAll);
@@ -15968,19 +16068,22 @@ export class Visual implements IVisual {
         const dl = this.el("g", { "data-icd": "sf-direct-label" }, root);
         const fixed: SVGTextElement[] = [];
         const nameX = bandEnd + lastHalf + 6;
-        const nameAt = (y: number, txt: string, icd: string) => {
+        const sufW = zoomSuf ? this.textWidth(zoomSuf, legFont) : 0;
+        const nameAt = (y: number, txt: string, icd: string, suf = "") => {
             const t = this.el("text", { x: nameX, y: y + legFont * 0.35, "font-size": legFont, fill: cfg.ink,
                 "font-family": FONT, "data-icd": icd }, dl);
-            t.textContent = this.truncate(txt, nameMax, legFont);
+            t.textContent = suf ? this.truncate(txt, Math.max(legFont, nameMax - sufW), legFont) + suf
+                : this.truncate(txt, nameMax, legFont);
+            if (suf) { t.setAttribute("data-zoom", String(F)); }
             fixed.push(t);
             return t;
         };
         const lineGap = legFont + 2;
-        if (netOn) { nameAt(netZero, netName, "sf-net-title"); }
+        if (netOn) { nameAt(netZero, netName, "sf-net-title", zoomSuf); }
         const inYs = L.inSeries.map((_, j) => mainZero - legFont * 0.6 - 3 - j * lineGap);
         const outYs = L.outSeries.map((_, j) => mainZero + legFont * 0.6 + 3 + j * lineGap);
-        L.inSeries.forEach((sn, j) => nameAt(inYs[j], inName(sn), "sf-name-in"));
-        L.outSeries.forEach((sn, j) => nameAt(outYs[j], outName(sn), "sf-name-out"));
+        L.inSeries.forEach((sn, j) => nameAt(inYs[j], inName(sn), "sf-name-in", zoomSuf));
+        L.outSeries.forEach((sn, j) => nameAt(outYs[j], outName(sn), "sf-name-out", zoomSuf));
         if (lastStock != null) {
             let ys = Y(lastStock);
             const taken = [...inYs, ...outYs];
@@ -15992,7 +16095,11 @@ export class Visual implements IVisual {
 
         // ---- total header: Σ inflow · Σ outflow · net · closing stock
         if (cfg.showTotal) {
-            const sumIn = P.reduce((a, p) => a + p.inTot, 0), sumOut = P.reduce((a, p) => a + p.outTot, 0);
+            // 1.56 (B11 part 2): with YTD the flows already are running totals — the
+            // header takes the last period with flows (like the Σ header of the columns)
+            const lastFlow = cfg.cumulative ? [...P].reverse().find(p => p.hasFlow) : undefined;
+            const sumIn = lastFlow ? lastFlow.inTot : P.reduce((a, p) => a + p.inTot, 0);
+            const sumOut = lastFlow ? lastFlow.outTot : P.reduce((a, p) => a + p.outTot, 0);
             const t = this.el("text", { x: region.x + region.w - 6, y: region.y + hFont + 1, "text-anchor": "end",
                 "font-size": hFont, "font-family": FONT, fill: cfg.subtle, "data-icd": "sf-total",
                 ...(lastStock != null ? { "data-closing": lastStock } : {}) }, root);
@@ -16123,6 +16230,26 @@ export class Visual implements IVisual {
                 t.textContent = this.truncate(this.locStr("Hint_StockFlowMixed",
                     "Stock & flow: plan-only flows in a period with an actual or forecast are not drawn ({list})")
                     .replace("{list}", dropped.slice(0, 4).join(", ") + (dropped.length > 4 ? " …" : "")), region.w - 8, Math.round(9 * k));
+            } else if (!synthetic && !cfg.cumulative) {
+                // 1.56 (B11 part 2): consistency of the data, stock[t] − stock[t−1] = net[t]
+                // (tolerance: half a unit of the label precision). A stock measure that is
+                // not semi-additive or a missing flow kind shows up here; synthetic tiles
+                // (Σ, Ø, rest) and running totals are not checked
+                const tol = 0.5 * (cfg.fmtUnit || 1) * Math.pow(10, -(cfg.fmtPrec ?? 0));
+                const off: string[] = [];
+                for (let i = 1; i < n; i++) {
+                    const a = P[i - 1].stock, b = P[i].stock;
+                    if (a == null || b == null || P[i].flowsDropped) { continue; }
+                    if (Math.abs(b - a - (P[i].hasFlow ? P[i].net : 0)) > tol) { off.push(P[i].label); }
+                }
+                if (off.length > 0) {
+                    const t = this.el("text", { x: region.x + 4, y: mainTop + legFont, "font-size": Math.round(9 * k),
+                        fill: cfg.subtle, "font-family": FONT, "font-style": "italic", "data-icd": "sf-hint",
+                        "data-kind": "consistency", "data-n": off.length }, root);
+                    t.textContent = this.truncate(this.locStr("Hint_StockFlowConsistency",
+                        "Stock & flow: the stock change differs from the net flow in {list}")
+                        .replace("{list}", off.slice(0, 4).join(", ") + (off.length > 4 ? " …" : "")), region.w - 8, Math.round(9 * k));
+                }
             }
         }
 
@@ -17671,26 +17798,67 @@ export class Visual implements IVisual {
         return { from, to, basisSum, valueSum: cum, acSum, fcSum };
     }
 
+    /**
+     * 1.56 (B11 part 2): YTD/QTD/R12 in the stock & flow mode. The long format carries
+     * one row per period AND series, so every series (flow kind) runs its own total;
+     * stock rows pass through (a stock is not additive over time), the line-measure
+     * stock (lineVal) travels unchanged with the rows. Order of the rows is kept.
+     */
+    private cumulateSeries(pts: DataPoint[], basisMode: Basis,
+        kind: "ytd" | "qtd" | "r12", fiscalStart: number): DataPoint[] {
+        const lists = new Map<string, number[]>();
+        pts.forEach((p, i) => {
+            const key = `${p.stackSeries ?? ""}¦${p.sfKind ?? ""}`;
+            const l = lists.get(key);
+            if (l) { l.push(i); } else { lists.set(key, [i]); }
+        });
+        const out = pts.slice();
+        lists.forEach(idx => {
+            const sub = idx.map(i => pts[i]);
+            if (sub[0].sfKind === "stock") { return; }
+            // the drawn cell is value ?? plan (one scenario per period): the running
+            // total chains AC/FC periods into the plan periods (AC&PL YTD)
+            const cells = sub.map(p => p.value == null && p.pl != null ? { ...p, value: p.pl } : p);
+            const cum = this.cumulate(cells, basisMode, kind, fiscalStart, p => p.catLevels ?? [p.cat]);
+            idx.forEach((i, j) => {
+                const p = sub[j], c = cum[j];
+                out[i] = p.value == null && p.pl != null
+                    ? { ...c, value: null, ac: null, fc: null, pl: c.value, varAbs: null, varRel: null, var2Abs: null, var2Rel: null }
+                    : c;
+            });
+        });
+        return out;
+    }
+
     private cumulate(pts: DataPoint[], basisMode: Basis,
-        kind: "ytd" | "qtd" | "r12" = "ytd", fiscalStart = 1): DataPoint[] {
+        kind: "ytd" | "qtd" | "r12" = "ytd", fiscalStart = 1, periodOf?: (p: DataPoint) => string[] | null): DataPoint[] {
+        // 1.56 (B11 part 2): stock rows (or timeAggregation = last) are not additive over
+        // time — the running value at a period is the value of that period
+        if (this.timeAggLast) { return pts; }
         // YTD resets at the fiscal-year start, QTD at each fiscal quarter start; when
         // the labels carry no parseable month, YTD runs through and QTD uses 3er-Blöcke.
-        const months = pts.map(p => this.monthOf(p.cat));
+        // periodOf (stock & flow): the category levels — months from the leaf label,
+        // and without months YTD resets where the top level (year) changes
+        const lv = periodOf ? pts.map(p => periodOf(p)) : null;
+        const months = pts.map((p, i) => this.monthOf(lv && lv[i] ? lv[i][lv[i].length - 1] : p.cat));
         const parsed = months.every(m => m != null);
+        const yearCut = (i: number) => !!lv && lv[i] != null && lv[i - 1] != null
+            && (lv[i] as string[]).length >= 2 && (lv[i] as string[])[0] !== (lv[i - 1] as string[])[0];
         const resetAt = (i: number): boolean => {
             if (i === 0 || kind === "r12") { return false; }
-            if (kind === "ytd") { return parsed ? months[i] === fiscalStart : false; }
+            if (kind === "ytd") { return parsed ? months[i] === fiscalStart : yearCut(i); }
             return parsed ? ((months[i] as number) - fiscalStart + 12) % 3 === 0 : i % 3 === 0;
         };
         const winStart = (i: number) => kind === "r12" ? Math.max(0, i - 11) : 0;
         const winSum = (i: number, get: (p: DataPoint) => number | null): number => {
             let acc = 0;
-            for (let j = winStart(i); j <= i; j++) { acc += get(pts[j]) ?? 0; }
+            for (let j = winStart(i); j <= i; j++) { if (pts[j].sfKind !== "stock") { acc += get(pts[j]) ?? 0; } }
             return acc;
         };
         let cv = 0, cpy = 0, cpl = 0, cbm = 0, cfp = 0;
         return pts.map((p, i) => {
             if (resetAt(i)) { cv = 0; cpy = 0; cpl = 0; cbm = 0; cfp = 0; }
+            if (p.sfKind === "stock") { return p; }
             if (p.value != null) { cv += p.value; }
             if (p.py != null) { cpy += p.py; }
             if (p.pl != null) { cpl += p.pl; }
@@ -17975,6 +18143,19 @@ export class Visual implements IVisual {
         { p: DataPoint; partial: boolean; partialOf: [number, number] | null } | null {
         const withVal = pts.filter(p => p.value != null);
         if (withVal.length < 2) { return null; }
+        // 1.56 (B11 part 2): a stock (or timeAggregation = last) is not summed over the
+        // months — the year column carries the last month with a value (its basis and
+        // Δ as delivered), labelled "End" instead of "Σ"
+        if (this.timeLast(withVal)) {
+            const ref = this.lastKid(withVal);
+            const own = (this.formattingSettings.chartCard.yearColumnLabel.value || "").trim();
+            const yp = this.aggregateTail([ref], own || this.locStr("Label_LastValue", "End"), group);
+            yp.isRest = false;
+            yp.isFc = ref.isFc;
+            yp.fcPart = null;
+            if (this.avgRows) { yp.var2Abs = null; yp.var2Rel = null; }
+            return { p: yp, partial: false, partialOf: null };
+        }
         const paired = withVal.filter(p => p.basis != null);
         const partial = paired.length > 0 && paired.length < withVal.length;
         const use = partial ? paired : withVal;
@@ -18516,13 +18697,17 @@ export class Visual implements IVisual {
     /** Σ header: total value plus overall variance vs. the comparison basis */
     private drawTotalHeader(parent: SVGElement, region: Rect, points: DataPoint[], cfg: ChartConfig): void {
         let sum = 0, sumVar = 0, sumBasis = 0, any = false, anyVar = false;
+        // 1.56 (B11 part 2): stock rows (or timeAggregation = last) show the last value
+        // ("End 266"), like the running totals of YTD take the last one
+        // (time axes only: columns and line; bars are a structure)
+        const lastVal = !cfg.cumulative && cfg.orientation === "columns" && this.timeLast(points);
         for (const p of points) {
             if (p.value != null) { any = true; }
             // 1.55 (B13 review, M2): the Σ sums AC/FC — plan-against-plan Δ (Ø basis in
             // plan-only periods) stays out of ΔΣ and of its basis
             const hasVar = p.varAbs != null && p.basis != null && !p.varPlan;
             if (hasVar) { anyVar = true; }
-            if (cfg.cumulative) {
+            if (cfg.cumulative || lastVal) {
                 // cumulated points already carry running totals — take the last ones
                 if (p.value != null) { sum = p.value; }
                 if (hasVar) { sumVar = p.varAbs as number; sumBasis = p.basis as number; }
@@ -18552,11 +18737,12 @@ export class Visual implements IVisual {
         };
         // with sum-safe labels the Σ must be quantized identically to the labels,
         // otherwise formatter edge-rounding could still disagree by one quantum
-        const sumShown = cfg.sumSafe && !cfg.cumulative
+        const sumShown = cfg.sumSafe && !cfg.cumulative && !lastVal
             ? (() => { const div = cfg.fmtUnit || 1, f = Math.pow(10, cfg.fmtPrec);
                 return Math.round((sum / div) * f) / f * div; })()
             : sum;
-        span(`Σ ${cfg.fmt.format(sumShown)}`, cfg.ink, true);
+        span(`${lastVal ? this.locStr("Label_LastValue", "End") : "Σ"} ${cfg.fmt.format(sumShown)}`, cfg.ink, true);
+        if (lastVal) { t.setAttribute("data-agg", "last"); }
         if (anyVar) {
             const good = cfg.isGood(sumVar);
             const color = sumVar === 0 ? cfg.subtle : (good ? cfg.colors.good : cfg.colors.bad);
@@ -18572,7 +18758,7 @@ export class Visual implements IVisual {
         }
         // rounding hint: with sum-safe rounding OFF, flag when the rounded labels
         // do not add up to the rounded Σ (the classic board-meeting question)
-        if (!cfg.sumSafe && !cfg.cumulative && cfg.showLabels) {
+        if (!cfg.sumSafe && !cfg.cumulative && !lastVal && cfg.showLabels) {
             // 1.52.1: compare what is printed — with the 3-digit rule every number has
             // its own decimals ("162K" + "49,5K" against "Σ 408K")
             const div = cfg.fmtUnit || 1;

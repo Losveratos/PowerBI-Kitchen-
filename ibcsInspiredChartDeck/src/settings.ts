@@ -124,6 +124,12 @@ const axisGroupsItems: LocEnumMember[] = [
     { value: "auto", displayName: "From the hierarchy", key: "Enum_AxisGroups_Auto" },
     { value: "off", displayName: "Off", key: "Enum_AxisGroups_Off" }
 ];
+// 1.56 (backlog B11, part 2): how values aggregate over time (YTD, year column, table
+// tree, merged periods, KPI-card trend, Σ header); stock rows always take the last value
+const timeAggregationItems: LocEnumMember[] = [
+    { value: "sum", displayName: "Sum", key: "Enum_TimeAgg_Sum" },
+    { value: "last", displayName: "Last value", key: "Enum_TimeAgg_Last" }
+];
 
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
 // ellipse around its numbers (IBCS sheets 04A, 06E: circled values)
@@ -286,7 +292,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
         stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
-        multiplesBasisItems, sfStockAtItems, axisGroupsItems];
+        multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -534,6 +540,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         descriptionKey: "Desc_Chart_CumKind",
         items: cumulativeKindItems,
         value: cumulativeKindItems[0]
+    });
+
+    timeAggregation = new formattingSettings.ItemDropdown({
+        name: "timeAggregation",
+        displayName: "Aggregation over time",
+        displayNameKey: "Chart_TimeAgg",
+        description: "Wie Werte über die Zeit zusammengefasst werden (YTD, Jahressäule, Tabellenbaum, zusammengeführte Perioden, Karten-Trend, Σ-Kopf): Summe oder letzter Wert (Stichtag, z. B. Bestand, Headcount). Zeilen mit dem Token stock nehmen immer den letzten Wert.",
+        descriptionKey: "Desc_Chart_TimeAgg",
+        items: timeAggregationItems,
+        value: timeAggregationItems[0]
     });
 
     fiscalStart = new formattingSettings.NumUpDown({
@@ -1456,7 +1472,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDataTime",
         displayName: "Data & time",
         displayNameKey: "Group_DataTime",
-        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.acFcSplit,
+        slices: [this.cumulative, this.cumulativeKind, this.fiscalStart, this.timeAggregation, this.acFcSplit,
             this.topN, this.showTotal, this.yearColumn, this.yearColumnLabel, this.hideBlankCat, this.movingAverage,
             this.highlight, this.highlightStyle, this.diffMarkers, this.groupEvery]
     });
@@ -1622,12 +1638,21 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: axisGroupsItems[0]
     });
 
+    sfFlowZoom = new formattingSettings.ToggleSwitch({
+        name: "sfFlowZoom",
+        displayName: "Zoom flows",
+        displayNameKey: "Chart_SfFlowZoom",
+        description: "Bestand & Fluss: Flüsse und Netto mit einem runden Faktor vergrößert, wenn sie neben einem großen Bestand nur wenige Pixel hoch wären (Blatt 08G). Der Faktor steht als „×f“ an den Namen, ein Skalenband zeigt denselben Wert in beiden Maßstäben. Standard aus.",
+        descriptionKey: "Desc_Chart_SfFlowZoom",
+        value: false
+    });
+
     stockFlowGroup = new formattingSettings.Group({
         name: "chartStockFlow",
         displayName: "Stock & flow",
         displayNameKey: "Group_StockFlow",
         slices: [this.sfNet, this.sfNetLabel, this.sfArea, this.sfNegTint, this.sfOpening, this.sfStockAt,
-            this.axisGroups]
+            this.axisGroups, this.sfFlowZoom]
     });
 
     name: string = "chart";
