@@ -177,3 +177,28 @@ for a in ["Germany", "United Kingdom", "Denmark", "Spain", "Italy", "France", "B
         print(f"{a:16s} {df:+10.1f} {de_:+8.1f} {dg:+8.1f} {dn:+9.1f}   {-df/de_ if de_ else 0:6.2f}")
     except KeyError as ex:
         print(a, "fehlt", ex)
+
+kopf("EU27 ohne Irland (Näherung mit Wertschöpfungsgewichten 2021, nama_10_a64 B1G CP_MEUR)")
+ids_w, ew = js.lese(pfad("nama_10_a64_c_va.json"))
+ids, e = js.lese(pfad("sts_inpr_a.json"))
+for nace in ["C", "C20"]:
+    w_eu = js.filtere(ids_w, ew, geo="EU27_2020", nace_r2=nace).get("2021")
+    w_ie = js.filtere(ids_w, ew, geo="IE", nace_r2=nace).get("2021")
+    w_de = js.filtere(ids_w, ew, geo="DE", nace_r2=nace).get("2021")
+    eu = js.filtere(ids, e, geo="EU27_2020", nace_r2=nace)
+    ie = js.filtere(ids, e, geo="IE", nace_r2=nace)
+    if not (w_eu and w_ie and ie):
+        print(nace, "Gewicht oder Irland-Index fehlt", w_eu, w_ie, bool(ie))
+        continue
+    a = w_ie / w_eu
+    oh = {y: (eu[y] - a * ie[y]) / (1 - a) for y in ("2019", "2025")}
+    print(f"{nace}: Anteil IE {a*100:.1f} %, DE {w_de/w_eu*100:.1f} %; EU27 25v19 {pct(eu['2025'], eu['2019']):+.1f} %, "
+          f"EU27 ohne IE (Näherung) {pct(oh['2025'], oh['2019']):+.1f} %")
+w_eu = js.filtere(ids_w, ew, geo="EU27_2020", nace_r2="C")["2021"]
+a_ie = js.filtere(ids_w, ew, geo="IE", nace_r2="C")["2021"] / w_eu
+a_de = js.filtere(ids_w, ew, geo="DE", nace_r2="C")["2021"] / w_eu
+eu = js.filtere(ids, e, geo="EU27_2020", nace_r2="C")
+ie = js.filtere(ids, e, geo="IE", nace_r2="C")
+dd = js.filtere(ids, e, geo="DE", nace_r2="C")
+r = {y: (eu[y] - a_ie * ie[y] - a_de * dd[y]) / (1 - a_ie - a_de) for y in ("2019", "2025")}
+print(f"C: EU27 ohne IE und ohne DE (Näherung) 25v19 {pct(r['2025'], r['2019']):+.1f} %")

@@ -1,0 +1,131 @@
+{
+  "hinweis": "Auftrag P2-10 (Gegenprüfung Dossier 10). Fremde Dokumente werden nicht gespiegelt; raw/ ist von Git ausgenommen.",
+  "eintraege": [
+    {
+      "id": "sts_inpr_a",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_a?geo=DE&geo=EU27_2020&geo=FR&geo=IT&geo=ES&geo=PL&geo=IE&nace_r2=B-D&nace_r2=C&nace_r2=C20&nace_r2=C24&nace_r2=C17&nace_r2=C23&nace_r2=C29&unit=I21&s_adj=CA&sinceTimePeriod=2015",
+      "datei": "raw/P2-10/sts_inpr_a.json",
+      "sha256": "9761be925f0e41902ae27ee71bf5d7944f421923ef370d828e49b21ad2750b9c",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_205",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205?geo=DE&geo=EU27_2020&geo=FR&geo=IT&geo=ES&geo=PL&geo=DK&geo=NL&nrg_cons=MWH2000-19999&nrg_cons=MWH20000-69999&tax=X_VAT&currency=EUR&unit=KWH",
+      "datei": "raw/P2-10/nrg_pc_205.json",
+      "sha256": "89c55d20ef1cff57dd8b1d3ad340ef927c80ded34fe147e930fdca549697550e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_204",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_204?geo=DE&geo=EU27_2020&geo=FR&geo=IT&geo=ES&geo=PL&geo=DK&geo=NL&nrg_cons=KWH2500-4999&tax=I_TAX&currency=EUR&unit=KWH",
+      "datei": "raw/P2-10/nrg_pc_204.json",
+      "sha256": "56916eccd68e3f08c957399dc2a231a7768f5b54f5d33ea88e3b397f0d832b87",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_203",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203?geo=DE&geo=EU27_2020&geo=FR&geo=IT&geo=ES&geo=PL&geo=NL&nrg_cons=GJ10000-99999&tax=X_VAT&currency=EUR&unit=KWH",
+      "datei": "raw/P2-10/nrg_pc_203.json",
+      "sha256": "30260cd7b1bb15ae298f5c548f97b836c73f879bc88cba4836d8b6169f8b807a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_204_c",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_204_c?geo=DE&nrg_cons=KWH2500-4999&currency=EUR",
+      "datei": "raw/P2-10/nrg_pc_204_c.json",
+      "sha256": "f2b28f67e051cf0d9ae79f9d18251cd0585b380f2c4b913c31746d36396055f3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_205_c",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205_c?geo=DE&nrg_cons=MWH2000-19999&currency=EUR",
+      "datei": "raw/P2-10/nrg_pc_205_c.json",
+      "sha256": "706c0931e4ada6ea265bb07c032bb4e74881f83ec8828fb2ea5880fbcaf863f3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nama_10_gdp",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp?geo=DE&geo=EU27_2020&geo=FR&geo=ES&geo=IT&na_item=B1GQ&na_item=P51G&unit=CP_MEUR&unit=CLV20_MEUR&unit=PC_GDP&sinceTimePeriod=2010",
+      "datei": "raw/P2-10/nama_10_gdp.json",
+      "sha256": "d84e5621e946a765f170a130d2528c165743fa438082a29b2e5ad0ea5002afea",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_bal_peh",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_peh?geo=DE&geo=ES&geo=IT&geo=DK&geo=FR&geo=PL&geo=EU27_2020&nrg_bal=GEP&siec=TOTAL&siec=FE&siec=N900H&siec=RA000&unit=GWH&time=2005&time=2010&time=2019&time=2024",
+      "datei": "raw/P2-10/nrg_bal_peh.json",
+      "sha256": "ab6855992ddf4e2d9f0b910109290f7ccbe507dcd91dbebb89401cb9b6db4e8a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nama_10_a64_e",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a64_e?geo=DE&nace_r2=C&nace_r2=D&nace_r2=TOTAL&nace_r2=C20&na_item=EMP_DC&unit=THS_PER&sinceTimePeriod=2018",
+      "datei": "raw/P2-10/nama_10_a64_e.json",
+      "sha256": "f548bd703f24fb9cd1938a78b38c2a266b4ee4f89097ad534a8c81ef0b51786c",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nama_10_a64_c_va",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a64?geo=EU27_2020&geo=IE&geo=DE&nace_r2=C&nace_r2=C20&na_item=B1G&unit=CP_MEUR&time=2021",
+      "datei": "raw/P2-10/nama_10_a64_c_va.json",
+      "sha256": "79983fa4497ebdbfe2dedf5cc508946c4d22af97dd4c9663c0b910e29f7b63b9",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ember_yearly_global",
+      "url": "https://files.ember-energy.org/public-downloads/generation/outputs/release_generation_yearly_global.csv",
+      "datei": "raw/P2-10/ember_yearly_global.csv",
+      "sha256": "43db1b75e3ae16eff5fc62a4bfa1f10876efa24af953e0069a939441ea95c616",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "destatis_lrins01",
+      "url": "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Unternehmen/Gewerbemeldungen-Insolvenzen/Tabellen/lrins01.html",
+      "datei": "raw/P2-10/destatis_lrins01.html",
+      "sha256": "6434d6948bba26c66c08b0c081aa118c6b6fdb39b376855a951578cacc8bf0f9",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "destatis_pm400",
+      "url": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/11/PD26_400_435.html",
+      "datei": "raw/P2-10/destatis_pm400.html",
+      "sha256": "dba88aca4749f1e4f355ebfe0881332cb73039139a6ec82d4935bf770eaa8ba5",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bbk_monatsbericht_2022_12",
+      "url": "https://www.bundesbank.de/resource/blob/895890/21ca496375acb5acea78bae3f00f2760/mL/2022-12-monatsbericht-data.pdf",
+      "datei": "raw/P2-10/bbk_mb_2022_12.pdf",
+      "sha256": "f34c3c38fb7a701993d446997d701b4c894d18a79c21ed201e2c075a92030cee",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "svr_jg202223_kap5",
+      "url": "https://www.sachverstaendigenrat-wirtschaft.de/fileadmin/dateiablage/gutachten/jg202223/JG202223_Kapitel_5.pdf",
+      "datei": "raw/P2-10/svr_jg202223_kap5.pdf",
+      "sha256": "25a89e318401f81a229492b8d201eb600c4f5046804d32a8542152b5c8e042b3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "btd_21_601_finanzplan",
+      "url": "https://dserver.bundestag.de/btd/21/006/2100601.pdf",
+      "datei": "raw/P2-10/btd_21_601_finanzplan.pdf",
+      "sha256": "d5f8b840a434fa80251ef497313924010010666ff0f468337b58af30deb5058a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "btd_20_14522",
+      "url": "https://dserver.bundestag.de/btd/20/145/2014522.pdf",
+      "datei": "raw/P2-10/btd_20_14522.pdf",
+      "sha256": "3e134a90edd64aefe67865530c834d3099902aafb24f2a2cafee8f161d887861",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bt_hib_1039794",
+      "url": "https://www.bundestag.de/presse/hib/kurzmeldungen-1039794",
+      "datei": "raw/P2-10/bt_hib_1039794.html",
+      "sha256": "17d4ae1a535c8dd7df095b647ec3ce1ac15e91ad1e9c124ac8482a49fa8b8699",
+      "abruf": "2026-11-22"
+    }
+  ]
+}
