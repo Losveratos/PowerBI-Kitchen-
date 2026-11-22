@@ -16260,8 +16260,10 @@ export class Visual implements IVisual {
         const ringable = totalOn && showLabels;
         if (cfg.highlight.size > 0 && (!cfg.highlightEllipse || !ringable)) {
             const hTop = rect.y + 2, hH = yTick + 2 - hTop;
+            // (emphBand skips the ellipse style: the fallback draws it as a band)
+            const bandCfg = cfg.highlightEllipse ? { ...cfg, highlightEllipse: false } : cfg;
             for (let i = 0; i < n; i++) {
-                if (emphAt(i)) { this.emphBand(bg, bandStart + i * step + 1, hTop, step - 2, hH, cfg); }
+                if (emphAt(i)) { this.emphBand(bg, bandStart + i * step + 1, hTop, step - 2, hH, bandCfg); }
             }
             for (const g of axGroups) {
                 if (cfg.highlightEllipse) { continue; }
@@ -17380,8 +17382,15 @@ export class Visual implements IVisual {
     /** 1.56 review (M3): text on a ramp tone, picked from the fill and not from the mode:
      *  light text on dark tones, dark text on light ones (ink and paper swap in dark mode) */
     private stackRampText(cfg: ChartConfig, rgb: number[]): string {
+        if (cfg.dark) {
+            // dark mode: the text colour with the higher WCAG contrast on this tone
+            const hex = (c: number[]) => "#" + c.map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0")).join("");
+            const lt = relLuminance(hex(rgb));
+            const ratio = (c: string) => { const l = relLuminance(c); return (Math.max(l, lt) + 0.05) / (Math.min(l, lt) + 0.05); };
+            return ratio(cfg.ink) >= ratio(cfg.paper) ? cfg.ink : cfg.paper;
+        }
         const darkTone = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255 < 0.55;
-        return darkTone ? (cfg.dark ? cfg.ink : cfg.paper) : (cfg.dark ? cfg.paper : cfg.ink);
+        return darkTone ? cfg.paper : cfg.ink;
     }
 
     /** hex "#rrggbb" → [r,g,b] (defaults to dark grey on malformed input) */

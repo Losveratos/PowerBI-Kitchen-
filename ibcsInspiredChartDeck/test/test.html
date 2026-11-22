@@ -5850,6 +5850,104 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       "c849: ein Block ohne/mit Zwischensumme; Formatbereich zeigt die Blöcke nur mit Hierarchie, ohne Hierarchie keine Wirkung");
   }
 
+  // ---- Review-Fixes (c851 bis c856)
+  const rgbOf = c => { c = String(c || "").trim(); let m = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(c);
+    if (m) { return [+m[1], +m[2], +m[3]]; }
+    m = /^#([0-9a-f]{6})$/i.exec(c); return m ? [0, 2, 4].map(o => parseInt(m[1].slice(o, o + 2), 16)) : null; };
+  const relLum = rgb => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
+  const contrast = (a, b) => { const la = relLum(a), lb = relLum(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+  window.__b10t2r = { rgbOf, contrast };
+  const withDrill = dv => { dv.metadata.dataRoles = { drillableRoles: { category: [2] } }; return dv; };
+  const drillSpy = calls => ({ hostPatch: h => { h.drill = a => calls.push(a); } });
+
+  // c851 (M1): Blöcke klappen die Hierarchie selbst auf, nur einmal je Feld-Konstellation; nackte Stapel nie
+  addStage("c851", "Review M1 · Balken mit stackBlocks + drillbare Kategorie → host.drill genau einmal", 1100, 420);
+  addStage("c851b", "Review M1 · gleicher Stapel ohne stackBlocks → kein Drill (bestehende Berichte unverändert)", 1100, 420);
+  addStage("c851c", "Review M1 · eine Ebene geliefert, Kategorie drillbar → stackBlocks im Formatbereich sichtbar", 1100, 420);
+  {
+    const onlyTop = dv => { dv.categorical.categories = dv.categorical.categories.filter(c => c.source.displayName !== "Land"); return dv; };
+    const c1 = [], c2 = [], c3 = [];
+    const r1 = runCap("c851", withDrill(onlyTop(dv02(bars({ stackBlocks: "subtotals" })))), 1100, 420, drillSpy(c1));
+    r1.upd(withDrill(onlyTop(dv02(bars({ stackBlocks: "subtotals" })))));
+    runCap("c851b", withDrill(onlyTop(dv02(bars({ stackTotalRow: true })))), 1100, 420, drillSpy(c2));
+    const r3 = runCap("c851c", withDrill(onlyTop(dv02(bars({})))), 1100, 420, drillSpy(c3));
+    r3.v.getFormattingModel();
+    const cc3 = r3.v.formattingSettings.chartCard;
+    // ohne Serie keine Blöcke, also auch kein Aufklappen; Tabelle und GuV wie bisher
+    const W = ChartKitchen.autoExpandWanted;
+    const table = [W("bars", "subtotals", "columns", "auto", true), W("bars", "off", "columns", "auto", true),
+      W("bars", "gap", "columns", "auto", false), W("table", "off", "columns", "auto", false), W("pnl", "off", "columns", "auto", false),
+      W("columns", "subtotals", "columns", "auto", true), W("line", "subtotals", "area", "auto", true)];
+    check(c1.length === 1 && c1[0].roleName === "category" && c1[0].drillType === 2 && c2.length === 0 && c3.length === 0
+      && cc3.stackBlocks.visible === true && JSON.stringify(table) === "[true,false,false,true,true,false,false]",
+      `c851: Blöcke drillen ${c1.length}× (zweites Update nicht), Stapel ohne Blöcke ${c2.length}×, Option bei drillbarer Kategorie sichtbar, Regeln ${JSON.stringify(table)}`);
+  }
+
+  // c852 (M2): hervorgehobene Zeilen mitten im Block: Pfeil und Anteil nie über der längeren Nachbarzeile
+  addStage("c852", "Review M2 · Hervorhebung Germany, Spain, Japan (mittlere Zeilen) · Anteil rechts der eigenen Summe, Pfeil nur im Zeilenabstand", 1280, 720);
+  runCap("c852", dv02(bars({ sortMode: "ac", stackBlocks: "subtotalsButLast", stackBlockShare: true, stackTotalRow: true,
+    stackTotalLabel: "World", highlight: "Germany, Spain, Japan", highlightStyle: "ellipse" })), 1280, 720);
+  {
+    const rows = qq("c852", '[data-icd="stack-block"] > g');
+    const nameOf = g => g.querySelector(':scope > text[text-anchor="end"]')?.textContent;
+    const hit = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5;
+    const marks = qq("c852", '[data-icd="stack-row-share"] ellipse').concat(qq("c852", '[data-icd="stack-hl-arrow"]'));
+    let bad = [];
+    for (const m of marks) {
+      const own = m.closest('[data-icd="stack-block"] > g'), b = m.getBoundingClientRect();
+      for (const g of rows) {
+        if (g === own) { continue; }
+        for (const e of g.querySelectorAll("rect, text")) { if (hit(b, e.getBoundingClientRect())) { bad.push(nameOf(own) + "→" + nameOf(g)); break; } }
+      }
+    }
+    const shares = qq("c852", '[data-icd="stack-row-share"]').map(g => nameOf(g.parentNode) + " " + g.textContent);
+    check(shares.length === 3 && bad.length === 0, `c852: Zeilenanteile ${shares.join(", ")}; keine Überdeckung der Nachbarzeilen${bad.length ? " (" + bad.join(", ") + ")" : ""}`);
+  }
+
+  // c853 (m1): negativer Block → keine Anteile
+  addStage("c853", "Review m1 · Block Rest der Welt negativ · keine Block- und Zeilenanteile", 1280, 760);
+  {
+    const dv = dv02(bars({ sortMode: "ac", stackBlocks: "subtotals", stackBlockShare: true, stackTotalRow: true,
+      highlight: "USA", highlightStyle: "ellipse" }));
+    const reg = dv.categorical.categories[0].values;
+    dv.categorical.values[0].values = dv.categorical.values[0].values.map((v, i) => reg[i] === "Europe" ? v : -v);
+    runCap("c853", dv, 1280, 760);
+    check(qq("c853", '[data-icd="stack-block-share"]').length + qq("c853", '[data-icd="stack-row-share"]').length === 0
+      && qq("c853", '[data-icd="stack-block-total"]').length === 2, "c853: negative Blocksumme schaltet alle Anteile ab, Zwischensummen bleiben");
+  }
+
+  // c854 (m3): Stapel ohne Blöcke, Hervorhebung als Ellipse → kein Pfeil (wie 1.55)
+  addStage("c854", "Review m3 · gestapelte Balken ohne Blöcke, highlight Germany als Ellipse · kein Pfeil, nur fetter Name", 1100, 560);
+  runCap("c854", dv02(bars({ highlight: "Europe · Germany", highlightStyle: "ellipse" })), 1100, 560);
+  check(qq("c854", '[data-icd="stack-hl-arrow"]').length === 0 && qq("c854", "text").some(t => /Germany/.test(t.textContent) && +(t.getAttribute("font-weight") || 400) >= 600),
+    "c854: ohne Blöcke kein Pfeil, der Name bleibt hervorgehoben");
+
+  // c855 (M3): dunkles Erscheinungsbild, gestapelte Balken: Segmentwerte lesbar, Töne unterscheidbar
+  addStage("c855", "Review M3 · gestapelte Balken dunkel · Rampe zum dunklen Grau, Text aus der Füllung", 1100, 620, "#1E1E1E");
+  runCap("c855", dv02(Object.assign(bars({ stackBlocks: "subtotals" }), { colors: { appearance: "dark" } })), 1100, 620);
+  {
+    let worst = 99;
+    for (const g of qq("c855", '[data-icd="stack-block"] g.icd-cat')) {
+      const r = g.querySelector("rect"), t = g.querySelector("text");
+      if (!r || !t) { continue; }
+      const a = rgbOf(r.getAttribute("fill")), b = rgbOf(t.getAttribute("fill"));
+      if (a && b) { worst = Math.min(worst, contrast(a, b)); }
+    }
+    const tones = [...new Set(qq("c855", '[data-icd="stack-block"] g.icd-cat > rect').map(r => r.getAttribute("fill")))].map(rgbOf).filter(Boolean)
+      .map(c => c[0]).sort((x, y) => x - y);
+    const minGap = tones.slice(1).reduce((m, v, i) => Math.min(m, v - tones[i]), 999);
+    check(worst >= 3 && tones.length === 3 && minGap >= 30, `c855: kleinster Kontrast Segmentwert/Füllung ${worst.toFixed(2)}, Töne ${tones.join("/")}`);
+  }
+
+  // c856 (nit): drei Ebenen, Rest-Zeile am Blatt erkannt: kursiv und am Blockende
+  {
+    const names = rowNames("c846");
+    const it = qq("c846", '[data-icd="stack-rest"] > text[text-anchor="end"]').map(t => t.textContent);
+    check(names[13] === "Übriges Europa · Rest of Europe" && it.includes("Übriges Europa · Rest of Europe") && it.includes("Welt · Rest of world"),
+      `c856: drei Ebenen, Rest-Zeilen am Blockende und kursiv (${it.join(", ")})`);
+  }
+
   // c850: kein NaN in den Block-Stufen
   {
     const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c8[3-5]\d[a-zA-Z]?$/.test(id));
@@ -6318,6 +6416,97 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       && aQ("c822", '[data-icd="stack-area"]').length === 1, `c822: ${lb.length} Summenlabels ohne Überlappung, alle in der Kachel`);
     runCap("c822b", areaDv(c07()), 160, 120);
     check(aQ("c822b", '[data-icd="area-hint"][data-kind="space"]').length === 1 && aQ("c822b", '[data-icd="stack-area"]').length === 0, "c822b: Platzhinweis");
+  }
+  // ---- Review-Fixes (c824 bis c829)
+  const rgbA = c => { c = String(c || "").trim(); let m = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(c);
+    if (m) { return [+m[1], +m[2], +m[3]]; }
+    m = /^#([0-9a-f]{6})$/i.exec(c); return m ? [0, 2, 4].map(o => parseInt(m[1].slice(o, o + 2), 16)) : null; };
+  const lumA = rgb => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
+  const conA = (a, b) => { const la = lumA(a), lb = lumA(b); return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05); };
+  // c824 (M1, M4 Formatbereich): die Fläche mit Achsengruppen klappt die Hierarchie auf; capOverflow verborgen
+  addStage("c824", "Review M1 · Fläche + drillbare Kategorie → host.drill einmal; capOverflow im Formatbereich verborgen", 960, 420);
+  addStage("c824b", "Review M1 · Fläche mit axisGroups = off → kein Drill", 960, 420);
+  addStage("c824c", "Review M1 · gestapelte Säulen (keine Fläche) → kein Drill", 960, 420);
+  {
+    const drill = dv => { dv.metadata.dataRoles = { drillableRoles: { category: [2] } };
+      dv.categorical.categories = dv.categorical.categories.filter(c => c.source.displayName !== "Monat"); return dv; };
+    const c1 = [], c2 = [], c3 = [];
+    const spy = calls => ({ hostPatch: h => { h.drill = a => calls.push(a); } });
+    const r1 = runCap("c824", drill(areaDv(Object.assign(c07(), { scale: { fixedMax: 9000, capOverflow: true } }))), 960, 420, spy(c1));
+    r1.upd(drill(areaDv(Object.assign(c07(), { scale: { fixedMax: 9000, capOverflow: true } }))));
+    runCap("c824b", drill(areaDv(c07({ axisGroups: "off" }))), 960, 420, spy(c2));
+    runCap("c824c", drill(areaDv({ chart: { orientation: "columns" }, scale: { fixedMax: 9000, capOverflow: true } })), 960, 420, spy(c3));
+    r1.v.getFormattingModel();
+    const sc = r1.v.formattingSettings.scaleCard;
+    check(c1.length === 1 && c2.length === 0 && c3.length === 0 && sc.capOverflow.visible === false && sc.fixedMax.visible !== false,
+      `c824: Fläche drillt ${c1.length}×, axisGroups off ${c2.length}×, Säulen ${c3.length}×; capOverflow verborgen`);
+  }
+  // c825 (M4): fixedMax unter den Summen + capOverflow → die Fläche ignoriert die Kappung
+  addStage("c825", "Review M4 · fixedMax 9.000 + capOverflow, Summen 9.487 bis 11.639 · Fläche ungekappt, Skala reicht bis zum Maximum", 1280, 560);
+  {
+    runCap("c825", areaDv(Object.assign(c07(), { scale: { fixedMax: 9000, capOverflow: true } })), 1280, 560);
+    const pts = aQ("c825", '[data-icd="area-total-pt"]');
+    const cys = pts.map(p => +p.getAttribute("cy")), vs = pts.map(p => +p.getAttribute("data-v"));
+    const iMax = vs.indexOf(Math.max(...vs)), iMin = vs.indexOf(Math.min(...vs));
+    // gleiche Zeichnung wie ohne Skalen-Optionen (fixedMax liegt unter den Daten)
+    addStage("c825b", "Review M4 · dieselbe Fläche ohne fixedMax (Vergleich zu c825)", 1280, 560);
+    runCap("c825b", areaDv(c07()), 1280, 560);
+    check(pts.length === 24 && cys[iMax] < cys[iMin] - 20 && new Set(cys.map(c => c.toFixed(1))).size > 12
+      && aSvg("c825") === aSvg("c825b") && !aQ("c825", '[data-icd="cap-marker"]').length,
+      `c825: Summenlinie nicht flach (Max ${vs[iMax]} bei y ${cys[iMax].toFixed(0)}, Min ${vs[iMin]} bei y ${cys[iMin].toFixed(0)}), zeichnet wie ohne Kappung`);
+  }
+  // c826 (M3): dunkel: Werte in den Flächen lesbar, Töne unterscheidbar
+  {
+    const segFill = {};
+    aQ("c817", '[data-icd="area-seg"]').forEach(p => { segFill[p.getAttribute("data-series")] = rgbA(p.getAttribute("fill")); });
+    let worst = 99;
+    for (const t of aQ("c817", '[data-icd="area-value"]')) {
+      const a = segFill[t.getAttribute("data-series")], b = rgbA(t.getAttribute("fill"));
+      if (a && b) { worst = Math.min(worst, conA(a, b)); }
+    }
+    const reds = Object.values(segFill).map(c => c[0]).sort((x, y) => x - y);
+    const gap = reds.slice(1).reduce((m, v, i) => Math.min(m, v - reds[i]), 999);
+    check(aQ("c817", '[data-icd="area-value"]').length > 20 && worst >= 3 && gap >= 15,
+      `c826: dunkel kleinster Kontrast Wert/Fläche ${worst.toFixed(2)}, Töne ${reds.join("/")}`);
+  }
+  // c827 (m5): leere letzte Perioden: Seriennamen an der letzten Periode mit Werten
+  addStage("c827", "Review m5 · Okt bis Dez 2025 ohne Werte · Namen direkt rechts von Sep 2025", 1280, 520);
+  {
+    runCap("c827", areaDv(c07(), { gap: i => i >= 21 }), 1280, 520);
+    const last = aQ("c827", '[data-icd="area-total-pt"]').pop();
+    const xs = aQ("c827", '[data-icd="area-direct-label"]').map(t => +t.getAttribute("x"));
+    check(!!last && xs.length === 6 && xs.every(x => Math.abs(x - (+last.getAttribute("cx") + 8)) < 0.01),
+      `c827: Namen bei x ${xs[0] != null ? xs[0].toFixed(1) : "–"}, letzter Punkt ${last ? (+last.getAttribute("cx")).toFixed(1) : "–"}`);
+  }
+  // c828 (m6, m7): Hervorhebung per Blattname „Jul“ (beide Jahre); Ellipse ohne Summenlinie → Band
+  addStage("c828", "Review m6 · highlight „Jul“ bei Jahr › Monat → Band hinter Jul 2024 und Jul 2025", 1280, 520);
+  addStage("c828b", "Review m7 · Ellipse ohne Summenlinie → Band statt nichts", 1280, 520);
+  {
+    runCap("c828", areaDv(c07({ highlight: "Jul" })), 1280, 520);
+    runCap("c828b", areaDv(c07({ highlight: "2024 · Jul", highlightStyle: "ellipse", areaTotalLine: false })), 1280, 520);
+    check(aQ("c828", 'rect[fill-opacity="0.07"]').length === 2 && aQ("c828b", 'rect[fill-opacity="0.07"]').length === 1
+      && aQ("c828b", '[data-icd="emph-ellipse"]').length === 0, "c828: Blattname trifft beide Jahre, Ellipse ohne Summe fällt aufs Band zurück");
+  }
+  // c829 (m4, m8, m9): Trennlinien nicht über PL, Werte nicht unter der Netto-Summe, Titel über der Nulllinie
+  addStage("c829", "Review m9 · alle Serien negativ · Nulllinie unter dem Paneltitel", 1100, 480);
+  {
+    const sep = aQ("c805", '[data-icd="area-sep"]');
+    const plX = +aQ("c805", '[data-icd="pl-boundary"]')[0].getAttribute("x1");
+    const maxSepX = Math.max(...sep.map(p => Math.max(...(p.getAttribute("d").match(/[\d.]+(?=,)/g) || ["0"]).map(Number))));
+    // c807: kein Wert in der Fläche überdeckt eine Netto-Summe
+    const boxes = id => aQ(id, '[data-icd="area-total-label"]').filter(t => t.style.display !== "none" && t.getAttribute("display") !== "none" && t.getAttribute("visibility") !== "hidden").map(t => t.getBBox());
+    const tot = boxes("c807");
+    const vals = aQ("c807", '[data-icd="area-value"]').filter(t => t.getAttribute("display") !== "none" && t.getAttribute("visibility") !== "hidden").map(t => t.getBBox());
+    const ov = vals.filter(v => tot.some(b => Math.min(b.x + b.width, v.x + v.width) - Math.max(b.x, v.x) > 1
+      && Math.min(b.y + b.height * 0.82, v.y + v.height * 0.82) - Math.max(b.y + b.height * 0.18, v.y + v.height * 0.18) > 1)).length;
+    const ord = ["Priority 3", "Returns"];
+    runCap("c829", areaDv(c07(), { order: ord, val: (i, sn) => -(sn === "Returns" ? 300 + (i % 5) * 60 : aData["Priority 3"][i]) }), 1100, 480);
+    const title = [...document.querySelectorAll("#c829 text")].find(t => /stacked|gestapelt/.test(t.textContent));
+    const zero = aQ("c829", '[data-icd="stack-area"] line[stroke-width="1.6"]')[0];
+    const tb = title ? title.getBBox() : null;
+    check(sep.length > 0 && maxSepX <= plX + 0.01 && ov === 0 && !!tb && !!zero && +zero.getAttribute("y1") > tb.y + tb.height,
+      `c829: Trennlinien enden an der PL-Grenze (${maxSepX.toFixed(1)} ≤ ${plX.toFixed(1)}), c807 ${ov} Werte unter Summen, Nulllinie ${zero ? (+zero.getAttribute("y1")).toFixed(1) : "–"} unter dem Titel (${tb ? (tb.y + tb.height).toFixed(1) : "–"})`);
   }
   // kein NaN in allen Flächen-Stufen
   {
