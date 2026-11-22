@@ -524,6 +524,7 @@
                 "groupEvery": { "type": { "numeric": true } },
                 "multiplesTotal": { "type": { "bool": true } },
                 "multiplesTopN": { "type": { "numeric": true } },
+                "multiplesColumns": { "type": { "numeric": true } },
                 "multiplesHero": { "type": { "bool": true } },
                 "multiplesHeroTile": { "type": { "text": true } },
                 "multiplesSameScale": { "type": { "bool": true } },

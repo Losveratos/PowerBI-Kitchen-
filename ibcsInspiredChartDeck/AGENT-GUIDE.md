@@ -15,6 +15,47 @@ Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 **Neu in 1.57 (in Arbeit):**
 
+*B24 · Feste Spaltenzahl für Small Multiples (Blatt 10G).* `chart.multiplesColumns` (numeric, Standard 0, Bereich
+0 bis 24, Gruppe „Small Multiples“ nach `multiplesTopN`, Keys `Chart_MultiplesColumns`/`Desc_Chart_MultiplesColumns`;
+Pane: `visible = paneHasMultiples`, also auch bei Scatter). `multColumnsFixed(s)` rundet, ≤ 0 oder NaN = 0
+(automatisch). Rasterzweig in `render()` (nach `heroOn`): mit fester Zahl `cols = clamp(fix, 1, rn)` statt
+`ceil(sqrt(rn))` mit 220-px-Deckel; `cellW`/`cellH` folgen, damit auch `scatter.shared.refCell` (Blasenradius), der
+Zoom (`kGrid` misst die feste Zelle), Bezugs- und Rest-Kachel. `rn` ist neben `multiplesHero` das Raster rechts der
+großen Kachel. `heroSpanLayout`: mit fester Zahl einziger Kandidat `c = clamp(fix, spanCols ? 2 : 1, n)` (keine
+Seitenverhältnis-Sperre, die Δ-only-Sperre bleibt und gibt dann null = bisheriges Raster mit fester Zahl); n + 1
+Plätze bei c ≤ n heißt bei Säulen/Linie immer ≥ 2 Zeilen, Balken brauchen 2 Spalten (1 → 2). Marker `mult-grid`
+(`data-cols`, `data-rows`, `data-fixed`, `data-span`) nur mit fester Zahl, sonst SVG-gleich. Rezept 10G:
+`multiplesColumns=6`, `scatterMaxRadius=50`, 1920 × 1080. 994 resjson-Keys je Sprache. Tests c555 bis c561
+(Helfer der B19-Stufen über `window.__b19`).
+
+*B25 · Kein Zoom-Knopf in nicht interaktiver Ausgabe.* `drawTileHeader` zeichnet bei `!this.allowInteractions`
+(`hostCapabilities.allowInteractions === false`, einmal im Konstruktor gelesen: Dashboard-Kacheln, nach Annahme des
+Projekts PDF-/PowerPoint-Export und Abo-Snapshots, `test/export-cases.js`; nicht der Browserdruck) nur den Titel als
+`<text data-icd="mult-title">` (gleiche x/y/Schrift, gekürzt auf `w − 12`), ohne `g[role=button]`, `tabindex`, ⤢,
+Zeiger und Listener; vor dem Zoom-Zweig setzt `render()` dort `zoomGroup = null`. Interaktiv bytegleich.
+`drawScatterLegend`: `tailW` (Breite von Hervorhebung, Teil und Σ) geht nur dann in `reserve`, wenn der Rest der Zeile
+samt Tail nicht passt; bei „+n“ folgt der Tail (vorher fehlte er dort, schmale Kacheln liefen über den Rand).
+`export-cases.js`: Blatt `bubblesMult` (`tiles`-Liste, prüft die Kacheltitel), `inspectExport` liefert `zoomBtn` und
+`tileTitles`, Prüfung „kein Zoom-Knopf ⤢“ für jeden Export, gekürzte Texte je Kachel einmal erlaubt. Tests c562 bis
+c564; Hash aller 867 Bestands-Stufen gleich.
+
+*B24/B25 Review-Stand.* Weiche Untergrenze `MULT_MIN_COL_W = 110`: im Rasterzweig `cols = min(clamp(fix, 1, rn),
+max(1, ⌊gridW / 110⌋))`, in `heroSpanLayout` `cFrom = min(wantC, max(minC, ⌊width / 110⌋))`; greift sie, liefert der
+Zweig bzw. `span.floor` ein `MultColsFloor` (`fix`, `want`, `shown`, `w`), `drawColsFloorHint` zeichnet
+`mult-cols-hint` (`data-want`, `data-shown`, Key `Hint_MultColumnsFloor` mit `{0}` Zahl, `{1}` px, `{2}` gezeigt) unten
+rechts über der Fußzeile, nur mit `allowInteractions` und `viewMode !== 0` (wie der Marimekko-Hinweis), nicht im Zoom.
+Große Kachel: `wantC = max(minC, min(fix, spanCols ? n + 1 : ⌈(n + 1) / 2⌉))`, `minC` 2 bei Balken sonst 1. Marker
+`mult-grid` erst nach dem Zoom-Zweig, mit `data-floor` (gewünschte Zahl), wenn die Untergrenze greift.
+`multColumnsFixed` steht jetzt vor `drawColsFloorHint`, das JSDoc wieder an `heroSpanLayout`. Legende: Gruppen rücken um
+`textWidth(t.textContent)` vor (gekürzter Name), `fitTxt` kürzt Hervorhebung, Teil und Σ (auch die Szenario-Einträge
+über `extra`) auf `width − 6 − x − 2r − 4`, unter 30 px entfällt der Eintrag; passende Zeilen unverändert. Tests c565
+bis c575 (c574 mit 18 Legenden-Stufen `c574a` bis `c574f`, Zusatz `l` langer Name, `m` lange Measures); c558b erwartet
+8 × 2. 995 resjson-Keys je Sprache. Offen und alt (nicht geändert): Zurück-Chip „← Alle Gruppen“ und sein
+`aria-label` sind fest deutsch (`drawZoomBackChip`), Lokalisierung würde die Zoom-Stufen ändern; gemeinsame Achsen je
+Zeile und Spalte für 10G (eigener Backlog-Punkt); einmal einen echten PDF-Export aus dem Service ansehen und hier
+festhalten, ob ⤢ dort entfällt. Die erzeugte Tabellenzeile `multiplesColumns` trägt den Gedankenstrich des Generators
+(Muster aller Zeilen, n5).
+
 *B13 Teil 1b · Frei wählbare große Kachel (Blatt 13B, große Berlin-Kachel von 13C/13D).* `chart.multiplesHeroTile`
 (Text, Standard leer, Gruppe „Small Multiples“, Key `Chart_MultiplesHeroTile`; Pane nur bei `columns`, `bars`, `line`
 ohne Stack-Series, `waterfallStyle` und Serienlinien, auch unter `varianceOnly`). Unabhängig von `multiplesHero`;
@@ -147,7 +188,7 @@ bei Quote über 1 der Text `Hint_ScatterShareRatio` (`data-kind="range"`). Forma
 `scatterPlay` oder `scatterPath=line`. Werte in Torten über `drawValue(…, haloCol)` mit Halo in der Tönung bzw. Papier.
 `scatterSectorFull(f, r)` (Vollkreis, wenn der Bogen unter 0,02 px fehlt), `scatterHatch(cfg, col)` (FC-Schraffur in
 der Punktfarbe). `aria-label` der Torten mit Größe und Anteil. Rezept 10G: 1920 × 1080, `scatterMaxRadius=40`, sonst
-wie 10E (24 Kacheln als 5 × 5). Tests c947 bis c959, angepasst c930, c933, c937, c939, c945; `scale.html` BUB10E,
+wie 10E (24 Kacheln als 5 × 5); seit B24 `multiplesColumns=6` (4 × 6) mit `scatterMaxRadius=50`. Tests c947 bis c959, angepasst c930, c933, c937, c939, c945; `scale.html` BUB10E,
 `export-cases.js` Blatt `bubbles`. 987 resjson-Keys je Sprache.
 
 *Demo-Galerie (1.57).* `drawGallery` (Leer-Zustand `emptyState.mode=demo` und Hub-Seite „Demo ansehen“) zeigt Modi,
@@ -945,6 +986,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | --- | --- | --- | --- |
 | `multiplesTotal` | bool | `false` | Stellt eine „Σ Gesamt"-Kachel voran — Summe über alle Gruppen, auf derselben Skala (IBCS). |
 | `multiplesTopN` | numeric | `0` | Bereich 0–24 — Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest"-Kachel aggregiert. 0 = alle. |
+| `multiplesColumns` | numeric | `0` | Bereich 0–24 — Feste Spaltenzahl des Kachelrasters, z. B. 6 für 24 Kacheln in 4 Zeilen wie auf dem IBCS-Blatt 10G. 0 = automatisch (bisheriges Verhalten). Begrenzt auf 1 bis zur Zahl der Kacheln … |
 | `multiplesHero` | bool | `false` | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13) … |
 | `multiplesHeroTile` | text | leer | Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“ … |
 | `multiplesSameScale` | bool | `false` | Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer. |

@@ -2,6 +2,76 @@
 
 ## 1.57.0.0 (in Arbeit)
 
+- **B24 · Feste Spaltenzahl für Small Multiples (nach IBCS-Blatt 10G).** Vorher: Das Raster wählte die Spaltenzahl
+  selbst (Wurzel der Kachelzahl, Zellen mindestens 220 px breit); 24 Länder standen auf Full HD als 5 × 5 statt wie
+  auf dem Blatt als 4 Zeilen × 6 Spalten, die Zeilen waren für große Blasen zu flach. Nachher (Format Chart → Small
+  Multiples):
+  - **„Spalten“** (`chart.multiplesColumns`, Zahl 0 bis 24, Standard 0): 0 = automatisch wie bisher (SVG-gleich),
+    sonst feste Spaltenzahl, begrenzt auf 1 bis zur Zahl der Kacheln. Im Formatbereich sichtbar, sobald Small
+    Multiples aktiv sind, auch bei Streu- und Blasendiagramm.
+  - **Wo sie wirkt:** im Raster aller Kachel-Modi, Streu- und Blasenkacheln eingeschlossen, mit Bezugskachel (erste
+    oder letzte), Rest-Kachel von „Top N Kacheln“ und im Zoom (der Faktor misst die Kachel in ihrer festen Zelle).
+    Neben „Erste Kachel groß“ zählt sie das Raster rechts von der großen Kachel. Die feste Zahl gilt auch unterhalb von
+    220 px Zellbreite (Entscheidung des Autors), aber nicht unter 110 px (siehe „Nach dem Review“).
+  - **Mit großer Kachel (Gruppenname, B13 Teil 1b):** die feste Zahl ist der einzige Kandidat, die Raster-Wahl
+    (wenigste leere Plätze, Seitenverhältnis) übergeht sie nicht. Die große Kachel zählt wie zwei Plätze; mit der
+    Begrenzung auf die Kachelzahl bleiben bei Säulen und Linie immer zwei Zeilen. Balken reichen über zwei Spalten, eine
+    feste 1 wird dort zu 2 Spalten. Passen die Kacheln einer Δ-only-Ansicht bei der festen Zahl nicht (zu klein), bleibt
+    das bisherige Raster ohne große Kachel, mit der festen Spaltenzahl.
+  - **Skala:** alle Rasterkacheln haben dieselbe Zellgröße, die gemeinsame Skala bleibt; mit großer Kachel greift der
+    Angleich der px je Einheit wie bisher (geprüft mit `hbIndep` und den `mult-hero`-Markern).
+  - Testmarker `mult-grid` (`data-cols`, `data-rows`, `data-fixed`, `data-span`), nur mit fester Zahl. Tests c555 bis
+    c561: 10G mit 24 Blasenkacheln als 4 × 6 auf 1920 × 1080 (Radius 50, gleiche Radien je Wert), 0 = SVG-gleich mit
+    c937, große Kachel mit 5 Spalten, Balken mit 1 → 2 Spalten, zu hohe (9 bei 4 Kacheln, 40 bei 15 mit großer Kachel)
+    und zu niedrige Zahlen (1, negativ = automatisch), Top N mit Rest und Bezugskachel zuletzt, „Erste Kachel groß“,
+    Zoom. Rezept 10G jetzt: 1920 × 1080, `multiplesColumns=6`, `scatterMaxRadius=50`, sonst wie 10E. 994 resjson-Keys
+    je Sprache (`Chart_MultiplesColumns`, `Desc_Chart_MultiplesColumns`).
+  - **Nach dem Review:**
+    - M1: Weiche Untergrenze. Eine feste Zahl hält jede Zelle ab 110 px Breite (`MULT_MIN_COL_W`); wären die Kacheln
+      schmaler (dasselbe Visual kleiner, außerhalb des Fokusmodus, im Dashboard), zeigt das Raster so viele Spalten,
+      wie hineinpassen, und im Bearbeitungsmodus unten rechts den Hinweis „Spalten 24: Kacheln wären nur 25 px breit,
+      gezeigt werden 5“ (`mult-cols-hint`, Key `Hint_MultColumnsFloor`; nicht in der Leseansicht, nicht im Export).
+      Gilt auch mit großer Kachel. Die Beschreibung im Formatbereich nennt es in allen vier Sprachen. Das 10G-Rezept
+      (6 Spalten) bleibt auf 1920 und auf 960 px unberührt (320 bzw. 160 px je Kachel).
+    - m1: Mit großer Kachel klemmen Säulen und Linie auf `ceil((n + 1) / 2)` Spalten (mehr Spalten könnten nur die
+      zweite Zeile leeren), Balken auf `n + 1` (eine Zeile). Vorher standen 13B mit 15 Spalten in Zeile 1 und Zeile 2
+      blieb leer; c558b zeigt jetzt 8 × 2 ohne Lücke. „Begrenzt auf die Zahl der Kacheln“ gilt also ohne große Kachel.
+    - n3 (unverändert, beschrieben): Neben „Erste Kachel groß“ teilen alle Kacheln die Domain, die große Kachel hat
+      mehr Fläche und damit mehr px je Einheit; wenige Spalten rechts stauchen die Höhe der kleinen Kacheln.
+    - n4: Der Marker `mult-grid` steht nicht mehr im Zoom (`data-floor` mit der gewünschten Zahl, wenn die
+      Untergrenze greift).
+    - Tests c565 bis c575 (m5): Balken und Linie mit großer Kachel, Untergrenze mit Blasen, Säulen und großer Kachel
+      samt Hinweis nur im Bearbeitungsmodus, 10G auf 960 px, Blasen bleiben in ihrer Kachel, Δ-only-Rückfall mit fester
+      Zahl, dunkel und Hochkontrast, 30 Gruppen, Formatbereich, gebrochene Werte (2,6 → 3, 0,4 → automatisch),
+      unabhängige px je Einheit für c557 und c558b. 995 resjson-Keys je Sprache.
+- **B25 · Kein Zoom-Knopf in nicht interaktiver Ausgabe.** Vorher: Small-Multiples-Kacheln zeigten ihren Zoom-Knopf
+  „⤢“ (mit `role=button`, `tabindex` und Zeiger) auch dort, wo der Host keine Interaktion erlaubt. Nachher:
+  Mit `hostCapabilities.allowInteractions === false` (Dashboard-Kacheln; nach der bisherigen Annahme des Projekts auch
+  PDF- und PowerPoint-Export und Abo-Snapshots) steht in jedem Kachel-Modus nur der Kacheltitel
+  (`data-icd="mult-title"`, gleiche Stelle und Schrift, ohne den Platz für ⤢ gekürzt); ein gesetzter Zoom zeigt dort das
+  Raster ohne Zurück-Chip. Interaktiv unverändert (SVG-gleich).
+  - Blasenlegende: Teil- und Σ-Eintrag am Ende bekommen ihren Platz vor den Gruppen, wenn die Zeile sonst nicht passt
+    (vorher liefen sie bei schmaler Kachel über den Rand, und ein „+n“ ließ sie ganz weg). Passende Legenden bleiben
+    SVG-gleich. Gefunden durch den neuen Export-Fall.
+  - `export-cases.js`: neues Blatt `bubblesMult` (10E Germany und France als Kacheln, C24) und für jeden Export die
+    Prüfung „kein Zoom-Knopf ⤢“; gekürzte Panel-Titel dürfen je Kachel einmal vorkommen. Tests c562 bis c564 (10G im
+    Export mit Titeln an derselben Stelle wie im Bericht, große Kachel, „Erste Kachel groß“ mit Top N, Zoom-Zustand,
+    Export gleich Bericht bis auf Kachelköpfe, Legende auf 400 px). Hash aller 867 Bestands-Stufen vorher/nachher gleich.
+  - **Nach dem Review:**
+    - m4: Der Browserdruck eines geöffneten Berichts („Seite drucken“) rendert das interaktive Visual, dort bleibt ⤢
+      stehen; ebenso in Web-Veröffentlichung, Mobile-App und Report Server (interaktiv). Ein echter PDF-Export aus dem
+      Service ist vor dem Release noch anzusehen.
+    - m2: Die Legende rückt nach einem gekürzten Gruppennamen um dessen gezeichnete Breite vor (vorher um die volle;
+      der alte Fehler wurde sichtbar, weil nach „+n“ jetzt Teil und Σ folgen).
+    - m3: Hervorhebung, Teil und Σ am Ende der Legende kürzen auf die Restbreite und entfallen unter 30 px; lange
+      Measure-Namen laufen nicht mehr über den Rand.
+    - n1: „Passende Legenden bleiben gleich“ heißt: die ganze Zeile endet mindestens 6 px vor dem Rand (Regel der
+      Gruppeneinträge). Wird es enger, zeigen Legenden mit Teil, Σ oder Hervorhebung weniger Gruppen und dafür diese
+      Einträge.
+    - Tests c574 (18 Legenden von 260 bis 900 px, mit langem ersten Namen und langen Measures, alle im Visual) und c575
+      (KPI-Karten und Tabelle mit langen Titeln im Export). Hash aller 867 Bestands-Stufen weiter gleich; von den
+      B24/B25-Stufen ändert sich nur c558b (m1).
+
 - **B13 Teil 1b · Frei wählbare große Kachel (nach IBCS-Blatt 13B, auch die doppelt hohe Berlin-Kachel von 13C und
   13D).** Vorher: „Erste Kachel groß“ gab nur der ersten Kachel eine Spalte links über die volle Höhe, auf der
   gemeinsamen Skala; eine andere Kachel ließ sich nicht wählen, nicht über zwei Zeilen spannen und nicht oben rechts
@@ -271,10 +341,12 @@
       `aria-label`, Paneltitel). `scale.html`: BUB10E (Fläche ∝ Größe für Einzel- und Gesamtblasen, Winkel);
       `export-cases.js`: Blatt `bubbles` (10E France mit C24). Geändert nur B19-Stufen. 987 resjson-Keys je Sprache
       (`Hint_ScatterShareRatio`, `Hint_ScatterShareOff`, `Hint_ScatterTotalOff`).
-    - Rezept 10G: 1920 × 1080, `scatterMaxRadius=40`, sonst wie 10E; 24 Kacheln stehen als 5 × 5 (eine
-      Spalten-Einstellung gibt es nicht), Kacheltitel und Achsentitel kosten Höhe.
+    - Rezept 10G: 1920 × 1080, `scatterMaxRadius=40`, sonst wie 10E; 24 Kacheln stehen als 5 × 5, Kacheltitel und
+      Achsentitel kosten Höhe. Seit B24 gilt das Rezept mit `multiplesColumns=6` (4 × 6 wie das Blatt) und
+      `scatterMaxRadius=50`.
     - Nicht geändert: Im Export zeigen Small-Multiples-Kacheln weiter ihren Zoom-Knopf „⤢“ (Befund des
       Export-Falls, betrifft alle Kachel-Modi, nicht B19; der B19-Exportfall ist deshalb ein einzelnes Diagramm).
+      Behoben mit B25, das Blatt `bubblesMult` prüft die Blasenkacheln im Export.
 
 - **Demo-Galerie.** Vorher: Die Demo-Galerie (Leer-Zustand „Demo“ und Hub-Seite „Demo ansehen“) zeigte nur 13 der
   14 Modi; Bestand & Fluss (seit 1.55) fehlte. War der Modus gewählt, blieb die Subline „Als Nächstes: … in die
