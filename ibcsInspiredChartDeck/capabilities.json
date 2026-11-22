@@ -210,7 +210,8 @@
                             { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
                             { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" },
                             { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" },
-                            { "value": "C21", "displayName": "C21 · Kumulierte Linie mit R12 und Monatssäulen (07C)" }
+                            { "value": "C21", "displayName": "C21 · Kumulierte Linie mit R12 und Monatssäulen (07C)" },
+                            { "value": "C22", "displayName": "C22 · Serienlinien mit Index (07A)" }
                         ]
                     }
                 },
@@ -587,6 +588,35 @@
                         ]
                     }
                 },
+                "lineSeries": { "type": { "bool": true } },
+                "lineIndex": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off (values)" },
+                            { "value": "base100", "displayName": "Index (base = 100)" }
+                        ]
+                    }
+                },
+                "lineIndexBase": { "type": { "text": true } },
+                "lineSeriesColor": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "tones", "displayName": "Grey tones" },
+                            { "value": "palette", "displayName": "Group palette" }
+                        ]
+                    }
+                },
+                "lineSeriesLabels": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "ends", "displayName": "End values" },
+                            { "value": "groups", "displayName": "Group starts and end" },
+                            { "value": "all", "displayName": "All points" },
+                            { "value": "none", "displayName": "None" }
+                        ]
+                    }
+                },
+                "lineEndDelta": { "type": { "text": true } },
                 "stackNormalize": {
                     "type": {
                         "enumeration": [
