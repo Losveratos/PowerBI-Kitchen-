@@ -2161,7 +2161,9 @@ export class Visual implements IVisual {
         // 1.56 (B15): line options only in the line mode, the YTD parts (R12, period
         // columns, gap markers) only with the cumulated YTD view
         const isLineO = orient === "line";
-        const ytdLine = isLineO && fs.chartCard.cumulative.value === true
+        // B15 review (m9): timeAggregation = last switches the running totals off
+        const tAggLastO = String((fs.chartCard.timeAggregation.value as powerbi.IEnumMember)?.value) === "last";
+        const ytdLine = isLineO && fs.chartCard.cumulative.value === true && !tAggLastO
             && String(fs.chartCard.cumulativeKind.value.value) === "ytd";
         fs.chartCard.lineGroup.visible = isLineO;
         fs.chartCard.lineR12.visible = ytdLine;
@@ -2278,11 +2280,14 @@ export class Visual implements IVisual {
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table"
             || orient === "stockflow";
-        fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
         // 1.56 (B11 part 2): aggregation over time where something aggregates over time
         // (YTD, year column, table tree, Trend role, Σ header, stock & flow)
         fs.chartCard.timeAggregation.visible = orient === "columns" || orient === "line" || orient === "table"
             || orient === "cards" || orient === "stockflow";
+        // B15 review (m9): with timeAggregation = last nothing runs up (YTD kind and
+        // fiscal start would have no effect)
+        fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value
+            && !(fs.chartCard.timeAggregation.visible && tAggLastO);
         fs.chartCard.sfFlowZoom.visible = orient === "stockflow";
         fs.chartCard.fiscalStart.visible = fs.chartCard.cumulativeKind.visible
             && String(fs.chartCard.cumulativeKind.value.value) !== "r12";
@@ -6206,6 +6211,41 @@ export class Visual implements IVisual {
         // (average YTD per location), so these tiles are built from cumulated copies
         const meanPreCum = cumulativeOn && mAgg === "mean";
         const srcPts = (g: { pts: DataPoint[] }) => meanPreCum ? cumOf(g.pts) : g.pts;
+        // 1.56 (B15, IBCS sheet 07C): line + YTD keeps each period's own values (period
+        // columns) and the rolling year (R12) on the points BEFORE the running totals.
+        // B15 review (M3): on the data tiles before the Σ / Ø / Rest tiles are built, so
+        // those carry R12 and the period values (aggregateGroups sums or averages them)
+        // and hide PY like their members; the tiles' R12 source is the members' source
+        const lnCumYtd = lineMode && cumArgs != null && cumArgs.kind === "ytd";
+        const lnR12On = lnCumYtd && s.chartCard.lineR12.value === true;
+        const lnColsOn = lnCumYtd
+            && String((s.chartCard.linePeriodColumns.value as powerbi.IEnumMember)?.value) === "same";
+        this.lineR12Src = new Map();
+        if (cumArgs && (lnR12On || lnColsOn)) {
+            const r12Measure = groups.some(g => g.pts.some(p => p.lineVal != null));
+            // PY only feeds the R12 line: no PY line when the basis is plan (and no ΔPY panels)
+            const pyOnlySource = this.resolveBasisLabel() === "plan" && s.chartCard.dualVariance.value !== true;
+            for (const g of groups) {
+                // B15 review (m1): stock rows are not additive over time — no rolling year
+                // and no period columns (they would repeat the line), no hint either
+                const stock = this.timeLast(g.pts);
+                const r = lnR12On && !stock ? this.r12Values(g.pts, r12Measure, cumArgs.fiscal) : null;
+                if (lnR12On && !stock) { this.lineR12Src.set(g.name, r ? r.src : null); }
+                if (stock) { continue; }
+                const hidePy = r != null && r.src === "py" && pyOnlySource;
+                g.pts = g.pts.map((p, i) => ({
+                    ...p,
+                    perVal: p.value, perPy: hidePy ? null : p.py, perPl: p.pl,
+                    r12: r ? r.vals[i] : null,
+                    ...(hidePy ? { py: null } : {})
+                }));
+            }
+        }
+        // B15 review (M3): R12 source of a synthetic tile = its members' (first known)
+        const r12SrcTile = (name: string, members: { name: string | null }[]) => {
+            const known = members.filter(m => this.lineR12Src.has(m.name)).map(m => this.lineR12Src.get(m.name) ?? null);
+            if (known.length > 0) { this.lineR12Src.set(name, known.find(x => x != null) ?? null); }
+        };
         // the original groups before Top N (the reference tile and the Ø basis use all of them)
         let multOrig: { name: string | null; pts: DataPoint[] }[] | null = null;
         if (groups.length > 1 && groups[0].name != null && !isScatter) {
@@ -6227,6 +6267,7 @@ export class Visual implements IVisual {
                     this.aggregateGroups(rest.map(srcPts), restName, mAgg, meanZero);
                 restTile.kind = "rest";
                 if (meanPreCum) { restTile.preCum = true; }
+                r12SrcTile(restName, rest);
                 groups.push(...ranked.slice(0, mTopN), restTile);
             }
             if (s.chartCard.multiplesTotal.value) {
@@ -6240,6 +6281,7 @@ export class Visual implements IVisual {
                     this.aggregateGroups(allGroups.map(srcPts), totName, mAgg, meanZero);
                 totTile.kind = "total";
                 if (meanPreCum) { totTile.preCum = true; }
+                r12SrcTile(totName, allGroups);
                 if (mTotalLast) { groups.push(totTile); } else { groups.unshift(totTile); }
             }
         }
@@ -6389,30 +6431,6 @@ export class Visual implements IVisual {
                     // 1.55 (B10): stacks rank whole categories (all series cells stay)
                     g.pts = isStacked ? this.applyTopNStacked(g.pts, topN) : this.applyTopN(g.pts, topN);
                 }
-            }
-        }
-        // 1.56 (B15, IBCS sheet 07C): line + YTD keeps each period's own values (period
-        // columns) and the rolling year (R12) on the points BEFORE the running totals
-        const lnCumYtd = lineMode && cumArgs != null && cumArgs.kind === "ytd";
-        const lnR12On = lnCumYtd && s.chartCard.lineR12.value === true;
-        const lnColsOn = lnCumYtd
-            && String((s.chartCard.linePeriodColumns.value as powerbi.IEnumMember)?.value) === "same";
-        this.lineR12Src = new Map();
-        if (cumArgs && (lnR12On || lnColsOn)) {
-            const r12Measure = groups.some(g => g.pts.some(p => p.lineVal != null));
-            // PY only feeds the R12 line: no PY line when the basis is plan (and no ΔPY panels)
-            const pyOnlySource = this.resolveBasisLabel() === "plan" && s.chartCard.dualVariance.value !== true;
-            for (const g of groups) {
-                if (g.preCum) { continue; }
-                const r = lnR12On ? this.r12Values(g.pts, r12Measure, cumArgs.fiscal) : null;
-                if (lnR12On) { this.lineR12Src.set(g.name, r ? r.src : null); }
-                const hidePy = r != null && r.src === "py" && pyOnlySource;
-                g.pts = g.pts.map((p, i) => ({
-                    ...p,
-                    perVal: p.value, perPy: hidePy ? null : p.py, perPl: p.pl,
-                    r12: r ? r.vals[i] : null,
-                    ...(hidePy ? { py: null } : {})
-                }));
             }
         }
         // cumulative (YTD) view: running totals per group, variances recomputed
@@ -9961,13 +9979,16 @@ export class Visual implements IVisual {
         // every leaf): formula lookups and the shared scales must not change when
         // the user collapses a branch
         const allPts: DataPoint[] = [];
+        // B11T2 review (M1): the last value only over the period levels below a node
+        // (and for the Σ row only when the top level is time); structure levels sum
+        const rowTime = this.rowPeriodLevels(points);
         if (hasLevels) {
             // real multi-level tree: one node per catLevels prefix. Drill keys are
             // tile-scoped path keys (group¦l0¦l1…) so same-named branches in
             // small-multiples tiles expand independently; level-0 keys match the
             // old group¦label format, so persisted expand state stays valid
-            type TNode = { label: string; key: string; order: string[]; kids: Map<string, TNode>; pts: DataPoint[] };
-            const root: TNode = { label: "", key: "", order: [], kids: new Map(), pts: [] };
+            type TNode = { label: string; key: string; order: string[]; kids: Map<string, TNode>; pts: DataPoint[]; d: number };
+            const root: TNode = { label: "", key: "", order: [], kids: new Map(), pts: [], d: -1 };
             for (const p of points) {
                 const path = p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat];
                 let node = root;
@@ -9976,7 +9997,7 @@ export class Visual implements IVisual {
                     key += `¦${lvl}`;
                     let ch = node.kids.get(lvl);
                     if (!ch) {
-                        ch = { label: lvl, key, order: [], kids: new Map(), pts: [] };
+                        ch = { label: lvl, key, order: [], kids: new Map(), pts: [], d: node.d + 1 };
                         node.kids.set(lvl, ch);
                         node.order.push(lvl);
                     }
@@ -10001,7 +10022,7 @@ export class Visual implements IVisual {
                         // skip rows are excluded from totals by definition
                         const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
                             && !isSkip(p) && !isPct(p));
-                        a = this.aggregateTime(nd.label, base.length > 0 ? base : nd.pts);
+                        a = this.aggregateTime(nd.label, base.length > 0 ? base : nd.pts, this.timeKeyOf(rowTime, nd.d));
                     }
                     aggOf.set(nd, a);
                 }
@@ -10178,7 +10199,7 @@ export class Visual implements IVisual {
             const base = rows.filter(r => r.depth === 0 && !r.formula
                 && !isPct(r.p) && !isResult(r.p) && !isSkip(r.p)).map(r => r.p);
             if (base.length > 1) {
-                const tp = this.aggregateTime(this.locStr("Label_Total", "Σ Total"), base);
+                const tp = this.aggregateTime(this.locStr("Label_Total", "Σ Total"), base, rowTime[0] ? "each" : null);
                 tp.rowType = "sum";
                 totalRow = { p: tp, depth: 0, isTotal: true };
             }
@@ -10990,8 +11011,8 @@ export class Visual implements IVisual {
         const hasLevels = points.some(p => (p.catLevels?.length ?? 0) >= 2);
 
         // ------- row tree (same model as the flat table: path keys group¦l0¦l1…)
-        type RNode = { label: string; key: string; order: string[]; kids: Map<string, RNode>; pts: DataPoint[] };
-        const root: RNode = { label: "", key: "", order: [], kids: new Map(), pts: [] };
+        type RNode = { label: string; key: string; order: string[]; kids: Map<string, RNode>; pts: DataPoint[]; d: number };
+        const root: RNode = { label: "", key: "", order: [], kids: new Map(), pts: [], d: -1 };
         for (const p of points) {
             const path = p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat];
             let node = root;
@@ -11000,7 +11021,7 @@ export class Visual implements IVisual {
                 key += `¦${lvl}`;
                 let ch = node.kids.get(lvl);
                 if (!ch) {
-                    ch = { label: lvl, key, order: [], kids: new Map(), pts: [] };
+                    ch = { label: lvl, key, order: [], kids: new Map(), pts: [], d: node.d + 1 };
                     node.kids.set(lvl, ch);
                     node.order.push(lvl);
                 }
@@ -11014,6 +11035,12 @@ export class Visual implements IVisual {
             nd.kids.forEach(collectKeys);
         };
         collectKeys(root);
+        // 1.56 (B11 part 2), B11T2 review (M1): stock rows (or timeAggregation = last) take
+        // the last value over the period levels only: row levels below a node and column
+        // levels whose labels are periods (quarters, months, years); structure levels
+        // (accounts, plants, regions) sum
+        const rowTime = this.rowPeriodLevels(points);
+        const colTime = this.colPeriodLevels(points);
         const aggOf = new Map<RNode, DataPoint>();
         const aggFor = (nd: RNode): DataPoint => {
             let a = aggOf.get(nd);
@@ -11023,11 +11050,8 @@ export class Visual implements IVisual {
                 } else {
                     const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
                         && !isSkip(p) && !isPct(p));
-                    // 1.56 (B11 part 2): over several column blocks a stock stays a sum
-                    // (unless timeAggregation = last), over the rows alone it takes the last
                     const use = base.length > 0 ? base : nd.pts;
-                    const cKey = (p: DataPoint) => (p.colLevels ?? []).join("¦");
-                    a = this.aggregateTime(nd.label, use, use.every(p => cKey(p) === cKey(use[0])));
+                    a = this.aggregateTime(nd.label, use, this.timeKeyOf(rowTime, nd.d, colTime));
                     // per-branch cells of a single-column node keep the rowType
                     if (nd.kids.size === 0) { a.rowType = nd.pts[0].rowType; }
                 }
@@ -11141,11 +11165,20 @@ export class Visual implements IVisual {
             if (kids.length === 0) { return null; }
             if (kids.length === 1) { return kids[0]; }
             const base = kids.filter(p => !isSum(p) && !isResult(p) && !isSkip(p) && !isPct(p));
-            // 1.56 (B11 part 2): stock rows take the last value only over the rows (time);
-            // a cell over several sub-columns stays a sum unless timeAggregation = last
+            // 1.56 (B11 part 2), B11T2 review (M1): the last value over the period levels
+            // below the row (depth = common path prefix of its points) and over the
+            // sub-columns of a collapsed block when they are periods; structure sums
             const use = base.length > 0 ? base : kids;
-            const cKey = (p: DataPoint) => (p.colLevels ?? []).join("¦");
-            return this.aggregateTime(label, use, use.every(p => cKey(p) === cKey(use[0])));
+            const pathOf = (p: DataPoint) => p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat];
+            const p0 = pathOf(use[0]);
+            let d = p0.length - 1;
+            for (const p of use) {
+                const q = pathOf(p);
+                let j = 0;
+                while (j <= d && j < q.length && q[j] === p0[j]) { j++; }
+                d = j - 1;
+            }
+            return this.aggregateTime(label, use, this.timeKeyOf(rowTime, d, colTime, b.l1 == null ? 1 : 2));
         };
 
         // ------- formula rows: evaluate per Σ (row aggregates) and per block cell
@@ -11374,9 +11407,9 @@ export class Visual implements IVisual {
                         return !isPct(a2) && !isSkip(a2) && !isResult(a2) && !isSum(a2);
                     })[ti2]) as RNode)?.pts ?? null, "Σ", shownBlocks[bi]))
                 .filter(Boolean) as DataPoint[];
-            // across the column blocks (plants, regions … or years): a stock only takes
-            // the last block with timeAggregation = last, like column groups elsewhere
-            return base.length > 0 ? this.aggregateTime("Σ", base, false) : null;
+            // B11T2 review (M1): across the top-level rows: the last row only when the
+            // top level is time, else the sum (accounts, regions)
+            return base.length > 0 ? this.aggregateTime("Σ", base, rowTime[0] ? "each" : null) : null;
         };
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
         // capped like the flat table: font-bound row height, no stretching. In
@@ -11684,7 +11717,7 @@ export class Visual implements IVisual {
             const valBaseY = stacked ? yMid - stStep * 0.5 + rowFont * 0.35 : yMid + rowFont * 0.35;
             const dBelowY = yMid + stStep * 0.5 + stDFont * 0.32;
             const agg = isTotal
-                ? this.aggregateTime(this.locStr("Label_Total", "Σ Total"), totalBase)
+                ? this.aggregateTime(this.locStr("Label_Total", "Σ Total"), totalBase, rowTime[0] ? "each" : null)
                 : (row as MRow).agg;
             const label = isTotal ? agg.cat : (row as MRow).label;
             const isParent = !isTotal && (row as MRow).parentKey != null;
@@ -11943,7 +11976,7 @@ export class Visual implements IVisual {
                     if (r.agg?.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(r.agg.value), cf)); }
                 }
                 if (showTotalRow) {
-                    const tot = this.aggregateTime("Σ", totalBase);
+                    const tot = this.aggregateTime("Σ", totalBase, rowTime[0] ? "each" : null);
                     if (tot.value != null) { w = Math.max(w, this.textWidth(cfg.fmt.format(tot.value), cf)); }
                 }
                 return Math.round(w) + 14;
@@ -12158,7 +12191,7 @@ export class Visual implements IVisual {
                 && kids.every(c => colKey(c) === colKey(kids[0]));
             const last = overTime && this.timeLast(kids);
             const tKids = last ? kids.slice().sort((a, b) => (a.trendOrd ?? 0) - (b.trendOrd ?? 0)) : kids;
-            const agg = last ? this.aggregateTime(kids[0].cat, tKids) : this.aggregateHierarchy(kids[0].cat, kids);
+            const agg = last ? this.aggregateTime(kids[0].cat, tKids, "each") : this.aggregateHierarchy(kids[0].cat, kids);
             agg.catLevels = kids[0].catLevels;
             agg.group = kids[0].group;
             agg.stackSeries = kids[0].stackSeries;
@@ -12382,18 +12415,105 @@ export class Visual implements IVisual {
         return kids[kids.length - 1];
     }
 
-    /** 1.56 (B11 part 2): aggregation of kids in time order: the sum (aggregateHierarchy)
-     *  or, with timeLast, the last value (all fields of the reference kid). stockAuto
-     *  false: only timeAggregation = last counts (kids that may be a structure) */
-    private aggregateTime(key: string, kids: DataPoint[], stockAuto = true): DataPoint {
-        const last = stockAuto ? this.timeLast(kids) : this.timeAggLast;
-        if (kids.length === 0 || !last) { return this.aggregateHierarchy(key, kids); }
-        const ref = this.lastKid(kids);
+    /**
+     * 1.56 (B11 part 2): aggregation of kids that may span time AND structure: the sum
+     * (aggregateHierarchy) or, with timeLast, the last value over the TIME positions only.
+     * B11T2 review (M1): `time` says which kids follow each other in time —
+     * null = no time level among the kids (accounts, regions, plants): always the sum,
+     * also for stock rows and timeAggregation = last; "each" = every kid is its own
+     * period; a function = the kid's time position (kids at the same position are a
+     * structure and are summed first). The reference position is the last one with an
+     * actual or forecast (lastKid), all fields come from there.
+     */
+    private aggregateTime(key: string, kids: DataPoint[], time: ((p: DataPoint) => string) | "each" | null): DataPoint {
+        if (kids.length === 0 || time == null || !this.timeLast(kids)) { return this.aggregateHierarchy(key, kids); }
+        let slices = kids;
+        if (time !== "each") {
+            const order: string[] = [];
+            const by = new Map<string, DataPoint[]>();
+            for (const c of kids) {
+                const t = time(c);
+                const b = by.get(t);
+                if (b) { b.push(c); } else { by.set(t, [c]); order.push(t); }
+            }
+            slices = order.map(t => {
+                const b = by.get(t) as DataPoint[];
+                if (b.length === 1) { return b[0]; }
+                const s = this.aggregateHierarchy(b[0].cat, b);
+                s.isFc = b.every(c => c.isFc);
+                let bm: number | null = null;
+                for (const c of b) { if (c.bm != null) { bm = (bm ?? 0) + c.bm; } }
+                s.bm = bm;
+                return s;
+            });
+        }
+        const ref = this.lastKid(slices);
         const a = this.aggregateHierarchy(key, [ref]);
         a.dim = kids.every(c => c.dim);
         a.isFc = ref.isFc;
         a.bm = ref.bm;
         return a;
+    }
+
+    /**
+     * B11T2 review (M1): true when a label names a period: year (2025, FY25, GJ 2025),
+     * quarter (Q1, Quartal 1, Q1 2025, 2025 Q1), month name with an optional year (Jan,
+     * Januar, Jan 2025, 2025 · Jan), week (W01, KW 12, CW3), a date (2025-01, 2025-01-31,
+     * 31.01.2025, 1/31/2025) or a bare day / week / month number (1 to 2 digits).
+     * Stricter than monthOf (whole label, no substring hits like "Marketing").
+     */
+    private isPeriodLabel(label: string): boolean {
+        const t = label.trim().toLowerCase().replace(/\s*[·|/-]\s*/g, " ").replace(/\s+/g, " ");
+        if (t === "") { return false; }
+        const mon = "(?:jan(?:uar|uary)?|feb(?:ruar|ruary)?|m(?:ä|ae)rz|mär|mar(?:ch)?|apr(?:il)?|mai|may|jun(?:i|e)?|jul(?:i|y)?"
+            + "|aug(?:ust)?|sep(?:t|tember)?|okt(?:ober)?|oct(?:ober)?|nov(?:ember)?|dez(?:ember)?|dec(?:ember)?)\\.?";
+        const yr = "(?:'?\\d{2}|\\d{4})";
+        const unit = `(?:${mon}|q(?:uartal)? ?[1-4]|h[12]|(?:kw|cw|w|wk|week|woche) ?\\d{1,2}|(?:fy|gj) ?${yr}|(?:19|20)\\d{2}|\\d{1,2})`;
+        if (new RegExp(`^(?:${yr} )?${unit}(?: ${yr})?$`).test(t)) { return true; }
+        return /^\d{4}-\d{1,2}(?:-\d{1,2})?$/.test(label.trim()) || /^\d{1,2}[./]\d{1,2}[./](?:\d{2}|\d{4})?$/.test(label.trim());
+    }
+
+    /** B11T2 review (M1): per position of a label list (category or column levels):
+     *  true when every label at that level is a period (isPeriodLabel) */
+    private periodLevels(lists: (string[] | null | undefined)[]): boolean[] {
+        const out: boolean[] = [];
+        const seen = new Map<string, boolean>();
+        for (const l of lists) {
+            if (!l) { continue; }
+            l.forEach((v, j) => {
+                const s = String(v ?? "");
+                let ok = seen.get(s);
+                if (ok === undefined) { ok = this.isPeriodLabel(s); seen.set(s, ok); }
+                out[j] = out[j] === undefined ? ok : out[j] && ok;
+            });
+        }
+        return out.map(v => v === true);
+    }
+
+    /** B11T2 review (M1): period flags of the row levels (catLevels, flat: the label);
+     *  empty while no last-value aggregation can apply (no stock row, sum over time) */
+    private rowPeriodLevels(points: DataPoint[]): boolean[] {
+        if (!this.timeAggLast && !points.some(p => p.sfKind === "stock")) { return []; }
+        return this.periodLevels(points.map(p => p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat]));
+    }
+
+    /** B11T2 review (M1): period flags of the matrix column levels (colLevels) */
+    private colPeriodLevels(points: DataPoint[]): boolean[] {
+        if (!this.timeAggLast && !points.some(p => p.sfKind === "stock")) { return []; }
+        return this.periodLevels(points.map(p => p.colLevels));
+    }
+
+    /** B11T2 review (M1): time position of a point below row depth d (row levels > d
+     *  that are periods) plus its period column levels (from colFrom on); null when no
+     *  such level exists (the kids are a structure only) */
+    private timeKeyOf(rowTime: boolean[], d: number, colTime: boolean[] = [], colFrom = 0): ((p: DataPoint) => string) | null {
+        const rowIdx = rowTime.map((t, j) => t && j > d ? j : -1).filter(j => j >= 0);
+        const colIdx = colTime.map((t, j) => t && j >= colFrom ? j : -1).filter(j => j >= 0);
+        if (rowIdx.length === 0 && colIdx.length === 0) { return null; }
+        return (p: DataPoint) => {
+            const path = p.catLevels && p.catLevels.length > 1 ? p.catLevels : [p.cat];
+            return [...rowIdx.map(j => path[j] ?? ""), "|", ...colIdx.map(j => p.colLevels?.[j] ?? "")].join("¦");
+        };
     }
 
     /** 1.55 (B11): true in the stock & flow mode (orientation=stockflow) */
@@ -12462,9 +12582,29 @@ export class Visual implements IVisual {
             // KPI cards + Trend role: the Σ / Rest tile keeps a summed time series
             const ts = this.sumTrendSeries(kids);
             if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
+            this.carryLineYtd(agg, kids, false);
             return agg;
         });
         return { name, pts };
+    }
+
+    /**
+     * B15 review (M3, m2): the line-YTD fields of a synthetic tile (Σ / Ø / Rest): the
+     * periods' own values (perVal / perPy / perPl) and the rolling year (r12) summed
+     * over the member tiles, or averaged over the members with a value. No-op while
+     * no member carries them (every other chart stays as it was).
+     */
+    private carryLineYtd(agg: DataPoint, kids: DataPoint[], mean: boolean): void {
+        if (!kids.some(c => c.perVal !== undefined || c.r12 !== undefined)) { return; }
+        const f = (get: (c: DataPoint) => number | null | undefined): number | null => {
+            let acc = 0, n = 0;
+            for (const c of kids) { const v = get(c); if (v != null) { acc += v; n++; } }
+            return n === 0 ? null : mean ? acc / n : acc;
+        };
+        agg.perVal = f(c => c.perVal);
+        agg.perPy = f(c => c.perPy);
+        agg.perPl = f(c => c.perPl);
+        agg.r12 = f(c => c.r12);
     }
 
     /**
@@ -12522,6 +12662,7 @@ export class Visual implements IVisual {
                     tp.bm = bm;
                     const ts = this.sumTrendSeries(kids);
                     if (ts) { tp.trendSeries = ts.series; tp.trendRef = ts.ref; }
+                    this.carryLineYtd(tp, kids, false);
                 }
                 (byKey.get(key) as { t: number; p: DataPoint }[]).push({ t: ti, p: tp });
             });
@@ -12582,6 +12723,7 @@ export class Visual implements IVisual {
             // KPI cards + Trend role: the Ø tile keeps an averaged time series
             const ts = this.sumTrendSeries(tiles, true);
             if (ts) { agg.trendSeries = ts.series; agg.trendRef = ts.ref; }
+            this.carryLineYtd(agg, tiles, true);
             return agg;
         });
         return { name, pts };
@@ -17402,10 +17544,15 @@ export class Visual implements IVisual {
         // the outline columns carry the basis code on their left (sheet: "PL")
         const lnBasisCode = lnCodes.length === 0 ? ""
             : cfg.basisMode === "plan" && cfg.hasPl ? cfg.scenL.pl : cfg.basisMode === "py" && cfg.hasPy ? cfg.scenL.py : "";
+        // B15 review (m7): a rolling year starting after the first period is named at its
+        // end, its room moves to the right
+        const lnR12W = lo != null && lo.r12 != null ? this.textWidth((lo.r12 as { label: string }).label, cfg.labelFont) + 8 : 0;
+        const lnR12EndRoom = lnR12 && points.findIndex(p => p.r12 != null) > 0;
         const lnRoom = lo == null ? { lo: 0, hi: 0 } : {
-            lo: Math.max(lo.r12 != null ? this.textWidth((lo.r12 as { label: string }).label, cfg.labelFont) + 8 : 0,
+            lo: Math.max(lnR12EndRoom ? 0 : lnR12W,
                 lnCols && lnBasisCode ? this.textWidth(lnBasisCode, cfg.labelFont) + 6 : 0),
-            hi: lnCodeW + (lnGapA || lnGapE ? 6 + 2 * (this.diffBarW() + 2) + 3 + lnGapTextW + 4 : 0)
+            hi: Math.max(lnCodeW, lnR12EndRoom ? lnR12W - 4 : 0)
+                + (lnGapA || lnGapE ? 6 + 2 * (this.diffBarW() + 2) + 3 + lnGapTextW + 4 : 0)
         };
         const scenOn = cfg.scenarioLabels && orientation === "columns" && (!cfg.lineMode || lo != null);
         let yr: { x0: number; w: number } | null = null;
@@ -17822,18 +17969,33 @@ export class Visual implements IVisual {
         const lnCx = (i: number) => slotPos(i) + slotW / 2;
         // top of the period-column zone per category (label included), +∞ = free
         let lnSky: number[] = points.map(() => Infinity);
+        // B15 review (m4): bottom of the zone (negative columns), +∞ = no zone below
+        let lnFloor: number[] = points.map(() => Infinity);
+        let lnCodeBoxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
         let lnColsDropped = false;
         if (lineMode && lnCols) {
-            const sky = this.drawPeriodColumns(bg, points, { slotPos, slotW, barW, acShift, plShift, step },
+            const pc = this.drawPeriodColumns(bg, points, { slotPos, slotW, barW, acShift, plShift, step },
                 mainScale, cfg, lnCodes.length > 0 ? { basis: lnBasisCode, region } : null);
-            if (sky) { lnSky = sky; } else { lnColsDropped = true; }
+            // B15 review (M3): the "too small" hint only when there were values to draw
+            if (pc) { lnSky = pc.sky; lnFloor = pc.floor; lnCodeBoxes = pc.codeBoxes; }
+            else { lnColsDropped = points.some(p => p.perVal != null || p.perPl != null || p.perPy != null); }
         }
+        // a value label box [top, bottom] runs into the period-column zone of category i
+        const lnInCols = (i: number, box: [number, number]) => box[1] > lnSky[i] - 1 && box[0] < lnFloor[i] + 1;
         if (lineMode) {
             this.drawLinePaths(bg, points, lnCx, mainScale, cfg, lo ? { thin: lnSq } : undefined);
         }
         // 1.56 (B15): rolling year (R12) on the same scale, its labels after the marks
+        // B15 review (m7): a line starting after the first period is named at its end
+        const lnR12First = points.findIndex(p => p.r12 != null);
+        const lnR12Last = points.reduce((a, p, i) => p.r12 != null ? i : a, -1);
+        const lnR12AtEnd = lnR12 && lnR12First > 0;
         const r12Lbl = lineMode && lnR12 && lo ? this.drawR12Line(bg, points, lnCx, mainScale, cfg, lnSq, lnMk,
-            this.lineR12Src.get(points[0]?.group ?? null) ?? null) : null;
+            this.lineR12Src.get(points[0]?.group ?? null) ?? null, lnR12AtEnd) : null;
+        // B15 review (m5): value labels next to the line ends (codes give way)
+        const lnLblBoxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
+        // B15 review (m6): side of the AC/FC label per category (comment marker opposite)
+        const lnLblUp: (boolean | null)[] = points.map(() => null);
 
         // ------- moving average overlay (time series only)
         if (cfg.movingAvg >= 2 && orientation === "columns" && !varOnly) {
@@ -18023,8 +18185,13 @@ export class Visual implements IVisual {
                         // 1.56 (B15): a line label running into the period columns (or their
                         // labels) is left out, the column carries the number there
                         const box = lo ? this.lnLabelBox(mainScale(anchor), up, gapL, cfg.labelFont) : null;
-                        if (!(box && box[1] > lnSky[i] - 1)) {
-                            if (box) { lnAcBox[i] = box; }
+                        if (!(box && lnInCols(i, box))) {
+                            if (box) {
+                                lnAcBox[i] = box;
+                                lnLblUp[i] = up;
+                                const w = this.textWidth(valueTexts[i], cfg.labelFont);
+                                lnLblBoxes.push({ x0: cx - w / 2, x1: cx + w / 2, y0: box[0], y1: box[1] });
+                            }
                             this.drawEndLabelAt(g, cx, anchor, up, mainScale,
                                 orientation, valueTexts[i], cfg.labelFont, cfg.ink, gapL, cfg.paper);
                         }
@@ -18072,10 +18239,12 @@ export class Visual implements IVisual {
                     const up = p.value == null || bv >= p.value;
                     const gapB = lnSq ? lnHalf + 1 : Math.max(3, Math.round(2.4 * this.fontK * 2) / 2) / 2 + 2;
                     const box = this.lnLabelBox(mainScale(capV(bv)), up, gapB, cfg.labelFont);
-                    if (box[1] <= lnSky[i] - 1) {
+                    if (!lnInCols(i, box)) {
                         this.drawEndLabelAt(g, cx, capV(bv), up, mainScale, orientation, lnBasisTexts[i],
                             cfg.labelFont, cfg.ink, gapB, cfg.paper);
                         g.lastElementChild?.setAttribute("data-icd", "line-basis-label");
+                        const w = this.textWidth(lnBasisTexts[i], cfg.labelFont);
+                        lnLblBoxes.push({ x0: cx - w / 2, x1: cx + w / 2, y0: box[0], y1: box[1] });
                     }
                 }
             }
@@ -18220,7 +18389,12 @@ export class Visual implements IVisual {
 
             // comment marker (numbered circle at the inner end of the bar)
             if (p.commentNo != null && p.value != null && !voDeck) {
-                this.drawCommentMarker(g, cx, p, mainScale, orientation, cfg);
+                // B15 review (m6): with line options the AC/FC label may stand below the
+                // point — the badge then takes the free side above it
+                const cy0 = mainScale(capV(p.value));
+                const rB = Math.round(7 * this.fontK);
+                this.drawCommentMarker(g, cx, p, mainScale, orientation, cfg,
+                    lineMode && lo && lnLblUp[i] === false ? { cx, cy: cy0 - (rB + 5) } : undefined);
             }
 
             this.attachInteraction(g, p, cfg);
@@ -18290,12 +18464,20 @@ export class Visual implements IVisual {
 
         // ------- 1.56 (B15): R12 labels, scenario codes at the line ends, gap markers, hints
         if (lineMode && lo) {
-            if (r12Lbl && cfg.showLabels) { r12Lbl(lnAcBox); }
-            const codeEnd = lnCodes.length > 0
-                ? this.drawLineEndCodes(bg, points, lnCx, mainScale, cfg, lnHalf) : lnCx(n - 1) + lnHalf;
+            if (r12Lbl && cfg.showLabels) { r12Lbl(lnAcBox, lnInCols); }
+            const r12Name = lnR12AtEnd && lo.r12 && lnR12Last >= 0
+                ? [{ i: lnR12Last, v: points[lnR12Last].r12 as number, t: lo.r12.label, icd: "line-r12-name" }] : [];
+            const ends = lnCodes.length > 0 || r12Name.length > 0
+                ? this.drawLineEndCodes(bg, points, lnCx, mainScale, cfg, lnHalf, lnCodes.length > 0, r12Name, lnLblBoxes) : null;
+            const codeEnd = ends ? ends.right : lnCx(n - 1) + lnHalf;
             if (lnGapA || lnGapE) {
+                // B15 review (m3): against the Ø basis (avgRows) the marker measures the
+                // drawn comparison line, not the average
+                const gapBasis = this.avgRows ? lnBasisOf : (p: DataPoint) => p.basis;
+                const gapName = this.avgRows ? (cfg.basisMode === "py" ? cfg.scenL.py : cfg.scenL.pl) : cfg.basisLabel;
                 this.drawLineGapMarkers(bg, points, lnCx, mainScale, cfg, codeEnd + 6, lnGapA, lnGapE, lnHalf,
-                    { x: region.x, y: panels.main.y, w: region.w, h: panels.main.h });
+                    { x: region.x, y: panels.main.y, w: region.w, h: panels.main.h }, gapBasis, gapName,
+                    [...(ends ? ends.boxes : []), ...lnCodeBoxes]);
             }
             if (this.allowInteractions && this.viewMode !== 0) {
                 const hints: [string, string][] = [];
@@ -18958,8 +19140,72 @@ export class Visual implements IVisual {
      * stock rows pass through (a stock is not additive over time), the line-measure
      * stock (lineVal) travels unchanged with the rows. Order of the rows is kept.
      */
-    private cumulateSeries(pts: DataPoint[], basisMode: Basis,
+    /**
+     * B11T2 review (M2): the long format of the stock & flow mode leaves out a row when a
+     * flow is blank in a period. For the running totals every flow series gets a row in
+     * every period of the tile's period axis (unique category paths in delivery order)
+     * from its first period on: value 0 in the scenario of the period (AC/FC or PL as the
+     * period's other rows), no selection, no comment. Rows are regrouped by period (each
+     * period's own rows first, in delivery order). Unchanged when no series has a gap.
+     * Returns the rows and the indices of the filled ones.
+     */
+    private sfFillPeriods(pts: DataPoint[]): { pts: DataPoint[]; fill: Set<number> } {
+        const perKey = (p: DataPoint) => (p.catLevels && p.catLevels.length > 0 ? p.catLevels : [p.cat]).join("¦");
+        const axis: string[] = [];
+        const byPer = new Map<string, DataPoint[]>();
+        for (const p of pts) {
+            const k = perKey(p);
+            const b = byPer.get(k);
+            if (b) { b.push(p); } else { byPer.set(k, [p]); axis.push(k); }
+        }
+        const idxOf = new Map(axis.map((k, i) => [k, i] as [string, number]));
+        const series = new Map<string, { first: number; has: Set<string>; proto: DataPoint }>();
+        for (const p of pts) {
+            if (p.sfKind === "stock") { continue; }
+            const key = `${p.stackSeries ?? ""}¦${p.sfKind ?? ""}`;
+            const k = perKey(p);
+            const i = idxOf.get(k) as number;
+            const s = series.get(key);
+            if (!s) { series.set(key, { first: i, has: new Set([k]), proto: p }); continue; }
+            s.has.add(k);
+            if (i < s.first) { s.first = i; }
+        }
+        let gap = false;
+        series.forEach(s => { for (let i = s.first; i < axis.length && !gap; i++) { if (!s.has.has(axis[i])) { gap = true; } } });
+        if (!gap) { return { pts, fill: new Set() }; }
+        const out: DataPoint[] = [];
+        const fill = new Set<number>();
+        axis.forEach((k, i) => {
+            const rows = byPer.get(k) as DataPoint[];
+            out.push(...rows);
+            const withV = rows.find(r => r.value != null);
+            const isFc = withV ? withV.isFc : false;
+            const hasV = withV != null, hasPl = rows.some(r => r.pl != null), hasPy = rows.some(r => r.py != null);
+            const ref = rows[0];
+            series.forEach(s => {
+                if (i < s.first || s.has.has(k)) { return; }
+                fill.add(out.length);
+                out.push({
+                    ...s.proto,
+                    cat: ref.cat, catLevels: ref.catLevels,
+                    value: hasV ? 0 : null, ac: hasV && !isFc ? 0 : null, fc: hasV && isFc ? 0 : null,
+                    pl: hasPl ? 0 : null, py: hasPy ? 0 : null, isFc,
+                    basis: null, varAbs: null, varRel: null, var2Abs: null, var2Rel: null,
+                    bm: null, fcPrev: null, lineVal: null, comment: null, commentNo: null, sel: null,
+                    dim: ref.dim, isPrelim: false
+                });
+            });
+        });
+        return { pts: out, fill };
+    }
+
+    private cumulateSeries(pts0: DataPoint[], basisMode: Basis,
         kind: "ytd" | "qtd" | "r12", fiscalStart: number): DataPoint[] {
+        // B11T2 review (M2): every flow series runs over the tile's common period axis —
+        // a period without a row of the series (blank measure, the normal case in the long
+        // format) gets a running row, so resets and windows sit on the axis, not on the
+        // series' own row positions
+        const { pts, fill } = this.sfFillPeriods(pts0);
         const lists = new Map<string, number[]>();
         pts.forEach((p, i) => {
             const key = `${p.stackSeries ?? ""}¦${p.sfKind ?? ""}`;
@@ -18981,7 +19227,8 @@ export class Visual implements IVisual {
                     : c;
             });
         });
-        return out;
+        // filled rows stay only where the running value is not 0 (a segment to draw)
+        return fill.size === 0 ? out : out.filter((p, i) => !fill.has(i) || ((p.value ?? p.pl ?? 0) !== 0));
     }
 
     /**
@@ -18997,8 +19244,10 @@ export class Visual implements IVisual {
         if (measure) { return { src: "measure", vals: pts.map(p => p.lineVal) }; }
         const n = pts.length;
         const months = pts.map(p => this.monthOf(p.cat));
-        const startOk = !months.every(m => m != null) || months[0] === fiscalStart;
-        if (n === 12 && startOk && pts.every(p => p.py != null)) {
+        // B15 review (m8): the PY source needs one year: twelve recognised, distinct
+        // months from the fiscal start (12 weeks or 12 plain periods are no year)
+        const yearOk = months.every(m => m != null) && new Set(months).size === 12 && months[0] === fiscalStart;
+        if (n === 12 && yearOk && pts.every(p => p.py != null)) {
             const pyYear = pts.reduce((a, p) => a + (p.py as number), 0);
             let pyYtd = 0, ytd = 0;
             return {
@@ -19317,7 +19566,9 @@ export class Visual implements IVisual {
             panels.main, cfg.ink, true);
         // tooltip text + aria only: the year column filters nothing, takes no comment,
         // no compare click and no structure menu, and is not dimmed by a selection
-        const tipParts = [label, `${cfg.scenL.ac}${anyFc ? "&" + cfg.scenL.fc : ""} ${cfg.fmt.format(v)}`];
+        // B11T2 review (nit): a pure forecast value (last value in a FC month) says FC
+        const scenTip = p.isFc && !p.fcPart ? cfg.scenL.fc : `${cfg.scenL.ac}${anyFc ? "&" + cfg.scenL.fc : ""}`;
+        const tipParts = [label, `${scenTip} ${cfg.fmt.format(v)}`];
         if (p.basis != null) { tipParts.push(`${cfg.basisLabel} ${cfg.fmt.format(p.basis)}`); }
         if (p.varAbs != null) { tipParts.push(`Δ${cfg.basisLabel} ${this.fmtSigned(cfg.fmtVar, p.varAbs)} ${this.relText(p)}`.trim()); }
         if (partialOf) {
@@ -19920,7 +20171,8 @@ export class Visual implements IVisual {
         let sum = 0, sumVar = 0, sumBasis = 0, any = false, anyVar = false;
         // 1.56 (B11 part 2): stock rows (or timeAggregation = last) show the last value
         // ("End 266"), like the running totals of YTD take the last one
-        // (time axes only: columns and line; bars are a structure)
+        // (time axes only: columns and line — the line renders with orientation
+        // "columns" internally, so one check covers both; bars are a structure)
         const lastVal = !cfg.cumulative && cfg.orientation === "columns" && this.timeLast(points);
         for (const p of points) {
             if (p.value != null) { any = true; }
@@ -20144,10 +20396,13 @@ export class Visual implements IVisual {
      * Optional scenario codes: the basis code left of the first column, the code of the
      * last column right of it. Returns per category the top of the column zone (label
      * included, +∞ = free) or null when the largest column would be shorter than 4 px.
+     * B15 review (m4): also the bottom of the zone (negative columns and their labels
+     * below the zero line; the zero line itself without) and the boxes of the codes.
      */
     private drawPeriodColumns(parent: SVGElement, points: DataPoint[],
         geo: { slotPos: (i: number) => number; slotW: number; barW: number; acShift: number; plShift: number; step: number },
-        scale: Scale, cfg: ChartConfig, codes: { basis: string; region: Rect } | null): number[] | null {
+        scale: Scale, cfg: ChartConfig, codes: { basis: string; region: Rect } | null)
+        : { sky: number[]; floor: number[]; codeBoxes: { x0: number; x1: number; y0: number; y1: number }[] } | null {
         const vals = points.flatMap(p => [p.perVal, p.perPl, p.perPy]).filter((v): v is number => v != null);
         if (vals.length === 0) { return null; }
         const z = scale(0);
@@ -20156,10 +20411,14 @@ export class Visual implements IVisual {
         const texts = points.map(p => p.perVal != null ? cfg.fmt.format(p.perVal) : "");
         const showAt = this.labelPredicate(points, texts, cfg.labelFont, geo.step, "columns", p => p.perVal ?? null);
         const pyAsCol = cfg.hasPy && !cfg.pyTriangle;
+        const floor: number[] = points.map(() => z);
         const sky = points.map((p, i) => {
             const pos = geo.slotPos(i);
             let top = Infinity;
-            const see = (v: number) => { top = Math.min(top, scale(Math.max(0, v))); };
+            const see = (v: number) => {
+                top = Math.min(top, scale(Math.max(0, v)));
+                floor[i] = Math.max(floor[i], scale(Math.min(0, v)));
+            };
             if (p.perPy != null) {
                 if (pyAsCol) {
                     this.drawBar(g, pos, geo.barW, 0, p.perPy, scale, "columns", cfg.hc
@@ -20187,15 +20446,21 @@ export class Visual implements IVisual {
                         texts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     g.lastElementChild?.setAttribute("data-icd", "period-col-label");
                     if (p.perVal >= 0) { top = Math.min(top, scale(anchor) - 4 - cfg.labelFont - 1); }
+                    else { floor[i] = Math.max(floor[i], scale(anchor) + 4 + cfg.labelFont + 1); }
                 }
             }
             return top === Infinity ? z : top;
         });
+        const codeBoxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
         if (codes) {
             const code = (x: number, v: number, text: string, anchor: string, scen: string) => {
-                const t = this.el("text", { x, y: (scale(v) + z) / 2 + cfg.labelFont * 0.35, "text-anchor": anchor,
+                const y = (scale(v) + z) / 2 + cfg.labelFont * 0.35;
+                const t = this.el("text", { x, y, "text-anchor": anchor,
                     "font-size": cfg.labelFont, fill: cfg.ink, "font-family": FONT, "data-icd": "period-col-code", "data-scen": scen }, g);
                 t.textContent = text;
+                const w = this.textWidth(text, cfg.labelFont);
+                const x0 = anchor === "end" ? x - w : x;
+                codeBoxes.push({ x0, x1: x0 + w, y0: y - cfg.labelFont * 1.05, y1: y + cfg.labelFont * 0.35 });
             };
             const first = points.findIndex(p => (cfg.basisMode === "plan" ? p.perPl : p.perPy) != null);
             if (codes.basis && first >= 0) {
@@ -20210,7 +20475,7 @@ export class Visual implements IVisual {
                     fc ? cfg.scenL.fc : cfg.scenL.ac, "start", fc ? "fc" : "ac");
             }
         }
-        return sky;
+        return { sky, floor, codeBoxes };
     }
 
     /**
@@ -20221,7 +20486,8 @@ export class Visual implements IVisual {
      * label already stands (at the year end both are the same number).
      */
     private drawR12Line(parent: SVGElement, points: DataPoint[], cxOf: (i: number) => number, scale: Scale,
-        cfg: ChartConfig, sq: boolean, mk: number, src: "measure" | "py" | "window" | null): (acBoxes: ([number, number] | null)[]) => void {
+        cfg: ChartConfig, sq: boolean, mk: number, src: "measure" | "py" | "window" | null,
+        nameAtEnd = false): (acBoxes: ([number, number] | null)[], inCols?: (i: number, box: [number, number]) => boolean) => void {
         const lo = cfg.lineOpts as LineOpts;
         const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
         const g = this.el("g", { "data-icd": "line-r12", "data-src": src ?? "none" }, parent);
@@ -20254,7 +20520,9 @@ export class Visual implements IVisual {
             }
         }
         const half = sq ? mk / 2 : 3.3;
-        if (idx.length > 0) {
+        // B15 review (m7): a line starting later (window source) names itself at its end
+        // (drawn with the scenario codes), not mid-chart
+        if (idx.length > 0 && !nameAtEnd) {
             const f = idx[0];
             const t = this.el("text", { x: cxOf(f) - half - 4, y: scale(cap(points[f].r12 as number)) + cfg.labelFont * 0.35,
                 "text-anchor": "end", "font-size": cfg.labelFont, fill: cfg.ink, "font-family": FONT,
@@ -20262,7 +20530,7 @@ export class Visual implements IVisual {
                 "data-icd": "line-r12-name" }, g);
             t.textContent = lo.r12 ? lo.r12.label : "R12";
         }
-        return (acBoxes: ([number, number] | null)[]) => {
+        return (acBoxes: ([number, number] | null)[], inCols?: (i: number, box: [number, number]) => boolean) => {
             if (idx.length === 0) { return; }
             const texts = points.map(p => p.r12 != null ? cfg.fmt.format(p.r12) : "");
             const step = points.length > 1 ? Math.abs(cxOf(1) - cxOf(0)) : 1000;
@@ -20279,6 +20547,8 @@ export class Visual implements IVisual {
                 const box = this.lnLabelBox(y, true, gap, cfg.labelFont);
                 const ac = acBoxes[i];
                 if (ac && ac[0] < box[1] + 1 && ac[1] > box[0] - 1) { continue; }
+                // B15 review (m4): nor inside the period columns (also below zero)
+                if (inCols && inCols(i, box)) { continue; }
                 this.drawEndLabelAt(g, cxOf(i), cap(points[i].r12 as number), true, scale, "columns", texts[i],
                     cfg.labelFont, cfg.ink, gap, cfg.paper);
                 g.lastElementChild?.setAttribute("data-icd", "line-r12-label");
@@ -20291,24 +20561,29 @@ export class Visual implements IVisual {
      * pushed apart when they would overlap. Returns the right end of the codes.
      */
     private drawLineEndCodes(parent: SVGElement, points: DataPoint[], cxOf: (i: number) => number, scale: Scale,
-        cfg: ChartConfig, half: number): number {
+        cfg: ChartConfig, half: number, codes = true,
+        extra: { i: number; v: number; t: string; icd: string }[] = [],
+        avoid: { x0: number; x1: number; y0: number; y1: number }[] = []): { right: number; boxes: { x0: number; x1: number; y0: number; y1: number }[] } {
         const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
         const lastOf = (get: (p: DataPoint) => number | null) => points.reduce((a, p, i) => get(p) != null ? i : a, -1);
-        const entries: { x: number; y: number; t: string; scen: string }[] = [];
-        const iv = lastOf(p => p.value);
+        const entries: { x: number; y: number; t: string; scen: string; icd?: string }[] = [];
+        const iv = codes ? lastOf(p => p.value) : -1;
         if (iv >= 0) {
             const fc = points[iv].isFc;
             entries.push({ x: cxOf(iv) + half + 3, y: scale(cap(points[iv].value as number)),
                 t: fc ? cfg.scenL.fc : cfg.scenL.ac, scen: fc ? "fc" : "ac" });
         }
-        if (cfg.hasPl) {
+        if (codes && cfg.hasPl) {
             const ip = lastOf(p => p.pl);
             if (ip >= 0) { entries.push({ x: cxOf(ip) + half + 3, y: scale(cap(points[ip].pl as number)), t: cfg.scenL.pl, scen: "pl" }); }
         }
-        if (cfg.hasPy) {
+        if (codes && cfg.hasPy) {
             const iy = lastOf(p => p.py);
             if (iy >= 0) { entries.push({ x: cxOf(iy) + half + 3, y: scale(cap(points[iy].py as number)), t: cfg.scenL.py, scen: "py" }); }
         }
+        // B15 review (m7): further names at the line ends (the R12 name when its line
+        // does not start at the first period)
+        for (const e of extra) { entries.push({ x: cxOf(e.i) + half + 3, y: scale(cap(e.v)), t: e.t, scen: "", icd: e.icd }); }
         const lf = cfg.labelFont;
         const byX = new Map<number, typeof entries>();
         for (const e of entries) { const k = Math.round(e.x); byX.set(k, [...(byX.get(k) ?? []), e]); }
@@ -20318,15 +20593,29 @@ export class Visual implements IVisual {
                 if (list[k].y - list[k - 1].y < lf + 1) { list[k].y = list[k - 1].y + lf + 1; }
             }
         });
+        // B15 review (m5): a code that would sit on a value label at the line end (AC/FC
+        // or basis label) moves right of that label
+        for (const e of entries) {
+            const w = this.textWidth(e.t, lf);
+            for (let guard = 0; guard < 4; guard++) {
+                // glyph boxes (cap height around the line end, digits above the baseline)
+                const hit = avoid.find(b => e.x < b.x1 && e.x + w > b.x0 && e.y - lf * 0.65 < b.y1 && e.y + lf * 0.35 > b.y0);
+                if (!hit) { break; }
+                e.x = hit.x1 + 3;
+            }
+        }
         let right = cxOf(points.length - 1) + half;
+        const boxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
         for (const e of entries) {
             const t = this.el("text", { x: e.x, y: e.y + lf * 0.35, "text-anchor": "start", "font-size": lf, fill: cfg.ink,
                 "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round",
-                "data-icd": "line-end-code", "data-scen": e.scen }, parent);
+                "data-icd": e.icd ?? "line-end-code", ...(e.icd ? {} : { "data-scen": e.scen }) }, parent);
             t.textContent = e.t;
-            right = Math.max(right, e.x + this.textWidth(e.t, lf));
+            const w = this.textWidth(e.t, lf);
+            right = Math.max(right, e.x + w);
+            boxes.push({ x0: e.x, x1: e.x + w, y0: e.y - lf * 0.7, y1: e.y + lf * 0.7 });  // full text box for the marker labels
         }
-        return right;
+        return { right, boxes };
     }
 
     /**
@@ -20337,19 +20626,21 @@ export class Visual implements IVisual {
      * whose span overlaps the first moves one track out.
      */
     private drawLineGapMarkers(guides: SVGElement, points: DataPoint[], cxOf: (i: number) => number, scale: Scale,
-        cfg: ChartConfig, x0: number, atActual: boolean, atEnd: boolean, half: number, clip: Rect): void {
+        cfg: ChartConfig, x0: number, atActual: boolean, atEnd: boolean, half: number, clip: Rect,
+        basisOf: (p: DataPoint) => number | null = p => p.basis, basisName: string = cfg.basisLabel,
+        avoid: { x0: number; x1: number; y0: number; y1: number }[] = []): void {
         const lastAc = points.reduce((a, p, i) => p.value != null && !p.isFc ? i : a, -1);
         const lastV = points.reduce((a, p, i) => p.value != null ? i : a, -1);
         const list: { at: "actual" | "end"; i: number; fc: boolean }[] = [];
-        if (atActual && lastAc >= 0 && points[lastAc].basis != null) { list.push({ at: "actual", i: lastAc, fc: false }); }
-        if (atEnd && lastV >= 0 && points[lastV].basis != null && !(atActual && lastV === lastAc)) {
+        if (atActual && lastAc >= 0 && basisOf(points[lastAc]) != null) { list.push({ at: "actual", i: lastAc, fc: false }); }
+        if (atEnd && lastV >= 0 && basisOf(points[lastV]) != null && !(atActual && lastV === lastAc)) {
             list.push({ at: "end", i: lastV, fc: points[lastV].isFc });
         }
         if (list.length === 0) { return; }
         const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
         const lf = cfg.labelFont;
         const bw = this.diffBarW();
-        const ys = list.map(m => [scale(cap(points[m.i].basis as number)), scale(cap(points[m.i].value as number))]);
+        const ys = list.map(m => [scale(cap(basisOf(points[m.i]) as number)), scale(cap(points[m.i].value as number))]);
         const spans = ys.map(([a, b]) => [Math.min(a, b) - lf, Math.max(a, b) + lf]);
         const track = list.map((_, k) => k > 0 && spans[k][0] < spans[0][1] && spans[k][1] > spans[0][0] ? 1 : 0);
         const tracks = Math.max(...track) + 1;
@@ -20358,7 +20649,8 @@ export class Visual implements IVisual {
         let prevLabelY: number | null = null;
         list.forEach((m, k) => {
             const p = points[m.i];
-            const d = (p.value as number) - (p.basis as number);
+            // B15 review (m3): rounded against float residue of averaged tiles
+            const d = Math.round(((p.value as number) - (basisOf(p) as number)) * 1e9) / 1e9;
             const color = d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(d, p) ? cfg.colors.good : cfg.colors.bad;
             const xb = x0 + track[k] * (bw + 2);
             const [ya, yb] = ys[k];
@@ -20373,13 +20665,23 @@ export class Visual implements IVisual {
                 stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "gap-bar" }, g);
             let ly = Math.max(clip.y + lf, Math.min((ya + yb) / 2 + lf * 0.35, clip.y + clip.h - 2));
             if (prevLabelY != null && Math.abs(ly - prevLabelY) < lf + 2) { ly = prevLabelY + lf + 2; }
-            prevLabelY = ly;
             const text = this.fmtSigned(cfg.fmtDiff, d);
+            // B15 review (m4): the label gives way to scenario codes it would cover
+            // (codes at the line ends, the code of the last period column)
+            const tw = this.textWidth(text, lf);
+            for (let guard = 0; guard < 4; guard++) {
+                // text box from the baseline: 1.05 font above, 0.35 below (descenders)
+                const hit = avoid.find(b => labelX < b.x1 && labelX + tw > b.x0 && ly - lf * 1.05 < b.y1 && ly + lf * 0.35 > b.y0);
+                if (!hit) { break; }
+                const below = hit.y1 + lf * 1.05 + 1;
+                ly = below <= clip.y + clip.h - 2 ? below : hit.y0 - 1;
+            }
+            prevLabelY = ly;
             const t = this.el("text", { x: labelX, y: ly, "text-anchor": "start", "font-size": lf, fill: cfg.ink,
                 "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round",
                 "data-icd": "gap-label" }, g);
             t.textContent = text;
-            g.setAttribute("aria-label", `${p.cat}: ${cfg.scenL.ac}${m.fc ? "+" + cfg.scenL.fc : ""} − ${cfg.basisLabel} ${text}`);
+            g.setAttribute("aria-label", `${p.cat}: ${cfg.scenL.ac}${m.fc ? "+" + cfg.scenL.fc : ""} − ${basisName} ${text}`);
         });
     }
 
