@@ -65,7 +65,7 @@ energiewende/
 ├── TRANSPARENZ.md       ← Transparenz-Richtlinien (Entwurf zur Freigabe)
 ├── docs/                ← Messlatte, Modellkonzept, Texte
 ├── research/            ← Recherche-Dossiers (je Thema eine Datei)
-├── data/                ← Rohdaten mit offener Lizenz + aufbereitete JSON
+├── data/                ← aufbereitete JSON; data/raw/ (Rohabrufe) nicht im Repo, per Skript wiederherstellbar
 ├── scripts/             ← Python: fetch / compute / build (reproduzierbar)
 ├── agents/              ← Regeln, Briefings (wortgleich), Lauf-Protokoll
 └── quellen/             ← Manifest (URL, Prüfsumme, Abrufdatum); raw/ nicht im Repo

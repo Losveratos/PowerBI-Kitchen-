@@ -89,3 +89,8 @@ _channel_fresh.json
 # Energiewende-Reihe: fremde Dokumente werden nicht gespiegelt (siehe
 # energiewende/TRANSPARENZ.md, Abschnitt 12). Im Repo steht nur das Manifest.
 energiewende/quellen/raw/
+# Rohabrufe offener Daten (SMARD, Energy-Charts, Eurostat): mehrere hundert MB,
+# per Skript und URL-Manifest wiederherstellbar. Versioniert werden die
+# aufbereiteten Dateien unter energiewende/data/ und die Skripte.
+energiewende/data/raw/
+energiewende/scripts/__pycache__/
