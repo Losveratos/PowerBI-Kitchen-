@@ -168,6 +168,22 @@ const lineMarkerShapeItems: LocEnumMember[] = [
     { value: "circle", displayName: "Circles", key: "Enum_MarkerShape_Circle" },
     { value: "square", displayName: "Squares (AC filled, FC hatched, PL hollow)", key: "Enum_MarkerShape_Square" }
 ];
+// 1.56 (backlog B17, IBCS sheet 07A): series lines from the Stack-series role, optionally
+// indexed to 100 at a base category; tones (AC colour + greys) or the group palette
+const lineIndexItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off (values)", key: "Enum_LineIndex_Off" },
+    { value: "base100", displayName: "Index (base = 100)", key: "Enum_LineIndex_Base100" }
+];
+const lineSeriesColorItems: LocEnumMember[] = [
+    { value: "tones", displayName: "Grey tones", key: "Enum_SeriesColor_Tones" },
+    { value: "palette", displayName: "Group palette", key: "Enum_SeriesColor_Palette" }
+];
+const lineSeriesLabelsItems: LocEnumMember[] = [
+    { value: "ends", displayName: "End values", key: "Enum_SeriesLabels_Ends" },
+    { value: "groups", displayName: "Group starts and end", key: "Enum_SeriesLabels_Groups" },
+    { value: "all", displayName: "All points", key: "Enum_SeriesLabels_All" },
+    { value: "none", displayName: "None", key: "Enum_SeriesLabels_None" }
+];
 
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
 // ellipse around its numbers (IBCS sheets 04A, 06E: circled values)
@@ -308,7 +324,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
     { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
     { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" },
-    { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" }
+    { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" },
+    { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -333,7 +350,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
         stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
         multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
-        linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems];
+        linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
+        lineSeriesLabelsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -415,7 +433,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C). Nicht enthalten: C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A). Nicht enthalten: C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -1817,12 +1835,73 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: lineGapMarkersItems[0]
     });
 
+    // 1.56 (backlog B17, IBCS sheet 07A): series lines, all off by default
+    lineSeries = new formattingSettings.ToggleSwitch({
+        name: "lineSeries",
+        displayName: "Series lines",
+        displayNameKey: "Chart_LineSeries",
+        description: "Linie: eine Linie je Mitglied des Felds „Stack-Serie“ (z. B. drei Aktien über die Tage), Serienname mit letztem Wert am Linienende, wie im IBCS-Blatt 07A. Schließt die kumulierte Sicht und die R12-Optionen aus; Δ-Panels, Vorjahr, Plan und Benchmark wirken hier nicht. Standard aus.",
+        descriptionKey: "Desc_Chart_LineSeries",
+        value: false
+    });
+
+    lineIndex = new formattingSettings.ItemDropdown({
+        name: "lineIndex",
+        displayName: "Index",
+        displayNameKey: "Chart_LineIndex",
+        description: "Serienlinien: Werte je Serie als Index, Basiswert = 100 (Wert ÷ Basiswert × 100), nullbasierte Achse mit einer dünnen Linie bei 100. Eine Serie ohne Basiswert (leer oder 0) wird nicht gezeichnet. Standard aus (Werte).",
+        descriptionKey: "Desc_Chart_LineIndex",
+        items: lineIndexItems,
+        value: lineIndexItems[0]
+    });
+
+    lineIndexBase = new formattingSettings.TextInput({
+        name: "lineIndexBase",
+        displayName: "Index base category",
+        displayNameKey: "Chart_LineIndexBase",
+        description: "Name der Kategorie, deren Werte 100 sind (z. B. „02.01.“). Leer = erste Kategorie mit Werten aller Serien.",
+        descriptionKey: "Desc_Chart_LineIndexBase",
+        placeholder: "",
+        value: ""
+    });
+
+    lineSeriesColor = new formattingSettings.ItemDropdown({
+        name: "lineSeriesColor",
+        displayName: "Series colours",
+        displayNameKey: "Chart_LineSeriesColor",
+        description: "Serienlinien: Grautöne (erste bzw. hervorgehobene Serie in der AC-Farbe, die übrigen abgestuft grau) oder die Gruppenpalette (ab vier Serien besser unterscheidbar, verlässt aber die Szenariofarben). Standard Grautöne.",
+        descriptionKey: "Desc_Chart_LineSeriesColor",
+        items: lineSeriesColorItems,
+        value: lineSeriesColorItems[0]
+    });
+
+    lineSeriesLabels = new formattingSettings.ItemDropdown({
+        name: "lineSeriesLabels",
+        displayName: "Series values",
+        displayNameKey: "Chart_LineSeriesLabels",
+        description: "Serienlinien: welche Werte beschriftet werden. Endwerte (nur am Linienende), Gruppenanfänge und Ende (z. B. jeder Monatsanfang über Tageswerten, ohne Hierarchie jeder Punkt nach Platz), alle Punkte (nach Platz) oder keine. Punktmarken stehen nur an beschrifteten Stellen. Standard Endwerte.",
+        descriptionKey: "Desc_Chart_LineSeriesLabels",
+        items: lineSeriesLabelsItems,
+        value: lineSeriesLabelsItems[0]
+    });
+
+    lineEndDelta = new formattingSettings.TextInput({
+        name: "lineEndDelta",
+        displayName: "Start-to-end markers",
+        displayNameKey: "Chart_LineEndDelta",
+        description: "Serienlinien: Serien mit einem Balken vom Basisniveau zum Endwert am rechten Rand, in Gut- bzw. Schlecht-Farbe, mit Index als Δ % (z. B. −93 %), sonst Δ und Δ %. Liste durch Komma oder Semikolon getrennt, * = alle Serien. Leer = keine.",
+        descriptionKey: "Desc_Chart_LineEndDelta",
+        placeholder: "",
+        value: ""
+    });
+
     lineGroup = new formattingSettings.Group({
         name: "chartLine",
         displayName: "Line",
         displayNameKey: "Group_Line",
         slices: [this.lineMarkerShape, this.lineBasisLabels, this.lineR12, this.lineR12Label,
-            this.linePeriodColumns, this.lineGapMarkers]
+            this.linePeriodColumns, this.lineGapMarkers, this.lineSeries, this.lineIndex, this.lineIndexBase,
+            this.lineSeriesColor, this.lineSeriesLabels, this.lineEndDelta]
     });
 
     name: string = "chart";

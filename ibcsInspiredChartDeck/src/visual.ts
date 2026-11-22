@@ -174,7 +174,13 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     C21: { orientation: "line", comparisonMode: "plan", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, cumulative: true, cumulativeKind: "ytd",
         lineR12: true, linePeriodColumns: "same", lineGapMarkers: "both", lineBasisLabels: true,
-        lineMarkerShape: "square", scenarioLabels: true, showTotal: false }
+        lineMarkerShape: "square", scenarioLabels: true, showTotal: false },
+    // 1.56 (B17) C22 = 07A: one line per member of the series role, indexed to 100 at the
+    // first category with values of all series, values at the group starts (months over
+    // days), series name and last value at the line end; no Δ panels, no cumulation
+    C22: { orientation: "line", lineSeries: true, lineIndex: "base100", lineSeriesLabels: "groups",
+        lineSeriesColor: "tones", lineMarkerShape: "square", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -183,7 +189,7 @@ const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
     C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
-    C20: "stockflow", C07: "stackarea", C21: "line"
+    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -199,11 +205,12 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C20: { role: "rowType", key: "Hub_NeedSf", en: "Type: stock / inflow / outflow" },
     C07: { role: "series", key: "Role_Series", en: "Stack series" },
-    C21: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" }
+    C21: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
+    C22: { role: "series", key: "Role_Series", en: "Stack series" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
-    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C20"] },
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
@@ -230,7 +237,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"],
     C20: ["Stock and flow", "Cash, headcount or inventory over time"],
     C07: ["Stacked area over time", "Mix of segments with the total line"],
-    C21: ["Cumulated line with R12", "YTD vs. plan, rolling year, months"]
+    C21: ["Cumulated line with R12", "YTD vs. plan, rolling year, months"],
+    C22: ["Series lines with index", "Share prices or units, start = 100"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -604,6 +612,23 @@ interface LineOpts {
     gapEnd: boolean;
     /** deck-wide largest |Δ| of the cumulated points: same label room in every tile */
     gapMax: number;
+    /** 1.56 (B17): series lines (renderLineSeries); null = option off or no series bound */
+    series: LineSeriesOpts | null;
+}
+
+/** 1.56 (B17, IBCS sheet 07A): options of the series lines */
+interface LineSeriesOpts {
+    /** values as index, base category = 100 */
+    index: boolean;
+    /** name of the base category ("" = first category with values of all series) */
+    indexBase: string;
+    /** group palette instead of the AC colour plus grey tones */
+    palette: boolean;
+    labels: "ends" | "groups" | "all" | "none";
+    /** series with a start-to-end marker (lower case), "all" for "*", null = none */
+    endDelta: Set<string> | "all" | null;
+    /** deck-wide value domain (zero-based) */
+    domain: [number, number];
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -2169,11 +2194,20 @@ export class Visual implements IVisual {
         const isLineO = orient === "line";
         const ytdLine = isLineO && fs.chartCard.cumulative.value === true
             && String(fs.chartCard.cumulativeKind.value.value) === "ytd";
+        // 1.56 (B17): series lines exclude the YTD options (and the comparison labels)
+        const seriesLine = isLineO && fs.chartCard.lineSeries.value === true;
         fs.chartCard.lineGroup.visible = isLineO;
-        fs.chartCard.lineR12.visible = ytdLine;
-        fs.chartCard.lineR12Label.visible = ytdLine && fs.chartCard.lineR12.value === true;
-        fs.chartCard.linePeriodColumns.visible = ytdLine;
-        fs.chartCard.lineGapMarkers.visible = ytdLine;
+        fs.chartCard.lineR12.visible = ytdLine && !seriesLine;
+        fs.chartCard.lineR12Label.visible = ytdLine && !seriesLine && fs.chartCard.lineR12.value === true;
+        fs.chartCard.linePeriodColumns.visible = ytdLine && !seriesLine;
+        fs.chartCard.lineGapMarkers.visible = ytdLine && !seriesLine;
+        fs.chartCard.lineBasisLabels.visible = !seriesLine;
+        fs.chartCard.lineIndex.visible = seriesLine;
+        fs.chartCard.lineIndexBase.visible = seriesLine
+            && String((fs.chartCard.lineIndex.value as powerbi.IEnumMember)?.value) === "base100";
+        fs.chartCard.lineSeriesColor.visible = seriesLine;
+        fs.chartCard.lineSeriesLabels.visible = seriesLine;
+        fs.chartCard.lineEndDelta.visible = seriesLine;
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "catbridge" || orient === "stockflow";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
@@ -2208,7 +2242,8 @@ export class Visual implements IVisual {
         fs.chartCard.stackShape.visible = orient === "columns";
         fs.chartCard.areaTotalLine.visible = isArea;
         fs.chartCard.areaValueLabels.visible = isArea;
-        fs.chartCard.stockFlowGroup.visible = isSf || isArea;
+        // 1.56 (B17): the axis groups apply to the series lines as well
+        fs.chartCard.stockFlowGroup.visible = isSf || isArea || seriesLine;
         fs.chartCard.sfNet.visible = isSf;
         fs.chartCard.sfArea.visible = isSf;
         fs.chartCard.sfOpening.visible = isSf;
@@ -5842,6 +5877,20 @@ export class Visual implements IVisual {
                 line(0, 1, 1, 1, c.ink, 1.6);
                 break;
             }
+            case "lineseries": {
+                // 1.56 (B17) C22: three series lines from a common index start, base line at 100
+                const sr = [[0.5, 0.42, 0.36, 0.28, 0.18], [0.5, 0.56, 0.44, 0.5, 0.46], [0.5, 0.6, 0.7, 0.78, 0.9]];
+                const xs5 = [0, 0.25, 0.5, 0.75, 0.88];
+                line(0, 0.5, 0.88, 0.5, c.grey, 0.8);
+                sr.forEach((arr, j) => this.el("polyline", {
+                    points: arr.map((v, i) => `${x + xs5[i] * w},${y + v * h}`).join(" "),
+                    fill: "none", stroke: j === 0 ? c.ink : c.grey, "stroke-width": j === 0 ? 1.8 : 1.2,
+                    ...(j === 2 ? { "stroke-opacity": 0.6 } : {})
+                }, g));
+                r(0.9, 0.5, 0.05, 0.4, c.red);
+                line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
             case "stackarea": {
                 // 1.56 (B16) C07: three stacked areas, total line with points on top
                 const xs = [0, 0.25, 0.5, 0.75, 1];
@@ -6124,6 +6173,10 @@ export class Visual implements IVisual {
             && String((s.chartCard.stackShape.value as powerbi.IEnumMember)?.value) === "area";
         const stackAreaWanted = isStacked && stackShapeArea;
         const stackAreaNoSeries = stackShapeArea && !isStacked;
+        // 1.56 (B17, IBCS sheet 07A): series lines, an explicit switch in the line mode
+        // (a bound series alone changes nothing); excludes the cumulated view and B15
+        const lineSeriesWanted = lineMode && s.chartCard.lineSeries.value === true;
+        const lineSeriesOn = lineSeriesWanted && points.some(p => p.stackSeries != null);
         // waterfall-bridge is an optional add-on to columns/bars, not a separate orientation
         const wfStyleGlobal = s.chartCard.waterfallStyle.value && !isStacked
             && (orientationRaw === "columns" || orientationRaw === "bars");
@@ -6147,7 +6200,7 @@ export class Visual implements IVisual {
                 || listSkip.has(p.cat.trim().toLowerCase()));
         // 1.56 (B11 part 2): stock & flow cumulates its flows (stock passes through);
         // with timeAggregation = last nothing runs up (the last value IS the running value)
-        const cumulativeOn = s.chartCard.cumulative.value && !isStacked && !this.timeAggLast
+        const cumulativeOn = s.chartCard.cumulative.value && !isStacked && !this.timeAggLast && !lineSeriesOn
             && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table" || isStockFlow)
             && !points.some(p => p.rowType != null) && !listPnl
             // matrix tables keep one point per category × column group — cumulating
@@ -6534,8 +6587,20 @@ export class Visual implements IVisual {
         const lnBasisLbl = s.chartCard.lineBasisLabels.value === true;
         const lnCodes = s.chartCard.scenarioLabels.value === true;
         const lnGap = lnCumYtd ? String((s.chartCard.lineGapMarkers.value as powerbi.IEnumMember)?.value) : "off";
+        const lnEndDeltaRaw = (s.chartCard.lineEndDelta.value || "").trim();
+        const lnSeries: LineSeriesOpts | null = lineSeriesOn ? {
+            index: String((s.chartCard.lineIndex.value as powerbi.IEnumMember)?.value) === "base100",
+            indexBase: (s.chartCard.lineIndexBase.value || "").trim(),
+            palette: String((s.chartCard.lineSeriesColor.value as powerbi.IEnumMember)?.value) === "palette",
+            labels: ((v: string) => v === "groups" || v === "all" || v === "none" ? v : "ends")(
+                String((s.chartCard.lineSeriesLabels.value as powerbi.IEnumMember)?.value)),
+            endDelta: lnEndDeltaRaw === "" ? null : lnEndDeltaRaw === "*" ? "all"
+                : new Set(lnEndDeltaRaw.split(/[;,]/).map(x => x.trim().toLowerCase()).filter(x => x)),
+            domain: [0, 1]
+        } : null;
         const lineOpts: LineOpts | null = lineMode
-            && (lnShapeSq || lnBasisLbl || lnCodes || lnR12On || lnColsOn || lnGap === "actual" || lnGap === "end" || lnGap === "both")
+            && (lnShapeSq || lnBasisLbl || lnCodes || lnR12On || lnColsOn || lnGap === "actual" || lnGap === "end" || lnGap === "both"
+                || lnSeries != null)
             ? {
                 shape: lnShapeSq ? "square" : "circle",
                 basisLabels: lnBasisLbl,
@@ -6544,7 +6609,8 @@ export class Visual implements IVisual {
                 periodCols: lnColsOn,
                 gapActual: lnGap === "actual" || lnGap === "both",
                 gapEnd: lnGap === "end" || lnGap === "both",
-                gapMax: Math.max(0, ...points.map(p => Math.abs(p.varAbs ?? 0)))
+                gapMax: Math.max(0, ...points.map(p => Math.abs(p.varAbs ?? 0))),
+                series: lnSeries
             } : null;
 
         const cfg: ChartConfig = {
@@ -7046,6 +7112,21 @@ export class Visual implements IVisual {
             }
         }
 
+        // 1.56 (B17): the series lines share one zero-based domain over the drawn tiles
+        // (with the index at least up to 100; a Σ tile indexes its sums)
+        if (lnSeries) {
+            let lo = 0, hi = 0;
+            for (const g of shownGroups) {
+                const ly = this.lineSeriesLayout(g.pts, lnSeries.index, lnSeries.indexBase);
+                for (const row of ly.vals) { for (const v of row) { if (v != null) { lo = Math.min(lo, v); hi = Math.max(hi, v); } } }
+            }
+            if (lnSeries.index) { hi = Math.max(hi, 100); } else {
+                if (fixedMax > 0) { hi = Math.max(hi, fixedMax); }
+                if (cfg.refLine != null) { lo = Math.min(lo, cfg.refLine); hi = Math.max(hi, cfg.refLine); }
+            }
+            lnSeries.domain = [lo, hi > lo ? hi : lo + 1];
+        }
+
         // IBCS same-scale rule also for the self-scaling renderers (pareto/dumbbell/slope)
         cfg.mainDomain = domains.main;
         cfg.varDomain = domains.abs;
@@ -7105,6 +7186,11 @@ export class Visual implements IVisual {
                 }
                 return;
             }
+            // 1.56 (B17): series lines, own renderer (no Δ panels)
+            if (lnSeries) {
+                this.renderLineSeries(grp.pts, region, cfg);
+                return;
+            }
             // B13 review (m4): the reference tile under the Ø basis draws no Δ chrome
             this.refTileNoDelta = multBasisAvg && (grp as { kind?: string }).kind === "total";
             if (isStockFlow) {
@@ -7145,6 +7231,11 @@ export class Visual implements IVisual {
             this.refTileNoDelta = false;
             // 1.56 (B16): stacked area wanted, but no Stack-Series field bound
             if (stackAreaNoSeries) { this.areaHint(region, cfg, "series"); }
+            // 1.56 (B17): series lines wanted, but no Stack-Series field bound
+            if (lineSeriesWanted && !lineSeriesOn) {
+                this.lineSeriesHint(region, cfg, "series",
+                    this.locStr("Hint_LineSeriesNoSeries", "Series lines: bind the Stack series field, drawn as a plain line"));
+            }
         };
         // in-chart chrome only where the host allows interactions — exports to
         // PDF/PowerPoint and subscription mails get a clean chart without buttons
@@ -7216,7 +7307,9 @@ export class Visual implements IVisual {
                 // 1.49: locked where cumulating cannot change the picture — P&L rows
                 // (rowType) are never cumulated, a single period stays identical
                 const periods = (g: { pts: DataPoint[] }) => isStockFlow ? new Set(g.pts.map(p => p.cat)).size : g.pts.length;
-                const ytdLock = points.some(p => p.rowType != null)
+                const ytdLock = lineSeriesOn
+                    ? this.locStr("Lock_YtdSeries", "No effect: series lines are not cumulated")
+                    : points.some(p => p.rowType != null)
                     ? this.locStr("Lock_YtdRowType", "No effect: P&L rows (row type field) are not cumulated")
                     : groups.every(g => periods(g) <= 1)
                         ? this.locStr("Lock_YtdSingle", "No effect: a single period looks the same cumulated")
@@ -16557,6 +16650,438 @@ export class Visual implements IVisual {
             });
         }
         this.cutFcLines();
+    }
+
+    // ------------------------------------------------- 1.56 (B17) series lines
+
+    /**
+     * 1.56 (B17, IBCS sheet 07A): the series lines of one tile. One row per member of
+     * the series role over the unique categories (order of first appearance); the cell
+     * value is AC or FC (p.value, FC flag kept), PY/PL/benchmark are not used. With the
+     * index the values are divided by the series' value at the base category × 100: the
+     * named base (category or its leaf, case-insensitive), else the first category with
+     * values of all series, else the first with any value. A series without a base value
+     * (empty or 0) has no row values (noBase) and is not drawn. Called once per tile
+     * after aggregation, so a Σ tile indexes its sums (not the sum of the indices).
+     */
+    private lineSeriesLayout(points: DataPoint[], index: boolean, baseName: string): {
+        cats: string[]; levels: string[][]; series: string[]; cell: Map<string, DataPoint>;
+        raw: (number | null)[][]; vals: (number | null)[][]; fc: boolean[][]; bi: number; baseLabel: string;
+        noBase: string[];
+    } {
+        const cats: string[] = [], series: string[] = [];
+        const catSeen = new Set<string>(), serSeen = new Set<string>();
+        const cell = new Map<string, DataPoint>();
+        const levelOf = new Map<string, string[]>();
+        for (const p of points) {
+            const sn = p.stackSeries ?? "";
+            if (!catSeen.has(p.cat)) { catSeen.add(p.cat); cats.push(p.cat); levelOf.set(p.cat, p.catLevels ?? [p.cat]); }
+            if (!serSeen.has(sn)) { serSeen.add(sn); series.push(sn); }
+            cell.set(`${p.cat}¦${sn}`, p);
+        }
+        const levels = cats.map(c => levelOf.get(c) as string[]);
+        const raw = series.map(sn => cats.map(c => cell.get(`${c}¦${sn}`)?.value ?? null));
+        const fc = series.map(sn => cats.map(c => cell.get(`${c}¦${sn}`)?.isFc === true));
+        let bi = -1;
+        const want = baseName.trim().toLowerCase();
+        if (want) {
+            bi = cats.findIndex((c, i) => c.trim().toLowerCase() === want
+                || levels[i][levels[i].length - 1].trim().toLowerCase() === want);
+        }
+        if (bi < 0) { bi = cats.findIndex((_, i) => raw.every(r => r[i] != null)); }
+        if (bi < 0) { bi = cats.findIndex((_, i) => raw.some(r => r[i] != null)); }
+        const noBase: string[] = [];
+        const vals = !index ? raw : raw.map((r, si) => {
+            const b = bi >= 0 ? r[bi] : null;
+            if (b == null || b === 0) { noBase.push(series[si]); return r.map(() => null); }
+            return r.map(v => v == null ? null : v / b * 100);
+        });
+        const baseLabel = bi >= 0 ? levels[bi][levels[bi].length - 1] : "";
+        return { cats, levels, series, cell, raw, vals, fc, bi, baseLabel, noBase };
+    }
+
+    /** 1.56 (B17): small italic note at the bottom right of a series-line tile (edit mode
+     *  only, like the stacked-area hints); kind "space" is centred and always shown */
+    private lineSeriesHint(region: Rect, cfg: ChartConfig, kind: "index" | "series" | "space", text: string): void {
+        if (kind === "space") {
+            this.drawModeHint(region, cfg, text);
+            const h = this.svg.lastElementChild;
+            h?.setAttribute("data-icd", "line-hint");
+            h?.setAttribute("data-kind", kind);
+            return;
+        }
+        if (!(this.allowInteractions && this.viewMode !== 0)) { return; }
+        const fs = Math.round(9 * this.fontK);
+        const t = this.el("text", { x: region.x + region.w - 4, y: region.y + region.h - 2, "text-anchor": "end",
+            "font-size": fs, fill: cfg.subtle, "font-family": FONT, "font-style": "italic",
+            "data-icd": "line-hint", "data-kind": kind }, this.svg);
+        t.textContent = this.truncate(text, region.w * 0.7, fs);
+    }
+
+    /**
+     * 1.56 (B17, IBCS sheet 07A): series lines. One path per member of the series role in
+     * one line weight (FC pieces dashed: a piece carries the scenario of its right point),
+     * optionally as an index (base = 100, zero-based axis, thin line at 100). Point marks
+     * only where a value is labelled (lineSeriesLabels: end values, group starts of the
+     * category hierarchy plus the end, all points thinned by room, none); a shared value
+     * (the 100 at the base) is labelled once. Series name and last value stand right of
+     * the line ends, spread vertically; start-to-end markers (lineEndDelta) draw a bar
+     * from the base level to the end value in good/bad colour with Δ % (index) or Δ and
+     * Δ % beside it. Colours: AC colour for the first (or highlighted) series and grey
+     * tones for the rest, or the group palette. Deck-wide scale (cfg.lineOpts.series.domain).
+     */
+    private renderLineSeries(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+        const so = (cfg.lineOpts as LineOpts).series as LineSeriesOpts;
+        const L = this.lineSeriesLayout(points, so.index, so.indexBase);
+        const { cats, levels, series, vals, fc, bi } = L;
+        const n = cats.length, m = series.length;
+        if (n === 0 || m === 0) { return; }
+        const cs = this.formattingSettings.chartCard;
+        const k = this.fontK, lf = cfg.labelFont, cf = cfg.catFont;
+        const pad = 4;
+        const titleH = Math.round(14 * k);
+        const ms = Math.max(4, Math.round(5 * k));
+        const lw = Math.max(1.2, 1.3 * k);
+        const bw = this.diffBarW();
+        const idxNf = new Intl.NumberFormat(this.host.locale, { maximumFractionDigits: 0 });
+        const valText = (v: number) => so.index ? idxNf.format(Math.round(v)) : cfg.fmt.format(v);
+        const showValues = cfg.showLabels && so.labels !== "none";
+        const groupsOn = String((cs.axisGroups.value as powerbi.IEnumMember)?.value) !== "off";
+        const drawn = series.map((_, si) => vals[si].some(v => v != null));
+        const lastOf = vals.map(r => r.reduce((a: number, v, i) => v != null ? i : a, -1));
+        const firstOf = vals.map(r => r.findIndex(v => v != null));
+
+        // ---- colours: the first (or the highlighted) series in the AC colour, the others
+        // in grey tones (sheet 07A uses colours: palette), high contrast with dash patterns
+        const emphIdx = series.findIndex(sn => this.isEmph(cfg, sn));
+        const lead = emphIdx >= 0 ? emphIdx : 0;
+        const colorOf = (si: number): string => {
+            if (cfg.hc) { return cfg.ink; }
+            if (so.palette) {
+                const pal = cfg.dark ? SCATTER_GROUP_DARK : SCATTER_GROUP_LIGHT;
+                return pal[si % pal.length];
+            }
+            if (si === lead) { return cfg.colors.ac; }
+            const rank = si < lead ? si : si - 1;
+            const mix = m > 2 ? 0.3 + 0.45 * rank / (m - 2) : 0.45;
+            const from = this.hexRgb(cfg.colors.ac);
+            const to = cfg.dark ? [96, 96, 96] : [196, 196, 196];
+            const c = from.map((f, ci) => Math.round(f + (to[ci] - f) * mix));
+            return `rgb(${c[0]},${c[1]},${c[2]})`;
+        };
+        const HC_DASH = ["", "6,3", "2,2", "8,2,2,2"];
+        const dashOf = (si: number) => cfg.hc && si !== lead ? HC_DASH[(si < lead ? si + 1 : si) % HC_DASH.length] : "";
+
+        // ---- axis groups from the category hierarchy (month › day: the month row)
+        const { gLevels, groups: axGroups } = this.areaAxisGroups(levels, groupsOn);
+        const leaf = levels.map(l => l[l.length - 1]);
+        const rowH = cf + 5;
+
+        // ---- right column: end labels (last value and series name), start-to-end markers
+        const deltaOf = (si: number): { base: number; end: number; d: number } | null => {
+            if (!drawn[si] || !so.endDelta) { return null; }
+            if (so.endDelta !== "all" && !so.endDelta.has(series[si].trim().toLowerCase())) { return null; }
+            const end = vals[si][lastOf[si]];
+            const base = so.index ? 100 : (bi >= 0 ? vals[si][bi] : vals[si][firstOf[si]]);
+            if (end == null || base == null) { return null; }
+            return { base, end, d: end - base };
+        };
+        const deltas = series.map((_, si) => deltaOf(si));
+        const dList = deltas.map((d, si) => ({ d, si })).filter(x => x.d != null) as { d: { base: number; end: number; d: number }; si: number }[];
+        const deltaText = (x: { base: number; end: number; d: number }): string => {
+            if (so.index) {
+                const r = Math.round(x.d);
+                return `${r > 0 ? "+" : r < 0 ? "−" : ""}${idxNf.format(Math.abs(r))}%`;
+            }
+            const rel = relVar(x.d, x.base);
+            const abs = this.fmtSigned(cfg.fmtDiff, x.d);
+            return rel == null ? abs : `${abs} (${this.fmtPercent(rel)})`;
+        };
+        const endText = (si: number): string => {
+            const v = vals[si][lastOf[si]];
+            return showValues && v != null ? `${valText(v)} ${series[si] || "–"}` : (series[si] || "–");
+        };
+        const tracks = dList.length;
+        const trackW = tracks > 0 ? tracks * (bw + 2) + 4 : 0;
+        const colTexts = [...series.map((_, si) => si).filter(si => drawn[si]).map(endText), ...dList.map(x => deltaText(x.d))];
+        const colW = Math.min(this.maxTextWidth(colTexts.length > 0 ? colTexts : [""], lf), region.w * 0.32);
+        const rightRoom = 6 + trackW + colW + 4;
+
+        // ---- horizontal layout: one point per category, the line ends at the right room
+        const x0 = region.x + pad + 4;
+        const xEnd = region.x + region.w - pad - rightRoom;
+        const step = n > 1 ? (xEnd - x0) / (n - 1) : 0;
+        const X = (i: number) => n > 1 ? x0 + i * step : (x0 + xEnd) / 2;
+        // leaf labels under the axis; with group rows they are left out when they would
+        // have to be thinned (250 days: the month row carries the time, sheet 07A)
+        const leafPred = this.labelPredicate(leaf.map(c => ({ cat: c, value: 0 } as DataPoint)), leaf, cf,
+            Math.max(step, 1), "columns", undefined, true);
+        const leafOn = gLevels.length === 0 || leaf.every((_, i) => leafPred(i));
+        const axisH = (leafOn ? cf + 8 : 4) + gLevels.length * rowH;
+        const rect: Rect = { x: region.x, y: region.y + pad, w: region.w, h: region.h - pad - axisH };
+        const domain: [number, number] = [...so.domain] as [number, number];
+        const scale = this.makePanelScale(domain, rect, "columns", titleH + (showValues ? lf + ms : 0));
+        const plotH = scale(domain[0]) - scale(domain[1]);
+        if (!(plotH >= 40) || !(xEnd - x0 >= 40)) {
+            this.lineSeriesHint(region, cfg, "space", this.locStr("Hint_SeriesSpace", "Not enough space for the series lines"));
+            return;
+        }
+        const Y = (v: number) => scale(v);
+        const axisTop = rect.y + rect.h;
+        const yTick = axisTop + cf + 2;
+        const bandStart = X(0) - (n > 1 ? step / 2 : 0), bandEnd = X(n - 1) + (n > 1 ? step / 2 : 0);
+
+        const root = this.el("g", { "data-icd": "series-lines", "data-n": n, "data-m": m,
+            ...(so.index ? { "data-index": "base100", "data-base": L.baseLabel } : {}) }, this.svg);
+        const bg = this.el("g", {}, root);
+        const lineG = this.el("g", {}, root);
+        const markG = this.el("g", {}, root);
+        const hitG = this.el("g", {}, root);
+        const lbl = this.el("g", {}, root);
+
+        // panel title: "Index, 02.01. = 100" or the scenarios that occur
+        const anyFc = fc.some((r, si) => drawn[si] && r.some((f, i) => f && vals[si][i] != null));
+        const anyAc = fc.some((r, si) => drawn[si] && r.some((f, i) => !f && vals[si][i] != null));
+        const title = so.index
+            ? this.locStr("Title_IndexPanel", "Index, {0} = 100").replace("{0}", L.baseLabel)
+            : [anyAc ? cfg.scenL.ac : "", anyFc ? cfg.scenL.fc : ""].filter(x => x).join(" · ");
+        this.drawPanelTitle(bg, rect, title, "columns", titleH, region, undefined, cfg.subtle);
+
+        // highlight bands (band style): a category or a whole axis group
+        if (cfg.highlight.size > 0 && !cfg.highlightEllipse) {
+            const hTop = rect.y + titleH, hH = axisTop + 2 - hTop;
+            const w = Math.max(step, 4);
+            for (let i = 0; i < n; i++) {
+                if (this.isEmph(cfg, cats[i])) { this.emphBand(bg, X(i) - w / 2, hTop, w, hH, cfg); }
+            }
+            for (const g of axGroups) {
+                if (this.isEmph(cfg, g.label)) {
+                    this.emphBand(bg, X(g.start) - step / 2, hTop, (g.end - g.start) * step, hH, cfg);
+                }
+            }
+        }
+        // zero line (the axis) and the index base line at 100
+        this.drawBaseline(bg, rect, scale, "columns", bandStart, bandEnd, "ac", cfg.colors);
+        if (so.index && domain[1] >= 100) {
+            this.el("line", { x1: X(0), y1: Y(100), x2: X(n - 1), y2: Y(100), stroke: cfg.subtle, "stroke-width": 1,
+                "data-icd": "line-index-base" }, bg);
+        }
+        if (cfg.refLine != null && !so.index) {
+            this.drawRefLine(bg, rect, scale, "columns", bandStart, bandEnd, cfg);
+        }
+
+        // ---- which points carry a value: end values, group starts, all (thinned)
+        const allTexts: string[] = [];
+        for (let si = 0; si < m; si++) { for (const v of vals[si]) { if (v != null) { allTexts.push(valText(v)); } } }
+        const tw = allTexts.length > 0 ? this.maxTextWidth(allTexts.slice(0, 400), lf) : 0;
+        const labelAt = new Set<number>();
+        const groupStarts: number[] = [];
+        if (showValues && so.labels !== "ends") {
+            const minGap = tw + 6;
+            if (so.labels === "groups" && gLevels.length > 0) {
+                const starts = axGroups.filter(g => g.row === 0).map(g => g.start);
+                let prev = -Infinity;
+                for (const st of starts) { if (X(st) - prev >= minGap) { labelAt.add(st); groupStarts.push(st); prev = X(st); } }
+            } else {
+                const every = n > 1 ? Math.max(1, Math.ceil(minGap / Math.max(step, 0.01))) : 1;
+                for (let i = 0; i < n; i += every) { labelAt.add(i); }
+                if (so.labels === "groups") { labelAt.forEach(i => groupStarts.push(i)); }
+            }
+        }
+
+        // ---- group guide lines (sheet 07A: month starts, from the axis up to the top point)
+        for (const i of groupStarts) {
+            const ys = vals.map((r, si) => drawn[si] && r[i] != null ? Y(r[i] as number) : null).filter(y => y != null) as number[];
+            if (ys.length === 0) { continue; }
+            this.el("line", { x1: X(i), y1: axisTop + (gLevels.length > 0 && !leafOn ? rowH - 2 : 3), x2: X(i), y2: Math.min(...ys),
+                stroke: cfg.subtle, "stroke-width": 0.8, "stroke-opacity": 0.8, "data-icd": "series-group-line", "data-i": i }, bg);
+        }
+        // axis group separators through the axis rows (as in the stacked area)
+        const sepDone = new Set<number>(groupStarts);
+        for (let r = gLevels.length - 1; r >= 0; r--) {
+            for (const g of axGroups) {
+                if (g.row !== r || g.start === 0 || sepDone.has(g.start)) { continue; }
+                sepDone.add(g.start);
+                this.el("line", { x1: X(g.start), y1: axisTop, x2: X(g.start), y2: axisTop + (leafOn ? cf + 4 : 0) + (r + 1) * rowH - 2,
+                    stroke: cfg.subtle, "stroke-width": 1, "stroke-opacity": 0.6, "data-icd": "axis-group-sep", "data-level": r + 1 }, bg);
+            }
+        }
+
+        // ---- lines: one group per series, pieces split where the scenario changes
+        for (let si = 0; si < m; si++) {
+            if (!drawn[si]) { continue; }
+            const color = colorOf(si);
+            const sg = this.el("g", { "data-icd": "line-series", "data-series": series[si],
+                "data-n": vals[si].filter(v => v != null).length }, lineG);
+            let d = "", dashD = "";
+            for (let i = 1; i < n; i++) {
+                const a = vals[si][i - 1], b = vals[si][i];
+                if (a == null || b == null) { continue; }
+                const seg = `M${X(i - 1)},${Y(a)}L${X(i)},${Y(b)}`;
+                if (fc[si][i]) { dashD += seg; } else { d += seg; }
+            }
+            const dash = dashOf(si);
+            if (d) {
+                this.el("path", { d, fill: "none", stroke: color, "stroke-width": lw, "stroke-linejoin": "round",
+                    ...(dash ? { "stroke-dasharray": dash } : {}), "data-icd": "series-path", "data-scen": "ac" }, sg);
+            }
+            if (dashD) {
+                this.el("path", { d: dashD, fill: "none", stroke: color, "stroke-width": lw, "stroke-dasharray": "4,3",
+                    "data-icd": "series-path", "data-scen": "fc" }, sg);
+            }
+        }
+
+        // ---- point marks and value labels at the labelled points (shared values once)
+        const items: { el: SVGTextElement; prio: number }[] = [];
+        const fixed: SVGTextElement[] = [];
+        const textAt = (x: number, y: number, txt: string, attrs: Record<string, string | number>): SVGTextElement => {
+            const hw = this.textWidth(txt, lf) / 2 + 1;
+            const tx = Math.max(region.x + hw, Math.min(region.x + region.w - hw, x));
+            const t = this.el("text", { x: tx, y, "text-anchor": "middle", "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round", ...attrs }, lbl) as SVGTextElement;
+            t.textContent = txt;
+            return t;
+        };
+        const mark = (si: number, i: number) => {
+            const v = vals[si][i] as number;
+            const color = colorOf(si);
+            const isFc = fc[si][i];
+            const style: Record<string, string | number> = isFc
+                ? { fill: cfg.paper, stroke: color, "stroke-width": 1 }
+                : { fill: color, stroke: cfg.paper, "stroke-width": 0.6 };
+            const attrs = { ...style, "data-icd": "series-pt", "data-series": series[si], "data-i": i,
+                "data-v": Math.round(v * 100) / 100, "data-scen": isFc ? "fc" : "ac" };
+            if (cfg.lineOpts?.shape === "square") {
+                this.el("rect", { x: X(i) - ms / 2, y: Y(v) - ms / 2, width: ms, height: ms, ...attrs, "data-shape": "square" }, markG);
+            } else {
+                this.el("circle", { cx: X(i), cy: Y(v), r: ms / 2, ...attrs, "data-shape": "circle" }, markG);
+            }
+        };
+        for (const i of [...labelAt].sort((a, b) => a - b)) {
+            const at = series.map((_, si) => si).filter(si => drawn[si] && vals[si][i] != null && i !== lastOf[si]);
+            if (at.length === 0) { continue; }
+            at.sort((a, b) => Y(vals[a][i] as number) - Y(vals[b][i] as number));
+            // equal texts at (almost) the same height: one label (sheet 07A: the 100 at the start)
+            const rows: { sis: number[]; y: number; txt: string }[] = [];
+            for (const si of at) {
+                const y = Y(vals[si][i] as number), txt = valText(vals[si][i] as number);
+                const prev = rows[rows.length - 1];
+                if (prev && prev.txt === txt && Math.abs(prev.y - y) < 2) { prev.sis.push(si); } else { rows.push({ sis: [si], y, txt }); }
+            }
+            rows.forEach((r, j) => {
+                for (const si of r.sis) { mark(si, i); }
+                const prevY = j > 0 ? rows[j - 1].y : -Infinity, nextY = j + 1 < rows.length ? rows[j + 1].y : Infinity;
+                // above when there is room up to the point above (or it is the top one), else below
+                const above = j === 0 || r.y - prevY >= lf + ms + 4 || nextY - r.y < lf + ms + 4;
+                const y = above ? r.y - ms / 2 - 3 : r.y + ms / 2 + lf;
+                const prio = i === 0 || i === bi ? 90 : 40;
+                items.push({ el: textAt(X(i), y, r.txt, { "data-icd": "series-value", "data-i": i, "data-series": r.sis.map(si => series[si]).join("|") }), prio });
+            });
+        }
+        // the end points always carry a mark (their value stands in the end label)
+        for (let si = 0; si < m; si++) { if (drawn[si]) { mark(si, lastOf[si]); } }
+
+        // ---- start-to-end markers: bar from the base level to the end value (right edge)
+        const colX = X(n - 1) + 6 + trackW;
+        const colItems: { y: number; t: SVGTextElement }[] = [];
+        dList.forEach((x, k2) => {
+            const si = x.si;
+            const xb = X(n - 1) + 6 + k2 * (bw + 2);
+            const ya = Y(x.d.base), yb = Y(x.d.end);
+            const color = x.d.d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(x.d.d) ? cfg.colors.good : cfg.colors.bad;
+            const g = this.el("g", { "data-icd": "end-delta", "data-series": series[si], "data-v": Math.round(x.d.d * 100) / 100 }, root);
+            if (!so.index) {
+                this.el("line", { x1: X(bi >= 0 ? bi : firstOf[si]), y1: ya, x2: xb + bw, y2: ya, stroke: cfg.subtle, "stroke-width": 0.8,
+                    "stroke-dasharray": "2,2", "data-icd": "end-delta-guide" }, bg);
+            }
+            this.el("line", { x1: X(lastOf[si]) + ms / 2, y1: yb, x2: xb, y2: yb, stroke: cfg.subtle, "stroke-width": 0.8,
+                "data-icd": "end-delta-guide" }, bg);
+            this.el("rect", { x: xb, y: Math.min(ya, yb), width: bw, height: Math.max(Math.abs(yb - ya), 2), fill: color,
+                "data-icd": "end-delta-bar" }, g);
+            const t = this.el("text", { x: colX, y: 0, "text-anchor": "start", "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round",
+                "data-icd": "end-delta-label" }, g) as SVGTextElement;
+            t.textContent = deltaText(x.d);
+            g.setAttribute("aria-label", `${series[si]}: ${t.textContent}`);
+            colItems.push({ y: (ya + yb) / 2, t });
+        });
+        // ---- end labels: last value and series name right of the line ends
+        for (let si = 0; si < m; si++) {
+            if (!drawn[si]) { continue; }
+            const v = vals[si][lastOf[si]] as number;
+            const t = this.el("text", { x: colX, y: 0, "text-anchor": "start", "font-size": lf, fill: cfg.ink, "font-family": FONT,
+                "font-weight": si === emphIdx ? 600 : 400, "data-icd": "series-end-label", "data-series": series[si],
+                "data-v": Math.round(v * 100) / 100 }, lbl) as SVGTextElement;
+            t.textContent = this.truncate(endText(si), colW + 2, lf);
+            colItems.push({ y: Y(v), t });
+        }
+        // spread the right column vertically (end labels and Δ labels together)
+        colItems.sort((a, b) => a.y - b.y);
+        const gap = Math.ceil(lf * 1.25) + 1;
+        const ys = colItems.map(c => c.y + lf * 0.35);
+        for (let j = 1; j < ys.length; j++) { ys[j] = Math.max(ys[j], ys[j - 1] + gap); }
+        const bottom = axisTop - 2;
+        if (ys.length > 0) { ys[ys.length - 1] = Math.min(ys[ys.length - 1], bottom); }
+        for (let j = ys.length - 2; j >= 0; j--) { ys[j] = Math.min(ys[j], ys[j + 1] - gap); }
+        colItems.forEach((c, j) => { c.t.setAttribute("y", String(Math.max(ys[j], rect.y + lf))); fixed.push(c.t); });
+
+        // ---- axis: leaf labels, group rows (month names right of their start)
+        const ax = this.el("g", { "data-icd": "series-axis" }, root);
+        if (leafOn) {
+            for (let i = 0; i < n; i++) {
+                const hl = this.isEmph(cfg, cats[i]);
+                if (!leafPred(i) && !hl) { continue; }
+                const txt = this.truncate(leaf[i], Math.max(step * 2 - 4, cf), cf);
+                // the outer labels stay inside the tile (the line starts at its left edge)
+                const hw = this.textWidth(txt, cf) / 2 + 1;
+                const t = this.el("text", { x: Math.max(region.x + hw, Math.min(region.x + region.w - hw, X(i))), y: yTick,
+                    "text-anchor": "middle", "font-size": cf, fill: cfg.ink, "font-family": FONT, "font-weight": hl ? 600 : 400 }, ax);
+                t.textContent = txt;
+            }
+        }
+        const gRowY = (row: number) => (leafOn ? yTick : axisTop + 2) + (row + 1) * rowH - (leafOn ? 0 : 3);
+        for (const g of axGroups) {
+            const x = X(g.start) + 3;
+            const maxW = g.end >= n ? region.x + region.w - x - 2 : (g.end - g.start) * step - 5;
+            if (maxW < cf) { continue; }
+            const hl = this.isEmph(cfg, g.label);
+            const t = this.el("text", { x, y: gRowY(g.row), "text-anchor": "start", "font-size": cf,
+                fill: cfg.ink, "font-family": FONT, "font-weight": hl ? 600 : 400, "data-icd": "axis-group",
+                "data-level": g.row + 1, "data-label": g.label }, ax);
+            t.textContent = this.truncate(g.label, maxW, cf);
+        }
+
+        this.declutterLabels(items, fixed);
+
+        // ---- interaction: per category one invisible cell per series (the nearest line
+        // owns the vertical slice); tooltip with all series of the category
+        const half = n > 1 ? step / 2 : 12;
+        for (let i = 0; i < n; i++) {
+            const at = series.map((_, si) => si).filter(si => drawn[si] && vals[si][i] != null)
+                .sort((a, b) => Y(vals[a][i] as number) - Y(vals[b][i] as number));
+            if (at.length === 0) { continue; }
+            const extra = () => at.map(si => {
+                const rv = L.raw[si][i];
+                return { displayName: series[si] || "–", value: so.index
+                    ? `${valText(vals[si][i] as number)}${rv != null ? ` (${cfg.fmt.format(rv)})` : ""}`
+                    : cfg.fmt.format(vals[si][i] as number) };
+            });
+            at.forEach((si, j) => {
+                const p = L.cell.get(`${cats[i]}¦${series[si]}`) as DataPoint;
+                const yTop = j === 0 ? rect.y + titleH : (Y(vals[at[j - 1]][i] as number) + Y(vals[si][i] as number)) / 2;
+                const yBot = j === at.length - 1 ? axisTop : (Y(vals[si][i] as number) + Y(vals[at[j + 1]][i] as number)) / 2;
+                const g = this.el("g", { "class": "icd-cat", "data-icd": "series-cell", "data-series": series[si], "data-i": i }, hitG) as SVGGElement;
+                this.el("rect", { x: X(i) - half, y: yTop, width: Math.max(half * 2, 1), height: Math.max(yBot - yTop, 1),
+                    fill: cfg.paper, "fill-opacity": 0 }, g);
+                this.attachInteraction(g, p, cfg, { extra });
+                g.setAttribute("aria-label", `${p.cat}, ${series[si]}: ${valText(vals[si][i] as number)}`);
+                this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+            });
+        }
+        if (so.index && L.noBase.length > 0) {
+            this.lineSeriesHint(region, cfg, "index", this.locStr("Hint_IndexNoBase", "Index: no base value (empty or 0) for {0}, not drawn")
+                .replace("{0}", L.noBase.join(", ")));
+        }
     }
 
     // ------------------------------------------------- 1.55 (B11) stock & flow

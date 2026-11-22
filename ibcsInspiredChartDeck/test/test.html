@@ -2297,7 +2297,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21"]', "c222: 20 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21) " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22"]', "c222: 21 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3226,16 +3226,23 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   runCap("c230", emptyDv({ chart: { template: "C03", templateApplied: "C03" } }), 1280, 600, { viewMode: 1 });
   hubClick("c230", "hub-templates");
   const groups = groupsOf("c230"), tiles = tilesOf("c230");
-  check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
+  // 1.56 (B17): mit C22 hat „Zeitverlauf“ neun Kacheln und läuft bei 1280 px in einer zweiten Zeile weiter („ZEITVERLAUF …“)
+  check(JSON.stringify([...new Set(groups)].sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
+  const heads = (gid) => [...document.querySelectorAll(`#c230 [data-icd="hub-tpl-group-${gid}"]`)].map(e => e.getBoundingClientRect());
   const ok = Object.entries(want).every(([gid, codes]) => {
-    const h = box("hub-tpl-group-" + gid);
     const bs = codes.map(cd => box("hub-tpl-" + cd));
-    return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
+    return bs.every((b, i) => {
+      // die nächste Überschrift der Gruppe über der Kachel (eine Fortsetzung beginnt eine neue Zeile)
+      const h = heads(gid).filter(x => x.top < b.top).sort((p, q) => q.top - p.top)[0];
+      const sameRow = i > 0 && Math.abs(bs[i - 1].top - b.top) < 1;
+      return h && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || !sameRow || b.left > bs[i - 1].left)
+        && (i === 0 || sameRow || b.top > bs[i - 1].top);
+    });
   });
-  check(ok && tiles.length === 20, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 21, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -6810,6 +6817,298 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B15-END
+// ---- B17-BEGIN
+// ======================================================================
+// 1.56 (B17): Serienlinien mit Index, IBCS-Blatt 07A (Vorlage C22). Drei Serien,
+// Index 100 am ersten Punkt; Monatsanfänge des Blatts: Alpha 100 → 152,
+// Beta 100 → 102, Gamma 100 → 7 (Start-Ende-Marker −93 %)
+// ======================================================================
+{
+  const sQ = (id, sel) => [...document.querySelectorAll(sel.split(",").map(x => `#${id} ${x.trim()}`).join(","))];
+  const sSvg = id => [...document.querySelectorAll(`#${id} svg`)].map(x => x.outerHTML).join("\n")
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N");
+  const num = t => Number(String(t).replace("−", "-").replace(/[^\d.,-]/g, "").replace(",", "."));
+  const b17Cat = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez","Ende"];
+  const b17Ser = ["Alpha Corp.", "Beta Corp.", "Gamma Corp."];
+  // Index an den Monatsanfängen (Blatt 07A) und der Endwert
+  const b17Idx = {
+    "Alpha Corp.": [100, 73, 74, 71, 93, 103, 114, 122, 123, 135, 147, 170, 152],
+    "Beta Corp.":  [100, 111, 122, 116, 106, 109, 101, 88, 88, 115, 111, 130, 102],
+    "Gamma Corp.": [100, 95, 90, 80, 91, 74, 38, 36, 32, 43, 44, 20, 7]
+  };
+  // Rohwerte mit unterschiedlichem Niveau je Serie (Kurs in €)
+  const b17Base = { "Alpha Corp.": 240, "Beta Corp.": 50, "Gamma Corp.": 12.5 };
+  const raw = (sn, v) => v == null ? null : Math.round(v * b17Base[sn] / 100 * 1000) / 1000;
+  // opts: cats, idx (Serie → Werte), fc (i → true), mult [[Name, Faktor], …], objs
+  const b17Dv = (chart, opts) => {
+    opts = opts || {};
+    const cats = opts.cats || b17Cat, idx = opts.idx || b17Idx, ser = opts.series || Object.keys(idx);
+    const C = [], S = [], A = [], F = [], MU = [], LV = [];
+    for (const [mn, f] of (opts.mult || [[null, 1]])) {
+      cats.forEach((c, i) => ser.forEach(sn => {
+        const v = raw(sn, idx[sn][i]);
+        const vv = v == null ? null : Math.round(v * f * 1000) / 1000;
+        C.push(c); S.push(sn); MU.push(mn);
+        if (opts.levels) { LV.push(opts.levels[i]); }
+        const isFc = opts.fc && opts.fc(i);
+        A.push(isFc ? null : vv); F.push(isFc ? vv : null);
+      }));
+    }
+    const categories = opts.levels
+      ? [{ source: { displayName: "Monat", roles: { category: true } }, values: LV },
+        { source: { displayName: "Tag", roles: { category: true } }, values: C }]
+      : [{ source: { displayName: "Stichtag", roles: { category: true } }, values: C }];
+    categories.push({ source: { displayName: "Aktie", roles: { series: true } }, values: S });
+    if (opts.mult) { categories.push({ source: { displayName: "Börse", roles: { multiples: true } }, values: MU }); }
+    const values = [col("actual", A, "#,0.00", null, "Kurs")];
+    if (opts.fc) { values.push(col("forecast", F, "#,0.00")); }
+    return { metadata: { columns: [], objects: Object.assign({ chart }, opts.objs || {}) }, categorical: { categories, values } };
+  };
+  const endV = id => Object.fromEntries(sQ(id, '[data-icd="series-end-label"]').map(t => [t.getAttribute("data-series"), Math.round(Number(t.getAttribute("data-v")))]));
+  const overlap = (a, b) => Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x) > 0.5 && Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y) > 0.5;
+  // die C22-Eigenschaften direkt gesetzt (eine Vorlage überschriebe Varianten derselben Schlüssel)
+  const c22 = extra => Object.assign({ orientation: "line", lineSeries: true, lineIndex: "base100", lineSeriesLabels: "groups",
+    lineSeriesColor: "tones", lineMarkerShape: "square", showAbsoluteVariance: false, showRelativeVariance: false,
+    dualVariance: false, cumulative: false, showTotal: false }, extra || {});
+  const title07A = { ibcsTitle: { kpi: "Stock value in % of 2025-01-02", period: "2025",
+    message: "In 2025, Gamma Corp's stock lost 93% of its value at the start of the year." } };
+
+  // c860: Vorlage C22 komplett (13 Stichtage)
+  addStage("c860", "B17 · C22 komplett (07A): drei Serien, Index 100 → 152 / 102 / 7, Werte an jedem Stichtag", 1280, 640);
+  {
+    runCap("c860", b17Dv({ template: "C22" }, { objs: title07A }), 1280, 640);
+    const ls = sQ("c860", '[data-icd="line-series"]');
+    check(ls.length === 3 && ls.every(g => g.getAttribute("data-n") === "13"), `c860: 3 Serienlinien mit je 13 Punkten (${ls.map(g => g.getAttribute("data-n")).join("/")})`);
+    const ev = endV("c860");
+    check(ev["Alpha Corp."] === 152 && ev["Beta Corp."] === 102 && ev["Gamma Corp."] === 7, `c860: Endwerte ${JSON.stringify(ev)}`);
+    const start = sQ("c860", '[data-icd="series-pt"][data-i="0"]').map(e => Number(e.getAttribute("data-v")));
+    const v0 = sQ("c860", '[data-icd="series-value"][data-i="0"]');
+    check(start.length === 3 && start.every(v => v === 100) && v0.length === 1 && v0[0].textContent === "100",
+      `c860: Start je 100 (${start.join("/")}), ein gemeinsames Label „100“`);
+    check(sQ("c860", '[data-icd="line-index-base"]').length === 1 && sQ("c860", '[data-icd="series-lines"]')[0]?.getAttribute("data-base") === "Jan",
+      "c860: Linie bei 100, Basis Jan");
+    const ttl = [...document.querySelectorAll("#c860 text")].map(t => t.textContent).find(t => /^Index, /.test(t));
+    check(ttl === "Index, Jan = 100", `c860: Panel-Titel ${ttl}`);
+    check(![...document.querySelectorAll("#c860 text")].some(t => /^Δ/.test(t.textContent)), "c860: keine Δ-Panels");
+    check(sQ("c860", '[data-icd="series-value"]').length >= 20, `c860: Werte an den Stichtagen (${sQ("c860", '[data-icd="series-value"]').length} Labels)`);
+    const right = Math.max(...sQ("c860", '[data-icd="series-end-label"]').map(t => t.getBBox().x + t.getBBox().width));
+    check(right <= 1280, `c860: Endbeschriftung im Visual (${Math.round(right)} px)`);
+  }
+
+  // c861: Index aus, Rohwerte
+  addStage("c861", "B17 · Serienlinien ohne Index: Rohwerte (Kurs in €), keine Linie bei 100", 1280, 560);
+  {
+    runCap("c861", b17Dv({ orientation: "line", lineSeries: true, lineSeriesLabels: "groups", showAbsoluteVariance: false }), 1280, 560);
+    const ev = endV("c861");
+    check(sQ("c861", '[data-icd="line-index-base"]').length === 0 && ev["Alpha Corp."] === 365 && ev["Beta Corp."] === 51 && ev["Gamma Corp."] === 1,
+      `c861: Rohwerte am Ende ${JSON.stringify(ev)}, keine Indexlinie`);
+    check(!sQ("c861", '[data-icd="series-lines"]')[0]?.hasAttribute("data-index"), "c861: kein data-index");
+  }
+
+  // c862: Basis-Kategorie gesetzt (Jul)
+  addStage("c862", "B17 · Index mit Basis „Jul“: alle Serien im Juli = 100", 1280, 560);
+  {
+    runCap("c862", b17Dv({ template: "C22", lineIndexBase: "jul" }), 1280, 560);
+    const at6 = sQ("c862", '[data-icd="series-pt"][data-i="6"]').map(e => Number(e.getAttribute("data-v")));
+    const ev = endV("c862");
+    check(at6.length === 3 && at6.every(v => v === 100) && sQ("c862", '[data-icd="series-lines"]')[0]?.getAttribute("data-base") === "Jul",
+      `c862: Jul = 100 in allen Serien (${at6.join("/")})`);
+    check(ev["Alpha Corp."] === Math.round(152 / 114 * 100) && ev["Gamma Corp."] === Math.round(7 / 38 * 100), `c862: Endwerte gegen Jul ${JSON.stringify(ev)}`);
+  }
+
+  // c863: Start-Ende-Marker für Gamma
+  addStage("c863", "B17 · Start-Ende-Marker Gamma Corp.: −93 % in Schlecht-Farbe", 1280, 600);
+  {
+    runCap("c863", b17Dv({ template: "C22", lineEndDelta: "Gamma Corp." }), 1280, 600);
+    const ed = sQ("c863", '[data-icd="end-delta"]');
+    const lab = sQ("c863", '[data-icd="end-delta-label"]')[0]?.textContent;
+    const fill = sQ("c863", '[data-icd="end-delta-bar"]')[0]?.getAttribute("fill");
+    check(ed.length === 1 && ed[0].getAttribute("data-series") === "Gamma Corp." && Number(ed[0].getAttribute("data-v")) === -93 && lab === "−93%",
+      `c863: ein Marker Gamma, Δ ${ed[0]?.getAttribute("data-v")}, Label ${lab}`);
+    check(fill === "#D64541", `c863: Balken in Schlecht-Farbe (${fill})`);
+    const bar = sQ("c863", '[data-icd="end-delta-bar"]')[0].getBBox();
+    const yBase = Number(sQ("c863", '[data-icd="line-index-base"]')[0].getAttribute("y1"));
+    check(Math.abs(bar.y - yBase) < 1.5, `c863: Balken beginnt bei 100 (${bar.y.toFixed(1)} / ${yBase.toFixed(1)})`);
+  }
+  addStage("c863b", "B17 · Start-Ende-Marker für alle Serien (*): drei Balken, rechte Spalte entzerrt", 1280, 600);
+  {
+    runCap("c863b", b17Dv({ template: "C22", lineEndDelta: "*" }), 1280, 600);
+    const all = sQ("c863b", '[data-icd="end-delta"]').map(g => Math.round(Number(g.getAttribute("data-v"))));
+    const labs = sQ("c863b", '[data-icd="end-delta-label"], [data-icd="series-end-label"]').map(t => t.getBBox());
+    check(all.join(",") === "52,2,-93" && labs.every((b, i) => labs.every((c, j) => j <= i || !overlap(b, c))),
+      `c863b: „*“ = drei Marker (${all.join(", ")}), Beschriftungen rechts ohne Überlappung`);
+  }
+
+  // c864: enge Endwerte, Namen entzerrt
+  addStage("c864", "B17 · Endbeschriftung bei engen Endwerten (101 / 102 / 103): drei Namen ohne Überlappung", 960, 420);
+  {
+    const idx = { "Alpha Corp.": [100, 120, 101], "Beta Corp.": [100, 90, 102], "Gamma Corp.": [100, 80, 103] };
+    runCap("c864", b17Dv({ template: "C22" }, { cats: ["Q1", "Q2", "Q3"], idx }), 960, 420);
+    const b = sQ("c864", '[data-icd="series-end-label"]').map(t => t.getBBox());
+    check(b.length === 3 && !overlap(b[0], b[1]) && !overlap(b[1], b[2]) && !overlap(b[0], b[2]), "c864: drei Endbeschriftungen ohne Überlappung");
+  }
+
+  // c865: Blatt 07A nachgebaut, Hierarchie Monat › Tag (252 Handelstage)
+  addStage("c865", "B17 · Blatt 07A: Monat › Tag (252 Tage), Werte an Monatsanfängen, Gamma −93 %", 1280, 640);
+  {
+    const days = [], lev = [], idx = { "Alpha Corp.": [], "Beta Corp.": [], "Gamma Corp.": [] };
+    const mNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const per = 21;
+    let seed = 7;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    const walk = {};
+    for (let mo = 0; mo < 12; mo++) {
+      for (let d = 0; d < per; d++) {
+        lev.push(mNames[mo]); days.push(String(d + 2).padStart(2, "0") + "." + String(mo + 1).padStart(2, "0") + ".");
+        for (const sn of b17Ser) {
+          const a = b17Idx[sn][mo], b = b17Idx[sn][mo + 1];
+          const t = d / per;
+          // deterministischer Zufallspfad, der an den Monatsanfängen die Blattwerte trifft
+          walk[sn] = d === 0 ? 0 : walk[sn] * 0.8 + (rnd() - 0.5) * 7;
+          const wob = d === 0 ? 0 : walk[sn] * Math.sin(Math.PI * t);
+          idx[sn].push(Math.round((a + (b - a) * t + wob) * 10) / 10);
+        }
+      }
+    }
+    lev.push("Dec"); days.push("31.12.");
+    for (const sn of b17Ser) { idx[sn].push(b17Idx[sn][12]); }
+    runCap("c865", b17Dv(c22({ lineEndDelta: "Gamma Corp.", lineSeriesColor: "palette" }),
+      { cats: days, idx, levels: lev, objs: title07A }), 1280, 640);
+    const gl = sQ("c865", '[data-icd="series-group-line"]').map(e => Number(e.getAttribute("data-i")));
+    const vals = sQ("c865", '[data-icd="series-value"]').map(e => Number(e.getAttribute("data-i")));
+    check(gl.length === 12 && gl.every(i => i % per === 0), `c865: 12 Gruppenlinien an den Monatsanfängen (${gl.join(",")})`);
+    check(vals.length > 0 && vals.every(i => i % per === 0), `c865: Werte nur an Gruppenanfängen (${vals.length} Labels)`);
+    check(sQ("c865", '[data-icd="axis-group"]').length === 12 && sQ("c865", '[data-icd="series-axis"] text:not([data-icd])').length === 0,
+      "c865: Monatszeile, keine Tageslabels");
+    const ev = endV("c865");
+    check(ev["Alpha Corp."] === 152 && ev["Beta Corp."] === 102 && ev["Gamma Corp."] === 7
+      && Number(sQ("c865", '[data-icd="end-delta"]')[0]?.getAttribute("data-v")) === -93, `c865: Endwerte ${JSON.stringify(ev)}, −93`);
+  }
+
+  // c866: Small Multiples mit Σ-Kachel: Index der Summen
+  addStage("c866", "B17 · Small Multiples (Xetra, NYSE) mit Σ-Kachel: Σ indexiert die Summen", 1280, 600);
+  {
+    runCap("c866", b17Dv({ template: "C22", multiplesTotal: true }, { mult: [["Xetra", 1], ["NYSE", 3]] }), 1280, 600);
+    const roots = sQ("c866", '[data-icd="series-lines"]');
+    const ev = sQ("c866", '[data-icd="series-end-label"]').map(t => [t.getAttribute("data-series"), Number(t.getAttribute("data-v"))]);
+    // Summe je Stichtag = Rohwert × 4, Index der Summe = Index der Serie
+    check(roots.length === 3 && ev.length === 9 && ev.slice(0, 3).map(x => Math.round(x[1])).join(",") === "152,102,7",
+      `c866: drei Kacheln, Σ-Kachel ${ev.slice(0, 3).map(x => Math.round(x[1])).join("/")}`);
+    // gleiche Skala: px je Indexpunkt zwischen Start (100) und Ende (7) der Gamma-Linie
+    const k = roots.map(r => {
+      const g = [...r.querySelectorAll('[data-icd="series-pt"][data-series="Gamma Corp."]')].map(e => Number(e.getAttribute("y")));
+      return (g[g.length - 1] - g[0]) / 93;
+    });
+    check(sQ("c866", '[data-icd="line-index-base"]').length === 3 && k.every(v => Math.abs(v - k[0]) < 0.01 && v > 0),
+      `c866: Linie bei 100 in jeder Kachel, gleiche Skala (${k.map(v => v.toFixed(3)).join(" / ")} px je Punkt)`);
+  }
+
+  // c867: Basiswert 0 → Serie fehlt, Hinweis im Bearbeitungsmodus
+  addStage("c867", "B17 · Basiswert 0 bei Gamma: Gamma fehlt, Hinweis im Bearbeitungsmodus", 960, 420);
+  {
+    const idx = { "Alpha Corp.": b17Idx["Alpha Corp."], "Beta Corp.": b17Idx["Beta Corp."], "Gamma Corp.": [0, ...b17Idx["Gamma Corp."].slice(1)] };
+    runCap("c867", b17Dv({ template: "C22" }, { idx }), 960, 420, { viewMode: 1 });
+    const h = sQ("c867", '[data-icd="line-hint"][data-kind="index"]');
+    check(sQ("c867", '[data-icd="line-series"]').length === 2 && h.length === 1 && /Gamma Corp\./.test(h[0].textContent),
+      `c867: zwei Linien, Hinweis „${h[0] ? h[0].textContent : "–"}“`);
+  }
+
+  // c868: FC-Abschnitt gestrichelt
+  addStage("c868", "B17 · FC ab Okt: gestrichelt ab dem ersten FC-Punkt, FC-Marken hohl", 1280, 560);
+  {
+    runCap("c868", b17Dv({ template: "C22" }, { fc: i => i >= 9 }), 1280, 560);
+    const fcp = sQ("c868", '[data-icd="series-path"][data-scen="fc"]');
+    check(fcp.length === 3 && fcp.every(p => p.getAttribute("stroke-dasharray") === "4,3") && fcp.every(p => (p.getAttribute("d").match(/M/g) || []).length === 4),
+      `c868: drei gestrichelte FC-Pfade mit je 4 Stücken (Sep → Okt … Dez → Ende)`);
+    check(sQ("c868", '[data-icd="series-pt"][data-scen="fc"]').every(e => e.getAttribute("fill") !== e.getAttribute("stroke")), "c868: FC-Marken hohl");
+  }
+
+  // c869: Regression: Standardwerte zeichnen SVG-gleich; Serie in Linie/Säulen ohne Schalter unverändert
+  {
+    const dflt = { lineSeries: false, lineIndex: "off", lineIndexBase: "", lineSeriesColor: "tones", lineSeriesLabels: "ends", lineEndDelta: "" };
+    const cases = [
+      ["c869", "Linie mit gebundener Serie", { orientation: "line" }],
+      ["c869b", "Säulen-Stapel mit Serie", { orientation: "columns" }],
+      ["c869c", "C08 mit Serie", { template: "C08" }]
+    ];
+    for (const [id, title, ch] of cases) {
+      addStage(id, `B17 · Regression ${title} ohne B17-Angaben`, 960, 380);
+      addStage(id + "d", `B17 · Regression ${title} mit ausdrücklichen Standardwerten`, 960, 380);
+      runCap(id, b17Dv(ch), 960, 380);
+      runCap(id + "d", b17Dv(Object.assign({}, ch, dflt)), 960, 380);
+      check(sSvg(id) === sSvg(id + "d") && !/data-icd="(series-|line-series|end-delta|line-index-base)/.test(sSvg(id)), `${id}: Standardwerte SVG-gleich, keine B17-Marker`);
+    }
+    addStage("c869s", "B17 · Säulen-Stapel mit lineSeries = an: Schalter wirkt nur in der Linie", 960, 380);
+    runCap("c869s", b17Dv({ orientation: "columns", lineSeries: true, lineIndex: "base100" }), 960, 380);
+    check(sSvg("c869s") === sSvg("c869b"), "c869s: Säulen-Stapel unverändert mit lineSeries an");
+  }
+
+  // c870: lineSeries ohne Serienfeld: einfache Linie mit Hinweis
+  addStage("c870", "B17 · Serienlinien ohne Feld „Stack-Serie“: einfache Linie, Hinweis im Bearbeitungsmodus", 960, 380);
+  {
+    runCap("c870", dataView(b17Cat, [col("actual", b17Idx["Alpha Corp."], "#,0")], { chart: { orientation: "line", lineSeries: true } }), 960, 380, { viewMode: 1 });
+    const h = sQ("c870", '[data-icd="line-hint"][data-kind="series"]');
+    check(h.length === 1 && sQ("c870", '[data-icd="series-lines"]').length === 0, `c870: Hinweis „${h[0] ? h[0].textContent : "–"}“`);
+  }
+
+  // c871: YTD ist mit Serienlinien aus (kumuliert nicht), Chip gesperrt
+  addStage("c871", "B17 · C22 + kumulative Sicht und YTD-Chip: nicht kumuliert, Chip gesperrt", 1280, 560);
+  {
+    runCap("c871", b17Dv(c22({ cumulative: true, cumulativeKind: "ytd", cumulativeButton: true, lineR12: true, lineGapMarkers: "both" })), 1280, 560);
+    const ev = endV("c871");
+    const chip = sQ("c871", '[data-icd-locked="1"]');
+    check(ev["Alpha Corp."] === 152 && sQ("c871", '[data-icd="line-r12"], [data-icd="gap-marker"]').length === 0, `c871: Endwerte wie ohne YTD ${JSON.stringify(ev)}, keine B15-Marker`);
+    check(chip.length >= 1, `c871: YTD-Chip gesperrt (${chip.length})`);
+  }
+
+  // c872: Farben: Palette, Hervorhebung, Dunkel, Hochkontrast
+  addStage("c872", "B17 · Grautöne mit Hervorhebung Gamma (AC-Farbe, fett)", 960, 420);
+  addStage("c872b", "B17 · Gruppenpalette", 960, 420);
+  addStage("c872c", "B17 · Dark Mode", 960, 420, "#1E1E1E");
+  addStage("c872d", "B17 · Hochkontrast (Strichmuster je Serie)", 960, 420, "#000");
+  {
+    runCap("c872", b17Dv(c22({ highlight: "Gamma Corp." })), 960, 420);
+    const col = id => Object.fromEntries(sQ(id, '[data-icd="line-series"]').map(g => [g.getAttribute("data-series"), g.querySelector("path").getAttribute("stroke")]));
+    const c1 = col("c872");
+    check(c1["Gamma Corp."] !== c1["Alpha Corp."] && c1["Alpha Corp."] !== c1["Beta Corp."] && !/^rgb/.test(c1["Gamma Corp."]), `c872: Gamma in AC-Farbe ${JSON.stringify(c1)}`);
+    runCap("c872b", b17Dv(c22({ lineSeriesColor: "palette" })), 960, 420);
+    const c2 = col("c872b");
+    check(c2["Alpha Corp."] === "#404040" && c2["Beta Corp."] === "#3D78B2" && c2["Gamma Corp."] === "#B0702A", `c872b: Palette ${JSON.stringify(c2)}`);
+    runCap("c872c", b17Dv({ template: "C22" }, { objs: { colors: { appearance: "dark" } } }), 960, 420);
+    runCap("c872d", b17Dv({ template: "C22" }), 960, 420, { hc: true });
+    const d = sQ("c872d", '[data-icd="series-path"]').map(p => p.getAttribute("stroke-dasharray") || "");
+    check(sQ("c872c", '[data-icd="line-series"]').length === 3 && new Set(d).size === 3, `c872c/d: Dunkel und Hochkontrast (Muster ${d.join(" | ")})`);
+  }
+
+  // c873: kleine Kachel, alles im Visual
+  addStage("c873", "B17 · C22 klein (420 × 300)", 420, 300);
+  {
+    runCap("c873", b17Dv({ template: "C22", lineEndDelta: "Gamma Corp." }), 420, 300);
+    const right = Math.max(0, ...sQ("c873", "text").map(t => t.getBBox().x + t.getBBox().width));
+    check(right <= 421 && sQ("c873", '[data-icd="line-series"]').length === 3, `c873: rechter Textrand ${Math.round(right)} ≤ 420`);
+  }
+
+  // c874: Werte an allen Punkten bzw. keine
+  addStage("c874", "B17 · Serienwerte „alle Punkte“ (nach Platz)", 1280, 520);
+  addStage("c874b", "B17 · Serienwerte „keine“: nur Namen am Ende, Marken nur an den Endpunkten", 960, 400);
+  {
+    runCap("c874", b17Dv(c22({ lineSeriesLabels: "all" })), 1280, 520);
+    check(sQ("c874", '[data-icd="series-value"]').length >= 20, `c874: ${sQ("c874", '[data-icd="series-value"]').length} Werte`);
+    runCap("c874b", b17Dv(c22({ lineSeriesLabels: "none" })), 960, 400);
+    const names = sQ("c874b", '[data-icd="series-end-label"]').map(t => t.textContent);
+    check(sQ("c874b", '[data-icd="series-value"]').length === 0 && sQ("c874b", '[data-icd="series-pt"]').length === 3
+      && names.length === 3 && names.every(n => b17Ser.includes(n)),
+      `c874b: keine Werte, 3 Endmarken, Namen ${names.join(" · ")}`);
+  }
+
+  // kein NaN, undefined oder Infinity in den B17-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c8[6-9]\d[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(sSvg(id)));
+    check(ids.length >= 20 && bad.length === 0, `c860 bis c874: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B17-END
 </script>
 </body>
 </html>
