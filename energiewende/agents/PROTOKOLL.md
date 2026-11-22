@@ -20,3 +20,5 @@ denkfabrik-r21.de und www.cleanthinking.de vor der Host-Freigabe.
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
 | P1-06 Europa | Sonnet | 2026-11-22 | 10,5 min | 232.158 | 67 | `research/06_europa.md`, 31 Parameter (9 A, 17 B, 5 C); nicht erreichbar: ENTSO-E, ACER |
+| P1-08 Wasserstoff, E-Fuels, Lkw | Sonnet | 2026-11-22 | 11,9 min | 335.005 | 96 | `research/08_wasserstoff_efuels_lkw.md`, 41 Parameter (1 A, 33 B, 7 C); 18 Dokumente primär gelesen; nicht erreichbar u. a. ICCT, Fraunhofer ISI, NOW, KBA, EASA, EUR-Lex |
+| P1-03 Stromdaten | Sonnet | 2026-11-22 | 12,0 min | 224.898 | 63 | `research/03_stromdaten.md`, elf Wetterjahre 2015–2025 stündlich (`data/profiles_*.json`), 17 Parameter (11 B, 6 C); nicht erreichbar: ag-energiebilanzen.de (403), renewables.ninja, Redispatch-Berichte |
