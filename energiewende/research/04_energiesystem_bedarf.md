@@ -344,9 +344,9 @@ den Studien, kein einzelner Literaturwert):
 |---|---|---|---|
 | Verkehr | Endenergie 2045 gegen 2024 | −51 % (576 → rund 280 TWh) | Rechnung (M) aus Agora S. 22 und Eurostat |
 | Verkehr Pkw | je 100 km | Faktor 3,2–4,6 | siehe oben |
-| Gebäude | Endenergie 2045 | 700 TWh bei konstantem Strom ≈ 280 TWh | Agora S. 22 und S. 89 |
+| Gebäude | Endenergie 2045 | 700 TWh bei konstantem Strom ≈ 280 TWh | Agora Kap. 1.4 (Gebäude), Kernindikatoren S. 46 |
 | Gebäude | Wärmepumpe gegen Gasbrennwert | je kWh Nutzwärme 0,2–0,4 kWh Strom statt 1,0 kWh Gas; **Kesselnutzungsgrad ist Setzung (M)** | Rechnung |
-| Industrie | Gesamtsystem | Endenergie Industrie 2024: 607,6 TWh (AGEB); Strom 2045 Agora 448 TWh, Ariadne 51–128 TWh für H₂-intensiven Schiffs/Flug (Verkehr) | UBA, Agora, Ariadne |
+| Industrie | Strom statt Brennstoff | Industrie-Strom 2024: 186 TWh (AGEB-Abgrenzung); 2045 laut Agora 448 TWh; der Brennstoffersatz erfolgt über Strom, Wasserstoff und Biomasse (Ariadne: H₂ und E-Fuels tragen 41–59 % des Industrie-Energiebedarfs 2045, FORECAST-Modell) | UBA V 1.4, Agora S. 46, Ariadne Kap. 5 |
 | Gesamt | Endenergie 2015–2045 | −31 bis −45 % | Ariadne PDF S. 22 |
 
 ## 5. Der aktuelle Regierungspfad
