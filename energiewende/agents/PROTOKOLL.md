@@ -91,3 +91,4 @@ Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
 
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
+| P5-06 Kernkraft-Befürworterin | Opus | 2026-11-22 | 6,1 min | 209.299 | 29 | `research/reviews_teil1/06_kernkraft_befuerworterin.md`: 2 kritisch, 4 mittel, 3 klein. Kritisch: Etikett „gebaute westliche Projekte“ trifft nicht zu (keines der Referenzprojekte ist fertig, Abgrenzungen gemischt); „R21 beziffert den eigenen Kurs nicht“ ist zu stark (Factsheet B nennt 8,2 ct/kWh) |
