@@ -13,6 +13,37 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.56.0.0** (22.11.2026): Backlog IBCS-Templates B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17 (siehe „Neu in 1.56“); davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.57 (in Arbeit):**
+
+*B18 · Scatter-Zeitpfad mit Quotenstrahlen (Blätter 07D, 07E, Vorlage C23).* Keine neue Rolle: Vertrag des Play-Modus,
+`category` = Periode (Reihenfolge wie geliefert), `series` = Einheit, `actual` = Y, `xValue` = X; `multiples` gibt Pfade
+je Kachel, `bubbleSize` bleibt möglich, `fcFlag`/`forecast` kennzeichnen FC-Perioden. Objekt `chart`, Gruppe
+„Scatter / Blase“: `scatterPath` (`off` | `line`, Standard `off`), `scatterPathLabels` (`auto` | `ends` | `all` | `off`,
+Standard `auto`), `scatterPathArrow` (bool), `scatterPathDelta` (bool); die drei letzten nur bei `scatterPath=line` im
+Pane, `scatterArrows` dann ausgeblendet. Objekt `scale`, Gruppe „Scatter-Achsen“: `ratioRays` (Text, `;`-Liste, je Eintrag
+`parseRefValue`, Werte ≤ 0 und Dubletten fallen weg) und `ratioRayUnit` (Text, nur mit Strahlen im Pane).
+`scatterConfig` liefert `sc.path`, `sc.pathLabels`, `sc.pathArrow`, `sc.pathDelta`, `sc.rays`, `sc.rayUnit`; mit
+`sc.path` sind `sc.arrows` und `sc.pyBubbles` falsch. Alle Zweige hängen an `sc.path` bzw. `sc.rays.length > 0`.
+Aufbau in `renderScatter` an festen Stellen, die Arbeit in eigenen Methoden (B19 baut im selben Renderer weiter):
+`scatterPathUnits(points, vis, frames)` (Einheit = `stackSeries`, Knoten `null` = Lücke, fehlende Zeile = durchverbunden),
+`scatterPathDeltas`, `scatterExtraMargins` (Ränder oben/rechts für Strahl-Labels, unten/rechts für Δ, im `mg` vor dem
+Überlauf-Durchlauf; `shrunk` zählt nur den Überlauf), `drawScatterRays` (nach `placed`/`halo`, in `bg`, Labels
+reserviert), `drawScatterPaths` (vor der Punktlabel-Schleife; Linien in `scatter-paths` unter `marks`, Labels in
+`scatter-path-labels`, nach den Marken nach oben gehängt; Punktnamen entfallen im Pfadmodus). Kontext über
+`ScatterPlotCtx` (Skalen, Plotkanten, `placed`, `hitsMark`, `markOf`). `scatterAxisDomain(..., rays)` zieht bei
+Strahlen die 0 in lineare Achsen und rundet eine automatische Obergrenze auf den `niceTicks`-Schritt; der Austritt
+(`scatterRaySpan`) liegt auf dem aufgelösten Achsenbereich, nicht auf dem Pixelrand. Kacheln: `ScatterShared.tileBox`
+(nur mit Strahlen gesetzt) entscheidet über die Labels (oben erste Zeile, rechts letzte Spalte, Zoom alle).
+Play: `scatterAnim.paths` (Knoten je Frame, `undefined` = keine Zeile) wächst über `scatterPathD`, `pathLabels` werden
+beim Start ausgeblendet, das Ende rendert neu. Tooltip: `attachInteraction(..., { extra })` mit `Tip_Ratio`, nur mit
+Strahlen. Δ X neutral (Tinte), Δ Y nach `cfg.isGood`. `data-icd`: `scatter-paths`, `scatter-path` (`data-series`,
+`data-n`), `scatter-path-head`, `scatter-path-labels`, `scatter-path-label` (`data-cat`, `data-series`),
+`scatter-path-name`, `scatter-path-guides`, `scatter-path-delta` (`data-axis`, `data-v`), `scatter-path-delta-head`,
+`scatter-rays`, `scatter-ray` (`data-k`), `scatter-ray-end` (`data-x`, `data-y`), `scatter-ray-origin`,
+`scatter-ray-label`, `scatter-hint-path`. Vorlage C23 (Galerie Zeitverlauf, braucht `xValue`, Mini `scatterpath`).
+Tests c900 bis c917; Galerie-Tests c222 und c230 kennen C23. Standard SVG-gleich (Hash aller 701 Bestands-Stufen,
+geändert nur Galerie c222b, c222d, c229, c230, c230b). 953 resjson-Keys je Sprache.
+
 **Neu in 1.56 (Backlog IBCS-Templates Teil 3, 22.11.2026):**
 
 *B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C, 13D).* `chart.varianceOnly` (bool, Standard false, Gruppe „Small
@@ -574,6 +605,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
+| C23 Scatter-Zeitpfad (07D, 07E, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterPath=line · scatterPathLabels=auto · scatterColorBy=group · scatterQuadrant=off · scatterTrend=off · scatterArrows=false · scatterPlay=false (Rollen `xValue` und `series` binden, Kategorie = Periode; 07E zusätzlich `scale.ratioRays`, siehe B18) |
 
 **Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es
 im Visual nicht (siehe BACKLOG). C07 (Fläche) gibt es ab 1.56 (B16).
@@ -685,7 +717,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` · `C21` · `C22` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis … |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` · `C21` · `C22` · `C23` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis … |
 | `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` · `stockflow` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
@@ -877,6 +909,10 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterQuadLabelTL` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
 | `scatterQuadLabelBL` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
 | `scatterQuadLabelBR` | text | leer | Dezente Beschriftung der Quadranten-Ecke. Leer = aus. Nur bei aktiven Quadranten-Linien; weicht Punkten nach Möglichkeit aus. |
+| `scatterPath` | enum | `off` | `off` · `line` — Verbindet je Einheit (Feld „Stack-Serie“, ohne Serie ein einziger Pfad) die Punkte in der Reihenfolge der Kategorie, die hier die Periode ist (z. B. Jahre 2017 bis 2025), mit einer dünnen Linie in der Farbe der Einheit, wie in den … |
+| `scatterPathLabels` | enum | `auto` | `auto` · `ends` · `all` · `off` — Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt) … |
+| `scatterPathArrow` | bool | `false` | Zeitpfad: Pfeilspitze am letzten Segment jeder Einheit, zeigt die Richtung der jüngsten Bewegung. Die IBCS-Blätter zeichnen ohne. Standard aus. |
+| `scatterPathDelta` | bool | `false` | Zeitpfad: für die hervorgehobenen Einheiten (Liste „Hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw … |
 | `scatterPlay` | bool | `false` | Blendet einen ▶-Button ein (Rosling-Modus): die Kategorie wird zur Zeitachse — je Periode ein Bild, die Punkte (je Wert des Felds „Serie") gleiten von Periode zu Periode, die Periode steht groß im Hintergrund … |
 
 **Persistierte Zustände** (nicht im Format-Pane; das Visual schreibt sie per `persistProperties`, ein Agent kann sie
@@ -896,7 +932,8 @@ Enum-Labels:
   `C15` = C15 · Balkentabelle nach ΔPL % (04B); `C16` = C16 · Balkentabelle nach AC (04C);
   `C17` = C17 · Kategorie-Brücke waagerecht (06E); `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F);
   `C19` = C19 · Säulen gegen Plan + Jahressäule (03B); `C20` = C20 · Bestand und Fluss (08E bis 08H);
-  `C21` = C21 · Kumulierte Linie mit R12 und Monatssäulen (07C); `C22` = C22 · Serienlinien mit Index (07A)
+  `C21` = C21 · Kumulierte Linie mit R12 und Monatssäulen (07C); `C22` = C22 · Serienlinien mit Index (07A);
+  `C23` = C23 · Scatter-Zeitpfad (07D, 07E)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
@@ -951,6 +988,9 @@ Enum-Labels:
 - `scatterColorBy`: `single` = Einfarbig (AC); `status` = Status ΔPY/ΔPL (gut · schlecht · grau);
   `group` = Nach Gruppe/Serie (Legende)
 - `scatterTrend`: `off` = Aus; `linear` = Linear
+- `scatterPath`: `off` = Aus; `line` = Linie durch die Perioden
+- `scatterPathLabels`: `auto` = Auto (wo Platz ist); `ends` = Start und Ende; `all` = Alle Perioden;
+  `off` = Aus
 
 ### Objekt `ibcsTitle` (Karte „IBCS-Titel“)
 
@@ -1034,6 +1074,8 @@ Enum-Labels:
 | `yMax` | text | leer | Nur Scatter: fixiert die Achsengrenze. Leer = automatisch. |
 | `xLogScale` | bool | `false` | Nur Scatter: logarithmische X-Achse (Ticks als Dekaden bzw. 1-2-5-Schritte) … |
 | `yLogScale` | bool | `false` | Nur Scatter: logarithmische Y-Achse (AC). Greift nur, wenn alle Y-Werte größer 0 sind — sonst linear mit Hinweis im Bearbeiten-Modus. |
+| `ratioRays` | text | leer | Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie) … |
+| `ratioRayUnit` | text | leer | Zusatz hinter der Quote an den Strahlen und im Tooltip, z. B. „mEUR/Rep“. Leer = nur die Zahl. |
 
 **Referenzlinie**
 
