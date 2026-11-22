@@ -57,7 +57,7 @@ markiert). Konfidenz A hat nur `bip_de_2024_mrd_eur`.
 | 22 | `ise2021_vermiedene_umweltkosten_bio_eur` (K8, **S**) | ~2.000 Mrd. € | ISE 2021, PDF-S. 40–42, Tab. 4 | **bestätigt**; UBA-Sätze 199/201/219/255 €₂₀₂₁/t stehen dort ebenfalls | B · true |
 | 23 | `nep2023_kostenanstieg_mrd_eur` (K9) | 323 → 440 Mrd. € | NEP 2025 kompakt, PDF-S. 11 | **bestätigt**. Unerwähnt bleibt: Derselbe NEP senkt die ÜN-Kosten wieder um 50–80 auf 364–392 Mrd. € (PDF-S. 12) | B · true |
 | 24 | K9: „Akzeptanz- und Verzögerungsszenarien kosten 30 bis 100 % mehr“ | 30–100 % | Ariadne PDF-S. 8; ISE 2021 PDF-S. 41; ISE 2024 PDF-S. 81 | **abweichend**: Ariadne „Beharren in Nachfragesektoren“ 52 Mrd. €/a gegen 15,5–16 Mrd. € bottom-up = **+225 bis +235 %** (gegen 26 top-down +100 %); ISE 2024 Beharrung/Robust +30 bis +57 %; ISE 2021 Beharrung +16 %, Inakzeptanz +28 bis +32 % | B · true |
-| 25 | K10: Geldgeber und Interessen | — | DIHK PDF-S. 3 (Vorwort „Realitätsprüfung“, „Narrativ“); Ariadne PDF-S. 9 (BMBF); ISE 2024 Impressum (TRANSDE/BMWK, Ariadne/BMBF); KfW 2026 (Auftraggeber KfW) | **bestätigt** (Agora-Geldgeber weiter nur C) | B · true |
+| 25 | K10: Geldgeber und Interessen | — | DIHK PDF-S. 3 (Vorwort „Realitätsprüfung“, „Narrativ“); Ariadne PDF-S. 10 (BMBF); ISE 2024 Impressum (TRANSDE/BMWK, Ariadne/BMBF); KfW 2026 (Auftraggeber KfW) | **bestätigt** (Agora-Geldgeber weiter nur C) | B · true |
 | 26 | `bip_de_2024_mrd_eur` (A) | 4.386,94 Mrd. € | Rohdatei `quellen/raw/P1-02/eurostat_nama_10_gdp_de.json` (aktualisiert 11.11.2026) | **bestätigt** (4.386.940 Mio. €) | A · true |
 | 27 | `agora_gesamtinvestitionen_bio_eur` (**S**) | 11,3 Bio. € | Agora 2024, PDF-S. 11–12 | **bestätigt** (540 Mrd. €/a, 11 %; Ohnehin 393 Mrd. € = 72,8 %; reale Preise 2023) | B · true |
 | 28 | `ariadne_investitionen_mrd_eur_pa` (**S**) | 116–131 Mrd. €/a | Ariadne-Zusammenfassung PDF-S. 6 | **bestätigt**; „etwa 3,5 % des BIP 2024“ steht so in der Quelle, nachgerechnet 2,6–3,0 % | B · true |
@@ -194,7 +194,7 @@ Zulasten der Energiewende verzerrt oder einseitig ausgelassen:
   Fragesteller zugeschrieben.
 - Gegenposition 3 („Netzkosten laufen davon“, 323 → 440) verschweigt, dass der NEP 2025 im
   2. Entwurf die ÜN-Kosten durch Offshore-Optimierung auf 364–392 Mrd. € senkt (PDF-S. 12).
-  BET/EWI nennt für Verteilnetze rund 30 % Einsparpotenzial aus Drittstudien (PDF-S. 13).
+  BET/EWI nennt für Verteilnetze rund 30 % Einsparpotenzial aus Drittstudien (PDF-S. 14).
 - DIW 2025 (PDF-S. 1): 18–25 Mrd. € jährlich vermiedene Importe und 8–12 Mrd. €
   Gesundheitskosten durch erneuerbare Energien. Die Quelle ist erkennbar eine Pro-Position,
   gehört aber neben die Klimafolgekosten.
