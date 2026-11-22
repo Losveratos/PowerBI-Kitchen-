@@ -508,6 +508,7 @@
                         ]
                     }
                 },
+                "varianceOnly": { "type": { "bool": true } },
                 "waterfallStyle": { "type": { "bool": true } },
                 "sortByImpact": { "type": { "bool": true } },
                 "sortMode": {

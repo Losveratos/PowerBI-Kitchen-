@@ -4701,6 +4701,213 @@ addStage("c532", "Review m7 · Säulen mit Stapel-Serie: Option „Abweichungsba
 }
 
 // ======================================================================
+// 1.56 · B13 Teil 2 (c700+): nur Abweichungs-Panel (chart.varianceOnly), Blätter
+// 13C und 13D. Gruppen-Kacheln zeigen nur ΔØ (Balken) bzw. ΔØ % (Pins) auf einer
+// gemeinsamen Δ-Skala, die Bezugskachel behält ihre Säulen. Kontrollwerte von Hand.
+// ======================================================================
+const voPx = id => nbQ(id, '[data-icd="var-only"]').map(g => +g.getAttribute("data-px-per-unit"));
+const voRef = id => nbQ(id, '[data-icd="var-only-ref"]')[0] || null;
+const byCat = (gs, cat) => gs.find(c => (c.getAttribute("aria-label") || "").startsWith(cat + ","));
+// Δ bar of a category group (good/bad colour or plan notation), null without
+const voBar = g => [...g.querySelectorAll("rect")].find(r => r.getAttribute("data-icd") === "var-plan"
+  || nbFill(r) === NB.GOOD || nbFill(r) === NB.BAD) || null;
+const voSvg = id => document.querySelector(`#${id} svg`).outerHTML
+  .replace(/icd-(hatch-good|hatch-bad|hatch|prelim|mxclip|scclip)-\d+(-\d+)?/g, "icd-$1-N");
+const vo13 = (extra) => Object.assign({ multiplesAgg: "mean", multiplesTotalPos: "last", multiplesTotalShade: true,
+  multiplesTopN: 14, multiplesTotalLabel: "Durchschnitt {n} Standorte", multiplesRestLabel: "{n} weitere kleine Standorte",
+  multiplesBasis: "avg", scenarioLabels: true, showTotal: false, varianceOnly: true }, extra);
+
+// ---- c700: Blatt 13C · 18 Standorte, nur ΔØ-Balken, Ø-Kachel mit Säulen zuletzt
+addStage("c700", "13C · nur ΔØ je Standort (gemeinsame Δ-Skala), Ø-Kachel mit Säulen, Planjahre umrandet", 1280, 720);
+{
+  const { regions, years } = avg18;
+  runCap("c700", avgDv(regions, vo13({ showAbsoluteVariance: true, showRelativeVariance: false }),
+    { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" }, labels: { labelDensity: "all" } } }), 1280, 720);
+  nbSane("c700");
+  const px = voPx("c700");
+  check(px.length === 15 && px.every(k => k > 0 && k === px[0]), `c700: 15 Δ-Kacheln, gleicher px je Einheit (${px[0]})`);
+  const groupCats = avgTiles("c700").filter(t => t.getAttribute("data-kind") !== "total")
+    .flatMap(t => avgCats("c700", t.getAttribute("data-group")));
+  check(groupCats.length === 15 * 12 && groupCats.every(g => !avgAcBar(g)), "c700: keine Säulen in den Gruppen-Kacheln");
+  check(avgCats("c700", "total").filter(avgAcBar).length === 10, "c700: Ø-Kachel mit 10 Ist-Säulen (Planjahre als Umriss)");
+  const plan = nbQ("c700", '[data-icd="var-plan"]');
+  check(plan.length === 30 && plan.every(r => r.tagName === "rect" && /^(2027|2028),/.test(r.closest("g.icd-cat").getAttribute("aria-label"))),
+    `c700: Δ in Plan-Notation genau in den Planjahren (${plan.length})`);
+  check(nbQ("c700", '[data-icd="pl-boundary"]').length === 16 && nbQ("c700", '[data-icd="var-only-guide"]').length > 100,
+    "c700: Plan-Grenze in jeder Kachel, Hilfslinien zur Kategoriezeile");
+  const ref = voRef("c700");
+  check(!!ref && ref.getAttribute("data-k-delta") === px[0].toFixed(4), "c700: Bezugskachel misst die Δ-Skala einer Gruppen-Kachel");
+  // a group tile: the category row sits at the bottom of the tile
+  const t0 = avgTile("c700", "Berlin");
+  const y0 = +t0.getAttribute("data-y") + +t0.getAttribute("data-h");
+  const scen = nbQ("c700", '[data-icd="scen-label"]').filter(s => Math.abs(nbAttr(s, "x") - (+t0.getAttribute("data-x") + 20)) < 40);
+  check(scen.length > 0 && scen.every(s => y0 - nbAttr(s, "y") < 12), "c700: Szenario-Kürzel unten in der Kachel");
+}
+
+// ---- c701: Blatt 13D · dieselben Standorte, nur ΔØ %-Pins, Planjahre mit hohlem Kopf
+addStage("c701", "13D · nur ΔØ % je Standort (Pins), Ø-Kachel mit Säulen", 1280, 720);
+{
+  const { regions, years } = avg18;
+  runCap("c701", avgDv(regions, vo13({ showAbsoluteVariance: false, showRelativeVariance: true }),
+    { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" }, labels: { labelDensity: "all" } } }), 1280, 720);
+  nbSane("c701");
+  const px = voPx("c701");
+  check(px.length === 15 && px.every(k => k === px[0]) && nbQ("c701", '[data-icd="var-only"]').every(g => g.getAttribute("data-panels") === "rel"),
+    "c701: 15 Kacheln nur mit ΔØ %-Panel, gleiche Skala");
+  const plan = nbQ("c701", '[data-icd="var-plan"]');
+  check(plan.length === 30 && plan.every(e => e.tagName !== "rect" && /^(2027|2028),/.test(e.closest("g.icd-cat").getAttribute("aria-label"))),
+    `c701: hohle Pin-Köpfe genau in den Planjahren (${plan.length})`);
+  const ref = voRef("c701");
+  check(!!ref && ref.getAttribute("data-k-delta") === "" && ref.getAttribute("data-factor") === "1",
+    "c701: ohne absolutes Δ eigene Skala der Bezugskachel ohne Faktor");
+  check(nbTexts("c701").includes("ΔØ %") && !nbTexts("c701").includes("ΔØ"), "c701: Panel „ΔØ %“");
+}
+
+// ---- c702: von Hand · drei Regionen, ΔØ-Balken = |Δ| × px je Einheit, Ø-Kachel auf derselben Skala
+addStage("c702", "ΔØ von Hand · A, B, C nur Δ-Balken; Summe je Jahr 0; Ø-Kachel im selben Maßstab", 960, 520);
+{
+  runCap("c702", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
+    showTotal: false, scenarioLabels: true, varianceOnly: true }), 960, 520);
+  nbSane("c702");
+  const want = { A: [-10, -20, -30, -20, -20, 0], B: [0, 0, 0, null, 20, -30], C: [10, 20, 30, 20, 0, 30] };
+  const got = {}; ["A", "B", "C"].forEach(k => { got[k] = avgCats("c702", k).map(avgDelta); });
+  check(["A", "B", "C"].every(k => JSON.stringify(got[k]) === JSON.stringify(want[k])),
+    `c702: ΔØ je Region (A ${got.A.join(" ")} · B ${got.B.join(" ")} · C ${got.C.join(" ")})`);
+  const sums = [0, 1, 2, 3, 4, 5].map(i => ["A", "B", "C"].reduce((a, k) => a + (got[k][i] ?? 0), 0));
+  check(sums.every(v => v === 0), `c702: Summe der ΔØ je Jahr = 0 (${sums.join(" ")})`);
+  const px = voPx("c702");
+  check(px.length === 3 && px[0] === px[1] && px[1] === px[2], `c702: drei Kacheln, ein px je Einheit (${px.join(" / ")})`);
+  const k = px[0];
+  const h = (t, y) => { const b = voBar(byCat(avgCats("c702", t), y)); return b ? nbAttr(b, "height") : null; };
+  check(Math.abs(h("A", "2025") - 30 * k) < 0.6 && Math.abs(h("C", "2024") - 20 * k) < 0.6 && Math.abs(h("B", "2028") - 30 * k) < 0.6,
+    `c702: Balkenhöhe = |Δ| × ${k.toFixed(3)} (A 2025 ${h("A", "2025").toFixed(1)}, C 2024 ${h("C", "2024").toFixed(1)})`);
+  const ref = voRef("c702");
+  const kRef = +ref.getAttribute("data-px-per-unit"), f = +ref.getAttribute("data-factor");
+  check(Math.abs(kRef - k * f) < 0.001 && (f === 1 || nbTexts("c702").some(t => t.includes("×"))),
+    `c702: Ø-Kachel mit ${f === 1 ? "derselben Δ-Skala" : "Faktor ×" + f} (${kRef.toFixed(3)} px je Einheit)`);
+  const totAc = byCat(avgCats("c702", "total"), "2024");
+  check(Math.abs(nbAttr(avgAcBar(totAc), "height") - 40 * kRef) < 0.6, "c702: Ø 2024 = 40 als Säule auf der Bezugsskala");
+  const plan = nbQ("c702", '[data-icd="var-plan"]');
+  check(plan.length === 6 && plan.every(r => r.getAttribute("fill-opacity") === "0.12"), `c702: Plan-Δ umrandet mit blasser Füllung (${plan.length})`);
+}
+
+// ---- c703: große Werte, kleine Abweichungen · Bezugskachel mit runder Verkleinerung und Hinweis
+addStage("c703", "Werte um 1.000, ΔØ höchstens ±15 · Ø-Kachel verkleinert mit „×f“ im Titel", 960, 520);
+{
+  const big = [["A", [1000, 1010, 990, 1005], [1000, 1012]], ["B", [1015, 995, 1000, 990], [1004, 990]], ["C", [985, 995, 1010, 1005], [996, 998]]];
+  runCap("c703", avgDv(big, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
+    showTotal: false, varianceOnly: true }), 960, 520);
+  nbSane("c703");
+  const ref = voRef("c703");
+  const f = +ref.getAttribute("data-factor"), kRef = +ref.getAttribute("data-px-per-unit"), kD = +ref.getAttribute("data-k-delta");
+  check(f < 1 && Math.abs(kRef - kD * f) < 0.001, `c703: Bezugskachel mit Faktor ${f} der Δ-Skala`);
+  check(nbTexts("c703").some(t => /×0,\d+/.test(t)), "c703: Faktor im Titel der Bezugskachel");
+  const tile = avgTile("c703", "total");
+  const bars = avgCats("c703", "total").map(avgAcBar).filter(Boolean);
+  check(bars.length === 4 && bars.every(b => nbAttr(b, "y") >= +tile.getAttribute("data-y")), "c703: alle Ø-Säulen in der Kachel");
+}
+
+// ---- c704: Szenario-Basis (ΔPY) mit summierter Σ-Kachel · die Σ-Abweichung staucht die Δ-Skala nicht
+addStage("c704", "Basis PY, Σ-Kachel vorn (Summe) · nur ΔPY in den Gruppen", 960, 520);
+addStage("c704b", "Dieselben Gruppen ohne Σ-Kachel (Vergleich der Δ-Skala)", 960, 520);
+{
+  runCap("c704", avgDv(avgABC, { comparisonMode: "py", multiplesTotalShade: true, showAbsoluteVariance: true, showRelativeVariance: false,
+    showTotal: false, varianceOnly: true }, { py: true }), 960, 520);
+  runCap("c704b", avgDv(avgABC, { multiplesTotal: false, comparisonMode: "py", showAbsoluteVariance: true, showRelativeVariance: false,
+    showTotal: false, varianceOnly: true }, { py: true }), 960, 520);
+  nbSane("c704"); nbSane("c704b");
+  const a = voPx("c704"), b = voPx("c704b");
+  check(a.length === 3 && b.length === 3 && a[0] === b[0], `c704: Δ-Skala ohne die Σ-Abweichung (${a[0]} = ${b[0]})`);
+  check(nbTexts("c704").includes("ΔPY") && nbQ("c704", '[data-icd="var-plan"]').length === 0 && !voRef("c704b"),
+    "c704: Panel „ΔPY“, keine Plan-Notation, ohne Σ keine Bezugskachel");
+  check(avgCats("c704", "total").some(avgAcBar), "c704: Σ-Kachel mit Säulen");
+}
+
+// ---- c705: Balken · Struktur gegen den Ø, nur Δ
+addStage("c705", "Balken · drei Regionen gegen den Ø, nur ΔØ", 960, 420);
+{
+  const cats = [], mult = [], acv = [];
+  [["Nord", [40, 30, 20]], ["Süd", [20, 30, 50]], ["West", [30, 30, 50]]].forEach(([r, a]) =>
+    ["Produkt X", "Produkt Y", "Produkt Z"].forEach((c, i) => { cats.push(c); mult.push(r); acv.push(a[i]); }));
+  runCap("c705", dataView(cats, [col("actual", acv, "#,0")], { chart: { orientation: "bars", multiplesBasis: "avg", multiplesTotal: true,
+    multiplesAgg: "mean", showAbsoluteVariance: true, showRelativeVariance: false, varianceOnly: true } }, mult), 960, 420);
+  nbSane("c705");
+  const px = voPx("c705");
+  check(px.length === 3 && px.every(k => k === px[0]), `c705: drei Δ-Kacheln, ein px je Einheit (${px[0]})`);
+  const nord = avgCats("c705", "Nord");
+  check(nord.map(avgDelta).join(" ") === "10 0 -20" && nord.every(g => !avgAcBar(g)), "c705: Nord +10 0 −20 ohne Balken der Werte");
+  const b = voBar(byCat(nord, "Produkt Z"));
+  check(b && Math.abs(nbAttr(b, "width") - 20 * px[0]) < 0.6, "c705: Δ-Balken waagerecht, Breite = 20 × px je Einheit");
+  check(avgTexts("c705", "Nord").includes("Produkt X") && avgCats("c705", "total").some(avgAcBar), "c705: Kategorienamen links, Ø-Kachel mit Balken");
+}
+
+// ---- c706: zu kleine Kacheln · Rückfall auf die normale Ansicht
+addStage("c706", "Kleine Kacheln (480×260) · Rückfall auf die normale Ansicht", 480, 260);
+{
+  runCap("c706", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
+    showTotal: false, varianceOnly: true }), 480, 260);
+  nbSane("c706");
+  check(nbQ("c706", '[data-icd="var-only"]').length === 0 && nbQ("c706", '[data-icd="var-only-fallback"]').length === 3,
+    "c706: drei Kacheln fallen zurück, keine Δ-only-Kachel");
+  check(avgCats("c706", "A").some(avgAcBar), "c706: Säulen wieder sichtbar");
+}
+
+// ---- c707: in der Ansicht ausgeschaltet · Kommentare, Hervorhebungsband, Differenzmarker, Jahressäule
+addStage("c707", "Δ-only mit Kommentar, Hervorhebung, Differenzmarker und Jahressäule gesetzt: alles aus", 960, 520);
+{
+  const dv = avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
+    showTotal: false, varianceOnly: true, highlight: "2025", diffMarkers: "2023 > 2025", yearColumn: true });
+  dv.categorical.values.push(col("comments", avgABC.flatMap((r, ri) => avgYears.map((y, i) => ri === 0 && i === 1 ? "Sondereffekt" : null))));
+  runCap("c707", dv, 960, 520);
+  nbSane("c707");
+  check(nbQ("c707", '[data-icd="var-only"]').length === 3, "c707: Δ-only aktiv");
+  check(nbQ("c707", '[data-icd="diff-marker"]').length === 0 && nbQ("c707", '[data-icd="year-column"]').length === 0,
+    "c707: keine Differenzmarker, keine Jahressäule");
+  check(nbQ("c707", 'rect[fill-opacity="0.07"]').length === 0 && nbQ("c707", "svg circle").length === 0,
+    "c707: kein Hervorhebungsband, keine Kommentar-Marke");
+}
+
+// ---- c708: ohne Wirkung · ohne Small Multiples und bei Stapeln SVG-gleich wie ohne Option
+addStage("c708", "varianceOnly ohne Small Multiples", 640, 320);
+addStage("c708b", "Referenz ohne Option", 640, 320);
+addStage("c708s", "varianceOnly bei Stapel-Serie", 640, 320);
+addStage("c708t", "Referenz Stapel ohne Option", 640, 320);
+{
+  const one = o => dataView(avgYears, [col("actual", [10, 20, 30, 40, null, null], "#,0"), col("plan", [12, 18, 33, 38, 50, 60], "#,0")],
+    { chart: Object.assign({ showAbsoluteVariance: true }, o) });
+  runCap("c708", one({ varianceOnly: true }), 640, 320);
+  runCap("c708b", one({}), 640, 320);
+  const st = [["A", { X: [10, 11], Y: [10, 11] }], ["B", { X: [10, 12], Y: [9, 11] }]];
+  runCap("c708s", rvStackDv(st, ["2025", "2026"], { varianceOnly: true }), 640, 320);
+  runCap("c708t", rvStackDv(st, ["2025", "2026"], {}), 640, 320);
+  check(voSvg("c708") === voSvg("c708b"), "c708: ohne Small Multiples SVG-gleich");
+  check(voSvg("c708s") === voSvg("c708t"), "c708: bei Stapeln SVG-gleich");
+}
+
+// ---- c709: Hochkontrast · Plan-Δ als Umriss auf Papier, Hilfslinien kräftiger
+hcRun("c709", "Δ-only im Hochkontrast", 960, 520, avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true,
+  showRelativeVariance: false, showTotal: false, varianceOnly: true }));
+{
+  nbSane("c709");
+  const plan = nbQ("c709", 'rect[data-icd="var-plan"]');
+  check(plan.length === 6 && plan.every(r => nbFill(r) === "#000000" || r.getAttribute("fill") === "#000"), `c709: Plan-Δ hohl (${plan.length})`);
+  check(nbQ("c709", '[data-icd="var-only-guide"]').every(l => l.getAttribute("stroke-opacity") === "0.6"), "c709: Hilfslinien mit 60 % Deckkraft");
+}
+
+// ---- c710: Formatbereich · Option nur bei Säulen und Balken ohne Stapel und Brücke
+addStage("c710", "Formatbereich · „Nur Abweichungs-Panel“ sichtbar nur, wo es wirkt", 480, 240);
+{
+  const has = r => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard.varianceOnly.visible !== false; };
+  const rs = runCap("c710", avgDv(avgABC, { multiplesBasis: "avg" }), 480, 240);
+  const cols = has(rs);
+  rs.upd(avgDv(avgABC, { orientation: "bars" })); const bars = has(rs);
+  rs.upd(avgDv(avgABC, { orientation: "line" })); const line = has(rs);
+  rs.upd(avgDv(avgABC, { waterfallStyle: true })); const wf = has(rs);
+  rs.upd(rvStackDv([["A", { X: [10, 11], Y: [10, 11] }], ["B", { X: [10, 11], Y: [10, 11] }]], ["2025", "2026"], {})); const stacked = has(rs);
+  check(cols && bars && !line && !wf && !stacked, `c710: sichtbar bei Säulen ${cols} und Balken ${bars}, nicht bei Linie ${line}, Brücke ${wf}, Stapel ${stacked}`);
+}
+
+// ======================================================================
 // 1.55 · B12 Review-Fixes (c410+): Blasen bleiben im Visual (M1), ein Flag
 // „PY-Blasen gezeichnet“ (M2), Werte verschwinden nicht (M3), m1 bis m7.
 // ======================================================================
