@@ -81,3 +81,13 @@ Führe deinen Teil aus.“
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
 | P4-B Belegseite | Sonnet | 2026-11-22 | 24,0 min | 446.928 | 88 | `energiewende-1-belege.html` (130 KB): 87 Aussagen filterbar, Studien-Vergleich mit Grafik, zwölf Gegenpositionen, 39 Quellen; geprüft bei 1280 und 390 px, hell und dunkel: keine Konsolenfehler, keine fremden Hosts, kein waagerechtes Scrollen. Offen: Aussagen-Texte und 27 Quellen-URLs stehen in der Seite statt im Datensatz; mehrere Zahlen der Freigabeliste fehlen im Datensatz und wurden deshalb umschrieben |
+| P4-A Scroll-Story | Opus | 2026-11-22 | 35,8 min | 394.302 | 61 | `energiewende-1-story.html` (128 KB): fünf Akte zu je vier Schritten, zwölf Gegenpositionen als Kästen, Glossar, 40 Quellen; geprüft bei 1280 und 390 px, hell und dunkel: 115 Platzhalter gefüllt, keine Konsolenfehler, keine fremden Hosts, 0 Treffer bei 38 Suchmustern für verworfene Zahlen und gesperrte Formulierungen. Offen: Token-Zahlen des Protokolls stehen von Hand im Kasten zur Entstehung; elf Angaben der Freigabeliste fehlen im Datensatz und wurden weggelassen |
+
+## Phase 5 · Reviews Teil 1
+
+Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
+`energiewende/agents/briefs/P5_reviews_teil1.md`. Deine Rolle ist Nummer
+<NN>. Führe das Review aus.“
+
+| Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
+|---|---|---|---|---|---|---|

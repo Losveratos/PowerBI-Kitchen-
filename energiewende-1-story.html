@@ -1148,11 +1148,12 @@ function hydrate(){
     if (node.dataset.c === "0" || node.closest("svg")) return;
     // ein Quellen-Chip je Zahl und Absatz
     const block = node.closest("p, li, blockquote, dd, td, .limit-card, .hero-meta, h1") || node.parentElement;
-    const mark = (ref + "|" + (L.meta.source || ""));
+    const sub = key ? dig(L.val, key.split(".")[0]) : L.val;
+    // gleiche Quelle mit gleichem Abzeichen im selben Absatz nur einmal zeigen
+    const mark = (L.meta.source || ref) + "|" + badgeFor(L.meta, sub).txt;
     const seen = (block.dataset.chips || "").split(",");
     if (seen.includes(mark)) return;
     block.dataset.chips = seen.concat(mark).filter(Boolean).join(",");
-    const sub = key ? dig(L.val, key.split(".")[0]) : L.val;
     node.insertAdjacentElement("afterend", chipEl(L.meta, sub));
   });
   return problems;
@@ -1275,7 +1276,7 @@ function forest(g, x0, y0, W, rows, opt){
       const len = (r.txt || "").length * 7.3;
       const fits = x(hi) + 7 + len <= x0 + W || x(lo) - 6 - len >= x0;
       if (fits){ items.push({r:r, by:y + 5}); y += 22; }
-      else { T(g, x0, y + 12, r.txt, "sm b"); items.push({r:Object.assign({}, r, {txt:""}), by:y + 18}); y += 34; }
+      else { const h = para(g, x0, y + 12, r.txt, W, "sm b"); items.push({r:Object.assign({}, r, {txt:""}), by:y + h}); y += h + 16; }
     } else if (narrow){
       const h = para(g, x0, y + 12, r.label, W, "sm");
       items.push({r:r, by:y + h});
@@ -1767,7 +1768,7 @@ function buildAct4(svg, W, H){
       {label:"Bundesrechnungshof 2024: mehr als", mid:V("brh_netzausbau"), cls:"f-acc", open:true, txt:"> " + F("brh_netzausbau", null, "Mrd. €")},
       {label:"NEP 2025: nur Übertragungsnetz", min:nep.nep2025_min, max:nep.nep2025_max, cls:"f-neutral", txt:nf(nep.nep2025_min) + " bis " + nf(nep.nep2025_max) + " Mrd. €"}];
     const xmax = toM(dS.max) * 1.06;
-    const fr = forest(g, P, P + 8, w, rows, {xmax:xmax, unit:"Mrd. €", mid:"m4"});
+    const fr = forest(g, P, P + 8, w, rows, {xmax:xmax, unit:"Mrd. €", mid:"m4", inline:true});
     need = Math.max(need, fr.yBot + P);
   }
   return need;
@@ -1788,7 +1789,7 @@ function buildAct5(svg, W, H){
       {label:"R21, Faktenblatt B", mid:V("r21_kkw_neubau"), cls:"f-said", txt:F("r21_kkw_neubau")},
       {label:"R21-Referenzpapier", mid:V("wendland_kkw_neubau"), cls:"f-said", txt:F("wendland_kkw_neubau")},
       {label:"gebaute Projekte (Setzung M)", min:kk.min, max:kk.max, mid:kk.mid, cls:"f-acc", txt:fmtR(kk, "Mrd. €")}];
-    const fr = forest(g, P, P + h0 + 18, w, rows, {xmax:kk.max * 1.12, unit:"Mrd. €", mid:"m5"});
+    const fr = forest(g, P, P + h0 + 18, w, rows, {xmax:kk.max * 1.12, unit:"Mrd. €", mid:"m5", inline:true});
     // Zeitachse erster Block
     const yb = fr.yBot + 18;
     const yr = Z.kkw_erster_block_jahr.value;
@@ -1826,7 +1827,7 @@ para(g, P, yb, "Erster neuer Block am Netz (bei Entscheidung 2027)", w, "sm b");
     if (stepNr === 2) rows.forEach(r => { if (r.cls === "f-acc") r.open = true; });
     const xmax = Math.ceil(V("r21_anteil_bip_pa", "max") * 1.08);
     const hc = para(g, P, P + 12, stepNr === 1 ? "Mehrkosten als Anteil am BIP 2024 pro Jahr" : "Pfeile: Werte können höher liegen (gestrichelt, offen)", w, "sm");
-    const fr = forest(g, P, P + 12 + hc, w, rows, {xmax:xmax, unit:"% des BIP pro Jahr", mid:"m5"});
+    const fr = forest(g, P, P + 12 + hc, w, rows, {xmax:xmax, unit:"% des BIP pro Jahr", mid:"m5", inline:true});
     let y = fr.yBot + 6;
     if (stepNr === 2){
       const ar = stRow("ariadne_mehrkosten_pa");
@@ -1880,13 +1881,30 @@ function buildCharts(){
     const W = Math.max(300, Math.round(fig.getBoundingClientRect().width || 600));
     const wide = innerWidth >= 1020;
     const H = Math.round(wide ? Math.min(innerHeight * 0.78, W * 0.7) : Math.min(innerHeight * 0.5, W * 1.15));
-    const need = BUILDERS[k](svg, W, H);
-    const HH = Math.max(H, Math.ceil(need));
-    svg.setAttribute("viewBox", "0 0 " + W + " " + HH);
+    BUILDERS[k](svg, W, H);
+    // Höhe je Szene messen; die viewBox folgt der gerade sichtbaren Szene
+    const needs = [0, 0, 0, 0];
+    svg.querySelectorAll("g.sc").forEach(g => {
+      let bb = null; try { bb = g.getBBox(); } catch (e) {}
+      const h = bb ? bb.y + bb.height + P : H;
+      [0, 1, 2, 3].forEach(i => { if (g.classList.contains("sc-" + i)) needs[i] = Math.max(needs[i], h); });
+    });
+    svg._dims = {W:W, H:H, needs:needs};
+    setViewBox(svg, +fig.dataset.step);
     svg.setAttribute("preserveAspectRatio", "xMidYMin meet");
     svg.style.maxHeight = wide ? "calc(100vh - 120px)" : "calc(64svh - 70px)";
   });
   lastW = innerWidth;
+}
+
+function setViewBox(svg, step){
+  const d = svg._dims; if (!d) return;
+  const i = Math.max(0, Math.min(3, isNaN(step) ? 0 : step));
+  svg.setAttribute("viewBox", "0 0 " + d.W + " " + Math.max(d.H, Math.ceil(d.needs[i] || d.H)));
+}
+function setStep(fig, i){
+  fig.dataset.step = i;
+  setViewBox(fig.querySelector("svg"), +i);
 }
 
 /* ---------- Quellen je Akt, Studientabelle, Quellenliste ---------- */
@@ -1953,6 +1971,7 @@ function renderSources(){
     if (s.abruf) meta.push("abgerufen " + esc(s.abruf));
     if (s.datei) meta.push("Datei " + esc(s.datei));
     if (s.lizenz) meta.push("Lizenz " + esc(s.lizenz));
+    if (s.manifest) meta.push("Prüfsumme in " + esc(s.manifest));
     if (s.hinweis) meta.push("Hinweis: " + esc(s.hinweis));
     const url = s.url ? `<div class="me"><a href="${esc(s.url)}" rel="noopener nofollow">${esc(s.url)}</a></div>` : "";
     const unread = s.gelesen === false ? `<div class="me unread">nicht am Original gelesen · Grund: ${esc(s.grund || "–")}</div>` : "";
@@ -1971,7 +1990,7 @@ function wireScroll(){
       const step = e.target, sec = step.closest(".scrolly");
       const fig = sec.querySelector(".fig");
       step.parentElement.querySelectorAll(".step").forEach(s => s.classList.toggle("is-active", s === step));
-      fig.dataset.step = step.dataset.idx;
+      setStep(fig, step.dataset.idx);
     });
   }, {rootMargin: narrow ? "-62% 0px -22% 0px" : "-42% 0px -42% 0px"});
   $$(".step").forEach(s => io.observe(s));
@@ -1980,7 +1999,7 @@ function wireScroll(){
       es.forEach(e => {
         if (!e.isIntersecting) return;
         const fig = sec.querySelector(".fig");
-        if (fig.dataset.step === "-1"){ fig.dataset.step = "0"; sec.querySelector('.step[data-idx="0"]').classList.add("is-active"); }
+        if (fig.dataset.step === "-1"){ setStep(fig, "0"); sec.querySelector('.step[data-idx="0"]').classList.add("is-active"); }
         obs.disconnect();
       });
     }, {threshold:.15}).observe(sec);
