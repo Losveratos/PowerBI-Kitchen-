@@ -25,7 +25,9 @@ R21_EUR_PER_MWH = 200_000.0   # = 200 EUR/kWh
 # --- belegte Kostensätze (Quellen im Dossier) ---
 BAT_EUR_KWH = {"min": 130, "mid": 200, "max": 600}   # ISE 2024 Tab. 8 (2045 niedrig 130; 2024 hoch 600), R21/Bischof 200
 GT_H2_EUR_KW = {"min": 550, "mid": 875, "max": 1200}  # ISE 2024 Tab. 1, H2-Gasturbine 2024 niedrig/hoch; mid = Mittel
-H2_CAVERN_EUR_KWH = {"min": 0.6, "mid": 0.94, "max": 1.6}  # INES/DBI 2026 (56 Mrd EUR / 59,5 TWh Neubau = 0,94); Spanne SETZUNG_M
+# INES/DBI 2026 laut cleanthinking 06.11.2026: Umstellung 18 Mrd/35,7 TWh = 0,50; Neubau 37,6 Mrd/59,5 TWh = 0,63 EUR/kWh_H2.
+# max = SETZUNG_M (Faktor ~2 für Kostenüberschreitung), nicht belegt
+H2_CAVERN_EUR_KWH = {"min": 0.50, "mid": 0.63, "max": 1.26}
 ETA_GT = 0.40                  # Wirkungsgrad H2-Gasturbine, strommix kosten_ee_speicher.md (B)
 STROMVKG_EUR_PER_MW_A = 155_296  # BNetzA PM 03.11.2026, mengengewichteter Zuschlagswert je rMW und Jahr
 STROMVKG_YEARS = 15

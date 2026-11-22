@@ -45,14 +45,14 @@
    "max": 15.4
   },
   "kaverne_mrd_eur": {
-   "min": 6.0,
-   "mid": 11.5,
-   "max": 24.6
+   "min": 5.0,
+   "mid": 7.7,
+   "max": 19.4
   },
   "summe_mrd_eur": {
-   "min": 39.0,
-   "mid": 73.0,
-   "max": 116.0
+   "min": 38.0,
+   "mid": 69.0,
+   "max": 111.0
   },
   "nicht_enthalten": "Elektrolyseure, H2-Netz, Brennstoffkosten je Ereignis, Netzanschluss; ohne Abzug von Importen, Batterien, Lastflexibilität"
  },
