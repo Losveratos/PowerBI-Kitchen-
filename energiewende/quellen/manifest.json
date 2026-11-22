@@ -1,0 +1,35 @@
+{
+  "hinweis": "Fremde Dokumente werden nicht gespiegelt. quellen/raw/ ist von Git ausgenommen; hier stehen URL, Prüfsumme und Abrufdatum. Jeder Agent führt sein eigenes Manifest quellen/manifest_<Auftrag>.json im selben Format.",
+  "eintraege": [
+    {
+      "id": "r21_erklaerung_2026",
+      "url": "https://denkfabrik-r21.de/wp-content/uploads/2026/11/Erklaerung_Expertenrat_R21_November-2026.pdf",
+      "datei": "raw/P0/Erklaerung_Expertenrat_R21_2026-11.pdf",
+      "sha256": "123468db4f9d98f062f2d138375da77a56a5db733d618134f67703ed9fe20f90",
+      "abruf": "2026-11-22",
+      "seiten": 59
+    },
+    {
+      "id": "wd5_135_24",
+      "url": "https://www.bundestag.de/resource/blob/1019134/59b54bba98e93b9fecf43013668d86b3/WD-5-135-24-pdf.pdf",
+      "datei": "raw/P0/WD-5-135-24.pdf",
+      "sha256": "72283e1551a17fe7db4bc9ba8e8491c90db49c649672c66c556515a607217523",
+      "abruf": "2026-11-22",
+      "seiten": 6
+    },
+    {
+      "id": "r21_erklaerung_webseite",
+      "url": "https://denkfabrik-r21.de/erklaerung-des-expertenrates-fuer-klima-und-energiepolitik/",
+      "datei": "raw/P0/r21.html",
+      "sha256": "a0afaad01d285e9912ab9d6bb302857f1e689d4a45eb3e064ea273a247fb3386",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "r21_expertenrat_webseite",
+      "url": "https://denkfabrik-r21.de/r21-expertenrat-fuer-klima-und-energie/",
+      "datei": "raw/P0/expertenrat.html",
+      "sha256": "2b8df07d8c9f54aec624ade17fd8e92ebc0cafc992731be5faf086d7acd361ce",
+      "abruf": "2026-11-22"
+    }
+  ]
+}

@@ -46,6 +46,8 @@ Thumbs.db
 # Claude Code lokal (Skills aber versionieren, damit sie „in Git" liegen)
 .claude/*
 !.claude/skills/
+# Abruf-Erlaubnisregeln fuer freigegebene Quell-Hosts (Energiewende-Reihe)
+!.claude/settings.json
 deneb-test/
 
 # Temp: pbix-Extraktion
@@ -83,3 +85,7 @@ i18n/out/
 _ch_*.json
 _new_ids.txt
 _channel_fresh.json
+
+# Energiewende-Reihe: fremde Dokumente werden nicht gespiegelt (siehe
+# energiewende/TRANSPARENZ.md, Abschnitt 12). Im Repo steht nur das Manifest.
+energiewende/quellen/raw/

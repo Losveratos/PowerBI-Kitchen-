@@ -88,6 +88,18 @@ exclude:
   - eauto/scripts/
   - eauto/README.md
 
+  # Arbeitsmaterial der Energiewende-Reihe (kein Web-Inhalt). Markdown dort
+  # traegt bewusst kein YAML-Frontmatter; ausgenommen wird es trotzdem.
+  # WICHTIG: energiewende/data/ bleibt drin -- die Seiten der Reihe laden ihre
+  # Zahlen zur Laufzeit per fetch() von dort.
+  - energiewende/docs/
+  - energiewende/research/
+  - energiewende/scripts/
+  - energiewende/agents/
+  - energiewende/quellen/
+  - energiewende/README.md
+  - energiewende/TRANSPARENZ.md
+
   # Testdaten des Governance-Scanners. Die Fixtures enthalten absichtlich
   # schlechte Beispiele (u. a. Google Fonts) und sollen nicht ausgeliefert werden.
   - fabric-app-scanner/tests/

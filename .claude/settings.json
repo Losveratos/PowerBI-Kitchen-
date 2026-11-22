@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:denkfabrik-r21.de)",
+      "WebFetch(domain:www.bundestag.de)",
+      "WebFetch(domain:www.smard.de)",
+      "WebFetch(domain:api.energy-charts.info)",
+      "WebFetch(domain:www.energy-charts.info)",
+      "WebFetch(domain:www.bundesnetzagentur.de)",
+      "WebFetch(domain:www.umweltbundesamt.de)",
+      "WebFetch(domain:www.ise.fraunhofer.de)",
+      "WebFetch(domain:www.agora-energiewende.de)",
+      "WebFetch(domain:ariadneprojekt.de)",
+      "WebFetch(domain:www.netzentwicklungsplan.de)",
+      "WebFetch(domain:ember-energy.org)",
+      "WebFetch(domain:www.ag-energiebilanzen.de)",
+      "WebFetch(domain:www.destatis.de)",
+      "WebFetch(domain:www.dihk.de)",
+      "WebFetch(domain:www.frontier-economics.com)",
+      "WebFetch(domain:www.kfw.de)",
+      "WebFetch(domain:www.cleanthinking.de)",
+      "Bash(curl * https://denkfabrik-r21.de/*)",
+      "Bash(curl * https://www.bundestag.de/*)",
+      "Bash(curl * https://www.smard.de/*)",
+      "Bash(curl * https://api.energy-charts.info/*)",
+      "Bash(curl * https://www.energy-charts.info/*)",
+      "Bash(curl * https://www.bundesnetzagentur.de/*)",
+      "Bash(curl * https://www.umweltbundesamt.de/*)",
+      "Bash(curl * https://www.ise.fraunhofer.de/*)",
+      "Bash(curl * https://www.agora-energiewende.de/*)",
+      "Bash(curl * https://ariadneprojekt.de/*)",
+      "Bash(curl * https://www.netzentwicklungsplan.de/*)",
+      "Bash(curl * https://ember-energy.org/*)",
+      "Bash(curl * https://www.ag-energiebilanzen.de/*)",
+      "Bash(curl * https://www.destatis.de/*)",
+      "Bash(curl * https://www.dihk.de/*)",
+      "Bash(curl * https://www.frontier-economics.com/*)",
+      "Bash(curl * https://www.kfw.de/*)",
+      "Bash(curl * https://www.cleanthinking.de/*)"
+    ]
+  }
+}
