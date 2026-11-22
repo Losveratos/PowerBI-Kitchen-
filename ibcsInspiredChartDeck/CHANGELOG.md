@@ -83,6 +83,48 @@
   - Abweichungen von den Blättern: Y-Ticks in Fünfer- statt Zweierschritten (bestehende Tick-Regel), die Achsen reichen
     um den Markerrand über 20 bzw. 14 hinaus (die Strahlen enden trotzdem genau dort), Δ X neutral statt blau, keine
     Ellipse um „−4“ (Botschaftsmarke des Titels), Ländernamen in 07E rechts statt über dem Endpunkt, wo Platz ist.
+- **B19 · Blasen mit Kreissegmenten und Gesamtblase (Blätter 10E und 10G, Vorlage C24).** Vorher: Eine Blase zeigte
+  nur ihre Größe; „unser Teil am Marktvolumen“ ließ sich nicht in die Blase zeichnen, und eine Summe über alle Blasen
+  einer Kachel gab es nicht. Nachher:
+  - **Neue Rolle „Blasenanteil (optional)“** (`bubbleShare`, Measure, max 1, hinter „Blasengröße VJ“): der Teil jeder
+    Blase, gezeichnet als Kreissegment ab 12 Uhr im Uhrzeigersinn. Der Grundkreis trägt eine helle Tönung der
+    Punktfarbe (28 % gegen das Papier gemischt, deckend, die Deckkraft der Blasen wirkt auf ihn), das Segment die volle
+    Farbe, Umriss und Radiuslinien 1 px in Tinte. Anteil 1 zeichnet einen Vollkreis ohne Radiuslinie, 0 nur den Kreis;
+    Werte außerhalb von 0 bis 1 werden begrenzt (Hinweis im Bearbeitungsmodus). Unter 6 px Radius entfällt das Segment.
+    Prognose-Blasen bekommen ein schraffiertes Segment, PY-Blasen keins. Wert der Blasengröße in der Mitte (wie bisher
+    mit „Wert der Blasengröße“), Kontrast gegen die Tönung; Teil und Anteil in % im Tooltip. Nicht im Play-Modus und
+    nicht mit „Form je Gruppe“. Ohne Blasengröße: Hinweis im Bearbeitungsmodus. Feld-Intro mit 21 Rollen.
+  - **„Blasenanteil als“** (`chart.scatterShareAs`, `value` | `ratio`, Standard `value`, nur mit gebundenem Feld):
+    Wert in der Einheit der Blasengröße (Anteil = Teil ÷ Größe, 23 von 199) oder Quote 0 bis 1.
+  - **„Gesamtblase“** (`chart.scatterTotalBubble`, Standard aus, nur mit Blasengröße): je Kachel bzw. Diagramm eine
+    Blase mit Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Segment = Summe der Teile (Quote ×
+    Größe bei `ratio`). Füllung 6 %, Segment 14 %, Umriss 1 px, Summe in der Mitte, Teil außen an der Segmentmitte,
+    beide als Kollisionsfläche für die Namen. Sie liegt hinter allen Blasen, hat keine Identität (nicht auswählbar,
+    eigener Tooltip, ein Ziehen auf ihr startet die Rechteck-Auswahl), zählt in die Größenskala und in die
+    Überlaufregel aus B12: `scatterMaxRadius` meint dann die größte Gesamtblase, bei Kacheln deckweit. Nicht im
+    Play-Modus und nicht auf dem Zeitpfad.
+  - **„Farbe der Gesamtblase“** (`chart.scatterTotalColor`, Standard #404040, im dunklen Modus #D9D9D9, solange nicht
+    geändert): Umriss, Segment und Schrift. Das Blatt zeichnet Rot (Rezept), das in ChartKitchen sonst für ungünstige
+    Abweichungen steht.
+  - **Legende:** Zeilen „◔ Teil-Name“ (`scatter-legend-share`) und „Σ Größen-Name“ (`scatter-legend-total`) hinter
+    den Gruppen. Hochkontrast: Papierkreis mit Umriss, Segment in Vordergrundfarbe, Gesamtblase gestrichelt.
+  - **Vorlage C24** (Galerie-Gruppe Korrelation nach C10, braucht „Blasengröße“, Mini `bubblepie`):
+    `orientation=scatter`, `scatterQuadrant=off`, `scatterColorBy=group`, `scatterSizeLegend=false`,
+    `scatterValueLabels=true`, `scatterBubbleOpacity=100`, `scatterTotalBubble=true`, `scatterTrend=off`,
+    `scatterArrows=false`, `scatterPath=off`, `scatterPlay=false`, `scale.xRefLine=1`. Rezept 10E: Kategorie und
+    Stack-Serie = Branche, Small Multiples = Land, zusätzlich `scatterTotalColor=#FF0000`, `scatterMaxRadius` nach
+    Kachelgröße (10E: 120), Gruppenfarben der Branchen, Achsen 0 bis 2 und −2 bis 12.
+  - Testmarker (`data-icd`): `scatter-pie` (`data-share`, `data-small`), `scatter-pie-rim`, `scatter-pie-sector`,
+    `scatter-total` (`data-v`, `data-part`, `data-x`, `data-y`, `data-n`), `scatter-total-sector`,
+    `scatter-total-value`, `scatter-total-part`, `scatter-legend-share`, `scatter-legend-total`, `scatter-hint-share`
+    (`data-kind` `roles` | `range`). Ohne die neuen Optionen und ohne die Rolle sind alle Bestands-Stufen SVG-gleich
+    (Hash aller 756 Stufen; geändert nur das Feld-Intro c203, c206, c227, c236 um die neue Rolle und die Galerie c221e,
+    c222d, c230 um die Kachel C24; c222 blättert jetzt drei Seiten). Tests c930 bis c946. 983 resjson-Keys je Sprache.
+  - Abweichungen von den Blättern: Die Gesamtblase liegt hinter den Blasen (Blatt: halbtransparent darüber), Summe
+    200 statt 199 (das Blatt rundet), Standardfarbe neutral statt Rot, die Größenwerte stehen nur mit „Wert der
+    Blasengröße“ in den Blasen. 10G: die Kacheln tragen den Scatter-Titel und Achsentitel, bei 4 × 6 Kacheln auf
+    1280 × 720 bleibt deshalb wenig Plothöhe, und der Radius ist auf ein Fünftel davon gedeckelt (B12); die meisten
+    Blasen fallen dann unter 6 px und zeigen kein Segment.
 
 ## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
 
