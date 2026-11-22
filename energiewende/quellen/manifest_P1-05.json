@@ -1,0 +1,333 @@
+{
+  "hinweis": "Manifest Auftrag P1-05. Dateien liegen in quellen/raw/P1-05/ (nicht im Repo). Energy-Charts-Daten CC BY 4.0. Nicht erreichbar: data.bundesnetzagentur.de (Monitoringbericht 2025, Proxy 403).",
+  "eintraege": [
+    {
+      "id": "agora_knde_2023",
+      "url": "https://www.agora-energiewende.de/fileadmin/Projekte/2023/2023-30_DE_KNDE_Update/A-EW_349_KNDE_Szenariopfade_WEB.pdf",
+      "datei": "raw/P1-05/agora_knde_2023.pdf",
+      "sha256": "2c4d569af3888b91c99f99de563ffc9f2b3698a7e7471d723bc8fa6f31116334",
+      "abruf": "2026-11-22",
+      "bytes": 8682729
+    },
+    {
+      "id": "bnetza_nem_ganzjahr2022",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Energie/Unternehmen_Institutionen/Versorgungssicherheit/Engpassmanagement/Ganzjahreszahlen2022.pdf?__blob=publicationFile&v=1",
+      "datei": "raw/P1-05/bnetza_nem_ganzjahr2022.pdf",
+      "sha256": "a708b3437903dffdf088ed432b48a08274ab72f33fa7d593b66ca4934a56d02c",
+      "abruf": "2026-11-22",
+      "bytes": 1320253
+    },
+    {
+      "id": "bnetza_nem_start",
+      "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Versorgungssicherheit/Netzengpassmanagement/start.html",
+      "datei": "raw/P1-05/bnetza_nem_start.html",
+      "sha256": "9e7ac39580a77b48a8409a06c43eb3cdc36993259f53d4917b8a6c6d215ce74f",
+      "abruf": "2026-11-22",
+      "bytes": 110116
+    },
+    {
+      "id": "bnetza_pm_monitoringbericht2025",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20251126_Monitoringbericht.html",
+      "datei": "raw/P1-05/bnetza_pm_monitoringbericht2025.html",
+      "sha256": "d9ff527338e33338db15a3e9a2cbc819eda5457051ae2e6f16a6e7beb562e541",
+      "abruf": "2026-11-22",
+      "bytes": 62146
+    },
+    {
+      "id": "bnetza_pm_netzentgelte2021",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2021/20210114_Netzentgelte.html",
+      "datei": "raw/P1-05/bnetza_pm_netzentgelte2021.html",
+      "sha256": "4cd26ae773d86bdf0e2a15191300324eeb3a74155b35f9092b312c5c3ae677a5",
+      "abruf": "2026-11-22",
+      "bytes": 60381
+    },
+    {
+      "id": "bnetza_pm_preisspitzen_20251021",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20251021_Preisspitzen.html",
+      "datei": "raw/P1-05/bnetza_pm_preisspitzen_20251021.html",
+      "sha256": "d9a64683076d22754e0060c9e24a8194eecae586ae9b4bc233209f685ef8d825",
+      "abruf": "2026-11-22",
+      "bytes": 64404
+    },
+    {
+      "id": "bnetza_stromvkg_20260721",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260721_StromVKG.html",
+      "datei": "raw/P1-05/bnetza_stromvkg_20260721.html",
+      "sha256": "b13221bb0b6d76a244e1ea87a4617fa9ef9804909f7e83aff07d4740fc34a235",
+      "abruf": "2026-11-22",
+      "bytes": 60349
+    },
+    {
+      "id": "bnetza_stromvkg_20261103",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20261103_StromVKG.html",
+      "datei": "raw/P1-05/bnetza_stromvkg_20261103.html",
+      "sha256": "423a07639be6daa7e073644fe496d699125fe7f6d93f909f2254619020ce1014",
+      "abruf": "2026-11-22",
+      "bytes": 59011
+    },
+    {
+      "id": "bnetza_stromvkg_gebotstermin1",
+      "url": "https://www.bundesnetzagentur.de/1111198",
+      "datei": "raw/P1-05/bnetza_stromvkg_gebotstermin1.html",
+      "sha256": "7f308592b15b1fdc8a05b6eca283513e528ceee2272f1ba1220efcaf96efe8c5",
+      "abruf": "2026-11-22",
+      "bytes": 194523
+    },
+    {
+      "id": "bnetza_vsm2025_anhang2",
+      "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Versorgungssicherheit/Monitoring_Strom/DL/Anhang_2.pdf",
+      "datei": "raw/P1-05/bnetza_vsm2025_anhang2.pdf",
+      "sha256": "a415c21d272d1c9a4607fa4d1bdc41ff40fd9776a3ccf8cdac09bc0c20202634",
+      "abruf": "2026-11-22",
+      "bytes": 2434324
+    },
+    {
+      "id": "bnetza_vsm_landing",
+      "url": "https://www.bundesnetzagentur.de/1072798",
+      "datei": "raw/P1-05/bnetza_vsm_landing.html",
+      "sha256": "f32ac779112400085366e48586fd6c20b8b4e6438b424dd314d2ea73158f7a54",
+      "abruf": "2026-11-22",
+      "bytes": 60497
+    },
+    {
+      "id": "cleanthinking_ines_h2speicher",
+      "url": "https://www.cleanthinking.de/?p=1075614",
+      "datei": "raw/P1-05/cleanthinking_ines_h2speicher.html",
+      "sha256": "1b6aa848d94ecc50a59b31dcf40c4ad9eeb7a50e0a5cbd0175bfe440c76c772e",
+      "abruf": "2026-11-22",
+      "bytes": 364555
+    },
+    {
+      "id": "ec_installed_power_monthly",
+      "url": "https://api.energy-charts.info/installed_power?country=de&time_step=monthly&installation_decommission=false",
+      "datei": "raw/P1-05/ec_installed_power_monthly.json",
+      "sha256": "a52a67cc6b479f3f8a60c013f10bef9edc8d142cfcb48902d4071042751d4e24",
+      "abruf": "2026-11-22",
+      "bytes": 16411
+    },
+    {
+      "id": "ec_price_2019",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2019-01-01&end=2019-12-31",
+      "datei": "raw/P1-05/ec_price_2019.json",
+      "sha256": "e20e3a8079b25e942040d7e387696fcfda4a0fcd05d523fcae58b8fcb5bd8f6f",
+      "abruf": "2026-11-22",
+      "bytes": 147671
+    },
+    {
+      "id": "ec_price_2020",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2020-01-01&end=2020-12-31",
+      "datei": "raw/P1-05/ec_price_2020.json",
+      "sha256": "7c04edadff402e1963b73c1a17e181b929be4714ad2747024c500a4580aa58ef",
+      "abruf": "2026-11-22",
+      "bytes": 147642
+    },
+    {
+      "id": "ec_price_2021",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2021-01-01&end=2021-12-31",
+      "datei": "raw/P1-05/ec_price_2021.json",
+      "sha256": "0c787301f45f146874a25eba5e6755522cce6e239777ebc68f9bf39e2dca9800",
+      "abruf": "2026-11-22",
+      "bytes": 150122
+    },
+    {
+      "id": "ec_price_2022",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2022-01-01&end=2022-12-31",
+      "datei": "raw/P1-05/ec_price_2022.json",
+      "sha256": "98a75a415e1e885bc815568bfaf441e74121072fd3ef423f8c14e7b994252a25",
+      "abruf": "2026-11-22",
+      "bytes": 154853
+    },
+    {
+      "id": "ec_price_2023",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2023-01-01&end=2023-12-31",
+      "datei": "raw/P1-05/ec_price_2023.json",
+      "sha256": "3f8b1d9620a02a83ed86a1d37f5b8dccc2999f3b4a88f4d67b2e5d876201840b",
+      "abruf": "2026-11-22",
+      "bytes": 151456
+    },
+    {
+      "id": "ec_price_2024",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2024-01-01&end=2024-12-31",
+      "datei": "raw/P1-05/ec_price_2024.json",
+      "sha256": "50e26375364124d9e863beea8f459966806d7a5ac33e5282680c02cf7f92e863",
+      "abruf": "2026-11-22",
+      "bytes": 150150
+    },
+    {
+      "id": "ec_price_2025",
+      "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2025-01-01&end=2025-12-31",
+      "datei": "raw/P1-05/ec_price_2025.json",
+      "sha256": "6027e994c2e73fc1aec3b9a226a027676349e0d5c47957995b63a1ff35a7404a",
+      "abruf": "2026-11-22",
+      "bytes": 264545
+    },
+    {
+      "id": "ec_public_power_2015",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2015-01-01&end=2015-12-31",
+      "datei": "raw/P1-05/ec_public_power_2015.json",
+      "sha256": "82df146b341a39b6426b1129b41f5d4f502abc6b01fab552f3d448fd015b7e4c",
+      "abruf": "2026-11-22",
+      "bytes": 5446308
+    },
+    {
+      "id": "ec_public_power_2016",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2016-01-01&end=2016-12-31",
+      "datei": "raw/P1-05/ec_public_power_2016.json",
+      "sha256": "f104acb6e9f3f2d3141ebaf393e6928ba661ea03811d1008a196e34a00c9d52e",
+      "abruf": "2026-11-22",
+      "bytes": 5504867
+    },
+    {
+      "id": "ec_public_power_2017",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2017-01-01&end=2017-12-31",
+      "datei": "raw/P1-05/ec_public_power_2017.json",
+      "sha256": "cf960f44f37519016ad9a1188f166229aa8cec0bdd380e4b4a5c2fb52c27b00b",
+      "abruf": "2026-11-22",
+      "bytes": 5486006
+    },
+    {
+      "id": "ec_public_power_2018",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2018-01-01&end=2018-12-31",
+      "datei": "raw/P1-05/ec_public_power_2018.json",
+      "sha256": "76afe0c3372072d1f3cc59ca6de4b3b20283ad348a6a3d55bf8b02c771e3f06b",
+      "abruf": "2026-11-22",
+      "bytes": 5467543
+    },
+    {
+      "id": "ec_public_power_2019",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2019-01-01&end=2019-12-31",
+      "datei": "raw/P1-05/ec_public_power_2019.json",
+      "sha256": "8ded22989e75c25c2640adce2353cbbf8711a17af0a7d7a8ebf60c5e206d3efd",
+      "abruf": "2026-11-22",
+      "bytes": 5449874
+    },
+    {
+      "id": "ec_public_power_2020",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2020-01-01&end=2020-12-31",
+      "datei": "raw/P1-05/ec_public_power_2020.json",
+      "sha256": "4a0bb3e7283b3c8bf4489e6ce8ab66039bdb808dfa576b59a25a635c62552f86",
+      "abruf": "2026-11-22",
+      "bytes": 5289169
+    },
+    {
+      "id": "ec_public_power_2021",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2021-01-01&end=2021-12-31",
+      "datei": "raw/P1-05/ec_public_power_2021.json",
+      "sha256": "678e23c710dd52958cd70f4e8e8f40b3d6dfd5efa4d6b0816cea0a55ee1d91eb",
+      "abruf": "2026-11-22",
+      "bytes": 5250156
+    },
+    {
+      "id": "ec_public_power_2022",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2022-01-01&end=2022-12-31",
+      "datei": "raw/P1-05/ec_public_power_2022.json",
+      "sha256": "320be916f9fd21d8bc517be625a33bbd35886f581e864cf6c5d172f6dd0e6f1a",
+      "abruf": "2026-11-22",
+      "bytes": 5257249
+    },
+    {
+      "id": "ec_public_power_2023",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2023-01-01&end=2023-12-31",
+      "datei": "raw/P1-05/ec_public_power_2023.json",
+      "sha256": "d137d55084d079be3a7bf14e29661af0a79e02feb328387b82271ce70ce28cb4",
+      "abruf": "2026-11-22",
+      "bytes": 5386481
+    },
+    {
+      "id": "ec_public_power_2024",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2024-01-01&end=2024-12-31",
+      "datei": "raw/P1-05/ec_public_power_2024.json",
+      "sha256": "54d5e2e74bf980c4b4334aef3aeeb4dd2d39c7747795444b18bdd58c7e2385cd",
+      "abruf": "2026-11-22",
+      "bytes": 5191401
+    },
+    {
+      "id": "ec_public_power_2025",
+      "url": "https://api.energy-charts.info/public_power?country=de&start=2025-01-01&end=2025-12-31",
+      "datei": "raw/P1-05/ec_public_power_2025.json",
+      "sha256": "6a6b8365901d2842ef3e2bf36db1061eb9c4b59950f7ceb15af4fe7c152f2bcb",
+      "abruf": "2026-11-22",
+      "bytes": 5159770
+    },
+    {
+      "id": "ise_lcoe_2024_de",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/DE2024_ISE_Studie_Stromgestehungskosten_Erneuerbare_Energien.pdf",
+      "datei": "raw/P1-05/ise_lcoe_2024_de.pdf",
+      "sha256": "d26876221e8254f9790a03228ec1db523776ac9296b3cef9020c31162b373823",
+      "abruf": "2026-11-22",
+      "bytes": 9264160
+    },
+    {
+      "id": "ise_systemstudie_deutschland",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/Systemstudie-Deutschland.pdf",
+      "datei": "raw/P1-05/ise_systemstudie_deutschland.pdf",
+      "sha256": "4aa7a0945466269c9d6b82daa1783ceac20c50a0d3c04f50fa346af89cfde39a",
+      "abruf": "2026-11-22",
+      "bytes": 2331061
+    },
+    {
+      "id": "kfw_elektrolyse_2026-03-04",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Auf-einen-Blick/2026_03_04_Elektrolyse.pdf",
+      "datei": "raw/P1-05/kfw_elektrolyse_2026-03-04.pdf",
+      "sha256": "638ada241151d440f1b12448b7ae542f3222944d0c5f723d400baba3b089b420",
+      "abruf": "2026-11-22",
+      "bytes": 744455
+    },
+    {
+      "id": "kfw_fokus555_batteriespeicher",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Fokus-Volkswirtschaft/Fokus-2026/Fokus-Nr.-555-August-2026-Batteriespeicher.pdf",
+      "datei": "raw/P1-05/kfw_fokus555_batteriespeicher.pdf",
+      "sha256": "51f4c96c77459871e92f8a46ef3ed61217ef37b4d305d9380616873a750d489a",
+      "abruf": "2026-11-22",
+      "bytes": 435374
+    },
+    {
+      "id": "nep_2037_2045_v2025_entwurf2",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-05/NEP_2037_2045_V2025_2_Entwurf_1.pdf",
+      "datei": "raw/P1-05/nep_2037_2045_v2025_entwurf2.pdf",
+      "sha256": "1df9216fdbb68f3222d77e2aa740ba4077f1b8bf1115aa8435a7cf4fe3c216f4",
+      "abruf": "2026-11-22",
+      "bytes": 18624434
+    },
+    {
+      "id": "nep_genehmigung_szenariorahmen_2025",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2025-04/Genehmigung%20Szenariorahmen%202025_0.pdf",
+      "datei": "raw/P1-05/nep_genehmigung_szenariorahmen_2025.pdf",
+      "sha256": "ff1feac651f76d0687bec4a2ecde678eab05d72cda884252fa14b1c43031b083",
+      "abruf": "2026-11-22",
+      "bytes": 1251699
+    },
+    {
+      "id": "smard_nem_2025_en",
+      "url": "https://www.smard.de/page/en/topic-article/5892/220534/volume-of-measures-stable-in-the-year-as-a-whole",
+      "datei": "raw/P1-05/smard_nem_2025_en.html",
+      "sha256": "0478ae94b46630ffc8b76c07935319502e06592486bb4f7ef0af4b712e8eecaa",
+      "abruf": "2026-11-22",
+      "bytes": 75314
+    },
+    {
+      "id": "smard_nem_216636",
+      "url": "https://www.smard.de/page/home/topic-article/444/216636/volumen-und-kosten-gesunken",
+      "datei": "raw/P1-05/smard_nem_216636.html",
+      "sha256": "4398876d5d5655597f1cd72d18ae31e6c3f8399ba82b6ae9096514d80c15ab49",
+      "abruf": "2026-11-22",
+      "bytes": 100744
+    },
+    {
+      "id": "smard_nem_219200",
+      "url": "https://www.smard.de/page/home/topic-article/444/219200/volumen-und-kosten-gestiegen",
+      "datei": "raw/P1-05/smard_nem_219200.html",
+      "sha256": "50830beb733bfbc2243ebae08c200035597a9af731b661e4bec50277604bf86d",
+      "abruf": "2026-11-22",
+      "bytes": 69036
+    },
+    {
+      "id": "wd5_065_26",
+      "url": "https://www.bundestag.de/resource/blob/1201294/WD-5-065-26.pdf",
+      "datei": "raw/P1-05/wd5_065_26.pdf",
+      "sha256": "ccc679bf1fb59cae38b32ab32329795266000eb22f99be41a712d469784fb2c3",
+      "abruf": "2026-11-22",
+      "bytes": 439180
+    }
+  ]
+}

@@ -492,5 +492,1329 @@ Verkehrswende, Öko-Institut, DLR, RLI.
 Repo-intern: `strommix/research/ist_zustand_de.md`.
 
 ```json
-@@JSON@@
+{
+ "dossier": "04_energiesystem_bedarf",
+ "stand": "2026-11-22",
+ "parameters": [
+  {
+   "id": "ist_eev_de_2024_eurostat",
+   "value": 2067.2,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "nrg_bal FC_E, siec TOTAL, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Endenergie ohne int. Luft/See; ohne nichtenergetischen Verbrauch"
+  },
+  {
+   "id": "ist_eev_de_2024_inkl_intavi",
+   "value": 2170.4,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E + INTAVI 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Rechnung (M): 2067,2 + 103,2"
+  },
+  {
+   "id": "ist_eev_de_2008_eurostat",
+   "value": 2424,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E 2008",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Vergleichsjahr EnEfG"
+  },
+  {
+   "id": "ist_eev_de_2024_ageb_abgeleitet",
+   "value": 2259,
+   "unit": "TWh",
+   "source": "uba_v14_industrie_2026",
+   "fundstelle": "Folie 3: 607,6 TWh = 26,9 % des EEV",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Rechnung (M): 607,6 / 0,269; AGEB-Abgrenzung, nicht direkt belegt"
+  },
+  {
+   "id": "ist_pev_de_2024_eurostat_gae",
+   "value": 2937.5,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "GAE TOTAL 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Gross available energy; Öl 1090,1; Gas 754,2; Kohle 439,3; EE 581,6; Strom 26,3; Abfall 46,2"
+  },
+  {
+   "id": "ist_pev_de_2025_ageb_pj",
+   "value": 10530,
+   "unit": "PJ",
+   "source": "ageb_infografik_2026",
+   "fundstelle": "Infografik 06|2026 (Suchtreffer)",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "AGEB nicht abrufbar; frühere Fassung 10.490 PJ"
+  },
+  {
+   "id": "ist_ee_anteil_beev_2025",
+   "value": 23.8,
+   "unit": "%",
+   "source": "uba_endenergie",
+   "fundstelle": "Abschnitt Anteil erneuerbarer Energien am BEEV",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "RED-III-Berechnungsregeln, NECP-Ziel 2030: 41 %"
+  },
+  {
+   "id": "ist_eev_2024_industrie",
+   "value": 562.5,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_IND_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_verkehr",
+   "value": 575.9,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_TRA_E, ohne int. Luft/See, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_haushalte",
+   "value": 610.1,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_OTH_HH_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_ghd",
+   "value": 276.8,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_OTH_CP_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_landwirtschaft",
+   "value": 40.9,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_OTH_AF_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_traeger_strom",
+   "value": 471.8,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_traeger_gas",
+   "value": 523.7,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_traeger_oel",
+   "value": 705.9,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_traeger_kohle",
+   "value": 28.4,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_traeger_fernwaerme",
+   "value": 101.0,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_eev_2024_traeger_ee_direkt",
+   "value": 196.5,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Eurostat-Abgrenzung"
+  },
+  {
+   "id": "ist_strom_eev_2008",
+   "value": 528,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_E, siec E7000, 2008",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Endverbrauch Strom"
+  },
+  {
+   "id": "ist_bruttostrom_2024",
+   "value": 518,
+   "unit": "TWh",
+   "source": "nep_v2025",
+   "fundstelle": "Kurzfassung S. 5, Fußnote 1",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "NEP-Basisjahr; Bundesregierung nennt 522 (WD 5-050-26 S. 10)"
+  },
+  {
+   "id": "ist_verkehr_strasse_2024",
+   "value": 549.5,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_TRA_ROAD_E 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Öl 509,2; Biokraftstoffe 30,1"
+  },
+  {
+   "id": "ist_verkehr_pkw_2024",
+   "value": 407,
+   "unit": "TWh",
+   "source": "uba_verkehr",
+   "fundstelle": "Excel 8_Abb_Kraftstoffverbrauch-Pkw-Kombi: 25.884 Mio. l Benzin, 17.612 Mio. l Diesel",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Rechnung (M) mit Heizwert-Setzung (M) 8,94 / 9,97 kWh/l; Inländerfahrleistung"
+  },
+  {
+   "id": "ist_verkehr_lkw_bus_rest_2024",
+   "value": 142,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "Straße minus Pkw",
+   "confidence": "C",
+   "primaer_gelesen": true,
+   "note": "Rechnung (M), Differenz, Abgrenzungsunterschiede möglich"
+  },
+  {
+   "id": "ist_verkehr_bahn_2024",
+   "value": 14.4,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_TRA_RAIL_E 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Strom 11,6"
+  },
+  {
+   "id": "ist_verkehr_luft_inland_2024",
+   "value": 4.1,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_TRA_DAVI_E 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "nur Inlandsflüge"
+  },
+  {
+   "id": "ist_verkehr_luft_intl_2024",
+   "value": 103.2,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "INTAVI 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "in Deutschland getankter Kraftstoff"
+  },
+  {
+   "id": "ist_verkehr_schiff_binnen_2024",
+   "value": 2.7,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "FC_TRA_DNAVI_E 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Binnenschifffahrt"
+  },
+  {
+   "id": "ist_verkehr_schiff_intl_2024",
+   "value": 14.9,
+   "unit": "TWh",
+   "source": "eurostat_nrg_bal_c",
+   "fundstelle": "INTMARB 2024",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Bunker"
+  },
+  {
+   "id": "ist_industrie_eev_2024",
+   "value": 607.6,
+   "unit": "TWh",
+   "source": "uba_v14_industrie_2026",
+   "fundstelle": "Folie 3",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "AGEB-Abgrenzung; -15 % gegen 2008"
+  },
+  {
+   "id": "ist_industrie_prozesswaerme_2024",
+   "value": 407.0,
+   "unit": "TWh",
+   "source": "uba_v14_industrie_2026",
+   "fundstelle": "Folie 9; UBA Wärme-Seite",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "67 % des Industrie-EEV; keine Temperaturstufen"
+  },
+  {
+   "id": "ist_industrie_prozesswaerme_strom_2024",
+   "value": 30.7,
+   "unit": "TWh",
+   "source": "uba_v14_industrie_2026",
+   "fundstelle": "Folie 9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "7,5 % der Prozesswärme, stagniert seit 2020"
+  },
+  {
+   "id": "ist_industrie_strom_2024",
+   "value": 186.0,
+   "unit": "TWh",
+   "source": "uba_v14_industrie_2026",
+   "fundstelle": "Folie 6",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "-20 % gegen 2008"
+  },
+  {
+   "id": "ist_raumwaerme_anteil_eev",
+   "value": 27,
+   "unit": "%",
+   "source": "uba_waerme",
+   "fundstelle": "Abschnitt Wärmeverbrauch",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "sektorübergreifend, Prozesswärme ca. 20 %"
+  },
+  {
+   "id": "thg_2025_gesamt",
+   "value": 648.9,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2025_energie",
+   "value": 189.1,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2025_industrie",
+   "value": 144.1,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2025_gebaeude",
+   "value": 103.4,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2025_verkehr",
+   "value": 146.3,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2025_landwirtschaft",
+   "value": 60.8,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2025_abfall",
+   "value": 5.1,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1-9",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "UBA THG-Inventar 2025; KSG-Sektoren; LULUCF separat (+26,9 netto)"
+  },
+  {
+   "id": "thg_2030_projektion_minderung",
+   "value": 62.6,
+   "unit": "% gg. 1990",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 1 und 3",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Projektionsdaten 2026, Stand Beschlüsse 11/2025; Ziel 65 %; Expertenrat hält Projektion für zu optimistisch (C)"
+  },
+  {
+   "id": "thg_2045_brutto_projektion",
+   "value": 212.5,
+   "unit": "Mt CO2-Aeq",
+   "source": "uba_emi2025",
+   "fundstelle": "S. 3",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "mit bisherigen Maßnahmen, ohne LULUCF und technische Senken, -83 %"
+  },
+  {
+   "id": "thg_ksg_ziel_2030",
+   "value": 65,
+   "unit": "% gg. 1990",
+   "source": "uba_thg",
+   "fundstelle": "Abschnitt 5 KSG",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "UBA schreibt 'CO2-Emissionen', gemeint Treibhausgase; 2040: 88 %; 2045 netto-neutral"
+  },
+  {
+   "id": "restbudget_sru_175_67",
+   "value": 3.8,
+   "unit": "Gt CO2 ab 2024",
+   "source": "sru_2024_suchtreffer",
+   "fundstelle": "Update 11/2024 (Suchtreffer)",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "1,75 °C, 67 %, gleiche Pro-Kopf-Rechte; 1,5 °C aufgebraucht; Erstfassung 3,9 Gt"
+  },
+  {
+   "id": "restbudget_ariadne_2020_2045",
+   "value": 8.2,
+   "unit": "Gt CO2-Aeq",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 17",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "indikatives Modellbudget 2020-2045 netto, ohne int. Flug/Schiff; kein Gerechtigkeitsmaßstab"
+  },
+  {
+   "id": "strom_2030_studien",
+   "min": 600,
+   "mid": 730,
+   "max": 807,
+   "unit": "TWh",
+   "source": "ariadne_2025; agora_knde_2024; ise_2024; wd5_050_26",
+   "fundstelle": "Tab. 3.1",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "Setzung (M): min = Monitoring 600, mid = Median der Studienmitten, max = Ariadne 807"
+  },
+  {
+   "id": "strom_2037_nep",
+   "min": 866,
+   "mid": 977,
+   "max": 1087,
+   "unit": "TWh",
+   "source": "nep_v2025",
+   "fundstelle": "Kurzfassung S. 5",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "Bruttostromverbrauch Szenarien A-C; mid = Mitte der Spanne"
+  },
+  {
+   "id": "strom_2045_studien",
+   "min": 989,
+   "mid": 1250,
+   "max": 1544,
+   "unit": "TWh",
+   "source": "ariadne_2025; agora_knde_2024; ise_2024; nep_v2025",
+   "fundstelle": "Tab. 3.1",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "nur Studien 2024-2026; Abgrenzungen verschieden (Netzverluste, Elektrolyse); mid = Median der Studienmitten"
+  },
+  {
+   "id": "strom_2045_alle_inkl_dena",
+   "min": 910,
+   "mid": 1250,
+   "max": 1544,
+   "unit": "TWh",
+   "source": "ariadne_2025; agora_knde_2024; ise_2024; nep_v2025; dena_ewi_suchtreffer",
+   "fundstelle": "Tab. 3.1",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "dena KN100 910 (2021) als Untergrenze"
+  },
+  {
+   "id": "strom_2030_ariadne",
+   "min": 681,
+   "mid": 744,
+   "max": 807,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 20",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Nettostromverbrauch + Netzverluste"
+  },
+  {
+   "id": "strom_2045_ariadne",
+   "min": 1037,
+   "mid": 1230,
+   "max": 1423,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 20",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": ""
+  },
+  {
+   "id": "strom_2045_agora",
+   "value": 1267,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 46",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "2030: 727; Elektrolyse 2045: 119 TWh Strom"
+  },
+  {
+   "id": "strom_2030_agora",
+   "value": 727,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 46",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Bruttostromverbrauch"
+  },
+  {
+   "id": "strom_2030_ise",
+   "min": 670,
+   "mid": 730,
+   "max": 789,
+   "unit": "TWh",
+   "source": "ise_2024",
+   "fundstelle": "PDF S. 33",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Szenarien Beharrung bis Robust"
+  },
+  {
+   "id": "strom_2045_ise",
+   "min": 1227,
+   "mid": 1385,
+   "max": 1544,
+   "unit": "TWh",
+   "source": "ise_2024",
+   "fundstelle": "PDF S. 33",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "inkl. H2/PtX-Strom, ca. 10 % Verluste"
+  },
+  {
+   "id": "strom_2045_nep",
+   "min": 989,
+   "mid": 1142,
+   "max": 1294,
+   "unit": "TWh",
+   "source": "nep_v2025",
+   "fundstelle": "Kurzfassung S. 5",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Szenarien A bis C"
+  },
+  {
+   "id": "strom_2030_lfs3",
+   "min": 765,
+   "mid": 779,
+   "max": 792,
+   "unit": "TWh",
+   "source": "lfs3_duh_suchtreffer",
+   "fundstelle": "DUH-Auswertung (Sekundär)",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "Widerspruch zu strommix-Dossier (594-638)"
+  },
+  {
+   "id": "strom_2030_monitoring_2025",
+   "min": 600,
+   "mid": 650,
+   "max": 700,
+   "unit": "TWh",
+   "source": "wd5_050_26",
+   "fundstelle": "S. 8-10",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "Bandbreite Bundesregierung; explorativ 580-700, normativ 530-910; ersetzt 750"
+  },
+  {
+   "id": "strom_2030_mckinsey_netto",
+   "min": 530,
+   "mid": 573,
+   "max": 615,
+   "unit": "TWh",
+   "source": "wd5_050_26",
+   "fundstelle": "S. 8",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "NETTO; Trend 530, Transformation 615"
+  },
+  {
+   "id": "strom_2035_mckinsey_netto",
+   "min": 635,
+   "mid": 720,
+   "max": 805,
+   "unit": "TWh",
+   "source": "wd5_050_26",
+   "fundstelle": "S. 8",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "NETTO; Trend 635, Transformation 805"
+  },
+  {
+   "id": "strom_ist_2017",
+   "value": 602,
+   "unit": "TWh",
+   "source": "wd5_050_26",
+   "fundstelle": "S. 10",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "Bruttostromverbrauch"
+  },
+  {
+   "id": "strom_ist_2024_bundesregierung",
+   "value": 522,
+   "unit": "TWh",
+   "source": "wd5_050_26",
+   "fundstelle": "S. 10",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": ""
+  },
+  {
+   "id": "h2_2045_ariadne",
+   "min": 175,
+   "mid": 300,
+   "max": 420,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 64",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "inländische H2-Nachfrage; 175-350 PyPSA/REMIND, 330-420 REMod"
+  },
+  {
+   "id": "h2_derivate_2045_ariadne",
+   "min": 85,
+   "mid": 125,
+   "max": 165,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 64",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "E-Fuels, Methanol, Ammoniak u. a."
+  },
+  {
+   "id": "gruene_molekuele_2045_ariadne",
+   "min": 515,
+   "mid": 770,
+   "max": 1023,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 8",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "nicht-elektrischer Brennstoff-, Kraftstoff-, Rohstoffbedarf"
+  },
+  {
+   "id": "h2_import_2045_ariadne",
+   "min": 60,
+   "mid": 155,
+   "max": 250,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 8, 64",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Technologiemix"
+  },
+  {
+   "id": "efuel_import_2045_ariadne",
+   "min": 100,
+   "mid": 115,
+   "max": 130,
+   "unit": "TWh",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 8, 64",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": ""
+  },
+  {
+   "id": "h2_2045_agora",
+   "value": 268,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 29",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "230 energetisch, 38 stofflich"
+  },
+  {
+   "id": "ptl_2045_agora",
+   "value": 155,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 29",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "vollständig importiert; H2+PtL 423, davon 339 Import"
+  },
+  {
+   "id": "h2_2045_ise_technologieoffen",
+   "value": 370,
+   "unit": "TWh",
+   "source": "ise_2024",
+   "fundstelle": "PDF S. 5",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "244 Import + 126 inländisch; H2-Speicher 130 TWh"
+  },
+  {
+   "id": "elektrolysestrom_2045_nep",
+   "min": 116,
+   "mid": 201,
+   "max": 241,
+   "unit": "TWh",
+   "source": "nep_v2025",
+   "fundstelle": "Kap. 3 Tab. S. 74",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Szenarien A bis C; 2037: 52-124"
+  },
+  {
+   "id": "h2_2045_dena",
+   "value": 458,
+   "unit": "TWh",
+   "source": "dena_ewi_suchtreffer",
+   "fundstelle": "Suchtreffer",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "KN100, 2021"
+  },
+  {
+   "id": "biomasse_2045_ariadne",
+   "value": 300,
+   "unit": "TWh Primaerenergie",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 17",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Annahme; davon ca. 200 TWh für Industrie, Flug, Schiff"
+  },
+  {
+   "id": "biomasse_2045_agora",
+   "value": 294,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 28",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "2020: 286"
+  },
+  {
+   "id": "endenergie_rueckgang_ariadne_2015_2045",
+   "min": 31,
+   "mid": 38,
+   "max": 45,
+   "unit": "%",
+   "source": "ariadne_2025",
+   "fundstelle": "PDF S. 22",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Rückgang Endenergiebedarf 2015-2045"
+  },
+  {
+   "id": "verkehr_eev_2045_agora",
+   "value": 278,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 22-23",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Strom 221, H2 32, PtL 22"
+  },
+  {
+   "id": "gebaeude_eev_2045_agora",
+   "value": 700,
+   "unit": "TWh",
+   "source": "agora_knde_2024",
+   "fundstelle": "Kap. 1.4",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Strom knapp 280 TWh"
+  },
+  {
+   "id": "jaz_bestand_luft_wasser",
+   "min": 2.6,
+   "mid": 3.4,
+   "max": 4.9,
+   "unit": "-",
+   "source": "ise_wp_qs2025",
+   "fundstelle": "Presseinformation 03.11.2025",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "61 Anlagen EFH-Bestand; Vorprojekt 3,1"
+  },
+  {
+   "id": "jaz_bestand_erdreich",
+   "min": 3.6,
+   "mid": 4.3,
+   "max": 5.4,
+   "unit": "-",
+   "source": "ise_wp_qs2025",
+   "fundstelle": "Presseinformation 03.11.2025",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "16 Anlagen; Vorprojekt 4,1"
+  },
+  {
+   "id": "jaz_neubau_historisch",
+   "min": 2.9,
+   "mid": 3.9,
+   "max": 4.1,
+   "unit": "-",
+   "source": "ise_wp_effizienz",
+   "fundstelle": "Projektseite WP-Effizienz",
+   "confidence": "C",
+   "primaer_gelesen": true,
+   "note": "Messung 2007-2010, Neubau-EFH; min Luft 2,9, mid/max Erdreich 3,9/4,1; kein aktueller Wert"
+  },
+  {
+   "id": "jaz_nep_genehmigt",
+   "min": 3.17,
+   "mid": 3.3,
+   "max": 3.32,
+   "unit": "-",
+   "source": "nep_szr2025_genehmigung",
+   "fundstelle": "S. 27",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Haushalte, Szenarien A bis C, 2037/2045"
+  },
+  {
+   "id": "jaz_nep_uenb_entwurf",
+   "min": 3.6,
+   "mid": 3.7,
+   "max": 3.8,
+   "unit": "-",
+   "source": "nep_szr2025_entwurf",
+   "fundstelle": "S. 43",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "ÜNB-Annahme, von BNetzA gesenkt"
+  },
+  {
+   "id": "jaz_agora_2045",
+   "min": 3.5,
+   "mid": 3.75,
+   "max": 4.0,
+   "unit": "-",
+   "source": "agora_knde_2024",
+   "fundstelle": "PDF S. 89",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Wohn 3,5, Nichtwohn 4,0"
+  },
+  {
+   "id": "epkw_verbrauch_real",
+   "min": 15,
+   "mid": 18,
+   "max": 25,
+   "unit": "kWh/100 km",
+   "source": "uba_texte_160_2022",
+   "fundstelle": "S. 12, 17",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "inkl. Ladeverlusten 17,5 %, 15 % über WLTP; ISE-Annahme 18; ADAC-Spanne 13,4-29,7 (Suchtreffer)"
+  },
+  {
+   "id": "pkw_verbrenner_verbrauch_flotte",
+   "min": 6.95,
+   "mid": 7.4,
+   "max": 7.74,
+   "unit": "l/100 km",
+   "source": "uba_verkehr",
+   "fundstelle": "Excel 10_Abb_Durchschn-Kraftstoffverbrauch, 2024",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "Diesel 6,95; Benzin 7,74; gesamt 7,40; BMDV Verkehr in Zahlen"
+  },
+  {
+   "id": "pkw_verbrenner_kwh_100km",
+   "value": 69,
+   "unit": "kWh/100 km",
+   "source": "uba_verkehr",
+   "fundstelle": "Rechnung (M)",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Heizwert-Setzung (M) 8,94 kWh/l Benzin, 9,97 kWh/l Diesel"
+  },
+  {
+   "id": "pkw_elektrifizierung_faktor",
+   "min": 3.2,
+   "mid": 3.8,
+   "max": 4.6,
+   "unit": "-",
+   "source": "eigene Rechnung",
+   "fundstelle": "69 / (21,5 | 18 | 15)",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Endenergie-Einsparung je km; Rechnung (M)"
+  },
+  {
+   "id": "lkw_bev_kwh_100km",
+   "min": 106,
+   "mid": 127,
+   "max": 129,
+   "unit": "kWh/100 km",
+   "source": "now_studie; agora_verkehrswende; icct_suchtreffer",
+   "fundstelle": "Suchtreffer",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "Fernverkehr Sattelzug; ISI-Simulation 156 ohne Ladeverluste"
+  },
+  {
+   "id": "lkw_h2_kg_100km",
+   "min": 6.6,
+   "mid": 7.5,
+   "max": 9.0,
+   "unit": "kg H2/100 km",
+   "source": "agora_verkehrswende; now_studie; icct_suchtreffer",
+   "fundstelle": "Suchtreffer",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "33,3 kWh/kg; ICCT heute 9, künftig 6,6"
+  },
+  {
+   "id": "lkw_diesel_l_100km",
+   "min": 26,
+   "mid": 30,
+   "max": 33.7,
+   "unit": "l/100 km",
+   "source": "now_studie; agora_verkehrswende",
+   "fundstelle": "Suchtreffer",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "mid Setzung (M)"
+  },
+  {
+   "id": "elektrolyse_wirkungsgrad",
+   "min": 0.6,
+   "mid": 0.7,
+   "max": 0.75,
+   "unit": "-",
+   "source": "nep_v2025; uba_h2faq",
+   "fundstelle": "NEP Kap. 3 S. 30; UBA-FAQ",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Heizwert, Strom zu H2; UBA nennt 25 % Verlust"
+  },
+  {
+   "id": "h2_transport_wirkungsgrad",
+   "value": 0.9,
+   "unit": "-",
+   "source": "uba_h2faq",
+   "fundstelle": "FAQ Wasserstoff im Verkehr",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Verdichtung/Verflüssigung und Transport"
+  },
+  {
+   "id": "brennstoffzelle_wirkungsgrad",
+   "value": 0.55,
+   "unit": "-",
+   "source": "uba_h2faq",
+   "fundstelle": "FAQ Wasserstoff im Verkehr",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Umwandlungsverlust rund 45 %"
+  },
+  {
+   "id": "rueckverstromung_h2_wirkungsgrad",
+   "min": 0.4,
+   "mid": 0.55,
+   "max": 0.64,
+   "unit": "-",
+   "source": "dlr_suchtreffer",
+   "fundstelle": "Suchtreffer",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "GuD bis 64 %; mid Setzung (M); H2-Turbinen noch nicht kommerziell"
+  },
+  {
+   "id": "power_to_gas_to_power_kette",
+   "min": 0.25,
+   "mid": 0.35,
+   "max": 0.45,
+   "unit": "-",
+   "source": "eigene Rechnung",
+   "fundstelle": "0,70 x 0,90 x 0,55",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "Rechnung (M); RLI-Beispiel 36 %"
+  },
+  {
+   "id": "efuel_kette_strom_zu_kraftstoff",
+   "min": 0.45,
+   "mid": 0.47,
+   "max": 0.63,
+   "unit": "-",
+   "source": "oeko_institut_suchtreffer",
+   "fundstelle": "Suchtreffer",
+   "confidence": "C",
+   "primaer_gelesen": false,
+   "note": "47 %, bester Fall 63 %"
+  },
+  {
+   "id": "gesamtwirkungsgrad_pkw_bev",
+   "value": 0.75,
+   "unit": "-",
+   "source": "uba_h2faq",
+   "fundstelle": "FAQ",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "Strom bis Rad; FCEV 0,28"
+  },
+  {
+   "id": "gesamtwirkungsgrad_pkw_fcev",
+   "value": 0.28,
+   "unit": "-",
+   "source": "uba_h2faq",
+   "fundstelle": "FAQ",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": ""
+  },
+  {
+   "id": "gesamtwirkungsgrad_lkw",
+   "min": 0.21,
+   "mid": 0.31,
+   "max": 0.73,
+   "unit": "-",
+   "source": "uba_h2faq",
+   "fundstelle": "FAQ",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "min Diesel mit PtL 0,21; mid FCEV 0,31; max BEV 0,73"
+  },
+  {
+   "id": "kernnetz_laenge",
+   "value": 9040,
+   "unit": "km",
+   "source": "bnetza_kernnetz",
+   "fundstelle": "Seite Wasserstoff-Kernnetz, Genehmigung 22.10.2024",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "60 % Umstellung; Inbetriebnahme bis 2032"
+  },
+  {
+   "id": "kernnetz_kosten",
+   "value": 18.9,
+   "unit": "Mrd EUR",
+   "source": "bnetza_kernnetz",
+   "fundstelle": "wie oben",
+   "confidence": "A",
+   "primaer_gelesen": true,
+   "note": "erwartete Investitionskosten"
+  },
+  {
+   "id": "enefg_eev_2030",
+   "value": 1867,
+   "unit": "TWh",
+   "source": "uba_endenergie",
+   "fundstelle": "Abschnitt Allgemeine Entwicklung",
+   "confidence": "B",
+   "primaer_gelesen": true,
+   "note": "-26,5 % gegen 2008; 2045: 1.400 TWh; EnEfG-Abgrenzung ohne Umweltwärme"
+  },
+  {
+   "id": "kraftwerksstrategie_erste_runden",
+   "value": 11,
+   "unit": "GW",
+   "source": "strommix_ist_zustand",
+   "fundstelle": "§ 6.2",
+   "confidence": "B",
+   "primaer_gelesen": false,
+   "note": "aus Repo-Dossier übernommen, nicht neu geprüft; 2 x 4,5 GW 2026; Koalitionsvertrag bis 20 GW"
+  },
+  {
+   "id": "eeg_ziel_pv_2030",
+   "value": 215,
+   "unit": "GW",
+   "source": "strommix_ist_zustand",
+   "fundstelle": "§ 3.1",
+   "confidence": "B",
+   "primaer_gelesen": false,
+   "note": "aus Repo-Dossier übernommen; Wind onshore 115 GW, offshore 30 GW"
+  }
+ ],
+ "sources": {
+  "eurostat_nrg_bal_c": {
+   "titel": "Complete energy balances (nrg_bal_c), Deutschland",
+   "herausgeber": "Eurostat",
+   "datum": "2026-08-27",
+   "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c",
+   "abruf": "2026-11-22"
+  },
+  "uba_endenergie": {
+   "titel": "Endenergieverbrauch nach Energieträgern und Sektoren",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026-05-15",
+   "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/energie/endenergieverbrauch-nach-energietraegern-sektoren",
+   "abruf": "2026-11-22"
+  },
+  "uba_waerme": {
+   "titel": "Energieverbrauch für fossile und erneuerbare Wärme",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026",
+   "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/energie/energieverbrauch-fuer-fossile-erneuerbare-waerme",
+   "abruf": "2026-11-22"
+  },
+  "uba_thg": {
+   "titel": "Treibhausgas-Emissionen",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026-08-31",
+   "url": "https://www.umweltbundesamt.de/themen/klima-energie/treibhausgas-emissionen",
+   "abruf": "2026-11-22"
+  },
+  "uba_emi2025": {
+   "titel": "Emissionsdaten 2025 & Projektionsdaten 2026, Pressehintergrund",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026-03-14",
+   "url": "https://www.umweltbundesamt.de/system/files/document/UBA%20Emissionsdaten%202025_Projektionsdaten%202026_Hintergrundpapier_0.pdf",
+   "abruf": "2026-11-22"
+  },
+  "uba_v14_industrie_2026": {
+   "titel": "Endenergieverbrauch in der Industrie. Die verzögerte Elektrifizierung",
+   "herausgeber": "Umweltbundesamt, Fachgebiet V 1.4",
+   "datum": "2026-06-15",
+   "url": "https://www.umweltbundesamt.de/system/files/document/4_Herda_Endenergieverbrauch_Industrie.pdf",
+   "abruf": "2026-11-22"
+  },
+  "uba_verkehr": {
+   "titel": "Energieverbrauch und Kraftstoffe (TREMOD 6.71B, BMDV Verkehr in Zahlen 2025/26)",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026-05-04",
+   "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/verkehr/energieverbrauch-kraftstoffe",
+   "abruf": "2026-11-22"
+  },
+  "uba_texte_160_2022": {
+   "titel": "Energieverbrauch von Elektroautos (BEV), TEXTE 160/2022",
+   "herausgeber": "Umweltbundesamt (ifeu, TU Graz)",
+   "datum": "2022",
+   "url": "https://www.umweltbundesamt.de/system/files/medien/479/publikationen/texte_160-2022_energieverbrauch_von_elektroautos.pdf",
+   "abruf": "2026-11-22"
+  },
+  "uba_h2faq": {
+   "titel": "Wasserstoff im Verkehr: Häufig gestellte Fragen",
+   "herausgeber": "Umweltbundesamt",
+   "datum": "2026-04-30",
+   "url": "https://www.umweltbundesamt.de/themen/verkehr/kraftstoffe-antriebe/wasserstoff-im-verkehr-haeufig-gestellte-fragen",
+   "abruf": "2026-11-22"
+  },
+  "ariadne_2025": {
+   "titel": "Die Energiewende kosteneffizient gestalten: Szenarien zur Klimaneutralität 2045",
+   "herausgeber": "Kopernikus-Projekt Ariadne (PIK u. a.), Förderer BMBF",
+   "datum": "2025-03",
+   "url": "https://ariadneprojekt.de/media/2025/03/Ariadne-Report_Szenarien2025_Maerz2025_lowres.pdf",
+   "abruf": "2026-11-22"
+  },
+  "agora_knde_2024": {
+   "titel": "Klimaneutrales Deutschland. Von der Zielsetzung zur Umsetzung – Vertiefung der Szenariopfade",
+   "herausgeber": "Agora Think Tanks, Prognos, Öko-Institut, Wuppertal Institut, Uni Kassel",
+   "datum": "2024",
+   "url": "https://www.agora-energiewende.de/fileadmin/Projekte/2023/2023-30_DE_KNDE_Update/A-EW_349_KNDE_Szenariopfade_WEB.pdf",
+   "abruf": "2026-11-22"
+  },
+  "ise_2024": {
+   "titel": "Wege zu einem klimaneutralen Energiesystem: Bundesländer im Transformationsprozess",
+   "herausgeber": "Fraunhofer ISE (BMWK-/BMBF-gefördert)",
+   "datum": "2024",
+   "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/ISE_WegeKlimaneutralEnergiesystem_final.pdf",
+   "abruf": "2026-11-22"
+  },
+  "ise_wp_qs2025": {
+   "titel": "Wärmepumpen heizen auch im Altbau klimafreundlich (WP-QS im Bestand), Presseinformation 30",
+   "herausgeber": "Fraunhofer ISE (gefördert BMWE, FKZ 03EN2029A)",
+   "datum": "2025-11-03",
+   "url": "https://www.ise.fraunhofer.de/de/presse-und-medien/presseinformationen/2025/waermepumpen-heizen-auch-im-altbau-klimafreundlich-forschungsprojekt-des-fraunhofer-ise-abgeschlossen.html",
+   "abruf": "2026-11-22"
+  },
+  "ise_wp_effizienz": {
+   "titel": "WP-Effizienz: Wärmepumpen in neuen Einfamilienhäusern",
+   "herausgeber": "Fraunhofer ISE",
+   "datum": "2010",
+   "url": "https://www.ise.fraunhofer.de/de/forschungsprojekte/wp-effizienz.html",
+   "abruf": "2026-11-22"
+  },
+  "nep_v2025": {
+   "titel": "Netzentwicklungsplan Strom 2037/2045, Version 2025, 2. Entwurf (Kurzfassung und Kap. 3)",
+   "herausgeber": "Übertragungsnetzbetreiber",
+   "datum": "2026-04",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-04/NEP_2037_2045_V2025_2_Entwurf_kompakt_DE.pdf",
+   "abruf": "2026-11-22"
+  },
+  "nep_szr2025_genehmigung": {
+   "titel": "Genehmigung des Szenariorahmens 2025-2037/2045",
+   "herausgeber": "Bundesnetzagentur",
+   "datum": "2025-04",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2025-04/Genehmigung%20Szenariorahmen%202025_0.pdf",
+   "abruf": "2026-11-22"
+  },
+  "nep_szr2025_entwurf": {
+   "titel": "Szenariorahmenentwurf NEP 2037/2045 (2025)",
+   "herausgeber": "Übertragungsnetzbetreiber",
+   "datum": "2024-07",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2024-07/Szenariorahmenentwurf_NEP2037_2025.pdf",
+   "abruf": "2026-11-22"
+  },
+  "wd5_050_26": {
+   "titel": "Prognosen zum Bruttostromverbrauch, WD 5 - 3000 - 050/26",
+   "herausgeber": "Wissenschaftliche Dienste des Deutschen Bundestages",
+   "datum": "2026-04-23",
+   "url": "https://www.bundestag.de/resource/blob/1201230/WD-5-050-26.pdf",
+   "abruf": "2026-11-22"
+  },
+  "bnetza_kernnetz": {
+   "titel": "Wasserstoff-Kernnetz",
+   "herausgeber": "Bundesnetzagentur",
+   "datum": "2024-10-22",
+   "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Wasserstoff/Kernnetz/start.html",
+   "abruf": "2026-11-22"
+  },
+  "strommix_ist_zustand": {
+   "titel": "Ist-Zustand und offizielle Zielpfade des deutschen Stromsystems",
+   "herausgeber": "Daten-WG Knowledge Kitchen (strommix/research/ist_zustand_de.md)",
+   "datum": "2026-08-15",
+   "url": "strommix/research/ist_zustand_de.md",
+   "abruf": "2026-11-22"
+  },
+  "ageb_infografik_2026": {
+   "titel": "AGEB Infografik 06|2026 PEV 2025 (nur Suchtreffer)",
+   "herausgeber": "AG Energiebilanzen",
+   "datum": "2026",
+   "url": "https://ag-energiebilanzen.de/wp-content/uploads/AGEB_Infografik_06_2026_PEV_2025.pdf",
+   "abruf": "2026-11-22"
+  },
+  "sru_2024_suchtreffer": {
+   "titel": "Wo stehen wir beim CO2-Budget? Eine Aktualisierung (nur Suchtreffer)",
+   "herausgeber": "Sachverständigenrat für Umweltfragen",
+   "datum": "2024-11",
+   "url": "https://www.umweltrat.de/SharedDocs/Downloads/EN/04_Statements/2024_2028/2024_11_CO2_Budget_An_Update.html",
+   "abruf": "2026-11-22"
+  },
+  "lfs3_duh_suchtreffer": {
+   "titel": "BMWK-Langfristszenarien 3, zitiert nach DUH (nur Suchtreffer)",
+   "herausgeber": "BMWK; zitiert von Deutsche Umwelthilfe",
+   "datum": "2024",
+   "url": "https://www.duh.de/fileadmin/user_upload/download/Projektinformation/Energiewende/DUH_Analyse_Energiewende_Monitoring_Strombedarf_PHG.pdf",
+   "abruf": "2026-11-22"
+  },
+  "dena_ewi_suchtreffer": {
+   "titel": "dena-Leitstudie Aufbruch Klimaneutralität, EWI-Zusammenfassung (nur Suchtreffer)",
+   "herausgeber": "dena, EWI",
+   "datum": "2021",
+   "url": "https://www.ewi.uni-koeln.de/de/publikationen/dena-ls2/211005_ewi-zusammenfassung_dena-leitstudie-aufbruch-klimaneutralitaet",
+   "abruf": "2026-11-22"
+  },
+  "now_studie": {
+   "titel": "Klimafreundliche Kühlsysteme für den Straßengüterverkehr (nur Suchtreffer)",
+   "herausgeber": "NOW GmbH",
+   "datum": "2023",
+   "url": "https://www.now-gmbh.de/wp-content/uploads/2023/07/NOW-Studie_Klimafreundliche-Kuehlsysteme-fuer-den-Strassengueterverkehr.pdf",
+   "abruf": "2026-11-22"
+  },
+  "agora_verkehrswende": {
+   "titel": "E-LKW in Deutschland (nur Suchtreffer)",
+   "herausgeber": "Agora Verkehrswende",
+   "datum": "2023",
+   "url": "https://www.umweltbundesamt.de/sites/default/files/medien/366/dokumente/ws_1.4_le_claire_agora_verkehrswende.pdf",
+   "abruf": "2026-11-22"
+  },
+  "icct_suchtreffer": {
+   "titel": "ICCT-Studie Brennstoffzellen-Lkw (nur Suchtreffer)",
+   "herausgeber": "ICCT",
+   "datum": "2024",
+   "url": "https://www.elektroauto-news.net/news/batterieantrieb-effizienter-als-brennstoffzelle",
+   "abruf": "2026-11-22"
+  },
+  "oeko_institut_suchtreffer": {
+   "titel": "E-Fuels im Verkehrssektor, Hintergrundbericht (nur Suchtreffer)",
+   "herausgeber": "Öko-Institut",
+   "datum": "2022",
+   "url": "https://www.oeko.de/fileadmin/oekodoc/E-Fuels-im-Verkehrssektor-Hintergrundbericht.pdf",
+   "abruf": "2026-11-22"
+  },
+  "dlr_suchtreffer": {
+   "titel": "DLR FAQ Verbrennung (nur Suchtreffer)",
+   "herausgeber": "DLR",
+   "datum": "2025",
+   "url": "https://www.dlr.de/de/vt/forschung-transfer/faqs/faq-verbrennung",
+   "abruf": "2026-11-22"
+  }
+ }
+}
 ```
