@@ -1,0 +1,91 @@
+{
+ "r21_original": {
+  "speicher_twh_exakt": 7.123,
+  "speicher_twh_r21": 7.0,
+  "kosten_mrd_eur": 1400.0
+ },
+ "v1_resterzeugung_batterie_200": {
+  "speicher_twh": {
+   "min": 4.02,
+   "mid": 4.91,
+   "max": 6.16
+  },
+  "kosten_mrd_eur": {
+   "min": 804.0,
+   "mid": 983.0,
+   "max": 1231.0
+  },
+  "hinweis": "Lücke vor Importen; Batterie bleibt einzige Technik"
+ },
+ "v2_wie_v1_batteriepreis_bandbreite": {
+  "kosten_mrd_eur": {
+   "min": 523.0,
+   "max": 3694.0
+  },
+  "eur_kwh": {
+   "min": 130,
+   "mid": 200,
+   "max": 600
+  }
+ },
+ "v3_h2_turbinen_plus_kaverne": {
+  "turbinen_gw": {
+   "min": 60.7,
+   "mid": 70.2,
+   "max": 76.5
+  },
+  "turbinen_mrd_eur": {
+   "min": 33.0,
+   "mid": 61.0,
+   "max": 92.0
+  },
+  "h2_speicher_twh": {
+   "min": 10.1,
+   "mid": 12.3,
+   "max": 15.4
+  },
+  "kaverne_mrd_eur": {
+   "min": 6.0,
+   "mid": 11.5,
+   "max": 24.6
+  },
+  "summe_mrd_eur": {
+   "min": 39.0,
+   "mid": 73.0,
+   "max": 116.0
+  },
+  "nicht_enthalten": "Elektrolyseure, H2-Netz, Brennstoffkosten je Ereignis, Netzanschluss; ohne Abzug von Importen, Batterien, Lastflexibilität"
+ },
+ "v4_stromvkg_marktpreis": {
+  "mrd_eur_pro_jahr": {
+   "min": 9.4,
+   "mid": 10.9,
+   "max": 11.9
+  },
+  "mrd_eur_15_jahre_nominal": {
+   "min": 141.0,
+   "mid": 164.0,
+   "max": 178.0
+  },
+  "hinweis": "Zuschlagswert je reduziertem MW; hier vereinfacht 1 GW Lücke = 1 GW rMW; ohne Brennstoff"
+ },
+ "vergleich_annuitaet_r21_batterie_mrd_eur_pro_jahr": 135.0,
+ "eingang": {
+  "luecke_5d_twh_2030_setzung": {
+   "min": 4.82,
+   "mid": 5.714,
+   "max": 6.956
+  },
+  "spitze_luecke_gw": {
+   "min": 60.7,
+   "mid": 70.2,
+   "max": 76.5
+  },
+  "winterlastfaktor": {
+   "min": 1.019,
+   "max": 1.18
+  },
+  "wacc_setzung_M": 0.05,
+  "batterie_lebensdauer_a": 15
+ }
+}
