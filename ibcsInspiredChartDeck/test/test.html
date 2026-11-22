@@ -6256,6 +6256,91 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   runCap("c743", hv({ chart: { orientation: "table" } }), 700, 300);
   check(/263/.test(txt("c742")) && /266/.test(txt("c742")) && !sumRx.test(txt("c742")) && sumRx.test(txt("c743")),
     "c742/c743: Baumknoten Jahr = letzter Monat, Standard bleibt die Summe");
+
+  // ---- Review B11 Teil 2 (M1): letzter Wert nur über Zeitebenen, Strukturebenen summieren
+  const T = id => [...document.querySelectorAll(`#${id} text`)].map(t => t.textContent).filter(x => x).join(" | ");
+  const k1 = /1[.,  ]?000/, k11 = /1[.,  ]?100/;
+  const bal = (objs, tok) => {
+    const cats = [{ source: { displayName: "Gruppe", roles: { category: true } }, values: ["Assets", "Assets", "Assets", "Liabilities", "Liabilities"] },
+      { source: { displayName: "Konto", roles: { category: true } }, values: ["Cash", "Receivables", "Inventory", "Loans", "Payables"] }];
+    if (tok) { cats.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: ["stock", "stock", "stock", "stock", "stock"] }); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats,
+      values: [col("actual", [100, 200, 300, 150, 250], "#,0"), col("plan", [90, 210, 280, 150, 240], "#,0")] } };
+  };
+  addStage("c744", "B11 Teil 2 Review · Tabellenbaum Gruppe › Konto (Struktur) · Token stock · Assets 600, Liabilities 400, Σ 1.000", 700, 320);
+  runCap("c744", bal({ chart: { orientation: "table", showTotal: true } }, true), 700, 320);
+  check(/Assets \| 600 \|/.test(T("c744")) && /Liabilities \| 400 \|/.test(T("c744")) && new RegExp("Σ Total \\| " + k1.source).test(T("c744")),
+    `c744: Bestände über Konten summiert (${T("c744").replace(/.*Assets/, "Assets")})`);
+  addStage("c745", "B11 Teil 2 Review · flache Tabelle mit drei Bestandskonten · Σ-Zeile = Summe 600", 700, 320);
+  runCap("c745", dataView(["Cash", "Receivables", "Inventory"], [col("actual", [100, 200, 300], "#,0")],
+    { chart: { orientation: "table", showTotal: true } }, null, ["stock", "stock", "stock"]), 700, 320);
+  check(/Σ Total \| 600\b/.test(T("c745")), "c745: Σ-Zeile über Konten = 600, nicht der letzte Wert 300");
+  const acct = (objs, tok) => {
+    const k = [], m = [], v = [];
+    [["Cash", 100], ["Inventory", 300]].forEach(a => mo.slice(0, 3).forEach((mm, i) => { k.push(a[0]); m.push(mm); v.push(a[1] + i * 10); }));
+    const cats = [{ source: { displayName: "Konto", roles: { category: true } }, values: k }, { source: { displayName: "Monat", roles: { category: true } }, values: m }];
+    if (tok) { cats.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: k.map(() => "stock") }); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: [col("actual", v, "#,0")] } };
+  };
+  addStage("c746", "B11 Teil 2 Review · Tabellenbaum Konto › Monat · Token stock · Konten = März (120, 320), Σ = Summe 440", 700, 300);
+  runCap("c746", acct({ chart: { orientation: "table", showTotal: true } }, true), 700, 300);
+  check(/Cash \| 120\b/.test(T("c746")) && /Inventory \| 320\b/.test(T("c746")) && /Σ Total \| 440\b/.test(T("c746")),
+    `c746: Zeit unten letzter Wert, Struktur oben Summe (${T("c746").replace(/.*Cash/, "Cash")})`);
+  // Matrix: Zeilen Gruppe › Konto (stock), Spalten Q1..Q3
+  addStage("c747", "B11 Teil 2 Review · Matrix Gruppe › Konto (stock) × Q1..Q3 · Zellen Summe der Konten, Σ-Spalte = Q3, Σ-Zeile Summe", 1100, 360);
+  {
+    const acc = [["Assets", "Cash", 100], ["Assets", "Receivables", 200], ["Assets", "Inventory", 300], ["Liabilities", "Loans", 150], ["Liabilities", "Payables", 250]];
+    const g = [], kk = [], q = [], v = [];
+    acc.forEach(a => ["Q1", "Q2", "Q3"].forEach((qq, qi) => { g.push(a[0]); kk.push(a[1]); q.push(qq); v.push(a[2] + qi * 10); }));
+    runCap("c747", { metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true } } }, categorical: { categories: [
+      { source: { displayName: "Gruppe", roles: { category: true } }, values: g }, { source: { displayName: "Konto", roles: { category: true } }, values: kk },
+      { source: { displayName: "Quartal", roles: { colgroup: true } }, values: q }, { source: { displayName: "Typ", roles: { rowType: true } }, values: g.map(() => "stock") }] ,
+      values: [col("actual", v, "#,0")] } }, 1100, 360);
+    const t = T("c747");
+    check(/Assets \| 600 \| 630 \| 660 \| 660\b/.test(t) && /Liabilities \| 400 \| 420 \| 440 \| 440\b/.test(t)
+      && new RegExp("Σ Total \\| " + k1.source + " \\| 1[.,  ]?050 \\| " + k11.source + " \\| " + k11.source).test(t),
+      `c747: eine Regel im ganzen Bild (${t.replace(/.*Assets/, "Assets")})`);
+  }
+  // Matrix: Zeilen Monate (stock), Spalten Werke (Struktur)
+  addStage("c748", "B11 Teil 2 Review · Matrix Monat (stock) × Werk A/B · Σ-Spalte = Summe der Werke, Σ-Zeile = März", 900, 300);
+  {
+    const m3 = mo.slice(0, 3), r = [], w = [], v = [];
+    m3.forEach((m, i) => { r.push(m, m); w.push("Werk A", "Werk B"); v.push(100 + 10 * i, 200 + 10 * i); });
+    runCap("c748", { metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true } } }, categorical: { categories: [
+      { source: { displayName: "Monat", roles: { category: true } }, values: r }, { source: { displayName: "Werk", roles: { colgroup: true } }, values: w },
+      { source: { displayName: "Typ", roles: { rowType: true } }, values: r.map(() => "stock") }], values: [col("actual", v, "#,0")] } }, 900, 300);
+    const t = T("c748");
+    check(/Jan \| 100 \| 200 \| 300\b/.test(t) && /Mar \| 120 \| 220 \| 340 \| [^|]*Total \| 120 \| 220 \| 340$/.test(t), `c748: Werke summiert, Monate letzter Wert (${t.replace(/.*Jan/, "Jan")})`);
+  }
+  // timeAggregation = last ohne Token: Struktur summiert (Verhaltensänderung), Monate als Matrix-Spalten = letzter Wert
+  addStage("c749", "B11 Teil 2 Review · Tabellenbaum Gruppe › Konto · Aggregation = letzter Wert · Struktur bleibt Summe (600, 1.000)", 700, 320);
+  runCap("c749", bal({ chart: { orientation: "table", showTotal: true, timeAggregation: "last" } }, false), 700, 320);
+  check(/Assets \| 600 \|/.test(T("c749")) && new RegExp("Σ Total \\| " + k1.source).test(T("c749")),
+    "c749: timeAggregation = last wirkt nicht über Konten");
+  addStage("c751", "B11 Teil 2 Review · Matrix Konto × Monat (Spalten) · Aggregation = letzter Wert · Σ-Spalte = März, Σ-Zeile Summe", 900, 300);
+  {
+    const k = [], m = [], v = [];
+    [["Cash", 100], ["Inventory", 300]].forEach(a => mo.slice(0, 3).forEach((mm, i) => { k.push(a[0]); m.push(mm); v.push(a[1] + i * 10); }));
+    runCap("c751", { metadata: { columns: [], objects: { chart: { orientation: "table", showTotal: true, timeAggregation: "last" } } }, categorical: { categories: [
+      { source: { displayName: "Konto", roles: { category: true } }, values: k }, { source: { displayName: "Monat", roles: { colgroup: true } }, values: m }],
+      values: [col("actual", v, "#,0")] } }, 900, 300);
+    const t = T("c751");
+    check(/Cash \| 100 \| 110 \| 120 \| 120\b/.test(t) && /Σ Total \| 400 \| 420 \| 440 \| 440\b/.test(t), `c751: Monatsspalten Zeit, Konten Summe (${t.replace(/.*Cash/, "Cash")})`);
+  }
+  // ---- Review B11 Teil 2 (M2): YTD im Modus über die gemeinsame Periodenachse, lückenhafte Flusszeilen
+  addStage("c750", "B11 Teil 2 Review · Bestand & Fluss YTD · Abgänge lückenhaft (kein Jan 2026, keine 0-Zeilen) · Feb 2026 = −2, Kopf 24", 1280, 520);
+  {
+    const gH2 = [3,2,3,1,5,13,1,2,2,1,2,1, 5,1,3,4, 2,1,3,3,2,3,2,1];
+    const gL2 = [0,1,2,2,2,2,2,1,2,3,5,8, null,2,1,1, 0,2,2,2,0,1,3,10];
+    const sparse = window.__sf.sfBuild(["Hires", "Layoffs", "Headcount"], 255, gH2.map((v, i) => (
+      { lv: [i < 12 ? "2025" : "2026", mo[i % 12]], sc: i < 16 ? "ac" : "pl", i: v, o: gL2[i] ? gL2[i] : null })));
+    runCap("c750", sfDv({ chart: { orientation: "stockflow", cumulative: true, showTotal: true } }, ["Jahr", "Monat"], sparse, { name: "Headcount" }), 1280, 520);
+    const out = m => { const g = q2("c750", `g.icd-cat[data-cat="2026 · ${m}"] [data-icd="sf-seg-out"]`)[0]; return g ? num(g, "data-v") : null; };
+    const tot = q2("c750", '[data-icd="sf-total"]')[0], tt = tot ? tot.textContent : "";
+    check(out("Feb") === -2 && out("May") === -4 && out("Sep") === -10 && out("Dec") === -24,
+      `c750: Abgänge YTD 2026 Feb −2, Mai −4 (ohne eigene Zeile), Sep −10, Dez −24 (${["Feb", "May", "Sep", "Dec"].map(out).join(", ")})`);
+    check(/Σ Layoffs 24\b/.test(tt) && /\+6\b/.test(tt), `c750: Summenkopf mit YTD der letzten Periode („${tt}“)`);
+  }
   // kein NaN in den neuen Stufen
   {
     const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c7[3-5]\d[a-z]?$/.test(id));
@@ -6807,6 +6892,138 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     runCap("c774", b15Dv({ template: "C21" }), 420, 300);
     const right = Math.max(0, ...lnQ("c774", "text").map(t => t.getBBox().x + t.getBBox().width));
     check(right <= 421, `c774: rechter Textrand ${Math.round(right)} ≤ 420`);
+  }
+
+  // ---- Review B15
+  const mult = (regs, f, chart, extra) => {
+    const cats = [], mv = [], a = [], fc = [], pl = [], py = [];
+    regs.forEach((r, ri) => b15M.forEach((m, i) => {
+      cats.push(m); mv.push(r); const k = f[ri];
+      a.push(b15Ac[i] == null ? null : b15Ac[i] * k); fc.push(b15Fc[i] == null ? null : b15Fc[i] * k); pl.push(b15Pl[i] * k); py.push(b15Py[i] * k);
+    }));
+    const cols = [col("actual", a, "#,0"), col("forecast", fc, "#,0"), col("plan", pl, "#,0"), col("previousYear", py, "#,0")];
+    if (extra && extra.line) { cols.push(col("lineMeasure", a.map((_, i) => 2000 + i), "#,0", null, "MAT")); }
+    return dataView(cats, cols, { chart }, mv);
+  };
+  const ovl = (a, b, tol = 0.5) => a.x < b.x + b.width - tol && a.x + a.width > b.x + tol && a.y < b.y + b.height - tol && a.y + a.height > b.y + tol;
+  const bb = e => e.getBBox();
+  // M3: Ø-Kachel (Bezugskachel Durchschnitt) mit YTD: R12 und Monatssäulen bleiben, PY ausgeblendet, kein Hinweis
+  addStage("c775", "B15 Review · C21 Small Multiples Nord/Süd + Ø-Kachel · Ø-Kachel mit R12 und Monatssäulen, ohne PY-Linie und Hinweis", 1380, 560);
+  {
+    runCap("c775", mult(["Nord", "Süd"], [1, 0.5], { template: "C21", multiplesTotal: true, multiplesAgg: "mean" }), 1380, 560);
+    const r12 = lnQ("c775", '[data-icd="line-r12"]'), cols = lnQ("c775", '[data-icd="period-col"]');
+    check(r12.length === 3 && r12.every(g => g.getAttribute("data-src") === "py") && cols.length === 36
+      && lnQ("c775", '[data-icd="line-py"]').length === 0 && lnQ("c775", '[data-icd="line-hint"]').length === 0,
+      `c775: 3 R12-Linien (py), ${cols.length} Säulen, keine PY-Linie, ${lnQ("c775", '[data-icd="line-hint"]').length} Hinweise`);
+    check(dv_(lnQ("c775", '[data-icd="line-r12-pt"]'), 0) === 1489.5 && dv_(cols, 0) === 108.75
+      && !lnQ("c775", '[data-icd="line-end-code"]').some(t => t.textContent === "PY"),
+      `c775: Ø-Kachel R12 Jan = Ø(1 986, 993) = 1 489,5, Säule Jan 108,75 (${dv_(lnQ("c775", '[data-icd="line-r12-pt"]'), 0)}, ${dv_(cols, 0)}), kein Kürzel PY`);
+  }
+  // M3: Σ-Kachel trägt die Summe der R12 der Kacheln
+  addStage("c776", "B15 Review · C21 Small Multiples + Σ-Kachel · R12 Jan = 1 986 + 993", 1380, 560);
+  {
+    runCap("c776", mult(["Nord", "Süd"], [1, 0.5], { template: "C21", multiplesTotal: true }), 1380, 560);
+    check(lnQ("c776", '[data-icd="line-r12"]').length === 3 && dv_(lnQ("c776", '[data-icd="line-r12-pt"]'), 0) === 2979
+      && lnQ("c776", '[data-icd="period-col"]').length === 36, `c776: Σ-Kachel R12 Jan ${dv_(lnQ("c776", '[data-icd="line-r12-pt"]'), 0)} (Soll 2 979)`);
+  }
+  // m2: R12 aus der Linien-Measure auch in der Σ-Kachel
+  addStage("c777", "B15 Review · C21 mit R12 aus Linien-Measure, Small Multiples + Σ-Kachel · Σ-Kachel mit R12 (4 012)", 1380, 560);
+  {
+    runCap("c777", mult(["Nord", "Süd"], [1, 0.5], { template: "C21", multiplesTotal: true }, { line: true }), 1380, 560);
+    const r12 = lnQ("c777", '[data-icd="line-r12"]');
+    check(r12.length === 3 && r12.every(g => g.getAttribute("data-src") === "measure") && dv_(lnQ("c777", '[data-icd="line-r12-pt"]'), 0) === 4012
+      && lnQ("c777", '[data-icd="line-hint"]').length === 0, `c777: R12 in allen Kacheln, Σ Jan ${dv_(lnQ("c777", '[data-icd="line-r12-pt"]'), 0)}`);
+  }
+  // m1: Bestandszeilen ohne R12 und Säulen
+  addStage("c778", "B15 Review · C21 mit Token stock · keine R12-Linie, keine Monatssäulen, kein Hinweis", 1280, 560);
+  {
+    const dv = b15Dv({ template: "C21" });
+    dv.categorical.categories.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: b15M.map(() => "stock") });
+    runCap("c778", dv, 1280, 560);
+    check(lnQ("c778", '[data-icd="line-r12"]').length === 0 && lnQ("c778", '[data-icd="period-col"]').length === 0
+      && lnQ("c778", '[data-icd="line-hint"]').length === 0 && dv_(pts("c778", "ac"), 7) === 168,
+      "c778: Bestand unkumuliert (Aug 168), keine R12, keine Säulen, kein Hinweis");
+  }
+  // m3: Abstandsmarker gegen die gezeichnete Plan-Linie (multiplesBasis = avg)
+  addStage("c779", "B15 Review · C21 Small Multiples gegen Ø (multiplesBasis = avg) · Marker gegen die Plan-Linie", 1380, 560);
+  {
+    runCap("c779", mult(["Nord", "Süd", "West"], [1, 0.5, 0.8], { template: "C21", multiplesTotal: true, multiplesAgg: "mean", multiplesBasis: "avg" }), 1380, 560);
+    const gm = lnQ("c779", '[data-icd="gap-marker"]').map(g => g.getAttribute("data-v"));
+    check(gm.length === 8 && gm[2] === "-192" && gm[3] === "87" && gm[4] === "-96" && gm.every(v => !/\d{6,}/.test(v)),
+      `c779: Nord −192/+87, Süd −96 gegen PL, ohne Rundungsrest (${gm.join(", ")})`);
+  }
+  // m4: negative Monatswerte: Linien-Labels nicht in den Säulen, Marker-Label nicht auf Kürzeln
+  addStage("c780", "B15 Review · C21 mit negativen Monatswerten · Labels außerhalb der Säulen, Marker-Label frei", 1280, 560);
+  {
+    runCap("c780", dataView(b15M, [col("actual", b15Ac.map((v, i) => v == null ? null : (i % 3 === 1 ? -v : v) - 100), "#,0"),
+      col("forecast", b15Fc.map(v => v == null ? null : v - 250), "#,0"), col("plan", b15Pl.map(v => v - 150), "#,0"),
+      col("previousYear", b15Py.map(v => v - 160), "#,0")], { chart: { template: "C21" } }), 1280, 560);
+    const colsB = [...lnQ("c780", '[data-icd="period-col"]'), ...lnQ("c780", '[data-icd="period-col-pl"]')].map(bb);
+    const lbls = [...lnQ("c780", "g.icd-cat > text"), ...lnQ("c780", '[data-icd="line-r12-label"]')].filter(t => /^[−-]?\d/.test(t.textContent));
+    const hit = lbls.filter(t => colsB.some(c => ovl(bb(t), c, 1))).map(t => t.textContent);
+    const codes = [...lnQ("c780", '[data-icd="period-col-code"]'), ...lnQ("c780", '[data-icd="line-end-code"]')].map(bb);
+    const gl = lnQ("c780", '[data-icd="gap-label"]');
+    const glHit = gl.filter(t => codes.some(c => ovl(bb(t), c, 1))).map(t => t.textContent);
+    check(lbls.length > 0 && hit.length === 0 && gl.length === 2 && glHit.length === 0,
+      `c780: ${lbls.length} Linien-Labels, in Säulen ${hit.join(",") || "keins"}, Marker-Labels auf Kürzeln ${glHit.join(",") || "keins"}`);
+  }
+  // m5: Kürzel am Linienende nicht auf den Basis-Labels
+  addStage("c781", "B15 Review · C21-Schalter einzeln + Δ-Panels · Kürzel am Linienende frei von Wert-Labels", 1280, 640);
+  {
+    runCap("c781", b15Dv({ orientation: "line", comparisonMode: "plan", cumulative: true, lineR12: true, linePeriodColumns: "same", lineGapMarkers: "both",
+      lineBasisLabels: true, lineMarkerShape: "square", scenarioLabels: true, dualVariance: true }), 1280, 640);
+    const codes = lnQ("c781", '[data-icd="line-end-code"]');
+    const lbls = lnQ("c781", "g.icd-cat > text").filter(t => /^[−-]?\d/.test(t.textContent) && t.getBBox().y > 380).map(bb);
+    // glyphs: the bbox carries the font ascent and descent, 3 px tolerance
+    const hit = codes.filter(c => lbls.some(l => ovl(bb(c), l, 3))).map(t => t.textContent);
+    check(codes.length === 3 && hit.length === 0, `c781: Kürzel ${codes.map(t => t.textContent).join(",")}, auf Labels: ${hit.join(",") || "keins"}`);
+  }
+  // m6: Kommentar-Marke auf der freien Seite
+  addStage("c782", "B15 Review · C21 mit Kommentar im August · Marke über dem Punkt, Label 1 332 darunter frei", 1100, 520);
+  {
+    runCap("c782", dataView(b15M, [col("actual", b15Ac, "#,0"), col("forecast", b15Fc, "#,0"), col("plan", b15Pl, "#,0"),
+      col("previousYear", b15Py, "#,0"), col("comments", b15M.map((m, i) => i === 7 ? "Lieferengpass" : null))], { chart: { template: "C21" } }), 1100, 520);
+    const circ = lnQ("c782", "g.icd-cat circle").filter(c => Number(c.getAttribute("r")) >= 6)[0];
+    const lbl = lnQ("c782", "g.icd-cat > text").find(t => /^1[.,  ]?332$/.test(t.textContent));
+    check(!!circ && !!lbl && !ovl(bb(circ), bb(lbl), 0), `c782: Kommentar-Marke und Label 1 332 überlappen nicht`);
+  }
+  // m7: R12-Name am Linienende bei Fensterquelle
+  addStage("c783", "B15 Review · C21 über 24 Monate (Fenster-R12) · Name R12 am Linienende", 1380, 560);
+  {
+    const m24 = [...b15M.map(m => m + " 24"), ...b15M.map(m => m + " 25")];
+    runCap("c783", dataView(m24, [col("actual", [...b15Py, ...b15Ac], "#,0"), col("forecast", [...b15Py.map(() => null), ...b15Fc], "#,0"),
+      col("plan", [...b15Pl, ...b15Pl], "#,0")], { chart: { template: "C21" } }), 1380, 560);
+    const nm = lnQ("c783", '[data-icd="line-r12-name"]')[0], r = lnQ("c783", '[data-icd="line-r12-pt"]');
+    const last = r[r.length - 1];
+    const lastX = last ? Number(last.getAttribute("x") ?? last.getAttribute("cx")) : 0;
+    check(!!nm && nm.textContent === "R12" && Number(nm.getAttribute("x")) > lastX && lnQ("c783", '[data-icd="line-r12"]')[0]?.getAttribute("data-src") === "window"
+      && nm.getBBox().x + nm.getBBox().width <= 1380, `c783: Name rechts vom letzten R12-Punkt (${nm ? Math.round(Number(nm.getAttribute("x"))) : "–"} > ${Math.round(lastX)})`);
+  }
+  // m8: 12 Wochen mit PY sind kein Jahr
+  addStage("c784", "B15 Review · C21 über KW1 bis KW12 mit PY · keine R12 aus PY, Hinweis im Bearbeitungsmodus", 1280, 560);
+  {
+    const dv = b15Dv({ template: "C21" });
+    dv.categorical.categories[0].values = b15M.map((_, i) => "KW" + (i + 1));
+    runCap("c784", dv, 1280, 560, { viewMode: 1 });
+    check(lnQ("c784", '[data-icd="line-r12"]').length === 0 && lnQ("c784", '[data-icd="line-hint"][data-kind="r12"]').length === 1,
+      "c784: keine R12-Linie aus 12 Wochen, Hinweis");
+  }
+  // m9: Formatbereich, timeAggregation = last blendet die YTD-Teile aus
+  addStage("c785", "B15 Review · Formatbereich: Aggregation = letzter Wert blendet R12, Säulen, Marker, YTD-Art und Geschäftsjahr aus", 480, 240);
+  {
+    const opt = { orientation: "line", cumulative: true, lineR12: true, linePeriodColumns: "same", lineGapMarkers: "both" };
+    const vis = r => { r.v.getFormattingModel(); const c = r.v.formattingSettings.chartCard;
+      return [c.lineR12, c.linePeriodColumns, c.lineGapMarkers, c.cumulativeKind, c.fiscalStart].map(x => x.visible !== false); };
+    const rs = runCap("c785", b15Dv(Object.assign({ timeAggregation: "last" }, opt)), 480, 240);
+    const off = vis(rs);
+    rs.upd(b15Dv(opt));
+    const on = vis(rs);
+    check(off.every(v => !v) && on.every(v => v), `c785: mit letztem Wert ${off.join("/")}, mit Summe ${on.join("/")}`);
+  }
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c7(7[5-9]|8\d|9\d)[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(lnSvg(id)));
+    check(ids.length >= 11 && bad.length === 0, `c775 bis c785: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
   }
 
   // kein NaN, undefined oder Infinity in den B15-Stufen
