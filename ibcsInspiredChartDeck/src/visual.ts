@@ -71,6 +71,10 @@ function relLuminance(hex: string): number {
 }
 /** small-multiples grid cap — shared-scale maxima must only span rendered tiles */
 const MULT_MAX_CELLS = 24;
+/** 1.57 (B24 review M1): soft floor of a cell width with a fixed column count */
+const MULT_MIN_COL_W = 110;
+/** B24 review M1: a fixed column count reduced by the soft floor (edit-mode hint) */
+type MultColsFloor = { fix: number; want: number; shown: number; w: number };
 /** 1.52 IBCS slot width for absolute values (ISO 24896: 2/3 of the category width) */
 const SLOT_ABS = 2 / 3;
 /** 1.52 round magnification factors for variance panels that would be unreadably
@@ -7870,15 +7874,16 @@ export class Visual implements IVisual {
         cols = Math.max(1, Math.min(cols, Math.floor(gridW / 220) || 1));
         // 1.57 (B24, IBCS sheet 10G): a fixed column count replaces the automatic one
         // (clamped to 1..tiles; beside "First tile large" it counts the grid beside it)
+        // B24 review M1: soft floor, cells keep at least MULT_MIN_COL_W px, fewer columns
+        // otherwise (edit-mode hint); the same report on a smaller surface stays readable
         const mColsFix = this.multColumnsFixed(s);
-        if (mColsFix > 0) { cols = Math.max(1, Math.min(mColsFix, rn)); }
-        // test marker (only with a fixed count, so automatic decks keep their SVG)
+        let gridFloor: MultColsFloor | null = null;
         if (mColsFix > 0) {
-            const gc = span ? Math.max(...span.tiles.map(t => t.col + t.cols)) : cols;
-            const gr = span ? Math.max(...span.tiles.map(t => t.row + t.rows)) : Math.ceil(rn / cols);
-            this.el("g", { "data-icd": "mult-grid", "data-cols": gc, "data-rows": gr, "data-fixed": mColsFix,
-                "data-span": span ? "1" : "0" }, this.svg);
+            const want = Math.max(1, Math.min(mColsFix, rn));
+            cols = Math.min(want, Math.max(1, Math.floor(gridW / MULT_MIN_COL_W)));
+            if (cols < want) { gridFloor = { fix: mColsFix, want, shown: cols, w: Math.floor(gridW / want) }; }
         }
+        const colsFloor = span ? span.floor : gridFloor;
         const rows = Math.ceil(rn / cols);
         const cellW = gridW / cols;
         const cellH = availH / rows;
@@ -7941,6 +7946,13 @@ export class Visual implements IVisual {
             }
             this.zoomGroup = null;
         }
+        // test marker (only with a fixed count, so automatic decks keep their SVG; not in the zoom, review n4)
+        if (mColsFix > 0) {
+            const gc = span ? Math.max(...span.tiles.map(t => t.col + t.cols)) : cols;
+            const gr = span ? Math.max(...span.tiles.map(t => t.row + t.rows)) : Math.ceil(rn / cols);
+            this.el("g", { "data-icd": "mult-grid", "data-cols": gc, "data-rows": gr, "data-fixed": mColsFix,
+                "data-span": span ? "1" : "0", ...(colsFloor ? { "data-floor": colsFloor.want } : {}) }, this.svg);
+        }
         if (span) {
             // the "+n more" note sits on the last group tile, not on a reference tile placed last
             const moreGrp = shown[lastIsTotal ? n - 2 : n - 1];
@@ -7972,6 +7984,7 @@ export class Visual implements IVisual {
                 this.drawTileHeader(t.cell.x, t.cell.y, t.cell.w, groupTitleH, title, g.name ?? "", cfg, zoomKey(g));
             }
             heroPeer = null;
+            this.drawColsFloorHint(colsFloor, width, topOffset + availH, cfg);
             return;
         }
         if (heroOn) {
@@ -7997,6 +8010,30 @@ export class Visual implements IVisual {
                 { x: cx + 2, y: cy + groupTitleH, w: cellW - 4, h: cellH - groupTitleH - 2 });
             this.drawTileHeader(cx, cy, cellW, groupTitleH, title, rest[gi].name ?? "", cfg, zoomKey(rest[gi]));
         }
+        this.drawColsFloorHint(colsFloor, width, topOffset + availH, cfg);
+    }
+
+    /** 1.57 (B24): fixed column count of the tile grid, 0 = automatic */
+    private multColumnsFixed(s: VisualFormattingSettingsModel): number {
+        const v = Math.round(Number(s.chartCard.multiplesColumns.value ?? 0));
+        return isFinite(v) && v > 0 ? v : 0;
+    }
+
+    /**
+     * B24 review M1: edit-mode note when the soft floor (MULT_MIN_COL_W) reduced a fixed
+     * column count, bottom right above the footer, on top of the tiles
+     */
+    private drawColsFloorHint(fl: MultColsFloor | null, width: number, bottom: number, cfg: ChartConfig): void {
+        if (!fl || !this.allowInteractions || this.viewMode === 0) { return; }
+        const fs = Math.round(9 * this.fontK);
+        const t = this.el("text", {
+            x: width - 4, y: bottom - 3, "text-anchor": "end", "font-size": fs, fill: cfg.subtle,
+            "font-family": FONT, "font-style": "italic", stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke",
+            "data-icd": "mult-cols-hint", "data-want": fl.want, "data-shown": fl.shown
+        }, this.svg);
+        t.textContent = this.truncate(this.locStr("Hint_MultColumnsFloor",
+            "Columns {0}: tiles would be only {1} px wide, showing {2}")
+            .replace("{0}", String(fl.fix)).replace("{1}", String(fl.w)).replace("{2}", String(fl.shown)), width - 8, fs);
     }
 
     /**
@@ -8020,12 +8057,6 @@ export class Visual implements IVisual {
      * zero lines of both rows line up (review m4). A final dry run of both sides checks
      * every panel they both draw; any difference above 0.1 % returns null.
      */
-    /** 1.57 (B24): fixed column count of the tile grid, 0 = automatic */
-    private multColumnsFixed(s: VisualFormattingSettingsModel): number {
-        const v = Math.round(Number(s.chartCard.multiplesColumns.value ?? 0));
-        return isFinite(v) && v > 0 ? v : 0;
-    }
-
     private heroSpanLayout<G extends { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" }>(
         s: VisualFormattingSettingsModel, shown: G[], width: number, availH: number, top: number, titleH: number,
         modeOk: boolean, orient: string, totalLast: boolean, cfg: ChartConfig, groups: G[],
@@ -8036,6 +8067,7 @@ export class Visual implements IVisual {
         tiles: { grp: G; cell: Rect; region: Rect; dom: Partial<Domains>; nat: Partial<Domains>; zoom: number | null;
             hero: boolean; peer: boolean; col: number; row: number; rows: number; cols: number }[];
         peerRegion: Rect; regDom: Partial<Domains>; regNat: Partial<Domains>; zoom: number | null;
+        floor: MultColsFloor | null;
     } | null {
         setPeer(null);
         const name = String(s.chartCard.multiplesHeroTile.value || "").trim().toLowerCase();
@@ -8058,12 +8090,18 @@ export class Visual implements IVisual {
         const oldC = Math.max(1, Math.min(Math.ceil(Math.sqrt(slots)), maxC));
         let pick: { c: number; r: number; score: number[] } | null = null;
         // 1.57 (B24): a fixed column count (chart.multiplesColumns) is the only candidate,
-        // the picker never overrides it. The large tile counts as two slots; clamped to
-        // 1..tiles, which leaves two rows for columns and line. Bars span two columns,
-        // so a fixed 1 becomes 2. Aspect and cell width do not apply (the author's
-        // choice); a Δ-only deck whose cells are then too small keeps the legacy grid.
+        // the picker never overrides it. The large tile counts as two slots. Review m1:
+        // columns and line clamp to ceil((n + 1) / 2), the most columns that still fill
+        // two rows (more could only empty row 2); bars span two columns and clamp to
+        // n + 1 (one row), a fixed 1 becomes 2. Aspect and the 220 px rule do not apply
+        // (the author's choice), the soft floor MULT_MIN_COL_W does (review M1); a Δ-only
+        // deck whose cells are then too small keeps the legacy grid.
         const fixC = this.multColumnsFixed(s);
-        const cFrom = fixC > 0 ? Math.max(spanCols ? 2 : 1, Math.min(fixC, n)) : 1;
+        const minC = spanCols ? 2 : 1;
+        const wantC = fixC > 0 ? Math.max(minC, Math.min(fixC, spanCols ? slots : Math.ceil(slots / 2))) : 0;
+        const cFrom = fixC > 0 ? Math.min(wantC, Math.max(minC, Math.floor(width / MULT_MIN_COL_W))) : 1;
+        const floor: MultColsFloor | null = fixC > 0 && cFrom < wantC
+            ? { fix: fixC, want: wantC, shown: cFrom, w: Math.floor(width / wantC) } : null;
         const cTo = fixC > 0 ? cFrom : Math.min(maxC, slots);
         for (let c = cFrom; c <= cTo; c++) {
             const r = Math.ceil(slots / c);
@@ -8246,7 +8284,7 @@ export class Visual implements IVisual {
             return { grp: g, cell, region: regionOf(cell), dom: rDom, nat: rNat, zoom: deckZoom, hero: false, peer: g === peer,
                 col: slot % cols, row: Math.floor(slot / cols), rows: 1, cols: 1 };
         });
-        return { tiles, peerRegion, regDom: rDom, regNat: rNat, zoom: deckZoom };
+        return { tiles, peerRegion, regDom: rDom, regNat: rNat, zoom: deckZoom, floor };
     }
 
     /**
@@ -8257,9 +8295,11 @@ export class Visual implements IVisual {
         title: string, groupName: string, cfg: ChartConfig, zoomKey: string = groupName): void {
         const k = this.fontK;
         const gtFont = Math.round(11 * k);
-        // 1.57 (B25): non-interactive output (PDF/PowerPoint export, print, report
-        // server snapshots: hostCapabilities.allowInteractions === false) gets the
-        // title alone; no zoom button, no ⤢, no focus stop, no pointer cursor
+        // 1.57 (B25): non-interactive hosts (hostCapabilities.allowInteractions === false,
+        // read once in the constructor: dashboard tiles, and by the project's assumption
+        // PDF/PowerPoint export and subscription snapshots) get the title alone; no zoom
+        // button, no ⤢, no focus stop, no pointer cursor. Browser printing of a live
+        // report is interactive and keeps the button (review m4)
         if (!this.allowInteractions) {
             const tt = this.el("text", {
                 x: x + 6, y: y + gtFont + 1, "font-size": gtFont, fill: cfg.ink,
@@ -15243,7 +15283,16 @@ export class Visual implements IVisual {
             : (this.multName ?? this.locStr("Role_Multiples", "Small Multiples"));
         const base = y + h / 2 + f * 0.35;
         let x = 6;
-        const extra = (name: string, col: string, id: string) => {
+        // B25 review m3: an entry after the groups keeps to the remaining width (cut,
+        // under 30 px left out); a line that fits draws as before
+        const fitTxt = (name: string): string | null => {
+            const avail = width - 6 - x - 2 * r - 4;
+            if (this.textWidth(name, f) <= avail) { return name; }
+            return avail < 30 ? null : this.truncate(name, avail, f);
+        };
+        const extra = (name0: string, col: string, id: string) => {
+            const name = fitTxt(name0);
+            if (name == null) { return; }
             const ge = this.el("g", { "data-icd": "scatter-legend-" + id }, g);
             this.el("circle", {
                 cx: x + r, cy: y + h / 2, r,
@@ -15259,7 +15308,8 @@ export class Visual implements IVisual {
         for (const [name, col, id] of scenEntries) { extra(name, col, id); }
         const tail = () => {
             if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
-            if (shareEntry) {
+            const shareTxt = shareEntry ? fitTxt(shareEntry) : null;
+            if (shareTxt != null) {
                 const ge = this.el("g", { "data-icd": "scatter-legend-share" }, g);
                 const c0 = cfg.hc ? cfg.ink : (sc.groupColors ? cfg.ink : cfg.colors.ac);
                 const gx = x + r, gy = y + h / 2, rr = r + 1;
@@ -15267,17 +15317,18 @@ export class Visual implements IVisual {
                     stroke: cfg.ink, "stroke-width": 1 }, ge);
                 this.el("path", { d: this.scatterSectorD(gx, gy, rr, 0.3), fill: c0, stroke: cfg.ink, "stroke-width": 1 }, ge);
                 const t = this.el("text", { x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT }, ge);
-                t.textContent = shareEntry;
-                x += 2 * r + 4 + this.textWidth(shareEntry, f) + 12;
+                t.textContent = shareTxt;
+                x += 2 * r + 4 + this.textWidth(shareTxt, f) + 12;
             }
-            if (totalEntry) {
+            const totalTxt = totalEntry ? fitTxt(totalEntry) : null;
+            if (totalTxt != null) {
                 const ge = this.el("g", { "data-icd": "scatter-legend-total" }, g);
                 const tc = this.scatterTotalCol(sc, cfg);
                 this.el("circle", { cx: x + r, cy: y + h / 2, r: r + 1, fill: cfg.hc ? cfg.paper : tc,
                     ...(cfg.hc ? { "stroke-dasharray": "3,2" } : { "fill-opacity": 0.06 }), stroke: tc, "stroke-width": 1 }, ge);
                 const t = this.el("text", { x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT }, ge);
-                t.textContent = totalEntry;
-                x += 2 * r + 4 + this.textWidth(totalEntry, f) + 12;
+                t.textContent = totalTxt;
+                x += 2 * r + 4 + this.textWidth(totalTxt, f) + 12;
             }
         };
         if (entriesAll.length === 0) {
@@ -15335,7 +15386,8 @@ export class Visual implements IVisual {
                 x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT
             }, g);
             t.textContent = this.truncate(name, Math.max(30, width - x - 2 * r - 10 - reserve), f);
-            x += need;
+            // B25 review m2: advance by the drawn (possibly cut) name, not the full one
+            x += 2 * r + 4 + this.textWidth(t.textContent ?? name, f) + 12;
         }
         if (restN > 0) {
             const rc = cfg.dark ? SCATTER_GROUP_REST_DARK : SCATTER_GROUP_REST_LIGHT;

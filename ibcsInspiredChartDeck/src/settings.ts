@@ -868,7 +868,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "multiplesColumns",
         displayName: "Columns",
         displayNameKey: "Chart_MultiplesColumns",
-        description: "Feste Spaltenzahl des Kachelrasters, z. B. 6 für 24 Kacheln in 4 Zeilen wie auf dem IBCS-Blatt 10G. 0 = automatisch (bisheriges Verhalten). Begrenzt auf 1 bis zur Zahl der Kacheln. Gilt in allen Kachel-Modi (auch Streu- und Blasendiagramm, Bezugs-, Rest- und Zoom-Kachel); neben „Erste Kachel groß“ für das Raster rechts davon. Mit einer großen Kachel (Gruppenname) zählt sie wie zwei Plätze; Balken brauchen dann mindestens 2 Spalten, eine 1 wird zu 2. Alle Kacheln behalten dieselbe Skala.",
+        description: "Feste Spaltenzahl des Kachelrasters, z. B. 6 für 24 Kacheln in 4 Zeilen wie auf dem IBCS-Blatt 10G. 0 = automatisch (bisheriges Verhalten). Begrenzt auf 1 bis zur Zahl der Kacheln. Wären die Kacheln schmaler als 110 px (kleineres Visual, Fokusmodus aus, Dashboard), zeigt das Visual weniger Spalten und im Bearbeitungsmodus einen Hinweis. Gilt in allen Kachel-Modi (auch Streu- und Blasendiagramm, Bezugs-, Rest- und Zoom-Kachel); neben „Erste Kachel groß“ für das Raster rechts davon, wenige Spalten stauchen dort die Höhe der kleinen Kacheln. Mit einer großen Kachel (Gruppenname) zählt diese wie zwei Plätze: Säulen und Linie zeigen höchstens so viele Spalten, dass zwei Zeilen gefüllt sind, Balken höchstens eine Zeile und mindestens 2 Spalten (eine 1 wird zu 2). Alle Kacheln behalten dieselbe Skala.",
         descriptionKey: "Desc_Chart_MultiplesColumns",
         value: 0,
         options: {

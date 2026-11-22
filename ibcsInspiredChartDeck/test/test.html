@@ -9988,7 +9988,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
 
   // ---- c558: zu hohe Spaltenzahl wird auf die Zahl der Kacheln begrenzt (mit und ohne große Kachel)
   addStage("c558", "B24 · „Spalten“ 9 bei 4 Kacheln: eine Zeile mit 4 Spalten, gleiche Skala", 1280, 420);
-  addStage("c558b", "B24 · „Spalten“ 40 bei 15 Kacheln mit großer Kachel Berlin: 15 Spalten × 2 Zeilen", 1920, 720);
+  addStage("c558b", "B24 · „Spalten“ 40 bei 15 Kacheln mit großer Kachel Berlin: 8 Spalten × 2 Zeilen ohne Lücke (Review m1)", 1920, 720);
   {
     runCap("c558", avgDv(avgABC, { multiplesTotalShade: true, multiplesColumns: 9, showAbsoluteVariance: false, showRelativeVariance: false }), 1280, 420);
     nbSane("c558");
@@ -9998,8 +9998,10 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     runCap("c558b", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesColumns: 40 }), hbObjs), 1920, 720);
     nbSane("c558b");
     const h = hbHero("c558b"), px = hbPx("c558b");
-    check(!!h && gAt("c558b", "data-cols") === 15 && gAt("c558b", "data-rows") === 2 && h.getAttribute("data-rows") === "2"
-      && px.length === 15 && hbSpread(px) < 0.002, `c558b: 15 Spalten × 2 Zeilen, Berlin über beide Zeilen, gleiche px je Einheit`);
+    const cells = new Set(hbMarks("c558b").flatMap(m => { const c = +m.getAttribute("data-col"), r = +m.getAttribute("data-row");
+      return m.getAttribute("data-role") === "hero" ? [r * 8 + c, (r + 1) * 8 + c] : [r * 8 + c]; }));
+    check(!!h && gAt("c558b", "data-cols") === 8 && gAt("c558b", "data-rows") === 2 && h.getAttribute("data-rows") === "2" && cells.size === 16
+      && px.length === 15 && hbSpread(px) < 0.002, `c558b: 8 Spalten × 2 Zeilen, alle 16 Plätze belegt, Berlin über beide Zeilen, gleiche px je Einheit`);
   }
 
   // ---- c559: zu niedrige Spaltenzahl: 1 = eine Spalte, negativ = automatisch (SVG-gleich)
@@ -10019,7 +10021,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
 
   // ---- c560: Bezugskachel zuletzt, Top N mit Rest-Kachel und „Erste Kachel groß“ mit fester Spaltenzahl
   addStage("c560", "B24 · Top 5 + Rest + Ø zuletzt mit „Spalten“ 2: 2 × 4, Ø unten links, gleiche Skala", 960, 900);
-  addStage("c560b", "B24 · Σ zuerst mit „Erste Kachel groß“ und „Spalten“ 1: das Raster rechts in einer Spalte", 960, 720);
+  addStage("c560b", "B24 · Σ zuerst mit „Erste Kachel groß“ und „Spalten“ 1: das Raster rechts in einer Spalte (gleiche Domain; die große Kachel hat mehr Fläche, also mehr px je Einheit)", 960, 720);
   {
     runCap("c560", avgDv(hb13, hb13Chart({ multiplesTopN: 5, multiplesColumns: 2 }), hbObjs), 960, 900);
     nbSane("c560");
@@ -10112,7 +10114,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 
   // ---- c564: Legende mit Anteil und Σ in schmaler Kachel (Befund des Exportfalls bubblesMult)
-  addStage("c564", "B25 · Blasenlegende auf 400 px: Gruppen werden zu „+n“, Anteil und Σ bleiben im Visual", 400, 460);
+  addStage("c564", "B25 · Blasenlegende auf 400 px (gerendert ohne Interaktion, die Legende hängt nicht davon ab): Gruppen werden zu „+n“, Anteil und Σ bleiben im Visual", 400, 460);
   {
     const d2 = { Germany: d10G.Germany, France: d10G.France, Italy: d10G.Italy };
     runCap("c564", b19Dv(c24(), { data: d2, objs: axes10E }), 400, 460, { noInteract: true });
@@ -10124,6 +10126,233 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B25-END
+
+// ======================================================================
+// 1.57 B24/B25 Review: weiche Untergrenze, Klemme der großen Kachel, Legende, Testlücken (c565 bis c579)
+// ======================================================================
+{
+  const { b19Dv, c24, d10G, axes10E, pies, totals, sQ, num } = window.__b19;
+  const grid = id => nbQ(id, '[data-icd="mult-grid"]')[0] || null;
+  const gAt = (id, a) => { const g = grid(id); return g ? +g.getAttribute(a) : null; };
+  const hint = id => nbQ(id, '[data-icd="mult-cols-hint"]')[0] || null;
+  const heads = id => nbQ(id, 'g[role="button"]').filter(g => [...g.querySelectorAll("text")].some(t => t.textContent === "⤢"))
+    .map(g => { const r = g.querySelector("rect"); return { x: nbAttr(r, "x") - 1, y: nbAttr(r, "y") - 1, w: nbAttr(r, "width") + 2, t: g.querySelector("text").textContent }; });
+  // anyBar: höchstes Rechteck der Kategorie (dunkler Modus: AC nicht in NB.AC)
+  const tileK = (id, anyBar) => {
+    const out = {};
+    avgTiles(id).forEach(t => {
+      const key = t.getAttribute("data-kind") === "group" ? t.getAttribute("data-group") : t.getAttribute("data-kind");
+      let best = null;
+      avgCats(id, key).forEach(g => {
+        const v = hbNum((g.getAttribute("aria-label") || "").split(", ")[1]);
+        const b = anyBar ? [...g.querySelectorAll("rect")].sort((p, q) => nbAttr(q, "height") - nbAttr(p, "height"))[0] : avgAcBar(g);
+        if (b && isFinite(v) && v > 0 && (!best || v > best.v)) { best = { v, px: nbAttr(b, "height") }; }
+      });
+      if (best) { out[key] = best.px / best.v; }
+    });
+    return Object.values(out);
+  };
+  const many = Array.from({ length: 30 }, (_, i) => [`G${String(i + 1).padStart(2, "0")}`, [10 + i, 20 + (i % 7), 15 + 2 * i, 30], [35, 40]]);
+
+  // ---- c565: m1 · große Kachel: Säulen höchstens ceil((n+1)/2) Spalten, Balken höchstens n + 1
+  addStage("c565", "Review m1 · Balken, C groß, „Spalten“ 40 bei 4 Kacheln: 5 Spalten, eine Zeile", 1280, 360);
+  addStage("c565b", "Review m1 · Linie, Berlin groß, „Spalten“ 24: 8 Spalten × 2 Zeilen ohne Lücke, gleiche Steigung", 1600, 720);
+  {
+    runCap("c565", avgDv(avgABC, { orientation: "bars", multiplesHeroTile: "C", multiplesColumns: 40, showAbsoluteVariance: false, showRelativeVariance: false }), 1280, 360);
+    nbSane("c565");
+    const h = hbHero("c565"), ind = hbIndepOk("c565", "main", { bars: true });
+    check(gAt("c565", "data-cols") === 5 && gAt("c565", "data-rows") === 1 && !!h && h.getAttribute("data-cols") === "2" && ind.ok && !hint("c565"),
+      `c565: Balken 5 Spalten × 1 Zeile, C über zwei Spalten, Balken / Wert gleich (${ind.txt})`);
+    runCap("c565b", avgDv(hb13, hb13Chart({ orientation: "line", multiplesHeroTile: "Berlin", multiplesColumns: 24 }), hbObjs), 1600, 720);
+    nbSane("c565b");
+    const ms = hbMarks("c565b"), il = hbIndepOk("c565b", "line", null, 0.01);
+    const cells = new Set(ms.flatMap(m => { const c = +m.getAttribute("data-col"), r = +m.getAttribute("data-row");
+      return m.getAttribute("data-role") === "hero" ? [r * 8 + c, (r + 1) * 8 + c] : [r * 8 + c]; }));
+    check(gAt("c565b", "data-cols") === 8 && gAt("c565b", "data-rows") === 2 && cells.size === 16 && il.ok,
+      `c565b: Linie 8 × 2, alle 16 Plätze belegt, Steigung je Einheit gleich (${il.txt})`);
+  }
+
+  // ---- c566: M1 · weiche Untergrenze 110 px: 24 Blasenkacheln mit 24 Spalten auf 600 × 400
+  addStage("c566", "Review M1 · „Spalten“ 24 auf 600 px: 5 Spalten (110 px Untergrenze) mit Hinweis im Bearbeitungsmodus", 600, 400);
+  addStage("c566b", "Review M1 · dasselbe in der Leseansicht: kein Hinweis, gleiche 5 Spalten", 600, 400);
+  addStage("c566c", "Review M1 · dasselbe im Export: kein Hinweis", 600, 400);
+  {
+    const dv = () => b19Dv(c24({ multiplesColumns: 24, scatterMaxRadius: 20 }), { data: d10G, objs: axes10E });
+    runCap("c566", dv(), 600, 400, { viewMode: 1 });
+    const hn = hint("c566"), hs = heads("c566");
+    check(gAt("c566", "data-cols") === 5 && gAt("c566", "data-floor") === 24 && hs.length === 24 && hs.every(h => Math.abs(h.w - 120) < 0.5)
+      && !!hn && hn.getAttribute("data-shown") === "5" && /24/.test(hn.textContent) && /25 px/.test(hn.textContent),
+      `c566: 5 Spalten à 120 px statt 24 à 25 px, Hinweis „${hn && hn.textContent}“`);
+    const tb = hn && hn.getBBox();
+    check(!!tb && tb.x >= 0 && tb.x + tb.width <= 600.5 && tb.y + tb.height <= 400.5, "c566: Hinweis innerhalb des Visuals");
+    runCap("c566b", dv(), 600, 400, { viewMode: 0 });
+    runCap("c566c", dv(), 600, 400, { noInteract: true });
+    check(!hint("c566b") && !hint("c566c") && gAt("c566b", "data-cols") === 5 && gAt("c566c", "data-cols") === 5, "c566b/c: kein Hinweis in Lese- und Exportansicht, gleiche Spalten");
+  }
+
+  // ---- c567: M1 · 13B mit „Spalten“ 14 auf 960 × 540: 8 Spalten, gleiche Skala; große Kachel mit Untergrenze
+  addStage("c567", "Review M1 · 13B, „Spalten“ 14 auf 960 px: 8 Spalten (120 px), gleiche Skala", 960, 540);
+  addStage("c567b", "Review M1 · 13B, Berlin groß, „Spalten“ 8 auf 700 px: 6 Spalten mit Hinweis, gleiche px je Einheit", 700, 560);
+  {
+    runCap("c567", avgDv(hb13, hb13Chart({ multiplesColumns: 14 }), hbObjs), 960, 540);
+    nbSane("c567");
+    const k = tileK("c567");
+    check(gAt("c567", "data-cols") === 8 && gAt("c567", "data-rows") === 2 && !!hint("c567") && k.length === 15 && hbSpread(k) < 0.006,
+      `c567: 8 × 2, Hinweis, Säulen / Wert gleich (${k.length} Kacheln, Streuung ${(hbSpread(k) * 100).toFixed(2)} %)`);
+    runCap("c567b", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesColumns: 8 }), hbObjs), 700, 560);
+    nbSane("c567b");
+    const ind = hbIndepOk("c567b", "main");
+    check(gAt("c567b", "data-cols") === 6 && gAt("c567b", "data-span") === 1 && gAt("c567b", "data-floor") === 8 && !!hint("c567b") && ind.ok,
+      `c567b: große Kachel mit 6 Spalten statt 8, Hinweis, gleiche px je Einheit (${ind.txt})`);
+  }
+
+  // ---- c568: M1 · 10G-Rezept bei den empfohlenen Größen ohne Eingriff; c555 ohne Hinweis
+  addStage("c568", "Review M1 · 10G-Rezept (6 Spalten) auf 960 × 540: 6 Spalten à 160 px, kein Hinweis", 960, 540);
+  {
+    runCap("c568", b19Dv(c24({ multiplesColumns: 6, scatterMaxRadius: 25 }), { data: d10G, objs: axes10E }), 960, 540);
+    check(gAt("c568", "data-cols") === 6 && gAt("c568", "data-rows") === 4 && !hint("c568") && !hint("c555") && gAt("c555", "data-cols") === 6
+      && grid("c555").getAttribute("data-floor") == null, "c568: 10G mit 6 Spalten auf 1920 und 960 px ohne Untergrenze");
+    // c555 (m5): jede Blase bleibt in ihrer Kachel (Spalte der Kachelköpfe, Zeile bis zum nächsten Kopf)
+    const hs = heads("c555"), rowH = hs[6].y - hs[0].y;
+    const out = [...sQ("c555", '[data-icd="scatter-pie-rim"]'), ...totals("c555").map(t => t.querySelector("circle"))].filter(c => {
+      const cx = num(c, "cx"), cy = num(c, "cy"), r = num(c, "r");
+      const h = hs.find(t => cx >= t.x && cx < t.x + t.w && cy >= t.y && cy < t.y + rowH);
+      return !h || cx - r < h.x - 0.5 || cx + r > h.x + h.w + 0.5 || cy - r < h.y - 0.5 || cy + r > h.y + rowH + 0.5;
+    });
+    check(out.length === 0, `c555 (m5): keine Blase ragt aus ihrer Kachel (${out.length})`);
+  }
+
+  // ---- c569: m5 · Δ-only mit fester Zahl: zu kleine Kacheln fallen auf das Raster ohne große Kachel zurück
+  addStage("c569", "Review m5 · Δ-only, Berlin groß, „Spalten“ 2 (8 Zeilen zu niedrig): bisheriges Raster mit 2 Spalten, eine Δ-Skala", 1280, 720);
+  addStage("c569b", "Review m5 · Δ-only, Berlin groß, „Spalten“ 5: große Kachel bleibt", 1280, 720);
+  {
+    const V = x => hb13Chart(Object.assign({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true, showAbsoluteVariance: true }, x));
+    runCap("c569", avgDv(hb13, V({ multiplesColumns: 2 }), hbObjs), 1280, 720);
+    nbSane("c569");
+    check(gAt("c569", "data-span") === 0 && gAt("c569", "data-cols") === 2 && hbMarks("c569").length === 0,
+      `c569: kein großes Raster, 2 Spalten (${gAt("c569", "data-cols")} × ${gAt("c569", "data-rows")})`);
+    runCap("c569b", avgDv(hb13, V({ multiplesColumns: 5 }), hbObjs), 1280, 720);
+    nbSane("c569b");
+    const px = voPx("c569b");
+    check(gAt("c569b", "data-span") === 1 && gAt("c569b", "data-cols") === 5 && !!hbHero("c569b") && px.length === 14 && hbSpread(px) < 0.002,
+      `c569b: große Kachel in 5 Spalten, 14 Δ-Kacheln gleich (${px[0]})`);
+  }
+
+  // ---- c570: m5 · Dunkel und Hochkontrast mit fester Zahl
+  addStage("c570", "Review m5 · 13B dunkel, „Spalten“ 3", 1280, 720, "#252423");
+  {
+    runCap("c570", avgDv(hb13, hb13Chart({ multiplesColumns: 3 }), Object.assign({}, hbObjs,
+      { objs: Object.assign({}, hbObjs.objs, { colors: { appearance: "dark" } }) })), 1280, 720);
+    nbSane("c570");
+    const bg = nbQ("c570", '[data-icd="mult-ref-bg"]')[0];
+    check(gAt("c570", "data-cols") === 3 && gAt("c570", "data-rows") === 5 && !!bg && nbFill(bg) === "#3A3A36" && tileK("c570", true).length === 15 && hbSpread(tileK("c570", true)) < 0.006,
+      `c570: dunkel, 3 × 5, Ø-Kachel mit dunklem Band, gleiche Skala (${gAt("c570", "data-cols")} × ${gAt("c570", "data-rows")}, ${bg && nbFill(bg)}, ${tileK("c570", true).length} Kacheln, ${(hbSpread(tileK("c570", true)) * 100).toFixed(2)} %)`);
+  }
+  hcRun("c570h", "Review m5 · 13B Hochkontrast, Berlin groß, „Spalten“ 5", 1280, 720, avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesColumns: 5 }), hbObjs));
+  {
+    nbSane("c570h");
+    const bg = nbQ("c570h", '[data-icd="mult-ref-bg"]')[0];
+    check(gAt("c570h", "data-cols") === 5 && !!hbHero("c570h") && hbSpread(hbPx("c570h")) < 0.002 && !!bg && bg.getAttribute("fill") === "none",
+      "c570h: Hochkontrast, 5 Spalten, gleiche px je Einheit, Ø-Kachel mit Rahmen");
+  }
+
+  // ---- c571: m5 · mehr als 24 Gruppen mit fester Zahl
+  addStage("c571", "Review m5 · 30 Gruppen, „Spalten“ 6: 24 Kacheln 6 × 4, „(+6 more)“ an G24", 1600, 900);
+  addStage("c571b", "Review m5 · 30 Gruppen, G12 groß, „Spalten“ 6: 6 × 5", 1600, 900);
+  {
+    const ch = x => Object.assign({ multiplesTotal: false, multiplesTotalShade: true, showAbsoluteVariance: false, showRelativeVariance: false }, x);
+    runCap("c571", avgDv(many, ch({ multiplesColumns: 6 })), 1600, 900);
+    nbSane("c571");
+    const more = nbTexts("c571").filter(t => /\(\+6 more\)/.test(t)), k = tileK("c571");
+    check(gAt("c571", "data-cols") === 6 && gAt("c571", "data-rows") === 4 && avgTiles("c571").length === 24 && more.length === 1 && more[0].startsWith("G24")
+      && k.length === 24 && hbSpread(k) < 0.01, `c571: 6 × 4, ${more.join()}, gleiche Skala (${(hbSpread(k) * 100).toFixed(2)} %)`);
+    runCap("c571b", avgDv(many, ch({ multiplesColumns: 6, multiplesHeroTile: "g12" })), 1600, 900);
+    nbSane("c571b");
+    check(gAt("c571b", "data-cols") === 6 && gAt("c571b", "data-rows") === 5 && hbMarks("c571b").length === 24 && hbIndepOk("c571b", "main").ok,
+      `c571b: 6 × 5 mit G12 groß, gleiche Skala (${hbIndepOk("c571b", "main").txt})`);
+  }
+
+  // ---- c572: m5 · Formatbereich und gebrochene Werte
+  addStage("c572", "Review m5 · Formatbereich: „Spalten“ sichtbar mit Small Multiples (auch Scatter), Gruppe weg ohne", 400, 260);
+  addStage("c572b", "Review m5 · ohne Small-Multiples-Feld", 400, 260);
+  addStage("c572c", "Review m5 · „Spalten“ 2,6 = 3", 960, 520);
+  addStage("c572d", "Review m5 · „Spalten“ 0,4 = automatisch, SVG-gleich mit c559c", 960, 520);
+  {
+    const vis = r => { r.v.getFormattingModel(); const c = r.v.formattingSettings.chartCard; return [c.multiplesGroup.visible !== false, c.multiplesColumns.visible !== false]; };
+    const a = vis(runCap("c572", b19Dv(c24(), { data: { A: d10G.Germany, B: d10G.France } }), 400, 260));
+    const b = vis(runCap("c572b", dataView(avgYears, [col("actual", [1, 2, 3, 4, 5, 6], "#,0")], { chart: { multiplesColumns: 3 } }), 400, 260));
+    check(a.join() === "true,true" && b[0] === false, `c572: mit Feld ${a.join()}, ohne Feld Gruppe ${b[0]}`);
+    runCap("c572c", avgDv(avgABC, { multiplesTotalShade: true, multiplesColumns: 2.6 }), 960, 520);
+    runCap("c572d", avgDv(avgABC, { multiplesTotalShade: true, multiplesColumns: 0.4 }), 960, 520);
+    check(gAt("c572c", "data-cols") === 3 && gAt("c572c", "data-fixed") === 3 && !grid("c572d") && voSvg("c572d") === voSvg("c559c"),
+      "c572c/d: 2,6 rundet auf 3, 0,4 ist automatisch (SVG-gleich)");
+  }
+
+  // ---- c573: m5 · unabhängige px je Einheit für c557 (Balken) und c558b
+  addStage("c573", "Review m5 · c557 und c558b unabhängig gemessen", 200, 40);
+  {
+    const a = hbIndepOk("c557", "main", { bars: true }), b = hbIndepOk("c558b", "main"), c = hbIndepOk("c557b", "main");
+    check(a.ok && b.ok && c.ok, `c573: Balkenbreite / Wert (${a.txt}), Säulen c557b (${c.txt}) und c558b (${b.txt}) gleich`);
+  }
+
+  // ---- c574: m2/m3 · Legende bei mehreren Breiten, mit langen Namen
+  const legW = [260, 340, 420, 520, 640, 900];
+  const longDv = (w, longMeas) => {
+    const d = {};
+    for (const [c, rows] of Object.entries({ Germany: d10G.Germany, France: d10G.France, Italy: d10G.Italy, UK: d10G.UK })) {
+      d[c] = rows.map(r => [r[0] === "IT" ? "Information technology and services" : r[0], ...r.slice(1)]);
+    }
+    const dv = b19Dv(c24(), { data: d, objs: axes10E });
+    if (longMeas) {
+      dv.categorical.values.forEach(v => {
+        if (v.source.roles.bubbleShare) { v.source.displayName = "Our net sales in the served market"; }
+        if (v.source.roles.bubbleSize) { v.source.displayName = "Total addressable market volume"; }
+      });
+    }
+    return dv;
+  };
+  const legEnd = id => { const lg = nbQ(id, ".icd-scatter-legend")[0]; if (!lg) { return null; } const r = lg.getBBox(); return r.x + r.width; };
+  const legTexts = id => nbQ(id, ".icd-scatter-legend text").map(t => t.textContent);
+  const legRes = [];
+  legW.forEach((w, i) => {
+    for (const [sfx, longMeas, short] of [["", false, true], ["l", false, false], ["m", true, false]]) {
+      const id = `c574${"abcdef"[i]}${sfx}`;
+      addStage(id, `Review m2/m3 · Blasenlegende auf ${w} px${short ? "" : longMeas ? ", lange Namen und Measures" : ", langer erster Name"}`, w, 360);
+      runCap(id, short ? b19Dv(c24(), { data: { Germany: d10G.Germany, France: d10G.France }, objs: axes10E }) : longDv(w, longMeas), w, 360);
+      legRes.push({ id, w, end: legEnd(id), t: legTexts(id) });
+    }
+  });
+  {
+    const over = legRes.filter(r => r.end == null || r.end > r.w + 0.5);
+    check(over.length === 0, `c574: Legende in ${legRes.length} Breiten innerhalb des Visuals (${over.map(r => r.id + " " + (r.end || 0).toFixed(0)).join(", ") || "alle"})`);
+    // m2: der gekürzte erste Name schiebt „+n“ und den Tail nicht mehr hinaus; Tail auf 420 px vollständig
+    const m2 = legRes.find(r => r.id === "c574cl");
+    check(m2.t.includes("Our sales") && m2.t.includes("Σ Market volume") && m2.t.some(t => /^\+\d/.test(t)) && m2.end <= 420,
+      `c574cl: ${m2.t.join(" | ")} endet bei ${m2.end.toFixed(0)} px`);
+    // m3: lange Measure-Namen werden gekürzt statt über den Rand zu laufen
+    const m3 = legRes.filter(r => r.id.endsWith("m") && r.w <= 520);
+    check(m3.every(r => r.t.some(t => /…$/.test(t))), `c574m: lange Teil-/Σ-Namen gekürzt (${m3.map(r => r.t.slice(-1)[0]).join(" | ")})`);
+    // eine passende Legende bleibt vollständig (keine „+n“, kein Kürzel)
+    const wide = legRes.filter(r => r.w === 900);
+    check(wide.every(r => !r.t.some(t => /^\+\d|…$/.test(t))) && wide[0].t.includes("Σ Market volume"), "c574f: auf 900 px vollständig");
+  }
+
+  // ---- c575: m5 (B25) · Karten und Tabelle mit langen Titeln im Export
+  addStage("c575", "Review m5 · KPI-Karten mit langen Kacheltiteln im Export: Titel in der Zelle, kein ⤢", 960, 400);
+  addStage("c575b", "Review m5 · Tabelle mit langen Kacheltiteln im Export", 960, 400);
+  {
+    const long = hb13.slice(0, 6).map((r, i) => [r[0] + " mit einem sehr langen Standortnamen " + i, r[1], r[2]]);
+    for (const [id, o] of [["c575", "cards"], ["c575b", "table"]]) {
+      runCap(id, avgDv(long, hb13Chart({ orientation: o, multiplesTotal: false, multiplesColumns: 3 }), hbObjs), 960, 400, { noInteract: true });
+      const ts = nbQ(id, '[data-icd="mult-title"]');
+      const over = ts.filter((t, i) => { const b = t.getBBox(); return b.x + b.width > (i % 3 + 1) * 320 + 0.5; });
+      check(ts.length === 6 && over.length === 0 && nbQ(id, "svg text").filter(t => t.textContent === "⤢").length === 0
+        && nbQ(id, '[role="button"]').length === 0 && ts.every(t => /…$/.test(t.textContent) || t.textContent.length > 20),
+        `${id}: ${o}, 6 Titel in ihren Zellen, kein Zoom-Knopf (${ts.map(t => t.textContent.slice(0, 14)).join(" | ")})`);
+    }
+  }
+}
+// ---- B24-B25-REVIEW-END
 </script>
 </body>
 </html>
