@@ -8,8 +8,9 @@
 //   * 1.7: the same data as stocks (statement.stockMode = allStock): reparse,
 //     every YTD value read as the stand of the last month (windowValue)
 //   * 1.7 cross-highlight: another visual marks every third account at 40 %
-//     (`highlights` next to the values) — two parses, two engine runs — in the
-//     table, then the same highlight in the Sankey (inner ribbons)
+//     (`highlights` next to the values) — in the table the whole and the filter
+//     model (1.8.2: the Sankey builds its pair, the marked part in the shape of
+//     the whole, on demand), then the same highlight in the Sankey (inner ribbons)
 // Fails when first render > 1500 ms, expand rerender > 300 ms, the Sankey
 // switch > 1000 ms, the stock render > 1500 ms, the highlight render > 1500 ms
 // or the highlighted Sankey > 1000 ms.
@@ -244,7 +245,7 @@ function bench(cfg) {
     console.log(`  DOM rows           ${r.domRows} at top, ${r.domRowsBottom} at bottom`);
     console.log(`  Sankey switch      ${ms(r.sankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms, ${r.sankeyNodes} nodes)`);
     console.log(`  stocks (allStock)  ${ms(r.stockMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, reparse + stands)`);
-    console.log(`  highlight (table)  ${ms(r.hlMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, three parses + three engine runs: whole, marked in its shape, filter)`);
+    console.log(`  highlight (table)  ${ms(r.hlMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, two parses + two engine runs: whole, filter; 1.8.2 the Sankey's pair on demand)`);
     console.log(`  highlight (Sankey) ${ms(r.hlSankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms, ${r.hlParts} inner ribbons)`);
     console.log(`  ⚡ hide (waterfall) ${ms(r.excMs)}   (budget ${FIRST_RENDER_BUDGET_MS} ms, ${(r.excNote.match(/(\d+) steps/) || ["", "0"])[1]} steps folded)`);
     console.log(`  ⚡ hide (Sankey)    ${ms(r.excSankeyMs)}   (budget ${SANKEY_BUDGET_MS} ms)`);
