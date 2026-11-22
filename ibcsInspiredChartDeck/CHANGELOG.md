@@ -2,6 +2,36 @@
 
 ## 1.57.0.0 (in Arbeit)
 
+- **B13 Teil 1b · Frei wählbare große Kachel (nach IBCS-Blatt 13B, auch die doppelt hohe Berlin-Kachel von 13C und
+  13D).** Vorher: „Erste Kachel groß“ gab nur der ersten Kachel eine Spalte links über die volle Höhe, auf der
+  gemeinsamen Skala; eine andere Kachel ließ sich nicht wählen, nicht über zwei Zeilen spannen und nicht oben rechts
+  setzen, ein Ausreißer (Berlin 344 neben Werten um 80) stauchte alle Kacheln, und in der Ansicht „Nur
+  Abweichungs-Panel“ war die große Kachel ganz aus (Review M1 von Teil 2). Nachher (Format Chart → Small Multiples):
+  - **„Große Kachel (Gruppenname)“** (`chart.multiplesHeroTile`, Text, Standard leer): Name einer Kachel, Groß- und
+    Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel; unabhängig vom Schalter „Erste Kachel groß“.
+    Leer, unbekannter Name, Stapel, Wasserfall-Stil, Serienlinien und die übrigen Modi: alles wie bisher (SVG-gleich).
+  - **Raster:** die bisherige Spaltenregel über n + 1 Plätze; die große Kachel bleibt in ihrer natürlichen Spalte und
+    reicht über zwei Zeilen (in der letzten Zeile rückt sie eine Zeile hoch), die übrigen Kacheln füllen die freien
+    Plätze der Reihe nach, eine Bezugskachel „zuletzt“ nimmt den letzten Platz. Mit den Daten von 13B in Blattreihenfolge
+    entsteht genau das Blatt: Berlin oben rechts über zwei Zeilen, „12 weitere“ rechts in Zeile 3, Durchschnitt unten
+    rechts.
+  - **Gleiche Pixel je Einheit:** Die große Kachel skaliert auf ihre eigenen Werte, die kleinen auf alle übrigen
+    Gruppen. Probeläufe (`measureScaleK`) messen die px je Einheit beider; die Seite mit mehr px je Einheit bekommt
+    eine längere Achse (Domain × f, Sekantenverfahren auf 1/k), bis beide gleich sind (Abweichung unter 0,02 %).
+    Ebenso das Δ %-Panel; das absolute Δ-Panel behält die Domain des Decks und läuft wie bisher im Maßstab der Werte,
+    damit wählen alle Kacheln denselben runden Zoom. Fest eingestellte Obergrenze (`scale.fixedMax`) und
+    Referenzlinie gelten für beide Seiten. In 13B zeichnen die kleinen Kacheln dadurch 0,60 statt 0,22 px je Einheit.
+  - **Mit „Nur Abweichungs-Panel“** (13C, 13D): eine Δ-Skala für große und kleine Kacheln, angeglichen wie oben
+    (Δ und Δ % getrennt). Die Bezugskachel misst ihre Δ-Skala an einer Kachel des Rasters auf deren Domain, auch wenn
+    sie selbst die große Kachel ist (behebt den Anlass von M1). Fällt eine Rasterkachel auf die normale Ansicht zurück
+    (zu klein), bleibt die große Kachel aus wie bisher. Der Schalter „Erste Kachel groß“ bleibt dort ausgeblendet.
+  - **Zoom:** misst die Kachel in ihrem Platz und zeigt sie auf ihrer eigenen Achse; die große Kachel ist fast so groß
+    wie die Zoomfläche (kein Faktor unter 3 %).
+  - Testmarker (`data-icd`, nur mit großer Kachel): `mult-hero` je Kachel mit `data-role` (`hero` | `peer` | `tile`),
+    `data-group`, `data-kind`, `data-px-per-unit` (Werte-Panel, in Δ-only-Kacheln Δ), `data-px-per-unit-abs`,
+    `data-px-per-unit-rel`, `data-col`, `data-row`, `data-rows`, `data-x/y/w/h`. Tests c533 bis c545; Hash aller 756
+    Bestands-Stufen vorher/nachher gleich. Beschreibung von „Nur Abweichungs-Panel“ nennt die benannte große Kachel.
+
 - **B20 · Marimekko (nach IBCS-Blatt 02F).** Vorher: 100-%-Balken hatten immer gleich hohe Zeilen, die Größe einer
   Zeile stand nur im Summenbalken daneben; 02F (Zeilendicke nach Umsatz) war nicht abbildbar. Nachher (Format Chart →
   Darstellung, nur Balken mit 100 %):
