@@ -178,12 +178,13 @@ Die Startseite `index.html` zeigt die neuen Folgen erst, wenn der Feed neu gebau
 
 ```bash
 python scripts/fetch_start_thumbs.py     # laedt nur fehlende Bilder nach assets/start/yt/
-node scripts/build_start_feed.js         # schreibt assets/start/feed-data.js
+node scripts/build_start_feed.js         # schreibt assets/start/feed-data.js + statische Liste in index.html
+node scripts/build_seo.js                # Canonicals, JSON-LD, sitemap-seiten.xml (lastmod)
 ```
 
 `build_start_feed.js` gibt Eintraege ohne Bild als Warnung aus; bei neuen Folgen darf da nichts stehen. Die Kopfzahlen der Startseite (Folgen, Talks, Stories) rechnet die Seite selbst aus dem Feed, dort gibt es keine Count-Marker zu pflegen.
 
-Neue Beitraege, Tools oder Stories (nicht Teil dieses Skills, aber gleicher Feed): Eintrag in `beitraege.html`, Vorschaubild mit `python scripts/render_start_shots.py <seite.html>`, bei textlastigen Seiten Titelbild mit `python scripts/build_start_covers.py` (URL dort in `TEXTY` eintragen), danach `node scripts/build_start_feed.js`.
+Neue Beitraege, Tools oder Stories (nicht Teil dieses Skills, aber gleicher Feed): Eintrag in `beitraege.html`, Vorschaubild mit `python scripts/render_start_shots.py <seite.html>`, bei textlastigen Seiten Titelbild mit `python scripts/build_start_covers.py` (URL dort in `TEXTY` eintragen), danach `node scripts/build_start_feed.js` und `node scripts/build_seo.js` (neue Seiten landen damit in Sitemap und JSON-LD; nach dem Push meldet der Workflow `indexnow.yml` sie an Bing & Co.).
 
 ### 12. Commit
 

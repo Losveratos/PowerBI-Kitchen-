@@ -1,5 +1,13 @@
 User-agent: *
 Allow: /
+# Testseiten, Prototypen und interne Werkzeuge
+Disallow: /tests/
+Disallow: /*/test/
+Disallow: /*/tests/
+Disallow: /pnlByDatenWG/prototype/
+Disallow: /tools/social-collage/
+Disallow: /assets/mockup/render-test.html
+Disallow: /assets/mockup/sketches-test.html
 
 Sitemap: https://datenwgknowledgekitchen.com/sitemap.xml
 Sitemap: https://datenwgknowledgekitchen.com/wissensgraph/sitemap.xml

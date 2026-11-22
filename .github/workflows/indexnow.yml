@@ -1,0 +1,68 @@
+name: IndexNow — geänderte Seiten melden
+
+# Meldet nach jedem Push auf main die geänderten Seiten per IndexNow an Bing,
+# Yandex, Seznam, Naver und Co. (Bing speist auch ChatGPT-Suche und Copilot).
+# Der Schlüssel liegt als <key>.txt im Repo-Root; IndexNow prüft ihn dort.
+# Manuell starten mit "alle" meldet die komplette Sitemap.
+
+on:
+  push:
+    branches: [main]
+    paths: ['**.html', 'sitemap-seiten.xml', 'wissensgraph/sitemap.xml']
+  workflow_dispatch:
+    inputs:
+      alle:
+        description: 'Alle URLs aus den Sitemaps melden'
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: URLs sammeln
+        env:
+          BEFORE: ${{ github.event.before }}
+          ALLE: ${{ github.event_name == 'workflow_dispatch' && inputs.alle }}
+        run: |
+          node -e '
+          const fs = require("fs"), { execSync } = require("child_process");
+          const SITE = "https://datenwgknowledgekitchen.com/";
+          const loc = f => fs.existsSync(f) ? [...fs.readFileSync(f, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]) : [];
+          const known = new Set([...loc("sitemap-seiten.xml"), ...loc("wissensgraph/sitemap.xml")]);
+          let urls;
+          if (process.env.ALLE === "true") urls = [...known];
+          else {
+            const before = process.env.BEFORE;
+            const range = before && !/^0+$/.test(before) ? `${before} HEAD` : "HEAD~1 HEAD";
+            const files = execSync(`git diff --name-only --diff-filter=AM ${range}`, { encoding: "utf8" }).split("\n").filter(f => f.endsWith(".html"));
+            urls = files.map(f => SITE + f.replace(/(^|\/)index\.html$/, "$1")).filter(u => known.has(u));
+          }
+          urls = [...new Set(urls)].slice(0, 10000);
+          console.log(urls.length, "URLs"); urls.slice(0, 50).forEach(u => console.log(" ", u));
+          fs.writeFileSync("_urls.json", JSON.stringify(urls));
+          '
+
+      - name: Auf das Pages-Deployment warten
+        run: sleep 120
+
+      - name: An IndexNow melden
+        run: |
+          KEY=$(ls | grep -E '^[0-9a-f]{32}\.txt$' | head -1 | sed 's/\.txt$//')
+          [ -n "$KEY" ] || { echo "Kein IndexNow-Schlüssel im Repo-Root"; exit 1; }
+          node -e '
+          const urls = require("./_urls.json"), key = process.argv[1];
+          if (!urls.length) { console.log("Nichts zu melden."); process.exit(0); }
+          fetch("https://api.indexnow.org/indexnow", {
+            method: "POST", headers: { "Content-Type": "application/json; charset=utf-8" },
+            body: JSON.stringify({ host: "datenwgknowledgekitchen.com", key,
+              keyLocation: `https://datenwgknowledgekitchen.com/${key}.txt`, urlList: urls }),
+          }).then(async r => { console.log("IndexNow:", r.status, await r.text()); if (r.status >= 400 && r.status !== 429) process.exit(1); });
+          ' "$KEY"
