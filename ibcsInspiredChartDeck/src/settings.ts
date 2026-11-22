@@ -100,6 +100,17 @@ const stackLegendPosItems: LocEnumMember[] = [
     { value: "start", displayName: "Left of the first column", key: "Enum_StackLegPos_Start" }
 ];
 
+// 1.56 (backlog B16, IBCS sheet 08A): stacked columns drawn as a stacked area
+const stackShapeItems: LocEnumMember[] = [
+    { value: "columns", displayName: "Columns", key: "Enum_StackShape_Columns" },
+    { value: "area", displayName: "Area", key: "Enum_StackShape_Area" }
+];
+const areaValueLabelsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Automatic (thin out)", key: "Enum_AreaValueLabels_Auto" },
+    { value: "ends", displayName: "First and last period", key: "Enum_AreaValueLabels_Ends" },
+    { value: "off", displayName: "Off", key: "Enum_AreaValueLabels_Off" }
+];
+
 // 1.55 (backlog B13): small multiples against the average (IBCS sheets 13A, 13C)
 const multiplesAggItems: LocEnumMember[] = [
     { value: "sum", displayName: "Sum", key: "Enum_MultAgg_Sum" },
@@ -242,7 +253,7 @@ const scatterTrendItems: LocEnumMember[] = [
 
 // 1.49: IBCS-Chart-Templates als Presets (PnL-Muster). Ein Template schreibt in
 // EINEM persistProperties-Merge Modus + Vergleich + Panels + passende Schalter;
-// danach ist alles frei änderbar. C07 (Fläche) und C11 gibt es im Visual nicht.
+// danach ist alles frei änderbar. C11 gibt es im Visual nicht (C07 Fläche ab 1.56).
 const templateItems: LocEnumMember[] = [
     { value: "off", displayName: "Off (no template)", key: "Enum_Template_Off" },
     { value: "C01", displayName: "C01 · Stacked columns (series)", key: "Enum_Template_C01" },
@@ -251,6 +262,7 @@ const templateItems: LocEnumMember[] = [
     { value: "C04", displayName: "C04 · Bars + variances (PL)", key: "Enum_Template_C04" },
     { value: "C05", displayName: "C05 · Integrated bridge (time)", key: "Enum_Template_C05" },
     { value: "C06", displayName: "C06 · Category bridge vertical", key: "Enum_Template_C06" },
+    { value: "C07", displayName: "C07 · Stacked area (08A)", key: "Enum_Template_C07" },
     { value: "C08", displayName: "C08 · Line (long time series)", key: "Enum_Template_C08" },
     { value: "C09", displayName: "C09 · Scatter", key: "Enum_Template_C09" },
     { value: "C10", displayName: "C10 · Bubble (scatter + size)", key: "Enum_Template_C10" },
@@ -286,7 +298,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
         stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
-        multiplesBasisItems, sfStockAtItems, axisGroupsItems];
+        multiplesBasisItems, sfStockAtItems, axisGroupsItems, stackShapeItems, areaValueLabelsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -368,7 +380,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow). Nicht enthalten: C07 (Fläche) und C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“). Nicht enthalten: C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -1537,6 +1549,36 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: stackLegendPosItems[0]
     });
 
+    // 1.56 (B16, IBCS sheet 08A): stacked columns as a stacked area with a total line
+    stackShape = new formattingSettings.ItemDropdown({
+        name: "stackShape",
+        displayName: "Stack shape",
+        displayNameKey: "Chart_StackShape",
+        description: "Gestapelte Säulen (Feld „Stack-Serie“): als Säulen (Standard) oder als gestapelte Fläche über die Zeit mit Summenlinie, Punkten je Periode und Seriennamen am Ende. Ohne Serie und bei Balken ohne Wirkung.",
+        descriptionKey: "Desc_Chart_StackShape",
+        items: stackShapeItems,
+        value: stackShapeItems[0]
+    });
+
+    areaTotalLine = new formattingSettings.ToggleSwitch({
+        name: "areaTotalLine",
+        displayName: "Total line",
+        displayNameKey: "Chart_AreaTotalLine",
+        description: "Gestapelte Fläche: Linie mit Punkt und Summe je Periode über dem Stapel. Bei 100 % nie. Standard an.",
+        descriptionKey: "Desc_Chart_AreaTotalLine",
+        value: true
+    });
+
+    areaValueLabels = new formattingSettings.ItemDropdown({
+        name: "areaValueLabels",
+        displayName: "Values in the areas",
+        displayNameKey: "Chart_AreaValueLabels",
+        description: "Gestapelte Fläche: Werte in den Flächen, nach Platz ausgedünnt (Standard), nur in der ersten und letzten Periode oder keine. Ein Wert steht nur, wenn die Fläche dort hoch genug ist.",
+        descriptionKey: "Desc_Chart_AreaValueLabels",
+        items: areaValueLabelsItems,
+        value: areaValueLabelsItems[0]
+    });
+
     scenarioLabels = new formattingSettings.ToggleSwitch({
         name: "scenarioLabels",
         displayName: "Scenario labels at the columns",
@@ -1550,8 +1592,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartDisplay",
         displayName: "Display",
         displayNameKey: "Group_Display",
-        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackLegendDirect, this.stackLegendPos,
-            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket, this.scenarioLabels,
+        slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackShape, this.areaTotalLine, this.areaValueLabels,
+            this.stackLegendDirect, this.stackLegendPos, this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket, this.scenarioLabels,
             this.exportExpandAll]
     });
 
@@ -1616,7 +1658,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "axisGroups",
         displayName: "Axis groups",
         displayNameKey: "Chart_AxisGroups",
-        description: "Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen.",
+        description: "Bestand & Fluss und gestapelte Fläche: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen.",
         descriptionKey: "Desc_Chart_AxisGroups",
         items: axisGroupsItems,
         value: axisGroupsItems[0]

@@ -197,6 +197,7 @@
                             { "value": "C04", "displayName": "C04 · Balken + Varianzen (PL)" },
                             { "value": "C05", "displayName": "C05 · Integrierte Brücke (Zeit)" },
                             { "value": "C06", "displayName": "C06 · Kategorie-Brücke vertikal" },
+                            { "value": "C07", "displayName": "C07 · Gestapelte Fläche (08A)" },
                             { "value": "C08", "displayName": "C08 · Linie (lange Zeitreihe)" },
                             { "value": "C09", "displayName": "C09 · Scatter" },
                             { "value": "C10", "displayName": "C10 · Bubble (Scatter + Größe)" },
@@ -562,6 +563,24 @@
                         "enumeration": [
                             { "value": "end", "displayName": "Right of the last column" },
                             { "value": "start", "displayName": "Left of the first column" }
+                        ]
+                    }
+                },
+                "stackShape": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "columns", "displayName": "Columns" },
+                            { "value": "area", "displayName": "Area" }
+                        ]
+                    }
+                },
+                "areaTotalLine": { "type": { "bool": true } },
+                "areaValueLabels": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "auto", "displayName": "Automatic (thin out)" },
+                            { "value": "ends", "displayName": "First and last period" },
+                            { "value": "off", "displayName": "Off" }
                         ]
                     }
                 },
