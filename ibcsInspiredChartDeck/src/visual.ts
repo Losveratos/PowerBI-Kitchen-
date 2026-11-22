@@ -1206,6 +1206,18 @@ function formatCarriesMagnitude(fmt: string | undefined): boolean {
  * signed, values plain), so the plus of the positive section goes; negative
  * and zero sections, quoted text and escapes stay as they are.
  */
+/** 1.56 review (M1): which charts expand a category hierarchy on their own — table and
+ *  P&L (since 1.47), stacked bars with stack blocks and the stacked area with axis
+ *  groups (both need the lower levels). Plain stacks never: their look would change. */
+export function autoExpandWanted(orient: string, stackBlocks: string, stackShape: string,
+    axisGroups: string, hasSeries: boolean): boolean {
+    if (orient === "table" || orient === "pnl") { return true; }
+    if (!hasSeries) { return false; }
+    if (orient === "bars") { return stackBlocks !== "" && stackBlocks !== "off"; }
+    if (orient === "columns") { return stackShape === "area" && axisGroups !== "off"; }
+    return false;
+}
+
 export function unsignedFormat(fmt: string | undefined): string | undefined {
     if (!fmt) { return fmt; }
     const sections: string[] = [];
@@ -2289,7 +2301,8 @@ export class Visual implements IVisual {
         fs.chartCard.scatterQuadLabelBL.visible = isScatter && quadOn;
         fs.chartCard.scatterQuadLabelBR.visible = isScatter && quadOn;
         fs.scaleCard.refLineLabel.visible = String(fs.scaleCard.refLine.value || "").trim() !== "";
-        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0 && orient !== "stockflow";
+        // 1.56 review (M4): the stacked area ignores the cap, so the switch is hidden there
+        fs.scaleCard.capOverflow.visible = (fs.scaleCard.fixedMax.value ?? 0) > 0 && orient !== "stockflow" && !isArea;
         fs.scaleCard.fixedVarMax.visible = fs.chartCard.showAbsoluteVariance.value && orient !== "stockflow";
         // comments card stays visible without a comment measure — the in-chart
         // capture mode works on any category
@@ -2542,7 +2555,10 @@ export class Visual implements IVisual {
         this.paneHasFc = !!byRole["forecast"];
         this.paneHasBm = !!byRole["benchmark"];
         // 1.56 (B10 part 2): stack blocks need a category hierarchy (≥ 2 levels)
-        this.paneHasCatLevels = catLevels.length >= 2;
+        // 1.56 review (M1): or a drillable category (the lower levels arrive only after
+        // the expand, which the visual triggers itself once stackBlocks is set)
+        this.paneHasCatLevels = catLevels.length >= 2
+            || (dataView?.metadata?.dataRoles?.drillableRoles?.["category"]?.length ?? 0) > 0;
         this.paneHasComments = comments != null;
         if (!byRole["actual"] && !byRole["forecast"]) {
             // some fields are bound but the value measure is missing — say so
@@ -3221,8 +3237,14 @@ export class Visual implements IVisual {
         // export/print renders show the report state as saved — a drill request
         // from there would re-query behind a picture that is already final
         if (!this.allowInteractions) { return; }
-        const orient = String(s.chartCard.orientation.value.value);
-        if (orient !== "table" && orient !== "pnl") { return; }
+        const cc = s.chartCard;
+        const ev = (x: unknown) => String((x as powerbi.IEnumMember | undefined)?.value ?? "");
+        // 1.56 review (M1): stack blocks (bars) and the area's axis groups need the
+        // lower levels too; plain stacks never expand (existing reports stay as they are)
+        const hasSeries = (dataView?.categorical?.categories ?? []).some(c => c.source?.roles?.["series"])
+            || (dataView?.metadata?.columns ?? []).some(c => c.roles?.["series"]);
+        if (!autoExpandWanted(String(cc.orientation.value.value), ev(cc.stackBlocks.value), ev(cc.stackShape.value),
+            ev(cc.axisGroups.value), hasSeries)) { return; }
         const drillable = dataView?.metadata?.dataRoles?.drillableRoles?.["category"];
         // DrillType ist ein const enum (zur Laufzeit nicht vorhanden): Down = 2
         const DRILL_DOWN = 2 as powerbi.DrillType;
@@ -6670,7 +6692,9 @@ export class Visual implements IVisual {
             band: hc ? bgc : dark ? DARK_BAND : BAND,
             highlight: this.listWithFlag(String(s.chartCard.highlight.value), "emphasize"),
             highlightEllipse: String((s.chartCard.highlightStyle.value as powerbi.IEnumMember)?.value) === "ellipse",
-            capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0)
+            // 1.56 review (M4): the stacked area ignores the cap (a cut area and a flat
+            // total line are not readable); fixedMax still widens its scale
+            capMax: (s.scaleCard.capOverflow.value && (s.scaleCard.fixedMax.value ?? 0) > 0 && !stackAreaWanted)
                 ? s.scaleCard.fixedMax.value : null,
             cumulative: cumulativeOn,
             refLine: this.parseRefLine(),
@@ -15520,13 +15544,14 @@ export class Visual implements IVisual {
         const legFont = Math.round(10 * k);
         const legendH = legFont + 10;
         const shade = (idx: number): string => {
-            // ramp from the AC color towards light grey, first series darkest
-            const mix = series.length > 1 ? idx / (series.length - 1) : 0;
-            const from = cfg.hc ? [26, 26, 26] : this.hexRgb(cfg.colors.ac);
-            const to = [200, 200, 200];
-            const c = from.map((f, ci) => Math.round(f + (to[ci] - f) * mix * 0.85));
+            // ramp from the AC color towards light grey (dark mode: dark grey), first series darkest
+            const c = this.stackRampRgb(cfg, idx, series.length);
             return `rgb(${c[0]},${c[1]},${c[2]})`;
         };
+        // segment text: light mode keeps its index rule (byte-identical); dark mode picks
+        // the text from the tone (1.56 review M3: light text sat on light tones)
+        const segInk = (si: number, light: boolean): string => cfg.dark
+            ? this.stackRampText(cfg, this.stackRampRgb(cfg, si, series.length)) : light ? cfg.ink : cfg.paper;
 
         // net stack total (positive part + negative part) — the Σ a reader expects
         const totals = cats.map((_, i) => posTot[i] + negTot[i]);
@@ -15592,8 +15617,15 @@ export class Visual implements IVisual {
         const slotsN = sumSlot + (totalRow ? 1 : 0);
         const subLabels = blocks.filter(b => b.sub != null).map(b => b.key);
         // block share (ellipses) only with subtotal rows
+        // 1.56 review (m1): shares of a negative block or total read as nonsense
+        // ("126 %", "−26 %"): none at all then
+        const rowTotRaw = (i: number) => series.reduce((a, sn) => a + rawSv(i, sn), 0);
+        const sharesSane = () => {
+            const bt = blocks.map(b => { let a = 0; for (let i = b.from; i < b.to; i++) { a += rowTotRaw(i); } return a; });
+            return bt.every(t => t >= 0) && bt.reduce((a, v) => a + v, 0) > 0;
+        };
         const shareOn = blocksActive && cfg.stackBlockShare
-            && (cfg.stackBlocks === "subtotals" || cfg.stackBlocks === "subtotalsButLast");
+            && (cfg.stackBlocks === "subtotals" || cfg.stackBlocks === "subtotalsButLast") && sharesSane();
         const emphRow = (i: number) => this.isEmph(cfg, cats[i]) || (blocksActive && this.isEmph(cfg, rowLabels[i]));
         // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
         // series; 100 % stacks compare shares (percentage points), totals only on values
@@ -15965,7 +15997,7 @@ export class Visual implements IVisual {
                         x: orientation === "columns" ? pos(i) + slotW / 2 : mid,
                         y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + slotW / 2 + lf * 0.35,
                         "text-anchor": "middle", "font-size": Math.round(lf * 0.92),
-                        fill: cfg.hc ? cfg.ink : (kind !== "ac" || light || splitFc ? cfg.ink : cfg.paper), "font-family": FONT,
+                        fill: cfg.hc ? cfg.ink : (kind !== "ac" || splitFc ? cfg.ink : segInk(si, light)), "font-family": FONT,
                         ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
                     }, g);
                     st.textContent = segText(v);
@@ -16013,7 +16045,9 @@ export class Visual implements IVisual {
                 // rest categories (top-N rest, "Sonstige") italic while the stack is
                 // sorted or the rest is the top-N aggregate (B04 rule)
                 const restCat = series.some(sn => cell.get(`${c}¦${sn}`)?.isRest);
-                if (restCat || (sortedOrRest && REST_ROW_RX.test(rowLabels[i].trim()))) {
+                // (three levels: "DACH · Rest of DACH" is a rest row by its leaf)
+                const leafName = blocksActive ? (lvOf(c)?.slice(-1)[0] ?? rowLabels[i]) : rowLabels[i];
+                if (restCat || (sortedOrRest && (REST_ROW_RX.test(rowLabels[i].trim()) || REST_ROW_RX.test(leafName.trim())))) {
                     gCat.lastElementChild?.setAttribute("font-style", "italic");
                     gCat.setAttribute("data-icd", "stack-rest");
                 }
@@ -16021,26 +16055,47 @@ export class Visual implements IVisual {
             // 1.56 (B10 part 2, sheet 02A): highlighted rows in ellipse style get an
             // arrow ▼ onto the bar end; with the block share also their share of the
             // grand total in an ellipse above the total
-            if (isHl && orientation === "bars" && (cfg.highlightEllipse || shareOn)) {
+            // 1.56 review (m3): the arrow only with stack blocks, a plain stack keeps its
+            // 1.55 look (bold name only)
+            const arrowOn = cfg.highlightEllipse && blocksActive;
+            if (isHl && orientation === "bars" && (arrowOn || shareOn)) {
                 const xEnd = scale(norm ? 100 : capV(Math.max(posTot[i], 0)));
-                if (cfg.highlightEllipse) {
-                    // about one row high (sheet 02A), reaching into the gap above the bar
-                    const hA = Math.max(9, Math.min(step - 1, 16 * k));
-                    const wH = Math.max(8, 11 * k), wS = Math.max(2.5, 3.5 * k);
+                const wH = Math.max(8, 11 * k);
+                // 1.56 review (M2): the gap above the bar belongs to the row above when it
+                // is the neighbour in the same block and reaches past the arrow (always in
+                // a descending sort); then arrow and share must stay out of its way
+                const adjAbove = i > 0 && rowSlot[i - 1] === rowSlot[i] - 1;
+                const aboveRight = !adjAbove ? -Infinity
+                    : scale(norm ? 100 : capV(Math.max(posTot[i - 1], 0)))
+                        + (cfg.showLabels && !norm && showTotalAt(i - 1) ? 4 + this.textWidth(totalTexts[i - 1], lf) : 0);
+                if (arrowOn) {
+                    // about one row high (sheet 02A), reaching into the gap above the bar;
+                    // under a longer neighbour only as tall as the gap
+                    let hA = Math.max(9, Math.min(step - 1, 16 * k));
+                    if (aboveRight > xEnd - wH / 2 - 1) { hA = Math.min(hA, step - slotW - 1); }
+                    const wS = Math.max(2.5, 3.5 * k);
                     const tip = pos(i) - 1, top = tip - hA, yHead = tip - hA * 0.45;
-                    this.el("path", {
-                        d: `M${xEnd - wS / 2},${top} L${xEnd + wS / 2},${top} L${xEnd + wS / 2},${yHead} L${xEnd + wH / 2},${yHead}`
-                            + ` L${xEnd},${tip} L${xEnd - wH / 2},${yHead} L${xEnd - wS / 2},${yHead} Z`,
-                        fill: shareInk, "data-icd": "stack-hl-arrow"
-                    }, gCat);
+                    if (hA >= 6) {
+                        this.el("path", {
+                            d: `M${xEnd - wS / 2},${top} L${xEnd + wS / 2},${top} L${xEnd + wS / 2},${yHead} L${xEnd + wH / 2},${yHead}`
+                                + ` L${xEnd},${tip} L${xEnd - wH / 2},${yHead} L${xEnd - wS / 2},${yHead} Z`,
+                            fill: shareInk, "data-icd": "stack-hl-arrow"
+                        }, gCat);
+                    }
                 }
-                if (shareOn && grand > 0) {
-                    // right of the arrow, else centered over the total label
-                    const rowShare = series.reduce((a, sn) => a + rawSv(i, sn), 0) / grand * 100;
+                const rowSum = rowTotRaw(i);
+                if (shareOn && grand > 0 && rowSum >= 0) {
+                    // right of the arrow, else centered over the total label; under a longer
+                    // neighbour at the row's own height, right of its total label
+                    const rowShare = rowSum / grand * 100;
                     const rx = shareW(rowShare) / 2, ry = lf * 0.75;
                     const lw = cfg.showLabels && !norm ? this.textWidth(totalTexts[i], lf) : 0;
-                    const cx = cfg.highlightEllipse ? xEnd + Math.max(8, 11 * k) / 2 + 3 + rx : xEnd + 4 + Math.max(lw / 2, rx);
-                    shareEllipse(gCat, cx, pos(i) - ry - 1, rowShare, "stack-row-share");
+                    const cx = arrowOn ? xEnd + wH / 2 + 3 + rx : xEnd + 4 + Math.max(lw / 2, rx);
+                    if (aboveRight > cx - rx - 1) {
+                        shareEllipse(gCat, xEnd + 4 + lw + 6 + rx, pos(i) + slotW / 2, rowShare, "stack-row-share");
+                    } else {
+                        shareEllipse(gCat, cx, pos(i) - ry - 1, rowShare, "stack-row-share");
+                    }
                 }
             }
             this.animGroups.push([gCat]);
@@ -16116,7 +16171,7 @@ export class Visual implements IVisual {
                         const light = si > (series.length - 1) / 2;
                         const t = this.el("text", { x: (a + b) / 2, y: ySlot + slotW / 2 + lf * 0.35, "text-anchor": "middle",
                             "font-size": Math.round(lf * 0.92), "font-weight": 700,
-                            fill: cfg.hc || light ? cfg.ink : cfg.paper, "font-family": FONT }, sg);
+                            fill: cfg.hc ? cfg.ink : segInk(si, light), "font-family": FONT }, sg);
                         t.textContent = shareNf.format(share);
                     }
                     cum += share;
@@ -16335,15 +16390,10 @@ export class Visual implements IVisual {
         const density = String(this.formattingSettings.labelsCard.labelDensity.value.value);
         const shareNf = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
         const valText = (v: number) => norm ? shareNf.format(v) : cfg.fmt.format(v);
-        // the stack ramp: from the AC colour towards light grey, first series darkest
-        const shadeRgb = (idx: number): number[] => {
-            const mix = series.length > 1 ? idx / (series.length - 1) : 0;
-            const from = cfg.hc ? [26, 26, 26] : this.hexRgb(cfg.colors.ac);
-            const to = [200, 200, 200];
-            return from.map((f, ci) => Math.round(f + (to[ci] - f) * mix * 0.85));
-        };
+        // the stack ramp: from the AC colour towards light grey (dark mode: dark grey),
+        // first series darkest; shared with the stacked columns (1.56 review M3)
+        const shadeRgb = (idx: number): number[] => this.stackRampRgb(cfg, idx, series.length);
         const shade = (idx: number) => { const c = shadeRgb(idx); return `rgb(${c[0]},${c[1]},${c[2]})`; };
-        const darkFill = (idx: number) => { const c = shadeRgb(idx); return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255 < 0.55; };
 
         // periods with at least one value; a period without any value breaks the area
         const present = cats.map((c, ci) => series.some(s => {
@@ -16413,7 +16463,10 @@ export class Visual implements IVisual {
             const step = div > 0 ? (R - L) / div : R - L;
             const x0 = L + (a ? step / 2 : 0);
             const rect: Rect = { x: region.x, y: region.y + pad + legH, w: region.w, h: region.h - pad - legH - axisH };
-            const scale = this.makePanelScale(domain, rect, "columns", labelPad);
+            // (1.56 review m9: all series negative → the zero line is the top edge; the
+            // panel title keeps its row above it)
+            const scale = this.makePanelScale(domain,
+                domain[1] <= 0 ? { ...rect, y: rect.y + titleH, h: rect.h - titleH } : rect, "columns", labelPad);
             return { step, x0, rect, scale, a, b };
         };
         const directWanted = cs.stackLegendDirect.value !== false && !cfg.sharedScale && series.length > 1;
@@ -16464,13 +16517,22 @@ export class Visual implements IVisual {
         this.drawPanelTitle(bg, rect, title + (norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
             "columns", titleH, region, undefined, cfg.subtle);
 
-        // highlight bands (band style): the period, or the whole range of a group
-        if (cfg.highlight.size > 0 && !cfg.highlightEllipse) {
+        // 1.56 review (m6): a period is found by its full path ("2024 · Jul") or by its
+        // leaf ("Jul", then in every year), like the rows of the stack blocks
+        const emphAt = (i: number) => this.isEmph(cfg, cats[i]) || (leaf[i] !== cats[i] && this.isEmph(cfg, leaf[i]));
+        // highlight bands (band style): the period, or the whole range of a group. The
+        // ellipse rings the total label; without one (no total line, no labels) the
+        // period falls back to the band (1.56 review m7)
+        const ringable = totalOn && showLabels;
+        if (cfg.highlight.size > 0 && (!cfg.highlightEllipse || !ringable)) {
             const hTop = rect.y + 2, hH = yTick + 2 - hTop;
+            // (emphBand skips the ellipse style: the fallback draws it as a band)
+            const bandCfg = cfg.highlightEllipse ? { ...cfg, highlightEllipse: false } : cfg;
             for (let i = 0; i < n; i++) {
-                if (this.isEmph(cfg, cats[i])) { this.emphBand(bg, bandStart + i * step + 1, hTop, step - 2, hH, cfg); }
+                if (emphAt(i)) { this.emphBand(bg, bandStart + i * step + 1, hTop, step - 2, hH, bandCfg); }
             }
             for (const g of axGroups) {
+                if (cfg.highlightEllipse) { continue; }
                 if (this.isEmph(cfg, g.label)) { this.emphBand(bg, bandStart + g.start * step + 1, hTop, (g.end - g.start) * step - 2, hH, cfg); }
             }
         }
@@ -16551,8 +16613,15 @@ export class Visual implements IVisual {
                     const next = series.findIndex((_, sj) => sj > si && sideOf[sj] === sideOf[si]);
                     if (next < 0) { return; }
                     const edge = (i: number) => sideOf[si] > 0 ? hi[i][si] : lo[i][si];
-                    let d = "";
-                    for (let i = a; i <= b; i++) { d += `${i === a ? "M" : "L"}${X(i)},${Yc(edge(i))}`; }
+                    // 1.56 review (m4): only over AC and FC pieces; a PL piece (segment
+                    // i−1 → i takes the scenario of i) carries its own outline
+                    let d = "", pen = false;
+                    for (let i = a + 1; i <= b; i++) {
+                        if (scen[i] === "pl") { pen = false; continue; }
+                        if (!pen) { d += `M${X(i - 1)},${Yc(edge(i - 1))}`; pen = true; }
+                        d += `L${X(i)},${Yc(edge(i))}`;
+                    }
+                    if (!d) { return; }
                     this.el("path", { d, fill: "none", stroke: cfg.paper, "stroke-width": 1, "stroke-linejoin": "round",
                         "data-icd": "area-sep", "data-series": s }, sepG);
                 });
@@ -16602,7 +16671,9 @@ export class Visual implements IVisual {
             t.textContent = txt;
             return t;
         };
-        const emphAt = (i: number) => this.isEmph(cfg, cats[i]);
+        // 1.56 review (m8): the total label's box per period — with a negative series the
+        // net point lies inside the positive stack, a value there would sit under the total
+        const totBox = new Map<number, { x0: number; x1: number; y0: number; y1: number }>();
         if (totalOn && showLabels) {
             let iMax = presIdx[0], iMin = presIdx[0];
             for (const i of presIdx) { if (totals[i] > totals[iMax]) { iMax = i; } if (totals[i] < totals[iMin]) { iMin = i; } }
@@ -16619,6 +16690,10 @@ export class Visual implements IVisual {
                 const half = this.textWidth(txt, lf) / 2 + 1;
                 const tx = Math.max(region.x + half, Math.min(region.x + region.w - half, X(i)));
                 items.push({ el: textAt(tx, y, txt, { "data-icd": "area-total-label", "data-i": i }), prio: pr });
+                // label and point together, 2 px air (the labels carry a paper halo)
+                const yp = Yc(totals[i]);
+                totBox.set(i, { x0: Math.min(tx - half, X(i) - ms / 2) - 2, x1: Math.max(tx + half, X(i) + ms / 2) + 2,
+                    y0: Math.min(y - lf * 0.85, yp - ms / 2) - 2, y1: Math.max(y + lf * 0.25, yp + ms / 2) + 2 });
             });
         }
         if (showLabels && valMode !== "off") {
@@ -16638,13 +16713,22 @@ export class Visual implements IVisual {
                     const ya = Yc(hi[i][si]), yb = Yc(lo[i][si]);
                     if (Math.abs(yb - ya) < vFont + 2) { return; }
                     const kind = scen[i];
-                    const light = !cfg.hc && kind === "ac" && darkFill(si);
+                    // text from the tone (M3): on AC pieces light text on dark tones and dark
+                    // text on light ones, in both modes; FC/PL pieces keep the ink with halo
+                    const acInk = !cfg.hc && kind === "ac" ? this.stackRampText(cfg, shadeRgb(si)) : cfg.ink;
                     // the area starts and ends at the outer points: end values stay inside
                     const [ra, rb] = rr;
                     const anchor = i === ra ? "start" : i === rb ? "end" : "middle";
                     const tx = anchor === "start" ? X(i) + 3 : anchor === "end" ? X(i) - 3 : X(i);
+                    const tb = negTot[i] < 0 ? totBox.get(i) : undefined;
+                    if (tb) {
+                        const yv = (ya + yb) / 2 + vFont * 0.35, wv = this.textWidth(valText(v), vFont);
+                        const vx0 = anchor === "start" ? tx : anchor === "end" ? tx - wv : tx - wv / 2;
+                        if (Math.min(tb.x1, vx0 + wv) - Math.max(tb.x0, vx0) > 0
+                            && Math.min(tb.y1, yv + vFont * 0.2) - Math.max(tb.y0, yv - vFont * 0.8) > 0) { return; }
+                    }
                     const t = this.el("text", { x: tx, y: (ya + yb) / 2 + vFont * 0.35, "text-anchor": anchor, "font-size": vFont,
-                        fill: light ? cfg.paper : cfg.ink, "font-family": FONT,
+                        fill: acInk, "font-family": FONT,
                         ...(kind === "fc" ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {}),
                         "data-icd": "area-value", "data-series": s, "data-v": v, "data-i": i }, lbl) as SVGTextElement;
                     t.textContent = valText(v);
@@ -16659,7 +16743,8 @@ export class Visual implements IVisual {
             for (const nm of names) {
                 const t = this.el("text", legendStart
                     ? { x: X(firstP) - 8, y: nm.y + legFont * 0.35, "text-anchor": "end" }
-                    : { x: X(n - 1) + 8, y: nm.y + legFont * 0.35, "text-anchor": "start" }, ng) as SVGTextElement;
+                    // (1.56 review m5: beside the last period with values, as on the left)
+                    : { x: X(lastP) + 8, y: nm.y + legFont * 0.35, "text-anchor": "start" }, ng) as SVGTextElement;
                 t.setAttribute("font-size", String(legFont));
                 t.setAttribute("fill", cfg.ink);
                 t.setAttribute("font-family", FONT);
@@ -16735,7 +16820,8 @@ export class Visual implements IVisual {
             if (!cp) { continue; }
             const top = totalOn ? totals[i] : posTot[i];
             const cy = Yc(Math.max(top, 0)) - (totalOn ? ms / 2 + 4 : 2) - (totalOn && showLabels ? lf + 2 : 0) - r0;
-            const cg = this.el("g", { "data-icd": "stack-comment", "data-i": i }, lineG);
+            // (1.56 review nit: above the hit layer, else the hit cell takes its pointer events)
+            const cg = this.el("g", { "data-icd": "stack-comment", "data-i": i }, lbl);
             this.drawCommentMarker(cg, 0, cp, scale, "columns", cfg, { cx: X(i), cy });
         }
 
@@ -17978,6 +18064,31 @@ export class Visual implements IVisual {
             this.tooltipService.hide({ immediately: false, isTouchEvent: false });
         });
         this.catGroups.push({ g, sel: sels[0] ?? null, dim: per.pts.every(p => p.dim) });
+    }
+
+    /** 1.56 review (M3): the stack ramp of stacked columns/bars and the stacked area,
+     *  from the AC colour, first series darkest. Light mode runs towards light grey (as
+     *  before); dark mode towards a dark grey: the light AC tone of the dark mode would
+     *  otherwise fade into six nearly equal light greys. */
+    private stackRampRgb(cfg: ChartConfig, idx: number, count: number): number[] {
+        const mix = count > 1 ? idx / (count - 1) : 0;
+        const from = cfg.hc ? [26, 26, 26] : this.hexRgb(cfg.colors.ac);
+        const to = cfg.dark && !cfg.hc ? [90, 90, 90] : [200, 200, 200];
+        return from.map((f, ci) => Math.round(f + (to[ci] - f) * mix * 0.85));
+    }
+
+    /** 1.56 review (M3): text on a ramp tone, picked from the fill and not from the mode:
+     *  light text on dark tones, dark text on light ones (ink and paper swap in dark mode) */
+    private stackRampText(cfg: ChartConfig, rgb: number[]): string {
+        if (cfg.dark) {
+            // dark mode: the text colour with the higher WCAG contrast on this tone
+            const hex = (c: number[]) => "#" + c.map(v => Math.max(0, Math.min(255, v)).toString(16).padStart(2, "0")).join("");
+            const lt = relLuminance(hex(rgb));
+            const ratio = (c: string) => { const l = relLuminance(c); return (Math.max(l, lt) + 0.05) / (Math.min(l, lt) + 0.05); };
+            return ratio(cfg.ink) >= ratio(cfg.paper) ? cfg.ink : cfg.paper;
+        }
+        const darkTone = (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255 < 0.55;
+        return darkTone ? cfg.paper : cfg.ink;
     }
 
     /** hex "#rrggbb" → [r,g,b] (defaults to dark grey on malformed input) */
@@ -20512,8 +20623,11 @@ export class Visual implements IVisual {
      *  100 % stacks), descending; rest categories keep the data order at the end */
     private sortStackCats(points: DataPoint[], mode: "ac" | "series", norm: boolean, block?: string): DataPoint[] {
         const L = this.stackLayout(points);
+        // 1.56 review (nit): inside a block also the last level counts ("DACH · Rest of DACH")
         const isRestCat = (c: string) => REST_ROW_RX.test(this.stackBlockLeaf(c, block).trim())
-            || points.some(p => p.cat === c && p.isRest);
+            || points.some(p => p.cat === c && p.isRest)
+            || (block != null && points.some(p => p.cat === c && p.catLevels != null && p.catLevels.length >= 3
+                && REST_ROW_RX.test(String(p.catLevels[p.catLevels.length - 1]).trim())));
         const key = (i: number) => mode === "ac" ? L.pos[i] + L.neg[i]
             : norm ? (L.rawPos[i] > 0 ? L.rawSv(i, L.series[0]) / L.rawPos[i] : 0) : L.rawSv(i, L.series[0]);
         const order = L.cats.map((c, i) => ({ c, i, k: key(i), r: isRestCat(c) }))

@@ -1617,7 +1617,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "stackBlocks",
         displayName: "Stack blocks",
         displayNameKey: "Chart_StackBlocks",
-        description: "Gestapelte Balken mit Kategorie-Hierarchie: die erste Ebene bildet Blöcke (z. B. Region), die Zeilen zeigen nur die unteren Ebenen. Abstand: halbe Zeile zwischen den Blöcken. Zwischensumme: je Block eine fette Summenzeile mit der Summe je Serie (bei 100 % der Blockmix). Sortierung und Top N wirken je Block, die Blöcke folgen der Blocksumme. Standard aus.",
+        description: "Gestapelte Balken mit Kategorie-Hierarchie: die erste Ebene bildet Blöcke (z. B. Region), die Zeilen zeigen nur die unteren Ebenen. Abstand: halbe Zeile zwischen den Blöcken. Zwischensumme: je Block eine fette Summenzeile mit der Summe je Serie (bei 100 % der Blockmix). Sortierung und Top N wirken je Block (Top N zählt je Block), mit Sortierung folgen die Blöcke der Blocksumme. Liegen zwei Felder in „Kategorie“, klappt das Visual die Ebenen selbst auf. Standard aus.",
         descriptionKey: "Desc_Chart_StackBlocks",
         items: stackBlocksItems,
         value: stackBlocksItems[0]
@@ -1627,7 +1627,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "stackBlockShare",
         displayName: "Block share",
         displayNameKey: "Chart_StackBlockShare",
-        description: "Mit Zwischensummen: der Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile und der Anteil hervorgehobener Zeilen über ihrer Summe. Standard aus.",
+        description: "Mit Zwischensummen: der Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile und der Anteil hervorgehobener Zeilen über ihrer Summe (unter einer längeren Nachbarzeile rechts daneben). Keine Anteile, sobald ein Block oder die Gesamtsumme negativ ist. Standard aus.",
         descriptionKey: "Desc_Chart_StackBlockShare",
         value: false
     });
@@ -1753,7 +1753,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "axisGroups",
         displayName: "Axis groups",
         displayNameKey: "Chart_AxisGroups",
-        description: "Bestand & Fluss und gestapelte Fläche: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen.",
+        description: "Bestand & Fluss und gestapelte Fläche: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Bei der gestapelten Fläche klappt das Visual die Ebenen selbst auf. Aus = nur die Periodennamen.",
         descriptionKey: "Desc_Chart_AxisGroups",
         items: axisGroupsItems,
         value: axisGroupsItems[0]
@@ -2366,7 +2366,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
         displayNameKey: "Scale_CapOverflow",
-        description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert).",
+        description: "Macht das Skalen-Maximum hart: größere Werte werden gekappt und mit Doppelstrich markiert (Label zeigt den echten Wert). Nicht bei der gestapelten Fläche.",
         descriptionKey: "Desc_Scale_CapOverflow",
         value: false
     });
