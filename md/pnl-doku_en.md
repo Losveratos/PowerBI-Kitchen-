@@ -55,7 +55,7 @@ ChartKitchen and P&L Statement are two visuals from one kitchen: the same IBCS n
 
 ### Which visual for what?
 
-Breadth · 13 chart modes
+Breadth · 14 chart modes
 
 #### ChartKitchen byDatenWG
 

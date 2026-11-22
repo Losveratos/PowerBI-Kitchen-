@@ -87,7 +87,7 @@ Drag ChartKitchen onto a report page without fields and you do not get an error 
 
 At the top sit the product name and the line “Start — pick what you want to do first”, below it the full-width teal button **🚀 Get started** and four large entry tiles:
 
-- **What can the visual do?** — a feature tour in 11 cards with mini previews: the 13 chart modes in four groups (time series, structure, bridges & P&L, analysis), variance panels, small multiples, comments, dark mode & high contrast, play & animation, YTD/materiality/exceptions, and templates & Smart-Start. Page with ‹ ›, the arrow keys or Home/End; “Open templates →” jumps to the gallery, the last card leads home with “← Back to start”.
+- **What can the visual do?** — a feature tour in 11 cards with mini previews: the 14 chart modes in four groups (time series, structure, bridges & P&L, analysis), variance panels, small multiples, comments, dark mode & high contrast, play & animation, YTD/materiality/exceptions, and templates & Smart-Start. Page with ‹ ›, the arrow keys or Home/End; “Open templates →” jumps to the gallery, the last card leads home with “← Back to start”.
 - **Templates** — the template gallery by purpose (see below).
 - **View demo** — the gallery of all 13 chart types with mini previews and the fields each mode needs; a click picks the mode. Up to 1.49 this was the landing page.
 - **Explain fields** — all 19 data roles in four sections (required & axis · scenarios · breakdown · special), each with a short purpose and ✓ once bound. Plus two premise boxes: *IBCS notation* (AC filled · PY grey · PL outlined · FC hatched, good/bad) and *time vs. structure* (“time runs horizontally, structure vertically”). Whatever does not fit on one page pages with ‹ n / N ›.
