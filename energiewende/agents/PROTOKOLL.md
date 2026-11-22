@@ -114,3 +114,4 @@ Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
 
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
+| P6-A Synthese der Reviews | Opus | 2026-11-22 | 15,4 min | 462.108 | 67 | `research/reviews_teil1/00_synthese.md`: 183 Befunde zu 123 Punkten gebündelt (20 kritisch, 52 mittel, 51 klein); 87 selbst bestätigt, 16 teilweise, 19 offen, 1 widerlegt; alle 20 kritischen bestätigt. Richtung der 72 kritischen und mittleren Punkte: 22 zulasten von R21, 13 zulasten der Energiewende, 7 zugunsten der Energiewende, 30 ohne Richtung. Neun Verfahrensfehler mit Regeländerungen, elf Entscheidungen für den Menschen, Arbeitspakete AP0 bis AP6 |
