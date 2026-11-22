@@ -19,8 +19,9 @@ Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 (`sum` | `last`, Standard `sum`, „Aggregation über die Zeit“, Gruppe „Daten & Zeit“, sichtbar in `columns`, `line`, `table`,
 `cards`, `stockflow`): mit `last` fassen alle Stellen, die über die Zeit zusammenfassen, als letzter Wert zusammen:
 `cumulate` (YTD/QTD/R12 reichen durch, YTD-Chip gesperrt mit `Lock_YtdLast`), `buildYearPoint` (Jahressäule, Beschriftung
-`Label_LastValue` „Ende“ statt „Σ“, sofern `yearColumnLabel` leer), Tabellenbaum, Σ-Zeile und Matrix-Σ (`aggregateTime`
-statt `aggregateHierarchy`), `mergeColPoints` (nur Kinder, die sich allein in der Trend-Periode unterscheiden; Spaltengruppen
+`Label_LastValue` „Ende“ statt „Σ“, sofern `yearColumnLabel` leer), Tabellenbaum, Σ-Zeile und Matrix (`aggregateTime`
+statt `aggregateHierarchy`; über mehrere Spaltenblöcke, also Matrix-Σ und Zellen über Unterspalten, nur mit `last`,
+nicht automatisch für `stock`), `mergeColPoints` (nur Kinder, die sich allein in der Trend-Periode unterscheiden; Spaltengruppen
 bleiben Summe), Karten-Trend (`cardTrendValue = sum` wirkt dann wie `last`) und `drawTotalHeader` (nur Säulen/Linie,
 „Ende 263“, Text trägt `data-agg="last"`). Referenz ist `lastKid`: die letzte Periode mit Ist oder Forecast, sonst die letzte
 mit Plan oder Vorjahr; ihre Basis und ihr Δ gelten unverändert. **Zeilen mit dem Token `stock` aggregieren über die Zeit

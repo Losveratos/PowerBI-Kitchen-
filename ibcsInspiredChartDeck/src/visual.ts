@@ -6009,8 +6009,9 @@ export class Visual implements IVisual {
         const listPnl = orientationRaw === "table" && (listResult.size > 0 || listSkip.size > 0)
             && points.some(p => listResult.has(p.cat.trim().toLowerCase())
                 || listSkip.has(p.cat.trim().toLowerCase()));
-        // 1.56 (B11 part 2): stock & flow cumulates its flows (stock passes through)
-        const cumulativeOn = s.chartCard.cumulative.value && !isStacked
+        // 1.56 (B11 part 2): stock & flow cumulates its flows (stock passes through);
+        // with timeAggregation = last nothing runs up (the last value IS the running value)
+        const cumulativeOn = s.chartCard.cumulative.value && !isStacked && !this.timeAggLast
             && (orientationRaw === "columns" || orientationRaw === "line" || orientationRaw === "table" || isStockFlow)
             && !points.some(p => p.rowType != null) && !listPnl
             // matrix tables keep one point per category × column group — cumulating
@@ -10778,7 +10779,11 @@ export class Visual implements IVisual {
                 } else {
                     const base = nd.pts.filter(p => !isSum(p) && !isResult(p)
                         && !isSkip(p) && !isPct(p));
-                    a = this.aggregateTime(nd.label, base.length > 0 ? base : nd.pts);
+                    // 1.56 (B11 part 2): over several column blocks a stock stays a sum
+                    // (unless timeAggregation = last), over the rows alone it takes the last
+                    const use = base.length > 0 ? base : nd.pts;
+                    const cKey = (p: DataPoint) => (p.colLevels ?? []).join("¦");
+                    a = this.aggregateTime(nd.label, use, use.every(p => cKey(p) === cKey(use[0])));
                     // per-branch cells of a single-column node keep the rowType
                     if (nd.kids.size === 0) { a.rowType = nd.pts[0].rowType; }
                 }
@@ -10892,7 +10897,11 @@ export class Visual implements IVisual {
             if (kids.length === 0) { return null; }
             if (kids.length === 1) { return kids[0]; }
             const base = kids.filter(p => !isSum(p) && !isResult(p) && !isSkip(p) && !isPct(p));
-            return this.aggregateTime(label, base.length > 0 ? base : kids);
+            // 1.56 (B11 part 2): stock rows take the last value only over the rows (time);
+            // a cell over several sub-columns stays a sum unless timeAggregation = last
+            const use = base.length > 0 ? base : kids;
+            const cKey = (p: DataPoint) => (p.colLevels ?? []).join("¦");
+            return this.aggregateTime(label, use, use.every(p => cKey(p) === cKey(use[0])));
         };
 
         // ------- formula rows: evaluate per Σ (row aggregates) and per block cell
@@ -11121,7 +11130,9 @@ export class Visual implements IVisual {
                         return !isPct(a2) && !isSkip(a2) && !isResult(a2) && !isSum(a2);
                     })[ti2]) as RNode)?.pts ?? null, "Σ", shownBlocks[bi]))
                 .filter(Boolean) as DataPoint[];
-            return base.length > 0 ? this.aggregateTime("Σ", base) : null;
+            // across the column blocks (plants, regions … or years): a stock only takes
+            // the last block with timeAggregation = last, like column groups elsewhere
+            return base.length > 0 ? this.aggregateTime("Σ", base, false) : null;
         };
         const n = Math.max(1, rows.length + (showTotalRow ? 1 : 0));
         // capped like the flat table: font-bound row height, no stretching. In
@@ -12128,9 +12139,11 @@ export class Visual implements IVisual {
     }
 
     /** 1.56 (B11 part 2): aggregation of kids in time order: the sum (aggregateHierarchy)
-     *  or, with timeLast, the last value (all fields of the reference kid) */
-    private aggregateTime(key: string, kids: DataPoint[]): DataPoint {
-        if (kids.length === 0 || !this.timeLast(kids)) { return this.aggregateHierarchy(key, kids); }
+     *  or, with timeLast, the last value (all fields of the reference kid). stockAuto
+     *  false: only timeAggregation = last counts (kids that may be a structure) */
+    private aggregateTime(key: string, kids: DataPoint[], stockAuto = true): DataPoint {
+        const last = stockAuto ? this.timeLast(kids) : this.timeAggLast;
+        if (kids.length === 0 || !last) { return this.aggregateHierarchy(key, kids); }
         const ref = this.lastKid(kids);
         const a = this.aggregateHierarchy(key, [ref]);
         a.dim = kids.every(c => c.dim);
@@ -15581,14 +15594,6 @@ export class Visual implements IVisual {
     // ------------------------------------------------- 1.55 (B11) stock & flow
 
     /**
-     * 1.55 (B11): stock & flow layout of one tile. Rows with the rowType token
-     * `stock` (or, without such rows, the line measure) carry the stock; every other
-     * row is a flow: the token `inflow`/`outflow` forces the side (+|v| / −|v|), else
-     * the sign decides. One scenario per period like the stacks (B06): AC when any row
-     * carries an actual, else FC, else PL (cell = value, in plan periods the plan).
-     * The net flow is computed here, the opening stock derived (stock[0] − net[0]).
-     */
-    /**
      * 1.55 (B11): main and net domain over the drawn tiles. 1.56 (B11 part 2), zoomOn
      * (chart.sfFlowZoom, sheet 08G: headcount 255..275 against hires 1..13): flows and
      * net get the largest round factor from ZOOM_FACTORS that keeps the zoomed flows
@@ -15619,6 +15624,14 @@ export class Visual implements IVisual {
         return { lo, hi: hi > lo ? hi : lo + 1, nLo, nHi, ...(f !== 1 ? { f, fLo, fHi } : {}) };
     }
 
+    /**
+     * 1.55 (B11): stock & flow layout of one tile. Rows with the rowType token
+     * `stock` (or, without such rows, the line measure) carry the stock; every other
+     * row is a flow: the token `inflow`/`outflow` forces the side (+|v| / −|v|), else
+     * the sign decides. One scenario per period like the stacks (B06): AC when any row
+     * carries an actual, else FC, else PL (cell = value, in plan periods the plan).
+     * The net flow is computed here, the opening stock derived (stock[0] − net[0]).
+     */
     private stockFlowLayout(points: DataPoint[], openingOn: boolean): SfLayout {
         const cats: string[] = [];
         const byCat = new Map<string, DataPoint[]>();
