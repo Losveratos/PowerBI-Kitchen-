@@ -2,7 +2,7 @@
 
 > Markdown-Fassung von [daten_wg_learn_buckets.html](../daten_wg_learn_buckets.html) · https://datenwgknowledgekitchen.com/daten_wg_learn_buckets.html · generiert mit scripts/build_learn_md.py aus den Episodendaten — bei Abweichungen gilt die HTML-Fassung.
 
-Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **172 Folgen** insgesamt · Sprachverteilung: 150 DE / 22 EN.
+Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **180 Folgen** insgesamt · Sprachverteilung: 158 DE / 22 EN.
 
 ## Übersicht
 
@@ -10,10 +10,10 @@ Kanal: [@Daten-WG](https://www.youtube.com/@Daten-WG) · **172 Folgen** insgesam
 | --- | --- |
 | 01 · Quarterly · Updates & News | 25 |
 | 02 · Microsoft Fabric | 29 |
-| 03 · Datenmodellierung & Architektur | 29 |
+| 03 · Datenmodellierung & Architektur | 36 |
 | 04 · Self-Service & Governance | 5 |
 | 05 · Visualisierung & IBCS | 12 |
-| 06 · Power BI · Deep Dive & Vergleiche | 31 |
+| 06 · Power BI · Deep Dive & Vergleiche | 32 |
 | 07 · Karriere & Community | 7 |
 | 08 · Digitalisierung & Strategie | 8 |
 | 09 · Daten-WG Konferenz | 10 |
@@ -957,6 +957,62 @@ Basic walkthrough of Fabric and which Skill will help you with which task.
 
 _Das Datenmodell entscheidet, ob ein Report skaliert oder kollabiert. Hier geht es um Stern-Schema vs. Data Vault, Tabellen-Denken statt Listen-Denken, Metadaten als Werkzeug — und warum Modellierung am Ende auch Governance ist._
 
+### BI Thinkers Talk nr.84
+
+November 2026 · 61 min · DE · Tags: Power BI, Fabric, DE
+
+YouTube: https://www.youtube.com/watch?v=Vl0uywYVLZw
+
+Ausgabe 84 des offenen Live-Formats: Marcus und Artur sprechen über Neues aus Power BI und Microsoft Fabric und nehmen Fragen aus der Community auf.
+
+### BI Thinkers Talk nr.83
+
+Oktober 2026 · 63 min · DE · Tags: Fabric, FabCon, Daten-WG 2026, DE
+
+YouTube: https://www.youtube.com/watch?v=sR9tv-X0Pd0
+
+Nach der FabCon Europe ordnen Marcus und Artur die Neuerungen und Ankündigungen ein: Was ist wirklich nützlich, was ist Hype? Dazu ein Ausblick auf das Daten-WG Event vom 14. bis 16. Oktober 2026 in Köln.
+
+### BI Thinkers Talk nr.82
+
+September 2026 · 67 min · DE · Tags: Fabric Planning, Fabric, DE
+
+YouTube: https://www.youtube.com/watch?v=xVdorwCzKI8
+
+Diesmal schon nach zwei Wochen, weil in der letzten Runde die Zeit nicht gereicht hat: Artur kommt mit seinem Use-Case für Fabric Planning weiter, Marcus bringt Ideen für das große Ganze mit. Wie immer mit Fragen aus der Community.
+
+### BI Thinkers Talk nr.81
+
+September 2026 · 70 min · DE · Tags: Fabric Planning, Fabric, DE
+
+YouTube: https://www.youtube.com/watch?v=QzpefiJPU08
+
+Zurück aus der Sommerpause: Marcus hat sich mit Entscheidungswirkrastern beschäftigt, Artur mit der allgemeinen Verfügbarkeit von Fabric Planning, zu der er sich mit Rene Fürstenberg ausgetauscht hat.
+
+### BI Thinkers Talk nr.80
+
+Juli 2026 · 61 min · DE · Tags: Custom Visual, IBCS, Power BI, DE
+
+YouTube: https://www.youtube.com/watch?v=tXBcz_b1PQc
+
+Geburtstagsausgabe: Michael übergibt sein neues, von IBCS inspiriertes Custom Visual mit mehreren Darstellungsformen und Small Multiples und stellt sich den Fragen der ganzen Daten-WG-Crew. Sind selbst entwickelte Custom Visuals die Zukunft?
+
+### BI Thinkers Talk nr.79
+
+Gast: Georg · Juli 2026 · 58 min · DE · Tags: Ontologie, Semantik, Datenmodell, DE
+
+YouTube: https://www.youtube.com/watch?v=hlY7iqHsdzA
+
+Ontologien sind der neue Trend, aber wo sind sie wirklich relevant? Georg spricht mit Marcus und Artur über Ontologien, OSI und die Suche nach zentralen Metriken und zeigt live seine Lösungen.
+
+### BI Thinkers Talk nr.78
+
+Gast: Cloud Junkies (Rene & Joris) · Juni 2026 · 58 min · DE · Tags: Community, Events, Power BI, DE
+
+YouTube: https://www.youtube.com/watch?v=Ot9vSKZabVE
+
+Die Cloud Junkies Rene und Joris sind zu Gast. Mitten im Event-Sommer geht es um die Aha-Momente vom DataGrillen, die MS Build und das datamonster.io-Meetup in der Daten-WG, dazu Neues aus Power BI und Fabric.
+
 ### Davon träumen KI-Agenten | Daten-WG Podcast mit Simon Harrer
 
 Gast: Simon Harrer · September 2026 · 37 min · DE · Tags: Data Contracts, KI, Podcast, Metadaten, DE
@@ -1332,9 +1388,11 @@ Join the Berlin Power BI User Group on Meetup:
 
 ### BI Thinkers Talk nr.77
 
-DE · Tags: DE
+Mai 2026 · 66 min · DE · Tags: Translytical, IoT, Power BI, DE
 
 YouTube: https://www.youtube.com/watch?v=eWfTt93anl4
+
+Marcus und Artur blicken auf die kommenden Events vom Power BI Summit bis zur Daten-WG 2026 und geben Einblick in ihren Vortrag, bei dem Lego-Roboter aus Power BI heraus gesteuert werden. Dazu Translytical, IoT, Fabric SQL und Eventstreams.
 
 ## 04 · Self-Service & Governance
 
@@ -1652,6 +1710,14 @@ I will explain how and why behind my Power BI Sparkassen Dashboard.
 ## 06 · Power BI · Deep Dive & Vergleiche
 
 _Zehn Jahre Power BI sind durch — was hat sich wirklich verändert? Wie steht Power BI gegenüber Qlik, Tableau & Co.? Und wie skaliert man jenseits des PBIX-Files in echte Enterprise-Lösungen?_
+
+### GxP Talk - Intelligent automatisierte Prozesse (ohne LLMs!)
+
+Juli 2026 · 50 min · DE · Tags: GxP, Automatisierung, DE
+
+YouTube: https://www.youtube.com/watch?v=0HLfPISyzqA
+
+Der GxP-Talk mit einem Anti-Hype-Thema: Was lässt sich ohne LLMs automatisieren? Oft reichen erstaunlich traditionelle Mittel. Außerdem geht es um das BITKOM-Sommerfest, die TDWI und die Lab Automation Community.
 
 ### GxP Talk - Validierung vs. Nachhaltigkeit
 
