@@ -402,7 +402,7 @@
         '<a class="ft-brand" href="' + esc(U('index.html')) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
         '<p class="ft-lead">Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting. Lust, mit uns zu arbeiten? Die Daten-WG findest du auf ' + a('daten-wg.com', 'https://www.daten-wg.com') + '.</p>' +
         '<div class="ft-grid">' + cols + '</div>' +
-        '<div class="ft-base"><span>Daten-WG Knowledge Kitchen · Michael Tenner</span>' +
+        '<div class="ft-base"><span>Daten-WG Knowledge Kitchen · Michael Tenner · ' + a('English edition', 'index_en.html') + '</span>' +
           '<span>' + a('Impressum', 'impressum.html') + ' · ' + a('Datenschutz', 'datenschutz.html') + '</span></div>' +
       '</div></div>';
     var h = host('kc-footer', 'position:relative;z-index:1;clear:both;');
