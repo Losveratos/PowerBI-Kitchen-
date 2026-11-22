@@ -10,6 +10,9 @@
 //   3b GuV-Wasserfall     waterfall with rowType sum/delta + PY (variance tiers)
 //   4  Matrix mit YTD     table + colgroup Quartal → Monat (Jan–Aug), Σ = YTD,
 //                         Q2/Q3 collapsed on screen (export: expand all)
+//   path, bubbles         scatter time path (07E), bubbles with share (10E France, C24)
+//   bubblesMult (1.57)    bubble tiles Germany + France (10E, C24): small multiples
+//                         without zoom button ⤢, titles only (B25)
 //
 // Sizes: A4-quer full page 1100×620 · half page 540×620 · PowerPoint 16:9 960×540.
 // Presets: every sheet × size with HD (compact, default) and Full HD; UHD once.
@@ -175,6 +178,64 @@ function pageLib() {
                         footer: "Quelle: SAP FI · Stand 05.09.2026" }
                 }, preset), [["colgroup", "Quartal", mxL0], ["colgroup", "Monat", mxL1]]),
             months: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug"]
+        },
+        // 1.57 (B18 Review m7): Scatter-Zeitpfad mit Quotenstrahlen und Δ (Blatt 07E)
+        path: {
+            title: "Scatter-Zeitpfad mit Quotenstrahlen + Δ (07E)",
+            make: preset => {
+                const d = { Germany: [[2, 1], [3, 2], [3, 5], [7, 9], [9, 10], [13, 8], [14, 8.3], [15, 12], [17, 12.2]],
+                    France: [[3, 0.5], [4, 2], [5, 3], [6, 3], [8, 4], [11, 4], [11, 4.3], [11, 5], [15, 6]] };
+                const C = [], S = [], X = [], Y = [];
+                ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"].forEach((c, i) => Object.keys(d).forEach(u => {
+                    C.push(c); S.push(u); X.push(d[u][i][0]); Y.push(d[u][i][1]);
+                }));
+                return dv("Jahr", C, [col("actual", Y, "#,0.0", "Net sales"), col("xValue", X, "#,0", "Sales reps")],
+                    withPreset({
+                        chart: { orientation: "scatter", scatterPath: "line", scatterColorBy: "group", scatterQuadrant: "off",
+                            scatterPathDelta: true, highlight: "Germany" },
+                        scale: { ratioRays: "1; 0,7; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" },
+                        ibcsTitle: { show: true, kpi: "Net sales in mEUR and sales reps in FTE", period: "2017..2025",
+                            footer: "Quelle: CRM · Stand 05.09.2026" }
+                    }, preset), [["series", "Land", S]]);
+            }
+        },
+        // 1.57 (B19 Review m6): Blasen mit Anteil und Gesamtblase (Blatt 10E, Kachel France, Vorlage C24);
+        // ein Diagramm ohne Small Multiples (die Zoom-Chips der Kacheln sind ein eigener Befund)
+        bubbles: {
+            title: "Blasen mit Anteil + Gesamtblase (10E France, C24)",
+            make: preset => {
+                const d = { France: [["IT", 1.3, 8.0, 25, 6], ["Cons.", 1.75, 7.0, 5, 2.5], ["Transp.", 0.3, 3.0, 15, 5], ["Ret.", 1.5, -0.5, 7, 2.5]] };
+                const C = [], M = [], X = [], Y = [], Z = [], P = [];
+                for (const [land, rows] of Object.entries(d)) { for (const [sec, x, y, z, pt] of rows) { C.push(sec); M.push(land); X.push(x); Y.push(y); Z.push(z); P.push(pt); } }
+                return dv("Branche", C, [col("actual", Y, "0.0", "Market growth"), col("xValue", X, "0.00", "relative market share"),
+                    col("bubbleSize", Z, "#,0", "Market volume"), col("bubbleShare", P, "#,0.0", "Our sales")],
+                    withPreset({
+                        chart: { template: "C24", templateApplied: "C24", orientation: "scatter", scatterQuadrant: "off", scatterColorBy: "group",
+                            scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true, scatterMaxRadius: 100 },
+                        scale: { xRefLine: "1", xMin: "0", xMax: "2", yMin: "-2", yMax: "12" },
+                        ibcsTitle: { show: true, kpi: "Product Market Matrix", period: "2025", footer: "Quelle: Marktstudie · Stand 05.09.2026" }
+                    }, preset), [["series", "Branche", C]]);
+            }
+        },
+        // 1.57 (B25): Blasen als Small Multiples (Blatt 10E, Kacheln Germany und France, C24); ohne Zoom-Knopf
+        // im Export trägt jede Kachel nur ihren Titel
+        bubblesMult: {
+            title: "Blasen-Kacheln Germany + France (10E, C24)",
+            tiles: ["Germany", "France"],
+            make: preset => {
+                const d = { Germany: [["IT", 1.6, 8.0, 79, 4], ["Cons.", 0.7, 6.0, 23, 4], ["Transp.", 0.3, 3.0, 35, 8], ["En.", 0.4, 0.1, 18, 4], ["Ret.", 0.8, -0.5, 45, 3]],
+                    France: [["IT", 1.3, 8.0, 25, 6], ["Cons.", 1.75, 7.0, 5, 2.5], ["Transp.", 0.3, 3.0, 15, 5], ["Ret.", 1.5, -0.5, 7, 2.5]] };
+                const C = [], M = [], X = [], Y = [], Z = [], P = [];
+                for (const [land, rows] of Object.entries(d)) { for (const [sec, x, y, z, pt] of rows) { C.push(sec); M.push(land); X.push(x); Y.push(y); Z.push(z); P.push(pt); } }
+                return dv("Branche", C, [col("actual", Y, "0.0", "Market growth"), col("xValue", X, "0.00", "relative market share"),
+                    col("bubbleSize", Z, "#,0", "Market volume"), col("bubbleShare", P, "#,0.0", "Our sales")],
+                    withPreset({
+                        chart: { template: "C24", templateApplied: "C24", orientation: "scatter", scatterQuadrant: "off", scatterColorBy: "group",
+                            scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true, scatterMaxRadius: 100 },
+                        scale: { xRefLine: "1", xMin: "0", xMax: "2", yMin: "-2", yMax: "12" },
+                        ibcsTitle: { show: true, kpi: "Product Market Matrix", period: "2025", footer: "Quelle: Marktstudie · Stand 05.09.2026" }
+                    }, preset), [["series", "Branche", C], ["multiples", "Land", M]]);
+            }
         }
     };
 
@@ -302,6 +363,10 @@ function pageLib() {
                 out.outside.push(`${e.tagName}${e.getAttribute("data-icd") ? "[" + e.getAttribute("data-icd") + "]" : ""} @${Math.round(x0)},${Math.round(y0)}–${Math.round(x1)},${Math.round(y1)}`);
             }
         }
+        // 1.57 (B25): Small-Multiples-Kacheln: Zoom-Knöpfe und Kacheltitel
+        out.zoomBtn = [...svg.querySelectorAll("text")].filter(t => t.textContent.trim() === "⤢").length
+            + sel('g[role="button"] title').filter(t => /enlarge|vergrößern|ampliar|拡大/i.test(t.textContent)).length;
+        out.tileTitles = sel('[data-icd="mult-title"]').map(t => t.textContent);
         out.lowestText = boxes.reduce((m, b) => Math.max(m, b.y1), 0);
         out.svgH = svg ? parseFloat(svg.getAttribute("height")) : 0;
         return out;
@@ -348,6 +413,7 @@ function pageLib() {
             r.sheet = window.SHEETS[i.split("-")[1]];
             r.expect = r.sheet.expect ? r.sheet.expect.map(x => x.source) : null;
             r.months = r.sheet.months || null;
+            r.tiles = r.sheet.tiles || null;
             const sz = document.getElementById(i).getBoundingClientRect().width;
             r.fullNames = r.sheet.fullNames ? r.sheet.fullNames(Math.round(sz), i.split("-")[3]) : [];
             delete r.sheet;
@@ -355,6 +421,12 @@ function pageLib() {
         }, id);
         const tag = `${sheet} ${size.w}×${size.h} ${preset}${viewMode === 1 ? " (Edit-Flag)" : ""}`;
         check(res.chrome.length === 0, `(a) ${tag}: kein Chrome im Export`, res.chrome.join("; "));
+        // 1.57 (B25): keine Kachel trägt im Export ihren Zoom-Knopf; Kacheltitel stehen ohne ihn da
+        check(res.zoomBtn === 0, `(a) ${tag}: kein Zoom-Knopf ⤢ in den Kacheln`, res.zoomBtn + "×");
+        if (res.tiles) {
+            check(res.tileTitles.join("|") === res.tiles.join("|"), `(a) ${tag}: Kacheltitel ohne Zoom-Knopf (${res.tiles.join(", ")})`,
+                "gefunden: " + res.tileTitles.join(", "));
+        }
         check(res.clip.length === 0, `(b) ${tag}: keine am Rand abgeschnittene Beschriftung`, res.clip.slice(0, 6).join("; "));
         check(res.overlap.length === 0, `(b) ${tag}: keine überlappenden Beschriftungen`, res.overlap.slice(0, 6).join("; "));
         check(res.outside.length === 0, `(c) ${tag}: alle Grafikelemente innerhalb der Kachel`, res.outside.slice(0, 6).join("; "));
@@ -369,7 +441,9 @@ function pageLib() {
         // shortened labels stay recognisable: ≥ 4 characters and mutually distinct
         const cut = res.ellipsis.filter(t => /…$/.test(t));
         const weak = cut.filter(t => t.replace(/[\s…-]/g, "").length < 4);
-        check(weak.length === 0 && new Set(cut).size === cut.length,
+        // small multiples: each tile repeats its own panel title, so a cut text may occur once per tile
+        const perText = cut.reduce((m, t) => m.set(t, (m.get(t) || 0) + 1), new Map());
+        check(weak.length === 0 && [...perText.values()].every(c => c <= (res.tiles ? res.tiles.length : 1)),
             `(b) ${tag}: gekürzte Beschriftungen eindeutig (≥ 4 Zeichen)`, cut.join(" | "));
         const hasFooter = res.texts.some(t => t.includes("Quelle:"));
         check(hasFooter, `(c) ${tag}: Fußzeile sichtbar`);
