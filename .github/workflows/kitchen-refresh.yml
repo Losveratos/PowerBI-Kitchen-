@@ -28,28 +28,24 @@ jobs:
       - name: Bestehende Episoden extrahieren
         run: node scripts/extract_existing.js
 
-      - name: Channel-Liste holen
+      - name: Channel-Listen holen (Videos, Shorts, Live)
+        # Die Live-Formate (BI Thinkers Talk, GxP Talk) stehen nur im Tab /streams.
         run: |
-          yt-dlp --flat-playlist --dump-single-json --skip-download \
-            "https://www.youtube.com/@Daten-WG/videos" > _channel_fresh.json
+          for t in videos shorts streams; do
+            yt-dlp --flat-playlist --dump-single-json --skip-download \
+              "https://www.youtube.com/@Daten-WG/$t" > _ch_$t.json || echo "WARN: Tab $t nicht abrufbar"
+          done
+          cp _ch_videos.json _channel_fresh.json
 
       - name: Neue Videos ermitteln
-        run: |
-          node -e '
-          const fs = require("fs");
-          const fresh = JSON.parse(fs.readFileSync("_channel_fresh.json", "utf8"));
-          const eps = JSON.parse(fs.readFileSync("existing_episodes.json", "utf8"));
-          const existing = new Set(eps.map(e => e.ytId).filter(Boolean));
-          const news = (fresh.entries || []).filter(e => e && e.id && !existing.has(e.id));
-          console.log("Existing:", existing.size, "| Channel:", (fresh.entries || []).length, "| New:", news.length);
-          fs.writeFileSync("_new_ids.txt", news.map(v => v.id).join("\n") + (news.length ? "\n" : ""));
-          for (const v of news) console.log(v.id, "|", Math.round((v.duration || 0) / 60) + "min", "|", v.title);
-          '
+        run: node scripts/kitchen_diff.js _ch_videos.json _ch_shorts.json _ch_streams.json
 
       - name: Vollinfo für neue Videos holen
         run: |
           mkdir -p refresh/videos
           cp _channel_fresh.json refresh/channel_fresh.json
+          cp _ch_shorts.json refresh/channel_shorts.json 2>/dev/null || true
+          cp _ch_streams.json refresh/channel_streams.json 2>/dev/null || true
           cp _new_ids.txt refresh/new_ids.txt
           if [ -s _new_ids.txt ]; then
             while read -r id; do
@@ -57,7 +53,10 @@ jobs:
               yt-dlp --skip-download --write-info-json --no-write-thumbnail \
                 --sleep-requests 1 -o "refresh/videos/%(id)s.%(ext)s" \
                 "https://www.youtube.com/watch?v=$id" \
-                || echo "WARN: Vollinfo fuer $id fehlgeschlagen"
+              || yt-dlp --extractor-args "youtube:player_client=mweb" --ignore-no-formats-error \
+                --skip-download --write-info-json --no-write-thumbnail --sleep-requests 3 \
+                -o "refresh/videos/%(id)s.%(ext)s" "https://www.youtube.com/watch?v=$id" \
+              || echo "WARN: Vollinfo fuer $id fehlgeschlagen"
             done < _new_ids.txt
           else
             echo "Keine neuen Videos — refresh/ enthaelt nur die Channel-Liste."

@@ -21,38 +21,33 @@ Hol neue Folgen vom @Daten-WG YouTube-Kanal, klassifiziere sie, und schreib sie 
 
 ## Workflow
 
-### 1. Bestand dumpen
+### 1. Bestand zaehlen
 
 ```bash
-node scripts/_dump_eps.js
+node scripts/kitchen_diff.js
 ```
 
-Liest `EPISODES` aus dem HTML, schreibt `_eps_by_bucket.json`, gibt Bucket-Counts aus. Total = Summe der 9 Buckets. Merke dir die Zahl — sie ist Vorher-Stand fuer den Count-Update.
+Liest `EPISODES` aus `daten_wg_learn_buckets.html` und gibt Gesamtzahl, Folgen je Bucket und eventuelle Duplikate aus. Merke dir die Zahl — sie ist Vorher-Stand fuer den Count-Update.
 
-### 2. Channel fetchen
+### 2. Channel fetchen (drei Tabs)
 
 ```bash
-yt-dlp --flat-playlist --dump-single-json --skip-download "https://www.youtube.com/@Daten-WG/videos" > _channel_fresh.json
+for t in videos shorts streams; do
+  yt-dlp --flat-playlist --dump-single-json --skip-download "https://www.youtube.com/@Daten-WG/$t" > _ch_$t.json
+done
 ```
+
+**Alle drei Tabs sind Pflicht.** Die Live-Formate (BI Thinkers Talk, GxP Talk) erscheinen nur im Tab `/streams`, nicht unter `/videos` — so fehlten im Nov 2026 acht Folgen (nr.78–84 und ein GxP Talk). Shorts landen in `bucket-10`.
 
 **Falls 403 / Sign-in required:** `--cookies-from-browser chrome` ergaenzen. Wenn Chrome laeuft und die Cookie-DB lockt, User bitten Chrome zu schliessen — NICHT versuchen Chrome zu killen.
 
 ### 3. Diff bilden
 
-Inline-Node-Skript: Lese `_channel_fresh.json`, vergleiche `entries[].id` gegen die `ytId`s aus `_eps_by_bucket.json`. Die Differenz sind die neuen Videos.
-
 ```bash
-node -e "
-const fs = require('fs');
-const fresh = JSON.parse(fs.readFileSync('_channel_fresh.json', 'utf8'));
-const byBucket = JSON.parse(fs.readFileSync('_eps_by_bucket.json', 'utf8'));
-const existing = new Set();
-for (const b of Object.keys(byBucket)) for (const ep of byBucket[b]) if (ep.ytId) existing.add(ep.ytId);
-const newOnes = (fresh.entries || []).filter(e => e && e.id && !existing.has(e.id));
-console.log('Existing:', existing.size, '| Channel:', (fresh.entries || []).length, '| New:', newOnes.length);
-for (const v of newOnes) console.log(v.id, '|', Math.round((v.duration || 0)/60) + 'min', '|', v.title);
-"
+node scripts/kitchen_diff.js _ch_videos.json _ch_shorts.json _ch_streams.json
 ```
+
+Gibt je Tab die neuen Videos aus und schreibt ihre IDs nach `_new_ids.txt`. **Angekuendigte Livestreams** (`live_status: is_upcoming`) werden uebersprungen und nur genannt — sie kommen nach der Ausstrahlung beim naechsten Lauf rein.
 
 Wenn keine neuen Videos: dem User Bescheid geben und stoppen — kein Commit ohne Aenderung.
 
@@ -61,10 +56,23 @@ Wenn keine neuen Videos: dem User Bescheid geben und stoppen — kein Commit ohn
 Fuer jede neue ID:
 
 ```bash
-yt-dlp --skip-download --write-info-json --no-write-thumbnail -o "data/videos/%(id)s.%(ext)s" "https://www.youtube.com/watch?v=NEW_ID"
+while read -r id; do
+  yt-dlp --skip-download --write-info-json --no-write-thumbnail -o "data/videos/%(id)s.%(ext)s" "https://www.youtube.com/watch?v=$id"
+done < _new_ids.txt
 ```
 
-Liefert `data/videos/NEW_ID.info.json` mit `title`, `description`, `duration`, `upload_date`, `chapters` (strukturiert, wenn der Creator sie in der Beschreibung hatte).
+Liefert `data/videos/NEW_ID.info.json` mit `title`, `description`, `duration`, `upload_date`, `release_date`, `chapters` (strukturiert, wenn der Creator sie in der Beschreibung hatte).
+
+**Falls „Sign in to confirm you're not a bot“ / „The page needs to be reloaded“:** mit dem mweb-Client und ohne Formate holen, das liefert die Metadaten trotzdem (bei HTTP 429 eine Minute warten):
+
+```bash
+pip install -U yt-dlp
+yt-dlp --js-runtimes node --extractor-args "youtube:player_client=mweb" --ignore-no-formats-error \
+  --sleep-requests 3 --skip-download --write-info-json --no-write-thumbnail \
+  -o "data/videos/%(id)s.%(ext)s" "https://www.youtube.com/watch?v=NEW_ID"
+```
+
+Die Dauer steht notfalls auch in den `_ch_*.json` (`duration`).
 
 ### 5. Klassifizieren
 
@@ -82,7 +90,7 @@ Pro Video: Bucket waehlen anhand der Heuristik in `CLAUDE.md` (Stichwoerter im T
 | `bucket-8` Strategie & Big Picture | `strategie`, `transformation`, `mittelstand` |
 | `bucket-9` Event · Daten-WG | `daten-wg`, `konferenz`, `event`, `rueckblick` |
 
-Sprache (DE/EN) aus dem Titel ableiten. Datum aus `upload_date` (YYYYMMDD → "Monat YYYY", deutsche Monatsnamen). Tags: 3–5 Stueck; erste = Eyebrow (sinnvoll, z. B. `Update`, `DAX`, `Fabric` — NICHT `DE`/`EN`).
+Sprache (DE/EN) aus dem Titel ableiten. Datum aus `release_date` (bei Livestreams der Sendetag; sonst `upload_date`; YYYYMMDD → "Monat YYYY", deutsche Monatsnamen). Tags: 3–5 Stueck; erste = Eyebrow (sinnvoll, z. B. `Update`, `DAX`, `Fabric` — NICHT `DE`/`EN`).
 
 ### 6. Description schreiben
 
@@ -139,10 +147,10 @@ Transkripte-Count (`<strong>N</strong>Transkripte`) **nur** anfassen, wenn der U
 ### 10. Verifizieren
 
 ```bash
-node scripts/_dump_eps.js
+node scripts/kitchen_diff.js
 ```
 
-Pruefen: Summe der Buckets = Neuer Gesamtcount. Wenn das Skript einen Parse-Error wirft (Syntax kaputt), zurueck zur Insertion und Anfuehrungszeichen pruefen.
+Pruefen: Gesamtzahl = Neuer Gesamtcount, keine Duplikate. Wenn das Skript einen Parse-Error wirft (Syntax kaputt), zurueck zur Insertion und Anfuehrungszeichen pruefen.
 
 ### 11. `folgen.html` synchronisieren (PFLICHT)
 
