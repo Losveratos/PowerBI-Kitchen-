@@ -299,6 +299,18 @@ const scatterTrendItems: LocEnumMember[] = [
     { value: "off", displayName: "Off", key: "Enum_ScatterTrend_Off" },
     { value: "linear", displayName: "Linear", key: "Enum_ScatterTrend_Linear" }
 ];
+// 1.57 (backlog B18, IBCS sheets 07D/07E): time path per unit (category = period,
+// series = unit) and which period labels it carries
+const scatterPathItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_ScatterPath_Off" },
+    { value: "line", displayName: "Line through the periods", key: "Enum_ScatterPath_Line" }
+];
+const scatterPathLabelsItems: LocEnumMember[] = [
+    { value: "auto", displayName: "Auto (where there is room)", key: "Enum_ScatterPathLabels_Auto" },
+    { value: "ends", displayName: "Start and end", key: "Enum_ScatterPathLabels_Ends" },
+    { value: "all", displayName: "All periods", key: "Enum_ScatterPathLabels_All" },
+    { value: "off", displayName: "Off", key: "Enum_ScatterPathLabels_Off" }
+];
 
 // 1.49: IBCS-Chart-Templates als Presets (PnL-Muster). Ein Template schreibt in
 // EINEM persistProperties-Merge Modus + Vergleich + Panels + passende Schalter;
@@ -325,7 +337,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
     { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" },
     { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" },
-    { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" }
+    { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" },
+    { value: "C23", displayName: "C23 · Scatter time path (07D, 07E)", key: "Enum_Template_C23" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -351,7 +364,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
         multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
         linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
-        lineSeriesLabelsItems];
+        lineSeriesLabelsItems, scatterPathItems, scatterPathLabelsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -433,7 +446,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A). Nicht enthalten: C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A), C23 der Scatter-Zeitpfad je Einheit des Felds „Stack-Serie“ über die Perioden der Kategorie (07D, 07E, Feld „X-Achse (Scatter)“). Nicht enthalten: C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -1499,6 +1512,46 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (backlog B18, IBCS-Blätter 07D/07E): Zeitpfad je Einheit. Kategorie = Periode
+    // (Reihenfolge wie geliefert), Feld „Stack-Serie“ = Einheit. Alles im Standard aus.
+    scatterPath = new formattingSettings.ItemDropdown({
+        name: "scatterPath",
+        displayName: "Time path",
+        displayNameKey: "Chart_ScatterPath",
+        description: "Verbindet je Einheit (Feld „Stack-Serie“, ohne Serie ein einziger Pfad) die Punkte in der Reihenfolge der Kategorie, die hier die Periode ist (z. B. Jahre 2017 bis 2025), mit einer dünnen Linie in der Farbe der Einheit, wie in den IBCS-Blättern 07D und 07E. Der Name der Einheit steht am Endpunkt, die Legende entfällt. Fehlt X oder Y in einer Periode, bricht der Pfad dort; Prognose-Perioden sind gestrichelt und hohl. Schaltet die Bewegungspfeile und die Vorjahres-Blasen ab. Mit Play-Button wächst der Pfad bis zur gezeigten Periode. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterPath",
+        items: scatterPathItems,
+        value: scatterPathItems[0]
+    });
+
+    scatterPathLabels = new formattingSettings.ItemDropdown({
+        name: "scatterPathLabels",
+        displayName: "Period labels",
+        displayNameKey: "Chart_ScatterPathLabels",
+        description: "Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt). Auto beschriftet Start und Ende und die übrigen Perioden, wo Platz ist; Start und Ende nur diese beiden; alle jede Periode (Überlappung möglich); aus keine. Standard Auto.",
+        descriptionKey: "Desc_Chart_ScatterPathLabels",
+        items: scatterPathLabelsItems,
+        value: scatterPathLabelsItems[0]
+    });
+
+    scatterPathArrow = new formattingSettings.ToggleSwitch({
+        name: "scatterPathArrow",
+        displayName: "Arrow at path end",
+        displayNameKey: "Chart_ScatterPathArrow",
+        description: "Zeitpfad: Pfeilspitze am letzten Segment jeder Einheit, zeigt die Richtung der jüngsten Bewegung. Die IBCS-Blätter zeichnen ohne. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterPathArrow",
+        value: false
+    });
+
+    scatterPathDelta = new formattingSettings.ToggleSwitch({
+        name: "scatterPathDelta",
+        displayName: "Start-to-end deltas",
+        displayNameKey: "Chart_ScatterPathDelta",
+        description: "Zeitpfad: für die hervorgehobenen Einheiten (Liste „Hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw. Schlecht-Farbe (Invert wirkt), Δ X neutral. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterPathDelta",
+        value: false
+    });
+
     // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar.
     // Reihenfolge nach Wichtigkeit: Quadranten → Färbung → Formen → Pfeile →
     // Trend (+R²) → Größen-Legende → Quadranten-Labels → Play
@@ -1513,7 +1566,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.scatterGroupColor1, this.scatterGroupColor2, this.scatterGroupColor3,
             this.scatterGroupColor4, this.scatterGroupColor5, this.scatterGroupColor6,
             this.scatterQuadLabelTR, this.scatterQuadLabelTL,
-            this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPlay]
+            this.scatterQuadLabelBL, this.scatterQuadLabelBR, this.scatterPath, this.scatterPathLabels,
+            this.scatterPathArrow, this.scatterPathDelta, this.scatterPlay]
     });
 
     // UX-5 (AUDIT-2026-10-UX §1.5): die Mega-Gruppen „Layout"/„Analyse" aufgabenorientiert
@@ -2362,6 +2416,27 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (backlog B18, IBCS-Blatt 07E): Quotenstrahlen Y = k · X durch den Ursprung
+    ratioRays = new formattingSettings.TextInput({
+        name: "ratioRays",
+        displayName: "Ratio rays (scatter)",
+        displayNameKey: "Scale_RatioRays",
+        description: "Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie). Dünne graue Linie bis zum Plotrand, hohler Kreis und Beschriftung am Austritt. Die Strahlen ziehen die 0 in beide Achsen; Quoten ≤ 0 werden ignoriert. Der Tooltip zeigt dann die Quote jedes Punkts. Leer = aus.",
+        descriptionKey: "Desc_Scale_RatioRays",
+        placeholder: "z. B. 1; 0,7; 0,35",
+        value: ""
+    });
+
+    ratioRayUnit = new formattingSettings.TextInput({
+        name: "ratioRayUnit",
+        displayName: "Ratio ray unit",
+        displayNameKey: "Scale_RatioRayUnit",
+        description: "Zusatz hinter der Quote an den Strahlen und im Tooltip, z. B. „mEUR/Rep“. Leer = nur die Zahl.",
+        descriptionKey: "Desc_Scale_RatioRayUnit",
+        placeholder: "z. B. mEUR/Rep",
+        value: ""
+    });
+
     capOverflow = new formattingSettings.ToggleSwitch({
         name: "capOverflow",
         displayName: "Cap outliers at maximum",
@@ -2406,7 +2481,8 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         name: "scaleScatterAxes",
         displayName: "Scatter axes",
         displayNameKey: "Group_ScatterAxes",
-        slices: [this.xMin, this.xMax, this.yMin, this.yMax, this.xLogScale, this.yLogScale]
+        slices: [this.xMin, this.xMax, this.yMin, this.yMax, this.xLogScale, this.yLogScale,
+            this.ratioRays, this.ratioRayUnit]
     });
 
     refLineGroup = new formattingSettings.Group({

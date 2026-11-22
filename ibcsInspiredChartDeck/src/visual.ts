@@ -180,7 +180,12 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // days), series name and last value at the line end; no Δ panels, no cumulation
     C22: { orientation: "line", lineSeries: true, lineIndex: "base100", lineSeriesLabels: "groups",
         lineSeriesColor: "tones", lineMarkerShape: "square", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false }
+        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false },
+    // 1.57 (B18) C23 = 07D/07E: scatter time path, category = period, series = unit, one
+    // thin line per unit through its periods, period labels, unit name at the end point
+    C23: { orientation: "scatter", comparisonMode: "auto", scatterPath: "line", scatterPathLabels: "auto",
+        scatterColorBy: "group", scatterQuadrant: "off", scatterTrend: "off", scatterArrows: false,
+        scatterPlay: false }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -189,7 +194,7 @@ const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
     C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
-    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries"
+    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries", C23: "scatterpath"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -206,11 +211,12 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C20: { role: "rowType", key: "Hub_NeedSf", en: "Type: stock / inflow / outflow" },
     C07: { role: "series", key: "Role_Series", en: "Stack series" },
     C21: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
-    C22: { role: "series", key: "Role_Series", en: "Stack series" }
+    C22: { role: "series", key: "Role_Series", en: "Stack series" },
+    C23: { role: "xValue", key: "Hub_NeedX", en: "X axis" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
-    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"] },
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20", "C23"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
@@ -238,7 +244,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C20: ["Stock and flow", "Cash, headcount or inventory over time"],
     C07: ["Stacked area over time", "Mix of segments with the total line"],
     C21: ["Cumulated line with R12", "YTD vs. plan, rolling year, months"],
-    C22: ["Series lines with index", "Share prices or units, start = 100"]
+    C22: ["Series lines with index", "Share prices or units, start = 100"],
+    C23: ["Scatter time path", "Sales vs. reps per unit over the years"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -917,6 +924,15 @@ interface ChartConfig {
         yMax: number | null;
         xLogWanted: boolean;
         yLogWanted: boolean;
+        /** 1.57 (B18): time path per unit (series value; category = period), its period
+         *  labels ("auto" | "ends" | "all" | "off"), arrow head at the path end, start-to-end
+         *  deltas for highlighted units; ratio rays Y = k · X (k > 0) with their label unit */
+        path: boolean;
+        pathLabels: string;
+        pathArrow: boolean;
+        pathDelta: boolean;
+        rays: number[];
+        rayUnit: string;
     } | null;
 }
 
@@ -986,6 +1002,37 @@ interface ScatterShared {
     yLog: boolean;
     /** v3: the size legend renders once per deck (first tile that draws it wins) */
     sizeLegendDrawn?: boolean;
+    /** 1.57 (B18): right edge and top of the tile grid; ratio ray labels only stand in
+     *  the first row (top exits) and the last column (right exits) */
+    tileBox?: { right: number; top: number };
+}
+
+/** 1.57 (B18): label / collision box in px */
+type ScBox = { x0: number; y0: number; x1: number; y1: number };
+/** 1.57 (B18): one unit of the scatter time path — its points per period in data order,
+ *  null where the period has no plottable point (X or Y missing, outside the axes) */
+interface ScatterPathUnit {
+    key: string;
+    name: string | null;
+    nodes: (DataPoint | null)[];
+}
+/** 1.57 (B18): what the time path and the ratio rays need from renderScatter's layout */
+interface ScatterPlotCtx {
+    X: Scale;
+    Y: Scale;
+    ax: { lo: number; hi: number; log: boolean };
+    ay: { lo: number; hi: number; log: boolean };
+    left: number;
+    right: number;
+    top: number;
+    bottom: number;
+    region: Rect;
+    /** reserved label boxes (shared with the quadrant, trend and point labels) */
+    placed: ScBox[];
+    /** box hits a marker other than item `self` */
+    hitsMark: (b: ScBox, self: number) => boolean;
+    /** item index and radius of a drawn AC marker */
+    markOf: (p: DataPoint) => { i: number; r: number } | null;
 }
 
 /**
@@ -1287,6 +1334,10 @@ export class Visual implements IVisual {
         from: number;
         cur: number;
         t0: number;
+        /** 1.57 (B18): time paths that grow with the frames (unit key → path element and
+         *  its node per frame, null = gap) and the period labels hidden while playing */
+        paths?: { key: string; el: SVGPathElement; nodes: ({ x: number; y: number } | null | undefined)[] }[];
+        pathLabels?: SVGElement | null;
     } | null = null;
     /** scatter v3 rectangle selection: true right after a drag-select ended, so the
      *  immediately following click on the svg must NOT clear the fresh selection */
@@ -2313,7 +2364,15 @@ export class Visual implements IVisual {
         // (Quadranten an oder eine Referenzlinie gesetzt)
         fs.chartCard.scatterShapes.visible = isScatter
             && String(fs.chartCard.scatterColorBy.value.value) === "group";
-        fs.chartCard.scatterArrows.visible = isScatter && this.paneHasPy;
+        // 1.57 (B18): time path options only with the path; the path replaces the arrows
+        const pathPane = isScatter && String(fs.chartCard.scatterPath.value?.value ?? "off") === "line";
+        fs.chartCard.scatterPath.visible = isScatter;
+        fs.chartCard.scatterPathLabels.visible = pathPane;
+        fs.chartCard.scatterPathArrow.visible = pathPane;
+        fs.chartCard.scatterPathDelta.visible = pathPane;
+        fs.scaleCard.ratioRays.visible = isScatter;
+        fs.scaleCard.ratioRayUnit.visible = isScatter && String(fs.scaleCard.ratioRays.value || "").trim() !== "";
+        fs.chartCard.scatterArrows.visible = isScatter && this.paneHasPy && !pathPane;
         fs.chartCard.scatterTrendR2.visible = isScatter
             && String(fs.chartCard.scatterTrend.value.value) !== "off";
         fs.chartCard.scatterSizeLegend.visible = isScatter && this.sizeName != null;
@@ -5958,6 +6017,26 @@ export class Visual implements IVisual {
                 line(0, 1, 1, 1, c.ink, 1.6);
                 break;
             }
+            case "scatterpath": {
+                // 1.57 (B18) C23: two units, each a thin path through its periods, one ratio ray
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                line(0, 1, 0.95, 0.12, c.grey, 0.8);
+                line(0, 0, 0, 1, c.ink, 1.2); line(0, 1, 1, 1, c.ink, 1.2);
+                const paths: [number, number][][] = [
+                    [[0.1, 0.86], [0.24, 0.62], [0.36, 0.42], [0.52, 0.38], [0.7, 0.2], [0.86, 0.16]],
+                    [[0.14, 0.92], [0.3, 0.82], [0.48, 0.7], [0.62, 0.74], [0.8, 0.56]]];
+                paths.forEach((pts, j) => {
+                    const col = j === 0 ? c.ink : c.teal;
+                    this.el("polyline", {
+                        points: pts.map(([px, py]) => `${x + px * w},${y + py * h}`).join(" "),
+                        fill: "none", stroke: col, "stroke-width": 1
+                    }, g);
+                    for (const [px, py] of pts) {
+                        this.el("circle", { cx: x + px * w, cy: y + py * h, r: 2.4 * u, fill: col }, g);
+                    }
+                });
+                break;
+            }
             case "stackarea": {
                 // 1.56 (B16) C07: three stacked areas, total line with points on top
                 const xs = [0, 0.25, 0.5, 0.75, 1];
@@ -7562,6 +7641,9 @@ export class Visual implements IVisual {
         // scatter: the regular cell bounds the bubble radius of every tile (hero included)
         if (isScatter && cfg.scatter?.shared) {
             cfg.scatter.shared.refCell = { w: cellW - 4, h: cellH - groupTitleH - 2 };
+            if (cfg.scatter.rays.length > 0) {
+                cfg.scatter.shared.tileBox = { right: gridX + gridW - 2, top: topOffset + groupTitleH };
+            }
         }
 
         // small multiples zoom: ⤢ on a tile shows just that group full-size (same
@@ -13958,7 +14040,9 @@ export class Visual implements IVisual {
         const valid = this.scatterValid(points);
         const playBlocks = cc.scatterPlay.value === true && this.allowInteractions
             && new Set(valid.map(p => p.group ?? "")).size <= 1 && new Set(valid.map(p => p.cat)).size >= 2;
-        const pyBubbles = this.sizePrevName != null && this.sizeName != null && !playBlocks
+        // 1.57 (B18): the time path replaces the PY comparison (movement arrows, PY bubbles)
+        const pathOn = String(cc.scatterPath.value?.value ?? "off") === "line";
+        const pyBubbles = this.sizePrevName != null && this.sizeName != null && !playBlocks && !pathOn
             && points.some(p => p.py != null && isFinite(p.py) && p.sizePrev != null && p.sizePrev > 0);
         // with drawn PY bubbles the size formatter spans both years (else AC only)
         const sGet = (p: DataPoint) => pyBubbles && p.sizePrev != null
@@ -13986,7 +14070,7 @@ export class Visual implements IVisual {
             xDiv: this.formatterParams(absMax(xGet), allInt(xGet), this.xFormat ?? "").unit,
             xFormat: this.xFormat ?? "",
             // v3: movement arrows need PY data; 2D movement additionally the xPrevious role
-            arrows: s.chartCard.scatterArrows.value === true && points.some(p => p.py != null),
+            arrows: s.chartCard.scatterArrows.value === true && !pathOn && points.some(p => p.py != null),
             hasXPrev: this.xPrevName != null,
             xPrevName: this.xPrevName ?? "X PY",
             valueLabels: cc.scatterValueLabels.value === true && this.sizeName != null,
@@ -14018,6 +14102,12 @@ export class Visual implements IVisual {
             yMax: this.parseRefValue(String(s.scaleCard.yMax.value || "")),
             xLogWanted: s.scaleCard.xLogScale.value === true,
             yLogWanted: s.scaleCard.yLogScale.value === true,
+            path: pathOn,
+            pathLabels: String(cc.scatterPathLabels.value?.value ?? "auto"),
+            pathArrow: pathOn && cc.scatterPathArrow.value === true,
+            pathDelta: pathOn && cc.scatterPathDelta.value === true,
+            rays: this.parseRatioRays(String(s.scaleCard.ratioRays.value || "")),
+            rayUnit: String(s.scaleCard.ratioRayUnit.value || "").trim(),
             // filled by prepareScatterDeck once the tiles are known
             shared: null,
             groupColors: null,
@@ -14067,8 +14157,9 @@ export class Visual implements IVisual {
             }
             // 1.55 (B12): PY bubbles sit at (X PY or X, PY) — the axes include them
             if (sc.pyBubbles) { this.scatterPyDomain(all, sc, xsDom, ysDom); }
-            const ax = this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
-            const ay = this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted);
+            const rays = sc.rays.length > 0;
+            const ax = this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted, rays);
+            const ay = this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted, rays);
             // quadrant statistic over the points that stay inside the fixed bounds
             const vis = all.filter(p => (p.xVal as number) >= ax.lo && (p.xVal as number) <= ax.hi
                 && (p.value as number) >= ay.lo && (p.value as number) <= ay.hi);
@@ -14115,10 +14206,19 @@ export class Visual implements IVisual {
      */
     private scatterAxisDomain(vals: number[], refs: (number | null)[],
         fixMin: number | null, fixMax: number | null,
-        logWanted: boolean): { lo: number; hi: number; log: boolean } {
+        logWanted: boolean, rays = false): { lo: number; hi: number; log: boolean } {
         const refList = refs.filter((r): r is number => r != null && isFinite(r));
         let [lo, hi] = this.scatterRange(vals, null);
         for (const r of refList) { lo = Math.min(lo, r); hi = Math.max(hi, r); }
+        // 1.57 (B18): ratio rays start at the origin, so a linear axis takes in zero and
+        // (automatic bounds) ends on a round tick value, where the rays leave the plot
+        if (rays && !logWanted) {
+            lo = Math.min(lo, 0);
+            hi = Math.max(hi, 0);
+            const t = niceTicks(lo, hi, 5);
+            const st = t.length > 1 ? t[1] - t[0] : 0;
+            if (st > 0 && hi > 0) { hi = Number((Math.ceil(hi / st - 1e-9) * st).toPrecision(12)); }
+        }
         // 1.52: a range that nearly reaches zero simply includes it (no cut axis,
         // no break sign needed) — only for automatic bounds
         if (!logWanted && lo > 0 && lo < 0.15 * (hi - lo)) { lo = 0; }
@@ -14346,6 +14446,8 @@ export class Visual implements IVisual {
         if (an.from >= an.frames.length - 1) { an.from = 0; }
         an.playing = true;
         if (an.btnIcon) { an.btnIcon.textContent = "⏸"; }
+        // 1.57 (B18): period labels belong to the static frame; the end render brings them back
+        if (an.pathLabels) { an.pathLabels.setAttribute("opacity", "0"); }
         an.t0 = performance.now();
         const SEG = 900; // ms per period step
         const step = (ts: number) => {
@@ -14390,6 +14492,9 @@ export class Visual implements IVisual {
             if (dot.circle && dot.hasSize) {
                 dot.circle.setAttribute("r", String(an.rOf(v.size)));
             }
+        }
+        if (an.paths) {
+            for (const pa of an.paths) { pa.el.setAttribute("d", this.scatterPathD(pa.nodes, t, an.X, an.Y)); }
         }
         if (an.watermark) { an.watermark.textContent = an.frames[Math.round(t)]; }
         an.cur = t;
@@ -14475,7 +14580,11 @@ export class Visual implements IVisual {
         if (!sc) { return 0; }
         // v3: in high contrast the group COLORS stay off, but with "shape per group"
         // the legend still earns its keep — it shows the shapes in the ink color
-        const entriesAll: [string, string][] = sc.groupColors && sc.groupColors.size > 0
+        // 1.57 (B18): the time path names every unit at its end point, the group
+        // entries would only repeat those names
+        const pathNamed = sc.path && sc.groupKey === "series";
+        const entriesAll: [string, string][] = pathNamed ? []
+            : sc.groupColors && sc.groupColors.size > 0
             ? Array.from(sc.groupColors.entries())
             : (cfg.hc && sc.shapes && sc.groupKey && sc.groupOrder)
                 ? sc.groupOrder.map(n => [n, cfg.ink] as [string, string])
@@ -14626,9 +14735,9 @@ export class Visual implements IVisual {
         }
         if (sc.pyBubbles) { this.scatterPyDomain(allPts, sc, xsDom, ysDom); }
         const ax = sh ? { lo: sh.xLo, hi: sh.xHi, log: sh.xLog }
-            : this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted);
+            : this.scatterAxisDomain(xsDom, [xRef], sc.xMin, sc.xMax, sc.xLogWanted, sc.rays.length > 0);
         const ay = sh ? { lo: sh.yLo, hi: sh.yHi, log: sh.yLog }
-            : this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted);
+            : this.scatterAxisDomain(ysDom, [yRef], sc.yMin, sc.yMax, sc.yLogWanted, sc.rays.length > 0);
         const xLo = ax.lo, xHi = ax.hi, yLo = ay.lo, yHi = ay.hi;
         // fixed bounds: points outside the axes are not drawn, the panel title counts them
         const vis = allPts.filter(p => (p.xVal as number) >= xLo && (p.xVal as number) <= xHi
@@ -14651,6 +14760,10 @@ export class Visual implements IVisual {
         const frameIdx = playActive
             ? Math.max(0, Math.min(this.scatterFrame ?? frames.length - 1, frames.length - 1)) : -1;
         const pts = playActive ? vis.filter(p => p.cat === frames[frameIdx]) : vis;
+        // 1.57 (B18): time path units (play mode: up to the shown frame) and their deltas
+        const pathUnits = sc.path
+            ? this.scatterPathUnits(points, vis, playActive ? frames.slice(0, frameIdx + 1) : null) : [];
+        const pathDeltas = this.scatterPathDeltas(sc, pathUnits, cfg);
         const xs = pts.map(p => p.xVal as number);
         const ys = pts.map(p => p.value as number);
 
@@ -14796,7 +14909,9 @@ export class Visual implements IVisual {
             const pp = pySize(p) > 0 ? this.scatterPyPos(p, sc, ax, ay) : null;
             if (pp) { fitMarks.push({ x: pp.x, y: pp.y, r: rOfV(pySize(p)) }); }
         }
-        const mg = { l: 0, r: 0, t: 0, b: 0 };
+        // 1.57 (B18): ray labels and delta arrows reserve their room up front (0 without)
+        const mg0 = this.scatterExtraMargins(sc, ax, ay, pathDeltas, region, inset, pad, sh);
+        const mg = { l: 0, r: mg0.r, t: mg0.t, b: mg0.b };
         let lay = layout(mg);
         for (let pass = 0; pass < 6; pass++) {
             const o = { l: 0, r: 0, t: 0, b: 0 };
@@ -14814,7 +14929,7 @@ export class Visual implements IVisual {
             mg.b += Math.max(0, o.b) + (o.b > 0 ? 0.5 : 0);
             lay = layout(mg);
         }
-        const shrunk = mg.l + mg.r + mg.t + mg.b > 0;
+        const shrunk = mg.l + (mg.r - mg0.r) + (mg.t - mg0.t) + (mg.b - mg0.b) > 0;
         const { plotTop, plotBottom, plotH, plotLeft, plotRight, plotW, insB, insT, insL, insR,
             yLoS, yHiS, yPer, xLoS, xHiS, xPer, yTicks, yTickTxt, xTicks, xTickTxt, X, Y } = lay;
 
@@ -14951,6 +15066,15 @@ export class Visual implements IVisual {
         const placed: Box[] = [];
         const lineF = Math.round(9 * k);
         const halo = { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round" };
+        // 1.57 (B18): layout handle for the time path and the ratio rays (drawn first,
+        // their labels are reserved before every other label)
+        const itemIdx = new Map<DataPoint, number>();
+        items.forEach((it, i) => { if (!it.isPy) { itemIdx.set(it.p, i); } });
+        const pctx: ScatterPlotCtx = {
+            X, Y, ax, ay, left: plotLeft, right: plotRight, top: plotTop, bottom: plotBottom, region, placed, hitsMark,
+            markOf: (p: DataPoint) => { const i = itemIdx.get(p); return i == null ? null : { i, r: items[i].r }; }
+        };
+        if (sc.rays.length > 0) { this.drawScatterRays(bg, sc, pctx, sh, cfg, halo); }
         const lineLabel = (txt: string, isRef: boolean,
             cands: { x: number; y: number; anchor: string }[]) => {
             const w = this.textWidth(txt, lineF);
@@ -15114,6 +15238,11 @@ export class Visual implements IVisual {
             editHints.push({ txt: this.locStr("Hint_ScatterPyBubbleRoles",
                 "PY bubbles need the fields Previous Year and Bubble size"), id: "scatter-hint-py" });
         }
+        // 1.57 (B18): a time path needs two periods of one unit somewhere
+        if (sc.path && !pathUnits.some(u => u.nodes.filter(p => p != null).length >= 2)) {
+            editHints.push({ txt: this.locStr("Hint_ScatterPathOnePeriod",
+                "Time path: each unit needs at least two periods (category = period)"), id: "scatter-hint-path" });
+        }
         if (editHints.length > 0 && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
             const hf = Math.round(9 * k);
             editHints.forEach((hint, j) => {
@@ -15228,6 +15357,15 @@ export class Visual implements IVisual {
             if (!pick && force) { pick = cands.find(c => inPlot(c.b)) ?? cands[0]; }
             return pick ?? null;
         };
+        // 1.57 (B18): time paths under the marks, their labels (unit names, periods) on
+        // top; they replace the point names
+        let pathLblG: SVGElement | null = null;
+        let pathEls: Map<string, SVGPathElement> | null = null;
+        if (sc.path) {
+            const lineG = this.el("g", { "data-icd": "scatter-paths" }, this.svg);
+            pathLblG = this.el("g", { "data-icd": "scatter-path-labels" }, this.svg);
+            pathEls = this.drawScatterPaths(pathUnits, pathDeltas, sc, pctx, cfg, lineG, pathLblG, halo, playActive);
+        }
         // Review M3: a wanted value never vanishes. It follows the name when it does
         // not fit into its bubble (only the name is shortened), and stands alone next
         // to the bubble when the name is not drawn (labels off, density, no room)
@@ -15236,7 +15374,7 @@ export class Visual implements IVisual {
             const it = items[i];
             const vt = valText(it);
             const valOut = vt != null && !valInside(it);
-            const wanted = it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i)));
+            const wanted = !sc.path && (it.emph || (cfg.showLabels && (density !== "ends" || extremes.has(i))));
             if (!wanted) {
                 if (valOut) { valueAlone.push(i); }
                 continue;
@@ -15412,7 +15550,9 @@ export class Visual implements IVisual {
                         ? { ...this.hcStatus(this.scatterStatusKind(p, cfg), cfg), stroke: cfg.ink, "stroke-width": 1.4 }
                         : { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
                     : p.isFc
-                        ? { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 }
+                        // 1.57 (B18): on a time path a forecast period is a hollow point
+                        ? (sc.path ? { fill: cfg.paper, stroke: col, "stroke-width": 1.2 }
+                            : { fill: `url(#${cfg.patId})`, stroke: col, "stroke-width": 1.2 })
                         : hasSize
                             ? { fill: col, "fill-opacity": bubbleAlpha, stroke: neutralNextToPy ? cfg.ink : col, "stroke-width": 1.2 }
                             : { fill: col, stroke: cfg.paper, "stroke-width": 1 }),
@@ -15444,7 +15584,11 @@ export class Visual implements IVisual {
                 }, g);
                 ct.textContent = String(p.commentNo);
             }
-            this.attachInteraction(g, p, cfg, { mark: { cx, cy, r: ringR + 2 } });
+            // 1.57 (B18): with ratio rays the tooltip names the point's ratio Y ÷ X
+            const ratioTip = sc.rays.length > 0 && p.xVal != null && p.xVal !== 0 && p.value != null;
+            this.attachInteraction(g, p, cfg, { mark: { cx, cy, r: ringR + 2 },
+                ...(ratioTip ? { extra: () => [{ displayName: this.locStr("Tip_Ratio", "Ratio Y ÷ X"),
+                    value: this.scatterRatioText((p.value as number) / (p.xVal as number), sc.rayUnit) }] } : {}) });
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
             this.animGroups.push([g]);
             if (dots) {
@@ -15455,6 +15599,8 @@ export class Visual implements IVisual {
                 });
             }
         }
+
+        if (pathLblG) { this.svg.appendChild(pathLblG); }
 
         // v3 rectangle selection: a drag on empty plot space draws a marquee and
         // selects every contained point (multi-select → crossfilter); a plain click
@@ -15512,7 +15658,19 @@ export class Visual implements IVisual {
                 });
             }
             const chip = this.drawScatterPlayChip(Math.min(region.x + region.w, this.ctlRight) - 6, region.y + pad, cfg);
+            // 1.57 (B18): the time path of every unit grows with the frames
+            const visSet = new Set(vis);
+            const animPaths = pathEls ? Array.from(pathEls.entries()).map(([key, el]) => {
+                const nodes: ({ x: number; y: number } | null | undefined)[] = frames.map(() => undefined);
+                for (const p of points) {
+                    const fi = frameNo.get(p.cat);
+                    if (fi == null || (p.stackSeries ?? "\u0001") !== key) { continue; }
+                    nodes[fi] = visSet.has(p) ? { x: p.xVal as number, y: p.value as number } : null;
+                }
+                return { key, el, nodes };
+            }) : undefined;
             this.scatterAnim = {
+                ...(animPaths ? { paths: animPaths, pathLabels: pathLblG } : {}),
                 frames, frameData,
                 dots: dots ?? new Map(),
                 X, Y,
@@ -15527,6 +15685,350 @@ export class Visual implements IVisual {
                 t0: 0
             };
         }
+    }
+
+    // ------------------------------------------------------------------------------
+    // 1.57 (B18, IBCS sheets 07D/07E): scatter time path and ratio rays. Everything
+    // below is only reached with chart.scatterPath = line or a non-empty scale.ratioRays;
+    // renderScatter calls these helpers at fixed points (units, margins, rays, paths)
+    // ------------------------------------------------------------------------------
+
+    /**
+     * time path units in data order: one per series value (without the series role a
+     * single unit), the unit's points per period (category). A point without X or Y or
+     * outside the axes is a gap (null, the path breaks); a period without a row is
+     * simply absent (the path runs on). Play mode passes the frames up to the shown one
+     */
+    private scatterPathUnits(points: DataPoint[], vis: DataPoint[], frames: string[] | null): ScatterPathUnit[] {
+        const ok = new Set(vis);
+        const units = new Map<string, ScatterPathUnit>();
+        for (const p of points) {
+            if (frames && !frames.includes(p.cat)) { continue; }
+            const key = p.stackSeries ?? "\u0001";
+            let u = units.get(key);
+            if (!u) {
+                u = { key, name: p.stackSeries ?? null, nodes: [] };
+                units.set(key, u);
+            }
+            u.nodes.push(ok.has(p) ? p : null);
+        }
+        return Array.from(units.values());
+    }
+
+    /** start-to-end deltas (chart.scatterPathDelta) of the highlighted units — a single
+     *  unnamed path counts as highlighted; units with fewer than two points are skipped */
+    private scatterPathDeltas(sc: NonNullable<ChartConfig["scatter"]>, units: ScatterPathUnit[],
+        cfg: ChartConfig): { u: ScatterPathUnit; a: DataPoint; b: DataPoint; dx: number; dy: number; tx: string; ty: string }[] {
+        if (!sc.pathDelta) { return []; }
+        const out: { u: ScatterPathUnit; a: DataPoint; b: DataPoint; dx: number; dy: number; tx: string; ty: string }[] = [];
+        // plain signed number in the axis' display unit, decimals from the value itself
+        // (like the ticks: "+16", "−4,3"); the unit stands in the axis title
+        const dTxt = (v: number, div: number, fmtStr: string | undefined): string => {
+            const pct = /%/.test((fmtStr ?? this.measureFormat ?? "").replace(/"[^"]*"/g, ""));
+            const scaled = Number((Math.abs(v) / (div || 1) * (pct ? 100 : 1)).toPrecision(6));
+            const frac = /\.(\d+)$/.exec(String(scaled));
+            return stripUnitText(this.fmtSigned(this.buildFormatter(div, Math.min(2, frac ? frac[1].length : 0), fmtStr, false), v));
+        };
+        for (const u of units) {
+            if (!(u.name == null ? units.length === 1 : this.isEmph(cfg, u.name))) { continue; }
+            const ok = u.nodes.filter((p): p is DataPoint => p != null);
+            if (ok.length < 2) { continue; }
+            const a = ok[0], b = ok[ok.length - 1];
+            const dx = Number(((b.xVal as number) - (a.xVal as number)).toPrecision(12));
+            const dy = Number(((b.value as number) - (a.value as number)).toPrecision(12));
+            out.push({ u, a, b, dx, dy,
+                tx: dTxt(dx, sc.xDiv, sc.xFormat), ty: dTxt(dy, cfg.fmtUnit, undefined) });
+        }
+        return out;
+    }
+
+    /** where the ray Y = k · X runs inside the axis box (data space, X from x0 to x1) and
+     *  on which side it leaves it: "right" (at the X maximum, corner included) or "top" */
+    private scatterRaySpan(k: number, ax: { lo: number; hi: number }, ay: { lo: number; hi: number }):
+        { x0: number; x1: number; side: "right" | "top" } | null {
+        const x0 = Math.max(ax.lo, ay.lo / k, 0);
+        const x1 = Math.min(ax.hi, ay.hi / k);
+        if (!(x1 > x0)) { return null; }
+        return { x0, x1, side: k * ax.hi <= ay.hi * (1 + 1e-9) ? "right" : "top" };
+    }
+
+    /** ratio text of a ray label and the tooltip: 2 decimals below 10, 1 below 100, else 0 */
+    private scatterRatioText(v: number, unit: string): string {
+        const a = Math.abs(v);
+        const d = a >= 100 ? 0 : a >= 10 ? 1 : 2;
+        const t = v.toLocaleString(this.host.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
+        return unit ? `${t} ${unit}` : t;
+    }
+
+    /** whether a ray label with this exit side stands in the current tile: one cloud
+     *  always; small multiples only in the first row (top exits) and the last column
+     *  (right exits), the zoomed tile always */
+    private scatterRayLabelOn(side: "right" | "top", region: Rect, sh: ScatterShared | null): boolean {
+        if (!sh || !sh.tileBox || this.zoomGroup != null) { return true; }
+        return side === "top" ? region.y <= sh.tileBox.top + 1 : region.x + region.w >= sh.tileBox.right - 1;
+    }
+
+    /** extra plot margins: room for the ray labels at the top and right exits and for
+     *  the start-to-end delta arrows below the X axis and right of the plot (0 without) */
+    private scatterExtraMargins(sc: NonNullable<ChartConfig["scatter"]>,
+        ax: { lo: number; hi: number }, ay: { lo: number; hi: number },
+        deltas: { ty: string }[], region: Rect, inset: number, pad: number,
+        sh: ScatterShared | null): { t: number; r: number; b: number } {
+        const out = { t: 0, r: 0, b: 0 };
+        const k = this.fontK, lf = Math.round(9 * k);
+        const rr = Math.max(3, 3.5 * Math.min(k, 1.6));
+        for (const kk of sc.rays) {
+            const sp = this.scatterRaySpan(kk, ax, ay);
+            if (!sp || !this.scatterRayLabelOn(sp.side, region, sh)) { continue; }
+            const w = this.textWidth(this.scatterRatioText(kk, sc.rayUnit), lf);
+            if (sp.side === "top") { out.t = Math.max(out.t, rr + 5 + lf - inset); }
+            else { out.r = Math.max(out.r, w / 2 + 2 - inset - pad); }
+        }
+        if (deltas.length > 0) {
+            out.b = deltas.length * (lf + 12) + 2;
+            out.r += deltas.reduce((s, d) => s + this.textWidth(d.ty, lf) + 16, 0);
+        }
+        return out;
+    }
+
+    /** ratio rays Y = k · X from the origin to the plot edge (a curve when only one axis is
+     *  logarithmic), hollow circle at the exit and at the origin, label above the exit */
+    private drawScatterRays(bg: SVGElement, sc: NonNullable<ChartConfig["scatter"]>, ctx: ScatterPlotCtx,
+        sh: ScatterShared | null, cfg: ChartConfig, halo: Record<string, string | number>): void {
+        const k = this.fontK, lf = Math.round(9 * k);
+        const rr = Math.max(3, 3.5 * Math.min(k, 1.6));
+        const lin = !ctx.ax.log && !ctx.ay.log;
+        const g = this.el("g", { "data-icd": "scatter-rays" }, bg);
+        const circle = { r: rr, fill: cfg.paper, stroke: cfg.hc ? cfg.ink : cfg.subtle, "stroke-width": 1 };
+        const ends: { x: number; y: number; k: number; side: "right" | "top" }[] = [];
+        let origin = false;
+        for (const kk of sc.rays) {
+            const sp = this.scatterRaySpan(kk, ctx.ax, ctx.ay);
+            if (!sp) { continue; }
+            const n = lin ? 1 : 48;
+            const pts: string[] = [];
+            for (let i = 0; i <= n; i++) {
+                const f = i / n;
+                const xv = ctx.ax.log ? sp.x0 * Math.pow(sp.x1 / sp.x0, f) : sp.x0 + (sp.x1 - sp.x0) * f;
+                pts.push(`${i === 0 ? "M" : "L"}${ctx.X(xv)},${ctx.Y(kk * xv)}`);
+            }
+            const rg = this.el("g", { "data-icd": "scatter-ray", "data-k": kk }, g);
+            this.el("path", {
+                d: pts.join(""), fill: "none", stroke: cfg.hc ? cfg.ink : cfg.faint, "stroke-width": 1
+            }, rg);
+            if (lin && sp.x0 === 0 && ctx.ay.lo <= 0) { origin = true; }
+            const ex = ctx.X(sp.x1), ey = ctx.Y(kk * sp.x1);
+            this.el("circle", {
+                "data-icd": "scatter-ray-end", cx: ex, cy: ey, ...circle,
+                "data-x": Number(sp.x1.toPrecision(6)), "data-y": Number((kk * sp.x1).toPrecision(6))
+            }, rg);
+            ends.push({ x: ex, y: ey, k: kk, side: sp.side });
+        }
+        if (origin) {
+            this.el("circle", { "data-icd": "scatter-ray-origin", cx: ctx.X(0), cy: ctx.Y(0), ...circle }, g);
+        }
+        // labels centered above the exit circle, kept inside the visual; reserved boxes
+        for (const e of ends) {
+            if (!this.scatterRayLabelOn(e.side, ctx.region, sh)) { continue; }
+            const txt = this.scatterRatioText(e.k, sc.rayUnit);
+            const w = this.textWidth(txt, lf);
+            const x = Math.min(Math.max(e.x, ctx.region.x + w / 2 + 1), ctx.region.x + ctx.region.w - w / 2 - 1);
+            const y = e.y - rr - 3;
+            const t = this.el("text", {
+                "data-icd": "scatter-ray-label", "data-k": e.k, x, y, "text-anchor": "middle",
+                "font-size": lf, fill: cfg.ink, "font-family": FONT, ...halo
+            }, g);
+            t.textContent = txt;
+            ctx.placed.push({ x0: x - w / 2, y0: y - lf, x1: x + w / 2, y1: y + 2 });
+        }
+    }
+
+    /**
+     * the time paths: per unit a thin line through its periods (segments into a forecast
+     * period dashed, gaps break the line), optional arrow head at the last segment, the
+     * start-to-end deltas, then the labels (unit name at the end point first, then the
+     * first and last period of each unit, then the rest by room). Returns the solid path
+     * element per unit (the play loop grows it)
+     */
+    private drawScatterPaths(units: ScatterPathUnit[],
+        deltas: { u: ScatterPathUnit; a: DataPoint; b: DataPoint; dx: number; dy: number; tx: string; ty: string }[],
+        sc: NonNullable<ChartConfig["scatter"]>, ctx: ScatterPlotCtx, cfg: ChartConfig,
+        lineG: SVGElement, lblG: SVGElement, halo: Record<string, string | number>, solidOnly: boolean): Map<string, SVGPathElement> {
+        const k = this.fontK;
+        const cf = cfg.catFont, pf = Math.max(7, cf - 1), lf = Math.round(9 * k);
+        const els = new Map<string, SVGPathElement>();
+        const colOf = (u: ScatterPathUnit): string => cfg.hc ? cfg.ink
+            : sc.groupColors && sc.groupKey === "series" && u.name != null
+                ? sc.groupColors.get(u.name) ?? cfg.colors.ac : cfg.colors.ac;
+        const at = (p: DataPoint) => ({ x: ctx.X(p.xVal as number), y: ctx.Y(p.value as number) });
+        const rOf = (p: DataPoint) => ctx.markOf(p)?.r ?? 2;
+        const head = (parent: SVGElement, x: number, y: number, ux: number, uy: number, s: number, fill: string, id: string) =>
+            this.el("polygon", {
+                "data-icd": id,
+                points: `${x},${y} ${x - ux * s - uy * s * 0.45},${y - uy * s + ux * s * 0.45} `
+                    + `${x - ux * s + uy * s * 0.45},${y - uy * s - ux * s * 0.45}`,
+                fill, "stroke-linejoin": "round"
+            }, parent);
+        for (const u of units) {
+            const col = colOf(u);
+            const emph = u.name != null && this.isEmph(cfg, u.name);
+            let solid = "", dashed = "";
+            let lastS: DataPoint | null = null, lastD: DataPoint | null = null;
+            for (let i = 1; i < u.nodes.length; i++) {
+                const a = u.nodes[i - 1], b = u.nodes[i];
+                if (!a || !b) { continue; }
+                const pa = at(a), pb = at(b);
+                if (!solidOnly && b.isFc) {
+                    dashed += `${lastD === a ? "" : `M${pa.x},${pa.y}`}L${pb.x},${pb.y}`;
+                    lastD = b;
+                } else {
+                    solid += `${lastS === a ? "" : `M${pa.x},${pa.y}`}L${pb.x},${pb.y}`;
+                    lastS = b;
+                }
+            }
+            const n = u.nodes.filter(p => p != null).length;
+            const g = this.el("g", { "data-icd": "scatter-path", "data-series": u.name ?? "", "data-n": n }, lineG);
+            const stroke = { fill: "none", stroke: col, "stroke-width": emph ? 2 : 1, "stroke-linejoin": "round" };
+            els.set(u.key, this.el("path", { d: solid, ...stroke }, g) as SVGPathElement);
+            if (dashed) { this.el("path", { d: dashed, ...stroke, "stroke-dasharray": "3,2" }, g); }
+            // arrow head on the last segment, touching the end marker
+            let li = u.nodes.length - 1;
+            while (li > 0 && u.nodes[li] == null) { li--; }
+            const lp = u.nodes[li], pp = li > 0 ? u.nodes[li - 1] : null;
+            if (sc.pathArrow && lp && pp) {
+                const a = at(pp), b = at(lp);
+                const len = Math.hypot(b.x - a.x, b.y - a.y);
+                const r = rOf(lp) + 1.5;
+                const s = Math.max(4, 5 * Math.min(k, 1.6));
+                if (len > r + s + 2) {
+                    const ux = (b.x - a.x) / len, uy = (b.y - a.y) / len;
+                    head(g, b.x - ux * r, b.y - uy * r, ux, uy, s, col, "scatter-path-head");
+                }
+            }
+        }
+
+        // start-to-end deltas: guides from the first and last point to the X axis and to
+        // the right edge, Δ X as an arrow below the axis, Δ Y as an arrow right of the plot
+        const axF = Math.round(9.5 * k);
+        let xA = ctx.right + 6;
+        deltas.forEach((d, j) => {
+            const a = at(d.a), b = at(d.b);
+            const yA = ctx.bottom + axF + 9 + j * (lf + 12);
+            const guide = { stroke: cfg.hc ? cfg.ink : cfg.faint, "stroke-width": 0.8 };
+            const gg = this.el("g", { "data-icd": "scatter-path-guides", "data-series": d.u.name ?? "" }, lineG);
+            for (const q of [a, b]) {
+                this.el("line", { x1: q.x, y1: q.y, x2: q.x, y2: yA, ...guide }, gg);
+                this.el("line", { x1: q.x, y1: q.y, x2: xA, y2: q.y, ...guide }, gg);
+            }
+            const s = Math.max(4, 5 * Math.min(k, 1.6));
+            const ink = cfg.ink;
+            const gx = this.el("g", { "data-icd": "scatter-path-delta", "data-axis": "x", "data-v": d.dx,
+                "data-series": d.u.name ?? "" }, lineG);
+            if (Math.abs(b.x - a.x) > s + 1) {
+                const ux = Math.sign(b.x - a.x);
+                this.el("line", { x1: a.x, y1: yA, x2: b.x - ux * s, y2: yA, stroke: ink, "stroke-width": 1.4 }, gx);
+                head(gx, b.x, yA, ux, 0, s, ink, "scatter-path-delta-head");
+            }
+            const tX = this.el("text", { x: (a.x + b.x) / 2, y: yA + lf + 2, "text-anchor": "middle",
+                "font-size": lf, fill: ink, "font-family": FONT, ...halo }, gx);
+            tX.textContent = d.tx;
+            const yCol = cfg.hc || d.dy === 0 ? ink : cfg.isGood(d.dy, d.b) ? cfg.colors.good : cfg.colors.bad;
+            const gy = this.el("g", { "data-icd": "scatter-path-delta", "data-axis": "y", "data-v": d.dy,
+                "data-series": d.u.name ?? "" }, lineG);
+            if (Math.abs(b.y - a.y) > s + 1) {
+                const uy = Math.sign(b.y - a.y);
+                this.el("line", { x1: xA, y1: a.y, x2: xA, y2: b.y - uy * s, stroke: yCol, "stroke-width": 1.4 }, gy);
+                head(gy, xA, b.y, 0, uy, s, yCol, "scatter-path-delta-head");
+            }
+            const tY = this.el("text", { x: xA + 5, y: (a.y + b.y) / 2 + lf * 0.35, "text-anchor": "start",
+                "font-size": lf, fill: yCol, "font-family": FONT, ...halo }, gy);
+            tY.textContent = d.ty;
+            xA += this.textWidth(d.ty, lf) + 16;
+        });
+
+        // labels: greedy over the shared reserved boxes, no force layout
+        const hitsPlaced = (b: ScBox) => ctx.placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
+        const inBounds = (b: ScBox) => b.x0 >= ctx.left + 1 && b.x1 <= ctx.region.x + ctx.region.w - 2
+            && b.y0 >= ctx.top - 4 && b.y1 <= ctx.bottom - 1;
+        type Side = "top" | "right" | "bottom" | "left";
+        const spot = (p: DataPoint, w: number, h: number, sides: Side[], force: boolean) => {
+            const c = at(p), r = rOf(p), gap = 3;
+            const cands = sides.map(sd => sd === "right"
+                ? { b: { x0: c.x + r + gap, y0: c.y - h / 2, x1: c.x + r + gap + w, y1: c.y + h / 2 }, x: c.x + r + gap, y: c.y + h * 0.35, anchor: "start" }
+                : sd === "left"
+                    ? { b: { x0: c.x - r - gap - w, y0: c.y - h / 2, x1: c.x - r - gap, y1: c.y + h / 2 }, x: c.x - r - gap, y: c.y + h * 0.35, anchor: "end" }
+                    : sd === "top"
+                        ? { b: { x0: c.x - w / 2, y0: c.y - r - gap - h, x1: c.x + w / 2, y1: c.y - r - gap }, x: c.x, y: c.y - r - gap - h * 0.2, anchor: "middle" }
+                        : { b: { x0: c.x - w / 2, y0: c.y + r + gap, x1: c.x + w / 2, y1: c.y + r + gap + h }, x: c.x, y: c.y + r + gap + h * 0.8, anchor: "middle" });
+            const self = ctx.markOf(p)?.i ?? -1;
+            const pick = cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self))
+                ?? (force ? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b)) ?? cands.find(o => inBounds(o.b)) ?? cands[0] : null);
+            if (pick) { ctx.placed.push(pick.b); }
+            return pick;
+        };
+        // unit names at the end point (bold when highlighted)
+        const maxW = Math.max(60, Math.min(160 * k, (ctx.right - ctx.left) * 0.35));
+        for (const u of units) {
+            const ok = u.nodes.filter((p): p is DataPoint => p != null);
+            if (u.name == null || ok.length === 0) { continue; }
+            const txt = this.truncate(u.name, maxW, cf);
+            const emph = this.isEmph(cfg, u.name);
+            const pick = spot(ok[ok.length - 1], this.textWidth(txt, cf) * (emph ? 1.08 : 1) + 2, cf,
+                ["right", "top", "bottom", "left"], true);
+            if (!pick) { continue; }
+            const t = this.el("text", {
+                "data-icd": "scatter-path-name", "data-series": u.name, x: pick.x, y: pick.y,
+                "text-anchor": pick.anchor, "font-size": cf, fill: cfg.ink, "font-family": FONT,
+                ...(emph ? { "font-weight": 700 } : {}), ...halo
+            }, lblG);
+            t.textContent = txt;
+        }
+        // period labels: four-digit years read as 'YY (as in the sheets)
+        const mode = sc.pathLabels;
+        if (mode === "off") { return els; }
+        const allCats = units.reduce<DataPoint[]>((acc, u) => acc.concat(u.nodes.filter((p): p is DataPoint => p != null)), []);
+        const years = allCats.length > 0 && allCats.every(p => /^(19|20)\d\d$/.test(p.cat.trim()));
+        const textOf = (p: DataPoint) => years ? `'${p.cat.trim().slice(2)}` : p.cat;
+        const ends: { p: DataPoint; u: ScatterPathUnit }[] = [];
+        const mids: { p: DataPoint; u: ScatterPathUnit }[] = [];
+        for (const u of units) {
+            const ok = u.nodes.filter((p): p is DataPoint => p != null);
+            ok.forEach((p, i) => (i === 0 || i === ok.length - 1 ? ends : mids).push({ p, u }));
+        }
+        const put = (e: { p: DataPoint; u: ScatterPathUnit }, force: boolean) => {
+            const txt = this.truncate(textOf(e.p), maxW, pf);
+            const pick = spot(e.p, this.textWidth(txt, pf) + 2, pf, ["top", "right", "bottom", "left"], force);
+            if (!pick) { return; }
+            const t = this.el("text", {
+                "data-icd": "scatter-path-label", "data-cat": e.p.cat, "data-series": e.u.name ?? "",
+                x: pick.x, y: pick.y, "text-anchor": pick.anchor, "font-size": pf, fill: cfg.ink,
+                "font-family": FONT, ...halo
+            }, lblG);
+            t.textContent = txt;
+        };
+        for (const e of ends) { put(e, true); }
+        if (mode !== "ends") { for (const e of mids) { put(e, mode === "all"); } }
+        return els;
+    }
+
+    /** play loop: the path of a unit up to timeline position t (frame + fraction); an
+     *  absent period is skipped, a gap (null) breaks the line */
+    private scatterPathD(nodes: ({ x: number; y: number } | null | undefined)[], t: number, X: Scale, Y: Scale): string {
+        const last = Math.max(0, Math.min(Math.floor(t), nodes.length - 1));
+        let d = "", pen = false, prev: { x: number; y: number } | null = null;
+        for (let i = 0; i <= last; i++) {
+            const n = nodes[i];
+            if (n === undefined) { continue; }
+            if (n === null) { pen = false; prev = null; continue; }
+            d += `${pen ? "L" : "M"}${X(n.x)},${Y(n.y)}`;
+            pen = true;
+            prev = n;
+        }
+        const f = t - last, nx = nodes[last + 1];
+        if (f > 0 && prev && nodes[last] === prev && nx) {
+            d += `L${X(prev.x + (nx.x - prev.x) * f)},${Y(prev.y + (nx.y - prev.y) * f)}`;
+        }
+        return d;
     }
 
     /**
@@ -21561,6 +22063,14 @@ export class Visual implements IVisual {
         const mult = { k: 1e3, m: 1e6, b: 1e9 }[m[2].toLowerCase()] ?? 1;
         const v = parseFloat(m[1]) * mult;
         return isFinite(v) ? v : null;
+    }
+
+    /** 1.57 (B18): scale.ratioRays "1; 0,7; 0,35" → the distinct ratios > 0, each entry
+     *  read like a reference line value (k/M/B suffixes, decimal comma) */
+    private parseRatioRays(text: string): number[] {
+        return text.split(";").map(t => this.parseRefValue(t))
+            .filter((v): v is number => v != null && v > 0)
+            .filter((v, i, a) => a.indexOf(v) === i);
     }
 
     /** dashed target/threshold line with label at the far end of the base chart */
