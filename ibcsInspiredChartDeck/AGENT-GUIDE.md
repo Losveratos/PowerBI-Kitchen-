@@ -10,10 +10,10 @@ Setting-Beschreibungen stehen in [src/settings.ts](src/settings.ts).
 **Property-Referenz wird generiert: `npm run guide`** (Prüfung: `npm run guide:check`) — die Tabellen
 im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`/`capabilities.json` anpassen.
 
-Stand: **1.56.0.0** (22.11.2026): Backlog IBCS-Templates B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17 (siehe „Neu in 1.56“); davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
+Stand: **1.57.0.0** (22.11.2026): Backlog IBCS-Templates B13 Teil 1b, B18, B19, B20, B24, B25 (siehe „Neu in 1.57“); davor 1.56 mit B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17; davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
-**Neu in 1.57 (in Arbeit):**
+**Neu in 1.57 (Backlog IBCS-Templates Teil 4, 22.11.2026):**
 
 *B24 · Feste Spaltenzahl für Small Multiples (Blatt 10G).* `chart.multiplesColumns` (numeric, Standard 0, Bereich
 0 bis 24, Gruppe „Small Multiples“ nach `multiplesTopN`, Keys `Chart_MultiplesColumns`/`Desc_Chart_MultiplesColumns`;
@@ -839,7 +839,7 @@ PBIR: `visual.json → objects.<objekt>.properties.<property>`. Enums als String
 
 <!-- gen:properties:start -->
 Generiert von `test/gen-agent-guide.js` (`npm run guide`) aus `capabilities.json` und
-`src/settings.ts`, Paketstand **1.56.0.0**. Nicht von Hand ändern — Korrekturen gehören in
+`src/settings.ts`, Paketstand **1.57.0.0**. Nicht von Hand ändern — Korrekturen gehören in
 `settings.ts`/`capabilities.json` (bzw. in die handgeschriebenen Abschnitte außerhalb dieses Blocks).
 Beschreibungen sind die deutschen Pane-Tooltips, in Tabellen auf ganze Sätze bis ca. 220 Zeichen
 gekürzt (`…` = gekürzt, Volltext in `src/settings.ts`). Enum-Labels stammen aus der

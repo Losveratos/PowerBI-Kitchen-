@@ -1,6 +1,6 @@
 # Changelog · ChartKitchen byDatenWG
 
-## 1.57.0.0 (in Arbeit)
+## 1.57.0.0 (2026-11-22, Backlog IBCS-Templates Teil 4)
 
 - **B24 · Feste Spaltenzahl für Small Multiples (nach IBCS-Blatt 10G).** Vorher: Das Raster wählte die Spaltenzahl
   selbst (Wurzel der Kachelzahl, Zellen mindestens 220 px breit); 24 Länder standen auf Full HD als 5 × 5 statt wie
