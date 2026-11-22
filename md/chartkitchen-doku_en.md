@@ -71,7 +71,7 @@ If you can operate one of the two visuals, you can operate the other: getting st
 | Shared | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start hub** 🚀 Get started plus four buttons: tour · template gallery · demo · explain fields — edit mode only. | Tour with 11 cards, demo = gallery of the 13 chart types, field guide with all 19 roles. | Tour with 7 cards (real mini renderings), demo = example P&L, field guide with all 20 roles. |
-| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 18 IBCS chart templates C01–C20 (without C07/C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
+| **Templates as presets** Gallery by purpose; one click sets every switch, afterwards everything is free. “↺ Back to template” restores the template state. | 19 IBCS chart templates C01–C20 (without C11) in five groups; ↺ at the bottom left of the chart. | 19 templates T01A–12H plus T05A balance sheet/T05B cash flow and the classic table in five groups; ↺ next to the template dropdown. |
 | **Font size HD · Full HD · UHD** Bar at the bottom of every hub page, with “📖 Open docs” on the right. | Saves *Data labels → Size preset* (in the format pane HD · Full HD · UHD; ×1 · ×1.5 · ×2). | Saves *Style → Font size preset* (HD · Full HD · UHD; ×1 · ×1.25 · ×1.6). |
 | **IBCS notation, teal by default** AC filled, PY grey, PL outlined, FC hatched; favourable variances teal instead of green — readable with red–green colour-vision deficiency. | Teal #1E8F9E · red #D64541; colour preset blue/orange. | Teal #0E8585 · red #E02B1D; presets IBCS green and blue/orange. |
 | **Four languages** German, English, Spanish, Japanese — follows the report language, in the hub too. | Format pane, chart texts and hub. | Format pane, toolbar, statement and hub. |
@@ -96,11 +96,12 @@ Every sub-page carries the **“← Back”** pill at the top left; Esc goes bac
 
 ### The template gallery by purpose
 
-The 17 IBCS templates (chapter 07) appear as tiles with a preview in five groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
+The 19 IBCS templates (chapter 07) appear as tiles with a preview in five groups. Every tile names its purpose in finance language, with a benefit line below; the C number sits as a small badge in the preview. Groups that fit side by side share a row; with little space the gallery pages row by row.
 
 | Group | Template | Tile title | Benefit line |
 | --- | --- | --- | --- |
 | **Time series** | C01 | Stacked columns by segment | Revenue mix per month |
+|  | C07 | Stacked area over time | Mix of segments with the total line |
 |  | C03 | Columns with prior-year variance | Monthly report AC vs. PY |
 |  | C19 | Columns vs. plan + year | Months AC/FC vs. PL, year on own scale |
 |  | C05 | Integrated year bridge | PY → AC/FC across the months |
@@ -329,7 +330,7 @@ Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the sa
 1. Format pane → *Chart* → group *Chart type* → *IBCS chart template* (first position of the Chart card, default “Off”) — or click a tile in the template gallery of the start hub (chapter 03).
 2. If a setting of the template deviates afterwards, **“↺ Back to template”** appears at the bottom left in edit mode: a click restores the template state, every other setting stays.
 3. To apply the same template again, click the active tile in the gallery — the dropdown in the format pane cannot report an entry that is already selected.
-4. C07 (area) and C11 (distribution) do not exist in the visual, so they are missing from the list.
+4. C11 (distribution) does not exist in the visual, so it is missing from the list. C07 (stacked area) exists since 1.56.
 
 | Template | What it sets | Also bind |
 | --- | --- | --- |
@@ -339,6 +340,7 @@ Since 1.49 ChartKitchen ships the IBCS chart templates as **presets** — the sa
 | C04 · Bars + variances (PL) | Bars, basis plan, variance absolute and in % | Plan (PL) |
 | C05 · Integrated bridge | Integrated bridge, basis previous year, variance absolute and in % | Previous Year (PY) |
 | C06 · Category bridge vertical | Category bridge as a column cascade, basis previous year | Previous Year (PY) |
+| C07 · Stacked area (08A, since 1.56) | The column stack as an area with a total line, values in the areas and series names on the right, scenario labels | Stack series |
 | C08 · Line | Line, basis Auto, absolute variance | — |
 | C09 · Scatter | Scatter, quadrants at the mean, single colour | X axis (scatter) |
 | C10 · Bubble | like C09, plus the size legend | X axis + bubble size |
@@ -439,6 +441,22 @@ For PBIR authors: set `chart.template` and the hidden property `chart.templateAp
 3. In a stack: “2025 > 2026@Software” measures one series (level line only for the bottom series). “@Series” always follows the arrow; without a stack or a matching series the whole text is the category (a category “a@b” works). 100 % stacks only allow series markers, labelled in percentage points (“+3.8 pp”, no Δ %), totals only without negative segments; a plan-only month compares on its plan value.
 4. If a marker targets the last (or, backwards, the first) column, room is kept at that edge for bar and label; stacked columns then put the series names left of the first column as on sheet 01A. For targets in the middle and next to the year column the label sits above the bar and above the columns below it, for bars after the row's value. Several markers on one category sit side by side; above a column in the middle only as many as there are text lines above it. With negative values the label sits below or left of the bar. In small multiples every tile reserves the same room. Lines and the waterfall style draw no markers.
 5. Second reconciliation: with the integrated bridge and both prior year and plan bound, “Second reconciliation” (`chart.bridgeSecondNet`, default Off) adds a second bar beside the net callout, e.g. “+4 PY”, with a thin level line of the other basis. It appears only when the other basis covers every month with a value; only then is room reserved for it.
+
+### Stacked area (since 1.56)
+
+A mix over many periods, for example incidents per priority over 24 months: stacked columns get restless with that many periods, a stacked area shows structure and total at a glance (after IBCS sheet 08A). The area is not a chart type of its own but a shape of the column stack: same fields, same scale, same order.
+
+1. Fields as for stacked columns: Category = time (ideally the hierarchy year › month), Stack series = the stack members, Actual (and Forecast or Plan where needed).
+2. Chart → Display → **“Stack shape”** → “Area” (`chart.stackShape = area`), or the template **C07 · Stacked area**.
+3. **“Total line”** (`chart.areaTotalLine`, default on) draws a line above the stack with a point and the total per period. **“Values in the areas”** (`chart.areaValueLabels`): automatically thinned out by space, first and last period only, or off. A value appears only where the area is tall enough.
+4. The series names stand right of the last period at the height of their band (with “Series names (columns)” = left of the first). In small multiples and when they do not fit, a key sits on top.
+
+- **Order:** as delivered, the first series lies at the bottom and is the darkest. To put Priority 1 on top as on the sheet, sort the series column descending in the model (sort-by column).
+- **Points in the middle of the period:** the sheet puts the points on the month boundary. ChartKitchen assigns flows such as incidents or revenue to their period and therefore puts the point in the middle, right above the month label.
+- **Scenarios:** the piece between two points carries the scenario of the right point: actual in the series tone, forecast hatched, plan light with an outline; a line at the last point before separates the blocks, the labels AC, FC and PL below.
+- **100 %:** “Stack scale” = “100 % (shares)” shows shares with one decimal, without a total line, with the “100 %” marker.
+- **Special cases:** a period without values breaks the areas and the line, a single period between gaps is drawn as a thin stack, a missing cell counts as 0. Series that are negative throughout lie below the zero line, the total line then shows the net. If a series changes its sign, the chart stays stacked columns, with a hint in edit mode.
+- **Interaction:** the tooltip names series, value, share and period total; a click and cross-highlighting fade the other cells. Emphasis as a band or as an ellipse around the total, comment markers above the total point.
 
 ### Stock and flow over time (since 1.55)
 
@@ -660,7 +678,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 
 | Setting | Description | Options / default |
 | --- | --- | --- |
-| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter, C19 columns vs. plan with a year column, C20 stock and flow over time. Not included: C07 (area) and C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) \| C19 · Columns vs. plan + year column (03B) \| C20 · Stock & flow (08E to 08H) · default „Off (no template)“ |
+| IBCS chart template | Since 1.49, first position of the Chart card (group Chart type): a starting point after the IBCS chart templates — sets chart type, variance basis, variance panels and the matching switches in one step; afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs “Bubble size”, C13 keeps the chart type and needs “Small Multiples”. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter, C19 columns vs. plan with a year column, C20 stock and flow over time, C07 the stacked area over time with a total line (since 1.56). Not included: C11. | Options: Off (no template) \| C01 · Stacked columns (series) \| C02 · Stacked bars (series) \| C03 · Columns + variances (PY) \| C04 · Bars + variances (PL) \| C05 · Integrated bridge (time) \| C06 · Category bridge vertical \| C07 · Stacked area (08A) \| C08 · Line (long time series) \| C09 · Scatter \| C10 · Bubble (scatter + size) \| C12 · Waterfall / bridge \| C13 · Small multiples \| C14 · Bar table by ΔPL (04A) \| C15 · Bar table by ΔPL % (04B) \| C16 · Bar table by AC (04C) \| C17 · Category bridge horizontal (06E) \| C18 · Variance scatter ΔPY % × ΔPL % (10F) \| C19 · Columns vs. plan + year column (03B) \| C20 · Stock & flow (08E to 08H) · default „Off (no template)“ |
 | Chart type | The chart mode — called “Orientation” until 1.45; since then at the very top of the first card in the format pane. | Options: Columns (Time) \| Bars (Structure) \| Line (Time, many points) \| Waterfall / Bridge \| Integrated Bridge (Time) \| Category Bridge (Structure) \| Table (IBCS) \| Pareto (Structure) \| Dumbbell (Structure) \| Slope · Before/After \| KPI Cards (Tiles) \| P&L Statement (IBCS) \| Scatter / Bubble (Correlation) \| Stock & flow (time), since 1.55 · default „Columns (Time)“ |
 | Smart-Start suggestions | Shows a subtle suggestion chip top-left of the chart when the bound fields clearly point to a better-fitting mode (e.g. date + AC + PL → columns with ΔPL). Only visible in edit mode, never in the read view or in exports. | On / Off · default On |
 | Variance basis | Basis for the variance panels. Auto: PL if available, otherwise PY. | Options: Auto \| Previous Year (PY) \| Plan (PL) \| Prior-month FC (revision) · default „Auto“ |
@@ -700,6 +718,9 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Stack total row (Σ) | Since 1.55 (`chart.stackTotalRow`), bars only: total row at the bottom. In values mode a legend-style row with the sum per series and the grand total (no total bar), in 100 % mode a 100 % bar with the overall mix. | On / Off · default Off |
 | Total row label | Since 1.55 (`chart.stackTotalLabel`): name of the Σ row, e.g. “World”. Empty = “Σ”. | Text · default empty |
 | Share bracket (top rows) | Since 1.55 (`chart.stackShareBracket`), stacked bars only: a bracket around the first N rows with their share of the grand total, e.g. “38 %” left of the names (IBCS sheet 02C). The reference is the first series when sorted by it, otherwise the stack total. Rest and Σ rows never count; not in 100 % mode. | 0 to 20 · default 0 (off) |
+| Stack shape | Since 1.56 (`chart.stackShape`), columns with the “Stack series” field only: as columns or as a stacked area over time with a total line, one point per period and the series names at the end (IBCS sheet 08A). | Options: Columns \| Area · default Columns |
+| Total line | Since 1.56 (`chart.areaTotalLine`), stacked area only: a line with a point and the total per period above the stack, never at 100 %. | On \| Off · default On |
+| Values in the areas | Since 1.56 (`chart.areaValueLabels`), stacked area only: values in the areas, thinned out by space, only in the first and last period, or none. | Options: Automatic (thin out) \| First and last period \| Off · default Automatic |
 | Series names (columns) | Since 1.55 (`chart.stackLegendPos`): where the series names sit at the stack. right of the last column (default) or left of the first column (IBCS sheet 01E). | Options: Right of the last column \| Left of the first column · default Right |
 | Scenario labels at the columns | Since 1.54 (`chart.scenarioLabels`), columns only: AC under the first actual month, FC under the first forecast month, AC and FC next to the parts of the year column. Since 1.55 also in the chart type “Stock & flow” (row below the axis groups). Since 1.55 also PL under the first plan-only period, with a thin AC \| PL separator below the axis when the plan periods come last (IBCS sheet 13A). Since 1.55 plan-only periods always carry their plan value as a label above the outline, also without scenario labels (behaviour change). | On / Off · default Off |
 
@@ -713,7 +734,7 @@ Since 1.45 the format pane follows the working order: the Chart card sits at pos
 | Tint negative stock | `chart.sfNegTint`: area pieces below zero lightly tinted in the bad colour. | On / Off · default On |
 | Opening stock | `chart.sfOpening`: extra point at the start of the first period (stock of the first period minus its net flow). | On / Off · default On |
 | Stock marker | `chart.sfStockAt`: position of the stock markers. | End of the period \| Middle of the period · default End |
-| Axis groups | `chart.axisGroups`: up to two group rows from the category hierarchy, with separators. | From the hierarchy \| Off · default From the hierarchy |
+| Axis groups | `chart.axisGroups`: up to two group rows from the category hierarchy, with separators. Since 1.56 also for the stacked area. | From the hierarchy \| Off · default From the hierarchy |
 
 #### Small Multiples
 
