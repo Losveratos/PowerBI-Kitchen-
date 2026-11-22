@@ -167,7 +167,7 @@ Befund: Auch AGEB ist kein unabhängiger Prüfstein. Die EE-Werte stammen laut F
 
 - **Zugunsten des Hauptpfads geschönt:** Die Gegenposition „kein Jahr mit Phase unter 10 % länger als eine Woche“ und „Median 44 h“ unter 5 % beruht auf der strengsten möglichen Definition. Eine Mittagsstunde mit etwas PV beendet die Phase. Mit Tagesmitteln liegt die längste Flaute in 8 von 11 Jahren über einer Woche (bis 13 Tage im November 2024). Diese naheliegende Gegenrechnung fehlt.
 - **Zuungunsten des Hauptpfads verzerrt:** (1) Die Offshore-VLS 2023–2025 erscheinen als schwache Wetterjahre, obwohl 13–24 % der Erzeugung per Redispatch abgeregelt wurden. Wer daraus Offshore-Erträge ableitet, unterschätzt das Potenzial nach Netzausbau. (2) Die PV-Gesamtreihe der letzten drei Jahre liegt rund 12 % unter 2015–2022, ohne dass ein Wettergrund belegt ist. Modelle mit dem Profil 2024 unterschätzen den PV-Ertrag. Beides benennt das Dossier nicht.
-- **Fehlende Gegenposition:** Marktbedingte Abregelung (negative Preise, 2024 laut BNetzA-PM 457 Stunden; nicht gesondert geprüft) wird erwähnt, aber nicht beziffert. Gerade sie dürfte die PV-Reihe ab 2023 drücken.
+- **Fehlende Gegenposition:** Marktbedingte Abregelung (negative Day-Ahead-Preise laut BNetzA-PM vom 03.01.2025 in 457 von 8.784 Stunden 2024, 2023: 301; gelesen) wird erwähnt, aber nicht beziffert. Gerade sie dürfte die PV-Reihe ab 2023 drücken.
 - **Fehlende Gegenposition:** Die Wetterbasis von elf Jahren ist kurz. Das Dossier sagt das selbst (Abschnitt 6). Die Reanalyse-Hosts bleiben gesperrt.
 - **Ausgewogen dargestellt:** Kalibrierung auf amtliche Summen, Biomasse- und Wasserkraft-Abgrenzung, Netzlast gegen Bruttostromverbrauch.
 
