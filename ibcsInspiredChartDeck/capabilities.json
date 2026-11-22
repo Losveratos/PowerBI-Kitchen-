@@ -547,6 +547,15 @@
                         ]
                     }
                 },
+                "sfFlowZoom": { "type": { "bool": true } },
+                "timeAggregation": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "sum", "displayName": "Sum" },
+                            { "value": "last", "displayName": "Last value" }
+                        ]
+                    }
+                },
                 "stackNormalize": {
                     "type": {
                         "enumeration": [

@@ -5349,20 +5349,20 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       && !sfQ("c609", '[data-icd="sf-net"]').length && !sfQ("c609", '[data-icd^="sf-area"]').length && pts.length === 20
       && pts.every((r, i) => Math.abs(num(r, "x") + num(r, "width") / 2 - ctr(i)) <= 0.6), "c609: Optionen aus, Marker in der Bandmitte");
   }
-  // c610: YTD im Modus gesperrt; Klick wählt alle Zeilen der Periode
-  addStage("c610", "Bestand & Fluss · YTD-Knopf gesperrt · Klick auf eine Periode filtert ihre Zeilen", 960, 420);
+  // c610: YTD-Knopf im Modus (bis 1.55 gesperrt, ab 1.56 frei: Flüsse kumuliert); Klick wählt alle Zeilen der Periode
+  addStage("c610", "Bestand & Fluss · YTD-Knopf (ab 1.56 frei) · Klick auf eine Periode filtert ihre Zeilen", 960, 420);
   {
     runCap("c610", sfDv(hObj({ cumulativeButton: true }), ["Jahr", "Quartal"], sfH), 960, 420, { viewMode: 1 });
-    const chip = sfQ("c610", '[data-ck-ctl="1"][data-icd-locked="1"]');
+    const chip = sfQ("c610", '[data-ck-ctl="1"][role="button"]');
+    const locked = sfQ("c610", '[data-ck-ctl="1"][data-icd-locked="1"]');
     if (chip[0]) { chip[0].dispatchEvent(new MouseEvent("click", { bubbles: true })); }
-    check(chip.length === 1 && window.__persist.c610.filter(c => c.merge.some(m => m.properties.cumulative != null)).length === 0,
-      "c610: YTD gesperrt, Klick schreibt nichts");
+    check(chip.length === 1 && !locked.length && window.__persist.c610.filter(c => c.merge.some(m => m.properties.cumulative === true)).length === 1,
+      "c610: YTD-Knopf frei, Klick schreibt cumulative = true (1.56, B11 Teil 2)");
     window.__lastSelect = null;
     const pg = sfQ("c610", 'g.icd-cat[data-cat="2025 · Q3"]')[0];
     if (pg) { pg.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
     check(!!window.__lastSelect && window.__lastSelect.n === 3, `c610: Klick auf Q3 2025 wählt Zufluss, Abfluss und Bestand (${window.__lastSelect && window.__lastSelect.n})`);
-  }
-  // c612: deutsche Aliasse bestand / zufluss / abfluss
+  }  // c612: deutsche Aliasse bestand / zufluss / abfluss
   addStage("c612", "Bestand & Fluss · Aliasse Bestand, zufluss, ABFLUSS (Referenz c603)", 1280, 600);
   {
     runCap("c612", sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material", tokenMap: { stock: "Bestand", inflow: "zufluss", outflow: "ABFLUSS" } }), 1280, 600);
@@ -5460,6 +5460,12 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       c.categories.forEach(cat => { cat.values = cat.values.concat(cat.values); });
       c.values.forEach(v => { v.values = v.values.concat(v.values).map(x => x == null ? x : x / 2); });
       c.categories.push({ source: { displayName: "Teil", roles: { [role]: true } }, values: Array.from({ length: 2 * n }, (_, i) => i < n ? a : b) });
+      // 1.56 (B11 Teil 2): über die Trend-Perioden (Zeit) nimmt der Bestand den letzten Wert,
+      // die zweite Teilperiode trägt daher den ganzen Bestand (Spaltengruppen summieren weiter)
+      if (role === "trend") {
+        const typ = c.categories.find(x => x.source.roles.rowType).values;
+        c.values.forEach(v => { v.values = v.values.map((x, i) => x != null && i >= n && typ[i] === "stock" ? x * 2 : x); });
+      }
       return dv;
     };
     runCap("c625", split("colgroup", "Werk A", "Werk B"), 1280, 600);
@@ -5852,6 +5858,169 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B10T2-END
+// ---- B11T2-BEGIN
+// ======================================================================
+// 1.56 (B11 Teil 2): chart.timeAggregation (sum | last), YTD im Bestand-Fluss-Modus,
+// sfFlowZoom (Blatt 08G), Konsistenzhinweis Bestand[t] − Bestand[t−1] = Netto[t]
+// ======================================================================
+{
+  const { sfQ, sfSvg, sfDv } = window.__sf;
+  const { sfG, sfH, hObj } = window.__sf.data;
+  const num = (e, a) => +e.getAttribute(a);
+  const q2 = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const txt = id => document.getElementById(id).textContent;
+  const mo = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const hc25 = [258, 259, 260, 261, 264, 275, 274, 275, 275, 273, 270, 263];   // Σ 3.207
+  const hc26 = [264, 265, 266, 268, 269, 270, 271, 272, 273, 274, 275, 266];   // Σ 3.233
+  const sumRx = /3[.,  ]?207|3[.,  ]?233/;
+  // c730: Säulen + Jahressäule, timeAggregation = last → Jahressäule = Dezember, Beschriftung „Ende“
+  addStage("c730", "B11 Teil 2 · Säulen + Jahressäule · Aggregation über die Zeit = letzter Wert · Jahressäule = Dez (263), „Ende“", 1000, 420);
+  runCap("c730", dataView(mo, [col("actual", hc25), col("plan", hc25.map(v => v + 2))],
+    { chart: { orientation: "columns", yearColumn: true, timeAggregation: "last" } }), 1000, 420);
+  {
+    const y = q2("c730", '[data-icd="year-column"]')[0], tt = y ? y.querySelector("title").textContent : "";
+    check(!!y && /^(Ende|End) · /.test(tt) && /263/.test(tt) && !sumRx.test(tt) && / -2|−2/.test(tt),
+      `c730: Jahressäule mit letztem Wert und Δ des letzten Monats („${tt}“)`);
+  }
+  // c731: dieselben Werte als Zeilen mit Token stock, Aggregation Standard (Summe) → Jahressäule trotzdem der letzte Wert
+  addStage("c731", "B11 Teil 2 · Säulen + Jahressäule · Zeilen mit Token stock · Aggregation Summe · Jahressäule = Dez", 1000, 420);
+  runCap("c731", dataView(mo, [col("actual", hc25), col("plan", hc25.map(v => v + 2))],
+    { chart: { orientation: "columns", yearColumn: true } }, null, mo.map(() => "stock")), 1000, 420);
+  {
+    const y = q2("c731", '[data-icd="year-column"]')[0], tt = y ? y.querySelector("title").textContent : "";
+    check(!!y && /263/.test(tt) && !sumRx.test(tt), `c731: Bestandszeilen in der Jahressäule als letzter Wert („${tt}“)`);
+  }
+  // c732: Σ-Kopf mit letztem Wert
+  addStage("c732", "B11 Teil 2 · Säulen mit Σ-Kopf · Aggregation = letzter Wert · „Ende 263“ statt Σ 3.207", 1000, 420);
+  runCap("c732", dataView(mo, [col("actual", hc25), col("plan", hc25.map(v => v + 2))],
+    { chart: { orientation: "columns", showTotal: true, timeAggregation: "last" } }), 1000, 420);
+  {
+    const h = q2("c732", '[data-agg="last"]')[0], ht = h ? h.textContent : "";
+    check(!!h && /^(Ende|End) 263/.test(ht) && !sumRx.test(txt("c732")), `c732: Kopf „${ht}“`);
+  }
+  // c733: YTD mit Bestandszeilen in Säulen → der Bestand läuft durch (keine laufende Summe)
+  addStage("c733", "B11 Teil 2 · Säulen YTD · Zeilen mit Token stock · Werte wie geliefert", 1000, 420);
+  runCap("c733", dataView(mo, [col("actual", hc25)], { chart: { orientation: "columns", cumulative: true } }, null, mo.map(() => "stock")), 1000, 420);
+  check(/275/.test(txt("c733")) && !/\b517\b|\b777\b/.test(txt("c733")) && !sumRx.test(txt("c733")),
+    "c733: YTD kumuliert Bestandszeilen nicht (Feb 259, nicht 517)");
+  // c734: Bestand & Fluss YTD (08G): Flüsse je Art kumuliert, Rücksetzen im Januar, Plan an Ist angehängt, Bestand unverändert
+  addStage("c734", "B11 Teil 2 · Bestand & Fluss YTD · 08G · Flüsse kumuliert, Bestand wie geliefert", 1280, 600);
+  runCap("c734", sfDv({ chart: { orientation: "stockflow", cumulative: true, scenarioLabels: true, sfNetLabel: "Fluctuation" } },
+    ["Jahr", "Monat"], sfG, { name: "Headcount" }), 1280, 600);
+  {
+    const vin = q2("c734", '[data-icd="sf-seg-in"]').map(g => num(g, "data-v"));
+    const vout = mo.map(m => q2("c734", `g.icd-cat[data-cat="2025 · ${m}"] [data-icd="sf-seg-out"]`)[0]).map(g => g ? num(g, "data-v") : 0);
+    const st = q2("c734", '[data-icd="sf-stock-pt"]').map(e => num(e, "data-v")), st02 = q2("c602", '[data-icd="sf-stock-pt"]').map(e => num(e, "data-v"));
+    check(vin.length === 24 && vin[11] === 36 && vin[12] === 5 && vin[15] === 13 && vin[23] === 30 && vout[11] === -30,
+      `c734: Zugänge YTD Dez 2025 = 36, Jan 2026 = 5, Apr 13, Dez 2026 (AC&PL) = 30, Abgänge Dez 2025 = −30 (${vin[11]}, ${vin[12]}, ${vin[23]}, ${vout[11]})`);
+    check(JSON.stringify(st) === JSON.stringify(st02) && !q2("c734", '[data-icd="sf-hint"]').length,
+      "c734: Bestand wie ohne YTD, kein Konsistenzhinweis bei laufenden Summen");
+    const tot = q2("c734", '[data-icd="sf-total"]')[0], tt = tot ? tot.textContent : "";
+    check(/Σ Hires 30\b/.test(tt) && /Σ Layoffs 25\b/.test(tt) && /Fluctuation \+5\b/.test(tt) && /266/.test(tt),
+      `c734: Summenkopf mit dem YTD der letzten Periode, keine Summe laufender Summen („${tt}“)`);
+  }
+  // c735: YTD-Knopf bei Aggregation = letzter Wert gesperrt (Linie)
+  addStage("c735", "B11 Teil 2 · Linie mit YTD-Knopf · Aggregation = letzter Wert · Knopf gesperrt", 960, 420);
+  runCap("c735", dataView(mo, [col("actual", hc25)], { chart: { orientation: "line", cumulativeButton: true, timeAggregation: "last" } }), 960, 420, { viewMode: 1 });
+  {
+    const lk = q2("c735", '[data-ck-ctl="1"][data-icd-locked="1"]');
+    check(lk.length === 1 && /(letzter Wert|last value)/.test(lk[0].textContent), `c735: YTD gesperrt („${lk[0] ? lk[0].querySelector("title")?.textContent : "–"}“)`);
+  }
+  // c736: sfFlowZoom (08G): Flüsse und Netto × 5, Skalenband, „×5“ an den Namen
+  addStage("c736", "B11 Teil 2 · Bestand & Fluss · 08G mit sfFlowZoom · Flüsse und Netto ×5 · Skalenband", 1280, 600);
+  runCap("c736", sfDv({ chart: { orientation: "stockflow", sfFlowZoom: true, scenarioLabels: true, highlightStyle: "ellipse",
+    highlight: "2026 · Dec", sfNetLabel: "Fluctuation" },
+    ibcsTitle: { kpi: "Headcount", period: "2025 and 2026", message: "We plan our headcount to be at 266 at the end of 2026" } },
+    ["Jahr", "Monat"], sfG, { name: "Headcount" }), 1280, 600);
+  {
+    const root = q2("c736", '[data-icd="stockflow"]')[0];
+    const band = q2("c736", '[data-icd="scale-zoom"]')[0];
+    const seg = q2("c736", '[data-icd="sf-seg-in"]').find(g => num(g, "data-v") >= 10);
+    const kFlow = seg ? num(seg.querySelector("rect"), "height") / num(seg, "data-v") : 0;
+    const pts = q2("c736", '[data-icd="sf-stock-pt"]').map(r => ({ v: num(r, "data-v"), y: num(r, "y") }));
+    const a = pts[0], b = pts.find(p => Math.abs(p.v - a.v) >= 10);
+    const kStock = b ? Math.abs(b.y - a.y) / Math.abs(b.v - a.v) : 0;
+    const net = q2("c736", '[data-icd="sf-net"]').find(g => num(g, "data-v") >= 10);
+    const kNet = net ? num(net.querySelector("rect"), "height") / num(net, "data-v") : 0;
+    check(!!root && root.getAttribute("data-zoom") === "5" && !!band && band.getAttribute("data-factor") === "5"
+      && Math.abs(kFlow / kStock / 5 - 1) < 0.03 && Math.abs(kNet / kFlow - 1) < 0.03,
+      `c736: Faktor 5 = data-factor, px je Einheit Fluss/Bestand ${(kFlow / kStock).toFixed(2)}, Netto wie Fluss`);
+    const names = q2("c736", '[data-zoom="5"][data-icd^="sf-n"]').map(t => t.textContent);
+    check(names.length === 3 && names.every(t => /×5$/.test(t)) && !/×/.test(q2("c736", '[data-icd="sf-name-stock"]')[0]?.textContent ?? "×"),
+      `c736: „×5“ an Netto, Zu- und Abgang, nicht am Bestand (${names.join(" | ")})`);
+  }
+  // c737: sfFlowZoom bei großen Flüssen (08H) → kein Faktor, Zeichnung wie ohne
+  addStage("c737", "B11 Teil 2 · Bestand & Fluss · 08H mit sfFlowZoom · Flüsse schon hoch genug, kein Faktor", 960, 420);
+  addStage("c737b", "B11 Teil 2 · Referenz zu c737 ohne sfFlowZoom", 960, 420);
+  runCap("c737", sfDv(hObj({ sfFlowZoom: true }), ["Jahr", "Quartal"], sfH), 960, 420);
+  runCap("c737b", sfDv(hObj({}), ["Jahr", "Quartal"], sfH), 960, 420);
+  check(!q2("c737", '[data-icd="scale-zoom"]').length && !q2("c737", "[data-zoom]").length && sfSvg("c737") === sfSvg("c737b"),
+    "c737: kein Zoom, SVG-gleich ohne die Option");
+  // c738: Konsistenzhinweis (Bestand Q2 2024 um 3 zu hoch → Q2 und Q3 2024 weichen ab)
+  addStage("c738", "B11 Teil 2 · Bestand & Fluss · Bestand passt nicht zum Netto (Q2 2024) · Hinweis im Bearbeitungsmodus", 960, 420);
+  addStage("c738b", "B11 Teil 2 · wie c738 in der Leseansicht · kein Hinweis", 960, 420);
+  {
+    const bad = sfH.map((p, i) => i !== 5 ? p : Object.assign({}, p, { rows: p.rows.map(r => r[1] === "stock" ? [r[0], r[1], r[2] + 3] : r) }));
+    runCap("c738", sfDv(hObj(), ["Jahr", "Quartal"], bad), 960, 420);
+    runCap("c738b", sfDv(hObj(), ["Jahr", "Quartal"], bad), 960, 420, { viewMode: 0 });
+    const h = q2("c738", '[data-icd="sf-hint"][data-kind="consistency"]')[0];
+    check(!!h && h.getAttribute("data-n") === "2" && /Q2, Q3/.test(h.textContent), `c738: Hinweis „${h ? h.textContent : "–"}“`);
+    check(!q2("c738b", '[data-icd="sf-hint"]').length, "c738b: Leser sehen keinen Konsistenzhinweis");
+    const noHint = ["c600", "c601", "c602", "c603", "c604", "c605", "c607", "c612", "c620", "c621", "c622", "c623", "c624", "c625", "c626", "c627"]
+      .filter(id => q2(id, '[data-icd="sf-hint"][data-kind="consistency"]').length);
+    check(noHint.length === 0, `c600 ff.: stimmige Blattdaten ohne Konsistenzhinweis (${noHint.join(",") || "keine"})`);
+  }
+  // c739: KPI-Karten mit Trend, Kartenwert „Summe“, Bestandszeilen → letzter Wert
+  addStage("c739", "B11 Teil 2 · KPI-Karte mit Trend · Kartenwert Summe · Token stock → letzter Wert 263", 600, 300);
+  addStage("c739b", "B11 Teil 2 · KPI-Karte mit Trend · Kartenwert Summe · Aggregation = letzter Wert → 263", 600, 300);
+  addStage("c739c", "B11 Teil 2 · KPI-Karte mit Trend · Kartenwert Summe · Standard → 3.207", 600, 300);
+  run("c739", dataView(mo.map(() => "Headcount"), [col("actual", hc25)], { chart: { orientation: "cards", cardTrendValue: "sum" } },
+    null, mo.map(() => "stock"), mo), 600, 300);
+  run("c739b", dataView(mo.map(() => "Headcount"), [col("actual", hc25)], { chart: { orientation: "cards", cardTrendValue: "sum", timeAggregation: "last" } },
+    null, null, mo), 600, 300);
+  run("c739c", dataView(mo.map(() => "Headcount"), [col("actual", hc25)], { chart: { orientation: "cards", cardTrendValue: "sum" } },
+    null, null, mo), 600, 300);
+  check(/263/.test(txt("c739")) && !sumRx.test(txt("c739")) && /263/.test(txt("c739b")) && !sumRx.test(txt("c739b")) && sumRx.test(txt("c739c")),
+    "c739: Karten-Trend: Bestand bzw. letzter Wert statt Summe, Standard summiert");
+  // c740: Trend gebunden im Modus, Bestand nur in der letzten Teilperiode vollständig → wie c603
+  addStage("c740", "B11 Teil 2 · Bestand & Fluss · Trend gebunden · Bestand = letzte Teilperiode (erste mit −5) · wie c603", 1280, 600);
+  {
+    const dv = sfDv(hObj(), ["Jahr", "Quartal"], sfH, { name: "Raw material" });
+    const c = dv.categorical, n = c.values[0].values.length;
+    const typ = c.categories.find(x => x.source.roles.rowType).values.slice();
+    c.categories.forEach(cat => { cat.values = cat.values.concat(cat.values); });
+    c.values.forEach(v => { v.values = v.values.concat(v.values).map((x, i) => x == null ? x
+      : typ[i % n] === "stock" ? (i < n ? x - 5 : x) : x / 2); });
+    c.categories.push({ source: { displayName: "Teil", roles: { trend: true } }, values: Array.from({ length: 2 * n }, (_, i) => i < n ? "M1" : "M2") });
+    runCap("c740", dv, 1280, 600);
+    const r = id => document.querySelector(`#${id} [data-icd="stockflow"]`).outerHTML.replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip))-\d+(?:-\d+)?/g, "$1-N");
+    check(r("c740") === r("c603"), "c740: Bestand über die Trend-Perioden = letzter Wert, Flüsse summiert, SVG-gleich wie c603");
+  }
+  // c741 / c742 / c743: Tabelle mit Σ-Zeile bzw. Baum Jahr › Monat
+  const hv = (objs, rowTypes) => {
+    const yrs = [...mo.map(() => "2025"), ...mo.map(() => "2026")], mm = [...mo, ...mo];
+    const cats = [{ source: { displayName: "Jahr", roles: { category: true } }, values: yrs },
+      { source: { displayName: "Monat", roles: { category: true } }, values: mm }];
+    if (rowTypes) { cats.push({ source: { displayName: "Typ", roles: { rowType: true } }, values: yrs.map(() => "stock") }); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: [col("actual", [...hc25, ...hc26], "#,0")] } };
+  };
+  addStage("c741", "B11 Teil 2 · Tabelle Monate 2025 mit Σ-Zeile · Token stock → Σ-Zeile = Dez (263)", 700, 520);
+  runCap("c741", dataView(mo, [col("actual", hc25, "#,0")], { chart: { orientation: "table", showTotal: true } }, null, mo.map(() => "stock")), 700, 520);
+  check(/263/.test(txt("c741")) && !sumRx.test(txt("c741")), "c741: Σ-Zeile der Tabelle nimmt bei Bestandszeilen den letzten Wert");
+  addStage("c742", "B11 Teil 2 · Tabellenbaum Jahr › Monat · Aggregation = letzter Wert · 2025 = 263, 2026 = 266", 700, 300);
+  addStage("c743", "B11 Teil 2 · Tabellenbaum Jahr › Monat · Standard Summe · 2025 = 3.207 (Kontrolle)", 700, 300);
+  runCap("c742", hv({ chart: { orientation: "table", timeAggregation: "last" } }), 700, 300);
+  runCap("c743", hv({ chart: { orientation: "table" } }), 700, 300);
+  check(/263/.test(txt("c742")) && /266/.test(txt("c742")) && !sumRx.test(txt("c742")) && sumRx.test(txt("c743")),
+    "c742/c743: Baumknoten Jahr = letzter Monat, Standard bleibt die Summe");
+  // kein NaN in den neuen Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c7[3-5]\d[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(document.querySelector(`#${id} svg`)?.outerHTML ?? ""));
+    check(ids.length >= 16 && bad.length === 0, `c730 ff.: kein NaN, undefined oder Infinity im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B11T2-END
 </script>
 </body>
 </html>

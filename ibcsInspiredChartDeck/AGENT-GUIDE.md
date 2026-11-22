@@ -39,6 +39,33 @@ doppelt hohe Kachel (13B, Teil 1b), „ΔØ“ rechts an der Nulllinie, Δ %-Bes
 
 *B10 Teil 2 · Stapel-Blöcke mit Zwischensummen (nach IBCS-Blatt 02A).* Objekt `chart`, Gruppe „Darstellung“, nur gestapelte Balken mit Kategorie-Hierarchie (Formatbereich zeigt die Optionen nur dann). `stackBlocks` („Stapel-Blöcke“: `off` | `gap` | `subtotals` | `subtotalsButLast`, Standard `off`): Blockquelle ist Kategorie-Ebene 0 (`catLevels[0]`), angezeigt wird der Rest des Pfads („Switzerland“, bei drei Ebenen „DACH · Switzerland“); `p.cat` bleibt der volle Pfad und Schlüssel. Keine neue Rolle, Zwischensummen rechnet das Visual. Layout über die Slot-Tabelle `rowSlot` in `renderStacked` (ohne Blöcke `rowSlot[i] === i`): je Block seine Zeilen, bei `subtotals` ein Slot Zwischensumme (bei `subtotalsButLast` nicht am letzten Block; nicht bei gemischten Szenarien im Block), zwischen zwei Blöcken 0,5 Slot. Σ-Zeile und Zwischensumme teilen `drawStackSumRow` (Werte: Legendenzeile, ganz oder nur Summe; 100 %: Mix-Balken). In `render()` werden die Zeilen je Block zusammengelegt (`stackBlockSplit`), Top N wirkt je Block (`applyTopNStacked(..., block)`, „Rest (n)“ erbt den Block), Sortierung je Block (`sortStackCats(..., block)`, Rest-Erkennung am Blattnamen), die Blöcke nach Blocksumme absteigend, ohne `sortMode` in Datenreihenfolge. Mit Blöcken aus: `stackShareBracket`, `groupEvery`. `stackBlockShare` (bool, Standard aus, nur mit `subtotals*`): Blockanteil in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile, Zeilenanteil über hervorgehobenen Zeilen; bei 100 % mit Summen-Panel stehen Blocksumme und Anteil im Panel. Unabhängig von Blöcken: `highlightStyle=ellipse` zeichnet bei gestapelten Balken einen Pfeil ▼ auf das Balkenende hervorgehobener Zeilen; `highlight` trifft mit Blöcken auch den Blattnamen. Marker (`data-icd`): Wurzelgruppe `data-blocks="2"`, `stack-block` (`data-block`, enthält die Zeilen), `stack-block-total` (`data-block`, `data-total`) mit `stack-total-seg` und `stack-block-grand`, `stack-block-share` (`data-share`, auch an der Σ-Zeile und im Panel), `stack-row-share`, `stack-hl-arrow`. Rezept Blatt 02A: `orientation=bars`, `sortMode=ac`, `stackBlocks=subtotalsButLast`, `stackBlockShare=true`, `stackTotalRow=true`, `stackTotalLabel=World`, `highlight=Switzerland, USA`, `highlightStyle=ellipse`. Abweichungen: Summenlinie volle Breite, Rest-Zahlen aufrecht, Blocksumme mit „=“, keine Segment-Ellipse, keine Blöcke bei Säulen. Tests c830 bis c849c; bestehende Stufen SVG-identisch (Hash aller 485 Stufen).
 
+*B11 · Bestand-Fluss-Modus, Teil 2 (Aggregation über die Zeit, YTD, Fluss-Zoom; Blätter 08E bis 08H).* `chart.timeAggregation`
+(`sum` | `last`, Standard `sum`, „Aggregation über die Zeit“, Gruppe „Daten & Zeit“, sichtbar in `columns`, `line`, `table`,
+`cards`, `stockflow`): mit `last` fassen alle Stellen, die über die Zeit zusammenfassen, als letzter Wert zusammen:
+`cumulate` (YTD/QTD/R12 reichen durch, YTD-Chip gesperrt mit `Lock_YtdLast`), `buildYearPoint` (Jahressäule, Beschriftung
+`Label_LastValue` „Ende“ statt „Σ“, sofern `yearColumnLabel` leer), Tabellenbaum, Σ-Zeile und Matrix (`aggregateTime`
+statt `aggregateHierarchy`; über mehrere Spaltenblöcke, also Matrix-Σ und Zellen über Unterspalten, nur mit `last`,
+nicht automatisch für `stock`), `mergeColPoints` (nur Kinder, die sich allein in der Trend-Periode unterscheiden; Spaltengruppen
+bleiben Summe), Karten-Trend (`cardTrendValue = sum` wirkt dann wie `last`) und `drawTotalHeader` (nur Säulen/Linie,
+„Ende 263“, Text trägt `data-agg="last"`). Referenz ist `lastKid`: die letzte Periode mit Ist oder Forecast, sonst die letzte
+mit Plan oder Vorjahr; ihre Basis und ihr Δ gelten unverändert. **Zeilen mit dem Token `stock` aggregieren über die Zeit
+immer so** (`timeLast`: alle Kinder `sfKind = stock`), auch bei `sum`; über Kacheln (Σ/Ø/Rest), Spaltengruppen, Regionen
+und Dubletten bleibt ein Bestand eine Summe. Im Modus `stockflow` ist YTD frei (`cumulative` sichtbar, Chip nicht mehr
+gesperrt): `cumulateSeries` kumuliert je Serie und Token, die Zelle `value ?? pl` läuft durch (Ist, danach Plan angehängt),
+`stock`-Zeilen und `lineVal` bleiben; Rücksetzen bei Monatsnamen im Blatt-Label (`catLevels` letzte Ebene) am
+Fiskaljahresbeginn, sonst beim Wechsel der obersten Ebene; gesperrt nur bei reinen Bestandszeilen (`Lock_YtdStockFlow`,
+Text angepasst). `chart.sfFlowZoom` (bool, Standard false, Gruppe „Bestand & Fluss“): `sfDeckOf` wählt deckweit den
+größten Faktor f aus `ZOOM_FACTORS` mit f · max(Fluss, Netto) ≤ Bestand / 3 (kein Faktor, wenn keiner passt); Flüsse
+(`YF`) und Netto (`YN`) zeichnen mit kpx · f, Bestand mit kpx. Marker: Wurzel `stockflow` mit `data-zoom`, `scale-zoom`
+(`data-factor`, `data-band`) im Hauptpanel (Band im Bestands- und im Fluss-Maßstab), „×f“ an `sf-net-title`,
+`sf-name-in`, `sf-name-out` (je `data-zoom`). Konsistenzhinweis im Bearbeitungsmodus: `[data-icd="sf-hint"][data-kind="consistency"]`
+(`data-n` = Zahl der Perioden, `Hint_StockFlowConsistency` mit `{list}`), wenn Bestand[t] − Bestand[t−1] − Netto[t] größer
+als eine halbe Einheit der Beschriftung ist; nicht bei YTD, nicht in synthetischen Kacheln (`renderStockFlow(…, synthetic)`),
+nicht in Perioden mit `flowsDropped` und nur, wenn kein Hinweis `mixed` steht. Verhaltensänderung: `stock`-Zeilen in
+Jahressäule, Tabelle, Trend-Rolle und Karten zeigen den letzten Wert; c610 prüft den freien YTD-Knopf, c626 liefert den
+Bestand in der zweiten Trend-Periode vollständig. 845 resjson-Keys je Sprache. Tests c730 bis c743. Noch offen (Teil 3):
+Jahreszeile aus einer einzelnen Datumsspalte, `axisGroups` in Säulen und Linie, ΔBestand gegen PL/PY.
+
 **Neu in 1.55 (Backlog IBCS-Templates Teil 2, 21.11.2026):**
 
 *B10 · Stapel-Struktur (Blätter 01D, 01E, 02B bis 02E).* Alle Properties im Objekt `chart`, Formatbereich-Gruppe „Darstellung“. `stackNormalize` („Stapel-Skala“: `off` = „Werte“ | `pct100` = „100 % (Anteile)“, Standard `off`): gestapelte Säulen und Balken als 100 % je Kategorie, Beschriftungen sind Anteile mit einer Nachkommastelle, Panel-Titel mit Zusatz „Anteile in %“. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N), sonst bleibt der Stapel bei Werten. „100 %“-Marke: bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile mit „▲ 100 %“ darunter. Eine Referenzlinie wird bei 100 % als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax`/`capOverflow` gelten nicht für Anteile. Bei 100 %-Balken zeigt `showTotal` („Summen-Kopfzeile (Σ)“, Standard an) ein Summen-Panel rechts mit eigener Skala, nur ab 280 px Kachelbreite; bei Small Multiples teilen sich alle Kacheln einen Pixelwert je Einheit, Forecast-Kategorien sind dort schraffiert, Plan-Kategorien umrandet, der Kopf nennt die Szenarien („Σ AC · PL“, „(↓)“ bei Sortierung nach Summe). `stackTotalRow` („Σ-Zeile im Stapel“, bool, Standard aus, nur Balken): Σ-Zeile unten; bei Werten Legendenzeile mit Summe je Serie und Gesamtsumme („= 3.733“; die Serien-Summen ganz oder gar nicht, passen sie nicht, nur die Gesamtsumme; kein Summenbalken, die Summe passt nicht auf die Zeilenskala), bei 100 % ein 100 %-Balken mit dem Gesamtmix. Die Σ-Zeile summiert nur ein Szenario: Bei gemischten AC-, FC- und PL-Kategorien entfällt sie. `stackTotalLabel` („Beschriftung der Σ-Zeile“, Text, leer = „Σ“, z. B. „World“). `stackLegendPos` („Seriennamen (Säulen)“: `end` = „Rechts neben der letzten Säule“, Standard | `start` = „Links neben der ersten Säule“, Blatt 01E). `sortMode` kennt neu `series` („Nach erster Serie (Stapel)“); in Stapelbalken sortiert `ac` nach Stapelsumme, `series` nach der ersten Serie (bei 100 % nach deren Anteil, Blatt 02E); „(↓)“ markiert die sortierte Serie in der Legende; Rest-Kategorien (Rest, Others, Sonstige, „Rest of …“, Top-N-Rest) bleiben am Ende und kursiv. Die Serienreihenfolge eines Stapels bleibt wie geliefert: Sortierung und Top N ändern weder Farbtöne noch Legendenreihenfolge noch, welche Serie die „erste“ ist. Zwei Verhaltensänderungen: (1) `chart.topN` bei Stapelbalken reiht jetzt ganze Kategorien nach Stapelsumme, behält alle Serien-Zellen der Top N und fasst den Rest je Serie zu „Rest (n)“ zusammen (vorher einzelne Zellen und eine Serie „(leer)“). (2) Ein 1.54-Bericht mit Stapelbalken und gespeichertem `sortMode` `ac` („Nach AC“) wird jetzt nach Stapelsumme sortiert (vorher ohne Wirkung auf Stapel). Testmarker (`data-icd`): `stack-100` (100 %-Marke), `stack-total-row` (Σ-Zeile), `stack-total-seg` (Segment der Σ-Zeile, mit `data-series`), `stack-total-grand` (Gesamtsumme), `stack-total-panel` (Summen-Panel, mit `data-px-per-unit`), `sort-mark` (Sortiermarke „(↓)“), `stack-rest` (Rest-Kategorie); die Wurzelgruppe trägt `data-norm="pct100"`, wenn 100 % aktiv ist. Mit den neuen Optionen aus zeichnen Stapel unverändert (SVG-Hash der 364 Harness-Stufen). Nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein Segment; Rest-Zeilen behalten in 02B/02D/02E ihren Rang (nur „Rest of world“ zuletzt), ChartKitchen setzt alle Rest-Zeilen ans Ende (B04-Regel), und auf den Blättern sind bei Rest-Zeilen auch die Zahlen kursiv, hier nur der Name. Tests c283 bis c289 und c295 bis c299b.
@@ -76,7 +103,7 @@ den Gruppen), `highlight` + `highlightStyle` (Ellipse um die Bestandszahl der Pe
 oder „2026“; Stil `band` = Band über Periode oder Gruppe), `showTotal` (Kopf „Σ Zufluss · Σ Abfluss · Netto · Endbestand“,
 Endbestand = letzter Bestand in Achsenfolge), `labelDensity`, `refLine`, `fixedMax`. Ausgeblendet bzw. ohne Wirkung:
 Δ-Panels, `previousYear`, `benchmark`, `prevForecast`, `acFcSplit`, kumulierte Sicht (YTD-Chip gesperrt,
-`Lock_YtdStockFlow`). Direktbeschriftung rechts: Netto-Name an der Netto-Nulllinie, Zufluss-Namen über und Abfluss-Namen unter
+`Lock_YtdStockFlow`; ab 1.56 frei, siehe B11 Teil 2). Direktbeschriftung rechts: Netto-Name an der Netto-Nulllinie, Zufluss-Namen über und Abfluss-Namen unter
 der Nulllinie, Bestandsname auf Höhe des letzten Bestands. Tooltip je Periode (Zufluss, Abfluss, Netto, Anfangsbestand,
 Bestand, Kommentare); Klick wählt alle Zeilen der Periode. Hinweise im Bearbeitungsmodus: `Hint_StockFlowNoStock`,
 `Hint_StockFlowNoFlow`; zu wenig Platz: `Hint_StockFlowSpace` (alle `data-icd="sf-hint"`). Testmarker (`data-icd`):
@@ -88,8 +115,7 @@ Bestand, Kommentare); Klick wählt alle Zeilen der Periode. Hinweise im Bearbeit
 `scen-label`, `group-sep`, `stack-comment`, `emph-ellipse`. Vorlage C20 siehe Tabelle unter „Neu in 1.49“. Tests c600 bis
 c613 (Blätter 08E bis 08H mit den Kontrollketten aus dem Abgleich, Vertrag `outflow` positiv = negativ ohne Token,
 Linien-Measure, Aliasse, ohne Bestand, Small Multiples, Summenkopf, Optionen, YTD-Sperre, Auswahl, Hochkontrast).
-Noch offen (Teil 2 und 3): `timeAggregation` (letzter Wert in YTD, Jahressäule, Tabellenbaum, Karten-Trend), `sfFlowZoom`
-(Flüsse bei großem Bestand vergrößert, 08G), Jahreszeile aus einer einzelnen Datumsspalte, `axisGroups` in Säulen und
+Noch offen (Teil 2 und 3; `timeAggregation` und `sfFlowZoom` ab 1.56): Jahreszeile aus einer einzelnen Datumsspalte, `axisGroups` in Säulen und
 Linie, ΔBestand gegen PL/PY, Parität in der dwg-App und in `dwg pbip`, Demo-Galerie-Eintrag.
 Review-Stand: `aggregateHierarchy` führt `sfKind` mit, wenn alle Kinder dieselbe Rolle tragen (damit erben Σ-, Ø- und
 Rest-Kachel, `mergeColPoints` und Dubletten die Rolle); im Modus (`sfModeOn()`) setzen `aggregateGroups` und
@@ -626,6 +652,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `cumulative` | bool | `false` | Schaltet alle Panels auf kumulierte Sicht: Säulen, ΔBasis und ΔBasis % zeigen Year-to-Date-Werte. |
 | `cumulativeKind` | enum | `ytd` | `ytd` · `qtd` · `r12` — YTD setzt am Fiskaljahres-Beginn zurück, QTD an jedem Quartalsstart, R12 summiert rollierend die letzten 12 Perioden. Monats-Erkennung über die Kategorie-Labels (Jan…Dez, 01…12). |
 | `fiscalStart` | numeric | `1` | Bereich 1–12 — 1 = Januar … 12 = Dezember. Bestimmt, wo YTD/QTD zurücksetzen (z. B. 4 für ein Fiskaljahr ab April). |
+| `timeAggregation` | enum | `sum` | `sum` · `last` — Wie Werte über die Zeit zusammengefasst werden (YTD, Jahressäule, Tabellenbaum, zusammengeführte Perioden, Karten-Trend, Σ-Kopf): Summe oder letzter Wert (Stichtag, z. B. Bestand, Headcount) … |
 | `acFcSplit` | enum | `off` | `off` · `full` · `rest` — Ein teilweise abgeschlossener Monat liefert AC UND FC: „Vollmonatsprognose" zeigt den AC-Sockel solide und stockt schraffiert bis zum FC-Wert auf (Säule = max(AC, FC)); „Restmonat" addiert den FC-Wert oben auf AC (Säule = AC + FC) … |
 | `topN` | numeric | `0` | Bereich 0–50 — Struktur-Modi (Bars, Kategorie-Brücke, Tabelle, Dumbbell, KPI-Karten): zeigt die N größten Kategorien, der Rest wird aggregiert. 0 = alle. |
 | `showTotal` | bool | `true` | Zeigt Summe und Gesamtabweichung als Kopfzeile. |
@@ -676,6 +703,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `sfOpening` | bool | `true` | Bestand & Fluss: zusätzlicher Punkt am Anfang der ersten Periode mit dem abgeleiteten Anfangsbestand (Bestand der ersten Periode minus ihr Netto-Fluss). Standard an. |
 | `sfStockAt` | enum | `end` | `end` · `center` — Bestand & Fluss: Lage der Bestandspunkte, am Ende der Periode (Stichtag, wie auf den IBCS-Blättern) oder in ihrer Mitte. |
 | `axisGroups` | enum | `auto` | `auto` · `off` — Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen. |
+| `sfFlowZoom` | bool | `false` | Bestand & Fluss: Flüsse und Netto mit einem runden Faktor vergrößert, wenn sie neben einem großen Bestand nur wenige Pixel hoch wären (Blatt 08G) … |
 
 **Small Multiples**
 
@@ -798,6 +826,7 @@ Enum-Labels:
 - `comparisonMode`: `auto` = Auto; `py` = Vorjahr (PY); `plan` = Plan (PL); `fcrev` = FC Vormonat (Revision)
 - `cumulativeKind`: `ytd` = YTD (Jahr kumuliert); `qtd` = QTD (Quartal kumuliert);
   `r12` = R12 (rollierende 12 Perioden)
+- `timeAggregation`: `sum` = Summe; `last` = Letzter Wert
 - `acFcSplit`: `off` = Aus (FC nur, wo AC fehlt); `full` = FC = Vollmonatsprognose (Aufstockung);
   `rest` = FC = Restmonat (additiv)
 - `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte

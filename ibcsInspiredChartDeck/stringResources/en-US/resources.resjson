@@ -844,5 +844,14 @@
   "Hint_StockFlowSpace": "Not enough space for stock and flow",
   "Hint_StockFlowMixed": "Stock & flow: plan-only flows in a period with an actual or forecast are not drawn ({list})",
   "Tooltip_Scenario": "Scenario",
-  "Lock_YtdStockFlow": "No effect: stock and flow are not cumulated (a stock is not additive over time)"
+  "Lock_YtdStockFlow": "No effect: only stock rows, a stock is not additive over time",
+  "Enum_TimeAgg_Sum": "Sum",
+  "Enum_TimeAgg_Last": "Last value",
+  "Chart_TimeAgg": "Aggregation over time",
+  "Desc_Chart_TimeAgg": "How values aggregate over time (YTD, year column, table tree, merged Trend periods, card trend, Σ header): sum or last value (point in time, e.g. stock, headcount). Rows with the token stock always take the last value.",
+  "Chart_SfFlowZoom": "Zoom flows",
+  "Desc_Chart_SfFlowZoom": "Stock & flow: flows and net magnified by a round factor when next to a large stock they would be only a few pixels tall (sheet 08G). The factor stands as \"×f\" at the names, a scale band shows the same value on both scales. Default off.",
+  "Lock_YtdLast": "No effect: values aggregate over time as the last value (aggregation over time)",
+  "Label_LastValue": "End",
+  "Hint_StockFlowConsistency": "Stock & flow: the stock change differs from the net flow in {list}"
 }
