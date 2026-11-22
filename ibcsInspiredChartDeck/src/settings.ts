@@ -865,6 +865,17 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (B13 part 1b, IBCS sheet 13B): a freely chosen large tile over two rows
+    multiplesHeroTile = new formattingSettings.TextInput({
+        name: "multiplesHeroTile",
+        displayName: "Large tile (group name)",
+        displayNameKey: "Chart_MultiplesHeroTile",
+        description: "Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“. Die Kachel bleibt in ihrer Spalte und reicht über zwei Zeilen, die übrigen Kacheln füllen die freien Plätze. Große und kleine Kacheln zeigen dieselben Pixel je Einheit: die große Kachel nimmt den Ausreißer auf, die kleinen skalieren auf ihre eigenen Werte. Auch mit „Nur Abweichungs-Panel“ (eine Δ-Skala). Nur Säulen, Balken und Linie (ohne Stapel und Brücke). Leer oder unbekannter Name = bisheriges Verhalten.",
+        descriptionKey: "Desc_Chart_MultiplesHeroTile",
+        placeholder: "Berlin",
+        value: ""
+    });
+
     multiplesSameScale = new formattingSettings.ToggleSwitch({
         name: "multiplesSameScale",
         displayName: "Bridges: same scale for all tiles",
@@ -941,7 +952,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "varianceOnly",
         displayName: "Variance panel only",
         displayNameKey: "Chart_VarianceOnly",
-        description: "Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten. Die Bezugskachel (Σ bzw. Ø) behält ihre Säulen bzw. Balken, mit absolutem Δ im Maßstab der Δ-Skala; passen ihre Werte dort nicht hinein, steht der Verkleinerungsfaktor im Titel (z. B. ×0,5), nur mit Δ % skaliert sie für sich. Planjahre erscheinen in Plan-Notation (umrandet, blasse Füllung bzw. hohler Pin-Kopf). Kommentare, Hervorhebungsband, Differenzmarker, Jahressäule, Heldenkachel und doppelte Abweichung entfallen in dieser Ansicht. Kleine Kacheln fallen auf die normale Ansicht zurück. Rezept 13C: Basis Ø mit absoluter Abweichung, 13D: Basis Ø mit relativer Abweichung.",
+        description: "Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten. Die Bezugskachel (Σ bzw. Ø) behält ihre Säulen bzw. Balken, mit absolutem Δ im Maßstab der Δ-Skala; passen ihre Werte dort nicht hinein, steht der Verkleinerungsfaktor im Titel (z. B. ×0,5), nur mit Δ % skaliert sie für sich. Planjahre erscheinen in Plan-Notation (umrandet, blasse Füllung bzw. hohler Pin-Kopf). Kommentare, Hervorhebungsband, Differenzmarker, Jahressäule, „Erste Kachel groß“ und doppelte Abweichung entfallen in dieser Ansicht; eine benannte große Kachel (Große Kachel) bleibt auf derselben Δ-Skala. Kleine Kacheln fallen auf die normale Ansicht zurück. Rezept 13C: Basis Ø mit absoluter Abweichung, 13D: Basis Ø mit relativer Abweichung.",
         descriptionKey: "Desc_Chart_VarianceOnly",
         value: false
     });
@@ -950,7 +961,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
-        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero, this.multiplesHeroTile,
             this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
             this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
             this.multiplesBasis, this.varianceOnly]

@@ -505,6 +505,7 @@
                 "multiplesTotal": { "type": { "bool": true } },
                 "multiplesTopN": { "type": { "numeric": true } },
                 "multiplesHero": { "type": { "bool": true } },
+                "multiplesHeroTile": { "type": { "text": true } },
                 "multiplesSameScale": { "type": { "bool": true } },
                 "multiplesAgg": {
                     "type": {
