@@ -1,5 +1,7 @@
 # Dossier 06 · Europäische Integration
 
+> Stand Phase 1. Geprüft in `pruefung/06_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Auftrag P1-06 · Rechercheur: Sonnet (Phase 1) · Regeln: `agents/REGELN.md`
 Manifest: `quellen/manifest_P1-06_europa.json` · aufbereitete Daten: `data/europa_*.json` (Lizenz: `data/europa_LIZENZ.md`) · Skripte: `scripts/europa_*.py`
 

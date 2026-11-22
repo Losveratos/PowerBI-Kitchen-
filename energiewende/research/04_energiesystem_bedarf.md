@@ -1,5 +1,7 @@
 # Dossier 04 · Gesamtenergiesystem: Ist-Bilanz und Bedarfspfade
 
+> Stand Phase 1. Geprüft in `pruefung/04_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Phase 1, Auftrag P1-04 · Recherche-Agent (Sonnet) ·
 Manifest: `quellen/manifest_P1-04.json` · aufbereitete offene Daten:
 `data/p104_eurostat_de_energiebilanz.json` (Skript `scripts/p104_eurostat_aufbereiten.py`).

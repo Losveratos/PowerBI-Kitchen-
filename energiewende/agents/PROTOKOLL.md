@@ -32,7 +32,8 @@ denkfabrik-r21.de und www.cleanthinking.de vor der Host-Freigabe.
 
 **Summe Phase 1:** zehn Agenten (4 Opus, 6 Sonnet), 3.247.322 Token, 981
 Werkzeugaufrufe, längste Laufzeit 19,3 Minuten (parallel). 453 Parameter in
-zehn Dossiers.
+zehn Dossiers laut den Abschlussmeldungen; die maschinelle Zählung der
+JSON-Blöcke in Phase 3 ergibt 456 (einschließlich Erstbefund).
 
 Nach Phase 1 freigegeben (zweite Runde, 20 Hosts): siehe
 `briefs/P2_gegenpruefung.md`. Die Erweiterung der Erlaubnisregeln in
@@ -69,3 +70,4 @@ Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
 | P3-B Freigabeliste Teil 1 | Opus | 2026-11-22 | 12,6 min | 376.633 | 57 | `docs/03_teil1_freigabe.md`: 87 Aussagen (57 bestätigt, 17 korrigiert, 4 verworfen, 3 Setzung, 6 nicht prüfbar), Erzählbogen in fünf Akten, Pflicht-Gegenpositionen, Datenblock `teil1_data`; acht Entscheidungen offen |
+| P3-A Konsolidierung | Sonnet | 2026-11-22 | nicht gemeldet | nicht gemeldet | nicht gemeldet | `data/model_params.json` (456 Parameter), `research/konsolidierung.md`. Die Abschlussmeldung ging bei einem Neustart der Sitzung verloren; das Ergebnis wurde von der Orchestrierung geprüft: Skript zweimal gelaufen, identische Prüfsumme, Summen gehen auf (151 = 89 + 58 + 4) |

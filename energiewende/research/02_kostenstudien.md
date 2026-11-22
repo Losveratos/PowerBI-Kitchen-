@@ -1,5 +1,7 @@
 # Landschaft der Kostenstudien · Warum die Zahlen zwischen 0,3 und 13,3 Billionen liegen
 
+> Stand Phase 1. Geprüft in `pruefung/02_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Phase 1 · Auftrag P1-02 · Recherche-Agent (Opus) ·
 Regeln: `agents/REGELN.md` · Manifest: `quellen/manifest_P1-02.json`
 

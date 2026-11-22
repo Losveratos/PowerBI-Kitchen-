@@ -1,5 +1,7 @@
 # Dossier 07 · Lieferketten und Abhängigkeiten
 
+> Stand Phase 1. Geprüft in `pruefung/07_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Auftrag P1-07 · Stand 22.11.2026 · Recherche-Agent Sonnet · Vorbereitung für Teil 4 der Reihe
 Prüfgegenstand: R21-Erklärung S. 4 und S. 32 („Die Systemkomponenten der Energiewende kommen … allen voran aus China. Diese Abhängigkeit wächst“; PV „bis zu 80 % von China abhängig, bei Batterien dürfte der Wert noch höher liegen“; Investitionsgüter „müssen importiert werden“, S. 3). Für die 80-%-Angabe nennt das Papier keine Quelle (kein Beleg an der Stelle, PDF S. 32).
 

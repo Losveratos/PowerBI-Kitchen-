@@ -1,5 +1,7 @@
 # Dossier 03 · Stündliche Stromdaten über elf Wetterjahre (2015–2025)
 
+> Stand Phase 1. Geprüft in `pruefung/03_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Auftrag P1-03 · Stand 22.11.2026 · Agent: Sonnet · Ergebnisdateien: `data/profiles_<jahr>.json`, `data/stats_wetterjahre.json`, `data/plausibilitaet_jahressummen.json`, Skripte `scripts/build_profiles.py` und `scripts/check_plausibility.py`, Manifest `quellen/manifest_P1-03_stromdaten.json`.
 
 ## Kernaussagen

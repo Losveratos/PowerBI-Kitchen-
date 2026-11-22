@@ -1,5 +1,7 @@
 # Dossier 10 · Wirtschaftslage und Energiepreise
 
+> Stand Phase 1. Geprüft in `pruefung/10_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Phase 1 · Auftrag P1-10 · geschrieben von einem Sonnet-Agenten (Recherche, Daten) ·
 Regeln: `agents/REGELN.md` · Rohdaten und Prüfsummen: `quellen/manifest_P1-10.json` ·
 aufbereitete Daten: `data/p1_10_*.csv` (Skripte `scripts/p1_10_aufbereiten.py`, `scripts/p1_10_jsonstat.py`).

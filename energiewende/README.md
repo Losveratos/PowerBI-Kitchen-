@@ -57,6 +57,11 @@ an fremde Studien anlegen (`docs/01_messlatte.md`).
 | Interessen | Kein Auftraggeber, keine Finanzierung durch Dritte — bestätigt |
 | PwC-Studie, ifo-Gastbeitrag | „später“: Teil 1 weist bis dahin offen aus, dass beide Originale nicht gelesen wurden |
 | Reihenfolge | Korrekturen einarbeiten, Parameter zusammenführen, dann Teil 1 bauen und durch die Reviewer schicken |
+| Teil 1 · Format | Scroll-Story plus Belegseite |
+| Teil 1 · Anfrage an R21 | nach den Reviews, vor der Veröffentlichung; Antwort oder Nicht-Antwort wird auf der Seite vermerkt |
+| Teil 1 · Kernkraft-Neubau | kurzer Hinweis in Teil 1, die volle Rechnung in Teil 6 |
+| Teil 1 · Klimafolgekosten | ein Kasten mit Vorbehalt (Untergrenze, nicht addierbar) |
+| Teil 1 · übernommene Vorschläge der Freigabeliste (nicht einzeln bestätigt) | BIP-Bezug 2024 für die Studientabelle, 2025 nur für R21s eigene Umrechnung · der ifo-Auszug höchstens als Fußnote · kein Name des BILD-Autors auf der Seite · der Förderhinweis nur im Steckbrief, gleichrangig mit den Auftraggebern der Studien |
 
 ## Die Reihe
 
@@ -113,6 +118,8 @@ Das Lauf-Protokoll mit Laufzeit und Token je Agent steht in `agents/PROTOKOLL.md
 | 2026-11-22 | 1 · Korrektur | Dossier 01 hat vier Ungenauigkeiten im Erstbefund `research/00_aufhaenger_r21.md` gefunden (Seitenangaben, eine zu starke Formulierung, eine unsichere Autorenangabe, eine veraltete Konfidenzstufe). Korrigiert, Tabelle „Korrekturen“ im Dokument. Der Kernbefund (13,8 steht nicht in der Quelle) bleibt. |
 | 2026-11-22 | 1 · Abschluss | Zehn Dossiers, 453 Parameter. Zweite Host-Freigabe (20 Hosts). |
 | 2026-11-22 | 2 · Gegenprüfung | Zehn Prüfberichte in `research/pruefung/`, je Dossier ein Opus-Prüfer, der es nicht geschrieben hat. 428 Werte geprüft: 352 bestätigt, 46 abweichend, 27 nicht prüfbar. Die Daten stimmten fast durchgängig; die Fehler lagen in Ableitungen und Zusammenfassungen — in beide Richtungen (u. a. Stresstest-Aufschlag und Wasserstoff-Lkw zulasten, Speicherkosten und Beharrungs-Mehrkosten zugunsten der Energiewende; zwei Vorwürfe gegen R21 waren zu hart). |
+| 2026-11-22 | 3 · Zusammenführung | `scripts/consolidate_params.py` → `data/model_params.json`: 456 Parameter, 151 Korrekturen aus den Prüfberichten (89 angewendet, 58 Textkorrekturen, 4 nicht zugeordnet), 53 Herabstufungen der Konfidenz; nach der Regel „A nur bei mehreren unabhängigen Quellen“ bleiben 16 Parameter auf Stufe A. Bericht: `research/konsolidierung.md`. Die Dossiers tragen einen Verweis auf Prüfbericht und Parametersatz. |
+| 2026-11-22 | 3 · Freigabe Teil 1 | `docs/03_teil1_freigabe.md`: 87 Aussagen einzeln eingestuft, Erzählbogen, zwölf Pflicht-Gegenpositionen, verworfene Zahlen und Formulierungen. `scripts/build_teil1_data.py` → `data/teil1_data.json` (65 freigegebene Zahlen). |
 
 ## Offene Punkte
 

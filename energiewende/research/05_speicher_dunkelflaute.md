@@ -1,5 +1,7 @@
 # Speicher, Flexibilität und Dunkelflaute · Dossier P1-05
 
+> Stand Phase 1. Geprüft in `pruefung/05_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Phase 1 · Auftrag `agents/briefs/P1-05_speicher_dunkelflaute.md` ·
 Agent P1-05 (Opus) · Quellen mit Prüfsumme in `quellen/manifest_P1-05.json` ·
 eigene Auswertungen in `data/p1_05_dunkelflaute.json` und `data/p1_05_factsheet_a.json`

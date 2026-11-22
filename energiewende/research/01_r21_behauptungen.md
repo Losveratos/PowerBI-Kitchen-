@@ -1,5 +1,7 @@
 # Dossier 01 · Behauptungs-Inventar der R21-Erklärung
 
+> Stand Phase 1. Geprüft in `pruefung/01_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Phase 1 · Auftrag P1-01 (`agents/briefs/P1-01_r21_behauptungen.md`) ·
 geschrieben von einem Recherche-Agenten (Opus) · R21-Erklärung (59 S., 15.398 Wörter laut
 `pdftotext`) vollständig gelesen, dazu die Fußnoten-Hyperlinks des PDFs ausgelesen

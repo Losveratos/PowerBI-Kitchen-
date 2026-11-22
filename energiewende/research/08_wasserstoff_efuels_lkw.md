@@ -1,5 +1,7 @@
 # Dossier 08 · Wasserstoff, E-Fuels und der Lkw (Teil 5)
 
+> Stand Phase 1. Geprüft in `pruefung/08_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Stand 22.11.2026 · Phase 1 · Auftrag P1-08 · Rechercheur: Sonnet (Agent) ·
 Quellenzugriff nach `agents/REGELN.md`. Primär gelesen sind die Dokumente, die
 im Manifest `quellen/manifest_P1-08.json` mit Prüfsumme stehen (18 Dateien).

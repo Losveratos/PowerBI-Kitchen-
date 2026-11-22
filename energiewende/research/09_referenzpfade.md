@@ -1,5 +1,7 @@
 # Die Vergleichspfade: fossil weiter, R21-Pfad, Emissionshandel
 
+> Stand Phase 1. Geprüft in `pruefung/09_pruefung.md`; maßgeblich sind die korrigierten Werte in `data/model_params.json`.
+
 Dossier P1-09 · Stand 22.11.2026 · Recherche-Agent (Opus) · Auftrag
 `agents/briefs/P1-09_referenzpfade.md` · Regeln `agents/REGELN.md`
 
