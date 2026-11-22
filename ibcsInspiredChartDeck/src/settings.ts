@@ -1392,7 +1392,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterMaxRadius",
         displayName: "Max. bubble radius (px)",
         displayNameKey: "Chart_ScatterMaxRadius",
-        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual.",
+        description: "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual. Mit Gesamtblase gilt der Radius für die größte Einzelblase, die Gesamtblase wird größer (höchstens 40 % der kürzeren Plotkante).",
         descriptionKey: "Desc_Chart_ScatterMaxRadius",
         value: 0,
         options: {
@@ -1582,7 +1582,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterTotalBubble",
         displayName: "Total bubble",
         displayNameKey: "Chart_ScatterTotalBubble",
-        description: "Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“). Sie liegt hinter allen Blasen, zählt in die Größenskala (alle Blasen werden kleiner) und ist nicht auswählbar. Wie in den IBCS-Blättern 10E und 10G. Standard aus.",
+        description: "Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“). Erst ab zwei Blasen in der Kachel. Kreis und Segment liegen hinter allen Blasen, Summe und Teil darüber; sie ist nicht auswählbar und rechnet immer über alle sichtbaren Blasen, auch bei Auswahl. Der Radius der Einzelblasen bleibt, die Gesamtblase wächst darüber hinaus (höchstens 40 % der kürzeren Plotkante). Nicht im Play-Modus und nicht auf dem Zeitpfad. Wie in den IBCS-Blättern 10E und 10G. Standard aus.",
         descriptionKey: "Desc_Chart_ScatterTotalBubble",
         value: false
     });

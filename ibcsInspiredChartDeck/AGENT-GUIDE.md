@@ -89,6 +89,23 @@ Tooltip: Blase `Tip_Share` (Anteil in %) und Teil, Gesamtblase `Tip_Total` (Anza
 c946 (c203: 21 Rollen; c222 blättert drei Seiten, c222/c230: 24 Vorlagen). Standard SVG-gleich (Hash aller 756
 Bestands-Stufen, geändert nur Feld-Intro c203/c206/c227/c236 und Galerie c221e/c222d/c230). 983 resjson-Keys je
 Sprache. Offen: dwg-Katalog und Showcase für C24, gemeinsame Kachelhöhe für 10G (Plot zu flach für große Blasen).
+**Review-Stand:** Mit `sc.share` ist jede AC-Blase mit positiver Größe eine Torte (`pieOn`); `drawScatterPie(…, raw: null)`
+zeichnet die Tönung ohne Segment, `data-share=""`. Radius: `sRef` = größte Einzelblase (auch `ScatterShared.sRef`),
+`sMax` = mit Gesamtblasen; `rMax` (automatisch oder `scatterMaxRadius`) gilt für `sRef`, `rTop = min(rMax · √(sMax/sRef),
+max(rMax, 0,4 · min(0,8 · Breite, Plothöhe)))`, `rOfV` und Größenlegende rechnen mit `rTop` (ohne Gesamtblase
+`rTop = rMax`, bytegleich). Paneltitel „max“ = `sRef`. C24 setzt `scatterMaxRadius=100`. `scatterTotalOf` erst ab zwei
+Blasen (`n < 2` → null), Teil = Σ gekappter Anteil × Größe. Eigener Formatierer `sc.fmtShare` aus `this.shareFormat`
+über Teile und Teilsummen je Kachel (Tooltip und Gesamtteil; bei `ratio` steht der Gesamtteil in `fmtSize`).
+Summe und Teil der Gesamtblase in `scatter-total-labels` (nach den Marken, `pointer-events="none"`), der Teil prüft
+`scatterTotalGeo(…, obstacles)` gegen `placed` und die Wertboxen der Blasen. Hinweise `scatter-hint-share` mit
+`data-kind` `off` (`sc.shareOff`, `Hint_ScatterShareOff`), `total-off` (`sc.totalOff`, `Hint_ScatterTotalOff`) und
+bei Quote über 1 der Text `Hint_ScatterShareRatio` (`data-kind="range"`). Formatbereich: `scatterShareAs` nicht bei
+`scatterPlay` oder sichtbarer, aktiver `scatterShapes`; `scatterTotalBubble`/`scatterTotalColor` nicht bei
+`scatterPlay` oder `scatterPath=line`. Werte in Torten über `drawValue(…, haloCol)` mit Halo in der Tönung bzw. Papier.
+`scatterSectorFull(f, r)` (Vollkreis, wenn der Bogen unter 0,02 px fehlt), `scatterHatch(cfg, col)` (FC-Schraffur in
+der Punktfarbe). `aria-label` der Torten mit Größe und Anteil. Rezept 10G: 1920 × 1080, `scatterMaxRadius=40`, sonst
+wie 10E (24 Kacheln als 5 × 5). Tests c947 bis c959, angepasst c930, c933, c937, c939, c945; `scale.html` BUB10E,
+`export-cases.js` Blatt `bubbles`. 987 resjson-Keys je Sprache.
 
 **Neu in 1.56 (Backlog IBCS-Templates Teil 3, 22.11.2026):**
 
@@ -652,7 +669,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
-| C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) |
+| C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterMaxRadius=100 · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) |
 | C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) |
 
 **Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es

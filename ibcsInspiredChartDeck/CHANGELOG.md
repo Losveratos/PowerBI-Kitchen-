@@ -109,7 +109,8 @@
       Zoom, Play-Pfad, Cross-Highlight, Segmente, Blasenrand, Hochkontrast, Log-Rückfall, zwei Δ-Einheiten); c903 prüft
       die Schlecht-Farbe jetzt ausdrücklich. `scale.html`: RAY07E (Steigung im Pixelmaß, gleiche Pixelskala in 3 Kacheln),
       `export-cases.js`: Blatt `path` (07E mit Strahlen und Δ in allen Größen und Presets). Geändert nur die B18-Stufen
-      c900 bis c917 (Zeiger-Attribut, Labelplätze). 984 resjson-Keys je Sprache.
+      c900 bis c917 (Zeiger-Attribut und Labelplätze überall, dazu das Kachel-Layout in c910, die gefüllten AC-Punkte im
+      Hochkontrast c914 und die am Blasenrand gekürzten Segmente in c916). 984 resjson-Keys je Sprache.
     - Bewusst nicht geändert: mehr als sechs Einheiten wiederholen die Gruppenfarben (Bestandsregel der Palette, die
       Namen am Endpunkt tragen); im Hochkontrast sind alle Pfade gleichfarbig (Formen je Gruppe bleiben möglich).
 - **B19 · Blasen mit Kreissegmenten und Gesamtblase (Blätter 10E und 10G, Vorlage C24).** Vorher: Eine Blase zeigte
@@ -140,20 +141,60 @@
   - **Vorlage C24** (Galerie-Gruppe Korrelation nach C10, braucht „Blasengröße“, Mini `bubblepie`):
     `orientation=scatter`, `scatterQuadrant=off`, `scatterColorBy=group`, `scatterSizeLegend=false`,
     `scatterValueLabels=true`, `scatterBubbleOpacity=100`, `scatterTotalBubble=true`, `scatterTrend=off`,
-    `scatterArrows=false`, `scatterPath=off`, `scatterPlay=false`, `scale.xRefLine=1`. Rezept 10E: Kategorie und
-    Stack-Serie = Branche, Small Multiples = Land, zusätzlich `scatterTotalColor=#FF0000`, `scatterMaxRadius` nach
-    Kachelgröße (10E: 120), Gruppenfarben der Branchen, Achsen 0 bis 2 und −2 bis 12.
+    `scatterArrows=false`, `scatterPath=off`, `scatterPlay=false`, `scale.xRefLine=1` (seit dem Review auch
+    `scatterMaxRadius=100`). Rezept 10E: Kategorie und Stack-Serie = Branche, Small Multiples = Land, zusätzlich
+    `scatterTotalColor=#FF0000`, Gruppenfarben der Branchen, Achsen 0 bis 2 und −2 bis 12.
   - Testmarker (`data-icd`): `scatter-pie` (`data-share`, `data-small`), `scatter-pie-rim`, `scatter-pie-sector`,
     `scatter-total` (`data-v`, `data-part`, `data-x`, `data-y`, `data-n`), `scatter-total-sector`,
     `scatter-total-value`, `scatter-total-part`, `scatter-legend-share`, `scatter-legend-total`, `scatter-hint-share`
     (`data-kind` `roles` | `range`). Ohne die neuen Optionen und ohne die Rolle sind alle Bestands-Stufen SVG-gleich
     (Hash aller 756 Stufen; geändert nur das Feld-Intro c203, c206, c227, c236 um die neue Rolle und die Galerie c221e,
-    c222d, c230 um die Kachel C24; c222 blättert jetzt drei Seiten). Tests c930 bis c946. 983 resjson-Keys je Sprache.
+    c222d, c230 um die Kachel C24; c222 blättert jetzt drei Seiten). Tests c930 bis c946. 983 resjson-Keys je Sprache
+    (Endstand nach den Reviews 987).
   - Abweichungen von den Blättern: Die Gesamtblase liegt hinter den Blasen (Blatt: halbtransparent darüber), Summe
     200 statt 199 (das Blatt rundet), Standardfarbe neutral statt Rot, die Größenwerte stehen nur mit „Wert der
     Blasengröße“ in den Blasen. 10G: die Kacheln tragen den Scatter-Titel und Achsentitel, bei 4 × 6 Kacheln auf
     1280 × 720 bleibt deshalb wenig Plothöhe, und der Radius ist auf ein Fünftel davon gedeckelt (B12); die meisten
     Blasen fallen dann unter 6 px und zeigen kein Segment.
+  - **Nach dem Review:**
+    - Leerer Anteil (M1): Mit Blasenanteil wird jede Blase mit positiver Größe als Torte gezeichnet; ein leerer Anteil
+      (BLANK in DAX) ist die helle Tönung ohne Segment (`data-share=""`), nicht mehr eine volle Blase in Vollfarbe, die
+      sich wie 100 % las. Tooltip dann ohne Teil und Anteil.
+    - Lesbarkeit der Vorlage (M2), beides umgesetzt: Die Radiusgrenze (automatisch 22 px bzw. „Max. Blasenradius“) gilt
+      jetzt für die größte Einzelblase, die Gesamtblase wächst flächentreu darüber hinaus, höchstens auf 40 % der
+      kürzeren Plotkante (die Überlaufregel hält sie im Panel); vorher belegte die Gesamtblase den Radius und alle
+      Blasen schrumpften. Dazu schreibt C24 `scatterMaxRadius=100` (die Fünftel-Regel deckelt nach Kachelgröße).
+      Begründung: Die Radiusregel allein ließe C24 bei 22 px (für ein Portfolio zu klein), der Radius in der Vorlage
+      allein hätte weiter jede Blase geschrumpft, sobald jemand die Gesamtblase einschaltet. c930 und c945 treffen 10E
+      jetzt ohne Handradius (IT 97 px, Gesamtblase 155 px auf 1280 × 720).
+    - Formate (m1): Teil und Σ Teil im Format des Anteils-Measures (eigener Formatierer über Teile und Teilsummen;
+      bei `ratio` steht Σ Teil in der Einheit der Größe). Teil 2,5 liest sich „2,5“ statt „3“.
+    - Gesamtblase (m2): erst ab zwei Blasen in der Kachel (wie Blatt 10G); Kreis und Segment bleiben hinter den
+      Blasen, Summe und Teil stehen in einer Ebene über den Marken (`scatter-total-labels`, ohne Zeiger); der Teil
+      weicht den Werten in den Blasen aus (entlang des Segments, dann um den Kreis).
+    - Abschalten (m3): Hinweise im Bearbeitungsmodus `scatter-hint-share` mit `data-kind="off"` (Segmente im Play-Modus
+      oder mit „Form je Gruppe“) und `data-kind="total-off"` (Gesamtblase im Play-Modus oder auf dem Zeitpfad); im
+      Formatbereich verschwinden „Blasenanteil als“ bei Play und Formen, „Gesamtblase“ und ihre Farbe bei Play und Pfad.
+    - Gesamtteil (m4) aus den gekappten Anteilen × Größe, passt also zu den gezeichneten Segmenten; eine Quote über 1
+      bekommt den Hinweis „0 bis 1 erwartet (0,24 statt 24)“.
+    - Werte (m5) in Tortenblasen mit Halo in der Tönung, im Hochkontrast mit Papier-Halo (gelb auf gelbem Segment war
+      halb unsichtbar).
+    - Kleinere Punkte: Anteil knapp unter 1 zeichnet den Vollkreis (vorher konnte der Bogen verschwinden); FC-Segment
+      schraffiert in der Gruppenfarbe; der Paneltitel nennt mit Gesamtblase die größte Einzelblase („max 79“ statt
+      „max 200“); `Tip_Total` im Code wie in resjson; `aria-label` der Tortenblasen mit Größe und Anteil; Doku nennt das
+      10G-Rezept und das Verhalten bei Auswahl.
+    - Tests: c930, c933 (prüft jetzt exakt 90 px für die größte Einzelblase), c937 (10G-Rezept auf 1920 × 1080 mit
+      Radius 40, mindestens 60 % der Blasen mit Segment; das Visual legt 24 Kacheln als 5 × 5 an), c945 sowie neu c947
+      bis c959 (leerer Anteil, C24 pur, Formate, Summe über den Marken und Kachel mit einer Blase, Abschalten und
+      Formatbereich, gekappte Teile und Quote als Prozentzahl, Halo, FC-Schraffur, Zoom, Log-X, fixierte Achsen,
+      Cross-Highlight, Ziehen auf der Gesamtblase, Export ohne Hinweise, Vorlagenwechsel C24 → C10, Vollkreis,
+      `aria-label`, Paneltitel). `scale.html`: BUB10E (Fläche ∝ Größe für Einzel- und Gesamtblasen, Winkel);
+      `export-cases.js`: Blatt `bubbles` (10E France mit C24). Geändert nur B19-Stufen. 987 resjson-Keys je Sprache
+      (`Hint_ScatterShareRatio`, `Hint_ScatterShareOff`, `Hint_ScatterTotalOff`).
+    - Rezept 10G: 1920 × 1080, `scatterMaxRadius=40`, sonst wie 10E; 24 Kacheln stehen als 5 × 5 (eine
+      Spalten-Einstellung gibt es nicht), Kacheltitel und Achsentitel kosten Höhe.
+    - Nicht geändert: Im Export zeigen Small-Multiples-Kacheln weiter ihren Zoom-Knopf „⤢“ (Befund des
+      Export-Falls, betrifft alle Kachel-Modi, nicht B19; der B19-Exportfall ist deshalb ein einzelnes Diagramm).
 
 ## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
 

@@ -540,7 +540,7 @@
   "Chart_ScatterValueLabels": "Wert der Blasengröße",
   "Desc_Chart_ScatterValueLabels": "Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen. Die Namen stehen dann bevorzugt über der Blase. Die Einheit steht im Titel.",
   "Chart_ScatterMaxRadius": "Max. Blasenradius (px)",
-  "Desc_Chart_ScatterMaxRadius": "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual.",
+  "Desc_Chart_ScatterMaxRadius": "Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px). Größere Werte für Portfolio-Matrizen mit wenigen Einheiten; der Radius ist auf ein Fünftel der kleineren Plotkante gedeckelt (Plothöhe oder 0,8 × Breite). Große Blasen dürfen über den Achsenrand hinausragen, bleiben aber im Visual. Mit Gesamtblase gilt der Radius für die größte Einzelblase, die Gesamtblase wird größer (höchstens 40 % der kürzeren Plotkante).",
   "Chart_ScatterBubbleOpacity": "Deckkraft der Blasen %",
   "Desc_Chart_ScatterBubbleOpacity": "Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A.",
   "Chart_ScatterEmphFill": "Hervorhebung als Farbe",
@@ -972,7 +972,7 @@
   "Enum_ScatterShareAs_Value": "Wert (Teil der Blasengröße)",
   "Enum_ScatterShareAs_Ratio": "Quote (0 bis 1)",
   "Chart_ScatterTotalBubble": "Gesamtblase",
-  "Desc_Chart_ScatterTotalBubble": "Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“). Sie liegt hinter allen Blasen, zählt in die Größenskala (alle Blasen werden kleiner) und ist nicht auswählbar. Wie in den IBCS-Blättern 10E und 10G. Standard aus.",
+  "Desc_Chart_ScatterTotalBubble": "Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“). Erst ab zwei Blasen in der Kachel. Kreis und Segment liegen hinter allen Blasen, Summe und Teil darüber; sie ist nicht auswählbar und rechnet immer über alle sichtbaren Blasen, auch bei Auswahl. Der Radius der Einzelblasen bleibt, die Gesamtblase wächst darüber hinaus (höchstens 40 % der kürzeren Plotkante). Nicht im Play-Modus und nicht auf dem Zeitpfad. Wie in den IBCS-Blättern 10E und 10G. Standard aus.",
   "Chart_ScatterTotalColor": "Farbe der Gesamtblase",
   "Desc_Chart_ScatterTotalColor": "Umriss, Kreissegment und Schrift der Gesamtblase. Standard Dunkelgrau; das Blatt zeichnet Rot, das in ChartKitchen sonst für ungünstige Abweichungen steht.",
   "Tip_Share": "Anteil",
@@ -982,5 +982,8 @@
   "Enum_Template_C24": "C24 · Blasen mit Anteil (10E, 10G)",
   "Hub_TplT_C24": "Blasen mit Anteil",
   "Hub_TplU_C24": "Marktvolumen und unser Teil je Branche",
-  "Hint_ScatterPathOrder": "Zeitpfad: Kategorie ist nicht nach Periode sortiert (Sortierung des Visuals auf der Periode lassen)"
+  "Hint_ScatterPathOrder": "Zeitpfad: Kategorie ist nicht nach Periode sortiert (Sortierung des Visuals auf der Periode lassen)",
+  "Hint_ScatterShareRatio": "Blasenanteil als Quote: Werte von 0 bis 1 erwartet (0,24 statt 24)",
+  "Hint_ScatterShareOff": "Blasenanteil: keine Kreissegmente im Play-Modus und mit Form je Gruppe",
+  "Hint_ScatterTotalOff": "Gesamtblase: nicht im Play-Modus und nicht auf dem Zeitpfad"
 }
