@@ -5,7 +5,7 @@
 - **B18 · Scatter-Zeitpfad mit Quotenstrahlen (Blätter 07D und 07E, Vorlage C23).** Vorher: Der Scatter zeigte je
   Kategorie einen Punkt; eine Entwicklung über die Jahre ließ sich nur mit dem Play-Button nacheinander zeigen, eine
   Quote wie „Umsatz je Mitarbeiter“ nur über eine eigene Measure. Nachher:
-  - **„Zeitpfad“** (`chart.scatterPath`, `off` | `line`, Standard `off`, Gruppe „Scatter / Blase“): Datenvertrag des
+  - **„Zeitpfad“** (`chart.scatterPath`, `off` | `line`, Standard `off`, Gruppe „Scatter / Bubble“): Datenvertrag des
     Play-Modus ohne neue Rolle, Kategorie = Periode (Reihenfolge wie geliefert), Stack-Serie = Einheit, AC = Y,
     X-Achse = X; ohne Serie ein einziger Pfad. Je Einheit eine dünne Linie (1 px, Gruppenfarbe bzw. AC-Farbe,
     Hochkontrast Vordergrund) unter den Punkten. Fehlt X oder Y oder liegt ein Punkt außerhalb fixierter Achsen, bricht

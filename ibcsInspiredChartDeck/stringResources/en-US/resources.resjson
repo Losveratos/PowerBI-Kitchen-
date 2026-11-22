@@ -942,7 +942,7 @@
   "Chart_ScatterPathArrow": "Arrow at path end",
   "Desc_Chart_ScatterPathArrow": "Time path: arrow head on the last segment of each unit, showing the direction of the latest move. The IBCS sheets draw without. Default off.",
   "Chart_ScatterPathDelta": "Start-to-end deltas",
-  "Desc_Chart_ScatterPathDelta": "Time path: for the highlighted units (list “Highlight”) thin guide lines from the first and last point to the axes, Δ X as an arrow below the X axis and Δ Y as an arrow right of the plot, Δ Y in the good or bad colour (invert applies), Δ X neutral. Default off.",
+  "Desc_Chart_ScatterPathDelta": "Time path: for the highlighted units (list “Highlight categories”) thin guide lines from the first and last point to the axes, Δ X as an arrow below the X axis and Δ Y as an arrow right of the plot, Δ Y in the good or bad colour (invert applies), Δ X neutral. Default off.",
   "Scale_RatioRays": "Ratio rays (scatter)",
   "Desc_Scale_RatioRays": "Scatter only: rays through the origin for fixed ratios Y ÷ X (e.g. sales per employee), list separated by semicolons, e.g. “1; 0.7; 0.35” (k/M/B suffixes as for the reference line). Thin grey line to the plot edge, hollow circle and label at the exit. The rays pull 0 into both axes; ratios ≤ 0 are ignored. The tooltip then shows the ratio of each point. Empty = off.",
   "Scale_RatioRayUnit": "Ratio ray unit",

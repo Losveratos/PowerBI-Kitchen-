@@ -18,7 +18,7 @@ Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 *B18 · Scatter-Zeitpfad mit Quotenstrahlen (Blätter 07D, 07E, Vorlage C23).* Keine neue Rolle: Vertrag des Play-Modus,
 `category` = Periode (Reihenfolge wie geliefert), `series` = Einheit, `actual` = Y, `xValue` = X; `multiples` gibt Pfade
 je Kachel, `bubbleSize` bleibt möglich, `fcFlag`/`forecast` kennzeichnen FC-Perioden. Objekt `chart`, Gruppe
-„Scatter / Blase“: `scatterPath` (`off` | `line`, Standard `off`), `scatterPathLabels` (`auto` | `ends` | `all` | `off`,
+„Scatter / Bubble“: `scatterPath` (`off` | `line`, Standard `off`), `scatterPathLabels` (`auto` | `ends` | `all` | `off`,
 Standard `auto`), `scatterPathArrow` (bool), `scatterPathDelta` (bool); die drei letzten nur bei `scatterPath=line` im
 Pane, `scatterArrows` dann ausgeblendet. Objekt `scale`, Gruppe „Scatter-Achsen“: `ratioRays` (Text, `;`-Liste, je Eintrag
 `parseRefValue`, Werte ≤ 0 und Dubletten fallen weg) und `ratioRayUnit` (Text, nur mit Strahlen im Pane).
@@ -896,7 +896,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterValueLabels` | bool | `false` | Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen … |
 | `scatterMaxRadius` | numeric | `0` | Bereich 0–200 — Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px) … |
 | `scatterBubbleOpacity` | numeric | `55` | Bereich 10–100 — Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A. |
-| `scatterEmphFill` | bool | `false` | Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe. |
+| `scatterEmphFill` | bool | `false` | Hervorgehobene Punkte (Liste „Kategorien hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe. |
 | `scatterEmphColor` | color | `#0064FF` | Füllfarbe der hervorgehobenen Punkte, wenn „Hervorhebung als Farbe“ an ist. |
 | `scatterEmphLabel` | text | leer | Legendeneintrag für die Hervorhebungsfarbe (z. B. „Zukäufe 12/25“). Leer = kein Eintrag. |
 | `scatterGroupColor1` | color | `#404040` | Nur bei Punktfarbe „Nach Gruppe/Serie“: Farbe der Gruppe in dieser Position (Reihenfolge des ersten Auftretens). Der Standard ist die gedeckte Palette; ab der 7. Gruppe grau … |
@@ -912,7 +912,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterPath` | enum | `off` | `off` · `line` — Verbindet je Einheit (Feld „Stack-Serie“, ohne Serie ein einziger Pfad) die Punkte in der Reihenfolge der Kategorie, die hier die Periode ist (z. B. Jahre 2017 bis 2025), mit einer dünnen Linie in der Farbe der Einheit, wie in den … |
 | `scatterPathLabels` | enum | `auto` | `auto` · `ends` · `all` · `off` — Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt) … |
 | `scatterPathArrow` | bool | `false` | Zeitpfad: Pfeilspitze am letzten Segment jeder Einheit, zeigt die Richtung der jüngsten Bewegung. Die IBCS-Blätter zeichnen ohne. Standard aus. |
-| `scatterPathDelta` | bool | `false` | Zeitpfad: für die hervorgehobenen Einheiten (Liste „Hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw … |
+| `scatterPathDelta` | bool | `false` | Zeitpfad: für die hervorgehobenen Einheiten (Liste „Kategorien hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in … |
 | `scatterPlay` | bool | `false` | Blendet einen ▶-Button ein (Rosling-Modus): die Kategorie wird zur Zeitachse — je Periode ein Bild, die Punkte (je Wert des Felds „Serie") gleiten von Periode zu Periode, die Periode steht groß im Hintergrund … |
 
 **Persistierte Zustände** (nicht im Format-Pane; das Visual schreibt sie per `persistProperties`, ein Agent kann sie

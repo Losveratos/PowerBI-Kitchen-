@@ -1404,7 +1404,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterEmphFill",
         displayName: "Highlight as color",
         displayNameKey: "Chart_ScatterEmphFill",
-        description: "Hervorgehobene Punkte (Liste „Hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe.",
+        description: "Hervorgehobene Punkte (Liste „Kategorien hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe.",
         descriptionKey: "Desc_Chart_ScatterEmphFill",
         value: false
     });
@@ -1547,7 +1547,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterPathDelta",
         displayName: "Start-to-end deltas",
         displayNameKey: "Chart_ScatterPathDelta",
-        description: "Zeitpfad: für die hervorgehobenen Einheiten (Liste „Hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw. Schlecht-Farbe (Invert wirkt), Δ X neutral. Standard aus.",
+        description: "Zeitpfad: für die hervorgehobenen Einheiten (Liste „Kategorien hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw. Schlecht-Farbe (Invert wirkt), Δ X neutral. Standard aus.",
         descriptionKey: "Desc_Chart_ScatterPathDelta",
         value: false
     });
