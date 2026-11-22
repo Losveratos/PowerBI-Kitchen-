@@ -8,7 +8,7 @@ gerenderter Text und Vollbild-Aufnahmen bei 1280 px im Scratch-Ordner
 Grundlage: `docs/03_teil1_freigabe.md`, `data/teil1_data.json`. Am Original nachgeschlagen:
 BT-Drs. 20/10585 (Bundesrechnungshof, `quellen/raw/P2-02/btd_20_10585_brh.txt`, Druckseiten
 7–8 und 39–42), NEP 2037/2045 (2025) kompakt (`quellen/raw/P1-02/…kompakt.txt`, S. 11–12),
-ef.Ruhr/EWI 2024 (`quellen/raw/P2-02/efruhr_ewi_netzentgelte_2024.txt`, S. 2–4, 8, 13–14),
+ef.Ruhr/EWI 2024 (`quellen/raw/P2-02/efruhr_ewi_netzentgelte_2024.txt`, S. 4, 8, 13–14),
 DIHK „Plan B“ Studie und Begleitpapier (`quellen/raw/P1-02/dihk_planb_*.txt`, S. 27, 34;
 Begleitpapier S. 2), R21-Erklärung (`quellen/raw/P0/…R21_2026-11.txt`, Druckseite 8–9,
 Factsheet B-1). Kein neuer Abruf, deshalb kein Manifest.
@@ -119,9 +119,9 @@ nicht an. Alle Netzzahlen sind Brutto-Investitionen (G2), keine Mehrkosten. Aus 
 die entscheidende Frage. Einen Teil kann man den Erneuerbaren eindeutig zuordnen: Die
 Offshore-Anbindungen kosten im NEP 2025 allein 149–167 Mrd. € bis 2045, in ef.Ruhr/EWI 155 Mrd. €.
 Ein anderer Teil folgt der Last: ef.Ruhr/EWI nennt das Verteilnetz mit rund 430 Mrd. €, also rund
-20 Mrd. € pro Jahr, und treibt es mit „EE-Anlagen und Elektro…“ (Wärmepumpen, E-Autos).
+20 Mrd. € pro Jahr, und nennt als Treiber „EE-Anlagen und Elektrofahrzeuge“.
 Beleg: R21 Druckseite 8 (Text Z. 334–341) und Factsheet B-1 (Z. 437–440, 462–464); NEP 2025 kompakt
-S. 12; ef.Ruhr/EWI S. 8.
+S. 12; ef.Ruhr/EWI S. 4 und 8.
 Vorschlag: Einen Satz ergänzen: „Alle Netzzahlen sind Brutto-Investitionen. Wie viel davon ohne
 Wind und Sonne wegfiele, sagt keine der gelesenen Studien. Eindeutig den Erneuerbaren zuzuordnen
 sind die Offshore-Anbindungen (rund 150–170 Mrd. € bis 2045). Das Verteilnetz wächst auch mit
@@ -141,7 +141,7 @@ Bundesrechnungshof belegt außerdem eine zweite Verschiebung in den Haushalt, di
 gab der Bund 12,84 Mrd. € Zuschuss zu den Übertragungsnetzkosten. Als er 2024 wegfiel, verdoppelten
 die ÜNB die Übertragungsnetzentgelte von 3,12 auf 6,43 ct/kWh. Das ist die konkreteste Zahl dafür,
 wie Netzkosten beim Kunden ankommen.
-Beleg: ef.Ruhr/EWI 2024, S. 2–3 und 13–14; Drs. 20/10585, Druckseite 8 und 39 (Zuschuss 12,84 Mrd.
+Beleg: ef.Ruhr/EWI 2024, S. 4 und 13–14; Drs. 20/10585, Druckseite 8 und 39 (Zuschuss 12,84 Mrd.
 €, 3,12 → 6,43 ct/kWh).
 Vorschlag: In GP9 oder GP10 einen Satz ergänzen: „Eine Studie von ef.Ruhr und EWI rechnet den
 Netzausbau bis 2045 in Netzentgelte um: plus 18 ct/kWh für Haushalte, plus 7 ct/kWh für die
