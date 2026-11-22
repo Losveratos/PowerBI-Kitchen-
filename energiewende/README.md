@@ -98,6 +98,7 @@ Das Lauf-Protokoll mit Laufzeit und Token je Agent steht in `agents/PROTOKOLL.md
 | 2026-11-22 | 0 · Aufhänger | `research/00_aufhaenger_r21.md`: R21-Erklärung (59 S.) und Bundestags-Kurzinformation WD 5 – 3000 – 135/24 im Volltext gelesen. Erster Befund: Die zitierte Zahl „10 bis 13,8 Billionen“ steht so nicht in der zitierten Quelle. |
 | 2026-11-22 | 0 · Regeln | `TRANSPARENZ.md` (Entwurf v0.1) und `docs/01_messlatte.md` (Kriterien festgelegt, bevor eine Studie bewertet wurde). |
 | 2026-11-22 | 1 · Recherche | Zehn Dossier-Aufträge gestartet (`agents/briefs/`). |
+| 2026-11-22 | 1 · Korrektur | Dossier 01 hat vier Ungenauigkeiten im Erstbefund `research/00_aufhaenger_r21.md` gefunden (Seitenangaben, eine zu starke Formulierung, eine unsichere Autorenangabe, eine veraltete Konfidenzstufe). Korrigiert, Tabelle „Korrekturen“ im Dokument. Der Kernbefund (13,8 steht nicht in der Quelle) bleibt. |
 
 ## Offene Punkte
 
