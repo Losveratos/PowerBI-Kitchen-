@@ -1,0 +1,143 @@
+{
+  "hinweis": "Manifest des Auftrags P1-08 (Wasserstoff, E-Fuels, Lkw). Fremde Dokumente werden nicht gespiegelt; raw/ ist von Git ausgenommen.",
+  "eintraege": [
+    {
+      "id": "kfw_elektrolyse_2026-03",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Auf-einen-Blick/2026_03_04_Elektrolyse.pdf",
+      "datei": "raw/P1-08/kfw_elektrolyse_2026-03.pdf",
+      "sha256": "638ada241151d440f1b12448b7ae542f3222944d0c5f723d400baba3b089b420",
+      "abruf": "2026-11-22",
+      "seiten": 1
+    },
+    {
+      "id": "dihk_r2b_wasserstoffhochlauf_2026",
+      "url": "https://www.dihk.de/resource/blob/183558/062d6b214805a131e8e31b07e61b701b/dihk-studie-wasserstoffhochlauf-data.pdf",
+      "datei": "raw/P1-08/dihk_wasserstoffhochlauf.pdf",
+      "sha256": "1e6f6089fd6fcd5589f2c8ac03c8025b729b35ed9393803bebb3796bbb0e7dab",
+      "abruf": "2026-11-22",
+      "seiten": 67
+    },
+    {
+      "id": "ewi_elektrolyse_stand_2026",
+      "url": "https://www.umweltbundesamt.de/system/files/document/7_Klaas_EWI_AGEEStat_Elektrolyse.pdf",
+      "datei": "raw/P1-08/uba_ewi_elektrolyse.pdf",
+      "sha256": "79ffeb88292a8f06476ad7791ba660f1eb28b9d6dfcb82b8d9799f8ee1d5b1a2",
+      "abruf": "2026-11-22",
+      "seiten": 10
+    },
+    {
+      "id": "ariadne_report_2025",
+      "url": "https://ariadneprojekt.de/media/2025/03/Ariadne-Report_Szenarien2025_Maerz2025_lowres.pdf",
+      "datei": "raw/P1-08/ariadne_report2025.pdf",
+      "sha256": "e8c780dc9d85ccf967c11a0c440861244e166b3f7ee5058707d9256362ea9849",
+      "abruf": "2026-11-22",
+      "seiten": 106
+    },
+    {
+      "id": "uba_ptl_aviation_2022",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/376/publikationen/background_paper_power-to-liquids_aviation_2022.pdf",
+      "datei": "raw/P1-08/uba_ptl_aviation_2022.pdf",
+      "sha256": "f34a4a55a2bbd3126ae602d252b38cbb2212fece5a30460dc3af048f40e4e891",
+      "abruf": "2026-11-22",
+      "seiten": 56
+    },
+    {
+      "id": "uba_texte_96_2025",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/11850/publikationen/96_2025_texte.pdf",
+      "datei": "raw/P1-08/uba_texte_96_2025.pdf",
+      "sha256": "1f864d14d47b2ffe09c6093d97fb4fee7a906a5b8a143aa802747f757a8c55d1",
+      "abruf": "2026-11-22",
+      "seiten": 60
+    },
+    {
+      "id": "agora_h2_importe_pm_2024",
+      "url": "https://www.agora-energiewende.de/fileadmin/Projekte/2023/2023-34_IND_H2_Imports_DE/24_07_04_Pressemitteilung_Wasserstoffimporte.pdf",
+      "datei": "raw/P1-08/agora_h2_imports_2024_pm.pdf",
+      "sha256": "571852bb8a02a8b700577026b9e1d93bbb46c80b2a8e4d2c3cb955c007594f33",
+      "abruf": "2026-11-22",
+      "seiten": 3
+    },
+    {
+      "id": "uba_tremod_texte_125_2025",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/11850/publikationen/125_2025_texte.pdf",
+      "datei": "raw/P1-08/uba_texte_125_2025_tremod.pdf",
+      "sha256": "764734098ecf2926059b91fd26e4020a33b082e2dfcc184fdeff90abb11d3033",
+      "abruf": "2026-11-22",
+      "seiten": 161
+    },
+    {
+      "id": "uba_endenergie_verkehr",
+      "url": "https://www.umweltbundesamt.de/daten/verkehr/endenergieverbrauch-energieeffizienz-des-verkehrs",
+      "datei": "raw/P1-08/uba_endenergie_verkehr.html",
+      "sha256": "cec1dedbb583c458f02ca1f20e9abc1ce7bcc6358a6615044c4ba901299f2645",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_emissionen_verkehr",
+      "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/verkehr/emissionen-des-verkehrs",
+      "datei": "raw/P1-08/uba_emissionen_verkehr.html",
+      "sha256": "452c4c4ff70dac33ba78fb5af3ad975efd474273e84570d732584997cccac4ea",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_texte_169_2021",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/479/publikationen/texte_169-2021_flaechenrucksaecke_von_guetern_und_dienstleistungen_teilbericht_ii.pdf",
+      "datei": "raw/P1-08/uba_texte_169_2021_flaechenrucksack.pdf",
+      "sha256": "62d692cf16ce97403ef06cd54070b4237ad87f5c7dfa3126a6a19370584bb908",
+      "abruf": "2026-11-22",
+      "seiten": 112
+    },
+    {
+      "id": "uba_texte_68_2020_anhang",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/479/publikationen/texte_2020_68_anhang_detailanalysen_zum_systemvergleich_speicherbarer_energietraeger_aus_erneuerbaren_energien.pdf",
+      "datei": "raw/P1-08/uba_texte_68_2020_systemvergleich_anhang.pdf",
+      "sha256": "a6670a5eca463564289283b227076c76be8da0616a1547df2e91b994a80a3041",
+      "abruf": "2026-11-22",
+      "seiten": 370
+    },
+    {
+      "id": "bnetza_nep_gas_pm_2026-06",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2026/20260615_NEP_Gas.html?nn=659906",
+      "datei": "raw/P1-08/bnetza_nep_gas_2026-06.html",
+      "sha256": "267ea5e9369ecc93c51a5f6fd959a98ff902c9e3d2ff5a18edd5e528f791031c",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_rlsv_policy_aviation_2021",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/11850/publikationen/rlsv_policy_paper_aviation_de.pdf",
+      "datei": "raw/P1-08/uba_rlsv_policy_aviation.pdf",
+      "sha256": "54e3f37257d148a20292261fa16d574cd1cabee7abb6de3ab1b6f74a7b6b0d0c",
+      "abruf": "2026-11-22",
+      "seiten": 40
+    },
+    {
+      "id": "agora_knde45_praesentation_2021",
+      "url": "https://www.agora-energiewende.de/fileadmin/Projekte/2021/2021_04_KNDE45/2021-05-06_Praesentation_KND45.pdf",
+      "datei": "raw/P1-08/agora_knde45_praesentation_2021.pdf",
+      "sha256": "81e0b5273cb6ee6b98213f08c4b2fc0512f8db18ef3f6a1385e461411c34f38f",
+      "abruf": "2026-11-22",
+      "seiten": 15
+    },
+    {
+      "id": "agora_klimaneutrales_deutschland_2024",
+      "url": "https://www.agora-energiewende.de/publikationen/klimaneutrales-deutschland-szenariopfade",
+      "datei": "raw/P1-08/agora_knde_szenariopfade.html",
+      "sha256": "485c388610d1bcc9876e3a82f29c400b4bc56622d444386cfe792f437a8730ed",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_h2_verkehr_faq",
+      "url": "https://www.umweltbundesamt.de/themen/verkehr/kraftstoffe-antriebe/wasserstoff-im-verkehr-haeufig-gestellte-fragen",
+      "datei": "raw/P1-08/uba_h2_verkehr_faq.html",
+      "sha256": "2219daca1674825accb8236e33bbbf206416496b588a8d8089e72929922282c5",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_kraftstoffe_antriebe",
+      "url": "https://www.umweltbundesamt.de/themen/verkehr/kraftstoffe-antriebe",
+      "datei": "raw/P1-08/uba_kraftstoffe_antriebe.html",
+      "sha256": "8444ed70dbbc57569bf2ff44f2034e7af12673a9bcb067b3b793d37c78ebbaff",
+      "abruf": "2026-11-22"
+    }
+  ]
+}

@@ -1,0 +1,236 @@
+{
+  "hinweis": "Manifest Auftrag P1-04. Fremde Dokumente werden nicht gespiegelt (raw/ nicht im Repo). Zusätzlich liegen *.txt-Auszüge (pdftotext bzw. HTML-Textextraktion) neben den Originalen; sie sind abgeleitet und nicht eigens gelistet.",
+  "eintraege": [
+    {
+      "id": "uba_thg",
+      "url": "https://www.umweltbundesamt.de/themen/klima-energie/treibhausgas-emissionen",
+      "datei": "raw/P1-04/uba_thg.html",
+      "sha256": "2f09933f3fc4f9631f54cfc38d9718117b354d6b39e85ac88f383c8003f34ba5",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_endenergie",
+      "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/energie/endenergieverbrauch-nach-energietraegern-sektoren",
+      "datei": "raw/P1-04/uba_endenergie.html",
+      "sha256": "2cc8bca15dd937fdefc1f802a9ae037c41f76818d333b9c0783c8c36ecfdfdc6",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_primaer",
+      "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/energie/primaerenergieverbrauch",
+      "datei": "raw/P1-04/uba_primaer.html",
+      "sha256": "c41f8318d61c7a0e30e2287ccf8404881a29609a300e7c71d60947c3303443d3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_waerme",
+      "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/energie/energieverbrauch-fuer-fossile-erneuerbare-waerme",
+      "datei": "raw/P1-04/uba_waerme.html",
+      "sha256": "af1e3695bbccebb6b0ed600e24ac0323c97bcd29d91a5a4ccf79bb91694d262a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_bruttostrom",
+      "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/energie/stromverbrauch",
+      "datei": "raw/P1-04/uba_bruttostrom.html",
+      "sha256": "8f4327e5c8e3e599c39cff5cf6c31209564d702d04e443a726be9b858461ba6e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_verkehr_energie",
+      "url": "https://www.umweltbundesamt.de/daten/umweltzustand-trends/verkehr/energieverbrauch-kraftstoffe",
+      "datei": "raw/P1-04/uba_verkehr_energie.html",
+      "sha256": "cec1dedbb583c458f02ca1f20e9abc1ce7bcc6358a6615044c4ba901299f2645",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_pv_primaer_xlsx",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/3_Abb_Prim%C3%A4renergieverbrauch-PV_2026-05-04.xlsx",
+      "datei": "raw/P1-04/uba_pv_primaer.xlsx",
+      "sha256": "c602a48a9e402bc234f6ddc3c866f0d3ff008c833c992392ff03ce205033b6ae",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_gv_primaer_xlsx",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/4_Abb_Prim%C3%A4renergieverbrauch-GV_2026-05-04.xlsx",
+      "datei": "raw/P1-04/uba_gv_primaer.xlsx",
+      "sha256": "0865488f1b36fd05794fdbea8e24bac649abcd615b7d83e1927fcd76a3eb7913",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_kraftstoffverbrauch_pkw_xlsx",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/8_Abb_Kraftstoffverbrauch-Pkw-Kombi_2026-05-04.xlsx",
+      "datei": "raw/P1-04/uba_kraftstoffverbrauch_pkw.xlsx",
+      "sha256": "82ecdb5e0fd0916fde7f004ef9603f0e2dbe7b522dc81cc75831fbacfa4b14bd",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_eev_kraftstoffarten_xlsx",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/5_Abb_EEV%20nach%20Kraftstoffarten_2026-05-04.xlsx",
+      "datei": "raw/P1-04/uba_eev_kraftstoffarten.xlsx",
+      "sha256": "29279166c807ef6f57e879113f47307a2c1227782e61b5e709b2a0e64e253b18",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_durchschn_kraftstoffverbrauch_xlsx",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/10_Abb_Durchschn-Kraftstoffverbrauch_2026-05-04.xlsx",
+      "datei": "raw/P1-04/uba_durchschn_kraftstoffverbrauch.xlsx",
+      "sha256": "ca7df2791852503d538a2e0cb52b601aca6d3d1ae4e5306b6ef3353ef7fd0f61",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_emissionsdaten2025_projektion2026",
+      "url": "https://www.umweltbundesamt.de/system/files/document/UBA%20Emissionsdaten%202025_Projektionsdaten%202026_Hintergrundpapier_0.pdf",
+      "datei": "raw/P1-04/uba_emissionsdaten2025_projektion2026.pdf",
+      "sha256": "5d24439110c70606a614acdf64e0faa35c250e85e891755424c2545d48bf7adc",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_herda_eev_industrie",
+      "url": "https://www.umweltbundesamt.de/system/files/document/4_Herda_Endenergieverbrauch_Industrie.pdf",
+      "datei": "raw/P1-04/uba_herda_eev_industrie.pdf",
+      "sha256": "6205a9a6617487e548c6bc89dfa28ac1c66058a41cf135784005ebdae25c2924",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_texte_160_2022_bev",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/479/publikationen/texte_160-2022_energieverbrauch_von_elektroautos.pdf",
+      "datei": "raw/P1-04/uba_texte_160_2022_bev.pdf",
+      "sha256": "82a9489a12b47ae1cda87b2ee228b9b2be20ae47381363eb3fcb8a532d6430dc",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_wasserstoff_verkehr_faq",
+      "url": "https://www.umweltbundesamt.de/themen/verkehr/kraftstoffe-antriebe/wasserstoff-im-verkehr-haeufig-gestellte-fragen",
+      "datei": "raw/P1-04/uba_wasserstoff_verkehr_faq.html",
+      "sha256": "2219daca1674825accb8236e33bbbf206416496b588a8d8089e72929922282c5",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_nrg_bal_c_DE",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c?format=JSON&lang=EN&geo=DE&unit=GWH&time=2023&time=2024 (+nrg_bal-Filter)",
+      "datei": "raw/P1-04/eurostat_nrg_bal_c_DE.json",
+      "sha256": "ae1f1bd18575b2548c4d4119aea931f3b1bd57b8b02e33ff7cae9be2f8b83948",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_balances_DE_2024",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c (geo=DE, unit=GWH, time=2019/2023/2024, siec- und nrg_bal-Filter)",
+      "datei": "raw/P1-04/eurostat_balances_DE_2024.json",
+      "sha256": "d4c6a4534aea587f7aa18749f4ebf1902bb2efeb67bc31aa874f41120ac2cbfd",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_targets_DE",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c (geo=DE, unit=KTOE, GIC, 2008/2024)",
+      "datei": "raw/P1-04/eurostat_targets_DE.json",
+      "sha256": "d2b1426c58b67af44775e0301283a540524ed382b2d24edb6c4627e88641b0a8",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_zeitreihe_DE",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c (geo=DE, unit=GWH, 2008-2024)",
+      "datei": "raw/P1-04/eurostat_zeitreihe_DE.json",
+      "sha256": "354d44802647fb9e7c6839fcf9d9fcb2cb81b094bd458748f33b9ee92c37db83",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ariadne_szen2025_report",
+      "url": "https://ariadneprojekt.de/media/2025/03/Ariadne-Report_Szenarien2025_Maerz2025_lowres.pdf",
+      "datei": "raw/P1-04/ariadne_szen2025_report.pdf",
+      "sha256": "e8c780dc9d85ccf967c11a0c440861244e166b3f7ee5058707d9256362ea9849",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ariadne_webinar_energiewirtschaft",
+      "url": "https://ariadneprojekt.de/media/2025/03/Ariadne_Szen2025_Webinar_Folien_Energiewirtschaft.pdf",
+      "datei": "raw/P1-04/ariadne_webinar_energiewirtschaft.pdf",
+      "sha256": "c55857e86e6cc4707f6c4c4a2a1351f111b3008a6e83c764fdc3d6f694be15ca",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ariadne_start",
+      "url": "https://ariadneprojekt.de/",
+      "datei": "raw/P1-04/ariadne_start.html",
+      "sha256": "708f3fb13f10a73144f21ac1cd7ea3563729836f827ffe7952e1e9be773a6c6e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bt_wd5_050_26",
+      "url": "https://www.bundestag.de/resource/blob/1201230/WD-5-050-26.pdf",
+      "datei": "raw/P1-04/bt_WD-5-050-26.pdf",
+      "sha256": "a9d5ddb7f55ad02d1df43fdf6d3940763da1ddf10e96f291b9fae77fda7482b8",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nep_v2025_2_kompakt",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-04/NEP_2037_2045_V2025_2_Entwurf_kompakt_DE.pdf",
+      "datei": "raw/P1-04/nep_v2025_2_kompakt.pdf",
+      "sha256": "5083d051ff093b7d4d56d649e820e06924a9254894c1f7d10508b81c73963f8c",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nep_v2025_2_kap3",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-03/NEP_2037_2045_V2025_2_Entwurf_Kap3.pdf",
+      "datei": "raw/P1-04/nep_v2025_2_kap3.pdf",
+      "sha256": "5b5d7989cc679ea930540e3bbc304ab8567609964fa72d3ef9317b72a1a07d50",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nep_szr2025_genehmigung",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2025-04/Genehmigung%20Szenariorahmen%202025_0.pdf",
+      "datei": "raw/P1-04/nep_szr2025_genehmigung.pdf",
+      "sha256": "ff1feac651f76d0687bec4a2ecde678eab05d72cda884252fa14b1c43031b083",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nep_szr2025_entwurf",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2024-07/Szenariorahmenentwurf_NEP2037_2025.pdf",
+      "datei": "raw/P1-04/nep_szr2025_entwurf.pdf",
+      "sha256": "0e4dd717e00a49a1ffef195c8ac9827b3c4419cb917f39fbbc056e4b9bd98832",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "agora_knde_szenariopfade",
+      "url": "https://www.agora-energiewende.de/fileadmin/Projekte/2023/2023-30_DE_KNDE_Update/A-EW_349_KNDE_Szenariopfade_WEB.pdf",
+      "datei": "raw/P1-04/agora_knde_szenariopfade.pdf",
+      "sha256": "2c4d569af3888b91c99f99de563ffc9f2b3698a7e7471d723bc8fa6f31116334",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ise_wege_klimaneutral",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/ISE_WegeKlimaneutralEnergiesystem_final.pdf",
+      "datei": "raw/P1-04/ise_wege_klimaneutral.pdf",
+      "sha256": "bf2aa881ea4010158ca785c8fcbf43fea1da65cfdaaae1bf4df5060285a1c8de",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ise_wp_qs_presse2025",
+      "url": "https://www.ise.fraunhofer.de/de/presse-und-medien/presseinformationen/2025/waermepumpen-heizen-auch-im-altbau-klimafreundlich-forschungsprojekt-des-fraunhofer-ise-abgeschlossen.html",
+      "datei": "raw/P1-04/ise_wp_qs_presse2025.html",
+      "sha256": "01158dffbe5f8f0578f1f5399ae321f27b3841868d6bbdb61863f26fed4665e5",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ise_wpsmart_bestand",
+      "url": "https://www.ise.fraunhofer.de/de/forschungsprojekte/wpsmart-im-bestand",
+      "datei": "raw/P1-04/ise_wpsmart_bestand.html",
+      "sha256": "c553b2929d70724e0b54fc4e03a458462ae0bb7cfc8c0131b536ced274c79546",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ise_wp_effizienz",
+      "url": "https://www.ise.fraunhofer.de/de/forschungsprojekte/wp-effizienz.html",
+      "datei": "raw/P1-04/ise_wp_effizienz.html",
+      "sha256": "29cfc6dd08e170def85bd04dbce154d74cdbdcb08c7a2d4d7d24e821717a608a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bnetza_kernnetz",
+      "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Wasserstoff/Kernnetz/start.html",
+      "datei": "raw/P1-04/bnetza_kernnetz.html",
+      "sha256": "1bee95d51b93b497343eae0c3ff61d1e98bfbe273b45a232309fd60183a7b4a3",
+      "abruf": "2026-11-22"
+    }
+  ]
+}

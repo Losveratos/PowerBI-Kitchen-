@@ -1,0 +1,261 @@
+geo,traeger_code,traeger,jahr,importabhaengigkeit_pct
+DE,C0000X0350-0370,Solid fossil fuels,2015,45.42
+DE,C0000X0350-0370,Solid fossil fuels,2016,49.61
+DE,C0000X0350-0370,Solid fossil fuels,2017,45.3
+DE,C0000X0350-0370,Solid fossil fuels,2018,42.12
+DE,C0000X0350-0370,Solid fossil fuels,2019,47.24
+DE,C0000X0350-0370,Solid fossil fuels,2020,44.06
+DE,C0000X0350-0370,Solid fossil fuels,2021,47.79
+DE,C0000X0350-0370,Solid fossil fuels,2022,50.41
+DE,C0000X0350-0370,Solid fossil fuels,2023,48.75
+DE,C0000X0350-0370,Solid fossil fuels,2024,44.87
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2015,41.0
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2016,41.1
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2017,43.24
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2018,43.78
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2019,43.31
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2020,35.81
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2021,37.23
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2022,45.9
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2023,40.61
+EU27_2020,C0000X0350-0370,Solid fossil fuels,2024,34.17
+DE,C0110,Anthracite,2015,51.7
+DE,C0110,Anthracite,2016,28.49
+DE,C0110,Anthracite,2017,33.74
+DE,C0110,Anthracite,2018,34.67
+DE,C0110,Anthracite,2019,100.0
+DE,C0110,Anthracite,2020,100.0
+DE,C0110,Anthracite,2021,100.0
+DE,C0110,Anthracite,2022,100.0
+DE,C0110,Anthracite,2023,100.0
+DE,C0110,Anthracite,2024,100.0
+EU27_2020,C0110,Anthracite,2015,59.17
+EU27_2020,C0110,Anthracite,2016,58.89
+EU27_2020,C0110,Anthracite,2017,68.22
+EU27_2020,C0110,Anthracite,2018,76.77
+EU27_2020,C0110,Anthracite,2019,102.03
+EU27_2020,C0110,Anthracite,2020,105.28
+EU27_2020,C0110,Anthracite,2021,109.14
+EU27_2020,C0110,Anthracite,2022,104.84
+EU27_2020,C0110,Anthracite,2023,94.9
+EU27_2020,C0110,Anthracite,2024,104.96
+DE,C0121,Coking coal,2015,66.94
+DE,C0121,Coking coal,2016,81.42
+DE,C0121,Coking coal,2017,81.18
+DE,C0121,Coking coal,2018,81.69
+DE,C0121,Coking coal,2019,98.0
+DE,C0121,Coking coal,2020,95.88
+DE,C0121,Coking coal,2021,108.31
+DE,C0121,Coking coal,2022,100.0
+DE,C0121,Coking coal,2023,100.0
+DE,C0121,Coking coal,2024,100.0
+EU27_2020,C0121,Coking coal,2015,58.81
+EU27_2020,C0121,Coking coal,2016,64.48
+EU27_2020,C0121,Coking coal,2017,67.57
+EU27_2020,C0121,Coking coal,2018,68.53
+EU27_2020,C0121,Coking coal,2019,72.09
+EU27_2020,C0121,Coking coal,2020,65.72
+EU27_2020,C0121,Coking coal,2021,66.89
+EU27_2020,C0121,Coking coal,2022,69.74
+EU27_2020,C0121,Coking coal,2023,68.78
+EU27_2020,C0121,Coking coal,2024,69.83
+DE,C0129,Other bituminous coal,2015,96.35
+DE,C0129,Other bituminous coal,2016,102.59
+DE,C0129,Other bituminous coal,2017,102.36
+DE,C0129,Other bituminous coal,2018,93.23
+DE,C0129,Other bituminous coal,2019,93.85
+DE,C0129,Other bituminous coal,2020,91.15
+DE,C0129,Other bituminous coal,2021,93.04
+DE,C0129,Other bituminous coal,2022,104.7
+DE,C0129,Other bituminous coal,2023,103.17
+DE,C0129,Other bituminous coal,2024,90.16
+EU27_2020,C0129,Other bituminous coal,2015,64.5
+EU27_2020,C0129,Other bituminous coal,2016,62.23
+EU27_2020,C0129,Other bituminous coal,2017,67.65
+EU27_2020,C0129,Other bituminous coal,2018,67.98
+EU27_2020,C0129,Other bituminous coal,2019,65.13
+EU27_2020,C0129,Other bituminous coal,2020,51.83
+EU27_2020,C0129,Other bituminous coal,2021,54.46
+EU27_2020,C0129,Other bituminous coal,2022,75.88
+EU27_2020,C0129,Other bituminous coal,2023,64.81
+EU27_2020,C0129,Other bituminous coal,2024,47.97
+DE,C0210,Sub-bituminous coal,2015,0.0
+DE,C0210,Sub-bituminous coal,2016,0.0
+DE,C0210,Sub-bituminous coal,2017,0.0
+DE,C0210,Sub-bituminous coal,2018,0.0
+DE,C0210,Sub-bituminous coal,2019,0.0
+DE,C0210,Sub-bituminous coal,2020,0.0
+DE,C0210,Sub-bituminous coal,2021,0.0
+DE,C0210,Sub-bituminous coal,2022,0.0
+DE,C0210,Sub-bituminous coal,2023,0.0
+DE,C0210,Sub-bituminous coal,2024,0.0
+EU27_2020,C0210,Sub-bituminous coal,2015,53.38
+EU27_2020,C0210,Sub-bituminous coal,2016,58.87
+EU27_2020,C0210,Sub-bituminous coal,2017,48.29
+EU27_2020,C0210,Sub-bituminous coal,2018,52.54
+EU27_2020,C0210,Sub-bituminous coal,2019,80.7
+EU27_2020,C0210,Sub-bituminous coal,2020,80.43
+EU27_2020,C0210,Sub-bituminous coal,2021,77.58
+EU27_2020,C0210,Sub-bituminous coal,2022,104.62
+EU27_2020,C0210,Sub-bituminous coal,2023,109.39
+EU27_2020,C0210,Sub-bituminous coal,2024,57.02
+DE,C0220,Lignite,2015,-0.58
+DE,C0220,Lignite,2016,0.03
+DE,C0220,Lignite,2017,0.04
+DE,C0220,Lignite,2018,0.03
+DE,C0220,Lignite,2019,0.04
+DE,C0220,Lignite,2020,0.05
+DE,C0220,Lignite,2021,0.04
+DE,C0220,Lignite,2022,0.05
+DE,C0220,Lignite,2023,0.05
+DE,C0220,Lignite,2024,0.07
+EU27_2020,C0220,Lignite,2015,-0.11
+EU27_2020,C0220,Lignite,2016,-0.03
+EU27_2020,C0220,Lignite,2017,0.03
+EU27_2020,C0220,Lignite,2018,0.05
+EU27_2020,C0220,Lignite,2019,0.02
+EU27_2020,C0220,Lignite,2020,0.13
+EU27_2020,C0220,Lignite,2021,0.07
+EU27_2020,C0220,Lignite,2022,-0.44
+EU27_2020,C0220,Lignite,2023,-0.7
+EU27_2020,C0220,Lignite,2024,-0.24
+DE,G3000,Natural gas,2015,90.06
+DE,G3000,Natural gas,2016,88.56
+DE,G3000,Natural gas,2017,91.37
+DE,G3000,Natural gas,2018,95.89
+DE,G3000,Natural gas,2019,100.07
+DE,G3000,Natural gas,2020,89.1
+DE,G3000,Natural gas,2021,90.69
+DE,G3000,Natural gas,2022,105.9
+DE,G3000,Natural gas,2023,93.66
+DE,G3000,Natural gas,2024,91.58
+EU27_2020,G3000,Natural gas,2015,74.49
+EU27_2020,G3000,Natural gas,2016,75.69
+EU27_2020,G3000,Natural gas,2017,80.16
+EU27_2020,G3000,Natural gas,2018,83.25
+EU27_2020,G3000,Natural gas,2019,89.66
+EU27_2020,G3000,Natural gas,2020,83.59
+EU27_2020,G3000,Natural gas,2021,83.64
+EU27_2020,G3000,Natural gas,2022,97.59
+EU27_2020,G3000,Natural gas,2023,89.97
+EU27_2020,G3000,Natural gas,2024,84.98
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2015,96.54
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2016,96.37
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2017,95.83
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2018,95.48
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2019,97.34
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2020,96.54
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2021,95.55
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2022,96.91
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2023,95.4
+DE,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2024,96.94
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2015,96.71
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2016,94.71
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2017,93.73
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2018,94.53
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2019,96.72
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2020,96.8
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2021,91.7
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2022,97.77
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2023,94.91
+EU27_2020,O4000XBIO,Oil and petroleum products (excluding biofuel portion),2024,96.61
+DE,O4100_TOT,Crude oil,2015,97.12
+DE,O4100_TOT,Crude oil,2016,96.69
+DE,O4100_TOT,Crude oil,2017,97.35
+DE,O4100_TOT,Crude oil,2018,97.07
+DE,O4100_TOT,Crude oil,2019,98.28
+DE,O4100_TOT,Crude oil,2020,98.31
+DE,O4100_TOT,Crude oil,2021,97.04
+DE,O4100_TOT,Crude oil,2022,98.03
+DE,O4100_TOT,Crude oil,2023,97.64
+DE,O4100_TOT,Crude oil,2024,97.85
+EU27_2020,O4100_TOT,Crude oil,2015,96.01
+EU27_2020,O4100_TOT,Crude oil,2016,95.24
+EU27_2020,O4100_TOT,Crude oil,2017,95.71
+EU27_2020,O4100_TOT,Crude oil,2018,95.76
+EU27_2020,O4100_TOT,Crude oil,2019,96.76
+EU27_2020,O4100_TOT,Crude oil,2020,96.01
+EU27_2020,O4100_TOT,Crude oil,2021,95.21
+EU27_2020,O4100_TOT,Crude oil,2022,97.59
+EU27_2020,O4100_TOT,Crude oil,2023,96.36
+EU27_2020,O4100_TOT,Crude oil,2024,96.91
+DE,O4200,Natural gas liquids,2015,0.0
+DE,O4200,Natural gas liquids,2016,0.0
+DE,O4200,Natural gas liquids,2017,0.0
+DE,O4200,Natural gas liquids,2018,0.0
+DE,O4200,Natural gas liquids,2019,0.0
+DE,O4200,Natural gas liquids,2020,0.0
+DE,O4200,Natural gas liquids,2021,0.0
+DE,O4200,Natural gas liquids,2022,0.0
+DE,O4200,Natural gas liquids,2023,0.0
+DE,O4200,Natural gas liquids,2024,0.0
+EU27_2020,O4200,Natural gas liquids,2015,91.86
+EU27_2020,O4200,Natural gas liquids,2016,91.47
+EU27_2020,O4200,Natural gas liquids,2017,91.31
+EU27_2020,O4200,Natural gas liquids,2018,94.6
+EU27_2020,O4200,Natural gas liquids,2019,87.51
+EU27_2020,O4200,Natural gas liquids,2020,98.7
+EU27_2020,O4200,Natural gas liquids,2021,89.34
+EU27_2020,O4200,Natural gas liquids,2022,98.08
+EU27_2020,O4200,Natural gas liquids,2023,95.05
+EU27_2020,O4200,Natural gas liquids,2024,93.69
+DE,P1100,Peat,2015,0.0
+DE,P1100,Peat,2016,0.0
+DE,P1100,Peat,2017,0.0
+DE,P1100,Peat,2018,0.0
+DE,P1100,Peat,2019,0.0
+DE,P1100,Peat,2020,0.0
+DE,P1100,Peat,2021,0.0
+DE,P1100,Peat,2022,0.0
+DE,P1100,Peat,2023,0.0
+DE,P1100,Peat,2024,0.0
+EU27_2020,P1100,Peat,2015,1.49
+EU27_2020,P1100,Peat,2016,1.32
+EU27_2020,P1100,Peat,2017,1.44
+EU27_2020,P1100,Peat,2018,2.28
+EU27_2020,P1100,Peat,2019,2.02
+EU27_2020,P1100,Peat,2020,1.6
+EU27_2020,P1100,Peat,2021,1.97
+EU27_2020,P1100,Peat,2022,1.31
+EU27_2020,P1100,Peat,2023,1.12
+EU27_2020,P1100,Peat,2024,2.44
+DE,S2000,Oil shale and oil sands,2015,0.0
+DE,S2000,Oil shale and oil sands,2016,0.0
+DE,S2000,Oil shale and oil sands,2017,0.0
+DE,S2000,Oil shale and oil sands,2018,0.0
+DE,S2000,Oil shale and oil sands,2019,0.0
+DE,S2000,Oil shale and oil sands,2020,0.0
+DE,S2000,Oil shale and oil sands,2021,0.0
+DE,S2000,Oil shale and oil sands,2022,0.0
+DE,S2000,Oil shale and oil sands,2023,0.0
+DE,S2000,Oil shale and oil sands,2024,0.0
+EU27_2020,S2000,Oil shale and oil sands,2015,0.0
+EU27_2020,S2000,Oil shale and oil sands,2016,0.0
+EU27_2020,S2000,Oil shale and oil sands,2017,0.0
+EU27_2020,S2000,Oil shale and oil sands,2018,0.0
+EU27_2020,S2000,Oil shale and oil sands,2019,0.0
+EU27_2020,S2000,Oil shale and oil sands,2020,0.0
+EU27_2020,S2000,Oil shale and oil sands,2021,0.0
+EU27_2020,S2000,Oil shale and oil sands,2022,0.0
+EU27_2020,S2000,Oil shale and oil sands,2023,0.0
+EU27_2020,S2000,Oil shale and oil sands,2024,0.0
+DE,TOTAL,Total,2015,62.13
+DE,TOTAL,Total,2016,63.75
+DE,TOTAL,Total,2017,63.96
+DE,TOTAL,Total,2018,63.48
+DE,TOTAL,Total,2019,67.06
+DE,TOTAL,Total,2020,63.68
+DE,TOTAL,Total,2021,63.4
+DE,TOTAL,Total,2022,68.65
+DE,TOTAL,Total,2023,66.83
+DE,TOTAL,Total,2024,66.81
+EU27_2020,TOTAL,Total,2015,56.0
+EU27_2020,TOTAL,Total,2016,56.12
+EU27_2020,TOTAL,Total,2017,57.49
+EU27_2020,TOTAL,Total,2018,58.11
+EU27_2020,TOTAL,Total,2019,60.49
+EU27_2020,TOTAL,Total,2020,57.46
+EU27_2020,TOTAL,Total,2021,55.5
+EU27_2020,TOTAL,Total,2022,62.51
+EU27_2020,TOTAL,Total,2023,58.34
+EU27_2020,TOTAL,Total,2024,57.29

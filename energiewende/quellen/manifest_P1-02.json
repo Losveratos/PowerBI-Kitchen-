@@ -1,0 +1,151 @@
+{
+  "hinweis": "Manifest des Auftrags P1-02 (Kostenstudien). Fremde Dokumente werden nicht gespiegelt; quellen/raw/ ist von Git ausgenommen. Abrufe per curl, alle am 2026-11-22.",
+  "eintraege": [
+    {
+      "id": "dihk_frontier_planb_2025",
+      "url": "https://www.dihk.de/resource/blob/153726/97f39a33a519ece00c3a65e014fbc707/energie-dihk-energiewende-plan-b-data.pdf",
+      "datei": "raw/P1-02/dihk_planb_studie.pdf",
+      "sha256": "1503b374e0f569572cd7a20d0ad06dd14749177eab05f67c95676b92a930c01b",
+      "abruf": "2026-11-22",
+      "seiten": 103
+    },
+    {
+      "id": "dihk_planb_begleitpapier_2025",
+      "url": "https://www.dihk.de/resource/blob/153618/34f0199e6fbd02d27bbf6c8e18b55677/begleitpapier-studie-frontier-economics-data.pdf",
+      "datei": "raw/P1-02/dihk_planb_begleitpapier.pdf",
+      "sha256": "fa925ca1230d306b72de08deef7a077f613d817254568e7c4c7a34bbfa758c5e",
+      "abruf": "2026-11-22",
+      "seiten": 4
+    },
+    {
+      "id": "dihk_planb_webseite",
+      "url": "https://www.dihk.de/de/themen-und-positionen/wirtschaftspolitik/energie/aktuelle-energiewende-politik-kostet-bis-zu-5-4-billionen-euro-136208",
+      "datei": "raw/P1-02/dihk_planb_seite.html",
+      "sha256": "75d08ed918df2361dcbbb9b3bc5582cfd8f8eda85d409656f9a499d766656f59",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "dihk_frontier_ergaenzung_unternehmen_2025",
+      "url": "https://www.frontier-economics.com/media/tgjkxpmq/frontier-dihk-plan-b-ergaenzungsstudie-unternehmen-2025-10-27.pdf",
+      "datei": "raw/P1-02/dihk_ergaenzungsstudie_unternehmen.pdf",
+      "sha256": "dc19d59464ee22343bb06ae0ec134c5523f381af65cddc2997ca0afc043869b5",
+      "abruf": "2026-11-22",
+      "seiten": 47
+    },
+    {
+      "id": "dihk_ergaenzung_pressemitteilung_2025",
+      "url": "https://www.dihk.de/de/newsroom/ergaenzungsstudie-zu-neue-wege-fuer-die-energiewende--157256",
+      "datei": "raw/P1-02/dihk_ergaenzungsstudie_seite.html",
+      "sha256": "b6070e134407818b34d961def43640d43adae1a062486e55f22430937c68be23",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "kfw_fokus_350_2021",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Fokus-Volkswirtschaft/Fokus-2021/Fokus-Nr.-350-Oktober-2021-Investitionsbedarfe-Klimaneutralitaet.pdf",
+      "datei": "raw/P1-02/kfw_fokus_350_2021.pdf",
+      "sha256": "d8f291508cdb49680ea3cc7b1ab69a11cb567caa392ac030868af4ba0d2804c6",
+      "abruf": "2026-11-22",
+      "seiten": 6
+    },
+    {
+      "id": "kfw_prognos_2026",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Studien-und-Materialien/Investitionen-f%C3%BCr-Klimaschutz.pdf",
+      "datei": "raw/P1-02/kfw_prognos_2026_studie.pdf",
+      "sha256": "6a4fad037717f7e8276a8004a93e19e981051c0776ab6b4b153e3ed6533d8bdb",
+      "abruf": "2026-11-22",
+      "seiten": 97
+    },
+    {
+      "id": "kfw_focus_561_2026",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Fokus-Volkswirtschaft/Fokus-englische-Dateien/Fokus-2026-EN/Focus-No.-561-October-2026-climate-neutrality.pdf",
+      "datei": "raw/P1-02/kfw_focus_561_2026_en.pdf",
+      "sha256": "1b74659004d3b505da849949deecc7303c5eb543e98cefcd58d3468114233157",
+      "abruf": "2026-11-22",
+      "seiten": 11
+    },
+    {
+      "id": "agora_investitionen_2024",
+      "url": "https://www.agora-energiewende.de/fileadmin/Projekte/2023/2023-30_DE_KNDE_Update/A-EW_347_KNDE_Investitionsbedarfe_WEB.pdf",
+      "datei": "raw/P1-02/agora_knde_investitionen_2024.pdf",
+      "sha256": "07aae026b076434f583d0d1ea470b2a8760924a6a45fbdca64b43564e6e9dca6",
+      "abruf": "2026-11-22",
+      "seiten": 48
+    },
+    {
+      "id": "agora_investitionen_webseite",
+      "url": "https://www.agora-energiewende.de/publikationen/investitionen-fuer-ein-klimaneutrales-deutschland",
+      "datei": "raw/P1-02/agora_investitionen_seite.html",
+      "sha256": "e753dad8c712a52d3533ca37e52b6652adcc1621676f4c914c0d687ffa9e78e2",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ariadne_szenarien_2025",
+      "url": "https://ariadneprojekt.de/media/2025/03/Ariadne-Report_Szenarien2025_Maerz2025_Zusammenfassung.pdf",
+      "datei": "raw/P1-02/ariadne_szenarien2025_zusammenfassung.pdf",
+      "sha256": "689b024873b4e1ec0217fdb26e1b0551423543affabd23fb8d978747da95fc88",
+      "abruf": "2026-11-22",
+      "seiten": 10
+    },
+    {
+      "id": "ise_wege_2021",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/Fraunhofer-ISE-Studie-Wege-zu-einem-klimaneutralen-Energiesystem-Update-Klimaneutralitaet-2045.pdf",
+      "datei": "raw/P1-02/ise_wege_update2045_2021.pdf",
+      "sha256": "b4d638751a9430fa460935c59c4b46932c17ed52c30b43d500912e1d8b24f748",
+      "abruf": "2026-11-22",
+      "seiten": 47
+    },
+    {
+      "id": "ise_wege_2024",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/ISE_WegeKlimaneutralEnergiesystem_final.pdf",
+      "datei": "raw/P1-02/ise_wege_bundeslaender_2024.pdf",
+      "sha256": "bf2aa881ea4010158ca785c8fcbf43fea1da65cfdaaae1bf4df5060285a1c8de",
+      "abruf": "2026-11-22",
+      "seiten": 92
+    },
+    {
+      "id": "wd5_151_24",
+      "url": "https://www.bundestag.de/resource/blob/1042790/WD-5-151-24-pdf.pdf",
+      "datei": "raw/P1-02/WD-5-151-24.pdf",
+      "sha256": "52382fe5dcea8e5b85aee87fa5226fd9a3ec68f8fb71bc3989b1242976f37204",
+      "abruf": "2026-11-22",
+      "seiten": 18
+    },
+    {
+      "id": "nep_2037_2045_v2025_2e",
+      "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-04/NEP_2037_2045_V2025_2_Entwurf_kompakt_DE.pdf",
+      "datei": "raw/P1-02/nep_2037_2045_v2025_2e_kompakt.pdf",
+      "sha256": "5083d051ff093b7d4d56d649e820e06924a9254894c1f7d10508b81c73963f8c",
+      "abruf": "2026-11-22",
+      "seiten": 24
+    },
+    {
+      "id": "hib_164_2024_brh",
+      "url": "https://www.bundestag.de/presse/hib/kurzmeldungen-994590",
+      "datei": "raw/P1-02/hib_164_2024_brh.html",
+      "sha256": "292fbc0a06626399c4f5fa331b15d2cc78a26c885e4f54fec185678227edeb22",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "hib_279_2025",
+      "url": "https://www.bundestag.de/presse/hib/kurzmeldungen-1098370",
+      "datei": "raw/P1-02/hib_279_2025_aurora.html",
+      "sha256": "1eda28901c12132db532aa7c1c599d51ea9e70d185681303548b41edfb173d57",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "hib_411_2024_klimafolgen",
+      "url": "https://www.bundestag.de/presse/hib/kurzmeldungen-1007974",
+      "datei": "raw/P1-02/hib_411_2024_klimafolgen.html",
+      "sha256": "c77032dc5d869476aa63209e40f44dcedc384a4dfef5339b2c15e7663876b60d",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_bip_de",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp?geo=DE&unit=CP_MEUR&na_item=B1GQ&sinceTimePeriod=2018",
+      "datei": "raw/P1-02/eurostat_nama_10_gdp_de.json",
+      "sha256": "59b0dd00de1a34d35b10adb12b89096f83ae99dda2ac8e6f2e0fcf6d109c010a",
+      "abruf": "2026-11-22",
+      "lizenz": "Eurostat, Wiederverwendung mit Quellenangabe erlaubt"
+    }
+  ]
+}

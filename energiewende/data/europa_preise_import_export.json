@@ -1,0 +1,299 @@
+{
+ "2023": {
+  "de_mittel_eur_mwh": 95.2,
+  "grenzen": {
+   "Austria": {
+    "zone": "AT",
+    "import_TWh": 2.67,
+    "export_TWh": 8.5,
+    "importpreis_nachbar": 113.6,
+    "deutscher_preis_in_importstunden": 117.2,
+    "exportpreis_de": 76.5
+   },
+   "Belgium": {
+    "zone": "BE",
+    "import_TWh": 2.71,
+    "export_TWh": 2.93,
+    "importpreis_nachbar": 94.1,
+    "deutscher_preis_in_importstunden": 101.7,
+    "exportpreis_de": 93.3
+   },
+   "Switzerland": {
+    "zone": "CH",
+    "import_TWh": 5.94,
+    "export_TWh": 4.92,
+    "importpreis_nachbar": 112.5,
+    "deutscher_preis_in_importstunden": 121.2,
+    "exportpreis_de": 88.3
+   },
+   "Czech Republic": {
+    "zone": "CZ",
+    "import_TWh": 3.25,
+    "export_TWh": 3.14,
+    "importpreis_nachbar": 115.2,
+    "deutscher_preis_in_importstunden": 117.3,
+    "exportpreis_de": 62.7
+   },
+   "Denmark": {
+    "zone": "DK1",
+    "import_TWh": 13.08,
+    "export_TWh": 2.36,
+    "importpreis_nachbar": 92.6,
+    "deutscher_preis_in_importstunden": 105.8,
+    "exportpreis_de": 34.0
+   },
+   "France": {
+    "zone": "FR",
+    "import_TWh": 8.84,
+    "export_TWh": 8.41,
+    "importpreis_nachbar": 84.8,
+    "deutscher_preis_in_importstunden": 94.3,
+    "exportpreis_de": 97.1
+   },
+   "Netherlands": {
+    "zone": "NL",
+    "import_TWh": 5.65,
+    "export_TWh": 3.51,
+    "importpreis_nachbar": 87.0,
+    "deutscher_preis_in_importstunden": 93.6,
+    "exportpreis_de": 99.4
+   },
+   "Norway": {
+    "zone": "NO2",
+    "import_TWh": 6.22,
+    "export_TWh": 1.66,
+    "importpreis_nachbar": 85.2,
+    "deutscher_preis_in_importstunden": 114.0,
+    "exportpreis_de": 34.2
+   },
+   "Poland": {
+    "zone": "PL",
+    "import_TWh": 2.45,
+    "export_TWh": 2.97,
+    "importpreis_nachbar": 109.0,
+    "deutscher_preis_in_importstunden": 110.7,
+    "exportpreis_de": 77.1
+   },
+   "Sweden": {
+    "zone": "SE4",
+    "import_TWh": 3.26,
+    "export_TWh": 0.37,
+    "importpreis_nachbar": 52.5,
+    "deutscher_preis_in_importstunden": 101.8,
+    "exportpreis_de": 18.3
+   }
+  },
+  "gesamt_je_grenze": {
+   "import_TWh": 54.1,
+   "export_TWh": 38.8,
+   "importpreis_mw": 92.8,
+   "de_preis_in_importstunden_mw": 106.3,
+   "exportpreis_mw": 79.8
+  },
+  "netto_importstunden": 5105,
+  "netto_exportstunden": 3655,
+  "de_preis_mittel_in_netto_importstunden": 107.5,
+  "de_preis_mittel_in_netto_exportstunden": 78.0,
+  "stunden_de_preis_ueber_200": 112,
+  "davon_netto_import": 102,
+  "mittlerer_netto_import_gw_in_spitzen": 5.45
+ },
+ "2024": {
+  "de_mittel_eur_mwh": 78.5,
+  "grenzen": {
+   "Austria": {
+    "zone": "AT",
+    "import_TWh": 1.77,
+    "export_TWh": 9.17,
+    "importpreis_nachbar": 95.3,
+    "deutscher_preis_in_importstunden": 105.6,
+    "exportpreis_de": 64.0
+   },
+   "Belgium": {
+    "zone": "BE",
+    "import_TWh": 4.52,
+    "export_TWh": 1.78,
+    "importpreis_nachbar": 74.5,
+    "deutscher_preis_in_importstunden": 90.9,
+    "exportpreis_de": 57.6
+   },
+   "Switzerland": {
+    "zone": "CH",
+    "import_TWh": 9.92,
+    "export_TWh": 2.82,
+    "importpreis_nachbar": 81.0,
+    "deutscher_preis_in_importstunden": 103.7,
+    "exportpreis_de": 60.7
+   },
+   "Czech Republic": {
+    "zone": "CZ",
+    "import_TWh": 1.93,
+    "export_TWh": 4.73,
+    "importpreis_nachbar": 101.3,
+    "deutscher_preis_in_importstunden": 104.1,
+    "exportpreis_de": 57.5
+   },
+   "Denmark": {
+    "zone": "DK1",
+    "import_TWh": 14.76,
+    "export_TWh": 2.81,
+    "importpreis_nachbar": 77.1,
+    "deutscher_preis_in_importstunden": 90.5,
+    "exportpreis_de": 20.9
+   },
+   "France": {
+    "zone": "FR",
+    "import_TWh": 15.75,
+    "export_TWh": 2.85,
+    "importpreis_nachbar": 53.7,
+    "deutscher_preis_in_importstunden": 81.0,
+    "exportpreis_de": 48.0
+   },
+   "Netherlands": {
+    "zone": "NL",
+    "import_TWh": 6.34,
+    "export_TWh": 3.87,
+    "importpreis_nachbar": 71.6,
+    "deutscher_preis_in_importstunden": 79.4,
+    "exportpreis_de": 76.6
+   },
+   "Norway": {
+    "zone": "NO2",
+    "import_TWh": 7.04,
+    "export_TWh": 1.24,
+    "importpreis_nachbar": 56.2,
+    "deutscher_preis_in_importstunden": 96.7,
+    "exportpreis_de": 12.1
+   },
+   "Poland": {
+    "zone": "PL",
+    "import_TWh": 1.6,
+    "export_TWh": 5.11,
+    "importpreis_nachbar": 86.3,
+    "deutscher_preis_in_importstunden": 93.3,
+    "exportpreis_de": 68.5
+   },
+   "Sweden": {
+    "zone": "SE4",
+    "import_TWh": 2.99,
+    "export_TWh": 0.39,
+    "importpreis_nachbar": 43.8,
+    "deutscher_preis_in_importstunden": 86.9,
+    "exportpreis_de": 18.1
+   }
+  },
+  "gesamt_je_grenze": {
+   "import_TWh": 66.6,
+   "export_TWh": 34.8,
+   "importpreis_mw": 69.1,
+   "de_preis_in_importstunden_mw": 90.5,
+   "exportpreis_mw": 57.4
+  },
+  "netto_importstunden": 6366,
+  "netto_exportstunden": 2418,
+  "de_preis_mittel_in_netto_importstunden": 91.5,
+  "de_preis_mittel_in_netto_exportstunden": 44.4,
+  "stunden_de_preis_ueber_200": 129,
+  "davon_netto_import": 129,
+  "mittlerer_netto_import_gw_in_spitzen": 11.08
+ },
+ "2025": {
+  "de_mittel_eur_mwh": 89.3,
+  "grenzen": {
+   "Austria": {
+    "zone": "AT",
+    "import_TWh": 0.89,
+    "export_TWh": 13.11,
+    "importpreis_nachbar": 99.7,
+    "deutscher_preis_in_importstunden": 106.6,
+    "exportpreis_de": 78.9
+   },
+   "Belgium": {
+    "zone": "BE",
+    "import_TWh": 4.61,
+    "export_TWh": 1.66,
+    "importpreis_nachbar": 86.0,
+    "deutscher_preis_in_importstunden": 100.6,
+    "exportpreis_de": 72.7
+   },
+   "Switzerland": {
+    "zone": "CH",
+    "import_TWh": 6.21,
+    "export_TWh": 5.31,
+    "importpreis_nachbar": 114.8,
+    "deutscher_preis_in_importstunden": 129.9,
+    "exportpreis_de": 78.4
+   },
+   "Czech Republic": {
+    "zone": "CZ",
+    "import_TWh": 1.66,
+    "export_TWh": 5.86,
+    "importpreis_nachbar": 110.5,
+    "deutscher_preis_in_importstunden": 111.7,
+    "exportpreis_de": 68.8
+   },
+   "Denmark": {
+    "zone": "DK1",
+    "import_TWh": 15.16,
+    "export_TWh": 2.79,
+    "importpreis_nachbar": 89.5,
+    "deutscher_preis_in_importstunden": 103.8,
+    "exportpreis_de": 14.2
+   },
+   "France": {
+    "zone": "FR",
+    "import_TWh": 13.47,
+    "export_TWh": 2.25,
+    "importpreis_nachbar": 58.7,
+    "deutscher_preis_in_importstunden": 94.6,
+    "exportpreis_de": 46.9
+   },
+   "Netherlands": {
+    "zone": "NL",
+    "import_TWh": 10.66,
+    "export_TWh": 2.26,
+    "importpreis_nachbar": 91.3,
+    "deutscher_preis_in_importstunden": 98.6,
+    "exportpreis_de": 77.2
+   },
+   "Norway": {
+    "zone": "NO2",
+    "import_TWh": 7.78,
+    "export_TWh": 0.76,
+    "importpreis_nachbar": 72.1,
+    "deutscher_preis_in_importstunden": 107.5,
+    "exportpreis_de": 2.4
+   },
+   "Poland": {
+    "zone": "PL",
+    "import_TWh": 1.8,
+    "export_TWh": 5.23,
+    "importpreis_nachbar": 89.3,
+    "deutscher_preis_in_importstunden": 92.7,
+    "exportpreis_de": 83.2
+   },
+   "Sweden": {
+    "zone": "SE4",
+    "import_TWh": 2.86,
+    "export_TWh": 0.45,
+    "importpreis_nachbar": 57.0,
+    "deutscher_preis_in_importstunden": 99.4,
+    "exportpreis_de": 17.4
+   }
+  },
+  "gesamt_je_grenze": {
+   "import_TWh": 65.1,
+   "export_TWh": 39.7,
+   "importpreis_mw": 82.8,
+   "de_preis_in_importstunden_mw": 103.5,
+   "exportpreis_mw": 69.0
+  },
+  "netto_importstunden": 6126,
+  "netto_exportstunden": 2634,
+  "de_preis_mittel_in_netto_importstunden": 106.3,
+  "de_preis_mittel_in_netto_exportstunden": 49.7,
+  "stunden_de_preis_ueber_200": 162,
+  "davon_netto_import": 161,
+  "mittlerer_netto_import_gw_in_spitzen": 10.02
+ }
+}

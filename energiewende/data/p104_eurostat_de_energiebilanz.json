@@ -1,0 +1,4852 @@
+{
+ "id": "p104_eurostat_de_energiebilanz",
+ "quelle": "Eurostat, Complete energy balances (nrg_bal_c), Land DE, Einheit GWh -> hier TWh",
+ "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_c",
+ "stand_datenbank": "2026-08-27",
+ "lizenz": "Eurostat-Daten: Nachnutzung mit Quellenangabe (Beschluss 2011/833/EU, CC BY 4.0)",
+ "hinweis": "Eurostat-Abgrenzung, nicht AGEB: FC_E = Endenergie ohne internationalen Luftverkehr/Seeverkehr; INTAVI und INTMARB getrennt. TOTAL = alle Energieträger; E7000 Strom; RA000 erneuerbare; G3000 Erdgas; O4000XBIO Öl ohne Biokraftstoffe; C0000X0350-0370 feste fossile Brennstoffe; H8000 Wärme.",
+ "daten": [
+  {
+   "bilanz": "FC_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 39.79
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 30.65
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 28.44
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2008,
+   "twh": 527.76
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2009,
+   "twh": 497.49
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2010,
+   "twh": 532.02
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2011,
+   "twh": 524.88
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2012,
+   "twh": 524.52
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2013,
+   "twh": 522.31
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2014,
+   "twh": 511.76
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2015,
+   "twh": 514.95
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2016,
+   "twh": 517.55
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2017,
+   "twh": 518.95
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2018,
+   "twh": 509.39
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 496.51
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2020,
+   "twh": 482.23
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2021,
+   "twh": 499.74
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2022,
+   "twh": 477.2
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 463.99
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 471.79
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 608.99
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 531.3
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 523.68
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 112.08
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 99.87
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 100.98
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 842.59
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 716.39
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 705.93
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 112.19
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 111.82
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 113.77
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 16.17
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 14.32
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 14.62
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2008,
+   "twh": 164.8
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2009,
+   "twh": 159.26
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2010,
+   "twh": 188.61
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2011,
+   "twh": 178.03
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2012,
+   "twh": 194.29
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2013,
+   "twh": 197.11
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2014,
+   "twh": 180.58
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2015,
+   "twh": 181.23
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2016,
+   "twh": 178.96
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2017,
+   "twh": 183.52
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2018,
+   "twh": 191.43
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 193.62
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2020,
+   "twh": 199.62
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2021,
+   "twh": 209.21
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2022,
+   "twh": 219.31
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 196.98
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 196.47
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.94
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 1.11
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 1.16
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 8.48
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 9.09
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 8.76
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA600",
+   "jahr": 2019,
+   "twh": 14.65
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA600",
+   "jahr": 2023,
+   "twh": 17.13
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "RA600",
+   "jahr": 2024,
+   "twh": 19.71
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2008,
+   "twh": 2423.51
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2009,
+   "twh": 2287.95
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2010,
+   "twh": 2441.41
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2011,
+   "twh": 2317.77
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2012,
+   "twh": 2356.97
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2013,
+   "twh": 2419.71
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2014,
+   "twh": 2293.77
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2015,
+   "twh": 2326.36
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2016,
+   "twh": 2368.65
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2017,
+   "twh": 2378.48
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2018,
+   "twh": 2333.96
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 2335.35
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2020,
+   "twh": 2259.1
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2021,
+   "twh": 2295.98
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2022,
+   "twh": 2206.19
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 2082.33
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 2067.18
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 14.81
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 13.4
+  },
+  {
+   "bilanz": "FC_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 12.99
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 35.75
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 27.14
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 26.42
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2008,
+   "twh": 234.97
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2009,
+   "twh": 202.02
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2010,
+   "twh": 228.5
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2011,
+   "twh": 234.23
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2012,
+   "twh": 230.59
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2013,
+   "twh": 227.85
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2014,
+   "twh": 232.86
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2015,
+   "twh": 228.82
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2016,
+   "twh": 230.57
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2017,
+   "twh": 232.23
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2018,
+   "twh": 230.72
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 223.27
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2020,
+   "twh": 211.63
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2021,
+   "twh": 219.33
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2022,
+   "twh": 206.13
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 190.46
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 196.58
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 226.5
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 197.89
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 195.71
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 49.78
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 42.74
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 43.82
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 38.23
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 43.99
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 27.17
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 23.78
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 25.32
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 25.98
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 0.92
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 0.89
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 0.98
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2008,
+   "twh": 22.01
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2009,
+   "twh": 24.55
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2010,
+   "twh": 31.46
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2011,
+   "twh": 33.74
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2012,
+   "twh": 30.87
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2013,
+   "twh": 30.62
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2014,
+   "twh": 31.6
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2015,
+   "twh": 30.45
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2016,
+   "twh": 32.26
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2017,
+   "twh": 32.08
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2018,
+   "twh": 32.02
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 31.91
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2020,
+   "twh": 32.04
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2021,
+   "twh": 32.91
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2022,
+   "twh": 33.73
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 32.49
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 32.95
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA600",
+   "jahr": 2019,
+   "twh": 0.13
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA600",
+   "jahr": 2023,
+   "twh": 0.15
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "RA600",
+   "jahr": 2024,
+   "twh": 0.17
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2008,
+   "twh": 663.46
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2009,
+   "twh": 587.17
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2010,
+   "twh": 659.06
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2011,
+   "twh": 667.68
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2012,
+   "twh": 659.57
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2013,
+   "twh": 655.32
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2014,
+   "twh": 648.09
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2015,
+   "twh": 652.07
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2016,
+   "twh": 659.15
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2017,
+   "twh": 664.61
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2018,
+   "twh": 663.96
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 647.2
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2020,
+   "twh": 636.89
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2021,
+   "twh": 652.03
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2022,
+   "twh": 616.48
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 577.86
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 562.52
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 14.81
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 13.4
+  },
+  {
+   "bilanz": "FC_IND_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 12.99
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 5.06
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 4.49
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 4.48
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 3.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 3.85
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 3.84
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 24.56
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 24.46
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 23.41
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 1.18
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 1.15
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 1.14
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 6.52
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 6.69
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 6.81
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 8.94
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 9.33
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 9.21
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.01
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.01
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.01
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 41.56
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 42.12
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 40.94
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_AF_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.02
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.25
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2008,
+   "twh": 142.19
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2009,
+   "twh": 144.67
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2010,
+   "twh": 143.86
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2011,
+   "twh": 136.31
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2012,
+   "twh": 139.21
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2013,
+   "twh": 142.06
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2014,
+   "twh": 131.51
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2015,
+   "twh": 140.74
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2016,
+   "twh": 141.59
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2017,
+   "twh": 138.75
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2018,
+   "twh": 133.47
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 129.97
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2020,
+   "twh": 126.87
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2021,
+   "twh": 130.84
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2022,
+   "twh": 117.06
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 120.29
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 120.77
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 110.11
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 95.23
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 92.2
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 16.16
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 16.94
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 17.82
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 38.9
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 18.91
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 18.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 17.77
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 20.23
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 21.48
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 4.68
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 3.68
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 3.72
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2008,
+   "twh": 19.9
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2009,
+   "twh": 21.47
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2010,
+   "twh": 26.33
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2011,
+   "twh": 20.92
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2012,
+   "twh": 22.71
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2013,
+   "twh": 23.83
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2014,
+   "twh": 20.95
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2015,
+   "twh": 23.03
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2016,
+   "twh": 22.84
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2017,
+   "twh": 23.82
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2018,
+   "twh": 24.49
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 25.05
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2020,
+   "twh": 25.31
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2021,
+   "twh": 26.92
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2022,
+   "twh": 25.4
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 26.53
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 28.01
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.65
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.66
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.67
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.35
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.36
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.35
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA600",
+   "jahr": 2019,
+   "twh": 1.16
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA600",
+   "jahr": 2023,
+   "twh": 1.43
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "RA600",
+   "jahr": 2024,
+   "twh": 1.64
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2008,
+   "twh": 403.94
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2009,
+   "twh": 391.54
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2010,
+   "twh": 404.8
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2011,
+   "twh": 357.45
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2012,
+   "twh": 372.48
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2013,
+   "twh": 390.18
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2014,
+   "twh": 357.81
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2015,
+   "twh": 375.53
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2016,
+   "twh": 370.6
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2017,
+   "twh": 370.27
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2018,
+   "twh": 336.02
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 320.22
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2020,
+   "twh": 312.17
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2021,
+   "twh": 349.05
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2022,
+   "twh": 287.75
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 278.16
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 276.8
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_CP_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 4.02
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 3.25
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 2.02
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2008,
+   "twh": 139.5
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2009,
+   "twh": 139.2
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2010,
+   "twh": 141.7
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2011,
+   "twh": 136.6
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2012,
+   "twh": 137.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2013,
+   "twh": 136.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2014,
+   "twh": 129.6
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2015,
+   "twh": 128.7
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2016,
+   "twh": 128.2
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2017,
+   "twh": 130.92
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2018,
+   "twh": 127.88
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 126.54
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2020,
+   "twh": 127.43
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2021,
+   "twh": 131.5
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2022,
+   "twh": 134.14
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 131.45
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 132.44
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 260.27
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 225.27
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 224.05
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 46.14
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 40.19
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 39.34
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 138.04
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 115.69
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 116.2
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 69.45
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 65.13
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 65.17
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 3.38
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 3.06
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 3.12
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2008,
+   "twh": 84.93
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2009,
+   "twh": 77.96
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2010,
+   "twh": 91.95
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2011,
+   "twh": 85.59
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2012,
+   "twh": 100.51
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2013,
+   "twh": 104.76
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2014,
+   "twh": 88.68
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2015,
+   "twh": 90.27
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2016,
+   "twh": 85.84
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2017,
+   "twh": 88.87
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2018,
+   "twh": 94.68
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 96.55
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2020,
+   "twh": 93.8
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2021,
+   "twh": 106.08
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2022,
+   "twh": 116.23
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 93.95
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 96.02
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.29
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.45
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.49
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 8.11
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 8.71
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 8.4
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA600",
+   "jahr": 2019,
+   "twh": 13.35
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA600",
+   "jahr": 2023,
+   "twh": 15.53
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "RA600",
+   "jahr": 2024,
+   "twh": 17.88
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2008,
+   "twh": 728.77
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2009,
+   "twh": 691.57
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2010,
+   "twh": 742.45
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2011,
+   "twh": 651.52
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2012,
+   "twh": 688.36
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2013,
+   "twh": 727.08
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2014,
+   "twh": 623.93
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2015,
+   "twh": 639.18
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2016,
+   "twh": 662.49
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2017,
+   "twh": 660.32
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2018,
+   "twh": 649.21
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 671.55
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2020,
+   "twh": 674.3
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2021,
+   "twh": 670.73
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2022,
+   "twh": 667.97
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 609.82
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 610.06
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_OTH_HH_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 8.5
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 4.27
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 4.13
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 8.5
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 4.27
+  },
+  {
+   "bilanz": "FC_TRA_DAVI_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 4.13
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 3.15
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 2.74
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 2.71
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 3.15
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 2.74
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 2.71
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_DNAVI_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2008,
+   "twh": 11.1
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2009,
+   "twh": 11.6
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2010,
+   "twh": 12.08
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2011,
+   "twh": 12.11
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2012,
+   "twh": 12.03
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2013,
+   "twh": 11.93
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2014,
+   "twh": 11.52
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2015,
+   "twh": 11.15
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2016,
+   "twh": 11.74
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2017,
+   "twh": 11.96
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2018,
+   "twh": 12.09
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 11.61
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2020,
+   "twh": 11.53
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2021,
+   "twh": 12.87
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2022,
+   "twh": 15.41
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 17.27
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 17.49
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 9.11
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 9.06
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 7.88
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 601.97
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 512.42
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 520.31
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 0.66
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2008,
+   "twh": 33.94
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2009,
+   "twh": 30.57
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2010,
+   "twh": 33.61
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2011,
+   "twh": 32.52
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2012,
+   "twh": 34.29
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2013,
+   "twh": 31.36
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2014,
+   "twh": 32.27
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2015,
+   "twh": 29.84
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2016,
+   "twh": 29.91
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2017,
+   "twh": 30.28
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2018,
+   "twh": 31.35
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 31.16
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2020,
+   "twh": 38.94
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2021,
+   "twh": 33.58
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2022,
+   "twh": 34.31
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 34.66
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 30.26
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2008,
+   "twh": 621.28
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2009,
+   "twh": 610.95
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2010,
+   "twh": 618.06
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2011,
+   "twh": 623.82
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2012,
+   "twh": 619.4
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2013,
+   "twh": 630.81
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2014,
+   "twh": 644.83
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2015,
+   "twh": 641.33
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2016,
+   "twh": 657.75
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2017,
+   "twh": 665.79
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2018,
+   "twh": 645.12
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 653.84
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2020,
+   "twh": 593.14
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2021,
+   "twh": 580.37
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2022,
+   "twh": 589.94
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 573.4
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 575.94
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 11.27
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 11.48
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 11.58
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 3.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 2.78
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 2.68
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 0.16
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 0.46
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 0.16
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 14.44
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 14.73
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 14.41
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_RAIL_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 0.34
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 4.52
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 5.91
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 1.66
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 3.87
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 4.21
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 585.81
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 501.24
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 509.23
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 0.66
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 30.99
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 34.19
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 30.11
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 618.79
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 543.83
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 549.46
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "FC_TRA_ROAD_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 656.69
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 487.94
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 439.25
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2008,
+   "twh": -20.1
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2009,
+   "twh": -12.27
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2010,
+   "twh": -14.96
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2011,
+   "twh": -3.77
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2012,
+   "twh": -20.54
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2013,
+   "twh": -32.19
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2014,
+   "twh": -33.88
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2015,
+   "twh": -48.28
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2016,
+   "twh": -50.52
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2017,
+   "twh": -52.46
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2018,
+   "twh": -48.74
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": -32.67
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2020,
+   "twh": -19.03
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2021,
+   "twh": -18.57
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2022,
+   "twh": -27.26
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 9.22
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 26.27
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 879.47
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 745.04
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 754.19
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "N900H",
+   "jahr": 2019,
+   "twh": 224.83
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "N900H",
+   "jahr": 2023,
+   "twh": 21.62
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "N900H",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 1294.9
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 1102.58
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 1090.09
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 150.07
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 148.77
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 149.87
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 8.54
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 9.53
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 9.93
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 88.32
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 90.21
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 91.71
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2008,
+   "twh": 320.61
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2009,
+   "twh": 320.09
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2010,
+   "twh": 363.64
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2011,
+   "twh": 377.26
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2012,
+   "twh": 423.95
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2013,
+   "twh": 437.66
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2014,
+   "twh": 435.6
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2015,
+   "twh": 464.38
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2016,
+   "twh": 463.27
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2017,
+   "twh": 494.44
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2018,
+   "twh": 506.01
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 527.01
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2020,
+   "twh": 546.91
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2021,
+   "twh": 547.14
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2022,
+   "twh": 570.37
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 570.88
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 581.57
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA100",
+   "jahr": 2019,
+   "twh": 19.73
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA100",
+   "jahr": 2023,
+   "twh": 21.24
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA100",
+   "jahr": 2024,
+   "twh": 23.82
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 3.88
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 4.62
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 5.03
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA300",
+   "jahr": 2019,
+   "twh": 125.89
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA300",
+   "jahr": 2023,
+   "twh": 141.76
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA300",
+   "jahr": 2024,
+   "twh": 138.91
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 8.48
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 9.13
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 8.8
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA420",
+   "jahr": 2019,
+   "twh": 44.38
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA420",
+   "jahr": 2023,
+   "twh": 64.3
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA420",
+   "jahr": 2024,
+   "twh": 75.38
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA600",
+   "jahr": 2019,
+   "twh": 14.65
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA600",
+   "jahr": 2023,
+   "twh": 17.18
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "RA600",
+   "jahr": 2024,
+   "twh": 19.8
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2008,
+   "twh": 4032.3
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2009,
+   "twh": 3770.99
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2010,
+   "twh": 3966.11
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2011,
+   "twh": 3762.11
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2012,
+   "twh": 3793.09
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2013,
+   "twh": 3873.58
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2014,
+   "twh": 3708.36
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2015,
+   "twh": 3727.59
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2016,
+   "twh": 3754.7
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2017,
+   "twh": 3771.38
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2018,
+   "twh": 3681.59
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 3599.64
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2020,
+   "twh": 3328.61
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2021,
+   "twh": 3462.84
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2022,
+   "twh": 3299.75
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 2984.18
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 2937.55
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 49.41
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 46.9
+  },
+  {
+   "bilanz": "GAE",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 46.19
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 113.32
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 108.46
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 103.24
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 113.32
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 108.46
+  },
+  {
+   "bilanz": "INTAVI",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 103.24
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 15.9
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 15.18
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 14.92
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 15.9
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 15.18
+  },
+  {
+   "bilanz": "INTMARB",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 14.92
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 656.69
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 487.94
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 439.25
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": -32.67
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 9.22
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 26.27
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 879.47
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 745.04
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 754.19
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "N900H",
+   "jahr": 2019,
+   "twh": 224.83
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "N900H",
+   "jahr": 2023,
+   "twh": 21.62
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "N900H",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 1165.68
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 978.94
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 971.93
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 150.07
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 148.77
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 149.87
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 8.54
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 9.53
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 9.93
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 88.32
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 90.21
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 91.71
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 527.01
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 570.88
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 581.57
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA100",
+   "jahr": 2019,
+   "twh": 19.73
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA100",
+   "jahr": 2023,
+   "twh": 21.24
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA100",
+   "jahr": 2024,
+   "twh": 23.82
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 3.88
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 4.62
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 5.03
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA300",
+   "jahr": 2019,
+   "twh": 125.89
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA300",
+   "jahr": 2023,
+   "twh": 141.76
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA300",
+   "jahr": 2024,
+   "twh": 138.91
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 8.48
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 9.13
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 8.8
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA420",
+   "jahr": 2019,
+   "twh": 44.38
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA420",
+   "jahr": 2023,
+   "twh": 64.3
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA420",
+   "jahr": 2024,
+   "twh": 75.38
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA600",
+   "jahr": 2019,
+   "twh": 14.65
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA600",
+   "jahr": 2023,
+   "twh": 17.18
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "RA600",
+   "jahr": 2024,
+   "twh": 19.8
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 3470.41
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 2860.54
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 2819.39
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 49.41
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 46.9
+  },
+  {
+   "bilanz": "NRGSUP",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 46.19
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "C0000X0350-0370",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "E7000",
+   "jahr": 2019,
+   "twh": 31.05
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "E7000",
+   "jahr": 2023,
+   "twh": 24.17
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "E7000",
+   "jahr": 2024,
+   "twh": 23.03
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "G3000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "G3000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "G3000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "H8000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "H8000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "H8000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "O4000XBIO",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "P1000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "P1000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "P1000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5110-5150_W6000RI",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5210P",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5210P",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5210P",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5300",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5300",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "R5300",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA000",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA000",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA000",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA200",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA200",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA200",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA410",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA410",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "RA410",
+   "jahr": 2024,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "TOTAL",
+   "jahr": 2019,
+   "twh": 31.05
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "TOTAL",
+   "jahr": 2023,
+   "twh": 24.17
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "TOTAL",
+   "jahr": 2024,
+   "twh": 23.03
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "W6100_6220",
+   "jahr": 2019,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "W6100_6220",
+   "jahr": 2023,
+   "twh": 0.0
+  },
+  {
+   "bilanz": "NRG_EHG_E",
+   "traeger": "W6100_6220",
+   "jahr": 2024,
+   "twh": 0.0
+  }
+ ]
+}

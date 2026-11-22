@@ -1,0 +1,550 @@
+berichtsland,produkt_code,produkt,jahr,import_china_eur,import_extra_eu_eur,import_welt_eur,import_intra_eu_eur,china_anteil_an_extra_eu_pct
+DE,250410,Natural graphite in powder or in flakes,2015,13617749,20327454,28475052,8147598,67.0
+DE,250410,Natural graphite in powder or in flakes,2016,14571584,27301591,35431852,8130261,53.4
+DE,250410,Natural graphite in powder or in flakes,2017,13624301,24960058,34248963,9288905,54.6
+DE,250410,Natural graphite in powder or in flakes,2018,18177906,36933497,48320061,11386564,49.2
+DE,250410,Natural graphite in powder or in flakes,2019,8698339,33475725,41902865,8427140,26.0
+DE,250410,Natural graphite in powder or in flakes,2020,8804804,25394625,33231020,7836395,34.7
+DE,250410,Natural graphite in powder or in flakes,2021,11147275,32304075,43594324,11290249,34.5
+DE,250410,Natural graphite in powder or in flakes,2022,18461946,50454740,70242564,19787824,36.6
+DE,250410,Natural graphite in powder or in flakes,2023,7652319,31070361,48002693,16932332,24.6
+DE,250410,Natural graphite in powder or in flakes,2024,14305946,30864542,52437532,21572990,46.4
+DE,250410,Natural graphite in powder or in flakes,2025,7917147,25233226,46514872,21281646,31.4
+DE,260300,Copper ores and concentrates,2015,4445,1858527378,1875902313,17374935,0.0
+DE,260300,Copper ores and concentrates,2016,25291,1452015960,1477795124,25779164,0.0
+DE,260300,Copper ores and concentrates,2017,54182,1885523536,1972665477,87141941,0.0
+DE,260300,Copper ores and concentrates,2018,28501,1861824420,1952913215,91088795,0.0
+DE,260300,Copper ores and concentrates,2019,,1679077609,1714802773,35725164,
+DE,260300,Copper ores and concentrates,2020,,2026941148,2120163426,93222278,
+DE,260300,Copper ores and concentrates,2021,,2523233342,2584998620,61765278,
+DE,260300,Copper ores and concentrates,2022,,2486792282,2519719480,32927198,
+DE,260300,Copper ores and concentrates,2023,,3014893233,3058237468,43344235,
+DE,260300,Copper ores and concentrates,2024,,2249235108,2284100945,34865837,
+DE,260300,Copper ores and concentrates,2025,2119505,3005228747,3038198685,32969938,0.1
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2015,10409462,104062778,106261280,2198502,10.0
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2016,1391938,82352312,88442345,6090033,1.7
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2017,352373,93520822,95468247,1947425,0.4
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2018,394462,26548212,27258717,710505,1.5
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2019,968999,99534261,100326870,792609,1.0
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2020,1382055,143641958,144307156,665198,1.0
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2021,880134,135865830,137181233,1315403,0.6
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2022,1488852,164282251,167635572,3353321,0.9
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2023,1246967,94083162,95516220,1433058,1.3
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2024,952456,79172964,79646105,473141,1.2
+DE,280461,"Silicon containing >= 99,99% by weight of silicon",2025,1392419,99932212,100920211,987999,1.4
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2015,1102640,1451272,3526565,2075293,76.0
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2016,543759,920373,2648319,1727946,59.1
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2017,603666,1084133,2835270,1751137,55.7
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2018,573163,1022005,4050163,3028158,56.1
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2019,570672,866015,3066753,2200738,65.9
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2020,1155398,1487835,2492088,1004253,77.7
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2021,1083796,1478217,2790560,1312343,73.3
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2022,2186782,2564114,4070883,1506769,85.3
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2023,2278122,2399111,3839695,1440584,95.0
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2024,800540,1183285,2069216,885931,67.7
+DE,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2025,4073071,4368999,5685360,1316361,93.2
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2015,5105480,29706247,63081150,33374903,17.2
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2016,2969234,30485058,57460808,26975750,9.7
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2017,6103932,36502750,66827204,30324454,16.7
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2018,20306975,65819019,93618005,27798986,30.9
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2019,6873197,51467325,80547906,29080581,13.4
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2020,12816999,54237800,82414571,28176771,23.6
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2021,12492617,47813472,81427588,33614116,26.1
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2022,56853993,112640409,159169917,46529508,50.5
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2023,33474613,78721308,138379671,59658363,42.5
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2024,44981932,84290183,147413558,63123375,53.4
+DE,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2025,16849084,54848333,100696898,45848565,30.7
+DE,730820,"Towers and lattice masts, of iron or steel",2015,70588857,99338360,208346732,109008372,71.1
+DE,730820,"Towers and lattice masts, of iron or steel",2016,74898184,106820293,205226948,98406655,70.1
+DE,730820,"Towers and lattice masts, of iron or steel",2017,92126184,134731507,226681592,91950085,68.4
+DE,730820,"Towers and lattice masts, of iron or steel",2018,24393664,59199075,298018452,238819377,41.2
+DE,730820,"Towers and lattice masts, of iron or steel",2019,49038356,65928648,252661846,186733198,74.4
+DE,730820,"Towers and lattice masts, of iron or steel",2020,62192452,101516091,274236526,172720435,61.3
+DE,730820,"Towers and lattice masts, of iron or steel",2021,16496805,77490357,256749994,179259637,21.3
+DE,730820,"Towers and lattice masts, of iron or steel",2022,5271289,60291200,336579438,276288238,8.7
+DE,730820,"Towers and lattice masts, of iron or steel",2023,20411080,103039234,374903669,271864435,19.8
+DE,730820,"Towers and lattice masts, of iron or steel",2024,76196877,109991681,396386118,286394437,69.3
+DE,730820,"Towers and lattice masts, of iron or steel",2025,142143715,228265144,531178719,302913575,62.3
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2015,2764020,1028057688,3385398747,2357341059,0.3
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2016,10094,639675404,3085290507,2445615103,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2017,40504,566004475,3383710292,2817705817,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2018,53237,709296254,3710059517,3000763263,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2019,21631,639464470,3140941086,2501476616,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2020,73767,439843026,3220771960,2780928934,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2021,37247,776919553,4136400629,3359481076,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2022,2179166,815115894,5322566324,4507450430,0.3
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2023,35024,253229272,3786097033,3532867761,0.0
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2024,4127638,435803225,3555258776,3119455551,0.9
+DE,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2025,78950497,747560642,4215922000,3468361358,10.6
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2015,9312414,29887815,37661369,7773554,31.2
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2016,4548667,24152250,38321860,14169610,18.8
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2017,5929918,35923449,52439636,16516187,16.5
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2018,5640420,28880120,38102983,9222863,19.5
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2019,4416635,24157455,33522018,9364563,18.3
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2020,7157990,24661906,32743381,8081475,29.0
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2021,12449664,25987030,38835385,12848355,47.9
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2022,12562685,27532281,32969298,5437017,45.6
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2023,8595767,14509190,21528992,7019802,59.2
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2024,16734738,30661842,41469572,10807730,54.6
+DE,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2025,16340058,32281810,43351356,11069546,50.6
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2015,11276606,26880800,136191230,109310430,42.0
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2016,10688114,26770231,179013421,152243190,39.9
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2017,10259298,28584900,177772302,149187402,35.9
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2018,11840617,32132886,215791465,183658579,36.8
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2019,13509257,43161975,227413334,184251359,31.3
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2020,18097567,72500547,306769539,234268992,25.0
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2021,59651544,203302538,583470023,380167485,29.3
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2022,70314053,219373476,751214573,531841097,32.1
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2023,65749536,255282800,1051837796,796554996,25.8
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2024,43771600,145723515,770155838,624432323,30.0
+DE,841861,Heat pumps (excl. air conditioning machines of heading 8415),2025,47175766,130117425,1161565979,1031448554,36.3
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2015,105397115,369716514,956424683,586708169,28.5
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2016,126120158,422408795,1003304621,580895826,29.9
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2017,106035698,426358537,1032107698,605749161,24.9
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2018,127709230,453287253,1065678523,612391270,28.2
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2019,127959192,462258914,1038083856,575824942,27.7
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2020,106571946,383160239,877436673,494276434,27.8
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2021,96595217,454183683,977240871,523057188,21.3
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2022,138506924,549644319,1177411462,627767143,25.2
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2023,100118097,552303530,1283191053,730887523,18.1
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2024,131741209,586104075,1112933798,526829723,22.5
+DE,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2025,118275010,557578585,1129710697,572132112,21.2
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2015,906738,3485685,402404771,398919086,26.0
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2016,171698,807948,207663692,206855744,21.3
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2017,102050,148621,206036114,205887493,68.7
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2018,100203,166214,704243565,704077351,60.3
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2019,5571154,5621922,83961620,78339698,99.1
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2020,6042788,10815438,77057979,66242541,55.9
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2021,26729879,26863286,86094015,59230729,99.5
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2022,24402196,27408237,130993131,103584894,89.0
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2023,371212,524346,196420229,195895883,70.8
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2024,4471789,4545113,152132401,147587288,98.4
+DE,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2025,56150250,59471680,247329375,187857695,94.4
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2015,133647796,452539435,1529785377,1077245942,29.5
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2016,132933111,519616088,1648604248,1128988160,25.6
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2017,137135485,554940097,1723153685,1168213588,24.7
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2018,174471769,608720746,1860421440,1251700694,28.7
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2019,220886943,696273004,1980524680,1284251676,31.7
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2020,281136023,679699756,1925206811,1245507055,41.4
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2021,445743615,931174283,2324936946,1393762663,47.9
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2022,562043917,1219685688,2959510294,1739824606,46.1
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2023,432621326,1164739533,3410495918,2245756385,37.1
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2024,584373784,1125329001,2887251483,1761922482,51.9
+DE,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2025,692743600,1273937649,2937136461,1663198812,54.4
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2015,423723,17730782,62906052,45175270,2.4
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2016,125914,23243744,69303751,46060007,0.5
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2017,478619,13384084,39417732,26033648,3.6
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2018,234028,13944947,43100745,29155798,1.7
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2019,132434,15413387,67686413,52273026,0.9
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2020,59590,23038505,64136294,41097789,0.3
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2021,82576,23107041,70851667,47744626,0.4
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2022,136159,21966794,108307289,86340495,0.6
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2023,212925,24253203,179154136,154900933,0.9
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2024,348376,42688864,214567215,171878351,0.8
+DE,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2025,146780,34020880,250812402,216791522,0.4
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2015,,40337686,84886506,44548820,
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2016,548377,46675076,84298289,37623213,1.2
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2017,,44344403,89420644,45076241,
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2018,8825521,55777991,119176831,63398840,15.8
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2019,219,41775348,124106108,82330760,0.0
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2020,231852,40538734,149668369,109129635,0.6
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2021,237344,45297526,140967887,95670361,0.5
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2022,184025,43322727,128508432,85185705,0.4
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2023,845731,69403697,245226625,175822928,1.2
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2024,2268064,71896650,282710798,210814148,3.2
+DE,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2025,2393770,69964729,383341990,313377261,3.4
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2015,,7417733,40178678,32760945,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2016,1029000,4737516,54574424,49836908,21.7
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2017,,9857085,53136861,43279776,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2018,,11147754,56886157,45738403,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2019,,2054232,54935366,52881134,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2020,,2498967,55530794,53031827,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2021,,1783359,73129958,71346599,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2022,,1952724,63863274,61910550,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2023,,1949107,130090158,128141051,
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2024,3001207,21713565,236393314,214679749,13.8
+DE,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2025,16992746,36693598,390530897,353837299,46.3
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2015,13353683,25600981,54645626,29044645,52.2
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2016,12864953,18009099,41041475,23032376,71.4
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2017,11870025,18665842,35611388,16945546,63.6
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2018,19057035,27476403,45891628,18415225,69.4
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2019,18404455,34431120,56018099,21586979,53.5
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2020,18889879,25603441,44437691,18834250,73.8
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2021,22142394,26710268,48943442,22233174,82.9
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2022,28328068,48174266,104438434,56264168,58.8
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2023,11080054,37983873,174476381,136492508,29.2
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2024,15864016,27376913,169745974,142369061,57.9
+DE,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2025,16184115,19669177,186863180,167194003,82.3
+DE,850440,Static converters,2015,706121981,1407278456,2616968161,1209689705,50.2
+DE,850440,Static converters,2016,764408510,1502766938,2796065339,1293298401,50.9
+DE,850440,Static converters,2017,776795390,1652612170,3166367558,1513755388,47.0
+DE,850440,Static converters,2018,781859563,1685436911,3406048526,1720611615,46.4
+DE,850440,Static converters,2019,883843684,1831198187,3810405853,1979207666,48.3
+DE,850440,Static converters,2020,1025285047,2082079092,4463279300,2381200208,49.2
+DE,850440,Static converters,2021,1269736371,2508417140,5583541335,3075124195,50.6
+DE,850440,Static converters,2022,1855799194,3302299950,7831757125,4529457175,56.2
+DE,850440,Static converters,2023,2314649444,4038731419,9629534718,5590803299,57.3
+DE,850440,Static converters,2024,1500238718,3074470851,8352753206,5278282355,48.8
+DE,850440,Static converters,2025,1284798187,2976035436,8851552339,5875516903,43.2
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2015,179592239,243594036,306900320,63306284,73.7
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2016,180269181,248259068,310616070,62357002,72.6
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2017,189038130,257881191,314784136,56902945,73.3
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2018,233364427,307657228,368127834,60470606,75.9
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2019,243460257,320674507,367274165,46599658,75.9
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2020,259460578,319038185,355757877,36719692,81.3
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2021,375105883,444826681,500025723,55199042,84.3
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2022,669494111,746065253,828465966,82400713,89.7
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2023,546501021,625600310,689895465,64295155,87.4
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2024,448140931,504941591,554850224,49908633,88.8
+DE,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2025,477892383,536151681,592355593,56203912,89.1
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2015,11100853,15972004,28590341,12618337,69.5
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2016,11078924,16212270,23985832,7773562,68.3
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2017,11153524,16276546,22675528,6398982,68.5
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2018,12591785,18105602,27545877,9440275,69.5
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2019,14288605,20264855,27702031,7437176,70.5
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2020,14337113,18155575,25234289,7078714,79.0
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2021,13796372,16011305,20250697,4239392,86.2
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2022,22356170,24844454,30283277,5438823,90.0
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2023,15204925,17652402,24800992,7148590,86.1
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2024,14289293,16664573,26430474,9765901,85.7
+DE,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2025,14486541,17901778,29671189,11769411,80.9
+DE,850760,Lithium-ion accumulators (excl. spent),2015,198278261,834785916,1184676059,349890143,23.8
+DE,850760,Lithium-ion accumulators (excl. spent),2016,247451040,1032069704,1457940112,425870408,24.0
+DE,850760,Lithium-ion accumulators (excl. spent),2017,339449269,1336059409,1989550563,653491154,25.4
+DE,850760,Lithium-ion accumulators (excl. spent),2018,658969512,1624991350,2423809125,798817775,40.6
+DE,850760,Lithium-ion accumulators (excl. spent),2019,1194588459,2251308049,3314512909,1063204860,53.1
+DE,850760,Lithium-ion accumulators (excl. spent),2020,1341166884,2559611107,5569865769,3010254662,52.4
+DE,850760,Lithium-ion accumulators (excl. spent),2021,2195035674,3255003694,8767274546,5512270852,67.4
+DE,850760,Lithium-ion accumulators (excl. spent),2022,4714269092,5924237480,13853596457,7929358977,79.6
+DE,850760,Lithium-ion accumulators (excl. spent),2023,7155689994,8021866266,21578218048,13556351782,89.2
+DE,850760,Lithium-ion accumulators (excl. spent),2024,7215750985,7897546477,18546781812,10649235335,91.4
+DE,850760,Lithium-ion accumulators (excl. spent),2025,9625365908,10216520503,20489790858,10273270355,94.2
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2015,127071971,923800508,1614913993,691113485,13.8
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2016,117593307,823541113,1378673972,555132859,14.3
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2017,89714210,749947025,1432166569,682219544,12.0
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2018,151457760,1029534678,1637828548,608293870,14.7
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2019,582641483,1121075916,1819919857,698843941,52.0
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2020,721887651,1142786323,1979469021,836682698,63.2
+DE,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2021,743044577,1121050204,2410536528,1289486324,66.3
+DE,854142,Photovoltaic cells not assembled in modules or made up into panels,2022,81184323,93873317,256653930,162780613,86.5
+DE,854142,Photovoltaic cells not assembled in modules or made up into panels,2023,47980485,56387544,141627245,85239701,85.1
+DE,854142,Photovoltaic cells not assembled in modules or made up into panels,2024,5931938,11993267,34061387,22068120,49.5
+DE,854142,Photovoltaic cells not assembled in modules or made up into panels,2025,3309589,10711529,22006144,11294615,30.9
+DE,854143,Photovoltaic cells assembled in modules or made up into panels,2022,1538357082,1618220646,4095857234,2477636588,95.1
+DE,854143,Photovoltaic cells assembled in modules or made up into panels,2023,900417817,909942502,3574832549,2664890047,99.0
+DE,854143,Photovoltaic cells assembled in modules or made up into panels,2024,350694937,365452193,1903927502,1538475309,96.0
+DE,854143,Photovoltaic cells assembled in modules or made up into panels,2025,253807237,273936861,1800845858,1526908997,92.7
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2015,40925308,132001064,290041215,158040151,31.0
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2016,40482549,115706882,214551547,98844665,35.0
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2017,42287943,121198132,210894221,89696089,34.9
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2018,36019486,127347255,207118399,79771144,28.3
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2019,45434653,143260630,229499024,86238394,31.7
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2020,44035814,126705518,206863681,80158163,34.8
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2021,45408917,143658617,233871296,90212679,31.6
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2022,59191330,169838833,270028421,100189588,34.9
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2023,54255235,204628695,324249617,119620922,26.5
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2024,66716807,214840737,354561954,139721217,31.1
+DE,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2025,48602599,203226686,373010693,169784007,23.9
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2015,4099850,77207794,492477076,415269282,5.3
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2016,6633187,74469591,445999357,371529766,8.9
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2017,12815718,68732212,442015506,373283294,18.6
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2018,13616279,73987756,379560175,305572419,18.4
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2019,19676899,112204464,416492727,304288263,17.5
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2020,13710495,122614451,474463347,351848896,11.2
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2021,23306391,188014761,722619851,534605090,12.4
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2022,34310716,257657997,1024728123,767070126,13.3
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2023,47657456,270730008,953456771,682726763,17.6
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2024,29308627,231725877,991881146,760155269,12.6
+DE,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2025,26161593,315989774,1240104134,924114360,8.3
+EU27_2020,250410,Natural graphite in powder or in flakes,2015,26969519,59724600,,33946597,45.2
+EU27_2020,250410,Natural graphite in powder or in flakes,2016,25768891,63416798,,32849729,40.6
+EU27_2020,250410,Natural graphite in powder or in flakes,2017,29436770,71038117,,37783691,41.4
+EU27_2020,250410,Natural graphite in powder or in flakes,2018,44581150,101840709,,42567348,43.8
+EU27_2020,250410,Natural graphite in powder or in flakes,2019,24051270,104175326,,36157148,23.1
+EU27_2020,250410,Natural graphite in powder or in flakes,2020,17393644,86135949,,29688479,20.2
+EU27_2020,250410,Natural graphite in powder or in flakes,2021,28512118,113271037,,40196807,25.2
+EU27_2020,250410,Natural graphite in powder or in flakes,2022,58937547,158670131,,56913247,37.1
+EU27_2020,250410,Natural graphite in powder or in flakes,2023,38751166,117696242,,49483547,32.9
+EU27_2020,250410,Natural graphite in powder or in flakes,2024,53197848,112148962,,56465723,47.4
+EU27_2020,250410,Natural graphite in powder or in flakes,2025,37215954,87309102,,56035568,42.6
+EU27_2020,260300,Copper ores and concentrates,2015,264711,5618881008,,987041108,0.0
+EU27_2020,260300,Copper ores and concentrates,2016,165754,4726226690,,880499956,0.0
+EU27_2020,260300,Copper ores and concentrates,2017,196659,6142705917,,1482761309,0.0
+EU27_2020,260300,Copper ores and concentrates,2018,284162,6244696328,,1489553354,0.0
+EU27_2020,260300,Copper ores and concentrates,2019,103071,5370841263,,958126254,0.0
+EU27_2020,260300,Copper ores and concentrates,2020,80540,6275078413,,534265688,0.0
+EU27_2020,260300,Copper ores and concentrates,2021,21326200,8421367259,,540594180,0.3
+EU27_2020,260300,Copper ores and concentrates,2022,401474,8645637027,,492757283,0.0
+EU27_2020,260300,Copper ores and concentrates,2023,155065,9046794697,,477797860,0.0
+EU27_2020,260300,Copper ores and concentrates,2024,13020,8501372519,,660463394,0.0
+EU27_2020,260300,Copper ores and concentrates,2025,2139553,9683693681,,628404532,0.0
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2015,11134132,142690506,,33720882,7.8
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2016,1609472,117280879,,31332055,1.4
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2017,2125247,116900371,,40815007,1.8
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2018,2663852,51238267,,37967850,5.2
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2019,4703819,124480677,,26396958,3.8
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2020,6468725,162555228,,17334164,4.0
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2021,6408963,159169036,,34353011,4.0
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2022,8413088,190741622,,78149370,4.4
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2023,3781995,109779251,,48778030,3.4
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2024,9866296,96533215,,27444647,10.2
+EU27_2020,280461,"Silicon containing >= 99,99% by weight of silicon",2025,17391801,125218647,,42567664,13.9
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2015,5851277,10388783,,4389919,56.3
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2016,4802988,9025606,,4409338,53.2
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2017,4265856,8516721,,5421228,50.1
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2018,6793856,7999885,,5517467,84.9
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2019,6367241,9409614,,4566460,67.7
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2020,3320695,4604688,,2546382,72.1
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2021,2564454,3386689,,3751424,75.7
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2022,4128787,5304234,,3439943,77.8
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2023,6200055,8215512,,2922500,75.5
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2024,4826768,6905679,,4523789,69.9
+EU27_2020,280530,"Rare-earth metals, scandium and yttrium, whether or not intermixed or interalloyed",2025,8818110,11252443,,9320114,78.4
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2019,27654678,37645710,,,73.5
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2020,21179293,28361906,,,74.7
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2021,46040455,52923337,,,87.0
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2022,51971841,59133539,,,87.9
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2023,17187889,26171022,,,65.7
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2024,12038563,19340264,,,62.2
+EU27_2020,282200,Cobalt oxides and hydroxides; commercial cobalt oxides,2025,18473522,25993882,,,71.1
+EU27_2020,282520,Lithium oxide and hydroxide,2019,2435123,39304550,,,6.2
+EU27_2020,282520,Lithium oxide and hydroxide,2020,3421653,25023828,,,13.7
+EU27_2020,282520,Lithium oxide and hydroxide,2021,3026648,25893049,,,11.7
+EU27_2020,282520,Lithium oxide and hydroxide,2022,42687654,164387171,,,26.0
+EU27_2020,282520,Lithium oxide and hydroxide,2023,120149290,239503499,,,50.2
+EU27_2020,282520,Lithium oxide and hydroxide,2024,49405110,85967784,,,57.5
+EU27_2020,282520,Lithium oxide and hydroxide,2025,8424348,32158080,,,26.2
+EU27_2020,283691,Lithium carbonates,2019,1962367,150725043,,,1.3
+EU27_2020,283691,Lithium carbonates,2020,1867203,126858772,,,1.5
+EU27_2020,283691,Lithium carbonates,2021,2587158,110002325,,,2.4
+EU27_2020,283691,Lithium carbonates,2022,9478896,324111602,,,2.9
+EU27_2020,283691,Lithium carbonates,2023,32897038,281507687,,,11.7
+EU27_2020,283691,Lithium carbonates,2024,1432145,182114865,,,0.8
+EU27_2020,283691,Lithium carbonates,2025,1193649,94939630,,,1.3
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2015,23174599,116623345,,131843690,19.9
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2016,19892613,106503711,,101236076,18.7
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2017,24730810,125495592,,123193233,19.7
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2018,50997360,176450857,,149484462,28.9
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2019,124947883,250831188,,121193223,49.8
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2020,236848018,365303243,,115818408,64.8
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2021,384803320,511631613,,154407723,75.2
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2022,649333615,826554083,,196450066,78.6
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2023,649360710,818591942,,200943837,79.3
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2024,364887158,544809534,,229647928,67.0
+EU27_2020,380110,"Artificial graphite (excl. retort graphite, retort carbon and goods of artificial graphite",2025,243677381,375103025,,153614829,65.0
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2015,158265388,246506830,,382184830,64.2
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2016,120978842,243145733,,413458695,49.8
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2017,171658606,287855348,,411819796,59.6
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2018,139649986,267678986,,662779278,52.2
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2019,341106624,525382902,,652788963,64.9
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2020,159669813,388769379,,767857690,41.1
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2021,127705212,514501829,,810855212,24.8
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2022,58168123,648292564,,769002783,9.0
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2023,87061322,792124574,,734191603,11.0
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2024,147447603,637981757,,1021093083,23.1
+EU27_2020,730820,"Towers and lattice masts, of iron or steel",2025,229033179,811943481,,1185297225,28.2
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2015,12790204,5174870228,,4308007903,0.2
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2016,3860095,4842080276,,4263736031,0.1
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2017,234531,5546548137,,4863144545,0.0
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2018,67109,5689243747,,5279651376,0.0
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2019,33116,4656942540,,4840078763,0.0
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2020,101698,3767485492,,5251469149,0.0
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2021,57468,6282606855,,7488888055,0.0
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2022,2219589,7154760542,,9391722240,0.0
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2023,6991087,5321936794,,8153095852,0.1
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2024,12321821,6102456902,,8680095558,0.2
+EU27_2020,740311,"Copper, refined, in the form of cathodes and sections of cathodes",2025,149348661,7370321130,,8217149061,2.0
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2019,1944381,2244686151,,,0.1
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2020,11300914,1810635479,,,0.6
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2021,1326576,2565349202,,,0.1
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2022,13987000,3876638174,,,0.4
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2023,22314761,2980142899,,,0.7
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2024,12843140,2310676082,,,0.6
+EU27_2020,750210,"Nickel, not alloyed, unwrought",2025,35153053,1864407488,,,1.9
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2019,29726171,414141048,,,7.2
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2020,20184470,347461140,,,5.8
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2021,16005080,354142412,,,4.5
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2022,27704525,490888751,,,5.6
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2023,24661326,325832268,,,7.6
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2024,49084852,242624462,,,20.2
+EU27_2020,810520,Cobalt mattes and other intermediate products of cobalt metallurgy; unwrought cobalt; coba,2025,47054425,234421895,,,20.1
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2015,12991412,62568000,,43260398,20.8
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2016,8900540,52800501,,42622993,16.9
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2017,11695569,77873088,,59163415,15.0
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2018,25315208,94322445,,56843607,26.8
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2019,15298764,79146411,,58822100,19.3
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2020,13377168,69803849,,44213967,19.2
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2021,29590321,72651440,,44730003,40.7
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2022,34228775,92172919,,25160199,37.1
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2023,27795016,108201352,,59471883,25.7
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2024,50369241,147742784,,41946750,34.1
+EU27_2020,811292,"Unwrought hafnium ""celtium"", niobium ""columbium"", rhenium, gallium, indium, vanadium and g",2025,31776038,113123609,,39954670,28.1
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2015,91643481,177613642,,610215629,51.6
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2016,93614208,191589175,,649985519,48.9
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2017,107822805,227731134,,716294738,47.3
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2018,133909060,263226525,,873444942,50.9
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2019,185929010,369900506,,979167783,50.3
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2020,243484604,454571771,,1064524726,53.6
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2021,532657781,906963608,,1672762101,58.7
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2022,897560060,1440191969,,2388125560,62.3
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2023,666813494,1265066419,,2761506677,52.7
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2024,393234683,654173458,,2054508340,60.1
+EU27_2020,841861,Heat pumps (excl. air conditioning machines of heading 8415),2025,497202525,747296268,,2594548234,66.5
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2015,287187647,1149436207,,2894414241,25.0
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2016,309157579,1192948901,,2917631017,25.9
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2017,317433051,1265646084,,3129193503,25.1
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2018,355815699,1331241445,,3273599859,26.7
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2019,457214076,1483857457,,3047862027,30.8
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2020,425929275,1267355565,,2681261916,33.6
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2021,438346764,1495432138,,3027511573,29.3
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2022,673092505,1927216501,,3385396950,34.9
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2023,445577868,1743547572,,3719005340,25.6
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2024,481905071,1799371202,,3093273933,26.8
+EU27_2020,848340,"Gears and gearing for machinery (excl. toothed wheels, chain sprockets and other transmiss",2025,511446930,1898434144,,3328531099,26.9
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2015,75269350,91489114,,1299377032,82.3
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2016,11538513,20247304,,899894600,57.0
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2017,11889018,25753105,,1014385640,46.2
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2018,98456880,121272625,,2017277728,81.2
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2019,211507433,242165117,,1914664569,87.3
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2020,267318775,318565373,,1795541927,83.9
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2021,414505454,646963196,,639627852,64.1
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2022,463515901,759078521,,1073944760,61.1
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2023,80712662,263324839,,1252512945,30.7
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2024,208142065,503390819,,729109107,41.3
+EU27_2020,850231,"Generating sets, wind-powered(2002-2500);Generating sets, wind-powered(1996-2001)",2025,421850576,707661608,,745492845,59.6
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2015,500056928,1463378731,,3925719750,34.2
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2016,528391341,1505492735,,4115673488,35.1
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2017,601865366,1618341530,,4237359635,37.2
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2018,701465419,1810411361,,4437873593,38.7
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2019,847286227,2111238627,,4905499591,40.1
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2020,941303103,2073988282,,4634693897,45.4
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2021,1330779757,2791386623,,5205184437,47.7
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2022,1763802655,3974080621,,5863062907,44.4
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2023,1532960862,3828128986,,6649038904,40.0
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2024,1631602372,3838479536,,6163866002,42.5
+EU27_2020,850300,"Parts suitable for use solely or principally with electric motors and generators, electric",2025,1880618598,4024061172,,5292881383,46.7
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2015,2331949,71123912,,237752133,3.3
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2016,3455270,64632930,,263567764,5.3
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2017,2683719,59493579,,232931162,4.5
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2018,2626160,71548716,,237876765,3.7
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2019,4488429,84818413,,287931240,5.3
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2020,5922662,88456026,,256642077,6.7
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2021,5533213,112237908,,280498880,4.9
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2022,12502251,180702263,,434726128,6.9
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2023,13829216,277530616,,597293397,5.0
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2024,38339836,279091512,,627888448,13.7
+EU27_2020,850421,"Liquid dielectric transformers, having a power handling capacity <= 650 kVA",2025,78505907,318378331,,723930765,24.7
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2015,259123,89920653,,178439200,0.3
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2016,4112951,110511056,,236693529,3.7
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2017,246567,87782548,,229690295,0.3
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2018,9335897,106749935,,252720104,8.7
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2019,1598703,128086567,,276470761,1.2
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2020,588098,155523961,,350676882,0.4
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2021,1926721,200661548,,375130045,1.0
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2022,11780113,296558887,,431977370,4.0
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2023,148065667,630747212,,672482265,23.5
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2024,255227265,719725469,,776445246,35.5
+EU27_2020,850422,"Liquid dielectric transformers, having a power handling capacity > 650 kVA but <= 10.000 k",2025,368910037,849345647,,930484394,43.4
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2015,9717803,52578943,,362121678,18.5
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2016,9940786,85192602,,345132802,11.7
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2017,15976454,69807966,,323848716,22.9
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2018,6993212,87939792,,327877814,8.0
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2019,7304308,78606194,,349750763,9.3
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2020,6769389,71694727,,345758256,9.4
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2021,27729339,92781704,,387550641,29.9
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2022,31037214,113739760,,462477534,27.3
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2023,158118268,312090079,,607986995,50.7
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2024,245766806,591672497,,883364533,41.5
+EU27_2020,850423,"Liquid dielectric transformers, having a power handling capacity > 10.000 kVA",2025,510424707,935121593,,1241920628,54.6
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2015,17840971,58651052,,243170752,30.4
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2016,17268099,59243754,,227265701,29.1
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2017,16270836,69347338,,203790084,23.5
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2018,31490017,72215668,,238674794,43.6
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2019,44600606,90713987,,226815569,49.2
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2020,39234983,66307316,,205638497,59.2
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2021,47992557,91334474,,210161245,52.5
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2022,86652097,163210188,,329097404,53.1
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2023,61663108,154792780,,466037772,39.8
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2024,65347946,167241114,,534772517,39.1
+EU27_2020,850434,Transformers having a power handling capacity > 500 kVA (excl. liquid dielectric transform,2025,78721965,182713822,,516249048,43.1
+EU27_2020,850440,Static converters,2015,2645908602,5498414129,,5343519990,48.1
+EU27_2020,850440,Static converters,2016,2933528372,5611087042,,5689878609,52.3
+EU27_2020,850440,Static converters,2017,3140759866,6130298661,,6282648203,51.2
+EU27_2020,850440,Static converters,2018,3367500621,6650739448,,7039804632,50.6
+EU27_2020,850440,Static converters,2019,4015916519,7458642929,,7801831190,53.8
+EU27_2020,850440,Static converters,2020,4714640966,8302468427,,8548532591,56.8
+EU27_2020,850440,Static converters,2021,6463312682,10611302443,,11022910126,60.9
+EU27_2020,850440,Static converters,2022,11269992238,16823294182,,16488795010,67.0
+EU27_2020,850440,Static converters,2023,12013582454,18076844193,,18617370792,66.5
+EU27_2020,850440,Static converters,2024,8652882702,14262304780,,16537101210,60.7
+EU27_2020,850440,Static converters,2025,8665575965,14690244511,,17627587790,59.0
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2015,398613838,502719140,,191290579,79.3
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2016,419179742,529398645,,183328859,79.2
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2017,438226133,560991941,,213898186,78.1
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2018,499684927,625383692,,236351731,79.9
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2019,536185845,654310058,,223887369,81.9
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2020,519051726,616190434,,199678015,84.2
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2021,767574797,897946359,,257417732,85.5
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2022,1384024335,1512641560,,329842770,91.5
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2023,1207748301,1358091509,,347657048,88.9
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2024,972724646,1079162893,,301797770,90.1
+EU27_2020,850511,Permanent magnets of metal and articles intended to become permanent magnets after magneti,2025,943136965,1068906984,,294207924,88.2
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2015,31268137,57008027,,109419328,54.8
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2016,31706673,55054221,,100688978,57.6
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2017,31973763,57098005,,72772387,56.0
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2018,34892266,53603390,,79503552,65.1
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2019,33731198,53768256,,76893163,62.7
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2020,34264057,49892854,,83424157,68.7
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2021,39757156,50061383,,88852354,79.4
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2022,46984841,59279684,,102617765,79.3
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2023,44581472,59419850,,196791072,75.0
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2024,68341876,82372481,,126430686,83.0
+EU27_2020,850680,"Primary cells and primary batteries, electric (excl. spent, and those of silver oxide, mer",2025,44995509,58758833,,110702902,76.6
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2015,635963022,2160004071,,825014045,29.4
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2016,785938378,2675682020,,1031704118,29.4
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2017,981926771,3454190333,,1563165313,28.4
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2018,1575168548,4385443833,,2347819378,35.9
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2019,2694081092,5636571214,,3943758309,47.8
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2020,3634340477,6758136832,,7788302365,53.8
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2021,6488838350,9716120253,,12514058146,66.8
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2022,17598463117,21443238059,,18434433796,82.1
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2023,23259741834,26560746577,,26660451090,87.6
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2024,19620029136,22893079788,,20386812934,85.7
+EU27_2020,850760,Lithium-ion accumulators (excl. spent),2025,25731334671,28589116339,,20438045561,90.0
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2015,1443534353,3826516734,,1940613464,37.7
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2016,970636125,3185592580,,1796079330,30.5
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2017,510759290,3232364499,,2057044899,15.8
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2018,953481838,4205156135,,2356148859,22.7
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2019,4515960858,6220458122,,3098558105,72.6
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2020,5615902589,6906997480,,3240619962,81.3
+EU27_2020,85414090,"Photosensitive semiconductor devices, incl. photovoltaic cells",2021,8687570680,9807307818,,5337706142,88.6
+EU27_2020,854142,Photovoltaic cells not assembled in modules or made up into panels,2022,263377318,294392394,,393283842,89.5
+EU27_2020,854142,Photovoltaic cells not assembled in modules or made up into panels,2023,181695948,199088053,,243573229,91.3
+EU27_2020,854142,Photovoltaic cells not assembled in modules or made up into panels,2024,62224258,77733657,,135344669,80.0
+EU27_2020,854142,Photovoltaic cells not assembled in modules or made up into panels,2025,56713180,72425221,,107037776,78.3
+EU27_2020,854143,Photovoltaic cells assembled in modules or made up into panels,2022,21444858911,22307909191,,9021595002,96.1
+EU27_2020,854143,Photovoltaic cells assembled in modules or made up into panels,2023,19012901595,19481671322,,9306757233,97.6
+EU27_2020,854143,Photovoltaic cells assembled in modules or made up into panels,2024,10798519445,11014719313,,5840304078,98.0
+EU27_2020,854143,Photovoltaic cells assembled in modules or made up into panels,2025,7865794742,7979502413,,4951780337,98.6
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2015,128645938,430501310,,685481004,29.9
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2016,134880247,426130138,,663873083,31.7
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2017,165039049,504037247,,674882513,32.7
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2018,210221879,532444536,,606306940,39.5
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2019,261465436,611378504,,591410446,42.8
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2020,270749118,592636999,,542468474,45.7
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2021,325374839,715852610,,578446881,45.5
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2022,351834890,850343584,,796967109,41.4
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2023,326858687,859655047,,837112650,38.0
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2024,334881820,917790512,,855608350,36.5
+EU27_2020,854390,"Parts of electrical machines and apparatus, having individual functions, n.e.s. in chapter",2025,323463278,937176907,,896781606,34.5
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2015,51972697,340900617,,1135019468,15.2
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2016,17553877,261654052,,988095142,6.7
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2017,32137124,281645789,,998987707,11.4
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2018,32169310,278885830,,989748198,11.5
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2019,46203004,332495730,,1121932403,13.9
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2020,72742266,427112927,,1088031700,17.0
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2021,54058123,549078132,,1341313545,9.8
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2022,73868747,725998012,,2040739290,10.2
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2023,114113032,888875646,,2059609772,12.8
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2024,186968692,1081554798,,2065073757,17.3
+EU27_2020,854460,"Electric conductors, for a voltage > 1.000 V, insulated, n.e.s.",2025,289476895,1513489301,,2792402723,19.1

@@ -81,6 +81,11 @@
     "max_export_GW_h": 13.53,
     "fehlende_werte": 0,
     "punkte": 35036
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 21.22,
+    "export_TWh": 58.92,
+    "netto_import_TWh": -37.7
    }
   },
   "2016": {
@@ -164,6 +169,11 @@
     "max_export_GW_h": 14.13,
     "fehlende_werte": 0,
     "punkte": 35136
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 14.89,
+    "export_TWh": 56.68,
+    "netto_import_TWh": -41.79
    }
   },
   "2017": {
@@ -256,6 +266,11 @@
     "max_export_GW_h": 14.67,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 15.76,
+    "export_TWh": 61.79,
+    "netto_import_TWh": -46.03
    }
   },
   "2018": {
@@ -348,6 +363,11 @@
     "max_export_GW_h": 16.42,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 20.37,
+    "export_TWh": 68.41,
+    "netto_import_TWh": -48.04
    }
   },
   "2019": {
@@ -440,6 +460,11 @@
     "max_export_GW_h": 16.05,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 27.09,
+    "export_TWh": 61.23,
+    "netto_import_TWh": -34.14
    }
   },
   "2020": {
@@ -550,6 +575,11 @@
     "max_export_GW_h": 16.25,
     "fehlende_werte": 0,
     "punkte": 35136
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 34.22,
+    "export_TWh": 54.05,
+    "netto_import_TWh": -19.83
    }
   },
   "2021": {
@@ -660,6 +690,11 @@
     "max_export_GW_h": 15.61,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 35.49,
+    "export_TWh": 55.48,
+    "netto_import_TWh": -19.99
    }
   },
   "2022": {
@@ -770,6 +805,11 @@
     "max_export_GW_h": 15.42,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 33.26,
+    "export_TWh": 61.1,
+    "netto_import_TWh": -27.84
    }
   },
   "2023": {
@@ -880,6 +920,11 @@
     "max_export_GW_h": 18.92,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 52.49,
+    "export_TWh": 43.57,
+    "netto_import_TWh": 8.92
    }
   },
   "2024": {
@@ -990,6 +1035,11 @@
     "max_export_GW_h": 16.22,
     "fehlende_werte": 0,
     "punkte": 35136
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 65.66,
+    "export_TWh": 40.53,
+    "netto_import_TWh": 25.13
    }
   },
   "2025": {
@@ -1100,6 +1150,11 @@
     "max_export_GW_h": 17.26,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 64.01,
+    "export_TWh": 45.79,
+    "netto_import_TWh": 18.22
    }
   }
  },
@@ -1194,6 +1249,11 @@
     "max_export_GW_h": 20.22,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 19.11,
+    "export_TWh": 73.3,
+    "netto_import_TWh": -54.19
    }
   },
   "2019": {
@@ -1286,6 +1346,11 @@
     "max_export_GW_h": 16.59,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 23.99,
+    "export_TWh": 59.15,
+    "netto_import_TWh": -35.16
    }
   },
   "2020": {
@@ -1396,6 +1461,11 @@
     "max_export_GW_h": 16.5,
     "fehlende_werte": 0,
     "punkte": 35136
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 33.68,
+    "export_TWh": 52.18,
+    "netto_import_TWh": -18.5
    }
   },
   "2021": {
@@ -1506,6 +1576,11 @@
     "max_export_GW_h": 15.7,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 39.06,
+    "export_TWh": 56.86,
+    "netto_import_TWh": -17.8
    }
   },
   "2022": {
@@ -1616,6 +1691,11 @@
     "max_export_GW_h": 15.67,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 35.4,
+    "export_TWh": 62.24,
+    "netto_import_TWh": -26.84
    }
   },
   "2023": {
@@ -1726,6 +1806,11 @@
     "max_export_GW_h": 19.23,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 54.08,
+    "export_TWh": 42.33,
+    "netto_import_TWh": 11.75
    }
   },
   "2024": {
@@ -1836,6 +1921,11 @@
     "max_export_GW_h": 17.6,
     "fehlende_werte": 0,
     "punkte": 35136
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 66.64,
+    "export_TWh": 38.34,
+    "netto_import_TWh": 28.3
    }
   },
   "2025": {
@@ -1946,6 +2036,11 @@
     "max_export_GW_h": 18.03,
     "fehlende_werte": 0,
     "punkte": 35040
+   },
+   "_summe_je_grenze": {
+    "import_TWh": 65.25,
+    "export_TWh": 43.33,
+    "netto_import_TWh": 21.92
    }
   }
  }

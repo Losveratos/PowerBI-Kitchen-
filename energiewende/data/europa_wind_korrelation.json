@@ -1,0 +1,224 @@
+{
+ "2023": {
+  "stunden": 8757,
+  "inst_wind_GW": {
+   "de": 69.49,
+   "fr": 22.7,
+   "nl": 11.7,
+   "dk": 7.51,
+   "pl": 9.58,
+   "at": 4.02,
+   "ch": 0.09,
+   "be": 5.31,
+   "cz": 0.34,
+   "no": 5.13,
+   "se": 16.7
+  },
+  "de_wind_cf_mittel": 0.229,
+  "de_wind_cf_dezil10_grenze": 0.045,
+  "laender": {
+   "fr": {
+    "cf_mittel": 0.242,
+    "korrelation_mit_DE": 0.569,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.111,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.114,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "nl": {
+    "cf_mittel": 0.194,
+    "korrelation_mit_DE": 0.785,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.047,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.05,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "dk": {
+    "cf_mittel": 0.293,
+    "korrelation_mit_DE": 0.701,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.101,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.107,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "pl": {
+    "cf_mittel": 0.264,
+    "korrelation_mit_DE": 0.708,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.093,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.095,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "at": {
+    "cf_mittel": 0.235,
+    "korrelation_mit_DE": 0.255,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.164,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.162,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "ch": {
+    "cf_mittel": 0.219,
+    "korrelation_mit_DE": 0.515,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.103,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.105,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "be": {
+    "cf_mittel": 0.304,
+    "korrelation_mit_DE": 0.733,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.067,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.072,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "cz": {
+    "cf_mittel": 0.238,
+    "korrelation_mit_DE": 0.751,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.092,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.093,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "no": {
+    "cf_mittel": 0.309,
+    "korrelation_mit_DE": 0.314,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.212,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.217,
+    "stunden_DE_wind_unter_5pct": 1059
+   },
+   "se": {
+    "cf_mittel": 0.233,
+    "korrelation_mit_DE": 0.259,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.168,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.172,
+    "stunden_DE_wind_unter_5pct": 1059
+   }
+  },
+  "nachbarn_aggregat": {
+   "laender": [
+    "fr",
+    "nl",
+    "dk",
+    "pl",
+    "at",
+    "be",
+    "cz",
+    "no",
+    "se"
+   ],
+   "inst_GW": 83.0,
+   "cf_mittel": 0.248,
+   "korrelation_mit_DE": 0.832,
+   "cf_mittel_wenn_DE_unteres_Dezil": 0.116,
+   "cf_mittel_wenn_DE_unter_5pct": 0.12
+  },
+  "gleichzeitig_unter_10pct_stunden": 622,
+  "de_unter_10pct_stunden": 2380,
+  "laengste_phase_DE_unter10_und_Nachbarn_unter15_h": 123
+ },
+ "2024": {
+  "stunden": 8784,
+  "inst_wind_GW": {
+   "de": 72.8,
+   "fr": 23.94,
+   "nl": 11.92,
+   "dk": 5.64,
+   "pl": 10.3,
+   "at": 4.04,
+   "ch": 0.1,
+   "be": 5.44,
+   "cz": 0.37,
+   "no": 5.14,
+   "se": 18.0
+  },
+  "de_wind_cf_mittel": 0.213,
+  "de_wind_cf_dezil10_grenze": 0.043,
+  "laender": {
+   "fr": {
+    "cf_mittel": 0.218,
+    "korrelation_mit_DE": 0.563,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.102,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.106,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "nl": {
+    "cf_mittel": 0.218,
+    "korrelation_mit_DE": 0.713,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.054,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.059,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "dk": {
+    "cf_mittel": 0.413,
+    "korrelation_mit_DE": 0.689,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.109,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.113,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "pl": {
+    "cf_mittel": 0.263,
+    "korrelation_mit_DE": 0.662,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.094,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.104,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "at": {
+    "cf_mittel": 0.264,
+    "korrelation_mit_DE": 0.299,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.17,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.172,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "ch": {
+    "cf_mittel": 0.191,
+    "korrelation_mit_DE": 0.486,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.102,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.107,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "be": {
+    "cf_mittel": 0.264,
+    "korrelation_mit_DE": 0.669,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.059,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.064,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "cz": {
+    "cf_mittel": 0.214,
+    "korrelation_mit_DE": 0.692,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.084,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.087,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "no": {
+    "cf_mittel": 0.322,
+    "korrelation_mit_DE": 0.348,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.22,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.222,
+    "stunden_DE_wind_unter_5pct": 1084
+   },
+   "se": {
+    "cf_mittel": 0.255,
+    "korrelation_mit_DE": 0.312,
+    "cf_mittel_in_DE_flautestunden_unteres_Dezil": 0.191,
+    "cf_mittel_in_DE_wind_unter_5pct": 0.194,
+    "stunden_DE_wind_unter_5pct": 1084
+   }
+  },
+  "nachbarn_aggregat": {
+   "laender": [
+    "fr",
+    "nl",
+    "dk",
+    "pl",
+    "at",
+    "be",
+    "cz",
+    "no",
+    "se"
+   ],
+   "inst_GW": 84.8,
+   "cf_mittel": 0.256,
+   "korrelation_mit_DE": 0.816,
+   "cf_mittel_wenn_DE_unteres_Dezil": 0.121,
+   "cf_mittel_wenn_DE_unter_5pct": 0.126
+  },
+  "gleichzeitig_unter_10pct_stunden": 543,
+  "de_unter_10pct_stunden": 2481,
+  "laengste_phase_DE_unter10_und_Nachbarn_unter15_h": 57
+ }
+}

@@ -1,0 +1,974 @@
+{
+ "hinweis": "Vergleich Energy-Charts-Jahressummen (aus Viertelstundenwerten, TWh) gegen UBA/AGEE-Stat Tab. 3.1 (Nettostromerzeugung) bzw. Tab. 7 (Bruttostromverbrauch). Stand der UBA-Tabelle: September 2026, teilweise vorläufig. Achtung: Energy-Charts-Jahreswerte stimmen für Wind und PV in 2015-2022 auf die Gigawattstunde mit UBA Tab. 3.1 überein; der Abgleich ist dort nicht unabhängig (vermutlich gleiche Datenbasis, AGEE-Stat/Energy-Charts-Kalibrierung).",
+ "quelle_vergleich": "UBA, Zeitreihen zur Entwicklung der erneuerbaren Energien in Deutschland, Stand 09/2026",
+ "jahre": {
+  "2015": {
+   "wind_onshore": {
+    "energy_charts_twh": 70.91,
+    "referenz_twh": 70.92,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 8.16,
+    "referenz_twh": 8.16,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 37.33,
+    "referenz_twh": 37.33,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 35.21,
+    "referenz_twh": 35.21,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 18.66,
+    "referenz_twh": 18.66,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 39.74,
+    "referenz_twh": 44.23,
+    "abweichung_pct": -10.2,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 39.74,
+    "referenz_twh": 48.79,
+    "abweichung_pct": -18.6,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 501.9,
+    "bruttostromverbrauch_twh": 600.7,
+    "verhaeltnis": 0.836,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 34.73,
+     "energy_charts_twh": 35.21,
+     "abweichung_pct": 1.4,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 71.17,
+     "energy_charts_twh": 70.91,
+     "abweichung_pct": -0.4,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 8.16,
+     "energy_charts_twh": 8.16,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 501.99,
+     "energy_charts_twh": 501.95,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 39.75,
+     "energy_charts_twh": 39.74,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 14.09,
+     "energy_charts_twh": 18.66,
+     "abweichung_pct": 32.4,
+     "monate": 12
+    }
+   }
+  },
+  "2016": {
+   "wind_onshore": {
+    "energy_charts_twh": 66.32,
+    "referenz_twh": 66.32,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 12.09,
+    "referenz_twh": 12.09,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 36.82,
+    "referenz_twh": 36.82,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 34.49,
+    "referenz_twh": 34.49,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 20.22,
+    "referenz_twh": 20.21,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 40.17,
+    "referenz_twh": 44.7,
+    "abweichung_pct": -10.1,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 40.17,
+    "referenz_twh": 49.45,
+    "abweichung_pct": -18.8,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 503.9,
+    "bruttostromverbrauch_twh": 600.6,
+    "verhaeltnis": 0.839,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 35.0,
+     "energy_charts_twh": 34.49,
+     "abweichung_pct": -1.5,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 66.31,
+     "energy_charts_twh": 66.32,
+     "abweichung_pct": 0.0,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 12.09,
+     "energy_charts_twh": 12.09,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 503.92,
+     "energy_charts_twh": 503.92,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 41.06,
+     "energy_charts_twh": 40.17,
+     "abweichung_pct": -2.2,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 18.01,
+     "energy_charts_twh": 20.22,
+     "abweichung_pct": 12.2,
+     "monate": 12
+    }
+   }
+  },
+  "2017": {
+   "wind_onshore": {
+    "energy_charts_twh": 86.29,
+    "referenz_twh": 86.29,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 17.41,
+    "referenz_twh": 17.41,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 38.0,
+    "referenz_twh": 38.0,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 35.43,
+    "referenz_twh": 35.43,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 19.98,
+    "referenz_twh": 19.98,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 40.17,
+    "referenz_twh": 44.7,
+    "abweichung_pct": -10.1,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 40.17,
+    "referenz_twh": 49.5,
+    "abweichung_pct": -18.9,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 506.8,
+    "bruttostromverbrauch_twh": 601.9,
+    "verhaeltnis": 0.842,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 35.78,
+     "energy_charts_twh": 35.43,
+     "abweichung_pct": -1.0,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 85.97,
+     "energy_charts_twh": 86.29,
+     "abweichung_pct": 0.4,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 17.41,
+     "energy_charts_twh": 17.41,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 506.79,
+     "energy_charts_twh": 506.79,
+     "abweichung_pct": 0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 40.57,
+     "energy_charts_twh": 40.17,
+     "abweichung_pct": -1.0,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 15.6,
+     "energy_charts_twh": 19.98,
+     "abweichung_pct": 28.1,
+     "monate": 12
+    }
+   }
+  },
+  "2018": {
+   "wind_onshore": {
+    "energy_charts_twh": 88.71,
+    "referenz_twh": 88.71,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 19.18,
+    "referenz_twh": 19.18,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 43.45,
+    "referenz_twh": 43.46,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 40.8,
+    "referenz_twh": 40.77,
+    "abweichung_pct": 0.1,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 17.93,
+    "referenz_twh": 17.93,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 39.82,
+    "referenz_twh": 44.31,
+    "abweichung_pct": -10.1,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 39.82,
+    "referenz_twh": 49.24,
+    "abweichung_pct": -19.1,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 509.2,
+    "bruttostromverbrauch_twh": 594.8,
+    "verhaeltnis": 0.856,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 41.2,
+     "energy_charts_twh": 40.8,
+     "abweichung_pct": -1.0,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 89.32,
+     "energy_charts_twh": 88.71,
+     "abweichung_pct": -0.7,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 19.07,
+     "energy_charts_twh": 19.18,
+     "abweichung_pct": 0.6,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 509.22,
+     "energy_charts_twh": 509.22,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 39.53,
+     "energy_charts_twh": 39.82,
+     "abweichung_pct": 0.8,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 15.54,
+     "energy_charts_twh": 17.93,
+     "abweichung_pct": 15.3,
+     "monate": 12
+    }
+   }
+  },
+  "2019": {
+   "wind_onshore": {
+    "energy_charts_twh": 99.17,
+    "referenz_twh": 99.17,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 24.38,
+    "referenz_twh": 24.38,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 44.33,
+    "referenz_twh": 44.33,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 41.67,
+    "referenz_twh": 41.34,
+    "abweichung_pct": 0.8,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 19.96,
+    "referenz_twh": 19.96,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 40.13,
+    "referenz_twh": 44.09,
+    "abweichung_pct": -9.0,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 40.13,
+    "referenz_twh": 48.71,
+    "abweichung_pct": -17.6,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 497.4,
+    "bruttostromverbrauch_twh": 577.6,
+    "verhaeltnis": 0.861,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 41.71,
+     "energy_charts_twh": 41.67,
+     "abweichung_pct": -0.1,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 99.73,
+     "energy_charts_twh": 99.17,
+     "abweichung_pct": -0.6,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 24.38,
+     "energy_charts_twh": 24.38,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 497.37,
+     "energy_charts_twh": 497.37,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 39.48,
+     "energy_charts_twh": 40.13,
+     "abweichung_pct": 1.6,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 16.47,
+     "energy_charts_twh": 19.96,
+     "abweichung_pct": 21.2,
+     "monate": 12
+    }
+   }
+  },
+  "2020": {
+   "wind_onshore": {
+    "energy_charts_twh": 102.74,
+    "referenz_twh": 102.74,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 26.9,
+    "referenz_twh": 26.9,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 48.52,
+    "referenz_twh": 48.53,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 45.45,
+    "referenz_twh": 44.98,
+    "abweichung_pct": 1.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 18.55,
+    "referenz_twh": 18.55,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 40.96,
+    "referenz_twh": 44.85,
+    "abweichung_pct": -8.7,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 40.96,
+    "referenz_twh": 49.49,
+    "abweichung_pct": -17.2,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 485.4,
+    "bruttostromverbrauch_twh": 557.9,
+    "verhaeltnis": 0.87,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 45.78,
+     "energy_charts_twh": 45.45,
+     "abweichung_pct": -0.7,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 103.08,
+     "energy_charts_twh": 102.74,
+     "abweichung_pct": -0.3,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 26.88,
+     "energy_charts_twh": 26.9,
+     "abweichung_pct": 0.1,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 485.36,
+     "energy_charts_twh": 485.36,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 39.97,
+     "energy_charts_twh": 40.96,
+     "abweichung_pct": 2.5,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 15.95,
+     "energy_charts_twh": 18.55,
+     "abweichung_pct": 16.3,
+     "monate": 12
+    }
+   }
+  },
+  "2021": {
+   "wind_onshore": {
+    "energy_charts_twh": 90.27,
+    "referenz_twh": 90.27,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 24.01,
+    "referenz_twh": 24.01,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 49.48,
+    "referenz_twh": 49.91,
+    "abweichung_pct": -0.9,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 45.31,
+    "referenz_twh": 45.17,
+    "abweichung_pct": 0.3,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 19.48,
+    "referenz_twh": 19.48,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 40.57,
+    "referenz_twh": 44.88,
+    "abweichung_pct": -9.6,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 40.57,
+    "referenz_twh": 49.46,
+    "abweichung_pct": -18.0,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 504.6,
+    "bruttostromverbrauch_twh": 574.7,
+    "verhaeltnis": 0.878,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 46.23,
+     "energy_charts_twh": 45.31,
+     "abweichung_pct": -2.0,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 89.57,
+     "energy_charts_twh": 90.27,
+     "abweichung_pct": 0.8,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 24.01,
+     "energy_charts_twh": 24.01,
+     "abweichung_pct": 0.0,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 504.6,
+     "energy_charts_twh": 504.6,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 38.24,
+     "energy_charts_twh": 40.57,
+     "abweichung_pct": 6.1,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 14.89,
+     "energy_charts_twh": 19.48,
+     "abweichung_pct": 30.9,
+     "monate": 12
+    }
+   }
+  },
+  "2022": {
+   "wind_onshore": {
+    "energy_charts_twh": 97.2,
+    "referenz_twh": 97.2,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 24.75,
+    "referenz_twh": 24.75,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 59.84,
+    "referenz_twh": 60.87,
+    "abweichung_pct": -1.7,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 54.33,
+    "referenz_twh": 54.49,
+    "abweichung_pct": -0.3,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 17.46,
+    "referenz_twh": 17.46,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 39.41,
+    "referenz_twh": 44.42,
+    "abweichung_pct": -11.3,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 39.41,
+    "referenz_twh": 48.86,
+    "abweichung_pct": -19.3,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 482.3,
+    "bruttostromverbrauch_twh": 552.5,
+    "verhaeltnis": 0.873,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 55.73,
+     "energy_charts_twh": 54.33,
+     "abweichung_pct": -2.5,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 100.99,
+     "energy_charts_twh": 97.2,
+     "abweichung_pct": -3.7,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 24.75,
+     "energy_charts_twh": 24.75,
+     "abweichung_pct": 0.0,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 482.3,
+     "energy_charts_twh": 482.3,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 37.74,
+     "energy_charts_twh": 39.41,
+     "abweichung_pct": 4.4,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 12.8,
+     "energy_charts_twh": 17.46,
+     "abweichung_pct": 36.3,
+     "monate": 12
+    }
+   }
+  },
+  "2023": {
+   "wind_onshore": {
+    "energy_charts_twh": 115.9,
+    "referenz_twh": 115.56,
+    "abweichung_pct": 0.3,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 23.53,
+    "referenz_twh": 23.53,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 62.1,
+    "referenz_twh": 63.79,
+    "abweichung_pct": -2.7,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 53.91,
+    "referenz_twh": 54.42,
+    "abweichung_pct": -0.9,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 19.72,
+    "referenz_twh": 19.72,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 36.62,
+    "referenz_twh": 41.69,
+    "abweichung_pct": -12.2,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 36.62,
+    "referenz_twh": 46.21,
+    "abweichung_pct": -20.8,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 458.4,
+    "bruttostromverbrauch_twh": 521.7,
+    "verhaeltnis": 0.879,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 55.54,
+     "energy_charts_twh": 53.91,
+     "abweichung_pct": -2.9,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 119.01,
+     "energy_charts_twh": 115.9,
+     "abweichung_pct": -2.6,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 23.52,
+     "energy_charts_twh": 23.53,
+     "abweichung_pct": 0.1,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 458.38,
+     "energy_charts_twh": 458.38,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 37.3,
+     "energy_charts_twh": 36.62,
+     "abweichung_pct": -1.8,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 15.02,
+     "energy_charts_twh": 19.72,
+     "abweichung_pct": 31.3,
+     "monate": 12
+    }
+   }
+  },
+  "2024": {
+   "wind_onshore": {
+    "energy_charts_twh": 110.64,
+    "referenz_twh": 111.52,
+    "abweichung_pct": -0.8,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 25.68,
+    "referenz_twh": 25.68,
+    "abweichung_pct": 0.0,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 74.39,
+    "referenz_twh": 74.01,
+    "abweichung_pct": 0.5,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 59.71,
+    "referenz_twh": 60.14,
+    "abweichung_pct": -0.7,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 22.28,
+    "referenz_twh": 22.28,
+    "abweichung_pct": -0.0,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 37.03,
+    "referenz_twh": 42.11,
+    "abweichung_pct": -12.1,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 37.03,
+    "referenz_twh": 46.46,
+    "abweichung_pct": -20.3,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 465.5,
+    "bruttostromverbrauch_twh": 529,
+    "verhaeltnis": 0.88,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 63.15,
+     "energy_charts_twh": 59.71,
+     "abweichung_pct": -5.4,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 112.56,
+     "energy_charts_twh": 110.64,
+     "abweichung_pct": -1.7,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 25.67,
+     "energy_charts_twh": 25.68,
+     "abweichung_pct": 0.1,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 465.5,
+     "energy_charts_twh": 465.5,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 36.2,
+     "energy_charts_twh": 37.03,
+     "abweichung_pct": 2.3,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 17.55,
+     "energy_charts_twh": 22.28,
+     "abweichung_pct": 26.9,
+     "monate": 12
+    }
+   }
+  },
+  "2025": {
+   "wind_onshore": {
+    "energy_charts_twh": 105.1,
+    "referenz_twh": 105.5,
+    "abweichung_pct": -0.4,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "wind_offshore": {
+    "energy_charts_twh": 26.07,
+    "referenz_twh": 26.16,
+    "abweichung_pct": -0.4,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto"
+   },
+   "pv_gesamt": {
+    "energy_charts_twh": 89.96,
+    "referenz_twh": 90.39,
+    "abweichung_pct": -0.5,
+    "abgrenzung": "EC total_power (inkl. Eigenverbrauch) vs UBA Tab. 3.1 Netto inkl. Selbstverbrauch"
+   },
+   "pv_oeffentlich": {
+    "energy_charts_twh": 70.12,
+    "referenz_twh": 70.89,
+    "abweichung_pct": -1.1,
+    "abgrenzung": "EC public_power vs UBA Tab. 3.1 Netto abzüglich Selbstverbrauch (Einspeisung)"
+   },
+   "wasserkraft": {
+    "energy_charts_twh": 16.72,
+    "referenz_twh": 16.9,
+    "abweichung_pct": -1.1,
+    "abgrenzung": "EC Laufwasser+Speicher (ohne Pumpspeicher) vs UBA Wasserkraft (inkl. natürlicher Zufluss Pumpspeicher)"
+   },
+   "biomasse": {
+    "energy_charts_twh": 36.06,
+    "referenz_twh": 40.32,
+    "abweichung_pct": -10.6,
+    "abgrenzung": "EC Biomass (öffentlich) vs UBA Biomasse netto ohne biogenen Abfall"
+   },
+   "biomasse_inkl_abfall": {
+    "energy_charts_twh": 36.06,
+    "referenz_twh": 44.73,
+    "abweichung_pct": -19.4,
+    "abgrenzung": "EC Biomass vs UBA Biomasse netto inkl. biogenem Abfallanteil"
+   },
+   "last_vs_bruttostromverbrauch": {
+    "energy_charts_netzlast_twh": 465.8,
+    "bruttostromverbrauch_twh": 529.3,
+    "verhaeltnis": 0.88,
+    "abgrenzung": "Netzlast ist nicht Bruttostromverbrauch (Verluste, Kraftwerkseigenverbrauch, Eigenverbrauch fehlen); nur Konsistenzblick auf die Entwicklung"
+   },
+   "smard_vergleich": {
+    "pv": {
+     "smard_twh": 73.78,
+     "energy_charts_twh": 70.12,
+     "abweichung_pct": -5.0,
+     "monate": 12
+    },
+    "wind_onshore": {
+     "smard_twh": 106.77,
+     "energy_charts_twh": 105.1,
+     "abweichung_pct": -1.6,
+     "monate": 12
+    },
+    "wind_offshore": {
+     "smard_twh": 26.19,
+     "energy_charts_twh": 26.07,
+     "abweichung_pct": -0.5,
+     "monate": 12
+    },
+    "last": {
+     "smard_twh": 465.82,
+     "energy_charts_twh": 465.82,
+     "abweichung_pct": -0.0,
+     "monate": 12
+    },
+    "biomasse": {
+     "smard_twh": 35.87,
+     "energy_charts_twh": 36.06,
+     "abweichung_pct": 0.5,
+     "monate": 12
+    },
+    "wasserkraft": {
+     "smard_twh": 14.18,
+     "energy_charts_twh": 16.72,
+     "abweichung_pct": 17.9,
+     "monate": 12
+    }
+   }
+  }
+ }
+}

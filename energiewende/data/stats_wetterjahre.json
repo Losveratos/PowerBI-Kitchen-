@@ -1,0 +1,2537 @@
+{
+ "2015": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35036,
+    "erster_utc": "2015-01-01T00:00:00+00:00",
+    "letzter_utc": "2015-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35036,
+    "erster_utc": "2015-01-01T00:00:00+00:00",
+    "letzter_utc": "2015-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 501.947,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 35.21,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6763,
+    "installiert_gw_mittel": 38.501,
+    "installiert_gw_ende": 39.233,
+    "volllaststunden": 915.5,
+    "cf_mittel": 0.1045,
+    "volllaststunden_bezogen_auf_AC": 969.6
+   },
+   "solar_total_mw": {
+    "summe_twh": 37.33,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.717,
+    "installiert_gw_mittel": 38.501,
+    "installiert_gw_ende": 39.233,
+    "volllaststunden": 970.6,
+    "cf_mittel": 0.1108,
+    "volllaststunden_bezogen_auf_AC": 1027.9
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 70.913,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.778,
+    "installiert_gw_mittel": 38.892,
+    "installiert_gw_ende": 41.296,
+    "volllaststunden": 1820.1,
+    "cf_mittel": 0.2078
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 8.161,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.8746,
+    "installiert_gw_mittel": 2.541,
+    "installiert_gw_ende": 3.382,
+    "volllaststunden": 3123.6,
+    "cf_mittel": 0.3566
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 17.68,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5414,
+    "installiert_gw_mittel": 5.297,
+    "installiert_gw_ende": 5.301,
+    "volllaststunden": 3337.9,
+    "cf_mittel": 0.3811
+   },
+   "biomass_mw": {
+    "summe_twh": 39.736,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7167,
+    "installiert_gw_mittel": 6.809,
+    "installiert_gw_ende": 6.886,
+    "volllaststunden": 5835.8,
+    "cf_mittel": 0.6663
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 8.2,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.633,
+    "installiert_gw_mittel": 9.372,
+    "installiert_gw_ende": 9.471,
+    "volllaststunden": 875.2,
+    "cf_mittel": 0.0999
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 9.474,
+    "fehlstunden": 1,
+    "luecken": [
+     {
+      "von_lokal": "2015-01-01 00:00",
+      "stunden": 1
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6152,
+    "installiert_gw_mittel": 9.372,
+    "installiert_gw_ende": 9.471,
+    "volllaststunden": 1010.8,
+    "cf_mittel": 0.1154
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 135,
+      "von_lokal": "2015-01-18 15:00",
+      "bis_lokal": "2015-01-24 05:00"
+     },
+     {
+      "stunden": 134,
+      "von_lokal": "2015-10-15 21:00",
+      "bis_lokal": "2015-10-21 10:00"
+     },
+     {
+      "stunden": 66,
+      "von_lokal": "2015-02-10 16:00",
+      "bis_lokal": "2015-02-13 09:00"
+     }
+    ],
+    "phasen_ab_24h": 7,
+    "phasen_ab_48h": 3
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 43,
+      "von_lokal": "2015-01-19 15:00",
+      "bis_lokal": "2015-01-21 09:00"
+     },
+     {
+      "stunden": 34,
+      "von_lokal": "2015-01-22 14:00",
+      "bis_lokal": "2015-01-23 23:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2015-10-17 15:00",
+      "bis_lokal": "2015-10-18 09:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 135,
+      "von_lokal": "2015-01-18 15:00",
+      "bis_lokal": "2015-01-24 05:00"
+     },
+     {
+      "stunden": 133,
+      "von_lokal": "2015-10-15 21:00",
+      "bis_lokal": "2015-10-21 09:00"
+     },
+     {
+      "stunden": 44,
+      "von_lokal": "2015-02-10 16:00",
+      "bis_lokal": "2015-02-12 11:00"
+     }
+    ],
+    "phasen_ab_24h": 7,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 43,
+      "von_lokal": "2015-01-19 15:00",
+      "bis_lokal": "2015-01-21 09:00"
+     },
+     {
+      "stunden": 34,
+      "von_lokal": "2015-01-22 14:00",
+      "bis_lokal": "2015-01-23 23:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2015-10-17 15:00",
+      "bis_lokal": "2015-10-18 09:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.2644,
+   "Q4_Okt_Dez": 0.2746,
+   "Jan_Feb": 0.2735,
+   "wind_cf_jahr": 0.2177,
+   "stunden_Q1": 2158,
+   "stunden_Q4": 2209
+  }
+ },
+ "2016": {
+  "stunden_erwartet": 8784,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35136,
+    "erster_utc": "2015-12-31T23:00:00+00:00",
+    "letzter_utc": "2016-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35136,
+    "erster_utc": "2015-12-31T23:00:00+00:00",
+    "letzter_utc": "2016-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 503.923,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 34.49,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6786,
+    "installiert_gw_mittel": 39.739,
+    "installiert_gw_ende": 40.732,
+    "volllaststunden": 868.9,
+    "cf_mittel": 0.0989,
+    "volllaststunden_bezogen_auf_AC": 920.8
+   },
+   "solar_total_mw": {
+    "summe_twh": 36.82,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7245,
+    "installiert_gw_mittel": 39.739,
+    "installiert_gw_ende": 40.732,
+    "volllaststunden": 927.6,
+    "cf_mittel": 0.1056,
+    "volllaststunden_bezogen_auf_AC": 983.0
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 66.324,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7497,
+    "installiert_gw_mittel": 42.983,
+    "installiert_gw_ende": 45.282,
+    "volllaststunden": 1547.1,
+    "cf_mittel": 0.1761
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 12.092,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.9208,
+    "installiert_gw_mittel": 3.767,
+    "installiert_gw_ende": 4.237,
+    "volllaststunden": 3222.3,
+    "cf_mittel": 0.3668
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 19.457,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.609,
+    "installiert_gw_mittel": 5.308,
+    "installiert_gw_ende": 5.314,
+    "volllaststunden": 3665.9,
+    "cf_mittel": 0.4173
+   },
+   "biomass_mw": {
+    "summe_twh": 40.168,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7032,
+    "installiert_gw_mittel": 6.968,
+    "installiert_gw_ende": 7.12,
+    "volllaststunden": 5765.1,
+    "cf_mittel": 0.6563
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 8.1,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5756,
+    "installiert_gw_mittel": 9.471,
+    "installiert_gw_ende": 9.471,
+    "volllaststunden": 855.3,
+    "cf_mittel": 0.0974
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 9.177,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5925,
+    "installiert_gw_mittel": 9.471,
+    "installiert_gw_ende": 9.471,
+    "volllaststunden": 969.0,
+    "cf_mittel": 0.1103
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 74,
+      "von_lokal": "2016-12-12 08:00",
+      "bis_lokal": "2016-12-15 09:00"
+     },
+     {
+      "stunden": 69,
+      "von_lokal": "2016-11-09 13:00",
+      "bis_lokal": "2016-11-12 09:00"
+     },
+     {
+      "stunden": 67,
+      "von_lokal": "2016-10-24 15:00",
+      "bis_lokal": "2016-10-27 09:00"
+     }
+    ],
+    "phasen_ab_24h": 10,
+    "phasen_ab_48h": 6
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 20,
+      "von_lokal": "2016-12-18 14:00",
+      "bis_lokal": "2016-12-19 09:00"
+     },
+     {
+      "stunden": 20,
+      "von_lokal": "2016-01-17 14:00",
+      "bis_lokal": "2016-01-18 09:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2016-12-16 15:00",
+      "bis_lokal": "2016-12-17 09:00"
+     }
+    ],
+    "phasen_ab_24h": 0,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 66,
+      "von_lokal": "2016-01-19 15:00",
+      "bis_lokal": "2016-01-22 08:00"
+     },
+     {
+      "stunden": 51,
+      "von_lokal": "2016-01-17 04:00",
+      "bis_lokal": "2016-01-19 06:00"
+     },
+     {
+      "stunden": 50,
+      "von_lokal": "2016-12-18 08:00",
+      "bis_lokal": "2016-12-20 09:00"
+     }
+    ],
+    "phasen_ab_24h": 10,
+    "phasen_ab_48h": 3
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 20,
+      "von_lokal": "2016-12-18 14:00",
+      "bis_lokal": "2016-12-19 09:00"
+     },
+     {
+      "stunden": 20,
+      "von_lokal": "2016-01-17 14:00",
+      "bis_lokal": "2016-01-18 09:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2016-12-16 15:00",
+      "bis_lokal": "2016-12-17 09:00"
+     }
+    ],
+    "phasen_ab_24h": 0,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.2619,
+   "Q4_Okt_Dez": 0.2148,
+   "Jan_Feb": 0.3031,
+   "wind_cf_jahr": 0.1915,
+   "stunden_Q1": 2183,
+   "stunden_Q4": 2209
+  }
+ },
+ "2017": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2016-12-31T23:00:00+00:00",
+    "letzter_utc": "2017-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2016-12-31T23:00:00+00:00",
+    "letzter_utc": "2017-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 506.791,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 35.431,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6625,
+    "installiert_gw_mittel": 41.538,
+    "installiert_gw_ende": 42.401,
+    "volllaststunden": 854.0,
+    "cf_mittel": 0.0975,
+    "volllaststunden_bezogen_auf_AC": 906.3
+   },
+   "solar_total_mw": {
+    "summe_twh": 38.001,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7105,
+    "installiert_gw_mittel": 41.538,
+    "installiert_gw_ende": 42.401,
+    "volllaststunden": 916.0,
+    "cf_mittel": 0.1046,
+    "volllaststunden_bezogen_auf_AC": 972.0
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 86.293,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7371,
+    "installiert_gw_mittel": 47.525,
+    "installiert_gw_ende": 50.173,
+    "volllaststunden": 1810.2,
+    "cf_mittel": 0.2066
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 17.414,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.926,
+    "installiert_gw_mittel": 4.831,
+    "installiert_gw_ende": 5.523,
+    "volllaststunden": 3613.8,
+    "cf_mittel": 0.4125
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 19.37,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5361,
+    "installiert_gw_mittel": 5.319,
+    "installiert_gw_ende": 5.325,
+    "volllaststunden": 3641.0,
+    "cf_mittel": 0.4156
+   },
+   "biomass_mw": {
+    "summe_twh": 40.168,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7018,
+    "installiert_gw_mittel": 7.24,
+    "installiert_gw_ende": 7.435,
+    "volllaststunden": 5549.2,
+    "cf_mittel": 0.6335
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 8.619,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6315,
+    "installiert_gw_mittel": 9.477,
+    "installiert_gw_ende": 9.483,
+    "volllaststunden": 909.5,
+    "cf_mittel": 0.1038
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 7.354,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4332,
+    "installiert_gw_mittel": 9.477,
+    "installiert_gw_ende": 9.483,
+    "volllaststunden": 775.9,
+    "cf_mittel": 0.0886
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 94,
+      "von_lokal": "2017-11-29 02:00",
+      "bis_lokal": "2017-12-02 23:00"
+     },
+     {
+      "stunden": 91,
+      "von_lokal": "2017-01-22 14:00",
+      "bis_lokal": "2017-01-26 08:00"
+     },
+     {
+      "stunden": 68,
+      "von_lokal": "2017-01-15 15:00",
+      "bis_lokal": "2017-01-18 10:00"
+     }
+    ],
+    "phasen_ab_24h": 11,
+    "phasen_ab_48h": 4
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 44,
+      "von_lokal": "2017-01-23 15:00",
+      "bis_lokal": "2017-01-25 10:00"
+     },
+     {
+      "stunden": 29,
+      "von_lokal": "2017-01-08 03:00",
+      "bis_lokal": "2017-01-09 07:00"
+     },
+     {
+      "stunden": 26,
+      "von_lokal": "2017-12-19 15:00",
+      "bis_lokal": "2017-12-20 16:00"
+     }
+    ],
+    "phasen_ab_24h": 3,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 94,
+      "von_lokal": "2017-11-29 02:00",
+      "bis_lokal": "2017-12-02 23:00"
+     },
+     {
+      "stunden": 91,
+      "von_lokal": "2017-01-22 14:00",
+      "bis_lokal": "2017-01-26 08:00"
+     },
+     {
+      "stunden": 68,
+      "von_lokal": "2017-01-15 15:00",
+      "bis_lokal": "2017-01-18 10:00"
+     }
+    ],
+    "phasen_ab_24h": 10,
+    "phasen_ab_48h": 4
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 44,
+      "von_lokal": "2017-01-23 15:00",
+      "bis_lokal": "2017-01-25 10:00"
+     },
+     {
+      "stunden": 29,
+      "von_lokal": "2017-01-08 03:00",
+      "bis_lokal": "2017-01-09 07:00"
+     },
+     {
+      "stunden": 26,
+      "von_lokal": "2017-12-19 15:00",
+      "bis_lokal": "2017-12-20 16:00"
+     }
+    ],
+    "phasen_ab_24h": 3,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.2521,
+   "Q4_Okt_Dez": 0.314,
+   "Jan_Feb": 0.2535,
+   "wind_cf_jahr": 0.2255,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ },
+ "2018": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2017-12-31T23:00:00+00:00",
+    "letzter_utc": "2018-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2017-12-31T23:00:00+00:00",
+    "letzter_utc": "2018-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 509.225,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 40.797,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6513,
+    "installiert_gw_mittel": 43.867,
+    "installiert_gw_ende": 45.405,
+    "volllaststunden": 931.4,
+    "cf_mittel": 0.1063,
+    "volllaststunden_bezogen_auf_AC": 990.3
+   },
+   "solar_total_mw": {
+    "summe_twh": 43.451,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6937,
+    "installiert_gw_mittel": 43.867,
+    "installiert_gw_ende": 45.405,
+    "volllaststunden": 992.0,
+    "cf_mittel": 0.1132,
+    "volllaststunden_bezogen_auf_AC": 1054.7
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 88.71,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7649,
+    "installiert_gw_mittel": 51.399,
+    "installiert_gw_ende": 52.328,
+    "volllaststunden": 1727.7,
+    "cf_mittel": 0.1972
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 19.179,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.902,
+    "installiert_gw_mittel": 5.792,
+    "installiert_gw_ende": 6.513,
+    "volllaststunden": 3281.1,
+    "cf_mittel": 0.3746
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 16.739,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5218,
+    "installiert_gw_mittel": 5.331,
+    "installiert_gw_ende": 5.337,
+    "volllaststunden": 3140.2,
+    "cf_mittel": 0.3585
+   },
+   "biomass_mw": {
+    "summe_twh": 39.824,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6796,
+    "installiert_gw_mittel": 7.603,
+    "installiert_gw_ende": 7.866,
+    "volllaststunden": 5239.2,
+    "cf_mittel": 0.5981
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 8.785,
+    "fehlstunden": 96,
+    "luecken": [
+     {
+      "von_lokal": "2018-01-21 00:00",
+      "stunden": 24
+     },
+     {
+      "von_lokal": "2018-08-02 00:00",
+      "stunden": 48
+     },
+     {
+      "von_lokal": "2018-08-23 00:00",
+      "stunden": 24
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6922,
+    "installiert_gw_mittel": 9.673,
+    "installiert_gw_ende": 9.863,
+    "volllaststunden": 909.0,
+    "cf_mittel": 0.1049
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 11.673,
+    "fehlstunden": 96,
+    "luecken": [
+     {
+      "von_lokal": "2018-01-21 00:00",
+      "stunden": 24
+     },
+     {
+      "von_lokal": "2018-08-02 00:00",
+      "stunden": 48
+     },
+     {
+      "von_lokal": "2018-08-23 00:00",
+      "stunden": 24
+     }
+    ],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6967,
+    "installiert_gw_mittel": 9.673,
+    "installiert_gw_ende": 9.863,
+    "volllaststunden": 1207.1,
+    "cf_mittel": 0.1393
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 69,
+      "von_lokal": "2018-11-22 14:00",
+      "bis_lokal": "2018-11-25 10:00"
+     },
+     {
+      "stunden": 64,
+      "von_lokal": "2018-01-10 14:00",
+      "bis_lokal": "2018-01-13 05:00"
+     },
+     {
+      "stunden": 43,
+      "von_lokal": "2018-01-25 16:00",
+      "bis_lokal": "2018-01-27 10:00"
+     }
+    ],
+    "phasen_ab_24h": 10,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 18,
+      "von_lokal": "2018-01-26 15:00",
+      "bis_lokal": "2018-01-27 08:00"
+     },
+     {
+      "stunden": 18,
+      "von_lokal": "2018-01-11 14:00",
+      "bis_lokal": "2018-01-12 07:00"
+     },
+     {
+      "stunden": 17,
+      "von_lokal": "2018-11-24 16:00",
+      "bis_lokal": "2018-11-25 08:00"
+     }
+    ],
+    "phasen_ab_24h": 0,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 69,
+      "von_lokal": "2018-11-22 14:00",
+      "bis_lokal": "2018-11-25 10:00"
+     },
+     {
+      "stunden": 64,
+      "von_lokal": "2018-01-10 14:00",
+      "bis_lokal": "2018-01-13 05:00"
+     },
+     {
+      "stunden": 43,
+      "von_lokal": "2018-01-25 16:00",
+      "bis_lokal": "2018-01-27 10:00"
+     }
+    ],
+    "phasen_ab_24h": 10,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 18,
+      "von_lokal": "2018-01-26 15:00",
+      "bis_lokal": "2018-01-27 08:00"
+     },
+     {
+      "stunden": 18,
+      "von_lokal": "2018-01-11 14:00",
+      "bis_lokal": "2018-01-12 07:00"
+     },
+     {
+      "stunden": 17,
+      "von_lokal": "2018-11-24 16:00",
+      "bis_lokal": "2018-11-25 08:00"
+     }
+    ],
+    "phasen_ab_24h": 0,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.2718,
+   "Q4_Okt_Dez": 0.2706,
+   "Jan_Feb": 0.2818,
+   "wind_cf_jahr": 0.2153,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ },
+ "2019": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2018-12-31T23:00:00+00:00",
+    "letzter_utc": "2019-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2018-12-31T23:00:00+00:00",
+    "letzter_utc": "2019-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 497.368,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 41.665,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.634,
+    "installiert_gw_mittel": 47.698,
+    "installiert_gw_ende": 49.414,
+    "volllaststunden": 874.7,
+    "cf_mittel": 0.0999,
+    "volllaststunden_bezogen_auf_AC": 932.5
+   },
+   "solar_total_mw": {
+    "summe_twh": 44.334,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6746,
+    "installiert_gw_mittel": 47.698,
+    "installiert_gw_ende": 49.414,
+    "volllaststunden": 930.7,
+    "cf_mittel": 0.1062,
+    "volllaststunden_bezogen_auf_AC": 992.2
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 99.166,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7628,
+    "installiert_gw_mittel": 52.611,
+    "installiert_gw_ende": 53.193,
+    "volllaststunden": 1884.9,
+    "cf_mittel": 0.2152
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 24.379,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.8999,
+    "installiert_gw_mittel": 7.018,
+    "installiert_gw_ende": 7.655,
+    "volllaststunden": 3471.9,
+    "cf_mittel": 0.3963
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 18.006,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5053,
+    "installiert_gw_mittel": 5.341,
+    "installiert_gw_ende": 5.346,
+    "volllaststunden": 3371.0,
+    "cf_mittel": 0.3848
+   },
+   "biomass_mw": {
+    "summe_twh": 40.129,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6433,
+    "installiert_gw_mittel": 8.032,
+    "installiert_gw_ende": 8.217,
+    "volllaststunden": 4997.3,
+    "cf_mittel": 0.5705
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 8.611,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6438,
+    "installiert_gw_mittel": 9.932,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 867.1,
+    "cf_mittel": 0.099
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 10.974,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7141,
+    "installiert_gw_mittel": 9.932,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1105.1,
+    "cf_mittel": 0.1262
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 66,
+      "von_lokal": "2019-11-19 15:00",
+      "bis_lokal": "2019-11-22 08:00"
+     },
+     {
+      "stunden": 64,
+      "von_lokal": "2019-12-25 19:00",
+      "bis_lokal": "2019-12-28 10:00"
+     },
+     {
+      "stunden": 60,
+      "von_lokal": "2019-01-23 02:00",
+      "bis_lokal": "2019-01-25 13:00"
+     }
+    ],
+    "phasen_ab_24h": 8,
+    "phasen_ab_48h": 3
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 37,
+      "von_lokal": "2019-11-19 20:00",
+      "bis_lokal": "2019-11-21 08:00"
+     },
+     {
+      "stunden": 34,
+      "von_lokal": "2019-01-24 00:00",
+      "bis_lokal": "2019-01-25 09:00"
+     },
+     {
+      "stunden": 29,
+      "von_lokal": "2019-11-24 21:00",
+      "bis_lokal": "2019-11-26 01:00"
+     }
+    ],
+    "phasen_ab_24h": 3,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 65,
+      "von_lokal": "2019-11-19 16:00",
+      "bis_lokal": "2019-11-22 08:00"
+     },
+     {
+      "stunden": 59,
+      "von_lokal": "2019-01-23 02:00",
+      "bis_lokal": "2019-01-25 12:00"
+     },
+     {
+      "stunden": 42,
+      "von_lokal": "2019-11-24 15:00",
+      "bis_lokal": "2019-11-26 08:00"
+     }
+    ],
+    "phasen_ab_24h": 7,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 29,
+      "von_lokal": "2019-11-24 21:00",
+      "bis_lokal": "2019-11-26 01:00"
+     },
+     {
+      "stunden": 21,
+      "von_lokal": "2019-01-24 13:00",
+      "bis_lokal": "2019-01-25 09:00"
+     },
+     {
+      "stunden": 20,
+      "von_lokal": "2019-11-20 13:00",
+      "bis_lokal": "2019-11-21 08:00"
+     }
+    ],
+    "phasen_ab_24h": 1,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.3269,
+   "Q4_Okt_Dez": 0.275,
+   "Jan_Feb": 0.3051,
+   "wind_cf_jahr": 0.2366,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ },
+ "2020": {
+  "stunden_erwartet": 8784,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35136,
+    "erster_utc": "2019-12-31T23:00:00+00:00",
+    "letzter_utc": "2020-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35136,
+    "erster_utc": "2019-12-31T23:00:00+00:00",
+    "letzter_utc": "2020-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 485.357,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 45.448,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6392,
+    "installiert_gw_mittel": 51.901,
+    "installiert_gw_ende": 54.554,
+    "volllaststunden": 878.7,
+    "cf_mittel": 0.1,
+    "volllaststunden_bezogen_auf_AC": 939.0
+   },
+   "solar_total_mw": {
+    "summe_twh": 48.525,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6825,
+    "installiert_gw_mittel": 51.901,
+    "installiert_gw_ende": 54.554,
+    "volllaststunden": 938.2,
+    "cf_mittel": 0.1068,
+    "volllaststunden_bezogen_auf_AC": 1002.6
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 102.741,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7558,
+    "installiert_gw_mittel": 53.742,
+    "installiert_gw_ende": 54.414,
+    "volllaststunden": 1913.7,
+    "cf_mittel": 0.2179
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 26.903,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.9034,
+    "installiert_gw_mittel": 7.835,
+    "installiert_gw_ende": 7.874,
+    "volllaststunden": 3436.9,
+    "cf_mittel": 0.3913
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 16.971,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4951,
+    "installiert_gw_mittel": 5.354,
+    "installiert_gw_ende": 5.363,
+    "volllaststunden": 3169.6,
+    "cf_mittel": 0.3608
+   },
+   "biomass_mw": {
+    "summe_twh": 40.962,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.631,
+    "installiert_gw_mittel": 8.381,
+    "installiert_gw_ende": 8.598,
+    "volllaststunden": 4888.3,
+    "cf_mittel": 0.5565
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 10.818,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4946,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1081.6,
+    "cf_mittel": 0.1231
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 12.618,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4387,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1261.7,
+    "cf_mittel": 0.1436
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 63,
+      "von_lokal": "2020-12-08 13:00",
+      "bis_lokal": "2020-12-11 03:00"
+     },
+     {
+      "stunden": 61,
+      "von_lokal": "2020-11-09 14:00",
+      "bis_lokal": "2020-11-12 02:00"
+     },
+     {
+      "stunden": 46,
+      "von_lokal": "2020-11-26 13:00",
+      "bis_lokal": "2020-11-28 10:00"
+     }
+    ],
+    "phasen_ab_24h": 6,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 48,
+      "von_lokal": "2020-12-08 23:00",
+      "bis_lokal": "2020-12-10 22:00"
+     },
+     {
+      "stunden": 29,
+      "von_lokal": "2020-11-10 15:00",
+      "bis_lokal": "2020-11-11 19:00"
+     },
+     {
+      "stunden": 20,
+      "von_lokal": "2020-12-01 15:00",
+      "bis_lokal": "2020-12-02 10:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 1
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 63,
+      "von_lokal": "2020-12-08 13:00",
+      "bis_lokal": "2020-12-11 03:00"
+     },
+     {
+      "stunden": 61,
+      "von_lokal": "2020-11-09 14:00",
+      "bis_lokal": "2020-11-12 02:00"
+     },
+     {
+      "stunden": 46,
+      "von_lokal": "2020-11-26 13:00",
+      "bis_lokal": "2020-11-28 10:00"
+     }
+    ],
+    "phasen_ab_24h": 6,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 48,
+      "von_lokal": "2020-12-08 23:00",
+      "bis_lokal": "2020-12-10 22:00"
+     },
+     {
+      "stunden": 21,
+      "von_lokal": "2020-11-10 15:00",
+      "bis_lokal": "2020-11-11 11:00"
+     },
+     {
+      "stunden": 20,
+      "von_lokal": "2020-12-01 15:00",
+      "bis_lokal": "2020-12-02 10:00"
+     }
+    ],
+    "phasen_ab_24h": 1,
+    "phasen_ab_48h": 1
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.3756,
+   "Q4_Okt_Dez": 0.2677,
+   "Jan_Feb": 0.4094,
+   "wind_cf_jahr": 0.2399,
+   "stunden_Q1": 2183,
+   "stunden_Q4": 2209
+  }
+ },
+ "2021": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2020-12-31T23:00:00+00:00",
+    "letzter_utc": "2021-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2020-12-31T23:00:00+00:00",
+    "letzter_utc": "2021-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 504.601,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 45.311,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6245,
+    "installiert_gw_mittel": 57.433,
+    "installiert_gw_ende": 60.263,
+    "volllaststunden": 790.2,
+    "cf_mittel": 0.0902,
+    "volllaststunden_bezogen_auf_AC": 847.0
+   },
+   "solar_total_mw": {
+    "summe_twh": 49.482,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.682,
+    "installiert_gw_mittel": 57.433,
+    "installiert_gw_ende": 60.263,
+    "volllaststunden": 862.9,
+    "cf_mittel": 0.0985,
+    "volllaststunden_bezogen_auf_AC": 925.0
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 90.27,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7564,
+    "installiert_gw_mittel": 55.204,
+    "installiert_gw_ende": 56.046,
+    "volllaststunden": 1635.8,
+    "cf_mittel": 0.1867
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 24.013,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.9049,
+    "installiert_gw_mittel": 7.874,
+    "installiert_gw_ende": 7.874,
+    "volllaststunden": 3049.7,
+    "cf_mittel": 0.3481
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 17.874,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5591,
+    "installiert_gw_mittel": 5.33,
+    "installiert_gw_ende": 5.296,
+    "volllaststunden": 3353.2,
+    "cf_mittel": 0.3828
+   },
+   "biomass_mw": {
+    "summe_twh": 40.575,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6172,
+    "installiert_gw_mittel": 8.673,
+    "installiert_gw_ende": 8.724,
+    "volllaststunden": 4678.8,
+    "cf_mittel": 0.5341
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 8.264,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6711,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 826.3,
+    "cf_mittel": 0.0943
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 10.512,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6239,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1051.1,
+    "cf_mittel": 0.12
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 99,
+      "von_lokal": "2021-01-06 07:00",
+      "bis_lokal": "2021-01-10 09:00"
+     },
+     {
+      "stunden": 96,
+      "von_lokal": "2021-11-13 07:00",
+      "bis_lokal": "2021-11-17 06:00"
+     },
+     {
+      "stunden": 55,
+      "von_lokal": "2021-12-16 03:00",
+      "bis_lokal": "2021-12-18 09:00"
+     }
+    ],
+    "phasen_ab_24h": 14,
+    "phasen_ab_48h": 5
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 40,
+      "von_lokal": "2021-01-08 14:00",
+      "bis_lokal": "2021-01-10 05:00"
+     },
+     {
+      "stunden": 34,
+      "von_lokal": "2021-11-15 16:00",
+      "bis_lokal": "2021-11-17 01:00"
+     },
+     {
+      "stunden": 32,
+      "von_lokal": "2021-01-01 14:00",
+      "bis_lokal": "2021-01-02 21:00"
+     }
+    ],
+    "phasen_ab_24h": 3,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 99,
+      "von_lokal": "2021-01-06 07:00",
+      "bis_lokal": "2021-01-10 09:00"
+     },
+     {
+      "stunden": 96,
+      "von_lokal": "2021-11-13 07:00",
+      "bis_lokal": "2021-11-17 06:00"
+     },
+     {
+      "stunden": 55,
+      "von_lokal": "2021-12-16 03:00",
+      "bis_lokal": "2021-12-18 09:00"
+     }
+    ],
+    "phasen_ab_24h": 11,
+    "phasen_ab_48h": 4
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 34,
+      "von_lokal": "2021-11-15 16:00",
+      "bis_lokal": "2021-11-17 01:00"
+     },
+     {
+      "stunden": 32,
+      "von_lokal": "2021-01-01 14:00",
+      "bis_lokal": "2021-01-02 21:00"
+     },
+     {
+      "stunden": 22,
+      "von_lokal": "2021-01-08 14:00",
+      "bis_lokal": "2021-01-09 11:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.2541,
+   "Q4_Okt_Dez": 0.2556,
+   "Jan_Feb": 0.258,
+   "wind_cf_jahr": 0.2069,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ },
+ "2022": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2021-12-31T23:00:00+00:00",
+    "letzter_utc": "2022-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2021-12-31T23:00:00+00:00",
+    "letzter_utc": "2022-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 482.296,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 54.328,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5828,
+    "installiert_gw_mittel": 64.092,
+    "installiert_gw_ende": 67.846,
+    "volllaststunden": 851.1,
+    "cf_mittel": 0.0972,
+    "volllaststunden_bezogen_auf_AC": 915.5
+   },
+   "solar_total_mw": {
+    "summe_twh": 59.837,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.639,
+    "installiert_gw_mittel": 64.092,
+    "installiert_gw_ende": 67.846,
+    "volllaststunden": 937.4,
+    "cf_mittel": 0.107,
+    "volllaststunden_bezogen_auf_AC": 1008.2
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 97.205,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7478,
+    "installiert_gw_mittel": 56.877,
+    "installiert_gw_ende": 58.014,
+    "volllaststunden": 1711.7,
+    "cf_mittel": 0.1954
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 24.752,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.9182,
+    "installiert_gw_mittel": 7.962,
+    "installiert_gw_ende": 8.216,
+    "volllaststunden": 3104.1,
+    "cf_mittel": 0.3544
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 15.911,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5314,
+    "installiert_gw_mittel": 5.353,
+    "installiert_gw_ende": 5.41,
+    "volllaststunden": 2971.7,
+    "cf_mittel": 0.3392
+   },
+   "biomass_mw": {
+    "summe_twh": 39.413,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6122,
+    "installiert_gw_mittel": 8.753,
+    "installiert_gw_ende": 8.778,
+    "volllaststunden": 4502.9,
+    "cf_mittel": 0.514
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 10.154,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7956,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1015.3,
+    "cf_mittel": 0.1159
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 13.593,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.8101,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1359.1,
+    "cf_mittel": 0.1552
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 126,
+      "von_lokal": "2022-12-08 06:00",
+      "bis_lokal": "2022-12-13 11:00"
+     },
+     {
+      "stunden": 93,
+      "von_lokal": "2022-11-28 14:00",
+      "bis_lokal": "2022-12-02 10:00"
+     },
+     {
+      "stunden": 92,
+      "von_lokal": "2022-12-14 05:00",
+      "bis_lokal": "2022-12-18 00:00"
+     }
+    ],
+    "phasen_ab_24h": 9,
+    "phasen_ab_48h": 3
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 68,
+      "von_lokal": "2022-12-09 14:00",
+      "bis_lokal": "2022-12-12 09:00"
+     },
+     {
+      "stunden": 59,
+      "von_lokal": "2022-11-29 00:00",
+      "bis_lokal": "2022-12-01 10:00"
+     },
+     {
+      "stunden": 26,
+      "von_lokal": "2022-12-16 07:00",
+      "bis_lokal": "2022-12-17 08:00"
+     }
+    ],
+    "phasen_ab_24h": 3,
+    "phasen_ab_48h": 2
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 119,
+      "von_lokal": "2022-12-08 12:00",
+      "bis_lokal": "2022-12-13 10:00"
+     },
+     {
+      "stunden": 93,
+      "von_lokal": "2022-11-28 14:00",
+      "bis_lokal": "2022-12-02 10:00"
+     },
+     {
+      "stunden": 61,
+      "von_lokal": "2022-12-15 12:00",
+      "bis_lokal": "2022-12-18 00:00"
+     }
+    ],
+    "phasen_ab_24h": 8,
+    "phasen_ab_48h": 3
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 45,
+      "von_lokal": "2022-12-10 13:00",
+      "bis_lokal": "2022-12-12 09:00"
+     },
+     {
+      "stunden": 26,
+      "von_lokal": "2022-12-16 07:00",
+      "bis_lokal": "2022-12-17 08:00"
+     },
+     {
+      "stunden": 23,
+      "von_lokal": "2022-11-29 12:00",
+      "bis_lokal": "2022-11-30 10:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.3148,
+   "Q4_Okt_Dez": 0.2406,
+   "Jan_Feb": 0.3928,
+   "wind_cf_jahr": 0.215,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ },
+ "2023": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2022-12-31T23:00:00+00:00",
+    "letzter_utc": "2023-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2022-12-31T23:00:00+00:00",
+    "letzter_utc": "2023-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 458.382,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 53.907,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5374,
+    "installiert_gw_mittel": 75.247,
+    "installiert_gw_ende": 83.307,
+    "volllaststunden": 720.4,
+    "cf_mittel": 0.0822,
+    "volllaststunden_bezogen_auf_AC": 777.8
+   },
+   "solar_total_mw": {
+    "summe_twh": 62.1,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6084,
+    "installiert_gw_mittel": 75.247,
+    "installiert_gw_ende": 83.307,
+    "volllaststunden": 830.0,
+    "cf_mittel": 0.0947,
+    "volllaststunden_bezogen_auf_AC": 896.1
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 115.901,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.785,
+    "installiert_gw_mittel": 59.306,
+    "installiert_gw_ende": 61.013,
+    "volllaststunden": 1952.4,
+    "cf_mittel": 0.2229
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 23.534,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.9137,
+    "installiert_gw_mittel": 8.402,
+    "installiert_gw_ende": 8.473,
+    "volllaststunden": 2803.1,
+    "cf_mittel": 0.32
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 18.129,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5281,
+    "installiert_gw_mittel": 5.41,
+    "installiert_gw_ende": 5.411,
+    "volllaststunden": 3350.8,
+    "cf_mittel": 0.3825
+   },
+   "biomass_mw": {
+    "summe_twh": 36.617,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5712,
+    "installiert_gw_mittel": 8.797,
+    "installiert_gw_ende": 8.842,
+    "volllaststunden": 4162.5,
+    "cf_mittel": 0.4752
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 10.176,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7954,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1017.5,
+    "cf_mittel": 0.1162
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 12.675,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.712,
+    "installiert_gw_mittel": 10.001,
+    "installiert_gw_ende": 10.001,
+    "volllaststunden": 1267.4,
+    "cf_mittel": 0.1447
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 165,
+      "von_lokal": "2023-01-22 07:00",
+      "bis_lokal": "2023-01-29 03:00"
+     },
+     {
+      "stunden": 103,
+      "von_lokal": "2023-11-29 17:00",
+      "bis_lokal": "2023-12-03 23:00"
+     },
+     {
+      "stunden": 45,
+      "von_lokal": "2023-12-05 23:00",
+      "bis_lokal": "2023-12-07 19:00"
+     }
+    ],
+    "phasen_ab_24h": 9,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 80,
+      "von_lokal": "2023-11-29 22:00",
+      "bis_lokal": "2023-12-03 05:00"
+     },
+     {
+      "stunden": 37,
+      "von_lokal": "2023-01-23 22:00",
+      "bis_lokal": "2023-01-25 10:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2023-01-25 16:00",
+      "bis_lokal": "2023-01-26 10:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 1
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 165,
+      "von_lokal": "2023-01-22 07:00",
+      "bis_lokal": "2023-01-29 03:00"
+     },
+     {
+      "stunden": 103,
+      "von_lokal": "2023-11-29 17:00",
+      "bis_lokal": "2023-12-03 23:00"
+     },
+     {
+      "stunden": 45,
+      "von_lokal": "2023-12-05 23:00",
+      "bis_lokal": "2023-12-07 19:00"
+     }
+    ],
+    "phasen_ab_24h": 6,
+    "phasen_ab_48h": 2
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 80,
+      "von_lokal": "2023-11-29 22:00",
+      "bis_lokal": "2023-12-03 05:00"
+     },
+     {
+      "stunden": 37,
+      "von_lokal": "2023-01-23 22:00",
+      "bis_lokal": "2023-01-25 10:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2023-01-25 16:00",
+      "bis_lokal": "2023-01-26 10:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 1
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.2946,
+   "Q4_Okt_Dez": 0.3253,
+   "Jan_Feb": 0.301,
+   "wind_cf_jahr": 0.2349,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ },
+ "2024": {
+  "stunden_erwartet": 8784,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35136,
+    "erster_utc": "2023-12-31T23:00:00+00:00",
+    "letzter_utc": "2024-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35136,
+    "erster_utc": "2023-12-31T23:00:00+00:00",
+    "letzter_utc": "2024-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 465.503,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 59.707,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4796,
+    "installiert_gw_mittel": 91.852,
+    "installiert_gw_ende": 100.813,
+    "volllaststunden": 652.7,
+    "cf_mittel": 0.0743,
+    "volllaststunden_bezogen_auf_AC": 709.2
+   },
+   "solar_total_mw": {
+    "summe_twh": 74.39,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5757,
+    "installiert_gw_mittel": 91.852,
+    "installiert_gw_ende": 100.813,
+    "volllaststunden": 812.9,
+    "cf_mittel": 0.0925,
+    "volllaststunden_bezogen_auf_AC": 883.4
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 110.642,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7428,
+    "installiert_gw_mittel": 62.046,
+    "installiert_gw_ende": 63.589,
+    "volllaststunden": 1784.2,
+    "cf_mittel": 0.2031
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 25.682,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.87,
+    "installiert_gw_mittel": 8.843,
+    "installiert_gw_ende": 9.215,
+    "volllaststunden": 2919.1,
+    "cf_mittel": 0.3323
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 20.41,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5531,
+    "installiert_gw_mittel": 5.413,
+    "installiert_gw_ende": 5.415,
+    "volllaststunden": 3770.6,
+    "cf_mittel": 0.4293
+   },
+   "biomass_mw": {
+    "summe_twh": 37.029,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5808,
+    "installiert_gw_mittel": 8.904,
+    "installiert_gw_ende": 8.936,
+    "volllaststunden": 4159.2,
+    "cf_mittel": 0.4735
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 10.391,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.7037,
+    "installiert_gw_mittel": 9.951,
+    "installiert_gw_ende": 9.902,
+    "volllaststunden": 1044.1,
+    "cf_mittel": 0.1189
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 13.052,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6921,
+    "installiert_gw_mittel": 9.951,
+    "installiert_gw_ende": 9.902,
+    "volllaststunden": 1311.7,
+    "cf_mittel": 0.1493
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 132,
+      "von_lokal": "2024-11-08 13:00",
+      "bis_lokal": "2024-11-14 00:00"
+     },
+     {
+      "stunden": 117,
+      "von_lokal": "2024-12-24 13:00",
+      "bis_lokal": "2024-12-29 09:00"
+     },
+     {
+      "stunden": 93,
+      "von_lokal": "2024-11-04 14:00",
+      "bis_lokal": "2024-11-08 10:00"
+     }
+    ],
+    "phasen_ab_24h": 8,
+    "phasen_ab_48h": 4
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 64,
+      "von_lokal": "2024-11-05 15:00",
+      "bis_lokal": "2024-11-08 06:00"
+     },
+     {
+      "stunden": 61,
+      "von_lokal": "2024-12-10 20:00",
+      "bis_lokal": "2024-12-13 08:00"
+     },
+     {
+      "stunden": 38,
+      "von_lokal": "2024-11-09 15:00",
+      "bis_lokal": "2024-11-11 04:00"
+     }
+    ],
+    "phasen_ab_24h": 3,
+    "phasen_ab_48h": 2
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 90,
+      "von_lokal": "2024-12-10 14:00",
+      "bis_lokal": "2024-12-14 07:00"
+     },
+     {
+      "stunden": 68,
+      "von_lokal": "2024-11-05 14:00",
+      "bis_lokal": "2024-11-08 09:00"
+     },
+     {
+      "stunden": 59,
+      "von_lokal": "2024-11-11 14:00",
+      "bis_lokal": "2024-11-14 00:00"
+     }
+    ],
+    "phasen_ab_24h": 5,
+    "phasen_ab_48h": 3
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 61,
+      "von_lokal": "2024-12-10 20:00",
+      "bis_lokal": "2024-12-13 08:00"
+     },
+     {
+      "stunden": 41,
+      "von_lokal": "2024-11-06 14:00",
+      "bis_lokal": "2024-11-08 06:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2024-12-27 15:00",
+      "bis_lokal": "2024-12-28 09:00"
+     }
+    ],
+    "phasen_ab_24h": 2,
+    "phasen_ab_48h": 1
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.3081,
+   "Q4_Okt_Dez": 0.2438,
+   "Jan_Feb": 0.3484,
+   "wind_cf_jahr": 0.2192,
+   "stunden_Q1": 2183,
+   "stunden_Q4": 2209
+  }
+ },
+ "2025": {
+  "stunden_erwartet": 8760,
+  "quellen_raster": {
+   "public": {
+    "viertelstunden": 35040,
+    "erster_utc": "2024-12-31T23:00:00+00:00",
+    "letzter_utc": "2025-12-31T22:45:00+00:00"
+   },
+   "total": {
+    "viertelstunden": 35040,
+    "erster_utc": "2024-12-31T23:00:00+00:00",
+    "letzter_utc": "2025-12-31T22:45:00+00:00"
+   }
+  },
+  "reihen": {
+   "load_mw": {
+    "summe_twh": 465.818,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": null,
+    "installiert_gw_mittel": null,
+    "installiert_gw_ende": null,
+    "volllaststunden": null,
+    "cf_mittel": null
+   },
+   "solar_mw": {
+    "summe_twh": 70.123,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4593,
+    "installiert_gw_mittel": 109.268,
+    "installiert_gw_ende": 118.146,
+    "volllaststunden": 646.0,
+    "cf_mittel": 0.0737,
+    "volllaststunden_bezogen_auf_AC": 705.8
+   },
+   "solar_total_mw": {
+    "summe_twh": 89.964,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5616,
+    "installiert_gw_mittel": 109.268,
+    "installiert_gw_ende": 118.146,
+    "volllaststunden": 828.3,
+    "cf_mittel": 0.0946,
+    "volllaststunden_bezogen_auf_AC": 905.1
+   },
+   "wind_onshore_mw": {
+    "summe_twh": 105.1,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6939,
+    "installiert_gw_mittel": 65.531,
+    "installiert_gw_ende": 68.177,
+    "volllaststunden": 1600.8,
+    "cf_mittel": 0.1827
+   },
+   "wind_offshore_mw": {
+    "summe_twh": 26.067,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.8535,
+    "installiert_gw_mittel": 9.238,
+    "installiert_gw_ende": 9.733,
+    "volllaststunden": 2817.9,
+    "cf_mittel": 0.3217
+   },
+   "hydro_ror_mw": {
+    "summe_twh": 15.43,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.4971,
+    "installiert_gw_mittel": 5.415,
+    "installiert_gw_ende": 5.415,
+    "volllaststunden": 2849.4,
+    "cf_mittel": 0.3253
+   },
+   "biomass_mw": {
+    "summe_twh": 36.058,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.5904,
+    "installiert_gw_mittel": 8.963,
+    "installiert_gw_ende": 8.973,
+    "volllaststunden": 4023.2,
+    "cf_mittel": 0.4593
+   },
+   "pumped_gen_mw": {
+    "summe_twh": 9.894,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6571,
+    "installiert_gw_mittel": 9.902,
+    "installiert_gw_ende": 9.902,
+    "volllaststunden": 999.1,
+    "cf_mittel": 0.1141
+   },
+   "pumped_cons_mw": {
+    "summe_twh": 12.737,
+    "fehlstunden": 0,
+    "luecken": [],
+    "negative_werte": 0,
+    "cf_ausserhalb_0_1": 0,
+    "cf_max": 0.6302,
+    "installiert_gw_mittel": 9.902,
+    "installiert_gw_ende": 9.902,
+    "volllaststunden": 1286.3,
+    "cf_mittel": 0.1468
+   }
+  },
+  "dunkelflaute_wind_pv": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 108,
+      "von_lokal": "2025-11-06 14:00",
+      "bis_lokal": "2025-11-11 01:00"
+     },
+     {
+      "stunden": 90,
+      "von_lokal": "2025-02-12 16:00",
+      "bis_lokal": "2025-02-16 09:00"
+     },
+     {
+      "stunden": 82,
+      "von_lokal": "2025-12-02 15:00",
+      "bis_lokal": "2025-12-06 00:00"
+     }
+    ],
+    "phasen_ab_24h": 15,
+    "phasen_ab_48h": 6
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 44,
+      "von_lokal": "2025-11-08 13:00",
+      "bis_lokal": "2025-11-10 08:00"
+     },
+     {
+      "stunden": 34,
+      "von_lokal": "2025-12-02 23:00",
+      "bis_lokal": "2025-12-04 08:00"
+     },
+     {
+      "stunden": 32,
+      "von_lokal": "2025-02-14 03:00",
+      "bis_lokal": "2025-02-15 10:00"
+     }
+    ],
+    "phasen_ab_24h": 4,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_wind_pv_gesamt_inkl_eigenverbrauch": {
+   "cf_unter_10pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 89,
+      "von_lokal": "2025-02-12 16:00",
+      "bis_lokal": "2025-02-16 08:00"
+     },
+     {
+      "stunden": 82,
+      "von_lokal": "2025-12-02 15:00",
+      "bis_lokal": "2025-12-06 00:00"
+     },
+     {
+      "stunden": 69,
+      "von_lokal": "2025-11-07 14:00",
+      "bis_lokal": "2025-11-10 10:00"
+     }
+    ],
+    "phasen_ab_24h": 7,
+    "phasen_ab_48h": 4
+   },
+   "cf_unter_5pct": {
+    "laengste_phasen": [
+     {
+      "stunden": 21,
+      "von_lokal": "2025-11-08 14:00",
+      "bis_lokal": "2025-11-09 10:00"
+     },
+     {
+      "stunden": 21,
+      "von_lokal": "2025-02-14 13:00",
+      "bis_lokal": "2025-02-15 09:00"
+     },
+     {
+      "stunden": 19,
+      "von_lokal": "2025-12-03 14:00",
+      "bis_lokal": "2025-12-04 08:00"
+     }
+    ],
+    "phasen_ab_24h": 0,
+    "phasen_ab_48h": 0
+   }
+  },
+  "dunkelflaute_hinweis": "Kombi-CF = (PV öffentlich + Wind an Land + Wind auf See) / Summe der installierten Leistungen (PV in DC). Fehlende Stunden brechen eine Phase ab (werden nicht als Flaute gezählt).",
+  "wind_cf_quartale": {
+   "Q1_Jan_Mrz": 0.21,
+   "Q4_Okt_Dez": 0.2643,
+   "Jan_Feb": 0.239,
+   "wind_cf_jahr": 0.1999,
+   "stunden_Q1": 2159,
+   "stunden_Q4": 2209
+  }
+ }
+}

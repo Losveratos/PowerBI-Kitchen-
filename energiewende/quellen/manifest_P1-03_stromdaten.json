@@ -1,0 +1,790 @@
+{
+ "hinweis": "Manifest P1-03. Rohdateien liegen unter quellen/raw/P1-03_stromdaten/ und sind von Git ausgenommen.",
+ "eintraege": [
+  {
+   "id": "ec_public_power_2015",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2015-01-01&end=2015-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2015.json",
+   "sha256": "82df146b341a39b6426b1129b41f5d4f502abc6b01fab552f3d448fd015b7e4c",
+   "abruf": "2026-11-22",
+   "bytes": 5446308
+  },
+  {
+   "id": "ec_total_power_2015",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2015-01-01&end=2015-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2015.json",
+   "sha256": "9378fd0d0fd340e533e716d7c8798e02cc3264aa125d968a7c4d675ae8593afc",
+   "abruf": "2026-11-22",
+   "bytes": 5483851
+  },
+  {
+   "id": "ec_public_power_2016",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2016-01-01&end=2016-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2016.json",
+   "sha256": "f104acb6e9f3f2d3141ebaf393e6928ba661ea03811d1008a196e34a00c9d52e",
+   "abruf": "2026-11-22",
+   "bytes": 5504867
+  },
+  {
+   "id": "ec_total_power_2016",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2016-01-01&end=2016-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2016.json",
+   "sha256": "7372a19d3df6afc81506a99198022fdcbf4ea46a095575fb57fc53fac2396c25",
+   "abruf": "2026-11-22",
+   "bytes": 5544602
+  },
+  {
+   "id": "ec_public_power_2017",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2017-01-01&end=2017-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2017.json",
+   "sha256": "cf960f44f37519016ad9a1188f166229aa8cec0bdd380e4b4a5c2fb52c27b00b",
+   "abruf": "2026-11-22",
+   "bytes": 5486006
+  },
+  {
+   "id": "ec_total_power_2017",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2017-01-01&end=2017-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2017.json",
+   "sha256": "586f5959f8926f3f20f0047d9a60a85dcbafbb839dc3e4d8508db5cd1c99c5d9",
+   "abruf": "2026-11-22",
+   "bytes": 5530898
+  },
+  {
+   "id": "ec_public_power_2018",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2018-01-01&end=2018-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2018.json",
+   "sha256": "76afe0c3372072d1f3cc59ca6de4b3b20283ad348a6a3d55bf8b02c771e3f06b",
+   "abruf": "2026-11-22",
+   "bytes": 5467543
+  },
+  {
+   "id": "ec_total_power_2018",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2018-01-01&end=2018-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2018.json",
+   "sha256": "783aed598a39c0ec0abf7d4369227d5c69f55a1aa4b966bfb49f752f5c78c52a",
+   "abruf": "2026-11-22",
+   "bytes": 5512159
+  },
+  {
+   "id": "ec_public_power_2019",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2019-01-01&end=2019-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2019.json",
+   "sha256": "8ded22989e75c25c2640adce2353cbbf8711a17af0a7d7a8ebf60c5e206d3efd",
+   "abruf": "2026-11-22",
+   "bytes": 5449874
+  },
+  {
+   "id": "ec_total_power_2019",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2019-01-01&end=2019-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2019.json",
+   "sha256": "dd58ddcf562356851778fe2999193b2ca5e56acfe4e83f54a6ac6d115db048f9",
+   "abruf": "2026-11-22",
+   "bytes": 5497920
+  },
+  {
+   "id": "ec_public_power_2020",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2020-01-01&end=2020-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2020.json",
+   "sha256": "4a0bb3e7283b3c8bf4489e6ce8ab66039bdb808dfa576b59a25a635c62552f86",
+   "abruf": "2026-11-22",
+   "bytes": 5289169
+  },
+  {
+   "id": "ec_total_power_2020",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2020-01-01&end=2020-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2020.json",
+   "sha256": "df42af636c07560cd29417737810c4675c3adbfe5ba986dafd6b3fb6e82e9738",
+   "abruf": "2026-11-22",
+   "bytes": 5327540
+  },
+  {
+   "id": "ec_public_power_2021",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2021-01-01&end=2021-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2021.json",
+   "sha256": "678e23c710dd52958cd70f4e8e8f40b3d6dfd5efa4d6b0816cea0a55ee1d91eb",
+   "abruf": "2026-11-22",
+   "bytes": 5250156
+  },
+  {
+   "id": "ec_total_power_2021",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2021-01-01&end=2021-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2021.json",
+   "sha256": "07704a4624c5fbaccf19c2333858c4c70a64065124fbda219a1ba7573f3a3e6b",
+   "abruf": "2026-11-22",
+   "bytes": 5290860
+  },
+  {
+   "id": "ec_public_power_2022",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2022-01-01&end=2022-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2022.json",
+   "sha256": "320be916f9fd21d8bc517be625a33bbd35886f581e864cf6c5d172f6dd0e6f1a",
+   "abruf": "2026-11-22",
+   "bytes": 5257249
+  },
+  {
+   "id": "ec_total_power_2022",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2022-01-01&end=2022-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2022.json",
+   "sha256": "02dd1a4d14a5e96da22cedbac738f3bec6667b74217c18c121d3758e4bc534be",
+   "abruf": "2026-11-22",
+   "bytes": 5291952
+  },
+  {
+   "id": "ec_public_power_2023",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2023-01-01&end=2023-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2023.json",
+   "sha256": "d137d55084d079be3a7bf14e29661af0a79e02feb328387b82271ce70ce28cb4",
+   "abruf": "2026-11-22",
+   "bytes": 5386481
+  },
+  {
+   "id": "ec_total_power_2023",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2023-01-01&end=2023-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2023.json",
+   "sha256": "8957bb45b0a349b90986078dcfecfc86b77336a75005e2ab224bd72a996f601a",
+   "abruf": "2026-11-22",
+   "bytes": 5418209
+  },
+  {
+   "id": "ec_public_power_2024",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2024-01-01&end=2024-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2024.json",
+   "sha256": "54d5e2e74bf980c4b4334aef3aeeb4dd2d39c7747795444b18bdd58c7e2385cd",
+   "abruf": "2026-11-22",
+   "bytes": 5191401
+  },
+  {
+   "id": "ec_total_power_2024",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2024-01-01&end=2024-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2024.json",
+   "sha256": "20f91c1285a1d44c0c5ab592ae43c535f9a4ca58a6dcd62f3ff3fe8d750b5a25",
+   "abruf": "2026-11-22",
+   "bytes": 5224316
+  },
+  {
+   "id": "ec_public_power_2025",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2025-01-01&end=2025-12-31",
+   "datei": "raw/P1-03_stromdaten/public_power_2025.json",
+   "sha256": "6a6b8365901d2842ef3e2bf36db1061eb9c4b59950f7ceb15af4fe7c152f2bcb",
+   "abruf": "2026-11-22",
+   "bytes": 5159770
+  },
+  {
+   "id": "ec_total_power_2025",
+   "url": "https://api.energy-charts.info/total_power?country=de&start=2025-01-01&end=2025-12-31",
+   "datei": "raw/P1-03_stromdaten/total_power_2025.json",
+   "sha256": "ff05c45cab79076ce8fb752b6cfd8f8f4f72c13379a35dc460d17a3ffcb33a66",
+   "abruf": "2026-11-22",
+   "bytes": 5191475
+  },
+  {
+   "id": "ec_installed_yearly",
+   "url": "https://api.energy-charts.info/installed_power?country=de&time_step=yearly&installation_decommission=false",
+   "datei": "raw/P1-03_stromdaten/installed_power_yearly.json",
+   "sha256": "8453c07d6df17d99ad874204b4aea20358f73ef2a8c29167244a4c6de170157c",
+   "abruf": "2026-11-22",
+   "bytes": 4036
+  },
+  {
+   "id": "ec_installed_monthly",
+   "url": "https://api.energy-charts.info/installed_power?country=de&time_step=monthly&installation_decommission=false",
+   "datei": "raw/P1-03_stromdaten/installed_power_monthly.json",
+   "sha256": "a52a67cc6b479f3f8a60c013f10bef9edc8d142cfcb48902d4071042751d4e24",
+   "abruf": "2026-11-22",
+   "bytes": 16411
+  },
+  {
+   "id": "ec_openapi",
+   "url": "https://api.energy-charts.info/openapi.json",
+   "datei": "raw/P1-03_stromdaten/ec_openapi.json",
+   "sha256": "523d3ec0fd82a7f148a94c02ffc08e8251c231d74e74b6019978af1e64b610d4",
+   "abruf": "2026-11-22",
+   "bytes": 83840
+  },
+  {
+   "id": "uba_ee_zahlen",
+   "url": "https://www.umweltbundesamt.de/themen/klima-energie/erneuerbare-energien/erneuerbare-energien-in-zahlen",
+   "datei": "raw/P1-03_stromdaten/uba_ee_zahlen.html",
+   "sha256": "df725cdf07fcdc45fb89d017b622f4cea28b7d231578134b385ac270639361a0",
+   "abruf": "2026-11-22",
+   "bytes": 320796
+  },
+  {
+   "id": "uba_zeitreihen_ee",
+   "url": "https://www.umweltbundesamt.de/system/files/document/zeitreihen-zur-entwicklung-der-erneuerbaren-energien-in-deutschland-excel_uba_deu_0_0.xlsx",
+   "datei": "raw/P1-03_stromdaten/uba_zeitreihen_ee.xlsx",
+   "sha256": "d5f3fd6d25508a68aa8936aa297d822f0d68b42ba31713018fa3eb3dd12ecf85",
+   "abruf": "2026-11-22",
+   "bytes": 6295414
+  },
+  {
+   "id": "bnetza_pm_smard_2024",
+   "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20250103_smard.html",
+   "datei": "raw/P1-03_stromdaten/bnetza_smard_pm_2024.html",
+   "sha256": "bc78a9834bca64a7dcf94c5929db2a6b47f9bfa0305886af74050ab3a8aed14d",
+   "abruf": "2026-11-22",
+   "bytes": 61073
+  },
+  {
+   "id": "smard_engpass_2025",
+   "url": "https://www.smard.de/page/en/topic-article/5892/220534/volume-of-measures-stable-in-the-year-as-a-whole",
+   "datei": "raw/P1-03_stromdaten/smard_engpass_2025.html",
+   "sha256": "fc719ff7a8168f6a0bb61638faff5f86a119a6903e689df4ebf4fa33df527626",
+   "abruf": "2026-11-22",
+   "bytes": 75314
+  },
+  {
+   "id": "bnetza_netzengpassmanagement_seite",
+   "url": "https://www.bundesnetzagentur.de/DE/Fachthemen/ElektrizitaetundGas/Versorgungssicherheit/Netzengpassmanagement/artikel.html",
+   "datei": "raw/P1-03_stromdaten/bnetza_nem_artikel.html",
+   "sha256": "d61feeda8ee2608b76026ec0b355a3156c16589ce9995bcbca92b6432c340baf",
+   "abruf": "2026-11-22",
+   "bytes": 107095,
+   "hinweis": "Seite ohne verwertbare Zahlen"
+  },
+  {
+   "id": "smard_index_4068_month",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/index_month.json",
+   "datei": "raw/P1-03_stromdaten/smard_index_4068_month.json",
+   "sha256": "f252c14a5137feed5323a9b2803eca98be72b5e336f3f22d18fb362a85db6342",
+   "abruf": "2026-11-22",
+   "bytes": 184
+  },
+  {
+   "id": "smard_index_4068_hour",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/index_hour.json",
+   "datei": "raw/P1-03_stromdaten/smard_index_4068_hour.json",
+   "sha256": "bf97342b12040d7b48bc55e7249cc60671234f099edfd7ee3e06035b9ce3c8bd",
+   "abruf": "2026-11-22",
+   "bytes": 8710
+  },
+  {
+   "id": "smard_4068_month_1420066800000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1420066800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1420066800000.json",
+   "sha256": "553a91aea79fd73ffa646e014322ec56197f3516ab0593182558cbcfcaee0fc6",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_4068_month_1451602800000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1451602800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1451602800000.json",
+   "sha256": "2aea416f4dd29f2c9d17df39eef16f65a8fb8bc56e7c239c924a78ef80413e5c",
+   "abruf": "2026-11-22",
+   "bytes": 384
+  },
+  {
+   "id": "smard_4068_month_1483225200000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1483225200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1483225200000.json",
+   "sha256": "2336b4f6f23e5902ecdfbd662de1a9130ac96837f3c3d396a940afb07dafef06",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_4068_month_1514761200000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1514761200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1514761200000.json",
+   "sha256": "63847562c89b2e56b50496b0879bf39b7ba50e8983cec948b4a0dff483fb6de1",
+   "abruf": "2026-11-22",
+   "bytes": 384
+  },
+  {
+   "id": "smard_4068_month_1546297200000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1546297200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1546297200000.json",
+   "sha256": "56ec2a1a1613d28c5ea0a8a8acee886f1370aabd094f92e856936be667c4c83b",
+   "abruf": "2026-11-22",
+   "bytes": 381
+  },
+  {
+   "id": "smard_4068_month_1577833200000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1577833200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1577833200000.json",
+   "sha256": "bf6a529ca6219fe89c1f87c52e2b5e9b4a68e65baafc3e8cc07af771b3f97297",
+   "abruf": "2026-11-22",
+   "bytes": 380
+  },
+  {
+   "id": "smard_4068_month_1609455600000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1609455600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1609455600000.json",
+   "sha256": "e4ef5db80b2285d2372dfb676d3722d65993eed43330a188d79eee896698ef39",
+   "abruf": "2026-11-22",
+   "bytes": 379
+  },
+  {
+   "id": "smard_4068_month_1640991600000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1640991600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1640991600000.json",
+   "sha256": "82b8557a64826375fad7587281479800e11a92e500c2ac3e1a52d192fd6c6d4d",
+   "abruf": "2026-11-22",
+   "bytes": 379
+  },
+  {
+   "id": "smard_4068_month_1672527600000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1672527600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1672527600000.json",
+   "sha256": "50fb9c2a2379262eb30b52ed0c4c0357487b921c88402bb0070cc9ff935cf134",
+   "abruf": "2026-11-22",
+   "bytes": 380
+  },
+  {
+   "id": "smard_4068_month_1704063600000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1704063600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1704063600000.json",
+   "sha256": "11f54759efee2067230b6f77bf6361e480a5e07ccefed0935d6fb81a88750b70",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_4068_month_1735686000000",
+   "url": "https://www.smard.de/app/chart_data/4068/DE/4068_DE_month_1735686000000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4068_month_1735686000000.json",
+   "sha256": "c0337fd2aaff44179ca7ca8751d05750a12c0336969a975344423e87ff2d7656",
+   "abruf": "2026-11-22",
+   "bytes": 388
+  },
+  {
+   "id": "smard_4067_month_1420066800000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1420066800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1420066800000.json",
+   "sha256": "4efae871947bde322a7e27d97529ef6d52ba08b55d613ca8ddcda0623fae93fb",
+   "abruf": "2026-11-22",
+   "bytes": 390
+  },
+  {
+   "id": "smard_4067_month_1451602800000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1451602800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1451602800000.json",
+   "sha256": "4a5aec2e48b112f24dc68b43f134647b1ce4d22e0e321e8498122002b952ae4d",
+   "abruf": "2026-11-22",
+   "bytes": 387
+  },
+  {
+   "id": "smard_4067_month_1483225200000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1483225200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1483225200000.json",
+   "sha256": "a968acc1c0c567ff081f7508721e9fafe9f633ea8e52464521dc19be9c1cb4af",
+   "abruf": "2026-11-22",
+   "bytes": 392
+  },
+  {
+   "id": "smard_4067_month_1514761200000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1514761200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1514761200000.json",
+   "sha256": "88c2d19dca0b61e0558492fff15da72e60aafc61646e688c3f068a11202cddae",
+   "abruf": "2026-11-22",
+   "bytes": 393
+  },
+  {
+   "id": "smard_4067_month_1546297200000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1546297200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1546297200000.json",
+   "sha256": "3706b69c293a9f895e81d18b4ef8e8bd199ff90b703cc2d6331db2b8b409a903",
+   "abruf": "2026-11-22",
+   "bytes": 392
+  },
+  {
+   "id": "smard_4067_month_1577833200000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1577833200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1577833200000.json",
+   "sha256": "f105f69ae94bc477ac9fb6710abfddb5c8bde6b8141ce401acad0ab9ce90ccb6",
+   "abruf": "2026-11-22",
+   "bytes": 388
+  },
+  {
+   "id": "smard_4067_month_1609455600000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1609455600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1609455600000.json",
+   "sha256": "cdac43d8fdef4c7ebedffd0e6f64e53ba587c0cb9652a750ae8a2bfc8a955324",
+   "abruf": "2026-11-22",
+   "bytes": 385
+  },
+  {
+   "id": "smard_4067_month_1640991600000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1640991600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1640991600000.json",
+   "sha256": "c0e832f4a26d328cb3080b253d39be092099a728e3edb1c81a1b492347c93709",
+   "abruf": "2026-11-22",
+   "bytes": 392
+  },
+  {
+   "id": "smard_4067_month_1672527600000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1672527600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1672527600000.json",
+   "sha256": "f931f6e3199d410b2008dcb0cc858f5671dbc6a4a6f19719b256644b2fa60076",
+   "abruf": "2026-11-22",
+   "bytes": 398
+  },
+  {
+   "id": "smard_4067_month_1704063600000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1704063600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1704063600000.json",
+   "sha256": "7bd38caffd0aae26dd4303ba05026371c19704b02237160aa8145cda6fe1cf99",
+   "abruf": "2026-11-22",
+   "bytes": 393
+  },
+  {
+   "id": "smard_4067_month_1735686000000",
+   "url": "https://www.smard.de/app/chart_data/4067/DE/4067_DE_month_1735686000000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4067_month_1735686000000.json",
+   "sha256": "c934d2e8e130849f22730984d43068d298704b90d30330dfdff3cd1e2285e795",
+   "abruf": "2026-11-22",
+   "bytes": 393
+  },
+  {
+   "id": "smard_1225_month_1420066800000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1420066800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1420066800000.json",
+   "sha256": "cdfc34126b87762cfeafb3ebed676c7c84e6ae46d0d7cf99eb7ac947c217a114",
+   "abruf": "2026-11-22",
+   "bytes": 374
+  },
+  {
+   "id": "smard_1225_month_1451602800000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1451602800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1451602800000.json",
+   "sha256": "1044bc4528d2ac9fea9b99cee572828941ccadaaa833498f316ed17ec521a06d",
+   "abruf": "2026-11-22",
+   "bytes": 379
+  },
+  {
+   "id": "smard_1225_month_1483225200000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1483225200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1483225200000.json",
+   "sha256": "bff48de514e2b754d419f44943a76d0bd0454959f7e4fb7b48a48db52f70c500",
+   "abruf": "2026-11-22",
+   "bytes": 385
+  },
+  {
+   "id": "smard_1225_month_1514761200000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1514761200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1514761200000.json",
+   "sha256": "082295993b69857be006e9573b7a34a84dc4a6a4ee982b6cb468dd0a26428efc",
+   "abruf": "2026-11-22",
+   "bytes": 385
+  },
+  {
+   "id": "smard_1225_month_1546297200000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1546297200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1546297200000.json",
+   "sha256": "9589e7236918c350af1465fd6255ae5830669bcaf7bad07ae872315cca2a047f",
+   "abruf": "2026-11-22",
+   "bytes": 379
+  },
+  {
+   "id": "smard_1225_month_1577833200000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1577833200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1577833200000.json",
+   "sha256": "ea52c6ac2d02fdbcfbf33ed084af4c1e40956784c4024c3f5bc8bba7f245ad55",
+   "abruf": "2026-11-22",
+   "bytes": 378
+  },
+  {
+   "id": "smard_1225_month_1609455600000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1609455600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1609455600000.json",
+   "sha256": "8f976197d16a2b34c1b1512e5e4523a403502e86d5df62ef0e053348f6667b6a",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_1225_month_1640991600000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1640991600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1640991600000.json",
+   "sha256": "68099769e0f0d0072507f37c75565d39ebb1c312d0b733511138a77f8ef84448",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_1225_month_1672527600000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1672527600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1672527600000.json",
+   "sha256": "4b1b52991f015f8ab4930bd7e1b2e895895d1a82a47a55b328bd0b6103d9ecf6",
+   "abruf": "2026-11-22",
+   "bytes": 379
+  },
+  {
+   "id": "smard_1225_month_1704063600000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1704063600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1704063600000.json",
+   "sha256": "5477b7e8f91823a4a2d6ac276f999f58d63187008abfbda6814d4884d1096658",
+   "abruf": "2026-11-22",
+   "bytes": 382
+  },
+  {
+   "id": "smard_1225_month_1735686000000",
+   "url": "https://www.smard.de/app/chart_data/1225/DE/1225_DE_month_1735686000000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1225_month_1735686000000.json",
+   "sha256": "2b37059cd1537d305514876679f57ff7387e3fea3a21f4e546b4a89708217216",
+   "abruf": "2026-11-22",
+   "bytes": 385
+  },
+  {
+   "id": "smard_410_month_1420066800000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1420066800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1420066800000.json",
+   "sha256": "0eab212c024bfd260baa6c3ad3f4ba1ae52145fabee448a39a69f2c9f50a059f",
+   "abruf": "2026-11-22",
+   "bytes": 419
+  },
+  {
+   "id": "smard_410_month_1451602800000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1451602800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1451602800000.json",
+   "sha256": "b1f4c41f27fa7df21ce3ce0d377de393fbe68fa3a3ff1a2f0a32e149f4c3c3eb",
+   "abruf": "2026-11-22",
+   "bytes": 421
+  },
+  {
+   "id": "smard_410_month_1483225200000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1483225200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1483225200000.json",
+   "sha256": "e3ab8f946b6afe90920f1a0059ec72f73e1a6cc7c1344b69a092519991de37c1",
+   "abruf": "2026-11-22",
+   "bytes": 422
+  },
+  {
+   "id": "smard_410_month_1514761200000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1514761200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1514761200000.json",
+   "sha256": "71fb99dd23ff7f2476387e6ef45876440a294c0ed6eec050b56bd83b6ad214b1",
+   "abruf": "2026-11-22",
+   "bytes": 422
+  },
+  {
+   "id": "smard_410_month_1546297200000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1546297200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1546297200000.json",
+   "sha256": "c6bfb9a18230ac2d3efa367ef66db2c3804fa27dbf4c25e466f710b9f19330d1",
+   "abruf": "2026-11-22",
+   "bytes": 411
+  },
+  {
+   "id": "smard_410_month_1577833200000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1577833200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1577833200000.json",
+   "sha256": "d80682dce2ebc25099a347ef0d2519bacf09bd9bc5a4bc8b15df2fcd9874f117",
+   "abruf": "2026-11-22",
+   "bytes": 413
+  },
+  {
+   "id": "smard_410_month_1609455600000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1609455600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1609455600000.json",
+   "sha256": "9e69cdd0cf76970afa730dc9694f689fdbd374c1928ad98494ec7b735ce954ac",
+   "abruf": "2026-11-22",
+   "bytes": 409
+  },
+  {
+   "id": "smard_410_month_1640991600000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1640991600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1640991600000.json",
+   "sha256": "3bcb9cb5d832110eed7f2728519f88920f963f04e59dad352be8ba3d8b0282da",
+   "abruf": "2026-11-22",
+   "bytes": 411
+  },
+  {
+   "id": "smard_410_month_1672527600000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1672527600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1672527600000.json",
+   "sha256": "afc3e97aa6cea21d7e82d2f58ff9366ac10f7bf1e1eaafe905f55b311ad8378e",
+   "abruf": "2026-11-22",
+   "bytes": 414
+  },
+  {
+   "id": "smard_410_month_1704063600000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1704063600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1704063600000.json",
+   "sha256": "fcbf32023a3e4de3cb44106ff40e429fa47be42d2d340c9fe5201d0921b9f828",
+   "abruf": "2026-11-22",
+   "bytes": 410
+  },
+  {
+   "id": "smard_410_month_1735686000000",
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_month_1735686000000.json",
+   "datei": "raw/P1-03_stromdaten/smard/410_month_1735686000000.json",
+   "sha256": "82eb40606eab2bc57409e8bacfee9e2f61fb0359b07eb8d7c4e921032ad1d3d6",
+   "abruf": "2026-11-22",
+   "bytes": 421
+  },
+  {
+   "id": "smard_4066_month_1420066800000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1420066800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1420066800000.json",
+   "sha256": "c326fd374111cef17e36f7398a7b8429f4f126b4c7c7b4003793febdac665381",
+   "abruf": "2026-11-22",
+   "bytes": 385
+  },
+  {
+   "id": "smard_4066_month_1451602800000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1451602800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1451602800000.json",
+   "sha256": "923c4c0a75b8cb98b951c5ef7358b6de95f469e633e2854ef3d5a9f470a538ce",
+   "abruf": "2026-11-22",
+   "bytes": 384
+  },
+  {
+   "id": "smard_4066_month_1483225200000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1483225200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1483225200000.json",
+   "sha256": "af4ca6d270d2890e37745770db769d28454c2ff7953a6be0729924ef9a47e896",
+   "abruf": "2026-11-22",
+   "bytes": 387
+  },
+  {
+   "id": "smard_4066_month_1514761200000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1514761200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1514761200000.json",
+   "sha256": "e2831762d02bf6cfd23c90599198f815c212f10d104c0bd1ab905460256e843c",
+   "abruf": "2026-11-22",
+   "bytes": 387
+  },
+  {
+   "id": "smard_4066_month_1546297200000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1546297200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1546297200000.json",
+   "sha256": "fa592e4466fe7249828e89c0e43939d49205c27d079930879421843abaaedf9c",
+   "abruf": "2026-11-22",
+   "bytes": 381
+  },
+  {
+   "id": "smard_4066_month_1577833200000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1577833200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1577833200000.json",
+   "sha256": "73cd956c69646d7941c05352810a4b6b031f1be3e5159f651dc421b7067278c5",
+   "abruf": "2026-11-22",
+   "bytes": 382
+  },
+  {
+   "id": "smard_4066_month_1609455600000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1609455600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1609455600000.json",
+   "sha256": "801487532f357cd6a61b2b5674600e417378221e986e3e6d6e471d1a73983366",
+   "abruf": "2026-11-22",
+   "bytes": 381
+  },
+  {
+   "id": "smard_4066_month_1640991600000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1640991600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1640991600000.json",
+   "sha256": "8d6ba580165e8bdbb0a6f08353fd9589e25ea482c4c3ee40d9ef0d54cb46f80b",
+   "abruf": "2026-11-22",
+   "bytes": 382
+  },
+  {
+   "id": "smard_4066_month_1672527600000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1672527600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1672527600000.json",
+   "sha256": "da9dee713f274939db48b734e81f7d09df1d5c57edd254d182017aabaeba7244",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_4066_month_1704063600000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1704063600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1704063600000.json",
+   "sha256": "927e207f40718ff5c086f440189282d248e5b890d59cba9a1485715f22c05a59",
+   "abruf": "2026-11-22",
+   "bytes": 380
+  },
+  {
+   "id": "smard_4066_month_1735686000000",
+   "url": "https://www.smard.de/app/chart_data/4066/DE/4066_DE_month_1735686000000.json",
+   "datei": "raw/P1-03_stromdaten/smard/4066_month_1735686000000.json",
+   "sha256": "1849ed0a1eb66bc33d478570451f91d596d973378f980999356544903f1aea8a",
+   "abruf": "2026-11-22",
+   "bytes": 384
+  },
+  {
+   "id": "smard_1226_month_1420066800000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1420066800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1420066800000.json",
+   "sha256": "6575638bf6e44caebd41953848151e439e67fbe71b978ac48694f3e40aaa809a",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_1226_month_1451602800000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1451602800000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1451602800000.json",
+   "sha256": "aa0457aaa3859a617a45b6b6ec85dde439f2e2b445fbcd58f3a7331fad68d37d",
+   "abruf": "2026-11-22",
+   "bytes": 387
+  },
+  {
+   "id": "smard_1226_month_1483225200000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1483225200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1483225200000.json",
+   "sha256": "34f95011fa2f61037a386907356540a281f2ba4ef08fe227f0a0b1f2f479572d",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_1226_month_1514761200000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1514761200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1514761200000.json",
+   "sha256": "1f2765c45e0659c2fa26dc088bf8e37f61da0d423294c5117ad9b4a62a7b1f2b",
+   "abruf": "2026-11-22",
+   "bytes": 386
+  },
+  {
+   "id": "smard_1226_month_1546297200000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1546297200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1546297200000.json",
+   "sha256": "974a637cf82626fbc94b19cb328a190edfef6d8d616897c26e1ccda42250ce97",
+   "abruf": "2026-11-22",
+   "bytes": 382
+  },
+  {
+   "id": "smard_1226_month_1577833200000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1577833200000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1577833200000.json",
+   "sha256": "8c37eef255ff7d80d5a2da555153543a0d2c537694504f1f397a36bfc818f1e9",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_1226_month_1609455600000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1609455600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1609455600000.json",
+   "sha256": "6bd2b005f8105ba61b260f36de2ee288e275d4e92cd06fcced008cfa1ca209f9",
+   "abruf": "2026-11-22",
+   "bytes": 376
+  },
+  {
+   "id": "smard_1226_month_1640991600000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1640991600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1640991600000.json",
+   "sha256": "7c982bab405f30d39c890d3066498b0bd876ff2ff26a4e27f1313b7d3e4a3b96",
+   "abruf": "2026-11-22",
+   "bytes": 375
+  },
+  {
+   "id": "smard_1226_month_1672527600000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1672527600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1672527600000.json",
+   "sha256": "7f445d293475ae28c0fcdb66f65c8f6c510e8bd8951db7fb9eb4fe0af6766565",
+   "abruf": "2026-11-22",
+   "bytes": 378
+  },
+  {
+   "id": "smard_1226_month_1704063600000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1704063600000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1704063600000.json",
+   "sha256": "be12b10735c93885e00177b88072fd3b34e4ac86a84abf730d5373e61a90c166",
+   "abruf": "2026-11-22",
+   "bytes": 383
+  },
+  {
+   "id": "smard_1226_month_1735686000000",
+   "url": "https://www.smard.de/app/chart_data/1226/DE/1226_DE_month_1735686000000.json",
+   "datei": "raw/P1-03_stromdaten/smard/1226_month_1735686000000.json",
+   "sha256": "941235789079dc166a04b080c6530f7c8832804e7cbde74b94a12b76b364f877",
+   "abruf": "2026-11-22",
+   "bytes": 384
+  }
+ ]
+}

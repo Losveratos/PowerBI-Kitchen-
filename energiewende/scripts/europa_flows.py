@@ -28,9 +28,14 @@ for kind in ("cbpf", "cbet"):
                 "netto_import_TWh": round(imp - exp, 2),
                 "max_import_GW_h": round(max(hm), 2), "max_export_GW_h": round(-min(hm), 2),
                 "fehlende_werte": nmiss, "punkte": len(v)}
+# Brutto je Grenze aufsummiert (Import/Export je Grenze und 15-min-Schritt, dann über Grenzen summiert)
+for kind in res:
+    for y, cs in res[kind].items():
+        i = sum(v["import_TWh"] for n, v in cs.items() if n != "sum")
+        e = sum(v["export_TWh"] for n, v in cs.items() if n != "sum")
+        cs["_summe_je_grenze"] = {"import_TWh": round(i, 2), "export_TWh": round(e, 2), "netto_import_TWh": round(i - e, 2)}
 json.dump(res, open(out, "w"), ensure_ascii=False, indent=1)
 for kind in res:
     print(kind)
     for y, cs in res[kind].items():
-        s = cs["sum"]
-        print(y, s)
+        print(y, cs["sum"], cs["_summe_je_grenze"])

@@ -1,0 +1,130 @@
+{
+  "hinweis": "Manifest Auftrag P1-09 (Referenzpfade). Fremde Dokumente werden nicht gespiegelt; Dateien liegen in quellen/raw/P1-09/ (nicht im Repo). Alle Abrufe am 2026-11-22 per curl von freigegebenen Hosts.",
+  "eintraege": [
+    {
+      "id": "bt_hib_658_2026",
+      "titel": "hib 658/2026: Bundesregierung äußert sich zum Stand des AKW-Rückbaus (Antwort auf Kleine Anfrage der AfD, Drs. 21/7609)",
+      "url": "https://www.bundestag.de/presse/hib/kurzmeldungen-1205752",
+      "datei": "raw/P1-09/bt_hib_1205752_rueckbau.html",
+      "sha256": "d6f629b0d34bdb9136717c43281b5ccf946e156b494652a8150384cce9943299",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bt_kw12_2026",
+      "titel": "Textarchiv: Forderung nach Wiedereinstieg in die Kernkraft beraten (Debatte 19.03.2026, Antrag 21/4749)",
+      "url": "https://www.bundestag.de/dokumente/textarchiv/2026/kw12-de-kernkraftausstieg-1156112",
+      "datei": "raw/P1-09/bt_kw12_kernkraft.html",
+      "sha256": "ec5e45a07cc27087e63d7003a84790047859d4b61419d191d10cf58fefdb602a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "cleanthinking_gundremmingen",
+      "titel": "Nach Sprengung: Warum Gundremmingen nie wieder läuft (Cleanthinking, aktualisiert Dez. 2025)",
+      "url": "https://www.cleanthinking.de/akw-grundremmingen-sprengung-kuehltuerme/",
+      "datei": "raw/P1-09/cleanthinking_gundremmingen.html",
+      "sha256": "6259dfe465745deb30858fec947ef4ae9f9bcab44370e0501062a8fe111fd998",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wd8_077_22",
+      "titel": "WD 8 - 3000 - 077/22: Rechtliche Einzelfragen zum Weiterbetrieb der AKWs Isar 2, Emsland und Neckarwestheim 2 (07.11.2022)",
+      "url": "https://www.bundestag.de/resource/blob/926434/WD-8-077-22-pdf.pdf",
+      "datei": "raw/P1-09/WD-8-077-22.pdf",
+      "sha256": "d631f816488fb29810bb2eab0885d29b851ab97aa873152cb34e7a2cc041e42c",
+      "abruf": "2026-11-22",
+      "seiten": 14,
+      "bemerkung": "geladen, nur Inhaltsverzeichnis gelesen; betrifft Streckbetrieb 2022, im Dossier nicht verwendet"
+    },
+    {
+      "id": "uba_2019_lng",
+      "titel": "UBA Climate Change 21/2019: Kurzstudie zur Bewertung der Vorkettenemissionen bei Nutzung von verflüssigtem Erdgas (LNG)",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/1410/publikationen/2019-05-15_cc_21-2019_roadmap-gas_lng.pdf",
+      "datei": "raw/P1-09/uba_2019_lng_vorkette.pdf",
+      "sha256": "1bd4aebc33eaa166a10a44e5c2eed0b55c97acff1f5b35c2f140604c9e374e56",
+      "abruf": "2026-11-22",
+      "seiten": 32
+    },
+    {
+      "id": "uba_klimakosten_2026",
+      "titel": "UBA-Empfehlung zu den Klimakosten (Tabelle, Stand 06.07.2026; Handbuch Umweltkosten – Methodenkonvention 4.0)",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/6_Tab_UBA-Empfehlung-Klimakosten_2026-07-06_1.pdf",
+      "datei": "raw/P1-09/uba_klimakosten_2026-07-06_1.pdf",
+      "sha256": "58a6c8fa1ebc15314b9e868ae61bcd261ad990cbd76d12a0c425ab6b6cf34c53",
+      "abruf": "2026-11-22",
+      "seiten": 1
+    },
+    {
+      "id": "uba_cc28_2022",
+      "titel": "UBA Climate Change 28/2022: CO2-Emissionsfaktoren für fossile Brennstoffe, Aktualisierung 2022 (Tabelle 20 überarbeitet Feb. 2025)",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/11850/publikationen/28_2022_cc.pdf",
+      "datei": "raw/P1-09/uba_28_2022_emissionsfaktoren.pdf",
+      "sha256": "a7561620e93593de33091c9ac758ae8a2357db44c08713753cbf97701ef4cab3",
+      "abruf": "2026-11-22",
+      "seiten": 52
+    },
+    {
+      "id": "bt_hib_228_2026",
+      "titel": "hib 228/2026: Wasserhaushaltsgesetz verbietet Fracking in Deutschland (Antwort der Bundesregierung)",
+      "url": "https://www.bundestag.de/presse/hib/kurzmeldungen-1157378",
+      "datei": "raw/P1-09/bt_hib_1157378_fracking.html",
+      "sha256": "4660d23a3332a452cccff8e08e3dd6eef06992ca029b88ef07f7097117545c63",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bnetza_gas_2025",
+      "titel": "Bundesnetzagentur: Rückblick Gasversorgung im Jahr 2025",
+      "url": "https://www.bundesnetzagentur.de/DE/Gasversorgung/a_2025/start.html",
+      "datei": "raw/P1-09/bnetza_gas_rueckblick_2025.html",
+      "sha256": "b80ccb5577d2449f9e6fada112afe750d79dcbd311c8652066939ca9980b3ead",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ec_qanda_26_667",
+      "titel": "European Commission QANDA/26/667: Questions and answers on the EU ETS Market Stability Reserve (01.04.2026)",
+      "url": "https://ec.europa.eu/commission/presscorner/api/documents?reference=QANDA/26/667&language=en",
+      "datei": "raw/P1-09/ec_qanda_26_667.json",
+      "sha256": "397e900cc1c493c3176334e0ffa5a1d47d4a08a0a212998aa9c40bac438d998e",
+      "abruf": "2026-11-22",
+      "bemerkung": "JSON-Schnittstelle der Seite https://ec.europa.eu/commission/presscorner/detail/en/qanda_26_667"
+    },
+    {
+      "id": "ariadne_2021_co2preise",
+      "titel": "Ariadne-Hintergrund: Notwendige CO2-Preise zum Erreichen des europäischen Klimaziels 2030 (Nov. 2021)",
+      "url": "https://ariadneprojekt.de/publikation/notwendige-co2-preise-zum-erreichen-des-europaeischen-klimaziels-2030/",
+      "datei": "raw/P1-09/ariadne_co2preise_2030_page.html",
+      "sha256": "35d80bea67c15888c9239aa101a306fd6fe8538e9f318d97f73a2a99cb2bb225",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_cc44_2025",
+      "titel": "UBA Climate Change 44/2025: Analysen zur CO2-Bepreisung im Gebäude- und Verkehrssektor (Öko-Institut)",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/11850/publikationen/44_2025_cc_0.pdf",
+      "datei": "raw/P1-09/uba_44_2025_co2preis_gebaeude.pdf",
+      "sha256": "18d4901b7fded66fba056d7b908ed16784cb377f51c2592e6a3dad0e61bf822b",
+      "abruf": "2026-11-22",
+      "seiten": 14
+    },
+    {
+      "id": "uba_rahmendaten_2025",
+      "titel": "UBA: Rahmendaten für die Treibhausgas-Projektionen 2025 (Prognos u. a.)",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/11850/publikationen/2025_rahmendatenpapier_bf.pdf",
+      "datei": "raw/P1-09/uba_rahmendaten_projektionen_2025.pdf",
+      "sha256": "ec9ed30e091fbfe2cb91bed762152319060f8bb42e911deb580068c7588d6bfc",
+      "abruf": "2026-11-22",
+      "seiten": 43
+    },
+    {
+      "id": "uba_cc18_2022_annexb",
+      "titel": "UBA Climate Change 18/2022, Annex B: Ausgleich der Auswirkungen der Beendigung der Kohleverstromung auf den EU-Emissionshandel (Öko-Institut)",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/479/publikationen/cc_18-2022_annex_b.pdf",
+      "datei": "raw/P1-09/uba_cc18_2022_annex_b.pdf",
+      "sha256": "e7dd871b785234da760bcb3c8fc4bedac2fa23d5051ec57420d7aa38d15b8d3d",
+      "abruf": "2026-11-22",
+      "seiten": 35
+    }
+  ],
+  "fehlgeschlagen": [
+    {"url": "https://umweltbundesamt.de/sites/default/files/medien/3630/bilder/dateien/7_tab_emissionsfaktoren_2024-12-17_1.pdf", "ergebnis": "Proxy 403 (Host ohne www nicht freigegeben); mit www: HTTP 404. Ersatz: uba_cc28_2022."},
+    {"url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/6_Tab_UBA-Empfehlung-Klimakosten_2026-07-06.pdf", "ergebnis": "HTTP 403 (Fehlerseite), Datei gelöscht. Ersatz: Variante _1 (gleiche Tabelle)."}
+  ]
+}

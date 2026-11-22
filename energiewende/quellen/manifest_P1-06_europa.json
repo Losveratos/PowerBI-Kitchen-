@@ -1,0 +1,691 @@
+{
+ "hinweis": "Manifest P1-06 Europa. Rohdaten unter data/raw/ und quellen/raw/ sind von Git ausgenommen. Energy-Charts-Daten: Fraunhofer ISE, CC BY 4.0 (Preise: Bundesnetzagentur | SMARD.de, CC BY 4.0). Eurostat: Nutzung frei mit Quellenangabe.",
+ "eintraege": [
+  {
+   "id": "nep_2037_2045_v2025_2_kap2",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-03/NEP_2037_2045_V2025_2_Entwurf_Kap2.pdf",
+   "datei": "quellen/raw/P1-06_europa/NEP_V2025_2_Kap2.pdf",
+   "sha256": "9c08be7f0303d0ce06ded6f14f86e1204c10c6c7feb20d3ce668c6b8e137ce17",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "nep_2037_2045_v2025_2_kap3",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-03/NEP_2037_2045_V2025_2_Entwurf_Kap3.pdf",
+   "datei": "quellen/raw/P1-06_europa/NEP_V2025_2_Kap3.pdf",
+   "sha256": "5b5d7989cc679ea930540e3bbc304ab8567609964fa72d3ef9317b72a1a07d50",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "nep_2037_2045_v2025_2_kap7",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-03/NEP_2037_2045_V2025_2_Entwurf_Kap7.pdf",
+   "datei": "quellen/raw/P1-06_europa/NEP_V2025_2_Kap7.pdf",
+   "sha256": "e58c5e2f26771fd0b9b53b778ebf7ee3f515acfcf15e05f046780ae6cdff1fbc",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "bnetza_genehmigung_szenariorahmen_2025",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2025-04/Genehmigung%20Szenariorahmen%202025_0.pdf",
+   "datei": "quellen/raw/P1-06_europa/Genehmigung_Szenariorahmen_2025.pdf",
+   "sha256": "ff1feac651f76d0687bec4a2ecde678eab05d72cda884252fa14b1c43031b083",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "szenariorahmen_nep_2040_2045_v2027",
+   "url": "https://www.netzentwicklungsplan.de/sites/default/files/2026-07/Szenariorahmen_zum_NEP_2040_2045_Version_2027_.pdf",
+   "datei": "quellen/raw/P1-06_europa/Szenariorahmen_NEP2040_2045_V2027.pdf",
+   "sha256": "02c6d6ff76131882a691240dfa4f33907781c81a615b9db209c8567124a2dafe",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "eurostat_nrg_cb_e",
+   "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_cb_e?format=JSON&lang=EN&geo=DE&geo=FR&geo=PL&geo=NL&geo=AT&geo=BE&geo=CZ&geo=DK&geo=SE&geo=CH&geo=NO&geo=EU27_2020&nrg_bal=IMP&nrg_bal=EXP&nrg_bal=GEP&unit=GWH&time=2024&time=2023&time=2022&time=2021&time=2020&time=2019",
+   "datei": "quellen/raw/P1-06_europa/eurostat_nrg_cb_e.json",
+   "sha256": "6c46435f119dabae604517f1187ceac32b28a9279753cde71ae9ecb56cb81351",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ember_european_electricity_review_2025",
+   "url": "https://ember-energy.org/latest-insights/european-electricity-review-2025/",
+   "datei": "quellen/raw/P1-06_europa/ember_eu.html",
+   "sha256": "5a29bfce3f7b8b19f83069f2c0424dca8bc2442e8c457f4581796df6559a0204",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "energy_charts_openapi",
+   "url": "https://api.energy-charts.info/openapi.json",
+   "datei": "quellen/raw/P1-06_europa/ec_openapi.json",
+   "sha256": "523d3ec0fd82a7f148a94c02ffc08e8251c231d74e74b6019978af1e64b610d4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2018",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2018-01-01&end=2018-12-31",
+   "datei": "data/raw/europa/cbet_de_2018.json",
+   "sha256": "2f99a9462243db9d6e51e6d6aae299efbae23696fd60b1ac64c8f64c5bac876a",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2019",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2019-01-01&end=2019-12-31",
+   "datei": "data/raw/europa/cbet_de_2019.json",
+   "sha256": "65187fea4203a88ee8296fc047f90112574096b4c318a7a78320c85066e6c009",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2020",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2020-01-01&end=2020-12-31",
+   "datei": "data/raw/europa/cbet_de_2020.json",
+   "sha256": "f2f99e0af21ca53154cd19c597d70dac8732843668b7c3d580338d36b11ddfb8",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2021",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2021-01-01&end=2021-12-31",
+   "datei": "data/raw/europa/cbet_de_2021.json",
+   "sha256": "93cf6782f1831123c05074a5496891ed62c2d57df1696e065facc5b10dcc0c3f",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2022",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2022-01-01&end=2022-12-31",
+   "datei": "data/raw/europa/cbet_de_2022.json",
+   "sha256": "944a5ac852f8f271b66a9d0f20e99d6696c037d34334e53e6f0fa87ba487c398",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2023",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/cbet_de_2023.json",
+   "sha256": "2feb200810b95d27ef5250ee73ac5770fce0319a8e91bf007057b9f4d6a939aa",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2024",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/cbet_de_2024.json",
+   "sha256": "eb6e2843e16c9c940dee752f4d4a0d16253ef321747e8b1577dc9a1577c62f13",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbet_de_2025",
+   "url": "https://api.energy-charts.info/cbet?country=de&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/cbet_de_2025.json",
+   "sha256": "f1e29cd82fdec0c54cf0ecff3fcc520d8cb5a8441e69c1da1d0758aaa998720b",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2015",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2015-01-01&end=2015-12-31",
+   "datei": "data/raw/europa/cbpf_de_2015.json",
+   "sha256": "255ab36220666dbdf5b78c9d6ca74d1ba360a79b41fdf5977b08f5317e4a80a9",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2016",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2016-01-01&end=2016-12-31",
+   "datei": "data/raw/europa/cbpf_de_2016.json",
+   "sha256": "8d1565188bc6bc1f1c6f563516fbe177faaf35a649f41c0336fea8943d7b63d5",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2017",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2017-01-01&end=2017-12-31",
+   "datei": "data/raw/europa/cbpf_de_2017.json",
+   "sha256": "cab79fd540943b7fecadbfb7e1fb817cfe34c6fd6f01a76733c96c21baabd73b",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2018",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2018-01-01&end=2018-12-31",
+   "datei": "data/raw/europa/cbpf_de_2018.json",
+   "sha256": "7c55c30a2df9be33259a81f6e76aeca09fefb80d24e62654cca6406399325152",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2019",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2019-01-01&end=2019-12-31",
+   "datei": "data/raw/europa/cbpf_de_2019.json",
+   "sha256": "1da4cab393d5b1f5997ff09382ebabd50cd687daec23b7c618b4c9e3e2aa4d3f",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2020",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2020-01-01&end=2020-12-31",
+   "datei": "data/raw/europa/cbpf_de_2020.json",
+   "sha256": "8b284bf13b6e03191fd468096f0ade3551c7670fdb8be590ced0be9d1dd5af12",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2021",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2021-01-01&end=2021-12-31",
+   "datei": "data/raw/europa/cbpf_de_2021.json",
+   "sha256": "b257d8f0e260212d90d9d50e83c6e5513e5996653399df5340a685b4fec89ae7",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2022",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2022-01-01&end=2022-12-31",
+   "datei": "data/raw/europa/cbpf_de_2022.json",
+   "sha256": "c446c3889a9b6a8cb44985e8d9a166e4bdcce009619decd71720088f803945c3",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2023",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/cbpf_de_2023.json",
+   "sha256": "0a12c1b4b2004633ac150ee5567745b78f351a1b7cd69550a557285a3d43c670",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2024",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/cbpf_de_2024.json",
+   "sha256": "99c3eb1d647b5cb47b4351833e30985586b9ccb5cf71e4e4a38c142b63bd9c45",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_cbpf_de_2025",
+   "url": "https://api.energy-charts.info/cbpf?country=de&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/cbpf_de_2025.json",
+   "sha256": "c9d5b71ab6f9089a63950e5609b7fa00adf1e71fc45f99506279bb018c4d0ec4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_at",
+   "url": "https://api.energy-charts.info/installed_power?country=at&time_step=yearly",
+   "datei": "data/raw/europa/inst_at.json",
+   "sha256": "ac39e150f399bad613588f8c869f4423daf33b1815854472fb6a1c3b5be70bcd",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_be",
+   "url": "https://api.energy-charts.info/installed_power?country=be&time_step=yearly",
+   "datei": "data/raw/europa/inst_be.json",
+   "sha256": "bd88e483e4a891d11b01771d5399178c2d16b52ace325b3f1a6604ff8ab88d0c",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_ch",
+   "url": "https://api.energy-charts.info/installed_power?country=ch&time_step=yearly",
+   "datei": "data/raw/europa/inst_ch.json",
+   "sha256": "32cf331a7e3ad739a2d6c719a26b2aa668b8954bedf150e6514073dc40ff32f2",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_cz",
+   "url": "https://api.energy-charts.info/installed_power?country=cz&time_step=yearly",
+   "datei": "data/raw/europa/inst_cz.json",
+   "sha256": "e79b6b53f85e1536423d94e4bd06fae394c3bedd66be253f2a582ffa1a7d58fb",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_de",
+   "url": "https://api.energy-charts.info/installed_power?country=de&time_step=yearly",
+   "datei": "data/raw/europa/inst_de.json",
+   "sha256": "8453c07d6df17d99ad874204b4aea20358f73ef2a8c29167244a4c6de170157c",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_dk",
+   "url": "https://api.energy-charts.info/installed_power?country=dk&time_step=yearly",
+   "datei": "data/raw/europa/inst_dk.json",
+   "sha256": "74b9083abfeef92b23df83502bcdab4b34b1b96894df7da383247ac734371d34",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_fr",
+   "url": "https://api.energy-charts.info/installed_power?country=fr&time_step=yearly",
+   "datei": "data/raw/europa/inst_fr.json",
+   "sha256": "11bd7d270b3cd37e3cad015cb3deebc5a04ed046daf9df69e737d4bae9f803ee",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_nl",
+   "url": "https://api.energy-charts.info/installed_power?country=nl&time_step=yearly",
+   "datei": "data/raw/europa/inst_nl.json",
+   "sha256": "351a96fcbb37e1fdc61b640c03a61927ef3079d750c00ea73069eb407b2427c8",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_no",
+   "url": "https://api.energy-charts.info/installed_power?country=no&time_step=yearly",
+   "datei": "data/raw/europa/inst_no.json",
+   "sha256": "ff52c00009405ce6e32520d6a036407167e7a49b46a0af02407ad40167537d94",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_pl",
+   "url": "https://api.energy-charts.info/installed_power?country=pl&time_step=yearly",
+   "datei": "data/raw/europa/inst_pl.json",
+   "sha256": "b3386edb6d45c10930d8b0ae0de4c56421975e2c29ef8e981ed811a4d39c5f24",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_inst_se",
+   "url": "https://api.energy-charts.info/installed_power?country=se&time_step=yearly",
+   "datei": "data/raw/europa/inst_se.json",
+   "sha256": "f48af2269a5b2cbcc8fc03862a1d0f070f5bdf9c8fcfb05ffe22ffa152139f55",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_at_2023",
+   "url": "https://api.energy-charts.info/public_power?country=at&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_at_2023.json",
+   "sha256": "0850ed109fd3253db5273d75146fadc3d19d6ad33570fae580bfa63fb4e05d21",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_at_2024",
+   "url": "https://api.energy-charts.info/public_power?country=at&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_at_2024.json",
+   "sha256": "4d0ab76888e44e6a571025496832f81503abd9c5ba24e24346437ae65794cd05",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_be_2023",
+   "url": "https://api.energy-charts.info/public_power?country=be&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_be_2023.json",
+   "sha256": "6b3f9850f728ba734405223930038fbe51db5c362b01bad61b3980a743e8fbf7",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_be_2024",
+   "url": "https://api.energy-charts.info/public_power?country=be&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_be_2024.json",
+   "sha256": "229f9a44e9236b3d9a08060b847ee0d8d7b3b6a6cd6800ffe4bcce49a1b2b23b",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_ch_2023",
+   "url": "https://api.energy-charts.info/public_power?country=ch&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_ch_2023.json",
+   "sha256": "816843428672493fb997b380152adbe9562134da20f015c54f1d6bfa96c106c2",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_ch_2024",
+   "url": "https://api.energy-charts.info/public_power?country=ch&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_ch_2024.json",
+   "sha256": "e381a03242fc68390dea75a0ab6a3f4703ac403ba1d8a90e42e89a8e8fbd8d4c",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_cz_2023",
+   "url": "https://api.energy-charts.info/public_power?country=cz&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_cz_2023.json",
+   "sha256": "3af8304d6988ea0cdc53358264f811ca64040b6f481896fcc5cd04e3f354a7bb",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_cz_2024",
+   "url": "https://api.energy-charts.info/public_power?country=cz&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_cz_2024.json",
+   "sha256": "904a1f28a46c6e3bba322a948df4d02d10cc9c60aeed27d377bb1cf437041ebd",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_de_2023",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_de_2023.json",
+   "sha256": "d137d55084d079be3a7bf14e29661af0a79e02feb328387b82271ce70ce28cb4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_de_2024",
+   "url": "https://api.energy-charts.info/public_power?country=de&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_de_2024.json",
+   "sha256": "54d5e2e74bf980c4b4334aef3aeeb4dd2d39c7747795444b18bdd58c7e2385cd",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_dk_2023",
+   "url": "https://api.energy-charts.info/public_power?country=dk&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_dk_2023.json",
+   "sha256": "619b0cd4cf4c642ac1148cb50fb7fcf8c8e9c620309006eda2c77d6a9057dc7b",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_dk_2024",
+   "url": "https://api.energy-charts.info/public_power?country=dk&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_dk_2024.json",
+   "sha256": "62ea3d8de22760a01b0c6506dd7acd2a1730ddfaa5a154e4195bdf61167d65cc",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_fr_2023",
+   "url": "https://api.energy-charts.info/public_power?country=fr&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_fr_2023.json",
+   "sha256": "36fda62ffc907959747fb2bcb1dccc0c8088b281b73394dff0799b1cd809e1c4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_fr_2024",
+   "url": "https://api.energy-charts.info/public_power?country=fr&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_fr_2024.json",
+   "sha256": "114a0380c08489350bbfd8d7cc7c9fa968edd7d4409ad288daba8d1a2c12a165",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_nl_2023",
+   "url": "https://api.energy-charts.info/public_power?country=nl&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_nl_2023.json",
+   "sha256": "f8663452293eb791cd7ffe2ae2952c9085a1c66f84d6f674f77b74a417b8d636",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_nl_2024",
+   "url": "https://api.energy-charts.info/public_power?country=nl&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_nl_2024.json",
+   "sha256": "df8edc691cd56b53c5899f4a1b25556a0c0657b091cc09ad4ea6b8f0423fb6b7",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_no_2023",
+   "url": "https://api.energy-charts.info/public_power?country=no&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_no_2023.json",
+   "sha256": "1fc28f1cd894d5e182071241cd16825dbcb9b8aa6c2f632cb1802f0a6a5ee588",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_no_2024",
+   "url": "https://api.energy-charts.info/public_power?country=no&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_no_2024.json",
+   "sha256": "2281adb83aaa7c0c69d3b58f9983554b6e0cffe7c5e12e1ad58d60432e2a7b86",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_pl_2023",
+   "url": "https://api.energy-charts.info/public_power?country=pl&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_pl_2023.json",
+   "sha256": "d7e2624ce3ac8a08e1b6ef37a4c0444ef1df5515edd98fa2a2298a50bf91d8e8",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_pl_2024",
+   "url": "https://api.energy-charts.info/public_power?country=pl&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_pl_2024.json",
+   "sha256": "301d1622aad47dbb4b6ed07987d0a4b082a09433bc842429cd0ec89a20dc81b4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_se_2023",
+   "url": "https://api.energy-charts.info/public_power?country=se&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/pp_se_2023.json",
+   "sha256": "e1a050bb7d0b3186c75635386644226a6b8d7f7a8c4dcb0acd9b6c76aa7e4095",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_pp_se_2024",
+   "url": "https://api.energy-charts.info/public_power?country=se&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/pp_se_2024.json",
+   "sha256": "38ce62d951fab4f0c1a03c6a4387de2d3a1da09cf66b909a5d577f06ea45b643",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_AT_2023",
+   "url": "https://api.energy-charts.info/price?bzn=AT&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_AT_2023.json",
+   "sha256": "4be67c4353f23273cdc4001bbc958f894b992f0d702c9578430bc3a920967d2f",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_AT_2024",
+   "url": "https://api.energy-charts.info/price?bzn=AT&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_AT_2024.json",
+   "sha256": "96a4c59781765b222e3bdaeb0839410d0183dc01efd31b666b91c53c334ba8bb",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_AT_2025",
+   "url": "https://api.energy-charts.info/price?bzn=AT&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_AT_2025.json",
+   "sha256": "70f59a432bb721005b9697a386cc36a26135592b2d114b718461d3471556443d",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_BE_2023",
+   "url": "https://api.energy-charts.info/price?bzn=BE&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_BE_2023.json",
+   "sha256": "a7728e2840d9ef39764d18b9808636d84d0792d04f482a125579400b419e1d37",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_BE_2024",
+   "url": "https://api.energy-charts.info/price?bzn=BE&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_BE_2024.json",
+   "sha256": "50a8424268f4ba802a3597a17f6727be5a445717507f917a2b45b23c5e956288",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_BE_2025",
+   "url": "https://api.energy-charts.info/price?bzn=BE&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_BE_2025.json",
+   "sha256": "66c92478f614ecc6b3e4df0d07c8c54a789a6d88e2eab8eee8a81b59bd768c97",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_CH_2023",
+   "url": "https://api.energy-charts.info/price?bzn=CH&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_CH_2023.json",
+   "sha256": "193cf98fae72fd03d72377698993cb93fc0d3affef11de21338218120d9c999d",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_CH_2024",
+   "url": "https://api.energy-charts.info/price?bzn=CH&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_CH_2024.json",
+   "sha256": "c8c9a150d638583864b3130213c9953ba45530e5f4f0d3f15fb861b41a188b4c",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_CH_2025",
+   "url": "https://api.energy-charts.info/price?bzn=CH&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_CH_2025.json",
+   "sha256": "bcca228f89b679dbbc9acdfd1ba2fcd9d482d033406a2bd22e429dec2e582355",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_CZ_2023",
+   "url": "https://api.energy-charts.info/price?bzn=CZ&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_CZ_2023.json",
+   "sha256": "1747707344f40f929bf8912920bb6b20f5f59d7aa0be1438a5927e1e4eae35f4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_CZ_2024",
+   "url": "https://api.energy-charts.info/price?bzn=CZ&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_CZ_2024.json",
+   "sha256": "613d323da630de3f4e9188164aea808e92a428e2150a6bdf6e03a90e8b527dee",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_CZ_2025",
+   "url": "https://api.energy-charts.info/price?bzn=CZ&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_CZ_2025.json",
+   "sha256": "7bbd4c08703fb3d76554b3fee346feb37159f8355e55c42dc6df3a00e6f47c26",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2018",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2018-01-01&end=2018-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2018.json",
+   "sha256": "4e0e4b94b119cb6865ba47dd45cf69034c045abb9a905b6b4377d6ebcd1292bb",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2019",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2019-01-01&end=2019-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2019.json",
+   "sha256": "e20e3a8079b25e942040d7e387696fcfda4a0fcd05d523fcae58b8fcb5bd8f6f",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2020",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2020-01-01&end=2020-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2020.json",
+   "sha256": "7c04edadff402e1963b73c1a17e181b929be4714ad2747024c500a4580aa58ef",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2021",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2021-01-01&end=2021-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2021.json",
+   "sha256": "0c787301f45f146874a25eba5e6755522cce6e239777ebc68f9bf39e2dca9800",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2022",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2022-01-01&end=2022-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2022.json",
+   "sha256": "98a75a415e1e885bc815568bfaf441e74121072fd3ef423f8c14e7b994252a25",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2023",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2023.json",
+   "sha256": "3f8b1d9620a02a83ed86a1d37f5b8dccc2999f3b4a88f4d67b2e5d876201840b",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2024",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2024.json",
+   "sha256": "50e26375364124d9e863beea8f459966806d7a5ac33e5282680c02cf7f92e863",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DE-LU_2025",
+   "url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_DE-LU_2025.json",
+   "sha256": "6027e994c2e73fc1aec3b9a226a027676349e0d5c47957995b63a1ff35a7404a",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DK1_2023",
+   "url": "https://api.energy-charts.info/price?bzn=DK1&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_DK1_2023.json",
+   "sha256": "8ed5e1b3ac868b285f58bec76878e31f34a6b9ce0b53c6231aeb2f350df32e2f",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DK1_2024",
+   "url": "https://api.energy-charts.info/price?bzn=DK1&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_DK1_2024.json",
+   "sha256": "95f75bd3f85a68daf8b284e432db0667a2266ff48096a196153a26d83d558209",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_DK1_2025",
+   "url": "https://api.energy-charts.info/price?bzn=DK1&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_DK1_2025.json",
+   "sha256": "1f4cf3359fc9370381bfd21f1d98a8cb11ae09b65bc780c33ca131055e94dd39",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_FR_2023",
+   "url": "https://api.energy-charts.info/price?bzn=FR&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_FR_2023.json",
+   "sha256": "ed44a94ea3ae23fc217e560bf603c87bd1e80cb57cfb50fc727fa3e50bbbbb12",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_FR_2024",
+   "url": "https://api.energy-charts.info/price?bzn=FR&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_FR_2024.json",
+   "sha256": "455cd446ac1bc75b1d27bf625f8a70fc754cd11fb5ccd8eabfbf5f95dad9b29b",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_FR_2025",
+   "url": "https://api.energy-charts.info/price?bzn=FR&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_FR_2025.json",
+   "sha256": "7433475e219dcc495b66d3a4d00826694661e265c70dc956c122879c21bd6018",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_NL_2023",
+   "url": "https://api.energy-charts.info/price?bzn=NL&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_NL_2023.json",
+   "sha256": "6e5274bda72335e35db5b5a31cc32561008508fee52b1d84c573745a6d06371c",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_NL_2024",
+   "url": "https://api.energy-charts.info/price?bzn=NL&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_NL_2024.json",
+   "sha256": "4e2189e7919f33f17f79a4ef69f398a83b337778f5fac3c723694529d71d6bb4",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_NL_2025",
+   "url": "https://api.energy-charts.info/price?bzn=NL&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_NL_2025.json",
+   "sha256": "7a344f48a7efa3989ab5943b3bb73940100fc27f1d410051fdaf664d625c303a",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_NO2_2023",
+   "url": "https://api.energy-charts.info/price?bzn=NO2&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_NO2_2023.json",
+   "sha256": "83e31fb19e6b5e5516c35748cfa0f1b8f57c4d59afafe52ae4e76b7dd86493a0",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_NO2_2024",
+   "url": "https://api.energy-charts.info/price?bzn=NO2&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_NO2_2024.json",
+   "sha256": "1d044c050d641f6dd93b93ed0890d5bb2d117bac830a840182173153bc6b4df5",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_NO2_2025",
+   "url": "https://api.energy-charts.info/price?bzn=NO2&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_NO2_2025.json",
+   "sha256": "fcb3811470656bd4bccae89b0e1ba714fb21db7ed1209f21510855c19daebe0f",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_PL_2023",
+   "url": "https://api.energy-charts.info/price?bzn=PL&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_PL_2023.json",
+   "sha256": "ff51726e02624edc24e1e9cbfed3c1ae94a28032663001a17c20c3fee134e28d",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_PL_2024",
+   "url": "https://api.energy-charts.info/price?bzn=PL&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_PL_2024.json",
+   "sha256": "5a7b71844d69cab4096af2670d6b0166d0ba96f90a00236b0f996f99477eb47c",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_PL_2025",
+   "url": "https://api.energy-charts.info/price?bzn=PL&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_PL_2025.json",
+   "sha256": "dfb17f884a70e5fc779146117dd962936e5d57c0bfaf959132a71668248e66b0",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_SE4_2023",
+   "url": "https://api.energy-charts.info/price?bzn=SE4&start=2023-01-01&end=2023-12-31",
+   "datei": "data/raw/europa/price_SE4_2023.json",
+   "sha256": "26218674af8ed26addee2ef9e6fdce630bf5b03981a7f14c183ef200b032d16a",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_SE4_2024",
+   "url": "https://api.energy-charts.info/price?bzn=SE4&start=2024-01-01&end=2024-12-31",
+   "datei": "data/raw/europa/price_SE4_2024.json",
+   "sha256": "2e9335b46b1cf863237c1eeb7ff14577386317db94db2f4a2f82af32645457c8",
+   "abruf": "2026-11-22"
+  },
+  {
+   "id": "ec_price_SE4_2025",
+   "url": "https://api.energy-charts.info/price?bzn=SE4&start=2025-01-01&end=2025-12-31",
+   "datei": "data/raw/europa/price_SE4_2025.json",
+   "sha256": "09c31aa4b136230cb9233d776b1147c8eee23af9b5fb60721c84459ba3eeac5a",
+   "abruf": "2026-11-22"
+  }
+ ]
+}
