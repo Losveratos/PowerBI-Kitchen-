@@ -237,6 +237,18 @@ a:hover .pic img{transform:scale(1.03)}
 .about-cta a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
 .about-cta a:hover{color:var(--accent)}
 .msearch{display:none}
+/* ---------- Ressort-Front beim Filtern (Newsroom) ---------- */
+.cat-head{padding:4px 0 16px;margin-bottom:22px;border-bottom:3px solid var(--rc)}
+.cat-eyebrow{display:block;font-size:12px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--rc)}
+.cat-head h2{font-size:clamp(2rem,4.4vw,3.1rem);font-weight:800;letter-spacing:-.04em;line-height:1.04;margin-top:4px}
+.cat-row{display:flex;justify-content:space-between;align-items:center;gap:10px 16px;flex-wrap:wrap;margin-top:10px}
+.cat-row .active-filter{margin-top:0;min-height:0}
+.cat-row .sortsel{margin-bottom:0}
+.cat-count{font-size:14px;color:var(--mute);margin-right:4px}
+.cat-front{margin-bottom:6px}
+.cat-front.duo .side>a:last-child{border-bottom:0}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 footer{border-top:1px solid var(--rule);margin-top:10px;padding:18px 0 40px;font-size:12.5px;color:var(--mute);display:flex;gap:10px;align-items:center}
 footer img{width:26px}
 footer a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
@@ -305,7 +317,8 @@ footer a:hover{color:var(--accent)}
   <label class="searchbox msearch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" data-q placeholder="Kitchen durchsuchen …" aria-label="Suchen"></label>
   <div class="layout">
     <main id="main"><noscript><p class="empty">Diese Startseite braucht JavaScript. Direkt zu: <a href="folgen.html">allen Folgen</a> · <a href="beitraege.html">allen Beiträgen</a> · <a href="wissensgraph/">Library</a></p></noscript></main>
-    <aside><div class="aside-in" id="aside"></div></aside>
+    <aside aria-label="Filter"><div class="aside-in" id="aside"></div></aside>
+    <p class="sr-only" id="live" role="status" aria-live="polite"></p>
   </div>
   <footer><img src="assets/start/hat.svg" alt=""><span>Daten-WG Knowledge Kitchen · <a href="folgen.html">Alle Folgen</a> · <a href="beitraege.html">Beiträge</a> · <a href="wissensgraph/">Library</a> · <a href="index_en.html" lang="en" hreflang="en">English</a> · <a href="impressum.html">Impressum</a> · <a href="datenschutz.html">Datenschutz</a> · <a href="llms.txt">llms.txt</a></span></footer>
 </div>
@@ -385,7 +398,7 @@ footer a:hover{color:var(--accent)}
   function syncAside() {
     for (const k of ['kind', 'ressort', 'tag', 'month']) {
       document.querySelectorAll(`#aside [data-${k}]`).forEach(b => {
-        b.classList.toggle('on', b.dataset[k] === state[k]);
+        b.classList.toggle('on', b.dataset[k] === state[k]); b.setAttribute('aria-pressed', b.dataset[k] === state[k]);
         // Zähler unter den übrigen aktiven Filtern; ohne Treffer blass, aber an Ort und Stelle
         const n = filtered({ [k]: b.dataset[k] }).length;
         const nEl = b.querySelector('.n'); if (nEl) nEl.textContent = n;
@@ -393,7 +406,7 @@ footer a:hover{color:var(--accent)}
       });
       const w = document.querySelector(`#aside [data-w="${k}"]`); w.classList.toggle('has-on', !!state[k]);
     }
-    document.querySelectorAll('#sec-links button').forEach(b => b.classList.toggle('on', b.dataset.r === state.ressort && !state.kind && !state.tag && !state.q && !state.month));
+    document.querySelectorAll('#sec-links button').forEach(b => { const on = b.dataset.r === state.ressort && !state.kind && !state.tag && !state.q && !state.month; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     document.querySelectorAll('[data-q]').forEach(o => { if (o !== document.activeElement) o.value = state.q; });
   }
   $('#aside').addEventListener('click', e => {
@@ -514,11 +527,25 @@ footer a:hover{color:var(--accent)}
     if (state.tag) chips.push(['tag', '#' + state.tag]);
     if (state.month) chips.push(['month', MONTHS[+state.month.slice(5) - 1] + ' ' + state.month.slice(0, 4)]);
     if (state.q) chips.push(['q', '„' + state.q + '"']);
-    const rc = state.ressort ? RBY[state.ressort].color : '#111';
-    const title = isFront ? 'Alle Beiträge' : state.ressort && chips.length === 1 ? RBY[state.ressort].name : 'Treffer';
+    const rc = state.ressort ? RBY[state.ressort].color : state.kind ? KCOL[state.kind] : '#111';
+    const chipHtml = chips.length ? '<span class="sr-only">Gefiltert nach: </span>' + chips.map(([k, l]) => `<button data-clear="${k}" aria-label="Filter ${esc(l)} entfernen">${esc(l)} ✕</button>`).join('') + '<button data-clear="all">Alles zurücksetzen</button>' : '';
+    if (!isFront) {
+      // Newsroom: gefilterte Ansicht bekommt eine eigene Front mit großem Aufmacher
+      const [ek, et] = state.ressort ? ['Ressort', RBY[state.ressort].name] : state.kind ? ['Format', KINDS.find(k => k[0] === state.kind)[1]]
+        : state.tag ? ['Schlagwort', '#' + state.tag] : state.month ? ['Archiv', MONTHS[+state.month.slice(5) - 1] + ' ' + state.month.slice(0, 4)]
+        : state.q ? ['Suche', '„' + state.q + '“'] : ['Alle Beiträge', state.sort === 'new' ? 'Neueste zuerst' : 'Sortiert'];
+      h += `<header class="cat-head" id="cat-head" style="--rc:${rc}"><span class="cat-eyebrow">${esc(ek)}</span><h2 tabindex="-1">${esc(et)}</h2>
+        <div class="cat-row"><div class="active-filter"><span class="cat-count">${list.length} ${list.length === 1 ? 'Beitrag' : 'Beiträge'}</span>${chipHtml}</div>${sortSel()}</div></header>`;
+      let top = take(list, used, 3);
+      if (state.sort === 'top') top = leadFirst(top);
+      if (top.length >= 2) h += `<section class="front cat-front${top.length === 2 ? ' duo' : ''}" aria-label="Top-Beiträge"><div class="lead">${slot('lead', top[0])}</div><div class="side">${slot('sidePic', top[1])}${top[2] ? slot('sideText', top[2]) : ''}</div></section>`;
+      else top.forEach(i => used.delete(i.id));
+      $('#live').textContent = `${list.length} ${list.length === 1 ? 'Beitrag' : 'Beiträge'}: ${et}`;
+    } else $('#live').textContent = '';
     const rest = list.filter(i => !used.has(i.id));
-    h += `<div class="list-head" id="list-head" style="--rc:${rc}"><h2>${esc(title)}<span>${rest.length}</span></h2>${sortSel()}</div>`;
-    h += `<div class="active-filter">${chips.length ? 'Gefiltert nach: ' + chips.map(([k, l]) => `<button data-clear="${k}">${esc(l)} ✕</button>`).join('') + '<button data-clear="all">Alles zurücksetzen</button>' : ''}</div>`;
+    const title = isFront ? 'Alle Beiträge' : 'Weitere Beiträge';
+    h += `<div class="list-head" id="list-head" style="--rc:${rc}"><h2>${esc(title)}<span>${rest.length}</span></h2>${isFront ? sortSel() : ''}</div>`;
+    if (isFront) h += `<div class="active-filter"></div>`;
     h += rest.length ? `<div class="posts">${rest.slice(0, state.shown).map(i => slot('row', i)).join('')}</div>` : '<p class="empty"><img src="assets/start/hat.svg" alt="">Dazu ist in der Kitchen noch nichts gekocht.</p>';
     if (rest.length > state.shown) h += `<button class="more" id="more">Ältere Beiträge laden (${rest.length - state.shown})</button>`;
 
@@ -526,7 +553,7 @@ footer a:hover{color:var(--accent)}
     main.querySelectorAll('i[data-slot]').forEach(s => { const [v, id] = s.dataset.slot.split('|'); s.replaceWith(node(v, BYID[id])); });
 
     if (toTop) window.scrollTo({ top: 0 });
-    else { const lh = $('#list-head'); if (!isFront && lh.getBoundingClientRect().top < 60) window.scrollTo({ top: lh.getBoundingClientRect().top + scrollY - 70 }); }
+    else { const lh = $('#cat-head') || $('#list-head'); if (!isFront && lh.getBoundingClientRect().top < 120) window.scrollTo({ top: lh.getBoundingClientRect().top + scrollY - 120 }); }
 
     if (REDUCED) return;
     const vh = innerHeight; let k = 0;
@@ -534,7 +561,9 @@ footer a:hover{color:var(--accent)}
       const r = el.getBoundingClientRect();
       if (r.bottom < -200 || r.top > vh + 200) return;
       const p = before.get(el.dataset.id);
-      if (p) {
+      if (el.parentElement && el.parentElement.classList.contains('lead') && !isFront) {
+        el.animate([{ opacity: 0, transform: 'scale(.94)' }, { opacity: 1, transform: 'none' }], { duration: 480, easing: 'cubic-bezier(.2,.75,.2,1)' });
+      } else if (p) {
         const dx = p.x - (r.left + scrollX), dy = p.y - (r.top + scrollY);
         if (Math.abs(dx) + Math.abs(dy) > 1) el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: 520, easing: 'cubic-bezier(.2,.75,.2,1)' });
       } else {
