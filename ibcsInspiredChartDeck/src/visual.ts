@@ -377,6 +377,9 @@ interface DiffMarkerDraw {
     clearW: number;
     /** 100 % stacks: Δ in percentage points */
     pp: boolean;
+    /** 1.57 review (B20 m5): bars, the label's baseline inside the To row (Marimekko:
+     *  the rows touch, the gap holds no label) */
+    labelY?: number;
 }
 /** side, edge and offset slot of each marker (side +1 = towards the higher index).
  *  Markers share a slot counter per gap (gap g lies between category g and g+1), so
@@ -1973,6 +1976,9 @@ export class Visual implements IVisual {
             for (const [k, v] of Object.entries(pend.props)) {
                 if (!this.chartSliceIs(k, v)) { synced = false; this.chartSliceSet(k, v); }
             }
+            // 1.57 review (B20 m2): update() re-read sortModeStored from the DataView; a
+            // stale update without the echo still renders the preset's sortMode (C25)
+            if (!synced && "sortMode" in pend.props) { this.sortModeStored = true; }
             pend.ttl--;
             if (synced || pend.ttl <= 0) {
                 this.templatePending = null;
@@ -16200,7 +16206,9 @@ export class Visual implements IVisual {
         const labelPad = cfg.showLabels && !norm ? lf + 6 : 6;
         // 1.55 (B10): Σ row under the bars, absolute-total side panel (bars + 100 %),
         // series names left of the first column, room for the "100 %" marker
-        const totalRow = orientation === "bars" && cfg.stackTotalRow;
+        // 1.57 review (B20 n6): the Marimekko keeps no empty Σ slot for mixed scenarios
+        // (the Σ row sums one scenario only, see sumRowOn)
+        const totalRow = orientation === "bars" && cfg.stackTotalRow && !(mekko && scenSet.size > 1);
         const legendStartCfg = orientation === "columns" && cfg.stackLegendStart;
         const sideBase = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
             ? Math.max(60, region.w * 0.18) : 0;
@@ -16280,6 +16288,14 @@ export class Visual implements IVisual {
         };
         const shareOn = blocksActive && cfg.stackBlockShare
             && (cfg.stackBlocks === "subtotals" || cfg.stackBlocks === "subtotalsButLast") && sharesSane();
+        // 1.57 review (B20 m3): Marimekko without the share column, the block share
+        // (subtotals, Σ row) stands in an ellipse behind the number; the number column
+        // widens by it while the 30 % rule allows, else it drops like the share column
+        let mkBlkShW = 0;
+        if (mekko && shareOn && !shareColOn && sideW > 0) {
+            const w = this.textWidth(`${new Intl.NumberFormat(this.host.locale, { maximumFractionDigits: 0 }).format(100)} %`, lf) + 18;
+            if (sideW + w <= region.w * 0.3) { mkBlkShW = w; sideW += w; }
+        }
         const emphRow = (i: number) => this.isEmph(cfg, cats[i]) || (blocksActive && this.isEmph(cfg, rowLabels[i]));
         // 1.55 (B09): difference markers in the stack — total (no "@Series") or one
         // series; 100 % stacks compare shares (percentage points), totals only on values
@@ -16495,7 +16511,9 @@ export class Visual implements IVisual {
             : [scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") || points.some(p => p.isFc) ? cfg.scenL.fc : "",
                 scenSet.has("pl") ? cfg.scenL.pl : ""]
                 .filter(x => x).join(" · ") + " · " + this.locStr("Title_StackedPanel", "AC · stacked").replace(/^[^·]*·\s*/, "");
-        this.drawPanelTitle(bg, rect, stackTitle + (norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
+        // 1.57 review (B20 n5): the Marimekko segments carry values, the title says so
+        this.drawPanelTitle(bg, rect, stackTitle + (mekko ? ` · ${this.locStr("Title_StackMekko", "values · length = share, thickness = total")}`
+            : norm ? ` · ${this.locStr("Title_StackShares", "shares in %")}` : ""),
             orientation, titleH, region,
             orientation === "bars" ? region.y + legendH + Math.round(10 * k) : undefined, cfg.subtle);
 
@@ -16552,25 +16570,32 @@ export class Visual implements IVisual {
         }
 
         // 1.54 (B06): group separators, reference line and scenario boundaries
+        // 1.57 review (B20 m4): the Marimekko rows touch and would cover both, there they
+        // go into a layer over the rows (moved behind the marks below), the separator in
+        // ink over the hairline
+        let mkOver: SVGElement | null = null;
+        const overOr = (dflt: SVGElement): SVGElement => !mekko ? dflt
+            : mkOver ?? (mkOver = this.el("g", { "data-icd": "stack-mekko-over" }, bg));
         const groupEvery = Math.round(this.formattingSettings.chartCard.groupEvery.value ?? 0);
         // (no group separators between blocks: the gap and the subtotals do that)
         if (groupEvery > 0 && groupEvery < n && !blocksActive) {
+            const sepG = overOr(bg);
             for (let i = groupEvery; i < n; i += groupEvery) {
                 if (orientation === "columns" && scen[i] !== scen[i - 1]) { continue; }
                 const p1 = slotY(rowSlot[i]);
                 this.el("line", orientation === "columns"
                     ? { x1: p1, y1: rect.y + 2, x2: p1, y2: rect.y + rect.h }
-                    : { x1: rect.x, y1: p1, x2: rect.x + rect.w, y2: p1 }, bg);
-                const l = bg.lastElementChild as SVGElement;
-                l.setAttribute("stroke", cfg.subtle);
+                    : { x1: rect.x, y1: p1, x2: rect.x + rect.w, y2: p1 }, sepG);
+                const l = sepG.lastElementChild as SVGElement;
+                l.setAttribute("stroke", mekko ? cfg.ink : cfg.subtle);
                 l.setAttribute("stroke-width", "1");
-                l.setAttribute("stroke-opacity", "0.5");
+                if (!mekko) { l.setAttribute("stroke-opacity", "0.5"); }
                 l.setAttribute("data-icd", "group-sep");
             }
         }
         // 100 % stacks read the reference line as a share; above 100 it is not drawn
         if (cfg.refLine != null && !(cap != null && cfg.refLine > cap) && !(norm && (cfg.refLine > 100 || cfg.refLine < 0))) {
-            const rg = this.el("g", { "data-icd": "stack-refline" }, bg);
+            const rg = this.el("g", { "data-icd": "stack-refline" }, overOr(bg));
             this.drawRefLine(rg, rect, scale, orientation, bandStart, bandEnd, cfg);
         }
         // AC | FC | PL boundaries: only for monotone blocks (AC* FC* PL*), columns only
@@ -16648,6 +16673,11 @@ export class Visual implements IVisual {
         };
 
         const marks = this.el("g", {}, this.svg);
+        // 1.57 review (B20 m4): separators and reference line over the Marimekko rows
+        {
+            const mo = mkOver as SVGElement | null;
+            if (mo) { this.svg.appendChild(mo); }
+        }
         const totalTexts = totals.map(t => cfg.fmt.format(t));
         const fakePts = cats.map((c, i) => ({ cat: c, value: totals[i] } as DataPoint));
         const showTotalAt = this.labelPredicate(fakePts, totalTexts, lf, step, orientation);
@@ -16663,26 +16693,37 @@ export class Visual implements IVisual {
                 || (sortedOrRest && (REST_ROW_RX.test(rowLabels[i].trim()) || REST_ROW_RX.test(leafName.trim())));
         };
         // 1.57 (B20): Marimekko labels on rows of any thickness — greedy, a label drops
-        // when it would touch one already placed; highlighted rows, the rest row and the
-        // thickest row first, then from the top (never overlapping numbers as on 02F)
-        const mkPlace = (font: number): Set<number> => {
-            const out = new Set<number>();
-            if (!mekko) { return out; }
-            const big = rawPos.indexOf(Math.max(...rawPos));
-            const prio = (i: number) => (emphRow(i) ? 4 : 0) + (restRow(i) ? 2 : 0) + (i === big ? 1 : 0);
-            const order = cats.map((_, i) => i).sort((a, b) => (prio(b) - prio(a)) || (a - b));
+        // when it would touch one already placed (never overlapping numbers as on 02F)
+        // 1.57 review (B20 m1, n1, n2): highlighted rows first, then the rest row, then
+        // by thickness (thickest first); a row thicker than the font slides its label
+        // inside the row until it clears the placed ones instead of dropping it. Names,
+        // numbers, shares and segment values share one line per row (larger font)
+        const mkLabelY = new Map<number, number>();
+        if (mekko) {
+            const font = Math.max(cf, lf);
+            const gap = font * 1.15;
+            const thick = (i: number) => L.mkH?.[i] ?? 0;
+            const prio = (i: number) => (emphRow(i) ? 2 : 0) + (restRow(i) ? 1 : 0);
+            const order = cats.map((_, i) => i).sort((a, b) => (prio(b) - prio(a)) || (thick(b) - thick(a)) || (a - b));
             // the bold labels of the Σ row and the subtotals stand first
             const placed: number[] = blocks.filter(b => b.sub != null).map(b => posS(b.sub as number) + slotW / 2);
             if (totalRow && scenSet.size <= 1) { placed.push(posS(sumSlot) + slotW / 2); }
-            const gap = font * 1.15;
+            const clear = (y: number) => placed.every(p => Math.abs(p - y) >= gap - 1e-9);
             for (const i of order) {
-                const cy = pos(i) + barW(i) / 2;
-                if (placed.every(y => Math.abs(y - cy) >= gap)) { placed.push(cy); out.add(i); }
+                const c0 = pos(i) + barW(i) / 2;
+                const lo = pos(i) + font / 2, hi = pos(i) + barW(i) - font / 2;
+                let best: number | null = clear(c0) ? c0 : null;
+                if (best == null && hi > lo) {
+                    for (const y of [lo, hi, ...placed.flatMap(p => [p - gap, p + gap])]) {
+                        if (y < lo - 1e-9 || y > hi + 1e-9 || !clear(y)) { continue; }
+                        if (best == null || Math.abs(y - c0) < Math.abs(best - c0)) { best = y; }
+                    }
+                }
+                if (best != null) { placed.push(best); mkLabelY.set(i, best); }
             }
-            return out;
-        };
-        const mkNames = mkPlace(cf);
-        const mkNums = mkPlace(lf);
+        }
+        // the label line of row i (its center when it carries no label)
+        const rowY = (i: number) => mkLabelY.get(i) ?? pos(i) + barW(i) / 2;
         const mkSkip = (parent: SVGElement, i: number, kind: string) => {
             this.el("g", { "data-icd": "stack-mekko-skip", "data-i": i, "data-kind": kind }, parent);
         };
@@ -16744,7 +16785,7 @@ export class Visual implements IVisual {
                     const light = si > (series.length - 1) / 2;
                     const st = this.el("text", {
                         x: orientation === "columns" ? pos(i) + bw / 2 : mid,
-                        y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + bw / 2 + lf * 0.35,
+                        y: orientation === "columns" ? mid + lf * 0.35 : (mekko ? rowY(i) : pos(i) + bw / 2) + lf * 0.35,
                         "text-anchor": "middle", "font-size": Math.round(lf * 0.92),
                         fill: cfg.hc ? cfg.ink : (kind !== "ac" || splitFc ? cfg.ink : segInk(si, light)), "font-family": FONT,
                         ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
@@ -16804,10 +16845,10 @@ export class Visual implements IVisual {
                 // 1.57 (B20): row marker (total, thickness, clamped to the minimum)
                 this.el("g", { "data-icd": "stack-mekko-row", "data-cat": c, "data-total": Math.round(rawPos[i] * 1e6) / 1e6,
                     "data-h": Math.round(rh * 100) / 100, "data-clamped": mkClamped?.[i] ? "1" : "0" }, gCat);
-                if (!mkNames.has(i)) { mkSkip(gCat, i, "name"); }
+                if (!mkLabelY.has(i)) { mkSkip(gCat, i, "name"); }
             }
-            if (mekko ? mkNames.has(i) : showCatAt(i) || isHl) {
-                this.drawCategoryLabel(gCat, rowLabels[i], pos(i) + bw / 2, orientation, cf,
+            if (mekko ? mkLabelY.has(i) : showCatAt(i) || isHl) {
+                this.drawCategoryLabel(gCat, rowLabels[i], mekko ? rowY(i) : pos(i) + bw / 2, orientation, cf,
                     scenOn ? { ...region, h: region.h - (cf + 2) } : region, rh, rect, cfg.ink, isHl);
                 // rest categories (top-N rest, "Sonstige") italic while the stack is
                 // sorted or the rest is the top-N aggregate (B04 rule)
@@ -16878,7 +16919,10 @@ export class Visual implements IVisual {
                 level: x.si <= 0,
                 fc: scen[x.fi] === "fc" || scen[x.ti] === "fc",
                 edge: stackPlan[i].edge, k: stackPlan[i].k, kN: stackPlan[i].kN, pp: norm,
-                clearW: orientation === "bars" && x.si < 0 ? this.textWidth(cfg.fmt.format(x.vt), cfg.labelFont) : 0
+                clearW: orientation === "bars" && x.si < 0 ? this.textWidth(cfg.fmt.format(x.vt), cfg.labelFont) : 0,
+                // 1.57 review (B20 m5): Marimekko, the label on the To row's label line when
+                // the row holds it, else (thin row) on its edge as before
+                ...(mekko && rowH(x.ti) >= lf + 4 ? { labelY: rowY(x.ti) + lf * 0.35 } : {})
             })), scale, orientation, cfg, region, bg,
             cats.map((_, i) => ({ lo: pos(i), hi: pos(i) + barW(i), top: scale(capV(posTot[i])) - 4 - cfg.labelFont })));
         }
@@ -17065,23 +17109,31 @@ export class Visual implements IVisual {
             head.textContent = panelHead;
             if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
             for (let i = 0; i < n; i++) {
-                if (!mkNums.has(i)) { mkSkip(cg, i, "total"); continue; }
-                const t = this.el("text", { x: xr, y: pos(i) + barW(i) / 2 + lf * 0.35, "text-anchor": "end", "font-size": lf,
+                if (!mkLabelY.has(i)) { mkSkip(cg, i, "total"); continue; }
+                const t = this.el("text", { x: xr, y: rowY(i) + lf * 0.35, "text-anchor": "end", "font-size": lf,
                     fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-num", "data-total": Math.round(rawPos[i] * 1e6) / 1e6 }, cg);
                 if (restRow(i)) { t.setAttribute("font-style", "italic"); }
                 t.textContent = cfg.fmt.format(rawPos[i]);
             }
+            // 1.57 review (B20 m3): without the share column the block share stands in an
+            // ellipse behind the number (room reserved in mkBlkShW)
+            const mkBlkShare = (slot: number, share: number) => {
+                if (mkBlkShW <= 0 || !(grand > 0)) { return; }
+                shareEllipse(cg, xCols + totColW + shareW(share) / 2, posS(slot) + slotW / 2, share, "stack-block-share");
+            };
             blocks.forEach((b, bi) => {
                 if (b.sub == null) { return; }
                 const t = this.el("text", { x: xr, y: posS(b.sub) + slotW / 2 + lf * 0.35, "text-anchor": "end", "font-size": lf,
                     "font-weight": 700, fill: cfg.ink, "font-family": FONT, "data-icd": "stack-block-grand", "data-block": b.key }, cg);
                 t.textContent = cfg.fmt.format(blockTot[bi]);
+                mkBlkShare(b.sub, blockTot[bi] / grand * 100);
             });
             if (sumRowOn) {
                 const t = this.el("text", { x: xr, y: posS(sumSlot) + slotW / 2 + lf * 0.35, "text-anchor": "end", "font-size": lf,
                     "font-weight": 700, fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand",
                     "data-total": Math.round(grand * 1e6) / 1e6 }, cg);
                 t.textContent = cfg.fmt.format(grand);
+                mkBlkShare(sumSlot, 100);
             }
         }
         // 1.57 (B20): share column — each row's share of the grand total, the block
@@ -17101,8 +17153,8 @@ export class Visual implements IVisual {
                 return t;
             };
             for (let i = 0; i < n; i++) {
-                if (mekko && !mkNums.has(i)) { mkSkip(sg, i, "share"); continue; }
-                const t = shareText(sg, pos(i) + barW(i) / 2, rawPos[i] / grandPos * 100, false, { "data-icd": "stack-share", "data-i": i });
+                if (mekko && !mkLabelY.has(i)) { mkSkip(sg, i, "share"); continue; }
+                const t = shareText(sg, rowY(i), rawPos[i] / grandPos * 100, false, { "data-icd": "stack-share", "data-i": i });
                 if (mekko && restRow(i)) { t.setAttribute("font-style", "italic"); }
             }
             blocks.forEach((b, bi) => {
@@ -21485,9 +21537,10 @@ export class Visual implements IVisual {
                 // bars point left); positioned per gap below
                 const x = below ? Math.min(Math.min(a, b) - 4, b - 4 - (m.clearW > 0 ? m.clearW + 6 : 0))
                     : Math.max(Math.max(a, b) + 4, b + 4 + (m.clearW > 0 ? m.clearW + 6 : 0));
-                t = this.el("text", { x, y: c + bw / 2 + lf * 0.35, ...lbl }, g);
+                const yL = m.labelY ?? c + bw / 2 + lf * 0.35;
+                t = this.el("text", { x, y: yL, ...lbl }, g);
                 const key = `${side > 0 ? "s" : "n"}${Math.round(e)}`;
-                rows.set(key, [...(rows.get(key) ?? []), { t, tw, x, y: c + bw / 2 + lf * 0.35, neg: below,
+                rows.set(key, [...(rows.get(key) ?? []), { t, tw, x, y: yL, neg: below,
                     barEnd: below ? Math.min(a, b) : Math.max(a, b), side, c }]);
             }
             t.textContent = text;

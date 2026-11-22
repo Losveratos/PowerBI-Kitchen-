@@ -42,6 +42,32 @@
   - Abweichungen vom Blatt: Zahlen mit höchstens drei Ziffern (Regel des Visuals seit 1.52: 173 statt 172.5, Summe
     497 statt 497.2), Seriennamen in der Schlüsselzeile über dem Panel-Titel statt direkt über der ersten Zeile,
     „Rest of world“ proportional dick (auf dem Blatt dünner als France), keine Säulen-Variante.
+  - **Nach dem Review:**
+    - **Beschriftung in niedrigen Kacheln:** Vorher fiel ein Label weg, sobald die Zeilenmitte zu nah an einem schon
+      gesetzten lag, auch in dicken Zeilen; in 1280 × 190 verlor die 15 px dicke Rest-Zeile Name, Summe und Anteil,
+      während 3-px-Zeilen ihr Label bekamen. Jetzt rutscht das Label in einer Zeile, die dicker als die Schrift ist,
+      innerhalb der Zeile so weit, bis es frei steht; Segmentwerte, Summe und Anteil stehen auf derselben Linie. Die
+      Reihenfolge ist Hervorhebung, Rest-Zeile, dann nach Dicke (dickste zuerst) statt von oben. Name, Summe und Anteil
+      werden gemeinsam gesetzt (Abstand nach der größeren der beiden Schriften), nie mehr ein Name ohne Zahl.
+    - **Vorlage C25 und Sortierung:** Ein Update ohne Host-Echo (Größe, Daten) nach dem Anwenden von C25 ließ die
+      Zeilen unsortiert, bis das Echo kam. Jetzt gilt die Sortierung der Vorlage, solange der Echo-Schutz ihre Werte
+      hält.
+    - **Blockanteil ohne Anteilsspalte:** Mit Blöcken, „Blockanteil“ und Marimekko, aber ohne Anteilsspalte stand kein
+      Blockanteil mehr (1.56 zeigte ihn im Panel). Jetzt steht er in einer Ellipse hinter der Zwischensumme und „100 %“
+      hinter der Σ-Zahl; die Zahlenspalte wird dafür breiter, solange die 30-%-Regel es erlaubt, sonst entfällt er wie
+      die Anteilsspalte. Ganz ohne Spalten (schmal) steht er wie bisher am Balkenende.
+    - **Referenzlinie und Gruppentrenner** lagen hinter den aneinanderstoßenden Zeilen und waren unsichtbar. Im
+      Marimekko liegen beide jetzt über den Zeilen, der Trenner als Linie in Tintenfarbe auf der Haarlinie.
+    - **Differenzmarker:** Das Label saß auf der Grenze zweier Zeilen. Jetzt steht es auf der Beschriftungslinie der
+      Zielzeile, wenn sie mindestens Schrifthöhe + 4 px dick ist; in dünneren Zeilen bleibt es an der Kante.
+    - **Kleinigkeiten:** Panel-Titel im Marimekko „Werte · Länge = Anteil, Dicke = Summe“ statt „Anteile in %“
+      (neuer Key `Title_StackMekko`). Bei gemischten Szenarien (AC und FC) bleibt kein leerer Platz für die
+      entfallende Σ-Zeile. Mit „Beschriftungen anzeigen“ aus entfallen die Segmentwerte, Summen- und Anteilsspalte bleiben
+      (sie sind Tabellenspalten; aus über „Summen-Kopfzeile (Σ)“ bzw. „Anteilsspalte“).
+    - Tests c986 bis c989 (Update ohne Echo, Wechsel C25 → C04, Blockanteil mit und ohne Anteilsspalte, Anteilsspalte
+      mit Blöcken ohne Marimekko, Referenzlinie und Trenner, Beschriftung aus, Differenzmarker, Tooltip, Auswahl,
+      480 × 300), dazu Prüfungen in c967 (Rest-Zeile behält ihre Labels) und c976. Hash aller Stufen: geändert nur
+      B20-Stufen (Titel; c967, c977 Beschriftung; c973 ohne leeren Σ-Platz; c982 Label des Differenzmarkers).
 
 - **B18 · Scatter-Zeitpfad mit Quotenstrahlen (Blätter 07D und 07E, Vorlage C23).** Vorher: Der Scatter zeigte je
   Kategorie einen Punkt; eine Entwicklung über die Jahre ließ sich nur mit dem Play-Button nacheinander zeigen, eine

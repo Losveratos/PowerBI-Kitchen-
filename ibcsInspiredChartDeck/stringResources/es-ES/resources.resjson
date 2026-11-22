@@ -943,6 +943,7 @@
   "Hub_TplT_C25": "Marimekko",
   "Hub_TplU_C25": "Mezcla por país, grosor = ventas",
   "Hint_MekkoTooManyRows": "Marimekko: demasiadas filas para el grosor mínimo, pruebe Top N",
+  "Title_StackMekko": "valores · longitud = cuota, grosor = total",
   "Chart_ScatterPath": "Trayectoria temporal",
   "Desc_Chart_ScatterPath": "Une los puntos de cada unidad (campo «Serie apilada»; sin serie, una sola trayectoria) en el orden de la categoría, que aquí es el periodo (p. ej. los años 2017 a 2025), con una línea fina en el color de la unidad, como en las hojas IBCS 07D y 07E. El nombre de la unidad aparece en el punto final y la leyenda se omite. Si falta X o Y en un periodo, la trayectoria se interrumpe; los periodos de previsión van discontinuos y huecos. Desactiva las flechas de movimiento y las burbujas del año anterior. Con el botón de reproducción la trayectoria crece hasta el periodo mostrado. Desactivado por defecto.",
   "Enum_ScatterPath_Off": "Desactivado",
