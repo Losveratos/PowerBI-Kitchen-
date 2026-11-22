@@ -103,3 +103,14 @@ Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
 | P5-08 R21-Verteidiger | Opus | 2026-11-22 | 9,0 min | 297.727 | 33 | `research/reviews_teil1/08_r21_verteidiger.md`: 3 kritisch, 7 mittel, 5 klein. Kritisch: Strohmann in Akt 1 (R21 sagt, es wird gebaut, aber nur Ersatz); die fehlende Abgrenzung steht schon in der Bundestags-Kurzinformation und wird nur R21 angelastet; R21s Strompreis-Zahl (8,2 ct/kWh) verschwiegen |
 | P5-05 Klimaaktivist | Opus | 2026-11-22 | 9,4 min | 227.595 | 33 | `research/reviews_teil1/05_klimaaktivist.md`: 3 kritisch, 5 mittel, 4 klein. Kritisch: die Nutzenseite derselben Studien fehlt (ISE 2021 und Ariadne rechnen vermiedene Klimaschäden gegen); ein nicht freigegebener und falscher Satz im Klimakasten; Akt 5 zeigt Unsicherheit nur nach oben |
 | P5-12 Freigabe-Prüfer | Opus | 2026-11-22 | 11,4 min | 367.790 | 53 | `research/reviews_teil1/12_freigabe_pruefer.md`: 2 kritisch, 9 mittel, 17 klein; jede angezeigte Zahl gegen den Datensatz abgeglichen. In Ordnung: Datensatz gleich Freigabeblock, keine fremden Server, verworfene Zahlen nur in der markierten Tabelle, alle zwölf Gegenpositionen sichtbar. Kritisch: falscher Satz in Akt 5; „2.100 Mrd. sind bei der DIHK die Systemkosten von zehn Jahren“ steht ohne Vorbehalt (Fehler schon in der Freigabeliste). Mittel: Behauptung „keine Zahl von Hand“ stimmt nicht |
+| P5-13 Messlatten-Prüfer | Opus | 2026-11-22 | 15,9 min | 351.495 | 88 | `research/reviews_teil1/13_messlatten_pruefer.md`: Punkte ohne K3 (höchstens 18): Teil 1 dieser Reihe 15, KfW/Prognos 2026 13, DIHK/Frontier „Plan B“ 11, R21-Erklärung 6. K3 nur für Teil 1 bewertbar (1 von 2 Punkten, drei kleine Abweichungen von den Quellen). Fünf Präzisierungen der Messlatte vorgeschlagen |
+
+**Summe Phase 5:** 13 Opus-Reviewer. 3.243.174 Token. 501 Werkzeugaufrufe. längste Laufzeit 15.9 Minuten (parallel). 27 kritische. 75 mittlere und 81 kleine Befunde vor dem Bündeln (ohne die Messlatten-Prüfung).
+
+## Phase 6 · Überarbeitung Teil 1
+
+Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und deinen
+Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
+
+| Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
+|---|---|---|---|---|---|---|
