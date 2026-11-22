@@ -101,6 +101,9 @@
 <div class="case"><h4>m59 · 1.8 · T01C mit gerundeter Null ohne Vorzeichen (World ΔPY% 0.0% wie im Blatt)</h4><div class="stage" id="m59" style="width:1320px;height:800px"></div></div>
 <div class="case"><h4>t11c · 1.8 · ROI-Baum wie nach der Vorlage 11A (alle Perioden beschriftet, Wurzel automatisch, Periodenzeile automatisch)</h4><div class="stage" id="t11c" style="width:1300px;height:720px"></div></div>
 <div class="case"><h4>m60 · 1.8.1 · T02D mit den _November-Werten des Blatts · Rest of World China, Japan, Australia, Other</h4><div class="stage" id="m60" style="width:1320px;height:800px"></div></div>
+<div class="case"><h4>m61 · 1.8.2 · 12G mit Ellipse um die Δ-Zahl von Sales revenue und Group result (wie im Blatt)</h4><div class="stage" id="m61" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m62 · 1.8.2 · T03A mit relativer Margen-Änderung im Δ%-Feld (+8,6 %p und +23 %)</h4><div class="stage" id="m62" style="width:1320px;height:600px"></div></div>
+<div class="case"><h4>m63 · 1.8.2 · T04C ohne Margen-Δ an der Achse (wie im Blatt) · m64 Band und Ellipse</h4><div class="stage" id="m63" style="width:1320px;height:700px"></div><div class="stage" id="m64" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -589,6 +592,16 @@ runRows("m59", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November
 
 // m60 — 1.8.1 T02D on the sheet's own _November numbers
 runRows("m60", MEGA_DEMO.regions({ sheet: "T02D" }), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T02D" } });
+
+// m61..m64 — 1.8.2 sheet options: ellipse emphasis (12G / 12H), relative Δ% of margins (T03), no pp at the axis (T04)
+runRows("m61", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12G", highlight: "Sales revenue, Group result", highlightStyle: "ellipse" } });
+runRows("m62", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A" }, numbers: { sheetPctDecimals: true, ppUnit: "pctp", marginRel: true } });
+runRows("m63", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "T04C" }, numbers: { marginAxisPp: false } });
+runRows("m64", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12G", highlight: "Group result", highlightStyle: "both" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

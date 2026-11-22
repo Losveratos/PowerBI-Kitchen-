@@ -11294,6 +11294,9 @@ export class Visual implements IVisual {
             // 1.8 (B14) T03 prints Δ% whole but margins and their pp with one decimal
             mdec: this.settings.numbersCard.sheetPctDecimals.value ? Math.max(1, this.settings.numbersCard.pctDecimals.value) : undefined,
             zeroPlain: this.zeroPlain(),
+            // 1.8.2 sheet options T03 (relative Δ% of margins) and T04 (no pp at the axis)
+            marginRel: this.settings.numbersCard.marginRel.value === true,
+            marginAxisPp: this.settings.numbersCard.marginAxisPp.value !== false,
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
             // 1.7 a table of stocks only has no year-to-date share in its FY outlook
             ytdHead: stockOnlyHead ? "" : "YTD",
@@ -11316,7 +11319,7 @@ export class Visual implements IVisual {
             selAccent: this.accent(),
             highlight: this.highlightSet().size > 0
                 ? { ids: new Set(rows.filter(r => r.id !== "" && nodes.has(r.id) && this.isHighlighted(nodes.get(r.id)!)).map(r => r.id)),
-                    ink: this.hc ? this.hc.fg : C.ac, hc: this.hc != null }
+                    ink: this.hc ? this.hc.fg : C.ac, hc: this.hc != null, style: this.highlightStyle() }
                 : undefined,
         };
         // virtualization (1.1): a long statement paints only the rows around the
@@ -11963,6 +11966,12 @@ export class Visual implements IVisual {
     }
 
     /** columns.highlight as a lower-case set of row names / ids */
+    /** 1.8.2 columns.highlightStyle: band (default) | ellipse | both */
+    private highlightStyle(): "band" | "ellipse" | "both" {
+        const v = String(this.settings?.columnsCard?.highlightStyle?.value?.value ?? "band");
+        return v === "ellipse" || v === "both" ? v : "band";
+    }
+
     private highlightSet(): Set<string> {
         const raw = String(this.settings?.columnsCard?.highlight?.value ?? "");
         return new Set(raw.split(",").map(x => x.trim().toLowerCase()).filter(x => x !== ""));

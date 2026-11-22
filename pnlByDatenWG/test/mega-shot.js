@@ -70,6 +70,14 @@ function readMega(id) {
             arrows: g.querySelectorAll('path:not([data-pnl="mega-break"])').length,
             // 1.5: break marks of capped elements (outlier zone, UN 5.3)
             breaks: g.querySelectorAll('path[data-pnl="mega-break"]').length,
+            // 1.8.2 ellipse emphasis (12G / 12H): ellipse box and the label it encloses
+            ellipses: [...g.querySelectorAll('ellipse[data-pnl="mega-ellipse"]')].map(e => {
+                const cx = +e.getAttribute("cx"), cy = +e.getAttribute("cy"), rx = +e.getAttribute("rx"), ry = +e.getAttribute("ry");
+                const inside = [...g.querySelectorAll("text")].map(t => ({ t: t.textContent, b: t.getBBox() }))
+                    .filter(x => x.b.x >= cx - rx && x.b.x + x.b.width <= cx + rx && x.b.y + x.b.height / 2 >= cy - ry && x.b.y + x.b.height / 2 <= cy + ry);
+                return { stroke: e.getAttribute("stroke"), fill: e.getAttribute("fill"), inside: inside.map(x => x.t) };
+            }),
+            pp: [...g.querySelectorAll('text[data-pnl="mega-pp"]')].map(t => t.textContent),
         };
     });
     const rowIds = [...body.querySelectorAll('rect[data-pnl-part="cells"]')].map(r => r.getAttribute("data-pnl-row"));
@@ -86,12 +94,13 @@ function readMega(id) {
     const paints = [...new Set(megaEls.flatMap(e => [e.getAttribute("fill"), e.getAttribute("stroke")]).filter(Boolean))];
     const underlined = [...body.querySelectorAll('text[text-decoration="underline"]')].map(t => t.textContent);
     const pyMarkDashed = head.querySelectorAll('line[data-pnl="mega-mark-py"]').length;
+    const hlBands = body.querySelectorAll('rect[data-pnl="mega-hl"]').length;
     const dashedRects = body.querySelectorAll("rect[stroke-dasharray]").length;
     const headFs = [...head.querySelectorAll("text")].map(t => +(t.getAttribute("font-size") || 0));
     const bg = getComputedStyle(stage.firstElementChild).backgroundColor;
     return { head: texts(head), body: texts(body), clipped, charts, rowIds, rowY, headRects, patterns, toolbar, ruleColors, headLines,
         bodyH: +body.getAttribute("height"), width: +body.getAttribute("width"),
-        legend, paints, underlined, pyMarkDashed, dashedRects, headFs, bg };
+        legend, paints, underlined, pyMarkDashed, dashedRects, headFs, bg, hlBands };
 }
 
 (async () => {
@@ -105,7 +114,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -287,6 +296,34 @@ function readMega(id) {
     if (S.m55) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
             blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
+    }
+    // ---- 1.8.2 sheet options ------------------------------------------------------------------
+    if (S.m61 && S.m27) {
+        const E = S.m61.charts.flatMap(c => c.ellipses);
+        check("m61 12G ellipse style: exactly two ellipses (Sales revenue, Group result), no band",
+            E.length === 2 && S.m61.hlBands === 0 && S.m27.charts.every(c => c.ellipses.length === 0), JSON.stringify(E) + " bands " + S.m61.hlBands);
+        check("m61 every ellipse encloses exactly one Δ number with a sign, unfilled",
+            E.every(e => e.inside.length === 1 && /^[+\u2212]/.test(e.inside[0]) && e.fill === "none"), JSON.stringify(E));
+        // the ellipses sit in the ΔPY column of the last block, as on the sheet
+        const iE = S.m61.charts.findIndex(c => c.ellipses.length > 0);
+        check("m61 the ellipses sit in one chart column (the ΔPY bars)", iE >= 0 && S.m61.charts.filter(c => c.ellipses.length > 0).length === 1,
+            String(iE));
+    }
+    if (S.m64) {
+        const E = S.m64.charts.flatMap(c => c.ellipses);
+        check("m64 style both: band and one ellipse for Group result", S.m64.hlBands === 1 && E.length === 1, S.m64.hlBands + " / " + E.length);
+    }
+    if (S.m62 && S.m58) {
+        // the texts of the margin row (same baseline as its +8.6%p)
+        const mRow = id => { const c = cell(id, "+8.6%p"); return c ? S[id].body.filter(x => Math.abs(x.y - c.y) < 0.5).map(x => x.t) : []; };
+        check("m62 T03A margin relative change: +8.6%p in Δ and +23% in Δ% (sheet T03A), m58 without it",
+            mRow("m62").includes("+23%") && mRow("m58").length > 0 && !mRow("m58").includes("+23%"),
+            mRow("m62").join(" ") + " | " + mRow("m58").join(" "));
+    }
+    if (S.m63 && S.m12) {
+        const pp12 = S.m12.charts.flatMap(c => c.pp), pp63 = S.m63.charts.flatMap(c => c.pp);
+        check("m63 T04C without margin Δ at the axis (as in the sheet), m12 keeps it", pp12.length > 0 && pp63.length === 0,
+            pp12.join(",") + " / " + pp63.join(","));
     }
     // ---- 1.8 (B14) notation details of the sheets ------------------------------------------
     if (S.m58) {

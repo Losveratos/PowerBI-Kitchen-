@@ -973,6 +973,24 @@
                         "text": true
                     }
                 },
+                "highlightStyle": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "band",
+                                "displayName": "Band over the row"
+                            },
+                            {
+                                "value": "ellipse",
+                                "displayName": "Ellipse around the Δ number"
+                            },
+                            {
+                                "value": "both",
+                                "displayName": "Band and ellipse"
+                            }
+                        ]
+                    }
+                },
                 "materialityAbs": {
                     "type": {
                         "numeric": true
@@ -1055,6 +1073,16 @@
                                 "displayName": "%p"
                             }
                         ]
+                    }
+                },
+                "marginRel": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "marginAxisPp": {
+                    "type": {
+                        "bool": true
                     }
                 },
                 "roundedZero": {
