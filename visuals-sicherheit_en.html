@@ -171,7 +171,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
       <article class="vcard pnl">
         <h3>P&amp;L Statement byDatenWG</h3>
         <dl class="facts">
-          <dt>Version</dt><dd><code>1.7.1.0</code></dd>
+          <dt>Version</dt><dd><code>1.8.2.0</code></dd>
           <dt>API</dt><dd><code>5.11.0</code></dd>
           <dt>GUID</dt><dd><code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358</code></dd>
           <dt>License</dt><dd>MIT (<code>LICENSE</code> in the repository root)</dd>
@@ -223,10 +223,12 @@ a.inl{color:var(--accent-deep);font-weight:600;}
         <tr><td class="k">sessionStorage</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
         <tr><td class="k">document.cookie</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
         <tr><td class="k">indexedDB</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
-        <tr><td class="k">Source files in <code>src/</code></td><td class="n">2</td><td class="n">8</td><td class="n">3</td></tr>
+        <tr><td class="k">Source files in <code>src/</code></td><td class="n">2</td><td class="n">10</td><td class="n">3</td></tr>
       </tbody>
     </table></div>
     <p class="muted" style="font-size:13.5px;">* The single hit in dataKitchenGantt is a comment (<code>gantt.ts</code>, line 20: “Rendering per DOM node (textContent, no innerHTML)” — in German in the source), not a call. Further patterns with no hits in all three source trees: <code>importScripts</code>, <code>window.open</code>, <code>postMessage</code>, <code>createObjectURL</code>, <code>new Worker</code>, <code>iframe</code>, <code>DOMParser</code>, <code>document.write</code>, <code>insertAdjacentHTML</code>, <code>outerHTML</code>, <code>navigator.</code>, <code>FontFace</code>. The same twelve patterns (for <code>&lt;script</code> without the “src” attribute) also give 0 hits in the <strong>built package</strong> (<code>.pbiviz</code>, state of the three files in the repository on 23 Oct 2026); the only URLs in the bundle are the SVG namespace <code>http://www.w3.org/2000/svg</code>, the documentation addresses of our website (ChartKitchen, P&amp;L) and the support links in the metadata.</p>
+
+    <p class="muted" style="font-size:13.5px;"><strong>P&amp;L Statement 1.8.2.0, audit of 22 Nov 2026:</strong> package <code>pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz</code>, SHA-256 <code>df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7</code>. The hit counts above apply to the source of this version (ten files in <code>src/</code>). In the unpacked bundle: no network API, no <code>eval</code>/<code>new Function</code>, no <code>innerHTML</code>, <code>privileges</code> and <code>externalJS</code> empty; the only URLs are the SVG namespace and the two docs addresses. The packaged bundle ran in a browser with the network blocked through 97 test cases (table, mega table, value driver tree, Sankey, tiles, cross-highlighting, start hub, high contrast, empty data): 0 network attempts, 0 console errors. According to <code>npm audit</code>, the runtime dependencies have no known vulnerability. Result: no findings with these methods. This is an aid for your own review, not a certification.</p>
 
     <h3>The one exception: “Open docs”</h3>
     <p>ChartKitchen (<code>visual.ts</code>, start hub) and P&amp;L Statement (<code>visual.ts</code>/<code>hub.ts</code>, edit mode only) call <code>host.launchUrl(…)</code> when you click “Open docs”. The address is a fixed constant (<code>datenwgknowledgekitchen.com/chartkitchen-doku.html</code> or <code>pnl-doku.html</code>, with <code>_en</code> depending on the locale); no data is appended. Power BI opens the page in a new browser tab — the visual itself sends nothing. <code>launchUrl</code> needs no entry in <code>privileges</code> (<a class="inl" href="https://learn.microsoft.com/power-bi/developer/visuals/launch-url" target="_blank" rel="noopener">Microsoft: Launch URL</a>). dataKitchenGantt has no such button.</p>
@@ -248,7 +250,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
       <thead><tr><th>Visual</th><th>Persisted objects (<code>capabilities.json</code>)</th><th>Content</th></tr></thead>
       <tbody>
         <tr><td class="k">ChartKitchen</td><td><code>ibcsTitle</code>, <code>chart</code>, <code>colors</code>, <code>labels</code>, <code>emptyState</code>, <code>commentsPanel</code>, <code>scale</code>, <code>categoryAxis</code></td><td>Formatting and view state (sort order, expanded rows, column widths, last applied template); texts entered by the author: title lines, scenario labels, empty-state text and <strong>comments</strong> (<code>commentsPanel.userComments</code>, JSON).</td></tr>
-        <tr><td class="k">P&amp;L Statement</td><td><code>toolbar</code>, <code>columns</code>, <code>numbers</code>, <code>style</code>, <code>titleBlock</code>, <code>labels</code>, <code>emptyState</code>, <code>hierarchy</code>, <code>state</code></td><td>Formatting; view state as JSON (<code>state.uiState</code>, e.g. collapsed rows, value-driver-tree root); title block and empty-state text from the author.</td></tr>
+        <tr><td class="k">P&amp;L Statement</td><td><code>toolbar</code>, <code>toolbarColors</code>, <code>columns</code>, <code>numbers</code>, <code>style</code>, <code>layout</code>, <code>titleBlock</code>, <code>labels</code>, <code>emptyState</code>, <code>hierarchy</code>, <code>statement</code>, <code>exceptions</code>, <code>state</code></td><td>Formatting (including exception rules, toolbar colours, layout, stock logic); view state as JSON (<code>state.uiState</code>, e.g. collapsed rows, value-driver-tree root); title block and empty-state text from the author.</td></tr>
         <tr><td class="k">dataKitchenGantt</td><td><code>darstellung</code>, <code>spalten</code>, <code>meilensteine</code>, <code>basisplan</code>, <code>schrift</code>, <code>dataPoint</code></td><td>Formatting, colors, table width (dragged via the splitter).</td></tr>
       </tbody>
     </table></div>
@@ -304,7 +306,7 @@ a.inl{color:var(--accent-deep);font-weight:600;}
         <tr><td class="k">Keyboard handlers in code (<code>keydown</code>/<code>tabindex</code>)</td><td class="n">yes</td><td class="n">yes</td><td class="n">no</td></tr>
       </tbody>
     </table></div>
-    <p>ChartKitchen and P&amp;L Statement evaluate the host's high-contrast palette; there, patterns instead of colors carry the message (scenario notation AC/PY/PL/FC). Controls in the start hub are reachable by Tab. <code>supportsHighlight: false</code> means: emphasis from other visuals does not use the highlight interface (cross-filtering by selection is independent of it). dataKitchenGantt has <strong>no</strong> high-contrast handling and no keyboard control — it is currently not suitable for reports with accessibility requirements. No formal accessibility audit (for example with a screen reader) exists for any of the visuals.</p>
+    <p>ChartKitchen and P&amp;L Statement evaluate the host's high-contrast palette; there, patterns instead of colors carry the message (scenario notation AC/PY/PL/FC). Controls in the start hub are reachable by Tab. For ChartKitchen, <code>supportsHighlight: false</code> means: emphasis from other visuals does not use the highlight interface (cross-filtering by selection is independent of it). dataKitchenGantt has <strong>no</strong> high-contrast handling and no keyboard control — it is currently not suitable for reports with accessibility requirements. No formal accessibility audit (for example with a screen reader) exists for any of the visuals.</p>
   </section>
 
   <section class="block" id="checkliste">
@@ -340,7 +342,7 @@ npx pbiviz package</pre></div>
     <ul class="plain">
       <li><strong>Contact:</strong> Michael Tenner, Daten-WG · <a class="inl" href="mailto:michael.tenner84@gmail.com?subject=Security%20question%20byDatenWG%20visuals">michael.tenner84@gmail.com</a>. Also for security findings and for questions from your data protection officer.</li>
       <li><strong>Bugs and requests:</strong> issues in the <a class="inl" href="https://github.com/Losveratos/PowerBI-Kitchen-/issues" target="_blank" rel="noopener">repository</a>.</li>
-      <li><strong>State of this page:</strong> 23 Oct 2026 · ChartKitchen 1.53.0.0 · P&amp;L Statement 1.7.1.0 · dataKitchenGantt 1.15.0.0. Newer releases carry higher version numbers; audit every file according to section 07.</li>
+      <li><strong>State of this page:</strong> 23 Oct 2026, P&amp;L Statement details of 22 Nov 2026 · ChartKitchen 1.53.0.0 · P&amp;L Statement 1.8.2.0 · dataKitchenGantt 1.15.0.0. Newer releases carry higher version numbers; audit every file according to section 07.</li>
       <li><strong>Warranty:</strong> The visuals are provided without warranty (license texts in the repository). This page is not a legal assurance but an audit aid.</li>
     </ul>
   </section>
