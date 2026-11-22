@@ -30,7 +30,7 @@ Three Power BI custom visuals by Michael Tenner (Daten-WG), developed together i
 
 ### P&L Statement byDatenWG
 
-- **Version:** `1.7.1.0`
+- **Version:** `1.8.2.0`
 - **API:** `5.11.0`
 - **GUID:** `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358`
 - **License:** MIT (`LICENSE` in the repository root)
@@ -76,9 +76,11 @@ An empty `privileges` array means: no `WebAccess` (no allowed URLs), no `ExportC
 | sessionStorage | 0 | 0 | 0 |
 | document.cookie | 0 | 0 | 0 |
 | indexedDB | 0 | 0 | 0 |
-| Source files in `src/` | 2 | 8 | 3 |
+| Source files in `src/` | 2 | 10 | 3 |
 
-* The single hit in dataKitchenGantt is a comment (`gantt.ts`, line 20: “Rendering per DOM node (textContent, no innerHTML)” — in German in the source), not a call. Further patterns with no hits in all three source trees: `importScripts`, `window.open`, `postMessage`, `createObjectURL`, `new Worker`, `iframe`, `DOMParser`, `document.write`, `insertAdjacentHTML`, `outerHTML`, `navigator.`, `FontFace`. The same twelve patterns (for `<script` without the “src” attribute) also give 0 hits in the **built package** (`.pbiviz`, state of the three files in the repository on 23 Oct 2026); the only URLs in the bundle are the SVG namespace `http://www.w3.org/2000/svg`, the documentation addresses of our website (ChartKitchen, P&L) and the support links in the metadata.
+* The single hit in dataKitchenGantt is a comment (`gantt.ts`, line 20: “Rendering per DOM node (textContent, no innerHTML)” — in German in the source), not a call. Further patterns with no hits in all three source trees: `importScripts`, `window.open`, `postMessage`, `createObjectURL`, `new Worker`, `iframe`, `DOMParser`, `document.write`, `insertAdjacentHTML`, `outerHTML`, `navigator.`, `FontFace`. The same twelve patterns (for `<script` without the “src” attribute) also give 0 hits in the **built package** (`.pbiviz`, state of the three files in the repository on 23 Oct 2026; P&L: see the next paragraph); the only URLs in the bundle are the SVG namespace `http://www.w3.org/2000/svg`, the documentation addresses of our website (ChartKitchen, P&L) and the support links in the metadata.
+
+**P&L Statement 1.8.2.0, audit of 22 Nov 2026:** package `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz`, SHA-256 `df4fef6e2bf552b60c8e96e64e03ee5a118f85eb182167b26af1dcb6d623d1a7`. The hit counts above apply to the source of this version (ten files in `src/`). In the unpacked bundle: no network API, no `eval`/`new Function`, no `innerHTML`, `privileges` and `externalJS` empty; the only URLs in the code are the SVG namespace and the two docs addresses, plus two support links (GitHub) in the metadata. The packaged bundle ran in a browser without network through 98 test cases (table, mega table, value driver tree, Sankey, tiles, cross-highlighting, start hub, high contrast, empty data) with 518 clicks: 0 network attempts, 0 console errors; “Open docs” only opened the two fixed addresses. According to `npm audit`, the runtime dependencies have no known vulnerability. Result: no findings with these methods. This is an aid for your own review, not a certification.
 
 ### The one exception: “Open docs”
 
@@ -99,7 +101,7 @@ Everything the visuals retain goes through the host interface `persistProperties
 | Visual | Persisted objects (`capabilities.json`) | Content |
 | --- | --- | --- |
 | ChartKitchen | `ibcsTitle`, `chart`, `colors`, `labels`, `emptyState`, `commentsPanel`, `scale`, `categoryAxis` | Formatting and view state (sort order, expanded rows, column widths, last applied template); texts entered by the author: title lines, scenario labels, empty-state text and **comments** (`commentsPanel.userComments`, JSON). |
-| P&L Statement | `toolbar`, `columns`, `numbers`, `style`, `titleBlock`, `labels`, `emptyState`, `hierarchy`, `state` | Formatting; view state as JSON (`state.uiState`, e.g. collapsed rows, value-driver-tree root); title block and empty-state text from the author. |
+| P&L Statement | `toolbar`, `toolbarColors`, `columns`, `numbers`, `style`, `layout`, `titleBlock`, `labels`, `emptyState`, `hierarchy`, `statement`, `exceptions`, `state` | Formatting (including exception rules, toolbar colours, layout, stock logic); view state as JSON (`state.uiState`, e.g. collapsed rows, value-driver-tree root); texts entered by the author: title block, empty-state text, scenario labels, unit text and row names (highlight, base and total row). |
 | dataKitchenGantt | `darstellung`, `spalten`, `meilensteine`, `basisplan`, `schrift`, `dataPoint` | Formatting, colors, table width (dragged via the splitter). |
 
 > **Note for data protection:** No measure values or data rows are persisted. The view state can, however, contain *labels* from your data — for example the keys of expanded or hidden rows, or the category a comment is attached to. Comments and titles are free text by the report author; do not enter anything there that does not belong in the report file. The statement about the kind of properties follows from the declared types in `capabilities.json` (text, number, boolean); we did not evaluate every single write site in the code.
@@ -147,7 +149,7 @@ Microsoft sources: [Manage Power BI visuals admin settings](https://learn.micros
 | High contrast (`colorPalette.isHighContrast` in code) | yes | yes | no |
 | Keyboard handlers in code (`keydown`/`tabindex`) | yes | yes | no |
 
-ChartKitchen and P&L Statement evaluate the host's high-contrast palette; there, patterns instead of colors carry the message (scenario notation AC/PY/PL/FC). Controls in the start hub are reachable by Tab. `supportsHighlight: false` means: emphasis from other visuals does not use the highlight interface (cross-filtering by selection is independent of it). dataKitchenGantt has **no** high-contrast handling and no keyboard control — it is currently not suitable for reports with accessibility requirements. No formal accessibility audit (for example with a screen reader) exists for any of the visuals.
+ChartKitchen and P&L Statement evaluate the host's high-contrast palette; there, patterns instead of colors carry the message (scenario notation AC/PY/PL/FC). Controls in the start hub are reachable by Tab. For ChartKitchen, `supportsHighlight: false` means: emphasis from other visuals does not use the highlight interface (cross-filtering by selection is independent of it). dataKitchenGantt has **no** high-contrast handling and no keyboard control — it is currently not suitable for reports with accessibility requirements. No formal accessibility audit (for example with a screen reader) exists for any of the visuals.
 
 ## 07 · Audit checklist for admins
 
@@ -201,7 +203,7 @@ Then: upload it as an organizational visual in a test environment, test it with 
 
 - **Contact:** Michael Tenner, Daten-WG · [michael.tenner84@gmail.com](mailto:michael.tenner84@gmail.com?subject=Security%20question%20byDatenWG%20visuals). Also for security findings and for questions from your data protection officer.
 - **Bugs and requests:** issues in the [repository](https://github.com/Losveratos/PowerBI-Kitchen-/issues).
-- **State of this page:** 23 Oct 2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.7.1.0 · dataKitchenGantt 1.15.0.0. Newer releases carry higher version numbers; audit every file according to section 07.
+- **State of this page:** 23 Oct 2026, P&L Statement details of 22 Nov 2026 · ChartKitchen 1.53.0.0 · P&L Statement 1.8.2.0 · dataKitchenGantt 1.15.0.0. Newer releases carry higher version numbers; audit every file according to section 07.
 - **Warranty:** The visuals are provided without warranty (license texts in the repository). This page is not a legal assurance but an audit aid.
 
 **Security & deployment · byDatenWG visuals** · as of 23 Oct 2026
