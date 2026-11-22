@@ -167,7 +167,14 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     C07: { orientation: "columns", comparisonMode: "auto", showAbsoluteVariance: false,
         showRelativeVariance: false, dualVariance: false, waterfallStyle: false, stackShape: "area",
         areaTotalLine: true, areaValueLabels: "auto", stackLegendDirect: true, stackLegendPos: "end",
-        showTotal: false, scenarioLabels: true }
+        showTotal: false, scenarioLabels: true },
+    // 1.56 (B15) C21 = 07C: cumulated YTD lines AC/FC against PL with the rolling year
+    // (R12), the months as columns behind the lines on the same scale, gap markers at the
+    // last actual and at the year end, square markers, scenario codes at the line ends
+    C21: { orientation: "line", comparisonMode: "plan", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, cumulative: true, cumulativeKind: "ytd",
+        lineR12: true, linePeriodColumns: "same", lineGapMarkers: "both", lineBasisLabels: true,
+        lineMarkerShape: "square", scenarioLabels: true, showTotal: false }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -176,7 +183,7 @@ const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
     C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
-    C20: "stockflow", C07: "stackarea"
+    C20: "stockflow", C07: "stackarea", C21: "line"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -191,11 +198,12 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C18: { role: "xValue", key: "Hub_NeedX", en: "X axis" },
     C19: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C20: { role: "rowType", key: "Hub_NeedSf", en: "Type: stock / inflow / outflow" },
-    C07: { role: "series", key: "Role_Series", en: "Stack series" }
+    C07: { role: "series", key: "Role_Series", en: "Stack series" },
+    C21: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
-    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C20"] },
+    { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C20"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
@@ -221,7 +229,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C18: ["Variance scatter", "ΔPY % against ΔPL % per product"],
     C19: ["Columns vs. plan + year", "Months AC/FC vs. PL, year on own scale"],
     C20: ["Stock and flow", "Cash, headcount or inventory over time"],
-    C07: ["Stacked area over time", "Mix of segments with the total line"]
+    C07: ["Stacked area over time", "Mix of segments with the total line"],
+    C21: ["Cumulated line with R12", "YTD vs. plan, rolling year, months"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -525,6 +534,12 @@ interface DataPoint {
     rowType: string | null;
     /** 1.55 (B11): stock & flow role from the rowType tokens stock / inflow / outflow */
     sfKind?: "stock" | "inflow" | "outflow" | null;
+    /** 1.56 (B15): line mode with YTD, set before the running totals: the period's own
+     *  values (period columns) and the rolling year (R12 line); absent elsewhere */
+    perVal?: number | null;
+    perPy?: number | null;
+    perPl?: number | null;
+    r12?: number | null;
     /** true for the synthetic "Rest (n)" row produced by top-N aggregation */
     isRest: boolean;
     /** cross-highlight from another visual is active and this row is NOT part of
@@ -566,6 +581,29 @@ interface Domains {
     rel2: [number, number];
     /** waterfall-bridge companion panel: zero-based like its anchor bars (extent) */
     bridge: [number, number];
+}
+
+/**
+ * 1.56 (B15, IBCS sheet 07C): line mode options. Built only when at least one option
+ * differs from its default; the YTD parts (r12, periodCols, gap) only with the
+ * cumulated YTD view. B17 (series lines) adds its own fields here.
+ */
+interface LineOpts {
+    /** point markers: circles (default) or squares (AC filled, FC hatched, PL hollow, thin lines) */
+    shape: "circle" | "square";
+    /** label the values of the comparison line (PL or PY) */
+    basisLabels: boolean;
+    /** scenario codes at the line ends and the AC/FC row under the axis (chart.scenarioLabels) */
+    endCodes: boolean;
+    /** rolling-year line: label at its start; null = option off */
+    r12: { label: string } | null;
+    /** period columns from the raw values behind the lines (same scale) */
+    periodCols: boolean;
+    /** gap markers at the last actual and/or at the year end */
+    gapActual: boolean;
+    gapEnd: boolean;
+    /** deck-wide largest |Δ| of the cumulated points: same label room in every tile */
+    gapMax: number;
 }
 
 interface Rect { x: number; y: number; w: number; h: number; }
@@ -765,6 +803,9 @@ interface ChartConfig {
     refLineLabel: string;
     /** line chart mode for long time series (IBCS line notation) */
     lineMode: boolean;
+    /** 1.56 (B15): options of the line mode; null = every option at its default (the
+     *  line renders exactly as up to 1.55) */
+    lineOpts: LineOpts | null;
     /** moving average window (0 = off), columns/line only */
     movingAvg: number;
     /** combo: second measure as a line over the columns (own zero-anchored scale) */
@@ -1312,6 +1353,9 @@ export class Visual implements IVisual {
     private sortModeStored = false;
     /** 1.54: pane defaults for template resets (one fresh model, built lazily) */
     private static tplDefaults: VisualFormattingSettingsModel | null = null;
+    /** 1.56 (B15): R12 source per tile of the current render (null = no source); empty
+     *  when the R12 line is off */
+    private lineR12Src = new Map<string | null, "measure" | "py" | "window" | null>();
     /** template applied in this session — a lost echo must not re-apply it in a loop */
     private templateSessionTpl: string | null = null;
     /** 1.49 locked chips: bridge toolbar buttons of this render (locked afterwards when
@@ -2113,7 +2157,17 @@ export class Visual implements IVisual {
         // 1.54 (B05): year column and scenario labels exist only in the column chart
         fs.chartCard.yearColumn.visible = orient === "columns";
         fs.chartCard.yearColumnLabel.visible = orient === "columns" && fs.chartCard.yearColumn.value === true;
-        fs.chartCard.scenarioLabels.visible = orient === "columns" || orient === "stockflow";
+        fs.chartCard.scenarioLabels.visible = orient === "columns" || orient === "stockflow" || orient === "line";
+        // 1.56 (B15): line options only in the line mode, the YTD parts (R12, period
+        // columns, gap markers) only with the cumulated YTD view
+        const isLineO = orient === "line";
+        const ytdLine = isLineO && fs.chartCard.cumulative.value === true
+            && String(fs.chartCard.cumulativeKind.value.value) === "ytd";
+        fs.chartCard.lineGroup.visible = isLineO;
+        fs.chartCard.lineR12.visible = ytdLine;
+        fs.chartCard.lineR12Label.visible = ytdLine && fs.chartCard.lineR12.value === true;
+        fs.chartCard.linePeriodColumns.visible = ytdLine;
+        fs.chartCard.lineGapMarkers.visible = ytdLine;
         fs.chartCard.groupEvery.visible = orient === "columns" || orient === "bars"
             || orient === "line" || orient === "catbridge" || orient === "stockflow";
         fs.chartCard.chartButtons.visible = orient === "intwaterfall" || orient === "catbridge"
@@ -6337,6 +6391,30 @@ export class Visual implements IVisual {
                 }
             }
         }
+        // 1.56 (B15, IBCS sheet 07C): line + YTD keeps each period's own values (period
+        // columns) and the rolling year (R12) on the points BEFORE the running totals
+        const lnCumYtd = lineMode && cumArgs != null && cumArgs.kind === "ytd";
+        const lnR12On = lnCumYtd && s.chartCard.lineR12.value === true;
+        const lnColsOn = lnCumYtd
+            && String((s.chartCard.linePeriodColumns.value as powerbi.IEnumMember)?.value) === "same";
+        this.lineR12Src = new Map();
+        if (cumArgs && (lnR12On || lnColsOn)) {
+            const r12Measure = groups.some(g => g.pts.some(p => p.lineVal != null));
+            // PY only feeds the R12 line: no PY line when the basis is plan (and no ΔPY panels)
+            const pyOnlySource = this.resolveBasisLabel() === "plan" && s.chartCard.dualVariance.value !== true;
+            for (const g of groups) {
+                if (g.preCum) { continue; }
+                const r = lnR12On ? this.r12Values(g.pts, r12Measure, cumArgs.fiscal) : null;
+                if (lnR12On) { this.lineR12Src.set(g.name, r ? r.src : null); }
+                const hidePy = r != null && r.src === "py" && pyOnlySource;
+                g.pts = g.pts.map((p, i) => ({
+                    ...p,
+                    perVal: p.value, perPy: hidePy ? null : p.py, perPl: p.pl,
+                    r12: r ? r.vals[i] : null,
+                    ...(hidePy ? { py: null } : {})
+                }));
+            }
+        }
         // cumulative (YTD) view: running totals per group, variances recomputed
         // (average tiles built from cumulated groups already are running totals)
         if (cumulativeOn) {
@@ -6397,7 +6475,7 @@ export class Visual implements IVisual {
             : points;
         const fmtPts = fmtPtsAll.length > 0 ? fmtPtsAll : points;
         const maxAbs = Math.max(...fmtPts.map(p =>
-            Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0))), 0);
+            Math.max(Math.abs(p.value ?? 0), Math.abs(p.py ?? 0), Math.abs(p.pl ?? 0), Math.abs(p.r12 ?? 0))), 0);
         // Δ2 (dual variance) is labelled with the same fmtVar — it bounds the unit too
         const maxVarAbs = Math.max(...fmtPts.map(p =>
             Math.max(Math.abs(p.varAbs ?? 0), Math.abs(p.var2Abs ?? 0))), 0);
@@ -6406,7 +6484,7 @@ export class Visual implements IVisual {
         const meanTilePts = mAgg === "mean" ? new Set(groups.filter(g => g.kind != null).flatMap(g => g.pts)) : null;
         const intPts = meanTilePts ? fmtPts.filter(p => !meanTilePts.has(p)) : fmtPts;
         const allInt = intPts.every(p =>
-            [p.value, p.py, p.pl, p.fc].every(v => v == null || Number.isInteger(v)));
+            [p.value, p.py, p.pl, p.fc, p.r12].every(v => v == null || Number.isInteger(v)));
         // 1.55 (B13): Δ against the Ø keeps the precision of the values (Δ of integers
         // against a mean of integers is labelled as an integer, like on sheet 13C)
         // B13 review (m3): only from |Δ| ≥ 10 on — small integers against a fractional Ø
@@ -6435,6 +6513,24 @@ export class Visual implements IVisual {
         // stand-ins; any user-chosen color passes through untouched
         const darkable = (v: string): string =>
             dark ? (DARK_COLOR_SWAP[(v || "").toUpperCase()] ?? v) : v;
+
+        // 1.56 (B15): line options, null while every option is at its default
+        const lnShapeSq = String((s.chartCard.lineMarkerShape.value as powerbi.IEnumMember)?.value) === "square";
+        const lnBasisLbl = s.chartCard.lineBasisLabels.value === true;
+        const lnCodes = s.chartCard.scenarioLabels.value === true;
+        const lnGap = lnCumYtd ? String((s.chartCard.lineGapMarkers.value as powerbi.IEnumMember)?.value) : "off";
+        const lineOpts: LineOpts | null = lineMode
+            && (lnShapeSq || lnBasisLbl || lnCodes || lnR12On || lnColsOn || lnGap === "actual" || lnGap === "end" || lnGap === "both")
+            ? {
+                shape: lnShapeSq ? "square" : "circle",
+                basisLabels: lnBasisLbl,
+                endCodes: lnCodes,
+                r12: lnR12On ? { label: (s.chartCard.lineR12Label.value || "").trim() || this.locStr("Label_R12", "R12") } : null,
+                periodCols: lnColsOn,
+                gapActual: lnGap === "actual" || lnGap === "both",
+                gapEnd: lnGap === "end" || lnGap === "both",
+                gapMax: Math.max(0, ...points.map(p => Math.abs(p.varAbs ?? 0)))
+            } : null;
 
         const cfg: ChartConfig = {
             orientation,
@@ -6481,6 +6577,7 @@ export class Visual implements IVisual {
             refLine: this.parseRefLine(),
             refLineLabel: (s.scaleCard.refLineLabel.value || "").trim(),
             lineMode,
+            lineOpts,
             movingAvg: Math.round(s.chartCard.movingAverage.value ?? 0),
             hasLine: orientationRaw === "columns" && !isStacked && points.some(p => p.lineVal != null),
             lineName: this.lineName ?? "Linie",
@@ -6660,6 +6757,14 @@ export class Visual implements IVisual {
             rel2: extent(domPts.map(p => p.var2Rel)),
             bridge: [0, 0]
         };
+        // 1.56 (B15): the R12 line and the period columns share the main scale and its
+        // zero line (sheet 07C: columns and lines at the same px per unit)
+        const lnOpt = cfg.lineOpts;
+        if (lnOpt && (lnOpt.r12 || lnOpt.periodCols)) {
+            const ext = extent(domPts.flatMap(p => lnOpt.periodCols
+                ? [p.r12 ?? null, p.perVal ?? null, p.perPl ?? null, p.perPy ?? null] : [p.r12 ?? null]));
+            domains.main = [Math.min(domains.main[0], ext[0]), Math.max(domains.main[1], ext[1])];
+        }
 
         // 1.54 (B05): year column — one Σ point per tile (AC + FC against the basis),
         // its own value scale over all tiles; its Δ / Δ% join the monthly Δ scales
@@ -17279,7 +17384,30 @@ export class Visual implements IVisual {
             && (orientation === "columns" ? region.h >= 260 : region.w >= 520);
         // 1.54 (B05): year column slot right of the months (own scale). The months
         // keep the same slot width; a gap separates the two scales
-        const scenOn = cfg.scenarioLabels && orientation === "columns" && !cfg.lineMode;
+        // 1.56 (B15, IBCS 07C): line options of this tile (null = the line as up to 1.55);
+        // period columns and gap markers only above the compact threshold
+        const lo = cfg.lineMode && orientation === "columns" ? cfg.lineOpts : null;
+        const lnSq = lo != null && lo.shape === "square";
+        const lnCols = lo != null && lo.periodCols && !compact;
+        const lnGapA = lo != null && lo.gapActual && !compact;
+        const lnGapE = lo != null && lo.gapEnd && !compact;
+        const lnR12 = lo != null && lo.r12 != null && points.some(p => p.r12 != null);
+        // scenario codes: the line's AC/FC code, the comparison lines' codes
+        const lnLastV = points.reduce((a, p, i) => p.value != null ? i : a, -1);
+        const lnCodes: string[] = lo != null && lo.endCodes
+            ? [lnLastV >= 0 && points[lnLastV].isFc ? cfg.scenL.fc : cfg.scenL.ac,
+                cfg.hasPl ? cfg.scenL.pl : "", cfg.hasPy ? cfg.scenL.py : ""].filter(x => x) : [];
+        const lnCodeW = lnCodes.length > 0 ? Math.max(...lnCodes.map(c => this.textWidth(c, cfg.labelFont))) + 4 : 0;
+        const lnGapTextW = lnGapA || lnGapE ? this.textWidth(this.fmtSigned(cfg.fmtDiff, -(lo?.gapMax ?? 0)), cfg.labelFont) : 0;
+        // the outline columns carry the basis code on their left (sheet: "PL")
+        const lnBasisCode = lnCodes.length === 0 ? ""
+            : cfg.basisMode === "plan" && cfg.hasPl ? cfg.scenL.pl : cfg.basisMode === "py" && cfg.hasPy ? cfg.scenL.py : "";
+        const lnRoom = lo == null ? { lo: 0, hi: 0 } : {
+            lo: Math.max(lo.r12 != null ? this.textWidth((lo.r12 as { label: string }).label, cfg.labelFont) + 8 : 0,
+                lnCols && lnBasisCode ? this.textWidth(lnBasisCode, cfg.labelFont) + 6 : 0),
+            hi: lnCodeW + (lnGapA || lnGapE ? 6 + 2 * (this.diffBarW() + 2) + 3 + lnGapTextW + 4 : 0)
+        };
+        const scenOn = cfg.scenarioLabels && orientation === "columns" && (!cfg.lineMode || lo != null);
         let yr: { x0: number; w: number } | null = null;
         // the slot is reserved in every tile of a deck with year columns (aligned small
         // multiples, a tile without a year point keeps the slot empty)
@@ -17388,9 +17516,9 @@ export class Visual implements IVisual {
             plainPlan, orientation, cfg, cfg.sharedScale ? cfg.mainDomain[1] - cfg.mainDomain[0] : 0, false, region.w * 0.2);
         if (orientation === "columns") {
             const catArea = cfg.catFont + 10 + (scenOn ? cfg.catFont + 2 : 0);
-            bandStart = region.x + pad + 2 + diffRooms.lo;
+            bandStart = region.x + pad + 2 + diffRooms.lo + lnRoom.lo;
             bandEnd = yr ? bandStart + n * yr.w
-                : region.x + region.w - pad - diffRooms.hi;
+                : region.x + region.w - pad - diffRooms.hi - lnRoom.hi;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
             panels = varOnly ? this.splitVarOnly(plotTop, plotBottom - plotTop, showAbs, showRel, true, region)
                 : split(plotTop, plotBottom - plotTop, true);
@@ -17688,9 +17816,24 @@ export class Visual implements IVisual {
 
         // ------- line mode: scenario paths underneath the markers
         const lineMode = cfg.lineMode && orientation === "columns";
-        if (lineMode) {
-            this.drawLinePaths(bg, points, (i: number) => slotPos(i) + slotW / 2, mainScale, cfg);
+        // 1.56 (B15): square markers sit on thin lines; half size = label gap
+        const lnMk = lnSq ? Math.round(Math.max(6, Math.min(10 * this.fontK, slotW * 0.5))) : 0;
+        const lnHalf = lnSq ? lnMk / 2 : 3.3;
+        const lnCx = (i: number) => slotPos(i) + slotW / 2;
+        // top of the period-column zone per category (label included), +∞ = free
+        let lnSky: number[] = points.map(() => Infinity);
+        let lnColsDropped = false;
+        if (lineMode && lnCols) {
+            const sky = this.drawPeriodColumns(bg, points, { slotPos, slotW, barW, acShift, plShift, step },
+                mainScale, cfg, lnCodes.length > 0 ? { basis: lnBasisCode, region } : null);
+            if (sky) { lnSky = sky; } else { lnColsDropped = true; }
         }
+        if (lineMode) {
+            this.drawLinePaths(bg, points, lnCx, mainScale, cfg, lo ? { thin: lnSq } : undefined);
+        }
+        // 1.56 (B15): rolling year (R12) on the same scale, its labels after the marks
+        const r12Lbl = lineMode && lnR12 && lo ? this.drawR12Line(bg, points, lnCx, mainScale, cfg, lnSq, lnMk,
+            this.lineR12Src.get(points[0]?.group ?? null) ?? null) : null;
 
         // ------- moving average overlay (time series only)
         if (cfg.movingAvg >= 2 && orientation === "columns" && !varOnly) {
@@ -17698,6 +17841,14 @@ export class Visual implements IVisual {
                 ? slotPos(i) + slotW / 2
                 : slotPos(i) + acShift + barW / 2, mainScale, cfg);
         }
+
+        // 1.56 (B15): AC/FC label boxes (the R12 labels give way) and the comparison-line labels
+        const lnAcBox: ([number, number] | null)[] = points.map(() => null);
+        const lnBasisOf = (p: DataPoint): number | null => cfg.basisMode === "plan" ? (cfg.hasPl ? p.pl : null)
+            : cfg.basisMode === "py" ? (cfg.hasPy ? p.py : null) : null;
+        const lnBasisTexts = lo?.basisLabels ? points.map(p => { const v = lnBasisOf(p); return v != null ? cfg.fmt.format(v) : ""; }) : [];
+        const lnBasisAt = lo?.basisLabels
+            ? this.labelPredicate(points, lnBasisTexts, cfg.labelFont, step, orientation, lnBasisOf) : () => false;
 
         // ------- category groups with all marks
         const marks = this.el("g", {}, this.svg);
@@ -17777,6 +17928,10 @@ export class Visual implements IVisual {
                     if (capped(p.value) || capped(p.py) || capped(p.pl)) {
                         this.drawCapMarker(g, lx - mw / 2, mw, mainScale, orientation, cfg);
                     }
+                    // 1.56 (B15): plan points as hollow squares (under the AC/FC marker)
+                    if (lnSq && cfg.hasPl && p.pl != null) {
+                        this.lineSquare(g, lx, mainScale(capV(p.pl)), lnMk, "pl", cfg, "line-pt", { "data-v": p.pl });
+                    }
                 }
                 // benchmark marker: bold tick across the slot at the BM value
                 if (p.bm != null) {
@@ -17805,11 +17960,16 @@ export class Visual implements IVisual {
                             x: pos, y: panels.main.y, width: slotW, height: panels.main.h,
                             fill: cfg.paper, "fill-opacity": 0, "pointer-events": "all"
                         }, g);
-                        this.el("circle", {
-                            cx, cy: mainScale(capV(p.value)), r: 2.6,
-                            fill: p.isFc ? cfg.paper : cfg.colors.ac,
-                            stroke: cfg.colors.ac, "stroke-width": 1.4
-                        }, g);
+                        if (lnSq) {
+                            this.lineSquare(g, cx, mainScale(capV(p.value)), lnMk, p.isFc ? "fc" : "ac", cfg, "line-pt", { "data-v": p.value });
+                        } else {
+                            this.el("circle", {
+                                cx, cy: mainScale(capV(p.value)), r: 2.6,
+                                fill: p.isFc ? cfg.paper : cfg.colors.ac,
+                                stroke: cfg.colors.ac, "stroke-width": 1.4,
+                                ...(lo ? { "data-icd": "line-pt", "data-shape": "circle", "data-scen": p.isFc ? "fc" : "ac", "data-v": p.value } : {})
+                            }, g);
+                        }
                     } else if (p.fcPart != null && p.fcPart > 0) {
                         // AC+FC-Splitsäule: solider AC-Sockel, schraffierter FC-Aufsatz
                         // (IBCS-Notation) — Trennkante zwischen beiden Segmenten
@@ -17850,13 +18010,24 @@ export class Visual implements IVisual {
                             const others = [cfg.hasPy ? p.py : null, cfg.hasPl ? p.pl : null]
                                 .filter((v): v is number => v != null);
                             const lineW = Math.max(3, Math.round(2.4 * this.fontK * 2) / 2);
-                            gapL = lineW / 2 + 2;
-                            if (others.every(v => v <= (p.value as number))) { anchor = capV(p.value); up = true; }
+                            gapL = lnSq ? lnHalf + 1 : lineW / 2 + 2;
+                            const bLvl = lo ? lnBasisOf(p) : null;
+                            if (lo) {
+                                // 1.56 (B15): with line options the label stays at its own point, on
+                                // the side away from the comparison line (never read as its value)
+                                anchor = capV(p.value); up = bLvl == null || bLvl <= p.value;
+                            } else if (others.every(v => v <= (p.value as number))) { anchor = capV(p.value); up = true; }
                             else if (others.every(v => v > (p.value as number))) { anchor = capV(p.value); up = false; }
                             else { anchor = capV(Math.max(p.value, ...others)); up = true; }
                         }
-                        this.drawEndLabelAt(g, cx, anchor, up, mainScale,
-                            orientation, valueTexts[i], cfg.labelFont, cfg.ink, gapL, cfg.paper);
+                        // 1.56 (B15): a line label running into the period columns (or their
+                        // labels) is left out, the column carries the number there
+                        const box = lo ? this.lnLabelBox(mainScale(anchor), up, gapL, cfg.labelFont) : null;
+                        if (!(box && box[1] > lnSky[i] - 1)) {
+                            if (box) { lnAcBox[i] = box; }
+                            this.drawEndLabelAt(g, cx, anchor, up, mainScale,
+                                orientation, valueTexts[i], cfg.labelFont, cfg.ink, gapL, cfg.paper);
+                        }
                         // compact mode: variance becomes a colored second label at the bar end
                         if (compact && p.varAbs != null) {
                             const good = cfg.isGood(p.varAbs, p);
@@ -17890,6 +18061,21 @@ export class Visual implements IVisual {
                             : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
                         this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
                             orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
+                    }
+                }
+            }
+
+            // 1.56 (B15): values of the comparison line, on the side away from AC/FC
+            if (lineMode && lo?.basisLabels && cfg.showLabels && lnBasisAt(i)) {
+                const bv = lnBasisOf(p);
+                if (bv != null) {
+                    const up = p.value == null || bv >= p.value;
+                    const gapB = lnSq ? lnHalf + 1 : Math.max(3, Math.round(2.4 * this.fontK * 2) / 2) / 2 + 2;
+                    const box = this.lnLabelBox(mainScale(capV(bv)), up, gapB, cfg.labelFont);
+                    if (box[1] <= lnSky[i] - 1) {
+                        this.drawEndLabelAt(g, cx, capV(bv), up, mainScale, orientation, lnBasisTexts[i],
+                            cfg.labelFont, cfg.ink, gapB, cfg.paper);
+                        g.lastElementChild?.setAttribute("data-icd", "line-basis-label");
                     }
                 }
             }
@@ -18099,6 +18285,35 @@ export class Visual implements IVisual {
                     x2: x, y2: region.y + region.h,
                     stroke: cfg.ink, "stroke-width": 1, "data-icd": "pl-boundary"
                 }, bg);
+            }
+        }
+
+        // ------- 1.56 (B15): R12 labels, scenario codes at the line ends, gap markers, hints
+        if (lineMode && lo) {
+            if (r12Lbl && cfg.showLabels) { r12Lbl(lnAcBox); }
+            const codeEnd = lnCodes.length > 0
+                ? this.drawLineEndCodes(bg, points, lnCx, mainScale, cfg, lnHalf) : lnCx(n - 1) + lnHalf;
+            if (lnGapA || lnGapE) {
+                this.drawLineGapMarkers(bg, points, lnCx, mainScale, cfg, codeEnd + 6, lnGapA, lnGapE, lnHalf,
+                    { x: region.x, y: panels.main.y, w: region.w, h: panels.main.h });
+            }
+            if (this.allowInteractions && this.viewMode !== 0) {
+                const hints: [string, string][] = [];
+                if (lo.r12 && this.lineR12Src.has(points[0]?.group ?? null)
+                    && this.lineR12Src.get(points[0]?.group ?? null) == null) {
+                    hints.push(["r12", this.locStr("Hint_R12NoSource",
+                        "R12 line: no source. Bind a rolling-year measure to “Line”, the prior year for a full year, or show at least 13 periods")]);
+                }
+                if (lnColsDropped) {
+                    hints.push(["cols", this.locStr("Hint_PeriodColsSpace", "Period columns: too small on this scale, not drawn")]);
+                }
+                const hf = Math.round(9 * this.fontK);
+                hints.forEach(([kind, msg], hi) => {
+                    const t = this.el("text", { x: panels.main.x + 4, y: panels.main.y + titleH + hf + 2 + hi * (hf + 3),
+                        "font-size": hf, fill: cfg.subtle, "font-family": FONT, "font-style": "italic",
+                        "data-icd": "line-hint", "data-kind": kind }, this.svg);
+                    t.textContent = this.truncate(msg, panels.main.w - 8, hf);
+                });
             }
         }
 
@@ -18767,6 +18982,49 @@ export class Visual implements IVisual {
             });
         });
         return out;
+    }
+
+    /**
+     * 1.56 (B15): rolling year (sum of the last 12 periods) per point of one tile, from
+     * the raw (not yet cumulated) points. Sources in this order: (A) the line measure,
+     * drawn as it comes (a finished R12 measure of the model); (B) one full year with a
+     * PY value in every period: R12(m) = Σ PY − PY_YTD(m) + YTD(m), YTD of AC/FC;
+     * (C) at least 13 periods: the window over the values, the line starts at the 12th
+     * period. Null = no source (no line, edit-mode hint).
+     */
+    private r12Values(pts: DataPoint[], measure: boolean, fiscalStart: number)
+        : { src: "measure" | "py" | "window"; vals: (number | null)[] } | null {
+        if (measure) { return { src: "measure", vals: pts.map(p => p.lineVal) }; }
+        const n = pts.length;
+        const months = pts.map(p => this.monthOf(p.cat));
+        const startOk = !months.every(m => m != null) || months[0] === fiscalStart;
+        if (n === 12 && startOk && pts.every(p => p.py != null)) {
+            const pyYear = pts.reduce((a, p) => a + (p.py as number), 0);
+            let pyYtd = 0, ytd = 0;
+            return {
+                src: "py", vals: pts.map(p => {
+                    pyYtd += p.py as number;
+                    if (p.value == null) { return null; }
+                    ytd += p.value;
+                    return pyYear - pyYtd + ytd;
+                })
+            };
+        }
+        if (n >= 13) {
+            return {
+                src: "window", vals: pts.map((_, i) => {
+                    if (i < 11) { return null; }
+                    let acc = 0;
+                    for (let j = i - 11; j <= i; j++) {
+                        const v = pts[j].value;
+                        if (v == null) { return null; }
+                        acc += v;
+                    }
+                    return acc;
+                })
+            };
+        }
+        return null;
     }
 
     private cumulate(pts: DataPoint[], basisMode: Basis,
@@ -19781,7 +20039,8 @@ export class Visual implements IVisual {
 
     /** IBCS line notation: AC solid (FC segments dashed), PY thin grey, PL thin dashed */
     private drawLinePaths(parent: SVGElement, points: DataPoint[],
-        cxOf: (i: number) => number, scale: Scale, cfg: ChartConfig): void {
+        cxOf: (i: number) => number, scale: Scale, cfg: ChartConfig, opts?: { thin: boolean }): void {
+        if (opts) { this.drawLinePathsB15(parent, points, cxOf, scale, cfg, opts.thin); return; }
         const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
         const path = (acc: (p: DataPoint) => number | null,
             style: Record<string, string | number>, splitFc: boolean) => {
@@ -19817,6 +20076,311 @@ export class Visual implements IVisual {
             path(p => p.pl, { stroke: cfg.paper, "stroke-width": Math.max(1, lw - 2), "data-icd": "line-pl-core" }, false);
         }
         path(p => p.value, { stroke: cfg.colors.ac, "stroke-width": lw }, true);
+    }
+
+    /**
+     * 1.56 (B15): the line paths with any line option set. Circles keep the 1.52.1
+     * notation (one weight, PL hollow, FC dashed); squares (sheet 07C) draw thin solid
+     * lines, the markers carry the scenario. Every path carries a test marker.
+     */
+    private drawLinePathsB15(parent: SVGElement, points: DataPoint[],
+        cxOf: (i: number) => number, scale: Scale, cfg: ChartConfig, thin: boolean): void {
+        const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
+        const path = (acc: (p: DataPoint) => number | null, style: Record<string, string | number>, splitFc: boolean) => {
+            let dSolid = "", dDash = "";
+            let prev: { x: number; y: number; fc: boolean } | null = null;
+            for (let i = 0; i < points.length; i++) {
+                const v = acc(points[i]);
+                if (v == null) { prev = null; continue; }
+                const pt = { x: cxOf(i), y: scale(cap(v)), fc: points[i].isFc };
+                if (prev) {
+                    const seg = `M${prev.x},${prev.y}L${pt.x},${pt.y}`;
+                    if (splitFc && (prev.fc || pt.fc)) { dDash += seg; } else { dSolid += seg; }
+                }
+                prev = pt;
+            }
+            if (dSolid) { this.el("path", { d: dSolid, fill: "none", ...style }, parent); }
+            if (dDash) { this.el("path", { d: dDash, fill: "none", ...style, "stroke-dasharray": "5,4" }, parent); }
+        };
+        const lw = thin ? this.lineThinW() : Math.max(3, Math.round(2.4 * this.fontK * 2) / 2);
+        if (cfg.hasPy) {
+            path(p => p.py, cfg.hc ? { stroke: cfg.colors.py, "stroke-width": lw, "stroke-dasharray": "2,2", "data-icd": "line-py" }
+                : { stroke: cfg.colors.py, "stroke-width": lw, "data-icd": "line-py" }, false);
+        }
+        if (cfg.hasPl) {
+            path(p => p.pl, { stroke: cfg.colors.pl, "stroke-width": lw, "data-icd": "line-pl" }, false);
+            if (!thin) {
+                path(p => p.pl, { stroke: cfg.paper, "stroke-width": Math.max(1, lw - 2), "data-icd": "line-pl-core" }, false);
+            }
+        }
+        path(p => p.value, { stroke: cfg.colors.ac, "stroke-width": lw, "data-icd": "line-ac" }, !thin);
+    }
+
+    /** 1.56 (B15): stroke width of the thin lines under square markers */
+    private lineThinW(): number {
+        return Math.max(1, Math.round(1.2 * this.fontK * 2) / 2);
+    }
+
+    /** 1.56 (B15): square point marker (sheet 07C): AC filled, FC hatched, PL hollow */
+    private lineSquare(parent: SVGElement, cx: number, cy: number, size: number, scen: "ac" | "fc" | "pl",
+        cfg: ChartConfig, icd: string, extra: Record<string, string | number> = {}): SVGElement {
+        const style: Record<string, string | number> = scen === "ac" ? { fill: cfg.colors.ac, stroke: cfg.colors.ac, "stroke-width": 1 }
+            : scen === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                : { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 };
+        return this.el("rect", { x: cx - size / 2, y: cy - size / 2, width: size, height: size, ...style,
+            "data-icd": icd, "data-shape": "square", "data-scen": scen, ...extra }, parent);
+    }
+
+    /** 1.56 (B15): vertical extent [top, bottom] of a value label drawn by drawEndLabelAt
+     *  (columns) above or below the point at y */
+    private lnLabelBox(y: number, up: boolean, gap: number, font: number): [number, number] {
+        return up ? [y - 4 - gap - font, y - 4 - gap] : [y + 2 + gap, y + font + 2 + gap];
+    }
+
+    /**
+     * 1.56 (B15, sheet 07C): the periods' own values as columns behind the cumulated
+     * lines, on the main scale and its zero line: AC solid, FC hatched, PY grey, PL
+     * outlined and offset (column geometry of the column chart), value labels above.
+     * Optional scenario codes: the basis code left of the first column, the code of the
+     * last column right of it. Returns per category the top of the column zone (label
+     * included, +∞ = free) or null when the largest column would be shorter than 4 px.
+     */
+    private drawPeriodColumns(parent: SVGElement, points: DataPoint[],
+        geo: { slotPos: (i: number) => number; slotW: number; barW: number; acShift: number; plShift: number; step: number },
+        scale: Scale, cfg: ChartConfig, codes: { basis: string; region: Rect } | null): number[] | null {
+        const vals = points.flatMap(p => [p.perVal, p.perPl, p.perPy]).filter((v): v is number => v != null);
+        if (vals.length === 0) { return null; }
+        const z = scale(0);
+        if (Math.abs(scale(Math.max(...vals.map(v => Math.abs(v)))) - z) < 4) { return null; }
+        const g = this.el("g", { "data-icd": "period-cols" }, parent);
+        const texts = points.map(p => p.perVal != null ? cfg.fmt.format(p.perVal) : "");
+        const showAt = this.labelPredicate(points, texts, cfg.labelFont, geo.step, "columns", p => p.perVal ?? null);
+        const pyAsCol = cfg.hasPy && !cfg.pyTriangle;
+        const sky = points.map((p, i) => {
+            const pos = geo.slotPos(i);
+            let top = Infinity;
+            const see = (v: number) => { top = Math.min(top, scale(Math.max(0, v))); };
+            if (p.perPy != null) {
+                if (pyAsCol) {
+                    this.drawBar(g, pos, geo.barW, 0, p.perPy, scale, "columns", cfg.hc
+                        ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2", "data-icd": "period-col-py" }
+                        : { fill: cfg.colors.py, "data-icd": "period-col-py" });
+                } else {
+                    this.drawPyTriangle(g, pos, geo.slotW, p.perPy, scale, "columns", cfg);
+                }
+                see(p.perPy);
+            }
+            if (p.perPl != null) {
+                this.drawBar(g, pos + geo.plShift, geo.barW, 0, p.perPl, scale, "columns",
+                    { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4, "data-icd": "period-col-pl", "data-v": p.perPl });
+                see(p.perPl);
+            }
+            if (p.perVal != null) {
+                this.drawBar(g, pos + geo.acShift, geo.barW, 0, p.perVal, scale, "columns", {
+                    ...(p.isFc ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 } : { fill: cfg.colors.ac }),
+                    "data-icd": "period-col", "data-v": p.perVal, "data-scen": p.isFc ? "fc" : "ac" });
+                see(p.perVal);
+                if (cfg.showLabels && showAt(i)) {
+                    const cand = [p.perVal, p.perPl, p.perPy].filter((v): v is number => v != null);
+                    const anchor = p.perVal >= 0 ? Math.max(...cand) : Math.min(...cand);
+                    this.drawEndLabelAt(g, pos + geo.acShift + geo.barW / 2, anchor, p.perVal >= 0, scale, "columns",
+                        texts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
+                    g.lastElementChild?.setAttribute("data-icd", "period-col-label");
+                    if (p.perVal >= 0) { top = Math.min(top, scale(anchor) - 4 - cfg.labelFont - 1); }
+                }
+            }
+            return top === Infinity ? z : top;
+        });
+        if (codes) {
+            const code = (x: number, v: number, text: string, anchor: string, scen: string) => {
+                const t = this.el("text", { x, y: (scale(v) + z) / 2 + cfg.labelFont * 0.35, "text-anchor": anchor,
+                    "font-size": cfg.labelFont, fill: cfg.ink, "font-family": FONT, "data-icd": "period-col-code", "data-scen": scen }, g);
+                t.textContent = text;
+            };
+            const first = points.findIndex(p => (cfg.basisMode === "plan" ? p.perPl : p.perPy) != null);
+            if (codes.basis && first >= 0) {
+                const v = (cfg.basisMode === "plan" ? points[first].perPl : points[first].perPy) as number;
+                code(geo.slotPos(first) + (cfg.basisMode === "plan" ? geo.plShift : 0) - 4, v, codes.basis, "end",
+                    cfg.basisMode === "plan" ? "pl" : "py");
+            }
+            const last = points.reduce((a, p, i) => p.perVal != null ? i : a, -1);
+            if (last >= 0) {
+                const fc = points[last].isFc;
+                code(geo.slotPos(last) + geo.acShift + geo.barW + 4, points[last].perVal as number,
+                    fc ? cfg.scenL.fc : cfg.scenL.ac, "start", fc ? "fc" : "ac");
+            }
+        }
+        return sky;
+    }
+
+    /**
+     * 1.56 (B15): rolling-year line (R12, "MAT") on the main scale: AC colour at the
+     * weight of the other lines, FC pieces dashed (circles) resp. hatched squares, its
+     * name left of the first point. Returns the label pass, run after the AC/FC labels:
+     * every second point plus the last one, always above, and left out where an AC/FC
+     * label already stands (at the year end both are the same number).
+     */
+    private drawR12Line(parent: SVGElement, points: DataPoint[], cxOf: (i: number) => number, scale: Scale,
+        cfg: ChartConfig, sq: boolean, mk: number, src: "measure" | "py" | "window" | null): (acBoxes: ([number, number] | null)[]) => void {
+        const lo = cfg.lineOpts as LineOpts;
+        const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
+        const g = this.el("g", { "data-icd": "line-r12", "data-src": src ?? "none" }, parent);
+        const lw = sq ? this.lineThinW() : Math.max(3, Math.round(2.4 * this.fontK * 2) / 2);
+        let dS = "", dD = "";
+        let prev: { x: number; y: number; fc: boolean } | null = null;
+        const idx: number[] = [];
+        points.forEach((p, i) => {
+            if (p.r12 == null) { prev = null; return; }
+            idx.push(i);
+            const pt = { x: cxOf(i), y: scale(cap(p.r12)), fc: p.isFc };
+            if (prev) {
+                const seg = `M${prev.x},${prev.y}L${pt.x},${pt.y}`;
+                if (!sq && (prev.fc || pt.fc)) { dD += seg; } else { dS += seg; }
+            }
+            prev = pt;
+        });
+        if (dS) { this.el("path", { d: dS, fill: "none", stroke: cfg.colors.ac, "stroke-width": lw }, g); }
+        if (dD) { this.el("path", { d: dD, fill: "none", stroke: cfg.colors.ac, "stroke-width": lw, "stroke-dasharray": "5,4" }, g); }
+        for (const i of idx) {
+            const p = points[i];
+            const x = cxOf(i), y = scale(cap(p.r12 as number));
+            const scen = p.isFc ? "fc" : "ac";
+            if (sq) {
+                this.lineSquare(g, x, y, mk, scen, cfg, "line-r12-pt", { "data-v": p.r12 as number });
+            } else {
+                this.el("circle", { cx: x, cy: y, r: 2.6, fill: p.isFc ? cfg.paper : cfg.colors.ac,
+                    stroke: cfg.colors.ac, "stroke-width": 1.4, "data-icd": "line-r12-pt", "data-shape": "circle",
+                    "data-scen": scen, "data-v": p.r12 as number }, g);
+            }
+        }
+        const half = sq ? mk / 2 : 3.3;
+        if (idx.length > 0) {
+            const f = idx[0];
+            const t = this.el("text", { x: cxOf(f) - half - 4, y: scale(cap(points[f].r12 as number)) + cfg.labelFont * 0.35,
+                "text-anchor": "end", "font-size": cfg.labelFont, fill: cfg.ink, "font-family": FONT,
+                stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round",
+                "data-icd": "line-r12-name" }, g);
+            t.textContent = lo.r12 ? lo.r12.label : "R12";
+        }
+        return (acBoxes: ([number, number] | null)[]) => {
+            if (idx.length === 0) { return; }
+            const texts = points.map(p => p.r12 != null ? cfg.fmt.format(p.r12) : "");
+            const step = points.length > 1 ? Math.abs(cxOf(1) - cxOf(0)) : 1000;
+            const wMax = Math.max(...idx.map(i => this.textWidth(texts[i], cfg.labelFont)));
+            const f = idx[0], last = idx[idx.length - 1];
+            // sheet 07C: every second point and the last one; denser text falls back to the thinning
+            const thin = wMax + 6 > 2 * step
+                ? this.labelPredicate(points, texts, cfg.labelFont, step, "columns", p => p.r12 ?? null) : null;
+            const gap = half + 1;
+            for (const i of idx) {
+                const want = thin ? thin(i) : i === last || ((i - f) % 2 === 0 && i !== last - 1);
+                if (!want) { continue; }
+                const y = scale(cap(points[i].r12 as number));
+                const box = this.lnLabelBox(y, true, gap, cfg.labelFont);
+                const ac = acBoxes[i];
+                if (ac && ac[0] < box[1] + 1 && ac[1] > box[0] - 1) { continue; }
+                this.drawEndLabelAt(g, cxOf(i), cap(points[i].r12 as number), true, scale, "columns", texts[i],
+                    cfg.labelFont, cfg.ink, gap, cfg.paper);
+                g.lastElementChild?.setAttribute("data-icd", "line-r12-label");
+            }
+        };
+    }
+
+    /**
+     * 1.56 (B15): scenario codes right of the last point of each line (AC or FC, PL, PY),
+     * pushed apart when they would overlap. Returns the right end of the codes.
+     */
+    private drawLineEndCodes(parent: SVGElement, points: DataPoint[], cxOf: (i: number) => number, scale: Scale,
+        cfg: ChartConfig, half: number): number {
+        const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
+        const lastOf = (get: (p: DataPoint) => number | null) => points.reduce((a, p, i) => get(p) != null ? i : a, -1);
+        const entries: { x: number; y: number; t: string; scen: string }[] = [];
+        const iv = lastOf(p => p.value);
+        if (iv >= 0) {
+            const fc = points[iv].isFc;
+            entries.push({ x: cxOf(iv) + half + 3, y: scale(cap(points[iv].value as number)),
+                t: fc ? cfg.scenL.fc : cfg.scenL.ac, scen: fc ? "fc" : "ac" });
+        }
+        if (cfg.hasPl) {
+            const ip = lastOf(p => p.pl);
+            if (ip >= 0) { entries.push({ x: cxOf(ip) + half + 3, y: scale(cap(points[ip].pl as number)), t: cfg.scenL.pl, scen: "pl" }); }
+        }
+        if (cfg.hasPy) {
+            const iy = lastOf(p => p.py);
+            if (iy >= 0) { entries.push({ x: cxOf(iy) + half + 3, y: scale(cap(points[iy].py as number)), t: cfg.scenL.py, scen: "py" }); }
+        }
+        const lf = cfg.labelFont;
+        const byX = new Map<number, typeof entries>();
+        for (const e of entries) { const k = Math.round(e.x); byX.set(k, [...(byX.get(k) ?? []), e]); }
+        byX.forEach(list => {
+            list.sort((a, b) => a.y - b.y);
+            for (let k = 1; k < list.length; k++) {
+                if (list[k].y - list[k - 1].y < lf + 1) { list[k].y = list[k - 1].y + lf + 1; }
+            }
+        });
+        let right = cxOf(points.length - 1) + half;
+        for (const e of entries) {
+            const t = this.el("text", { x: e.x, y: e.y + lf * 0.35, "text-anchor": "start", "font-size": lf, fill: cfg.ink,
+                "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round",
+                "data-icd": "line-end-code", "data-scen": e.scen }, parent);
+            t.textContent = e.t;
+            right = Math.max(right, e.x + this.textWidth(e.t, lf));
+        }
+        return right;
+    }
+
+    /**
+     * 1.56 (B15, sheet 07C): gap between the cumulated AC/FC line and the comparison
+     * line as a thick bar at the right edge: at the last actual (AC against the basis)
+     * and at the last point (AC and FC against the basis, hatched). Thin level lines from
+     * both points to the bar, Δ beside it (absolute only, good/bad colour). A second bar
+     * whose span overlaps the first moves one track out.
+     */
+    private drawLineGapMarkers(guides: SVGElement, points: DataPoint[], cxOf: (i: number) => number, scale: Scale,
+        cfg: ChartConfig, x0: number, atActual: boolean, atEnd: boolean, half: number, clip: Rect): void {
+        const lastAc = points.reduce((a, p, i) => p.value != null && !p.isFc ? i : a, -1);
+        const lastV = points.reduce((a, p, i) => p.value != null ? i : a, -1);
+        const list: { at: "actual" | "end"; i: number; fc: boolean }[] = [];
+        if (atActual && lastAc >= 0 && points[lastAc].basis != null) { list.push({ at: "actual", i: lastAc, fc: false }); }
+        if (atEnd && lastV >= 0 && points[lastV].basis != null && !(atActual && lastV === lastAc)) {
+            list.push({ at: "end", i: lastV, fc: points[lastV].isFc });
+        }
+        if (list.length === 0) { return; }
+        const cap = (v: number) => cfg.capMax != null ? Math.min(v, cfg.capMax) : v;
+        const lf = cfg.labelFont;
+        const bw = this.diffBarW();
+        const ys = list.map(m => [scale(cap(points[m.i].basis as number)), scale(cap(points[m.i].value as number))]);
+        const spans = ys.map(([a, b]) => [Math.min(a, b) - lf, Math.max(a, b) + lf]);
+        const track = list.map((_, k) => k > 0 && spans[k][0] < spans[0][1] && spans[k][1] > spans[0][0] ? 1 : 0);
+        const tracks = Math.max(...track) + 1;
+        const labelX = x0 + tracks * (bw + 2) + 2;
+        const top = this.el("g", {}, this.svg);
+        let prevLabelY: number | null = null;
+        list.forEach((m, k) => {
+            const p = points[m.i];
+            const d = (p.value as number) - (p.basis as number);
+            const color = d === 0 ? cfg.subtle : cfg.hc ? cfg.ink : cfg.isGood(d, p) ? cfg.colors.good : cfg.colors.bad;
+            const xb = x0 + track[k] * (bw + 2);
+            const [ya, yb] = ys[k];
+            const start = m.i === points.length - 1 ? Math.max(cxOf(m.i) + half + 1, x0 - 4) : cxOf(m.i) + half + 1;
+            for (const y of [ya, yb]) {
+                this.el("line", { x1: start, y1: y, x2: xb + bw, y2: y, stroke: cfg.subtle, "stroke-width": 1,
+                    "data-icd": "gap-guide", "data-at": m.at }, guides);
+            }
+            const g = this.el("g", { "data-icd": "gap-marker", "data-at": m.at, "data-v": d, "data-track": track[k] }, top);
+            const fill = m.fc && !cfg.hc ? `url(#${cfg.isGood(d, p) ? cfg.patGood : cfg.patBad})` : color;
+            this.el("rect", { x: xb, y: Math.min(ya, yb), width: bw, height: Math.max(Math.abs(yb - ya), 2), fill,
+                stroke: m.fc ? color : "none", "stroke-width": m.fc ? 1 : 0, "data-icd": "gap-bar" }, g);
+            let ly = Math.max(clip.y + lf, Math.min((ya + yb) / 2 + lf * 0.35, clip.y + clip.h - 2));
+            if (prevLabelY != null && Math.abs(ly - prevLabelY) < lf + 2) { ly = prevLabelY + lf + 2; }
+            prevLabelY = ly;
+            const text = this.fmtSigned(cfg.fmtDiff, d);
+            const t = this.el("text", { x: labelX, y: ly, "text-anchor": "start", "font-size": lf, fill: cfg.ink,
+                "font-family": FONT, stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke", "stroke-linejoin": "round",
+                "data-icd": "gap-label" }, g);
+            t.textContent = text;
+            g.setAttribute("aria-label", `${p.cat}: ${cfg.scenL.ac}${m.fc ? "+" + cfg.scenL.fc : ""} − ${cfg.basisLabel} ${text}`);
+        });
     }
 
     private parseRefLine(): number | null {
@@ -20799,6 +21363,13 @@ export class Visual implements IVisual {
             if (cfg.bmInChart) { add("Benchmark (BM)", p.bm); }
             if (p.lineVal != null) {
                 out.push({ displayName: cfg.lineName, value: cfg.fmtLine.format(p.lineVal) });
+            }
+            // 1.56 (B15): line + YTD: the period's own value and the rolling year
+            if (cfg.lineOpts?.periodCols && p.perVal != null) {
+                out.push({ displayName: this.locStr("Tooltip_Period", "Period"), value: cfg.fmt.format(p.perVal) });
+            }
+            if (cfg.lineOpts?.r12 && p.r12 != null && p.lineVal == null) {
+                out.push({ displayName: cfg.lineOpts.r12.label, value: cfg.fmt.format(p.r12) });
             }
             if (p.stackSeries != null) {
                 out.push({ displayName: this.locStr("Tooltip_Series", "Series"), value: p.stackSeries });
