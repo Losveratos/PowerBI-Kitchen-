@@ -1,5 +1,48 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.57.0.0 (in Arbeit)
+
+- **B20 · Marimekko (nach IBCS-Blatt 02F).** Vorher: 100-%-Balken hatten immer gleich hohe Zeilen, die Größe einer
+  Zeile stand nur im Summenbalken daneben; 02F (Zeilendicke nach Umsatz) war nicht abbildbar. Nachher (Format Chart →
+  Darstellung, nur Balken mit 100 %):
+  - **„Zeilendicke“** (`chart.stackThickness`: `equal` | `total`, Standard `equal`): Mit „Nach Zeilensumme
+    (Marimekko)“ ist jede Zeile so dick wie ihre Summe, die Fläche eines Segments ist sein Wert. Wirkt nur mit
+    gestapelten Balken, gebundener Serie und wirksamen 100 % (keine negative Zelle); bei Werten und bei Säulen ohne
+    Wirkung. Die Zeilen stoßen aneinander, getrennt durch eine Haarlinie (1 px). Σ-Zeile, Zwischensummen und
+    Blockabstand behalten die normale Zeilenhöhe, den Rest teilen die Zeilen nach Summe. Sehr dünne Zeilen bekommen
+    eine Mindestdicke (3 px, Hochkontrast 5 px), der Rest wird neu verteilt; passt nicht einmal die Mindestdicke, steht
+    im Bearbeitungsmodus der Hinweis auf Top N. Zeilen mit Summe 0 entfallen.
+  - **Beschriftung:** Die Segmente zeigen die Werte statt der Anteile (die Dicke trägt die Größe), ebenso der Mix der
+    Σ-Zeile. Ein Segmentwert steht nur, wenn die Zeile mindestens eine Schrifthöhe dick und das Segment breit genug
+    ist, sonst im Tooltip (zusätzlich „Anteil an Gesamt“). Zeilennamen und Zahlen der Spalten werden gierig gesetzt:
+    ein Label entfällt, wenn es ein schon gesetztes berührt; Hervorhebung, Rest-Zeile und dickste Zeile zuerst, dann von
+    oben. Keine überlappenden Zahlen wie auf dem Blatt. Rest-Zeilen samt Zahlen kursiv. Seriennamen in der
+    Schlüsselzeile über den Segmenten der ersten Zeile.
+  - **Summenspalte:** Das Summen-Panel wird zur Zahlenspalte (fette Kopfzeile „Σ AC (↓)“, Zahlen rechtsbündig,
+    Blocksummen und Gesamtsumme fett); Breite aus dem Textmaß. Bedingung wie das Panel (Σ an, ab 280 px Breite).
+  - **„Anteilsspalte“** (`chart.stackShareColumn`, bool, Standard aus, sichtbar bei 100-%-Balken): Spalte „Anteil“ mit
+    dem Anteil jeder Zeile an der Gesamtsumme (eine Nachkommastelle), „100 %“ an der Σ-Zeile, Blockanteil an der
+    Zwischensumme (dann ohne Ellipse). Im Marimekko neben der Zahlenspalte (entfällt zuerst, wenn beide mehr als 30 %
+    der Breite brauchen), ohne Marimekko hinter dem Summenbalken (02D + Anteil).
+  - **Weiter nutzbar:** Sortierung (`sortMode` ac oder series), Top N mit „Rest (n)“, Stapel-Blöcke mit Zwischensummen
+    (eine Dickenskala über alle Zeilen), Small Multiples (Dicke und Anteil je Kachel), FC schraffiert, PL umrandet,
+    Differenzmarker, Hervorhebungsband in Zeilenhöhe, Dunkel und Hochkontrast. Pfeil und Zeilenanteil der
+    Hervorhebung (B10 Teil 2) entfallen im Marimekko (kein Abstand über der Zeile, der Anteil steht in der Spalte).
+  - **Vorlage C25 · Marimekko (02F)**, Galerie-Gruppe „Struktur“, braucht „Stack-Serie“: orientation=bars ·
+    stackNormalize=pct100 · stackThickness=total · stackShareColumn · showTotal · stackTotalRow · sortMode=ac ·
+    stackLegendDirect · ohne Abweichungen. Eine Vorlage mit `sortMode` gilt im selben Rendern als gespeicherte
+    Sortierung.
+  - Geometrie: die Slot-Tabelle aus B10 Teil 2 hat jetzt `slotY`/`slotH` (Zeile: `barW`/`rowH`); mit gleicher Dicke
+    exakt die bisherigen Ausdrücke. Hash aller 701 Harness-Stufen vorher/nachher: geändert nur die Galerie-Stufen
+    c222b, c229, c230 (neue Kachel C25). Testmarker (`data-icd`): Wurzel `data-thickness="total"`, `stack-mekko-row`
+    (`data-cat`, `data-total`, `data-h`, `data-clamped`), `stack-total-col` mit `stack-total-num` (`data-total`),
+    `stack-share-col` mit `stack-share` (`data-share`, `data-i`), `stack-share-block`, `stack-share-grand`,
+    `stack-mekko-skip` (`data-kind` name, total, share, seg), `stack-mekko-hint`; Segment- und Mix-Texte tragen
+    `data-v`, `stack-total-seg` im Marimekko `data-share`. 942 resjson-Keys je Sprache. Tests c960 bis c985.
+  - Abweichungen vom Blatt: Zahlen mit höchstens drei Ziffern (Regel des Visuals seit 1.52: 173 statt 172.5, Summe
+    497 statt 497.2), Seriennamen in der Schlüsselzeile über dem Panel-Titel statt direkt über der ersten Zeile,
+    „Rest of world“ proportional dick (auf dem Blatt dünner als France), keine Säulen-Variante.
+
 ## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
 
 - **B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C und 13D).** Vorher: Kacheln gegen den Durchschnitt zeigten

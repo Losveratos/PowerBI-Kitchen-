@@ -13,6 +13,10 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.56.0.0** (22.11.2026): Backlog IBCS-Templates B10 Teil 2, B11 Teil 2, B13 Teil 2, B15, B16, B17 (siehe „Neu in 1.56“); davor 1.55 mit B09, B10, B11 (Teil 1), B12, B13; davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.57 (in Arbeit):**
+
+*B20 · Marimekko (nach IBCS-Blatt 02F).* Objekt `chart`, Gruppe „Darstellung“: `stackThickness` (`equal` | `total`, Standard `equal`, Keys `Chart_StackThickness_Equal`/`_Total`) und `stackShareColumn` (bool, Standard false), beide im Formatbereich nur bei `orientation=bars` mit `stackNormalize=pct100`. Wirkung: `cfg.stackMekko` nur bei gestapelten Balken mit wirksamem 100 % (`stackNormOk`, keine negative Zelle) und `total`; `cfg.stackShareCol` bei 100-%-Balken. Beide bleiben ohne Option ungesetzt (kein neuer Zweig, SVG-gleich). Keine neue Rolle, Summen, Anteile und Dicken rechnet `renderStacked` je Kachel. Geometrie: `layout()` liefert `slotY(s)`, `slotH(s)`, `barW(i)`, `rowH(i)`; bei `equal` exakt `bandStart + s * step`, `step`, `slotW` (Hash aller 701 Stufen gleich, Commit 089e8f4). Bei `total`: `H = n · step` wird nach `rawPos` verteilt, Mindestdicke 3 px (Hochkontrast 5) per Wasserfüllung (`mkClamped`), `mkTooMany` wenn `n · min > H` (dann gleich verteilt und Hinweis `stack-mekko-hint`, `Hint_MekkoTooManyRows`, nur Bearbeitung). Σ-Zeile, Zwischensummen und Blockabstand behalten `step`; Zeilenbalken `h − 1` ab `slotY + 0,5` (Haarlinie). Zeilen mit Summe ≤ 0 werden vorab entfernt. Segmente und Σ-Mix zeigen `cfg.fmt` der Werte (3-Ziffern-Regel) mit `data-v`, nur bei Zeilenhöhe ≥ `lf + 2` und Breite ≥ Textmaß + 4, sonst `stack-mekko-skip` (`data-kind="seg"`); Tooltip-Zeile `Tooltip_ShareOfTotal`. Namen (`mkNames`) und Spaltenzahlen (`mkNums`) per `mkPlace(font)`: Σ-Zeile und Zwischensummen vorab belegt, dann Hervorhebung, Rest, dickste Zeile, dann von oben; Abstand ≥ 1,15 · Schrift. Seriennamen im Marimekko über `directNames` mit `ci = 0` in der Schlüsselzeile. Pfeil und `stack-row-share` (B10 Teil 2) im Marimekko aus. Spalten: `sideBase` = bisheriges Panel (`kSide` nur daraus), `shColW`/`totColW` aus Textmaß; Marimekko ersetzt das Panel durch `stack-total-col` (Kopf `panelHead`, `stack-total-num`, `stack-block-grand`, `stack-total-grand` mit `data-total`), die Anteilsspalte `stack-share-col` (`stack-share` mit `data-share`/`data-i`, `stack-share-block`, `stack-share-grand` „100 %“) entfällt zuerst, wenn beide mehr als 30 % der Breite brauchen; mit Anteilsspalte keine Block-Ellipsen im Panel. Wurzel `data-thickness="total"`, Zeilenmarker `stack-mekko-row` (`data-cat`, `data-total`, `data-h`, `data-clamped`). Vorlage C25 (02F, Gruppe `structure` nach C02, braucht `series`, Miniatur `mekko`): orientation=bars · stackNormalize=pct100 · stackThickness=total · stackShareColumn · showTotal · stackTotalRow · sortMode=ac · stackLegendDirect · showAbs/showRel/dualVariance=false; `applyChartTemplate` setzt `sortModeStored`, wenn die Vorlage `sortMode` enthält. 942 resjson-Keys je Sprache. Tests c960 bis c985 (c222/c230: 22 Vorlagen). Offen: Säulen-Marimekko, gemeinsame Dickenskala bei `multiplesSameScale`, dwg-Katalog und Showcase für C25.
+
 **Neu in 1.56 (Backlog IBCS-Templates Teil 3, 22.11.2026):**
 
 *B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C, 13D).* `chart.varianceOnly` (bool, Standard false, Gruppe „Small
@@ -574,6 +578,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
+| C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) |
 
 **Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es
 im Visual nicht (siehe BACKLOG). C07 (Fläche) gibt es ab 1.56 (B16).
@@ -685,7 +690,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` · `C21` · `C22` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis … |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` · `C21` · `C22` · `C25` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis … |
 | `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` · `stockflow` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
@@ -746,6 +751,8 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `stackLegendDirect` | bool | `true` | Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel … |
 | `stackLegendPos` | enum | `end` | `end` · `start` — Gestapelte Säulen mit Seriennamen am Stapel: rechts neben der letzten Säule (Standard) oder links neben der ersten. |
 | `stackNormalize` | enum | `off` | `off` · `pct100` — Gestapelte Säulen und Balken: Werte oder 100 % je Kategorie (Anteile der Serien, Marke „100 %“). Bei 100 % zeigt ein Balkendiagramm rechts die absoluten Summen auf eigener Skala, solange „Summen-Kopfzeile (Σ)“ an ist … |
+| `stackThickness` | enum | `equal` | `equal` · `total` — Gestapelte Balken mit 100 %: gleiche Zeilenhöhe (Standard) oder Dicke nach Zeilensumme (Marimekko, Blatt 02F) … |
+| `stackShareColumn` | bool | `false` | Gestapelte Balken mit 100 % und Summen (Σ): eine Spalte „Anteil“ rechts mit dem Anteil jeder Zeile an der Gesamtsumme (eine Nachkommastelle), „100 %“ an der Σ-Zeile, der Blockanteil an der Zwischensumme … |
 | `stackTotalRow` | bool | `false` | Gestapelte Balken: eine Σ-Zeile unten mit der Summe je Serie und der Gesamtsumme; bei 100 % als Balken mit dem Gesamtmix. Standard aus. |
 | `stackTotalLabel` | text | leer | Beschriftung der Σ-Zeile, z. B. „Welt“. Leer = „Σ“. |
 | `stackShareBracket` | numeric | `0` | Bereich 0–20 — Gestapelte Balken: eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme, z. B. „38 %“. Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme … |
@@ -896,7 +903,8 @@ Enum-Labels:
   `C15` = C15 · Balkentabelle nach ΔPL % (04B); `C16` = C16 · Balkentabelle nach AC (04C);
   `C17` = C17 · Kategorie-Brücke waagerecht (06E); `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F);
   `C19` = C19 · Säulen gegen Plan + Jahressäule (03B); `C20` = C20 · Bestand und Fluss (08E bis 08H);
-  `C21` = C21 · Kumulierte Linie mit R12 und Monatssäulen (07C); `C22` = C22 · Serienlinien mit Index (07A)
+  `C21` = C21 · Kumulierte Linie mit R12 und Monatssäulen (07C); `C22` = C22 · Serienlinien mit Index (07A);
+  `C25` = C25 · Marimekko (02F)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
@@ -915,6 +923,7 @@ Enum-Labels:
 - `areaValueLabels`: `auto` = Automatisch (ausdünnen); `ends` = Erste und letzte Periode; `off` = Aus
 - `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule
 - `stackNormalize`: `off` = Werte; `pct100` = 100 % (Anteile)
+- `stackThickness`: `equal` = Gleich; `total` = Nach Zeilensumme (Marimekko)
 - `stackBlocks`: `off` = Aus; `gap` = Abstand zwischen Blöcken; `subtotals` = Zwischensumme je Block;
   `subtotalsButLast` = Zwischensummen außer letztem Block
 - `sfStockAt`: `end` = Ende der Periode; `center` = Mitte der Periode
