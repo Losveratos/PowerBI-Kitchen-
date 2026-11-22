@@ -45,6 +45,8 @@ an fremde Studien anlegen (`docs/01_messlatte.md`).
 | Termin, Sprache | Kein Zeitdruck; Deutsch zuerst |
 | BILD | Nur Überschrift und Teaser, geprüft wird am R21-Original |
 | Quellenzugriff | Erlaubnisregeln in `.claude/settings.json` für die freigegebenen Hosts |
+| Gaspreis-Regler | 20 / 35 / 85 €/MWh (min / mid / max), Vorschlag aus Dossier 09, bestätigt |
+| Kernkraft-Neubaukosten | Szenario „R21 wie veröffentlicht“ (6.250 €/kW) neben der Spanne aus gebauten Projekten (7.500 / 12.000 / 17.500 €/kW), bestätigt |
 
 ## Die Reihe
 

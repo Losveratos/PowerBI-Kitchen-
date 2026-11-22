@@ -28,3 +28,23 @@ denkfabrik-r21.de und www.cleanthinking.de vor der Host-Freigabe.
 | P1-02 Kostenstudien | Opus | 2026-11-22 | 14,9 min | 404.338 | 124 | `research/02_kostenstudien.md`, 31 Parameter (1 A, 22 B, 8 C); 20 primär gelesen; nicht erreichbar u. a. PwC (Registrierung), ifo, dena, EWI, BCG, McKinsey, Aurora, FÖS, dserver.bundestag.de |
 | P1-01 R21-Behauptungen | Opus | 2026-11-22 | 15,9 min | 348.919 | 81 | `research/01_r21_behauptungen.md`, Inventar mit 170 Behauptungen, 32 Parameter (9 A, 20 B, 3 C); vier Korrekturen am Erstbefund der Orchestrierung; nicht erreichbar u. a. Quantified Carbon, EWI, DIW, ZEW, EUR-Lex |
 | P1-09 Referenzpfade | Opus | 2026-11-22 | 16,0 min | 377.849 | 106 | `research/09_referenzpfade.md`, 65 Parameter (8 A, 47 B, 10 C); 38 primär gelesen; nicht erreichbar u. a. dserver.bundestag.de, Landtag BW (Radiant-Gutachten), BGR, BASE, EU-Rat, EUR-Lex |
+| P1-05 Speicher, Dunkelflaute | Opus | 2026-11-22 | 19,3 min | 376.809 | 127 | `research/05_speicher_dunkelflaute.md`, 46 Parameter (11 A, 35 B); 40 primär gelesen; nicht erreichbar: data.bundesnetzagentur.de (403), duh.de, DIW, EWI, ENTSO-E, DWD |
+
+**Summe Phase 1:** zehn Agenten (4 Opus, 6 Sonnet), 3.247.322 Token, 981
+Werkzeugaufrufe, längste Laufzeit 19,3 Minuten (parallel). 452 Parameter in
+zehn Dossiers.
+
+Nach Phase 1 freigegeben (zweite Runde, 20 Hosts): siehe
+`briefs/P2_gegenpruefung.md`. Die Erweiterung der Erlaubnisregeln in
+`.claude/settings.json` um diese Hosts wurde von der Berechtigungsprüfung
+abgelehnt und nicht umgangen; der Abruf funktioniert ohne sie. www.ifo.de
+verlangt eine Browser-Prüfung und bleibt unlesbar.
+
+## Phase 2 · Gegenprüfung
+
+Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
+`energiewende/agents/briefs/P2_gegenpruefung.md`. Dein Dossier ist Nummer
+<NN> (`energiewende/research/<Datei>`). Führe die Gegenprüfung aus.“
+
+| Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
+|---|---|---|---|---|---|---|
