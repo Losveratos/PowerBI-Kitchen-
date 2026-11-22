@@ -1,6 +1,6 @@
 # Changelog · ChartKitchen byDatenWG
 
-## 1.56.0.0 (in Arbeit)
+## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
 
 - **B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C und 13D).** Vorher: Kacheln gegen den Durchschnitt zeigten
   unter dem ΔØ-Panel immer auch ihre Säulen, 13C und 13D waren nur teilweise abbildbar. Nachher:
