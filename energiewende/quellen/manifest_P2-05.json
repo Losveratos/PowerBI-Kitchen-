@@ -1,0 +1,37 @@
+{
+  "hinweis": "Manifest Auftrag P2-05 (Gegenprüfung Dossier 05). Dateien liegen in quellen/raw/P2-05/ (nicht im Repo). Gelesen wurden außerdem die Rohdateien aus quellen/raw/P0/ und quellen/raw/P1-05/ (siehe deren Manifeste) sowie data/profiles_2015..2025.json.",
+  "eintraege": [
+    {
+      "id": "ewi_pm_elektrolyse_20260120",
+      "url": "https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2026/01/20260120_PM_EWI-Analyse_Elektrolysehochlauf-in-Deutschland-verlaeuft-stockend-.pdf",
+      "datei": "raw/P2-05/ewi_pm_elektrolyse_20260120.pdf",
+      "sha256": "e2f88fe1c97fc392c32e4b2b7098b6032cc6f12436a6f36582083ade99a66b79",
+      "abruf": "2026-11-22",
+      "bytes": 75520
+    },
+    {
+      "id": "diw_kittel_dunkelflaute_dena_2025",
+      "url": "https://www.diw.de/documents/vortragsdokumente/220/diw_01.c.1005493.de/v_2025_kittel_dunkelflaute_dena.pdf",
+      "datei": "raw/P2-05/diw_kittel_dunkelflaute_dena_2025.pdf",
+      "sha256": "c04236e91c15b248017f61398a0a895d5618eba747b4d2fa829d69343d06d3da",
+      "abruf": "2026-11-22",
+      "bytes": 2824336
+    },
+    {
+      "id": "diw_glossar_dunkelflaute_kittel",
+      "url": "https://www.diw.de/sixcms/media.php/demo_diw_0.a.128.de/upload/Transkript_Glossar_Dunkelflaute_Kittel.pdf",
+      "datei": "raw/P2-05/diw_glossar_dunkelflaute_kittel.pdf",
+      "sha256": "9f446babcef0fbc6df4d780ce7e2164877518a4efd6afd5e52a79a0d768275cd",
+      "abruf": "2026-11-22",
+      "bytes": 83570
+    },
+    {
+      "id": "diw_fossilfrei_44_dunkelflaute",
+      "url": "https://www.diw.de/documents/dokumentenarchiv/17/diw_01.c.1011332.de/transkript_fossilfrei_folge-44-1_dunkelflaute.pdf",
+      "datei": "raw/P2-05/diw_fossilfrei_44_dunkelflaute.pdf",
+      "sha256": "ace9c3eb24cecd1224b89edccdd104fa24da11ec77feeff90e787cb832984afb",
+      "abruf": "2026-11-22",
+      "bytes": 339609
+    }
+  ]
+}

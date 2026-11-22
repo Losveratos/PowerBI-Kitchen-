@@ -48,3 +48,4 @@ Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
 
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
+| P2 Dossier 07 Lieferketten | Opus | 2026-11-22 | 5,9 min | 204.895 | 41 | `research/pruefung/07_pruefung.md`: 46 geprüft, 39 bestätigt, 4 abweichend, 3 nicht prüfbar; gewichtigste Abweichung: Stresstest-Aufschlag +3/+10/+22 % statt +7,5/+27/+57 % |

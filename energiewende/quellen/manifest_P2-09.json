@@ -1,0 +1,75 @@
+{
+  "hinweis": "Manifest Gegenprüfung P2-09 (Dossier 09 Referenzpfade). Dateien in quellen/raw/P2-09/ (nicht im Repo). Abruf 2026-11-22 per curl. .txt-Dateien sind pdftotext-Auszüge.",
+  "eintraege": [
+    {
+      "id": "drs_21_7609",
+      "titel": "Antwort der Bundesregierung, Drs. 21/7609 (12.08.2026): Stand des Rückbaus deutscher Kernkraftwerke",
+      "url": "https://dserver.bundestag.de/btd/21/076/2107609.pdf",
+      "datei": "raw/P2-09/drs_21_7609.pdf",
+      "sha256": "398880467a48d75f1520b74171c0f947b5b48726d09728fa893ae109df60bc3b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "drs_21_6126",
+      "titel": "Beschlussempfehlung Umweltausschuss, Drs. 21/6126 (22.05.2026) zu AfD-Antrag 21/5479 (Expertenkommission Reaktivierung)",
+      "url": "https://dserver.bundestag.de/btd/21/061/2106126.pdf",
+      "datei": "raw/P2-09/drs_21_6126.pdf",
+      "sha256": "a61cee5ba6c85208da34ca21839c279dd3a30e47ce36648de3db12da1f5ade8e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ltbw_18_0292",
+      "titel": "Landtag BW Drs. 18/292 (17.07.2026): AfD-Antrag mit Radiant-Zahlen und Stellungnahme des Umweltministeriums vom 14.08.2026",
+      "url": "https://www.landtag-bw.de/resource/blob/646304/a6ef977a29e3d40eaff6e69d839cee42/18_0292_D.pdf",
+      "datei": "raw/P2-09/ltbw_18_0292.pdf",
+      "sha256": "678b436f27da66056fdc2b8cfb7983aa127fef698f7ab8482bbf71688392f1f4",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ec_msr_page",
+      "titel": "Europäische Kommission, Seite Market Stability Reserve (Stand Nov. 2026)",
+      "url": "https://climate.ec.europa.eu/areas-action/carbon-markets/eu-emissions-trading-system-eu-ets/market-stability-reserve_en",
+      "datei": "raw/P2-09/ec_msr_page.html",
+      "sha256": "f2c316c371ccaf20a6d3b5eff2d38dd97de1395cac0adc472911d3f780bb6c29",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ec_ets_cap_page",
+      "titel": "Europäische Kommission, Seite EU ETS emissions cap (zuletzt aktualisiert 11.12.2025)",
+      "url": "https://climate.ec.europa.eu/areas-action/carbon-markets/eu-emissions-trading-system-eu-ets/eu-ets-emissions-cap_en",
+      "datei": "raw/P2-09/ec_ets_cap_page.html",
+      "sha256": "fcdfc3ec94ff5a2ce70bd6e39da489c8d5605dbda9834062f70e204053687a36",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ec_ip_26_1596",
+      "titel": "Europäische Kommission IP/26/1596 (17.07.2026): Electrification Action Plan und ETS-Review",
+      "url": "https://ec.europa.eu/commission/presscorner/api/documents?reference=IP/26/1596&language=en",
+      "datei": "raw/P2-09/ec_ip_26_1596.json",
+      "sha256": "5a445076031f83d0620c0ccfc8238de0123fc094c143185d7bf0304feb6c533a",
+      "abruf": "2026-11-22"
+    }
+  ],
+  "fehlgeschlagen": [
+    {
+      "url": "https://www.bgr.bund.de/DE/Gemeinsames/Oeffentlichkeitsarbeit/Pressemitteilungen/BGR/bgr-160118_studie_schiefergas-oel_en.html",
+      "ergebnis": "HTTP 400 (Server lehnt Abruf ab); nicht umgangen"
+    },
+    {
+      "url": "https://www.bgr.bund.de/DE/Themen/Energie/Downloads/Abschlussbericht_13MB_Schieferoelgaspotenzial_Deutschland_2016.pdf",
+      "ergebnis": "HTTP 400; nicht umgangen"
+    },
+    {
+      "url": "https://www.consilium.europa.eu/en/press/press-releases/2026/10/21/ets-market-stability-reserve-council-and-parliament-reach-provisional-agreement-on-targeted-amendment/",
+      "ergebnis": "HTTP 403 Browser-Prüfung (JavaScript/Cookies); nicht umgangen"
+    },
+    {
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:52026PC0616",
+      "ergebnis": "HTTP 202 ohne Inhalt (zweimal); nicht umgangen"
+    },
+    {
+      "url": "https://climate.ec.europa.eu/document/download/c0b4ca8e-0e12-4b4e-9976-98c0b4224410_en",
+      "ergebnis": "HTTP 202 ohne Inhalt (zweimal); ETS-Richtlinienvorschlag 07/2026 nicht gelesen"
+    }
+  ]
+}
