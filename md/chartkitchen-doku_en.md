@@ -155,7 +155,7 @@ Readers in reading view and exports (PDF, PowerPoint, subscriptions) see neither
 
 ### 1 · Import the visual
 
-1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.55.0.0.
+1. Download the file [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (extension `.pbiviz`) — the link always delivers the current version, at present 1.57.0.0.
 2. In Power BI Desktop: in the *Visualizations* pane click *… (More options)* → *Import a visual from a file* and select the `.pbiviz`.
 3. The ChartKitchen icon appears in the Visualizations pane. Drag it onto the report page.
 
@@ -1154,7 +1154,7 @@ It is locked because it would have no effect in the current state; the tooltip n
 
 An IBCS template is set and at least one of its settings has been changed. A click restores the template state; to keep your changes, set Chart → IBCS chart template to “Off”. Readers and exports never see the chip.
 
-**ChartKitchen byDatenWG** · Version 1.55.0.0
+**ChartKitchen byDatenWG** · Version 1.57.0.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (always the current version) · Sister visual: [P&L Statement byDatenWG – documentation](../pnl-doku_en.html) · For IT & admins: [Security & deployment](../visuals-sicherheit_en.html)
 

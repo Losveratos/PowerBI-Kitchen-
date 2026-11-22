@@ -619,6 +619,112 @@ run("BRIDGE", "Säulen + Brücke PL → AC", dataView(mon8, [col("actual", ac8, 
   pair("YCbars", { orientation: "bars" }, 900, 520);
   pair("YCcompact", { orientation: "columns" }, 600, 170);
 }
+
+// ---- 1.56 (B16): gestapelte Fläche (Blatt 08A) · Summenpunkt auf der Oberkante, Bänder proportional
+{
+  const P1 = [3256,3218,3098,3126,3056,3412,3332,3245,3138,3184,3111,3123];
+  const P2 = [654,589,789,598,549,668,659,780,936,624,868,812];
+  const P3 = [2025,2156,2056,2097,1341,1953,2789,1967,1908,2045,2196,2003];
+  const ser = { "Priority 3": P3, "Priority 2": P2, "Priority 1": P1 };
+  const m12 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const C = [], S = [], V = [];
+  m12.forEach((m, i) => Object.keys(ser).forEach(sn => { C.push(m); S.push(sn); V.push(ser[sn][i]); }));
+  const dv = { metadata: { columns: [], objects: { chart: { orientation: "columns", stackShape: "area" } } }, categorical: {
+    categories: [{ source: { displayName: "Monat", roles: { category: true } }, values: C },
+      { source: { displayName: "Priority", roles: { series: true } }, values: S }],
+    values: [col("actual", V, "#,0")] } };
+  run("AREA08A", "Gestapelte Fläche · 12 Monate × 3 Serien", dv, 1000, 460);
+  const segs = [...document.querySelectorAll('#AREA08A [data-icd="area-seg"]')];
+  const poly = s => s.getAttribute("points").split(" ").map(p => p.split(",").map(Number));
+  const pts = [...document.querySelectorAll('#AREA08A [data-icd="area-total-pt"]')];
+  const top = segs.find(s => s.getAttribute("data-series") === "Priority 1");
+  const topY = top ? poly(top).slice(0, 12).map(p => p[1]) : [];
+  const dTop = pts.map((p, i) => Math.abs(num(p, "cy") - topY[i]));
+  measure(`AREA08A: Summenpunkt gegen Oberkante max. ${r2(Math.max(...dTop))} px`);
+  check(pts.length === 12 && Math.max(...dTop) <= 0.6, "AREA08A: Summenpunkt liegt auf der Oberkante der obersten Fläche (±0,6 px)");
+  // band height per unit: the same for every series and period (3 %)
+  const ks = [];
+  segs.forEach(s => {
+    const p = poly(s), n = p.length / 2, vals = ser[s.getAttribute("data-series")];
+    for (let i = 0; i < n; i++) { ks.push((p[2 * n - 1 - i][1] - p[i][1]) / vals[i]); }
+  });
+  const km = med(ks);
+  measure(`AREA08A: Bandhöhe ${r2(km * 1000)} px je 1.000, Spanne ${r2(Math.min(...ks) / km * 100)} % bis ${r2(Math.max(...ks) / km * 100)} %`);
+  check(ks.length === 36 && ks.every(k => Math.abs(k / km - 1) <= 0.03), "AREA08A: Bandhöhe proportional zum Wert (3 %)");
+  // the bottom series ends on the zero line
+  // the AC baseline: the horizontal 1.6 px line in the AC colour
+  const zero = Math.max(...[...document.querySelectorAll('#AREA08A [data-icd="stack-area"] line[stroke-width="1.6"]')]
+    .filter(l => num(l, "y1") === num(l, "y2") && fill({ getAttribute: () => l.getAttribute("stroke") }) === AC_C).map(l => num(l, "y1")));
+  const bottom = segs.find(s => s.getAttribute("data-series") === "Priority 3");
+  const lowY = bottom ? poly(bottom).slice(12).map(p => p[1]) : [];
+  check(lowY.length === 12 && lowY.every(y => Math.abs(y - zero) <= 0.6), `AREA08A: unterste Fläche endet auf der Nulllinie (y ${r2(zero)})`);
+}
+
+// ---- 1.57 (B18 Review m7): Quotenstrahlen (Blatt 07E) · jeder Strahl hat die Steigung k im Pixelmaß der Achsen,
+// in Kacheln dasselbe Pixelmaß je Einheit (M1)
+{
+  const d = { Germany: [[2, 1], [3, 2], [3, 5], [7, 9], [9, 10], [13, 8], [14, 8.3], [15, 12], [17, 12.2]],
+    France: [[3, 0.5], [4, 2], [5, 3], [6, 3], [8, 4], [11, 4], [11, 4.3], [11, 5], [15, 6]] };
+  const yrs = ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
+  const mk = (mult) => {
+    const C = [], S = [], M = [], X = [], Y = [];
+    for (const [mn, f] of mult) { yrs.forEach((c, i) => Object.keys(d).forEach(u => { C.push(c); S.push(u); M.push(mn); X.push(d[u][i][0]); Y.push(d[u][i][1] * f); })); }
+    const categories = [{ source: { displayName: "Jahr", roles: { category: true } }, values: C },
+      { source: { displayName: "Land", roles: { series: true } }, values: S }];
+    if (mult.length > 1) { categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: M }); }
+    return { metadata: { columns: [], objects: { chart: { orientation: "scatter", scatterPath: "line", scatterColorBy: "group", scatterQuadrant: "off",
+      scatterPathDelta: true, highlight: "Germany" }, scale: { ratioRays: "1; 0,7; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" } } },
+      categorical: { categories, values: [col("actual", Y, "#,0.0", "Net sales"), col("xValue", X, "#,0", "Sales reps")] } };
+  };
+  run("RAY07E", "Quotenstrahlen 1 / 0,7 / 0,35 · Steigung im Pixelmaß", mk([[null, 1]]), 1000, 560);
+  const o = document.querySelector('#RAY07E [data-icd="scatter-ray-origin"]');
+  const ends = [...document.querySelectorAll('#RAY07E [data-icd="scatter-ray-end"]')];
+  const pxX = (num(ends.find(e => e.getAttribute("data-y") === "7"), "cx") - num(o, "cx")) / 20;
+  const pxY = (num(o, "cy") - num(ends.find(e => e.getAttribute("data-x") === "14"), "cy")) / 14;
+  const ks = ends.map(e => ((num(o, "cy") - num(e, "cy")) / pxY) / ((num(e, "cx") - num(o, "cx")) / pxX) / num(e.closest('[data-icd="scatter-ray"]'), "data-k"));
+  measure(`RAY07E: ${r2(pxX)} px je X, ${r2(pxY)} px je Y, Steigung / k = ${ks.map(r2).join(" / ")}`);
+  check(ends.length === 3 && ks.every(k => Math.abs(k - 1) < 0.005), "RAY07E: jeder Strahl Y = k · X im Achsenmaß (0,5 %)");
+  run("RAY07Esm", "Quotenstrahlen in 3 Kacheln · gleiches Pixelmaß", mk([["Nord", 1], ["Süd", 0.6], ["West", 0.8]]), 1200, 480);
+  const per = [...document.querySelectorAll('#RAY07Esm [data-icd="scatter-rays"]')].map(g => {
+    const oo = g.querySelector('[data-icd="scatter-ray-origin"]');
+    const e = g.querySelector('[data-icd="scatter-ray"][data-k="0.35"] [data-icd="scatter-ray-end"]');
+    return r2((num(e, "cx") - num(oo, "cx")) / 20);
+  });
+  measure(`RAY07Esm: px je X-Einheit ${per.join(" / ")}`);
+  check(per.length === 3 && Math.max(...per) - Math.min(...per) < 0.03, "RAY07Esm: gleiches Pixelmaß in allen Kacheln (Strahlen + Δ)");
+}
+
+// ---- 1.57 (B19 Review m6): Blasen mit Anteil (Blatt 10E, Vorlage C24) · Fläche ∝ Größe für Einzel- und Gesamtblasen,
+// Segmentwinkel = Anteil × 360°
+{
+  const d = { Germany: [["IT", 1.6, 8.0, 79, 4], ["Cons.", 0.7, 6.0, 23, 4], ["Transp.", 0.3, 3.0, 35, 8], ["En.", 0.4, 0.1, 18, 4], ["Ret.", 0.8, -0.5, 45, 3]],
+    France: [["IT", 1.3, 8.0, 25, 6], ["Cons.", 1.75, 7.0, 5, 2.5], ["Transp.", 0.3, 3.0, 15, 5], ["Ret.", 1.5, -0.5, 7, 2.5]] };
+  const C = [], S = [], M = [], X = [], Y = [], Z = [], P = [];
+  for (const [land, rows] of Object.entries(d)) { for (const [sec, x, y, z, pt] of rows) { C.push(sec); S.push(sec); M.push(land); X.push(x); Y.push(y); Z.push(z); P.push(pt); } }
+  const dv = { metadata: { columns: [], objects: { chart: { template: "C24" }, scale: { xMin: "0", xMax: "2", yMin: "-2", yMax: "12" } } },
+    categorical: { categories: [{ source: { displayName: "Branche", roles: { category: true } }, values: C },
+      { source: { displayName: "Branche ", roles: { series: true } }, values: S },
+      { source: { displayName: "Land", roles: { multiples: true } }, values: M }],
+      values: [col("actual", Y, "0.0", "Market growth"), col("xValue", X, "0.00", "relative market share"),
+        col("bubbleSize", Z, "#,0", "Market volume"), col("bubbleShare", P, "#,0.0", "Our sales")] } };
+  run("BUB10E", "Blasen mit Anteil · C24 · Fläche ∝ Größe", dv, 1280, 720);
+  const rims = [...document.querySelectorAll('#BUB10E [data-icd="scatter-pie"]')];
+  const vals = rims.map(p => parseFloat(p.closest("g.icd-cat").querySelector('[data-icd="scatter-value"]').textContent));
+  const ks = rims.map((p, i) => Math.pow(num(p.querySelector('[data-icd="scatter-pie-rim"]'), "r"), 2) / vals[i]);
+  const tot = [...document.querySelectorAll('#BUB10E [data-icd="scatter-total"]')].map(t => Math.pow(num(t.querySelector("circle"), "r"), 2) / num(t, "data-v"));
+  const km = med(ks.concat(tot));
+  measure(`BUB10E: r² je Größeneinheit ${r2(km)} px², Spanne ${r2(Math.min(...ks, ...tot) / km * 100)} % bis ${r2(Math.max(...ks, ...tot) / km * 100)} %`);
+  check(rims.length === 9 && tot.length === 2 && ks.concat(tot).every(k => Math.abs(k / km - 1) <= 0.02), "BUB10E: Fläche proportional zur Größe, Gesamtblasen eingeschlossen (2 %)");
+  const ang = rims.map(p => {
+    const sec = p.querySelector('[data-icd="scatter-pie-sector"]');
+    const n = (sec.getAttribute("d").match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    let a = Math.atan2(n[9] - n[0], n[1] - n[10]) * 180 / Math.PI;
+    if (a < 0) { a += 360; }
+    return Math.abs(a - num(p, "data-share") * 360);
+  });
+  measure(`BUB10E: Winkelfehler max. ${r2(Math.max(...ang))}°`);
+  check(Math.max(...ang) < 0.5, "BUB10E: Segmentwinkel = Anteil × 360° (±0,5°)");
+}
 </script>
 </body>
 </html>

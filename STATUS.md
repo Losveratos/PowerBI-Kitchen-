@@ -19,7 +19,7 @@ Vorbereitung (hängt organisatorisch, technisch ready). Die Visuals sind
 
 | Produkt | Version | Ordner | Hinweise |
 | --- | --- | --- | --- |
-| ChartKitchen byDatenWG | 1.55.0.0 | `ibcsInspiredChartDeck/` | 14 Chart-Modi (neu Bestand & Fluss), Start-Hub, IBCS-Vorlagen C01–C20 (ohne C07/C11), Jahressäule, Szenarien im Stapel, Stapel-Struktur, Differenzmarker, Portfolio-Blasen, Small Multiples gegen Ø, 4 Sprachen. GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D` |
+| ChartKitchen byDatenWG | 1.57.0.0 | `ibcsInspiredChartDeck/` | 14 Chart-Modi, Start-Hub, IBCS-Vorlagen C01–C25 (ohne C11), Jahressäule, Szenarien im Stapel, Stapel-Struktur und -Blöcke, Marimekko, gestapelte Fläche, kumulierte Linie mit R12, Serienlinien mit Index, Scatter-Zeitpfad und Quotenstrahlen, Blasen mit Anteil, Differenzmarker, Portfolio-Blasen, Small Multiples gegen Ø mit großer Kachel und fester Spaltenzahl, 4 Sprachen. GUID `chartKitchenByDatenWGD9DE0F7AD44D41058672C6FBF6F5A18D` |
 | P&L Statement byDatenWG | 1.8.3.0 | `pnlByDatenWG/` | Mega-Table (Templates T01A–12H inkl. T01C, T01D, T02D; Blatt-Optionen Ellipse, Margen-Δ% und Margen-Δ an der Achse, Notation wie im Referenzblatt), Gesamtzeile über mehrere Wurzeln, Sortierung nach Δ%, Treiberbaum mit ROI-Baum 11A, Sankey, Bilanz/Cashflow (Bestandsgrößen), ⚡ Nur Ausnahmen, Start-Hub, IBCS-2.0-Skalierung. GUID `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | dataKitchenGantt | 2.3.1.0 | `dataKitchenGantt/` | Gruppenzeilen-Klick überall, skalierungs-fest (Version laut pbiviz.json, Stand 11/2026) |
 | MockupKitchen | — | `mockup-kitchen.html` | Browser-Tool, Export für den Skill `mockup-to-powerbi` |

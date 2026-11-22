@@ -155,7 +155,7 @@ Leser im Lesemodus und Exporte (PDF, PowerPoint, Abos) sehen weder Hub noch Chip
 
 ### 1 · Visual importieren
 
-1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.55.0.0.
+1. Lade die Datei [`chartkitchen-byDatenWG-latest.pbiviz`](../downloads/chartkitchen-byDatenWG-latest.pbiviz) herunter (Endung `.pbiviz`) — der Link liefert immer die aktuelle Version, derzeit 1.57.0.0.
 2. In Power BI Desktop: im Bereich *Visualisierungen* auf *… (Weitere Optionen)* → *Visual aus Datei importieren* klicken und die `.pbiviz` auswählen.
 3. Das ChartKitchen-Icon erscheint im Visualisierungsbereich. Ziehe es auf die Berichtsseite.
 
@@ -1154,7 +1154,7 @@ Er ist gesperrt, weil er im aktuellen Zustand nichts bewirken würde; der Toolti
 
 Eine IBCS-Vorlage ist gesetzt, und mindestens eine ihrer Einstellungen wurde geändert. Ein Klick stellt den Vorlagen-Stand wieder her; wer die Änderungen behalten will, stellt Chart → IBCS-Chart-Vorlage auf „Aus“. Leser und Exporte sehen den Chip nie.
 
-**ChartKitchen byDatenWG** · Version 1.55.0.0
+**ChartKitchen byDatenWG** · Version 1.57.0.0
 
 Download: [chartkitchen-byDatenWG-latest.pbiviz](../downloads/chartkitchen-byDatenWG-latest.pbiviz) (immer die aktuelle Version) · Schwester-Visual: [P&L Statement byDatenWG – Dokumentation](../pnl-doku.html) · Für IT & Admins: [Sicherheit & Betrieb](../visuals-sicherheit.html)
 
