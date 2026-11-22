@@ -558,6 +558,17 @@
                 "stackTotalRow": { "type": { "bool": true } },
                 "stackTotalLabel": { "type": { "text": true } },
                 "stackShareBracket": { "type": { "numeric": true } },
+                "stackBlocks": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "gap", "displayName": "Gap between blocks" },
+                            { "value": "subtotals", "displayName": "Subtotal per block" },
+                            { "value": "subtotalsButLast", "displayName": "Subtotals except the last block" }
+                        ]
+                    }
+                },
+                "stackBlockShare": { "type": { "bool": true } },
                 "stackLegendPos": {
                     "type": {
                         "enumeration": [
