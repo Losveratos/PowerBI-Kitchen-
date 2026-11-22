@@ -2297,7 +2297,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20"]', "c222: 18 Vorlagen-Kacheln (1.55: + C20) " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20"]', "c222: 19 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3228,14 +3228,14 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   const groups = groupsOf("c230"), tiles = tilesOf("c230");
   check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C03", "C19", "C05", "C08", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const ok = Object.entries(want).every(([gid, codes]) => {
     const h = box("hub-tpl-group-" + gid);
     const bs = codes.map(cd => box("hub-tpl-" + cd));
     return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
   });
-  check(ok && tiles.length === 18, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 19, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -6021,6 +6021,312 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B11T2-END
+// ======================================================================
+// 1.56 (B16): Gestapelte Fläche (chart.stackShape = area), Blatt 08A
+// Datenvertrag wie gestapelte Säulen: category = Zeit (Hierarchie Jahr › Monat),
+// series = Stapelglieder in Lieferreihenfolge (erste Serie unten), actual/forecast/plan
+// ======================================================================
+{
+  const aQ = (id, sel) => [...document.querySelectorAll(sel.split(",").map(s => `#${id} ${s}`).join(","))];
+  const aSvg = id => document.querySelector(`#${id} svg`).outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N");
+  const aP1 = [3256,3218,3098,3126,3056,3412,3332,3245,3138,3184,3111,3123,2904,3236,3136,3115,3034,2960,3004,3097,3066,2956,3025,3214];
+  const aP2 = [654,589,789,598,549,668,659,780,936,624,868,812,580,528,580,599,678,668,784,780,936,580,868,812];
+  const aP3 = [2025,2156,2056,2097,1341,1953,2789,1967,1908,2045,2196,2003,2025,1967,2045,1899,2045,3256,3546,2088,1908,2056,2196,1994];
+  const aP6 = [789,668,659,780,936,624,868,124,99,23,999,875,659,780,936,879,986,201,100,528,894,893,678,890];
+  const aData = { "Priority 1": aP1, "Priority 2": aP2, "Priority 3": aP3, "Priority 4": aP1, "Priority 5": aP2, "Priority 6": aP6 };
+  const aTot = aP1.map((_, i) => aP1[i] * 2 + aP2[i] * 2 + aP3[i] + aP6[i]);
+  // sheet order: the model sorts the series column descending (Priority 6 first = bottom)
+  const aOrder = ["Priority 6", "Priority 5", "Priority 4", "Priority 3", "Priority 2", "Priority 1"];
+  const aMon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  // opts: order, scen(i) → ac|fc|pl, gap(i) → period without values, skipCell(i, s),
+  // val(i, s), mult: [[name, factor], …], flat (one level „Jan 2024“), comments, hl
+  const areaDv = (objs, opts) => {
+    opts = opts || {};
+    const order = opts.order || aOrder;
+    const Y = [], M = [], S = [], A = [], F = [], L = [], MU = [], CM = [], H = [];
+    const tiles = opts.mult || [[null, 1]];
+    for (const [mn, fct] of tiles) {
+      for (let i = 0; i < 24; i++) {
+        const sc = opts.scen ? opts.scen(i) : "ac";
+        for (const sn of order) {
+          if (opts.skipCell && opts.skipCell(i, sn)) { continue; }
+          const v0 = opts.val ? opts.val(i, sn) : aData[sn][i];
+          const v = opts.gap && opts.gap(i) ? null : Math.round(v0 * fct);
+          Y.push(i < 12 ? "2024" : "2025"); M.push(aMon[i % 12]); S.push(sn);
+          A.push(sc === "ac" ? v : null); F.push(sc === "fc" ? v : null); L.push(sc === "pl" ? v : null);
+          MU.push(mn);
+          CM.push(opts.comments && opts.comments[i] && sn === order[0] ? opts.comments[i] : null);
+          H.push(opts.hl ? (opts.hl(i, sn) ? (sc === "ac" ? v : null) : null) : undefined);
+        }
+      }
+    }
+    const cats = opts.flat
+      ? [{ source: { displayName: "Monat", roles: { category: true } }, values: M.map((m, j) => m + " " + Y[j]) }]
+      : [{ source: { displayName: "Jahr", roles: { category: true } }, values: Y },
+        { source: { displayName: "Monat", roles: { category: true } }, values: M }];
+    cats.push({ source: { displayName: "Priority", roles: { series: true } }, values: S });
+    if (opts.mult) { cats.push({ source: { displayName: "Region", roles: { multiples: true } }, values: MU }); }
+    const vals = [col("actual", A, "#,0", opts.hl ? H : undefined, "Incidents")];
+    if (opts.scen) { vals.push(col("forecast", F, "#,0"), col("plan", L, "#,0")); }
+    if (opts.comments) { vals.push(col("comments", CM)); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: vals } };
+  };
+  // the C07 properties set directly (template + templateApplied would apply nothing)
+  const c07 = extra => ({ chart: Object.assign({ orientation: "columns", stackShape: "area", areaTotalLine: true,
+    areaValueLabels: "auto", stackLegendDirect: true, stackLegendPos: "end", showTotal: false, scenarioLabels: true }, extra || {}) });
+  window.__area = { aQ, aSvg, areaDv, aTot, c07 };
+  const title08A = { kpi: "Number of incidents", period: "2024 and 2025", message: "The number of call center incidents was rather stable in all 6 classes of priority" };
+  const noNaN = id => !/NaN|undefined|Infinity/.test(aSvg(id));
+  const fillOf = el => el.getAttribute("fill") || "";
+
+  // ---- c800: Blatt 08A mit Vorlage C07
+  addStage("c800", "B16 · Gestapelte Fläche · Blatt 08A · 24 Monate × 6 Prioritäten · Jahr › Monat · Vorlage C07", 1280, 620);
+  runCap("c800", areaDv({ chart: { template: "C07" }, ibcsTitle: title08A }), 1280, 620);
+  {
+    const segs = aQ("c800", '[data-icd="area-seg"]'), pts = aQ("c800", '[data-icd="area-total-pt"]');
+    const vs = pts.map(p => +p.getAttribute("data-v"));
+    check(segs.length === 6 && pts.length === 24 && vs[0] === 10634 && vs[6] === 11639 && vs[23] === 10936 && vs[4] === 9487,
+      `c800: 6 Flächen, 24 Summenpunkte, Jan 2024 = ${vs[0]}, Mai 2024 = ${vs[4]}, Jul 2024 = ${vs[6]}, Dez 2025 = ${vs[23]}`);
+    check(vs.every((v, i) => v === aTot[i]), "c800: alle 24 Summen wie auf dem Blatt");
+    check(aQ("c800", '[data-icd="area-total-line"]').length === 1 && aQ("c800", '[data-icd="stack-area"]').length === 1 && noNaN("c800"),
+      "c800: eine Summenlinie, kein NaN");
+    const lbl = aQ("c800", '[data-icd="area-total-label"]').map(t => t.textContent);
+    check(lbl.includes("10.634") && lbl.includes("10.936") && lbl.includes("11.639") && lbl.length >= 12,
+      `c800: ${lbl.length} Summenlabels, erstes, letztes und Maximum dabei`);
+    // c813: Achsengruppen aus der Hierarchie
+    const grp = aQ("c800", '[data-icd="axis-group"]').map(t => t.getAttribute("data-label"));
+    check(JSON.stringify(grp) === '["2024","2025"]' && aQ("c800", '[data-icd="axis-group-sep"]').length === 1,
+      `c813: Gruppenzeile ${JSON.stringify(grp)} mit einer Trennlinie am Jahreswechsel`);
+    const ticks = aQ("c800", '[data-icd="area-axis"] text:not([data-icd])').map(t => t.textContent);
+    check(ticks[0] === "Jan" && ticks.includes("Dec") && !ticks.some(t => /2024|·/.test(t)), `c813: Periodenlabels sind die Monate (${ticks.slice(0, 3).join(" ")} …)`);
+    // c814: Vorlage C07
+    const p = window.__persist.c800;
+    const pm = p.length === 1 ? p[0].merge[0].properties : {};
+    check(p.length === 1 && pm.templateApplied === "C07" && pm.orientation === "columns" && pm.stackShape === "area"
+      && pm.areaTotalLine === true && pm.areaValueLabels === "auto" && pm.stackLegendDirect === true && pm.stackLegendPos === "end"
+      && pm.showTotal === false && pm.scenarioLabels === true, "c814: Vorlage C07 setzt Fläche, Summenlinie, Werte auto, Namen rechts in einem Merge");
+    // c803 (auto): kein Wert für Priority 6 im Jul 2025 (201), die Fläche ist dort zu flach
+    const v6 = aQ("c800", '[data-icd="area-value"][data-series="Priority 6"]');
+    check(!v6.some(t => t.getAttribute("data-i") === "18") && aQ("c800", '[data-icd="area-value"]').length >= 40,
+      `c803: auto zeigt ${aQ("c800", '[data-icd="area-value"]').length} Werte, keinen für Priority 6 im Jul 2025 (201)`);
+  }
+  // ---- c801: stackShape=columns ausdrücklich gesetzt = bisherige gestapelte Säulen
+  addStage("c801", "B16 · stackShape = columns ausdrücklich gesetzt (muss den Säulen ohne Property gleichen)", 1280, 520);
+  addStage("c801b", "B16 · gestapelte Säulen ohne stackShape (Vergleich zu c801)", 1280, 520);
+  {
+    runCap("c801", areaDv({ chart: { orientation: "columns", stackShape: "columns", areaTotalLine: false, areaValueLabels: "off" } }), 1280, 520);
+    runCap("c801b", areaDv({ chart: { orientation: "columns" } }), 1280, 520);
+    check(aSvg("c801") === aSvg("c801b") && aQ("c801", '[data-icd="stack-area"]').length === 0,
+      "c801: stackShape=columns (und Flächen-Optionen) zeichnen byte-gleich die gestapelten Säulen");
+  }
+  // ---- c802: Seriennamen rechts in Stapelreihenfolge, links mit stackLegendPos=start
+  addStage("c802", "B16 · Seriennamen links (stackLegendPos = start) · Werte nur Enden", 1280, 560);
+  {
+    const names = aQ("c800", '[data-icd="area-direct-label"]');
+    const ys = names.map(t => +t.getAttribute("y"));
+    const lastX = Math.max(...aQ("c800", '[data-icd="area-total-pt"]').map(c => +c.getAttribute("cx")));
+    const order = names.slice().sort((a, b) => +a.getAttribute("y") - +b.getAttribute("y")).map(t => t.textContent);
+    check(names.length === 6 && names.every(t => +t.getAttribute("x") > lastX) && JSON.stringify(order) === JSON.stringify(aOrder.slice().reverse()),
+      `c802: 6 Namen rechts, von oben ${order.join(", ")}`);
+    check(ys.every((y, i) => ys.every((z, j) => i === j || Math.abs(y - z) >= 10)), "c802: Namen überlappen nicht");
+    runCap("c802", areaDv(c07({ stackLegendPos: "start", areaValueLabels: "ends" } )), 1280, 560);
+    const firstX = Math.min(...aQ("c802", '[data-icd="area-total-pt"]').map(c => +c.getAttribute("cx")));
+    const nl = aQ("c802", '[data-icd="area-direct-label"]');
+    check(nl.length === 6 && nl.every(t => +t.getAttribute("x") < firstX && t.getAttribute("text-anchor") === "end"),
+      "c802: stackLegendPos=start setzt die Namen links neben die erste Periode");
+    // c803 (ends): 6 Serien × 2 Perioden
+    check(aQ("c802", '[data-icd="area-value"]').length === 12, `c803: ends = ${aQ("c802", '[data-icd="area-value"]').length} Werte (6 × erste und letzte Periode)`);
+  }
+  // ---- c803/c804: Werte aus, Summenlinie aus
+  addStage("c803", "B16 · areaValueLabels = off", 960, 460);
+  addStage("c804", "B16 · areaTotalLine = false · keine Summenlinie, keine Punkte", 960, 460);
+  {
+    runCap("c803", areaDv(c07({ areaValueLabels: "off" } )), 960, 460);
+    check(aQ("c803", '[data-icd="area-value"]').length === 0 && aQ("c803", '[data-icd="area-total-label"]').length > 0, "c803: off = keine Werte in den Flächen");
+    runCap("c804", areaDv(c07({ areaTotalLine: false } )), 960, 460);
+    check(aQ("c804", '[data-icd="area-total-line"],[data-icd="area-total-pt"],[data-icd="area-total-label"]').length === 0
+      && aQ("c804", '[data-icd="area-seg"]').length === 6, "c804: ohne Summenlinie, Punkte und Summen");
+  }
+  // ---- c805: 20 AC, 2 FC, 2 PL
+  addStage("c805", "B16 · 20 Monate AC, 2 FC (schraffiert), 2 PL (getönt mit Umriss) · Szenario-Kürzel", 1280, 600);
+  {
+    runCap("c805", areaDv(c07(), { scen: i => i < 20 ? "ac" : i < 22 ? "fc" : "pl" }), 1280, 600);
+    const segs = aQ("c805", '[data-icd="area-seg"]');
+    const per = aOrder.map(sn => segs.filter(s => s.getAttribute("data-series") === sn).length);
+    const fc = segs.filter(s => s.getAttribute("data-scen") === "fc"), pl = segs.filter(s => s.getAttribute("data-scen") === "pl");
+    check(segs.length === 18 && per.every(c => c === 3) && fc.length === 6 && pl.length === 6, `c805: je Serie 3 Flächen (${per.join(",")}), 6 FC, 6 PL`);
+    check(fc.every(s => /^url\(#.*-s\d+-/.test(fillOf(s))) && pl.every(s => s.getAttribute("fill-opacity") === "0.28" && s.getAttribute("stroke")),
+      "c805: FC mit Serienschraffur, PL getönt mit Umriss");
+    const pts = aQ("c805", '[data-icd="area-total-pt"]');
+    const plPts = pts.filter(p => p.getAttribute("data-scen") === "pl");
+    check(plPts.length === 2 && plPts.every(p => fillOf(p) === "#FFFFFF" || fillOf(p).toLowerCase() === "#ffffff") && pts.filter(p => p.getAttribute("data-scen") === "fc").length === 2,
+      `c805: 2 FC-Punkte, 2 hohle PL-Punkte (${plPts.map(fillOf).join(",")})`);
+    // the boundary lines are cut around texts (cutFcLines): pieces of ONE line each
+    const xsOf = icd => [...new Set(aQ("c805", `[data-icd="${icd}"]`).map(l => l.getAttribute("x1")))];
+    check(xsOf("fc-boundary").length === 1 && xsOf("pl-boundary").length === 1
+      && aQ("c805", '[data-icd="scen-label"]').map(t => t.textContent).join(" ") === "AC FC PL", "c805: je ein FC- und PL-Grenzstrich, Kürzel AC · FC · PL");
+    // Grenzstrich am letzten AC-Punkt
+    const xb = +aQ("c805", '[data-icd="fc-boundary"]')[0].getAttribute("x1");
+    check(Math.abs(xb - +pts[19].getAttribute("cx")) < 0.01, "c805: FC-Grenze am letzten Ist-Punkt (Dez 2025 −4)");
+  }
+  // ---- c806: 100 %
+  addStage("c806", "B16 · 100 % (stackNormalize = pct100) · Anteile, keine Summenlinie", 1280, 600);
+  {
+    runCap("c806", areaDv(c07({ stackNormalize: "pct100" } )), 1280, 600);
+    const v = aQ("c806", '[data-icd="area-value"][data-series="Priority 1"]').find(t => t.getAttribute("data-i") === "0");
+    check(!!v && v.textContent === "30,6", `c806: Priority 1 Jan 2024 = ${v ? v.textContent : "–"} %`);
+    check(aQ("c806", '[data-icd="area-total-line"],[data-icd="area-total-pt"]').length === 0 && aQ("c806", '[data-icd="area-100"]').length === 1
+      && aQ("c806", '[data-norm="pct100"]').length === 1, "c806: keine Summenlinie, Marke 100 %");
+    check(/Anteile in %|shares in %/.test(document.getElementById("c806").textContent), "c806: Titel mit Anteile in %");
+  }
+  // ---- c807/c808: negative Serie, Vorzeichenwechsel
+  addStage("c807", "B16 · Serie „Returns“ durchgehend negativ: stapelt unter null, Summenlinie = Netto", 1100, 560);
+  addStage("c808", "B16 · Serie wechselt das Vorzeichen: Rückfall auf gestapelte Säulen + Hinweis", 1100, 460);
+  {
+    const ord = ["Priority 3", "Priority 2", "Returns"];
+    const val = (i, sn) => sn === "Returns" ? -(300 + (i % 5) * 60) : aData[sn][i];
+    runCap("c807", areaDv(c07(), { order: ord, val }), 1100, 560);
+    const ret = aQ("c807", '[data-icd="area-seg"][data-series="Returns"]')[0];
+    const zero = Math.max(...aQ("c807", '[data-icd="area-seg"][data-series="Priority 3"]')[0].getAttribute("points").split(" ").map(p => +p.split(",")[1]));
+    const retYs = ret ? ret.getAttribute("points").split(" ").map(p => +p.split(",")[1]) : [];
+    const pts = aQ("c807", '[data-icd="area-total-pt"]').map(p => +p.getAttribute("data-v"));
+    check(!!ret && Math.min(...retYs) >= zero - 0.01 && pts[0] === aP3[0] + aP2[0] - 300, `c807: Returns unter der Nulllinie, Netto Jan 2024 = ${pts[0]}`);
+    const val8 = (i, sn) => sn === "Returns" ? (i % 2 ? 200 : -200) : aData[sn][i];
+    runCap("c808", areaDv(c07(), { order: ord, val: val8 }), 1100, 460);
+    check(aQ("c808", '[data-icd="stack-area"]').length === 0 && aQ("c808", 'g.icd-cat rect').length > 0
+      && aQ("c808", '[data-icd="area-hint"][data-kind="sign"]').length === 1, "c808: Säulen statt Fläche, Hinweis „sign“");
+  }
+  // ---- c809 bis c811: Lücken
+  addStage("c809", "B16 · Periode Jan 2025 ohne Werte: Flächen und Linie enden und beginnen neu", 1280, 520);
+  addStage("c810", "B16 · Zelle fehlt (Priority 3, Jun 2024): zählt 0", 1280, 520);
+  addStage("c811", "B16 · isolierte Periode (Dez 2024 zwischen zwei Lücken): schmaler Stapel mit Punkt", 1280, 520);
+  {
+    runCap("c809", areaDv(c07(), { gap: i => i === 12 }), 1280, 520);
+    const d = aQ("c809", '[data-icd="area-total-line"]')[0].getAttribute("d");
+    check(aQ("c809", '[data-icd="area-seg"]').length === 12 && (d.match(/M/g) || []).length === 2 && aQ("c809", '[data-icd="area-total-pt"]').length === 23,
+      `c809: 12 Flächen, Linie in 2 Stücken, 23 Punkte`);
+    runCap("c810", areaDv(c07(), { skipCell: (i, sn) => i === 5 && sn === "Priority 3" }), 1280, 520);
+    const v5 = +aQ("c810", '[data-icd="area-total-pt"]')[5].getAttribute("data-v");
+    check(v5 === aTot[5] - aP3[5] && aQ("c810", '[data-icd="area-seg"]').length === 6, `c810: Jun 2024 = ${v5} (ohne Priority 3), Flächen durchgehend`);
+    runCap("c811", areaDv(c07(), { gap: i => i === 10 || i === 12 }), 1280, 520);
+    check(aQ("c811", '[data-icd="area-sliver"]').length === 6 && aQ("c811", '[data-icd="area-total-pt"]').length === 22
+      && aQ("c811", '[data-icd="area-seg"]').length === 12 && !aQ("c811", '[data-icd="area-value"][data-i="11"]').length,
+      "c811: 6 Splitter in Dez 2024 (ohne Werte), 22 Punkte, 12 Flächen");
+  }
+  // ---- c812: Small Multiples
+  addStage("c812", "B16 · Small Multiples Nord / Süd (halb so groß) · eine Skala · FC-Schraffur je Kachel", 1280, 560);
+  {
+    runCap("c812", areaDv(c07(),
+      { mult: [["Nord", 1], ["Süd", 0.5]], scen: i => i < 21 ? "ac" : "fc", order: ["Priority 3", "Priority 2", "Priority 1"] }), 1280, 560);
+    const roots = aQ("c812", '[data-icd="stack-area"]');
+    const k = roots.map(r => {
+      const p = r.querySelector('[data-icd="area-total-pt"]');
+      const zero = r.querySelector('line[stroke-width="1.6"]');
+      return (+zero.getAttribute("y1") - +p.getAttribute("cy")) / +p.getAttribute("data-v");
+    });
+    const ids = aQ("c812", "[id]").map(e => e.id);
+    check(roots.length === 2 && Math.abs(k[0] - k[1]) / k[0] < 0.01, `c812: 2 Kacheln, gleiche px je Einheit (${k.map(x => x.toFixed(4)).join(" / ")})`);
+    check(new Set(ids).size === ids.length && aQ("c812", '[data-icd="area-seg"][data-scen="fc"]').length === 6, "c812: eindeutige Pattern-Ids, FC in beiden Kacheln");
+  }
+  // ---- c813: Achsengruppen aus
+  addStage("c813", "B16 · axisGroups = off · einstufige Kategorie „Jan 2024“", 1280, 520);
+  {
+    runCap("c813", areaDv(c07({ axisGroups: "off" } ), { flat: true }), 1280, 520);
+    check(aQ("c813", '[data-icd="axis-group"],[data-icd="axis-group-sep"]').length === 0 && aQ("c813", '[data-icd="area-seg"]').length === 6,
+      "c813: ohne Hierarchie keine Gruppenzeile");
+  }
+  // ---- c815: Hervorhebung als Ellipse um die Summe
+  addStage("c815", "B16 · Hervorhebung Jul 2024 als Ellipse um die Summe 11.639", 1280, 600);
+  addStage("c815b", "B16 · Hervorhebung Jul 2024 als Band", 1280, 600);
+  {
+    runCap("c815", areaDv(c07({ highlight: "2024 · Jul", highlightStyle: "ellipse" } )), 1280, 600);
+    const lab = aQ("c815", '[data-icd="area-total-label"][data-i="6"]')[0];
+    const el = aQ("c815", '[data-icd="emph-ellipse"]');
+    let inside = false;
+    if (lab && el.length === 1) {
+      const b = lab.getBBox(), cx = +el[0].getAttribute("cx"), cy = +el[0].getAttribute("cy");
+      inside = Math.abs(cx - (b.x + b.width / 2)) < 1 && Math.abs(cy - (b.y + b.height / 2)) < 1;
+    }
+    check(!!lab && lab.textContent === "11.639" && inside, `c815: eine Ellipse um „${lab ? lab.textContent : "–"}“`);
+    runCap("c815b", areaDv(c07({ highlight: "2024 · Jul" } )), 1280, 600);
+    check(aQ("c815b", 'rect[fill-opacity="0.07"]').length === 1 && aQ("c815b", '[data-icd="emph-ellipse"]').length === 0, "c815b: Band hinter Jul 2024");
+  }
+  // ---- c816/c817: Hochkontrast, dunkel
+  addStage("c816", "B16 · Hochkontrast: Papierfüllung mit Umrissen", 1280, 560, "#000");
+  addStage("c817", "B16 · dunkles Erscheinungsbild", 1280, 560, "#1b1a19");
+  {
+    runCap("c816", areaDv(c07()), 1280, 560, { hc: true });
+    const segs = aQ("c816", '[data-icd="area-seg"]');
+    check(segs.length === 6 && segs.every(s => fillOf(s).toLowerCase() === "#000000" && s.getAttribute("stroke")) && noNaN("c816"),
+      `c816: Flächen in Papierfarbe mit Umriss (${segs.map(fillOf).slice(0, 2).join(",")})`);
+    runCap("c817", areaDv(Object.assign(c07(), { colors: { appearance: "dark" } })), 1280, 560);
+    check(aQ("c817", '[data-icd="area-seg"]').length === 6 && noNaN("c817"), "c817: dunkel ohne Fehler");
+  }
+  // ---- c818: ohne Serie
+  addStage("c818", "B16 · stackShape = area ohne Feld „Stack-Serie“: einfache Säulen + Hinweis", 960, 420);
+  {
+    runCap("c818", dataView(aMon, [col("actual", aP1.slice(0, 12), "#,0")], { chart: { orientation: "columns", stackShape: "area" } }), 960, 420);
+    check(aQ("c818", '[data-icd="stack-area"]').length === 0 && aQ("c818", 'g.icd-cat rect').length >= 12
+      && aQ("c818", '[data-icd="area-hint"][data-kind="series"]').length === 1, "c818: Säulen und Hinweis „series“");
+  }
+  // ---- c819: Reihenfolge wie geliefert (Priority 1 zuerst = unten, dunkelste)
+  addStage("c819", "B16 · Serien aufsteigend geliefert: Priority 1 unten und am dunkelsten", 1280, 520);
+  {
+    runCap("c819", areaDv(c07(), { order: aOrder.slice().reverse() }), 1280, 520);
+    const first = aQ("c819", '[data-icd="area-seg"]')[0];
+    check(first && first.getAttribute("data-series") === "Priority 1" && first.getAttribute("data-si") === "0", "c819: erste gelieferte Serie unten (si 0)");
+  }
+  // ---- c820: Tooltip und Auswahl, c823: Cross-Highlight über den Schleier
+  addStage("c820", "B16 · Tooltip (Serie, Wert, Anteil, Summe) und Auswahl je Zelle", 1280, 520);
+  addStage("c821", "B16 · Kommentar-Marker über der Summe", 1280, 560);
+  addStage("c823", "B16 · Cross-Highlight Priority 1: übrige Zellen hinter einem Schleier", 1280, 520);
+  {
+    let tip = null;
+    runCap("c820", areaDv(c07()), 1280, 520,
+      { hostPatch: h => { h.tooltipService = { show: o => { tip = o; }, move() {}, hide() {} }; } });
+    const cellG = aQ("c820", '[data-icd="area-cell"][data-series="Priority 1"][data-i="0"]')[0];
+    if (cellG) { cellG.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })); }
+    const items = tip ? tip.dataItems.map(d => d.displayName + "=" + d.value).join(" | ") : "";
+    check(aQ("c820", '[data-icd="area-cell"]').length === 144 && /Priority 1/.test(items) && /30,6 %/.test(items) && /10\.634/.test(items),
+      `c820: 144 Zellen, Tooltip ${items}`);
+    window.__lastSelect = null;
+    if (cellG) { cellG.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+    check(window.__lastSelect && window.__lastSelect.n === 1, "c820: Klick wählt die Zelle aus");
+    const cm = Array(24).fill(null); cm[6] = "Sondereffekt Juli";
+    runCap("c821", areaDv(c07(), { comments: cm }), 1280, 560);
+    const badge = aQ("c821", '[data-icd="stack-comment"] circle')[0];
+    const pt6 = aQ("c821", '[data-icd="area-total-pt"]')[6];
+    check(!!badge && Math.abs(+badge.getAttribute("cx") - +pt6.getAttribute("cx")) < 0.01 && +badge.getAttribute("cy") < +pt6.getAttribute("cy"),
+      "c821: Kommentar-Marker über dem Summenpunkt Jul 2024");
+    runCap("c823", areaDv(c07(), { hl: (i, sn) => sn === "Priority 1" }), 1280, 520);
+    const veils = aQ("c823", '[data-icd="area-cell"] polygon');
+    const dimmed = veils.filter(v => v.getAttribute("fill-opacity") === "0.65").length;
+    check(dimmed === 120, `c823: ${dimmed} von ${veils.length} Zellen verschleiert`);
+  }
+  // ---- c822: schmal
+  addStage("c822", "B16 · 240 px breit: Labels ausgedünnt", 240, 300);
+  addStage("c822b", "B16 · 160 × 120: Platzhinweis", 160, 120);
+  {
+    runCap("c822", areaDv(c07()), 240, 300);
+    // ink boxes like declutterLabels (18 % of the line height above and below are empty)
+    const lb = aQ("c822", '[data-icd="area-total-label"]').map(t => { const b = t.getBBox(), sh = b.height * 0.18;
+      return { x0: b.x, x1: b.x + b.width, y0: b.y + sh, y1: b.y + b.height - sh }; });
+    const overlap = lb.some((a, i) => lb.some((b, j) => i < j && Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > 1
+      && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 1));
+    check(noNaN("c822") && lb.length < 24 && !overlap && lb.every(b => b.x0 >= -0.5 && b.x1 <= 240.5)
+      && aQ("c822", '[data-icd="stack-area"]').length === 1, `c822: ${lb.length} Summenlabels ohne Überlappung, alle in der Kachel`);
+    runCap("c822b", areaDv(c07()), 160, 120);
+    check(aQ("c822b", '[data-icd="area-hint"][data-kind="space"]').length === 1 && aQ("c822b", '[data-icd="stack-area"]').length === 0, "c822b: Platzhinweis");
+  }
+  // kein NaN in allen Flächen-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c8[0-2]\d[a-z]?$/.test(id));
+    const bad = ids.filter(id => !noNaN(id));
+    check(ids.length >= 25 && bad.length === 0, `c800 bis c823: kein NaN, undefined oder Infinity (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B16-END
 </script>
 </body>
 </html>

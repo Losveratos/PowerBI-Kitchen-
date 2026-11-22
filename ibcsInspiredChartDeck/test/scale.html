@@ -619,6 +619,46 @@ run("BRIDGE", "Säulen + Brücke PL → AC", dataView(mon8, [col("actual", ac8, 
   pair("YCbars", { orientation: "bars" }, 900, 520);
   pair("YCcompact", { orientation: "columns" }, 600, 170);
 }
+
+// ---- 1.56 (B16): gestapelte Fläche (Blatt 08A) · Summenpunkt auf der Oberkante, Bänder proportional
+{
+  const P1 = [3256,3218,3098,3126,3056,3412,3332,3245,3138,3184,3111,3123];
+  const P2 = [654,589,789,598,549,668,659,780,936,624,868,812];
+  const P3 = [2025,2156,2056,2097,1341,1953,2789,1967,1908,2045,2196,2003];
+  const ser = { "Priority 3": P3, "Priority 2": P2, "Priority 1": P1 };
+  const m12 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const C = [], S = [], V = [];
+  m12.forEach((m, i) => Object.keys(ser).forEach(sn => { C.push(m); S.push(sn); V.push(ser[sn][i]); }));
+  const dv = { metadata: { columns: [], objects: { chart: { orientation: "columns", stackShape: "area" } } }, categorical: {
+    categories: [{ source: { displayName: "Monat", roles: { category: true } }, values: C },
+      { source: { displayName: "Priority", roles: { series: true } }, values: S }],
+    values: [col("actual", V, "#,0")] } };
+  run("AREA08A", "Gestapelte Fläche · 12 Monate × 3 Serien", dv, 1000, 460);
+  const segs = [...document.querySelectorAll('#AREA08A [data-icd="area-seg"]')];
+  const poly = s => s.getAttribute("points").split(" ").map(p => p.split(",").map(Number));
+  const pts = [...document.querySelectorAll('#AREA08A [data-icd="area-total-pt"]')];
+  const top = segs.find(s => s.getAttribute("data-series") === "Priority 1");
+  const topY = top ? poly(top).slice(0, 12).map(p => p[1]) : [];
+  const dTop = pts.map((p, i) => Math.abs(num(p, "cy") - topY[i]));
+  measure(`AREA08A: Summenpunkt gegen Oberkante max. ${r2(Math.max(...dTop))} px`);
+  check(pts.length === 12 && Math.max(...dTop) <= 0.6, "AREA08A: Summenpunkt liegt auf der Oberkante der obersten Fläche (±0,6 px)");
+  // band height per unit: the same for every series and period (3 %)
+  const ks = [];
+  segs.forEach(s => {
+    const p = poly(s), n = p.length / 2, vals = ser[s.getAttribute("data-series")];
+    for (let i = 0; i < n; i++) { ks.push((p[2 * n - 1 - i][1] - p[i][1]) / vals[i]); }
+  });
+  const km = med(ks);
+  measure(`AREA08A: Bandhöhe ${r2(km * 1000)} px je 1.000, Spanne ${r2(Math.min(...ks) / km * 100)} % bis ${r2(Math.max(...ks) / km * 100)} %`);
+  check(ks.length === 36 && ks.every(k => Math.abs(k / km - 1) <= 0.03), "AREA08A: Bandhöhe proportional zum Wert (3 %)");
+  // the bottom series ends on the zero line
+  // the AC baseline: the horizontal 1.6 px line in the AC colour
+  const zero = Math.max(...[...document.querySelectorAll('#AREA08A [data-icd="stack-area"] line[stroke-width="1.6"]')]
+    .filter(l => num(l, "y1") === num(l, "y2") && fill({ getAttribute: () => l.getAttribute("stroke") }) === AC_C).map(l => num(l, "y1")));
+  const bottom = segs.find(s => s.getAttribute("data-series") === "Priority 3");
+  const lowY = bottom ? poly(bottom).slice(12).map(p => p[1]) : [];
+  check(lowY.length === 12 && lowY.every(y => Math.abs(y - zero) <= 0.6), `AREA08A: unterste Fläche endet auf der Nulllinie (y ${r2(zero)})`);
+}
 </script>
 </body>
 </html>

@@ -66,6 +66,8 @@ Jahressäule, Tabelle, Trend-Rolle und Karten zeigen den letzten Wert; c610 prü
 Bestand in der zweiten Trend-Periode vollständig. 845 resjson-Keys je Sprache. Tests c730 bis c743. Noch offen (Teil 3):
 Jahreszeile aus einer einzelnen Datumsspalte, `axisGroups` in Säulen und Linie, ΔBestand gegen PL/PY.
 
+*B16 · Gestapelte Fläche (Blatt 08A).* Properties im Objekt `chart`, Formatbereich-Gruppe „Darstellung“: `stackShape` („Stapel-Form“: `columns` = „Säulen“, Standard | `area` = „Fläche“; sichtbar bei `orientation=columns`), `areaTotalLine` („Summenlinie“, bool, Standard an) und `areaValueLabels` („Werte in den Flächen“: `auto` | `ends` | `off`, Standard `auto`), beide sichtbar nur bei `stackShape=area`; `axisGroups` (B11, Gruppe „Bestand & Fluss“) gilt auch für die Fläche, die Gruppe zeigt dann nur diese Option. Keine neue Rolle und keine neue Orientierung: Mit gebundener Rolle `series` und `stackShape=area` verzweigt der Säulen-Stapel auf `renderStackedArea` (gleiche Datenstrecke wie `renderStacked`: `stackLayout`, `cfg.stackDomain` über alle Kacheln, 100 % über `stackNormalize`, Serienreihenfolge wie geliefert, erste Serie unten und am dunkelsten). Ohne Serie bleibt der Schalter wirkungslos (einfache Säulen, im Bearbeitungsmodus Hinweis). Geometrie: ein Punkt je Periode in der Bandmitte (Abweichung vom Blatt, das die Monatsgrenze nimmt), je Serie und Lauf gleichen Szenarios ein Polygon; das Stück zwischen zwei Punkten trägt das Szenario des rechten Punkts (AC Ton, FC `stackHatch`, PL 28 % Ton mit Umriss in PL-Farbe), Grenzstrich am letzten Punkt davor. Eine Periode, in der keine Zelle einen Wert trägt, unterbricht Flächen und Summenlinie; eine einzelne Periode zwischen Lücken wird als 4 px breiter Splitter gezeichnet; eine fehlende Zelle zählt 0. Durchgehend negative Serien stapeln unter null; wechselt eine Serie das Vorzeichen, zeichnet `renderStacked` (Säulen) plus Hinweis. Seriennamen rechts neben der letzten Periode auf halber Bandhöhe mit Verdrängung (`stackLegendPos=start`: links), sonst Legendenzeile; bei Small Multiples immer Legendenzeile. Blatt-Reihenfolge (Priority 1 oben): Serienspalte im Modell absteigend sortieren (Sortierspalte), die Töne folgen der Lieferreihenfolge. Interaktion: je Periode und Serie eine unsichtbare Zelle (`area-cell`, Polygon in Papierfarbe mit `fill-opacity` 0; Auswahl und Cross-Highlight setzen 0,65 statt der Gruppen-Opacity, `catGroups[].veil`), Tooltip mit Anteil (`Tooltip_Share`) und Periodensumme (`attachInteraction` Option `extra`). Testmarker (`data-icd`): `stack-area` (Wurzel, `data-n`, `data-norm`), `area-seg` (`data-series`, `data-si`, `data-scen`), `area-sep`, `area-sliver`, `area-total-line`, `area-total-pt` (`data-scen`, `data-v`, `data-i`), `area-total-label`, `area-value` (`data-series`, `data-v`, `data-i`), `area-direct-label`, `area-100`, `area-axis`, `area-cell`, `area-hint` (`data-kind` `sign` | `series` | `space`), `stack-legend`; wiederverwendet `fc-boundary`, `pl-boundary`, `scen-label`, `axis-group`, `axis-group-sep`, `emph-ellipse`, `stack-comment`, `stack-refline`, `group-sep`. Vorlage C07 (siehe Mapping). Nicht in Teil 1: `diffMarkers`, YTD, liegende Variante, Seriennamen nur in der letzten Kachel einer Small-Multiples-Zeile. 854 resjson-Keys je Sprache. Tests c800 bis c823 (Harness) und AREA08A (`test/scale.html`); bestehende Stufen SVG-identisch, geändert nur die Vorlagen-Galerie (neue Kachel C07).
+
 **Neu in 1.55 (Backlog IBCS-Templates Teil 2, 21.11.2026):**
 
 *B10 · Stapel-Struktur (Blätter 01D, 01E, 02B bis 02E).* Alle Properties im Objekt `chart`, Formatbereich-Gruppe „Darstellung“. `stackNormalize` („Stapel-Skala“: `off` = „Werte“ | `pct100` = „100 % (Anteile)“, Standard `off`): gestapelte Säulen und Balken als 100 % je Kategorie, Beschriftungen sind Anteile mit einer Nachkommastelle, Panel-Titel mit Zusatz „Anteile in %“. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N), sonst bleibt der Stapel bei Werten. „100 %“-Marke: bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile mit „▲ 100 %“ darunter. Eine Referenzlinie wird bei 100 % als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax`/`capOverflow` gelten nicht für Anteile. Bei 100 %-Balken zeigt `showTotal` („Summen-Kopfzeile (Σ)“, Standard an) ein Summen-Panel rechts mit eigener Skala, nur ab 280 px Kachelbreite; bei Small Multiples teilen sich alle Kacheln einen Pixelwert je Einheit, Forecast-Kategorien sind dort schraffiert, Plan-Kategorien umrandet, der Kopf nennt die Szenarien („Σ AC · PL“, „(↓)“ bei Sortierung nach Summe). `stackTotalRow` („Σ-Zeile im Stapel“, bool, Standard aus, nur Balken): Σ-Zeile unten; bei Werten Legendenzeile mit Summe je Serie und Gesamtsumme („= 3.733“; die Serien-Summen ganz oder gar nicht, passen sie nicht, nur die Gesamtsumme; kein Summenbalken, die Summe passt nicht auf die Zeilenskala), bei 100 % ein 100 %-Balken mit dem Gesamtmix. Die Σ-Zeile summiert nur ein Szenario: Bei gemischten AC-, FC- und PL-Kategorien entfällt sie. `stackTotalLabel` („Beschriftung der Σ-Zeile“, Text, leer = „Σ“, z. B. „World“). `stackLegendPos` („Seriennamen (Säulen)“: `end` = „Rechts neben der letzten Säule“, Standard | `start` = „Links neben der ersten Säule“, Blatt 01E). `sortMode` kennt neu `series` („Nach erster Serie (Stapel)“); in Stapelbalken sortiert `ac` nach Stapelsumme, `series` nach der ersten Serie (bei 100 % nach deren Anteil, Blatt 02E); „(↓)“ markiert die sortierte Serie in der Legende; Rest-Kategorien (Rest, Others, Sonstige, „Rest of …“, Top-N-Rest) bleiben am Ende und kursiv. Die Serienreihenfolge eines Stapels bleibt wie geliefert: Sortierung und Top N ändern weder Farbtöne noch Legendenreihenfolge noch, welche Serie die „erste“ ist. Zwei Verhaltensänderungen: (1) `chart.topN` bei Stapelbalken reiht jetzt ganze Kategorien nach Stapelsumme, behält alle Serien-Zellen der Top N und fasst den Rest je Serie zu „Rest (n)“ zusammen (vorher einzelne Zellen und eine Serie „(leer)“). (2) Ein 1.54-Bericht mit Stapelbalken und gespeichertem `sortMode` `ac` („Nach AC“) wird jetzt nach Stapelsumme sortiert (vorher ohne Wirkung auf Stapel). Testmarker (`data-icd`): `stack-100` (100 %-Marke), `stack-total-row` (Σ-Zeile), `stack-total-seg` (Segment der Σ-Zeile, mit `data-series`), `stack-total-grand` (Gesamtsumme), `stack-total-panel` (Summen-Panel, mit `data-px-per-unit`), `sort-mark` (Sortiermarke „(↓)“), `stack-rest` (Rest-Kategorie); die Wurzelgruppe trägt `data-norm="pct100"`, wenn 100 % aktiv ist. Mit den neuen Optionen aus zeichnen Stapel unverändert (SVG-Hash der 364 Harness-Stufen). Nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein Segment; Rest-Zeilen behalten in 02B/02D/02E ihren Rang (nur „Rest of world“ zuletzt), ChartKitchen setzt alle Rest-Zeilen ans Ende (B04-Regel), und auf den Blättern sind bei Rest-Zeilen auch die Zahlen kursiv, hier nur der Name. Tests c283 bis c289 und c295 bis c299b.
@@ -508,6 +510,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C04 Balken + Varianzen | orientation=bars · comparisonMode=plan · showAbs/showRel=true · dualVariance=false · waterfallStyle=false |
 | C05 Integrierte Brücke | orientation=intwaterfall · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
 | C06 Kategorie-Brücke vertikal | orientation=catbridge · bridgeOrientation=columns · comparisonMode=py · showAbs/showRel=true · dualVariance=false |
+| C07 Gestapelte Fläche (08A, ab 1.56) | orientation=columns · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackShape=area · areaTotalLine=true · areaValueLabels=auto · stackLegendDirect=true · stackLegendPos=end · showTotal=false · scenarioLabels=true (Rolle `series` binden, siehe B16) |
 | C08 Linie | orientation=line · comparisonMode=auto · showAbs=true · showRel=false · dualVariance=false |
 | C09 Scatter | orientation=scatter · comparisonMode=auto · scatterQuadrant=mean · scatterColorBy=single |
 | C10 Bubble | wie C09 + scatterSizeLegend=true (Rolle `bubbleSize` binden) |
@@ -516,8 +519,8 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C14 bis C19 | ab 1.54, siehe „Neu in 1.54“ (Zuordnung zu den IBCS-Blättern 04A, 04B, 04C, 06E, 10F, 03B) |
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 
-**Nicht enthalten:** C07 (Fläche/Area) und C11 (Verteilung/Boxplot) — die
-Darstellungsformen gibt es im Visual nicht (siehe BACKLOG).
+**Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es
+im Visual nicht (siehe BACKLOG). C07 (Fläche) gibt es ab 1.56 (B16).
 (2) **fetchMoreData** — siehe Falle 7. (3) **Lesezeichen:**
 `registerOnSelectCallback` übernimmt die vom Host wiederhergestellte
 Auswahl (Dimmen wie nach Klick, `[]` hebt auf). (4) **Gesperrte Chips:**
@@ -626,7 +629,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die … |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und … |
 | `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` · `stockflow` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
@@ -681,6 +684,9 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `pinStyle` | enum | `auto` | `auto` · `round` · `square` — Form des Lollipop-Kopfes der Δ%-Pins. „Automatisch" behält den bisherigen Stil je Modus (Säulen/Balken/Wasserfall rund, Brücken und Tabelle quadratisch); „Rund" oder „Quadratisch" vereinheitlichen alle Modi. |
 | `deltaIcons` | bool | `false` | Stellt den Δ-Werten in Tabelle und KPI-Karten Richtungspfeile voran: ▲ Anstieg, ▼ Rückgang, ● unwesentlich (unter der Materialitätsschwelle) … |
 | `driverNote` | bool | `true` | Kategorie-Brücke: kursive Notiz am größten Treiber („größter Treiber · n % der Gesamtabweichung“) — überlagert den Zeilenbereich, hier abschaltbar. |
+| `stackShape` | enum | `columns` | `columns` · `area` — Gestapelte Säulen (Feld „Stack-Serie“): als Säulen (Standard) oder als gestapelte Fläche über die Zeit mit Summenlinie, Punkten je Periode und Seriennamen am Ende. Ohne Serie und bei Balken ohne Wirkung. |
+| `areaTotalLine` | bool | `true` | Gestapelte Fläche: Linie mit Punkt und Summe je Periode über dem Stapel. Bei 100 % nie. Standard an. |
+| `areaValueLabels` | enum | `auto` | `auto` · `ends` · `off` — Gestapelte Fläche: Werte in den Flächen, nach Platz ausgedünnt (Standard), nur in der ersten und letzten Periode oder keine. Ein Wert steht nur, wenn die Fläche dort hoch genug ist. |
 | `stackLegendDirect` | bool | `true` | Gestapelte Säulen und Balken: Die Seriennamen stehen direkt am Stapel (Säulen: rechts neben der letzten Säule, Balken: über dem ersten Balken) statt als Schlüssel oben. Passen sie nicht, bleibt der Schlüssel … |
 | `stackLegendPos` | enum | `end` | `end` · `start` — Gestapelte Säulen mit Seriennamen am Stapel: rechts neben der letzten Säule (Standard) oder links neben der ersten. |
 | `stackNormalize` | enum | `off` | `off` · `pct100` — Gestapelte Säulen und Balken: Werte oder 100 % je Kategorie (Anteile der Serien, Marke „100 %“). Bei 100 % zeigt ein Balkendiagramm rechts die absoluten Summen auf eigener Skala, solange „Summen-Kopfzeile (Σ)“ an ist … |
@@ -702,7 +708,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `sfNegTint` | bool | `true` | Bestand & Fluss: Flächenstücke unter null in der Farbe für Schlecht, leicht getönt. Standard an. |
 | `sfOpening` | bool | `true` | Bestand & Fluss: zusätzlicher Punkt am Anfang der ersten Periode mit dem abgeleiteten Anfangsbestand (Bestand der ersten Periode minus ihr Netto-Fluss). Standard an. |
 | `sfStockAt` | enum | `end` | `end` · `center` — Bestand & Fluss: Lage der Bestandspunkte, am Ende der Periode (Stichtag, wie auf den IBCS-Blättern) oder in ihrer Mitte. |
-| `axisGroups` | enum | `auto` | `auto` · `off` — Bestand & Fluss: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Aus = nur die Periodennamen. |
+| `axisGroups` | enum | `auto` | `auto` · `off` — Bestand & Fluss und gestapelte Fläche: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden … |
 | `sfFlowZoom` | bool | `false` | Bestand & Fluss: Flüsse und Netto mit einem runden Faktor vergrößert, wenn sie neben einem großen Bestand nur wenige Pixel hoch wären (Blatt 08G) … |
 
 **Small Multiples**
@@ -811,12 +817,12 @@ Enum-Labels:
 - `template`: `off` = Aus (keine Vorlage); `C01` = C01 · Gestapelte Säulen (Serie);
   `C02` = C02 · Gestapelte Balken (Serie); `C03` = C03 · Säulen + Varianzen (PY);
   `C04` = C04 · Balken + Varianzen (PL); `C05` = C05 · Integrierte Brücke (Zeit);
-  `C06` = C06 · Kategorie-Brücke vertikal; `C08` = C08 · Linie (lange Zeitreihe); `C09` = C09 · Scatter;
-  `C10` = C10 · Bubble (Scatter + Größe); `C12` = C12 · Waterfall / Brücke; `C13` = C13 · Small Multiples;
-  `C14` = C14 · Balkentabelle nach ΔPL (04A); `C15` = C15 · Balkentabelle nach ΔPL % (04B);
-  `C16` = C16 · Balkentabelle nach AC (04C); `C17` = C17 · Kategorie-Brücke waagerecht (06E);
-  `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F); `C19` = C19 · Säulen gegen Plan + Jahressäule (03B);
-  `C20` = C20 · Bestand und Fluss (08E bis 08H)
+  `C06` = C06 · Kategorie-Brücke vertikal; `C07` = C07 · Gestapelte Fläche (08A);
+  `C08` = C08 · Linie (lange Zeitreihe); `C09` = C09 · Scatter; `C10` = C10 · Bubble (Scatter + Größe);
+  `C12` = C12 · Waterfall / Brücke; `C13` = C13 · Small Multiples; `C14` = C14 · Balkentabelle nach ΔPL (04A);
+  `C15` = C15 · Balkentabelle nach ΔPL % (04B); `C16` = C16 · Balkentabelle nach AC (04C);
+  `C17` = C17 · Kategorie-Brücke waagerecht (06E); `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F);
+  `C19` = C19 · Säulen gegen Plan + Jahressäule (03B); `C20` = C20 · Bestand und Fluss (08E bis 08H)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
@@ -831,6 +837,8 @@ Enum-Labels:
   `rest` = FC = Restmonat (additiv)
 - `highlightStyle`: `band` = Band hinter der Kategorie; `ellipse` = Ellipse um die Werte
 - `pinStyle`: `auto` = Automatisch (je Modus); `round` = Rund; `square` = Quadratisch
+- `stackShape`: `columns` = Säulen; `area` = Fläche
+- `areaValueLabels`: `auto` = Automatisch (ausdünnen); `ends` = Erste und letzte Periode; `off` = Aus
 - `stackLegendPos`: `end` = Rechts neben der letzten Säule; `start` = Links neben der ersten Säule
 - `stackNormalize`: `off` = Werte; `pct100` = 100 % (Anteile)
 - `stackBlocks`: `off` = Aus; `gap` = Abstand zwischen Blöcken; `subtotals` = Zwischensumme je Block;

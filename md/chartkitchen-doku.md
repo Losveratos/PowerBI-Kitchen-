@@ -71,7 +71,7 @@ Wer eines der beiden Visuals bedienen kann, kann auch das andere: Einstieg, Vorl
 | Gemeinsam | ChartKitchen | P&L Statement |
 | --- | --- | --- |
 | **Start-Hub** 🚀 Loslegen plus vier Knöpfe: Tour · Vorlagen-Galerie · Demo · Felder erklären — nur im Bearbeitungsmodus. | Tour mit 11 Karten, Demo = Galerie der 13 Chart-Typen, Feld-Intro mit allen 19 Rollen. | Tour mit 7 Karten (echte Mini-Renderings), Demo = Beispiel-GuV, Feld-Intro mit allen 20 Rollen. |
-| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 18 IBCS-Chart-Vorlagen C01 bis C20 (ohne C07/C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
+| **Vorlagen als Presets** Galerie nach Zweck; ein Klick setzt alle Schalter, danach ist alles frei. „↺ Zum Template zurück“ stellt den Vorlagen-Stand wieder her. | 19 IBCS-Chart-Vorlagen C01 bis C20 (ohne C11) in fünf Gruppen; ↺ unten links im Chart. | 19 Templates T01A–12H plus T05A Bilanz/T05B Cashflow und klassische Tabelle in fünf Gruppen; ↺ neben dem Template-Dropdown. |
 | **Schriftgröße HD · Full HD · UHD** Leiste unten auf jeder Hub-Seite, rechts daneben „📖 Doku öffnen“. | Speichert *Datenbeschriftungen → Größen-Preset* (im Formatbereich HD · Full HD · UHD; ×1 · ×1,5 · ×2). | Speichert *Stil → Schriftgrößen-Preset* (HD · Full HD · UHD; ×1 · ×1,25 · ×1,6). |
 | **IBCS-Notation, Teal als Standard** AC voll, PY grau, PL Rahmen, FC schraffiert; günstige Abweichungen Teal statt Grün — lesbar bei Rot-Grün-Schwäche. | Teal #1E8F9E · Rot #D64541; Farbpreset Blau/Orange. | Teal #0E8585 · Rot #E02B1D; Presets IBCS-Grün und Blau/Orange. |
 | **Vier Sprachen** Deutsch, Englisch, Spanisch, Japanisch — folgt der Berichtssprache, auch im Hub. | Formatbereich, Chart-Texte und Hub. | Formatbereich, Toolbar, Statement und Hub. |
@@ -96,11 +96,12 @@ Jede Unterseite trägt oben links die Pille **„← Zurück“**; Esc führt eb
 
 ### Die Vorlagen-Galerie nach Zweck
 
-Die 17 IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in fünf Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
+Die 19 IBCS-Vorlagen (Kapitel 07) stehen als Kacheln mit Vorschau in fünf Gruppen. Jede Kachel nennt den Zweck in Finance-Sprache, darunter eine Nutzen-Zeile; die C-Nummer steht als kleines Badge in der Vorschau. Gruppen, die nebeneinander passen, teilen sich eine Reihe; bei wenig Platz blättert die Galerie reihenweise.
 
 | Gruppe | Vorlage | Kachel-Titel | Nutzen-Zeile |
 | --- | --- | --- | --- |
 | **Zeitverlauf** | C01 | Säulen gestapelt nach Segment | Umsatzmix je Monat |
+|  | C07 | Gestapelte Fläche über die Zeit | Mix der Segmente mit Summenlinie |
 |  | C03 | Säulen mit Vorjahres-Abweichung | Monatsbericht AC vs. PY |
 |  | C19 | Säulen gegen Plan mit Jahr | Monate AC/FC gegen PL, Jahr eigene Skala |
 |  | C05 | Integrierte Jahresbrücke | PY → AC/FC über die Monate |
@@ -329,7 +330,7 @@ Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — d
 1. Formatbereich → *Chart* → Gruppe *Chart-Typ* → *IBCS-Chart-Vorlage* (erste Position der Chart-Karte, Standard „Aus“) — oder ein Klick auf eine Kachel der Vorlagen-Galerie im Start-Hub (Kapitel 03).
 2. Weicht danach eine Einstellung der Vorlage ab, erscheint im Bearbeitungsmodus unten links **„↺ Zum Template zurück“**: Ein Klick stellt den Vorlagen-Stand wieder her, alle übrigen Einstellungen bleiben.
 3. Dieselbe Vorlage erneut anwenden: in der Galerie die aktive Kachel klicken — das Dropdown im Formatbereich kann einen bereits gewählten Eintrag nicht noch einmal melden.
-4. C07 (Fläche) und C11 (Verteilung) gibt es im Visual nicht; sie fehlen deshalb in der Liste.
+4. C11 (Verteilung) gibt es im Visual nicht; sie fehlt deshalb in der Liste. C07 (gestapelte Fläche) gibt es seit 1.56.
 
 | Vorlage | Was sie setzt | Dazu binden |
 | --- | --- | --- |
@@ -339,6 +340,7 @@ Seit 1.49 bringt ChartKitchen die IBCS-Chart-Templates als **Presets** mit — d
 | C04 · Balken + Varianzen (PL) | Balken, Basis Plan, Abweichung absolut und in % | Plan (PL) |
 | C05 · Integrierte Brücke | Integrierte Brücke, Basis Vorjahr, Abweichung absolut und in % | Vorjahr (PY) |
 | C06 · Kategorie-Brücke vertikal | Kategorie-Brücke als Säulen-Kaskade, Basis Vorjahr | Vorjahr (PY) |
+| C07 · Gestapelte Fläche (08A, seit 1.56) | Säulen-Stapel als Fläche mit Summenlinie, Werten in den Flächen und Seriennamen rechts, Szenario-Kürzel | Stack-Serie |
 | C08 · Linie | Linie, Basis Auto, Abweichung absolut | — |
 | C09 · Scatter | Scatter, Quadranten am Mittelwert, einfarbig | X-Achse (Scatter) |
 | C10 · Bubble | wie C09, dazu die Größen-Legende | X-Achse + Blasengröße |
@@ -440,6 +442,22 @@ Für PBIR-Autoren: `chart.template` und die versteckte Property `chart.templateA
 3. Im Stapel: „2025 > 2026@Software“ misst eine Serie (Niveaulinie nur bei der untersten Serie). „@Serie“ steht immer hinter dem Pfeil; ohne Stapel oder ohne passende Serie gehört der ganze Text zur Kategorie (eine Kategorie „a@b“ funktioniert). Bei 100 %-Stapeln gibt es nur Serienmarker, beschriftet in Prozentpunkten („+3,8 PP“, ohne Δ %), Summenmarker nur ohne negative Segmente; ein reiner Plan-Monat vergleicht auf seinem Planwert.
 4. Zielt ein Marker auf die letzte (oder, rückwärts, die erste) Spalte, bleibt am Rand Platz für Balken und Text; Stapel-Säulen setzen die Seriennamen dann links neben die erste Säule wie auf Blatt 01A. Bei Zielen in der Mitte und neben der Jahressäule steht der Text über dem Balken und über den Säulen darunter, bei Balken hinter dem Wert der Zeile. Mehrere Marker auf dieselbe Kategorie stehen nebeneinander; über einer Säule in der Mitte nur so viele, wie Textzeilen darüber passen. Bei negativen Werten steht der Text unter bzw. links vom Balken. In Small Multiples reservieren alle Kacheln denselben Platz. Bei Linien und beim Wasserfall-Stil gibt es keine Marker.
 5. Zweite Überleitung: Bei integrierter Brücke mit gebundenem Vorjahr und Plan schaltet „Zweite Überleitung“ (`chart.bridgeSecondNet`, Standard Aus) neben dem Netto-Callout einen zweiten Balken ein, z. B. „+4 PY“, mit dünner Niveaulinie der anderen Basis. Er erscheint nur, wenn die andere Basis jeden Monat mit einem Wert abdeckt; nur dann wird auch Platz dafür reserviert.
+
+### Gestapelte Fläche (seit 1.56)
+
+Ein Mix über viele Perioden, etwa Vorfälle je Priorität über 24 Monate: Gestapelte Säulen werden bei so vielen Perioden unruhig, eine gestapelte Fläche zeigt Struktur und Summe auf einen Blick (nach IBCS-Blatt 08A). Die Fläche ist kein eigener Chart-Typ, sondern eine Form des Säulen-Stapels: gleiche Felder, gleiche Skala, gleiche Reihenfolge.
+
+1. Felder wie bei gestapelten Säulen: Kategorie = Zeit (am besten die Hierarchie Jahr › Monat), Stack-Serie = die Stapelglieder, Ist (und bei Bedarf Forecast oder Plan).
+2. Chart → Darstellung → **„Stapel-Form“** → „Fläche“ (`chart.stackShape = area`), oder die Vorlage **C07 · Gestapelte Fläche**.
+3. **„Summenlinie“** (`chart.areaTotalLine`, Standard an) zeichnet über dem Stapel eine Linie mit einem Punkt und der Summe je Periode. **„Werte in den Flächen“** (`chart.areaValueLabels`): automatisch nach Platz ausgedünnt, nur erste und letzte Periode, oder aus. Ein Wert steht nur, wo die Fläche hoch genug ist.
+4. Die Seriennamen stehen rechts neben der letzten Periode auf Höhe ihres Bandes (mit „Seriennamen (Säulen)“ = links neben der ersten). Bei Small Multiples und wenn sie nicht passen, steht oben eine Legende.
+
+- **Reihenfolge:** wie geliefert, die erste Serie liegt unten und ist am dunkelsten. Soll wie auf dem Blatt Priority 1 oben liegen, sortiert man die Serienspalte im Modell absteigend (Sortierspalte).
+- **Punkte in der Periodenmitte:** Das Blatt setzt die Punkte auf die Monatsgrenze. ChartKitchen ordnet Stromgrößen wie Vorfälle oder Umsatz ihrer Periode zu und setzt den Punkt deshalb in die Mitte, genau über die Monatsbeschriftung.
+- **Szenarien:** Das Stück zwischen zwei Punkten trägt das Szenario des rechten Punkts: Ist im Ton der Serie, Forecast schraffiert, Plan hell mit Umriss; ein Strich am letzten Punkt davor trennt die Blöcke, darunter die Kürzel AC, FC und PL.
+- **100 %:** „Stapel-Skala“ = „100 % (Anteile)“ zeigt Anteile mit einer Nachkommastelle, ohne Summenlinie, mit der Marke „100 %“.
+- **Sonderfälle:** Eine Periode ohne Werte unterbricht Flächen und Linie, eine einzelne Periode zwischen Lücken wird als schmaler Stapel gezeichnet, eine fehlende Zelle zählt 0. Durchgehend negative Serien liegen unter der Nulllinie, die Summenlinie zeigt dann das Netto. Wechselt eine Serie das Vorzeichen, bleibt es bei gestapelten Säulen, im Bearbeitungsmodus mit Hinweis.
+- **Interaktion:** Der Tooltip nennt Serie, Wert, Anteil und Periodensumme; Klick und Cross-Highlight blenden die übrigen Zellen ab. Hervorhebung als Band oder als Ellipse um die Summe, Kommentar-Marker über dem Summenpunkt.
 
 ### Bestand und Fluss über die Zeit (seit 1.55)
 
@@ -662,7 +680,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 
 | Einstellung | Beschreibung | Optionen / Standard |
 | --- | --- | --- |
-| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter, C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit. Nicht enthalten: C07 (Fläche) und C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) \| C19 · Säulen gegen Plan + Jahressäule (03B) \| C20 · Bestand und Fluss (08E bis 08H) · Standard „Aus (keine Vorlage)“ |
+| IBCS-Chart-Vorlage | Seit 1.49, erste Position der Chart-Karte (Gruppe Chart-Typ): Startpunkt nach den IBCS-Chart-Templates — setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt, danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich „Blasengröße“, C13 behält den Chart-Typ und braucht „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter, C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit, C07 die gestapelte Fläche über die Zeit mit Summenlinie (seit 1.56). Nicht enthalten: C11. | Optionen: Aus (keine Vorlage) \| C01 · Gestapelte Säulen (Serie) \| C02 · Gestapelte Balken (Serie) \| C03 · Säulen + Varianzen (PY) \| C04 · Balken + Varianzen (PL) \| C05 · Integrierte Brücke (Zeit) \| C06 · Kategorie-Brücke vertikal \| C07 · Gestapelte Fläche (08A) \| C08 · Linie (lange Zeitreihe) \| C09 · Scatter \| C10 · Bubble (Scatter + Größe) \| C12 · Waterfall / Brücke \| C13 · Small Multiples \| C14 · Balkentabelle nach ΔPL (04A) \| C15 · Balkentabelle nach ΔPL % (04B) \| C16 · Balkentabelle nach AC (04C) \| C17 · Kategorie-Brücke waagerecht (06E) \| C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F) \| C19 · Säulen gegen Plan + Jahressäule (03B) \| C20 · Bestand und Fluss (08E bis 08H) · Standard „Aus (keine Vorlage)“ |
 | Chart-Typ | Der Diagramm-Modus — hieß bis 1.45 „Ausrichtung“ und steht seitdem ganz oben in der ersten Karte des Formatbereichs. | Optionen: Columns (Zeit) \| Bars (Struktur) \| Line (Zeit, viele Punkte) \| Waterfall / Brücke \| Integrierte Brücke (Zeit) \| Kategorie-Brücke (Struktur) \| Tabelle (IBCS) \| Pareto (Struktur) \| Dumbbell (Struktur) \| Slope · Vorher/Nachher \| KPI-Karten (Kacheln) \| GuV-Statement (IBCS) \| Scatter / Bubble (Korrelation) \| Bestand & Fluss (Zeit), seit 1.55 · Standard „Columns (Zeit)“ |
 | Smart-Start-Vorschläge | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL). Nur im Bearbeitungsmodus sichtbar, nie in der Leseansicht oder in Exporten. | An / Aus · Standard An |
 | Abweichungsbasis | Basis für die Abweichungs-Panels. Auto: PL wenn vorhanden, sonst PY. | Optionen: Auto \| Vorjahr (PY) \| Plan (PL) \| FC Vormonat (Revision) · Standard „Auto“ |
@@ -705,6 +723,9 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Anteils-Klammer (erste Zeilen) | Seit 1.55 (`chart.stackShareBracket`), nur gestapelte Balken: eine Klammer um die ersten N Zeilen mit ihrem Anteil an der Gesamtsumme, z. B. „38 %“ links der Namen (IBCS-Blatt 02C). Bezug ist die erste Serie, wenn nach ihr sortiert wird, sonst die Stapelsumme. Rest- und Σ-Zeile zählen nie dazu; nicht bei 100 %. | 0 bis 20 · Standard 0 (aus) |
 | Stapel-Blöcke | Seit 1.56 (`chart.stackBlocks`), nur gestapelte Balken mit Kategorie-Hierarchie: die erste Ebene (z. B. Region) bildet Blöcke, die Zeilen zeigen nur die unteren Ebenen. Abstand: halbe Zeile zwischen den Blöcken. Zwischensumme: je Block eine fette Summenzeile mit der Summe je Serie und der Blocksumme, bei 100 % ein Balken mit dem Blockmix (nach IBCS-Blatt 02A). Sortierung und Top N wirken je Block, die Blöcke folgen der Blocksumme. | Optionen: Aus \| Abstand zwischen Blöcken \| Zwischensumme je Block \| Zwischensummen außer letztem Block · Standard Aus |
 | Blockanteil | Seit 1.56 (`chart.stackBlockShare`), nur mit Zwischensummen: der Anteil des Blocks an der Gesamtsumme in einer Ellipse hinter der Blocksumme, „100 %“ an der Σ-Zeile und über hervorgehobenen Zeilen deren Anteil. | An / Aus · Standard Aus |
+| Stapel-Form | Seit 1.56 (`chart.stackShape`), nur Säulen mit Feld „Stack-Serie“: als Säulen oder als gestapelte Fläche über die Zeit mit Summenlinie, Punkten je Periode und Seriennamen am Ende (IBCS-Blatt 08A). | Optionen: Säulen \| Fläche · Standard Säulen |
+| Summenlinie | Seit 1.56 (`chart.areaTotalLine`), nur gestapelte Fläche: Linie mit Punkt und Summe je Periode über dem Stapel, bei 100 % nie. | An \| Aus · Standard An |
+| Werte in den Flächen | Seit 1.56 (`chart.areaValueLabels`), nur gestapelte Fläche: Werte in den Flächen, nach Platz ausgedünnt, nur in der ersten und letzten Periode oder keine. | Optionen: Automatisch (ausdünnen) \| Erste und letzte Periode \| Aus · Standard Automatisch |
 | Seriennamen (Säulen) | Seit 1.55 (`chart.stackLegendPos`): Position der Seriennamen am Stapel. Rechts neben der letzten Säule (Standard) oder links neben der ersten Säule (IBCS-Blatt 01E). | Optionen: Rechts neben der letzten Säule \| Links neben der ersten Säule · Standard Rechts |
 | Szenario-Kürzel an den Säulen | Seit 1.54 (`chart.scenarioLabels`), nur Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Seit 1.55 auch im Chart-Typ „Bestand & Fluss“ (Zeile unter den Achsengruppen). Seit 1.55 auch PL unter die erste reine Planperiode, mit einem dünnen Trennstrich AC \| PL unter der Achse, wenn die Planperioden am Ende stehen (IBCS-Blatt 13A). Reine Planperioden tragen seit 1.55 immer ihren Planwert als Beschriftung über dem Umriss, auch ohne Szenario-Kürzel (Verhaltensänderung). | An / Aus · Standard Aus |
 
@@ -718,7 +739,7 @@ Seit 1.45 führt der Formatbereich nach Arbeitslogik: Die Chart-Karte steht an P
 | Negativen Bestand tönen | `chart.sfNegTint`: Flächenstücke unter null leicht in der Farbe für Schlecht. | An / Aus · Standard An |
 | Anfangsbestand | `chart.sfOpening`: zusätzlicher Punkt am Anfang der ersten Periode (Bestand der ersten Periode minus ihr Netto). | An / Aus · Standard An |
 | Bestandspunkt | `chart.sfStockAt`: Lage der Bestandspunkte. | Ende der Periode \| Mitte der Periode · Standard Ende |
-| Achsengruppen | `chart.axisGroups`: bis zu zwei Gruppenzeilen aus der Kategorie-Hierarchie mit Trennlinien. | Aus der Hierarchie \| Aus · Standard Aus der Hierarchie |
+| Achsengruppen | `chart.axisGroups`: bis zu zwei Gruppenzeilen aus der Kategorie-Hierarchie mit Trennlinien. Seit 1.56 auch für die gestapelte Fläche. | Aus der Hierarchie \| Aus · Standard Aus der Hierarchie |
 | Flüsse vergrößern | Seit 1.56 (`chart.sfFlowZoom`): Flüsse und Netto mit einem runden Faktor (2, 4, 5, 10 …) vergrößert, wenn sie neben einem großen Bestand nur wenige Pixel hoch wären (Blatt 08G); „×f“ an den Namen, Skalenband in beiden Maßstäben, ein Faktor für alle Kacheln. | An / Aus · Standard Aus |
 
 #### Small Multiples
