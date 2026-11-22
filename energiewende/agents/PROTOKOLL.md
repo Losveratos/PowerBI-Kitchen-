@@ -31,7 +31,7 @@ denkfabrik-r21.de und www.cleanthinking.de vor der Host-Freigabe.
 | P1-05 Speicher, Dunkelflaute | Opus | 2026-11-22 | 19,3 min | 376.809 | 127 | `research/05_speicher_dunkelflaute.md`, 46 Parameter (11 A, 35 B); 40 primär gelesen; nicht erreichbar: data.bundesnetzagentur.de (403), duh.de, DIW, EWI, ENTSO-E, DWD |
 
 **Summe Phase 1:** zehn Agenten (4 Opus, 6 Sonnet), 3.247.322 Token, 981
-Werkzeugaufrufe, längste Laufzeit 19,3 Minuten (parallel). 452 Parameter in
+Werkzeugaufrufe, längste Laufzeit 19,3 Minuten (parallel). 453 Parameter in
 zehn Dossiers.
 
 Nach Phase 1 freigegeben (zweite Runde, 20 Hosts): siehe
