@@ -425,7 +425,7 @@ export class ColumnsCardSettings extends formattingSettings.CompositeCard {
         "Card edge and Δ% in the card head in the variance colour. Default: on", true);
     // 1.8 (B07) short series (years): every column carries its value and its period
     treeAllLabels = toggle("treeAllLabels", "Columns_TreeAllLabels", "Label every period on the cards",
-        "Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree). Off: first, last and extreme value only. Default: off", false);
+        "Every column of the card chart carries its value and its period, the first plan period is named. For short series such as years (ROI tree). As in the sheet 11A (1.8.3): one decimal per card, negative actuals middle gray, plan periods lightly filled, a line between actual and plan (not in high contrast, not against PY). Off: first, last and extreme value only. Default: off", false);
 
     // ---- mega table (IBCS templates T01–T04, 12A–12H, 1.7 T05A / T05B) ----
     template = dropdown("template", "Mega_Template", "Template (IBCS table)",
@@ -555,8 +555,8 @@ export class NumbersCardSettings extends FormattingSettingsCard {
     pctDecimals = numUpDown("pctDecimals", "Numbers_PctDecimals", "Decimals (Δ%)",
         "Decimal places of Δ% and margins. Default: 1", 1, 0, 2);
     // 1.8 (B14) notation details of the reference sheets
-    sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "\u0394% decimals as in the reference sheet",
-        "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Default: off", false);
+    sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "Notation as in the reference sheet",
+        "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Since 1.8.3 also the sheet heads: a stacked FY cascade reads “YTD” and “Year” (12G), a single FY block carries its year in the minuend's head instead of a title (“PL 2026”), 12G margins whole while the template's Δ% decimals stand. Default: off", false);
     ppUnit = dropdown("ppUnit", "Numbers_PpUnit", "Unit of margin Δ",
         "Δ of margins: percentage points as “pp” or “%p” (as in the IBCS sheets T03). The margins themselves stay in %. Default: pp", ppUnitItems);
     marginRel = toggle("marginRel", "Numbers_MarginRel", "Relative change of margins (Δ%)",

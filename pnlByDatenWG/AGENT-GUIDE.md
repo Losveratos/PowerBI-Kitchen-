@@ -11,7 +11,7 @@ Fallen. Menschen lesen besser [README.md](README.md) und
 Geometrie und Notation des Mega-Tables: [SPEC-MEGATABLE.md](SPEC-MEGATABLE.md).
 Vorbild dieser Datei: `../ibcsInspiredChartDeck/AGENT-GUIDE.md` (ChartKitchen).
 
-Stand: **1.8.2.0** (22.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
+Stand: **1.8.3.0** (22.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
 ## Steckbrief
 
@@ -19,7 +19,7 @@ Stand: **1.8.2.0** (22.11.2026). Bei Versionssprüngen: CHANGELOG.md zuerst lese
 | --- | --- |
 | GUID | `pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358` |
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
-| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.2.0.pbiviz` |
+| Paket | `dist/pnlByDatenWG3F9A7D2C51E64B08A1C4E7F0B92D6358.1.8.3.0.pbiviz` |
 | API | `powerbi-visuals-api` 5.11 |
 | Datenfenster | `dataReductionAlgorithm window 30000` Zeilen; weitere Segmente lädt das Visual per `fetchMoreData` nach (Ladebalken + „≈" an Summen, bis alles da ist) |
 | Fähigkeiten | Tooltips (default + canvas) · Tastaturfokus · Landing Page · Multi-Visual-Selektion · `supportsHighlight: true` (1.7: nur der Sankey zeigt eine Markierung anderer Visuals im Gesamt, alle anderen Ansichten verhalten sich wie gefiltert — Falle 22) |
@@ -102,7 +102,7 @@ Ansicht, sondern ein Template der Tabelle — `viewTable` gilt für beide.
 - Ab 150 sichtbaren Zeilen zeichnet der Mega-Table nur das Fenster um den Viewport
   (+30 Zeilen Puffer); Export zeichnet immer alles.
 
-## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.2.0)
+## Settings-Referenz (aus Settings-Modell + capabilities.json generiert, 1.8.3.0)
 
 **Neu in 1.7** (Bestand vs. Fluss, in Arbeit): Objekt **`statement`** mit
 `stockMode` (`auto` · `allStock` · `allFlow`, Standard `auto`, eigene Karte
@@ -237,7 +237,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `structureSubtotals` | bool | `true` | Zwischensummen-Blöcke (Strukturdaten): Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme. Standard: an |
 | `structureTotal` | bool | `false` | Gesamtzeile über mehrere Wurzeln (1.8): Strukturdaten, deren oberste Ebene mehrere Zeilen hat (Regionen ohne gemeinsame Oberebene): eine fette Gesamtzeile am Ende mit allen Werten, Δ-Spalten, Balken und Pins. Eine einzige Wurzel ist schon die Gesamtzeile. Standard: aus |
 | `structureTotalLabel` | text | `""` | Name der Gesamtzeile (1.8): Leer = Gesamt in der Berichtssprache |
-| `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich |
+| `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich. 1.8.3: in Wertkaskaden (12G) zusätzlich der Margenwert kursiv vor der Kaskadenhöhe (nicht für KPI-Format Faktor/Betrag) |
 | `thresholds` | bool | `false` | Δ rot unter Schwelle (+ Fußzeile): Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel. Standard: aus |
 | `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,02); ein gesetzter Wert gilt wie eingetippt |
 | `thresholdPct` | numeric | `-10` | Schwelle Δ% (Monat / einziger Block): In ganzen Prozent. Standard: −10 |
@@ -253,7 +253,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `treeLevel` | numeric | `0` | Start-Tiefe Treiberbaum (0 = ganzer Baum): Wie viele Ebenen des Baums beim Start offen sind. 0 = ganzer Baum. Standard: 0 |
 | `treeCard` | enum `months` · `delta` · `bridge` | `months` | Karten-Diagramm im Treiberbaum: Mini-Diagramm auf jeder Karte: Monatssäulen, Abweichungssäulen oder Mini-Brücke. Standard: Monatssäulen |
 | `treeStatus` | bool | `true` | Status-Indikator der Karten (Δ-Farbe): Kartenrand und Δ% im Kartenkopf in der Abweichungsfarbe. Standard: an |
-| `treeAllLabels` | bool | `false` | Alle Perioden der Karten beschriften (1.8): Jede Säule des Kartendiagramms trägt ihren Wert und ihre Periode, die erste Planperiode wird benannt (Szenario-Kürzel in zweiter Zeile, Prozent ohne %-Zeichen, die Einheit steht im Kartenkopf). Für kurze Reihen wie Jahre (ROI-Baum). Aus: nur erster, letzter und Extremwert. Standard: aus |
+| `treeAllLabels` | bool | `false` | Alle Perioden der Karten beschriften (1.8): Jede Säule des Kartendiagramms trägt ihren Wert und ihre Periode, die erste Planperiode wird benannt (Szenario-Kürzel in zweiter Zeile, Prozent ohne %-Zeichen, die Einheit steht im Kartenkopf). Für kurze Reihen wie Jahre (ROI-Baum). Aus: nur erster, letzter und Extremwert. Standard: aus. 1.8.3 wie Blatt 11A: einheitliche Nachkommastellen je Karte (1; 0 ab 100; 2 unter 1), Linie Ist/Plan; negative Ist mittelgrau und Plan hell gefüllt (nicht HC, nicht gegen PY-Säulen, nicht bei eigener Kartenfarbe) |
 
 ### Objekt `toolbar` — Darstellung & Toolbar
 
@@ -289,7 +289,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `unitText` | text | `EUR` | Einheit (z. B. EUR): Folgt auf k / m in Titel, Skalen-Hinweis und Karten. Standard: EUR |
 | `decimals` | numeric | `1` | Dezimalstellen (Werte): Nachkommastellen von Werten und Δ. Standard: 1 |
 | `pctDecimals` | numeric | `1` | Dezimalstellen (Δ%): Nachkommastellen von Δ% und Margen. Standard: 1 |
-| `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus Margen und ihre pp behalten dabei mindestens eine Stelle (T03: `45.3%`, `+8.6%p`). Wirkt erst beim nächsten Anwenden: Template in der Galerie erneut anklicken. Galerie-Vorschauen zeigen die Standard-Notation. |
+| `sheetPctDecimals` | bool | `false` | Δ%-Dezimalen wie im Referenzblatt (1.8): Beim Anwenden eines Templates werden die Δ%-Dezimalen des Referenzblatts geschrieben (T03 und die 12er-Reihe ganzzahlig, T04B bis T04E zwei Stellen) statt einer Stelle für jedes Template. Standard: aus Margen und ihre pp behalten dabei mindestens eine Stelle (T03: `45.3%`, `+8.6%p`). Wirkt erst beim nächsten Anwenden: Template in der Galerie erneut anklicken. Galerie-Vorschauen zeigen die Standard-Notation.. 1.8.3, Anzeigename „Notation wie im Referenzblatt“: gestapelte FY-Kaskade „YTD“/„Jahr“ (12G), ein einzelner FY-Block trägt sein Jahr im Minuend-Kopf statt im Titel („PL 2026“), 12G-Margen ganzzahlig über Preset `sheetMdec`, solange `pctDecimals` = `sheetPdec`; pp behalten eine Stelle |
 | `ppUnit` | enum `pp` · `pctp` | `pp` | Einheit der Margen-Δ (1.8): Prozentpunkte als „pp" oder „%p" (wie in den IBCS-Blättern T03). Standard: pp |
 | `roundedZero` | enum `signed` · `plain` | `signed` | Gerundete Null (1.8): Eine Δ, die nicht null ist, aber auf null rundet: Vorzeichen behalten oder 0,0 wie in den Referenzblättern. Werte tragen bei null nie ein Vorzeichen (in allen Ansichten). Standard: Vorzeichen behalten |
 | `marginRel` | bool | `false` | Relative Änderung der Margen (1.8.2): Margenzeilen zeigen im Δ%-Feld ihre relative Änderung (T03: +8,6 %p und +23 %), gerechnet über den Betrag der Referenz |

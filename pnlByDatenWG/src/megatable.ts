@@ -207,6 +207,8 @@ export interface MegaBlock {
     alias?: Partial<Record<MegaScen, string>>;
     /** show the block title even for a single statement block (month only, FY outlook) */
     titled?: boolean;
+    /** 1.8.3 year of an FY block ("2026"), for the sheet notation's "PL 2026" head */
+    year?: string;
     /**
      * 12G (1.1): the year-to-date share of the minuend's value (display units).
      * Set by an FY outlook block (AC&FC): the minuend value cascade then stacks
@@ -304,6 +306,14 @@ export interface MegaInput {
     marginAxisPp?: boolean;
     /** 1.8.2 columns.highlightStyle ellipse / both with rows to highlight: the Δ labels keep room for the ring */
     ellipseRoom?: boolean;
+    /**
+     * 1.8.3 notation of the reference sheet (numbers.sheetPctDecimals): a stacked FY
+     * cascade heads "YTD" / "Year" (12G); a single FY block moves its title into the
+     * minuend's head ("PL 2026" as 12H, "AC&FC 2025")
+     */
+    sheetNotation?: boolean;
+    /** 1.8.3 head of the year end of a stacked FY cascade in sheet notation ("Year") */
+    yearHead?: string;
     /** house terms (labels.labelAc …): rewrites the scenario codes of every column head */
     relabel?: (s: string) => string;
     /** head text over the YTD part of a stacked (12G) value cascade. Default "YTD" */
@@ -348,6 +358,8 @@ export interface MegaPreset {
     headline: boolean;
     /** 1.8 (B14) Δ% decimals of the reference sheet (numbers.sheetPctDecimals); pctDecimals is the 1.5 rule */
     sheetPdec: number;
+    /** 1.8.3 decimals of the margins in the reference sheet (12G "36%"); default one (T03 "45.3%") */
+    sheetMdec?: number;
 }
 
 const P_OFF: MegaPreset = {
@@ -416,7 +428,7 @@ export const MEGA_PRESETS: Record<string, MegaPreset> = {
     // 12G: FY outlook — PY year vs AC&FC stacked (YTD solid + rest of year hatched), ΔPY on the year
     "12G": preset(P_OFF, {
         showPY: true, showMin: true, valueCascade: true, dPyBar: true, dPyPin: true,
-        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true, sheetPdec: 0,
+        blockKind: "fy", decimals: 0, pctDecimals: 1, headline: true, sheetPdec: 0, sheetMdec: 0,
     }),
     // 12H: plan statement — PL (outlined) vs PY, Δ bars tinted pale
     "12H": preset(P_OFF, {
@@ -598,6 +610,9 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
     const zp = !!opts.zeroPlain;
     // 1.8 (B14) decimals of margins and their pp (default: the Δ% decimals)
     const md = opts.mdec ?? pdec;
+    // 1.8.3 a point difference keeps one decimal under whole-number sheet margins (12G "36%",
+    // its Δ "−5.2 pp", never "+0 pp" for +0.4); without sheet margins exactly as before
+    const ppd = opts.mdec != null ? Math.max(1, md) : md;
     // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
     // "−0,0") — beside a pin or bar that visibly points one way an unsigned
     // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
@@ -626,7 +641,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         // Δ% read like two different kinds of number); the point difference reads
         // "pp" (percentage points), not "%p"
         margin: m => fs(m * 100, md, false, "%"),
-        pp: x => fs(x, md, true, ppU),
+        pp: x => fs(x, ppd, true, ppU),
         // relative change of a ratio — no longer printed in the table (a Δ% of a
         // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
@@ -729,6 +744,11 @@ export interface MegaCol {
     baseInner?: number;
     /** 1.5.1: margin rows whose point difference is printed at the axis of this Δ bar / waterfall column */
     ppRows?: { r: MegaRow; D: MegaDelta }[];
+    /**
+     * 1.8.3 value cascade (12G): margin rows print their value in italics, right-aligned
+     * in front of the cascade level they sit at ("36%" under the operating result)
+     */
+    kpiRows?: { r: MegaRow; t: string; level: number }[];
     kSelf?: number;
     k?: number;
     x0?: number;
@@ -1016,9 +1036,13 @@ export function layoutMega(input: MegaInput): MegaLayout {
         if (c.type === "vwf" && c.scen === t.min && blocks[c.block]?.ytd) { c.stack = true; }
     }
     const anyChart = cols.some(megaIsChart);
+    // 1.8.3 sheet notation over a single FY block (12G, 12H): no block title, the year moves into the head
+    const sheetFy = !!input.sheetNotation && nb === 1 && blocks[0].year != null;
     const style = {
         signs: input.statement,
-        blockTitles: (!input.statement || nb === 2 || blocks.some(b => b.titled)) && blocks.some(b => b.name !== ""),
+        // 1.8.3 sheet notation: a single FY block carries its year in the minuend's head instead
+        blockTitles: (!input.statement || nb === 2 || blocks.some(b => b.titled)) && blocks.some(b => b.name !== "")
+            && !sheetFy,
         pairHeader: input.statement,
         closing: t.marks && input.statement && !anyChart,
         thresholds: t.thresholds && cols.some(c => c.type === "delta" || c.type === "dpct"),
@@ -1085,6 +1109,10 @@ export function layoutMega(input: MegaInput): MegaLayout {
         let s = c.type === "value" || c.type === "vwf" ? (blk?.alias?.[c.scen!] ?? c.scen!)
             : c.type === "share" ? (input.shareHead ?? "%")
                 : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
+        // 1.8.3 sheet notation: a stacked FY cascade ends in "Year" (12G "YTD … Year"); the
+        // minuend of a single FY block carries the year its title no longer shows ("PL 2026")
+        if (c.stack && input.sheetNotation && (input.ytdHead ?? "YTD") !== "") { s = input.yearHead ?? "Year"; }
+        else if (sheetFy && blk?.year && (c.type === "value" || c.type === "vwf") && c.scen === t.min) { s += " " + blk.year; }
         if (sortInfo && c === sortCol) { s += "(↓)"; }
         if (sortInfo && !sortCol && c.type === "label") {
             const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min)
@@ -1197,6 +1225,20 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 const v = blk.value(r, c.scen!);
                 return v == null ? null : v * megaEff(r);
             });
+            // 1.8.3 (sheet 12G) a margin row (columns.showPctRows) carries its value in
+            // the cascade column, at the level the run has reached above it; a factor
+            // or amount KPI is no margin and stays out of the amount cascade
+            if (t.labels) {
+                let level = 0;
+                for (const { r } of R) {
+                    const seg = c.casc.get(r.id);
+                    if (seg) { level = seg.e; continue; }
+                    if (r.kind !== "pct" || r.kfmt) { continue; }
+                    const v = blk.value(r, c.scen!);
+                    if (v == null || !isFinite(v)) { continue; }
+                    (c.kpiRows = c.kpiRows ?? []).push({ r, t: kpiVal(r, v), level });
+                }
+            }
             continue;
         }
         for (const { r } of R) {
@@ -1249,6 +1291,10 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 const yv = c.stack && blk0(c).ytd ? blk0(c).ytd!(r) : null;
                 const yw = yv != null && isFinite(yv) ? lblW(fmt.val(yv), megaIsBold(r)) : 0;
                 c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? yw : lw, c: up ? lw : yw });
+            }
+            // 1.8.3 room for the margin values in front of their level
+            for (const k of c.kpiRows ?? []) {
+                c.els!.push({ p: k.level, q: k.level, a: tw(k.t, G.fsSmall, false, true) + G.lblGap, c: 0 });
             }
             phantom(c);
             continue;
@@ -1808,6 +1854,28 @@ function paintChartColumn(
             anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
             color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
         }).setAttribute("data-pnl", "mega-pp");
+    }
+    // 1.8.3 (sheet 12G) the margin value of a value cascade, in italics in front of its level
+    if (c.kpiRows) {
+        const rowIdx = new Map(R.map((x, i) => [x.r, i]));
+        const axX = axisKind === "value" ? ax + 0.5 : ax;
+        for (const k of c.kpiRows) {
+            const i = rowIdx.get(k.r);
+            if (i == null || (win && (i < win.from || i >= win.to))) { continue; }
+            const { y, h: rh } = R[i];
+            const px = X(k.level) - G.lblGap;
+            const py = base(y, rh, G.fsSmall);
+            const pw = input.measure(k.t, G.fsSmall, false, true);
+            // a low level puts the number on the zero line (a one-digit margin under
+            // a small result): a paper box behind the digits, as for the cascade labels
+            if (px - pw < axX + axisHalf + 0.5 && px > axX - axisHalf - 0.5) {
+                svgEl("rect", { x: px - pw - 1.5, y: py - G.fsSmall * 0.85, width: pw + 3, height: G.fsSmall * 1.05,
+                    fill: MEGA_C.white, "data-pnl": "mega-halo" }, g);
+            }
+            avoid.push({ x0: px - pw, x1: px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
+            text(B, px, py, k.t, { anchor: "end", italic: true, fs: G.fsSmall, parent: g, color: MEGA_C.text })
+                .setAttribute("data-pnl", "mega-kpi");
+        }
     }
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)

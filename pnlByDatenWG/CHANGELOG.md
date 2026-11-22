@@ -1,5 +1,35 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.3.0 (2026-11-22): Blatt-Notation 11A, 12G und 12H
+
+- **12G: Margenwerte in der Wertkaskade.** Eine Margenzeile zeigt ihren Wert kursiv in jeder
+  Wertkaskaden-Spalte, rechtsbündig vor der Kaskadenhöhe darüber (36 % unter PY, 31 % unter AC&FC wie
+  das Blatt). Liegt die Zahl auf der Nulllinie, bekommt sie einen Papierkasten. KPI-Zeilen im Format
+  Faktor oder Betrag bleiben draußen. **Verhaltensänderung:** gilt überall, wo Wert-Kaskaden,
+  Margen-/%-Zeilen (`columns.showPctRows`) und Diagrammbeschriftung an sind (12G, T05B, eigene
+  Kombinationen); dort erscheinen neue kursive Zahlen und die Spalte reserviert Platz dafür.
+- **11A: Trennlinie zwischen Ist und Plan.** Bei allen beschrifteten Perioden trennt eine dünne Linie
+  die letzte Ist-Periode vom reinen Plan-Ende (wie das Blatt); sie erscheint nur, wenn nach dem letzten
+  Ist ausschließlich Plan- oder Forecast-Werte folgen, und steht am selben Index wie das Tag „PL“.
+- **11A: Jahreszahlen frei vom Kartenknopf.** Bei allen beschrifteten Perioden lassen alle Karten den
+  Platz des Knopfs frei, die Jahre stehen auf Eltern- und Blattkarten im selben Raster.
+
+- **11A wie im Blatt** (bei „Jede Periode beschriften“): einheitliche Nachkommastellen je Karte (eine,
+  keine ab 100, zwei unter 1; 5,0 statt 5,00 an den Säulen); negative Ist-Werte mittelgrau und
+  Planperioden hell gefüllt, nicht im hohen Kontrast, nicht gegen PY-Säulen und nicht bei eigener
+  Kartenfarbe. Die Legende zeigt PL weiter als Kontur. **Verhaltensänderung** für Berichte mit diesem
+  Schalter (seit 1.8.0).
+- **Notation wie im Referenzblatt** (`numbers.sheetPctDecimals`, bisher „Δ%-Dezimalen wie im
+  Referenzblatt“) erweitert: eine gestapelte FY-Kaskade heißt „YTD“ und „Jahr“ statt „AC&FC“ (12G); ein
+  einzelner FY-Block trägt sein Jahr im Kopf der Minuend-Spalte statt im Titel („PL 2026“ wie 12H,
+  „AC&FC 2025“); 12G-Margen ganzzahlig (36 %), solange die Δ%-Dezimalen des Templates gelten, ihre pp
+  behalten eine Stelle. **Verhaltensänderung** für Berichte mit diesem Schalter und einem FY-Block.
+
+**Tests:** mega-shot m27 (36,0 % und 30,8 % kursiv), m67 (Margenwert auf der Nulllinie mit
+Papierkasten), m68 (12G in Blattnotation), m69 („PL 2026“), t11c (Trennlinien, Kartenknöpfe frei, eine
+Nachkommastelle, Blattfarben); m28-Botschaft +111. mega-shot 427, tree 382, toolbar 388, hub 135,
+start-dark 102, finance 95, mega-interact 42, ease 47, scale 17, stage-scale 7, tile 16 grün.
+
 ## 1.8.2.0 (2026-11-22): Blatt-Optionen 12G/T03/T04, Hervorhebung schneller
 
 Abgleich der Blätter, die die P&L-Familie noch nicht genau traf (Backlog vom 19.11.2026, Bildvergleich

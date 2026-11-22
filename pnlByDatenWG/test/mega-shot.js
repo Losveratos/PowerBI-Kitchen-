@@ -118,7 +118,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -301,6 +301,47 @@ function readMega(id) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
             blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
     }
+    // ---- 1.8.3 (sheet 12G) margin values in the value cascades ---------------------------------
+    if (S.m27) {
+        const kpi = await page.evaluate(() => [...document.querySelectorAll('#m27 text[data-pnl="mega-kpi"]')]
+            .map(t => ({ t: t.textContent, it: t.getAttribute("font-style") === "italic" })));
+        check("m27 12G Gross margin in the value cascades: 36.0% (PY) and 30.8% (AC&FC), italic, as the sheet",
+            kpi.length === 2 && kpi.every(k => k.it) && kpi.map(k => k.t).join(",") === "36.0%,30.8%", JSON.stringify(kpi));
+    }
+    if (S.m67) {
+        // the PY margin sits right in front of a low level: it would cross the zero line, so it gets a paper box
+        const k = await page.evaluate(() => {
+            const t = [...document.querySelectorAll('#m67 text[data-pnl="mega-kpi"]')];
+            return t.map(x => { const b = x.getBBox(); const halo = [...x.parentNode.querySelectorAll('rect[data-pnl="mega-halo"]')]
+                .some(r => +r.getAttribute("x") <= b.x + 0.5 && +r.getAttribute("x") + +r.getAttribute("width") >= b.x + b.width - 0.5
+                    && Math.abs(+r.getAttribute("y") + +r.getAttribute("height") / 2 - (b.y + b.height / 2)) < 4);
+                return { t: x.textContent, halo }; });
+        });
+        check("m67 a margin value on the zero line gets a paper box (no axis through the digits)", k.length >= 1 && k[0].halo, JSON.stringify(k));
+    }
+    // ---- 1.8.3 sheet notation ------------------------------------------------------------------
+    if (S.m68 && S.m27) {
+        const H = heads("m68");
+        check("m68 12G sheet notation: heads PY · YTD … Year, no FY block title, no AC&FC (m27 keeps FY 2025 / AC&FC)",
+            H.includes("YTD") && H.includes("Year") && !H.includes("AC&FC") && !H.some(h => /^FY/.test(h))
+            && heads("m27").includes("AC&FC") && heads("m27").some(h => /^FY/.test(h)), H.join("|"));
+        const kpi = await page.evaluate(() => [...document.querySelectorAll('#m68 text[data-pnl="mega-kpi"]')].map(t => t.textContent));
+        check("m68 12G sheet notation: margins whole as the sheet (36%, 31%)", kpi.join(",") === "36%,31%", kpi.join(","));
+    }
+    if (S.m69 && S.m70 && S.m71) {
+        const H = heads("m69");
+        check("m69 12H with an FY block in sheet notation: no block title, the plan column heads \"PL 2025\" (the year of the block)",
+            H.includes("PL 2025") && !H.includes("PL") && !H.some(h => /^FY/.test(h)), H.join("|"));
+        const H70 = heads("m70");
+        check("m70 T03A over a YTD block in sheet notation: no year in any head (the block is no full year)",
+            !H70.some(h => /20\d\d/.test(h)) && H70.includes("AC") && H70.includes("PL"), H70.join("|"));
+        const k71 = await page.evaluate(() => [...document.querySelectorAll('#m71 text[data-pnl="mega-kpi"]')].map(t => t.textContent));
+        check("m71 12G sheet notation with Δ% decimals set by hand: the margins keep a decimal again (36.00%)",
+            k71.length === 2 && k71.every(t => /\.\d+%$/.test(t)), k71.join(","));
+        const pp68 = await page.evaluate(() => [...document.querySelectorAll('#m68 text[data-pnl="mega-pp"]')].map(t => t.textContent));
+        check("m68 whole-number sheet margins keep one decimal on their pp (−5.2 pp, never −5 pp)",
+            pp68.length === 1 && /5\.2/.test(pp68[0]), pp68.join(","));
+    }
     // ---- 1.8.2 sheet options ------------------------------------------------------------------
     if (S.m61 && S.m27) {
         const E = S.m61.charts.flatMap(c => c.ellipses);
@@ -365,6 +406,26 @@ function readMega(id) {
         check("t11c 1.8.1 Net sales once (shared operand of return on sales and capital turnover, as the sheet)", net === 1, String(net));
         check("t11c 1.8.1 ratios drawn as \":\" (no \"÷\" on the cards)", c.includes(":") && !c.includes("÷"));
         check("t11c a year axis gets no year prefix in the period line (no \"2021 2021\")", !c.some(t => /2021 2021/.test(t)), c.slice(0, 6).join(" | "));
+        // 1.8.3 (sheet 11A) a line between the actual and the plan periods on every card,
+        // and the last year tag stays clear of the card's chevron
+        const geo = await page.evaluate(() => {
+            const st = document.getElementById("t11c");
+            const seps = st.querySelectorAll('[data-pnl="tree-scen-sep"]').length;
+            const tags = [...st.querySelectorAll("svg text")].filter(t => t.textContent === "2027").map(t => t.getBBox());
+            const chev = [...st.querySelectorAll('rect[data-pnl="tree-chev"]')].map(e => e.getBBox());
+            const hit = tags.some(b => chev.some(c => b.x < c.x + c.width && c.x < b.x + b.width && b.y < c.y + c.height && c.y < b.y + b.height));
+            return { seps, tags: tags.length, chev: chev.length, hit };
+        });
+        const fills = await page.evaluate(() => {
+            const st = document.getElementById("t11c");
+            const r = [...st.querySelectorAll("svg rect")].map(x => (x.getAttribute("fill") || "").toUpperCase());
+            return { neg: r.filter(f => f === "#808080").length, plan: r.filter(f => f === "#F2F2F2").length };
+        });
+        check("t11c 1.8.3 one decimal on every card (5.0, 4.1, 26.1; no 5.00), negative actuals middle gray, plan columns light (sheet 11A)",
+            c.includes("5.0") && c.includes("4.1") && !c.includes("5.00") && !c.includes("−1.80") && c.includes("−1.8")
+            && fills.neg >= 6 && fills.plan >= 12, JSON.stringify(fills) + " " + c.filter(t => /^−?\d+\.\d+$/.test(t)).slice(0, 12).join(" "));
+        check("t11c 1.8.3 AC | PL separator on all six cards, every 2027 tag in full and clear of the chevron (sheet 11A)",
+            geo.seps === 6 && geo.tags === 6 && geo.chev === 3 && !geo.hit, JSON.stringify(geo));
         check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
@@ -638,7 +699,7 @@ function readMega(id) {
             && S.m28.charts[1].bars.some(b => b.fill === "#F2F2F2"));
         check("m28 PL pins: outlined heads", S.m28.charts[3].rects.some(r => r.fill === "#FFFFFF" && r.stroke === "#404040"));
         check("m28 values PL vs PY: Group result +111, Licences +183", has("m28", "+111") && has("m28", "+183"));
-        check("m28 headline = the own message", pageInfo.m28.headline === "Compared to 2025 we plan a better group result for 2026 (+139 kEUR)");
+        check("m28 headline = the own message", pageInfo.m28.headline === "Compared to 2025 we plan a better group result for 2026 (+111 kEUR)");
         check("m28 legend PY + PL, no AC", /PY/.test(S.m28.legend) && /PL/.test(S.m28.legend) && !/AC actual/.test(S.m28.legend), S.m28.legend);
         check("headline off by default (m1, m15 have none)", pageInfo.m1.headline === null && pageInfo.m15.headline === null);
     }

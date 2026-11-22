@@ -82,6 +82,8 @@ const C_LIGHT = {
     onInk: "#FFF",
     /** demo banner wash */
     wash: "#F7F6F3",
+    /** 1.8.3 sheet 11A: negative actuals (middle gray) and the lightly filled plan columns */
+    negSheet: "#808080", planSheet: "#F2F2F2",
     /** shadow language of the cards — one resting elevation, one on hover */
     shadow: "0 1px 2px rgba(15,30,46,.06)",
     shadowHover: "0 2px 6px rgba(15,30,46,.10)",
@@ -108,6 +110,7 @@ const C_DARK: typeof C_LIGHT = {
     paper: "#1E1E1E",
     onInk: "#1E1E1E",
     wash: "#2A2A27",
+    negSheet: "#9A9A9A", planSheet: "#2E2E2E",
     shadow: "0 1px 2px rgba(0,0,0,.45)",
     shadowHover: "0 2px 6px rgba(0,0,0,.55)",
     headShadow: "0 3px 8px rgba(0,0,0,.45)",
@@ -567,6 +570,11 @@ interface TreeSeries {
     ref2Scen: Scenario | "";
     /** 1.8 every period labelled (columns.treeAllLabels) */
     all?: boolean;
+    /**
+     * 1.8.3 first period of a plan-only tail (11A 2026 PL): every later period has
+     * only its plan / forecast reference, the one before carries an actual. -1 = none
+     */
+    planStart?: number;
 }
 
 interface ColSpec {
@@ -7371,10 +7379,10 @@ export class Visual implements IVisual {
         return k === "factor" ? "x" : k === "amount" ? "kamt" : "pct";
     }
 
-    private treeNum(v: number, fmt: Fmt, plus = false): string {
+    private treeNum(v: number, fmt: Fmt, plus = false, decFix?: number): string {
         const scaled = v / fmt.div;
         const a = Math.abs(scaled);
-        const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
+        const dec = decFix ?? (a >= 100 ? 0 : a >= 10 ? 1 : 2);
         // 1.8.2 one formatter per locale and decimals (a Sankey over 5,000 accounts
         // formats tens of thousands of numbers; a new Intl.NumberFormat each cost ~200 ms)
         const fk = this.locale + "|" + dec;
@@ -7462,13 +7470,19 @@ export class Visual implements IVisual {
             if (this.settings.columnsCard.treeAllLabels.value) {
                 // 1.8 (B07) short series (years, ROI tree 11A): every column its
                 // period and value, the first plan-only period named as the sheet does
-                const firstPlan = slots.findIndex(sl => sl.v == null && sl.ref != null);
+                // 1.8.3 the plan tail: after the last actual, every period plan-only
+                // (the "PL" tag and the separator line share this one index)
+                let lastAc = -1;
+                slots.forEach((sl, i) => { if (sl.v != null) { lastAc = i; } });
+                const tail = lastAc + 1;
+                const planStart = refScen !== "" && refScen !== "py" && tail > 0 && tail < slots.length
+                    && slots.slice(tail).every(sl => sl.v == null && sl.ref != null) ? tail : -1;
                 slots.forEach((sl, i) => {
                     sl.tag = this.monthLabel(months[i]) + (i === 0 ? " " + front
-                        : i === firstPlan && refScen !== "" ? " " + refScen.toUpperCase() : "");
+                        : i === planStart ? " " + refScen.toUpperCase() : "");
                     sl.label = sl.v != null || sl.ref != null;
                 });
-                return { slots, refScen, ref2Scen, all: true };
+                return { slots, refScen, ref2Scen, all: true, planStart };
             }
             slots[0].tag = `${this.monthLabel(months[0])} ${front}`;
             slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${scen}`;
@@ -7670,6 +7684,10 @@ export class Visual implements IVisual {
         const series = this.treeSeries(node);
         const slots = series.slots;
         if (slots.length === 0) { this.treeHint(g, box, s, "–"); return; }
+        // 1.8.3 every period labelled (11A): the card's chevron would cover the last
+        // label, so the chart keeps clear of it, on every card alike (the years of
+        // parent and leaf cards stay on one grid)
+        if (series.all) { box = { ...box, w: box.w - Math.max(rightInset, 14 * s) }; rightInset = 0; }
         const isRatio = node.row.rowType === "kpi";
         const lfs = 7.5 * s;
         let min = 0; let max = 0;
@@ -7718,6 +7736,14 @@ export class Visual implements IVisual {
         const needHatch = slots.some(sl => sl.style === "fc")
             || series.refScen === "fc" || series.ref2Scen === "fc";
         const hatch = needHatch ? this.treeHatchId(svg) : "";
+        // 1.8.3 every period labelled (sheet 11A): the same decimals on the whole card
+        // (one; none from 100 up, two below 1) instead of the size rule per value; negative
+        // actuals in a middle grey and the plan columns lightly filled, as the sheet,
+        // never in high contrast and never against PY columns (their gray is a scenario)
+        const sheet = !!series.all && !this.hc && series.refScen !== "py";
+        let cardMax = 0;
+        for (const sl of slots) { for (const v of [sl.v, sl.ref]) { if (v != null) { cardMax = Math.max(cardMax, Math.abs(v) / fmt.div); } } }
+        const cardDec = series.all ? (cardMax >= 100 ? 0 : cardMax >= 1 ? 1 : 2) : undefined;
 
         slots.forEach((sl, i) => {
             const cx = box.x + (i + 0.5) * slotW;
@@ -7726,11 +7752,14 @@ export class Visual implements IVisual {
             // reference behind, wider and offset — IBCS overlapped grouped columns
             if (sl.ref != null && series.refScen !== "") {
                 const st = this.treeScenFill(series.refScen, hatch);
-                rect(refCx - refW / 2, refW, sl.ref, st.fill, st.stroke, 1.2);
+                // a card background of the author's own keeps the plain plan fill
+                const planFill = sheet && (series.refScen === "pl" || series.refScen === "plfy") && this.cardPaper() === C.paper
+                    ? C.planSheet : st.fill;
+                rect(refCx - refW / 2, refW, sl.ref, planFill, st.stroke, 1.2);
             }
             if (sl.v != null) {
                 if (sl.style === "fc") { rect(acCx - acW / 2, acW, sl.v, `url(#${hatch})`, C.ac, 1); }
-                else { rect(acCx - acW / 2, acW, sl.v, C.ac, null, 0); }
+                else { rect(acCx - acW / 2, acW, sl.v, sheet && sl.v < 0 ? C.negSheet : C.ac, null, 0); }
             }
             // scenario triangle for the second reference (IBCS UN 4.1)
             if (sl.ref2 != null && series.ref2Scen !== "") {
@@ -7753,8 +7782,8 @@ export class Visual implements IVisual {
             // 1.8 every period labelled: a percent KPI drops its "%" (the card head
             // names the unit, as the sheet 11A does), so seven labels fit side by side
             const lbl = (x: number): string => isRatio
-                ? (series.all && !node.row.kfmt ? fmt.pct(x).replace("%", "") : this.kpiText(node, x, fmt, false, y => this.treeNum(y, fmt)))
-                : this.treeNum(x, fmt);
+                ? (series.all && !node.row.kfmt ? fmt.pct(x).replace("%", "") : this.kpiText(node, x, fmt, false, y => this.treeNum(y, fmt, false, cardDec)))
+                : this.treeNum(x, fmt, false, cardDec);
             if (sl.v != null && sl.label) {
                 this.treeLabel(g, box, acCx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs, lbl(sl.v), lfs, C.text);
             } else if (sl.v == null && sl.ref != null && sl.label) {
@@ -7769,6 +7798,20 @@ export class Visual implements IVisual {
         axis.setAttribute("y1", zeroY.toFixed(2)); axis.setAttribute("y2", zeroY.toFixed(2));
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         g.appendChild(axis);
+        // 1.8.3 every period labelled (11A): a thin line separates the actual periods
+        // from the plan-only tail, from half the chart height down through the tags
+        const k = series.planStart ?? -1;
+        if (series.all && k > 0) {
+            const sx = Math.round(box.x + k * slotW) + 0.5;
+            const sep = document.createElementNS(ns, "line");
+            sep.setAttribute("x1", sx.toFixed(2)); sep.setAttribute("x2", sx.toFixed(2));
+            sep.setAttribute("y1", (zeroY - (zeroY - top) * 0.5).toFixed(2));
+            sep.setAttribute("y2", (box.y + box.h + 8 * s + 7 * s * 1.05).toFixed(2));
+            sep.setAttribute("stroke", C.ac); sep.setAttribute("stroke-width", "1");
+            sep.setAttribute("shape-rendering", "crispEdges");
+            sep.setAttribute("data-pnl", "tree-scen-sep");
+            g.appendChild(sep);
+        }
 
         this.treeTags(g, slots.map(sl => sl.tag), box, slotW, s, rightInset, !!series.all);
     }
@@ -8552,6 +8595,7 @@ export class Visual implements IVisual {
             hit.setAttribute("fill", this.cardPaper());
             hit.setAttribute("stroke", C.ctlEdge);
             hit.setAttribute("stroke-width", "1");
+            hit.setAttribute("data-pnl", "tree-chev");
             const ch = document.createElementNS(ns, "text");
             ch.setAttribute("x", (card.x + geo.cw - 11 * s).toFixed(2));
             ch.setAttribute("y", (card.y + cardH - 5.6 * s).toFixed(2));
@@ -11224,6 +11268,8 @@ export class Visual implements IVisual {
             th: th[bi],
             // a single month / FY block names itself (a single YTD statement never did)
             titled: !twoBlocks && (key !== "ytd" || stockOnly),
+            // 1.8.3 the year of an FY block (sheet notation moves it into the minuend's head)
+            year: key === "fy" && year ? year : undefined,
             alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
             // 12G: the FY outlook's AC&FC is mostly forecast — its Δ elements are
             // hatched, and its value cascade stacks the YTD actuals (solid) in front
@@ -11303,7 +11349,10 @@ export class Visual implements IVisual {
             fin: this.finance(),
             ppUnit: this.ppUnit() === "pp" ? MEGA_PP : "%p",
             // 1.8 (B14) T03 prints Δ% whole but margins and their pp with one decimal
-            mdec: this.settings.numbersCard.sheetPctDecimals.value ? Math.max(1, this.settings.numbersCard.pctDecimals.value) : undefined,
+            // 1.8.3 12G prints its margins whole ("36%"): the template's sheet margin decimals
+            mdec: this.sheetMdec(),
+            sheetNotation: this.settings.numbersCard.sheetPctDecimals.value === true,
+            yearHead: this.tr("UI_ColYear"),
             zeroPlain: this.zeroPlain(),
             // 1.8.2 sheet options T03 (relative Δ% of margins) and T04 (no pp at the axis)
             marginRel: this.settings.numbersCard.marginRel.value === true,
@@ -11975,6 +12024,18 @@ export class Visual implements IVisual {
         const a = Math.abs(v);
         const [div, suf] = a >= 1e9 ? [1e9, "b"] : a >= 1e6 ? [1e6, "m"] : a >= 1e3 ? [1e3, "k"] : [1, ""];
         return new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 }).format(v / div) + suf;
+    }
+
+    /**
+     * 1.8.3 decimals of margins and their pp under numbers.sheetPctDecimals: the template's
+     * sheet margin decimals (12G whole) while its sheet Δ% decimals still stand, otherwise
+     * at least one (T03 "45.3%"); undefined without the switch
+     */
+    private sheetMdec(): number | undefined {
+        const nc = this.settings.numbersCard;
+        if (!nc.sheetPctDecimals.value) { return undefined; }
+        const p = MEGA_PRESETS[String(this.settings.columnsCard.template?.value?.value ?? "off")];
+        return p?.sheetMdec != null && nc.pctDecimals.value === p.sheetPdec ? p.sheetMdec : Math.max(1, nc.pctDecimals.value);
     }
 
     /** 1.8.2 columns.highlightStyle: band (default) | ellipse | both */

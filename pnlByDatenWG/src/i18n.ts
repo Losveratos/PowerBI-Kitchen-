@@ -81,6 +81,7 @@ export const UI_EN: Record<string, string> = {
     UI_BlkFy: "{0} · outlook AC&FC vs PL",
     UI_BlkFyFc: "{0} · outlook (FC)",
     UI_ColPctRev: "% Rev",
+    UI_ColYear: "Year",
     UI_Incomplete: "value still incomplete — data is loading",
     UI_SparkTip: "Toggle monthly sparkline",
     UI_Selection: "Selection",

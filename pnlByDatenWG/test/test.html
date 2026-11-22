@@ -104,6 +104,8 @@
 <div class="case"><h4>m61 · 1.8.2 · 12G mit Ellipse um die Δ-Zahl von Sales revenue und Group result (wie im Blatt)</h4><div class="stage" id="m61" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m62 · 1.8.2 · T03A mit relativer Margen-Änderung im Δ%-Feld (+8,6 %p und +23 %)</h4><div class="stage" id="m62" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m63 · 1.8.2 · T04C ohne Margen-Δ an der Achse (wie im Blatt) · m64 Band und Ellipse</h4><div class="stage" id="m63" style="width:1320px;height:700px"></div><div class="stage" id="m64" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m67 · 1.8.3 · 12G mit kleinem Betriebsergebnis: Margenwert auf der Nulllinie mit Papierkasten</h4><div class="stage" id="m67" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m68 · 1.8.3 · 12G in Blattnotation: Köpfe YTD / Jahr ohne FY-Titel, Margen ganzzahlig · m69 12H mit FY-Block in Blattnotation: Kopf PL 2025 statt Titel · m70 T03A mit YTD-Block in Blattnotation: kein Jahr im Kopf · m71 12G in Blattnotation mit Δ%-Dezimalen von Hand: Margen mit einer Stelle</h4><div class="stage" id="m68" style="width:1320px;height:760px"></div><div class="stage" id="m69" style="width:1320px;height:800px"></div><div class="stage" id="m70" style="width:1320px;height:800px"></div><div class="stage" id="m71" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m65 · 1.8.2 · T04C Ellipse im ΔPY-Wasserfall (Operating result, Gross margin fällt aufs Band zurück) · m66 T03A ohne Diagrammspalte: Band bleibt</h4><div class="stage" id="m65" style="width:1320px;height:700px"></div><div class="stage" id="m66" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
@@ -460,7 +462,7 @@ runRows("m27", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "20
   hierarchy: { defaultLevel: 0 }, columns: { template: "12G" } });
 // m28 — 12H: PL (outlined) vs PY, tinted Δ bars, headline with an own message
 runRows("m28", MEGA_DEMO.statement("12A"), { titleBlock: { ...SSG, periodLine: "PL 2026, ΔPY",
-  message: "Compared to 2025 we plan a better group result for 2026 (+139 kEUR)" }, toolbar: { show: false },
+  message: "Compared to 2025 we plan a better group result for 2026 (+111 kEUR)" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "12H" } });
 // m29 — 12H in dark mode with the blue / orange preset
 runRows("m29", MEGA_DEMO.statement("12A"), { titleBlock: { ...SSG, periodLine: "PL 2026, ΔPY" }, toolbar: { show: false },
@@ -603,6 +605,23 @@ runRows("m63", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2
   hierarchy: { defaultLevel: 0 }, columns: { template: "T04C" }, numbers: { marginAxisPp: false } });
 runRows("m64", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "12G", highlight: "Group result", highlightStyle: "both" } });
+// m67 — 1.8.3 12G with Purchases PY ×1.55: operating result ~104, the margin value sits on the zero line
+runRows("m67", MEGA_DEMO.statement12G().map(r => r.levels[r.levels.length - 1] === "Purchases" ? { ...r, values: { ...r.values, py: r.values.py * 1.55 } } : r),
+  { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 }, columns: { template: "12G" } });
+// m68 / m69 — 1.8.3 sheet notation (numbers.sheetPctDecimals): 12G heads and margins, 12H "PL 2026"
+runRows("m68", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12G" }, numbers: { sheetPctDecimals: true } });
+// (templateApplied keeps the switches as given: the 12H switch set on an FY block)
+// (an FY block needs FC and PL for the full year: the 12G data carries both)
+runRows("m69", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "PL 2025, ΔPY" }, ...REG,
+  columns: { template: "12H", templateApplied: "12H", minuend: "pl", showPY: true, showMinuend: true, valueCascade: true,
+    dPyBar: true, dPyPin: true, showPctRows: false, blockKind: "fy" },
+  numbers: { sheetPctDecimals: true, decimals: 0, pctDecimals: 0 } });
+runRows("m70", MEGA_DEMO.regions(), { titleBlock: { ...MT, periodLine: "November 2026" }, ...REG, columns: { template: "T03A" },
+  numbers: { sheetPctDecimals: true } });
+runRows("m71", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "12G", templateApplied: "12G", showPY: true, showMinuend: true, valueCascade: true,
+    dPyBar: true, dPyPin: true, blockKind: "fy" }, numbers: { sheetPctDecimals: true, decimals: 0, pctDecimals: 2 } });
 runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "T04C", highlight: "Operating result, Gross margin", highlightStyle: "ellipse" } });
 runRows("m66", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
