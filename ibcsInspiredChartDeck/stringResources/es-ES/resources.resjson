@@ -580,7 +580,7 @@
   "Btn_PlayReset": "Clic: volver al inicio",
   "Btn_ScatterPlay": "Reproducir",
   "Chart_Template": "Plantilla de gráfico IBCS",
-  "Desc_Chart_Template": "Punto de partida según las plantillas de gráficos IBCS: define en un solo paso el tipo de gráfico, la base de desviación, los paneles de desviación y los interruptores correspondientes; después, cada ajuste se puede cambiar libremente. C01/C02 apilan mediante el campo «Serie apilada», C10 necesita además el campo «Tamaño de burbuja», C13 mantiene el tipo de gráfico y necesita el campo «Small Multiples». C14 a C16 son tablas de barras frente al plan (ordenadas por ΔPL, ΔPL % o AC), C17 el puente por categoría horizontal, C18 la dispersión de desviaciones (X = ΔPY %, Y = ΔPL % como medidas), C19 columnas frente al plan con columna anual, C20 stock y flujo en el tiempo (entradas y salidas como columnas, el stock como línea; campos «Serie apilada» y «Tipo de cascada» con stock, inflow, outflow), C07 el área apilada en el tiempo con línea de total (campo «Serie apilada»), C21 la línea acumulada YTD frente al plan con el año móvil (R12), columnas mensuales y marcadores de distancia (07C), C22 una línea por miembro del campo “Serie apilada”, indexada a 100 (07A). No incluida: C11. Desactivado = sin plantilla.",
+  "Desc_Chart_Template": "Punto de partida según las plantillas de gráficos IBCS: define en un solo paso el tipo de gráfico, la base de desviación, los paneles de desviación y los interruptores correspondientes; después, cada ajuste se puede cambiar libremente. C01/C02 apilan mediante el campo «Serie apilada», C10 necesita además el campo «Tamaño de burbuja», C13 mantiene el tipo de gráfico y necesita el campo «Small Multiples». C14 a C16 son tablas de barras frente al plan (ordenadas por ΔPL, ΔPL % o AC), C17 el puente por categoría horizontal, C18 la dispersión de desviaciones (X = ΔPY %, Y = ΔPL % como medidas), C19 columnas frente al plan con columna anual, C20 stock y flujo en el tiempo (entradas y salidas como columnas, el stock como línea; campos «Serie apilada» y «Tipo de cascada» con stock, inflow, outflow), C07 el área apilada en el tiempo con línea de total (campo «Serie apilada»), C21 la línea acumulada YTD frente al plan con el año móvil (R12), columnas mensuales y marcadores de distancia (07C), C22 una línea por miembro del campo “Serie apilada”, indexada a 100 (07A), C25 el Marimekko: barras al 100 % con el grosor de fila según el total, columnas de total y proporción (02F, campo “Serie apilada”). No incluida: C11. Desactivado = sin plantilla.",
   "Enum_Template_Off": "Desactivado (sin plantilla)",
   "Enum_Template_C01": "C01 · Columnas apiladas (serie)",
   "Enum_Template_C02": "C02 · Barras apiladas (serie)",
@@ -928,5 +928,17 @@
   "Enum_Template_C22": "C22 · Líneas por serie con índice (07A)",
   "Hub_TplT_C22": "Líneas por serie con índice",
   "Hub_TplU_C22": "Cotizaciones o unidades, inicio = 100",
-  "Hint_IndexBaseMissing": "Índice: categoría base “{0}” no encontrada, base automática {1}"
+  "Hint_IndexBaseMissing": "Índice: categoría base “{0}” no encontrada, base automática {1}",
+  "Chart_StackThickness": "Grosor de fila",
+  "Desc_Chart_StackThickness": "Barras apiladas al 100 %: misma altura de fila (predeterminado) o grosor según el total de la fila (Marimekko, según la hoja IBCS 02F). El área de cada segmento es entonces su valor, los segmentos muestran los valores en lugar de las proporciones y los totales aparecen a la derecha como columna numérica. La fila Σ y los subtotales mantienen la altura normal, las filas muy finas reciben un grosor mínimo y las etiquetas sin espacio se omiten (tooltip). Sin efecto con valores, con columnas y en cuanto una celda es negativa.",
+  "Chart_StackThickness_Equal": "Igual",
+  "Chart_StackThickness_Total": "Según el total de la fila (Marimekko)",
+  "Chart_StackShareColumn": "Columna de proporción",
+  "Desc_Chart_StackShareColumn": "Barras apiladas al 100 % con totales (Σ): una columna «Proporción» a la derecha con la proporción de cada fila en el total general (un decimal), «100 %» en la fila Σ y la proporción del bloque en el subtotal. En el Marimekko junto a la columna numérica, si no, tras la barra del total. Desactivado de forma predeterminada.",
+  "Label_Share": "Proporción",
+  "Tooltip_ShareOfTotal": "Proporción del total",
+  "Enum_Template_C25": "C25 · Marimekko (02F)",
+  "Hub_TplT_C25": "Marimekko",
+  "Hub_TplU_C25": "Mezcla por país, grosor = ventas",
+  "Hint_MekkoTooManyRows": "Marimekko: demasiadas filas para el grosor mínimo, pruebe Top N"
 }

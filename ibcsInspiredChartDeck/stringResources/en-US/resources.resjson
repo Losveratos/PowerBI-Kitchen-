@@ -580,7 +580,7 @@
   "Btn_PlayReset": "Click: back to the start",
   "Btn_ScatterPlay": "Play",
   "Chart_Template": "IBCS chart template",
-  "Desc_Chart_Template": "Starting point after the IBCS chart templates: sets chart type, variance basis, variance panels and the matching switches in one step — afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs the “Bubble size” field, C13 keeps the chart type and needs the “Small Multiples” field. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter (X = ΔPY %, Y = ΔPL % as measures), C19 columns vs. plan with a year column, C20 stock and flow over time (inflows and outflows as columns, the stock as a line; fields “Stack series” and “Waterfall type” with stock, inflow, outflow), C07 the stacked area over time with a total line (field “Stack series”), C21 the cumulated YTD line vs. plan with the rolling year (R12), month columns and gap markers (07C), C22 series lines per member of the “Stack series” field, indexed to 100 (07A). Not included: C11. Off = no template.",
+  "Desc_Chart_Template": "Starting point after the IBCS chart templates: sets chart type, variance basis, variance panels and the matching switches in one step — afterwards every setting is free to change. C01/C02 stack via the “Stack series” field, C10 additionally needs the “Bubble size” field, C13 keeps the chart type and needs the “Small Multiples” field. C14 to C16 are bar tables vs. plan (sorted by ΔPL, ΔPL % or AC), C17 the horizontal category bridge, C18 the variance scatter (X = ΔPY %, Y = ΔPL % as measures), C19 columns vs. plan with a year column, C20 stock and flow over time (inflows and outflows as columns, the stock as a line; fields “Stack series” and “Waterfall type” with stock, inflow, outflow), C07 the stacked area over time with a total line (field “Stack series”), C21 the cumulated YTD line vs. plan with the rolling year (R12), month columns and gap markers (07C), C22 series lines per member of the “Stack series” field, indexed to 100 (07A), C25 the Marimekko: 100 % bars with the row thickness by row total, total and share columns (02F, “Stack series” field). Not included: C11. Off = no template.",
   "Enum_Template_Off": "Off (no template)",
   "Enum_Template_C01": "C01 · Stacked columns (series)",
   "Enum_Template_C02": "C02 · Stacked bars (series)",
@@ -928,5 +928,17 @@
   "Enum_Template_C22": "C22 · Series lines with index (07A)",
   "Hub_TplT_C22": "Series lines with index",
   "Hub_TplU_C22": "Share prices or units, start = 100",
-  "Hint_IndexBaseMissing": "Index: base category “{0}” not found, automatic base {1}"
+  "Hint_IndexBaseMissing": "Index: base category “{0}” not found, automatic base {1}",
+  "Chart_StackThickness": "Row thickness",
+  "Desc_Chart_StackThickness": "Stacked bars at 100 %: equal row height (default) or thickness by row total (Marimekko, after IBCS sheet 02F). Then each segment's area is its value, the segments show the values instead of the shares and the totals stand on the right as a number column. The Σ row and subtotals keep the normal height, very thin rows get a minimum thickness, labels without room are dropped (tooltip). No effect with values, with columns and as soon as a cell is negative.",
+  "Chart_StackThickness_Equal": "Equal",
+  "Chart_StackThickness_Total": "By row total (Marimekko)",
+  "Chart_StackShareColumn": "Share column",
+  "Desc_Chart_StackShareColumn": "Stacked bars at 100 % with totals (Σ): a column “Share” on the right with each row's share of the grand total (one decimal), “100 %” at the Σ row, the block share at the subtotal. In the Marimekko beside the number column, otherwise after the total bar. Default off.",
+  "Label_Share": "Share",
+  "Tooltip_ShareOfTotal": "Share of total",
+  "Enum_Template_C25": "C25 · Marimekko (02F)",
+  "Hub_TplT_C25": "Marimekko",
+  "Hub_TplU_C25": "Mix per country, thickness = sales",
+  "Hint_MekkoTooManyRows": "Marimekko: too many rows for the minimum thickness, try Top N"
 }

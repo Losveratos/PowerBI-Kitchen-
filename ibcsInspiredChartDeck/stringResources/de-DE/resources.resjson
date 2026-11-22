@@ -580,7 +580,7 @@
   "Btn_PlayReset": "Klick: zurück zum Anfang",
   "Btn_ScatterPlay": "Abspielen",
   "Chart_Template": "IBCS-Chart-Vorlage",
-  "Desc_Chart_Template": "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich das Feld „Blasengröße“, C13 behält den Chart-Typ und braucht das Feld „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A). Nicht enthalten: C11. Aus = keine Vorlage.",
+  "Desc_Chart_Template": "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie“, C10 braucht zusätzlich das Feld „Blasengröße“, C13 behält den Chart-Typ und braucht das Feld „Small Multiples“. C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A), C25 das Marimekko: 100-%-Balken mit Zeilendicke nach Zeilensumme, Summen- und Anteilsspalte (02F, Feld „Stack-Serie“). Nicht enthalten: C11. Aus = keine Vorlage.",
   "Enum_Template_Off": "Aus (keine Vorlage)",
   "Enum_Template_C01": "C01 · Gestapelte Säulen (Serie)",
   "Enum_Template_C02": "C02 · Gestapelte Balken (Serie)",
@@ -928,5 +928,17 @@
   "Enum_Template_C22": "C22 · Serienlinien mit Index (07A)",
   "Hub_TplT_C22": "Serienlinien mit Index",
   "Hub_TplU_C22": "Aktienkurse oder Einheiten, Start = 100",
-  "Hint_IndexBaseMissing": "Index: Basis-Kategorie „{0}“ nicht gefunden, automatische Basis {1}"
+  "Hint_IndexBaseMissing": "Index: Basis-Kategorie „{0}“ nicht gefunden, automatische Basis {1}",
+  "Chart_StackThickness": "Zeilendicke",
+  "Desc_Chart_StackThickness": "Gestapelte Balken mit 100 %: gleiche Zeilenhöhe (Standard) oder Dicke nach Zeilensumme (Marimekko, nach IBCS-Blatt 02F). Dann ist die Fläche jedes Segments sein Wert, die Segmente zeigen die Werte statt der Anteile und rechts stehen die Summen als Zahlenspalte. Σ-Zeile und Zwischensummen behalten die normale Höhe, sehr dünne Zeilen bekommen eine Mindestdicke, Beschriftungen ohne Platz entfallen (Tooltip). Ohne Wirkung bei Werten, bei Säulen und sobald eine Zelle negativ ist.",
+  "Chart_StackThickness_Equal": "Gleich",
+  "Chart_StackThickness_Total": "Nach Zeilensumme (Marimekko)",
+  "Chart_StackShareColumn": "Anteilsspalte",
+  "Desc_Chart_StackShareColumn": "Gestapelte Balken mit 100 % und Summen (Σ): eine Spalte „Anteil“ rechts mit dem Anteil jeder Zeile an der Gesamtsumme (eine Nachkommastelle), „100 %“ an der Σ-Zeile, der Blockanteil an der Zwischensumme. Im Marimekko neben der Zahlenspalte, sonst hinter dem Summenbalken. Standard aus.",
+  "Label_Share": "Anteil",
+  "Tooltip_ShareOfTotal": "Anteil an Gesamt",
+  "Enum_Template_C25": "C25 · Marimekko (02F)",
+  "Hub_TplT_C25": "Marimekko",
+  "Hub_TplU_C25": "Mix je Land, Dicke = Umsatz",
+  "Hint_MekkoTooManyRows": "Marimekko: zu viele Zeilen für die Mindestdicke, Top N hilft"
 }

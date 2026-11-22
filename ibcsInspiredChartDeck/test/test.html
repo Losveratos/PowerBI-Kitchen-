@@ -2297,7 +2297,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22"]', "c222: 21 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22) " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C25"]', "c222: 22 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22, 1.57: + C25) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3229,7 +3229,7 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   // 1.56 (B17): mit C22 hat „Zeitverlauf“ neun Kacheln und läuft bei 1280 px in einer zweiten Zeile weiter („ZEITVERLAUF …“)
   check(JSON.stringify([...new Set(groups)].sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"], structure: ["C02", "C25", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const heads = (gid) => [...document.querySelectorAll(`#c230 [data-icd="hub-tpl-group-${gid}"]`)].map(e => e.getBoundingClientRect());
   const ok = Object.entries(want).every(([gid, codes]) => {
@@ -3242,7 +3242,7 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
         && (i === 0 || sameRow || b.top > bs[i - 1].top);
     });
   });
-  check(ok && tiles.length === 21, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 22, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -7853,6 +7853,317 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B17-END
+// ---- 1.57 (B20, Blatt 02F): Marimekko, Zeilendicke nach Zeilensumme (c960 bis c989)
+{
+  const qq = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const nsvg = id => [...document.querySelectorAll(`#${id} svg`)].map(s => s.outerHTML
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N")).join("\n");
+  const ch = ["Direct", "Retail", "Wholesale"];
+  // Blatt 02F (Pharmaceuticals Inc., Net sales in kEUR 2025), gemischt geliefert
+  const r2f = [["Spain", 79.0, 105.2, 84.6], ["Rest of world", 214.2, 169.6, 123.5], ["Austria", 178.4, 88.4, 78.1],
+    ["Brazil", 52.2, 36.5, 27.7], ["France", 172.5, 136.1, 188.6], ["UK", 83.2, 83.2, 58.6], ["Finland", 42.6, 42.7, 17.7],
+    ["Germany", 102.4, 188.4, 125.3], ["Ireland", 61.4, 44.3, 12.0], ["Poland", 82.9, 96.8, 109.9], ["USA", 87.4, 100.4, 66.0],
+    ["Switzerland", 160.5, 135.6, 142.7], ["Portugal", 41.4, 88.5, 47.7]];
+  const eu = new Set(["Spain", "Austria", "France", "UK", "Finland", "Germany", "Ireland", "Poland", "Switzerland", "Portugal"]);
+  // opts.rows: andere Zeilen, opts.fc: Länder mit FC, opts.mult: [[Kachel, Faktor]], opts.region: zwei Ebenen
+  const dv20 = (objs, opts) => {
+    opts = opts || {};
+    const rows = opts.rows || r2f;
+    const R = [], C = [], S = [], A = [], F = [], M = [];
+    for (const [tile, f] of (opts.mult || [[null, 1]])) {
+      for (const r of rows) {
+        ch.forEach((sn, j) => {
+          R.push(eu.has(r[0]) ? "Europe" : "Rest der Welt"); C.push(r[0]); S.push(sn); M.push(tile);
+          const v = r[j + 1] == null ? null : Math.round(r[j + 1] * f * 10) / 10;
+          const isFc = opts.fc && opts.fc.includes(r[0]);
+          A.push(isFc ? null : v); F.push(isFc ? v : null);
+        });
+      }
+    }
+    const cats = opts.region ? [{ source: { displayName: "Region", roles: { category: true } }, values: R }] : [];
+    cats.push({ source: { displayName: "Land", roles: { category: true } }, values: C });
+    cats.push({ source: { displayName: "Kanal", roles: { series: true } }, values: S });
+    if (opts.mult) { cats.push({ source: { displayName: "Markt", roles: { multiples: true } }, values: M }); }
+    const vals = [col("actual", A, "#,0.0")];
+    if (opts.fc) { vals.push(col("forecast", F, "#,0.0")); }
+    return { metadata: { columns: [], objects: objs }, categorical: { categories: cats, values: vals } };
+  };
+  const mk = o => ({ chart: Object.assign({ orientation: "bars", stackNormalize: "pct100", stackThickness: "total",
+    stackShareColumn: true, stackTotalRow: true, stackTotalLabel: "World", sortMode: "ac" }, o) });
+  const rowsOf = id => qq(id, '[data-icd="stack-mekko-row"]').map(g => ({ cat: g.getAttribute("data-cat"),
+    t: +g.getAttribute("data-total"), h: +g.getAttribute("data-h"), cl: g.getAttribute("data-clamped") === "1" }));
+  const hOf = (id, cat) => (rowsOf(id).find(r => r.cat === cat) || {}).h;
+  const segTexts = (id, cat) => { const g = qq(id, '[data-icd="stack-mekko-row"]').find(x => x.getAttribute("data-cat") === cat);
+    return g ? [...g.parentNode.querySelectorAll("g.icd-cat > text")].map(t => t.textContent) : []; };
+  const nums = id => qq(id, '[data-icd="stack-total-num"]').map(t => t.textContent);
+  const shares = id => qq(id, '[data-icd="stack-share"]').map(t => t.textContent);
+  // px je Einheit gleich (data-h ist auf 0,01 px gerundet)
+  const propOk = rows => { const k0 = rows[0].h / rows[0].t;
+    return rows.every(r => Math.abs(r.h - r.t * k0) <= 0.011); };
+  const segVals = (id, cat) => { const g = qq(id, '[data-icd="stack-mekko-row"]').find(x => x.getAttribute("data-cat") === cat);
+    return g ? [...g.parentNode.querySelectorAll("g.icd-cat > text")].map(t => +t.getAttribute("data-v")) : []; };
+
+  // c960: 100-%-Balken, beide neuen Optionen ausdrücklich auf Standard = wie ungesetzt (1.56)
+  addStage("c960", "B20 · 100 %-Balken, stackThickness=equal, stackShareColumn=false (Referenz c960L)", 1200, 640);
+  addStage("c960L", "B20 · 100 %-Balken ohne neue Optionen", 1200, 640);
+  runCap("c960", dv20({ chart: { orientation: "bars", stackNormalize: "pct100", stackTotalRow: true, sortMode: "ac",
+    stackThickness: "equal", stackShareColumn: false } }), 1200, 640);
+  runCap("c960L", dv20({ chart: { orientation: "bars", stackNormalize: "pct100", stackTotalRow: true, sortMode: "ac" } }), 1200, 640);
+  check(nsvg("c960") === nsvg("c960L") && !/data-thickness|stack-mekko|stack-share-col/.test(nsvg("c960")),
+    "c960: Standardwerte zeichnen SVG-gleich wie 1.56, keine B20-Marker");
+
+  // c961 bis c965: Blatt 02F, 1280 × 720
+  addStage("c961", "B20 · Blatt 02F: Marimekko, sortiert nach Summe, Rest of world zuletzt, Summen- und Anteilsspalte, Σ-Zeile World", 1280, 720);
+  runCap("c961", dv20(mk({})), 1280, 720);
+  {
+    const rows = rowsOf("c961");
+    const hF = hOf("c961", "France"), hUK = hOf("c961", "UK"), hRw = hOf("c961", "Rest of world");
+    check(rows.length === 13 && !!document.querySelector('#c961 [data-thickness="total"]')
+      && Math.abs(hF - hUK * 497.2 / 225.0) <= 1 && rows.every(r => r.h <= hRw + 1e-9),
+      `c961: 13 Zeilen, France ${hF} : UK ${hUK} = ${(hF / hUK).toFixed(3)} (Soll 2,210), Rest of world ${hRw} am dicksten`);
+    // Fläche = Wert: Höhe je Einheit gleich in allen Zeilen (keine geklemmt)
+    check(rows.every(r => !r.cl) && propOk(rows), `c961: px je Einheit gleich (${(rows[0].h / rows[0].t).toFixed(4)})`);
+    // Zeilen stoßen aneinander: Haarlinie 1 px
+    const bars = qq("c961", '[data-icd="stack-mekko-row"]').map(g => g.parentNode.querySelector("g.icd-cat > rect"));
+    const gaps = bars.slice(1).map((r, i) => +r.getAttribute("y") - (+bars[i].getAttribute("y") + +bars[i].getAttribute("height")));
+    check(gaps.every(g => Math.abs(g - 1) < 1e-6), `c961: Haarlinie 1 px zwischen den Zeilen (${gaps.slice(0, 3).map(g => g.toFixed(2)).join(", ")} …)`);
+  }
+  addStage("c962", "B20 · Segmentwerte absolut (France 172,5 · 136,1 · 188,6, beschriftet mit höchstens 3 Ziffern), Seriennamen über der ersten Zeile", 1280, 720);
+  runCap("c962", dv20(mk({})), 1280, 720);
+  {
+    const fr = segTexts("c962", "France"), frV = segVals("c962", "France");
+    const names = qq("c962", '[data-icd="stack-legend-direct"] text').map(t => t.textContent);
+    check(JSON.stringify(frV) === "[172.5,136.1,188.6]" && JSON.stringify(fr) === '["173","136","189"]'
+      && JSON.stringify(names) === '["Direct","Retail","Wholesale"]',
+      `c962: France ${frV.join(" · ")} (${fr.join(" · ")}), Namen ${names.join(", ")}`);
+    const rw = segVals("c962", "Rest of world");
+    const it = qq("c962", '[data-icd="stack-mekko-row"]').find(g => g.getAttribute("data-cat") === "Rest of world")
+      .parentNode.querySelectorAll('g.icd-cat > text[font-style="italic"]').length;
+    check(JSON.stringify(rw) === "[214.2,169.6,123.5]" && it === 3, `c962: Rest of world ${rw.join(" · ")} kursiv (${it})`);
+  }
+  addStage("c963", "B20 · Summenspalte 497,2 · 438,8 · 416,1 · 344,9 … 103,0 · 507,3 (Rest kursiv)", 1280, 720);
+  runCap("c963", dv20(mk({})), 1280, 720);
+  {
+    const want = [497.2, 438.8, 416.1, 344.9, 289.6, 268.8, 253.8, 225.0, 177.6, 117.7, 116.4, 103.0, 507.3];
+    const got = qq("c963", '[data-icd="stack-total-num"]').map(t => +t.getAttribute("data-total"));
+    const txt = nums("c963");
+    const grand = qq("c963", '[data-icd="stack-total-col"] [data-icd="stack-total-grand"]').map(t => t.getAttribute("data-total") + " " + t.textContent);
+    const head = qq("c963", '[data-icd="stack-total-col"] [data-icd="sort-mark"]').map(t => t.textContent);
+    check(JSON.stringify(got) === JSON.stringify(want) && txt[0] === "497" && txt[12] === "507" && JSON.stringify(grand) === '["3756.2 3.756"]' && head.length === 1
+      && qq("c963", '[data-icd="stack-total-num"][font-style="italic"]').length === 1 && !document.querySelector('#c963 [data-icd="stack-total-panel"]'),
+      `c963: ${got.join(" · ")} (${txt.slice(0, 2).join(" · ")} …), Σ ${grand}, Kopf ${head}`);
+  }
+  addStage("c964", "B20 · Anteilsspalte 13,2 · 11,7 · 11,1 · 9,2 · 7,7 · 7,2 · 6,8 · 6,0 · 4,7 · 3,1 · 3,1 · 2,7 · 13,5, Σ 100 %", 1280, 720);
+  runCap("c964", dv20(mk({})), 1280, 720);
+  {
+    const want = ["13,2 %", "11,7 %", "11,1 %", "9,2 %", "7,7 %", "7,2 %", "6,8 %", "6,0 %", "4,7 %", "3,1 %", "3,1 %", "2,7 %", "13,5 %"];
+    const got = shares("c964");
+    const sum = qq("c964", '[data-icd="stack-share"]').reduce((a, t) => a + +t.getAttribute("data-share"), 0);
+    const g = qq("c964", '[data-icd="stack-share-grand"]').map(t => t.textContent);
+    const head = qq("c964", '[data-icd="stack-share-col"] > text').map(t => t.textContent)[0];
+    check(JSON.stringify(got) === JSON.stringify(want) && Math.abs(sum - 100) < 0.25 && JSON.stringify(g) === '["100 %"]' && head === "Share",
+      `c964: ${got.join(" · ")}; Σ ${sum.toFixed(1)}; ${g}; Kopf ${head}`);
+  }
+  addStage("c965", "B20 · Σ-Zeile World: 1.358,1 · 1.315,7 · 1.082,4 = 3.756,2, Mix 36,2 · 35,0 · 28,8", 1280, 720);
+  runCap("c965", dv20(mk({})), 1280, 720);
+  {
+    const segs = qq("c965", '[data-icd="stack-total-row"] [data-icd="stack-total-seg"]');
+    const txt = segs.map(g => g.querySelector("text")?.getAttribute("data-v") + " " + g.querySelector("text")?.textContent);
+    const mix = segs.map(g => g.getAttribute("data-share"));
+    const lbl = qq("c965", '[data-icd="stack-total-row"] > text').map(t => t.textContent);
+    check(JSON.stringify(txt) === '["1358.1 1.358","1315.7 1.316","1082.4 1.082"]' && JSON.stringify(mix) === '["36.2","35","28.8"]' && lbl.includes("World"),
+      `c965: ${txt.join(" · ")}, Mix ${mix.join(" · ")}, ${lbl.join(" ")}`);
+    // die Σ-Zeile hat normale Höhe (Balken 2/3 des Normslots), die 100-%-Linie reicht bis unter sie
+    const rb = segs[0].querySelector("rect"), ln = qq("c965", '[data-icd="stack-100"] line')[0];
+    check(+rb.getAttribute("height") > 10 && +ln.getAttribute("y2") >= +rb.getAttribute("y") + +rb.getAttribute("height"),
+      `c965: Σ-Balken ${(+rb.getAttribute("height")).toFixed(1)} px hoch, 100-%-Linie bis ${(+ln.getAttribute("y2")).toFixed(1)}`);
+  }
+  // c966: Sortierung nach Summe und nach Anteil der ersten Serie
+  addStage("c966", "B20 · sortMode=series: Ireland (52,2 % Direct) vor Austria (51,7 %), Rest of world zuletzt", 1280, 720);
+  runCap("c966", dv20(mk({ sortMode: "series" })), 1280, 720);
+  {
+    const order = rowsOf("c966").map(r => r.cat);
+    const order961 = rowsOf("c961").map(r => r.cat);
+    check(order.indexOf("Ireland") === 0 && order.indexOf("Austria") === 1 && order[12] === "Rest of world"
+      && order961[0] === "France" && order961[12] === "Rest of world"
+      && qq("c966", '[data-icd="stack-rest"] > text[text-anchor="end"][font-style="italic"]').length === 1,
+      `c966: ${order.slice(0, 3).join(", ")} … ${order[12]}; nach Summe ${order961[0]} … ${order961[12]}`);
+  }
+  // c967: niedrige Kachel — Finland auf Mindestdicke geklemmt, Beschriftungen ohne Überlappung
+  addStage("c967", "B20 · niedrige Kachel (1280 × 190): Mindestdicke 3 px, Labels ohne Platz entfallen, keine Überlappung", 1280, 190);
+  runCap("c967", dv20(mk({})), 1280, 190);
+  {
+    const rows = rowsOf("c967");
+    const fin = rows.find(r => r.cat === "Finland");
+    const ys = arr => arr.map(t => +t.getAttribute("y")).sort((a, b) => a - b);
+    const minGap = arr => arr.slice(1).reduce((m, y, i) => Math.min(m, y - arr[i]), Infinity);
+    // Zeilennamen samt „World“ der Σ-Zeile, Zahlen samt Gesamtsumme
+    const nameY = ys(qq("c967", '[data-icd="stack-mekko-row"]').map(g => g.parentNode.querySelector('text[text-anchor="end"]')).filter(Boolean)
+      .concat(qq("c967", '[data-icd="stack-total-row"] > text')));
+    const numY = ys(qq("c967", '[data-icd="stack-total-num"]').concat(qq("c967", '[data-icd="stack-total-col"] [data-icd="stack-total-grand"]')));
+    const cf = +qq("c967", '[data-icd="stack-mekko-row"]')[0].parentNode.querySelector('text[text-anchor="end"]').getAttribute("font-size");
+    const skips = qq("c967", '[data-icd="stack-mekko-skip"]').length;
+    check(!!fin && fin.cl && fin.h === 3 && skips > 0 && minGap(nameY) >= cf * 1.1 && minGap(numY) >= cf * 1.0,
+      `c967: Finland ${fin && fin.h} px (geklemmt ${fin && fin.cl}), ${skips} ausgelassen, Abstand Namen ${minGap(nameY).toFixed(1)}, Zahlen ${minGap(numY).toFixed(1)}`);
+    const sumH = rows.reduce((a, r) => a + r.h, 0);
+    check(propOk(rows.filter(r => !r.cl)) && sumH > 0, `c967: ungeklemmte Zeilen proportional, Summe ${sumH.toFixed(1)} px`);
+  }
+  // c968: Top N 5, der Rest nimmt „Rest of world“ auf
+  addStage("c968", "B20 · Top N 5: Rest (8) = 1.769,6 und 47,1 %, dickste Zeile, zuletzt", 1280, 640);
+  runCap("c968", dv20(mk({ topN: 5 })), 1280, 640);
+  {
+    const rows = rowsOf("c968");
+    const last = rows[rows.length - 1];
+    const sh = shares("c968");
+    check(rows.length === 6 && /\(8\)$/.test(last.cat) && Math.abs(last.t - 1769.6) < 1e-6 && sh[5] === "47,1 %"
+      && rows.every(r => r.h <= last.h + 1e-9), `c968: ${rows.map(r => r.cat).join(", ")}; Rest ${last.t} · ${sh[5]}`);
+  }
+  // c969: Blöcke mit Zwischensumme in Normhöhe (B10 Teil 2 bleibt)
+  addStage("c969", "B20 · Blöcke (Region › Land, subtotals): Zwischensummen in Normhöhe, Dicke über alle Zeilen auf einer Skala", 1280, 760);
+  runCap("c969", dv20(mk({ stackBlocks: "subtotals" }), { region: true }), 1280, 760);
+  {
+    const subR = qq("c969", '[data-icd="stack-block-total"] [data-icd="stack-total-seg"] rect');
+    const sumR = qq("c969", '[data-icd="stack-total-row"] [data-icd="stack-total-seg"] rect');
+    const rows = rowsOf("c969");
+    const bt = qq("c969", '[data-icd="stack-total-col"] [data-icd="stack-block-grand"]').map(t => t.textContent);
+    const bs = qq("c969", '[data-icd="stack-share-block"]').map(t => t.textContent);
+    check(qq("c969", '[data-icd="stack-block-total"]').length === 2 && subR.length > 0
+      && subR.every(r => Math.abs(+r.getAttribute("height") - +sumR[0].getAttribute("height")) < 1e-6)
+      && rows.length === 13 && propOk(rows) && bt.length === 2 && bs.length === 2,
+      `c969: Zwischensummen ${bt.join(" · ")} (${bs.join(" · ")}), Höhe ${(+subR[0].getAttribute("height")).toFixed(1)} = Σ, eine Dickenskala`);
+  }
+  // c970: Werte statt 100 %: stackThickness ohne Wirkung
+  addStage("c970", "B20 · stackNormalize=off + stackThickness=total: ohne Wirkung (Referenz c970L)", 1100, 520);
+  addStage("c970L", "B20 · Werte ohne stackThickness", 1100, 520);
+  runCap("c970", dv20({ chart: { orientation: "bars", stackThickness: "total", stackShareColumn: true, sortMode: "ac" } }), 1100, 520);
+  runCap("c970L", dv20({ chart: { orientation: "bars", sortMode: "ac" } }), 1100, 520);
+  check(nsvg("c970") === nsvg("c970L"), "c970: Werte-Stapel mit stackThickness=total SVG-gleich wie ohne");
+  // c971: negative Zelle: 100 % fällt auf Werte zurück, kein Marimekko
+  addStage("c971", "B20 · negative Zelle (Spain Retail −10): Rückfall auf Werte, kein Marimekko (Referenz c971L)", 1100, 520);
+  addStage("c971L", "B20 · dieselben Daten ohne stackThickness", 1100, 520);
+  {
+    const neg = r2f.map(r => r[0] === "Spain" ? ["Spain", 79.0, -10, 84.6] : r);
+    runCap("c971", dv20(mk({}), { rows: neg }), 1100, 520);
+    runCap("c971L", dv20({ chart: { orientation: "bars", stackNormalize: "pct100", stackTotalRow: true, stackTotalLabel: "World", sortMode: "ac" } }, { rows: neg }), 1100, 520);
+    check(nsvg("c971") === nsvg("c971L") && !/data-thickness/.test(nsvg("c971")), "c971: negative Zelle, kein Marimekko, SVG wie ohne Option");
+  }
+  // c972: Small Multiples — Dicke und Anteil je Kachel
+  addStage("c972", "B20 · Small Multiples (2 Märkte): je Kachel Marimekko, Anteile je Kachel 100", 1280, 620);
+  runCap("c972", dv20(mk({ topN: 5 }), { mult: [["Markt A", 1], ["Markt B", 0.6]] }), 1280, 620);
+  {
+    const tiles = qq("c972", '[data-icd="stack-share-col"]');
+    const sums = tiles.map(t => [...t.querySelectorAll('[data-icd="stack-share"]')].reduce((a, x) => a + +x.getAttribute("data-share"), 0));
+    check(tiles.length === 2 && sums.every(s => Math.abs(s - 100) < 0.35) && qq("c972", '[data-thickness="total"]').length === 2,
+      `c972: ${tiles.length} Kacheln, Anteile Σ ${sums.map(s => s.toFixed(1)).join(" · ")}`);
+  }
+  // c973: FC-Zeile schraffiert, Dicke korrekt
+  addStage("c973", "B20 · Spain und Portugal als FC: schraffiert, Dicke nach Summe", 1280, 720);
+  runCap("c973", dv20(mk({}), { fc: ["Spain", "Portugal"] }), 1280, 720);
+  {
+    const sp = qq("c973", '[data-icd="stack-mekko-row"]').find(g => g.getAttribute("data-cat") === "Spain").parentNode;
+    const rows = rowsOf("c973");
+    check(sp.querySelectorAll('[data-icd="stack-seg-fc"]').length === 3 && propOk(rows)
+      && Math.abs(hOf("c973", "Spain") - hOf("c973", "France") * 268.8 / 497.2) <= 1,
+      `c973: Spain FC schraffiert, ${hOf("c973", "Spain")} px zu France ${hOf("c973", "France")} px`);
+  }
+  // c974: Anteilsspalte ohne Marimekko (02D + Anteil)
+  addStage("c974", "B20 · Blatt 02D + Anteilsspalte: Summenbalken bleiben, Anteil dahinter", 1280, 640);
+  runCap("c974", dv20(mk({ stackThickness: "equal" })), 1280, 640);
+  {
+    const panel = document.querySelector('#c974 [data-icd="stack-total-panel"]');
+    const sh = shares("c974");
+    const pr = panel ? [...panel.querySelectorAll("rect")] : [];
+    const right = Math.max(...pr.map(r => +r.getAttribute("x") + +r.getAttribute("width")));
+    const shX = Math.min(...qq("c974", '[data-icd="stack-share"]').map(t => t.getBBox().x));
+    check(!!panel && pr.length === 13 && sh.length === 13 && sh[0] === "13,2 %" && shX > right && !document.querySelector('#c974 [data-thickness]'),
+      `c974: Panel mit ${pr.length} Balken, Anteil ab x ${shX.toFixed(0)} hinter ${right.toFixed(0)}, ${sh[0]}`);
+  }
+  // c975: schmal — keine Spalten
+  addStage("c975", "B20 · 260 px breit: keine Summen- und Anteilsspalte, Marimekko bleibt", 260, 420);
+  runCap("c975", dv20(mk({})), 260, 420);
+  check(!document.querySelector('#c975 [data-icd="stack-total-col"]') && !document.querySelector('#c975 [data-icd="stack-share-col"]')
+    && !!document.querySelector('#c975 [data-thickness="total"]'), "c975: 260 px ohne Spalten, Dicke nach Summe");
+  // c976 / c977: Dunkel und Hochkontrast
+  addStage("c976", "B20 · Dark Mode: Zahlen in Tintenfarbe", 1280, 720, "#1E1E1E");
+  runCap("c976", dv20(Object.assign(mk({}), { colors: { appearance: "dark" } })), 1280, 720);
+  {
+    const fills = new Set(qq("c976", '[data-icd="stack-total-num"]').map(t => t.getAttribute("fill")));
+    check(fills.size === 1 && ![...fills][0].match(/^#0F|^#25|^#00/i) && rowsOf("c976").length === 13, `c976: Zahlen ${[...fills].join(",")}`);
+  }
+  addStage("c977", "B20 · Hochkontrast, niedrig (1280 × 200): Mindestdicke 5 px", 1280, 200, "#000");
+  runCap("c977", dv20(mk({})), 1280, 200, { hc: true });
+  {
+    const rows = rowsOf("c977");
+    const cl = rows.filter(r => r.cl);
+    check(cl.length > 0 && cl.every(r => r.h === 5) && rows.every(r => r.h >= 5), `c977: geklemmt ${cl.map(r => r.cat).join(", ")} auf 5 px`);
+  }
+  // c978: Vorlage C25 komplett
+  addStage("c978", "B20 · Vorlage C25 (02F) komplett", 1280, 720);
+  runCap("c978", dv20({ chart: { template: "C25", stackTotalLabel: "World" } }), 1280, 720);
+  {
+    const order = rowsOf("c978").map(r => r.cat);
+    check(!!document.querySelector('#c978 [data-thickness="total"]') && order[0] === "France" && order[12] === "Rest of world"
+      && shares("c978").length === 13 && nums("c978").length === 13 && !!document.querySelector('#c978 [data-icd="stack-total-row"]')
+      && !!document.querySelector('#c978 [data-icd="stack-legend-direct"]'),
+      `c978: C25 setzt Marimekko, Sortierung (${order[0]} … ${order[12]}), Spalten, Σ-Zeile, Namen am Stapel`);
+    const p = (window.__persist.c978 || []).map(x => JSON.stringify(x)).join("");
+    check(/"stackThickness":"total"/.test(p) && /"sortMode":"ac"/.test(p) && /"stackShareColumn":true/.test(p), "c978: C25 schreibt stackThickness, sortMode, stackShareColumn");
+  }
+  // c979: Säulen — Option wirkungslos
+  addStage("c979", "B20 · Säulen 100 % + stackThickness=total: ohne Wirkung (Referenz c979L)", 1100, 480);
+  addStage("c979L", "B20 · Säulen 100 % ohne stackThickness", 1100, 480);
+  runCap("c979", dv20({ chart: { orientation: "columns", stackNormalize: "pct100", stackThickness: "total", stackShareColumn: true } }), 1100, 480);
+  runCap("c979L", dv20({ chart: { orientation: "columns", stackNormalize: "pct100" } }), 1100, 480);
+  check(nsvg("c979") === nsvg("c979L"), "c979: Säulen mit stackThickness=total SVG-gleich wie ohne");
+  // c980: eine Zeile
+  addStage("c980", "B20 · eine Zeile: volle Höhe, Anteil 100,0 %", 900, 300);
+  runCap("c980", dv20(mk({}), { rows: [["France", 172.5, 136.1, 188.6]] }), 900, 300);
+  check(rowsOf("c980").length === 1 && JSON.stringify(shares("c980")) === '["100,0 %"]', `c980: ${rowsOf("c980").length} Zeile, ${shares("c980")}`);
+  // c981: Zeile mit Summe 0 entfällt
+  addStage("c981", "B20 · Zeile mit Summe 0 (Japan) entfällt im Marimekko", 1280, 640);
+  runCap("c981", dv20(mk({}), { rows: r2f.concat([["Japan", 0, 0, 0]]) }), 1280, 640);
+  check(rowsOf("c981").length === 13 && !rowsOf("c981").some(r => r.cat === "Japan"), `c981: ${rowsOf("c981").length} Zeilen ohne Japan`);
+  // c982: Differenzmarker im Marimekko
+  addStage("c982", "B20 · Differenzmarker France > UK@Direct im Marimekko", 1280, 720);
+  runCap("c982", dv20(mk({ diffMarkers: "France > UK@Direct" })), 1280, 720);
+  check(/diff-marker|data-icd="diff/.test(nsvg("c982")) && !/NaN/.test(nsvg("c982")), "c982: Differenzmarker gezeichnet, kein NaN");
+  // c983: Hervorhebungsband über die Zeilenhöhe
+  addStage("c983", "B20 · Hervorhebung UK: Band in Zeilenhöhe", 1280, 720);
+  runCap("c983", dv20(mk({ highlight: "UK" })), 1280, 720);
+  {
+    const band = qq("c983", 'rect[fill-opacity="0.07"]')[0];
+    const h = band ? +band.getAttribute("height") : NaN;
+    check(Math.abs(h - (hOf("c983", "UK") - 2)) < 0.006, `c983: Band ${h} px = UK ${hOf("c983", "UK")} − 2`);
+  }
+  // c984: Formatbereich — Optionen nur bei 100-%-Balken sichtbar
+  addStage("c984", "B20 · Formatbereich: stackThickness und stackShareColumn nur bei 100-%-Balken", 600, 300);
+  addStage("c984b", "B20 · Formatbereich (Werte)", 600, 300);
+  addStage("c984c", "B20 · Formatbereich (Säulen 100 %)", 600, 300);
+  {
+    const vis = (r, k) => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard[k].visible !== false; };
+    const a = runCap("c984", dv20(mk({})), 600, 300);
+    const b = runCap("c984b", dv20({ chart: { orientation: "bars" } }), 600, 300);
+    const c = runCap("c984c", dv20({ chart: { orientation: "columns", stackNormalize: "pct100" } }), 600, 300);
+    check(vis(a, "stackThickness") && vis(a, "stackShareColumn") && !vis(b, "stackThickness") && !vis(b, "stackShareColumn")
+      && !vis(c, "stackThickness") && !vis(c, "stackShareColumn"), "c984: sichtbar nur bei Balken mit 100 %");
+  }
+  // c985: viele Zeilen — Hinweis auf Top N im Bearbeitungsmodus
+  addStage("c985", "B20 · 60 Zeilen in 200 px (Bearbeitung): Hinweis auf Top N", 900, 200);
+  {
+    const many = [];
+    for (let i = 0; i < 60; i++) { many.push(["L" + (i + 1), 10 + i, 5 + i % 7, 3 + i % 5]); }
+    runCap("c985", dv20(mk({}), { rows: many }), 900, 200, { viewMode: 1 });
+    check(!!document.querySelector('#c985 [data-icd="stack-mekko-hint"]') && /Top N/.test(document.querySelector('#c985 [data-icd="stack-mekko-hint"]')?.textContent || ""),
+      "c985: Hinweis „zu viele Zeilen“ mit Top N");
+  }
+  // kein NaN, undefined oder Infinity in den B20-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c9[6-8]\d[a-zL]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(nsvg(id)));
+    check(ids.length >= 26 && bad.length === 0, `c960 bis c985: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B20-END
 </script>
 </body>
 </html>
