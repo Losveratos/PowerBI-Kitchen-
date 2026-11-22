@@ -1,0 +1,76 @@
+{
+  "hinweis": "Manifest des Auftrags P2-02 (Gegenprüfung Dossier 02 Kostenstudien). Fremde Dokumente werden nicht gespiegelt; quellen/raw/ ist von Git ausgenommen. Abrufe per curl, alle am 2026-11-22. Nicht erfolgreiche Abrufe (404, 403, Client Challenge) stehen im Prüfbericht unter 'Weiterhin nicht erreichbar' und wurden gelöscht.",
+  "eintraege": [
+    {
+      "id": "brh_99bho_2024",
+      "url": "https://dserver.bundestag.de/btd/20/105/2010585.pdf",
+      "datei": "raw/P2-02/btd_20_10585_brh.pdf",
+      "sha256": "313060bd1caf1d7770f1cded6ab06387faba82bfaa10167002da83dc3b86b322",
+      "abruf": "2026-11-22",
+      "seiten": 64
+    },
+    {
+      "id": "btd_21_903",
+      "url": "https://dserver.bundestag.de/btd/21/009/2100903.pdf",
+      "datei": "raw/P2-02/btd_21_903.pdf",
+      "sha256": "e3d40634cd4abcac466d84d0f0a2c394ec7656ee4a15fd7ebd39456595e26299",
+      "abruf": "2026-11-22",
+      "seiten": 7
+    },
+    {
+      "id": "efruhr_ewi_2024",
+      "url": "https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2024/04/2024_04_Abschlussbericht_Netzentgelte_BW_DE.pdf",
+      "datei": "raw/P2-02/efruhr_ewi_netzentgelte_2024.pdf",
+      "sha256": "c8ed8cf0d84d6c0f0de7decf9ec5852c6e5a9568f46cc69521faf01221a6fcad",
+      "abruf": "2026-11-22",
+      "seiten": 21
+    },
+    {
+      "id": "ewi_bet_monitoring_2025",
+      "url": "https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2025/09/EWI_BET_EnergiewendeEffizientMachen.pdf",
+      "datei": "raw/P2-02/ewi_bet_effizient_2025.pdf",
+      "sha256": "8fb8cf48d1058d4a21cf7621d9da40ba965fdcd259e9e1f27b5d7811f14e6100",
+      "abruf": "2026-11-22",
+      "seiten": 259
+    },
+    {
+      "id": "ewi_investitionen_2030_2024",
+      "url": "https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2024/03/20240306_Investitionen-der-Energiewende-bis-2030.pdf",
+      "datei": "raw/P2-02/ewi_investitionen_bis_2030_2024.pdf",
+      "sha256": "e06048f681ea4f6dced3c89078c592412231b8864a2a40c97d90285c720d4ef5",
+      "abruf": "2026-11-22",
+      "seiten": 19
+    },
+    {
+      "id": "diw_wb_38_2025_kemfert",
+      "url": "https://www.diw.de/documents/publikationen/73/diw_01.c.974532.de/25-38-3.pdf",
+      "datei": "raw/P2-02/diw_wb_2025_38_3.pdf",
+      "sha256": "b8b0c42dc2562f63afbb8c6bd1061d1fa428a9775624cb4b9f00d2eec1e39246",
+      "abruf": "2026-11-22",
+      "seiten": 8
+    },
+    {
+      "id": "ise_was_kostet_2015",
+      "url": "https://www.ise.fraunhofer.de/de/veroeffentlichungen/veroeffentlichungen-pdf-dateien/studien-und-konzeptpapiere/studie-was-kostet-die-energiewende.pdf",
+      "datei": "raw/P2-02/ise_was_kostet_die_energiewende_2015.pdf",
+      "sha256": "efa7042d8ab0e1af3405e3f1eaa769052cafde17c1bbf538327af3b40f3692ee",
+      "abruf": "2026-11-22",
+      "seiten": 90
+    },
+    {
+      "id": "uba_mk40_2026",
+      "url": "https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/6_Tab_UBA-Empfehlung-Klimakosten_2026-07-06_1.pdf",
+      "datei": "raw/P2-02/uba_klimakosten_2026-07-06.pdf",
+      "sha256": "58a6c8fa1ebc15314b9e868ae61bcd261ad990cbd76d12a0c425ab6b6cf34c53",
+      "abruf": "2026-11-22",
+      "seiten": 1
+    },
+    {
+      "id": "uba_umweltkosten_webseite",
+      "url": "https://www.umweltbundesamt.de/daten/umwelt-wirtschaft/gesellschaftliche-kosten-von-umweltbelastungen",
+      "datei": "raw/P2-02/uba_kostensaetze_seite.html",
+      "sha256": "2da995bf64597618dd70bba4c31ad3c6cf793871d88f4aa360bd894a1aabe0c4",
+      "abruf": "2026-11-22"
+    }
+  ]
+}
