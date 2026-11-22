@@ -5152,6 +5152,246 @@ addStage("c725", "Review m3 · Hervorhebung als Ellipse bleibt in der Δ-only-An
 }
 
 // ======================================================================
+// 1.57 · B13 Teil 1b (c533+): frei wählbare große Kachel (chart.multiplesHeroTile),
+// Blatt 13B, auch die doppelt hohe Berlin-Kachel von 13C/13D. Die große Kachel bleibt in
+// ihrer Spalte und reicht über zwei Zeilen; große und kleine Kacheln zeichnen gleiche
+// px je Einheit (Marker mult-hero mit data-px-per-unit an jeder Kachel).
+// ======================================================================
+// Werte von Blatt 13B (2017 bis 2026 AC, 2027/2028 PL); „12 weitere“ als eigene Gruppe
+const hb13 = [
+  ["Köln", [79, 73, 69, 53, 50, 21, 48, 49, 38, 39], [41, 41]],
+  ["Frankfurt", [50, 48, 40, 34, 89, 78, 38, 30, 24, 25], [24, 26]],
+  ["München", [25, 26, 26, 45, 58, 88, 77, 66, 55, 44], [48, 50]],
+  ["Berlin", [66, 34, 28, 65, 136, 168, 190, 207, 344, 301], [309, 311]],
+  ["Zürich", [67, 69, 56, 84, 5, 97, 34, 102, 95, 102], [105, 107]],
+  ["Basel", [88, 78, 67, 56, 43, 41, 52, 66, 69, 79], [84, 86]],
+  ["Lausanne", [98, 88, 73, 79, 123, 66, 73, 70, 66, 62], [66, 68]],
+  ["Wien", [90, 94, 99, 34, 88, 93, 88, 65, 51, 44], [47, 49]],
+  ["Salzburg", [7, 5, 25, 28, 56, 5, 9, 12, 14, 17], [19, 21]],
+  ["Linz", [112, 104, 124, 113, 45, 123, 109, 98, 78, 89], [95, 97]],
+  ["12 weitere kleine Standorte", [51, 53, 67, 68, 115, 73, 67, 54, 70, 65], [80, 80]],
+  ["Paris", [78, 64, 98, 81, 71, 80, 59, 78, 69, 81], [86, 88]],
+  ["Lyon", [23, 34, 36, 46, 52, 69, 79, 84, 122, 89], [94, 96]],
+  ["Bordeaux", [68, 62, 69, 84, 60, 63, 72, 51, 70, 66], [65, 67]]
+];
+const hbYears = ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"];
+const hb13Chart = extra => Object.assign({ multiplesAgg: "mean", multiplesTotalPos: "last", multiplesTotalShade: true,
+  multiplesTotalLabel: "Durchschnitt 25 Standorte", scenarioLabels: true, showAbsoluteVariance: false,
+  showRelativeVariance: false, showTotal: false }, extra);
+const hbObjs = { years: hbYears, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "mEUR" }, labels: { labelDensity: "all" } } };
+const hbMarks = id => nbQ(id, '[data-icd="mult-hero"]');
+const hbHero = id => hbMarks(id).find(m => m.getAttribute("data-role") === "hero") || null;
+const hbPx = (id, a) => hbMarks(id).map(m => m.getAttribute(a || "data-px-per-unit")).filter(v => v !== "").map(Number);
+// relative spread of px per unit (0 = all equal)
+const hbSpread = ks => ks.length ? Math.max(...ks) / Math.min(...ks) - 1 : 1;
+const hbByGroup = (id, name) => hbMarks(id).find(m => m.getAttribute("data-group") === name) || null;
+const hbN = (m, a) => +m.getAttribute(a);
+// category groups whose box centre lies inside a tile (cell of its mult-hero marker)
+const hbCats = (id, name) => {
+  const f = hbByGroup(id, name);
+  if (!f) { return []; }
+  const [x, y, w, h] = ["data-x", "data-y", "data-w", "data-h"].map(a => +f.getAttribute(a));
+  return nbQ(id, "g.icd-cat").filter(g => {
+    const b = g.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+    return cx >= x && cx <= x + w && cy >= y && cy <= y + h;
+  });
+};
+
+// ---- c533: Blatt 13B · Berlin über zwei Zeilen oben rechts, Ø-Kachel unten rechts, eine Skala
+addStage("c533", "13B · Berlin groß über zwei Zeilen (natürliche Spalte), gleiche px je Einheit wie die kleinen Kacheln", 1280, 720);
+addStage("c533b", "Referenz ohne große Kachel (gemeinsame Skala bis 344)", 1280, 720);
+{
+  runCap("c533", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin" }), hbObjs), 1280, 720);
+  runCap("c533b", avgDv(hb13, hb13Chart({}), hbObjs), 1280, 720);
+  nbSane("c533");
+  const ms = hbMarks("c533"), h = hbHero("c533");
+  check(ms.length === 15 && !!h && h.getAttribute("data-group") === "Berlin" && h.getAttribute("data-rows") === "2"
+    && h.getAttribute("data-col") === "3" && h.getAttribute("data-row") === "0",
+    `c533: 15 Kacheln, Berlin groß in Spalte 4, Zeile 1 (${h && [h.getAttribute("data-col"), h.getAttribute("data-row")].join("/")})`);
+  const reg = hbByGroup("c533", "Köln");
+  check(Math.abs(hbN(h, "data-h") - 2 * hbN(reg, "data-h")) <= 1 && hbN(h, "data-w") === hbN(reg, "data-w"),
+    `c533: große Kachel doppelt so hoch (${hbN(h, "data-h")} gegen ${hbN(reg, "data-h")})`);
+  const tot = hbMarks("c533").find(m => m.getAttribute("data-kind") === "total");
+  const z = hbByGroup("c533", "Zürich"), rest = hbByGroup("c533", "12 weitere kleine Standorte");
+  check(tot.getAttribute("data-col") === "3" && tot.getAttribute("data-row") === "3" && z.getAttribute("data-col") === "0"
+    && z.getAttribute("data-row") === "1" && rest.getAttribute("data-col") === "3" && rest.getAttribute("data-row") === "2",
+    "c533: Raster wie 13B (Zürich Zeile 2 links, 12 weitere rechts in Zeile 3, Ø unten rechts)");
+  const px = hbPx("c533");
+  check(px.length === 15 && hbSpread(px) < 0.002, `c533: alle 15 Kacheln mit gleichem px je Einheit (${Math.min(...px).toFixed(4)} bis ${Math.max(...px).toFixed(4)})`);
+  const k = +h.getAttribute("data-px-per-unit");
+  const bar = (t, y) => { const b = avgAcBar(byCat(hbCats("c533", t), y)); return b ? nbAttr(b, "height") : null; };
+  check(Math.abs(bar("Berlin", "2025") - 344 * k) < 0.8 && Math.abs(bar("Linz", "2019") - 124 * k) < 0.8 && Math.abs(bar("Köln", "2017") - 79 * k) < 0.8,
+    `c533: Säulenhöhe = Wert × ${k.toFixed(3)} in groß und klein (Berlin 2025 ${bar("Berlin", "2025").toFixed(1)}, Linz 2019 ${bar("Linz", "2019").toFixed(1)})`);
+  // the small tiles gain resolution: before, Berlin's 344 squeezed every tile
+  const kRef = nbAttr(avgAcBar(byCat(avgCats("c533b", "Köln"), "2017")), "height") / 79;
+  check(k > kRef * 1.4, `c533: kleine Kacheln feiner als ohne große Kachel (${k.toFixed(3)} gegen ${kRef.toFixed(3)} px je Einheit)`);
+  check(hbMarks("c533b").length === 0, "c533b: ohne Name keine mult-hero-Marker");
+  check(nbQ("c533", '[data-icd="mult-ref-bg"]').length === 1, "c533: Ø-Kachel hinterlegt");
+}
+
+// ---- c534: unbekannter Name und Leerzeichen = bisheriges Verhalten (SVG-gleich)
+addStage("c534", "Unbekannter Name „Hamburg“ mit „Erste Kachel groß“: bisherige Heldenkachel links", 960, 420);
+addStage("c534b", "Referenz: „Erste Kachel groß“ ohne Namen", 960, 420);
+{
+  const rs = runCap("c534", avgDv(avgABC, { multiplesHero: true, multiplesHeroTile: "Hamburg" }), 960, 420);
+  runCap("c534b", avgDv(avgABC, { multiplesHero: true }), 960, 420);
+  nbSane("c534");
+  const same1 = voSvg("c534") === voSvg("c534b");
+  rs.upd(avgDv(avgABC, { multiplesHero: true, multiplesHeroTile: "   " }));
+  const same2 = voSvg("c534") === voSvg("c534b");
+  check(same1 && same2 && hbMarks("c534").length === 0, `c534: unbekannter Name und Leerzeichen SVG-gleich wie ohne Namen (${same1}/${same2})`);
+}
+
+// ---- c535: Balken, Name ohne Rücksicht auf Groß-/Kleinschreibung
+addStage("c535", "Balken · große Kachel „  c “ (Name C), gleiche px je Einheit", 960, 520);
+{
+  runCap("c535", avgDv(avgABC, { orientation: "bars", multiplesHeroTile: "  c ", showAbsoluteVariance: false, showRelativeVariance: false }), 960, 520);
+  nbSane("c535");
+  const h = hbHero("c535"), px = hbPx("c535");
+  check(!!h && h.getAttribute("data-group") === "C" && px.length === 4 && hbSpread(px) < 0.003,
+    `c535: C groß, vier Kacheln mit gleichem px je Einheit (${px.map(v => v.toFixed(3)).join(" / ")})`);
+}
+
+// ---- c536: Linie
+addStage("c536", "Linie · große Kachel B über zwei Zeilen", 960, 520);
+{
+  runCap("c536", avgDv(avgABC, { orientation: "line", multiplesHeroTile: "B", showAbsoluteVariance: false, showRelativeVariance: false }), 960, 520);
+  nbSane("c536");
+  const h = hbHero("c536"), px = hbPx("c536");
+  check(!!h && h.getAttribute("data-rows") === "2" && px.length === 4 && hbSpread(px) < 0.003,
+    `c536: Linie mit großer Kachel, gleiche px je Einheit (${px.map(v => v.toFixed(3)).join(" / ")})`);
+}
+
+// ---- c537: Säulen mit ΔPY und ΔPY % · Basis-, Δ- und Δ %-Panel gleich skaliert
+addStage("c537", "Säulen + ΔPY + ΔPY % · Berlin groß: Werte- und Δ %-Panel mit gleichen px je Einheit", 1280, 1100);
+{
+  runCap("c537", avgDv(hb13.slice(0, 6), { multiplesTotal: false, multiplesHeroTile: "Berlin", showAbsoluteVariance: true, showRelativeVariance: true, showTotal: false },
+    { years: hbYears.slice(0, 10), py: true }), 1280, 1100);
+  nbSane("c537");
+  const h = hbHero("c537"), peer = hbMarks("c537").find(m => m.getAttribute("data-role") === "peer");
+  const px = hbPx("c537"), rel = hbPx("c537", "data-px-per-unit-rel");
+  check(!!h && !!peer && px.length === 6 && hbSpread(px) < 0.002, `c537: Basis-Panel gleich (${px.map(v => v.toFixed(3)).join(" / ")})`);
+  check(h.getAttribute("data-px-per-unit-rel") !== "" && peer.getAttribute("data-px-per-unit-rel") !== "" && rel.length >= 2 && hbSpread(rel) < 0.003,
+    `c537: Δ %-Panel gleich (${rel.map(v => v.toFixed(3)).join(" / ")})`);
+  // the absolute Δ panel: same px per unit in large and small tiles (base scale, or one round zoom in both)
+  const abs = hbPx("c537", "data-px-per-unit-abs");
+  const dBar = (t, y) => { const b = voBar(byCat(hbCats("c537", t), y)); return b ? nbAttr(b, "height") : null; };
+  const kA = +h.getAttribute("data-px-per-unit-abs");
+  check(abs.length >= 2 && hbSpread(abs) < 0.003 && Math.abs(dBar("Berlin", "2025") - 34 * kA) < 0.8,
+    `c537: ΔPY-Panel gleich (${abs.map(v => v.toFixed(3)).join(" / ")}), Berlin 2025 = 34 × px (${dBar("Berlin", "2025").toFixed(1)})`);
+}
+
+// ---- c538: Blatt 13C · nur ΔØ, Berlin doppelt hoch auf derselben Δ-Skala
+addStage("c538", "13C · nur ΔØ, Berlin über zwei Zeilen, eine Δ-Skala (gleiche px je Einheit), Ø-Kachel mit Säulen", 1280, 720);
+{
+  runCap("c538", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true,
+    showAbsoluteVariance: true }), hbObjs), 1280, 720);
+  nbSane("c538");
+  const h = hbHero("c538"), px = voPx("c538");
+  check(!!h && h.getAttribute("data-rows") === "2" && px.length === 14 && hbSpread(px) < 0.002,
+    `c538: 14 Δ-Kacheln samt Berlin mit gleichem px je Einheit (${Math.min(...px).toFixed(4)} bis ${Math.max(...px).toFixed(4)})`);
+  const ref = voRef("c538");
+  check(!!ref && Math.abs(+ref.getAttribute("data-k-delta") / px[0] - 1) < 0.002,
+    `c538: Bezugskachel misst die Δ-Skala einer kleinen Kachel (${ref && ref.getAttribute("data-k-delta")})`);
+  const k = +h.getAttribute("data-px-per-unit");
+  const kRef = +ref.getAttribute("data-px-per-unit"), f = +ref.getAttribute("data-factor");
+  check(Math.abs(kRef / k - f) < 0.003, `c538: Ø-Kachel mit px je Einheit = Δ-Skala × Faktor (${(kRef / k).toFixed(3)} = ${f})`);
+  const d25 = avgDelta(byCat(hbCats("c538", "Berlin"), "2025"));
+  const b25 = voBar(byCat(hbCats("c538", "Berlin"), "2025"));
+  check(d25 > 200 && Math.abs(nbAttr(b25, "height") - d25 * k) < 0.8, `c538: ΔØ Berlin 2025 = ${d25} × px (${nbAttr(b25, "height").toFixed(1)})`);
+}
+
+// ---- c539: Blatt 13D · nur ΔØ %, Berlin groß
+addStage("c539", "13D · nur ΔØ %, Berlin über zwei Zeilen, gleiche px je Prozentpunkt", 1280, 720);
+{
+  runCap("c539", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true,
+    showRelativeVariance: true }), { years: hbYears, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "mEUR" } } }), 1280, 720);
+  nbSane("c539");
+  const h = hbHero("c539"), px = voPx("c539");
+  check(!!h && px.length === 14 && hbSpread(px) < 0.002 && nbQ("c539", '[data-icd="var-only"]').every(g => g.getAttribute("data-panels") === "rel"),
+    `c539: 14 Δ %-Kacheln samt Berlin gleich skaliert (${Math.min(...px).toFixed(4)} bis ${Math.max(...px).toFixed(4)})`);
+}
+
+// ---- c540: die Ø-Kachel selbst groß in der Δ-only-Ansicht · Peer in einer Gitterzelle gemessen (M1 aus Teil 2)
+addStage("c540", "Ø-Kachel als große Kachel (zuerst) in der Δ-only-Ansicht: Faktor gegen eine Gitterkachel", 960, 520);
+{
+  runCap("c540", avgDv(avgABC, voBase({ multiplesTotalPos: "first", multiplesTotalLabel: "Ø alle", multiplesHeroTile: "ø ALLE" })), 960, 520);
+  nbSane("c540");
+  const h = hbHero("c540"), px = voPx("c540"), ref = voRef("c540");
+  const kRef = ref ? +ref.getAttribute("data-px-per-unit") : 0, f = ref ? +ref.getAttribute("data-factor") : 0;
+  check(!!h && h.getAttribute("data-kind") === "total" && px.length === 3 && hbSpread(px) < 0.002 && !!ref
+    && Math.abs(+ref.getAttribute("data-k-delta") / px[0] - 1) < 0.002 && Math.abs(kRef / px[0] - f) < 0.002,
+    `c540: Ø-Kachel groß, Δ-Skala aus der Gitterkachel, Verhältnis = Faktor (${(kRef / px[0]).toFixed(3)} = ${f})`);
+}
+
+// ---- c541: Zoom auf die große Kachel und auf eine kleine, zurück wie vorher
+addStage("c541", "Zoom auf die große Kachel C (fast gleiche Größe, kein Faktor) und auf A (Faktor gegen ihre Rasterzelle)", 960, 520);
+{
+  const dv = () => avgDv(avgABC, { multiplesHeroTile: "C", showAbsoluteVariance: false, showRelativeVariance: false });
+  const rs = runCap("c541", dv(), 960, 520);
+  const before = voSvg("c541");
+  const kC = +hbByGroup("c541", "C").getAttribute("data-px-per-unit"), kA = +hbByGroup("c541", "A").getAttribute("data-px-per-unit");
+  const hdr = name => nbQ("c541", 'g[role="button"]').find(b => (b.getAttribute("aria-label") || "").startsWith(name));
+  const k25 = v => nbAttr(avgAcBar(nbQ("c541", "g.icd-cat").find(g => (g.getAttribute("aria-label") || "").startsWith("2025,"))), "height") / v;
+  hdr("C ").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const zC = k25(90), chipC = nbQ("c541", '[data-icd="zoom-scale"]').length;
+  rs.v.zoomGroup = null; rs.upd(dv());
+  hdr("A ").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const zA = k25(30), chip = nbQ("c541", '[data-icd="zoom-scale"]')[0];
+  check(hbMarks("c541").length === 0 && chipC === 0 && Math.abs(zC / kC - 1) < 0.03 && !!chip
+    && Math.abs(+chip.getAttribute("data-factor") - zA / kA) < 0.01,
+    `c541: Zoom auf C ohne Faktor (${(zC / kC).toFixed(3)}), auf A Faktor ${chip ? chip.getAttribute("data-factor") : "–"} = ${(zA / kA).toFixed(3)}`);
+  rs.v.zoomGroup = null; rs.upd(dv());
+  check(voSvg("c541") === before, "c541: zurück zum Raster SVG-gleich");
+}
+
+// ---- c542: Stapel, Brücke: bisherige Heldenkachel, Formatbereich
+addStage("c542", "Stapel mit Namen: keine große Kachel (bisheriges Verhalten), Feld im Formatbereich nur wo es wirkt", 480, 240);
+{
+  const vis = (r, k) => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard[k].visible !== false; };
+  const rs = runCap("c542", rvStackDv([["A", { X: [10, 11], Y: [10, 11] }], ["B", { X: [20, 21], Y: [10, 11] }]], ["2025", "2026"],
+    { multiplesHeroTile: "B" }), 480, 240);
+  const stackMarks = hbMarks("c542").length;
+  const stacked = vis(rs, "multiplesHeroTile");
+  rs.upd(avgDv(avgABC, { multiplesHeroTile: "B", waterfallStyle: true }));
+  const wf = vis(rs, "multiplesHeroTile"), wfMarks = hbMarks("c542").length;
+  rs.upd(avgDv(avgABC, { multiplesHeroTile: "B" }));
+  const plain = vis(rs, "multiplesHeroTile");
+  rs.upd(avgDv(avgABC, voBase({ multiplesHeroTile: "B" })));
+  const vo = [vis(rs, "multiplesHeroTile"), vis(rs, "multiplesHero")];
+  check(stackMarks === 0 && wfMarks === 0 && !stacked && !wf && plain && vo[0] && !vo[1],
+    `c542: Stapel/Brücke ohne große Kachel; Feld sichtbar nur ohne Stapel und Brücke (Stapel ${stacked}, Brücke ${wf}, Säulen ${plain}, Δ-only ${vo[0]}, Schalter ${vo[1]})`);
+}
+
+// ---- c543: schmal (eine Spalte) und c544: große Kachel in der letzten Zeile rückt hoch
+addStage("c543", "Schmal · eine Spalte, B über zwei Zeilen", 420, 760);
+addStage("c544", "Ø zuerst, C (natürlich in Zeile 2) rückt in Zeile 1, damit zwei Zeilen frei sind", 960, 520);
+{
+  runCap("c543", avgDv(avgABC, { multiplesHeroTile: "B", showAbsoluteVariance: false, showRelativeVariance: false }), 420, 760);
+  nbSane("c543");
+  const h = hbHero("c543"), px = hbPx("c543");
+  check(!!h && h.getAttribute("data-col") === "0" && hbMarks("c543").every(m => m.getAttribute("data-col") === "0") && hbSpread(px) < 0.003,
+    `c543: eine Spalte, gleiche px je Einheit (${px.map(v => v.toFixed(3)).join(" / ")})`);
+  runCap("c544", avgDv(avgABC, { multiplesTotalPos: "first", multiplesHeroTile: "C", showAbsoluteVariance: false, showRelativeVariance: false }), 960, 520);
+  nbSane("c544");
+  const h4 = hbHero("c544");
+  check(!!h4 && h4.getAttribute("data-row") === "0" && h4.getAttribute("data-col") === "0" && hbSpread(hbPx("c544")) < 0.003,
+    `c544: C in Spalte 1 über Zeile 1 und 2 (${h4 && h4.getAttribute("data-row")})`);
+}
+
+// ---- c545: feste Obergrenze der Skala (scale.fixedMax) · gilt für groß und klein
+addStage("c545", "Feste Obergrenze 400: große Kachel C und kleine Kacheln bis 400, gleiche px je Einheit", 960, 520);
+{
+  runCap("c545", avgDv(avgABC, { multiplesHeroTile: "C", showAbsoluteVariance: false, showRelativeVariance: false },
+    { objs: { scale: { fixedMax: 400 } } }), 960, 520);
+  nbSane("c545");
+  const px = hbPx("c545"), k = px[0];
+  const h = nbAttr(avgAcBar(byCat(hbCats("c545", "A"), "2026")), "height");
+  check(px.length === 4 && hbSpread(px) < 0.003 && Math.abs(h - 40 * k) < 0.6,
+    `c545: gleiche px je Einheit, A 2026 = 40 × ${k.toFixed(3)} (${h.toFixed(1)})`);
+}
+
+// ======================================================================
 // 1.55 · B12 Review-Fixes (c410+): Blasen bleiben im Visual (M1), ein Flag
 // „PY-Blasen gezeichnet“ (M2), Werte verschwinden nicht (M3), m1 bis m7.
 // ======================================================================

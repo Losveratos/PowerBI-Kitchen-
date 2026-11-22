@@ -7809,6 +7809,7 @@ export class Visual implements IVisual {
                     "data-icd": "mult-hero", "data-role": t.hero ? "hero" : t.peer ? "peer" : "tile",
                     "data-group": g.name ?? "", "data-kind": gKind ?? "group",
                     "data-px-per-unit": kMain != null ? kMain.toFixed(4) : "",
+                    "data-px-per-unit-abs": pk?.abs != null ? pk.abs.toFixed(4) : "",
                     "data-px-per-unit-rel": pk?.rel != null ? pk.rel.toFixed(4) : "",
                     "data-col": t.col, "data-row": t.row, "data-rows": t.hero ? 2 : 1,
                     "data-x": Math.round(t.cell.x), "data-y": Math.round(t.cell.y),
@@ -7913,9 +7914,12 @@ export class Visual implements IVisual {
             rDom = { abs: dR.abs, rel: dR.rel };
             hDom = hero.kind === "total" ? {} : { abs: dH.abs, rel: dH.rel };
         } else {
+            // the absolute Δ panels keep the deck domain: they run on the base px per unit
+            // (same-scale split), and one Δ span makes every tile take the same round
+            // zoom when its variances are too small to read
             const dR = domOf(groups.filter(g => g !== hero));
-            hDom = { main: dH.main, abs: dH.abs, rel: dH.rel, abs2: dH.abs2, rel2: dH.rel2 };
-            rDom = { main: dR.main, abs: dR.abs, rel: dR.rel, abs2: dR.abs2, rel2: dR.rel2 };
+            hDom = { main: dH.main, rel: dH.rel, rel2: dH.rel2 };
+            rDom = { main: dR.main, rel: dR.rel, rel2: dR.rel2 };
         }
         setPeer({ region: peerRegion, dom: rDom, hero });
 
