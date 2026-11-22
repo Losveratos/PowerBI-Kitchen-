@@ -208,7 +208,8 @@
                             { "value": "C17", "displayName": "C17 · Kategorie-Brücke waagerecht (06E)" },
                             { "value": "C18", "displayName": "C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F)" },
                             { "value": "C19", "displayName": "C19 · Säulen gegen Plan + Jahressäule (03B)" },
-                            { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" }
+                            { "value": "C20", "displayName": "C20 · Bestand und Fluss (08E bis 08H)" },
+                            { "value": "C21", "displayName": "C21 · Kumulierte Linie mit R12 und Monatssäulen (07C)" }
                         ]
                     }
                 },
@@ -543,6 +544,35 @@
                         "enumeration": [
                             { "value": "auto", "displayName": "From the hierarchy" },
                             { "value": "off", "displayName": "Off" }
+                        ]
+                    }
+                },
+                "lineMarkerShape": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "circle", "displayName": "Circles" },
+                            { "value": "square", "displayName": "Squares (AC filled, FC hatched, PL hollow)" }
+                        ]
+                    }
+                },
+                "lineBasisLabels": { "type": { "bool": true } },
+                "lineR12": { "type": { "bool": true } },
+                "lineR12Label": { "type": { "text": true } },
+                "linePeriodColumns": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "same", "displayName": "Same scale (behind the lines)" }
+                        ]
+                    }
+                },
+                "lineGapMarkers": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "off", "displayName": "Off" },
+                            { "value": "actual", "displayName": "At the last actual" },
+                            { "value": "end", "displayName": "At the year end" },
+                            { "value": "both", "displayName": "Both" }
                         ]
                     }
                 },

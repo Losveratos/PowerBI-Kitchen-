@@ -125,6 +125,25 @@ const axisGroupsItems: LocEnumMember[] = [
     { value: "off", displayName: "Off", key: "Enum_AxisGroups_Off" }
 ];
 
+// 1.56 (backlog B15, IBCS sheet 07C): line mode extras on the cumulated line (YTD) —
+// period columns from the raw values, gap markers at the last actual and at the year
+// end, square markers (AC filled, FC hatched, PL hollow). "own" (columns on their own
+// scale) is not part of 1.56
+const linePeriodColumnsItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_PeriodCols_Off" },
+    { value: "same", displayName: "Same scale (behind the lines)", key: "Enum_PeriodCols_Same" }
+];
+const lineGapMarkersItems: LocEnumMember[] = [
+    { value: "off", displayName: "Off", key: "Enum_GapMarkers_Off" },
+    { value: "actual", displayName: "At the last actual", key: "Enum_GapMarkers_Actual" },
+    { value: "end", displayName: "At the year end", key: "Enum_GapMarkers_End" },
+    { value: "both", displayName: "Both", key: "Enum_GapMarkers_Both" }
+];
+const lineMarkerShapeItems: LocEnumMember[] = [
+    { value: "circle", displayName: "Circles", key: "Enum_MarkerShape_Circle" },
+    { value: "square", displayName: "Squares (AC filled, FC hatched, PL hollow)", key: "Enum_MarkerShape_Square" }
+];
+
 // 1.54 (backlog B14): how EMPHASIZE marks a category: shaded band (default) or an
 // ellipse around its numbers (IBCS sheets 04A, 06E: circled values)
 const highlightStyleItems: LocEnumMember[] = [
@@ -262,7 +281,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C17", displayName: "C17 · Category bridge horizontal (06E)", key: "Enum_Template_C17" },
     { value: "C18", displayName: "C18 · Variance scatter ΔPY % × ΔPL % (10F)", key: "Enum_Template_C18" },
     { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
-    { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" }
+    { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" },
+    { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -286,7 +306,8 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         scatterColorByItems, scatterTrendItems, cardTrendChartItems, cardTrendValueItems,
         bridgeOrientationItems, emptyModeItems, sortImpactItems, highlightStyleItems,
         stackNormalizeItems, stackLegendPosItems, multiplesAggItems, multiplesTotalPosItems,
-        multiplesBasisItems, sfStockAtItems, axisGroupsItems];
+        multiplesBasisItems, sfStockAtItems, axisGroupsItems,
+        linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -1541,7 +1562,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scenarioLabels",
         displayName: "Scenario labels at the columns",
         displayNameKey: "Chart_ScenarioLabels",
-        description: "Nur Säulen: schreibt die Szenario-Kürzel an die Säulen: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule. Standard aus.",
+        description: "Säulen, Linie, Bestand & Fluss: schreibt die Szenario-Kürzel an: AC unter den ersten Ist-Monat, FC unter den ersten Forecast-Monat, AC und FC neben die Teile der Jahressäule; in der Linie zusätzlich das Kürzel am Ende jeder Linie (FC, PL). Standard aus.",
         descriptionKey: "Desc_Chart_ScenarioLabels",
         value: false
     });
@@ -1630,11 +1651,78 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
             this.axisGroups]
     });
 
+    // 1.56 (backlog B15, IBCS sheet 07C): line mode extras, all off by default
+    lineMarkerShape = new formattingSettings.ItemDropdown({
+        name: "lineMarkerShape",
+        displayName: "Point markers",
+        displayNameKey: "Chart_LineMarkerShape",
+        description: "Linie: Form der Punktmarken. Quadrate zeigen das Szenario an der Marke (AC gefüllt, FC schraffiert, PL hohl) auf dünnen Linien, wie im IBCS-Blatt 07C. Standard Kreise.",
+        descriptionKey: "Desc_Chart_LineMarkerShape",
+        items: lineMarkerShapeItems,
+        value: lineMarkerShapeItems[0]
+    });
+
+    lineBasisLabels = new formattingSettings.ToggleSwitch({
+        name: "lineBasisLabels",
+        displayName: "Label the comparison line",
+        displayNameKey: "Chart_LineBasisLabels",
+        description: "Linie: beschriftet auch die Werte der Vergleichslinie (PL oder PY), auf der Seite weg von der Ist-Linie. Standard aus.",
+        descriptionKey: "Desc_Chart_LineBasisLabels",
+        value: false
+    });
+
+    lineR12 = new formattingSettings.ToggleSwitch({
+        name: "lineR12",
+        displayName: "Rolling year line (R12)",
+        displayNameKey: "Chart_LineR12",
+        description: "Linie mit kumulierter Sicht YTD: zusätzlich die gleitende Jahressumme der letzten 12 Perioden auf derselben Skala. Quelle in dieser Reihenfolge: das Feld „Linie“ (fertige R12-Measure), sonst abgeleitet aus dem Vorjahr (ein volles Jahr mit Vorjahr in jedem Monat), sonst aus mindestens 13 sichtbaren Perioden. Ohne Quelle keine Linie, im Bearbeitungsmodus ein Hinweis. Ist die Basis Plan und dient das Vorjahr nur als Quelle, entfällt die Vorjahreslinie. Standard aus.",
+        descriptionKey: "Desc_Chart_LineR12",
+        value: false
+    });
+
+    lineR12Label = new formattingSettings.TextInput({
+        name: "lineR12Label",
+        displayName: "R12 line label",
+        displayNameKey: "Chart_LineR12Label",
+        description: "Name der R12-Linie an ihrem Anfang, z. B. „MAT“. Leer = „R12“.",
+        descriptionKey: "Desc_Chart_LineR12Label",
+        placeholder: "R12",
+        value: ""
+    });
+
+    linePeriodColumns = new formattingSettings.ItemDropdown({
+        name: "linePeriodColumns",
+        displayName: "Period columns",
+        displayNameKey: "Chart_LinePeriodColumns",
+        description: "Linie mit kumulierter Sicht YTD: die Werte der einzelnen Perioden als Säulen hinter den Linien, auf derselben Skala und Nulllinie (AC solide, FC schraffiert, PL als Umriss). Sind die Säulen dafür zu klein, entfallen sie (Hinweis im Bearbeitungsmodus). Standard aus.",
+        descriptionKey: "Desc_Chart_LinePeriodColumns",
+        items: linePeriodColumnsItems,
+        value: linePeriodColumnsItems[0]
+    });
+
+    lineGapMarkers = new formattingSettings.ItemDropdown({
+        name: "lineGapMarkers",
+        displayName: "Gap markers",
+        displayNameKey: "Chart_LineGapMarkers",
+        description: "Linie mit kumulierter Sicht YTD: Abstand der Ist-Linie zur Vergleichslinie als Balken mit Δ am rechten Rand, am letzten Ist-Monat (AC gegen Basis) und am Jahresende (AC und FC gegen Basis, schraffiert). Nicht in kleinen Kacheln. Standard aus.",
+        descriptionKey: "Desc_Chart_LineGapMarkers",
+        items: lineGapMarkersItems,
+        value: lineGapMarkersItems[0]
+    });
+
+    lineGroup = new formattingSettings.Group({
+        name: "chartLine",
+        displayName: "Line",
+        displayNameKey: "Group_Line",
+        slices: [this.lineMarkerShape, this.lineBasisLabels, this.lineR12, this.lineR12Label,
+            this.linePeriodColumns, this.lineGapMarkers]
+    });
+
     name: string = "chart";
     displayName: string = "Chart";
     displayNameKey: string = "Card_Chart";
     groups = [this.chartTypeGroup, this.varianceGroup, this.dataTimeGroup, this.interactionGroup,
-        this.displayGroup, this.stockFlowGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
+        this.displayGroup, this.stockFlowGroup, this.lineGroup, this.multiplesGroup, this.bridgeGroup, this.tableGroup, this.cardsGroup,
         this.scatterGroup];
 }
 

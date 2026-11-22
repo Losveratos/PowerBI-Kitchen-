@@ -2297,7 +2297,7 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
     tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
     hubClick("c222", "hub-tpl-prev");
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20"]', "c222: 18 Vorlagen-Kacheln (1.55: + C20) " + JSON.stringify(tiles));
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21"]', "c222: 19 Vorlagen-Kacheln (1.56: + C21) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3228,14 +3228,14 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   const groups = groupsOf("c230"), tiles = tilesOf("c230");
   check(JSON.stringify(groups.slice().sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  const want = { time: ["C01", "C03", "C19", "C05", "C08", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  const want = { time: ["C01", "C03", "C19", "C05", "C08", "C21", "C20"], structure: ["C02", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const ok = Object.entries(want).every(([gid, codes]) => {
     const h = box("hub-tpl-group-" + gid);
     const bs = codes.map(cd => box("hub-tpl-" + cd));
     return bs.every((b, i) => b.top > h.top && b.top - h.bottom < 20 && b.left >= h.left - 1 && (i === 0 || b.left > bs[i - 1].left));
   });
-  check(ok && tiles.length === 18, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 19, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -5367,6 +5367,253 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B11-END
+// ---- B15-BEGIN
+// ======================================================================
+// 1.56 (B15): kumulierte Linie YTD mit gleitender Jahressumme (R12), Monatssäulen
+// und Abstandsmarkern, IBCS-Blatt 07C (Vorlage C21). Zahlen des Blatts:
+// YTD Aug 1 332 gegen PL 1 524 = −192, Dez 2 077 gegen 1 990 = +87;
+// R12 aus PY: Jan 1 986, Mär 2 031, Mai 2 072, Jul 2 087, Sep 2 111, Dez 2 077
+// ======================================================================
+{
+  const lnQ = (id, sel) => [...document.querySelectorAll(`#${id} ${sel}`)];
+  const lnSvg = id => [...document.querySelectorAll(`#${id} svg`)].map(x => x.outerHTML).join("\n")
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N");
+  const num = t => Number(String(t).replace("−", "-").replace(/[^\d-]/g, ""));
+  const dv_ = (els, i) => Number(els[i]?.getAttribute("data-v"));
+  const b15M = ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"];
+  const b15Ac = [145,155,178,189,156,165,176,168,null,null,null,null];
+  const b15Fc = [null,null,null,null,null,null,null,null,212,188,189,156];
+  const b15Pl = [170,215,217,217,171,169,176,189,143,127,108,88];
+  const b15Py = [119,140,148,150,154,160,166,170,186,190,188,189];
+  const b15Dv = (chart, opts) => {
+    opts = opts || {};
+    const cols = [col("actual", b15Ac, "#,0"), col("forecast", b15Fc, "#,0"), col("plan", b15Pl, "#,0")];
+    if (!opts.noPy) { cols.push(col("previousYear", b15Py, "#,0")); }
+    if (opts.line) { cols.push(col("lineMeasure", opts.line, "#,0", null, "MAT (Measure)")); }
+    return dataView(b15M, cols, Object.assign({ chart }, opts.objs || {}));
+  };
+  const pts = (id, s) => lnQ(id, `[data-icd="line-pt"][data-scen="${s}"]`);
+
+  // c760: Vorlage C21 komplett (Blatt 07C)
+  addStage("c760", "B15 · C21 komplett (07C): YTD AC/FC gegen PL, R12 aus PY, Monatssäulen, Abstandsmarker −192 und +87", 1280, 640);
+  {
+    runCap("c760", b15Dv({ template: "C21" }), 1280, 640);
+    check(pts("c760", "ac").length === 8 && pts("c760", "fc").length === 4 && pts("c760", "pl").length === 12,
+      `c760: Marken 8 AC, 4 FC, 12 PL (${pts("c760", "ac").length}/${pts("c760", "fc").length}/${pts("c760", "pl").length})`);
+    check(dv_(pts("c760", "ac"), 7) === 1332 && dv_(pts("c760", "pl"), 7) === 1524 && dv_(pts("c760", "fc"), 3) === 2077 && dv_(pts("c760", "pl"), 11) === 1990,
+      "c760: YTD Aug 1332 gegen PL 1524, Dez 2077 gegen 1990");
+    const gm = lnQ("c760", '[data-icd="gap-marker"]');
+    check(gm.length === 2 && gm[0].getAttribute("data-at") === "actual" && Number(gm[0].getAttribute("data-v")) === -192
+      && gm[1].getAttribute("data-at") === "end" && Number(gm[1].getAttribute("data-v")) === 87,
+      `c760: Abstandsmarker ${gm.map(g => g.getAttribute("data-at") + " " + g.getAttribute("data-v")).join(", ")}`);
+    check(lnQ("c760", '[data-icd="line-r12"]')[0]?.getAttribute("data-src") === "py" && lnQ("c760", '[data-icd="line-r12-pt"]').length === 12
+      && lnQ("c760", '[data-icd="line-r12-name"]')[0]?.textContent === "R12", "c760: R12-Linie aus PY mit 12 Punkten, Name R12");
+    check(lnQ("c760", '[data-icd="line-py"]').length === 0 && lnQ("c760", '[data-icd="period-col"]').length === 12,
+      "c760: PY nur R12-Quelle (keine PY-Linie), 12 Periodensäulen");
+    const codes = lnQ("c760", '[data-icd="line-end-code"]').map(t => t.textContent).join(",");
+    const scen = lnQ("c760", '[data-icd="scen-label"]').map(t => t.textContent).join(",");
+    check(codes === "FC,PL" && scen === "AC,FC", `c760: Kürzel am Linienende ${codes}, unter der Achse ${scen}`);
+    check(![...document.querySelectorAll("#c760 text")].some(t => /^ΔPL/.test(t.textContent)), "c760: keine Δ-Panels");
+    // alles im Visual: Kürzel und Marker rechts innerhalb der Breite
+    const right = Math.max(...lnQ("c760", '[data-icd="gap-label"], [data-icd="line-end-code"]').map(t => t.getBBox().x + t.getBBox().width));
+    check(right <= 1280 && right > 1100, `c760: rechter Rand der Marker ${Math.round(right)} px innerhalb 1280`);
+  }
+
+  // c761: R12 aus dem Vorjahr, Werte und Beschriftung
+  addStage("c761", "B15 · R12 aus PY: Jan 1 986, Mär 2 031, Mai 2 072, Jul 2 087, Sep 2 111, Dez 2 077 · Name MAT", 1280, 640);
+  {
+    runCap("c761", b15Dv({ template: "C21", lineR12Label: "MAT" }), 1280, 640);
+    const r = lnQ("c761", '[data-icd="line-r12-pt"]');
+    const want = [[0, 1986], [2, 2031], [4, 2072], [6, 2087], [8, 2111], [11, 2077]];
+    check(want.every(([i, v]) => dv_(r, i) === v) && lnQ("c761", '[data-icd="line-r12"]')[0]?.getAttribute("data-src") === "py",
+      `c761: R12 ${want.map(([i]) => dv_(r, i)).join(" · ")}, data-src=py`);
+    const lbl = lnQ("c761", '[data-icd="line-r12-label"]').map(t => num(t.textContent));
+    check(lbl.length >= 5 && lbl.every(v => want.some(w => w[1] === v)) && [1986, 2031, 2072, 2087, 2111].every(v => lbl.includes(v)),
+      `c761: R12-Beschriftung jeden zweiten Monat (${lbl.join(" · ")}), Dez steht schon am FC-Punkt`);
+    check(lnQ("c761", '[data-icd="line-r12-name"]')[0]?.textContent === "MAT", "c761: Name am Linienanfang MAT");
+    const sq = lnQ("c761", '[data-icd="line-r12-pt"]');
+    check(sq.filter(e => /^url\(/.test(e.getAttribute("fill"))).length === 4 && sq.every(e => e.getAttribute("data-shape") === "square"),
+      "c761: R12-Marken quadratisch, FC-Monate schraffiert");
+  }
+
+  // c762: R12 aus der Linien-Measure, unverändert gezeichnet
+  addStage("c762", "B15 · R12 aus der Linien-Measure (Vorrang vor PY), Werte unverändert", 1280, 640);
+  {
+    const line = [1990, 2000, 2010, 2030, 2040, 2050, 2060, 2070, 2080, 2090, 2095, 2100];
+    runCap("c762", b15Dv({ template: "C21" }, { line }), 1280, 640);
+    const r = lnQ("c762", '[data-icd="line-r12-pt"]');
+    check(lnQ("c762", '[data-icd="line-r12"]')[0]?.getAttribute("data-src") === "measure" && r.length === 12 && line.every((v, i) => dv_(r, i) === v),
+      "c762: data-src=measure, 12 Werte wie geliefert");
+    check(lnQ("c762", '[data-icd="line-py"]').length === 1, "c762: PY ist keine R12-Quelle, die PY-Linie bleibt");
+  }
+
+  // c763: ohne Quelle (kein PY, 12 Monate): keine Linie, Hinweis nur im Bearbeitungsmodus
+  addStage("c763", "B15 · R12 ohne Quelle: keine Linie, Hinweis im Bearbeitungsmodus", 960, 420);
+  addStage("c763b", "B15 · R12 ohne Quelle in der Leseansicht: kein Hinweis", 960, 420);
+  {
+    runCap("c763", b15Dv({ template: "C21" }, { noPy: true }), 960, 420, { viewMode: 1 });
+    runCap("c763b", b15Dv({ template: "C21" }, { noPy: true }), 960, 420, { viewMode: 0 });
+    const h = lnQ("c763", '[data-icd="line-hint"][data-kind="r12"]');
+    check(lnQ("c763", '[data-icd="line-r12"]').length === 0 && h.length === 1 && /R12/.test(h[0].textContent),
+      `c763: keine R12-Linie, Hinweis „${h[0] ? h[0].textContent : "–"}“`);
+    check(lnQ("c763b", '[data-icd="line-hint"]').length === 0 && lnQ("c763b", '[data-icd="line-r12"]').length === 0, "c763b: Leseansicht ohne Hinweis");
+  }
+
+  // c764: Abstandsmarker allein (ohne Säulen, Kreise)
+  addStage("c764", "B15 · Abstandsmarker allein: −192 am letzten Ist-Monat, +87 am Jahresende schraffiert", 1100, 460);
+  addStage("c764b", "B15 · Abstandsmarker nur am letzten Ist-Monat", 1100, 460);
+  {
+    runCap("c764", b15Dv({ orientation: "line", comparisonMode: "plan", cumulative: true, lineGapMarkers: "both",
+      showAbsoluteVariance: false, showRelativeVariance: false }), 1100, 460);
+    const bars = lnQ("c764", '[data-icd="gap-bar"]');
+    const lbl = lnQ("c764", '[data-icd="gap-label"]').map(t => num(t.textContent));
+    check(bars.length === 2 && !/^url/.test(bars[0].getAttribute("fill")) && /^url\(#icd-hatch-good/.test(bars[1].getAttribute("fill"))
+      && lbl[0] === -192 && lbl[1] === 87, `c764: −192 solide (schlecht), +87 schraffiert (gut): ${lbl.join(", ")}`);
+    check(lnQ("c764", '[data-icd="gap-guide"]').length === 4 && lnQ("c764", '[data-icd="period-col"]').length === 0
+      && lnQ("c764", '[data-icd="line-pt"][data-shape="circle"]').length === 12, "c764: je zwei Niveaulinien, keine Säulen, Kreismarken");
+    runCap("c764b", b15Dv({ orientation: "line", comparisonMode: "plan", cumulative: true, lineGapMarkers: "actual" }), 1100, 460);
+    const one = lnQ("c764b", '[data-icd="gap-marker"]');
+    check(one.length === 1 && one[0].getAttribute("data-at") === "actual", "c764b: ein Marker (actual)");
+  }
+
+  // c765: Periodensäulen auf derselben Skala wie die YTD-Linien
+  addStage("c765", "B15 · Monatssäulen gleiche Skala: Höhe Sep ÷ Höhe YTD Dez = 212 ÷ 2 077", 1280, 640);
+  {
+    runCap("c765", b15Dv({ orientation: "line", comparisonMode: "plan", cumulative: true, linePeriodColumns: "same" }), 1280, 640);
+    const cols = lnQ("c765", '[data-icd="period-col"]');
+    const zero = Number(cols[0].getAttribute("y")) + Number(cols[0].getAttribute("height"));
+    const hSep = Number(cols[8].getAttribute("height"));
+    const dez = pts("c765", "fc")[3];
+    const hDez = zero - Number(dez.getAttribute("cy"));
+    const ratio = hSep / hDez;
+    check(cols.length === 12 && Number(cols[8].getAttribute("data-v")) === 212 && Math.abs(ratio - 212 / 2077) < 0.003,
+      `c765: 12 Säulen, Verhältnis ${ratio.toFixed(4)} (Soll ${(212 / 2077).toFixed(4)})`);
+    check(lnQ("c765", '[data-icd="period-col-pl"]').length === 12 && cols.filter(c => /^url/.test(c.getAttribute("fill"))).length === 4,
+      "c765: 12 PL-Umrisse, 4 FC-Säulen schraffiert");
+    check(lnQ("c765", '[data-icd="period-col-label"]').length >= 10, "c765: Säulen beschriftet");
+  }
+
+  // c767: Marken nach Szenario (Quadrate)
+  addStage("c767", "B15 · Quadrate: 8 gefüllt (AC), 4 schraffiert (FC), 12 hohl (PL)", 960, 480);
+  {
+    runCap("c767", b15Dv({ orientation: "line", comparisonMode: "plan", cumulative: true, lineMarkerShape: "square" }), 960, 480);
+    const all = lnQ("c767", '[data-icd="line-pt"]');
+    const fill = e => e.getAttribute("fill");
+    check(all.every(e => e.getAttribute("data-shape") === "square")
+      && pts("c767", "ac").every(e => !/^url/.test(fill(e)) && fill(e) !== "#FFFFFF")
+      && pts("c767", "fc").every(e => /^url/.test(fill(e)))
+      && pts("c767", "pl").every(e => fill(e) === "#FFFFFF"),
+      "c767: AC gefüllt, FC schraffiert, PL hohl");
+    check(lnQ("c767", '[data-icd="line-pl-core"]').length === 0 && lnQ("c767", '[data-icd="line-ac"]').every(l => Number(l.getAttribute("stroke-width")) <= 1.5),
+      "c767: dünne Linien, PL ohne hohlen Kern");
+  }
+
+  // c768: Small Multiples, gleiche Skala, Marker und Säulen nur in großen Kacheln
+  addStage("c768", "B15 · Small Multiples (Nord, Süd) · gleiche Skala, Marker in beiden Kacheln", 1280, 600);
+  addStage("c768b", "B15 · Small Multiples (vier Regionen, 960 × 380) · kompakte Kacheln ohne Marker und Säulen", 960, 380);
+  {
+    const mk = (regs, f) => {
+      const cats = [], mult = [], a = [], fc = [], pl = [], py = [];
+      regs.forEach((r, k) => b15M.forEach((m, i) => {
+        cats.push(m); mult.push(r);
+        const sc = v => v == null ? null : Math.round(v * f[k]);
+        a.push(sc(b15Ac[i])); fc.push(sc(b15Fc[i])); pl.push(sc(b15Pl[i])); py.push(sc(b15Py[i]));
+      }));
+      return dataView(cats, [col("actual", a, "#,0"), col("forecast", fc, "#,0"), col("plan", pl, "#,0"), col("previousYear", py, "#,0")],
+        { chart: { template: "C21" } }, mult);
+    };
+    runCap("c768", mk(["Nord", "Süd"], [1, 0.5]), 1280, 600);
+    const pl = lnQ("c768", '[data-icd="period-col-pl"]');
+    const k = e => Number(e.getAttribute("height")) / Number(e.getAttribute("data-v"));
+    check(pl.length === 24 && Math.abs(k(pl[1]) - k(pl[13])) < 0.02 * k(pl[1]) && lnQ("c768", '[data-icd="gap-marker"]').length === 4,
+      `c768: 2 × 12 PL-Säulen, px je Einheit ${pl.length ? k(pl[1]).toFixed(3) : "–"} / ${pl.length > 13 ? k(pl[13]).toFixed(3) : "–"}, 4 Marker`);
+    runCap("c768b", mk(["Nord", "Süd", "West", "Ost"], [1, 0.5, 0.8, 0.3]), 960, 380);
+    check(lnQ("c768b", '[data-icd="gap-marker"]').length === 0 && lnQ("c768b", '[data-icd="period-col"]').length === 0
+      && lnQ("c768b", '[data-icd="line-pt"]').length > 0, "c768b: kompakte Kacheln ohne Marker und Säulen, Linien bleiben");
+  }
+
+  // c769: Regression, gesetzte Standardwerte zeichnen SVG-gleich wie keine Angabe (C08, mit und ohne YTD)
+  {
+    const dflt = { lineMarkerShape: "circle", lineBasisLabels: false, lineR12: false, lineR12Label: "",
+      linePeriodColumns: "off", lineGapMarkers: "off" };
+    [["c769", false], ["c769c", true]].forEach(([id, cum]) => {
+      addStage(id, `B15 · Regression C08${cum ? " mit YTD" : ""} ohne B15-Angaben`, 960, 380);
+      addStage(id + "d", `B15 · Regression C08${cum ? " mit YTD" : ""} mit ausdrücklichen Standardwerten`, 960, 380);
+      runCap(id, b15Dv({ template: "C08", cumulative: cum }), 960, 380);
+      runCap(id + "d", b15Dv(Object.assign({ template: "C08", cumulative: cum }, dflt)), 960, 380);
+      check(lnSvg(id) === lnSvg(id + "d") && !/data-icd="(line-pt|line-r12|line-end-code|line-basis-label|line-ac|line-py|gap-|period-col)/.test(lnSvg(id)), `${id}: Standardwerte SVG-gleich, keine B15-Marker`);
+    });
+  }
+
+  // c770: Szenario-Kürzel in der Linie (ohne weitere Optionen)
+  addStage("c770", "B15 · C08 + Szenario-Kürzel: AC/FC unter der Achse, FC · PL · PY am Linienende", 960, 400);
+  {
+    runCap("c770", b15Dv({ template: "C08", scenarioLabels: true }), 960, 400);
+    const codes = lnQ("c770", '[data-icd="line-end-code"]').map(t => t.textContent).sort().join(",");
+    check(codes === "FC,PL,PY" && lnQ("c770", '[data-icd="scen-label"]').map(t => t.textContent).join(",") === "AC,FC"
+      && lnQ("c770", '[data-icd="line-pt"][data-shape="circle"]').length === 12, `c770: Kürzel ${codes}, Kreise bleiben`);
+    const bx = lnQ("c770", '[data-icd="line-end-code"]').map(t => t.getBBox()).sort((a, b) => a.y - b.y);
+    check(bx.every((b, i) => i === 0 || b.y >= bx[i - 1].y + bx[i - 1].height - 2), "c770: Kürzel überlappen nicht");
+  }
+
+  // c771: Basis PY, PY bleibt Linie, R12 aus PY, Marker gegen PY
+  addStage("c771", "B15 · C21 mit Basis PY: PY-Linie bleibt, Abstand Aug +125 und Dez +117 gegen PY", 1280, 640);
+  {
+    runCap("c771", b15Dv({ orientation: "line", comparisonMode: "py", cumulative: true, cumulativeKind: "ytd", lineR12: true,
+      linePeriodColumns: "same", lineGapMarkers: "both", lineBasisLabels: true, lineMarkerShape: "square", scenarioLabels: true,
+      showAbsoluteVariance: false, showRelativeVariance: false, showTotal: false }), 1280, 640);
+    const gm = lnQ("c771", '[data-icd="gap-marker"]');
+    check(lnQ("c771", '[data-icd="line-py"]').length === 1 && lnQ("c771", '[data-icd="line-r12"]')[0]?.getAttribute("data-src") === "py"
+      && Number(gm[0]?.getAttribute("data-v")) === 125 && Number(gm[1]?.getAttribute("data-v")) === 117,
+      `c771: PY-Linie, R12 aus PY, Marker ${gm.map(g => g.getAttribute("data-v")).join(", ")}`);
+    check(lnQ("c771", '[data-icd="line-basis-label"]').length > 0 && lnQ("c771", '[data-icd="period-col-pl"]').length === 12
+      && lnQ("c771", '[data-icd="period-col-py"]').length === 0,
+      "c771: PY-Werte beschriftet, PY mit PL als Dreieck an den Säulen (pyTriangle wie in den Säulen)");
+  }
+
+  // c772: R12 aus dem Fenster (24 Monate)
+  addStage("c772", "B15 · R12 aus dem Fenster: 24 Monate, Linie ab dem 12. Monat", 1280, 560);
+  {
+    const cats = [], a = [], p = [];
+    ["25", "26"].forEach((y, k) => b15M.forEach((m, i) => {
+      cats.push(m + " " + y);
+      a.push((b15Ac[i] ?? b15Fc[i]) + 10 * k);
+      p.push(b15Pl[i]);
+    }));
+    runCap("c772", dataView(cats, [col("actual", a, "#,0"), col("plan", p, "#,0")], { chart: { template: "C21" } }), 1280, 560);
+    const r = lnQ("c772", '[data-icd="line-r12-pt"]');
+    check(lnQ("c772", '[data-icd="line-r12"]')[0]?.getAttribute("data-src") === "window" && r.length === 13
+      && dv_(r, 0) === 2077 && dv_(r, 12) === 2197, `c772: Fenster, 13 Punkte ${dv_(r, 0)} … ${dv_(r, 12)}`);
+    const ac = pts("c772", "ac");
+    check(dv_(ac, 11) === 2077 && dv_(ac, 12) === 155, "c772: YTD setzt im Januar 26 zurück (155)");
+  }
+
+  // c773: Dunkel und Hochkontrast
+  addStage("c773", "B15 · C21 im Dark Mode", 1100, 520, "#1E1E1E");
+  addStage("c773b", "B15 · C21 im Hochkontrast", 1100, 520, "#000");
+  {
+    runCap("c773", b15Dv({ template: "C21" }, { objs: { colors: { appearance: "dark" } } }), 1100, 520);
+    runCap("c773b", b15Dv({ template: "C21" }), 1100, 520, { hc: true });
+    check(lnQ("c773", '[data-icd="gap-marker"]').length === 2 && lnQ("c773b", '[data-icd="gap-marker"]').length === 2
+      && lnQ("c773b", '[data-icd="gap-bar"]').every(b => b.getAttribute("fill") === "#FFFF00"), "c773: Marker in Dunkel und Hochkontrast (Tinte)");
+  }
+
+  // c774: kleine Kachel 420 × 300, alles bleibt im Visual
+  addStage("c774", "B15 · C21 klein (420 × 300)", 420, 300);
+  {
+    runCap("c774", b15Dv({ template: "C21" }), 420, 300);
+    const right = Math.max(0, ...lnQ("c774", "text").map(t => t.getBBox().x + t.getBBox().width));
+    check(right <= 421, `c774: rechter Textrand ${Math.round(right)} ≤ 420`);
+  }
+
+  // kein NaN, undefined oder Infinity in den B15-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c7[67]\d[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(lnSvg(id)));
+    check(ids.length >= 18 && bad.length === 0, `c760 bis c774: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B15-END
 </script>
 </body>
 </html>
