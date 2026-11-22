@@ -60,3 +60,11 @@ Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
 | P2 Dossier 10 Wirtschaftslage | Opus | 2026-11-22 | 16,0 min | 247.004 | 79 | `research/pruefung/10_pruefung.md`: 43 geprüft, 38 bestätigt, 3 abweichend, 2 nicht prüfbar; Nachrechnung aus neu abgerufenen Primärdaten (0 bis 0,1 Prozentpunkte); Branchenvergleich selektiv belegt; Bundesbank und Sachverständigenrat am Original gelesen; ifo weiter unlesbar |
 
 **Summe Phase 2:** zehn Opus-Prüfer. 2.542.472 Token. 630 Werkzeugaufrufe. längste Laufzeit 16.0 Minuten (parallel). 428 Werte geprüft: 352 bestätigt. 46 abweichend. 27 nicht prüfbar (die Summen der Einzelberichte; ein Bericht zählt drei Werte ohne Zuordnung).
+
+## Phase 3 · Zusammenführung und Freigabe Teil 1
+
+Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und deinen
+Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
+
+| Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
+|---|---|---|---|---|---|---|
