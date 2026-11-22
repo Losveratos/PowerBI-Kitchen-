@@ -860,7 +860,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "multiplesHero",
         displayName: "First tile large",
         displayNameKey: "Chart_MultiplesHero",
-        description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13).",
+        description: "Gibt der ersten Kachel (z. B. „Σ Gesamt\" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). Mit einem gefundenen Namen unter „Große Kachel (Gruppenname)“ ist diese Kachel groß, der Schalter wirkt dann nicht.",
         descriptionKey: "Desc_Chart_MultiplesHero",
         value: false
     });
@@ -870,7 +870,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "multiplesHeroTile",
         displayName: "Large tile (group name)",
         displayNameKey: "Chart_MultiplesHeroTile",
-        description: "Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“. Die Kachel bleibt in ihrer Spalte und reicht über zwei Zeilen, die übrigen Kacheln füllen die freien Plätze. Große und kleine Kacheln zeigen dieselben Pixel je Einheit: die große Kachel nimmt den Ausreißer auf, die kleinen skalieren auf ihre eigenen Werte. Auch mit „Nur Abweichungs-Panel“ (eine Δ-Skala). Nur Säulen, Balken und Linie (ohne Stapel und Brücke). Leer oder unbekannter Name = bisheriges Verhalten.",
+        description: "Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“. Die Kachel bleibt an ihrem Platz und reicht bei Säulen und Linie über zwei Zeilen, bei Balken über zwei Spalten; die übrigen Kacheln füllen die freien Plätze. Große und kleine Kacheln zeigen dieselben Pixel je Einheit, auch in den Abweichungs-Panels: die große Kachel nimmt den Ausreißer auf, die kleinen skalieren auf ihre eigenen Werte. Gelingt der Angleich nicht, bleibt das bisherige Raster. Auch mit „Nur Abweichungs-Panel“ (eine Δ-Skala). Der Zoom zeigt eine Kachel auf ihrer eigenen Achse. Nur Säulen, Balken und Linie (ohne Stapel und Brücke). Leer oder unbekannter Name = bisheriges Verhalten.",
         descriptionKey: "Desc_Chart_MultiplesHeroTile",
         placeholder: "Berlin",
         value: ""

@@ -21,26 +21,42 @@ ohne Stack-Series, `waterfallStyle` und Serienlinien, auch unter `varianceOnly`)
 Name trim + toLowerCase gegen `shown[].name` (Bezugs- und Rest-Kachel über ihren Titel). `heroSpanLayout()` (vor
 dem Zoom-Zweig im Raster von `render`) liefert null (bisheriges Layout, SVG-gleich) bei leerem/unbekanntem Namen,
 anderen Modi oder wenn eine Rasterkachel unter `varianceOnly` nicht Δ-only zeichnet (`varOnlyDrawn`); dann gilt
-`heroOn` wie bisher (unter `varianceOnly` aus). Raster: `cols` nach der alten Regel über n + 1 Plätze, große Kachel
-in Spalte `hi % cols`, Zeile `min(⌊hi/cols⌋, rows − 2)`, zwei Plätze belegt; übrige der Reihe nach in die freien
+`heroOn` wie bisher (unter `varianceOnly` aus). Raster über n + 1 Plätze (Spaltenwahl im Review-Stand), große Kachel
+in Spalte `hi % cols`, Zeile `min(⌊hi/cols⌋, rows − 2)` (Balken: zwei Spalten, Review-Stand), zwei Plätze belegt; übrige der Reihe nach in die freien
 Plätze, Bezugskachel bei `multiplesTotalPos=last` auf den letzten freien. Domains je Kachel als Override:
 `renderCell(grp, region, dom)` → `renderChart(…, { ...domains, ...dom })`; `domOf(gs)` rechnet `main` wie das Deck
 (value/py/pl/fc/bm, B15-Linienspalten, `fixedMax`/`capMax`, `refLine`) und Δ-Domains (dual vereinigt, `fixedVarMax`).
-Normal: große Kachel `main`/`rel`/`rel2` aus eigenen Punkten, Raster aus allen anderen Gruppen; `abs`/`abs2` bleiben
-die Deck-Domains (gleicher Zoom von `sameScaleSplit`). Δ-only: nur `abs`/`rel`, Raster über `shown` ohne große Kachel
+Normal: große Kachel `main`/`abs`/`rel`/`abs2`/`rel2` aus eigenen Punkten, Raster aus allen anderen Gruppen. Δ-only: nur `abs`/`rel`, Raster über `shown` ohne große Kachel
 und ohne `kind === "total"`; ist die große Kachel die Bezugskachel, kein Override. Angleich: `measure()` per
 `measureScaleK` liest `this.lastPanelK` ({main, abs, rel}, gesetzt in `renderChartBody` nach dem `refOwn`-Block);
-für `main` und `rel` (Δ-only: `abs` und `rel`) wird die Seite mit größerem k um f gestreckt (Sekante auf 1/k, bis
-6 Schritte, Toleranz 2e-4). Peer = erste Gruppen-Kachel ohne `kind`. `heroPeer` (Closure in `render`): die
+die Seite mit größerem k wird um f gestreckt (Verfahren und Prüfung im Review-Stand). Peer = erste Gruppen-Kachel ohne `kind`. `heroPeer` (Closure in `render`): die
 Bezugskachel einer Δ-only-Ansicht misst ihren Peer (nicht die große Kachel) in `peerRegion` auf der Raster-Domain;
-im Zoom ist `heroPeer` null (Peer auf der Zoomfläche wie bisher). Zoom: `kGrid` in eigenem Platz, Zoom mit derselben
-Domain. Testmarker `mult-hero` je Kachel (`data-role` hero/peer/tile, `data-group`, `data-kind`, `data-px-per-unit`
+im Zoom ist `heroPeer` null (Peer auf der Zoomfläche wie bisher). Zoom: `kGrid` in eigenem Platz, Zoom auf der ungestreckten
+Domain (`nat`, `regNat`). Testmarker `mult-hero` je Kachel (`data-role` hero/peer/tile, `data-group`, `data-kind`, `data-px-per-unit`
 (Δ-only: Δ, sonst Werte), `data-px-per-unit-abs`, `data-px-per-unit-rel`, `data-col`, `data-row`, `data-rows`,
 `data-x/y/w/h`). Rezept 13B: Rezept 13A ohne Top N, Gruppen in Blattreihenfolge + `multiplesHeroTile=Berlin`;
 13C/13D zusätzlich `multiplesBasis=avg` + `varianceOnly`. Tests c533 bis c545 (Hash aller 756 Bestands-Stufen gleich).
 967 resjson-Keys je Sprache (+2: `Chart_MultiplesHeroTile`, `Desc_Chart_MultiplesHeroTile`).
-Offen: Top N sortiert nach Größe, die große Kachel landet dann vorn (freie Position nur über die Datenreihenfolge);
-Balken gewinnen durch die doppelte Höhe nur Zeilenhöhe, die Werteachse ist ohnehin gleich breit.
+Offen: Top N sortiert nach Größe, die große Kachel landet dann vorn (freie Position nur über die Datenreihenfolge).
+**Review-Stand (B13 Teil 1b):** `heroSpanLayout(…, orient, …)`. Spaltenwahl: `c` von 1 bis `⌊width/220⌋`, Zeilen
+`⌈(n+1)/c⌉` (≥ 2, Balken `c` ≥ 2), Seitenverhältnis der Zelle 0,5 bis 4 (alte Regel `oldC` immer zulässig), unter
+`varianceOnly` nur Zellen, die Δ-only zeichnen (Säulen Region ≥ 110 px hoch, Balken ≥ 240 px breit); Wertung
+[leere Plätze, |c − oldC|, −c]. Balken: große Kachel `hero: 1 Zeile × 2 Spalten`, Spalte `min(hi % cols, cols − 2)`.
+Domains je Seite für `main`, `abs`, `rel`, `abs2`, `rel2` (Δ-only `abs`, `rel`), `hNat`/`rNat` ungestreckt. Nulllinie
+(m4): `aligned` = `main` (normal) bzw. `abs`/`rel` (Δ-only), wenn die große Kachel nach unten in die kleine passt;
+gestreckt wird dann nur oben, die untere Grenze so, dass |lo| + 2 % der Spanne der kleinen gleicht (`makePanelScale`);
+braucht die große Kachel selbst mehr Platz, fällt `aligned` weg. Fits normal: `main` (streckt `main`, `abs`, `abs2`
+gemeinsam), `abs` (`abs`, `abs2`), `rel` (`rel`, `rel2`); Δ-only: `abs`, `rel`. Je Fit Klammersuche auf dem gemessenen k
+(Sekante auf 1/k in der Klammer, sonst Bisektion, jeder dritte Schritt Bisektion, bis 16 Schritte, Toleranz 2e-4),
+gesetzt wird das beste gemessene f. Bis zu vier Durchgänge; je Durchgang `deckZoom` = kleinerer der natürlichen
+Δ-Zooms beider Seiten (`lastPanelK.zoom`, nur bei Gleichmaßstab-Aufteilung, `sameUsed`), als `this.spanZoom` an
+`splitPanelsSameScale(…, forceZoom)` → `sameScaleSplit(…, forceZoom)` für alle Kacheln. `measure(side, dom)` mit
+Cache (Seite + JSON der Domains + Zoom). Schlussprüfung: Werte, Δ, Δ % beider Seiten (wo beide zeichnen) auf 1e-3,
+sonst `null` (bisheriges Raster); als große Bezugskachel im Δ-only entfällt der Vergleich. `mult-hero` zusätzlich mit
+`data-cols`. Tests c546 bis c554 (Repro A bis D, m1 bis m6), unabhängige Messung über `hbIndep` (Säule, Balken,
+Δ-Balken, Pin, Linie; ΔØ exakt aus den Daten). Fuzz des Reviews 1488 Fälle: 0 ungleich, 1 Rückfall (Δ-only-Balken mit Δ und Δ %, 14 Gruppen, 1100 × 560). Nicht
+umgesetzt (n5, außerhalb des Auftrags): Jahre an jeder zweiten Kategorie, Kachelrahmen, Führungslinien nur an
+beschrifteten Kategorien, „ΔØ“ rechts an der Nulllinie.
 
 *B20 · Marimekko (nach IBCS-Blatt 02F).* Objekt `chart`, Gruppe „Darstellung“: `stackThickness` (`equal` | `total`, Standard `equal`, Keys `Chart_StackThickness_Equal`/`_Total`) und `stackShareColumn` (bool, Standard false), beide im Formatbereich nur bei `orientation=bars` mit `stackNormalize=pct100`. Wirkung: `cfg.stackMekko` nur bei gestapelten Balken mit wirksamem 100 % (`stackNormOk`, keine negative Zelle) und `total`; `cfg.stackShareCol` bei 100-%-Balken. Beide bleiben ohne Option ungesetzt (kein neuer Zweig, SVG-gleich). Keine neue Rolle, Summen, Anteile und Dicken rechnet `renderStacked` je Kachel. Geometrie: `layout()` liefert `slotY(s)`, `slotH(s)`, `barW(i)`, `rowH(i)`; bei `equal` exakt `bandStart + s * step`, `step`, `slotW` (Hash aller 701 Stufen gleich, Commit 089e8f4). Bei `total`: `H = n · step` wird nach `rawPos` verteilt, Mindestdicke 3 px (Hochkontrast 5) per Wasserfüllung (`mkClamped`), `mkTooMany` wenn `n · min > H` (dann gleich verteilt und Hinweis `stack-mekko-hint`, `Hint_MekkoTooManyRows`, nur Bearbeitung). Σ-Zeile, Zwischensummen und Blockabstand behalten `step`; Zeilenbalken `h − 1` ab `slotY + 0,5` (Haarlinie). Zeilen mit Summe ≤ 0 werden vorab entfernt. Segmente und Σ-Mix zeigen `cfg.fmt` der Werte (3-Ziffern-Regel) mit `data-v`, nur bei Zeilenhöhe ≥ `lf + 2` und Breite ≥ Textmaß + 4, sonst `stack-mekko-skip` (`data-kind="seg"`); Tooltip-Zeile `Tooltip_ShareOfTotal`. Namen (`mkNames`) und Spaltenzahlen (`mkNums`) per `mkPlace(font)`: Σ-Zeile und Zwischensummen vorab belegt, dann Hervorhebung, Rest, dickste Zeile, dann von oben; Abstand ≥ 1,15 · Schrift. Seriennamen im Marimekko über `directNames` mit `ci = 0` in der Schlüsselzeile. Pfeil und `stack-row-share` (B10 Teil 2) im Marimekko aus. Spalten: `sideBase` = bisheriges Panel (`kSide` nur daraus), `shColW`/`totColW` aus Textmaß; Marimekko ersetzt das Panel durch `stack-total-col` (Kopf `panelHead`, `stack-total-num`, `stack-block-grand`, `stack-total-grand` mit `data-total`), die Anteilsspalte `stack-share-col` (`stack-share` mit `data-share`/`data-i`, `stack-share-block`, `stack-share-grand` „100 %“) entfällt zuerst, wenn beide mehr als 30 % der Breite brauchen; mit Anteilsspalte keine Block-Ellipsen im Panel. Wurzel `data-thickness="total"`, Zeilenmarker `stack-mekko-row` (`data-cat`, `data-total`, `data-h`, `data-clamped`). Vorlage C25 (02F, Gruppe `structure` nach C02, braucht `series`, Miniatur `mekko`): orientation=bars · stackNormalize=pct100 · stackThickness=total · stackShareColumn · showTotal · stackTotalRow · sortMode=ac · stackLegendDirect · showAbs/showRel/dualVariance=false; `applyChartTemplate` setzt `sortModeStored`, wenn die Vorlage `sortMode` enthält. 942 resjson-Keys je Sprache. Tests c960 bis c985 (c222/c230: 22 Vorlagen). Offen: Säulen-Marimekko, gemeinsame Dickenskala bei `multiplesSameScale`, dwg-Katalog und Showcase für C25.
 
@@ -853,7 +869,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | --- | --- | --- | --- |
 | `multiplesTotal` | bool | `false` | Stellt eine „Σ Gesamt"-Kachel voran — Summe über alle Gruppen, auf derselben Skala (IBCS). |
 | `multiplesTopN` | numeric | `0` | Bereich 0–24 — Zeigt nur die N größten Gruppen (nach Summe AC) als Kacheln — die übrigen werden zu einer „Rest"-Kachel aggregiert. 0 = alle. |
-| `multiplesHero` | bool | `false` | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13). |
+| `multiplesHero` | bool | `false` | Gibt der ersten Kachel (z. B. „Σ Gesamt" oder der größten Gruppe) mehr Platz — alle Kacheln behalten dieselbe Skala (IBCS CT 13) … |
 | `multiplesHeroTile` | text | leer | Name der Gruppe, die groß gezeigt wird (Groß-/Kleinschreibung egal, auch der Titel der Bezugs- oder Rest-Kachel), unabhängig vom Schalter „Erste Kachel groß“ … |
 | `multiplesSameScale` | bool | `false` | Skaliert auch die Brücken-Modi (Integrierte Brücke, Kategorie-Brücke) über alle Kacheln identisch (IBCS). Standard: aus — jede Brücken-Kachel skaliert für sich. Säulen, Balken und Wasserfall teilen sich die Skala immer. |
 | `multiplesAgg` | enum | `sum` | `sum` · `mean` — Was die Bezugskachel und die Rest-Kachel zeigen: die Summe der Gruppen (Standard) oder ihren Durchschnitt … |
