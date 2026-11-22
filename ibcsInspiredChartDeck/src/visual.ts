@@ -1274,6 +1274,12 @@ export class Visual implements IVisual {
     /** 1.56 (B13 part 2): the last drawn chart was a Δ-only tile with an absolute Δ
      *  panel (lastScaleK is then its px per unit) */
     private varOnlyAbsK = false;
+    /** 1.56 (B13 part 2 review, M2): the last drawn chart really was a Δ-only tile (not
+     *  the fallback to the normal view of a too small tile) */
+    private varOnlyDrawn = false;
+    /** 1.56 (B13 part 2 review, M2): the Δ domains of the normal view (incl. a summed
+     *  Σ tile's Δ) — a tile that falls back to the normal view draws on them */
+    private varOnlyNormal: { abs: [number, number]; rel: [number, number] } | null = null;
     /** 1.52: px per value unit of the last drawn base panel (zoom scale note) */
     private lastScaleK: number | null = null;
     /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
@@ -2273,8 +2279,15 @@ export class Visual implements IVisual {
             && !((orient === "columns" || orient === "bars")
                 && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true));
         // 1.56 (B13 part 2): Δ-only tiles for columns/bars without stack and bridge
+        // review n3: without a Δ panel (absolute and relative off) it has nothing to show;
+        // while it is on, the hero tile and the dual variance are off and hidden (m1)
         fs.chartCard.varianceOnly.visible = !isScatter && (orient === "columns" || orient === "bars")
-            && this.seriesName == null && fs.chartCard.waterfallStyle.value !== true;
+            && this.seriesName == null && fs.chartCard.waterfallStyle.value !== true
+            && (fs.chartCard.showAbsoluteVariance.value === true || fs.chartCard.showRelativeVariance.value === true);
+        if (fs.chartCard.varianceOnly.visible && fs.chartCard.varianceOnly.value === true && this.paneHasMultiples) {
+            fs.chartCard.multiplesHero.visible = false;
+            fs.chartCard.dualVariance.visible = false;
+        }
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table"
             || orient === "stockflow";
@@ -3046,9 +3059,10 @@ export class Visual implements IVisual {
         return /^[-−]/.test(t) ? "−" + t.slice(1) : t.charAt(0) === "(" ? t : "−" + t;
     }
 
-    private fmtPercent(v: number): string {
+    private fmtPercent(v: number, whole = false): string {
         // 1.52: at most 3 digits ("+123%", not "+123,4%"); an exact zero is unsigned
-        const dec = Math.abs(v) >= 99.95 ? 0 : 1;
+        // 1.56 (B13 part 2 review, m4): whole percent in Δ-only tiles (sheet 13D)
+        const dec = whole || Math.abs(v) >= 99.95 ? 0 : 1;
         const nf = new Intl.NumberFormat(this.host.locale, {
             minimumFractionDigits: dec, maximumFractionDigits: dec
         });
@@ -3070,9 +3084,9 @@ export class Visual implements IVisual {
     }
 
     /** Δ% label text: the percentage, "n.a." for a non-interpretable basis, else "" */
-    private relText(p: DataPoint, second = false): string {
+    private relText(p: DataPoint, second = false, whole = false): string {
         const v = second ? p.var2Rel : p.varRel;
-        return v != null ? this.fmtPercent(v) : this.relNa(p, second) ? REL_NA : "";
+        return v != null ? this.fmtPercent(v, whole) : this.relNa(p, second) ? REL_NA : "";
     }
 
     /** self-styled hover tooltip while dark mode is active. The host tooltip keeps
@@ -6031,6 +6045,7 @@ export class Visual implements IVisual {
         this.exceptionNoop = false;
         this.avgRows = false;
         this.refTileNoDelta = false;
+        this.varOnlyNormal = null;
         // scatter v3: a running play animation or drag-select must not outlive the
         // DOM it manipulates (the svg was just cleared above)
         if (this.scatterAnim?.raf != null) { cancelAnimationFrame(this.scatterAnim.raf); }
@@ -6866,6 +6881,8 @@ export class Visual implements IVisual {
         // 1.56 (B13 part 2): Δ-only tiles share ONE Δ scale over the drawn tiles that
         // show a Δ; the reference tile draws columns (its Σ Δ must not squash the rest)
         if (cfg.varianceOnly) {
+            // review M2: a tile that falls back to the normal view keeps the normal Δ scale
+            this.varOnlyNormal = { abs: domains.abs, rel: domains.rel };
             const vPts = shownGroups.filter(g => g.kind !== "total").flatMap(g => g.pts);
             domains.abs = extent(vPts.map(p => p.varAbs));
             domains.rel = extent(vPts.map(p => p.varRel));
@@ -7097,20 +7114,32 @@ export class Visual implements IVisual {
             // 1.56 (B13 part 2): the reference tile of a Δ-only deck keeps its columns
             // (sheets 13C/13D), on the px per unit of a group tile's ΔØ panel when that
             // fits (measured on a group tile of the same size), else a round reduction
+            // Review M1: the peer is measured in the region of this very tile; the hero
+            // layout is off under varianceOnly, so that is always a regular grid cell (or
+            // the zoom area, where the zoomed group tile draws on the same size).
+            // Review M2: only when the peer really drew just its Δ; a peer that fell back
+            // to the normal view leaves the reference tile in the normal view as well
             if (cfg.varianceOnly && (grp as { kind?: string }).kind === "total") {
                 const peer = shownGroups.find(g => g.kind !== "total");
                 let kDelta: number | null = null;
-                this.refTileNoDelta = false;
-                if (peer && cfg.showAbs) {
+                let peerVo = false;
+                if (peer) {
+                    this.refTileNoDelta = false;
                     kDelta = this.measureScaleK(() => this.renderChart(peer.pts, region, cfg, domains, null));
+                    peerVo = this.varOnlyDrawn;
                     if (!this.varOnlyAbsK) { kDelta = null; }
+                    this.refTileNoDelta = multBasisAvg;
                 }
-                this.varOnlyRef = { kDelta };
-                this.renderChart(grp.pts, region, { ...cfg, varianceOnly: false, showAbs: false, showRel: false, showDual: false },
-                    domains, null);
-                this.varOnlyRef = null;
-                this.refTileNoDelta = false;
-                return;
+                if (peerVo) {
+                    this.refTileNoDelta = false;
+                    this.varOnlyRef = { kDelta };
+                    // review n5: a Σ header over averages says nothing (Ø tile, mean)
+                    this.renderChart(grp.pts, region, { ...cfg, varianceOnly: false, showAbs: false, showRel: false,
+                        showDual: false, showTotal: cfg.showTotal && mAgg !== "mean" }, domains, null);
+                    this.varOnlyRef = null;
+                    this.refTileNoDelta = false;
+                    return;
+                }
             }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
             this.refTileNoDelta = false;
@@ -7329,7 +7358,9 @@ export class Visual implements IVisual {
         // hero layout (IBCS CT 13): the first tile — Σ Gesamt or the largest group —
         // gets a full-height cell on the left, the rest form a grid beside it; the
         // shared scale is untouched, only the allotted space differs
-        const heroOn = s.chartCard.multiplesHero.value && n >= 2 && width >= 460;
+        // 1.56 (B13 part 2 review, m1): not in a Δ-only deck — a bigger hero tile would
+        // draw its Δ on a different px per unit than the rest (one Δ scale)
+        const heroOn = s.chartCard.multiplesHero.value && n >= 2 && width >= 460 && !cfg.varianceOnly;
         const heroW = heroOn ? Math.round(Math.min(Math.max(width * 0.42, 250), width * 0.55)) : 0;
         const gridX = heroW;
         const gridW = width - heroW;
@@ -17361,16 +17392,24 @@ export class Visual implements IVisual {
         const varOnlyWant = cfg.varianceOnly === true;
         const varOnly = varOnlyWant && (orientation === "columns" ? region.h >= 110 : region.w >= 240);
         const refOwn = this.varOnlyRef;
-        // comments, highlight band and difference markers are off in the whole deck
-        const voDeck = varOnly || varOnlyWant || refOwn != null;
+        // comments, highlight band and difference markers are off in the whole Δ-only
+        // deck (review M2: a tile that falls back to the normal view keeps them)
+        const voDeck = varOnly || refOwn != null;
         this.varOnlyAbsK = false;
+        this.varOnlyDrawn = varOnly;
+        if (varOnlyWant && !varOnly && this.varOnlyNormal) {
+            domains = { ...domains, abs: this.varOnlyNormal.abs, rel: this.varOnlyNormal.rel };
+        }
         if (refOwn) {
             // own value domain of the reference tile (zero-based like the deck domain)
             const own = extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm]));
             if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
                 own[0] = Math.min(own[0], cfg.refLine); own[1] = Math.max(own[1], cfg.refLine);
             }
-            if (cfg.capMax != null) { own[1] = Math.min(own[1], cfg.capMax); }
+            // review n1: a fixed maximum of the value axis holds here too (the only
+            // value axis of the deck); with capping it is the hard end
+            const fixedMax = this.formattingSettings.scaleCard.fixedMax.value ?? 0;
+            if (cfg.capMax != null) { own[1] = cfg.capMax; } else if (fixedMax > 0) { own[1] = Math.max(own[1], fixedMax); }
             domains = { ...domains, main: own };
         }
 
@@ -17479,7 +17518,7 @@ export class Visual implements IVisual {
             : barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
                 points.map(p => p.varAbs), 0);
         const relPadB = varOnly
-            ? barPad(labelPad, domains.rel.map(v => this.fmtPercent(v)), domains.rel, rPin + 3)
+            ? barPad(labelPad, domains.rel.map(v => this.fmtPercent(v, true)), domains.rel, rPin + 3)
             : barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
         const abs2PadB = barPad(labelPad, points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : ""),
             points.map(p => p.var2Abs), 0);
@@ -17564,7 +17603,7 @@ export class Visual implements IVisual {
             : plOnly(points[i]) ? cfg.fmt.format(points[i].pl as number) : "");
         const absTexts = points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : "");
         // "n.a." texts for a basis ≤ 0 (UN 4.1) take part in the label thinning too
-        const relTexts = points.map(p => this.relText(p));
+        const relTexts = points.map(p => this.relText(p, false, varOnly));
         const abs2Texts = points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : "");
         const rel2Texts = points.map(p => this.relText(p, true));
         const showValueAt = this.labelPredicate(points, valueTexts, cfg.labelFont, step, orientation, labelLevel);
@@ -17592,7 +17631,7 @@ export class Visual implements IVisual {
                 "data-panels": [absScale ? "abs" : "", relScale ? "rel" : ""].filter(x => x).join(",")
             }, this.svg);
         } else if (varOnlyWant) {
-            this.el("g", { "data-icd": "var-only-fallback" }, this.svg);
+            this.el("g", { "data-icd": "var-only-fallback", "data-px-per-unit": (this.lastScaleK ?? 0).toFixed(4) }, this.svg);
         }
         // the reference tile: columns on the px per unit of the group tiles' Δ panel
         // when they fit, else a round reduction named in the title ("×0,5")
@@ -18116,7 +18155,13 @@ export class Visual implements IVisual {
                 this.drawBar(g, vx, vw, 0, p.varAbs, absScale, orientation,
                     p.varPlan
                         // 1.55 (B13): plan against plan, outlined with a pale fill (sheet 13C)
-                        ? (cfg.hc ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4, "data-icd": "var-plan" }
+                        // 1.56 (B13 part 2 review, m2): high contrast keeps good = filled and
+                        // bad = hollow; the plan signature is a dashed edge (paper dashes cut
+                        // into a filled bar, a dashed outline around a hollow one)
+                        ? (cfg.hc
+                            ? (hollowBad || p.varAbs === 0
+                                ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4, "stroke-dasharray": "3 2", "data-icd": "var-plan" }
+                                : { fill: color, stroke: cfg.paper, "stroke-width": 1.4, "stroke-dasharray": "3 2", "data-icd": "var-plan" })
                             : { fill: color, "fill-opacity": 0.12, stroke: color, "stroke-width": 1.2, "data-icd": "var-plan" })
                         : hollowBad
                         ? { fill: cfg.paper, stroke: color, "stroke-width": 1.4 }
@@ -18140,14 +18185,21 @@ export class Visual implements IVisual {
                 const r = Math.max(2.5, Math.min(4.5, slotW * 0.12));
                 const hollowPin = p.isFc || p.varPlan === true || (cfg.hc && !good && p.varRel !== 0);
                 // 1.55 (B13): plan-against-plan pins carry the var-plan marker (hollow head)
-                const headAttrs: Record<string, string | number> = p.varPlan
+                // 1.56 (B13 part 2 review, m2): high contrast keeps the good/bad head
+                // (filled/hollow), the plan signature is a dashed stem
+                const hcPlan = cfg.hc && p.varPlan === true;
+                const headAttrs: Record<string, string | number> = hcPlan
+                    ? { fill: good && p.varRel !== 0 ? color : cfg.paper, stroke: color, "stroke-width": 1.6, "data-icd": "var-plan" }
+                    : p.varPlan
                     ? { fill: cfg.paper, stroke: color, "stroke-width": 1.6, "data-icd": "var-plan" }
                     : { fill: hollowPin ? cfg.paper : color, stroke: color, "stroke-width": 1.6 };
+                const stem: Record<string, string | number> = hcPlan
+                    ? { stroke: color, "stroke-width": 1.6, "stroke-dasharray": "3 2" } : { stroke: color, "stroke-width": 1.6 };
                 if (orientation === "columns") {
-                    this.el("line", { x1: c, y1: zero, x2: c, y2: end, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("line", { x1: c, y1: zero, x2: c, y2: end, ...stem }, g);
                     this.pinHead(g, c, end, r, "round", cfg.pinStyle, headAttrs);
                 } else {
-                    this.el("line", { x1: zero, y1: c, x2: end, y2: c, stroke: color, "stroke-width": 1.6 }, g);
+                    this.el("line", { x1: zero, y1: c, x2: end, y2: c, ...stem }, g);
                     this.pinHead(g, end, c, r, "round", cfg.pinStyle, headAttrs);
                 }
                 if (cfg.showLabels && showRelAt(i)) {
@@ -18238,7 +18290,8 @@ export class Visual implements IVisual {
                 const gl = this.el("g", { "data-icd": "var-only-guides" }, bg);
                 points.forEach((p, i) => {
                     const v = low.abs ? p.varAbs : p.varRel;
-                    if (v == null) { return; }
+                    // review n4: only where the category row carries a label
+                    if (v == null || !(showCatAt(i) || this.isEmph(cfg, p.cat))) { return; }
                     const labelOn = cfg.showLabels && (low.abs ? showAbsAt(i) : showRelAt(i));
                     const y1 = v >= 0 ? low.scale(0) + 3
                         : low.scale(v) + (low.abs ? 0 : rHead + 3) + (labelOn ? cfg.labelFont + 5 : 3);

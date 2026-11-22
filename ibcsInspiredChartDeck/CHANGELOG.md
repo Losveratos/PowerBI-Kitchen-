@@ -25,6 +25,21 @@
     c710. 838 resjson-Keys je Sprache. Abweichungen zu den Blättern: Berlin über zwei Zeilen (13B-Heldenkachel) fehlt,
     Panel-Titel „ΔØ“ oben links statt rechts an der Nulllinie, Kategoriebeschriftung nach Platz statt fest jedes
     sechste Jahr.
+  - **Nach dem Review:** Kacheln, die zu klein für die Δ-Ansicht sind, zeigen jetzt wirklich die normale Ansicht.
+    Vorher nahm die Bezugskachel dort eine eigene, nicht ausgewiesene Skala, die Δ-Skala ließ eine summierte
+    Σ-Abweichung weg und Kommentar-Marken, Hervorhebungsband und Differenzmarker fehlten; jetzt fällt die Bezugskachel
+    mit zurück und alles ist SVG-gleich mit der Ansicht ohne Option (`var-only-fallback` trägt `data-px-per-unit`).
+    Die Heldenkachel ist in der Δ-only-Ansicht aus und im Formatbereich ausgeblendet, ebenso die doppelte Abweichung:
+    Eine größere Heldenkachel zeichnete Δ auf anderem px-Wert je Einheit, und als Bezugskachel maß sie ihren Peer in
+    der Heldenzelle („×0,5“ im Titel statt des wahren ×1,32); jetzt misst die Bezugskachel immer eine Gitterkachel
+    gleicher Größe (im Zoom die gezoomte Gruppe). Δ % steht in Δ-Kacheln ganzzahlig (Blatt 13D, vorher eine
+    Nachkommastelle mit überlappenden Labels bei Dichte „alle“). Hochkontrast: Plan-Δ mit gestricheltem Rand (Balken)
+    bzw. Stiel (Pins), günstige bleiben gefüllt (vorher wie ungünstiges Δ hohl). Hilfslinien nur an beschrifteten
+    Kategorien. Die Bezugskachel beachtet ein festes Maximum der Werteachse (`scale.fixedMax`, mit Kappung als hartes
+    Ende) und zeigt bei Mittelwert-Aggregation keinen Σ-Kopf mehr. Der Schalter ist ohne absolute und relative
+    Abweichung ausgeblendet. Die Hervorhebung als Ellipse bleibt in den Δ-Kacheln (13C markiert Zahlen, nur das Band
+    entfällt). Tests c711 bis c725; geändert: c701 (Standarddichte, ganzzahlige Δ %), c705 (Ø-Kachel ohne „Σ 100“),
+    c706 (Bezugskachel fällt mit zurück), c709 (Hochkontrast-Signatur).
 
 - **B10 Teil 2 · Stapel-Blöcke mit Zwischensummen (nach IBCS-Blatt 02A).** Vorher: Gestapelte Balken mit Kategorie-Hierarchie (Region › Land) zeigten jede Zeile als „Europe · Switzerland“ in einer Liste, Sortierung und Top N wirkten über alle Zeilen, und es gab keine Zwischensumme je Region, keinen Blockanteil und keine Pfeile. Nachher (Format Chart → Darstellung, nur Balken mit Hierarchie):
   - **„Stapel-Blöcke“** (`chart.stackBlocks`: `off` | `gap` | `subtotals` | `subtotalsButLast`, Standard `off`): Die erste Kategorie-Ebene bildet Blöcke, die Zeilen zeigen nur die unteren Ebenen („Switzerland“, bei drei Ebenen „DACH · Switzerland“). „Abstand zwischen Blöcken“ setzt eine halbe Zeile zwischen die Blöcke; „Zwischensumme je Block“ hängt unter jeden Block eine fette Summenzeile mit Linie, Blockname, Summe je Serie (Farbfeld) und Blocksumme („Europe 1.120 · 1.107 · 871 = 3.098“), bei 100 % einen Balken mit dem Blockmix; „Zwischensummen außer letztem Block“ lässt sie am letzten Block weg (wie 02A, dort folgt die Σ-Zeile). Ein Block mit gemischten AC-, FC- und PL-Zeilen bekommt keine Zwischensumme (Regel der Σ-Zeile). Sortierung und Top N wirken je Block, „Rest (n)“ bleibt im Block, die Blöcke folgen bei Sortierung der Blocksumme (absteigend), sonst der Datenreihenfolge; Rest-Zeilen („Rest of Europe“) erkennt die Regel am Blattnamen. Mit Blöcken entfallen die Anteils-Klammer und die Gruppentrenner (`groupEvery`); Differenzmarker finden Zeilen auch über den Blattnamen. Im Summen-Panel bei 100 % steht in der Zwischensummen-Zeile nur die fette Blocksumme.

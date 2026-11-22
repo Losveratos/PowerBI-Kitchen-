@@ -4748,8 +4748,9 @@ addStage("c700", "13C · nur ΔØ je Standort (gemeinsame Δ-Skala), Ø-Kachel m
 addStage("c701", "13D · nur ΔØ % je Standort (Pins), Ø-Kachel mit Säulen", 1280, 720);
 {
   const { regions, years } = avg18;
+  // review m4: default label density (with "all" small locations with +273 % pile up)
   runCap("c701", avgDv(regions, vo13({ showAbsoluteVariance: false, showRelativeVariance: true }),
-    { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" }, labels: { labelDensity: "all" } } }), 1280, 720);
+    { years, objs: { ibcsTitle: { kpi: "Nettogewinn", unit: "kEUR" } } }), 1280, 720);
   nbSane("c701");
   const px = voPx("c701");
   check(px.length === 15 && px.every(k => k === px[0]) && nbQ("c701", '[data-icd="var-only"]').every(g => g.getAttribute("data-panels") === "rel"),
@@ -4761,6 +4762,11 @@ addStage("c701", "13D · nur ΔØ % je Standort (Pins), Ø-Kachel mit Säulen", 
   check(!!ref && ref.getAttribute("data-k-delta") === "" && ref.getAttribute("data-factor") === "1",
     "c701: ohne absolutes Δ eigene Skala der Bezugskachel ohne Faktor");
   check(nbTexts("c701").includes("ΔØ %") && !nbTexts("c701").includes("ΔØ"), "c701: Panel „ΔØ %“");
+  // review m4: whole percent in Δ-only tiles (sheet 13D), the labels no longer pile up
+  const pct = nbQ("c701", "g.icd-cat text").map(t => t.textContent.trim()).filter(t => /%$/.test(t));
+  check(pct.length > 30 && pct.every(t => /^[+−]?\d+%$/.test(t)), `c701: Δ % ganzzahlig (${pct.length} Labels, z. B. ${pct.slice(0, 3).join(" ")})`);
+  const ov = nbOverlaps("c701", t => /%$/.test(t.textContent));
+  check(ov.length === 0, `c701: keine überlappenden Δ %-Labels (${ov.length}: ${ov.slice(0, 3).join(" ")})`);
 }
 
 // ---- c702: von Hand · drei Regionen, ΔØ-Balken = |Δ| × px je Einheit, Ø-Kachel auf derselben Skala
@@ -4843,23 +4849,40 @@ addStage("c705", "Balken · drei Regionen gegen den Ø, nur ΔØ", 960, 420);
 
 // ---- c706: zu kleine Kacheln · Rückfall auf die normale Ansicht
 addStage("c706", "Kleine Kacheln (480×260) · Rückfall auf die normale Ansicht", 480, 260);
+addStage("c706b", "Referenz: dieselben Kacheln ohne Option", 480, 260);
+// SVG of a Δ-only stage without its fallback markers
+const voStrip = id => voSvg(id).replace(/<g data-icd="var-only-fallback"[^>]*><\/g>/g, "");
 {
-  runCap("c706", avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
-    showTotal: false, varianceOnly: true }), 480, 260);
+  const c706dv = vo => avgDv(avgABC, Object.assign({ multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true,
+    showRelativeVariance: false, showTotal: false }, vo ? { varianceOnly: true } : {}));
+  runCap("c706", c706dv(true), 480, 260);
+  runCap("c706b", c706dv(false), 480, 260);
   nbSane("c706");
-  check(nbQ("c706", '[data-icd="var-only"]').length === 0 && nbQ("c706", '[data-icd="var-only-fallback"]').length === 3,
-    "c706: drei Kacheln fallen zurück, keine Δ-only-Kachel");
+  // review M2: the Ø tile falls back too (4 markers) and draws on the deck scale
+  const fb = nbQ("c706", '[data-icd="var-only-fallback"]').map(g => +g.getAttribute("data-px-per-unit"));
+  check(nbQ("c706", '[data-icd="var-only"]').length === 0 && !voRef("c706") && fb.length === 4,
+    `c706: alle vier Kacheln (samt Ø-Kachel) fallen zurück, keine Δ-only-Kachel (${fb.length})`);
+  check(fb.every(k => k > 0 && k === fb[0]), `c706: Ø- und Gruppen-Kacheln mit gleichem px je Einheit (${fb.join(" / ")})`);
   check(avgCats("c706", "A").some(avgAcBar), "c706: Säulen wieder sichtbar");
+  check(voStrip("c706") === voSvg("c706b"), "c706: bis auf die Rückfall-Marker SVG-gleich mit der normalen Ansicht");
 }
 
 // ---- c707: in der Ansicht ausgeschaltet · Kommentare, Hervorhebungsband, Differenzmarker, Jahressäule
 addStage("c707", "Δ-only mit Kommentar, Hervorhebung, Differenzmarker und Jahressäule gesetzt: alles aus", 960, 520);
+addStage("c711", "Review m5 · Positivkontrolle zu c707: dieselben Daten ohne Option zeigen alles", 960, 520);
 {
-  const dv = avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
-    showTotal: false, varianceOnly: true, highlight: "2025", diffMarkers: "2023 > 2025", yearColumn: true });
-  dv.categorical.values.push(col("comments", avgABC.flatMap((r, ri) => avgYears.map((y, i) => ri === 0 && i === 1 ? "Sondereffekt" : null))));
-  runCap("c707", dv, 960, 520);
-  nbSane("c707");
+  const c707dv = vo => {
+    const dv = avgDv(avgABC, { multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false,
+      showTotal: false, varianceOnly: vo, highlight: "2025", diffMarkers: "2023 > 2025", yearColumn: true });
+    dv.categorical.values.push(col("comments", avgABC.flatMap((r, ri) => avgYears.map((y, i) => ri === 0 && i === 1 ? "Sondereffekt" : null))));
+    return dv;
+  };
+  runCap("c707", c707dv(true), 960, 520);
+  runCap("c711", c707dv(false), 960, 520);
+  nbSane("c707"); nbSane("c711");
+  check(nbQ("c711", '[data-icd="diff-marker"]').length > 0 && nbQ("c711", '[data-icd="year-column"]').length > 0
+    && nbQ("c711", 'rect[fill-opacity="0.07"]').length > 0 && nbQ("c711", "svg circle").length > 0,
+    "c711: ohne Option Differenzmarker, Jahressäule, Hervorhebungsband und Kommentar-Marke vorhanden (die c707-Prüfungen greifen)");
   check(nbQ("c707", '[data-icd="var-only"]').length === 3, "c707: Δ-only aktiv");
   check(nbQ("c707", '[data-icd="diff-marker"]').length === 0 && nbQ("c707", '[data-icd="year-column"]').length === 0,
     "c707: keine Differenzmarker, keine Jahressäule");
@@ -4889,8 +4912,15 @@ hcRun("c709", "Δ-only im Hochkontrast", 960, 520, avgDv(avgABC, { multiplesAgg:
   showRelativeVariance: false, showTotal: false, varianceOnly: true }));
 {
   nbSane("c709");
+  // review m2: plan Δ keeps good = filled / bad = hollow and adds a dashed edge;
+  // an unfavourable actual Δ stays hollow with a solid outline
   const plan = nbQ("c709", 'rect[data-icd="var-plan"]');
-  check(plan.length === 6 && plan.every(r => nbFill(r) === "#000000" || r.getAttribute("fill") === "#000"), `c709: Plan-Δ hohl (${plan.length})`);
+  const good = plan.filter(r => nbFill(r) === "#FFFF00"), bad = plan.filter(r => nbFill(r) === "#000000");
+  check(plan.length === 6 && good.length > 0 && bad.length > 0 && good.length + bad.length === 6
+    && plan.every(r => r.getAttribute("stroke-dasharray") === "3 2"),
+    `c709: Plan-Δ gestrichelt, günstig gefüllt (${good.length}), ungünstig hohl (${bad.length})`);
+  const badAc = nbQ("c709", "g.icd-cat rect").filter(r => !r.hasAttribute("data-icd") && nbFill(r) === "#000000" && nbStroke(r) === "#FFFF00");
+  check(badAc.length > 0 && badAc.every(r => !r.hasAttribute("stroke-dasharray")), `c709: ungünstiges Ist-Δ hohl mit durchgezogenem Umriss (${badAc.length})`);
   check(nbQ("c709", '[data-icd="var-only-guide"]').every(l => l.getAttribute("stroke-opacity") === "0.6"), "c709: Hilfslinien mit 60 % Deckkraft");
 }
 
@@ -4905,6 +4935,212 @@ addStage("c710", "Formatbereich · „Nur Abweichungs-Panel“ sichtbar nur, wo 
   rs.upd(avgDv(avgABC, { waterfallStyle: true })); const wf = has(rs);
   rs.upd(rvStackDv([["A", { X: [10, 11], Y: [10, 11] }], ["B", { X: [10, 11], Y: [10, 11] }]], ["2025", "2026"], {})); const stacked = has(rs);
   check(cols && bars && !line && !wf && !stacked, `c710: sichtbar bei Säulen ${cols} und Balken ${bars}, nicht bei Linie ${line}, Brücke ${wf}, Stapel ${stacked}`);
+}
+
+// ======================================================================
+// 1.56 · B13 Teil 2 Review (c711+): Heldenkachel aus (M1, m1), Rückfall wirklich
+// normal (M2), Hochkontrast-Plan-Δ (m2), Ellipse bleibt (m3), ganzzahlige Δ % (m4),
+// Testlücken (m5), Pane (n3), fixedMax (n1). c711 steht bei c707 (Positivkontrolle).
+// ======================================================================
+const voBase = extra => Object.assign({ multiplesAgg: "mean", multiplesBasis: "avg", showAbsoluteVariance: true,
+  showRelativeVariance: false, showTotal: false, varianceOnly: true }, extra);
+const voPctOk = id => nbQ(id, "g.icd-cat text").map(t => t.textContent.trim()).filter(t => /%$/.test(t))
+  .every(t => /^[+−]?\d+%$/.test(t));
+
+// ---- c712: M1/m1 · Bezugskachel zuerst mit Heldenkachel: die Heldenkachel ist aus, Faktor stimmt
+addStage("c712", "Review M1/m1 · Ø-Kachel zuerst, Heldenkachel gesetzt: in der Δ-only-Ansicht aus", 960, 520);
+addStage("c712b", "Referenz ohne Heldenkachel", 960, 520);
+{
+  runCap("c712", avgDv(avgABC, voBase({ multiplesTotalPos: "first", multiplesHero: true })), 960, 520);
+  runCap("c712b", avgDv(avgABC, voBase({ multiplesTotalPos: "first" })), 960, 520);
+  nbSane("c712");
+  check(voSvg("c712") === voSvg("c712b"), "c712: mit Heldenkachel SVG-gleich wie ohne");
+  const sizes = new Set(avgTiles("c712").map(t => t.getAttribute("data-w") + "x" + t.getAttribute("data-h")));
+  check(avgTiles("c712").length === 4 && sizes.size === 1, `c712: vier gleich große Kacheln (${[...sizes].join(", ")})`);
+  const px = voPx("c712"), ref = voRef("c712");
+  const kRef = ref ? +ref.getAttribute("data-px-per-unit") : 0, f = ref ? +ref.getAttribute("data-factor") : 0;
+  check(px.length === 3 && !!ref && ref.getAttribute("data-k-delta") === px[0].toFixed(4) && Math.abs(kRef / px[0] - f) < 0.001,
+    `c712: Bezugskachel misst eine Gitterkachel, Verhältnis = Faktor (${(kRef / px[0]).toFixed(3)} = ${f})`);
+}
+
+// ---- c713: M2 · Rückfall mit Σ-Kachel (Basis PY, Summe), Kommentar, Hervorhebung, Differenzmarker
+addStage("c713", "Review M2 · kleine Kacheln mit Σ-Kachel, Kommentar, Band und Marker: wie die normale Ansicht", 480, 260);
+addStage("c713b", "Referenz ohne Option", 480, 260);
+{
+  const dv = vo => {
+    const d = avgDv(avgABC, Object.assign({ comparisonMode: "py", multiplesTotalShade: true, showAbsoluteVariance: true,
+      showRelativeVariance: false, highlight: "2025", diffMarkers: "2023 > 2025" }, vo ? { varianceOnly: true } : {}), { py: true });
+    d.categorical.values.push(col("comments", avgABC.flatMap((r, ri) => avgYears.map((y, i) => ri === 0 && i === 1 ? "Sondereffekt" : null))));
+    return d;
+  };
+  runCap("c713", dv(true), 480, 260);
+  runCap("c713b", dv(false), 480, 260);
+  nbSane("c713");
+  check(nbQ("c713", '[data-icd="var-only-fallback"]').length === 4 && !voRef("c713"), "c713: alle Kacheln samt Σ-Kachel im Rückfall");
+  check(voStrip("c713") === voSvg("c713b"), "c713: bis auf die Rückfall-Marker SVG-gleich mit der normalen Ansicht (Σ-Δ-Skala, Kommentar, Band, Marker)");
+}
+
+// ---- c714: m5 · absolute und relative Abweichung zusammen
+addStage("c714", "Review m5 · ΔØ und ΔØ % zusammen: zwei Panels je Kachel, Bezug auf das absolute Δ", 960, 520);
+{
+  runCap("c714", avgDv(avgABC, voBase({ showRelativeVariance: true })), 960, 520);
+  nbSane("c714");
+  const px = voPx("c714"), ref = voRef("c714");
+  check(px.length === 3 && px.every(k => k === px[0]) && nbQ("c714", '[data-icd="var-only"]').every(g => g.getAttribute("data-panels") === "abs,rel"),
+    "c714: drei Kacheln mit beiden Panels, gleicher px je Einheit");
+  check(!!ref && ref.getAttribute("data-k-delta") === px[0].toFixed(4), "c714: Bezugskachel vergleicht mit dem absoluten Δ");
+  check(voPctOk("c714") && nbTexts("c714").includes("ΔØ") && nbTexts("c714").includes("ΔØ %"), "c714: Δ % ganzzahlig, beide Panel-Titel");
+}
+
+// ---- c715: m5 · Top N mit summierter Rest-Kachel: der Rest vergleicht mit Ø × Mitglieder
+addStage("c715", "Review m5 · Top 2 + Rest (Summe): ΔØ der Rest-Kachel gegen Ø × 2", 960, 420);
+{
+  // Ø 2025 (10+20+30+40)/4 = 25 · 2026 50; Rest A+B 30 · 60 gegen 50 · 100 → −20 · −40; D +15 · +30
+  runCap("c715", avgDv([["A", [10, 20], []], ["B", [20, 40], []], ["C", [30, 60], []], ["D", [40, 80], []]],
+    { multiplesTopN: 2, multiplesBasis: "avg", showAbsoluteVariance: true, showRelativeVariance: false, showTotal: false, varianceOnly: true },
+    { years: ["2025", "2026"] }), 960, 420);
+  nbSane("c715");
+  const rest = avgCats("c715", "rest").map(avgDelta).join(" "), d = avgCats("c715", "D").map(avgDelta).join(" ");
+  check(rest === "-20 -40" && d === "15 30", `c715: Rest ${rest}, D ${d}`);
+  const px = voPx("c715");
+  check(px.length === 3 && px.every(k => k === px[0]) && avgCats("c715", "rest").every(g => !avgAcBar(g)), "c715: Rest-Kachel als Δ-Kachel auf derselben Skala");
+  const b = voBar(byCat(avgCats("c715", "rest"), "2026"));
+  check(!!b && Math.abs(nbAttr(b, "height") - 40 * px[0]) < 0.6, "c715: Rest 2026 = 40 × px je Einheit");
+}
+
+// ---- c716: m5 · YTD: ΔØ der kumulierten Werte
+addStage("c716", "Review m5 · YTD mit Basis Ø: nur ΔØ der kumulierten Werte", 960, 520);
+{
+  runCap("c716", avgDv([["A", [10, 20, 30, 40], [50, 60]], ["B", [50, 40, 60, null], [90, 30]], ["C", [30, 60, 90, 80], [70, 90]]],
+    voBase({ cumulative: true })), 960, 520);
+  nbSane("c716");
+  // kumuliert A 10 30 60 100 gegen Ø 30 70 130 180 (siehe c526)
+  const a = avgCats("c716", "A").slice(0, 4).map(avgDelta).join(" ");
+  const t = avgVals("c716", "total").slice(0, 4).map(v => v[1]).join(" ");
+  check(nbQ("c716", '[data-icd="var-only"]').length === 3 && a === "-20 -40 -70 -80" && t === "30 70 130 180",
+    `c716: A ΔØ ${a}, Ø-Kachel ${t}`);
+}
+
+// ---- c717: m5 · Dark Mode
+addStage("c717", "Review m5 · Δ-only im Dark Mode", 960, 520, "#1E1E1E");
+{
+  runCap("c717", avgDv(avgABC, voBase({}), { objs: { colors: { appearance: "dark" } } }), 960, 520, { themeBg: "#1E1E1E" });
+  nbSane("c717");
+  const px = voPx("c717"), ref = voRef("c717");
+  const gl = nbQ("c717", '[data-icd="var-only-guide"]'), glLight = nbQ("c702", '[data-icd="var-only-guide"]');
+  check(px.length === 3 && !!ref && ref.getAttribute("data-k-delta") === px[0].toFixed(4), "c717: Δ-Kacheln und Bezugskachel wie hell");
+  check(gl.length > 0 && glLight.length > 0 && nbStroke(gl[0]) !== nbStroke(glLight[0]),
+    `c717: Hilfslinien in der dunklen Hilfsfarbe (${nbStroke(gl[0])} statt ${nbStroke(glLight[0])})`);
+  check(nbQ("c717", '[data-icd="var-plan"]').length === 6, "c717: Plan-Δ in Plan-Notation");
+}
+
+// ---- c718: m5 · gleiche Nulllinie in allen Kacheln (c700, 15 Kacheln in drei Zeilen)
+{
+  const offs = avgTiles("c700").filter(t => t.getAttribute("data-kind") === "group" || t.getAttribute("data-kind") === "rest")
+    .flatMap(t => {
+      // exact tile origin: the scenario row (region bottom − 3), the frame's data-y is rounded
+      const [fx, fy, fw, fh] = ["data-x", "data-y", "data-w", "data-h"].map(a => +t.getAttribute(a));
+      const sl = nbQ("c700", '[data-icd="scen-label"]').find(e => nbAttr(e, "x") >= fx && nbAttr(e, "x") <= fx + fw
+        && nbAttr(e, "y") >= fy && nbAttr(e, "y") <= fy + fh + 1);
+      if (!sl) { return [NaN]; }
+      const ty = nbAttr(sl, "y"), key = t.getAttribute("data-kind") === "rest" ? "rest" : t.getAttribute("data-group");
+      return avgCats("c700", key).map(g => {
+        const b = voBar(g), d = avgDelta(g);
+        // bars shorter than 1 px are drawn with a minimum height of 0.5 px, they do not show the zero
+        return b && d && nbAttr(b, "height") >= 1 ? (d > 0 ? nbAttr(b, "y") + nbAttr(b, "height") : nbAttr(b, "y")) - ty : null;
+      }).filter(v => v != null);
+    });
+  check(offs.length > 100 && Math.max(...offs) - Math.min(...offs) < 0.05,
+    `c718 (an c700): Nulllinie in jeder Kachel auf gleicher Höhe (${offs.length} Balken, Spanne ${(Math.max(...offs) - Math.min(...offs)).toFixed(2)} px)`);
+}
+
+// ---- c719: m5 · Balken mit Pins (nur ΔØ %)
+addStage("c719", "Review m5 · Balken, nur ΔØ % als waagerechte Pins", 960, 420);
+{
+  const cats = [], mult = [], acv = [];
+  [["Nord", [40, 30, 20]], ["Süd", [20, 30, 50]], ["West", [30, 30, 50]]].forEach(([r, a]) =>
+    ["Produkt X", "Produkt Y", "Produkt Z"].forEach((c, i) => { cats.push(c); mult.push(r); acv.push(a[i]); }));
+  runCap("c719", dataView(cats, [col("actual", acv, "#,0")], { chart: { orientation: "bars", multiplesBasis: "avg", multiplesTotal: true,
+    multiplesAgg: "mean", showAbsoluteVariance: false, showRelativeVariance: true, varianceOnly: true } }, mult), 960, 420);
+  nbSane("c719");
+  const px = voPx("c719");
+  check(px.length === 3 && px.every(k => k === px[0]) && nbQ("c719", '[data-icd="var-only"]').every(g => g.getAttribute("data-panels") === "rel"),
+    "c719: drei Kacheln nur mit ΔØ %-Panel");
+  // Nord Produkt Z: 20 gegen Ø 40 → −50 %
+  const z = byCat(avgCats("c719", "Nord"), "Produkt Z");
+  const stem = z ? [...z.querySelectorAll("line")].find(l => nbAttr(l, "y1") === nbAttr(l, "y2")) : null;
+  check(!!stem && Math.abs(Math.abs(nbAttr(stem, "x2") - nbAttr(stem, "x1")) - 50 * px[0]) < 0.6, "c719: Pin waagerecht, Länge = 50 % × px je Einheit");
+  const nord = avgTexts("c719", "Nord").filter(t => /%$/.test(t)).join(" ");
+  check(voPctOk("c719") && nord.includes("+33%") && nord.includes("−50%"), `c719: Δ % ganzzahlig (${nord})`);
+}
+
+// ---- c720: m5 · fixedVarMax weitet die gemeinsame Δ-Skala · c721: n1 · fixedMax gilt in der Bezugskachel
+addStage("c720", "Review m5 · Δ-Skala mit festem Maximum ±100", 960, 520);
+addStage("c721", "Review n1 · festes Maximum 200 der Werteachse in der Bezugskachel", 960, 520);
+{
+  runCap("c720", avgDv(avgABC, voBase({}), { objs: { scale: { fixedVarMax: 100 } } }), 960, 520);
+  runCap("c721", avgDv(avgABC, voBase({}), { objs: { scale: { fixedMax: 200 } } }), 960, 520);
+  nbSane("c720"); nbSane("c721");
+  const px = voPx("c720"), px0 = voPx("c702")[0];
+  const b = voBar(byCat(avgCats("c720", "A"), "2025"));
+  check(px.length === 3 && px.every(k => k === px[0]) && px[0] < px0 * 0.5 && !!b && Math.abs(nbAttr(b, "height") - 30 * px[0]) < 0.6,
+    `c720: eine Skala ${px[0]} statt ${px0}, A 2025 = 30 × px`);
+  const r0 = voRef("c702"), r1 = voRef("c721");
+  const k0 = r0 ? +r0.getAttribute("data-px-per-unit") : 0, k1 = r1 ? +r1.getAttribute("data-px-per-unit") : 0;
+  const tot = byCat(avgCats("c721", "total"), "2024");
+  check(k1 > 0 && k1 < k0 && !!tot && Math.abs(nbAttr(avgAcBar(tot), "height") - 40 * k1) < 0.6,
+    `c721: Bezugskachel bis 200 (${k1.toFixed(3)} statt ${k0.toFixed(3)} px je Einheit), Ø 2024 = 40 × px`);
+}
+
+// ---- c722: m2 · Hochkontrast 13D: Plan-Pins mit gestricheltem Stiel, günstige Köpfe gefüllt
+hcRun("c722", "Review m2 · ΔØ %-Pins im Hochkontrast", 960, 520, avgDv(avgABC, voBase({ showAbsoluteVariance: false, showRelativeVariance: true })));
+{
+  nbSane("c722");
+  const heads = nbQ("c722", '[data-icd="var-plan"]');
+  const dashed = nbQ("c722", "g.icd-cat line").filter(l => l.getAttribute("stroke-dasharray") === "3 2");
+  check(heads.length === 6 && dashed.length === 6, `c722: sechs Plan-Pins mit gestricheltem Stiel (${dashed.length})`);
+  check(heads.some(h => nbFill(h) === "#FFFF00") && heads.some(h => nbFill(h) === "#000000"), "c722: günstige Plan-Köpfe gefüllt, ungünstige hohl");
+}
+
+// ---- c723: m5 · Zoom: Gruppen-Kachel und Bezugskachel
+addStage("c723", "Review m5 · Zoom auf eine Δ-Kachel und auf die Ø-Kachel", 960, 520);
+{
+  const rs = runCap("c723", avgDv(avgABC, voBase({})), 960, 520);
+  const kGrid = voPx("c723")[0];
+  const hdr = name => nbQ("c723", 'g[role="button"]').find(b => (b.getAttribute("aria-label") || "").startsWith(name));
+  hdr("A ").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  const kZoom = voPx("c723")[0];
+  const chip = nbQ("c723", '[data-icd="zoom-scale"]')[0];
+  check(voPx("c723").length === 1 && !!chip && Math.abs(+chip.getAttribute("data-factor") - kZoom / kGrid) < 0.002,
+    `c723: Zoom auf A zeigt nur Δ, Faktor ${chip ? chip.getAttribute("data-factor") : "–"} = ${(kZoom / kGrid).toFixed(3)}`);
+  rs.v.zoomGroup = "\u0001total"; rs.upd(avgDv(avgABC, voBase({})));
+  const ref = voRef("c723");
+  check(!!ref && ref.getAttribute("data-k-delta") === kZoom.toFixed(4) && nbQ("c723", '[data-icd="var-only"]').length === 0,
+    "c723: Zoom auf die Ø-Kachel misst die gezoomte Gruppen-Kachel");
+  rs.v.zoomGroup = null; rs.upd(avgDv(avgABC, voBase({})));
+}
+
+// ---- c724: n3/m1 · Formatbereich: Held und doppelte Abweichung weg, Schalter ohne Δ-Panel weg
+addStage("c724", "Review n3/m1 · Formatbereich bei aktivem „Nur Abweichungs-Panel“", 480, 240);
+{
+  const vis = (r, k) => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard[k].visible !== false; };
+  const rs = runCap("c724", avgDv(avgABC, { varianceOnly: true }, { py: true }), 480, 240);
+  const on = [vis(rs, "multiplesHero"), vis(rs, "dualVariance"), vis(rs, "varianceOnly")];
+  rs.upd(avgDv(avgABC, {}, { py: true }));
+  const off = [vis(rs, "multiplesHero"), vis(rs, "dualVariance")];
+  rs.upd(avgDv(avgABC, { varianceOnly: true, showAbsoluteVariance: false, showRelativeVariance: false }, { py: true }));
+  const none = vis(rs, "varianceOnly");
+  check(!on[0] && !on[1] && on[2] && off[0] && off[1] && !none,
+    `c724: mit Option Held ${on[0]}, doppelte Abweichung ${on[1]}; ohne ${off.join("/")}; ohne Δ-Panel Schalter ${none}`);
+}
+
+// ---- c725: m3 · Ellipsen-Hervorhebung bleibt in Δ-Kacheln (13C markiert Zahlen, kein Band)
+addStage("c725", "Review m3 · Hervorhebung als Ellipse bleibt in der Δ-only-Ansicht", 960, 520);
+{
+  runCap("c725", avgDv(avgABC, voBase({ highlight: "2025", highlightStyle: "ellipse" })), 960, 520);
+  nbSane("c725");
+  check(nbQ("c725", '[data-icd="emph-ellipse"]').length > 0 && nbQ("c725", 'rect[fill-opacity="0.07"]').length === 0,
+    `c725: Ellipsen gezeichnet (${nbQ("c725", '[data-icd="emph-ellipse"]').length}), kein Band`);
 }
 
 // ======================================================================
