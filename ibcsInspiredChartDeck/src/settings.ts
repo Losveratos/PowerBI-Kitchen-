@@ -317,6 +317,12 @@ const scatterPathLabelsItems: LocEnumMember[] = [
     { value: "all", displayName: "All periods", key: "Enum_ScatterPathLabels_All" },
     { value: "off", displayName: "Off", key: "Enum_ScatterPathLabels_Off" }
 ];
+// 1.57 (backlog B19, IBCS sheets 10E/10G): how the bubble share role reads, as a part in
+// the unit of the bubble size (share = part / size) or as a ratio 0..1
+const scatterShareAsItems: LocEnumMember[] = [
+    { value: "value", displayName: "Value (part of the bubble size)", key: "Enum_ScatterShareAs_Value" },
+    { value: "ratio", displayName: "Ratio (0 to 1)", key: "Enum_ScatterShareAs_Ratio" }
+];
 
 // 1.49: IBCS-Chart-Templates als Presets (PnL-Muster). Ein Template schreibt in
 // EINEM persistProperties-Merge Modus + Vergleich + Panels + passende Schalter;
@@ -345,6 +351,7 @@ const templateItems: LocEnumMember[] = [
     { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" },
     { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" },
     { value: "C23", displayName: "C23 · Scatter time path (07D, 07E)", key: "Enum_Template_C23" },
+    { value: "C24", displayName: "C24 · Bubbles with share (10E, 10G)", key: "Enum_Template_C24" },
     { value: "C25", displayName: "C25 · Marimekko (02F)", key: "Enum_Template_C25" }
 ];
 
@@ -371,7 +378,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
         multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
         linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
-        lineSeriesLabelsItems, stackThicknessItems, scatterPathItems, scatterPathLabelsItems];
+        lineSeriesLabelsItems, stackThicknessItems, scatterPathItems, scatterPathLabelsItems, scatterShareAsItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -453,7 +460,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A), C25 das Marimekko: 100-%-Balken mit Zeilendicke nach Zeilensumme, Summen- und Anteilsspalte (02F, Feld „Stack-Serie“), C23 der Scatter-Zeitpfad je Einheit des Felds „Stack-Serie“ über die Perioden der Kategorie (07D, 07E, Feld „X-Achse (Scatter)“). Nicht enthalten: C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A), C25 das Marimekko: 100-%-Balken mit Zeilendicke nach Zeilensumme, Summen- und Anteilsspalte (02F, Feld „Stack-Serie“), C23 der Scatter-Zeitpfad je Einheit des Felds „Stack-Serie“ über die Perioden der Kategorie (07D, 07E, Feld „X-Achse (Scatter)“), C24 die Blasen mit Anteil als Kreissegment und Gesamtblase (10E, 10G, Felder „Blasengröße“ und „Blasenanteil“). Nicht enthalten: C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -1559,6 +1566,36 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: false
     });
 
+    // 1.57 (backlog B19, IBCS-Blätter 10E/10G): Blasen mit Kreissegment (Rolle
+    // bubbleShare) und Gesamtblase je Kachel. Alles im Standard ohne Wirkung.
+    scatterShareAs = new formattingSettings.ItemDropdown({
+        name: "scatterShareAs",
+        displayName: "Bubble share as",
+        displayNameKey: "Chart_ScatterShareAs",
+        description: "Nur mit gebundenem Feld „Blasenanteil“: Wert = Teil in der Einheit der Blasengröße (Anteil = Teil ÷ Größe, z. B. 23 von 199), Quote = Anteil 0 bis 1. Der Anteil wird als Kreissegment ab 12 Uhr im Uhrzeigersinn in Vollfarbe auf der hellen Blase gezeichnet. Standard Wert.",
+        descriptionKey: "Desc_Chart_ScatterShareAs",
+        items: scatterShareAsItems,
+        value: scatterShareAsItems[0]
+    });
+
+    scatterTotalBubble = new formattingSettings.ToggleSwitch({
+        name: "scatterTotalBubble",
+        displayName: "Total bubble",
+        displayNameKey: "Chart_ScatterTotalBubble",
+        description: "Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“). Sie liegt hinter allen Blasen, zählt in die Größenskala (alle Blasen werden kleiner) und ist nicht auswählbar. Wie in den IBCS-Blättern 10E und 10G. Standard aus.",
+        descriptionKey: "Desc_Chart_ScatterTotalBubble",
+        value: false
+    });
+
+    scatterTotalColor = new formattingSettings.ColorPicker({
+        name: "scatterTotalColor",
+        displayName: "Total bubble color",
+        displayNameKey: "Chart_ScatterTotalColor",
+        description: "Umriss, Kreissegment und Schrift der Gesamtblase. Standard Dunkelgrau; das Blatt zeichnet Rot, das in ChartKitchen sonst für ungünstige Abweichungen steht.",
+        descriptionKey: "Desc_Chart_ScatterTotalColor",
+        value: { value: "#404040" }
+    });
+
     // eigene Modus-Gruppe wie Brücke/Tabelle/KPI-Karten — nur im Scatter sichtbar.
     // Reihenfolge nach Wichtigkeit: Quadranten → Färbung → Formen → Pfeile →
     // Trend (+R²) → Größen-Legende → Quadranten-Labels → Play
@@ -1569,7 +1606,8 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.scatterQuadrant, this.scatterColorBy, this.scatterShapes,
             this.scatterArrows, this.scatterTrend, this.scatterTrendR2,
             this.scatterSizeLegend, this.scatterValueLabels, this.scatterMaxRadius,
-            this.scatterBubbleOpacity, this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
+            this.scatterBubbleOpacity, this.scatterShareAs, this.scatterTotalBubble, this.scatterTotalColor,
+            this.scatterEmphFill, this.scatterEmphColor, this.scatterEmphLabel,
             this.scatterGroupColor1, this.scatterGroupColor2, this.scatterGroupColor3,
             this.scatterGroupColor4, this.scatterGroupColor5, this.scatterGroupColor6,
             this.scatterQuadLabelTR, this.scatterQuadLabelTL,

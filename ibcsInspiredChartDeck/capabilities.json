@@ -108,6 +108,15 @@
             "requiredTypes": [ { "numeric": true }, { "integer": true } ]
         },
         {
+            "displayName": "Bubble share (optional)",
+            "description": "Scatter / bubble mode only, with Bubble size: the part of each bubble drawn as a sector from 12 o'clock clockwise (e.g. our sales within the market volume). As a value in the unit of the bubble size (share = part / size) or as a ratio 0 to 1 (setting \"Bubble share as\").",
+            "descriptionKey": "RoleDesc_BubbleShare",
+            "displayNameKey": "Role_BubbleShare",
+            "name": "bubbleShare",
+            "kind": "Measure",
+            "requiredTypes": [ { "numeric": true }, { "integer": true } ]
+        },
+        {
             "displayName": "Stack Series (Gestapelt)",
             "description": "Splits Actual by an additional dimension and stacks the columns/bars by that series, with legend and stack-total labels.",
             "descriptionKey": "RoleDesc_Series",
@@ -213,6 +222,7 @@
                             { "value": "C21", "displayName": "C21 · Kumulierte Linie mit R12 und Monatssäulen (07C)" },
                             { "value": "C22", "displayName": "C22 · Serienlinien mit Index (07A)" },
                             { "value": "C23", "displayName": "C23 · Scatter-Zeitpfad (07D, 07E)" },
+                            { "value": "C24", "displayName": "C24 · Blasen mit Anteil (10E, 10G)" },
                             { "value": "C25", "displayName": "C25 · Marimekko (02F)" }
                         ]
                     }
@@ -461,6 +471,16 @@
                 },
                 "scatterPathArrow": { "type": { "bool": true } },
                 "scatterPathDelta": { "type": { "bool": true } },
+                "scatterShareAs": {
+                    "type": {
+                        "enumeration": [
+                            { "value": "value", "displayName": "Value (part of the bubble size)" },
+                            { "value": "ratio", "displayName": "Ratio (0 to 1)" }
+                        ]
+                    }
+                },
+                "scatterTotalBubble": { "type": { "bool": true } },
+                "scatterTotalColor": { "type": { "fill": { "solid": { "color": true } } } },
                 "cardSortSel": { "type": { "text": true } },
                 "cardTint": { "type": { "bool": true } },
                 "cardTintStrength": { "type": { "numeric": true } },
@@ -854,6 +874,7 @@
                     "xPrevious": { "max": 1 },
                     "bubbleSize": { "max": 1 },
                     "bubbleSizePrevious": { "max": 1 },
+                    "bubbleShare": { "max": 1 },
                     "rowType": { "max": 1 },
                     "fcFlag": { "max": 1 },
                     "trend": { "max": 1 },
@@ -894,6 +915,7 @@
                         { "bind": { "to": "xPrevious" } },
                         { "bind": { "to": "bubbleSize" } },
                         { "bind": { "to": "bubbleSizePrevious" } },
+                        { "bind": { "to": "bubbleShare" } },
                         { "bind": { "to": "comments" } },
                         { "bind": { "to": "filterInfo" } }
                     ]
