@@ -702,6 +702,9 @@ interface ChartConfig {
     scenarioLabels: boolean;
     /** 1.55 (B13): small multiples compare against the average of all tiles (ΔØ) */
     basisAvg: boolean;
+    /** 1.56 (B13 part 2, sheets 13C/13D): small-multiples tiles show only their Δ
+     *  panel(s) on one Δ scale, the reference tile keeps its columns */
+    varianceOnly?: boolean;
     /** 1.55 (B10): stack structure — 100 % stacks, Σ row (bars), names left, sort,
      *  absolute-total side panel (bars + 100 %), shared max of the stack totals */
     stackNorm: boolean;
@@ -1193,6 +1196,13 @@ export class Visual implements IVisual {
     /** 1.55 (B13 review, m4): the cell being drawn is the reference tile under the Ø
      *  basis — its Δ panels keep their space (same scale) but get no title or axis */
     private refTileNoDelta = false;
+    /** 1.56 (B13 part 2): the reference tile of a Δ-only deck is being drawn (columns
+     *  on its own scale); kDelta = px per unit of the Δ panel in a group tile of the
+     *  same size (null: no absolute Δ panel to compare with) */
+    private varOnlyRef: { kDelta: number | null } | null = null;
+    /** 1.56 (B13 part 2): the last drawn chart was a Δ-only tile with an absolute Δ
+     *  panel (lastScaleK is then its px per unit) */
+    private varOnlyAbsK = false;
     /** 1.52: px per value unit of the last drawn base panel (zoom scale note) */
     private lastScaleK: number | null = null;
     /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
@@ -2163,6 +2173,9 @@ export class Visual implements IVisual {
             && (orient === "columns" || orient === "bars" || orient === "line")
             && !((orient === "columns" || orient === "bars")
                 && (this.seriesName != null || fs.chartCard.waterfallStyle.value === true));
+        // 1.56 (B13 part 2): Δ-only tiles for columns/bars without stack and bridge
+        fs.chartCard.varianceOnly.visible = !isScatter && (orient === "columns" || orient === "bars")
+            && this.seriesName == null && fs.chartCard.waterfallStyle.value !== true;
         fs.chartCard.cumulativeButton.visible = orient === "columns" || orient === "line" || orient === "stockflow";
         fs.chartCard.cumulative.visible = orient === "columns" || orient === "line" || orient === "table";
         fs.chartCard.cumulativeKind.visible = fs.chartCard.cumulative.visible && fs.chartCard.cumulative.value;
@@ -6115,6 +6128,10 @@ export class Visual implements IVisual {
             && (orientationRaw === "columns" || orientationRaw === "bars" || orientationRaw === "line")
             && !isStacked && !wfStyleGlobal;
         this.avgRows = multBasisAvg;
+        // 1.56 (B13 part 2, sheets 13C/13D): Δ-only tiles (columns/bars, real multiples)
+        const varOnlyDeck = multOrig != null && s.chartCard.varianceOnly.value === true
+            && (orientationRaw === "columns" || orientationRaw === "bars")
+            && !isStacked && !wfStyleGlobal;
         const applyAvgBasis = () => {
             if (!multBasisAvg || !multOrig) { return; }
             const keyOf = (p: DataPoint) => `${p.cat}¦${p.stackSeries ?? ""}`;
@@ -6467,6 +6484,7 @@ export class Visual implements IVisual {
             yearDeltaOwn: false,
             scenarioLabels: s.chartCard.scenarioLabels.value === true,
             basisAvg: multBasisAvg,
+            ...(varOnlyDeck ? { varianceOnly: true } : {}),
             stackNorm: false,
             stackTotalRow: s.chartCard.stackTotalRow.value === true,
             stackTotalLabel: (s.chartCard.stackTotalLabel.value || "").trim(),
@@ -6479,6 +6497,11 @@ export class Visual implements IVisual {
             isMaterial: this.materialityFn(),
             scatter: isScatter ? this.scatterConfig(points) : null
         };
+
+        // 1.56 (B13 part 2): Δ-only tiles need a Δ panel to show; one Δ basis only
+        if (cfg.varianceOnly) {
+            if (!cfg.showAbs && !cfg.showRel) { delete cfg.varianceOnly; } else { cfg.showDual = false; }
+        }
 
         // 1.52.1: sum-safe labels under the 3-digit rule — ONE precision for labels
         // and Σ, set by the largest of them (Σ 408K over "162K · 196K · 50K"), so the
@@ -6533,7 +6556,7 @@ export class Visual implements IVisual {
         // its own value scale over all tiles; its Δ / Δ% join the monthly Δ scales
         // (the sheets 03A/03B draw the year variance on the months' variance scale)
         if (s.chartCard.yearColumn.value === true && orientationRaw === "columns" && !isStacked
-            && !wfStyleGlobal && !cumulativeOn && !points.some(p => p.rowType != null)) {
+            && !wfStyleGlobal && !cumulativeOn && !points.some(p => p.rowType != null) && !cfg.varianceOnly) {
             const yearPts = new Map<string | null, { p: DataPoint; partial: boolean; partialOf: [number, number] | null }>();
             for (const g of groups) {
                 const yp = this.buildYearPoint(g.pts, g.name);
@@ -6626,6 +6649,16 @@ export class Visual implements IVisual {
         const shownGroups = multLastIsTotal
             ? groups.slice(0, MULT_MAX_CELLS - 1).concat(groups[groups.length - 1])
             : groups.slice(0, MULT_MAX_CELLS);
+        // 1.56 (B13 part 2): Δ-only tiles share ONE Δ scale over the drawn tiles that
+        // show a Δ; the reference tile draws columns (its Σ Δ must not squash the rest)
+        if (cfg.varianceOnly) {
+            const vPts = shownGroups.filter(g => g.kind !== "total").flatMap(g => g.pts);
+            domains.abs = extent(vPts.map(p => p.varAbs));
+            domains.rel = extent(vPts.map(p => p.varRel));
+            if (fixedVarMax > 0) {
+                domains.abs = [Math.min(domains.abs[0], -fixedVarMax), Math.max(domains.abs[1], fixedVarMax)];
+            }
+        }
 
         // waterfall axis break (IBCS UN 5.3): cut value, admissibility and suggestion
         // over ALL drawn tiles — one shared cut or none at all (same-scale rule, the
@@ -6851,6 +6884,24 @@ export class Visual implements IVisual {
             this.refTileNoDelta = multBasisAvg && (grp as { kind?: string }).kind === "total";
             if (isStockFlow) {
                 this.renderStockFlow(grp.pts, region, cfg);
+                return;
+            }
+            // 1.56 (B13 part 2): the reference tile of a Δ-only deck keeps its columns
+            // (sheets 13C/13D), on the px per unit of a group tile's ΔØ panel when that
+            // fits (measured on a group tile of the same size), else a round reduction
+            if (cfg.varianceOnly && (grp as { kind?: string }).kind === "total") {
+                const peer = shownGroups.find(g => g.kind !== "total");
+                let kDelta: number | null = null;
+                this.refTileNoDelta = false;
+                if (peer && cfg.showAbs) {
+                    kDelta = this.measureScaleK(() => this.renderChart(peer.pts, region, cfg, domains, null));
+                    if (!this.varOnlyAbsK) { kDelta = null; }
+                }
+                this.varOnlyRef = { kDelta };
+                this.renderChart(grp.pts, region, { ...cfg, varianceOnly: false, showAbs: false, showRel: false, showDual: false },
+                    domains, null);
+                this.varOnlyRef = null;
+                this.refTileNoDelta = false;
                 return;
             }
             this.renderChart(grp.pts, region, cfg, domains, cascadeByGroup.get(grp.name) ?? null);
@@ -16278,11 +16329,30 @@ export class Visual implements IVisual {
         const plOnly = (p: DataPoint): boolean => !cfg.lineMode && p.value == null && p.pl != null;
         const labelLevel = (p: DataPoint): number | null => p.value ?? (plOnly(p) ? p.pl : null);
 
+        // 1.56 (B13 part 2, sheets 13C/13D): a Δ-only tile draws just its Δ panel(s);
+        // too small a tile falls back to the normal (compact) view. refOwn: the
+        // reference tile of such a deck (columns on its own scale, see renderCell)
+        const varOnlyWant = cfg.varianceOnly === true;
+        const varOnly = varOnlyWant && (orientation === "columns" ? region.h >= 110 : region.w >= 240);
+        const refOwn = this.varOnlyRef;
+        // comments, highlight band and difference markers are off in the whole deck
+        const voDeck = varOnly || varOnlyWant || refOwn != null;
+        this.varOnlyAbsK = false;
+        if (refOwn) {
+            // own value domain of the reference tile (zero-based like the deck domain)
+            const own = extent(points.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm]));
+            if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
+                own[0] = Math.min(own[0], cfg.refLine); own[1] = Math.max(own[1], cfg.refLine);
+            }
+            if (cfg.capMax != null) { own[1] = Math.min(own[1], cfg.capMax); }
+            domains = { ...domains, main: own };
+        }
+
         // compact mode: too little room for variance panels → deltas become labels
-        const compact = orientation === "columns" ? region.h < 190 : region.w < 420;
+        const compact = !varOnly && (orientation === "columns" ? region.h < 190 : region.w < 420);
         const showAbs = cfg.showAbs && !compact;
         const showRel = cfg.showRel && !compact;
-        const showDual = cfg.showDual && !compact
+        const showDual = cfg.showDual && !compact && !varOnly
             && (orientation === "columns" ? region.h >= 320 : region.w >= 640);
         const showBridge = wfStyle && !compact
             && (orientation === "columns" ? region.h >= 260 : region.w >= 520);
@@ -16321,7 +16391,7 @@ export class Visual implements IVisual {
         }
         // total (Σ) header row on top of the region — the year column replaces it (in
         // every tile of a deck with year columns, so small multiples stay aligned)
-        const showTotal = cfg.showTotal && region.w > 240 && !yr;
+        const showTotal = cfg.showTotal && region.w > 240 && !yr && !varOnly;
         const headerH = showTotal ? Math.round(17 * this.fontK) : 0;
 
         let bandStart: number, bandEnd: number;
@@ -16353,9 +16423,15 @@ export class Visual implements IVisual {
         };
         const rPin = 4.5; // upper bound of the Δ% pin head radius
         const mainPadB = barPad(compactLabelPad, valueTexts0, points.map(labelLevel), 0);
-        const absPadB = barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
-            points.map(p => p.varAbs), 0);
-        const relPadB = barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
+        // 1.56 (B13 part 2): Δ-only bars take the label room from the deck-wide Δ
+        // extremes, so every tile keeps the same px per unit
+        const absPadB = varOnly
+            ? barPad(labelPad, domains.abs.map(v => this.fmtSigned(cfg.fmtVar, v)), domains.abs, 0)
+            : barPad(labelPad, points.map(p => p.varAbs != null ? this.fmtSigned(cfg.fmtVar, p.varAbs) : ""),
+                points.map(p => p.varAbs), 0);
+        const relPadB = varOnly
+            ? barPad(labelPad, domains.rel.map(v => this.fmtPercent(v)), domains.rel, rPin + 3)
+            : barPad(labelPad, points.map(p => this.relText(p)), points.map(p => p.varRel), rPin + 3);
         const abs2PadB = barPad(labelPad, points.map(p => p.var2Abs != null ? this.fmtSigned(cfg.fmtVar, p.var2Abs) : ""),
             points.map(p => p.var2Abs), 0);
         const rel2PadB = barPad(labelPad, points.map(p => this.relText(p, true)), points.map(p => p.var2Rel), rPin + 3);
@@ -16377,7 +16453,7 @@ export class Visual implements IVisual {
         const mv = (i: number): number | null => points[i].value ?? points[i].pl;
         // "@" has no meaning without a stack: the whole text after the arrow is the category;
         // not with line mode or the waterfall bridge
-        const plainDiff = cfg.lineMode || wfStyle ? [] : cfg.diffMarkers
+        const plainDiff = cfg.lineMode || wfStyle || voDeck ? [] : cfg.diffMarkers
             .map(m => ({ spec: m.series == null ? m : { ...m, to: m.toFull, series: null },
                 fi: idxOf.get(keyOf(m.from)), ti: idxOf.get(keyOf(m.series == null ? m.to : m.toFull)) }))
             .filter((m): m is { spec: DiffMarkerSpec; fi: number; ti: number } => m.fi != null && m.ti != null && m.fi !== m.ti
@@ -16395,14 +16471,16 @@ export class Visual implements IVisual {
             bandEnd = yr ? bandStart + n * yr.w
                 : region.x + region.w - pad - diffRooms.hi;
             const plotTop = region.y + pad + headerH, plotBottom = region.y + region.h - catArea;
-            panels = split(plotTop, plotBottom - plotTop, true);
+            panels = varOnly ? this.splitVarOnly(plotTop, plotBottom - plotTop, showAbs, showRel, true, region)
+                : split(plotTop, plotBottom - plotTop, true);
         } else {
             const catArea = Math.min(region.w * 0.28, this.maxTextWidth(points.map(p => p.cat), cfg.catFont) + 12);
             // room for the header and the panel titles above the first bar
             bandStart = region.y + pad + headerH + titleH + 2 + diffRooms.lo;
             bandEnd = region.y + region.h - pad - diffRooms.hi;
             const plotLeft = region.x + pad + catArea, plotRight = region.x + region.w - pad;
-            panels = split(plotLeft, plotRight - plotLeft, false);
+            panels = varOnly ? this.splitVarOnly(plotLeft, plotRight - plotLeft, showAbs, showRel, false, region)
+                : split(plotLeft, plotRight - plotLeft, false);
         }
 
         const bandSpan = bandEnd - bandStart;
@@ -16448,12 +16526,44 @@ export class Visual implements IVisual {
         const showCatAt = this.labelPredicate(points, points.map(p => p.cat), cfg.catFont, step, orientation, undefined, true);
 
         // ------- scales
-        const mainScale = this.makePanelScale(domains.main, panels.main, orientation, mainPadB);
+        let mainScale = this.makePanelScale(domains.main, panels.main, orientation, mainPadB);
         this.lastScaleK = Math.abs(mainScale(1) - mainScale(0));
         const absScale = panels.abs
             ? this.makePanelScale(domains.abs, panels.abs, orientation, absPadB) : null;
         const relScale = panels.rel
             ? this.makePanelScale(domains.rel, panels.rel, orientation, relPadB) : null;
+        // 1.56 (B13 part 2): the Δ-only tile reports the px per unit of its Δ panel
+        // (absolute Δ first) — the reference tile and the zoom note compare with it
+        if (varOnly) {
+            const vs = absScale ?? relScale;
+            this.lastScaleK = vs ? Math.abs(vs(1) - vs(0)) : null;
+            this.varOnlyAbsK = absScale != null;
+            this.el("g", {
+                "data-icd": "var-only", "data-px-per-unit": (this.lastScaleK ?? 0).toFixed(4),
+                "data-panels": [absScale ? "abs" : "", relScale ? "rel" : ""].filter(x => x).join(",")
+            }, this.svg);
+        } else if (varOnlyWant) {
+            this.el("g", { "data-icd": "var-only-fallback" }, this.svg);
+        }
+        // the reference tile: columns on the px per unit of the group tiles' Δ panel
+        // when they fit, else a round reduction named in the title ("×0,5")
+        let refFactor = 1;
+        if (refOwn) {
+            const kNat = Math.abs(mainScale(1) - mainScale(0));
+            let k = kNat;
+            if (refOwn.kDelta != null && refOwn.kDelta > 0 && kNat > 0) {
+                refFactor = this.sameScaleFactor(refOwn.kDelta, kNat,
+                    Math.max(Math.abs(domains.main[0]), Math.abs(domains.main[1])), 0);
+                k = refOwn.kDelta * refFactor;
+                const z0 = mainScale(0), dir = Math.sign(mainScale(1) - z0) || (orientation === "columns" ? -1 : 1);
+                mainScale = (v: number) => z0 + dir * v * k;
+            }
+            this.lastScaleK = k;
+            this.el("g", {
+                "data-icd": "var-only-ref", "data-px-per-unit": k.toFixed(4), "data-factor": refFactor,
+                "data-k-delta": refOwn.kDelta != null ? refOwn.kDelta.toFixed(4) : ""
+            }, this.svg);
+        }
         const abs2Scale = panels.abs2
             ? this.makePanelScale(domains.abs2, panels.abs2, orientation, abs2PadB) : null;
         const rel2Scale = panels.rel2
@@ -16523,15 +16633,18 @@ export class Visual implements IVisual {
                 this.drawBaseline(bg, rect, scale, orientation, fcBoundary, bandEnd, kind, cfg.colors, true);
             }
         };
-        baseline(panels.main, mainScale, "ac");
+        if (!varOnly) { baseline(panels.main, mainScale, "ac"); }
         // B13 review (m4): the reference tile under the Ø basis has no Δ — its panels
         // keep their room (same scale in every tile) but get no title, axis or hint
         const noDelta = this.refTileNoDelta;
         const compactVarHint = compact && (cfg.showAbs || cfg.showRel) && !noDelta
             ? `  ·  Δ${cfg.basisLabel}${cfg.showRel ? " %" : ""}` : "";
         const barsTitleY = orientation === "bars" ? bandStart - 6 : undefined;
-        this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint,
-            orientation, titleH, region, barsTitleY, cfg.subtle);
+        if (!varOnly) {
+            this.drawPanelTitle(bg, panels.main, scenarioTitle + compactVarHint
+                + (refFactor !== 1 ? ` ${this.zoomText(refFactor)}` : ""),
+                orientation, titleH, region, barsTitleY, cfg.subtle);
+        }
         // magnified Δ panels say so: "×f" in the title (IBCS CH 4.5) …
         const zoomTag = zoom > 1 ? ` ×${zoom}` : "";
         if (panels.abs && absScale && !noDelta) {
@@ -16633,7 +16746,8 @@ export class Visual implements IVisual {
         }
 
         // ------- highlight bands (IBCS EMPHASIZE): shaded slot background
-        if (cfg.highlight.size > 0) {
+        // (1.56: not in a Δ-only deck, the band anchors on the base panel)
+        if (cfg.highlight.size > 0 && !voDeck) {
             const hlTop = Math.min(panels.main.y,
                 panels.abs ? panels.abs.y : Infinity,
                 panels.rel ? panels.rel.y : Infinity,
@@ -16658,7 +16772,7 @@ export class Visual implements IVisual {
         }
 
         // ------- moving average overlay (time series only)
-        if (cfg.movingAvg >= 2 && orientation === "columns") {
+        if (cfg.movingAvg >= 2 && orientation === "columns" && !varOnly) {
             this.drawMovingAverage(bg, points, (i: number) => lineMode
                 ? slotPos(i) + slotW / 2
                 : slotPos(i) + acShift + barW / 2, mainScale, cfg);
@@ -16712,115 +16826,139 @@ export class Visual implements IVisual {
             // EVERY capped element gets the break marker (S8) — a PY column ending
             // flat at the cap reads as "PY ≈ cap" otherwise
             const capped = (v: number | null) => cfg.capMax != null && v != null && v > cfg.capMax;
-            if (!lineMode && p.py != null) {
-                if (cfg.pyTriangle) {
-                    this.drawPyTriangle(g, pos, slotW, capV(p.py), mainScale, orientation, cfg);
-                    if (capped(p.py)) {
-                        // triangle sits just outside the slot — marker across its width
-                        const ts = Math.max(4.5, Math.min(9, slotW * 0.3)) * Math.min(this.fontK, 1.6);
-                        this.drawCapMarker(g, pos - ts, ts, mainScale, orientation, cfg);
+            // 1.56 (B13 part 2): a Δ-only tile draws no base bars and no value labels
+            if (!varOnly) {
+                if (!lineMode && p.py != null) {
+                    if (cfg.pyTriangle) {
+                        this.drawPyTriangle(g, pos, slotW, capV(p.py), mainScale, orientation, cfg);
+                        if (capped(p.py)) {
+                            // triangle sits just outside the slot — marker across its width
+                            const ts = Math.max(4.5, Math.min(9, slotW * 0.3)) * Math.min(this.fontK, 1.6);
+                            this.drawCapMarker(g, pos - ts, ts, mainScale, orientation, cfg);
+                        }
+                    } else {
+                        this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
+                            cfg.hc
+                                ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
+                                : { fill: cfg.colors.py });
+                        if (capped(p.py)) { this.drawCapMarker(g, pos, barW, mainScale, orientation, cfg); }
                     }
-                } else {
-                    this.drawBar(g, pos, barW, 0, capV(p.py), mainScale, orientation,
-                        cfg.hc
-                            ? { fill: cfg.paper, stroke: cfg.colors.py, "stroke-width": 1.2, "stroke-dasharray": "3,2" }
-                            : { fill: cfg.colors.py });
-                    if (capped(p.py)) { this.drawCapMarker(g, pos, barW, mainScale, orientation, cfg); }
                 }
-            }
-            if (!lineMode && p.pl != null) {
-                this.drawBar(g, pos + plShift, barW, 0, capV(p.pl), mainScale, orientation,
-                    { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
-                if (capped(p.pl)) { this.drawCapMarker(g, pos + plShift, barW, mainScale, orientation, cfg); }
-            }
-            // line mode: capped points of the AC/PY/PL lines get a compact marker
-            if (lineMode) {
-                const lx = slotPos(i) + slotW / 2;
-                const mw = Math.max(6, Math.min(12, slotW * 0.6));
-                if (capped(p.value) || capped(p.py) || capped(p.pl)) {
-                    this.drawCapMarker(g, lx - mw / 2, mw, mainScale, orientation, cfg);
+                if (!lineMode && p.pl != null) {
+                    this.drawBar(g, pos + plShift, barW, 0, capV(p.pl), mainScale, orientation,
+                        { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.4 });
+                    if (capped(p.pl)) { this.drawCapMarker(g, pos + plShift, barW, mainScale, orientation, cfg); }
                 }
-            }
-            // benchmark marker: bold tick across the slot at the BM value
-            if (p.bm != null) {
-                if (capped(p.bm)) { this.drawCapMarker(g, pos, slotW, mainScale, orientation, cfg); }
-                const bpos = mainScale(capV(p.bm));
-                if (orientation === "columns") {
-                    this.el("line", {
-                        x1: pos - 1, y1: bpos, x2: pos + slotW + 1, y2: bpos,
-                        stroke: cfg.ink, "stroke-width": 2.4
-                    }, g);
-                } else {
-                    this.el("line", {
-                        x1: bpos, y1: pos - 1, x2: bpos, y2: pos + slotW + 1,
-                        stroke: cfg.ink, "stroke-width": 2.4
-                    }, g);
-                }
-            }
-
-            if (p.value != null) {
-                if (this.compareActive) {
-                    this.compareAnchors.set(p.cat, { band: cx, end: mainScale(capV(p.value)), value: p.value });
-                }
+                // line mode: capped points of the AC/PY/PL lines get a compact marker
                 if (lineMode) {
-                    // transparent hit area for tooltips/selection + point marker
-                    this.el("rect", {
-                        x: pos, y: panels.main.y, width: slotW, height: panels.main.h,
-                        fill: cfg.paper, "fill-opacity": 0, "pointer-events": "all"
-                    }, g);
-                    this.el("circle", {
-                        cx, cy: mainScale(capV(p.value)), r: 2.6,
-                        fill: p.isFc ? cfg.paper : cfg.colors.ac,
-                        stroke: cfg.colors.ac, "stroke-width": 1.4
-                    }, g);
-                } else if (p.fcPart != null && p.fcPart > 0) {
-                    // AC+FC-Splitsäule: solider AC-Sockel, schraffierter FC-Aufsatz
-                    // (IBCS-Notation) — Trennkante zwischen beiden Segmenten
-                    const acEnd = capV(p.value - p.fcPart);
-                    this.drawBar(g, pos + acShift, barW, 0, acEnd, mainScale, orientation,
-                        { fill: cfg.colors.ac });
-                    this.drawBar(g, pos + acShift, barW, acEnd, capV(p.value), mainScale, orientation,
-                        { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 });
-                    if (cfg.capMax != null && p.value > cfg.capMax) {
-                        this.drawCapMarker(g, pos + acShift, barW, mainScale, orientation, cfg);
-                    }
-                } else {
-                    this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
-                        p.isFc
-                            ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
-                            : { fill: cfg.colors.ac });
-                    if (p.isPrelim && !p.isFc) {
-                        // preliminary actual: thin paper hatch over the solid bar
-                        this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
-                            { fill: `url(#${cfg.patPrelim})` });
-                    }
-                    if (cfg.capMax != null && p.value > cfg.capMax) {
-                        this.drawCapMarker(g, pos + acShift, barW, mainScale, orientation, cfg);
+                    const lx = slotPos(i) + slotW / 2;
+                    const mw = Math.max(6, Math.min(12, slotW * 0.6));
+                    if (capped(p.value) || capped(p.py) || capped(p.pl)) {
+                        this.drawCapMarker(g, lx - mw / 2, mw, mainScale, orientation, cfg);
                     }
                 }
-                if (cfg.showLabels && showValueAt(i)) {
-                    // anchor the label beyond the PL outline when the plan column is taller
-                    const cand = [p.value];
-                    if (!lineMode && p.pl != null) { cand.push(p.pl); }
-                    if (!lineMode && p.bm != null) { cand.push(p.bm); }
-                    let anchor = capV(p.value >= 0 ? Math.max(...cand) : Math.min(...cand));
-                    let up = p.value >= 0;
-                    let gapL = 0;
-                    if (lineMode) {
-                        // 1.52.1: the AC label never sits on a line — above the point when
-                        // AC is the top line here, below when it is the bottom one, else
-                        // above the highest line at this category
-                        const others = [cfg.hasPy ? p.py : null, cfg.hasPl ? p.pl : null]
-                            .filter((v): v is number => v != null);
-                        const lineW = Math.max(3, Math.round(2.4 * this.fontK * 2) / 2);
-                        gapL = lineW / 2 + 2;
-                        if (others.every(v => v <= (p.value as number))) { anchor = capV(p.value); up = true; }
-                        else if (others.every(v => v > (p.value as number))) { anchor = capV(p.value); up = false; }
-                        else { anchor = capV(Math.max(p.value, ...others)); up = true; }
+                // benchmark marker: bold tick across the slot at the BM value
+                if (p.bm != null) {
+                    if (capped(p.bm)) { this.drawCapMarker(g, pos, slotW, mainScale, orientation, cfg); }
+                    const bpos = mainScale(capV(p.bm));
+                    if (orientation === "columns") {
+                        this.el("line", {
+                            x1: pos - 1, y1: bpos, x2: pos + slotW + 1, y2: bpos,
+                            stroke: cfg.ink, "stroke-width": 2.4
+                        }, g);
+                    } else {
+                        this.el("line", {
+                            x1: bpos, y1: pos - 1, x2: bpos, y2: pos + slotW + 1,
+                            stroke: cfg.ink, "stroke-width": 2.4
+                        }, g);
                     }
-                    this.drawEndLabelAt(g, cx, anchor, up, mainScale,
-                        orientation, valueTexts[i], cfg.labelFont, cfg.ink, gapL, cfg.paper);
-                    // compact mode: variance becomes a colored second label at the bar end
+                }
+
+                if (p.value != null) {
+                    if (this.compareActive) {
+                        this.compareAnchors.set(p.cat, { band: cx, end: mainScale(capV(p.value)), value: p.value });
+                    }
+                    if (lineMode) {
+                        // transparent hit area for tooltips/selection + point marker
+                        this.el("rect", {
+                            x: pos, y: panels.main.y, width: slotW, height: panels.main.h,
+                            fill: cfg.paper, "fill-opacity": 0, "pointer-events": "all"
+                        }, g);
+                        this.el("circle", {
+                            cx, cy: mainScale(capV(p.value)), r: 2.6,
+                            fill: p.isFc ? cfg.paper : cfg.colors.ac,
+                            stroke: cfg.colors.ac, "stroke-width": 1.4
+                        }, g);
+                    } else if (p.fcPart != null && p.fcPart > 0) {
+                        // AC+FC-Splitsäule: solider AC-Sockel, schraffierter FC-Aufsatz
+                        // (IBCS-Notation) — Trennkante zwischen beiden Segmenten
+                        const acEnd = capV(p.value - p.fcPart);
+                        this.drawBar(g, pos + acShift, barW, 0, acEnd, mainScale, orientation,
+                            { fill: cfg.colors.ac });
+                        this.drawBar(g, pos + acShift, barW, acEnd, capV(p.value), mainScale, orientation,
+                            { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 });
+                        if (cfg.capMax != null && p.value > cfg.capMax) {
+                            this.drawCapMarker(g, pos + acShift, barW, mainScale, orientation, cfg);
+                        }
+                    } else {
+                        this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
+                            p.isFc
+                                ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
+                                : { fill: cfg.colors.ac });
+                        if (p.isPrelim && !p.isFc) {
+                            // preliminary actual: thin paper hatch over the solid bar
+                            this.drawBar(g, pos + acShift, barW, 0, capV(p.value), mainScale, orientation,
+                                { fill: `url(#${cfg.patPrelim})` });
+                        }
+                        if (cfg.capMax != null && p.value > cfg.capMax) {
+                            this.drawCapMarker(g, pos + acShift, barW, mainScale, orientation, cfg);
+                        }
+                    }
+                    if (cfg.showLabels && showValueAt(i)) {
+                        // anchor the label beyond the PL outline when the plan column is taller
+                        const cand = [p.value];
+                        if (!lineMode && p.pl != null) { cand.push(p.pl); }
+                        if (!lineMode && p.bm != null) { cand.push(p.bm); }
+                        let anchor = capV(p.value >= 0 ? Math.max(...cand) : Math.min(...cand));
+                        let up = p.value >= 0;
+                        let gapL = 0;
+                        if (lineMode) {
+                            // 1.52.1: the AC label never sits on a line — above the point when
+                            // AC is the top line here, below when it is the bottom one, else
+                            // above the highest line at this category
+                            const others = [cfg.hasPy ? p.py : null, cfg.hasPl ? p.pl : null]
+                                .filter((v): v is number => v != null);
+                            const lineW = Math.max(3, Math.round(2.4 * this.fontK * 2) / 2);
+                            gapL = lineW / 2 + 2;
+                            if (others.every(v => v <= (p.value as number))) { anchor = capV(p.value); up = true; }
+                            else if (others.every(v => v > (p.value as number))) { anchor = capV(p.value); up = false; }
+                            else { anchor = capV(Math.max(p.value, ...others)); up = true; }
+                        }
+                        this.drawEndLabelAt(g, cx, anchor, up, mainScale,
+                            orientation, valueTexts[i], cfg.labelFont, cfg.ink, gapL, cfg.paper);
+                        // compact mode: variance becomes a colored second label at the bar end
+                        if (compact && p.varAbs != null) {
+                            const good = cfg.isGood(p.varAbs, p);
+                            const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
+                                ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
+                            const vText = p.varRel != null ? relTexts[i] : absTexts[i];
+                            const gap = orientation === "columns"
+                                ? cfg.labelFont + 2
+                                : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
+                            this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
+                                orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
+                        }
+                    }
+                } else if (plOnly(p) && cfg.showLabels && showValueAt(i)) {
+                    // 1.55 (B13 review, M4): plan-only period, label over the PL outline
+                    const plv = p.pl as number;
+                    const cand = [plv];
+                    if (p.py != null) { cand.push(p.py); }
+                    if (p.bm != null) { cand.push(p.bm); }
+                    const anchor = capV(plv >= 0 ? Math.max(...cand) : Math.min(...cand));
+                    const pcx = pos + plShift + barW / 2;
+                    this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
+                        orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
                     if (compact && p.varAbs != null) {
                         const good = cfg.isGood(p.varAbs, p);
                         const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
@@ -16829,30 +16967,9 @@ export class Visual implements IVisual {
                         const gap = orientation === "columns"
                             ? cfg.labelFont + 2
                             : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
-                        this.drawEndLabelAt(g, cx, anchor, p.value >= 0, mainScale,
+                        this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
                             orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
                     }
-                }
-            } else if (plOnly(p) && cfg.showLabels && showValueAt(i)) {
-                // 1.55 (B13 review, M4): plan-only period, label over the PL outline
-                const plv = p.pl as number;
-                const cand = [plv];
-                if (p.py != null) { cand.push(p.py); }
-                if (p.bm != null) { cand.push(p.bm); }
-                const anchor = capV(plv >= 0 ? Math.max(...cand) : Math.min(...cand));
-                const pcx = pos + plShift + barW / 2;
-                this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
-                    orientation, valueTexts[i], cfg.labelFont, cfg.ink, 0, cfg.paper);
-                if (compact && p.varAbs != null) {
-                    const good = cfg.isGood(p.varAbs, p);
-                    const vColor = (p.varAbs === 0 || !cfg.isMaterial(p))
-                        ? cfg.colors.py : (good ? cfg.colors.good : cfg.colors.bad);
-                    const vText = p.varRel != null ? relTexts[i] : absTexts[i];
-                    const gap = orientation === "columns"
-                        ? cfg.labelFont + 2
-                        : valueTexts[i].length * cfg.labelFont * 0.56 + 8;
-                    this.drawEndLabelAt(g, pcx, anchor, plv >= 0, mainScale,
-                        orientation, vText, cfg.labelFont, vColor, gap, cfg.paper);
                 }
             }
 
@@ -16995,12 +17112,37 @@ export class Visual implements IVisual {
             }
 
             // comment marker (numbered circle at the inner end of the bar)
-            if (p.commentNo != null && p.value != null) {
+            if (p.commentNo != null && p.value != null && !voDeck) {
                 this.drawCommentMarker(g, cx, p, mainScale, orientation, cfg);
             }
 
             this.attachInteraction(g, p, cfg);
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+        }
+
+        // ------- 1.56 (B13 part 2): Δ-only columns get light guide lines from each Δ
+        // mark (below its label) down to the category row, as on sheets 13C/13D
+        if (varOnly && orientation === "columns") {
+            const low = panels.abs && absScale ? { scale: absScale, abs: true }
+                : panels.rel && relScale ? { scale: relScale, abs: false } : null;
+            const yEnd = catRegion.y + catRegion.h - cfg.catFont - 2;
+            const rHead = Math.max(2.5, Math.min(4.5, slotW * 0.12));
+            if (low) {
+                const gl = this.el("g", { "data-icd": "var-only-guides" }, bg);
+                points.forEach((p, i) => {
+                    const v = low.abs ? p.varAbs : p.varRel;
+                    if (v == null) { return; }
+                    const labelOn = cfg.showLabels && (low.abs ? showAbsAt(i) : showRelAt(i));
+                    const y1 = v >= 0 ? low.scale(0) + 3
+                        : low.scale(v) + (low.abs ? 0 : rHead + 3) + (labelOn ? cfg.labelFont + 5 : 3);
+                    if (yEnd - y1 < 4) { return; }
+                    const x = slotPos(i) + acShift + barW / 2;
+                    this.el("line", {
+                        x1: x, y1, x2: x, y2: yEnd, stroke: cfg.subtle, "stroke-width": 1,
+                        "stroke-opacity": cfg.hc ? 0.6 : 0.3, "data-icd": "var-only-guide"
+                    }, gl);
+                });
+            }
         }
 
         // ------- 1.54 (B05): year column + scenario labels under the axis
@@ -17029,8 +17171,11 @@ export class Visual implements IVisual {
             if (firstPl > 0 && points.slice(firstPl).every(p => p.value == null)
                 && points.slice(0, firstPl).some(p => p.value != null)) {
                 const x = bandStart + firstPl * step;
+                // 1.56 (B13 part 2): in a Δ-only tile the line runs through the Δ panels
+                const yTopVo = Math.min(panels.abs ? panels.abs.y : Infinity, panels.rel ? panels.rel.y : Infinity) + 2;
                 this.el("line", {
-                    x1: x, y1: panels.main.y + panels.main.h, x2: x, y2: region.y + region.h,
+                    x1: x, y1: varOnly && Number.isFinite(yTopVo) ? yTopVo : panels.main.y + panels.main.h,
+                    x2: x, y2: region.y + region.h,
                     stroke: cfg.ink, "stroke-width": 1, "data-icd": "pl-boundary"
                 }, bg);
             }
@@ -17071,7 +17216,7 @@ export class Visual implements IVisual {
         }
 
         // ------- combo line: second measure over the columns, own zero-anchored scale
-        if (cfg.hasLine && orientation === "columns" && !lineMode) {
+        if (cfg.hasLine && orientation === "columns" && !lineMode && !varOnly) {
             const overlay = this.el("g", {}, this.svg);
             const lVals = points.map(p => p.lineVal);
             const lScale = this.makePanelScale(extent(lVals), panels.main, "columns", labelPad);
@@ -17112,7 +17257,7 @@ export class Visual implements IVisual {
         // strike through the value labels (they carry the message). A target above
         // a hard cap lies outside the drawn scale (S8: the domain no longer grows
         // past the cap for it) — no line rather than one at a false height
-        if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax)) {
+        if (cfg.refLine != null && !(cfg.capMax != null && cfg.refLine > cfg.capMax) && !varOnly) {
             this.drawRefLine(bg, panels.main, mainScale, orientation, bandStart, bandEnd, cfg);
         }
 
@@ -18892,6 +19037,35 @@ export class Visual implements IVisual {
         }
         parent.appendChild(node);
         return node;
+    }
+
+    /**
+     * 1.56 (B13 part 2, sheets 13C/13D): the Δ-only tile — the Δ panel(s) take the
+     * whole plot span (Δ % above Δ for columns, Δ left of Δ % for bars); the base
+     * panel shrinks to a zero-size strip where the category labels anchor (bottom
+     * for columns, left for bars).
+     */
+    private splitVarOnly(start: number, span: number, showAbs: boolean, showRel: boolean,
+        vertical: boolean, region: Rect): { main: Rect; abs?: Rect; rel?: Rect } {
+        const gap = 10;
+        const both = showAbs && showRel;
+        const usable = Math.max(span - (both ? gap : 0), 0);
+        const relS = both ? usable * 0.45 : usable;
+        const absS = both ? usable - relS : usable;
+        const rect = (a: number, sz: number): Rect => vertical
+            ? { x: region.x, y: a, w: region.w, h: sz } : { x: a, y: region.y, w: sz, h: region.h };
+        const out: { main: Rect; abs?: Rect; rel?: Rect } = vertical
+            ? { main: { x: region.x, y: start + span, w: region.w, h: 0 } }
+            : { main: { x: start, y: region.y, w: 0, h: region.h } };
+        let c = start;
+        if (vertical) {
+            if (showRel) { out.rel = rect(c, relS); c += relS + gap; }
+            if (showAbs) { out.abs = rect(c, absS); }
+        } else {
+            if (showAbs) { out.abs = rect(c, absS); c += absS + gap; }
+            if (showRel) { out.rel = rect(c, relS); }
+        }
+        return out;
     }
 
     private splitPanels(start: number, span: number, showAbs: boolean, showRel: boolean,

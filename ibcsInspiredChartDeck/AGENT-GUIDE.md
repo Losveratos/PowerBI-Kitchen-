@@ -13,6 +13,30 @@ im Abschnitt „Settings-Referenz“ nie von Hand ändern, sondern `settings.ts`
 Stand: **1.55.0.0** (21.11.2026): Backlog IBCS-Templates B09, B10, B11 (Teil 1), B12, B13 (siehe „Neu in 1.55“); davor 1.54 mit B01, B04, B05, B06, B14.
 Bei Versionssprüngen: CHANGELOG.md zuerst lesen.
 
+**Neu in 1.56 (in Arbeit):**
+
+*B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C, 13D).* `chart.varianceOnly` (bool, Standard false, Gruppe „Small
+Multiples“; Pane nur bei Säulen und Balken ohne Stack-Series und ohne `waterfallStyle`). Wirkt nur mit Small Multiples
+(`multOrig`), Säulen oder Balken, ohne Stapel und Brücke, und wenn `showAbs` oder `showRel` aktiv ist
+(`cfg.varianceOnly`); dann ist `showDual` aus und die Jahressäule wird nicht gebaut. Basis: `multiplesBasis=avg` (ΔØ)
+oder Szenario (ΔPY/ΔPL). `domains.abs`/`rel` kommen aus `shownGroups` ohne `kind === "total"` (plus `fixedVarMax`).
+`renderChartBody`: Δ-Kachel (`varOnly`, ab 110 px Höhe bei Säulen, 240 px Breite bei Balken, sonst
+`var-only-fallback` und normale Ansicht) teilt die Plotfläche mit `splitVarOnly` (Δ % über Δ bei Säulen, Δ links von
+Δ % bei Balken, `panels.main` als Streifen der Größe 0 unten bzw. links); keine Grundlinie, kein Titel, keine Balken
+und Werte des Basis-Panels, kein Σ-Kopf, keine Referenzlinie, kein gleitender Durchschnitt, keine Kombi-Linie. Balken:
+Label-Platz aus den deckweiten Δ-Extremen (gleicher px je Einheit). Deckweit aus (`voDeck`, auch in der
+Bezugskachel): Kommentar-Marken, Hervorhebungsband, Differenzmarker. `lastScaleK` = px je Einheit des
+absoluten Δ-Panels (sonst Δ %), `varOnlyAbsK` sagt, ob es das absolute war. `pl-boundary` beginnt oben im Δ-Panel.
+Bezugskachel: `renderCell` misst per `measureScaleK` eine Gruppen-Kachel gleicher Größe (nur mit `showAbs`) und
+zeichnet die Bezugskachel mit einer cfg-Kopie ohne Δ (`varOnlyRef`): eigene Domain (Ausdehnung der eigenen Werte samt
+`refLine`, gekappt bei `capMax`), px je Einheit = kDelta × `sameScaleFactor(kDelta, kFit, max, 0)`, Faktor ≠ 1 als
+„×f“ im Titel. Testmarker: `var-only` (`data-px-per-unit`, `data-panels`), `var-only-fallback`, `var-only-ref`
+(`data-px-per-unit`, `data-factor`, `data-k-delta`, leer ohne absolutes Δ), `var-only-guides`/`var-only-guide`
+(Hilfslinien nur bei Säulen, Deckkraft 0,3, Hochkontrast 0,6). Rezept 13C: Rezept 13A + `multiplesBasis=avg` +
+`showAbsoluteVariance` + `varianceOnly`; 13D dasselbe mit `showRelativeVariance` statt absolut. Nicht abgebildet: die
+doppelt hohe Kachel (13B, Teil 1b), „ΔØ“ rechts an der Nulllinie, Δ %-Beschriftung ganzzahlig. Tests c700 bis c710.
+838 resjson-Keys je Sprache.
+
 **Neu in 1.55 (Backlog IBCS-Templates Teil 2, 21.11.2026):**
 
 *B10 · Stapel-Struktur (Blätter 01D, 01E, 02B bis 02E).* Alle Properties im Objekt `chart`, Formatbereich-Gruppe „Darstellung“. `stackNormalize` („Stapel-Skala“: `off` = „Werte“ | `pct100` = „100 % (Anteile)“, Standard `off`): gestapelte Säulen und Balken als 100 % je Kategorie, Beschriftungen sind Anteile mit einer Nachkommastelle, Panel-Titel mit Zusatz „Anteile in %“. 100 % gilt nur, wenn nichts Negatives gestapelt ist (nach Top N), sonst bleibt der Stapel bei Werten. „100 %“-Marke: bei Säulen über der äußeren Säule (Seite der Seriennamen), bei Balken eine dünne Linie bei 100 % durch alle Zeilen einschließlich der Σ-Zeile mit „▲ 100 %“ darunter. Eine Referenzlinie wird bei 100 % als Anteil gelesen (0 bis 100, größere Werte werden nicht gezeichnet); `fixedMax`/`capOverflow` gelten nicht für Anteile. Bei 100 %-Balken zeigt `showTotal` („Summen-Kopfzeile (Σ)“, Standard an) ein Summen-Panel rechts mit eigener Skala, nur ab 280 px Kachelbreite; bei Small Multiples teilen sich alle Kacheln einen Pixelwert je Einheit, Forecast-Kategorien sind dort schraffiert, Plan-Kategorien umrandet, der Kopf nennt die Szenarien („Σ AC · PL“, „(↓)“ bei Sortierung nach Summe). `stackTotalRow` („Σ-Zeile im Stapel“, bool, Standard aus, nur Balken): Σ-Zeile unten; bei Werten Legendenzeile mit Summe je Serie und Gesamtsumme („= 3.733“; die Serien-Summen ganz oder gar nicht, passen sie nicht, nur die Gesamtsumme; kein Summenbalken, die Summe passt nicht auf die Zeilenskala), bei 100 % ein 100 %-Balken mit dem Gesamtmix. Die Σ-Zeile summiert nur ein Szenario: Bei gemischten AC-, FC- und PL-Kategorien entfällt sie. `stackTotalLabel` („Beschriftung der Σ-Zeile“, Text, leer = „Σ“, z. B. „World“). `stackLegendPos` („Seriennamen (Säulen)“: `end` = „Rechts neben der letzten Säule“, Standard | `start` = „Links neben der ersten Säule“, Blatt 01E). `sortMode` kennt neu `series` („Nach erster Serie (Stapel)“); in Stapelbalken sortiert `ac` nach Stapelsumme, `series` nach der ersten Serie (bei 100 % nach deren Anteil, Blatt 02E); „(↓)“ markiert die sortierte Serie in der Legende; Rest-Kategorien (Rest, Others, Sonstige, „Rest of …“, Top-N-Rest) bleiben am Ende und kursiv. Die Serienreihenfolge eines Stapels bleibt wie geliefert: Sortierung und Top N ändern weder Farbtöne noch Legendenreihenfolge noch, welche Serie die „erste“ ist. Zwei Verhaltensänderungen: (1) `chart.topN` bei Stapelbalken reiht jetzt ganze Kategorien nach Stapelsumme, behält alle Serien-Zellen der Top N und fasst den Rest je Serie zu „Rest (n)“ zusammen (vorher einzelne Zellen und eine Serie „(leer)“). (2) Ein 1.54-Bericht mit Stapelbalken und gespeichertem `sortMode` `ac` („Nach AC“) wird jetzt nach Stapelsumme sortiert (vorher ohne Wirkung auf Stapel). Testmarker (`data-icd`): `stack-100` (100 %-Marke), `stack-total-row` (Σ-Zeile), `stack-total-seg` (Segment der Σ-Zeile, mit `data-series`), `stack-total-grand` (Gesamtsumme), `stack-total-panel` (Summen-Panel, mit `data-px-per-unit`), `sort-mark` (Sortiermarke „(↓)“), `stack-rest` (Rest-Kategorie); die Wurzelgruppe trägt `data-norm="pct100"`, wenn 100 % aktiv ist. Mit den neuen Optionen aus zeichnen Stapel unverändert (SVG-Hash der 364 Harness-Stufen). Nicht abgebildet: 02A (Blöcke mit Zwischensummen), Klammer mit kumuliertem Anteil (02C), Pfeile, Ellipse um ein Segment; Rest-Zeilen behalten in 02B/02D/02E ihren Rang (nur „Rest of world“ zuletzt), ChartKitchen setzt alle Rest-Zeilen ans Ende (B04-Regel), und auf den Blättern sind bei Rest-Zeilen auch die Zahlen kursiv, hier nur der Name. Tests c283 bis c289 und c295 bis c299b.
@@ -148,8 +172,8 @@ ist, sonst SVG byte-gleich): `mult-tile` je Kachel (`data-group`, `data-kind` = 
 an Bezugs- und Rest-Kachel, `data-x/y/w/h` = Zelle), `mult-ref-bg` (Hinterlegung), `mult-basis` (`data-basis="avg"`),
 `var-plan` (Plan-Δ-Balken und Pin-Kopf). Rezept 13A: `multiplesTotal` + `multiplesAgg=mean` + `multiplesTotalPos=last`
 + `multiplesTotalShade` + `multiplesTopN` + beide Titel + `scenarioLabels`, Δ-Panels aus. 13C zusätzlich
-`multiplesBasis=avg` und `showAbsoluteVariance` (zeigt heute noch die Säulen unter dem Δ-Panel; `varianceOnly` und
-die freie Hero-Kachel 13B folgen). Tests c500 bis c504, c510 bis c514. 797 resjson-Keys je Sprache. Review-Stand: Ohne Kumulierung läuft der
+`multiplesBasis=avg` und `showAbsoluteVariance` (zeigt die Säulen unter dem Δ-Panel; nur das Δ-Panel mit
+`varianceOnly` ab 1.56, siehe oben; die freie Hero-Kachel 13B folgt). Tests c500 bis c504, c510 bis c514. 797 resjson-Keys je Sprache. Review-Stand: Ohne Kumulierung läuft der
 Ø-Durchlauf vor Ausnahmefilter und Top N je Kachel (Kumulierung: nach `cumulate`, dort sind beide aus);
 Sammelzeilen aus `aggregateTail` summieren unter `avgRows` die Basis der Mitglieder gleicher Ebene (mit Wert, sonst
 nur Plan) und rechnen Δ neu, ohne Δ2, `varPlan` bei reinen Planzeilen. Σ-Kopf (`drawTotalHeader`) und Kernaussage
@@ -663,6 +687,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `multiplesTotalLabel` | text | leer | Eigener Titel der Bezugskachel, {n} steht für die Zahl der Gruppen, z. B. „Durchschnitt {n} Standorte“. Leer = „Σ Gesamt“ bzw. „Ø Durchschnitt (n)“. |
 | `multiplesRestLabel` | text | leer | Eigener Titel der Rest-Kachel bei „Top N Kacheln“, {n} steht für die Zahl der zusammengefassten Gruppen, z. B. „{n} weitere kleine Standorte“. Leer = „Rest (n)“. |
 | `multiplesBasis` | enum | `scenario` | `scenario` · `avg` — Szenario (Standard): jede Kachel vergleicht mit PY bzw. PL. „Durchschnitt aller Kacheln (Ø)“: jede Kachel vergleicht je Kategorie mit dem Durchschnitt aller Gruppen, ohne Hilfs-Measure (Panel „ΔØ“) … |
+| `varianceOnly` | bool | `false` | Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten … |
 
 **Brücke**
 

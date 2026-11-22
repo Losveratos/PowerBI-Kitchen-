@@ -1,5 +1,31 @@
 # Changelog · ChartKitchen byDatenWG
 
+## 1.56.0.0 (in Arbeit)
+
+- **B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C und 13D).** Vorher: Kacheln gegen den Durchschnitt zeigten
+  unter dem ΔØ-Panel immer auch ihre Säulen, 13C und 13D waren nur teilweise abbildbar. Nachher:
+  - **„Nur Abweichungs-Panel“** (`chart.varianceOnly`, bool, Standard aus, Gruppe „Small Multiples“, nur Säulen und
+    Balken ohne Stapel und ohne Wasserfall-Stil, wirkt nur mit Small Multiples): Jede Gruppen-Kachel zeigt nur ihr
+    Abweichungs-Panel, mit „Absolute Abweichung“ die ΔØ-Balken (13C), mit „Relative Abweichung“ die ΔØ %-Pins (13D),
+    mit beiden zwei Panels. Alle Kacheln teilen eine Δ-Skala über die gezeichneten Kacheln ohne Bezugskachel (eine
+    summierte Σ-Abweichung staucht die Skala nicht). Kategorie- und Szenario-Beschriftung stehen unten, helle
+    Hilfslinien führen von jeder Marke zur Kategoriezeile, die Plan-Grenze läuft durch das Panel. Wirkt auch mit der
+    Szenario-Basis (ΔPY bzw. ΔPL).
+  - **Bezugskachel:** behält ihre Säulen über die ganze Höhe auf eigener Skala. Mit absolutem Δ nutzt sie den px-Wert
+    je Einheit der ΔØ-Panels (gemessen an einer Gruppen-Kachel gleicher Größe), wenn ihre Werte hineinpassen, sonst
+    eine runde Verkleinerung mit Faktor im Panel-Titel („AC · PL ×0,5“). Nur mit Δ % gibt es keinen Vergleich, sie
+    skaliert für sich.
+  - **Plan-Notation:** Planjahre bleiben wie in Teil 1 umrandet mit blasser Füllung (Balken) bzw. mit hohlem Kopf (Pins).
+  - **Ausgeschaltet in dieser Ansicht** (ganze Kachelgruppe): Kommentar-Marken, Hervorhebungsband, Differenzmarker (B09),
+    Jahressäule (B05), Σ-Kopf, Referenzlinie, gleitender Durchschnitt und Kombi-Linie der Gruppen-Kacheln, doppelte
+    Abweichung. Kacheln unter 110 px Höhe (Säulen) bzw. 240 px Breite (Balken) fallen auf die normale Ansicht zurück.
+  - Testmarker (`data-icd`): `var-only` je Δ-Kachel (`data-px-per-unit`, `data-panels` = `abs`, `rel` oder beides),
+    `var-only-fallback`, `var-only-ref` an der Bezugskachel (`data-px-per-unit`, `data-factor`, `data-k-delta`),
+    `var-only-guides` mit `var-only-guide`. Mit der Option aus sind alle 485 Harness-Stufen SVG-gleich. Tests c700 bis
+    c710. 838 resjson-Keys je Sprache. Abweichungen zu den Blättern: Berlin über zwei Zeilen (13B-Heldenkachel) fehlt,
+    Panel-Titel „ΔØ“ oben links statt rechts an der Nulllinie, Kategoriebeschriftung nach Platz statt fest jedes
+    sechste Jahr.
+
 ## 1.55.0.0 (2026-11-21, Backlog IBCS-Templates Teil 2)
 
 **Ziel: weitere IBCS-Template-Blätter direkt abbildbar (Stapel 01D, 01E, 02B bis 02E; Differenzmarker 01A, 01B, 05X; Portfolio-Blasen 10A, 10B, 10D; Small Multiples gegen Durchschnitt 13A; Bestand und Fluss 08E bis 08H). Neue Schalter stehen standardmäßig aus; die Verhaltensänderungen (Top N und „Nach AC“ bei Stapelbalken, Planwert an reinen Planperioden) sind genannt.**

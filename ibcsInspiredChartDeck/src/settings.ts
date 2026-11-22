@@ -841,6 +841,16 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: multiplesBasisItems[0]
     });
 
+    // 1.56 (B13 part 2, IBCS sheets 13C/13D): tiles with only their variance panel
+    varianceOnly = new formattingSettings.ToggleSwitch({
+        name: "varianceOnly",
+        displayName: "Variance panel only",
+        displayNameKey: "Chart_VarianceOnly",
+        description: "Small Multiples mit Säulen oder Balken: jede Kachel zeigt nur ihr Abweichungs-Panel (ΔØ bzw. ΔPY/ΔPL, Balken oder Pins) auf einer gemeinsamen Δ-Skala, Kategorie- und Szenario-Beschriftung stehen unten. Die Bezugskachel (Σ bzw. Ø) behält ihre Säulen auf eigener Skala; weicht deren Maßstab von der Δ-Skala ab, steht der Faktor im Titel (z. B. ×0,5). Planjahre erscheinen in Plan-Notation (umrandet, blasse Füllung bzw. hohler Pin-Kopf). Kommentare, Hervorhebungsband, Differenzmarker und Jahressäule entfallen in dieser Ansicht. Kleine Kacheln fallen auf die normale Ansicht zurück. Rezept 13C: Basis Ø mit absoluter Abweichung, 13D: Basis Ø mit relativer Abweichung.",
+        descriptionKey: "Desc_Chart_VarianceOnly",
+        value: false
+    });
+
     multiplesGroup = new formattingSettings.Group({
         name: "chartMultiples",
         displayName: "Small Multiples",
@@ -848,7 +858,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero,
             this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
             this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
-            this.multiplesBasis]
+            this.multiplesBasis, this.varianceOnly]
     });
 
     bridgeOrientation = new formattingSettings.ItemDropdown({
