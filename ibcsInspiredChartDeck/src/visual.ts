@@ -15755,9 +15755,16 @@ export class Visual implements IVisual {
             const scale = this.makePanelScale(domain, rect, orientation, labelPad);
             const step = (bandEnd - bandStart) / slotsN;
             const slotW = Math.max(2, step * SLOT_ABS);
+            // 1.57 (B20): slot geometry — slotY(s) is the top of slot s, slotH(s) its
+            // height, barW(i) the bar thickness of row i; with equal thickness they are
+            // exactly the former bandStart + slot * step, step and slotW
+            const slotY = (slot: number) => bandStart + slot * step;
+            const slotH = (_slot: number) => step;
             const posS = (slot: number) => bandStart + slot * step + (step - slotW) / 2;
             const pos = (i: number) => posS(rowSlot[i]);
-            return { bandStart, bandEnd, rect, scale, step, slotW, pos, posS };
+            const barW = (_i: number) => slotW;
+            const rowH = (i: number) => slotH(rowSlot[i]);
+            return { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH };
         };
         // the name positions along the value axis, or null when they do not fit
         const directNames = (L: ReturnType<typeof layout>): { s: number; at: number; y?: number }[] | null => {
@@ -15834,7 +15841,7 @@ export class Visual implements IVisual {
         let L = layout(directWanted);
         const names = directWanted ? directNames(L) : null;
         if (directWanted && !names) { L = layout(false); }
-        const { bandStart, bandEnd, rect, scale, step, slotW, pos, posS } = L;
+        const { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH } = L;
 
         const bg = this.el("g", norm ? { "data-norm": "pct100" } : {}, this.svg);
         if (blocksActive) { bg.setAttribute("data-blocks", String(blocks.length)); }
@@ -15891,11 +15898,11 @@ export class Visual implements IVisual {
             for (let i = 0; i < n; i++) {
                 if (!emphRow(i)) { continue; }
                 if (orientation === "columns") {
-                    this.emphBand(bg, bandStart + rowSlot[i] * step + 1, hlTop, step - 2,
+                    this.emphBand(bg, slotY(rowSlot[i]) + 1, hlTop, slotH(rowSlot[i]) - 2,
                         region.y + region.h - hlTop, cfg);
                 } else {
-                    this.emphBand(bg, region.x + 1, bandStart + rowSlot[i] * step + 1,
-                        region.w - 2, step - 2, cfg);
+                    this.emphBand(bg, region.x + 1, slotY(rowSlot[i]) + 1,
+                        region.w - 2, slotH(rowSlot[i]) - 2, cfg);
                 }
             }
         }
@@ -15906,7 +15913,7 @@ export class Visual implements IVisual {
         if (groupEvery > 0 && groupEvery < n && !blocksActive) {
             for (let i = groupEvery; i < n; i += groupEvery) {
                 if (orientation === "columns" && scen[i] !== scen[i - 1]) { continue; }
-                const p1 = bandStart + rowSlot[i] * step;
+                const p1 = slotY(rowSlot[i]);
                 this.el("line", orientation === "columns"
                     ? { x1: p1, y1: rect.y + 2, x2: p1, y2: rect.y + rect.h }
                     : { x1: rect.x, y1: p1, x2: rect.x + rect.w, y2: p1 }, bg);
@@ -15929,7 +15936,7 @@ export class Visual implements IVisual {
         if (orientation === "columns" && anyScen && monotone) {
             for (let i = 1; i < n; i++) {
                 if (scen[i] === scen[i - 1]) { continue; }
-                const x = bandStart + rowSlot[i] * step;
+                const x = slotY(rowSlot[i]);
                 const icd = scen[i] === "pl" ? "pl-boundary" : "fc-boundary";
                 const ln = this.el("line", {
                     x1: x, y1: rect.y + 2, x2: x, y2: rect.y + rect.h,
@@ -15966,7 +15973,7 @@ export class Visual implements IVisual {
                 t.setAttribute("font-family", FONT);
                 t.textContent = "100 % ▼";
             } else {
-                this.el("line", { x1: y100, y1: bandStart, x2: y100, y2: bandStart + slotsN * step,
+                this.el("line", { x1: y100, y1: bandStart, x2: y100, y2: slotY(slotsN),
                     stroke: cfg.ink, "stroke-width": 1 }, m100);
                 const tw = this.textWidth("▲", lf, true);
                 const t = this.el("text", { x: y100 - tw / 2, y: bandEnd + lf + 4, "text-anchor": "start",
@@ -16006,6 +16013,8 @@ export class Visual implements IVisual {
 
         cats.forEach((c, i) => {
             const gCat = this.el("g", {}, blocksActive ? blockGs[blockOfRow[i]] : marks) as SVGGElement;
+            // 1.57 (B20): bar thickness and slot height of this row
+            const bw = barW(i), rh = rowH(i);
             // positive segments stack upward from 0, negative ones downward (S5) —
             // they used to be dropped silently, also from the total
             let cumPos = 0, cumNeg = 0;
@@ -16030,19 +16039,19 @@ export class Visual implements IVisual {
                 if (kind === "ac") {
                     if (fcP > 0) {
                         // acFcSplit: solid AC socket + hatched FC part inside the segment
-                        this.drawBar(g, pos(i), slotW, capV(from), capV(to - fcP), scale, orientation,
+                        this.drawBar(g, pos(i), bw, capV(from), capV(to - fcP), scale, orientation,
                             { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
-                        this.drawBar(g, pos(i), slotW, capV(to - fcP), capV(to), scale, orientation,
+                        this.drawBar(g, pos(i), bw, capV(to - fcP), capV(to), scale, orientation,
                             { fill: `url(#${this.stackHatch(cfg, si, shade(si))})`, stroke: cfg.colors.ac, "stroke-width": 1 });
                     } else {
-                        this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation,
+                        this.drawBar(g, pos(i), bw, capV(from), capV(to), scale, orientation,
                             { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
                     }
                 } else if (kind === "fc") {
-                    this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation,
+                    this.drawBar(g, pos(i), bw, capV(from), capV(to), scale, orientation,
                         { fill: `url(#${this.stackHatch(cfg, si, shade(si))})`, stroke: cfg.colors.ac, "stroke-width": 1 });
                 } else {
-                    this.drawBar(g, pos(i), slotW, capV(from), capV(to), scale, orientation, cfg.hc
+                    this.drawBar(g, pos(i), bw, capV(from), capV(to), scale, orientation, cfg.hc
                         ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
                         : { fill: shade(si), "fill-opacity": 0.28, stroke: cfg.colors.pl, "stroke-width": 1.2 });
                 }
@@ -16052,8 +16061,8 @@ export class Visual implements IVisual {
                     const mid = (a + b) / 2;
                     const light = si > (series.length - 1) / 2;
                     const st = this.el("text", {
-                        x: orientation === "columns" ? pos(i) + slotW / 2 : mid,
-                        y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + slotW / 2 + lf * 0.35,
+                        x: orientation === "columns" ? pos(i) + bw / 2 : mid,
+                        y: orientation === "columns" ? mid + lf * 0.35 : pos(i) + bw / 2 + lf * 0.35,
                         "text-anchor": "middle", "font-size": Math.round(lf * 0.92),
                         fill: cfg.hc ? cfg.ink : (kind !== "ac" || splitFc ? cfg.ink : segInk(si, light)), "font-family": FONT,
                         ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
@@ -16069,12 +16078,12 @@ export class Visual implements IVisual {
                     // columns: in the gap beside the column (left of the last one when the
                     // series names stand on its right), never over the segment label;
                     // bars: on the lower edge, the names sit above the bars
-                    const roomSide = step - slotW >= 2 * r + 2;
+                    const roomSide = rh - bw >= 2 * r + 2;
                     const leftSide = names != null && i === n - 1;
                     const cxCol = leftSide ? pos(i) - (roomSide ? r + 1 : -r)
-                        : pos(i) + slotW + (roomSide ? r + 1 : -r);
+                        : pos(i) + bw + (roomSide ? r + 1 : -r);
                     this.drawCommentMarker(cg, 0, p, scale, orientation, cfg,
-                        orientation === "columns" ? { cx: cxCol, cy: mid } : { cx: mid, cy: pos(i) + slotW });
+                        orientation === "columns" ? { cx: cxCol, cy: mid } : { cx: mid, cy: pos(i) + bw });
                 }
                 this.attachInteraction(g, p, cfg);
                 if (kind !== "ac" || norm) {
@@ -16086,20 +16095,20 @@ export class Visual implements IVisual {
             });
             // stack beyond a hard scale cap: IBCS break marker at the cut end
             if (cap != null && posTot[i] > cap) {
-                this.drawCapMarker(gCat, pos(i), slotW, scale, orientation, cfg);
+                this.drawCapMarker(gCat, pos(i), bw, scale, orientation, cfg);
             }
             // net total label at the outer end of the positive stack (or of the
             // negative one when there is nothing above zero). 1.52.1: a stack of ONE
             // labelled segment shows its value once, not "2,5M | 2,5M"
             if (cfg.showLabels && !norm && showTotalAt(i) && !(segN === 1 && segLabelled === 1)) {
                 const up = posTot[i] > 0 || negTot[i] === 0;
-                this.drawEndLabelAt(gCat, pos(i) + slotW / 2, up ? capV(posTot[i]) : negTot[i], up, scale,
+                this.drawEndLabelAt(gCat, pos(i) + bw / 2, up ? capV(posTot[i]) : negTot[i], up, scale,
                     orientation, totalTexts[i], lf, cfg.ink, 0, cfg.paper);
             }
             const isHl = emphRow(i);
             if (showCatAt(i) || isHl) {
-                this.drawCategoryLabel(gCat, rowLabels[i], pos(i) + slotW / 2, orientation, cf,
-                    scenOn ? { ...region, h: region.h - (cf + 2) } : region, step, rect, cfg.ink, isHl);
+                this.drawCategoryLabel(gCat, rowLabels[i], pos(i) + bw / 2, orientation, cf,
+                    scenOn ? { ...region, h: region.h - (cf + 2) } : region, rh, rect, cfg.ink, isHl);
                 // rest categories (top-N rest, "Sonstige") italic while the stack is
                 // sorted or the rest is the top-N aggregate (B04 rule)
                 const restCat = series.some(sn => cell.get(`${c}¦${sn}`)?.isRest);
@@ -16129,8 +16138,8 @@ export class Visual implements IVisual {
                 if (arrowOn) {
                     // about one row high (sheet 02A), reaching into the gap above the bar;
                     // under a longer neighbour only as tall as the gap
-                    let hA = Math.max(9, Math.min(step - 1, 16 * k));
-                    if (aboveRight > xEnd - wH / 2 - 1) { hA = Math.min(hA, step - slotW - 1); }
+                    let hA = Math.max(9, Math.min(rh - 1, 16 * k));
+                    if (aboveRight > xEnd - wH / 2 - 1) { hA = Math.min(hA, rh - bw - 1); }
                     const wS = Math.max(2.5, 3.5 * k);
                     const tip = pos(i) - 1, top = tip - hA, yHead = tip - hA * 0.45;
                     if (hA >= 6) {
@@ -16150,7 +16159,7 @@ export class Visual implements IVisual {
                     const lw = cfg.showLabels && !norm ? this.textWidth(totalTexts[i], lf) : 0;
                     const cx = arrowOn ? xEnd + wH / 2 + 3 + rx : xEnd + 4 + Math.max(lw / 2, rx);
                     if (aboveRight > cx - rx - 1) {
-                        shareEllipse(gCat, xEnd + 4 + lw + 6 + rx, pos(i) + slotW / 2, rowShare, "stack-row-share");
+                        shareEllipse(gCat, xEnd + 4 + lw + 6 + rx, pos(i) + bw / 2, rowShare, "stack-row-share");
                     } else {
                         shareEllipse(gCat, cx, pos(i) - ry - 1, rowShare, "stack-row-share");
                     }
@@ -16161,8 +16170,8 @@ export class Visual implements IVisual {
         // ------- 1.55 (B09): stored difference markers (01A total and segment, 01B)
         if (stackDiff.length > 0) {
             this.drawDiffMarkers(this.el("g", {}, this.svg), stackDiff.map((x, i) => ({
-                spec: x.m, fromBand: pos(x.fi) + slotW / 2, toBand: pos(x.ti) + slotW / 2, halfW: slotW / 2,
-                toLo: pos(x.ti), toHi: pos(x.ti) + slotW, gap: step - slotW,
+                spec: x.m, fromBand: pos(x.fi) + barW(x.fi) / 2, toBand: pos(x.ti) + barW(x.ti) / 2, halfW: barW(x.ti) / 2,
+                toLo: pos(x.ti), toHi: pos(x.ti) + barW(x.ti), gap: rowH(x.ti) - barW(x.ti),
                 fromTop: x.topF, toTop: x.topT, d: x.vt - x.vf, base: x.vf,
                 // the level line only where levels are comparable: the total or the bottom series
                 level: x.si <= 0,
@@ -16170,7 +16179,7 @@ export class Visual implements IVisual {
                 edge: stackPlan[i].edge, k: stackPlan[i].k, kN: stackPlan[i].kN, pp: norm,
                 clearW: orientation === "bars" && x.si < 0 ? this.textWidth(cfg.fmt.format(x.vt), cfg.labelFont) : 0
             })), scale, orientation, cfg, region, bg,
-            cats.map((_, i) => ({ lo: pos(i), hi: pos(i) + slotW, top: scale(capV(posTot[i])) - 4 - cfg.labelFont })));
+            cats.map((_, i) => ({ lo: pos(i), hi: pos(i) + barW(i), top: scale(capV(posTot[i])) - 4 - cfg.labelFont })));
         }
         // ------- 1.55 (B09, 02C): share bracket — under row N to the end of the
         // reference (first series when sorted by it, else the stack), slanted up to
@@ -16209,7 +16218,7 @@ export class Visual implements IVisual {
         // in an ellipse behind it, in 100 % stacks with a side panel there
         const drawStackSumRow = (tg: SVGElement, label: string, sums: number[], total: number, slot: number,
             grandIcd: string, share: number | null = null): void => {
-            const yRow = bandStart + slot * step;
+            const yRow = slotY(slot);
             const ySlot = posS(slot);
             this.el("line", { x1: region.x + pad, y1: yRow, x2: rect.x + rect.w, y2: yRow,
                 stroke: cfg.ink, "stroke-width": 1 }, tg);
@@ -16298,7 +16307,7 @@ export class Visual implements IVisual {
             const labelRoom = this.textWidth(cfg.fmt.format(cfg.stackTotalMax), lf, true) + 6;
             const kSide = Math.max(0, (sideW - labelRoom - 4) / cfg.stackTotalMax);
             pg.setAttribute("data-px-per-unit", String(kSide));
-            this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: bandStart + rowsEnd * step, stroke: cfg.subtle, "stroke-width": 1 }, pg);
+            this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: slotY(rowsEnd), stroke: cfg.subtle, "stroke-width": 1 }, pg);
             const head = this.el("text", { x: x0, y: region.y + legendH + Math.round(10 * k), "font-size": Math.round(10 * k),
                 fill: cfg.subtle, "font-family": FONT }, pg);
             head.textContent = `Σ ${[scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "",
@@ -16306,12 +16315,12 @@ export class Visual implements IVisual {
             if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
             for (let i = 0; i < n; i++) {
                 const w = rawPos[i] * kSide;
-                this.el("rect", { x: x0, y: pos(i), width: Math.max(w, 0.5), height: slotW,
+                this.el("rect", { x: x0, y: pos(i), width: Math.max(w, 0.5), height: barW(i),
                     ...(scen[i] === "fc" ? { fill: `url(#${cfg.patId})`, stroke: cfg.colors.ac, "stroke-width": 1 }
                         : scen[i] === "pl" ? { fill: cfg.paper, stroke: cfg.colors.pl, "stroke-width": 1.2 }
                             : { fill: cfg.colors.ac }) }, pg);
                 if (cfg.showLabels) {
-                    const t = this.el("text", { x: x0 + w + 3, y: pos(i) + slotW / 2 + lf * 0.35, "font-size": lf,
+                    const t = this.el("text", { x: x0 + w + 3, y: pos(i) + barW(i) / 2 + lf * 0.35, "font-size": lf,
                         fill: cfg.ink, "font-family": FONT }, pg);
                     t.textContent = cfg.fmt.format(rawPos[i]);
                 }
