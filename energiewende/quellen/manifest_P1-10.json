@@ -1,0 +1,215 @@
+{
+  "hinweis": "Auftrag P1-10. Fremde Dokumente werden nicht gespiegelt; raw/ ist von Git ausgenommen. Eurostat-URLs ohne die Filter-Parameter angegeben, die genauen Abfragen stehen in scripts/p1_10_aufbereiten.py bzw. im Dossier.",
+  "eintraege": [
+    {
+      "id": "gdp_nama",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp (geo=DE)",
+      "datei": "raw/P1-10/gdp_nama.json",
+      "sha256": "af5d7aef3e683941430810c71c526a259f56b6fb72cb8d8ce97e14d0d1d00702",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "gdp_nama_peers",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp (EU27,FR,PL,ES,IT,DK)",
+      "datei": "raw/P1-10/gdp_nama_peers.json",
+      "sha256": "636d1bf8fd0d9ee1cc05f4049db846f9b2ae00d04775347ede3a5a60a3fa57be",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ip_annual",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_a",
+      "datei": "raw/P1-10/ip_annual.json",
+      "sha256": "ecec1e48807f9db24a217206f65e9776935b6f550badd1bec8c31629f724759a",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_205_ind_el",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205",
+      "datei": "raw/P1-10/nrg_pc_205_ind_el.json",
+      "sha256": "36b99350d3f5a956e781baf71c5c3064303becfa3018563973ea8b47abcd968c",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_204_hh_el",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_204",
+      "datei": "raw/P1-10/nrg_pc_204_hh_el.json",
+      "sha256": "3941c646914cce1ef942bfef4c89fcae56d932976497cc595de3dff16d720a42",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_203_ind_gas",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_203",
+      "datei": "raw/P1-10/nrg_pc_203_ind_gas.json",
+      "sha256": "f0782cd09c9a0bc704c36979e7bcd6af7164cb10a419e807a78cd87a7207e0e8",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_202_hh_gas",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_202",
+      "datei": "raw/P1-10/nrg_pc_202_hh_gas.json",
+      "sha256": "9aa4383b98f86ae90af906f73b4bfbcbc01977b697c9e02c31a94dc262e4221c",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_204_c_de",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_204_c",
+      "datei": "raw/P1-10/nrg_pc_204_c_de.json",
+      "sha256": "f2b28f67e051cf0d9ae79f9d18251cd0585b380f2c4b913c31746d36396055f3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "nrg_pc_205_c_de",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205_c",
+      "datei": "raw/P1-10/nrg_pc_205_c_de.json",
+      "sha256": "706c0931e4ada6ea265bb07c032bb4e74881f83ec8828fb2ea5880fbcaf863f3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "emp_a64",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a64_e",
+      "datei": "raw/P1-10/emp_a64.json",
+      "sha256": "507fd4ce498945ccbf2799a8db20438943e16833a80283cd675303a86ed9ca9b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "gva_a64",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_a64",
+      "datei": "raw/P1-10/gva_a64.json",
+      "sha256": "47e7704f17d45d3e4af09bbe044afeee68a87b8c3e00f115bd577ee077c1f77f",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "eurostat_peh",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_bal_peh",
+      "datei": "raw/P1-10/eurostat_peh.json",
+      "sha256": "153b91efcf3bba5b097b54f125e77acb59a0b796977b01f86f8c0cbdd43d261e",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_fdi_net_inflow_usd",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/BX.KLT.DINV.CD.WD",
+      "datei": "raw/P1-10/wb_fdi_net_inflow_usd.json",
+      "sha256": "8ba3122872606515fb65bee6ed326fe9ab69d378be37ef1a8179536bdd9f5d0b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_fdi_net_inflow_gdp",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/BX.KLT.DINV.WD.GD.ZS",
+      "datei": "raw/P1-10/wb_fdi_net_inflow_gdp.json",
+      "sha256": "b42f2bedd74cd886b7faed5c74f669d685ae27c1b604e5703d37734bf2eee1ce",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_fdi_outflow_usd",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/BM.KLT.DINV.CD.WD",
+      "datei": "raw/P1-10/wb_fdi_outflow_usd.json",
+      "sha256": "796b5b9572db6d558381a07a85ff0e660ebd22d25425a7f502df0766980e3f2b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_gdp_real_growth",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/NY.GDP.MKTP.KD",
+      "datei": "raw/P1-10/wb_gdp_real_growth.json",
+      "sha256": "19104156231bd9959bd13726ccb0aa9403e275313cb1cb09f8e23629c97ae9e3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_industry_va_share",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/NV.IND.MANF.ZS",
+      "datei": "raw/P1-10/wb_industry_va_share.json",
+      "sha256": "8b1e0d99cf8b4b03b5436b493aaa9afb1da6697f299bf5d406d18db9a87df9dd",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_elec_fossil_pct",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/EG.ELC.FOSL.ZS",
+      "datei": "raw/P1-10/wb_elec_fossil_pct.json",
+      "sha256": "76120c31e1cf711ce4474cb66d4909776d65b8a78648da54aaac10a2cd358150",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_elec_nuclear_pct",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/EG.ELC.NUCL.ZS",
+      "datei": "raw/P1-10/wb_elec_nuclear_pct.json",
+      "sha256": "d81521a907fdce828409c1c96c4b79b6c404ed4e710fa861e0ec8a322f16e1c8",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_elec_renew_pct",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/EG.ELC.RNEW.ZS",
+      "datei": "raw/P1-10/wb_elec_renew_pct.json",
+      "sha256": "9ce3b8806001e29a5c471566647c344d072642efdee46fd70853103b03c292e3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_fossil_energy_pct",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/EG.USE.COMM.FO.ZS",
+      "datei": "raw/P1-10/wb_fossil_energy_pct.json",
+      "sha256": "224dce0c0c6eafbc57b884fb0e437b183509ab5495bbe6269431087489ab4341",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_elec_use_pc",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/EG.USE.ELEC.KH.PC",
+      "datei": "raw/P1-10/wb_elec_use_pc.json",
+      "sha256": "c5a05da069d7e2a82c5451f0e23673c200a8c9b4728eaa92d16499d2314a7834",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "wb_population",
+      "url": "https://api.worldbank.org/v2/country/DEU;FRA;GBR;USA;CHN;POL;ESP;ITA;DNK;JPN;KOR/indicator/SP.POP.TOTL",
+      "datei": "raw/P1-10/wb_population.json",
+      "sha256": "bef3ed3c63164ec92ca28580f82580b827a65b8823e39dce8bd8c171291ebbfd",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "destatis_lrins01",
+      "url": "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Unternehmen/Gewerbemeldungen-Insolvenzen/Tabellen/lrins01.html",
+      "datei": "raw/P1-10/destatis_lrins01.html",
+      "sha256": "05f354de453db3159193fcdd145183bb4076f283a110abb45dbee4c7e74827c1",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "destatis_pm_energieverbrauch_2025",
+      "url": "https://www.destatis.de/DE/Presse/Pressemitteilungen/2026/11/PD26_400_435.html",
+      "datei": "raw/P1-10/destatis_pm_energieverbrauch_2025.html",
+      "sha256": "167177c76088d95a7edf56567805750a2eed7caaee17cbf57ee144190fc89c2b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "destatis_insolvenzen_thema",
+      "url": "https://www.destatis.de/DE/Themen/Branchen-Unternehmen/Unternehmen/Gewerbemeldungen-Insolvenzen/_inhalt.html",
+      "datei": "raw/P1-10/destatis_insolvenzen_thema.html",
+      "sha256": "2540a3319b6cadb5fbb184503e27f79dd68feeb4da61c0e681b5d5aab30af7e0",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "kfw_energiepreisschock_2025",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Industriepapier/Kapitel-3-Energiepreisschock-November-2025.pdf",
+      "datei": "raw/P1-10/kfw_energiepreisschock_2025.pdf",
+      "sha256": "2e2df7aa45cd82a21d832f4a08c9b6ac94fe73651b9173f087243e21b4e5945b",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "kfw_investitionen_klimaschutz",
+      "url": "https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Studien-und-Materialien/Investitionen-für-Klimaschutz.pdf",
+      "datei": "raw/P1-10/kfw_investitionen_klimaschutz.pdf",
+      "sha256": "6a4fad037717f7e8276a8004a93e19e981051c0776ab6b4b153e3ed6533d8bdb",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "uba_beschaeftigte_ee",
+      "url": "https://www.umweltbundesamt.de/daten/umweltindikatoren/indikator-beschaeftigte-im-bereich-erneuerbare",
+      "datei": "raw/P1-10/uba_beschaeftigte_ee.html",
+      "sha256": "440346f2b3238fc25ac7676fc2cb0b872c8846f5e28a7dd17e2bd67686ac1f10",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ember_yearly_page",
+      "url": "https://ember-energy.org/data/yearly-electricity-data/",
+      "datei": "raw/P1-10/ember_yearly_page.html",
+      "sha256": "35e43dc5b0b96e8541d93b679134c705305dc73a88964387551c5249a503956a",
+      "abruf": "2026-11-22"
+    }
+  ]
+}

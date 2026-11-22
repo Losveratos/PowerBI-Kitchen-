@@ -1,0 +1,121 @@
+{
+  "hinweis": "Manifest P1-07. Fremde Dokumente werden nicht gespiegelt, raw/ ist von Git ausgenommen. Rohdateien nur Eurostat, AGEB und Fraunhofer ISE; Suchtreffer-Quellen (IEA, ESA, Fachpresse) haben keine Rohdatei und stehen im Dossier unter primaer_gelesen: false.",
+  "eintraege": [
+    {
+      "id": "eurostat_comext_pv",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?reporter=EU27_2020,DE&product=85414090,854142,854143&flow=1",
+      "datei": "raw/P1-07/comext_pv.json",
+      "sha256": "819be2bf6c5aafce0352e816966da207d7f4a3adc2d50bfa013834f1b3f70b17",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_comext_batt_inv_wind",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?product=850760,850440,850231,841861,850511&flow=1",
+      "datei": "raw/P1-07/comext_batt_inv_wind.json",
+      "sha256": "c2654f5a6f67413d839c17cf1e635a7fd7052e2d3dead1899f45aea2d918b687",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_comext_grid_cu_mat",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?product=850421,850422,850423,850434,854460,740311,260300,280461,250410,380110,280530,811292&flow=1",
+      "datei": "raw/P1-07/comext_grid_cu_mat.json",
+      "sha256": "52db323d2d955cb3b2b4a33b92ee82d560c9b225dc302faba8d32752ad13f032",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_comext_wind_parts",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?product=730820,850300,848340,850680,854390&flow=1",
+      "datei": "raw/P1-07/comext_wind_parts.json",
+      "sha256": "97253d76f06526c0bf02d3766fe14f7db552dea8d48ba72411398a20474fe7c1",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_comext_battmat",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?product=283691,282520,810520,282200,750210,810510&flow=1",
+      "datei": "raw/P1-07/comext_battmat.json",
+      "sha256": "1f445e0bdb4638279e5649cd9bcde35002ad54c7e918b626ee42eb2a068af26f",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_comext_energy_bill",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?product=2709,2710,2711,2701,270112,270119&flow=1",
+      "datei": "raw/P1-07/comext_energy_bill.json",
+      "sha256": "88fb630eeb998b5efdc83bfed89c174d9016d79bd76459ea6c4612d8e913801f",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_comext_uranium",
+      "url": "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409?reporter=EU27_2020&product=284410,284420,284430,261210&flow=1",
+      "datei": "raw/P1-07/comext_uranium.json",
+      "sha256": "d9ff703a5a9eca2f20caacf7d9e5ca07ecd0e13899b71352cf8a6259705502fe",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_nrg_ti_gas",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_ti_gas?geo=DE,EU27_2020&unit=TJ_GCV&siec=G3000",
+      "datei": "raw/P1-07/ti_gas.json",
+      "sha256": "1bde00cdd480cd1b3dd0dd4cb8323d248f40f70059c0256f971014c01c6ddb40",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_nrg_ti_oil",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_ti_oil?geo=DE,EU27_2020&unit=THS_T&siec=O4100_TOT",
+      "datei": "raw/P1-07/ti_oil.json",
+      "sha256": "6e550e8ffe7c73b0cfe1c36f28547b14da6261ac938469ae2d35cf8968c36a68",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_nrg_ti_sff",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_ti_sff?geo=DE,EU27_2020&unit=THS_T",
+      "datei": "raw/P1-07/ti_sff.json",
+      "sha256": "b887f05323b0c67c81f7aeb88f9095073e4fd67afc3ac388cf1d829a860c51e2",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "eurostat_nrg_ind_id",
+      "url": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_ind_id?geo=DE,EU27_2020&unit=PC",
+      "datei": "raw/P1-07/ind_id.json",
+      "sha256": "db706aec2ee51b97329a4abddd14b51de15c0b900e2662c5182eaa971d24cfc5",
+      "abruf": "2026-11-22",
+      "hinweis": "Eurostat-API-Abfrage; Parameter (Berichtsland, Partner, Jahre) in der URL gekürzt wiedergegeben, Rohdatei maßgeblich"
+    },
+    {
+      "id": "ageb_jahresbericht_2024",
+      "url": "https://www.ag-energiebilanzen.de/wp-content/uploads/AGEB_Jahresbericht2024_20250801_dt.pdf",
+      "datei": "raw/P1-07/agEB_Jahresbericht2024.pdf",
+      "sha256": "01f2764f8bbea33edc05a57ba31f4bb4d2a737cbcf62a1121458d546ecc3bfb3",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ageb_quartalsbericht_q4_2024",
+      "url": "https://www.ag-energiebilanzen.de/wp-content/uploads/2025/01/quartalsbericht_q4_2024.pdf",
+      "datei": "raw/P1-07/agEB_q4_2024.pdf",
+      "sha256": "6c60e54c018070a2ef241a9c6ae6c956c2cc7bb101d6c163299fdc7a541a2ba7",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ise_photovoltaics_report_2026",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/Photovoltaics-Report.pdf",
+      "datei": "raw/P1-07/ise_pv_report.pdf",
+      "sha256": "343d59687c008de95853c0c3414040e2130e684268ca38bb79de86079839f6ec",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "ise_pv_supply_chains_2025",
+      "url": "https://www.ise.fraunhofer.de/content/dam/ise/de/downloads/pdf/photovoltaics_supply_chains.pdf",
+      "datei": "raw/P1-07/ise_pv_supply_chains.pdf",
+      "sha256": "8a7e57e9da7e8dcf14270b8dd7ab815e5929206a7ef991428ebb15597b5e2d20",
+      "abruf": "2026-11-22"
+    }
+  ]
+}

@@ -91,7 +91,7 @@ Lesehilfen und Fallen:
 | Lithium-Ionen-Akkus | 9.625 | 20.490 | 47 % | 94 % |
 | Stromrichter (850440) | 1.285 | 8.852 | 15 % | 43 % |
 | Dauermagnete | 478 | 592 | 81 % | 89 % |
-| PV-Module und Zellen | 257 | 1.823 | 14 % (NL liefert 1.208) | 94 % |
+| PV-Module und Zellen | 257 | 1.823 | 14 % (NL liefert 1.208) | 90 % |
 | Wärmepumpen | 47 | 1.162 | 4 % | 36 % |
 | Windgeneratoren | 56 | 247 | 23 % | 94 % |
 | Summe der sechs Gruppen | ≈ 11.750 | | | |
@@ -184,7 +184,7 @@ Die Gegenrechnung, die die R21-Position stärkt: 2022 war der Ersatz russischen 
 | Terms-of-Trade-Verlust 2022 | ≈ 75 Mrd. € | IW Köln (Nierhaus 2023), laut Suchtreffer | C | nein |
 | BIP-Effekt, ex ante, Russland-Importstopp | -3 % (Höhepunkt nach 18 Monaten; DIW, Mai 2022); bis -5 % kurzfristig gegen EZB-Projektion (Bundesbank, April 2022); bis -8 % angebotsseitig (Krebs, Mai 2022, Ausreißer) | laut Suchtreffer | C | nein |
 
-Min / Mid / Max für einen fossilen Preisschock in der Rechnung: **fossile Importrechnung + 12 / + 66 / + 66 Mrd. € pro Jahr** nur belegt für 2023/2022; die tatsächliche BIP-Wirkung im Rückblick wurde nicht abgerufen (Lücke). Für Teil 4 braucht es dort einen verabredeten Wert.
+Beobachtete Kalibrierpunkte für einen fossilen Preisschock (nicht als Prognose): Mehr-Importrechnung gegen 2021 + 12,4 Mrd. € (2023, Saldo 81,4) / + 66,4 Mrd. € (2022, Saldo 135,4); Entlastungsausgaben des Bundes 33,7 bis 50,4 Mrd. € (C). Die tatsächliche BIP-Wirkung im Rückblick wurde nicht abgerufen (Lücke); für Teil 4 braucht es dort einen verabredeten Wert.
 
 ### 6.2 Exportkontrollen 2023–2026
 
@@ -210,12 +210,12 @@ Alle Werte dieser Tabelle sind **Setzung (M)**; die Eingangszahlen stammen aus d
 | Verzug bis zu Wafer-/Zellkapazität in der EU | 1 Jahr | 2 Jahre | 3 Jahre | ISE (S. 14/15): keine Ingot-/Wafer-Fertigung in der EU, angekündigte Werke (mcpv, SunWafe, Holosolis u. a.) ab 2027; Verzug nach Erfahrung Setzung |
 | Zubauverlust Deutschland je Jahr ohne Lieferung | 0 | 8 GWp | 16,6 GWp | Zubau 2025 16,6 GWp (ISE); min = Ausweichen funktioniert, max = voller Ausfall; Mitte Setzung |
 | Ersatzbedarf aus dem Bestand (Rückbau) | 3,6 | 4,3 | 5,4 GWp/a | 108 GWp / (30, 25, 20 Jahre) |
-| Importrechnung Energiewende-Güter aus China | 6 | 11,7 | 11,7 Mrd. €/a | 3.2; min: nur Akkus und PV |
+| Importrechnung Energiewende-Güter aus China | 9,9 | 11,7 | 11,7 Mrd. €/a | 3.2; min: nur Akkus und PV (mit Nicht-Energiewende-Anteil) |
 
 **Ausweichkapazitäten** (Konfidenz B bis C):
 - Module im Betrieb außerhalb Chinas, abgelesen aus ISE-Bericht S. 13 (Stand 09/2025, Diagramm, Genauigkeit ± 10 GW): SO-Asien ≈ 75 GW, Indien ≈ 45, USA ≈ 30, Europa und Türkei ≈ 28. Angekündigte Modulkapazität übersteigt das mehrfach (Indien > 130 GW, USA > 100 GW). Weltweite Modulkapazität 1.405 GW, davon China 83 % (IEA PVPS laut pv magazine, Konfidenz C).
 - **Aber**: Wafer 97 %, Zellen 90 % in China. Die Modulfabriken in SO-Asien sind auf chinesische Zellen und Wafer angewiesen. Die EU hat < 5 GWp/a Zellkapazität, keine Wafer, 1 Polysilizium-Hersteller (Wacker). Echte Alternativen bei den Vorstufen sind angekündigt, nicht gebaut. Das Problem liegt also weniger bei „Modul“ als bei „Wafer“.
-- **NZIA** (Verordnung (EU) 2024/1735): Ziel: eigene Fertigung für mindestens 40 % des jährlichen Bedarfs bis 2030; Auktionen: ab 30.12.2025 nichtpreisliche Kriterien für mindestens 30 % des Volumens oder 6 GW/a; Durchführungsverordnung (EU) 2025/1176 vom 23.05.2025. Konfidenz B (EU-Webseite laut Suchtreffer, nicht gelesen). Die Kommission plant laut einer Quelle, die Resilienzkriterien durch „Made in Europe“-Anforderungen zu ersetzen; Stand ungeprüft.
+- **NZIA** (Net-Zero Industry Act): Ziel: eigene Fertigung für mindestens 40 % des jährlichen Bedarfs bis 2030; Auktionen: ab 30.12.2025 nichtpreisliche Kriterien für mindestens 30 % des Volumens oder 6 GW/a; Durchführungsverordnung (EU) 2025/1176 vom 23.05.2025. Konfidenz B (EU-Webseite laut Suchtreffer, nicht gelesen). Die Kommission plant laut einer Quelle, die Resilienzkriterien durch „Made in Europe“-Anforderungen zu ersetzen; Stand ungeprüft.
 - **Kostenabstand EU-Fertigung** (SolarPower Europe/Fraunhofer ISE 2025, ISE-Foliensatz S. 16/17, primär gelesen): 2024-Mindestpreis Modul ab Werk: China 14,6, SO-Asien 15,0, Indien 17,0, USA 27,4, Europa 24,1 ct/Wp. Ohne Skalierung Europa + 25 % auf die Herstellkosten. Aufschläge Europa gegen China: Anlagen + 40 %, Gebäude + 110 %, Personal + 280 %, Material + 50 % (laut Suchtreffer, die Grafik zeigt dieselbe Größenordnung). Die tatsächlichen Marktpreise (8,7 ct/Wp) liegen **unter** den Mindestpreisen aller Regionen, auch Chinas (15,9). Das ist der Kern der Preisfrage: Der Preis von heute ist ein Überkapazitäts-Preis.
 
 ## 8. Heimische Wertschöpfung
@@ -231,7 +231,7 @@ R21 (S. 3): Die Investitionsgüter „müssen importiert werden“.
 | Nebenkosten (Planung, Finanzierung, Genehmigung) | 20 % | im Inland |
 
 Quelle: ISE Photovoltaics Report, S. 51 (IRENA 2026), primär gelesen, Konfidenz B. Deutschland 2025: 758 €/kWp (Großanlage). **Importierbarer Anteil: min 36 % (Module + Wechselrichter) / mid ≈ 50 % / max 63 % (zusätzlich alle BoS-Hardware)**, Setzung M. Heißt: Mindestens 37 % der Investitionssumme (Installation, Nebenkosten) fließen ohnehin im Inland, plus Teile der BoS-Hardware (Stahlgestelle, Kabel, Netzanschluss, Transformatoren: letztere zunehmend aus China, 3.1). **Dachanlagen**: Schätzungen des Modulanteils streuen von 15 bis 50 %, eine belastbare deutsche Kostenstruktur wurde nicht gefunden (Lücke, Konfidenz C aus Ratgeberseiten).
-**Wind**: Direktimporte kompletter Windgeneratoren sind klein (Deutschland 2025: 0,25 Mrd. € aus aller Welt, davon 0,06 Mrd. € aus China); Türme: 27 % der Einfuhr aus China, 62 % der Extra-EU-Einfuhr (Deutschland 2025); Getriebe: China 21 % an Deutschlands Gesamteinfuhr (558 Mio. € Extra-EU, 118 Mio. € China). Hersteller und Wertschöpfungsanteile für Wind in Deutschland liegen nicht vor; die Bundesregierung hat nach Auskunft einer Bundestagsvorlage (laut Suchtreffer) keine Gesamtzahlen zur Wertschöpfung der Windkraftanlagen-Produktion. Magnete: Direct-Drive-Anlagen brauchen laut Literatur 80 bis 650 kg NdFeB je MW (Konfidenz C), 85 bis 94 % der Magnete kommen aus China.
+**Wind**: Direktimporte kompletter Windgeneratoren sind klein (Deutschland 2025: 0,25 Mrd. € aus aller Welt, davon 0,06 Mrd. € aus China); Türme: 27 % der Einfuhr aus China, 62 % der Extra-EU-Einfuhr (Deutschland 2025); Getriebe: China 10 % an Deutschlands Gesamteinfuhr (1.130 Mio. €) und 21 % der Extra-EU-Einfuhr (558 Mio. €, davon China 118 Mio. €). Hersteller und Wertschöpfungsanteile für Wind in Deutschland liegen nicht vor; die Bundesregierung hat nach Auskunft einer Bundestagsvorlage (laut Suchtreffer) keine Gesamtzahlen zur Wertschöpfung der Windkraftanlagen-Produktion. Magnete: Direct-Drive-Anlagen brauchen laut Literatur 80 bis 650 kg NdFeB je MW (Konfidenz C), 85 bis 94 % der Magnete kommen aus China.
 Das R21-Wort „müssen importiert werden“ trifft für Module, Zellen, Akkus und Magnete zu, für Installation, Netzanschluss, Planung und Betrieb nicht, und für Windanlagen ist es nach den vorliegenden Hinweisen nur teilweise zutreffend.
 
 ## 9. Gegenpositionen
@@ -338,7 +338,7 @@ Das R21-Wort „müssen importiert werden“ trifft für Module, Zellen, Akkus u
     {"id": "uran_eu_russland_anteil_angereichert_wert_2019_pct", "value": 66, "unit": "% Extra-EU-Einfuhrwert HS 284420", "source": "eurostat_comext", "fundstelle": "HS 284420, Eigenrechnung", "confidence": "B", "primaer_gelesen": true, "note": "2021: 40; 2022: 37; 2023: 29; 2024: 10; 2025: 19. Wertanteil, nicht Trennarbeit"},
     {"id": "uran_eu_russland_anreicherung_2024_pct", "value": 23.5, "unit": "% SWU an EU-Versorgern", "source": "esa_snippets", "fundstelle": "ESA Jahresbericht 2024, laut Suchtreffer", "confidence": "C", "primaer_gelesen": false, "note": "2023: 37,9; 2022: 30; S&P: 22,6 % für 2025. Natururan Russland 15,63 % (2024), 23,45 % (2023)"},
     {"id": "de_pv_bestand_gwp_2025", "value": 108, "unit": "GWp", "source": "ise_pv_2026", "fundstelle": "Executive Summary PV Market: Focus Germany, S. 6", "confidence": "B", "primaer_gelesen": true, "note": "Zubau 2025: 16,6 GWp; 2024: 16,9 GWp; Welt: 2974 GWp; PV-Strom 87 TWh"},
-    {"id": "pv_lebensdauer_jahre", "value": 25, "unit": "Jahre", "source": "ise_pv_2026", "fundstelle": "Energierücklaufzeit-Annahme, S. 46 ff.", "confidence": "B", "primaer_gelesen": true, "min": 20, "mid": 25, "max": 30, "note": "Setzung (M) für Spanne 20 bis 30 (Literatur laut Suchtreffer)"},
+    {"id": "pv_lebensdauer_jahre", "value": 25, "unit": "Jahre", "source": "ise_pv_2026", "fundstelle": "Annahme Systemlebensdauer 25 Jahre, S. 37; 20 Jahre im Text, S. 8", "confidence": "B", "primaer_gelesen": true, "min": 20, "mid": 25, "max": 30, "note": "Setzung (M) für Spanne 20 bis 30 (Literatur laut Suchtreffer)"},
     {"id": "de_pv_ersatzbedarf_gwp_pro_jahr", "value": 4.3, "unit": "GWp/a", "source": "ise_pv_2026", "fundstelle": "Eigenrechnung 108 GWp / 25 Jahre", "confidence": "B", "primaer_gelesen": true, "min": 3.6, "mid": 4.3, "max": 5.4, "note": "Setzung (M); rechnerisch, ohne Altersstruktur des Bestands"},
     {"id": "eu_modul_lagerbestand_2023_gw", "value": 65, "unit": "GW", "source": "presse_snippets", "fundstelle": "Rystad, EUPD, laut pv magazine 2023", "confidence": "C", "primaer_gelesen": false, "min": 40, "mid": 65, "max": 80, "note": "Streuung 40 bis 80+; EUPD hält 10 bis 19 GW für normal; Stand 2025/26 nicht gefunden"},
     {"id": "pv_altmodule_bis_2030_tonnen", "value": 600000, "unit": "t, Deutschland, kumuliert bis 2030", "source": "presse_snippets", "fundstelle": "Fraunhofer CSP für DERA, laut pv magazine 01.10.2026", "confidence": "C", "primaer_gelesen": false, "note": "Recyclingquote stofflich ca. 85 %, Rückgewinnung > 95 %; erfasst 2024 nur ca. 9000 t"},
