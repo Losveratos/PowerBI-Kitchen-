@@ -687,6 +687,11 @@ test("displayVariance: cost rows, VarianceInvert costs, margin rows (%p)", () =>
     assert.equal(Math.round(k.d * 10) / 10, 8.6);
     assert.equal(Math.round(k.p * 100), 23);
     assert.equal(k.good, true);
+    // 1.8.2 a negative reference margin: −2 % → +3 % is +5 pp and +250 % (Δ over |reference|), never −250 %
+    const kn = E.displayVariance(kpi, 0.03, -0.02);
+    assert.equal(Math.round(kn.d * 10) / 10, 5);
+    assert.equal(Math.round(kn.p * 100), 250);
+    assert.equal(E.displayVariance(kpi, 0.03, 0).p, null);
     assert.equal(E.displayVariance(rev ? row("x", null) : null, null, 3), null);
 });
 

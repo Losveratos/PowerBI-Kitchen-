@@ -11308,6 +11308,7 @@ export class Visual implements IVisual {
             // 1.8.2 sheet options T03 (relative Δ% of margins) and T04 (no pp at the axis)
             marginRel: this.settings.numbersCard.marginRel.value === true,
             marginAxisPp: this.settings.numbersCard.marginAxisPp.value !== false,
+            ellipseRoom: this.highlightSet().size > 0 && this.highlightStyle() !== "band",
             relabel: this.hasHouseTerms() ? (x: string) => this.relabel(x) : undefined,
             // 1.7 a table of stocks only has no year-to-date share in its FY outlook
             ytdHead: stockOnlyHead ? "" : "YTD",
@@ -11976,13 +11977,13 @@ export class Visual implements IVisual {
         return new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 }).format(v / div) + suf;
     }
 
-    /** columns.highlight as a lower-case set of row names / ids */
     /** 1.8.2 columns.highlightStyle: band (default) | ellipse | both */
     private highlightStyle(): "band" | "ellipse" | "both" {
         const v = String(this.settings?.columnsCard?.highlightStyle?.value?.value ?? "band");
         return v === "ellipse" || v === "both" ? v : "band";
     }
 
+    /** columns.highlight as a lower-case set of row names / ids */
     private highlightSet(): Set<string> {
         const raw = String(this.settings?.columnsCard?.highlight?.value ?? "");
         return new Set(raw.split(",").map(x => x.trim().toLowerCase()).filter(x => x !== ""));

@@ -104,6 +104,7 @@
 <div class="case"><h4>m61 · 1.8.2 · 12G mit Ellipse um die Δ-Zahl von Sales revenue und Group result (wie im Blatt)</h4><div class="stage" id="m61" style="width:1320px;height:760px"></div></div>
 <div class="case"><h4>m62 · 1.8.2 · T03A mit relativer Margen-Änderung im Δ%-Feld (+8,6 %p und +23 %)</h4><div class="stage" id="m62" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m63 · 1.8.2 · T04C ohne Margen-Δ an der Achse (wie im Blatt) · m64 Band und Ellipse</h4><div class="stage" id="m63" style="width:1320px;height:700px"></div><div class="stage" id="m64" style="width:1320px;height:760px"></div></div>
+<div class="case"><h4>m65 · 1.8.2 · T04C Ellipse im ΔPY-Wasserfall (Operating result, Gross margin fällt aufs Band zurück) · m66 T03A ohne Diagrammspalte: Band bleibt</h4><div class="stage" id="m65" style="width:1320px;height:700px"></div><div class="stage" id="m66" style="width:1320px;height:600px"></div></div>
 <div class="case"><h4>m46 · 1.7 · ⚡ Hochkontrast · T02A · Nicht-Ausnahmen gestrichelt ohne Füllung und Muster</h4><div class="stage" id="m46" style="width:1320px;height:800px"></div></div>
 <script src="locales.js"></script>
 <script src="visual.bundle.js"></script>
@@ -602,6 +603,10 @@ runRows("m63", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2
   hierarchy: { defaultLevel: 0 }, columns: { template: "T04C" }, numbers: { marginAxisPp: false } });
 runRows("m64", MEGA_DEMO.statement12G(), { titleBlock: { ...SSG, periodLine: "2025 as of May" }, toolbar: { show: false },
   hierarchy: { defaultLevel: 0 }, columns: { template: "12G", highlight: "Group result", highlightStyle: "both" } });
+runRows("m65", MEGA_DEMO.statement("T04"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false },
+  hierarchy: { defaultLevel: 0 }, columns: { template: "T04C", highlight: "Operating result, Gross margin", highlightStyle: "ellipse" } });
+runRows("m66", MEGA_DEMO.statement("T03"), { titleBlock: { ...MT, periodLine: "2026" }, toolbar: { show: false }, hierarchy: { defaultLevel: 0 },
+  columns: { template: "T03A", highlight: "Operating result", highlightStyle: "ellipse" } });
 
 // p12 — Smart Start: no fields bound, edit mode (the harness host reports no view mode)
 run("p12", null, "de-DE", true);

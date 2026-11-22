@@ -1413,7 +1413,9 @@ export function displayVariance(row: InputRow, a: number | null, rv: number | nu
     if (v.delta == null || a == null || rv == null) { return null; }
     if (row.rowType === "kpi") {
         const d = v.delta * 100;
-        const p = rv !== 0 ? a / rv - 1 : null;
+        // 1.8.2 like every value row: Δ over |reference| (a / rv − 1 flipped the sign
+        // for a negative reference margin: −2 % → +3 % read −250 % next to +5.0 pp)
+        const p = rv !== 0 ? (a - rv) / Math.abs(rv) : null;
         const flip = row.varianceInvert ? -1 : 1;
         return { d, p, good: v.good, impact: d * flip, impactPct: p == null ? null : p * flip, pp: true };
     }
