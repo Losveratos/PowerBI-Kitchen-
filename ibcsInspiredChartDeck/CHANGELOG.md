@@ -79,10 +79,39 @@
     `scatter-ray` (`data-k`), `scatter-ray-end` (`data-x`, `data-y`), `scatter-ray-origin`, `scatter-ray-label`,
     `scatter-hint-path`. Ohne die neuen Optionen sind alle Bestands-Stufen SVG-gleich (Hash aller 701 Stufen; geändert
     nur die Galerie-Stufen c222b, c222d, c229, c230 und c230b um die Kachel C23). Tests c900 bis c917. 953 resjson-Keys
-    je Sprache.
+    je Sprache für B18 allein, 965 nach dem Merge mit B20.
   - Abweichungen von den Blättern: Y-Ticks in Fünfer- statt Zweierschritten (bestehende Tick-Regel), die Achsen reichen
     um den Markerrand über 20 bzw. 14 hinaus (die Strahlen enden trotzdem genau dort), Δ X neutral statt blau, keine
     Ellipse um „−4“ (Botschaftsmarke des Titels), Ländernamen in 07E rechts statt über dem Endpunkt, wo Platz ist.
+  - **Nach dem Review:**
+    - Kacheln (M1): Strahl-Labels und Δ-Marker verschoben die Plotfläche je Kachel (507 gegen 489 px für X 0 bis 20).
+      Jetzt reserviert jede Kachel den Rand aller Strahl-Labels und der breitesten Δ-Spalte des Decks
+      (`ScatterShared.deltaTys`), auch wenn ihre eigenen Labels nicht stehen; alle Kacheln haben dieselbe Pixelskala.
+      Labels bleiben auf erste Zeile und letzte Spalte beschränkt, die gezoomte Kachel rechnet wie bisher allein.
+    - Play (m1): Auf dem ersten Frame stand fälschlich „je Einheit mindestens zwei Perioden“; der Hinweis prüft jetzt alle
+      Perioden. Δ (m2): Die Δ-Y-Spalte beginnt hinter den rechten Strahl-Labels, Pfeile und Δ-Texte sind Sperrflächen für
+      Namen und Periodenlabels, die Labels reichen nicht mehr in die Δ-Spalte.
+    - Strahl-Labels (m3) weichen einander aus: oben links oder rechts neben den Kreis, rechts unter den Kreis, sonst nur
+      die Zahl, zuletzt entfällt das Label (`data-dropped` an `scatter-rays`, Quote bleibt im Tooltip). Quoten unter 0,1
+      (m4) mit zwei signifikanten Stellen („0,001“ statt „0,00“), auch im Tooltip.
+    - Sortierung (m5): Sind alle Kategorien Jahreszahlen und steigen sie in einer Einheit nicht an, steht im Bearbeitungsmodus
+      „Zeitpfad: Kategorie ist nicht nach Periode sortiert“ (`scatter-hint-path`, `data-kind="order"`,
+      `Hint_ScatterPathOrder`). Beschreibungen (m6): „Quotenstrahlen“ nennt die Dateneinheit („1M“ bei EUR-Daten mit
+      Mio.-Achse), „Periodenlabels“ den Schalter „Datenbeschriftungen anzeigen“; Doku DE/EN ergänzt.
+    - Kleinere Punkte: Auswahl und Cross-Highlight dimmen Pfad, Hilfslinien, Δ und Labels einer Einheit, deren Punkte alle
+      gedimmt sind; Pfad- und Labelgruppen haben `pointer-events="none"`; Periodenlabels meiden alle Pfadsegmente
+      („'17“ von Trucks steht nicht mehr auf dem ersten Segment); „Datenbeschriftungen anzeigen“ aus blendet die
+      Periodenlabels aus; mit Blasen enden die Segmente am Blasenrand (auch beim Abspielen); eine gewünschte, aber nicht
+      mögliche Log-Achse rundet mit Strahlen wie eine lineare; Hochkontrast: AC-Punkte gefüllt, FC-Punkte hohl; bei zwei
+      und mehr hervorgehobenen Einheiten tragen die Δ-Texte den Namen der Einheit.
+    - Tests c918 bis c929 (gleiche Pixelskala in 2 × 2 Kacheln, Frame 0, Δ gegen Labels, nahe Quoten, 300 × 200, kleine
+      Quoten, Zickzack-Hinweis, Beschreibungen, invert, fehlende Zeile, negative Werte, fixierte Achsen, eine Log-Achse,
+      Zoom, Play-Pfad, Cross-Highlight, Segmente, Blasenrand, Hochkontrast, Log-Rückfall, zwei Δ-Einheiten); c903 prüft
+      die Schlecht-Farbe jetzt ausdrücklich. `scale.html`: RAY07E (Steigung im Pixelmaß, gleiche Pixelskala in 3 Kacheln),
+      `export-cases.js`: Blatt `path` (07E mit Strahlen und Δ in allen Größen und Presets). Geändert nur die B18-Stufen
+      c900 bis c917 (Zeiger-Attribut, Labelplätze). 984 resjson-Keys je Sprache.
+    - Bewusst nicht geändert: mehr als sechs Einheiten wiederholen die Gruppenfarben (Bestandsregel der Palette, die
+      Namen am Endpunkt tragen); im Hochkontrast sind alle Pfade gleichfarbig (Formen je Gruppe bleiben möglich).
 - **B19 · Blasen mit Kreissegmenten und Gesamtblase (Blätter 10E und 10G, Vorlage C24).** Vorher: Eine Blase zeigte
   nur ihre Größe; „unser Teil am Marktvolumen“ ließ sich nicht in die Blase zeichnen, und eine Summe über alle Blasen
   einer Kachel gab es nicht. Nachher:

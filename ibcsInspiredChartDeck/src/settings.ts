@@ -1542,7 +1542,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "scatterPathLabels",
         displayName: "Period labels",
         displayNameKey: "Chart_ScatterPathLabels",
-        description: "Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt). Auto beschriftet Start und Ende und die übrigen Perioden, wo Platz ist; Start und Ende nur diese beiden; alle jede Periode (Überlappung möglich); aus keine. Standard Auto.",
+        description: "Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt). Auto beschriftet Start und Ende und die übrigen Perioden, wo Platz ist; Start und Ende nur diese beiden; alle jede Periode (Überlappung möglich); aus keine. Ist „Datenbeschriftungen anzeigen“ aus, entfallen die Periodenlabels ebenfalls (die Namen am Endpunkt bleiben). Standard Auto.",
         descriptionKey: "Desc_Chart_ScatterPathLabels",
         items: scatterPathLabelsItems,
         value: scatterPathLabelsItems[0]
@@ -2486,7 +2486,7 @@ export class ScaleCardSettings extends formattingSettings.CompositeCard {
         name: "ratioRays",
         displayName: "Ratio rays (scatter)",
         displayNameKey: "Scale_RatioRays",
-        description: "Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie). Dünne graue Linie bis zum Plotrand, hohler Kreis und Beschriftung am Austritt. Die Strahlen ziehen die 0 in beide Achsen; Quoten ≤ 0 werden ignoriert. Der Tooltip zeigt dann die Quote jedes Punkts. Leer = aus.",
+        description: "Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie). Dünne graue Linie bis zum Plotrand, hohler Kreis und Beschriftung am Austritt. Die Strahlen ziehen die 0 in beide Achsen; Quoten ≤ 0 werden ignoriert. Der Tooltip zeigt dann die Quote jedes Punkts. Die Quote gilt in den Einheiten der Daten, nicht der Achsenanzeige (Y in EUR mit Achse in Mio.: „1M“ statt „1“). Leer = aus.",
         descriptionKey: "Desc_Scale_RatioRays",
         placeholder: "z. B. 1; 0,7; 0,35",
         value: ""

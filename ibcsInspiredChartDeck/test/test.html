@@ -8285,8 +8285,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       `c903: Δ X ${dx.map(g => g.getAttribute("data-v"))} Δ Y ${dy.map(g => g.getAttribute("data-v"))}`);
     const ty = dy[0]?.querySelector("text")?.textContent, tx = dx[0]?.querySelector("text")?.textContent;
     check(tx === "+16" && /^[−-]4,3$/.test(ty || ""), `c903: Texte ${tx} / ${ty}`);
-    check(dy[0]?.querySelector("line")?.getAttribute("stroke") === "#B3282D" || dy[0]?.querySelector("line")?.getAttribute("stroke") !== "#1B7F4D",
-      `c903: Δ Y nicht in Gut-Farbe (${dy[0]?.querySelector("line")?.getAttribute("stroke")})`);
+    // B18 Review (m7): Schlecht-Farbe des Harness ausdrücklich (vorher immer wahr); c925 prüft invert
+    check(dy[0]?.querySelector("line")?.getAttribute("stroke") === "#D64541",
+      `c903: Δ Y in Schlecht-Farbe (${dy[0]?.querySelector("line")?.getAttribute("stroke")})`);
     const tr = sQ("c903", '[data-icd="scatter-path"][data-series="Trucks"] path')[0];
     check(tr && tr.getAttribute("stroke-width") === "2", "c903: hervorgehobener Pfad 2 px");
     const svgR = document.querySelector("#c903 svg").getBoundingClientRect();
@@ -8419,6 +8420,225 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const r2 = runCap("c917b", withPy({ orientation: "scatter" }, { ratioRays: "1" }), 400, 260);
     const b = [vis(r2, "chartCard", "scatterPathLabels"), vis(r2, "chartCard", "scatterArrows"), vis(r2, "scaleCard", "ratioRayUnit"), vis(r2, "chartCard", "scatterPath")];
     check(a.join() === "true,true,false,false" && b.join() === "false,true,true,true", `c917: mit Pfad ${a.join()}, ohne ${b.join()}`);
+  }
+
+  // ====================================================================
+  // B18 Review (c918 bis c929): gleiche Pixelskala in Kacheln (M1), Play-Hinweis (m1), Δ gegen Labels (m2),
+  // Strahl-Labels (m3), kleine Quoten (m4), Sortierung (m5), Datenwerte (m6), Testlücken (m7), Nits
+  // ====================================================================
+  const num = (el, a) => parseFloat(el.getAttribute(a));
+  const box = el => { const r = el.getBoundingClientRect(); return { x0: r.left, x1: r.right, y0: r.top, y1: r.bottom }; };
+  const ovl = (id, a, b) => {
+    const A = sQ(id, a), B = sQ(id, b);
+    let n = 0;
+    A.forEach(x => B.forEach(y => {
+      if (x === y) { return; }
+      const p = box(x), q = box(y);
+      if (Math.min(p.x1, q.x1) - Math.max(p.x0, q.x0) > 1 && Math.min(p.y1, q.y1) - Math.max(p.y0, q.y0) > 1) { n++; }
+    }));
+    return x => n;
+  };
+  const nOvl = (id, a, b) => ovl(id, a, b)();
+  const tiles = id => [...document.querySelectorAll(`#${id} [data-icd="scatter-rays"]`)];
+
+  // c918 (M1): 2 × 2 Kacheln mit Strahlen und Δ: Pixel je Einheit in jeder Kachel gleich
+  addStage("c918", "B18 Review M1 · 2 × 2 Kacheln, Strahlen + Δ: gleiche Pixelskala in allen Kacheln", 1100, 640);
+  {
+    runCap("c918", b18Dv(c23({ scatterPathDelta: true, highlight: "Germany" }), { data: d07E, mult: [["A", 1], ["B", 0.6], ["C", 0.8], ["D", 0.4]],
+      objs: { scale: rays07E } }), 1100, 640);
+    const sc = tiles("c918").map(g => {
+      const o = g.querySelector('[data-icd="scatter-ray-origin"]');
+      const end = k => g.querySelector(`[data-icd="scatter-ray"][data-k="${k}"] [data-icd="scatter-ray-end"]`);
+      return { x: num(end("0.35"), "cx") - num(o, "cx"), y: num(o, "cy") - num(end("1"), "cy") };
+    });
+    const dx = Math.max(...sc.map(s => s.x)) - Math.min(...sc.map(s => s.x)), dy = Math.max(...sc.map(s => s.y)) - Math.min(...sc.map(s => s.y));
+    check(sc.length === 4 && dx < 0.5 && dy < 0.5, `c918: X 0 bis 20 = ${sc.map(s => s.x.toFixed(1)).join("/")} px, Y 0 bis 14 = ${sc.map(s => s.y.toFixed(1)).join("/")} px`);
+    const lab = sQ("c918", '[data-icd="scatter-ray-label"]').length;
+    check(lab > 0 && lab < 12, `c918: Strahl-Labels nur oben und rechts im Raster (${lab} statt 12)`);
+  }
+
+  // c919 (m1): Play auf Frame 0 im Bearbeitungsmodus: kein Hinweis „zwei Perioden“
+  addStage("c919", "B18 Review m1 · Play Frame 0: kein falscher Hinweis", 760, 440);
+  {
+    const dv = () => b18Dv(c23({ scatterPlay: true }));
+    const r = runCap("c919", dv(), 760, 440, { viewMode: 1 });
+    r.v.scatterFrame = 0;
+    r.upd(dv(), { viewMode: 1 });
+    check(sQ("c919", '[data-icd="scatter-hint-path"]').length === 0 && sQ("c919", '[data-icd="scatter-path"]').length === 3,
+      "c919: Frame 0 ohne Hinweis, Pfade da");
+  }
+
+  // c920 (m2): Δ-Y-Spalte gegen Strahl-Labels und lange Namen
+  addStage("c920", "B18 Review m2 · Δ Y hinter den Strahl-Labels, Labels nicht über den Δ-Pfeilen", 960, 520);
+  addStage("c920b", "B18 Review m2 · lange Namen und Monate mit zwei Δ-Einheiten", 760, 440);
+  {
+    runCap("c920", b18Dv(c23({ scatterPathDelta: true, highlight: "Germany" }), { data: d07E, objs: { scale: rays07E } }), 960, 520);
+    const n1 = nOvl("c920", '[data-icd="scatter-ray-label"]', '[data-icd="scatter-path-delta"][data-axis="y"] line, [data-icd="scatter-path-delta"][data-axis="y"] text');
+    check(n1 === 0 && sQ("c920", '[data-icd="scatter-ray-label"]').length === 3, `c920: Strahl-Labels frei vom Δ Y (${n1} Überlappungen)`);
+    const mo = ["Jan 2025", "Feb 2025", "Mrz 2025", "Apr 2025", "Mai 2025", "Jun 2025", "Jul 2025", "Aug 2025", "Sep 2025"];
+    runCap("c920b", b18Dv(c23({ scatterPathDelta: true, highlight: "Nutzfahrzeuge Deutschland Süd, Personenkraftwagen International" }),
+      { cats: mo, data: { "Nutzfahrzeuge Deutschland Süd": d07D.Trucks, "Personenkraftwagen International": d07D.Cars, "Teile": d07D.Parts } }), 760, 440);
+    const n2 = nOvl("c920b", '[data-icd="scatter-path-delta"] line, [data-icd="scatter-path-delta"] text', '[data-icd="scatter-path-label"], [data-icd="scatter-path-name"]');
+    const n3 = nOvl("c920b", '[data-icd="scatter-path-delta"] text', '[data-icd="scatter-path-delta"] text');
+    check(n2 === 0 && n3 === 0, `c920b: Δ-Pfeile und Δ-Texte frei von Namen und Periodenlabels (${n2}, ${n3})`);
+  }
+
+  // c921 (m3): nahe Quoten und kleines Visual: keine überlappenden Strahl-Labels
+  addStage("c921", "B18 Review m3 · nahe Quoten 1; 0,95; 0,9; 0,36; 0,35: Labels weichen aus oder entfallen", 760, 440);
+  addStage("c921b", "B18 Review m3 · 300 × 200 mit Strahlen und Δ", 300, 200);
+  {
+    runCap("c921", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1; 0,95; 0,9; 0,36; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" } } }), 760, 440);
+    const n = nOvl("c921", '[data-icd="scatter-ray-label"]', '[data-icd="scatter-ray-label"]');
+    const lab = sQ("c921", '[data-icd="scatter-ray-label"]').length;
+    check(n === 0 && lab >= 3, `c921: ${lab} Labels ohne Überlappung (${n})`);
+    runCap("c921b", b18Dv(c23({ scatterPathDelta: true, highlight: "Germany" }), { data: d07E, objs: { scale: rays07E } }), 300, 200);
+    check(nOvl("c921b", '[data-icd="scatter-ray-label"]', '[data-icd="scatter-ray-label"]') === 0, "c921b: keine klebenden Strahl-Labels");
+  }
+
+  // c922 (m4): Quote 0,001 lesbar, Tooltip kleiner Quoten
+  addStage("c922", "B18 Review m4 · Quote 0,001 als „0,001“ statt „0,00“", 760, 440);
+  {
+    const tips = [];
+    runCap("c922", b18Dv(c23(), { data: { A: [[2000, 1], [3000, 2], [4000, 3.5]] }, noSeries: true, objs: { scale: { ratioRays: "0,001; 0,0005" } } }), 760, 440,
+      { hostPatch: h => { h.tooltipService = { show(o) { tips.push(o.dataItems); }, move() {}, hide() {} }; } });
+    const t = sQ("c922", '[data-icd="scatter-ray-label"]').map(x => x.textContent).sort().join("|");
+    check(t === "0,0005|0,001", `c922: Labels ${t}`);
+    const qs = marks("c922").map(m => {
+      m.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      return ((tips[tips.length - 1] || []).find(x => /Ratio|Quote/.test(x.displayName)) || {}).value;
+    });
+    check(qs.includes("0,0005") && qs.every(q => q !== "0,00"), `c922: Tooltip-Quoten ${qs.join(" ")}`);
+  }
+
+  // c923 (m5): nach Wert sortierte Jahre → Hinweis; Bestand ohne
+  addStage("c923", "B18 Review m5 · Jahre nach Wert sortiert: Hinweis „nicht nach Periode sortiert“", 760, 440);
+  {
+    const idx = d07D.Trucks.map((v, i) => i).sort((a, b) => d07D.Trucks[b][1] - d07D.Trucks[a][1]);
+    runCap("c923", b18Dv(c23(), { cats: idx.map(i => yrs[i]), data: { Trucks: idx.map(i => d07D.Trucks[i]), Cars: idx.map(i => d07D.Cars[i]) } }), 760, 440);
+    check(sQ("c923", '[data-icd="scatter-hint-path"][data-kind="order"]').length === 1 && sQ("c900", '[data-icd="scatter-hint-path"]').length === 0,
+      "c923: Hinweis bei Zickzack-Folge, keiner in c900");
+  }
+
+  // c924 (m6): Beschreibungen nennen die Dateneinheit und den Schalter „Datenbeschriftungen“
+  addStage("c924", "B18 Review m6 · Beschreibung „Quote in den Einheiten der Daten“", 400, 200);
+  {
+    const r = runCap("c924", b18Dv(c23(), { objs: { scale: { ratioRays: "1" } } }), 400, 200);
+    r.v.getFormattingModel();
+    const d1 = r.v.formattingSettings.scaleCard.ratioRays.description || "", d2 = r.v.formattingSettings.chartCard.scatterPathLabels.description || "";
+    check(/Einheiten der Daten/.test(d1) && /Datenbeschriftungen anzeigen/.test(d2), "c924: Beschreibungen ergänzt");
+  }
+
+  // c925 (m7): Δ Y bei invert in Gut-Farbe (c903 prüft jetzt die Schlecht-Farbe)
+  addStage("c925", "B18 Review m7 · Δ Y mit invert: sinkender Umsatz ist günstig (Gut-Farbe)", 760, 440);
+  {
+    runCap("c925", b18Dv(c23({ scatterPathDelta: true, highlight: "Trucks", invert: true })), 760, 440);
+    const st = (sQ("c925", '[data-icd="scatter-path-delta"][data-axis="y"] line')[0] || { getAttribute: () => "-" }).getAttribute("stroke");
+    check(st === "#1E8F9E", `c925: Δ Y ${st}`);
+  }
+
+  // c926 (m7): Lücken in der Abdeckung: fehlende Zeile, negative Werte, fixierte Achsen, eine Log-Achse, Zoom, Play-Pfad
+  addStage("c926", "B18 Review m7 · fehlende Periodenzeile wird durchverbunden", 760, 440);
+  addStage("c926b", "B18 Review m7 · negative Werte mit Strahlen", 760, 440);
+  addStage("c926c", "B18 Review m7 · fixierte Achsen xMin 5 / yMin 2 mit Strahlen", 760, 440);
+  addStage("c926d", "B18 Review m7 · nur X logarithmisch: Strahl als Kurve", 760, 440);
+  addStage("c926e", "B18 Review m7 · gezoomte Kachel zeigt alle Strahl-Labels", 1100, 460);
+  {
+    const d = JSON.parse(JSON.stringify(d07E));
+    d.Germany[4] = null;
+    runCap("c926", b18Dv(c23(), { data: d }), 760, 440);
+    const g = sQ("c926", '[data-icd="scatter-path"][data-series="Germany"]')[0];
+    const pd = g ? g.querySelector("path").getAttribute("d") : "";
+    check(g && g.getAttribute("data-n") === "8" && (pd.match(/M/g) || []).length === 1, `c926: Germany 8 Punkte, ein Linienzug (${(pd.match(/M/g) || []).length} M)`);
+    runCap("c926b", b18Dv(c23(), { data: { A: [[-4, -3], [-2, 1], [1, -2], [3, 2], [5, 6]], B: [[2, -5], [3, -4], [4, -1], [5, 1], [6, 2]] },
+      cats: yrs.slice(0, 5), objs: { scale: { ratioRays: "1; 0,5" } } }), 760, 440);
+    const ends = sQ("c926b", '[data-icd="scatter-ray-end"]').map(c => [num(c, "data-x"), num(c, "data-y")]);
+    check(ends.length === 2 && ends.every(([x, y]) => x > 0 && y > 0) && !/NaN/.test(sSvg("c926b")) && sQ("c926b", '[data-icd="scatter-ray-origin"]').length === 1,
+      `c926b: Strahlen nur im positiven Quadranten (${JSON.stringify(ends)})`);
+    runCap("c926c", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1; 0,35", xMin: "5", yMin: "2" } } }), 760, 440);
+    check(sQ("c926c", '[data-icd="scatter-ray-origin"]').length === 0 && sQ("c926c", '[data-icd="scatter-ray"]').length >= 1, "c926c: kein Ursprung bei fixierten Minima");
+    runCap("c926d", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1", xLogScale: true } } }), 760, 440);
+    const rd = (sQ("c926d", '[data-icd="scatter-ray"] path')[0] || { getAttribute: () => "" }).getAttribute("d");
+    check((rd.match(/L/g) || []).length === 48, `c926d: Kurve aus 48 Stützstellen (${(rd.match(/L/g) || []).length})`);
+    const dvZ = () => b18Dv(c23(), { data: d07E, mult: [["Nord", 1], ["Süd", 0.6]], objs: { scale: { ratioRays: "1; 0,35", ratioRayUnit: "mEUR/Rep" } } });
+    const rz = runCap("c926e", dvZ(), 1100, 460);
+    rz.v.zoomGroup = "Nord";
+    rz.upd(dvZ());
+    check(sQ("c926e", '[data-icd="scatter-ray-label"]').length === 2 && tiles("c926e").length === 1, "c926e: gezoomte Kachel mit beiden Strahl-Labels");
+  }
+
+  // c927 (m7): Play-Pfad (scatterPathD) und Frame-Wachstum
+  addStage("c927", "B18 Review m7 · Play-Pfad: Lücke bricht, fehlende Zeile läuft durch, Zwischenstand halbiert", 400, 200);
+  {
+    const r = runCap("c927", b18Dv(c23()), 400, 200);
+    const id = v => v * 10;
+    const d1 = r.v.scatterPathD([{ x: 0, y: 0 }, { x: 1, y: 1 }, undefined, null, { x: 3, y: 3 }, { x: 4, y: 4 }], 4.5, id, id);
+    const d2 = r.v.scatterPathD([{ x: 0, y: 0, s: 1 }, { x: 4, y: 0, s: 1 }], 1, id, id, () => 5);
+    check(d1 === "M0,0L10,10M30,30L35,35" && d2 === "M5,0L35,0", `c927: ${d1} · ${d2}`);
+  }
+
+  // c928 (Nits): Auswahl dimmt Pfade, Zeiger, Labels nicht auf Segmenten, labels.show aus
+  addStage("c928", "B18 Review Nit · Cross-Highlight Germany: Pfad und Labels von France gedimmt", 760, 440);
+  addStage("c928b", "B18 Review Nit · Datenbeschriftungen aus: keine Periodenlabels, Namen bleiben", 760, 440);
+  {
+    const dv = b18Dv(c23(), { data: d07E });
+    const y = dv.categorical.values[0];
+    y.highlights = y.values.map((v, i) => dv.categorical.categories[1].values[i] === "Germany" ? v : null);
+    runCap("c928", dv, 760, 440);
+    const op = s => (sQ("c928", `[data-icd="scatter-path"][data-series="${s}"]`)[0] || { getAttribute: () => "?" }).getAttribute("opacity");
+    const lblFr = sQ("c928", '[data-icd="scatter-path-label"][data-series="France"], [data-icd="scatter-path-name"][data-series="France"]');
+    check(op("France") === "0.35" && op("Germany") == null && lblFr.length > 0 && lblFr.every(t => t.getAttribute("opacity") === "0.35"),
+      `c928: France ${op("France")}, Germany ${op("Germany")}`);
+    check(sQ("c928", '[data-icd="scatter-paths"]')[0].getAttribute("pointer-events") === "none"
+      && sQ("c928", '[data-icd="scatter-path-labels"]')[0].getAttribute("pointer-events") === "none", "c928: Pfade und Labels ohne Zeiger");
+    // Periodenlabels liegen auf keinem Pfadsegment (c900, Blatt 07D)
+    const segs = sQ("c900", '[data-icd="scatter-path"] path').map(p => {
+      const n = (p.getAttribute("d").match(/-?\d+(?:\.\d+)?/g) || []).map(Number), out = [];
+      for (let i = 2; i < n.length; i += 2) { out.push([n[i - 2], n[i - 1], n[i], n[i + 1]]); }
+      return out;
+    }).flat();
+    const svgR = document.querySelector("#c900 svg").getBoundingClientRect();
+    const crosses = sQ("c900", '[data-icd="scatter-path-label"]').filter(t => {
+      const b = box(t), x0 = b.x0 - svgR.left + 1, x1 = b.x1 - svgR.left - 1, y0 = b.y0 - svgR.top + 2, y1 = b.y1 - svgR.top - 2;
+      return segs.some(([ax, ay, bx, by]) => {
+        for (let k = 0; k <= 20; k++) { const x = ax + (bx - ax) * k / 20, yy = ay + (by - ay) * k / 20; if (x > x0 && x < x1 && yy > y0 && yy < y1) { return true; } }
+        return false;
+      });
+    });
+    check(crosses.length === 0, `c928: Periodenlabels in c900 auf keinem Segment (${crosses.map(t => t.getAttribute("data-series") + " " + t.textContent).join(", ")})`);
+    runCap("c928b", b18Dv(c23(), { objs: { labels: { show: false } } }), 760, 440);
+    check(labels("c928b").length === 0 && sQ("c928b", '[data-icd="scatter-path-name"]').length === 3, "c928b: keine Periodenlabels, drei Namen");
+  }
+
+  // c929 (Nits): Blasenrand, Hochkontrast AC/FC, Log-Rückfall, zwei Δ-Einheiten
+  addStage("c929", "B18 Review Nit · Pfad endet am Blasenrand (Deckkraft 55 %)", 760, 440);
+  addStage("c929b", "B18 Review Nit · Hochkontrast: AC-Punkte gefüllt, FC-Punkte hohl", 760, 440, "#000");
+  addStage("c929c", "B18 Review Nit · Log gewünscht, Wert ≤ 0: lineare Achse endet rund", 760, 440);
+  addStage("c929d", "B18 Review Nit · zwei hervorgehobene Einheiten: Δ-Texte mit Namen", 760, 440);
+  {
+    runCap("c929", b18Dv(c23(), { data: d07E, size: true }), 760, 440);
+    const de = sQ("c929", '[data-icd="scatter-path"][data-series="Germany"] path')[0].getAttribute("d");
+    const mk = marks("c929").map(g => [...g.querySelectorAll("circle")].find(c => c.getAttribute("fill-opacity") !== "0.01")).filter(Boolean)
+      .map(c => [num(c, "cx"), num(c, "cy"), num(c, "r")]);
+    const nums = (de.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    let onRim = 0, n = 0;
+    for (let i = 0; i < nums.length; i += 2) {
+      const [x, y] = [nums[i], nums[i + 1]];
+      const near = mk.map(([cx, cy, r]) => Math.abs(Math.hypot(x - cx, y - cy) - r)).sort((a, b) => a - b)[0];
+      n++; if (near < 0.6) { onRim++; }
+    }
+    check(n > 4 && onRim === n, `c929: ${onRim} von ${n} Segmentenden auf dem Blasenrand`);
+    runCap("c929b", b18Dv(c23(), { data: d07E, fc: i => i >= 7 }), 760, 440, { hc: true });
+    const fills = marks("c929b").map(g => [...g.querySelectorAll("circle")].find(c => c.getAttribute("fill-opacity") !== "0.01" && c.getAttribute("fill") !== "none"))
+      .filter(Boolean).map(c => c.getAttribute("fill"));
+    check(fills.filter(f => f === "#FFFF00").length === 14 && fills.filter(f => f === "#000000").length === 4, `c929b: ${fills.filter(f => f === "#FFFF00").length} gefüllt, ${fills.filter(f => f === "#000000").length} hohl`);
+    const dLog = JSON.parse(JSON.stringify(d07E));
+    dLog.France[0] = [3, -0.5];
+    runCap("c929c", b18Dv(c23(), { data: dLog, objs: { scale: { ratioRays: "1; 0,35", xLogScale: true, yLogScale: true } } }), 760, 440);
+    const ys = sQ("c929c", '[data-icd="scatter-ray-end"]').map(c => num(c, "data-y"));
+    check(ys.length === 2 && ys.some(y => y > 12.2 && Math.abs(y * 2 - Math.round(y * 2)) < 1e-9), `c929c: Austritt oben auf einem Tick-Schritt statt am Datenmaximum 12,2 (${ys.join(", ")})`);
+    runCap("c929d", b18Dv(c23({ scatterPathDelta: true, highlight: "Trucks, Cars" })), 760, 440);
+    const tx = sQ("c929d", '[data-icd="scatter-path-delta"] text').map(t => t.textContent);
+    check(tx.length === 4 && tx.filter(t => /Trucks$/.test(t)).length === 2 && tx.filter(t => /Cars$/.test(t)).length === 2, `c929d: ${tx.join(" | ")}`);
   }
 
   // kein NaN, undefined oder Infinity in den B18-Stufen

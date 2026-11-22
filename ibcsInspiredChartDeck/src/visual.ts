@@ -1039,6 +1039,10 @@ interface ScatterShared {
     /** 1.57 (B18): right edge and top of the tile grid; ratio ray labels only stand in
      *  the first row (top exits) and the last column (right exits) */
     tileBox?: { right: number; top: number };
+    /** B18 review (M1): the delta texts (Δ Y) of every tile with start-to-end deltas —
+     *  the extra margins are taken over the whole deck, so every tile keeps the same plot
+     *  box and the same pixel scale (null without deltas) */
+    deltaTys?: string[][] | null;
 }
 
 /** 1.57 (B18): label / collision box in px */
@@ -1088,6 +1092,14 @@ interface ScatterPlotCtx {
     hitsMark: (b: ScBox, self: number) => boolean;
     /** item index and radius of a drawn AC marker */
     markOf: (p: DataPoint) => { i: number; r: number } | null;
+    /** B18 review: right edge of the ray labels standing at right exits (null = none);
+     *  the delta arrow column starts behind it (m2) */
+    rayLabelRight: number | null;
+    /** B18 review (nit): group of the drawn AC marker per point, filled while the marks
+     *  are drawn — the selection hook dims a unit's path when all its points are dimmed */
+    markG: Map<DataPoint, SVGGElement>;
+    /** B18 review (nit): path segments end at the bubble rim (bubbles are translucent) */
+    trim: boolean;
 }
 
 /**
@@ -1393,7 +1405,9 @@ export class Visual implements IVisual {
         t0: number;
         /** 1.57 (B18): time paths that grow with the frames (unit key → path element and
          *  its node per frame, null = gap) and the period labels hidden while playing */
-        paths?: { key: string; el: SVGPathElement; nodes: ({ x: number; y: number } | null | undefined)[] }[];
+        paths?: { key: string; el: SVGPathElement; nodes: ({ x: number; y: number; s?: number } | null | undefined)[] }[];
+        /** B18 review (nit): the growing path ends at the bubble rims (bubbles) */
+        pathTrim?: boolean;
         pathLabels?: SVGElement | null;
     } | null = null;
     /** scatter v3 rectangle selection: true right after a drag-select ended, so the
@@ -14319,7 +14333,15 @@ export class Visual implements IVisual {
                     && (p.value as number) >= ay.lo && (p.value as number) <= ay.hi);
                 return this.scatterTotalOf(tv, sc)?.s ?? 0;
             }) : [];
+            // B18 review (M1): the delta texts of every tile, so that the extra margins
+            // (and with them the plot box) are the same in every tile
+            const deltaTys = sc.pathDelta ? tiles.map(t => {
+                const tv = this.scatterValid(t.pts).filter(p => (p.xVal as number) >= ax.lo && (p.xVal as number) <= ax.hi
+                    && (p.value as number) >= ay.lo && (p.value as number) <= ay.hi);
+                return this.scatterPathDeltas(sc, this.scatterPathUnits(t.pts, tv, null), cfg).map(d => d.ty);
+            }) : null;
             sc.shared = {
+                deltaTys,
                 xLo: ax.lo, xHi: ax.hi, yLo: ay.lo, yHi: ay.hi, qx, qy,
                 sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0),
                     ...(sc.pyBubbles ? sPts.map(p => this.scatterPyPos(p, sc, ax, ay) ? p.sizePrev ?? 0 : 0) : []),
@@ -14360,11 +14382,15 @@ export class Visual implements IVisual {
         fixMin: number | null, fixMax: number | null,
         logWanted: boolean, rays = false): { lo: number; hi: number; log: boolean } {
         const refList = refs.filter((r): r is number => r != null && isFinite(r));
+        // B18 review (nit): a log wish that cannot apply (a value ≤ 0) is a linear axis —
+        // the ray rule (zero in, round upper end) must hold for it as well
+        const logPossible = logWanted && vals.every(v => v > 0) && refList.every(r => r > 0)
+            && (fixMin == null || fixMin > 0) && (fixMax == null || fixMax > 0);
         let [lo, hi] = this.scatterRange(vals, null);
         for (const r of refList) { lo = Math.min(lo, r); hi = Math.max(hi, r); }
         // 1.57 (B18): ratio rays start at the origin, so a linear axis takes in zero and
         // (automatic bounds) ends on a round tick value, where the rays leave the plot
-        if (rays && !logWanted) {
+        if (rays && !logPossible) {
             lo = Math.min(lo, 0);
             hi = Math.max(hi, 0);
             const t = niceTicks(lo, hi, 5);
@@ -14646,7 +14672,9 @@ export class Visual implements IVisual {
             }
         }
         if (an.paths) {
-            for (const pa of an.paths) { pa.el.setAttribute("d", this.scatterPathD(pa.nodes, t, an.X, an.Y)); }
+            for (const pa of an.paths) {
+                pa.el.setAttribute("d", this.scatterPathD(pa.nodes, t, an.X, an.Y, an.pathTrim ? an.rOf : undefined));
+            }
         }
         if (an.watermark) { an.watermark.textContent = an.frames[Math.round(t)]; }
         an.cur = t;
@@ -15255,7 +15283,8 @@ export class Visual implements IVisual {
         items.forEach((it, i) => { if (!it.isPy) { itemIdx.set(it.p, i); } });
         const pctx: ScatterPlotCtx = {
             X, Y, ax, ay, left: plotLeft, right: plotRight, top: plotTop, bottom: plotBottom, region, placed, hitsMark,
-            markOf: (p: DataPoint) => { const i = itemIdx.get(p); return i == null ? null : { i, r: items[i].r }; }
+            markOf: (p: DataPoint) => { const i = itemIdx.get(p); return i == null ? null : { i, r: items[i].r }; },
+            rayLabelRight: null, markG: new Map<DataPoint, SVGGElement>(), trim: hasSize
         };
         if (sc.rays.length > 0) { this.drawScatterRays(bg, sc, pctx, sh, cfg, halo); }
         const lineLabel = (txt: string, isRef: boolean,
@@ -15422,9 +15451,16 @@ export class Visual implements IVisual {
                 "PY bubbles need the fields Previous Year and Bubble size"), id: "scatter-hint-py" });
         }
         // 1.57 (B18): a time path needs two periods of one unit somewhere
-        if (sc.path && !pathUnits.some(u => u.nodes.filter(p => p != null).length >= 2)) {
+        // B18 review (m1): in play mode the units are cut to the shown frame — the check
+        // runs on the whole period range
+        const hintUnits = sc.path && playActive ? this.scatterPathUnits(points, vis, null) : pathUnits;
+        if (sc.path && !hintUnits.some(u => u.nodes.filter(p => p != null).length >= 2)) {
             editHints.push({ txt: this.locStr("Hint_ScatterPathOnePeriod",
                 "Time path: each unit needs at least two periods (category = period)"), id: "scatter-hint-path" });
+        } else if (sc.path && this.scatterPathUnsorted(hintUnits)) {
+            // B18 review (m5): years out of order in a unit (the visual is sorted by a measure)
+            editHints.push({ txt: this.locStr("Hint_ScatterPathOrder",
+                "Time path: the category is not sorted by period"), id: "scatter-hint-path", kind: "order" });
         }
         // 1.57 (B19): the bubble share needs a bubble size; a share outside 0..1 is cut
         if (sc.shareRoleIdle) {
@@ -15560,8 +15596,9 @@ export class Visual implements IVisual {
         let pathLblG: SVGElement | null = null;
         let pathEls: Map<string, SVGPathElement> | null = null;
         if (sc.path) {
-            const lineG = this.el("g", { "data-icd": "scatter-paths" }, this.svg);
-            pathLblG = this.el("g", { "data-icd": "scatter-path-labels" }, this.svg);
+            // B18 review (nit): lines and labels never take a hover or a marquee start
+            const lineG = this.el("g", { "data-icd": "scatter-paths", "pointer-events": "none" }, this.svg);
+            pathLblG = this.el("g", { "data-icd": "scatter-path-labels", "pointer-events": "none" }, this.svg);
             pathEls = this.drawScatterPaths(pathUnits, pathDeltas, sc, pctx, cfg, lineG, pathLblG, halo, playActive);
         }
         // Review M3: a wanted value never vanishes. It follows the name when it does
@@ -15752,7 +15789,8 @@ export class Visual implements IVisual {
                     ? (statusOn
                         // 1.49: status by pattern — good solid, bad hollow, immaterial dashed
                         ? { ...this.hcStatus(this.scatterStatusKind(p, cfg), cfg), stroke: cfg.ink, "stroke-width": 1.4 }
-                        : { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
+                        // B18 review (nit): on a time path AC points are filled, FC points hollow
+                        : { fill: emph || (sc.path && !p.isFc) ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
                     : p.isFc
                         // 1.57 (B18): on a time path a forecast period is a hollow point
                         ? (sc.path ? { fill: cfg.paper, stroke: col, "stroke-width": 1.2 }
@@ -15803,6 +15841,7 @@ export class Visual implements IVisual {
                         value: this.scatterRatioText((p.value as number) / (p.xVal as number), sc.rayUnit) }] : []),
                     ...(shareTip ? this.scatterShareTip(p, sc) : [])] } : {}) });
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+            if (sc.path) { pctx.markG.set(p, g); }
             this.animGroups.push([g]);
             if (dots) {
                 dots.set(p.stackSeries ?? "·", {
@@ -15883,16 +15922,17 @@ export class Visual implements IVisual {
             // 1.57 (B18): the time path of every unit grows with the frames
             const visSet = new Set(vis);
             const animPaths = pathEls ? Array.from(pathEls.entries()).map(([key, el]) => {
-                const nodes: ({ x: number; y: number } | null | undefined)[] = frames.map(() => undefined);
+                const nodes: ({ x: number; y: number; s?: number } | null | undefined)[] = frames.map(() => undefined);
                 for (const p of points) {
                     const fi = frameNo.get(p.cat);
                     if (fi == null || (p.stackSeries ?? "\u0001") !== key) { continue; }
-                    nodes[fi] = visSet.has(p) ? { x: p.xVal as number, y: p.value as number } : null;
+                    nodes[fi] = visSet.has(p) ? { x: p.xVal as number, y: p.value as number,
+                        ...(hasSize ? { s: Math.max(p.sizeVal ?? 0, 0) } : {}) } : null;
                 }
                 return { key, el, nodes };
             }) : undefined;
             this.scatterAnim = {
-                ...(animPaths ? { paths: animPaths, pathLabels: pathLblG } : {}),
+                ...(animPaths ? { paths: animPaths, pathLabels: pathLblG, ...(hasSize ? { pathTrim: true } : {}) } : {}),
                 frames, frameData,
                 dots: dots ?? new Map(),
                 X, Y,
@@ -16165,6 +16205,15 @@ export class Visual implements IVisual {
             out.push({ u, a, b, dx, dy,
                 tx: dTxt(dx, sc.xDiv, sc.xFormat), ty: dTxt(dy, cfg.fmtUnit, undefined) });
         }
+        // B18 review (nit): with two or more highlighted units each delta names its unit
+        if (out.length > 1) {
+            for (const d of out) {
+                if (d.u.name == null) { continue; }
+                const nm = this.truncate(d.u.name, 90 * this.fontK, Math.round(9 * this.fontK));
+                d.tx = `${d.tx} ${nm}`;
+                d.ty = `${d.ty} ${nm}`;
+            }
+        }
         return out;
     }
 
@@ -16178,11 +16227,14 @@ export class Visual implements IVisual {
         return { x0, x1, side: k * ax.hi <= ay.hi * (1 + 1e-9) ? "right" : "top" };
     }
 
-    /** ratio text of a ray label and the tooltip: 2 decimals below 10, 1 below 100, else 0 */
+    /** ratio text of a ray label and the tooltip: 2 decimals below 10, 1 below 100, else 0;
+     *  B18 review (m4): below 0.1 two significant digits (0,001 reads „0,001“, not „0,00“) */
     private scatterRatioText(v: number, unit: string): string {
         const a = Math.abs(v);
         const d = a >= 100 ? 0 : a >= 10 ? 1 : 2;
-        const t = v.toLocaleString(this.host.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
+        const t = a > 0 && a < 0.1
+            ? v.toLocaleString(this.host.locale, { maximumSignificantDigits: 2 })
+            : v.toLocaleString(this.host.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
         return unit ? `${t} ${unit}` : t;
     }
 
@@ -16203,18 +16255,34 @@ export class Visual implements IVisual {
         const out = { t: 0, r: 0, b: 0 };
         const k = this.fontK, lf = Math.round(9 * k);
         const rr = Math.max(3, 3.5 * Math.min(k, 1.6));
+        // B18 review (M1): in a tiled deck (not zoomed) every tile reserves the room of
+        // every ray label and of the widest delta column of the deck, whether its own
+        // labels stand or not — the plot box, and with it the pixel scale, stays the same
+        const deck = sh != null && this.zoomGroup == null;
         for (const kk of sc.rays) {
             const sp = this.scatterRaySpan(kk, ax, ay);
-            if (!sp || !this.scatterRayLabelOn(sp.side, region, sh)) { continue; }
+            if (!sp || (!deck && !this.scatterRayLabelOn(sp.side, region, sh))) { continue; }
             const w = this.textWidth(this.scatterRatioText(kk, sc.rayUnit), lf);
             if (sp.side === "top") { out.t = Math.max(out.t, rr + 5 + lf - inset); }
             else { out.r = Math.max(out.r, w / 2 + 2 - inset - pad); }
         }
-        if (deltas.length > 0) {
-            out.b = deltas.length * (lf + 12) + 2;
-            out.r += deltas.reduce((s, d) => s + this.textWidth(d.ty, lf) + 16, 0);
+        const colW = (tys: string[]) => tys.reduce((s, t) => s + this.textWidth(t, lf) + 16, 0);
+        const tyss = deck && sh && sh.deltaTys ? sh.deltaTys : [deltas.map(d => d.ty)];
+        const n = Math.max(0, ...tyss.map(t => t.length));
+        if (n > 0) {
+            out.b = n * (lf + 12) + 2;
+            out.r += Math.max(...tyss.map(colW));
         }
         return out;
+    }
+
+    /** B18 review (m5): the category reads as years in every unit, and the years of some
+     *  unit do not ascend in data order (the visual is sorted by a measure) */
+    private scatterPathUnsorted(units: ScatterPathUnit[]): boolean {
+        const yr = /^(19|20)\d\d$/;
+        const cats = units.map(u => u.nodes.filter((p): p is DataPoint => p != null).map(p => p.cat.trim()));
+        if (!cats.some(c => c.length >= 2) || !cats.every(c => c.every(x => yr.test(x)))) { return false; }
+        return cats.some(c => c.some((x, i) => i > 0 && Number(x) <= Number(c[i - 1])));
     }
 
     /** ratio rays Y = k · X from the origin to the plot edge (a curve when only one axis is
@@ -16253,19 +16321,43 @@ export class Visual implements IVisual {
         if (origin) {
             this.el("circle", { "data-icd": "scatter-ray-origin", cx: ctx.X(0), cy: ctx.Y(0), ...circle }, g);
         }
-        // labels centered above the exit circle, kept inside the visual; reserved boxes
+        // labels centered above the exit circle, kept inside the visual; reserved boxes.
+        // B18 review (m3): a label that would touch a reserved box tries the other sides
+        // (top exit: left and right of the circle; right exit: below the circle), then the
+        // number without the unit, else it is left out (the ratio stays in the tooltip)
+        const hits = (b: ScBox) => ctx.placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
+        const L = ctx.region.x + 1, R = ctx.region.x + ctx.region.w - 1;
         for (const e of ends) {
             if (!this.scatterRayLabelOn(e.side, ctx.region, sh)) { continue; }
-            const txt = this.scatterRatioText(e.k, sc.rayUnit);
-            const w = this.textWidth(txt, lf);
-            const x = Math.min(Math.max(e.x, ctx.region.x + w / 2 + 1), ctx.region.x + ctx.region.w - w / 2 - 1);
-            const y = e.y - rr - 3;
-            const t = this.el("text", {
-                "data-icd": "scatter-ray-label", "data-k": e.k, x, y, "text-anchor": "middle",
-                "font-size": lf, fill: cfg.ink, "font-family": FONT, ...halo
-            }, g);
-            t.textContent = txt;
-            ctx.placed.push({ x0: x - w / 2, y0: y - lf, x1: x + w / 2, y1: y + 2 });
+            const full = this.scatterRatioText(e.k, sc.rayUnit);
+            const texts = sc.rayUnit ? [full, this.scatterRatioText(e.k, "")] : [full];
+            let done = false;
+            for (const txt of texts) {
+                const w = this.textWidth(txt, lf);
+                const cx = Math.min(Math.max(e.x, L + w / 2), R - w / 2);
+                const cands: { x: number; y: number; anchor: string; b: ScBox }[] = [];
+                const mid = (x: number, y: number) => ({ x, y, anchor: "middle", b: { x0: x - w / 2, y0: y - lf, x1: x + w / 2, y1: y + 2 } });
+                cands.push(mid(cx, e.y - rr - 3));
+                if (e.side === "top") {
+                    const xl = e.x - rr - 3, xr = e.x + rr + 3, y = e.y - 2;
+                    if (xl - w >= L) { cands.push({ x: xl, y, anchor: "end", b: { x0: xl - w, y0: y - lf, x1: xl, y1: y + 2 } }); }
+                    if (xr + w <= R) { cands.push({ x: xr, y, anchor: "start", b: { x0: xr, y0: y - lf, x1: xr + w, y1: y + 2 } }); }
+                } else {
+                    cands.push(mid(cx, e.y + rr + lf + 1));
+                }
+                const pick = cands.find(c => !hits(c.b));
+                if (!pick) { continue; }
+                const t = this.el("text", {
+                    "data-icd": "scatter-ray-label", "data-k": e.k, x: pick.x, y: pick.y, "text-anchor": pick.anchor,
+                    "font-size": lf, fill: cfg.ink, "font-family": FONT, ...halo
+                }, g);
+                t.textContent = txt;
+                ctx.placed.push(pick.b);
+                if (e.side === "right") { ctx.rayLabelRight = Math.max(ctx.rayLabelRight ?? -Infinity, pick.b.x1); }
+                done = true;
+                break;
+            }
+            if (!done) { g.setAttribute("data-dropped", String(Number(g.getAttribute("data-dropped") ?? 0) + 1)); }
         }
     }
 
@@ -16295,6 +16387,8 @@ export class Visual implements IVisual {
                     + `${x - ux * s + uy * s * 0.45},${y - uy * s - ux * s * 0.45}`,
                 fill, "stroke-linejoin": "round"
             }, parent);
+        // B18 review (nit): every drawn segment is an obstacle for the labels
+        const segs: { x1: number; y1: number; x2: number; y2: number }[] = [];
         for (const u of units) {
             const col = colOf(u);
             const emph = u.name != null && this.isEmph(cfg, u.name);
@@ -16303,7 +16397,19 @@ export class Visual implements IVisual {
             for (let i = 1; i < u.nodes.length; i++) {
                 const a = u.nodes[i - 1], b = u.nodes[i];
                 if (!a || !b) { continue; }
-                const pa = at(a), pb = at(b);
+                let pa = at(a), pb = at(b);
+                if (ctx.trim) {
+                    // B18 review (nit): with bubbles the segment ends at both rims (the
+                    // translucent bubble and its value stay free of the line)
+                    const len = Math.hypot(pb.x - pa.x, pb.y - pa.y), ra = rOf(a), rb = rOf(b);
+                    if (len <= ra + rb + 1) { continue; }
+                    const ux = (pb.x - pa.x) / len, uy = (pb.y - pa.y) / len;
+                    pa = { x: pa.x + ux * ra, y: pa.y + uy * ra };
+                    pb = { x: pb.x - ux * rb, y: pb.y - uy * rb };
+                    // each trimmed segment starts anew (no shared joint)
+                    lastS = lastD = null;
+                }
+                segs.push({ x1: pa.x, y1: pa.y, x2: pb.x, y2: pb.y });
                 if (!solidOnly && b.isFc) {
                     dashed += `${lastD === a ? "" : `M${pa.x},${pa.y}`}L${pb.x},${pb.y}`;
                     lastD = b;
@@ -16336,7 +16442,9 @@ export class Visual implements IVisual {
         // start-to-end deltas: guides from the first and last point to the X axis and to
         // the right edge, Δ X as an arrow below the axis, Δ Y as an arrow right of the plot
         const axF = Math.round(9.5 * k);
-        let xA = ctx.right + 6;
+        // B18 review (m2): the Δ Y column starts behind the ray labels at right exits
+        let xA = Math.max(ctx.right + 6, ctx.rayLabelRight != null ? ctx.rayLabelRight + 4 : -Infinity);
+        const xA0 = xA;
         deltas.forEach((d, j) => {
             const a = at(d.a), b = at(d.b);
             const yA = ctx.bottom + axF + 9 + j * (lf + 12);
@@ -16369,13 +16477,32 @@ export class Visual implements IVisual {
             const tY = this.el("text", { x: xA + 5, y: (a.y + b.y) / 2 + lf * 0.35, "text-anchor": "start",
                 "font-size": lf, fill: yCol, "font-family": FONT, ...halo }, gy);
             tY.textContent = d.ty;
-            xA += this.textWidth(d.ty, lf) + 16;
+            // B18 review (m2): arrow column and both delta texts are reserved for the labels
+            const wy = this.textWidth(d.ty, lf), wx = this.textWidth(d.tx, lf);
+            ctx.placed.push({ x0: xA - s, y0: Math.min(a.y, b.y), x1: xA + 5 + wy, y1: Math.max(a.y, b.y) + 1 });
+            ctx.placed.push({ x0: (a.x + b.x) / 2 - wx / 2, y0: yA, x1: (a.x + b.x) / 2 + wx / 2, y1: yA + lf + 4 });
+            xA += wy + 16;
         });
 
         // labels: greedy over the shared reserved boxes, no force layout
         const hitsPlaced = (b: ScBox) => ctx.placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
-        const inBounds = (b: ScBox) => b.x0 >= ctx.left + 1 && b.x1 <= ctx.region.x + ctx.region.w - 2
+        // B18 review (m2): with deltas no label reaches into the Δ Y column
+        const xMaxL = deltas.length > 0 ? xA0 - 2 : ctx.region.x + ctx.region.w - 2;
+        const inBounds = (b: ScBox) => b.x0 >= ctx.left + 1 && b.x1 <= xMaxL
             && b.y0 >= ctx.top - 4 && b.y1 <= ctx.bottom - 1;
+        // a segment crossing the box (Liang-Barsky clip against the box)
+        const segHit = (b: ScBox, q: { x1: number; y1: number; x2: number; y2: number }) => {
+            let t0 = 0, t1 = 1;
+            const dx = q.x2 - q.x1, dy = q.y2 - q.y1;
+            for (const [pp, qq] of [[-dx, q.x1 - b.x0], [dx, b.x1 - q.x1], [-dy, q.y1 - b.y0], [dy, b.y1 - q.y1]]) {
+                if (pp === 0) { if (qq < 0) { return false; } continue; }
+                const r = qq / pp;
+                if (pp < 0) { if (r > t1) { return false; } if (r > t0) { t0 = r; } }
+                else { if (r < t0) { return false; } if (r < t1) { t1 = r; } }
+            }
+            return t1 - t0 > 1e-6;
+        };
+        const hitsSeg = (b: ScBox) => segs.length <= 2000 && segs.some(q => segHit(b, q));
         type Side = "top" | "right" | "bottom" | "left";
         const spot = (p: DataPoint, w: number, h: number, sides: Side[], force: boolean) => {
             const c = at(p), r = rOf(p), gap = 3;
@@ -16387,8 +16514,9 @@ export class Visual implements IVisual {
                         ? { b: { x0: c.x - w / 2, y0: c.y - r - gap - h, x1: c.x + w / 2, y1: c.y - r - gap }, x: c.x, y: c.y - r - gap - h * 0.2, anchor: "middle" }
                         : { b: { x0: c.x - w / 2, y0: c.y + r + gap, x1: c.x + w / 2, y1: c.y + r + gap + h }, x: c.x, y: c.y + r + gap + h * 0.8, anchor: "middle" });
             const self = ctx.markOf(p)?.i ?? -1;
-            const pick = cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self))
-                ?? (force ? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b)) ?? cands.find(o => inBounds(o.b)) ?? cands[0] : null);
+            const pick = cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self) && !hitsSeg(o.b))
+                ?? (force ? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self))
+                    ?? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b)) ?? cands.find(o => inBounds(o.b)) ?? cands[0] : null);
             if (pick) { ctx.placed.push(pick.b); }
             return pick;
         };
@@ -16409,8 +16537,25 @@ export class Visual implements IVisual {
             }, lblG);
             t.textContent = txt;
         }
-        // period labels: four-digit years read as 'YY (as in the sheets)
-        const mode = sc.pathLabels;
+        // B18 review (nit): a unit whose points are all dimmed (selection, cross-highlight)
+        // dims its path, guides, deltas and labels with them
+        const lineGroups = [lineG, lblG];
+        this.selHooks.push(() => {
+            for (const u of units) {
+                const gs = u.nodes.filter((p): p is DataPoint => p != null).map(p => ctx.markG.get(p))
+                    .filter((g): g is SVGGElement => g != null);
+                const dim = gs.length > 0 && gs.every(g => g.getAttribute("opacity") === "0.35");
+                for (const parent of lineGroups) {
+                    for (const el of Array.from(parent.querySelectorAll("[data-series]"))) {
+                        if (el.getAttribute("data-series") !== (u.name ?? "")) { continue; }
+                        if (dim) { el.setAttribute("opacity", "0.35"); } else { el.removeAttribute("opacity"); }
+                    }
+                }
+            }
+        });
+        // period labels: four-digit years read as 'YY (as in the sheets);
+        // B18 review (nit): „Data labels → Show“ off hides them as well
+        const mode = cfg.showLabels ? sc.pathLabels : "off";
         if (mode === "off") { return els; }
         const allCats = units.reduce<DataPoint[]>((acc, u) => acc.concat(u.nodes.filter((p): p is DataPoint => p != null)), []);
         const years = allCats.length > 0 && allCats.every(p => /^(19|20)\d\d$/.test(p.cat.trim()));
@@ -16439,20 +16584,31 @@ export class Visual implements IVisual {
 
     /** play loop: the path of a unit up to timeline position t (frame + fraction); an
      *  absent period is skipped, a gap (null) breaks the line */
-    private scatterPathD(nodes: ({ x: number; y: number } | null | undefined)[], t: number, X: Scale, Y: Scale): string {
+    private scatterPathD(nodes: ({ x: number; y: number; s?: number } | null | undefined)[], t: number, X: Scale, Y: Scale,
+        rOf?: (v: number) => number): string {
         const last = Math.max(0, Math.min(Math.floor(t), nodes.length - 1));
-        let d = "", pen = false, prev: { x: number; y: number } | null = null;
+        let d = "", pen = false, prev: { x: number; y: number; s?: number } | null = null;
+        // B18 review (nit): with bubbles (rOf) every segment ends at both rims
+        const seg = (a: { x: number; y: number; s?: number }, bx: number, by: number, rb: number): string => {
+            const ax = X(a.x), ay = Y(a.y);
+            if (!rOf) { return `L${bx},${by}`; }
+            const ra = rOf(a.s ?? 0), len = Math.hypot(bx - ax, by - ay);
+            if (len <= ra + rb + 1) { return ""; }
+            const ux = (bx - ax) / len, uy = (by - ay) / len;
+            return `M${ax + ux * ra},${ay + uy * ra}L${bx - ux * rb},${by - uy * rb}`;
+        };
         for (let i = 0; i <= last; i++) {
             const n = nodes[i];
             if (n === undefined) { continue; }
             if (n === null) { pen = false; prev = null; continue; }
-            d += `${pen ? "L" : "M"}${X(n.x)},${Y(n.y)}`;
+            d += pen && prev ? seg(prev, X(n.x), Y(n.y), rOf ? rOf(n.s ?? 0) : 0) : rOf ? "" : `M${X(n.x)},${Y(n.y)}`;
             pen = true;
             prev = n;
         }
         const f = t - last, nx = nodes[last + 1];
         if (f > 0 && prev && nodes[last] === prev && nx) {
-            d += `L${X(prev.x + (nx.x - prev.x) * f)},${Y(prev.y + (nx.y - prev.y) * f)}`;
+            const s = (prev.s ?? 0) + ((nx.s ?? 0) - (prev.s ?? 0)) * f;
+            d += seg(prev, X(prev.x + (nx.x - prev.x) * f), Y(prev.y + (nx.y - prev.y) * f), rOf ? rOf(s) : 0);
         }
         return d;
     }

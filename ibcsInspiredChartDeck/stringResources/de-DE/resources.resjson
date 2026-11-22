@@ -946,7 +946,7 @@
   "Enum_ScatterPath_Off": "Aus",
   "Enum_ScatterPath_Line": "Linie durch die Perioden",
   "Chart_ScatterPathLabels": "Periodenlabels",
-  "Desc_Chart_ScatterPathLabels": "Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt). Auto beschriftet Start und Ende und die übrigen Perioden, wo Platz ist; Start und Ende nur diese beiden; alle jede Periode (Überlappung möglich); aus keine. Standard Auto.",
+  "Desc_Chart_ScatterPathLabels": "Zeitpfad: Periodenlabels an den Punkten (Jahreszahlen werden zu „'17“ verkürzt). Auto beschriftet Start und Ende und die übrigen Perioden, wo Platz ist; Start und Ende nur diese beiden; alle jede Periode (Überlappung möglich); aus keine. Ist „Datenbeschriftungen anzeigen“ aus, entfallen die Periodenlabels ebenfalls (die Namen am Endpunkt bleiben). Standard Auto.",
   "Enum_ScatterPathLabels_Auto": "Auto (wo Platz ist)",
   "Enum_ScatterPathLabels_Ends": "Start und Ende",
   "Enum_ScatterPathLabels_All": "Alle Perioden",
@@ -956,7 +956,7 @@
   "Chart_ScatterPathDelta": "Start-Ende-Abweichungen",
   "Desc_Chart_ScatterPathDelta": "Zeitpfad: für die hervorgehobenen Einheiten (Liste „Kategorien hervorheben“) dünne Hilfslinien vom ersten und letzten Punkt zu den Achsen, Δ X als Pfeil unter der X-Achse und Δ Y als Pfeil rechts neben dem Plot, Δ Y in Gut- bzw. Schlecht-Farbe (Invert wirkt), Δ X neutral. Standard aus.",
   "Scale_RatioRays": "Quotenstrahlen (Scatter)",
-  "Desc_Scale_RatioRays": "Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie). Dünne graue Linie bis zum Plotrand, hohler Kreis und Beschriftung am Austritt. Die Strahlen ziehen die 0 in beide Achsen; Quoten ≤ 0 werden ignoriert. Der Tooltip zeigt dann die Quote jedes Punkts. Leer = aus.",
+  "Desc_Scale_RatioRays": "Nur Scatter: Strahlen durch den Ursprung für feste Quoten Y ÷ X (z. B. Umsatz je Mitarbeiter), Liste mit Semikolon getrennt, z. B. „1; 0,7; 0,35“ (k/M/B-Suffixe wie bei der Referenzlinie). Dünne graue Linie bis zum Plotrand, hohler Kreis und Beschriftung am Austritt. Die Strahlen ziehen die 0 in beide Achsen; Quoten ≤ 0 werden ignoriert. Der Tooltip zeigt dann die Quote jedes Punkts. Die Quote gilt in den Einheiten der Daten, nicht der Achsenanzeige (Y in EUR mit Achse in Mio.: „1M“ statt „1“). Leer = aus.",
   "Scale_RatioRayUnit": "Einheit der Quotenstrahlen",
   "Desc_Scale_RatioRayUnit": "Zusatz hinter der Quote an den Strahlen und im Tooltip, z. B. „mEUR/Rep“. Leer = nur die Zahl.",
   "Tip_Ratio": "Quote Y ÷ X",
@@ -981,5 +981,6 @@
   "Hint_ScatterShareRange": "Blasenanteil außerhalb von 0 bis 100 %: Kreissegment begrenzt",
   "Enum_Template_C24": "C24 · Blasen mit Anteil (10E, 10G)",
   "Hub_TplT_C24": "Blasen mit Anteil",
-  "Hub_TplU_C24": "Marktvolumen und unser Teil je Branche"
+  "Hub_TplU_C24": "Marktvolumen und unser Teil je Branche",
+  "Hint_ScatterPathOrder": "Zeitpfad: Kategorie ist nicht nach Periode sortiert (Sortierung des Visuals auf der Periode lassen)"
 }

@@ -659,6 +659,40 @@ run("BRIDGE", "Säulen + Brücke PL → AC", dataView(mon8, [col("actual", ac8, 
   const lowY = bottom ? poly(bottom).slice(12).map(p => p[1]) : [];
   check(lowY.length === 12 && lowY.every(y => Math.abs(y - zero) <= 0.6), `AREA08A: unterste Fläche endet auf der Nulllinie (y ${r2(zero)})`);
 }
+
+// ---- 1.57 (B18 Review m7): Quotenstrahlen (Blatt 07E) · jeder Strahl hat die Steigung k im Pixelmaß der Achsen,
+// in Kacheln dasselbe Pixelmaß je Einheit (M1)
+{
+  const d = { Germany: [[2, 1], [3, 2], [3, 5], [7, 9], [9, 10], [13, 8], [14, 8.3], [15, 12], [17, 12.2]],
+    France: [[3, 0.5], [4, 2], [5, 3], [6, 3], [8, 4], [11, 4], [11, 4.3], [11, 5], [15, 6]] };
+  const yrs = ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
+  const mk = (mult) => {
+    const C = [], S = [], M = [], X = [], Y = [];
+    for (const [mn, f] of mult) { yrs.forEach((c, i) => Object.keys(d).forEach(u => { C.push(c); S.push(u); M.push(mn); X.push(d[u][i][0]); Y.push(d[u][i][1] * f); })); }
+    const categories = [{ source: { displayName: "Jahr", roles: { category: true } }, values: C },
+      { source: { displayName: "Land", roles: { series: true } }, values: S }];
+    if (mult.length > 1) { categories.push({ source: { displayName: "Region", roles: { multiples: true } }, values: M }); }
+    return { metadata: { columns: [], objects: { chart: { orientation: "scatter", scatterPath: "line", scatterColorBy: "group", scatterQuadrant: "off",
+      scatterPathDelta: true, highlight: "Germany" }, scale: { ratioRays: "1; 0,7; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" } } },
+      categorical: { categories, values: [col("actual", Y, "#,0.0", "Net sales"), col("xValue", X, "#,0", "Sales reps")] } };
+  };
+  run("RAY07E", "Quotenstrahlen 1 / 0,7 / 0,35 · Steigung im Pixelmaß", mk([[null, 1]]), 1000, 560);
+  const o = document.querySelector('#RAY07E [data-icd="scatter-ray-origin"]');
+  const ends = [...document.querySelectorAll('#RAY07E [data-icd="scatter-ray-end"]')];
+  const pxX = (num(ends.find(e => e.getAttribute("data-y") === "7"), "cx") - num(o, "cx")) / 20;
+  const pxY = (num(o, "cy") - num(ends.find(e => e.getAttribute("data-x") === "14"), "cy")) / 14;
+  const ks = ends.map(e => ((num(o, "cy") - num(e, "cy")) / pxY) / ((num(e, "cx") - num(o, "cx")) / pxX) / num(e.closest('[data-icd="scatter-ray"]'), "data-k"));
+  measure(`RAY07E: ${r2(pxX)} px je X, ${r2(pxY)} px je Y, Steigung / k = ${ks.map(r2).join(" / ")}`);
+  check(ends.length === 3 && ks.every(k => Math.abs(k - 1) < 0.005), "RAY07E: jeder Strahl Y = k · X im Achsenmaß (0,5 %)");
+  run("RAY07Esm", "Quotenstrahlen in 3 Kacheln · gleiches Pixelmaß", mk([["Nord", 1], ["Süd", 0.6], ["West", 0.8]]), 1200, 480);
+  const per = [...document.querySelectorAll('#RAY07Esm [data-icd="scatter-rays"]')].map(g => {
+    const oo = g.querySelector('[data-icd="scatter-ray-origin"]');
+    const e = g.querySelector('[data-icd="scatter-ray"][data-k="0.35"] [data-icd="scatter-ray-end"]');
+    return r2((num(e, "cx") - num(oo, "cx")) / 20);
+  });
+  measure(`RAY07Esm: px je X-Einheit ${per.join(" / ")}`);
+  check(per.length === 3 && Math.max(...per) - Math.min(...per) < 0.03, "RAY07Esm: gleiches Pixelmaß in allen Kacheln (Strahlen + Δ)");
+}
 </script>
 </body>
 </html>

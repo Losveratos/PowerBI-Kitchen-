@@ -946,7 +946,7 @@
   "Enum_ScatterPath_Off": "Off",
   "Enum_ScatterPath_Line": "Line through the periods",
   "Chart_ScatterPathLabels": "Period labels",
-  "Desc_Chart_ScatterPathLabels": "Time path: period labels at the points (years are shortened to “'17”). Auto labels start and end and the other periods where there is room; start and end only these two; all every period (overlap possible); off none. Default auto.",
+  "Desc_Chart_ScatterPathLabels": "Time path: period labels at the points (years are shortened to “'17”). Auto labels start and end and the other periods where there is room; start and end only these two; all every period (overlap possible); off none. With “Show data labels” off the period labels are hidden as well (the names at the end point stay). Default auto.",
   "Enum_ScatterPathLabels_Auto": "Auto (where there is room)",
   "Enum_ScatterPathLabels_Ends": "Start and end",
   "Enum_ScatterPathLabels_All": "All periods",
@@ -956,7 +956,7 @@
   "Chart_ScatterPathDelta": "Start-to-end deltas",
   "Desc_Chart_ScatterPathDelta": "Time path: for the highlighted units (list “Highlight categories”) thin guide lines from the first and last point to the axes, Δ X as an arrow below the X axis and Δ Y as an arrow right of the plot, Δ Y in the good or bad colour (invert applies), Δ X neutral. Default off.",
   "Scale_RatioRays": "Ratio rays (scatter)",
-  "Desc_Scale_RatioRays": "Scatter only: rays through the origin for fixed ratios Y ÷ X (e.g. sales per employee), list separated by semicolons, e.g. “1; 0.7; 0.35” (k/M/B suffixes as for the reference line). Thin grey line to the plot edge, hollow circle and label at the exit. The rays pull 0 into both axes; ratios ≤ 0 are ignored. The tooltip then shows the ratio of each point. Empty = off.",
+  "Desc_Scale_RatioRays": "Scatter only: rays through the origin for fixed ratios Y ÷ X (e.g. sales per employee), list separated by semicolons, e.g. “1; 0.7; 0.35” (k/M/B suffixes as for the reference line). Thin grey line to the plot edge, hollow circle and label at the exit. The rays pull 0 into both axes; ratios ≤ 0 are ignored. The tooltip then shows the ratio of each point. The ratio is in the units of the data, not of the axis display (Y in EUR with the axis in millions: “1M” instead of “1”). Empty = off.",
   "Scale_RatioRayUnit": "Ratio ray unit",
   "Desc_Scale_RatioRayUnit": "Suffix after the ratio at the rays and in the tooltip, e.g. “mEUR/Rep”. Empty = number only.",
   "Tip_Ratio": "Ratio Y ÷ X",
@@ -981,5 +981,6 @@
   "Hint_ScatterShareRange": "Bubble share outside 0 to 100 %: sector cut to the range",
   "Enum_Template_C24": "C24 · Bubbles with share (10E, 10G)",
   "Hub_TplT_C24": "Bubbles with share",
-  "Hub_TplU_C24": "Market volume and our part per sector"
+  "Hub_TplU_C24": "Market volume and our part per sector",
+  "Hint_ScatterPathOrder": "Time path: the category is not sorted by period (keep the visual sorted by the period)"
 }

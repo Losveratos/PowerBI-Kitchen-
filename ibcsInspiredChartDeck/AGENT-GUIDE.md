@@ -44,7 +44,25 @@ Strahlen. Δ X neutral (Tinte), Δ Y nach `cfg.isGood`. `data-icd`: `scatter-pat
 `scatter-rays`, `scatter-ray` (`data-k`), `scatter-ray-end` (`data-x`, `data-y`), `scatter-ray-origin`,
 `scatter-ray-label`, `scatter-hint-path`. Vorlage C23 (Galerie Zeitverlauf, braucht `xValue`, Mini `scatterpath`).
 Tests c900 bis c917; Galerie-Tests c222 und c230 kennen C23. Standard SVG-gleich (Hash aller 701 Bestands-Stufen,
-geändert nur Galerie c222b, c222d, c229, c230, c230b). 953 resjson-Keys je Sprache.
+geändert nur Galerie c222b, c222d, c229, c230, c230b). 953 resjson-Keys je Sprache (965 nach dem Merge mit B20).
+**Review-Stand:** Ränder deckweit (M1): `prepareScatterDeck` legt `ScatterShared.deltaTys` (Δ-Y-Texte je Kachel) ab,
+`scatterExtraMargins` rechnet im Deck (nicht gezoomt) alle Strahl-Labels unabhängig von `scatterRayLabelOn` und die
+breiteste Δ-Spalte, dazu die größte Δ-Zahl für den unteren Rand; jede Kachel hat damit dieselbe Plotfläche.
+`ScatterPlotCtx` hat neu `rayLabelRight` (rechte Kante der rechten Strahl-Labels, gesetzt in `drawScatterRays`),
+`markG` (Marke je Punkt, gefüllt beim Zeichnen) und `trim` (Blasen: Segmente enden am Rand). Δ-Spalte ab
+`max(right + 6, rayLabelRight + 4)`, Pfeil- und Textboxen in `ctx.placed`, Labels nur bis vor die Δ-Spalte (m2).
+`drawScatterRays` probiert je Label über dem Kreis, oben links/rechts bzw. rechts unter dem Kreis, dann ohne Einheit,
+sonst `data-dropped` an `scatter-rays` (m3). `scatterRatioText` unter 0,1 mit `maximumSignificantDigits: 2` (m4).
+Hinweis „zwei Perioden“ prüft im Play die ungekürzten Einheiten (m1); `scatterPathUnsorted` (Jahreszahlen, nicht
+aufsteigend) gibt `scatter-hint-path` mit `data-kind="order"` (`Hint_ScatterPathOrder`, m5). Periodenlabels und Namen
+meiden alle Segmente (Liang-Barsky gegen die Labelbox, erst ohne Treffer, erzwungene Labels danach ohne die Segmentprüfung);
+`labels.show` aus heißt `pathLabels = off`. `selHooks`: eine Einheit, deren Marken alle `opacity 0.35` tragen, dimmt
+alle Elemente mit ihrem `data-series` in `scatter-paths` und `scatter-path-labels`; beide Gruppen `pointer-events="none"`.
+`scatterPathD(nodes, t, X, Y, rOf?)` kürzt mit Blasen jedes Segment um beide Radien (`scatterAnim.pathTrim`, Knoten mit
+`s` = Größe). `scatterAxisDomain` rundet mit Strahlen, wenn Log nicht greifen kann (`logPossible`), nicht nur ohne
+Log-Wunsch. Hochkontrast auf dem Pfad: AC gefüllt, FC hohl. Ab zwei Δ-Einheiten hängt `scatterPathDeltas` den
+Einheitennamen an `tx`/`ty`. Tests c918 bis c929, c903 korrigiert, `scale.html` RAY07E/RAY07Esm, `export-cases.js` Blatt
+`path`. Offen gelassen (Gestaltungsfrage): Gruppenfarben ab der 7. Einheit, gleichfarbige Pfade im Hochkontrast.
 
 *B19 · Blasen mit Kreissegmenten und Gesamtblase (Blätter 10E, 10G, Vorlage C24).* Neue Rolle `bubbleShare`
 („Blasenanteil (optional)“, Measure, max 1, nach `bubbleSizePrevious` in `dataRoles`, im einzigen `conditions`-Satz und
