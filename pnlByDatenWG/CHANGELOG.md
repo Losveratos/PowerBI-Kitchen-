@@ -14,8 +14,17 @@
 - **11A: Jahreszahlen frei vom Kartenknopf.** Bei allen beschrifteten Perioden lassen alle Karten den
   Platz des Knopfs frei, die Jahre stehen auf Eltern- und Blattkarten im selben Raster.
 
+- **11A wie im Blatt** (bei „Jede Periode beschriften“): eine Nachkommastelle je Karte (5,0 statt 5,00),
+  negative Ist-Werte mittelgrau, Planperioden hell gefüllt; nicht im hohen Kontrast und nicht, wo PY
+  gezeichnet wird. **Verhaltensänderung** für Berichte mit diesem Schalter (seit 1.8.0).
+- **Blattnotation** (`numbers.sheetPctDecimals`) erweitert: 12G ohne Titel „FY 2025“, Köpfe „YTD“ und
+  „Jahr“ statt „AC&FC“, Margen ganzzahlig (36 %); die Planspalte eines einzelnen Blocks nennt ihr Jahr
+  („PL 2026“ wie 12H). **Verhaltensänderung** für Berichte mit diesem Schalter (seit 1.8.0).
+
 **Tests:** mega-shot m27 (36,0 % und 30,8 % kursiv), m67 (Margenwert auf der Nulllinie mit
-Papierkasten), t11c (sechs Trennlinien, drei Kartenknöpfe, kein 2027 verdeckt); m28-Botschaft +111.
+Papierkasten), m68 (12G in Blattnotation), m69 („PL 2026“), t11c (Trennlinien, Kartenknöpfe frei, eine
+Nachkommastelle, Blattfarben); m28-Botschaft +111. mega-shot 427, tree 382, toolbar 388, hub 135,
+start-dark 102, finance 95, mega-interact 42, ease 47, scale 17, stage-scale 7, tile 16 grün.
 
 ## 1.8.2.0 (2026-11-22): Blatt-Optionen 12G/T03/T04, Hervorhebung schneller
 

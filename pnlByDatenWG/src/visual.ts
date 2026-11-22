@@ -82,6 +82,8 @@ const C_LIGHT = {
     onInk: "#FFF",
     /** demo banner wash */
     wash: "#F7F6F3",
+    /** 1.8.3 sheet 11A: negative actuals (middle gray) and the lightly filled plan columns */
+    negSheet: "#808080", planSheet: "#F2F2F2",
     /** shadow language of the cards — one resting elevation, one on hover */
     shadow: "0 1px 2px rgba(15,30,46,.06)",
     shadowHover: "0 2px 6px rgba(15,30,46,.10)",
@@ -108,6 +110,7 @@ const C_DARK: typeof C_LIGHT = {
     paper: "#1E1E1E",
     onInk: "#1E1E1E",
     wash: "#2A2A27",
+    negSheet: "#9A9A9A", planSheet: "#2E2E2E",
     shadow: "0 1px 2px rgba(0,0,0,.45)",
     shadowHover: "0 2px 6px rgba(0,0,0,.55)",
     headShadow: "0 3px 8px rgba(0,0,0,.45)",
@@ -7376,10 +7379,10 @@ export class Visual implements IVisual {
         return k === "factor" ? "x" : k === "amount" ? "kamt" : "pct";
     }
 
-    private treeNum(v: number, fmt: Fmt, plus = false): string {
+    private treeNum(v: number, fmt: Fmt, plus = false, decFix?: number): string {
         const scaled = v / fmt.div;
         const a = Math.abs(scaled);
-        const dec = a >= 100 ? 0 : a >= 10 ? 1 : 2;
+        const dec = decFix ?? (a >= 100 ? 0 : a >= 10 ? 1 : 2);
         // 1.8.2 one formatter per locale and decimals (a Sankey over 5,000 accounts
         // formats tens of thousands of numbers; a new Intl.NumberFormat each cost ~200 ms)
         const fk = this.locale + "|" + dec;
@@ -7733,6 +7736,14 @@ export class Visual implements IVisual {
         const needHatch = slots.some(sl => sl.style === "fc")
             || series.refScen === "fc" || series.ref2Scen === "fc";
         const hatch = needHatch ? this.treeHatchId(svg) : "";
+        // 1.8.3 every period labelled (sheet 11A): one decimal on the whole card (none
+        // from 100 up) instead of the size rule per value, negative actuals in a middle
+        // grey and the plan columns lightly filled, as the sheet; never in high contrast
+        // and never where PY is drawn (its gray would read as a scenario)
+        const sheet = !!series.all && !this.hc && series.refScen !== "py" && series.ref2Scen !== "py";
+        let cardMax = 0;
+        for (const sl of slots) { for (const v of [sl.v, sl.ref]) { if (v != null) { cardMax = Math.max(cardMax, Math.abs(v) / fmt.div); } } }
+        const cardDec = series.all ? (cardMax >= 100 ? 0 : 1) : undefined;
 
         slots.forEach((sl, i) => {
             const cx = box.x + (i + 0.5) * slotW;
@@ -7741,11 +7752,12 @@ export class Visual implements IVisual {
             // reference behind, wider and offset — IBCS overlapped grouped columns
             if (sl.ref != null && series.refScen !== "") {
                 const st = this.treeScenFill(series.refScen, hatch);
-                rect(refCx - refW / 2, refW, sl.ref, st.fill, st.stroke, 1.2);
+                const planFill = sheet && (series.refScen === "pl" || series.refScen === "plfy") ? C.planSheet : st.fill;
+                rect(refCx - refW / 2, refW, sl.ref, planFill, st.stroke, 1.2);
             }
             if (sl.v != null) {
                 if (sl.style === "fc") { rect(acCx - acW / 2, acW, sl.v, `url(#${hatch})`, C.ac, 1); }
-                else { rect(acCx - acW / 2, acW, sl.v, C.ac, null, 0); }
+                else { rect(acCx - acW / 2, acW, sl.v, sheet && sl.v < 0 ? C.negSheet : C.ac, null, 0); }
             }
             // scenario triangle for the second reference (IBCS UN 4.1)
             if (sl.ref2 != null && series.ref2Scen !== "") {
@@ -7768,8 +7780,8 @@ export class Visual implements IVisual {
             // 1.8 every period labelled: a percent KPI drops its "%" (the card head
             // names the unit, as the sheet 11A does), so seven labels fit side by side
             const lbl = (x: number): string => isRatio
-                ? (series.all && !node.row.kfmt ? fmt.pct(x).replace("%", "") : this.kpiText(node, x, fmt, false, y => this.treeNum(y, fmt)))
-                : this.treeNum(x, fmt);
+                ? (series.all && !node.row.kfmt ? fmt.pct(x).replace("%", "") : this.kpiText(node, x, fmt, false, y => this.treeNum(y, fmt, false, cardDec)))
+                : this.treeNum(x, fmt, false, cardDec);
             if (sl.v != null && sl.label) {
                 this.treeLabel(g, box, acCx, sl.v >= 0 ? yOf(sl.v) - 2.5 : yOf(sl.v) + lfs, lbl(sl.v), lfs, C.text);
             } else if (sl.v == null && sl.ref != null && sl.label) {
@@ -11254,6 +11266,7 @@ export class Visual implements IVisual {
             th: th[bi],
             // a single month / FY block names itself (a single YTD statement never did)
             titled: !twoBlocks && (key !== "ytd" || stockOnly),
+            year: year || undefined,
             alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
             // 12G: the FY outlook's AC&FC is mostly forecast — its Δ elements are
             // hatched, and its value cascade stacks the YTD actuals (solid) in front
@@ -11333,7 +11346,12 @@ export class Visual implements IVisual {
             fin: this.finance(),
             ppUnit: this.ppUnit() === "pp" ? MEGA_PP : "%p",
             // 1.8 (B14) T03 prints Δ% whole but margins and their pp with one decimal
-            mdec: this.settings.numbersCard.sheetPctDecimals.value ? Math.max(1, this.settings.numbersCard.pctDecimals.value) : undefined,
+            // 1.8.3 12G prints its margins whole ("36%"): the template's sheet margin decimals
+            mdec: this.settings.numbersCard.sheetPctDecimals.value
+                ? (MEGA_PRESETS[String(this.settings.columnsCard.template?.value?.value ?? "off")]?.sheetMdec
+                    ?? Math.max(1, this.settings.numbersCard.pctDecimals.value)) : undefined,
+            sheetNotation: this.settings.numbersCard.sheetPctDecimals.value === true,
+            yearHead: this.tr("UI_ColYear"),
             zeroPlain: this.zeroPlain(),
             // 1.8.2 sheet options T03 (relative Δ% of margins) and T04 (no pp at the axis)
             marginRel: this.settings.numbersCard.marginRel.value === true,

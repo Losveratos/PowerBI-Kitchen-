@@ -118,7 +118,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -319,6 +319,19 @@ function readMega(id) {
         });
         check("m67 a margin value on the zero line gets a paper box (no axis through the digits)", k.length >= 1 && k[0].halo, JSON.stringify(k));
     }
+    // ---- 1.8.3 sheet notation ------------------------------------------------------------------
+    if (S.m68 && S.m27) {
+        const H = heads("m68");
+        check("m68 12G sheet notation: heads PY · YTD … Year, no FY block title, no AC&FC (m27 keeps FY 2025 / AC&FC)",
+            H.includes("YTD") && H.includes("Year") && !H.includes("AC&FC") && !H.some(h => /^FY/.test(h))
+            && heads("m27").includes("AC&FC") && heads("m27").some(h => /^FY/.test(h)), H.join("|"));
+        const kpi = await page.evaluate(() => [...document.querySelectorAll('#m68 text[data-pnl="mega-kpi"]')].map(t => t.textContent));
+        check("m68 12G sheet notation: margins whole as the sheet (36%, 31%)", kpi.join(",") === "36%,31%", kpi.join(","));
+    }
+    if (S.m69) {
+        const H = heads("m69");
+        check("m69 12H sheet notation with a period: the plan column heads \"PL 2026\"", H.includes("PL 2026") && !H.includes("PL"), H.join("|"));
+    }
     // ---- 1.8.2 sheet options ------------------------------------------------------------------
     if (S.m61 && S.m27) {
         const E = S.m61.charts.flatMap(c => c.ellipses);
@@ -393,6 +406,14 @@ function readMega(id) {
             const hit = tags.some(b => chev.some(c => b.x < c.x + c.width && c.x < b.x + b.width && b.y < c.y + c.height && c.y < b.y + b.height));
             return { seps, tags: tags.length, chev: chev.length, hit };
         });
+        const fills = await page.evaluate(() => {
+            const st = document.getElementById("t11c");
+            const r = [...st.querySelectorAll("svg rect")].map(x => (x.getAttribute("fill") || "").toUpperCase());
+            return { neg: r.filter(f => f === "#808080").length, plan: r.filter(f => f === "#F2F2F2").length };
+        });
+        check("t11c 1.8.3 one decimal on every card (5.0, 4.1, 26.1; no 5.00), negative actuals middle gray, plan columns light (sheet 11A)",
+            c.includes("5.0") && c.includes("4.1") && !c.includes("5.00") && !c.includes("−1.80") && c.includes("−1.8")
+            && fills.neg >= 6 && fills.plan >= 12, JSON.stringify(fills) + " " + c.filter(t => /^−?\d+\.\d+$/.test(t)).slice(0, 12).join(" "));
         check("t11c 1.8.3 AC | PL separator on all six cards, every 2027 tag in full and clear of the chevron (sheet 11A)",
             geo.seps === 6 && geo.tags === 6 && geo.chev === 3 && !geo.hit, JSON.stringify(geo));
         check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
