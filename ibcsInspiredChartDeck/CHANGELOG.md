@@ -84,6 +84,19 @@
     um den Markerrand über 20 bzw. 14 hinaus (die Strahlen enden trotzdem genau dort), Δ X neutral statt blau, keine
     Ellipse um „−4“ (Botschaftsmarke des Titels), Ländernamen in 07E rechts statt über dem Endpunkt, wo Platz ist.
 
+- **Demo-Galerie.** Vorher: Die Demo-Galerie (Leer-Zustand „Demo“ und Hub-Seite „Demo ansehen“) zeigte nur 13 der
+  14 Modi; Bestand & Fluss (seit 1.55) fehlte. War der Modus gewählt, blieb die Subline „Als Nächstes: … in die
+  Feldliste ziehen“ ohne Felder, und die Hero-Stufe zeigte Säulen statt des aktiven Modus. Hub und Tour nannten noch
+  „13 Chart-Typen“ und „17 IBCS-Vorlagen“. Nachher: Bestand & Fluss ist die 14. Kachel (am Ende, die übrigen behalten
+  ihren Platz) mit der Miniatur der Vorlage C20, Nutzen „Kasse, Personal, Lager: Bestand und Flüsse“ und den Feldern
+  „Kategorie (Zeit), AC, Stack-Serie, Waterfall-Typ“; ein Klick setzt
+  `chart.orientation = stockflow`. Die Tour-Karte „Zeitreihen“ zeigt die Miniatur dazu. Die Zahl der Modi (Einträge
+  im Dropdown) und der Vorlagen (Kacheln der Vorlagen-Galerie) steht als `{0}` in den Texten und wird gezählt, statt
+  fest im Text zu stehen. Die Vorlagen C07, C21, C22, C23 und C25 hatte die Vorlagen-Galerie schon; die Demo-Galerie
+  zeigt Modi, keine Varianten, daher dort keine weiteren Kacheln (C24 folgt mit B19 in der Vorlagen-Galerie).
+  Neue Keys `Demo_Use_StockFlow`, `Demo_F_StockFlow`; geändert `Hub_DemoDesc`, `Tour_1_T` bis `Tour_4_T`, `Tour_1_B`,
+  `Tour_11_B`. Tests c990 bis c999, c227b zählt 14 Kacheln.
+
 ## 1.56.0.0 (2026-11-22, Backlog IBCS-Templates Teil 3)
 
 - **B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C und 13D).** Vorher: Kacheln gegen den Durchschnitt zeigten

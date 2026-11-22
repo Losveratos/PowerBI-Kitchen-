@@ -3599,7 +3599,12 @@ export class Visual implements IVisual {
                 fields: this.locStr("Demo_F_Slope", "Category, AC, PY/PL") },
             { v: "scatter", key: "Enum_Orientation_Scatter", en: "Scatter / bubble",
                 use: this.locStr("Demo_Use_Scatter", "Correlation of two KPIs per category (e.g. revenue vs. margin)"),
-                fields: this.locStr("Demo_F_Scatter", "Category, AC (Y), X axis, size (optional)") }
+                fields: this.locStr("Demo_F_Scatter", "Category, AC (Y), X axis, size (optional)") },
+            // 1.57: the 14th mode (stock & flow since 1.55, B11) joins the gallery. Appended
+            // last, so the 13 older tiles keep their places in every layout tier
+            { v: "stockflow", key: "Enum_Orientation_StockFlow", en: "Stock & flow",
+                use: this.locStr("Demo_Use_StockFlow", "Cash, staff, inventory: stock and flows"),
+                fields: this.locStr("Demo_F_StockFlow", "Category (time), AC, stack series, waterfall type") }
         ];
         const fieldsPre = this.locStr("Demo_Fields", "Fields");
         const active = String(this.formattingSettings.chartCard.orientation.value.value);
@@ -4924,7 +4929,8 @@ export class Visual implements IVisual {
                     ? this.locStr("Hub_TemplatesDescOn", "IBCS templates with preview — active: {0}").replace("{0}", tplNow)
                     : this.locStr("Hub_TemplatesDesc", "By purpose: time series · structure · correlation · bridges — one click applies") },
             { id: "demo", label: this.locStr("Hub_Demo", "View demo"),
-                desc: this.locStr("Hub_DemoDesc", "All 13 chart types as a gallery — a click picks the mode") },
+                desc: this.locStr("Hub_DemoDesc", "All {0} chart types as a gallery — a click picks the mode")
+                    .replace("{0}", this.hubCount("modes")) },
             { id: "fields", label: this.locStr("Hub_Fields", "Explain fields"),
                 desc: this.locStr("Hub_FieldsDesc", "Which field goes where — ✓ at the fields already bound") }
         ];
@@ -5277,7 +5283,8 @@ export class Visual implements IVisual {
             catbridge: ["Enum_Orientation_CatBridge", "Category Bridge"], table: ["Enum_Orientation_Table", "Table (IBCS)"],
             pnl: ["Enum_Orientation_Pnl", "P&L Statement"], cards: ["Enum_Orientation_Cards", "KPI Cards"],
             pareto: ["Enum_Orientation_Pareto", "Pareto"], dumbbell: ["Enum_Orientation_Dumbbell", "Dumbbell"],
-            slope: ["Enum_Orientation_Slope", "Slope"], scatter: ["Enum_Orientation_Scatter", "Scatter / bubble"]
+            slope: ["Enum_Orientation_Slope", "Slope"], scatter: ["Enum_Orientation_Scatter", "Scatter / bubble"],
+            stockflow: ["Enum_Orientation_StockFlow", "Stock & flow"]
         };
         const m = modes[key];
         if (m) { return this.locStr(m[0], m[1]).split(/\s*[(（]/)[0].trim(); }
@@ -5287,15 +5294,17 @@ export class Visual implements IVisual {
 
     /** the tour: one card per core capability — mini previews + 1–2 sentences */
     private hubTourCards(): { t: string; b: string; minis: string[]; action?: HubPage }[] {
-        const L = (k: string, en: string) => this.locStr(k, en);
+        // 1.57: mode and template counts follow the code ({0}); stock & flow joins card 1
+        const nModes = this.hubCount("modes");
+        const L = (k: string, en: string) => this.locStr(k, en).replace("{0}", nModes);
         return [
-            { t: L("Tour_1_T", "13 chart modes · time series"), minis: ["columns", "line"],
-                b: L("Tour_1_B", "Columns for months and quarters, line for long series (weeks, days) — AC solid, PY grey, PL outlined, FC hatched, as IBCS prescribes.") },
-            { t: L("Tour_2_T", "13 chart modes · structure"), minis: ["bars", "table", "cards"],
+            { t: L("Tour_1_T", "{0} chart modes · time series"), minis: ["columns", "line", "stockflow"],
+                b: L("Tour_1_B", "Columns for months and quarters, line for long series (weeks, days), stock & flow for cash or inventory — AC solid, PY grey, PL outlined, FC hatched, as IBCS prescribes.") },
+            { t: L("Tour_2_T", "{0} chart modes · structure"), minis: ["bars", "table", "cards"],
                 b: L("Tour_2_B", "Bars compare regions and products; the IBCS table adds hierarchy, Σ row and matrix columns; KPI cards show the status at a glance.") },
-            { t: L("Tour_3_T", "13 chart modes · bridges & P&L"), minis: ["waterfall", "intwaterfall", "catbridge", "pnl"],
+            { t: L("Tour_3_T", "{0} chart modes · bridges & P&L"), minis: ["waterfall", "intwaterfall", "catbridge", "pnl"],
                 b: L("Tour_3_B", "Waterfall for P&L rows, the integrated bridge PY → AC across the months, the category bridge per driver and the P&L statement with cascade columns.") },
-            { t: L("Tour_4_T", "13 chart modes · analysis"), minis: ["pareto", "dumbbell", "slope", "scatter"],
+            { t: L("Tour_4_T", "{0} chart modes · analysis"), minis: ["pareto", "dumbbell", "slope", "scatter"],
                 b: L("Tour_4_B", "Pareto (ABC with cumulative %), dumbbell and slope for before/after, scatter and bubble with quadrants for two KPIs.") },
             { t: L("Tour_5_T", "Variance panels"), minis: ["tour-variance"],
                 b: L("Tour_5_B", "ΔPY or ΔPL as absolute bars and % pins right next to the chart — good teal, bad red, below the materiality threshold grey. Dual variance shows ΔPL and ΔPY at once.") },
@@ -5310,8 +5319,20 @@ export class Visual implements IVisual {
             { t: L("Tour_10_T", "YTD, materiality & exceptions"), minis: ["tour-ytd"],
                 b: L("Tour_10_B", "YTD, QTD or R12 at the click of a chip, small variances greyed out, exception reporting folds the unremarkable rows into one.") },
             { t: L("Tour_11_T", "Templates & Smart-Start"), minis: ["stackcols", "catbridgecols", "bubble"], action: "templates",
-                b: L("Tour_11_B", "17 IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.") }
+                b: this.locStr("Tour_11_B", "{0} IBCS templates set mode, comparison and panels in one click; Smart-Start suggests a better chart type from the bound fields.")
+                    .replace("{0}", this.hubCount("templates")) }
         ];
+    }
+
+    /** 1.57: counts named in the hub texts — the modes of the pane dropdown and the
+     *  templates the gallery offers — so a new mode or template updates them too */
+    private hubCount(kind: "modes" | "templates"): string {
+        if (kind === "modes") { return String(this.formattingSettings.chartCard.orientation.items.length); }
+        const codes = new Set<string>();
+        for (const gr of TEMPLATE_GROUPS) {
+            for (const cd of gr.codes) { if (CHART_TEMPLATES[cd]) { codes.add(cd); } }
+        }
+        return String(codes.size);
     }
 
     private drawHubTour(width: number, height: number): void {

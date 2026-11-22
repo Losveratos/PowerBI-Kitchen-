@@ -46,6 +46,18 @@ Strahlen. Δ X neutral (Tinte), Δ Y nach `cfg.isGood`. `data-icd`: `scatter-pat
 Tests c900 bis c917; Galerie-Tests c222 und c230 kennen C23. Standard SVG-gleich (Hash aller 701 Bestands-Stufen,
 geändert nur Galerie c222b, c222d, c229, c230, c230b). 953 resjson-Keys je Sprache.
 
+*Demo-Galerie (1.57).* `drawGallery` (Leer-Zustand `emptyState.mode=demo` und Hub-Seite „Demo ansehen“) zeigt Modi,
+keine Varianten: die Liste `modes` in `drawGallery` hat je `chart.orientation` einen Eintrag (Wert, Enum-Key, Nutzen
+`Demo_Use_*`, Felder `Demo_F_*`), die Miniatur kommt aus `drawModeMini` (schematisch, keine Daten). `stockflow` steht
+als 14. Eintrag am Ende (Miniatur `stockflow` wie C20), damit die 13 älteren Kacheln in allen Stufen (Liste, Raster,
+Hero) ihren Platz behalten. Ein neuer Modus braucht einen Eintrag am Ende dieser Liste, eine Miniatur in `drawModeMini`
+und eine Beschriftung in `hubMiniCaption`; Vorlagen gehören in `TEMPLATE_MINI`/`TEMPLATE_GROUPS` der Vorlagen-Galerie
+(dort stehen C07, C21, C22, C23, C25; Platz für C24 aus B19 ist die Gruppe dort, nicht die Demo-Galerie). Zahlen in
+`Hub_DemoDesc`, `Tour_1_T` bis `Tour_4_T` (Modi = Einträge von `chart.orientation`) und `Tour_11_B` (Vorlagen aus
+`TEMPLATE_GROUPS` mit Eintrag in `CHART_TEMPLATES`) zählt `hubCount`, die Texte tragen `{0}`. Tour-Karte 1 zeigt die
+Miniatur Bestand & Fluss. 967 resjson-Keys je Sprache. Tests c990 bis c999, c227b zählt 14 Kacheln; geändert nur
+Hub- und Tour-Stufen durch die Zahlen (13 → 14, 17 → 23) und die Tour-Karte 1.
+
 **Neu in 1.56 (Backlog IBCS-Templates Teil 3, 22.11.2026):**
 
 *B13 Teil 2 · Nur Abweichungs-Panel (Blätter 13C, 13D).* `chart.varianceOnly` (bool, Standard false, Gruppe „Small
