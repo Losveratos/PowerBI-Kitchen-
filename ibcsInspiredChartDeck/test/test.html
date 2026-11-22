@@ -2021,7 +2021,7 @@ addStage("c203", "Feld-Intro (emptyState.mode = fields) · Bearbeitungsmodus · 
 runCap("c203", emptyDv({ emptyState: { mode: "fields" } }), 960, 380, { viewMode: 1 });
 {
   const m = fiMarks("c203");
-  check(Object.keys(m).length === 20 && Object.values(m).every(v => v === "0"), "c203: alle 20 Datenrollen (1.51, 1.55: + bubbleSizePrevious), keine gebunden " + JSON.stringify(m));
+  check(Object.keys(m).length === 21 && Object.values(m).every(v => v === "0"), "c203: alle 21 Datenrollen (1.51, 1.55: + bubbleSizePrevious, 1.57: + bubbleShare), keine gebunden " + JSON.stringify(m));
   check(!!document.querySelector('#c203 [data-icd="fi-notation"]') && !!document.querySelector('#c203 [data-icd="fi-axis"]'),
     "c203: Prämissen-Boxen IBCS-Notation + Zeit vs. Struktur");
   check(!!document.querySelector('#c203 [data-icd="es-demo"]') && !!document.querySelector('#c203 [data-icd="es-message"]')
@@ -2292,12 +2292,17 @@ addStage("c222", "Vorlagen-Galerie ohne Felder · Klick C03 → EIN Merge · Ech
   hubClick("c222", "hub-templates");
   const tiles = [...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8));
   // 1.54: 16 Vorlagen in fünf Gruppen — bei 960 × 420 auf zwei Seiten (‹ › blättern, nichts persistiert)
-  if (hubQ("c222", "hub-tpl-next")) {
+  // 1.57 (B19): mit C24 drei Seiten — weiterblättern, solange neue Kacheln kommen, dann zurück
+  let pages = 0;
+  while (hubQ("c222", "hub-tpl-next") && pages < 6) {
     hubClick("c222", "hub-tpl-next");
-    tiles.push(...[...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)));
-    hubClick("c222", "hub-tpl-prev");
+    const more = [...document.querySelectorAll('#c222 [data-icd^="hub-tpl-C"]')].map(e => e.getAttribute("data-icd").slice(8)).filter(t => !tiles.includes(t));
+    pages++;
+    if (!more.length) { break; }
+    tiles.push(...more);
   }
-  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C23","C25"]', "c222: 23 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22, 1.57: + C23, C25) " + JSON.stringify(tiles));
+  for (let i = 0; i < pages; i++) { if (hubQ("c222", "hub-tpl-prev")) { hubClick("c222", "hub-tpl-prev"); } }
+  check(JSON.stringify(tiles.slice().sort()) === '["C01","C02","C03","C04","C05","C06","C07","C08","C09","C10","C12","C13","C14","C15","C16","C17","C18","C19","C20","C21","C22","C23","C24","C25"]', "c222: 24 Vorlagen-Kacheln (1.55: + C20, 1.56: + C07, C21, C22, 1.57: + C23, C24, C25) " + JSON.stringify(tiles));
   hubClick("c222", "hub-tpl-C03");
   const pp = window.__persist.c222;
   const m = pp.length === 1 ? pp[0].merge[0] : null;
@@ -3229,8 +3234,8 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
   // 1.56 (B17): mit C22 hat „Zeitverlauf“ neun Kacheln und läuft bei 1280 px in einer zweiten Zeile weiter („ZEITVERLAUF …“)
   check(JSON.stringify([...new Set(groups)].sort()) === '["bridges","correlation","ranking","structure","time"]', "c230: fünf Zweck-Gruppen " + JSON.stringify(groups));
   // Gruppen-Zuordnung: jede Kachel liegt unter ihrer Gruppenüberschrift (gleiche Spalte, Reihenfolge innerhalb der Gruppe)
-  // 1.57 (B18): + C23 am Ende von „Zeitverlauf“; (B20): + C25 nach C02 in „Struktur“
-  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20", "C23"], structure: ["C02", "C25", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C18"], bridges: ["C12", "C13"] };
+  // 1.57 (B18): + C23 am Ende von „Zeitverlauf“; (B20): + C25 nach C02 in „Struktur“; (B19): + C24 nach C10 in „Korrelation“
+  const want = { time: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20", "C23"], structure: ["C02", "C25", "C04", "C06", "C17"], ranking: ["C14", "C15", "C16"], correlation: ["C09", "C10", "C24", "C18"], bridges: ["C12", "C13"] };
   const box = (k) => hubQ("c230", k).getBoundingClientRect();
   const heads = (gid) => [...document.querySelectorAll(`#c230 [data-icd="hub-tpl-group-${gid}"]`)].map(e => e.getBoundingClientRect());
   const ok = Object.entries(want).every(([gid, codes]) => {
@@ -3243,7 +3248,7 @@ addStage("c230", "Galerie nach Zweck · Zeitverlauf · Struktur · Korrelation �
         && (i === 0 || sameRow || b.top > bs[i - 1].top);
     });
   });
-  check(ok && tiles.length === 23, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
+  check(ok && tiles.length === 24, "c230: Kacheln je Gruppe unter ihrer Überschrift, links → rechts in Gruppen-Reihenfolge");
   const c03 = hubQ("c230", "hub-tpl-C03");
   check(c03.getAttribute("aria-pressed") === "true" && /✓ active/.test(c03.textContent) && /C03/.test(c03.textContent)
     && /Columns with prior-year variance/.test(c03.textContent) && /Monthly report AC vs\. PY/.test(c03.textContent),
@@ -8651,8 +8656,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
       `c903: Δ X ${dx.map(g => g.getAttribute("data-v"))} Δ Y ${dy.map(g => g.getAttribute("data-v"))}`);
     const ty = dy[0]?.querySelector("text")?.textContent, tx = dx[0]?.querySelector("text")?.textContent;
     check(tx === "+16" && /^[−-]4,3$/.test(ty || ""), `c903: Texte ${tx} / ${ty}`);
-    check(dy[0]?.querySelector("line")?.getAttribute("stroke") === "#B3282D" || dy[0]?.querySelector("line")?.getAttribute("stroke") !== "#1B7F4D",
-      `c903: Δ Y nicht in Gut-Farbe (${dy[0]?.querySelector("line")?.getAttribute("stroke")})`);
+    // B18 Review (m7): Schlecht-Farbe des Harness ausdrücklich (vorher immer wahr); c925 prüft invert
+    check(dy[0]?.querySelector("line")?.getAttribute("stroke") === "#D64541",
+      `c903: Δ Y in Schlecht-Farbe (${dy[0]?.querySelector("line")?.getAttribute("stroke")})`);
     const tr = sQ("c903", '[data-icd="scatter-path"][data-series="Trucks"] path')[0];
     check(tr && tr.getAttribute("stroke-width") === "2", "c903: hervorgehobener Pfad 2 px");
     const svgR = document.querySelector("#c903 svg").getBoundingClientRect();
@@ -8787,6 +8793,225 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     check(a.join() === "true,true,false,false" && b.join() === "false,true,true,true", `c917: mit Pfad ${a.join()}, ohne ${b.join()}`);
   }
 
+  // ====================================================================
+  // B18 Review (c918 bis c929): gleiche Pixelskala in Kacheln (M1), Play-Hinweis (m1), Δ gegen Labels (m2),
+  // Strahl-Labels (m3), kleine Quoten (m4), Sortierung (m5), Datenwerte (m6), Testlücken (m7), Nits
+  // ====================================================================
+  const num = (el, a) => parseFloat(el.getAttribute(a));
+  const box = el => { const r = el.getBoundingClientRect(); return { x0: r.left, x1: r.right, y0: r.top, y1: r.bottom }; };
+  const ovl = (id, a, b) => {
+    const A = sQ(id, a), B = sQ(id, b);
+    let n = 0;
+    A.forEach(x => B.forEach(y => {
+      if (x === y) { return; }
+      const p = box(x), q = box(y);
+      if (Math.min(p.x1, q.x1) - Math.max(p.x0, q.x0) > 1 && Math.min(p.y1, q.y1) - Math.max(p.y0, q.y0) > 1) { n++; }
+    }));
+    return x => n;
+  };
+  const nOvl = (id, a, b) => ovl(id, a, b)();
+  const tiles = id => [...document.querySelectorAll(`#${id} [data-icd="scatter-rays"]`)];
+
+  // c918 (M1): 2 × 2 Kacheln mit Strahlen und Δ: Pixel je Einheit in jeder Kachel gleich
+  addStage("c918", "B18 Review M1 · 2 × 2 Kacheln, Strahlen + Δ: gleiche Pixelskala in allen Kacheln", 1100, 640);
+  {
+    runCap("c918", b18Dv(c23({ scatterPathDelta: true, highlight: "Germany" }), { data: d07E, mult: [["A", 1], ["B", 0.6], ["C", 0.8], ["D", 0.4]],
+      objs: { scale: rays07E } }), 1100, 640);
+    const sc = tiles("c918").map(g => {
+      const o = g.querySelector('[data-icd="scatter-ray-origin"]');
+      const end = k => g.querySelector(`[data-icd="scatter-ray"][data-k="${k}"] [data-icd="scatter-ray-end"]`);
+      return { x: num(end("0.35"), "cx") - num(o, "cx"), y: num(o, "cy") - num(end("1"), "cy") };
+    });
+    const dx = Math.max(...sc.map(s => s.x)) - Math.min(...sc.map(s => s.x)), dy = Math.max(...sc.map(s => s.y)) - Math.min(...sc.map(s => s.y));
+    check(sc.length === 4 && dx < 0.5 && dy < 0.5, `c918: X 0 bis 20 = ${sc.map(s => s.x.toFixed(1)).join("/")} px, Y 0 bis 14 = ${sc.map(s => s.y.toFixed(1)).join("/")} px`);
+    const lab = sQ("c918", '[data-icd="scatter-ray-label"]').length;
+    check(lab > 0 && lab < 12, `c918: Strahl-Labels nur oben und rechts im Raster (${lab} statt 12)`);
+  }
+
+  // c919 (m1): Play auf Frame 0 im Bearbeitungsmodus: kein Hinweis „zwei Perioden“
+  addStage("c919", "B18 Review m1 · Play Frame 0: kein falscher Hinweis", 760, 440);
+  {
+    const dv = () => b18Dv(c23({ scatterPlay: true }));
+    const r = runCap("c919", dv(), 760, 440, { viewMode: 1 });
+    r.v.scatterFrame = 0;
+    r.upd(dv(), { viewMode: 1 });
+    check(sQ("c919", '[data-icd="scatter-hint-path"]').length === 0 && sQ("c919", '[data-icd="scatter-path"]').length === 3,
+      "c919: Frame 0 ohne Hinweis, Pfade da");
+  }
+
+  // c920 (m2): Δ-Y-Spalte gegen Strahl-Labels und lange Namen
+  addStage("c920", "B18 Review m2 · Δ Y hinter den Strahl-Labels, Labels nicht über den Δ-Pfeilen", 960, 520);
+  addStage("c920b", "B18 Review m2 · lange Namen und Monate mit zwei Δ-Einheiten", 760, 440);
+  {
+    runCap("c920", b18Dv(c23({ scatterPathDelta: true, highlight: "Germany" }), { data: d07E, objs: { scale: rays07E } }), 960, 520);
+    const n1 = nOvl("c920", '[data-icd="scatter-ray-label"]', '[data-icd="scatter-path-delta"][data-axis="y"] line, [data-icd="scatter-path-delta"][data-axis="y"] text');
+    check(n1 === 0 && sQ("c920", '[data-icd="scatter-ray-label"]').length === 3, `c920: Strahl-Labels frei vom Δ Y (${n1} Überlappungen)`);
+    const mo = ["Jan 2025", "Feb 2025", "Mrz 2025", "Apr 2025", "Mai 2025", "Jun 2025", "Jul 2025", "Aug 2025", "Sep 2025"];
+    runCap("c920b", b18Dv(c23({ scatterPathDelta: true, highlight: "Nutzfahrzeuge Deutschland Süd, Personenkraftwagen International" }),
+      { cats: mo, data: { "Nutzfahrzeuge Deutschland Süd": d07D.Trucks, "Personenkraftwagen International": d07D.Cars, "Teile": d07D.Parts } }), 760, 440);
+    const n2 = nOvl("c920b", '[data-icd="scatter-path-delta"] line, [data-icd="scatter-path-delta"] text', '[data-icd="scatter-path-label"], [data-icd="scatter-path-name"]');
+    const n3 = nOvl("c920b", '[data-icd="scatter-path-delta"] text', '[data-icd="scatter-path-delta"] text');
+    check(n2 === 0 && n3 === 0, `c920b: Δ-Pfeile und Δ-Texte frei von Namen und Periodenlabels (${n2}, ${n3})`);
+  }
+
+  // c921 (m3): nahe Quoten und kleines Visual: keine überlappenden Strahl-Labels
+  addStage("c921", "B18 Review m3 · nahe Quoten 1; 0,95; 0,9; 0,36; 0,35: Labels weichen aus oder entfallen", 760, 440);
+  addStage("c921b", "B18 Review m3 · 300 × 200 mit Strahlen und Δ", 300, 200);
+  {
+    runCap("c921", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1; 0,95; 0,9; 0,36; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" } } }), 760, 440);
+    const n = nOvl("c921", '[data-icd="scatter-ray-label"]', '[data-icd="scatter-ray-label"]');
+    const lab = sQ("c921", '[data-icd="scatter-ray-label"]').length;
+    check(n === 0 && lab >= 3, `c921: ${lab} Labels ohne Überlappung (${n})`);
+    runCap("c921b", b18Dv(c23({ scatterPathDelta: true, highlight: "Germany" }), { data: d07E, objs: { scale: rays07E } }), 300, 200);
+    check(nOvl("c921b", '[data-icd="scatter-ray-label"]', '[data-icd="scatter-ray-label"]') === 0, "c921b: keine klebenden Strahl-Labels");
+  }
+
+  // c922 (m4): Quote 0,001 lesbar, Tooltip kleiner Quoten
+  addStage("c922", "B18 Review m4 · Quote 0,001 als „0,001“ statt „0,00“", 760, 440);
+  {
+    const tips = [];
+    runCap("c922", b18Dv(c23(), { data: { A: [[2000, 1], [3000, 2], [4000, 3.5]] }, noSeries: true, objs: { scale: { ratioRays: "0,001; 0,0005" } } }), 760, 440,
+      { hostPatch: h => { h.tooltipService = { show(o) { tips.push(o.dataItems); }, move() {}, hide() {} }; } });
+    const t = sQ("c922", '[data-icd="scatter-ray-label"]').map(x => x.textContent).sort().join("|");
+    check(t === "0,0005|0,001", `c922: Labels ${t}`);
+    const qs = marks("c922").map(m => {
+      m.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      return ((tips[tips.length - 1] || []).find(x => /Ratio|Quote/.test(x.displayName)) || {}).value;
+    });
+    check(qs.includes("0,0005") && qs.every(q => q !== "0,00"), `c922: Tooltip-Quoten ${qs.join(" ")}`);
+  }
+
+  // c923 (m5): nach Wert sortierte Jahre → Hinweis; Bestand ohne
+  addStage("c923", "B18 Review m5 · Jahre nach Wert sortiert: Hinweis „nicht nach Periode sortiert“", 760, 440);
+  {
+    const idx = d07D.Trucks.map((v, i) => i).sort((a, b) => d07D.Trucks[b][1] - d07D.Trucks[a][1]);
+    runCap("c923", b18Dv(c23(), { cats: idx.map(i => yrs[i]), data: { Trucks: idx.map(i => d07D.Trucks[i]), Cars: idx.map(i => d07D.Cars[i]) } }), 760, 440);
+    check(sQ("c923", '[data-icd="scatter-hint-path"][data-kind="order"]').length === 1 && sQ("c900", '[data-icd="scatter-hint-path"]').length === 0,
+      "c923: Hinweis bei Zickzack-Folge, keiner in c900");
+  }
+
+  // c924 (m6): Beschreibungen nennen die Dateneinheit und den Schalter „Datenbeschriftungen“
+  addStage("c924", "B18 Review m6 · Beschreibung „Quote in den Einheiten der Daten“", 400, 200);
+  {
+    const r = runCap("c924", b18Dv(c23(), { objs: { scale: { ratioRays: "1" } } }), 400, 200);
+    r.v.getFormattingModel();
+    const d1 = r.v.formattingSettings.scaleCard.ratioRays.description || "", d2 = r.v.formattingSettings.chartCard.scatterPathLabels.description || "";
+    check(/Einheiten der Daten/.test(d1) && /Datenbeschriftungen anzeigen/.test(d2), "c924: Beschreibungen ergänzt");
+  }
+
+  // c925 (m7): Δ Y bei invert in Gut-Farbe (c903 prüft jetzt die Schlecht-Farbe)
+  addStage("c925", "B18 Review m7 · Δ Y mit invert: sinkender Umsatz ist günstig (Gut-Farbe)", 760, 440);
+  {
+    runCap("c925", b18Dv(c23({ scatterPathDelta: true, highlight: "Trucks", invert: true })), 760, 440);
+    const st = (sQ("c925", '[data-icd="scatter-path-delta"][data-axis="y"] line')[0] || { getAttribute: () => "-" }).getAttribute("stroke");
+    check(st === "#1E8F9E", `c925: Δ Y ${st}`);
+  }
+
+  // c926 (m7): Lücken in der Abdeckung: fehlende Zeile, negative Werte, fixierte Achsen, eine Log-Achse, Zoom, Play-Pfad
+  addStage("c926", "B18 Review m7 · fehlende Periodenzeile wird durchverbunden", 760, 440);
+  addStage("c926b", "B18 Review m7 · negative Werte mit Strahlen", 760, 440);
+  addStage("c926c", "B18 Review m7 · fixierte Achsen xMin 5 / yMin 2 mit Strahlen", 760, 440);
+  addStage("c926d", "B18 Review m7 · nur X logarithmisch: Strahl als Kurve", 760, 440);
+  addStage("c926e", "B18 Review m7 · gezoomte Kachel zeigt alle Strahl-Labels", 1100, 460);
+  {
+    const d = JSON.parse(JSON.stringify(d07E));
+    d.Germany[4] = null;
+    runCap("c926", b18Dv(c23(), { data: d }), 760, 440);
+    const g = sQ("c926", '[data-icd="scatter-path"][data-series="Germany"]')[0];
+    const pd = g ? g.querySelector("path").getAttribute("d") : "";
+    check(g && g.getAttribute("data-n") === "8" && (pd.match(/M/g) || []).length === 1, `c926: Germany 8 Punkte, ein Linienzug (${(pd.match(/M/g) || []).length} M)`);
+    runCap("c926b", b18Dv(c23(), { data: { A: [[-4, -3], [-2, 1], [1, -2], [3, 2], [5, 6]], B: [[2, -5], [3, -4], [4, -1], [5, 1], [6, 2]] },
+      cats: yrs.slice(0, 5), objs: { scale: { ratioRays: "1; 0,5" } } }), 760, 440);
+    const ends = sQ("c926b", '[data-icd="scatter-ray-end"]').map(c => [num(c, "data-x"), num(c, "data-y")]);
+    check(ends.length === 2 && ends.every(([x, y]) => x > 0 && y > 0) && !/NaN/.test(sSvg("c926b")) && sQ("c926b", '[data-icd="scatter-ray-origin"]').length === 1,
+      `c926b: Strahlen nur im positiven Quadranten (${JSON.stringify(ends)})`);
+    runCap("c926c", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1; 0,35", xMin: "5", yMin: "2" } } }), 760, 440);
+    check(sQ("c926c", '[data-icd="scatter-ray-origin"]').length === 0 && sQ("c926c", '[data-icd="scatter-ray"]').length >= 1, "c926c: kein Ursprung bei fixierten Minima");
+    runCap("c926d", b18Dv(c23(), { data: d07E, objs: { scale: { ratioRays: "1", xLogScale: true } } }), 760, 440);
+    const rd = (sQ("c926d", '[data-icd="scatter-ray"] path')[0] || { getAttribute: () => "" }).getAttribute("d");
+    check((rd.match(/L/g) || []).length === 48, `c926d: Kurve aus 48 Stützstellen (${(rd.match(/L/g) || []).length})`);
+    const dvZ = () => b18Dv(c23(), { data: d07E, mult: [["Nord", 1], ["Süd", 0.6]], objs: { scale: { ratioRays: "1; 0,35", ratioRayUnit: "mEUR/Rep" } } });
+    const rz = runCap("c926e", dvZ(), 1100, 460);
+    rz.v.zoomGroup = "Nord";
+    rz.upd(dvZ());
+    check(sQ("c926e", '[data-icd="scatter-ray-label"]').length === 2 && tiles("c926e").length === 1, "c926e: gezoomte Kachel mit beiden Strahl-Labels");
+  }
+
+  // c927 (m7): Play-Pfad (scatterPathD) und Frame-Wachstum
+  addStage("c927", "B18 Review m7 · Play-Pfad: Lücke bricht, fehlende Zeile läuft durch, Zwischenstand halbiert", 400, 200);
+  {
+    const r = runCap("c927", b18Dv(c23()), 400, 200);
+    const id = v => v * 10;
+    const d1 = r.v.scatterPathD([{ x: 0, y: 0 }, { x: 1, y: 1 }, undefined, null, { x: 3, y: 3 }, { x: 4, y: 4 }], 4.5, id, id);
+    const d2 = r.v.scatterPathD([{ x: 0, y: 0, s: 1 }, { x: 4, y: 0, s: 1 }], 1, id, id, () => 5);
+    check(d1 === "M0,0L10,10M30,30L35,35" && d2 === "M5,0L35,0", `c927: ${d1} · ${d2}`);
+  }
+
+  // c928 (Nits): Auswahl dimmt Pfade, Zeiger, Labels nicht auf Segmenten, labels.show aus
+  addStage("c928", "B18 Review Nit · Cross-Highlight Germany: Pfad und Labels von France gedimmt", 760, 440);
+  addStage("c928b", "B18 Review Nit · Datenbeschriftungen aus: keine Periodenlabels, Namen bleiben", 760, 440);
+  {
+    const dv = b18Dv(c23(), { data: d07E });
+    const y = dv.categorical.values[0];
+    y.highlights = y.values.map((v, i) => dv.categorical.categories[1].values[i] === "Germany" ? v : null);
+    runCap("c928", dv, 760, 440);
+    const op = s => (sQ("c928", `[data-icd="scatter-path"][data-series="${s}"]`)[0] || { getAttribute: () => "?" }).getAttribute("opacity");
+    const lblFr = sQ("c928", '[data-icd="scatter-path-label"][data-series="France"], [data-icd="scatter-path-name"][data-series="France"]');
+    check(op("France") === "0.35" && op("Germany") == null && lblFr.length > 0 && lblFr.every(t => t.getAttribute("opacity") === "0.35"),
+      `c928: France ${op("France")}, Germany ${op("Germany")}`);
+    check(sQ("c928", '[data-icd="scatter-paths"]')[0].getAttribute("pointer-events") === "none"
+      && sQ("c928", '[data-icd="scatter-path-labels"]')[0].getAttribute("pointer-events") === "none", "c928: Pfade und Labels ohne Zeiger");
+    // Periodenlabels liegen auf keinem Pfadsegment (c900, Blatt 07D)
+    const segs = sQ("c900", '[data-icd="scatter-path"] path').map(p => {
+      const n = (p.getAttribute("d").match(/-?\d+(?:\.\d+)?/g) || []).map(Number), out = [];
+      for (let i = 2; i < n.length; i += 2) { out.push([n[i - 2], n[i - 1], n[i], n[i + 1]]); }
+      return out;
+    }).flat();
+    const svgR = document.querySelector("#c900 svg").getBoundingClientRect();
+    const crosses = sQ("c900", '[data-icd="scatter-path-label"]').filter(t => {
+      const b = box(t), x0 = b.x0 - svgR.left + 1, x1 = b.x1 - svgR.left - 1, y0 = b.y0 - svgR.top + 2, y1 = b.y1 - svgR.top - 2;
+      return segs.some(([ax, ay, bx, by]) => {
+        for (let k = 0; k <= 20; k++) { const x = ax + (bx - ax) * k / 20, yy = ay + (by - ay) * k / 20; if (x > x0 && x < x1 && yy > y0 && yy < y1) { return true; } }
+        return false;
+      });
+    });
+    check(crosses.length === 0, `c928: Periodenlabels in c900 auf keinem Segment (${crosses.map(t => t.getAttribute("data-series") + " " + t.textContent).join(", ")})`);
+    runCap("c928b", b18Dv(c23(), { objs: { labels: { show: false } } }), 760, 440);
+    check(labels("c928b").length === 0 && sQ("c928b", '[data-icd="scatter-path-name"]').length === 3, "c928b: keine Periodenlabels, drei Namen");
+  }
+
+  // c929 (Nits): Blasenrand, Hochkontrast AC/FC, Log-Rückfall, zwei Δ-Einheiten
+  addStage("c929", "B18 Review Nit · Pfad endet am Blasenrand (Deckkraft 55 %)", 760, 440);
+  addStage("c929b", "B18 Review Nit · Hochkontrast: AC-Punkte gefüllt, FC-Punkte hohl", 760, 440, "#000");
+  addStage("c929c", "B18 Review Nit · Log gewünscht, Wert ≤ 0: lineare Achse endet rund", 760, 440);
+  addStage("c929d", "B18 Review Nit · zwei hervorgehobene Einheiten: Δ-Texte mit Namen", 760, 440);
+  {
+    runCap("c929", b18Dv(c23(), { data: d07E, size: true }), 760, 440);
+    const de = sQ("c929", '[data-icd="scatter-path"][data-series="Germany"] path')[0].getAttribute("d");
+    const mk = marks("c929").map(g => [...g.querySelectorAll("circle")].find(c => c.getAttribute("fill-opacity") !== "0.01")).filter(Boolean)
+      .map(c => [num(c, "cx"), num(c, "cy"), num(c, "r")]);
+    const nums = (de.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    let onRim = 0, n = 0;
+    for (let i = 0; i < nums.length; i += 2) {
+      const [x, y] = [nums[i], nums[i + 1]];
+      const near = mk.map(([cx, cy, r]) => Math.abs(Math.hypot(x - cx, y - cy) - r)).sort((a, b) => a - b)[0];
+      n++; if (near < 0.6) { onRim++; }
+    }
+    check(n > 4 && onRim === n, `c929: ${onRim} von ${n} Segmentenden auf dem Blasenrand`);
+    runCap("c929b", b18Dv(c23(), { data: d07E, fc: i => i >= 7 }), 760, 440, { hc: true });
+    const fills = marks("c929b").map(g => [...g.querySelectorAll("circle")].find(c => c.getAttribute("fill-opacity") !== "0.01" && c.getAttribute("fill") !== "none"))
+      .filter(Boolean).map(c => c.getAttribute("fill"));
+    check(fills.filter(f => f === "#FFFF00").length === 14 && fills.filter(f => f === "#000000").length === 4, `c929b: ${fills.filter(f => f === "#FFFF00").length} gefüllt, ${fills.filter(f => f === "#000000").length} hohl`);
+    const dLog = JSON.parse(JSON.stringify(d07E));
+    dLog.France[0] = [3, -0.5];
+    runCap("c929c", b18Dv(c23(), { data: dLog, objs: { scale: { ratioRays: "1; 0,35", xLogScale: true, yLogScale: true } } }), 760, 440);
+    const ys = sQ("c929c", '[data-icd="scatter-ray-end"]').map(c => num(c, "data-y"));
+    check(ys.length === 2 && ys.some(y => y > 12.2 && Math.abs(y * 2 - Math.round(y * 2)) < 1e-9), `c929c: Austritt oben auf einem Tick-Schritt statt am Datenmaximum 12,2 (${ys.join(", ")})`);
+    runCap("c929d", b18Dv(c23({ scatterPathDelta: true, highlight: "Trucks, Cars" })), 760, 440);
+    const tx = sQ("c929d", '[data-icd="scatter-path-delta"] text').map(t => t.textContent);
+    check(tx.length === 4 && tx.filter(t => /Trucks$/.test(t)).length === 2 && tx.filter(t => /Cars$/.test(t)).length === 2, `c929d: ${tx.join(" | ")}`);
+  }
+
   // kein NaN, undefined oder Infinity in den B18-Stufen
   {
     const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c9[0-2]\d[a-z]?$/.test(id));
@@ -8898,6 +9123,322 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- DEMO157-END
+</script>
+<script>
+// ======================================================================
+// 1.57 (B19): Blasen mit Kreissegmenten und Gesamtblase, IBCS-Blätter 10E und 10G (Vorlage C24).
+// Kategorie = Branche, Small Multiples = Land, Stack-Serie = Branche (Gruppenfarben), AC = Marktwachstum,
+// X-Achse = relativer Marktanteil, Blasengröße = Marktvolumen, Blasenanteil = unser Teil.
+// Werte aus Blatt 10E abgelesen: Germany Σ 79 + 23 + 35 + 18 + 45 = 200 (Blatt rundet auf 199), Teile Σ 23;
+// France Σ 25 + 5 + 15 + 7 = 52, Teile Σ 16, Gesamtblase bei X 1,08 und Y 5,32 (größengewichtet)
+// ======================================================================
+{
+  const sQ = (id, sel) => [...document.querySelectorAll(sel.split(",").map(x => `#${id} ${x.trim()}`).join(","))];
+  const sSvg = id => [...document.querySelectorAll(`#${id} svg`)].map(x => x.outerHTML).join("\n")
+    .replace(/(icd-(?:hatch-good|hatch-bad|hatch|prelim|mxclip|scclip))-\d+(?:-\d+)?/g, "$1-N");
+  // [Branche, X, Y, Volumen, Teil]
+  const d10E = {
+    Germany: [["IT", 1.6, 8.0, 79, 4], ["Cons.", 0.7, 6.0, 23, 4], ["Transp.", 0.3, 3.0, 35, 8], ["En.", 0.4, 0.1, 18, 4], ["Ret.", 0.8, -0.5, 45, 3]],
+    France: [["IT", 1.3, 8.0, 25, 6], ["Cons.", 1.75, 7.0, 5, 2.5], ["Transp.", 0.3, 3.0, 15, 5], ["Ret.", 1.5, -0.5, 7, 2.5]]
+  };
+  // 10G: 24 Länder, je 2 bis 5 Branchen, Volumen 1 bis 140 (deterministisch)
+  const d10G = {};
+  const secs = ["IT", "Cons.", "Transp.", "En.", "Ret."];
+  ["Germany", "France", "Italy", "UK", "Nordics", "Rest of Europe", "USA", "Canada", "Mexico", "Brazil", "Argentina", "Rest of Americas",
+    "China", "Vietnam", "Indonesia", "South Korea", "India", "Rest of Asia", "Australia", "South Africa", "Egypt", "Israel", "Iran", "Rest of World"]
+    .forEach((c, i) => {
+      const n = 2 + (i * 7) % 4;
+      d10G[c] = secs.slice(0, Math.max(1, n)).map((s, j) => {
+        const v = 1 + ((i * 37 + j * 53) % 140) * (j === 0 && i % 4 === 0 ? 1 : 0.4);
+        return [s, 0.15 + ((i * 3 + j * 5) % 18) / 10, -0.5 + ((i * 5 + j * 7) % 11), Math.round(v), Math.round(v * (0.05 + ((i + j) % 6) / 12) * 10) / 10];
+      });
+    });
+  // opts: data, share (Teile binden), ratio (Teile als Quote 0..1), noMult, objs, py (Vorjahr + Blasengröße VJ), noSize
+  const b19Dv = (chart, opts) => {
+    opts = opts || {};
+    const data = opts.data || d10E;
+    const C = [], S = [], M = [], X = [], Y = [], Z = [], P = [];
+    for (const [land, rows] of Object.entries(data)) {
+      for (const [sec, x, y, z, part] of rows) {
+        C.push(sec); S.push(sec); M.push(land); X.push(x); Y.push(y); Z.push(z);
+        P.push(opts.ratio ? (z > 0 ? part / z : null) : part);
+      }
+    }
+    const categories = [{ source: { displayName: "Branche", roles: { category: true } }, values: C },
+      { source: { displayName: "Branche ", roles: { series: true } }, values: S }];
+    if (!opts.noMult) { categories.push({ source: { displayName: "Land", roles: { multiples: true } }, values: M }); }
+    const values = [col("actual", Y, "0.0", null, "Market growth"), col("xValue", X, "0.00", null, "relative market share")];
+    if (!opts.noSize) { values.push(col("bubbleSize", Z, "#,0", null, "Market volume")); }
+    if (opts.share !== false) { values.push(col("bubbleShare", opts.shares || P, opts.ratio ? "0%" : "#,0.0", null, "Our sales")); }
+    if (opts.py) {
+      values.push(col("previousYear", Y.map(v => v - 1), "0.0"));
+      values.push(col("bubbleSizePrevious", Z.map(v => v * 0.8), "#,0"));
+    }
+    return { metadata: { columns: [], objects: Object.assign({ chart }, opts.objs || {}) }, categorical: { categories, values } };
+  };
+  const axes10E = { scale: { xMin: "0", xMax: "2", yMin: "-2", yMax: "12" } };
+  const sheetCols = { scatterGroupColor1: { solid: { color: "#F5B700" } }, scatterGroupColor2: { solid: { color: "#F25AA6" } },
+    scatterGroupColor3: { solid: { color: "#C0504D" } }, scatterGroupColor4: { solid: { color: "#4F81F5" } },
+    scatterGroupColor5: { solid: { color: "#2EC4C4" } } };
+  const t10E = { ibcsTitle: { kpi: "Product Market Matrix", period: "2025" } };
+  // die C24-Eigenschaften direkt gesetzt (wie in den B18-Tests)
+  const c24 = extra => Object.assign({ orientation: "scatter", scatterQuadrant: "off", scatterColorBy: "group",
+    scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true }, extra || {});
+  const pies = id => sQ(id, '[data-icd="scatter-pie"]');
+  const totals = id => sQ(id, '[data-icd="scatter-total"]');
+  const num = (el, a) => parseFloat(el.getAttribute(a));
+  // Sektor-Pfad „M cx,cy L cx,cy-r A r,r 0 f 1 x,y Z“ → Start (dx, dy) und Winkel im Uhrzeigersinn ab 12 Uhr
+  const secOf = path => {
+    const n = (path.getAttribute("d").match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    const [cx, cy, sx, sy, r, , , , , ex, ey] = n;
+    let a = Math.atan2(ex - cx, cy - ey) * 180 / Math.PI;
+    if (a < 0) { a += 360; }
+    return { cx, cy, r, startOk: Math.abs(sx - cx) < 0.02 && Math.abs(sy - (cy - r)) < 0.02, deg: a };
+  };
+  const pieByAria = (id, start) => pies(id).find(p => (p.closest("g.icd-cat").getAttribute("aria-label") || "").startsWith(start));
+  // erwartete Anteile je Branche (über beide Länder, sortiert) gegen die gezeichneten Segmente derselben Branche
+  const expShares = {};
+  for (const rows of Object.values(d10E)) { for (const [s, , , z, part] of rows) { (expShares[s] = expShares[s] || []).push(part / z); } }
+  const pieCheck = id => {
+    const bad = [];
+    for (const [sec, fs] of Object.entries(expShares)) {
+      const ps = pies(id).filter(p => (p.closest("g.icd-cat").getAttribute("aria-label") || "").startsWith(sec + ","));
+      const got = ps.map(p => {
+        const el = p.querySelector('[data-icd="scatter-pie-sector"]');
+        const sc = el ? secOf(el) : null;
+        // unter 6 px Radius kein Segment (data-small): dann zählt nur der Anteil
+        const small = p.getAttribute("data-small") === "1";
+        return { f: num(p, "data-share"), deg: sc ? sc.deg : small ? num(p, "data-share") * 360 : -1, start: sc ? sc.startOk : small };
+      }).sort((a, b) => a.f - b.f);
+      const want = fs.slice().sort((a, b) => a - b);
+      if (got.length !== want.length) { bad.push(`${sec}: ${got.length} statt ${want.length}`); continue; }
+      got.forEach((g, i) => {
+        if (!g.start || Math.abs(g.f - want[i]) > 1e-3 || Math.abs(g.deg - want[i] * 360) > 0.5) {
+          bad.push(`${sec} ${g.deg.toFixed(1)}° statt ${(want[i] * 360).toFixed(1)}°`);
+        }
+      });
+    }
+    return bad;
+  };
+
+  // c930: Blatt 10E mit Vorlage C24 (Rezept: Gesamtblase rot, Gruppenfarben des Blatts, großer Radius)
+  addStage("c930", "B19 · C24 (10E): zwei Länder, Blasen mit Kreissegment ab 12 Uhr, Gesamtblase rot, Werte in den Blasen", 1280, 720);
+  {
+    runCap("c930", b19Dv(Object.assign({ template: "C24", scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 120 }, sheetCols),
+      { objs: Object.assign({}, t10E, axes10E) }), 1280, 720);
+    const ps = pies("c930");
+    check(ps.length === 9, `c930: 9 Blasen mit Segment (${ps.length})`);
+    const bad = pieCheck("c930");
+    check(bad.length === 0, `c930: Segmentwinkel = Anteil × 360° ab 12 Uhr (±0,5°) ${bad.join("; ")}`);
+    check(totals("c930").length === 2, `c930: zwei Gesamtblasen (${totals("c930").length})`);
+    const tc = totals("c930")[0].querySelector("circle");
+    check((tc.getAttribute("stroke") || "").toUpperCase() === "#FF0000", "c930: Gesamtblase in der Rezeptfarbe Rot");
+    // die Gesamtblase liegt hinter allen Blasen
+    check(totals("c930").every(t => { const sib = [...t.parentNode.children]; return sib.slice(0, sib.indexOf(t)).every(e => !e.classList.contains("icd-cat"))
+      && sib.some(e => e.classList.contains("icd-cat")); }), "c930: Gesamtblasen vor (unter) den Blasen ihrer Kachel gezeichnet");
+    const vals = sQ("c930", '[data-icd="scatter-value"]').map(t => t.textContent);
+    check(["79", "23", "35", "18", "45", "25", "5", "15", "7"].every(v => vals.includes(v)), `c930: Werte in den Blasen (${vals.join(" ")})`);
+    const tv = sQ("c930", '[data-icd="scatter-total-value"]').map(t => t.textContent).sort().join(",");
+    const tp = sQ("c930", '[data-icd="scatter-total-part"]').map(t => t.textContent).sort().join(",");
+    check(tv === "200,52" && tp === "16,23", `c930: Summen ${tv}, Teile ${tp}`);
+  }
+
+  // c931: Rolle ungebunden und B19-Optionen auf Standard zeichnen wie der Bestand (C10)
+  addStage("c931", "B19 · ohne Blasenanteil, B19-Optionen ausdrücklich auf Standard (Referenz c931b)", 960, 460);
+  addStage("c931b", "B19 · ohne Blasenanteil und ohne B19-Optionen (C10-Stand)", 960, 460);
+  {
+    const base = { orientation: "scatter", scatterQuadrant: "mean", scatterColorBy: "single", scatterSizeLegend: true };
+    runCap("c931", b19Dv(Object.assign({ scatterShareAs: "value", scatterTotalBubble: false, scatterTotalColor: { solid: { color: "#404040" } } }, base),
+      { share: false, noMult: true }), 960, 460);
+    runCap("c931b", b19Dv(base, { share: false, noMult: true }), 960, 460);
+    check(sSvg("c931") === sSvg("c931b"), "c931: Standardwerte zeichnen exakt wie ohne Angabe (SVG gleich)");
+    check(!pies("c931b").length && !totals("c931b").length && !sQ("c931b", '[data-icd^="scatter-legend-share"], [data-icd^="scatter-legend-total"]').length,
+      "c931b: keine Segmente, keine Gesamtblase, keine neuen Legendenzeilen");
+  }
+
+  // c932: Gesamtblasen: Summe, Teile, größengewichtete Lage
+  addStage("c932", "B19 · Gesamtblasen: Germany Σ 200 / Teil 23, France Σ 52 / Teil 16 bei (1,08; 5,32)", 1280, 520);
+  {
+    runCap("c932", b19Dv(c24(), { objs: axes10E }), 1280, 520);
+    const t = totals("c932").map(g => ({ v: num(g, "data-v"), part: num(g, "data-part"), x: num(g, "data-x"), y: num(g, "data-y"), n: num(g, "data-n") }));
+    const fr = t.find(o => o.v === 52), de = t.find(o => o.v === 200);
+    check(t.length === 2 && de && fr && de.part === 23 && fr.part === 16 && de.n === 5 && fr.n === 4,
+      `c932: Σ und Teile ${JSON.stringify(t.map(o => [o.v, o.part, o.n]))}`);
+    check(fr && Math.abs(fr.x - 1.08) < 0.005 && Math.abs(fr.y - 5.32) < 0.005 && Math.abs(de.x - 0.981) < 0.005 && Math.abs(de.y - 4.2715) < 0.005,
+      `c932: Lage France (${fr && fr.x.toFixed(3)}; ${fr && fr.y.toFixed(3)}), Germany (${de && de.x.toFixed(3)}; ${de && de.y.toFixed(3)})`);
+    // Sektor der Gesamtblase: 23/200 und 16/52 des Kreises
+    const ang = totals("c932").map(g => [num(g, "data-part") / num(g, "data-v"), secOf(g.querySelector('[data-icd="scatter-total-sector"]')).deg]);
+    check(ang.every(([f, d]) => Math.abs(d - f * 360) < 0.5), `c932: Segment der Gesamtblase ${ang.map(a => a[1].toFixed(1)).join(" / ")}°`);
+  }
+
+  // c933: Flächentreue: r(Gesamt France) / r(IT France) = √(52 / 25) = 1,442
+  addStage("c933", "B19 · Flächentreue: Gesamtblase France gegen IT France", 1280, 520);
+  {
+    runCap("c933", b19Dv(c24({ scatterMaxRadius: 90 }), { objs: axes10E }), 1280, 520);
+    const tFr = totals("c933").find(g => num(g, "data-v") === 52);
+    const rT = num(tFr.querySelector("circle"), "r");
+    const rIt = num(pieByAria("c933", "IT, relative market share 1,3,").querySelector('[data-icd="scatter-pie-rim"]'), "r");
+    const q = rT / rIt;
+    check(Math.abs(q / Math.sqrt(52 / 25) - 1) < 0.03, `c933: r-Verhältnis ${q.toFixed(3)} (Soll 1,442)`);
+    // die größte Gesamtblase bestimmt die Skala: r(Germany) = 90 px
+    const rDe = num(totals("c933").find(g => num(g, "data-v") === 200).querySelector("circle"), "r");
+    check(Math.abs(rDe - 90) < 0.6 || rDe < 90, `c933: größte Gesamtblase ≤ 90 px (${rDe.toFixed(1)})`);
+  }
+
+  // c934: Anteil als Quote 0..1 gibt dieselben Winkel und dieselben Gesamtteile
+  addStage("c934", "B19 · Blasenanteil als Quote (0 bis 1): gleiche Segmente, Teil der Gesamtblase = Σ Quote × Größe", 1280, 520);
+  {
+    runCap("c934", b19Dv(c24({ scatterShareAs: "ratio" }), { ratio: true, objs: axes10E }), 1280, 520);
+    const bad = pieCheck("c934");
+    check(bad.length === 0, `c934: Quoten zeichnen dieselben Winkel ${bad.join("; ")}`);
+    const parts = totals("c934").map(g => Math.round(num(g, "data-part") * 1000) / 1000).sort((a, b) => a - b).join(",");
+    check(parts === "16,23", `c934: Gesamtteile ${parts}`);
+  }
+
+  // c935: Grenzfälle des Anteils: 0, 1, > 1, negativ; c936: Größe 0
+  addStage("c935", "B19 · Anteil 0 (nur Kreis), 1 (Vollkreis ohne Radiuslinie), 1,4 und −0,2 begrenzt mit Hinweis", 960, 460);
+  addStage("c936", "B19 · Blasengröße 0: kein Segment, keine NaN", 960, 460);
+  {
+    const d = { A: [["A", 0.5, 2, 20, 0], ["B", 1.0, 4, 20, 20], ["C", 1.5, 6, 20, 28], ["D", 0.8, 8, 20, -4]] };
+    runCap("c935", b19Dv(c24({ scatterTotalBubble: false }), { data: d, noMult: true }), 960, 460);
+    const sh = n => pieByAria("c935", n + ",");
+    const kinds = ["A", "B", "C", "D"].map(n => {
+      const p = sh(n), s = p && p.querySelector('[data-icd="scatter-pie-sector"]');
+      return `${n}:${p ? p.getAttribute("data-share") : "-"}:${s ? s.tagName : "none"}`;
+    });
+    check(kinds.join(" ") === "A:0:none B:1:circle C:1:circle D:0:none", `c935: ${kinds.join(" ")}`);
+    const hint = sQ("c935", '[data-icd="scatter-hint-share"][data-kind="range"]');
+    check(hint.length === 1, "c935: Hinweis auf Anteile außerhalb von 0 bis 100 %");
+    const d2 = { A: [["A", 0.5, 2, 0, 3], ["B", 1.0, 4, 30, 6], ["C", 1.5, 6, 10, 1]] };
+    runCap("c936", b19Dv(c24(), { data: d2, noMult: true }), 960, 460);
+    check(pies("c936").length === 2 && !/NaN|Infinity|undefined/.test(sSvg("c936")), `c936: zwei Segmente, A ohne (${pies("c936").length})`);
+    check(totals("c936").length === 1 && num(totals("c936")[0], "data-v") === 40 && num(totals("c936")[0], "data-n") === 2, "c936: Gesamtblase ohne die Blase der Größe 0 (Σ 40, n 2)");
+  }
+
+  // c937: Blatt 10G: 24 Kacheln, gemeinsame Skala, nichts ragt aus dem Visual, Segment entfällt unter 6 px
+  addStage("c937", "B19 · 10G: 4 × 6 Kacheln, gemeinsame Skala, Gesamtblase je Kachel, kleine Blasen ohne Segment", 1280, 720);
+  {
+    runCap("c937", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 30 }), { data: d10G, objs: axes10E }), 1280, 720);
+    const W = 1280, H = 720;
+    const circ = [...sQ("c937", '[data-icd="scatter-pie-rim"]'), ...totals("c937").map(t => t.querySelector("circle"))];
+    const out = circ.filter(c => num(c, "cx") - num(c, "r") < -0.5 || num(c, "cx") + num(c, "r") > W + 0.5
+      || num(c, "cy") - num(c, "r") < -0.5 || num(c, "cy") + num(c, "r") > H + 0.5);
+    check(totals("c937").length === 24 && out.length === 0, `c937: 24 Gesamtblasen, keine Blase außerhalb des Visuals (${totals("c937").length}, ${out.length} außen)`);
+    const small = pies("c937").filter(p => num(p.querySelector('[data-icd="scatter-pie-rim"]'), "r") < 6);
+    check(small.every(p => p.getAttribute("data-small") === "1" && !p.querySelector('[data-icd="scatter-pie-sector"]'))
+      && pies("c937").filter(p => p.getAttribute("data-small") === "1").length === small.length,
+      `c937: ${small.length} Blasen unter 6 px ohne Segment`);
+    // gemeinsame Größenskala: gleiche Volumen haben in allen Kacheln den gleichen Radius
+    const rBy = new Map();
+    let same = true;
+    for (const p of pies("c937")) {
+      const v = p.closest("g.icd-cat").querySelector('[data-icd="scatter-value"]');
+      const r = num(p.querySelector('[data-icd="scatter-pie-rim"]'), "r");
+      if (!v) { continue; }
+      if (rBy.has(v.textContent) && Math.abs(rBy.get(v.textContent) - r) > 0.01) { same = false; }
+      rBy.set(v.textContent, r);
+    }
+    check(same, "c937: gleiche Werte, gleiche Radien in allen Kacheln");
+  }
+
+  // c938: Legende: Gruppen, Segment-Zeile und Σ-Zeile
+  addStage("c938", "B19 · Legende: Branchen, Segment (Our sales), Σ Market volume", 1280, 520);
+  {
+    runCap("c938", b19Dv(c24(), { objs: axes10E }), 1280, 520);
+    const ls = sQ("c938", '[data-icd="scatter-legend-share"] text').map(t => t.textContent).join();
+    const lt = sQ("c938", '[data-icd="scatter-legend-total"] text').map(t => t.textContent).join();
+    check(ls === "Our sales" && lt === "Σ Market volume" && sQ("c938", '[data-icd="scatter-legend-share"] path').length === 1,
+      `c938: Legendenzeilen „${ls}“, „${lt}“`);
+  }
+
+  // c939: Tooltip: Teil und Anteil an der Blase, Summen an der Gesamtblase
+  addStage("c939", "B19 · Tooltip: IT France Teil 6 und Anteil 24 %, Gesamtblase Σ 52 und 31 %", 1280, 520);
+  {
+    const tips = [];
+    runCap("c939", b19Dv(c24(), { objs: axes10E }), 1280, 520,
+      { hostPatch: h => { h.tooltipService = { show(o) { tips.push(o.dataItems); }, move() {}, hide() {} }; } });
+    pieByAria("c939", "IT, relative market share 1,3,").closest("g.icd-cat").dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    const it = tips[tips.length - 1] || [];
+    const v = n => (it.find(x => x.displayName === n) || {}).value;
+    check(v("Our sales") === "6" && v("Share") === "24 %", `c939: Blase ${JSON.stringify(it.slice(-3))}`);
+    totals("c939").find(g => num(g, "data-v") === 52).dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    const tt = tips[tips.length - 1] || [];
+    const w = n => (tt.find(x => x.displayName === n) || {}).value;
+    check(w("Σ Market volume") === "52" && w("Σ Our sales") === "16" && w("Share") === "31 %", `c939: Gesamtblase ${JSON.stringify(tt)}`);
+  }
+
+  // c940: Auswahl: eine Identität je Blase, die Gesamtblase ist nicht auswählbar
+  addStage("c940", "B19 · Auswahl: Klick auf die Blase wählt eine Kategorie, die Gesamtblase hat keine Identität", 960, 460);
+  {
+    runCap("c940", b19Dv(c24(), { noMult: true, data: { A: d10E.France } }), 960, 460);
+    window.__lastSelect = null;
+    pies("c940")[0].closest("g.icd-cat").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const a = window.__lastSelect;
+    window.__lastSelect = null;
+    totals("c940")[0].dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    check(a && a.n === 1 && window.__lastSelect == null && !totals("c940")[0].closest("g.icd-cat") && !totals("c940")[0].hasAttribute("tabindex"),
+      `c940: Blase wählt ${a && a.n}, Gesamtblase ohne Auswahl`);
+  }
+
+  // c941: Hochkontrast; c942: dunkel
+  addStage("c941", "B19 · Hochkontrast: Kreis Papier mit Umriss, Segment in Vordergrundfarbe, Gesamtblase gestrichelt", 960, 460);
+  addStage("c942", "B19 · Dark Mode: Tönung gegen das dunkle Papier", 960, 460, "#1E1E1E");
+  {
+    runCap("c941", b19Dv(c24(), { noMult: true, data: { A: d10E.France } }), 960, 460, { hc: true });
+    const rims = sQ("c941", '[data-icd="scatter-pie-rim"]'), secs = sQ("c941", '[data-icd="scatter-pie-sector"]');
+    check(rims.length === 4 && rims.every(c => nbFill(c) === "#000000" && nbStroke(c) === "#FFFF00") && secs.every(s => nbFill(s) === "#FFFF00"),
+      "c941: Papierkreis mit gelbem Umriss, Segment gelb");
+    check(totals("c941")[0].querySelector("circle").getAttribute("stroke-dasharray") === "4,3", "c941: Gesamtblase gestrichelt");
+    runCap("c942", b19Dv(c24(), { noMult: true, data: { A: d10E.France }, objs: { colors: { appearance: "dark" } } }), 960, 460);
+    const fills = sQ("c942", '[data-icd="scatter-pie-rim"]').map(nbFill);
+    const lum = h => { const n = parseInt(h.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000; };
+    check(fills.length === 4 && fills.every(f => /^#[0-9A-F]{6}$/.test(f) && lum(f) < 110), `c942: dunkle Tönungen ${fills.join(" ")}`);
+    check(nbStroke(totals("c942")[0].querySelector("circle")) === "#D9D9D9", "c942: Standardfarbe der Gesamtblase folgt dem dunklen Modus");
+  }
+
+  // c943: mit PY-Blasen: Segmente nur an AC; c944: Blasenanteil ohne Blasengröße → Hinweis
+  addStage("c943", "B19 · mit PY-Blasen: Segmente nur an den AC-Blasen", 960, 460);
+  addStage("c944", "B19 · Blasenanteil ohne Blasengröße: Hinweis, Punkte ohne Segment", 960, 460);
+  {
+    runCap("c943", b19Dv(c24({ scatterTotalBubble: false }), { noMult: true, data: { A: d10E.France }, py: true }), 960, 460);
+    const py = sQ("c943", '[data-icd="scatter-py"]');
+    check(py.length === 4 && py.every(g => !g.querySelector('[data-icd="scatter-pie"]')) && pies("c943").length === 4,
+      `c943: ${py.length} PY-Blasen ohne Segment, ${pies("c943").length} AC-Blasen mit`);
+    runCap("c944", b19Dv(c24(), { noMult: true, data: { A: d10E.France }, noSize: true }), 960, 460);
+    check(sQ("c944", '[data-icd="scatter-hint-share"][data-kind="roles"]').length === 1 && !pies("c944").length && !totals("c944").length,
+      "c944: Hinweis „braucht Blasengröße“, keine Segmente");
+  }
+
+  // c945: Vorlage C24 schreibt ihre Eigenschaften
+  addStage("c945", "B19 · Vorlage C24 komplett (10E)", 1280, 720);
+  {
+    runCap("c945", b19Dv({ template: "C24" }, { objs: Object.assign({}, t10E, axes10E) }), 1280, 720);
+    const p = JSON.stringify(window.__persist.c945 || []);
+    check(/"scatterTotalBubble":true/.test(p) && /"scatterValueLabels":true/.test(p) && /"xRefLine":"1"/.test(p) && /"scatterBubbleOpacity":100/.test(p),
+      `c945: C24 schreibt Gesamtblase, Werte, Deckkraft, X-Referenz 1`);
+    check(pies("c945").length === 9 && totals("c945").length === 2, "c945: Segmente und Gesamtblasen");
+  }
+
+  // c946: Formatbereich
+  addStage("c946", "B19 · Formatbereich: Anteil-Option nur mit Feld, Gesamtfarbe nur mit Gesamtblase", 400, 260);
+  addStage("c946b", "B19 · Formatbereich ohne Blasenanteil", 400, 260);
+  {
+    const vis = (r, k) => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard[k].visible !== false; };
+    const r1 = runCap("c946", b19Dv(c24(), { noMult: true, data: { A: d10E.France } }), 400, 260);
+    const a = ["scatterShareAs", "scatterTotalBubble", "scatterTotalColor"].map(k => vis(r1, k));
+    const r2 = runCap("c946b", b19Dv(c24({ scatterTotalBubble: false }), { noMult: true, data: { A: d10E.France }, share: false }), 400, 260);
+    const b = ["scatterShareAs", "scatterTotalBubble", "scatterTotalColor"].map(k => vis(r2, k));
+    check(a.join() === "true,true,true" && b.join() === "false,true,false", `c946: mit Feld ${a.join()}, ohne ${b.join()}`);
+  }
+
+  // kein NaN, undefined oder Infinity in den B19-Stufen
+  {
+    const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c9[3-5]\d[a-z]?$/.test(id));
+    const bad = ids.filter(id => /NaN|undefined|Infinity/.test(sSvg(id)));
+    check(ids.length >= 18 && bad.length === 0, `c930 bis c946: kein NaN im SVG (${ids.length} Stufen${bad.length ? ", " + bad.join(",") : ""})`);
+  }
+}
+// ---- B19-END
 </script>
 </body>
 </html>

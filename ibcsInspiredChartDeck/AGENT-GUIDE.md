@@ -71,7 +71,51 @@ Strahlen. Δ X neutral (Tinte), Δ Y nach `cfg.isGood`. `data-icd`: `scatter-pat
 `scatter-rays`, `scatter-ray` (`data-k`), `scatter-ray-end` (`data-x`, `data-y`), `scatter-ray-origin`,
 `scatter-ray-label`, `scatter-hint-path`. Vorlage C23 (Galerie Zeitverlauf, braucht `xValue`, Mini `scatterpath`).
 Tests c900 bis c917; Galerie-Tests c222 und c230 kennen C23. Standard SVG-gleich (Hash aller 701 Bestands-Stufen,
-geändert nur Galerie c222b, c222d, c229, c230, c230b). 953 resjson-Keys je Sprache.
+geändert nur Galerie c222b, c222d, c229, c230, c230b). 953 resjson-Keys je Sprache (965 nach dem Merge mit B20).
+**Review-Stand:** Ränder deckweit (M1): `prepareScatterDeck` legt `ScatterShared.deltaTys` (Δ-Y-Texte je Kachel) ab,
+`scatterExtraMargins` rechnet im Deck (nicht gezoomt) alle Strahl-Labels unabhängig von `scatterRayLabelOn` und die
+breiteste Δ-Spalte, dazu die größte Δ-Zahl für den unteren Rand; jede Kachel hat damit dieselbe Plotfläche.
+`ScatterPlotCtx` hat neu `rayLabelRight` (rechte Kante der rechten Strahl-Labels, gesetzt in `drawScatterRays`),
+`markG` (Marke je Punkt, gefüllt beim Zeichnen) und `trim` (Blasen: Segmente enden am Rand). Δ-Spalte ab
+`max(right + 6, rayLabelRight + 4)`, Pfeil- und Textboxen in `ctx.placed`, Labels nur bis vor die Δ-Spalte (m2).
+`drawScatterRays` probiert je Label über dem Kreis, oben links/rechts bzw. rechts unter dem Kreis, dann ohne Einheit,
+sonst `data-dropped` an `scatter-rays` (m3). `scatterRatioText` unter 0,1 mit `maximumSignificantDigits: 2` (m4).
+Hinweis „zwei Perioden“ prüft im Play die ungekürzten Einheiten (m1); `scatterPathUnsorted` (Jahreszahlen, nicht
+aufsteigend) gibt `scatter-hint-path` mit `data-kind="order"` (`Hint_ScatterPathOrder`, m5). Periodenlabels und Namen
+meiden alle Segmente (Liang-Barsky gegen die Labelbox, erst ohne Treffer, erzwungene Labels danach ohne die Segmentprüfung);
+`labels.show` aus heißt `pathLabels = off`. `selHooks`: eine Einheit, deren Marken alle `opacity 0.35` tragen, dimmt
+alle Elemente mit ihrem `data-series` in `scatter-paths` und `scatter-path-labels`; beide Gruppen `pointer-events="none"`.
+`scatterPathD(nodes, t, X, Y, rOf?)` kürzt mit Blasen jedes Segment um beide Radien (`scatterAnim.pathTrim`, Knoten mit
+`s` = Größe). `scatterAxisDomain` rundet mit Strahlen, wenn Log nicht greifen kann (`logPossible`), nicht nur ohne
+Log-Wunsch. Hochkontrast auf dem Pfad: AC gefüllt, FC hohl. Ab zwei Δ-Einheiten hängt `scatterPathDeltas` den
+Einheitennamen an `tx`/`ty`. Tests c918 bis c929, c903 korrigiert, `scale.html` RAY07E/RAY07Esm, `export-cases.js` Blatt
+`path`. Offen gelassen (Gestaltungsfrage): Gruppenfarben ab der 7. Einheit, gleichfarbige Pfade im Hochkontrast.
+
+*B19 · Blasen mit Kreissegmenten und Gesamtblase (Blätter 10E, 10G, Vorlage C24).* Neue Rolle `bubbleShare`
+(„Blasenanteil (optional)“, Measure, max 1, nach `bubbleSizePrevious` in `dataRoles`, im einzigen `conditions`-Satz und
+im `values.select`); gelesen nach Rollenname (`byRole["bubbleShare"]`, `this.shareName`), `DataPoint.shareVal` nur
+gesetzt, wenn gebunden. `aggregateHierarchy`-Zusammenfassung: Wert summiert, Quote größengewichtet gemittelt. Objekt
+`chart`, Gruppe „Scatter / Bubble“ nach `scatterBubbleOpacity`: `scatterShareAs` (`value` | `ratio`, Standard `value`,
+Pane nur mit Blasengröße und Rolle), `scatterTotalBubble` (bool, Pane mit Blasengröße), `scatterTotalColor` (Farbe,
+Standard #404040, Pane nur mit Gesamtblase; der unveränderte Standard wird im dunklen Modus #D9D9D9,
+`scatterTotalCol`). `scatterConfig` liefert `sc.share` (Rolle + Blasengröße + Daten, nicht `playBlocks`, nicht
+`scatterShapes`), `sc.shareAs`, `sc.shareName`, `sc.shareRoleIdle` (Rolle ohne Blasengröße), `sc.totalBubble` (nicht
+Play, nicht `sc.path`), `sc.totalColor`; `fmtSize` umfasst auch die größte Summe je Kachel. Helfer im Abschnitt
+„1.57 (B19)“ vor den B18-Helfern: `scatterShareRaw` (Quote bzw. Teil ÷ Größe, ungekappt, null ohne positive Größe),
+`scatterTotalOf` (Σ Größe, gewichtete Lage, Σ Teile, n über die sichtbaren Blasen), `scatterTint`, `scatterSectorD`
+(ab 12 Uhr im Uhrzeigersinn), `drawScatterPie`, `scatterTotalGeo` (Labelplätze, als Kollisionsboxen in `placed`),
+`drawScatterTotal` (erstes Kind von `marks`, also hinter allen Blasen und im Clip), `scatterShareTip`, `attachPlainTip`.
+Größenskala: `prepareScatterDeck` nimmt die Summe jeder Kachel in `sMax` auf, `renderScatter` ohne Kacheln ebenso;
+`fitMarks` enthält die Gesamtblase (Überlaufregel B12). Segment entfällt unter 6 px Radius (`data-small`). Hinweise
+über `editHints` mit `data-kind`: `scatter-hint-share` `roles` (`Hint_ScatterShareRoles`) und `range`
+(`Hint_ScatterShareRange`). Legende `scatter-legend-share`, `scatter-legend-total` hinter Gruppen und Hervorhebung.
+Tooltip: Blase `Tip_Share` (Anteil in %) und Teil, Gesamtblase `Tip_Total` (Anzahl), Σ Größe, Σ Teil, Anteil, Ø X,
+Ø Y. Vorlage C24 (Galerie Korrelation nach C10, braucht `bubbleSize`, Mini `bubblepie`). `data-icd`: `scatter-pie`
+(`data-share`, `data-small`), `scatter-pie-rim`, `scatter-pie-sector`, `scatter-total` (`data-v`, `data-part`,
+`data-x`, `data-y`, `data-n`), `scatter-total-sector`, `scatter-total-value`, `scatter-total-part`. Tests c930 bis
+c946 (c203: 21 Rollen; c222 blättert drei Seiten, c222/c230: 24 Vorlagen). Standard SVG-gleich (Hash aller 756
+Bestands-Stufen, geändert nur Feld-Intro c203/c206/c227/c236 und Galerie c221e/c222d/c230). 983 resjson-Keys je
+Sprache. Offen: dwg-Katalog und Showcase für C24, gemeinsame Kachelhöhe für 10G (Plot zu flach für große Blasen).
 
 *Demo-Galerie (1.57).* `drawGallery` (Leer-Zustand `emptyState.mode=demo` und Hub-Seite „Demo ansehen“) zeigt Modi,
 keine Varianten: die Liste `modes` in `drawGallery` hat je `chart.orientation` einen Eintrag (Wert, Enum-Key, Nutzen
@@ -499,6 +543,7 @@ Interne Rollennamen für PBIR (`projections`) — Reihenfolge egal, Semantik nic
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional): macht die PY-Pfeile zu 2D-Bewegungen (`scatterArrows`) |
 | `bubbleSize` | Measure | Blasengröße im Scatter (optional) — macht daraus ein Bubble-Chart (Vorlage C10) |
 | `bubbleSizePrevious` | Measure | Blasengröße VJ (Scatter, optional, ab 1.55): mit `previousYear` (Y) und optional `xPrevious` (X) eine PY-Blase je Kategorie mit eigener Größe hinter der AC-Blase (Blatt 10D) |
+| `bubbleShare` | Measure | Blasenanteil (Scatter, optional, ab 1.57): Teil jeder Blase als Kreissegment ab 12 Uhr; Wert in der Einheit der Blasengröße oder Quote 0 bis 1 (`scatterShareAs`); braucht `bubbleSize` (Blätter 10E, 10G, Vorlage C24) |
 | `trend` | Grouping | Zeitachse je Karte: macht KPI-Karten zu Zeitreihen (`cardTrendChart`), wirkt NUR im `cards`-Modus |
 | `comments` | Measure (Text) | nummerierte Marker ①② + Fußnoten-Panel |
 | `filterInfo` | Measure (Text) | Filterkontext-Text für die Fußzeile |
@@ -646,6 +691,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
+| C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) |
 | C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) |
 
 **Nicht enthalten:** C11 (Verteilung/Boxplot), die Darstellungsform gibt es
@@ -743,6 +789,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `xPrevious` | Measure | X-Achse VJ (Scatter, optional) | 1 | numeric / integer |
 | `bubbleSize` | Measure | Blasengröße (optional) | 1 | numeric / integer |
 | `bubbleSizePrevious` | Measure | Blasengröße VJ (optional) | 1 | numeric / integer |
+| `bubbleShare` | Measure | Blasenanteil (optional) | 1 | numeric / integer |
 | `series` | Grouping | Stack-Serie (Gestapelt) | 1 | beliebig |
 | `colgroup` | Grouping | Spalten (Matrix) | 2 | beliebig |
 | `filterInfo` | Measure | Filter-Info (Fußzeile) | 1 | text |
@@ -758,7 +805,7 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 
 | Property | Typ | Standard | Werte / Beschreibung |
 | --- | --- | --- | --- |
-| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` · `C21` · `C22` · `C23` · `C25` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ … |
+| `template` | enum | `off` | `off` · `C01` · `C02` · `C03` · `C04` · `C05` · `C06` · `C07` · `C08` · `C09` · `C10` · `C12` · `C13` · `C14` · `C15` · `C16` · `C17` · `C18` · `C19` · `C20` · `C21` · `C22` · `C23` · `C24` · `C25` — Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ … |
 | `orientation` | enum | `columns` | `columns` · `bars` · `line` · `waterfall` · `intwaterfall` · `catbridge` · `table` · `pareto` · `dumbbell` · `slope` · `scatter` · `cards` · `pnl` · `stockflow` |
 | `smartStart` | bool | `true` | Zeigt einen dezenten Vorschlags-Chip oben links im Chart, wenn die gebundenen Felder eindeutig auf einen passenderen Modus hindeuten (z. B. Datum + AC + PL → Säulen mit ΔPL) … |
 
@@ -940,6 +987,9 @@ deutschen Oberfläche. „Standard“ ist der Wert, der ohne Eintrag in `visual.
 | `scatterValueLabels` | bool | `false` | Nur mit gebundener Blasengröße: schreibt den Wert der Blasengröße in die Blase (Schrift hell auf dunkler Blase, dunkel auf heller). Passt die Zahl nicht hinein, steht sie hinter dem Namen … |
 | `scatterMaxRadius` | numeric | `0` | Bereich 0–200 — Nur mit gebundener Blasengröße: Radius der größten Blase in Pixeln (bei Schrift-Presets mitskaliert). 0 = automatisch (höchstens 22 px) … |
 | `scatterBubbleOpacity` | numeric | `55` | Bereich 10–100 — Nur mit gebundener Blasengröße: Deckkraft der Blasen in Prozent (10 bis 100). Standard 55, damit Überlappungen lesbar bleiben; 100 = deckend wie im Portfolio-Blatt 10A. |
+| `scatterShareAs` | enum | `value` | `value` · `ratio` — Nur mit gebundenem Feld „Blasenanteil“: Wert = Teil in der Einheit der Blasengröße (Anteil = Teil ÷ Größe, z. B. 23 von 199), Quote = Anteil 0 bis 1 … |
+| `scatterTotalBubble` | bool | `false` | Nur mit gebundener Blasengröße: eine Gesamtblase je Kachel bzw. je Diagramm, Fläche = Summe der Blasen, Lage = größengewichtetes Mittel von X und Y, Kreissegment = Summe der Anteile (Feld „Blasenanteil“) … |
+| `scatterTotalColor` | color | `#404040` | Umriss, Kreissegment und Schrift der Gesamtblase. Standard Dunkelgrau; das Blatt zeichnet Rot, das in ChartKitchen sonst für ungünstige Abweichungen steht. |
 | `scatterEmphFill` | bool | `false` | Hervorgehobene Punkte (Liste „Kategorien hervorheben“ bzw. Token emphasize) bekommen die Hervorhebungsfarbe als Füllung statt eines Rings, etwa für Zukäufe. Im Hochkontrast-Modus bleibt die Füllung in Vordergrundfarbe. |
 | `scatterEmphColor` | color | `#0064FF` | Füllfarbe der hervorgehobenen Punkte, wenn „Hervorhebung als Farbe“ an ist. |
 | `scatterEmphLabel` | text | leer | Legendeneintrag für die Hervorhebungsfarbe (z. B. „Zukäufe 12/25“). Leer = kein Eintrag. |
@@ -977,7 +1027,8 @@ Enum-Labels:
   `C17` = C17 · Kategorie-Brücke waagerecht (06E); `C18` = C18 · Abweichungs-Scatter ΔPY % × ΔPL % (10F);
   `C19` = C19 · Säulen gegen Plan + Jahressäule (03B); `C20` = C20 · Bestand und Fluss (08E bis 08H);
   `C21` = C21 · Kumulierte Linie mit R12 und Monatssäulen (07C); `C22` = C22 · Serienlinien mit Index (07A);
-  `C23` = C23 · Scatter-Zeitpfad (07D, 07E); `C25` = C25 · Marimekko (02F)
+  `C23` = C23 · Scatter-Zeitpfad (07D, 07E); `C24` = C24 · Blasen mit Anteil (10E, 10G);
+  `C25` = C25 · Marimekko (02F)
 - `orientation`: `columns` = Säulen (Zeit); `bars` = Balken (Struktur); `line` = Linie (lange Zeitreihe);
   `waterfall` = Waterfall / Brücke; `intwaterfall` = Integrierte Brücke (Zeit);
   `catbridge` = Kategorie-Brücke (Struktur); `table` = Tabelle (IBCS); `pareto` = Pareto (Struktur);
@@ -1033,6 +1084,7 @@ Enum-Labels:
 - `scatterColorBy`: `single` = Einfarbig (AC); `status` = Status ΔPY/ΔPL (gut · schlecht · grau);
   `group` = Nach Gruppe/Serie (Legende)
 - `scatterTrend`: `off` = Aus; `linear` = Linear
+- `scatterShareAs`: `value` = Wert (Teil der Blasengröße); `ratio` = Quote (0 bis 1)
 - `scatterPath`: `off` = Aus; `line` = Linie durch die Perioden
 - `scatterPathLabels`: `auto` = Auto (wo Platz ist); `ends` = Start und Ende; `all` = Alle Perioden;
   `off` = Aus

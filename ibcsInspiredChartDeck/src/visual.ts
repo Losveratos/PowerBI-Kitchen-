@@ -186,6 +186,11 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     C23: { orientation: "scatter", comparisonMode: "auto", scatterPath: "line", scatterPathLabels: "auto",
         scatterColorBy: "group", scatterQuadrant: "off", scatterTrend: "off", scatterArrows: false,
         scatterPlay: false },
+    // 1.57 (B19) C24 = 10E/10G: bubbles with a share sector (role bubbleShare) and a total
+    // bubble per tile, group colors, values in the bubbles, opaque, X reference at 1
+    C24: { orientation: "scatter", comparisonMode: "auto", scatterQuadrant: "off", scatterColorBy: "group",
+        scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true,
+        scatterTrend: "off", scatterArrows: false, scatterPath: "off", scatterPlay: false, "scale.xRefLine": "1" },
     // 1.57 (B20) C25 = 02F: Marimekko — 100 % bars, row thickness by the row total,
     // values in the segments, total and share columns, Σ row, sorted by the total
     C25: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
@@ -200,7 +205,7 @@ const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
     C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
-    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries", C23: "scatterpath", C25: "mekko"
+    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries", C23: "scatterpath", C24: "bubblepie", C25: "mekko"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -219,6 +224,7 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C21: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
     C22: { role: "series", key: "Role_Series", en: "Stack series" },
     C23: { role: "xValue", key: "Hub_NeedX", en: "X axis" },
+    C24: { role: "bubbleSize", key: "Role_BubbleSize", en: "Bubble size (optional)" },
     C25: { role: "series", key: "Role_Series", en: "Stack series" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
@@ -226,7 +232,7 @@ const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[
     { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20", "C23"] },
     { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C25", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
-    { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
+    { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C24", "C18"] },
     { id: "bridges", key: "Hub_TplGrpBridges", en: "Bridges & multiples", codes: ["C12", "C13"] }
 ];
 /** 1.51 gallery tile texts per template: [title, use line] (keys Hub_TplT_/Hub_TplU_ + code) */
@@ -253,6 +259,7 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C21: ["Cumulated line with R12", "YTD vs. plan, rolling year, months"],
     C22: ["Series lines with index", "Share prices or units, start = 100"],
     C23: ["Scatter time path", "Sales vs. reps per unit over the years"],
+    C24: ["Bubbles with share", "Market volume and our part per sector"],
     C25: ["Marimekko", "Mix per country, thickness = sales"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
@@ -282,6 +289,7 @@ const FIELD_INTRO_SECTIONS: { key: string; en: string; roles: [string, string, s
         ["xPrevious", "FI_XPrev", "X prior year → motion arrows"],
         ["bubbleSize", "FI_Bubble", "Bubble size, e.g. volume"],
         ["bubbleSizePrevious", "FI_BubblePrev", "Bubble size PY → PY bubble"],
+        ["bubbleShare", "FI_BubbleShare", "Part of the bubble → sector"],
         ["comments", "FI_Comments", "Text → numbered comments"],
         ["filterInfo", "FI_FilterInfo", "Text → filter note in footer"]] }
 ];
@@ -296,7 +304,8 @@ const ROLE_NAMES: Record<string, [string, string]> = {
     rowType: ["Role_RowType", "Waterfall Type (sum/delta)"], lineMeasure: ["Role_LineMeasure", "Line (combo)"],
     xValue: ["Role_XValue", "X axis (Scatter)"], xPrevious: ["Role_XPrevious", "X axis PY (Scatter, optional)"],
     bubbleSize: ["Role_BubbleSize", "Bubble size (optional)"],
-    bubbleSizePrevious: ["Role_BubbleSizePrevious", "Bubble size PY (optional)"], comments: ["Role_Comments", "Comments"],
+    bubbleSizePrevious: ["Role_BubbleSizePrevious", "Bubble size PY (optional)"],
+    bubbleShare: ["Role_BubbleShare", "Bubble share (optional)"], comments: ["Role_Comments", "Comments"],
     filterInfo: ["Role_FilterInfo", "Filter info (footer)"]
 };
 /** 1.51 hub footer: font presets in the order HD · Full HD · UHD (labels.fontPreset) */
@@ -542,6 +551,9 @@ interface DataPoint {
     /** 1.55 (B12): previous-year value of the bubble size (role bubbleSizePrevious) —
      *  with PY (Y) it draws the PY bubble of the category in its own size */
     sizePrev?: number | null;
+    /** 1.57 (B19): part of the bubble (role bubbleShare) — a value in the unit of the
+     *  bubble size or a ratio 0..1 (chart.scatterShareAs); drawn as a pie sector */
+    shareVal?: number | null;
     /** Trend role (KPI cards): period label of this row and its sort key (Date →
      *  timestamp, number → value, text → first appearance); absent when unbound */
     trend?: string | null;
@@ -922,6 +934,15 @@ interface ChartConfig {
         /** bubbleSizePrevious bound without Previous Year or bubble size (edit hint) */
         pyRoleIdle: boolean;
         sizePrevName: string;
+        /** 1.57 (B19): pie sectors (role bubbleShare with bubble size, data present, not
+         *  in play mode, not with shapes), how the share reads, its measure name; the
+         *  total bubble per tile and its color; bubbleShare bound without bubble size */
+        share: boolean;
+        shareAs: "value" | "ratio";
+        shareName: string;
+        shareRoleIdle: boolean;
+        totalBubble: boolean;
+        totalColor: string;
         emphFill: boolean;
         emphColor: string;
         emphLabel: string;
@@ -1021,6 +1042,10 @@ interface ScatterShared {
     /** 1.57 (B18): right edge and top of the tile grid; ratio ray labels only stand in
      *  the first row (top exits) and the last column (right exits) */
     tileBox?: { right: number; top: number };
+    /** B18 review (M1): the delta texts (Δ Y) of every tile with start-to-end deltas —
+     *  the extra margins are taken over the whole deck, so every tile keeps the same plot
+     *  box and the same pixel scale (null without deltas) */
+    deltaTys?: string[][] | null;
 }
 
 /** 1.57 (B18): label / collision box in px */
@@ -1031,6 +1056,27 @@ interface ScatterPathUnit {
     key: string;
     name: string | null;
     nodes: (DataPoint | null)[];
+}
+/** 1.57 (B19): total bubble of a tile — sum of the bubble sizes, the size-weighted mean
+ *  position, the sum of the parts (null without shares) and the number of bubbles */
+interface ScatterTotal {
+    s: number;
+    x: number;
+    y: number;
+    part: number | null;
+    n: number;
+}
+/** 1.57 (B19): pixel geometry and label spots of a total bubble */
+interface ScatterTotalGeo {
+    cx: number;
+    cy: number;
+    r: number;
+    frac: number | null;
+    sumTxt: string;
+    partTxt: string | null;
+    sumAt: { x: number; y: number } | null;
+    partAt: { x: number; y: number; anchor: string } | null;
+    boxes: ScBox[];
 }
 /** 1.57 (B18): what the time path and the ratio rays need from renderScatter's layout */
 interface ScatterPlotCtx {
@@ -1049,6 +1095,14 @@ interface ScatterPlotCtx {
     hitsMark: (b: ScBox, self: number) => boolean;
     /** item index and radius of a drawn AC marker */
     markOf: (p: DataPoint) => { i: number; r: number } | null;
+    /** B18 review: right edge of the ray labels standing at right exits (null = none);
+     *  the delta arrow column starts behind it (m2) */
+    rayLabelRight: number | null;
+    /** B18 review (nit): group of the drawn AC marker per point, filled while the marks
+     *  are drawn — the selection hook dims a unit's path when all its points are dimmed */
+    markG: Map<DataPoint, SVGGElement>;
+    /** B18 review (nit): path segments end at the bubble rim (bubbles are translucent) */
+    trim: boolean;
 }
 
 /**
@@ -1333,6 +1387,8 @@ export class Visual implements IVisual {
     private xPrevName: string | undefined;
     /** 1.55 (B12): display name of the bound bubbleSizePrevious measure (PY bubbles) */
     private sizePrevName: string | undefined;
+    /** 1.57 (B19): display name of the bound bubbleShare measure (pie sectors) */
+    private shareName: string | undefined;
     /** scatter v3 play mode (Rosling): transient — NEVER persisted. frame = currently
      *  shown period index; anim = live DOM references while the rAF loop runs */
     private scatterFrame: number | null = null;
@@ -1352,7 +1408,9 @@ export class Visual implements IVisual {
         t0: number;
         /** 1.57 (B18): time paths that grow with the frames (unit key → path element and
          *  its node per frame, null = gap) and the period labels hidden while playing */
-        paths?: { key: string; el: SVGPathElement; nodes: ({ x: number; y: number } | null | undefined)[] }[];
+        paths?: { key: string; el: SVGPathElement; nodes: ({ x: number; y: number; s?: number } | null | undefined)[] }[];
+        /** B18 review (nit): the growing path ends at the bubble rims (bubbles) */
+        pathTrim?: boolean;
         pathLabels?: SVGElement | null;
     } | null = null;
     /** scatter v3 rectangle selection: true right after a drag-select ended, so the
@@ -2412,6 +2470,10 @@ export class Visual implements IVisual {
         fs.chartCard.scatterValueLabels.visible = hasBubbles;
         fs.chartCard.scatterMaxRadius.visible = hasBubbles;
         fs.chartCard.scatterBubbleOpacity.visible = hasBubbles;
+        // 1.57 (B19): share reading only with the share field, total color only when on
+        fs.chartCard.scatterShareAs.visible = hasBubbles && this.shareName != null;
+        fs.chartCard.scatterTotalBubble.visible = hasBubbles;
+        fs.chartCard.scatterTotalColor.visible = hasBubbles && fs.chartCard.scatterTotalBubble.value === true;
         fs.chartCard.scatterEmphFill.visible = isScatter;
         const emphFillOn = isScatter && fs.chartCard.scatterEmphFill.value === true;
         fs.chartCard.scatterEmphColor.visible = emphFillOn;
@@ -2637,10 +2699,11 @@ export class Visual implements IVisual {
         this.xName = this.xFormat = this.sizeName = this.sizeFormat = undefined;
         this.xPrevName = undefined;
         this.sizePrevName = undefined;
+        this.shareName = undefined;
         for (const col of valueCols) {
             const roles = col.source.roles || {};
             for (const role of ["actual", "previousYear", "plan", "forecast", "benchmark", "lineMeasure", "prevForecast",
-                "xValue", "xPrevious", "bubbleSize", "bubbleSizePrevious"]) {
+                "xValue", "xPrevious", "bubbleSize", "bubbleSizePrevious", "bubbleShare"]) {
                 if (roles[role]) {
                     byRole[role] = col.values.map(v => (typeof v === "number" && isFinite(v)) ? v : null);
                     if (role === "actual" || (role === "forecast" && !this.measureFormat)) {
@@ -2666,6 +2729,9 @@ export class Visual implements IVisual {
                     }
                     if (role === "bubbleSizePrevious") {
                         this.sizePrevName = col.source.displayName;
+                    }
+                    if (role === "bubbleShare") {
+                        this.shareName = col.source.displayName;
                     }
                     if (col.highlights) {
                         anyHighlights = true;
@@ -2813,6 +2879,7 @@ export class Visual implements IVisual {
                 xPrev: byRole["xPrevious"] ? byRole["xPrevious"][i] : null,
                 sizeVal: byRole["bubbleSize"] ? byRole["bubbleSize"][i] : null,
                 sizePrev: byRole["bubbleSizePrevious"] ? byRole["bubbleSizePrevious"][i] : null,
+                ...(byRole["bubbleShare"] ? { shareVal: byRole["bubbleShare"][i] } : {}),
                 ...(trendCol && trendOrdOf ? {
                     trend: this.categoryLabel(trendCol.values[i]),
                     trendOrd: trendOrdOf(i)
@@ -6151,6 +6218,24 @@ export class Visual implements IVisual {
                 line(0.46, 0.10, 0.50, 0.10, c.grey, 0.8); line(0.62, 0.28, 0.66, 0.28, c.grey, 0.8);
                 line(0.78, 0.16, 0.84, 0.16, c.grey, 0.8);
                 line(0, 1, 1, 1, c.ink, 1.6);
+                break;
+            }
+            case "bubblepie": {
+                // 1.57 (B19) C24: bubbles with a share sector, behind them the total bubble
+                const u = Math.max(0.6, Math.min(w, h) / 60);
+                line(0.5, 0, 0.5, 1, c.grey, 0.8);
+                line(0, 0, 0, 1, c.ink, 1.2); line(0, 1, 1, 1, c.ink, 1.2);
+                const tx = x + 0.5 * w, ty = y + 0.52 * h, tr = 15 * u;
+                this.el("circle", { cx: tx, cy: ty, r: tr, fill: c.ink, "fill-opacity": 0.06, stroke: c.ink, "stroke-width": 0.8 }, g);
+                this.el("path", { d: this.scatterSectorD(tx, ty, tr, 0.16), fill: c.ink, "fill-opacity": 0.14,
+                    stroke: c.ink, "stroke-width": 0.8 }, g);
+                const pies: [number, number, number, number, string][] = [[0.2, 0.3, 6, 0.3, c.teal], [0.78, 0.26, 8, 0.12, c.ink],
+                    [0.24, 0.74, 7, 0.4, c.ink], [0.8, 0.74, 5, 0.25, c.teal]];
+                for (const [px, py, pr, f, col] of pies) {
+                    const cx2 = x + px * w, cy2 = y + py * h, rr = pr * u;
+                    this.el("circle", { cx: cx2, cy: cy2, r: rr, fill: col, "fill-opacity": 0.28, stroke: c.ink, "stroke-width": 0.8 }, g);
+                    this.el("path", { d: this.scatterSectorD(cx2, cy2, rr, f), fill: col, stroke: c.ink, "stroke-width": 0.8 }, g);
+                }
                 break;
             }
             case "bubble": {
@@ -12817,6 +12902,17 @@ export class Visual implements IVisual {
             agg.xPrev = sumOf(c => c.xPrev);
             agg.sizeVal = sumOf(c => c.sizeVal);
             agg.sizePrev = sumOf(c => c.sizePrev);
+            // 1.57 (B19): a part (value) is summed like the size; a ratio is averaged,
+            // weighted by the bubble size of the merged rows
+            if (kids.some(c => c.shareVal !== undefined)) {
+                if (String(this.formattingSettings.chartCard.scatterShareAs.value?.value ?? "value") === "ratio") {
+                    const w = sumOf(c => c.shareVal != null && c.sizeVal != null ? c.sizeVal : null);
+                    const ws = sumOf(c => c.shareVal != null && c.sizeVal != null ? c.shareVal * c.sizeVal : null);
+                    agg.shareVal = w != null && w !== 0 && ws != null ? ws / w : null;
+                } else {
+                    agg.shareVal = sumOf(c => c.shareVal);
+                }
+            }
             agg.comment = kids[0].comment;
             agg.commentNo = kids[0].commentNo;
             agg.sel = kids[0].sel;
@@ -14365,6 +14461,22 @@ export class Visual implements IVisual {
         const sGet = (p: DataPoint) => pyBubbles && p.sizePrev != null
             ? Math.max(Math.abs(p.sizeVal ?? 0), Math.abs(p.sizePrev)) : p.sizeVal;
         const sAllInt = (p: DataPoint) => !pyBubbles || p.sizePrev == null || Number.isInteger(p.sizePrev);
+        // 1.57 (B19): pie sectors from the role bubbleShare (with a bubble size, not in
+        // play mode, not with the per-group shapes); the total bubble per tile (not in
+        // play mode, not on the time path: a sum over periods means nothing)
+        const shapesOn = cc.scatterShapes.value === true && String(cc.scatterColorBy.value.value) === "group";
+        const share = this.shareName != null && this.sizeName != null && !playBlocks && !shapesOn
+            && points.some(p => p.shareVal != null && isFinite(p.shareVal));
+        const totalBubble = cc.scatterTotalBubble.value === true && this.sizeName != null && !playBlocks && !pathOn;
+        // the size formatter also spans the largest total (sum per tile)
+        let totalMax = 0;
+        if (totalBubble) {
+            const per = new Map<string, number>();
+            for (const p of points) {
+                if (p.sizeVal != null && p.sizeVal > 0) { per.set(p.group ?? "", (per.get(p.group ?? "") ?? 0) + p.sizeVal); }
+            }
+            per.forEach(v => { totalMax = Math.max(totalMax, v); });
+        }
         // custom group colors: a picker that differs from its light default wins in
         // light AND dark mode; untouched pickers follow the mode palette as before
         const pickers = [cc.scatterGroupColor1, cc.scatterGroupColor2, cc.scatterGroupColor3,
@@ -14380,7 +14492,7 @@ export class Visual implements IVisual {
             yName: this.measureName ?? "",
             sizeName: this.sizeName ?? "",
             fmtX: this.makeFormatter(absMax(xGet), allInt(xGet), this.xFormat ?? ""),
-            fmtSize: this.makeFormatter(absMax(sGet), allInt(p => p.sizeVal) && points.every(sAllInt), this.sizeFormat ?? ""),
+            fmtSize: this.makeFormatter(Math.max(absMax(sGet), totalMax), allInt(p => p.sizeVal) && points.every(sAllInt), this.sizeFormat ?? ""),
             quadrant: String(s.chartCard.scatterQuadrant.value.value),
             colorBy: String(s.chartCard.scatterColorBy.value.value),
             xRefLine: this.parseRefValue(String(s.scaleCard.xRefLine.value || "")),
@@ -14397,6 +14509,12 @@ export class Visual implements IVisual {
             // m7: the role is bound but cannot draw (Previous Year or bubble size missing)
             pyRoleIdle: this.sizePrevName != null && (this.sizeName == null || !this.paneHasPy),
             sizePrevName: this.sizePrevName ?? "",
+            share,
+            shareAs: String(cc.scatterShareAs.value?.value ?? "value") === "ratio" ? "ratio" : "value",
+            shareName: this.shareName ?? "",
+            shareRoleIdle: this.shareName != null && this.sizeName == null,
+            totalBubble,
+            totalColor: String(cc.scatterTotalColor.value?.value || "#404040"),
             emphFill: cc.scatterEmphFill.value === true,
             emphColor: String(cc.scatterEmphColor.value?.value || "#0064FF"),
             emphLabel: String(cc.scatterEmphLabel.value || "").trim(),
@@ -14485,10 +14603,25 @@ export class Visual implements IVisual {
             const stat = (vals: number[]) => sc.quadrant === "median" ? medianOf(vals) : meanOf(vals);
             const qx = xRef != null ? xRef : qOn ? stat(sPts.map(p => p.xVal as number)) : null;
             const qy = yRef != null ? yRef : qOn ? stat(sPts.map(p => p.value as number)) : null;
+            // 1.57 (B19): the total bubble of every tile counts in the deck-wide size scale
+            const totals = sc.totalBubble ? tiles.map(t => {
+                const tv = this.scatterValid(t.pts).filter(p => (p.xVal as number) >= ax.lo && (p.xVal as number) <= ax.hi
+                    && (p.value as number) >= ay.lo && (p.value as number) <= ay.hi);
+                return this.scatterTotalOf(tv, sc)?.s ?? 0;
+            }) : [];
+            // B18 review (M1): the delta texts of every tile, so that the extra margins
+            // (and with them the plot box) are the same in every tile
+            const deltaTys = sc.pathDelta ? tiles.map(t => {
+                const tv = this.scatterValid(t.pts).filter(p => (p.xVal as number) >= ax.lo && (p.xVal as number) <= ax.hi
+                    && (p.value as number) >= ay.lo && (p.value as number) <= ay.hi);
+                return this.scatterPathDeltas(sc, this.scatterPathUnits(t.pts, tv, null), cfg).map(d => d.ty);
+            }) : null;
             sc.shared = {
+                deltaTys,
                 xLo: ax.lo, xHi: ax.hi, yLo: ay.lo, yHi: ay.hi, qx, qy,
                 sMax: Math.max(0, ...sPts.map(p => p.sizeVal ?? 0),
-                    ...(sc.pyBubbles ? sPts.map(p => this.scatterPyPos(p, sc, ax, ay) ? p.sizePrev ?? 0 : 0) : [])),
+                    ...(sc.pyBubbles ? sPts.map(p => this.scatterPyPos(p, sc, ax, ay) ? p.sizePrev ?? 0 : 0) : []),
+                    ...totals),
                 refCell: null,
                 xLog: ax.log, yLog: ay.log,
                 sizeLegendDrawn: false
@@ -14525,11 +14658,15 @@ export class Visual implements IVisual {
         fixMin: number | null, fixMax: number | null,
         logWanted: boolean, rays = false): { lo: number; hi: number; log: boolean } {
         const refList = refs.filter((r): r is number => r != null && isFinite(r));
+        // B18 review (nit): a log wish that cannot apply (a value ≤ 0) is a linear axis —
+        // the ray rule (zero in, round upper end) must hold for it as well
+        const logPossible = logWanted && vals.every(v => v > 0) && refList.every(r => r > 0)
+            && (fixMin == null || fixMin > 0) && (fixMax == null || fixMax > 0);
         let [lo, hi] = this.scatterRange(vals, null);
         for (const r of refList) { lo = Math.min(lo, r); hi = Math.max(hi, r); }
         // 1.57 (B18): ratio rays start at the origin, so a linear axis takes in zero and
         // (automatic bounds) ends on a round tick value, where the rays leave the plot
-        if (rays && !logWanted) {
+        if (rays && !logPossible) {
             lo = Math.min(lo, 0);
             hi = Math.max(hi, 0);
             const t = niceTicks(lo, hi, 5);
@@ -14811,7 +14948,9 @@ export class Visual implements IVisual {
             }
         }
         if (an.paths) {
-            for (const pa of an.paths) { pa.el.setAttribute("d", this.scatterPathD(pa.nodes, t, an.X, an.Y)); }
+            for (const pa of an.paths) {
+                pa.el.setAttribute("d", this.scatterPathD(pa.nodes, t, an.X, an.Y, an.pathTrim ? an.rOf : undefined));
+            }
         }
         if (an.watermark) { an.watermark.textContent = an.frames[Math.round(t)]; }
         an.cur = t;
@@ -14915,7 +15054,10 @@ export class Visual implements IVisual {
                     ? [[cfg.scenL.ac, cfg.colors.ac, "ac"] as [string, string, string]] : [])]
             : [];
         const emphEntry = sc.emphFill && sc.emphLabel && !cfg.hc ? sc.emphLabel : "";
-        if (entriesAll.length === 0 && scenEntries.length === 0 && !emphEntry) { return 0; }
+        // 1.57 (B19): sector glyph + name of the share measure, Σ + size name for the total
+        const shareEntry = sc.share ? sc.shareName : "";
+        const totalEntry = sc.totalBubble ? `Σ ${sc.sizeName}` : "";
+        if (entriesAll.length === 0 && scenEntries.length === 0 && !emphEntry && !shareEntry && !totalEntry) { return 0; }
         const k = this.fontK;
         const f = Math.round(10 * k);
         const h = f + 8;
@@ -14940,8 +15082,31 @@ export class Visual implements IVisual {
             x += 2 * r + 4 + this.textWidth(name, f) + 12;
         };
         for (const [name, col, id] of scenEntries) { extra(name, col, id); }
-        if (entriesAll.length === 0) {
+        const tail = () => {
             if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
+            if (shareEntry) {
+                const ge = this.el("g", { "data-icd": "scatter-legend-share" }, g);
+                const c0 = cfg.hc ? cfg.ink : (sc.groupColors ? cfg.ink : cfg.colors.ac);
+                const gx = x + r, gy = y + h / 2, rr = r + 1;
+                this.el("circle", { cx: gx, cy: gy, r: rr, fill: cfg.hc ? cfg.paper : this.scatterTint(c0, cfg) ?? cfg.paper,
+                    stroke: cfg.ink, "stroke-width": 1 }, ge);
+                this.el("path", { d: this.scatterSectorD(gx, gy, rr, 0.3), fill: c0, stroke: cfg.ink, "stroke-width": 1 }, ge);
+                const t = this.el("text", { x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT }, ge);
+                t.textContent = shareEntry;
+                x += 2 * r + 4 + this.textWidth(shareEntry, f) + 12;
+            }
+            if (totalEntry) {
+                const ge = this.el("g", { "data-icd": "scatter-legend-total" }, g);
+                const tc = this.scatterTotalCol(sc, cfg);
+                this.el("circle", { cx: x + r, cy: y + h / 2, r: r + 1, fill: cfg.hc ? cfg.paper : tc,
+                    ...(cfg.hc ? { "stroke-dasharray": "3,2" } : { "fill-opacity": 0.06 }), stroke: tc, "stroke-width": 1 }, ge);
+                const t = this.el("text", { x: x + 2 * r + 4, y: base, "font-size": f, fill: cfg.ink, "font-family": FONT }, ge);
+                t.textContent = totalEntry;
+                x += 2 * r + 4 + this.textWidth(totalEntry, f) + 12;
+            }
+        };
+        if (entriesAll.length === 0) {
+            tail();
             return h;
         }
         const lead = this.el("text", {
@@ -14995,7 +15160,7 @@ export class Visual implements IVisual {
             t.textContent = restTxt(restN);
             x += 2 * r + 4 + this.textWidth(restTxt(restN), f) + 12;
         }
-        if (emphEntry) { extra(emphEntry, sc.emphColor, "emph"); }
+        tail();
         return h;
     }
 
@@ -15091,8 +15256,11 @@ export class Visual implements IVisual {
         const pySize = (p: DataPoint): number =>
             pyBub && this.scatterPyPos(p, sc, ax, ay) ? Math.max(p.sizePrev ?? 0, 0) : 0;
         const hasSize = sh ? sh.sMax > 0 : vis.some(p => (p.sizeVal ?? 0) > 0 || pySize(p) > 0);
+        // 1.57 (B19): total bubble of this tile (sum of sizes at the size-weighted mean);
+        // it counts in the size scale, so chart.scatterMaxRadius then means the total
+        const total = sc.totalBubble && !playActive && hasSize ? this.scatterTotalOf(vis, sc) : null;
         const sMax = sh ? sh.sMax
-            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0, pySize(p)))) : 0;
+            : hasSize ? Math.max(...vis.map(p => Math.max(p.sizeVal ?? 0, 0, pySize(p))), total ? total.s : 0) : 0;
         // status color needs a comparison basis — without PY/PL it stays single-colored
         const statusOn = sc.colorBy === "status" && pts.some(p => p.varAbs != null);
 
@@ -15226,6 +15394,8 @@ export class Visual implements IVisual {
             const pp = pySize(p) > 0 ? this.scatterPyPos(p, sc, ax, ay) : null;
             if (pp) { fitMarks.push({ x: pp.x, y: pp.y, r: rOfV(pySize(p)) }); }
         }
+        // 1.57 (B19): the total bubble obeys the same overflow rule
+        if (total) { fitMarks.push({ x: total.x, y: total.y, r: rOfV(total.s) }); }
         // 1.57 (B18): ray labels and delta arrows reserve their room up front (0 without)
         const mg0 = this.scatterExtraMargins(sc, ax, ay, pathDeltas, region, inset, pad, sh);
         const mg = { l: 0, r: mg0.r, t: mg0.t, b: mg0.b };
@@ -15389,7 +15559,8 @@ export class Visual implements IVisual {
         items.forEach((it, i) => { if (!it.isPy) { itemIdx.set(it.p, i); } });
         const pctx: ScatterPlotCtx = {
             X, Y, ax, ay, left: plotLeft, right: plotRight, top: plotTop, bottom: plotBottom, region, placed, hitsMark,
-            markOf: (p: DataPoint) => { const i = itemIdx.get(p); return i == null ? null : { i, r: items[i].r }; }
+            markOf: (p: DataPoint) => { const i = itemIdx.get(p); return i == null ? null : { i, r: items[i].r }; },
+            rayLabelRight: null, markG: new Map<DataPoint, SVGGElement>(), trim: hasSize
         };
         if (sc.rays.length > 0) { this.drawScatterRays(bg, sc, pctx, sh, cfg, halo); }
         const lineLabel = (txt: string, isRef: boolean,
@@ -15547,7 +15718,7 @@ export class Visual implements IVisual {
         // v3 log scale requested but not applicable (values ≤ 0): subtle edit-mode hint;
         // 1.55 (Review B12 m7): the same for a bound PY bubble size that cannot draw
         // (Previous Year or bubble size missing); a second hint stands above the first
-        const editHints: { txt: string; id: string | null }[] = [];
+        const editHints: { txt: string; id: string | null; kind?: string }[] = [];
         if ((sc.xLogWanted && !ax.log) || (sc.yLogWanted && !ay.log)) {
             editHints.push({ txt: this.locStr("Hint_ScatterLogOff", "Log scale ignored: values ≤ 0"), id: null });
         }
@@ -15556,9 +15727,25 @@ export class Visual implements IVisual {
                 "PY bubbles need the fields Previous Year and Bubble size"), id: "scatter-hint-py" });
         }
         // 1.57 (B18): a time path needs two periods of one unit somewhere
-        if (sc.path && !pathUnits.some(u => u.nodes.filter(p => p != null).length >= 2)) {
+        // B18 review (m1): in play mode the units are cut to the shown frame — the check
+        // runs on the whole period range
+        const hintUnits = sc.path && playActive ? this.scatterPathUnits(points, vis, null) : pathUnits;
+        if (sc.path && !hintUnits.some(u => u.nodes.filter(p => p != null).length >= 2)) {
             editHints.push({ txt: this.locStr("Hint_ScatterPathOnePeriod",
                 "Time path: each unit needs at least two periods (category = period)"), id: "scatter-hint-path" });
+        } else if (sc.path && this.scatterPathUnsorted(hintUnits)) {
+            // B18 review (m5): years out of order in a unit (the visual is sorted by a measure)
+            editHints.push({ txt: this.locStr("Hint_ScatterPathOrder",
+                "Time path: the category is not sorted by period"), id: "scatter-hint-path", kind: "order" });
+        }
+        // 1.57 (B19): the bubble share needs a bubble size; a share outside 0..1 is cut
+        if (sc.shareRoleIdle) {
+            editHints.push({ txt: this.locStr("Hint_ScatterShareRoles",
+                "Bubble share needs the field Bubble size"), id: "scatter-hint-share", kind: "roles" });
+        }
+        if (sc.share && vis.some(p => { const f = this.scatterShareRaw(p, sc); return f != null && (f < -1e-9 || f > 1 + 1e-9); })) {
+            editHints.push({ txt: this.locStr("Hint_ScatterShareRange",
+                "Bubble share outside 0 to 100 %: sector cut to the range"), id: "scatter-hint-share", kind: "range" });
         }
         if (editHints.length > 0 && this.allowInteractions && (this.viewMode == null || this.viewMode === 1)) {
             const hf = Math.round(9 * k);
@@ -15569,12 +15756,18 @@ export class Visual implements IVisual {
                 const t = this.el("text", {
                     x: b.x0, y: yb, "font-size": hf, fill: cfg.subtle,
                     "font-family": FONT, "font-style": "italic", ...halo,
-                    ...(hint.id ? { "data-icd": hint.id } : {})
+                    ...(hint.id ? { "data-icd": hint.id } : {}),
+                    ...(hint.kind ? { "data-kind": hint.kind } : {})
                 }, bg);
                 t.textContent = hint.txt;
                 placed.push(b);
             });
         }
+
+        // 1.57 (B19): total bubble geometry; its sum (centre) and part (outside the
+        // sector middle) are reserved before the point labels
+        const totGeo = total ? this.scatterTotalGeo(total, X(total.x), Y(total.y), rOfV(total.s), sc, region, cf) : null;
+        if (totGeo) { placed.push(...totGeo.boxes); }
 
         const colOf = (p: DataPoint): string => {
             // colorBy "group" (1.48): deck-wide color per series / multiples value
@@ -15679,8 +15872,9 @@ export class Visual implements IVisual {
         let pathLblG: SVGElement | null = null;
         let pathEls: Map<string, SVGPathElement> | null = null;
         if (sc.path) {
-            const lineG = this.el("g", { "data-icd": "scatter-paths" }, this.svg);
-            pathLblG = this.el("g", { "data-icd": "scatter-path-labels" }, this.svg);
+            // B18 review (nit): lines and labels never take a hover or a marquee start
+            const lineG = this.el("g", { "data-icd": "scatter-paths", "pointer-events": "none" }, this.svg);
+            pathLblG = this.el("g", { "data-icd": "scatter-path-labels", "pointer-events": "none" }, this.svg);
             pathEls = this.drawScatterPaths(pathUnits, pathDeltas, sc, pctx, cfg, lineG, pathLblG, halo, playActive);
         }
         // Review M3: a wanted value never vanishes. It follows the name when it does
@@ -15783,6 +15977,7 @@ export class Visual implements IVisual {
             marks.setAttribute("clip-path", `url(#${clipId})`);
             marks.setAttribute("data-icd", "scatter-marks");
         }
+        if (total && totGeo) { this.drawScatterTotal(marks, total, totGeo, sc, cfg, halo); }
         for (const i of drawOrder) {
             const { p, cx, cy, r, emph } = items[i];
             if (items[i].isPy) {
@@ -15858,14 +16053,20 @@ export class Visual implements IVisual {
             // PY grey — an ink outline keeps it apart
             const neutralNextToPy = pyBub && statusOn && !sc.groupColors && !emphFill
                 && this.scatterStatusKind(p, cfg) === "neutral";
-            const markEl = this.drawScatterShape(g, cx, cy, r, shapeIdx, {
+            // 1.57 (B19): bubble with a share sector (light tint, sector from 12 o'clock)
+            const pieFrac = sc.share && hasSize ? this.scatterShareRaw(p, sc) : null;
+            const pieTint = pieFrac != null ? this.scatterTint(col, cfg) : null;
+            const markEl = pieFrac != null
+                ? this.drawScatterPie(g, cx, cy, r, pieFrac, col, pieTint, bubbleAlpha, p.isFc, cfg)
+                : this.drawScatterShape(g, cx, cy, r, shapeIdx, {
                 // high contrast: outline marks in the foreground color (emphasized filled);
                 // FC points hatched like FC columns; bubbles translucent so overlaps read
                 ...(cfg.hc
                     ? (statusOn
                         // 1.49: status by pattern — good solid, bad hollow, immaterial dashed
                         ? { ...this.hcStatus(this.scatterStatusKind(p, cfg), cfg), stroke: cfg.ink, "stroke-width": 1.4 }
-                        : { fill: emph ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
+                        // B18 review (nit): on a time path AC points are filled, FC points hollow
+                        : { fill: emph || (sc.path && !p.isFc) ? cfg.ink : cfg.paper, stroke: cfg.ink, "stroke-width": 1.4 })
                     : p.isFc
                         // 1.57 (B18): on a time path a forecast period is a hollow point
                         ? (sc.path ? { fill: cfg.paper, stroke: col, "stroke-width": 1.2 }
@@ -15889,7 +16090,12 @@ export class Visual implements IVisual {
             // fill (status "good" and emphasized marks are filled with the ink color);
             // Review M3: on the forecast hatch the value stays, with a paper halo
             const hcFull = statusOn ? this.scatterStatusKind(p, cfg) === "good" : emph;
-            drawValue(g, items[i], cfg.hc ? (hcFull ? cfg.paper : cfg.ink) : col, hasSize ? bubbleAlpha : 1, p.isFc);
+            if (pieFrac != null) {
+                // the value stands on the light tint (high contrast: on paper)
+                drawValue(g, items[i], cfg.hc ? cfg.ink : pieTint ?? col, pieTint ? bubbleAlpha : 0.28 * bubbleAlpha);
+            } else {
+                drawValue(g, items[i], cfg.hc ? (hcFull ? cfg.paper : cfg.ink) : col, hasSize ? bubbleAlpha : 1, p.isFc);
+            }
             if (p.commentNo != null) {
                 // numbered comment badge at the marker's upper right (list in the panel)
                 const br = Math.round(6 * k);
@@ -15903,10 +16109,15 @@ export class Visual implements IVisual {
             }
             // 1.57 (B18): with ratio rays the tooltip names the point's ratio Y ÷ X
             const ratioTip = sc.rays.length > 0 && p.xVal != null && p.xVal !== 0 && p.value != null;
+            // 1.57 (B19): with bubble shares the tooltip names the part and the share in %
+            const shareTip = sc.share && p.shareVal != null && isFinite(p.shareVal);
             this.attachInteraction(g, p, cfg, { mark: { cx, cy, r: ringR + 2 },
-                ...(ratioTip ? { extra: () => [{ displayName: this.locStr("Tip_Ratio", "Ratio Y ÷ X"),
-                    value: this.scatterRatioText((p.value as number) / (p.xVal as number), sc.rayUnit) }] } : {}) });
+                ...(ratioTip || shareTip ? { extra: () => [
+                    ...(ratioTip ? [{ displayName: this.locStr("Tip_Ratio", "Ratio Y ÷ X"),
+                        value: this.scatterRatioText((p.value as number) / (p.xVal as number), sc.rayUnit) }] : []),
+                    ...(shareTip ? this.scatterShareTip(p, sc) : [])] } : {}) });
             this.catGroups.push({ g, sel: p.sel, dim: p.dim });
+            if (sc.path) { pctx.markG.set(p, g); }
             this.animGroups.push([g]);
             if (dots) {
                 dots.set(p.stackSeries ?? "·", {
@@ -15938,6 +16149,15 @@ export class Visual implements IVisual {
                 if (e.button !== 0) { return; }
                 this.beginScatterDrag(e, hits, cfg);
             });
+            // 1.57 (B19): the total bubble has no identity, a drag on it selects too
+            const totEl = marks.querySelector('[data-icd="scatter-total"]');
+            if (totEl) {
+                totEl.addEventListener("mousedown", (e: Event) => {
+                    const me = e as MouseEvent;
+                    if (me.button !== 0) { return; }
+                    this.beginScatterDrag(me, hits, cfg);
+                });
+            }
         }
 
         // v3 play (Rosling): period watermark behind the points (click = reset) + the
@@ -15978,16 +16198,17 @@ export class Visual implements IVisual {
             // 1.57 (B18): the time path of every unit grows with the frames
             const visSet = new Set(vis);
             const animPaths = pathEls ? Array.from(pathEls.entries()).map(([key, el]) => {
-                const nodes: ({ x: number; y: number } | null | undefined)[] = frames.map(() => undefined);
+                const nodes: ({ x: number; y: number; s?: number } | null | undefined)[] = frames.map(() => undefined);
                 for (const p of points) {
                     const fi = frameNo.get(p.cat);
                     if (fi == null || (p.stackSeries ?? "\u0001") !== key) { continue; }
-                    nodes[fi] = visSet.has(p) ? { x: p.xVal as number, y: p.value as number } : null;
+                    nodes[fi] = visSet.has(p) ? { x: p.xVal as number, y: p.value as number,
+                        ...(hasSize ? { s: Math.max(p.sizeVal ?? 0, 0) } : {}) } : null;
                 }
                 return { key, el, nodes };
             }) : undefined;
             this.scatterAnim = {
-                ...(animPaths ? { paths: animPaths, pathLabels: pathLblG } : {}),
+                ...(animPaths ? { paths: animPaths, pathLabels: pathLblG, ...(hasSize ? { pathTrim: true } : {}) } : {}),
                 frames, frameData,
                 dots: dots ?? new Map(),
                 X, Y,
@@ -16002,6 +16223,210 @@ export class Visual implements IVisual {
                 t0: 0
             };
         }
+    }
+
+    // ------------------------------------------------------------------------------
+    // 1.57 (B19, IBCS sheets 10E/10G): bubbles with a share sector (role bubbleShare)
+    // and the total bubble per tile. Only reached with a bound share or
+    // chart.scatterTotalBubble; renderScatter calls these helpers at fixed points
+    // ------------------------------------------------------------------------------
+
+    /** share of a bubble, raw (not cut to 0..1; null = no sector): a ratio as given, a
+     *  value divided by the bubble size (no sector without a positive size) */
+    private scatterShareRaw(p: DataPoint, sc: NonNullable<ChartConfig["scatter"]>): number | null {
+        if (!sc.share || p.shareVal == null || !isFinite(p.shareVal)) { return null; }
+        if (sc.shareAs === "ratio") { return p.shareVal; }
+        const z = p.sizeVal;
+        return z != null && isFinite(z) && z > 0 ? p.shareVal / z : null;
+    }
+
+    /** total bubble over the given (visible) points with a positive bubble size: sum of
+     *  the sizes, size-weighted mean of X and Y, sum of the parts (a ratio counts as
+     *  ratio × size); null without any bubble */
+    private scatterTotalOf(pts: DataPoint[], sc: NonNullable<ChartConfig["scatter"]>): ScatterTotal | null {
+        let s = 0, sx = 0, sy = 0, part = 0, n = 0, hasPart = false;
+        for (const p of pts) {
+            const z = p.sizeVal;
+            if (z == null || !isFinite(z) || z <= 0 || p.xVal == null || p.value == null) { continue; }
+            s += z;
+            sx += z * p.xVal;
+            sy += z * p.value;
+            n++;
+            if (sc.share && p.shareVal != null && isFinite(p.shareVal)) {
+                part += sc.shareAs === "ratio" ? p.shareVal * z : p.shareVal;
+                hasPart = true;
+            }
+        }
+        if (n === 0 || !(s > 0)) { return null; }
+        return { s, x: sx / s, y: sy / s, part: hasPart ? part : null, n };
+    }
+
+    /** light tint of a bubble color: 28 % of the color over the paper, opaque; null
+     *  when a color is not "#rrggbb" (the caller then draws the color translucent) */
+    private scatterTint(col: string, cfg: ChartConfig): string | null {
+        const hex = /^#?[0-9a-f]{6}$/i;
+        if (!hex.test(col.trim()) || !hex.test(cfg.paper.trim())) { return null; }
+        const a = this.hexRgb(col), b = this.hexRgb(cfg.paper);
+        return "#" + a.map((v, j) => Math.round(v * 0.28 + b[j] * 0.72).toString(16).padStart(2, "0")).join("").toUpperCase();
+    }
+
+    /** pie sector from 12 o'clock clockwise, f = share 0..1 (exclusive) */
+    private scatterSectorD(cx: number, cy: number, r: number, f: number): string {
+        const a = f * 2 * Math.PI;
+        const n = (v: number) => Number(v.toFixed(2));
+        return `M${n(cx)},${n(cy)} L${n(cx)},${n(cy - r)} A${n(r)},${n(r)} 0 ${f > 0.5 ? 1 : 0} 1 `
+            + `${n(cx + r * Math.sin(a))},${n(cy - r * Math.cos(a))} Z`;
+    }
+
+    /** bubble with a share sector: tinted circle with a 1 px ink rim, the sector in full
+     *  color (forecast: hatched) with ink radius lines; at 1 a full circle without a
+     *  radius line, at 0 only the circle; below 6 px radius only the tinted circle.
+     *  High contrast: paper circle, sector in the foreground color. Returns the circle */
+    private drawScatterPie(g: SVGElement, cx: number, cy: number, r: number, raw: number, col: string,
+        tint: string | null, alpha: number, fc: boolean, cfg: ChartConfig): SVGElement {
+        const f = Math.max(0, Math.min(1, raw));
+        const pg = this.el("g", { "data-icd": "scatter-pie", "data-share": String(Number(f.toFixed(4))) }, g);
+        const base = this.el("circle", {
+            cx, cy, r, "data-icd": "scatter-pie-rim",
+            ...(cfg.hc ? { fill: cfg.paper, stroke: cfg.ink, "stroke-width": 1.2 }
+                : { fill: tint ?? col, "fill-opacity": tint ? alpha : 0.28 * alpha, stroke: cfg.ink, "stroke-width": 1 })
+        }, pg);
+        if (r < 6) {
+            pg.setAttribute("data-small", "1");
+            return base;
+        }
+        const st = { fill: cfg.hc ? cfg.ink : fc ? `url(#${cfg.patId})` : col,
+            stroke: cfg.ink, "stroke-width": cfg.hc ? 1.2 : 1, "stroke-linejoin": "round", "data-icd": "scatter-pie-sector" };
+        if (f >= 1 - 1e-6) {
+            this.el("circle", { cx, cy, r, ...st }, pg);
+        } else if (f > 1e-6) {
+            this.el("path", { d: this.scatterSectorD(cx, cy, r, f), ...st }, pg);
+        }
+        return base;
+    }
+
+    /** total bubble in px: the sum in the centre, the part outside the middle of its
+     *  sector (both only from 6 px radius), kept inside the panel; boxes are reserved */
+    private scatterTotalGeo(t: ScatterTotal, cx: number, cy: number, r: number,
+        sc: NonNullable<ChartConfig["scatter"]>, region: Rect, font: number): ScatterTotalGeo {
+        const frac = t.part != null ? Math.max(0, Math.min(1, t.part / t.s)) : null;
+        const sumTxt = stripUnitText(sc.fmtSize.format(t.s));
+        const partTxt = t.part != null ? stripUnitText(sc.fmtSize.format(t.part)) : null;
+        const boxes: ScBox[] = [];
+        if (r < 6) { return { cx, cy, r, frac, sumTxt, partTxt, sumAt: null, partAt: null, boxes }; }
+        const ws = this.textWidth(sumTxt, font) / 2 + 1;
+        boxes.push({ x0: cx - ws, y0: cy - font / 2, x1: cx + ws, y1: cy + font / 2 });
+        let partAt: ScatterTotalGeo["partAt"] = null;
+        if (partTxt != null && frac != null) {
+            const m = frac * Math.PI, d = r + 3;
+            const sn = Math.sin(m), cs = Math.cos(m);
+            const w = this.textWidth(partTxt, font) + 2;
+            const anchor = sn > 0.25 ? "start" : sn < -0.25 ? "end" : "middle";
+            const px = cx + d * sn;
+            // the text box sits outside the circle: above it near 12, below near 6 o'clock
+            const midY = cy - d * cs - cs * font * 0.5;
+            let x0 = anchor === "start" ? px : anchor === "end" ? px - w : px - w / 2;
+            let y0 = midY - font / 2;
+            x0 = Math.min(Math.max(x0, region.x + 2), region.x + region.w - 2 - w);
+            y0 = Math.min(Math.max(y0, region.y + 2), region.y + region.h - 2 - font);
+            boxes.push({ x0, y0, x1: x0 + w, y1: y0 + font });
+            partAt = { x: x0 + 1, y: y0 + font * 0.82, anchor: "start" };
+        }
+        return { cx, cy, r, frac, sumTxt, partTxt, sumAt: { x: cx, y: cy + font * 0.35 }, partAt, boxes };
+    }
+
+    /** total bubble behind all bubbles: fill 6 % and 1 px rim in the total color, the
+     *  sector at 14 %, sum and part in the total color; no identity (not selectable),
+     *  own tooltip. High contrast: dashed outlines in the foreground color */
+    private drawScatterTotal(parent: SVGElement, t: ScatterTotal, geo: ScatterTotalGeo,
+        sc: NonNullable<ChartConfig["scatter"]>, cfg: ChartConfig, halo: Record<string, string | number>): void {
+        const col = this.scatterTotalCol(sc, cfg);
+        const num = (v: number) => String(Number(v.toPrecision(6)));
+        const g = this.el("g", {
+            "data-icd": "scatter-total", "data-v": num(t.s), "data-part": t.part != null ? num(t.part) : "",
+            "data-x": num(t.x), "data-y": num(t.y), "data-n": String(t.n)
+        }, parent) as SVGGElement;
+        const dash = cfg.hc ? { "stroke-dasharray": "4,3" } : {};
+        const { cx, cy, r } = geo;
+        this.el("circle", {
+            cx, cy, r, stroke: col, "stroke-width": 1, ...dash,
+            ...(cfg.hc ? { fill: cfg.paper, "fill-opacity": 0.01 } : { fill: col, "fill-opacity": 0.06 })
+        }, g);
+        const f = geo.frac;
+        if (f != null && r >= 6 && f > 1e-6) {
+            const st = { stroke: col, "stroke-width": 1, ...dash, "data-icd": "scatter-total-sector",
+                ...(cfg.hc ? { fill: "none" } : { fill: col, "fill-opacity": 0.14 }) };
+            if (f >= 1 - 1e-6) { this.el("circle", { cx, cy, r, ...st }, g); }
+            else { this.el("path", { d: this.scatterSectorD(cx, cy, r, f), ...st }, g); }
+        }
+        const font = cfg.catFont;
+        if (geo.sumAt) {
+            const tx = this.el("text", { x: geo.sumAt.x, y: geo.sumAt.y, "text-anchor": "middle", "font-size": font,
+                fill: col, "font-family": FONT, "data-icd": "scatter-total-value", ...halo }, g);
+            tx.textContent = geo.sumTxt;
+        }
+        if (geo.partAt && geo.partTxt != null) {
+            const tx = this.el("text", { x: geo.partAt.x, y: geo.partAt.y, "text-anchor": geo.partAt.anchor, "font-size": font,
+                fill: col, "font-family": FONT, "data-icd": "scatter-total-part", ...halo }, g);
+            tx.textContent = geo.partTxt;
+        }
+        const items = (): VisualTooltipDataItem[] => {
+            const out: VisualTooltipDataItem[] = [
+                { displayName: this.locStr("Tip_Total", "Total of all bubbles"), value: `${t.n}` },
+                { displayName: `Σ ${sc.sizeName}`, value: sc.fmtSize.format(t.s) }];
+            if (t.part != null) {
+                out.push({ displayName: `Σ ${sc.shareName}`, value: sc.fmtSize.format(t.part) });
+                out.push({ displayName: this.locStr("Tip_Share", "Share"), value: this.scatterPctText(t.part / t.s) });
+            }
+            out.push({ displayName: `Ø ${sc.xName}`, value: sc.fmtX.format(t.x) });
+            out.push({ displayName: `Ø ${sc.yName || cfg.scenL.ac}`, value: cfg.fmt.format(t.y) });
+            return out;
+        };
+        this.attachPlainTip(g, items);
+    }
+
+    /** color of the total bubble: high contrast the foreground; the untouched default
+     *  (#404040) follows the dark mode (#D9D9D9) like the group colors, a chosen color stays */
+    private scatterTotalCol(sc: NonNullable<ChartConfig["scatter"]>, cfg: ChartConfig): string {
+        if (cfg.hc) { return cfg.ink; }
+        return cfg.dark && sc.totalColor.trim().toUpperCase() === "#404040" ? "#D9D9D9" : sc.totalColor;
+    }
+
+    /** share as percent text, unsigned, one decimal below 10 % */
+    private scatterPctText(f: number): string {
+        const v = f * 100;
+        const d = Math.abs(v) < 10 ? 1 : 0;
+        return `${v.toLocaleString(this.host.locale, { minimumFractionDigits: d, maximumFractionDigits: d })} %`;
+    }
+
+    /** tooltip lines of a pie bubble: the part (value mode) and the share in percent */
+    private scatterShareTip(p: DataPoint, sc: NonNullable<ChartConfig["scatter"]>): VisualTooltipDataItem[] {
+        const out: VisualTooltipDataItem[] = [];
+        const raw = this.scatterShareRaw(p, sc);
+        if (sc.shareAs === "value" && p.shareVal != null) {
+            out.push({ displayName: sc.shareName, value: sc.fmtSize.format(p.shareVal) });
+        }
+        if (raw != null) {
+            out.push({ displayName: sc.shareAs === "ratio" ? sc.shareName : this.locStr("Tip_Share", "Share"),
+                value: this.scatterPctText(raw) });
+        }
+        return out;
+    }
+
+    /** tooltip without identity (total bubble): hover shows, moves and hides the items */
+    private attachPlainTip(g: SVGGElement, items: () => VisualTooltipDataItem[]): void {
+        g.addEventListener("mouseover", (e: MouseEvent) => {
+            if (this.uiDark) { this.showDarkTip(items(), e); return; }
+            this.tooltipService.show({ dataItems: items(), identities: [], coordinates: [e.clientX, e.clientY], isTouchEvent: false });
+        });
+        g.addEventListener("mousemove", (e: MouseEvent) => {
+            if (this.uiDark) { this.moveDarkTip(e); return; }
+            this.tooltipService.move({ dataItems: items(), identities: [], coordinates: [e.clientX, e.clientY], isTouchEvent: false });
+        });
+        g.addEventListener("mouseout", () => {
+            if (this.uiDark) { this.hideDarkTip(); return; }
+            this.tooltipService.hide({ immediately: false, isTouchEvent: false });
+        });
     }
 
     // ------------------------------------------------------------------------------
@@ -16056,6 +16481,15 @@ export class Visual implements IVisual {
             out.push({ u, a, b, dx, dy,
                 tx: dTxt(dx, sc.xDiv, sc.xFormat), ty: dTxt(dy, cfg.fmtUnit, undefined) });
         }
+        // B18 review (nit): with two or more highlighted units each delta names its unit
+        if (out.length > 1) {
+            for (const d of out) {
+                if (d.u.name == null) { continue; }
+                const nm = this.truncate(d.u.name, 90 * this.fontK, Math.round(9 * this.fontK));
+                d.tx = `${d.tx} ${nm}`;
+                d.ty = `${d.ty} ${nm}`;
+            }
+        }
         return out;
     }
 
@@ -16069,11 +16503,14 @@ export class Visual implements IVisual {
         return { x0, x1, side: k * ax.hi <= ay.hi * (1 + 1e-9) ? "right" : "top" };
     }
 
-    /** ratio text of a ray label and the tooltip: 2 decimals below 10, 1 below 100, else 0 */
+    /** ratio text of a ray label and the tooltip: 2 decimals below 10, 1 below 100, else 0;
+     *  B18 review (m4): below 0.1 two significant digits (0,001 reads „0,001“, not „0,00“) */
     private scatterRatioText(v: number, unit: string): string {
         const a = Math.abs(v);
         const d = a >= 100 ? 0 : a >= 10 ? 1 : 2;
-        const t = v.toLocaleString(this.host.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
+        const t = a > 0 && a < 0.1
+            ? v.toLocaleString(this.host.locale, { maximumSignificantDigits: 2 })
+            : v.toLocaleString(this.host.locale, { minimumFractionDigits: d, maximumFractionDigits: d });
         return unit ? `${t} ${unit}` : t;
     }
 
@@ -16094,18 +16531,34 @@ export class Visual implements IVisual {
         const out = { t: 0, r: 0, b: 0 };
         const k = this.fontK, lf = Math.round(9 * k);
         const rr = Math.max(3, 3.5 * Math.min(k, 1.6));
+        // B18 review (M1): in a tiled deck (not zoomed) every tile reserves the room of
+        // every ray label and of the widest delta column of the deck, whether its own
+        // labels stand or not — the plot box, and with it the pixel scale, stays the same
+        const deck = sh != null && this.zoomGroup == null;
         for (const kk of sc.rays) {
             const sp = this.scatterRaySpan(kk, ax, ay);
-            if (!sp || !this.scatterRayLabelOn(sp.side, region, sh)) { continue; }
+            if (!sp || (!deck && !this.scatterRayLabelOn(sp.side, region, sh))) { continue; }
             const w = this.textWidth(this.scatterRatioText(kk, sc.rayUnit), lf);
             if (sp.side === "top") { out.t = Math.max(out.t, rr + 5 + lf - inset); }
             else { out.r = Math.max(out.r, w / 2 + 2 - inset - pad); }
         }
-        if (deltas.length > 0) {
-            out.b = deltas.length * (lf + 12) + 2;
-            out.r += deltas.reduce((s, d) => s + this.textWidth(d.ty, lf) + 16, 0);
+        const colW = (tys: string[]) => tys.reduce((s, t) => s + this.textWidth(t, lf) + 16, 0);
+        const tyss = deck && sh && sh.deltaTys ? sh.deltaTys : [deltas.map(d => d.ty)];
+        const n = Math.max(0, ...tyss.map(t => t.length));
+        if (n > 0) {
+            out.b = n * (lf + 12) + 2;
+            out.r += Math.max(...tyss.map(colW));
         }
         return out;
+    }
+
+    /** B18 review (m5): the category reads as years in every unit, and the years of some
+     *  unit do not ascend in data order (the visual is sorted by a measure) */
+    private scatterPathUnsorted(units: ScatterPathUnit[]): boolean {
+        const yr = /^(19|20)\d\d$/;
+        const cats = units.map(u => u.nodes.filter((p): p is DataPoint => p != null).map(p => p.cat.trim()));
+        if (!cats.some(c => c.length >= 2) || !cats.every(c => c.every(x => yr.test(x)))) { return false; }
+        return cats.some(c => c.some((x, i) => i > 0 && Number(x) <= Number(c[i - 1])));
     }
 
     /** ratio rays Y = k · X from the origin to the plot edge (a curve when only one axis is
@@ -16144,19 +16597,43 @@ export class Visual implements IVisual {
         if (origin) {
             this.el("circle", { "data-icd": "scatter-ray-origin", cx: ctx.X(0), cy: ctx.Y(0), ...circle }, g);
         }
-        // labels centered above the exit circle, kept inside the visual; reserved boxes
+        // labels centered above the exit circle, kept inside the visual; reserved boxes.
+        // B18 review (m3): a label that would touch a reserved box tries the other sides
+        // (top exit: left and right of the circle; right exit: below the circle), then the
+        // number without the unit, else it is left out (the ratio stays in the tooltip)
+        const hits = (b: ScBox) => ctx.placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
+        const L = ctx.region.x + 1, R = ctx.region.x + ctx.region.w - 1;
         for (const e of ends) {
             if (!this.scatterRayLabelOn(e.side, ctx.region, sh)) { continue; }
-            const txt = this.scatterRatioText(e.k, sc.rayUnit);
-            const w = this.textWidth(txt, lf);
-            const x = Math.min(Math.max(e.x, ctx.region.x + w / 2 + 1), ctx.region.x + ctx.region.w - w / 2 - 1);
-            const y = e.y - rr - 3;
-            const t = this.el("text", {
-                "data-icd": "scatter-ray-label", "data-k": e.k, x, y, "text-anchor": "middle",
-                "font-size": lf, fill: cfg.ink, "font-family": FONT, ...halo
-            }, g);
-            t.textContent = txt;
-            ctx.placed.push({ x0: x - w / 2, y0: y - lf, x1: x + w / 2, y1: y + 2 });
+            const full = this.scatterRatioText(e.k, sc.rayUnit);
+            const texts = sc.rayUnit ? [full, this.scatterRatioText(e.k, "")] : [full];
+            let done = false;
+            for (const txt of texts) {
+                const w = this.textWidth(txt, lf);
+                const cx = Math.min(Math.max(e.x, L + w / 2), R - w / 2);
+                const cands: { x: number; y: number; anchor: string; b: ScBox }[] = [];
+                const mid = (x: number, y: number) => ({ x, y, anchor: "middle", b: { x0: x - w / 2, y0: y - lf, x1: x + w / 2, y1: y + 2 } });
+                cands.push(mid(cx, e.y - rr - 3));
+                if (e.side === "top") {
+                    const xl = e.x - rr - 3, xr = e.x + rr + 3, y = e.y - 2;
+                    if (xl - w >= L) { cands.push({ x: xl, y, anchor: "end", b: { x0: xl - w, y0: y - lf, x1: xl, y1: y + 2 } }); }
+                    if (xr + w <= R) { cands.push({ x: xr, y, anchor: "start", b: { x0: xr, y0: y - lf, x1: xr + w, y1: y + 2 } }); }
+                } else {
+                    cands.push(mid(cx, e.y + rr + lf + 1));
+                }
+                const pick = cands.find(c => !hits(c.b));
+                if (!pick) { continue; }
+                const t = this.el("text", {
+                    "data-icd": "scatter-ray-label", "data-k": e.k, x: pick.x, y: pick.y, "text-anchor": pick.anchor,
+                    "font-size": lf, fill: cfg.ink, "font-family": FONT, ...halo
+                }, g);
+                t.textContent = txt;
+                ctx.placed.push(pick.b);
+                if (e.side === "right") { ctx.rayLabelRight = Math.max(ctx.rayLabelRight ?? -Infinity, pick.b.x1); }
+                done = true;
+                break;
+            }
+            if (!done) { g.setAttribute("data-dropped", String(Number(g.getAttribute("data-dropped") ?? 0) + 1)); }
         }
     }
 
@@ -16186,6 +16663,8 @@ export class Visual implements IVisual {
                     + `${x - ux * s + uy * s * 0.45},${y - uy * s - ux * s * 0.45}`,
                 fill, "stroke-linejoin": "round"
             }, parent);
+        // B18 review (nit): every drawn segment is an obstacle for the labels
+        const segs: { x1: number; y1: number; x2: number; y2: number }[] = [];
         for (const u of units) {
             const col = colOf(u);
             const emph = u.name != null && this.isEmph(cfg, u.name);
@@ -16194,7 +16673,19 @@ export class Visual implements IVisual {
             for (let i = 1; i < u.nodes.length; i++) {
                 const a = u.nodes[i - 1], b = u.nodes[i];
                 if (!a || !b) { continue; }
-                const pa = at(a), pb = at(b);
+                let pa = at(a), pb = at(b);
+                if (ctx.trim) {
+                    // B18 review (nit): with bubbles the segment ends at both rims (the
+                    // translucent bubble and its value stay free of the line)
+                    const len = Math.hypot(pb.x - pa.x, pb.y - pa.y), ra = rOf(a), rb = rOf(b);
+                    if (len <= ra + rb + 1) { continue; }
+                    const ux = (pb.x - pa.x) / len, uy = (pb.y - pa.y) / len;
+                    pa = { x: pa.x + ux * ra, y: pa.y + uy * ra };
+                    pb = { x: pb.x - ux * rb, y: pb.y - uy * rb };
+                    // each trimmed segment starts anew (no shared joint)
+                    lastS = lastD = null;
+                }
+                segs.push({ x1: pa.x, y1: pa.y, x2: pb.x, y2: pb.y });
                 if (!solidOnly && b.isFc) {
                     dashed += `${lastD === a ? "" : `M${pa.x},${pa.y}`}L${pb.x},${pb.y}`;
                     lastD = b;
@@ -16227,7 +16718,9 @@ export class Visual implements IVisual {
         // start-to-end deltas: guides from the first and last point to the X axis and to
         // the right edge, Δ X as an arrow below the axis, Δ Y as an arrow right of the plot
         const axF = Math.round(9.5 * k);
-        let xA = ctx.right + 6;
+        // B18 review (m2): the Δ Y column starts behind the ray labels at right exits
+        let xA = Math.max(ctx.right + 6, ctx.rayLabelRight != null ? ctx.rayLabelRight + 4 : -Infinity);
+        const xA0 = xA;
         deltas.forEach((d, j) => {
             const a = at(d.a), b = at(d.b);
             const yA = ctx.bottom + axF + 9 + j * (lf + 12);
@@ -16260,13 +16753,32 @@ export class Visual implements IVisual {
             const tY = this.el("text", { x: xA + 5, y: (a.y + b.y) / 2 + lf * 0.35, "text-anchor": "start",
                 "font-size": lf, fill: yCol, "font-family": FONT, ...halo }, gy);
             tY.textContent = d.ty;
-            xA += this.textWidth(d.ty, lf) + 16;
+            // B18 review (m2): arrow column and both delta texts are reserved for the labels
+            const wy = this.textWidth(d.ty, lf), wx = this.textWidth(d.tx, lf);
+            ctx.placed.push({ x0: xA - s, y0: Math.min(a.y, b.y), x1: xA + 5 + wy, y1: Math.max(a.y, b.y) + 1 });
+            ctx.placed.push({ x0: (a.x + b.x) / 2 - wx / 2, y0: yA, x1: (a.x + b.x) / 2 + wx / 2, y1: yA + lf + 4 });
+            xA += wy + 16;
         });
 
         // labels: greedy over the shared reserved boxes, no force layout
         const hitsPlaced = (b: ScBox) => ctx.placed.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
-        const inBounds = (b: ScBox) => b.x0 >= ctx.left + 1 && b.x1 <= ctx.region.x + ctx.region.w - 2
+        // B18 review (m2): with deltas no label reaches into the Δ Y column
+        const xMaxL = deltas.length > 0 ? xA0 - 2 : ctx.region.x + ctx.region.w - 2;
+        const inBounds = (b: ScBox) => b.x0 >= ctx.left + 1 && b.x1 <= xMaxL
             && b.y0 >= ctx.top - 4 && b.y1 <= ctx.bottom - 1;
+        // a segment crossing the box (Liang-Barsky clip against the box)
+        const segHit = (b: ScBox, q: { x1: number; y1: number; x2: number; y2: number }) => {
+            let t0 = 0, t1 = 1;
+            const dx = q.x2 - q.x1, dy = q.y2 - q.y1;
+            for (const [pp, qq] of [[-dx, q.x1 - b.x0], [dx, b.x1 - q.x1], [-dy, q.y1 - b.y0], [dy, b.y1 - q.y1]]) {
+                if (pp === 0) { if (qq < 0) { return false; } continue; }
+                const r = qq / pp;
+                if (pp < 0) { if (r > t1) { return false; } if (r > t0) { t0 = r; } }
+                else { if (r < t0) { return false; } if (r < t1) { t1 = r; } }
+            }
+            return t1 - t0 > 1e-6;
+        };
+        const hitsSeg = (b: ScBox) => segs.length <= 2000 && segs.some(q => segHit(b, q));
         type Side = "top" | "right" | "bottom" | "left";
         const spot = (p: DataPoint, w: number, h: number, sides: Side[], force: boolean) => {
             const c = at(p), r = rOf(p), gap = 3;
@@ -16278,8 +16790,9 @@ export class Visual implements IVisual {
                         ? { b: { x0: c.x - w / 2, y0: c.y - r - gap - h, x1: c.x + w / 2, y1: c.y - r - gap }, x: c.x, y: c.y - r - gap - h * 0.2, anchor: "middle" }
                         : { b: { x0: c.x - w / 2, y0: c.y + r + gap, x1: c.x + w / 2, y1: c.y + r + gap + h }, x: c.x, y: c.y + r + gap + h * 0.8, anchor: "middle" });
             const self = ctx.markOf(p)?.i ?? -1;
-            const pick = cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self))
-                ?? (force ? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b)) ?? cands.find(o => inBounds(o.b)) ?? cands[0] : null);
+            const pick = cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self) && !hitsSeg(o.b))
+                ?? (force ? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b) && !ctx.hitsMark(o.b, self))
+                    ?? cands.find(o => inBounds(o.b) && !hitsPlaced(o.b)) ?? cands.find(o => inBounds(o.b)) ?? cands[0] : null);
             if (pick) { ctx.placed.push(pick.b); }
             return pick;
         };
@@ -16300,8 +16813,25 @@ export class Visual implements IVisual {
             }, lblG);
             t.textContent = txt;
         }
-        // period labels: four-digit years read as 'YY (as in the sheets)
-        const mode = sc.pathLabels;
+        // B18 review (nit): a unit whose points are all dimmed (selection, cross-highlight)
+        // dims its path, guides, deltas and labels with them
+        const lineGroups = [lineG, lblG];
+        this.selHooks.push(() => {
+            for (const u of units) {
+                const gs = u.nodes.filter((p): p is DataPoint => p != null).map(p => ctx.markG.get(p))
+                    .filter((g): g is SVGGElement => g != null);
+                const dim = gs.length > 0 && gs.every(g => g.getAttribute("opacity") === "0.35");
+                for (const parent of lineGroups) {
+                    for (const el of Array.from(parent.querySelectorAll("[data-series]"))) {
+                        if (el.getAttribute("data-series") !== (u.name ?? "")) { continue; }
+                        if (dim) { el.setAttribute("opacity", "0.35"); } else { el.removeAttribute("opacity"); }
+                    }
+                }
+            }
+        });
+        // period labels: four-digit years read as 'YY (as in the sheets);
+        // B18 review (nit): „Data labels → Show“ off hides them as well
+        const mode = cfg.showLabels ? sc.pathLabels : "off";
         if (mode === "off") { return els; }
         const allCats = units.reduce<DataPoint[]>((acc, u) => acc.concat(u.nodes.filter((p): p is DataPoint => p != null)), []);
         const years = allCats.length > 0 && allCats.every(p => /^(19|20)\d\d$/.test(p.cat.trim()));
@@ -16330,20 +16860,31 @@ export class Visual implements IVisual {
 
     /** play loop: the path of a unit up to timeline position t (frame + fraction); an
      *  absent period is skipped, a gap (null) breaks the line */
-    private scatterPathD(nodes: ({ x: number; y: number } | null | undefined)[], t: number, X: Scale, Y: Scale): string {
+    private scatterPathD(nodes: ({ x: number; y: number; s?: number } | null | undefined)[], t: number, X: Scale, Y: Scale,
+        rOf?: (v: number) => number): string {
         const last = Math.max(0, Math.min(Math.floor(t), nodes.length - 1));
-        let d = "", pen = false, prev: { x: number; y: number } | null = null;
+        let d = "", pen = false, prev: { x: number; y: number; s?: number } | null = null;
+        // B18 review (nit): with bubbles (rOf) every segment ends at both rims
+        const seg = (a: { x: number; y: number; s?: number }, bx: number, by: number, rb: number): string => {
+            const ax = X(a.x), ay = Y(a.y);
+            if (!rOf) { return `L${bx},${by}`; }
+            const ra = rOf(a.s ?? 0), len = Math.hypot(bx - ax, by - ay);
+            if (len <= ra + rb + 1) { return ""; }
+            const ux = (bx - ax) / len, uy = (by - ay) / len;
+            return `M${ax + ux * ra},${ay + uy * ra}L${bx - ux * rb},${by - uy * rb}`;
+        };
         for (let i = 0; i <= last; i++) {
             const n = nodes[i];
             if (n === undefined) { continue; }
             if (n === null) { pen = false; prev = null; continue; }
-            d += `${pen ? "L" : "M"}${X(n.x)},${Y(n.y)}`;
+            d += pen && prev ? seg(prev, X(n.x), Y(n.y), rOf ? rOf(n.s ?? 0) : 0) : rOf ? "" : `M${X(n.x)},${Y(n.y)}`;
             pen = true;
             prev = n;
         }
         const f = t - last, nx = nodes[last + 1];
         if (f > 0 && prev && nodes[last] === prev && nx) {
-            d += `L${X(prev.x + (nx.x - prev.x) * f)},${Y(prev.y + (nx.y - prev.y) * f)}`;
+            const s = (prev.s ?? 0) + ((nx.s ?? 0) - (prev.s ?? 0)) * f;
+            d += seg(prev, X(prev.x + (nx.x - prev.x) * f), Y(prev.y + (nx.y - prev.y) * f), rOf ? rOf(s) : 0);
         }
         return d;
     }

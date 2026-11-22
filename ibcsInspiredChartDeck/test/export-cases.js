@@ -175,6 +175,26 @@ function pageLib() {
                         footer: "Quelle: SAP FI · Stand 05.09.2026" }
                 }, preset), [["colgroup", "Quartal", mxL0], ["colgroup", "Monat", mxL1]]),
             months: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug"]
+        },
+        // 1.57 (B18 Review m7): Scatter-Zeitpfad mit Quotenstrahlen und Δ (Blatt 07E)
+        path: {
+            title: "Scatter-Zeitpfad mit Quotenstrahlen + Δ (07E)",
+            make: preset => {
+                const d = { Germany: [[2, 1], [3, 2], [3, 5], [7, 9], [9, 10], [13, 8], [14, 8.3], [15, 12], [17, 12.2]],
+                    France: [[3, 0.5], [4, 2], [5, 3], [6, 3], [8, 4], [11, 4], [11, 4.3], [11, 5], [15, 6]] };
+                const C = [], S = [], X = [], Y = [];
+                ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"].forEach((c, i) => Object.keys(d).forEach(u => {
+                    C.push(c); S.push(u); X.push(d[u][i][0]); Y.push(d[u][i][1]);
+                }));
+                return dv("Jahr", C, [col("actual", Y, "#,0.0", "Net sales"), col("xValue", X, "#,0", "Sales reps")],
+                    withPreset({
+                        chart: { orientation: "scatter", scatterPath: "line", scatterColorBy: "group", scatterQuadrant: "off",
+                            scatterPathDelta: true, highlight: "Germany" },
+                        scale: { ratioRays: "1; 0,7; 0,35", ratioRayUnit: "mEUR/Rep", xMin: "0", xMax: "20", yMin: "0", yMax: "14" },
+                        ibcsTitle: { show: true, kpi: "Net sales in mEUR and sales reps in FTE", period: "2017..2025",
+                            footer: "Quelle: CRM · Stand 05.09.2026" }
+                    }, preset), [["series", "Land", S]]);
+            }
         }
     };
 
