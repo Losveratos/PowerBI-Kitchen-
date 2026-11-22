@@ -95,6 +95,12 @@ const stackNormalizeItems: LocEnumMember[] = [
     { value: "off", displayName: "Values", key: "Enum_StackNorm_Off" },
     { value: "pct100", displayName: "100 % (shares)", key: "Enum_StackNorm_Pct" }
 ];
+// 1.57 (backlog B20, IBCS sheet 02F): row thickness of 100 % bars — equal or by
+// the row total (Marimekko)
+const stackThicknessItems: LocEnumMember[] = [
+    { value: "equal", displayName: "Equal", key: "Chart_StackThickness_Equal" },
+    { value: "total", displayName: "By row total (Marimekko)", key: "Chart_StackThickness_Total" }
+];
 // 1.56 (backlog B10 part 2, IBCS sheet 02A): blocks of stacked bars from the
 // first category level, optionally with a subtotal row per block
 const stackBlocksItems: LocEnumMember[] = [
@@ -325,7 +331,8 @@ const templateItems: LocEnumMember[] = [
     { value: "C19", displayName: "C19 · Columns vs. plan + year column (03B)", key: "Enum_Template_C19" },
     { value: "C20", displayName: "C20 · Stock & flow (08E to 08H)", key: "Enum_Template_C20" },
     { value: "C21", displayName: "C21 · Cumulated line with R12 and month columns (07C)", key: "Enum_Template_C21" },
-    { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" }
+    { value: "C22", displayName: "C22 · Series lines with index (07A)", key: "Enum_Template_C22" },
+    { value: "C25", displayName: "C25 · Marimekko (02F)", key: "Enum_Template_C25" }
 ];
 
 // 1.49: Leer-Zustand — Demo-Galerie (bisheriges Verhalten) · Feld-Intro · eigene Nachricht
@@ -351,7 +358,7 @@ export function localizeEnumItems(lm: powerbi.extensibility.ILocalizationManager
         stackNormalizeItems, stackLegendPosItems, stackBlocksItems, multiplesAggItems, multiplesTotalPosItems,
         multiplesBasisItems, sfStockAtItems, axisGroupsItems, timeAggregationItems, stackShapeItems, areaValueLabelsItems,
         linePeriodColumnsItems, lineGapMarkersItems, lineMarkerShapeItems, lineIndexItems, lineSeriesColorItems,
-        lineSeriesLabelsItems];
+        lineSeriesLabelsItems, stackThicknessItems];
     for (const items of lists) {
         for (const it of items) {
             const loc = lm.getDisplayName(it.key);
@@ -433,7 +440,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "template",
         displayName: "IBCS chart template",
         displayNameKey: "Chart_Template",
-        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A). Nicht enthalten: C11. Aus = keine Vorlage.",
+        description: "Startpunkt nach den IBCS-Chart-Templates: setzt Chart-Typ, Vergleichsbasis, Abweichungs-Panels und die passenden Schalter in einem Schritt — danach ist jede Einstellung frei änderbar. C01/C02 stapeln über das Feld „Stack-Serie\", C10 braucht zusätzlich das Feld „Blasengröße\", C13 behält den Chart-Typ und braucht das Feld „Small Multiples\". C14 bis C16 sind Balkentabellen gegen Plan (sortiert nach ΔPL, ΔPL % bzw. AC), C17 die waagerechte Kategorie-Brücke, C18 der Abweichungs-Scatter (X = ΔPY %, Y = ΔPL % als Measures), C19 Säulen gegen Plan mit Jahressäule, C20 Bestand und Fluss über die Zeit (Zu- und Abflüsse als Säulen, Bestand als Linie, Felder „Stack-Serie“ und „Waterfall-Typ“ mit stock, inflow, outflow), C07 die gestapelte Fläche über die Zeit mit Summenlinie (Feld „Stack-Serie“), C21 die kumulierte Linie YTD gegen Plan mit gleitender Jahressumme (R12), Monatssäulen und Abstandsmarkern (07C), C22 Serienlinien je Mitglied des Felds „Stack-Serie“, indexiert auf 100 (07A), C25 das Marimekko: 100-%-Balken mit Zeilendicke nach Zeilensumme, Summen- und Anteilsspalte (02F, Feld „Stack-Serie“). Nicht enthalten: C11. Aus = keine Vorlage.",
         descriptionKey: "Desc_Chart_Template",
         items: templateItems,
         value: templateItems[0]
@@ -1579,6 +1586,26 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         value: stackNormalizeItems[0]
     });
 
+    // 1.57 (B20, IBCS sheet 02F): Marimekko — row thickness by the row total
+    stackThickness = new formattingSettings.ItemDropdown({
+        name: "stackThickness",
+        displayName: "Row thickness",
+        displayNameKey: "Chart_StackThickness",
+        description: "Gestapelte Balken mit 100 %: gleiche Zeilenhöhe (Standard) oder Dicke nach Zeilensumme (Marimekko, Blatt 02F). Dann ist die Fläche jedes Segments sein Wert, die Segmente zeigen die Werte statt der Anteile und rechts stehen die Summen als Zahlenspalte. Σ-Zeile und Zwischensummen behalten die normale Höhe, sehr dünne Zeilen bekommen eine Mindestdicke, Beschriftungen ohne Platz entfallen (Tooltip). Ohne Wirkung bei Werten, bei Säulen und sobald eine Zelle negativ ist.",
+        descriptionKey: "Desc_Chart_StackThickness",
+        items: stackThicknessItems,
+        value: stackThicknessItems[0]
+    });
+
+    stackShareColumn = new formattingSettings.ToggleSwitch({
+        name: "stackShareColumn",
+        displayName: "Share column",
+        displayNameKey: "Chart_StackShareColumn",
+        description: "Gestapelte Balken mit 100 % und Summen (Σ): eine Spalte „Anteil“ rechts mit dem Anteil jeder Zeile an der Gesamtsumme (eine Nachkommastelle), „100 %“ an der Σ-Zeile, der Blockanteil an der Zwischensumme. Im Marimekko neben der Zahlenspalte, sonst hinter dem Summenbalken. Standard aus.",
+        descriptionKey: "Desc_Chart_StackShareColumn",
+        value: false
+    });
+
     stackTotalRow = new formattingSettings.ToggleSwitch({
         name: "stackTotalRow",
         displayName: "Stack total row (Σ)",
@@ -1687,7 +1714,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         displayNameKey: "Group_Display",
         slices: [this.pinStyle, this.deltaIcons, this.driverNote, this.stackShape, this.areaTotalLine, this.areaValueLabels,
             this.stackLegendDirect, this.stackLegendPos,
-            this.stackNormalize, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket,
+            this.stackNormalize, this.stackThickness, this.stackShareColumn, this.stackTotalRow, this.stackTotalLabel, this.stackShareBracket,
             this.stackBlocks, this.stackBlockShare, this.scenarioLabels,
             this.exportExpandAll]
     });

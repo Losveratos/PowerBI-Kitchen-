@@ -180,7 +180,13 @@ const CHART_TEMPLATES: Record<string, Record<string, TplValue>> = {
     // days), series name and last value at the line end; no Δ panels, no cumulation
     C22: { orientation: "line", lineSeries: true, lineIndex: "base100", lineSeriesLabels: "groups",
         lineSeriesColor: "tones", lineMarkerShape: "square", showAbsoluteVariance: false,
-        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false }
+        showRelativeVariance: false, dualVariance: false, cumulative: false, showTotal: false },
+    // 1.57 (B20) C25 = 02F: Marimekko — 100 % bars, row thickness by the row total,
+    // values in the segments, total and share columns, Σ row, sorted by the total
+    C25: { orientation: "bars", comparisonMode: "auto", showAbsoluteVariance: false,
+        showRelativeVariance: false, dualVariance: false, waterfallStyle: false, stackNormalize: "pct100",
+        stackThickness: "total", stackShareColumn: true, showTotal: true, stackTotalRow: true, sortMode: "ac",
+        stackLegendDirect: true }
 };
 
 /** 1.50 start hub: schematic preview per IBCS template — keys of drawModeMini, the
@@ -189,7 +195,7 @@ const TEMPLATE_MINI: Record<string, string> = {
     C01: "stackcols", C02: "stackbars", C03: "columns", C04: "bars", C05: "intwaterfall",
     C06: "catbridgecols", C08: "line", C09: "scatter", C10: "bubble", C12: "waterfall",
     C13: "multiples", C14: "table", C15: "table", C16: "table", C17: "catbridge", C18: "bubble", C19: "columns",
-    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries"
+    C20: "stockflow", C07: "stackarea", C21: "line", C22: "lineseries", C25: "mekko"
 };
 /** field role a template needs on top of category + AC (hint on the gallery tile) */
 const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> = {
@@ -206,12 +212,13 @@ const TEMPLATE_NEEDS: Record<string, { role: string; key: string; en: string }> 
     C20: { role: "rowType", key: "Hub_NeedSf", en: "Type: stock / inflow / outflow" },
     C07: { role: "series", key: "Role_Series", en: "Stack series" },
     C21: { role: "plan", key: "Hub_NeedPl", en: "Plan (PL)" },
-    C22: { role: "series", key: "Role_Series", en: "Stack series" }
+    C22: { role: "series", key: "Role_Series", en: "Stack series" },
+    C25: { role: "series", key: "Role_Series", en: "Stack series" }
 };
 /** 1.51 template gallery: purpose groups in display order (finance wording) */
 const TEMPLATE_GROUPS: { id: string; key: string; en: string; codes: string[] }[] = [
     { id: "time", key: "Hub_TplGrpTime", en: "Time series", codes: ["C01", "C07", "C03", "C19", "C05", "C08", "C21", "C22", "C20"] },
-    { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C04", "C06", "C17"] },
+    { id: "structure", key: "Hub_TplGrpStructure", en: "Structure", codes: ["C02", "C25", "C04", "C06", "C17"] },
     { id: "ranking", key: "Hub_TplGrpRanking", en: "Rankings vs. plan", codes: ["C14", "C15", "C16"] },
     { id: "correlation", key: "Hub_TplGrpCorrelation", en: "Correlation", codes: ["C09", "C10", "C18"] },
     { id: "bridges", key: "Hub_TplGrpBridges", en: "Bridges & multiples", codes: ["C12", "C13"] }
@@ -238,7 +245,8 @@ const TEMPLATE_TILE_EN: Record<string, [string, string]> = {
     C20: ["Stock and flow", "Cash, headcount or inventory over time"],
     C07: ["Stacked area over time", "Mix of segments with the total line"],
     C21: ["Cumulated line with R12", "YTD vs. plan, rolling year, months"],
-    C22: ["Series lines with index", "Share prices or units, start = 100"]
+    C22: ["Series lines with index", "Share prices or units, start = 100"],
+    C25: ["Marimekko", "Mix per country, thickness = sales"]
 };
 /** 1.51 documentation opened by the hub footer (host.launchUrl, no privilege needed) */
 const DOC_URL_DE = "https://datenwgknowledgekitchen.com/chartkitchen-doku.html";
@@ -795,6 +803,11 @@ interface ChartConfig {
     stackBlockShare: boolean;
     stackSort: "off" | "ac" | "series";
     stackTotalMax: number;
+    /** 1.57 (B20, sheet 02F): Marimekko — 100 % bars with the row thickness by the
+     *  row total (only bars, effective 100 %, stackThickness = total) */
+    stackMekko?: boolean;
+    /** 1.57 (B20): share column beside the totals (100 % bars with the Σ panel) */
+    stackShareCol?: boolean;
     /** 1.55 (B09): stored difference markers "From > To[@Series][!]" (max. 4) */
     diffMarkers: DiffMarkerSpec[];
     /** 1.55 (B09): integrated bridge — second net element to the other basis */
@@ -1951,6 +1964,9 @@ export class Visual implements IVisual {
         this.lastTplApplied = tpl;
         if (withTemplate) { props["template"] = tpl; }
         for (const [k, v] of Object.entries(props)) { this.chartSliceSet(k, v); }
+        // 1.57 (B20): a preset that sets sortMode (C25) counts as a stored sortMode in
+        // this render already (the host echo stores it for the next update)
+        if ("sortMode" in props) { this.sortModeStored = true; }
         // export/print contexts render the template locally but never write back
         // (no persistProperties from a static render; the next edit session applies it)
         if (!this.allowInteractions) { return; }
@@ -2196,6 +2212,11 @@ export class Visual implements IVisual {
             || (orient === "columns" && fs.chartCard.waterfallStyle.value);
         // 1.55 (B10): stack structure only for columns/bars
         fs.chartCard.stackNormalize.visible = orient === "columns" || orient === "bars";
+        // 1.57 (B20): row thickness and share column only for 100 % bars
+        const pct100Bars = orient === "bars"
+            && String((fs.chartCard.stackNormalize.value as powerbi.IEnumMember)?.value) === "pct100";
+        fs.chartCard.stackThickness.visible = pct100Bars;
+        fs.chartCard.stackShareColumn.visible = pct100Bars;
         fs.chartCard.stackTotalRow.visible = orient === "bars";
         fs.chartCard.stackTotalLabel.visible = orient === "bars" && fs.chartCard.stackTotalRow.value === true;
         fs.chartCard.stackLegendPos.visible = orient === "columns";
@@ -5990,6 +6011,20 @@ export class Visual implements IVisual {
                 line(0, 0, 0, 1, c.ink, 1.6);
                 break;
             }
+            case "mekko": {
+                // 1.57 (B20) C25: 100 % bars, thickness by the row total, rows touching
+                const rows: [number, number[]][] = [[0.34, [0.34, 0.28]], [0.26, [0.40, 0.30]], [0.2, [0.22, 0.42]], [0.12, [0.5, 0.26]]];
+                let y0 = 0.04;
+                for (const [hh, [a1, a2]] of rows) {
+                    r(0, y0, a1 * 0.82, hh - 0.02, c.ink);
+                    r(a1 * 0.82, y0, a2 * 0.82, hh - 0.02, c.ink, { "fill-opacity": 0.45 });
+                    r((a1 + a2) * 0.82, y0, (1 - a1 - a2) * 0.82, hh - 0.02, c.paper, { stroke: c.ink, "stroke-width": 1 });
+                    r(0.88, y0 + (hh - 0.02) * 0.3, 0.1, Math.min(0.06, hh * 0.3), c.grey);
+                    y0 += hh;
+                }
+                line(0, 0, 0, 1, c.ink, 1.6);
+                break;
+            }
             case "catbridgecols": {
                 // C06: category bridge as vertical cascade — PY total, drivers, AC total
                 r(0.00, 0.34, 0.13, 0.66, c.grey);
@@ -7099,6 +7134,12 @@ export class Visual implements IVisual {
         cfg.stackDomain = null;
         cfg.stackNorm = stackNormOk;
         cfg.stackSort = stackSortMode;
+        // 1.57 (B20): Marimekko and share column only on 100 % bars (both stay unset
+        // with their defaults: no new branch, byte-identical stacks)
+        if (isStacked && stackNormOk && orientationRaw === "bars") {
+            if (String((s.chartCard.stackThickness.value as powerbi.IEnumMember)?.value) === "total") { cfg.stackMekko = true; }
+            if (s.chartCard.stackShareColumn.value === true) { cfg.stackShareCol = true; }
+        }
         if (isStacked) {
             cfg.stackTotalMax = Math.max(0, ...shownGroups.flatMap(g => this.stackLayout(g.pts).pos));
         }
@@ -15582,8 +15623,18 @@ export class Visual implements IVisual {
         return { cats, series, cell, pos, neg, scen, sv, rawSv, rawPos };
     }
 
-    private renderStacked(points: DataPoint[], region: Rect, cfg: ChartConfig): void {
+    private renderStacked(pointsIn: DataPoint[], region: Rect, cfg: ChartConfig): void {
         const norm = cfg.stackNorm;
+        // 1.57 (B20, sheet 02F): Marimekko — 100 % bars whose row thickness follows the
+        // row total; rows with a total ≤ 0 have no thickness and drop out
+        let mekko = cfg.stackMekko === true && norm && cfg.orientation === "bars";
+        let points = pointsIn;
+        if (mekko) {
+            const L0 = this.stackLayout(pointsIn, true);
+            const keep = new Set(L0.cats.filter((_, i) => L0.rawPos[i] > 0));
+            if (keep.size === 0) { mekko = false; }
+            else if (keep.size < L0.cats.length) { points = pointsIn.filter(p => keep.has(p.cat)); }
+        }
         const { cats, series, cell, pos: posTot, neg: negTot, scen, sv, rawSv, rawPos } = this.stackLayout(points, norm);
         const n = cats.length;
         if (n === 0) { return; }
@@ -15628,8 +15679,30 @@ export class Visual implements IVisual {
         // series names left of the first column, room for the "100 %" marker
         const totalRow = orientation === "bars" && cfg.stackTotalRow;
         const legendStartCfg = orientation === "columns" && cfg.stackLegendStart;
-        const sideW = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
+        const sideBase = orientation === "bars" && norm && cfg.showTotal && region.w >= 280
             ? Math.max(60, region.w * 0.18) : 0;
+        // 1.57 (B20): the head of the totals (panel or Marimekko number column), the
+        // share column beside it and the Marimekko column widths from the text sizes
+        const panelHead = `Σ ${[scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "",
+            scenSet.has("pl") ? cfg.scenL.pl : ""].filter(x => x).join(" · ")}` + (cfg.stackSort === "ac" ? " (↓)" : "");
+        const headFont = Math.round(10 * k);
+        const shareNf1 = new Intl.NumberFormat(this.host.locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+        const shareLabel = this.locStr("Label_Share", "Share");
+        const grandPos = rawPos.reduce((a, v) => a + v, 0);
+        const shColW = cfg.stackShareCol === true && norm && orientation === "bars"
+            ? Math.max(this.textWidth(shareLabel, headFont, true), this.textWidth(`${shareNf1.format(100)} %`, lf, true)) + 12 : 0;
+        const totColW = mekko ? Math.max(this.textWidth(panelHead, headFont, true), this.textWidth(cfg.fmt.format(grandPos), lf, true),
+            ...rawPos.map(v => this.textWidth(cfg.fmt.format(v), lf))) + 12 : 0;
+        let shareColOn = shColW > 0 && sideBase > 0;
+        let sideW = sideBase;
+        if (mekko) {
+            // the number columns need their text only; the share column goes first
+            if (shareColOn && totColW + shColW > region.w * 0.3) { shareColOn = false; }
+            sideW = sideBase > 0 && totColW <= region.w * 0.3 ? totColW + (shareColOn ? shColW : 0) : 0;
+            if (sideW === 0) { shareColOn = false; }
+        } else if (shareColOn) {
+            sideW = sideBase + shColW;
+        }
         const marker100H = norm && orientation === "bars" ? lf + 8 : 0;
         // 1.55 (B09, 02C): bracket around the first N rows with their cumulated share
         // 1.56 (B10 part 2, sheet 02A): blocks from category level 0 (bars) — runs of
@@ -15758,18 +15831,65 @@ export class Visual implements IVisual {
             // 1.57 (B20): slot geometry — slotY(s) is the top of slot s, slotH(s) its
             // height, barW(i) the bar thickness of row i; with equal thickness they are
             // exactly the former bandStart + slot * step, step and slotW
-            const slotY = (slot: number) => bandStart + slot * step;
-            const slotH = (_slot: number) => step;
-            const posS = (slot: number) => bandStart + slot * step + (step - slotW) / 2;
-            const pos = (i: number) => posS(rowSlot[i]);
-            const barW = (_i: number) => slotW;
-            const rowH = (i: number) => slotH(rowSlot[i]);
-            return { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH };
+            if (!mekko) {
+                const slotY = (slot: number) => bandStart + slot * step;
+                const slotH = (_slot: number) => step;
+                const posS = (slot: number) => bandStart + slot * step + (step - slotW) / 2;
+                const pos = (i: number) => posS(rowSlot[i]);
+                const barW = (_i: number) => slotW;
+                const rowH = (i: number) => slotH(rowSlot[i]);
+                return { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH,
+                    mkH: null as number[] | null, mkClamped: null as boolean[] | null, mkTooMany: false };
+            }
+            // 1.57 (B20): Marimekko — the rows share n normal slots in proportion to their
+            // totals (Σ row, subtotals and block gaps keep the normal height); rows below
+            // the minimum thickness are clamped and the rest is shared again (water filling)
+            const H = n * step;
+            const minH = cfg.hc ? 5 : 3;
+            const h = cats.map(() => 0);
+            const clamped = cats.map(() => false);
+            const tooMany = n * minH > H;
+            if (tooMany) {
+                h.fill(H / n);
+            } else {
+                for (let it = 0; it <= n; it++) {
+                    let freeT = 0, nCl = 0;
+                    for (let i = 0; i < n; i++) { if (clamped[i]) { nCl++; } else { freeT += rawPos[i]; } }
+                    const freeH = H - nCl * minH;
+                    let changed = false;
+                    for (let i = 0; i < n; i++) {
+                        if (clamped[i]) { h[i] = minH; continue; }
+                        h[i] = freeT > 0 ? freeH * rawPos[i] / freeT : freeH / Math.max(1, n - nCl);
+                    }
+                    for (let i = 0; i < n; i++) {
+                        if (!clamped[i] && h[i] < minH) { clamped[i] = true; h[i] = minH; changed = true; }
+                    }
+                    if (!changed) { break; }
+                }
+            }
+            const rowOfSlot = new Map<number, number>();
+            rowSlot.forEach((sl, i) => rowOfSlot.set(sl, i));
+            // rowSlot rises with i: the rows above a slot are a prefix
+            const slotY = (slot: number) => {
+                let y = bandStart + slot * step;
+                for (let i = 0; i < n && rowSlot[i] < slot; i++) { y += h[i] - step; }
+                return y;
+            };
+            const slotH = (slot: number) => { const i = rowOfSlot.get(slot); return i != null ? h[i] : step; };
+            const posS = (slot: number) => slotY(slot) + (slotH(slot) - slotW) / 2;
+            // a row fills its slot up to a hairline (1 px) towards the next row
+            const pos = (i: number) => slotY(rowSlot[i]) + 0.5;
+            const barW = (i: number) => Math.max(h[i] - 1, 0.5);
+            const rowH = (i: number) => h[i];
+            return { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH,
+                mkH: h as number[] | null, mkClamped: clamped as boolean[] | null, mkTooMany: tooMany };
         };
         // the name positions along the value axis, or null when they do not fit
         const directNames = (L: ReturnType<typeof layout>): { s: number; at: number; y?: number }[] | null => {
-            if (orientation !== "columns") { return directNamesBars(L); }
-            const ci = legendStart ? 0 : n - 1;
+            // 1.57 (B20): the Marimekko has no gap above its rows — the names stand in
+            // the key row, centered on the segments of the first row (sheet 02F)
+            if (orientation !== "columns" && !mekko) { return directNamesBars(L); }
+            const ci = legendStart || mekko ? 0 : n - 1;
             let cum = 0;
             const out: { s: number; at: number; w: number }[] = [];
             for (let si = 0; si < series.length; si++) {
@@ -15841,10 +15961,11 @@ export class Visual implements IVisual {
         let L = layout(directWanted);
         const names = directWanted ? directNames(L) : null;
         if (directWanted && !names) { L = layout(false); }
-        const { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH } = L;
+        const { bandStart, bandEnd, rect, scale, step, slotW, pos, posS, slotY, slotH, barW, rowH, mkClamped, mkTooMany } = L;
 
         const bg = this.el("g", norm ? { "data-norm": "pct100" } : {}, this.svg);
         if (blocksActive) { bg.setAttribute("data-blocks", String(blocks.length)); }
+        if (mekko) { bg.setAttribute("data-thickness", "total"); }
         this.drawBaseline(bg, rect, scale, orientation, bandStart, bandEnd, "ac", cfg.colors);
         // the title names the scenarios that occur (AC only = unchanged text)
         const stackTitle = !anyScen ? this.locStr("Title_StackedPanel", "AC · stacked")
@@ -16010,6 +16131,39 @@ export class Visual implements IVisual {
         const showCatAt = this.labelPredicate(fakePts, rowLabels, cf, step, orientation, undefined, true);
         // 1.56 (B10 part 2): one group per block around its rows
         const blockGs = blocks.map(b => this.el("g", { "data-icd": "stack-block", "data-block": b.key }, marks));
+        // 1.57 (B20): rest rows (top-N rest, "Rest of world") — italic names and, in the
+        // Marimekko, italic numbers too
+        const restRow = (i: number): boolean => {
+            const c = cats[i];
+            const leafName = blocksActive ? (lvOf(c)?.slice(-1)[0] ?? rowLabels[i]) : rowLabels[i];
+            return series.some(sn => cell.get(`${c}¦${sn}`)?.isRest)
+                || (sortedOrRest && (REST_ROW_RX.test(rowLabels[i].trim()) || REST_ROW_RX.test(leafName.trim())));
+        };
+        // 1.57 (B20): Marimekko labels on rows of any thickness — greedy, a label drops
+        // when it would touch one already placed; highlighted rows, the rest row and the
+        // thickest row first, then from the top (never overlapping numbers as on 02F)
+        const mkPlace = (font: number): Set<number> => {
+            const out = new Set<number>();
+            if (!mekko) { return out; }
+            const big = rawPos.indexOf(Math.max(...rawPos));
+            const prio = (i: number) => (emphRow(i) ? 4 : 0) + (restRow(i) ? 2 : 0) + (i === big ? 1 : 0);
+            const order = cats.map((_, i) => i).sort((a, b) => (prio(b) - prio(a)) || (a - b));
+            // the bold labels of the Σ row and the subtotals stand first
+            const placed: number[] = blocks.filter(b => b.sub != null).map(b => posS(b.sub as number) + slotW / 2);
+            if (totalRow && scenSet.size <= 1) { placed.push(posS(sumSlot) + slotW / 2); }
+            const gap = font * 1.15;
+            for (const i of order) {
+                const cy = pos(i) + barW(i) / 2;
+                if (placed.every(y => Math.abs(y - cy) >= gap)) { placed.push(cy); out.add(i); }
+            }
+            return out;
+        };
+        const mkNames = mkPlace(cf);
+        const mkNums = mkPlace(lf);
+        const mkSkip = (parent: SVGElement, i: number, kind: string) => {
+            this.el("g", { "data-icd": "stack-mekko-skip", "data-i": i, "data-kind": kind }, parent);
+        };
+        const mkSegFont = Math.round(lf * 0.92);
 
         cats.forEach((c, i) => {
             const gCat = this.el("g", {}, blocksActive ? blockGs[blockOfRow[i]] : marks) as SVGGElement;
@@ -16057,7 +16211,12 @@ export class Visual implements IVisual {
                 }
                 // segment label when the slice is tall/wide enough
                 const a = scale(capV(from)), b = scale(capV(to));
-                if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
+                // 1.57 (B20): the Marimekko segment shows its value (the thickness carries
+                // the size) when the row is high and the segment wide enough, else tooltip
+                const mkTxt = mekko ? cfg.fmt.format(rawSv(i, s)) : "";
+                const segFits = mekko ? rh >= lf + 2 && Math.abs(a - b) >= this.textWidth(mkTxt, mkSegFont) + 4
+                    : Math.abs(a - b) > lf + 6;
+                if (cfg.showLabels && segFits) {
                     const mid = (a + b) / 2;
                     const light = si > (series.length - 1) / 2;
                     const st = this.el("text", {
@@ -16067,8 +16226,12 @@ export class Visual implements IVisual {
                         fill: cfg.hc ? cfg.ink : (kind !== "ac" || splitFc ? cfg.ink : segInk(si, light)), "font-family": FONT,
                         ...(kind === "fc" || splitFc ? { stroke: cfg.paper, "stroke-width": 3, "paint-order": "stroke" } : {})
                     }, g);
-                    st.textContent = segText(v);
+                    st.textContent = mekko ? mkTxt : segText(v);
+                    if (mekko) { st.setAttribute("data-v", String(Math.round(rawSv(i, s) * 1e6) / 1e6)); }
+                    if (mekko && restRow(i)) { st.setAttribute("font-style", "italic"); }
                     segLabelled++;
+                } else if (mekko && cfg.showLabels) {
+                    mkSkip(g, i, "seg");
                 }
                 // comment badge at the outer slot edge, middle of the segment (01A)
                 if (p.commentNo != null) {
@@ -16085,7 +16248,15 @@ export class Visual implements IVisual {
                     this.drawCommentMarker(cg, 0, p, scale, orientation, cfg,
                         orientation === "columns" ? { cx: cxCol, cy: mid } : { cx: mid, cy: pos(i) + bw });
                 }
-                this.attachInteraction(g, p, cfg);
+                if (mekko) {
+                    // 1.57 (B20): the tooltip also names the cell's share of the grand total
+                    const shareTot = grandPos > 0 ? Math.max(rawSv(i, s), 0) / grandPos * 100 : 0;
+                    this.attachInteraction(g, p, cfg, { extra: () => [{
+                        displayName: this.locStr("Tooltip_ShareOfTotal", "Share of total"), value: `${shareNf1.format(shareTot)} %`
+                    }] });
+                } else {
+                    this.attachInteraction(g, p, cfg);
+                }
                 if (kind !== "ac" || norm) {
                     const sc = kind === "pl" ? cfg.scenL.pl : kind === "fc" ? cfg.scenL.fc : cfg.scenL.ac;
                     g.setAttribute("aria-label", `${p.cat}, ${s}, ${sc} ${cfg.fmt.format(rawSv(i, s))}`
@@ -16106,7 +16277,13 @@ export class Visual implements IVisual {
                     orientation, totalTexts[i], lf, cfg.ink, 0, cfg.paper);
             }
             const isHl = emphRow(i);
-            if (showCatAt(i) || isHl) {
+            if (mekko) {
+                // 1.57 (B20): row marker (total, thickness, clamped to the minimum)
+                this.el("g", { "data-icd": "stack-mekko-row", "data-cat": c, "data-total": Math.round(rawPos[i] * 1e6) / 1e6,
+                    "data-h": Math.round(rh * 100) / 100, "data-clamped": mkClamped?.[i] ? "1" : "0" }, gCat);
+                if (!mkNames.has(i)) { mkSkip(gCat, i, "name"); }
+            }
+            if (mekko ? mkNames.has(i) : showCatAt(i) || isHl) {
                 this.drawCategoryLabel(gCat, rowLabels[i], pos(i) + bw / 2, orientation, cf,
                     scenOn ? { ...region, h: region.h - (cf + 2) } : region, rh, rect, cfg.ink, isHl);
                 // rest categories (top-N rest, "Sonstige") italic while the stack is
@@ -16124,8 +16301,9 @@ export class Visual implements IVisual {
             // grand total in an ellipse above the total
             // 1.56 review (m3): the arrow only with stack blocks, a plain stack keeps its
             // 1.55 look (bold name only)
-            const arrowOn = cfg.highlightEllipse && blocksActive;
-            if (isHl && orientation === "bars" && (arrowOn || shareOn)) {
+            // (the Marimekko has no gap above a row: its shares stand in the share column)
+            const arrowOn = cfg.highlightEllipse && blocksActive && !mekko;
+            if (isHl && orientation === "bars" && !mekko && (arrowOn || shareOn)) {
                 const xEnd = scale(norm ? 100 : capV(Math.max(posTot[i], 0)));
                 const wH = Math.max(8, 11 * k);
                 // 1.56 review (M2): the gap above the bar belongs to the row above when it
@@ -16230,16 +16408,21 @@ export class Visual implements IVisual {
                 series.forEach((sn, si) => {
                     const share = Math.max(sums[si], 0) * 100 / total;
                     if (share <= 0) { return; }
-                    const sg = this.el("g", { "data-icd": "stack-total-seg", "data-series": sn }, tg);
+                    const sg = this.el("g", mekko ? { "data-icd": "stack-total-seg", "data-series": sn, "data-share": Math.round(share * 10) / 10 }
+                        : { "data-icd": "stack-total-seg", "data-series": sn }, tg);
                     this.drawBar(sg, ySlot, slotW, cum, cum + share, scale, orientation,
                         { fill: shade(si), ...(cfg.hc ? { stroke: cfg.ink, "stroke-width": 1 } : {}) });
                     const a = scale(cum), b = scale(cum + share);
-                    if (cfg.showLabels && Math.abs(a - b) > lf + 6) {
+                    // 1.57 (B20): the Marimekko mix shows the sums like its segments (02F)
+                    const mkTxt = mekko ? cfg.fmt.format(sums[si]) : "";
+                    if (cfg.showLabels && (mekko ? slotH(slot) >= lf + 2 && Math.abs(a - b) >= this.textWidth(mkTxt, mkSegFont, true) + 4
+                        : Math.abs(a - b) > lf + 6)) {
                         const light = si > (series.length - 1) / 2;
                         const t = this.el("text", { x: (a + b) / 2, y: ySlot + slotW / 2 + lf * 0.35, "text-anchor": "middle",
                             "font-size": Math.round(lf * 0.92), "font-weight": 700,
                             fill: cfg.hc ? cfg.ink : segInk(si, light), "font-family": FONT }, sg);
-                        t.textContent = shareNf.format(share);
+                        t.textContent = mekko ? mkTxt : shareNf.format(share);
+                        if (mekko) { t.setAttribute("data-v", String(Math.round(sums[si] * 1e6) / 1e6)); }
                     }
                     cum += share;
                 });
@@ -16300,18 +16483,20 @@ export class Visual implements IVisual {
             drawStackSumRow(tg, cfg.stackTotalLabel || "Σ", seriesSums, grand, sumSlot, "stack-total-grand",
                 shareOn && grand > 0 ? 100 : null);
         }
-        if (sideW > 0 && cfg.stackTotalMax > 0) {
+        const xCols = rect.x + rect.w + 8;
+        const yHead = region.y + legendH + Math.round(10 * k);
+        if (sideW > 0 && cfg.stackTotalMax > 0 && !mekko) {
             const pg = this.el("g", { "data-icd": "stack-total-panel" }, marks);
-            const x0 = rect.x + rect.w + 8;
+            const x0 = xCols;
             // one px-per-unit over all tiles: only the shared maximum sizes the panel
+            // (1.57: the bar part only, the share column sits behind it)
             const labelRoom = this.textWidth(cfg.fmt.format(cfg.stackTotalMax), lf, true) + 6;
-            const kSide = Math.max(0, (sideW - labelRoom - 4) / cfg.stackTotalMax);
+            const kSide = Math.max(0, (sideBase - labelRoom - 4) / cfg.stackTotalMax);
             pg.setAttribute("data-px-per-unit", String(kSide));
             this.el("line", { x1: x0, y1: bandStart, x2: x0, y2: slotY(rowsEnd), stroke: cfg.subtle, "stroke-width": 1 }, pg);
-            const head = this.el("text", { x: x0, y: region.y + legendH + Math.round(10 * k), "font-size": Math.round(10 * k),
+            const head = this.el("text", { x: x0, y: yHead, "font-size": headFont,
                 fill: cfg.subtle, "font-family": FONT }, pg);
-            head.textContent = `Σ ${[scenSet.has("ac") ? cfg.scenL.ac : "", scenSet.has("fc") ? cfg.scenL.fc : "",
-                scenSet.has("pl") ? cfg.scenL.pl : ""].filter(x => x).join(" · ")}` + (cfg.stackSort === "ac" ? " (↓)" : "");
+            head.textContent = panelHead;
             if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
             for (let i = 0; i < n; i++) {
                 const w = rawPos[i] * kSide;
@@ -16337,14 +16522,80 @@ export class Visual implements IVisual {
                 const t = this.el("text", { x: x0 + 3, y: posS(b.sub) + slotW / 2 + lf * 0.35, "font-size": lf, "font-weight": 700,
                     fill: cfg.ink, "font-family": FONT, "data-icd": "stack-block-grand", "data-block": b.key }, pg);
                 t.textContent = txt;
-                if (shareOn && grand > 0) { panelShare(b.sub, txt, blockTot[bi] / grand * 100); }
+                if (shareOn && grand > 0 && !shareColOn) { panelShare(b.sub, txt, blockTot[bi] / grand * 100); }
             });
             if (totalRow) {
                 const t = this.el("text", { x: x0 + 3, y: posS(sumSlot) + slotW / 2 + lf * 0.35, "font-size": lf, "font-weight": 700,
                     fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand" }, pg);
                 t.textContent = cfg.fmt.format(grand);
-                if (shareOn && grand > 0 && scenSet.size <= 1) { panelShare(sumSlot, t.textContent, 100); }
+                if (shareOn && grand > 0 && scenSet.size <= 1 && !shareColOn) { panelShare(sumSlot, t.textContent, 100); }
             }
+        }
+        // 1.57 (B20, sheet 02F): Marimekko — the thickness carries the size, the totals
+        // stand as a number column (bold head, numbers right-aligned, rest rows italic)
+        const sumRowOn = totalRow && scenSet.size <= 1;
+        if (mekko && sideW > 0) {
+            const cg = this.el("g", { "data-icd": "stack-total-col" }, marks);
+            const xr = xCols + totColW - 6;
+            const head = this.el("text", { x: xr, y: yHead, "text-anchor": "end", "font-size": headFont, "font-weight": 600,
+                fill: cfg.ink, "font-family": FONT }, cg);
+            head.textContent = panelHead;
+            if (cfg.stackSort === "ac") { head.setAttribute("data-icd", "sort-mark"); }
+            for (let i = 0; i < n; i++) {
+                if (!mkNums.has(i)) { mkSkip(cg, i, "total"); continue; }
+                const t = this.el("text", { x: xr, y: pos(i) + barW(i) / 2 + lf * 0.35, "text-anchor": "end", "font-size": lf,
+                    fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-num", "data-total": Math.round(rawPos[i] * 1e6) / 1e6 }, cg);
+                if (restRow(i)) { t.setAttribute("font-style", "italic"); }
+                t.textContent = cfg.fmt.format(rawPos[i]);
+            }
+            blocks.forEach((b, bi) => {
+                if (b.sub == null) { return; }
+                const t = this.el("text", { x: xr, y: posS(b.sub) + slotW / 2 + lf * 0.35, "text-anchor": "end", "font-size": lf,
+                    "font-weight": 700, fill: cfg.ink, "font-family": FONT, "data-icd": "stack-block-grand", "data-block": b.key }, cg);
+                t.textContent = cfg.fmt.format(blockTot[bi]);
+            });
+            if (sumRowOn) {
+                const t = this.el("text", { x: xr, y: posS(sumSlot) + slotW / 2 + lf * 0.35, "text-anchor": "end", "font-size": lf,
+                    "font-weight": 700, fill: cfg.ink, "font-family": FONT, "data-icd": "stack-total-grand",
+                    "data-total": Math.round(grand * 1e6) / 1e6 }, cg);
+                t.textContent = cfg.fmt.format(grand);
+            }
+        }
+        // 1.57 (B20): share column — each row's share of the grand total, the block
+        // share at the subtotal, 100 % at the Σ row (Marimekko: beside the numbers,
+        // else behind the total bars)
+        if (shareColOn && grandPos > 0) {
+            const sg = this.el("g", { "data-icd": "stack-share-col" }, marks);
+            const xr = xCols + sideW - 6;
+            const head = this.el("text", { x: xr, y: yHead, "text-anchor": "end", "font-size": headFont,
+                "font-weight": mekko ? 600 : 400, fill: mekko ? cfg.ink : cfg.subtle, "font-family": FONT }, sg);
+            head.textContent = shareLabel;
+            const shareText = (parent: SVGElement, y: number, share: number, bold: boolean, extra: Record<string, string | number>) => {
+                const t = this.el("text", { x: xr, y: y + lf * 0.35, "text-anchor": "end", "font-size": lf,
+                    ...(bold ? { "font-weight": 700 } : {}), fill: cfg.ink, "font-family": FONT,
+                    "data-share": Math.round(share * 10) / 10, ...extra }, parent);
+                t.textContent = share === 100 && bold ? `${pct0.format(100)} %` : `${shareNf1.format(share)} %`;
+                return t;
+            };
+            for (let i = 0; i < n; i++) {
+                if (mekko && !mkNums.has(i)) { mkSkip(sg, i, "share"); continue; }
+                const t = shareText(sg, pos(i) + barW(i) / 2, rawPos[i] / grandPos * 100, false, { "data-icd": "stack-share", "data-i": i });
+                if (mekko && restRow(i)) { t.setAttribute("font-style", "italic"); }
+            }
+            blocks.forEach((b, bi) => {
+                if (b.sub == null) { return; }
+                shareText(sg, posS(b.sub) + slotW / 2, blockTot[bi] / grandPos * 100, true,
+                    { "data-icd": "stack-share-block", "data-block": b.key });
+            });
+            if (sumRowOn) { shareText(sg, posS(sumSlot) + slotW / 2, 100, true, { "data-icd": "stack-share-grand" }); }
+        }
+        // 1.57 (B20): too many rows for the minimum thickness — edit-mode note (Top N)
+        if (mekko && mkTooMany && this.allowInteractions && this.viewMode !== 0) {
+            const fs = Math.round(9 * k);
+            const t = this.el("text", { x: region.x + region.w - 4, y: region.y + region.h - 2, "text-anchor": "end",
+                "font-size": fs, fill: cfg.subtle, "font-family": FONT, "font-style": "italic", "data-icd": "stack-mekko-hint" }, this.svg);
+            t.textContent = this.truncate(this.locStr("Hint_MekkoTooManyRows", "Marimekko: too many rows for the minimum thickness, try Top N"),
+                region.w * 0.6, fs);
         }
         this.cutFcLines();
     }
