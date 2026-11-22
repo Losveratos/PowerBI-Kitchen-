@@ -14,12 +14,16 @@
 - **11A: Jahreszahlen frei vom Kartenknopf.** Bei allen beschrifteten Perioden lassen alle Karten den
   Platz des Knopfs frei, die Jahre stehen auf Eltern- und Blattkarten im selben Raster.
 
-- **11A wie im Blatt** (bei „Jede Periode beschriften“): eine Nachkommastelle je Karte (5,0 statt 5,00),
-  negative Ist-Werte mittelgrau, Planperioden hell gefüllt; nicht im hohen Kontrast und nicht, wo PY
-  gezeichnet wird. **Verhaltensänderung** für Berichte mit diesem Schalter (seit 1.8.0).
-- **Blattnotation** (`numbers.sheetPctDecimals`) erweitert: 12G ohne Titel „FY 2025“, Köpfe „YTD“ und
-  „Jahr“ statt „AC&FC“, Margen ganzzahlig (36 %); die Planspalte eines einzelnen Blocks nennt ihr Jahr
-  („PL 2026“ wie 12H). **Verhaltensänderung** für Berichte mit diesem Schalter (seit 1.8.0).
+- **11A wie im Blatt** (bei „Jede Periode beschriften“): einheitliche Nachkommastellen je Karte (eine,
+  keine ab 100, zwei unter 1; 5,0 statt 5,00 an den Säulen); negative Ist-Werte mittelgrau und
+  Planperioden hell gefüllt, nicht im hohen Kontrast, nicht gegen PY-Säulen und nicht bei eigener
+  Kartenfarbe. Die Legende zeigt PL weiter als Kontur. **Verhaltensänderung** für Berichte mit diesem
+  Schalter (seit 1.8.0).
+- **Notation wie im Referenzblatt** (`numbers.sheetPctDecimals`, bisher „Δ%-Dezimalen wie im
+  Referenzblatt“) erweitert: eine gestapelte FY-Kaskade heißt „YTD“ und „Jahr“ statt „AC&FC“ (12G); ein
+  einzelner FY-Block trägt sein Jahr im Kopf der Minuend-Spalte statt im Titel („PL 2026“ wie 12H,
+  „AC&FC 2025“); 12G-Margen ganzzahlig (36 %), solange die Δ%-Dezimalen des Templates gelten, ihre pp
+  behalten eine Stelle. **Verhaltensänderung** für Berichte mit diesem Schalter und einem FY-Block.
 
 **Tests:** mega-shot m27 (36,0 % und 30,8 % kursiv), m67 (Margenwert auf der Nulllinie mit
 Papierkasten), m68 (12G in Blattnotation), m69 („PL 2026“), t11c (Trennlinien, Kartenknöpfe frei, eine

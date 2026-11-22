@@ -7736,14 +7736,14 @@ export class Visual implements IVisual {
         const needHatch = slots.some(sl => sl.style === "fc")
             || series.refScen === "fc" || series.ref2Scen === "fc";
         const hatch = needHatch ? this.treeHatchId(svg) : "";
-        // 1.8.3 every period labelled (sheet 11A): one decimal on the whole card (none
-        // from 100 up) instead of the size rule per value, negative actuals in a middle
-        // grey and the plan columns lightly filled, as the sheet; never in high contrast
-        // and never where PY is drawn (its gray would read as a scenario)
-        const sheet = !!series.all && !this.hc && series.refScen !== "py" && series.ref2Scen !== "py";
+        // 1.8.3 every period labelled (sheet 11A): the same decimals on the whole card
+        // (one; none from 100 up, two below 1) instead of the size rule per value; negative
+        // actuals in a middle grey and the plan columns lightly filled, as the sheet,
+        // never in high contrast and never against PY columns (their gray is a scenario)
+        const sheet = !!series.all && !this.hc && series.refScen !== "py";
         let cardMax = 0;
         for (const sl of slots) { for (const v of [sl.v, sl.ref]) { if (v != null) { cardMax = Math.max(cardMax, Math.abs(v) / fmt.div); } } }
-        const cardDec = series.all ? (cardMax >= 100 ? 0 : 1) : undefined;
+        const cardDec = series.all ? (cardMax >= 100 ? 0 : cardMax >= 1 ? 1 : 2) : undefined;
 
         slots.forEach((sl, i) => {
             const cx = box.x + (i + 0.5) * slotW;
@@ -7752,7 +7752,9 @@ export class Visual implements IVisual {
             // reference behind, wider and offset — IBCS overlapped grouped columns
             if (sl.ref != null && series.refScen !== "") {
                 const st = this.treeScenFill(series.refScen, hatch);
-                const planFill = sheet && (series.refScen === "pl" || series.refScen === "plfy") ? C.planSheet : st.fill;
+                // a card background of the author's own keeps the plain plan fill
+                const planFill = sheet && (series.refScen === "pl" || series.refScen === "plfy") && this.cardPaper() === C.paper
+                    ? C.planSheet : st.fill;
                 rect(refCx - refW / 2, refW, sl.ref, planFill, st.stroke, 1.2);
             }
             if (sl.v != null) {
@@ -11266,7 +11268,8 @@ export class Visual implements IVisual {
             th: th[bi],
             // a single month / FY block names itself (a single YTD statement never did)
             titled: !twoBlocks && (key !== "ytd" || stockOnly),
-            year: year || undefined,
+            // 1.8.3 the year of an FY block (sheet notation moves it into the minuend's head)
+            year: key === "fy" && year ? year : undefined,
             alias: key === "fy" ? { AC: "AC&FC", FC: "FC" } : undefined,
             // 12G: the FY outlook's AC&FC is mostly forecast — its Δ elements are
             // hatched, and its value cascade stacks the YTD actuals (solid) in front
@@ -11347,9 +11350,7 @@ export class Visual implements IVisual {
             ppUnit: this.ppUnit() === "pp" ? MEGA_PP : "%p",
             // 1.8 (B14) T03 prints Δ% whole but margins and their pp with one decimal
             // 1.8.3 12G prints its margins whole ("36%"): the template's sheet margin decimals
-            mdec: this.settings.numbersCard.sheetPctDecimals.value
-                ? (MEGA_PRESETS[String(this.settings.columnsCard.template?.value?.value ?? "off")]?.sheetMdec
-                    ?? Math.max(1, this.settings.numbersCard.pctDecimals.value)) : undefined,
+            mdec: this.sheetMdec(),
             sheetNotation: this.settings.numbersCard.sheetPctDecimals.value === true,
             yearHead: this.tr("UI_ColYear"),
             zeroPlain: this.zeroPlain(),
@@ -12023,6 +12024,18 @@ export class Visual implements IVisual {
         const a = Math.abs(v);
         const [div, suf] = a >= 1e9 ? [1e9, "b"] : a >= 1e6 ? [1e6, "m"] : a >= 1e3 ? [1e3, "k"] : [1, ""];
         return new Intl.NumberFormat(this.locale, { maximumFractionDigits: 2 }).format(v / div) + suf;
+    }
+
+    /**
+     * 1.8.3 decimals of margins and their pp under numbers.sheetPctDecimals: the template's
+     * sheet margin decimals (12G whole) while its sheet Δ% decimals still stand, otherwise
+     * at least one (T03 "45.3%"); undefined without the switch
+     */
+    private sheetMdec(): number | undefined {
+        const nc = this.settings.numbersCard;
+        if (!nc.sheetPctDecimals.value) { return undefined; }
+        const p = MEGA_PRESETS[String(this.settings.columnsCard.template?.value?.value ?? "off")];
+        return p?.sheetMdec != null && nc.pctDecimals.value === p.sheetPdec ? p.sheetMdec : Math.max(1, nc.pctDecimals.value);
     }
 
     /** 1.8.2 columns.highlightStyle: band (default) | ellipse | both */

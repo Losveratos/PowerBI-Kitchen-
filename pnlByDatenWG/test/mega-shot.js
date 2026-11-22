@@ -118,7 +118,7 @@ function readMega(id) {
 
     const ids = ["m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16",
         "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33",
-        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69"];
+        "m34", "m35", "m36", "m37", "m38", "m39", "m40", "m41", "m42", "m43", "m44", "m45", "m46", "m47", "m48", "m49", "m50", "m51", "m52", "m53", "m54", "m55", "m56", "m57", "m58", "m59", "m60", "m61", "m62", "m63", "m64", "m65", "m66", "m67", "m68", "m69", "m70", "m71"];
     const S = {};
     for (const id of ids) {
         S[id] = await page.evaluate(readMega, id);
@@ -328,9 +328,19 @@ function readMega(id) {
         const kpi = await page.evaluate(() => [...document.querySelectorAll('#m68 text[data-pnl="mega-kpi"]')].map(t => t.textContent));
         check("m68 12G sheet notation: margins whole as the sheet (36%, 31%)", kpi.join(",") === "36%,31%", kpi.join(","));
     }
-    if (S.m69) {
+    if (S.m69 && S.m70 && S.m71) {
         const H = heads("m69");
-        check("m69 12H sheet notation with a period: the plan column heads \"PL 2026\"", H.includes("PL 2026") && !H.includes("PL"), H.join("|"));
+        check("m69 12H with an FY block in sheet notation: no block title, the plan column heads \"PL 2025\" (the year of the block)",
+            H.includes("PL 2025") && !H.includes("PL") && !H.some(h => /^FY/.test(h)), H.join("|"));
+        const H70 = heads("m70");
+        check("m70 T03A over a YTD block in sheet notation: no year in any head (the block is no full year)",
+            !H70.some(h => /20\d\d/.test(h)) && H70.includes("AC") && H70.includes("PL"), H70.join("|"));
+        const k71 = await page.evaluate(() => [...document.querySelectorAll('#m71 text[data-pnl="mega-kpi"]')].map(t => t.textContent));
+        check("m71 12G sheet notation with Δ% decimals set by hand: the margins keep a decimal again (36.00%)",
+            k71.length === 2 && k71.every(t => /\.\d+%$/.test(t)), k71.join(","));
+        const pp68 = await page.evaluate(() => [...document.querySelectorAll('#m68 text[data-pnl="mega-pp"]')].map(t => t.textContent));
+        check("m68 whole-number sheet margins keep one decimal on their pp (−5.2 pp, never −5 pp)",
+            pp68.length === 1 && /5\.2/.test(pp68[0]), pp68.join(","));
     }
     // ---- 1.8.2 sheet options ------------------------------------------------------------------
     if (S.m61 && S.m27) {

@@ -555,8 +555,8 @@ export class NumbersCardSettings extends FormattingSettingsCard {
     pctDecimals = numUpDown("pctDecimals", "Numbers_PctDecimals", "Decimals (Δ%)",
         "Decimal places of Δ% and margins. Default: 1", 1, 0, 2);
     // 1.8 (B14) notation details of the reference sheets
-    sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "\u0394% decimals as in the reference sheet",
-        "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Since 1.8.3 also the sheet heads: 12G without the FY title, with “YTD” and “Year” and whole-number margins; the plan column of a single block names its year (“PL 2026”, 12H). Default: off", false);
+    sheetPctDecimals = toggle("sheetPctDecimals", "Numbers_SheetPctDecimals", "Notation as in the reference sheet",
+        "Applying a template writes the Δ% decimals of its reference sheet (T03 and the 12 series whole numbers, T04B to T04E two decimals) instead of one decimal for every template. Since 1.8.3 also the sheet heads: a stacked FY cascade reads “YTD” and “Year” (12G), a single FY block carries its year in the minuend's head instead of a title (“PL 2026”), 12G margins whole while the template's Δ% decimals stand. Default: off", false);
     ppUnit = dropdown("ppUnit", "Numbers_PpUnit", "Unit of margin Δ",
         "Δ of margins: percentage points as “pp” or “%p” (as in the IBCS sheets T03). The margins themselves stay in %. Default: pp", ppUnitItems);
     marginRel = toggle("marginRel", "Numbers_MarginRel", "Relative change of margins (Δ%)",

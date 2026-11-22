@@ -207,7 +207,7 @@ export interface MegaBlock {
     alias?: Partial<Record<MegaScen, string>>;
     /** show the block title even for a single statement block (month only, FY outlook) */
     titled?: boolean;
-    /** 1.8.3 year of the block's period ("2026"), for the sheet's "PL 2026" head */
+    /** 1.8.3 year of an FY block ("2026"), for the sheet notation's "PL 2026" head */
     year?: string;
     /**
      * 12G (1.1): the year-to-date share of the minuend's value (display units).
@@ -307,9 +307,9 @@ export interface MegaInput {
     /** 1.8.2 columns.highlightStyle ellipse / both with rows to highlight: the Δ labels keep room for the ring */
     ellipseRoom?: boolean;
     /**
-     * 1.8.3 notation of the reference sheet (numbers.sheetPctDecimals): a single FY
-     * block drops its title and heads its stacked cascade "YTD" / "Year" (12G), the
-     * minuend of a single untitled block names its year ("PL 2026", 12H)
+     * 1.8.3 notation of the reference sheet (numbers.sheetPctDecimals): a stacked FY
+     * cascade heads "YTD" / "Year" (12G); a single FY block moves its title into the
+     * minuend's head ("PL 2026" as 12H, "AC&FC 2025")
      */
     sheetNotation?: boolean;
     /** 1.8.3 head of the year end of a stacked FY cascade in sheet notation ("Year") */
@@ -610,6 +610,9 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
     const zp = !!opts.zeroPlain;
     // 1.8 (B14) decimals of margins and their pp (default: the Δ% decimals)
     const md = opts.mdec ?? pdec;
+    // 1.8.3 a point difference keeps one decimal under whole-number sheet margins (12G "36%",
+    // its Δ "−5.2 pp", never "+0 pp" for +0.4); without sheet margins exactly as before
+    const ppd = opts.mdec != null ? Math.max(1, md) : md;
     // 1.5.2: a Δ that is not zero but rounds to zero keeps its sign ("+0,00",
     // "−0,0") — beside a pin or bar that visibly points one way an unsigned
     // "0,00" read like "no deviation". An exact zero (below float noise) stays "0".
@@ -638,7 +641,7 @@ export function megaFmt(num: (abs: number, dec: number) => string, dec: number, 
         // Δ% read like two different kinds of number); the point difference reads
         // "pp" (percentage points), not "%p"
         margin: m => fs(m * 100, md, false, "%"),
-        pp: x => fs(x, md, true, ppU),
+        pp: x => fs(x, ppd, true, ppU),
         // relative change of a ratio — no longer printed in the table (a Δ% of a
         // margin is a percentage of a percentage), kept for callers
         rel: p => fs(p * 100, 0, true, "%"),
@@ -1033,11 +1036,13 @@ export function layoutMega(input: MegaInput): MegaLayout {
         if (c.type === "vwf" && c.scen === t.min && blocks[c.block]?.ytd) { c.stack = true; }
     }
     const anyChart = cols.some(megaIsChart);
+    // 1.8.3 sheet notation over a single FY block (12G, 12H): no block title, the year moves into the head
+    const sheetFy = !!input.sheetNotation && nb === 1 && blocks[0].year != null;
     const style = {
         signs: input.statement,
-        // 1.8.3 sheet notation: a single FY outlook block carries no title (12G heads "YTD" / "Year")
+        // 1.8.3 sheet notation: a single FY block carries its year in the minuend's head instead
         blockTitles: (!input.statement || nb === 2 || blocks.some(b => b.titled)) && blocks.some(b => b.name !== "")
-            && !(input.sheetNotation && nb === 1 && blocks[0].ytd != null),
+            && !sheetFy,
         pairHeader: input.statement,
         closing: t.marks && input.statement && !anyChart,
         thresholds: t.thresholds && cols.some(c => c.type === "delta" || c.type === "dpct"),
@@ -1104,10 +1109,10 @@ export function layoutMega(input: MegaInput): MegaLayout {
         let s = c.type === "value" || c.type === "vwf" ? (blk?.alias?.[c.scen!] ?? c.scen!)
             : c.type === "share" ? (input.shareHead ?? "%")
                 : c.type === "dpct" || c.type === "pin" ? "Δ" + c.ref + "%" : c.type === "label" ? "" : "Δ" + c.ref;
-        // 1.8.3 sheet notation (12H "PL 2026"): the minuend of a single block without a
-        // title names the block's year
-        if (input.sheetNotation && nb === 1 && !blk?.titled && blk?.year && !c.stack
-            && (c.type === "value" || c.type === "vwf") && c.scen === t.min) { s += " " + blk.year; }
+        // 1.8.3 sheet notation: a stacked FY cascade ends in "Year" (12G "YTD … Year"); the
+        // minuend of a single FY block carries the year its title no longer shows ("PL 2026")
+        if (c.stack && input.sheetNotation && (input.ytdHead ?? "YTD") !== "") { s = input.yearHead ?? "Year"; }
+        else if (sheetFy && blk?.year && (c.type === "value" || c.type === "vwf") && c.scen === t.min) { s += " " + blk.year; }
         if (sortInfo && c === sortCol) { s += "(↓)"; }
         if (sortInfo && !sortCol && c.type === "label") {
             const key = t.sort === "min" ? (blocks[sortInfo.block]?.alias?.[t.min] ?? t.min)
@@ -1122,8 +1127,6 @@ export function layoutMega(input: MegaInput): MegaLayout {
     for (const c of cols) {
         c.head = headerText(c);
         if (c.stack) { c.head2 = input.relabel ? input.relabel(input.ytdHead ?? "YTD") : (input.ytdHead ?? "YTD"); }
-        // 1.8.3 sheet notation (12G): the stacked cascade ends in "Year" instead of "AC&FC"
-        if (c.stack && input.sheetNotation && c.head2 !== "") { c.head = input.yearHead ?? "Year"; }
         if (c.type === "label") {
             let w = 0;
             for (const r of rows) {
