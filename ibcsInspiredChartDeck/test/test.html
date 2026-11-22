@@ -9885,6 +9885,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     check(/max 25\)/.test(title), `c959: Titel ${title}`);
   }
 
+  // 1.57 (B24): Helfer für die Spalten-Tests (c555 ff.) nach dem B19-Block
+  window.__b19 = { b19Dv, c24, d10G, axes10E, pies, totals, sQ, sSvg, num };
+
   // kein NaN, undefined oder Infinity in den B19-Stufen
   {
     const ids = [...document.querySelectorAll(".stage")].map(s => s.id).filter(id => /^c9[3-5]\d[a-z]?$/.test(id));
@@ -9893,6 +9896,164 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 }
 // ---- B19-END
+
+// ======================================================================
+// 1.57 (B24, IBCS-Blatt 10G): feste Spaltenzahl der Small Multiples (chart.multiplesColumns)
+// ======================================================================
+{
+  const { b19Dv, c24, d10G, axes10E, pies, totals, sQ, sSvg, num } = window.__b19;
+  // Kachelköpfe (Zoom-Knopf mit ⤢): Position und Breite je Kachel
+  const heads = id => nbQ(id, 'g[role="button"]').filter(g => [...g.querySelectorAll("text")].some(t => t.textContent === "⤢"))
+    .map(g => { const r = g.querySelector("rect"); return { x: Math.round(nbAttr(r, "x") - 1), y: Math.round(nbAttr(r, "y") - 1), w: Math.round(nbAttr(r, "width") + 2), t: g.querySelector("text").textContent }; });
+  const grid = id => nbQ(id, '[data-icd="mult-grid"]')[0] || null;
+  const gAt = (id, a) => { const g = grid(id); return g ? +g.getAttribute(a) : null; };
+  // px je Einheit der AC-Säule je Kachel (Raster ohne große Kachel; Werte aus dem aria-label)
+  const tileK = id => {
+    const out = {};
+    avgTiles(id).forEach(t => {
+      const key = t.getAttribute("data-kind") === "group" ? t.getAttribute("data-group") : t.getAttribute("data-kind");
+      let best = null;
+      avgCats(id, key).forEach(g => {
+        const v = hbNum((g.getAttribute("aria-label") || "").split(", ")[1]), b = avgAcBar(g);
+        if (b && isFinite(v) && v > 0 && (!best || v > best.v)) { best = { v, px: nbAttr(b, "height") }; }
+      });
+      if (best) { out[key] = best.px / best.v; }
+    });
+    return out;
+  };
+
+  // ---- c555: Blatt 10G · 24 Länder als 4 Zeilen × 6 Spalten auf Full HD
+  addStage("c555", "B24 · 10G-Rezept: 24 Länder mit „Spalten“ 6 = 4 Zeilen × 6 Spalten auf 1920 × 1080, Radius 50, gemeinsame Skala", 1920, 1080);
+  addStage("c555b", "B24 · „Spalten“ 0 = automatisch: SVG-gleich mit c937 (5 × 5)", 1920, 1080);
+  {
+    const W = 1920, H = 1080;
+    runCap("c555", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 50, multiplesColumns: 6 }), { data: d10G, objs: axes10E }), W, H);
+    const hs = heads("c555"), xs = [...new Set(hs.map(h => h.x))], ys = [...new Set(hs.map(h => h.y))];
+    check(gAt("c555", "data-cols") === 6 && gAt("c555", "data-rows") === 4 && hs.length === 24 && xs.length === 6 && ys.length === 4
+      && hs.every(h => h.w === 320) && hs[0].t === "Germany" && hs[5].t === "Rest of Europe" && hs[6].t === "USA" && hs[23].t === "Rest of World",
+      `c555: 24 Kacheln als 6 Spalten × 4 Zeilen wie 10G (${xs.length} × ${ys.length}, Breite ${hs[0] && hs[0].w}, Zeile 2 beginnt mit ${hs[6] && hs[6].t})`);
+    const circ = [...sQ("c555", '[data-icd="scatter-pie-rim"]'), ...totals("c555").map(t => t.querySelector("circle"))];
+    const out = circ.filter(c => num(c, "cx") - num(c, "r") < -0.5 || num(c, "cx") + num(c, "r") > W + 0.5
+      || num(c, "cy") - num(c, "r") < -0.5 || num(c, "cy") + num(c, "r") > H + 0.5);
+    check(totals("c555").length === 24 && out.length === 0, `c555: 24 Gesamtblasen, keine außerhalb des Visuals (${out.length} außen)`);
+    // gemeinsame Größenskala: gleiche Volumen, gleiche Radien in allen Kacheln
+    const rBy = new Map();
+    let same = true, nCmp = 0;
+    for (const p of pies("c555")) {
+      const v = p.closest("g.icd-cat").querySelector('[data-icd="scatter-value"]');
+      const r = num(p.querySelector('[data-icd="scatter-pie-rim"]'), "r");
+      if (!v) { continue; }
+      if (rBy.has(v.textContent)) { nCmp++; if (Math.abs(rBy.get(v.textContent) - r) > 0.01) { same = false; } }
+      rBy.set(v.textContent, r);
+    }
+    const rMax = Math.max(...circ.map(c => num(c, "r")));
+    check(same && nCmp > 5 && rMax > 40, `c555: gleiche Werte, gleiche Radien (${nCmp} Vergleiche), größte Blase ${rMax.toFixed(1)} px`);
+    runCap("c555b", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 40, multiplesColumns: 0 }), { data: d10G, objs: axes10E }), W, H);
+    check(sSvg("c555b") === sSvg("c937") && !grid("c555b"), "c555b: Spalten 0 zeichnet SVG-gleich wie ohne Einstellung (c937)");
+  }
+
+  // ---- c556: große Kachel (13B) mit fester Spaltenzahl
+  addStage("c556", "B24 · 13B mit „Spalten“ 5: Berlin über zwei Zeilen, 5 × 4, gleiche px je Einheit", 1280, 720);
+  {
+    runCap("c556", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesColumns: 5 }), hbObjs), 1280, 720);
+    nbSane("c556");
+    const h = hbHero("c556"), ms = hbMarks("c556");
+    const cols = Math.max(...ms.map(m => +m.getAttribute("data-col") + +m.getAttribute("data-cols")));
+    const tot = ms.find(m => m.getAttribute("data-kind") === "total");
+    check(ms.length === 15 && !!h && h.getAttribute("data-group") === "Berlin" && h.getAttribute("data-rows") === "2" && cols === 5
+      && gAt("c556", "data-cols") === 5 && gAt("c556", "data-rows") === 4 && grid("c556").getAttribute("data-span") === "1"
+      && tot.getAttribute("data-col") === "4" && tot.getAttribute("data-row") === "3",
+      `c556: 5 Spalten × 4 Zeilen, Berlin groß in Spalte ${h && +h.getAttribute("data-col") + 1}, Ø unten rechts`);
+    const ind = hbIndepOk("c556", "main"), px = hbPx("c556");
+    check(ind.ok && px.length === 15 && hbSpread(px) < 0.002, `c556: gleiche px je Einheit in großer und kleinen Kacheln (${ind.txt})`);
+  }
+
+  // ---- c557: Balken mit großer Kachel über zwei Spalten: „Spalten“ 1 ist unmöglich und wird 2
+  addStage("c557", "B24 · Balken, C groß über zwei Spalten, „Spalten“ 1 → 2 Spalten", 960, 720);
+  addStage("c557b", "B24 · Säulen, C groß über zwei Zeilen, „Spalten“ 1 bleibt 1 Spalte", 960, 720);
+  {
+    runCap("c557", avgDv(avgABC, { orientation: "bars", multiplesHeroTile: "C", multiplesColumns: 1, showAbsoluteVariance: false, showRelativeVariance: false }), 960, 720);
+    nbSane("c557");
+    const h = hbHero("c557"), px = hbPx("c557");
+    check(!!h && h.getAttribute("data-group") === "C" && h.getAttribute("data-cols") === "2" && gAt("c557", "data-cols") === 2
+      && gAt("c557", "data-fixed") === 1 && px.length === 4 && hbSpread(px) < 0.003,
+      `c557: Balken fallen auf 2 Spalten zurück, C über beide, gleiche px je Einheit (${px.map(v => v.toFixed(3)).join(" / ")})`);
+    runCap("c557b", avgDv(avgABC, { multiplesHeroTile: "C", multiplesColumns: 1, showAbsoluteVariance: false, showRelativeVariance: false }), 960, 720);
+    nbSane("c557b");
+    const h2 = hbHero("c557b"), px2 = hbPx("c557b");
+    check(!!h2 && h2.getAttribute("data-rows") === "2" && gAt("c557b", "data-cols") === 1 && gAt("c557b", "data-rows") === 5
+      && hbMarks("c557b").every(m => m.getAttribute("data-col") === "0") && px2.length === 4 && hbSpread(px2) < 0.003,
+      `c557b: Säulen in 1 Spalte × 5 Zeilen, C über zwei Zeilen (${px2.map(v => v.toFixed(3)).join(" / ")})`);
+  }
+
+  // ---- c558: zu hohe Spaltenzahl wird auf die Zahl der Kacheln begrenzt (mit und ohne große Kachel)
+  addStage("c558", "B24 · „Spalten“ 9 bei 4 Kacheln: eine Zeile mit 4 Spalten, gleiche Skala", 1280, 420);
+  addStage("c558b", "B24 · „Spalten“ 40 bei 15 Kacheln mit großer Kachel Berlin: 15 Spalten × 2 Zeilen", 1920, 720);
+  {
+    runCap("c558", avgDv(avgABC, { multiplesTotalShade: true, multiplesColumns: 9, showAbsoluteVariance: false, showRelativeVariance: false }), 1280, 420);
+    nbSane("c558");
+    const ts = avgTiles("c558"), k = Object.values(tileK("c558"));
+    check(gAt("c558", "data-cols") === 4 && gAt("c558", "data-rows") === 1 && ts.length === 4 && ts.every(t => t.getAttribute("data-y") === ts[0].getAttribute("data-y"))
+      && k.length === 4 && hbSpread(k) < 0.006, `c558: 4 Spalten × 1 Zeile, Säulen / Wert gleich (${k.map(v => v.toFixed(3)).join(" / ")})`);
+    runCap("c558b", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesColumns: 40 }), hbObjs), 1920, 720);
+    nbSane("c558b");
+    const h = hbHero("c558b"), px = hbPx("c558b");
+    check(!!h && gAt("c558b", "data-cols") === 15 && gAt("c558b", "data-rows") === 2 && h.getAttribute("data-rows") === "2"
+      && px.length === 15 && hbSpread(px) < 0.002, `c558b: 15 Spalten × 2 Zeilen, Berlin über beide Zeilen, gleiche px je Einheit`);
+  }
+
+  // ---- c559: zu niedrige Spaltenzahl: 1 = eine Spalte, negativ = automatisch (SVG-gleich)
+  addStage("c559", "B24 · „Spalten“ 1: 4 Kacheln untereinander, gleiche Skala", 960, 900);
+  addStage("c559b", "B24 · „Spalten“ −3 = automatisch, SVG-gleich mit c559c", 960, 520);
+  addStage("c559c", "B24 · Referenz ohne Einstellung", 960, 520);
+  {
+    runCap("c559", avgDv(avgABC, { multiplesTotalShade: true, multiplesColumns: 1, showAbsoluteVariance: false, showRelativeVariance: false }), 960, 900);
+    nbSane("c559");
+    const ts = avgTiles("c559"), k = Object.values(tileK("c559"));
+    check(gAt("c559", "data-cols") === 1 && gAt("c559", "data-rows") === 4 && ts.every(t => t.getAttribute("data-x") === "0")
+      && k.length === 4 && hbSpread(k) < 0.006, `c559: 1 Spalte × 4 Zeilen, Säulen / Wert gleich (${k.map(v => v.toFixed(3)).join(" / ")})`);
+    runCap("c559b", avgDv(avgABC, { multiplesTotalShade: true, multiplesColumns: -3 }), 960, 520);
+    runCap("c559c", avgDv(avgABC, { multiplesTotalShade: true }), 960, 520);
+    check(voSvg("c559b") === voSvg("c559c") && !grid("c559b"), "c559b: negative Spaltenzahl = automatisch, SVG-gleich");
+  }
+
+  // ---- c560: Bezugskachel zuletzt, Top N mit Rest-Kachel und „Erste Kachel groß“ mit fester Spaltenzahl
+  addStage("c560", "B24 · Top 5 + Rest + Ø zuletzt mit „Spalten“ 2: 2 × 4, Ø unten links, gleiche Skala", 960, 900);
+  addStage("c560b", "B24 · Σ zuerst mit „Erste Kachel groß“ und „Spalten“ 1: das Raster rechts in einer Spalte", 960, 720);
+  {
+    runCap("c560", avgDv(hb13, hb13Chart({ multiplesTopN: 5, multiplesColumns: 2 }), hbObjs), 960, 900);
+    nbSane("c560");
+    const ts = avgTiles("c560"), tot = avgTile("c560", "total"), rest = avgTile("c560", "rest"), k = tileK("c560");
+    check(gAt("c560", "data-cols") === 2 && gAt("c560", "data-rows") === 4 && ts.length === 7 && tot === ts[6] && tot.getAttribute("data-x") === "0"
+      && +tot.getAttribute("data-y") > +ts[5].getAttribute("data-y") && !!rest && ts.every(t => t.getAttribute("data-w") === "480"),
+      `c560: 7 Kacheln in 2 Spalten, Ø zuletzt unten links, Rest-Kachel dabei`);
+    check(Object.keys(k).length === 7 && hbSpread(Object.values(k)) < 0.006, `c560: Säulen / Wert gleich in allen 7 Kacheln, auch Rest und Ø (${Object.values(k).map(v => v.toFixed(3)).join(" / ")})`);
+    runCap("c560b", avgDv(avgABC, { multiplesHero: true, multiplesTotalShade: true, multiplesColumns: 1, showAbsoluteVariance: false, showRelativeVariance: false }), 960, 720);
+    nbSane("c560b");
+    // die große erste Kachel hat mehr Platz bei gleicher Domain (CT 13); gleich sind die Kacheln im Raster
+    const t2 = avgTiles("c560b"), first = t2[0], others = t2.slice(1), kAll = tileK("c560b");
+    const k2 = others.map(t => kAll[t.getAttribute("data-group")]).filter(v => v != null);
+    check(gAt("c560b", "data-cols") === 1 && gAt("c560b", "data-rows") === 3 && first.getAttribute("data-kind") === "total" && first.getAttribute("data-x") === "0"
+      && others.length === 3 && others.every(t => t.getAttribute("data-x") === others[0].getAttribute("data-x") && +t.getAttribute("data-x") > 0)
+      && k2.length === 3 && hbSpread(k2) < 0.006, `c560b: Σ links groß, 3 Kacheln rechts untereinander, gleiche Skala im Raster (${k2.map(v => v.toFixed(3)).join(" / ")})`);
+  }
+
+  // ---- c561: Zoom misst die Kachel in ihrer festen Rasterzelle
+  addStage("c561", "B24 · Zoom auf Köln bei „Spalten“ 3: Faktor gegen die Kachel im 3er-Raster", 1280, 720);
+  {
+    const dv = () => avgDv(hb13, hb13Chart({ multiplesColumns: 3 }), hbObjs);
+    const rs = runCap("c561", dv(), 1280, 720);
+    nbSane("c561");
+    const bar = () => nbAttr(avgAcBar(byCat(nbQ("c561", "g.icd-cat"), "2017")), "height");
+    const hGrid = nbAttr(avgAcBar(byCat(avgCats("c561", "Köln"), "2017")), "height"), rowsGrid = gAt("c561", "data-rows");
+    rs.v.zoomGroup = "Köln"; rs.upd(dv());
+    const hZoom = bar(), chip = nbQ("c561", '[data-icd="zoom-scale"]')[0];
+    rs.v.zoomGroup = null; rs.upd(dv());
+    check(rowsGrid === 5 && !!chip && Math.abs(+chip.getAttribute("data-factor") / (hZoom / hGrid) - 1) < 0.01,
+      `c561: 3 × 5 Raster, Zoom-Faktor ${chip && chip.getAttribute("data-factor")} = ${(hZoom / hGrid).toFixed(3)} (Säule ${hGrid.toFixed(1)} → ${hZoom.toFixed(1)} px)`);
+  }
+}
+// ---- B24-END
 </script>
 </body>
 </html>

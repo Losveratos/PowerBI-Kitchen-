@@ -863,6 +863,20 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         }
     });
 
+    // 1.57 (B24, IBCS sheet 10G): fixed column count of the tile grid
+    multiplesColumns = new formattingSettings.NumUpDown({
+        name: "multiplesColumns",
+        displayName: "Columns",
+        displayNameKey: "Chart_MultiplesColumns",
+        description: "Feste Spaltenzahl des Kachelrasters, z. B. 6 für 24 Kacheln in 4 Zeilen wie auf dem IBCS-Blatt 10G. 0 = automatisch (bisheriges Verhalten). Begrenzt auf 1 bis zur Zahl der Kacheln. Gilt in allen Kachel-Modi (auch Streu- und Blasendiagramm, Bezugs-, Rest- und Zoom-Kachel); neben „Erste Kachel groß“ für das Raster rechts davon. Mit einer großen Kachel (Gruppenname) zählt sie wie zwei Plätze; Balken brauchen dann mindestens 2 Spalten, eine 1 wird zu 2. Alle Kacheln behalten dieselbe Skala.",
+        descriptionKey: "Desc_Chart_MultiplesColumns",
+        value: 0,
+        options: {
+            minValue: { type: 0 /* ValidatorType.Min */, value: 0 },
+            maxValue: { type: 1 /* ValidatorType.Max */, value: 24 }
+        }
+    });
+
     multiplesHero = new formattingSettings.ToggleSwitch({
         name: "multiplesHero",
         displayName: "First tile large",
@@ -968,7 +982,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "chartMultiples",
         displayName: "Small Multiples",
         displayNameKey: "Group_Multiples",
-        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesHero, this.multiplesHeroTile,
+        slices: [this.multiplesTotal, this.multiplesTopN, this.multiplesColumns, this.multiplesHero, this.multiplesHeroTile,
             this.multiplesSameScale, this.multiplesAgg, this.multiplesTotalPos,
             this.multiplesTotalShade, this.multiplesTotalLabel, this.multiplesRestLabel,
             this.multiplesBasis, this.varianceOnly]

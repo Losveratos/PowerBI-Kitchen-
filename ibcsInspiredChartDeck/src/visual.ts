@@ -2524,6 +2524,8 @@ export class Visual implements IVisual {
         fs.chartCard.multiplesGroup.visible = this.paneHasMultiples;
         fs.chartCard.multiplesTotal.visible = !isScatter;
         fs.chartCard.multiplesTopN.visible = !isScatter;
+        // 1.57 (B24): the column count works in every tile mode, scatter included
+        fs.chartCard.multiplesColumns.visible = this.paneHasMultiples;
         fs.chartCard.multiplesSameScale.visible = !isScatter;
         // 1.57 (B13 part 1b): the named large tile only where it works (columns, bars
         // and line without stack, bridge and series lines)
@@ -7866,6 +7868,17 @@ export class Visual implements IVisual {
         const rn = rest.length;
         let cols = Math.ceil(Math.sqrt(rn));
         cols = Math.max(1, Math.min(cols, Math.floor(gridW / 220) || 1));
+        // 1.57 (B24, IBCS sheet 10G): a fixed column count replaces the automatic one
+        // (clamped to 1..tiles; beside "First tile large" it counts the grid beside it)
+        const mColsFix = this.multColumnsFixed(s);
+        if (mColsFix > 0) { cols = Math.max(1, Math.min(mColsFix, rn)); }
+        // test marker (only with a fixed count, so automatic decks keep their SVG)
+        if (mColsFix > 0) {
+            const gc = span ? Math.max(...span.tiles.map(t => t.col + t.cols)) : cols;
+            const gr = span ? Math.max(...span.tiles.map(t => t.row + t.rows)) : Math.ceil(rn / cols);
+            this.el("g", { "data-icd": "mult-grid", "data-cols": gc, "data-rows": gr, "data-fixed": mColsFix,
+                "data-span": span ? "1" : "0" }, this.svg);
+        }
         const rows = Math.ceil(rn / cols);
         const cellW = gridW / cols;
         const cellH = availH / rows;
@@ -8005,6 +8018,12 @@ export class Visual implements IVisual {
      * zero lines of both rows line up (review m4). A final dry run of both sides checks
      * every panel they both draw; any difference above 0.1 % returns null.
      */
+    /** 1.57 (B24): fixed column count of the tile grid, 0 = automatic */
+    private multColumnsFixed(s: VisualFormattingSettingsModel): number {
+        const v = Math.round(Number(s.chartCard.multiplesColumns.value ?? 0));
+        return isFinite(v) && v > 0 ? v : 0;
+    }
+
     private heroSpanLayout<G extends { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" }>(
         s: VisualFormattingSettingsModel, shown: G[], width: number, availH: number, top: number, titleH: number,
         modeOk: boolean, orient: string, totalLast: boolean, cfg: ChartConfig, groups: G[],
@@ -8036,11 +8055,19 @@ export class Visual implements IVisual {
         const maxC = Math.max(1, Math.floor(width / 220) || 1);
         const oldC = Math.max(1, Math.min(Math.ceil(Math.sqrt(slots)), maxC));
         let pick: { c: number; r: number; score: number[] } | null = null;
-        for (let c = 1; c <= Math.min(maxC, slots); c++) {
+        // 1.57 (B24): a fixed column count (chart.multiplesColumns) is the only candidate,
+        // the picker never overrides it. The large tile counts as two slots; clamped to
+        // 1..tiles, which leaves two rows for columns and line. Bars span two columns,
+        // so a fixed 1 becomes 2. Aspect and cell width do not apply (the author's
+        // choice); a Δ-only deck whose cells are then too small keeps the legacy grid.
+        const fixC = this.multColumnsFixed(s);
+        const cFrom = fixC > 0 ? Math.max(spanCols ? 2 : 1, Math.min(fixC, n)) : 1;
+        const cTo = fixC > 0 ? cFrom : Math.min(maxC, slots);
+        for (let c = cFrom; c <= cTo; c++) {
             const r = Math.ceil(slots / c);
             if (spanCols ? c < 2 : r < 2) { continue; }
             const aspect = (width / c) / (availH / r);
-            if (c !== oldC && (aspect < 0.5 || aspect > 4)) { continue; }
+            if (fixC <= 0 && c !== oldC && (aspect < 0.5 || aspect > 4)) { continue; }
             // a Δ-only deck needs regular tiles that draw just their Δ (renderChartBody)
             if (vo && (orient === "bars" ? width / c - 4 < 240 : availH / r - titleH - 2 < 110)) { continue; }
             const score = [r * c - slots, Math.abs(c - oldC), -c];
