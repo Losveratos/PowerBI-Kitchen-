@@ -941,6 +941,7 @@
   "Hub_TplT_C25": "Marimekko",
   "Hub_TplU_C25": "Mix per country, thickness = sales",
   "Hint_MekkoTooManyRows": "Marimekko: too many rows for the minimum thickness, try Top N",
+  "Title_StackMekko": "values · length = share, thickness = total",
   "Chart_ScatterPath": "Time path",
   "Desc_Chart_ScatterPath": "Connects the points of each unit (field “Stack series”; without a series one single path) in the order of the category, which is the period here (e.g. years 2017 to 2025), with a thin line in the unit's colour, as in the IBCS sheets 07D and 07E. The unit name stands at the end point, the legend is dropped. Where X or Y is missing in a period the path breaks; forecast periods are dashed and hollow. Turns off the movement arrows and the prior-year bubbles. With the play button the path grows up to the shown period. Default off.",
   "Enum_ScatterPath_Off": "Off",

@@ -941,6 +941,7 @@
   "Hub_TplT_C25": "Marimekko",
   "Hub_TplU_C25": "Mix je Land, Dicke = Umsatz",
   "Hint_MekkoTooManyRows": "Marimekko: zu viele Zeilen für die Mindestdicke, Top N hilft",
+  "Title_StackMekko": "Werte · Länge = Anteil, Dicke = Summe",
   "Chart_ScatterPath": "Zeitpfad",
   "Desc_Chart_ScatterPath": "Verbindet je Einheit (Feld „Stack-Serie“, ohne Serie ein einziger Pfad) die Punkte in der Reihenfolge der Kategorie, die hier die Periode ist (z. B. Jahre 2017 bis 2025), mit einer dünnen Linie in der Farbe der Einheit, wie in den IBCS-Blättern 07D und 07E. Der Name der Einheit steht am Endpunkt, die Legende entfällt. Fehlt X oder Y in einer Periode, bricht der Pfad dort; Prognose-Perioden sind gestrichelt und hohl. Schaltet die Bewegungspfeile und die Vorjahres-Blasen ab. Mit Play-Button wächst der Pfad bis zur gezeigten Periode. Standard aus.",
   "Enum_ScatterPath_Off": "Aus",
