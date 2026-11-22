@@ -729,6 +729,11 @@ export interface MegaCol {
     baseInner?: number;
     /** 1.5.1: margin rows whose point difference is printed at the axis of this Δ bar / waterfall column */
     ppRows?: { r: MegaRow; D: MegaDelta }[];
+    /**
+     * 1.8.2 value cascade (12G): margin rows print their value in italics, right-aligned
+     * in front of the cascade level they sit at ("36%" under the operating result)
+     */
+    kpiRows?: { r: MegaRow; t: string; level: number }[];
     kSelf?: number;
     k?: number;
     x0?: number;
@@ -1197,6 +1202,19 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 const v = blk.value(r, c.scen!);
                 return v == null ? null : v * megaEff(r);
             });
+            // 1.8.2 (sheet 12G) a margin row (columns.showPctRows) carries its value in
+            // the cascade column, at the level the run has reached above it
+            if (t.labels) {
+                let level = 0;
+                for (const { r } of R) {
+                    const seg = c.casc.get(r.id);
+                    if (seg) { level = seg.e; continue; }
+                    if (r.kind !== "pct") { continue; }
+                    const v = blk.value(r, c.scen!);
+                    if (v == null || !isFinite(v)) { continue; }
+                    (c.kpiRows = c.kpiRows ?? []).push({ r, t: kpiVal(r, v), level });
+                }
+            }
             continue;
         }
         for (const { r } of R) {
@@ -1249,6 +1267,10 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 const yv = c.stack && blk0(c).ytd ? blk0(c).ytd!(r) : null;
                 const yw = yv != null && isFinite(yv) ? lblW(fmt.val(yv), megaIsBold(r)) : 0;
                 c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? yw : lw, c: up ? lw : yw });
+            }
+            // 1.8.2 room for the margin values in front of their level
+            for (const k of c.kpiRows ?? []) {
+                c.els!.push({ p: k.level, q: k.level, a: tw(k.t, G.fsSmall, false, true) + G.lblGap, c: 0 });
             }
             phantom(c);
             continue;
@@ -1808,6 +1830,18 @@ function paintChartColumn(
             anchor: up ? "start" : "end", italic: true, fs: G.fsSmall, parent: g,
             color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
         }).setAttribute("data-pnl", "mega-pp");
+    }
+    // 1.8.2 (sheet 12G) the margin value of a value cascade, in italics in front of its level
+    for (const k of c.kpiRows ?? []) {
+        const i = R.findIndex(x => x.r === k.r);
+        if (i < 0 || (win && (i < win.from || i >= win.to))) { continue; }
+        const { y, h: rh } = R[i];
+        const px = X(k.level) - G.lblGap;
+        const py = base(y, rh, G.fsSmall);
+        const pw = input.measure(k.t, G.fsSmall, false, true);
+        avoid.push({ x0: px - pw, x1: px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
+        text(B, px, py, k.t, { anchor: "end", italic: true, fs: G.fsSmall, parent: g, color: MEGA_C.text })
+            .setAttribute("data-pnl", "mega-kpi");
     }
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)

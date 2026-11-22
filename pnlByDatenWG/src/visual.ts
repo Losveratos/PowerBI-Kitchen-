@@ -7670,6 +7670,9 @@ export class Visual implements IVisual {
         const series = this.treeSeries(node);
         const slots = series.slots;
         if (slots.length === 0) { this.treeHint(g, box, s, "–"); return; }
+        // 1.8.2 every period labelled (11A): the card's chevron would cover the last
+        // label, so the chart keeps clear of it
+        if (series.all && rightInset > 0) { box = { ...box, w: box.w - rightInset }; rightInset = 0; }
         const isRatio = node.row.rowType === "kpi";
         const lfs = 7.5 * s;
         let min = 0; let max = 0;
@@ -7769,6 +7772,21 @@ export class Visual implements IVisual {
         axis.setAttribute("y1", zeroY.toFixed(2)); axis.setAttribute("y2", zeroY.toFixed(2));
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         g.appendChild(axis);
+        // 1.8.2 every period labelled (11A): a thin line separates the actual periods
+        // from the plan-only ones, from half the chart height down through the tags
+        if (series.all) {
+            const k = slots.findIndex((sl, i) => i > 0 && sl.v == null && sl.ref != null && slots[i - 1].v != null);
+            if (k > 0) {
+                const sx = box.x + k * slotW;
+                const sep = document.createElementNS(ns, "line");
+                sep.setAttribute("x1", sx.toFixed(2)); sep.setAttribute("x2", sx.toFixed(2));
+                sep.setAttribute("y1", (zeroY - (zeroY - top) * 0.5).toFixed(2));
+                sep.setAttribute("y2", (box.y + box.h + 8 * s + 7 * s * 1.05).toFixed(2));
+                sep.setAttribute("stroke", C.ac); sep.setAttribute("stroke-width", "0.8");
+                sep.setAttribute("data-pnl", "tree-scen-sep");
+                g.appendChild(sep);
+            }
+        }
 
         this.treeTags(g, slots.map(sl => sl.tag), box, slotW, s, rightInset, !!series.all);
     }

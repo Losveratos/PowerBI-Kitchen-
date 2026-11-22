@@ -301,6 +301,13 @@ function readMega(id) {
         check("m55 T02C as stored before 1.8 (keepBlockOrder absent): blocks sorted by their Δ as in 1.5.2 (Americas −17 before Europe −36)",
             blockOrder("m55") === "Americas,Europe,Rest of World", blockOrder("m55"));
     }
+    // ---- 1.8.3 (sheet 12G) margin values in the value cascades ---------------------------------
+    if (S.m27) {
+        const kpi = await page.evaluate(() => [...document.querySelectorAll('#m27 text[data-pnl="mega-kpi"]')]
+            .map(t => ({ t: t.textContent, it: t.getAttribute("font-style") === "italic" })));
+        check("m27 12G Gross margin in the value cascades: 36.0% (PY) and 30.8% (AC&FC), italic, as the sheet",
+            kpi.length === 2 && kpi.every(k => k.it) && kpi.map(k => k.t).join(",") === "36.0%,30.8%", JSON.stringify(kpi));
+    }
     // ---- 1.8.2 sheet options ------------------------------------------------------------------
     if (S.m61 && S.m27) {
         const E = S.m61.charts.flatMap(c => c.ellipses);
@@ -365,6 +372,18 @@ function readMega(id) {
         check("t11c 1.8.1 Net sales once (shared operand of return on sales and capital turnover, as the sheet)", net === 1, String(net));
         check("t11c 1.8.1 ratios drawn as \":\" (no \"÷\" on the cards)", c.includes(":") && !c.includes("÷"));
         check("t11c a year axis gets no year prefix in the period line (no \"2021 2021\")", !c.some(t => /2021 2021/.test(t)), c.slice(0, 6).join(" | "));
+        // 1.8.3 (sheet 11A) a line between the actual and the plan periods on every card,
+        // and the last year tag stays clear of the card's chevron
+        const geo = await page.evaluate(() => {
+            const st = document.getElementById("t11c");
+            const seps = st.querySelectorAll('[data-pnl="tree-scen-sep"]').length;
+            const tags = [...st.querySelectorAll("svg text")].filter(t => t.textContent === "2027").map(t => t.getBBox());
+            const chev = [...st.querySelectorAll("svg text, svg path")].filter(e => /^[▾▸]$/.test(e.textContent)).map(e => e.getBBox());
+            const hit = tags.some(b => chev.some(c => b.x < c.x + c.width && c.x < b.x + b.width && b.y < c.y + c.height && c.y < b.y + b.height));
+            return { seps, tags: tags.length, chev: chev.length, hit };
+        });
+        check("t11c 1.8.3 AC | PL separator on all six cards, every 2027 tag in full and clear of the chevron (sheet 11A)",
+            geo.seps === 6 && geo.tags === 6 && !geo.hit, JSON.stringify(geo));
         check("t11b without the token the turnover reads as before 1.8 (130.0%)", b.includes("130.0%") || b.includes("129.9%"), b.filter(t => /%/.test(t)).join(" "));
     }
     // ---- T02F: FC vs PL --------------------------------------------------------
@@ -638,7 +657,7 @@ function readMega(id) {
             && S.m28.charts[1].bars.some(b => b.fill === "#F2F2F2"));
         check("m28 PL pins: outlined heads", S.m28.charts[3].rects.some(r => r.fill === "#FFFFFF" && r.stroke === "#404040"));
         check("m28 values PL vs PY: Group result +111, Licences +183", has("m28", "+111") && has("m28", "+183"));
-        check("m28 headline = the own message", pageInfo.m28.headline === "Compared to 2025 we plan a better group result for 2026 (+139 kEUR)");
+        check("m28 headline = the own message", pageInfo.m28.headline === "Compared to 2025 we plan a better group result for 2026 (+111 kEUR)");
         check("m28 legend PY + PL, no AC", /PY/.test(S.m28.legend) && /PL/.test(S.m28.legend) && !/AC actual/.test(S.m28.legend), S.m28.legend);
         check("headline off by default (m1, m15 have none)", pageInfo.m1.headline === null && pageInfo.m15.headline === null);
     }
