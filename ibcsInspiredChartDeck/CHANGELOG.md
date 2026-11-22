@@ -12,7 +12,7 @@
   - **Wo sie wirkt:** im Raster aller Kachel-Modi, Streu- und Blasenkacheln eingeschlossen, mit Bezugskachel (erste
     oder letzte), Rest-Kachel von „Top N Kacheln“ und im Zoom (der Faktor misst die Kachel in ihrer festen Zelle).
     Neben „Erste Kachel groß“ zählt sie das Raster rechts von der großen Kachel. Die feste Zahl gilt auch unterhalb von
-    220 px Zellbreite (Entscheidung des Autors).
+    220 px Zellbreite (Entscheidung des Autors), aber nicht unter 110 px (siehe „Nach dem Review“).
   - **Mit großer Kachel (Gruppenname, B13 Teil 1b):** die feste Zahl ist der einzige Kandidat, die Raster-Wahl
     (wenigste leere Plätze, Seitenverhältnis) übergeht sie nicht. Die große Kachel zählt wie zwei Plätze; mit der
     Begrenzung auf die Kachelzahl bleiben bei Säulen und Linie immer zwei Zeilen. Balken reichen über zwei Spalten, eine
@@ -26,9 +26,28 @@
     und zu niedrige Zahlen (1, negativ = automatisch), Top N mit Rest und Bezugskachel zuletzt, „Erste Kachel groß“,
     Zoom. Rezept 10G jetzt: 1920 × 1080, `multiplesColumns=6`, `scatterMaxRadius=50`, sonst wie 10E. 994 resjson-Keys
     je Sprache (`Chart_MultiplesColumns`, `Desc_Chart_MultiplesColumns`).
+  - **Nach dem Review:**
+    - M1: Weiche Untergrenze. Eine feste Zahl hält jede Zelle ab 110 px Breite (`MULT_MIN_COL_W`); wären die Kacheln
+      schmaler (dasselbe Visual kleiner, außerhalb des Fokusmodus, im Dashboard), zeigt das Raster so viele Spalten,
+      wie hineinpassen, und im Bearbeitungsmodus unten rechts den Hinweis „Spalten 24: Kacheln wären nur 25 px breit,
+      gezeigt werden 5“ (`mult-cols-hint`, Key `Hint_MultColumnsFloor`; nicht in der Leseansicht, nicht im Export).
+      Gilt auch mit großer Kachel. Die Beschreibung im Formatbereich nennt es in allen vier Sprachen. Das 10G-Rezept
+      (6 Spalten) bleibt auf 1920 und auf 960 px unberührt (320 bzw. 160 px je Kachel).
+    - m1: Mit großer Kachel klemmen Säulen und Linie auf `ceil((n + 1) / 2)` Spalten (mehr Spalten könnten nur die
+      zweite Zeile leeren), Balken auf `n + 1` (eine Zeile). Vorher standen 13B mit 15 Spalten in Zeile 1 und Zeile 2
+      blieb leer; c558b zeigt jetzt 8 × 2 ohne Lücke. „Begrenzt auf die Zahl der Kacheln“ gilt also ohne große Kachel.
+    - n3 (unverändert, beschrieben): Neben „Erste Kachel groß“ teilen alle Kacheln die Domain, die große Kachel hat
+      mehr Fläche und damit mehr px je Einheit; wenige Spalten rechts stauchen die Höhe der kleinen Kacheln.
+    - n4: Der Marker `mult-grid` steht nicht mehr im Zoom (`data-floor` mit der gewünschten Zahl, wenn die
+      Untergrenze greift).
+    - Tests c565 bis c575 (m5): Balken und Linie mit großer Kachel, Untergrenze mit Blasen, Säulen und großer Kachel
+      samt Hinweis nur im Bearbeitungsmodus, 10G auf 960 px, Blasen bleiben in ihrer Kachel, Δ-only-Rückfall mit fester
+      Zahl, dunkel und Hochkontrast, 30 Gruppen, Formatbereich, gebrochene Werte (2,6 → 3, 0,4 → automatisch),
+      unabhängige px je Einheit für c557 und c558b. 995 resjson-Keys je Sprache.
 - **B25 · Kein Zoom-Knopf in nicht interaktiver Ausgabe.** Vorher: Small-Multiples-Kacheln zeigten ihren Zoom-Knopf
-  „⤢“ (mit `role=button`, `tabindex` und Zeiger) auch im PDF- und PowerPoint-Export, im Druck und in Snapshots. Nachher:
-  Mit `hostCapabilities.allowInteractions === false` steht in jedem Kachel-Modus nur der Kacheltitel
+  „⤢“ (mit `role=button`, `tabindex` und Zeiger) auch dort, wo der Host keine Interaktion erlaubt. Nachher:
+  Mit `hostCapabilities.allowInteractions === false` (Dashboard-Kacheln; nach der bisherigen Annahme des Projekts auch
+  PDF- und PowerPoint-Export und Abo-Snapshots) steht in jedem Kachel-Modus nur der Kacheltitel
   (`data-icd="mult-title"`, gleiche Stelle und Schrift, ohne den Platz für ⤢ gekürzt); ein gesetzter Zoom zeigt dort das
   Raster ohne Zurück-Chip. Interaktiv unverändert (SVG-gleich).
   - Blasenlegende: Teil- und Σ-Eintrag am Ende bekommen ihren Platz vor den Gruppen, wenn die Zeile sonst nicht passt
@@ -38,6 +57,20 @@
     Prüfung „kein Zoom-Knopf ⤢“; gekürzte Panel-Titel dürfen je Kachel einmal vorkommen. Tests c562 bis c564 (10G im
     Export mit Titeln an derselben Stelle wie im Bericht, große Kachel, „Erste Kachel groß“ mit Top N, Zoom-Zustand,
     Export gleich Bericht bis auf Kachelköpfe, Legende auf 400 px). Hash aller 867 Bestands-Stufen vorher/nachher gleich.
+  - **Nach dem Review:**
+    - m4: Der Browserdruck eines geöffneten Berichts („Seite drucken“) rendert das interaktive Visual, dort bleibt ⤢
+      stehen; ebenso in Web-Veröffentlichung, Mobile-App und Report Server (interaktiv). Ein echter PDF-Export aus dem
+      Service ist vor dem Release noch anzusehen.
+    - m2: Die Legende rückt nach einem gekürzten Gruppennamen um dessen gezeichnete Breite vor (vorher um die volle;
+      der alte Fehler wurde sichtbar, weil nach „+n“ jetzt Teil und Σ folgen).
+    - m3: Hervorhebung, Teil und Σ am Ende der Legende kürzen auf die Restbreite und entfallen unter 30 px; lange
+      Measure-Namen laufen nicht mehr über den Rand.
+    - n1: „Passende Legenden bleiben gleich“ heißt: die ganze Zeile endet mindestens 6 px vor dem Rand (Regel der
+      Gruppeneinträge). Wird es enger, zeigen Legenden mit Teil, Σ oder Hervorhebung weniger Gruppen und dafür diese
+      Einträge.
+    - Tests c574 (18 Legenden von 260 bis 900 px, mit langem ersten Namen und langen Measures, alle im Visual) und c575
+      (KPI-Karten und Tabelle mit langen Titeln im Export). Hash aller 867 Bestands-Stufen weiter gleich; von den
+      B24/B25-Stufen ändert sich nur c558b (m1).
 
 - **B13 Teil 1b · Frei wählbare große Kachel (nach IBCS-Blatt 13B, auch die doppelt hohe Berlin-Kachel von 13C und
   13D).** Vorher: „Erste Kachel groß“ gab nur der ersten Kachel eine Spalte links über die volle Höhe, auf der

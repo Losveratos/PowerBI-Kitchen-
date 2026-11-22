@@ -29,7 +29,8 @@ Plätze bei c ≤ n heißt bei Säulen/Linie immer ≥ 2 Zeilen, Balken brauchen
 (Helfer der B19-Stufen über `window.__b19`).
 
 *B25 · Kein Zoom-Knopf in nicht interaktiver Ausgabe.* `drawTileHeader` zeichnet bei `!this.allowInteractions`
-(`hostCapabilities.allowInteractions === false`: Export, Druck, Snapshots, `test/export-cases.js`) nur den Titel als
+(`hostCapabilities.allowInteractions === false`, einmal im Konstruktor gelesen: Dashboard-Kacheln, nach Annahme des
+Projekts PDF-/PowerPoint-Export und Abo-Snapshots, `test/export-cases.js`; nicht der Browserdruck) nur den Titel als
 `<text data-icd="mult-title">` (gleiche x/y/Schrift, gekürzt auf `w − 12`), ohne `g[role=button]`, `tabindex`, ⤢,
 Zeiger und Listener; vor dem Zoom-Zweig setzt `render()` dort `zoomGroup = null`. Interaktiv bytegleich.
 `drawScatterLegend`: `tailW` (Breite von Hervorhebung, Teil und Σ) geht nur dann in `reserve`, wenn der Rest der Zeile
@@ -37,6 +38,23 @@ samt Tail nicht passt; bei „+n“ folgt der Tail (vorher fehlte er dort, schma
 `export-cases.js`: Blatt `bubblesMult` (`tiles`-Liste, prüft die Kacheltitel), `inspectExport` liefert `zoomBtn` und
 `tileTitles`, Prüfung „kein Zoom-Knopf ⤢“ für jeden Export, gekürzte Texte je Kachel einmal erlaubt. Tests c562 bis
 c564; Hash aller 867 Bestands-Stufen gleich.
+
+*B24/B25 Review-Stand.* Weiche Untergrenze `MULT_MIN_COL_W = 110`: im Rasterzweig `cols = min(clamp(fix, 1, rn),
+max(1, ⌊gridW / 110⌋))`, in `heroSpanLayout` `cFrom = min(wantC, max(minC, ⌊width / 110⌋))`; greift sie, liefert der
+Zweig bzw. `span.floor` ein `MultColsFloor` (`fix`, `want`, `shown`, `w`), `drawColsFloorHint` zeichnet
+`mult-cols-hint` (`data-want`, `data-shown`, Key `Hint_MultColumnsFloor` mit `{0}` Zahl, `{1}` px, `{2}` gezeigt) unten
+rechts über der Fußzeile, nur mit `allowInteractions` und `viewMode !== 0` (wie der Marimekko-Hinweis), nicht im Zoom.
+Große Kachel: `wantC = max(minC, min(fix, spanCols ? n + 1 : ⌈(n + 1) / 2⌉))`, `minC` 2 bei Balken sonst 1. Marker
+`mult-grid` erst nach dem Zoom-Zweig, mit `data-floor` (gewünschte Zahl), wenn die Untergrenze greift.
+`multColumnsFixed` steht jetzt vor `drawColsFloorHint`, das JSDoc wieder an `heroSpanLayout`. Legende: Gruppen rücken um
+`textWidth(t.textContent)` vor (gekürzter Name), `fitTxt` kürzt Hervorhebung, Teil und Σ (auch die Szenario-Einträge
+über `extra`) auf `width − 6 − x − 2r − 4`, unter 30 px entfällt der Eintrag; passende Zeilen unverändert. Tests c565
+bis c575 (c574 mit 18 Legenden-Stufen `c574a` bis `c574f`, Zusatz `l` langer Name, `m` lange Measures); c558b erwartet
+8 × 2. 995 resjson-Keys je Sprache. Offen und alt (nicht geändert): Zurück-Chip „← Alle Gruppen“ und sein
+`aria-label` sind fest deutsch (`drawZoomBackChip`), Lokalisierung würde die Zoom-Stufen ändern; gemeinsame Achsen je
+Zeile und Spalte für 10G (eigener Backlog-Punkt); einmal einen echten PDF-Export aus dem Service ansehen und hier
+festhalten, ob ⤢ dort entfällt. Die erzeugte Tabellenzeile `multiplesColumns` trägt den Gedankenstrich des Generators
+(Muster aller Zeilen, n5).
 
 *B13 Teil 1b · Frei wählbare große Kachel (Blatt 13B, große Berlin-Kachel von 13C/13D).* `chart.multiplesHeroTile`
 (Text, Standard leer, Gruppe „Small Multiples“, Key `Chart_MultiplesHeroTile`; Pane nur bei `columns`, `bars`, `line`
