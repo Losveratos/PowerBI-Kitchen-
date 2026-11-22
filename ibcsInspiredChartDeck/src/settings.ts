@@ -1138,7 +1138,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "autoExpandHierarchy",
         displayName: "Auto-expand hierarchy",
         displayNameKey: "Chart_AutoExpand",
-        description: "Liegen mehrere Felder in „Kategorie\", klappt das Visual die Drill-Hierarchie automatisch auf — der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die ⫟-Drill-Knöpfe im Visual-Kopf. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an.",
+        description: "Liegen mehrere Felder in „Kategorie“, klappt das Visual die Drill-Hierarchie automatisch auf: der klickbare Zeilenbaum erscheint sofort beim Hineinziehen, ohne die Drill-Knöpfe im Visual-Kopf. Gilt für Tabelle und GuV, für gestapelte Balken mit Stapel-Blöcken und für die gestapelte Fläche mit Achsengruppen. Manuelles Hochklappen bleibt bestehen (nur ein Feld-Wechsel löst erneut aus). Standard an.",
         descriptionKey: "Desc_Chart_AutoExpand",
         value: true
     });
@@ -1753,7 +1753,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "axisGroups",
         displayName: "Axis groups",
         displayNameKey: "Chart_AxisGroups",
-        description: "Bestand & Fluss und gestapelte Fläche: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Bei der gestapelten Fläche klappt das Visual die Ebenen selbst auf. Aus = nur die Periodennamen.",
+        description: "Bestand & Fluss, gestapelte Fläche und Serienlinien: bei einer Kategorie-Hierarchie (z. B. Jahr, Woche, Tag) höchstens zwei Gruppenzeilen unter der Achse mit Trennlinien; die unterste Ebene beschriftet die Perioden. Bei der gestapelten Fläche klappt das Visual die Ebenen selbst auf. Aus = nur die Periodennamen.",
         descriptionKey: "Desc_Chart_AxisGroups",
         items: axisGroupsItems,
         value: axisGroupsItems[0]
@@ -1849,7 +1849,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "lineIndex",
         displayName: "Index",
         displayNameKey: "Chart_LineIndex",
-        description: "Serienlinien: Werte je Serie als Index, Basiswert = 100 (Wert ÷ Basiswert × 100), nullbasierte Achse mit einer dünnen Linie bei 100. Eine Serie ohne Basiswert (leer oder 0) wird nicht gezeichnet. Standard aus (Werte).",
+        description: "Serienlinien: Werte je Serie als Index, Basiswert = 100 (Wert ÷ Basiswert × 100), nullbasierte Achse mit einer dünnen Linie bei 100. Eine Serie ohne Basiswert (leer, 0 oder negativ) wird nicht gezeichnet und im Diagramm genannt. Mit Index wirken Referenzlinie und festes Maximum der Skala nicht. Standard aus (Werte).",
         descriptionKey: "Desc_Chart_LineIndex",
         items: lineIndexItems,
         value: lineIndexItems[0]
@@ -1859,7 +1859,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "lineIndexBase",
         displayName: "Index base category",
         displayNameKey: "Chart_LineIndexBase",
-        description: "Name der Kategorie, deren Werte 100 sind (z. B. „02.01.“). Leer = erste Kategorie mit Werten aller Serien.",
+        description: "Name der Kategorie, deren Werte 100 sind (z. B. „02.01.“); ein Gruppenname (z. B. „Feb“ bei Monat › Tag) meint den ersten Punkt der Gruppe. Leer = erste Kategorie, in der alle Serien einen Wert über 0 haben, in allen Kacheln dieselbe.",
         descriptionKey: "Desc_Chart_LineIndexBase",
         placeholder: "",
         value: ""
@@ -1889,7 +1889,7 @@ export class ChartCardSettings extends formattingSettings.CompositeCard {
         name: "lineEndDelta",
         displayName: "Start-to-end markers",
         displayNameKey: "Chart_LineEndDelta",
-        description: "Serienlinien: Serien mit einem Balken vom Basisniveau zum Endwert am rechten Rand, in Gut- bzw. Schlecht-Farbe, mit Index als Δ % (z. B. −93 %), sonst Δ und Δ %. Liste durch Komma oder Semikolon getrennt, * = alle Serien. Leer = keine.",
+        description: "Serienlinien: Serien mit einem Balken vom Basisniveau (mit Index 100, ohne Index der erste Wert der Serie) zum Endwert am rechten Rand, in Gut- bzw. Schlecht-Farbe, mit Index als Δ % (z. B. −93 %), sonst Δ und Δ %. Liste durch Komma oder Semikolon getrennt, * = alle Serien. Leer = keine.",
         descriptionKey: "Desc_Chart_LineEndDelta",
         placeholder: "",
         value: ""
