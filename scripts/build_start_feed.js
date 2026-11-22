@@ -4,6 +4,8 @@
 // Alle Bilder liegen lokal unter assets/start/ (yt/, shots/, covers/), damit beim
 // Laden der Startseite keine Anfrage an YouTube oder andere Dienste geht.
 //
+// Schreibt ausserdem die statische Liste fuer Crawler in index.html (Marker feed-static).
+//
 // Aufruf im Repo-Root:
 //   python scripts/fetch_start_thumbs.py   # fehlende YouTube-Vorschaubilder holen
 //   node scripts/build_start_feed.js
@@ -152,6 +154,21 @@ for (const i of items) {
 fs.writeFileSync(path.join(OUT, 'feed-data.js'),
   '// erzeugt von scripts/build_start_feed.js aus folgen.html (EPISODES) und beitraege.html. Nicht von Hand bearbeiten.\n' +
   'window.FEED = ' + JSON.stringify(items, null, 0) + ';\n');
+
+// Statische Fassung fuer Crawler ohne JavaScript (KI-Crawler, Vorschau-Dienste):
+// die neuesten Eintraege als einfache Liste direkt in index.html, zwischen den Markern.
+// Mit JavaScript blendet die Seite sie aus und rendert wie gewohnt (render() ersetzt #main).
+{
+  const escH = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const latest = [...items].filter(i => i.kind !== 'Short').sort((a, b) => b.date.localeCompare(a.date) || b.score - a.score).slice(0, 40);
+  const li = latest.map(i => `<li><article><a href="${escH(i.url)}"><h3>${escH(i.title)}</h3></a><p><span>${escH(i.kind)} · ${escH(i.topic || '')} · <time datetime="${i.date}">${escH(i.dateLabel)}</time></span> ${escH(i.desc)}</p></article></li>`).join('\n');
+  const block = `<!--feed-static:start--><section class="static-feed" aria-label="Neueste Beiträge"><h2>Neueste Beiträge und Folgen</h2><ul>\n${li}\n</ul><p>Alles auf einen Blick: <a href="folgen.html">alle Folgen</a> · <a href="beitraege.html">alle Beiträge</a> · <a href="wissensgraph/">Library</a> · <a href="index_en.html">English edition</a></p></section><!--feed-static:end-->`;
+  const idx = fs.readFileSync('index.html', 'utf8');
+  const rx = /<!--feed-static:start-->[\s\S]*?<!--feed-static:end-->/;
+  if (!rx.test(idx)) throw new Error('Marker <!--feed-static:start--> fehlt in index.html');
+  fs.writeFileSync('index.html', idx.replace(rx, () => block));
+  console.log('index.html: statische Liste mit', latest.length, 'Eintraegen aktualisiert');
+}
 
 const c = {};
 items.forEach(i => { c[i.kind] = (c[i.kind] || 0) + 1; });

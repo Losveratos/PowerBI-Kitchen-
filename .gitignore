@@ -80,3 +80,6 @@ fabric_backup/
 
 # i18n: Zwischenstand der einmaligen Umstellung auf eine zweisprachige Datei
 i18n/out/
+_ch_*.json
+_new_ids.txt
+_channel_fresh.json

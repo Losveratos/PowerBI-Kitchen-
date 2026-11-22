@@ -4,7 +4,7 @@
 
 Diese Datei folgt der Konvention von llmstxt.org. Sie listet die inhaltlich wichtigen Seiten der Site in einer maschinenlesbaren Markdown-Fassung unter `/md/`. Die HTML-Fassungen sind interaktiv (Regler, Filter, Scrollytelling, eingebettete Power-BI-Berichte); die Markdown-Fassungen enthalten denselben Fliesstext plus die zugehoerigen Zahlen als Tabelle. Inhaltsseiten verweisen zusaetzlich selbst auf ihre Markdown-Fassung — per `<link rel="alternate" type="text/markdown">` im Head und einem sichtbaren Footer-Link.
 
-Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als **Entwurf** gekennzeichnet und tragen je Zahl eine **Konfidenzstufe** (A mehrfach belegt · B einfach belegt · C schwache Belegbasis · M Modellsetzung). Eine Zahl ohne ihre Konfidenzstufe zu uebernehmen, verfaelscht die Aussage. Sprache: ueberwiegend Deutsch; einzelne Dokumente zusaetzlich auf Englisch.
+Wichtig fuer die Weiterverwendung: Die datenjournalistischen Arbeiten sind als **Entwurf** gekennzeichnet und tragen je Zahl eine **Konfidenzstufe** (A mehrfach belegt · B einfach belegt · C schwache Belegbasis · M Modellsetzung). Eine Zahl ohne ihre Konfidenzstufe zu uebernehmen, verfaelscht die Aussage. Sprache: ueberwiegend Deutsch; einzelne Dokumente zusaetzlich auf Englisch. Eine englische Startseite mit allen englischen Inhalten: https://datenwgknowledgekitchen.com/index_en.html
 
 ## ChartKitchen (Power-BI-Custom-Visual)
 

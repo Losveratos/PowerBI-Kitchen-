@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daten-WG · Knowledge Kitchen · English edition</title>
+<meta name="description" content="Daten-WG Knowledge Kitchen in English: the Power BI custom visuals ChartKitchen and P&amp;L Statement, articles and talks on Power BI and Microsoft Fabric, English podcast episodes and free tools. No tracking.">
+<link rel="canonical" href="https://datenwgknowledgekitchen.com/index_en.html">
+<link rel="alternate" hreflang="de" href="https://datenwgknowledgekitchen.com/">
+<link rel="alternate" hreflang="en" href="https://datenwgknowledgekitchen.com/index_en.html">
+<link rel="alternate" hreflang="x-default" href="https://datenwgknowledgekitchen.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Daten-WG Knowledge Kitchen · English edition">
+<meta property="og:description" content="Power BI custom visuals, articles, talks and podcast episodes in English.">
+<meta property="og:url" content="https://datenwgknowledgekitchen.com/index_en.html">
+<meta property="og:image" content="https://datenwgknowledgekitchen.com/assets/start/og-en.jpg">
+<link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#082A24">
+<link rel="stylesheet" href="assets/fonts/geist/geist.css">
+<style>
+:root{
+  --paper:#FFFFFF; --paper-2:#F5F4EF; --ink:#111; --ink-2:#3A3A3A; --mute:#6E6E6E;
+  --rule:#E6E3DB; --accent:#117865; --deep:#0B3B33; --yel:#F5B301;
+  --sans:"Geist","Segoe UI",-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1260px;margin:0 auto;padding:0 28px}
+
+/* ---------- Kopf: Farbblock ---------- */
+.mast{background:linear-gradient(120deg,var(--deep) 0%,#0F5A4D 55%,var(--accent) 100%);color:#fff;position:relative;overflow:hidden}
+.mast::before{content:"";position:absolute;inset:0;background:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.2px) 0 0/22px 22px}
+.mast::after{content:"";position:absolute;right:-120px;top:-160px;width:460px;height:460px;border-radius:50%;background:radial-gradient(circle,rgba(245,179,1,.28),transparent 65%)}
+.mast .wrap{position:relative;z-index:1}
+.brand{display:flex;align-items:center;gap:16px}
+.brand img{width:64px;height:64px;filter:drop-shadow(0 6px 16px rgba(0,0,0,.35))}
+.brand h1{font-weight:800;font-size:clamp(1.7rem,3.6vw,2.7rem);letter-spacing:-.04em;line-height:1}
+.brand h1 span{color:var(--yel)}
+.brand p{font-size:14px;color:rgba(255,255,255,.75);margin-top:5px}
+.mast-meta{text-align:right;font-size:13px;color:rgba(255,255,255,.75);line-height:1.6}
+.mast-meta b{color:#fff;font-weight:650;display:block;font-size:14px}
+
+nav.sections{position:sticky;top:56px;z-index:30;background:#fff;border-bottom:1px solid var(--rule);box-shadow:0 1px 0 rgba(0,0,0,.02)}
+nav.sections .wrap{display:flex;align-items:center;gap:8px;height:50px}
+.sec-links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1}
+.sec-links::-webkit-scrollbar{display:none}
+.sec-links>:first-child{margin-left:auto}.sec-links>:last-child{margin-right:auto}
+.sec-links button{flex:0 0 auto;background:none;border:0;cursor:pointer;padding:7px 12px;font-size:14px;font-weight:550;color:var(--ink-2);border-radius:100px;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:background .15s,color .15s}
+.sec-links button i{width:8px;height:8px;border-radius:50%;background:var(--rc)}
+.sec-links button:hover{background:var(--paper-2);color:var(--ink)}
+.sec-links button.on{background:var(--rc,var(--ink));color:#fff}
+.sec-links button.on i{background:#fff}
+
+
+/* ---------- Hauptnavigation (immer sichtbar) ---------- */
+.topbar{position:sticky;top:0;z-index:60;background:#082A24;color:#fff;border-bottom:1px solid rgba(255,255,255,.08)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:56px}
+.tb-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.tb-brand img{width:32px;height:32px}
+.tb-brand span{color:var(--yel)}
+.menu{display:flex;align-items:center;gap:2px;margin-left:auto}
+.mi{background:none;border:0;color:rgba(255,255,255,.86);padding:8px 12px;border-radius:8px;font-weight:550;font-size:14.5px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.dd>.mi::after{content:"";width:6px;height:6px;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:rotate(45deg);margin:-3px 0 0 2px;transition:transform .2s}
+.mi:hover,.mi[aria-expanded="true"]{background:rgba(255,255,255,.1);color:#fff}
+.dd.open>.mi::after{transform:rotate(-135deg);margin-top:3px}
+.dd{position:relative}
+.panel{position:absolute;top:calc(100% + 10px);left:0;background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.28);padding:10px;width:340px;display:none}
+.dd.open>.panel{display:block;animation:pop .16s ease-out}
+@keyframes pop{from{opacity:0;transform:translateY(-6px)}}
+.panel.wide{width:640px;left:auto;right:-140px}
+.dd.open>.panel.wide{display:grid;grid-template-columns:1fr 1fr;gap:0 8px}
+.pi{display:block;padding:8px 12px;border-radius:9px}
+.pi b{display:block;font-size:14.5px;font-weight:650}
+.pi span{display:block;font-size:12.5px;color:var(--mute);margin-top:1px}
+.pi:hover{background:var(--paper-2)}
+.pi:hover b{color:var(--accent)}
+.plabel{font-size:11px;font-weight:750;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:10px 12px 4px}
+.pall{grid-column:1/-1;display:block;border-top:1px solid var(--rule);margin-top:6px;padding:10px 12px 4px;font-weight:650;font-size:14px;color:var(--accent)}
+.tb-icon{background:none;border:0;color:#fff;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.tb-icon svg{width:19px;height:19px}
+.tb-icon:hover{background:rgba(255,255,255,.1)}
+.tb-cta{background:var(--yel);color:#14110A;font-weight:750;font-size:14px;padding:8px 16px;border-radius:100px;white-space:nowrap}
+.tb-cta:hover{background:#FFC93A}
+.burger,.sheet-head,.sheet-sub{display:none}
+.quick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:0 0 20px}
+.quick span{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-right:4px}
+.quick a{font-size:13.5px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);padding:6px 13px;border-radius:100px;transition:background .15s}
+.quick a:hover{background:rgba(255,255,255,.2)}
+.mast-row{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 0 18px}
+@media(max-width:960px){
+  .burger{display:grid}
+  .tb-cta{margin-left:auto}
+  .menu{position:fixed;inset:0;z-index:80;background:#fff;color:var(--ink);flex-direction:column;align-items:stretch;gap:0;padding:16px 20px 30px;overflow:auto;display:none;margin:0}
+  .menu.sheet{display:flex}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+  .sheet-close{background:none;border:0;font-size:20px;cursor:pointer;width:40px;height:40px}
+  .menu .mi{color:var(--ink);font-size:18px;font-weight:700;padding:12px 0;border-radius:0}
+  .menu .mi:hover{background:none}
+  .menu .dd>.mi::after{margin-left:auto}
+  .panel,.panel.wide{position:static;width:auto;box-shadow:none;padding:0 0 8px;border-radius:0}
+  .dd.open>.panel.wide{display:block}
+  .sheet-sub{display:block;margin-top:auto;padding-top:20px;font-size:14px;color:var(--mute)}
+  .sheet-sub a{color:var(--accent);font-weight:600}
+  .quick{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px 18px}
+  .quick::-webkit-scrollbar{display:none}
+  .quick a{flex:0 0 auto}
+}
+@media(max-width:520px){.tb-cta{padding:7px 12px;font-size:13px}.tb-brand b{display:none}}
+
+/* ---------- Raster ---------- */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:0 40px;padding-top:28px}
+main{min-width:0}
+aside{border-left:1px solid var(--rule);padding-left:30px}
+.aside-in{position:sticky;top:122px;padding-bottom:40px;max-height:calc(100vh - 132px);overflow:auto;scrollbar-width:thin}
+
+/* ---------- Bausteine ---------- */
+.kicker{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--rc,var(--accent));margin-bottom:4px;display:block}
+.hl{font-weight:700;letter-spacing:-.022em;line-height:1.2;color:var(--ink)}
+a:hover .hl{color:var(--accent)}
+.teaser{color:var(--ink-2);font-size:15px;line-height:1.5;margin-top:6px}
+.meta{font-size:12px;color:var(--mute);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+.meta span+span::before{content:"·";margin-right:6px}
+.pic{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--paper-2);margin-bottom:11px;border-radius:6px}
+.pic img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform .4s ease}
+a:hover .pic img{transform:scale(1.03)}
+.pic.yt img{object-position:center}
+.play{position:absolute;left:8px;bottom:8px;font-size:11.5px;font-weight:600;color:#fff;background:rgba(0,0,0,.72);padding:3px 8px 3px 7px;border-radius:4px}
+.play::before{content:"▶ ";font-size:9px}
+.clamp3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+[data-id]{will-change:auto}
+
+/* Aufmacher */
+.front{display:grid;grid-template-columns:1.75fr 1fr;border-bottom:1px solid var(--rule);padding-bottom:26px}
+.front .lead{padding-right:26px;border-right:1px solid var(--rule)}
+.front .lead .hl{font-size:clamp(1.7rem,2.9vw,2.5rem);font-weight:800;line-height:1.08;letter-spacing:-.035em}
+.front .lead .teaser{font-size:17px}
+.front .side{padding-left:26px;display:flex;flex-direction:column}
+.front .side>a{padding:0 0 16px;margin-bottom:16px;border-bottom:1px solid var(--rule)}
+.front .side>a:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.front .side .hl{font-size:1.15rem}
+.row4{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid var(--rule);padding:22px 0}
+.row4>a{padding:0 18px;border-left:1px solid var(--rule)}
+.row4>a:first-child{padding-left:0;border-left:0}
+.row4>a:last-child{padding-right:0}
+.row4 .hl{font-size:1.02rem}
+
+/* Ressort-Köpfe mit Farbe */
+.block{padding:30px 0 24px;border-bottom:1px solid var(--rule)}
+.block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;border-bottom:2px solid var(--rc);padding-bottom:0}
+.block-head h2{font-size:14px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;background:var(--rc);color:#fff;padding:7px 14px 6px;border-radius:6px 6px 0 0;display:flex;align-items:center;gap:9px}
+.block-head h2 img{width:22px;height:22px}
+.block-head button{background:none;border:0;cursor:pointer;font-size:13.5px;font-weight:650;color:var(--rc);padding:6px 0}
+.block-head button:hover{text-decoration:underline}
+.b-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr}
+.b-grid>a{padding:0 20px;border-left:1px solid var(--rule)}
+.b-grid>a:first-child{padding-left:0;border-left:0}
+.b-grid>a:nth-child(3){padding-right:0}
+.b-grid .hl{font-size:1.04rem}
+.b-grid>a:first-child .hl{font-size:1.36rem;font-weight:800}
+.b-more{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px;border-top:1px solid var(--rule);padding-top:14px}
+.b-more>a{padding:0 20px;border-left:1px solid var(--rule)}
+.b-more>a:first-child{padding-left:0;border-left:0}
+.b-more .hl{font-size:.97rem;font-weight:650}
+.band{background:#14110A;color:#fff;margin:30px 0 0;padding:20px 22px 24px;border-radius:12px;position:relative;overflow:hidden}
+.band::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 260px at 100% 0%,rgba(245,179,1,.22),transparent 70%),radial-gradient(400px 260px at 0% 100%,rgba(30,143,158,.25),transparent 70%)}
+.band>*{position:relative}
+.band .block-head{border-color:var(--yel)}
+.band .block-head h2{background:var(--yel);color:#14110A}
+.band .block-head button{color:var(--yel)}
+.band .lede{color:rgba(255,255,255,.72);margin:-6px 0 16px;font-size:15px}
+.band .row4{border-bottom:0;padding:0}
+.band .row4>a{border-color:rgba(255,255,255,.12)}
+.band .hl{color:#fff}
+.band a:hover .hl{color:var(--yel)}
+.band .meta{color:rgba(255,255,255,.55)}
+.band .kicker{color:var(--yel)}
+
+/* Blog-Liste */
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:30px 0 4px;border-bottom:2px solid var(--rc,var(--ink))}
+.list-head h2{font-size:14px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;background:var(--rc,var(--ink));color:#fff;padding:7px 14px 6px;border-radius:6px 6px 0 0}
+.list-head h2 span{opacity:.7;font-weight:500;letter-spacing:0;margin-left:6px}
+.sortsel{margin-bottom:6px}
+.sortsel select{border:1px solid var(--rule);border-radius:100px;background:#fff;padding:6px 30px 6px 12px;font-size:13.5px;font-weight:550;cursor:pointer;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--mute) 50%),linear-gradient(135deg,var(--mute) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat}
+.active-filter{font-size:13.5px;color:var(--ink-2);margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;min-height:28px}
+.active-filter button{border:1px solid var(--rule);background:#fff;border-radius:100px;padding:3px 11px;font-size:12.5px;cursor:pointer}
+.active-filter button:hover{border-color:var(--ink)}
+.posts{display:flex;flex-direction:column}
+.posts>a{display:grid;grid-template-columns:1fr 210px;gap:24px;padding:20px 0;border-bottom:1px solid var(--rule);background:#fff}
+.posts .pic{margin:0}
+.posts .hl{font-size:1.25rem}
+.more{display:block;margin:26px auto 60px;padding:11px 26px;border:0;background:var(--ink);color:#fff;font-weight:650;font-size:14px;cursor:pointer;border-radius:100px}
+.more:hover{background:var(--accent)}
+.empty{padding:50px 0;text-align:center;color:var(--mute);font-size:17px}
+.empty img{width:80px;margin:0 auto 12px}
+
+/* ---------- Seitenleiste: stabil, einklappbar ---------- */
+.w{border-bottom:1px solid var(--rule)}
+.w>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:12px 0;font-size:11.5px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;user-select:none}
+.w>summary::-webkit-details-marker{display:none}
+.w>summary::after{content:"";width:7px;height:7px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .2s;margin-right:3px}
+.w[open]>summary::after{transform:rotate(-135deg)}
+.w>summary .badge{margin-left:auto;margin-right:12px;background:var(--accent);color:#fff;border-radius:100px;font-size:10.5px;padding:1px 7px;letter-spacing:0;display:none}
+.w.has-on>summary .badge{display:inline-block}
+.w-body{padding-bottom:14px}
+.searchbox{position:relative;display:block}
+.searchbox input{width:100%;border:1.5px solid var(--ink);border-radius:100px;padding:10px 14px 10px 40px;font-size:15px;background:#fff}
+.searchbox input:focus{outline:2px solid var(--accent);outline-offset:2px}
+.searchbox svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px}
+.facet{list-style:none}
+.facet button{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:0;cursor:pointer;padding:5px 8px;margin:1px 0;font-size:14px;color:var(--ink-2);text-align:left;border-radius:6px;transition:background .15s}
+.facet button:hover{background:var(--paper-2);color:var(--ink)}
+.facet button.on{background:var(--ink);color:#fff;font-weight:650}
+.facet button.on .n{color:rgba(255,255,255,.7)}
+.facet button.zero,.tags button.zero{opacity:.38}
+.facet .n{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.facet .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:8px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags button{border:1px solid var(--rule);background:#fff;border-radius:100px;padding:3px 10px;font-size:12.5px;color:var(--ink-2);cursor:pointer;transition:all .15s}
+.tags button:hover{border-color:var(--ink);color:var(--ink)}
+.tags button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.yr{font-size:12px;font-weight:700;color:var(--mute);margin:8px 0 2px 8px}
+.about{background:var(--paper-2);padding:14px;display:flex;gap:12px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);border-radius:8px;margin-top:18px}
+.about img{width:42px;flex:0 0 auto}
+.about-cta{display:block;margin-top:8px;padding-top:8px;border-top:1px solid var(--rule);font-size:13px;color:var(--mute)}
+.about-cta a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+.about-cta a:hover{color:var(--accent)}
+.msearch{display:none}
+footer{border-top:1px solid var(--rule);margin-top:10px;padding:18px 0 40px;font-size:12.5px;color:var(--mute);display:flex;gap:10px;align-items:center}
+footer img{width:26px}
+footer a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+footer a:hover{color:var(--accent)}
+
+@media(max-width:1060px){
+  .layout{grid-template-columns:1fr}
+  aside{border-left:0;padding-left:0;margin-top:20px;border-top:1px solid var(--rule)}
+  .aside-in{position:static;max-height:none}
+  .w-search{display:none}
+  .msearch{display:block;margin-top:16px}
+  .mast-meta{display:none}
+}
+@media(max-width:720px){
+  .wrap{padding:0 16px}
+  .brand img{width:48px;height:48px}
+  .brand{gap:12px}
+  .front{grid-template-columns:1fr}
+  .front .lead{padding-right:0;border-right:0;padding-bottom:18px;border-bottom:1px solid var(--rule);margin-bottom:18px}
+  .front .side{padding-left:0}
+  .row4,.b-more{grid-template-columns:1fr 1fr;gap:20px 0}
+  .row4>a,.b-more>a{padding:0 12px !important;border-left:1px solid var(--rule)}
+  .row4>a:nth-child(odd),.b-more>a:nth-child(odd){padding-left:0 !important;border-left:0}
+  .b-grid{grid-template-columns:1fr 1fr;gap:20px 0}
+  .b-grid>a{padding:0 12px !important}
+  .b-grid>a:first-child{grid-column:span 2;padding:0 !important;border-left:0}
+  .b-grid>a:nth-child(2){padding-left:0 !important;border-left:0}
+  .posts>a{grid-template-columns:1fr 112px;gap:14px;padding:16px 0}
+  .posts .hl{font-size:1.04rem}
+  .posts .teaser{display:none}
+  .band{padding:16px 14px 18px}
+}
+
+/* ---------- English edition ---------- */
+.sec-links a{flex:0 0 auto;padding:7px 12px;font-size:14px;font-weight:550;color:var(--ink-2);border-radius:100px;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:background .15s,color .15s}
+.sec-links a i{width:8px;height:8px;border-radius:50%;background:var(--rc)}
+.sec-links a:hover{background:var(--paper-2);color:var(--ink)}
+html{scroll-padding-top:120px;scroll-behavior:smooth}
+.intro{font-size:17px;line-height:1.55;color:var(--ink-2);max-width:68ch;padding-bottom:8px}
+.intro b{color:var(--ink)}
+.block:first-of-type{padding-top:22px}
+.front .lead,.front .side>a{display:block}
+.band .row4+.row4{margin-top:22px;padding-top:22px;border-top:1px solid rgba(255,255,255,.12)}
+.band-more{margin-top:18px;font-size:14px;color:rgba(255,255,255,.65)}
+.band-more a{color:var(--yel);font-weight:650;text-decoration:underline;text-underline-offset:2px}
+.aside-box{border-top:1px solid var(--rule);margin-top:18px;padding-top:14px;font-size:14px;display:flex;flex-direction:column;gap:6px}
+.aside-box b{font-size:11.5px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}
+.aside-box a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+.aside-box a:hover{color:var(--accent)}
+#tools{border-bottom:0}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* ---------- Sprachumschalter mit Flaggen ---------- */
+.lsw{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid rgba(255,255,255,.22);border-radius:100px;margin-left:8px}
+.lsw a,.lsw>span{display:inline-flex;align-items:center;gap:6px;min-height:30px;padding:0 10px 0 8px;border-radius:100px;font-size:12.5px;color:rgba(255,255,255,.82)}
+.lsw b{font-weight:650;letter-spacing:.05em}
+.lsw>span{background:rgba(255,255,255,.16);color:#fff}
+.lsw a:hover{background:rgba(255,255,255,.1);color:#fff}
+.lsw svg{width:18px;height:12px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.2);flex:0 0 auto}
+@media(max-width:960px){
+  .lsw{display:flex;margin:18px 0 0;padding:4px;border-color:var(--rule)}
+  .lsw a,.lsw>span{flex:1;justify-content:center;min-height:48px;font-size:15px;gap:9px;color:var(--ink-2)}
+  .lsw>span{background:var(--paper-2);color:var(--ink)}
+  .lsw a:hover{background:var(--paper-2);color:var(--ink)}
+  .lsw svg{width:24px;height:16px}
+}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+</style>
+<!--seo-ld:start--><script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://datenwgknowledgekitchen.com/#org","name":"Daten-WG","url":"https://www.daten-wg.com/","logo":"https://datenwgknowledgekitchen.com/assets/favicon-192.png","sameAs":["https://www.youtube.com/@Daten-WG","https://podcasters.spotify.com/pod/show/daten-wg","https://www.daten-wg.com/"]},{"@type":"WebSite","@id":"https://datenwgknowledgekitchen.com/#website","name":"Daten-WG Knowledge Kitchen","url":"https://datenwgknowledgekitchen.com/","inLanguage":["de","en"],"publisher":{"@id":"https://datenwgknowledgekitchen.com/#org"}},{"@type":"WebPage","@id":"https://datenwgknowledgekitchen.com/index_en.html","url":"https://datenwgknowledgekitchen.com/index_en.html","name":"Daten-WG · Knowledge Kitchen · English edition","inLanguage":"en","isPartOf":{"@id":"https://datenwgknowledgekitchen.com/#website"},"description":"Daten-WG Knowledge Kitchen in English: the Power BI custom visuals ChartKitchen and P&L Statement, articles and talks on Power BI and Microsoft Fabric, English podcast episodes and free tools. No tracking.","image":"https://datenwgknowledgekitchen.com/assets/start/og-en.jpg","about":{"@id":"https://datenwgknowledgekitchen.com/#org"}}]}</script><!--seo-ld:end-->
+</head>
+<body>
+
+<header class="topbar" id="topbar"><div class="wrap">
+  <a class="tb-brand" href="index_en.html"><img src="assets/start/hat.svg" alt=""><b>DWG</b><span>Kitchen</span></a>
+  <nav class="menu" id="menu" aria-label="Main navigation">
+    <div class="sheet-head"><b>Menu</b><button class="sheet-close" type="button" aria-label="Close menu">✕</button></div>
+    <div class="dd"><button class="mi" type="button" aria-expanded="false">Power BI Visuals</button><div class="panel">
+      <a class="pi" href="chartkitchen-schnellstart_en.html"><b>ChartKitchen · Quick start</b><span>14 IBCS-inspired chart modes in one visual</span></a>
+      <a class="pi" href="chartkitchen-doku_en.html"><b>ChartKitchen · Documentation</b><span>Every setting, role and chart mode</span></a>
+      <a class="pi" href="pnl-schnellstart_en.html"><b>P&amp;L Statement · Quick start</b><span>The income statement as a custom visual · beta</span></a>
+      <a class="pi" href="pnl-doku_en.html"><b>P&amp;L Statement · Documentation</b><span>Templates, roles, driver tree, Sankey</span></a>
+      <a class="pi" href="visuals-sicherheit_en.html"><b>Security &amp; deployment</b><span>For Power BI admins, IT security and data protection</span></a>
+    </div></div>
+    <div class="dd"><button class="mi" type="button" aria-expanded="false">Tools</button><div class="panel">
+      <a class="pi" href="mockup-kitchen.html"><b>MockupKitchen</b><span>Sketch Power BI pages · switch to EN top right</span></a>
+      <a class="pi" href="business-chart-builder.html"><b>Business Chart Builder</b><span>Business charts with Deneb export · EN switch</span></a>
+      <a class="pi" href="visual-standards-rechner.html?lang=en"><b>Visual Standards Calculator</b><span>What do IBCS standards cost in Power BI?</span></a>
+      <a class="pi" href="fermi_paradox_en.html"><b>Fermi Paradox</b><span>Interactive simulation</span></a>
+    </div></div>
+    <a class="mi" href="#articles">Articles</a>
+    <a class="mi" href="#episodes">Episodes</a>
+    <div class="lsw" role="group" aria-label="Language"><a href="index.html" hreflang="de" lang="de" aria-label="Deutsch"><svg viewBox="0 0 5 3" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice"><rect width="5" height="1" fill="#000"/><rect y="1" width="5" height="1" fill="#DD0000"/><rect y="2" width="5" height="1" fill="#FFCE00"/></svg><b>DE</b></a><span aria-current="true" title="English"><svg viewBox="0 0 60 30" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 30,15M60,30 30,15" stroke="#C8102E" stroke-width="2.4" transform="translate(-1.3 1.3)"/><path d="M60,0 30,15M0,30 30,15" stroke="#C8102E" stroke-width="2.4" transform="translate(1.3 1.3)"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></svg><b>EN</b><span class="sr-only"> (English)</span></span></div>
+    <p class="sheet-sub">Subscribe: <a href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a> · <a href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a> · <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a></p>
+  </nav>
+  <a class="tb-cta" href="#visuals">Get the visuals</a>
+  <button class="tb-icon burger" type="button" id="burger" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+</div></header>
+<header class="mast">
+  <div class="wrap">
+    <div class="mast-row"><a class="brand" href="index_en.html"><img src="assets/start/hat.svg" alt=""><div><h1>DWG Knowledge <span>Kitchen</span></h1><p>Power BI, Fabric and data. Freshly cooked by Daten-WG.</p></div></a>
+    <div class="mast-meta"><b>English edition</b><span>Visuals · articles · podcast episodes</span></div></div>
+    <div class="quick"><span>Jump to</span><a href="chartkitchen-schnellstart_en.html">ChartKitchen</a><a href="pnl-schnellstart_en.html">P&amp;L Statement</a><a href="visuals-sicherheit_en.html">Security</a><a href="mockup-kitchen.html">MockupKitchen</a><a href="visual-standards-rechner.html?lang=en">Standards Calculator</a><a href="#episodes">Podcast</a></div>
+  </div>
+</header>
+<nav class="sections" aria-label="Sections"><div class="wrap"><div class="sec-links">
+  <a href="#visuals" style="--rc:#117865"><i></i>Visuals</a><a href="#articles" style="--rc:#B4532A"><i></i>Articles</a><a href="#episodes" style="--rc:#14110A"><i></i>Episodes</a><a href="#tools" style="--rc:#2F6BA8"><i></i>Tools</a>
+</div></div></nav>
+
+<div class="wrap">
+  <div class="layout">
+    <main id="main">
+      <p class="intro">The Kitchen is the home of <b>Daten-WG</b>: a podcast, talks, data stories and free tools around Power BI and Microsoft Fabric. Most of it is written in German. This page collects everything that is available in English.</p>
+
+      <section class="block" id="visuals" style="--rc:#117865">
+        <div class="block-head"><h2>Power BI custom visuals</h2></div>
+        <div class="front">
+          <a class="lead" href="chartkitchen-schnellstart_en.html"><div class="pic"><img src="assets/start/shots/vis-chartkitchen.webp" alt="ChartKitchen visual in Power BI"></div><span class="kicker">Custom visual</span><h3 class="hl">ChartKitchen byDatenWG</h3><p class="teaser">An IBCS-inspired chart deck for Power BI: 14 chart modes in a single visual, with a consistent scenario notation for actual, previous year, plan and forecast, and variances that read the same way on every page.</p><div class="meta"><span>Quick start</span><span>Free download</span></div></a>
+          <div class="side">
+            <a href="pnl-schnellstart_en.html"><div class="pic"><img src="assets/start/shots/vis-pnl-tabelle.webp" alt="P&amp;L Statement visual" loading="lazy"></div><span class="kicker">Custom visual · beta</span><h3 class="hl">P&amp;L Statement byDatenWG</h3><p class="teaser clamp3">The income statement as one visual: table, structure bars, row waterfall and value driver tree.</p></a>
+            <a href="visuals-sicherheit_en.html"><span class="kicker">For admins</span><h3 class="hl">Security &amp; deployment</h3><p class="teaser clamp3">What the visuals do with your data, which permissions they need and how to roll them out in a tenant.</p></a>
+          </div>
+        </div>
+        <div class="b-more">
+          <a href="chartkitchen-doku_en.html"><span class="kicker">Docs</span><h3 class="hl">ChartKitchen documentation</h3></a>
+          <a href="pnl-doku_en.html"><span class="kicker">Docs</span><h3 class="hl">P&amp;L Statement documentation</h3></a>
+          <a href="pnl-beta-post_en.html"><span class="kicker">Announcement</span><h3 class="hl">The P&amp;L visual goes beta</h3></a>
+        </div>
+      </section>
+
+      <section class="block" id="articles" style="--rc:#B4532A">
+        <div class="block-head"><h2>Articles &amp; talks</h2></div>
+        <div class="row4">
+          <a href="finance-reporting-budapest-post_en.html"><div class="pic"><img src="assets/start/shots/talk-budapest.webp" alt="" loading="lazy"></div><span class="kicker">Talk · Budapest BI Forum</span><h3 class="hl">One P&amp;L page, six rungs: finance reporting in Power BI</h3></a>
+          <a href="fabric-apps-controlling-post_en.html"><div class="pic"><img src="assets/start/shots/post-fabric-apps.webp" alt="" loading="lazy"></div><span class="kicker">Microsoft Fabric</span><h3 class="hl">Fabric Apps on Power BI's home turf: sales and finance</h3></a>
+          <a href="sankey-wasserfall-post_en.html"><div class="pic"><img src="assets/start/shots/post-sankey.webp" alt="" loading="lazy"></div><span class="kicker">Visualization</span><h3 class="hl">Sankey meets the IBCS waterfall</h3></a>
+          <a href="prototyping-pnl-treiberbaum_en.html"><div class="pic"><img src="assets/start/shots/vis-pnl-baum.webp" alt="" loading="lazy"></div><span class="kicker">AI &amp; prototyping</span><h3 class="hl">Is AI the new paper? Rethinking prototyping</h3></a>
+        </div>
+        <div class="row4">
+          <a href="ki-entwicklung-zehn-tage_en.html"><div class="pic"><img src="assets/start/covers/p-ki-zehn-tage.webp" alt="" loading="lazy"></div><span class="kicker">Thesis paper</span><h3 class="hl">Ten days to a market-ready build</h3></a>
+          <a href="whitepaper-ki-entwicklung-roi_en.html"><div class="pic"><img src="assets/start/covers/p-whitepaper-ki-roi.webp" alt="" loading="lazy"></div><span class="kicker">Whitepaper · long version</span><h3 class="hl">Valuing AI-assisted software development</h3></a>
+          <a href="morally_aligned_ai_en.html"><div class="pic"><img src="assets/start/shots/talk-morally-aligned.webp" alt="" loading="lazy"></div><span class="kicker">Talk</span><h3 class="hl">Morally aligned AI</h3></a>
+          <a href="fermi_paradox_en.html"><div class="pic"><img src="assets/start/shots/p-fermi-paradox-en.webp" alt="" loading="lazy"></div><span class="kicker">Simulation</span><h3 class="hl">Fermi paradox: where is everybody?</h3></a>
+        </div>
+      </section>
+
+      <section class="band" id="episodes">
+        <div class="block-head"><h2>Podcast episodes in English</h2></div>
+        <p class="lede">Daten-WG talks with people from the data community. These episodes are in English; they open on YouTube.</p>
+        <div class="row4">
+          <a href="https://www.youtube.com/watch?v=nldG2mLwA30" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/nldG2mLwA30.webp" alt="" loading="lazy"><span class="play">37 min</span></div><span class="kicker">Francesco Bergamaschi</span><h3 class="hl">The Five Pillars of DAX</h3><div class="meta"><span>May 2026</span><span>YouTube</span></div></a>
+          <a href="https://www.youtube.com/watch?v=E9kgWtTmwdE" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/E9kgWtTmwdE.webp" alt="" loading="lazy"><span class="play">33 min</span></div><span class="kicker">Vitalija Bartusevičiūtė</span><h3 class="hl">Databricks explained to a Power BI guy</h3><div class="meta"><span>Sep 2026</span><span>YouTube</span></div></a>
+          <a href="https://www.youtube.com/watch?v=AxLQtBVAI9o" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/AxLQtBVAI9o.webp" alt="" loading="lazy"><span class="play">47 min</span></div><span class="kicker">Daniel Marsh-Patrick</span><h3 class="hl">Declarative visualization with Deneb</h3><div class="meta"><span>May 2026</span><span>YouTube</span></div></a>
+          <a href="https://www.youtube.com/watch?v=xU_s43HekPM" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/xU_s43HekPM.webp" alt="" loading="lazy"><span class="play">47 min</span></div><span class="kicker">Khaled Chowdhury</span><h3 class="hl">From Finance to Fabric</h3><div class="meta"><span>Mar 2026</span><span>YouTube</span></div></a>
+        </div>
+        <div class="row4">
+          <a href="https://www.youtube.com/watch?v=inko8wG9jlY" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/inko8wG9jlY.webp" alt="" loading="lazy"><span class="play">40 min</span></div><span class="kicker">Lonneke Opsteegh</span><h3 class="hl">Boring charts, better insights</h3><div class="meta"><span>Oct 2025</span><span>YouTube</span></div></a>
+          <a href="https://www.youtube.com/watch?v=HQaLWjA-E2E" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/HQaLWjA-E2E.webp" alt="" loading="lazy"><span class="play">39 min</span></div><span class="kicker">Jon Stjernegaard Vöge</span><h3 class="hl">How to write back</h3><div class="meta"><span>Dec 2025</span><span>YouTube</span></div></a>
+          <a href="https://www.youtube.com/watch?v=c90oD4zR1Aw" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/c90oD4zR1Aw.webp" alt="" loading="lazy"><span class="play">40 min</span></div><span class="kicker">Odeta Jankaitienė</span><h3 class="hl">More than PBIX</h3><div class="meta"><span>Dec 2025</span><span>YouTube</span></div></a>
+          <a href="https://www.youtube.com/watch?v=bgJjhx6IegA" target="_blank" rel="noopener"><div class="pic yt"><img src="assets/start/yt/bgJjhx6IegA.webp" alt="" loading="lazy"><span class="play">32 min</span></div><span class="kicker">Valerie Junk</span><h3 class="hl">How to fullstack</h3><div class="meta"><span>Jun 2025</span><span>YouTube</span></div></a>
+        </div>
+        <p class="band-more"><a href="folgen.html">All 170+ episodes in the library</a> <span>(German interface, filter by language “EN”)</span></p>
+      </section>
+
+      <section class="block" id="tools" style="--rc:#2F6BA8">
+        <div class="block-head"><h2>Free tools</h2></div>
+        <div class="row4">
+          <a href="mockup-kitchen.html"><div class="pic"><img src="assets/start/shots/tool-mockup-kitchen.webp" alt="" loading="lazy"></div><span class="kicker">Sketch</span><h3 class="hl">MockupKitchen</h3><p class="teaser clamp3">Sketch Power BI report pages in the browser and hand them to a coding agent. Switch the interface to EN top right.</p></a>
+          <a href="business-chart-builder.html"><div class="pic"><img src="assets/start/shots/tool-chart-builder.webp" alt="" loading="lazy"></div><span class="kicker">Build</span><h3 class="hl">Business Chart Builder</h3><p class="teaser clamp3">IBCS-style business charts with export for Deneb. Interface in English or German.</p></a>
+          <a href="visual-standards-rechner.html?lang=en"><div class="pic"><img src="assets/start/covers/p-visual-standards-rechner.webp" alt="" loading="lazy"></div><span class="kicker">Decide</span><h3 class="hl">Visual Standards Calculator</h3><p class="teaser clamp3">Paid visuals, flexible templates or MacGyver? What reporting standards really cost.</p></a>
+          <a href="wissensgraph/" lang="de"><div class="pic"><img src="assets/start/shots/tool-library.webp" alt="" loading="lazy"></div><span class="kicker">Explore · German</span><h3 class="hl" lang="en">DatenWG Library</h3><p class="teaser clamp3" lang="en">A knowledge graph built from 126 episode transcripts. Content in German.</p></a>
+        </div>
+      </section>
+    </main>
+    <aside><div class="aside-in">
+      <div class="about"><img src="assets/start/hat.svg" alt=""><div><b>About the Kitchen</b><br>Podcast episodes, talks, data stories and tools around Power BI and Fabric. All free, no tracking.<span class="about-cta">Want to work with us? <a href="https://www.daten-wg.com" target="_blank" rel="noopener">daten-wg.com</a></span></div></div>
+      <div class="aside-box"><b>Subscribe</b><a href="https://www.youtube.com/@Daten-WG" target="_blank" rel="noopener">YouTube</a><a href="https://podcasters.spotify.com/pod/show/daten-wg" target="_blank" rel="noopener">Spotify</a></div>
+      <div class="aside-box"><b>Deutsch?</b><a href="index.html" lang="de" hreflang="de">Zur deutschen Startseite</a><a href="beitraege.html" lang="de" hreflang="de">Alle Beiträge</a></div>
+    </div></aside>
+  </div>
+  <footer><img src="assets/start/hat.svg" alt=""><span>Daten-WG Knowledge Kitchen · <a href="index.html" hreflang="de">Deutsch</a> · <a href="impressum.html" hreflang="de">Legal notice</a> · <a href="datenschutz.html" hreflang="de">Privacy</a> (in German) · <a href="llms.txt">llms.txt</a></span></footer>
+</div>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var menu = $('#menu');
+  var closeDd = function (except) { document.querySelectorAll('.dd.open').forEach(function (d) { if (d !== except) { d.classList.remove('open'); d.firstElementChild.setAttribute('aria-expanded', 'false'); } }); };
+  menu.addEventListener('click', function (e) {
+    var b = e.target.closest('.dd>.mi');
+    if (b) { var d = b.parentElement, open = !d.classList.contains('open'); closeDd(d); d.classList.toggle('open', open); b.setAttribute('aria-expanded', open); return; }
+    if (e.target.closest('.sheet-close') || e.target.closest('a[href^="#"]')) menu.classList.remove('sheet');
+  });
+  $('#burger').addEventListener('click', function () { menu.classList.add('sheet'); });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.dd')) closeDd(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeDd(); menu.classList.remove('sheet'); } });
+})();
+</script>
+</body>
+</html>

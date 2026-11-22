@@ -38,6 +38,19 @@
   var rel = here.indexOf(ROOT) === 0 ? here.slice(ROOT.length) : '';
   if (rel === '' ) rel = 'index.html';
 
+  /* ---------------------------------------------------------------- Sprache */
+  // Englische Seiten (<html lang="en">) bekommen englische Navigation und Fußzeile.
+  var EN = /^en/i.test(document.documentElement.getAttribute('lang') || '');
+  function T(de, en) { return EN ? en : de; }
+  var PAIRS = ['chartkitchen-doku', 'chartkitchen-schnellstart', 'fabric-apps-controlling-post', 'finance-reporting-budapest-post',
+    'ki-entwicklung-zehn-tage', 'morally_aligned_ai', 'pnl-beta-post', 'pnl-doku', 'pnl-schnellstart', 'prototyping-pnl-treiberbaum',
+    'sankey-wasserfall-post', 'visuals-sicherheit', 'whitepaper-ki-entwicklung-roi', 'index'];
+  var base = rel.replace(/_en\.html$/, '').replace(/\.html$/, '');
+  var hasPair = PAIRS.indexOf(base) !== -1;
+  var HOME = EN ? 'index_en.html' : 'index.html';
+  // Sprachwechsel: auf das Gegenstück der Seite, sonst auf die Startseite der anderen Sprache
+  var ALT = EN ? (hasPair ? base + '.html' : 'index.html') : (hasPair ? base + '_en.html' : 'index_en.html');
+
   /* ---------------------------------------------------------------- Inhalt */
   var LERNEN = [
     ['Dein erstes Dashboard', 'powerbi_praxis_pfad.html', 'Praxis-Pfad, in gut zwei Stunden'],
@@ -76,6 +89,27 @@
     ['Rechtliches', [['Impressum', 'impressum.html'], ['Datenschutz', 'datenschutz.html'], ['llms.txt', 'llms.txt']]]
   ];
 
+  var VISUALS_EN = [
+    ['ChartKitchen · Quick start', 'chartkitchen-schnellstart_en.html', '14 IBCS-inspired chart modes in one visual'],
+    ['ChartKitchen · Documentation', 'chartkitchen-doku_en.html', 'Every setting, role and chart mode'],
+    ['P&L Statement · Quick start', 'pnl-schnellstart_en.html', 'The income statement as a custom visual'],
+    ['P&L Statement · Documentation', 'pnl-doku_en.html', 'Templates, roles, driver tree, Sankey'],
+    ['Security & deployment', 'visuals-sicherheit_en.html', 'For Power BI admins and IT security']
+  ];
+  var TOOLS_EN = [
+    ['MockupKitchen', 'mockup-kitchen.html', 'Sketch Power BI pages · EN switch top right'],
+    ['Business Chart Builder', 'business-chart-builder.html', 'Business charts with Deneb export'],
+    ['Visual Standards Calculator', 'visual-standards-rechner.html?lang=en', 'What do IBCS standards cost?'],
+    ['Fermi Paradox', 'fermi_paradox_en.html', 'Interactive simulation']
+  ];
+  var FOOTER_EN = [
+    ['Visuals', VISUALS_EN.map(function (l) { return [l[0], l[1]]; })],
+    ['Articles', [['Finance reporting talk', 'finance-reporting-budapest-post_en.html'], ['Fabric Apps', 'fabric-apps-controlling-post_en.html'], ['Sankey meets the waterfall', 'sankey-wasserfall-post_en.html'], ['AI prototyping', 'prototyping-pnl-treiberbaum_en.html'], ['All articles', 'index_en.html#articles']]],
+    ['Tools', TOOLS_EN.map(function (l) { return [l[0], l[1]]; })],
+    ['Subscribe', [['YouTube', 'https://www.youtube.com/@Daten-WG'], ['Spotify', 'https://podcasters.spotify.com/pod/show/daten-wg'], ['English episodes', 'index_en.html#episodes'], ['daten-wg.com', 'https://daten-wg.com']]],
+    ['Legal', [['Legal notice', 'impressum.html'], ['Privacy', 'datenschutz.html'], ['llms.txt', 'llms.txt']]]
+  ];
+
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function isExt(h) { return /^https?:/.test(h); }
   function href(h) { return isExt(h) ? h : U(h); }
@@ -90,6 +124,24 @@
     /^wissensgraph\//.test(rel) ? 'library' :
     rel === 'beitraege.html' || /^(blog|sessions)\//.test(rel) ? 'beitraege' :
     inList(LERNEN) ? 'lernen' : inList(werkzeugFlat) ? 'werkzeuge' : '';
+  if (EN) section = inList(VISUALS_EN) ? 'visuals' : inList(TOOLS_EN) ? 'tools' : '';
+  var FLAG_DE = '<svg viewBox="0 0 5 3" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice"><rect width="5" height="1" fill="#000"/><rect y="1" width="5" height="1" fill="#DD0000"/><rect y="2" width="5" height="1" fill="#FFCE00"/></svg>';
+  var FLAG_EN = '<svg viewBox="0 0 60 30" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice"><rect width="60" height="30" fill="#012169"/><path d="M0,0 60,30M60,0 0,30" stroke="#fff" stroke-width="6"/><path d="M0,0 30,15M60,30 30,15" stroke="#C8102E" stroke-width="2.4" transform="translate(-1.3 1.3)"/><path d="M60,0 30,15M0,30 30,15" stroke="#C8102E" stroke-width="2.4" transform="translate(1.3 1.3)"/><path d="M30,0v30M0,15h60" stroke="#fff" stroke-width="10"/><path d="M30,0v30M0,15h60" stroke="#C8102E" stroke-width="6"/></svg>';
+  // Sprachumschalter mit zwei Flaggen: aktuelle Sprache markiert, die andere als Link
+  function langSwitch(cls) {
+    function item(code, label, flag, isCur, h) {
+      var inner = flag + '<b>' + code + '</b>';
+      return isCur ? '<span aria-current="true" title="' + label + '">' + inner + '<span class="vh"> (' + label + ')</span></span>'
+        : '<a href="' + esc(h) + '" hreflang="' + code.toLowerCase() + '" lang="' + code.toLowerCase() + '" aria-label="' + label + '">' + inner + '</a>';
+    }
+    var here = U(rel === 'index.html' ? '' : rel);
+    return '<div class="lsw ' + (cls || '') + '" role="group" aria-label="' + T('Sprache', 'Language') + '">' +
+      item('DE', 'Deutsch', FLAG_DE, !EN, EN ? U(ALT) : here) + item('EN', 'English', FLAG_EN, EN, EN ? here : U(ALT)) + '</div>';
+  }
+  function langLink(cls) {
+    return '<a class="' + cls + '" href="' + esc(U(ALT)) + '" hreflang="' + T('en', 'de') + '" lang="' + T('en', 'de') + '"' +
+      ' aria-label="' + T('English version', 'Deutsche Version') + '">' + T('English', 'Deutsch') + '</a>';
+  }
 
   var ICON_SEARCH = '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>';
   var ICON_MENU = '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
@@ -138,9 +190,21 @@
     '.ib:hover{background:var(--soft);color:var(--ink);}' +
     '.start{display:inline-flex;align-items:center;min-height:40px;padding:0 16px;border-radius:999px;background:var(--accent);color:#fff;font-size:14px;font-weight:600;white-space:nowrap;}' +
     '.start:hover{background:var(--accent-d);}' +
+    '.lsw{display:inline-flex;align-items:center;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--card);}' +
+    '.lsw a,.lsw>span{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px 0 8px;border-radius:999px;font-size:12.5px;color:var(--ink2);}' +
+    '.lsw b{font-weight:650;letter-spacing:.05em;}' +
+    '.lsw>span{background:var(--soft);color:var(--ink);}' +
+    '.lsw a:hover{background:var(--soft);color:var(--ink);}' +
+    '.lsw svg{width:18px;height:12px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.14);flex:0 0 auto;}' +
+    '.lsw.big{display:flex;margin-top:16px;padding:4px;}' +
+    '.lsw.big a,.lsw.big>span{flex:1;justify-content:center;min-height:48px;font-size:15px;gap:9px;}' +
+    '.lsw.big svg{width:24px;height:16px;}' +
+    '.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}' +
+    '.lang{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;border-radius:8px;font-size:14px;font-weight:500;color:var(--ink2);white-space:nowrap;}' +
+    '.lang:hover{background:var(--soft);color:var(--ink);}' +
     '.burger{display:none;}' +
     '@media (max-width:1060px){.main .top{padding:0 9px;font-size:14px;}.in{gap:10px;}}' +
-    '@media (max-width:900px){.in{height:56px;padding:0 8px 0 16px;gap:4px;}.main,.start{display:none;}.burger{display:inline-flex;}.brand{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;}}' +
+    '@media (max-width:900px){.in{height:56px;padding:0 8px 0 16px;gap:4px;}.main,.start,.act .lang,.act .lsw{display:none;}.burger{display:inline-flex;}.brand{font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;}}' +
     '@media (max-width:360px){.brand{font-size:14px;}}' +
     /* Sheet */
     '.sheet{position:fixed;inset:0;z-index:10;background:var(--bg);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;}' +
@@ -237,7 +301,7 @@
       if (!raw || raw.charAt(0) === '#') continue;
       var abs;
       try { abs = new URL(raw, location.href).href.split('#')[0]; } catch (e) { continue; }
-      if (abs !== ROOT && abs !== ROOT + 'index.html') continue;
+      if (abs !== ROOT && abs !== ROOT + 'index.html' && abs !== ROOT + 'index_en.html') continue;
       var r = links[i].getBoundingClientRect();
       if (r.width > 0 && r.height > 0 && r.top < 140 && r.bottom > 0) return true;
     }
@@ -245,7 +309,50 @@
   }
 
   /* ---------------------------------------------------------------- Navigation */
+  function buildNavEn() {
+    var visOn = section === 'visuals', toolOn = section === 'tools';
+    function panel(list) { return list.map(function (l) { return '<a href="' + esc(href(l[1])) + '"' + cur(l[1]) + '>' + esc(l[0]) + '<small>' + esc(l[2]) + '</small></a>'; }).join(''); }
+    var html =
+      '<style>' + BASE_CSS + NAV_CSS + '</style>' +
+      '<div class="bar" role="navigation" aria-label="Kitchen navigation"><div class="in">' +
+        '<a class="brand" href="' + esc(U(HOME)) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
+        '<ul class="main">' +
+          '<li class="dd"><button class="top' + (visOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-p-vis">Power BI Visuals' + CARET + '</button>' +
+            '<div class="panel" id="kc-p-vis" hidden>' + panel(VISUALS_EN) + '</div></li>' +
+          '<li class="dd"><button class="top' + (toolOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-p-tools">Tools' + CARET + '</button>' +
+            '<div class="panel" id="kc-p-tools" hidden>' + panel(TOOLS_EN) + '</div></li>' +
+          '<li><a class="top" href="' + esc(U('index_en.html#articles')) + '">Articles</a></li>' +
+          '<li><a class="top" href="' + esc(U('index_en.html#episodes')) + '">Episodes</a></li>' +
+        '</ul>' +
+        '<div class="act">' + langSwitch('') +
+          '<a class="start" href="' + esc(U('index_en.html#visuals')) + '">Get the visuals</a>' +
+          '<button class="ib burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="kc-sheet">' + ICON_MENU + '</button>' +
+        '</div>' +
+      '</div></div>' +
+      '<div class="sheet" id="kc-sheet" role="dialog" aria-modal="true" aria-label="Menu" hidden>' +
+        '<div class="sh-head"><a class="brand" href="' + esc(U(HOME)) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
+          '<button class="ib sh-close" type="button" aria-label="Close menu">' + ICON_X + '</button></div>' +
+        '<div class="sh-body"><ul>' +
+          '<li class="sh-item"><button class="sh-acc' + (visOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-s-vis">Power BI Visuals' + CARET + '</button>' +
+            '<div class="sh-sub" id="kc-s-vis" hidden>' + VISUALS_EN.map(function (l) { return a(l[0], l[1]); }).join('') + '</div></li>' +
+          '<li class="sh-item"><button class="sh-acc' + (toolOn ? ' on' : '') + '" type="button" aria-expanded="false" aria-controls="kc-s-tools">Tools' + CARET + '</button>' +
+            '<div class="sh-sub" id="kc-s-tools" hidden>' + TOOLS_EN.map(function (l) { return a(l[0], l[1]); }).join('') + '</div></li>' +
+          '<li class="sh-item">' + a('Articles', 'index_en.html#articles', 'sh-link') + '</li>' +
+          '<li class="sh-item">' + a('Episodes', 'index_en.html#episodes', 'sh-link') + '</li>' +
+        '</ul>' +
+        '<div class="sh-cta"><a class="start" href="' + esc(U('index_en.html#visuals')) + '">Get the visuals</a>' +
+          '<a href="' + esc(U('index_en.html')) + '">English home</a></div>' +
+        langSwitch('big') +
+        '<div class="sh-legal">' + a('Legal notice', 'impressum.html') + a('Privacy', 'datenschutz.html') + a('YouTube', 'https://www.youtube.com/@Daten-WG') + '</div>' +
+        '</div></div>';
+    var h = host('kc-nav', 'position:relative;z-index:1000;');
+    h.root.innerHTML = html;
+    insertTop(h.el);
+    wireNav(h.el, h.root);
+  }
+
   function buildNav() {
+    if (EN) return buildNavEn();
     var lernenOn = section === 'lernen', werkOn = section === 'werkzeuge';
     var lernenPanel = LERNEN.map(function (l) {
       return '<a href="' + esc(U(l[1])) + '"' + cur(l[1]) + '>' + esc(l[0]) + '<small>' + esc(l[2]) + '</small></a>';
@@ -267,7 +374,7 @@
           '<li><a class="top' + (section === 'beitraege' ? ' on' : '') + '" href="' + esc(U('beitraege.html')) + '"' + cur('beitraege.html') + '>Beiträge</a></li>' +
           '<li><a class="top' + (section === 'library' ? ' on' : '') + '" href="' + esc(U('wissensgraph/')) + '">Library</a></li>' +
         '</ul>' +
-        '<div class="act">' +
+        '<div class="act">' + langSwitch('') +
           '<a class="ib" href="' + esc(U('folgen.html#suche')) + '" aria-label="Folgen durchsuchen" title="Suche">' + ICON_SEARCH + '</a>' +
           '<a class="start" href="' + esc(U('folgen.html#start')) + '">Start hier</a>' +
           '<button class="ib burger" type="button" aria-label="Menü öffnen" aria-expanded="false" aria-controls="kc-sheet">' + ICON_MENU + '</button>' +
@@ -289,6 +396,7 @@
         '</ul>' +
         '<div class="sh-cta"><a class="start" href="' + esc(U('folgen.html#start')) + '">Start hier</a>' +
           '<a href="' + esc(U('folgen.html#suche')) + '">' + ICON_SEARCH + 'Suche</a></div>' +
+        langSwitch('big') +
         '<div class="sh-legal">' + a('Impressum', 'impressum.html') + a('Datenschutz', 'datenschutz.html') + a('YouTube', 'https://www.youtube.com/@Daten-WG') + '</div>' +
         '</div></div>';
 
@@ -392,18 +500,20 @@
 
   /* ---------------------------------------------------------------- Footer */
   function buildFooter() {
-    var cols = FOOTER.map(function (g) {
+    var cols = (EN ? FOOTER_EN : FOOTER).map(function (g, gi, all) {
+      var legalCol = gi === all.length - 1;
       return '<div><h2>' + esc(g[0]) + '</h2><ul>' + g[1].map(function (l) {
-        return '<li>' + a(l[0], l[1], g[0] === 'Rechtliches' && /\.html$/.test(l[1]) ? 'ft-legal' : '') + '</li>';
+        return '<li>' + a(l[0], l[1], legalCol && /\.html$/.test(l[1]) ? 'ft-legal' : '') + '</li>';
       }).join('') + '</ul></div>';
     }).join('');
     var html = '<style>' + BASE_CSS + FOOT_CSS + '</style>' +
       '<div class="ft" role="contentinfo"><div class="ft-in">' +
-        '<a class="ft-brand" href="' + esc(U('index.html')) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
-        '<p class="ft-lead">Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting. Lust, mit uns zu arbeiten? Die Daten-WG findest du auf ' + a('daten-wg.com', 'https://www.daten-wg.com') + '.</p>' +
+        '<a class="ft-brand" href="' + esc(U(HOME)) + '">Daten-WG ·<em>Knowledge Kitchen</em></a>' +
+        '<p class="ft-lead">' + T('Podcast, Tutorials, Werkzeuge und Datenstorys rund um Power BI, Microsoft Fabric und ehrliches Reporting. Lust, mit uns zu arbeiten? Die Daten-WG findest du auf ',
+          'Podcast, tutorials, tools and data stories around Power BI, Microsoft Fabric and honest reporting. Want to work with us? You will find Daten-WG at ') + a('daten-wg.com', 'https://www.daten-wg.com') + '.</p>' +
         '<div class="ft-grid">' + cols + '</div>' +
-        '<div class="ft-base"><span>Daten-WG Knowledge Kitchen · Michael Tenner</span>' +
-          '<span>' + a('Impressum', 'impressum.html') + ' · ' + a('Datenschutz', 'datenschutz.html') + '</span></div>' +
+        '<div class="ft-base"><span>Daten-WG Knowledge Kitchen · Michael Tenner · ' + langLink('') + '</span>' +
+          '<span>' + a(T('Impressum', 'Legal notice'), 'impressum.html') + ' · ' + a(T('Datenschutz', 'Privacy'), 'datenschutz.html') + T('', ' (in German)') + '</span></div>' +
       '</div></div>';
     var h = host('kc-footer', 'position:relative;z-index:1;clear:both;');
     h.root.innerHTML = html;
@@ -413,8 +523,8 @@
   function buildCorner(pos) {
     var side = pos === 'corner-br' ? 'right:10px;' : 'left:10px;';
     var h = host('kc-legal', 'position:fixed;bottom:10px;' + side + 'z-index:2147482000;');
-    h.root.innerHTML = '<style>' + BASE_CSS + MINI_CSS + '</style><div class="corner" role="contentinfo" aria-label="Rechtliches">' +
-      a('Impressum', 'impressum.html') + '<span aria-hidden="true">·</span>' + a('Datenschutz', 'datenschutz.html') + '</div>';
+    h.root.innerHTML = '<style>' + BASE_CSS + MINI_CSS + '</style><div class="corner" role="contentinfo" aria-label="' + T('Rechtliches', 'Legal') + '">' +
+      a(T('Impressum', 'Legal notice'), 'impressum.html') + '<span aria-hidden="true">·</span>' + a(T('Datenschutz', 'Privacy'), 'datenschutz.html') + '</div>';
     document.documentElement.appendChild(h.el);
   }
 
@@ -425,7 +535,7 @@
     var s = pos.charAt(1) === 'r' ? 'right:12px;' : 'left:12px;';
     var h = host('kc-mini', 'position:fixed;' + v + s + 'z-index:2147482000;');
     h.root.innerHTML = '<style>' + BASE_CSS + MINI_CSS + '</style>' +
-      '<a class="pill" href="' + esc(U('index.html')) + '" aria-label="Zurück zur Knowledge Kitchen"><span aria-hidden="true">←</span> Kitchen</a>';
+      '<a class="pill" href="' + esc(U(HOME)) + '" aria-label="' + T('Zurück zur Knowledge Kitchen', 'Back to the Knowledge Kitchen') + '"><span aria-hidden="true">←</span> Kitchen</a>';
     document.documentElement.appendChild(h.el);
   }
 
