@@ -5180,6 +5180,7 @@ const hb13 = [
   ["Bordeaux", [68, 62, 69, 84, 60, 63, 72, 51, 70, 66], [65, 67]]
 ];
 const hbYears = ["2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028"];
+// review n5: the reference tile is titled like the sheet, it averages the 14 groups given here
 const hb13Chart = extra => Object.assign({ multiplesAgg: "mean", multiplesTotalPos: "last", multiplesTotalShade: true,
   multiplesTotalLabel: "Durchschnitt 25 Standorte", scenarioLabels: true, showAbsoluteVariance: false,
   showRelativeVariance: false, showTotal: false }, extra);
@@ -5191,6 +5192,67 @@ const hbPx = (id, a) => hbMarks(id).map(m => m.getAttribute(a || "data-px-per-un
 const hbSpread = ks => ks.length ? Math.max(...ks) / Math.min(...ks) - 1 : 1;
 const hbByGroup = (id, name) => hbMarks(id).find(m => m.getAttribute("data-group") === name) || null;
 const hbN = (m, a) => +m.getAttribute(a);
+// review m6: px per unit measured on the drawn marks, independent of the mult-hero marker
+// (which comes from the same lastPanelK as the fit). Per tile: base = AC bar (height,
+// bars: width) / |value| at the largest value; abs = Δ bar / |Δ| at the largest Δ (Δ from
+// the aria label, or exact from dlt(name, cat)); rel = pin stem / |Δ %|; line = slope
+// between the two most distant points. Returns { name: k } for the tiles that draw it.
+const hbNum = t => Number(String(t).replace("−", "-").replace(/\./g, "").replace(",", "."));
+const hbIndep = (id, kind, o) => {
+  o = o || {};
+  const out = {};
+  hbMarks(id).forEach(m => {
+    const name = m.getAttribute("data-group");
+    let best = null;
+    const cats = hbCats(id, name);
+    const lbl = g => (g.getAttribute("aria-label") || "").split(", ");
+    if (kind === "line") {
+      const pts = cats.map(g => { const c = g.querySelector("circle"); const v = hbNum(lbl(g)[1]); return c && isFinite(v) ? { y: nbAttr(c, "cy"), v } : null; }).filter(Boolean);
+      if (pts.length > 1) {
+        pts.sort((a, b) => a.v - b.v);
+        const a = pts[0], b = pts[pts.length - 1];
+        if (b.v !== a.v) { out[name] = Math.abs(a.y - b.y) / (b.v - a.v); }
+      }
+      return;
+    }
+    cats.forEach(g => {
+      const parts = lbl(g);
+      const cat = parts[0];
+      let v = null, px = null;
+      if (kind === "main") {
+        const b = avgAcBar(g);
+        const ov = o.val ? o.val(name, cat) : null;
+        v = ov != null ? ov : hbNum(parts[1]);
+        if (b && isFinite(v)) { px = nbAttr(b, o.bars ? "width" : "height"); }
+      } else {
+        const dm = (g.getAttribute("aria-label") || "").match(/Δ(?:PY|PL|Ø) ([+−-]?[\d.,]+)/);
+        const d = o.dlt ? o.dlt(name, cat) : dm ? hbNum(dm[1]) : null;
+        if (d == null || !isFinite(d)) { return; }
+        if (kind === "abs") {
+          const b = voBar(g);
+          v = d;
+          if (b) { px = nbAttr(b, o.bars ? "width" : "height"); }
+        } else {
+          const ln = [...g.querySelectorAll("line")].find(l => [NB.GOOD, NB.BAD].includes(nbStroke(l)) || l.getAttribute("data-icd") === "var-plan");
+          const base = o.base ? o.base(name, cat) : hbNum(parts[1]) - d;
+          v = base ? 100 * d / base : null;
+          if (ln && v != null) { px = o.bars ? Math.abs(nbAttr(ln, "x2") - nbAttr(ln, "x1")) : Math.abs(nbAttr(ln, "y2") - nbAttr(ln, "y1")); }
+        }
+      }
+      if (px != null && v != null && Math.abs(v) > 0 && (!best || Math.abs(v) > Math.abs(best.v))) { best = { v, px }; }
+    });
+    if (best && best.px > 0.5) { out[name] = best.px / Math.abs(best.v); }
+  });
+  return out;
+};
+const hbIndepOk = (id, kind, o, tol) => {
+  const r = hbIndep(id, kind, o), ks = Object.values(r);
+  return { ok: ks.length >= 2 && hbSpread(ks) < (tol || 0.006), n: ks.length, txt: `${ks.length} Kacheln, ${ks.length ? Math.min(...ks).toFixed(4) : "–"} bis ${ks.length ? Math.max(...ks).toFixed(4) : "–"}`, r };
+};
+// exact ΔØ / Ø of the 13B data (mean over all 14 groups, PL in plan years)
+const hbVal = (name, cat) => { const r = hb13.find(x => x[0] === name); const i = hbYears.indexOf(cat); return !r || i < 0 ? null : i < 10 ? r[1][i] : r[2][i - 10]; };
+const hbMean = cat => hb13.reduce((a, r) => a + hbVal(r[0], cat), 0) / hb13.length;
+const hbDltAvg = (name, cat) => { const v = hbVal(name, cat); return v == null ? null : v - hbMean(cat); };
 // category groups whose box centre lies inside a tile (cell of its mult-hero marker)
 const hbCats = (id, name) => {
   const f = hbByGroup(id, name);
@@ -5255,6 +5317,10 @@ addStage("c535", "Balken · große Kachel „  c “ (Name C), gleiche px je Ein
   const h = hbHero("c535"), px = hbPx("c535");
   check(!!h && h.getAttribute("data-group") === "C" && px.length === 4 && hbSpread(px) < 0.003,
     `c535: C groß, vier Kacheln mit gleichem px je Einheit (${px.map(v => v.toFixed(3)).join(" / ")})`);
+  // review m5: bars span two columns (the value axis is horizontal), two rows would only thicken the rows
+  const reg = hbByGroup("c535", "A"), ind = hbIndepOk("c535", "main", { bars: true });
+  check(h.getAttribute("data-cols") === "2" && h.getAttribute("data-rows") === "1" && Math.abs(hbN(h, "data-w") - 2 * hbN(reg, "data-w")) <= 1
+    && hbN(h, "data-h") === hbN(reg, "data-h") && ind.ok, `c535: große Balken-Kachel über zwei Spalten, Balkenlänge / Wert gleich (${ind.txt})`);
 }
 
 // ---- c536: Linie
@@ -5263,8 +5329,9 @@ addStage("c536", "Linie · große Kachel B über zwei Zeilen", 960, 520);
   runCap("c536", avgDv(avgABC, { orientation: "line", multiplesHeroTile: "B", showAbsoluteVariance: false, showRelativeVariance: false }), 960, 520);
   nbSane("c536");
   const h = hbHero("c536"), px = hbPx("c536");
-  check(!!h && h.getAttribute("data-rows") === "2" && px.length === 4 && hbSpread(px) < 0.003,
-    `c536: Linie mit großer Kachel, gleiche px je Einheit (${px.map(v => v.toFixed(3)).join(" / ")})`);
+  const ind = hbIndepOk("c536", "line");
+  check(!!h && h.getAttribute("data-rows") === "2" && px.length === 4 && hbSpread(px) < 0.003 && ind.ok,
+    `c536: Linie mit großer Kachel, gleiche px je Einheit (Marker ${px.map(v => v.toFixed(3)).join(" / ")}, Punkte ${ind.txt})`);
 }
 
 // ---- c537: Säulen mit ΔPY und ΔPY % · Basis-, Δ- und Δ %-Panel gleich skaliert
@@ -5301,6 +5368,12 @@ addStage("c538", "13C · nur ΔØ, Berlin über zwei Zeilen, eine Δ-Skala (glei
   const k = +h.getAttribute("data-px-per-unit");
   const kRef = +ref.getAttribute("data-px-per-unit"), f = +ref.getAttribute("data-factor");
   check(Math.abs(kRef / k - f) < 0.003, `c538: Ø-Kachel mit px je Einheit = Δ-Skala × Faktor (${(kRef / k).toFixed(3)} = ${f})`);
+  const ind = hbIndepOk("c538", "abs", { dlt: hbDltAvg });
+  check(ind.ok && ind.n === 14, `c538: Δ-Balken / exaktes ΔØ gleich in allen Δ-Kacheln (${ind.txt})`);
+  // review m4: Berlin's zero line lies on the zero line of the second row (sheet 13C)
+  const zero = (t, y) => { const b = voBar(byCat(hbCats("c538", t), y)); return b ? nbAttr(b, "y") + nbAttr(b, "height") : null; };
+  const zB = zero("Berlin", "2025"), zZ = zero("Zürich", "2020");
+  check(zB != null && zZ != null && Math.abs(zB - zZ) < 0.6, `c538: Nulllinie Berlin auf der Nulllinie der Zeile 2 (${zB && zB.toFixed(1)} / ${zZ && zZ.toFixed(1)})`);
   const d25 = avgDelta(byCat(hbCats("c538", "Berlin"), "2025"));
   const b25 = voBar(byCat(hbCats("c538", "Berlin"), "2025"));
   check(d25 > 200 && Math.abs(nbAttr(b25, "height") - d25 * k) < 0.8, `c538: ΔØ Berlin 2025 = ${d25} × px (${nbAttr(b25, "height").toFixed(1)})`);
@@ -5315,6 +5388,10 @@ addStage("c539", "13D · nur ΔØ %, Berlin über zwei Zeilen, gleiche px je Pro
   const h = hbHero("c539"), px = voPx("c539");
   check(!!h && px.length === 14 && hbSpread(px) < 0.002 && nbQ("c539", '[data-icd="var-only"]').every(g => g.getAttribute("data-panels") === "rel"),
     `c539: 14 Δ %-Kacheln samt Berlin gleich skaliert (${Math.min(...px).toFixed(4)} bis ${Math.max(...px).toFixed(4)})`);
+  const ind = hbIndepOk("c539", "rel", { dlt: hbDltAvg, base: (n, c) => hbMean(c) });
+  check(ind.ok && ind.n === 14, `c539: Pin-Länge / exaktes ΔØ % gleich (${ind.txt})`);
+  const stem = (t, y) => { const l = [...byCat(hbCats("c539", t), y).querySelectorAll("line")].find(x => [NB.GOOD, NB.BAD].includes(nbStroke(x))); return l ? nbAttr(l, "y1") : null; };
+  check(Math.abs(stem("Berlin", "2025") - stem("Zürich", "2020")) < 0.6, `c539: Nulllinie Berlin auf der Zeile 2 (${stem("Berlin", "2025").toFixed(1)} / ${stem("Zürich", "2020").toFixed(1)})`);
 }
 
 // ---- c540: die Ø-Kachel selbst groß in der Δ-only-Ansicht · Peer in einer Gitterzelle gemessen (M1 aus Teil 2)
@@ -5330,7 +5407,7 @@ addStage("c540", "Ø-Kachel als große Kachel (zuerst) in der Δ-only-Ansicht: F
 }
 
 // ---- c541: Zoom auf die große Kachel und auf eine kleine, zurück wie vorher
-addStage("c541", "Zoom auf die große Kachel C (fast gleiche Größe, kein Faktor) und auf A (Faktor gegen ihre Rasterzelle)", 960, 520);
+addStage("c541", "Zoom auf die große Kachel C und auf A, je auf der eigenen Achse, Faktor gegen ihre Rasterzelle", 960, 520);
 {
   const dv = () => avgDv(avgABC, { multiplesHeroTile: "C", showAbsoluteVariance: false, showRelativeVariance: false });
   const rs = runCap("c541", dv(), 960, 520);
@@ -5339,13 +5416,14 @@ addStage("c541", "Zoom auf die große Kachel C (fast gleiche Größe, kein Fakto
   const hdr = name => nbQ("c541", 'g[role="button"]').find(b => (b.getAttribute("aria-label") || "").startsWith(name));
   const k25 = v => nbAttr(avgAcBar(nbQ("c541", "g.icd-cat").find(g => (g.getAttribute("aria-label") || "").startsWith("2025,"))), "height") / v;
   hdr("C ").dispatchEvent(new MouseEvent("click", { bubbles: true }));
-  const zC = k25(90), chipC = nbQ("c541", '[data-icd="zoom-scale"]').length;
+  const zC = k25(90), chipC = nbQ("c541", '[data-icd="zoom-scale"]')[0];
   rs.v.zoomGroup = null; rs.upd(dv());
   hdr("A ").dispatchEvent(new MouseEvent("click", { bubbles: true }));
   const zA = k25(30), chip = nbQ("c541", '[data-icd="zoom-scale"]')[0];
-  check(hbMarks("c541").length === 0 && chipC === 0 && Math.abs(zC / kC - 1) < 0.03 && !!chip
-    && Math.abs(+chip.getAttribute("data-factor") - zA / kA) < 0.01,
-    `c541: Zoom auf C ohne Faktor (${(zC / kC).toFixed(3)}), auf A Faktor ${chip ? chip.getAttribute("data-factor") : "–"} = ${(zA / kA).toFixed(3)}`);
+  // review m2: the zoom shows the tile on its own axis (C up to 90, A on the regular tiles' axis)
+  check(hbMarks("c541").length === 0 && !!chipC && Math.abs(+chipC.getAttribute("data-factor") / (zC / kC) - 1) < 0.002 && !!chip
+    && Math.abs(+chip.getAttribute("data-factor") / (zA / kA) - 1) < 0.002,
+    `c541: Zoom auf C Faktor ${chipC ? chipC.getAttribute("data-factor") : "–"} = ${(zC / kC).toFixed(3)}, auf A ${chip ? chip.getAttribute("data-factor") : "–"} = ${(zA / kA).toFixed(3)}`);
   rs.v.zoomGroup = null; rs.upd(dv());
   check(voSvg("c541") === before, "c541: zurück zum Raster SVG-gleich");
 }
@@ -5360,10 +5438,16 @@ addStage("c542", "Stapel mit Namen: keine große Kachel (bisheriges Verhalten), 
   const stacked = vis(rs, "multiplesHeroTile");
   rs.upd(avgDv(avgABC, { multiplesHeroTile: "B", waterfallStyle: true }));
   const wf = vis(rs, "multiplesHeroTile"), wfMarks = hbMarks("c542").length;
+  rs.upd(avgDv(avgABC, { orientation: "line", lineSeries: true, multiplesHeroTile: "B" }));
+  const lnMarks = hbMarks("c542").length;
+  rs.upd(rvStackDv([["A", { X: [10, 11], Y: [10, 11] }], ["B", { X: [20, 21], Y: [10, 11] }]], ["2025", "2026"],
+    { orientation: "line", lineSeries: true, multiplesHeroTile: "B" }));
+  const ln = vis(rs, "multiplesHeroTile"), lnMarks2 = hbMarks("c542").length;
   rs.upd(avgDv(avgABC, { multiplesHeroTile: "B" }));
   const plain = vis(rs, "multiplesHeroTile");
   rs.upd(avgDv(avgABC, voBase({ multiplesHeroTile: "B" })));
   const vo = [vis(rs, "multiplesHeroTile"), vis(rs, "multiplesHero")];
+  check(lnMarks2 === 0 && !ln, `c542: Serienlinien ohne große Kachel, Feld verborgen (${lnMarks2}, ${ln}; Linie ohne Serie ${lnMarks} Marker)`);
   check(stackMarks === 0 && wfMarks === 0 && !stacked && !wf && plain && vo[0] && !vo[1],
     `c542: Stapel/Brücke ohne große Kachel; Feld sichtbar nur ohne Stapel und Brücke (Stapel ${stacked}, Brücke ${wf}, Säulen ${plain}, Δ-only ${vo[0]}, Schalter ${vo[1]})`);
 }
@@ -5380,6 +5464,8 @@ addStage("c544", "Ø zuerst, C (natürlich in Zeile 2) rückt in Zeile 1, damit 
   runCap("c544", avgDv(avgABC, { multiplesTotalPos: "first", multiplesHeroTile: "C", showAbsoluteVariance: false, showRelativeVariance: false }), 960, 520);
   nbSane("c544");
   const h4 = hbHero("c544");
+  const i3 = hbIndepOk("c543", "main"), i4 = hbIndepOk("c544", "main");
+  check(i3.ok && i4.ok, `c543/c544: Säulenhöhe / Wert gleich (${i3.txt} · ${i4.txt})`);
   check(!!h4 && h4.getAttribute("data-row") === "0" && h4.getAttribute("data-col") === "0" && hbSpread(hbPx("c544")) < 0.003,
     `c544: C in Spalte 1 über Zeile 1 und 2 (${h4 && h4.getAttribute("data-row")})`);
 }
@@ -5394,6 +5480,181 @@ addStage("c545", "Feste Obergrenze 400: große Kachel C und kleine Kacheln bis 4
   const h = nbAttr(avgAcBar(byCat(hbCats("c545", "A"), "2026")), "height");
   check(px.length === 4 && hbSpread(px) < 0.003 && Math.abs(h - 40 * k) < 0.6,
     `c545: gleiche px je Einheit, A 2026 = 40 × ${k.toFixed(3)} (${h.toFixed(1)})`);
+}
+
+// ---- B13 Teil 1b Review (c546+): Angleich mit Erfolgskontrolle (M1), eigene Δ-Domains je
+// Seite (m1), Zoom auf eigener Achse (m2), Raster ohne verschenkte Plätze (m3), Nulllinie (m4),
+// Balken über zwei Spalten (m5), Testlücken (m6). Gleichheit unabhängig an den Marken gemessen.
+// PL für alle Jahre, Berlin weit neben Plan (Faktor hf), die übrigen 90 bis 98 % des Ist
+const hbPl = (rows, hf) => rows.map(([n, a], i) => [n, a, a.map((v, j) => n === "Berlin" ? Math.round(v * hf) : Math.round(v * (0.9 + 0.02 * ((i + j) % 5))))]);
+const hbPlDv = (hf, x, n) => avgDv(hbPl(hb13.slice(0, n || 6), hf), Object.assign({ multiplesTotal: false, multiplesHeroTile: "Berlin",
+  comparisonMode: "plan", showTotal: false, showAbsoluteVariance: true, showRelativeVariance: false }, x), { years: hbYears.slice(0, 10), plAll: true });
+const hbAllOk = (id, kinds, o) => kinds.map(k => [k, hbIndepOk(id, k, o)]);
+const hbAllTxt = rs => rs.map(([k, r]) => `${k} ${r.txt}`).join(" · ");
+
+// ---- c546: M1 Repro A · ΔPL, Berlin-Plan = 2,5 × Ist (großes absolutes Δ in der großen Kachel)
+addStage("c546", "Review M1 · ΔPL, Berlin-Plan 2,5 × Ist: Werte und ΔPL in groß und klein mit gleichen px je Einheit", 1280, 720);
+addStage("c546b", "Review M1 · dieselben Daten mit ΔPL und ΔPL %, Berlin-Plan 0,15 × Ist", 1280, 720);
+{
+  runCap("c546", hbPlDv(2.5, {}), 1280, 720);
+  nbSane("c546");
+  const r = hbAllOk("c546", ["main", "abs"]);
+  check(!!hbHero("c546") && r.every(([, x]) => x.ok && x.n === 6), `c546: große Kachel, Säulen und ΔPL-Balken je Wert gleich (${hbAllTxt(r)})`);
+  const ka = hbPx("c546", "data-px-per-unit-abs");
+  check(ka.length === 6 && hbSpread(ka) < 0.002, `c546: Marker ΔPL gleich (${Math.min(...ka).toFixed(4)} bis ${Math.max(...ka).toFixed(4)})`);
+  runCap("c546b", hbPlDv(0.15, { showRelativeVariance: true }), 1280, 720);
+  nbSane("c546b");
+  const r2 = hbAllOk("c546b", ["main", "abs", "rel"]);
+  const rel = hbPx("c546b", "data-px-per-unit-rel");
+  check(!!hbHero("c546b") && r2.every(([, x]) => x.ok) && rel.length >= 2 && hbSpread(rel) < 0.002,
+    `c546b: Werte, ΔPL und ΔPL % gleich (${hbAllTxt(r2)}; Marker Δ % ${rel.length})`);
+}
+
+// ---- c547: M1 Repro C · doppelte Abweichung (ΔPY und ΔPL), PL nur 2027/2028
+addStage("c547", "Review M1 · doppelte Abweichung ΔPY + ΔPL (PL 2017/2018), Berlin groß: alle Panels gleich", 1280, 1100);
+{
+  runCap("c547", avgDv(hb13.slice(0, 6), { multiplesTotal: false, multiplesHeroTile: "Berlin", showAbsoluteVariance: true,
+    showRelativeVariance: true, showTotal: false, dualVariance: true }, { years: hbYears.slice(0, 10), py: true, plAll: true }), 1280, 1100);
+  nbSane("c547");
+  const m = hbIndepOk("c547", "main");
+  const f = a => hbPx("c547", a);
+  check(!!hbHero("c547") && m.ok && m.n === 6 && hbSpread(f("data-px-per-unit")) < 0.002 && hbSpread(f("data-px-per-unit-abs")) < 0.002
+    && hbSpread(f("data-px-per-unit-rel")) < 0.002, `c547: Werte (${m.txt}), Δ und Δ % gleich, auch mit doppelter Abweichung`);
+}
+
+// ---- c548: M1 Repro D · Δ-only, Balken, ΔØ und ΔØ %, vier Standorte
+addStage("c548", "Review M1 · nur ΔØ und ΔØ %, Balken, Berlin über zwei Spalten, beide Δ-Skalen gleich", 1100, 560);
+{
+  runCap("c548", avgDv(hb13.slice(0, 4), hb13Chart({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true, orientation: "bars",
+    showAbsoluteVariance: true, showRelativeVariance: true }), hbObjs), 1100, 560);
+  nbSane("c548");
+  // Ø over the four given groups (avgDv builds the reference tile from all of them)
+  const four = hb13.slice(0, 4);
+  const mean4 = c => four.reduce((a, r) => a + hbVal(r[0], c), 0) / 4;
+  const d4 = (n, c) => { const v = hbVal(n, c); return v == null ? null : v - mean4(c); };
+  const a = hbIndepOk("c548", "abs", { bars: true, dlt: d4 }), rl = hbIndepOk("c548", "rel", { bars: true, dlt: d4, base: (n, c) => mean4(c) });
+  const h = hbHero("c548");
+  check(!!h && h.getAttribute("data-cols") === "2" && a.ok && a.n === 4 && rl.ok && rl.n === 4,
+    `c548: ΔØ-Balken (${a.txt}) und ΔØ %-Pins (${rl.txt}) je Wert gleich`);
+}
+
+// ---- c549: m1 · das Δ der großen Kachel nimmt den kleinen keinen Platz mehr
+addStage("c549", "Review m1 · ΔPL, Berlin-Plan 0,4 × Ist: kleine Kacheln ohne Berlins Δ-Raum", 1280, 900);
+addStage("c549b", "Referenz ohne große Kachel (alle Kacheln halten Berlins +206 frei)", 1280, 900);
+{
+  runCap("c549", hbPlDv(0.4, {}), 1280, 900);
+  runCap("c549b", hbPlDv(0.4, { multiplesHeroTile: "" }), 1280, 900);
+  nbSane("c549");
+  // Köln's ΔPL zero line (bottom of a positive Δ bar) in both decks; same row height (two rows)
+  const z = id => { const g = nbQ(id, "g.icd-cat").find(c => (c.getAttribute("aria-label") || "").startsWith("2017, 79,")); const b = voBar(g); return nbAttr(b, "y") + nbAttr(b, "height"); };
+  const r = hbAllOk("c549", ["main", "abs"]);
+  check(r.every(([, x]) => x.ok) && z("c549") < z("c549b") - 60,
+    `c549: gleiche Skalen (${hbAllTxt(r)}), Kölns Δ-Panel endet ${(z("c549b") - z("c549")).toFixed(0)} px höher`);
+}
+
+// ---- c550: m2 · Zoom auf eine gestreckte Kachel zeigt ihre eigene Achse
+addStage("c550", "Review m2 · Salzburg groß (gestreckte Achse), Zoom auf der eigenen Achse 0 bis 56", 1280, 720);
+addStage("c550b", "Referenz: Zoom auf Salzburg ohne große Kachel (gemeinsame Achse bis 344)", 1280, 720);
+{
+  const dv = name => avgDv(hb13, hb13Chart({ multiplesHeroTile: name }), hbObjs);
+  const rs = runCap("c550", dv("Salzburg"), 1280, 720);
+  const kGrid = +hbByGroup("c550", "Salzburg").getAttribute("data-px-per-unit");
+  const rb = runCap("c550b", dv(""), 1280, 720);
+  rs.v.zoomGroup = "Salzburg"; rs.upd(dv("Salzburg"));
+  rb.v.zoomGroup = "Salzburg"; rb.upd(dv(""));
+  const bar = id => nbAttr(avgAcBar(nbQ(id, "g.icd-cat").find(g => (g.getAttribute("aria-label") || "").startsWith("2021,"))), "height");
+  const chip = nbQ("c550", '[data-icd="zoom-scale"]')[0];
+  // own axis = Salzburg's own values (0 to 56): the highest column fills the zoom area, far more
+  // than on the shared deck axis without the large tile (to 344) or on the stretched grid axis
+  check(bar("c550") > 0.7 * 720 && bar("c550") > 4 * bar("c550b") && !!chip && Math.abs(+chip.getAttribute("data-factor") / (bar("c550") / 56 / kGrid) - 1) < 0.002,
+    `c550: Salzburg 2021 (56) im Zoom ${bar("c550").toFixed(1)} px (Deck-Achse ohne große Kachel ${bar("c550b").toFixed(1)} px), Faktor ${chip && chip.getAttribute("data-factor")}`);
+}
+
+// ---- c551: m3 · Raster ohne verschenkte Plätze: 6 Gruppen 4 × 2, Top 5 + Rest + Ø zuletzt 4 × 2 ohne Lücke
+addStage("c551", "Review m3 · sechs Standorte, Berlin groß: 4 × 2 statt 3 × 3", 1280, 720);
+addStage("c551b", "Review m3 · Top 5 + Rest + Ø zuletzt, Berlin groß: 4 × 2 ohne Lücke", 1280, 720);
+{
+  runCap("c551", avgDv(hb13.slice(0, 6), hb13Chart({ multiplesTotal: false, multiplesHeroTile: "Berlin" }), hbObjs), 1280, 720);
+  nbSane("c551");
+  const g1 = hbMarks("c551"), rows1 = Math.max(...g1.map(m => +m.getAttribute("data-row"))) + 1, cols1 = Math.max(...g1.map(m => +m.getAttribute("data-col"))) + 1;
+  check(rows1 === 2 && cols1 === 4 && hbIndepOk("c551", "main").ok, `c551: 4 Spalten × 2 Zeilen (${cols1} × ${rows1}), Säulen gleich`);
+  runCap("c551b", avgDv(hb13, hb13Chart({ multiplesTopN: 5, multiplesHeroTile: "Berlin" }), hbObjs), 1280, 720);
+  nbSane("c551b");
+  const g2 = hbMarks("c551b");
+  const cells = new Set(g2.flatMap(m => { const c = +m.getAttribute("data-col"), r = +m.getAttribute("data-row");
+    return m.getAttribute("data-role") === "hero" ? [r * 4 + c, (r + 1) * 4 + c] : [r * 4 + c]; }));
+  const tot = g2.find(m => m.getAttribute("data-kind") === "total"), rest = g2.find(m => m.getAttribute("data-kind") === "rest");
+  check(g2.length === 7 && cells.size === 8 && tot.getAttribute("data-col") === "3" && tot.getAttribute("data-row") === "1" && !!rest,
+    `c551b: sieben Kacheln füllen 4 × 2 ganz, Ø unten rechts (Top 5 + Rest)`);
+  check(hbIndepOk("c551b", "main").ok, `c551b: Säulen / Wert gleich, Rest-Kachel eingeschlossen (${hbIndepOk("c551b", "main").txt})`);
+}
+
+// ---- c552: m6 · Rest-Kachel als große Kachel, mehr als 24 Gruppen
+addStage("c552", "Review m6 · Top 13 + Rest-Kachel „5 weitere“ groß", 1280, 720);
+addStage("c552b", "Review m6 · 30 Gruppen (24 gezeigt), große Kachel in der Mitte, „+n more“ an der letzten Gruppe", 1280, 900);
+{
+  const { regions, years } = avg18;
+  runCap("c552", avgDv(regions, hb13Chart({ multiplesTopN: 13, multiplesRestLabel: "{n} weitere", multiplesHeroTile: "5 weitere" }), { years, objs: hbObjs.objs }), 1280, 720);
+  nbSane("c552");
+  const h = hbHero("c552");
+  // Rest- und Ø-Kachel sind Mittel mit gerundeten Labels: Werte exakt aus den Daten
+  const ranked = regions.slice().sort((a, b) => b[1].reduce((x, y) => x + y, 0) - a[1].reduce((x, y) => x + y, 0));
+  const mean = (rs, cat) => { const i = years.indexOf(cat); return i < 10 ? rs.reduce((a, r) => a + r[1][i], 0) / rs.length : null; };
+  const val = (n, cat) => n === "5 weitere" ? mean(ranked.slice(13), cat) : n === "Durchschnitt 25 Standorte" ? mean(regions, cat) : null;
+  const ind = hbIndepOk("c552", "main", { val });
+  check(!!h && h.getAttribute("data-kind") === "rest" && ind.ok && ind.n === 15, `c552: Rest-Kachel groß, Säulen / Wert gleich (${ind.txt})`);
+  const many = Array.from({ length: 30 }, (_, i) => [`G${String(i + 1).padStart(2, "0")}`, [10 + i, 20 + (i % 7), 15 + 2 * i, 30], [35, 40]]);
+  runCap("c552b", avgDv(many, { multiplesTotal: false, multiplesHeroTile: "g12", showAbsoluteVariance: false, showRelativeVariance: false }), 1280, 900);
+  nbSane("c552b");
+  const ms = hbMarks("c552b"), hb = hbHero("c552b");
+  const more = nbTexts("c552b").filter(t => /\(\+6 more\)/.test(t));
+  check(ms.length === 24 && !!hb && hb.getAttribute("data-group") === "G12" && more.length === 1 && more[0].startsWith("G24")
+    && hbIndepOk("c552b", "main").ok, `c552b: 24 Kacheln, G12 groß, „(+6 more)“ an G24 (${more.join(" ")})`);
+}
+
+// ---- c553: m6 · Dunkel (13B) und Hochkontrast (13C)
+addStage("c553", "Review m6 · 13B im dunklen Modus", 1280, 720, "#252423");
+{
+  runCap("c553", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin" }), Object.assign({}, hbObjs,
+    { objs: Object.assign({}, hbObjs.objs, { colors: { appearance: "dark" } }) })), 1280, 720);
+  nbSane("c553");
+  const bg = nbQ("c553", '[data-icd="mult-ref-bg"]')[0];
+  check(hbMarks("c553").length === 15 && hbSpread(hbPx("c553")) < 0.002 && !!bg && nbFill(bg) === "#3A3A36",
+    "c553: dunkel, gleiche Skala, Ø-Kachel mit dunklem Band");
+}
+hcRun("c553h", "Review m6 · 13C im Hochkontrast", 1280, 720,
+  avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true, showAbsoluteVariance: true }), hbObjs));
+{
+  nbSane("c553h");
+  const px = voPx("c553h"), bg = nbQ("c553h", '[data-icd="mult-ref-bg"]')[0];
+  check(!!hbHero("c553h") && px.length === 14 && hbSpread(px) < 0.002 && !!bg && bg.getAttribute("fill") === "none",
+    `c553h: Hochkontrast, 14 Δ-Kacheln gleich (${px[0]}), Ø-Kachel mit Rahmen`);
+}
+
+// ---- c554: m6 · Δ-only mit ΔØ und ΔØ % (Säulen), Zoom in der Δ-only-Ansicht
+addStage("c554", "Review m6 · nur ΔØ und ΔØ %, Berlin groß: beide Δ-Skalen gleich", 1280, 900);
+addStage("c554z", "Review m6 · Zoom auf Berlin (eigene Δ-Achse) und auf Köln in der Δ-only-Ansicht", 1280, 720);
+{
+  runCap("c554", avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true,
+    showAbsoluteVariance: true, showRelativeVariance: true }), hbObjs), 1280, 900);
+  nbSane("c554");
+  const a = hbIndepOk("c554", "abs", { dlt: hbDltAvg }), rl = hbIndepOk("c554", "rel", { dlt: hbDltAvg, base: (n, c) => hbMean(c) });
+  check(!!hbHero("c554") && a.ok && a.n === 14 && rl.ok && rl.n === 14, `c554: ΔØ (${a.txt}) und ΔØ % (${rl.txt}) je Wert gleich`);
+  const dv = () => avgDv(hb13, hb13Chart({ multiplesHeroTile: "Berlin", multiplesBasis: "avg", varianceOnly: true, showAbsoluteVariance: true }), hbObjs);
+  const rs = runCap("c554z", dv(), 1280, 720);
+  const before = voSvg("c554z");
+  const kB = +hbByGroup("c554z", "Berlin").getAttribute("data-px-per-unit"), kK = +hbByGroup("c554z", "Köln").getAttribute("data-px-per-unit");
+  const zoomOn = key => { rs.v.zoomGroup = key; rs.upd(dv()); };
+  const kZoom = () => voPx("c554z")[0];
+  // no chip below 3 % difference (drawZoomBackChip): then the ratio itself must be that close to 1
+  const fac = k => { const c = nbQ("c554z", '[data-icd="zoom-scale"]')[0]; return c ? +c.getAttribute("data-factor") : Math.abs(k - 1) < 0.03 ? k : NaN; };
+  zoomOn("Berlin");
+  const zb = [voPx("c554z").length, kZoom(), fac(kZoom() / kB)];
+  zoomOn("Köln");
+  const zk = [voPx("c554z").length, kZoom(), fac(kZoom() / kK)];
+  rs.v.zoomGroup = null; rs.upd(dv());
+  check(zb[0] === 1 && zk[0] === 1 && Math.abs(zb[2] / (zb[1] / kB) - 1) < 0.002 && Math.abs(zk[2] / (zk[1] / kK) - 1) < 0.002 && voSvg("c554z") === before,
+    `c554z: Zoom zeigt nur Δ, Faktor Berlin ${zb[2]} = ${(zb[1] / kB).toFixed(3)}, Köln ${zk[2]} = ${(zk[1] / kK).toFixed(3)}, zurück SVG-gleich`);
 }
 
 // ======================================================================
