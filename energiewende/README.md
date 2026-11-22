@@ -27,7 +27,7 @@ an fremde Studien anlegen (`docs/01_messlatte.md`).
    gerechnet. Das Ergebnis darf gegen den Hauptpfad ausfallen.
 4. **Transparenz-Richtlinien** gelten vollständig: `TRANSPARENZ.md`.
 
-## Entscheidungen (Michael, 22.11.2026)
+## Entscheidungen (Michael, 22.11.2026, fortlaufend)
 
 | Thema | Entscheidung |
 |---|---|
@@ -47,6 +47,16 @@ an fremde Studien anlegen (`docs/01_messlatte.md`).
 | Quellenzugriff | Erlaubnisregeln in `.claude/settings.json` für die freigegebenen Hosts |
 | Gaspreis-Regler | 20 / 35 / 85 €/MWh (min / mid / max), Vorschlag aus Dossier 09, bestätigt |
 | Kernkraft-Neubaukosten | Szenario „R21 wie veröffentlicht“ (6.250 €/kW) neben der Spanne aus gebauten Projekten (7.500 / 12.000 / 17.500 €/kW), bestätigt |
+| ZEW-Zahl | Die Reihe nennt die 824 Mrd. € aus der Studie, mit Hinweis auf deren Uneinheitlichkeit; keine eigene „richtige“ Zahl |
+| Kernkraft-Reaktivierung | Mitte 2,7 GW (Isar 2, Emsland), oberes Ende rund 12 GW laut Radiant-Gutachten, sobald im Original gelesen |
+| Dunkelflauten-Definition | Ereignisse über das Tagesmittel, Speicherbedarf über die Energielücke; das strenge Stundenkriterium als günstigste Lesart daneben |
+| Stresstest China | Zwei Stufen getrennt: Rückkehr vom Überkapazitätspreis auf den Mindestpreis, dann der Aufschlag für Ware außerhalb Chinas |
+| Setzungen Wasserstoff | An geprüfte Quellen anpassen; die bisherige Setzung bleibt oberes Ende der Bandbreite |
+| Führende Energiebilanz | AG Energiebilanzen; Eurostat als Abgleich und für internationale Vergleiche |
+| Solarleistung | einheitlich gegen die Modulleistung, wie in den Stundenprofilen |
+| Interessen | Kein Auftraggeber, keine Finanzierung durch Dritte — bestätigt |
+| PwC-Studie, ifo-Gastbeitrag | „später“: Teil 1 weist bis dahin offen aus, dass beide Originale nicht gelesen wurden |
+| Reihenfolge | Korrekturen einarbeiten, Parameter zusammenführen, dann Teil 1 bauen und durch die Reviewer schicken |
 
 ## Die Reihe
 
@@ -101,10 +111,12 @@ Das Lauf-Protokoll mit Laufzeit und Token je Agent steht in `agents/PROTOKOLL.md
 | 2026-11-22 | 0 · Regeln | `TRANSPARENZ.md` (Entwurf v0.1) und `docs/01_messlatte.md` (Kriterien festgelegt, bevor eine Studie bewertet wurde). |
 | 2026-11-22 | 1 · Recherche | Zehn Dossier-Aufträge gestartet (`agents/briefs/`). |
 | 2026-11-22 | 1 · Korrektur | Dossier 01 hat vier Ungenauigkeiten im Erstbefund `research/00_aufhaenger_r21.md` gefunden (Seitenangaben, eine zu starke Formulierung, eine unsichere Autorenangabe, eine veraltete Konfidenzstufe). Korrigiert, Tabelle „Korrekturen“ im Dokument. Der Kernbefund (13,8 steht nicht in der Quelle) bleibt. |
+| 2026-11-22 | 1 · Abschluss | Zehn Dossiers, 453 Parameter. Zweite Host-Freigabe (20 Hosts). |
+| 2026-11-22 | 2 · Gegenprüfung | Zehn Prüfberichte in `research/pruefung/`, je Dossier ein Opus-Prüfer, der es nicht geschrieben hat. 428 Werte geprüft: 352 bestätigt, 46 abweichend, 27 nicht prüfbar. Die Daten stimmten fast durchgängig; die Fehler lagen in Ableitungen und Zusammenfassungen — in beide Richtungen (u. a. Stresstest-Aufschlag und Wasserstoff-Lkw zulasten, Speicherkosten und Beharrungs-Mehrkosten zugunsten der Energiewende; zwei Vorwürfe gegen R21 waren zu hart). |
 
 ## Offene Punkte
 
-- [ ] `TRANSPARENZ.md` durch Michael freigeben (insbesondere Abschnitt 9, Interessen).
+- [x] Interessen-Erklärung bestätigt (22.11.2026); `TRANSPARENZ.md` als Ganzes noch freigeben.
 - [ ] Schwellenwerte für „nicht tragfähig“ festlegen, bevor Teil 6 gerechnet wird.
 - [ ] Zweite Host-Freigabe: Liste der in Phase 1 nicht erreichbaren Quellen (steht nach dem Lauf in `agents/PROTOKOLL.md`).
 - [ ] PwC-Studie 2024 (Quelle der 13,3 Billionen) ist nur nach Registrierung abrufbar.

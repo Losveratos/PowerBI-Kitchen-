@@ -75,8 +75,8 @@ schlecht ausfällt.
 ## 9. Interessen
 
 Die Kitchen nennt, wer hinter dem Stück steht und ob es Auftraggeber oder
-Geldgeber gibt. **Zu bestätigen durch Michael:** Für die Energiewende-Reihe
-gibt es keinen Auftraggeber und keine Finanzierung durch Dritte.
+Geldgeber gibt. Für die Energiewende-Reihe gibt es keinen Auftraggeber und keine
+Finanzierung durch Dritte (bestätigt von Michael am 22.11.2026).
 
 ## 10. Reviews sind öffentlich
 
