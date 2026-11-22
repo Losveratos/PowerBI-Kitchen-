@@ -730,7 +730,7 @@ export interface MegaCol {
     /** 1.5.1: margin rows whose point difference is printed at the axis of this Δ bar / waterfall column */
     ppRows?: { r: MegaRow; D: MegaDelta }[];
     /**
-     * 1.8.2 value cascade (12G): margin rows print their value in italics, right-aligned
+     * 1.8.3 value cascade (12G): margin rows print their value in italics, right-aligned
      * in front of the cascade level they sit at ("36%" under the operating result)
      */
     kpiRows?: { r: MegaRow; t: string; level: number }[];
@@ -1202,14 +1202,15 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 const v = blk.value(r, c.scen!);
                 return v == null ? null : v * megaEff(r);
             });
-            // 1.8.2 (sheet 12G) a margin row (columns.showPctRows) carries its value in
-            // the cascade column, at the level the run has reached above it
+            // 1.8.3 (sheet 12G) a margin row (columns.showPctRows) carries its value in
+            // the cascade column, at the level the run has reached above it; a factor
+            // or amount KPI is no margin and stays out of the amount cascade
             if (t.labels) {
                 let level = 0;
                 for (const { r } of R) {
                     const seg = c.casc.get(r.id);
                     if (seg) { level = seg.e; continue; }
-                    if (r.kind !== "pct") { continue; }
+                    if (r.kind !== "pct" || r.kfmt) { continue; }
                     const v = blk.value(r, c.scen!);
                     if (v == null || !isFinite(v)) { continue; }
                     (c.kpiRows = c.kpiRows ?? []).push({ r, t: kpiVal(r, v), level });
@@ -1268,7 +1269,7 @@ export function layoutMega(input: MegaInput): MegaLayout {
                 const yw = yv != null && isFinite(yv) ? lblW(fmt.val(yv), megaIsBold(r)) : 0;
                 c.els!.push({ p: Math.min(seg.s, seg.e), q: Math.max(seg.s, seg.e), a: up ? yw : lw, c: up ? lw : yw });
             }
-            // 1.8.2 room for the margin values in front of their level
+            // 1.8.3 room for the margin values in front of their level
             for (const k of c.kpiRows ?? []) {
                 c.els!.push({ p: k.level, q: k.level, a: tw(k.t, G.fsSmall, false, true) + G.lblGap, c: 0 });
             }
@@ -1831,17 +1832,27 @@ function paintChartColumn(
             color: D.immaterial ? MEGA_C.soft : MEGA_C.text,
         }).setAttribute("data-pnl", "mega-pp");
     }
-    // 1.8.2 (sheet 12G) the margin value of a value cascade, in italics in front of its level
-    for (const k of c.kpiRows ?? []) {
-        const i = R.findIndex(x => x.r === k.r);
-        if (i < 0 || (win && (i < win.from || i >= win.to))) { continue; }
-        const { y, h: rh } = R[i];
-        const px = X(k.level) - G.lblGap;
-        const py = base(y, rh, G.fsSmall);
-        const pw = input.measure(k.t, G.fsSmall, false, true);
-        avoid.push({ x0: px - pw, x1: px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
-        text(B, px, py, k.t, { anchor: "end", italic: true, fs: G.fsSmall, parent: g, color: MEGA_C.text })
-            .setAttribute("data-pnl", "mega-kpi");
+    // 1.8.3 (sheet 12G) the margin value of a value cascade, in italics in front of its level
+    if (c.kpiRows) {
+        const rowIdx = new Map(R.map((x, i) => [x.r, i]));
+        const axX = axisKind === "value" ? ax + 0.5 : ax;
+        for (const k of c.kpiRows) {
+            const i = rowIdx.get(k.r);
+            if (i == null || (win && (i < win.from || i >= win.to))) { continue; }
+            const { y, h: rh } = R[i];
+            const px = X(k.level) - G.lblGap;
+            const py = base(y, rh, G.fsSmall);
+            const pw = input.measure(k.t, G.fsSmall, false, true);
+            // a low level puts the number on the zero line (a one-digit margin under
+            // a small result): a paper box behind the digits, as for the cascade labels
+            if (px - pw < axX + axisHalf + 0.5 && px > axX - axisHalf - 0.5) {
+                svgEl("rect", { x: px - pw - 1.5, y: py - G.fsSmall * 0.85, width: pw + 3, height: G.fsSmall * 1.05,
+                    fill: MEGA_C.white, "data-pnl": "mega-halo" }, g);
+            }
+            avoid.push({ x0: px - pw, x1: px, y0: py - G.fsSmall * 0.85, y1: py + G.fsSmall * 0.25 });
+            text(B, px, py, k.t, { anchor: "end", italic: true, fs: G.fsSmall, parent: g, color: MEGA_C.text })
+                .setAttribute("data-pnl", "mega-kpi");
+        }
     }
     if (c.casc) {
         // the drawn axis band (the 12A value line sits half a pixel right)

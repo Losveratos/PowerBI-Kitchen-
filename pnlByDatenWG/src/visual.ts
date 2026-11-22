@@ -567,6 +567,11 @@ interface TreeSeries {
     ref2Scen: Scenario | "";
     /** 1.8 every period labelled (columns.treeAllLabels) */
     all?: boolean;
+    /**
+     * 1.8.3 first period of a plan-only tail (11A 2026 PL): every later period has
+     * only its plan / forecast reference, the one before carries an actual. -1 = none
+     */
+    planStart?: number;
 }
 
 interface ColSpec {
@@ -7462,13 +7467,19 @@ export class Visual implements IVisual {
             if (this.settings.columnsCard.treeAllLabels.value) {
                 // 1.8 (B07) short series (years, ROI tree 11A): every column its
                 // period and value, the first plan-only period named as the sheet does
-                const firstPlan = slots.findIndex(sl => sl.v == null && sl.ref != null);
+                // 1.8.3 the plan tail: after the last actual, every period plan-only
+                // (the "PL" tag and the separator line share this one index)
+                let lastAc = -1;
+                slots.forEach((sl, i) => { if (sl.v != null) { lastAc = i; } });
+                const tail = lastAc + 1;
+                const planStart = refScen !== "" && refScen !== "py" && tail > 0 && tail < slots.length
+                    && slots.slice(tail).every(sl => sl.v == null && sl.ref != null) ? tail : -1;
                 slots.forEach((sl, i) => {
                     sl.tag = this.monthLabel(months[i]) + (i === 0 ? " " + front
-                        : i === firstPlan && refScen !== "" ? " " + refScen.toUpperCase() : "");
+                        : i === planStart ? " " + refScen.toUpperCase() : "");
                     sl.label = sl.v != null || sl.ref != null;
                 });
-                return { slots, refScen, ref2Scen, all: true };
+                return { slots, refScen, ref2Scen, all: true, planStart };
             }
             slots[0].tag = `${this.monthLabel(months[0])} ${front}`;
             slots[n - 1].tag = `${this.monthLabel(months[n - 1])} ${scen}`;
@@ -7670,9 +7681,10 @@ export class Visual implements IVisual {
         const series = this.treeSeries(node);
         const slots = series.slots;
         if (slots.length === 0) { this.treeHint(g, box, s, "–"); return; }
-        // 1.8.2 every period labelled (11A): the card's chevron would cover the last
-        // label, so the chart keeps clear of it
-        if (series.all && rightInset > 0) { box = { ...box, w: box.w - rightInset }; rightInset = 0; }
+        // 1.8.3 every period labelled (11A): the card's chevron would cover the last
+        // label, so the chart keeps clear of it, on every card alike (the years of
+        // parent and leaf cards stay on one grid)
+        if (series.all) { box = { ...box, w: box.w - Math.max(rightInset, 14 * s) }; rightInset = 0; }
         const isRatio = node.row.rowType === "kpi";
         const lfs = 7.5 * s;
         let min = 0; let max = 0;
@@ -7772,20 +7784,19 @@ export class Visual implements IVisual {
         axis.setAttribute("y1", zeroY.toFixed(2)); axis.setAttribute("y2", zeroY.toFixed(2));
         axis.setAttribute("stroke", C.ac); axis.setAttribute("stroke-width", "1");
         g.appendChild(axis);
-        // 1.8.2 every period labelled (11A): a thin line separates the actual periods
-        // from the plan-only ones, from half the chart height down through the tags
-        if (series.all) {
-            const k = slots.findIndex((sl, i) => i > 0 && sl.v == null && sl.ref != null && slots[i - 1].v != null);
-            if (k > 0) {
-                const sx = box.x + k * slotW;
-                const sep = document.createElementNS(ns, "line");
-                sep.setAttribute("x1", sx.toFixed(2)); sep.setAttribute("x2", sx.toFixed(2));
-                sep.setAttribute("y1", (zeroY - (zeroY - top) * 0.5).toFixed(2));
-                sep.setAttribute("y2", (box.y + box.h + 8 * s + 7 * s * 1.05).toFixed(2));
-                sep.setAttribute("stroke", C.ac); sep.setAttribute("stroke-width", "0.8");
-                sep.setAttribute("data-pnl", "tree-scen-sep");
-                g.appendChild(sep);
-            }
+        // 1.8.3 every period labelled (11A): a thin line separates the actual periods
+        // from the plan-only tail, from half the chart height down through the tags
+        const k = series.planStart ?? -1;
+        if (series.all && k > 0) {
+            const sx = Math.round(box.x + k * slotW) + 0.5;
+            const sep = document.createElementNS(ns, "line");
+            sep.setAttribute("x1", sx.toFixed(2)); sep.setAttribute("x2", sx.toFixed(2));
+            sep.setAttribute("y1", (zeroY - (zeroY - top) * 0.5).toFixed(2));
+            sep.setAttribute("y2", (box.y + box.h + 8 * s + 7 * s * 1.05).toFixed(2));
+            sep.setAttribute("stroke", C.ac); sep.setAttribute("stroke-width", "1");
+            sep.setAttribute("shape-rendering", "crispEdges");
+            sep.setAttribute("data-pnl", "tree-scen-sep");
+            g.appendChild(sep);
         }
 
         this.treeTags(g, slots.map(sl => sl.tag), box, slotW, s, rightInset, !!series.all);
@@ -8570,6 +8581,7 @@ export class Visual implements IVisual {
             hit.setAttribute("fill", this.cardPaper());
             hit.setAttribute("stroke", C.ctlEdge);
             hit.setAttribute("stroke-width", "1");
+            hit.setAttribute("data-pnl", "tree-chev");
             const ch = document.createElementNS(ns, "text");
             ch.setAttribute("x", (card.x + geo.cw - 11 * s).toFixed(2));
             ch.setAttribute("y", (card.y + cardH - 5.6 * s).toFixed(2));

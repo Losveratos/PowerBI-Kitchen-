@@ -1,5 +1,22 @@
 # Changelog — P&L Statement byDatenWG
 
+## 1.8.3.0 (in Arbeit): Blatt-Abgleich 12G und 11A
+
+- **12G: Margenwerte in der Wertkaskade.** Eine Margenzeile zeigt ihren Wert kursiv in jeder
+  Wertkaskaden-Spalte, rechtsbündig vor der Kaskadenhöhe darüber (36 % unter PY, 31 % unter AC&FC wie
+  das Blatt). Liegt die Zahl auf der Nulllinie, bekommt sie einen Papierkasten. KPI-Zeilen im Format
+  Faktor oder Betrag bleiben draußen. **Verhaltensänderung:** gilt überall, wo Wert-Kaskaden,
+  Margen-/%-Zeilen (`columns.showPctRows`) und Diagrammbeschriftung an sind (12G, T05B, eigene
+  Kombinationen); dort erscheinen neue kursive Zahlen und die Spalte reserviert Platz dafür.
+- **11A: Trennlinie zwischen Ist und Plan.** Bei allen beschrifteten Perioden trennt eine dünne Linie
+  die letzte Ist-Periode vom reinen Plan-Ende (wie das Blatt); sie erscheint nur, wenn nach dem letzten
+  Ist ausschließlich Plan- oder Forecast-Werte folgen, und steht am selben Index wie das Tag „PL“.
+- **11A: Jahreszahlen frei vom Kartenknopf.** Bei allen beschrifteten Perioden lassen alle Karten den
+  Platz des Knopfs frei, die Jahre stehen auf Eltern- und Blattkarten im selben Raster.
+
+**Tests:** mega-shot m27 (36,0 % und 30,8 % kursiv), m67 (Margenwert auf der Nulllinie mit
+Papierkasten), t11c (sechs Trennlinien, drei Kartenknöpfe, kein 2027 verdeckt); m28-Botschaft +111.
+
 ## 1.8.2.0 (2026-11-22): Blatt-Optionen 12G/T03/T04, Hervorhebung schneller
 
 Abgleich der Blätter, die die P&L-Familie noch nicht genau traf (Backlog vom 19.11.2026, Bildvergleich

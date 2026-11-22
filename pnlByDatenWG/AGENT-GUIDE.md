@@ -237,7 +237,7 @@ Enums als String-Wert aus der Tabelle. Leere Texte = Automatik.
 | `structureSubtotals` | bool | `true` | Zwischensummen-Blöcke (Strukturdaten): Regionen / Strukturhierarchien: Zwischensummen-Blöcke mit Leerzeile; aus = nur Blätter + Gesamtsumme. Standard: an |
 | `structureTotal` | bool | `false` | Gesamtzeile über mehrere Wurzeln (1.8): Strukturdaten, deren oberste Ebene mehrere Zeilen hat (Regionen ohne gemeinsame Oberebene): eine fette Gesamtzeile am Ende mit allen Werten, Δ-Spalten, Balken und Pins. Eine einzige Wurzel ist schon die Gesamtzeile. Standard: aus |
 | `structureTotalLabel` | text | `""` | Name der Gesamtzeile (1.8): Leer = Gesamt in der Berichtssprache |
-| `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich |
+| `showPctRows` | bool | `true` | Margen-/%-Zeilen: KPI-Zeilen (Margen) kursiv, ihre Δ in Prozentpunkten. Standard: an. 1.5.1: Δ als „+8,6 pp“, kein relatives Δ%, Margen mit `pctDecimals`; steuert T03 und T04 gleich. 1.8.3: in Wertkaskaden (12G) zusätzlich der Margenwert kursiv vor der Kaskadenhöhe (nicht für KPI-Format Faktor/Betrag) |
 | `thresholds` | bool | `false` | Δ rot unter Schwelle (+ Fußzeile): Δ-Zahlen unter den Schwellen werden rot; eine Fußzeile nennt die Regel. Standard: aus |
 | `thresholdAbs` | numeric | `-20` | Schwelle Δ (Monat / einziger Block): In Anzeige-Einheiten (nach k/m-Skalierung). Standard: −20 Tsd., bei Mio.- und Mrd.-Skalierung umgerechnet (Mio.: −0,02); ein gesetzter Wert gilt wie eingetippt |
 | `thresholdPct` | numeric | `-10` | Schwelle Δ% (Monat / einziger Block): In ganzen Prozent. Standard: −10 |
