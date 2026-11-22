@@ -1,0 +1,1452 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Belege zu Teil 1 der Energiewende-Reihe · Daten-WG (Entwurf)</title>
+<meta name="description" content="Belegseite zu Teil 1 der Energiewende-Reihe: alle Aussagen einzeln eingestuft, Studien-Vergleich, Zitate im Wortlaut, Gegenpositionen und Quellen. Entwurf, noch nicht veröffentlicht.">
+<meta name="author" content="Michael Tenner · Daten-WG">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/fonts/fraunces/fraunces.css">
+<link rel="stylesheet" href="assets/fonts/geist/geist.css">
+<link rel="stylesheet" href="assets/fonts/jetbrains-mono/jetbrains-mono.css">
+<style>
+  :root{
+    color-scheme:light;
+    --bg:#FAFAF7; --bg-card:#FFFFFF; --bg-sunk:#F3F2EC; --ink:#0F1E2E; --soft:#475569;
+    --accent:#C25A2D; --accent-text:#A8481E; --teal:#1B9AA8; --teal-text:#0E6E7A; --line:#E4E2DA; --grid:#EAE8E0;
+    --band:#9A431B; --band-ink:#FFFFFF;
+    --st-ok-bg:#DDEEF0; --st-ok:#0B5C67;
+    --st-corr-bg:#FAEDDC; --st-corr:#7E4F14;
+    --st-rej-bg:#FBEDED; --st-rej:#A3231B;
+    --st-set-bg:#E9E7DF; --st-set:#3F4A59;
+    --st-np-bg:#F7E5DB; --st-np:#93401A;
+    --conf-a:#0B5C67; --conf-a-bg:#DDEEF0;
+    --conf-b:#7E4F14; --conf-b-bg:#FAEDDC;
+    --conf-c:#93401A; --conf-c-bg:#F7E5DB;
+    --warnbg:#FDF3EE; --critbg:#FBEDED; --code-bg:#F0EFE9; --th-bg:#F5F4EF;
+    --g1:#0E6E7A; --g2:#8A5A12; --g3:#A8481E; --r21:#C25A2D; --r21band:rgba(194,90,45,.13);
+    --gp-r21:#0E6E7A; --gp-opt:#C25A2D; --gp-self:#0F1E2E;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme:dark;
+      --bg:#0E151D; --bg-card:#15202B; --bg-sunk:#1A2733; --ink:#E7EDF3; --soft:#A7B5C4;
+      --accent:#E8895C; --accent-text:#F0A27C; --teal:#3CB4C2; --teal-text:#62C9D5; --line:#2B3A49; --grid:#243241;
+      --band:#7A3412; --band-ink:#FFFFFF;
+      --st-ok-bg:#12363C; --st-ok:#7FD6E0;
+      --st-corr-bg:#3A2D14; --st-corr:#F1C47D;
+      --st-rej-bg:#411C1B; --st-rej:#FF9C93;
+      --st-set-bg:#27323E; --st-set:#C3CDD8;
+      --st-np-bg:#3F2316; --st-np:#F2A98A;
+      --conf-a:#7FD6E0; --conf-a-bg:#12363C;
+      --conf-b:#F1C47D; --conf-b-bg:#3A2D14;
+      --conf-c:#F2A98A; --conf-c-bg:#3F2316;
+      --warnbg:#2B1F18; --critbg:#2E1A1A; --code-bg:#22303D; --th-bg:#1B2937;
+      --g1:#62C9D5; --g2:#E5B35A; --g3:#F0A27C; --r21:#E8895C; --r21band:rgba(232,137,92,.18);
+      --gp-r21:#62C9D5; --gp-opt:#E8895C; --gp-self:#C3CDD8;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --bg:#0E151D; --bg-card:#15202B; --bg-sunk:#1A2733; --ink:#E7EDF3; --soft:#A7B5C4;
+    --accent:#E8895C; --accent-text:#F0A27C; --teal:#3CB4C2; --teal-text:#62C9D5; --line:#2B3A49; --grid:#243241;
+    --band:#7A3412; --band-ink:#FFFFFF;
+    --st-ok-bg:#12363C; --st-ok:#7FD6E0; --st-corr-bg:#3A2D14; --st-corr:#F1C47D;
+    --st-rej-bg:#411C1B; --st-rej:#FF9C93; --st-set-bg:#27323E; --st-set:#C3CDD8;
+    --st-np-bg:#3F2316; --st-np:#F2A98A;
+    --conf-a:#7FD6E0; --conf-a-bg:#12363C; --conf-b:#F1C47D; --conf-b-bg:#3A2D14; --conf-c:#F2A98A; --conf-c-bg:#3F2316;
+    --warnbg:#2B1F18; --critbg:#2E1A1A; --code-bg:#22303D; --th-bg:#1B2937;
+    --g1:#62C9D5; --g2:#E5B35A; --g3:#F0A27C; --r21:#E8895C; --r21band:rgba(232,137,92,.18);
+    --gp-r21:#62C9D5; --gp-opt:#E8895C; --gp-self:#C3CDD8;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:70px; -webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:'Geist',system-ui,sans-serif;font-size:16.5px;line-height:1.62;overflow-wrap:break-word}
+  .draft-band{background:var(--band);color:var(--band-ink);text-align:center;padding:10px 16px;
+       font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;letter-spacing:.4px;line-height:1.4}
+  .rule{height:8px;background:var(--accent)} .rule2{height:4px;background:var(--teal)}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+  header.hero{max-width:1040px;margin:0 auto;padding:40px 20px 14px}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:2.5px;text-transform:uppercase;
+          color:var(--teal-text);font-weight:600;margin-bottom:16px}
+  h1{font-family:'Fraunces',serif;font-weight:750;font-size:clamp(30px,5.4vw,50px);line-height:1.1;margin:0 0 14px;letter-spacing:-.4px}
+  .hero-sub{font-size:clamp(16.5px,2.2vw,19.5px);color:var(--soft);max-width:720px;line-height:1.5;margin:0 0 6px}
+  .hero-meta{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft);margin-top:16px;line-height:1.6}
+  .hero-links{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+  .hero-links a{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink);text-decoration:none;
+        border:1px solid var(--line);border-radius:20px;padding:5px 13px;background:var(--bg-card)}
+  .hero-links a:hover{border-color:var(--accent);color:var(--accent-text)}
+  h2{font-family:'Fraunces',serif;font-weight:650;font-size:29px;line-height:1.2;margin:58px 0 14px;padding-bottom:10px;border-bottom:2px solid var(--accent)}
+  h2 .kapnum{font-family:'JetBrains Mono',monospace;font-size:.6em;font-weight:600;color:var(--accent-text);margin-right:12px;vertical-align:3px}
+  h3{font-family:'Fraunces',serif;font-weight:650;font-size:21px;margin:30px 0 8px;line-height:1.25}
+  h4{font-weight:600;font-size:16px;margin:18px 0 6px}
+  p{margin:0 0 13px}
+  a{color:var(--teal-text)}
+  ul,ol{margin:0 0 13px;padding-left:22px} li{margin-bottom:5px}
+  code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--code-bg);padding:1px 5px;border-radius:4px;overflow-wrap:break-word}
+  [hidden]{display:none!important}
+  .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+  .lead{color:var(--soft);max-width:760px}
+  .mono{font-family:'JetBrains Mono',monospace}
+
+  /* Kapitel-Navigation */
+  #chapnav{position:sticky;top:0;z-index:55;background:color-mix(in srgb,var(--bg) 94%,transparent);border-bottom:1px solid var(--line);
+           -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  .chapnav-in{max-width:1040px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:12px;min-height:46px}
+  #chapnav .nav-t{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--soft);font-weight:600;flex:none}
+  #chapnav .links{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none}
+  #chapnav .links::-webkit-scrollbar{display:none}
+  #chapnav a{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft);text-decoration:none;padding:5px 9px;border-radius:16px;white-space:nowrap}
+  #chapnav a:hover{color:var(--accent-text)}
+  #chapnav a.on{background:var(--ink);color:var(--bg)}
+  #chapnav-toggle{display:none;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg-card);border:1px solid var(--line);
+                  border-radius:16px;padding:5px 12px;color:var(--ink);cursor:pointer;margin-left:auto}
+  @media (max-width:860px){
+    .chapnav-in{flex-wrap:wrap;padding:7px 16px}
+    #chapnav-toggle{display:inline-block}
+    #chapnav .links{display:none;width:100%;flex-wrap:wrap;overflow:visible;padding:6px 0 8px}
+    #chapnav.open .links{display:flex}
+  }
+
+  /* Karten und Kästen */
+  .card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:18px 0}
+  .card-t{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;color:var(--soft);font-weight:600;margin:0 0 10px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+  .note{background:var(--bg-sunk);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;padding:13px 17px;margin:16px 0;font-size:15px;color:var(--soft)}
+  .note strong{color:var(--ink)}
+  .warn{background:var(--warnbg);border-left-color:var(--accent)}
+  .crit{background:var(--critbg);border-left-color:var(--st-rej)}
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:16px 0}
+  .tile{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .tile .n{font-family:'Fraunces',serif;font-weight:650;font-size:28px;line-height:1.1}
+  .tile .l{font-size:13px;color:var(--soft);margin-top:4px}
+
+  /* Status, Konfidenz, Quellen-Chips */
+  .st{display:inline-flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;border-radius:5px;padding:1px 7px;white-space:nowrap;line-height:1.7}
+  .st b{font-weight:700}
+  .st-ok{background:var(--st-ok-bg);color:var(--st-ok)}
+  .st-corr{background:var(--st-corr-bg);color:var(--st-corr)}
+  .st-rej{background:var(--st-rej-bg);color:var(--st-rej);text-decoration:line-through;text-decoration-thickness:1px}
+  .st-set{background:var(--st-set-bg);color:var(--st-set)}
+  .st-np{background:var(--st-np-bg);color:var(--st-np)}
+  .conf{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;line-height:1.7;border-radius:4px;padding:0 5px;letter-spacing:.3px;font-style:normal}
+  .conf-A{background:var(--conf-a-bg);color:var(--conf-a)}
+  .conf-B{background:var(--conf-b-bg);color:var(--conf-b)}
+  .conf-C{background:var(--conf-c-bg);color:var(--conf-c)}
+  .conf-M{background:var(--st-set-bg);color:var(--st-set)}
+  .rd{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;line-height:1.7;border-radius:4px;padding:0 5px;font-style:normal;border:1px solid currentColor}
+  .rd-y{color:var(--st-ok)} .rd-n{color:var(--st-np);border-style:dashed} .rd-m{color:var(--st-set)}
+  .zb{display:inline-flex;gap:3px;align-items:baseline;margin-left:4px;vertical-align:baseline;white-space:nowrap}
+  a.srcchip{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:600;color:var(--teal-text);text-decoration:none;border-bottom:1px dotted var(--teal-text);padding:0 1px}
+  a.srcchip:hover{color:var(--accent-text);border-color:var(--accent-text)}
+  .nv{font-family:'JetBrains Mono',monospace;font-size:.93em;font-weight:500;white-space:normal}
+  h1 .nv,h2 .nv,h3 .nv{font-family:inherit;font-weight:inherit;font-size:inherit}
+  .missing{background:#fdd;color:#900;padding:0 4px}
+  .m{font-family:'JetBrains Mono',monospace;font-size:.85em;color:var(--soft)}
+
+  /* Filter */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 8px}
+  .fchip{font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--line);background:var(--bg-card);color:var(--soft);
+         border-radius:20px;padding:5px 12px;cursor:pointer}
+  .fchip:hover{border-color:var(--accent);color:var(--accent-text)}
+  .fchip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  input[type=search],select{font-family:'Geist',sans-serif;font-size:14.5px;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg-card);color:var(--ink)}
+  input[type=search]{min-width:min(100%,260px);flex:1}
+  .count{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft)}
+
+  /* Tabellen */
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px;background:var(--bg-card);border:1px solid var(--line)}
+  th{text-align:left;background:var(--th-bg);border-bottom:2px solid var(--ink);padding:9px 10px;font-weight:600;vertical-align:bottom}
+  td{border-bottom:1px solid var(--line);padding:8px 10px;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  th button{all:unset;cursor:pointer;font:inherit;font-weight:600;display:inline-flex;gap:4px;align-items:baseline}
+  th button:hover,th button:focus-visible{color:var(--accent-text)}
+  th button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  th[aria-sort="ascending"] button::after{content:"▲";font-size:10px}
+  th[aria-sort="descending"] button::after{content:"▼";font-size:10px}
+  td.id{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;white-space:nowrap}
+  td.id a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--soft)}
+  .wz{margin:0 0 7px}
+  .wz small{display:block;color:var(--soft);font-size:12.5px;line-height:1.4;margin-top:2px}
+  .wz .full{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-top:3px}
+  tr.r21row td{background:var(--warnbg);font-weight:500}
+  tr.rejrow td{color:var(--soft)}
+  table.grey{background:var(--bg-sunk)}
+  table.grey td{color:var(--soft)}
+  .tabhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:20px 0 4px}
+  .tabhead h3{margin:0}
+  .sortsel{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--soft)}
+
+  @media (max-width:760px){
+    body{font-size:16px}
+    h2{font-size:25px;margin-top:46px}
+    table.rt,table.rt tbody,table.rt tr,table.rt td{display:block;width:100%}
+    table.rt thead{position:absolute;left:-9999px;top:auto}
+    table.rt{border:none;background:none}
+    table.rt tr{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;background:var(--bg-card);padding:4px 0}
+    table.grey.rt tr{background:var(--bg-sunk)}
+    table.rt td,table.rt th{border:none;padding:5px 12px;display:block;width:100%}
+    table.rt th[scope=row]{background:none;border:none;padding-top:10px}
+    table.rt td::before{content:attr(data-l);display:block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--soft);margin-bottom:1px}
+    table.rt td.id::before{display:none}
+    table.rt td.id{padding-top:9px}
+    #tab-aus tr{display:flex;flex-wrap:wrap;align-items:center}
+    #tab-aus td{width:100%}
+    #tab-aus td.id,#tab-aus td:nth-child(3){width:auto;flex:none}
+    #tab-aus td.id{order:1}
+    #tab-aus td:nth-child(3){padding-left:4px;order:2}
+    #tab-aus td:nth-child(2){order:3}
+    #tab-aus td:nth-child(4){order:4}
+    #tab-aus td:nth-child(5){order:5}
+    #tab-aus td:nth-child(6){order:6}
+    #tab-aus td:nth-child(3)::before{display:none}
+    #tab-aus td:nth-child(5),#tab-aus td:nth-child(6){font-size:13.5px;color:var(--soft)}
+    table.rt tr.r21row{background:var(--warnbg)} table.rt tr.r21row td{background:none}
+  }
+
+  /* Kurzfassung */
+  .akt{margin:22px 0 6px;font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal-text);font-weight:600}
+  ol.steps{list-style:none;margin:0;padding:0}
+  ol.steps li{border-bottom:1px solid var(--line);padding:12px 0;margin:0}
+  ol.steps li:last-child{border-bottom:none}
+  .step-id{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent-text);font-weight:700;margin-right:8px}
+  .step-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px;font-size:12.5px;color:var(--soft)}
+
+  /* Gegenüberstellungen */
+  .cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px;margin:16px 0}
+  .quote{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .quote h4{margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--soft)}
+  blockquote{margin:0 0 10px;padding:8px 0 8px 14px;border-left:3px solid var(--line);font-size:15.5px}
+  blockquote cite{display:block;font-style:normal;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft);margin-top:4px}
+  mark{background:none;color:inherit;font-weight:700;border-bottom:2px solid var(--accent);padding:0 1px}
+  mark.b{border-bottom-color:var(--teal)}
+  .diff{margin:12px 0}
+  .diff th{width:22%}
+
+  /* Gegenpositionen */
+  .gpgroup{font-family:'JetBrains Mono',monospace;font-size:12.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--soft);margin:30px 0 6px;font-weight:600}
+  .gp{background:var(--bg-card);border:1px solid var(--line);border-left:6px solid var(--gpc,var(--teal));border-radius:0 12px 12px 0;padding:16px 20px;margin:14px 0}
+  .gp.r21{--gpc:var(--gp-r21)} .gp.opt{--gpc:var(--gp-opt)} .gp.self{--gpc:var(--gp-self)}
+  .gp h3{margin:0 0 8px;font-size:20px}
+  .gp h3 .gpn{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft);display:block;letter-spacing:1px;margin-bottom:3px;font-weight:600}
+  .gp dl{margin:0}
+  .gp dt{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--soft);margin:12px 0 2px;font-weight:600}
+  .gp dd{margin:0}
+  .gp ul{margin:4px 0 0}
+  .gp .gpst{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+
+  /* Verworfen */
+  .rejbox{border:2px dashed var(--st-rej);border-radius:12px;padding:6px 16px 10px;margin:18px 0;background:var(--critbg)}
+  .rejbox h3{margin-top:14px}
+  .rejbox table{background:var(--bg-card)}
+  .rejtag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--st-rej);border:1px solid var(--st-rej);border-radius:4px;padding:0 6px;margin-right:6px;letter-spacing:.8px}
+  .rejtxt{text-decoration:line-through;text-decoration-thickness:1px;color:var(--soft)}
+
+  /* Diagramm */
+  .chartbox{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0}
+  .chartbox h4{margin:0 0 2px}
+  .chart-sub{font-size:13px;color:var(--soft);margin:0 0 10px}
+  svg.chart{display:block;width:100%;height:auto;overflow:visible}
+  svg.chart text{font-family:'Geist',sans-serif;fill:var(--ink)}
+  svg.chart .mono{font-family:'JetBrains Mono',monospace}
+  svg.chart .soft{fill:var(--soft)}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12.5px;color:var(--soft)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend svg{flex:none}
+
+  /* Quellenliste */
+  ol.sources{padding-left:0;list-style:none}
+  ol.sources li{padding:10px 0 10px 44px;border-bottom:1px solid var(--line);position:relative;font-size:14px;line-height:1.5;margin:0}
+  ol.sources li .sn{position:absolute;left:0;top:10px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent-text);font-weight:700}
+  ol.sources li:target{background:var(--bg-sunk);outline:2px solid var(--accent);outline-offset:-2px}
+  ol.sources a{word-break:break-all;font-size:13px}
+  ol.sources .meta{color:var(--soft);font-size:13px}
+  ol.sources .refs{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--soft);margin-top:3px}
+  ol.sources .unread{display:inline-block;margin-top:4px}
+
+  /* Entstehung */
+  .made{background:var(--bg-card);border:2px solid var(--accent);border-radius:14px;padding:6px 22px 18px;margin:24px 0}
+  .made h3{margin-top:20px}
+  .made table td:first-child{white-space:nowrap}
+
+  details.more{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+  details.more>summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft)}
+  details.more>summary:hover{color:var(--accent-text)}
+  .fn{font-size:13.5px;color:var(--soft);border-top:1px solid var(--line);margin-top:14px;padding-top:8px}
+  sup.fnr{font-family:'JetBrains Mono',monospace;font-size:10.5px}
+  sup.fnr a{text-decoration:none}
+
+  footer{border-top:1px solid var(--line);background:var(--bg-card);margin-top:56px}
+  .foot-in{max-width:1040px;margin:0 auto;padding:24px 20px;font-size:13.5px;color:var(--soft)}
+  .foot-links{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+  .foot-links a{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--soft);text-decoration:none;border:1px solid var(--line);border-radius:20px;padding:4px 12px}
+  .foot-links a:hover{color:var(--accent-text);border-color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media print{.draft-band{border:2px solid #000}#chapnav{display:none}}
+</style>
+</head>
+<body>
+<div class="draft-band" role="note">Entwurf · noch nicht veröffentlicht · Reviews stehen aus</div>
+<div class="rule"></div><div class="rule2"></div>
+
+<nav id="chapnav" aria-label="Kapitel"><div class="chapnav-in">
+  <span class="nav-t">Belege</span>
+  <button id="chapnav-toggle" type="button" aria-expanded="false" aria-controls="chapnav-links">Inhalt ▾</button>
+  <div class="links" id="chapnav-links">
+    <a href="#lesehilfe">Lesehilfe</a>
+    <a href="#kurzfassung">Kurzfassung</a>
+    <a href="#aussagen">Aussagen</a>
+    <a href="#studien">Studien</a>
+    <a href="#zitate">Zitate</a>
+    <a href="#gegenpositionen">Gegenpositionen</a>
+    <a href="#ungelesen">Ungelesen</a>
+    <a href="#korrekturen">Korrekturen</a>
+    <a href="#grenzen">Grenzen</a>
+    <a href="#quellen">Quellen</a>
+    <a href="#entstehung">Entstehung</a>
+  </div>
+</div></nav>
+
+<header class="hero">
+  <div class="kicker">Energiewende-Reihe · Teil 1 · Belegseite</div>
+  <h1>Die <span data-v="r21_kosten_zitat.max" data-f="n"></span> Billionen: die Belege</h1>
+  <p class="hero-sub">Jede Aussage von Teil 1 einzeln eingestuft, jede Zahl mit Quelle, Konfidenz und dem Vermerk, ob wir das Original gelesen haben. Zum Nachprüfen, nicht zum Durchlesen.</p>
+  <div class="hero-meta" id="hero-meta">Daten werden geladen …</div>
+  <div class="hero-links">
+    <a href="energiewende-1-story.html">Die Scroll-Story zu Teil 1 →</a>
+    <a href="#aussagen">Direkt zur Aussagen-Tabelle</a>
+    <a href="#studien">Direkt zum Studien-Vergleich</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div id="loadnote"></div>
+
+<!-- ============================================================ LESEHILFE -->
+<section id="lesehilfe" aria-labelledby="h-lese">
+  <h2 id="h-lese"><span class="kapnum">0</span>Lesehilfe</h2>
+  <p class="lead">Teil 1 prüft eine Zahl aus der Schlagzeile: woher sie kommt, was sie misst und was ein Vergleichspfad kostet. Hier steht, worauf jede Aussage dabei beruht. Alle Zahlen auf dieser Seite werden beim Laden aus dem Datensatz <code>energiewende/data/teil1_data.json</code> geholt; im Seitentext steht keine Zahl von Hand.</p>
+  <div class="tiles" id="tiles" aria-label="Aussagen nach Status"></div>
+  <div class="grid2">
+    <div class="card">
+      <p class="card-t">Status einer Aussage</p>
+      <table class="legend-table" style="margin:0;border:none">
+        <tbody>
+          <tr><td><span class="st st-ok"><b aria-hidden="true">✓</b> bestätigt</span></td><td>am Original gelesen, Fundstelle angegeben; darf so erzählt werden.</td></tr>
+          <tr><td><span class="st st-corr"><b aria-hidden="true">↻</b> korrigiert</span></td><td>ein früherer Wert (Dossier, Erstbefund oder R21) war falsch oder schief; es gilt nur der neue Wert.</td></tr>
+          <tr><td><span class="st st-set"><b aria-hidden="true">M</b> Setzung (M)</span></td><td>eigene Annahme oder eigene Rechnung auf Annahmen; nur als „unsere Annahme“ erzählt.</td></tr>
+          <tr><td><span class="st st-np"><b aria-hidden="true">?</b> nicht prüfbar</span></td><td>Original nicht gelesen; nur mit dem festgelegten Vorbehalt im selben Satz.</td></tr>
+          <tr><td><span class="st st-rej"><b aria-hidden="true">✕</b> verworfen</span></td><td>darf in Teil 1 nicht vorkommen; steht hier nur im Abschnitt „Verworfen“.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <p class="card-t">Abzeichen an jeder Zahl</p>
+      <p style="margin:0 0 8px"><a class="srcchip" href="#quellen">[n]</a> springt zur Quelle in der Quellenliste.</p>
+      <p style="margin:0 0 8px"><span class="conf conf-A">A</span> mehrere unabhängige Quellen stimmen überein · <span class="conf conf-B">B</span> eine Quelle, plausibel · <span class="conf conf-C">C</span> kursiert, Primärquelle nicht geprüft · <span class="conf conf-M">M</span> eigene Setzung.</p>
+      <p style="margin:0"><span class="rd rd-y">✓ Original</span> wir haben die Stelle im Originaldokument selbst gelesen · <span class="rd rd-n">○ nicht im Original</span> nur über eine zweite Quelle oder einen Auszug. Eine Zahl, die nicht am Original gelesen ist, kann nie Konfidenz A tragen.</p>
+    </div>
+  </div>
+  <div class="note warn" id="r21-note"><strong>Stellungnahme von R21: steht aus.</strong> Die Anfrage an R21 geht nach den Reviews und vor der Veröffentlichung hinaus. Antwort oder Nicht-Antwort wird hier vermerkt.</div>
+</section>
+
+<!-- ============================================================ KURZFASSUNG -->
+<section id="kurzfassung" aria-labelledby="h-kurz">
+  <h2 id="h-kurz"><span class="kapnum">1</span>Kurzfassung</h2>
+  <p class="lead">Die Kernaussagen von Teil 1 in der Reihenfolge der fünf Akte der Story. Zu jeder: der Status der Aussagen, auf denen sie beruht, und die niedrigste Konfidenz der beteiligten Zahlen.</p>
+  <div id="kurz"></div>
+</section>
+
+<section id="steckbrief" aria-labelledby="h-steck">
+  <h3 id="h-steck">Steckbrief der beiden Dokumente im Zentrum</h3>
+  <div class="grid2" id="steck"></div>
+</section>
+
+<!-- ============================================================ AUSSAGEN -->
+<section id="aussagen" aria-labelledby="h-aus">
+  <h2 id="h-aus"><span class="kapnum">2</span>Die Aussagen-Tabelle</h2>
+  <p class="lead">Alle Aussagen der Freigabeliste, einzeln, mit Status, Fundstelle und Quelle. Die Spalte „Zahlen im Datensatz“ zeigt, was zur Aussage im Datensatz steht (Wert, Konfidenz, Original gelesen oder nicht, Abgrenzung).</p>
+  <div class="filters" role="group" aria-label="Nach Status filtern" id="f-status"></div>
+  <div class="filters">
+    <input type="search" id="f-q" placeholder="Suche in Aussagen, IDs, Fundstellen …" aria-label="Aussagen durchsuchen">
+    <span class="count" id="f-count" aria-live="polite"></span>
+  </div>
+  <div class="tw"><table class="rt" id="tab-aus">
+    <thead><tr><th>ID</th><th>Aussage</th><th>Status</th><th>Zahlen im Datensatz</th><th>Fundstelle</th><th>Quelle</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+  <p class="fn" id="fn-q8" hidden><sup class="fnr">1</sup> <span id="fn-q8-text"></span></p>
+</section>
+
+<!-- ============================================================ STUDIEN -->
+<section id="studien" aria-labelledby="h-stud">
+  <h2 id="h-stud"><span class="kapnum">3</span>Der Studien-Vergleich</h2>
+  <p class="lead" id="stud-lead"></p>
+  <div class="note"><strong>Wie man die Spalten liest.</strong> G1 = Brutto-Gesamtkosten der Energieversorgung, G2 = Brutto-Investitionen, G3a = Mehrinvestitionen gegen eine Referenz, G3b = Mehrkosten nach Abzug eingesparter Energie. „(M)“ kennzeichnet eine Setzung: der Wert ist von uns gerechnet (Summe geteilt durch Jahre oder umgekehrt). Auftraggeber und Geldgeber stehen bei jeder Studie; ein Urteil lässt sich daraus nicht ableiten.</div>
+
+  <div class="chartbox">
+    <h4>Alle Studien nach den drei Größen: Anteil am BIP 2024 pro Jahr</h4>
+    <p class="chart-sub">Je Studie ein Balken (Spanne) oder eine Raute (Einzelwert). Die Zeile „Zum Vergleich“ und das getönte Band zeigen R21.</p>
+    <div id="chart-studien"></div>
+    <div class="legend" aria-hidden="false">
+      <span><svg width="26" height="12" aria-hidden="true"><rect x="1" y="2" width="24" height="8" rx="2" fill="var(--g1)"/></svg>Spanne (am Original gelesen)</span>
+      <span><svg width="26" height="12" aria-hidden="true"><defs><pattern id="lg-h" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="var(--g1)" stroke-width="2"/></pattern></defs><rect x="1" y="2" width="24" height="8" rx="2" fill="url(#lg-h)" stroke="var(--g1)" stroke-dasharray="3 2"/></svg>Spanne (nicht am Original gelesen)</span>
+      <span><svg width="14" height="14" aria-hidden="true"><path d="M7 1 L13 7 L7 13 L1 7 Z" fill="var(--g1)"/></svg>Einzelwert</span>
+      <span><svg width="10" height="14" aria-hidden="true"><line x1="5" y1="1" x2="5" y2="13" stroke="var(--bg-card)" stroke-width="3"/><line x1="5" y1="1" x2="5" y2="13" stroke="var(--ink)" stroke-width="1.5"/></svg>Mitte</span>
+      <span><svg width="26" height="12" aria-hidden="true"><rect x="0" y="0" width="26" height="12" fill="var(--r21band)" stroke="var(--r21)" stroke-dasharray="3 2"/></svg>R21-Band</span>
+    </div>
+  </div>
+
+  <div class="tabhead"><h3>3a · Kernzahl am Original gelesen</h3>
+    <label class="sortsel">Sortieren nach <select id="sort-a" aria-label="Tabelle 3a sortieren"></select></label></div>
+  <div class="tw"><table class="rt" id="tab-a"><thead></thead><tbody></tbody></table></div>
+
+  <div class="tabhead"><h3>3b · Kernzahl nicht am Original gelesen</h3>
+    <label class="sortsel">Sortieren nach <select id="sort-b" aria-label="Tabelle 3b sortieren"></select></label></div>
+  <p class="note warn" style="margin-top:6px"><strong>Konfidenz C, soweit nicht anders angegeben.</strong> Diese Zeilen stützen sich auf Zitate in anderen Dokumenten oder auf Suchtreffer. Sie tragen keine Aussage von Teil 1 allein.</p>
+  <div class="tw"><table class="rt grey" id="tab-b"><thead></thead><tbody></tbody></table></div>
+  <p class="fn" id="fn-st"></p>
+
+  <div class="grid2">
+    <div class="note" id="klima-box"></div>
+    <div class="note" id="kkw-box"></div>
+  </div>
+</section>
+
+<!-- ============================================================ ZITATE -->
+<section id="zitate" aria-labelledby="h-zit">
+  <h2 id="h-zit"><span class="kapnum">4</span>Zitat und Quelle im Wortlaut</h2>
+  <p class="lead">Kurze Zitate mit Fundstelle. Abweichende Wörter und Zahlen sind unterstrichen. Wir geben wieder, was in den Dokumenten steht, und sagen, was wir nicht wissen.</p>
+
+  <h3>4a · R21-Erklärung gegen Kurzinformation des Bundestags</h3>
+  <div class="cmp" id="cmp-a"></div>
+  <div class="tw"><table class="diff rt" id="diff-a"><thead><tr><th scope="col"></th><th scope="col">R21-Erklärung</th><th scope="col">Kurzinformation des Bundestags</th></tr></thead><tbody></tbody></table></div>
+  <div class="note" id="cmp-a-note"></div>
+
+  <h3>4b · Netzkosten: R21 gegen DIHK/Frontier und EWI</h3>
+  <div class="cmp" id="cmp-b"></div>
+  <div class="note" id="cmp-b-note"></div>
+  <h4>Netzzahlen im Überblick (nur Netze, nicht mit den Studien-Summen addieren)</h4>
+  <div class="tw"><table class="rt" id="tab-netz"><thead><tr><th>Zahl</th><th>Wert</th><th>Was sie misst</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<!-- ============================================================ GEGENPOSITIONEN -->
+<section id="gegenpositionen" aria-labelledby="h-gp">
+  <h2 id="h-gp"><span class="kapnum">5</span>Die zwölf Gegenpositionen</h2>
+  <p class="lead">Zu jeder Kernaussage suchen wir die stärkste Gegenposition. Hier stehen alle zwölf in voller Länge, jede mit der Einschränkung, die dazugehört.</p>
+  <div id="gp"></div>
+</section>
+
+<!-- ============================================================ UNGELESEN / VERWORFEN -->
+<section id="ungelesen" aria-labelledby="h-ung">
+  <h2 id="h-ung"><span class="kapnum">6</span>Was nicht am Original gelesen ist, und was wir verworfen haben</h2>
+  <h3>6a · Nicht am Original gelesen</h3>
+  <div id="ungelesen-body"></div>
+  <h3 id="verworfen">6b · Verworfen</h3>
+  <div class="rejbox" role="region" aria-label="Verworfene Zahlen und Formulierungen">
+    <p style="margin:12px 0 0"><span class="rejtag">VERWORFEN</span> Die folgenden Zahlen und Aussagen sind <strong>falsch oder nicht belegt</strong> und kommen in Teil 1 nicht vor. Wir nennen sie hier, damit niemand sie für unsere Ergebnisse hält und damit sichtbar bleibt, was geprüft und gestrichen wurde.</p>
+    <h3>Verworfene Zahlen und Aussagen</h3>
+    <div class="tw"><table class="rt" id="tab-verw"><thead><tr><th>Kennung</th><th>Was verworfen wurde</th><th>Warum</th><th>Stattdessen</th></tr></thead><tbody></tbody></table></div>
+    <h3>Formulierungen, die wir nicht verwenden</h3>
+    <p style="margin:0 0 8px;color:var(--soft)">Wörter und Sätze, die entweder Absicht unterstellen, ohne dass wir die Gründe kennen, oder die von den Quellen nicht gedeckt sind. Rechts steht, was wir stattdessen schreiben.</p>
+    <div class="tw"><table class="rt" id="tab-verb"><thead><tr><th>Kennung</th><th>Nicht verwendet</th><th>Stattdessen</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</section>
+
+<!-- ============================================================ KORREKTUREN -->
+<section id="korrekturen" aria-labelledby="h-kor">
+  <h2 id="h-kor"><span class="kapnum">7</span>Wo unsere eigenen Dossiers falsch lagen</h2>
+  <p class="lead">Die Gegenprüfung hat in den Recherche-Dossiers Fehler gefunden, in beide Richtungen. Die Prüfer fanden fast keine falsch abgeschriebenen Zahlen; die Fehler lagen in Ableitungen und Zusammenfassungen. Vier davon betreffen die Erzählung von Teil 1 am deutlichsten:</p>
+  <div class="tw"><table class="rt" id="tab-korr"><thead><tr><th>ID</th><th>Was falsch war</th><th>Korrigiert</th><th>Richtung</th><th>Fundstelle</th></tr></thead><tbody></tbody></table></div>
+  <p>Außerdem wurden diese Aussagen korrigiert (Anzahl insgesamt: <strong id="korr-n"></strong>):
+    <button type="button" class="fchip" id="show-korr">Alle korrigierten Aussagen in der Tabelle zeigen</button></p>
+  <div id="korr-list" class="mono" style="font-size:12.5px;color:var(--soft)"></div>
+</section>
+
+<!-- ============================================================ GRENZEN -->
+<section id="grenzen" aria-labelledby="h-gr">
+  <h2 id="h-gr"><span class="kapnum">8</span>Was Teil 1 nicht zeigt</h2>
+  <ol id="grenzen-list"></ol>
+</section>
+
+<!-- ============================================================ QUELLEN -->
+<section id="quellen" aria-labelledby="h-qu">
+  <h2 id="h-qu"><span class="kapnum">9</span>Quellenliste</h2>
+  <p class="lead">Mit URL, Datum der Veröffentlichung und Abrufdatum, soweit bekannt. Fremde PDFs spiegeln wir nicht; im Repository stehen URL, Prüfsumme und Abrufdatum in den Manifesten unter <code>energiewende/quellen/</code>.</p>
+  <h3>Dokumente und Daten Dritter</h3>
+  <ol class="sources" id="src-ext" style="counter-reset:none"></ol>
+  <h3>Eigene Dokumente im Repository</h3>
+  <ol class="sources" id="src-own"></ol>
+</section>
+
+<!-- ============================================================ ENTSTEHUNG -->
+<section id="entstehung" aria-labelledby="h-ent">
+  <h2 id="h-ent"><span class="kapnum">10</span>So ist diese Seite entstanden</h2>
+  <div class="made" id="made"></div>
+</section>
+
+</div><!-- /wrap -->
+
+<footer><div class="foot-in">
+  <p style="margin:0 0 8px"><strong>Entwurf.</strong> Diese Seite ist nicht veröffentlicht, nicht in der Sitemap und nicht von der Startseite verlinkt. Sie ist keine Anlage-, Rechts- oder Energieberatung. Für Richtigkeit und Vollständigkeit wird keine Gewähr übernommen; Korrekturen sind willkommen.</p>
+  <div class="foot-links">
+    <a href="index.html">Kitchen-Startseite</a>
+    <a href="energiewende-1-story.html">Scroll-Story zu Teil 1</a>
+    <a href="https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/energiewende" target="_blank" rel="noopener">Repository: energiewende/</a>
+    <a href="impressum.html">Impressum</a>
+    <a href="datenschutz.html">Datenschutz</a>
+  </div>
+  <p style="margin:0">Michael Tenner · Daten-WG · Energiewende-Reihe, Teil 1 · Belegseite</p>
+</div></footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Redaktionelle Texte dieser Seite. Zahlen stehen hier NICHT: Wo eine Zahl
+   vorkommt, steht ein Platzhalter [[zahlen-id.feld|format]], den die Seite aus
+   energiewende/data/teil1_data.json füllt. Übrig bleiben nur Jahreszahlen,
+   Seiten- und Fußnotenangaben, Aktenzeichen, Kennungen (S04, GP3, G1 ...) und
+   Datumsangaben im Fließtext.
+   --------------------------------------------------------------------------- */
+var CLAIMS = [
+/* 2.1 Der Satz */
+['S01','BILD titelte am 20. November 2026 „Deutschland wird Energiewende ‚nicht überleben‘“ und stützt sich auf das R21-Papier. Der Artikel liegt hinter einer Bezahlschranke; wir kennen nur Überschrift und frei lesbaren Teaser.','BILD-Teaser (vom Nutzer übermittelt); bild.de vom Abruf-Werkzeug gesperrt',[]],
+['S02','Das Dokument heißt „Erklärung des Expertenrates Klima- und Energiepolitik“, Herausgeber REPUBLIK21 e. V., November 2026, 59 Seiten. Es ist eine Erklärung mit Factsheets, kein Rechenmodell.','R21-PDF, Titelblatt; Aufhänger-Dossier Abschn. 1',['r21_erklaerung_2026']],
+['S03','Auf den Factsheet-Seiten steht: „Gefördert durch das Presse- und Informationsamt der Bundesregierung aufgrund eines Beschlusses des Deutschen Bundestages.“','R21-Erklärung, Fußzeilen der Factsheet-Seiten',['r21_erklaerung_2026']],
+['S04','Zusammenfassung: Der Wissenschaftliche Dienst „beziffert die Kosten der Energiewende bis 2045 auf [[r21_kosten_zitat|bio]] Euro“; diesen „Wertschöpfungsentzug“ werde die Wirtschaft „nicht überleben“.','R21 Druckseite 3',['r21_erklaerung_2026']],
+['S05','Kapitel 3: Der Wissenschaftliche Dienst „kommt auf Investitionskosten von [[r21_kosten_zitat|bio]] Euro“. Fußnote 5 nennt WD 5 – 3000 – 135/24 vom 16. September 2024.','R21 Druckseite 12 (PDF-Seite 17), Fn. 5',['r21_erklaerung_2026','wd5_135_24']],
+['S06','R21: Das entspreche „dem Zwei- bis Dreifachen der jährlichen Wirtschaftsleistung“. Die Rechnung geht auf: [[r21_bip_vielfaches]] (Bezug BIP 2025).','R21 Druckseite 12; Eurostat nama_10_gdp 2025',['r21_erklaerung_2026','eurostat_nama_10_gdp']],
+['S07','Fußnote 5 ist die einzige externe Fundstelle des Haupttexts. Von [[r21_haupttext_zahlen.gesamt|n]] Zahlen im Haupttext haben [[r21_haupttext_zahlen.mit_fundstelle|n]] eine Fundstelle, [[r21_haupttext_zahlen.nur_urheber|n]] nur einen Urheber und [[r21_haupttext_zahlen.ohne_quelle|n]] keine Quelle.','Aufhänger-Dossier 01, Abschn. 3.1 und Zählung; Prüfbericht 01, K1 (unabhängig nachgezählt)',['dossier_01']],
+['S08','R21 behandelt die Summe als „Entzug von Wertschöpfung“, also als reinen Verlust und nicht als Investition mit Gegenwert, und zieht nicht ab, was ein anderes Energiesystem im selben Zeitraum kosten würde.','R21 Druckseite 3 und 12 (Wortlaut)',['r21_erklaerung_2026']],
+/* 2.2 Fußnote */
+['F01','Die Kurzinformation schreibt: „Je nach Betrachtungszeitraum werden die Kosten auf Beträge zwischen [[wd_kosten_pro_jahr|mrd]] Euro pro Jahr oder [[wd_kosten_gesamt|bio]] Euro insgesamt bis zum Jahr 2045 beziffert.“','WD 5 – 3000 – 135/24, S. 2',['wd5_135_24']],
+['F02','Die Zahl [[r21_kosten_zitat.max|n]] kommt in der Kurzinformation nicht vor.','WD 135/24, Volltext aller sechs Seiten',['wd5_135_24']],
+['F03','Eine Spanne „[[r21_kosten_zitat.min|n]] bis [[r21_kosten_zitat.max|n]]“ steht dort nicht. Genannt sind zwei Einzelwerte aus zwei Quellen mit verschiedenem Zeitbezug (pro Jahr, insgesamt).','WD 135/24, S. 2, Fn. 5 und 6',['wd5_135_24']],
+['F04','Die Kurzinformation rechnet nicht selbst, sie referiert fremde Studien. Sie schreibt, die Bundesregierung erstelle „keine (eigene) Gesamtkostenrechnung“, und die Studien seien „hinsichtlich der Kostenbestandteile nicht immer transparent“.','WD 135/24, S. 1 und S. 4',['wd5_135_24']],
+['F05','Die Kurzinformation referiert den achten Monitoring-Bericht: Eine vollständige Kostenbetrachtung sei nur im Vergleich mit einem Energiesystem ohne Energiewende möglich, „da auch bei Fortführung einer Energieversorgung ohne Energiewende Investitionen erforderlich wären“.','WD 135/24, S. 5, Fn. 20',['wd5_135_24']],
+['F06','Erstbefund: Die Kurzinformation „verlangt ausdrücklich“ den Vergleich. Korrigiert: Sie „weist darauf hin“, sie referiert den Hinweis.','WD 135/24, S. 5; Aufhänger-Dossier, Q11',['wd5_135_24']],
+['F07','Unsere Vermutung: Die Untergrenze [[r21_untergrenze_herleitung|bio]] Euro ergäbe sich aus [[wd_kosten_pro_jahr|mrd]] Euro pro Jahr mal zwanzig Jahre. Im R21-Papier steht keine Herleitung.','eigene Vermutung; R21 Druckseite 12 ohne Rechenweg',[]],
+['F08','Die Kurzinformation trägt im Titel „Investitionskosten“ und nennt die [[wd_kosten_gesamt|bio]] Euro im Text „Kosten“.','WD 135/24, Titel und S. 2',['wd5_135_24']],
+['F09','R21 schreibt, der Monitoring-Bericht der Bundesregierung enthalte zu Kosten „nichts“. Die Bundesregierung selbst legt keine eigene Kostenzahl vor.','R21 Druckseite 12; WD 135/24, S. 1; BT-Drs. 21/903, S. 2 („keine eigenen Abschätzungen“)',['r21_erklaerung_2026','wd5_135_24','btd_21_903']],
+['F10','REJ','Prüfbericht 01, Abschn. 3.3',[]],
+/* 2.3 Quelle der Quelle */
+['Q01','Die [[wd_kosten_gesamt|bio]] Euro führt die Kurzinformation auf PwC (2024) zurück, „S. 4 (abrufbar nach Registrierung)“.','WD 135/24, Fn. 6',['wd5_135_24']],
+['Q02','Die PwC-Studie heißt „Beschleunigte Investitionen in den Klimaschutz lohnen sich – jetzt auch ökonomisch!“.','WD 135/24, Fn. 4 und 6',['wd5_135_24','pwc_2024']],
+['Q03','Eine zweite Kurzinformation des Bundestags (WD 5 – 3000 – 151/24) erklärt den Begriff: „Aggregierte Gesamtkosten“ heißt, dass nicht nur die Investitionskosten betrachtet werden, sondern auch aufsummierte jährliche Energiekosten.','WD 5 – 3000 – 151/24, PDF-S. 14 (Fn. 48); am Original gelesen ist die Kurzinformation, nicht PwC',['wd5_151_24']],
+['Q04','Die [[wd_kosten_gesamt|bio]] Euro sind danach keine reinen Investitionskosten, sondern Gesamtkosten aus Investitionen und Energiekosten. Die Bezeichnung „Investitionskosten“ steht im Titel der Kurzinformation.','WD 151/24, PDF-S. 14; WD 135/24, S. 2',['wd5_151_24','wd5_135_24']],
+['Q05','Nach der Darstellung des DIW Berlin (Wochenbericht 38+39/2025) sind die [[pwc_wwb_gesamt|bio]] bei PwC die Gesamtkosten eines Szenarios „Weiter wie bisher“ – [[pwc_wwb_investitionen|bio]] Investitionen und [[pwc_wwb_energiekosten|bio]] Energiekosten. Die PwC-Studie selbst ist nur nach Registrierung abrufbar; wir haben sie nicht gelesen.','DIW Wochenbericht 38+39/2025, S. 618, Fn. 30–31 (gelesen); PwC-Original nicht gelesen',['diw_wb_2025_38','pwc_2024']],
+['Q06','Das DIW schreibt, PwC rechne bis 2050 und zähle zu den Energiekosten auch Netzentgelte, Umlagen und den CO₂-Preis. Die Kurzinformation des Bundestags schreibt „bis zum Jahr 2045“. Welche Angabe stimmt, können wir ohne das Original nicht sagen.','DIW 38+39/2025, Fn. 30–31; WD 135/24',['diw_wb_2025_38','wd5_135_24','pwc_2024']],
+['Q07','Die [[wd_kosten_pro_jahr|mrd]] Euro pro Jahr führt die Kurzinformation auf einen FAZ-Gastbeitrag von 2019 zurück. Die Autorenangabe ist in den Fußnoten uneinheitlich.','WD 135/24, Fn. 4, 5 und 8',['wd5_135_24']],
+['Q08','Die [[wd_kosten_pro_jahr|mrd]] Euro pro Jahr stammen laut Kurzinformation aus einem FAZ-Gastbeitrag von 2019. Den Beitrag konnten wir nicht lesen: Die Seite des ifo-Instituts verlangt eine Browser-Prüfung, die wir nicht umgehen. Ob dort [[wd_kosten_pro_jahr|mrd]] Euro pro Jahr stehen, wissen wir deshalb nicht.<sup class="fnr"><a href="#fn-q8" aria-label="Fußnote 1">1</a></sup>','ifo.de verlangt eine Browser-Prüfung (nicht umgangen); faz.net nicht freigegeben',['faz_pittel_2019','wd5_135_24']],
+['Q09','[[wd_kosten_pro_jahr|mrd]] Euro pro Jahr wären 2018 rund [[pittel_plausibilitaet_bip2018.pro_jahr_pct|n]] Prozent der Wirtschaftsleistung gewesen. Das ist unsere Rechnung (Setzung (M)), kein Beleg dafür, was im Gastbeitrag steht.','Prüfbericht 02, Nr. 5 (Nachrechnung); Eurostat',['pruefbericht_02']],
+/* 2.4 Drei Größen */
+['G01','Kostenstudien messen drei verschiedene Größen. G1: Brutto-Gesamtkosten der Energieversorgung (Investitionen, Betrieb, Energieträger). G2: Brutto-Investitionen in klimarelevante Güter, auch was ohnehin anfiele. G3: Mehrinvestitionen oder Mehrkosten gegen eine Referenz.','Dossier 02 Abschn. 1; Prüfbericht 02; WD 151/24 PDF-S. 14; Drs. 21/903 S. 2',['pruefbericht_02','wd5_151_24','btd_21_903']],
+['G02','Spannen: G1 für das ganze Energiesystem [[g1_spanne]] (die Obergrenze, PwC, trägt nur Konfidenz C); G2 [[g2_spanne]]; G3 als Anteil am BIP: Mehrinvestitionen [[mehrinvestitionen_anteil_bip_pa]], Mehrkosten nach Abzug eingesparter Energie [[mehrkosten_anteil_bip_pa]].','Prüfbericht 02, Korrekturen zu Kernaussage 3 und 4; Nachrechnung in Abschn. 8 der Freigabeliste',['pruefbericht_02']],
+['G03','Das Dossier hatte die Spannen zu hoch eingestuft und für die Mehrkosten eine zu enge Spanne genannt, weil eine Studie mit fossiler Referenz ausgeblendet war. Korrigiert: Konfidenz B; Mehrkosten [[mehrkosten_anteil_bip_pa]]. Am oberen Rand steht die Studie mit der fossilsten Referenz.','Prüfbericht 02, Nr. 6 und 9',['pruefbericht_02','ise_2021']],
+['G04','Die Brutto-Anteile am BIP betragen [[brutto_anteil_bip_pa]] für das ganze System oder alle Sektoren; mit Teilabgrenzungen liegen sie tiefer.','Prüfbericht 02, Nr. 7',['pruefbericht_02']],
+['G05','Eine Studie nennt beide Größen: Fraunhofer ISE 2024 beziffert die gesamte Energieversorgung 2025–2045 auf rund [[ise2024_gesamtaufwand|bio]] Euro, die Differenzkosten gegenüber dem fortgeschriebenen heutigen System auf rund [[ise2024_differenzkosten.mid|mrd]] Euro pro Jahr ([[st:ise2024_differenzkosten.bip_pct.mid|pct]] des BIP).','ISE 2024, PDF-S. 6 und 82',['ise_2024']],
+['G06','Zu G05: Die Jahreswerte derselben Seite ergeben eine kleinere Summe als die genannte (Abgrenzung unter „Zahlen im Datensatz“). Die Differenzkosten gelten laut Studie im Mittel über den Zeitraum „[[st:ise2024_differenzkosten.zeitraum|raw]]“.','Prüfbericht 02, Nr. 30 und 35',['pruefbericht_02','ise_2024']],
+['G07','DIHK/Frontier „Plan B“: Gesamtsystemkosten [[dihk_systemkosten_2025_2049]] 2025–2049, davon Energieimporte [[dihk_energieimporte_2025_2049]]. Nachfrageseitige Investitionen (Gebäude, Verkehr, Industrie) „werden nicht berücksichtigt“. Abbildung 8 heißt „Gesamtkosten des Energiesystems durch die Energiewende bei einer Fortsetzung des Status Quo“.','DIHK „Plan B“, S. 8, S. 27 (Abb. 8 mit Hinweis)',['dihk_planb_2025']],
+['G08','KfW/Prognos 2026: Brutto-Klimaschutzinvestitionen [[kfw2026_ksi_brutto]] 2025–2045, das sind [[kfw2026_ksi_brutto_pa]]. „Die KSI sind nicht mit den Kosten für Klimaschutz gleichzusetzen.“','Prognos für KfW, Juni 2026, Zusammenfassung S. 1 und S. 14',['kfw_prognos_2026']],
+['G09','Agora 2024: Gesamtinvestitionen [[agora_gesamtinvestitionen]] bis 2045. Davon sind [[agora_mehrinvestitionen_pa]] Klimaschutz-Mehrinvestitionen; der größere Rest fiele ohnehin an.','Agora 2024, PDF-S. 11–12',['agora_2024']],
+['G10','Die Bundesregierung schreibt, die Investitionsstudien von BDI, BDEW und EnBW „stellen keine energiewendebedingten Zusatzkosten dar“, weil Ersatzinvestitionen enthalten und Einsparungen bei fossilen Energieträgern nicht abgezogen sind.','BT-Drs. 21/903 vom 15. Juli 2025, S. 2 (Antwort zu Fragen 1, 2, 4–6)',['btd_21_903']],
+['G11','Das Dossier schrieb der Bundesregierung eine lineare Rechnung pro Jahr zu. Korrigiert: Diese Rechnung stammt von den Fragestellern (AfD) in ihrer Vorbemerkung, nicht von der Bundesregierung.','BT-Drs. 21/903, S. 1',['btd_21_903']],
+['G12','Zum Vergleich: R21s Spanne über zwanzig Jahre entspricht [[r21_anteil_bip_pa]]. Als G1 liegt das in der Größenordnung der Brutto-Studien ([[brutto_anteil_bip_pa]]). Als Mehrkosten liegt es über allem, was die gelesenen Studien ausweisen ([[mehrkosten_anteil_bip_pa]]).','eigene Division, BIP 2024; Prüfbericht 02, Abschn. 4',['eigene_rechnung','pruefbericht_02']],
+['G13','REJ','Nachrechnung in der Freigabeliste; ersetzt durch G12',[]],
+/* 2.5 Netz */
+['N01','R21: „Allein der notwendige Aus- und Umbau der Netze wird nach einer Studie der DIHK [[r21_netz_dihk_zitat|n]] Milliarden kosten“ (Druckseite 3); „Gesamtkosten des Netzausbaus sogar auf [[r21_netz_dihk_zitat|n]] Milliarden“ (Druckseite 10). Eine Fundstelle nennt das Papier nicht.','R21 Druckseite 3 und 10',['r21_erklaerung_2026']],
+['N02','In der DIHK-Studie „Plan B“ kosten die Netze [[dihk_netzkosten_2025_2049]] (Investition und Betrieb) für 2025–2049. [[dihk_systemkosten_2025_2034]] sind dort die Gesamtsystemkosten der nächsten zehn Jahre einschließlich Energieimporten.','DIHK „Plan B“, S. 8 und S. 27, Abb. 8; Begleitpapier S. 2',['dihk_planb_2025']],
+['N03','Dass R21 diese DIHK-Studie meint, ist unser Schluss aus der Zahl. Das Papier nennt keine Fundstelle. Ob R21 eine andere Veröffentlichung meint, sagt das Papier nicht.','Dossier 01, Q1 und Abschn. 8; Wendlands R21-Papier zitiert dieselbe Studie',['dossier_01','wendland_2026']],
+['N04','Factsheet B nennt „Netzausbau [[dihk_netzkosten_2025_2049|k]] Mrd. € bis 2034 (Bothe et al. 2025)“. In der Studie gilt die Zahl für 2025–2049; rund die Hälfte fällt in den nächsten zehn Jahren an.','R21 Factsheet B (PDF 13); DIHK S. 27; Begleitpapier S. 2',['r21_erklaerung_2026','dihk_planb_2025']],
+['N05','R21: EWI „etwa [[r21_netz_ewi_zitat|n]] Milliarden Euro“ bis 2045 für Übertragungs- und Verteilnetz. Nächste Fundstelle: ef.Ruhr mit EWI im Unterauftrag (April 2024), [[efruhr_ewi_netze]] (Auftraggeber: Netze-Gesellschaft Südwest).','ef.Ruhr/EWI 2024, S. 2, 4, 8; Prüfbericht 01 und 02',['efruhr_ewi_2024','r21_erklaerung_2026']],
+['N06','Neuere Netzzahlen bis 2045: [[netze_spanne_studien]] (BET/EWI 2025, ef.Ruhr/EWI und eine Variante mit Verteilnetz aus den Langfristszenarien). Die Größenordnung von R21s Zahl ist plausibel.','Prüfbericht 02, Nr. 12 und 13 (BET/EWI PDF-S. 13, 79, 93, 99)',['bet_ewi_2025','efruhr_ewi_2024']],
+['N07','REJ','Prüfbericht 02, Nr. 13',[]],
+['N08','Bundesrechnungshof 2024: Netzausbau bis 2045 „mehr als [[brh_netzausbau|n]] Mrd. Euro“. Das BMWK erzeuge mit Stromgestehungskosten ohne Netzkosten „außerhalb der Fachöffentlichkeit ein falsches Bild der tatsächlichen Kosten der Transformation“.','BT-Drs. 20/10585, PDF-S. 9 und Abb. 8',['brh_2024']],
+['N09','Übertragungsnetz: Der bestätigte NEP 2023 stieg von rund [[nep_uen_kosten.nep2023_alt|n]] auf etwa [[nep_uen_kosten.nep2023_neu|nu]]. Der NEP 2025 (zweiter Entwurf) senkt das wieder auf rund [[nep_uen_kosten.nep2025_min|n]] bis [[nep_uen_kosten.nep2025_max|nu]].','NEP 2037/2045 (2025), kompakt, PDF-S. 11–12',['nep_2025']],
+['N10','Keine der Netzzahlen enthält Zinsen. Über Netzentgelte zahlen Kunden Abschreibung plus Verzinsung; ef.Ruhr/EWI rechnet diese Vollkosten methodisch aus.','ef.Ruhr/EWI 2024, S. 4; DIHK Fn. 27',['efruhr_ewi_2024','dihk_planb_2025']],
+/* 2.6 Vergleichspfad */
+['V01','R21 beziffert die Kosten des eigenen Kurses nicht: „Auch eine Kehrtwende in der Energiepolitik erfordert erhebliche Investitionen … Der Mittelbedarf liegt aber weit unter den Kosten“ der Energiewende.','R21 Druckseite 5 und 27',['r21_erklaerung_2026']],
+['V02','Factsheet B rechnet für den Kernkraft-Neubau [[r21_kkw_neubau]]. Das eigene Referenzpapier (Wendland, R21, Oktober 2026) rechnet mit „ca. [[wendland_kkw_neubau|n]] Milliarden Euro“.','R21 Factsheet B (PDF 15); Wendland PDF 3 und 16; Prüfbericht 01, K3',['r21_erklaerung_2026','wendland_2026']],
+['V03','Dieselben Gigawatt zur Spanne gebauter westlicher Projekte kosten [[kkw_neubau_spanne_gebaut]] (Setzung (M): eigene Multiplikation, keine Aussage über Machbarkeit bis 2045).','eigene Multiplikation; Dossier 09 (Kosten je Kilowatt) und README-Entscheidung',['dossier_09']],
+['V04','Neubau in dieser Größe bis 2045 ist nach westlichen Bauzeiten ausgeschlossen. Ein erster deutscher Block bei Entscheidung 2027 ginge frühestens [[kkw_erster_block_jahr.min|n]], eher [[kkw_erster_block_jahr.mid|n]], im ungünstigen Fall [[kkw_erster_block_jahr.max|n]] ans Netz.','Prüfbericht 09, Abschn. 3, Nr. 3',['pruefbericht_09']],
+['V05','R21s Kostenzahlen für den eigenen Pfad decken nur Kraftwerke ab (Neubau, Modernisierung, Gas), nicht Netze, Energieimporte, Gebäude, Verkehr und Industrie. Mit den [[wd_kosten_gesamt|bio]] Euro sind sie nicht vergleichbar.','Dossier 01, Factsheet B; Prüfbericht 01, Nachrechnung Factsheet B',['dossier_01','r21_erklaerung_2026']],
+['V06','Laut DIW kommt in derselben Studie der beschleunigte Klimaschutzpfad auf [[pwc_beschleunigt_gesamt|bio]], also fast dieselbe Summe. Auch das haben wir nicht am PwC-Original geprüft.','DIW 38+39/2025, S. 618; PwC nicht gelesen',['diw_wb_2025_38','pwc_2024']],
+['V07','Fraunhofer ISE 2021: Netto-Mehraufwendungen bis 2045 gegenüber einer Entwicklung „ohne weitere Reduzierung der energiebedingten CO₂-Emissionen“ zwischen [[ise2021_mehraufwand.min|nu]] (Suffizienz) und [[ise2021_mehraufwand.max|nu]] (Inakzeptanz), Referenz rund [[ise2021_mehraufwand.mid|nu]].','ISE 2021, PDF-S. 8',['ise_2021']],
+['V08','Ariadne 2025: Mehrkosten gegenüber „Existierenden Politiken“ [[ariadne_mehrkosten_pa.min|n]] bis [[ariadne_mehrkosten_pa.max|nu]] (2025–2045), bei Beharren in den Nachfragesektoren [[ariadne_mehrkosten_pa.beharrung|n]] Mrd. €.','Ariadne-Zusammenfassung, PDF-S. 8',['ariadne_2025']],
+['V09','KfW/Prognos 2026: netto gegenüber fossiler Referenztechnik [[kfw2026_ksi_netto_pa.min|n]] bis [[kfw2026_ksi_netto_pa.max|nu]]. Zusätzlich zum heutigen Niveau „around EUR [[kfw2026_zuwachs_pa|n]] billion“, das sind [[st:kfw2026_zuwachs_pa.bip_pct|pct]] des BIP.','Prognos S. 1; KfW-Focus 561, S. 1 und 3',['kfw_prognos_2026']],
+['V10','DIHK „Plan B“: Ein anders gesteuerter Klimapfad spart „mindestens [[dihk_planb_einsparung.min|n]] bis [[dihk_planb_einsparung.max|n]] Mrd. €“ bis 2050 bei gleichem Endenergieverbrauch. Plan B ist selbst ein Klimaneutralitätspfad, kein Ausstieg.','DIHK „Plan B“, S. 12 und Hinweis zu Abb. 2',['dihk_planb_2025']],
+['V11','Klimafolgekosten nur durch Extremwetter in Deutschland 2022–2050: [[klimafolgen_de_2022_2050]], ausdrücklich eine Untergrenze. Die zugrunde liegende Studie haben wir nicht gelesen.','hib 411/2024 (gelesen); DIW 38+39/2025 (gelesen); Studie IÖW/Prognos/GWS nicht gelesen',['hib_411_2024','diw_wb_2025_38']],
+['V12','UBA-Klimakosten 2025, globale Schäden je Tonne: [[uba_klimakosten_2025]].','UBA-Tabelle vom 6. Juli 2026, S. 1',['uba_klimakosten_2026']],
+['V13','Die Schäden in Deutschland (V11) und die UBA-Sätze (globale Schäden je deutscher Tonne, V12) dürfen nicht addiert werden.','Dossier 02, Abschn. 5 (Hinweis zur Vergleichbarkeit)',['pruefbericht_02']],
+/* 2.7 Optimismus */
+['O01','Die Referenz enthält schon Klimaschutz: KfW 2021 rechnet gegen eine Referenz mit „klimaschutzbezogenen ‚ohnehin‘-Investitionen“ (zum Beispiel dem beschlossenen Ausbaupfad der Erneuerbaren), Ariadne gegen „Existierende Politiken“. KfW/Prognos 2026 verzichtet deshalb ganz auf eine Referenz.','KfW-Fokus 350, S. 1; Ariadne S. 8; Prognos S. 14',['kfw_fokus_350_2021','ariadne_2025','kfw_prognos_2026']],
+['O02','Beharrungs- und Akzeptanzszenarien kosten [[beharrung_aufschlag_pct]] (ISE 2021, ISE 2024 und Ariadne zusammen; Einzelwerte unter „Zahlen im Datensatz“).','Prüfbericht 02, Nr. 24',['pruefbericht_02']],
+['O03','Die Investitionssummen enthalten keine Finanzierungskosten. Die DIHK zählt Investitionen im Jahr der Realisierung.','DIHK Fn. 27; Agora, KfW: Investitionsausgaben',['dihk_planb_2025','agora_2024','kfw_prognos_2026']],
+['O04','Reale Investitionskosten je Kilowatt für Windkraft sind „seit 2020 wieder gestiegen, statt weiter zu sinken“.','DIHK „Plan B“, S. 27–28',['dihk_planb_2025']],
+['O05','Gesamtmodell gegen Sektormodelle: Ariadne [[ariadne_mehrkosten_pa.max|nu]] (REMIND) gegen [[ariadne_mehrkosten_pa.min|nu]].','Ariadne S. 8',['ariadne_2025']],
+['O06','Kosten werden vom Strompreis in den Haushalt verschoben: Der Bund zahlte 2024 [[eeg_bundeszuschuss_2024]] auf das EEG-Konto.','BT-Drs. 20/14522, S. 1 (Prüfbericht 10, KA 6)',['btd_20_14522']],
+['O07','ISE 2021 rechnet mit einem niedrigeren BIP 2020 als Eurostat. Die BIP-Anteile der Studie fallen dadurch zu niedrig aus; auf Eurostat-Basis liegt die Referenz höher.','Prüfbericht 02, Korrektur zum BIP-Bezug der ISE-Studie',['pruefbericht_02','eurostat_nama_10_gdp','ise_2021']],
+/* 2.8 R21 hat recht */
+['R01','Chinas Anteil an den Extra-EU-Einfuhren stieg von 2015 auf 2025 bei PV-Modulen und -Zellen von [[china_anteil_pv_extra_eu.2015|pct]] auf [[china_anteil_pv_extra_eu.2025|pct]], bei Lithium-Ionen-Akkus von [[china_anteil_liion_extra_eu.2015|pct]] auf [[china_anteil_liion_extra_eu.2025|pct]].','Eurostat Comext (Dossier 07, Tab. 3.1; Prüfbericht 07 bestätigt)',['eurostat_comext']],
+['R02','Zu R01: 2018 endeten die EU-Mindestimportpreise für chinesische Module; ein Teil des Anstiegs folgt daraus.','Prüfbericht 07, Urteil Nr. 5',['eurostat_comext']],
+['R03','Industrieproduktion (Bergbau, Verarbeitendes Gewerbe, Energie) 2025: [[industrieproduktion_de_2025.ggue_2018_pct|pct]] gegenüber 2018, [[industrieproduktion_de_2025.ggue_2019_pct|pct]] gegenüber 2019. Energieintensive Zweige gegenüber 2019: Chemie [[energieintensiv_de_2025_ggue_2019.chemie|pct]], Glas/Keramik [[energieintensiv_de_2025_ggue_2019.glas_keramik|pct]], Metall [[energieintensiv_de_2025_ggue_2019.metall|pct]], Papier [[energieintensiv_de_2025_ggue_2019.papier|pct]].','Eurostat sts_inpr_a (Prüfbericht 10, KA 1)',['eurostat_sts_inpr_a']],
+['R04','R21 nennt Rückgänge für energieintensive Zweige und für die Industrie „gegenüber der Zeit vor dem Jahr 2020“, ohne Basisjahr. Mit Basis 2018 trifft die Größenordnung zu.','R21 Druckseite 6; Prüfbericht 10',['r21_erklaerung_2026','eurostat_sts_inpr_a']],
+['R05','Der Rückgang ist nicht allein deutsch: In der EU-27 liegen Chemie und Metall ebenfalls deutlich im Minus. Bei Papier und Glas/Keramik liegt Deutschland aber deutlich schlechter.','Prüfbericht 10, KA 2',['eurostat_sts_inpr_a']],
+['R06','Industriestrom: erstes Halbjahr 2019 DE [[industriestrom_de_eu.2019s1_de|n]] gegen EU-27 [[industriestrom_de_eu.2019s1_eu|n]] ct/kWh; erstes Halbjahr 2026 [[industriestrom_de_eu.2026s1_de|n]] gegen [[industriestrom_de_eu.2026s1_eu|n]] ct/kWh. Haushaltsstrom im ersten Halbjahr 2026: DE [[haushaltsstrom_de_eu_2026s1.de|n]] gegen EU-27 [[haushaltsstrom_de_eu_2026s1.eu|n]] ct/kWh.','Eurostat nrg_pc_205 und nrg_pc_204 (Prüfbericht 10, KA 3)',['eurostat_nrg_pc_204','eurostat_nrg_pc_205']],
+['R07','Bundesbank (Modellrechnung, ex ante): Dauerhaft mehr als verdoppelte Energiepreise gegenüber 2019 verändern die Bruttowertschöpfung der Industrie um [[bundesbank_energiepreis_wertschoepfung.industrie_pct|pct]], insgesamt um [[bundesbank_energiepreis_wertschoepfung.gesamt_pct|pct]].','Bundesbank, Monatsbericht Dezember 2022, S. 29–30',['bundesbank_mb_2022_12']],
+['R08','Energiemenge der Dunkelflaute: Im schwächsten Fünf-Tage-Fenster der Wetterjahre 2015–2025 hätten die Ausbauziele 2030 eine Lücke von [[dunkelflaute_luecke_5tage.ziele2030.min|n]] / [[dunkelflaute_luecke_5tage.ziele2030.mid|n]] / [[dunkelflaute_luecke_5tage.ziele2030.max|nu]] gelassen (Minimum / Median / Maximum), mit dem Anlagenbestand vom November 2026 [[dunkelflaute_luecke_5tage.bestand_2026_11.min|n]] / [[dunkelflaute_luecke_5tage.bestand_2026_11.mid|n]] / [[dunkelflaute_luecke_5tage.bestand_2026_11.max|nu]]. R21 rechnet mit [[dunkelflaute_luecke_5tage.r21|nu]].','Dossier 05 K1; Prüfbericht 05, Abschn. 4 (eigene Nachrechnung auf Messdaten)',['dossier_05','pruefbericht_05']],
+['R09','Die Technik in Factsheet A passt nicht zur Planung: Der Netzentwicklungsplan setzt für 2045 Batterien mit zusammen [[nep_batterien_2045]] und daneben Wasserstoffkraftwerke. R21 nennt in Fußnote 2 Batterien die „vorgesehene Technik“.','NEP 2037/2045 (2025), Tab. 1 und 8; R21 Fn. 2',['nep_2025','r21_erklaerung_2026']],
+['R10','R21s Angabe zur ETS-Minderung seit 2005 (Factsheet D) ist gedeckt. Die Kommission nennt [[ets_minderung_seit_2005|pct]] für die erfassten Sektoren (Stand 2024); ein älterer Wert in Factsheet F entspricht dem Stand 2023.','Europäische Kommission, 4. April 2025',['ec_ets_2025','r21_erklaerung_2026']],
+['R11','Das Dossier sah in den ETS-Werten von R21 einen „Widerspruch“. Korrigiert: uneinheitlich; ein Wert korrekt, ein Wert veraltet, die Untergrenzen-Angabe nicht falsch.','Prüfbericht 01, Abschn. 3.4',['dossier_01','ec_ets_2025']],
+['R12','ZEW (Rausch 2026): Die von R21 genannte Zahl ist ein Barwert 2028–2048 für die EU-27, Hebel „nationale nicht-marktliche Maßnahmen entfallen“. Der Gesamteffekt liegt eher bei [[zew_effekt_ohne_nationale_massnahmen]], also höher als bei R21. Die zweite Zahl aus Factsheet D steht nicht in der Studie.','ZEW Rausch 2026, S. 3, 15, 16; ZEW-Pressemitteilung; Prüfbericht 01, Abschn. 3.1',['zew_rausch_2026','r21_erklaerung_2026']],
+['R13','REJ','Prüfbericht 10, KA 10',[]],
+/* 2.9 Eigene Dossiers */
+['E01','Das Dossier 05 hatte den Wasserstoffspeicher der Vergleichsrechnung nur für ein einziges Fünf-Tage-Ereignis ausgelegt; die zitierte Literatur braucht einen weit größeren. Korrigiert: Die Absicherung kostet eher [[h2_absicherung_dunkelflaute_inv]] Investition, ohne Elektrolyseure.','Prüfbericht 05, Abschn. 3.1',['pruefbericht_05']],
+['E02','Das Dossier 05 nannte nur das europäische Extremereignis. Für Deutschland allein finden Kittel und Schill [[dunkelflaute_insel_de_tage]] (Winter 1995/96) mit rund einem Drittel der üblichen Wind- und PV-Verfügbarkeit.','Prüfbericht 05, Abschn. 3.3 (DIW-Podcast, Transkript)',['pruefbericht_05','diw_fossilfrei_44']],
+['E03','Das Dossier 07 hatte den Preisaufschlag im Stresstest „China liefert nicht“ zu hoch angesetzt. Korrigiert: [[stresstest_china_aufschlag_pct]] (konsistente Modulpreisbasis).','Prüfbericht 07, Urteil Nr. 2',['pruefbericht_07']],
+['E04','Das Dossier 09 hatte die Kernkraft-Reaktivierung im Mittel zu günstig angesetzt. Entscheidung: Mitte [[kkw_reaktivierung_gw.mid|nu]] (Isar 2, Emsland), oberes Ende rund [[kkw_reaktivierung_gw.max|nu]] laut Radiant (nur als Parteiwiedergabe gelesen).','Prüfbericht 09, Abschn. 3, Nr. 1 und 2; README-Entscheidung',['pruefbericht_09']]
+];
+
+/* Wo eine Aussage sachlich zu einer Gegenposition oder einem Kasten gehört */
+var AKT_TITEL = {
+  1:'Akt 1 · Der Satz',
+  2:'Akt 2 · Die Fußnote',
+  3:'Akt 3 · Die Quelle der Quelle',
+  4:'Akt 4 · Drei Größen',
+  5:'Akt 5 · Der Vergleichspfad und was R21 richtig sieht'
+};
+
+/* Die zwölf Pflicht-Gegenpositionen in voller Länge */
+var GP = [
+{id:'GP1',cls:'r21',t:'Die Abhängigkeit von China ist real und gewachsen',
+ inh:'Chinas Anteil an den Extra-EU-Einfuhren von PV-Modulen und -Zellen stieg von [[china_anteil_pv_extra_eu.2015|pct]] (2015) auf [[china_anteil_pv_extra_eu.2025|pct]] (2025). Bei Lithium-Ionen-Akkus stieg er von [[china_anteil_liion_extra_eu.2015|pct]] auf [[china_anteil_liion_extra_eu.2025|pct]].',
+ bel:'Eurostat Comext; Dossier 07 und Prüfbericht 07.',
+ gr:'Ein Teil des Anstiegs folgt aus dem Ende der EU-Mindestimportpreise 2018 (R02). Anlagen laufen bei einem Lieferstopp weiter, Brennstoffe nicht; das behandelt Teil 4 der Reihe.',
+ cl:['R01','R02']},
+{id:'GP2',cls:'r21',t:'Die Industrie produziert deutlich weniger',
+ inh:'Die Industrieproduktion 2025 im Vergleich zu 2018: [[industrieproduktion_de_2025.ggue_2018_pct|pct]]. Energieintensive Zweige liegen gegenüber 2019 bei Chemie [[energieintensiv_de_2025_ggue_2019.chemie|pct]], Glas/Keramik [[energieintensiv_de_2025_ggue_2019.glas_keramik|pct]], Metall [[energieintensiv_de_2025_ggue_2019.metall|pct]] und Papier [[energieintensiv_de_2025_ggue_2019.papier|pct]]. R21 nennt ähnliche Größenordnungen ohne Basisjahr (R04).',
+ bel:'Eurostat sts_inpr_a; Prüfbericht 10.',
+ gr:'Auch andere EU-Länder verlieren, Deutschland aber stärker (R05). Die Ursachen sind nicht zerlegt. Die Bundesbank-Zahl ([[bundesbank_energiepreis_wertschoepfung.industrie_pct|pct]] Bruttowertschöpfung der Industrie, [[bundesbank_energiepreis_wertschoepfung.gesamt_pct|pct]] insgesamt) ist eine Modellrechnung zum Energiepreisschock, keine Zuschreibung an die Energiewende.',
+ cl:['R03','R04','R05','R07']},
+{id:'GP3',cls:'r21',t:'Strom ist in Deutschland teurer als im EU-Mittel',
+ inh:'Industriestrom: [[industriestrom_de_eu.2019s1_de|n]] gegen [[industriestrom_de_eu.2019s1_eu|n]] ct/kWh im ersten Halbjahr 2019, [[industriestrom_de_eu.2026s1_de|n]] gegen [[industriestrom_de_eu.2026s1_eu|n]] ct/kWh im ersten Halbjahr 2026. Haushaltsstrom im ersten Halbjahr 2026: [[haushaltsstrom_de_eu_2026s1.de|n]] gegen [[haushaltsstrom_de_eu_2026s1.eu|n]] ct/kWh. Abgrenzung laut Datensatz: [[industriestrom_de_eu|abg]].',
+ bel:'Eurostat nrg_pc_204 und nrg_pc_205; Dossier 10, KA 3.',
+ gr:'Der Abstand ist älter als die Krise und zuletzt kleiner geworden. Haupttreiber seit 2021 war die Beschaffung (Gaspreis), die Netzentgelte stiegen. Für die Ursachen gilt nur Konfidenz C; die Zahlen selbst tragen die Konfidenz B.',
+ cl:['R06']},
+{id:'GP4',cls:'r21',t:'Die Energiemenge einer Dunkelflaute hat R21 ungefähr richtig',
+ inh:'Im schwächsten Fünf-Tage-Fenster der Wetterjahre 2015–2025 bliebe mit den Ausbauzielen 2030 eine Energielücke von [[dunkelflaute_luecke_5tage.ziele2030.min|n]] bis [[dunkelflaute_luecke_5tage.ziele2030.max|nu]] (Median [[dunkelflaute_luecke_5tage.ziele2030.mid|n]]), mit dem Anlagenbestand vom November 2026 [[dunkelflaute_luecke_5tage.bestand_2026_11.min|n]] bis [[dunkelflaute_luecke_5tage.bestand_2026_11.max|nu]] (Median [[dunkelflaute_luecke_5tage.bestand_2026_11.mid|n]]). R21 rechnet mit [[dunkelflaute_luecke_5tage.r21|nu]].',
+ bel:'Eigene Rechnung auf Messdaten 2015–2025 (Dossier 05), vom Prüfer nachgerechnet.',
+ gr:'Der Fehler liegt in der Technik: Der Netzentwicklungsplan sieht Batterien nur mit wenigen Stunden Speicherdauer vor ([[nep_batterien_2045]]), für lange Flauten daneben Wasserstoffkraftwerke (R09). Und fünf Tage sind nicht der schwerste Fall: Für Deutschland allein kennen wir ein Ereignis von [[dunkelflaute_insel_de_tage]] (E02).',
+ cl:['R08','R09','E02']},
+{id:'GP5',cls:'r21',t:'Beim Emissionshandel stimmt R21s Zahl',
+ inh:'Die Kommission nennt für die erfassten Sektoren seit 2005 [[ets_minderung_seit_2005|pct]] (Stand 2024). R21s Angabe in Factsheet D ist damit gedeckt (R10). Der ZEW-Gesamteffekt liegt eher bei [[zew_effekt_ohne_nationale_massnahmen]] als bei der von R21 genannten Zahl (R12).',
+ bel:'Europäische Kommission, 4. April 2025; ZEW Rausch 2026.',
+ gr:'Die ZEW-Werte gelten für die EU-27 als Barwert. Die Wirkung nationaler Maßnahmen im ETS ist „teilweise, zeitabhängig und politisch“ (Dossier 09, KA 6).',
+ cl:['R10','R12']},
+{id:'GP6',cls:'r21',t:'Ein Kosten-Monitoring fehlt tatsächlich',
+ inh:'Die Bundesregierung macht „keine eigenen Abschätzungen“ (F09, G10). Der Bundesrechnungshof spricht von einem „falschen Bild der tatsächlichen Kosten“ (N08).',
+ bel:'WD 135/24, S. 1; BT-Drs. 21/903, S. 2; BT-Drs. 20/10585, S. 9.',
+ gr:'Dieselbe Antwort der Bundesregierung sagt auch, dass Brutto-Investitionsstudien keine Zusatzkosten messen (G10).',
+ cl:['F09','G10','N08']},
+{id:'GP7',cls:'opt',t:'Die Referenz enthält schon Klimaschutz',
+ inh:'KfW 2021 rechnet gegen eine Referenz mit beschlossenem Ausbau der Erneuerbaren, Ariadne gegen „Existierende Politiken“. KfW/Prognos 2026 verzichtet deshalb ganz auf eine Referenz (O01).',
+ bel:'KfW-Fokus 350, S. 1; Ariadne, S. 8; Prognos, S. 14.',
+ gr:'Niedrige Mehrkosten messen oft nur den letzten Schritt zum Ziel. Die fossilste Referenz (ISE 2021) liefert die höchsten Werte: [[st:ise2021_mehraufwand.bip_pct.mid|n]] bis [[st:ise2021_mehraufwand.bip_pct.max|pct]] des BIP (V07).',
+ cl:['O01','V07']},
+{id:'GP8',cls:'opt',t:'Beharrung kann ein Mehrfaches kosten',
+ inh:'Beharrungs- und Akzeptanzszenarien kosten [[beharrung_aufschlag_pct]] (O02). Bei Ariadne sind es [[ariadne_mehrkosten_pa.beharrung|n]] statt [[ariadne_mehrkosten_pa.min|nu]] (V08).',
+ bel:'Ariadne, S. 8; ISE 2021, S. 41; ISE 2024, S. 81.',
+ gr:'Der bisherige Hochlauf von Wärmepumpen und E-Autos gleicht eher dem Beharrungs-Szenario.',
+ cl:['O02','V08']},
+{id:'GP9',cls:'opt',t:'Finanzierungskosten fehlen in den Summen',
+ inh:'Investitionen werden im Jahr der Realisierung gezählt (O03). Über Netzentgelte zahlen Kunden Zinsen mit (N10).',
+ bel:'DIHK Fn. 27; ef.Ruhr/EWI, S. 4.',
+ gr:'Wir haben keine Studie mit einer Gesamtzahl für die Kapitalkosten gefunden. Das ist eine Lücke.',
+ cl:['O03','N10']},
+{id:'GP10',cls:'opt',t:'Der Bundesrechnungshof widerspricht dem Bild billiger Erneuerbarer',
+ inh:'Der Netzausbau bis 2045 kostet mehr als [[brh_netzausbau|n]] Mrd. €; das BMWK erzeuge ein „falsches Bild der tatsächlichen Kosten“ (N08). Kosten werden in den Haushalt verschoben: [[eeg_bundeszuschuss_2024]] 2024 auf das EEG-Konto (O06).',
+ bel:'BT-Drs. 20/10585, S. 9; BT-Drs. 20/14522, S. 1.',
+ gr:'Der Bericht nennt keine Gesamtkostenzahl der Energiewende.',
+ cl:['N08','O06']},
+{id:'GP11',cls:'opt',t:'Netz- und Windkosten steigen',
+ inh:'Beim Übertragungsnetz stieg der bestätigte NEP 2023 von rund [[nep_uen_kosten.nep2023_alt|n]] auf etwa [[nep_uen_kosten.nep2023_neu|nu]] (N09). Die Investitionskosten je Kilowatt für Windkraft sind seit 2020 wieder gestiegen (O04).',
+ bel:'NEP 2025 kompakt, S. 11; DIHK „Plan B“, S. 27–28.',
+ gr:'Derselbe Netzentwicklungsplan 2025 senkt die Übertragungsnetzkosten wieder auf [[nep_uen_kosten.nep2025_min|n]] bis [[nep_uen_kosten.nep2025_max|nu]] (N09).',
+ cl:['N09','O04']},
+{id:'GP12',cls:'self',t:'Wo wir uns korrigieren mussten – in beide Richtungen',
+ inhHtml:true,
+ inh:'<ul>'+
+  '<li><strong>Zugunsten der Energiewende zu günstig dargestellt:</strong> der Beharrungs-Aufschlag war zu niedrig angesetzt, korrigiert auf [[beharrung_aufschlag_pct]] (O02); eine Studie mit fossiler Referenz wurde zu Unrecht als Sonderfall behandelt, korrigiert auf Mehrkosten [[mehrkosten_anteil_bip_pa]] (G03); der Wasserstoffspeicher war nur für ein Ereignis ausgelegt (E01); das Ereignis von [[dunkelflaute_insel_de_tage]] fehlte (E02).</li>'+
+  '<li><strong>Zu Lasten der Energiewende:</strong> Der Aufschlag im China-Stresstest war zu hoch, korrigiert auf [[stresstest_china_aufschlag_pct]] (E03).</li>'+
+  '<li><strong>Gegenüber R21 zu hart:</strong> der ETS-„Widerspruch“ (R11), ein Vorwurf zum Monitoring-Bericht (F10, verworfen) und der übersehene ZEW-Gesamteffekt (R12).</li>'+
+  '<li><strong>Dem R21-Pfad gegenüber zu freundlich:</strong> Die Kernkraft-Reaktivierung war im Mittel zu hoch angesetzt, korrigiert auf [[kkw_reaktivierung_gw.mid|nu]] (E04).</li>'+
+  '<li><strong>Im Erstbefund:</strong> „verlangt“ statt „referiert“ (F06) und einige Seitenangaben.</li></ul>',
+ bel:'Prüfberichte 01, 02, 05, 07, 09; Aufhänger-Dossier 00, Tabelle „Korrekturen“.',
+ gr:'Die Prüfer haben fast keine falsch abgeschriebenen Zahlen gefunden. Die Fehler lagen in Ableitungen und Zusammenfassungen.',
+ cl:['O02','G03','E01','E02','E03','E04','R11','F10','R12','F06']}
+];
+var GP_GRUPPEN = {GP1:'Wo R21 recht hat',GP7:'Warum niedrige Mehrkosten zu optimistisch sein können',GP12:'Wo unsere Dossiers falsch lagen'};
+
+/* Korrekturen E01–E04: Richtung der Korrektur (redaktionell) */
+var KORR_RICHTUNG = {E01:'zugunsten der Energiewende geschönt',E02:'zugunsten der Energiewende geschönt',E03:'zu Lasten der Energiewende',E04:'zu freundlich zum R21-Pfad'};
+/* Wo der alte Wert eine verworfene Zahl ist, nennen wir ihn nur im Abschnitt „Verworfen“ */
+var ALT_NUR_VERWORFEN = {E01:1,E03:1};
+
+var GRENZEN = [
+ ['Kein eigenes Kostenmodell.','Teil 1 vergleicht fremde Studien. Was die vier Pfade auf derselben Grundlage kosten, rechnet erst Teil 6. Teil 1 kann deshalb nicht sagen, ob der R21-Pfad billiger oder teurer ist – nur, dass R21 es nicht beziffert.'],
+ ['Die Studien sind nicht nachgerechnet.','Wir haben ihre Zahlen am Original gelesen und auf eine gemeinsame BIP-Basis umgerechnet, aber keine Studie in ihren Annahmen (Brennstoffpreise, Lernkurven, Zinsen, Nachfrage) überprüft. Eine Studie mit anderen Annahmen kann zu anderen Mehrkosten kommen.'],
+ ['Zwei Originale fehlen.','Die PwC-Studie (Quelle der Summe in der Kurzinformation) und der FAZ-Gastbeitrag (Quelle der Jahreszahl) sind nicht gelesen. Dazu nicht gelesen: Agora-Hauptstudie, Ariadne-Hauptbericht, KfW-2021-Langfassung, dena/EWI-Gutachten, Aurora, BDI/BCG, McKinsey, BDEW/EY und die Klimafolgekosten-Studie von IÖW/Prognos/GWS.'],
+ ['Der BIP-Bezug ist eine Setzung.','Alle Anteile beziehen sich auf das nominale BIP 2024 ([[bip_de_2024_mrd_eur]]), obwohl die Studien in nominalen Euro, €2023 oder €2024 rechnen und unterschiedlich lange Zeiträume haben. Die Anteile sind Näherungen; die Abweichung beträgt je nach Studie einige Zehntel Prozentpunkte.'],
+ ['Mehrkosten sind nicht gleich Belastung.','Keine der Zahlen sagt, wer zahlt (Haushalte, Unternehmen, Staat), und keine enthält Verteilungswirkungen. Ob eine Volkswirtschaft eine Summe „überlebt“, hängt auch an Finanzierung, Gegenwert und Wachstumseffekten, die keine der Studien quantifiziert; KfW/Prognos schließt BIP-Aussagen ausdrücklich aus. „Nicht überleben“ ist eine Zuspitzung, keine prüfbare Aussage. Prüfbar ist, was die Summe misst.'],
+ ['Klimaschäden sind nur angerissen.','Die [[klimafolgen_de_2022_2050]] betreffen nur Extremwetter in Deutschland und sind eine Untergrenze; sie hängen kaum von deutschen Emissionen allein ab. Eine Kosten-Nutzen-Rechnung macht Teil 1 nicht.'],
+ ['Die Ursache des Industrierückgangs ist nicht zerlegt.','Teil 1 zeigt, dass die Produktion gefallen ist und Strom teurer ist. Welchen Anteil die Energiepolitik daran hat, kann keine gelesene Quelle im Nachhinein beziffern.'],
+ ['Wir kennen die Gründe für die Abweichungen nicht.','Warum im R21-Papier [[r21_kosten_zitat.max|n]] steht, wo die Quelle [[wd_kosten_gesamt|n]] nennt, und welche DIHK-Veröffentlichung mit der Netzzahl gemeint ist, wissen wir nicht. Eine Nachfrage bei R21 steht aus.']
+];
+
+/* Zahlen zum Prozess: Quelle ist energiewende/agents/PROTOKOLL.md und energiewende/README.md,
+   nicht der Datensatz. Es sind keine Studienzahlen. */
+var PROZESS = {
+  phasen:[
+   ['Phase 1 · Recherche','zehn Dossiers parallel, je ein Agent','10','3.247.322','981'],
+   ['Phase 2 · Gegenprüfung','je Dossier ein Prüfer, der es nicht geschrieben hat','10','2.542.472','630'],
+   ['Phase 3 · Freigabe Teil 1','Freigabeliste mit allen Aussagen; Zusammenführung der Parameter','2','376.633 (ein Lauf meldete nichts)','57 (ein Lauf meldete nichts)']
+  ],
+  summe:'6.166.427',
+  geprueft:{werte:'428',bestaetigt:'352',abweichend:'46',offen:'27',parameter:'456'}
+};
+
+/* ---------------------------------------------------------------------------
+   Logik der Belegseite. Alle Zahlen kommen zur Laufzeit aus
+   energiewende/data/teil1_data.json (relativer Pfad).
+   --------------------------------------------------------------------------- */
+(function(){
+'use strict';
+var DATA_URL='energiewende/data/teil1_data.json';
+var GH='https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/energiewende/';
+var GHT='https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/energiewende';
+var URLMAP={"wd5_151_24":["https://www.bundestag.de/resource/blob/1042790/WD-5-151-24-pdf.pdf","2026-11-22"],"diw_wb_2025_38":["https://www.diw.de/documents/publikationen/73/diw_01.c.974532.de/25-38-3.pdf","2026-11-22"],"dihk_planb_2025":["https://www.dihk.de/resource/blob/153726/97f39a33a519ece00c3a65e014fbc707/energie-dihk-energiewende-plan-b-data.pdf","2026-11-22"],"kfw_prognos_2026":["https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Studien-und-Materialien/Investitionen-f%C3%BCr-Klimaschutz.pdf","2026-11-22"],"kfw_fokus_350_2021":["https://www.kfw.de/PDF/Download-Center/Konzernthemen/Research/PDF-Dokumente-Fokus-Volkswirtschaft/Fokus-2021/Fokus-Nr.-350-Oktober-2021-Investitionsbedarfe-Klimaneutralitaet.pdf","2026-11-22"],"agora_2024":["https://www.agora-energiewende.de/fileadmin/Projekte/2023/2023-30_DE_KNDE_Update/A-EW_347_KNDE_Investitionsbedarfe_WEB.pdf","2026-11-22"],"ariadne_2025":["https://ariadneprojekt.de/media/2025/03/Ariadne-Report_Szenarien2025_Maerz2025_Zusammenfassung.pdf","2026-11-22"],"ise_2021":["https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/Fraunhofer-ISE-Studie-Wege-zu-einem-klimaneutralen-Energiesystem-Update-Klimaneutralitaet-2045.pdf","2026-11-22"],"ise_2024":["https://www.ise.fraunhofer.de/content/dam/ise/de/documents/publications/studies/ISE_WegeKlimaneutralEnergiesystem_final.pdf","2026-11-22"],"btd_21_903":["https://dserver.bundestag.de/btd/21/009/2100903.pdf","2026-11-22"],"brh_2024":["https://dserver.bundestag.de/btd/20/105/2010585.pdf","2026-11-22"],"efruhr_ewi_2024":["https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2024/04/2024_04_Abschlussbericht_Netzentgelte_BW_DE.pdf","2026-11-22"],"bet_ewi_2025":["https://www.ewi.uni-koeln.de/cms/wp-content/uploads/2025/09/EWI_BET_EnergiewendeEffizientMachen.pdf","2026-11-22"],"nep_2025":["https://www.netzentwicklungsplan.de/sites/default/files/2026-04/NEP_2037_2045_V2025_2_Entwurf_kompakt_DE.pdf","2026-11-22"],"eurostat_nama_10_gdp":["https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp?geo=DE&unit=CP_MEUR&na_item=B1GQ&sinceTimePeriod=2018","2026-11-22"],"bundesbank_mb_2022_12":["https://www.bundesbank.de/resource/blob/895890/21ca496375acb5acea78bae3f00f2760/mL/2022-12-monatsbericht-data.pdf","2026-11-22"],"btd_20_14522":["https://dserver.bundestag.de/btd/20/145/2014522.pdf","2026-11-22"],"ec_ets_2025":["https://climate.ec.europa.eu/news-other-reads/news/eu-emissions-trading-system-has-reduced-emissions-sectors-covered-50-2005-2025-04-04_en","2026-11-22"],"zew_rausch_2026":["https://www.zew.de/fileadmin/FTP/gutachten/ZEW_shortstudy_Carbon-Pricingin-the-EU-and-ETS2.pdf","2026-11-22"],"uba_klimakosten_2026":["https://www.umweltbundesamt.de/system/files/medien/384/bilder/dateien/6_Tab_UBA-Empfehlung-Klimakosten_2026-07-06_1.pdf","2026-11-22"],"hib_411_2024":["https://www.bundestag.de/presse/hib/kurzmeldungen-1007974","2026-11-22"],"diw_fossilfrei_44":["https://www.diw.de/documents/dokumentenarchiv/17/diw_01.c.1011332.de/transkript_fossilfrei_folge-44-1_dunkelflaute.pdf","2026-11-22"],"wendland_2026":["https://denkfabrik-r21.de/wp-content/uploads/2026/10/Diskussionspapier_Kernenergie-2.pdf","2026-11-22"],"eurostat_comext":["https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data/DS-045409","2026-11-22"],"eurostat_sts_inpr_a":["https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/sts_inpr_a","2026-11-22"],"eurostat_nrg_pc_204":["https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_204","2026-11-22"],"eurostat_nrg_pc_205":["https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_205","2026-11-22"]};
+var D=null,Z={},SRC={},SRCNUM={},CLS={},CLM={},ST_A=[],ST_B=[],ST_ALL=[];
+var NOALT={mehrkosten_anteil_bip_pa:1,beharrung_aufschlag_pct:1,h2_absicherung_dunkelflaute_inv:1,stresstest_china_aufschlag_pct:1,kkw_erster_block_jahr:1,g1_spanne:1};
+
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function stripTags(s){return String(s).replace(/<[^>]*>/g,'');}
+
+/* ------------------------------------------------------------ Zahlenformate */
+function nfmt(x,unit){
+  if(typeof x!=='number'||!isFinite(x)) return esc(String(x));
+  var s=new Intl.NumberFormat('de-DE',{maximumFractionDigits:2,useGrouping:unit!=='Jahr'}).format(x);
+  return s.replace('-','−');
+}
+function unitTxt(u){return String(u||'').replace(/EUR/g,'€').replace(/CO2/g,'CO₂');}
+var KW={zeitpraeferenz:'Zeitpräferenz',ziele2030:'Ziele 2030',bestand:'Bestand',ggue:'gegenüber',gesamt:'gesamt',mit:'mit',fundstelle:'Fundstelle',nur:'nur',urheber:'Urheber',ohne:'ohne',quelle:'Quelle',industrie:'Industrie',chemie:'Chemie',glas:'Glas',keramik:'Keramik',metall:'Metall',papier:'Papier',de:'DE',eu:'EU-27',alt:'alt',neu:'neu',beharrung:'Beharrung',jahre:'Jahre',pro:'pro',jahr:'Jahr',bis:'bis',r21:'R21',min:'min',max:'max',mid:'Mitte',kumuliert:'kumuliert',nep2023:'NEP 2023',nep2025:'NEP 2025'};
+function pk(k){
+  var w=String(k).split('_').map(function(x){
+    if(KW[x]) return KW[x];
+    var m=x.match(/^(\d+)pct$/); if(m) return m[1]+' %';
+    if(x==='pct') return '%';
+    m=x.match(/^(\d{4})s(\d)$/); if(m) return 'H'+m[2]+' '+m[1];
+    return x;
+  }).join(' ');
+  return w.replace(/(\d{4}) (\d{2})\b/,'$1/$2');
+}
+function isRange(v){return v&&typeof v==='object'&&typeof v.min==='number'&&typeof v.max==='number';}
+function body(v,u,pct){
+  var p=pct?' %':'';
+  if(typeof v==='number') return nfmt(v,u)+p;
+  if(typeof v==='string') return esc(v);
+  if(v&&typeof v==='object'){
+    var m=v.setzung?' <span class="m" title="Setzung (M)">(M)</span>':'';
+    if(isRange(v)){
+      var s=nfmt(v.min,u)+' bis '+nfmt(v.max,u)+p;
+      if(typeof v.mid==='number') s+=' (Mitte: '+nfmt(v.mid,u)+p+')';
+      Object.keys(v).forEach(function(k){ if(['min','max','mid','setzung'].indexOf(k)<0) s+='; '+pk(k)+': '+body(v[k],u,pct); });
+      return s+m;
+    }
+    var parts=[];
+    Object.keys(v).forEach(function(k){ if(k!=='setzung') parts.push(pk(k)+': '+body(v[k],u,pct)); });
+    return parts.join('; ')+m;
+  }
+  return '';
+}
+function fmtV(v,unit){
+  var u=unit||'', pct=u.charAt(0)==='%';
+  var s=body(v,u,pct), suf='';
+  if(pct) suf=unitTxt(u.slice(1).replace(/^ BIP/,' des BIP'));
+  else if(u&&u!=='Jahr') suf=' '+unitTxt(u);
+  return s+suf;
+}
+function numR(v,u){
+  if(typeof v==='number') return nfmt(v,u);
+  if(isRange(v)) return nfmt(v.min,u)+' bis '+nfmt(v.max,u);
+  return body(v,u,false);
+}
+function words(v,u,f){
+  var fac=1;
+  if(f==='bio'){ if(/^Mrd/.test(u)) fac=0.001; } else { if(/^Bio/.test(u)) fac=1000; }
+  function one(x){return nfmt(Math.round(x*fac*1000)/1000,'');}
+  var noun=f==='bio'?'Billionen':'Milliarden';
+  if(typeof v==='number') return one(v)+' '+((f==='bio'&&Math.round(v*fac*1000)/1000===1)?'Billion':noun);
+  if(isRange(v)) return one(v.min)+' bis '+one(v.max)+' '+noun;
+  return fmtV(v,u);
+}
+function fmtDate(s){
+  var M=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  return String(s).replace(/(\d{4})-(\d{2})-(\d{2})/g,function(_,y,m,d){return parseInt(d,10)+'. '+M[parseInt(m,10)-1]+' '+y;})
+                  .replace(/(\d{4})-(\d{2})(?!\d|-)/g,function(_,y,m){return M[parseInt(m,10)-1]+' '+y;});
+}
+function fmtAbruf(s){var m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?(m[3]+'.'+m[2]+'.'+m[1]):esc(s||'');}
+
+/* ------------------------------------------------------------ Abzeichen */
+function chip(id){
+  var n=SRCNUM[id]; if(!n) return '';
+  var s=SRC[id]; return '<a class="srcchip" href="#src-'+id+'" title="Quelle: '+esc((s&&s.titel)||id)+'">['+n+']</a>';
+}
+function confB(z){return '<i class="conf conf-'+z.confidence+'" title="Konfidenz '+z.confidence+'">'+z.confidence+'</i>';}
+function readB(z,full){
+  if(z.confidence==='M') return '<i class="rd rd-m" title="eigene Rechnung oder Setzung">'+(full?'eigene Rechnung':'eigen')+'</i>';
+  return z.primaer_gelesen
+    ? '<i class="rd rd-y" title="am Original gelesen">'+(full?'✓ am Original gelesen':'✓')+'</i>'
+    : '<i class="rd rd-n" title="nicht am Original gelesen">'+(full?'○ nicht am Original gelesen':'○')+'</i>';
+}
+function badge(z){
+  var lab='Quelle '+(SRCNUM[z.source]||'')+', Konfidenz '+z.confidence+', '+(z.confidence==='M'?'eigene Rechnung':(z.primaer_gelesen?'am Original gelesen':'nicht am Original gelesen'));
+  return '<span class="zb" aria-label="'+esc(lab)+'">'+chip(z.source)+confB(z)+readB(z,false)+'</span>';
+}
+function badgeFull(z){return '<span class="full">'+chip(z.source)+confB(z)+readB(z,true)+'</span>';}
+function stBadge(s,id){
+  var M={'bestätigt':['ok','✓'],'korrigiert':['corr','↻'],'verworfen':['rej','✕'],'Setzung (M)':['set','M'],'nicht prüfbar':['np','?']};
+  var m=M[s]||['set','·'];
+  var inner='<b aria-hidden="true">'+m[1]+'</b> '+(id?esc(id)+' · ':'')+esc(s);
+  return id?'<a class="st st-'+m[0]+'" href="#c-'+id+'" title="'+esc(id+': '+s)+'" style="text-decoration:none">'+inner+'</a>'
+           :'<span class="st st-'+m[0]+'">'+inner+'</span>';
+}
+
+/* ------------------------------------------------------------ Platzhalter */
+function walk(v,parts){for(var i=0;i<parts.length;i++){if(v==null) return undefined; v=v[parts[i]];} return v;}
+function zid(p){return p.indexOf('st:')===0?p.slice(3).split('.')[0]:p.split('.')[0];}
+function getRef(path){
+  var parts,id,z,row;
+  if(path.indexOf('st:')===0){
+    parts=path.slice(3).split('.'); id=parts.shift(); z=Z[id];
+    row=ST_ALL.filter(function(r){return (r.zahl_ids||[]).indexOf(id)>=0;})[0];
+    return z&&row?{z:z,v:walk(row,parts),unit:'',st:true}:null;
+  }
+  parts=path.split('.'); id=parts.shift(); z=Z[id];
+  return z?{z:z,v:walk(z.value,parts),unit:z.unit||''}:null;
+}
+function tokFmt(r,f){
+  var v=r.v,u=r.unit;
+  if(f==='raw') return esc(String(v));
+  if(f==='abg') return esc(r.z.abgrenzung||'');
+  if(f==='u') return esc(unitTxt(u));
+  if(f==='pct') return numR(v,'')+' %';
+  if(f==='k') return esc(String(Math.round(v*1000)));
+  if(f==='bio'||f==='mrd') return words(v,u,f);
+  if(f==='n') return numR(v,u);
+  if(f==='nu') return numR(v,u)+(u?' '+esc(unitTxt(u)):'');
+  return fmtV(v,u);
+}
+function tok(path,f,showBadge){
+  var r=getRef(path);
+  if(!r||r.v===undefined||r.v===null) return '<span class="missing">[fehlt: '+esc(path)+']</span>';
+  var out='<span class="nv">'+tokFmt(r,f)+'</span>';
+  if(showBadge&&f!=='abg'&&f!=='raw') out+=badge(r.z);
+  return out;
+}
+function tokIds(str){
+  var re=/\[\[([^\]|]+)(?:\|([a-z]+))?\]\]/g,m,ids={};
+  while((m=re.exec(str))) ids[zid(m[1])]=1;
+  return ids;
+}
+function expand(str){
+  var re=/\[\[([^\]|]+)(?:\|([a-z]+))?\]\]/g,toks=[],m;
+  while((m=re.exec(str))) toks.push({i:m.index,len:m[0].length,path:m[1],f:m[2]||''});
+  var last={};
+  toks.forEach(function(t,ix){ if(t.f!=='abg'&&t.f!=='raw') last[zid(t.path)]=ix; });
+  var out='',pos=0;
+  toks.forEach(function(t,ix){
+    out+=str.slice(pos,t.i)+tok(t.path,t.f,last[zid(t.path)]===ix);
+    pos=t.i+t.len;
+  });
+  return out+str.slice(pos);
+}
+function fillPlaceholders(root){
+  $$('[data-v]',root).forEach(function(el){
+    el.innerHTML=tok(el.getAttribute('data-v'),el.getAttribute('data-f')||'',el.getAttribute('data-b')==='1');
+  });
+}
+
+/* ------------------------------------------------------------ Hilfen */
+function srcIdsForClaim(c){
+  var set={};
+  (c[3]||[]).forEach(function(s){set[s]=1;});
+  D.zahlen.forEach(function(z){ if((z.claim||[]).indexOf(c[0])>=0&&z.source) set[z.source]=1; });
+  return Object.keys(set).filter(function(s){return SRCNUM[s];});
+}
+function zahlenWert(z,noAbg){
+  var h='<div class="wz"><span class="nv">'+fmtV(z.value,z.unit)+'</span> '+badgeFull(z);
+  var alt='';
+  if(z.status==='korrigiert'&&z.alt){
+    alt=NOALT[z.id]
+      ? 'früherer Wert: nur im Abschnitt <a href="#verworfen">„Verworfen“</a>'
+      : 'früherer Wert: '+esc(z.alt);
+  }
+  if(!noAbg&&z.abgrenzung) h+='<details class="more"><summary>Abgrenzung</summary><small>'+esc(z.abgrenzung)+'</small></details>';
+  if(alt) h+='<small>'+alt+'</small>';
+  return h+'</div>';
+}
+function cellVal(v,suf){
+  if(v==null) return '–';
+  if(typeof v==='number') return nfmt(v)+suf;
+  if(typeof v==='string') return esc(v);
+  var m=v.setzung?' <span class="m" title="Setzung (M)">(M)</span>':'';
+  var parts=[];
+  if(isRange(v)){
+    var s=nfmt(v.min)+'–'+nfmt(v.max); if(typeof v.mid==='number') s+=' (Mitte '+nfmt(v.mid)+')'; parts.push(s+suf);
+  } else if(typeof v.value==='number') parts.push(nfmt(v.value)+suf);
+  Object.keys(v).forEach(function(k){
+    if(['min','max','mid','value','setzung'].indexOf(k)>=0) return;
+    if(typeof v[k]==='number') parts.push(pk(k)+': '+nfmt(v[k])+suf);
+  });
+  return parts.join('; ')+m;
+}
+function sortVal(v){
+  if(typeof v==='number') return v;
+  if(v&&typeof v==='object'){
+    if(typeof v.min==='number') return v.min;
+    if(typeof v.value==='number') return v.value;
+    var ks=Object.keys(v); for(var i=0;i<ks.length;i++) if(typeof v[ks[i]]==='number') return v[ks[i]];
+  }
+  return null;
+}
+
+/* ------------------------------------------------------------ Rendern */
+function renderTiles(){
+  var c=D.meta.counts, order=['bestätigt','korrigiert','Setzung (M)','nicht prüfbar','verworfen'], h='';
+  order.forEach(function(s){ h+='<div class="tile"><div class="n">'+c[s]+'</div><div class="l">'+stBadge(s)+'</div></div>'; });
+  h+='<div class="tile"><div class="n">'+c.summe+'</div><div class="l">Aussagen insgesamt</div></div>';
+  $('#tiles').innerHTML=h;
+}
+
+function renderKurz(){
+  var byAkt={}; D.schritte.forEach(function(s){(byAkt[s.akt]=byAkt[s.akt]||[]).push(s);});
+  var rank={A:0,B:1,C:2,M:3}, h='';
+  Object.keys(byAkt).forEach(function(a){
+    h+='<p class="akt">'+esc(AKT_TITEL[a]||('Akt '+a))+'</p><ol class="steps">';
+    byAkt[a].forEach(function(s){
+      var title=/^kasten/.test(s.id)?'Kasten':s.id;
+      var zs=(s.zahlen||[]).map(function(i){return Z[i];}).filter(Boolean);
+      var worst=null, unread=0, hasM=false;
+      zs.forEach(function(z){
+        if(z.confidence==='M'){hasM=true;return;}
+        if(worst===null||(rank[z.confidence]||0)>(rank[worst]||0)) worst=z.confidence;
+        if(!z.primaer_gelesen) unread++;
+      });
+      var cl=(s.claims||[]).map(function(id){return stBadge(CLS[id]||'?',id);}).join(' ');
+      var meta=cl;
+      if(worst) meta+=' <span>Niedrigste Konfidenz der Zahlen: <i class="conf conf-'+worst+'">'+worst+'</i></span>';
+      if(hasM) meta+=' <span><i class="conf conf-M">M</i> enthält eine Setzung</span>';
+      if(unread) meta+=' <span><i class="rd rd-n">○ nicht am Original gelesen</i> bei mindestens einer Zahl</span>';
+      h+='<li><span class="step-id">'+esc(title)+'</span>'+esc(s.kern)+'<div class="step-meta">'+meta+'</div></li>';
+    });
+    h+='</ol>';
+  });
+  $('#kurz').innerHTML=h;
+}
+
+function renderSteck(){
+  function card(id,extra){
+    var s=SRC[id]; if(!s) return '';
+    var h='<div class="card"><p class="card-t">'+esc(extra.kind)+'</p><p style="margin:0 0 6px"><strong>'+esc(s.titel)+'</strong></p>';
+    h+='<p style="margin:0 0 6px;font-size:14.5px">'+esc(s.herausgeber||'')+(s.datum?' · '+esc(fmtDate(s.datum)):'')+' '+chip(id)+'</p>';
+    h+='<p style="margin:0;font-size:14.5px;color:var(--soft)">'+extra.text+'</p></div>';
+    return h;
+  }
+  var h=card('r21_erklaerung_2026',{kind:'Das Papier',text:'Dokumenttyp: Erklärung mit Factsheets, kein Rechenmodell (S02). Auftraggeber und Förderung wie bei jeder Studie nur als Faktenangabe: Herausgeber REPUBLIK21 e. V.; auf den Factsheet-Seiten steht ein Förderhinweis des Presse- und Informationsamts der Bundesregierung (S03).'});
+  h+=card('wd5_135_24',{kind:'Die zitierte Kurzinformation',text:'Dokumenttyp: Kurzinformation des Wissenschaftlichen Dienstes. Sie referiert fremde Studien und rechnet nicht selbst (F04). Sie ist die einzige externe Fundstelle des Haupttexts von R21 (S07).'});
+  $('#steck').innerHTML=h;
+}
+
+/* Aussagen-Tabelle */
+var aus={status:'alle',q:''};
+function renderAussagen(){
+  var tb=$('#tab-aus tbody'), h='';
+  CLAIMS.forEach(function(c){
+    var id=c[0], st=CLS[id]||'?', rej=c[1]==='REJ';
+    var used=rej?{}:tokIds(c[1]);
+    var text=rej?'<span class="rejtag">VERWORFEN</span> Wortlaut und Begründung stehen nur im Abschnitt <a href="#verworfen">„Verworfen“</a>.':expand(c[1]);
+    var zs=D.zahlen.filter(function(z){return (z.claim||[]).indexOf(id)>=0&&!used[z.id];});
+    var wert=zs.length?zs.map(zahlenWert).join(''):'<span class="m">—</span>';
+    var chips=srcIdsForClaim(c).map(chip).join(' ')||'<span class="m">—</span>';
+    var raw=stripTags(text+' '+c[2]+' '+id+' '+st).toLowerCase();
+    h+='<tr id="c-'+id+'" data-st="'+esc(st)+'" data-t="'+esc(raw)+'"'+(rej?' class="rejrow"':'')+'>'+
+       '<td class="id" data-l="ID"><a href="#c-'+id+'">'+id+'</a></td>'+
+       '<td data-l="Aussage">'+text+'</td>'+
+       '<td data-l="Status">'+stBadge(st)+'</td>'+
+       '<td data-l="Zahlen im Datensatz">'+wert+'</td>'+
+       '<td data-l="Fundstelle">'+esc(c[2])+'</td>'+
+       '<td data-l="Quelle">'+chips+'</td></tr>';
+  });
+  tb.innerHTML=h;
+  var fn=$('#fn-q8'); fn.hidden=false;
+  fn.innerHTML='<sup class="fnr">1</sup> '+expand('Eine Kurzfassung auf der ifo-Seite, die uns nur als Suchmaschinen-Auszug vorlag, spricht von [[pittel_bis2050_kumuliert.min|mrd]] Euro bis über [[pittel_bis2050_kumuliert.max|bio]] Euro insgesamt bis 2050. Das ist ungeprüft (Konfidenz C).');
+
+  var fs=$('#f-status'), chipsH='';
+  var list=['alle','bestätigt','korrigiert','Setzung (M)','nicht prüfbar','verworfen'];
+  list.forEach(function(s){
+    var n=s==='alle'?CLAIMS.length:CLAIMS.filter(function(c){return CLS[c[0]]===s;}).length;
+    chipsH+='<button type="button" class="fchip" data-s="'+esc(s)+'" aria-pressed="'+(s==='alle'?'true':'false')+'">'+esc(s)+' ('+n+')</button>';
+  });
+  fs.innerHTML=chipsH;
+  fs.addEventListener('click',function(e){
+    var b=e.target.closest('.fchip'); if(!b) return; setStatus(b.getAttribute('data-s'));
+  });
+  $('#f-q').addEventListener('input',function(){aus.q=this.value.trim().toLowerCase();applyAus();});
+  applyAus();
+}
+function setStatus(s){
+  aus.status=s;
+  $$('#f-status .fchip').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-s')===s?'true':'false');});
+  applyAus();
+}
+function applyAus(){
+  var n=0,tot=0;
+  $$('#tab-aus tbody tr').forEach(function(tr){
+    tot++;
+    var ok=(aus.status==='alle'||tr.getAttribute('data-st')===aus.status)&&(!aus.q||tr.getAttribute('data-t').indexOf(aus.q)>=0);
+    tr.hidden=!ok; if(ok) n++;
+  });
+  $('#f-count').textContent=n+' von '+tot+' Aussagen';
+}
+
+/* Studien */
+function studShort(r){
+  var s=r.studie.replace(/^Zum Vergleich:\s*/,'');
+  var i=s.indexOf(','), head=i>=0?s.slice(0,i):s, rest=i>=0?s.slice(i+1).trim():'';
+  var y=s.match(/\((?:[^)]*?)(\d{4})\)/);
+  if(head.indexOf('(')<0&&y) head+=' '+y[1];
+  if(rest&&rest.indexOf('(')<0&&rest.length<22) head+=' · '+rest;
+  return head;
+}
+function tagOf(r){
+  var m=r.groesse.match(/^(G\d[ab]?)\b/); if(m) return m[1];
+  if(/^Zuwachs/.test(r.groesse)) return 'G3a';
+  return '';
+}
+function studCells(r,read,cols){
+  var fazRow=typeof r.summe==='string';
+  var cells={};
+  cells.studie=esc(r.studie);
+  cells.auftraggeber=esc(r.auftraggeber||'–');
+  cells.groesse=esc(r.groesse||'–');
+  cells.zeitraum=esc(r.zeitraum||'–');
+  cells.summe=fazRow?expand('[[wd_kosten_pro_jahr]] laut Kurzinformation; Zeitbezug offen<sup class="fnr"><a href="#fn-q8" aria-label="Fußnote 1">1</a></sup>'):cellVal(r.summe_bio_eur,' Bio. €');
+  cells.pro=fazRow?'offen':cellVal(r.pro_jahr_mrd_eur,' Mrd. €');
+  cells.bip=fazRow?'offen':cellVal(r.bip_pct,' %');
+  if(read){
+    cells.beleg=(r.zahl_ids||[]).map(function(i){return Z[i]?badgeFull(Z[i]):'';}).join('');
+  } else {
+    cells.beleg='<span class="full"><i class="conf conf-'+(r.confidence||'C')+'">'+(r.confidence||'C')+'</i><i class="rd rd-n">○ nicht am Original gelesen</i></span><small style="display:block;color:var(--soft)">gelesen über: '+esc(r.gelesen_ueber||'')+'</small>';
+  }
+  return cells;
+}
+function buildStud(tableId,selId,rows,read){
+  var table=$('#'+tableId), cols=[
+    {k:'studie',l:'Studie · Herausgeber',t:'s'},{k:'auftraggeber',l:'Auftraggeber · Geldgeber',t:'s'},
+    {k:'groesse',l:'Was sie misst',t:'s'},{k:'zeitraum',l:'Zeitraum',t:'s'},
+    {k:'summe',l:'Summe',t:'n',f:'summe_bio_eur'},{k:'pro',l:'Pro Jahr',t:'n',f:'pro_jahr_mrd_eur'},
+    {k:'bip',l:'% des BIP 2024 pro Jahr',t:'n',f:'bip_pct'},{k:'beleg',l:read?'Beleg':'Konfidenz · gelesen über',t:''}
+  ];
+  var state={k:null,d:1};
+  var sel=$('#'+selId), opts='<option value="">Reihenfolge der Freigabeliste</option>';
+  cols.forEach(function(c){ if(c.t){ opts+='<option value="'+c.k+':1">'+esc(c.l)+' ↑</option><option value="'+c.k+':-1">'+esc(c.l)+' ↓</option>'; } });
+  sel.innerHTML=opts;
+  var thead='<tr>'+cols.map(function(c){
+    return '<th scope="col"'+(c.t?' data-k="'+c.k+'"':'')+'>'+(c.t?'<button type="button">'+esc(c.l)+'</button>':esc(c.l))+'</th>';
+  }).join('')+'</tr>';
+  table.tHead.innerHTML=thead;
+  function key(r,c){
+    if(c.t==='s') return String(c.k==='studie'?r.studie:r[c.k]||'').toLowerCase();
+    if(r.summe!==undefined&&typeof r.summe==='string') return null;
+    return sortVal(r[c.f]);
+  }
+  function draw(){
+    var arr=rows.slice();
+    if(state.k){
+      var c=cols.filter(function(x){return x.k===state.k;})[0];
+      arr.sort(function(a,b){
+        var x=key(a,c),y=key(b,c);
+        if(x===null&&y===null) return 0; if(x===null) return 1; if(y===null) return -1;
+        if(typeof x==='string') return state.d*x.localeCompare(y,'de');
+        return state.d*(x-y);
+      });
+    }
+    var h='';
+    arr.forEach(function(r){
+      var cells=studCells(r,read), cls=/^Zum Vergleich/.test(r.studie)?' class="r21row"':'';
+      h+='<tr'+cls+'>'+cols.map(function(c){return '<td data-l="'+esc(c.l)+'"'+(c.t==='n'?' class="num"':'')+'>'+cells[c.k]+'</td>';}).join('')+'</tr>';
+    });
+    table.tBodies[0].innerHTML=h;
+    $$('th[data-k]',table).forEach(function(th){
+      th.setAttribute('aria-sort',th.getAttribute('data-k')===state.k?(state.d===1?'ascending':'descending'):'none');
+    });
+    sel.value=state.k?state.k+':'+state.d:'';
+  }
+  table.tHead.addEventListener('click',function(e){
+    var th=e.target.closest('th[data-k]'); if(!th) return;
+    var k=th.getAttribute('data-k');
+    if(state.k===k) state.d=-state.d; else {state.k=k;state.d=1;}
+    draw();
+  });
+  sel.addEventListener('change',function(){
+    if(!sel.value){state.k=null;state.d=1;} else {var p=sel.value.split(':');state.k=p[0];state.d=parseInt(p[1],10);}
+    draw();
+  });
+  draw();
+}
+
+function chartStudien(){
+  var host=$('#chart-studien'); if(!host) return;
+  var W=Math.max(300,Math.round(host.clientWidth||host.parentNode.clientWidth||600));
+  var all=[]; ST_A.forEach(function(r){all.push({r:r,read:true});}); ST_B.forEach(function(r){all.push({r:r,read:false});});
+  function span(b){
+    var vals=[],mid=null,beh=null;
+    if(typeof b==='number') vals=[b];
+    else Object.keys(b).forEach(function(k){
+      if(k==='setzung') return; if(k==='mid') mid=b[k]; else if(k==='beharrung') beh=b[k]; else if(typeof b[k]==='number') vals.push(b[k]);
+    });
+    return {lo:Math.min.apply(null,vals),hi:Math.max.apply(null,vals),mid:mid,beh:beh};
+  }
+  var groups={G1:[],G2:[],G3:[]}, r21=null;
+  all.forEach(function(o){
+    if(o.r.bip_pct==null) return;
+    var sp=span(o.r.bip_pct), tag=tagOf(o.r), g=tag?tag.slice(0,2):'';
+    var item={r:o.r,read:o.read,sp:sp,tag:tag};
+    if(/^Zum Vergleich/.test(o.r.studie)) r21=item; else if(groups[g]) groups[g].push(item);
+  });
+  Object.keys(groups).forEach(function(g){groups[g].sort(function(a,b){return a.sp.lo-b.sp.lo;});});
+  var maxHi=0; all.forEach(function(o){ if(o.r.bip_pct!=null) maxHi=Math.max(maxHi,span(o.r.bip_pct).hi); });
+  var step=W<460?4:2, xmax=Math.ceil(maxHi/step)*step;
+  var L=14,R=14,pw=W-L-R, topPad=34, GH_=30, RH=44, axisH=44;
+  function X(v){return L+v/xmax*pw;}
+  var gnames={G1:'G1 · Brutto-Gesamtkosten',G2:'G2 · Brutto-Investitionen',G3:'G3 · Mehrkosten gegen eine Referenz'};
+  var gcol={G1:'--g1',G2:'--g2',G3:'--g3'};
+  var y=topPad, parts=[], yRows=[];
+  function addGroup(title){ parts.push({t:'g',y:y,title:title}); y+=GH_; }
+  function addRow(item,col){
+    var vt=stripTags(cellVal(item.r.bip_pct,'\u00a0%')).replace(/\u00a0/g,' '), nm=studShort(item.r)+(item.tag?' · '+item.tag:'');
+    var two=(nm.length*6.4+vt.length*6.9+16)>pw;
+    parts.push({t:'r',y:y,it:item,col:col,vt:vt,nm:nm,two:two}); y+=two?64:RH;
+  }
+  if(r21){ addGroup('Zum Vergleich'); addRow(r21,'--r21'); }
+  ['G1','G2','G3'].forEach(function(g){ if(groups[g].length){ addGroup(gnames[g]); groups[g].forEach(function(it){addRow(it,gcol[g]);}); } });
+  var plotBottom=y, H=y+axisH;
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-labelledby="ch-t ch-d"><title id="ch-t">Studien nach Anteil am BIP 2024 pro Jahr, geordnet nach den Größen G1, G2 und G3</title><desc id="ch-d">Waagerechte Balken und Rauten je Studie. R21 steht als getöntes Band über allen Zeilen.</desc>';
+  s+='<defs>'+['--g1','--g2','--g3','--r21'].map(function(c,i){return '<pattern id="hc'+i+'" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var('+c+')" stroke-width="2.2"/></pattern>';}).join('')+'</defs>';
+  var colIdx={'--g1':0,'--g2':1,'--g3':2,'--r21':3};
+  // Gitter und R21-Band
+  for(var t=0;t<=xmax+0.001;t+=step){
+    s+='<line x1="'+X(t)+'" x2="'+X(t)+'" y1="'+topPad+'" y2="'+plotBottom+'" style="stroke:var(--grid)" stroke-width="1"/>';
+    s+='<text class="mono soft" x="'+X(t)+'" y="'+(plotBottom+16)+'" text-anchor="middle" font-size="11">'+nfmt(t)+'</text>';
+  }
+  s+='<text class="soft" x="'+(L+pw/2)+'" y="'+(plotBottom+34)+'" text-anchor="middle" font-size="12">% des BIP 2024 pro Jahr</text>';
+  s+='<line x1="'+L+'" x2="'+(L+pw)+'" y1="'+plotBottom+'" y2="'+plotBottom+'" style="stroke:var(--ink)" stroke-width="1.2"/>';
+  if(r21){
+    var bx=X(r21.sp.lo), bw=X(r21.sp.hi)-X(r21.sp.lo);
+    s+='<rect x="'+bx+'" y="'+topPad+'" width="'+bw+'" height="'+(plotBottom-topPad)+'" style="fill:var(--r21band);stroke:var(--r21)" stroke-dasharray="4 3" stroke-width="1"><title>R21: '+esc(stripTags(cellVal(r21.r.bip_pct,' %')))+'</title></rect>';
+    s+='<text class="mono" x="'+Math.min(Math.max(bx+bw/2,L+60),L+pw-60)+'" y="'+(topPad-10)+'" text-anchor="middle" font-size="11.5" style="fill:var(--accent-text)">R21 '+esc(stripTags(cellVal(r21.r.bip_pct,' %')))+'</text>';
+  }
+  parts.forEach(function(p){
+    if(p.t==='g'){
+      s+='<text x="'+L+'" y="'+(p.y+20)+'" font-size="12.5" font-weight="700">'+esc(p.title)+'</text>';
+      return;
+    }
+    var it=p.it, sp=it.sp, vtxt=p.vt, name=p.nm, two=p.two;
+    var maxc=Math.max(8,Math.floor((two?pw:(pw-vtxt.length*6.9-10))/6.4));
+    var shown=name.length>maxc?name.slice(0,maxc-1)+'…':name;
+    var yy=p.y, ci=colIdx[p.col], fill=it.read?'style="fill:var('+p.col+')"':'style="fill:url(#hc'+ci+');stroke:var('+p.col+')" stroke-dasharray="3 2" stroke-width="1.4"';
+    s+='<g><title>'+esc(name+': '+vtxt+(it.read?'':' (nicht am Original gelesen)'))+'</title>';
+    s+='<text x="'+L+'" y="'+(yy+14)+'" font-size="12">'+esc(shown)+(it.read?'':' ○')+'</text>';
+    if(two) s+='<text class="mono soft" x="'+L+'" y="'+(yy+29)+'" font-size="11.5">'+esc(vtxt)+'</text>';
+    else s+='<text class="mono" x="'+(L+pw)+'" y="'+(yy+14)+'" text-anchor="end" font-size="11.5">'+esc(vtxt)+'</text>';
+    var by=yy+(two?38:22);
+    if(sp.hi-sp.lo<0.001){
+      var cx=X(sp.lo); s+='<path d="M'+cx+' '+(by-1)+' l7 7 l-7 7 l-7 -7 z" '+fill+'/>';
+    } else {
+      s+='<rect x="'+X(sp.lo)+'" y="'+by+'" width="'+Math.max(3,X(sp.hi)-X(sp.lo))+'" height="12" rx="2" '+fill+'/>';
+    }
+    if(sp.mid!==null){ s+='<line x1="'+X(sp.mid)+'" x2="'+X(sp.mid)+'" y1="'+(by-2)+'" y2="'+(by+14)+'" style="stroke:var(--bg-card)" stroke-width="4"/><line x1="'+X(sp.mid)+'" x2="'+X(sp.mid)+'" y1="'+(by-2)+'" y2="'+(by+14)+'" style="stroke:var(--ink)" stroke-width="2"/>'; }
+    if(sp.beh!==null){ s+='<circle cx="'+X(sp.beh)+'" cy="'+(by+6)+'" r="5" style="fill:var(--bg-card);stroke:var(--ink)" stroke-width="2"><title>Beharrung: '+esc(nfmt(sp.beh))+' %</title></circle>'; }
+    s+='</g>';
+  });
+  s+='</svg>';
+  host.innerHTML=s;
+}
+
+function renderBoxes(){
+  $('#klima-box').innerHTML='<strong>Kosten des Nicht-Handelns: Untergrenze, nicht addierbar.</strong> '+expand('Klimafolgekosten nur durch Extremwetter in Deutschland 2022–2050: [[klimafolgen_de_2022_2050]]; ausdrücklich eine Untergrenze. Der UBA-Satz für globale Schäden je Tonne liegt bei [[uba_klimakosten_2025]]. Beide Größen messen Verschiedenes (Schäden in Deutschland, Schäden weltweit je deutscher Tonne) und dürfen nicht addiert werden. Eine Kosten-Nutzen-Rechnung macht Teil 1 nicht.');
+  $('#kkw-box').innerHTML='<strong>Kernkraft-Neubau: nur ein Hinweis.</strong> '+expand('R21 rechnet für den Neubau [[r21_kkw_neubau]]; das eigene Referenzpapier „ca. [[wendland_kkw_neubau|n]] Milliarden Euro“. Mit Kosten gebauter westlicher Projekte wären es [[kkw_neubau_spanne_gebaut]] (Setzung (M), keine Aussage über Machbarkeit). Die volle Rechnung folgt in Teil 6 der Reihe.');
+}
+
+function renderZitate(){
+  var a='';
+  a+='<div class="quote"><h4>R21-Erklärung</h4>'+
+   expand('<blockquote>Der Wissenschaftliche Dienst „beziffert die <mark>Kosten der Energiewende</mark> bis 2045 auf <mark class="b">[[r21_kosten_zitat|bio]] Euro</mark>“.<cite>R21, Druckseite 3 (S04)</cite></blockquote>'+
+   '<blockquote>Der Wissenschaftliche Dienst „kommt auf <mark>Investitionskosten</mark> von <mark class="b">[[r21_kosten_zitat|bio]] Euro</mark>“.<cite>R21, Druckseite 12, mit Fußnote 5: WD 5 – 3000 – 135/24 (S05)</cite></blockquote>')+'</div>';
+  a+='<div class="quote"><h4>Kurzinformation WD 5 – 3000 – 135/24</h4>'+
+   expand('<blockquote>„Je nach Betrachtungszeitraum werden die <mark>Kosten</mark> auf Beträge zwischen <mark class="b">[[wd_kosten_pro_jahr|mrd]] Euro pro Jahr</mark> oder <mark class="b">[[wd_kosten_gesamt|bio]] Euro insgesamt</mark> bis zum Jahr 2045 beziffert.“<cite>WD 135/24, S. 2 (F01); Fußnote 6: PwC 2024, Fußnoten 4 und 5: FAZ-Gastbeitrag 2019</cite></blockquote>'+
+   '<blockquote>Titel: „Zur Berechnung der <mark>Investitionskosten</mark> für die Energiewende“.<cite>WD 135/24, Titel (F08)</cite></blockquote>')+'</div>';
+  a+='<div class="quote"><h4>Zweite Kurzinformation WD 5 – 3000 – 151/24</h4>'+
+   '<blockquote>Der Begriff „aggregierte Gesamtkosten“ bedeutet: Es werden nicht nur die Investitionskosten betrachtet, sondern auch aufsummierte jährliche Energiekosten.<cite>WD 151/24, PDF-S. 14, Fn. 48 (Q03), sinngemäß wiedergegeben</cite></blockquote>'+
+   '<p style="font-size:14px;color:var(--soft);margin:0">Das ist die Stelle, die den Befund trägt: Die Summe in der Kurzinformation ist keine reine Investitionssumme. Sie hängt nicht an PwC oder DIW.</p></div>';
+  $('#cmp-a').innerHTML=a;
+  var rows=[
+   ['Bezeichnung','„Kosten der Energiewende“ (Druckseite 3), „Investitionskosten“ (Druckseite 12)','Im Titel „Investitionskosten“, im Text „Kosten“ (F08)'],
+   ['Betrag','[[r21_kosten_zitat|bio]] Euro','[[wd_kosten_pro_jahr|mrd]] Euro pro Jahr <em>oder</em> [[wd_kosten_gesamt|bio]] Euro insgesamt'],
+   ['Kommt die Zahl [[r21_kosten_zitat.max|n]] vor?','ja','nein (F02)'],
+   ['Spanne „[[r21_kosten_zitat.min|n]] bis [[r21_kosten_zitat.max|n]]“?','ja','nein; zwei Einzelwerte aus zwei Quellen (F03)'],
+   ['Zeitbezug','„bis 2045“ (Druckseite 3)','„je nach Betrachtungszeitraum“: pro Jahr oder insgesamt bis 2045'],
+   ['Quelle der Zahl','Fußnote 5: die Kurzinformation WD 135/24','Fußnote 6: PwC (2024); Fußnoten 4 und 5: FAZ-Gastbeitrag (2019); beide nicht am Original gelesen'],
+   ['Was die Zahl enthält','nicht angegeben; im Text als Verlust („Wertschöpfungsentzug“) behandelt (S08)','laut zweiter Kurzinformation: Investitionen und aufsummierte Energiekosten (Q03)']
+  ];
+  $('#diff-a tbody').innerHTML=rows.map(function(r){return '<tr><th scope="row">'+expand(r[0])+'</th><td data-l="R21-Erklärung">'+expand(r[1])+'</td><td data-l="Kurzinformation des Bundestags">'+expand(r[2])+'</td></tr>';}).join('');
+  $('#cmp-a-note').innerHTML=expand('<strong>Was wir daraus schließen und was nicht.</strong> In der Quelle steht [[wd_kosten_gesamt|n]], nicht [[r21_kosten_zitat.max|n]]. Woher die Abweichung kommt, wissen wir nicht. Die Bezeichnung „Investitionskosten“ stammt aus dem Titel der Kurzinformation; der Befund ist nicht, dass R21 sie umgetauft hätte, sondern dass die Zahl Energiekosten enthält. Der Wissenschaftliche Dienst referiert Studien und rechnet nicht selbst (F04); das ist kein Vorwurf an ihn. Die Untergrenze entspricht unserer Vermutung nach [[wd_kosten_pro_jahr|mrd]] Euro mal zwanzig Jahre (F07, Setzung (M)); im Papier steht keine Herleitung. Eine Nachfrage bei R21 steht aus.');
+
+  var b='';
+  b+='<div class="quote"><h4>R21-Erklärung</h4>'+expand(
+   '<blockquote>„Allein der notwendige Aus- und Umbau der Netze wird nach einer Studie der DIHK <mark class="b">[[r21_netz_dihk_zitat|n]] Milliarden</mark> kosten“.<cite>R21, Druckseite 3 (N01), ohne Fundstelle</cite></blockquote>'+
+   '<blockquote>„Gesamtkosten des Netzausbaus sogar auf <mark class="b">[[r21_netz_dihk_zitat|n]] Milliarden</mark>“.<cite>R21, Druckseite 10 (N01)</cite></blockquote>'+
+   '<blockquote>Netzausbau „<mark class="b">[[dihk_netzkosten_2025_2049|k]] Mrd. €</mark> <mark>bis 2034</mark> (Bothe et al. 2025)“.<cite>R21, Factsheet B (N04)</cite></blockquote>'+
+   '<blockquote>EWI: „etwa <mark class="b">[[r21_netz_ewi_zitat|n]] Milliarden Euro</mark>“ bis 2045 für Übertragungs- und Verteilnetz.<cite>R21, Druckseite 10 (N05)</cite></blockquote>')+'</div>';
+  b+='<div class="quote"><h4>DIHK / Frontier Economics „Plan B“</h4>'+expand(
+   '<blockquote>Abbildung 8: „Gesamtkosten des Energiesystems durch die Energiewende bei einer Fortsetzung des Status Quo“. Nachfrageseitige Investitionen (Gebäude, Verkehr, Industrie) „werden nicht berücksichtigt“.<cite>DIHK „Plan B“, S. 27 mit Abb. 8 (G07)</cite></blockquote>'+
+   '<p style="margin:0 0 8px">Netze (Investition und Betrieb), <mark>2025–2049</mark>: <mark class="b">[[dihk_netzkosten_2025_2049]]</mark> (S. 27, Begleitpapier S. 2; N02, N04).</p>'+
+   '<p style="margin:0">Gesamtsystemkosten der nächsten zehn Jahre <em>einschließlich Energieimporten</em>: <mark class="b">[[dihk_systemkosten_2025_2034]]</mark> (S. 8, S. 27; N02).</p>')+'</div>';
+  b+='<div class="quote"><h4>ef.Ruhr mit EWI (Unterauftrag)</h4>'+expand(
+   '<p style="margin:0 0 8px">Investition in Übertragungs- und Verteilnetz bis 2045, Kostenbasis 2024: <mark class="b">[[efruhr_ewi_netze]]</mark>.</p>'+
+   '<p style="margin:0 0 8px">Auftraggeber: Netze-Gesellschaft Südwest; das EWI arbeitete im Unterauftrag (S. 2, 4, 8; N05).</p>'+
+   '<p style="margin:0">Neuere Studien: [[netze_spanne_studien]] (N06).</p>')+'</div>';
+  $('#cmp-b').innerHTML=b;
+  $('#cmp-b-note').innerHTML=expand('<strong>Unser Schluss und seine Grenze.</strong> In der DIHK-Studie, die wir gefunden haben, kosten die Netze [[dihk_netzkosten_2025_2049]]; [[dihk_systemkosten_2025_2034]] sind dort die Gesamtsystemkosten von zehn Jahren einschließlich Energieimporten. Dass R21 diese Studie meint, ist unser Schluss aus der Zahl; das Papier nennt keine Fundstelle (N03). Ob R21 eine andere Veröffentlichung meint, sagt das Papier nicht. Beim EWI-Wert liegt R21 nahe an der nächsten Fundstelle ([[efruhr_ewi_netze]]).');
+  var nz=[
+   ['r21_netz_dihk_zitat','R21-Zitat „Aus- und Umbau der Netze“, Druckseite 3 und 10'],
+   ['dihk_netzkosten_2025_2049','DIHK „Plan B“: Netze, Investition und Betrieb, 2025–2049'],
+   ['dihk_systemkosten_2025_2034','DIHK „Plan B“: Gesamtsystemkosten der nächsten zehn Jahre inkl. Energieimporte'],
+   ['r21_netz_ewi_zitat','R21-Zitat „EWI etwa …“, bis 2045'],
+   ['efruhr_ewi_netze','ef.Ruhr mit EWI, Übertragungs- und Verteilnetz bis 2045'],
+   ['netze_spanne_studien','Neuere Studien, Übertragungs- plus Verteilnetz bis 2045'],
+   ['brh_netzausbau','Bundesrechnungshof 2024 nach BNetzA, Netzausbau Strom'],
+   ['nep_uen_kosten','Netzentwicklungsplan, nur Übertragungsnetz bis 2045']
+  ];
+  $('#tab-netz tbody').innerHTML=nz.map(function(n){
+    var z=Z[n[0]]; if(!z) return '';
+    return '<tr><td data-l="Zahl">'+esc(n[1])+'</td><td data-l="Wert">'+zahlenWert(z,true)+'</td><td data-l="Was sie misst">'+esc(z.abgrenzung||'')+'</td></tr>';
+  }).join('');
+}
+
+function renderGP(){
+  var h='';
+  GP.forEach(function(g){
+    if(GP_GRUPPEN[g.id]) h+='<p class="gpgroup">'+esc(GP_GRUPPEN[g.id])+'</p>';
+    var uniq=[]; g.cl.forEach(function(c){ if(uniq.indexOf(c)<0) uniq.push(c); });
+    h+='<article class="gp '+g.cls+'" id="'+g.id.toLowerCase()+'"><h3><span class="gpn">Gegenposition '+g.id+' von zwölf</span>'+esc(g.t)+'</h3><dl>'+
+       '<dt>Inhalt</dt><dd><p style="margin:0">'+expand(g.inh)+'</p></dd>'+
+       '<dt>Beleg</dt><dd>'+esc(g.bel)+'</dd>'+
+       '<dt>Einschränkung</dt><dd>'+expand(g.gr)+'</dd></dl>'+
+       '<div class="gpst" aria-label="Status der zugehörigen Aussagen">'+uniq.map(function(c){return stBadge(CLS[c]||'?',c);}).join('')+'</div></article>';
+  });
+  $('#gp').innerHTML=h;
+}
+
+function renderUngelesen(){
+  var h='<p>Zwei Originale bleiben ungelesen. Alles, was daran hängt, erzählen wir nur in den hier festgelegten Sätzen: Sie schreiben die Aussage dem zu, der sie gemacht hat, und sagen, dass wir das Original nicht kennen.</p><ul>';
+  D.meta.nicht_gelesen.forEach(function(n){
+    var s=SRC[n.source]||{};
+    h+='<li><strong>'+esc(s.titel||n.source)+'</strong> ('+esc(s.herausgeber||'')+(s.datum?', '+esc(fmtDate(s.datum)):'')+') '+chip(n.source)+'<br><span class="m">Grund: '+esc(n.grund)+'. Wir umgehen weder Registrierung noch Browser-Prüfung.</span></li>';
+  });
+  h+='</ul><p>Außerdem ist der BILD-Artikel hinter einer Bezahlschranke; wir kennen nur Überschrift und frei lesbaren Teaser (S01).</p>';
+  h+='<h4>Aussagen, die an diesen Originalen hängen</h4><div class="tw"><table class="rt"><thead><tr><th>ID</th><th>Status</th><th>Der Satz, in dem wir sie erzählen</th></tr></thead><tbody>';
+  CLAIMS.filter(function(c){return CLS[c[0]]==='nicht prüfbar';}).forEach(function(c){
+    h+='<tr><td class="id" data-l="ID"><a href="#c-'+c[0]+'">'+c[0]+'</a></td><td data-l="Status">'+stBadge('nicht prüfbar')+'</td><td data-l="Satz">'+expand(c[1])+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<h4>Nur über Zitate in anderen Dokumenten bekannt</h4><p>Diese Studien tragen Zahlen in Tabelle 3b, aber nie allein eine Aussage: '+ST_B.map(function(r){return esc(r.studie)+' (gelesen über '+esc(r.gelesen_ueber)+')';}).join('; ')+'.</p>';
+  h+='<h4>Weiter nicht gelesen</h4><p>Agora-Hauptstudie, Ariadne-Hauptbericht, KfW-2021-Langfassung, dena/EWI-Gutachten, Aurora, BDI/BCG, McKinsey, BDEW/EY und die Klimafolgekosten-Studie von IÖW/Prognos/GWS. Wo wir ihre Zahlen nennen, steht die Stelle, über die wir sie kennen.</p>';
+  $('#ungelesen-body').innerHTML=h;
+}
+
+function ersatzTxt(e){
+  if(!e) return '<span class="m">—</span>';
+  return esc(e).replace(/\b[a-z][a-z0-9_]{5,}\b/g,function(id){
+    return Z[id]?'<span class="nv">'+fmtV(Z[id].value,Z[id].unit)+'</span>':id;
+  });
+}
+function renderVerworfen(){
+  var h='';
+  D.verworfen.forEach(function(v){
+    var was=v.claim?esc(v.claim):('<span class="nv">'+fmtV(v.value,v.unit)+'</span>');
+    h+='<tr><td class="id" data-l="Kennung">'+esc(v.id)+'</td><td data-l="Was verworfen wurde"><span class="rejtxt">'+was+'</span></td><td data-l="Warum">'+esc(v.grund)+'</td><td data-l="Stattdessen">'+ersatzTxt(v.ersatz)+'</td></tr>';
+  });
+  $('#tab-verw tbody').innerHTML=h;
+  h='';
+  D.verbotene_formulierungen.forEach(function(v){
+    h+='<tr><td class="id" data-l="Kennung">'+esc(v.id)+'</td><td data-l="Nicht verwendet"><span class="rejtxt">'+esc(v.text)+'</span></td><td data-l="Stattdessen">'+ersatzTxt(v.ersatz)+'</td></tr>';
+  });
+  $('#tab-verb tbody').innerHTML=h;
+}
+
+function renderKorrekturen(){
+  var h='', kurz={
+   E01:'Der Wasserstoffspeicher der Vergleichsrechnung war nur für ein einziges Fünf-Tage-Ereignis ausgelegt; die zitierte Literatur braucht einen weit größeren.',
+   E02:'Genannt war nur das europäische Extremereignis; das Ereignis für Deutschland allein fehlte.',
+   E03:'Der Preisaufschlag im Stresstest „China liefert nicht“ war zu hoch angesetzt (inkonsistente Preisbasis).',
+   E04:'Die Kernkraft-Reaktivierung war im Mittel zu günstig angesetzt.'};
+  var zid_={E01:'h2_absicherung_dunkelflaute_inv',E02:'dunkelflaute_insel_de_tage',E03:'stresstest_china_aufschlag_pct',E04:'kkw_reaktivierung_gw'};
+  ['E01','E02','E03','E04'].forEach(function(id){
+    var c=CLAIMS.filter(function(x){return x[0]===id;})[0], z=Z[zid_[id]];
+    var alt=ALT_NUR_VERWORFEN[id]?'Alter Wert: nur im Abschnitt <a href="#verworfen">„Verworfen“</a>.':(z.alt?'Alter Wert: '+esc(z.alt)+'.':'');
+    h+='<tr><td class="id" data-l="ID"><a href="#c-'+id+'">'+id+'</a></td><td data-l="Was falsch war">'+kurz[id]+'</td><td data-l="Korrigiert"><span class="nv">'+fmtV(z.value,z.unit)+'</span> '+badgeFull(z)+'<small style="display:block;color:var(--soft)">'+alt+'</small></td><td data-l="Richtung">'+esc(KORR_RICHTUNG[id])+'</td><td data-l="Fundstelle">'+esc(c[2])+'</td></tr>';
+  });
+  $('#tab-korr tbody').innerHTML=h;
+  var ids=CLAIMS.filter(function(c){return CLS[c[0]]==='korrigiert';}).map(function(c){return c[0];});
+  $('#korr-n').textContent=ids.length;
+  $('#korr-list').innerHTML=ids.map(function(i){return '<a href="#c-'+i+'" data-korr="1">'+i+'</a>';}).join(' · ');
+  $('#show-korr').addEventListener('click',function(){ setStatus('korrigiert'); $('#aussagen').scrollIntoView(); });
+}
+
+function renderGrenzen(){
+  $('#grenzen-list').innerHTML=GRENZEN.map(function(g){return '<li><strong>'+esc(g[0])+'</strong> '+expand(g[1])+'</li>';}).join('');
+}
+
+function renderQuellen(){
+  var keys=Object.keys(SRC), own=/^(dossier_|pruefbericht_|eigene_rechnung)/;
+  var ext=keys.filter(function(k){return !own.test(k);}), mine=keys.filter(function(k){return own.test(k);});
+  var n=0; ext.concat(mine).forEach(function(k){SRCNUM[k]=++n;});
+  var refs={};
+  CLAIMS.forEach(function(c){ srcIdsForClaim(c).forEach(function(s){(refs[s]=refs[s]||[]).push(c[0]);}); });
+  function li(k){
+    var s=SRC[k], um=URLMAP[k], h='<li id="src-'+k+'"><span class="sn">['+SRCNUM[k]+']</span><strong>'+esc(s.titel||k)+'</strong>';
+    var meta=[]; if(s.herausgeber) meta.push(esc(s.herausgeber)); if(s.datum) meta.push(esc(fmtDate(s.datum)));
+    if(meta.length) h+='<div class="meta">'+meta.join(' · ')+'</div>';
+    var url=s.url||(um&&um[0]), abruf=s.abruf||(um&&um[1]);
+    if(url) h+='<div><a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(url)+'</a></div>';
+    if(abruf) h+='<div class="meta">Abgerufen am '+fmtAbruf(abruf)+'</div>';
+    if(!url&&s.datei&&!/^research\//.test(s.datei)&&!/^dieses/.test(s.datei)) h+='<div class="meta">URL und Prüfsumme im Manifest unter <code>energiewende/quellen/</code></div>';
+    if(s.datei&&/^research\//.test(s.datei)) h+='<div><a href="'+GH+esc(s.datei)+'" target="_blank" rel="noopener"><code>energiewende/'+esc(s.datei)+'</code></a></div>';
+    if(s.datei&&/^dieses/.test(s.datei)) h+='<div class="meta">'+esc(s.datei.replace(/^dieses Dokument/,'Freigabeliste'))+'</div>';
+    if(s.lizenz) h+='<div class="meta">Lizenz: '+esc(s.lizenz)+'</div>';
+    if(s.hinweis) h+='<div class="meta">Hinweis: '+esc(s.hinweis)+'</div>';
+    if(s.gelesen===false) h+='<span class="rd rd-n unread">○ nicht am Original gelesen: '+esc(s.grund||'')+'</span>';
+    if(refs[k]) h+='<div class="refs">Aussagen: '+Array.from(new Set(refs[k])).map(function(i){return '<a href="#c-'+i+'" style="font-size:inherit">'+i+'</a>';}).join(' ')+'</div>';
+    return h+'</li>';
+  }
+  $('#src-ext').innerHTML=ext.map(li).join('');
+  $('#src-own').innerHTML=mine.map(li).join('');
+}
+
+function renderMade(){
+  var c=D.meta.counts;
+  var h='';
+  h+='<h3>Wer hier schreibt</h3><p>Diese Seite und alles, was ihr zugrunde liegt, ist mit KI-Agenten (Claude) entstanden. Gesteuert hat sie Michael Tenner von der Daten-WG. <strong>Es gibt keinen Auftraggeber und keine Finanzierung durch Dritte</strong> (bestätigt am 22. November 2026).</p>';
+  h+='<h3>Die Phasen</h3><div class="tw"><table class="rt"><thead><tr><th>Phase</th><th>Was geschah</th><th>Agenten</th><th>Token</th><th>Werkzeugaufrufe</th></tr></thead><tbody>';
+  h+='<tr><td data-l="Phase">Phase 0 · Orchestrierung</td><td data-l="Was geschah">Anlass geprüft (R21-Erklärung und Kurzinformation im Volltext gelesen), Entscheidungen im Dialog, Projekt aufgesetzt, Briefings geschrieben</td><td data-l="Agenten">–</td><td data-l="Token">im Protokoll nicht beziffert</td><td data-l="Werkzeugaufrufe">–</td></tr>';
+  PROZESS.phasen.forEach(function(p){ h+='<tr><td data-l="Phase">'+esc(p[0])+'</td><td data-l="Was geschah">'+esc(p[1])+'</td><td data-l="Agenten">'+esc(p[2])+'</td><td data-l="Token">'+esc(p[3])+'</td><td data-l="Werkzeugaufrufe">'+esc(p[4])+'</td></tr>'; });
+  h+='<tr><td data-l="Phase">Phase 4 · Seitenbau</td><td data-l="Was geschah">Diese Belegseite und die Scroll-Story, je ein Agent, aus Freigabeliste und Datensatz</td><td data-l="Agenten">2</td><td data-l="Token">noch nicht im Protokoll</td><td data-l="Werkzeugaufrufe">noch nicht im Protokoll</td></tr>';
+  h+='<tr><td data-l="Phase">Phase 5 · Reviews</td><td data-l="Was geschah">Persona- und Gegen-Reviews durch Agenten, die den Text nicht geschrieben haben: <strong>stehen aus</strong></td><td data-l="Agenten">–</td><td data-l="Token">–</td><td data-l="Werkzeugaufrufe">–</td></tr>';
+  h+='</tbody></table></div>';
+  h+='<p>Gemeldete Token in den Phasen 1 bis 3 zusammen: '+esc(PROZESS.summe)+'. Die Aufstellung nach Rolle und Modell steht im Protokoll im Repository, nicht auf dieser Seite. Die Zahlen stammen aus <code>agents/PROTOKOLL.md</code>, nicht aus dem Zahlen-Datensatz.</p>';
+  h+='<h3>Was die Gegenprüfung ergab</h3><p>Zehn Dossiers mit zusammen '+esc(PROZESS.geprueft.parameter)+' Parametern wurden zusammengeführt. In der Gegenprüfung sahen andere Agenten '+esc(PROZESS.geprueft.werte)+' Werte am Primärdokument nach: '+esc(PROZESS.geprueft.bestaetigt)+' bestätigt, '+esc(PROZESS.geprueft.abweichend)+' abweichend, '+esc(PROZESS.geprueft.offen)+' nicht prüfbar. Die Fehler lagen in Ableitungen und Zusammenfassungen, in beide Richtungen (Abschnitt 7). Kein Agent hat sein eigenes Ergebnis geprüft.</p>';
+  h+='<h3>Die Freigabe</h3><p>Ein weiterer Agent, der an Dossiers und Prüfberichten nicht beteiligt war, hat '+c.summe+' Aussagen einzeln eingestuft: '+c['bestätigt']+' bestätigt, '+c.korrigiert+' korrigiert, '+c['verworfen']+' verworfen, '+c['Setzung (M)']+' Setzung (M), '+c['nicht prüfbar']+' nicht prüfbar. Daraus entstand der Datensatz, aus dem diese Seite jede Zahl holt.</p>';
+  h+='<h3>Was der Mensch entschieden hat</h3><ul>'+
+   '<li>Prämissen: Der Klimawandel ist real und menschengemacht; Bezahlbarkeit und Versorgungssicherheit sind gleichrangige Ziele. Hauptpfad der Reihe ist Erneuerbare plus Speicher, gerechnet gegen die Alternativen; das Ergebnis darf gegen den Hauptpfad ausfallen.</li>'+
+   '<li>Format von Teil 1: Scroll-Story plus diese Belegseite.</li>'+
+   '<li>BIP-Bezug 2024 für die Studientabelle, 2025 nur für R21s eigene Umrechnung. Der ifo-Auszug höchstens als Fußnote. Kein Name des BILD-Autors. Der Förderhinweis nur im Steckbrief.</li>'+
+   '<li>Kernkraft-Neubau nur als kurzer Hinweis, die volle Rechnung in Teil 6. Klimafolgekosten als ein Kasten mit dem Vorbehalt „Untergrenze, nicht addierbar“.</li>'+
+   '<li>PwC-Studie und FAZ-Gastbeitrag: „später“. Bis dahin weist Teil 1 offen aus, dass beide Originale nicht gelesen wurden.</li>'+
+   '<li>Die Anfrage an R21 geht nach den Reviews und vor der Veröffentlichung hinaus; Antwort oder Nicht-Antwort wird vermerkt.</li></ul>';
+  h+='<h3>Was die Agenten ohne Rückfrage gesetzt haben</h3><p>Die '+c['Setzung (M)']+' Aussagen mit dem Status „Setzung (M)“ sowie alle mit „(M)“ markierten Werte in der Studientabelle (Summe geteilt durch Jahre, Jahreswert mal Jahre). Die Vorschläge der Freigabeliste, die der Mensch übernommen hat, stehen im README.</p>';
+  h+='<h3>Was nicht gelesen werden konnte</h3><ul>'+
+   '<li>PwC-Studie (nur nach Registrierung abrufbar) und FAZ-Gastbeitrag (die Seite des ifo-Instituts verlangt eine Browser-Prüfung, faz.net war nicht freigegeben). Beides haben wir nicht umgangen.</li>'+
+   '<li>Der BILD-Artikel (Bezahlschranke).</li>'+
+   '<li>In den Recherche-Läufen blieben mehrere weitere Quellen unerreichbar (zum Beispiel ENTSO-E, IEA, Bundesbank-Datenportal, einige Ministerien und Institute); die Liste steht im Protokoll.</li></ul>';
+  h+='<h3>Wo man nachsehen kann</h3><ul>'+
+   '<li><a href="'+GHT+'" target="_blank" rel="noopener">Ordner <code>energiewende/</code> im Repository</a></li>'+
+   '<li><a href="'+GH+'README.md" target="_blank" rel="noopener"><code>README.md</code></a> (Prämissen, Entscheidungen, Prozess-Log) · <a href="'+GH+'TRANSPARENZ.md" target="_blank" rel="noopener"><code>TRANSPARENZ.md</code></a> (Regeln)</li>'+
+   '<li><a href="'+GH+'agents/PROTOKOLL.md" target="_blank" rel="noopener"><code>agents/PROTOKOLL.md</code></a> (Läufe, Token, Rollen) · <a href="'+GHT+'/agents/briefs" target="_blank" rel="noopener"><code>agents/briefs/</code></a> (Aufträge im Wortlaut)</li>'+
+   '<li><a href="'+GH+'docs/03_teil1_freigabe.md" target="_blank" rel="noopener"><code>docs/03_teil1_freigabe.md</code></a> (alle Aussagen) · <a href="'+GH+'data/teil1_data.json" target="_blank" rel="noopener"><code>data/teil1_data.json</code></a> (Datensatz dieser Seite)</li>'+
+   '<li><a href="'+GHT+'/research" target="_blank" rel="noopener"><code>research/</code></a> (Dossiers) und <a href="'+GHT+'/research/pruefung" target="_blank" rel="noopener"><code>research/pruefung/</code></a> (Prüfberichte)</li></ul>';
+  $('#made').innerHTML=h;
+}
+
+function renderHero(){
+  var nsrc=Object.keys(SRC).length;
+  $('#hero-meta').innerHTML='Stand des Datensatzes: '+esc(fmtDate(D.meta.stand))+' · '+D.meta.counts.summe+' Aussagen · '+nsrc+' Quellen · Entwurf, Reviews stehen aus';
+  var m=Z.r21_kosten_zitat;
+  document.title='Belege zu Teil 1 · Die '+nfmt(m.value.max)+' Billionen · Daten-WG (Entwurf)';
+}
+
+function chapnav(){
+  var nav=$('#chapnav'), tg=$('#chapnav-toggle');
+  tg.addEventListener('click',function(){var o=nav.classList.toggle('open');tg.setAttribute('aria-expanded',o?'true':'false');});
+  $$('#chapnav-links a').forEach(function(a){a.addEventListener('click',function(){nav.classList.remove('open');tg.setAttribute('aria-expanded','false');});});
+  var links={}; $$('#chapnav-links a').forEach(function(a){links[a.getAttribute('href').slice(1)]=a;});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ Object.keys(links).forEach(function(k){links[k].classList.toggle('on',k===e.target.id);}); } });
+    },{rootMargin:'-20% 0px -70% 0px'});
+    Object.keys(links).forEach(function(k){var s=document.getElementById(k); if(s) io.observe(s);});
+  }
+}
+
+/* ------------------------------------------------------------ Start */
+function showLoadError(msg,file){
+  var h='<div class="note crit"><strong>Die Daten konnten nicht geladen werden.</strong> '+msg;
+  if(file) h+=' Diese Seite lädt ihre Zahlen per <code>fetch</code> aus <code>energiewende/data/teil1_data.json</code> und funktioniert deshalb nicht über <code>file://</code>. Im Hauptordner des Repositories ausführen: <code>python3 -m http.server 8000</code>, dann <code>http://localhost:8000/energiewende-1-belege.html</code> öffnen.';
+  h+='</div>';
+  $('#loadnote').innerHTML=h;
+  $('#hero-meta').textContent='Daten nicht geladen';
+  $('h1').textContent='Belege zu Teil 1 der Energiewende-Reihe';
+}
+function init(data){
+  D=data; SRC=D.sources||{};
+  D.zahlen.forEach(function(z){Z[z.id]=z;});
+  var b=D.meta.bip_bezug; Z[b.id]={id:b.id,value:b.value,unit:b.unit,source:b.source,confidence:'M',primaer_gelesen:false,abgrenzung:b.note,status:'Setzung (M)',claim:[]};
+  D.claims.forEach(function(c){CLS[c.id]=c.status;});
+  ST_A=D.studien_tabelle.am_original_gelesen; ST_B=D.studien_tabelle.nicht_am_original_gelesen; ST_ALL=ST_A.concat(ST_B);
+  CLAIMS.forEach(function(c){CLM[c[0]]=c;});
+  var miss=D.claims.filter(function(c){return !CLM[c.id];}).map(function(c){return c.id;});
+  var extra=CLAIMS.filter(function(c){return !CLS[c[0]];}).map(function(c){return c[0];});
+  renderQuellen();
+  fillPlaceholders(document);
+  renderHero(); renderTiles(); renderKurz(); renderSteck(); renderAussagen();
+  $('#stud-lead').innerHTML=expand('Alle Studien aus der Freigabeliste auf gemeinsamer Basis: BIP 2024 nominal, [[bip_de_2024_mrd_eur]] (Setzung (M)). Wo R21 selbst rechnet, steht zusätzlich das BIP 2025 in den Aussagen S06; hier wird R21 mit derselben Basis wie die Studien gemessen. Die Tabellen sind sortierbar.');
+  buildStud('tab-a','sort-a',ST_A,true);
+  buildStud('tab-b','sort-b',ST_B,false);
+  $('#fn-st').innerHTML='<sup class="fnr">1</sup> Zum FAZ-Gastbeitrag siehe die Fußnote unter der Aussagen-Tabelle (Q08). Die Angabe „offen“ heißt: Wir kennen weder Größe noch Zeitraum, weil wir das Original nicht lesen konnten.';
+  chartStudien();
+  renderBoxes(); renderZitate(); renderGP(); renderUngelesen(); renderVerworfen(); renderKorrekturen(); renderGrenzen(); renderMade();
+  chapnav();
+  if(window.ResizeObserver){
+    var t=null, w0=$('#chart-studien').clientWidth;
+    new ResizeObserver(function(){ clearTimeout(t); t=setTimeout(function(){ var w=$('#chart-studien').clientWidth; if(Math.abs(w-w0)>8){w0=w;chartStudien();} },150); }).observe($('#chart-studien'));
+  }
+  window.__belege={ok:true,missing:miss,extra:extra};
+  if(miss.length||extra.length) console.warn('Aussagen-IDs passen nicht zum Datensatz',miss,extra);
+  if(location.hash){ var el=document.getElementById(location.hash.slice(1)); if(el) setTimeout(function(){el.scrollIntoView();},50); }
+}
+function start(){
+  if(location.protocol==='file:'){ showLoadError('',true); return; }
+  fetch(DATA_URL,{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(init).catch(function(e){ showLoadError('('+esc(e.message||e)+')',false); window.__belege={ok:false}; console.error(e); });
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+})();
+</script>
+</body></html>

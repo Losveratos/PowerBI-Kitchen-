@@ -80,3 +80,4 @@ Führe deinen Teil aus.“
 
 | Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
 |---|---|---|---|---|---|---|
+| P4-B Belegseite | Sonnet | 2026-11-22 | 24,0 min | 446.928 | 88 | `energiewende-1-belege.html` (130 KB): 87 Aussagen filterbar, Studien-Vergleich mit Grafik, zwölf Gegenpositionen, 39 Quellen; geprüft bei 1280 und 390 px, hell und dunkel: keine Konsolenfehler, keine fremden Hosts, kein waagerechtes Scrollen. Offen: Aussagen-Texte und 27 Quellen-URLs stehen in der Seite statt im Datensatz; mehrere Zahlen der Freigabeliste fehlen im Datensatz und wurden deshalb umschrieben |
