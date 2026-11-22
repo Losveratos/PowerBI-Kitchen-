@@ -1,0 +1,41 @@
+{
+  "hinweis": "Manifest der Gegenprüfung P2-06 (Dossier 06 Europa). Dateien unter quellen/raw/P2-06/ (nicht in Git). Zusätzlich gelesen: Phase-1-Rohdateien unter quellen/raw/P1-06_europa/ und data/raw/europa/ (Prüfsummen in manifest_P1-06_europa.json).",
+  "eintraege": [
+    {
+      "id": "acer_mmr_2025_czc_seite",
+      "url": "https://www.acer.europa.eu/monitoring/cross-zonal-electricity-trade-2025",
+      "datei": "raw/P2-06/acer_czt_2025.html",
+      "sha256": "45fd18950003e3af9cbeaea218838d66bd3aabd547d4e7869e099f4b270d60a2",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "acer_mmr_2025_czc",
+      "url": "https://www.acer.europa.eu/sites/default/files/documents/Publications/ACER-Monitoring-Report-2025-crosszonal-electricity-trade-capacities.pdf",
+      "datei": "raw/P2-06/acer_mmr_2025_czc.pdf",
+      "sha256": "2b87048277799f3d9d8e637fcb101a4e606e241a0f9e2cb861563e6869154e1a",
+      "abruf": "2026-11-22",
+      "seiten": 83
+    },
+    {
+      "id": "ec_climate_2040",
+      "url": "https://climate.ec.europa.eu/areas-action/climate-strategies-targets/2040-climate-target_en",
+      "datei": "raw/P2-06/ec_climate_2040.html",
+      "sha256": "a8bd897392e21296cbc0272f6607b66f60ae6f2bf7553681dd4383e492d72b9f",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "entsoe_eraa_uebersicht",
+      "url": "https://www.entsoe.eu/outlooks/eraa/",
+      "datei": "raw/P2-06/entsoe_eraa.html",
+      "sha256": "a48f71550b2c6a953c5ffc320a4b6b2f2ce973dc46a6be16a80cca87db880358",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "entsoe_eraa_2025",
+      "url": "https://www.entsoe.eu/eraa/2025/",
+      "datei": "raw/P2-06/entsoe_eraa2025.html",
+      "sha256": "6816e4da8f9c8d79958431d83ae97da781b6ec18e05b9a00e54b01a084d68378",
+      "abruf": "2026-11-22"
+    }
+  ]
+}

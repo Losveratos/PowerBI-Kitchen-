@@ -1,0 +1,1347 @@
+{
+ "setzung": {
+  "cap_gw": {
+   "pv": 215.0,
+   "on": 115.0,
+   "off": 30.0
+  },
+  "last_twh": 520.0,
+  "fenster_h": 120
+ },
+ "jahre": {
+  "solar_mw": {
+   "2015": {
+    "fehlwerte": 7,
+    "last_twh_jahr": 501.95,
+    "skalierung": 1.036,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 153,
+      "ws_ge24h": 10,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 135,
+      "wind_laengste_h": 127
+     },
+     "zentriert": {
+      "ws_ge10h": 153,
+      "ws_ge24h": 10,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 135,
+      "wind_laengste_h": 127
+     },
+     "wind_stuendlich_laengste_h": 129
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2015-01-18T23:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0355,
+     "lastfaktor": 1.161,
+     "luecke_netto_twh": 6.973,
+     "luecke_nur_defizitstunden_twh": 6.973,
+     "last2030_twh": 8.273,
+     "ee2030_twh": 1.3,
+     "spitze_luecke_gw": 76.5,
+     "bio_ror_hist_twh": 0.827,
+     "cf_wind_pv_gesamt": 0.0297
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2015-01-18T21:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0357,
+     "lastfaktor": 1.16,
+     "luecke_netto_twh": 6.981,
+     "luecke_nur_defizitstunden_twh": 6.981,
+     "last2030_twh": 8.262,
+     "ee2030_twh": 1.281,
+     "spitze_luecke_gw": 76.5,
+     "bio_ror_hist_twh": 0.827,
+     "cf_wind_pv_gesamt": 0.0299
+    },
+    "spitze_luecke_jahr_gw": 76.5
+   },
+   "2016": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 503.92,
+    "skalierung": 1.0319,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 165,
+      "ws_ge24h": 14,
+      "ws_ge48h": 7,
+      "ws_laengste_h": 74,
+      "wind_laengste_h": 150
+     },
+     "zentriert": {
+      "ws_ge10h": 165,
+      "ws_ge24h": 14,
+      "ws_ge48h": 7,
+      "ws_laengste_h": 74,
+      "wind_laengste_h": 150
+     },
+     "wind_stuendlich_laengste_h": 112
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2016-01-17T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.074,
+     "lastfaktor": 1.151,
+     "luecke_netto_twh": 5.625,
+     "luecke_nur_defizitstunden_twh": 5.625,
+     "last2030_twh": 8.177,
+     "ee2030_twh": 2.552,
+     "spitze_luecke_gw": 69.1,
+     "bio_ror_hist_twh": 0.733,
+     "cf_wind_pv_gesamt": 0.0582
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2016-12-12T07:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0833,
+     "lastfaktor": 1.148,
+     "luecke_netto_twh": 5.733,
+     "luecke_nur_defizitstunden_twh": 5.733,
+     "last2030_twh": 8.154,
+     "ee2030_twh": 2.421,
+     "spitze_luecke_gw": 71.0,
+     "bio_ror_hist_twh": 0.792,
+     "cf_wind_pv_gesamt": 0.0614
+    },
+    "spitze_luecke_jahr_gw": 73.8
+   },
+   "2017": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 506.79,
+    "skalierung": 1.0261,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 133,
+      "ws_ge24h": 11,
+      "ws_ge48h": 5,
+      "ws_laengste_h": 138,
+      "wind_laengste_h": 124
+     },
+     "zentriert": {
+      "ws_ge10h": 133,
+      "ws_ge24h": 11,
+      "ws_ge48h": 5,
+      "ws_laengste_h": 138,
+      "wind_laengste_h": 124
+     },
+     "wind_stuendlich_laengste_h": 124
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2017-01-20T21:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.055,
+     "lastfaktor": 1.108,
+     "luecke_netto_twh": 6.218,
+     "luecke_nur_defizitstunden_twh": 6.218,
+     "last2030_twh": 7.891,
+     "ee2030_twh": 1.673,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.753,
+     "cf_wind_pv_gesamt": 0.0387
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2017-01-20T21:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.055,
+     "lastfaktor": 1.108,
+     "luecke_netto_twh": 6.218,
+     "luecke_nur_defizitstunden_twh": 6.218,
+     "last2030_twh": 7.891,
+     "ee2030_twh": 1.673,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.753,
+     "cf_wind_pv_gesamt": 0.0387
+    },
+    "spitze_luecke_jahr_gw": 74.8
+   },
+   "2018": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 509.22,
+    "skalierung": 1.0212,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 126,
+      "ws_ge24h": 13,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 77,
+      "wind_laengste_h": 130
+     },
+     "zentriert": {
+      "ws_ge10h": 126,
+      "ws_ge24h": 13,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 77,
+      "wind_laengste_h": 130
+     },
+     "wind_stuendlich_laengste_h": 132
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2018-02-05T16:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1043,
+     "lastfaktor": 1.13,
+     "luecke_netto_twh": 4.954,
+     "luecke_nur_defizitstunden_twh": 4.954,
+     "last2030_twh": 8.049,
+     "ee2030_twh": 3.095,
+     "spitze_luecke_gw": 68.4,
+     "bio_ror_hist_twh": 0.832,
+     "cf_wind_pv_gesamt": 0.0696
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2018-02-05T15:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1044,
+     "lastfaktor": 1.131,
+     "luecke_netto_twh": 4.963,
+     "luecke_nur_defizitstunden_twh": 4.963,
+     "last2030_twh": 8.06,
+     "ee2030_twh": 3.097,
+     "spitze_luecke_gw": 68.4,
+     "bio_ror_hist_twh": 0.832,
+     "cf_wind_pv_gesamt": 0.0698
+    },
+    "spitze_luecke_jahr_gw": 73.2
+   },
+   "2019": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 497.37,
+    "skalierung": 1.0455,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 120,
+      "ws_ge24h": 9,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 64,
+      "wind_laengste_h": 125
+     },
+     "zentriert": {
+      "ws_ge10h": 120,
+      "ws_ge24h": 9,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 64,
+      "wind_laengste_h": 125
+     },
+     "wind_stuendlich_laengste_h": 72
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2019-01-20T13:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.108,
+     "lastfaktor": 1.18,
+     "luecke_netto_twh": 5.576,
+     "luecke_nur_defizitstunden_twh": 5.576,
+     "last2030_twh": 8.404,
+     "ee2030_twh": 2.827,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.812,
+     "cf_wind_pv_gesamt": 0.0709
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2019-01-20T15:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1085,
+     "lastfaktor": 1.185,
+     "luecke_netto_twh": 5.599,
+     "luecke_nur_defizitstunden_twh": 5.599,
+     "last2030_twh": 8.441,
+     "ee2030_twh": 2.843,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.813,
+     "cf_wind_pv_gesamt": 0.0715
+    },
+    "spitze_luecke_jahr_gw": 74.8
+   },
+   "2020": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 485.36,
+    "skalierung": 1.0714,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 119,
+      "ws_ge24h": 8,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 100,
+      "wind_laengste_h": 185
+     },
+     "zentriert": {
+      "ws_ge10h": 119,
+      "ws_ge24h": 8,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 100,
+      "wind_laengste_h": 185
+     },
+     "wind_stuendlich_laengste_h": 150
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2020-11-06T22:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1142,
+     "lastfaktor": 1.019,
+     "luecke_netto_twh": 4.868,
+     "luecke_nur_defizitstunden_twh": 4.938,
+     "last2030_twh": 7.236,
+     "ee2030_twh": 2.367,
+     "spitze_luecke_gw": 67.9,
+     "bio_ror_hist_twh": 0.827,
+     "cf_wind_pv_gesamt": 0.0556
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2020-12-06T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1368,
+     "lastfaktor": 1.153,
+     "luecke_netto_twh": 5.335,
+     "luecke_nur_defizitstunden_twh": 5.335,
+     "last2030_twh": 8.191,
+     "ee2030_twh": 2.856,
+     "spitze_luecke_gw": 74.1,
+     "bio_ror_hist_twh": 0.785,
+     "cf_wind_pv_gesamt": 0.0748
+    },
+    "spitze_luecke_jahr_gw": 74.1
+   },
+   "2021": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 504.6,
+    "skalierung": 1.0305,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 158,
+      "ws_ge24h": 15,
+      "ws_ge48h": 6,
+      "ws_laengste_h": 101,
+      "wind_laengste_h": 148
+     },
+     "zentriert": {
+      "ws_ge10h": 158,
+      "ws_ge24h": 15,
+      "ws_ge48h": 6,
+      "ws_laengste_h": 101,
+      "wind_laengste_h": 148
+     },
+     "wind_stuendlich_laengste_h": 146
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2021-01-05T10:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1224,
+     "lastfaktor": 1.045,
+     "luecke_netto_twh": 5.047,
+     "luecke_nur_defizitstunden_twh": 5.047,
+     "last2030_twh": 7.44,
+     "ee2030_twh": 2.394,
+     "spitze_luecke_gw": 60.7,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0625
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2021-01-05T07:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1236,
+     "lastfaktor": 1.051,
+     "luecke_netto_twh": 5.062,
+     "luecke_nur_defizitstunden_twh": 5.062,
+     "last2030_twh": 7.489,
+     "ee2030_twh": 2.427,
+     "spitze_luecke_gw": 60.7,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0635
+    },
+    "spitze_luecke_jahr_gw": 69.4
+   },
+   "2022": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 482.3,
+    "skalierung": 1.0782,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 146,
+      "ws_ge24h": 11,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 130,
+      "wind_laengste_h": 180
+     },
+     "zentriert": {
+      "ws_ge10h": 146,
+      "ws_ge24h": 11,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 130,
+      "wind_laengste_h": 180
+     },
+     "wind_stuendlich_laengste_h": 116
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2022-12-08T11:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0873,
+     "lastfaktor": 1.041,
+     "luecke_netto_twh": 5.734,
+     "luecke_nur_defizitstunden_twh": 5.734,
+     "last2030_twh": 7.414,
+     "ee2030_twh": 1.68,
+     "spitze_luecke_gw": 66.8,
+     "bio_ror_hist_twh": 0.725,
+     "cf_wind_pv_gesamt": 0.0415
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2022-12-08T10:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0873,
+     "lastfaktor": 1.041,
+     "luecke_netto_twh": 5.737,
+     "luecke_nur_defizitstunden_twh": 5.737,
+     "last2030_twh": 7.412,
+     "ee2030_twh": 1.675,
+     "spitze_luecke_gw": 66.8,
+     "bio_ror_hist_twh": 0.725,
+     "cf_wind_pv_gesamt": 0.0415
+    },
+    "spitze_luecke_jahr_gw": 72.9
+   },
+   "2023": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 458.38,
+    "skalierung": 1.1344,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 130,
+      "ws_ge24h": 13,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 107,
+      "wind_laengste_h": 120
+     },
+     "zentriert": {
+      "ws_ge10h": 130,
+      "ws_ge24h": 13,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 107,
+      "wind_laengste_h": 120
+     },
+     "wind_stuendlich_laengste_h": 123
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2023-01-23T07:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0981,
+     "lastfaktor": 1.155,
+     "luecke_netto_twh": 6.391,
+     "luecke_nur_defizitstunden_twh": 6.391,
+     "last2030_twh": 8.229,
+     "ee2030_twh": 1.838,
+     "spitze_luecke_gw": 70.2,
+     "bio_ror_hist_twh": 0.778,
+     "cf_wind_pv_gesamt": 0.0504
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2023-01-23T04:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0984,
+     "lastfaktor": 1.16,
+     "luecke_netto_twh": 6.414,
+     "luecke_nur_defizitstunden_twh": 6.414,
+     "last2030_twh": 8.263,
+     "ee2030_twh": 1.849,
+     "spitze_luecke_gw": 70.2,
+     "bio_ror_hist_twh": 0.778,
+     "cf_wind_pv_gesamt": 0.0509
+    },
+    "spitze_luecke_jahr_gw": 73.4
+   },
+   "2024": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 465.5,
+    "skalierung": 1.1171,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 157,
+      "ws_ge24h": 12,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 248,
+      "wind_laengste_h": 143
+     },
+     "zentriert": {
+      "ws_ge10h": 157,
+      "ws_ge24h": 12,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 248,
+      "wind_laengste_h": 143
+     },
+     "wind_stuendlich_laengste_h": 110
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2024-11-05T15:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0968,
+     "lastfaktor": 1.045,
+     "luecke_netto_twh": 5.948,
+     "luecke_nur_defizitstunden_twh": 5.948,
+     "last2030_twh": 7.424,
+     "ee2030_twh": 1.476,
+     "spitze_luecke_gw": 73.9,
+     "bio_ror_hist_twh": 0.758,
+     "cf_wind_pv_gesamt": 0.0333
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2024-11-03T16:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.107,
+     "lastfaktor": 1.087,
+     "luecke_netto_twh": 6.11,
+     "luecke_nur_defizitstunden_twh": 6.11,
+     "last2030_twh": 7.721,
+     "ee2030_twh": 1.61,
+     "spitze_luecke_gw": 73.9,
+     "bio_ror_hist_twh": 0.751,
+     "cf_wind_pv_gesamt": 0.0378
+    },
+    "spitze_luecke_jahr_gw": 73.9
+   },
+   "2025": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 465.82,
+    "skalierung": 1.1163,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 172,
+      "ws_ge24h": 19,
+      "ws_ge48h": 6,
+      "ws_laengste_h": 109,
+      "wind_laengste_h": 123
+     },
+     "zentriert": {
+      "ws_ge10h": 172,
+      "ws_ge24h": 19,
+      "ws_ge48h": 6,
+      "ws_laengste_h": 109,
+      "wind_laengste_h": 123
+     },
+     "wind_stuendlich_laengste_h": 122
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2025-01-15T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1307,
+     "lastfaktor": 1.124,
+     "luecke_netto_twh": 5.911,
+     "luecke_nur_defizitstunden_twh": 5.911,
+     "last2030_twh": 8.004,
+     "ee2030_twh": 2.093,
+     "spitze_luecke_gw": 73.4,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0489
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2025-01-15T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1307,
+     "lastfaktor": 1.124,
+     "luecke_netto_twh": 5.911,
+     "luecke_nur_defizitstunden_twh": 5.911,
+     "last2030_twh": 8.004,
+     "ee2030_twh": 2.093,
+     "spitze_luecke_gw": 73.4,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0489
+    },
+    "spitze_luecke_jahr_gw": 74.2
+   }
+  },
+  "solar_total_mw": {
+   "2015": {
+    "fehlwerte": 7,
+    "last_twh_jahr": 501.95,
+    "skalierung": 1.036,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 151,
+      "ws_ge24h": 8,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 134,
+      "wind_laengste_h": 127
+     },
+     "zentriert": {
+      "ws_ge10h": 151,
+      "ws_ge24h": 8,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 134,
+      "wind_laengste_h": 127
+     },
+     "wind_stuendlich_laengste_h": 129
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2015-01-18T23:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0361,
+     "lastfaktor": 1.161,
+     "luecke_netto_twh": 6.947,
+     "luecke_nur_defizitstunden_twh": 6.947,
+     "last2030_twh": 8.273,
+     "ee2030_twh": 1.327,
+     "spitze_luecke_gw": 76.5,
+     "bio_ror_hist_twh": 0.827,
+     "cf_wind_pv_gesamt": 0.0327
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2015-01-18T21:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0362,
+     "lastfaktor": 1.16,
+     "luecke_netto_twh": 6.955,
+     "luecke_nur_defizitstunden_twh": 6.955,
+     "last2030_twh": 8.262,
+     "ee2030_twh": 1.307,
+     "spitze_luecke_gw": 76.5,
+     "bio_ror_hist_twh": 0.827,
+     "cf_wind_pv_gesamt": 0.0328
+    },
+    "spitze_luecke_jahr_gw": 76.5
+   },
+   "2016": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 503.92,
+    "skalierung": 1.0319,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 163,
+      "ws_ge24h": 14,
+      "ws_ge48h": 7,
+      "ws_laengste_h": 74,
+      "wind_laengste_h": 150
+     },
+     "zentriert": {
+      "ws_ge10h": 163,
+      "ws_ge24h": 14,
+      "ws_ge48h": 7,
+      "ws_laengste_h": 74,
+      "wind_laengste_h": 150
+     },
+     "wind_stuendlich_laengste_h": 112
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2016-01-17T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0747,
+     "lastfaktor": 1.151,
+     "luecke_netto_twh": 5.594,
+     "luecke_nur_defizitstunden_twh": 5.594,
+     "last2030_twh": 8.177,
+     "ee2030_twh": 2.583,
+     "spitze_luecke_gw": 69.0,
+     "bio_ror_hist_twh": 0.733,
+     "cf_wind_pv_gesamt": 0.0588
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2016-12-12T07:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0841,
+     "lastfaktor": 1.148,
+     "luecke_netto_twh": 5.699,
+     "luecke_nur_defizitstunden_twh": 5.699,
+     "last2030_twh": 8.154,
+     "ee2030_twh": 2.455,
+     "spitze_luecke_gw": 71.0,
+     "bio_ror_hist_twh": 0.792,
+     "cf_wind_pv_gesamt": 0.0621
+    },
+    "spitze_luecke_jahr_gw": 73.8
+   },
+   "2017": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 506.79,
+    "skalierung": 1.0261,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 135,
+      "ws_ge24h": 12,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 115,
+      "wind_laengste_h": 124
+     },
+     "zentriert": {
+      "ws_ge10h": 135,
+      "ws_ge24h": 12,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 115,
+      "wind_laengste_h": 124
+     },
+     "wind_stuendlich_laengste_h": 124
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2017-01-20T21:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0564,
+     "lastfaktor": 1.108,
+     "luecke_netto_twh": 6.162,
+     "luecke_nur_defizitstunden_twh": 6.162,
+     "last2030_twh": 7.891,
+     "ee2030_twh": 1.73,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.753,
+     "cf_wind_pv_gesamt": 0.0396
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2017-01-20T21:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0564,
+     "lastfaktor": 1.108,
+     "luecke_netto_twh": 6.162,
+     "luecke_nur_defizitstunden_twh": 6.162,
+     "last2030_twh": 7.891,
+     "ee2030_twh": 1.73,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.753,
+     "cf_wind_pv_gesamt": 0.0396
+    },
+    "spitze_luecke_jahr_gw": 74.8
+   },
+   "2018": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 509.22,
+    "skalierung": 1.0212,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 126,
+      "ws_ge24h": 11,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 77,
+      "wind_laengste_h": 130
+     },
+     "zentriert": {
+      "ws_ge10h": 126,
+      "ws_ge24h": 11,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 77,
+      "wind_laengste_h": 130
+     },
+     "wind_stuendlich_laengste_h": 132
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2018-02-05T16:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1062,
+     "lastfaktor": 1.13,
+     "luecke_netto_twh": 4.875,
+     "luecke_nur_defizitstunden_twh": 4.875,
+     "last2030_twh": 8.049,
+     "ee2030_twh": 3.174,
+     "spitze_luecke_gw": 68.4,
+     "bio_ror_hist_twh": 0.832,
+     "cf_wind_pv_gesamt": 0.0709
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2018-02-05T15:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1064,
+     "lastfaktor": 1.131,
+     "luecke_netto_twh": 4.884,
+     "luecke_nur_defizitstunden_twh": 4.884,
+     "last2030_twh": 8.06,
+     "ee2030_twh": 3.176,
+     "spitze_luecke_gw": 68.4,
+     "bio_ror_hist_twh": 0.832,
+     "cf_wind_pv_gesamt": 0.0711
+    },
+    "spitze_luecke_jahr_gw": 73.2
+   },
+   "2019": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 497.37,
+    "skalierung": 1.0455,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 118,
+      "ws_ge24h": 8,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 64,
+      "wind_laengste_h": 125
+     },
+     "zentriert": {
+      "ws_ge10h": 118,
+      "ws_ge24h": 8,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 64,
+      "wind_laengste_h": 125
+     },
+     "wind_stuendlich_laengste_h": 72
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2019-01-20T14:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1093,
+     "lastfaktor": 1.182,
+     "luecke_netto_twh": 5.548,
+     "luecke_nur_defizitstunden_twh": 5.548,
+     "last2030_twh": 8.423,
+     "ee2030_twh": 2.875,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.812,
+     "cf_wind_pv_gesamt": 0.0716
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2019-01-20T15:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1098,
+     "lastfaktor": 1.185,
+     "luecke_netto_twh": 5.551,
+     "luecke_nur_defizitstunden_twh": 5.551,
+     "last2030_twh": 8.441,
+     "ee2030_twh": 2.891,
+     "spitze_luecke_gw": 74.8,
+     "bio_ror_hist_twh": 0.813,
+     "cf_wind_pv_gesamt": 0.0721
+    },
+    "spitze_luecke_jahr_gw": 74.8
+   },
+   "2020": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 485.36,
+    "skalierung": 1.0714,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 119,
+      "ws_ge24h": 8,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 98,
+      "wind_laengste_h": 185
+     },
+     "zentriert": {
+      "ws_ge10h": 119,
+      "ws_ge24h": 8,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 98,
+      "wind_laengste_h": 185
+     },
+     "wind_stuendlich_laengste_h": 150
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2020-11-06T22:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.117,
+     "lastfaktor": 1.019,
+     "luecke_netto_twh": 4.792,
+     "luecke_nur_defizitstunden_twh": 4.894,
+     "last2030_twh": 7.236,
+     "ee2030_twh": 2.443,
+     "spitze_luecke_gw": 67.9,
+     "bio_ror_hist_twh": 0.827,
+     "cf_wind_pv_gesamt": 0.057
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2020-12-06T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1376,
+     "lastfaktor": 1.153,
+     "luecke_netto_twh": 5.311,
+     "luecke_nur_defizitstunden_twh": 5.311,
+     "last2030_twh": 8.191,
+     "ee2030_twh": 2.881,
+     "spitze_luecke_gw": 74.1,
+     "bio_ror_hist_twh": 0.785,
+     "cf_wind_pv_gesamt": 0.0748
+    },
+    "spitze_luecke_jahr_gw": 74.1
+   },
+   "2021": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 504.6,
+    "skalierung": 1.0305,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 155,
+      "ws_ge24h": 12,
+      "ws_ge48h": 6,
+      "ws_laengste_h": 98,
+      "wind_laengste_h": 148
+     },
+     "zentriert": {
+      "ws_ge10h": 155,
+      "ws_ge24h": 12,
+      "ws_ge48h": 6,
+      "ws_laengste_h": 98,
+      "wind_laengste_h": 148
+     },
+     "wind_stuendlich_laengste_h": 146
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2021-01-05T10:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1231,
+     "lastfaktor": 1.045,
+     "luecke_netto_twh": 5.028,
+     "luecke_nur_defizitstunden_twh": 5.028,
+     "last2030_twh": 7.44,
+     "ee2030_twh": 2.413,
+     "spitze_luecke_gw": 60.7,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0641
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2021-01-05T07:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1242,
+     "lastfaktor": 1.051,
+     "luecke_netto_twh": 5.044,
+     "luecke_nur_defizitstunden_twh": 5.044,
+     "last2030_twh": 7.489,
+     "ee2030_twh": 2.445,
+     "spitze_luecke_gw": 60.7,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0651
+    },
+    "spitze_luecke_jahr_gw": 69.4
+   },
+   "2022": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 482.3,
+    "skalierung": 1.0782,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 142,
+      "ws_ge24h": 11,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 131,
+      "wind_laengste_h": 180
+     },
+     "zentriert": {
+      "ws_ge10h": 142,
+      "ws_ge24h": 11,
+      "ws_ge48h": 3,
+      "ws_laengste_h": 131,
+      "wind_laengste_h": 180
+     },
+     "wind_stuendlich_laengste_h": 116
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2022-12-08T10:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0898,
+     "lastfaktor": 1.041,
+     "luecke_netto_twh": 5.684,
+     "luecke_nur_defizitstunden_twh": 5.684,
+     "last2030_twh": 7.412,
+     "ee2030_twh": 1.728,
+     "spitze_luecke_gw": 66.8,
+     "bio_ror_hist_twh": 0.725,
+     "cf_wind_pv_gesamt": 0.0411
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2022-12-08T10:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.0898,
+     "lastfaktor": 1.041,
+     "luecke_netto_twh": 5.684,
+     "luecke_nur_defizitstunden_twh": 5.684,
+     "last2030_twh": 7.412,
+     "ee2030_twh": 1.728,
+     "spitze_luecke_gw": 66.8,
+     "bio_ror_hist_twh": 0.725,
+     "cf_wind_pv_gesamt": 0.0411
+    },
+    "spitze_luecke_jahr_gw": 72.9
+   },
+   "2023": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 458.38,
+    "skalierung": 1.1344,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 126,
+      "ws_ge24h": 10,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 110,
+      "wind_laengste_h": 120
+     },
+     "zentriert": {
+      "ws_ge10h": 126,
+      "ws_ge24h": 10,
+      "ws_ge48h": 2,
+      "ws_laengste_h": 110,
+      "wind_laengste_h": 120
+     },
+     "wind_stuendlich_laengste_h": 123
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2023-01-23T07:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1015,
+     "lastfaktor": 1.155,
+     "luecke_netto_twh": 6.314,
+     "luecke_nur_defizitstunden_twh": 6.314,
+     "last2030_twh": 8.229,
+     "ee2030_twh": 1.915,
+     "spitze_luecke_gw": 70.2,
+     "bio_ror_hist_twh": 0.778,
+     "cf_wind_pv_gesamt": 0.049
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2023-01-23T04:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1018,
+     "lastfaktor": 1.16,
+     "luecke_netto_twh": 6.337,
+     "luecke_nur_defizitstunden_twh": 6.337,
+     "last2030_twh": 8.263,
+     "ee2030_twh": 1.927,
+     "spitze_luecke_gw": 70.2,
+     "bio_ror_hist_twh": 0.778,
+     "cf_wind_pv_gesamt": 0.0495
+    },
+    "spitze_luecke_jahr_gw": 73.0
+   },
+   "2024": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 465.5,
+    "skalierung": 1.1171,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 169,
+      "ws_ge24h": 6,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 88,
+      "wind_laengste_h": 143
+     },
+     "zentriert": {
+      "ws_ge10h": 169,
+      "ws_ge24h": 6,
+      "ws_ge48h": 4,
+      "ws_laengste_h": 88,
+      "wind_laengste_h": 143
+     },
+     "wind_stuendlich_laengste_h": 110
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2024-11-05T15:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1093,
+     "lastfaktor": 1.045,
+     "luecke_netto_twh": 5.765,
+     "luecke_nur_defizitstunden_twh": 5.765,
+     "last2030_twh": 7.424,
+     "ee2030_twh": 1.659,
+     "spitze_luecke_gw": 73.9,
+     "bio_ror_hist_twh": 0.758,
+     "cf_wind_pv_gesamt": 0.0356
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2024-11-03T16:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.1248,
+     "lastfaktor": 1.087,
+     "luecke_netto_twh": 5.839,
+     "luecke_nur_defizitstunden_twh": 5.839,
+     "last2030_twh": 7.721,
+     "ee2030_twh": 1.881,
+     "spitze_luecke_gw": 73.9,
+     "bio_ror_hist_twh": 0.751,
+     "cf_wind_pv_gesamt": 0.0419
+    },
+    "spitze_luecke_jahr_gw": 73.9
+   },
+   "2025": {
+    "fehlwerte": 0,
+    "last_twh_jahr": 465.82,
+    "skalierung": 1.1163,
+    "ereignisse": {
+     "nachlaufend": {
+      "ws_ge10h": 187,
+      "ws_ge24h": 12,
+      "ws_ge48h": 5,
+      "ws_laengste_h": 88,
+      "wind_laengste_h": 123
+     },
+     "zentriert": {
+      "ws_ge10h": 187,
+      "ws_ge24h": 12,
+      "ws_ge48h": 5,
+      "ws_laengste_h": 88,
+      "wind_laengste_h": 123
+     },
+     "wind_stuendlich_laengste_h": 122
+    },
+    "fenster_min_anteil": {
+     "start_utc": "2025-01-15T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.155,
+     "lastfaktor": 1.124,
+     "luecke_netto_twh": 5.542,
+     "luecke_nur_defizitstunden_twh": 5.582,
+     "last2030_twh": 8.004,
+     "ee2030_twh": 2.462,
+     "spitze_luecke_gw": 73.4,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0519
+    },
+    "fenster_max_luecke2030": {
+     "start_utc": "2025-01-15T08:00:00Z",
+     "anteil_wind_pv_an_last_hist": 0.155,
+     "lastfaktor": 1.124,
+     "luecke_netto_twh": 5.542,
+     "luecke_nur_defizitstunden_twh": 5.582,
+     "last2030_twh": 8.004,
+     "ee2030_twh": 2.462,
+     "spitze_luecke_gw": 73.4,
+     "bio_ror_hist_twh": 0.787,
+     "cf_wind_pv_gesamt": 0.0519
+    },
+    "spitze_luecke_jahr_gw": 74.2
+   }
+  }
+ },
+ "zusammenfassung_solar_mw": {
+  "fenster_min_anteil": {
+   "luecke_netto_twh": {
+    "min": 4.868,
+    "median": 5.734,
+    "mean": 5.75,
+    "max": 6.973
+   },
+   "luecke_nur_defizitstunden_twh": {
+    "min": 4.938,
+    "median": 5.734,
+    "mean": 5.756,
+    "max": 6.973
+   },
+   "spitze_luecke_gw": {
+    "min": 60.7,
+    "median": 70.2,
+    "mean": 70.591,
+    "max": 76.5
+   },
+   "lastfaktor": {
+    "min": 1.019,
+    "median": 1.124,
+    "mean": 1.105,
+    "max": 1.18
+   },
+   "anteil_wind_pv_an_last_hist": {
+    "min": 0.035,
+    "median": 0.098,
+    "mean": 0.093,
+    "max": 0.131
+   },
+   "bio_ror_hist_twh": {
+    "min": 0.725,
+    "median": 0.787,
+    "mean": 0.784,
+    "max": 0.832
+   },
+   "cf_wind_pv_gesamt": {
+    "min": 0.03,
+    "median": 0.05,
+    "mean": 0.051,
+    "max": 0.071
+   }
+  },
+  "fenster_max_luecke2030": {
+   "luecke_netto_twh": {
+    "min": 4.963,
+    "median": 5.737,
+    "mean": 5.824,
+    "max": 6.981
+   },
+   "luecke_nur_defizitstunden_twh": {
+    "min": 4.963,
+    "median": 5.737,
+    "mean": 5.824,
+    "max": 6.981
+   },
+   "spitze_luecke_gw": {
+    "min": 60.7,
+    "median": 73.4,
+    "mean": 71.327,
+    "max": 76.5
+   },
+   "lastfaktor": {
+    "min": 1.041,
+    "median": 1.131,
+    "mean": 1.123,
+    "max": 1.185
+   },
+   "anteil_wind_pv_an_last_hist": {
+    "min": 0.036,
+    "median": 0.104,
+    "mean": 0.097,
+    "max": 0.137
+   },
+   "bio_ror_hist_twh": {
+    "min": 0.725,
+    "median": 0.787,
+    "mean": 0.785,
+    "max": 0.832
+   },
+   "cf_wind_pv_gesamt": {
+    "min": 0.03,
+    "median": 0.051,
+    "mean": 0.054,
+    "max": 0.075
+   }
+  },
+  "ereignisse_nachlaufend": {
+   "ws_ge10h_2016_2025": 1426,
+   "ws_ge48h_je_jahr": {
+    "min": 2,
+    "median": 4,
+    "mean": 4.182,
+    "max": 7
+   },
+   "wind_laengste_h": {
+    "min": 120,
+    "median": 130,
+    "mean": 141.364,
+    "max": 185
+   }
+  },
+  "ereignisse_zentriert": {
+   "ws_ge10h_2016_2025": 1426,
+   "ws_ge48h_je_jahr": {
+    "min": 2,
+    "median": 4,
+    "mean": 4.182,
+    "max": 7
+   },
+   "wind_laengste_h": {
+    "min": 120,
+    "median": 130,
+    "mean": 141.364,
+    "max": 185
+   }
+  },
+  "spitze_luecke_jahr_gw": {
+   "min": 69.4,
+   "median": 73.9,
+   "mean": 73.727,
+   "max": 76.5
+  }
+ },
+ "zusammenfassung_solar_total_mw": {
+  "fenster_min_anteil": {
+   "luecke_netto_twh": {
+    "min": 4.792,
+    "median": 5.594,
+    "mean": 5.659,
+    "max": 6.947
+   },
+   "luecke_nur_defizitstunden_twh": {
+    "min": 4.875,
+    "median": 5.594,
+    "mean": 5.672,
+    "max": 6.947
+   },
+   "spitze_luecke_gw": {
+    "min": 60.7,
+    "median": 70.2,
+    "mean": 70.582,
+    "max": 76.5
+   },
+   "lastfaktor": {
+    "min": 1.019,
+    "median": 1.124,
+    "mean": 1.106,
+    "max": 1.182
+   },
+   "anteil_wind_pv_an_last_hist": {
+    "min": 0.036,
+    "median": 0.106,
+    "mean": 0.098,
+    "max": 0.155
+   },
+   "bio_ror_hist_twh": {
+    "min": 0.725,
+    "median": 0.787,
+    "mean": 0.784,
+    "max": 0.832
+   },
+   "cf_wind_pv_gesamt": {
+    "min": 0.033,
+    "median": 0.052,
+    "mean": 0.052,
+    "max": 0.072
+   }
+  },
+  "fenster_max_luecke2030": {
+   "luecke_netto_twh": {
+    "min": 4.884,
+    "median": 5.684,
+    "mean": 5.728,
+    "max": 6.955
+   },
+   "luecke_nur_defizitstunden_twh": {
+    "min": 4.884,
+    "median": 5.684,
+    "mean": 5.732,
+    "max": 6.955
+   },
+   "spitze_luecke_gw": {
+    "min": 60.7,
+    "median": 73.4,
+    "mean": 71.327,
+    "max": 76.5
+   },
+   "lastfaktor": {
+    "min": 1.041,
+    "median": 1.131,
+    "mean": 1.123,
+    "max": 1.185
+   },
+   "anteil_wind_pv_an_last_hist": {
+    "min": 0.036,
+    "median": 0.106,
+    "mean": 0.102,
+    "max": 0.155
+   },
+   "bio_ror_hist_twh": {
+    "min": 0.725,
+    "median": 0.787,
+    "mean": 0.785,
+    "max": 0.832
+   },
+   "cf_wind_pv_gesamt": {
+    "min": 0.033,
+    "median": 0.052,
+    "mean": 0.055,
+    "max": 0.075
+   }
+  },
+  "ereignisse_nachlaufend": {
+   "ws_ge10h_2016_2025": 1440,
+   "ws_ge48h_je_jahr": {
+    "min": 2,
+    "median": 4,
+    "mean": 3.909,
+    "max": 7
+   },
+   "wind_laengste_h": {
+    "min": 120,
+    "median": 130,
+    "mean": 141.364,
+    "max": 185
+   }
+  },
+  "ereignisse_zentriert": {
+   "ws_ge10h_2016_2025": 1440,
+   "ws_ge48h_je_jahr": {
+    "min": 2,
+    "median": 4,
+    "mean": 3.909,
+    "max": 7
+   },
+   "wind_laengste_h": {
+    "min": 120,
+    "median": 130,
+    "mean": 141.364,
+    "max": 185
+   }
+  },
+  "spitze_luecke_jahr_gw": {
+   "min": 69.4,
+   "median": 73.9,
+   "mean": 73.691,
+   "max": 76.5
+  }
+ },
+ "negative_preise": {
+  "2019": {
+   "stunden_mittel_negativ": 211,
+   "stunden_mit_neg_wert": 211,
+   "werte_negativ": 211,
+   "werte": 8760
+  },
+  "2020": {
+   "stunden_mittel_negativ": 298,
+   "stunden_mit_neg_wert": 298,
+   "werte_negativ": 298,
+   "werte": 8784
+  },
+  "2021": {
+   "stunden_mittel_negativ": 139,
+   "stunden_mit_neg_wert": 139,
+   "werte_negativ": 139,
+   "werte": 8760
+  },
+  "2022": {
+   "stunden_mittel_negativ": 69,
+   "stunden_mit_neg_wert": 69,
+   "werte_negativ": 69,
+   "werte": 8760
+  },
+  "2023": {
+   "stunden_mittel_negativ": 301,
+   "stunden_mit_neg_wert": 301,
+   "werte_negativ": 301,
+   "werte": 8760
+  },
+  "2024": {
+   "stunden_mittel_negativ": 457,
+   "stunden_mit_neg_wert": 457,
+   "werte_negativ": 457,
+   "werte": 8784
+  },
+  "2025": {
+   "stunden_mittel_negativ": 576,
+   "stunden_mit_neg_wert": 588,
+   "werte_negativ": 724,
+   "werte": 15387
+  }
+ }
+}

@@ -1,0 +1,1559 @@
+{
+ "nachrechnung": {
+  "2015": {
+   "twh": {
+    "load": 501.94730477499996,
+    "pv_pub": 35.210003775,
+    "pv_tot": 37.3300051,
+    "on": 70.9131692,
+    "off": 8.1614779
+   },
+   "vls_on": {
+    "interp": 1820.1,
+    "jahresmittel_monatsende": 1816.5
+   },
+   "vls_off": {
+    "interp": 3123.8,
+    "jahresmittel_monatsende": 3102.8
+   },
+   "vls_pv_pub": {
+    "interp": 915.5,
+    "jahresmittel_monatsende": 913.2
+   },
+   "vls_pv_tot": {
+    "interp": 970.6,
+    "jahresmittel_monatsende": 968.2
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 135,
+     "beginn_lokal": "2015-01-18 15:00",
+     "phasen_ge24": 7,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 136,
+     "beginn_lokal": "2015-01-18 15:00"
+    },
+    "unter_5": {
+     "laengste_h": 43,
+     "beginn_lokal": "2015-01-19 15:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 44,
+     "beginn_lokal": "2015-01-19 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 199,
+     "beginn_lokal": "2015-10-12 22:00",
+     "entspricht_periode_h": 222
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 133,
+     "beginn_lokal": "2015-10-15 21:00",
+     "stunden_gesamt": 2943
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 43,
+     "beginn_lokal": "2015-01-19 15:00",
+     "stunden_gesamt": 1192
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 139,
+     "beginn_lokal": "2015-01-18 15:00",
+     "stunden_gesamt": 3450
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 43,
+     "beginn_lokal": "2015-01-19 15:00",
+     "stunden_gesamt": 1627
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 135,
+     "beginn_lokal": "2015-01-18 15:00",
+     "phasen_ge24": 7,
+     "phasen_ge48": 3
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 136,
+     "beginn_lokal": "2015-01-18 15:00"
+    },
+    "unter_5": {
+     "laengste_h": 43,
+     "beginn_lokal": "2015-01-19 15:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 45,
+     "beginn_lokal": "2015-01-19 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 200,
+     "beginn_lokal": "2015-10-12 21:00",
+     "entspricht_periode_h": 223
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 134,
+     "beginn_lokal": "2015-10-15 21:00",
+     "stunden_gesamt": 2975
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 44,
+     "beginn_lokal": "2015-01-19 14:00",
+     "stunden_gesamt": 1205
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 139,
+     "beginn_lokal": "2015-01-18 15:00",
+     "stunden_gesamt": 3481
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 43,
+     "beginn_lokal": "2015-01-19 15:00",
+     "stunden_gesamt": 1638
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.2644,
+    "Q4": 0.2746,
+    "Jahr": 0.2177
+   }
+  },
+  "2016": {
+   "twh": {
+    "load": 503.922729825,
+    "pv_pub": 34.4899973,
+    "pv_tot": 36.81999725,
+    "on": 66.323999075,
+    "off": 12.091999275000001
+   },
+   "vls_on": {
+    "interp": 1547.2,
+    "jahresmittel_monatsende": 1537.3
+   },
+   "vls_off": {
+    "interp": 3222.3,
+    "jahresmittel_monatsende": 3180.7
+   },
+   "vls_pv_pub": {
+    "interp": 868.9,
+    "jahresmittel_monatsende": 866.6
+   },
+   "vls_pv_tot": {
+    "interp": 927.6,
+    "jahresmittel_monatsende": 925.1
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 66,
+     "beginn_lokal": "2016-01-19 15:00",
+     "phasen_ge24": 10,
+     "phasen_ge48": 3
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 74,
+     "beginn_lokal": "2016-12-12 08:00"
+    },
+    "unter_5": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00",
+     "phasen_ge24": 0,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 168,
+     "beginn_lokal": "2016-01-14 21:00",
+     "entspricht_periode_h": 191
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 66,
+     "beginn_lokal": "2016-01-19 15:00",
+     "stunden_gesamt": 3364
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00",
+     "stunden_gesamt": 1405
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 92,
+     "beginn_lokal": "2016-12-16 14:00",
+     "stunden_gesamt": 3937
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00",
+     "stunden_gesamt": 1817
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 74,
+     "beginn_lokal": "2016-12-12 08:00",
+     "phasen_ge24": 10,
+     "phasen_ge48": 6
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 74,
+     "beginn_lokal": "2016-12-12 08:00"
+    },
+    "unter_5": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00",
+     "phasen_ge24": 0,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 169,
+     "beginn_lokal": "2016-01-14 21:00",
+     "entspricht_periode_h": 192
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 74,
+     "beginn_lokal": "2016-12-12 08:00",
+     "stunden_gesamt": 3412
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00",
+     "stunden_gesamt": 1414
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 92,
+     "beginn_lokal": "2016-12-16 14:00",
+     "stunden_gesamt": 3982
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 20,
+     "beginn_lokal": "2016-12-18 14:00",
+     "stunden_gesamt": 1835
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.2619,
+    "Q4": 0.2148,
+    "Jahr": 0.1915
+   }
+  },
+  "2017": {
+   "twh": {
+    "load": 506.791351625,
+    "pv_pub": 35.43099875,
+    "pv_tot": 38.001001825,
+    "on": 86.29299990000001,
+    "off": 17.413997024999997
+   },
+   "vls_on": {
+    "interp": 1810.2,
+    "jahresmittel_monatsende": 1808.4
+   },
+   "vls_off": {
+    "interp": 3613.9,
+    "jahresmittel_monatsende": 3567.1
+   },
+   "vls_pv_pub": {
+    "interp": 854.0,
+    "jahresmittel_monatsende": 851.6
+   },
+   "vls_pv_tot": {
+    "interp": 916.0,
+    "jahresmittel_monatsende": 913.4
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 94,
+     "beginn_lokal": "2017-11-29 02:00",
+     "phasen_ge24": 10,
+     "phasen_ge48": 4
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 95,
+     "beginn_lokal": "2017-11-29 01:00"
+    },
+    "unter_5": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00",
+     "phasen_ge24": 3,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 252,
+     "beginn_lokal": "2017-01-15 04:00",
+     "entspricht_periode_h": 275
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 97,
+     "beginn_lokal": "2017-11-29 01:00",
+     "stunden_gesamt": 2852
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00",
+     "stunden_gesamt": 1240
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 103,
+     "beginn_lokal": "2017-11-28 22:00",
+     "stunden_gesamt": 3346
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 43,
+     "beginn_lokal": "2017-01-23 15:00",
+     "stunden_gesamt": 1591
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 94,
+     "beginn_lokal": "2017-11-29 02:00",
+     "phasen_ge24": 11,
+     "phasen_ge48": 4
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 95,
+     "beginn_lokal": "2017-11-29 01:00"
+    },
+    "unter_5": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00",
+     "phasen_ge24": 3,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 253,
+     "beginn_lokal": "2017-01-15 04:00",
+     "entspricht_periode_h": 276
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 97,
+     "beginn_lokal": "2017-11-29 01:00",
+     "stunden_gesamt": 2887
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00",
+     "stunden_gesamt": 1250
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 103,
+     "beginn_lokal": "2017-11-28 22:00",
+     "stunden_gesamt": 3375
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 44,
+     "beginn_lokal": "2017-01-23 15:00",
+     "stunden_gesamt": 1605
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.2521,
+    "Q4": 0.314,
+    "Jahr": 0.2255
+   }
+  },
+  "2018": {
+   "twh": {
+    "load": 509.224833575,
+    "pv_pub": 40.797208174999994,
+    "pv_tot": 43.451000275,
+    "on": 88.71000185,
+    "off": 19.179000975
+   },
+   "vls_on": {
+    "interp": 1727.7,
+    "jahresmittel_monatsende": 1723.1
+   },
+   "vls_off": {
+    "interp": 3281.2,
+    "jahresmittel_monatsende": 3288.9
+   },
+   "vls_pv_pub": {
+    "interp": 931.4,
+    "jahresmittel_monatsende": 927.5
+   },
+   "vls_pv_tot": {
+    "interp": 992.0,
+    "jahresmittel_monatsende": 987.9
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 69,
+     "beginn_lokal": "2018-11-22 14:00",
+     "phasen_ge24": 10,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 69,
+     "beginn_lokal": "2018-11-22 14:00"
+    },
+    "unter_5": {
+     "laengste_h": 18,
+     "beginn_lokal": "2018-01-26 15:00",
+     "phasen_ge24": 0,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 19,
+     "beginn_lokal": "2018-01-11 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 108,
+     "beginn_lokal": "2018-03-22 12:00",
+     "entspricht_periode_h": 131
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 77,
+     "beginn_lokal": "2018-11-22 14:00",
+     "stunden_gesamt": 2824
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 19,
+     "beginn_lokal": "2018-01-11 14:00",
+     "stunden_gesamt": 1090
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 66,
+     "beginn_lokal": "2018-01-10 15:00",
+     "stunden_gesamt": 3435
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 20,
+     "beginn_lokal": "2018-01-11 14:00",
+     "stunden_gesamt": 1417
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 69,
+     "beginn_lokal": "2018-11-22 14:00",
+     "phasen_ge24": 10,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 69,
+     "beginn_lokal": "2018-11-22 14:00"
+    },
+    "unter_5": {
+     "laengste_h": 18,
+     "beginn_lokal": "2018-01-26 15:00",
+     "phasen_ge24": 0,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 20,
+     "beginn_lokal": "2018-01-11 13:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 140,
+     "beginn_lokal": "2018-10-15 06:00",
+     "entspricht_periode_h": 163
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 77,
+     "beginn_lokal": "2018-11-22 14:00",
+     "stunden_gesamt": 2859
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 20,
+     "beginn_lokal": "2018-01-11 14:00",
+     "stunden_gesamt": 1095
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 67,
+     "beginn_lokal": "2018-01-10 14:00",
+     "stunden_gesamt": 3470
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 20,
+     "beginn_lokal": "2018-01-11 14:00",
+     "stunden_gesamt": 1426
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.2718,
+    "Q4": 0.2706,
+    "Jahr": 0.2153
+   }
+  },
+  "2019": {
+   "twh": {
+    "load": 497.367535075,
+    "pv_pub": 41.66537785,
+    "pv_tot": 44.3340021,
+    "on": 99.1660005,
+    "off": 24.3790008
+   },
+   "vls_on": {
+    "interp": 1884.9,
+    "jahresmittel_monatsende": 1883.6
+   },
+   "vls_off": {
+    "interp": 3471.9,
+    "jahresmittel_monatsende": 3451.7
+   },
+   "vls_pv_pub": {
+    "interp": 874.7,
+    "jahresmittel_monatsende": 870.6
+   },
+   "vls_pv_tot": {
+    "interp": 930.8,
+    "jahresmittel_monatsende": 926.4
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 65,
+     "beginn_lokal": "2019-11-19 16:00",
+     "phasen_ge24": 7,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 65,
+     "beginn_lokal": "2019-11-19 16:00"
+    },
+    "unter_5": {
+     "laengste_h": 29,
+     "beginn_lokal": "2019-11-24 21:00",
+     "phasen_ge24": 1,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 35,
+     "beginn_lokal": "2019-01-23 23:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 85,
+     "beginn_lokal": "2019-10-19 21:00",
+     "entspricht_periode_h": 108
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 66,
+     "beginn_lokal": "2019-11-19 15:00",
+     "stunden_gesamt": 2673
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 30,
+     "beginn_lokal": "2019-11-24 21:00",
+     "stunden_gesamt": 881
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 67,
+     "beginn_lokal": "2019-11-19 15:00",
+     "stunden_gesamt": 3228
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 35,
+     "beginn_lokal": "2019-11-24 19:00",
+     "stunden_gesamt": 1291
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 66,
+     "beginn_lokal": "2019-11-19 15:00",
+     "phasen_ge24": 8,
+     "phasen_ge48": 3
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 66,
+     "beginn_lokal": "2019-11-19 15:00"
+    },
+    "unter_5": {
+     "laengste_h": 37,
+     "beginn_lokal": "2019-11-19 20:00",
+     "phasen_ge24": 3,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 37,
+     "beginn_lokal": "2019-11-19 20:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 87,
+     "beginn_lokal": "2019-10-19 21:00",
+     "entspricht_periode_h": 110
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 66,
+     "beginn_lokal": "2019-12-25 17:00",
+     "stunden_gesamt": 2706
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 39,
+     "beginn_lokal": "2019-11-19 19:00",
+     "stunden_gesamt": 894
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 67,
+     "beginn_lokal": "2019-11-19 15:00",
+     "stunden_gesamt": 3258
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 35,
+     "beginn_lokal": "2019-11-24 19:00",
+     "stunden_gesamt": 1302
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.3269,
+    "Q4": 0.275,
+    "Jahr": 0.2366
+   }
+  },
+  "2020": {
+   "twh": {
+    "load": 485.356781,
+    "pv_pub": 45.4476154,
+    "pv_tot": 48.5249996,
+    "on": 102.741000275,
+    "off": 26.902998625
+   },
+   "vls_on": {
+    "interp": 1913.7,
+    "jahresmittel_monatsende": 1910.0
+   },
+   "vls_off": {
+    "interp": 3436.9,
+    "jahresmittel_monatsende": 3429.6
+   },
+   "vls_pv_pub": {
+    "interp": 878.7,
+    "jahresmittel_monatsende": 872.2
+   },
+   "vls_pv_tot": {
+    "interp": 938.2,
+    "jahresmittel_monatsende": 931.2
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 63,
+     "beginn_lokal": "2020-12-08 13:00",
+     "phasen_ge24": 6,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 63,
+     "beginn_lokal": "2020-12-08 13:00"
+    },
+    "unter_5": {
+     "laengste_h": 48,
+     "beginn_lokal": "2020-12-08 23:00",
+     "phasen_ge24": 1,
+     "phasen_ge48": 1
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 48,
+     "beginn_lokal": "2020-12-08 23:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 139,
+     "beginn_lokal": "2020-11-05 19:00",
+     "entspricht_periode_h": 162
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 64,
+     "beginn_lokal": "2020-12-08 13:00",
+     "stunden_gesamt": 2642
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 50,
+     "beginn_lokal": "2020-12-08 22:00",
+     "stunden_gesamt": 1154
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 65,
+     "beginn_lokal": "2020-12-08 14:00",
+     "stunden_gesamt": 3148
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 54,
+     "beginn_lokal": "2020-12-08 20:00",
+     "stunden_gesamt": 1413
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 63,
+     "beginn_lokal": "2020-12-08 13:00",
+     "phasen_ge24": 6,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 63,
+     "beginn_lokal": "2020-12-08 13:00"
+    },
+    "unter_5": {
+     "laengste_h": 48,
+     "beginn_lokal": "2020-12-08 23:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 1
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 48,
+     "beginn_lokal": "2020-12-08 23:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 140,
+     "beginn_lokal": "2020-11-05 18:00",
+     "entspricht_periode_h": 163
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 79,
+     "beginn_lokal": "2020-11-26 04:00",
+     "stunden_gesamt": 2679
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 50,
+     "beginn_lokal": "2020-12-08 22:00",
+     "stunden_gesamt": 1168
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 69,
+     "beginn_lokal": "2020-11-25 14:00",
+     "stunden_gesamt": 3193
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 54,
+     "beginn_lokal": "2020-12-08 20:00",
+     "stunden_gesamt": 1429
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.3756,
+    "Q4": 0.2677,
+    "Jahr": 0.2399
+   }
+  },
+  "2021": {
+   "twh": {
+    "load": 504.60148055,
+    "pv_pub": 45.311040299999995,
+    "pv_tot": 49.482000625,
+    "on": 90.269999925,
+    "off": 24.012999175
+   },
+   "vls_on": {
+    "interp": 1635.8,
+    "jahresmittel_monatsende": 1633.3
+   },
+   "vls_off": {
+    "interp": 3049.7,
+    "jahresmittel_monatsende": 3049.7
+   },
+   "vls_pv_pub": {
+    "interp": 790.2,
+    "jahresmittel_monatsende": 785.9
+   },
+   "vls_pv_tot": {
+    "interp": 862.9,
+    "jahresmittel_monatsende": 858.2
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 99,
+     "beginn_lokal": "2021-01-06 07:00",
+     "phasen_ge24": 11,
+     "phasen_ge48": 4
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 101,
+     "beginn_lokal": "2021-01-06 05:00"
+    },
+    "unter_5": {
+     "laengste_h": 34,
+     "beginn_lokal": "2021-11-15 16:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 40,
+     "beginn_lokal": "2021-01-08 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 101,
+     "beginn_lokal": "2021-01-05 20:00",
+     "entspricht_periode_h": 124
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 102,
+     "beginn_lokal": "2021-01-06 04:00",
+     "stunden_gesamt": 3363
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 34,
+     "beginn_lokal": "2021-11-15 16:00",
+     "stunden_gesamt": 1293
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 108,
+     "beginn_lokal": "2021-01-05 22:00",
+     "stunden_gesamt": 3863
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 36,
+     "beginn_lokal": "2021-11-15 15:00",
+     "stunden_gesamt": 1722
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 99,
+     "beginn_lokal": "2021-01-06 07:00",
+     "phasen_ge24": 14,
+     "phasen_ge48": 5
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 101,
+     "beginn_lokal": "2021-01-06 05:00"
+    },
+    "unter_5": {
+     "laengste_h": 40,
+     "beginn_lokal": "2021-01-08 14:00",
+     "phasen_ge24": 3,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 41,
+     "beginn_lokal": "2021-01-08 13:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 102,
+     "beginn_lokal": "2021-06-05 10:00",
+     "entspricht_periode_h": 125
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 103,
+     "beginn_lokal": "2021-01-06 04:00",
+     "stunden_gesamt": 3419
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 42,
+     "beginn_lokal": "2021-01-08 14:00",
+     "stunden_gesamt": 1310
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 109,
+     "beginn_lokal": "2021-01-05 22:00",
+     "stunden_gesamt": 3916
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 36,
+     "beginn_lokal": "2021-11-15 15:00",
+     "stunden_gesamt": 1743
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.2541,
+    "Q4": 0.2556,
+    "Jahr": 0.2069
+   }
+  },
+  "2022": {
+   "twh": {
+    "load": 482.29591189999996,
+    "pv_pub": 54.327648125,
+    "pv_tot": 59.83655715,
+    "on": 97.20499995,
+    "off": 24.752001524999997
+   },
+   "vls_on": {
+    "interp": 1711.7,
+    "jahresmittel_monatsende": 1706.7
+   },
+   "vls_off": {
+    "interp": 3104.1,
+    "jahresmittel_monatsende": 3103.3
+   },
+   "vls_pv_pub": {
+    "interp": 851.1,
+    "jahresmittel_monatsende": 843.7
+   },
+   "vls_pv_tot": {
+    "interp": 937.4,
+    "jahresmittel_monatsende": 929.3
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 119,
+     "beginn_lokal": "2022-12-08 12:00",
+     "phasen_ge24": 8,
+     "phasen_ge48": 3
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 119,
+     "beginn_lokal": "2022-12-08 12:00"
+    },
+    "unter_5": {
+     "laengste_h": 45,
+     "beginn_lokal": "2022-12-10 13:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 45,
+     "beginn_lokal": "2022-12-10 13:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 138,
+     "beginn_lokal": "2022-12-07 14:00",
+     "entspricht_periode_h": 161
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 118,
+     "beginn_lokal": "2022-12-08 13:00",
+     "stunden_gesamt": 3128
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 68,
+     "beginn_lokal": "2022-12-09 14:00",
+     "stunden_gesamt": 1265
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 119,
+     "beginn_lokal": "2022-12-08 12:00",
+     "stunden_gesamt": 3496
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 45,
+     "beginn_lokal": "2022-12-10 13:00",
+     "stunden_gesamt": 1675
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 126,
+     "beginn_lokal": "2022-12-08 06:00",
+     "phasen_ge24": 9,
+     "phasen_ge48": 3
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 144,
+     "beginn_lokal": "2022-12-07 18:00"
+    },
+    "unter_5": {
+     "laengste_h": 68,
+     "beginn_lokal": "2022-12-09 14:00",
+     "phasen_ge24": 3,
+     "phasen_ge48": 2
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 68,
+     "beginn_lokal": "2022-12-09 14:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 140,
+     "beginn_lokal": "2022-12-07 14:00",
+     "entspricht_periode_h": 163
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 126,
+     "beginn_lokal": "2022-12-08 12:00",
+     "stunden_gesamt": 3194
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 77,
+     "beginn_lokal": "2022-11-29 00:00",
+     "stunden_gesamt": 1284
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 140,
+     "beginn_lokal": "2022-12-07 15:00",
+     "stunden_gesamt": 3559
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 68,
+     "beginn_lokal": "2022-12-09 14:00",
+     "stunden_gesamt": 1708
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.3148,
+    "Q4": 0.2406,
+    "Jahr": 0.215
+   }
+  },
+  "2023": {
+   "twh": {
+    "load": 458.38169485000003,
+    "pv_pub": 53.907114875,
+    "pv_tot": 62.099999575000005,
+    "on": 115.90100177500001,
+    "off": 23.53399855
+   },
+   "vls_on": {
+    "interp": 1952.4,
+    "jahresmittel_monatsende": 1950.4
+   },
+   "vls_off": {
+    "interp": 2803.1,
+    "jahresmittel_monatsende": 2797.6
+   },
+   "vls_pv_pub": {
+    "interp": 720.4,
+    "jahresmittel_monatsende": 710.7
+   },
+   "vls_pv_tot": {
+    "interp": 830.0,
+    "jahresmittel_monatsende": 818.7
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 165,
+     "beginn_lokal": "2023-01-22 07:00",
+     "phasen_ge24": 6,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 170,
+     "beginn_lokal": "2023-01-22 05:00"
+    },
+    "unter_5": {
+     "laengste_h": 80,
+     "beginn_lokal": "2023-11-29 22:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 1
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 80,
+     "beginn_lokal": "2023-11-29 22:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 161,
+     "beginn_lokal": "2023-01-21 21:00",
+     "entspricht_periode_h": 184
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 164,
+     "beginn_lokal": "2023-01-22 08:00",
+     "stunden_gesamt": 2666
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 74,
+     "beginn_lokal": "2023-11-29 23:00",
+     "stunden_gesamt": 1102
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 172,
+     "beginn_lokal": "2023-01-22 04:00",
+     "stunden_gesamt": 3193
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 83,
+     "beginn_lokal": "2023-11-29 21:00",
+     "stunden_gesamt": 1425
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 165,
+     "beginn_lokal": "2023-01-22 07:00",
+     "phasen_ge24": 9,
+     "phasen_ge48": 2
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 170,
+     "beginn_lokal": "2023-01-22 05:00"
+    },
+    "unter_5": {
+     "laengste_h": 80,
+     "beginn_lokal": "2023-11-29 22:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 1
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 80,
+     "beginn_lokal": "2023-11-29 22:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 161,
+     "beginn_lokal": "2023-01-21 21:00",
+     "entspricht_periode_h": 184
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 164,
+     "beginn_lokal": "2023-01-22 08:00",
+     "stunden_gesamt": 2763
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 74,
+     "beginn_lokal": "2023-11-29 23:00",
+     "stunden_gesamt": 1134
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 172,
+     "beginn_lokal": "2023-01-22 04:00",
+     "stunden_gesamt": 3276
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 84,
+     "beginn_lokal": "2023-11-29 21:00",
+     "stunden_gesamt": 1451
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.2946,
+    "Q4": 0.3253,
+    "Jahr": 0.2349
+   }
+  },
+  "2024": {
+   "twh": {
+    "load": 465.50283845,
+    "pv_pub": 59.706911075,
+    "pv_tot": 74.389998225,
+    "on": 110.64199785,
+    "off": 25.682001475
+   },
+   "vls_on": {
+    "interp": 1784.2,
+    "jahresmittel_monatsende": 1780.2
+   },
+   "vls_off": {
+    "interp": 2919.1,
+    "jahresmittel_monatsende": 2894.7
+   },
+   "vls_pv_pub": {
+    "interp": 652.7,
+    "jahresmittel_monatsende": 645.1
+   },
+   "vls_pv_tot": {
+    "interp": 812.9,
+    "jahresmittel_monatsende": 803.7
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 90,
+     "beginn_lokal": "2024-12-10 14:00",
+     "phasen_ge24": 5,
+     "phasen_ge48": 3
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 90,
+     "beginn_lokal": "2024-12-10 14:00"
+    },
+    "unter_5": {
+     "laengste_h": 61,
+     "beginn_lokal": "2024-12-10 20:00",
+     "phasen_ge24": 2,
+     "phasen_ge48": 1
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 61,
+     "beginn_lokal": "2024-12-10 20:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 289,
+     "beginn_lokal": "2024-11-01 15:00",
+     "entspricht_periode_h": 312
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 86,
+     "beginn_lokal": "2024-12-10 16:00",
+     "stunden_gesamt": 2880
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 62,
+     "beginn_lokal": "2024-11-05 15:00",
+     "stunden_gesamt": 1155
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 91,
+     "beginn_lokal": "2024-12-10 13:00",
+     "stunden_gesamt": 3393
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 61,
+     "beginn_lokal": "2024-12-10 20:00",
+     "stunden_gesamt": 1516
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 132,
+     "beginn_lokal": "2024-11-08 13:00",
+     "phasen_ge24": 8,
+     "phasen_ge48": 4
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 133,
+     "beginn_lokal": "2024-11-08 13:00"
+    },
+    "unter_5": {
+     "laengste_h": 64,
+     "beginn_lokal": "2024-11-05 15:00",
+     "phasen_ge24": 3,
+     "phasen_ge48": 2
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 64,
+     "beginn_lokal": "2024-11-05 15:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 293,
+     "beginn_lokal": "2024-11-01 13:00",
+     "entspricht_periode_h": 316
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 124,
+     "beginn_lokal": "2024-11-08 20:00",
+     "stunden_gesamt": 3056
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 62,
+     "beginn_lokal": "2024-11-05 15:00",
+     "stunden_gesamt": 1194
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 207,
+     "beginn_lokal": "2024-11-05 13:00",
+     "stunden_gesamt": 3572
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 64,
+     "beginn_lokal": "2024-11-05 15:00",
+     "stunden_gesamt": 1566
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.3081,
+    "Q4": 0.2438,
+    "Jahr": 0.2192
+   }
+  },
+  "2025": {
+   "twh": {
+    "load": 465.81767275,
+    "pv_pub": 70.123485825,
+    "pv_tot": 89.964000875,
+    "on": 105.0999999,
+    "off": 26.06700045
+   },
+   "vls_on": {
+    "interp": 1600.9,
+    "jahresmittel_monatsende": 1599.4
+   },
+   "vls_off": {
+    "interp": 2817.9,
+    "jahresmittel_monatsende": 2815.2
+   },
+   "vls_pv_pub": {
+    "interp": 646.0,
+    "jahresmittel_monatsende": 637.7
+   },
+   "vls_pv_tot": {
+    "interp": 828.4,
+    "jahresmittel_monatsende": 818.2
+   },
+   "dunkelflaute_gesamt": {
+    "unter_10": {
+     "laengste_h": 89,
+     "beginn_lokal": "2025-02-12 16:00",
+     "phasen_ge24": 7,
+     "phasen_ge48": 4
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 89,
+     "beginn_lokal": "2025-02-12 16:00"
+    },
+    "unter_5": {
+     "laengste_h": 21,
+     "beginn_lokal": "2025-11-08 14:00",
+     "phasen_ge24": 0,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 33,
+     "beginn_lokal": "2025-02-14 01:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 178,
+     "beginn_lokal": "2025-01-14 15:00",
+     "entspricht_periode_h": 201
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 88,
+     "beginn_lokal": "2025-02-12 17:00",
+     "stunden_gesamt": 3081
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 22,
+     "beginn_lokal": "2025-11-08 14:00",
+     "stunden_gesamt": 1279
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 89,
+     "beginn_lokal": "2025-02-12 16:00",
+     "stunden_gesamt": 3588
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 21,
+     "beginn_lokal": "2025-11-08 14:00",
+     "stunden_gesamt": 1692
+    }
+   },
+   "dunkelflaute_oeff": {
+    "unter_10": {
+     "laengste_h": 108,
+     "beginn_lokal": "2025-11-06 14:00",
+     "phasen_ge24": 15,
+     "phasen_ge48": 6
+    },
+    "unter_10_jahresendleistung": {
+     "laengste_h": 109,
+     "beginn_lokal": "2025-11-06 14:00"
+    },
+    "unter_5": {
+     "laengste_h": 44,
+     "beginn_lokal": "2025-11-08 13:00",
+     "phasen_ge24": 4,
+     "phasen_ge48": 0
+    },
+    "unter_5_jahresendleistung": {
+     "laengste_h": 44,
+     "beginn_lokal": "2025-11-08 13:00"
+    },
+    "24h_mittel_unter_10_fensterbeginne": {
+     "laengste_folge_h": 181,
+     "beginn_lokal": "2025-01-14 14:00",
+     "entspricht_periode_h": 204
+    },
+    "unter_10_gewichte_2015": {
+     "laengste_h": 95,
+     "beginn_lokal": "2025-11-06 22:00",
+     "stunden_gesamt": 3289
+    },
+    "unter_5_gewichte_2015": {
+     "laengste_h": 67,
+     "beginn_lokal": "2025-11-07 15:00",
+     "stunden_gesamt": 1332
+    },
+    "unter_10_gewichte_2025": {
+     "laengste_h": 108,
+     "beginn_lokal": "2025-11-06 14:00",
+     "stunden_gesamt": 3791
+    },
+    "unter_5_gewichte_2025": {
+     "laengste_h": 44,
+     "beginn_lokal": "2025-11-08 13:00",
+     "stunden_gesamt": 1751
+    }
+   },
+   "wind_cf": {
+    "Q1": 0.21,
+    "Q4": 0.2643,
+    "Jahr": 0.1999
+   }
+  }
+ },
+ "smard_vergleich": {
+  "2015": {
+   "pv_ec_pub_twh": 35.21,
+   "pv_smard_twh": 34.73,
+   "monate": 12,
+   "pv_abw_pct": 1.37,
+   "pv_tot_abw_pct": 7.47,
+   "on_abw_pct": -0.36,
+   "off_abw_pct": -0.02,
+   "load_abw_pct": -0.01
+  },
+  "2016": {
+   "pv_ec_pub_twh": 34.49,
+   "pv_smard_twh": 35.0,
+   "monate": 12,
+   "pv_abw_pct": -1.45,
+   "pv_tot_abw_pct": 5.2,
+   "on_abw_pct": 0.02,
+   "off_abw_pct": -0.01,
+   "load_abw_pct": -0.0
+  },
+  "2017": {
+   "pv_ec_pub_twh": 35.43,
+   "pv_smard_twh": 35.78,
+   "monate": 12,
+   "pv_abw_pct": -0.97,
+   "pv_tot_abw_pct": 6.21,
+   "on_abw_pct": 0.38,
+   "off_abw_pct": -0.0,
+   "load_abw_pct": 0.0
+  },
+  "2018": {
+   "pv_ec_pub_twh": 40.8,
+   "pv_smard_twh": 41.2,
+   "monate": 12,
+   "pv_abw_pct": -0.97,
+   "pv_tot_abw_pct": 5.47,
+   "on_abw_pct": -0.69,
+   "off_abw_pct": 0.58,
+   "load_abw_pct": -0.0
+  },
+  "2019": {
+   "pv_ec_pub_twh": 41.67,
+   "pv_smard_twh": 41.71,
+   "monate": 12,
+   "pv_abw_pct": -0.1,
+   "pv_tot_abw_pct": 6.3,
+   "on_abw_pct": -0.56,
+   "off_abw_pct": -0.02,
+   "load_abw_pct": -0.0
+  },
+  "2020": {
+   "pv_ec_pub_twh": 45.45,
+   "pv_smard_twh": 45.78,
+   "monate": 12,
+   "pv_abw_pct": -0.74,
+   "pv_tot_abw_pct": 5.99,
+   "on_abw_pct": -0.33,
+   "off_abw_pct": 0.07,
+   "load_abw_pct": -0.0
+  },
+  "2021": {
+   "pv_ec_pub_twh": 45.31,
+   "pv_smard_twh": 46.23,
+   "monate": 12,
+   "pv_abw_pct": -1.99,
+   "pv_tot_abw_pct": 7.03,
+   "on_abw_pct": 0.79,
+   "off_abw_pct": 0.01,
+   "load_abw_pct": -0.0
+  },
+  "2022": {
+   "pv_ec_pub_twh": 54.33,
+   "pv_smard_twh": 55.73,
+   "monate": 12,
+   "pv_abw_pct": -2.51,
+   "pv_tot_abw_pct": 7.37,
+   "on_abw_pct": -3.74,
+   "off_abw_pct": 0.02,
+   "load_abw_pct": -0.0
+  },
+  "2023": {
+   "pv_ec_pub_twh": 53.91,
+   "pv_smard_twh": 55.54,
+   "monate": 12,
+   "pv_abw_pct": -2.95,
+   "pv_tot_abw_pct": 11.8,
+   "on_abw_pct": -2.61,
+   "off_abw_pct": 0.06,
+   "load_abw_pct": -0.0
+  },
+  "2024": {
+   "pv_ec_pub_twh": 59.71,
+   "pv_smard_twh": 63.15,
+   "monate": 12,
+   "pv_abw_pct": -5.45,
+   "pv_tot_abw_pct": 17.8,
+   "on_abw_pct": -1.7,
+   "off_abw_pct": 0.06,
+   "load_abw_pct": -0.0
+  },
+  "2025": {
+   "pv_ec_pub_twh": 70.12,
+   "pv_smard_twh": 73.78,
+   "monate": 12,
+   "pv_abw_pct": -4.96,
+   "pv_tot_abw_pct": 21.93,
+   "on_abw_pct": -1.56,
+   "off_abw_pct": -0.49,
+   "load_abw_pct": -0.0
+  }
+ },
+ "profiles_vls": {
+  "2015": {
+   "wind_onshore_mw": 1820.1,
+   "wind_offshore_mw": 3123.6,
+   "solar_mw": 915.5,
+   "solar_total_mw": 970.6,
+   "twh_on": 70.913
+  },
+  "2016": {
+   "wind_onshore_mw": 1547.1,
+   "wind_offshore_mw": 3222.3,
+   "solar_mw": 868.9,
+   "solar_total_mw": 927.6,
+   "twh_on": 66.324
+  },
+  "2017": {
+   "wind_onshore_mw": 1810.2,
+   "wind_offshore_mw": 3613.8,
+   "solar_mw": 854.0,
+   "solar_total_mw": 916.0,
+   "twh_on": 86.293
+  },
+  "2018": {
+   "wind_onshore_mw": 1727.7,
+   "wind_offshore_mw": 3281.1,
+   "solar_mw": 931.4,
+   "solar_total_mw": 992.0,
+   "twh_on": 88.71
+  },
+  "2019": {
+   "wind_onshore_mw": 1884.9,
+   "wind_offshore_mw": 3471.9,
+   "solar_mw": 874.7,
+   "solar_total_mw": 930.7,
+   "twh_on": 99.166
+  },
+  "2020": {
+   "wind_onshore_mw": 1913.7,
+   "wind_offshore_mw": 3436.9,
+   "solar_mw": 878.7,
+   "solar_total_mw": 938.2,
+   "twh_on": 102.741
+  },
+  "2021": {
+   "wind_onshore_mw": 1635.8,
+   "wind_offshore_mw": 3049.7,
+   "solar_mw": 790.2,
+   "solar_total_mw": 862.9,
+   "twh_on": 90.27
+  },
+  "2022": {
+   "wind_onshore_mw": 1711.7,
+   "wind_offshore_mw": 3104.1,
+   "solar_mw": 851.1,
+   "solar_total_mw": 937.4,
+   "twh_on": 97.205
+  },
+  "2023": {
+   "wind_onshore_mw": 1952.4,
+   "wind_offshore_mw": 2803.1,
+   "solar_mw": 720.4,
+   "solar_total_mw": 830.0,
+   "twh_on": 115.901
+  },
+  "2024": {
+   "wind_onshore_mw": 1784.2,
+   "wind_offshore_mw": 2919.1,
+   "solar_mw": 652.7,
+   "solar_total_mw": 812.9,
+   "twh_on": 110.642
+  },
+  "2025": {
+   "wind_onshore_mw": 1600.8,
+   "wind_offshore_mw": 2817.9,
+   "solar_mw": 646.0,
+   "solar_total_mw": 828.3,
+   "twh_on": 105.1
+  }
+ }
+}

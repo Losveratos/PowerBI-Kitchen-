@@ -1,0 +1,44 @@
+{
+  "hinweis": "Gegenprüfung P2-03 (Dossier 03 Stromdaten). Dateien unter quellen/raw/P2-03/ (nicht im Repo). Zusätzlich gelesen, aber nicht neu abgerufen: Rohdateien von P1-03 unter quellen/raw/P1-03_stromdaten/ (siehe manifest_P1-03_stromdaten.json).",
+  "eintraege": [
+    {
+      "id": "smard_ngem_2025",
+      "url": "https://www.smard.de/page/en/topic-article/5892/220534/volume-of-measures-stable-in-the-year-as-a-whole",
+      "datei": "raw/P2-03/smard_ngem_2025.html",
+      "sha256": "87669fe10dfea44d65aa232c1627cbba09ea8302e3a52a069e851464575dc8f4",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "smard_ngem_2023",
+      "url": "https://www.smard.de/page/home/topic-article/444/213590",
+      "datei": "raw/P2-03/smard_ngem_2023.html",
+      "sha256": "73050886c0874242fcb28f8d12a2715d2df1fbb22abd08aaaa2c9553ba84a16e",
+      "abruf": "2026-11-22",
+      "titel": "SMARD, Netzengpassmanagement im Jahr 2023, 17.05.2024"
+    },
+    {
+      "id": "bnetza_pm_smard_2024",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2025/20250103_smard.html",
+      "datei": "raw/P2-03/bnetza_pm_2024.html",
+      "sha256": "bc78a9834bca64a7dcf94c5929db2a6b47f9bfa0305886af74050ab3a8aed14d",
+      "abruf": "2026-11-22"
+    },
+    {
+      "id": "bnetza_pm_redispatch_2024-05",
+      "url": "https://www.bundesnetzagentur.de/SharedDocs/Pressemitteilungen/DE/2024/20240517_Redispatch.html",
+      "datei": "raw/P2-03/bnetza_pm_redispatch_2023.html",
+      "sha256": "3ce48b96035573d567dbd3cb521795f401d1e278b67f49a0b9e8227575acf8c7",
+      "abruf": "2026-11-22",
+      "hinweis": "Pressemitteilung verweist auf SMARD; Zahlen aus smard_ngem_2023"
+    },
+    {
+      "id": "ageb_strerz_2026_09",
+      "url": "https://ag-energiebilanzen.de/wp-content/uploads/Strerz-Abgabe-September-2026.pdf",
+      "datei": "raw/P2-03/ageb_strerz_2026-09.pdf",
+      "sha256": "e697bdfa80109cfccbecaa83ba5a158c5c3a5ab3c22a7dce6d20fa57a5c8b33b",
+      "abruf": "2026-11-22",
+      "seiten": 2,
+      "titel": "AG Energiebilanzen, Brutto- und Nettostromerzeugung in Deutschland nach Energieträgern 1990–2025, Stand September 2026"
+    }
+  ]
+}
