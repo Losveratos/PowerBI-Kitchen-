@@ -9167,9 +9167,10 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const categories = [{ source: { displayName: "Branche", roles: { category: true } }, values: C },
       { source: { displayName: "Branche ", roles: { series: true } }, values: S }];
     if (!opts.noMult) { categories.push({ source: { displayName: "Land", roles: { multiples: true } }, values: M }); }
+    if (opts.fc) { categories.push({ source: { displayName: "FC", roles: { fcFlag: true } }, values: C.map((c, i) => opts.fc(c, i) ? 1 : 0) }); }
     const values = [col("actual", Y, "0.0", null, "Market growth"), col("xValue", X, "0.00", null, "relative market share")];
     if (!opts.noSize) { values.push(col("bubbleSize", Z, "#,0", null, "Market volume")); }
-    if (opts.share !== false) { values.push(col("bubbleShare", opts.shares || P, opts.ratio ? "0%" : "#,0.0", null, "Our sales")); }
+    if (opts.share !== false) { values.push(col("bubbleShare", opts.shares || P, opts.shareFmt || (opts.ratio ? "0%" : "#,0.0"), null, "Our sales")); }
     if (opts.py) {
       values.push(col("previousYear", Y.map(v => v - 1), "0.0"));
       values.push(col("bubbleSizePrevious", Z.map(v => v * 0.8), "#,0"));
@@ -9224,7 +9225,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   // c930: Blatt 10E mit Vorlage C24 (Rezept: Gesamtblase rot, Gruppenfarben des Blatts, großer Radius)
   addStage("c930", "B19 · C24 (10E): zwei Länder, Blasen mit Kreissegment ab 12 Uhr, Gesamtblase rot, Werte in den Blasen", 1280, 720);
   {
-    runCap("c930", b19Dv(Object.assign({ template: "C24", scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 120 }, sheetCols),
+    // B19 Review (M2): ohne Handradius, C24 setzt den Radius selbst
+    runCap("c930", b19Dv(Object.assign({ template: "C24", scatterTotalColor: { solid: { color: "#FF0000" } } }, sheetCols),
       { objs: Object.assign({}, t10E, axes10E) }), 1280, 720);
     const ps = pies("c930");
     check(ps.length === 9, `c930: 9 Blasen mit Segment (${ps.length})`);
@@ -9240,7 +9242,8 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     check(["79", "23", "35", "18", "45", "25", "5", "15", "7"].every(v => vals.includes(v)), `c930: Werte in den Blasen (${vals.join(" ")})`);
     const tv = sQ("c930", '[data-icd="scatter-total-value"]').map(t => t.textContent).sort().join(",");
     const tp = sQ("c930", '[data-icd="scatter-total-part"]').map(t => t.textContent).sort().join(",");
-    check(tv === "200,52" && tp === "16,23", `c930: Summen ${tv}, Teile ${tp}`);
+    // B19 Review (m1): Teile im Format des Anteils-Measures („#,0.0“)
+    check(tv === "200,52" && tp === "16,0,23,0", `c930: Summen ${tv}, Teile ${tp}`);
   }
 
   // c931: Rolle ungebunden und B19-Optionen auf Standard zeichnen wie der Bestand (C10)
@@ -9272,17 +9275,20 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 
   // c933: Flächentreue: r(Gesamt France) / r(IT France) = √(52 / 25) = 1,442
-  addStage("c933", "B19 · Flächentreue: Gesamtblase France gegen IT France", 1280, 520);
+  addStage("c933", "B19 · Flächentreue: Gesamtblase France gegen IT France; Radius 90 gilt für die größte Einzelblase", 1280, 720);
   {
-    runCap("c933", b19Dv(c24({ scatterMaxRadius: 90 }), { objs: axes10E }), 1280, 520);
+    runCap("c933", b19Dv(c24({ scatterMaxRadius: 90 }), { objs: axes10E }), 1280, 720);
     const tFr = totals("c933").find(g => num(g, "data-v") === 52);
     const rT = num(tFr.querySelector("circle"), "r");
     const rIt = num(pieByAria("c933", "IT, relative market share 1,3,").querySelector('[data-icd="scatter-pie-rim"]'), "r");
     const q = rT / rIt;
     check(Math.abs(q / Math.sqrt(52 / 25) - 1) < 0.03, `c933: r-Verhältnis ${q.toFixed(3)} (Soll 1,442)`);
-    // die größte Gesamtblase bestimmt die Skala: r(Germany) = 90 px
+    // B19 Review (M2, m6): der Radius gilt für die größte Einzelblase (IT Germany = 90 px),
+    // die Gesamtblase wächst flächentreu darüber hinaus (vorher war die Prüfung immer wahr)
     const rDe = num(totals("c933").find(g => num(g, "data-v") === 200).querySelector("circle"), "r");
-    check(Math.abs(rDe - 90) < 0.6 || rDe < 90, `c933: größte Gesamtblase ≤ 90 px (${rDe.toFixed(1)})`);
+    const rItDe = num(pieByAria("c933", "IT, relative market share 1,6,").querySelector('[data-icd="scatter-pie-rim"]'), "r");
+    check(Math.abs(rItDe - 90) < 0.6 && Math.abs(rDe / rItDe / Math.sqrt(200 / 79) - 1) < 0.01,
+      `c933: IT Germany ${rItDe.toFixed(1)} px, Gesamtblase ${rDe.toFixed(1)} px`);
   }
 
   // c934: Anteil als Quote 0..1 gibt dieselben Winkel und dieselben Gesamtteile
@@ -9316,10 +9322,11 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 
   // c937: Blatt 10G: 24 Kacheln, gemeinsame Skala, nichts ragt aus dem Visual, Segment entfällt unter 6 px
-  addStage("c937", "B19 · 10G: 4 × 6 Kacheln, gemeinsame Skala, Gesamtblase je Kachel, kleine Blasen ohne Segment", 1280, 720);
+  // B19 Review (m6): Rezept 10G auf Full HD (Radius 40); 24 Kacheln legt das Visual als 5 × 5 an (keine Spalten-Einstellung)
+  addStage("c937", "B19 · 10G-Rezept: 24 Länder (Raster 5 × 5) auf 1920 × 1080, Radius 40, gemeinsame Skala, Segmente gezeichnet", 1920, 1080);
   {
-    runCap("c937", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 30 }), { data: d10G, objs: axes10E }), 1280, 720);
-    const W = 1280, H = 720;
+    runCap("c937", b19Dv(c24({ scatterTotalColor: { solid: { color: "#FF0000" } }, scatterMaxRadius: 40 }), { data: d10G, objs: axes10E }), 1920, 1080);
+    const W = 1920, H = 1080;
     const circ = [...sQ("c937", '[data-icd="scatter-pie-rim"]'), ...totals("c937").map(t => t.querySelector("circle"))];
     const out = circ.filter(c => num(c, "cx") - num(c, "r") < -0.5 || num(c, "cx") + num(c, "r") > W + 0.5
       || num(c, "cy") - num(c, "r") < -0.5 || num(c, "cy") + num(c, "r") > H + 0.5);
@@ -9328,6 +9335,9 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     check(small.every(p => p.getAttribute("data-small") === "1" && !p.querySelector('[data-icd="scatter-pie-sector"]'))
       && pies("c937").filter(p => p.getAttribute("data-small") === "1").length === small.length,
       `c937: ${small.length} Blasen unter 6 px ohne Segment`);
+    const withSec = pies("c937").filter(p => p.querySelector('[data-icd="scatter-pie-sector"]')).length;
+    check(pies("c937").length > 60 && withSec >= 0.6 * pies("c937").length, `c937: ${withSec} von ${pies("c937").length} Blasen mit Segment`);
+
     // gemeinsame Größenskala: gleiche Volumen haben in allen Kacheln den gleichen Radius
     const rBy = new Map();
     let same = true;
@@ -9352,7 +9362,7 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
   }
 
   // c939: Tooltip: Teil und Anteil an der Blase, Summen an der Gesamtblase
-  addStage("c939", "B19 · Tooltip: IT France Teil 6 und Anteil 24 %, Gesamtblase Σ 52 und 31 %", 1280, 520);
+  addStage("c939", "B19 · Tooltip: IT France Teil 6,0 und Anteil 24 %, Gesamtblase Σ 52 und 31 %", 1280, 520);
   {
     const tips = [];
     runCap("c939", b19Dv(c24(), { objs: axes10E }), 1280, 520,
@@ -9360,11 +9370,11 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     pieByAria("c939", "IT, relative market share 1,3,").closest("g.icd-cat").dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
     const it = tips[tips.length - 1] || [];
     const v = n => (it.find(x => x.displayName === n) || {}).value;
-    check(v("Our sales") === "6" && v("Share") === "24 %", `c939: Blase ${JSON.stringify(it.slice(-3))}`);
+    check(v("Our sales") === "6,0" && v("Share") === "24 %", `c939: Blase ${JSON.stringify(it.slice(-3))}`);
     totals("c939").find(g => num(g, "data-v") === 52).dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
     const tt = tips[tips.length - 1] || [];
     const w = n => (tt.find(x => x.displayName === n) || {}).value;
-    check(w("Σ Market volume") === "52" && w("Σ Our sales") === "16" && w("Share") === "31 %", `c939: Gesamtblase ${JSON.stringify(tt)}`);
+    check(w("Σ Market volume") === "52" && w("Σ Our sales") === "16,0" && w("Share") === "31 %", `c939: Gesamtblase ${JSON.stringify(tt)}`);
   }
 
   // c940: Auswahl: eine Identität je Blase, die Gesamtblase ist nicht auswählbar
@@ -9429,6 +9439,189 @@ addStage("c422c", "Review m7 · Blasengröße VJ ohne Vorjahr in der Leseansicht
     const r2 = runCap("c946b", b19Dv(c24({ scatterTotalBubble: false }), { noMult: true, data: { A: d10E.France }, share: false }), 400, 260);
     const b = ["scatterShareAs", "scatterTotalBubble", "scatterTotalColor"].map(k => vis(r2, k));
     check(a.join() === "true,true,true" && b.join() === "false,true,false", `c946: mit Feld ${a.join()}, ohne ${b.join()}`);
+  }
+
+  // ====================================================================
+  // B19 Review (c947 bis c959): leerer Anteil (M1), Vorlage lesbar (M2), Formate (m1), Summen sichtbar und
+  // keine Gesamtblase bei einer Blase (m2), Abschalt-Hinweise und Formatbereich (m3), gekappte Teile (m4),
+  // Halo (m5), Testlücken (m6), Nits
+  // ====================================================================
+  const fr = { A: d10E.France };
+  const rimOf = p => p.querySelector('[data-icd="scatter-pie-rim"]');
+
+  // c947 (M1): Cons. und Ret. ohne Anteil: Tönung ohne Segment, keine volle Blase, Tooltip ohne Anteil
+  addStage("c947", "B19 Review M1 · leerer Anteil (Cons., Ret.): helle Tönung ohne Segment statt voller Blase", 960, 460);
+  {
+    const tips = [];
+    runCap("c947", b19Dv(c24(), { noMult: true, data: fr, shares: [6, null, 5, null] }), 960, 460,
+      { hostPatch: h => { h.tooltipService = { show(o) { tips.push(o.dataItems); }, move() {}, hide() {} }; } });
+    const blank = ["Cons.", "Ret."].map(n => pieByAria("c947", n + ","));
+    const solid = sQ("c947", "g.icd-cat").filter(g => !g.querySelector('[data-icd="scatter-pie"]'));
+    check(pies("c947").length === 4 && blank.every(p => p && p.getAttribute("data-share") === "" && !p.querySelector('[data-icd="scatter-pie-sector"]'))
+      && solid.length === 0, `c947: 4 Tortenblasen, Cons./Ret. ohne Segment (${blank.map(p => p && p.getAttribute("data-share")).join("|")})`);
+    const itFill = nbFill(rimOf(pieByAria("c947", "IT,"))), consFill = nbFill(rimOf(blank[0]));
+    check(/^#[0-9A-F]{6}$/.test(consFill) && consFill !== "#3D78B2" && itFill !== "#404040", `c947: Tönung ${consFill} statt Vollfarbe`);
+    blank[0].closest("g.icd-cat").dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    const it = tips[tips.length - 1] || [];
+    check(!it.some(x => x.displayName === "Our sales" || x.displayName === "Share"), "c947: Tooltip ohne Teil und Anteil");
+    check(num(totals("c947")[0], "data-part") === 11, `c947: Gesamtteil nur aus vorhandenen Teilen (${totals("c947")[0].getAttribute("data-part")})`);
+  }
+
+  // c948 (M2): Vorlage C24 pur ist lesbar — c945 prüft die Kacheln, hier ein Diagramm 960 × 460
+  addStage("c948", "B19 Review M2 · C24 pur, ein Diagramm 960 × 460: Einzelblasen groß genug, alle mit Segment", 960, 460);
+  {
+    runCap("c948", b19Dv({ template: "C24" }, { noMult: true, data: fr }), 960, 460);
+    const r = pies("c948").map(p => num(rimOf(p), "r"));
+    const rIt = num(rimOf(pieByAria("c948", "IT,")), "r"), rT = num(totals("c948")[0].querySelector("circle"), "r");
+    check(rIt >= 25 && pies("c948").every(p => p.querySelector('[data-icd="scatter-pie-sector"]')), `c948: IT ${rIt.toFixed(1)} px, kleinste ${Math.min(...r).toFixed(1)} px, alle mit Segment`);
+    check(rT > rIt && Math.abs(rT / rIt / Math.sqrt(52 / 25) - 1) < 0.01, `c948: Gesamtblase flächentreu größer (${rT.toFixed(1)} px)`);
+  }
+
+  // c949 (m1): Teil 2,5 im Format des Anteils-Measures
+  addStage("c949", "B19 Review m1 · Teil 2,5 bei Größe 5: Tooltip „2,5“, Gesamtteil „16,0“", 960, 460);
+  {
+    const tips = [];
+    runCap("c949", b19Dv(c24(), { noMult: true, data: fr }), 960, 460,
+      { hostPatch: h => { h.tooltipService = { show(o) { tips.push(o.dataItems); }, move() {}, hide() {} }; } });
+    pieByAria("c949", "Cons.,").closest("g.icd-cat").dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    const v = ((tips[tips.length - 1] || []).find(x => x.displayName === "Our sales") || {}).value;
+    const tp = sQ("c949", '[data-icd="scatter-total-part"]').map(t => t.textContent).join();
+    check(v === "2,5" && tp === "16,0", `c949: Tooltip ${v}, Gesamtteil ${tp}`);
+  }
+
+  // c950 (m2): Summe über den Blasen; Kachel mit einer Blase ohne Gesamtblase
+  addStage("c950", "B19 Review m2 · Blase im Schwerpunkt: Summe bleibt sichtbar; Kachel B mit einer Blase ohne Gesamtblase", 1100, 460);
+  {
+    const d = { A: [["P", 0.5, 2, 40, 10], ["Q", 1.5, 8, 40, 10], ["C", 1.0, 5, 20, 4]], B: [["P", 1.0, 4, 30, 10]] };
+    runCap("c950", b19Dv(c24(), { data: d, objs: axes10E }), 1100, 460);
+    const lbl = sQ("c950", '[data-icd="scatter-total-labels"]')[0];
+    const all = [...document.querySelectorAll("#c950 svg *")];
+    // die letzte Marke der Kachel A (Kachel B folgt im DOM danach)
+    const lastMark = pieByAria("c950", "C,").closest("g.icd-cat");
+    check(totals("c950").length === 1 && lbl && lbl.querySelector('[data-icd="scatter-total-value"]') && all.indexOf(lbl) > all.indexOf(lastMark)
+      && lbl.getAttribute("pointer-events") === "none", "c950: eine Gesamtblase, Summe in einer Ebene über den Marken");
+  }
+
+  // c951 (m3): Play, Formen und Zeitpfad schalten ab — Hinweis und Formatbereich
+  addStage("c951", "B19 Review m3 · Play: keine Segmente, keine Gesamtblase, Hinweise", 960, 460);
+  addStage("c951b", "B19 Review m3 · Form je Gruppe: keine Segmente, Hinweis", 960, 460);
+  addStage("c951c", "B19 Review m3 · Zeitpfad: keine Gesamtblase, Hinweis", 960, 460);
+  {
+    const vis = (r, k) => { r.v.getFormattingModel(); return r.v.formattingSettings.chartCard[k].visible !== false; };
+    const kinds = id => sQ(id, '[data-icd="scatter-hint-share"]').map(t => t.getAttribute("data-kind")).sort().join(",");
+    const r1 = runCap("c951", b19Dv(c24({ scatterPlay: true }), { noMult: true, data: fr }), 960, 460);
+    check(!pies("c951").length && !totals("c951").length && kinds("c951") === "off,total-off", `c951: Play ${kinds("c951")}`);
+    const r2 = runCap("c951b", b19Dv(c24({ scatterShapes: true }), { noMult: true, data: fr }), 960, 460);
+    check(!pies("c951b").length && totals("c951b").length === 1 && kinds("c951b") === "off", `c951b: Formen ${kinds("c951b")}`);
+    const r3 = runCap("c951c", b19Dv(c24({ scatterPath: "line" }), { noMult: true, data: fr }), 960, 460);
+    check(!totals("c951c").length && kinds("c951c") === "total-off", `c951c: Pfad ${kinds("c951c")}`);
+    const v = [vis(r1, "scatterShareAs"), vis(r1, "scatterTotalBubble"), vis(r2, "scatterShareAs"), vis(r2, "scatterTotalBubble"),
+      vis(r3, "scatterShareAs"), vis(r3, "scatterTotalBubble"), vis(r3, "scatterTotalColor")];
+    check(v.join() === "false,false,false,true,true,false,false", `c951: Formatbereich ${v.join()}`);
+  }
+
+  // c952 (m4): Teile −3 und 6: Gesamtteil 6 (gekappt wie die Segmente); Quote als Prozentzahl → Hinweis
+  addStage("c952", "B19 Review m4 · Teil −3 zählt 0 wie das Segment: Gesamtteil 6", 960, 460);
+  addStage("c952b", "B19 Review m4 · Quote als 24 statt 0,24: Hinweis „0 bis 1 erwartet“", 960, 460);
+  {
+    runCap("c952", b19Dv(c24(), { noMult: true, data: { A: [["C", 0.5, 2, 10, 6], ["D", 1.5, 6, 10, -3]] } }), 960, 460);
+    check(num(totals("c952")[0], "data-part") === 6, `c952: Gesamtteil ${totals("c952")[0].getAttribute("data-part")}`);
+    runCap("c952b", b19Dv(c24({ scatterShareAs: "ratio" }), { noMult: true, data: fr, shares: [24, 50, 33, 36] }), 960, 460);
+    const h = sQ("c952b", '[data-icd="scatter-hint-share"][data-kind="range"]').map(t => t.textContent).join();
+    check(/0 to 1|0 bis 1/.test(h) && num(totals("c952b")[0], "data-part") === 52, `c952b: ${h}, Gesamtteil ${totals("c952b")[0].getAttribute("data-part")}`);
+  }
+
+  // c953 (m5): Wert mit Halo in der Tönung; Hochkontrast mit Papier-Halo
+  addStage("c953", "B19 Review m5 · Werte mit Halo in der Tönung (Standardpalette, IT auf dunklem Segment)", 960, 460);
+  addStage("c953b", "B19 Review m5 · Hochkontrast: gelbe Werte mit schwarzem Halo", 960, 460, "#000");
+  {
+    runCap("c953", b19Dv(c24(), { noMult: true, data: fr }), 960, 460);
+    const v = pieByAria("c953", "IT,").closest("g.icd-cat").querySelector('[data-icd="scatter-value"]');
+    check(v && nbStroke(v) === nbFill(rimOf(pieByAria("c953", "IT,"))) && v.getAttribute("paint-order") === "stroke", `c953: Halo ${v && nbStroke(v)}`);
+    runCap("c953b", b19Dv(c24(), { noMult: true, data: fr }), 960, 460, { hc: true });
+    const vs = sQ("c953b", '[data-icd="scatter-value"]');
+    check(vs.length === 4 && vs.every(t => nbStroke(t) === "#000000" && nbFill(t) === "#FFFF00"), "c953b: Werte gelb mit schwarzem Halo");
+  }
+
+  // c954 (m6, Nit): FC-Segment schraffiert in der Gruppenfarbe
+  addStage("c954", "B19 Review m6 · FC-Blase (Ret.): Segment schraffiert in der Gruppenfarbe", 960, 460);
+  {
+    runCap("c954", b19Dv(c24(), { noMult: true, data: fr, fc: c => c === "Ret." }), 960, 460);
+    const sec = pieByAria("c954", "Ret.,").querySelector('[data-icd="scatter-pie-sector"]');
+    const id = ((sec && sec.getAttribute("fill")) || "").replace(/^url\(#|\)$/g, "");
+    const pat = id ? document.getElementById(id) : null;
+    const line = pat && pat.querySelector("line");
+    const rim = nbFill(rimOf(pieByAria("c954", "Ret.,")));
+    check(pat && line && /^#[0-9A-F]{6}$/i.test(line.getAttribute("stroke")) && line.getAttribute("stroke").toUpperCase() !== "#404040",
+      `c954: Schraffur ${id} in ${line && line.getAttribute("stroke")} (Tönung ${rim})`);
+  }
+
+  // c955 (m6): gezoomte Kachel mit den Radien des Decks; Log-Achse X
+  addStage("c955", "B19 Review m6 · gezoomte Kachel Germany: gleiche Radien wie im Raster", 1280, 720);
+  addStage("c955b", "B19 Review m6 · X logarithmisch: Gesamtblase an derselben Lage", 960, 460);
+  {
+    const dv = () => b19Dv(c24(), { objs: axes10E });
+    const r = runCap("c955", dv(), 1280, 720);
+    const rGrid = num(rimOf(pieByAria("c955", "IT, relative market share 1,6,")), "r");
+    r.v.zoomGroup = "Germany";
+    r.upd(dv());
+    const rZoom = num(rimOf(pieByAria("c955", "IT, relative market share 1,6,")), "r");
+    check(Math.abs(rZoom - rGrid) < 0.6 && totals("c955").length === 1, `c955: IT ${rGrid.toFixed(1)} px im Raster, ${rZoom.toFixed(1)} px im Zoom`);
+    runCap("c955b", b19Dv(c24(), { noMult: true, data: fr, objs: { scale: { xLogScale: true } } }), 960, 460);
+    const t = totals("c955b")[0];
+    check(t && Math.abs(num(t, "data-x") - 1.0817) < 0.001 && !/NaN|Infinity/.test(sSvg("c955b")) && pies("c955b").length === 4, "c955b: Log-X, Gesamtblase bei 1,08, kein NaN");
+  }
+
+  // c956 (m6): fixierte Achsen: Gesamtblase nur über sichtbare Blasen; Cross-Highlight
+  addStage("c956", "B19 Review m6 · yMin 0: Ret. außerhalb, Gesamtblase Σ 45 aus drei Blasen", 960, 460);
+  addStage("c956b", "B19 Review m6 · Cross-Highlight IT: Gesamtblase bleibt voll und rechnet über alle Blasen", 960, 460);
+  {
+    runCap("c956", b19Dv(c24(), { noMult: true, data: fr, objs: { scale: { yMin: "0" } } }), 960, 460);
+    const t = totals("c956")[0];
+    check(t && num(t, "data-v") === 45 && num(t, "data-n") === 3, `c956: Σ ${t && t.getAttribute("data-v")}, n ${t && t.getAttribute("data-n")}`);
+    const dv = b19Dv(c24(), { noMult: true, data: fr });
+    const y = dv.categorical.values[0];
+    y.highlights = y.values.map((v, i) => dv.categorical.categories[0].values[i] === "IT" ? v : null);
+    runCap("c956b", dv, 960, 460);
+    const tt = totals("c956b")[0];
+    check(tt && num(tt, "data-v") === 52 && !tt.getAttribute("opacity"), "c956b: Gesamtblase ungedimmt, Σ 52");
+  }
+
+  // c957 (m6): Ziehen auf der Gesamtblase startet die Rechteck-Auswahl
+  addStage("c957", "B19 Review m6 · Ziehen auf der Gesamtblase wählt die umschlossenen Blasen", 960, 460);
+  {
+    runCap("c957", b19Dv(c24(), { noMult: true, data: fr }), 960, 460);
+    const c = totals("c957")[0].querySelector("circle").getBoundingClientRect();
+    const svgR = document.querySelector("#c957 svg").getBoundingClientRect();
+    const x0 = c.left + c.width / 2, y0 = c.top + c.height / 2;
+    window.__lastSelect = null;
+    totals("c957")[0].dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0, clientX: x0, clientY: y0 }));
+    document.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: svgR.right - 2, clientY: svgR.top + 2 }));
+    document.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, clientX: svgR.right - 2, clientY: svgR.top + 2 }));
+    check(window.__lastSelect && window.__lastSelect.n >= 1, `c957: Auswahl ${JSON.stringify(window.__lastSelect)}`);
+  }
+
+  // c958 (m6): Export ohne Hinweise; Vorlagenwechsel C24 → C10 setzt Gesamtblase und Radius zurück
+  addStage("c958", "B19 Review m6 · Export (ohne Interaktion): keine Bearbeitungshinweise trotz Anteil 1,4", 960, 460);
+  addStage("c958b", "B19 Review m6 · Vorlagenwechsel C24 → C10", 960, 460);
+  {
+    runCap("c958", b19Dv(c24(), { noMult: true, data: fr, shares: [35, 2, 5, 2] }), 960, 460, { noInteract: true });
+    check(!sQ("c958", '[data-icd^="scatter-hint"]').length && pies("c958").length === 4, "c958: keine Hinweise im Export");
+    runCap("c958b", b19Dv({ template: "C10", templateApplied: "C24" }, { noMult: true, data: fr }), 960, 460);
+    const pp = JSON.stringify(window.__persist.c958b || []);
+    check(/"scatterTotalBubble":false/.test(pp) && /"scatterMaxRadius":0/.test(pp) && !totals("c958b").length, `c958b: Rücksetzer ${pp.slice(0, 160)}`);
+  }
+
+  // c959 (Nits): Anteil 0,99999 als Vollkreis; aria-label mit Größe und Anteil; Paneltitel nennt die größte Einzelblase
+  addStage("c959", "B19 Review Nit · Anteil 0,99999 als Vollkreis, aria-label mit Größe und Anteil, Titel max 25", 960, 460);
+  {
+    runCap("c959", b19Dv(c24(), { noMult: true, data: fr, shares: [6, 5 * 0.99999, 5, 2.5] }), 960, 460);
+    const sec = pieByAria("c959", "Cons.,").querySelector('[data-icd="scatter-pie-sector"]');
+    const aria = pieByAria("c959", "IT,").closest("g.icd-cat").getAttribute("aria-label");
+    const title = [...document.querySelectorAll("#c959 svg text")].map(t => t.textContent).find(t => /^Scatter/.test(t)) || "";
+    check(sec && sec.tagName === "circle", `c959: Segment als ${sec && sec.tagName}`);
+    check(/Market volume 25/.test(aria) && /Share 24 %/.test(aria), `c959: aria ${aria}`);
+    check(/max 25\)/.test(title), `c959: Titel ${title}`);
   }
 
   // kein NaN, undefined oder Infinity in den B19-Stufen

@@ -544,7 +544,7 @@
   "Chart_ScatterValueLabels": "Valor del tamaño de burbuja",
   "Desc_Chart_ScatterValueLabels": "Solo con tamaño de burbuja asignado: escribe el valor del tamaño dentro de la burbuja (texto claro sobre burbujas oscuras, oscuro sobre claras). Si el número no cabe, aparece tras el nombre. Los nombres se colocan entonces preferentemente encima de la burbuja. La unidad figura en el título.",
   "Chart_ScatterMaxRadius": "Radio máx. de burbuja (px)",
-  "Desc_Chart_ScatterMaxRadius": "Solo con tamaño de burbuja asignado: radio de la burbuja más grande en píxeles (escalado con los preajustes de fuente). 0 = automático (máximo 22 px). Valores mayores para matrices de cartera con pocas unidades; el radio se limita a un quinto del lado más corto del área (altura o 0,8 × ancho). Las burbujas grandes pueden sobrepasar el borde del eje, pero quedan dentro del objeto visual.",
+  "Desc_Chart_ScatterMaxRadius": "Solo con tamaño de burbuja asignado: radio de la burbuja más grande en píxeles (escalado con los preajustes de fuente). 0 = automático (máximo 22 px). Valores mayores para matrices de cartera con pocas unidades; el radio se limita a un quinto del lado más corto del área (altura o 0,8 × ancho). Las burbujas grandes pueden sobrepasar el borde del eje, pero quedan dentro del objeto visual. Con burbuja total el radio vale para la burbuja individual más grande; la burbuja total crece más allá (como máximo el 40 % del lado más corto del área).",
   "Chart_ScatterBubbleOpacity": "Opacidad de burbujas %",
   "Desc_Chart_ScatterBubbleOpacity": "Solo con tamaño de burbuja asignado: opacidad de las burbujas en porcentaje (10 a 100). Predeterminado 55 para que los solapamientos sigan legibles; 100 = opaco como en la hoja de cartera 10A.",
   "Chart_ScatterEmphFill": "Resaltado como color",
@@ -977,7 +977,7 @@
   "Enum_ScatterShareAs_Value": "Valor (parte del tamaño de burbuja)",
   "Enum_ScatterShareAs_Ratio": "Ratio (0 a 1)",
   "Chart_ScatterTotalBubble": "Burbuja total",
-  "Desc_Chart_ScatterTotalBubble": "Solo con tamaño de burbuja: una burbuja total por mosaico o gráfico, área = suma de las burbujas, posición = media de X e Y ponderada por el tamaño, sector = suma de las partes (campo «Parte de la burbuja»). Queda detrás de todas las burbujas, cuenta en la escala de tamaños (todas las burbujas se reducen) y no se puede seleccionar. Como en las hojas IBCS 10E y 10G. Predeterminado: desactivado.",
+  "Desc_Chart_ScatterTotalBubble": "Solo con tamaño de burbuja: una burbuja total por mosaico o gráfico, área = suma de las burbujas, posición = media de X e Y ponderada por el tamaño, sector = suma de las partes (campo «Parte de la burbuja»). Solo a partir de dos burbujas en el mosaico. Círculo y sector quedan detrás de todas las burbujas, suma y parte encima; no se puede seleccionar y suma siempre todas las burbujas visibles, también con una selección. El radio de las burbujas individuales se mantiene, la burbuja total crece más allá (como máximo el 40 % del lado más corto del área). No en el modo de reproducción ni en la trayectoria temporal. Como en las hojas IBCS 10E y 10G. Predeterminado: desactivado.",
   "Chart_ScatterTotalColor": "Color de la burbuja total",
   "Desc_Chart_ScatterTotalColor": "Contorno, sector y texto de la burbuja total. Predeterminado gris oscuro; la hoja usa rojo, que ChartKitchen reserva para desviaciones desfavorables.",
   "Tip_Share": "Cuota",
@@ -987,5 +987,8 @@
   "Enum_Template_C24": "C24 · Burbujas con cuota (10E, 10G)",
   "Hub_TplT_C24": "Burbujas con cuota",
   "Hub_TplU_C24": "Volumen de mercado y nuestra parte por sector",
-  "Hint_ScatterPathOrder": "Trayectoria temporal: la categoría no está ordenada por periodo (mantener el objeto visual ordenado por el periodo)"
+  "Hint_ScatterPathOrder": "Trayectoria temporal: la categoría no está ordenada por periodo (mantener el objeto visual ordenado por el periodo)",
+  "Hint_ScatterShareRatio": "Parte de la burbuja como ratio: se esperan valores de 0 a 1 (0,24, no 24)",
+  "Hint_ScatterShareOff": "Parte de la burbuja: sin sectores en el modo de reproducción ni con forma por grupo",
+  "Hint_ScatterTotalOff": "Burbuja total: no en el modo de reproducción ni en la trayectoria temporal"
 }

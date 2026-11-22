@@ -544,7 +544,7 @@
   "Chart_ScatterValueLabels": "Bubble size value",
   "Desc_Chart_ScatterValueLabels": "Only with a bound bubble size: writes the bubble-size value into the bubble (light text on dark bubbles, dark on light ones). If the number does not fit, it follows the name. Names then prefer the spot above the bubble. The unit stands in the title.",
   "Chart_ScatterMaxRadius": "Max. bubble radius (px)",
-  "Desc_Chart_ScatterMaxRadius": "Only with a bound bubble size: radius of the largest bubble in pixels (scaled with the font presets). 0 = automatic (at most 22 px). Larger values suit portfolio matrices with few units; the radius is capped at a fifth of the shorter plot side (plot height or 0.8 × width). Large bubbles may reach beyond the axis edge but stay inside the visual.",
+  "Desc_Chart_ScatterMaxRadius": "Only with a bound bubble size: radius of the largest bubble in pixels (scaled with the font presets). 0 = automatic (at most 22 px). Larger values suit portfolio matrices with few units; the radius is capped at a fifth of the shorter plot side (plot height or 0.8 × width). Large bubbles may reach beyond the axis edge but stay inside the visual. With a total bubble the radius applies to the largest single bubble, the total bubble grows beyond it (at most 40 % of the shorter plot side).",
   "Chart_ScatterBubbleOpacity": "Bubble opacity %",
   "Desc_Chart_ScatterBubbleOpacity": "Only with a bound bubble size: bubble opacity in percent (10 to 100). Default 55 so overlaps stay readable; 100 = opaque as in portfolio sheet 10A.",
   "Chart_ScatterEmphFill": "Highlight as color",
@@ -977,7 +977,7 @@
   "Enum_ScatterShareAs_Value": "Value (part of the bubble size)",
   "Enum_ScatterShareAs_Ratio": "Ratio (0 to 1)",
   "Chart_ScatterTotalBubble": "Total bubble",
-  "Desc_Chart_ScatterTotalBubble": "Only with a bound bubble size: one total bubble per tile or chart, area = sum of the bubbles, position = size-weighted mean of X and Y, sector = sum of the parts (field \"Bubble share\"). It lies behind all bubbles, counts in the size scale (all bubbles get smaller) and cannot be selected. As in the IBCS sheets 10E and 10G. Default off.",
+  "Desc_Chart_ScatterTotalBubble": "Only with a bound bubble size: one total bubble per tile or chart, area = sum of the bubbles, position = size-weighted mean of X and Y, sector = sum of the parts (field \"Bubble share\"). Only from two bubbles in the tile. Circle and sector lie behind all bubbles, sum and part above them; it cannot be selected and always sums all visible bubbles, also with a selection. The radius of the single bubbles stays, the total bubble grows beyond it (at most 40 % of the shorter plot side). Not in play mode and not on the time path. As in the IBCS sheets 10E and 10G. Default off.",
   "Chart_ScatterTotalColor": "Total bubble color",
   "Desc_Chart_ScatterTotalColor": "Outline, sector and text of the total bubble. Default dark grey; the sheet draws red, which ChartKitchen otherwise keeps for unfavorable variances.",
   "Tip_Share": "Share",
@@ -987,5 +987,8 @@
   "Enum_Template_C24": "C24 · Bubbles with share (10E, 10G)",
   "Hub_TplT_C24": "Bubbles with share",
   "Hub_TplU_C24": "Market volume and our part per sector",
-  "Hint_ScatterPathOrder": "Time path: the category is not sorted by period (keep the visual sorted by the period)"
+  "Hint_ScatterPathOrder": "Time path: the category is not sorted by period (keep the visual sorted by the period)",
+  "Hint_ScatterShareRatio": "Bubble share as ratio: values from 0 to 1 expected (0.24, not 24)",
+  "Hint_ScatterShareOff": "Bubble share: no sectors in play mode or with shape per group",
+  "Hint_ScatterTotalOff": "Total bubble: not in play mode and not on the time path"
 }

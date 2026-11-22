@@ -195,6 +195,24 @@ function pageLib() {
                             footer: "Quelle: CRM · Stand 05.09.2026" }
                     }, preset), [["series", "Land", S]]);
             }
+        },
+        // 1.57 (B19 Review m6): Blasen mit Anteil und Gesamtblase (Blatt 10E, Kachel France, Vorlage C24);
+        // ein Diagramm ohne Small Multiples (die Zoom-Chips der Kacheln sind ein eigener Befund)
+        bubbles: {
+            title: "Blasen mit Anteil + Gesamtblase (10E France, C24)",
+            make: preset => {
+                const d = { France: [["IT", 1.3, 8.0, 25, 6], ["Cons.", 1.75, 7.0, 5, 2.5], ["Transp.", 0.3, 3.0, 15, 5], ["Ret.", 1.5, -0.5, 7, 2.5]] };
+                const C = [], M = [], X = [], Y = [], Z = [], P = [];
+                for (const [land, rows] of Object.entries(d)) { for (const [sec, x, y, z, pt] of rows) { C.push(sec); M.push(land); X.push(x); Y.push(y); Z.push(z); P.push(pt); } }
+                return dv("Branche", C, [col("actual", Y, "0.0", "Market growth"), col("xValue", X, "0.00", "relative market share"),
+                    col("bubbleSize", Z, "#,0", "Market volume"), col("bubbleShare", P, "#,0.0", "Our sales")],
+                    withPreset({
+                        chart: { template: "C24", templateApplied: "C24", orientation: "scatter", scatterQuadrant: "off", scatterColorBy: "group",
+                            scatterSizeLegend: false, scatterValueLabels: true, scatterBubbleOpacity: 100, scatterTotalBubble: true, scatterMaxRadius: 100 },
+                        scale: { xRefLine: "1", xMin: "0", xMax: "2", yMin: "-2", yMax: "12" },
+                        ibcsTitle: { show: true, kpi: "Product Market Matrix", period: "2025", footer: "Quelle: Marktstudie · Stand 05.09.2026" }
+                    }, preset), [["series", "Branche", C]]);
+            }
         }
     };
 
