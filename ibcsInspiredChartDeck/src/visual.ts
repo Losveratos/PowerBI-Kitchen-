@@ -1397,7 +1397,10 @@ export class Visual implements IVisual {
     private lastScaleK: number | null = null;
     /** 1.57 (B13 part 1b): px per unit of the base, Δ and Δ % panel of the last drawn
      *  chart (renderChartBody); the named large tile is fitted to the grid tiles on it */
-    private lastPanelK: { main: number | null; abs: number | null; rel: number | null } | null = null;
+    private lastPanelK: { main: number | null; abs: number | null; rel: number | null; zoom: number | null } | null = null;
+    /** 1.57 (B13 part 1b review, M1): round Δ zoom forced on the large tile (the one the
+     *  grid tiles chose), so its Δ panel shares their px per unit; null = own choice */
+    private spanZoom: number | null = null;
     /** 1.52 chart.chipMenu: in-chart controls folded behind ☰ (session state) */
     private ctlOpen = false;
     private ctlInset = 0;
@@ -7689,7 +7692,7 @@ export class Visual implements IVisual {
         const span = this.heroSpanLayout(s, shown, width, availH, topOffset, groupTitleH,
             (orientationRaw === "columns" || orientationRaw === "bars" || orientationRaw === "line")
             && !isStacked && !wfStyleGlobal && !lineSeriesOn,
-            mTotalLast, cfg, groups,
+            orientationRaw, mTotalLast, cfg, groups,
             (gs: { pts: DataPoint[] }[]): Domains => {
                 const pts = gs.flatMap(g => g.pts);
                 let main = extent(pts.flatMap(p => [p.value, p.py, p.pl, p.fc, p.bm]));
@@ -7759,13 +7762,17 @@ export class Visual implements IVisual {
                 // 1.57 (B13 part 1b): measured in its own slot on its own domains, the
                 // zoom draws the same domains on the whole area (the reference tile of a
                 // Δ-only deck then measures its peer on the zoom area, like before)
+                // review m2: the zoom draws the tile on its own (unstretched) domains
                 const sp = span.tiles.find(t => t.grp === grp);
-                const dom = sp ? sp.dom : span.regDom;
-                const kGrid = this.measureScaleK(() => renderCell(grp, sp ? sp.region : span.peerRegion, dom));
+                this.spanZoom = span.zoom;
+                let kGrid: number | null;
+                try {
+                    kGrid = this.measureScaleK(() => renderCell(grp, sp ? sp.region : span.peerRegion, sp ? sp.dom : span.regDom));
+                } finally { this.spanZoom = null; }
                 heroPeer = null;
                 const chipH = Math.round(11 * this.fontK) + 17;
                 this.lastScaleK = null;
-                renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH }, dom);
+                renderCell(grp, { x: 0, y: topOffset + chipH, w: chartW, h: availH - chipH }, sp ? sp.nat : span.regNat);
                 const kZoom = this.lastScaleK as number | null;
                 this.drawZoomBackChip(topOffset, grp.name ?? "", cfg,
                     kGrid != null && kZoom != null && kGrid > 0 ? kZoom / kGrid : null);
@@ -7800,7 +7807,8 @@ export class Visual implements IVisual {
                 }
                 tileFrame(g, t.cell.x, t.cell.y, t.cell.w, t.cell.h);
                 this.lastPanelK = null;
-                renderCell(g, t.region, t.dom);
+                this.spanZoom = t.zoom;
+                try { renderCell(g, t.region, t.dom); } finally { this.spanZoom = null; }
                 // test marker: px per unit of every tile (base panel; Δ panel of a Δ-only tile)
                 const pk = this.lastPanelK as { main: number | null; abs: number | null; rel: number | null } | null;
                 const vo = cfg.varianceOnly === true && gKind !== "total";
@@ -7811,7 +7819,7 @@ export class Visual implements IVisual {
                     "data-px-per-unit": kMain != null ? kMain.toFixed(4) : "",
                     "data-px-per-unit-abs": pk?.abs != null ? pk.abs.toFixed(4) : "",
                     "data-px-per-unit-rel": pk?.rel != null ? pk.rel.toFixed(4) : "",
-                    "data-col": t.col, "data-row": t.row, "data-rows": t.hero ? 2 : 1,
+                    "data-col": t.col, "data-row": t.row, "data-rows": t.rows, "data-cols": t.cols,
                     "data-x": Math.round(t.cell.x), "data-y": Math.round(t.cell.y),
                     "data-w": Math.round(t.cell.w), "data-h": Math.round(t.cell.h)
                 }, this.svg);
@@ -7847,26 +7855,35 @@ export class Visual implements IVisual {
 
     /**
      * 1.57 (B13 part 1b, IBCS sheet 13B): layout of a named large tile. Returns null
-     * (legacy layout) when the option is off, the name is unknown, the mode is not
-     * columns/bars/line or a Δ-only deck cannot draw its Δ panels in a regular tile.
-     * Grid: the legacy column rule over n + 1 slots; the large tile keeps its natural
-     * column, spans two rows (row clamped to rows − 2), the others fill the free slots
-     * in order, a reference tile placed last takes the last free slot.
+     * (legacy layout) when the name is empty or unknown, the mode is not columns/bars/
+     * line, a Δ-only deck cannot draw its Δ panels in a regular tile, or the fit below
+     * does not reach the same px per unit (review M1: never draw unequal scales).
+     * Grid: among the column counts with cells ≥ 220 px wide (and a cell aspect between
+     * 1:2 and 4:1, the legacy count always allowed) the one with the fewest empty cells,
+     * then the one closest to the legacy count, then more columns (review m3). The large
+     * tile keeps its natural slot and spans two rows (columns, line; row clamped to
+     * rows − 2) or two columns (bars, whose value axis is horizontal, review m5); the
+     * others fill the free slots in order, a reference tile placed last takes the last.
      * Scale: the large tile gets the domains of its own values, the regular tiles those
-     * of all other groups. Dry runs measure the px per unit of both (base panel and
-     * Δ % panel; in a Δ-only deck the Δ and Δ % panels); the side with more px per unit
-     * gets that domain widened by a factor f (secant on 1/k, which is affine in f)
-     * until both draw the same px per unit. Returned domains are per-tile overrides.
+     * of all other groups (base, Δ, Δ % and the dual panels, review M1/m1). Dry runs
+     * measure the px per unit of both; the side with more px per unit gets that domain
+     * widened by a factor f, bracketed secant/bisection on the measured k (the split of
+     * the panels can jump between share and same-scale layout, so 1/k is not affine).
+     * The large tile takes the round Δ zoom the regular tiles chose (spanZoom). Where
+     * its natural values fit, its lower domain end is set to the regular one, so the
+     * zero lines of both rows line up (review m4). A final dry run of both sides checks
+     * every panel they both draw; any difference above 0.1 % returns null.
      */
     private heroSpanLayout<G extends { name: string | null; pts: DataPoint[]; kind?: "total" | "rest" }>(
         s: VisualFormattingSettingsModel, shown: G[], width: number, availH: number, top: number, titleH: number,
-        modeOk: boolean, totalLast: boolean, cfg: ChartConfig, groups: G[],
+        modeOk: boolean, orient: string, totalLast: boolean, cfg: ChartConfig, groups: G[],
         domOf: (gs: { pts: DataPoint[] }[]) => Domains,
         renderCell: (g: G, region: Rect, dom: Partial<Domains> | null) => void,
         setPeer: (h: { region: Rect; dom: Partial<Domains>; hero: object } | null) => void
     ): {
-        tiles: { grp: G; cell: Rect; region: Rect; dom: Partial<Domains>; hero: boolean; peer: boolean; col: number; row: number }[];
-        regDom: Partial<Domains>; peerRegion: Rect;
+        tiles: { grp: G; cell: Rect; region: Rect; dom: Partial<Domains>; nat: Partial<Domains>; zoom: number | null;
+            hero: boolean; peer: boolean; col: number; row: number; rows: number; cols: number }[];
+        peerRegion: Rect; regDom: Partial<Domains>; regNat: Partial<Domains>; zoom: number | null;
     } | null {
         setPeer(null);
         const name = String(s.chartCard.multiplesHeroTile.value || "").trim().toLowerCase();
@@ -7882,111 +7899,194 @@ export class Visual implements IVisual {
         const peer = others.find(g => g.kind == null) ?? others.find(g => !vo || g.kind !== "total");
         if (!peer) { return null; }
 
-        // grid over n + 1 slots (legacy column rule: ≈ square, cells ≥ 220 px wide)
+        // grid over n + 1 slots
+        const spanCols = orient === "bars";
         const slots = n + 1;
-        let cols = Math.ceil(Math.sqrt(slots));
-        cols = Math.max(1, Math.min(cols, Math.floor(width / 220) || 1));
-        const rows = Math.ceil(slots / cols);
-        if (rows < 2) { return null; }
+        const maxC = Math.max(1, Math.floor(width / 220) || 1);
+        const oldC = Math.max(1, Math.min(Math.ceil(Math.sqrt(slots)), maxC));
+        let pick: { c: number; r: number; score: number[] } | null = null;
+        for (let c = 1; c <= Math.min(maxC, slots); c++) {
+            const r = Math.ceil(slots / c);
+            if (spanCols ? c < 2 : r < 2) { continue; }
+            const aspect = (width / c) / (availH / r);
+            if (c !== oldC && (aspect < 0.5 || aspect > 4)) { continue; }
+            // a Δ-only deck needs regular tiles that draw just their Δ (renderChartBody)
+            if (vo && (orient === "bars" ? width / c - 4 < 240 : availH / r - titleH - 2 < 110)) { continue; }
+            const score = [r * c - slots, Math.abs(c - oldC), -c];
+            const prev = pick ? pick.score : null;
+            const d = prev ? score.findIndex((v, i) => v !== prev[i]) : -1;
+            if (!prev || (d >= 0 && score[d] < prev[d])) { pick = { c, r, score }; }
+        }
+        if (!pick) { return null; }
+        const cols = pick.c, rows = pick.r;
         const cellW = width / cols, cellH = availH / rows;
-        const hc = hi % cols, hr = Math.min(Math.floor(hi / cols), rows - 2);
-        const taken = new Set([hr * cols + hc, (hr + 1) * cols + hc]);
+        const hc = spanCols ? Math.min(hi % cols, cols - 2) : hi % cols;
+        const hr = spanCols ? Math.floor(hi / cols) : Math.min(Math.floor(hi / cols), rows - 2);
+        const taken = new Set([hr * cols + hc, spanCols ? hr * cols + hc + 1 : (hr + 1) * cols + hc]);
         const free: number[] = [];
         for (let i = 0; i < rows * cols; i++) { if (!taken.has(i)) { free.push(i); } }
         const slotOf = others.map((_, i) => free[i]);
         if (totalLast && others[others.length - 1].kind === "total") {
             slotOf[others.length - 1] = free[free.length - 1];
         }
-        const cellAt = (slot: number, spanRows: number): Rect => ({
-            x: (slot % cols) * cellW, y: top + Math.floor(slot / cols) * cellH, w: cellW, h: cellH * spanRows
+        const cellAt = (slot: number, spanR: number, spanC: number): Rect => ({
+            x: (slot % cols) * cellW, y: top + Math.floor(slot / cols) * cellH, w: cellW * spanC, h: cellH * spanR
         });
         const regionOf = (c: Rect): Rect => ({ x: c.x + 2, y: c.y + titleH, w: c.w - 4, h: c.h - titleH - 2 });
-        const heroCell = cellAt(hr * cols + hc, 2);
+        const heroCell = cellAt(hr * cols + hc, spanCols ? 1 : 2, spanCols ? 2 : 1);
         const heroRegion = regionOf(heroCell);
-        const peerRegion = regionOf(cellAt(slotOf[others.indexOf(peer)], 1));
+        const peerRegion = regionOf(cellAt(slotOf[others.indexOf(peer)], 1, 1));
 
         // domains: the large tile on its own values, the regular tiles on the rest
         // (a Δ-only deck: one Δ scale over the drawn tiles with Δ, without the large one)
+        type DomKey = "main" | "abs" | "rel" | "abs2" | "rel2";
+        const pickDom = (d: Domains, keys: DomKey[]): Partial<Domains> => {
+            const o: Partial<Domains> = {};
+            keys.forEach(k => { o[k] = [d[k][0], d[k][1]]; });
+            return o;
+        };
+        const keys: DomKey[] = vo ? ["abs", "rel"] : ["main", "abs", "rel", "abs2", "rel2"];
         const dH = domOf([hero]);
-        let hDom: Partial<Domains>, rDom: Partial<Domains>;
-        if (vo) {
-            const dR = domOf(shown.filter(g => g !== hero && g.kind !== "total"));
-            rDom = { abs: dR.abs, rel: dR.rel };
-            hDom = hero.kind === "total" ? {} : { abs: dH.abs, rel: dH.rel };
-        } else {
-            // the absolute Δ panels keep the deck domain: they run on the base px per unit
-            // (same-scale split), and one Δ span makes every tile take the same round
-            // zoom when its variances are too small to read
-            const dR = domOf(groups.filter(g => g !== hero));
-            hDom = { main: dH.main, rel: dH.rel, rel2: dH.rel2 };
-            rDom = { main: dR.main, rel: dR.rel, rel2: dR.rel2 };
-        }
+        const dR = domOf(vo ? shown.filter(g => g !== hero && g.kind !== "total") : groups.filter(g => g !== hero));
+        const hNat = vo && hero.kind === "total" ? {} : pickDom(dH, keys);
+        const rNat = pickDom(dR, keys);
+        const hDom: Partial<Domains> = pickDom(hNat as Domains, Object.keys(hNat) as DomKey[]);
+        const rDom: Partial<Domains> = pickDom(rNat as Domains, keys);
         setPeer({ region: peerRegion, dom: rDom, hero });
 
         type PanelKey = "main" | "abs" | "rel";
-        const measure = (g: G, region: Rect, dom: Partial<Domains>) => {
-            let snap: { main: number | null; abs: number | null; rel: number | null } | null = null;
+        type Meas = { main: number | null; abs: number | null; rel: number | null; zoom: number | null; vo: boolean };
+        // dry runs, cached per side, domains and forced zoom (review n4)
+        const cache = new Map<string, Meas | null>();
+        let deckZoom: number | null = null;
+        const measure = (side: "h" | "r", dom: Partial<Domains>): Meas | null => {
+            const zoom = deckZoom;
+            const key = side + JSON.stringify(dom) + "|" + zoom;
+            if (cache.has(key)) { return cache.get(key) as Meas | null; }
+            let snap: { main: number | null; abs: number | null; rel: number | null; zoom: number | null } | null = null;
             let drawnVo = false;
-            this.measureScaleK(() => {
-                this.lastPanelK = null;
-                renderCell(g, region, dom);
-                snap = this.lastPanelK;
-                drawnVo = this.varOnlyDrawn;
-            });
-            const m = snap as { main: number | null; abs: number | null; rel: number | null } | null;
-            return m ? { main: m.main, abs: m.abs, rel: m.rel, vo: drawnVo } : null;
+            this.spanZoom = zoom;
+            try {
+                this.measureScaleK(() => {
+                    this.lastPanelK = null;
+                    renderCell(side === "h" ? hero : peer, side === "h" ? heroRegion : peerRegion, dom);
+                    snap = this.lastPanelK;
+                    drawnVo = this.varOnlyDrawn;
+                });
+            } finally { this.spanZoom = null; }
+            const m = snap as { main: number | null; abs: number | null; rel: number | null; zoom: number | null } | null;
+            const out = m ? { ...m, vo: drawnVo } : null;
+            cache.set(key, out);
+            return out;
         };
+        const fail = () => { setPeer(null); return null; };
         if (vo) {
             // review M1/m1 of part 2: one Δ scale only where the regular tile really draws
             // just its Δ (a too small tile falls back to the normal view: no large tile)
-            const mR = measure(peer, peerRegion, rDom);
-            if (!mR || !mR.vo) { setPeer(null); return null; }
+            const mR = measure("r", rDom);
+            if (!mR || !mR.vo) { return fail(); }
         }
-        const fits: { key: PanelKey; doms: (keyof Domains)[] }[] = vo
+        const fits: { key: PanelKey; doms: DomKey[] }[] = vo
             ? (hero.kind === "total" ? [] : [{ key: "abs", doms: ["abs"] }, { key: "rel", doms: ["rel"] }])
-            : [{ key: "main", doms: ["main"] }, { key: "rel", doms: ["rel", "rel2"] }];
-        for (const fit of fits) {
-            const mH = measure(hero, heroRegion, hDom);
-            const mR = measure(peer, peerRegion, rDom);
-            if (!mH || !mR || (vo && !mH.vo)) { continue; }
-            const kH = mH[fit.key], kR = mR[fit.key];
-            if (kH == null || kR == null || !(kH > 0) || !(kR > 0) || Math.abs(kH - kR) <= kR * 1e-4) { continue; }
-            const widenHero = kH > kR;
-            const target = Math.min(kH, kR);
-            const dom = widenHero ? hDom : rDom;
-            const g = widenHero ? hero : peer;
-            const region = widenHero ? heroRegion : peerRegion;
-            const base = fit.doms.map(dk => dom[dk] as [number, number] | undefined);
-            if (base.some(b => !b) || base.every(b => (b as [number, number])[0] === 0 && (b as [number, number])[1] === 0)) { continue; }
-            const setF = (f: number) => fit.doms.forEach((dk, i) => {
-                const b = base[i] as [number, number];
-                (dom as Record<string, [number, number]>)[dk] = [b[0] * f, b[1] * f];
-            });
-            let f0 = 1, k0 = widenHero ? kH : kR;
-            let f1 = k0 / target;
-            for (let it = 0; it < 6; it++) {
-                setF(f1);
-                const m = measure(g, region, dom);
-                const k1 = m ? m[fit.key] : null;
-                if (k1 == null || !(k1 > 0) || Math.abs(k1 - target) <= target * 2e-4) { break; }
-                const slope = (1 / k1 - 1 / k0) / (f1 - f0);
-                if (!(Math.abs(slope) > 1e-12)) { break; }
-                const f2 = Math.max(1, f1 + (1 / target - 1 / k1) / slope);
-                f0 = f1; k0 = k1; f1 = f2;
+            // the base fit stretches the absolute Δ along (same-scale split: both keep their
+            // common px per unit and their share of the panel); a share split is then
+            // matched on its own
+            : [{ key: "main", doms: ["main", "abs", "abs2"] }, { key: "abs", doms: ["abs", "abs2"] }, { key: "rel", doms: ["rel", "rel2"] }];
+        const ok = (a: number | null, b: number | null, tol: number) =>
+            a == null || b == null || !(a > 0) || !(b > 0) || Math.abs(a - b) <= Math.min(a, b) * tol;
+        // review m4: the lower end of the large tile's domain = the regular one where its
+        // own values fit, so the zero lines line up (kept only if the large tile is the
+        // side that gets widened, its upper end then carries the whole stretch); the base
+        // panel in the normal view, the Δ panels in a Δ-only deck
+        const aligned = new Set<DomKey>();
+        for (const dk of (vo ? ["abs", "rel"] : ["main"]) as DomKey[]) {
+            const h = hDom[dk], r = rDom[dk];
+            if (h && r && h[0] >= r[0] && h[1] > 0 && h[0] !== r[0]) { h[0] = r[0]; aligned.add(dk); }
+        }
+        for (let pass = 0; pass < 4; pass++) {
+            // one round Δ zoom for the whole deck (same-scale split): the smaller of the
+            // two natural choices, as one shared Δ domain would have chosen it
+            deckZoom = null;
+            if (!vo) {
+                const zR = measure("r", rDom)?.zoom ?? null, zH = measure("h", hDom)?.zoom ?? null;
+                deckZoom = zR != null && zH != null ? Math.min(zR, zH) : null;
             }
-            setF(f1);
+            for (const fit of fits) {
+                const mH = measure("h", hDom);
+                const mR = measure("r", rDom);
+                if (!mH || !mR || (vo && !mH.vo)) { continue; }
+                let kH = mH[fit.key];
+                const kR = mR[fit.key];
+                if (kH == null || kR == null || !(kH > 0) || !(kR > 0) || ok(kH, kR, 2e-4)) { continue; }
+                if (kH < kR && fit.doms.some(dk => aligned.has(dk))) {
+                    // the aligned lower end costs room the large tile does not have: back to its own
+                    fit.doms.forEach(dk => { if (aligned.has(dk)) { (hDom[dk] as [number, number])[0] = (hNat[dk] as [number, number])[0]; aligned.delete(dk); } });
+                    const m2 = measure("h", hDom);
+                    kH = m2 ? m2[fit.key] : null;
+                    if (kH == null || !(kH > 0) || ok(kH, kR, 2e-4)) { continue; }
+                }
+                const widenHero = kH > kR;
+                const target = Math.min(kH, kR);
+                const side = widenHero ? "h" : "r";
+                const dom = widenHero ? hDom : rDom;
+                const base = fit.doms.map(dk => dom[dk] ? [(dom[dk] as [number, number])[0], (dom[dk] as [number, number])[1]] as [number, number] : null);
+                if (base.some(b => !b) || base.every(b => (b as [number, number])[0] === 0 && (b as [number, number])[1] === 0)) { continue; }
+                const setF = (f: number) => fit.doms.forEach((dk, i) => {
+                    const b = base[i] as [number, number];
+                    if (widenHero && aligned.has(dk)) {
+                        // zero line in px above the panel bottom = (|lo| + 2 % of the span) · k
+                        // (makePanelScale): the large tile's |lo| that gives the regular value
+                        const r = rDom[dk] as [number, number], hiF = b[1] * f;
+                        const want = -r[0] + 0.02 * (r[1] - r[0]);
+                        const lo = Math.max((want - 0.02 * hiF) / 1.02, -(hNat[dk] as [number, number])[0], 0);
+                        (dom as Record<string, [number, number]>)[dk] = [-lo, hiF];
+                    } else {
+                        (dom as Record<string, [number, number]>)[dk] = [b[0] * f, b[1] * f];
+                    }
+                });
+                const kAt = (f: number) => { setF(f); const m = measure(side, dom); return m ? m[fit.key] : null; };
+                // k falls with f; bracket the target, then secant inside the bracket or bisect
+                let lo = { f: 1, k: widenHero ? kH : kR };
+                let up: { f: number; k: number } | null = null;
+                let best = lo;
+                let f = lo.k / target;
+                for (let it = 0; it < 16; it++) {
+                    const k = kAt(f);
+                    if (k == null || !(k > 0)) { break; }
+                    if (Math.abs(k - target) < Math.abs(best.k - target)) { best = { f, k }; }
+                    if (Math.abs(k - target) <= target * 2e-4) { break; }
+                    if (k > target) { lo = { f, k }; } else { up = { f, k }; }
+                    if (!up) { f = lo.f * Math.max(1.02, lo.k / target); continue; }
+                    if (up.f - lo.f <= lo.f * 1e-7) { break; }
+                    const g0 = 1 / lo.k, g1 = 1 / up.k;
+                    let fn = Math.abs(g1 - g0) > 1e-15 ? lo.f + (1 / target - g0) * (up.f - lo.f) / (g1 - g0) : NaN;
+                    const span = up.f - lo.f;
+                    if (!(fn > lo.f + span * 0.05 && fn < up.f - span * 0.05) || it % 3 === 2) { fn = (lo.f + up.f) / 2; }
+                    f = fn;
+                }
+                setF(best.f);
+            }
+        }
+        // review M1: the fit is checked, never assumed
+        // (the reference tile as large tile of a Δ-only deck draws columns: nothing to compare)
+        const fH = fits.length > 0 ? measure("h", hDom) : null, fR = measure("r", rDom);
+        if (!fR || (fits.length > 0 && !fH)) { return fail(); }
+        if (fH && (vo ? !fH.vo || !ok(fH.abs, fR.abs, 1e-3) || !ok(fH.rel, fR.rel, 1e-3)
+            : !ok(fH.main, fR.main, 1e-3) || !ok(fH.abs, fR.abs, 1e-3) || !ok(fH.rel, fR.rel, 1e-3))) {
+            return fail();
         }
 
         const tiles = shown.map(g => {
             if (g === hero) {
-                return { grp: g, cell: heroCell, region: heroRegion, dom: hDom, hero: true, peer: false, col: hc, row: hr };
+                return { grp: g, cell: heroCell, region: heroRegion, dom: hDom, nat: hNat, zoom: deckZoom, hero: true, peer: false,
+                    col: hc, row: hr, rows: spanCols ? 1 : 2, cols: spanCols ? 2 : 1 };
             }
             const slot = slotOf[others.indexOf(g)];
-            const cell = cellAt(slot, 1);
-            return { grp: g, cell, region: regionOf(cell), dom: rDom, hero: false, peer: g === peer,
-                col: slot % cols, row: Math.floor(slot / cols) };
+            const cell = cellAt(slot, 1, 1);
+            return { grp: g, cell, region: regionOf(cell), dom: rDom, nat: rNat, zoom: deckZoom, hero: false, peer: g === peer,
+                col: slot % cols, row: Math.floor(slot / cols), rows: 1, cols: 1 };
         });
-        return { tiles, regDom: rDom, peerRegion };
+        return { tiles, peerRegion, regDom: rDom, regNat: rNat, zoom: deckZoom };
     }
 
     /**
@@ -19482,10 +19582,13 @@ export class Visual implements IVisual {
         const rel2PadB = barPad(labelPad, points.map(p => this.relText(p, true)), points.map(p => p.var2Rel), rPin + 3);
         const padSum = (pp: number | PanelPad) => typeof pp === "number" ? 0 : pp.lo + pp.hi;
         const relMin = orientation === "columns" ? 0 : Math.max(padSum(relPadB), padSum(rel2PadB)) + 24;
+        // 1.57 (B13 part 1b): sameUsed = the Δ panels share the base px per unit (the
+        // large tile is fitted on it and takes the grid tiles' round zoom, spanZoom)
+        let sameUsed = false;
         const split = (start: number, span: number, vertical: boolean) => {
             const same = this.splitPanelsSameScale(start, span, showAbs, showRel, vertical, region,
-                showDual, showBridge, domains, mainPadB, absPadB, minPlot, abs2PadB, relMin);
-            if (same) { zoom = same.zoom; return same.panels; }
+                showDual, showBridge, domains, mainPadB, absPadB, minPlot, abs2PadB, relMin, this.spanZoom);
+            if (same) { zoom = same.zoom; sameUsed = same.panels.abs != null; return same.panels; }
             return this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         };
 
@@ -19613,7 +19716,8 @@ export class Visual implements IVisual {
         this.lastPanelK = {
             main: Math.abs(mainScale(1) - mainScale(0)),
             abs: absScale ? Math.abs(absScale(1) - absScale(0)) : null,
-            rel: relScale ? Math.abs(relScale(1) - relScale(0)) : null
+            rel: relScale ? Math.abs(relScale(1) - relScale(0)) : null,
+            zoom: sameUsed ? zoom : null
         };
         const abs2Scale = panels.abs2
             ? this.makePanelScale(domains.abs2, panels.abs2, orientation, abs2PadB) : null;
@@ -22892,7 +22996,7 @@ export class Visual implements IVisual {
     private splitPanelsSameScale(start: number, span: number, showAbs: boolean, showRel: boolean,
         vertical: boolean, region: Rect, showDual: boolean, showBridge: boolean,
         domains: Domains, mainPad: number | PanelPad, labelPad: number | PanelPad, minPlot: number,
-        abs2Pad: number | PanelPad = labelPad, relMin = 0)
+        abs2Pad: number | PanelPad = labelPad, relMin = 0, forceZoom: number | null = null)
         : { panels: { main: Rect; abs?: Rect; rel?: Rect; abs2?: Rect; rel2?: Rect; bridge?: Rect }; zoom: number } | null {
         const old = this.splitPanels(start, span, showAbs, showRel, vertical, region, showDual, showBridge, relMin);
         if (!old.abs) { return { panels: old, zoom: 1 }; }
@@ -22906,7 +23010,7 @@ export class Visual implements IVisual {
         const base = this.panelGeom(domains.main, orient, mainPad, false);
         const tiers = [domains.abs, ...(old.abs2 ? [domains.abs2] : [])]
             .map((d, ti) => this.panelGeom(d, orient, ti === 0 ? labelPad : abs2Pad, false));
-        const split = this.sameScaleSplit(avail, base, tiers, minPlot);
+        const split = this.sameScaleSplit(avail, base, tiers, minPlot, forceZoom);
         if (!split) { return null; }
         // lay the parts out in the original order with the new sizes
         const size: Record<string, number> = {
@@ -23055,7 +23159,7 @@ export class Visual implements IVisual {
      * stays below minPlot). null when the base span is 0 or nothing fits.
      */
     private sameScaleSplit(avail: number, base: { ov: number; span: number },
-        tiers: { ov: number; span: number }[], minPlot: number)
+        tiers: { ov: number; span: number }[], minPlot: number, forceZoom: number | null = null)
         : { basePlot: number; tierPlots: number[]; factor: number } | null {
         if (base.span <= 0) { return null; }
         const ovSum = base.ov + tiers.reduce((a, t) => a + t.ov, 0);
@@ -23066,9 +23170,9 @@ export class Visual implements IVisual {
             const basePlot = free / (1 + ratios.reduce((a, r) => a + r, 0));
             return { basePlot, tierPlots: ratios.map(r => r * basePlot), factor: f };
         };
-        let best = solve(1);
+        let best = solve(forceZoom ?? 1);
         const maxTier = (s: { tierPlots: number[] }) => Math.max(...s.tierPlots);
-        if (maxTier(best) > 0 && maxTier(best) < minPlot) {
+        if (forceZoom == null && maxTier(best) > 0 && maxTier(best) < minPlot) {
             for (const f of ZOOM_FACTORS) {
                 best = solve(f);
                 if (maxTier(best) >= minPlot) { break; }
