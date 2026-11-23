@@ -118,7 +118,8 @@ const norm = s => String(s == null ? "" : s)
   .replace(/[    ]/g, " ").replace(/­/g, "").replace(/[‐‑]/g, "-")
   .replace(/\s+/g, " ").trim();
 const NUM_RX = /\d+(?:[.,]\d+)*/g;
-const skel = s => norm(String(s).replace(PH_RX, "#")).replace(NUM_RX, "#");
+const NUM_RX_SKEL = /-?\d+(?:[.,]\d+)*/g;
+const skel = s => norm(String(s).replace(PH_RX, "#")).replace(NUM_RX_SKEL, "#");
 
 /* Korpus: alle Texte der genannten Blöcke, Platzhalter aufgelöst (als #) */
 const KORPUS_BLOECKE = ["claims", "gegenpositionen", "schritte", "glossar", "quellen", "studien",
@@ -135,7 +136,11 @@ function strings(o, out) {
 const unitShort = u => String(u || "").replace(/\s*\((real 2023|EUR2024|verkettet[^)]*)\)/g, "").replace(/EUR/g, "€").trim();
 const korpusTexte = [];
 for (const b of KORPUS_BLOECKE.concat(KORPUS_ZUSATZ)) strings(D[b], korpusTexte);
-for (const z of D.zahlen) { korpusTexte.push("# " + z.unit, "# " + unitShort(z.unit), unitShort(z.unit)); }
+for (const z of D.zahlen) {
+  korpusTexte.push("# " + z.unit, "# " + unitShort(z.unit), unitShort(z.unit));
+  // Objektwerte zeigt die Belegseite als „schlüssel wert; …“
+  if (z.value && typeof z.value === "object") for (const k of Object.keys(z.value)) korpusTexte.push(k + " #");
+}
 const KORPUS_SKEL = "\u0001" + korpusTexte.map(skel).join("\u0001") + "\u0001";
 const KORPUS_SKEL_LC = KORPUS_SKEL.toLowerCase();
 
@@ -201,6 +206,7 @@ function startServer() {
 // Liefert Texteinheiten (je Block-Element), Zahlen mit Abzeichen und Strukturangaben.
 function imBrowser(seite) {
   document.querySelectorAll("details").forEach(d => { d.open = true; });
+  document.querySelectorAll("br").forEach(br => br.after(document.createTextNode(" ")));
   const BADGE = ".bp,.bx,.wk,.zg,.st,.cid,.qc,.sn,.rejtag,.fchip";
   const ZONE = el => {
     const z = el.closest("#verw,#verbot,#quellen,#q-body,#srcs,#entstanden,#entstehung,#korrekturen,#ungelesen,.twin,#legend,#lesehilfe,.ktab,.ptab,#tab-ph,#tab-st,#chart,#twin,figure,.panel,.mslot");
@@ -355,7 +361,7 @@ async function lade(browser, base, seite, breite, protokoll) {
 /* ------------------------------------------------------------------ Prüfungen */
 function satzstuecke(t) {
   // Sätze, dann Felder (" · ", "; ", Tabulator) – jedes Stück wird einzeln abgeglichen
-  return norm(t).split(/(?<=[.!?“"])\s+(?=[A-ZÄÖÜ„"(])|\s+·\s+|;\s+|\t/).map(s => s.trim()).filter(Boolean);
+  return norm(t).split(/(?<=[.!?“"])\s+(?=[A-ZÄÖÜ„"(])|\s+·\s+|\s+–\s+|;\s+|\t/).map(s => s.trim()).filter(Boolean);
 }
 function ausnahme(seite, s) {
   for (const a of AUSNAHMEN) {
