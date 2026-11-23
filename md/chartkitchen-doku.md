@@ -562,7 +562,7 @@ Wie haben sich Umsatz und Vertriebsmannschaft je Sparte über neun Jahre zusamme
 7. **Play-Button:** Mit Zeitpfad wächst der Pfad beim Abspielen bis zum gezeigten Jahr; die Periodenlabels kommen am Ende zurück. Exporte zeigen den ganzen Pfad.
 8. **Abweichungen vom Blatt:** Y-Ticks in Fünferschritten, die Achsen reichen um den Markerrand über das Achsenende hinaus (die Strahlen enden genau dort), Δ X neutral statt blau.
 
-### Blasen mit Kreissegment und Gesamtblase (seit 1.57, in Arbeit)
+### Blasen mit Kreissegment und Gesamtblase (seit 1.57)
 
 Wie groß ist jeder Markt, und welchen Teil davon haben wir? Die Vorlage **C24** zeichnet nach den IBCS-Blättern 10E und 10G jede Blase in einer hellen Tönung ihrer Farbe und darauf unseren Teil als Kreissegment ab 12 Uhr im Uhrzeigersinn; eine Gesamtblase je Kachel zeigt die Summe.
 

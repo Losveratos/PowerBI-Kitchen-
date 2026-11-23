@@ -592,7 +592,7 @@ resjson-Keys je Sprache (Stand 1.52.0; 1.52.4 + Brücken-Arbeit: 691; mit den ro
 | visual.json `visualType` | GUID wie oben (Import ersetzt ältere Version automatisch) |
 | Aktuelles Paket | `dist/*.pbiviz` · stabiler Download: `https://datenwgknowledgekitchen.com/downloads/chartkitchen-byDatenWG-latest.pbiviz` |
 | Datenlimit | `dataReductionAlgorithm window 1000` + `fetchMoreData` (ab 1.49): weitere Segmente werden nachgeladen, Sicherheitsgrenze 30.000 Kategoriezeilen; Kappung wird im Chart gemeldet |
-| Lizenz | MIT · keine externen Calls, kein Storage, kein Telemetrie |
+| Lizenz | Apache-2.0 (`LICENSE` + `NOTICE`) · keine externen Calls, kein Storage, keine Telemetrie |
 
 ## Feld-Rollen (Datenvertrag)
 
@@ -765,6 +765,7 @@ gleich setzen (dann wird nichts angewandt) — nur `template` ohne
 | C20 Bestand und Fluss (08E bis 08H, ab 1.55) | orientation=stockflow · sfNet=true · sfArea=true · scenarioLabels=true · showTotal=false · highlightStyle=ellipse (Rollen `series` + `rowType` mit `stock`/`inflow`/`outflow`, siehe B11) |
 | C21 Kumulierte Linie mit R12 und Monatssäulen (07C, ab 1.56) | orientation=line · comparisonMode=plan · cumulative=true · cumulativeKind=ytd · lineR12=true · linePeriodColumns=same · lineGapMarkers=both · lineBasisLabels=true · lineMarkerShape=square · scenarioLabels=true · showAbs/showRel=false · dualVariance=false · showTotal=false (PL binden, siehe B15) |
 | C22 Serienlinien mit Index (07A, ab 1.56) | orientation=line · lineSeries=true · lineIndex=base100 · lineSeriesLabels=groups · lineSeriesColor=tones · lineMarkerShape=square · showAbs/showRel=false · dualVariance=false · cumulative=false · showTotal=false (Rolle `series` binden, siehe B17) |
+| C23 Scatter-Zeitpfad (07D, 07E, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterPath=line · scatterPathLabels=auto · scatterColorBy=group · scatterQuadrant=off · scatterTrend=off · scatterArrows=false · scatterPlay=false (Rolle `xValue` binden, Quotenstrahlen über `scale.ratioRays`, siehe B18) |
 | C24 Blasen mit Anteil (10E, 10G, ab 1.57) | orientation=scatter · comparisonMode=auto · scatterQuadrant=off · scatterColorBy=group · scatterSizeLegend=false · scatterValueLabels=true · scatterBubbleOpacity=100 · scatterTotalBubble=true · scatterMaxRadius=100 · scatterTrend=off · scatterArrows=false · scatterPath=off · scatterPlay=false · scale.xRefLine=1 (Rollen `bubbleSize` und `bubbleShare` binden) |
 | C25 Marimekko (02F, ab 1.57) | orientation=bars · comparisonMode=auto · showAbs/showRel=false · dualVariance=false · waterfallStyle=false · stackNormalize=pct100 · stackThickness=total · stackShareColumn=true · showTotal=true · stackTotalRow=true · sortMode=ac · stackLegendDirect=true (Rolle `series` binden) |
 

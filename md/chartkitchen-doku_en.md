@@ -562,7 +562,7 @@ How did sales and the sales force of each division develop together over nine ye
 7. **Play button:** with a time path the path grows up to the shown year while playing; the period labels come back at the end. Exports show the whole path.
 8. **Differences from the sheet:** Y ticks in steps of five, the axes reach past the axis end by the marker margin (the rays end exactly there), Δ X neutral instead of blue.
 
-### Bubbles with a share sector and a total bubble (since 1.57, in progress)
+### Bubbles with a share sector and a total bubble (since 1.57)
 
 How big is each market, and which part of it is ours? Template **C24** follows IBCS sheets 10E and 10G: every bubble in a light tint of its colour with our part as a sector from 12 o'clock clockwise; one total bubble per tile shows the sum.
 
