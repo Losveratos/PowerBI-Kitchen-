@@ -202,7 +202,7 @@ details.twin td.v{font-family:var(--mono);white-space:nowrap}
   .scrolly{display:grid;grid-template-columns:minmax(360px,430px) minmax(0,1fr);column-gap:28px}
   .steps{grid-column:1}
   .panel{display:block;grid-column:2;grid-row:1;position:sticky;top:0;height:100vh}
-  .panel .dslot{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  .panel .dslot{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:7vh;
                 opacity:0;visibility:hidden;transition:opacity .35s ease}
   .panel .dslot.on{opacity:1;visibility:visible}
   .panel figure.sf{width:100%}
@@ -213,6 +213,8 @@ details.twin td.v{font-family:var(--mono);white-space:nowrap}
 }
 @media (max-width:1019px){
   .step .mslot{display:block}
+  .step .card h3{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .step .card{position:relative}
 }
 
 /* SVG-Grundstile: Schriftgrößen in Bildpunkten, Grafiken werden nie skaliert */
@@ -225,6 +227,7 @@ svg text.t-sm{font-family:var(--mono);font-size:12px;font-weight:400;fill:var(--
 svg text.t-hd{font-family:var(--serif);font-size:15px;font-weight:700;fill:var(--ink)}
 svg text.t-big{font-family:var(--serif);font-size:24px;font-weight:700;fill:var(--ink)}
 svg text.t-mono{font-family:var(--mono);font-size:14px;font-weight:600;fill:var(--ink)}
+svg text.halo{paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
 svg text.c-r21{fill:var(--c-r21)} svg text.c-g3a{fill:var(--c-g3a)} svg text.c-g3b{fill:var(--c-g3b)}
 svg text.c-unr{fill:var(--unread)} svg text.c-eigen{fill:var(--c-eigen)} svg text.c-inv{fill:var(--surface)}
 .k-card{fill:var(--surface);stroke:var(--axis);stroke-width:1}
@@ -232,6 +235,9 @@ svg text.c-unr{fill:var(--unread)} svg text.c-eigen{fill:var(--c-eigen)} svg tex
 .k-card.unr{fill:var(--unread-soft);stroke:var(--unread);stroke-dasharray:5 4;stroke-width:1.5}
 .k-axis{stroke:var(--axis);stroke-width:1} .k-grid{stroke:var(--grid);stroke-width:1}
 .k-ink{stroke:var(--ink-2);stroke-width:1.5;fill:none}
+.k-strk{stroke:var(--ink-2);stroke-width:1}
+.s-unr{stroke:var(--unread);stroke-dasharray:4 3;stroke-width:1.5}
+.f-unrs{fill:var(--unread)}
 .f-r21{fill:var(--c-r21)} .s-r21{stroke:var(--c-r21)}
 .f-g1{fill:var(--c-g1)} .f-g2{fill:var(--c-g2)} .f-g3b{fill:var(--c-g3b)} .f-g3a{fill:var(--c-g3a)}
 .f-eigen{fill:var(--c-eigen)} .s-eigen{stroke:var(--c-eigen)}
@@ -301,7 +307,7 @@ footer a{color:var(--ink-2)}
 </style>
 </head>
 <body>
-<script src="assets/js/site-chrome.js" data-chrome="mini"></script>
+<script src="assets/js/site-chrome.js" data-chrome="mini" data-chrome-pill="off"></script>
 
 <div class="draft-band" role="note">
   <span>Entwurf · noch nicht veröffentlicht · Reviews stehen aus</span>
@@ -348,7 +354,7 @@ footer a{color:var(--ink-2)}
           (bei Statistik: aus der Datei nachgerechnet). Das sagt nichts darüber, ob die Zahl stimmt.</dd>
         <dt><span class="bx w-B">Wert: B</span> <span class="bx w-C">Wert: C</span></dt>
         <dd>Wie gut der Wert selbst belegt ist: B aus einer Quelle, plausibel, nicht gegengeprüft;
-          C kursiert, Original nicht gelesen oder nur aus zweiter Hand. Stufe A (mehrere unabhängige Quellen) kommt hier nicht vor.</dd>
+          C kursiert, Original nicht gelesen oder nur aus zweiter Hand. A hieße: mehrere unabhängige Quellen stimmen überein.</dd>
         <dt><span class="bx w-Beh">Wert: Behauptung</span></dt>
         <dd>Das Dokument nennt die Zahl ohne nachprüfbaren Beleg, oder der genannte Beleg trägt sie nicht.</dd>
         <dt><span class="bx w-ER">Wert: eigene Rechnung</span> <span class="bx w-S">Wert: Setzung (M)</span></dt>
@@ -438,7 +444,1193 @@ footer a{color:var(--ink-2)}
 </footer>
 
 <script>
-/*__SCRIPT__*/
+"use strict";
+/* ================================================================
+   Energiewende Teil 1 · Scroll-Story · Bau P6-C
+   Jeder Tatsachensatz und jede Zahl kommt zur Laufzeit aus
+   energiewende/data/teil1_data.json. Von Hand stehen hier nur
+   Überschriften, Bedienhinweise und Beschriftungen ohne Tatsachengehalt.
+================================================================ */
+const DATA_URL = "energiewende/data/teil1_data.json";
+const BELEGE = "energiewende-1-belege.html";
+const REPO = "https://github.com/Losveratos/PowerBI-Kitchen-/blob/main/energiewende/";
+const REPO_TREE = "https://github.com/Losveratos/PowerBI-Kitchen-/tree/main/energiewende/";
+const NS = "http://www.w3.org/2000/svg";
+const WPM = 200;            // Setzung für die Leseangabe: Wörter je Minute
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const DESK = matchMedia("(min-width:1020px)");
+let D = null;
+const Z = {}, C = {}, GP = {}, QN = {}, ERR = [], DEC = new WeakMap();
+const FIGS = [];            // {st, stepEl, mslot, dslot, rows}
+let BIPMODE = "fest";
+
+/* ---------- Farbschema ---------- */
+$("#theme-btn").addEventListener("click", () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.theme = cur === "dark" ? "light" : "dark";
+});
+
+/* ---------- Daten lesen: Nachkommastellen wie gespeichert merken ---------- */
+function parseData(text){
+  return JSON.parse(text, function(k, v, ctx){
+    if (typeof v === "number" && ctx && typeof ctx.source === "string"){
+      const m = /\.(\d+)/.exec(ctx.source);
+      let rec = DEC.get(this);
+      if (!rec){ rec = {}; DEC.set(this, rec); }
+      rec[k] = m ? m[1].length : 0;
+    }
+    return v;
+  });
+}
+function esc(s){ return String(s === undefined || s === null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* ---------- Zahlenformat: eine Funktion für alle Zahlen ---------- */
+function decOf(v){ const s = String(Math.abs(v)); const i = s.indexOf("."); return i < 0 ? 0 : s.length - i - 1; }
+function decFor(z, key){
+  if (z.dezimalen !== undefined && z.dezimalen !== null) return z.dezimalen;
+  const holder = key ? z.value : z, k = key || "value";
+  const rec = DEC.get(holder);
+  if (rec && rec[k] !== undefined) return rec[k];
+  return decOf(key ? z.value[key] : z.value);
+}
+function isYear(z, key){ return z.unit === "Jahr" || key === "jahr"; }
+function nf(v, d, group){
+  return Math.abs(v).toLocaleString("de-DE", {minimumFractionDigits:d, maximumFractionDigits:d, useGrouping:group});
+}
+function rawVal(id, key){
+  const z = Z[id];
+  if (!z) throw new Error("Zahl fehlt im Datensatz: " + id);
+  const v = key ? (z.value && typeof z.value === "object" ? z.value[key] : undefined) : z.value;
+  if (typeof v !== "number") throw new Error("kein Zahlenwert: " + id + (key ? "|" + key : ""));
+  return v;
+}
+function fmtOne(id, key){ const z = Z[id]; return nf(rawVal(id, key), decFor(z, key), !isYear(z, key)); }
+function fmtRef(id, key, sep){
+  if (key === "spanne") return fmtOne(id, "min") + (sep || " bis ") + fmtOne(id, "max");
+  return fmtOne(id, key);
+}
+/* In Grafiken: Werte in Milliarden, wenn die Einheit Billionen ist */
+function inMrd(id, key){
+  const z = Z[id], v = rawVal(id, key);
+  if (/^Bio\./.test(z.unit)) return {v: v * 1000, s: nf(v * 1000, Math.max(0, decFor(z, key) - 3), true)};
+  return {v, s: fmtOne(id, key)};
+}
+function unitShort(u){
+  return String(u || "").replace(/\s*\((real 2023|EUR2024|verkettet[^)]*)\)/g, "").replace(/EUR/g, "€").trim();
+}
+
+/* ---------- Abzeichen ---------- */
+const WLAB = {"A":"A","B":"B","C":"C","Behauptung":"Behauptung","eigene Rechnung":"eigene Rechnung","Setzung":"Setzung (M)"};
+const WCLS = {"A":"w-A","B":"w-B","C":"w-C","Behauptung":"w-Beh","eigene Rechnung":"w-ER","Setzung":"w-S"};
+function badgeHTML(z){
+  let zit = "";
+  if (z.zitat_geprueft) zit = '<span class="bx zit">Zitat geprüft</span>';
+  else if (z.art === "Zitat" || z.art === "Statistik") zit = '<span class="bx zit no">Zitat nicht geprüft</span>';
+  if (!WCLS[z.wert_konfidenz]) ERR.push("unbekannte Wert-Konfidenz bei " + z.id);
+  return '<span class="bp">' + zit + '<span class="bx ' + WCLS[z.wert_konfidenz] + '">Wert: ' + WLAB[z.wert_konfidenz] + '</span></span>';
+}
+function badgeText(z){
+  return (z.zitat_geprueft ? "Zitat geprüft · " : ((z.art === "Zitat" || z.art === "Statistik") ? "Zitat nicht geprüft · " : "")) + "Wert: " + WLAB[z.wert_konfidenz];
+}
+
+/* ---------- Glossar-Verweise (erste Fundstelle je Begriff) ---------- */
+const GL_TERMS = [
+  ["Brutto-Gesamtkosten", /Brutto-Gesamtkosten/], ["Brutto-Investitionen", /Brutto-Investitionen/],
+  ["Mehrinvestitionen", /Mehrinvestitionen/], ["Mehrkosten", /Mehrkosten/], ["Vergleichspfad", /Vergleichspfad/],
+  ["Systemgrenze", /Systemgrenze/], ["nominal", /\bnominal\b/], ["abgezinst", /abgezinst|Barwert/],
+  ["Annuität", /Systemkosten/], ["Kurzinformation", /Kurzinformation/], ["Dunkelflaute", /Dunkelflaute/]
+];
+const GL_IDX = {}, GL_DONE = new Set();
+function glossify(s){
+  for (const [name, rx] of GL_TERMS){
+    const i = GL_IDX[name];
+    if (i === undefined || GL_DONE.has(i)) continue;
+    const m = rx.exec(s);
+    if (!m) continue;
+    GL_DONE.add(i);
+    s = s.slice(0, m.index) + '<a class="gl" id="glr-' + i + '" href="#gl-' + i + '">' + m[0] + '</a>' + s.slice(m.index + m[0].length);
+  }
+  return s;
+}
+
+/* ---------- Text mit Platzhaltern ---------- */
+const PH = /\[\[([A-Za-z0-9_]+)(?:\|([A-Za-z0-9_]+))?\]\]/g;
+function tokens(text){
+  const out = []; let last = 0, m;
+  PH.lastIndex = 0;
+  while ((m = PH.exec(text))){ out.push({t:text.slice(last, m.index)}); out.push({id:m[1], k:m[2]}); last = PH.lastIndex; }
+  out.push({t:text.slice(last)});
+  return out;
+}
+/* HTML für Fließtext: jede Zahl mit Abzeichen (eine Zahl-ID je Absatz einmal, Spannen am Ende) */
+function rich(text, opt){
+  opt = opt || {};
+  const badged = opt.badged || new Set();
+  const tk = tokens(text);
+  let h = "";
+  for (let i = 0; i < tk.length; i++){
+    const t = tk[i];
+    if (t.t !== undefined){ h += opt.gloss ? glossify(esc(t.t)) : esc(t.t); continue; }
+    let s;
+    try { s = fmtRef(t.id, t.k); } catch (e){ ERR.push(e.message); h += "⚠"; continue; }
+    h += '<span class="z" tabindex="0" role="button" data-z="' + t.id + '" data-k="' + (t.k || "") + '">' + s + '</span>';
+    const nx = tk[i + 2], between = tk[i + 1] ? tk[i + 1].t : "";
+    const join = nx && nx.id === t.id && /^[\s\-–]*(bis|und|oder|,)?\s*$/.test(between) && between.length <= 8;
+    if (!join && !badged.has(t.id)){ h += badgeHTML(Z[t.id]); badged.add(t.id); }
+  }
+  return h;
+}
+/* Klartext für Grafiken */
+function plain(text){
+  return tokens(text).map(t => {
+    if (t.t !== undefined) return t.t;
+    try { return fmtRef(t.id, t.k); } catch (e){ ERR.push(e.message); return "⚠"; }
+  }).join("");
+}
+function sentences(text){ return text.split(/(?<=[.!?])\s+(?=[A-ZÄÖÜ„])/); }
+
+/* ---------- Aussagen ---------- */
+const STATUS_TAG = {"korrigiert":"korrigierte Fassung", "Setzung (M)":"Setzung (M)", "nicht prüfbar":"nicht prüfbar"};
+function srcLine(keys, fundstelle){
+  const chips = (keys || []).map(k => {
+    const q = D.quellen[k];
+    if (!q){ ERR.push("Quelle fehlt: " + k); return ""; }
+    return '<a class="qc" href="#q-' + k + '" title="' + esc(q.titel) + '">Q' + QN[k] + '</a>';
+  }).join("");
+  return '<span class="srcline">Quelle: ' + chips + (fundstelle ? " · " + esc(fundstelle) : "") + '</span>';
+}
+function claimHTML(id, cls){
+  const c = C[id];
+  if (!c){ ERR.push("Aussage fehlt: " + id); return ""; }
+  if (c.ort !== "story" && c.ort !== "beide"){ ERR.push("Aussage " + id + " hat Ort " + c.ort + " und gehört nicht in die Story"); return ""; }
+  const badged = new Set();
+  let h = rich(c.text, {gloss:true, badged});
+  if (c.vorbehalt) h += ' <span class="vb">' + rich(c.vorbehalt, {gloss:true, badged}) + '</span>';
+  if (STATUS_TAG[c.status]) h += '<span class="st' + (c.status === "nicht prüfbar" ? " np" : "") + '">' + STATUS_TAG[c.status] + '</span>';
+  h += srcLine(c.quelle, c.fundstelle);
+  return '<p class="' + (cls || "cl") + '" data-claim="' + id + '" id="c-' + id + '">' + h + '</p>';
+}
+function gpBox(g, opt){
+  opt = opt || {};
+  const badged = new Set();
+  const tag = opt.tile ? "article" : "aside";
+  const title = (opt.tile && g.kachel_titel) ? g.kachel_titel : g.ueberschrift;
+  return '<' + tag + ' class="' + (opt.tile ? "kachel" : "kasten") + '" id="gp-' + g.id + '" data-gp="' + g.id + '">' +
+    (opt.tile ? "" : '<div class="kk">' + esc(g.art) + '</div>') +
+    '<h3>' + esc(title) + '</h3>' +
+    '<p data-claim="' + g.id + '" data-gp-claims="' + g.claims.join(" ") + '">' + rich(g.kurz, {gloss:true, badged}) + '</p>' +
+    '<a class="more" href="' + BELEGE + '#gp-' + g.id + '">Langfassung auf der Belegseite →</a>' +
+    '</' + tag + '>';
+}
+
+/* ---------- Popover zu einer Zahl ---------- */
+const pop = $("#pop");
+function showPop(el){
+  const z = Z[el.dataset.z]; if (!z) return;
+  const k = el.dataset.k || "";
+  const qs = z.quelle.map(q => D.quellen[q] ? '<a href="#q-' + q + '">Q' + QN[q] + '</a> ' + esc(D.quellen[q].titel) : esc(q)).join("<br>");
+  const rows = [
+    ["Abzeichen", esc(badgeText(z))],
+    ["Art", esc(z.art)], ["Status", esc(z.status)],
+    ["Quelle", qs], ["Fundstelle", esc(z.fundstelle)], ["Abgrenzung", esc(z.abgrenzung)]
+  ];
+  if (z.rechenweg) rows.push(["Rechenweg", esc(z.rechenweg)]);
+  pop.innerHTML = '<button type="button" aria-label="Schließen">×</button><div class="pv">' + esc(el.textContent) + " " +
+    esc(unitShort(z.unit)) + '</div><dl>' + rows.map(r => "<dt>" + r[0] + "</dt><dd>" + r[1] + "</dd>").join("") + "</dl>";
+  pop.classList.add("on");
+  const r = el.getBoundingClientRect(), pw = pop.offsetWidth;
+  pop.style.top = (scrollY + r.bottom + 6) + "px";
+  pop.style.left = Math.max(12, Math.min(scrollX + r.left, scrollX + document.documentElement.clientWidth - pw - 12)) + "px";
+  pop.querySelector("button").addEventListener("click", () => { pop.classList.remove("on"); el.focus(); });
+}
+document.addEventListener("click", e => {
+  const z = e.target.closest(".z");
+  if (z){ showPop(z); return; }
+  if (!e.target.closest("#pop")) pop.classList.remove("on");
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") pop.classList.remove("on");
+  if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("z")){ e.preventDefault(); showPop(e.target); }
+});
+
+/* ================================================================
+   SVG-Bausteine. Schrift in Bildpunkten; viewBox-Breite = Darstellungsbreite,
+   die Grafik wird nie skaliert (keine Schrift unter 12 px).
+================================================================ */
+const FONT = {
+  "t-lab":["400 13px Geist",13], "t-labb":["600 13px Geist",13], "t-txt":["400 14px Geist",14],
+  "t-num":["600 13px 'JetBrains Mono'",13], "t-sm":["400 12px 'JetBrains Mono'",12],
+  "t-hd":["700 15px Fraunces",15], "t-big":["700 24px Fraunces",24], "t-mono":["600 14px 'JetBrains Mono'",14]
+};
+const CTX = document.createElement("canvas").getContext("2d");
+const F0 = cls => FONT[String(cls).split(" ")[0]];
+function tw(s, cls){ CTX.font = F0(cls)[0]; return CTX.measureText(s).width; }
+function LH(cls){ return Math.round(F0(cls)[1] * 1.38); }
+function ASC(cls){ return Math.round(F0(cls)[1] * 0.95); }
+function wrap(s, maxW, cls){
+  const words = String(s).split(/\s+/).filter(Boolean), lines = [];
+  let cur = "";
+  for (const w of words){
+    const t = cur ? cur + " " + w : w;
+    if (!cur || tw(t, cls) <= maxW) cur = t; else { lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function E(tag, attrs, parent){
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) if (attrs[k] !== undefined && attrs[k] !== null) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function T(p, x, y, s, cls, anchor){
+  const t = E("text", {x:r1(x), y:r1(y), class:cls}, p);
+  if (anchor) t.setAttribute("text-anchor", anchor);
+  t.textContent = s;
+  return t;
+}
+function r1(v){ return Math.round(v * 10) / 10; }
+/* Textblock: yTop = Oberkante; gibt die Höhe zurück */
+function TB(p, x, yTop, s, maxW, cls, anchor){
+  const ls = wrap(s, maxW, cls), L = LH(cls);
+  ls.forEach((l, i) => T(p, x, yTop + ASC(cls) + i * L, l, cls, anchor));
+  return ls.length * L;
+}
+function TBH(s, maxW, cls){ return wrap(s, maxW, cls).length * LH(cls); }
+function pill(p, x, yTop, s, cls){
+  const w = tw(s, "t-sm") + 12;
+  E("rect", {x:r1(x), y:r1(yTop), width:r1(w), height:18, rx:3, class:cls || "k-card"}, p);
+  T(p, x + 6, yTop + 13, s, "t-sm");
+  return w;
+}
+function defs(svg, pid){
+  const d = E("defs", {}, svg);
+  let p = E("pattern", {id:pid + "-r21", width:6, height:6, patternUnits:"userSpaceOnUse", patternTransform:"rotate(45)"}, d);
+  E("rect", {width:6, height:6, class:"f-r21"}, p); E("rect", {width:2.2, height:6, class:"f-surf"}, p);
+  p = E("pattern", {id:pid + "-hatch", width:7, height:7, patternUnits:"userSpaceOnUse", patternTransform:"rotate(-45)"}, d);
+  E("rect", {width:7, height:7, class:"f-surf"}, p); E("rect", {width:2.4, height:7, class:"f-mid"}, p);
+  p = E("pattern", {id:pid + "-dots", width:5, height:5, patternUnits:"userSpaceOnUse"}, d);
+  E("rect", {width:5, height:5, class:"f-eigen"}, p); E("circle", {cx:2.5, cy:2.5, r:1.2, class:"f-surf"}, p);
+  p = E("pattern", {id:pid + "-udots", width:5, height:5, patternUnits:"userSpaceOnUse"}, d);
+  E("rect", {width:5, height:5, class:"f-surf"}, p); E("circle", {cx:2.5, cy:2.5, r:1.5, class:"f-mid"}, p);
+  const mk = E("marker", {id:pid + "-arr", viewBox:"0 0 10 10", refX:9, refY:5, markerWidth:7, markerHeight:7, orient:"auto-start-reverse"}, d);
+  E("path", {d:"M0,0 L10,5 L0,10 z", class:"f-mid"}, mk);
+  return {r21:"url(#" + pid + "-r21)", hatch:"url(#" + pid + "-hatch)", dots:"url(#" + pid + "-dots)", udots:"url(#" + pid + "-udots)", arr:"url(#" + pid + "-arr)"};
+}
+/* Achse: Schritte, mindestens drei Marken */
+function axisSteps(max, W){
+  const target = W < 520 ? 4 : 7;
+  const st = [0.5, 1, 2, 2.5, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000].find(s => Math.ceil(max / s) <= target) || 5000;
+  let top = Math.ceil(max / st - 1e-9) * st;
+  if (top / st < 2) top = 2 * st;
+  const ticks = [];
+  for (let v = 0; v <= top + 1e-9; v += st) ticks.push(+v.toFixed(6));
+  return {ticks, top, step:st};
+}
+function tickLabel(v){ return v.toLocaleString("de-DE", {maximumFractionDigits:1}); }
+function drawAxis(g, x0, x1, yTop, yBot, ax, unitLabel){
+  const sx = v => x0 + (x1 - x0) * v / ax.top;
+  ax.ticks.forEach(v => {
+    E("line", {x1:r1(sx(v)), x2:r1(sx(v)), y1:yTop, y2:yBot, class:v === 0 ? "k-axis" : "k-grid"}, g);
+    T(g, sx(v), yBot + 15, tickLabel(v), "t-sm", "middle");
+  });
+  if (unitLabel) T(g, x1, yBot + 32, unitLabel, "t-sm", "end");
+  return sx;
+}
+function diamond(g, x, y, r, cls, fill){ return E("path", {d:`M${r1(x)},${r1(y - r)} L${r1(x + r)},${r1(y)} L${r1(x)},${r1(y + r)} L${r1(x - r)},${r1(y)} z`, class:cls, fill}, g); }
+
+/* Zeilen für den Tabellen-Zwilling */
+function row(rows, label, id, key, text){ rows.push({label, id, key, text}); }
+function vtxt(id, key, unitOverride){
+  const z = Z[id];
+  return fmtRef(id, key, "–") + (unitOverride !== undefined ? unitOverride : " " + unitShort(z.unit));
+}
+
+/* ================================================================
+   Grafiken je Schritt
+================================================================ */
+const P = 12;
+const BUILD = {};
+
+/* 1.1 Zitatkarten */
+BUILD["zitatkarte"] = function(svg, st, W, rows, pid){
+  const g = st.grafik, two = W >= 560, gap = two ? 46 : 30;
+  const cw = two ? (W - 2 * P - gap) / 2 : W - 2 * P;
+  const cards = g.karten.map(k => {
+    const unread = /nicht gelesen/.test(k.beschriftung || "");
+    let h = 12 + LH("t-labb");
+    let num = null;
+    if (k.zahlen && k.zahlen.length){
+      const id = k.zahlen[0];
+      num = fmtRef(id) + " " + unitShort(Z[id].unit);
+      row(rows, k.label, id, null, num);
+      h += LH("t-big") + 4;
+    }
+    h += TBH(k.beschriftung, cw - 24, "t-lab") + 6;
+    if (k.abzeichen) h += 24;
+    return {k, unread, num, h: h + 8};
+  });
+  let y = 8, x = P;
+  const H = two ? Math.max(...cards.map(c => c.h)) : 0;
+  cards.forEach((c, i) => {
+    const ch = two ? H : c.h;
+    E("rect", {x:r1(x), y, width:r1(cw), height:r1(ch), class:"k-card" + (c.unread ? " unr" : (i === 1 ? " r21" : ""))}, svg);
+    let yy = y + 12;
+    T(svg, x + 12, yy + ASC("t-labb"), c.k.label, "t-labb"); yy += LH("t-labb");
+    if (c.num){ T(svg, x + 12, yy + ASC("t-big"), c.num, "t-big"); yy += LH("t-big") + 4; }
+    yy += TB(svg, x + 12, yy, c.k.beschriftung, cw - 24, "t-lab") + 6;
+    if (c.k.abzeichen) pill(svg, x + 12, yy, "Wert: " + c.k.abzeichen, "k-card");
+    if (i === 0){
+      if (two) E("line", {x1:r1(x + cw + 4), y1:y + ch / 2, x2:r1(x + cw + gap - 4), y2:y + ch / 2, class:"k-ink", "marker-end":defs.arr}, svg);
+      else E("line", {x1:W / 2, y1:y + ch + 4, x2:W / 2, y2:y + ch + gap - 4, class:"k-ink", "marker-end":defs.arr}, svg);
+    }
+    if (two) x += cw + gap; else y += ch + gap;
+  });
+  return two ? y + H + 10 : y - gap + 10;
+};
+
+/* 1.2 und 2.1 Wortlaut gegenübergestellt */
+BUILD["textvergleich"] = function(svg, st, W, rows){
+  const g = st.grafik, two = W >= 560, gap = 14;
+  const cw = two ? (W - 2 * P - gap) / 2 : W - 2 * P;
+  let cards;
+  if (g.markiert){
+    const id = g.zahlen[0];
+    const v = fmtRef(id, "min") + " bis " + fmtRef(id, "max") + " " + unitShort(Z[id].unit);
+    row(rows, "R21", id, "spanne", fmtRef(id, "spanne", "–") + " " + unitShort(Z[id].unit));
+    cards = g.markiert.map((m, i) => ({kick:"Stelle " + (i + 1), head:"„" + m + "“", lines:[v], r21:true}));
+  } else {
+    const [a, b, c] = g.zahlen;
+    const va = fmtRef(a, "min") + " bis " + fmtRef(a, "max") + " " + unitShort(Z[a].unit);
+    const vb = fmtRef(b) + " " + unitShort(Z[b].unit), vc = fmtRef(c) + " " + unitShort(Z[c].unit);
+    row(rows, "R21-Erklärung", a, "spanne", fmtRef(a, "spanne", "–") + " " + unitShort(Z[a].unit));
+    row(rows, "Kurzinformation", b, null, vb);
+    row(rows, "Kurzinformation", c, null, vc);
+    cards = [{kick:"R21-Erklärung", head:null, lines:[va], r21:true}, {kick:"Kurzinformation", head:null, lines:[vb, vc], r21:false}];
+  }
+  const hOf = c => 12 + LH("t-sm") + (c.head ? TBH(c.head, cw - 24, "t-hd") + 4 : 4) + c.lines.reduce((s, l) => s + TBH(l, cw - 24, "t-mono"), 0) + 12;
+  const H = Math.max(...cards.map(hOf));
+  let x = P, y = 8;
+  cards.forEach(c => {
+    const ch = two ? H : hOf(c);
+    E("rect", {x:r1(x), y:r1(y), width:r1(cw), height:r1(ch), class:"k-card" + (c.r21 ? " r21" : "")}, svg);
+    let yy = y + 12;
+    T(svg, x + 12, yy + ASC("t-sm"), c.kick, "t-sm"); yy += LH("t-sm");
+    if (c.head) yy += TB(svg, x + 12, yy + 2, c.head, cw - 24, "t-hd c-r21") + 4; else yy += 4;
+    c.lines.forEach(l => { yy += TB(svg, x + 12, yy, l, cw - 24, "t-mono"); });
+    if (two) x += cw + gap; else y += ch + gap;
+  });
+  return two ? y + H + 10 : y - gap + 10;
+};
+
+/* 1.3, 4.2, 4.4 Balken */
+function hbars(g, x0, y0, w, list, opt, pd, rows){
+  /* list: {label, v | lo,hi, mid, txt, fill, cls, gap} */
+  const lab = "t-lab", reserve = Math.max(...list.map(r => tw(r.txt, "t-num"))) + 10;
+  const max = Math.max(...list.map(r => r.hi !== undefined ? r.hi : r.v));
+  const ax = axisSteps(max, w);
+  const plotW = w - reserve, bh = 14;
+  let y = y0;
+  const sx = v => x0 + plotW * v / ax.top;
+  const items = [];
+  list.forEach(r => {
+    if (r.gap){ y += 10; E("line", {x1:x0, x2:x0 + w, y1:r1(y - 5), y2:r1(y - 5), class:"k-axis", "stroke-dasharray":"3 3"}, g); }
+    const lh = TB(g, x0, y, r.label, w, lab);
+    y += lh + 2;
+    items.push({r, y});
+    y += bh + 10;
+  });
+  const yBot = y - 4;
+  drawAxis(g, x0, x0 + plotW, y0, yBot, ax, opt.unit);
+  items.forEach(({r, y}) => {
+    const a = r.lo !== undefined ? r.lo : 0, b = r.hi !== undefined ? r.hi : r.v;
+    E("rect", {x:r1(sx(a)), y:r1(y), width:r1(Math.max(2, sx(b) - sx(a))), height:bh, class:r.cls || "", fill:r.fill}, g);
+    if (r.mid !== undefined) E("line", {x1:r1(sx(r.mid)), x2:r1(sx(r.mid)), y1:r1(y - 4), y2:r1(y + bh + 4), class:"k-ink", "stroke-width":2.5}, g);
+    T(g, sx(b) + 6, y + bh - 2, r.txt, "t-num");
+  });
+  return yBot + 38 - y0;
+}
+
+BUILD["balken"] = function(svg, st, W, rows, pf){
+  const g = st.grafik;
+  if (st.id === "1.3"){
+    const bip = g.reihen[0], lo = g.reihen[1], hi = g.reihen[2];
+    const list = g.reihen.map(r => {
+      const m = inMrd(r.zahl, r.schluessel);
+      const txt = fmtRef(r.zahl, r.schluessel) + " " + unitShort(Z[r.zahl].unit);
+      row(rows, r.label, r.zahl, r.schluessel, txt);
+      return {label:r.label, v:m.v, txt, fill:r.zahl.startsWith("r21") ? pf.r21 : undefined, cls:r.zahl.startsWith("r21") ? "s-r21" : "f-g1"};
+    });
+    let h = hbars(svg, P, 8, W - 2 * P, list, {unit:"Mrd. €"}, pf, rows);
+    /* Einteilung in Vielfache des BIP 2025 auf den R21-Balken */
+    const bipV = inMrd(bip.zahl).v;
+    const plotW = (W - 2 * P) - (Math.max(...list.map(r => tw(r.txt, "t-num"))) + 10);
+    const ax = axisSteps(Math.max(...list.map(r => r.v)), W - 2 * P);
+    const sx = v => P + plotW * v / ax.top;
+    const bars = $$("rect", svg).filter(r => r.getAttribute("fill") === pf.r21);
+    bars.forEach(b => {
+      const y = +b.getAttribute("y"), bw = +b.getAttribute("width");
+      for (let k = 1; bipV * k <= (bw / plotW) * ax.top + 1e-6; k++) E("line", {x1:r1(sx(bipV * k)), x2:r1(sx(bipV * k)), y1:y - 3, y2:y + 17, class:"k-ink", "stroke-width":2}, svg);
+    });
+    let y = 8 + h + 4;
+    y += TB(svg, P, y, "Senkrechte Striche auf den R21-Balken: je ein BIP 2025", W - 2 * P, "t-sm") + 14;
+    /* Satzkarte: Kapitalstock (Zitat aus der Aussage S08) */
+    const q = /„([^“]+)“/.exec(C["S08"].text);
+    if (q){
+      const cw = W - 2 * P, qt = "„" + q[1] + "“";
+      const hh = 12 + LH("t-sm") + TBH(qt, cw - 24, "t-hd") + 12;
+      E("rect", {x:P, y, width:r1(cw), height:r1(hh), class:"k-card r21"}, svg);
+      T(svg, P + 12, y + 12 + ASC("t-sm"), "R21-Erklärung", "t-sm");
+      TB(svg, P + 12, y + 12 + LH("t-sm") + 2, qt, cw - 24, "t-hd c-r21");
+      y += hh;
+    }
+    return y + 10;
+  }
+  if (st.id === "4.2"){
+    const [r0, r1_, r2] = g.reihen;
+    let y = 8;
+    T(svg, P, y + ASC("t-hd"), "Insgesamt, " + unitShort(Z[r0.zahl].unit), "t-hd"); y += LH("t-hd") + 6;
+    const a = [r0, r1_].map(r => {
+      const z = Z[r.zahl], txt = fmtRef(r.zahl, r.schluessel, "–") + " " + unitShort(z.unit);
+      row(rows, r.label, r.zahl, r.schluessel, txt);
+      const own = z.wert_konfidenz === "eigene Rechnung";
+      if (r.schluessel === "spanne") return {label:r.label + (own ? " (eigene Rechnung)" : ""), lo:rawVal(r.zahl, "min"), hi:rawVal(r.zahl, "max"), txt, fill:pf.dots, cls:"s-eigen"};
+      return {label:r.label, v:rawVal(r.zahl), txt, cls:"f-g1"};
+    });
+    y += hbars(svg, P, y, W - 2 * P, a, {unit:unitShort(Z[r0.zahl].unit)}, pf, rows);
+    y += 8;
+    T(svg, P, y + ASC("t-hd"), "Pro Jahr, " + unitShort(Z[r2.zahl].unit).replace(/ pro Jahr$/, ""), "t-hd"); y += LH("t-hd") + 6;
+    const txt = fmtRef(r2.zahl, "spanne", "–") + " " + unitShort(Z[r2.zahl].unit) + ", Mitte " + fmtRef(r2.zahl, "mid");
+    row(rows, r2.label, r2.zahl, "spanne", fmtRef(r2.zahl, "spanne", "–") + " " + unitShort(Z[r2.zahl].unit));
+    row(rows, r2.label + " (mittleres Szenario)", r2.zahl, "mid", fmtRef(r2.zahl, "mid") + " " + unitShort(Z[r2.zahl].unit));
+    y += hbars(svg, P, y, W - 2 * P, [{label:r2.label, lo:rawVal(r2.zahl, "min"), hi:rawVal(r2.zahl, "max"), mid:rawVal(r2.zahl, "mid"),
+      txt:fmtRef(r2.zahl, "spanne", "–"), cls:"f-g3b"}], {unit:unitShort(Z[r2.zahl].unit)}, pf, rows);
+    T(svg, P, y + ASC("t-sm"), "Dicker Strich: mittleres Szenario", "t-sm");
+    return y + LH("t-sm") + 8;
+  }
+  if (st.id === "4.4"){
+    _gap = false;
+    const list = g.reihen.map(r => {
+      const m = inMrd(r.zahl, r.schluessel);
+      const txt = m.s + " Mrd. €";
+      row(rows, r.label, r.zahl, r.schluessel, fmtRef(r.zahl, r.schluessel) + " " + unitShort(Z[r.zahl].unit));
+      const isR21 = r.zahl.startsWith("r21");
+      return {label:r.label, v:m.v, txt, gap:r.absetzen && !list_gap_done(), fill:r.absetzen && !isR21 ? pf.hatch : (isR21 ? pf.r21 : undefined),
+        cls:isR21 ? "s-r21" : (r.absetzen ? "k-axis" : "f-g1")};
+    });
+    let h = hbars(svg, P, 8, W - 2 * P, list, {unit:"Mrd. €"}, pf, rows);
+    let y = 8 + h;
+    y += legendRow(svg, P, y, W - 2 * P, [["stripe", pf.r21, "R21"], ["hatch", pf.hatch, "abgesetzt"]]);
+    return y + 6;
+  }
+  return 10;
+};
+let _gap = false;
+function list_gap_done(){ if (_gap) return true; _gap = true; return false; }
+function legendRow(g, x, y, w, items){
+  let cx = x, cy = y + 4;
+  items.forEach(([kind, fill, label]) => {
+    const lines = wrap(label, w - 26, "t-sm");
+    const iw = 26 + Math.max(...lines.map(l => tw(l, "t-sm"))) + 14;
+    if (cx > x && cx + iw > x + w){ cx = x; cy += 22; }
+    if (kind === "stripe") E("rect", {x:cx, y:cy, width:20, height:12, fill, class:"s-r21"}, g);
+    else if (kind === "hatch") E("rect", {x:cx, y:cy, width:20, height:12, fill, class:"k-axis"}, g);
+    else if (kind === "dots") E("rect", {x:cx, y:cy, width:20, height:12, fill, class:"s-eigen"}, g);
+    else if (kind === "udots") E("rect", {x:cx, y:cy, width:20, height:12, fill, class:"s-unr"}, g);
+    else if (kind === "dash") E("line", {x1:cx + 10, x2:cx + 10, y1:cy - 2, y2:cy + 14, class:"s-r21", "stroke-width":2.5, "stroke-dasharray":"5 3"}, g);
+    else if (kind === "diamond") diamond(g, cx + 10, cy + 6, 6, fill);
+    else if (kind === "circle") E("circle", {cx:cx + 10, cy:cy + 6, r:5, class:"k-ink"}, g);
+    else if (kind === "band") E("rect", {x:cx, y:cy - 2, width:20, height:16, class:"f-band k-axis"}, g);
+    else E("rect", {x:cx, y:cy, width:20, height:12, class:fill}, g);
+    lines.forEach((l, i) => T(g, cx + 26, cy + 11 + i * LH("t-sm"), l, "t-sm"));
+    cx += iw;
+    if (lines.length > 1){ cy += (lines.length - 1) * LH("t-sm"); cx = x + w; }
+  });
+  return cy + 22 - y;
+}
+
+/* 1.4 Zählstreifen */
+BUILD["zaehlstreifen"] = function(svg, st, W, rows, pf){
+  const g = st.grafik, id = g.zahlen[0], z = Z[id];
+  const cats = g.kategorien;
+  const NAMES = {mit_literatur:"Literaturangabe", nur_urheber:"nur Urheber genannt", verweis_factsheet:"Verweis auf ein eigenes Factsheet",
+    rechnung_r21:"eigene Umrechnung von R21", ohne_quelle:"ohne Quelle"};
+  const STY = {mit_literatur:{cls:"f-ink"}, nur_urheber:{cls:"f-mid"}, verweis_factsheet:{fill:pf.hatch, cls:"k-strk"},
+    rechnung_r21:{fill:pf.udots, cls:"k-strk"}, ohne_quelle:{cls:"f-surf k-strk"}};
+  const total = rawVal(id, "gesamt");
+  row(rows, "Zahlen im Haupttext, gesamt", id, "gesamt", fmtRef(id, "gesamt"));
+  const s = 18, gp = 4, cols = Math.max(5, Math.floor((W - 2 * P + gp) / (s + gp)));
+  let k = 0, y = 10;
+  cats.forEach(c => {
+    const n = rawVal(id, c);
+    row(rows, NAMES[c] || c, id, c, fmtRef(id, c));
+    for (let i = 0; i < n; i++, k++){
+      const cx = P + (k % cols) * (s + gp), cy = y + Math.floor(k / cols) * (s + gp);
+      const st_ = STY[c] || {cls:"f-mid"};
+      E("rect", {x:cx, y:cy, width:s, height:s, class:st_.cls, fill:st_.fill}, svg);
+    }
+  });
+  y += Math.ceil(total / cols) * (s + gp) + 12;
+  cats.forEach(c => {
+    const st_ = STY[c] || {cls:"f-mid"};
+    E("rect", {x:P, y, width:16, height:16, class:st_.cls, fill:st_.fill}, svg);
+    const lbl = fmtRef(id, c) + " · " + (NAMES[c] || c);
+    y += Math.max(20, TB(svg, P + 24, y, lbl, W - 2 * P - 24, "t-lab") + 4);
+  });
+  return y + 4;
+};
+
+/* 2.2 Suchfeld */
+BUILD["suchfeld"] = function(svg, st, W, rows){
+  const g = st.grafik, [a, b] = g.zahlen;
+  const bw = Math.min(W - 2 * P, 420);
+  let y = 10;
+  E("rect", {x:P, y, width:bw, height:38, rx:19, class:"k-card"}, svg);
+  E("circle", {cx:P + 22, cy:y + 18, r:7, class:"k-ink"}, svg);
+  E("line", {x1:P + 27, y1:y + 23, x2:P + 32, y2:y + 28, class:"k-ink"}, svg);
+  T(svg, P + 42, y + 24, fmtRef(a, "max"), "t-mono");
+  row(rows, "Gesucht: R21, obere Angabe", a, "max", fmtRef(a, "max") + " " + unitShort(Z[a].unit));
+  y += 50;
+  y += TB(svg, P, y, g.untertitel, W - 2 * P, "t-labb") + 18;
+  const cw = W - 2 * P;
+  const txt = fmtRef(b) + " " + unitShort(Z[b].unit) + " ?";
+  const hh = 12 + LH("t-big") + TBH(g.beschriftung, cw - 24, "t-lab") + 34;
+  E("rect", {x:P, y, width:cw, height:hh, class:"k-card"}, svg);
+  T(svg, P + 12, y + 12 + ASC("t-big"), txt, "t-big");
+  TB(svg, P + 12, y + 12 + LH("t-big") + 2, g.beschriftung, cw - 24, "t-lab");
+  pill(svg, P + 12, y + hh - 26, "Wert: Setzung (M)", "k-card");
+  row(rows, "R21, untere Angabe", b, null, fmtRef(b) + " " + unitShort(Z[b].unit));
+  return y + hh + 10;
+};
+
+/* 2.3 Wer rechnet hier? */
+BUILD["schema"] = function(svg, st, W, rows, pf){
+  const q1 = D.quellen["pwc_2024"], q2 = D.quellen["faz_pittel_2019"];
+  const cw = Math.min(W - 2 * P, 300), cx = (W - cw) / 2;
+  let y = 10;
+  E("rect", {x:r1(cx), y, width:cw, height:44, class:"k-card"}, svg);
+  T(svg, W / 2, y + 27, "Kurzinformation", "t-labb", "middle");
+  y += 44;
+  const two = W >= 300, bw = two ? (W - 2 * P - 20) / 2 : W - 2 * P;
+  const boxes = [q1, q2].map(q => ({t:q.herausgeber + " (" + String(q.datum).slice(0, 4) + ")", s:q.art}));
+  const hb = Math.max(...boxes.map(b => 12 + TBH(b.t, bw - 24, "t-labb") + LH("t-sm") + 10));
+  const yb = y + 56;
+  boxes.forEach((b, i) => {
+    const bx = two ? P + i * (bw + 20) : P, by = two ? yb : yb + i * (hb + 46);
+    E("line", {x1:W / 2, y1:y + 2, x2:r1(bx + bw / 2), y2:by - 4, class:"k-ink", "marker-end":pf.arr}, svg);
+    E("rect", {x:r1(bx), y:by, width:r1(bw), height:hb, class:"k-card unr"}, svg);
+    const h = TB(svg, bx + 12, by + 10, b.t, bw - 24, "t-labb");
+    T(svg, bx + 12, by + 10 + h + ASC("t-sm"), b.s, "t-sm c-unr");
+  });
+  return (two ? yb + hb : yb + 2 * hb + 46) + 12;
+};
+
+/* 2.4 und 5.1 Waage */
+function waage(svg, x0, y0, W){
+  const cx = x0 + W / 2, span = Math.min(W / 2 - 78, 210), top = y0 + 14;
+  E("line", {x1:cx, y1:top, x2:cx, y2:top + 86, class:"k-ink", "stroke-width":2.5}, svg);
+  E("path", {d:`M${cx - 26},${top + 96} L${cx + 26},${top + 96} L${cx},${top + 80} z`, class:"f-mid"}, svg);
+  E("line", {x1:cx - span, y1:top + 6, x2:cx + span, y2:top + 6, class:"k-ink", "stroke-width":2.5}, svg);
+  E("circle", {cx, cy:top + 6, r:4, class:"f-ink"}, svg);
+  const labels = ["mit Energiewende", "ohne Energiewende"];
+  [-1, 1].forEach((d, i) => {
+    const px = cx + d * span;
+    E("line", {x1:px - 34, y1:top + 50, x2:px, y2:top + 6, class:"k-ink"}, svg);
+    E("line", {x1:px + 34, y1:top + 50, x2:px, y2:top + 6, class:"k-ink"}, svg);
+    E("path", {d:`M${px - 46},${top + 50} Q${px},${top + 78} ${px + 46},${top + 50} z`, class:"k-card"}, svg);
+    T(svg, px, top + 100, labels[i], "t-labb", "middle");
+  });
+  return 122;
+}
+BUILD["waage"] = function(svg, st, W){ return waage(svg, 0, 6, W) + 12; };
+
+/* 3.1 Quellenkette */
+BUILD["quellenkette"] = function(svg, st, W, rows, pf){
+  const s = st.grafik.stufen, n = s.length, horiz = W >= 620, gap = horiz ? 26 : 22;
+  const bw = horiz ? (W - 2 * P - (n - 1) * gap) / n : Math.min(W - 2 * P, 320);
+  const bh = 58;
+  s.forEach((st_, i) => {
+    const x = horiz ? P + i * (bw + gap) : (W - bw) / 2, y = horiz ? 10 : 10 + i * (bh + gap);
+    E("rect", {x:r1(x), y, width:r1(bw), height:bh, class:"k-card" + (st_.gelesen ? (st_.label === "R21" ? " r21" : "") : " unr")}, svg);
+    T(svg, x + bw / 2, y + 24, st_.label, "t-labb", "middle");
+    T(svg, x + bw / 2, y + 44, st_.gelesen ? "gelesen" : "nicht gelesen", "t-sm" + (st_.gelesen ? "" : " c-unr"), "middle");
+    if (i < n - 1){
+      if (horiz) E("line", {x1:r1(x + bw + 3), y1:y + bh / 2, x2:r1(x + bw + gap - 3), y2:y + bh / 2, class:"k-ink", "marker-end":pf.arr}, svg);
+      else E("line", {x1:W / 2, y1:y + bh + 2, x2:W / 2, y2:y + bh + gap - 2, class:"k-ink", "marker-end":pf.arr}, svg);
+    }
+  });
+  return (horiz ? 10 + bh : 10 + n * (bh + gap) - gap) + 12;
+};
+
+/* 3.2 Gestapelte Balken, nicht gelesen */
+BUILD["gestapelte_balken"] = function(svg, st, W, rows, pf){
+  const g = st.grafik;
+  let y = 8;
+  y += 4 + 18 + 8; pill(svg, P, 8, "Wert: C · nicht am Original gelesen", "f-unr");
+  const tot = g.reihen.map(r => rawVal(r.zahl, "gesamt"));
+  const reserve = Math.max(...g.reihen.map(r => tw(fmtRef(r.zahl, "gesamt") + " " + unitShort(Z[r.zahl].unit), "t-num"))) + 10;
+  const ax = axisSteps(Math.max(...tot), W - 2 * P), plotW = W - 2 * P - reserve;
+  const sx = v => P + plotW * v / ax.top;
+  const y0 = y;
+  const items = [];
+  g.reihen.forEach(r => {
+    y += TB(svg, P, y, r.label, W - 2 * P, "t-labb") + 2;
+    items.push({r, y});
+    y += 18 + 8;
+    const parts = r.teile.map(t => (t === "investitionen" ? "Investitionen " : "Energiekosten ") + fmtRef(r.zahl, t));
+    y += TB(svg, P, y, parts.join(" · ") + " " + unitShort(Z[r.zahl].unit), W - 2 * P, "t-sm") + 12;
+    row(rows, r.label + ", gesamt", r.zahl, "gesamt", fmtRef(r.zahl, "gesamt") + " " + unitShort(Z[r.zahl].unit));
+    r.teile.forEach(t => row(rows, r.label + ", " + (t === "investitionen" ? "Investitionen" : "Energiekosten"), r.zahl, t, fmtRef(r.zahl, t) + " " + unitShort(Z[r.zahl].unit)));
+  });
+  const yBot = y - 6;
+  drawAxis(svg, P, P + plotW, y0, yBot, ax, unitShort(Z[g.reihen[0].zahl].unit));
+  items.forEach(({r, y}) => {
+    let acc = 0;
+    r.teile.forEach((t, i) => {
+      const v = rawVal(r.zahl, t);
+      E("rect", {x:r1(sx(acc)), y, width:r1(sx(acc + v) - sx(acc)), height:18,
+        class:i === 0 ? "f-unrs s-unr" : "s-unr", fill:i === 0 ? undefined : pf.udots}, svg);
+      acc += v;
+    });
+    T(svg, sx(acc) + 6, y + 14, fmtRef(r.zahl, "gesamt") + " " + unitShort(Z[r.zahl].unit), "t-num");
+  });
+  y = yBot + 38;
+  y += legendRow(svg, P, y, W - 2 * P, [["plain", "f-unrs s-unr", "Investitionen"], ["udots", pf.udots, "Energiekosten"]]);
+  return y + 4;
+};
+
+/* 3.3 Kasten nicht gelesen */
+BUILD["kasten_nicht_gelesen"] = function(svg, st, W, rows){
+  const q = D.quellen["faz_pittel_2019"], cw = Math.min(W - 2 * P, 520), x = P;
+  const id = "wd_kosten_pro_jahr";
+  const num = fmtRef(id) + " " + unitShort(Z[id].unit) + " ?";
+  row(rows, "Kurzinformation nennt", id, null, fmtRef(id) + " " + unitShort(Z[id].unit));
+  const h = 14 + TBH(q.titel, cw - 24, "t-hd") + 8 + LH("t-big") + 8 + TBH(st.grafik.beschriftung, cw - 24, "t-lab") + 14;
+  E("rect", {x, y:10, width:cw, height:h, class:"k-card unr"}, svg);
+  let y = 24;
+  y += TB(svg, x + 12, y, q.titel, cw - 24, "t-hd") + 8;
+  T(svg, x + 12, y + ASC("t-big"), num, "t-big c-unr"); y += LH("t-big") + 8;
+  TB(svg, x + 12, y, st.grafik.beschriftung, cw - 24, "t-lab");
+  return 10 + h + 10;
+};
+
+/* 4.3 und 5.2 Punktdiagramm */
+const OWN = {ise2024_g1:["ise2024_bip_studie", "min", "max"], agora_g2:["agora_bip_studie", "gesamt"], kfw2021_g2:["kfw2021", "bip_studie"],
+  ariadne_g2:["ariadne_bip_studie"], agora_g3a:["agora_bip_studie", "mehr"], ise2021_g3b:["ise2021_bip_studie", "suffizienz", "max"]};
+function studie(id){ const s = D.studien.find(x => x.id === id); if (!s) ERR.push("Studie fehlt: " + id); return s; }
+function shortName(s){ return s.studie.replace(/\s*„[^“]*“/g, "").replace(/\s+/g, " ").trim(); }
+function bipRef(s, mode){ return s.zahlen_erzeugt[mode === "fest" ? "bip_fest" : "bip_wachsend"]; }
+function lohi(id){ const v = Z[id].value; return typeof v === "number" ? [v, v] : [v.min, v.max]; }
+function styleOf(s, pf){
+  switch (s.groesse){
+    case "G1": return {cls:"f-g1"};
+    case "G2": return {cls:"f-g2"};
+    case "G3a": return {cls:"h-g3a"};
+    case "G3b": return {cls:"f-g3b"};
+    case "Zuwachs": return {cls:"f-zuw"};
+    default: return {cls:"s-r21", fill:pf.r21};
+  }
+}
+function forest(svg, x0, y0, W, groups, opt, pf){
+  const wide = W >= 640;
+  const lw = wide ? Math.min(340, Math.round(W * 0.42)) : 0;
+  const all = [];
+  groups.forEach(gr => gr.items.forEach(it => all.push(it)));
+  const reserve = Math.max(...all.map(it => tw(it.txt, "t-num"))) + 12;
+  const px0 = x0 + lw, px1 = x0 + W - reserve;
+  const max = Math.max(opt.max || 0, ...all.map(it => it.hi), ...all.map(it => it.own ? it.own[1] : 0));
+  const ax = axisSteps(max, px1 - px0);
+  const sx = v => px0 + (px1 - px0) * v / ax.top;
+  let y = y0 + (opt.topPad || 0);
+  const yStart = y;
+  const marks = [];
+  groups.forEach(gr => {
+    const gy0 = y;
+    y += TB(svg, x0, y + 4, gr.label, W, "t-labb halo") + 8;
+    gr.items.forEach(it => {
+      let nameH = 0;
+      if (wide){
+        nameH = TBH(it.name, lw - 10, "t-lab");
+        const rh = Math.max(nameH, 18);
+        TB(svg, x0, y, it.name, lw - 10, "t-lab halo");
+        marks.push({it, y:y + Math.min(rh, 20) / 2 + 1});
+        y += rh + 6;
+      } else {
+        y += TB(svg, x0, y, it.name, W, "t-lab halo") + 2;
+        marks.push({it, y:y + 9});
+        y += 24;
+      }
+    });
+    gr.y0 = gy0 + LH("t-labb") + 8; gr.y1 = y - 4;
+    y += 6;
+  });
+  const yBot = y;
+  /* Hintergründe zuerst */
+  const bgG = E("g", {}, svg);
+  if (opt.bg){
+    const [a, b] = opt.bg.range;
+    E("rect", {x:r1(sx(a)), y:yStart - 2, width:r1(sx(b) - sx(a)), height:r1(yBot - yStart + 2), fill:pf.hatch, opacity:0.5}, bgG);
+  }
+  groups.forEach(gr => {
+    if (gr.band){
+      E("rect", {x:r1(sx(gr.band[0])), y:r1(gr.y0 - 4), width:r1(Math.max(3, sx(gr.band[1]) - sx(gr.band[0]))), height:r1(gr.y1 - gr.y0 + 6), class:"f-band"}, bgG);
+    }
+  });
+  const dn = svg.querySelector("defs");
+  svg.insertBefore(bgG, dn ? dn.nextSibling : svg.firstChild);
+  drawAxis(svg, px0, px1, yStart - 4, yBot, ax, opt.unit);
+  marks.forEach(({it, y}) => {
+    if (it.lo === it.hi) diamond(svg, sx(it.lo), y, 6.5, it.sty.cls, it.sty.fill);
+    else E("rect", {x:r1(sx(it.lo)), y:r1(y - 5), width:r1(Math.max(3, sx(it.hi) - sx(it.lo))), height:10, class:it.sty.cls, fill:it.sty.fill}, svg);
+    if (it.own){
+      if (it.own[0] !== it.own[1]) E("line", {x1:r1(sx(it.own[0])), x2:r1(sx(it.own[1])), y1:r1(y + 10), y2:r1(y + 10), class:"k-ink", "stroke-width":1}, svg);
+      [...new Set(it.own)].forEach(v => E("circle", {cx:r1(sx(v)), cy:r1(y + 10), r:4, class:"k-ink f-surf"}, svg));
+    }
+    T(svg, sx(Math.max(it.hi, it.own ? it.own[1] : 0)) + 9, y + 5, it.txt, "t-num halo");
+  });
+  if (opt.r21line){
+    opt.r21line.vals.forEach(v => E("line", {x1:r1(sx(v)), x2:r1(sx(v)), y1:yStart - 4, y2:yBot, class:"s-r21", "stroke-width":2.5, "stroke-dasharray":"6 4"}, svg));
+  }
+  return {h:yBot + 38 - y0, sx, yStart, yBot};
+}
+function studyItems(ids, mode, pf, rows, withOwn){
+  return ids.map(id => {
+    const s = studie(id); if (!s) return null;
+    const ref = bipRef(s, mode), [lo, hi] = lohi(ref);
+    let own = null;
+    if (withOwn && OWN[id]){
+      const [zid, ka, kb] = OWN[id];
+      const a = ka ? rawVal(zid, ka) : rawVal(zid), b = kb ? rawVal(zid, kb) : a;
+      own = [a, b];
+    }
+    return {id, name:shortName(s), lo, hi, own, sty:styleOf(s, pf),
+      txt:(lo === hi ? fmtOne(ref, typeof Z[ref].value === "number" ? null : "min") : fmtRef(ref, "spanne", "–")) + " %"};
+  }).filter(Boolean);
+}
+BUILD["punktdiagramm"] = function(svg, st, W, rows, pf){
+  const g = st.grafik, mode = BIPMODE;
+  let y = 8;
+  y += legendRow(svg, P, y, W - 2 * P, [["diamond", "f-g1", "Einzelwert"], ["plain", "f-g1", "Spanne der Studie"], ["band", "", "Spanne der Gruppe"], ["circle", "", "Angabe der Studie"]]);
+  y += 4;
+  const BANDKEY = {"G1 und G2 brutto":"brutto", "G3a Mehrinvestitionen":"g3a", "G3b Mehrkosten":"g3b"};
+  const groups = g.gruppen.map(gr => {
+    const items = studyItems(gr.studien, mode, pf, rows, true);
+    const bk = BANDKEY[gr.label];
+    const band = bk ? lohi("spanne_" + bk + "_" + (mode === "fest" ? "fest" : "wachsend")) : null;
+    return {label:gr.label, items, band};
+  });
+  const f = forest(svg, P, y, W - 2 * P, groups, {unit:mode === "fest" ? "% des BIP 2024 pro Jahr" : "% des mittleren BIP pro Jahr"}, pf);
+  return y + f.h + 4;
+};
+BUILD["zwei_gruppen"] = function(svg, st, W, rows, pf){
+  const g = st.grafik;
+  let y = 8;
+  const bg = lohi(g.hintergrund.zahl), r21 = studie(g.r21.studie), r21v = lohi(bipRef(r21, "fest"));
+  y += legendRow(svg, P, y, W - 2 * P, [["hatch", pf.hatch, g.hintergrund.label + ": " + fmtRef(g.hintergrund.zahl, "spanne", "–") + " %"],
+    ["dash", "", g.r21.beschriftung + ": " + fmtRef(bipRef(r21, "fest"), "spanne", "–") + " %"]]);
+  y += 2;
+  y += legendRow(svg, P, y, W - 2 * P, [["diamond", "f-g3b", "Einzelwert"], ["plain", "f-g3b", "Spanne der Studie"]]);
+  y += 4;
+  const groups = g.gruppen.map(gr => ({label:gr.label, items:studyItems(gr.studien, "fest", pf, rows, false)}));
+  const f = forest(svg, P, y, W - 2 * P, groups, {unit:"% des BIP 2024 pro Jahr", max:r21v[1], bg:{range:bg}, r21line:{vals:r21v}}, pf);
+  return y + f.h + 4;
+};
+
+/* 5.1 Was R21 für den eigenen Kurs beziffert */
+BUILD["waage_und_balken"] = function(svg, st, W, rows, pf){
+  const g = st.grafik;
+  let y = 4;
+  y += waage(svg, 0, y, W) + 8;
+  T(svg, P, y + ASC("t-hd"), "Kernkraft-Neubau, " + "Mrd. €", "t-hd"); y += LH("t-hd") + 6;
+  const list = g.reihen.map(r => {
+    const z = Z[r.zahl];
+    const own = z.wert_konfidenz === "eigene Rechnung" || z.wert_konfidenz === "Setzung" || r.abzeichen;
+    if (r.schluessel === "spanne"){
+      const txt = fmtRef(r.zahl, "min") + ", " + fmtRef(r.zahl, "mid") + ", " + fmtRef(r.zahl, "max");
+      row(rows, r.label, r.zahl, "spanne", txt + " " + unitShort(z.unit));
+      return {label:r.label + (r.abzeichen ? " · " + (r.abzeichen === "Setzung" ? "Setzung (M)" : r.abzeichen) : ""), lo:rawVal(r.zahl, "min"), hi:rawVal(r.zahl, "max"), mid:rawVal(r.zahl, "mid"), txt:fmtRef(r.zahl, "spanne", "–"), fill:pf.dots, cls:"s-eigen"};
+    }
+    row(rows, r.label, r.zahl, null, fmtRef(r.zahl) + " " + unitShort(z.unit));
+    return {label:r.label, v:rawVal(r.zahl), txt:fmtRef(r.zahl), fill:pf.r21, cls:"s-r21"};
+  });
+  y += hbars(svg, P, y, W - 2 * P, list, {unit:"Mrd. €"}, pf, rows);
+  T(svg, P, y + ASC("t-sm"), "Dicker Strich: mittlerer Ansatz", "t-sm"); y += LH("t-sm") + 14;
+  /* Zeitachse als Legende untereinander */
+  const two = W >= 640, colW = two ? (W - 2 * P - 24) / 2 : W - 2 * P;
+  const yA = y;
+  const za = g.zeitachse, labs = za.legende.split(" · "), keys = ["min", "mid", "max"];
+  let ya = yA;
+  T(svg, P, ya + ASC("t-hd"), "Erster Neubau am Netz", "t-hd"); ya += LH("t-hd") + 4;
+  pill(svg, P, ya, "Wert: Setzung (M)", "k-card"); ya += 24;
+  keys.forEach((k, i) => {
+    T(svg, P, ya + ASC("t-lab"), labs[i] || k, "t-lab");
+    T(svg, P + colW, ya + ASC("t-mono"), fmtRef(za.zahl, k), "t-mono", "end");
+    row(rows, "Erster Neubau am Netz, " + (labs[i] || k), za.zahl, k, fmtRef(za.zahl, k));
+    ya += 22;
+  });
+  T(svg, P, ya + ASC("t-lab"), "R21 (Bauzeit nach R21)", "t-lab c-r21");
+  T(svg, P + colW, ya + ASC("t-mono"), fmtRef(za.r21), "t-mono c-r21", "end");
+  row(rows, "R21, Bauende nach R21s Bauzeit", za.r21, null, fmtRef(za.r21));
+  ya += 26;
+  /* Systempreis */
+  const xB = two ? P + colW + 24 : P;
+  let yb = two ? yA : ya + 10;
+  T(svg, xB, yb + ASC("t-hd"), "Systempreis Strom", "t-hd"); yb += LH("t-hd") + 4;
+  pill(svg, xB, yb, "Wert: C · Studie nicht gelesen", "f-unr"); yb += 24;
+  const [sp, ws] = g.systempreis.zahlen;
+  const sys = [["R21", sp, null], ["R21-Referenzpapier, Mischsystem", ws, "mix"], ["R21-Referenzpapier, nur Erneuerbare", ws, "nur_ee"]];
+  sys.forEach(([l, id, k]) => {
+    const v = fmtRef(id, k) + " " + unitShort(Z[id].unit);
+    const lw = colW - tw(v, "t-mono") - 10;
+    const h = TB(svg, xB, yb, l, lw, "t-lab" + (l === "R21" ? " c-r21" : ""));
+    T(svg, xB + colW, yb + ASC("t-mono"), v, "t-mono", "end");
+    row(rows, "Systempreis, " + l, id, k, v);
+    yb += Math.max(h, 20) + 4;
+  });
+  return Math.max(ya, yb) + 10;
+};
+
+/* ---------- HTML-Szenen (Text-Grafiken) ---------- */
+const HBUILD = {};
+HBUILD["gefaesse"] = function(st){
+  const GL = D.glossar;
+  const CLS = {G1:"var(--c-g1)", G2:"var(--c-g2)", G3a:"var(--c-g3a)", G3b:"var(--c-g3b)"};
+  const boxes = st.grafik.gefaesse.map(gf => {
+    const code = gf.label.split(" ")[0];
+    const gl = GL.find(x => x.begriff.includes("(" + code + ")"));
+    if (!gl) ERR.push("Glossar fehlt für " + gf.label);
+    const top = code === "G3a" ? `background:var(--surface);border-bottom:3px solid ${CLS[code]}` : `background:${CLS[code]}`;
+    return `<div class="box"><div class="gtop" style="${top}"></div><h4>${esc(gf.label)}</h4><p>${gl ? esc(gl.text) : ""}</p></div>`;
+  });
+  return `<div class="hfig cols2">${boxes.join("")}</div>`;
+};
+HBUILD["zweiseitige_hinweise"] = function(st){
+  const g = st.grafik;
+  const first = id => {
+    const c = C[id];
+    if (!c){ ERR.push("Aussage fehlt: " + id); return ""; }
+    if (c.ort !== "story" && c.ort !== "beide"){ ERR.push("Aussage " + id + " nicht für die Story"); return ""; }
+    return rich(sentences(c.text)[0]) + (c.vorbehalt ? ' <span class="vb">' + rich(c.vorbehalt) + '</span>' : "");
+  };
+  const all = id => sentences(C[id].text).map(s => rich(s));
+  const hi = g.hoeher.map(id => `<div class="box" data-claim="${id}"><p>${first(id)}</p></div>`);
+  let lo = [];
+  g.niedriger.forEach(id => {
+    if (id === "O08") all(id).forEach(s => lo.push(`<div class="box" data-claim="${id}"><p>${s}</p></div>`));
+    else lo.push(`<div class="box" data-claim="${id}"><p>${first(id)}</p></div>`);
+  });
+  return `<div class="hfig cols2"><div style="display:grid;gap:8px;align-content:start"><div class="dir">≥ höher</div>${hi.join("")}</div>` +
+         `<div style="display:grid;gap:8px;align-content:start"><div class="dir">≤ niedriger</div>${lo.join("")}</div></div>`;
+};
+
+/* Untertitel je Szene: aus dem Datensatz, sonst eine Beschreibung der Form ohne Tatsachengehalt */
+const SUB_FALLBACK = {
+  "1.1":"Zwei Dokumente; gestrichelt: nicht gelesen", "1.2":"Zwei Stellen im Papier; markiert sind die Begriffe",
+  "2.1":"Links R21, rechts die Kurzinformation", "4.1":"Vier Größen, je mit dem Eintrag aus dem Glossar"
+};
+function subOf(st){
+  const g = st.grafik;
+  return g.untertitel || g.legende || g.beschriftung || SUB_FALLBACK[st.id] || "";
+}
+
+/* ---------- Eine Szene rendern ---------- */
+let FIGN = 0;
+function renderFig(f, slot, W){
+  const st = f.st, g = st.grafik;
+  slot.innerHTML = "";
+  const fig = document.createElement("figure");
+  fig.className = "sf";
+  fig.dataset.schritt = st.id;
+  fig.dataset.claim = st.claims.join(" ");
+  const cap = document.createElement("figcaption");
+  let sub = subOf(st);
+  if (g.typ === "punktdiagramm") sub = (BIPMODE === "fest" ? "festes BIP 2024" : "wachsendes BIP, Mittel des Studienzeitraums") + " · Umschalter:";
+  cap.innerHTML = '<div class="ft">' + esc(g.titel) + '</div><div class="fs">' + esc(sub) + '</div>';
+  if (g.typ === "punktdiagramm"){
+    const tg = document.createElement("div");
+    tg.className = "tog";
+    tg.innerHTML = '<button type="button" data-m="fest">festes BIP 2024</button><button type="button" data-m="wachsend">wachsendes BIP</button>';
+    $$("button", tg).forEach(b => {
+      b.setAttribute("aria-pressed", String(b.dataset.m === BIPMODE));
+      b.addEventListener("click", () => { BIPMODE = b.dataset.m; buildAll(); });
+    });
+    cap.appendChild(tg);
+  }
+  fig.appendChild(cap);
+  slot.appendChild(fig);
+  const body = document.createElement("div");
+  body.className = "figbody";
+  fig.appendChild(body);
+  if (HBUILD[g.typ]){ body.innerHTML = HBUILD[g.typ](st); return; }
+  const fn = BUILD[g.typ];
+  if (!fn){ ERR.push("kein Baustein für Grafik-Typ " + g.typ); return; }
+  const w = Math.floor(body.clientWidth || W);
+  const pid = "p" + (++FIGN);
+  const svg = E("svg", {role:"img", "aria-labelledby":pid + "-t " + pid + "-d", width:w, viewBox:"0 0 " + w + " 100"});
+  E("title", {id:pid + "-t"}, svg).textContent = g.titel;
+  E("desc", {id:pid + "-d"}, svg).textContent = sub + " Die Werte stehen in der Tabelle unter dem Text dieses Schritts.";
+  body.appendChild(svg);
+  const pf = defs(svg, pid);
+  defs.arr = pf.arr;
+  const rows = [];
+  let h = 100;
+  try { h = fn(svg, st, w, rows, pf); } catch (e){ ERR.push("Grafik " + st.id + ": " + e.message); console.error(e); }
+  h = Math.ceil(h);
+  svg.setAttribute("viewBox", "0 0 " + w + " " + h);
+  svg.setAttribute("height", h);
+  if (!f.rows) f.rows = rows;
+}
+
+function twinHTML(f){
+  const st = f.st;
+  if (st.grafik.typ === "punktdiagramm") return twinStudien(st);
+  if (!f.rows || !f.rows.length) return "";
+  const body = f.rows.map(r => {
+    const z = Z[r.id];
+    return '<tr><td data-h="Beschriftung">' + esc(r.label) + '</td><td class="v" data-h="Wert">' + esc(r.text) + '</td><td data-h="Abzeichen">' +
+      badgeHTML(z) + '</td><td data-h="Quelle">' + srcLine(z.quelle, z.fundstelle).replace(/^<span class="srcline">Quelle: /, "<span>") + '</td></tr>';
+  }).join("");
+  return '<details class="twin"><summary>Werte der Grafik als Tabelle</summary><div class="tw"><table><thead><tr><th>Beschriftung</th><th>Wert</th><th>Abzeichen</th><th>Quelle, Fundstelle</th></tr></thead><tbody>' + body + '</tbody></table></div></details>';
+}
+function twinStudien(st){
+  const ids = [];
+  st.grafik.gruppen.forEach(gr => gr.studien.forEach(id => ids.push([gr.label, id])));
+  const body = ids.map(([gl, id]) => {
+    const s = studie(id); if (!s) return "";
+    const f = s.zahlen_erzeugt.bip_fest, w = s.zahlen_erzeugt.bip_wachsend;
+    const vf = typeof Z[f].value === "number" ? fmtOne(f) : fmtRef(f, "spanne", "–");
+    const vw = typeof Z[w].value === "number" ? fmtOne(w) : fmtRef(w, "spanne", "–");
+    return '<tr><td data-h="Studie">' + esc(s.studie) + '</td><td data-h="Größe">' + esc(gl) + '</td><td class="v" data-h="festes BIP 2024">' + vf + ' %</td><td class="v" data-h="wachsendes BIP">' + vw +
+      ' %</td><td data-h="Angabe der Studie">' + esc(s.bip_studie_text || "–") + '</td><td data-h="Abzeichen">' + badgeHTML(Z[f]) + '</td><td data-h="Quelle">' +
+      srcLine(s.quelle, s.fundstelle).replace(/^<span class="srcline">Quelle: /, "<span>") + '</td></tr>';
+  }).join("");
+  return '<details class="twin"><summary>Werte der Grafik als Tabelle (beide Rechnungen)</summary><div class="tw"><table><thead><tr><th>Studie</th><th>Größe</th><th>festes BIP 2024</th><th>wachsendes BIP</th><th>Angabe der Studie</th><th>Abzeichen</th><th>Quelle</th></tr></thead><tbody>' + body + '</tbody></table></div></details>';
+}
+
+/* ================================================================
+   Seite zusammensetzen
+================================================================ */
+const AKT_TITEL = {1:"Der Satz", 2:"Die Fußnote", 3:"Die Quelle der Quelle", 4:"Drei Größen", 5:"Der Vergleichspfad"};
+function renderActs(){
+  const host = $("#akte");
+  for (let a = 1; a <= 5; a++){
+    const steps = D.schritte.filter(s => s.akt === a && s.grafik.typ !== "kacheln");
+    const sec = document.createElement("section");
+    sec.className = "akt"; sec.id = "akt-" + a;
+    sec.setAttribute("aria-labelledby", "h-akt-" + a);
+    sec.innerHTML = '<div class="akt-head"><div class="kicker">Akt ' + a + '</div><h2 id="h-akt-' + a + '">' + AKT_TITEL[a] + '</h2></div>' +
+      '<div class="scrolly"><div class="steps"></div><div class="panel"></div></div>';
+    host.appendChild(sec);
+    const stepsEl = $(".steps", sec), panel = $(".panel", sec);
+    steps.forEach((st, i) => {
+      const el = document.createElement("div");
+      el.className = "step"; el.dataset.sid = st.id; el.id = "s-" + st.id.replace(".", "-");
+      el.innerHTML = '<div class="mslot"></div><article class="card"><span class="n">Akt ' + a + ' · Schritt ' + (i + 1) + '</span><h3>' + esc(st.grafik.titel) + '</h3>' +
+        st.claims.map(id => claimHTML(id)).join("") + '<div class="twslot"></div></article>';
+      stepsEl.appendChild(el);
+      const ds = document.createElement("div");
+      ds.className = "dslot" + (i === 0 ? " on" : ""); ds.dataset.sid = st.id;
+      panel.appendChild(ds);
+      FIGS.push({st, stepEl:el, mslot:$(".mslot", el), dslot:ds, panel, rows:null});
+    });
+  }
+}
+function buildAll(){
+  const desk = DESK.matches;
+  FIGS.forEach(f => {
+    const slot = desk ? f.dslot : f.mslot, other = desk ? f.mslot : f.dslot;
+    other.innerHTML = "";
+    const W = desk ? f.panel.clientWidth : f.stepEl.clientWidth;
+    renderFig(f, slot, W);
+  });
+  FIGS.forEach(f => {
+    const ts = $(".twslot", f.stepEl);
+    if (!ts.dataset.done){ ts.innerHTML = twinHTML(f); ts.dataset.done = "1"; }
+  });
+}
+function wireScroll(){
+  const live = $("#live");
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target, sec = el.closest(".scrolly");
+      $$(".step", sec).forEach(s => s.classList.toggle("is-active", s === el));
+      $$(".dslot", sec).forEach(d => d.classList.toggle("on", d.dataset.sid === el.dataset.sid));
+      if (DESK.matches){
+        const f = FIGS.find(x => x.stepEl === el);
+        if (f) live.textContent = "Grafik: " + f.st.grafik.titel;
+      }
+    });
+  }, {rootMargin:"-45% 0px -45% 0px"});
+  FIGS.forEach(f => io.observe(f.stepEl));
+}
+
+function renderRest(){
+  const S = id => D.schritte.find(s => s.id === id);
+  /* Kopf */
+  $("#titel").textContent = D.meta.titel;
+  $("#untertitel").textContent = D.meta.untertitel;
+  const sd = String(D.meta.stand).split("-");
+  $("#stand").textContent = "Datenstand " + sd[2] + "." + sd[1] + "." + sd[0] + " · Freigabeliste v" + D.meta.version;
+  /* Vorspann und Lesehilfe */
+  $("#vorspann-body").innerHTML = S("0").claims.map(id => claimHTML(id)).join("");
+  const L = S("L");
+  $("#legende-titel").textContent = L.grafik.titel;
+  $("#lesehilfe-body").innerHTML = L.claims.map(id => claimHTML(id)).join("");
+  const FC = [["--c-r21", "R21", "stripe"], ["--c-g1", gl("G1"), ""], ["--c-g2", gl("G2"), ""], ["--c-g3a", gl("G3a"), "hollow"],
+    ["--c-g3b", gl("G3b"), ""], ["--c-eigen", "eigene Rechnung oder Setzung (M)", "dots"]];
+  $("#farbcode").innerHTML = FC.map(([v, l, f]) => {
+    const st = f === "hollow" ? `background:var(--surface);border:2.5px solid var(${v})` :
+      f === "stripe" ? `background:repeating-linear-gradient(45deg,var(${v}) 0 4px,var(--surface) 4px 6px);border:1px solid var(${v})` :
+      f === "dots" ? `background:radial-gradient(circle,var(--surface) 1.2px,var(${v}) 1.4px) 0 0/5px 5px` : `background:var(${v})`;
+    return `<span><i class="sw" style="${st}"></i>${esc(l)}</span>`;
+  }).join("") + '<span><i class="sw" style="background:var(--unread-soft);border:1.5px dashed var(--unread)"></i>nicht am Original gelesen</span>';
+  /* Kacheln „Hier hat R21 recht“ */
+  const K = S("5.4");
+  $("#h-kacheln").textContent = K.grafik.titel;
+  $("#kacheln").innerHTML = K.grafik.kacheln.map(id => gpBox(GP[id], {tile:true})).join("");
+  /* Gegenpositionen GP7–GP11 */
+  const rest = D.gegenpositionen.filter(g => !K.grafik.kacheln.includes(g.id) && g.id !== "GP12" && g.id !== "KK");
+  $("#h-gp").textContent = rest[0] ? rest[0].art : "";
+  $("#gp-body").innerHTML = rest.map(g => gpBox(g)).join("");
+  /* Eigene Fehler (GP12) mit Tabelle */
+  const g12 = GP["GP12"];
+  $("#h-korr").textContent = g12.ueberschrift;
+  const cnt = {};
+  D.korrekturen_eigene.forEach(k => { cnt[k.richtung] = (cnt[k.richtung] || 0) + 1; });
+  $("#korr-body").innerHTML =
+    '<p id="gp-GP12" data-claim="GP12" data-gp-claims="' + g12.claims.join(" ") + '">' + rich(g12.kurz, {gloss:true}) + '</p>' +
+    '<a class="more" href="' + BELEGE + '#gp-GP12">Langfassung auf der Belegseite →</a>' +
+    '<h3>Richtung der Korrekturen</h3><p class="hint">Zählung der Tabelle unten, je Eintrag eine Richtung.</p>' +
+    '<div class="bilanz">' + Object.keys(cnt).map(k => '<span><b>' + cnt[k] + '</b> ' + esc(k) + '</span>').join("") + '</div>' +
+    '<table class="ktab"><thead><tr><th>Wo</th><th>Was jetzt gilt</th><th>Richtung</th><th>Beleg</th></tr></thead><tbody>' +
+    D.korrekturen_eigene.map(k => '<tr><td data-h="Wo">' + esc(k.wo) + '</td><td data-h="Was jetzt gilt">' + esc(k.neu) + '</td><td class="r" data-h="Richtung">' +
+      esc(k.richtung) + '</td><td data-h="Beleg">' + esc(k.beleg) + '</td></tr>').join("") +
+    '</tbody></table><p class="hint">Der alte Wortlaut jeder Zeile steht auf der Belegseite.</p>';
+  /* Klimakasten */
+  $("#klima-body").innerHTML = gpBox(GP["KK"]).replace('<h3>', '<h3 id="h-klima">');
+  /* Was Teil 1 nicht zeigt */
+  const A1 = S("A.1");
+  $("#h-nz").textContent = A1.grafik.titel;
+  $("#nz-body").innerHTML = A1.claims.map(id => claimHTML(id)).join("");
+  /* Glossar */
+  $("#gl-body").innerHTML = D.glossar.map((g, i) =>
+    '<details class="gloss" id="gl-' + i + '"><summary>' + esc(g.begriff) + '</summary><div class="gloss-body"><p>' + esc(g.text) + '</p>' +
+    '<a class="gl-back" href="#glr-' + i + '" data-i="' + i + '">← zurück zur Textstelle</a></div></details>').join("");
+  /* Entstehung */
+  const A2 = S("A.2");
+  const PH_NAME = {0:"Orchestrierung", 1:"Recherche", 2:"Gegenprüfung", 3:"Zusammenführung und Freigabe", 4:"Seitenbau (erster Entwurf)", 5:"Reviews", 6:"Überarbeitung"};
+  const pp = D.prozess_protokoll;
+  const num = v => (v === null || v === undefined) ? "–" : v.toLocaleString("de-DE");
+  const ER = D.quellen["eigene_rechnung"];
+  $("#ent-body").innerHTML =
+    A2.claims.filter(id => id !== "P05").map(id => claimHTML(id)).join("") +
+    '<h3>Agentenläufe laut Lauf-Protokoll</h3>' +
+    '<div style="overflow-x:auto"><table class="ptab"><thead><tr><th>Phase</th><th>Läufe</th><th>davon mit Token-Angabe</th><th>Token</th><th>Werkzeugaufrufe</th></tr></thead><tbody>' +
+    Object.keys(pp).map(k => '<tr><td>' + k + ' · ' + esc(PH_NAME[k] || "") + '</td><td class="v">' + num(pp[k].laeufe) + '</td><td class="v">' + num(pp[k].laeufe_mit_token) +
+      '</td><td class="v">' + num(pp[k].token) + '</td><td class="v">' + num(pp[k].aufrufe) + '</td></tr>').join("") +
+    '</tbody></table></div>' +
+    '<p class="hint">Quelle der Tabelle: <code>energiewende/agents/PROTOKOLL.md</code>, übernommen in den Datensatz (Block <code>prozess_protokoll</code>).</p>' +
+    '<h3>Nicht am Original gelesen</h3><ul style="margin:0 0 14px 20px">' +
+    D.meta.nicht_gelesen.map(n => '<li><a href="#q-' + n.quelle + '">' + esc(D.quellen[n.quelle] ? D.quellen[n.quelle].titel : n.quelle) + '</a>: ' + esc(n.grund) + '</li>').join("") + '</ul>' +
+    '<h3>Offene Entscheidungen</h3><ul style="margin:0 0 14px 20px">' +
+    D.offene_entscheidungen.map(o => '<li><b>' + esc(o.frage) + '</b>: ' + esc(o.stand) + '</li>').join("") + '</ul>' +
+    '<h3>Auftraggeber</h3><p>' + esc(ER.herausgeber) + ': ' + esc(ER.auftraggeber) + '.</p>' +
+    '<h3>Im Repository</h3><ul style="margin:0 0 14px 20px">' +
+    '<li><a href="' + REPO + 'README.md">README</a> (Prämissen und Entscheidungen des Menschen)</li>' +
+    '<li><a href="' + REPO + 'agents/PROTOKOLL.md">Lauf-Protokoll</a> (Rollen, Laufzeit, Token je Agent)</li>' +
+    '<li><a href="' + REPO_TREE + 'agents/briefs">Aufträge der Agenten im Wortlaut</a></li>' +
+    '<li><a href="' + REPO + 'docs/03_teil1_freigabe.md">Freigabeliste Teil 1</a> und <a href="' + REPO + 'data/teil1_data.json">Datensatz</a></li>' +
+    '<li><a href="' + REPO_TREE + 'research/reviews_teil1">Reviews zu Teil 1</a></li>' +
+    '<li><a href="' + REPO + 'TRANSPARENZ.md">Transparenz-Richtlinien</a></li></ul>';
+  /* Quellen */
+  $("#q-body").innerHTML = Object.keys(D.quellen).map(k => {
+    const q = D.quellen[k];
+    const meta = [q.herausgeber, q.datum, "Auftraggeber: " + q.auftraggeber, q.art].filter(Boolean).map(esc).join(" · ");
+    const link = q.url ? '<a href="' + esc(q.url) + '" rel="noopener">' + esc(q.url) + '</a>' + (q.abruf ? " · abgerufen " + esc(q.abruf) : "") : "";
+    const extra = [q.url_2 ? '<a href="' + esc(q.url_2) + '" rel="noopener">' + esc(q.url_2) + '</a>' : "", q.ohne_url_grund ? esc(q.ohne_url_grund) : "", q.lizenz ? "Lizenz: " + esc(q.lizenz) : ""].filter(Boolean).join(" · ");
+    return '<div class="srcrow" id="q-' + k + '"><div class="nr">Q' + QN[k] + '</div><div><div class="ti">' + esc(q.titel) + '</div><div class="me">' + meta +
+      (link ? "<br>" + link : "") + (extra ? "<br>" + extra : "") + '</div></div></div>';
+  }).join("");
+}
+function gl(code){ const g = D.glossar.find(x => x.begriff.includes("(" + code + ")")); return g ? g.begriff : code; }
+
+/* Glossar: Hin- und Rücksprung */
+document.addEventListener("click", e => {
+  const a = e.target.closest("a.gl");
+  if (a){
+    const t = document.getElementById(a.getAttribute("href").slice(1));
+    if (t){ t.open = true; }
+  }
+});
+
+/* Leseangabe aus der Wortzahl der gebauten Seite */
+function readingTime(){
+  const clone = $("#main").cloneNode(true);
+  $$("#quellen, .twin, .srcline, .bp, .ktab, .ptab, figure, .panel, .mslot, .hint", clone).forEach(n => n.remove());
+  const words = (clone.textContent.match(/\S+/g) || []).length;
+  const min = Math.max(1, Math.round(words / WPM));
+  $("#lesezeit").textContent = "Lesezeit rund " + min + " Minuten (" + words.toLocaleString("de-DE") + " Wörter, gerechnet mit " + WPM + " Wörtern je Minute)";
+}
+
+/* Prüfung verworfener Zahlen und verbotener Formulierungen im gerenderten Text */
+function checkForbidden(){
+  const txt = [...document.querySelectorAll("header.hero, main, footer, #loadnote")].map(n => n.textContent).join(" ");
+  const hits = [];
+  D.verworfen.concat(D.verbotene_formulierungen).forEach(v => (v.muster || []).forEach(m => {
+    const rx = new RegExp(m, "i");
+    if (rx.test(txt)) hits.push(v.id + ": " + m);
+  }));
+  return hits;
+}
+
+async function boot(){
+  const note = $("#loadnote");
+  try {
+    const r = await fetch(DATA_URL, {cache:"no-cache"});
+    if (!r.ok) throw new Error(DATA_URL + " → HTTP " + r.status);
+    D = parseData(await r.text());
+  } catch (err){
+    note.classList.add("on");
+    note.innerHTML = "<b>Der Datensatz konnte nicht geladen werden.</b><br>" + (location.protocol === "file:"
+      ? "Die Seite wurde direkt aus dem Dateisystem geöffnet (<code>file://</code>). Browser blockieren dann das Nachladen. " +
+        "Bitte im Repository-Ordner einen lokalen Webserver starten:<br><code>python3 -m http.server</code><br>" +
+        "und die Seite über <code>http://localhost:8000/energiewende-1-story.html</code> öffnen."
+      : "Fehlermeldung: <code>" + esc(err.message || err) + "</code>");
+    console.error("[teil1] Laden fehlgeschlagen:", err);
+    return;
+  }
+  D.zahlen.forEach(z => { Z[z.id] = z; });
+  D.claims.forEach(c => { C[c.id] = c; });
+  D.gegenpositionen.forEach(g => { GP[g.id] = g; });
+  Object.keys(D.quellen).forEach((k, i) => { QN[k] = i + 1; });
+  D.glossar.forEach((g, i) => { for (const [name] of GL_TERMS) if (g.begriff.startsWith(name) && GL_IDX[name] === undefined) GL_IDX[name] = i; });
+  try { await Promise.all(Object.values(FONT).map(f => document.fonts.load(f[0]))); } catch (e){ /* Ersatzschrift */ }
+  renderRest();
+  renderActs();
+  buildAll();
+  wireScroll();
+  readingTime();
+  const forb = checkForbidden();
+  if (forb.length) ERR.push("verworfene Zahl oder verbotene Formulierung im Text: " + forb.join("; "));
+  if (ERR.length){
+    note.classList.add("on");
+    note.innerHTML = "<b>Datenfehler beim Aufbau der Seite:</b><br>" + ERR.map(esc).join("<br>");
+    console.error("[teil1] Fehler:", ERR);
+  }
+  let lastW = innerWidth, rt = null;
+  addEventListener("resize", () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { if (Math.abs(innerWidth - lastW) > 30){ lastW = innerWidth; buildAll(); } }, 180);
+  });
+  DESK.addEventListener("change", () => buildAll());
+  window.__storyReady = true;
+  window.__storyErrors = ERR.slice();
+}
+boot();
+
 </script>
 </body>
 </html>
