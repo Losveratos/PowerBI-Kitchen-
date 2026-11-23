@@ -130,3 +130,15 @@ Auftrag `energiewende/agents/briefs/<Auftrag>.md` und führe ihn aus.“
 | P6-E 24 Klima- und Energiewende-Sicht, zweite Lesung | Opus | 2026-11-23 | 7,9 min | 241.596 | 33 | `research/reviews_teil1/runde2/24_klima_energiewende.md`: Befunde der Rollen 04 und 05 fast alle umgesetzt; neu 3 kritisch, 6 mittel, 5 klein. Kritisch, alle zugunsten von R21: die Prämissen fehlen nach dem Neubau auf der Seite; R21s Klimaposition einseitig zitiert; S09 gibt R21 ohne Einschränkung recht. Dazu: 22 Konsolenfehler der Story bei 1280 px (negative Breiten). Stand: noch eine Runde nötig |
 | P6-E 25 Messlatten-Prüfer, unabhängig | Opus | 2026-11-23 | 9,2 min | 242.161 | 54 | `research/reviews_teil1/runde2/25_messlatten_pruefer.md` (ohne Kenntnis der ersten Runde): nach v1.0 17 von 20 (ohne K3 15 von 18), nach v1.1 14 von 16 mit K3 getrennt 2 Punkte. Stichprobe K3: zwölf Zahlen mit Startwert 25, alle am Original bestätigt oder nachgerechnet; Datensatz in einer Arbeitskopie nachgebaut. 0 kritisch, 5 mittel, 6 klein. Punktverlust bei K1 und K10 (Finanzierung, Verantwortliche und Meldeweg für Fehler stehen nur im Repository). Stand: noch eine kurze Runde nötig |
 | P6-E 22 Layout- und Dataviz-Prüfer | Opus | 2026-11-23 | 10,5 min | 279.726 | 57 | `research/reviews_teil1/runde2/22_layout_dataviz.md`: die vier kritischen Darstellungsfehler der ersten Runde bei 390 und 1280 px behoben (alle 18 Szenen vermessen). Neu 2 kritisch, 6 mittel, 16 klein. Kritisch: zwischen 1020 und 1279 px Breite ist das stehende Grafik-Panel höher als der Bildschirm (Zeilen nie sichtbar); im Druck erscheint keine Grafik. Messskripte nach `scripts/pruefung/p6e_22_layout_*.js` übernommen. Stand: noch eine Runde nötig |
+| P6-E 21 Freigabe-Prüfer mit Prüfskript | Opus | 2026-11-23 | 35,2 min | 424.782 | 79 | `research/reviews_teil1/runde2/21_freigabe_pruefer.md`, `scripts/check_teil1_seiten.mjs` (acht Prüfungen, 18 begründete Ausnahmen, Gegenprobe mit sieben eingebauten Fehlern: alle erkannt). 0 kritisch, 3 mittel, 7 klein. Von den 20 kritischen Punkten der ersten Runde: 17 behoben, 2 teilweise, 1 offen (Stellungnahme R21, zurückgestellt). Prüfung (d) scheitert noch: Zahlenformat der Belegseite, Zahlen in Freitext-Feldern ohne Abzeichen |
+
+**Summe Nachprüfung:** fünf Opus-Prüfer. 1.430.653 Token. 259 Werkzeugaufrufe. Neu gefunden: 9 kritisch. 26 mittel. 41 klein — kleiner als in der ersten Runde. in beide Richtungen. Alle fünf: noch eine kurze Runde.
+
+## Phase 7 · Abschlussrunde Teil 1
+
+Startbefehl je Agent: „Lies `energiewende/agents/REGELN.md` und den Auftrag
+`energiewende/agents/briefs/P7_abschlussrunde.md`. Du bist <P7-A, P7-B oder
+P7-C>. Führe deinen Teil aus.“
+
+| Auftrag | Modell | Start | Laufzeit | Token | Aufrufe | Ergebnis |
+|---|---|---|---|---|---|---|
