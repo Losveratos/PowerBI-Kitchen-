@@ -135,10 +135,17 @@
    "summe_protokoll_token": 3243174
   },
   "6": {
-   "laeufe": 1,
-   "laeufe_mit_token": 1,
-   "token": 462108,
-   "aufrufe": 67,
+   "laeufe": 9,
+   "laeufe_mit_token": 9,
+   "token": 3123331,
+   "aufrufe": 556,
+   "summe_protokoll_token": null
+  },
+  "7": {
+   "laeufe": 0,
+   "laeufe_mit_token": 0,
+   "token": 0,
+   "aufrufe": 0,
    "summe_protokoll_token": null
   }
  },
