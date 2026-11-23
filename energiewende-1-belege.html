@@ -23,8 +23,15 @@
     /* Status und Wert-Abzeichen */
     --st-ok-bg:#DDEEF0; --st-ok:#0B5C67; --st-corr-bg:#FAEDDC; --st-corr:#7E4F14; --st-set-bg:#E9E7DF; --st-set:#3F4A59;
     --st-np-bg:#F7E5DB; --st-np:#93401A; --st-rej-bg:#FBEDED; --st-rej:#A3231B;
-    --wk-b:#0B5C67; --wk-b-bg:#DDEEF0; --wk-c:#7E4F14; --wk-c-bg:#FAEDDC; --wk-beh:#A3231B; --wk-beh-bg:#FBEDED;
-    --wk-eig:#5A4A85; --wk-eig-bg:#ECE8F6; --wk-set:#3F4A59; --wk-set-bg:#E9E7DF;
+    /* Gemeinsame Abzeichenfarben mit der Story: --b-X = Fläche, --b-X-ink = Schrift (Werte der Story) */
+    --b-zitat:#8A8F98; --b-zitat-ink:#334155; --b-zitat-no-ink:#5B6676;
+    --b-wert-b:#F1E7D2; --b-wert-b-ink:#5E420A;
+    --b-wert-c:#F7DDD2; --b-wert-c-ink:#8A2F12;
+    --b-behauptung:#FBE3E3; --b-behauptung-ink:#8E1B1B;
+    --b-eigen:#F1E1EE; --b-eigen-ink:#7A2E69;
+    --b-setzung:#F1E1EE; --b-setzung-ink:#7A2E69;
+    /* Form „nicht am Original gelesen“ (grau, gestrichelter Rand), wie in der Story */
+    --unread:#6E7682; --unread-soft:#EEEDE8;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -35,8 +42,13 @@
       --c-r21:#8DB1F2; --c-g1:#AEB6C0; --c-g2:#9C8B72; --c-g3a:#E8794A; --c-g3b:#F6CFAE; --c-eigen:#E09BD0; --c-zu:#9AA7B8;
       --st-ok-bg:#12363C; --st-ok:#7FD6E0; --st-corr-bg:#3A2D14; --st-corr:#F1C47D; --st-set-bg:#27323E; --st-set:#C3CDD8;
       --st-np-bg:#3F2316; --st-np:#F2A98A; --st-rej-bg:#411C1B; --st-rej:#FF9C93;
-      --wk-b:#7FD6E0; --wk-b-bg:#12363C; --wk-c:#F1C47D; --wk-c-bg:#3A2D14; --wk-beh:#FF9C93; --wk-beh-bg:#411C1B;
-      --wk-eig:#C9BDF0; --wk-eig-bg:#2D2745; --wk-set:#C3CDD8; --wk-set-bg:#27323E;
+      --b-zitat:#7C8794; --b-zitat-ink:#C9CED6; --b-zitat-no-ink:#9AA4B1;
+      --b-wert-b:#3A2D15; --b-wert-b-ink:#E7C281;
+      --b-wert-c:#40251A; --b-wert-c-ink:#F2A688;
+      --b-behauptung:#47201F; --b-behauptung-ink:#F5A9A6;
+      --b-eigen:#3A2036; --b-eigen-ink:#EDB3E0;
+      --b-setzung:#3A2036; --b-setzung-ink:#EDB3E0;
+      --unread:#9AA2AD; --unread-soft:#222A33;
     }
   }
   :root[data-theme="dark"]{
@@ -47,8 +59,13 @@
     --c-r21:#8DB1F2; --c-g1:#AEB6C0; --c-g2:#9C8B72; --c-g3a:#E8794A; --c-g3b:#F6CFAE; --c-eigen:#E09BD0; --c-zu:#9AA7B8;
     --st-ok-bg:#12363C; --st-ok:#7FD6E0; --st-corr-bg:#3A2D14; --st-corr:#F1C47D; --st-set-bg:#27323E; --st-set:#C3CDD8;
     --st-np-bg:#3F2316; --st-np:#F2A98A; --st-rej-bg:#411C1B; --st-rej:#FF9C93;
-    --wk-b:#7FD6E0; --wk-b-bg:#12363C; --wk-c:#F1C47D; --wk-c-bg:#3A2D14; --wk-beh:#FF9C93; --wk-beh-bg:#411C1B;
-    --wk-eig:#C9BDF0; --wk-eig-bg:#2D2745; --wk-set:#C3CDD8; --wk-set-bg:#27323E;
+    --b-zitat:#7C8794; --b-zitat-ink:#C9CED6; --b-zitat-no-ink:#9AA4B1;
+    --b-wert-b:#3A2D15; --b-wert-b-ink:#E7C281;
+    --b-wert-c:#40251A; --b-wert-c-ink:#F2A688;
+    --b-behauptung:#47201F; --b-behauptung-ink:#F5A9A6;
+    --b-eigen:#3A2036; --b-eigen-ink:#EDB3E0;
+    --b-setzung:#3A2036; --b-setzung-ink:#EDB3E0;
+    --unread:#9AA2AD; --unread-soft:#222A33;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth; scroll-padding-top:64px; -webkit-text-size-adjust:100%}
@@ -108,14 +125,16 @@
   .st-korrigiert{background:var(--st-corr-bg);color:var(--st-corr)}
   .st-setzung{background:var(--st-set-bg);color:var(--st-set)}
   .st-np{background:var(--st-np-bg);color:var(--st-np)}
-  .wk{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;line-height:1.5;border-radius:4px;padding:0 6px;margin-left:5px;vertical-align:baseline;white-space:nowrap;border:1px solid currentColor;letter-spacing:.2px}
-  .wk-B{color:var(--wk-b);background:var(--wk-b-bg)}
-  .wk-C{color:var(--wk-c);background:var(--wk-c-bg);border-style:dashed}
-  .wk-Behauptung{color:var(--wk-beh);background:var(--wk-beh-bg);border-width:2px}
-  .wk-eigene{color:var(--wk-eig);background:var(--wk-eig-bg)}
-  .wk-Setzung{color:var(--wk-set);background:var(--wk-set-bg);border-style:dotted;border-width:2px}
-  .zg{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;line-height:1.5;border-radius:4px;padding:0 6px;white-space:nowrap;color:var(--soft);border:1px solid var(--line);background:var(--bg-sunk)}
-  .zg.no{border-style:dashed}
+  .wk{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;line-height:1.5;border-radius:4px;padding:0 6px;margin-left:5px;vertical-align:baseline;white-space:nowrap;letter-spacing:.2px}
+  .wk-A{background:var(--bg-sunk);color:var(--ink);border:1px solid var(--ink)}
+  .wk-B{background:var(--b-wert-b);color:var(--b-wert-b-ink)}
+  .wk-C{background:var(--b-wert-c);color:var(--b-wert-c-ink)}
+  .wk-Behauptung{background:var(--b-behauptung);color:var(--b-behauptung-ink);border:1px solid currentColor}
+  .wk-eigene{background:var(--b-eigen);color:var(--b-eigen-ink)}
+  .wk-Setzung{background:var(--b-setzung);color:var(--b-setzung-ink);border:2px dotted currentColor;padding:0 4px}
+  .zg{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;line-height:1.5;border-radius:4px;padding:0 6px;margin-left:3px;white-space:nowrap;background:transparent;color:var(--b-zitat-ink);border:1px solid var(--b-zitat)}
+  .zg.no{border-style:dashed;color:var(--b-zitat-no-ink)}
+  .zg.unr{background:var(--unread-soft);color:var(--unread);border:1.5px dashed var(--unread)}
   .nv{font-weight:600;white-space:nowrap}
   .vb{display:block;margin-top:6px;font-size:14.5px;color:var(--soft);border-left:3px solid var(--accent);padding-left:10px}
   .vb b{color:var(--ink)}
@@ -135,6 +154,7 @@
   .legend-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px;margin:14px 0}
   .lg{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14.5px}
   .lg .wk,.lg .zg{margin:0 0 6px}
+  .lg .zg{margin-left:0}
   .lg p{margin:6px 0 0;color:var(--soft)}
   .lg .cnt{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--soft)}
   .warnline{background:var(--warnbg);border-left:4px solid var(--accent);padding:11px 15px;border-radius:0 10px 10px 0;font-size:15px;margin:14px 0}
@@ -212,12 +232,25 @@
   .tile{background:var(--bg-card);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
   .tile .n{font-family:'Fraunces',serif;font-weight:650;font-size:26px;line-height:1.1}
   .tile .l{font-size:13px;color:var(--soft);margin-top:3px}
-  .mbars{margin:14px 0}
-  .mrow{display:grid;grid-template-columns:minmax(120px,190px) 1fr;gap:10px;align-items:center;margin:8px 0;font-size:14.5px}
-  .mtrack{position:relative;height:22px;background:var(--bg-sunk);border:1px solid var(--line);border-radius:4px}
+  .mgroup{margin:20px 0 6px;padding:12px 16px 6px;border:1px solid var(--line);border-radius:12px;background:var(--bg-card)}
+  .mgroup h3{margin:0 0 4px;font-size:18px}
+  .mdoc{margin:12px 0 10px}
+  .mdoc h4{margin:0 0 4px}
+  .mbars{margin:6px 0}
+  .mrow{display:grid;grid-template-columns:minmax(120px,210px) 1fr minmax(84px,auto);gap:10px;align-items:center;margin:6px 0;font-size:14.5px}
+  .mtrack{position:relative;height:16px;background:var(--bg-sunk);border:1px solid var(--line);border-radius:4px}
   .mfill{position:absolute;left:0;top:0;bottom:0;background:var(--c-eigen);border-radius:3px 0 0 3px}
-  .mval{position:absolute;right:6px;top:0;line-height:20px;font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700}
-  @media (max-width:560px){.mrow{grid-template-columns:1fr;gap:3px}}
+  .mval{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap}
+  @media (max-width:560px){.mrow{grid-template-columns:1fr auto;gap:3px 10px}.mrow .mtrack{grid-column:1 / -1;order:3}}
+  /* Sichtbare Kästen unter dem Kopf: Prämissen, Verantwortung */
+  .topboxes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:14px;margin:18px 0 6px}
+  .topbox{background:var(--bg-card);border:1px solid var(--line);border-top:4px solid var(--teal);border-radius:10px;padding:12px 16px 4px;font-size:15.5px}
+  .topbox h2{font-size:19px;margin:0 0 8px}
+  .topbox p{margin-bottom:10px}
+  .toplinks{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 12px}
+  .toplinks a{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:20px;padding:5px 12px;background:var(--bg)}
+  .toplinks a:hover{border-color:var(--accent);color:var(--accent-text)}
+  tr.unrrow td:first-child{border-left:4px dashed var(--unread)}
   .hint{background:var(--bg-sunk);border-left:4px solid var(--teal);border-radius:0 10px 10px 0;padding:11px 15px;margin:14px 0;font-size:15px}
   .hint ul{margin:6px 0 0}
 
@@ -272,6 +305,7 @@
     <pattern id="h-g3a" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--bg-card)"/><rect width="2.4" height="6" style="fill:var(--c-g3a)"/></pattern>
     <pattern id="h-g3b" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--bg-card)"/><rect width="2.4" height="6" style="fill:var(--c-g3b)"/></pattern>
     <pattern id="h-zu" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--bg-card)"/><rect width="2.4" height="6" style="fill:var(--c-zu)"/></pattern>
+    <pattern id="h-unr" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" style="fill:var(--unread-soft)"/><rect width="2.4" height="6" style="fill:var(--unread)"/></pattern>
     <pattern id="h-r21" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" style="fill:var(--bg-card)"/><path d="M0 0L6 6M6 0L0 6" style="stroke:var(--c-r21);stroke-width:1.6"/></pattern>
   </defs>
 </svg>
@@ -308,6 +342,10 @@
 
 <div class="wrap">
 <div id="loadnote"></div>
+<div class="topboxes">
+  <section class="topbox" id="praemissen" aria-labelledby="praem-h"><h2 id="praem-h">Was wir voraussetzen</h2><div id="praem"></div></section>
+  <section class="topbox" id="verantwortung" aria-labelledby="verant-h"><h2 id="verant-h">Wer dahinter steht, und wie man Fehler meldet</h2><div id="verant"></div><div class="toplinks" id="verant-links"></div></section>
+</div>
 <noscript><div class="warnline">Diese Seite lädt alle Texte und Zahlen per JavaScript aus dem Datensatz <code>energiewende/data/teil1_data.json</code> und zeigt ohne JavaScript nichts an.</div></noscript>
 
 <details class="sec" id="lesehilfe"><summary><h2><span class="kapnum">0</span>Lesehilfe: zwei Abzeichen je Zahl</h2></summary><div class="secbody">
@@ -326,7 +364,7 @@
   <p class="lede">Jede Aussage einzeln, mit Status, Quelle, Fundstelle und Vorbehalt. Filter nach Status oder Stichwort.</p>
   <div class="filters" id="aus-filters" role="group" aria-label="Filter nach Status"></div>
   <div class="filters"><input type="search" id="aus-q" placeholder="Stichwort oder Nummer" aria-label="Aussagen durchsuchen"><span class="count" id="aus-count" aria-live="polite"></span></div>
-  <table class="rt" id="tab-aus"><thead><tr><th>Nr.</th><th>Aussage</th><th>Status</th><th>Quelle · Fundstelle</th></tr></thead><tbody></tbody></table>
+  <table class="rt" id="tab-aus"><caption class="vh">Alle Aussagen mit Status, Quelle und Fundstelle</caption><thead><tr><th scope="col">Nr.</th><th scope="col">Aussage</th><th scope="col">Status</th><th scope="col">Quelle · Fundstelle</th></tr></thead><tbody></tbody></table>
 </div></details>
 
 <details class="sec" id="studien"><summary><h2><span class="kapnum">3</span>Der Studien-Vergleich</h2></summary><div class="secbody">
@@ -342,7 +380,7 @@
     <select id="st-sort"></select>
     <button type="button" class="fchip" id="st-dir" aria-pressed="false">absteigend</button>
     <span class="count" id="st-count"></span></div>
-  <table class="rt" id="tab-st"><thead><tr><th>Studie</th><th>Größe · Systemgrenze</th><th>Zeitraum · Preisbasis · abgezinst</th><th>Summe · pro Jahr</th><th>Anteil am BIP pro Jahr</th></tr></thead><tbody></tbody></table>
+  <table class="rt" id="tab-st"><caption class="vh">Studien-Vergleich mit Größe, Zeitraum, Summe und Anteil am BIP</caption><thead><tr><th scope="col">Studie</th><th scope="col">Größe · Systemgrenze</th><th scope="col">Zeitraum · Preisbasis · abgezinst</th><th scope="col">Summe · pro Jahr</th><th scope="col">Anteil am BIP pro Jahr</th></tr></thead><tbody></tbody></table>
   <h3>Wer hinter den Papieren steht</h3>
   <ul id="auftraggeber"></ul>
 </div></details>
@@ -391,7 +429,8 @@
 <details class="sec" id="entstehung"><summary><h2><span class="kapnum">11</span>So ist diese Seite entstanden</h2></summary><div class="secbody">
   <div id="entst"></div>
   <h3>Läufe und Verbrauch je Phase</h3>
-  <table id="tab-ph" class="ph rt"><thead><tr><th>Phase</th><th>Läufe</th><th>davon mit Token-Angabe</th><th>Token</th><th>Aufrufe</th></tr></thead><tbody></tbody></table>
+  <div id="proz-hinweis"></div>
+  <table id="tab-ph" class="ph rt"><caption class="vh">Läufe und Verbrauch je Phase</caption><thead><tr><th scope="col">Phase</th><th scope="col">Läufe</th><th scope="col">davon mit Token-Angabe</th><th scope="col">Token</th><th scope="col">Aufrufe</th></tr></thead><tbody></tbody></table>
 </div></details>
 </div>
 
@@ -400,6 +439,7 @@
     <a href="energiewende-1-story.html">Scroll-Story zu Teil 1</a>
     <a href="datenschutz.html">Datenschutz</a>
     <a href="impressum.html">Impressum</a>
+    <a href="https://github.com/Losveratos/PowerBI-Kitchen-/issues" rel="noopener noreferrer" id="foot-fehler">Fehler melden</a>
   </div>
   <div id="foot-meta"></div>
 </div></footer>
@@ -409,58 +449,126 @@
 'use strict';
 var DATA_URL='energiewende/data/teil1_data.json';
 var D,Z={},C={},Q={},CL=[];
+var DEC=new WeakMap();
 var MQ=window.matchMedia('(max-width:760px)');
+
+/* ---------- Daten lesen: Nachkommastellen wie gespeichert merken (wie die Story) ---------- */
+function parseData(text){
+  return JSON.parse(text,function(k,v,ctx){
+    if(typeof v==='number'&&ctx&&typeof ctx.source==='string'){
+      var m=/\.(\d+)/.exec(ctx.source);
+      var rec=DEC.get(this);
+      if(!rec){rec={};DEC.set(this,rec);}
+      rec[k]=m?m[1].length:0;
+    }
+    return v;
+  });
+}
 
 /* ---------- Hilfen ---------- */
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function $(id){return document.getElementById(id);}
 function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
-function grp(n){var s=String(n),neg='';if(s[0]==='-'){neg='-';s=s.slice(1);}var p=s.split('.');p[0]=p[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.');return neg+p[0]+(p[1]!=null?','+p[1]:'');}
-function fmtNum(n,z){
-  if(typeof n!=='number') return esc(n);
-  var s;
-  if(z&&z.dezimalen!=null) s=n.toFixed(z.dezimalen); else s=String(n);
-  if(z&&z.unit==='Jahr'){return s.replace('.',',');}
-  return grp(s);
+
+/* ---------- Zahlenformat: dieselbe Funktion wie in der Story (Formatregel 7) ---------- */
+function decOf(v){var s=String(Math.abs(v));var i=s.indexOf('.');return i<0?0:s.length-i-1;}
+function decFor(z,key){
+  if(z.dezimalen!==undefined&&z.dezimalen!==null) return z.dezimalen;
+  var holder=key?z.value:z,k=key||'value';
+  var rec=DEC.get(holder);
+  if(rec&&rec[k]!==undefined) return rec[k];
+  return decOf(key?z.value[key]:z.value);
 }
-function fmtVal(z,key){
+function isYear(z,key){return z.unit==='Jahr'||key==='jahr';}
+function nf(v,d,group){return Math.abs(v).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d,useGrouping:group});}
+function rawVal(z,key){
+  var v=key?(z.value&&typeof z.value==='object'?z.value[key]:undefined):z.value;
+  if(typeof v!=='number') throw new Error('kein Zahlenwert: '+z.id+(key?'|'+key:''));
+  return v;
+}
+function fmtZ(z,key){return nf(rawVal(z,key),decFor(z,key),!isYear(z,key));}
+function fmtRef(id,key){
+  var z=Z[id];
+  if(!z) throw new Error('Zahl fehlt im Datensatz: '+id);
+  if(key==='spanne') return fmtZ(z,'min')+' bis '+fmtZ(z,'max');
+  return fmtZ(z,key);
+}
+/* Bereich aus einer Zahl, die Zahl oder {min,max,…} ist: „a–b“ oder „a“ */
+function fmtZR(z){
   var v=z.value;
-  if(key==='spanne') return fmtNum(v.min,z)+' bis '+fmtNum(v.max,z);
-  if(key) return fmtNum(v[key],z);
-  if(v&&typeof v==='object'){
-    if(('min' in v)&&('max' in v)&&Object.keys(v).length<=3) return fmtNum(v.min,z)+'–'+fmtNum(v.max,z)+(('mid' in v)?' (Mitte '+fmtNum(v.mid,z)+')':'');
-    return Object.keys(v).map(function(k){return k+' '+fmtNum(v[k],z);}).join('; ');
-  }
-  return fmtNum(v,z);
+  if(v&&typeof v==='object'){return v.min===v.max?fmtZ(z,'min'):fmtZ(z,'min')+'–'+fmtZ(z,'max');}
+  return fmtZ(z);
 }
+/* Anzeige in „Zahlen und Herkunft“: der gespeicherte Wert mit Vorzeichen */
+function fmtVal(z){
+  var v=z.value;
+  function one(x,k){return (x<0?'-':'')+nf(x,decFor(z,k),!isYear(z,k));}
+  if(typeof v==='number') return one(v,null);
+  if(v&&typeof v==='object'){
+    if(('min' in v)&&('max' in v)&&Object.keys(v).length<=3) return one(v.min,'min')+'–'+one(v.max,'max')+(('mid' in v)?' (Mitte '+one(v.mid,'mid')+')':'');
+    return Object.keys(v).map(function(k){return k+' '+(typeof v[k]==='number'?one(v[k],k):esc(v[k]));}).join('; ');
+  }
+  return esc(v);
+}
+/* Nachkommastellen eines Werts, der in einem Studien-Eintrag steht (zahlen_erzeugt.pa_wert) */
+function decStored(holder,key,v){var r=DEC.get(holder);return (r&&r[key]!==undefined)?r[key]:decOf(v);}
+function fmtPaWert(ze){
+  var pw=ze.pa_wert;
+  if(typeof pw==='number') return nf(pw,decStored(ze,'pa_wert',pw),true);
+  var a=nf(pw.min,decStored(pw,'min',pw.min),true),b=nf(pw.max,decStored(pw,'max',pw.max),true);
+  return a===b?a:a+'–'+b;
+}
+
+/* ---------- Abzeichen ---------- */
+var WLAB={'A':'A','B':'B','C':'C','Behauptung':'Behauptung','eigene Rechnung':'eigene Rechnung','Setzung':'Setzung (M)'};
 function wkKey(z){var k=z.wert_konfidenz;return k==='eigene Rechnung'?'eigene':k;}
-function wkLabel(z){var k=z.wert_konfidenz;return k==='B'||k==='C'||k==='A'?'Wert: '+k:(k==='Setzung'?'Wert: Setzung (M)':'Wert: '+k);}
-var WKTIP={A:'Aus mehreren unabhängigen Quellen übereinstimmend belegt.',B:'Aus einer Quelle belegt, plausibel, nicht gegengeprüft.',C:'Kursiert; Primärquelle nicht auffindbar oder nicht prüfbar.',Behauptung:'Das Dokument nennt die Zahl ohne nachprüfbaren Beleg, oder der genannte Beleg trägt sie nicht.','eigene Rechnung':'Von uns aus belegten Eingangswerten errechnet; der Rechenweg ist offen.',Setzung:'Eigene Annahme (M).'};
-function wkChip(z){return '<span class="wk wk-'+wkKey(z)+'" title="'+esc(WKTIP[z.wert_konfidenz]||'')+'">'+esc(wkLabel(z))+'</span>';}
+function wkLabel(z){return 'Wert: '+(WLAB[z.wert_konfidenz]||z.wert_konfidenz);}
+function wkTip(z){
+  var a=((D&&D.meta&&D.meta.abzeichen)||[]).filter(function(x){return x.angabe===wkLabel(z);})[0];
+  return a?a.bedeutung:'';
+}
+function wkChip(z){return '<span class="wk wk-'+wkKey(z)+'" title="'+esc(wkTip(z))+'">'+esc(wkLabel(z))+'</span>';}
+/* Zitat-Abzeichen im Fließtext: nur wo es ein Zitat gibt; eigene Rechnung und Setzung haben keins (wie die Story) */
+function zgInline(z){
+  if(z.zitat_geprueft) return '<span class="zg" title="Die Zahl steht so im genannten Dokument an der genannten Stelle; das sagt nichts darüber, ob sie zutrifft.">Zitat geprüft</span>';
+  if(z.art==='Zitat'||z.art==='Statistik') return '<span class="zg no" title="Die Zahl ist aus dem genannten Dokument übernommen, aber an der Stelle nicht geprüft.">Zitat nicht geprüft</span>';
+  return '';
+}
 function zgChip(z){
   if(z.zitat_geprueft) return '<span class="zg" title="Die Zahl steht so im genannten Dokument an der genannten Stelle; das sagt nichts darüber, ob sie zutrifft.">Zitat geprüft</span>';
   if(z.art==='eigene Rechnung'||z.art==='Setzung') return '<span class="zg no" title="Kein Zitat: von uns gerechnet oder gesetzt.">Zitat: entfällt ('+esc(z.art)+')</span>';
   return '<span class="zg no">Zitat nicht geprüft</span>';
 }
+function readChip(z){
+  return z.primaer_gelesen?'<span class="zg">Original gelesen</span>':'<span class="zg unr">Original nicht gelesen</span>';
+}
+
 var PH=/\[\[([A-Za-z0-9_]+)(?:\|([A-Za-z0-9_]+))?\]\]/g;
-/* Text mit Platzhaltern auflösen; sammelt die Zahl-IDs in ids */
+var DIR_RX=/(unter|darunter|niedriger|weniger|sank|sanken|gesunken|Rückgang|zurückgegangen|Minderung|gemindert|verloren|verlor|fiel|gefallen|abgenommen|Abstand|eingebrochen)/i;
+function satzUm(text,i){var a=text.lastIndexOf('. ',i)+1,b=text.indexOf('. ',i);if(b<0)b=text.length;return text.slice(a,b);}
+function dirIn(satz){return DIR_RX.test(satz.replace(new RegExp(PH.source,'g'),' '));}
+function negVal(z,key){var v=key==='spanne'?(z.value&&z.value.min):(key?(z.value&&z.value[key]):z.value);return typeof v==='number'&&v<0;}
+/* Text mit Platzhaltern auflösen; sammelt die Zahl-IDs in ids.
+   Jede Zahl bekommt beide Abzeichen hinter der Zahl; Glieder einer Spanne (gleiche Zahl-ID, nur „bis“, „und“, „oder“ oder Komma dazwischen) nur am Ende. */
 function resolve(text,ids,chips){
   text=String(text||'');
-  var out='',last=0,m,re=new RegExp(PH.source,'g');
-  while((m=re.exec(text))){
-    out+=esc(text.slice(last,m.index));
-    var z=Z[m[1]];
-    if(!z){out+='<span class="nv" style="color:#a00">[?'+esc(m[1])+']</span>';console.error('Platzhalter ohne Zahl',m[1]);last=re.lastIndex;continue;}
+  var ms=[],m,re=new RegExp(PH.source,'g');
+  while((m=re.exec(text))) ms.push({id:m[1],k:m[2],start:m.index,end:re.lastIndex});
+  var out='',last=0;
+  ms.forEach(function(x,i){
+    out+=esc(text.slice(last,x.start));
+    last=x.end;
+    var z=Z[x.id];
+    if(!z){out+='<span class="nv" style="color:#a00">[?'+esc(x.id)+']</span>';console.error('Platzhalter ohne Zahl',x.id);return;}
     if(ids&&ids.indexOf(z.id)<0) ids.push(z.id);
     var val;
-    try{val=fmtVal(z,m[2]);}catch(e){val='?';}
-    if(val==null||/undefined/.test(val)){console.error('Schlüssel fehlt',m[1],m[2]);val='?';}
-    var rest=text.slice(re.lastIndex);
-    if(val.charAt(0)==='-'&&/^[^.;]{0,30}(unter|darunter|niedriger|weniger|sank|gesunken)/.test(rest)) val=val.slice(1);
-    var same=new RegExp('^\\s*(bis|und|oder|,)?\\s*\\[\\['+m[1]+'[|\\]]').test(rest);
-    out+='<span class="nv">'+val+'</span>'+((chips===false||same)?'':wkChip(z));
-    last=re.lastIndex;
-  }
+    try{val=fmtRef(x.id,x.k);}catch(e){console.error(e.message);val='?';}
+    /* Formatregel 7: Betrag, wenn ein Wort im Satz die Richtung trägt; sonst mit Minus */
+    if(val!=='?'&&negVal(z,x.k)&&!dirIn(satzUm(text,x.start))) val='-'+val;
+    var nx=ms[i+1];
+    var join=!!(nx&&nx.id===x.id&&text.slice(x.end,nx.start).length<=8&&/^[\s\-–]*(bis|und|oder|,)?\s*$/.test(text.slice(x.end,nx.start)));
+    out+='<span class="nv">'+val+'</span>'+((chips===false||join)?'':wkChip(z)+zgInline(z));
+  });
   out+=esc(text.slice(last));
   return out;
 }
@@ -473,17 +581,17 @@ function zahlenDetails(ids,label){
   var h='<details class="zd"><summary>'+(label||'Zahlen und Herkunft')+' ('+ids.length+')</summary><ul>';
   ids.forEach(function(id){
     var z=Z[id];if(!z) return;
-    h+='<li class="zrow"><div class="zrow-h"><span class="zv">'+fmtVal(z)+'</span><span class="zu">'+esc(z.unit)+'</span>'+zgChip(z)+wkChip(z)+
-      '<span class="zg'+(z.primaer_gelesen?'':' no')+'">'+(z.primaer_gelesen?'Original gelesen':'Original nicht gelesen')+'</span></div><small>'+
-      '<b>Abgrenzung:</b> '+esc(z.abgrenzung)+(z.rechenweg?' · <b>Rechenweg:</b> '+esc(z.rechenweg):'')+'<br><b>Quelle:</b> '+srcLinks(z.quelle)+' · <b>Fundstelle:</b> '+esc(z.fundstelle)+'</small></li>';
+    var fund=(z.fundstelle&&z.fundstelle!=='-')?' · <b>Fundstelle:</b> '+esc(z.fundstelle):'';
+    h+='<li class="zrow"><div class="zrow-h"><span class="zv">'+fmtVal(z)+'</span><span class="zu">'+esc(z.unit)+'</span>'+zgChip(z)+wkChip(z)+readChip(z)+'</div><small>'+
+      '<b>Abgrenzung:</b> '+esc(z.abgrenzung)+(z.rechenweg?' · <b>Rechenweg:</b> '+esc(z.rechenweg):'')+'<br><b>Quelle:</b> '+srcLinks(z.quelle)+fund+'</small></li>';
   });
   return h+'</ul></details>';
 }
+var STATUSTIP={'bestätigt':'Am Original gelesen oder aus offenen Daten nachgerechnet; Fundstelle angegeben.','korrigiert':'Ein früherer Wortlaut war falsch oder schief; hier steht nur der neue Text.','Setzung (M)':'Die Aussage hängt an einer eigenen Annahme; der Vorbehalt sagt das.','nicht prüfbar':'Original nicht gelesen; nur mit dem festgelegten Vorbehalt.'};
 function statusChip(s){
   var cls=s==='bestätigt'?'bestätigt':s==='korrigiert'?'korrigiert':s==='Setzung (M)'?'setzung':'np';
   return '<span class="st st-'+cls+'" title="'+esc(STATUSTIP[s]||'')+'">'+esc(s)+'</span>';
 }
-var STATUSTIP={'bestätigt':'Am Original gelesen oder aus offenen Daten nachgerechnet; Fundstelle angegeben.','korrigiert':'Ein früherer Wortlaut war falsch oder schief; hier steht nur der neue Text.','Setzung (M)':'Die Aussage hängt an einer eigenen Annahme; der Vorbehalt sagt das.','nicht prüfbar':'Original nicht gelesen; nur mit dem festgelegten Vorbehalt.'};
 function claimBlock(c,withId){
   var ids=[];
   var h='<p data-claim="'+esc(c.id)+'"'+(withId?' id="k-'+esc(c.id)+'"':'')+'><span class="cid">'+esc(c.id)+'</span>'+resolve(c.text,ids);
@@ -509,8 +617,8 @@ function showLoadError(msg,file){
 }
 function start(){
   if(location.protocol==='file:'){showLoadError('',true);return;}
-  fetch(DATA_URL,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
-   .then(function(j){D=j;try{build();}catch(e){console.error(e);showLoadError('Fehler beim Aufbau: '+e.message);}})
+  fetch(DATA_URL,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+   .then(function(t){D=parseData(t);try{build();}catch(e){console.error(e);showLoadError('Fehler beim Aufbau: '+e.message);}})
    .catch(function(e){showLoadError(String(e.message||e),false);});
 }
 
@@ -519,8 +627,8 @@ function build(){
   D.zahlen.forEach(function(z){Z[z.id]=z;});
   D.claims.forEach(function(c){C[c.id]=c;});
   Q=D.quellen;
-  CL=D.claims.filter(onBelege).filter(function(c){return c.id!=='S03'&&c.id!=='P05';});
-  header();legend();lese();kurz();aussagen();studien();zitate();gegen();ungelesen();korrekturen();messlatte();grenzen();quellen();entstehung();
+  CL=D.claims.filter(onBelege).filter(function(c){return c.id!=='S03';});
+  header();vorspann();legend();lese();kurz();aussagen();studien();zitate();gegen();ungelesen();korrekturen();messlatte();grenzen();quellen();entstehung();
   initSections();
 }
 function header(){
@@ -530,37 +638,57 @@ function header(){
   var nb=CL.length;
   $('hero-meta').textContent='Datensatz Version '+m.version+' · Stand '+m.stand+' · '+nb+' Aussagen auf dieser Seite · '+D.zahlen.length+' Zahlen · '+Object.keys(Q).length+' Quellen';
   $('foot-meta').textContent='Energiewende-Reihe der Daten-WG Knowledge Kitchen · Entwurf · Datensatz '+m.document+', Stand '+m.stand+'.';
+  var f=$('foot-fehler');if(f&&m.links&&m.links.fehler_melden)f.setAttribute('href',m.links.fehler_melden);
 }
+function stepById(id){return D.schritte.filter(function(x){return x.id===id;})[0];}
+/* Prämissen und Verantwortung stehen sichtbar unter dem Kopf, aus dem Datensatz */
+var LINKTXT={impressum:'Impressum',fehler_melden:'Fehler melden: Issue im Repository',versionen_datensatz:'Frühere Fassungen des Datensatzes',versionen_freigabe:'Frühere Fassungen der Freigabeliste'};
+function vorspann(){
+  var p=stepById('P'),t=stepById('T');
+  $('praem').innerHTML=stepClaims(p).map(function(c){return claimBlock(c);}).join('');
+  $('verant').innerHTML=stepClaims(t).map(function(c){return claimBlock(c);}).join('');
+  var links=(t&&t.grafik&&t.grafik.links)||[];
+  $('verant-links').innerHTML=links.map(function(k){
+    var u=D.meta.links&&D.meta.links[k];if(!u) return '';
+    var ext=/^https?:/.test(u);
+    return '<a href="'+esc(u)+'"'+(ext?' rel="noopener noreferrer"':'')+'>'+esc(LINKTXT[k]||k)+'</a>';
+  }).join('');
+}
+/* Lesehilfe: Wortlaut der Abzeichen aus meta.abzeichen (gleich wie auf der Story) */
 function legend(){
   var cnt=D.meta.counts.wert_konfidenz;
-  var items=[
-    ['<span class="zg">Zitat geprüft</span>','Die Zahl steht so im genannten Dokument an der genannten Stelle; wir haben sie dort selbst gelesen (bei Statistik: aus der Datei nachgerechnet). Das sagt nichts darüber, ob die Zahl zutrifft.','Zahlen mit dieser Angabe: '+D.meta.counts.zitat_geprueft+' von '+D.meta.counts.zahlen],
-    ['<span class="wk wk-B" style="margin:0 0 6px">Wert: B</span>',WKTIP.B,'Anzahl: '+cnt.B],
-    ['<span class="wk wk-C" style="margin:0 0 6px">Wert: C</span>',WKTIP.C,'Anzahl: '+cnt.C],
-    ['<span class="wk wk-Behauptung" style="margin:0 0 6px">Wert: Behauptung</span>',WKTIP.Behauptung,'Anzahl: '+cnt.Behauptung],
-    ['<span class="wk wk-eigene" style="margin:0 0 6px">Wert: eigene Rechnung</span>',WKTIP['eigene Rechnung'],'Anzahl: '+cnt['eigene Rechnung']],
-    ['<span class="wk wk-Setzung" style="margin:0 0 6px">Wert: Setzung (M)</span>',WKTIP.Setzung,'Anzahl: '+cnt.Setzung],
-    ['<span class="wk wk-B" style="margin:0 0 6px;border-style:solid">Wert: A</span>','Aus mehreren unabhängigen Quellen übereinstimmend belegt.','Anzahl: '+cnt.A]
-  ];
-  $('legend').innerHTML=items.map(function(i){return '<div class="lg">'+i[0]+'<p>'+esc(i[1])+'</p><p class="cnt">'+esc(i[2])+'</p></div>';}).join('');
+  var keys={'Wert: A':'A','Wert: B':'B','Wert: C':'C','Wert: Behauptung':'Behauptung','Wert: eigene Rechnung':'eigene Rechnung','Wert: Setzung (M)':'Setzung'};
+  var h=D.meta.abzeichen.map(function(a){
+    var chip,count;
+    if(a.angabe==='Zitat geprüft'){
+      chip='<span class="zg">Zitat geprüft</span>';
+      count='Zahlen mit dieser Angabe: '+D.meta.counts.zitat_geprueft+' von '+D.meta.counts.zahlen;
+    }else{
+      var k=keys[a.angabe]||a.angabe;
+      chip='<span class="wk wk-'+(k==='eigene Rechnung'?'eigene':k)+'">'+esc(a.angabe)+'</span>';
+      count='Anzahl: '+cnt[k];
+    }
+    return '<div class="lg">'+chip+'<p>'+esc(a.bedeutung)+'</p><p class="cnt">'+esc(count)+'</p></div>';
+  }).join('');
+  $('legend').innerHTML=h;
 }
-function stepClaims(s){return (s.claims||[]).map(function(i){return C[i];}).filter(function(c){return c&&onBelege(c)&&c.id!=='S03'&&c.id!=='P05';});}
+function stepClaims(s){return ((s&&s.claims)||[]).map(function(i){return C[i];}).filter(function(c){return c&&onBelege(c)&&c.id!=='S03';});}
 function lese(){
-  var s=D.schritte.filter(function(x){return x.id==='L';})[0];
-  $('lese-claims').innerHTML=stepClaims(s).map(function(c){return claimBlock(c);}).join('');
+  $('lese-claims').innerHTML=stepClaims(stepById('L')).map(function(c){return claimBlock(c);}).join('');
 }
 function aktTitle(akt){
   var s=D.schritte.filter(function(x){return x.akt===akt&&x.claims&&x.claims.length;})[0];
   if(!s) return '';
   var c=C[s.claims[0]];
-  return c?String(c.abschnitt).replace(/^\d+(\.\d+)?\s*/,''):'';
+  return c?String(c.abschnitt).replace(/^\d+(\.\d+)?[a-z]?\s*/,''):'';
 }
 function kurz(){
   var h='',akt=-1;
   D.schritte.forEach(function(s){
-    if(s.akt<1||s.akt>5) return;
+    if(s.akt<0||s.akt>5) return;
+    if(s.akt===0&&s.id!=='0') return; /* Prämissen und Lesehilfe haben eigene Orte */
     var cs=stepClaims(s);if(!cs.length) return;
-    if(s.akt!==akt){akt=s.akt;h+='<div class="akt">Akt '+akt+' · '+esc(aktTitle(akt))+'</div>';}
+    if(s.akt!==akt){akt=s.akt;h+='<div class="akt">'+(akt===0?'Vorspann':'Akt '+akt+' · '+esc(aktTitle(akt)))+'</div>';}
     h+='<div class="step"><h4>'+esc(s.grafik.titel)+'</h4>'+cs.map(function(c){return claimBlock(c);}).join('')+'</div>';
   });
   $('kurz').innerHTML=h;
@@ -583,7 +711,7 @@ function aussagen(){
 function plain(c){return (c.id+' '+c.text.replace(PH,'')+' '+(c.vorbehalt||'')+' '+c.fundstelle).toLowerCase();}
 function renderAus(){
   var rows=CL.filter(function(c){return (ausFilter==='alle'||c.status===ausFilter)&&(!ausQ||plain(c).indexOf(ausQ)>=0);});
-  var h='',ab=null;
+  var h='';
   var tb=document.querySelector('#tab-aus tbody');
   rows.forEach(function(c){
     var ids=[];var t=resolve(c.text,ids);
@@ -617,22 +745,42 @@ function studyVals(s){
   if(s.pro_jahr&&s.pro_jahr.summe){
     var zz=Z[s.pro_jahr.summe];
     if(zz){var v=zz.value;var a=s.pro_jahr.min,b=s.pro_jahr.max;
-      sum={z:zz,min:(typeof v==='object')?v[a]:v,max:(typeof v==='object')?v[b]:v};}
+      sum={z:zz,ka:a,kb:b,min:(typeof v==='object')?v[a]:v,max:(typeof v==='object')?v[b]:v};}
   }
-  var own=null,m=/^(?:etwa )?(\d+(?:,\d+)?)(?:–(\d+(?:,\d+)?))? %(?: \([^)]*\))?(?: des (?:damaligen )?BIP(?: 2024)?)?$/.exec(s.bip_studie_text||'');
-  if(m){var a1=parseFloat(m[1].replace(',','.')),b1=m[2]?parseFloat(m[2].replace(',','.')):a1;own={min:a1,max:b1};}
-  return {fest:fest,wach:wach,festR:fest?rng(fest.value):null,wachR:wach?rng(wach.value):null,pa:pa,sum:sum,own:own,paZ:Z[ze.pa]};
+  /* Angabe der Studie nur aus dem strukturierten Feld angabe_studie, nie aus Text */
+  var own=null,as=s.angabe_studie;
+  if(as&&as.zeichnen&&as.zahl&&Z[as.zahl]){
+    var oz=Z[as.zahl];
+    var pick=function(k){var v=oz.value;if(k==null) return typeof v==='number'?v:null;return (v&&typeof v==='object')?v[k]:null;};
+    var a1=pick(as.min),b1=pick(as.max);
+    if(typeof a1==='number'&&typeof b1==='number') own={min:a1,max:b1,z:oz,ka:as.min,kb:as.max};
+  }
+  return {fest:fest,wach:wach,festR:fest?rng(fest.value):null,wachR:wach?rng(wach.value):null,pa:pa,sum:sum,own:own,paZ:Z[ze.pa],ze:ze};
 }
-function fmtR(r,z){return r.min===r.max?fmtNum(r.min,z):fmtNum(r.min,z)+'–'+fmtNum(r.max,z);}
+function fmtSum(sm){
+  var a=nf(sm.min,decFor(sm.z,sm.ka),true),b=nf(sm.max,decFor(sm.z,sm.kb),true);
+  return a===b?a:a+'–'+b;
+}
+function fmtOwn(o){
+  var a=nf(o.min,decFor(o.z,o.ka),true),b=nf(o.max,decFor(o.z,o.kb),true);
+  return a===b?a:a+'–'+b;
+}
+function chipsOf(z){return wkChip(z)+zgInline(z);}
+/* Angabe der Studie: Text aus dem Datensatz mit Abzeichen; wenn nicht gezeichnet, der Grund daneben */
+function angabeHTML(s){
+  var as=s.angabe_studie;
+  if(!as) return 'keine Angabe der Studie';
+  var h=resolve(as.text);
+  if(as.bezug) h+='<span class="sub">Bezug: '+esc(as.bezug)+'</span>';
+  if(as.zeichnen===false&&as.grund_nicht_gezeichnet) h+='<span class="sub">nicht gezeichnet: '+esc(as.grund_nicht_gezeichnet)+'</span>';
+  return h;
+}
 function stIntro(){
-  var s=D.schritte.filter(function(x){return x.id==='4.3';})[0];
-  var cs=stepClaims(s);
-  $('stud-intro').innerHTML=cs.map(function(c){return claimBlock(c);}).join('');
+  $('stud-intro').innerHTML=stepClaims(stepById('4.3')).map(function(c){return claimBlock(c);}).join('');
 }
-var studyOrder=[],sortKey='std',sortDesc=false;
+var sortKey='std',sortDesc=false;
 function studien(){
   stIntro();
-  studyOrder=D.studien.slice();
   var opts=[['std','Reihenfolge der Größen (Standard)'],['name','Name'],['von','Beginn des Zeitraums'],['pa','pro Jahr (Mrd. €)'],['fest','Anteil am festen BIP'],['wach','Anteil am wachsenden BIP']];
   $('st-sort').innerHTML=opts.map(function(o){return '<option value="'+o[0]+'">'+o[1]+'</option>';}).join('');
   $('st-sort').addEventListener('change',function(e){sortKey=e.target.value;renderStTable();});
@@ -669,17 +817,19 @@ function renderStTable(){
   var h='';
   list.forEach(function(s){
     var v=studyVals(s);
-    var sum=v.sum?fmtR({min:v.sum.min,max:v.sum.max},v.sum.z)+' '+esc(v.sum.z.unit)+wkChip(v.sum.z):'–';
-    var pa=v.pa?fmtR(v.pa,v.paZ)+' Mrd. € pro Jahr'+(v.paZ?wkChip(v.paZ):''):'–';
-    var fest=v.fest?fmtR(v.festR,v.fest)+' %'+wkChip(v.fest):'–';
-    var wach=v.wach?fmtR(v.wachR,v.wach)+' %'+wkChip(v.wach):'–';
-    var own=s.bip_studie_text?esc(s.bip_studie_text):'keine Angabe der Studie';
+    var sum=v.sum?fmtSum(v.sum)+' '+esc(v.sum.z.unit)+chipsOf(v.sum.z):'–';
+    var pa=v.pa?fmtPaWert(v.ze)+' Mrd. € pro Jahr'+(v.paZ?chipsOf(v.paZ):''):'–';
+    var fest=v.fest?fmtZR(v.fest)+' %'+chipsOf(v.fest):'–';
+    var wach=v.wach?fmtZR(v.wach)+' %'+chipsOf(v.wach):'–';
     var r21=s.id==='r21';
-    h+='<tr'+(r21?' class="r21row"':'')+'><td data-l="Studie"><b>'+esc(s.studie)+'</b><span class="sub">'+esc(s.herausgeber)+' · Auftraggeber: '+esc(s.auftraggeber)+'</span><span class="sub">'+(s.gelesen?'Original gelesen':'<b>Original nicht gelesen</b>')+' · '+srcLinks(s.quelle)+' · '+esc(s.fundstelle)+'</span></td>'+
+    var unr=s.original_gelesen===false;
+    var lesen=unr?'<span class="zg unr" style="margin-left:0">Original nicht gelesen</span>':'Original gelesen';
+    h+='<tr class="'+(r21?'r21row ':'')+(unr?'unrrow':'')+'"><td data-l="Studie"><b>'+esc(s.studie)+'</b><span class="sub">'+esc(s.herausgeber)+' · Auftraggeber: '+esc(s.auftraggeber)+'</span><span class="sub">'+lesen+' · '+srcLinks(s.quelle)+' · '+esc(s.fundstelle)+'</span>'+
+      (s.gelesen_umfang?'<span class="sub">Umfang: '+esc(s.gelesen_umfang)+'</span>':'')+'</td>'+
       '<td data-l="Größe · Systemgrenze"><b>'+esc(s.groesse)+'</b><span class="sub">'+esc(s.systemgrenze)+'</span></td>'+
       '<td data-l="Zeitraum · Preisbasis · abgezinst">'+s.zeitraum.von+'–'+s.zeitraum.bis+'<span class="sub">Preisbasis: '+esc(s.preisbasis)+'</span><span class="sub">abgezinst: '+esc(s.abgezinst)+'</span></td>'+
       '<td data-l="Summe · pro Jahr">'+(v.sum?'<span class="lab">Summe</span> '+sum+'<br>':'')+'<span class="lab">pro Jahr</span> '+pa+'</td>'+
-      '<td data-l="Anteil am BIP pro Jahr"><span class="lab">fest (BIP 2024)</span> '+fest+'<br><span class="lab">wachsend</span> '+wach+'<br><span class="lab">Angabe der Studie</span> '+own+'</td></tr>';
+      '<td data-l="Anteil am BIP pro Jahr"><span class="lab">fest (BIP 2024)</span> '+fest+'<br><span class="lab">wachsend</span> '+wach+'<br><span class="lab">Angabe der Studie</span> '+angabeHTML(s)+'</td></tr>';
   });
   document.querySelector('#tab-st tbody').innerHTML=h;
   $('st-count').textContent=list.length+' Zeilen';
@@ -688,6 +838,14 @@ function renderStTable(){
 /* Grafik */
 var meas=document.createElement('canvas').getContext('2d');
 function tw(t){meas.font="12px Geist, system-ui, sans-serif";return meas.measureText(t).width;}
+function axisSVG(W,X,ticks,first){
+  var ax='<svg class="sc sc-axis" viewBox="0 0 '+W+' 20" width="'+W+'" height="20"'+(first?' role="img" aria-label="Achse: Prozent des BIP pro Jahr, 0 bis 15"':' aria-hidden="true"')+'>';
+  ticks.forEach(function(t){
+    var x=X(t);var anchor=t===0?'start':'middle';
+    ax+='<text x="'+x+'" y="14" text-anchor="'+anchor+'">'+t+' %</text>';
+  });
+  return ax+'</svg>';
+}
 function drawChart(){
   var host=$('chart');
   var W=Math.floor(host.clientWidth)||320;
@@ -695,15 +853,8 @@ function drawChart(){
   function X(v){return padL+plot*v/max;}
   var ticks=[0,5,10,15];
   var h='';
-  // Achse oben
-  var ax='<svg class="sc sc-axis" viewBox="0 0 '+W+' 20" width="'+W+'" height="20" role="img" aria-label="Achse: Prozent des BIP pro Jahr, 0 bis 15">';
-  ticks.forEach(function(t){
-    var x=X(t);var anchor=t===0?'start':'middle';
-    ax+='<text x="'+x+'" y="14" text-anchor="'+anchor+'">'+t+' %</text>';
-  });
-  ax+='</svg>';
-  h+=ax;
-  var twin='<table class="rt"><thead><tr><th>Studie</th><th>Größe</th><th>fest, % BIP 2024</th><th>wachsend, % des mittleren BIP</th><th>Angabe der Studie</th></tr></thead><tbody>';
+  var twin='<table class="rt"><caption class="vh">Werte der Grafik: Anteil am BIP pro Jahr je Studie</caption><thead><tr><th scope="col">Studie</th><th scope="col">Größe</th><th scope="col">fest, % BIP 2024</th><th scope="col">wachsend, % des mittleren BIP</th><th scope="col">Angabe der Studie</th></tr></thead><tbody>';
+  var firstAxis=true;
   GROUPS.forEach(function(g){
     var ss=D.studien.filter(function(s){return groupOf(s)===g;});
     if(!ss.length) return;
@@ -711,24 +862,27 @@ function drawChart(){
     if(g.gl!=null){title=D.glossar[g.gl].begriff;gl=D.glossar[g.gl].text;}
     else if(g.key==='Zuwachs'){title='Zuwachs gegenüber heute';gl=ss[0].systemgrenze;}
     else {title='R21 · '+g.key;gl=ss[0].studie;}
-    h+='<div class="sc-group '+g.cls+'"><h4><i></i>'+esc(title)+'</h4><p class="gl">'+esc(gl)+'</p>';
+    h+='<div class="sc-group '+g.cls+'"><h4><i></i>'+esc(title)+'</h4><p class="gl">'+esc(gl)+'</p>'+axisSVG(W,X,ticks,firstAxis);
+    firstAxis=false;
     ss.forEach(function(s){
       var v=studyVals(s);
-      var rows=[];
       var hasOwn=!!v.own;
+      var unr=s.original_gelesen===false,zuw=g.key==='Zuwachs',r21=g.r21;
       var H=hasOwn?52:36;
-      var svg='<svg class="sc" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(s.studie)+': fest '+(v.festR?fmtR(v.festR,v.fest):'–')+' Prozent, wachsend '+(v.wachR?fmtR(v.wachR,v.wach):'–')+' Prozent'+(hasOwn?', Angabe der Studie '+fmtR(v.own,{dezimalen:null}):'')+'">';
+      var svg='<svg class="sc" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="'+esc(s.studie)+': fest '+(v.festR?fmtZR(v.fest):'–')+' Prozent, wachsend '+(v.wachR?fmtZR(v.wach):'–')+' Prozent'+(hasOwn?', Angabe der Studie '+fmtOwn(v.own):'')+(unr?', Original nicht gelesen':'')+'">';
       ticks.forEach(function(t){svg+='<line class="grid" x1="'+X(t)+'" x2="'+X(t)+'" y1="0" y2="'+H+'"/>';});
-      function bar(r,y,fill,stroke,dash,lab,z){
+      /* Form je Marke: voll, schraffiert (wachsend), hohl mit festem Rand (Zuwachs), grau gestrichelt (nicht gelesen) */
+      function bar(r,y,fill,stroke,dash,sw,lab){
         var x1=X(r.min),x2=X(r.max);
         var out='';
+        var da=dash?';stroke-dasharray:'+dash:'';
         if(r.max-r.min<0.05){
           var cx=x1,cy=y+5;
-          out+='<path d="M'+cx+' '+(cy-6)+'L'+(cx+6)+' '+cy+'L'+cx+' '+(cy+6)+'L'+(cx-6)+' '+cy+'Z" style="fill:'+fill+';stroke:'+stroke+';stroke-width:1.5"/>';
+          out+='<path d="M'+cx+' '+(cy-6)+'L'+(cx+6)+' '+cy+'L'+cx+' '+(cy+6)+'L'+(cx-6)+' '+cy+'Z" style="fill:'+fill+';stroke:'+stroke+';stroke-width:'+sw+da+'"/>';
           x1=cx-6;x2=cx+6;
         }else{
           if(x2-x1<4)x2=x1+4;
-          out+='<rect x="'+x1+'" y="'+y+'" width="'+(x2-x1)+'" height="10" style="fill:'+fill+';stroke:'+stroke+';stroke-width:1.5'+(dash?';stroke-dasharray:'+dash:'')+'"/>';
+          out+='<rect x="'+x1+'" y="'+y+'" width="'+(x2-x1)+'" height="10" style="fill:'+fill+';stroke:'+stroke+';stroke-width:'+sw+da+'"/>';
         }
         var txt=lab,w=tw(txt);
         var tx=x2+6,anchor='start';
@@ -736,24 +890,29 @@ function drawChart(){
         out+='<text x="'+tx+'" y="'+(y+10)+'" text-anchor="'+anchor+'">'+esc(txt)+'</text>';
         return out;
       }
-      var r21=g.r21;
-      var strokeC='var(--c-'+(g.cls.replace('g-',''))+')';
-      var gc=strokeC;
-      if(v.festR) svg+=bar(v.festR,4,r21?'url(#h-r21)':gc,r21?gc:gc,r21?'4 2':null,fmtR(v.festR,v.fest)+' %');
-      if(v.wachR) svg+=bar(v.wachR,20,'url(#'+g.pat+')',gc,null,fmtR(v.wachR,v.wach)+' %');
+      var gc='var(--c-'+(g.cls.replace('g-',''))+')';
+      var fFill,fStroke=gc,fDash=null,fSw=1.5,wFill='url(#'+g.pat+')',wStroke=gc,wDash=null,wSw=1.5;
+      if(unr){fFill='var(--unread-soft)';fStroke='var(--unread)';fDash='4 3';wFill='url(#h-unr)';wStroke='var(--unread)';wDash='4 3';}
+      else if(zuw){fFill='var(--bg-card)';fSw=2;wSw=2;}
+      else if(r21){fFill='url(#h-r21)';fDash='4 2';}
+      else{fFill=gc;}
+      if(v.festR) svg+=bar(v.festR,4,fFill,fStroke,fDash,fSw,fmtZR(v.fest)+' %');
+      if(v.wachR) svg+=bar(v.wachR,20,wFill,wStroke,wDash,wSw,fmtZR(v.wach)+' %');
       if(hasOwn){
         var y=36,x1=X(v.own.min),x2=X(v.own.max);
         var circ='';
         if(v.own.max-v.own.min>=0.05) circ+='<line x1="'+x1+'" x2="'+x2+'" y1="'+(y+5)+'" y2="'+(y+5)+'" style="stroke:'+gc+';stroke-width:2"/><circle cx="'+x2+'" cy="'+(y+5)+'" r="5" style="fill:var(--bg-card);stroke:'+gc+';stroke-width:2"/>';
         circ+='<circle cx="'+x1+'" cy="'+(y+5)+'" r="5" style="fill:var(--bg-card);stroke:'+gc+';stroke-width:2"/>';
-        var txt=fmtR(v.own,{dezimalen:null})+' %',w=tw(txt),xe=Math.max(x1,x2)+10,anchor='start';
+        var txt=fmtOwn(v.own)+' %',w=tw(txt),xe=Math.max(x1,x2)+10,anchor='start';
         if(xe+w>W-2){xe=Math.min(x1,x2)-10;anchor='end';}
         circ+='<text x="'+xe+'" y="'+(y+10)+'" text-anchor="'+anchor+'">'+esc(txt)+'</text>';
         svg+=circ;
       }
       svg+='</svg>';
-      h+='<div class="sc-row"><div class="sc-lab"><b>'+esc(s.studie)+'</b><small>'+s.zeitraum.von+'–'+s.zeitraum.bis+(s.gelesen?'':' · Original nicht gelesen')+'</small></div>'+svg+'</div>';
-      twin+='<tr><td data-l="Studie">'+esc(s.studie)+'</td><td data-l="Größe">'+esc(s.groesse)+'</td><td data-l="fest, % BIP 2024">'+(v.festR?fmtR(v.festR,v.fest):'–')+'</td><td data-l="wachsend, % des mittleren BIP">'+(v.wachR?fmtR(v.wachR,v.wach):'–')+'</td><td data-l="Angabe der Studie">'+(hasOwn?fmtR(v.own,{dezimalen:null})+' ('+esc(s.bip_studie_text)+')':(s.bip_studie_text?esc(s.bip_studie_text)+' (kein BIP-Anteil, nicht gezeichnet)':'keine Angabe'))+'</td></tr>';
+      var teil=unr?' · Original nicht gelesen':(s.gelesen_umfang?' · nur teilweise gelesen':'');
+      h+='<div class="sc-row"><div class="sc-lab"><b>'+esc(s.studie)+'</b><small>'+s.zeitraum.von+'–'+s.zeitraum.bis+teil+'</small></div>'+svg+'</div>';
+      var angabe=hasOwn?fmtOwn(v.own)+' ('+angabeHTML(s)+')':angabeHTML(s);
+      twin+='<tr><td data-l="Studie">'+esc(s.studie)+'</td><td data-l="Größe">'+esc(s.groesse)+'</td><td data-l="fest, % BIP 2024">'+(v.festR?fmtZR(v.fest):'–')+'</td><td data-l="wachsend, % des mittleren BIP">'+(v.wachR?fmtZR(v.wach):'–')+'</td><td data-l="Angabe der Studie">'+angabeHTML(s)+'</td></tr>';
     });
     h+='</div>';
   });
@@ -761,18 +920,21 @@ function drawChart(){
   host.innerHTML=h;
   $('twin').innerHTML=twin;
   var lg=function(sw,t){return '<span>'+sw+t+'</span>';};
+  var F=D.meta.formen||{};
   $('chart-legend').innerHTML=
     lg('<svg width="22" height="12" aria-hidden="true"><rect x="1" y="1" width="20" height="10" style="fill:var(--c-g1);stroke:var(--c-g1);stroke-width:1.5"/></svg>','Anteil am festen BIP 2024')+
     lg('<svg width="22" height="12" aria-hidden="true"><rect x="1" y="1" width="20" height="10" style="fill:url(#h-g1);stroke:var(--c-g1);stroke-width:1.5"/></svg>','Anteil am wachsenden BIP (Spanne)')+
     lg('<svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5" style="fill:var(--bg-card);stroke:var(--c-g1);stroke-width:2"/></svg>','Angabe der Studie selbst')+
-    lg('<svg width="22" height="12" aria-hidden="true"><rect x="1" y="1" width="20" height="10" style="fill:url(#h-r21);stroke:var(--c-r21);stroke-width:1.5;stroke-dasharray:4 2"/></svg>','R21: gestrichelt, gekreuzt schraffiert');
+    lg('<svg width="22" height="12" aria-hidden="true"><rect x="1" y="1" width="20" height="10" style="fill:url(#h-r21);stroke:var(--c-r21);stroke-width:1.5;stroke-dasharray:4 2"/></svg>','R21: gekreuzt schraffiert')+
+    (F.nicht_gelesen?lg('<svg width="22" height="12" aria-hidden="true"><rect x="1" y="1" width="20" height="10" style="fill:var(--unread-soft);stroke:var(--unread);stroke-width:1.5;stroke-dasharray:4 3"/></svg>',esc(F.nicht_gelesen)):'')+
+    (F.zuwachs?lg('<svg width="22" height="12" aria-hidden="true"><rect x="1" y="1" width="20" height="10" style="fill:var(--bg-card);stroke:var(--c-zu);stroke-width:2"/></svg>',esc(F.zuwachs)):'');
 }
 
 /* ---------- Zitate ---------- */
 function zitate(){
   var h='';
   ['1.2','2.1','3.1'].forEach(function(id){
-    var s=D.schritte.filter(function(x){return x.id===id;})[0];if(!s)return;
+    var s=stepById(id);if(!s)return;
     var cs=stepClaims(s);if(!cs.length)return;
     h+='<div class="cmpset"><h3>'+esc(s.grafik.titel)+'</h3><div class="cmp">';
     cs.forEach(function(c){
@@ -810,14 +972,14 @@ function gegen(){
 /* ---------- Ungelesen, verworfen ---------- */
 function ungelesen(){
   var h='<ul>';
-  D.meta.nicht_gelesen.forEach(function(n){var q=Q[n.quelle];h+='<li><b>'+esc(q?q.titel:n.quelle)+'</b>'+(q?' ('+esc(q.herausgeber)+')':'')+': '+esc(n.grund)+' · '+srcLinks([n.quelle])+'</li>';});
+  D.meta.nicht_gelesen.forEach(function(n){var q=Q[n.quelle];h+='<li><span class="zg unr" style="margin-left:0">nicht gelesen</span> <b>'+esc(q?q.titel:n.quelle)+'</b>'+(q?' ('+esc(q.herausgeber)+')':'')+': '+esc(n.grund)+' · '+srcLinks([n.quelle])+'</li>';});
   h+='</ul>';
   var extra=Object.keys(Q).filter(function(k){return /nicht gelesen|Zweitquelle|Transkript|nur der Fokus/.test(Q[k].art)&&!D.meta.nicht_gelesen.some(function(n){return n.quelle===k;});});
   if(extra.length){
     h+='<h4>Weitere Quellen mit Einschränkung</h4><ul>'+extra.map(function(k){var q=Q[k];return '<li><b>'+esc(q.titel)+'</b> ('+esc(q.herausgeber)+') · Art: '+esc(q.art)+(q.ohne_url_grund?' · '+esc(q.ohne_url_grund):'')+' · '+srcLinks([k])+'</li>';}).join('')+'</ul>';
   }
   $('ungel').innerHTML=h;
-  var t='<table class="rt"><thead><tr><th>Verworfene Aussage</th><th>Grund</th></tr></thead><tbody>';
+  var t='<table class="rt"><caption class="vh">Verworfene Aussagen mit Grund</caption><thead><tr><th scope="col">Verworfene Aussage</th><th scope="col">Grund</th></tr></thead><tbody>';
   D.verworfen.forEach(function(v){t+='<tr><td data-l="Verworfene Aussage"><span class="rejtag">verworfen</span><span class="rejtxt">'+esc(v.was)+'</span></td><td data-l="Grund">'+esc(v.grund)+'</td></tr>';});
   $('verw').innerHTML=t+'</tbody></table>';
   $('verbot').innerHTML=D.verbotene_formulierungen.map(function(v){return '<li><span class="rejtag">nicht verwendet</span><span class="rejtxt">'+esc(v.text)+'</span><span class="sub" style="display:block;color:var(--soft);font-size:14px">Stattdessen: '+esc(v.ersatz)+'</span></li>';}).join('');
@@ -826,61 +988,95 @@ function ungelesen(){
 /* ---------- Korrekturen ---------- */
 var korFilter='alle';
 function korGroup(k){
+  if(k.runde===2) return 'Nachprüfung der zweiten Fassung';
   if(/Story|Seite|Bau/.test(k.wo)) return 'Erster Seitenentwurf';
-  if(/Freigabe|README|Datensatz/.test(k.wo)) return 'Freigabeliste v1';
+  if(/Freigabe|README|Datensatz/.test(k.wo)) return 'Freigabeliste, erste Fassung';
   return 'Dossiers und Erstbefund';
 }
 function korrekturen(){
-  var cs=['E01','E02','E03','E04','E05','E06','P03'].map(function(i){return C[i];}).filter(function(c){return c&&onBelege(c);});
-  $('kor-claims').innerHTML=cs.map(function(c){return claimBlock(c);}).join('');
-  var rs=[];D.korrekturen_eigene.forEach(function(k){if(rs.indexOf(k.richtung)<0)rs.push(k.richtung);});
+  var cs=['E01','E02','E03','E04','E05','E06','P03','E08'].map(function(i){return C[i];}).filter(function(c){return c&&onBelege(c);});
+  var e07=C.E07;
+  $('kor-claims').innerHTML=cs.map(function(c){return claimBlock(c);}).join('')+(e07&&onBelege(e07)?'<div class="hint">'+claimBlock(e07)+'</div>':'');
+  var rs=[];D.korrekturen_eigene.forEach(function(k){if(rs.indexOf(k.geschadet_haette)<0)rs.push(k.geschadet_haette);});
   var b='<div class="tile"><div class="n">'+D.korrekturen_eigene.length+'</div><div class="l">Korrekturen in der Tabelle (gezählt)</div></div>';
-  rs.forEach(function(r){var n=D.korrekturen_eigene.filter(function(k){return k.richtung===r;}).length;b+='<div class="tile"><div class="n">'+n+'</div><div class="l">Richtung: '+esc(r)+'</div></div>';});
+  rs.forEach(function(r){var n=D.korrekturen_eigene.filter(function(k){return k.geschadet_haette===r;}).length;b+='<div class="tile"><div class="n">'+n+'</div><div class="l">alter Fehler hätte geschadet: '+esc(r)+'</div></div>';});
   $('kor-bilanz').innerHTML=b;
   var f=$('kor-filters');
+  f.setAttribute('aria-label','Filter nach Wem der alte Fehler geschadet hätte');
   var list=['alle'].concat(rs);
   f.innerHTML=list.map(function(r){return '<button type="button" class="fchip" data-r="'+esc(r)+'" aria-pressed="'+(r==='alle')+'">'+esc(r)+'</button>';}).join('');
   f.addEventListener('click',function(e){var bt=e.target.closest('button');if(!bt)return;korFilter=bt.getAttribute('data-r');[].forEach.call(f.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed',String(x===bt));});renderKor();});
   renderKor();
 }
 function renderKor(){
-  var names=['Dossiers und Erstbefund','Freigabeliste v1','Erster Seitenentwurf'],h='';
+  var names=['Dossiers und Erstbefund','Freigabeliste, erste Fassung','Erster Seitenentwurf','Nachprüfung der zweiten Fassung'],h='';
   names.forEach(function(n){
-    var ks=D.korrekturen_eigene.filter(function(k){return korGroup(k)===n&&(korFilter==='alle'||k.richtung===korFilter);});
+    var ks=D.korrekturen_eigene.filter(function(k){return korGroup(k)===n&&(korFilter==='alle'||k.geschadet_haette===korFilter);});
     if(!ks.length) return;
-    h+='<h3>'+esc(n)+' · '+ks.length+'</h3><table class="rt"><thead><tr><th>Nr.</th><th>Wo</th><th>Vorher</th><th>Jetzt</th><th>Richtung</th><th>Beleg</th></tr></thead><tbody>';
-    ks.forEach(function(k){h+='<tr><td class="id" data-l="Nr.">'+esc(k.id)+'</td><td data-l="Wo">'+esc(k.wo)+'</td><td data-l="Vorher (falsch)"><span class="rejtxt">'+esc(k.alt)+'</span></td><td data-l="Jetzt">'+esc(k.neu)+'</td><td data-l="Richtung">'+esc(k.richtung)+'</td><td data-l="Beleg">'+esc(k.beleg||'')+'</td></tr>';});
+    h+='<h3>'+esc(n)+' · '+ks.length+'</h3><table class="rt"><caption class="vh">Korrekturen: '+esc(n)+'</caption><thead><tr><th scope="col">Nr.</th><th scope="col">Wo</th><th scope="col">Vorher (falsch)</th><th scope="col">Jetzt</th><th scope="col">Wem der alte Fehler geschadet hätte</th><th scope="col">Beleg</th></tr></thead><tbody>';
+    ks.forEach(function(k){h+='<tr><td class="id" data-l="Nr.">'+esc(k.id)+'</td><td data-l="Wo">'+esc(k.wo)+'</td><td data-l="Vorher (falsch)"><span class="rejtxt">'+esc(k.alt)+'</span></td><td data-l="Jetzt">'+resolve(k.neu)+'</td><td data-l="Wem der alte Fehler geschadet hätte">'+esc(k.geschadet_haette)+'</td><td data-l="Beleg">'+esc(k.beleg||'')+'</td></tr>';});
     h+='</tbody></table>';
   });
-  $('kor').innerHTML=h||'<p>Keine Korrektur in dieser Richtung.</p>';
+  $('kor').innerHTML=h||'<p>Keine Korrektur in dieser Gruppe.</p>';
 }
 
-/* ---------- Messlatte ---------- */
+/* ---------- Messlatte: je Dokumenttyp getrennt, nach v1.0 und v1.1 ---------- */
+function mlabel(w){
+  var k=w.schluessel||'';
+  var zus=/ohne_k3_k4/.test(k)?' ohne K3 und K4':(/ohne_k3/.test(k)||w.zahl==='proz_messlatte_v10')?' ohne K3':'';
+  return 'Fassung '+w.fassung+zus;
+}
+function mrow(label,z,key,maxKey){
+  var n=rawVal(z,key),mx=rawVal(z,maxKey);
+  return '<div class="mrow"><span>'+esc(label)+'</span><span class="mtrack" role="img" aria-label="'+esc(label)+': '+fmtZ(z,key)+' von '+fmtZ(z,maxKey)+'"><span class="mfill" style="width:'+(100*n/mx)+'%"></span></span><span class="mval">'+fmtZ(z,key)+' von '+fmtZ(z,maxKey)+'</span></div>';
+}
 function messlatte(){
-  var z=Z.proz_messlatte_v10,v=z.value;
-  var rows=[['teil1','Teil 1 (dieses Stück)'],['kfw_prognos','KfW/Prognos'],['dihk_frontier','DIHK/Frontier'],['r21','R21']];
-  var h='';
-  var p4=C.P04;if(p4&&onBelege(p4))h+=claimBlock(p4);
-  h+='<div class="mbars" role="group" aria-label="Punkte nach der Messlatte, Fassung 1.0, ohne Quellentreue (K3)">';
-  rows.forEach(function(r){var n=v[r[0]];h+='<div class="mrow"><span>'+esc(r[1])+'</span><span class="mtrack"><span class="mfill" style="width:'+(100*n/v.hoechstens)+'%"></span><span class="mval" style="color:var(--ink)">'+fmtNum(n,z)+' von '+fmtNum(v.hoechstens,z)+'</span></span></div>';});
-  h+='</div>'+zahlenDetails([z.id]);
-  h+='<div class="hint"><b>Drei Lesehinweise.</b><ul><li>Die Messlatte misst Nachprüfbarkeit, nicht Richtigkeit.</li><li>Verglichen wird nur innerhalb eines Dokumenttyps.</li><li>Die Quellentreue (K3) ist nur für das eigene Stück bewertbar und steht deshalb nicht in diesen Punkten.</li></ul></div>';
+  var M=D.meta.messlatte,docs=M.dokumente,h='';
+  ['P04','P04a','P04b'].forEach(function(i){var c=C[i];if(c&&onBelege(c))h+=claimBlock(c);});
+  h+='<div class="hint">'+esc(M.regel)+'</div>';
+  /* Dokumente, die nebeneinander stehen dürfen, bilden einen Block; alle anderen stehen je für sich */
+  var byId={};docs.forEach(function(d){byId[d.id]=d;});
+  var used={},blocks=[];
+  docs.forEach(function(d){
+    if(used[d.id]) return;
+    var cl=(M.nebeneinander_erlaubt||[]).filter(function(l){return l.indexOf(d.id)>=0;})[0];
+    var members=cl?cl.map(function(i){return byId[i];}).filter(Boolean):[d];
+    members.forEach(function(m){used[m.id]=1;});
+    blocks.push(members);
+  });
+  blocks.forEach(function(ms){
+    var types=[];ms.forEach(function(m){if(types.indexOf(m.typ)<0)types.push(m.typ);});
+    h+='<div class="mgroup"><h3>Dokumenttyp: '+esc(types.join(' · '))+'</h3>';
+    ms.forEach(function(d){
+      var zids=[];
+      h+='<div class="mdoc"><h4>'+esc(d.name)+'</h4><div class="mbars" role="group" aria-label="Punkte nach der Messlatte: '+esc(d.name)+'">';
+      d.wertungen.forEach(function(w){
+        var z=Z[w.zahl];if(!z) return;
+        if(zids.indexOf(z.id)<0) zids.push(z.id);
+        h+=mrow(mlabel(w),z,w.schluessel,w.hoechstens);
+      });
+      if(d.k3){
+        var z3=Z[d.k3.zahl];
+        if(z3){if(zids.indexOf(z3.id)<0) zids.push(z3.id);h+=mrow('K3 (Quellentreue, Stichprobe), getrennt',z3,d.k3.schluessel,d.k3.hoechstens);}
+      }
+      h+='</div>'+zahlenDetails(zids)+'</div>';
+    });
+    h+='</div>';
+  });
+  if(M.hinweis) h+='<div class="hint">'+esc(M.hinweis)+'</div>';
   $('mess').innerHTML=h;
 }
 
 /* ---------- Grenzen, Entstehung ---------- */
 function grenzen(){
-  var s=D.schritte.filter(function(x){return x.id==='A.1';})[0];
-  $('gren').innerHTML=stepClaims(s).map(function(c){return claimBlock(c);}).join('');
+  $('gren').innerHTML=stepClaims(stepById('A.1')).map(function(c){return claimBlock(c);}).join('');
 }
 function entstehung(){
-  var s=D.schritte.filter(function(x){return x.id==='A.2';})[0];
-  var cs=stepClaims(s).filter(function(c){return c.id!=='E06'||true;});
-  $('entst').innerHTML=cs.map(function(c){return claimBlock(c);}).join('');
-  var names={1:Z.proz_phase1&&Z.proz_phase1.abgrenzung,2:Z.proz_phase2&&Z.proz_phase2.abgrenzung,5:Z.proz_phase5&&Z.proz_phase5.abgrenzung};
+  $('entst').innerHTML=stepClaims(stepById('A.2')).map(function(c){return claimBlock(c);}).join('');
+  if(D.meta.prozess_hinweis) $('proz-hinweis').innerHTML='<p class="lede">'+esc(D.meta.prozess_hinweis)+'</p>';
   var h='';
   Object.keys(D.prozess_protokoll).forEach(function(k){var p=D.prozess_protokoll[k];
-    h+='<tr><td data-l="Phase">'+esc(k)+(names[k]?' · '+esc(names[k]):'')+'</td><td data-l="Läufe">'+fmtNum(p.laeufe)+'</td><td data-l="davon mit Token-Angabe">'+fmtNum(p.laeufe_mit_token)+'</td><td data-l="Token">'+fmtNum(p.token)+'</td><td data-l="Aufrufe">'+fmtNum(p.aufrufe)+'</td></tr>';});
+    h+='<tr><td data-l="Phase">'+esc(k)+(p.name?' · '+esc(p.name):'')+'</td><td data-l="Läufe">'+nf(p.laeufe,0,true)+'</td><td data-l="davon mit Token-Angabe">'+nf(p.laeufe_mit_token,0,true)+'</td><td data-l="Token">'+nf(p.token,0,true)+'</td><td data-l="Aufrufe">'+nf(p.aufrufe,0,true)+'</td></tr>';});
   document.querySelector('#tab-ph tbody').innerHTML=h;
 }
 
